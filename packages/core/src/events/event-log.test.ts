@@ -66,6 +66,28 @@ describe('replaySession', () => {
     expect(summary.completed).toBe(true);
   });
 
+  it('collects step_failed events and tracks the latest todo_snapshot', () => {
+    const summary = replaySession([
+      {
+        type: 'todo_snapshot',
+        steps: [{ artifactType: 'RiskList', label: '确认风险清单', status: 'pending' }],
+        sessionId: 's',
+        seq: 0,
+        emittedAt: 't0',
+      },
+      { type: 'step_failed', scope: 'tool', toolId: 'party-verify', reason: 'timeout', message: '超时', sessionId: 's', seq: 1, emittedAt: 't1' },
+      {
+        type: 'todo_snapshot',
+        steps: [{ artifactType: 'RiskList', label: '确认风险清单', status: 'awaiting_confirmation' }],
+        sessionId: 's',
+        seq: 2,
+        emittedAt: 't2',
+      },
+    ]);
+    expect(summary.failedSteps).toEqual([{ scope: 'tool', toolId: 'party-verify', reason: 'timeout', message: '超时' }]);
+    expect(summary.latestTodoSnapshot).toEqual([{ artifactType: 'RiskList', label: '确认风险清单', status: 'awaiting_confirmation' }]);
+  });
+
   it('completed is false when no scenario_completed event is present', () => {
     const summary = replaySession([{ type: 'progress', message: 'x', sessionId: 's', seq: 0, emittedAt: 't0' }]);
     expect(summary.completed).toBe(false);

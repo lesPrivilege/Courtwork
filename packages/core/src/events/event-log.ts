@@ -1,6 +1,7 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { ArtifactType } from '@courtwork/schemas';
+import type { TodoStep } from '../scenario-executor/todo-snapshot.js';
 import type { ConfirmationActor, SessionEvent, SessionEventInput } from './types.js';
 
 export interface EventLog {
@@ -61,11 +62,19 @@ export interface ReplaySummary {
   confirmations: Record<string, { actor: ConfirmationActor; decision: 'confirm' | 'reject' }>;
   revisionEventIds: string[];
   completed: boolean;
+  failedSteps: { scope: 'tool'; toolId: string; reason: string; message: string }[];
+  latestTodoSnapshot?: TodoStep[];
 }
 
 /** 纯函数：只靠事件流本身重建产出与确认结果，证明"事件流可回放"不是一句空话。 */
 export function replaySession(events: SessionEvent[]): ReplaySummary {
-  const summary: ReplaySummary = { artifacts: {}, confirmations: {}, revisionEventIds: [], completed: false };
+  const summary: ReplaySummary = {
+    artifacts: {},
+    confirmations: {},
+    revisionEventIds: [],
+    completed: false,
+    failedSteps: [],
+  };
   for (const event of events) {
     if (event.type === 'artifact_produced') {
       summary.artifacts[event.artifactType] = event.artifact;
@@ -75,6 +84,10 @@ export function replaySession(events: SessionEvent[]): ReplaySummary {
       summary.revisionEventIds.push(event.revisionEventId);
     } else if (event.type === 'scenario_completed') {
       summary.completed = true;
+    } else if (event.type === 'step_failed') {
+      summary.failedSteps.push({ scope: event.scope, toolId: event.toolId, reason: event.reason, message: event.message });
+    } else if (event.type === 'todo_snapshot') {
+      summary.latestTodoSnapshot = event.steps;
     }
   }
   return summary;
