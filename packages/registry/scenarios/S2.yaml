@@ -1,0 +1,17 @@
+id: S2
+name: 矩阵审阅
+trigger:
+  fileTypes: []
+  userActions:
+    - start-matrix-review
+  classifierTags: []
+inputArtifacts:
+  - CaseFile
+toolIds: []
+outputArtifacts:
+  - ReviewMatrix
+uiTemplateId: matrix-review-panel
+confirmationGates:
+  - artifact: ReviewMatrix
+    label: 确认矩阵审阅结果
+promptTemplateRef: S2-matrix-review-v0

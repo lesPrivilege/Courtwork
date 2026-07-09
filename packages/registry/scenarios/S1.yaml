@@ -1,0 +1,23 @@
+id: S1
+name: 卷宗阅卷
+trigger:
+  fileTypes:
+    - pdf
+    - jpg
+    - png
+  userActions:
+    - upload-case-files
+  classifierTags: []
+inputArtifacts: []
+toolIds: []
+outputArtifacts:
+  - CaseFile
+  - Timeline
+  - PartyGraph
+uiTemplateId: case-intake-panel
+confirmationGates:
+  - artifact: Timeline
+    label: 确认事件时间线后再据此生成其他产物
+  - artifact: PartyGraph
+    label: 确认当事人关系图谱
+promptTemplateRef: S1-case-intake-v0

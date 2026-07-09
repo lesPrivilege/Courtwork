@@ -1,0 +1,21 @@
+id: S3
+name: 合同审查
+trigger:
+  fileTypes:
+    - docx
+    - pdf
+  userActions:
+    - start-contract-review
+  classifierTags:
+    - contract
+inputArtifacts:
+  - CaseFile
+toolIds:
+  - party-verify
+outputArtifacts:
+  - RiskList
+uiTemplateId: risk-review-panel
+confirmationGates:
+  - artifact: RiskList
+    label: 确认风险清单后再生成修订与批注文书
+promptTemplateRef: S3-contract-review-v0

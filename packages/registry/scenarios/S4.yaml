@@ -1,0 +1,17 @@
+id: S4
+name: 文书起草
+trigger:
+  fileTypes: []
+  userActions:
+    - start-drafting
+  classifierTags: []
+inputArtifacts:
+  - CaseFile
+  - Timeline
+  - PartyGraph
+toolIds: []
+outputArtifacts: []
+uiTemplateId: draft-review-panel
+confirmationGates:
+  - label: 确认起诉状/答辩状草稿内容（产物契约待 W4 RevisionInstructionSet 落地后补充结构化引用）
+promptTemplateRef: S4-pleading-draft-v0
