@@ -250,4 +250,21 @@ d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录
 处置规则同前（fix-by-acceptance 独立提交；契约级/评测方法论级问题标 [需架构拍板]）。报告写入 eval/ACCEPTANCE.md。结论必须明确：eval 是否就绪作为模型选型与回归门禁使用（真实 provider 跑分除外）。
 ```
 
+## W7.1｜eval 边界收敛（验收缺口整改，Claude Code）
+
+```
+你认领 Courtwork 的 W7.1 整改工单：收敛 eval 的 promptfoo 专有边界。背景：W7 验收结论"不完全放行"，缺口见 eval/ACCEPTANCE.md 第 2 节——promptfoo 专有词汇与输出结构散落在 src/report.ts、src/regression.ts、src/runner.ts、src/mock-providers/、scripts/ 中，违反硬条件"专有词汇只允许出现在 src/promptfoo/ 适配层与配置文件"。
+
+先读：eval/ACCEPTANCE.md、eval/SPEC.md、根目录 CLAUDE.md。
+
+整改方案（按此执行）：
+1. 定义**中性内部结果格式**（如 EvalRunResult：runId/caseId/provider/score/ruleResults/judgeResults/timings，类型放 src/results.ts）——这是本次整改的核心产出：回归基线以中性格式存储后成为可移植数据资产，换跑分器基线不作废。
+2. src/promptfoo/ 成为唯一边界：promptfoo CLI 调用、结果 JSON 解析（promptfoo → 中性格式的映射）、mock providers 全部移入；report.ts / regression.ts / scripts/ 只消费中性 API 与中性格式，全文不得出现 promptfoo 词汇（类型、注释、字符串都算）。
+3. 既有回归基线文件迁移为中性格式（写一次性迁移或重建基线，SPEC 里说明选了哪种）。
+4. 复跑验收报告第 1、2、6 项对应的全部命令自证（含 rg 边界扫描零命中），结果写进 SPEC 状态区。
+5. TDD；显式路径分层提交；完工更新 SPEC 与 eval/ACCEPTANCE.md 附"整改记录"节（不改 Codex 原文，追加）。
+
+完工后由 Codex 按原报告第 1、2、6 项补验。
+```
+
 后续工单（W3/W6/W8）验收实例在各实现会话回报后按同一结构生成。
