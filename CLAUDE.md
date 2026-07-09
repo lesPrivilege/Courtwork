@@ -28,7 +28,7 @@ apps/desktop       ← UI 壳（三栏：左案件列表/中对话+场景卡片/
 
 - TS monorepo：pnpm workspaces；Node 22+；严格模式 TypeScript；测试用 vitest。
 - ingest 为独立 Python 服务（OCR 生态原因）：uv 管理，OCR 首选 PaddleOCR-VL + PP-StructureV3，备选 DeepSeek-OCR；对外只暴露 HTTP API + JSON（符合 schemas 契约），不让 Python 类型泄漏到 TS 侧。
-- agent loop 基于 pi-mono 借壳验证，但**只借 loop 与 provider 抽象**；场景注册表、schemas、摄取管线永远长在本仓库，不长在 fork 里。
+- agent loop 自研，**只借鉴 pi-mono 的设计形状**（极简、协议化、provider 无关的 Provider 抽象），不引入其代码依赖（license 未核实）。依据 docs/24：场景执行是声明式固定编排，工具调用由执行器编排而非模型自主选择，通用 agent loop 的核心能力（ReAct 式模型自主选工具循环）被架构绕开，引入依赖是负资产。场景注册表、schemas、摄取管线永远长在本仓库。
 - 模型 provider 无关，走统一封装；模型选型由 eval/ 跑分决定，代码里不许写死 provider。
 
 ## 五个必须自研加固的节点（开源填不上，是壁垒所在）
