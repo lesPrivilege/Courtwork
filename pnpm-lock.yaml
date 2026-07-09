@@ -27,6 +27,12 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@26.1.1)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.1)(tsx@4.23.0)(yaml@2.9.0))
 
+  packages/demo-data:
+    devDependencies:
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
+
   packages/registry:
     dependencies:
       '@courtwork/schemas':
@@ -49,6 +55,19 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
+
+  packages/tools:
+    dependencies:
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@courtwork/demo-data':
+        specifier: workspace:*
+        version: link:../demo-data
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1
