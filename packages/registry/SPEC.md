@@ -25,6 +25,7 @@
 
 - [架构拍板 2026-07-09] S4（文书起草）当前不声明 `outputArtifacts`，`confirmationGates` 用 label-only 门禁过渡；真正的产物类型（`RevisionInstructionSet`）由 W4 在 `packages/schemas` 提案落地后，S4 声明需同步更新为引用该类型（详见 `packages/schemas/SPEC.md` TODO、`packages/output/SPEC.md` TODO）。
 - [架构拍板 2026-07-09] S1（卷宗阅卷）当前 `outputArtifacts` 不含"供述/证据矛盾清单"，因为对应的 `ContradictionList` 产物类型待 W3 spike 结论后另行判断是否新增（详见 `packages/schemas/SPEC.md` TODO）。若新增，S1 声明需同步更新。
+- [架构拍板 2026-07-09，W2.1 微工单待办] **YAML 声明加载路径收紧为 strict：未知键必须报错**（scenario 对象及嵌套的 trigger/gate 对象全部 `.strict()`，报错含文件名 + 未知键名）。理由：场景声明是产品团队手编配置，拼错的可选字段名被静默剥离是无声故障；声明文件要 loud failure。注意边界：此收紧仅限声明加载路径，schemas 包数据流 artifact 的默认剥离语义不动（向前兼容考量，故意不对称）。来源：W2 验收观察项。
 
 ## 验收记录
 
