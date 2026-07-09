@@ -192,4 +192,31 @@
 处置规则：实现级 bug 顺手修（独立 commit，fix-by-acceptance 前缀）；契约级问题标 [需架构拍板] 不许改；报告写入 packages/tools/ACCEPTANCE.md（demo-data 部分一并写明）。结论必须明确：tools 与 demo-data 是否就绪供 W6（core）与演示装配消费。
 ```
 
-后续工单（W3/W4/W6–W8）验收实例在各实现会话回报后按同一结构生成。
+## W4 验收（Codex，含 computer use 视觉核验）
+
+```
+你是 Courtwork 的验收工程师（角色边界见根目录 AGENTS.md）。验收 W4 工单：packages/output（RevisionInstructionSet 契约 + 纯 TS 直接著录管线）及其跨层同步（schemas 新类型、registry S4）。实现已完工（8 个分层提交；注意 packages/output/SPEC.md 在架构提交 fa0b5e3 内，属已知情况非违规）。
+
+先读：CLAUDE.md、AGENTS.md、docs/10、packages/output/SPEC.md（含验收记录与两条拍板 TODO）、packages/output/spike-report.md、packages/schemas/src/revision-instruction-set.ts、docs/07 调研报告。
+
+**已知缺陷（本次验收的首要任务，实现级、授权修复）**：人工 WPS/Word 预览发现输出文档字体错乱——部分仿宋正确、部分错误，隔行/隔字交替。诊断方向（按嫌疑排序，实证为准）：① 管线只给新构造的 run 声明了 rFonts，原文档保留/重组的 run 未补全；② 中西文切分出的 run 缺 hAnsi/ascii 维度，西文字符掉主题字体；③ w:ins/w:del 内层 run 与外层 rPr 继承不一致；④ 主题字体（minorEastAsia）兜底未被显式覆盖。
+
+修复要求：
+a. 先建自动化不变量测试再修——"输出文档中每个 w:r 的 rPr 必须含完整 w:rFonts（ascii + eastAsia + hAnsi + cs）"，作为 golden 测试的回归守卫；该测试此刻应当变红（复现缺陷），修复后变绿。
+b. computer use 视觉回路确认：用 computer use 打开修复后的 sample docx（WPS 优先，Word 如有则双端），放大含中西文混排/修订痕迹/批注的段落截图核对：正文仿宋、标题黑体、数字与西文 Times New Roman、无隔行隔字交替。修一轮 → 重新生成 sample → 重开截图，直至稳定。截图核对结论写进报告。
+c. 把本缺陷作为具体病例补进 verification-checklist.md 的字体核对项。
+d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录器架构，停下标 [需架构拍板]。
+
+常规验收清单：
+1. 干净环境：rm -rf node_modules → pnpm install → 全量 test（口径 196，本层 16）→ lint → build；核对输出有真实用例计数（假绿防护）。
+2. 契约核对 revision-instruction-set.ts：四种 kind 判别联合（replace/insert/delete/commentOnly，annotation 仅 commentOnly 必填）；locator 三策略（text/tableCell/tableRow）；citation 的 refine——sourceAnchors 非空或 statuteRef 存在至少一腿，纯散文引用不合法；ArtifactTypeEnum 已扩展；JSON Schema 导出含新类型且 drift 测试覆盖。
+3. 跨层同步核对：registry S4.yaml outputArtifacts 引用 RevisionInstructionSet、门禁升级为产物引用、builtin 测试更新、schemas/registry 两处 SPEC 挂账已清。
+4. 管线语义抽查：模糊定位三级（精确唯一/模糊显著优于次佳/拒绝跳过 locator_not_found，绝不错插）有测试；批注与修订同遍构造（无 diff 后搜索）；golden files 与 spike 的 docx4j 黄金参照结构对照说明可信。
+5. spike 卫生：spike/ 归档完整（三条路径）、已进 lint ignore、无构建产物（target/、__pycache__）入库。
+6. 工程决策尊重：typescript ^6.0.3；纯 TS 无 JVM/Python 运行时依赖；接口收窄为 applyRevisionInstructionSet 单签名（Plan B 可逆性）。
+7. 注意：工作区可能有 W7（eval/）在途未提交文件，一律不碰；你的修复提交用显式路径 add。
+
+处置规则同前（fix-by-acceptance 独立提交；契约级标 [需架构拍板]）。报告写入 packages/output/ACCEPTANCE.md，结论明确：是否放行 W6 消费 output 与新契约。
+```
+
+后续工单（W3/W6–W8）验收实例在各实现会话回报后按同一结构生成。
