@@ -1,0 +1,117 @@
+import { describe, expect, it } from 'vitest';
+import { TimelineSchema } from './timeline.js';
+
+describe('TimelineSchema', () => {
+  it('accepts an event with an exact date', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-001',
+      events: [
+        {
+          id: 'evt-001',
+          description: '签订合同',
+          date: { kind: 'exact', date: '2024-03-15' },
+          sourceAnchors: [{ fileId: 'file-001', page: 1, bbox: { x: 0, y: 0, width: 0.5, height: 0.1 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts an event with a fuzzy date range', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-002',
+      events: [
+        {
+          id: 'evt-002',
+          description: '双方开始协商',
+          date: {
+            kind: 'fuzzy',
+            text: '2024年初',
+            rangeStart: '2024-01-01',
+            rangeEnd: '2024-02-29',
+          },
+          sourceAnchors: [{ fileId: 'file-002', textRange: { start: 0, end: 10 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts an event with multiple partyIds and sourceAnchors', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-003',
+      events: [
+        {
+          id: 'evt-003',
+          description: '双方代表会面',
+          date: { kind: 'exact', date: '2024-05-01' },
+          partyIds: ['party-001', 'party-002'],
+          sourceAnchors: [
+            { fileId: 'file-003', page: 2, bbox: { x: 0, y: 0, width: 1, height: 0.2 } },
+            { fileId: 'file-004', textRange: { start: 5, end: 20 } },
+          ],
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an event with zero sourceAnchors', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-004',
+      events: [
+        {
+          id: 'evt-004',
+          description: '无来源事件',
+          date: { kind: 'exact', date: '2024-01-01' },
+          sourceAnchors: [],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a fuzzy date missing text', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-005',
+      events: [
+        {
+          id: 'evt-005',
+          description: '模糊日期缺文本',
+          date: { kind: 'fuzzy' },
+          sourceAnchors: [{ fileId: 'file-005', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects an invalid date kind literal', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-006',
+      events: [
+        {
+          id: 'evt-006',
+          description: '非法 kind',
+          date: { kind: 'approximate', text: '大概三月' },
+          sourceAnchors: [{ fileId: 'file-006', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects an event missing description', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-007',
+      events: [
+        {
+          id: 'evt-007',
+          date: { kind: 'exact', date: '2024-01-01' },
+          sourceAnchors: [{ fileId: 'file-007', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+});
