@@ -23,7 +23,7 @@
 ```
 你认领 Courtwork 的 W3 工单：services/ingest 技术 spike。这是全项目最高优先级工单，你的结论决定 S1 滩头假设是否成立。
 
-开工前按顺序读：根目录 CLAUDE.md、docs/10-实施切分-层与工单.md、services/ingest/SPEC.md、docs/05-调研报告-开源选型.md 的 OCR 章节。读完复述验证目标与样张分类，与我确认后动手。
+开工前按顺序读：根目录 CLAUDE.md、docs/10-实施切分-层与工单.md、services/ingest/SPEC.md、docs/05-调研报告-开源选型.md 的 OCR 章节、docs/27-架构决定-sandbox与fetch分期.md（其 MVP 最小集第 1–2 条是 W8 验收项：解析进程隔离、解压比例上限、禁宏禁 XXE——spike 阶段即按此习惯搭环境）。读完复述验证目标与样张分类，与我确认后动手。
 
 环境：uv 管理 Python；样本卷宗位于 <填入路径>（已脱敏）。
 
