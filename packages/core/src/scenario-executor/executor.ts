@@ -1,12 +1,15 @@
 import { randomUUID } from 'node:crypto';
-import type { ArtifactType, ScenarioDefinition } from '@courtwork/schemas';
+import type { ArtifactType, RevisionEvent, ScenarioDefinition, SourceAnchor } from '@courtwork/schemas';
+import { RevisionEventSchema } from '@courtwork/schemas';
 import type { ToolExecutor } from '@courtwork/tools';
 import type { Provider } from '../provider/types.js';
 import type { EventLog } from '../events/event-log.js';
+import type { ConfirmationInstrumentation } from '../events/types.js';
 import type { EvidenceLedger } from '../evidence/grade.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { ConfirmationStore, PendingConfirmation } from '../session/confirmation-store.js';
 import type { RevisionEventStore } from '../revision/revision-store.js';
+import { applyJsonPointer } from '../revision/json-pointer.js';
 import { ARTIFACT_SCHEMAS } from './artifact-schemas.js';
 
 export interface ScenarioExecutorDeps {
@@ -194,9 +197,43 @@ export interface ConfirmationActor {
   role?: string;
 }
 
+export interface RevisionInput {
+  artifactType: ArtifactType;
+  artifactId: string;
+  fieldPath: string;
+  previousValue: unknown;
+  newValue: unknown;
+  reason?: string;
+  sourceAnchors?: SourceAnchor[];
+  caseId?: string;
+}
+
 export interface ScenarioResumeInput {
   actor: ConfirmationActor;
   decision: 'confirm' | 'reject';
+  revisions?: RevisionInput[];
+  instrumentation?: ConfirmationInstrumentation;
+}
+
+function buildRevisionEvent(input: RevisionInput, actor: ConfirmationActor, now: () => string): RevisionEvent {
+  const candidate = {
+    id: randomUUID(),
+    timestamp: now(),
+    actor: { userId: actor.actorId, role: actor.role },
+    caseId: input.caseId,
+    artifactType: input.artifactType,
+    artifactId: input.artifactId,
+    fieldPath: input.fieldPath,
+    previousValue: input.previousValue,
+    newValue: input.newValue,
+    reason: input.reason,
+    sourceAnchors: input.sourceAnchors,
+  };
+  const result = RevisionEventSchema.safeParse(candidate);
+  if (!result.success) {
+    throw new Error(`构造的 RevisionEvent 未通过 schema 校验：${result.error.message}`);
+  }
+  return result.data;
 }
 
 export async function resumeScenario(
@@ -207,6 +244,7 @@ export async function resumeScenario(
 ): Promise<ScenarioRunResult> {
   const pending = deps.confirmationStore.take(requestId);
   if (!pending) throw new UnknownConfirmationRequestError(requestId);
+  const now = deps.now ?? (() => new Date().toISOString());
 
   for (const entry of pending.evidenceLedgerSnapshot) {
     deps.ledger.record(entry.key, { grade: entry.grade, sourceId: entry.sourceId, confirmed: entry.confirmed });
@@ -217,11 +255,22 @@ export async function resumeScenario(
     requestId,
     actor: response.actor,
     decision: response.decision,
+    instrumentation: response.instrumentation,
   });
 
   if (response.decision === 'reject') {
     deps.eventLog.append({ type: 'scenario_completed' });
     return { status: 'completed', sessionId: pending.sessionId, artifacts: pending.producedArtifacts };
+  }
+
+  for (const revision of response.revisions ?? []) {
+    const event = buildRevisionEvent(revision, response.actor, now);
+    deps.revisionStore.record(event);
+    deps.eventLog.append({ type: 'revision_recorded', revisionEventId: event.id });
+    const artifact = pending.producedArtifacts[revision.artifactType];
+    if (artifact && typeof artifact === 'object') {
+      applyJsonPointer(artifact as Record<string, unknown>, revision.fieldPath, revision.newValue);
+    }
   }
 
   return produceSequence(

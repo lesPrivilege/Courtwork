@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ScenarioDefinition } from '@courtwork/registry';
+import { RevisionEventSchema } from '@courtwork/schemas';
 import { createMockPartyVerifyAdapter, createPartyVerifyTool, createToolExecutor } from '@courtwork/tools';
 import { createEventLog } from '../events/event-log.js';
 import { createEvidenceLedger } from '../evidence/grade.js';
@@ -174,5 +175,91 @@ describe('resumeScenario', () => {
     await expect(
       resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'x' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
     ).rejects.toThrow(UnknownConfirmationRequestError);
+  });
+
+  it('applies a field-level revision before confirming, records it via RevisionEventStore, and emits revision_recorded', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const paused = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
+
+    const result = await resumeScenario(
+      paused.requestId,
+      {
+        actor: { channelId: 'cli', actorId: 'demo-lawyer', role: '主办律师' },
+        decision: 'confirm',
+        revisions: [
+          {
+            artifactType: 'RiskList',
+            artifactId: 'c1',
+            fieldPath: '/risks/0/dispositionStatus',
+            previousValue: 'pending',
+            newValue: 'confirmed',
+            reason: '与主办律师电话确认，风险属实',
+            caseId: 'c1',
+          },
+        ],
+        instrumentation: { dwellMs: 4200, expandedEvidenceKeys: ['party-verify'] },
+      },
+      SINGLE_GATE_SCENARIO,
+      deps,
+    );
+
+    if (result.status !== 'completed') throw new Error('unreachable');
+    const finalRiskList = result.artifacts.RiskList as typeof VALID_RISK_LIST;
+    expect(finalRiskList.risks[0].dispositionStatus).toBe('confirmed');
+
+    const recorded = deps.revisionStore.list();
+    expect(recorded).toHaveLength(1);
+    expect(RevisionEventSchema.safeParse(recorded[0]).success).toBe(true);
+    expect(recorded[0]).toMatchObject({
+      artifactType: 'RiskList',
+      artifactId: 'c1',
+      fieldPath: '/risks/0/dispositionStatus',
+      previousValue: 'pending',
+      newValue: 'confirmed',
+      actor: { userId: 'demo-lawyer', role: '主办律师' },
+    });
+
+    const events = deps.eventLog.list();
+    expect(events.map((e) => e.type)).toEqual([
+      'artifact_produced',
+      'confirmation_requested',
+      'confirmation_resolved',
+      'revision_recorded',
+      'scenario_completed',
+    ]);
+    expect(events[2]).toMatchObject({ instrumentation: { dwellMs: 4200, expandedEvidenceKeys: ['party-verify'] } });
+    expect(events[3]).toMatchObject({ type: 'revision_recorded', revisionEventId: recorded[0].id });
+  });
+
+  it('applies multiple revisions in order and records each independently', async () => {
+    const twoRiskList = { caseId: 'c1', risks: [VALID_RISK_LIST.risks[0], { ...VALID_RISK_LIST.risks[0], id: 'risk-02' }] };
+    const deps = buildDeps([{ content: JSON.stringify(twoRiskList) }]);
+    const paused = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
+
+    await resumeScenario(
+      paused.requestId,
+      {
+        actor: { channelId: 'cli', actorId: 'demo-lawyer' },
+        decision: 'confirm',
+        revisions: [
+          { artifactType: 'RiskList', artifactId: 'c1', fieldPath: '/risks/0/dispositionStatus', previousValue: 'pending', newValue: 'confirmed' },
+          { artifactType: 'RiskList', artifactId: 'c1', fieldPath: '/risks/1/dispositionStatus', previousValue: 'pending', newValue: 'rejected' },
+        ],
+      },
+      SINGLE_GATE_SCENARIO,
+      deps,
+    );
+
+    expect(deps.revisionStore.list()).toHaveLength(2);
   });
 });
