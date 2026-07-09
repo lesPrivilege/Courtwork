@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import type { ScenarioDefinition } from '@courtwork/registry';
 import { RevisionEventSchema } from '@courtwork/schemas';
 import { createMockPartyVerifyAdapter, createPartyVerifyTool, createToolExecutor } from '@courtwork/tools';
-import { createEventLog } from '../events/event-log.js';
+import { createEventLog, createFileEventLog } from '../events/event-log.js';
 import { createEvidenceLedger } from '../evidence/grade.js';
-import { createInMemoryConfirmationStore } from '../session/confirmation-store.js';
+import { createFileConfirmationStore, createInMemoryConfirmationStore } from '../session/confirmation-store.js';
 import { createInMemoryRevisionEventStore } from '../revision/revision-store.js';
 import { createToolRegistry } from '../tools/tool-registry.js';
 import { createScriptedProvider } from '../provider/scripted-provider.js';
@@ -261,5 +264,141 @@ describe('resumeScenario', () => {
     );
 
     expect(deps.revisionStore.list()).toHaveLength(2);
+  });
+});
+
+const MULTI_GATE_SCENARIO: ScenarioDefinition = {
+  id: 'S-test-multi',
+  name: '多产出测试场景',
+  trigger: { fileTypes: ['pdf'], userActions: [], classifierTags: [] },
+  inputArtifacts: [],
+  toolIds: [],
+  outputArtifacts: ['CaseFile', 'Timeline', 'PartyGraph'],
+  uiTemplateId: 'test-panel',
+  confirmationGates: [
+    { artifact: 'Timeline', label: '确认事件时间线' },
+    { artifact: 'PartyGraph', label: '确认当事人关系图谱' },
+  ],
+  promptTemplateRef: 'test-v0',
+};
+
+const CASE_FILE_RESPONSE = { caseId: 'c1', files: [] };
+const TIMELINE_RESPONSE = { caseId: 'c1', events: [] };
+const PARTY_GRAPH_RESPONSE = { caseId: 'c1', nodes: [], edges: [] };
+
+describe('runScenario / resumeScenario — multi-artifact sequential gates (S1 shape)', () => {
+  it('produces CaseFile ungated, pauses at Timeline, then pauses at PartyGraph after Timeline is confirmed, matching declared order', async () => {
+    const deps = buildDeps([
+      { content: JSON.stringify(CASE_FILE_RESPONSE) },
+      { content: JSON.stringify(TIMELINE_RESPONSE) },
+      { content: JSON.stringify(PARTY_GRAPH_RESPONSE) },
+    ]);
+
+    const firstPause = await runScenario(MULTI_GATE_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps);
+    if (firstPause.status !== 'paused') throw new Error('expected pause at Timeline');
+    expect(deps.eventLog.list().map((e) => e.type)).toEqual([
+      'artifact_produced', // CaseFile, ungated
+      'artifact_produced', // Timeline
+      'confirmation_requested',
+    ]);
+    expect(deps.eventLog.list()[2]).toMatchObject({ gateLabel: '确认事件时间线', artifactType: 'Timeline' });
+
+    const secondPause = await resumeScenario(
+      firstPause.requestId,
+      { actor: { channelId: 'cli', actorId: 'u1' }, decision: 'confirm' },
+      MULTI_GATE_SCENARIO,
+      deps,
+    );
+    if (secondPause.status !== 'paused') throw new Error('expected pause at PartyGraph');
+    const eventsAfterSecondPause = deps.eventLog.list();
+    expect(eventsAfterSecondPause[eventsAfterSecondPause.length - 1]).toMatchObject({
+      gateLabel: '确认当事人关系图谱',
+      artifactType: 'PartyGraph',
+    });
+
+    const done = await resumeScenario(
+      secondPause.requestId,
+      { actor: { channelId: 'cli', actorId: 'u1' }, decision: 'confirm' },
+      MULTI_GATE_SCENARIO,
+      deps,
+    );
+    expect(done).toEqual({
+      status: 'completed',
+      sessionId: 'session-1',
+      artifacts: { CaseFile: CASE_FILE_RESPONSE, Timeline: TIMELINE_RESPONSE, PartyGraph: PARTY_GRAPH_RESPONSE },
+    });
+  });
+});
+
+describe('runScenario — label-only confirmation gate (no artifact anchor)', () => {
+  const LABEL_ONLY_SCENARIO: ScenarioDefinition = {
+    id: 'S-test-label-only',
+    name: '无锚点门禁测试场景',
+    trigger: { fileTypes: [], userActions: ['x'], classifierTags: [] },
+    inputArtifacts: [],
+    toolIds: [],
+    outputArtifacts: ['CaseFile'],
+    uiTemplateId: 'test-panel',
+    confirmationGates: [{ label: '整体确认（无产物锚点）' }],
+    promptTemplateRef: 'test-v0',
+  };
+
+  it('produces the sole output artifact ungated, then pauses on the label-only gate at the end of the sequence', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(CASE_FILE_RESPONSE) }]);
+    const result = await runScenario(LABEL_ONLY_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps);
+    expect(result.status).toBe('paused');
+    const events = deps.eventLog.list();
+    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'confirmation_requested']);
+    expect(events[1]).toMatchObject({ gateLabel: '整体确认（无产物锚点）', artifactType: undefined });
+  });
+});
+
+describe('resumeScenario — genuinely fresh dependency instances (simulated cross-process resume)', () => {
+  it('a resume using brand-new EventLog/ConfirmationStore/EvidenceLedger instances pointed at the same durable state completes correctly', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-executor-crossproc-'));
+    try {
+      const eventsPath = join(dir, 'events.jsonl');
+      const pendingDir = join(dir, 'pending');
+      const tools = createToolRegistry();
+      tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
+
+      const firstDeps: ScenarioExecutorDeps = {
+        tools,
+        toolExecutor: createToolExecutor(),
+        provider: createScriptedProvider('p', 'v1', [{ content: JSON.stringify(VALID_RISK_LIST) }]),
+        eventLog: createFileEventLog('session-x', eventsPath),
+        confirmationStore: createFileConfirmationStore(pendingDir),
+        revisionStore: createInMemoryRevisionEventStore(),
+        ledger: createEvidenceLedger(),
+      };
+      const paused = await runScenario(
+        SINGLE_GATE_SCENARIO,
+        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        firstDeps,
+      );
+      if (paused.status !== 'paused') throw new Error('expected pause');
+
+      // 模拟"另一个进程"：全新构造的 eventLog/confirmationStore/ledger 实例，只共享磁盘路径。
+      const secondDeps: ScenarioExecutorDeps = {
+        ...firstDeps,
+        eventLog: createFileEventLog('session-x', eventsPath),
+        confirmationStore: createFileConfirmationStore(pendingDir),
+        ledger: createEvidenceLedger(),
+      };
+      const done = await resumeScenario(
+        paused.requestId,
+        { actor: { channelId: 'wecom', actorId: 'lawyer-42' }, decision: 'confirm' },
+        SINGLE_GATE_SCENARIO,
+        secondDeps,
+      );
+
+      expect(done.status).toBe('completed');
+      // ledger 从 pending.evidenceLedgerSnapshot 重建，而不是继承 firstDeps 的内存实例：
+      expect(secondDeps.ledger.get('party-verify')).toEqual({ grade: 'A', sourceId: 'mock', confirmed: false });
+      // 完整历史（含 firstDeps 阶段写入的事件）在全新 eventLog 实例里依然可读：
+      expect(secondDeps.eventLog.list()).toHaveLength(4);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
