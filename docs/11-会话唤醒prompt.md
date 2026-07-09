@@ -167,4 +167,28 @@
 - 验收报告写入 packages/registry/ACCEPTANCE.md，结论必须明确：registry 是否就绪供 W6（core）消费。
 ```
 
-后续工单（W3–W8）验收实例在各实现会话回报后按同一结构生成。
+## W5 验收（Codex，范围 = packages/tools + packages/demo-data）
+
+```
+你是 Courtwork 的验收工程师（角色边界见根目录 AGENTS.md）。验收 W5 工单及其增量 W5.1：packages/tools（统一工具契约 + 两工具三适配器）与 packages/demo-data（演示数据包）。实现会话已回报完工（提交 9409c0c 等），你的任务是独立复核并给出放行结论。
+
+先读：根目录 CLAUDE.md、AGENTS.md、docs/10、docs/20-信源分级、docs/21-演示数据包、packages/tools/SPEC.md 与 packages/demo-data/SPEC.md（含验收记录）、packages/demo-data/data/manifest.md。
+
+注意：仓库内 W4（packages/output + packages/schemas 的 RevisionInstructionSet）正在途，工作区可能有其未提交文件——一律不碰；测试跑分用 --filter 限定 tools 与 demo-data 两包，仓库全量数字仅作参考不作断言。
+
+验收清单（逐项给结论）：
+1. 干净环境：rm -rf 所有 node_modules → pnpm install → pnpm --filter @courtwork/tools --filter @courtwork/demo-data test（回报口径：tools 66 + demo-data 15）→ lint → build，不采信自述。
+2. 契约核心语义：判别联合的失败分支**类型上不存在 data 字段**（读类型定义确认，且有测试显式断言）；六个 reason：timeout / not_configured / not_implemented / adapter_error / invalid_response / out_of_coverage；入参不合法抛 ToolInputValidationError 而非降级；超时经 AbortSignal 真实联动（有测试）。
+3. sourceId 机制（本轮关键发现）：适配器声明期定 sourceId、进缓存键、结构性防冒充；存在"同一 tool id 下 mock 与 demo-fixture 缓存不串"的碰撞防护测试。
+4. 缓存语义：只缓存成功；demo-fixture 成功结果可缓存；out_of_coverage 属失败家族不缓存；TTL 生效有测试。
+5. 三种适配器齐备且边界清晰：mock（source:"mock"，测试专用）；demo-fixture（source:"demo-fixture"，**显式配置选择，不存在"未配置凭证默认落 demo"的路径**——找反例测试）；真实骨架（凭证注入配置、不入库，配置齐备仍诚实抛 not_implemented，无编造的响应映射）。
+6. demo-data 解耦纪律（docs/21）：party-verify.ts / cite-check.ts 运行时源码 **零 import** demo-data（grep 确认）；tools 对 demo-data 仅 devDependency 且只在 *.test.ts 引用；demo-data src 只有数据访问器无业务逻辑。
+7. 语料互锁：out_of_coverage 测试从 listPartyOutOfCoverage() 读语料 manifest 名单，非硬编码字符串；citation 访问器带 officialTextVerified 标记且法条条目默认 false（复核微工单挂账中，验收只查标记存在）。
+8. 虚构纪律抽查 data/registries：主体全虚构、信用代码非真实格式；法条为真实公开文本且注明版本；虚构判例案号明显标注 demo。发现任何疑似真实主体即 [需架构拍板]。
+9. 工程决策尊重：typescript ^6.0.3 不许升级；@types/node 按 W1 记录模式；import.meta.dirname 等 Node 版本特性与 engines 声明一致。
+10. 提交卫生：9409c0c 应恰好 22 个文件且全在两包范围内；两份 SPEC 验收记录含中途修正（sourceId 重构、fixtures 降级）的如实记载。
+
+处置规则：实现级 bug 顺手修（独立 commit，fix-by-acceptance 前缀）；契约级问题标 [需架构拍板] 不许改；报告写入 packages/tools/ACCEPTANCE.md（demo-data 部分一并写明）。结论必须明确：tools 与 demo-data 是否就绪供 W6（core）与演示装配消费。
+```
+
+后续工单（W3/W4/W6–W8）验收实例在各实现会话回报后按同一结构生成。
