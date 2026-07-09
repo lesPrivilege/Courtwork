@@ -6,6 +6,7 @@ import { PartyGraphSchema } from './party-graph.js';
 import { RiskListSchema } from './risk-list.js';
 import { ReviewMatrixSchema } from './review-matrix.js';
 import { RevisionEventSchema } from './revision-event.js';
+import { RevisionInstructionSetSchema } from './revision-instruction-set.js';
 
 export const SCHEMA_REGISTRY = [
   { name: 'SourceAnchor', schema: SourceAnchorSchema },
@@ -15,6 +16,7 @@ export const SCHEMA_REGISTRY = [
   { name: 'RiskList', schema: RiskListSchema },
   { name: 'ReviewMatrix', schema: ReviewMatrixSchema },
   { name: 'RevisionEvent', schema: RevisionEventSchema },
+  { name: 'RevisionInstructionSet', schema: RevisionInstructionSetSchema },
 ] as const;
 
 export function toJSONSchemaRecord(): Record<string, unknown> {

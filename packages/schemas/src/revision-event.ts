@@ -7,6 +7,7 @@ export const ArtifactTypeEnum = z.enum([
   'PartyGraph',
   'RiskList',
   'ReviewMatrix',
+  'RevisionInstructionSet',
 ]);
 export type ArtifactType = z.infer<typeof ArtifactTypeEnum>;
 

@@ -15,6 +15,7 @@
 - `RiskList`：风险清单——风险点、等级、依据（法条/判例引用 + SourceAnchor）、处置状态（待确认/已确认/已否决）。
 - `ReviewMatrix`：矩阵审阅——行=文档、列=问题、格=答案+SourceAnchor[]+置信标记。
 - `RevisionEvent`：schema 级修正事件——谁、对哪个 artifact 的哪个字段、原值/新值、时间。反馈标注的统一载体，设计时假设它未来直接进训练管线。
+- `RevisionInstructionSet`（2026-07-09 由 W4 提案，架构拍板通过）：修订指令集——驱动 packages/output 产出带 Word 原生修订痕迹与批注的 .docx。每条指令 = 定位（文本锚/表格单元格/表格行，判别联合）+ 操作（替换/插入/删除/纯批注，判别联合）+ 可选批注（含依据引用，依据引用要求 sourceAnchors 与 statuteRef 结构化法条引用至少一项，纯散文引用不可核验故不允许）。
 
 ## 验收
 
@@ -22,7 +23,7 @@
 
 **JSON Schema 导出路径（正式契约）**：`packages/schemas/json-schema/<Name>.schema.json`（`SourceAnchor` / `CaseFile` / `Timeline` / `PartyGraph` / `RiskList` / `ReviewMatrix` / `RevisionEvent` 共 7 个文件），由 `pnpm --filter @courtwork/schemas run generate:json-schema` 生成并提交进 git，Python 侧无需装 Node 工具链即可直接读取静态文件。每个文件自包含：引用的子 schema（如 `SourceAnchor` 出现在 `Timeline`/`PartyGraph`/`RiskList`/`ReviewMatrix`/`RevisionEvent` 里）以内联方式展开，不使用跨文件 `$ref`。`src/json-schema-drift.test.ts` 在测试套件里重新生成并与已提交文件 diff，zod 源变更后忘记重新生成会导致该测试报红。
 
-**已知限制**：`z.toJSONSchema()` 只能表达结构性约束（类型、必填、枚举、min/max、pattern），无法表达 `.refine()` 的跨字段业务规则。因此导出的 JSON Schema 校验力度弱于 zod 源：`SourceAnchor` 的"bbox/textRange 至少一个"与"bbox 存在时 page 必填"这两条规则不会出现在导出文件里。Python 侧如果需要这两条规则的等效保证，需要在 ingest 自己的校验代码里补，或接受这里的校验只覆盖结构正确性、不覆盖业务规则正确性。这是任何 zod→JSON Schema 转换方案的固有限制，不是实现疏漏。
+**已知限制**：`z.toJSONSchema()` 只能表达结构性约束（类型、必填、枚举、min/max、pattern），无法表达 `.refine()` 的跨字段业务规则。因此导出的 JSON Schema 校验力度弱于 zod 源：`SourceAnchor` 的"bbox/textRange 至少一个"与"bbox 存在时 page 必填"这两条规则、`RevisionInstructionSet` 的 Citation "`sourceAnchors` 与 `statuteRef` 至少一个"规则，都不会出现在导出文件里。Python 侧如果需要这类规则的等效保证，需要在 ingest 自己的校验代码里补，或接受这里的校验只覆盖结构正确性、不覆盖业务规则正确性。这是任何 zod→JSON Schema 转换方案的固有限制，不是实现疏漏。
 
 ## 纪律
 
@@ -30,7 +31,8 @@
 
 ## TODO（跨层放入区）
 
-- [架构拍板 2026-07-09] 文书起草/修订指令集产物类型待 W4 提案（架构已拍板路径，见 `packages/output/SPEC.md` TODO：暂名 `RevisionInstructionSet`，含 `ArtifactTypeEnum` 增量扩展）；矛盾清单（`ContradictionList`，供 S1 卷宗阅卷使用）产物类型待 W3 spike 结论后定。两者合入前，`packages/registry` 的 S4 声明以 label-only 确认门禁过渡（不声明 outputArtifacts），S1 声明不含矛盾清单产出。
+- [已解决 2026-07-09] ~~文书起草/修订指令集产物类型待 W4 提案~~——`RevisionInstructionSet` 已落地（`src/revision-instruction-set.ts`），`ArtifactTypeEnum` 已扩展。`packages/registry` 的 S4 声明与内置场景测试已由 W4 同步更新（架构显式授权的跨层同步，见 `packages/registry/SPEC.md`）。
+- 矛盾清单（`ContradictionList`，供 S1 卷宗阅卷使用）产物类型待 W3 spike 结论后定。合入前 `packages/registry` 的 S1 声明不含矛盾清单产出。
 
 ## 验收记录
 
@@ -45,3 +47,9 @@
     - `typescript` 固定 `^6.0.3`，未跳最新的 `7.0.2`（TypeScript 原生 Go 编译器重写版）：`typescript-eslint@8.63.0` 的 `peerDependencies` 目前是 `typescript >=4.8.4 <6.1.0`，装 TS7 会破坏类型感知 lint。后续任何一层升级 TypeScript 前应先核实 typescript-eslint 的兼容范围。
     - `@types/node` 必须声明在**实际使用 `node:*` 内置模块的包自己的** `package.json` 里，不能只放根 devDependencies——pnpm 的严格 node_modules 隔离只把一个包自己声明的依赖链接进它自己的 `node_modules`，根 devDependencies 对叶子包不可见。`typescript`/`vitest`/`tsx`/`eslint` 这类提供 CLI 二进制的包不受影响（pnpm 的 `.bin` 链接是 workspace 级别的），只有像 `@types/*` 这样纯类型、无二进制的包才有这个陷阱。后续任何一层如果直接用 `node:fs`/`node:path` 等内置模块，记得在**那个包自己的** `package.json` 里加 `@types/node`，并在其 `tsconfig.json` 里显式 `"types": ["node"]`（不要依赖自动 `@types` 发现，实测在当前 pnpm + TS 组合下不可靠）。
   - 跨层动作：已在 `services/ingest/SPEC.md` 的 TODO 区留言，指向 JSON Schema 导出路径与生成命令。
+- 2026-07-09：W4（packages/output）在 spike 结论确定管线走"直接著录式"架构后，按本文件 TODO 提案 `RevisionInstructionSet`，经架构拍板通过合入。第 8 个 schema：TS 类型 + zod 校验器 + JSON Schema 导出 + 10 条合法/非法样例测试全绿；`pnpm test`（178 用例）、`pnpm lint`、`pnpm -r run build` 全部通过。
+  - 设计取舍：
+    - `RevisionInstruction` 用 `discriminatedUnion('kind', ...)`（replace/insert/delete/commentOnly）而非单一 object + 可选字段：`text` 只在 replace/insert 有意义、`annotation` 只在 commentOnly 必填，判别联合让 TypeScript 在编译期而非运行期挡住这类错配，延续 `Timeline.EventDate` 已建立的模式。
+    - `InstructionLocator` 同样是判别联合（text/tableCell/tableRow）：spike 阶段用真实合同验证过表格场景（付款进度表）是常态需求，不是过度设计。
+    - `Citation.sourceAnchors` 不像 `RiskBasis.sourceAnchors` 那样 `min(1)` 强制——引用法条本身是对外部权威文本的引用，不天然挂在已入卷文件上。但纯散文引用不可核验（`docs/20`："不许让 C 级事实未经确认流入 docx 批注依据"），故加 `statuteRef?`（结构化法条引用，供 `packages/tools` 的 cite-check 核验存在性）+ refine：`sourceAnchors` 与 `statuteRef` 至少一项非空。`StatuteRef.law`/`article` 用开放字符串而非枚举/子字段拆分——同 `CaseFile.documentType` 的设计取舍，法律体系变动不应构成 schema breaking change。
+  - 跨层动作：`packages/registry/scenarios/S4.yaml` 的 `outputArtifacts` 与 confirmationGate、`packages/registry` 内置场景测试已由本次改动同步更新（架构显式授权，见对话记录）；`packages/registry/SPEC.md` 对应 TODO 已清。

@@ -38,7 +38,8 @@
         "Timeline",
         "PartyGraph",
         "RiskList",
-        "ReviewMatrix"
+        "ReviewMatrix",
+        "RevisionInstructionSet"
       ]
     },
     "artifactId": {
