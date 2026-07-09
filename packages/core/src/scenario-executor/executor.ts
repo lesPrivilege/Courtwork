@@ -98,9 +98,17 @@ async function generateArtifact(
   },
   provider: Provider,
 ): Promise<unknown> {
+  // todo 复述进请求末尾（Manus 抗注意力漂移技巧，docs/12，套在声明式步骤上）：
+  // todo 字段放在展开运算符之后插入，JSON.stringify 按插入顺序输出键，
+  // 因此序列化后的字符串里 todo 真的落在末尾，不只是字段存在而已。
   const response = await provider.generate({
     systemPrompt: scenario.promptTemplateRef,
-    messages: [{ role: 'user', content: JSON.stringify({ artifactType, ...context }) }],
+    messages: [
+      {
+        role: 'user',
+        content: JSON.stringify({ artifactType, ...context, todo: deriveTodoSnapshot(scenario, context.producedSoFar) }),
+      },
+    ],
   });
   let parsed: unknown;
   try {

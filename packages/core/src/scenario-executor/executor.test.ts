@@ -567,3 +567,38 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
     ).resolves.toMatchObject({ status: 'completed' });
   });
 });
+
+describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/12，套在声明式步骤上）', () => {
+  it('appends the current todo snapshot to the end of the generation request content', async () => {
+    const capturedRequests: { content: string }[] = [];
+    const capturingProvider = {
+      id: 'capture',
+      modelId: 'capture-v1',
+      async generate(request: { messages: { content: string }[] }) {
+        capturedRequests.push({ content: request.messages[request.messages.length - 1].content });
+        return { content: JSON.stringify(VALID_RISK_LIST) };
+      },
+    };
+    const tools = createToolRegistry();
+    tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
+    const deps: ScenarioExecutorDeps = {
+      tools,
+      toolExecutor: createToolExecutor(),
+      provider: capturingProvider,
+      eventLog: createEventLog('session-1'),
+      confirmationStore: createInMemoryConfirmationStore(),
+      revisionStore: createInMemoryRevisionEventStore(),
+      ledger: createEvidenceLedger(),
+    };
+
+    await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+
+    expect(capturedRequests).toHaveLength(1);
+    const parsedTail = JSON.parse(capturedRequests[0].content).todo;
+    expect(parsedTail).toEqual([{ artifactType: 'RiskList', label: '确认风险清单', status: 'pending' }]);
+  });
+});
