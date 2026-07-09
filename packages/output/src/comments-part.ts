@@ -1,6 +1,7 @@
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
 import { getText, setText, type DocxFiles } from './docx-zip.js';
 import type { CommentDraft } from './apply-instructions.js';
+import { BODY_EAST_ASIA_FONT, LATIN_FONT } from './fonts.js';
 
 const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
 const REL_NS = 'http://schemas.openxmlformats.org/package/2006/relationships';
@@ -11,10 +12,11 @@ function escapeXml(s: string): string {
 }
 
 export function writeCommentsPart(files: DocxFiles, comments: CommentDraft[], dateIso: string): void {
+  const commentRunPr = `<w:rPr><w:rFonts w:ascii="${LATIN_FONT}" w:eastAsia="${BODY_EAST_ASIA_FONT}" w:hAnsi="${LATIN_FONT}" w:cs="${LATIN_FONT}"/></w:rPr>`;
   const body = comments
     .map(
       (c) =>
-        `<w:comment w:id="${c.id}" w:author="Courtwork" w:date="${dateIso}" w:initials="CW"><w:p><w:r><w:t>${escapeXml(c.text)}</w:t></w:r></w:p></w:comment>`,
+        `<w:comment w:id="${c.id}" w:author="Courtwork" w:date="${dateIso}" w:initials="CW"><w:p><w:r>${commentRunPr}<w:t>${escapeXml(c.text)}</w:t></w:r></w:p></w:comment>`,
     )
     .join('');
   const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:comments xmlns:w="${W}">${body}</w:comments>`;

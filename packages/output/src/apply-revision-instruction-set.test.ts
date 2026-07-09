@@ -14,6 +14,27 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = join(__dirname, '..', 'test', 'fixtures');
 const FIXED_NOW = new Date('2026-07-09T00:00:00.000Z');
 
+function assertEveryRunHasCompleteRFonts(xml: string, partName: string): void {
+  const doc = new DOMParser().parseFromString(xml, 'text/xml');
+  const runs = Array.from(doc.getElementsByTagNameNS(W, 'r'));
+  expect(runs.length).toBeGreaterThan(0);
+
+  for (const [index, run] of runs.entries()) {
+    const rPr = Array.from(run.childNodes).find((c) => c.nodeType === 1 && (c as Element).localName === 'rPr') as
+      | Element
+      | undefined;
+    expect(rPr, `${partName} run #${index} missing rPr entirely: ${run.toString()}`).toBeDefined();
+    const rFonts = Array.from(rPr!.childNodes).find(
+      (c) => c.nodeType === 1 && (c as Element).localName === 'rFonts',
+    ) as Element | undefined;
+    expect(rFonts, `${partName} run #${index} missing w:rFonts: ${run.toString()}`).toBeDefined();
+    expect(rFonts!.getAttributeNS(W, 'ascii'), `${partName} run #${index} missing w:ascii`).toBeTruthy();
+    expect(rFonts!.getAttributeNS(W, 'eastAsia'), `${partName} run #${index} missing w:eastAsia`).toBeTruthy();
+    expect(rFonts!.getAttributeNS(W, 'hAnsi'), `${partName} run #${index} missing w:hAnsi`).toBeTruthy();
+    expect(rFonts!.getAttributeNS(W, 'cs'), `${partName} run #${index} missing w:cs`).toBeTruthy();
+  }
+}
+
 describe('applyRevisionInstructionSet', () => {
   it('the fixture itself conforms to RevisionInstructionSetSchema', () => {
     const result = RevisionInstructionSetSchema.safeParse(SAMPLE_INSTRUCTION_SET);
@@ -44,35 +65,12 @@ describe('applyRevisionInstructionSet', () => {
     expect(contentTypes).toContain('wordprocessingml.comments+xml');
   });
 
-  it('marks every authored <w:r> run with explicit rFonts (ascii/eastAsia/hAnsi), never leaves font unspecified', () => {
+  it('marks every output <w:r> run with explicit rFonts (ascii/eastAsia/hAnsi/cs), never leaves font unspecified', () => {
     const original = readFileSync(join(FIXTURES_DIR, 'original.docx'));
     const { docx } = applyRevisionInstructionSet(original, SAMPLE_INSTRUCTION_SET, { now: FIXED_NOW });
     const files = loadDocx(docx);
-    const documentXml = getText(files, 'word/document.xml');
-    const doc = new DOMParser().parseFromString(documentXml, 'text/xml');
-
-    // 只检查管线新写入的 run（rPr 上带 w:ins/w:del 修订标记，或它就在一个 w:ins/w:del
-    // 包裹内），不检查未改动的原始 run——SPEC 的字体硬性要求针对"管线写出的每个 run"。
-    const runs = Array.from(doc.getElementsByTagNameNS(W, 'r'));
-    const authoredRuns = runs.filter((r) => {
-      const parentLn = r.parentNode && r.parentNode.nodeType === 1 ? (r.parentNode as Element).localName : null;
-      return parentLn === 'ins' || parentLn === 'del';
-    });
-    expect(authoredRuns.length).toBeGreaterThan(0);
-
-    for (const run of authoredRuns) {
-      const rPr = Array.from(run.childNodes).find((c) => c.nodeType === 1 && (c as Element).localName === 'rPr') as
-        | Element
-        | undefined;
-      expect(rPr, 'authored run missing rPr entirely').toBeDefined();
-      const rFonts = Array.from(rPr!.childNodes).find(
-        (c) => c.nodeType === 1 && (c as Element).localName === 'rFonts',
-      ) as Element | undefined;
-      expect(rFonts, 'authored run missing w:rFonts').toBeDefined();
-      expect(rFonts!.getAttributeNS(W, 'ascii')).toBeTruthy();
-      expect(rFonts!.getAttributeNS(W, 'eastAsia')).toBeTruthy();
-      expect(rFonts!.getAttributeNS(W, 'hAnsi')).toBeTruthy();
-    }
+    assertEveryRunHasCompleteRFonts(getText(files, 'word/document.xml'), 'document.xml');
+    assertEveryRunHasCompleteRFonts(getText(files, 'word/comments.xml'), 'comments.xml');
   });
 
   it('reports locator_not_found (and skips) rather than mis-inserting when the quote no longer exists', () => {
@@ -92,17 +90,17 @@ describe('applyRevisionInstructionSet', () => {
     expect(outcomes).toEqual([{ id: 'ins-broken', status: 'locator_not_found' }]);
   });
 
-  it('golden snapshot: document.xml matches the committed reference byte-for-byte', () => {
+  it('golden snapshot: document.xml matches the committed reference byte-for-byte', async () => {
     const original = readFileSync(join(FIXTURES_DIR, 'original.docx'));
     const { docx } = applyRevisionInstructionSet(original, SAMPLE_INSTRUCTION_SET, { now: FIXED_NOW });
     const files = loadDocx(docx);
-    void expect(getText(files, 'word/document.xml')).toMatchFileSnapshot('./__snapshots__/golden-document.xml');
+    await expect(getText(files, 'word/document.xml')).toMatchFileSnapshot('./__snapshots__/golden-document.xml');
   });
 
-  it('golden snapshot: comments.xml matches the committed reference byte-for-byte', () => {
+  it('golden snapshot: comments.xml matches the committed reference byte-for-byte', async () => {
     const original = readFileSync(join(FIXTURES_DIR, 'original.docx'));
     const { docx } = applyRevisionInstructionSet(original, SAMPLE_INSTRUCTION_SET, { now: FIXED_NOW });
     const files = loadDocx(docx);
-    void expect(getText(files, 'word/comments.xml')).toMatchFileSnapshot('./__snapshots__/golden-comments.xml');
+    await expect(getText(files, 'word/comments.xml')).toMatchFileSnapshot('./__snapshots__/golden-comments.xml');
   });
 });

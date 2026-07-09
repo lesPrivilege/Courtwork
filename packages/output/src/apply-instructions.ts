@@ -113,8 +113,35 @@ function buildRPr(doc: Document, templateRPr: Element | null): Element {
   attr(fonts, 'w:ascii', LATIN_FONT);
   attr(fonts, 'w:eastAsia', eastAsia);
   attr(fonts, 'w:hAnsi', LATIN_FONT);
+  attr(fonts, 'w:cs', LATIN_FONT);
   rPr.insertBefore(fonts, rPr.firstChild);
   return rPr;
+}
+
+function ensureCompleteRFonts(doc: Document, r: Element): void {
+  let rPr = firstChildOf(r, 'rPr');
+  if (!rPr) {
+    rPr = el(doc, 'w:rPr');
+    r.insertBefore(rPr, r.firstChild);
+  }
+
+  let fonts = firstChildOf(rPr, 'rFonts');
+  if (!fonts) {
+    fonts = el(doc, 'w:rFonts');
+    rPr.insertBefore(fonts, rPr.firstChild);
+  }
+
+  const eastAsia = eastAsiaFontFor(isBoldRPr(rPr) ? 'heading' : 'body');
+  attr(fonts, 'w:ascii', LATIN_FONT);
+  attr(fonts, 'w:eastAsia', eastAsia);
+  attr(fonts, 'w:hAnsi', LATIN_FONT);
+  attr(fonts, 'w:cs', LATIN_FONT);
+}
+
+function ensureCompleteRFontsForAllRuns(doc: Document): void {
+  for (const r of Array.from(doc.getElementsByTagNameNS(W, 'r'))) {
+    ensureCompleteRFonts(doc, r);
+  }
 }
 
 function plainRun(doc: Document, text: string, templateRPr: Element | null): Element {
@@ -451,6 +478,7 @@ export function applyInstructionsToDocumentXml(
   for (const instruction of instructionSet.instructions) {
     outcomes.push(applyOne(doc, body, instruction, comments));
   }
+  ensureCompleteRFontsForAllRuns(doc);
 
   return {
     documentXml: new XMLSerializer().serializeToString(doc),
