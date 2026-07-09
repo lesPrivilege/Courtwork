@@ -1,0 +1,59 @@
+{
+  "id": "main-risk-05",
+  "scenario": "S3",
+  "caseType": "core",
+  "task": {
+    "instruction": "你是本案（临江精铸诉起云智能设备采购合同纠纷案）代理律师，正在审查买卖合同条款。请仔细阅读以下合同条款文本，识别其中存在的法律风险，并按 RiskList 格式输出完整风险清单：{caseId: string, risks: [{id, description, level: \"high\"|\"medium\"|\"low\", basis: [{citation, sourceAnchors: [{fileId}]}], dispositionStatus: \"pending\"}]}。只输出该条款范围内确实存在的风险；如果该条款没有问题，risks 应为空数组，不要为了凑数虚构风险点。",
+    "input": {
+      "caseId": "case-linjiang-qiyun-2025",
+      "contractText": "**第八条 不可抗力**\n因地震、洪水、战争等不可抗力致使本合同不能履行的，双方互不承担违约责任。"
+    }
+  },
+  "expectedAnswer": {
+    "caseId": "case-linjiang-qiyun-2025",
+    "risks": [
+      {
+        "id": "risk-05",
+        "description": "不可抗力条款范围过窄：合同仅列举地震、洪水、战争作为不可抗力情形，未涵盖上游原材料供应中断等制造业常见供应链风险，一旦发生此类事件，卖方主张不可抗力免责的空间将受到限制。",
+        "level": "low",
+        "basis": [
+          {
+            "citation": "《中华人民共和国民法典》第五百九十条",
+            "sourceAnchors": [
+              {
+                "fileId": "04-设备采购合同.md",
+                "quote": "因地震、洪水、战争等不可抗力致使本合同不能履行的，双方互不承担违约责任",
+                "textRange": {
+                  "start": 0,
+                  "end": 35
+                }
+              }
+            ]
+          }
+        ],
+        "dispositionStatus": "pending"
+      }
+    ]
+  },
+  "scoringRules": [
+    {
+      "type": "schemaValid",
+      "schemaName": "RiskList"
+    },
+    {
+      "type": "riskListMatch"
+    },
+    {
+      "type": "citationExists"
+    },
+    {
+      "type": "llmJudge",
+      "judgePromptFile": "judges/s3-risk-quality.judge.md",
+      "weight": 1
+    }
+  ],
+  "sourceRefs": [
+    "packages/demo-data/data/contracts/main-contract.md",
+    "packages/demo-data/data/artifacts/risk-list.json"
+  ]
+}

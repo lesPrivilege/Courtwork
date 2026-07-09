@@ -1,0 +1,59 @@
+{
+  "id": "main-risk-03",
+  "scenario": "S3",
+  "caseType": "core",
+  "task": {
+    "instruction": "你是本案（临江精铸诉起云智能设备采购合同纠纷案）代理律师，正在审查买卖合同条款。请仔细阅读以下合同条款文本，识别其中存在的法律风险，并按 RiskList 格式输出完整风险清单：{caseId: string, risks: [{id, description, level: \"high\"|\"medium\"|\"low\", basis: [{citation, sourceAnchors: [{fileId}]}], dispositionStatus: \"pending\"}]}。只输出该条款范围内确实存在的风险；如果该条款没有问题，risks 应为空数组，不要为了凑数虚构风险点。",
+    "input": {
+      "caseId": "case-linjiang-qiyun-2025",
+      "contractText": "**第四条 验收**\n双方应在设备到货后组织联调验收。验收标准以甲方提供的技术参数为准，双方未就书面验收异议期限作出约定。"
+    }
+  },
+  "expectedAnswer": {
+    "caseId": "case-linjiang-qiyun-2025",
+    "risks": [
+      {
+        "id": "risk-03",
+        "description": "验收标准模糊且未约定书面异议期限：合同仅约定\"验收标准以甲方（卖方）提供的技术参数为准\"，未约定买方提出验收异议的书面期限，实践中易产生\"视为验收合格\"的举证困境，也为本案验收单与会议纪要陈述矛盾的争议埋下隐患。",
+        "level": "high",
+        "basis": [
+          {
+            "citation": "《中华人民共和国民法典》第六百二十一条",
+            "sourceAnchors": [
+              {
+                "fileId": "04-设备采购合同.md",
+                "quote": "验收标准以甲方提供的技术参数为准",
+                "textRange": {
+                  "start": 0,
+                  "end": 16
+                }
+              }
+            ]
+          }
+        ],
+        "dispositionStatus": "pending"
+      }
+    ]
+  },
+  "scoringRules": [
+    {
+      "type": "schemaValid",
+      "schemaName": "RiskList"
+    },
+    {
+      "type": "riskListMatch"
+    },
+    {
+      "type": "citationExists"
+    },
+    {
+      "type": "llmJudge",
+      "judgePromptFile": "judges/s3-risk-quality.judge.md",
+      "weight": 1
+    }
+  ],
+  "sourceRefs": [
+    "packages/demo-data/data/contracts/main-contract.md",
+    "packages/demo-data/data/artifacts/risk-list.json"
+  ]
+}

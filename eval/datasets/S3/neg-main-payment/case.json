@@ -1,0 +1,28 @@
+{
+  "id": "neg-main-payment",
+  "scenario": "S3",
+  "caseType": "negative",
+  "task": {
+    "instruction": "你是本案（临江精铸诉起云智能设备采购合同纠纷案）代理律师，正在审查买卖合同条款。请仔细阅读以下合同条款文本，识别其中存在的法律风险，并按 RiskList 格式输出完整风险清单：{caseId: string, risks: [{id, description, level: \"high\"|\"medium\"|\"low\", basis: [{citation, sourceAnchors: [{fileId}]}], dispositionStatus: \"pending\"}]}。只输出该条款范围内确实存在的风险；如果该条款没有问题，risks 应为空数组，不要为了凑数虚构风险点。",
+    "input": {
+      "caseId": "case-linjiang-qiyun-2025",
+      "contractText": "**第二条 付款方式**\n1. 预付款：合同总价30%，计人民币1,140,000元，乙方应于本合同签订后7日内支付。\n2. 验收款：合同总价60%，计人民币2,280,000元，乙方应于设备验收合格后15日内支付。\n3. 质保金：合同总价10%，计人民币380,000元，于质保期（验收合格之日起12个月）届满后由甲方申请、乙方支付。"
+    }
+  },
+  "expectedAnswer": {
+    "caseId": "case-linjiang-qiyun-2025",
+    "risks": []
+  },
+  "scoringRules": [
+    {
+      "type": "schemaValid",
+      "schemaName": "RiskList"
+    },
+    {
+      "type": "riskListMatch"
+    }
+  ],
+  "sourceRefs": [
+    "packages/demo-data/data/contracts/main-contract.md"
+  ]
+}

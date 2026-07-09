@@ -1,0 +1,74 @@
+{
+  "id": "draft-contradiction-1-seal-mismatch",
+  "scenario": "S4",
+  "caseType": "draft",
+  "task": {
+    "instruction": "你是本案代理律师，正在审阅《民事答辩状》草稿。请针对指定内容添加一条 commentOnly 类型的审阅批注（不改动原文文字），说明需要补充或注意的要点，并在 annotation.citations 中给出依据（真实法条引用，或结合本案已确认的事实）。按 RevisionInstructionSet 格式输出：{id, caseId, targetDocument:{fileId}, instructions:[{id, kind:\"commentOnly\", locator:{strategy:\"text\", quote}, annotation:{text, citations:[{citation, statuteRef?:{law,article}}]}}]}。",
+    "input": {
+      "caseId": "case-linjiang-qiyun-2025",
+      "sourceDocumentText": "# 民事答辩状\n\n答辩人（被告一）：起云智能装备（虚构）有限公司\n法定代表人：岑瑞霖\n诉讼代理人：练明轩，恒屿律师事务所律师\n\n针对原告临江精铸科技有限公司提起的诉讼，答辩人答辩如下：\n\n**一、涉案设备存在质量瑕疵，答辩人依法有权拒绝或暂缓支付验收款**\n2024年12月10日验收当日，答辩人现场人员即发现熔炼炉温控系统运行异常，此事实在2024年12月20日双方协商会议纪要中已有明确记载，验收单载明\"验收合格\"与实际情况不符，答辩人有权就此提出异议并暂缓付款。\n\n**二、原告催告函盖章主体与合同签约主体不一致，催告效力存疑**\n原告2025年1月10日发出的催告函（一）落款加盖\"临江精铸集团有限公司\"印章，而合同卖方为\"临江精铸科技有限公司\"，两者系不同法律主体，该催告函不能视为合同相对方的有效催告，原告主张的违约金起算时点应予重新审查。\n\n**三、原告部分债权已转让第三方，原告主体资格及诉请金额存疑**\n原告已于2025年3月20日将本案项下应收账款2,660,000元转让予华瑞商业保理（云章）有限公司并通知答辩人，原告是否仍有权就已转让部分主张权利存疑，请求追加华瑞商业保理为本案第三人。\n\n**四、违约金约定畸高，请求依法予以酌减**\n合同约定逾期付款每日按未付金额1%计收违约金，年化利率远超法律保护上限，显失公平，请求人民法院依法酌减。\n\n**五、实际发货主体与合同主体不一致**\n送货单载明发货单位为\"临江精铸（云章）装备有限公司\"，与合同卖方\"临江精铸科技有限公司\"不一致，交付义务的实际履行主体存疑。\n\n综上，请求驳回原告全部或部分诉讼请求。\n\n答辩人：起云智能装备（虚构）有限公司\n2025年6月2日\n",
+      "targetFileId": "02-答辩状.md",
+      "focusQuote": "该催告函不能视为合同相对方的有效催告，原告主张的违约金起算时点应予重新审查。"
+    }
+  },
+  "expectedAnswer": {
+    "id": "rev-draft-contradiction-1-seal-mismatch",
+    "caseId": "case-linjiang-qiyun-2025",
+    "targetDocument": {
+      "fileId": "02-答辩状.md"
+    },
+    "instructions": [
+      {
+        "id": "ins-01",
+        "kind": "commentOnly",
+        "locator": {
+          "strategy": "text",
+          "quote": "该催告函不能视为合同相对方的有效催告，原告主张的违约金起算时点应予重新审查。"
+        },
+        "annotation": {
+          "text": "建议援引《中华人民共和国民法典》第六十条（法人以其全部财产独立承担民事责任），强调临江精铸集团有限公司与合同卖方临江精铸科技有限公司系相互独立的法人主体，集团公司出具的催告函不能代表卖方本人的催告意思表示。",
+          "citations": [
+            {
+              "citation": "《中华人民共和国民法典》第六十条",
+              "sourceAnchors": [],
+              "statuteRef": {
+                "law": "中华人民共和国民法典",
+                "article": "第六十条"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "facts": {
+      "actualPrepaymentDate": "2024年8月26日",
+      "misdirectedAmount": "500,000",
+      "misdirectedAccount": "临江贸易",
+      "warrantyDeposit": "380,000",
+      "warrantyPeriodMonths": "12",
+      "filingDate": "2025年5月6日",
+      "penaltyStartDate": "2024年12月26日"
+    }
+  },
+  "scoringRules": [
+    {
+      "type": "schemaValid",
+      "schemaName": "RevisionInstructionSet"
+    },
+    {
+      "type": "revisionSetMatch"
+    },
+    {
+      "type": "citationExists"
+    },
+    {
+      "type": "llmJudge",
+      "judgePromptFile": "judges/s4-draft-quality.judge.md",
+      "weight": 1
+    }
+  ],
+  "sourceRefs": [
+    "packages/demo-data/data/dossier/02-答辩状.md",
+    "packages/demo-data/data/case-bible.md"
+  ]
+}

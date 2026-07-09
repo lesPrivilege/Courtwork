@@ -1,0 +1,74 @@
+{
+  "id": "draft-guarantee-joint-liability",
+  "scenario": "S4",
+  "caseType": "draft",
+  "task": {
+    "instruction": "你是本案代理律师，正在审阅《民事起诉状》草稿。请针对指定内容添加一条 commentOnly 类型的审阅批注（不改动原文文字），说明需要补充或注意的要点，并在 annotation.citations 中给出依据（真实法条引用，或结合本案已确认的事实）。按 RevisionInstructionSet 格式输出：{id, caseId, targetDocument:{fileId}, instructions:[{id, kind:\"commentOnly\", locator:{strategy:\"text\", quote}, annotation:{text, citations:[{citation, statuteRef?:{law,article}}]}}]}。",
+    "input": {
+      "caseId": "case-linjiang-qiyun-2025",
+      "sourceDocumentText": "# 民事起诉状\n\n原告：临江精铸科技有限公司\n住所：云章市滨江经济开发区精工路188号\n法定代表人：封文昌\n诉讼代理人：柏景行，江城明澈律师事务所律师\n\n被告一：起云智能装备（虚构）有限公司\n住所：云章市高新技术产业开发区云智路66号\n法定代表人：岑瑞霖\n\n被告二：起云控股集团有限公司（连带保证人）\n被告三：麦承业（连带保证人）\n\n**诉讼请求**：\n1. 判令被告一起云智能装备（虚构）有限公司向原告支付货款2,280,000元；\n2. 判令被告一按照合同约定标准向原告支付逾期付款违约金（自2024年12月26日起算至实际清偿之日止）；\n3. 判令被告二、被告三对上述第1、2项债务承担连带清偿责任；\n4. 本案诉讼费用由被告承担。\n\n**事实与理由**：\n2024年8月17日，原告与被告一签订《精密铸造生产线设备采购合同》（编号LJJZ-CY-2024-0817），约定原告向被告一交付精密铸造生产线设备一条，合同总价3,800,000元，分预付款、验收款、质保金三期支付。被告一于2024年8月24日依约支付预付款1,140,000元。原告已按约分三批于2024年10月15日、11月5日、11月28日交付全部设备，被告一已于2024年12月10日签署验收单，确认设备验收合格。验收款2,280,000元应于验收合格后15日内支付，即2024年12月25日前应付，但被告一至今未支付分文。原告多次催告（2025年1月10日、2025年3月5日）无果。2025年3月20日，原告将该应收账款部分转让予华瑞商业保理（云章）有限公司并通知被告一，现原告仍就本案主张权利。被告二、被告三分别于2025年4月15日、4月10日出具连带责任保证书，依法应承担连带清偿责任。综上，原告诉请如上，恳请法院依法支持。\n\n此致\n云章市中级人民法院\n\n原告：临江精铸科技有限公司\n2025年5月6日\n",
+      "targetFileId": "01-起诉状.md",
+      "focusQuote": "被告二、被告三分别于2025年4月15日、4月10日出具连带责任保证书，依法应承担连带清偿责任。"
+    }
+  },
+  "expectedAnswer": {
+    "id": "rev-draft-guarantee-joint-liability",
+    "caseId": "case-linjiang-qiyun-2025",
+    "targetDocument": {
+      "fileId": "01-起诉状.md"
+    },
+    "instructions": [
+      {
+        "id": "ins-01",
+        "kind": "commentOnly",
+        "locator": {
+          "strategy": "text",
+          "quote": "被告二、被告三分别于2025年4月15日、4月10日出具连带责任保证书，依法应承担连带清偿责任。"
+        },
+        "annotation": {
+          "text": "建议明确援引《中华人民共和国民法典》第六百八十八条（连带责任保证），强化连带清偿请求的法律依据。",
+          "citations": [
+            {
+              "citation": "《中华人民共和国民法典》第六百八十八条",
+              "sourceAnchors": [],
+              "statuteRef": {
+                "law": "中华人民共和国民法典",
+                "article": "第六百八十八条"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "facts": {
+      "actualPrepaymentDate": "2024年8月26日",
+      "misdirectedAmount": "500,000",
+      "misdirectedAccount": "临江贸易",
+      "warrantyDeposit": "380,000",
+      "warrantyPeriodMonths": "12",
+      "filingDate": "2025年5月6日",
+      "penaltyStartDate": "2024年12月26日"
+    }
+  },
+  "scoringRules": [
+    {
+      "type": "schemaValid",
+      "schemaName": "RevisionInstructionSet"
+    },
+    {
+      "type": "revisionSetMatch"
+    },
+    {
+      "type": "citationExists"
+    },
+    {
+      "type": "llmJudge",
+      "judgePromptFile": "judges/s4-draft-quality.judge.md",
+      "weight": 1
+    }
+  ],
+  "sourceRefs": [
+    "packages/demo-data/data/dossier/01-起诉状.md",
+    "packages/demo-data/data/case-bible.md"
+  ]
+}

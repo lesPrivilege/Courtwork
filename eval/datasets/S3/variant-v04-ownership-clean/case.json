@@ -1,0 +1,28 @@
+{
+  "id": "variant-v04-ownership-clean",
+  "scenario": "S3",
+  "caseType": "variant",
+  "task": {
+    "instruction": "你是本案（临江精铸诉起云智能设备采购合同纠纷案）代理律师，正在审查买卖合同条款。请仔细阅读以下合同条款文本，识别其中存在的法律风险，并按 RiskList 格式输出完整风险清单：{caseId: string, risks: [{id, description, level: \"high\"|\"medium\"|\"low\", basis: [{citation, sourceAnchors: [{fileId}]}], dispositionStatus: \"pending\"}]}。只输出该条款范围内确实存在的风险；如果该条款没有问题，risks 应为空数组，不要为了凑数虚构风险点。",
+    "input": {
+      "caseId": "case-linjiang-qiyun-2025",
+      "contractText": "**第六条 所有权与风险转移**\n设备所有权及毁损灭失风险均自验收合格之日起转移至乙方，权责对应关系明确。"
+    }
+  },
+  "expectedAnswer": {
+    "caseId": "case-linjiang-qiyun-2025",
+    "risks": []
+  },
+  "scoringRules": [
+    {
+      "type": "schemaValid",
+      "schemaName": "RiskList"
+    },
+    {
+      "type": "riskListMatch"
+    }
+  ],
+  "sourceRefs": [
+    "packages/demo-data/data/contracts/variants/V04-沃德精工装备制造有限公司.md"
+  ]
+}

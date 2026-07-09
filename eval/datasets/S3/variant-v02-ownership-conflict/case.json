@@ -1,0 +1,57 @@
+{
+  "id": "variant-v02-ownership-conflict",
+  "scenario": "S3",
+  "caseType": "variant",
+  "task": {
+    "instruction": "你是本案（临江精铸诉起云智能设备采购合同纠纷案）代理律师，正在审查买卖合同条款。请仔细阅读以下合同条款文本，识别其中存在的法律风险，并按 RiskList 格式输出完整风险清单：{caseId: string, risks: [{id, description, level: \"high\"|\"medium\"|\"low\", basis: [{citation, sourceAnchors: [{fileId}]}], dispositionStatus: \"pending\"}]}。只输出该条款范围内确实存在的风险；如果该条款没有问题，risks 应为空数组，不要为了凑数虚构风险点。",
+    "input": {
+      "caseId": "case-linjiang-qiyun-2025",
+      "contractText": "**第六条 所有权与风险转移**\n设备交付即视为风险转移至乙方；同时约定验收合格前设备所有权仍归甲方所有（与风险转移条款存在逻辑冲突）。"
+    }
+  },
+  "expectedAnswer": {
+    "caseId": "case-linjiang-qiyun-2025",
+    "risks": [
+      {
+        "id": "variant-risk",
+        "description": "所有权保留与风险转移条款自相矛盾：一方面约定设备交付即视为风险转移至乙方，另一方面又约定验收合格前设备所有权仍归甲方所有，两条款在设备毁损灭失责任归属上存在逻辑冲突。",
+        "level": "medium",
+        "basis": [
+          {
+            "citation": "《中华人民共和国民法典》第六百零四条",
+            "sourceAnchors": [
+              {
+                "fileId": "V02-云章远大机械制造有限公司.md",
+                "textRange": {
+                  "start": 0,
+                  "end": 68
+                }
+              }
+            ]
+          }
+        ],
+        "dispositionStatus": "pending"
+      }
+    ]
+  },
+  "scoringRules": [
+    {
+      "type": "schemaValid",
+      "schemaName": "RiskList"
+    },
+    {
+      "type": "riskListMatch"
+    },
+    {
+      "type": "citationExists"
+    },
+    {
+      "type": "llmJudge",
+      "judgePromptFile": "judges/s3-risk-quality.judge.md",
+      "weight": 1
+    }
+  ],
+  "sourceRefs": [
+    "packages/demo-data/data/contracts/variants/V02-云章远大机械制造有限公司.md"
+  ]
+}

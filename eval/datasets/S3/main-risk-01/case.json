@@ -1,0 +1,59 @@
+{
+  "id": "main-risk-01",
+  "scenario": "S3",
+  "caseType": "core",
+  "task": {
+    "instruction": "你是本案（临江精铸诉起云智能设备采购合同纠纷案）代理律师，正在审查买卖合同条款。请仔细阅读以下合同条款文本，识别其中存在的法律风险，并按 RiskList 格式输出完整风险清单：{caseId: string, risks: [{id, description, level: \"high\"|\"medium\"|\"low\", basis: [{citation, sourceAnchors: [{fileId}]}], dispositionStatus: \"pending\"}]}。只输出该条款范围内确实存在的风险；如果该条款没有问题，risks 应为空数组，不要为了凑数虚构风险点。",
+    "input": {
+      "caseId": "case-linjiang-qiyun-2025",
+      "contractText": "**第六条 违约责任**\n乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。"
+    }
+  },
+  "expectedAnswer": {
+    "caseId": "case-linjiang-qiyun-2025",
+    "risks": [
+      {
+        "id": "risk-01",
+        "description": "违约金约定畸高：合同约定买方逾期付款每逾期一日按未付金额1%支付违约金（年化约365%），远超司法实践中以LPR四倍为参考的酌减尺度，一旦进入诉讼，该条款大概率会被法院或仲裁机构依申请酌减，卖方据此计算的违约金主张存在被大幅调低的风险。",
+        "level": "high",
+        "basis": [
+          {
+            "citation": "《中华人民共和国民法典》第五百八十五条",
+            "sourceAnchors": [
+              {
+                "fileId": "04-设备采购合同.md",
+                "quote": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金",
+                "textRange": {
+                  "start": 0,
+                  "end": 36
+                }
+              }
+            ]
+          }
+        ],
+        "dispositionStatus": "pending"
+      }
+    ]
+  },
+  "scoringRules": [
+    {
+      "type": "schemaValid",
+      "schemaName": "RiskList"
+    },
+    {
+      "type": "riskListMatch"
+    },
+    {
+      "type": "citationExists"
+    },
+    {
+      "type": "llmJudge",
+      "judgePromptFile": "judges/s3-risk-quality.judge.md",
+      "weight": 1
+    }
+  ],
+  "sourceRefs": [
+    "packages/demo-data/data/contracts/main-contract.md",
+    "packages/demo-data/data/artifacts/risk-list.json"
+  ]
+}
