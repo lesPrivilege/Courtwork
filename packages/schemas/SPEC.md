@@ -30,7 +30,7 @@
 
 ## TODO（跨层放入区）
 
-（空）
+- [架构拍板 2026-07-09] 文书起草/修订指令集产物类型待 W4 提案（架构已拍板路径，见 `packages/output/SPEC.md` TODO：暂名 `RevisionInstructionSet`，含 `ArtifactTypeEnum` 增量扩展）；矛盾清单（`ContradictionList`，供 S1 卷宗阅卷使用）产物类型待 W3 spike 结论后定。两者合入前，`packages/registry` 的 S4 声明以 label-only 确认门禁过渡（不声明 outputArtifacts），S1 声明不含矛盾清单产出。
 
 ## 验收记录
 

@@ -23,4 +23,5 @@
 
 ## TODO（跨层放入区）
 
-（空）
+- [架构拍板 2026-07-09] S4（文书起草）当前不声明 `outputArtifacts`，`confirmationGates` 用 label-only 门禁过渡；真正的产物类型（`RevisionInstructionSet`）由 W4 在 `packages/schemas` 提案落地后，S4 声明需同步更新为引用该类型（详见 `packages/schemas/SPEC.md` TODO、`packages/output/SPEC.md` TODO）。
+- [架构拍板 2026-07-09] S1（卷宗阅卷）当前 `outputArtifacts` 不含"供述/证据矛盾清单"，因为对应的 `ContradictionList` 产物类型待 W3 spike 结论后另行判断是否新增（详见 `packages/schemas/SPEC.md` TODO）。若新增，S1 声明需同步更新。
