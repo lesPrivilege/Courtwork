@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { ScenarioDefinition } from '@courtwork/registry';
 import { RevisionEventSchema } from '@courtwork/schemas';
-import { createMockPartyVerifyAdapter, createPartyVerifyTool, createToolExecutor } from '@courtwork/tools';
+import { createMockPartyVerifyAdapter, createPartyVerifyTool, createQccPartyVerifyAdapter, createToolExecutor } from '@courtwork/tools';
 import { createEventLog, createFileEventLog } from '../events/event-log.js';
 import { createEvidenceLedger } from '../evidence/grade.js';
 import { createFileConfirmationStore, createInMemoryConfirmationStore } from '../session/confirmation-store.js';
@@ -72,7 +72,7 @@ describe('runScenario', () => {
     expect(deps.ledger.get('party-verify')).toEqual({ grade: 'A', sourceId: 'mock', confirmed: false });
 
     const events = deps.eventLog.list();
-    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'confirmation_requested']);
+    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'todo_snapshot', 'confirmation_requested']);
     expect(events[0]).toMatchObject({ type: 'artifact_produced', artifactType: 'RiskList', artifact: VALID_RISK_LIST });
     expect(events[0]).toMatchObject({ evidenceGrades: [{ key: 'party-verify', grade: 'A', sourceId: 'mock', confirmed: false }] });
   });
@@ -128,8 +128,15 @@ describe('resumeScenario', () => {
     expect(result).toEqual({ status: 'completed', sessionId: 'session-1', artifacts: { CaseFile: { caseId: 'c1', files: [] }, RiskList: VALID_RISK_LIST } });
 
     const events = deps.eventLog.list();
-    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'confirmation_requested', 'confirmation_resolved', 'scenario_completed']);
-    expect(events[2]).toMatchObject({
+    expect(events.map((e) => e.type)).toEqual([
+      'artifact_produced',
+      'todo_snapshot',
+      'confirmation_requested',
+      'confirmation_resolved',
+      'todo_snapshot',
+      'scenario_completed',
+    ]);
+    expect(events[3]).toMatchObject({
       type: 'confirmation_resolved',
       requestId: paused.requestId,
       actor: { channelId: 'cli', actorId: 'demo-lawyer', role: '主办律师' },
@@ -155,7 +162,15 @@ describe('resumeScenario', () => {
 
     expect(result.status).toBe('completed');
     const events = deps.eventLog.list();
-    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'confirmation_requested', 'confirmation_resolved', 'scenario_completed']);
+    // reject 分支不再跑 produceSequence，所以只有暂停那一刻的一份 todo_snapshot，
+    // 没有"全部完成"那份——这是诚实的：reject 之后并没有真的把剩余步骤走完。
+    expect(events.map((e) => e.type)).toEqual([
+      'artifact_produced',
+      'todo_snapshot',
+      'confirmation_requested',
+      'confirmation_resolved',
+      'scenario_completed',
+    ]);
   });
 
   it('resuming an unknown or already-consumed requestId throws UnknownConfirmationRequestError', async () => {
@@ -230,18 +245,20 @@ describe('resumeScenario', () => {
     const events = deps.eventLog.list();
     expect(events.map((e) => e.type)).toEqual([
       'artifact_produced',
+      'todo_snapshot',
       'confirmation_requested',
       'confirmation_resolved',
       'revision_recorded',
       'artifact_produced',
+      'todo_snapshot',
       'scenario_completed',
     ]);
-    expect(events[2]).toMatchObject({ instrumentation: { dwellMs: 4200, expandedEvidenceKeys: ['party-verify'] } });
-    expect(events[3]).toMatchObject({ type: 'revision_recorded', revisionEventId: recorded[0].id });
+    expect(events[3]).toMatchObject({ instrumentation: { dwellMs: 4200, expandedEvidenceKeys: ['party-verify'] } });
+    expect(events[4]).toMatchObject({ type: 'revision_recorded', revisionEventId: recorded[0].id });
     // 修正后的 artifact 重新发了一次 artifact_produced——事件流可回放才能真正
     // 重建出修正后的状态，而不是只重建出确认门禁触发时那一刻的原始产出。
-    expect(events[4]).toMatchObject({ type: 'artifact_produced', artifactType: 'RiskList' });
-    expect((events[4] as { artifact: typeof VALID_RISK_LIST }).artifact.risks[0].dispositionStatus).toBe('confirmed');
+    expect(events[5]).toMatchObject({ type: 'artifact_produced', artifactType: 'RiskList' });
+    expect((events[5] as { artifact: typeof VALID_RISK_LIST }).artifact.risks[0].dispositionStatus).toBe('confirmed');
   });
 
   it('re-emits artifact_produced for a revised artifact, so replaySession reflects the post-revision state, not the original', async () => {
@@ -334,9 +351,10 @@ describe('runScenario / resumeScenario — multi-artifact sequential gates (S1 s
     expect(deps.eventLog.list().map((e) => e.type)).toEqual([
       'artifact_produced', // CaseFile, ungated
       'artifact_produced', // Timeline
+      'todo_snapshot',
       'confirmation_requested',
     ]);
-    expect(deps.eventLog.list()[2]).toMatchObject({ gateLabel: '确认事件时间线', artifactType: 'Timeline' });
+    expect(deps.eventLog.list()[3]).toMatchObject({ gateLabel: '确认事件时间线', artifactType: 'Timeline' });
 
     const secondPause = await resumeScenario(
       firstPause.requestId,
@@ -383,8 +401,8 @@ describe('runScenario — label-only confirmation gate (no artifact anchor)', ()
     const result = await runScenario(LABEL_ONLY_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps);
     expect(result.status).toBe('paused');
     const events = deps.eventLog.list();
-    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'confirmation_requested']);
-    expect(events[1]).toMatchObject({ gateLabel: '整体确认（无产物锚点）', artifactType: undefined });
+    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'todo_snapshot', 'confirmation_requested']);
+    expect(events[2]).toMatchObject({ gateLabel: '整体确认（无产物锚点）', artifactType: undefined });
   });
 });
 
@@ -430,10 +448,71 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
       expect(done.status).toBe('completed');
       // ledger 从 pending.evidenceLedgerSnapshot 重建，而不是继承 firstDeps 的内存实例：
       expect(secondDeps.ledger.get('party-verify')).toEqual({ grade: 'A', sourceId: 'mock', confirmed: false });
-      // 完整历史（含 firstDeps 阶段写入的事件）在全新 eventLog 实例里依然可读：
-      expect(secondDeps.eventLog.list()).toHaveLength(4);
+      // 完整历史（含 firstDeps 阶段写入的事件，加两份 todo_snapshot：暂停时一份、
+      // 完成时一份）在全新 eventLog 实例里依然可读：
+      expect(secondDeps.eventLog.list()).toHaveLength(6);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission', () => {
+  it('emits a step_failed event (without throwing) when a declared tool degrades to unverified, and still proceeds to generate the artifact', async () => {
+    const tools = createToolRegistry();
+    tools.register('party-verify', { tool: createPartyVerifyTool(createQccPartyVerifyAdapter(undefined)), grade: 'A' });
+    const deps: ScenarioExecutorDeps = {
+      tools,
+      toolExecutor: createToolExecutor(),
+      provider: createScriptedProvider('p', 'v1', [{ content: JSON.stringify(VALID_RISK_LIST) }]),
+      eventLog: createEventLog('session-1', () => '2026-07-10T00:00:00.000Z'),
+      confirmationStore: createInMemoryConfirmationStore(),
+      revisionStore: createInMemoryRevisionEventStore(),
+      ledger: createEvidenceLedger(),
+    };
+
+    const result = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+
+    expect(result.status).toBe('paused');
+    // 工具降级不进证据台账（只有 verified:true 才记账，见 D4）：
+    expect(deps.ledger.get('party-verify')).toBeUndefined();
+    const stepFailedEvents = deps.eventLog.list().filter((e) => e.type === 'step_failed');
+    expect(stepFailedEvents).toHaveLength(1);
+    expect(stepFailedEvents[0]).toMatchObject({ type: 'step_failed', scope: 'tool', toolId: 'party-verify', reason: 'not_configured' });
+  });
+
+  it('emits a todo_snapshot right before pausing, reflecting the scenario declaration with the paused artifact as awaiting_confirmation', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+
+    const snapshots = deps.eventLog.list().filter((e) => e.type === 'todo_snapshot');
+    expect(snapshots).toHaveLength(1);
+    expect(snapshots[0]).toMatchObject({
+      type: 'todo_snapshot',
+      steps: [{ artifactType: 'RiskList', label: '确认风险清单', status: 'awaiting_confirmation' }],
+    });
+  });
+
+  it('emits a final todo_snapshot marking every step done when the scenario completes', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const paused = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
+    await resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'x' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps);
+
+    const snapshots = deps.eventLog.list().filter((e) => e.type === 'todo_snapshot');
+    expect(snapshots).toHaveLength(2);
+    expect(snapshots[1]).toMatchObject({ type: 'todo_snapshot', steps: [{ artifactType: 'RiskList', status: 'done' }] });
   });
 });

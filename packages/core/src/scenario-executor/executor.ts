@@ -12,6 +12,7 @@ import type { ConfirmationStore, PendingConfirmation } from '../session/confirma
 import type { RevisionEventStore } from '../revision/revision-store.js';
 import { applyJsonPointer } from '../revision/json-pointer.js';
 import { ARTIFACT_SCHEMAS } from './artifact-schemas.js';
+import { deriveTodoSnapshot } from './todo-snapshot.js';
 
 export interface ScenarioExecutorDeps {
   tools: ToolRegistry;
@@ -68,6 +69,10 @@ async function runTools(
     results[toolId] = envelope;
     if (envelope.verified) {
       deps.ledger.record(toolId, { grade: binding.grade, sourceId: envelope.source, confirmed: false });
+    } else {
+      // 工具契约本身已经把失败降级为结构化的 verified:false（不抛异常）——这里只是把
+      // "发生过一次工具级降级"显式发布到事件流（docs/12 长任务协议②，step_failed）。
+      deps.eventLog.append({ type: 'step_failed', scope: 'tool', toolId, reason: envelope.reason, message: envelope.message });
     }
   }
   return results;
@@ -112,6 +117,7 @@ interface SequenceState {
 }
 
 function pauseAt(
+  scenario: ScenarioDefinition,
   gateLabel: string,
   artifactType: ArtifactType | undefined,
   remainingArtifactTypes: ArtifactType[],
@@ -133,6 +139,8 @@ function pauseAt(
     createdAt: now(),
   };
   deps.confirmationStore.save(pending);
+  // 进度快照先发（docs/12 长任务协议①）：反映"停在哪一步"，再发确认请求本身。
+  deps.eventLog.append({ type: 'todo_snapshot', steps: deriveTodoSnapshot(scenario, state.producedSoFar, artifactType) });
   deps.eventLog.append({ type: 'confirmation_requested', requestId, gateLabel, artifactType });
   return { status: 'paused', sessionId: state.sessionId, requestId };
 }
@@ -159,15 +167,16 @@ async function produceSequence(
 
     const gate = scenario.confirmationGates.find((g) => g.artifact === artifactType);
     if (gate) {
-      return pauseAt(gate.label, artifactType, remainingArtifactTypes.slice(i + 1), state, deps, now);
+      return pauseAt(scenario, gate.label, artifactType, remainingArtifactTypes.slice(i + 1), state, deps, now);
     }
   }
 
   const labelOnlyGate = scenario.confirmationGates.find((g) => g.artifact === undefined);
   if (labelOnlyGate) {
-    return pauseAt(labelOnlyGate.label, undefined, [], state, deps, now);
+    return pauseAt(scenario, labelOnlyGate.label, undefined, [], state, deps, now);
   }
 
+  deps.eventLog.append({ type: 'todo_snapshot', steps: deriveTodoSnapshot(scenario, state.producedSoFar) });
   deps.eventLog.append({ type: 'scenario_completed' });
   return { status: 'completed', sessionId: state.sessionId, artifacts: state.producedSoFar };
 }

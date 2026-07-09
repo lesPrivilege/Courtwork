@@ -35,14 +35,17 @@ describe('S3 end-to-end acceptance flow', () => {
       expect(result.docx.length).toBeGreaterThan(0);
       expect(result.docx.subarray(0, 2).toString('utf-8')).toBe('PK');
 
-      // 全程事件流可回放：类型序列体现"产出→确认请求→确认解决→修正记录→修正后重发产出→完成"
-      // 的完整生命周期（重发的 artifact_produced 是 replaySession 能重建出修正后状态的原因）。
+      // 全程事件流可回放：类型序列体现"产出→进度快照→确认请求→确认解决→修正记录→
+      // 修正后重发产出→进度快照→完成"的完整生命周期（重发的 artifact_produced 是
+      // replaySession 能重建出修正后状态的原因；todo_snapshot 是 docs/12 长任务协议①）。
       expect(result.eventTypes).toEqual([
         'artifact_produced',
+        'todo_snapshot',
         'confirmation_requested',
         'confirmation_resolved',
         'revision_recorded',
         'artifact_produced',
+        'todo_snapshot',
         'scenario_completed',
       ]);
     } finally {
