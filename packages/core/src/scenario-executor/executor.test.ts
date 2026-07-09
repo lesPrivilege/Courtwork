@@ -7,7 +7,14 @@ import { createInMemoryConfirmationStore } from '../session/confirmation-store.j
 import { createInMemoryRevisionEventStore } from '../revision/revision-store.js';
 import { createToolRegistry } from '../tools/tool-registry.js';
 import { createScriptedProvider } from '../provider/scripted-provider.js';
-import { GenerationValidationError, runScenario, UnknownToolError, type ScenarioExecutorDeps } from './executor.js';
+import {
+  GenerationValidationError,
+  resumeScenario,
+  runScenario,
+  UnknownConfirmationRequestError,
+  UnknownToolError,
+  type ScenarioExecutorDeps,
+} from './executor.js';
 
 const SINGLE_GATE_SCENARIO: ScenarioDefinition = {
   id: 'S-test-single',
@@ -94,5 +101,78 @@ describe('runScenario', () => {
         deps,
       ),
     ).rejects.toThrow(GenerationValidationError);
+  });
+});
+
+describe('resumeScenario', () => {
+  it('confirming a single-gate scenario with no revisions completes it and returns the produced artifacts', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const paused = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
+
+    const result = await resumeScenario(
+      paused.requestId,
+      { actor: { channelId: 'cli', actorId: 'demo-lawyer', role: '主办律师' }, decision: 'confirm' },
+      SINGLE_GATE_SCENARIO,
+      deps,
+    );
+
+    expect(result).toEqual({ status: 'completed', sessionId: 'session-1', artifacts: { CaseFile: { caseId: 'c1', files: [] }, RiskList: VALID_RISK_LIST } });
+
+    const events = deps.eventLog.list();
+    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'confirmation_requested', 'confirmation_resolved', 'scenario_completed']);
+    expect(events[2]).toMatchObject({
+      type: 'confirmation_resolved',
+      requestId: paused.requestId,
+      actor: { channelId: 'cli', actorId: 'demo-lawyer', role: '主办律师' },
+      decision: 'confirm',
+    });
+  });
+
+  it('rejecting a gate completes the scenario immediately without producing further artifacts', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const paused = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
+
+    const result = await resumeScenario(
+      paused.requestId,
+      { actor: { channelId: 'cli', actorId: 'demo-lawyer' }, decision: 'reject' },
+      SINGLE_GATE_SCENARIO,
+      deps,
+    );
+
+    expect(result.status).toBe('completed');
+    const events = deps.eventLog.list();
+    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'confirmation_requested', 'confirmation_resolved', 'scenario_completed']);
+  });
+
+  it('resuming an unknown or already-consumed requestId throws UnknownConfirmationRequestError', async () => {
+    const deps = buildDeps([]);
+    await expect(
+      resumeScenario('never-issued', { actor: { channelId: 'cli', actorId: 'x' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
+    ).rejects.toThrow(UnknownConfirmationRequestError);
+  });
+
+  it('a confirmation request can only be resumed once — the second resume on the same requestId throws', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const paused = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
+    await resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'x' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps);
+
+    await expect(
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'x' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
+    ).rejects.toThrow(UnknownConfirmationRequestError);
   });
 });

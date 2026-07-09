@@ -187,3 +187,53 @@ export async function runScenario(
     deps,
   );
 }
+
+export interface ConfirmationActor {
+  channelId: string;
+  actorId: string;
+  role?: string;
+}
+
+export interface ScenarioResumeInput {
+  actor: ConfirmationActor;
+  decision: 'confirm' | 'reject';
+}
+
+export async function resumeScenario(
+  requestId: string,
+  response: ScenarioResumeInput,
+  scenario: ScenarioDefinition,
+  deps: ScenarioExecutorDeps,
+): Promise<ScenarioRunResult> {
+  const pending = deps.confirmationStore.take(requestId);
+  if (!pending) throw new UnknownConfirmationRequestError(requestId);
+
+  for (const entry of pending.evidenceLedgerSnapshot) {
+    deps.ledger.record(entry.key, { grade: entry.grade, sourceId: entry.sourceId, confirmed: entry.confirmed });
+  }
+
+  deps.eventLog.append({
+    type: 'confirmation_resolved',
+    requestId,
+    actor: response.actor,
+    decision: response.decision,
+  });
+
+  if (response.decision === 'reject') {
+    deps.eventLog.append({ type: 'scenario_completed' });
+    return { status: 'completed', sessionId: pending.sessionId, artifacts: pending.producedArtifacts };
+  }
+
+  return produceSequence(
+    scenario,
+    pending.remainingArtifactTypes,
+    {
+      sessionId: pending.sessionId,
+      scenarioId: pending.scenarioId,
+      toolResults: pending.toolResults,
+      producedSoFar: pending.producedArtifacts,
+      inputArtifacts: pending.producedArtifacts,
+    },
+    deps,
+  );
+}
