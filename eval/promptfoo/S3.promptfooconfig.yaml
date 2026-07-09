@@ -1,0 +1,32 @@
+# S3（合同审查）评测配置。
+#
+# provider 一律走配置，不写死在代码里：本机没有真实 provider 的 API key，下面默认接
+# 两个 mock provider，只用来验证跑分脚本 + 对比报告机制本身能跑通。真实跑分时，把
+# providers 列表换成真实 provider id，例如：
+#   providers:
+#     - anthropic:messages:claude-opus-4-8
+#     - anthropic:messages:claude-sonnet-5
+#     - openai:gpt-5.1
+# defaultTest.options.provider 同理换成真实 provider（用于 llm-rubric judge 评分）。
+# 不需要改任何 TypeScript 代码。
+
+description: 'S3 合同审查评测（临江精铸诉起云智能设备采购合同纠纷案样板案）'
+
+prompts:
+  - |
+    {{instruction}}
+
+    案件相关输入（JSON）：
+    {{input}}
+
+providers:
+  - id: file://../src/mock-providers/mock-thorough-provider.ts
+    label: mock-thorough
+  - id: file://../src/mock-providers/mock-fast-provider.ts
+    label: mock-fast
+
+tests: file://../src/promptfoo/tests-entry.ts:s3Tests
+
+defaultTest:
+  options:
+    provider: file://../src/mock-providers/mock-judge-provider.ts
