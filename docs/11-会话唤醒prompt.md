@@ -229,4 +229,25 @@ d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录
 处置规则同前（fix-by-acceptance 独立提交；契约级标 [需架构拍板]）。报告写入 packages/output/ACCEPTANCE.md，结论明确：是否放行 W6 消费 output 与新契约。
 ```
 
-后续工单（W3/W6–W8）验收实例在各实现会话回报后按同一结构生成。
+## W7 验收（Codex，范围 = eval/ + workspace 纳入改动）
+
+```
+你是 Courtwork 的验收工程师（角色边界见根目录 AGENTS.md）。验收 W7 工单：eval 评测框架与数据集骨架。实现会话已回报完工，你的任务是独立复核并给出放行结论。
+
+先读：CLAUDE.md、AGENTS.md、docs/10、eval/SPEC.md（含 DeepEval 取舍记录）、docs/21、packages/demo-data/data/manifest.md。
+
+验收清单（逐项给结论）：
+1. 干净环境：rm -rf node_modules → pnpm install → eval 定向 test（口径 57）→ 仓库全量 test（口径 253）→ lint → build；核对输出有真实用例计数（假绿防护——本条规则正是从验收先例来的，eval 包自己不许再犯）。
+2. 硬条件一·跑分器无关性：抽查 datasets/S3、datasets/S4 的 case 文件，不得含任何 promptfoo 专有字段；grep -ri promptfoo，专有词汇只允许出现在 src/promptfoo/ 适配层与其配置文件——评测数据资产必须可整体迁移到任何跑分器。
+3. 硬条件二·SPEC 记录：DeepEval 降级为方法论参考的取舍理由 + 两个重估触发条件（出现规则/judge 表达不了的指标；W8 引入 Python 环境时）如实在案。
+4. 数据集溯源纪律：抽查 ≥6 例（含正例与负例），每例可回溯到 packages/demo-data/data/ 的具体源文件（case-bible/主合同/变体/review-matrix）；负例取自既有语料的未标记条款或"无冲突"判定，不存在编造的平行事实；S4 手写标准答案与 case-bible 的事件/矛盾对应。
+5. 双轨纪律：能规则评分的不上 judge——核对 5 个规则评分器覆盖面与 2 份 judge 提示词的分工边界；judge 提示词入版本管理；riskListMatch 同时度量召回与精确（有防假阳性测试）；citationExists 对 cite-check 语料库真实校验；生成数据中的 SourceAnchor 满足两条跨字段规则。
+6. E2E 实测（自己跑，不采信自述）：mock providers 跑 promptfoo eval S3+S4 全量，确认差异化通过/失败模式真实出现（mock-fast 降档应被 riskListMatch 抓到）；对比报告生成器出报告；回归模式建基线 → 注入一处人为降级 → 确认被检出且无假阳性；caseId 跨 run 匹配稳定。
+7. workspace 改动最小化：pnpm-workspace.yaml 与 vitest.config.ts 的改动仅限纳入 eval，无越界。
+8. 工程决策尊重：typescript ^6.0.3；@types/node 模式；无真实凭证/写死模型 id；"真实 provider 跑分待凭证"已记 SPEC TODO。
+9. 提交卫生：分层提交、显式路径、无遗漏未跟踪文件。
+
+处置规则同前（fix-by-acceptance 独立提交；契约级/评测方法论级问题标 [需架构拍板]）。报告写入 eval/ACCEPTANCE.md。结论必须明确：eval 是否就绪作为模型选型与回归门禁使用（真实 provider 跑分除外）。
+```
+
+后续工单（W3/W6/W8）验收实例在各实现会话回报后按同一结构生成。
