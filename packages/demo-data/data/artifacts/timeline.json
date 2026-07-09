@@ -1,0 +1,1057 @@
+{
+  "caseId": "case-linjiang-qiyun-2025",
+  "events": [
+    {
+      "id": "evt-01",
+      "description": "起云智能向临江精铸发出采购询价函，启动设备采购磋商",
+      "date": {
+        "kind": "exact",
+        "date": "2024-07-20"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-linjiang-jz"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "采购询价函（2024-07-20）",
+          "textRange": {
+            "start": 0,
+            "end": 17
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-02",
+      "description": "双方就设备技术参数进行初步磋商",
+      "date": {
+        "kind": "exact",
+        "date": "2024-07-28"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-linjiang-jz"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "证明磋商过程",
+          "textRange": {
+            "start": 0,
+            "end": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-03",
+      "description": "临江精铸出具报价单及技术方案",
+      "date": {
+        "kind": "exact",
+        "date": "2024-08-05"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "报价单及技术方案（2024-08-05）",
+          "textRange": {
+            "start": 0,
+            "end": 20
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-04",
+      "description": "双方就付款节点与违约金条款进行谈判",
+      "date": {
+        "kind": "exact",
+        "date": "2024-08-12"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "12-会议纪要-一.md",
+          "quote": "会议背景：双方于2024年12月10日完成设备联调并签署验收单",
+          "textRange": {
+            "start": 0,
+            "end": 31
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-05",
+      "description": "双方签订《精密铸造生产线设备采购合同》（编号 LJJZ-CY-2024-0817），总价3,800,000元",
+      "date": {
+        "kind": "exact",
+        "date": "2024-08-17"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn",
+        "p-feng-wc",
+        "p-cen-rl"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "04-设备采购合同.md",
+          "quote": "合同总价为人民币叁佰捌拾万元整（¥3,800,000元）",
+          "textRange": {
+            "start": 0,
+            "end": 28
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-06",
+      "description": "临江精铸向起云智能开具合同附件《收款账户确认书》，指定收款主体为临江精铸科技",
+      "date": {
+        "kind": "exact",
+        "date": "2024-08-17"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "04-设备采购合同.md",
+          "quote": "上述款项均应支付至甲方指定收款账户",
+          "textRange": {
+            "start": 0,
+            "end": 17
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-07",
+      "description": "预付款1,140,000元应付日期届至",
+      "date": {
+        "kind": "exact",
+        "date": "2024-08-24"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-linjiang-jz"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "04-设备采购合同.md",
+          "quote": "乙方应于本合同签订后7日内支付",
+          "textRange": {
+            "start": 0,
+            "end": 15
+          }
+        },
+        {
+          "fileId": "01-起诉状.md",
+          "quote": "被告一于2024年8月24日依约支付预付款1,140,000元",
+          "textRange": {
+            "start": 0,
+            "end": 31
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-08",
+      "description": "银行流水显示预付款1,140,000元实际到账（迟延2日），与起诉状陈述的2024-08-24存在差异【矛盾点4】",
+      "date": {
+        "kind": "exact",
+        "date": "2024-08-26"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-linjiang-jz"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "14-银行流水摘要.md",
+          "quote": "2024-08-26 采购合同预付款 1,140,000 临江精铸科技有限公司",
+          "textRange": {
+            "start": 0,
+            "end": 39
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-09",
+      "description": "双方签订补充协议，第三批交付期顺延至2024-11-30",
+      "date": {
+        "kind": "exact",
+        "date": "2024-09-02"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn",
+        "p-mei-zy",
+        "p-ke-qy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "05-合同补充协议.md",
+          "quote": "第三批设备（自动化上下料系统）交付期限顺延至2024年11月30日",
+          "textRange": {
+            "start": 0,
+            "end": 33
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-10",
+      "description": "临江精铸启动生产排期，委托关联公司云章装备负责制造",
+      "date": {
+        "kind": "exact",
+        "date": "2024-09-15"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-linjiang-yzzb"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "证明合同关系成立及主要权利义务",
+          "textRange": {
+            "start": 0,
+            "end": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-11",
+      "description": "起云智能确认收到预付款的卖方回函",
+      "date": {
+        "kind": "exact",
+        "date": "2024-09-20"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-linjiang-jz"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "证明磋商过程",
+          "textRange": {
+            "start": 0,
+            "end": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-12",
+      "description": "熔炼炉主体设备完成出厂检验",
+      "date": {
+        "kind": "exact",
+        "date": "2024-10-01"
+      },
+      "partyIds": [
+        "p-linjiang-yzzb"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "证明设备已实际交付",
+          "textRange": {
+            "start": 0,
+            "end": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-13",
+      "description": "双方确认第一批发运计划",
+      "date": {
+        "kind": "exact",
+        "date": "2024-10-08"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "12-会议纪要-一.md",
+          "quote": "会议背景",
+          "textRange": {
+            "start": 0,
+            "end": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-14",
+      "description": "第一批设备（中频熔炼炉）交付，发货单位为临江精铸（云章）装备有限公司【矛盾点2】",
+      "date": {
+        "kind": "exact",
+        "date": "2024-10-15"
+      },
+      "partyIds": [
+        "p-linjiang-yzzb",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "06-送货单-一.md",
+          "quote": "发货单位：临江精铸（云章）装备有限公司",
+          "textRange": {
+            "start": 0,
+            "end": 19
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-15",
+      "description": "起云智能确认收到第一批设备并签收",
+      "date": {
+        "kind": "exact",
+        "date": "2024-10-16"
+      },
+      "partyIds": [
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "06-送货单-一.md",
+          "quote": "签收日期：2024年10月16日",
+          "textRange": {
+            "start": 0,
+            "end": 16
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-16",
+      "description": "起云智能反馈熔炼炉安装场地准备情况",
+      "date": {
+        "kind": "exact",
+        "date": "2024-10-22"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-linjiang-jz"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "证明磋商过程",
+          "textRange": {
+            "start": 0,
+            "end": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-17",
+      "description": "第二批设备（精密铸造模具及配套系统）交付，发货单位为云章装备【矛盾点2】",
+      "date": {
+        "kind": "exact",
+        "date": "2024-11-05"
+      },
+      "partyIds": [
+        "p-linjiang-yzzb",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "07-送货单-二.md",
+          "quote": "发货单位：临江精铸（云章）装备有限公司",
+          "textRange": {
+            "start": 0,
+            "end": 19
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-18",
+      "description": "起云智能签收第二批设备",
+      "date": {
+        "kind": "exact",
+        "date": "2024-11-06"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-ke-qy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "07-送货单-二.md",
+          "quote": "签收日期：2024年11月6日",
+          "textRange": {
+            "start": 0,
+            "end": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-19",
+      "description": "临江精铸派出工程师赴现场协助安装调试",
+      "date": {
+        "kind": "exact",
+        "date": "2024-11-12"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "证明设备已实际交付",
+          "textRange": {
+            "start": 0,
+            "end": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-20",
+      "description": "第三批设备（自动化上下料系统）交付，发货单位为云章装备【矛盾点2】",
+      "date": {
+        "kind": "exact",
+        "date": "2024-11-28"
+      },
+      "partyIds": [
+        "p-linjiang-yzzb",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "08-送货单-三.md",
+          "quote": "发货单位：临江精铸（云章）装备有限公司",
+          "textRange": {
+            "start": 0,
+            "end": 19
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-21",
+      "description": "起云智能签收第三批设备，至此三批交付完毕",
+      "date": {
+        "kind": "exact",
+        "date": "2024-11-29"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-ke-qy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "08-送货单-三.md",
+          "quote": "签收日期：2024年11月29日",
+          "textRange": {
+            "start": 0,
+            "end": 16
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-22",
+      "description": "双方约定于2024-12-10进行整线联调与验收",
+      "date": {
+        "kind": "exact",
+        "date": "2024-12-01"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "12-会议纪要-一.md",
+          "quote": "会议背景",
+          "textRange": {
+            "start": 0,
+            "end": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-23",
+      "description": "临江精铸完成设备调试，通知起云智能安排验收",
+      "date": {
+        "kind": "exact",
+        "date": "2024-12-08"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "证明验收结论",
+          "textRange": {
+            "start": 0,
+            "end": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-24",
+      "description": "双方现场验收，签署验收单，载明设备运行正常、验收合格",
+      "date": {
+        "kind": "exact",
+        "date": "2024-12-10"
+      },
+      "partyIds": [
+        "p-mei-zy",
+        "p-ke-qy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "09-验收单.md",
+          "quote": "设备运行正常，验收合格",
+          "textRange": {
+            "start": 0,
+            "end": 11
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-25",
+      "description": "验收当日熔炼炉温控系统曾短暂报警，现场记录不一致（背景瑕疵，构成矛盾点3的诱因）",
+      "date": {
+        "kind": "exact",
+        "date": "2024-12-10"
+      },
+      "partyIds": [
+        "p-ke-qy",
+        "p-mei-zy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "09-验收单.md",
+          "quote": "验收当日熔炼炉温控系统曾出现短暂报警",
+          "textRange": {
+            "start": 0,
+            "end": 18
+          }
+        },
+        {
+          "fileId": "15-情况说明.md",
+          "quote": "我司现场技术人员即发现熔炼炉温控系统存在异常报警情况",
+          "textRange": {
+            "start": 0,
+            "end": 26
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-26",
+      "description": "起云智能内部生产部门反馈温控系统运行异常",
+      "date": {
+        "kind": "exact",
+        "date": "2024-12-12"
+      },
+      "partyIds": [
+        "p-ke-qy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "15-情况说明.md",
+          "quote": "我司生产部门持续反馈该设备温控运行不稳定",
+          "textRange": {
+            "start": 0,
+            "end": 20
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-27",
+      "description": "起云智能口头向临江精铸反映设备异常",
+      "date": {
+        "kind": "exact",
+        "date": "2024-12-15"
+      },
+      "partyIds": [
+        "p-ke-qy",
+        "p-mei-zy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "15-情况说明.md",
+          "quote": "我司生产部门持续反馈该设备温控运行不稳定（2024年12月12日、12月15日）",
+          "textRange": {
+            "start": 0,
+            "end": 40
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-28",
+      "description": "双方召开协商会议，形成会议纪要（一）：柯清源称验收当日即发现异常、尚未正式验收，与验收单结论矛盾【矛盾点3】",
+      "date": {
+        "kind": "exact",
+        "date": "2024-12-20"
+      },
+      "partyIds": [
+        "p-mei-zy",
+        "p-ke-qy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "12-会议纪要-一.md",
+          "quote": "验收当日即发现熔炼炉温控系统异常，尚未正式验收",
+          "textRange": {
+            "start": 0,
+            "end": 23
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-29",
+      "description": "验收款2,280,000元应付日期届至，起云智能未支付",
+      "date": {
+        "kind": "exact",
+        "date": "2024-12-25"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-linjiang-jz"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "04-设备采购合同.md",
+          "quote": "验收款：合同总价60%，计人民币2,280,000元，乙方应于设备验收合格后15日内支付",
+          "textRange": {
+            "start": 0,
+            "end": 44
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-30",
+      "description": "临江精铸内部形成催告决定",
+      "date": {
+        "kind": "exact",
+        "date": "2025-01-08"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-mei-zy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "证明原告已履行催告义务",
+          "textRange": {
+            "start": 0,
+            "end": 11
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-31",
+      "description": "临江精铸发出催告函（一），落款加盖临江精铸集团公章，与合同卖方主体不符【矛盾点1】",
+      "date": {
+        "kind": "exact",
+        "date": "2025-01-10"
+      },
+      "partyIds": [
+        "p-linjiang-jt",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "10-催告函-一.md",
+          "quote": "（盖章：临江精铸集团有限公司）",
+          "textRange": {
+            "start": 0,
+            "end": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-32",
+      "description": "起云智能出具情况说明，主张设备存在质量瑕疵，暂缓付款",
+      "date": {
+        "kind": "exact",
+        "date": "2025-01-20"
+      },
+      "partyIds": [
+        "p-ke-qy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "15-情况说明.md",
+          "quote": "我司认为在设备质量问题未澄清前，全额支付验收款存在合理异议",
+          "textRange": {
+            "start": 0,
+            "end": 29
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-33",
+      "description": "银行流水显示起云智能支付500,000元至临江贸易账户，非合同约定收款账户【矛盾点4】",
+      "date": {
+        "kind": "exact",
+        "date": "2025-01-22"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-linjiang-mt"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "14-银行流水摘要.md",
+          "quote": "2025-01-22 设备款项（部分） 500,000 临江精铸国际贸易（云章）有限公司",
+          "textRange": {
+            "start": 0,
+            "end": 44
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-34",
+      "description": "起云智能提出委托第三方机构检测熔炼炉温控系统",
+      "date": {
+        "kind": "exact",
+        "date": "2025-02-05"
+      },
+      "partyIds": [
+        "p-ke-qy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "15-情况说明.md",
+          "quote": "我司于2025年2月5日提出委托第三方机构对该设备进行检测",
+          "textRange": {
+            "start": 0,
+            "end": 29
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-35",
+      "description": "双方召开第二次协商会议，形成会议纪要（二）：就付款方案协商未果",
+      "date": {
+        "kind": "exact",
+        "date": "2025-02-14"
+      },
+      "partyIds": [
+        "p-mei-zy",
+        "p-ke-qy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "13-会议纪要-二.md",
+          "quote": "双方协商未果，会议未形成一致结论",
+          "textRange": {
+            "start": 0,
+            "end": 16
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-36",
+      "description": "临江精铸发出催告函（二），加盖临江精铸科技印章，再次催告",
+      "date": {
+        "kind": "exact",
+        "date": "2025-03-05"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "11-催告函-二.md",
+          "quote": "（盖章：临江精铸科技有限公司）",
+          "textRange": {
+            "start": 0,
+            "end": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-37",
+      "description": "临江精铸与华瑞保理协商应收账款转让事宜",
+      "date": {
+        "kind": "exact",
+        "date": "2025-03-18"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-huarui"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "17-债权转让通知书.md",
+          "quote": "我司（临江精铸科技有限公司）与华瑞商业保理（云章）有限公司于2025年3月20日签订《应收账款转让协议》",
+          "textRange": {
+            "start": 0,
+            "end": 52
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-38",
+      "description": "临江精铸与华瑞保理签订《应收账款转让协议》，转让金额2,660,000元，并向起云智能送达通知书",
+      "date": {
+        "kind": "exact",
+        "date": "2025-03-20"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-huarui",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "17-债权转让通知书.md",
+          "quote": "将我司对贵司享有的合同编号LJJZ-CY-2024-0817项下应收账款（验收款2,280,000元及质保金380,000元，合计2,660,000元）转让",
+          "textRange": {
+            "start": 0,
+            "end": 78
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-39",
+      "description": "起云智能回函确认收悉债权转让通知书",
+      "date": {
+        "kind": "exact",
+        "date": "2025-03-25"
+      },
+      "partyIds": [
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "17-债权转让通知书.md",
+          "quote": "起云智能装备（虚构）有限公司回函确认收悉，日期：2025年3月25日",
+          "textRange": {
+            "start": 0,
+            "end": 34
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-40",
+      "description": "江城明澈律师事务所（代理临江精铸）向起云智能发出律师函",
+      "date": {
+        "kind": "exact",
+        "date": "2025-04-02"
+      },
+      "partyIds": [
+        "p-bai-jx",
+        "p-linjiang-jz",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "16-律师函.md",
+          "quote": "请贵司于收到本函之日起10日内向委托人指定账户支付上述验收款项及相应违约金",
+          "textRange": {
+            "start": 0,
+            "end": 37
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-41",
+      "description": "起云智能股东麦承业出具个人连带责任保证书",
+      "date": {
+        "kind": "exact",
+        "date": "2025-04-10"
+      },
+      "partyIds": [
+        "p-mai-cy",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "18-保证书.md",
+          "quote": "保证人二（个人）：麦承业",
+          "textRange": {
+            "start": 0,
+            "end": 12
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-42",
+      "description": "起云控股出具企业连带责任保证书",
+      "date": {
+        "kind": "exact",
+        "date": "2025-04-15"
+      },
+      "partyIds": [
+        "p-qiyun-kg",
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "18-保证书.md",
+          "quote": "保证人一（企业）：起云控股集团有限公司",
+          "textRange": {
+            "start": 0,
+            "end": 19
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-43",
+      "description": "临江精铸委托柏景行律师办理诉讼授权委托",
+      "date": {
+        "kind": "exact",
+        "date": "2025-04-28"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-bai-jx",
+        "p-feng-wc"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "19-授权委托书.md",
+          "quote": "现委托江城明澈律师事务所柏景行律师作为委托人",
+          "textRange": {
+            "start": 0,
+            "end": 22
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-44",
+      "description": "临江精铸向云章市中级人民法院提起诉讼，案号(2025)云章03民初472号",
+      "date": {
+        "kind": "exact",
+        "date": "2025-05-06"
+      },
+      "partyIds": [
+        "p-linjiang-jz",
+        "p-qiyun-zn",
+        "p-qiyun-kg",
+        "p-mai-cy"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "01-起诉状.md",
+          "quote": "案号：(2025)云章03民初472号",
+          "textRange": {
+            "start": 0,
+            "end": 19
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-45",
+      "description": "法院受理立案并向起云智能送达应诉材料",
+      "date": {
+        "kind": "exact",
+        "date": "2025-05-20"
+      },
+      "partyIds": [
+        "p-qiyun-zn"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "证明诉前程序",
+          "textRange": {
+            "start": 0,
+            "end": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-46",
+      "description": "起云智能提交答辩状，抗辩交付瑕疵、催告主体不适格、债权转让致原告主体资格存疑、违约金畸高",
+      "date": {
+        "kind": "exact",
+        "date": "2025-06-02"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-lian-mx"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "02-答辩状.md",
+          "quote": "请求驳回原告全部或部分诉讼请求",
+          "textRange": {
+            "start": 0,
+            "end": 15
+          }
+        }
+      ]
+    },
+    {
+      "id": "evt-47",
+      "description": "起云智能提交证据清单及反驳证据",
+      "date": {
+        "kind": "exact",
+        "date": "2025-06-20"
+      },
+      "partyIds": [
+        "p-qiyun-zn",
+        "p-lian-mx"
+      ],
+      "sourceAnchors": [
+        {
+          "fileId": "03-证据清单.md",
+          "quote": "提交日期：2025年5月6日（原告起诉时）；2025年6月20日（被告答辩补充）",
+          "textRange": {
+            "start": 0,
+            "end": 40
+          }
+        }
+      ]
+    }
+  ]
+}

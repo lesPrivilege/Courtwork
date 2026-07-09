@@ -1,0 +1,1065 @@
+{
+  "caseId": "case-linjiang-qiyun-2025",
+  "questions": [
+    {
+      "id": "q1",
+      "text": "违约金比例（买方逾期付款）是多少？"
+    },
+    {
+      "id": "q2",
+      "text": "争议解决管辖如何约定？"
+    },
+    {
+      "id": "q3",
+      "text": "付款节点比例如何划分（预付/验收/质保）？"
+    },
+    {
+      "id": "q4",
+      "text": "质保期为多长？"
+    },
+    {
+      "id": "q5",
+      "text": "是否存在所有权保留与风险转移条款的逻辑冲突？"
+    },
+    {
+      "id": "q6",
+      "text": "是否约定了书面验收异议期限？"
+    },
+    {
+      "id": "q7",
+      "text": "违约责任是否双向对等（卖方逾期交付/瑕疵是否也有违约金约定）？"
+    }
+  ],
+  "rows": [
+    {
+      "documentId": "V01-卓越智造装备（云章）有限公司.md",
+      "answers": {
+        "q1": {
+          "answer": "每逾期一日按未付金额的0.05%支付违约金",
+          "sourceAnchors": [
+            {
+              "fileId": "V01-卓越智造装备（云章）有限公司.md",
+              "quote": "每逾期一日应按未付金额的0.05%",
+              "textRange": {
+                "start": 0,
+                "end": 17
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q2": {
+          "answer": "争议提交云章仲裁委员会仲裁",
+          "sourceAnchors": [
+            {
+              "fileId": "V01-卓越智造装备（云章）有限公司.md",
+              "quote": "争议提交云章仲裁委员会仲裁",
+              "textRange": {
+                "start": 0,
+                "end": 13
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q3": {
+          "answer": "预付30% / 验收60% / 质保10%",
+          "sourceAnchors": [
+            {
+              "fileId": "V01-卓越智造装备（云章）有限公司.md",
+              "quote": "验收款（60%）",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q4": {
+          "answer": "12个月",
+          "sourceAnchors": [
+            {
+              "fileId": "V01-卓越智造装备（云章）有限公司.md",
+              "quote": "质保期为验收合格之日起 **12 个月**",
+              "textRange": {
+                "start": 0,
+                "end": 21
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q5": {
+          "answer": "无冲突，权责对应明确",
+          "sourceAnchors": [
+            {
+              "fileId": "V01-卓越智造装备（云章）有限公司.md",
+              "quote": "权责对应关系明确",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q6": {
+          "answer": "7日内书面提出异议",
+          "sourceAnchors": [
+            {
+              "fileId": "V01-卓越智造装备（云章）有限公司.md",
+              "quote": "7日内书面提出异议",
+              "textRange": {
+                "start": 0,
+                "end": 9
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q7": {
+          "answer": "双向对等",
+          "sourceAnchors": [
+            {
+              "fileId": "V01-卓越智造装备（云章）有限公司.md",
+              "quote": "甲方逾期交付或交付设备不符合约定的，应按迟延交付部分货款每日0.1%向乙方支付违约金",
+              "textRange": {
+                "start": 0,
+                "end": 42
+              }
+            }
+          ],
+          "confidence": "high"
+        }
+      }
+    },
+    {
+      "documentId": "V02-云章远大机械制造有限公司.md",
+      "answers": {
+        "q1": {
+          "answer": "每逾期一日按未付金额的0.1%支付违约金",
+          "sourceAnchors": [
+            {
+              "fileId": "V02-云章远大机械制造有限公司.md",
+              "quote": "每逾期一日应按未付金额的0.1%",
+              "textRange": {
+                "start": 0,
+                "end": 16
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q2": {
+          "answer": "提交买方所在地有管辖权的人民法院管辖",
+          "sourceAnchors": [
+            {
+              "fileId": "V02-云章远大机械制造有限公司.md",
+              "quote": "提交买方所在地有管辖权的人民法院管辖",
+              "textRange": {
+                "start": 0,
+                "end": 18
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q3": {
+          "answer": "预付40% / 验收50% / 质保10%",
+          "sourceAnchors": [
+            {
+              "fileId": "V02-云章远大机械制造有限公司.md",
+              "quote": "验收款（50%）",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q4": {
+          "answer": "18个月",
+          "sourceAnchors": [
+            {
+              "fileId": "V02-云章远大机械制造有限公司.md",
+              "quote": "质保期为验收合格之日起 **18 个月**",
+              "textRange": {
+                "start": 0,
+                "end": 21
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q5": {
+          "answer": "存在冲突",
+          "sourceAnchors": [
+            {
+              "fileId": "V02-云章远大机械制造有限公司.md",
+              "quote": "与风险转移条款存在逻辑冲突",
+              "textRange": {
+                "start": 0,
+                "end": 13
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q6": {
+          "answer": "未约定",
+          "sourceAnchors": [
+            {
+              "fileId": "V02-云章远大机械制造有限公司.md",
+              "quote": "未约定书面异议期限",
+              "textRange": {
+                "start": 0,
+                "end": 9
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q7": {
+          "answer": "单向（仅约定买方逾期违约金）",
+          "sourceAnchors": [
+            {
+              "fileId": "V02-云章远大机械制造有限公司.md",
+              "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
+              "textRange": {
+                "start": 0,
+                "end": 25
+              }
+            }
+          ],
+          "confidence": "medium"
+        }
+      }
+    },
+    {
+      "documentId": "V03-汉图新材料科技有限公司.md",
+      "answers": {
+        "q1": {
+          "answer": "每逾期一日按未付金额的1%支付违约金",
+          "sourceAnchors": [
+            {
+              "fileId": "V03-汉图新材料科技有限公司.md",
+              "quote": "每逾期一日应按未付金额的1%",
+              "textRange": {
+                "start": 0,
+                "end": 14
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q2": {
+          "answer": "提交卖方所在地有管辖权的人民法院管辖",
+          "sourceAnchors": [
+            {
+              "fileId": "V03-汉图新材料科技有限公司.md",
+              "quote": "提交卖方所在地有管辖权的人民法院管辖",
+              "textRange": {
+                "start": 0,
+                "end": 18
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q3": {
+          "answer": "预付30% / 验收60% / 质保10%",
+          "sourceAnchors": [
+            {
+              "fileId": "V03-汉图新材料科技有限公司.md",
+              "quote": "验收款（60%）",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q4": {
+          "answer": "12个月",
+          "sourceAnchors": [
+            {
+              "fileId": "V03-汉图新材料科技有限公司.md",
+              "quote": "质保期为验收合格之日起 **12 个月**",
+              "textRange": {
+                "start": 0,
+                "end": 21
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q5": {
+          "answer": "存在冲突",
+          "sourceAnchors": [
+            {
+              "fileId": "V03-汉图新材料科技有限公司.md",
+              "quote": "与风险转移条款存在逻辑冲突",
+              "textRange": {
+                "start": 0,
+                "end": 13
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q6": {
+          "answer": "未约定",
+          "sourceAnchors": [
+            {
+              "fileId": "V03-汉图新材料科技有限公司.md",
+              "quote": "未约定书面异议期限",
+              "textRange": {
+                "start": 0,
+                "end": 9
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q7": {
+          "answer": "单向（仅约定买方逾期违约金）",
+          "sourceAnchors": [
+            {
+              "fileId": "V03-汉图新材料科技有限公司.md",
+              "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
+              "textRange": {
+                "start": 0,
+                "end": 25
+              }
+            }
+          ],
+          "confidence": "medium"
+        }
+      }
+    },
+    {
+      "documentId": "V04-沃德精工装备制造有限公司.md",
+      "answers": {
+        "q1": {
+          "answer": "每逾期一日按未付金额的0.03%支付违约金",
+          "sourceAnchors": [
+            {
+              "fileId": "V04-沃德精工装备制造有限公司.md",
+              "quote": "每逾期一日应按未付金额的0.03%",
+              "textRange": {
+                "start": 0,
+                "end": 17
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q2": {
+          "answer": "提交合同签订地有管辖权的人民法院管辖",
+          "sourceAnchors": [
+            {
+              "fileId": "V04-沃德精工装备制造有限公司.md",
+              "quote": "提交合同签订地有管辖权的人民法院管辖",
+              "textRange": {
+                "start": 0,
+                "end": 18
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q3": {
+          "answer": "预付50% / 验收40% / 质保10%",
+          "sourceAnchors": [
+            {
+              "fileId": "V04-沃德精工装备制造有限公司.md",
+              "quote": "验收款（40%）",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q4": {
+          "answer": "24个月",
+          "sourceAnchors": [
+            {
+              "fileId": "V04-沃德精工装备制造有限公司.md",
+              "quote": "质保期为验收合格之日起 **24 个月**",
+              "textRange": {
+                "start": 0,
+                "end": 21
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q5": {
+          "answer": "无冲突，权责对应明确",
+          "sourceAnchors": [
+            {
+              "fileId": "V04-沃德精工装备制造有限公司.md",
+              "quote": "权责对应关系明确",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q6": {
+          "answer": "10日内书面提出异议",
+          "sourceAnchors": [
+            {
+              "fileId": "V04-沃德精工装备制造有限公司.md",
+              "quote": "10日内书面提出异议",
+              "textRange": {
+                "start": 0,
+                "end": 10
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q7": {
+          "answer": "双向对等",
+          "sourceAnchors": [
+            {
+              "fileId": "V04-沃德精工装备制造有限公司.md",
+              "quote": "甲方逾期交付或交付设备不符合约定的，应按迟延交付部分货款每日0.1%向乙方支付违约金",
+              "textRange": {
+                "start": 0,
+                "end": 42
+              }
+            }
+          ],
+          "confidence": "high"
+        }
+      }
+    },
+    {
+      "documentId": "V05-惠远供应链管理（云章）有限公司.md",
+      "answers": {
+        "q1": {
+          "answer": "每逾期一日按未付金额的0.2%支付违约金",
+          "sourceAnchors": [
+            {
+              "fileId": "V05-惠远供应链管理（云章）有限公司.md",
+              "quote": "每逾期一日应按未付金额的0.2%",
+              "textRange": {
+                "start": 0,
+                "end": 16
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q2": {
+          "answer": "提交卖方所在地有管辖权的人民法院管辖",
+          "sourceAnchors": [
+            {
+              "fileId": "V05-惠远供应链管理（云章）有限公司.md",
+              "quote": "提交卖方所在地有管辖权的人民法院管辖",
+              "textRange": {
+                "start": 0,
+                "end": 18
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q3": {
+          "answer": "预付20% / 验收70% / 质保10%",
+          "sourceAnchors": [
+            {
+              "fileId": "V05-惠远供应链管理（云章）有限公司.md",
+              "quote": "验收款（70%）",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q4": {
+          "answer": "6个月",
+          "sourceAnchors": [
+            {
+              "fileId": "V05-惠远供应链管理（云章）有限公司.md",
+              "quote": "质保期为验收合格之日起 **6 个月**",
+              "textRange": {
+                "start": 0,
+                "end": 20
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q5": {
+          "answer": "存在冲突",
+          "sourceAnchors": [
+            {
+              "fileId": "V05-惠远供应链管理（云章）有限公司.md",
+              "quote": "与风险转移条款存在逻辑冲突",
+              "textRange": {
+                "start": 0,
+                "end": 13
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q6": {
+          "answer": "未约定",
+          "sourceAnchors": [
+            {
+              "fileId": "V05-惠远供应链管理（云章）有限公司.md",
+              "quote": "未约定书面异议期限",
+              "textRange": {
+                "start": 0,
+                "end": 9
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q7": {
+          "answer": "单向（仅约定买方逾期违约金）",
+          "sourceAnchors": [
+            {
+              "fileId": "V05-惠远供应链管理（云章）有限公司.md",
+              "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
+              "textRange": {
+                "start": 0,
+                "end": 25
+              }
+            }
+          ],
+          "confidence": "medium"
+        }
+      }
+    },
+    {
+      "documentId": "V06-恒锐重工装备有限公司.md",
+      "answers": {
+        "q1": {
+          "answer": "每逾期一日按未付金额的0.5%支付违约金",
+          "sourceAnchors": [
+            {
+              "fileId": "V06-恒锐重工装备有限公司.md",
+              "quote": "每逾期一日应按未付金额的0.5%",
+              "textRange": {
+                "start": 0,
+                "end": 16
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q2": {
+          "answer": "提交买方所在地有管辖权的人民法院管辖",
+          "sourceAnchors": [
+            {
+              "fileId": "V06-恒锐重工装备有限公司.md",
+              "quote": "提交买方所在地有管辖权的人民法院管辖",
+              "textRange": {
+                "start": 0,
+                "end": 18
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q3": {
+          "answer": "预付30% / 验收60% / 质保10%",
+          "sourceAnchors": [
+            {
+              "fileId": "V06-恒锐重工装备有限公司.md",
+              "quote": "验收款（60%）",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q4": {
+          "answer": "12个月",
+          "sourceAnchors": [
+            {
+              "fileId": "V06-恒锐重工装备有限公司.md",
+              "quote": "质保期为验收合格之日起 **12 个月**",
+              "textRange": {
+                "start": 0,
+                "end": 21
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q5": {
+          "answer": "无冲突，权责对应明确",
+          "sourceAnchors": [
+            {
+              "fileId": "V06-恒锐重工装备有限公司.md",
+              "quote": "权责对应关系明确",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q6": {
+          "answer": "5日内书面提出异议",
+          "sourceAnchors": [
+            {
+              "fileId": "V06-恒锐重工装备有限公司.md",
+              "quote": "5日内书面提出异议",
+              "textRange": {
+                "start": 0,
+                "end": 9
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q7": {
+          "answer": "单向（仅约定买方逾期违约金）",
+          "sourceAnchors": [
+            {
+              "fileId": "V06-恒锐重工装备有限公司.md",
+              "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
+              "textRange": {
+                "start": 0,
+                "end": 25
+              }
+            }
+          ],
+          "confidence": "medium"
+        }
+      }
+    },
+    {
+      "documentId": "V07-明台工程机械有限公司.md",
+      "answers": {
+        "q1": {
+          "answer": "每逾期一日按未付金额的0.1%支付违约金",
+          "sourceAnchors": [
+            {
+              "fileId": "V07-明台工程机械有限公司.md",
+              "quote": "每逾期一日应按未付金额的0.1%",
+              "textRange": {
+                "start": 0,
+                "end": 16
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q2": {
+          "answer": "提交省会仲裁委员会仲裁",
+          "sourceAnchors": [
+            {
+              "fileId": "V07-明台工程机械有限公司.md",
+              "quote": "提交省会仲裁委员会仲裁",
+              "textRange": {
+                "start": 0,
+                "end": 11
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q3": {
+          "answer": "预付30% / 验收55% / 质保15%",
+          "sourceAnchors": [
+            {
+              "fileId": "V07-明台工程机械有限公司.md",
+              "quote": "验收款（55%）",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q4": {
+          "answer": "12个月",
+          "sourceAnchors": [
+            {
+              "fileId": "V07-明台工程机械有限公司.md",
+              "quote": "质保期为验收合格之日起 **12 个月**",
+              "textRange": {
+                "start": 0,
+                "end": 21
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q5": {
+          "answer": "无冲突，权责对应明确",
+          "sourceAnchors": [
+            {
+              "fileId": "V07-明台工程机械有限公司.md",
+              "quote": "权责对应关系明确",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q6": {
+          "answer": "15日内书面提出异议",
+          "sourceAnchors": [
+            {
+              "fileId": "V07-明台工程机械有限公司.md",
+              "quote": "15日内书面提出异议",
+              "textRange": {
+                "start": 0,
+                "end": 10
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q7": {
+          "answer": "双向对等",
+          "sourceAnchors": [
+            {
+              "fileId": "V07-明台工程机械有限公司.md",
+              "quote": "甲方逾期交付或交付设备不符合约定的，应按迟延交付部分货款每日0.1%向乙方支付违约金",
+              "textRange": {
+                "start": 0,
+                "end": 42
+              }
+            }
+          ],
+          "confidence": "high"
+        }
+      }
+    },
+    {
+      "documentId": "V08-云章鑫源物流有限公司.md",
+      "answers": {
+        "q1": {
+          "answer": "每逾期一日按未付金额的0.05%支付违约金",
+          "sourceAnchors": [
+            {
+              "fileId": "V08-云章鑫源物流有限公司.md",
+              "quote": "每逾期一日应按未付金额的0.05%",
+              "textRange": {
+                "start": 0,
+                "end": 17
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q2": {
+          "answer": "提交卖方所在地有管辖权的人民法院管辖",
+          "sourceAnchors": [
+            {
+              "fileId": "V08-云章鑫源物流有限公司.md",
+              "quote": "提交卖方所在地有管辖权的人民法院管辖",
+              "textRange": {
+                "start": 0,
+                "end": 18
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q3": {
+          "answer": "预付40% / 验收50% / 质保10%",
+          "sourceAnchors": [
+            {
+              "fileId": "V08-云章鑫源物流有限公司.md",
+              "quote": "验收款（50%）",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q4": {
+          "answer": "12个月",
+          "sourceAnchors": [
+            {
+              "fileId": "V08-云章鑫源物流有限公司.md",
+              "quote": "质保期为验收合格之日起 **12 个月**",
+              "textRange": {
+                "start": 0,
+                "end": 21
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q5": {
+          "answer": "存在冲突",
+          "sourceAnchors": [
+            {
+              "fileId": "V08-云章鑫源物流有限公司.md",
+              "quote": "与风险转移条款存在逻辑冲突",
+              "textRange": {
+                "start": 0,
+                "end": 13
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q6": {
+          "answer": "未约定",
+          "sourceAnchors": [
+            {
+              "fileId": "V08-云章鑫源物流有限公司.md",
+              "quote": "未约定书面异议期限",
+              "textRange": {
+                "start": 0,
+                "end": 9
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q7": {
+          "answer": "单向（仅约定买方逾期违约金）",
+          "sourceAnchors": [
+            {
+              "fileId": "V08-云章鑫源物流有限公司.md",
+              "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
+              "textRange": {
+                "start": 0,
+                "end": 25
+              }
+            }
+          ],
+          "confidence": "medium"
+        }
+      }
+    },
+    {
+      "documentId": "V09-天衡精密机床有限公司.md",
+      "answers": {
+        "q1": {
+          "answer": "每逾期一日按未付金额的0.3%支付违约金",
+          "sourceAnchors": [
+            {
+              "fileId": "V09-天衡精密机床有限公司.md",
+              "quote": "每逾期一日应按未付金额的0.3%",
+              "textRange": {
+                "start": 0,
+                "end": 16
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q2": {
+          "answer": "提交买方所在地有管辖权的人民法院管辖",
+          "sourceAnchors": [
+            {
+              "fileId": "V09-天衡精密机床有限公司.md",
+              "quote": "提交买方所在地有管辖权的人民法院管辖",
+              "textRange": {
+                "start": 0,
+                "end": 18
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q3": {
+          "answer": "预付30% / 验收60% / 质保10%",
+          "sourceAnchors": [
+            {
+              "fileId": "V09-天衡精密机床有限公司.md",
+              "quote": "验收款（60%）",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q4": {
+          "answer": "18个月",
+          "sourceAnchors": [
+            {
+              "fileId": "V09-天衡精密机床有限公司.md",
+              "quote": "质保期为验收合格之日起 **18 个月**",
+              "textRange": {
+                "start": 0,
+                "end": 21
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q5": {
+          "answer": "无冲突，权责对应明确",
+          "sourceAnchors": [
+            {
+              "fileId": "V09-天衡精密机床有限公司.md",
+              "quote": "权责对应关系明确",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q6": {
+          "answer": "10日内书面提出异议",
+          "sourceAnchors": [
+            {
+              "fileId": "V09-天衡精密机床有限公司.md",
+              "quote": "10日内书面提出异议",
+              "textRange": {
+                "start": 0,
+                "end": 10
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q7": {
+          "answer": "双向对等",
+          "sourceAnchors": [
+            {
+              "fileId": "V09-天衡精密机床有限公司.md",
+              "quote": "甲方逾期交付或交付设备不符合约定的，应按迟延交付部分货款每日0.1%向乙方支付违约金",
+              "textRange": {
+                "start": 0,
+                "end": 42
+              }
+            }
+          ],
+          "confidence": "high"
+        }
+      }
+    },
+    {
+      "documentId": "V10-云章前哨检测认证有限公司.md",
+      "answers": {
+        "q1": {
+          "answer": "每逾期一日按未付金额的0.08%支付违约金",
+          "sourceAnchors": [
+            {
+              "fileId": "V10-云章前哨检测认证有限公司.md",
+              "quote": "每逾期一日应按未付金额的0.08%",
+              "textRange": {
+                "start": 0,
+                "end": 17
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q2": {
+          "answer": "提交卖方所在地有管辖权的人民法院管辖",
+          "sourceAnchors": [
+            {
+              "fileId": "V10-云章前哨检测认证有限公司.md",
+              "quote": "提交卖方所在地有管辖权的人民法院管辖",
+              "textRange": {
+                "start": 0,
+                "end": 18
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q3": {
+          "answer": "预付25% / 验收65% / 质保10%",
+          "sourceAnchors": [
+            {
+              "fileId": "V10-云章前哨检测认证有限公司.md",
+              "quote": "验收款（65%）",
+              "textRange": {
+                "start": 0,
+                "end": 8
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q4": {
+          "answer": "12个月",
+          "sourceAnchors": [
+            {
+              "fileId": "V10-云章前哨检测认证有限公司.md",
+              "quote": "质保期为验收合格之日起 **12 个月**",
+              "textRange": {
+                "start": 0,
+                "end": 21
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q5": {
+          "answer": "存在冲突",
+          "sourceAnchors": [
+            {
+              "fileId": "V10-云章前哨检测认证有限公司.md",
+              "quote": "与风险转移条款存在逻辑冲突",
+              "textRange": {
+                "start": 0,
+                "end": 13
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q6": {
+          "answer": "未约定",
+          "sourceAnchors": [
+            {
+              "fileId": "V10-云章前哨检测认证有限公司.md",
+              "quote": "未约定书面异议期限",
+              "textRange": {
+                "start": 0,
+                "end": 9
+              }
+            }
+          ],
+          "confidence": "high"
+        },
+        "q7": {
+          "answer": "单向（仅约定买方逾期违约金）",
+          "sourceAnchors": [
+            {
+              "fileId": "V10-云章前哨检测认证有限公司.md",
+              "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
+              "textRange": {
+                "start": 0,
+                "end": 25
+              }
+            }
+          ],
+          "confidence": "medium"
+        }
+      }
+    }
+  ]
+}

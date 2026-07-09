@@ -1,0 +1,145 @@
+{
+  "caseId": "case-linjiang-qiyun-2025",
+  "files": [
+    {
+      "fileId": "01-起诉状.md",
+      "fileName": "01-起诉状.md",
+      "documentType": "起诉状",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "02-答辩状.md",
+      "fileName": "02-答辩状.md",
+      "documentType": "答辩状",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "03-证据清单.md",
+      "fileName": "03-证据清单.md",
+      "documentType": "证据清单",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "04-设备采购合同.md",
+      "fileName": "04-设备采购合同.md",
+      "documentType": "合同",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "05-合同补充协议.md",
+      "fileName": "05-合同补充协议.md",
+      "documentType": "补充协议",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "06-送货单-一.md",
+      "fileName": "06-送货单-一.md",
+      "documentType": "送货单",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "07-送货单-二.md",
+      "fileName": "07-送货单-二.md",
+      "documentType": "送货单",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "08-送货单-三.md",
+      "fileName": "08-送货单-三.md",
+      "documentType": "送货单",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "09-验收单.md",
+      "fileName": "09-验收单.md",
+      "documentType": "验收单",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "10-催告函-一.md",
+      "fileName": "10-催告函-一.md",
+      "documentType": "催告函",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "11-催告函-二.md",
+      "fileName": "11-催告函-二.md",
+      "documentType": "催告函",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "12-会议纪要-一.md",
+      "fileName": "12-会议纪要-一.md",
+      "documentType": "会议纪要",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "13-会议纪要-二.md",
+      "fileName": "13-会议纪要-二.md",
+      "documentType": "会议纪要",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "14-银行流水摘要.md",
+      "fileName": "14-银行流水摘要.md",
+      "documentType": "银行流水",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "15-情况说明.md",
+      "fileName": "15-情况说明.md",
+      "documentType": "情况说明",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "16-律师函.md",
+      "fileName": "16-律师函.md",
+      "documentType": "律师函",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "17-债权转让通知书.md",
+      "fileName": "17-债权转让通知书.md",
+      "documentType": "债权转让文书",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "18-保证书.md",
+      "fileName": "18-保证书.md",
+      "documentType": "保证书",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "19-授权委托书.md",
+      "fileName": "19-授权委托书.md",
+      "documentType": "授权委托书",
+      "ingestStatus": "done",
+      "pageCount": 1
+    },
+    {
+      "fileId": "20-企业信用信息查询单.md",
+      "fileName": "20-企业信用信息查询单.md",
+      "documentType": "工商信息查询单",
+      "ingestStatus": "done",
+      "pageCount": 1
+    }
+  ]
+}

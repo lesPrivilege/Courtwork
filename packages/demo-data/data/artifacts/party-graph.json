@@ -1,0 +1,379 @@
+{
+  "caseId": "case-linjiang-qiyun-2025",
+  "nodes": [
+    {
+      "id": "p-linjiang-jz",
+      "kind": "organization",
+      "primaryName": "临江精铸科技有限公司",
+      "aliases": [
+        "临江精铸",
+        "临江精铸科技",
+        "临江精铸科技公司",
+        "原告临江精铸"
+      ]
+    },
+    {
+      "id": "p-linjiang-jt",
+      "kind": "organization",
+      "primaryName": "临江精铸集团有限公司",
+      "aliases": [
+        "临江集团",
+        "临江精铸集团"
+      ]
+    },
+    {
+      "id": "p-linjiang-yzzb",
+      "kind": "organization",
+      "primaryName": "临江精铸（云章）装备有限公司",
+      "aliases": [
+        "云章装备",
+        "临江精铸云章装备公司"
+      ]
+    },
+    {
+      "id": "p-linjiang-mt",
+      "kind": "organization",
+      "primaryName": "临江精铸国际贸易（云章）有限公司",
+      "aliases": [
+        "临江贸易",
+        "临江精铸国际贸易公司"
+      ]
+    },
+    {
+      "id": "p-qiyun-zn",
+      "kind": "organization",
+      "primaryName": "起云智能装备（虚构）有限公司",
+      "aliases": [
+        "起云智能",
+        "起云装备",
+        "起云智能装备公司",
+        "被告起云智能"
+      ]
+    },
+    {
+      "id": "p-qiyun-kg",
+      "kind": "organization",
+      "primaryName": "起云控股集团有限公司",
+      "aliases": [
+        "起云控股",
+        "起云集团"
+      ]
+    },
+    {
+      "id": "p-huarui",
+      "kind": "organization",
+      "primaryName": "华瑞商业保理（云章）有限公司",
+      "aliases": [
+        "华瑞保理"
+      ]
+    },
+    {
+      "id": "p-feng-wc",
+      "kind": "individual",
+      "primaryName": "封文昌",
+      "aliases": []
+    },
+    {
+      "id": "p-cen-rl",
+      "kind": "individual",
+      "primaryName": "岑瑞霖",
+      "aliases": []
+    },
+    {
+      "id": "p-mei-zy",
+      "kind": "individual",
+      "primaryName": "梅昭阳",
+      "aliases": []
+    },
+    {
+      "id": "p-ke-qy",
+      "kind": "individual",
+      "primaryName": "柯清源",
+      "aliases": []
+    },
+    {
+      "id": "p-mai-cy",
+      "kind": "individual",
+      "primaryName": "麦承业",
+      "aliases": []
+    },
+    {
+      "id": "p-bai-jx",
+      "kind": "individual",
+      "primaryName": "柏景行",
+      "aliases": []
+    },
+    {
+      "id": "p-lian-mx",
+      "kind": "individual",
+      "primaryName": "练明轩",
+      "aliases": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-01",
+      "sourcePartyId": "p-linjiang-jt",
+      "targetPartyId": "p-linjiang-jz",
+      "relationType": "全资控股母公司（持股100%）",
+      "sourceAnchors": [
+        {
+          "fileId": "20-企业信用信息查询单.md",
+          "quote": "临江精铸科技有限公司（持股100%）、临江精铸（云章）装备有限公司（持股100%）",
+          "textRange": {
+            "start": 0,
+            "end": 41
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-02",
+      "sourcePartyId": "p-linjiang-jt",
+      "targetPartyId": "p-linjiang-yzzb",
+      "relationType": "全资控股母公司（持股100%）",
+      "sourceAnchors": [
+        {
+          "fileId": "20-企业信用信息查询单.md",
+          "quote": "股东信息：临江精铸集团有限公司（持股100%）",
+          "textRange": {
+            "start": 0,
+            "end": 23
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-03",
+      "sourcePartyId": "p-linjiang-jt",
+      "targetPartyId": "p-linjiang-mt",
+      "relationType": "控股股东（持股70%）",
+      "sourceAnchors": [
+        {
+          "fileId": "20-企业信用信息查询单.md",
+          "quote": "股东信息：临江精铸集团有限公司（持股70%）、封文昌（持股30%）",
+          "textRange": {
+            "start": 0,
+            "end": 33
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-04",
+      "sourcePartyId": "p-feng-wc",
+      "targetPartyId": "p-linjiang-jz",
+      "relationType": "法定代表人",
+      "sourceAnchors": [
+        {
+          "fileId": "20-企业信用信息查询单.md",
+          "quote": "法定代表人：封文昌",
+          "textRange": {
+            "start": 0,
+            "end": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-05",
+      "sourcePartyId": "p-feng-wc",
+      "targetPartyId": "p-linjiang-jt",
+      "relationType": "法定代表人（兼任）",
+      "sourceAnchors": [
+        {
+          "fileId": "20-企业信用信息查询单.md",
+          "quote": "法定代表人：封文昌",
+          "textRange": {
+            "start": 0,
+            "end": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-06",
+      "sourcePartyId": "p-cen-rl",
+      "targetPartyId": "p-qiyun-zn",
+      "relationType": "法定代表人",
+      "sourceAnchors": [
+        {
+          "fileId": "20-企业信用信息查询单.md",
+          "quote": "法定代表人：岑瑞霖",
+          "textRange": {
+            "start": 0,
+            "end": 9
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-07",
+      "sourcePartyId": "p-qiyun-kg",
+      "targetPartyId": "p-qiyun-zn",
+      "relationType": "控股股东（持股85%）+ 连带责任保证人",
+      "sourceAnchors": [
+        {
+          "fileId": "20-企业信用信息查询单.md",
+          "quote": "股东信息：起云控股集团有限公司（持股85%）",
+          "textRange": {
+            "start": 0,
+            "end": 22
+          }
+        },
+        {
+          "fileId": "18-保证书.md",
+          "quote": "保证人一（企业）：起云控股集团有限公司",
+          "textRange": {
+            "start": 0,
+            "end": 19
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-08",
+      "sourcePartyId": "p-mai-cy",
+      "targetPartyId": "p-qiyun-zn",
+      "relationType": "股东（持股15%）+ 个人连带责任保证人",
+      "sourceAnchors": [
+        {
+          "fileId": "20-企业信用信息查询单.md",
+          "quote": "麦承业（持股15%）",
+          "textRange": {
+            "start": 0,
+            "end": 10
+          }
+        },
+        {
+          "fileId": "18-保证书.md",
+          "quote": "保证人二（个人）：麦承业",
+          "textRange": {
+            "start": 0,
+            "end": 12
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-09",
+      "sourcePartyId": "p-mei-zy",
+      "targetPartyId": "p-linjiang-jz",
+      "relationType": "员工（销售总监，合同履约联系人）",
+      "sourceAnchors": [
+        {
+          "fileId": "04-设备采购合同.md",
+          "quote": "联系人：梅昭阳（销售总监）",
+          "textRange": {
+            "start": 0,
+            "end": 13
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-10",
+      "sourcePartyId": "p-ke-qy",
+      "targetPartyId": "p-qiyun-zn",
+      "relationType": "员工（采购总监，合同履约联系人）",
+      "sourceAnchors": [
+        {
+          "fileId": "04-设备采购合同.md",
+          "quote": "联系人：柯清源（采购总监）",
+          "textRange": {
+            "start": 0,
+            "end": 13
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-11",
+      "sourcePartyId": "p-linjiang-jz",
+      "targetPartyId": "p-huarui",
+      "relationType": "应收账款债权转让（转让金额2,660,000元）",
+      "sourceAnchors": [
+        {
+          "fileId": "17-债权转让通知书.md",
+          "quote": "将我司对贵司享有的合同编号LJJZ-CY-2024-0817项下应收账款...转让予华瑞商业保理（云章）有限公司",
+          "textRange": {
+            "start": 0,
+            "end": 56
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-12",
+      "sourcePartyId": "p-bai-jx",
+      "targetPartyId": "p-linjiang-jz",
+      "relationType": "诉讼代理人（江城明澈律师事务所）",
+      "sourceAnchors": [
+        {
+          "fileId": "19-授权委托书.md",
+          "quote": "现委托江城明澈律师事务所柏景行律师作为委托人",
+          "textRange": {
+            "start": 0,
+            "end": 22
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-13",
+      "sourcePartyId": "p-lian-mx",
+      "targetPartyId": "p-qiyun-zn",
+      "relationType": "诉讼代理人（恒屿律师事务所）",
+      "sourceAnchors": [
+        {
+          "fileId": "19-授权委托书.md",
+          "quote": "现委托恒屿律师事务所练明轩律师作为委托人",
+          "textRange": {
+            "start": 0,
+            "end": 20
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-14",
+      "sourcePartyId": "p-linjiang-yzzb",
+      "targetPartyId": "p-linjiang-jz",
+      "relationType": "关联公司（受托实际生产与发货，非合同签约主体，见矛盾点2）",
+      "sourceAnchors": [
+        {
+          "fileId": "06-送货单-一.md",
+          "quote": "发货单位：临江精铸（云章）装备有限公司",
+          "textRange": {
+            "start": 0,
+            "end": 19
+          }
+        },
+        {
+          "fileId": "20-企业信用信息查询单.md",
+          "quote": "与临江精铸科技有限公司同受临江精铸集团有限公司控制，为关联公司，非同一法律主体",
+          "textRange": {
+            "start": 0,
+            "end": 39
+          }
+        }
+      ]
+    },
+    {
+      "id": "e-15",
+      "sourcePartyId": "p-linjiang-mt",
+      "targetPartyId": "p-linjiang-jz",
+      "relationType": "关联公司（异常收款账户主体，非合同约定收款主体，见矛盾点4）",
+      "sourceAnchors": [
+        {
+          "fileId": "14-银行流水摘要.md",
+          "quote": "2025-01-22 设备款项（部分） 500,000 临江精铸国际贸易（云章）有限公司",
+          "textRange": {
+            "start": 0,
+            "end": 44
+          }
+        }
+      ]
+    }
+  ]
+}
