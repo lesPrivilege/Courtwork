@@ -7,6 +7,7 @@ const TriggerConditionSchema = z
     userActions: z.array(z.string().min(1)).default([]),
     classifierTags: z.array(z.string().min(1)).default([]),
   })
+  .strict()
   .refine(
     (value) =>
       value.fileTypes.length > 0 || value.userActions.length > 0 || value.classifierTags.length > 0,
@@ -22,10 +23,12 @@ export type TriggerCondition = z.infer<typeof TriggerConditionSchema>;
  * 缺席时仅凭 label 独立成立——用于产物尚无对应 schema 类型的场景（如 S4 文书起草，
  * 真实产物类型 RevisionInstructionSet 待 W4 在 packages/schemas 提案落地）。
  */
-const ConfirmationGateSchema = z.object({
-  artifact: ArtifactTypeEnum.optional(),
-  label: z.string().min(1),
-});
+const ConfirmationGateSchema = z
+  .object({
+    artifact: ArtifactTypeEnum.optional(),
+    label: z.string().min(1),
+  })
+  .strict();
 export type ConfirmationGate = z.infer<typeof ConfirmationGateSchema>;
 
 function uniqueStrings(values: string[]): boolean {
@@ -45,7 +48,8 @@ const ScenarioDefinitionObjectSchema = z.object({
   /** 非空：把"留人确认是产品纪律"落到校验层，场景定义漏掉确认节点在加载时即报错。 */
   confirmationGates: z.array(ConfirmationGateSchema).min(1),
   promptTemplateRef: z.string().min(1),
-});
+})
+  .strict();
 
 export const ScenarioDefinitionSchema = ScenarioDefinitionObjectSchema.refine(
   (value) => uniqueStrings(value.toolIds),

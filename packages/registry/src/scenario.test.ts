@@ -138,4 +138,50 @@ describe('ScenarioDefinitionSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('rejects an unknown top-level key (W2.1: strict declaration loading)', () => {
+    const result = ScenarioDefinitionSchema.safeParse({
+      id: 'S-bad-7',
+      name: '未知顶层字段场景',
+      trigger: { userActions: ['x'], fileTypes: [], classifierTags: [] },
+      inputArtifacts: [],
+      toolIds: [],
+      outputArtifacts: ['RiskList'],
+      uiTemplateId: 'x',
+      confirmationGates: [{ label: '确认' }],
+      promptTemplateRef: 'x',
+      priority: 1,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects an unknown key nested inside trigger (W2.1)', () => {
+    const result = ScenarioDefinitionSchema.safeParse({
+      id: 'S-bad-8',
+      name: '触发条件未知字段场景',
+      trigger: { userActions: ['x'], fileTypes: [], classifierTags: [], fileTyps: ['pdf'] },
+      inputArtifacts: [],
+      toolIds: [],
+      outputArtifacts: ['RiskList'],
+      uiTemplateId: 'x',
+      confirmationGates: [{ label: '确认' }],
+      promptTemplateRef: 'x',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects an unknown key nested inside a confirmationGates entry (W2.1)', () => {
+    const result = ScenarioDefinitionSchema.safeParse({
+      id: 'S-bad-9',
+      name: '确认门禁未知字段场景',
+      trigger: { userActions: ['x'], fileTypes: [], classifierTags: [] },
+      inputArtifacts: [],
+      toolIds: [],
+      outputArtifacts: ['RiskList'],
+      uiTemplateId: 'x',
+      confirmationGates: [{ label: '确认', artfact: 'RiskList' }],
+      promptTemplateRef: 'x',
+    });
+    expect(result.success).toBe(false);
+  });
 });

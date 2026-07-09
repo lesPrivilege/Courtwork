@@ -49,6 +49,27 @@ describe('parseScenarioYaml', () => {
     expect(() => parseScenarioYaml(brokenYaml, 'inline-broken-syntax')).toThrow(ScenarioValidationError);
     expect(() => parseScenarioYaml(brokenYaml, 'inline-broken-syntax')).toThrow('inline-broken-syntax');
   });
+
+  it('throws naming the source label and the unknown key on a top-level typo (W2.1: strict declaration loading)', () => {
+    const badYaml = VALID_YAML.replace('uiTemplateId: test-panel\n', 'uiTemplateId: test-panel\nuiTemplatId: test-panel\n');
+    expect(() => parseScenarioYaml(badYaml, 'scenarios/S-typo.yaml')).toThrow(ScenarioValidationError);
+    expect(() => parseScenarioYaml(badYaml, 'scenarios/S-typo.yaml')).toThrow('scenarios/S-typo.yaml');
+    expect(() => parseScenarioYaml(badYaml, 'scenarios/S-typo.yaml')).toThrow(/uiTemplatId/);
+  });
+
+  it('throws naming the unknown key on a typo nested inside trigger (W2.1)', () => {
+    const badYaml = VALID_YAML.replace('fileTypes: [pdf]', 'fileTypes: [pdf]\n  fileTyps: [pdf]');
+    expect(() => parseScenarioYaml(badYaml, 'scenarios/S-trigger-typo.yaml')).toThrow(/fileTyps/);
+  });
+
+  it('throws naming the unknown key on a typo nested inside a confirmationGates entry (W2.1)', () => {
+    const badYaml = VALID_YAML.replace('- label: 确认测试产物', '- label: 确认测试产物\n    artfact: RiskList');
+    expect(() => parseScenarioYaml(badYaml, 'scenarios/S-gate-typo.yaml')).toThrow(/artfact/);
+  });
+
+  it('still strips unrelated whitespace-only differences and accepts a well-formed declaration under strict mode', () => {
+    expect(() => parseScenarioYaml(VALID_YAML, 'inline-valid-strict-sanity')).not.toThrow();
+  });
 });
 
 describe('loadScenarioFile / loadScenariosFromDir', () => {
