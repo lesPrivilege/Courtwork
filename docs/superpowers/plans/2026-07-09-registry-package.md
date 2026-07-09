@@ -569,7 +569,7 @@ export * from './loader.js';
 - [ ] **Step 5: 运行测试，确认通过**
 
 Run: `pnpm test -- packages/registry/src/loader.test.ts`
-Expected: PASS —— 9 tests passed。
+Expected: PASS —— 8 tests passed。
 
 - [ ] **Step 6: 提交**
 
