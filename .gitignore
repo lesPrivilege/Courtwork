@@ -10,3 +10,7 @@ __pycache__/
 *.pyc
 .venv/
 target/
+
+# eval 跑分产出：可重新生成，且当前只用 mock provider 验证过机制，不代表真实基线
+eval/reports/*.json
+eval/reports/*.md
