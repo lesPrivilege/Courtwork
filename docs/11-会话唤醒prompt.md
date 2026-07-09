@@ -82,16 +82,26 @@
 纪律提醒：评测集是抗上游折旧的核心资产，目录规范的设计优先级高于例子数量；provider 一律走配置。
 ```
 
-## W6｜packages/core（W2/W4/W5 验收后开）
+## W6｜packages/core（前置已齐：W2/W4/W5 均验收放行）
 
 ```
-你认领 Courtwork 的 W6 工单：packages/core。
+你认领 Courtwork 的 W6 工单：packages/core。这是 core MVP 的收口层。
 
-开工前按顺序读：根目录 CLAUDE.md、docs/10-实施切分-层与工单.md、packages/core/SPEC.md，并通读 schemas/registry/tools/output 四层已交付的接口。读完复述架构边界（尤其：哪些东西只借 pi-mono、哪些必须长在本仓库），确认后动手。
+开工前按顺序读：根目录 CLAUDE.md、docs/10、packages/core/SPEC.md（TODO 区有两条协议预留，必读）、docs/20-信源分级、docs/21-演示数据包、docs/22-泛化边界，并通读 schemas（含新落地的 RevisionInstructionSet）/registry/tools/output 四层的 SPEC 验收记录与公开接口。读完复述架构边界（尤其：哪些只借 pi-mono、哪些必须长在本仓库；装配点的位置），确认后动手。
 
-交付：pi-mono 借壳的 agent loop 与 provider 封装、场景执行器（registry 取定义 → 编排 → schemas 合规 artifact → 停在确认节点）、可序列化事件流协议、RevisionEvent 捕获落盘。验收：无 UI 用 CLI 脚本跑通 S3 全流程（合同进 → RiskList → 脚本模拟确认 → 修订指令集 → output 产出 docx），事件流可回放。
+先做开胃菜 W2.1 微工单（registry SPEC TODO 区有拍板全文）：YAML 声明加载路径 strict 化（scenario 及嵌套 trigger/gate 对象未知键报错，报错含文件名 + 未知键名）+ 对应测试，独立 commit，然后进入本层。
 
-纪律提醒：UI 是本协议的纯客户端，任何业务逻辑漏进壳层都算本层验收失败；provider 与模型 id 不许写死。
+交付：
+1. pi-mono 借壳的 agent loop 与 provider 无关封装（模型 id/参数全部来自配置；eval 选型在途，测试用假 provider/录制回放，不依赖真实 API）。
+2. 场景执行器：registry 取场景定义 → 编排（工具调用 / 生成）→ 产出 schemas 合规 artifact → 停在确认门禁，等确认事件续行。
+3. 可序列化事件流协议，遵守 SPEC TODO 的异步确认预留：确认请求可推送到进程外通道、响应可延迟数小时回流、携带通道无关身份标识（对应 RevisionEvent.actor）；协议不得隐含确认方与 core 同进程/同机/同客户端。
+4. 信源等级传播与门禁的通用执行逻辑预留（docs/20）：artifact 的依据字段带信源等级标记流转，C 级事实未经确认不得进入 RevisionInstructionSet 的 citation——通用机制，不写任何场景特判；web-search 工具本体不做。
+5. RevisionEvent 捕获落盘：客户端对 artifact 的每次 schema 级修正经 core 记录。
+6. 装配点（docs/21 定义的唯一例外）：demo 装配配置在 core 落地——注入 demo-fixture 适配器与 demo-data 语料的组装代码，是全仓库唯一允许 import @courtwork/demo-data 的运行时位置，边界清晰可替换。
+
+验收：无 UI 用 CLI 脚本跑通 S3 全流程演示装配——样板案主体过 party-verify（demo-fixture 适配器）→ RiskList artifact（依据含信源等级）→ 脚本模拟确认 → RevisionInstructionSet → 调 output 产出带修订与批注的 docx（输入 docx 可用 output 包的 sample）。全程事件流可回放。
+
+工作区纪律：W7（eval/）在途，其未提交文件一律不碰；全仓库命令用 --filter 排除 @courtwork/eval（W4 验收已验证此法）；git add 一律显式路径。通用层不得渗入法律语义（docs/22）。UI 是协议纯客户端，业务逻辑漏进壳层算验收失败。
 ```
 
 ---
