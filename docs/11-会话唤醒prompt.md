@@ -87,7 +87,7 @@
 ```
 你认领 Courtwork 的 W6 工单：packages/core。这是 core MVP 的收口层。
 
-开工前按顺序读：根目录 CLAUDE.md、docs/10、packages/core/SPEC.md（TODO 区有两条协议预留，必读）、docs/20-信源分级、docs/21-演示数据包、docs/22-泛化边界，并通读 schemas（含新落地的 RevisionInstructionSet）/registry/tools/output 四层的 SPEC 验收记录与公开接口。读完复述架构边界（尤其：哪些只借 pi-mono、哪些必须长在本仓库；装配点的位置），确认后动手。
+开工前按顺序读：根目录 CLAUDE.md、docs/10、packages/core/SPEC.md（TODO 区有三条协议预留：异步确认、session 续行与会话链，必读）、docs/20-信源分级、docs/21-演示数据包、docs/22-泛化边界，并通读 schemas（含新落地的 RevisionInstructionSet）/registry/tools/output 四层的 SPEC 验收记录与公开接口。读完复述架构边界（尤其：哪些只借 pi-mono、哪些必须长在本仓库；装配点的位置），确认后动手。
 
 先做开胃菜 W2.1 微工单（registry SPEC TODO 区有拍板全文）：YAML 声明加载路径 strict 化（scenario 及嵌套 trigger/gate 对象未知键报错，报错含文件名 + 未知键名）+ 对应测试，独立 commit，然后进入本层。
 
