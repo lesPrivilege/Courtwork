@@ -24,10 +24,10 @@ describe('built-in MVP scenarios', () => {
     expect(s3?.outputArtifacts).toEqual(['RiskList']);
   });
 
-  it('S4 文书起草 has no output artifact yet, pending the W4 RevisionInstructionSet proposal', () => {
+  it('S4 文书起草 produces RevisionInstructionSet with an artifact-referencing confirmation gate', () => {
     const scenarios = loadScenariosFromDir(SCENARIOS_DIR);
     const s4 = scenarios.find((s) => s.id === 'S4');
-    expect(s4?.outputArtifacts).toEqual([]);
-    expect(s4?.confirmationGates[0]?.artifact).toBeUndefined();
+    expect(s4?.outputArtifacts).toEqual(['RevisionInstructionSet']);
+    expect(s4?.confirmationGates[0]?.artifact).toBe('RevisionInstructionSet');
   });
 });
