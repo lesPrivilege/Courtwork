@@ -13,6 +13,7 @@ import type { RevisionEventStore } from '../revision/revision-store.js';
 import { applyJsonPointer } from '../revision/json-pointer.js';
 import { ARTIFACT_SCHEMAS } from './artifact-schemas.js';
 import { deriveTodoSnapshot } from './todo-snapshot.js';
+import { createRuntimeGuard, type RuntimeGuard, type RuntimeLimits } from './runtime-limits.js';
 
 export interface ScenarioExecutorDeps {
   tools: ToolRegistry;
@@ -23,6 +24,13 @@ export interface ScenarioExecutorDeps {
   revisionStore: RevisionEventStore;
   ledger: EvidenceLedger;
   now?: () => string;
+  /**
+   * 运行时保护四件套（docs/12 长任务协议③），按次 runScenario/resumeScenario 调用
+   * 单独计额——不跨暂停边界累计（每次续行是新的一段执行，不是同一预算的延续）。
+   * 缺省不限制，MVP 默认行为不变。
+   */
+  limits?: RuntimeLimits;
+  nowMs?: () => number;
 }
 
 export interface ScenarioRunInput {
@@ -60,9 +68,11 @@ async function runTools(
   scenario: ScenarioDefinition,
   toolInputs: Record<string, unknown>,
   deps: ScenarioExecutorDeps,
+  guard: RuntimeGuard,
 ): Promise<Record<string, unknown>> {
   const results: Record<string, unknown> = {};
   for (const toolId of scenario.toolIds) {
+    guard.checkToolCall();
     const binding = deps.tools.get(toolId);
     if (!binding) throw new UnknownToolError(scenario.id, toolId);
     const envelope = await deps.toolExecutor.execute(binding.tool, toolInputs[toolId]);
@@ -151,10 +161,12 @@ async function produceSequence(
   remainingArtifactTypes: ArtifactType[],
   state: SequenceState,
   deps: ScenarioExecutorDeps,
+  guard: RuntimeGuard,
 ): Promise<ScenarioRunResult> {
   const now = deps.now ?? (() => new Date().toISOString());
 
   for (let i = 0; i < remainingArtifactTypes.length; i += 1) {
+    guard.checkStep();
     const artifactType = remainingArtifactTypes[i];
     const artifact = await generateArtifact(
       scenario,
@@ -181,12 +193,20 @@ async function produceSequence(
   return { status: 'completed', sessionId: state.sessionId, artifacts: state.producedSoFar };
 }
 
+/** 每次 runScenario/resumeScenario 调用各建一份新的运行时预算——不跨暂停边界累计。 */
+function createGuardForCall(deps: ScenarioExecutorDeps): RuntimeGuard {
+  const nowMs = deps.nowMs ?? Date.now;
+  const startedAtMs = nowMs();
+  return createRuntimeGuard(deps.limits ?? {}, () => (nowMs() - startedAtMs) / 1000);
+}
+
 export async function runScenario(
   scenario: ScenarioDefinition,
   input: ScenarioRunInput,
   deps: ScenarioExecutorDeps,
 ): Promise<ScenarioRunResult> {
-  const toolResults = await runTools(scenario, input.toolInputs, deps);
+  const guard = createGuardForCall(deps);
+  const toolResults = await runTools(scenario, input.toolInputs, deps, guard);
   return produceSequence(
     scenario,
     scenario.outputArtifacts,
@@ -198,6 +218,7 @@ export async function runScenario(
       inputArtifacts: input.inputArtifacts,
     },
     deps,
+    guard,
   );
 }
 
@@ -300,5 +321,6 @@ export async function resumeScenario(
       inputArtifacts: pending.producedArtifacts,
     },
     deps,
+    createGuardForCall(deps),
   );
 }

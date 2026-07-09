@@ -8,6 +8,7 @@ export * from './session/types.js';
 export * from './tools/tool-registry.js';
 export * from './scenario-executor/artifact-schemas.js';
 export * from './scenario-executor/todo-snapshot.js';
+export * from './scenario-executor/runtime-limits.js';
 export * from './scenario-executor/executor.js';
 export * from './composition/demo-assembly.js';
 export * from './composition/compile-risk-list-to-revisions.js';

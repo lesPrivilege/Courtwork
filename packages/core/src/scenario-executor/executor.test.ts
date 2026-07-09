@@ -11,6 +11,7 @@ import { createFileConfirmationStore, createInMemoryConfirmationStore } from '..
 import { createInMemoryRevisionEventStore } from '../revision/revision-store.js';
 import { createToolRegistry } from '../tools/tool-registry.js';
 import { createScriptedProvider } from '../provider/scripted-provider.js';
+import { RuntimeLimitExceededError } from './runtime-limits.js';
 import {
   GenerationValidationError,
   resumeScenario,
@@ -514,5 +515,55 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
     const snapshots = deps.eventLog.list().filter((e) => e.type === 'todo_snapshot');
     expect(snapshots).toHaveLength(2);
     expect(snapshots[1]).toMatchObject({ type: 'todo_snapshot', steps: [{ artifactType: 'RiskList', status: 'done' }] });
+  });
+});
+
+describe('docs/12 长任务协议 ③: runtime protection limits', () => {
+  it('does not throw when no limits are configured (default MVP behavior unchanged)', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    await expect(
+      runScenario(
+        SINGLE_GATE_SCENARIO,
+        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        deps,
+      ),
+    ).resolves.toMatchObject({ status: 'paused' });
+  });
+
+  it('throws RuntimeLimitExceededError when maxToolCalls is exceeded by the declared tool phase', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    deps.limits = { maxToolCalls: 0 };
+    await expect(
+      runScenario(
+        SINGLE_GATE_SCENARIO,
+        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        deps,
+      ),
+    ).rejects.toThrow(RuntimeLimitExceededError);
+  });
+
+  it('throws RuntimeLimitExceededError when maxSteps is exceeded by the artifact-generation phase', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(CASE_FILE_RESPONSE) }, { content: JSON.stringify(TIMELINE_RESPONSE) }]);
+    deps.limits = { maxSteps: 1 };
+    await expect(runScenario(MULTI_GATE_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps)).rejects.toThrow(
+      RuntimeLimitExceededError,
+    );
+  });
+
+  it('a fresh runScenario/resumeScenario call gets a fresh budget (limits are scoped per call, not persisted across resume)', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    deps.limits = { maxSteps: 1 };
+    const paused = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
+    // 恢复时 remainingArtifactTypes 已空（S3 只有一个产出），不会再触发生成步骤，
+    // 因此即使 maxSteps=1 也不会在 resume 阶段报错——这条测试确认的是"限额不会
+    // 因为跨越了暂停边界而被污染成 0"，不是测试恢复阶段本身还有额度可用。
+    await expect(
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'x' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
+    ).resolves.toMatchObject({ status: 'completed' });
   });
 });
