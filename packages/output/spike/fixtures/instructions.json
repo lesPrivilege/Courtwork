@@ -1,0 +1,108 @@
+{
+  "_note": "Spike 用草拟形状，非最终 RevisionInstructionSet 契约。字段命名与嵌套方式在正式提案前可能调整，citations 是否直接复用 SourceAnchor 待定（SourceAnchor 要求 bbox/textRange 至少一个，但法条引用未必挂在已入卷的文件上）。",
+  "id": "RIS-SPIKE-001",
+  "targetDocument": { "fileId": "sample-sale-contract-v1" },
+  "instructions": [
+    {
+      "id": "ins-01",
+      "kind": "replace",
+      "locator": { "quote": "百分之十的违约金", "paragraphHint": "第六条 违约责任" },
+      "replacementText": "百分之十五的违约金",
+      "annotation": {
+        "text": "违约金比例建议上调，与本所同类合同模板对齐。",
+        "citations": [
+          { "label": "《民法典》第五百八十五条", "quote": "当事人可以约定一方违约时应当根据违约情况向对方支付一定数额的违约金，也可以约定因违约产生的损失赔偿额的计算方法。" }
+        ]
+      }
+    },
+    {
+      "id": "ins-02",
+      "kind": "insert",
+      "locator": { "afterParagraphContaining": "提交甲方所在地人民法院诉讼解决。" },
+      "insertText": "第七条之一 保密条款\n双方对本合同履行过程中知悉的对方商业秘密负有保密义务，未经对方书面同意不得向第三方披露。",
+      "annotation": {
+        "text": "补充保密条款，原合同缺失该项约定。",
+        "citations": []
+      }
+    },
+    {
+      "id": "ins-03",
+      "kind": "delete",
+      "locator": { "quote": "本合同一式两份，甲乙双方各执一份，自双方签字盖章之日起生效。", "paragraphHint": "第八条 其他约定" },
+      "annotation": {
+        "text": "该条内容并入合同尾部通用条款，此处删除避免重复。",
+        "citations": []
+      }
+    },
+    {
+      "id": "ins-04",
+      "kind": "replace",
+      "locator": { "tableCell": { "rowContains": "第一期", "columnHeader": "支付比例" }, "quote": "30%" },
+      "replacementText": "20%",
+      "annotation": {
+        "text": "首期付款比例下调，与甲方财务部沟通后调整。",
+        "citations": []
+      }
+    },
+    {
+      "id": "ins-05",
+      "kind": "replace",
+      "locator": { "quote": "质保期为交付之日起壹年", "paragraphHint": "第五条 质量保证" },
+      "replacementText": "质保期为交付之日起贰年",
+      "annotation": {
+        "text": "质保期建议延长至两年，参考同类设备行业惯例。",
+        "citations": [
+          { "label": "《产品质量法》第四十条", "quote": "售出的产品有下列情形之一的，销售者应当负责修理、更换、退货..." }
+        ]
+      }
+    },
+    {
+      "id": "ins-06",
+      "kind": "replace",
+      "locator": { "quote": "提交甲方所在地人民法院诉讼解决", "paragraphHint": "第七条 争议解决" },
+      "replacementText": "提交标的物所在地人民法院诉讼解决",
+      "annotation": {
+        "text": "管辖法院建议改为标的物所在地，便于纠纷发生时勘验现场设备。",
+        "citations": []
+      }
+    },
+    {
+      "id": "ins-07",
+      "kind": "comment-only",
+      "locator": { "quote": "规格、数量、单价详见本合同附表一", "paragraphHint": "第一条 标的物" },
+      "annotation": {
+        "text": "请核实附表一是否已作为合同附件一并签署，本次送审文本未见附表。",
+        "citations": []
+      }
+    },
+    {
+      "id": "ins-08",
+      "kind": "replace",
+      "locator": { "quote": "本合同签订之日起三十日内", "paragraphHint": "第三条 交付期限" },
+      "replacementText": "本合同签订之日起四十五日内",
+      "annotation": {
+        "text": "交付期限延长，乙方反馈设备生产周期需要更多时间。",
+        "citations": []
+      }
+    },
+    {
+      "id": "ins-09",
+      "kind": "replace",
+      "locator": { "quote": "甲方（买受人）：星辰科技有限公司", "paragraphHint": "抬头" },
+      "replacementText": "甲方（买受人）：星辰科技股份有限公司",
+      "annotation": {
+        "text": "核对营业执照后更正甲方全称（有限公司→股份有限公司）。",
+        "citations": []
+      }
+    },
+    {
+      "id": "ins-10",
+      "kind": "delete",
+      "locator": { "tableRowContains": "第三期" },
+      "annotation": {
+        "text": "第三期验收付款并入第二期一次性支付，删除该行。",
+        "citations": []
+      }
+    }
+  ]
+}

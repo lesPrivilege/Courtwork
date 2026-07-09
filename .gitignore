@@ -4,3 +4,9 @@ dist/
 *.log
 .DS_Store
 coverage/
+
+# 非 TS 语言 spike 产出的构建/环境目录（Python/Java 等，与主线技术基线无关）
+__pycache__/
+*.pyc
+.venv/
+target/

@@ -1,0 +1,163 @@
+{
+  "apply_instructions_results": {
+    "ins-01": {
+      "status": "applied",
+      "quote_for_comment": "百分之十五的违约金"
+    },
+    "ins-02": {
+      "status": "applied",
+      "quote_for_comment": "第七条之一 保密条款"
+    },
+    "ins-03": {
+      "status": "applied",
+      "quote_for_comment": null
+    },
+    "ins-04": {
+      "status": "applied",
+      "quote_for_comment": "20%"
+    },
+    "ins-05": {
+      "status": "applied",
+      "quote_for_comment": "质保期为交付之日起贰年"
+    },
+    "ins-06": {
+      "status": "applied",
+      "quote_for_comment": "提交标的物所在地人民法院诉讼解决"
+    },
+    "ins-07": {
+      "status": "applied",
+      "quote_for_comment": "规格、数量、单价详见本合同附表一"
+    },
+    "ins-08": {
+      "status": "applied",
+      "quote_for_comment": "本合同签订之日起四十五日内"
+    },
+    "ins-09": {
+      "status": "applied",
+      "quote_for_comment": "甲方（买受人）：星辰科技股份有限公司"
+    },
+    "ins-10": {
+      "status": "applied",
+      "quote_for_comment": null
+    }
+  },
+  "engine": "DocxodusEngine",
+  "timing_seconds": {
+    "diff_plain": 5.315,
+    "diff_with_precomments": 1.157
+  },
+  "stdout_plain": "Comparing documents...\n  Original: /var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/tmpp350x6g_\n  Modified: /var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/tmp0zkx7ewo\n\nRedline complete: 13 revision(s) found\n  Output: /var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/tmpk6lzmqxs\n",
+  "stderr_plain": null,
+  "comments_path_A_pre_diff_injection": [
+    {
+      "quote": "百分之十五的违约金",
+      "text": "违约金比例建议上调，与本所同类合同模板对齐。",
+      "instruction_id": "ins-01",
+      "_status": "injected"
+    },
+    {
+      "quote": "第七条之一 保密条款",
+      "text": "补充保密条款，原合同缺失该项约定。",
+      "instruction_id": "ins-02",
+      "_status": "injected"
+    },
+    {
+      "quote": "20%",
+      "text": "首期付款比例下调，与甲方财务部沟通后调整。",
+      "instruction_id": "ins-04",
+      "_status": "injected"
+    },
+    {
+      "quote": "质保期为交付之日起贰年",
+      "text": "质保期建议延长至两年，参考同类设备行业惯例。",
+      "instruction_id": "ins-05",
+      "_status": "injected"
+    },
+    {
+      "quote": "提交标的物所在地人民法院诉讼解决",
+      "text": "管辖法院建议改为标的物所在地，便于纠纷发生时勘验现场设备。",
+      "instruction_id": "ins-06",
+      "_status": "injected"
+    },
+    {
+      "quote": "规格、数量、单价详见本合同附表一",
+      "text": "请核实附表一是否已作为合同附件一并签署，本次送审文本未见附表。",
+      "instruction_id": "ins-07",
+      "_status": "injected"
+    },
+    {
+      "quote": "本合同签订之日起四十五日内",
+      "text": "交付期限延长，乙方反馈设备生产周期需要更多时间。",
+      "instruction_id": "ins-08",
+      "_status": "injected"
+    },
+    {
+      "quote": "甲方（买受人）：星辰科技股份有限公司",
+      "text": "核对营业执照后更正甲方全称（有限公司→股份有限公司）。",
+      "instruction_id": "ins-09",
+      "_status": "injected"
+    }
+  ],
+  "comments_path_B_post_diff_injection": [
+    {
+      "quote": "百分之十的违约金",
+      "text": "违约金比例建议上调，与本所同类合同模板对齐。",
+      "instruction_id": "ins-01",
+      "_status": "not_found"
+    },
+    {
+      "quote": "本合同一式两份，甲乙双方各执一份，自双方签字盖章之日起生效。",
+      "text": "该条内容并入合同尾部通用条款，此处删除避免重复。",
+      "instruction_id": "ins-03",
+      "_status": "injected"
+    },
+    {
+      "quote": "30%",
+      "text": "首期付款比例下调，与甲方财务部沟通后调整。",
+      "instruction_id": "ins-04",
+      "_status": "injected"
+    },
+    {
+      "quote": "质保期为交付之日起壹年",
+      "text": "质保期建议延长至两年，参考同类设备行业惯例。",
+      "instruction_id": "ins-05",
+      "_status": "not_found"
+    },
+    {
+      "quote": "提交甲方所在地人民法院诉讼解决",
+      "text": "管辖法院建议改为标的物所在地，便于纠纷发生时勘验现场设备。",
+      "instruction_id": "ins-06",
+      "_status": "not_found"
+    },
+    {
+      "quote": "规格、数量、单价详见本合同附表一",
+      "text": "请核实附表一是否已作为合同附件一并签署，本次送审文本未见附表。",
+      "instruction_id": "ins-07",
+      "_status": "injected"
+    },
+    {
+      "quote": "本合同签订之日起三十日内",
+      "text": "交付期限延长，乙方反馈设备生产周期需要更多时间。",
+      "instruction_id": "ins-08",
+      "_status": "not_found"
+    },
+    {
+      "quote": "甲方（买受人）：星辰科技有限公司",
+      "text": "核对营业执照后更正甲方全称（有限公司→股份有限公司）。",
+      "instruction_id": "ins-09",
+      "_status": "not_found"
+    },
+    {
+      "quote": "第三期",
+      "text": "第三期验收付款并入第二期一次性支付，删除该行。",
+      "instruction_id": "ins-10",
+      "_status": "injected"
+    }
+  ],
+  "outputs": {
+    "modified": "/Users/lesprivilege/Projects/Courtwork/packages/output/spike/py-redlines/out/modified.docx",
+    "redline_no_comments": "/Users/lesprivilege/Projects/Courtwork/packages/output/spike/py-redlines/out/redline.docx",
+    "redline_precomments_survived_diff": "/Users/lesprivilege/Projects/Courtwork/packages/output/spike/py-redlines/out/redline_with_comments.docx",
+    "redline_postcomment_injected": "/Users/lesprivilege/Projects/Courtwork/packages/output/spike/py-redlines/out/redline_postcomment.docx"
+  }
+}
