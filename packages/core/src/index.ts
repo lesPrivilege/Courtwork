@@ -4,5 +4,6 @@ export * from './evidence/grade.js';
 export * from './events/types.js';
 export * from './events/event-log.js';
 export * from './session/confirmation-store.js';
+export * from './session/types.js';
 export * from './revision/json-pointer.js';
 export * from './revision/revision-store.js';
