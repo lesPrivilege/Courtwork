@@ -263,6 +263,7 @@ export async function resumeScenario(
     return { status: 'completed', sessionId: pending.sessionId, artifacts: pending.producedArtifacts };
   }
 
+  const revisedArtifactTypes = new Set<ArtifactType>();
   for (const revision of response.revisions ?? []) {
     const event = buildRevisionEvent(revision, response.actor, now);
     deps.revisionStore.record(event);
@@ -270,7 +271,18 @@ export async function resumeScenario(
     const artifact = pending.producedArtifacts[revision.artifactType];
     if (artifact && typeof artifact === 'object') {
       applyJsonPointer(artifact as Record<string, unknown>, revision.fieldPath, revision.newValue);
+      revisedArtifactTypes.add(revision.artifactType);
     }
+  }
+  // 修正过的 artifact 重新发一次 artifact_produced（同一 artifactType 的最新一条对
+  // replaySession 生效）——否则事件流"可回放"只能重建出修正前的原始产出，不是真话。
+  for (const artifactType of revisedArtifactTypes) {
+    deps.eventLog.append({
+      type: 'artifact_produced',
+      artifactType,
+      artifact: pending.producedArtifacts[artifactType],
+      evidenceGrades: deps.ledger.snapshot(),
+    });
   }
 
   return produceSequence(

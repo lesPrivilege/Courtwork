@@ -10,5 +10,6 @@ export * from './scenario-executor/artifact-schemas.js';
 export * from './scenario-executor/executor.js';
 export * from './composition/demo-assembly.js';
 export * from './composition/compile-risk-list-to-revisions.js';
+export * from './acceptance/run-s3-demo.js';
 export * from './revision/json-pointer.js';
 export * from './revision/revision-store.js';

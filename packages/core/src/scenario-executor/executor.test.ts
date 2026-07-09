@@ -233,10 +233,45 @@ describe('resumeScenario', () => {
       'confirmation_requested',
       'confirmation_resolved',
       'revision_recorded',
+      'artifact_produced',
       'scenario_completed',
     ]);
     expect(events[2]).toMatchObject({ instrumentation: { dwellMs: 4200, expandedEvidenceKeys: ['party-verify'] } });
     expect(events[3]).toMatchObject({ type: 'revision_recorded', revisionEventId: recorded[0].id });
+    // 修正后的 artifact 重新发了一次 artifact_produced——事件流可回放才能真正
+    // 重建出修正后的状态，而不是只重建出确认门禁触发时那一刻的原始产出。
+    expect(events[4]).toMatchObject({ type: 'artifact_produced', artifactType: 'RiskList' });
+    expect((events[4] as { artifact: typeof VALID_RISK_LIST }).artifact.risks[0].dispositionStatus).toBe('confirmed');
+  });
+
+  it('re-emits artifact_produced for a revised artifact, so replaySession reflects the post-revision state, not the original', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const paused = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
+
+    await resumeScenario(
+      paused.requestId,
+      {
+        actor: { channelId: 'cli', actorId: 'demo-lawyer' },
+        decision: 'confirm',
+        revisions: [
+          { artifactType: 'RiskList', artifactId: 'c1', fieldPath: '/risks/0/dispositionStatus', previousValue: 'pending', newValue: 'confirmed' },
+        ],
+      },
+      SINGLE_GATE_SCENARIO,
+      deps,
+    );
+
+    const events = deps.eventLog.list();
+    const artifactProducedEvents = events.filter((e) => e.type === 'artifact_produced');
+    expect(artifactProducedEvents).toHaveLength(2);
+    const last = artifactProducedEvents[artifactProducedEvents.length - 1];
+    if (last.type !== 'artifact_produced') throw new Error('unreachable');
+    expect((last.artifact as typeof VALID_RISK_LIST).risks[0].dispositionStatus).toBe('confirmed');
   });
 
   it('applies multiple revisions in order and records each independently', async () => {
