@@ -1,10 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import type { ArtifactType, RevisionEvent, ScenarioDefinition, SourceAnchor } from '@courtwork/schemas';
+import type { ArtifactType, RevisionEvent, SourceAnchor } from '@courtwork/schemas';
 import { RevisionEventSchema } from '@courtwork/schemas';
+import type { ScenarioDefinition } from '@courtwork/registry';
 import type { ToolExecutor } from '@courtwork/tools';
 import type { Provider } from '../provider/types.js';
 import type { EventLog } from '../events/event-log.js';
-import type { ConfirmationInstrumentation } from '../events/types.js';
+import type { ConfirmationActor, ConfirmationInstrumentation } from '../events/types.js';
 import type { EvidenceLedger } from '../evidence/grade.js';
 import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { ConfirmationStore, PendingConfirmation } from '../session/confirmation-store.js';
@@ -189,12 +190,6 @@ export async function runScenario(
     },
     deps,
   );
-}
-
-export interface ConfirmationActor {
-  channelId: string;
-  actorId: string;
-  role?: string;
 }
 
 export interface RevisionInput {

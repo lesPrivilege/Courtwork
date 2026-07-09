@@ -53,4 +53,11 @@ export type SessionEvent =
   | (BaseEvent & { type: 'scenario_completed' })
   | (BaseEvent & { type: 'error'; message: string });
 
-export type SessionEventInput = Omit<SessionEvent, 'seq' | 'emittedAt' | 'sessionId'>;
+/**
+ * 普通 Omit 在判别联合上不分发（keyof (A|B) 只保留两者共有的键），会把
+ * SessionEvent 塌缩成只剩 BaseEvent 公共字段——用 T extends any ? ... : never
+ * 触发分发式条件类型，逐个联合成员分别做 Omit 再重新联合。
+ */
+type DistributiveOmit<T, K extends keyof T> = T extends unknown ? Omit<T, K> : never;
+
+export type SessionEventInput = DistributiveOmit<SessionEvent, 'seq' | 'emittedAt' | 'sessionId'>;
