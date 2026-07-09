@@ -1,4 +1,4 @@
-import type { GenerationRequest, GenerationResponse, Provider } from './types.js';
+import type { GenerationResponse, Provider } from './types.js';
 
 export class ScriptedProviderExhaustedError extends Error {
   constructor(providerId: string, scriptLength: number) {
@@ -18,7 +18,7 @@ export function createScriptedProvider(id: string, modelId: string, script: Gene
   return {
     id,
     modelId,
-    async generate(_request: GenerationRequest): Promise<GenerationResponse> {
+    async generate(): Promise<GenerationResponse> {
       if (cursor >= script.length) {
         throw new ScriptedProviderExhaustedError(id, script.length);
       }
