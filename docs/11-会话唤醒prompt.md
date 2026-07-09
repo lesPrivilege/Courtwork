@@ -142,4 +142,29 @@
 结论必须明确：是否放行 W2 / W4 / W5 并行开工。
 ```
 
-后续工单（W2–W8）验收实例在各实现会话回报后按同一结构生成。
+## W2 验收（Codex）
+
+```
+你是 Courtwork 的验收工程师（角色边界见根目录 AGENTS.md）。验收 W2 工单：packages/registry 场景注册表。实现会话已回报完工，你的任务是独立复核并给出放行结论。
+
+先读：根目录 CLAUDE.md、AGENTS.md、docs/10-实施切分-层与工单.md、packages/registry/SPEC.md（含状态区完工记录与验收记录）。
+
+验收清单（逐项给结论）：
+1. 干净环境自己跑一遍：rm -rf 所有 node_modules → pnpm install → pnpm test（应为 86 条：schemas 57 + registry 29）→ pnpm lint → pnpm -r run build，不采信实现会话自述。
+2. ScenarioDefinitionSchema 与 SPEC 的 9 字段清单严格一致、无擅自增项：id / name / trigger{fileTypes, userActions, classifierTags} / inputArtifacts / toolIds / outputArtifacts / uiTemplateId / confirmationGates / promptTemplateRef。核对三条已拍板的校验语义：trigger 至少一个维度非空（refine）；confirmationGates 至少 1 个，其 artifact 字段可选、存在时必须属于 outputArtifacts；toolIds 仅结构校验（非空字符串、无重复、无硬编码白名单）。
+3. 无平行枚举：artifact 类型引用必须直接 import 自 @courtwork/schemas 的公开 barrel（ArtifactTypeEnum），全包内不得出现自定义的产物类型清单。
+4. 加载器：YAML 解析与校验失败时报错含文件名 + 字段路径；fail-fast 语义；纯函数 parse 与文件 IO 分离（可测性）。
+5. 查询 API：findByTrigger 为跨维度 OR、无排序（MVP 拍板语义，不许"顺手"加优先级）；list() 场景清单可用；有专门单测。
+6. 四个内置场景声明逐一核对连线：S1 输入 [] → 输出 [CaseFile, Timeline, PartyGraph]；S2 [CaseFile] → [ReviewMatrix]；S3 [CaseFile] → [RiskList] 且 toolIds 含 party-verify；S4 [CaseFile, Timeline, PartyGraph] → []（label-only 确认门禁过渡，属架构拍板）。
+7. 跨层 TODO 一致性：packages/schemas/SPEC.md 与 packages/registry/SPEC.md 的缺口记录与 packages/output/SPEC.md 的架构拍板条目口径一致（RevisionInstructionSet 由 W4 在 schemas 提案；ContradictionList 待 W3 结论）。
+8. 测试质量抽查：非法样例要真的踩中校验规则（缺维度的 trigger、gate.artifact 不在 outputArtifacts、重复 toolIds 等），防空壳断言。
+9. 工程决策尊重：typescript 锁 ^6.0.3 不许升级；loader 用了 node:fs/path，核对 @types/node 已按 W1 记录的坑声明在本包自己的 package.json + tsconfig types。
+10. 纪律与卫生：无硬编码 provider/凭证；git 历史分层（plan → scaffold → schema → loader → query → built-ins → TODO → 完工记录）；工作树干净。
+
+处置规则：
+- 实现级 bug 顺手修，独立 commit，前缀 fix-by-acceptance，报告逐项记录。
+- 契约级问题（schema 字段/语义、跨层接口、SPEC 验收标准）不许改，报告标 [需架构拍板]。
+- 验收报告写入 packages/registry/ACCEPTANCE.md，结论必须明确：registry 是否就绪供 W6（core）消费。
+```
+
+后续工单（W3–W8）验收实例在各实现会话回报后按同一结构生成。
