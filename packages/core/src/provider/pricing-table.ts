@@ -29,6 +29,9 @@ export const PRICE_TABLE: Record<string, Record<string, ModelPrice>> = {
   doubao: {
     // doubao-seed-1.6 短输入区间（128–256 tokens）报价；豆包按输入长度分段计价，
     // 这里取文档给出的具体型号价，不是"旗舰版"那个无具体型号 id 的定性数字。
+    // 注意：这是该型号最便宜的档位，不是本模块其余部分"估高不估低"的保守估计——
+    // 本产品真实工作负载（长合同审查）远超 128–256 token 输入，真实成本大概率高于
+    // 此估算，eval 阶段需按真实文档长度测算校准（docs/18 已点名此风险）。
     'doubao-seed-1.6': { inputPerMillionRmb: 2.4, outputPerMillionRmb: 24 },
   },
 };
