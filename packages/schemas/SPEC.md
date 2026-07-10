@@ -33,6 +33,7 @@
 
 - [已解决 2026-07-09] ~~文书起草/修订指令集产物类型待 W4 提案~~——`RevisionInstructionSet` 已落地（`src/revision-instruction-set.ts`），`ArtifactTypeEnum` 已扩展。`packages/registry` 的 S4 声明与内置场景测试已由 W4 同步更新（架构显式授权的跨层同步，见 `packages/registry/SPEC.md`）。
 - 矛盾清单（`ContradictionList`，供 S1 卷宗阅卷使用）产物类型待 W3 spike 结论后定。合入前 `packages/registry` 的 S1 声明不含矛盾清单产出。
+- [观察，非缺陷，2026-07-10 W6 core 会话记录] 信源等级（A/B/C，docs/20）当前不是 `RiskBasis`/`Citation` 的字段——等级判定与传播走 `packages/core` 自己的事件流协议（`artifact_produced` 事件携带的 `evidenceGrades` 投影），不落进本包定义的 artifact 本体（架构已确认此方案，理由见 `packages/core/SPEC.md` 验收记录判断点 3）。若未来 W9 需要跨 session 持久化的信源等级角标（当前会话内的事件流回放已够用，跨 session 是否需要尚不确定），可能需要给 `RiskBasis`/`Citation` 加可选的 `evidenceGrade` 字段——按本文件"嵌入形状归 schemas、映射归 core"的既有原则（见 CLAUDE.md），这类字段需要走本包提案与架构拍板，不由消费方单方面加。
 
 ## 验收记录
 
