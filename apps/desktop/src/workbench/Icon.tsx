@@ -14,6 +14,10 @@ type IconName =
   | 'plus'
   | 'minus'
   | 'fit'
+  | 'archive'
+  | 'copy'
+  | 'check'
+  | 'focus'
   | 'paperclip'
   | 'folderOpen'
   | 'send'
@@ -82,6 +86,21 @@ const paths: Record<IconName, React.ReactNode> = {
       <rect x="8" y="8" width="8" height="8" rx="1" />
     </>
   ),
+  archive: (
+    <>
+      <rect x="3.5" y="4" width="17" height="4" rx="1" />
+      <path d="M5 8v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8" />
+      <path d="M10 12.5h4" />
+    </>
+  ),
+  copy: (
+    <>
+      <rect x="8.5" y="8.5" width="12" height="12" rx="1.5" />
+      <path d="M15.5 8.5V5.5a1 1 0 0 0-1-1H4.5a1 1 0 0 0-1 1V16a1 1 0 0 0 1 1h3" />
+    </>
+  ),
+  check: <path d="M5 12.5l4.5 4.5L19 7" />,
+  focus: <path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4" />,
   // Lucide paperclip
   paperclip: <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />,
   // Lucide folder-open
