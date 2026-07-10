@@ -38,7 +38,12 @@ test('五工作面结构常驻且未接功能保留禁用入口与说明', async
   const exportDraft = page.getByRole('button', { name: '导出审阅稿' });
   await expect(exportDraft).toBeDisabled();
   await expect(exportDraft).toHaveAttribute('title', '导出审阅稿 · 待完成文书生成');
-  await expect(page.getByRole('button', { name: '自由输入' })).toBeDisabled();
+  // composer 已整备：输入区可用；发送在空输入时禁用；拍照/语音为禁用态常驻。
+  await expect(page.getByTestId('composer')).toBeVisible();
+  await expect(page.getByTestId('composer-send')).toBeDisabled();
+  await expect(page.getByTestId('composer-camera')).toHaveAttribute('aria-disabled', 'true');
+  await expect(page.getByTestId('composer-voice')).toHaveAttribute('aria-disabled', 'true');
+
 
   await page.getByTestId('view-matrix').click();
   const matrixCells = page.locator('.matrix-wrap td button');
