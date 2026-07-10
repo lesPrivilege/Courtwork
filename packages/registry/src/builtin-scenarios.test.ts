@@ -17,6 +17,15 @@ describe('built-in MVP scenarios', () => {
     expect(s1?.outputArtifacts).toEqual(['CaseFile', 'Timeline', 'PartyGraph']);
   });
 
+  it('S1 卷宗阅卷 triggers on reading-view formats and OCR-gated formats alike', () => {
+    // docs/41 拍板"S1 以阅读视图版运行"：office 生态原生格式（docx/md/txt）经
+    // packages/reading-view 直接产出阅读视图；pdf/jpg/png 保留在触发范围内，
+    // 但会经该包判定为 needs_ocr（禁用态声明），不是被排除在触发之外。
+    const scenarios = loadScenariosFromDir(SCENARIOS_DIR);
+    const s1 = scenarios.find((s) => s.id === 'S1');
+    expect(s1?.trigger.fileTypes).toEqual(['docx', 'md', 'txt', 'pdf', 'jpg', 'png']);
+  });
+
   it('S3 合同审查 requires party-verify and produces RiskList', () => {
     const scenarios = loadScenariosFromDir(SCENARIOS_DIR);
     const s3 = scenarios.find((s) => s.id === 'S3');

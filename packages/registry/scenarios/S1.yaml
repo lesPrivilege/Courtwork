@@ -2,6 +2,9 @@ id: S1
 name: 卷宗阅卷
 trigger:
   fileTypes:
+    - docx
+    - md
+    - txt
     - pdf
     - jpg
     - png
