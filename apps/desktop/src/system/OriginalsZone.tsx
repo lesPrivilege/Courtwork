@@ -17,7 +17,12 @@ export function OriginalsZone({ caseRoot, onFeedback }: OriginalsZoneProps) {
       <ul className="originals-list" aria-label="卷宗原件（只读）">
         {DEMO_ORIGINALS.map((item) => (
           <li key={item.path} data-testid="original-item" data-readonly="true">
-            <span className="truncate" title={item.fileName}>{item.fileName}</span>
+            <div className="original-meta">
+              <span className="truncate" title={item.fileName}>{item.fileName}</span>
+              <span className="original-hash mono truncate" title={`原始文件名 ${item.originalFileName} · 哈希 ${item.contentHash}`}>
+                原名 {item.originalFileName}
+              </span>
+            </div>
             <span className="original-badge" title="原件不可编辑">只读</span>
             <button
               type="button"

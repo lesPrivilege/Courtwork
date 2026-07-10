@@ -18,6 +18,7 @@ import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
 import { DEMO_CASE_ROOT, DEMO_OUTPUT_DIR, DEMO_OUTPUT_DOCX } from './system/demo-case-layout';
+import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { OriginalsZone } from './system/OriginalsZone';
 import { systemOpenClient } from './system/system-open-client';
 import { WorkDraftPanel } from './system/WorkDraftPanel';
@@ -99,6 +100,8 @@ export function App() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   /** 起草画布内切换：交付轨文书 vs 工作稿轨笔记 */
   const [workDraftMode, setWorkDraftMode] = useState(false);
+  /** S6 卷宗整理：右栏展示 FileOpsPlan 面板 */
+  const [fileOpsMode, setFileOpsMode] = useState(false);
   const [systemFeedback, setSystemFeedback] = useState<{ message: string; ok: boolean } | null>(null);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const wideSplitAvailable = useWideSplitAvailable();
@@ -248,6 +251,7 @@ export function App() {
     setFlow(next);
     setActiveView(next === 'S1' ? 'timeline' : 'revision');
     setWorkDraftMode(false);
+    setFileOpsMode(false);
     setGate(undefined);
     setExpandedEvidence({});
     setDispositions({});
@@ -260,11 +264,19 @@ export function App() {
     if (secondaryView === view && activeView !== view) setSecondaryView(activeView);
     setActiveView(view);
     if (view !== 'draft') setWorkDraftMode(false);
+    setFileOpsMode(false);
   };
 
   const openWorkDrafts = () => {
     setWorkDraftMode(true);
+    setFileOpsMode(false);
     setActiveView('draft');
+  };
+
+  const openFileOps = () => {
+    setFileOpsMode(true);
+    setWorkDraftMode(false);
+    setSecondaryView(undefined);
   };
 
   const startComparison = () => {
@@ -308,6 +320,9 @@ export function App() {
   };
 
   const renderView = (view: WorkbenchView) => {
+    if (fileOpsMode) {
+      return <FileOpsPlanPanel caseId={selectedCase.id} onFeedback={showSystemFeedback} />;
+    }
     if (!isDemoCase) return <div className="empty-state" role="status">{selectedCase.title} 刚建立，尚无卷宗内容 · 从对话或场景开始整理</div>;
     if (view === 'timeline') return <TimelinePanel timeline={timeline} grade={session.evidenceGrades[0]?.grade} />;
     if (view === 'graph') return <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
@@ -365,7 +380,8 @@ export function App() {
   const paletteCommands: PaletteCommand[] = [
     { id: 'scene-s1', section: '场景', label: '整理卷宗', onRun: () => { selectFlow('S1'); setPaletteOpen(false); } },
     { id: 'scene-s3', section: '场景', label: '审查合同', onRun: () => { selectFlow('S3'); setPaletteOpen(false); } },
-    { id: 'scene-draft', section: '场景', label: '起草答辩状', onRun: () => { setWorkDraftMode(false); choosePrimaryView('draft'); setPaletteOpen(false); } },
+    { id: 'scene-draft', section: '场景', label: '起草答辩状', onRun: () => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); setPaletteOpen(false); } },
+    { id: 'scene-s6', section: '场景', label: '卷宗整理', onRun: () => { openFileOps(); setPaletteOpen(false); } },
     ...cases.map((item) => ({
       id: `case-${item.id}`,
       section: '案件',
@@ -466,6 +482,14 @@ export function App() {
                 >
                   <Icon name="file-text" />工作稿 · 笔记备忘<span>新建</span>
                 </button>
+                <button
+                  type="button"
+                  className={`stage-row ${fileOpsMode ? 'selected' : ''}`}
+                  data-testid="open-file-ops"
+                  onClick={openFileOps}
+                >
+                  <Icon name="folder-open" />卷宗整理 · S6<span>计划</span>
+                </button>
               </>}
             </div>
             <div className="rail-footer">主办律师 · 林律师</div>
@@ -533,7 +557,8 @@ export function App() {
           <div className="scene-strip">
             <button onClick={() => selectFlow('S1')}>整理卷宗</button>
             <button onClick={() => selectFlow('S3')}>审查合同</button>
-            <button onClick={() => { setWorkDraftMode(false); choosePrimaryView('draft'); }}>起草答辩状</button>
+            <button type="button" data-testid="scene-file-ops" onClick={openFileOps}>卷宗整理</button>
+            <button onClick={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); }}>起草答辩状</button>
           </div>
           <Composer onSend={handleComposerSend} />
         </section>}

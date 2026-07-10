@@ -190,6 +190,19 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 验证：`icons:build` 与 `lint:icons` 通过；Vitest 26/26；Playwright 38/38；`pnpm lint` 和 desktop 生产构建通过。Base UI 未触发，未新建 `packages/ui`。
 
+## F-4 文件操作分级与卷宗整理（2026-07-10）
+
+规格：docs/47。交付：
+
+| 层 | 内容 |
+|---|---|
+| schemas | `FileOpsPlan` + CaseFile `originalFileName`/`contentHash`；动词无 delete |
+| tools | copy/mkdir 无损级；FileOpsPlan 执行器 + 事务日志撤销（字节一致） |
+| registry | S6 卷宗整理（产出 FileOpsPlan，门禁计划确认） |
+| desktop | 计划表 / 执行报告 / 撤销 popover；原件区原名留痕 |
+
+验证：tools 204 例；Playwright file-ops 3 例；假绿下限 60。
+
 ## F-2 全局动词补全（2026-07-10）
 
 规格：docs/46 十项裁决（1/3/6/7 + callout 复制）。五项均落地：

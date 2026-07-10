@@ -8,9 +8,25 @@ export const DEMO_OUTPUT_DIR = `${DEMO_CASE_ROOT}/产出`;
 export const DEMO_OUTPUT_DOCX = `${DEMO_OUTPUT_DIR}/合同审查报告.docx`;
 
 export const DEMO_ORIGINALS = [
-  { fileName: '设备采购合同.pdf', path: `${DEMO_CASE_ROOT}/原件/设备采购合同.pdf` },
-  { fileName: '催告函.docx', path: `${DEMO_CASE_ROOT}/原件/催告函.docx` },
-  { fileName: '验收记录扫描件.pdf', path: `${DEMO_CASE_ROOT}/原件/验收记录扫描件.pdf` },
+  {
+    fileName: '设备采购合同.pdf',
+    path: `${DEMO_CASE_ROOT}/原件/设备采购合同.pdf`,
+    /** docs/47：移形后永久保留原始文件名 */
+    originalFileName: '合同v2(1).pdf',
+    contentHash: 'c0ffee00deadbeef',
+  },
+  {
+    fileName: '催告函.docx',
+    path: `${DEMO_CASE_ROOT}/原件/催告函.docx`,
+    originalFileName: '催告函.docx',
+    contentHash: 'a11ce000cafebabe',
+  },
+  {
+    fileName: '验收记录扫描件.pdf',
+    path: `${DEMO_CASE_ROOT}/原件/验收记录扫描件.pdf`,
+    originalFileName: '扫描件_验收.pdf',
+    contentHash: 'beadfeedfeedfeed',
+  },
 ] as const;
 
 export const DEMO_WORK_DRAFT_DIR = `${DEMO_CASE_ROOT}/工作稿`;
