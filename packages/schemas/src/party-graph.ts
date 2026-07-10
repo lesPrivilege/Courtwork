@@ -21,6 +21,13 @@ const PartyEdgeSchema = z.object({
   relationType: z.string().min(1),
   /** 关系必须至少有一个来源锚点：一条关系断言应当有证据支撑。 */
   sourceAnchors: z.array(SourceAnchorSchema).min(1),
+  /**
+   * 结构化关系标记，供 UI 消费判定（如高亮矛盾边），避免靠 relationType 文案/边 ID
+   * 猜测做判断（违反"UI 零推断"原则）。
+   * 当前词表仅 "contradiction"；词表将随 ContradictionList 类型正式落地后收编、
+   * 不再是本字段自由字符串的隐性约定。
+   */
+  markers: z.array(z.string().min(1)).optional(),
 });
 export type PartyEdge = z.infer<typeof PartyEdgeSchema>;
 

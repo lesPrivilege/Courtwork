@@ -100,4 +100,93 @@ describe('PartyGraphSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('accepts an edge with a contradiction marker', () => {
+    const result = PartyGraphSchema.safeParse({
+      caseId: 'case-008',
+      nodes: [
+        { id: 'party-010', kind: 'organization', primaryName: '临江精铸（云章）装备有限公司' },
+        { id: 'party-011', kind: 'organization', primaryName: '临江精铸科技有限公司' },
+      ],
+      edges: [
+        {
+          id: 'edge-004',
+          sourcePartyId: 'party-010',
+          targetPartyId: 'party-011',
+          relationType: '关联公司（受托实际生产与发货，非合同签约主体）',
+          markers: ['contradiction'],
+          sourceAnchors: [{ fileId: 'file-003', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.edges[0]?.markers).toEqual(['contradiction']);
+    }
+  });
+
+  it('accepts an edge with markers omitted entirely', () => {
+    const result = PartyGraphSchema.safeParse({
+      caseId: 'case-009',
+      nodes: [
+        { id: 'party-012', kind: 'individual', primaryName: '周八' },
+        { id: 'party-013', kind: 'individual', primaryName: '吴九' },
+      ],
+      edges: [
+        {
+          id: 'edge-005',
+          sourcePartyId: 'party-012',
+          targetPartyId: 'party-013',
+          relationType: '担保人',
+          sourceAnchors: [{ fileId: 'file-004', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.edges[0]?.markers).toBeUndefined();
+    }
+  });
+
+  it('rejects a markers array containing an empty string', () => {
+    const result = PartyGraphSchema.safeParse({
+      caseId: 'case-010',
+      nodes: [
+        { id: 'party-014', kind: 'individual', primaryName: '郑十' },
+        { id: 'party-015', kind: 'individual', primaryName: '王十一' },
+      ],
+      edges: [
+        {
+          id: 'edge-006',
+          sourcePartyId: 'party-014',
+          targetPartyId: 'party-015',
+          relationType: '担保人',
+          markers: [''],
+          sourceAnchors: [{ fileId: 'file-005', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects markers that is not an array', () => {
+    const result = PartyGraphSchema.safeParse({
+      caseId: 'case-011',
+      nodes: [
+        { id: 'party-016', kind: 'individual', primaryName: '冯十二' },
+        { id: 'party-017', kind: 'individual', primaryName: '陈十三' },
+      ],
+      edges: [
+        {
+          id: 'edge-007',
+          sourcePartyId: 'party-016',
+          targetPartyId: 'party-017',
+          relationType: '担保人',
+          markers: 'contradiction',
+          sourceAnchors: [{ fileId: 'file-006', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
 });
