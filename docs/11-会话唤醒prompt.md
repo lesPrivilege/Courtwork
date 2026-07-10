@@ -594,4 +594,15 @@ D-5 冒烟脚本无 key 时明确说明并跳过（跑一次验证）。
 验证：Playwright 全覆盖 + 假绿防护；截图入 visual-audit/；显式路径分层提交。完工回报后独立验收（届时与 F-1 同批，验收会话对比记录两模型装配质量——对照组实验数据）。
 ```
 
+## S-2｜PartyEdge 结构化标记（Claude Code，微工单——S-1 同构复刻）
+
+```
+你认领 Courtwork 的 S-2 微工单：PartyGraph 边的结构化矛盾标记。完全复刻 S-1 的模式（读 packages/schemas/SPEC.md 的 S-1 验收记录作先例），背景：P-3 图谱已实现 markers 消费（拒绝按文案/边 ID 猜测），当前 demo 矛盾边计数为 0，缺数据侧。
+
+交付（TDD，分层 commit，git 纪律照 AGENTS.md）：
+1. schemas 增量：PartyEdge 加可选 `markers?: string[]`（JSDoc 与 TimelineEvent.markers 同措辞：词表仅 "contradiction"，待 ContradictionList 收编）；合法/非法样例测试；JSON Schema 再导出过 drift。
+2. demo-data：party-graph.json 中与 case-bible 矛盾清单对应的矛盾关联边（e-14/e-15，以 case-bible 第六节为权威核对）补 `markers:["contradiction"]`；重校验；manifest 追加变更记录。
+3. schemas SPEC 记录增量；验证 apps/desktop 图谱矛盾边计数由 0 转正（现有消费逻辑应自动生效，若需一行适配属实现级可改）。
+```
+
 后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
