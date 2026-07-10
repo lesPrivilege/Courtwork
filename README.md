@@ -7,4 +7,4 @@
 - 工程总纲（Claude Code 会话必读）：`CLAUDE.md`
 - 各层规格：对应目录下 `SPEC.md`
 
-状态：骨架阶段。W1（schemas）与 W3（ingest spike）为当前最高优先级。
+状态：**core MVP 成立（2026-07-10，见 packages/core/ACCEPTANCE.md 补验结论）**。W1/W2/W4/W5/W6 五层验收放行，eval 转正为选型与回归门禁，`pnpm --filter @courtwork/core demo:s3` 可跑通无 UI 全流程。在途：sol B 阶段（UI + Tauri）；待外部依赖：W3/W8（卷宗样本）；微工单挂账：W6.1 遥测事件、法条复核（curation 首试点）。架构决定与调研见 `docs/20`–`29` 与 `docs/06`–`16`。

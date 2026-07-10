@@ -343,4 +343,24 @@ d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录
 处置规则同 AGENTS.md。结论以纯追加写入 packages/core/ACCEPTANCE.md"补验结论"段，必须明确回答两问：core 是否放行供 B 阶段（UI）消费；core MVP 是否宣告成立。
 ```
 
+## B 阶段｜全量 UI + Tauri 成品（sol，core MVP 已放行）
+
+```
+你是 Courtwork 的 UI 实现者与设计第二作者（sol）。B 阶段任务：从设计语言与 core 事件流协议出发，交付可安装的 Tauri v2 桌面成品（apps/desktop）。core MVP 已验收放行（packages/core/ACCEPTANCE.md），你的 A 阶段 review 三项裁决在 docs/34-sol-review/architecture-rulings.md。
+
+先读：CLAUDE.md、AGENTS.md、apps/desktop/SPEC.md、docs/30/31、docs/32-设计语言包（含你的 review 与裁决）、docs/23（编辑面）、packages/core 的事件流协议与 demo 装配点源码、docs/12 五点（todo_snapshot/step_failed 事件已在协议中）。
+
+先做 A 阶段收尾（独立 commit）：按 architecture-rulings.md 执行 tokens 双轨拆分（*.graphic/*.fg，琥珀 #B45309 起红绿板岩同步复算）、四项非拍板修正、北极星屏同步更新。
+
+交付：
+1. 三栏工作台（左案件/中对话+场景卡片/右五交互：时间线/图谱/矩阵/修订预览/起草画布）+ 完整工作台帧（docs/32 二轮规格）+ 状态条（用量圆盘）。
+2. 纯客户端纪律：UI 只消费 core 事件流协议与确认/续行接口，一行业务逻辑不进壳（验收红线）；tier 角标只消费 artifact_produced 的 evidenceGrades 投影，零推断（你 A 阶段裁决 1）。
+3. 防呆三原则落地：分层确认（高危/未核验不入批量、逐条展开）、生成与确定视觉区隔（provenance tokens）、遥测事件发射（消费 W6.1 的三个事件类型；若 W6.1 未落地则先埋发射点、发空实现）。
+4. demo 装配：接 demo-fixture + 样板案语料，S3 与 S1 两条流程可在成品内走通（S1 摄取进度可用模拟事件流，W8 未就绪）。
+5. Tauri v2 打包：capability 最小化（docs/27 第 5 条）、图标接 docs/32 icon、macOS 产物可安装可运行。
+6. 测试：Playwright 回归（关键流程 + 协议契约测试用录制事件流回放）+ 假绿防护（用例计数）。
+
+纪律：零技术概念暴露；法理之线规格严格执行（纯白卡贴边通高 2px，禁 callout 化）；挑战设计走 [需架构拍板]；显式路径提交；desktop SPEC 完工更新。验收三角照旧——你完工后由独立会话验收，报告规格届时另发。
+```
+
 后续工单（W3/W8）验收实例在各实现会话回报后按同一结构生成。
