@@ -1,17 +1,12 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { openWorkbench } from './helpers';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixtureMd = path.resolve(here, '../fixtures/sample-brief.md');
 
-async function openWorkbench(page: Page) {
-  await page.goto('/');
-  const setup = page.getByTestId('provider-setup');
-  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
-}
-
-test('composer 按钮族平铺：上传/案件/发送真实 + 拍照/语音禁用态文案', async ({ page }) => {
+test('composer 按钮族：平铺上传/案件/发送 + 溢出菜单收纳拍照/语音（docs/52 #4）', async ({ page }) => {
   await openWorkbench(page);
   const composer = page.getByTestId('composer');
   await expect(composer).toBeVisible();
@@ -19,7 +14,11 @@ test('composer 按钮族平铺：上传/案件/发送真实 + 拍照/语音禁�
   await expect(page.getByTestId('composer-upload')).toBeVisible();
   await expect(page.getByTestId('composer-case')).toBeVisible();
   await expect(page.getByTestId('composer-send')).toBeDisabled();
+  await expect(page.getByTestId('composer-plus')).toBeVisible();
 
+  // 平铺区无相机/语音；打开 + 菜单后见禁用态
+  await expect(page.getByTestId('composer-camera')).toHaveCount(0);
+  await page.getByTestId('composer-plus').click();
   const camera = page.getByTestId('composer-camera');
   await expect(camera).toHaveAttribute('aria-disabled', 'true');
   await expect(camera).toHaveAttribute('title', '扫描件识别即将支持 · 当前可直接上传拍摄照片或 PDF');

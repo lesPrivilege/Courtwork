@@ -1,0 +1,110 @@
+import { expect, test } from '@playwright/test';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createNamedCase, openWorkbench } from './helpers';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const fixtureMd = path.resolve(here, '../fixtures/sample-brief.md');
+
+test.describe('UX-1 批次一', () => {
+  test('0a：composer chip 随容器切换，非 demo 不粘滞临江案名', async ({ page }) => {
+    await openWorkbench(page);
+    const chip = page.getByTestId('composer-case');
+    await expect(chip).toContainText('临江');
+    await expect(chip).toHaveAttribute('data-case-id', 'demo-linjiang');
+
+    await createNamedCase(page, 'UX一号案·买卖合同');
+    await expect(page.getByTestId('titlebar-case-title')).toHaveText('UX一号案·买卖合同');
+    await expect(chip).toHaveAttribute('data-case-id', /case-/);
+    await expect(chip).toContainText('UX一号案');
+    await expect(chip).not.toContainText('临江');
+
+    // 回 demo 再出 B
+    await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
+    await expect(chip).toContainText('临江');
+    const bCard = page.locator('.case-card').filter({ hasText: 'UX一号案' });
+    await bCard.getByRole('button').first().click();
+    await expect(chip).toContainText('UX一号案');
+    await expect(chip).not.toContainText('临江');
+  });
+
+  test('#1/#2：卷宗计数可点；双词表案件用卷宗', async ({ page }) => {
+    await openWorkbench(page);
+    const count = page.getByTestId('case-file-count').first();
+    await expect(count).toContainText('卷宗');
+    await expect(count).toContainText('件');
+    await count.click();
+    await expect(page.getByTestId('originals-zone')).toBeVisible();
+  });
+
+  test('#3：先聊后建 — 无容器存入弹出容器化仪式', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('composer-case').click();
+    await page.getByTestId('composer-case-unbind').click();
+    await expect(page.getByTestId('composer-case')).toContainText('选择案件');
+
+    await page.getByTestId('composer-file-input').setInputFiles(fixtureMd);
+    const chip = page.locator('[data-testid^="attachment-chip-"]').first();
+    await expect(chip).toHaveAttribute('data-status', 'ready', { timeout: 15_000 });
+    await page.locator('[data-testid^="attachment-scope-"]').first().click();
+    await page.locator('[data-testid^="scope-confirm-"]').first().click();
+    await expect(page.getByTestId('containerize-popover')).toBeVisible();
+    await page.getByTestId('containerize-case').click();
+    await expect(page.getByTestId('containerize-popover')).toHaveCount(0);
+    await expect(page.getByTestId('titlebar-case-title')).toContainText('案件');
+  });
+
+  test('#4/#5：平铺真实动词 + 溢出菜单收纳相机/语音', async ({ page }) => {
+    await openWorkbench(page);
+    await expect(page.getByTestId('composer-upload')).toBeVisible();
+    await expect(page.getByTestId('composer-case')).toBeVisible();
+    await expect(page.getByTestId('composer-send')).toBeVisible();
+    await expect(page.getByTestId('composer-plus')).toBeVisible();
+    // 平铺区不再直接放相机/语音
+    await expect(page.getByTestId('composer-camera')).toHaveCount(0);
+    await page.getByTestId('composer-plus').click();
+    const menu = page.getByTestId('composer-plus-menu');
+    await expect(menu).toBeVisible();
+    await expect(page.getByTestId('composer-plus-folder')).toBeVisible();
+    const camera = page.getByTestId('composer-camera');
+    await expect(camera).toHaveAttribute('aria-disabled', 'true');
+    await expect(camera).toHaveAttribute('title', /扫描件识别即将支持/);
+    const voice = page.getByTestId('composer-voice');
+    await expect(voice).toHaveAttribute('aria-disabled', 'true');
+    await expect(voice).toHaveAttribute('title', /语音输入即将支持/);
+  });
+
+  test('#7：思考流默认折叠，点开可看', async ({ page }) => {
+    await openWorkbench(page);
+    const stream = page.getByTestId('thinking-stream');
+    await expect(stream).toBeVisible();
+    await expect(stream).toHaveAttribute('data-open', 'false');
+    await expect(page.getByTestId('thinking-stream-body')).toHaveCount(0);
+    await page.getByTestId('thinking-stream-toggle').click();
+    await expect(stream).toHaveAttribute('data-open', 'true');
+    await expect(page.getByTestId('thinking-stream-body')).toContainText('思考过程');
+  });
+
+  test('#10：状态条模型名可点，读写 provider/模型/推理强度', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('model-config-trigger').click();
+    const popover = page.getByTestId('model-config-popover');
+    await expect(popover).toBeVisible();
+    await page.getByTestId('model-config-provider').selectOption('qwen');
+    await page.getByTestId('model-config-model').selectOption('qwen-max');
+    await page.getByRole('radio', { name: '深思' }).check();
+    await expect(page.getByTestId('model-config-summary')).toContainText('Qwen Max');
+    await expect(page.getByTestId('model-config-summary')).toContainText('深思');
+    await page.getByTestId('model-config-close').click();
+    await expect(page.getByTestId('model-config-trigger')).toContainText('Qwen Max');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('深思');
+  });
+
+  test('#9：图谱 minimap 使用 courtwork-minimap 类（无库蓝渗出约定）', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('view-graph').click();
+    await expect(page.getByTestId('graph-panel')).toBeVisible();
+    // minimap 由 G6 注入 DOM；class 由 GraphPanel 传入
+    await expect(page.locator('.courtwork-minimap')).toBeVisible({ timeout: 15_000 });
+  });
+});

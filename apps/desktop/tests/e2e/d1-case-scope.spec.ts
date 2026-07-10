@@ -1,18 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
+import { createNamedCase, openWorkbench } from './helpers';
 
 async function skipProvider(page: Page) {
-  await page.goto('/');
-  const setup = page.getByTestId('provider-setup');
-  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
-}
-
-async function createNamedCase(page: Page, name: string) {
-  await page.getByTestId('new-case-open').click();
-  const dialog = page.getByTestId('new-case-dialog');
-  await dialog.getByRole('button', { name: '不使用文件夹，直接命名' }).click();
-  await dialog.getByRole('textbox', { name: '案件名称' }).fill(name);
-  await dialog.getByRole('button', { name: '创建案件' }).click();
-  await expect(dialog).toHaveCount(0);
+  await openWorkbench(page);
 }
 
 test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
@@ -124,6 +114,11 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     await bCard.getByRole('button').first().click();
     await expect(page.getByTestId('conversation-empty')).toBeVisible();
     await expect(page.getByText('发现 6 项合同风险')).toHaveCount(0);
+
+    // docs/52 #8-⑤ / UX-1 0a：composer chip 零继承 demo 案名
+    const chip = page.getByTestId('composer-case');
+    await expect(chip).toContainText('案件乙');
+    await expect(chip).not.toContainText('临江');
   });
 
   test('归档按钮对长案名不溢出并可打开确认', async ({ page }) => {

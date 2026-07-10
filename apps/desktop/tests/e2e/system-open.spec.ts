@@ -1,10 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
-
-async function openWorkbench(page: Page) {
-  await page.goto('/');
-  const setup = page.getByTestId('provider-setup');
-  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
-}
+import { expect, test } from '@playwright/test';
+import { openWorkbench } from './helpers';
 
 test('状态条打开产出文件夹显示访达反馈', async ({ page }) => {
   await openWorkbench(page);
