@@ -22,7 +22,8 @@
     "@courtwork/schemas": "workspace:*",
     "@tauri-apps/api": "^2.8.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "@courtwork/reading-view": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",

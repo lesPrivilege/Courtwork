@@ -6,6 +6,8 @@ const css = readFileSync(resolve('src/styles.css'), 'utf8');
 const sources = [
   readFileSync(resolve('src/App.tsx'), 'utf8'),
   readFileSync(resolve('src/workbench/Panels.tsx'), 'utf8'),
+  readFileSync(resolve('src/composer/AttachmentChip.tsx'), 'utf8'),
+  readFileSync(resolve('src/composer/Composer.tsx'), 'utf8'),
 ];
 const violations = [];
 

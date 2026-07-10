@@ -12,6 +12,7 @@ import {
   type ScenarioFlow,
 } from './protocol/client';
 import { buildReviewResolution } from './protocol/review-resolution';
+import { Composer, type ComposerSendPayload } from './composer';
 import { Icon } from './workbench/Icon';
 import {
   DraftPanel,
@@ -70,10 +71,22 @@ export function App() {
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>();
   const [providerSetupOpen, setProviderSetupOpen] = useState(true);
+  const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[] }>>([]);
   const wideSplitAvailable = useWideSplitAvailable();
   const openedAt = useRef<Record<string, number>>({});
   const lastReplayedFlow = useRef<ScenarioFlow | undefined>(undefined);
   const resolvedRequest = useRef<string | undefined>(undefined);
+
+  const handleComposerSend = (payload: ComposerSendPayload) => {
+    // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
+    setLocalMessages((prev) => [
+      ...prev,
+      {
+        text: payload.text || (payload.attachments.length ? '（附文件）' : ''),
+        files: payload.attachments.map((item) => item.fileName),
+      },
+    ]);
+  };
 
   useEffect(() => {
     void credentialClient.status().then((status) => {
@@ -89,6 +102,7 @@ export function App() {
   useEffect(() => {
     if (lastReplayedFlow.current === flow) return;
     lastReplayedFlow.current = flow;
+    setLocalMessages([]);
     void client.replay(flow, dispatch);
   }, [flow]);
 
@@ -268,9 +282,21 @@ export function App() {
               <p>{flow === 'S3' ? '高危 2 项、中危 3 项、低危 1 项。高危与未核验条目需要逐条展开。' : '已形成 47 个事件、14 个主体和 15 条关系；4 处矛盾等待核对。'}</p>
             </article>
             <aside className="generated-callout"><strong>审阅提示</strong><p>{flow === 'S3' ? '先核对验收条款的原文依据，再决定是否接受对应修订。' : '催告主体、收款账户与验收结论存在交叉矛盾，建议优先核对。'}</p></aside>
+            {localMessages.map((message, index) => (
+              <div className="user-message" key={`local-${index}`} data-testid="local-user-message">
+                {message.text}
+                {message.files.length > 0 && (
+                  <div className="user-message-attachments">
+                    {message.files.map((name) => (
+                      <span key={name} title={name}>{name}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
           <div className="scene-strip"><button onClick={() => selectFlow('S1')}>整理卷宗</button><button onClick={() => selectFlow('S3')}>审查合同</button><button onClick={() => choosePrimaryView('draft')}>起草答辩状</button></div>
-          <button className="composer" disabled aria-label="自由输入" title="自由输入 · 模型服务待连接"><span>描述要办的事，或从上方场景开始…</span><kbd>⌘</kbd><kbd>K</kbd></button>
+          <Composer onSend={handleComposerSend} />
         </section>
 
         <section className="right-workbench">

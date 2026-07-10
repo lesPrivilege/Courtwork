@@ -123,9 +123,162 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .generated-callout p { margin: 2px 0 0; }
 .scene-strip { display: flex; gap: 6px; padding: 6px 12px; border-top: 1px solid var(--border); }
 .scene-strip button { font-size: 12px; }
-.composer { height: 42px; margin: 0 12px 10px; display: flex; align-items: center; gap: 4px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff; text-align: left; }
-.composer:disabled { color: var(--text-disabled); cursor: not-allowed; }
-.composer span { min-width: 0; flex: 1; overflow: hidden; color: var(--text-disabled); text-overflow: ellipsis; white-space: nowrap; }
+
+/* —— composer 输入区（docs/45 + 工单裁决） —— */
+.composer-shell { position: relative; margin: 0 12px 10px; display: flex; flex-direction: column; gap: 6px; }
+.composer-box {
+  display: flex; align-items: flex-end; gap: 4px;
+  min-height: 42px; padding: 6px 8px;
+  border: 1px solid var(--border-strong); border-radius: 6px; background: #fff;
+}
+.composer-tools-left, .composer-tools-right { display: flex; align-items: center; gap: 2px; flex: none; }
+.composer-icon-button {
+  width: 28px; height: 28px; display: grid; place-items: center;
+  padding: 0; border: 1px solid transparent; border-radius: 4px;
+  background: transparent; color: var(--text-secondary); cursor: pointer;
+  transition: background-color var(--motion-hover) ease-out, border-color var(--motion-hover) ease-out;
+}
+.composer-icon-button:hover { background: var(--bg-hover); color: var(--text-primary); }
+.composer-icon-button:active { background-color: var(--bg-selected); transition-duration: var(--motion-press); }
+.composer-icon-button.is-disabled-feature {
+  color: var(--text-disabled); cursor: not-allowed;
+}
+.composer-icon-button.is-disabled-feature:hover,
+.composer-icon-button.is-disabled-feature:active {
+  background: transparent; color: var(--text-disabled);
+}
+.composer-input {
+  min-width: 0; flex: 1; min-height: 28px; max-height: 120px;
+  padding: 4px 6px; border: 0; resize: none; background: transparent;
+  color: var(--text-primary); line-height: 1.5; font-size: 14px;
+}
+.composer-input::placeholder { color: var(--text-disabled); }
+.composer-send {
+  width: 32px; height: 32px; display: grid; place-items: center;
+  padding: 0; border: 1px solid var(--text-primary); border-radius: 4px;
+  background: var(--text-primary); color: #fafafa; cursor: pointer;
+  transition: background-color var(--motion-hover) ease-out, border-color var(--motion-hover) ease-out;
+}
+.composer-send:hover:not(:disabled) { background: #1a3a5c; border-color: #1a3a5c; }
+.composer-send:active:not(:disabled) { background-color: #1a3a5c; transition-duration: var(--motion-press); }
+.composer-send:disabled { border-color: var(--border); background: var(--bg-hover); color: var(--text-disabled); cursor: not-allowed; }
+
+.case-picker { position: relative; }
+.case-chip {
+  max-width: 148px; height: 28px; display: inline-flex; align-items: center; gap: 4px;
+  padding: 0 8px; border: 1px solid var(--border-strong); border-radius: 4px;
+  background: #fff; color: var(--text-secondary); cursor: pointer; font-size: 12px;
+  transition: background-color var(--motion-hover) ease-out, border-color var(--motion-hover) ease-out;
+}
+.case-chip:hover { background: var(--bg-hover); color: var(--text-primary); }
+.case-chip-label, .mono-ellip {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+}
+.case-menu {
+  position: absolute; z-index: 20; left: 0; bottom: calc(100% + 4px);
+  min-width: 240px; max-width: 320px; margin: 0; padding: 4px; list-style: none;
+  border: 1px solid var(--border-strong); border-radius: 6px; background: #fff;
+}
+.case-menu button {
+  width: 100%; padding: 6px 8px; border: 0; border-radius: 4px;
+  background: transparent; color: var(--text-primary); cursor: pointer; text-align: left; font-size: 13px;
+}
+.case-menu button:hover { background: var(--bg-hover); }
+.case-menu button.selected { background: var(--bg-selected); font-weight: 510; }
+
+.attachment-list {
+  display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none;
+}
+.attachment-chip {
+  position: relative; display: inline-flex; align-items: center; gap: 6px;
+  max-width: 100%; min-height: 28px; padding: 4px 6px 4px 8px;
+  border: 1px solid var(--border-strong); border-radius: 4px; background: #fff;
+  font-size: 12px; color: var(--text-primary);
+}
+.attachment-chip.is-uploading { border-color: var(--text-primary); }
+.attachment-chip.is-uploading::after {
+  content: ""; position: absolute; inset: 0; border: 1px solid var(--text-primary);
+  border-radius: inherit; pointer-events: none;
+  animation: chip-glow 1800ms linear infinite;
+}
+@keyframes chip-glow {
+  0%, 100% { opacity: .25; }
+  50% { opacity: .9; }
+}
+.attachment-chip.is-failed { border-color: var(--red-graphic); background: var(--red-bg); }
+.attachment-chip.is-ready { border-color: var(--border-strong); }
+.attachment-chip-flash {
+  position: absolute; z-index: 2; inset: 0; border: 1px solid transparent;
+  border-radius: inherit; pointer-events: none;
+}
+.attachment-chip-flash[data-kind="ready"] { --settle-color: var(--green-graphic); }
+.attachment-chip-flash[data-kind="failed"] { --settle-color: var(--red-graphic); }
+.attachment-name {
+  min-width: 0; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.attachment-meta { color: var(--text-tertiary); white-space: nowrap; }
+.attachment-fail { display: inline-flex; align-items: center; gap: 6px; min-width: 0; flex-wrap: wrap; }
+.attachment-fail-msg { color: var(--red-fg); max-width: 220px; line-height: 1.4; }
+.attachment-inline-action {
+  display: inline-flex; align-items: center; gap: 2px; padding: 0 4px;
+  border: 0; background: transparent; color: var(--blue-fg); cursor: pointer; font-size: 12px;
+}
+.attachment-remove {
+  width: 22px; height: 22px; display: grid; place-items: center;
+  padding: 0; border: 0; border-radius: 4px; background: transparent;
+  color: var(--text-tertiary); cursor: pointer;
+}
+.attachment-remove:hover { background: var(--bg-hover); color: var(--text-primary); }
+.attachment-scope { position: relative; }
+.scope-badge {
+  height: 22px; padding: 0 6px; border: 1px solid var(--border-strong); border-radius: 4px;
+  background: var(--slate-bg); color: var(--slate-fg); cursor: pointer; font-size: 12px; white-space: nowrap;
+  transition: background-color var(--motion-hover) ease-out, border-color var(--motion-hover) ease-out;
+}
+.scope-badge.is-message:hover { background: var(--bg-hover); }
+.scope-badge.is-dossier {
+  border-color: var(--green-graphic); background: var(--green-bg); color: var(--green-fg); cursor: default;
+}
+.scope-badge:disabled { cursor: default; }
+.scope-popover {
+  position: absolute; z-index: 30; right: 0; bottom: calc(100% + 6px);
+  width: 260px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff;
+}
+.scope-popover strong { display: block; font-weight: 510; font-size: 13px; }
+.scope-popover p { margin: 6px 0 10px; color: var(--text-secondary); font-size: 12px; line-height: 1.5; }
+.scope-popover-actions { display: flex; justify-content: flex-end; gap: 6px; }
+
+.composer-kbd-hint {
+  display: flex; align-items: center; gap: 8px; margin: 0; padding: 0 2px;
+  color: var(--text-tertiary); font-size: 12px;
+}
+.composer-kbd-hint kbd { margin: 0; }
+.composer-kbd-hint kbd + kbd { margin-left: 3px; }
+.composer-kbd-sep { margin: 0 2px; color: var(--text-disabled); }
+
+.composer-drop-overlay {
+  position: fixed; z-index: 80; inset: 0;
+  display: grid; place-items: center;
+  background: color-mix(in srgb, var(--bg-app) 72%, transparent);
+  border: 0;
+}
+.composer-drop-card {
+  display: grid; gap: 6px; justify-items: center; min-width: 280px; max-width: 360px;
+  padding: 18px 20px; border: 2px solid var(--text-primary); border-radius: 6px; background: #fff;
+  text-align: center;
+}
+.composer-drop-card strong { font-weight: 510; font-size: 14px; }
+.composer-drop-card p { margin: 0; color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
+
+.user-message-attachments {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;
+}
+.user-message-attachments span {
+  max-width: 140px; padding: 1px 6px; border: 1px solid var(--border); border-radius: 4px;
+  background: #fff; color: var(--text-tertiary); font-size: 12px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 
 .view-tabs { height: 40px; flex: none; display: flex; gap: 3px; align-items: center; padding: 0 8px; border-bottom: 1px solid var(--border); overflow-x: auto; }
 .view-tabs button { position: relative; height: 28px; padding: 0 8px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 12px; white-space: nowrap; }
