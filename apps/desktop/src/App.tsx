@@ -241,7 +241,7 @@ export function App() {
         <span>案件</span><span className="crumb-sep">›</span>
         <strong>{flow === 'S1' ? '阶段一 · 阅卷整理' : '阶段二 · 合同审查'}</strong>
         <span className="spacer" />
-        <button className="quiet-button credential-button" onClick={() => setProviderSetupOpen(true)} title="配置文书助手"><Icon name="cog" />模型服务 · {credentialStatus?.configured ? '已连接' : '待连接'}</button>
+        <button className="quiet-button credential-button" onClick={() => setProviderSetupOpen(true)} title="配置文书助手"><Icon name="settings" />模型服务 · {credentialStatus?.configured ? '已连接' : '待连接'}</button>
         <button className="quiet-button" disabled title="审阅记录 · 待生成">审阅记录</button>
         <button className="primary-button" disabled title="导出审阅稿 · 待完成文书生成">导出审阅稿</button>
       </nav>
@@ -257,15 +257,15 @@ export function App() {
                 <span>卷宗 20 件 · 已归档摄取</span>
               </article>
               <p className="rail-label">阶段</p>
-              <button className={`stage-row ${flow === 'S1' ? 'selected' : ''}`} onClick={() => selectFlow('S1')} data-testid="flow-s1"><Icon name="panels-top-left" />阶段一 · 阅卷整理<span>已归档</span></button>
-              <button className={`stage-row ${flow === 'S3' ? 'selected' : ''}`} onClick={() => selectFlow('S3')} data-testid="flow-s3"><Icon name="panels-top-left" />阶段二 · 合同审查<span>{Object.keys(dispositions).length}/6</span></button>
+              <button className={`stage-row ${flow === 'S1' ? 'selected' : ''}`} onClick={() => selectFlow('S1')} data-testid="flow-s1"><Icon name="panels" />阶段一 · 阅卷整理<span>已归档</span></button>
+              <button className={`stage-row ${flow === 'S3' ? 'selected' : ''}`} onClick={() => selectFlow('S3')} data-testid="flow-s3"><Icon name="panels" />阶段二 · 合同审查<span>{Object.keys(dispositions).length}/6</span></button>
             </div>
             <div className="rail-footer">主办律师 · 林律师</div>
           </div>
           <nav className="collapsed-case-icons" aria-label="折叠的案件栏">
-            <button aria-label="当前案件" title="临江精铸案"><Icon name="briefcase-business" /><span className="unread-count">1</span></button>
-            <button aria-label="阅卷整理" title="阅卷整理" onClick={() => selectFlow('S1')}><Icon name="panels-top-left" /></button>
-            <button aria-label="合同审查" title="合同审查" onClick={() => selectFlow('S3')}><Icon name="message-square-text" /></button>
+            <button aria-label="当前案件" title="临江精铸案"><Icon name="case" /><span className="unread-count">1</span></button>
+            <button aria-label="阅卷整理" title="阅卷整理" onClick={() => selectFlow('S1')}><Icon name="panels" /></button>
+            <button aria-label="合同审查" title="合同审查" onClick={() => selectFlow('S3')}><Icon name="conversation" /></button>
           </nav>
         </aside>
 
@@ -311,11 +311,11 @@ export function App() {
           <div className="view-tabs" role="tablist" aria-label="结构化工作面">
             {VIEWS.map((view) => <button key={view} role="tab" aria-selected={activeView === view} className={activeView === view ? 'active' : ''} onClick={() => choosePrimaryView(view)} data-testid={`view-${view}`}><span>{VIEW_LABELS[view]}</span><i className="tab-indicator" aria-hidden="true" /></button>)}
             <span className="tab-spacer" />
-            {!comparing && <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照"><Icon name="rows-two" />对照</button>}
+            {!comparing && <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照"><Icon name="compare" />对照</button>}
             {comparing && <>
-              <button className={`icon-button ${splitDirection === 'rows' ? 'active' : ''}`} aria-label="上下对照" title="上下对照" aria-pressed={splitDirection === 'rows'} onClick={() => setSplitDirection('rows')}><Icon name="rows-two" /></button>
-              <button className={`icon-button ${splitDirection === 'columns' ? 'active' : ''}`} aria-label="左右对照" title={wideSplitAvailable ? '左右对照' : '窗口宽度达到 1600 后可用'} aria-pressed={splitDirection === 'columns'} disabled={!wideSplitAvailable} onClick={() => setSplitDirection('columns')}><Icon name="columns-two" /></button>
-              <button className="view-action" onClick={resetComparison} data-testid="split-reset" title="退出对照并恢复三栏"><Icon name="rotate-counter-clockwise" />复位</button>
+              <button className={`icon-button ${splitDirection === 'rows' ? 'active' : ''}`} aria-label="上下对照" title="上下对照" aria-pressed={splitDirection === 'rows'} onClick={() => setSplitDirection('rows')}><Icon name="stack" /></button>
+              <button className={`icon-button ${splitDirection === 'columns' ? 'active' : ''}`} aria-label="左右对照" title={wideSplitAvailable ? '左右对照' : '窗口宽度达到 1600 后可用'} aria-pressed={splitDirection === 'columns'} disabled={!wideSplitAvailable} onClick={() => setSplitDirection('columns')}><Icon name="columns" /></button>
+              <button className="view-action" onClick={resetComparison} data-testid="split-reset" title="退出对照并恢复三栏"><Icon name="reset" />复位</button>
             </>}
           </div>
           <div className="view-content">
