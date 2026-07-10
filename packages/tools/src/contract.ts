@@ -344,11 +344,28 @@ async function runOnce<Input, Data>(
     if (error instanceof ToolWebReferenceError) {
       return degrade('web_reference', error.message, now, error.webReference);
     }
-    const message = error instanceof Error ? error.message : String(error);
-    return degrade('adapter_error', message, now);
+    return degrade('adapter_error', describeError(error), now);
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * adapter_error 的兜底消息提取：不止读 error.message，还沿 Error.cause 链展开
+ * 拼接。原生 fetch 会把 TLS/DNS/连接失败一律包成外层 TypeError('fetch failed')，
+ * 真正的原因（如"certificate has expired"）挂在 cause 上——只读外层消息会让所有
+ * 网络故障在 reason:adapter_error 下都长一个样，消费方排障时无从区分。深度上限 5
+ * 只是防御性地避免病态循环 cause 链，不是预期会用到的场景。
+ */
+function describeError(error: unknown): string {
+  if (!(error instanceof Error)) return String(error);
+  const parts = [error.message];
+  let cause = error.cause;
+  for (let depth = 0; depth < 5 && cause instanceof Error; depth++) {
+    parts.push(cause.message);
+    cause = cause.cause;
+  }
+  return parts.join('：');
 }
 
 function degrade(

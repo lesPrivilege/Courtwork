@@ -149,6 +149,27 @@ describe('createToolExecutor().execute — degradation never carries data', () =
     expect('data' in result).toBe(false);
   });
 
+  it('unwraps a chained Error.cause into the adapter_error message, not just the outer wrapper message (native fetch wraps TLS/DNS/connection failures in a generic TypeError with the real reason nested in .cause)', async () => {
+    const wrapped = Object.assign(new TypeError('fetch failed'), {
+      cause: new Error('certificate has expired'),
+    });
+    const t = tool({
+      sourceId: 's',
+      run: async () => {
+        throw wrapped;
+      },
+    });
+    const executor = createToolExecutor();
+
+    const result = await executor.execute(t, { id: 'x' });
+
+    expect(result.verified).toBe(false);
+    if (result.verified) throw new Error('unreachable');
+    expect(result.reason).toBe('adapter_error');
+    expect(result.message).toContain('fetch failed');
+    expect(result.message).toContain('certificate has expired');
+  });
+
   it('degrades to not_configured when run() throws ToolNotConfiguredError', async () => {
     const t = tool({
       sourceId: 's',
