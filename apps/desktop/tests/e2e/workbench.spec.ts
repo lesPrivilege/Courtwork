@@ -90,6 +90,23 @@ test('S3 批量范围明确排除逐条条目', async ({ page }) => {
   await expect(panel.getByText('已确认', { exact: true })).toHaveCount(4);
 });
 
+test('法理之线只表达处置状态：R5 无线、确认转绿、驳回转灰', async ({ page }) => {
+  await openWorkbench(page);
+  const panel = page.getByTestId('revision-panel');
+  const r5 = panel.locator('[data-risk-id="risk-05"]');
+  await expect(r5.locator('.signature-line')).toHaveCount(0);
+
+  const r2 = panel.locator('[data-risk-id="risk-02"]');
+  await r2.click();
+  await panel.getByRole('button', { name: '确认', exact: true }).click();
+  await expect(r2.locator('.signature-line')).toHaveAttribute('data-tone', 'authority');
+
+  const r4 = panel.locator('[data-risk-id="risk-04"]');
+  await r4.click();
+  await panel.getByRole('button', { name: '驳回', exact: true }).click();
+  await expect(r4.locator('.signature-line')).toHaveAttribute('data-tone', 'neutral');
+});
+
 test('混合处置完成后确认响应按条目上报', async ({ page }) => {
   await openWorkbench(page);
   const panel = page.getByTestId('revision-panel');

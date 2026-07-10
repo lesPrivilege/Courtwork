@@ -123,6 +123,9 @@ export function App() {
   const gradeByKey = useMemo(() => new Map(session.evidenceGrades.map((item) => [item.key, item.grade])), [session.evidenceGrades]);
   const selectedGate = gate?.items.find((item) => item.itemRef === selectedRisk.id);
   const selectedGrades = selectedGate?.evidenceKeys.map((key) => gradeByKey.get(key)).filter((value): value is 'A' | 'B' | 'C' => Boolean(value)) ?? [];
+  const unverifiedRiskIds = gate?.items
+    .filter((item) => item.evidenceKeys.some((key) => gradeByKey.get(key) === 'C'))
+    .map((item) => item.itemRef) ?? [];
   const allEvidenceOpened = selectedRisk.basis.every((_, index) => expandedEvidence[`${selectedRisk.id}:${index}`]);
   const individualReady = selectedGate?.mode !== 'individual' || allEvidenceOpened;
   const batchRefs = gate?.items.filter((item) => item.mode === 'batch').map((item) => item.itemRef) ?? [];
@@ -185,6 +188,7 @@ export function App() {
       onSelectRisk={setSelectedRiskId}
       gate={gate}
       selectedGrades={selectedGrades}
+      unverifiedRiskIds={unverifiedRiskIds}
       expandedEvidence={expandedEvidence}
       onExpandBasis={expandBasis}
       dispositions={dispositions}

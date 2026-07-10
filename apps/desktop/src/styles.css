@@ -103,6 +103,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .line-attention { color: var(--amber-graphic); background: var(--amber-graphic); }
 .line-revision { color: var(--blue-graphic); background: var(--blue-graphic); }
 .line-authority { color: var(--green-graphic); background: var(--green-graphic); }
+.line-neutral { color: var(--slate-graphic); background: var(--slate-graphic); }
 .card-heading { display: flex; align-items: center; gap: 8px; font-size: 13px; }
 .card-heading strong { font-weight: 510; }
 .data-card p { margin: 2px 0 0; color: var(--text-secondary); font-size: 13px; line-height: 1.55; }

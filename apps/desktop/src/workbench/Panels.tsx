@@ -3,7 +3,7 @@ import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/sc
 import type { ReviewDispositionState, ReviewGateProjection } from '../protocol/client';
 import { Icon } from './Icon';
 
-export type LineTone = 'danger' | 'attention' | 'revision' | 'authority';
+export type LineTone = 'danger' | 'attention' | 'revision' | 'authority' | 'neutral';
 
 export function TierBadge({ grade }: { grade?: 'A' | 'B' | 'C' }) {
   if (!grade) return null;
@@ -179,6 +179,7 @@ export interface RevisionPanelProps {
   onSelectRisk: (id: string) => void;
   gate?: ReviewGateProjection;
   selectedGrades: ('A' | 'B' | 'C')[];
+  unverifiedRiskIds: string[];
   expandedEvidence: Record<string, boolean>;
   onExpandBasis: (riskId: string, index: number, evidenceRef: string) => void;
   dispositions: Record<string, ReviewDispositionState>;
@@ -189,13 +190,13 @@ export interface RevisionPanelProps {
   submitted: boolean;
 }
 
-function riskLineTone(level: RiskList['risks'][number]['level'], disposition?: ReviewDispositionState): LineTone | undefined {
-  if (disposition === 'rejected') return undefined;
-  if (level === 'high') return 'danger';
-  if (level === 'medium') return 'attention';
+function riskLineTone(level: RiskList['risks'][number]['level'], disposition?: ReviewDispositionState, unverified = false): LineTone | undefined {
+  if (disposition === 'rejected') return 'neutral';
+  if (!disposition && level === 'high') return 'danger';
+  if (unverified) return 'attention';
   if (disposition === 'revision') return 'revision';
   if (disposition === 'confirmed') return 'authority';
-  return 'attention';
+  return undefined;
 }
 
 export function RevisionPanel(props: RevisionPanelProps) {
@@ -210,12 +211,12 @@ export function RevisionPanel(props: RevisionPanelProps) {
           const gateItem = props.gate?.items.find((item) => item.itemRef === risk.id);
           const disposition = props.dispositions[risk.id];
           return <button className={`dense-row risk-grid ${props.selectedRiskId === risk.id ? 'selected' : ''}`} data-risk-id={risk.id} title={risk.description} key={risk.id} onClick={() => props.onSelectRisk(risk.id)}>
-            <SignatureLine tone={riskLineTone(risk.level, disposition)} />
+            <SignatureLine tone={riskLineTone(risk.level, disposition, props.unverifiedRiskIds.includes(risk.id))} />
             <span><b className="domain-badge">R{index + 1}</b>{risk.description}</span><span className={`severity severity-${risk.level}`}>{risk.level === 'high' ? '高' : risk.level === 'medium' ? '中' : '低'}</span><span className={`gate-state ${disposition ?? 'pending'}`}>{disposition === 'confirmed' ? '已确认' : disposition === 'rejected' ? '已驳回' : disposition === 'revision' ? '待修正' : gateItem?.mode === 'individual' ? '逐条' : '待确认'}</span>
           </button>;
         })}</div>
         <article className="risk-detail">
-          <SignatureLine tone={riskLineTone(props.selectedRisk.level, props.dispositions[props.selectedRisk.id])} />
+          <SignatureLine tone={riskLineTone(props.selectedRisk.level, props.dispositions[props.selectedRisk.id], props.unverifiedRiskIds.includes(props.selectedRisk.id))} />
           <header><span className="domain-badge">{props.selectedRisk.id.replace('risk-', 'R')}</span><strong>{selectedGate?.mode === 'individual' ? '逐条确认' : '常规审阅'}</strong><span>{reviewedCount}/{props.selectedRisk.basis.length} 依据已展开</span></header>
           {selectedGate?.reason && <div className="individual-note">{selectedGate.reason === 'high_risk' ? '高危条目不进入批量范围' : '含未核验依据，不进入批量范围'}</div>}
           <p>{props.selectedRisk.description}</p>
