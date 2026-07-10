@@ -22,6 +22,8 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 
 ## TODO（跨层放入区）
 
+- [架构拍板 2026-07-10，T-provider 范围澄清] **凭证与计费形态正交建模**：provider 配置含 `auth.kind`（`api_key` | `oauth_subscription`，当期只实现前者，判别字段现在预留）与 `billing.kind`（`metered` | `plan`）。metered 下 RuntimeGuard.maxUsd 生效；plan 下护栏切换为额度/次数、UI 用量圆盘显示套餐余量而非美元（UI 侧归 polish）。**合规红线：订阅制只接官方明示允许第三方工具接入的（开放 OpenAI 兼容端点型）；模拟官方客户端/借用会话 token 的灰色桥接永不做。** OAuth 设备流 + refresh token 钥匙串存储为 T-provider.2 增量工单，待首个官方开放的 plan 类 provider 需求拉动。
+
 - [架构拍板 2026-07-10，源自 B 阶段验收发现] **批量确认的协议语义 = 永远逐条**：确认响应必须携带逐条目处置（confirmed/rejected + 字段修正），"批量确认"只是 UI 聚合手势，协议层不存在"一个 confirm 代表一批"的语义——个别条目被驳回/修正时不得统一上报 confirm（审计与 RevisionEvent 完整性要求）。接真实后端前由 UI 侧（polish）与本层协议文档双向核实；demo stub 期间为已知边界。
 - [已解决 2026-07-10] ~~**Timeline 事件结构化标记**：schemas 增量——TimelineEvent 加可选 `markers?: string[]`...demo-data timeline.json 的 4 处预埋矛盾事件补 markers 字段~~——`TimelineEvent.markers?: string[]` 已交付（`packages/schemas/src/timeline.ts`，JSDoc 注明词表仅 "contradiction"，随 ContradictionList 类型落地后收编；JSON Schema 已重新导出过 drift，详见 `packages/schemas/SPEC.md` 验收记录）。`demo-data/data/artifacts/timeline.json` 已按 `case-bible.md` 第六节 4 处矛盾点的权威事件映射，为 8 个事件（evt-08/14/17/20/24/28/31/33）补 `markers` 字段（`evt-25` 系矛盾点3的背景诱因描述、非清单列出的矛盾对成员，不打标记——原 TODO"4 处"指 4 处矛盾点类别而非 4 个事件，矛盾点2/3/4 各自对应多个事件，详见 `demo-data/data/manifest.md` 变更记录）。UI 改为消费 `markers`（替代此前 description 文本匹配"矛盾"二字的做法）留给 polish 承接，未在本次范围内改动。
 
