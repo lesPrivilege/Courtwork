@@ -231,4 +231,32 @@ describe('RevisionInstructionSetSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('round-trips an optional evidenceKey on a citation instead of silently stripping it', () => {
+    const result = RevisionInstructionSetSchema.safeParse({
+      id: 'ris-013',
+      caseId: 'case-013',
+      targetDocument: { fileId: 'file-015' },
+      instructions: [
+        {
+          id: 'ins-13',
+          kind: 'commentOnly',
+          locator: { strategy: 'text', quote: '起云智能装备' },
+          annotation: {
+            text: '买方主体核验：B 级信源。',
+            citations: [
+              {
+                citation: '主体核验：party-verify（demo-fixture，B 级信源）',
+                sourceAnchors: [{ fileId: 'f1', quote: '起云智能装备', textRange: { start: 0, end: 4 } }],
+                evidenceKey: 'party-verify',
+              },
+            ],
+          },
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+    const parsed = result.success ? result.data.instructions[0] : undefined;
+    expect(parsed?.annotation?.citations[0].evidenceKey).toBe('party-verify');
+  });
 });

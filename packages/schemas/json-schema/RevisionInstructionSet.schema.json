@@ -227,6 +227,10 @@
                             "article"
                           ],
                           "additionalProperties": false
+                        },
+                        "evidenceKey": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
@@ -451,6 +455,10 @@
                             "article"
                           ],
                           "additionalProperties": false
+                        },
+                        "evidenceKey": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
@@ -671,6 +679,10 @@
                             "article"
                           ],
                           "additionalProperties": false
+                        },
+                        "evidenceKey": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [
@@ -890,6 +902,10 @@
                             "article"
                           ],
                           "additionalProperties": false
+                        },
+                        "evidenceKey": {
+                          "type": "string",
+                          "minLength": 1
                         }
                       },
                       "required": [

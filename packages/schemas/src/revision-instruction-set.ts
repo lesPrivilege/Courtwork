@@ -43,6 +43,14 @@ const CitationObjectSchema = z.object({
   sourceAnchors: z.array(SourceAnchorSchema).default([]),
   /** 结构化法条引用，供 packages/tools 的 cite-check（W5）核验存在性。 */
   statuteRef: StatuteRefSchema.optional(),
+  /**
+   * 不透明的证据台账键，由 core 的信源台账在编译本指令集时签发（W6.2 整改）。
+   * 门禁校验只按这个 key 查台账，不解析、不依赖 citation 展示文本——citation
+   * 文本此后无论怎么编辑都不影响门禁结论。缺失 evidenceKey 的引用一律按 C 级
+   * 未确认证据处理（fail closed）。并非每条引用都会有它：非工具来源的引用
+   * （如直接的法条原文）不适用信源分级，不会被要求携带这个字段。
+   */
+  evidenceKey: z.string().min(1).optional(),
 });
 
 export const CitationSchema = CitationObjectSchema.refine(
