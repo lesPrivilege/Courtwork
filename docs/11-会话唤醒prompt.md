@@ -478,4 +478,41 @@ d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录
 验证：Playwright 全量 + 截图两张（修复前后对照）入 visual-audit/。微补丁不走完整验收轮，完工回报架构会话抽查即可（比例原则）。
 ```
 
+## 合批验收｜MVP 补强四工单（Grok 4.5 CLI，首次任命——完全自包含版）
+
+```
+你是 Courtwork 仓库的验收工程师（本工单任命：Grok 4.5）。这是你首次进入本仓库，以下为全部必要上下文，验收结论只依据你的实测，不采信任何实现会话自述。
+
+【项目与治理】法律垂类 agent 的 TS monorepo（pnpm，Node 22，TDD 纪律）。先读：根目录 CLAUDE.md（工程总纲）、AGENTS.md（角色治理三不变量 + 你作为验收者的处置规则：实现级 bug 可顺手修——独立 commit 前缀 fix-by-acceptance；契约级问题不许改，标 [需架构拍板]；git 纪律：禁宽 add、commit 前必查 git diff --cached --name-only、pathspec 限定 commit——本仓库多会话共享索引，有两次事故判例）。再读 docs/90-架构会话工作手册.md 第五节（哲学速查）。
+
+【验收对象】四张已完工工单（工单原文都在本文件上方对应节）：
+A. S-1：packages/schemas 的 TimelineEvent 增 markers?: string[]；packages/demo-data 的 timeline.json 8 个事件补 ["contradiction"]。
+B. W3.0：新包 packages/reading-view（office 文件 → md 阅读视图 + 段落级 SourceAnchor 锚点），含三项授权跨层（schemas IngestStatusEnum 增 needs_ocr、registry S1.yaml fileTypes 增 docx/md/txt、CLAUDE.md 架构图补行）。
+C. T-fetch：packages/tools 增 web-fetch/web-search 工具，含契约增量（第七个 reason "web_reference"、缓存门禁从"仅 verified:true"扩为"或 web_reference"、describeError 沿 cause 链展开）。
+D. T-provider：packages/core/src/provider/ 的 OpenAI 兼容客户端 + DeepSeek/Qwen/豆包 quirk 层 + 结构化输出降级链 + RuntimeGuard 计价 + 冒烟脚本。
+
+【全局验收】
+1. 干净环境：rm -rf 所有 node_modules → pnpm install → pnpm test（全量）→ pnpm lint → pnpm --filter '!@courtwork/eval' -r run build。**记录逐包真实用例数**并与各包 SPEC 完工记录比对——两个实现会话先后报过"全仓 619"与"607"，你负责裁定真实口径并排查任何无解释的用例数下降（用例被删而非改写是既有违规形态）。所有 JSON Schema drift 测试须实际在跑。
+2. 四工单全部 commit 的文件清单核对（git log 逐个 --stat），无误吞并行文件（并行在途：apps/desktop 的 P-1 可能同期动工）。
+3. 全仓 grep 无任何真实凭证/key。
+
+【分项要点（每项给结论：通过/已修复/不通过/需架构拍板）】
+A-1 markers 过 drift；8 事件与 packages/demo-data/data/case-bible.md 第六节矛盾清单精确对应（4 类矛盾横跨 8 事件；evt-24 无"矛盾"字样但应有 marker、evt-25 提及"矛盾"但不应有——这对是立项实证）。
+B-1 reading-view 定向测试（口径 136/15 文件）；21 份真实语料 golden 快照存在且非空壳。
+B-2 安全实测：zip 炸弹检测在解压前发生（读源码确认中央目录先读 + 跑高压缩比样本测试）；DOCTYPE/ENTITY 拒绝；.docm 与 zip 内 vbaProject.bin 拒绝；大小/超时走配置。
+B-3 锚点纪律：docx/PDF 路径每个 anchor 带 textLayerVersion（抽查快照）；md/txt 指向原始字节；合并单元格触发整文件降级而非拼错表（有测试）；无文本层 PDF/图片 → needs_ocr 而非空文。
+B-4 跨层三变更各自独立 commit 且 registry 内置测试同步。
+C-1 编译期红线实测：尝试写一个返回 verified:true 的 fetch 适配器——应当无法通过 tsc（Data=never 的意义）；mock 适配器同样只能 throw ToolWebReferenceError。
+C-2 SSRF：私网段/云元数据/IPv4-mapped IPv6 拦截 + 重定向逐跳检查（有测试）；证书失败 = adapter_error 绝不放行；spotlighting 输出含随机边界标记 + datamarking（读实现）。
+C-3 缓存门禁扩展是本批唯一动共享执行器逻辑的变更——重点核对：web_reference 可缓存、其余 verified:false 家族仍不缓存、TTL 生效，均有测试。
+C-4 search 无凭证 → not_configured，serper 骨架 → not_implemented（诚实边界，无假搜索）。
+D-1 凭证金丝雀：注入可识别假 key → 触发各类失败 → grep 全部错误对象/日志/事件无 key 泄漏（有测试且你亲手复跑）。
+D-2 反静默吞参：unsupported 档位在发 HTTP 前拒绝（MiniMax 判例的机制化）；ProviderInvalidResponseError 带 suspectedSilentParamSwallow 信号。
+D-3 结构化输出降级链：strict → json_schema → json_object + zod 校验重试（次数走配置），最终失败走 invalid_response 语义；quirk-profile 中"已确认 vs 推测"的字段有诚实标注。
+D-4 auth.kind/billing.kind 判别字段存在；maxUsd 与 billing.kind==='metered' 关联；价格表走配置；未知 provider/model 时 checkUsd 诚实跳过（非静默算零）。
+D-5 冒烟脚本无 key 时明确说明并跳过（跑一次验证）。
+
+【报告】写入 docs/42-合批验收报告-MVP补强.md（新建）。结论必须明确回答三问：四张工单各自是否放行；五项契约变更（web_reference/缓存门禁/needs_ocr/markers/auth.billing 判别）是否背书；MVP 补强是否齐备、可进入"真实 key 首跑 + 对外演示"阶段。
+```
+
 后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
