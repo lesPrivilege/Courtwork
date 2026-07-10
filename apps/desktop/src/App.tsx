@@ -40,6 +40,7 @@ import {
   type ModelConfig,
 } from './provider/model-config';
 import { ModelConfigPopover } from './provider/ModelConfigPopover';
+import { SettingsPage, type SettingsSection } from './settings';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { OriginalsZone } from './system/OriginalsZone';
 import { systemOpenClient } from './system/system-open-client';
@@ -124,6 +125,8 @@ export function App() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [modelConfig, setModelConfig] = useState<ModelConfig>(() => loadModelConfig());
   const [modelConfigOpen, setModelConfigOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsSection, setSettingsSection] = useState<SettingsSection>('model');
   /** 起草画布内切换：交付轨文书 vs 工作稿轨笔记 */
   const [workDraftMode, setWorkDraftMode] = useState(false);
   /** S6 卷宗整理：右栏展示 FileOpsPlan 面板 */
@@ -344,6 +347,20 @@ export function App() {
   const updateModelConfig = (next: ModelConfig) => {
     setModelConfig(next);
     saveModelConfig(next);
+  };
+
+  const openSettings = (section: SettingsSection = 'model') => {
+    setSettingsSection(section);
+    setSettingsOpen(true);
+    setPaletteOpen(false);
+    setModelConfigOpen(false);
+  };
+
+  const revealSettingsPath = (path: string) => {
+    // 设置页默认产出目录：浏览器下以路径本身作 root 白名单边界
+    void systemOpenClient.revealInFolder(path, path).then((feedback) => {
+      showSystemFeedback(feedback.message, feedback.ok);
+    });
   };
 
   /** docs/52 #1：卷宗/资料计数点击 → 滚到原件区（空间记忆，不展开树） */
@@ -579,6 +596,12 @@ export function App() {
       // F-3 已接通真实 reveal；命令面板走同一路径
       onRun: () => { setPaletteOpen(false); openOutputFolder(); },
     },
+    {
+      id: 'action-settings',
+      section: '操作',
+      label: '设置',
+      onRun: () => openSettings('model'),
+    },
   ];
 
   return (
@@ -592,6 +615,16 @@ export function App() {
         )}
         {isDemoCase && <span className="demo-badge" data-testid="demo-case-badge">样板案·演示</span>}
         <span className="spacer" />
+        <button
+          type="button"
+          className="quiet-button titlebar-settings"
+          data-testid="open-settings"
+          aria-label="设置"
+          title="设置"
+          onClick={() => openSettings('model')}
+        >
+          <Icon name="cog" />
+        </button>
         <button type="button" className="shortcut shortcut-trigger" onClick={() => setPaletteOpen(true)}>
           <kbd>⌘</kbd><kbd>K</kbd> 场景与检索
         </button>
@@ -878,6 +911,20 @@ export function App() {
       />
       <NewCaseDialog open={newCaseOpen} onClose={() => setNewCaseOpen(false)} onCreate={createCase} />
       <CommandPalette open={paletteOpen} commands={paletteCommands} onClose={() => setPaletteOpen(false)} />
+      <SettingsPage
+        open={settingsOpen}
+        section={settingsSection}
+        onSectionChange={setSettingsSection}
+        onClose={() => setSettingsOpen(false)}
+        credentialStatus={credentialStatus}
+        onOpenCredentialSetup={() => {
+          setProviderSetupOpen(true);
+        }}
+        modelConfig={modelConfig}
+        onModelConfigChange={updateModelConfig}
+        onRevealPath={revealSettingsPath}
+        onFeedback={showSystemFeedback}
+      />
     </main>
   );
 }
