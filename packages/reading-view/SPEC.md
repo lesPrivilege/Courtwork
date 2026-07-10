@@ -1,6 +1,6 @@
 # SPEC: packages/reading-view（W3.0）
 
-状态：设计完成，待实现（承接 `docs/41-MVP缺口盘点与路由声明.md` 的衍生工单"W3.0 阅读视图管线"，架构会话已批准本设计，见 2026-07-10 对话记录）
+状态：已完成
 
 ## 背景
 
@@ -104,6 +104,7 @@ packages/reading-view/
 - 表格锚点粒度到行，不到单元格。
 - docx 列表编号（`w:numPr`）不重建。
 - PDF 页内文本层顺序取 pdfjs-dist 默认抽取顺序，不做跨列/跨栏重排——复杂版式 PDF 可能行序错乱，属于"最小可用"的已知代价。
+- **PDF 每页整体作为一个 `ReadingViewParagraph`**，不在页内再切分段落——真正的段内分段需要基于文本项坐标做版面分析，超出"最小可用"范围；锚点粒度因此是页级而非页内段落级，`page` 字段保证了这级粒度仍然精确可溯源。
 
 ## TODO（跨层放入区）
 
@@ -114,4 +115,17 @@ packages/reading-view/
 
 ## 验收记录
 
-（实现完成后填写）
+- 2026-07-10：W3.0 完成。TDD 交付类型模型（`types.ts`）、安全基线（`limits.ts`/`zip-guard.ts`/`xml-guard.ts`）、四条转换路径（txt 空行分块、md remark+remark-gfm、docx 手写 fflate+xmldom、pdf pdfjs-dist）、`textLayerVersion` 计算工具、CaseFile 无损投影、测试 fixture 构造器（docx/pdf 各一套，均为手工拼装、无外部库依赖）。`pnpm test` 全仓 619 例全绿（本包 136 例：types 3 + limits 3 + zip-guard 7 + xml-guard 8 + text-layer-version 4 + text-to-reading-view 15 + markdown-to-reading-view 4 + docx-reader 10 + docx-to-markdown 6 + pdf-to-reading-view 4 + convert 10 + to-case-file-entry 4 + malformed-inputs 12 + golden 43 + index 3），`pnpm lint` 无 error，`pnpm -r run build`（9/10 workspace 包，含本包与 `apps/desktop`）全部通过。全部在移除全部 workspace 包 `node_modules` 后的干净环境重新 `pnpm install` 复核过（`pnpm test`/`pnpm lint`/`pnpm -r run build` 结果与增量安装时一致）。
+  - 关键设计取舍：
+    - **docx/PDF 的 `textLayerVersion` 强制填写，md/txt 不填**：架构会话在设计评审时指出 docx 线性化文本层与 PDF 页文本层都是转换器派生物，版本一变偏移量就可能整体漂移——这正是 W1 `SourceAnchor.textLayerVersion` 字段的立项理由，本包是它的第一个生产方。`computeTextLayerVersion(namespace, text)` = 转换器语义版本 + 文本层内容短哈希（sha256 前 16 位），docx 按整文件计算一次、全部段落共享；PDF 按页计算，各页独立。
+    - **docx 表格"要么正确转出、要么整文件降级"是硬性纪律，不是可协商的 MVP 简化**：架构会话明确指出合同付款计划表极常见，静默丢表格内容会让模型读到一份"没有付款条款"的合同。简单网格（无 `gridSpan`/`vMerge`）转出为 md 表格；探测到合并单元格则整文件判 `disabled/fidelity_insufficient`，绝不局部跳过表格保留其余内容。
+    - **md 路径的 `markdown` 字段就是原文子串本身，不重新序列化**：因为输入本来就是 md，remark 解析拿到块级 `position.start/end.offset` 后直接 `source.slice()`，天然保证 `markdown` 与 `anchor.quote` 逐字一致，不存在两者对不上的风险——这个性质是设计阶段没有充分预见到的额外收益，直到实现时才意识到"不重新序列化"同时也让这条不变量变得无成本。
+    - **docx 段落遍历技术路线选择"手写复用 output 技术栈"而非引入 mammoth**：段落→锚点映射是本包的一等交付物，需要精确知道"第几段对应原文第几段"；mammoth 按整文档吐一坨 HTML，反向拆出段落索引的工作量抵消了引入库省下的工作量。标题判定复用 output 已验证的"加粗→标题"启发式，读写两侧口径统一。
+    - **ZIP 解压比例检测手写中央目录读取器，不依赖 fflate 的高层 API**：`readZipCentralDirectory` 只读 EOCD + 中央目录头（不调用 `unzipSync`），5MB 全零内容在 deflate level 9 下实测压出 5377 字节（975:1 真实比例），验证了检测逻辑在真正的高压缩比内容上生效，不是纸面上的阈值判断。
+    - **`@xmldom/xmldom` 默认配置下裸 `<!DOCTYPE>`（不含 `<!ENTITY>`）不会被拒绝**——这是实现期间的实测发现，不是预先假设。因此 `xml-guard.ts` 的字符串级 `DANGEROUS_MARKUP_PATTERN` 探测是必要的独立防线，不是与解析器行为重复的冗余代码。
+  - 工具链发现：
+    - `pdfjs-dist` 在 Node 环境下必须从 `'pdfjs-dist/legacy/build/pdf.mjs'` 导入，裸 `'pdfjs-dist'`（`main` 字段指向的 `build/pdf.mjs`）在 Node 下因缺少 `DOMMatrix` 等浏览器全局对象而报错。`getDocument` 传 `verbosity: VerbosityLevel.ERRORS` 消除标准字体缺失产生的多余警告日志。
+    - `unified`/`remark-parse`/`remark-gfm` 的类型依赖 `@types/mdast`（`Root`/`RootContent` 等类型），不显式声明该 devDependency 时 `tsc` 的 declaration-emit 会报"推断类型无法被命名"——沿用 W1 记录过的"@types/* 必须声明在自己包的 package.json 里"同类坑，新增一例。
+    - `vitest`（esbuild 转译）会完全擦除 `import type {...}` 语句，纯类型导入的测试文件即使目标模块尚不存在也会"通过"（不会报 `Cannot find module`）——`types.test.ts` 因此需要靠 `tsc --noEmit` 而非 `vitest run` 来验证 TDD 红灯阶段，这是本包所有测试文件里唯一一个纯类型导入的例外情况。
+    - `@courtwork/schemas` 的消费方在其 `IngestStatusEnum` 增补 `needs_ocr` 后，若只跑 `pnpm --filter @courtwork/schemas run generate:json-schema`（更新 JSON Schema 导出）而不重新 `build`（更新 `dist/*.d.ts`），消费方的 `tsc` 会看到旧类型报错，`vitest`（直接对 `src` 转译）却会因为类型层面的问题不影响运行时字符串匹配而"通过"——这是实现期间实测发现的真实陷阱，已通过 `pnpm --filter @courtwork/schemas run build` 解决，记录以免未来会话重复踩坑。
+  - 跨层动作：`packages/schemas`（`IngestStatusEnum` 增补 `needs_ocr`）、`packages/registry`（`S1.yaml` `trigger.fileTypes` 同步）、根 `CLAUDE.md`（架构图补行）三处已在本工单开工前完成并各自独立提交，详见各自 SPEC.md 验收记录。
