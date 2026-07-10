@@ -88,3 +88,146 @@ test.describe('新建案件', () => {
     await expect(page.locator('.case-card')).toHaveCount(1);
   });
 });
+
+test.describe('归档案件', () => {
+  test('popover 轻确认归档并可逆', async ({ page }) => {
+    await openWorkbench(page);
+    const card = page.locator('.case-card').first();
+    await card.hover();
+    await card.getByTestId('archive-trigger').click();
+    await expect(page.locator('.archive-popover')).toBeVisible();
+    await page.locator('.archive-popover').getByRole('button', { name: '归档', exact: true }).click();
+    await expect(card).toHaveClass(/archived/);
+    await card.hover();
+    await card.getByTestId('archive-trigger').click();
+    await page.locator('.archive-popover').getByRole('button', { name: '取消归档', exact: true }).click();
+    await expect(card).not.toHaveClass(/archived/);
+  });
+
+  test('取消不改变归档状态', async ({ page }) => {
+    await openWorkbench(page);
+    const card = page.locator('.case-card').first();
+    await card.hover();
+    await card.getByTestId('archive-trigger').click();
+    await page.locator('.archive-popover').getByRole('button', { name: '取消', exact: true }).click();
+    await expect(page.locator('.archive-popover')).toHaveCount(0);
+    await expect(card).not.toHaveClass(/archived/);
+  });
+
+  test('案件卡片无删除入口', async ({ page }) => {
+    await openWorkbench(page);
+    await expect(page.getByRole('button', { name: '删除' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /删除案件/ })).toHaveCount(0);
+  });
+});
+
+test.describe('专注模式', () => {
+  test('进入后左中栏隐藏、右栏独占且 0ms 硬切', async ({ page }) => {
+    await openWorkbench(page);
+    const workspace = page.getByTestId('workspace');
+    await expect(workspace).toHaveCSS('transition-duration', '0s');
+    await page.getByTestId('focus-toggle').click();
+    await expect(workspace).toHaveAttribute('data-focus-mode', 'true');
+    await expect(page.locator('.case-rail')).toHaveCount(0);
+    await expect(page.locator('.conversation')).toHaveCount(0);
+    await expect(page.locator('.right-workbench')).toBeVisible();
+  });
+
+  test('Esc 退出专注模式恢复三栏', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('focus-toggle').click();
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('workspace')).toHaveAttribute('data-focus-mode', 'false');
+    await expect(page.locator('.case-rail')).toBeVisible();
+    await expect(page.locator('.conversation')).toBeVisible();
+  });
+
+  test('专注态按钮显示 Esc 提示且对照控件隐藏', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('focus-toggle').click();
+    await expect(page.getByTestId('focus-toggle')).toContainText('Esc');
+    await expect(page.getByTestId('split-start')).toHaveCount(0);
+  });
+
+  test('对照态进入专注模式会重置为单栏', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('split-start').click();
+    await expect(page.getByTestId('workspace')).toHaveAttribute('data-comparing', 'true');
+    await page.getByTestId('focus-toggle').click();
+    await expect(page.getByTestId('workspace')).toHaveAttribute('data-comparing', 'false');
+    await expect(page.getByTestId('workspace')).toHaveAttribute('data-focus-mode', 'true');
+  });
+});
+
+test.describe('命令面板', () => {
+  test('⌘K 打开命令面板，Esc 关闭', async ({ page }) => {
+    await openWorkbench(page);
+    await expect(page.getByTestId('command-palette')).toHaveCount(0);
+    await page.keyboard.press('Meta+K');
+    await expect(page.getByTestId('command-palette')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('command-palette')).toHaveCount(0);
+  });
+
+  test('模糊匹配过滤场景与操作', async ({ page }) => {
+    await openWorkbench(page);
+    await page.keyboard.press('Meta+K');
+    const input = page.getByRole('textbox', { name: '搜索场景、案件或操作' });
+    await input.fill('专注');
+    await expect(page.getByRole('option', { name: /进入专注模式/ })).toBeVisible();
+    await expect(page.getByRole('option', { name: '整理卷宗' })).toHaveCount(0);
+  });
+
+  test('选择场景条目触发对应场景并关闭面板', async ({ page }) => {
+    await openWorkbench(page);
+    await page.keyboard.press('Meta+K');
+    await page.getByRole('option', { name: '审查合同' }).click();
+    await expect(page.getByTestId('command-palette')).toHaveCount(0);
+    await expect(page.getByTestId('flow-s3')).toHaveClass(/selected/);
+  });
+
+  test('⌘K 触发新建案件对话框', async ({ page }) => {
+    await openWorkbench(page);
+    await page.keyboard.press('Meta+K');
+    await page.getByRole('option', { name: '新建案件' }).click();
+    await expect(page.getByTestId('new-case-dialog')).toBeVisible();
+  });
+
+  test('⌘K 触发专注模式并可再次通过面板退出', async ({ page }) => {
+    await openWorkbench(page);
+    await page.keyboard.press('Meta+K');
+    await page.getByRole('option', { name: '进入专注模式' }).click();
+    await expect(page.getByTestId('workspace')).toHaveAttribute('data-focus-mode', 'true');
+    await page.keyboard.press('Meta+K');
+    await page.getByRole('option', { name: '退出专注模式' }).click();
+    await expect(page.getByTestId('workspace')).toHaveAttribute('data-focus-mode', 'false');
+  });
+
+  test('⌘K 打开产出文件夹显示访达反馈', async ({ page }) => {
+    await openWorkbench(page);
+    await page.keyboard.press('Meta+K');
+    await page.getByRole('option', { name: '打开产出文件夹' }).click();
+    await expect(page.getByTestId('system-open-feedback')).toHaveText('已在访达中显示');
+  });
+
+  test('方向键在结果间移动高亮', async ({ page }) => {
+    await openWorkbench(page);
+    await page.keyboard.press('Meta+K');
+    const first = page.getByRole('option').first();
+    await expect(first).toHaveAttribute('aria-selected', 'true');
+    await page.keyboard.press('ArrowDown');
+    await expect(first).toHaveAttribute('aria-selected', 'false');
+  });
+
+  test('案件切换命令列出新建案件并可选中', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('new-case-open').click();
+    const dialog = page.getByTestId('new-case-dialog');
+    await dialog.getByRole('button', { name: '不使用文件夹，直接命名' }).click();
+    await dialog.getByRole('textbox', { name: '案件名称' }).fill('周七诉吴八借款纠纷');
+    await dialog.getByRole('button', { name: '创建案件' }).click();
+    await page.keyboard.press('Meta+K');
+    await page.getByRole('option', { name: '临江精铸', exact: false }).click();
+    await expect(page.locator('.case-card.selected')).toContainText('临江精铸');
+  });
+});

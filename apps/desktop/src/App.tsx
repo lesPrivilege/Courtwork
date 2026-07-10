@@ -13,13 +13,16 @@ import {
 } from './protocol/client';
 import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, type ComposerSendPayload } from './composer';
+import { ArchiveConfirmPopover } from './case/ArchiveConfirmPopover';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
+import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
 import { DEMO_CASE_ROOT, DEMO_OUTPUT_DIR, DEMO_OUTPUT_DOCX } from './system/demo-case-layout';
 import { OriginalsZone } from './system/OriginalsZone';
 import { systemOpenClient } from './system/system-open-client';
 import { WorkDraftPanel } from './system/WorkDraftPanel';
 import { CopyButton } from './workbench/CopyButton';
+import { ArchiveGlyph, FocusGlyph } from './workbench/MiniIcon';
 import { Icon } from './workbench/Icon';
 import {
   DraftPanel,
@@ -91,6 +94,9 @@ export function App() {
   const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
   const [selectedCaseId, setSelectedCaseId] = useState(DEMO_CASE.id);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
+  const [archiveConfirmCaseId, setArchiveConfirmCaseId] = useState<string | null>(null);
+  const [focusMode, setFocusMode] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   /** 起草画布内切换：交付轨文书 vs 工作稿轨笔记 */
   const [workDraftMode, setWorkDraftMode] = useState(false);
   const [systemFeedback, setSystemFeedback] = useState<{ message: string; ok: boolean } | null>(null);
@@ -134,6 +140,36 @@ export function App() {
     setLocalMessages([]);
     void client.replay(flow, dispatch);
   }, [flow]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const meta = event.metaKey || event.ctrlKey;
+      if (meta && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setPaletteOpen(true);
+        return;
+      }
+      if (event.key === 'Escape') {
+        if (paletteOpen) {
+          setPaletteOpen(false);
+          return;
+        }
+        if (newCaseOpen) {
+          setNewCaseOpen(false);
+          return;
+        }
+        if (archiveConfirmCaseId) {
+          setArchiveConfirmCaseId(null);
+          return;
+        }
+        if (focusMode) {
+          setFocusMode(false);
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [paletteOpen, newCaseOpen, archiveConfirmCaseId, focusMode]);
 
   useEffect(() => {
     const requestId = session.confirmation?.requestId;
@@ -183,6 +219,11 @@ export function App() {
     setCases((current) => [...current, { id: newId, title, fileCount, archived: false, folderPath: `${DEMO_CASE_ROOT}-新建/${title}` }]);
     setSelectedCaseId(newId);
     setNewCaseOpen(false);
+  };
+
+  const toggleArchive = (caseId: string) => {
+    setCases((current) => current.map((item) => (item.id === caseId ? { ...item, archived: !item.archived } : item)));
+    setArchiveConfirmCaseId(null);
   };
 
   const openOutputFolder = () => {
@@ -236,6 +277,18 @@ export function App() {
     setSecondaryView(undefined);
     setSplitDirection('rows');
     setSplitRatio(50);
+  };
+
+  const toggleFocusMode = () => {
+    setFocusMode((current) => {
+      const next = !current;
+      if (next) {
+        setSecondaryView(undefined);
+        setSplitDirection('rows');
+        setSplitRatio(50);
+      }
+      return next;
+    });
   };
 
   const expandBasis = (riskId: string, index: number, evidenceRef: string) => {
@@ -309,6 +362,38 @@ export function App() {
     <div className="pane-content">{renderView(view)}</div>
   </section>;
 
+  const paletteCommands: PaletteCommand[] = [
+    { id: 'scene-s1', section: '场景', label: '整理卷宗', onRun: () => { selectFlow('S1'); setPaletteOpen(false); } },
+    { id: 'scene-s3', section: '场景', label: '审查合同', onRun: () => { selectFlow('S3'); setPaletteOpen(false); } },
+    { id: 'scene-draft', section: '场景', label: '起草答辩状', onRun: () => { setWorkDraftMode(false); choosePrimaryView('draft'); setPaletteOpen(false); } },
+    ...cases.map((item) => ({
+      id: `case-${item.id}`,
+      section: '案件',
+      label: item.archived ? `${item.title}（已归档）` : item.title,
+      onRun: () => { setSelectedCaseId(item.id); setPaletteOpen(false); },
+    })),
+    { id: 'action-new-case', section: '操作', label: '新建案件', onRun: () => { setPaletteOpen(false); setNewCaseOpen(true); } },
+    {
+      id: 'action-archive',
+      section: '操作',
+      label: selectedCase.archived ? '取消归档当前案件' : '归档当前案件',
+      onRun: () => { setPaletteOpen(false); setArchiveConfirmCaseId(selectedCase.id); },
+    },
+    {
+      id: 'action-focus',
+      section: '操作',
+      label: focusMode ? '退出专注模式' : '进入专注模式',
+      onRun: () => { setPaletteOpen(false); toggleFocusMode(); },
+    },
+    {
+      id: 'action-output-folder',
+      section: '操作',
+      label: '打开产出文件夹',
+      // F-3 已接通真实 reveal；命令面板走同一路径
+      onRun: () => { setPaletteOpen(false); openOutputFolder(); },
+    },
+  ];
+
   return (
     <main className="app-shell" data-testid="workbench">
       <header className="titlebar">
@@ -317,7 +402,9 @@ export function App() {
         <strong className="truncate" title="临江精铸 诉 起云智能 设备采购合同纠纷">临江精铸 诉 起云智能 设备采购合同纠纷</strong>
         <span className="case-number">(2025)云章03民初472号</span>
         <span className="spacer" />
-        <span className="shortcut"><kbd>⌘</kbd><kbd>K</kbd> 场景与检索</span>
+        <button type="button" className="shortcut shortcut-trigger" onClick={() => setPaletteOpen(true)}>
+          <kbd>⌘</kbd><kbd>K</kbd> 场景与检索
+        </button>
       </header>
 
       <nav className="toolbar" aria-label="工作台工具栏">
@@ -329,8 +416,13 @@ export function App() {
         <button className="primary-button" disabled title="导出审阅稿 · 待完成文书生成">导出审阅稿</button>
       </nav>
 
-      <div className={`workspace ${comparing ? 'comparing' : ''}`} data-testid="workspace" data-comparing={comparing ? 'true' : 'false'}>
-        <aside className="case-rail">
+      <div
+        className={`workspace ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''}`}
+        data-testid="workspace"
+        data-comparing={comparing ? 'true' : 'false'}
+        data-focus-mode={focusMode ? 'true' : 'false'}
+      >
+        {!focusMode && <aside className="case-rail">
           <div className="case-expanded">
             <PanelHead title="案件" count={String(cases.length)} action={<button className="rail-add-button" onClick={() => setNewCaseOpen(true)} data-testid="new-case-open" aria-label="新建案件" title="新建案件"><Icon name="plus" /></button>} />
             <div className="case-scroll">
@@ -341,6 +433,23 @@ export function App() {
                     {item.caseNumber && <span className="case-number">{item.caseNumber}</span>}
                     <span>卷宗 {item.fileCount} 件{item.archived ? ' · 已归档' : ''}</span>
                   </button>
+                  <button
+                    className="case-archive-button"
+                    onClick={() => setArchiveConfirmCaseId(item.id)}
+                    aria-label={item.archived ? '取消归档' : '归档'}
+                    title={item.archived ? '取消归档' : '归档'}
+                    data-testid="archive-trigger"
+                  >
+                    <ArchiveGlyph />
+                  </button>
+                  {archiveConfirmCaseId === item.id && (
+                    <ArchiveConfirmPopover
+                      caseTitle={item.title}
+                      archived={item.archived}
+                      onConfirm={() => toggleArchive(item.id)}
+                      onCancel={() => setArchiveConfirmCaseId(null)}
+                    />
+                  )}
                 </article>
               ))}
               {isDemoCase && <>
@@ -373,9 +482,9 @@ export function App() {
               <button aria-label="合同审查" title="合同审查" onClick={() => selectFlow('S3')}><Icon name="message-square-text" /></button>
             </>}
           </nav>
-        </aside>
+        </aside>}
 
-        <section className="conversation">
+        {!focusMode && <section className="conversation">
           <PanelHead title="对话" count={flow === 'S1' ? '本阶段 3 轮' : '本阶段 6 轮'} shortcut="J K 逐条" />
           <div className="conversation-scroll">
             {!isDemoCase && <div className="empty-state" role="status">{selectedCase.title} 刚建立，尚无对话记录 · 从场景按钮开始</div>}
@@ -427,19 +536,29 @@ export function App() {
             <button onClick={() => { setWorkDraftMode(false); choosePrimaryView('draft'); }}>起草答辩状</button>
           </div>
           <Composer onSend={handleComposerSend} />
-        </section>
+        </section>}
 
         <section className="right-workbench">
           <PanelHead title={comparing ? '工作面对照' : VIEW_LABELS[activeView]} count={comparing ? '双面' : viewCount(activeView, draftFrozen)} />
           <div className="view-tabs" role="tablist" aria-label="结构化工作面">
             {VIEWS.map((view) => <button key={view} role="tab" aria-selected={activeView === view} className={activeView === view ? 'active' : ''} onClick={() => choosePrimaryView(view)} data-testid={`view-${view}`}><span>{VIEW_LABELS[view]}</span><i className="tab-indicator" aria-hidden="true" /></button>)}
             <span className="tab-spacer" />
-            {!comparing && <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照"><Icon name="rows-two" />对照</button>}
-            {comparing && <>
+            {!focusMode && !comparing && <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照"><Icon name="rows-two" />对照</button>}
+            {!focusMode && comparing && <>
               <button className={`icon-button ${splitDirection === 'rows' ? 'active' : ''}`} aria-label="上下对照" title="上下对照" aria-pressed={splitDirection === 'rows'} onClick={() => setSplitDirection('rows')}><Icon name="rows-two" /></button>
               <button className={`icon-button ${splitDirection === 'columns' ? 'active' : ''}`} aria-label="左右对照" title={wideSplitAvailable ? '左右对照' : '窗口宽度达到 1600 后可用'} aria-pressed={splitDirection === 'columns'} disabled={!wideSplitAvailable} onClick={() => setSplitDirection('columns')}><Icon name="columns-two" /></button>
               <button className="view-action" onClick={resetComparison} data-testid="split-reset" title="退出对照并恢复三栏"><Icon name="rotate-counter-clockwise" />复位</button>
             </>}
+            <button
+              type="button"
+              className="view-action"
+              onClick={toggleFocusMode}
+              data-testid="focus-toggle"
+              aria-pressed={focusMode}
+              title={focusMode ? '退出专注模式' : '专注模式 · 单工作面全窗'}
+            >
+              <FocusGlyph /><span>{focusMode ? '退出专注' : '专注'}</span>{focusMode && <kbd>Esc</kbd>}
+            </button>
           </div>
           <div className="view-content">
             {secondaryView
@@ -489,6 +608,7 @@ export function App() {
         onStatusChange={setCredentialStatus}
       />
       <NewCaseDialog open={newCaseOpen} onClose={() => setNewCaseOpen(false)} onCreate={createCase} />
+      <CommandPalette open={paletteOpen} commands={paletteCommands} onClose={() => setPaletteOpen(false)} />
     </main>
   );
 }

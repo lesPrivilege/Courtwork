@@ -190,6 +190,20 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 验证：`icons:build` 与 `lint:icons` 通过；Vitest 26/26；Playwright 38/38；`pnpm lint` 和 desktop 生产构建通过。Base UI 未触发，未新建 `packages/ui`。
 
+## F-2 全局动词补全（2026-07-10）
+
+规格：docs/46 十项裁决（1/3/6/7 + callout 复制）。五项均落地：
+
+| 项 | 状态 | 落点 |
+|---|---|---|
+| ⌘K 命令面板 | 真实实现 | `command-palette/`：场景+案件+新建/归档/专注/打开产出文件夹；Meta/Ctrl+K；Esc 关闭 |
+| 新建案件 | 真实实现 | 左栏 + ⌘K；`NewCaseDialog` + `webkitdirectory` |
+| 归档 | 真实实现 | `ArchiveConfirmPopover` 轻确认，可逆，无删除 |
+| 专注模式 | 真实实现 | 条件渲染卸装左中栏，Esc 退出，0ms 硬切 |
+| callout/数据卡复制 | 真实实现 | `CopyButton` hover 显现，70ms 按压 |
+
+验证：Playwright global-verbs 21 例 + 全仓 57/57；截图 [`19-f2-command-palette-1440.png`](visual-audit/19-f2-command-palette-1440.png) / [`20-f2-focus-mode-1440.png`](visual-audit/20-f2-focus-mode-1440.png) / [`21-f2-archive-popover-1440.png`](visual-audit/21-f2-archive-popover-1440.png)。
+
 ## F-3 最小 work 能力包（2026-07-10）
 
 规格：docs/23 双轨增补 + docs/47 无损级 + docs/46 先登记。实现位：`packages/tools`（case-path / system-open）+ `apps/desktop/src/system/`。
