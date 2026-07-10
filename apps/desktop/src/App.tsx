@@ -249,23 +249,36 @@ export function App() {
       <div className={`workspace ${comparing ? 'comparing' : ''}`} data-testid="workspace" data-comparing={comparing ? 'true' : 'false'}>
         <aside className="case-rail">
           <div className="case-expanded">
-            <PanelHead title="案件" count="1" />
+            <PanelHead title="案件" count={String(cases.length)} action={<button className="rail-add-button" onClick={() => setNewCaseOpen(true)} data-testid="new-case-open" aria-label="新建案件" title="新建案件"><Icon name="plus" /></button>} />
             <div className="case-scroll">
-              <article className="case-card selected">
-                <strong className="truncate" title="临江精铸 诉 起云智能 设备采购合同纠纷">临江精铸 诉 起云智能 设备采购合同纠纷</strong>
-                <span className="case-number">(2025)云章03民初472号</span>
-                <span>卷宗 20 件 · 已归档摄取</span>
-              </article>
-              <p className="rail-label">阶段</p>
-              <button className={`stage-row ${flow === 'S1' ? 'selected' : ''}`} onClick={() => selectFlow('S1')} data-testid="flow-s1"><Icon name="panels" />阶段一 · 阅卷整理<span>已归档</span></button>
-              <button className={`stage-row ${flow === 'S3' ? 'selected' : ''}`} onClick={() => selectFlow('S3')} data-testid="flow-s3"><Icon name="panels" />阶段二 · 合同审查<span>{Object.keys(dispositions).length}/6</span></button>
+              {cases.map((item) => (
+                <article key={item.id} className={`case-card ${item.id === selectedCaseId ? 'selected' : ''} ${item.archived ? 'archived' : ''}`} data-testid={`case-card-${item.id}`}>
+                  <button className="case-card-select" onClick={() => setSelectedCaseId(item.id)}>
+                    <strong className="truncate" title={item.title}>{item.title}</strong>
+                    {item.caseNumber && <span className="case-number">{item.caseNumber}</span>}
+                    <span>卷宗 {item.fileCount} 件{item.archived ? ' · 已归档' : ''}</span>
+                  </button>
+                </article>
+              ))}
+              {isDemoCase && <>
+                <p className="rail-label">阶段</p>
+                <button className={`stage-row ${flow === 'S1' ? 'selected' : ''}`} onClick={() => selectFlow('S1')} data-testid="flow-s1"><Icon name="panels" />阶段一 · 阅卷整理<span>已归档</span></button>
+                <button className={`stage-row ${flow === 'S3' ? 'selected' : ''}`} onClick={() => selectFlow('S3')} data-testid="flow-s3"><Icon name="panels" />阶段二 · 合同审查<span>{Object.keys(dispositions).length}/6</span></button>
+              </>}
             </div>
             <div className="rail-footer">主办律师 · 林律师</div>
           </div>
           <nav className="collapsed-case-icons" aria-label="折叠的案件栏">
-            <button aria-label="当前案件" title="临江精铸案"><Icon name="case" /><span className="unread-count">1</span></button>
-            <button aria-label="阅卷整理" title="阅卷整理" onClick={() => selectFlow('S1')}><Icon name="panels" /></button>
-            <button aria-label="合同审查" title="合同审查" onClick={() => selectFlow('S3')}><Icon name="conversation" /></button>
+            {cases.map((item) => (
+              <button key={item.id} aria-label={item.title} title={item.title} onClick={() => setSelectedCaseId(item.id)}>
+                <Icon name="case" />
+                {item.id === DEMO_CASE.id && <span className="unread-count">1</span>}
+              </button>
+            ))}
+            {isDemoCase && <>
+              <button aria-label="阅卷整理" title="阅卷整理" onClick={() => selectFlow('S1')}><Icon name="panels" /></button>
+              <button aria-label="合同审查" title="合同审查" onClick={() => selectFlow('S3')}><Icon name="conversation" /></button>
+            </>}
           </nav>
         </aside>
 
