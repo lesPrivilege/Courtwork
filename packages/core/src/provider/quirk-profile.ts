@@ -31,6 +31,8 @@ export const QWEN_QUIRK_PROFILE: ProviderQuirkProfile = {
   // 这个 base URL 就是北京地域端点。
   baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
   responseFormat: { tier: 'json_schema_strict' },
+  // docs/18 §1.2 只提到 enable_thinking（请求侧开关），未指名响应字段——这里沿用
+  // DeepSeek 已证实的字段名作为推测默认值，未经文档证实，实测后可能需要修正。
   reasoningFieldCandidates: ['reasoning_content'],
 };
 
@@ -38,5 +40,7 @@ export const DOUBAO_QUIRK_PROFILE: ProviderQuirkProfile = {
   providerId: 'doubao',
   baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
   responseFormat: { tier: 'json_schema' },
+  // docs/18 §1.6 未提及推理内容字段名——这里沿用 DeepSeek 已证实的字段名作为推测
+  // 默认值，未经文档证实，实测后可能需要修正。
   reasoningFieldCandidates: ['reasoning_content'],
 };
