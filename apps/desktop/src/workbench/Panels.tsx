@@ -15,6 +15,29 @@ export function SignatureLine({ tone }: { tone?: LineTone }) {
   return <span className={`signature-line line-${tone}`} data-tone={tone} aria-hidden="true" />;
 }
 
+function SettlementFlash({ kind, itemRef, testable = false }: { kind?: 'confirmed' | 'rejected'; itemRef: string; testable?: boolean }) {
+  const flashRef = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const flash = flashRef.current;
+    if (!flash || !kind) return;
+    const borderColor = getComputedStyle(flash).getPropertyValue('--settle-color').trim();
+    const animation = flash.animate(
+      [{ borderColor }, { borderColor: 'transparent' }],
+      { duration: 150, easing: 'ease-out', fill: 'forwards' },
+    );
+    return () => animation.cancel();
+  }, [kind]);
+  if (!kind) return null;
+  return <span
+    ref={flashRef}
+    className="settle-flash"
+    data-testid={testable ? `settle-flash-${itemRef}` : undefined}
+    data-kind={kind}
+    data-duration="150"
+    aria-hidden="true"
+  />;
+}
+
 export function StaticViewport({ children, testId }: { children: ReactNode; testId: string }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -202,6 +225,8 @@ function riskLineTone(level: RiskList['risks'][number]['level'], disposition?: R
 export function RevisionPanel(props: RevisionPanelProps) {
   const selectedGate = props.gate?.items.find((item) => item.itemRef === props.selectedRisk.id);
   const reviewedCount = props.selectedRisk.basis.filter((_, index) => props.expandedEvidence[`${props.selectedRisk.id}:${index}`]).length;
+  const selectedDisposition = props.dispositions[props.selectedRisk.id];
+  const selectedSettled = selectedDisposition === 'confirmed' || selectedDisposition === 'rejected' ? selectedDisposition : undefined;
   return <StaticViewport testId="revision-static-viewport">
     <div className="revision-layout" data-testid="revision-panel">
       <div className="batch-bar"><span>可批量：中/低危且依据已核验 · {props.batchRefs.length} 项</span><button onClick={props.onBatchConfirm} disabled={!props.batchRefs.length}>批量确认 {props.batchRefs.length} 项</button><small>高危与未核验条目已拆出</small></div>
@@ -210,13 +235,16 @@ export function RevisionPanel(props: RevisionPanelProps) {
         <div className="risk-list"><div className="table-head risk-grid"><span>风险</span><span>等级</span><span>状态</span></div>{props.riskList.risks.map((risk, index) => {
           const gateItem = props.gate?.items.find((item) => item.itemRef === risk.id);
           const disposition = props.dispositions[risk.id];
+          const settled = disposition === 'confirmed' || disposition === 'rejected' ? disposition : undefined;
           return <button className={`dense-row risk-grid ${props.selectedRiskId === risk.id ? 'selected' : ''}`} data-risk-id={risk.id} title={risk.description} key={risk.id} onClick={() => props.onSelectRisk(risk.id)}>
             <SignatureLine tone={riskLineTone(risk.level, disposition, props.unverifiedRiskIds.includes(risk.id))} />
+            <SettlementFlash kind={settled} itemRef={risk.id} testable />
             <span><b className="domain-badge">R{index + 1}</b>{risk.description}</span><span className={`severity severity-${risk.level}`}>{risk.level === 'high' ? '高' : risk.level === 'medium' ? '中' : '低'}</span><span className={`gate-state ${disposition ?? 'pending'}`}>{disposition === 'confirmed' ? '已确认' : disposition === 'rejected' ? '已驳回' : disposition === 'revision' ? '待修正' : gateItem?.mode === 'individual' ? '逐条' : '待确认'}</span>
           </button>;
         })}</div>
         <article className="risk-detail">
-          <SignatureLine tone={riskLineTone(props.selectedRisk.level, props.dispositions[props.selectedRisk.id], props.unverifiedRiskIds.includes(props.selectedRisk.id))} />
+          <SignatureLine tone={riskLineTone(props.selectedRisk.level, selectedDisposition, props.unverifiedRiskIds.includes(props.selectedRisk.id))} />
+          <SettlementFlash kind={selectedSettled} itemRef={props.selectedRisk.id} />
           <header><span className="domain-badge">{props.selectedRisk.id.replace('risk-', 'R')}</span><strong>{selectedGate?.mode === 'individual' ? '逐条确认' : '常规审阅'}</strong><span>{reviewedCount}/{props.selectedRisk.basis.length} 依据已展开</span></header>
           {selectedGate?.reason && <div className="individual-note">{selectedGate.reason === 'high_risk' ? '高危条目不进入批量范围' : '含未核验依据，不进入批量范围'}</div>}
           <p>{props.selectedRisk.description}</p>

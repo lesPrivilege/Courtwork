@@ -175,6 +175,58 @@ test('1600px 以上解锁左右对照', async ({ page }) => {
   await expect(page.getByTestId('split-grid')).toHaveAttribute('data-direction', 'columns');
 });
 
+test('按压态 70ms 且数据卡零位移零缩放', async ({ page }) => {
+  await openWorkbench(page);
+  const action = page.getByRole('button', { name: '整理卷宗', exact: true });
+  const dataCard = page.locator('.data-card').first();
+  await expect(action).toHaveCSS('transition-duration', '0.12s, 0.12s');
+  await action.hover();
+  await page.mouse.down();
+  await expect(action).toHaveCSS('transition-duration', '0.07s, 0.07s');
+  await expect(action).toHaveCSS('background-color', 'rgb(233, 238, 244)');
+  await expect(action).toHaveCSS('transform', 'none');
+  await expect(dataCard).toHaveCSS('transform', 'none');
+  await page.mouse.up();
+});
+
+test('Tab 指示器 100ms、内容与面板 0ms 瞬切', async ({ page }) => {
+  await openWorkbench(page);
+  const matrixTab = page.getByTestId('view-matrix');
+  const indicator = matrixTab.locator('.tab-indicator');
+  await expect(indicator).toHaveCSS('transition-duration', '0.1s');
+  await matrixTab.click();
+  await expect(matrixTab).toHaveAttribute('aria-selected', 'true');
+  await expect(indicator).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
+  await expect(page.locator('.view-content')).toHaveCSS('transition-duration', '0s');
+  await expect(page.locator('.view-content')).toHaveCSS('animation-name', 'none');
+  await expect(page.getByTestId('revision-panel')).toHaveCount(0);
+  await expect(page.getByTestId('matrix-panel')).toBeVisible();
+});
+
+test('确认与驳回本体硬切并叠加 150ms 非对称光效', async ({ page }) => {
+  await openWorkbench(page);
+  const panel = page.getByTestId('revision-panel');
+  const r2 = panel.locator('[data-risk-id="risk-02"]');
+  await r2.click();
+  await panel.getByRole('button', { name: '确认', exact: true }).click();
+  await expect(r2.locator('.gate-state')).toHaveCSS('transition-duration', '0s');
+  const confirmFlash = r2.getByTestId('settle-flash-risk-02');
+  await expect(confirmFlash).toHaveAttribute('data-kind', 'confirmed');
+  await expect(confirmFlash).toHaveAttribute('data-duration', '150');
+
+  const r4 = panel.locator('[data-risk-id="risk-04"]');
+  await r4.click();
+  await panel.getByRole('button', { name: '驳回', exact: true }).click();
+  const rejectFlash = r4.getByTestId('settle-flash-risk-04');
+  await expect(rejectFlash).toHaveAttribute('data-kind', 'rejected');
+  await expect(rejectFlash).toHaveAttribute('data-duration', '150');
+  const timing = await rejectFlash.evaluate((element) => {
+    const animation = element.getAnimations()[0];
+    return animation ? animation.effect?.getComputedTiming().duration : 0;
+  });
+  expect(timing).toBe(150);
+});
+
 test('首启引导始终掩码且不把凭证写入页面存储或运行输出', async ({ page }) => {
   const consoleMessages: string[] = [];
   page.on('console', (message) => consoleMessages.push(message.text()));
@@ -198,8 +250,13 @@ test('首启引导始终掩码且不把凭证写入页面存储或运行输出',
 test('临界用量提供一键续行', async ({ page }) => {
   await openWorkbench(page);
   await expect(page.getByTestId('usage-ring')).toContainText('本阶段用量 91%');
-  await page.getByRole('button', { name: '继续本案工作' }).click();
-  await expect(page.getByText('已开启下一阶段')).toBeVisible();
+  const continuation = page.getByRole('button', { name: '继续本案工作' });
+  await continuation.click();
+  await expect(continuation).toBeVisible();
+  await expect(continuation).toBeDisabled();
+  const note = page.getByText('已开启下一阶段');
+  await expect(note).toBeVisible();
+  await expect(note).toHaveCSS('animation-duration', '0.24s');
 });
 
 test('状态圆盘可展开当前阶段用量明细', async ({ page }) => {

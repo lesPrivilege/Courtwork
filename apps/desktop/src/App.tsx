@@ -276,7 +276,7 @@ export function App() {
         <section className="right-workbench">
           <PanelHead title={comparing ? '工作面对照' : VIEW_LABELS[activeView]} count={comparing ? '双面' : viewCount(activeView, draftFrozen)} />
           <div className="view-tabs" role="tablist" aria-label="结构化工作面">
-            {VIEWS.map((view) => <button key={view} role="tab" aria-selected={activeView === view} className={activeView === view ? 'active' : ''} onClick={() => choosePrimaryView(view)} data-testid={`view-${view}`}>{VIEW_LABELS[view]}</button>)}
+            {VIEWS.map((view) => <button key={view} role="tab" aria-selected={activeView === view} className={activeView === view ? 'active' : ''} onClick={() => choosePrimaryView(view)} data-testid={`view-${view}`}><span>{VIEW_LABELS[view]}</span><i className="tab-indicator" aria-hidden="true" /></button>)}
             <span className="tab-spacer" />
             {!comparing && <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照"><Icon name="compare" />对照</button>}
             {comparing && <>
@@ -299,7 +299,7 @@ export function App() {
         </button>
         {usageOpen && <div className="usage-popover"><strong>本阶段用量</strong><span>卷宗占用 {flow === 'S1' ? '14%' : '62%'}</span><span>对话占用 {flow === 'S1' ? '4%' : '23%'}</span><span>可整理内容 {flow === 'S1' ? '0%' : '6%'}</span></div>}
         <span>摄取余量 <b>1,154</b></span>
-        {usage >= 85 && !continued && <button className="continuation-button" onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>继续本案工作</button>}
+        {usage >= 85 && <button className="continuation-button" disabled={continued} title={continued ? '下一阶段已开启' : '开启下一阶段'} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>继续本案工作</button>}
         {continued && <span className="continued-note" role="status">已开启下一阶段</span>}
         <span className="spacer" />
         <span>{session.failures.length ? '有步骤需要人工处理' : flow === 'S1' ? '摄取进行中 16 / 20' : `${Object.keys(dispositions).length} / 6 项已处置`}</span>
