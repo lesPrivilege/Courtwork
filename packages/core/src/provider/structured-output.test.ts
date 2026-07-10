@@ -88,6 +88,30 @@ describe('generateStructured — json_schema_strict tier (Qwen-like)', () => {
   });
 });
 
+describe('generateStructured — json_schema tier, non-strict (Doubao-like)', () => {
+  it('sends response_format:{type:"json_schema", json_schema:{schema: <converted>}} WITHOUT strict', async () => {
+    let capturedBody: { response_format?: { type: string; json_schema?: { strict?: boolean; schema?: unknown } } } | undefined;
+    const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
+      capturedBody = JSON.parse(init!.body as string);
+      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200 });
+    });
+    await generateStructured({
+      profile: profile('json_schema'),
+      model: 'm',
+      messages: [{ role: 'user', content: 'go' }],
+      responseSchema: TestSchema,
+      maxValidationRetries: 2,
+      httpConfig: httpConfig(fetchImpl as unknown as typeof fetch),
+    });
+    expect(capturedBody?.response_format?.type).toBe('json_schema');
+    expect(capturedBody?.response_format?.json_schema?.strict).toBeUndefined();
+    expect(capturedBody?.response_format?.json_schema?.schema).toMatchObject({
+      type: 'object',
+      properties: { greeting: { type: 'string' }, count: { type: 'number' } },
+    });
+  });
+});
+
 describe('generateStructured — retry with feedback on invalid JSON', () => {
   it('retries with the previous output + a correction message when the first attempt is not valid JSON, and succeeds on the second', async () => {
     let call = 0;
@@ -217,9 +241,16 @@ describe('generateStructured — zod→JSON Schema conversion failure falls back
 });
 
 describe('generateStructured — returns the fence-stripped content, not the raw fenced text', () => {
-  it('when the model wraps valid JSON in a markdown fence despite instructions, the returned content is the stripped, directly-JSON.parse-able string', async () => {
+  it('when the model wraps valid JSON in a markdown fence despite instructions, the returned content is the stripped, directly-JSON.parse-able string, and reasoningContent/usage are preserved', async () => {
     const fencedPayload = '```json\n' + JSON.stringify({ greeting: 'hi', count: 1 }) + '\n```';
-    const fetchImpl = vi.fn(async () => new Response(rawSseBody(fencedPayload), { status: 200 }));
+    const fetchImpl = vi.fn(async () =>
+      new Response(
+        `data: ${JSON.stringify({ choices: [{ delta: { content: fencedPayload, reasoning_content: 'because' } }] })}\n\n` +
+          `data: ${JSON.stringify({ choices: [], usage: { prompt_tokens: 3, completion_tokens: 2 } })}\n\n` +
+          'data: [DONE]\n\n',
+        { status: 200 },
+      ),
+    );
     const result = await generateStructured({
       profile: profile('json_object'),
       model: 'm',
@@ -228,8 +259,11 @@ describe('generateStructured — returns the fence-stripped content, not the raw
       maxValidationRetries: 2,
       httpConfig: httpConfig(fetchImpl),
     });
-    // 这一句必须能直接 JSON.parse 成功——如果 result.content 还带着代码围栏，这里会抛出。
     expect(JSON.parse(result.content)).toEqual({ greeting: 'hi', count: 1 });
     expect(result.content).not.toMatch(/```/);
+    // 锁定 { ...result, content: cleaned } 的 spread 不会漏掉这两个字段——
+    // 这正是之前那个 bug 的同一类回归（success 分支返回值丢字段）。
+    expect(result.reasoningContent).toBe('because');
+    expect(result.usage).toEqual({ inputTokens: 3, outputTokens: 2 });
   });
 });
