@@ -1,6 +1,59 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；**composer 输入区整备完成（2026-07-10，Grok 4.5 实现）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；**D-1 真机三缺陷修复完成（2026-07-11）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
+
+## D-1 真机实测三缺陷修复（2026-07-11）
+
+### 1. 模型连接状态 — 探针驱动三态
+
+| phase | UI 文案 | 条件 |
+|---|---|---|
+| `pending` | 待连接 | 未配置 |
+| `connected` | 已连接 | 钥匙串/内存读取成功 + 格式校验（粘贴 ≥8 字） |
+| `failed` | 连接失败 | 授权拒绝 / 格式非法；title 附「钥匙串授权未通过…」等零技术文案 |
+
+- 任何路径不得乐观默认已连接；`save` 失败不关对话框、不写 connected。
+- Playwright 三分支 + 短凭证失败：`tests/e2e/d1-case-scope.spec.ts`；Vitest：`credentials/client.test.ts`。
+- 测试注入：`window.__CW_FORCE_CREDENTIAL__` / `__courtworkCredentials`（非 demo 装配）。
+
+### 2. demo 语料容器隔离
+
+- `isDemo` / `DEMO_CASE_ID` 标记样板案；角标「样板案·演示」。
+- `DEMO_ARTIFACTS` **仅** demo 容器回落；非 demo 工作面/对话为空态虚线框。
+- 新建案件 `isDemo: false`，不绑定 demo 根路径。
+
+### 3. 溢出全局审计与修复
+
+| 控件 | 修复 |
+|---|---|
+| 归档 popover 案名 | `.archive-case-title.truncate` + title tooltip |
+| 归档按钮 | 固定 20×20 icon，title 含全案名 |
+| 标题栏案名/案号 | activeCase 派生 + truncate |
+| 工具栏阶段 crumb | max-width + truncate |
+| 凭证按钮 | max-width 200px ellipsis |
+| 阶段行 | 主文案 flex truncate |
+| 附件 chip / 用户消息文件名 | max-width + ellipsis |
+| 数据卡/矩阵/时间线 | 既有 de-slop #11 保留 |
+
+### 4. 死路由 / 容器作用域审计
+
+权威表：`src/case/case-scope.ts` → `CASE_SCOPE_AUDIT`。
+
+| 符号 | 定性 | 处置 |
+|---|---|---|
+| `DEMO_ARTIFACTS ??` 渲染回落 | 死路由 | 仅 `isDemoCase` 时回落 |
+| `caseRoot ?? DEMO_CASE_ROOT` | 死路由 | `resolveCaseRoot` 非 demo 不回落 |
+| `DEMO_OUTPUT_*` 直读 | 死路由 | `caseOutputDir(caseRoot)` 派生 |
+| 标题栏硬编码临江案 | 死路由 | `selectedCase.title` |
+| `flow` / `session` / 处置态 | 应派生 | `selectedCaseId` 切换整体 `__clear__` + 重置 |
+| `createDemoClient` 单例 | 合法全局 | 仅 demo 调 replay |
+| 凭证 browserStatus | 合法全局 | 本机域非案件域 |
+
+**容器切换矩阵**（Playwright）：demo(A) 有状态 → 新建 B 零继承 → 回 A 恢复 → 再进 B 仍空。
+
+截图：`visual-audit/22-d1-credential-failed-1440.png` / `23-d1-new-case-empty-1440.png`。
+
+验证：desktop Vitest 45；Playwright **67/67**；假绿下限 67。
 
 ## 定位
 

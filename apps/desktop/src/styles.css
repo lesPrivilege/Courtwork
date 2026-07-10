@@ -104,11 +104,21 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .rail-add-button { width: 22px; height: 22px; display: grid; place-items: center; padding: 0; border: 1px solid var(--border-strong); border-radius: 4px; background: #fff; cursor: pointer; }
 .rail-add-button:hover { background: var(--bg-hover); }
 .rail-add-button .line-icon { width: 14px; height: 14px; }
-.case-archive-button { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; opacity: 0; transition: opacity var(--motion-hover) ease-out, background-color var(--motion-hover) ease-out; }
+.case-archive-button { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; opacity: 0; transition: opacity var(--motion-hover) ease-out, background-color var(--motion-hover) ease-out; flex: none; }
 .case-card:hover .case-archive-button, .case-card:focus-within .case-archive-button { opacity: 1; }
 .case-archive-button:hover { border-color: var(--border-strong); background: var(--bg-hover); }
-.archive-popover { position: absolute; z-index: 5; top: 100%; right: 6px; width: 220px; margin-top: 4px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff; color: var(--text-secondary); font-size: 12px; line-height: 1.55; animation: overlay-in var(--motion-overlay) var(--motion-overlay-ease) both; }
-.archive-popover footer { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+.archive-popover { position: absolute; z-index: 5; top: 100%; right: 6px; width: min(240px, calc(100vw - 48px)); margin-top: 4px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff; color: var(--text-secondary); font-size: 12px; line-height: 1.55; animation: overlay-in var(--motion-overlay) var(--motion-overlay-ease) both; }
+.archive-popover p { margin: 0; display: flex; flex-wrap: wrap; gap: 0 2px; max-width: 100%; }
+.archive-case-title { display: inline-block; max-width: 100%; vertical-align: bottom; }
+.archive-popover footer { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; min-width: 0; }
+.archive-popover footer .primary-button { max-width: 120px; }
+.demo-badge { flex: none; padding: 1px 6px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--text-tertiary); font-size: 11px; white-space: nowrap; }
+.case-demo-badge { position: absolute; top: 6px; left: 6px; opacity: 0.9; }
+.credential-button { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toolbar strong { min-width: 0; max-width: 280px; }
+.titlebar .case-number { max-width: 160px; }
+.user-message-attachments span { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
+.attachment-chip, .composer-chip { max-width: 200px; }
 @keyframes overlay-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
 .palette-backdrop { align-items: flex-start; padding-top: 96px; }
@@ -142,10 +152,11 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .original-hash { color: var(--text-tertiary); font-size: 10px; }
 .originals-list li { grid-template-columns: 1fr auto auto; }
 .rail-label { margin: 12px 8px 4px; color: var(--text-tertiary); font-size: 12px; }
-.stage-row { width: 100%; min-height: 32px; display: flex; align-items: center; gap: 7px; padding: 6px 8px; border: 0; border-radius: 4px; background: transparent; cursor: pointer; font-size: 13px; text-align: left; }
+.stage-row { width: 100%; min-width: 0; min-height: 32px; display: flex; align-items: center; gap: 7px; padding: 6px 8px; border: 0; border-radius: 4px; background: transparent; cursor: pointer; font-size: 13px; text-align: left; }
 .stage-row:hover { background: var(--bg-hover); }
 .stage-row.selected { background: var(--bg-selected); font-weight: 510; }
-.stage-row span { margin-left: auto; color: var(--text-tertiary); font: 12px/1.5 var(--mono); font-variant-numeric: tabular-nums; }
+.stage-row > .truncate { flex: 1; min-width: 0; }
+.stage-row > span:last-child { margin-left: auto; flex: none; color: var(--text-tertiary); font: 12px/1.5 var(--mono); font-variant-numeric: tabular-nums; }
 .rail-footer { height: 32px; padding: 6px 12px; border-top: 1px solid var(--border); color: var(--text-tertiary); font-size: 12px; }
 
 .conversation { background: var(--bg-surface); }

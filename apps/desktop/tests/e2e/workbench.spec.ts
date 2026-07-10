@@ -332,7 +332,8 @@ test('首启引导始终掩码且不把凭证写入页面存储或运行输出',
   await input.fill(secret);
   await dialog.getByRole('button', { name: '完成连接' }).click();
   await expect(dialog).toBeHidden();
-  await expect(page.getByRole('button', { name: /模型服务 · 已连接/ })).toBeVisible();
+  await expect(page.getByTestId('credential-status-button')).toHaveAttribute('data-phase', 'connected');
+  await expect(page.getByTestId('credential-status-button')).toContainText('已连接');
   const browserStorage = await page.evaluate(() => JSON.stringify({ local: { ...localStorage }, session: { ...sessionStorage } }));
   expect(browserStorage).not.toContain(secret);
   expect(consoleMessages.join('\n')).not.toContain(secret);

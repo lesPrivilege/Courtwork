@@ -1,7 +1,11 @@
 import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/schemas';
 import { ProviderSetup } from './credentials/ProviderSetup';
-import { credentialClient, type CredentialStatus } from './credentials/client';
+import {
+  connectionLabel,
+  credentialClient,
+  type CredentialStatus,
+} from './credentials/client';
 import { createDemoClient } from './demo/client';
 import { DEMO_ARTIFACTS } from './demo/recordings';
 import {
@@ -10,14 +14,24 @@ import {
   type ReviewDispositionState,
   type ReviewGateProjection,
   type ScenarioFlow,
+  type SessionProjection,
 } from './protocol/client';
+import type { SessionEvent } from '@courtwork/core';
 import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, type ComposerSendPayload } from './composer';
 import { ArchiveConfirmPopover } from './case/ArchiveConfirmPopover';
+import {
+  caseOutputDir,
+  caseOutputDocx,
+  createDemoCaseSummary,
+  DEMO_CASE_ID,
+  isDemoCaseId,
+  resolveCaseRoot,
+  stageLabel,
+} from './case/case-scope';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
-import { DEMO_CASE_ROOT, DEMO_OUTPUT_DIR, DEMO_OUTPUT_DOCX } from './system/demo-case-layout';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { OriginalsZone } from './system/OriginalsZone';
 import { systemOpenClient } from './system/system-open-client';
@@ -51,14 +65,14 @@ const VIEW_LABELS: Record<WorkbenchView, string> = {
 
 const VIEWS = Object.keys(VIEW_LABELS) as WorkbenchView[];
 
-const DEMO_CASE: CaseSummary = {
-  id: 'demo-linjiang',
-  title: '临江精铸 诉 起云智能 设备采购合同纠纷',
-  caseNumber: '(2025)云章03民初472号',
-  fileCount: 20,
-  archived: false,
-  folderPath: DEMO_CASE_ROOT,
-};
+const DEMO_CASE = createDemoCaseSummary();
+
+type SessionAction = SessionEvent | { type: '__clear__' };
+
+function reduceSession(state: SessionProjection, action: SessionAction): SessionProjection {
+  if (action.type === '__clear__') return EMPTY_SESSION;
+  return projectSession(state, action);
+}
 
 function useWideSplitAvailable() {
   const [available, setAvailable] = useState(() => window.innerWidth >= 1600);
@@ -73,8 +87,9 @@ function useWideSplitAvailable() {
 }
 
 export function App() {
-  const [flow, setFlow] = useState<ScenarioFlow>('S3');
-  const [session, dispatch] = useReducer(projectSession, EMPTY_SESSION);
+  /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
+  const [flow, setFlow] = useState<ScenarioFlow | null>('S3');
+  const [session, dispatch] = useReducer(reduceSession, EMPTY_SESSION);
   const [activeView, setActiveView] = useState<WorkbenchView>('revision');
   const [secondaryView, setSecondaryView] = useState<WorkbenchView>();
   const [splitDirection, setSplitDirection] = useState<SplitDirection>('rows');
@@ -89,7 +104,7 @@ export function App() {
   const [compileOpen, setCompileOpen] = useState(false);
   const [draftFrozen, setDraftFrozen] = useState(false);
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
-  const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>();
+  const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ phase: 'pending' });
   const [providerSetupOpen, setProviderSetupOpen] = useState(true);
   const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[] }>>([]);
   const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
@@ -106,8 +121,9 @@ export function App() {
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const wideSplitAvailable = useWideSplitAvailable();
   const openedAt = useRef<Record<string, number>>({});
-  const lastReplayedFlow = useRef<ScenarioFlow | undefined>(undefined);
+  const lastReplayedFlow = useRef<ScenarioFlow | null | undefined>(undefined);
   const resolvedRequest = useRef<string | undefined>(undefined);
+  const prevCaseId = useRef(selectedCaseId);
 
   const showSystemFeedback = (message: string, ok: boolean) => {
     setSystemFeedback({ message, ok });
@@ -126,23 +142,65 @@ export function App() {
     ]);
   };
 
-  useEffect(() => {
+  const probeCredentials = () => {
     void credentialClient.status().then((status) => {
       setCredentialStatus(status);
-      setProviderSetupOpen(!status.configured);
+      // 仅 pending 时强制首启；failed/connected 不乐观改开
+      if (status.phase === 'pending') setProviderSetupOpen(true);
     });
+  };
+
+  useEffect(() => {
+    probeCredentials();
+    const onProbe = () => probeCredentials();
+    window.addEventListener('courtwork-credential-probe', onProbe);
+    return () => window.removeEventListener('courtwork-credential-probe', onProbe);
   }, []);
 
   useEffect(() => {
     if (!wideSplitAvailable && splitDirection === 'columns') setSplitDirection('rows');
   }, [splitDirection, wideSplitAvailable]);
 
+  // —— 容器切换：案件域状态整体重派生（D-1）——
   useEffect(() => {
+    if (prevCaseId.current === selectedCaseId) return;
+    prevCaseId.current = selectedCaseId;
+
+    setGate(undefined);
+    setExpandedEvidence({});
+    setDispositions({});
+    setReviewSubmitted(false);
+    setContinued(false);
+    setLocalMessages([]);
+    setWorkDraftMode(false);
+    setFileOpsMode(false);
+    setDraftFrozen(false);
+    setDraft(INITIAL_DRAFT);
+    setCompileOpen(false);
+    setSelectedRiskId('risk-03');
+    setSecondaryView(undefined);
+    setActiveView('revision');
+    setUsageOpen(false);
+    resolvedRequest.current = undefined;
+    openedAt.current = {};
+    lastReplayedFlow.current = undefined;
+    dispatch({ type: '__clear__' });
+
+    if (isDemoCaseId(selectedCaseId)) {
+      setFlow('S3');
+    } else {
+      setFlow(null);
+    }
+  }, [selectedCaseId]);
+
+  // demo 容器才回放录制；非 demo 永不注入 DEMO_ARTIFACTS
+  useEffect(() => {
+    if (!isDemoCaseId(selectedCaseId) || !flow) return;
     if (lastReplayedFlow.current === flow) return;
     lastReplayedFlow.current = flow;
     setLocalMessages([]);
-    void client.replay(flow, dispatch);
-  }, [flow]);
+    void client.replay(flow, (event) => dispatch(event));
+  }, [flow, selectedCaseId]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -181,9 +239,10 @@ export function App() {
   }, [session.confirmation]);
 
   useEffect(() => {
+    if (!isDemoCaseId(selectedCaseId)) return;
     openedAt.current[selectedRiskId] = Date.now();
     client.emitReviewTelemetry({ type: 'review_item_opened', sessionId: 'demo-s3', itemRef: selectedRiskId, emittedAt: new Date().toISOString() });
-  }, [selectedRiskId]);
+  }, [selectedRiskId, selectedCaseId]);
 
   useEffect(() => {
     const requestId = session.confirmation?.requestId;
@@ -197,29 +256,58 @@ export function App() {
     void client.confirmation.resolve(requestId, resolution).then(() => setReviewSubmitted(true));
   }, [dispositions, gate, session.confirmation]);
 
-  const riskList = (session.artifacts.RiskList ?? DEMO_ARTIFACTS.riskList) as RiskList;
-  const timeline = (session.artifacts.Timeline ?? DEMO_ARTIFACTS.timeline) as Timeline;
-  const graph = (session.artifacts.PartyGraph ?? DEMO_ARTIFACTS.partyGraph) as PartyGraph;
-  const matrix = (session.artifacts.ReviewMatrix ?? DEMO_ARTIFACTS.reviewMatrix) as ReviewMatrix;
-  const selectedRisk = riskList.risks.find((risk) => risk.id === selectedRiskId) ?? riskList.risks[0];
+  const selectedCase = cases.find((item) => item.id === selectedCaseId) ?? cases[0];
+  const isDemoCase = Boolean(selectedCase.isDemo) || isDemoCaseId(selectedCase.id);
+  const caseRoot = resolveCaseRoot(selectedCase);
+  // demo 语料只属于 demo 容器——禁止 `?? DEMO_ARTIFACTS` 污染真实案件
+  const riskList = (
+    isDemoCase
+      ? (session.artifacts.RiskList ?? DEMO_ARTIFACTS.riskList)
+      : session.artifacts.RiskList
+  ) as RiskList | undefined;
+  const timeline = (
+    isDemoCase
+      ? (session.artifacts.Timeline ?? DEMO_ARTIFACTS.timeline)
+      : session.artifacts.Timeline
+  ) as Timeline | undefined;
+  const graph = (
+    isDemoCase
+      ? (session.artifacts.PartyGraph ?? DEMO_ARTIFACTS.partyGraph)
+      : session.artifacts.PartyGraph
+  ) as PartyGraph | undefined;
+  const matrix = (
+    isDemoCase
+      ? (session.artifacts.ReviewMatrix ?? DEMO_ARTIFACTS.reviewMatrix)
+      : session.artifacts.ReviewMatrix
+  ) as ReviewMatrix | undefined;
+  const selectedRisk = riskList?.risks.find((risk) => risk.id === selectedRiskId) ?? riskList?.risks[0];
   const gradeByKey = useMemo(() => new Map(session.evidenceGrades.map((item) => [item.key, item.grade])), [session.evidenceGrades]);
-  const selectedGate = gate?.items.find((item) => item.itemRef === selectedRisk.id);
+  const selectedGate = selectedRisk ? gate?.items.find((item) => item.itemRef === selectedRisk.id) : undefined;
   const selectedGrades = selectedGate?.evidenceKeys.map((key) => gradeByKey.get(key)).filter((value): value is 'A' | 'B' | 'C' => Boolean(value)) ?? [];
   const unverifiedRiskIds = gate?.items
     .filter((item) => item.evidenceKeys.some((key) => gradeByKey.get(key) === 'C'))
     .map((item) => item.itemRef) ?? [];
-  const allEvidenceOpened = selectedRisk.basis.every((_, index) => expandedEvidence[`${selectedRisk.id}:${index}`]);
+  const allEvidenceOpened = selectedRisk
+    ? selectedRisk.basis.every((_, index) => expandedEvidence[`${selectedRisk.id}:${index}`])
+    : false;
   const individualReady = selectedGate?.mode !== 'individual' || allEvidenceOpened;
   const batchRefs = gate?.items.filter((item) => item.mode === 'batch').map((item) => item.itemRef) ?? [];
   const comparing = secondaryView !== undefined;
-  const usage = flow === 'S3' ? 91 : 18;
-  const selectedCase = cases.find((item) => item.id === selectedCaseId) ?? cases[0];
-  const isDemoCase = selectedCase.id === DEMO_CASE.id;
-  const caseRoot = selectedCase.folderPath ?? DEMO_CASE_ROOT;
+  const usage = isDemoCase ? (flow === 'S3' ? 91 : 18) : 0;
 
   const createCase = ({ title, fileCount }: { title: string; fileCount: number }) => {
-    const newId = `case-${cases.length}-${title}`;
-    setCases((current) => [...current, { id: newId, title, fileCount, archived: false, folderPath: `${DEMO_CASE_ROOT}-新建/${title}` }]);
+    const newId = `case-${Date.now()}-${title}`;
+    setCases((current) => [
+      ...current,
+      {
+        id: newId,
+        title,
+        fileCount,
+        archived: false,
+        folderPath: undefined,
+        isDemo: false,
+      },
+    ]);
     setSelectedCaseId(newId);
     setNewCaseOpen(false);
   };
@@ -230,24 +318,31 @@ export function App() {
   };
 
   const openOutputFolder = () => {
-    void systemOpenClient.revealInFolder(DEMO_OUTPUT_DIR, caseRoot).then((feedback) => {
+    if (!caseRoot) {
+      showSystemFeedback('本案尚未绑定文件夹', false);
+      return;
+    }
+    void systemOpenClient.revealInFolder(caseOutputDir(caseRoot), caseRoot).then((feedback) => {
       showSystemFeedback(feedback.message, feedback.ok);
     });
   };
 
   const revealOutputDocx = () => {
-    void systemOpenClient.revealInFolder(DEMO_OUTPUT_DOCX, caseRoot).then((feedback) => {
+    if (!caseRoot) return;
+    void systemOpenClient.revealInFolder(caseOutputDocx(caseRoot), caseRoot).then((feedback) => {
       showSystemFeedback(feedback.message, feedback.ok);
     });
   };
 
   const openOutputDocx = () => {
-    void systemOpenClient.openFile(DEMO_OUTPUT_DOCX, caseRoot).then((feedback) => {
+    if (!caseRoot) return;
+    void systemOpenClient.openFile(caseOutputDocx(caseRoot), caseRoot).then((feedback) => {
       showSystemFeedback(feedback.message, feedback.ok);
     });
   };
 
   const selectFlow = (next: ScenarioFlow) => {
+    if (!isDemoCase) return; // 非 demo 不注入样板场景
     setFlow(next);
     setActiveView(next === 'S1' ? 'timeline' : 'revision');
     setWorkDraftMode(false);
@@ -319,22 +414,40 @@ export function App() {
     setDispositions((current) => Object.fromEntries([...Object.entries(current), ...batchRefs.map((ref) => [ref, 'confirmed' as const])]));
   };
 
+  const emptyWorkbench = (hint: string) => (
+    <div className="empty-state" role="status" data-testid="case-empty-state">{hint}</div>
+  );
+
   const renderView = (view: WorkbenchView) => {
     if (fileOpsMode) {
+      if (!isDemoCase) {
+        return emptyWorkbench(`${selectedCase.title} · 整理计划将在拖入未归档文件后生成`);
+      }
       return <FileOpsPlanPanel caseId={selectedCase.id} onFeedback={showSystemFeedback} />;
     }
-    if (!isDemoCase) return <div className="empty-state" role="status">{selectedCase.title} 刚建立，尚无卷宗内容 · 从对话或场景开始整理</div>;
-    if (view === 'timeline') return <TimelinePanel timeline={timeline} grade={session.evidenceGrades[0]?.grade} />;
-    if (view === 'graph') return <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
-      <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />
-    </Suspense>;
-    if (view === 'matrix') return <MatrixPanel matrix={matrix} />;
+    if (!isDemoCase) {
+      return emptyWorkbench(`${selectedCase.title} 刚建立，尚无卷宗内容 · 从对话或场景开始整理`);
+    }
+    if (view === 'timeline') {
+      if (!timeline) return emptyWorkbench('时间线尚未生成');
+      return <TimelinePanel timeline={timeline} grade={session.evidenceGrades[0]?.grade} />;
+    }
+    if (view === 'graph') {
+      if (!graph) return emptyWorkbench('关系图谱尚未生成');
+      return <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
+        <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />
+      </Suspense>;
+    }
+    if (view === 'matrix') {
+      if (!matrix) return emptyWorkbench('矩阵审阅尚未生成');
+      return <MatrixPanel matrix={matrix} />;
+    }
     if (view === 'draft') {
       if (workDraftMode) {
         return (
           <WorkDraftPanel
             caseId={selectedCase.id}
-            caseRoot={caseRoot}
+            caseRoot={caseRoot ?? ''}
             onFeedback={showSystemFeedback}
           />
         );
@@ -349,6 +462,7 @@ export function App() {
         />
       );
     }
+    if (!riskList || !selectedRisk) return emptyWorkbench('修订预览尚未生成');
     return <RevisionPanel
       riskList={riskList}
       selectedRisk={selectedRisk}
@@ -378,14 +492,22 @@ export function App() {
   </section>;
 
   const paletteCommands: PaletteCommand[] = [
-    { id: 'scene-s1', section: '场景', label: '整理卷宗', onRun: () => { selectFlow('S1'); setPaletteOpen(false); } },
-    { id: 'scene-s3', section: '场景', label: '审查合同', onRun: () => { selectFlow('S3'); setPaletteOpen(false); } },
+    ...(isDemoCase
+      ? [
+          { id: 'scene-s1', section: '场景', label: '整理卷宗', onRun: () => { selectFlow('S1'); setPaletteOpen(false); } },
+          { id: 'scene-s3', section: '场景', label: '审查合同', onRun: () => { selectFlow('S3'); setPaletteOpen(false); } },
+          { id: 'scene-s6', section: '场景', label: '卷宗整理', onRun: () => { openFileOps(); setPaletteOpen(false); } },
+        ]
+      : []),
     { id: 'scene-draft', section: '场景', label: '起草答辩状', onRun: () => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); setPaletteOpen(false); } },
-    { id: 'scene-s6', section: '场景', label: '卷宗整理', onRun: () => { openFileOps(); setPaletteOpen(false); } },
     ...cases.map((item) => ({
       id: `case-${item.id}`,
       section: '案件',
-      label: item.archived ? `${item.title}（已归档）` : item.title,
+      label: item.archived
+        ? `${item.title}（已归档）`
+        : item.isDemo || isDemoCaseId(item.id)
+          ? `${item.title}（样板案·演示）`
+          : item.title,
       onRun: () => { setSelectedCaseId(item.id); setPaletteOpen(false); },
     })),
     { id: 'action-new-case', section: '操作', label: '新建案件', onRun: () => { setPaletteOpen(false); setNewCaseOpen(true); } },
@@ -415,8 +537,11 @@ export function App() {
       <header className="titlebar">
         <div className="brand"><img src="/courtwork-mark.svg" alt="" />Courtwork</div>
         <span className="bar-divider" />
-        <strong className="truncate" title="临江精铸 诉 起云智能 设备采购合同纠纷">临江精铸 诉 起云智能 设备采购合同纠纷</strong>
-        <span className="case-number">(2025)云章03民初472号</span>
+        <strong className="truncate" title={selectedCase.title} data-testid="titlebar-case-title">{selectedCase.title}</strong>
+        {selectedCase.caseNumber && (
+          <span className="case-number truncate" title={selectedCase.caseNumber}>{selectedCase.caseNumber}</span>
+        )}
+        {isDemoCase && <span className="demo-badge" data-testid="demo-case-badge">样板案·演示</span>}
         <span className="spacer" />
         <button type="button" className="shortcut shortcut-trigger" onClick={() => setPaletteOpen(true)}>
           <kbd>⌘</kbd><kbd>K</kbd> 场景与检索
@@ -425,9 +550,17 @@ export function App() {
 
       <nav className="toolbar" aria-label="工作台工具栏">
         <span>案件</span><span className="crumb-sep">›</span>
-        <strong>{flow === 'S1' ? '阶段一 · 阅卷整理' : '阶段二 · 合同审查'}</strong>
+        <strong className="truncate" title={stageLabel(flow, isDemoCase)} data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</strong>
         <span className="spacer" />
-        <button className="quiet-button credential-button" onClick={() => setProviderSetupOpen(true)} title="配置文书助手"><Icon name="cog" />模型服务 · {credentialStatus?.configured ? '已连接' : '待连接'}</button>
+        <button
+          className="quiet-button credential-button"
+          onClick={() => setProviderSetupOpen(true)}
+          title={credentialStatus.failureMessage ?? '配置文书助手'}
+          data-testid="credential-status-button"
+          data-phase={credentialStatus.phase}
+        >
+          <Icon name="cog" />模型服务 · {connectionLabel(credentialStatus)}
+        </button>
         <button className="quiet-button" disabled title="审阅记录 · 待生成">审阅记录</button>
         <button className="primary-button" disabled title="导出审阅稿 · 待完成文书生成">导出审阅稿</button>
       </nav>
@@ -443,17 +576,23 @@ export function App() {
             <PanelHead title="案件" count={String(cases.length)} action={<button className="rail-add-button" onClick={() => setNewCaseOpen(true)} data-testid="new-case-open" aria-label="新建案件" title="新建案件"><Icon name="plus" /></button>} />
             <div className="case-scroll">
               {cases.map((item) => (
-                <article key={item.id} className={`case-card ${item.id === selectedCaseId ? 'selected' : ''} ${item.archived ? 'archived' : ''}`} data-testid={`case-card-${item.id}`}>
+                <article key={item.id} className={`case-card ${item.id === selectedCaseId ? 'selected' : ''} ${item.archived ? 'archived' : ''}`} data-testid={`case-card-${item.id}`} data-demo={item.isDemo || isDemoCaseId(item.id) ? 'true' : 'false'}>
                   <button className="case-card-select" onClick={() => setSelectedCaseId(item.id)}>
                     <strong className="truncate" title={item.title}>{item.title}</strong>
-                    {item.caseNumber && <span className="case-number">{item.caseNumber}</span>}
-                    <span>卷宗 {item.fileCount} 件{item.archived ? ' · 已归档' : ''}</span>
+                    {item.caseNumber && <span className="case-number truncate" title={item.caseNumber}>{item.caseNumber}</span>}
+                    <span className="truncate">
+                      卷宗 {item.fileCount} 件{item.archived ? ' · 已归档' : ''}
+                      {(item.isDemo || isDemoCaseId(item.id)) ? ' · 样板案·演示' : ''}
+                    </span>
                   </button>
+                  {(item.isDemo || isDemoCaseId(item.id)) && (
+                    <span className="demo-badge case-demo-badge" title="样板案·演示">演示</span>
+                  )}
                   <button
                     className="case-archive-button"
                     onClick={() => setArchiveConfirmCaseId(item.id)}
-                    aria-label={item.archived ? '取消归档' : '归档'}
-                    title={item.archived ? '取消归档' : '归档'}
+                    aria-label={item.archived ? `取消归档 ${item.title}` : `归档 ${item.title}`}
+                    title={item.archived ? `取消归档：${item.title}` : `归档：${item.title}`}
                     data-testid="archive-trigger"
                   >
                     <ArchiveGlyph />
@@ -470,9 +609,9 @@ export function App() {
               ))}
               {isDemoCase && <>
                 <p className="rail-label">阶段</p>
-                <button className={`stage-row ${flow === 'S1' ? 'selected' : ''}`} onClick={() => selectFlow('S1')} data-testid="flow-s1"><Icon name="panels-top-left" />阶段一 · 阅卷整理<span>已归档</span></button>
-                <button className={`stage-row ${flow === 'S3' ? 'selected' : ''}`} onClick={() => selectFlow('S3')} data-testid="flow-s3"><Icon name="panels-top-left" />阶段二 · 合同审查<span>{Object.keys(dispositions).length}/6</span></button>
-                <OriginalsZone caseRoot={caseRoot} onFeedback={showSystemFeedback} />
+                <button className={`stage-row ${flow === 'S1' ? 'selected' : ''}`} onClick={() => selectFlow('S1')} data-testid="flow-s1"><Icon name="panels-top-left" /><span className="truncate">阶段一 · 阅卷整理</span><span>已归档</span></button>
+                <button className={`stage-row ${flow === 'S3' ? 'selected' : ''}`} onClick={() => selectFlow('S3')} data-testid="flow-s3"><Icon name="panels-top-left" /><span className="truncate">阶段二 · 合同审查</span><span>{Object.keys(dispositions).length}/6</span></button>
+                {caseRoot && <OriginalsZone caseRoot={caseRoot} onFeedback={showSystemFeedback} />}
                 <p className="rail-label">工作稿</p>
                 <button
                   type="button"
@@ -498,7 +637,7 @@ export function App() {
             {cases.map((item) => (
               <button key={item.id} aria-label={item.title} title={item.title} onClick={() => setSelectedCaseId(item.id)}>
                 <Icon name="briefcase-business" />
-                {item.id === DEMO_CASE.id && <span className="unread-count">1</span>}
+                {(item.isDemo || isDemoCaseId(item.id)) && item.id === selectedCaseId && <span className="unread-count">1</span>}
               </button>
             ))}
             {isDemoCase && <>
@@ -509,9 +648,9 @@ export function App() {
         </aside>}
 
         {!focusMode && <section className="conversation">
-          <PanelHead title="对话" count={flow === 'S1' ? '本阶段 3 轮' : '本阶段 6 轮'} shortcut="J K 逐条" />
+          <PanelHead title="对话" count={isDemoCase ? (flow === 'S1' ? '本阶段 3 轮' : '本阶段 6 轮') : '尚无'} shortcut="J K 逐条" />
           <div className="conversation-scroll">
-            {!isDemoCase && <div className="empty-state" role="status">{selectedCase.title} 刚建立，尚无对话记录 · 从场景按钮开始</div>}
+            {!isDemoCase && <div className="empty-state" role="status" data-testid="conversation-empty">{selectedCase.title} 刚建立，尚无对话记录 · 从场景按钮开始</div>}
             {isDemoCase && <>
             <div className="user-message">{flow === 'S1' ? '整理全套卷宗，标出事件矛盾并核对当事人关系。' : '审查这份设备采购合同，重点看付款、验收与违约责任。'}</div>
             <article className="data-card">
@@ -555,16 +694,18 @@ export function App() {
             ))}
           </div>
           <div className="scene-strip">
-            <button onClick={() => selectFlow('S1')}>整理卷宗</button>
-            <button onClick={() => selectFlow('S3')}>审查合同</button>
-            <button type="button" data-testid="scene-file-ops" onClick={openFileOps}>卷宗整理</button>
+            {isDemoCase && <>
+              <button onClick={() => selectFlow('S1')}>整理卷宗</button>
+              <button onClick={() => selectFlow('S3')}>审查合同</button>
+              <button type="button" data-testid="scene-file-ops" onClick={openFileOps}>卷宗整理</button>
+            </>}
             <button onClick={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); }}>起草答辩状</button>
           </div>
           <Composer onSend={handleComposerSend} />
         </section>}
 
         <section className="right-workbench">
-          <PanelHead title={comparing ? '工作面对照' : VIEW_LABELS[activeView]} count={comparing ? '双面' : viewCount(activeView, draftFrozen)} />
+          <PanelHead title={comparing ? '工作面对照' : VIEW_LABELS[activeView]} count={comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)} />
           <div className="view-tabs" role="tablist" aria-label="结构化工作面">
             {VIEWS.map((view) => <button key={view} role="tab" aria-selected={activeView === view} className={activeView === view ? 'active' : ''} onClick={() => choosePrimaryView(view)} data-testid={`view-${view}`}><span>{VIEW_LABELS[view]}</span><i className="tab-indicator" aria-hidden="true" /></button>)}
             <span className="tab-spacer" />
@@ -597,10 +738,10 @@ export function App() {
         <button className="usage-button" onClick={() => setUsageOpen((open) => !open)} aria-expanded={usageOpen} data-testid="usage-ring">
           <span className={`usage-ring ${usage >= 85 ? 'critical' : ''}`} style={{ '--usage': `${usage}%` } as React.CSSProperties} />本阶段用量 {usage}%
         </button>
-        {usageOpen && <div className="usage-popover"><strong>本阶段用量</strong><span>卷宗占用 {flow === 'S1' ? '14%' : '62%'}</span><span>对话占用 {flow === 'S1' ? '4%' : '23%'}</span><span>可整理内容 {flow === 'S1' ? '0%' : '6%'}</span></div>}
-        <span>摄取余量 <b>1,154</b></span>
-        {usage >= 85 && <button className="continuation-button" disabled={continued} title={continued ? '下一阶段已开启' : '开启下一阶段'} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>继续本案工作</button>}
-        {continued && <span className="continued-note" role="status">已开启下一阶段</span>}
+        {usageOpen && isDemoCase && <div className="usage-popover"><strong>本阶段用量</strong><span>卷宗占用 {flow === 'S1' ? '14%' : '62%'}</span><span>对话占用 {flow === 'S1' ? '4%' : '23%'}</span><span>可整理内容 {flow === 'S1' ? '0%' : '6%'}</span></div>}
+        {isDemoCase && <span>摄取余量 <b>1,154</b></span>}
+        {isDemoCase && usage >= 85 && <button className="continuation-button" disabled={continued} title={continued ? '下一阶段已开启' : '开启下一阶段'} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>继续本案工作</button>}
+        {continued && isDemoCase && <span className="continued-note" role="status">已开启下一阶段</span>}
         <span className="spacer" />
         {systemFeedback && (
           <span
@@ -615,20 +756,29 @@ export function App() {
           type="button"
           className="quiet-button status-open-folder"
           data-testid="open-output-folder"
-          title="在访达中打开本案产出文件夹"
+          title={caseRoot ? '在访达中打开本案产出文件夹' : '本案尚未绑定文件夹'}
+          disabled={!caseRoot}
           onClick={openOutputFolder}
         >
           打开产出文件夹
         </button>
-        <span>{session.failures.length ? '有步骤需要人工处理' : flow === 'S1' ? '摄取进行中 16 / 20' : `${Object.keys(dispositions).length} / 6 项已处置`}</span>
-        <span>{flow === 'S1' ? '阶段一 · 阅卷整理' : '阶段二 · 合同审查'}</span>
+        <span className="truncate" data-testid="statusbar-progress">
+          {!isDemoCase
+            ? '新案件 · 等待任务'
+            : session.failures.length
+              ? '有步骤需要人工处理'
+              : flow === 'S1'
+                ? '摄取进行中 16 / 20'
+                : `${Object.keys(dispositions).length} / 6 项已处置`}
+        </span>
+        <span className="truncate" data-testid="statusbar-stage">{stageLabel(flow, isDemoCase)}</span>
       </footer>
 
       {compileOpen && <div className="modal-backdrop" role="presentation"><section className="compile-dialog" role="dialog" aria-modal="true" aria-labelledby="compile-title"><h2 id="compile-title">编译为 Word 文档</h2><p>定稿后，本画布将转为只读存档。后续修改将在文书修订中逐条处理，无法返回起草状态。</p><div><button className="quiet-button" onClick={() => setCompileOpen(false)}>取消</button><button className="primary-button" onClick={() => { setDraftFrozen(true); setCompileOpen(false); }}>确认定稿并编译</button></div></section></div>}
 
       <ProviderSetup
         open={providerSetupOpen}
-        allowSkip={!credentialStatus?.configured}
+        allowSkip={credentialStatus.phase !== 'connected'}
         onClose={() => setProviderSetupOpen(false)}
         onStatusChange={setCredentialStatus}
       />
@@ -642,7 +792,8 @@ function PanelHead({ title, count, shortcut, action }: { title: string; count: s
   return <header className="panel-head"><h2>{title}</h2><span>{count}</span><i />{shortcut && <small>{shortcut}</small>}{action}</header>;
 }
 
-function viewCount(view: WorkbenchView, draftFrozen: boolean) {
+function viewCount(view: WorkbenchView, draftFrozen: boolean, isDemo: boolean) {
+  if (!isDemo) return '尚无';
   if (view === 'timeline') return '47 件';
   if (view === 'graph') return '14 · 15';
   if (view === 'matrix') return '10 × 7';
