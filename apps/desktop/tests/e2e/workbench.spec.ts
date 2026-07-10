@@ -4,8 +4,10 @@ import { openWorkbench } from './helpers';
 test('完整工作台帧与三栏在 1440 视口可见', async ({ page }) => {
   await openWorkbench(page);
   await expect(page.getByTestId('workbench')).toBeVisible();
-  await expect(page.getByRole('heading', { name: '案件', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '对话', exact: true })).toBeVisible();
+  // RP-1：左栏标题「工作区」；中栏 L0 去面板头卡壳；右栏模块栈 + 工作面 Tab
+  await expect(page.getByRole('heading', { name: '工作区', exact: true })).toBeVisible();
+  await expect(page.getByTestId('conversation-canvas')).toBeVisible();
+  await expect(page.getByTestId('right-module-stack')).toBeVisible();
   await expect(page.getByRole('tablist', { name: '结构化工作面' })).toBeVisible();
   await expect(page.getByTestId('usage-ring')).toBeVisible();
 });
@@ -364,14 +366,15 @@ test('控件字体简写不清除全域等宽数字特性', async ({ page }) => 
   await openWorkbench(page);
   await expect(page.getByTestId('usage-ring')).toHaveCSS('font-variant-numeric', 'tabular-nums');
   await expect(page.getByTestId('view-revision')).toHaveCSS('font-variant-numeric', 'tabular-nums');
-  await expect(page.locator('.titlebar .case-number')).toHaveCSS('font-variant-numeric', 'tabular-nums');
+  // RP-1：案号迁入工具栏（标题栏只留 wordmark + 全局动作）
+  await expect(page.locator('.toolbar .case-number')).toHaveCSS('font-variant-numeric', 'tabular-nums');
 });
 
 test('de-slop 基线：无语义线、零投影、紧凑行、细滚动条与线框图标', async ({ page }) => {
   await openWorkbench(page);
   await expect(page.locator('.data-card').first().locator('.signature-line')).toHaveCount(0);
-  await expect(page.locator('.case-card')).toHaveCSS('box-shadow', 'none');
-  await expect(page.locator('.case-card')).toHaveCSS('border-radius', '6px');
+  await expect(page.locator('.case-card').first()).toHaveCSS('box-shadow', 'none');
+  await expect(page.locator('.case-card').first()).toHaveCSS('border-radius', '6px');
   const row = page.locator('.risk-list .dense-row').first();
   const height = (await row.boundingBox())?.height ?? 0;
   expect(height).toBeGreaterThanOrEqual(28);
