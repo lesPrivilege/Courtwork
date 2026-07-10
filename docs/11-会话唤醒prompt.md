@@ -790,3 +790,38 @@ SET-1 焦点：
 
 报告纯追加 apps/desktop/ACCEPTANCE.md「UX-1/SET-1 验收」节。结论：两单各自放行与否；desktop 是否就绪进入 RP-1（最后一张重排单）。
 ```
+
+## RP-1 最终重排：左右栏分层 + 画布-浮面层级（Grok，Build 门工单）
+
+```
+你认领 Courtwork 的 RP-1 工单：desktop 最终重排——这是 base 定形的最后一张结构单，验收通过即出首个正式 Build。热点文件（App.tsx/styles.css）独占期，无并行会话。
+
+必读：CLAUDE.md → docs/49 全五章（三章右栏模块栈、四章画布-浮面三层、五章 frontier 实测参照与 Build 门）→ docs/25 增补与修正（左栏即容器列表、混排列表图标承载类型）→ docs/32 设计语言包（tokens 纪律）→ docs/52 批次二 #11/#12 + 批次三 #16/#17 → apps/desktop/SPEC.md 与 ACCEPTANCE.md 末节。读完先复述范围确认。
+
+第 0 步：apps/desktop/ACCEPTANCE.md 有一份验收会话留下的未提交追加（UX-1/SET-1 验收报告，+128 行纯追加）——核实为纯追加后**原样提交**（显式路径，独立 commit，信息注明"代验收会话提交"），不改一字。
+
+交付（三块一次重排，docs/49 为唯一权威）：
+
+A. 左栏（五章参照 + docs/25 修正）
+1. 混排时序列表：案件/工作区/未归档对话同列，前置 SVG 图标承载类型（P-4 域图标：卷宗/文件夹/气泡），未归档对话行尾「存入」轻动词（接既有容器化仪式）。不分区；Pinned 区保留在上。
+2. 案件行独有 chevron 展开：阶段 + 三区（工作结构非对话历史）；现左栏的阶段/卷宗原件/工作稿区收编进展开态。
+3. 导航骨架四位：产出（真路由，跳工作区级产出目录）；定时/派发（禁用态骨架 + 「即将支持」tooltip，与设置页预留组同纪律，零假活）；Customize 不做。
+4. 批次三 #17 顺手：主办律师占位为 demo persona，非 demo 案件不显示（CASE_SCOPE_AUDIT 补行）。
+
+B. 右栏模块栈（三章）
+1. 声明渲染的折叠模块栈：通用三件常驻（progress/working folders/context）+ 垂类工作面同栈；全模块默认面板头可见（名称+计数+状态点）。
+2. progress 面板头吸收底部状态条的阶段进度（`0/6` 升入面板头，frontier `17 of 17` 形制）；working folders = 三区树（原件行带只读标记）；context = 用量圆盘明细 + 附件来源 + 已连接模型 chip（connected 态常驻声明位）。
+3. artifact_produced 自动展开对应模块并铺数据；用户手动折叠/展开优先于自动。
+4. 既有 Tab/对照/专注不推翻：同栈三种视图密度，实现为增量迁移。
+
+C. 画布-浮面三层（四章）
+1. L0：对话流直接坐页面底色（冷灰系），去卡壳。L1：左栏/右栏/composer 上浮——纯白面 + inset 不贴边 + 圆角 12 + 细描边、零投影。L2：popover 既有。
+2. 标题栏透明化融入红绿灯 chrome 层，只留 wordmark + 全局动作；模型服务常驻归状态条（模型名可点开 model-config popover），非 connected 态才在标题栏浮现琥珀警示。
+3. 收缩态：左栏折叠 + 右栏全折 → 画布 + composer 浮卡 + 折叠按钮。
+4. tokens 增 elevation 组（底色级联 + inset 间距）：先在 SPEC 写提案值再实现，完工报告列全量供架构过目；不得引入投影、不得新增语义色。
+5. 批次三 #16 顺手：模型服务 popover「先看」按钮语义修正（实为取消却像完成链接——动词改直白，主次按钮层级照 docs/32）。
+
+验收标准：9 包干净 build；Vitest 全绿；Playwright 全过且**下限随新增用例上调**（assert-test-count floor 同步，禁降）；四门禁全绿；新增 e2e 至少覆盖：混排列表图标与展开、未归档对话「存入」、progress 面板头计数、artifact 自动展开、标题栏琥珀警示仅 failed 态、收缩态成立；CASE_SCOPE_AUDIT 表与切换矩阵随 #17 更新；全程零假活（禁用位一律 aria-disabled + tooltip）。
+
+纪律：TDD；显式路径分层提交（A/B/C 可分批 commit）；tokens 之外禁止硬编码色值；对既有 e2e 的改动只许因结构迁移，断言语义不得放宽；完工自检含 pnpm -r build。完工报告写明：elevation 提案全量、floor 新值、收缩态截图。
+```
