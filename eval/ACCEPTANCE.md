@@ -128,3 +128,55 @@
 W7 的**功能机制**已经成立：S3/S4 数据集各 20 例、规则 + judge 双轨、mock provider E2E、对比报告、回归模式与 caseId 匹配均经实测通过。
 
 但因硬条件一仍有缺口，promptfoo 专有边界尚未完全收敛，**本次不放行 eval 作为正式模型选型与回归门禁使用**。修复该边界后，可复跑本报告第 1、2、6 项作为补验；真实 provider 跑分仍按 SPEC TODO 留给有凭证的会话建立第一份真实基线。
+
+---
+
+## 整改记录（W7.1，2026-07-10）
+
+本节由实施本次整改的会话追加，Codex 原文（以上第 0-9 节及"最终结论"）未做任何改动。
+
+针对第 2 节"硬条件一：跑分器无关性"标出的缺口，已完成以下整改（完整清单与自证
+细节见 `eval/SPEC.md` "W7.1 整改记录"小节）：
+
+- 新增中性内部结果格式 `EvalRunResult`/`EvalRunResultSet`（`src/results.ts`：
+  `runId`/`caseId`/`provider`/`pass`/`score`/`ruleResults`/`judgeResults`/
+  `timings`/`cost`/`tokensUsed`）。
+- `src/promptfoo/` 收拢为唯一边界：新增 `raw-results.ts`（promptfoo 原始结果
+  类型）、`map-results.ts`（原始结果 → 中性格式映射）；CLI runner（原
+  `src/runner.ts`）迁入 `src/promptfoo/runner.ts`，内部完成调用 + 解析 + 映射，
+  对外只返回/落盘中性格式；三个 mock provider 与 `degrade.ts` 迁入
+  `src/promptfoo/mock-providers/`。
+- 规则聚合逻辑下沉为中性纯函数 `evaluateCase`（`src/rules/evaluate.ts`），
+  `src/promptfoo/run-rules.ts` 收窄为"vars JSON 字符串 → 中性参数"的薄适配层。
+- `report.ts`/`regression.ts`/`scripts/**`（`run-eval.ts`/`regression-check.ts`/
+  `verify-s3-dataset.ts`/`verify-s4-dataset.ts`）全部只消费中性格式；后两者不再
+  import `src/promptfoo/`。
+- `dataset-schema.ts`/`rules/types.ts` 等非适配层文件注释里残留的字面
+  "promptfoo" 一并清理（含 1 处自证阶段补发现的路径引用残留，独立 fix 提交）。
+- 既有回归基线文件选择**重建**（`reports/` 整体 `.gitignore`，原内容仅 mock
+  provider 机制验证、非真实基线），未编写迁移脚本。
+
+复跑本报告第 1、2、6 项对应的全部命令自证：
+
+- 第 1 项：`rm -rf node_modules && pnpm install`（7 个 workspace projects，与本
+  报告一致）、`pnpm --filter @courtwork/eval test -- --run`（**14 个测试文件 /
+  64 个用例**，较本报告的 12/57 增加 `evaluate.test.ts`+`map-results.test.ts`）、
+  `pnpm test -- --run`（**51 个测试文件 / 351 个用例**，全仓库计数含本报告之后
+  其他层新增的测试）、`pnpm lint`、`pnpm -r run build` 均**通过**。
+- 第 2 项：与本报告完全相同的 rg 命令复跑，剩余命中逐行核对后全部是 (a) 中性
+  `provider`/`providerId` 字段（本报告"处置"一节建议的中性内部结果格式已落地，
+  该格式明确包含 `provider` 字段，不属于跑分器专有词汇）、(b)
+  `scripts/run-eval.ts` 里 2 处对 `src/promptfoo/` 的结构性路径引用（import 适配
+  层入口 + console.log 提示配置文件位置）。精确到真正专有词汇集合的补充扫描
+  （`promptfoo|llm-rubric`、word-boundary 精确匹配的 `vars`/`assert`/
+  `javascript`）证实：`vars`/`assert`/`javascript` **零命中**；`promptfoo` 仅剩
+  上述 2 处路径引用，无法进一步消除（脚本必须知道适配层入口在哪里才能调用它）。
+- 第 6 项：S3/S4 数据集健全性检查 20/20 通过（两场景）；`run-eval.ts` 实测真实
+  调用 `npx promptfoo eval`（非仅单元测试）跑通——S3 mock-thorough 20/20、
+  mock-fast 19/20（唯一失败 `main-holistic` 缺 `risk-06`）；S4 mock-thorough
+  20/20、mock-fast 5/20（退化剥掉引用被 `citationExists` 抓到）——失败模式与
+  本报告描述完全一致；回归模式在中性格式上复验：两场景 40/40 用例可比、零回归，
+  人为注入一处降分（`mock-thorough/main-risk-01`，0.925→0.425）后
+  `regression-check.ts` 精确报告该 1 处回归并以非零码退出。
+
+请 Codex 按原报告第 1、2、6 项标准补验。
