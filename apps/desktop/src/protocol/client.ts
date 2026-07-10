@@ -2,6 +2,7 @@ import type { EvidenceGradeAnnotation, SessionEvent } from '@courtwork/core';
 
 export type ScenarioFlow = 'S1' | 'S3';
 export type ReviewDisposition = 'confirm' | 'reject' | 'revise';
+export type ReviewDispositionState = 'confirmed' | 'rejected' | 'revision';
 
 export interface ReviewGateItemProjection {
   itemRef: string;
@@ -15,6 +16,16 @@ export interface ReviewGateProjection {
   items: ReviewGateItemProjection[];
 }
 
+export interface ReviewItemResolution {
+  itemRef: string;
+  disposition: ReviewDisposition;
+}
+
+export interface ReviewResolution {
+  items: ReviewItemResolution[];
+  instrumentation?: { dwellMs?: number; expandedEvidenceKeys?: string[] };
+}
+
 export type ReviewTelemetryEvent =
   | { type: 'review_item_opened'; sessionId: string; itemRef: string; emittedAt: string }
   | { type: 'review_evidence_expanded'; sessionId: string; itemRef: string; evidenceRef: string; emittedAt: string }
@@ -22,7 +33,7 @@ export type ReviewTelemetryEvent =
 
 export interface ConfirmationClient {
   getGateProjection(requestId: string): Promise<ReviewGateProjection>;
-  resolve(requestId: string, decision: 'confirm' | 'reject', instrumentation?: { dwellMs?: number; expandedEvidenceKeys?: string[] }): Promise<void>;
+  resolve(requestId: string, resolution: ReviewResolution): Promise<void>;
 }
 
 export interface ContinuationClient {
