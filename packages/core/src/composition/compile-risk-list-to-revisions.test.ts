@@ -29,12 +29,17 @@ describe('compileConfirmedRiskListToRevisionInstructions', () => {
       targetDocument: { fileId: 'main-contract.docx' },
     });
     expect(result.instructions).toHaveLength(1);
-    expect(result.instructions[0]).toMatchObject({
+    const instruction = result.instructions[0];
+    expect(instruction).toMatchObject({
       id: 'instr-risk-01',
       kind: 'commentOnly',
       locator: { strategy: 'text', quote: '逾期违约金' },
-      annotation: { text: '违约金过高', citations: [{ citation: '《民法典》第585条' }] },
+      annotation: { text: '违约金过高' },
     });
+    if (instruction.kind !== 'commentOnly') throw new Error('unreachable');
+    expect(instruction.annotation.citations[0].citation).toBe('《民法典》第585条');
+    // 未在台账中登记的引用（非工具来源，如直接的法条原文）不签发 evidenceKey。
+    expect(instruction.annotation.citations[0].evidenceKey).toBeUndefined();
   });
 
   it('excludes risks with dispositionStatus "rejected"', () => {
@@ -58,13 +63,28 @@ describe('compileConfirmedRiskListToRevisionInstructions', () => {
     expect(() => compileConfirmedRiskListToRevisionInstructions(webSourced, 'x.docx', ledger)).toThrow(InadmissibleCitationError);
   });
 
-  it('admits the same C-grade citation once the ledger entry is explicitly confirmed', () => {
+  it('admits the same C-grade citation once the ledger entry is explicitly confirmed, and stamps the compiled citation with the issued evidenceKey', () => {
     const ledger = createEvidenceLedger();
     ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
     ledger.confirm('web-search');
     const webSourced = riskList({
       basis: [{ citation: 'web-search', sourceAnchors: [{ fileId: 'f1', quote: 'x', textRange: { start: 0, end: 1 } }] }],
     });
-    expect(() => compileConfirmedRiskListToRevisionInstructions(webSourced, 'x.docx', ledger)).not.toThrow();
+    const result = compileConfirmedRiskListToRevisionInstructions(webSourced, 'x.docx', ledger);
+    const instruction = result.instructions[0];
+    if (instruction.kind !== 'commentOnly') throw new Error('unreachable');
+    expect(instruction.annotation.citations[0].evidenceKey).toBe('web-search');
+  });
+
+  it('leaves evidenceKey unset (and does not throw) when the citation display text does not exactly match any ledger key, even with an unrelated C-grade-unconfirmed entry present — matches the existing risk-07/party-verify boundary in the S3 demo, not a new gap', () => {
+    const ledger = createEvidenceLedger();
+    ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
+    const decorated = riskList({
+      basis: [{ citation: '网络参考：web-search', sourceAnchors: [{ fileId: 'f1', quote: 'x', textRange: { start: 0, end: 1 } }] }],
+    });
+    const result = compileConfirmedRiskListToRevisionInstructions(decorated, 'x.docx', ledger);
+    const instruction = result.instructions[0];
+    if (instruction.kind !== 'commentOnly') throw new Error('unreachable');
+    expect(instruction.annotation.citations[0].evidenceKey).toBeUndefined();
   });
 });

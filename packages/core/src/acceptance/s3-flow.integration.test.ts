@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runS3Demo } from './run-s3-demo.js';
+import { createFileRevisionEventStore } from '../revision/revision-store.js';
 
 describe('S3 end-to-end acceptance flow', () => {
   it('runs CaseFile -> party-verify -> RiskList -> simulated confirmation (with a real RevisionEvent) -> RevisionInstructionSet -> redlined docx, with a fully replayable event stream', async () => {
@@ -48,6 +49,12 @@ describe('S3 end-to-end acceptance flow', () => {
         'todo_snapshot',
         'scenario_completed',
       ]);
+
+      // 复验入口①（ACCEPTANCE.md）：不经事件流旁证，直接读 revision store 本身，
+      // 断言每条落盘记录自带可直接定位到会话的 sessionId。
+      const revisionEvents = createFileRevisionEventStore(join(result.workDir, 'revision-events.jsonl')).list();
+      expect(revisionEvents).toHaveLength(1);
+      expect(revisionEvents[0].sessionId).toBe('demo-s3-session');
     } finally {
       rmSync(workDir, { recursive: true, force: true });
     }

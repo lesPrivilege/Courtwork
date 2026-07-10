@@ -241,6 +241,7 @@ describe('resumeScenario', () => {
       previousValue: 'pending',
       newValue: 'confirmed',
       actor: { userId: 'demo-lawyer', role: '主办律师' },
+      sessionId: 'session-1',
     });
 
     const events = deps.eventLog.list();

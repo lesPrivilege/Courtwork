@@ -250,7 +250,7 @@ export interface ScenarioResumeInput {
   instrumentation?: ConfirmationInstrumentation;
 }
 
-function buildRevisionEvent(input: RevisionInput, actor: ConfirmationActor, now: () => string): RevisionEvent {
+function buildRevisionEvent(input: RevisionInput, actor: ConfirmationActor, sessionId: string, now: () => string): RevisionEvent {
   const candidate = {
     id: randomUUID(),
     timestamp: now(),
@@ -263,6 +263,7 @@ function buildRevisionEvent(input: RevisionInput, actor: ConfirmationActor, now:
     newValue: input.newValue,
     reason: input.reason,
     sourceAnchors: input.sourceAnchors,
+    sessionId,
   };
   const result = RevisionEventSchema.safeParse(candidate);
   if (!result.success) {
@@ -300,7 +301,7 @@ export async function resumeScenario(
 
   const revisedArtifactTypes = new Set<ArtifactType>();
   for (const revision of response.revisions ?? []) {
-    const event = buildRevisionEvent(revision, response.actor, now);
+    const event = buildRevisionEvent(revision, response.actor, pending.sessionId, now);
     deps.revisionStore.record(event);
     deps.eventLog.append({ type: 'revision_recorded', revisionEventId: event.id });
     const artifact = pending.producedArtifacts[revision.artifactType];

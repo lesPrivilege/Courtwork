@@ -26,8 +26,15 @@ export function compileConfirmedRiskListToRevisionInstructions(
     if (!quote) throw new MissingLocatorQuoteError(risk.id);
 
     const citations = risk.basis.map((basis) => {
-      assertCitationAdmissible(ledger, basis.citation);
-      return { citation: basis.citation, sourceAnchors: basis.sourceAnchors };
+      // 台账按 basis.citation 精确匹配签发 key：命中就是工具来源，交给门禁按
+      // 等级判断；未命中视为非工具来源（如直接引用的法条原文，或本案 party-verify
+      // 那样展示文本经过润色、不再与台账 key 字面相等的情形），不适用信源分级，
+      // 历史行为不变——citation 是自由文本，这里不做模糊/包含匹配（那会产生
+      // 误关联，见 W6 验收报告）。一旦签发成功，门禁此后只认这个 key，citation
+      // 展示文本再怎么编辑都不能让门禁改判。
+      const evidenceKey = ledger.issueKey(basis.citation);
+      if (evidenceKey !== undefined) assertCitationAdmissible(ledger, evidenceKey);
+      return { citation: basis.citation, sourceAnchors: basis.sourceAnchors, evidenceKey };
     });
 
     instructions.push({

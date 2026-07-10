@@ -7,10 +7,24 @@ export interface RevisionEventStore {
   list(): RevisionEvent[];
 }
 
+export class MissingSessionIdError extends Error {
+  constructor(eventId: string) {
+    super(
+      `RevisionEvent "${eventId}" 缺少 sessionId，落盘前必须补齐（core 的持久化契约比 schema 更严格，见 packages/core/SPEC.md W6.2 整改记录）`,
+    );
+    this.name = 'MissingSessionIdError';
+  }
+}
+
+function assertPersistable(event: RevisionEvent): void {
+  if (!event.sessionId) throw new MissingSessionIdError(event.id);
+}
+
 export function createInMemoryRevisionEventStore(): RevisionEventStore {
   const events: RevisionEvent[] = [];
   return {
     record(event) {
+      assertPersistable(event);
       events.push(event);
     },
     list() {
@@ -24,6 +38,7 @@ export function createFileRevisionEventStore(filePath: string): RevisionEventSto
   mkdirSync(dirname(filePath), { recursive: true });
   return {
     record(event) {
+      assertPersistable(event);
       appendFileSync(filePath, `${JSON.stringify(event)}\n`, 'utf-8');
     },
     list() {

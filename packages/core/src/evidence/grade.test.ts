@@ -34,36 +34,66 @@ describe('EvidenceLedger', () => {
     expect(snapshot).toContainEqual({ key: 'party-verify', grade: 'B', sourceId: 'demo-fixture', confirmed: false });
     expect(snapshot).toContainEqual({ key: 'cite-check', grade: 'A', sourceId: 'public-law-db', confirmed: false });
   });
+
+  describe('issueKey()', () => {
+    it('returns the candidate key unchanged when it matches a recorded entry', () => {
+      const ledger = createEvidenceLedger();
+      ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
+      expect(ledger.issueKey('web-search')).toBe('web-search');
+    });
+
+    it('returns undefined when the candidate key matches nothing recorded', () => {
+      const ledger = createEvidenceLedger();
+      expect(ledger.issueKey('never-recorded')).toBeUndefined();
+    });
+  });
 });
 
 describe('assertCitationAdmissible', () => {
-  it('admits an A-grade citation', () => {
+  it('admits an A-grade citation by its issued evidenceKey', () => {
     const ledger = createEvidenceLedger();
     ledger.record('cite-check', { grade: 'A', sourceId: 'public-law-db', confirmed: false });
-    expect(() => assertCitationAdmissible(ledger, 'cite-check')).not.toThrow();
+    expect(() => assertCitationAdmissible(ledger, ledger.issueKey('cite-check'))).not.toThrow();
   });
 
-  it('admits a B-grade citation', () => {
+  it('admits a B-grade citation by its issued evidenceKey', () => {
     const ledger = createEvidenceLedger();
     ledger.record('party-verify', { grade: 'B', sourceId: 'demo-fixture', confirmed: false });
-    expect(() => assertCitationAdmissible(ledger, 'party-verify')).not.toThrow();
+    expect(() => assertCitationAdmissible(ledger, ledger.issueKey('party-verify'))).not.toThrow();
   });
 
   it('rejects an unconfirmed C-grade citation with InadmissibleCitationError', () => {
     const ledger = createEvidenceLedger();
     ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
-    expect(() => assertCitationAdmissible(ledger, 'web-search')).toThrow(InadmissibleCitationError);
+    expect(() => assertCitationAdmissible(ledger, ledger.issueKey('web-search'))).toThrow(InadmissibleCitationError);
   });
 
   it('admits a C-grade citation once explicitly confirmed', () => {
     const ledger = createEvidenceLedger();
     ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
     ledger.confirm('web-search');
-    expect(() => assertCitationAdmissible(ledger, 'web-search')).not.toThrow();
+    expect(() => assertCitationAdmissible(ledger, ledger.issueKey('web-search'))).not.toThrow();
   });
 
-  it('admits a key with no tracked evidence at all (not tool-sourced, e.g. a direct case-file quote)', () => {
+  it('rejects when no evidenceKey is supplied at all (fail closed, per schema JSDoc: 无 key 引用按 C 级未确认待遇)', () => {
     const ledger = createEvidenceLedger();
-    expect(() => assertCitationAdmissible(ledger, '《中华人民共和国民法典》第五百八十五条')).not.toThrow();
+    expect(() => assertCitationAdmissible(ledger, undefined)).toThrow(InadmissibleCitationError);
+  });
+
+  it('rejects a key that does not resolve to any ledger record (fail closed, same treatment as a missing key)', () => {
+    const ledger = createEvidenceLedger();
+    expect(() => assertCitationAdmissible(ledger, 'forged-key-not-in-ledger')).toThrow(InadmissibleCitationError);
+  });
+
+  it('reproduces and closes the W6 acceptance bypass: an unconfirmed C-grade citation stays blocked no matter how its display text is edited afterward, because the gate never takes display text as an input — only the evidenceKey issued at compile time', () => {
+    const ledger = createEvidenceLedger();
+    ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
+    // 编译期正确签发的 key（对照 W6 验收报告的原始反例：ledger key 是 'web-search'）。
+    const evidenceKey = ledger.issueKey('web-search');
+    // 此后展示文本可以被编辑成任何样子（如加前缀"网络参考："）——门禁函数的参数
+    // 列表里根本不存在"citation 展示文本"这个入口，不可能再被拿来绕过。
+    const editedDisplayText = '网络参考：web-search';
+    expect(editedDisplayText).not.toBe(evidenceKey);
+    expect(() => assertCitationAdmissible(ledger, evidenceKey)).toThrow(InadmissibleCitationError);
   });
 });

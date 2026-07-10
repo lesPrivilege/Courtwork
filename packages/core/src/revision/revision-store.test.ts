@@ -3,9 +3,25 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { RevisionEventSchema, type RevisionEvent } from '@courtwork/schemas';
-import { createFileRevisionEventStore, createInMemoryRevisionEventStore } from './revision-store.js';
+import { createFileRevisionEventStore, createInMemoryRevisionEventStore, MissingSessionIdError } from './revision-store.js';
 
 function sampleEvent(id: string): RevisionEvent {
+  return {
+    id,
+    timestamp: '2026-07-10T00:00:00.000Z',
+    actor: { userId: 'demo-lawyer', role: '主办律师' },
+    caseId: 'case-linjiang-qiyun-2025',
+    artifactType: 'RiskList',
+    artifactId: 'case-linjiang-qiyun-2025',
+    fieldPath: '/risks/0/dispositionStatus',
+    previousValue: 'pending',
+    newValue: 'confirmed',
+    reason: '与主办律师电话确认，风险属实',
+    sessionId: 'session-1',
+  };
+}
+
+function sampleEventWithoutSessionId(id: string): RevisionEvent {
   return {
     id,
     timestamp: '2026-07-10T00:00:00.000Z',
@@ -26,6 +42,11 @@ describe('createInMemoryRevisionEventStore', () => {
     store.record(sampleEvent('rev-1'));
     store.record(sampleEvent('rev-2'));
     expect(store.list().map((e) => e.id)).toEqual(['rev-1', 'rev-2']);
+  });
+
+  it('rejects a record without sessionId (core persistence contract is stricter than the schema)', () => {
+    const store = createInMemoryRevisionEventStore();
+    expect(() => store.record(sampleEventWithoutSessionId('rev-missing-session'))).toThrow(MissingSessionIdError);
   });
 });
 
@@ -63,6 +84,18 @@ describe('createFileRevisionEventStore (append-only JSONL, durable)', () => {
     const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-revisionstore-'));
     try {
       const store = createFileRevisionEventStore(join(dir, 'never-written.jsonl'));
+      expect(store.list()).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects writing a record without sessionId and leaves the file untouched', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-revisionstore-'));
+    const filePath = join(dir, 'revision-events.jsonl');
+    try {
+      const store = createFileRevisionEventStore(filePath);
+      expect(() => store.record(sampleEventWithoutSessionId('rev-missing-session'))).toThrow(MissingSessionIdError);
       expect(store.list()).toEqual([]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
