@@ -408,7 +408,7 @@ describe('runScenario — label-only confirmation gate (no artifact anchor)', ()
 });
 
 describe('resumeScenario — genuinely fresh dependency instances (simulated cross-process resume)', () => {
-  it('a resume using brand-new EventLog/ConfirmationStore/EvidenceLedger instances pointed at the same durable state completes correctly', async () => {
+  it('a resume using brand-new dependency instances pointed at the same durable state completes correctly', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-executor-crossproc-'));
     try {
       const eventsPath = join(dir, 'events.jsonl');
@@ -432,13 +432,25 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
       );
       if (paused.status !== 'paused') throw new Error('expected pause');
 
-      // 模拟"另一个进程"：全新构造的 eventLog/confirmationStore/ledger 实例，只共享磁盘路径。
+      // 模拟"另一个进程"：所有依赖都重新构造，只共享磁盘路径与可序列化配置。
+      const secondTools = createToolRegistry();
+      secondTools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
       const secondDeps: ScenarioExecutorDeps = {
-        ...firstDeps,
+        tools: secondTools,
+        toolExecutor: createToolExecutor(),
+        provider: createScriptedProvider('p-fresh', 'v1', []),
         eventLog: createFileEventLog('session-x', eventsPath),
         confirmationStore: createFileConfirmationStore(pendingDir),
+        revisionStore: createInMemoryRevisionEventStore(),
         ledger: createEvidenceLedger(),
       };
+      expect(secondDeps.tools).not.toBe(firstDeps.tools);
+      expect(secondDeps.toolExecutor).not.toBe(firstDeps.toolExecutor);
+      expect(secondDeps.provider).not.toBe(firstDeps.provider);
+      expect(secondDeps.eventLog).not.toBe(firstDeps.eventLog);
+      expect(secondDeps.confirmationStore).not.toBe(firstDeps.confirmationStore);
+      expect(secondDeps.revisionStore).not.toBe(firstDeps.revisionStore);
+      expect(secondDeps.ledger).not.toBe(firstDeps.ledger);
       const done = await resumeScenario(
         paused.requestId,
         { actor: { channelId: 'wecom', actorId: 'lawyer-42' }, decision: 'confirm' },

@@ -62,12 +62,16 @@ export async function runS3Demo(
     throw new Error(`预期 S3 在 RiskList 确认门禁处暂停，实际状态是 "${firstRun.status}"`);
   }
 
-  // 模拟"另一个进程"接续：每个依赖都通过磁盘路径重新获取，不复用 firstDeps 的内存
-  // 闭包——异步确认预留的忠实模拟，与执行器的同款证明手法一致。
+  // 模拟"另一个进程"接续：全部依赖重新构造，只共享磁盘路径与可序列化配置，
+  // 不复用 firstDeps 的任何实例/闭包。
+  const secondRuntime = buildDemoS3Runtime();
   const secondDeps: ScenarioExecutorDeps = {
-    ...firstDeps,
+    tools: secondRuntime.tools,
+    toolExecutor: createToolExecutor(),
+    provider: secondRuntime.provider,
     eventLog: createFileEventLog(sessionId, eventsPath),
     confirmationStore: createFileConfirmationStore(pendingDir),
+    revisionStore: createFileRevisionEventStore(revisionEventsPath),
     ledger: createEvidenceLedger(),
   };
 
