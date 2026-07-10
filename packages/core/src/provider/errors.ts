@@ -1,5 +1,8 @@
 export class ProviderNotConfiguredError extends Error {
-  constructor(providerId: string, message: string) {
+  constructor(
+    public readonly providerId: string,
+    message: string,
+  ) {
     super(message);
     this.name = 'ProviderNotConfiguredError';
     Object.setPrototypeOf(this, ProviderNotConfiguredError.prototype);
