@@ -740,7 +740,12 @@ F-3：越界路径始终可见失败（构造越界用例亲测）；宿主零 s
 ## UX-1｜微调批次一（Grok 4.5，D-1 验收放行后开工，与 SET-1 串行）
 
 ```
-你认领 Courtwork 的 UX-1 工单：docs/52 批次一全部 10 项（裁决已死，逐项照案，不重开）。先读：AGENTS.md、docs/52 全文、docs/45（含第 4 项修正案）、docs/49、docs/19/32（动效与 tokens 硬约束）。
+你认领 Courtwork 的 UX-1 工单：docs/52 批次一全部 10 项（裁决已死，逐项照案，不重开）+ D-1 验收打回两项（优先做）。
+
+打回项（第 0 优先）：
+0a. composer 文件夹 chip 案件作用域：注入 activeCase 投影、随容器切换重置（非 demo 案件不显示 demo 案名），CASE_SCOPE_AUDIT 补登该符号 + SPEC 死路由表补行；切换矩阵 e2e 补 chip 断言。
+0b. e2e 光标依赖排查：D-1 验收发现 palette 测试因 openWorkbench 后光标悬停位置被 onMouseEnter 抢占初始高亮（已修）；全 e2e 扫一遍同类隐性光标位置依赖，发现即按同法（mouse.move(0,0)）加固。
+先读：AGENTS.md、docs/52 全文、docs/45（含第 4 项修正案）、docs/49、docs/19/32（动效与 tokens 硬约束）。
 
 要点提醒（易错处）：
 - #3 composer-first 新建：容器化仪式 popover 复用"存入卷宗"同族交互；两路新建并存。
