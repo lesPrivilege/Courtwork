@@ -21,6 +21,18 @@
     "./contract": {
       "types": "./dist/contract.d.ts",
       "default": "./dist/contract.js"
+    },
+    "./file-ops-host": {
+      "types": "./dist/file-ops-host.d.ts",
+      "default": "./dist/file-ops-host.js"
+    },
+    "./file-ops-lossless": {
+      "types": "./dist/file-ops-lossless.d.ts",
+      "default": "./dist/file-ops-lossless.js"
+    },
+    "./file-ops-executor": {
+      "types": "./dist/file-ops-executor.d.ts",
+      "default": "./dist/file-ops-executor.js"
     }
   },
   "scripts": {
@@ -29,6 +41,7 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@courtwork/schemas": "workspace:*",
     "@mozilla/readability": "^0.6.0",
     "jsdom": "^29.1.1",
     "zod": "^4.4.3"

@@ -9,3 +9,6 @@ export * from './web-fetch.js';
 export * from './web-search.js';
 export * from './case-path.js';
 export * from './system-open.js';
+export * from './file-ops-host.js';
+export * from './file-ops-lossless.js';
+export * from './file-ops-executor.js';

@@ -17,6 +17,7 @@
 - `web-fetch` 网页抓取：URL → 正文（C 级信源，spotlighting 消毒后返回，结构上永远是 `verified:false, reason:'web_reference'`，携带抓取内容与元数据）；SSRF 拦截 + 证书校验红线 + 内容大小/类型限制。详见下方"web-fetch/web-search 的特殊契约"（T-fetch 增量）
 - `web-search` 网页搜索：query → 结果列表（同样永远是 `reason:'web_reference'`，`kind:'search_results'`）；真实适配器（serper.dev）当前为诚实骨架（`not_configured`/`not_implemented`），无凭证不做假搜索
 - `reveal-in-folder` / `open-file` 受限系统动词（F-3，docs/47 无损级）：案件文件夹路径白名单校验后调用宿主（Tauri opener / mock），**永无任意命令执行**；越界路径降级 `adapter_error`（可见报错，不静默）；成功反馈文案固定为「已在访达中显示」/「已为您打开〔文件名〕」。副作用动词不缓存。路径分区基建见 `case-path.ts`（`原件`/`工作稿`/`产出`）；工作稿写入白名单 `assertWorkDraftWritable` 结构性排除原件（docs/23 红线）。
+- `copy-file` / `mkdir`（F-4 无损级直执）+ `createFileOpsExecutor`（移形级：吃已确认 FileOpsPlan、内容哈希比对、事务日志、一键撤销 = 逆向重放）。**无 delete/覆盖**；撤销日志不可删。依赖 `@courtwork/schemas` 的 `FileOpsPlan`（F-4 例外：执行器需校验计划 artifact）。
 
 party-verify/cite-check 各有三种适配器（承接 `docs/20`/`docs/21` 的信源分级，W5.1 增量，见下方验收记录）：`mock`（A 级同构占位，测试/开发用）、`demo-fixture`（B 级自建演示库，数据来自 `@courtwork/demo-data`，通过装配点注入）、真实接口骨架（A 级，`qcc`/`public-law-db`，凭证走配置，当前骨架阶段）。三者的适配器身份（`sourceId`）在构造时一次性声明，互相独立，不存在自动选择/退化路径。**web-fetch/web-search 只有两种适配器**（`mock` + 真实骨架，无 demo-fixture），理由见下方专节。
 
