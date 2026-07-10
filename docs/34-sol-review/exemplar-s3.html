@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Courtwork · 合同审查工作台 · Sol 探索稿</title>
+<style>
+:root{
+  --app:#EDEDED;--surface:#FAFAFA;--raised:#FFFFFF;--hover:#F1F2F3;--selected:#E9EEF4;
+  --ink:#0A2540;--secondary:#425466;--tertiary:#6E8098;--disabled:#9DABBC;--inverse:#FAFAFA;
+  --hair:#EBEBEB;--strong:#D5DBE2;--blue:#2563EB;--blue-bg:#EFF6FF;
+  --red:#DC2626;--red-bg:#FEF2F2;--amber:#D97706;--amber-bg:#FCF6E8;
+  --green:#16A34A;--green-bg:#F0FDF4;--slate:#64748B;--slate-bg:#F1F5F9;
+  --line-rest:#CBD3DC;--verified:#F5F7F9;
+  --sans:-apple-system,"Segoe UI","PingFang SC","MiSans","Microsoft YaHei","Noto Sans SC",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{min-width:1180px;overflow:hidden;background:var(--surface);color:var(--ink);font:14px/1.6 var(--sans);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.frame{height:100%;display:grid;grid-template-rows:40px 40px minmax(0,1fr) 32px}
+.bar{display:flex;align-items:center;gap:16px;padding:0 16px;border-bottom:1px solid var(--hair)}
+.titlebar{background:var(--app)}
+.brand{display:flex;align-items:center;gap:8px;font-weight:500}
+.brandmark{width:18px;height:18px;border-radius:4px;background:var(--ink);position:relative}
+.brandmark::before{content:"";position:absolute;left:5px;top:4px;width:2px;height:10px;background:var(--inverse)}
+.brandmark::after{content:"";position:absolute;left:10px;top:6px;width:5px;height:6px;border-block:2px solid var(--tertiary)}
+.divider{width:1px;height:16px;background:var(--strong)}
+.case-name{font-size:13px;color:var(--secondary)}
+.case-no{font:12px var(--mono);color:var(--tertiary)}
+.spacer{flex:1}
+kbd{font:11px/1 var(--mono);padding:1px 5px;border:1px solid var(--strong);border-bottom-width:2px;border-radius:4px;background:var(--raised);color:var(--secondary)}
+.kbd{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--tertiary)}
+.toolbar{background:var(--surface)}
+.crumb{font-size:13px;color:var(--secondary)}
+.crumb strong{color:var(--ink);font-weight:500}
+.btn{height:28px;padding:0 12px;border:1px solid var(--strong);border-radius:4px;background:var(--raised);font-size:12px;cursor:pointer}
+.btn:hover{background:var(--hover)}
+.btn.primary{border-color:var(--ink);background:var(--ink);color:var(--inverse);font-weight:500}
+.btn:disabled{cursor:not-allowed;background:var(--hover);border-color:var(--hair);color:var(--disabled)}
+.workspace{min-height:0;display:grid;grid-template-columns:224px 360px minmax(596px,1fr)}
+.panel{min-width:0;min-height:0;border-right:1px solid var(--hair);display:flex;flex-direction:column}
+.panel:last-child{border-right:0}
+.rail{background:var(--app)}
+.head{height:40px;flex:0 0 40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--hair)}
+.head h2{margin:0;font-size:13px;font-weight:500}
+.count{font:12px var(--mono);color:var(--tertiary)}
+.railbody{padding:8px}
+.case{padding:8px 12px;border:1px solid var(--hair);border-radius:4px;background:var(--raised)}
+.case strong{display:block;font-size:13px;font-weight:500;line-height:1.5}
+.meta{font-size:12px;color:var(--tertiary)}
+.label{padding:16px 8px 8px;font-size:12px;color:var(--tertiary)}
+.stage{height:32px;display:flex;align-items:center;gap:8px;padding:0 8px;border-radius:4px;font-size:13px;color:var(--secondary)}
+.stage.active{background:var(--selected);color:var(--ink);font-weight:500}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.journal{min-height:0;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.user{align-self:flex-end;max-width:88%;padding:8px 16px;border:1px solid var(--hair);border-radius:4px;background:var(--selected)}
+.summary{position:relative;padding:8px 16px;border:1px solid var(--hair);border-radius:4px;background:var(--raised)}
+.summary::before{content:"";position:absolute;inset:0 auto 0 0;width:2px;background:var(--red)}
+.summary strong{font-size:13px;font-weight:500}
+.summary p{margin:4px 0 0;font-size:13px;color:var(--secondary)}
+.callout{padding:8px 16px;border-left:4px solid var(--blue);border-radius:6px;background:var(--blue-bg);font-size:13px;color:var(--secondary)}
+.callout strong{color:var(--ink);font-weight:500}
+.journal-end{margin-top:auto;border-top:1px solid var(--hair);padding-top:8px}
+.scene-row{display:flex;gap:8px;margin-bottom:8px}
+.composer{height:40px;display:flex;align-items:center;padding:0 12px;border:1px solid var(--strong);border-radius:4px;background:var(--raised);color:var(--disabled)}
+.review{min-width:0;background:var(--surface)}
+.tabs{display:flex;align-items:center;gap:16px;height:40px;padding:0 16px;border-bottom:1px solid var(--hair)}
+.tab{height:40px;border:0;border-bottom:2px solid transparent;background:transparent;font-size:13px;color:var(--secondary);cursor:pointer}
+.tab.active{border-bottom-color:var(--ink);color:var(--ink);font-weight:500}
+.reviewbody{min-height:0;flex:1;display:grid;grid-template-columns:minmax(336px,40%) minmax(0,1fr)}
+.queue{min-width:0;border-right:1px solid var(--hair);display:flex;flex-direction:column;background:var(--raised)}
+.batch{min-height:40px;padding:8px 12px;border-bottom:1px solid var(--hair);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--secondary)}
+.tablehead,.row{display:grid;grid-template-columns:40px minmax(128px,1fr) 40px 68px;align-items:center}
+.tablehead{height:28px;border-bottom:1px solid var(--hair);background:var(--surface);font-size:12px;color:var(--tertiary)}
+.tablehead>*{padding:0 8px}
+.row{position:relative;height:34px;border-bottom:1px solid var(--hair);font-size:13px;cursor:pointer}
+.row::before{content:"";position:absolute;inset:0 auto 0 0;width:2px;background:var(--line,var(--line-rest))}
+.row:hover{background:var(--hover)}
+.row.active{background:var(--selected)}
+.row>*{min-width:0;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.id{padding-left:14px!important;font:12px var(--mono);color:var(--line,var(--slate))}
+.pill{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:4px;font-size:12px}
+.high{color:var(--red);background:var(--red-bg)}
+.medium{color:var(--amber);background:var(--amber-bg)}
+.low{color:var(--slate);background:var(--slate-bg)}
+.pending{color:var(--amber);background:var(--amber-bg)}
+.confirmed{color:var(--green);background:var(--green-bg)}
+.detail{position:relative;min-width:0;overflow:auto;background:var(--raised)}
+.detail-line{position:absolute;inset:0 auto 0 0;width:2px;background:var(--red);overflow:hidden}
+.detail-line::after{content:"";position:absolute;left:0;top:var(--glow-y,120px);width:2px;height:40px;transform:translateY(-20px);background:linear-gradient(transparent,var(--inverse),transparent);opacity:0;transition:opacity 100ms cubic-bezier(.25,.46,.45,.94)}
+.detail:hover .detail-line::after{opacity:1}
+.citation-float{position:fixed;right:16px;margin-top:8px;padding:2px 6px;border:1px solid var(--hair);border-radius:4px;background:var(--raised);font:12px var(--mono);color:var(--tertiary);opacity:0;pointer-events:none}
+.detail:hover .citation-float{opacity:1}
+.detailhead{padding:16px 24px;border-bottom:1px solid var(--hair)}
+.eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px;color:var(--tertiary)}
+.detail h3{margin:0;font-size:16px;line-height:1.45;font-weight:500;letter-spacing:-.01em}
+.detailtext{margin:8px 0 0;color:var(--secondary)}
+.review-progress{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--secondary)}
+.evidence{padding:16px 24px;border-bottom:1px solid var(--hair)}
+.sectiontitle{margin:0 0 8px;font-size:12px;font-weight:500;color:var(--tertiary)}
+.source{margin-bottom:8px;padding:8px 12px;border-radius:4px;background:var(--verified)}
+.source:last-child{margin-bottom:0}
+.sourcehead{display:flex;align-items:center;gap:8px;font-size:12px}
+.tier{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font:12px var(--mono)}
+.tier.a{color:var(--green);background:var(--green-bg)}
+.tier.b{color:var(--slate);background:var(--slate-bg)}
+.quote{margin:6px 0 0;color:var(--secondary);font-size:13px;line-height:1.6}
+.revision{padding:16px 24px;border-bottom:1px solid var(--hair)}
+.diff{padding:12px;border:1px solid var(--hair);background:var(--raised);font-size:15px;line-height:1.6;text-align:justify;line-break:strict}
+ins{color:var(--blue);background:var(--blue-bg);text-decoration:underline}
+.gate{position:sticky;bottom:0;display:flex;align-items:center;gap:8px;padding:12px 24px;border-top:1px solid var(--hair);background:var(--surface)}
+.gate-note{margin-left:auto;font-size:12px;color:var(--tertiary)}
+.status{display:flex;align-items:center;gap:24px;padding:0 16px;border-top:1px solid var(--hair);background:var(--surface);font-size:12px;color:var(--tertiary)}
+.ring{width:14px;height:14px;border:2px solid var(--hair);border-top-color:var(--slate);border-right-color:var(--slate);border-radius:50%}
+.status-item{display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+<div class="frame">
+  <header class="bar titlebar">
+    <span class="brand"><span class="brandmark" aria-hidden="true"></span>Courtwork</span>
+    <span class="divider"></span>
+    <span class="case-name">临江精铸 诉 起云智能 设备采购合同纠纷</span>
+    <span class="case-no">(2025)云章03民初472号</span>
+    <span class="spacer"></span>
+    <span class="kbd"><kbd>⌘</kbd><kbd>K</kbd> 场景与检索</span>
+  </header>
+  <div class="bar toolbar">
+    <span class="crumb"><strong>阶段二 · 合同审查</strong>　›　设备采购合同　<span class="mono">LJJZ-CY-2024-0817</span></span>
+    <span class="spacer"></span>
+    <button class="btn">审查立场 · 乙方</button>
+    <button class="btn primary" disabled>编译为 Word 文档 · 4 项待确认</button>
+  </div>
+  <div class="workspace">
+    <aside class="panel rail">
+      <div class="head"><h2>案件</h2><span class="count">1</span></div>
+      <div class="railbody">
+        <div class="case"><strong>临江精铸 诉 起云智能</strong><div class="meta mono">(2025)云章03民初472号</div><div class="meta">卷宗 20 件 · 已归档</div></div>
+        <div class="label">阶段</div>
+        <div class="stage"><span class="dot"></span>阶段一 · 阅卷整理<span class="spacer"></span><span class="meta">已归档</span></div>
+        <div class="stage active"><span class="dot"></span>阶段二 · 合同审查</div>
+      </div>
+    </aside>
+    <main class="panel">
+      <div class="head"><h2>任务记录</h2><span class="count">本阶段 6 轮</span></div>
+      <div class="journal">
+        <div class="user">审查这份《设备采购合同》，我们代理乙方，重点看付款与违约条款。</div>
+        <div class="summary"><strong>审查完成 · 6 项风险 · 4 项待确认</strong><p>高危 2 项、中危 3 项、低危 1 项。当前定位到验收标准与异议期限。</p></div>
+        <div class="callout"><strong>建议</strong> · 完成 R3 后，再核对验收单与会议纪要的陈述差异，避免修订条款与诉讼立场冲突。</div>
+        <div class="journal-end">
+          <div class="scene-row"><button class="btn">整理卷宗</button><button class="btn">审这批合同</button><button class="btn">起草答辩状</button></div>
+          <div class="composer">描述要办的事，或从上方选择…<span class="spacer"></span><span class="kbd"><kbd>⌘</kbd><kbd>K</kbd></span></div>
+        </div>
+      </div>
+    </main>
+    <section class="panel review">
+      <div class="tabs"><button class="tab active">风险审阅 <span class="mono">6</span></button><button class="tab">修订核对 <span class="mono">4</span></button><span class="spacer"></span><span class="meta">高危与未核验依据须逐条确认</span></div>
+      <div class="reviewbody">
+        <div class="queue">
+          <div class="batch"><span>可批量 · 中/低危且依据已核验</span><span class="spacer"></span><button class="btn">确认 2 项</button></div>
+          <div class="tablehead"><span></span><span>风险</span><span>等级</span><span>状态</span></div>
+          <div class="row" style="--line:var(--red)"><span class="id">R1</span><span>违约金约定畸高（日 1%）</span><span><span class="pill high">高</span></span><span><span class="pill confirmed">已确认</span></span></div>
+          <div class="row active" tabindex="0" style="--line:var(--red)" aria-label="当前风险 R3，验收标准模糊且未约定书面异议期限"><span class="id">R3</span><span>验收标准模糊且未约定书面异议期限</span><span><span class="pill high">高</span></span><span><span class="pill pending">待确认</span></span></div>
+          <div class="row" style="--line:var(--amber)"><span class="id">R2</span><span>管辖条款单方倾斜</span><span><span class="pill medium">中</span></span><span><span class="pill pending">待确认</span></span></div>
+          <div class="row" style="--line:var(--slate)"><span class="id">R4</span><span>所有权保留与风险转移冲突</span><span><span class="pill medium">中</span></span><span><span class="pill low">已驳回</span></span></div>
+          <div class="row" style="--line:var(--amber)"><span class="id">R6</span><span>违约责任条款单向</span><span><span class="pill medium">中</span></span><span><span class="pill pending">待确认</span></span></div>
+          <div class="row" style="--line:var(--slate)"><span class="id">R5</span><span>不可抗力范围过窄</span><span><span class="pill low">低</span></span><span><span class="pill pending">待确认</span></span></div>
+        </div>
+        <article class="detail">
+          <span class="detail-line" aria-hidden="true"></span><span class="citation-float">民法典 §621</span>
+          <header class="detailhead">
+            <div class="eyebrow"><span class="mono" style="color:var(--red)">R3</span><span class="pill high">高危</span><span>不入批量 · 逐条确认</span></div>
+            <h3>验收标准模糊且未约定书面异议期限</h3>
+            <p class="detailtext">合同只把验收标准指向甲方提供的技术参数，未约定乙方提出书面异议的期限，容易形成“视为验收合格”的举证困境。</p>
+            <div class="review-progress"><span class="pill confirmed">2/2 依据已展开</span><span>已审阅 <span class="mono">00:48</span></span><span class="kbd"><kbd>J</kbd><kbd>K</kbd> 切换条目</span></div>
+          </header>
+          <section class="evidence">
+            <h4 class="sectiontitle">判断依据</h4>
+            <div class="source"><div class="sourcehead"><span class="tier a">A</span><strong>《中华人民共和国民法典》第六百二十一条</strong><span class="spacer"></span><a href="#">查看法条</a></div><p class="quote">当事人约定检验期限的，买受人应当在检验期限内将标的物的数量或者质量不符合约定的情形通知出卖人。</p></div>
+            <div class="source"><div class="sourcehead"><span class="tier b">B</span><a href="#">04-设备采购合同</a><span class="spacer"></span><span class="mono">第四条 · 验收</span></div><p class="quote">“验收标准以甲方提供的技术参数为准。”</p></div>
+          </section>
+          <section class="revision">
+            <h4 class="sectiontitle">建议修订</h4>
+            <div class="diff">双方应在设备到货后组织联调验收。验收标准以甲方提供的技术参数为准<ins>；乙方可于设备到货之日起15日内以书面形式提出验收异议，甲方应于收到异议后10日内组织复验</ins>。</div>
+          </section>
+          <footer class="gate"><button class="btn primary">确认</button><button class="btn">驳回</button><button class="btn">修正</button><span class="kbd"><kbd>⏎</kbd> 确认　<kbd>⇧</kbd><kbd>⏎</kbd> 驳回</span><span class="gate-note">已满足逐条确认条件</span></footer>
+        </article>
+      </div>
+    </section>
+  </div>
+  <footer class="status"><span class="status-item"><span class="ring" aria-hidden="true"></span>本阶段用量 <span class="mono">41%</span></span><span>摄取余量 <span class="mono">1,280</span></span><span class="spacer"></span><span>风险 高 2 / 中 3 / 低 1 · 4 项待确认</span><span>阶段二 · 合同审查</span></footer>
+</div>
+<script>
+document.querySelector('.detail').addEventListener('mousemove',function(event){
+  var rect=this.getBoundingClientRect();
+  this.style.setProperty('--glow-y',Math.round(event.clientY-rect.top)+'px');
+});
+</script>
+</body>
+</html>
