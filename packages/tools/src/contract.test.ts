@@ -1,13 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as z from 'zod';
 import {
+  createToolEnvelopeSchema,
   createToolExecutor,
   defineTool,
+  ToolFailureReasonEnum,
   ToolInputValidationError,
   ToolNotConfiguredError,
   ToolNotImplementedError,
   ToolOutOfCoverageError,
+  ToolWebReferenceError,
   type ToolAdapter,
+  type WebReferencePayload,
 } from './contract.js';
 
 const FakeInputSchema = z.object({ id: z.string().min(1) });
@@ -27,6 +31,57 @@ function tool(adapter: ToolAdapter<FakeInput, FakeData>, overrides?: { timeoutMs
     adapter,
   );
 }
+
+const fakeWebReference: WebReferencePayload = {
+  kind: 'page',
+  metadata: {
+    url: 'https://example.invalid/a',
+    finalUrl: 'https://example.invalid/a',
+    fetchedAt: '2026-07-10T00:00:00.000Z',
+    contentType: 'html',
+    truncated: false,
+    possiblyIncomplete: false,
+  },
+  content: {
+    raw: '正文内容',
+    spotlighted: '<<<UNTRUSTED_WEB_DATA_tok_START>>>正文^内容<<<UNTRUSTED_WEB_DATA_tok_END>>>',
+    boundaryToken: 'tok',
+  },
+};
+
+describe('ToolFailureReasonEnum — web_reference', () => {
+  it('accepts "web_reference" as a valid reason literal (the 7th, C 级信源承载形态)', () => {
+    expect(ToolFailureReasonEnum.safeParse('web_reference').success).toBe(true);
+  });
+});
+
+describe('createToolEnvelopeSchema — web_reference payload coupling', () => {
+  const envelopeSchema = createToolEnvelopeSchema(FakeDataSchema);
+  const baseFailure = { verified: false as const, message: 'ok', checkedAt: '2026-07-10T00:00:00.000Z' };
+
+  it('accepts a web_reference failure envelope that carries a webReference payload', () => {
+    const result = envelopeSchema.safeParse({ ...baseFailure, reason: 'web_reference', webReference: fakeWebReference });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a web_reference failure envelope missing the webReference payload (structural coupling, not adapter self-discipline)', () => {
+    const result = envelopeSchema.safeParse({ ...baseFailure, reason: 'web_reference' });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a non-web_reference failure envelope that carries a webReference payload', () => {
+    const result = envelopeSchema.safeParse({ ...baseFailure, reason: 'adapter_error', webReference: fakeWebReference });
+    expect(result.success).toBe(false);
+  });
+
+  it('still rejects a failure envelope with no data field leaking through (webReference is not a back door for data)', () => {
+    const result = envelopeSchema.safeParse({ ...baseFailure, reason: 'adapter_error' });
+    expect(result.success).toBe(true);
+    if (!result.success) throw new Error('unreachable');
+    expect('data' in result.data).toBe(false);
+    expect('webReference' in result.data).toBe(false);
+  });
+});
 
 describe('defineTool — adapter identity is required at construction time', () => {
   it('throws immediately when the adapter declares an empty sourceId (construction-time failure, not a runtime degrade)', () => {
@@ -141,6 +196,24 @@ describe('createToolExecutor().execute — degradation never carries data', () =
     expect(result.verified).toBe(false);
     if (result.verified) throw new Error('unreachable');
     expect(result.reason).toBe('out_of_coverage');
+    expect('data' in result).toBe(false);
+  });
+
+  it('degrades to web_reference when run() throws ToolWebReferenceError, carrying the payload but no data field (C 级信源永远不是 verified:true)', async () => {
+    const t = tool({
+      sourceId: 's',
+      run: async () => {
+        throw new ToolWebReferenceError('fake-tool', '已抓取 C 级信源，仅供参考', fakeWebReference);
+      },
+    });
+    const executor = createToolExecutor();
+
+    const result = await executor.execute(t, { id: 'x' });
+
+    expect(result.verified).toBe(false);
+    if (result.verified) throw new Error('unreachable');
+    expect(result.reason).toBe('web_reference');
+    expect(result.webReference).toEqual(fakeWebReference);
     expect('data' in result).toBe(false);
   });
 });
@@ -282,5 +355,32 @@ describe('createToolExecutor().execute — caching', () => {
     expect(resultA.source).toBe('source-a');
     expect(resultB.source).toBe('source-b');
     expect(resultB.data).toEqual({ value: 2 });
+  });
+
+  it('caches a web_reference result even though verified is false: the second call does not invoke run() again (docs/20 允许 C 级抓取本身可缓存，只是永远不是 verified:true)', async () => {
+    const run = vi.fn(async () => {
+      throw new ToolWebReferenceError('fake-tool', 'ok', fakeWebReference);
+    });
+    const t = tool({ sourceId: 's', run }, { cacheTtlMs: 60_000 });
+    const executor = createToolExecutor();
+
+    const first = await executor.execute(t, { id: 'x' });
+    const second = await executor.execute(t, { id: 'x' });
+
+    expect(run).toHaveBeenCalledTimes(1);
+    expect(second).toEqual(first);
+  });
+
+  it('does not cache other failure reasons even after web_reference becomes cacheable (adapter_error stays a retry-every-time family)', async () => {
+    const run = vi.fn(async () => {
+      throw new Error('boom');
+    });
+    const t = tool({ sourceId: 's', run }, { cacheTtlMs: 60_000 });
+    const executor = createToolExecutor();
+
+    await executor.execute(t, { id: 'x' });
+    await executor.execute(t, { id: 'x' });
+
+    expect(run).toHaveBeenCalledTimes(2);
   });
 });
