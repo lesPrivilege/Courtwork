@@ -825,3 +825,30 @@ C. 画布-浮面三层（四章）
 
 纪律：TDD；显式路径分层提交（A/B/C 可分批 commit）；tokens 之外禁止硬编码色值；对既有 e2e 的改动只许因结构迁移，断言语义不得放宽；完工自检含 pnpm -r build。完工报告写明：elevation 提案全量、floor 新值、收缩态截图。
 ```
+
+## RP-1 验收（Claude Code，实现者 Grok，Build 门从严）
+
+```
+你认领 Courtwork 的 RP-1 验收（验收工程师，AGENTS.md 全判例 + 尾随 echo 判例 + 干净环境自跑不采信自述）。这是 Build 门：放行即出首个正式 Build，从严。
+
+范围提交：1800925（第 0 步代提交，核纯追加）/ 014ce0c（SPEC+tokens elevation 先写）/ 9f52b50（A+B+C 主体）/ 8a25b78（e2e 八例+floor 86+截图）/ 03a2f1a（口径补丁+floor 87）。先读：docs/49 全五章（含第四章补遗 elevation 放行三拍板）、docs/25 增补与修正、docs/52 批次三 #16/#17、apps/desktop/SPEC.md elevation 节、完工报告的 A1–A4/B1–B4/C1–C5 对照表（docs/11 上一单随附）。
+
+全局门：干净环境 pnpm -r build 9 包（退出码单查）→ Vitest 全绿 → Playwright 87/87 + floor=87（--list 计数核对，禁降史：78→86→87）→ 四门禁逐条 exit 0 → git 卫生（五枚提交文件清单，工作树净）。
+
+结构验收（按对照表逐 ID 核，重点抽实现不只跑测试）：
+1. A2 双证：ux1 #1 e2e 含「收起后再点仍成立」断言未放宽；读 App 的 select 强制 expandedCaseId 逻辑确认 toggle 对消已死。
+2. B2 单实例铁证：全库 grep ModelConfigPopover 挂载点必须唯一；context chip 实现只许 setModelConfigOpen(true)，无第二套读写。
+3. C2「只迁不清」：状态条用量/摄取/续行/产出/模型五项原位断言；阶段计数唯一权威位在 progress 面板头；statusbar 文案已改非计数描述。
+4. 标题栏琥珀仅 failed：e2e 三态驱动（pending/connected 无警示、failed 有）；琥珀使用位符合 docs/49 四章补遗白名单（全库 grep --elevation-warn 消费位仅 titlebar-credential-warn）。
+5. 混排列表：图标三态（案件/工作区/未归档）、未归档行尾「存入」接容器化仪式同一 popover、案件行独有 chevron、Pinned 区在上、无分区标题。
+6. 导航骨架：产出真路由实跳；定时/派发 aria-disabled + tooltip 零假活；全库无 Customize。
+7. #16：「先看」已改直白取消动词，主次按钮层级照 docs/32；#17：非 demo 案件无主办律师行 + CASE_SCOPE_AUDIT 有该行 + 单测断言。
+
+elevation 一致性专项（三处对表）：SPEC 提案值 ↔ tokens.json elevation 组 ↔ styles.css :root 变量逐 token 一致；全库 grep 消费侧无裸 hex/裸 12px 圆角绕过变量；box-shadow 全库仍 none；无新增色相（warn 三轨解析值 = gate.pending 三值）。
+
+真机/预览目视：L0/L1 层级成立（对话坐底色、三浮面 inset 不贴边零投影）；收缩态实测（enter-compact-layout → 画布+composer 浮卡+折叠按钮）与截图 22 对照；标题栏透明融入 chrome；专注模式/Tab/对照未回归。
+
+回归红线：既有 UX-1/SET-1 断言只许因结构迁移改（diff tests/e2e 逐文件看语义是否放宽）；D-1 切换矩阵、SET-1 诊断导出不回归（抽跑）。
+
+报告纯追加 apps/desktop/ACCEPTANCE.md「RP-1 验收」节。结论三问：RP-1 放行与否；base 是否定形；是否可出首个正式 Build（放行即触发，Build 工序另单）。
+```
