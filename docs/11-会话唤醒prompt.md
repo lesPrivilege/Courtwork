@@ -605,4 +605,17 @@ D-5 冒烟脚本无 key 时明确说明并跳过（跑一次验证）。
 3. schemas SPEC 记录增量；验证 apps/desktop 图谱矛盾边计数由 0 转正（现有消费逻辑应自动生效，若需一行适配属实现级可改）。
 ```
 
+## F-3｜最小 work 能力包：系统动词 + 工作稿轨（Grok 4.5，按新派发默认）
+
+```
+你是 Courtwork 的实现工程师（本工单任命：Grok 4.5）。范围：apps/desktop + packages/tools 的最小通用 work 能力。规格依据 docs/23 双轨增补节 + docs/29 增补 + docs/46 活清单（先登记再实现）。先读：AGENTS.md（git 三判例全适用：禁宽 add、commit 前查暂存、混合文件手术暂存+裸 commit）、docs/23、docs/27（凭证与安全红线）、docs/46。
+
+执行项（优先级排序）：
+1. **reveal-in-folder（最高优先，用户找不到文档是真实流失点）**：tools 契约新增受限系统动词工具——`reveal-in-folder` 与 `open-file` 两个动词，Tauri opener API 实现，**路径白名单限案件文件夹内**（越界路径 = 拒绝并降级报错，不静默）；每次调用 UI 有可见反馈（"已在访达中显示"/"已为您打开〔文件名〕"，零技术概念话术，macOS 称"访达"）。agent 可调用（进场景工具位）+ UI 按钮直调（产出 docx 卡片、状态条"打开产出文件夹"）双路径。永无任意命令执行。
+2. 工作稿轨：案件文件夹内新建/编辑 md/txt 工作稿（笔记/备忘/草稿），复用起草画布编辑面 + 自动保存；文件落案件文件夹"工作稿"子目录。
+3. **原件只读红线（有测试）**：上传的卷宗原件在任何路径不可写——工作稿轨与 system-open 的白名单都必须结构性排除原件写入；Playwright 断言原件区无编辑入口。
+4. docs/46 活清单登记本批新控件（reveal/open 按钮、新建工作稿入口）后再实现。
+验证：tools 契约测试 + desktop Vitest/Playwright + 假绿防护；截图入 visual-audit/；分层 pathspec commit（注意混合文件判例）。完工回报后独立验收（Claude Code 或 sol）。
+```
+
 后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
