@@ -1,0 +1,32 @@
+{
+  "name": "@courtwork/reading-view",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@courtwork/schemas": "workspace:*",
+    "@xmldom/xmldom": "^0.9.10",
+    "fflate": "^0.8.3",
+    "pdfjs-dist": "^5.4.296",
+    "remark-gfm": "^4.0.0",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@courtwork/demo-data": "workspace:*",
+    "@types/mdast": "^4.0.4",
+    "@types/node": "^26.1.1"
+  }
+}
