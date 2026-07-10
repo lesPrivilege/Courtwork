@@ -674,4 +674,19 @@ F-3：越界路径始终可见失败（构造越界用例亲测）；宿主零 s
 报告纯追加写入 apps/desktop/ACCEPTANCE.md"F-4 验收"节（schemas/tools 部分在各自 SPEC 留痕）。结论：F-4 是否放行；S6 卷宗整理是否可进演示剧本；FileOpsPlan 契约是否背书。
 ```
 
+## SEC-1｜push 前安全清扫（Grok 4.5，阻塞 push）
+
+```
+你认领 Courtwork 的 SEC-1 工单：远程 push 前的数据安全清扫。范围 = 工作树 + **git 全历史**（泄漏进历史的东西 push 后收不回）。AGENTS.md git 判例全适用；本单可改 .gitignore（实现级）。
+
+清扫清单：
+1. **凭证全历史扫描**：git log -p 全量 grep 密钥形态（sk-/api[_-]?key/token/password/BEGIN.*KEY 等模式）+ 工作树同扫。测试金丝雀假 key 需逐个确认标注为假（fake/canary 字样在旁）；发现任何疑似真实凭证 → 立即停止并报告（届时走历史清洗方案另议，不自行 filter-branch）。
+2. **.gitignore 加固 + 未跟踪核查**：.obsidian/（用户本地文档查看器，架构预裁不入 repo）、usecase/（真实判例 PDF，获取手法不宜分发，架构预裁不入 repo）、.claude/、apps/desktop/src-tauri/target/、node_modules、各类 reports/临时产物——加 ignore 并 `git log --all -- <路径>` 确认从未入过历史（入过则报告，不自行清洗）。
+3. **敏感数据抽查**：demo-data 虚构纪律复核（合批验收做过，抽查即可）；visual-audit 截图里无真实个人信息；测试夹具无真实当事人（CLAUDE.md 纪律）。
+4. **个人信息盘点（报告不处置）**：docs/工单 prompt 中的绝对路径（/Users/lesprivilege/...）、提交人邮箱、机器名等——列清单交用户定级（私有 repo 可留 / 公有须洗）。
+5. **仓库卫生**：他会话遗留的 acceptance-temp stash 提醒收口（stash 不 push，不阻塞）；大文件盘点（>5MB 逐个列出用途）；DMG 等构建产物不入库确认。
+6. 产出：SEC-1 报告（docs/51-push前安全清扫报告.md）——逐项结论 + .gitignore diff + 个人信息定级清单 + push 放行建议（放行/待用户定级/发现凭证阻塞三态之一）。
+纪律：只读扫描为主，唯一写操作是 .gitignore 与报告；发现历史污染不自行改写历史。
+```
+
 后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
