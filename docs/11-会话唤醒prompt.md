@@ -325,4 +325,22 @@ d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录
 处置规则同 AGENTS.md。结论写入 ACCEPTANCE.md 追加"补验结论"段：eval 是否放行作为正式模型选型与回归门禁（真实 provider 跑分仍按 SPEC TODO 挂账，不阻塞本结论）。
 ```
 
+## W6.2 补验（sol，范围 = W6 验收阻塞项整改）
+
+```
+你是 Courtwork 的验收工程师（AGENTS.md）。任务：对 W6.2 整改做补验——只复验 packages/core/ACCEPTANCE.md 判定的两项契约级阻塞与两项记录件，加整改自身的回归；W6 原报告已通过的项不重跑。
+
+先读：packages/core/ACCEPTANCE.md、packages/core/SPEC.md 的 W6.2 整改记录、docs/superpowers/plans/2026-07-10-w6.2-core-remediation.md、packages/schemas/SPEC.md 的两条增量记录。
+
+补验清单：
+1. 干净环境（整改会话因并行风险合理跳过、已如实记录，本次由你补跑——当前无并行会话）：rm -rf 所有 node_modules → pnpm install → 全量 test（口径 ≥297/packages + eval 64）→ lint → 真实 tsc build（6/6 非 eval 包）。
+2. 阻塞 1 核验：schemas 的 RevisionEvent.sessionId?（可选 + JSDoc"落盘必填"）、JSON Schema 再导出过 drift；core 落盘缺 sessionId 抛 MissingSessionIdError 有测试；executor 贯穿 sessionId。
+3. 阻塞 2 核验（重点）：Citation.evidenceKey? 落地；门禁只认 key 不解析展示文本、fail-closed；**你原报告的绕过手法在 grade.test.ts 被逐字复现并证明拦截**——亲自改一处展示文本再跑确认；手工新增无 key 引用按 C 级未确认拦截有测试；risk-07 保持诚实 locator_not_found（非门禁拦截），与 W6 基线逐字节一致。
+4. 记录件：core 通用层领域命名清理（rg 无残留领域词汇，改名 commit 独立）；eval 豁免已成文于 docs/21（核对存在即可）。
+5. demo:s3 亲手重跑：docx 39,713 字节、6 条批注可读、1 条 locator_not_found、事件序列与 W6 基线一致。
+6. 提交卫生：整改系列 commit 逐个核对文件清单（共享索引环境，eval/ACCEPTANCE.md 应无 core 会话触碰）；SPEC/ACCEPTANCE 记录为纯追加。
+
+处置规则同 AGENTS.md。结论以纯追加写入 packages/core/ACCEPTANCE.md"补验结论"段，必须明确回答两问：core 是否放行供 B 阶段（UI）消费；core MVP 是否宣告成立。
+```
+
 后续工单（W3/W8）验收实例在各实现会话回报后按同一结构生成。
