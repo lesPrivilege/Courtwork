@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { ArtifactTypeEnum } from '@courtwork/schemas';
 import { ARTIFACT_SCHEMAS } from './artifact-schemas.js';
 
 describe('ARTIFACT_SCHEMAS', () => {
-  it('has an entry for all six ArtifactType values', () => {
-    expect(Object.keys(ARTIFACT_SCHEMAS).sort()).toEqual(
-      ['CaseFile', 'PartyGraph', 'ReviewMatrix', 'RevisionInstructionSet', 'RiskList', 'Timeline'].sort(),
-    );
+  // F-4 验收补漏：改为从 ArtifactTypeEnum.options 派生。原断言写死六项字面量，
+  // schemas 增补 FileOpsPlan 后既没更新 Record 也没更新本清单；派生后二者增删自动跟随，不再漂移。
+  it('has an entry for every ArtifactType value (derived from enum, drift-proof)', () => {
+    expect(Object.keys(ARTIFACT_SCHEMAS).sort()).toEqual([...ArtifactTypeEnum.options].sort());
   });
 
   it('CaseFile entry validates a well-formed CaseFile and rejects a malformed one', () => {
