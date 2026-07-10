@@ -340,6 +340,7 @@
       "sourcePartyId": "p-linjiang-yzzb",
       "targetPartyId": "p-linjiang-jz",
       "relationType": "关联公司（受托实际生产与发货，非合同签约主体，见矛盾点2）",
+      "markers": ["contradiction"],
       "sourceAnchors": [
         {
           "fileId": "06-送货单-一.md",
@@ -364,6 +365,7 @@
       "sourcePartyId": "p-linjiang-mt",
       "targetPartyId": "p-linjiang-jz",
       "relationType": "关联公司（异常收款账户主体，非合同约定收款主体，见矛盾点4）",
+      "markers": ["contradiction"],
       "sourceAnchors": [
         {
           "fileId": "14-银行流水摘要.md",
