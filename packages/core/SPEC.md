@@ -22,6 +22,8 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 
 ## TODO（跨层放入区）
 
+- [架构拍板 2026-07-10，依据 docs/18] **Provider wire format 基线**：OpenAI Chat Completions 兼容格式为唯一主基线（国内六家 + vLLM/SGLang 私有化全部对齐）；**Anthropic 为具名例外**，纳入选型时走原生 Messages API 适配器，不做通用双基线。适配层须带 per-provider quirk 处理（docs/18 清单：base URL 差异、response_format 三档支持与静默吞参陷阱、reasoning 字段命名、参数互斥）。**结构化输出统一策略**：strict json_schema 优先 → 降级 json_object + zod 校验重试（校验失败即重试非放行，次数走配置）。MVP 首批接入：DeepSeek + 阿里百炼 Qwen + 火山方舟豆包；GLM（结构化证据弱）与 MiniMax（静默吞 response_format，违背本仓库反静默降级哲学）不进首批。eval 真实基线可先用 DeepSeek key 解锁（成本最低、门槛最低）。
+
 - [W6.1 微工单，2026-07-10 拍板，源自 sol review 裁决 2] **最小审阅遥测事件**：事件协议新增三个事件类型——`review_item_opened` / `review_evidence_expanded` / `review_disposition_submitted`（各带 sessionId/itemRef/时间戳），供确认质量分析（"秒批"识别在分析侧，MVP 只告警不阻断）。不采原始输入流；隐私归 docs/28 使用遥测档。TDD、独立 commit，不改既有事件语义。
 
 - [已解决 2026-07-10] ~~事件流协议设计时假设存在远程瘦客户端与异步确认~~——`ConfirmationActor`（渠道无关身份标识）+ `PendingConfirmation`（打包续行所需的一切并落盘，`ConfirmationStore`）+ `resumeScenario` 接受全新构造的依赖实例（模拟另一进程）。file store 测试证明"指向同一磁盘状态的全新实例能正确接续"不是类型层面的空话。W6 未实现任何真实网关适配器，协议不隐含确认方与 core 同进程/同机/同客户端。
