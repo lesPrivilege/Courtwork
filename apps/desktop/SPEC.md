@@ -1,6 +1,6 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 实现完成；P-3 UI 完成，PartyGraph 矛盾 marker 契约缺口标记 `[需架构拍板]`（2026-07-10）
+状态：P-1 / P-2 / P-3 完成；**composer 输入区整备完成（2026-07-10，Grok 4.5 实现）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
 
 ## 定位
 
@@ -142,6 +142,34 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 视觉对照：[`12-p3-graph-before-1440.png`](visual-audit/12-p3-graph-before-1440.png) / [`13-p3-graph-after-1440.png`](visual-audit/13-p3-graph-after-1440.png)。修复前只手排 10 节点 / 12 边；修复后 14 / 15 全量、dagre 自动分层、minimap 与完整主体/关系索引同屏。
 
 验证：`pnpm --filter @courtwork/desktop test:e2e` 26/26；G6 定向 3/3；`lint:graph`、`lint:signature`、`lint:motion`、desktop 生产构建通过；1440 实机复核控制台零 warning/error。
+
+## Composer 输入区整备（2026-07-10）
+
+规格：`docs/45-调研报告-composer输入区惯例.md`（架构审定）+ 工单裁决。实现位：`src/composer/`。
+
+### 交付对照
+
+| 裁决 | 落地 |
+|---|---|
+| 按钮族平铺不聚合 | 上传（曲别针）/ 案件文件夹 chip / 发送；拍照·扫描与语音常驻 `aria-disabled` + tooltip（模板「即将支持 · 当前可通过…」） |
+| Lucide 隐喻 + stroke 1.35 | `Icon.tsx` 内联 Lucide 路径，全局 `strokeWidth=1.35`，未引入 lucide 运行时包 |
+| 附件文件名 chip | 类型图标 + 中间截断文件名 + 移除；失败内联重试；2–5s 边框微光（`chip-glow` 1800ms opacity）；>5s 进度文案位；成功/失败 0ms 硬切 + 150ms border-color 光效层 |
+| 仅本条 vs 存入卷宗 | 默认仅本条；徽章 → popover 轻确认 → 硬切绿「已存入卷宗」；无反向操作 |
+| 拖放 / 粘贴 | 全窗 overlay 提示落点（工单覆盖 docs/45 输入框高亮建议）；⌘V 文件进 chip；纯文本粘贴走 textarea |
+| Enter / Shift+Enter + KBD | IME `compositionstart/end` 防误发；底部 `⏎ 发送 · ⇧⏎ 换行`（typography-density §五） |
+| reading-view 路由 | `convertToReadingView` 真实调用；`needs_ocr` / `disabled` → chip 失败态办案语言（零 OCR/API 黑话） |
+| 协议客户端 | 发送只写入中栏本地消息呈现；不新增 SessionEvent 业务逻辑 |
+
+### 跨包支撑（浏览器可打包）
+
+`@courtwork/reading-view` 原依赖 `node:crypto` / `Buffer`，desktop 打包失败。本工单在 reading-view 内改为纯 DataView + FNV 短哈希（**语义不变：漂移检测用短哈希，非安全用途**），reading-view 136 例回归全绿。属「授权消费方接通」所需的实现级适配，非契约变更。
+
+### 验证
+
+- Vitest（desktop）：17/17（协议 6 + composer 11）
+- Playwright：31/31（下限升至 31）；新增 `tests/e2e/composer.spec.ts` 5 例覆盖按钮态 / chip 生命周期与作用域 / 键盘 / 拖放粘贴 / needs_ocr 失败态
+- `lint:motion` / `lint:signature` / `lint:graph` / 生产构建通过
+- 截图：[`14-composer-input-1440.png`](visual-audit/14-composer-input-1440.png)
 
 ## 验证记录
 
