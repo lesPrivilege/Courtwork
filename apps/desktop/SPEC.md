@@ -203,6 +203,8 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 验证：tools 204 例；Playwright file-ops 3 例；假绿下限 60。
 
+边界（验收补充，如实声明）：F-4 演示宿主为内存 FS（`file-ops-demo.ts` 的 `createMemoryFileOpsHost`，与 F-3 mock 同构）——计划／执行／撤销／字节一致均在内存验证，不触真实磁盘；真磁盘 / Tauri `FileOpsHost` 装配为已知后续（`file-ops-host.ts` 已留「Node 真 FS / 未来 Tauri」注入点），不阻塞本批。
+
 ## F-2 全局动词补全（2026-07-10）
 
 规格：docs/46 十项裁决（1/3/6/7 + callout 复制）。五项均落地：
