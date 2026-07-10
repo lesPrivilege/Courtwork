@@ -11,9 +11,9 @@
   --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC; --tx-inv:#FAFAFA;
   --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
   --act-bg:#0A2540; --act-hover:#1A3A5C; --link:#2563EB;
-  --tier-a:#16A34A; --tier-a-bg:#F0FDF4; --tier-b:#64748B; --tier-b-bg:#F1F5F9; --tier-c:#D97706; --tier-c-bg:#FCF6E8;
-  --sev-high:#DC2626; --sev-high-bg:#FEF2F2; --sev-med:#D97706; --sev-med-bg:#FCF6E8; --sev-low:#64748B; --sev-low-bg:#F1F5F9;
-  --gate-pend:#D97706; --gate-conf:#16A34A; --gate-rej:#64748B;
+  --tier-a:#16A34A; --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-b:#64748B; --tier-b-fg:#475569; --tier-b-bg:#F1F5F9; --tier-c:#D97706; --tier-c-fg:#B45309; --tier-c-bg:#FCF6E8;
+  --sev-high:#DC2626; --sev-high-fg:#B91C1C; --sev-high-bg:#FEF2F2; --sev-med:#D97706; --sev-med-fg:#B45309; --sev-med-bg:#FCF6E8; --sev-low:#64748B; --sev-low-fg:#475569; --sev-low-bg:#F1F5F9;
+  --gate-pend:#D97706; --gate-pend-fg:#B45309; --gate-conf:#16A34A; --gate-conf-fg:#15803D; --gate-rej:#64748B; --gate-rej-fg:#475569;
   --line-rest:#CBD3DC; --prov-bg:#F5F7F9;
   --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
   --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
@@ -22,6 +22,7 @@
 html,body{height:100%}
 body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-surface);display:flex;flex-direction:column;min-width:1280px;overflow:hidden;font-variant-numeric:tabular-nums}
 a{color:var(--link);text-decoration:none} a:hover{color:#1D4ED8;text-decoration:underline}
+:where(a,button,[tabindex]):focus-visible{outline:2px solid var(--link);outline-offset:2px}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .num{font-variant-numeric:tabular-nums}
 kbd{font-family:var(--mono);font-size:11px;line-height:1;color:var(--tx-2);background:#FFF;border:1px solid var(--bd-strong);border-bottom-width:2px;border-radius:4px;padding:1px 5px;display:inline-block;vertical-align:middle}
@@ -67,10 +68,10 @@ button{font-family:var(--sans)}
 .card{position:relative;align-self:flex-start;width:94%;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 16px}
 .card .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,var(--line-rest));border-radius:4px 0 0 4px}
 .card-title{display:flex;align-items:center;gap:8px;font-weight:510;font-size:13px}
-.badge{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;letter-spacing:.02em;color:var(--line,var(--line-rest))}
+.badge{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;letter-spacing:.02em;color:var(--line-fg,var(--tx-3))}
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;vertical-align:middle;white-space:nowrap}
 .tierbox{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;font-family:var(--mono);font-size:12px;flex:none}
-.tier-a{color:var(--tier-a);background:var(--tier-a-bg)} .tier-b{color:var(--tier-b);background:var(--tier-b-bg)} .tier-c{color:var(--tier-c);background:var(--tier-c-bg)}
+.tier-a{color:var(--tier-a-fg);background:var(--tier-a-bg)} .tier-b{color:var(--tier-b-fg);background:var(--tier-b-bg)} .tier-c{color:var(--tier-c-fg);background:var(--tier-c-bg)}
 
 .progress-head{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
 .pbar{height:4px;background:var(--bg-hover);border-radius:2px;overflow:hidden;margin:4px 0 8px}
@@ -83,7 +84,7 @@ button{font-family:var(--sans)}
 .skel{height:8px;border-radius:3px;background:var(--bd-hair);flex:1;max-width:200px;animation:breath 2000ms ease-in-out infinite alternate}
 @keyframes breath{from{opacity:.55}to{opacity:1}}
 @property --ga{syntax:'<angle>';inherits:false;initial-value:0deg}
-.task-glow{border-radius:5px;padding:1px;background:conic-gradient(from var(--ga),var(--bd-hair) 0deg,var(--bd-hair) 300deg,#3E6FA8 330deg,var(--bd-hair) 360deg);animation:glowspin 1800ms linear infinite;align-self:flex-start;width:94%}
+.task-glow{border-radius:5px;padding:1px;background:conic-gradient(from var(--ga),var(--bd-hair) 0deg,var(--bd-hair) 300deg,rgba(10,37,64,.55) 330deg,var(--bd-hair) 360deg);animation:glowspin 1800ms linear infinite;align-self:flex-start;width:94%}
 @keyframes glowspin{to{--ga:360deg}}
 .task-glow .inner{position:relative;background:var(--bg-raised);border-radius:4px;padding:8px 16px}
 .task-glow .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line-rest);border-radius:4px 0 0 4px}
@@ -109,14 +110,15 @@ button{font-family:var(--sans)}
 .trow:hover{background:var(--bg-hover)}
 .trow>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .trow .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,var(--line-rest));padding:0}
-.trow:hover .sline{background:linear-gradient(to bottom,var(--line,var(--line-rest)) 0,var(--line-glow,#E3E9EF) var(--gy,50%),var(--line,var(--line-rest)) 100%)}
 .trow .dt{font-family:var(--mono);font-size:12px;color:var(--tx-3);padding-left:16px}
-.trow .eb{font-family:var(--mono);font-size:12px;color:var(--line,var(--line-rest))}
+.trow .eb{font-family:var(--mono);font-size:12px;color:var(--line-fg,var(--tx-3))}
 .trow .amt{font-family:var(--mono);font-size:12px;text-align:right;color:var(--tx-2)}
 .trow .src{font-size:12px}
 .trow.expanded{background:var(--bg-hover)}
 .tdetail{position:relative;border-bottom:1px solid var(--bd-hair);background:var(--bg-raised);padding:8px 16px 16px;font-size:13px}
 .tdetail .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line)}
+.tdetail.detail-lined:hover .sline{background:linear-gradient(to bottom,var(--line) 0,var(--line) calc(var(--gy,50%) - 20px),color-mix(in srgb,var(--line),white 35%) var(--gy,50%),var(--line) calc(var(--gy,50%) + 20px),var(--line) 100%)}
+.tdetail.detail-lined:hover::after{content:attr(data-citation);position:absolute;right:8px;top:var(--gy,8px);font:12px/1.5 var(--mono);color:var(--tx-3);background:var(--bg-raised);padding:0 4px}
 .tdetail p{color:var(--tx-2);max-width:64em;text-wrap:pretty}
 .quote{margin-top:8px;background:var(--prov-bg);border-radius:4px;padding:8px 12px;display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--tx-2);max-width:64em}
 .quote .q{font-family:var(--mono);color:var(--tx-3)}
@@ -129,9 +131,11 @@ button{font-family:var(--sans)}
 .glabel{font-size:12px;fill:var(--tx-1)}
 .gedge{stroke:var(--line-rest);stroke-width:1}
 .gedge.warn{stroke:var(--sev-med);stroke-width:1.5}
-.gelabel{font-size:10.5px;fill:var(--tx-3)}
-.gelabel.warn{fill:var(--sev-med)}
-.gtag{font-size:10.5px;font-weight:510}
+.gelabel{font-size:12px;fill:var(--tx-3)}
+.gelabel.warn{fill:var(--sev-med-fg)}
+.gtag{font-size:12px;font-weight:510}
+.edge-hit{stroke:transparent;stroke-width:12;pointer-events:stroke;cursor:pointer}
+.edge-hit:focus-visible{stroke:color-mix(in srgb,var(--link),transparent 75%);outline:none}
 ::-webkit-scrollbar{width:10px}::-webkit-scrollbar-thumb{background:var(--bd-strong);border-radius:5px;border:2px solid var(--bg-surface)}::-webkit-scrollbar-track{background:transparent}
 </style>
 </head>
@@ -154,7 +158,7 @@ button{font-family:var(--sans)}
 <div class="toolbar" data-screen-label="工具栏">
   <span class="crumb"><b>阶段一 · 阅卷整理</b><span class="sep">›</span>结构化阅卷 <span class="mono" style="font-size:12px;color:var(--tx-3)">卷宗 16/20 已摄取</span></span>
   <span class="sp"></span>
-  <span class="chip" style="color:var(--gate-pend);background:var(--tier-c-bg)">时间线待确认</span>
+  <span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">时间线待确认</span>
   <button class="gbtn">确认时间线</button>
   <button class="gbtn">修正</button>
 </div>
@@ -186,8 +190,8 @@ button{font-family:var(--sans)}
         <span class="sline"></span>
         <div class="progress-head"><span style="font-weight:510;font-size:13px">卷宗摄取中</span><span class="mono" style="font-size:12px;color:var(--tx-3)">16/20</span><span style="font-size:12px;color:var(--tx-3)">预计还需约 2 分钟</span></div>
         <div class="pbar"><i></i></div>
-        <div class="ingest-row"><span class="st" style="color:var(--tier-a)">✓</span><span class="fname">16-律师函</span><span class="note">完成 · 律师函</span></div>
-        <div class="ingest-row"><span class="st" style="color:var(--tier-a)">✓</span><span class="fname">17-债权转让通知书</span><span class="note">完成 · 债权转让文书</span></div>
+        <div class="ingest-row"><span class="st" style="color:var(--tier-a-fg)">✓</span><span class="fname">16-律师函</span><span class="note">完成 · 律师函</span></div>
+        <div class="ingest-row"><span class="st" style="color:var(--tier-a-fg)">✓</span><span class="fname">17-债权转让通知书</span><span class="note">完成 · 债权转让文书</span></div>
         <div class="ingest-row"><span class="st" style="color:var(--tx-3)">…</span><span class="fname">18-保证书</span><span class="note">正在识别文书类型…</span></div>
         <div class="ingest-row"><span class="st" style="color:var(--tx-3)">…</span><span class="fname">19-授权委托书</span><span class="note">正在对齐当事人名称…</span></div>
         <div class="ingest-row"><span class="st" style="color:var(--tx-4)">·</span><span class="fname" style="color:var(--tx-3)">20-企业信用信息查询单</span><span class="skel"></span></div>
@@ -196,8 +200,8 @@ button{font-family:var(--sans)}
 
       <div class="card" style="--line:var(--gate-pend)">
         <span class="sline"></span>
-        <div class="card-title"><span class="badge" style="color:var(--gate-pend)">E</span>时间线与关系图谱已生成（基于已完成的 16 件）</div>
-        <p style="font-size:13px;color:var(--tx-2);margin-top:4px">事件 <span class="num">47</span> 件、主体 <span class="num">14</span> 个、关系 <span class="num">15</span> 条。其中 <b style="color:var(--sev-med);font-weight:510">4 处陈述矛盾</b>已在时间线标出：催告主体不符、发货主体为关联公司、验收结论前后矛盾、付款金额与账户不符。剩余卷宗摄取完成后自动补全。</p>
+        <div class="card-title"><span class="badge" style="color:var(--gate-pend-fg)">E</span>时间线与关系图谱已生成（基于已完成的 16 件）</div>
+        <p style="font-size:13px;color:var(--tx-2);margin-top:4px">事件 <span class="num">47</span> 件、主体 <span class="num">14</span> 个、关系 <span class="num">15</span> 条。其中 <b style="color:var(--sev-med-fg);font-weight:510">4 处陈述矛盾</b>已在时间线标出：催告主体不符、发货主体为关联公司、验收结论前后矛盾、付款金额与账户不符。剩余卷宗摄取完成后自动补全。</p>
       </div>
 
       <div class="task-glow">
@@ -235,15 +239,15 @@ button{font-family:var(--sans)}
           <div class="amt">3,800,000</div><div class="src"><a href="#" title="打开原文并高亮">D04</a></div>
         </div>
 
-        <div class="tgrid trow lined" style="--line:var(--sev-med);--line-glow:#EBB35C">
+        <div class="tgrid trow lined" style="--line:var(--sev-med)">
           <span class="sline"></span><div class="dt">2024-08-26</div><div class="eb">E08</div>
-          <div>预付款实际到账（迟延 2 日），与起诉状陈述日期不符 <span class="chip" style="color:var(--sev-med);background:var(--sev-med-bg)">矛盾点4</span></div>
+          <div>预付款实际到账（迟延 2 日），与起诉状陈述日期不符 <span class="chip" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">矛盾点4</span></div>
           <div class="amt">1,140,000</div><div class="src"><a href="#">D14</a></div>
         </div>
 
-        <div class="tgrid trow lined" style="--line:var(--sev-med);--line-glow:#EBB35C">
+        <div class="tgrid trow lined" style="--line:var(--sev-med)">
           <span class="sline"></span><div class="dt">2024-10-15</div><div class="eb">E14</div>
-          <div>第一批设备交付，发货单位为临江精铸（云章）装备有限公司 <span class="chip" style="color:var(--sev-med);background:var(--sev-med-bg)">矛盾点2</span></div>
+          <div>第一批设备交付，发货单位为临江精铸（云章）装备有限公司 <span class="chip" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">矛盾点2</span></div>
           <div class="amt">—</div><div class="src"><a href="#">D06</a></div>
         </div>
 
@@ -259,9 +263,9 @@ button{font-family:var(--sans)}
           <div class="amt">—</div><div class="src"><a href="#">D09</a> <a href="#">D15</a></div>
         </div>
 
-        <div class="tgrid trow lined" style="--line:var(--sev-med);--line-glow:#EBB35C">
+        <div class="tgrid trow lined" style="--line:var(--sev-med)">
           <span class="sline"></span><div class="dt">2024-12-20</div><div class="eb">E28</div>
-          <div>会议纪要（一）：柯清源称验收当日即发现异常、尚未正式验收 <span class="chip" style="color:var(--sev-med);background:var(--sev-med-bg)">矛盾点3</span></div>
+          <div>会议纪要（一）：柯清源称验收当日即发现异常、尚未正式验收 <span class="chip" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">矛盾点3</span></div>
           <div class="amt">—</div><div class="src"><a href="#">D12</a></div>
         </div>
 
@@ -272,12 +276,12 @@ button{font-family:var(--sans)}
         </div>
 
         <!-- E31 展开态：矛盾点逐条核对（含核验引语底纹） -->
-        <div class="tgrid trow lined expanded" style="--line:var(--sev-med);--line-glow:#EBB35C">
+        <div class="tgrid trow lined expanded" style="--line:var(--sev-med)">
           <span class="sline"></span><div class="dt">2025-01-10</div><div class="eb">E31</div>
-          <div style="font-weight:510">催告函（一）落款盖章主体与合同卖方不符 <span class="chip" style="color:var(--sev-med);background:var(--sev-med-bg)">矛盾点1</span> <span style="color:var(--tx-3)">▾</span></div>
+          <div style="font-weight:510">催告函（一）落款盖章主体与合同卖方不符 <span class="chip" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">矛盾点1</span> <span style="color:var(--tx-3)">▾</span></div>
           <div class="amt">—</div><div class="src"><a href="#">D10</a></div>
         </div>
-        <div class="tdetail" style="--line:var(--sev-med)">
+        <div class="tdetail detail-lined" data-citation="会议纪要 D13" style="--line:var(--sev-med)">
           <span class="sline"></span>
           <p>临江精铸发出催告函（一），落款加盖<b style="font-weight:510">临江精铸集团有限公司</b>公章，而合同卖方为临江精铸科技有限公司。催告主体与合同主体不一致，可能影响催告的效力认定与违约金起算点。</p>
           <div class="quote"><span class="tierbox tier-b">B</span><a href="#" title="打开原文并高亮">10-催告函-一</a><span class="q">「（盖章：临江精铸集团有限公司）」</span></div>
@@ -287,9 +291,9 @@ button{font-family:var(--sans)}
           </div>
         </div>
 
-        <div class="tgrid trow lined" style="--line:var(--sev-med);--line-glow:#EBB35C">
+        <div class="tgrid trow lined" style="--line:var(--sev-med)">
           <span class="sline"></span><div class="dt">2025-01-22</div><div class="eb">E33</div>
-          <div>起云智能付款至临江贸易账户，非合同约定收款账户 <span class="chip" style="color:var(--sev-med);background:var(--sev-med-bg)">矛盾点4</span></div>
+          <div>起云智能付款至临江贸易账户，非合同约定收款账户 <span class="chip" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">矛盾点4</span></div>
           <div class="amt">500,000</div><div class="src"><a href="#">D14</a></div>
         </div>
 
@@ -338,12 +342,12 @@ button{font-family:var(--sans)}
           <line class="gedge" x1="752" y1="252" x2="728" y2="204"/><text class="gelabel" x="742" y="248">诉讼代理人</text>
 
           <g><rect class="gnode" x="40" y="28" width="160" height="34" rx="4"/><text class="glabel" x="120" y="49" text-anchor="middle">临江精铸集团有限公司</text></g>
-          <g><rect class="gnode" x="40" y="168" width="160" height="36" rx="4" stroke="#0A2540"/><text class="glabel" x="112" y="190" text-anchor="middle">临江精铸科技</text><text class="gtag" x="168" y="190" fill="#DC2626">原告</text></g>
+          <g><rect class="gnode" x="40" y="168" width="160" height="36" rx="4" stroke="#0A2540"/><text class="glabel" x="112" y="190" text-anchor="middle">临江精铸科技</text><text class="gtag" x="168" y="190" fill="#B91C1C">原告</text></g>
           <g><rect class="gnode" x="250" y="88" width="180" height="34" rx="4"/><text class="glabel" x="340" y="109" text-anchor="middle">临江精铸（云章）装备</text></g>
           <g><rect class="gnode" x="250" y="158" width="190" height="34" rx="4"/><text class="glabel" x="345" y="179" text-anchor="middle">临江精铸国际贸易（云章）</text></g>
           <g><rect class="gnode" x="40" y="300" width="170" height="34" rx="4"/><text class="glabel" x="125" y="321" text-anchor="middle">华瑞商业保理（云章）</text></g>
           <g><rect class="gnode" x="620" y="28" width="170" height="34" rx="4"/><text class="glabel" x="705" y="49" text-anchor="middle">起云控股集团有限公司</text></g>
-          <g><rect class="gnode" x="600" y="168" width="210" height="36" rx="4" stroke="#0A2540"/><text class="glabel" x="695" y="190" text-anchor="middle">起云智能装备（虚构）</text><text class="gtag" x="768" y="190" fill="#2563EB">被告</text></g>
+          <g><rect class="gnode" x="600" y="168" width="210" height="36" rx="4" stroke="#0A2540"/><text class="glabel" x="695" y="190" text-anchor="middle">起云智能装备（虚构）</text><text class="gtag" x="768" y="190" fill="#1D4ED8">被告</text></g>
 
           <g><circle class="gnode" cx="258" cy="40" r="12"/><text class="glabel" x="258" y="70" text-anchor="middle">封文昌</text></g>
           <g><circle class="gnode" cx="80" cy="252" r="12"/><text class="glabel" x="80" y="282" text-anchor="middle">梅昭阳</text></g>
@@ -366,7 +370,7 @@ button{font-family:var(--sans)}
 
 <!-- ============ 全局状态条 ============ -->
 <footer class="statusbar" data-screen-label="状态条">
-  <span class="ring" title="卷宗占用 14% · 对话占用 4%">
+  <span class="ring" tabindex="0" role="button" aria-label="本阶段用量 18%，查看用量明细" title="卷宗占用 14% · 对话占用 4%">
     <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="var(--bd-hair)" stroke-width="2.5"/><circle cx="8" cy="8" r="6" fill="none" stroke="var(--tier-b)" stroke-width="2.5" stroke-dasharray="6.8 30.9" stroke-linecap="butt" transform="rotate(-90 8 8)"/></svg>
     本阶段用量 <span class="num">18%</span>
   </span>
@@ -378,11 +382,19 @@ button{font-family:var(--sans)}
 </footer>
 
 <script>
-document.querySelectorAll('.lined').forEach(function(el){
+document.querySelectorAll('.detail-lined').forEach(function(el){
   el.addEventListener('mousemove', function(e){
     var r = el.getBoundingClientRect();
     el.style.setProperty('--gy', Math.round((e.clientY - r.top) / r.height * 100) + '%');
   });
+});
+document.querySelectorAll('.gedge').forEach(function(edge,index){
+  var hit=edge.cloneNode(false);
+  hit.setAttribute('class','edge-hit');
+  hit.setAttribute('tabindex','0');
+  hit.setAttribute('role','link');
+  hit.setAttribute('aria-label','打开关系 '+(index+1)+' 的依据');
+  edge.parentNode.insertBefore(hit,edge.nextSibling);
 });
 </script>
 </body>
