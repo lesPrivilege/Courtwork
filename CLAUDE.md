@@ -4,7 +4,7 @@
 
 ## 给 Claude Code 会话的总纲
 
-本仓库的实现方式是：**每个层（package/service）由独立的 Claude Code 会话（Sonnet 5）认领实现**。开工前必读三样：本文件、`docs/10-实施切分-层与工单.md`、你认领那层的 `SPEC.md`。只做 SPEC 划定的范围，跨层需求写进对应层的 SPEC 提 TODO，不要顺手实现。
+本仓库的实现方式是：**每个层（package/service）由独立会话认领实现**——默认由 Claude Code（Sonnet 5）担任，架构会话可按工单另行任命（如 B 阶段 UI 任命 sol；角色治理三不变量见 AGENTS.md）。开工前必读三样：本文件、`docs/10-实施切分-层与工单.md`、你认领那层的 `SPEC.md`。只做 SPEC 划定的范围，跨层需求写进对应层的 SPEC 提 TODO，不要顺手实现。
 
 ## 架构与依赖方向
 
