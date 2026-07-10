@@ -548,4 +548,18 @@ D-5 冒烟脚本无 key 时明确说明并跳过（跑一次验证）。
 比例原则：抽查制，与 P-1/P-2 同队列连续执行。Stage 2 挂账已记（ELK 切换判据、sigma.js 量级评估、Observable Plot/ECharts 分诊）——不预做。
 ```
 
+## P-4｜图标体系与 SVG 工程规范（sol，随 P 队列执行）
+
+```
+你认领 Courtwork 的 P-4 工单（实现者 sol）。目标：图标体系建库 + 模型编写 SVG 的工程规范落地。规格依据 docs/44-调研报告-组件与图标库.md（已架构审定）。前提裁决不重开：产品内素材一律 SVG-as-code，image-gen 不入产品 UI。
+
+执行项：
+1. Lucide 接入（首选已裁定：ISC、stroke 全局锁 1.35px、tree-shaking 按需引入）；存量手工图标逐个替换或保留（保留需符合规范第 3 条）；Tabler 仅补缺口且人工核对描边密度后混用。
+2. SVG 工程规范成文（docs/32-设计语言包/ 新增 svg-standards.md）：24×24 网格、1.35px 描边、stroke=currentColor、禁内联色值/禁 fill、元素白名单、svgo 配置（preset-default + removeViewBox:false + floatPrecision:2 + multipass）、16px/24px 缩小可辨自查、**命名按形状而非法律用途**（docs/22 纪律的图标层体现）。
+3. 校验脚本自写（CI 可跑）：规范第 2 条的机器可查项全覆盖（通用 eslint-svg 插件已停维，不引入）。
+4. 领域图标首批 17 个自绘（docs/44 缺口清单：卷宗/盖章核验/门禁三态/定稿冻结/修订矛盾/图谱摄取/生成核验区隔/分层确认/阶段续行/场景入口等）：模型编写 SVG → 过校验脚本 → 16px 自查截图入 visual-audit/ → 架构抽查人审。
+5. Base UI 不在本工单（触发式引入，判据：下一个需要 Dialog/Popover 级新组件时）；packages/ui 不抽（第二个 UI 壳出现前不动）。
+比例原则同 P 队列：抽查制。
+```
+
 后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
