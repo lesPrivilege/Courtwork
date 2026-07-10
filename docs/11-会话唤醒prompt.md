@@ -444,4 +444,24 @@ d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录
 纪律：Anthropic 原生适配器不在本工单（具名例外，选型需要时另立）；显式路径提交；SPEC 完工记录。
 ```
 
+## Polish 验收（Claude Code，实现者为 sol，范围 = 72f5756/f59e8c0/f8ec008 三提交）
+
+```
+你认领 Courtwork 的 polish 工单验收（角色：验收工程师，AGENTS.md 约束全适用，注意宽 add 禁令与 commit 前查暂存清单两条新判例）。实现者 sol 已回报完工。
+
+先读：AGENTS.md、docs/11 polish 工单原文（8 项）、docs/35（de-slop 12 条 + Split-Tab 细则）、docs/32/signature-line.md 文末架构修订、apps/desktop/SPEC.md 的销账与截图索引、docs/27 凭证节。
+
+验收清单：
+1. 构建链干净自跑：install → Vitest（口径 6）→ Playwright（口径 17，核对假绿下限）→ lint → desktop build → Cargo（1）→ Tauri release → codesign/DMG 校验 → 挂载实际启动。原协议契约测试文件逐字节比对未改（git diff 核实，防"改测试凑绿"）。
+2. 静默态取消实证：开 app 走查——无语义状态卡片无左线；语义线只在红/琥珀/蓝/绿态出现；左栏对话流中 D/E 引用芯片的细左线核实其语义定义（在 tokens/规格里有出处则过，纯装饰则记缺陷）；AI callout 全 app 仅允许的形态与数量核对。
+3. de-slop 12 条逐条走查（对照 docs/35 表格 + visual-audit/ 截图索引），任何一条未达标记录具体屏位。
+4. Split-Tab Grid 行为实测：默认 Tab；上下对切；≥1600px 左右分栏解锁（改窗口宽度实测）；让宽（左栏折叠图标条 + 中栏收窄）；一键复位。
+5. 缩放沙盒：图谱面板内滚轮缩放/平移可用；其余四面 Ctrl/Cmd+滚轮无效果（逐面实测）；图谱节点连线同坐标系（拖动/缩放不脱节）。
+6. 验收三发现销账：起草画布渲染态编辑（无 ## 暴露，含无障碍树抽查）；时间线消费 markers——用 evt-24（应高亮）/evt-25（不应高亮）断言（S-1 实证样本）；批量门禁逐条提交（驳回一条后检查上报载荷按条目携带处置）。
+7. 凭证实装：首启引导掩码全程；显式粘贴/指定已有凭证两路径；Rust 端 keyring 系统凭证库、WebView 无明文读取命令（读源码核实 IPC 面）；**key 不进事件流/日志/错误对象**（grep + 触发一次失败观察日志）。
+8. 提交卫生：三提交文件清单核对（共享索引环境，reading-view/eval 等并行文件不应在内）。
+
+报告纯追加写入 apps/desktop/ACCEPTANCE.md"polish 验收"节。结论明确：是否放行为"对外可演示版"（Developer ID 公证仍为既有边界不阻塞）。sol 本轮表现照例记录。
+```
+
 后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
