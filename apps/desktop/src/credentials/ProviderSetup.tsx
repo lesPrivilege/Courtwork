@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { credentialClient, type CredentialSource, type CredentialStatus } from './client';
+import {
+  connectionLabel,
+  credentialClient,
+  type CredentialSource,
+  type CredentialStatus,
+} from './client';
 
 interface ProviderSetupProps {
   open: boolean;
@@ -24,20 +29,26 @@ export function ProviderSetup({ open, allowSkip, onClose, onStatusChange }: Prov
   if (!open) return null;
 
   const save = async () => {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      setMessage(source === 'pasted' ? '请先粘贴访问凭证' : '请填写电脑中的凭证名称');
-      return;
-    }
     setSaving(true);
     setMessage('');
     try {
-      const status = await credentialClient.save(source, trimmed);
-      setValue('');
+      const status = await credentialClient.save(source, value);
+      // 探针结果驱动：失败态不关闭、不乐观已连接
       onStatusChange(status);
-      onClose();
+      if (status.phase === 'connected') {
+        setValue('');
+        onClose();
+        return;
+      }
+      setMessage(status.failureMessage ?? '暂时无法完成连接，请检查后重试');
     } catch {
-      setMessage('暂时无法安全保存，请检查后重试');
+      const failed: CredentialStatus = {
+        phase: 'failed',
+        source,
+        failureMessage: '钥匙串授权未通过，请重试或重新填写',
+      };
+      onStatusChange(failed);
+      setMessage(failed.failureMessage!);
     } finally {
       setSaving(false);
     }
@@ -70,7 +81,7 @@ export function ProviderSetup({ open, allowSkip, onClose, onStatusChange }: Prov
         <span aria-hidden="true">⌑</span>
         <p>粘贴的内容只保存到电脑的安全凭证库，不写入案件记录、运行记录或使用统计。Courtwork 不会查找其他应用的设置。</p>
       </div>
-      {message && <p className="form-message" role="alert">{message}</p>}
+      {message && <p className="form-message" role="alert" data-testid="provider-setup-error">{message}</p>}
       <footer>
         {allowSkip && <button className="quiet-button" onClick={onClose}>先查看演示</button>}
         {!allowSkip && <button className="quiet-button" onClick={onClose}>取消</button>}
@@ -79,3 +90,5 @@ export function ProviderSetup({ open, allowSkip, onClose, onStatusChange }: Prov
     </section>
   </div>;
 }
+
+export { connectionLabel };
