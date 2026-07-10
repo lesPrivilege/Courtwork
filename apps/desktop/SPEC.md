@@ -1,6 +1,35 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；**D-1 真机三缺陷修复完成（2026-07-11）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；**UX-1 批次一 + D-1 打回完成（2026-07-11，待独立验收）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
+
+## UX-1 微调批次一（2026-07-11）
+
+实现范围：docs/52 #1–#10 + D-1 打回 0a/0b。裁决不重开。
+
+### 0a composer chip 案件作用域
+
+- `App` 注入 `cases` 投影 + `activeCaseId`；禁止非 demo 粘滞 `DEMO_CASE_OPTIONS`。
+- 容器切换同步 chip 文案并清空附件；`CASE_SCOPE_AUDIT` 补登 `Composer DEMO_CASE_OPTIONS / case chip`。
+- 死路由表补行（下表）；切换矩阵 e2e 断言 chip 不含「临江」。
+
+### 0b e2e 光标依赖
+
+- 统一 `tests/e2e/helpers.ts` → `openWorkbench` 末尾 `page.mouse.move(0,0)`，消除 `onMouseEnter` 抢占初始高亮。
+
+### 批次要点
+
+| # | 落点 |
+|---|---|
+| 1 | `case-file-count` 点击滚入 `originals-zone` |
+| 2 | `container-copy.ts` 双词表；`CaseSummary.kind` |
+| 3 | 无容器存入 → `containerize-popover`（创建案件/项目） |
+| 4/5 | 平铺上传·chip·发送；`+` 菜单收纳相机/语音/文件夹 |
+| 6 | `composer-folder-input` webkitdirectory 批量附件 |
+| 7 | `ThinkingStream` 默认折叠 + spark-lines |
+| 9 | **结论：G6 minimap 右下角库蓝** → `courtwork-minimap` tokens 压制 |
+| 10 | 状态条模型名 → popover 读写 provider/模型/推理强度（标准·深思） |
+
+验证：desktop Vitest **49**；Playwright **74/74**；假绿下限 **74**。
 
 ## D-1 真机实测三缺陷修复（2026-07-11）
 
@@ -48,12 +77,13 @@
 | `flow` / `session` / 处置态 | 应派生 | `selectedCaseId` 切换整体 `__clear__` + 重置 |
 | `createDemoClient` 单例 | 合法全局 | 仅 demo 调 replay |
 | 凭证 browserStatus | 合法全局 | 本机域非案件域 |
+| `Composer DEMO_CASE_OPTIONS` / case chip | 死路由（UX-1 0a 已修） | activeCase 投影注入；随切换重置 |
 
-**容器切换矩阵**（Playwright）：demo(A) 有状态 → 新建 B 零继承 → 回 A 恢复 → 再进 B 仍空。
+**容器切换矩阵**（Playwright）：demo(A) 有状态 → 新建 B 零继承（含 composer chip）→ 回 A 恢复 → 再进 B 仍空。
 
 截图：`visual-audit/22-d1-credential-failed-1440.png` / `23-d1-new-case-empty-1440.png`。
 
-验证：desktop Vitest 45；Playwright **67/67**；假绿下限 67。
+验证（D-1 当时）：desktop Vitest 45；Playwright 67/67。**UX-1 后见上节 49 / 74。**
 
 ## 定位
 
