@@ -20,13 +20,13 @@ prompts:
     {{input}}
 
 providers:
-  - id: file://../src/mock-providers/mock-thorough-provider.ts
+  - id: file://../src/promptfoo/mock-providers/mock-thorough-provider.ts
     label: mock-thorough
-  - id: file://../src/mock-providers/mock-fast-provider.ts
+  - id: file://../src/promptfoo/mock-providers/mock-fast-provider.ts
     label: mock-fast
 
 tests: file://../src/promptfoo/tests-entry.ts:s3Tests
 
 defaultTest:
   options:
-    provider: file://../src/mock-providers/mock-judge-provider.ts
+    provider: file://../src/promptfoo/mock-providers/mock-judge-provider.ts
