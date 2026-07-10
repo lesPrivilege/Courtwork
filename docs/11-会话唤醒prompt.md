@@ -515,4 +515,18 @@ D-5 冒烟脚本无 key 时明确说明并跳过（跑一次验证）。
 【报告】写入 docs/42-合批验收报告-MVP补强.md（新建）。结论必须明确回答三问：四张工单各自是否放行；五项契约变更（web_reference/缓存门禁/needs_ocr/markers/auth.billing 判别）是否背书；MVP 补强是否齐备、可进入"真实 key 首跑 + 对外演示"阶段。
 ```
 
+## P-2｜交互反馈与空路由收尾（sol，最后一轮 UX debug）
+
+```
+你认领 Courtwork 的 P-2 工单（实现者 sol）。目标：消灭"点击木讷"——补交互确认反馈层，清理空路由。规格依据 docs/19-调研报告-交互反馈动效.md（已架构审定），既有拍板不动：数据区绝对静止，但界面必须应答。
+
+执行项：
+1. 反馈时长阶梯表全站落地（docs/19 第五节七行表）：按压态 60–80ms（数据卡零位移零缩放，仅按钮加深底色）；hover 全站统一 120ms ease-out（架构裁决：原 100/150 两处不一致收敛于此，principles.md/tokens 同步修订）；Tab 指示器 80–120ms + 内容区 0ms 瞬切；面板对切 0ms；确认/驳回落定 = 本体 0ms 硬切 + 150ms 非对称衰减光效叠加层；续行跳转 200–260ms。
+2. 技术纪律：纯 CSS transition/animation + Web Animations API，不引入 motion 库；只动 transform/opacity/background-color/border-color 四类属性（lint 可查则加查）。
+3. 绝不许做八条（docs/19）写进 principles.md 并逐条自查：整卡位移/缩放、弹簧回弹、spinner 裸奔、状态本体淡入淡出、Tab crossfade、hover 阴影升起、动画 layout 属性、入口物理消失重现。
+4. 空路由清理（docs/19 判据）：结构位（三栏帧、五工作面 Tab）永不隐藏，用既有文字型空态；功能/场景级入口一律禁用态 + tooltip 说明（如"模型服务·待连接"先例），不物理隐藏——保护空间记忆。逐路由走查清单入 SPEC。
+5. Playwright：按压态/落定光效/Tab 时长抽样断言 + 空态走查用例；全量回归；截图前后对照入 visual-audit/。
+比例原则同 P-1：完工回报架构会话抽查，不走完整验收轮。与 P-1 可同会话连续执行。
+```
+
 后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
