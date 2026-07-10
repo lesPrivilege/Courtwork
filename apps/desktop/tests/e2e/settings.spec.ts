@@ -1,0 +1,102 @@
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { expect, test } from '@playwright/test';
+import { openWorkbench } from './helpers';
+
+test.describe('SET-1 设置页', () => {
+  test('标题栏齿轮与 ⌘K 设置动词打开全局设置层', async ({ page }) => {
+    await openWorkbench(page);
+    await expect(page.getByTestId('settings-page')).toHaveCount(0);
+    await page.getByTestId('open-settings').click();
+    await expect(page.getByTestId('settings-page')).toBeVisible();
+    await expect(page.getByTestId('settings-section-model')).toBeVisible();
+    await page.getByTestId('settings-close').click();
+    await expect(page.getByTestId('settings-page')).toHaveCount(0);
+
+    await page.keyboard.press('Meta+K');
+    await page.getByRole('option', { name: '设置', exact: true }).click();
+    await expect(page.getByTestId('settings-page')).toBeVisible();
+  });
+
+  test('分组切换 0ms 且真实路由组行为可用', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('open-settings').click();
+
+    // 模型：凭证入口 + provider + maxUsd
+    await expect(page.getByTestId('settings-credential-phase')).toBeVisible();
+    await page.getByTestId('settings-provider').selectOption('qwen');
+    await page.getByTestId('settings-model').selectOption('qwen-max');
+    await page.getByRole('radio', { name: '深思' }).check();
+    await expect(page.getByTestId('settings-model-summary')).toContainText('Qwen Max');
+    await expect(page.getByTestId('settings-model-summary')).toContainText('深思');
+    await page.getByTestId('settings-maxusd').fill('8');
+    await page.getByTestId('settings-maxusd-save').click();
+    await expect(page.getByTestId('system-open-feedback')).toContainText('8');
+
+    // 产出目录：选择文件夹路径可见 + reveal 在有路径时可用
+    await page.getByTestId('settings-nav-output').click();
+    await expect(page.getByTestId('settings-section-output')).toBeVisible();
+    await expect(page.getByTestId('settings-reveal-output-dir')).toBeDisabled();
+    const outDir = mkdtempSync(join(tmpdir(), 'cw-settings-out-'));
+    writeFileSync(join(outDir, 'note.txt'), 'x');
+    await page.getByTestId('settings-output-folder-input').setInputFiles(outDir);
+    await expect(page.getByTestId('settings-output-dir')).not.toHaveText(/尚未设置/);
+    await expect(page.getByTestId('settings-reveal-output-dir')).toBeEnabled();
+
+    // 隐私：遥测开关 + opt-in 确认制带时间戳
+    await page.getByTestId('settings-nav-privacy').click();
+    const telemetry = page.getByTestId('settings-telemetry');
+    await expect(telemetry).toBeChecked();
+    await telemetry.uncheck();
+    await expect(telemetry).not.toBeChecked();
+    await page.getByTestId('settings-optin-on').click();
+    await expect(page.getByTestId('settings-optin-confirm')).toBeVisible();
+    await page.getByTestId('settings-optin-confirm-yes').click();
+    await expect(page.getByTestId('settings-optin-timestamp')).toBeVisible();
+    await page.getByTestId('settings-optin-off').click();
+    await expect(page.getByTestId('settings-optin-timestamp')).toHaveCount(0);
+
+    // 数据承诺声明页文书级文案
+    await page.getByTestId('settings-nav-promise').click();
+    await expect(page.getByTestId('settings-promise-doc')).toContainText('案件内容永不训练');
+    await expect(page.getByTestId('promise-never-train')).toBeVisible();
+
+    // 关于：版本 + 诊断导出（下载不拦截断言按钮可用）
+    await page.getByTestId('settings-nav-about').click();
+    await expect(page.getByTestId('settings-version')).toHaveText('0.1.0');
+    await expect(page.getByTestId('settings-export-diagnostics')).toBeEnabled();
+  });
+
+  test('预留组一律禁用态 + tooltip，无假开关', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('open-settings').click();
+
+    await page.getByTestId('settings-nav-output').click();
+    const sources = page.getByTestId('settings-sources');
+    await expect(sources).toHaveAttribute('aria-disabled', 'true');
+    await expect(sources).toHaveAttribute('title', /即将支持/);
+
+    await page.getByTestId('settings-nav-channels').click();
+    for (const id of ['wecom', 'feishu', 'email', 'enterprise-lib'] as const) {
+      const btn = page.getByTestId(`settings-channel-${id}-btn`);
+      await expect(btn).toHaveAttribute('aria-disabled', 'true');
+      await expect(btn).toHaveAttribute('title', /即将支持/);
+    }
+
+    await page.getByTestId('settings-nav-privacy').click();
+    await expect(page.getByTestId('settings-clear-prefs')).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByTestId('settings-clear-prefs')).toHaveAttribute('title', /清除记住的偏好|即将支持/);
+
+    await page.getByTestId('settings-nav-about').click();
+    await expect(page.getByTestId('settings-check-update')).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByTestId('settings-check-update')).toHaveAttribute('title', /即将支持/);
+  });
+
+  test('管理凭证打开既有探针对话框', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('open-settings').click();
+    await page.getByTestId('settings-open-credentials').click();
+    await expect(page.getByTestId('provider-setup')).toBeVisible();
+  });
+});
