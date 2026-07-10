@@ -562,4 +562,20 @@ D-5 冒烟脚本无 key 时明确说明并跳过（跑一次验证）。
 比例原则同 P 队列：抽查制。
 ```
 
+## F-1｜composer 输入区整备（Grok 4.5 实现试点——首次实现任命）
+
+```
+你是 Courtwork 的实现工程师（本工单任命：Grok 4.5——你此前已通过验收校准，本单为实现能力校准；AGENTS.md 三不变量与实现处置规则对你同等约束，git 纪律注意：禁宽 add、commit 前查 git diff --cached --name-only、pathspec 限定 commit）。
+
+范围：apps/desktop 中栏 composer 输入区整备。规格依据 docs/45-调研报告-composer输入区惯例.md（已架构审定）+ 以下裁决，先读：AGENTS.md、docs/45、docs/32-设计语言包/（tokens/principles 全部硬约束）、docs/19（反馈阶梯 + 八禁）、docs/41（缺口三态）。
+
+裁决（照案执行）：
+1. 按钮族平铺不聚合：文件上传、案件文件夹选择、发送（真实）+ 拍照/扫描、语音（禁用态常驻置灰 + tooltip，文案模板"〔功能〕即将支持 · 当前可通过〔替代路径〕实现"，零技术概念话术）。图标全用 Lucide 通用隐喻（stroke 1.35px 全局锁定）。
+2. 附件用文件名 chip（类型图标 + 截断文件名 + 移除 + 失败重试内联），上传 2–5s 边框微光、>5s 事件流进度；成功/失败本体 0ms 硬切 + 150ms 衰减光效。
+3. "仅本条 vs 存入卷宗"：默认仅本条；chip 带可点击归属徽章 → popover 轻确认（增量型不可逆按比例原则用轻确认，非 modal）→ 确认后硬切绿"已存入卷宗"，无反向操作（与定稿编译同一单向纪律）。
+4. 拖放（全窗 overlay 提示落点）与 ⌘V 粘贴文件；Enter 发送/Shift+Enter 换行 + KBD 提示（typography-density.md §五规格）。
+5. 上传路由：真实接 packages/reading-view 转换（needs_ocr/disabled 状态如实呈现为 chip 失败态 + 说明）；发送与事件流对接沿用既有协议客户端，不新增业务逻辑进壳。
+验证：Playwright 覆盖按钮态/chip 生命周期/作用域确认/拖放粘贴 + 假绿防护；截图入 visual-audit/；显式路径分层提交。完工回报后由 Claude Code 会话验收（异模型不变量）。
+```
+
 后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
