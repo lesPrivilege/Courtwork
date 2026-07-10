@@ -1,6 +1,6 @@
 # SPEC: apps/desktop（W9）
 
-状态：B 阶段 UX polish 实现完成，等待独立验收（2026-07-10）
+状态：P-1 / P-2 实现完成，等待架构会话比例抽查（2026-07-10）
 
 ## 定位
 
@@ -57,7 +57,7 @@
 | 6 | 全局 `box-shadow:none`；静态面板、卡、弹层全部依靠 1px 描边与底色差分层。 |
 | 7 | `.app-shell` 全域 `font-variant-numeric:tabular-nums`，日期/案号/金额/编号另叠 mono。 |
 | 8 | 色彩全部取 `tokens.json` 现有色值；不采 docs/35 第 8 条的示例映射扩展色义。 |
-| 9 | 数据区无自发动效；只保留 100ms token hover 与长任务已拍板呼吸点，语义状态仍 0ms 硬切。 |
+| 9 | 数据区无自发动效；P-2 已将 hover 全站统一为 120ms ease-out，并保留长任务已拍板呼吸点；语义状态仍 0ms 硬切。 |
 | 10 | 各工作面无数据时统一文字 + 1px 虚线框 + 快捷键引导，无插画资产。 |
 | 11 | 案件名、风险文本、图谱节点/关系、文件名和矩阵单元格单行省略，`title` 提供完整文本。 |
 | 12 | 全局 5px 滚动条，静止透明，hover 显示 `border.strong` 滑块。 |
@@ -85,6 +85,10 @@
 
 ## P-2 交互反馈与空路由收尾（2026-07-10）
 
+- 时长阶梯全站落地：按钮按压 70ms、hover 120ms ease-out、Tab 指示器 100ms / 内容 0ms、面板对切 0ms、确认/驳回本体 0ms + 150ms border-color 光效层、续行回执 240ms。
+- 确认/驳回光效由 Web Animations API 驱动独立叠加层；其余反馈用 CSS transition/keyframes。新增 `lint:motion` 静态门禁并接入 `test:e2e`，只放行 transform / opacity / background-color / border-color。
+- 续行入口落定后保留原位并转禁用态，240ms 回执只动 opacity + `translateY(4px→0)`；未引入任何 motion 依赖。
+
 ### 逐路由走查清单
 
 | 结构位 / 路由 | 走查结果 | 空缺处置 |
@@ -98,6 +102,23 @@
 | 工具栏与输入区 | 模型服务入口可打开首启引导 | 审阅记录、导出审阅稿、自由输入均保留原位，以禁用态 + tooltip 如实声明未接通 |
 
 Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工具栏、自由输入、矩阵与时间线的禁用入口和说明；假绿下限升至 24。
+
+### 八禁自查
+
+| # | 自查结论 |
+|---|---|
+| 1 整卡/整行位移缩放 | 通过：按压回归同时锁定按钮与数据卡 `transform:none`。 |
+| 2 弹簧回弹 | 通过：依赖与源码扫描无 spring / motion，实现只用 ease-out。 |
+| 3 spinner 裸奔 | 通过：源码无 spinner；既有长任务仍为骨架呼吸/事件流进度。 |
+| 4 状态本体淡入淡出 | 通过：门禁徽章与法理之线 `transition:none/0s`，150ms 仅存在于独立边色光效层。 |
+| 5 Tab crossfade | 通过：`.view-content` 无 transition/animation，只有指示器 transform 100ms。 |
+| 6 hover 阴影升起 | 通过：全站 `box-shadow:none`，hover 仅背景/边色。 |
+| 7 动画 layout 属性 | 通过：`lint:motion` 扫描 CSS transition/keyframes 与 WAAPI，只允许四类属性。 |
+| 8 入口物理消失重现 | 通过：五 Tab / 三栏帧常驻；续行、工具栏、输入、溯源空缺均保留原位禁用并说明。 |
+
+视觉对照：[`10-p2-feedback-before-1440.png`](visual-audit/10-p2-feedback-before-1440.png) / [`11-p2-feedback-after-1440.png`](visual-audit/11-p2-feedback-after-1440.png)。修复后可见 Tab 指示器及审阅记录/导出/自由输入的诚实禁用态。
+
+验证：`pnpm --filter @courtwork/desktop test:e2e` 24/24、Vitest 6/6、`pnpm lint`、desktop 生产构建、`lint:motion` 全部通过。
 
 ## 验证记录
 
