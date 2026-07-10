@@ -115,4 +115,35 @@ describe('RevisionEventSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('round-trips an optional sessionId instead of silently stripping it', () => {
+    const result = RevisionEventSchema.safeParse({
+      id: 'rev-009',
+      timestamp: '2026-07-10T10:00:00Z',
+      actor: { userId: 'user-001' },
+      artifactType: 'RiskList',
+      artifactId: 'risk-list-case-001',
+      fieldPath: '/risks/0/level',
+      previousValue: 'medium',
+      newValue: 'high',
+      sessionId: 'session-abc',
+    });
+    expect(result.success).toBe(true);
+    expect(result.success && result.data.sessionId).toBe('session-abc');
+  });
+
+  it('still accepts an event with no sessionId at all (backward compatible with historical data)', () => {
+    const result = RevisionEventSchema.safeParse({
+      id: 'rev-010',
+      timestamp: '2026-07-10T10:05:00Z',
+      actor: { userId: 'user-001' },
+      artifactType: 'RiskList',
+      artifactId: 'risk-list-case-001',
+      fieldPath: '/risks/0/level',
+      previousValue: 'medium',
+      newValue: 'high',
+    });
+    expect(result.success).toBe(true);
+    expect(result.success && result.data.sessionId).toBeUndefined();
+  });
 });

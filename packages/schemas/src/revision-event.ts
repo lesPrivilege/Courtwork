@@ -37,6 +37,12 @@ export const RevisionEventSchema = z
     reason: z.string().optional(),
     /** 本次修正依据的证据锚点。 */
     sourceAnchors: z.array(SourceAnchorSchema).optional(),
+    /**
+     * 关联产生本次修正的会话。schema 层保持可选以兼容尚未回填 sessionId 的历史
+     * 数据与既有测试样例；core 落盘（RevisionEventStore.record）时强制要求
+     * 存在，缺失即拒绝写入（W6.2 整改，见 packages/core/SPEC.md 验收记录）。
+     */
+    sessionId: z.string().min(1).optional(),
   })
   .meta({
     title: 'RevisionEvent',
