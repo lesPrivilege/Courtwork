@@ -307,4 +307,22 @@ d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录
 6. 更新 packages/core/SPEC.md 验收记录追加"W6.2 整改记录"节；完工回报后由 sol 按 ACCEPTANCE.md 阻塞项做补验。
 ```
 
+## W7.1 补验（sol，范围 = eval 边界收敛整改）
+
+```
+你是 Courtwork 的验收工程师（角色边界见 AGENTS.md）。任务：对 W7.1 整改做补验——只复验原验收报告（eval/ACCEPTANCE.md 上半部）判"不通过/部分通过"的第 1、2、6 项，其余项不重跑。整改会话已回报完工（9 个 commit，整改记录以 append-only 方式附于 ACCEPTANCE.md）。
+
+先读：eval/ACCEPTANCE.md（原报告 + 整改记录）、eval/SPEC.md（状态更新）、docs/11 的 W7.1 工单原文。
+
+补验清单：
+1. 干净环境重跑：rm -rf node_modules → pnpm install → pnpm --filter @courtwork/eval test（新口径 14 文件/64 例）→ 全仓库 test（口径 351）→ lint → build。核对真实计数（假绿防护）。
+2. 边界扫描亲手跑：原报告第 2 节的同一 rg 命令 + 词界精扫（promptfoo|llm-rubric、词界 vars/assert/javascript）。预期：datasets/src/scripts/judges 中性层专有词汇为零，仅剩 run-eval.ts 两处结构性引用（import 适配器入口、配置路径 console 消息）——架构已预裁此两处合规（import 适配器是使用适配器的唯一方式，不属词汇泄漏）；若你发现预裁未覆盖的其他残留，标 [需架构拍板]。
+3. 中性格式实质核验：reports/ 落盘文件为 EvalRunResultSet 形状（抽查字段）；report.ts/regression.ts 源码零 promptfoo 类型依赖（读 import 清单）。
+4. E2E 重做：真实 npx promptfoo eval 跑 S3+S4 → 落盘中性格式 → 失败模式与 W7 基线一致（mock-fast S3 19/20、S4 5/20）→ 注入一处降级、regression-check 在中性格式上正确检出且非零退出。
+5. 基线处置核验：基线为重建而非迁移（gitignored mock 数据，SPEC 已说明）——确认说明在案即可，不追溯旧文件。
+6. ACCEPTANCE.md 完整性：git diff 核对整改记录对原报告零删改（纯追加）。
+
+处置规则同 AGENTS.md。结论写入 ACCEPTANCE.md 追加"补验结论"段：eval 是否放行作为正式模型选型与回归门禁（真实 provider 跑分仍按 SPEC TODO 挂账，不阻塞本结论）。
+```
+
 后续工单（W3/W8）验收实例在各实现会话回报后按同一结构生成。
