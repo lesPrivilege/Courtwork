@@ -38,4 +38,12 @@ describe('createRuntimeGuard', () => {
     guard.checkStep();
     expect(() => guard.checkToolCall()).not.toThrow();
   });
+
+  it('checkTime catches wall-clock overrun after one long asynchronous operation returns', () => {
+    let elapsedSeconds = 0;
+    const guard = createRuntimeGuard({ maxSeconds: 5 }, () => elapsedSeconds);
+    guard.checkStep();
+    elapsedSeconds = 6;
+    expect(() => guard.checkTime()).toThrow(RuntimeLimitExceededError);
+  });
 });

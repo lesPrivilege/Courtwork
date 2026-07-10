@@ -550,6 +550,29 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
     );
   });
 
+  it('throws when one provider call itself crosses maxSeconds before returning', async () => {
+    let nowMs = 0;
+    const deps = buildDeps([]);
+    deps.provider = {
+      id: 'slow-provider',
+      modelId: 'configured-model',
+      async generate() {
+        nowMs = 6_000;
+        return { content: JSON.stringify(VALID_RISK_LIST) };
+      },
+    };
+    deps.limits = { maxSeconds: 5 };
+    deps.nowMs = () => nowMs;
+
+    await expect(
+      runScenario(
+        SINGLE_GATE_SCENARIO,
+        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        deps,
+      ),
+    ).rejects.toThrow(RuntimeLimitExceededError);
+  });
+
   it('a fresh runScenario/resumeScenario call gets a fresh budget (limits are scoped per call, not persisted across resume)', async () => {
     const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
     deps.limits = { maxSteps: 1 };

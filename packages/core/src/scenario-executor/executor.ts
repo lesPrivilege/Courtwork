@@ -76,6 +76,7 @@ async function runTools(
     const binding = deps.tools.get(toolId);
     if (!binding) throw new UnknownToolError(scenario.id, toolId);
     const envelope = await deps.toolExecutor.execute(binding.tool, toolInputs[toolId]);
+    guard.checkTime();
     results[toolId] = envelope;
     if (envelope.verified) {
       deps.ledger.record(toolId, { grade: binding.grade, sourceId: envelope.source, confirmed: false });
@@ -182,6 +183,7 @@ async function produceSequence(
       { inputArtifacts: state.inputArtifacts, toolResults: state.toolResults, producedSoFar: state.producedSoFar },
       deps.provider,
     );
+    guard.checkTime();
     state.producedSoFar[artifactType] = artifact;
     deps.eventLog.append({ type: 'artifact_produced', artifactType, artifact, evidenceGrades: deps.ledger.snapshot() });
 

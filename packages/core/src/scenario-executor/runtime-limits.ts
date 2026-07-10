@@ -26,6 +26,8 @@ export class RuntimeLimitExceededError extends Error {
 export interface RuntimeGuard {
   checkStep(): void;
   checkToolCall(): void;
+  /** 异步工作返回后复核 wall-clock，避免单次长调用绕过 maxSeconds。 */
+  checkTime(): void;
 }
 
 /** nowSeconds 是可注入的时钟（测试用假时钟），返回"自 guard 创建以来经过的秒数"。 */
@@ -52,6 +54,9 @@ export function createRuntimeGuard(limits: RuntimeLimits, elapsedSeconds: () => 
       if (limits.maxToolCalls !== undefined && toolCalls > limits.maxToolCalls) {
         throw new RuntimeLimitExceededError('maxToolCalls', limits.maxToolCalls);
       }
+      checkSeconds();
+    },
+    checkTime() {
       checkSeconds();
     },
   };
