@@ -81,6 +81,36 @@ test('S1 关系图谱提供关系选择与原文依据', async ({ page }) => {
   await expect(page.getByTestId('graph-panel')).toBeVisible();
   await expect(page.getByRole('group', { name: '当事人关系图谱' })).toBeVisible();
   await expect(page.getByRole('button', { name: '全资控股母公司（持股100%） e-01' })).toBeVisible();
+  await page.getByRole('button', { name: '临江精铸集团有限公司 p-linjiang-jt' }).click();
+  await expect(page.getByTestId('graph-source-kind')).toHaveText('节点关联依据');
+  await expect(page.locator('.relation-evidence q')).toContainText('临江精铸科技有限公司（持股100%）');
+  await page.getByRole('button', { name: '全资控股母公司（持股100%） e-01' }).click();
+  await expect(page.getByTestId('graph-source-kind')).toHaveText('关系依据');
+});
+
+test('G6 dagre 全量渲染 14 节点 15 边且节点标签零重叠', async ({ page }) => {
+  await openWorkbench(page);
+  await page.getByTestId('flow-s1').click();
+  await page.getByTestId('view-graph').click();
+  const panel = page.getByTestId('graph-panel');
+  await expect(panel).toHaveAttribute('data-renderer', 'g6');
+  await expect(panel).toHaveAttribute('data-layout', 'dagre');
+  await expect(panel).toHaveAttribute('data-node-count', '14');
+  await expect(panel).toHaveAttribute('data-edge-count', '15');
+  await expect(panel).toHaveAttribute('data-layout-ready', 'true');
+
+  const nodes = JSON.parse(await panel.getAttribute('data-layout-nodes') ?? '[]') as Array<{ id: string; label: string; x: number; y: number; width: number; height: number }>;
+  expect(nodes).toHaveLength(14);
+  for (const node of nodes) expect(node.label.length).toBeGreaterThan(0);
+  for (let left = 0; left < nodes.length; left += 1) {
+    for (let right = left + 1; right < nodes.length; right += 1) {
+      const a = nodes[left];
+      const b = nodes[right];
+      const overlaps = Math.abs(a.x - b.x) < (a.width + b.width) / 2
+        && Math.abs(a.y - b.y) < (a.height + b.height) / 2;
+      expect(overlaps, `${a.id} 与 ${b.id} 的节点/标签几何重叠`).toBe(false);
+    }
+  }
 });
 
 test('无极缩放只在关系图谱沙盒内生效', async ({ page }) => {
@@ -88,10 +118,11 @@ test('无极缩放只在关系图谱沙盒内生效', async ({ page }) => {
   await page.getByTestId('flow-s1').click();
   await page.getByTestId('view-graph').click();
   const sandbox = page.getByTestId('graph-zoom-sandbox');
+  await expect(page.getByTestId('graph-panel')).toHaveAttribute('data-layout-ready', 'true');
   const before = Number(await sandbox.getAttribute('data-zoom'));
   await sandbox.dispatchEvent('wheel', { deltaY: -180, ctrlKey: true, bubbles: true, cancelable: true });
   await expect.poll(async () => Number(await sandbox.getAttribute('data-zoom'))).toBeGreaterThan(before);
-  await expect(page.getByTestId('graph-world')).not.toHaveCSS('transform', 'none');
+  expect(await sandbox.locator('canvas').count()).toBeGreaterThanOrEqual(1);
 });
 
 test('非图谱工作面拦截 Ctrl+滚轮且不改变视口', async ({ page }) => {

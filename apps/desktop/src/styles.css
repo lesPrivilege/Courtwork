@@ -181,29 +181,23 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .tier-b { color: var(--slate-fg); background: var(--slate-bg); }
 .tier-c { color: var(--amber-fg); background: var(--amber-bg); }
 
-.graph-layout { min-height: 100%; height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 200px; grid-template-rows: minmax(300px, 1fr) auto; background: var(--bg-surface); }
-.graph-canvas { position: relative; min-height: 320px; margin: 10px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background-color: #fff; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 40px 40px; overflow: hidden; cursor: grab; touch-action: none; }
+.graph-layout { min-height: 100%; height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 180px; grid-template-rows: minmax(300px, 1fr) auto; background: var(--bg-surface); }
+.graph-canvas { position: relative; min-height: 320px; margin: 10px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff; overflow: hidden; cursor: grab; touch-action: none; }
 .graph-canvas:active { cursor: grabbing; }
-.graph-world { position: absolute; left: 50%; top: 50%; transform-origin: 50% 50%; will-change: transform; }
-.graph-world svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.graph-world line { stroke: var(--border-strong); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-.graph-node { position: absolute; z-index: 1; max-width: 160px; padding: 5px 8px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff; overflow: hidden; color: var(--text-primary); cursor: pointer; font-size: 12px; text-overflow: ellipsis; transform: translate(-50%, -50%); white-space: nowrap; }
-.graph-node:hover { background: var(--bg-hover); }
-.graph-node:disabled { background: #fff; color: var(--text-secondary); cursor: not-allowed; }
+.g6-host { position: absolute; inset: 0; }
+.g6-host canvas { display: block; }
+.courtwork-minimap { z-index: 2; }
 .graph-controls { position: absolute; z-index: 3; top: 8px; right: 8px; display: flex; gap: 3px; padding: 3px; border: 1px solid var(--border-strong); border-radius: 4px; background: #fff; }
 .graph-controls button { width: 26px; height: 26px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 2px; background: transparent; cursor: pointer; }
 .graph-controls button:hover { background: var(--bg-hover); }
-.graph-overview { position: absolute; z-index: 2; right: 8px; bottom: 8px; width: 120px; height: 72px; border: 1px solid var(--border-strong); border-radius: 4px; background: rgba(255,255,255,.94); overflow: hidden; }
-.graph-overview svg { width: 100%; height: 100%; }
-.graph-overview line { stroke: var(--border-strong); stroke-width: 6; }
-.graph-overview circle { fill: var(--slate-graphic); }
-.graph-overview > span { position: absolute; inset: 10px 18px; border: 1px solid var(--text-primary); transform-origin: center; }
 .relation-list { min-height: 0; overflow: auto; border-left: 1px solid var(--border); background: #fff; }
+.relation-list h3 { position: sticky; z-index: 1; top: 0; margin: 0; padding: 6px 8px; border-bottom: 1px solid var(--border); background: var(--bg-surface); color: var(--text-tertiary); font: 12px/1.5 var(--mono); font-variant-numeric: tabular-nums; }
 .relation-list button { width: 100%; display: flex; gap: 7px; padding: 6px 8px; border: 0; border-bottom: 1px solid var(--border); background: #fff; cursor: pointer; text-align: left; font-size: 12px; }
 .relation-list button:hover, .relation-list button.selected { background: var(--bg-selected); }
 .relation-list span { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .relation-list small { color: var(--text-tertiary); font: 12px/1.5 var(--mono); font-variant-numeric: tabular-nums; }
 .relation-evidence { grid-column: 1 / -1; margin: 0 12px 10px; }
+.relation-evidence header { grid-column: 1 / -1; color: var(--text-tertiary); font: 12px/1.5 var(--mono); font-variant-numeric: tabular-nums; }
 
 .matrix-wrap { min-width: 760px; }
 .matrix-wrap table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12px; }

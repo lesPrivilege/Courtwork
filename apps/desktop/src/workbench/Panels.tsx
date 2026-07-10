@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode, type WheelEvent } from 'react';
-import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/schemas';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import type { ReviewMatrix, RiskList, Timeline } from '@courtwork/schemas';
 import type { ReviewDispositionState, ReviewGateProjection } from '../protocol/client';
-import { Icon } from './Icon';
 
 export type LineTone = 'danger' | 'attention' | 'revision' | 'authority' | 'neutral';
 
@@ -91,101 +90,6 @@ export function TimelinePanel({ timeline, grade }: { timeline: Timeline; grade?:
       </article>
     </div>
   </StaticViewport>;
-}
-
-const GRAPH_WIDTH = 720;
-const GRAPH_HEIGHT = 460;
-const GRAPH_FIT_ZOOM = .78;
-const GRAPH_POSITIONS = [
-  { x: 100, y: 75 }, { x: 360, y: 65 }, { x: 620, y: 80 },
-  { x: 160, y: 190 }, { x: 380, y: 180 }, { x: 600, y: 205 },
-  { x: 90, y: 350 }, { x: 280, y: 340 }, { x: 480, y: 350 }, { x: 650, y: 350 },
-];
-
-export function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?: 'A' | 'B' | 'C' }) {
-  const visibleNodes = graph.nodes.slice(0, 10);
-  const visibleNodeIds = useMemo(() => new Set(visibleNodes.map((node) => node.id)), [visibleNodes]);
-  const visibleEdges = graph.edges.filter((edge) => visibleNodeIds.has(edge.sourcePartyId) && visibleNodeIds.has(edge.targetPartyId)).slice(0, 12);
-  const positions = useMemo(() => new Map(visibleNodes.map((node, index) => [node.id, GRAPH_POSITIONS[index]])), [visibleNodes]);
-  const [selectedEdge, setSelectedEdge] = useState(visibleEdges[0] ?? graph.edges[0]);
-  const [zoom, setZoom] = useState(GRAPH_FIT_ZOOM);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const drag = useRef<{ x: number; y: number; panX: number; panY: number } | undefined>(undefined);
-
-  if (!visibleNodes.length) return <div className="graph-layout"><EmptyState noun="关系节点" shortcut="⌘I" /></div>;
-
-  const changeZoom = (next: number) => setZoom(Math.min(2.4, Math.max(.55, next)));
-  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
-    if (!event.ctrlKey && !event.metaKey) return;
-    event.preventDefault();
-    changeZoom(zoom * Math.exp(-event.deltaY * .002));
-  };
-  const beginPan = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if ((event.target as HTMLElement).closest('button')) return;
-    drag.current = { x: event.clientX, y: event.clientY, panX: pan.x, panY: pan.y };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-  const movePan = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!drag.current) return;
-    setPan({ x: drag.current.panX + event.clientX - drag.current.x, y: drag.current.panY + event.clientY - drag.current.y });
-  };
-
-  return <div className="graph-layout" data-testid="graph-panel">
-    <div
-      className="graph-canvas"
-      role="group"
-      aria-label="当事人关系图谱"
-      data-testid="graph-zoom-sandbox"
-      data-zoom={zoom.toFixed(3)}
-      onWheel={handleWheel}
-      onPointerDown={beginPan}
-      onPointerMove={movePan}
-      onPointerUp={() => { drag.current = undefined; }}
-      onPointerCancel={() => { drag.current = undefined; }}
-    >
-      <div className="graph-controls" aria-label="图谱视图控制">
-        <button aria-label="放大图谱" title="放大" onClick={() => changeZoom(zoom + .15)}><Icon name="plus" /></button>
-        <button aria-label="缩小图谱" title="缩小" onClick={() => changeZoom(zoom - .15)}><Icon name="minus" /></button>
-        <button aria-label="复位图谱" title="适应窗口" onClick={() => { setZoom(GRAPH_FIT_ZOOM); setPan({ x: 0, y: 0 }); }}><Icon name="fit" /></button>
-      </div>
-      <div
-        className="graph-world"
-        data-testid="graph-world"
-        style={{ width: GRAPH_WIDTH, height: GRAPH_HEIGHT, marginLeft: -GRAPH_WIDTH / 2, marginTop: -GRAPH_HEIGHT / 2, transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
-      >
-        <svg aria-hidden="true" viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`}>
-          {visibleEdges.map((edge) => {
-            const source = positions.get(edge.sourcePartyId);
-            const target = positions.get(edge.targetPartyId);
-            return source && target ? <line key={edge.id} x1={source.x} y1={source.y} x2={target.x} y2={target.y} /> : null;
-          })}
-        </svg>
-        {visibleNodes.map((node) => {
-          const position = positions.get(node.id) ?? { x: 0, y: 0 };
-          return <button
-            className={`graph-node ${node.kind}`}
-            style={{ left: position.x, top: position.y }}
-            key={node.id}
-            title="主体详情 · 待接入"
-            disabled
-          >{node.primaryName.replace('有限公司', '')}</button>;
-        })}
-      </div>
-      <div className="graph-overview" aria-label="图谱概览">
-        <svg viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`} aria-hidden="true">
-          {visibleEdges.map((edge) => {
-            const source = positions.get(edge.sourcePartyId);
-            const target = positions.get(edge.targetPartyId);
-            return source && target ? <line key={edge.id} x1={source.x} y1={source.y} x2={target.x} y2={target.y} /> : null;
-          })}
-          {visibleNodes.map((node) => { const point = positions.get(node.id)!; return <circle key={node.id} cx={point.x} cy={point.y} r="12" />; })}
-        </svg>
-        <span style={{ transform: `translate(${-pan.x / 18}px, ${-pan.y / 18}px) scale(${1 / zoom})` }} />
-      </div>
-    </div>
-    <div className="relation-list">{visibleEdges.map((edge) => <button key={edge.id} title={edge.relationType} className={selectedEdge?.id === edge.id ? 'selected' : ''} onClick={() => setSelectedEdge(edge)}><span>{edge.relationType}</span><small>{edge.id}</small></button>)}</div>
-    {selectedEdge && <article className="verified-block relation-evidence"><TierBadge grade={grade} /><button disabled title="原文定位 · 卷宗原件待连接">{selectedEdge.sourceAnchors[0]?.fileId}</button><q>{selectedEdge.sourceAnchors[0]?.quote}</q></article>}
-  </div>;
 }
 
 export function MatrixPanel({ matrix }: { matrix: ReviewMatrix }) {

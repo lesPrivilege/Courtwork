@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/schemas';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import { credentialClient, type CredentialStatus } from './credentials/client';
@@ -15,7 +15,6 @@ import { buildReviewResolution } from './protocol/review-resolution';
 import { Icon } from './workbench/Icon';
 import {
   DraftPanel,
-  GraphPanel,
   INITIAL_DRAFT,
   MatrixPanel,
   RevisionPanel,
@@ -23,6 +22,8 @@ import {
   type DraftDocument,
 } from './workbench/Panels';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
+
+const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
 type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft';
 
@@ -177,7 +178,9 @@ export function App() {
 
   const renderView = (view: WorkbenchView) => {
     if (view === 'timeline') return <TimelinePanel timeline={timeline} grade={session.evidenceGrades[0]?.grade} />;
-    if (view === 'graph') return <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />;
+    if (view === 'graph') return <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
+      <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />
+    </Suspense>;
     if (view === 'matrix') return <MatrixPanel matrix={matrix} />;
     if (view === 'draft') return <DraftPanel value={draft} onChange={setDraft} frozen={draftFrozen} onCompile={() => setCompileOpen(true)} />;
     return <RevisionPanel
