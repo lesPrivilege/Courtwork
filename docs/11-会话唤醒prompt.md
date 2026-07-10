@@ -291,4 +291,20 @@ d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录
 处置规则同 AGENTS.md（实现级顺手修 fix-by-acceptance；契约级标 [需架构拍板]）。报告写入 packages/core/ACCEPTANCE.md。结论必须明确：core 是否放行供 B 阶段（UI）与 CLI 演示消费，core MVP 是否宣告成立。
 ```
 
+## W6.2｜core 验收阻塞项整改（Claude Code）
+
+```
+你认领 Courtwork 的 W6.2 整改工单。背景：W6 验收结论"不放行"，两项契约级阻塞 + 两项记录件，见 packages/core/ACCEPTANCE.md 与 docs/34-sol-review/（如有关联）。架构已裁决，按下述方案执行，不再自行设计。
+
+先读：packages/core/ACCEPTANCE.md、packages/core/SPEC.md、packages/schemas/SPEC.md、docs/21（含 eval 豁免澄清）、docs/22。
+
+整改项（各自独立 commit，全 TDD）：
+1. **schemas 增量：RevisionEvent.sessionId?**——可选字段（兼容既有数据与测试），JSDoc 注明"core 落盘时必填"；重新导出 JSON Schema 过 drift 测试；schemas SPEC 记录变更与消费方核对（本次为纯增量，无破坏）。
+2. **schemas 增量：citation.evidenceKey?**——RevisionInstructionSet 的 citation 增加可选不透明键（string），JSDoc 注明"由 core 信源台账签发；门禁按 key 查验，不看展示文本；无 key 引用按 C 级未确认待遇"。同步 JSON Schema + drift。
+3. **core：落盘校验与门禁重构**——RevisionEvent 落盘路径强制 sessionId 存在（缺失即抛错，有测试）；信源门禁改为按 evidenceKey 查台账（编译 RevisionInstructionSet 时签发 key），新增测试：修改 citation 展示文本后门禁仍正确拦截 C 级未确认（复现原绕过手法并证明已堵）；手工新增无 key 引用被拦截有测试。
+4. **core 通用层领域命名清理**——按 ACCEPTANCE.md 记录的具体位置改名（docs/22 纪律），领域词汇只许出现在装配点与场景声明消费处。
+5. 全量回归：干净环境 test（原口径 287+新增）/ lint / 真实 tsc build / demo:s3 重跑（docx 产出与事件回放不回归）。
+6. 更新 packages/core/SPEC.md 验收记录追加"W6.2 整改记录"节；完工回报后由 sol 按 ACCEPTANCE.md 阻塞项做补验。
+```
+
 后续工单（W3/W8）验收实例在各实现会话回报后按同一结构生成。
