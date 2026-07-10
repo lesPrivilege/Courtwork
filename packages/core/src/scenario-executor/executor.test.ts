@@ -638,3 +638,82 @@ describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/
     expect(parsedTail).toEqual([{ artifactType: 'RiskList', label: '确认风险清单', status: 'pending' }]);
   });
 });
+
+describe('T-provider: generateArtifact passes responseSchema through to provider.generate()', () => {
+  it('the request reaching provider.generate() carries responseSchema matching ARTIFACT_SCHEMAS[artifactType]', async () => {
+    let capturedResponseSchema: unknown;
+    const capturingProvider = {
+      id: 'capture-schema',
+      modelId: 'v1',
+      async generate(request: { responseSchema?: unknown }) {
+        capturedResponseSchema = request.responseSchema;
+        return { content: JSON.stringify(VALID_RISK_LIST) };
+      },
+    };
+    const tools = createToolRegistry();
+    tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
+    const deps: ScenarioExecutorDeps = {
+      tools,
+      toolExecutor: createToolExecutor(),
+      provider: capturingProvider,
+      eventLog: createEventLog('session-1'),
+      confirmationStore: createInMemoryConfirmationStore(),
+      revisionStore: createInMemoryRevisionEventStore(),
+      ledger: createEvidenceLedger(),
+    };
+
+    await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+
+    expect(capturedResponseSchema).toBeDefined();
+    expect((capturedResponseSchema as { safeParse: (v: unknown) => { success: boolean } }).safeParse(VALID_RISK_LIST).success).toBe(true);
+    expect((capturedResponseSchema as { safeParse: (v: unknown) => { success: boolean } }).safeParse({ not: 'a risk list' }).success).toBe(false);
+  });
+});
+
+describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via response.usage', () => {
+  it('throws RuntimeLimitExceededError("maxUsd") when a priced provider/model returns usage that exceeds the configured budget', async () => {
+    const expensiveProvider = {
+      id: 'deepseek',
+      modelId: 'deepseek-v4-pro', // 价格表里有真实报价的组合（pricing-table.ts）
+      async generate() {
+        return { content: JSON.stringify(VALID_RISK_LIST), usage: { inputTokens: 10_000_000, outputTokens: 10_000_000 } };
+      },
+    };
+    const tools = createToolRegistry();
+    tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
+    const deps: ScenarioExecutorDeps = {
+      tools,
+      toolExecutor: createToolExecutor(),
+      provider: expensiveProvider,
+      eventLog: createEventLog('session-1'),
+      confirmationStore: createInMemoryConfirmationStore(),
+      revisionStore: createInMemoryRevisionEventStore(),
+      ledger: createEvidenceLedger(),
+      limits: { maxUsd: 0.01 }, // 10M+10M token 在 deepseek-v4-pro 报价下远超这个预算
+    };
+
+    await expect(
+      runScenario(
+        SINGLE_GATE_SCENARIO,
+        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        deps,
+      ),
+    ).rejects.toThrow(RuntimeLimitExceededError);
+  });
+
+  it('does not throw when usage is absent (ScriptedProvider case) even with a very low maxUsd — cost tracking is skipped, not assumed zero-then-fine', async () => {
+    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    deps.limits = { maxUsd: 0.0000001 };
+    await expect(
+      runScenario(
+        SINGLE_GATE_SCENARIO,
+        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        deps,
+      ),
+    ).resolves.toMatchObject({ status: 'paused' });
+  });
+});

@@ -14,6 +14,7 @@ import { applyJsonPointer } from '../revision/json-pointer.js';
 import { ARTIFACT_SCHEMAS } from './artifact-schemas.js';
 import { deriveTodoSnapshot } from './todo-snapshot.js';
 import { createRuntimeGuard, type RuntimeGuard, type RuntimeLimits } from './runtime-limits.js';
+import { estimateCostUsd } from '../provider/pricing-table.js';
 
 export interface ScenarioExecutorDeps {
   tools: ToolRegistry;
@@ -98,7 +99,8 @@ async function generateArtifact(
     producedSoFar: Partial<Record<ArtifactType, unknown>>;
   },
   provider: Provider,
-): Promise<unknown> {
+): Promise<{ artifact: unknown; usage?: { inputTokens: number; outputTokens: number } }> {
+  const schema = ARTIFACT_SCHEMAS[artifactType];
   // todo 复述进请求末尾（Manus 抗注意力漂移技巧，docs/12，套在声明式步骤上）：
   // todo 字段放在展开运算符之后插入，JSON.stringify 按插入顺序输出键，
   // 因此序列化后的字符串里 todo 真的落在末尾，不只是字段存在而已。
@@ -110,6 +112,7 @@ async function generateArtifact(
         content: JSON.stringify({ artifactType, ...context, todo: deriveTodoSnapshot(scenario, context.producedSoFar) }),
       },
     ],
+    responseSchema: schema,
   });
   let parsed: unknown;
   try {
@@ -118,13 +121,12 @@ async function generateArtifact(
     const reason = error instanceof Error ? error.message : String(error);
     throw new GenerationValidationError(scenario.id, artifactType, `provider 返回的内容不是合法 JSON：${reason}`);
   }
-  const schema = ARTIFACT_SCHEMAS[artifactType];
   const result = schema.safeParse(parsed);
   if (!result.success) {
     const issues = result.error.issues.map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`).join('\n');
     throw new GenerationValidationError(scenario.id, artifactType, issues);
   }
-  return result.data;
+  return { artifact: result.data, usage: response.usage };
 }
 
 interface SequenceState {
@@ -177,13 +179,15 @@ async function produceSequence(
   for (let i = 0; i < remainingArtifactTypes.length; i += 1) {
     guard.checkStep();
     const artifactType = remainingArtifactTypes[i];
-    const artifact = await generateArtifact(
+    const { artifact, usage } = await generateArtifact(
       scenario,
       artifactType,
       { inputArtifacts: state.inputArtifacts, toolResults: state.toolResults, producedSoFar: state.producedSoFar },
       deps.provider,
     );
     guard.checkTime();
+    const costUsd = estimateCostUsd(deps.provider.id, deps.provider.modelId, usage);
+    if (costUsd !== undefined) guard.checkUsd(costUsd);
     state.producedSoFar[artifactType] = artifact;
     deps.eventLog.append({ type: 'artifact_produced', artifactType, artifact, evidenceGrades: deps.ledger.snapshot() });
 
