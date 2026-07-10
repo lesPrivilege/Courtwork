@@ -7,3 +7,5 @@ export * from './web-fetch-spotlight.js';
 export * from './web-fetch-extract.js';
 export * from './web-fetch.js';
 export * from './web-search.js';
+export * from './case-path.js';
+export * from './system-open.js';

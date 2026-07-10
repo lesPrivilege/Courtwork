@@ -9,6 +9,18 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./case-path": {
+      "types": "./dist/case-path.d.ts",
+      "default": "./dist/case-path.js"
+    },
+    "./system-open": {
+      "types": "./dist/system-open.d.ts",
+      "default": "./dist/system-open.js"
+    },
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "default": "./dist/contract.js"
     }
   },
   "scripts": {
