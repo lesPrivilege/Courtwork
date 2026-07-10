@@ -44,7 +44,31 @@
 
 分档：< 800ms 的操作瞬发完成，不做任何动效；2–5s 用上述微反馈；> 5s（如整卷摄取）升级为**事件流驱动的进度组件**（进度数字 + 当前步骤文案 + 骨架呼吸），进度文案用办案语言（"正在识别文书类型…"），禁止转圈 spinner 裸奔。
 
-**状态变更永远 0ms 硬切**：门禁落章、风险定级、修订接受——瞬间完成，不淡入淡出。悬停反馈允许 100ms（`motion.hover`）。
+**状态变更永远 0ms 硬切**：门禁落章、风险定级、修订接受——瞬间完成，不淡入淡出。悬停反馈全站统一 120ms ease-out（`motion.hover`）。
+
+### 3a. 交互确认反馈阶梯（P-2 架构审定）
+
+数据本体保持绝对静止，但用户动作必须即时得到独立回执。全站只允许 CSS transition/animation 与 Web Animations API，不引入 motion 库；可动画属性严格限于 `transform`、`opacity`、`background-color`、`border-color`。
+
+| 场景 | 时长与缓动 | 落地纪律 |
+|---|---|---|
+| 按压态 | 70ms ease-out | 操作型按钮只加深底色；数据卡零位移、零缩放 |
+| hover | 120ms ease-out | 全站统一，只动背景色/边色 |
+| Tab 切换 | 指示器 100ms ease-out；内容 0ms | 只动画指示器 transform，内容区瞬切 |
+| 面板对切 | 0ms | 无过渡、无 crossfade |
+| 确认/驳回落定 | 本体 0ms + 光效层 150ms ease-out 衰减 | 光效层只动 border-color，不延迟最终态 |
+| 续行跳转 | 240ms ease-out | 回执只动 opacity + `translateY(≤4px)`，入口保留原位 |
+
+### 3b. 动效与路由八禁（P-2 逐条自查基线）
+
+1. 禁止整卡/整行位移或缩放；数据容器不得抬升、回弹、放大缩小。
+2. 禁止任何弹簧、overshoot、阻尼振荡或 rubber-band 物理回弹。
+3. 禁止 spinner 裸奔替代边框微光、骨架呼吸或事件流进度事实。
+4. 禁止状态本体淡入淡出或跨色相过渡；确认光效必须是独立叠加层。
+5. 禁止 Tab/面板内容区 crossfade；只有 Tab 指示器可动。
+6. 禁止 hover 阴影升起；反馈一律由 background-color / border-color 表达。
+7. 禁止动画 `width/height/top/left/margin/padding` 等 layout 属性。
+8. 禁止结构位或功能入口物理消失后重现；三栏帧与五工作面永不隐藏，空数据用文字型空态，依赖前置条件的功能入口用禁用态 + tooltip 保留空间记忆。
 
 ## 4. 留人确认门禁
 
