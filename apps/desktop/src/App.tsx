@@ -13,6 +13,8 @@ import {
 } from './protocol/client';
 import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, type ComposerSendPayload } from './composer';
+import { NewCaseDialog } from './case/NewCaseDialog';
+import type { CaseSummary } from './case/types';
 import { CopyButton } from './workbench/CopyButton';
 import { Icon } from './workbench/Icon';
 import {
@@ -40,6 +42,8 @@ const VIEW_LABELS: Record<WorkbenchView, string> = {
 };
 
 const VIEWS = Object.keys(VIEW_LABELS) as WorkbenchView[];
+
+const DEMO_CASE: CaseSummary = { id: 'demo-linjiang', title: '临江精铸 诉 起云智能 设备采购合同纠纷', caseNumber: '(2025)云章03民初472号', fileCount: 20, archived: false };
 
 function useWideSplitAvailable() {
   const [available, setAvailable] = useState(() => window.innerWidth >= 1600);
@@ -73,6 +77,9 @@ export function App() {
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>();
   const [providerSetupOpen, setProviderSetupOpen] = useState(true);
   const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[] }>>([]);
+  const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
+  const [selectedCaseId, setSelectedCaseId] = useState(DEMO_CASE.id);
+  const [newCaseOpen, setNewCaseOpen] = useState(false);
   const wideSplitAvailable = useWideSplitAvailable();
   const openedAt = useRef<Record<string, number>>({});
   const lastReplayedFlow = useRef<ScenarioFlow | undefined>(undefined);
@@ -146,6 +153,15 @@ export function App() {
   const batchRefs = gate?.items.filter((item) => item.mode === 'batch').map((item) => item.itemRef) ?? [];
   const comparing = secondaryView !== undefined;
   const usage = flow === 'S3' ? 91 : 18;
+  const selectedCase = cases.find((item) => item.id === selectedCaseId) ?? cases[0];
+  const isDemoCase = selectedCase.id === DEMO_CASE.id;
+
+  const createCase = ({ title, fileCount }: { title: string; fileCount: number }) => {
+    const newId = `case-${cases.length}-${title}`;
+    setCases((current) => [...current, { id: newId, title, fileCount, archived: false }]);
+    setSelectedCaseId(newId);
+    setNewCaseOpen(false);
+  };
 
   const selectFlow = (next: ScenarioFlow) => {
     setFlow(next);
@@ -192,6 +208,7 @@ export function App() {
   };
 
   const renderView = (view: WorkbenchView) => {
+    if (!isDemoCase) return <div className="empty-state" role="status">{selectedCase.title} 刚建立，尚无卷宗内容 · 从对话或场景开始整理</div>;
     if (view === 'timeline') return <TimelinePanel timeline={timeline} grade={session.evidenceGrades[0]?.grade} />;
     if (view === 'graph') return <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
       <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />
@@ -289,6 +306,7 @@ export function App() {
               <p>{flow === 'S3' ? '先核对验收条款的原文依据，再决定是否接受对应修订。' : '催告主体、收款账户与验收结论存在交叉矛盾，建议优先核对。'}</p>
               <CopyButton label="复制审阅提示" getText={() => `审阅提示\n${flow === 'S3' ? '先核对验收条款的原文依据，再决定是否接受对应修订。' : '催告主体、收款账户与验收结论存在交叉矛盾，建议优先核对。'}`} />
             </aside>
+            </>}
             {localMessages.map((message, index) => (
               <div className="user-message" key={`local-${index}`} data-testid="local-user-message">
                 {message.text}
@@ -347,12 +365,13 @@ export function App() {
         onClose={() => setProviderSetupOpen(false)}
         onStatusChange={setCredentialStatus}
       />
+      <NewCaseDialog open={newCaseOpen} onClose={() => setNewCaseOpen(false)} onCreate={createCase} />
     </main>
   );
 }
 
-function PanelHead({ title, count, shortcut }: { title: string; count: string; shortcut?: string }) {
-  return <header className="panel-head"><h2>{title}</h2><span>{count}</span><i />{shortcut && <small>{shortcut}</small>}</header>;
+function PanelHead({ title, count, shortcut, action }: { title: string; count: string; shortcut?: string; action?: React.ReactNode }) {
+  return <header className="panel-head"><h2>{title}</h2><span>{count}</span><i />{shortcut && <small>{shortcut}</small>}{action}</header>;
 }
 
 function viewCount(view: WorkbenchView, draftFrozen: boolean) {
