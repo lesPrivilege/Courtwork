@@ -215,3 +215,21 @@ describe('generateStructured — zod→JSON Schema conversion failure falls back
     expect(JSON.parse(result.content)).toEqual({ ok: true });
   });
 });
+
+describe('generateStructured — returns the fence-stripped content, not the raw fenced text', () => {
+  it('when the model wraps valid JSON in a markdown fence despite instructions, the returned content is the stripped, directly-JSON.parse-able string', async () => {
+    const fencedPayload = '```json\n' + JSON.stringify({ greeting: 'hi', count: 1 }) + '\n```';
+    const fetchImpl = vi.fn(async () => new Response(rawSseBody(fencedPayload), { status: 200 }));
+    const result = await generateStructured({
+      profile: profile('json_object'),
+      model: 'm',
+      messages: [{ role: 'user', content: 'go' }],
+      responseSchema: TestSchema,
+      maxValidationRetries: 2,
+      httpConfig: httpConfig(fetchImpl),
+    });
+    // 这一句必须能直接 JSON.parse 成功——如果 result.content 还带着代码围栏，这里会抛出。
+    expect(JSON.parse(result.content)).toEqual({ greeting: 'hi', count: 1 });
+    expect(result.content).not.toMatch(/```/);
+  });
+});

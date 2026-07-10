@@ -91,7 +91,7 @@ export async function generateStructured(params: GenerateStructuredParams): Prom
     allAttemptsFailedToParse = false;
     const validated = responseSchema.safeParse(parsed);
     if (validated.success) {
-      return result;
+      return { ...result, content: cleaned };
     }
 
     lastIssue = validated.error.issues.map((i) => `${i.path.join('.') || '(root)'}: ${i.message}`).join('; ');
