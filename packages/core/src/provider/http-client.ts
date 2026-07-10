@@ -37,10 +37,6 @@ export interface HttpClientConfig {
 
 const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
 
-function isAbortError(error: unknown): boolean {
-  return typeof error === 'object' && error !== null && 'name' in error && (error as { name: unknown }).name === 'AbortError';
-}
-
 /** transport 级重试：网络错误/超时/429/5xx 重试，401/403 与其余 4xx 立即失败不重试。 */
 export async function sendChatCompletion(
   profile: ProviderQuirkProfile,
@@ -65,45 +61,64 @@ export async function sendChatCompletion(
   throw lastError;
 }
 
+/**
+ * 用 Promise.race 对抗一个"到点即 reject(ProviderTimeoutError)"的计时器 promise，
+ * 而不是在某个具体 await 点用 try/catch 转换 AbortError——后者只能覆盖它包住的那一个
+ * await，fetch() 拿到响应头就 resolve、真正的流式读取发生在后续 response.text()，
+ * 单点 try/catch 会漏掉"连接建立后、读流阶段才超时"这个最常见的真实场景。
+ * 整条链路（fetchImpl + 两处 response.text()）都在 race 的左侧 promise 里，
+ * 不管计时器在哪个 await 点触发，右侧 promise 先 settle 就直接拿到正确的错误类型。
+ * 这是 packages/tools/src/contract.ts 的 runOnce 已经验证过的同一模式。
+ */
 async function attemptOnce(
   profile: ProviderQuirkProfile,
   body: ChatCompletionRequestBody,
   config: HttpClientConfig,
 ): Promise<ChatCompletionResult> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), config.timeoutMs);
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new ProviderTimeoutError(profile.providerId, config.timeoutMs));
+    }, config.timeoutMs);
+  });
+
   try {
-    let response: Response;
-    try {
-      response = await config.fetchImpl(`${profile.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${config.apiKey}`,
-        },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-    } catch (error) {
-      if (isAbortError(error)) throw new ProviderTimeoutError(profile.providerId, config.timeoutMs);
-      throw error;
-    }
-
-    if (response.status === 401 || response.status === 403) {
-      throw new ProviderAuthError(profile.providerId, response.status);
-    }
-    if (!response.ok) {
-      const text = await response.text();
-      throw new ProviderHttpError(profile.providerId, response.status, text);
-    }
-
-    // 用 .text() 读完整个 SSE body 后一次性解析：应用层不需要增量消费（见 sse.ts 顶部说明），
-    // 网络层依然是逐块到达，代理判定连接空闲的窗口不受影响。
-    const text = await response.text();
-    return accumulateSseEvents(parseSseEvents(text), profile);
+    return await Promise.race([fetchAndAccumulate(profile, body, config, controller.signal), timeout]);
   } finally {
     clearTimeout(timer);
   }
+}
+
+async function fetchAndAccumulate(
+  profile: ProviderQuirkProfile,
+  body: ChatCompletionRequestBody,
+  config: HttpClientConfig,
+  signal: AbortSignal,
+): Promise<ChatCompletionResult> {
+  const response = await config.fetchImpl(`${profile.baseUrl}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${config.apiKey}`,
+    },
+    body: JSON.stringify(body),
+    signal,
+  });
+
+  if (response.status === 401 || response.status === 403) {
+    throw new ProviderAuthError(profile.providerId, response.status);
+  }
+  if (!response.ok) {
+    const text = await response.text();
+    throw new ProviderHttpError(profile.providerId, response.status, text);
+  }
+
+  // 用 .text() 读完整个 SSE body 后一次性解析：应用层不需要增量消费（见 sse.ts 顶部说明），
+  // 网络层依然是逐块到达，代理判定连接空闲的窗口不受影响。
+  const text = await response.text();
+  return accumulateSseEvents(parseSseEvents(text), profile);
 }
 
 function accumulateSseEvents(events: unknown[], profile: ProviderQuirkProfile): ChatCompletionResult {
