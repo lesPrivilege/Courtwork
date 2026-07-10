@@ -13,6 +13,8 @@ import {
 } from './protocol/client';
 import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, type ComposerSendPayload } from './composer';
+import { NewCaseDialog } from './case/NewCaseDialog';
+import type { CaseSummary } from './case/types';
 import { CopyButton } from './workbench/CopyButton';
 import { Icon } from './workbench/Icon';
 import {
@@ -40,6 +42,8 @@ const VIEW_LABELS: Record<WorkbenchView, string> = {
 };
 
 const VIEWS = Object.keys(VIEW_LABELS) as WorkbenchView[];
+
+const DEMO_CASE: CaseSummary = { id: 'demo-linjiang', title: '临江精铸 诉 起云智能 设备采购合同纠纷', caseNumber: '(2025)云章03民初472号', fileCount: 20, archived: false };
 
 function useWideSplitAvailable() {
   const [available, setAvailable] = useState(() => window.innerWidth >= 1600);
@@ -73,6 +77,9 @@ export function App() {
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>();
   const [providerSetupOpen, setProviderSetupOpen] = useState(true);
   const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[] }>>([]);
+  const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
+  const [selectedCaseId, setSelectedCaseId] = useState(DEMO_CASE.id);
+  const [newCaseOpen, setNewCaseOpen] = useState(false);
   const wideSplitAvailable = useWideSplitAvailable();
   const openedAt = useRef<Record<string, number>>({});
   const lastReplayedFlow = useRef<ScenarioFlow | undefined>(undefined);
@@ -146,6 +153,15 @@ export function App() {
   const batchRefs = gate?.items.filter((item) => item.mode === 'batch').map((item) => item.itemRef) ?? [];
   const comparing = secondaryView !== undefined;
   const usage = flow === 'S3' ? 91 : 18;
+  const selectedCase = cases.find((item) => item.id === selectedCaseId) ?? cases[0];
+  const isDemoCase = selectedCase.id === DEMO_CASE.id;
+
+  const createCase = ({ title, fileCount }: { title: string; fileCount: number }) => {
+    const newId = `case-${cases.length}-${title}`;
+    setCases((current) => [...current, { id: newId, title, fileCount, archived: false }]);
+    setSelectedCaseId(newId);
+    setNewCaseOpen(false);
+  };
 
   const selectFlow = (next: ScenarioFlow) => {
     setFlow(next);
@@ -192,6 +208,7 @@ export function App() {
   };
 
   const renderView = (view: WorkbenchView) => {
+    if (!isDemoCase) return <div className="empty-state" role="status">{selectedCase.title} 刚建立，尚无卷宗内容 · 从对话或场景开始整理</div>;
     if (view === 'timeline') return <TimelinePanel timeline={timeline} grade={session.evidenceGrades[0]?.grade} />;
     if (view === 'graph') return <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
       <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />
@@ -241,7 +258,7 @@ export function App() {
         <span>案件</span><span className="crumb-sep">›</span>
         <strong>{flow === 'S1' ? '阶段一 · 阅卷整理' : '阶段二 · 合同审查'}</strong>
         <span className="spacer" />
-        <button className="quiet-button credential-button" onClick={() => setProviderSetupOpen(true)} title="配置文书助手"><Icon name="settings" />模型服务 · {credentialStatus?.configured ? '已连接' : '待连接'}</button>
+        <button className="quiet-button credential-button" onClick={() => setProviderSetupOpen(true)} title="配置文书助手"><Icon name="cog" />模型服务 · {credentialStatus?.configured ? '已连接' : '待连接'}</button>
         <button className="quiet-button" disabled title="审阅记录 · 待生成">审阅记录</button>
         <button className="primary-button" disabled title="导出审阅稿 · 待完成文书生成">导出审阅稿</button>
       </nav>
@@ -249,29 +266,44 @@ export function App() {
       <div className={`workspace ${comparing ? 'comparing' : ''}`} data-testid="workspace" data-comparing={comparing ? 'true' : 'false'}>
         <aside className="case-rail">
           <div className="case-expanded">
-            <PanelHead title="案件" count="1" />
+            <PanelHead title="案件" count={String(cases.length)} action={<button className="rail-add-button" onClick={() => setNewCaseOpen(true)} data-testid="new-case-open" aria-label="新建案件" title="新建案件"><Icon name="plus" /></button>} />
             <div className="case-scroll">
-              <article className="case-card selected">
-                <strong className="truncate" title="临江精铸 诉 起云智能 设备采购合同纠纷">临江精铸 诉 起云智能 设备采购合同纠纷</strong>
-                <span className="case-number">(2025)云章03民初472号</span>
-                <span>卷宗 20 件 · 已归档摄取</span>
-              </article>
-              <p className="rail-label">阶段</p>
-              <button className={`stage-row ${flow === 'S1' ? 'selected' : ''}`} onClick={() => selectFlow('S1')} data-testid="flow-s1"><Icon name="panels" />阶段一 · 阅卷整理<span>已归档</span></button>
-              <button className={`stage-row ${flow === 'S3' ? 'selected' : ''}`} onClick={() => selectFlow('S3')} data-testid="flow-s3"><Icon name="panels" />阶段二 · 合同审查<span>{Object.keys(dispositions).length}/6</span></button>
+              {cases.map((item) => (
+                <article key={item.id} className={`case-card ${item.id === selectedCaseId ? 'selected' : ''} ${item.archived ? 'archived' : ''}`} data-testid={`case-card-${item.id}`}>
+                  <button className="case-card-select" onClick={() => setSelectedCaseId(item.id)}>
+                    <strong className="truncate" title={item.title}>{item.title}</strong>
+                    {item.caseNumber && <span className="case-number">{item.caseNumber}</span>}
+                    <span>卷宗 {item.fileCount} 件{item.archived ? ' · 已归档' : ''}</span>
+                  </button>
+                </article>
+              ))}
+              {isDemoCase && <>
+                <p className="rail-label">阶段</p>
+                <button className={`stage-row ${flow === 'S1' ? 'selected' : ''}`} onClick={() => selectFlow('S1')} data-testid="flow-s1"><Icon name="panels-top-left" />阶段一 · 阅卷整理<span>已归档</span></button>
+                <button className={`stage-row ${flow === 'S3' ? 'selected' : ''}`} onClick={() => selectFlow('S3')} data-testid="flow-s3"><Icon name="panels-top-left" />阶段二 · 合同审查<span>{Object.keys(dispositions).length}/6</span></button>
+              </>}
             </div>
             <div className="rail-footer">主办律师 · 林律师</div>
           </div>
           <nav className="collapsed-case-icons" aria-label="折叠的案件栏">
-            <button aria-label="当前案件" title="临江精铸案"><Icon name="case" /><span className="unread-count">1</span></button>
-            <button aria-label="阅卷整理" title="阅卷整理" onClick={() => selectFlow('S1')}><Icon name="panels" /></button>
-            <button aria-label="合同审查" title="合同审查" onClick={() => selectFlow('S3')}><Icon name="conversation" /></button>
+            {cases.map((item) => (
+              <button key={item.id} aria-label={item.title} title={item.title} onClick={() => setSelectedCaseId(item.id)}>
+                <Icon name="briefcase-business" />
+                {item.id === DEMO_CASE.id && <span className="unread-count">1</span>}
+              </button>
+            ))}
+            {isDemoCase && <>
+              <button aria-label="阅卷整理" title="阅卷整理" onClick={() => selectFlow('S1')}><Icon name="panels-top-left" /></button>
+              <button aria-label="合同审查" title="合同审查" onClick={() => selectFlow('S3')}><Icon name="message-square-text" /></button>
+            </>}
           </nav>
         </aside>
 
         <section className="conversation">
           <PanelHead title="对话" count={flow === 'S1' ? '本阶段 3 轮' : '本阶段 6 轮'} shortcut="J K 逐条" />
           <div className="conversation-scroll">
+            {!isDemoCase && <div className="empty-state" role="status">{selectedCase.title} 刚建立，尚无对话记录 · 从场景按钮开始</div>}
+            {isDemoCase && <>
             <div className="user-message">{flow === 'S1' ? '整理全套卷宗，标出事件矛盾并核对当事人关系。' : '审查这份设备采购合同，重点看付款、验收与违约责任。'}</div>
             <article className="data-card">
               <div className="card-heading"><span className="domain-badge">{flow === 'S1' ? 'D20' : 'D04'}</span><strong>{flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'}</strong></div>
@@ -289,6 +321,7 @@ export function App() {
               <p>{flow === 'S3' ? '先核对验收条款的原文依据，再决定是否接受对应修订。' : '催告主体、收款账户与验收结论存在交叉矛盾，建议优先核对。'}</p>
               <CopyButton label="复制审阅提示" getText={() => `审阅提示\n${flow === 'S3' ? '先核对验收条款的原文依据，再决定是否接受对应修订。' : '催告主体、收款账户与验收结论存在交叉矛盾，建议优先核对。'}`} />
             </aside>
+            </>}
             {localMessages.map((message, index) => (
               <div className="user-message" key={`local-${index}`} data-testid="local-user-message">
                 {message.text}
@@ -311,11 +344,11 @@ export function App() {
           <div className="view-tabs" role="tablist" aria-label="结构化工作面">
             {VIEWS.map((view) => <button key={view} role="tab" aria-selected={activeView === view} className={activeView === view ? 'active' : ''} onClick={() => choosePrimaryView(view)} data-testid={`view-${view}`}><span>{VIEW_LABELS[view]}</span><i className="tab-indicator" aria-hidden="true" /></button>)}
             <span className="tab-spacer" />
-            {!comparing && <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照"><Icon name="compare" />对照</button>}
+            {!comparing && <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照"><Icon name="rows-two" />对照</button>}
             {comparing && <>
-              <button className={`icon-button ${splitDirection === 'rows' ? 'active' : ''}`} aria-label="上下对照" title="上下对照" aria-pressed={splitDirection === 'rows'} onClick={() => setSplitDirection('rows')}><Icon name="stack" /></button>
-              <button className={`icon-button ${splitDirection === 'columns' ? 'active' : ''}`} aria-label="左右对照" title={wideSplitAvailable ? '左右对照' : '窗口宽度达到 1600 后可用'} aria-pressed={splitDirection === 'columns'} disabled={!wideSplitAvailable} onClick={() => setSplitDirection('columns')}><Icon name="columns" /></button>
-              <button className="view-action" onClick={resetComparison} data-testid="split-reset" title="退出对照并恢复三栏"><Icon name="reset" />复位</button>
+              <button className={`icon-button ${splitDirection === 'rows' ? 'active' : ''}`} aria-label="上下对照" title="上下对照" aria-pressed={splitDirection === 'rows'} onClick={() => setSplitDirection('rows')}><Icon name="rows-two" /></button>
+              <button className={`icon-button ${splitDirection === 'columns' ? 'active' : ''}`} aria-label="左右对照" title={wideSplitAvailable ? '左右对照' : '窗口宽度达到 1600 后可用'} aria-pressed={splitDirection === 'columns'} disabled={!wideSplitAvailable} onClick={() => setSplitDirection('columns')}><Icon name="columns-two" /></button>
+              <button className="view-action" onClick={resetComparison} data-testid="split-reset" title="退出对照并恢复三栏"><Icon name="rotate-counter-clockwise" />复位</button>
             </>}
           </div>
           <div className="view-content">
@@ -347,12 +380,13 @@ export function App() {
         onClose={() => setProviderSetupOpen(false)}
         onStatusChange={setCredentialStatus}
       />
+      <NewCaseDialog open={newCaseOpen} onClose={() => setNewCaseOpen(false)} onCreate={createCase} />
     </main>
   );
 }
 
-function PanelHead({ title, count, shortcut }: { title: string; count: string; shortcut?: string }) {
-  return <header className="panel-head"><h2>{title}</h2><span>{count}</span><i />{shortcut && <small>{shortcut}</small>}</header>;
+function PanelHead({ title, count, shortcut, action }: { title: string; count: string; shortcut?: string; action?: React.ReactNode }) {
+  return <header className="panel-head"><h2>{title}</h2><span>{count}</span><i />{shortcut && <small>{shortcut}</small>}{action}</header>;
 }
 
 function viewCount(view: WorkbenchView, draftFrozen: boolean) {
