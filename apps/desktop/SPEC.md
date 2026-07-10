@@ -1,6 +1,79 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；**SET-1 设置页完成（2026-07-11，待独立验收）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；**RP-1 最终重排完成（Build 门，待独立验收）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
+
+## RP-1 desktop 最终重排（2026-07-11，Build 门）
+
+权威：`docs/49` 三/四/五章 + `docs/25` 混排修正 + `docs/32` tokens 纪律 + 批次二 `#11/#12` + 批次三 `#16/#17`。
+
+### A 左栏
+
+- 混排时序列表：案件 / 工作区 / 未归档对话同列；前置图标承载类型（卷宗 / 文件夹 / 气泡）；未归档行尾「存入」；**不分区**；Pinned 在上。
+- 仅案件行 chevron 展开 → 阶段 + 三区（工作结构非对话史）。
+- 导航骨架四位：产出（真路由 → 工作区级产出目录）；定时 / 派发（`aria-disabled` + 「即将支持」tooltip）；Customize 不做。
+- `#17`：主办律师 = demo persona；非 demo 不显示；`CASE_SCOPE_AUDIT` 补行。
+
+### B 右栏模块栈
+
+- 声明渲染折叠栈：通用三件常驻（progress / working folders / context）+ 垂类工作面同栈；默认面板头可见（名称 + 计数 + 状态点）。
+- progress 面板头吸收阶段进度 `N/6`（frontier `17 of 17` 形制）；working folders = 三区树（原件只读标记）；context = 用量明细 + 附件来源 + connected 模型 chip。
+- `artifact_produced` 自动展开对应模块；用户手动折叠/展开优先于自动。
+- Tab / 对照 / 专注不推翻：同栈三种视图密度，增量迁移。
+
+### C 画布-浮面三层
+
+- L0：对话流坐页面底色（冷灰），去卡壳。
+- L1：左栏 / 右栏 / composer = 纯白面 + inset 不贴边 + 圆角 12 + 细描边、**零投影**。
+- L2：popover 既有（`surface-popover`）。
+- 标题栏透明化：wordmark + 全局动作；模型服务常驻状态条；**仅 failed 态**在标题栏浮现琥珀警示。
+- 收缩态：左栏折叠 + 右栏全折 → 画布 + composer 浮卡 + 折叠按钮。
+- `#16`：model-config 关闭按钮动词直白（「关闭」），主次按钮层级照 docs/32（次要 quiet）。
+
+### Elevation token 提案（实现前写入，供架构过目）
+
+| Token | 提案值 | 用途 |
+|---|---|---|
+| `elevation.canvas` | `color.bg.app` `#EDEDED` | L0 页面底色 / 对话流地面 |
+| `elevation.float` | `color.bg.raised` `#FFFFFF` | L1 浮面填充（左/右/composer） |
+| `elevation.floatBorder` | `color.border.hairline` `#EBEBEB` | L1 细描边 |
+| `elevation.floatRadius` | `12` | L1 圆角（docs/49 四章；非 `radius.lg` 6 的列表卡） |
+| `elevation.floatInset` | `8` | L1 相对画布的 inset 间距（px，4 基阶） |
+| `elevation.shellGap` | `8` | 浮面之间水平/垂直缝 |
+| `elevation.shadow` | `none` | 硬性：零投影（de-slop #6 / shadow.none） |
+| `elevation.titlebar` | `transparent` | 标题栏融入红绿灯 chrome |
+| `elevation.warnBg` | `color.semantic.gate.pending.bg` `#FCF6E8` | 标题栏 failed 琥珀警示底（复用既有语义色，不新增色相） |
+| `elevation.warnFg` | `color.semantic.gate.pending.fg` `#B45309` | 警示文字 |
+| `elevation.warnBorder` | `color.semantic.gate.pending.graphic` `#D97706` | 警示描边 |
+
+纪律：不得引入投影；不得新增语义色相；CSS 只消费 token / CSS 变量。
+
+验证：9 包 build；Vitest 全绿；Playwright 全过且假绿下限随新用例上调；四门禁；e2e 覆盖混排图标与展开、未归档「存入」、progress 面板头计数、artifact 自动展开、标题栏琥珀仅 failed、收缩态。
+
+### RP-1 实现落点（完工自检 2026-07-11）
+
+| 块 | 落点 |
+|---|---|
+| A 左栏 | `src/rail/CaseRail.tsx` + `types.ts`：混排/Pinned/chevron 展开/导航骨架/存入；#17 `lead-attorney` |
+| B 右栏 | `src/modules/module-stack.ts` + `ModuleStack.tsx`：progress/working-folders/context + 垂类 Tab 同栈 |
+| C 三层 | `styles.css` elevation 变量；L0 画布/L1 浮面；标题栏琥珀仅 failed；收缩态 `enter-compact-layout` |
+| #16 | `ModelConfigPopover` 关闭动词「关闭」 |
+| #17 audit | `CASE_SCOPE_AUDIT` 补 `rail-footer lead attorney` |
+| e2e | `tests/e2e/rp1.spec.ts`（8）；`assert-test-count` floor **86** |
+| 截图 | `visual-audit/22-rp1-compact-layout-1440.png` / `23-rp1-full-layout-1440.png` |
+
+Elevation 提案全量（与 tokens.json `elevation` 一致，供架构过目）：
+
+| Token | 值 |
+|---|---|
+| canvas | `#EDEDED`（bg.app） |
+| float | `#FFFFFF`（bg.raised） |
+| floatBorder | `#EBEBEB`（border.hairline） |
+| floatRadius | `12` |
+| floatInset | `8` |
+| shellGap | `8` |
+| shadow | `none` |
+| titlebar | `transparent` |
+| warnBg / warnFg / warnBorder | gate.pending 三轨（琥珀，不新增色相） |
 
 ## SET-1 设置页（2026-07-11）
 
