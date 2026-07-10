@@ -34,7 +34,17 @@ test.describe('UX-1 批次一', () => {
     await expect(count).toContainText('卷宗');
     await expect(count).toContainText('件');
     await count.click();
+    // RP-1 A2：锚点在案件展开态内；可见 + 滚入高亮链路不放宽
+    const zone = page.getByTestId('originals-zone');
+    await expect(zone).toBeVisible();
+    await expect(zone).toHaveAttribute('data-highlight', 'true');
+
+    // 收起后再点计数 → 仍须自动展开并高亮（目标随收编迁移）
+    await page.getByTestId('rail-expand-demo-linjiang').click();
+    await expect(page.getByTestId('originals-zone')).toHaveCount(0);
+    await count.click();
     await expect(page.getByTestId('originals-zone')).toBeVisible();
+    await expect(page.getByTestId('originals-zone')).toHaveAttribute('data-highlight', 'true');
   });
 
   test('#3：先聊后建 — 无容器存入弹出容器化仪式', async ({ page }) => {

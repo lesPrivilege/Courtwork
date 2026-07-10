@@ -61,7 +61,9 @@ test('S1 摄取事件回放可进入时间线', async ({ page }) => {
   await page.getByTestId('flow-s1').click();
   await page.getByTestId('view-timeline').click();
   await expect(page.getByTestId('timeline-panel')).toBeVisible();
-  await expect(page.getByText('摄取进行中 16 / 20')).toBeVisible();
+  // RP-1：阶段进度 N/M 升入 progress 面板头；状态条保留「摄取进行中」非计数文案
+  await expect(page.getByTestId('progress-module-count')).toHaveText('16/20');
+  await expect(page.getByTestId('statusbar-progress')).toContainText('摄取进行中');
   await expect(page.getByText('双方签订《精密铸造生产线设备采购合同》', { exact: false })).toBeVisible();
 });
 

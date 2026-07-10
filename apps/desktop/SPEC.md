@@ -53,12 +53,12 @@
 
 | 块 | 落点 |
 |---|---|
-| A 左栏 | `src/rail/CaseRail.tsx` + `types.ts`：混排/Pinned/chevron 展开/导航骨架/存入；#17 `lead-attorney` |
-| B 右栏 | `src/modules/module-stack.ts` + `ModuleStack.tsx`：progress/working-folders/context + 垂类 Tab 同栈 |
-| C 三层 | `styles.css` elevation 变量；L0 画布/L1 浮面；标题栏琥珀仅 failed；收缩态 `enter-compact-layout` |
+| A 左栏 | `src/rail/CaseRail.tsx` + `types.ts`：混排/Pinned/chevron 展开/导航骨架/存入；#17 `lead-attorney`；**A2** 卷宗计数→展开态 `originals-zone` 滚入/高亮（`focusOriginalsZone` rAF 重试） |
+| B 右栏 | `src/modules/*`：progress/working-folders/context + 垂类 Tab 同栈；**B2** context chip 只 `setModelConfigOpen(true)`，与状态条共用同一 popover/`updateModelConfig` |
+| C 三层 | elevation 变量；L0/L1；标题栏琥珀仅 failed；收缩态；**C2** 状态条只迁 `N/M` 至 progress 头，用量/摄取/续行/产出/模型原位 |
 | #16 | `ModelConfigPopover` 关闭动词「关闭」 |
 | #17 audit | `CASE_SCOPE_AUDIT` 补 `rail-footer lead attorney` |
-| e2e | `tests/e2e/rp1.spec.ts`（8）；`assert-test-count` floor **86** |
+| e2e | `tests/e2e/rp1.spec.ts`（9）；`assert-test-count` floor **87** |
 | 截图 | `visual-audit/22-rp1-compact-layout-1440.png` / `23-rp1-full-layout-1440.png` |
 
 Elevation 提案全量（与 tokens.json `elevation` 一致，供架构过目）：

@@ -185,6 +185,10 @@ export function ContextModuleBody({
           </ul>
         )}
       </div>
+      {/*
+        RP-1 B2/C2：connected 声明位。点击只打开 App 层同一 modelConfigOpen /
+        同一 ModelConfigPopover / 同一 updateModelConfig——禁止本组件内第二套读写。
+      */}
       {modelConnected && (
         <button
           type="button"

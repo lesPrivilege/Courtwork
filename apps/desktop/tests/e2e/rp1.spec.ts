@@ -34,13 +34,19 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('titlebar-case-title')).toContainText('先聊后建的对话');
   });
 
-  test('progress 面板头计数 frontier 形制', async ({ page }) => {
+  test('progress 面板头计数 frontier 形制；状态条只迁不清', async ({ page }) => {
     await openWorkbench(page);
     const count = page.getByTestId('progress-module-count');
     await expect(count).toBeVisible();
     await expect(count).toHaveText(/^\d+\/\d+$/);
-    // S3 默认：0/6 起
+    // S3 默认：0/6 起（权威位 = 面板头）
     await expect(count).toHaveText('0/6');
+    // 状态条其余项原位：用量 / 产出文件夹 / 模型；进度计数不重复占 statusbar
+    await expect(page.getByTestId('usage-ring')).toBeVisible();
+    await expect(page.getByTestId('open-output-folder')).toBeVisible();
+    await expect(page.getByTestId('model-config-trigger')).toBeVisible();
+    await expect(page.getByTestId('statusbar-progress')).toContainText('审阅进行中');
+    await expect(page.getByTestId('statusbar-progress')).not.toContainText('/ 6');
   });
 
   test('artifact 自动展开 revision 模块（demo RiskList）', async ({ page }) => {
@@ -129,5 +135,44 @@ test.describe('RP-1 最终重排', () => {
     const dispatch = page.getByTestId('nav-dispatch');
     await expect(dispatch).toHaveAttribute('aria-disabled', 'true');
     await expect(dispatch).toHaveAttribute('title', /即将支持/);
+  });
+
+  test('B2/C2：context 模型 chip 与状态条共用同一 model-config', async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as unknown as { __CW_FORCE_CREDENTIAL__: { phase: string; source: string } }).__CW_FORCE_CREDENTIAL__ = {
+        phase: 'connected',
+        source: 'pasted',
+      };
+    });
+    // connected 态 allowSkip=false，无「先查看演示」——关引导用取消
+    await page.goto('/');
+    const setup = page.getByTestId('provider-setup');
+    if (await setup.isVisible()) {
+      const skip = setup.getByRole('button', { name: '先查看演示' });
+      if (await skip.isVisible().catch(() => false)) await skip.click();
+      else await setup.getByRole('button', { name: '取消' }).click();
+    }
+    await page.mouse.move(0, 0);
+
+    // 展开 context 模块 → chip 为第二声明位
+    if ((await page.getByTestId('module-context').getAttribute('data-open')) !== 'true') {
+      await page.getByTestId('module-context-toggle').click();
+    }
+    const chip = page.getByTestId('context-model-chip');
+    await expect(chip).toBeVisible();
+    await chip.click();
+    // 唯一 popover 实例
+    await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
+    await page.getByTestId('model-config-provider').selectOption('qwen');
+    await page.getByTestId('model-config-model').selectOption('qwen-max');
+    await page.getByRole('radio', { name: '深思' }).check();
+    await page.getByTestId('model-config-close').click();
+    // 同一 handler 写回：状态条 trigger 反映变更
+    await expect(page.getByTestId('model-config-trigger')).toContainText('Qwen Max');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('深思');
+    // 再从状态条打开仍是同一实例
+    await page.getByTestId('model-config-trigger').click();
+    await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
+    await expect(page.getByTestId('model-config-summary')).toContainText('Qwen Max');
   });
 });

@@ -159,9 +159,10 @@ export function CaseRail({
                     data-testid="case-file-count"
                     title="查看原件区"
                     onClick={() => {
+                      // A2：只走 onSelectCase（App 对 case 会 setExpandedCaseId=id）+ focus；
+                      // 禁止再 toggle——与 select 同批会把 expand 对消回 null。
                       onSelectCase(item.id);
-                      if (!expanded && isCase) onToggleExpand(item.id);
-                      window.requestAnimationFrame(() => onFocusOriginals());
+                      onFocusOriginals();
                     }}
                   >
                     {fileCountLabel(item.kind ?? 'case', item.fileCount)}

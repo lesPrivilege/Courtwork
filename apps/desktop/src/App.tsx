@@ -159,6 +159,9 @@ export function App() {
   const resolvedRequest = useRef<string | undefined>(undefined);
   const prevCaseId = useRef(selectedCaseId);
   const lastArtifactKeys = useRef('');
+  /** UX-1 #1 / RP-1 A2：卷宗计数 → 展开态 originals-zone；展开后 DOM 未就绪时排队重试 */
+  const pendingOriginalsFocus = useRef(false);
+  const [originalsFocusTick, setOriginalsFocusTick] = useState(0);
 
   const showSystemFeedback = (message: string, ok: boolean) => {
     setSystemFeedback({ message, ok });
@@ -442,20 +445,50 @@ export function App() {
     });
   };
 
-  /** docs/52 #1：卷宗/资料计数点击 → 滚到原件区（空间记忆，不展开树） */
+  /**
+   * docs/52 #1 + RP-1 A2：卷宗/资料计数 → 展开态内 originals-zone 滚入/高亮。
+   * 锚点随收编迁入案件 chevron 展开态；展开后 rAF 重试直至节点入 DOM。
+   */
   const focusOriginalsZone = () => {
-    const zone = document.querySelector('[data-testid="originals-zone"]');
-    if (zone instanceof HTMLElement) {
-      zone.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      zone.setAttribute('data-highlight', 'true');
-      window.setTimeout(() => zone.removeAttribute('data-highlight'), 1200);
-      return;
-    }
-    showSystemFeedback(
-      selectedCase.kind === 'workspace' ? '本案工作区尚无资料原件' : '本案尚无卷宗原件',
-      false,
-    );
+    pendingOriginalsFocus.current = true;
+    setOriginalsFocusTick((n) => n + 1);
   };
+
+  useEffect(() => {
+    if (!pendingOriginalsFocus.current) return;
+    let cancelled = false;
+    let attempts = 0;
+    let raf = 0;
+    const run = () => {
+      if (cancelled) return;
+      const zone = document.querySelector('[data-testid="originals-zone"]');
+      if (zone instanceof HTMLElement) {
+        zone.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        zone.setAttribute('data-highlight', 'true');
+        window.setTimeout(() => zone.removeAttribute('data-highlight'), 1200);
+        pendingOriginalsFocus.current = false;
+        return;
+      }
+      // 展开态尚未 commit 时保留 pending，等 expandedCaseId 变化再跑
+      if (attempts++ < 24) {
+        raf = window.requestAnimationFrame(run);
+        return;
+      }
+      if (expandedCaseId === selectedCaseId) {
+        pendingOriginalsFocus.current = false;
+        showSystemFeedback(
+          selectedCase.kind === 'workspace' ? '本案工作区尚无资料原件' : '本案尚无卷宗原件',
+          false,
+        );
+      }
+      // expanded 仍未到位：pending 保持 true，依赖 expandedCaseId 触发本 effect 重入
+    };
+    raf = window.requestAnimationFrame(run);
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(raf);
+    };
+  }, [expandedCaseId, selectedCaseId, originalsFocusTick, selectedCase.kind]);
 
   const toggleArchive = (caseId: string) => {
     setCases((current) => current.map((item) => (item.id === caseId ? { ...item, archived: !item.archived } : item)));
@@ -779,9 +812,9 @@ export function App() {
             leftCollapsed={leftCollapsed}
             onSelectCase={(id) => {
               setSelectedCaseId(id);
-              if (cases.find((c) => c.id === id)?.kind !== 'workspace') {
-                setExpandedCaseId((current) => (current === id ? current : id));
-              }
+              // 案件行：选中即展开（含已选中但被收起的情况 → 强制 expandedCaseId=id）
+              const kind = cases.find((c) => c.id === id)?.kind ?? 'case';
+              if (kind === 'case') setExpandedCaseId(id);
             }}
             onToggleExpand={(id) => setExpandedCaseId((current) => (current === id ? null : id))}
             onNewCase={() => setNewCaseOpen(true)}
@@ -1010,6 +1043,7 @@ export function App() {
                 modelLabel={modelDisplayName(modelConfig)}
                 modelConnected={credentialStatus.phase === 'connected'}
                 reasoningLabel={modelConfig.reasoning === 'deep' ? '深思' : '标准'}
+                /* B2/C2：第二声明位，只开同一 modelConfigOpen → 同一 popover / updateModelConfig */
                 onOpenModelConfig={() => setModelConfigOpen(true)}
               />
             </StackModule>
@@ -1153,17 +1187,21 @@ export function App() {
         >
           打开产出文件夹
         </button>
-        {/* 阶段进度已升入 progress 面板头；状态条保留摘要供既有 e2e / 异常态 */}
+        {/*
+          状态条只迁不清：阶段进度 N/M 升入 progress 面板头（progress-module-count）；
+          此处保留非计数态文案 + 用量/摄取/续行/产出文件夹/模型（下）原位。
+        */}
         <span className="truncate" data-testid="statusbar-progress">
           {!isDemoCase
             ? '新案件 · 等待任务'
             : session.failures.length
               ? '有步骤需要人工处理'
               : flow === 'S1'
-                ? '摄取进行中 16 / 20'
-                : `${Object.keys(dispositions).length} / 6 项已处置`}
+                ? '摄取进行中'
+                : '审阅进行中'}
         </span>
         <span className="truncate" data-testid="statusbar-stage">{stageLabel(flow, isDemoCase)}</span>
+        {/* 唯一 model-config 实例：状态条模型名 + context chip 共用 open/handler */}
         <span className="model-config-anchor">
           <button
             type="button"
