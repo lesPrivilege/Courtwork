@@ -381,4 +381,67 @@ d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录
 纪律照旧：硬约束挑战走 [需架构拍板]；显式路径提交；完工回报后独立验收。
 ```
 
-后续工单（W3/W8）验收实例在各实现会话回报后按同一结构生成。
+## S-1｜Timeline 结构化标记（Claude Code，微工单）
+
+```
+你认领 Courtwork 的 S-1 微工单：Timeline 事件结构化标记。背景与拍板见 packages/core/SPEC.md TODO 区 S-1 条目（UI 靠 description 文本匹配"矛盾"做高亮，违反零推断原则）。
+
+先读：CLAUDE.md、packages/schemas/SPEC.md、packages/core/SPEC.md 的 S-1 拍板、packages/demo-data/data/case-bible.md 的矛盾点清单。
+
+交付（TDD，分层 commit）：
+1. schemas 增量：TimelineEvent 加可选 `markers?: string[]`，JSDoc 注明当前词表仅 "contradiction"、词表将随 ContradictionList 类型落地后收编；合法/非法样例测试；JSON Schema 再导出过 drift。
+2. demo-data 补录：data/artifacts/timeline.json 中与 case-bible 矛盾清单对应的 4 处事件补 `markers:["contradiction"]`，重新对导出 schema 校验通过；manifest.md 追加一行变更记录。
+3. schemas SPEC 记录增量与消费方核对（纯增量无破坏；UI 消费改造归 polish，非你的范围）。
+纪律：显式路径提交；不碰 UI；跨层发现写对方 SPEC TODO。
+```
+
+## W3.0｜阅读视图管线（Claude Code）
+
+```
+你认领 Courtwork 的 W3.0 工单：阅读视图管线（packages/reading-view，新 TS 包）。定位见 docs/41——MVP 的摄取路径：office 生态文件 → md 阅读视图 + 段落级锚点映射，供模型阅读与 UI 溯源；OCR 是 v1（不做）。
+
+先读：CLAUDE.md、docs/41、docs/23（双表示：原件保真、md 是模型母语、SourceAnchor 永指原件）、docs/27 MVP 最小集第 1–2 条（解析安全：禁宏禁 XXE、解压比例上限）、packages/schemas 的 SourceAnchor/CaseFile、packages/output 的 docx 解析先例。
+
+交付（TDD，golden files 用样板案语料）：
+1. 转换器：docx（可评估 mammoth 或复用 output 的 OOXML 读取路径，二选一写明理由）/ md / txt / 含文本层 PDF（pdfjs-dist 类）→ md 阅读视图。复杂文档降级策略：转换失败或保真度不足时整文件降级为"禁用态声明"（不吐半坏的 md）。
+2. 段落映射：阅读视图每段落 ↔ 原件 SourceAnchor（fileId + 段落定位 + quote；PDF 用页 + 文本区间）。映射表是一等产物，UI 溯源与 core 生成节点共用。
+3. 扫描件检测：PDF 无文本层 → 明确返回"需要 OCR"状态（对应缺口三态的禁用态），不静默出空文。
+4. 安全基线：禁宏禁 XXE、解压比例上限、文件大小限制走配置。
+5. CaseFile 对接：输出可填充 CaseFile 的文件清单与摄取状态字段（阅读视图版语义，与未来 OCR v1 兼容——若字段语义需扩展，走 schemas TODO 提案不擅改）。
+6. 验收：样板案 20 份 dossier 文书 + 主合同全量跑通 golden 快照；一个刻意构造的坏文件走降级路径有测试。
+纪律照旧：TDD、显式路径、共享索引核对、领域语义不进通用转换器（docs/22）。
+```
+
+## T-fetch｜web fetch 工具最小实现（Claude Code）
+
+```
+你认领 Courtwork 的 T-fetch 工单：packages/tools 新增 web-fetch 工具（MVP 自足的关键件，docs/41 缺口 #3）。
+
+先读：CLAUDE.md、docs/20（C 级信源语义）、docs/27（SSRF 拦截、证书失败即 adapter_error、spotlighting、红线：不关证书校验不绕 WAF）、packages/tools/SPEC.md 与 contract 源码（六 reason/sourceId/缓存语义）。
+
+交付（TDD）：
+1. 契约增量：reason 枚举增加 `web_reference`——C 级结果的承载形态（结构上属 verified:false 家族、携带抓取内容与元数据，类型上进不了已核验通道，docs/20 拍板）。SPEC 记录第七个 reason 及其与下游（UI 网络参考角标）的稳定契约。
+2. fetch 实现：纯 HTTP GET（不执行 JS，JS 渲染站如实返回内容不足的降级）；SSRF 拦截（私网段/云元数据端点黑名单，重定向逐跳检查）；证书失败 = adapter_error 绝不放行；超时走契约；大小上限与 content-type 白名单（html/text/json）；html → 正文提取为 md/纯文本。
+3. spotlighting 消毒层：抓取内容进入返回值前打结构化隔离标记（标记 + datamarking），JSDoc 注明"消费方必须将其作为数据非指令传入生成节点"——消毒是本工具实现的一部分（docs/27 解耦点）。
+4. search 适配器接口：定义可配置的搜索适配器位（serper/博查类，凭证走配置）；无凭证时返回 not_configured（禁用态），不做假搜索。首个真实适配器可留骨架 + not_implemented（诚实边界，W5 先例）。
+5. 缓存：成功抓取可缓存（TTL 短默认），失败家族不缓存——沿用既有语义。
+纪律：mock HTTP 测试（录制夹具），不在测试里真实出网；凭证不入库；显式路径提交。
+```
+
+## T-provider｜provider 首批适配（Claude Code）
+
+```
+你认领 Courtwork 的 T-provider 工单：packages/core 的 provider 适配层实装（当前为配置化抽象 + 假 provider，无真实 HTTP 实现）。拍板依据：packages/core/SPEC.md TODO 的 wire format 基线条目 + docs/18 全文（quirk 清单）+ docs/27 凭证三形态。
+
+先读：上述三份 + core 的 provider 抽象源码 + eval/SPEC.md（跑分器将消费你的实现）。
+
+交付（TDD，mock HTTP 录制夹具，不依赖真实 key）：
+1. OpenAI Chat Completions 兼容客户端（唯一主基线）：消息/流式 SSE/超时/重试；base URL 与模型 id 全部走配置。
+2. quirk 层：首批三家（DeepSeek / 阿里百炼 Qwen / 火山方舟豆包）的差异处理，按 docs/18 清单——base URL 路径、response_format 支持档位探测、reasoning 字段名归一、参数互斥规避；**任何"provider 静默吞参数"必须被检测并显式报错**（反静默降级哲学，MiniMax 判例）。
+3. 结构化输出统一策略：strict json_schema 优先 → 降级 json_object + zod 校验重试（重试次数走配置，最终失败走既有 invalid_response 语义），对上层（场景执行器）透明。
+4. 凭证纪律：key 由配置注入（桌面侧钥匙串对接归 polish，你只定义注入接口）；**key 永不进事件流/日志/错误消息**（docs/27 红线，有测试断言错误对象不含 key）；RuntimeGuard maxUsd 对接各家计价（价格表走配置文件可更新）。
+5. 真实冒烟脚本：scripts/smoke-provider.ts，读环境变量 key、无 key 即跳过并说明——供拿到 DeepSeek key 后一键验证与 eval 真实基线解锁。
+纪律：Anthropic 原生适配器不在本工单（具名例外，选型需要时另立）；显式路径提交；SPEC 完工记录。
+```
+
+后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
