@@ -212,6 +212,10 @@ test.describe('命令面板', () => {
 
   test('方向键在结果间移动高亮', async ({ page }) => {
     await openWorkbench(page);
+    // 移开鼠标：openWorkbench 的「先查看演示」点击把光标留在面板中心，命令面板一旦渲染，
+    // 光标下的选项会触发 onMouseEnter 抢占初始高亮，令首项 aria-selected 初值随机（假红根因）。
+    // 验收 fix-by-acceptance：先把光标移到角落，keyboard-only 导航才可复现（下限 67 需稳定）。
+    await page.mouse.move(0, 0);
     await page.keyboard.press('Meta+K');
     const first = page.getByRole('option').first();
     await expect(first).toHaveAttribute('aria-selected', 'true');
