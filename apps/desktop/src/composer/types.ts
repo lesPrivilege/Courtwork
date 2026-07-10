@@ -1,4 +1,6 @@
-/** composer 附件与按钮族的领域无关状态（docs/45 + 工单裁决）。 */
+/** composer 附件与按钮族的领域无关状态（docs/45 + docs/52 修正案 + 工单裁决）。 */
+
+import type { ContainerKind } from '../case/container-copy';
 
 export type AttachmentScope = 'message_only' | 'dossier';
 
@@ -59,12 +61,23 @@ export const SCOPE_COPY = {
 export interface CaseOption {
   id: string;
   name: string;
+  kind?: ContainerKind;
 }
 
-/** 演示期与左栏一致的案件清单；真实接入时由案件列表投影注入。 */
+/** 演示期回落；真实接入时由案件列表投影注入，禁止在非 demo 容器粘滞。 */
 export const DEMO_CASE_OPTIONS: CaseOption[] = [
   {
     id: 'case-linjiang-qiyun',
     name: '临江精铸 诉 起云智能 设备采购合同纠纷',
+    kind: 'case',
   },
 ];
+
+/** 容器化仪式文案（docs/52 #3：先聊后建，与「存入卷宗」同族 popover）。 */
+export const CONTAINERIZE_COPY = {
+  title: '创建承载容器',
+  body: '将附件存入前，需先建立案件或项目容器以承接文件与后续对话。',
+  createCase: '创建案件承载',
+  createWorkspace: '创建项目承载',
+  cancel: '取消',
+} as const;

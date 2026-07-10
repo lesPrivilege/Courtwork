@@ -18,7 +18,7 @@ import {
 } from './protocol/client';
 import type { SessionEvent } from '@courtwork/core';
 import { buildReviewResolution } from './protocol/review-resolution';
-import { Composer, type ComposerSendPayload } from './composer';
+import { Composer, type ComposerSendPayload, type ContainerizeRequest } from './composer';
 import { ArchiveConfirmPopover } from './case/ArchiveConfirmPopover';
 import {
   caseOutputDir,
@@ -29,9 +29,17 @@ import {
   resolveCaseRoot,
   stageLabel,
 } from './case/case-scope';
+import { fileCountLabel, type ContainerKind } from './case/container-copy';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
+import {
+  loadModelConfig,
+  modelDisplayName,
+  saveModelConfig,
+  type ModelConfig,
+} from './provider/model-config';
+import { ModelConfigPopover } from './provider/ModelConfigPopover';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { OriginalsZone } from './system/OriginalsZone';
 import { systemOpenClient } from './system/system-open-client';
@@ -48,6 +56,7 @@ import {
   type DraftDocument,
 } from './workbench/Panels';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
+import { ThinkingStream } from './workbench/ThinkingStream';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
@@ -113,6 +122,8 @@ export function App() {
   const [archiveConfirmCaseId, setArchiveConfirmCaseId] = useState<string | null>(null);
   const [focusMode, setFocusMode] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [modelConfig, setModelConfig] = useState<ModelConfig>(() => loadModelConfig());
+  const [modelConfigOpen, setModelConfigOpen] = useState(false);
   /** 起草画布内切换：交付轨文书 vs 工作稿轨笔记 */
   const [workDraftMode, setWorkDraftMode] = useState(false);
   /** S6 卷宗整理：右栏展示 FileOpsPlan 面板 */
@@ -295,7 +306,15 @@ export function App() {
   const comparing = secondaryView !== undefined;
   const usage = isDemoCase ? (flow === 'S3' ? 91 : 18) : 0;
 
-  const createCase = ({ title, fileCount }: { title: string; fileCount: number }) => {
+  const createCase = ({
+    title,
+    fileCount,
+    kind = 'case',
+  }: {
+    title: string;
+    fileCount: number;
+    kind?: ContainerKind;
+  }) => {
     const newId = `case-${Date.now()}-${title}`;
     setCases((current) => [
       ...current,
@@ -306,10 +325,40 @@ export function App() {
         archived: false,
         folderPath: undefined,
         isDemo: false,
+        kind,
       },
     ]);
     setSelectedCaseId(newId);
     setNewCaseOpen(false);
+  };
+
+  /** docs/52 #3：composer-first 容器化仪式 → 创建案件/项目并选中 */
+  const handleContainerize = (request: ContainerizeRequest) => {
+    const title =
+      request.kind === 'workspace'
+        ? `项目 · ${new Date().toLocaleDateString('zh-CN')}`
+        : `案件 · ${new Date().toLocaleDateString('zh-CN')}`;
+    createCase({ title, fileCount: 0, kind: request.kind });
+  };
+
+  const updateModelConfig = (next: ModelConfig) => {
+    setModelConfig(next);
+    saveModelConfig(next);
+  };
+
+  /** docs/52 #1：卷宗/资料计数点击 → 滚到原件区（空间记忆，不展开树） */
+  const focusOriginalsZone = () => {
+    const zone = document.querySelector('[data-testid="originals-zone"]');
+    if (zone instanceof HTMLElement) {
+      zone.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      zone.setAttribute('data-highlight', 'true');
+      window.setTimeout(() => zone.removeAttribute('data-highlight'), 1200);
+      return;
+    }
+    showSystemFeedback(
+      selectedCase.kind === 'workspace' ? '本案工作区尚无资料原件' : '本案尚无卷宗原件',
+      false,
+    );
   };
 
   const toggleArchive = (caseId: string) => {
@@ -577,14 +626,28 @@ export function App() {
             <div className="case-scroll">
               {cases.map((item) => (
                 <article key={item.id} className={`case-card ${item.id === selectedCaseId ? 'selected' : ''} ${item.archived ? 'archived' : ''}`} data-testid={`case-card-${item.id}`} data-demo={item.isDemo || isDemoCaseId(item.id) ? 'true' : 'false'}>
-                  <button className="case-card-select" onClick={() => setSelectedCaseId(item.id)}>
-                    <strong className="truncate" title={item.title}>{item.title}</strong>
-                    {item.caseNumber && <span className="case-number truncate" title={item.caseNumber}>{item.caseNumber}</span>}
-                    <span className="truncate">
-                      卷宗 {item.fileCount} 件{item.archived ? ' · 已归档' : ''}
-                      {(item.isDemo || isDemoCaseId(item.id)) ? ' · 样板案·演示' : ''}
-                    </span>
-                  </button>
+                  <div className="case-card-select">
+                    <button type="button" className="case-card-main" onClick={() => setSelectedCaseId(item.id)}>
+                      <strong className="truncate" title={item.title}>{item.title}</strong>
+                      {item.caseNumber && <span className="case-number truncate" title={item.caseNumber}>{item.caseNumber}</span>}
+                    </button>
+                    <div className="case-card-meta truncate">
+                      <button
+                        type="button"
+                        className="case-file-count"
+                        data-testid="case-file-count"
+                        title="查看原件区"
+                        onClick={() => {
+                          setSelectedCaseId(item.id);
+                          window.requestAnimationFrame(() => focusOriginalsZone());
+                        }}
+                      >
+                        {fileCountLabel(item.kind ?? 'case', item.fileCount)}
+                      </button>
+                      {item.archived ? <span> · 已归档</span> : null}
+                      {(item.isDemo || isDemoCaseId(item.id)) ? <span> · 样板案·演示</span> : null}
+                    </div>
+                  </div>
                   {(item.isDemo || isDemoCaseId(item.id)) && (
                     <span className="demo-badge case-demo-badge" title="样板案·演示">演示</span>
                   )}
@@ -653,6 +716,7 @@ export function App() {
             {!isDemoCase && <div className="empty-state" role="status" data-testid="conversation-empty">{selectedCase.title} 刚建立，尚无对话记录 · 从场景按钮开始</div>}
             {isDemoCase && <>
             <div className="user-message">{flow === 'S1' ? '整理全套卷宗，标出事件矛盾并核对当事人关系。' : '审查这份设备采购合同，重点看付款、验收与违约责任。'}</div>
+            <ThinkingStream />
             <article className="data-card">
               <div className="card-heading"><span className="domain-badge">{flow === 'S1' ? 'D20' : 'D04'}</span><strong>{flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'}</strong></div>
               <p>{flow === 'S1' ? '已按卷宗顺序识别文书，并把事件与主体关系交叉核对。' : '已完成条款抽取与当事人核对，审查结果已送达右侧工作面。'}</p>
@@ -701,7 +765,16 @@ export function App() {
             </>}
             <button onClick={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); }}>起草答辩状</button>
           </div>
-          <Composer onSend={handleComposerSend} />
+          <Composer
+            cases={cases.map((item) => ({
+              id: item.id,
+              name: item.title,
+              kind: item.kind ?? 'case',
+            }))}
+            activeCaseId={selectedCaseId}
+            onSend={handleComposerSend}
+            onContainerize={handleContainerize}
+          />
         </section>}
 
         <section className="right-workbench">
@@ -772,6 +845,27 @@ export function App() {
                 : `${Object.keys(dispositions).length} / 6 项已处置`}
         </span>
         <span className="truncate" data-testid="statusbar-stage">{stageLabel(flow, isDemoCase)}</span>
+        <span className="model-config-anchor">
+          <button
+            type="button"
+            className="quiet-button model-config-trigger"
+            data-testid="model-config-trigger"
+            aria-expanded={modelConfigOpen}
+            title="选择服务商、模型与推理强度"
+            onClick={() => setModelConfigOpen((open) => !open)}
+          >
+            {modelDisplayName(modelConfig)}
+            <span className="model-config-reasoning-tag">
+              {modelConfig.reasoning === 'deep' ? '深思' : '标准'}
+            </span>
+          </button>
+          <ModelConfigPopover
+            open={modelConfigOpen}
+            config={modelConfig}
+            onChange={updateModelConfig}
+            onClose={() => setModelConfigOpen(false)}
+          />
+        </span>
       </footer>
 
       {compileOpen && <div className="modal-backdrop" role="presentation"><section className="compile-dialog" role="dialog" aria-modal="true" aria-labelledby="compile-title"><h2 id="compile-title">编译为 Word 文档</h2><p>定稿后，本画布将转为只读存档。后续修改将在文书修订中逐条处理，无法返回起草状态。</p><div><button className="quiet-button" onClick={() => setCompileOpen(false)}>取消</button><button className="primary-button" onClick={() => { setDraftFrozen(true); setCompileOpen(false); }}>确认定稿并编译</button></div></section></div>}

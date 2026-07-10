@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import type { ContainerKind } from '../case/container-copy';
+import { scopeCommittedLabel, scopeCommitTitle, scopeConfirmBody } from '../case/container-copy';
 import { Icon, type IconName } from '../workbench/Icon';
 import { truncateFileName } from './truncate.js';
-import { DEMO_CASE_OPTIONS, SCOPE_COPY, type ComposerAttachment } from './types.js';
+import { SCOPE_COPY, type ComposerAttachment } from './types.js';
 
 function kindIcon(kind: ComposerAttachment['fileKind']): IconName {
   if (kind === 'image') return 'image';
@@ -22,12 +24,14 @@ function useElapsed(startedAt: number, active: boolean) {
 export function AttachmentChip({
   attachment,
   caseName,
+  containerKind = 'case',
   onRemove,
   onRetry,
   onCommitToDossier,
 }: {
   attachment: ComposerAttachment;
   caseName: string;
+  containerKind?: ContainerKind;
   onRemove: () => void;
   onRetry: () => void;
   onCommitToDossier: () => void;
@@ -59,6 +63,8 @@ export function AttachmentChip({
 
   const displayName = truncateFileName(attachment.fileName);
   const inDossier = attachment.scope === 'dossier';
+  const commitTitle = scopeCommitTitle(containerKind);
+  const committedLabel = scopeCommittedLabel(containerKind);
 
   return (
     <li
@@ -113,17 +119,17 @@ export function AttachmentChip({
             aria-haspopup="dialog"
             aria-expanded={scopeOpen}
             disabled={inDossier}
-            title={inDossier ? SCOPE_COPY.dossier : '点击选择是否存入卷宗'}
+            title={inDossier ? committedLabel : `点击选择是否${commitTitle}`}
             onClick={() => {
               if (!inDossier) setScopeOpen((open) => !open);
             }}
           >
-            {inDossier ? SCOPE_COPY.dossier : SCOPE_COPY.message_only}
+            {inDossier ? committedLabel : SCOPE_COPY.message_only}
           </button>
           {scopeOpen && !inDossier && (
-            <div className="scope-popover" role="dialog" aria-label={SCOPE_COPY.confirmTitle} data-testid={`scope-popover-${attachment.id}`}>
-              <strong>{SCOPE_COPY.confirmTitle}</strong>
-              <p>{SCOPE_COPY.confirmBody(caseName || DEMO_CASE_OPTIONS[0]!.name)}</p>
+            <div className="scope-popover" role="dialog" aria-label={commitTitle} data-testid={`scope-popover-${attachment.id}`}>
+              <strong>{commitTitle}</strong>
+              <p>{scopeConfirmBody(containerKind, caseName)}</p>
               <div className="scope-popover-actions">
                 <button type="button" className="quiet-button" onClick={() => setScopeOpen(false)}>
                   {SCOPE_COPY.cancelAction}

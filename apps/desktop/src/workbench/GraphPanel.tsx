@@ -116,15 +116,21 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
         padding: 7,
         position: 'right-bottom',
         className: 'courtwork-minimap',
+        // docs/52 #9：禁用库默认蓝系，全部吃 Courtwork tokens
         containerStyle: {
           background: graphTokens.background,
           border: `1px solid ${graphTokens.borderStrong}`,
           borderRadius: '4px',
           overflow: 'hidden',
+          boxShadow: 'none',
         },
         maskStyle: {
           border: `1px solid ${graphTokens.ink}`,
           background: 'rgba(233, 238, 244, 0.36)',
+          // 显式压掉 G6 默认蓝色描边/填充
+          stroke: graphTokens.ink,
+          fill: graphTokens.selected,
+          fillOpacity: 0.36,
         },
       }],
       zoomRange: [MIN_ZOOM, MAX_ZOOM],

@@ -18,6 +18,7 @@ export function createDemoCaseSummary(): CaseSummary {
     archived: false,
     folderPath: DEMO_CASE_ROOT,
     isDemo: true,
+    kind: 'case',
   };
 }
 
@@ -95,5 +96,10 @@ export const CASE_SCOPE_AUDIT = [
     symbol: 'createDemoClient module singleton',
     kind: '合法全局' as const,
     note: '协议客户端；replay 仅 demo 容器调用',
+  },
+  {
+    symbol: 'Composer DEMO_CASE_OPTIONS / case chip',
+    kind: '死路由' as const,
+    note: '已改为 activeCase 投影注入；随 selectedCaseId 重置；非 demo 禁止粘滞临江案名',
   },
 ] as const;
