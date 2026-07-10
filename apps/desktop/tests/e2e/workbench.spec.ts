@@ -202,6 +202,24 @@ test('临界用量提供一键续行', async ({ page }) => {
   await expect(page.getByText('已开启下一阶段')).toBeVisible();
 });
 
+test('状态圆盘可展开当前阶段用量明细', async ({ page }) => {
+  await openWorkbench(page);
+  const ring = page.getByTestId('usage-ring');
+  await expect(ring).toHaveAttribute('aria-expanded', 'false');
+  await ring.click();
+  await expect(ring).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByText('卷宗占用 62%')).toBeVisible();
+  await expect(page.getByText('对话占用 23%')).toBeVisible();
+  await expect(page.getByText('可整理内容 6%')).toBeVisible();
+});
+
+test('控件字体简写不清除全域等宽数字特性', async ({ page }) => {
+  await openWorkbench(page);
+  await expect(page.getByTestId('usage-ring')).toHaveCSS('font-variant-numeric', 'tabular-nums');
+  await expect(page.getByTestId('view-revision')).toHaveCSS('font-variant-numeric', 'tabular-nums');
+  await expect(page.locator('.titlebar .case-number')).toHaveCSS('font-variant-numeric', 'tabular-nums');
+});
+
 test('de-slop 基线：无语义线、零投影、紧凑行、细滚动条与线框图标', async ({ page }) => {
   await openWorkbench(page);
   await expect(page.locator('.data-card').first().locator('.signature-line')).toHaveCount(0);
