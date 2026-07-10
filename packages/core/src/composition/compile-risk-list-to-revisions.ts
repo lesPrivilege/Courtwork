@@ -1,5 +1,5 @@
 import type { RevisionInstruction, RevisionInstructionSet, RiskList } from '@courtwork/schemas';
-import { assertCitationAdmissible, type EvidenceLedger } from '../evidence/grade.js';
+import { assertEvidenceKeyAdmissible, type EvidenceLedger } from '../evidence/grade.js';
 
 export class MissingLocatorQuoteError extends Error {
   constructor(riskId: string) {
@@ -33,7 +33,7 @@ export function compileConfirmedRiskListToRevisionInstructions(
       // 误关联，见 W6 验收报告）。一旦签发成功，门禁此后只认这个 key，citation
       // 展示文本再怎么编辑都不能让门禁改判。
       const evidenceKey = ledger.issueKey(basis.citation);
-      if (evidenceKey !== undefined) assertCitationAdmissible(ledger, evidenceKey);
+      if (evidenceKey !== undefined) assertEvidenceKeyAdmissible(ledger, evidenceKey);
       return { citation: basis.citation, sourceAnchors: basis.sourceAnchors, evidenceKey };
     });
 

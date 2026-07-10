@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { RiskList } from '@courtwork/schemas';
-import { createEvidenceLedger, InadmissibleCitationError } from '../evidence/grade.js';
+import { createEvidenceLedger, InadmissibleEvidenceError } from '../evidence/grade.js';
 import { compileConfirmedRiskListToRevisionInstructions, MissingLocatorQuoteError } from './compile-risk-list-to-revisions.js';
 
 function riskList(overrides: Partial<RiskList['risks'][number]> = {}): RiskList {
@@ -60,7 +60,7 @@ describe('compileConfirmedRiskListToRevisionInstructions', () => {
     const webSourced = riskList({
       basis: [{ citation: 'web-search', sourceAnchors: [{ fileId: 'f1', quote: 'x', textRange: { start: 0, end: 1 } }] }],
     });
-    expect(() => compileConfirmedRiskListToRevisionInstructions(webSourced, 'x.docx', ledger)).toThrow(InadmissibleCitationError);
+    expect(() => compileConfirmedRiskListToRevisionInstructions(webSourced, 'x.docx', ledger)).toThrow(InadmissibleEvidenceError);
   });
 
   it('admits the same C-grade citation once the ledger entry is explicitly confirmed, and stamps the compiled citation with the issued evidenceKey', () => {

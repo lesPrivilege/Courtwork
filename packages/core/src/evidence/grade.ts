@@ -51,7 +51,7 @@ export function createEvidenceLedger(): EvidenceLedger {
   };
 }
 
-export class InadmissibleCitationError extends Error {
+export class InadmissibleEvidenceError extends Error {
   constructor(
     public readonly key: string | undefined,
     public readonly grade: EvidenceGrade,
@@ -61,7 +61,7 @@ export class InadmissibleCitationError extends Error {
         ? '引用未附带 evidenceKey，按 C 级未确认证据处理，不满足准入门禁'
         : `证据 "${key}" 等级为 ${grade} 且未经确认，不满足准入门禁`,
     );
-    this.name = 'InadmissibleCitationError';
+    this.name = 'InadmissibleEvidenceError';
   }
 }
 
@@ -72,11 +72,11 @@ export class InadmissibleCitationError extends Error {
  * 无法在台账中解析到记录，一律按 C 级未确认处理（fail closed）；找到记录后
  * 按等级/确认状态放行——C 级且未确认拒绝，A/B 级或已确认的 C 级放行。
  */
-export function assertCitationAdmissible(ledger: EvidenceLedger, evidenceKey: string | undefined): void {
-  if (evidenceKey === undefined) throw new InadmissibleCitationError(undefined, 'C');
+export function assertEvidenceKeyAdmissible(ledger: EvidenceLedger, evidenceKey: string | undefined): void {
+  if (evidenceKey === undefined) throw new InadmissibleEvidenceError(undefined, 'C');
   const evidence = ledger.get(evidenceKey);
-  if (evidence === undefined) throw new InadmissibleCitationError(evidenceKey, 'C');
+  if (evidence === undefined) throw new InadmissibleEvidenceError(evidenceKey, 'C');
   if (evidence.grade === 'C' && !evidence.confirmed) {
-    throw new InadmissibleCitationError(evidenceKey, evidence.grade);
+    throw new InadmissibleEvidenceError(evidenceKey, evidence.grade);
   }
 }

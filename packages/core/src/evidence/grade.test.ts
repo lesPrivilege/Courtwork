@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { assertCitationAdmissible, createEvidenceLedger, InadmissibleCitationError } from './grade.js';
+import { assertEvidenceKeyAdmissible, createEvidenceLedger, InadmissibleEvidenceError } from './grade.js';
 
 describe('EvidenceLedger', () => {
   it('records and retrieves an evidence entry by key', () => {
@@ -49,40 +49,40 @@ describe('EvidenceLedger', () => {
   });
 });
 
-describe('assertCitationAdmissible', () => {
+describe('assertEvidenceKeyAdmissible', () => {
   it('admits an A-grade citation by its issued evidenceKey', () => {
     const ledger = createEvidenceLedger();
     ledger.record('cite-check', { grade: 'A', sourceId: 'public-law-db', confirmed: false });
-    expect(() => assertCitationAdmissible(ledger, ledger.issueKey('cite-check'))).not.toThrow();
+    expect(() => assertEvidenceKeyAdmissible(ledger, ledger.issueKey('cite-check'))).not.toThrow();
   });
 
   it('admits a B-grade citation by its issued evidenceKey', () => {
     const ledger = createEvidenceLedger();
     ledger.record('party-verify', { grade: 'B', sourceId: 'demo-fixture', confirmed: false });
-    expect(() => assertCitationAdmissible(ledger, ledger.issueKey('party-verify'))).not.toThrow();
+    expect(() => assertEvidenceKeyAdmissible(ledger, ledger.issueKey('party-verify'))).not.toThrow();
   });
 
-  it('rejects an unconfirmed C-grade citation with InadmissibleCitationError', () => {
+  it('rejects an unconfirmed C-grade citation with InadmissibleEvidenceError', () => {
     const ledger = createEvidenceLedger();
     ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
-    expect(() => assertCitationAdmissible(ledger, ledger.issueKey('web-search'))).toThrow(InadmissibleCitationError);
+    expect(() => assertEvidenceKeyAdmissible(ledger, ledger.issueKey('web-search'))).toThrow(InadmissibleEvidenceError);
   });
 
   it('admits a C-grade citation once explicitly confirmed', () => {
     const ledger = createEvidenceLedger();
     ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
     ledger.confirm('web-search');
-    expect(() => assertCitationAdmissible(ledger, ledger.issueKey('web-search'))).not.toThrow();
+    expect(() => assertEvidenceKeyAdmissible(ledger, ledger.issueKey('web-search'))).not.toThrow();
   });
 
   it('rejects when no evidenceKey is supplied at all (fail closed, per schema JSDoc: 无 key 引用按 C 级未确认待遇)', () => {
     const ledger = createEvidenceLedger();
-    expect(() => assertCitationAdmissible(ledger, undefined)).toThrow(InadmissibleCitationError);
+    expect(() => assertEvidenceKeyAdmissible(ledger, undefined)).toThrow(InadmissibleEvidenceError);
   });
 
   it('rejects a key that does not resolve to any ledger record (fail closed, same treatment as a missing key)', () => {
     const ledger = createEvidenceLedger();
-    expect(() => assertCitationAdmissible(ledger, 'forged-key-not-in-ledger')).toThrow(InadmissibleCitationError);
+    expect(() => assertEvidenceKeyAdmissible(ledger, 'forged-key-not-in-ledger')).toThrow(InadmissibleEvidenceError);
   });
 
   it('reproduces and closes the W6 acceptance bypass: an unconfirmed C-grade citation stays blocked no matter how its display text is edited afterward, because the gate never takes display text as an input — only the evidenceKey issued at compile time', () => {
@@ -94,6 +94,6 @@ describe('assertCitationAdmissible', () => {
     // 列表里根本不存在"citation 展示文本"这个入口，不可能再被拿来绕过。
     const editedDisplayText = '网络参考：web-search';
     expect(editedDisplayText).not.toBe(evidenceKey);
-    expect(() => assertCitationAdmissible(ledger, evidenceKey)).toThrow(InadmissibleCitationError);
+    expect(() => assertEvidenceKeyAdmissible(ledger, evidenceKey)).toThrow(InadmissibleEvidenceError);
   });
 });
