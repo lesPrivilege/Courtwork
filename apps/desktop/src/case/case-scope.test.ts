@@ -39,8 +39,9 @@ describe('case-scope derivation', () => {
   });
 
   it('audit table has no unclassified rows', () => {
-    expect(CASE_SCOPE_AUDIT.length).toBeGreaterThanOrEqual(11);
+    expect(CASE_SCOPE_AUDIT.length).toBeGreaterThanOrEqual(12);
     expect(CASE_SCOPE_AUDIT.some((row) => row.symbol.includes('Composer'))).toBe(true);
+    expect(CASE_SCOPE_AUDIT.some((row) => row.symbol.includes('lead attorney'))).toBe(true);
     for (const row of CASE_SCOPE_AUDIT) {
       expect(['合法全局', '应派生', '死路由']).toContain(row.kind);
     }

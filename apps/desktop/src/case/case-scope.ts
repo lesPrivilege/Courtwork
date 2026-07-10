@@ -102,4 +102,9 @@ export const CASE_SCOPE_AUDIT = [
     kind: '死路由' as const,
     note: '已改为 activeCase 投影注入；随 selectedCaseId 重置；非 demo 禁止粘滞临江案名',
   },
+  {
+    symbol: 'rail-footer lead attorney · 林律师',
+    kind: '应派生' as const,
+    note: 'docs/52 #17：demo persona 仅 isDemo 案件显示；非 demo 案件不渲染主办律师占位',
+  },
 ] as const;

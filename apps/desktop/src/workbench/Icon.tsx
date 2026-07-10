@@ -1,6 +1,9 @@
 import {
   BriefcaseBusiness,
+  CalendarClock,
   Camera,
+  ChevronDown,
+  ChevronRight,
   Cog,
   Columns2,
   File,
@@ -10,6 +13,9 @@ import {
   MessageSquareText,
   Mic,
   Minus,
+  Package,
+  PanelLeft,
+  PanelRight,
   PanelsTopLeft,
   Paperclip,
   Plus,
@@ -17,6 +23,7 @@ import {
   RotateCw,
   Rows2,
   Scan,
+  Send,
   SendHorizontal,
   X,
   type LucideIcon,
@@ -52,6 +59,13 @@ const standardIcons = {
   file: File,
   image: Image,
   'rotate-clockwise': RotateCw,
+  'chevron-right': ChevronRight,
+  'chevron-down': ChevronDown,
+  package: Package,
+  'calendar-clock': CalendarClock,
+  send: Send,
+  'panel-left': PanelLeft,
+  'panel-right': PanelRight,
 } satisfies Record<string, LucideIcon>;
 
 type StandardIconName = keyof typeof standardIcons;

@@ -79,8 +79,9 @@ export function ModelConfigPopover({ open, config, onChange, onClose }: ModelCon
         当前：{modelDisplayName(config)} · {config.reasoning === 'deep' ? '深思' : '标准'}
       </p>
       <div className="model-config-actions">
+        {/* docs/52 #16：关闭=取消/收起，动词直白；quiet 次要层级（docs/32 主次按钮） */}
         <button type="button" className="quiet-button" onClick={onClose} data-testid="model-config-close">
-          完成
+          关闭
         </button>
       </div>
     </div>
