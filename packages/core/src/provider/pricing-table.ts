@@ -1,13 +1,10 @@
+import type { GenerationUsage } from './types.js';
+
 export interface ModelPrice {
   /** 每百万 input token 价格，人民币元。 */
   inputPerMillionRmb: number;
   /** 每百万 output token 价格，人民币元。 */
   outputPerMillionRmb: number;
-}
-
-export interface TokenUsage {
-  inputTokens: number;
-  outputTokens: number;
 }
 
 /**
@@ -40,7 +37,7 @@ export const PRICE_TABLE: Record<string, Record<string, ModelPrice>> = {
  * 三家首批 provider 官网报价原始单位均为人民币。汇率会漂移，这里只求量级正确。 */
 const RMB_TO_USD_RATE = 1 / 7.1;
 
-export function estimateCostUsd(providerId: string, modelId: string, usage: TokenUsage | undefined): number | undefined {
+export function estimateCostUsd(providerId: string, modelId: string, usage: GenerationUsage | undefined): number | undefined {
   if (!usage) return undefined;
   const price = PRICE_TABLE[providerId]?.[modelId];
   if (!price) return undefined;
