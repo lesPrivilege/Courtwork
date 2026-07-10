@@ -37,6 +37,8 @@
   --motion-tab: 100ms;
   --motion-settle: 150ms;
   --motion-continuation: 240ms;
+  --motion-overlay: 120ms;
+  --motion-overlay-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 * { box-sizing: border-box; box-shadow: none; scrollbar-width: thin; scrollbar-color: transparent transparent; }
@@ -103,7 +105,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .conversation { background: var(--bg-surface); }
 .conversation-scroll { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; overflow: auto; }
 .user-message { align-self: flex-end; max-width: 88%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-selected); line-height: 1.55; }
-.data-card, .detail-card { position: relative; width: 100%; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff; overflow: hidden; }
+.data-card, .detail-card, .generated-callout { position: relative; }
+.data-card, .detail-card { width: 100%; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff; overflow: hidden; }
 .signature-line { position: absolute; inset: 0 auto 0 0; width: 2px; transition: none; }
 .signature-line::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, currentColor 0%, rgba(255,255,255,.58) 50%, currentColor 100%); opacity: 0; transition: opacity var(--motion-hover) ease-out; }
 .line-danger { color: var(--red-graphic); background: var(--red-graphic); }
@@ -121,6 +124,10 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .generated-callout { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--generated); color: var(--text-secondary); font-size: 13px; }
 .generated-callout strong { color: var(--text-primary); font-weight: 510; }
 .generated-callout p { margin: 2px 0 0; }
+.copy-button { position: absolute; top: 6px; right: 6px; display: flex; align-items: center; gap: 4px; height: 22px; padding: 0 6px; border: 1px solid var(--border-strong); border-radius: 4px; background: #fff; color: var(--text-tertiary); cursor: pointer; font-size: 11px; opacity: 0; transition: opacity var(--motion-hover) ease-out, background-color var(--motion-hover) ease-out; }
+.data-card:hover .copy-button, .data-card:focus-within .copy-button,
+.generated-callout:hover .copy-button, .generated-callout:focus-within .copy-button { opacity: 1; }
+.copy-button:hover { background: var(--bg-hover); }
 .scene-strip { display: flex; gap: 6px; padding: 6px 12px; border-top: 1px solid var(--border); }
 .scene-strip button { font-size: 12px; }
 
