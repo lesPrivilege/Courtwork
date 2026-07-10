@@ -7,6 +7,7 @@ import { RiskListSchema } from './risk-list.js';
 import { ReviewMatrixSchema } from './review-matrix.js';
 import { RevisionEventSchema } from './revision-event.js';
 import { RevisionInstructionSetSchema } from './revision-instruction-set.js';
+import { FileOpsPlanSchema } from './file-ops-plan.js';
 
 export const SCHEMA_REGISTRY = [
   { name: 'SourceAnchor', schema: SourceAnchorSchema },
@@ -17,6 +18,7 @@ export const SCHEMA_REGISTRY = [
   { name: 'ReviewMatrix', schema: ReviewMatrixSchema },
   { name: 'RevisionEvent', schema: RevisionEventSchema },
   { name: 'RevisionInstructionSet', schema: RevisionInstructionSetSchema },
+  { name: 'FileOpsPlan', schema: FileOpsPlanSchema },
 ] as const;
 
 export function toJSONSchemaRecord(): Record<string, unknown> {

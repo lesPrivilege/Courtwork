@@ -39,7 +39,8 @@
         "PartyGraph",
         "RiskList",
         "ReviewMatrix",
-        "RevisionInstructionSet"
+        "RevisionInstructionSet",
+        "FileOpsPlan"
       ]
     },
     "artifactId": {

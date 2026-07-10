@@ -25,6 +25,23 @@ describe('CaseFileSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts originalFileName and contentHash for move provenance (docs/47)', () => {
+    const result = CaseFileSchema.safeParse({
+      caseId: 'case-hash',
+      files: [
+        {
+          fileId: 'file-001',
+          fileName: '设备采购合同.pdf',
+          documentType: 'contract',
+          ingestStatus: 'done',
+          originalFileName: '合同扫描件(1).pdf',
+          contentHash: 'deadbeef',
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('accepts multiple entries with mixed statuses and pageCount', () => {
     const result = CaseFileSchema.safeParse({
       caseId: 'case-003',

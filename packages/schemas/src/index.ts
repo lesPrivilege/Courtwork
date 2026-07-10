@@ -6,3 +6,4 @@ export * from './risk-list.js';
 export * from './review-matrix.js';
 export * from './revision-event.js';
 export * from './revision-instruction-set.js';
+export * from './file-ops-plan.js';

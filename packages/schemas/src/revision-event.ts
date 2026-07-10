@@ -8,6 +8,8 @@ export const ArtifactTypeEnum = z.enum([
   'RiskList',
   'ReviewMatrix',
   'RevisionInstructionSet',
+  /** docs/47 卷宗整理计划；F-4 落地 */
+  'FileOpsPlan',
 ]);
 export type ArtifactType = z.infer<typeof ArtifactTypeEnum>;
 
