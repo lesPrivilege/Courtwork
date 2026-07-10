@@ -29,7 +29,8 @@
               "pending",
               "processing",
               "done",
-              "failed"
+              "failed",
+              "needs_ocr"
             ]
           },
           "pageCount": {

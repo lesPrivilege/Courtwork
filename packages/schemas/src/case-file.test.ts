@@ -47,6 +47,21 @@ describe('CaseFileSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts an entry with needs_ocr ingestStatus (scanned file, no text layer)', () => {
+    const result = CaseFileSchema.safeParse({
+      caseId: 'case-007',
+      files: [
+        {
+          fileId: 'file-001',
+          fileName: '扫描件.pdf',
+          documentType: 'evidence',
+          ingestStatus: 'needs_ocr',
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('rejects a case file missing caseId', () => {
     const result = CaseFileSchema.safeParse({
       files: [],
