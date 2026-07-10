@@ -62,8 +62,7 @@ function parseCandidateOutput(candidateOutput: unknown): { ok: true; value: unkn
  * 规则评分聚合入口：把一个 case 的全部规则评分项聚合成一次 pass/score/reason。
  * llmJudge 类型的规则在这里被跳过（见上），只处理"能走规则评分的"那部分，呼应
  * "能走规则评分的绝不上 judge"的评测方法论。与任何具体跑分器无关，是纯函数——
- * 跑分器适配层（如 src/promptfoo/run-rules.ts）负责把外部传入的参数还原成这里
- * 需要的形状后调用本函数。
+ * 跑分器适配层负责把外部传入的参数还原成这里需要的形状后调用本函数。
  */
 export function evaluateCase(
   candidateOutput: unknown,

@@ -32,8 +32,8 @@ export type ScoringRule = z.infer<typeof ScoringRuleSchema>;
 
 /**
  * 评测例的中性形状：任务输入 + 专业标准答案 + 评分规则 + 溯源，不含任何特定跑分器
- * 专有的断言/变量字段——跑分器绑定层（src/promptfoo/）单向依赖本 schema，本 schema
- * 不知道任何跑分器的存在。
+ * 专有的断言/变量字段——跑分器绑定层单向依赖本 schema，本 schema 不知道任何跑分器
+ * 的存在。
  */
 export const EvalCaseSchema = z.object({
   id: z.string().min(1),
