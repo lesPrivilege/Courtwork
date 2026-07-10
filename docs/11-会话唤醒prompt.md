@@ -632,4 +632,25 @@ D-5 冒烟脚本无 key 时明确说明并跳过（跑一次验证）。
 验证：契约测试 + Playwright（整理计划全流程 + 撤销一致性）+ 假绿防护；docs/46 活清单登记；分层提交。完工后独立验收。
 ```
 
+## F 批合批验收（Claude Code，范围 = F-1 composer / F-2 全局动词 / F-3 系统动词+工作稿）
+
+```
+你认领 Courtwork 的 F 批合批验收（角色：验收工程师；实现者：Grok 为主 + F-2 前半为 Sonnet）。三单工单原文在本文件上方对应节；实现回报要点已录入各 SPEC。
+
+先读：AGENTS.md（git 判例全集——本批实现期共享索引冲突高发，多次前进式修复，验收含"git 考古"项）、docs/45/46/47、docs/32-设计语言包/、apps/desktop/SPEC.md、packages/tools/SPEC.md。
+
+全局验收：
+1. 干净环境全链：install → tools 193 → desktop Vitest 35 → Playwright 57/57（假绿下限核对）→ lint + lint:icons/motion/signature/graph 四门禁 → 生产构建 → cargo check。
+2. **git 考古（本批特别项）**：F-2 期间发生多次误吞与前进式修复（1692630 等）——核对最终 HEAD 的 App.tsx/styles.css：无未授权 hunks 残留、图标迁移改动未被误吞或回滚（对照其自身提交）、各前进式修复的净效果正确。
+3. docs/46 活清单与实现一致性：F 批回填的"真实实现"项逐一属实。
+
+分项焦点（实现者自列 + 架构加码）：
+F-1：八裁决对照（平铺/文件名 chip/禁用态模板文案/存卷宗 popover 单向/全窗拖放/⌘V/IME 防误发/KBD）；上传真实路由 reading-view（needs_ocr 如实呈现）；协议壳零业务逻辑；**遗留补查**：reading-view 跨包修复在其 SPEC 留痕（追认条件②，缺则补写）+ FNV 短哈希漂移检测充分性一句话评估。
+F-2：⌘K 兑现（打开/Esc/模糊/场景/案件/新建/归档/专注/打开产出文件夹——最后一项须真实调 F-3 reveal 非占位）；专注模式 0ms 硬切、左中栏真卸装、Esc 恢复；归档可逆且全 app 无删除语义；callout 复制含溯源引文；十裁决抽查（无全局刷新、下载落点等）。
+F-3：越界路径始终可见失败（构造越界用例亲测）；宿主零 shell（读 Tauri capability + Rust 命令面）；工作稿只能写工作稿区、原件区无任何编辑入口（含无障碍树）；子路径导出未把 node:net/web-fetch 打进 desktop 包（读产物或构建分析确认）。
+4. **对照记录（实验数据交付）**：同约束体系下 Sonnet 段（fuzzy-match/新建案件/复制按钮）vs Grok 段（F-1/F-3/F-2 余量）的装配质量对比——缺陷密度、规格贴合度、自主发现质量，写成一节供架构选型参考。
+
+处置规则照 AGENTS.md（git 操作全程遵三判例 + 高峰期 CAS 协议）。报告纯追加写入 apps/desktop/ACCEPTANCE.md"F 批验收"节（F-3 tools 部分在 packages/tools/SPEC.md 留痕）。结论三问：三单各自是否放行；产品可用面（composer+全局动词+系统动词+工作稿）是否达"对外可演示版"增补标准；工作树是否安静可放行 F-4 开工。
+```
+
 后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
