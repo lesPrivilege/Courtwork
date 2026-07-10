@@ -252,7 +252,7 @@ export function Composer({
               title="选择案件文件夹"
               onClick={() => setCaseMenuOpen((open) => !open)}
             >
-              <Icon name="folderOpen" />
+              <Icon name="folder-open" />
               <span className="case-chip-label mono-ellip">
                 {selectedCase ? selectedCase.name : '选择案件'}
               </span>
@@ -325,7 +325,7 @@ export function Composer({
             disabled={!canSend || busy || attachments.some((item) => item.status.kind === 'failed')}
             onClick={handleSend}
           >
-            <Icon name="send" />
+            <Icon name="send-horizontal" />
           </button>
         </div>
       </div>

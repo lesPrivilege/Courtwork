@@ -1,0 +1,21 @@
+[
+  { "name": "bound-folder", "family": "document-container", "tags": ["folder", "binding", "sheets"], "concept": "卷宗/案卷袋", "addedInSpec": "P-4" },
+  { "name": "tabbed-sheet", "family": "document-container", "tags": ["sheet", "tab", "divider"], "concept": "分类文书标签页", "addedInSpec": "P-4" },
+  { "name": "ring-check", "family": "verification-mark", "tags": ["ring", "check", "stamp"], "concept": "盖章核验", "addedInSpec": "P-4" },
+  { "name": "anchor-link", "family": "verification-mark", "tags": ["anchor", "link", "chain"], "concept": "溯源跳转/引用锚点", "addedInSpec": "P-4" },
+  { "name": "corner-badge", "family": "verification-mark", "tags": ["square", "corner", "dot"], "concept": "信源等级角标图形容器", "addedInSpec": "P-4" },
+  { "name": "split-gate-dot", "family": "split-gate", "tags": ["posts", "dot", "opening"], "concept": "确认门禁·待处理", "addedInSpec": "P-4" },
+  { "name": "split-gate-check", "family": "split-gate", "tags": ["posts", "check", "opening"], "concept": "确认门禁·已确认", "addedInSpec": "P-4" },
+  { "name": "split-gate-slash", "family": "split-gate", "tags": ["posts", "slash", "opening"], "concept": "确认门禁·已驳回", "addedInSpec": "P-4" },
+  { "name": "document-snowflake", "family": "document-state", "tags": ["document", "snowflake", "fold"], "concept": "编译定稿冻结", "addedInSpec": "P-4" },
+  { "name": "archive-lock", "family": "document-state", "tags": ["archive", "lock", "lid"], "concept": "只读归档态", "addedInSpec": "P-4" },
+  { "name": "split-text-arrows", "family": "review-mark", "tags": ["text", "arrows", "split"], "concept": "修订痕迹预览", "addedInSpec": "P-4" },
+  { "name": "crossed-paths", "family": "review-mark", "tags": ["paths", "crossing", "arrows"], "concept": "矛盾点标记", "addedInSpec": "P-4" },
+  { "name": "nodes-linked", "family": "structure-mark", "tags": ["nodes", "links", "diamond"], "concept": "实体关系图谱", "addedInSpec": "P-4" },
+  { "name": "sheets-funnel", "family": "structure-mark", "tags": ["sheets", "funnel", "pipeline"], "concept": "文书摄取/结构化", "addedInSpec": "P-4" },
+  { "name": "spark-lines", "family": "provenance-channel", "tags": ["spark", "lines", "text"], "concept": "AI 生成解释通道", "addedInSpec": "P-4" },
+  { "name": "check-lines", "family": "provenance-channel", "tags": ["check", "lines", "text"], "concept": "工具核验结果通道", "addedInSpec": "P-4" },
+  { "name": "stacked-checks", "family": "selection-mark", "tags": ["stack", "checks", "rows"], "concept": "可批量确认范围", "addedInSpec": "P-4" },
+  { "name": "stepped-arrow", "family": "progress-mark", "tags": ["steps", "arrow", "forward"], "concept": "开启新阶段续行", "addedInSpec": "P-4" },
+  { "name": "cards-play", "family": "entry-mark", "tags": ["cards", "play", "stack"], "concept": "场景按钮入口", "addedInSpec": "P-4" }
+]

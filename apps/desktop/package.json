@@ -8,22 +8,27 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
-    "test:e2e": "node scripts/assert-motion-properties.mjs && node scripts/assert-signature-line.mjs && node scripts/assert-graph-theme.mjs && node scripts/assert-test-count.mjs && playwright test",
+    "test:e2e": "node scripts/assert-motion-properties.mjs && node scripts/assert-signature-line.mjs && node scripts/assert-graph-theme.mjs && node scripts/verify-icons.mjs && node scripts/assert-test-count.mjs && playwright test",
     "test:e2e:list": "playwright test --list",
     "lint:motion": "node scripts/assert-motion-properties.mjs",
     "lint:signature": "node scripts/assert-signature-line.mjs",
     "lint:graph": "node scripts/assert-graph-theme.mjs",
+    "lint:icons": "node scripts/verify-icons.mjs",
+    "icons:optimize": "svgo --folder src/icons/custom --config svgo.config.mjs",
+    "icons:generate": "node scripts/generate-custom-icons.mjs",
+    "icons:build": "pnpm icons:optimize && pnpm icons:generate && pnpm lint:icons",
     "visual:audit": "node scripts/capture-visual-audit.mjs",
     "tauri": "tauri"
   },
   "dependencies": {
     "@antv/g6": "^5.1.1",
     "@courtwork/core": "workspace:*",
+    "@courtwork/reading-view": "workspace:*",
     "@courtwork/schemas": "workspace:*",
     "@tauri-apps/api": "^2.8.0",
+    "lucide-react": "^1.24.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "@courtwork/reading-view": "workspace:*"
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
@@ -31,6 +36,7 @@
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.2",
+    "svgo": "^4.0.1",
     "vite": "^7.1.5"
   }
 }

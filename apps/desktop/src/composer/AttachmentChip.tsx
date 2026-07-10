@@ -6,7 +6,7 @@ import { DEMO_CASE_OPTIONS, SCOPE_COPY, type ComposerAttachment } from './types.
 function kindIcon(kind: ComposerAttachment['fileKind']): IconName {
   if (kind === 'image') return 'image';
   if (kind === 'other') return 'file';
-  return 'fileText';
+  return 'file-text';
 }
 
 function useElapsed(startedAt: number, active: boolean) {
@@ -98,7 +98,7 @@ export function AttachmentChip({
           <span className="attachment-fail-msg">{status.message}</span>
           {status.retryable && (
             <button type="button" className="attachment-inline-action" onClick={onRetry} data-testid={`attachment-retry-${attachment.id}`}>
-              <Icon name="rotateCw" />
+              <Icon name="rotate-clockwise" />
               重试
             </button>
           )}
