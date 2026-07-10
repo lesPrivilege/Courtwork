@@ -114,4 +114,73 @@ describe('TimelineSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('accepts an event with a contradiction marker', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-008',
+      events: [
+        {
+          id: 'evt-008',
+          description: '验收单载明验收合格，与会议纪要陈述矛盾',
+          date: { kind: 'exact', date: '2024-12-10' },
+          markers: ['contradiction'],
+          sourceAnchors: [{ fileId: 'file-008', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.events[0]?.markers).toEqual(['contradiction']);
+    }
+  });
+
+  it('accepts an event with markers omitted entirely', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-009',
+      events: [
+        {
+          id: 'evt-009',
+          description: '无标记的普通事件',
+          date: { kind: 'exact', date: '2024-01-01' },
+          sourceAnchors: [{ fileId: 'file-009', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.events[0]?.markers).toBeUndefined();
+    }
+  });
+
+  it('rejects a markers array containing an empty string', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-010',
+      events: [
+        {
+          id: 'evt-010',
+          description: '标记数组含空字符串',
+          date: { kind: 'exact', date: '2024-01-01' },
+          markers: [''],
+          sourceAnchors: [{ fileId: 'file-010', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects markers that is not an array', () => {
+    const result = TimelineSchema.safeParse({
+      caseId: 'case-011',
+      events: [
+        {
+          id: 'evt-011',
+          description: '标记字段类型错误',
+          date: { kind: 'exact', date: '2024-01-01' },
+          markers: 'contradiction',
+          sourceAnchors: [{ fileId: 'file-011', textRange: { start: 0, end: 5 } }],
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+  });
 });

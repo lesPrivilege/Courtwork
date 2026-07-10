@@ -19,6 +19,13 @@ const TimelineEventSchema = z.object({
   partyIds: z.array(z.string().min(1)).default([]),
   /** 事件必须至少有一个来源锚点：没有证据支撑的"事件"在法律审阅场景下不可信。 */
   sourceAnchors: z.array(SourceAnchorSchema).min(1),
+  /**
+   * 结构化事件标记，供 UI 消费判定（如高亮矛盾事件），替代此前靠 description
+   * 文本匹配关键词做判断的做法（违反"UI 零推断"原则）。
+   * 当前词表仅 "contradiction"；词表将随 ContradictionList 类型正式落地后收编、
+   * 不再是本字段自由字符串的隐性约定。
+   */
+  markers: z.array(z.string().min(1)).optional(),
 });
 export type TimelineEvent = z.infer<typeof TimelineEventSchema>;
 

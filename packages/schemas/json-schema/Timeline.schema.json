@@ -153,6 +153,13 @@
               "title": "SourceAnchor",
               "description": "来源引用锚：一切可溯源交互的地基。定位到具体文件的页面坐标区域（bbox）和/或文本层字符区间（textRange）。quote 仅作展示与重锚定辅助，不是权威定位器。"
             }
+          },
+          "markers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         "required": [
