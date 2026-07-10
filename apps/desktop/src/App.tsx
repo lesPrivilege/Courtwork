@@ -19,7 +19,6 @@ import {
   INITIAL_DRAFT,
   MatrixPanel,
   RevisionPanel,
-  SignatureLine,
   TimelinePanel,
   type DraftDocument,
 } from './workbench/Panels';
@@ -257,13 +256,11 @@ export function App() {
           <div className="conversation-scroll">
             <div className="user-message">{flow === 'S1' ? '整理全套卷宗，标出事件矛盾并核对当事人关系。' : '审查这份设备采购合同，重点看付款、验收与违约责任。'}</div>
             <article className="data-card">
-              <SignatureLine tone={flow === 'S1' ? 'attention' : undefined} />
               <div className="card-heading"><span className="domain-badge">{flow === 'S1' ? 'D20' : 'D04'}</span><strong>{flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'}</strong></div>
               <p>{flow === 'S1' ? '已按卷宗顺序识别文书，并把事件与主体关系交叉核对。' : '已完成条款抽取与当事人核对，审查结果已送达右侧工作面。'}</p>
             </article>
             {session.progress.map((message, index) => <div className="progress-card" key={`${message}-${index}`}><span className="progress-pulse" />{message}</div>)}
             <article className="data-card compact-result">
-              <SignatureLine tone={flow === 'S3' ? 'danger' : 'attention'} />
               <div className="card-heading"><span className="domain-badge">{flow === 'S3' ? 'R' : 'E'}</span><strong>{flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'}</strong></div>
               <p>{flow === 'S3' ? '高危 2 项、中危 3 项、低危 1 项。高危与未核验条目需要逐条展开。' : '已形成 47 个事件、14 个主体和 15 条关系；4 处矛盾等待核对。'}</p>
             </article>
