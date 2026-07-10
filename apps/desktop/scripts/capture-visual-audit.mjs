@@ -38,4 +38,17 @@ await page.setViewportSize({ width: 1700, height: 900 });
 await page.getByRole('button', { name: '左右对照' }).click();
 await capture('07-split-columns-1700.png');
 
+// F-3：系统动词反馈 + 工作稿轨 + 原件只读区
+await page.setViewportSize({ width: 1440, height: 900 });
+await page.getByTestId('split-reset').click().catch(() => {});
+await page.getByTestId('flow-s3').click();
+await page.getByTestId('reveal-output-docx').click();
+await page.getByTestId('system-open-feedback').waitFor({ state: 'visible' });
+await capture('16-f3-reveal-feedback-1440.png');
+await page.getByTestId('open-work-drafts').click();
+await page.getByTestId('new-work-draft').click();
+await capture('17-f3-work-draft-1440.png');
+await page.getByTestId('originals-zone').scrollIntoViewIfNeeded();
+await capture('18-f3-originals-readonly-1440.png');
+
 await browser.close();

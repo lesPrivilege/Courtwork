@@ -106,6 +106,8 @@ fn clear_provider_credential() -> Result<CredentialStatus, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // F-3：仅注册 opener 的 open/reveal 动词；任意 shell 执行不在能力面。
+        .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             provider_credential_status,
             save_provider_credential,

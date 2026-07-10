@@ -175,7 +175,20 @@ export const INITIAL_DRAFT: DraftDocument = {
   paragraphs: ['起云智能认为，涉案设备验收标准与异议期限约定不明，应结合验收单、会议纪要及履行过程综合判断。'],
 };
 
-export function DraftPanel({ value, onChange, frozen, onCompile }: { value: DraftDocument; onChange: (value: DraftDocument) => void; frozen: boolean; onCompile: () => void }) {
+export function DraftPanel({
+  value,
+  onChange,
+  frozen,
+  onCompile,
+  onOpenDocx,
+}: {
+  value: DraftDocument;
+  onChange: (value: DraftDocument) => void;
+  frozen: boolean;
+  onCompile: () => void;
+  /** 定稿后打开产出 docx（F-3 open-file）；未接通时保持禁用入口 */
+  onOpenDocx?: () => void;
+}) {
   const editorRef = useRef<HTMLElement>(null);
   const captureDocument = () => {
     const editor = editorRef.current;
@@ -187,7 +200,25 @@ export function DraftPanel({ value, onChange, frozen, onCompile }: { value: Draf
 
   return <StaticViewport testId="draft-static-viewport">
     <div className={`draft-panel ${frozen ? 'frozen' : ''}`} data-testid="draft-panel">
-      <header><div><strong>答辩状</strong><span>{frozen ? '已定稿 · 2026-07-10 17:40' : '起草中 · 自动保存'}</span></div>{frozen ? <button className="primary-button" disabled title="打开 Word 文档 · 文件生成完成后可用">打开 Word 文档</button> : <button className="primary-button" onClick={onCompile}>编译为 Word 文档</button>}</header>
+      <header>
+        <div>
+          <strong>答辩状</strong>
+          <span>{frozen ? '已定稿 · 2026-07-10 17:40' : '起草中 · 自动保存'}</span>
+        </div>
+        {frozen
+          ? (
+            <button
+              className="primary-button"
+              data-testid="open-word-doc"
+              disabled={!onOpenDocx}
+              title={onOpenDocx ? '打开 Word 文档' : '打开 Word 文档 · 文件生成完成后可用'}
+              onClick={onOpenDocx}
+            >
+              打开 Word 文档
+            </button>
+          )
+          : <button className="primary-button" onClick={onCompile}>编译为 Word 文档</button>}
+      </header>
       {frozen
         ? <article className="draft-reading"><h2>{value.title}</h2>{value.paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</article>
         : <article

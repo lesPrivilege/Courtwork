@@ -25,7 +25,9 @@
     "@courtwork/core": "workspace:*",
     "@courtwork/reading-view": "workspace:*",
     "@courtwork/schemas": "workspace:*",
+    "@courtwork/tools": "workspace:^",
     "@tauri-apps/api": "^2.8.0",
+    "@tauri-apps/plugin-opener": "^2",
     "lucide-react": "^1.24.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

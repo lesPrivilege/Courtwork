@@ -190,6 +190,27 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 验证：`icons:build` 与 `lint:icons` 通过；Vitest 26/26；Playwright 38/38；`pnpm lint` 和 desktop 生产构建通过。Base UI 未触发，未新建 `packages/ui`。
 
+## F-3 最小 work 能力包（2026-07-10）
+
+规格：docs/23 双轨增补 + docs/47 无损级 + docs/46 先登记。实现位：`packages/tools`（case-path / system-open）+ `apps/desktop/src/system/`。
+
+### 交付对照
+
+| 项 | 落地 |
+|---|---|
+| reveal-in-folder / open-file | tools 契约 + 案件文件夹白名单；越界 `adapter_error` 可见报错；宿主仅 opener 两动词，永无 shell |
+| UI 双路径 | 产出 docx 卡「在访达中显示/打开文件」+ 状态条「打开产出文件夹」；反馈「已在访达中显示」「已为您打开〔文件名〕」 |
+| 工作稿轨 | 「工作稿」子目录 md/txt；复用 contentEditable 画布 + 自动保存；左栏入口 |
+| 原件只读 | `assertWorkDraftWritable` 结构性拒绝原件/产出写入；左栏原件区 `data-readonly`、无编辑入口（Playwright 锁定） |
+| Tauri | `tauri-plugin-opener` + capability 仅 `allow-open-path` / `allow-reveal-item-in-dir` |
+| 浏览器打包 | desktop 只 import `@courtwork/tools/{case-path,system-open,contract}` 子路径，不拉 web-fetch 的 `node:net` |
+
+### 验证
+
+- tools：193 例（+24）
+- desktop Vitest：35/35；Playwright：42/42（假绿下限 42）
+- 截图：[`16-f3-reveal-feedback-1440.png`](visual-audit/16-f3-reveal-feedback-1440.png) / [`17-f3-work-draft-1440.png`](visual-audit/17-f3-work-draft-1440.png) / [`18-f3-originals-readonly-1440.png`](visual-audit/18-f3-originals-readonly-1440.png)
+
 ## 验证记录
 
 - `pnpm --filter @courtwork/desktop build`：TypeScript project build + Vite 生产构建通过。

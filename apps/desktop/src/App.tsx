@@ -15,6 +15,10 @@ import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, type ComposerSendPayload } from './composer';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
+import { DEMO_CASE_ROOT, DEMO_OUTPUT_DIR, DEMO_OUTPUT_DOCX } from './system/demo-case-layout';
+import { OriginalsZone } from './system/OriginalsZone';
+import { systemOpenClient } from './system/system-open-client';
+import { WorkDraftPanel } from './system/WorkDraftPanel';
 import { CopyButton } from './workbench/CopyButton';
 import { Icon } from './workbench/Icon';
 import {
@@ -43,7 +47,14 @@ const VIEW_LABELS: Record<WorkbenchView, string> = {
 
 const VIEWS = Object.keys(VIEW_LABELS) as WorkbenchView[];
 
-const DEMO_CASE: CaseSummary = { id: 'demo-linjiang', title: '临江精铸 诉 起云智能 设备采购合同纠纷', caseNumber: '(2025)云章03民初472号', fileCount: 20, archived: false };
+const DEMO_CASE: CaseSummary = {
+  id: 'demo-linjiang',
+  title: '临江精铸 诉 起云智能 设备采购合同纠纷',
+  caseNumber: '(2025)云章03民初472号',
+  fileCount: 20,
+  archived: false,
+  folderPath: DEMO_CASE_ROOT,
+};
 
 function useWideSplitAvailable() {
   const [available, setAvailable] = useState(() => window.innerWidth >= 1600);
@@ -80,10 +91,20 @@ export function App() {
   const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
   const [selectedCaseId, setSelectedCaseId] = useState(DEMO_CASE.id);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
+  /** 起草画布内切换：交付轨文书 vs 工作稿轨笔记 */
+  const [workDraftMode, setWorkDraftMode] = useState(false);
+  const [systemFeedback, setSystemFeedback] = useState<{ message: string; ok: boolean } | null>(null);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const wideSplitAvailable = useWideSplitAvailable();
   const openedAt = useRef<Record<string, number>>({});
   const lastReplayedFlow = useRef<ScenarioFlow | undefined>(undefined);
   const resolvedRequest = useRef<string | undefined>(undefined);
+
+  const showSystemFeedback = (message: string, ok: boolean) => {
+    setSystemFeedback({ message, ok });
+    clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = setTimeout(() => setSystemFeedback(null), 3200);
+  };
 
   const handleComposerSend = (payload: ComposerSendPayload) => {
     // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
@@ -155,17 +176,37 @@ export function App() {
   const usage = flow === 'S3' ? 91 : 18;
   const selectedCase = cases.find((item) => item.id === selectedCaseId) ?? cases[0];
   const isDemoCase = selectedCase.id === DEMO_CASE.id;
+  const caseRoot = selectedCase.folderPath ?? DEMO_CASE_ROOT;
 
   const createCase = ({ title, fileCount }: { title: string; fileCount: number }) => {
     const newId = `case-${cases.length}-${title}`;
-    setCases((current) => [...current, { id: newId, title, fileCount, archived: false }]);
+    setCases((current) => [...current, { id: newId, title, fileCount, archived: false, folderPath: `${DEMO_CASE_ROOT}-新建/${title}` }]);
     setSelectedCaseId(newId);
     setNewCaseOpen(false);
+  };
+
+  const openOutputFolder = () => {
+    void systemOpenClient.revealInFolder(DEMO_OUTPUT_DIR, caseRoot).then((feedback) => {
+      showSystemFeedback(feedback.message, feedback.ok);
+    });
+  };
+
+  const revealOutputDocx = () => {
+    void systemOpenClient.revealInFolder(DEMO_OUTPUT_DOCX, caseRoot).then((feedback) => {
+      showSystemFeedback(feedback.message, feedback.ok);
+    });
+  };
+
+  const openOutputDocx = () => {
+    void systemOpenClient.openFile(DEMO_OUTPUT_DOCX, caseRoot).then((feedback) => {
+      showSystemFeedback(feedback.message, feedback.ok);
+    });
   };
 
   const selectFlow = (next: ScenarioFlow) => {
     setFlow(next);
     setActiveView(next === 'S1' ? 'timeline' : 'revision');
+    setWorkDraftMode(false);
     setGate(undefined);
     setExpandedEvidence({});
     setDispositions({});
@@ -177,6 +218,12 @@ export function App() {
   const choosePrimaryView = (view: WorkbenchView) => {
     if (secondaryView === view && activeView !== view) setSecondaryView(activeView);
     setActiveView(view);
+    if (view !== 'draft') setWorkDraftMode(false);
+  };
+
+  const openWorkDrafts = () => {
+    setWorkDraftMode(true);
+    setActiveView('draft');
   };
 
   const startComparison = () => {
@@ -214,7 +261,26 @@ export function App() {
       <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />
     </Suspense>;
     if (view === 'matrix') return <MatrixPanel matrix={matrix} />;
-    if (view === 'draft') return <DraftPanel value={draft} onChange={setDraft} frozen={draftFrozen} onCompile={() => setCompileOpen(true)} />;
+    if (view === 'draft') {
+      if (workDraftMode) {
+        return (
+          <WorkDraftPanel
+            caseId={selectedCase.id}
+            caseRoot={caseRoot}
+            onFeedback={showSystemFeedback}
+          />
+        );
+      }
+      return (
+        <DraftPanel
+          value={draft}
+          onChange={setDraft}
+          frozen={draftFrozen}
+          onCompile={() => setCompileOpen(true)}
+          onOpenDocx={draftFrozen ? openOutputDocx : undefined}
+        />
+      );
+    }
     return <RevisionPanel
       riskList={riskList}
       selectedRisk={selectedRisk}
@@ -258,7 +324,7 @@ export function App() {
         <span>案件</span><span className="crumb-sep">›</span>
         <strong>{flow === 'S1' ? '阶段一 · 阅卷整理' : '阶段二 · 合同审查'}</strong>
         <span className="spacer" />
-        <button className="quiet-button credential-button" onClick={() => setProviderSetupOpen(true)} title="配置文书助手"><Icon name="settings" />模型服务 · {credentialStatus?.configured ? '已连接' : '待连接'}</button>
+        <button className="quiet-button credential-button" onClick={() => setProviderSetupOpen(true)} title="配置文书助手"><Icon name="cog" />模型服务 · {credentialStatus?.configured ? '已连接' : '待连接'}</button>
         <button className="quiet-button" disabled title="审阅记录 · 待生成">审阅记录</button>
         <button className="primary-button" disabled title="导出审阅稿 · 待完成文书生成">导出审阅稿</button>
       </nav>
@@ -279,8 +345,18 @@ export function App() {
               ))}
               {isDemoCase && <>
                 <p className="rail-label">阶段</p>
-                <button className={`stage-row ${flow === 'S1' ? 'selected' : ''}`} onClick={() => selectFlow('S1')} data-testid="flow-s1"><Icon name="panels" />阶段一 · 阅卷整理<span>已归档</span></button>
-                <button className={`stage-row ${flow === 'S3' ? 'selected' : ''}`} onClick={() => selectFlow('S3')} data-testid="flow-s3"><Icon name="panels" />阶段二 · 合同审查<span>{Object.keys(dispositions).length}/6</span></button>
+                <button className={`stage-row ${flow === 'S1' ? 'selected' : ''}`} onClick={() => selectFlow('S1')} data-testid="flow-s1"><Icon name="panels-top-left" />阶段一 · 阅卷整理<span>已归档</span></button>
+                <button className={`stage-row ${flow === 'S3' ? 'selected' : ''}`} onClick={() => selectFlow('S3')} data-testid="flow-s3"><Icon name="panels-top-left" />阶段二 · 合同审查<span>{Object.keys(dispositions).length}/6</span></button>
+                <OriginalsZone caseRoot={caseRoot} onFeedback={showSystemFeedback} />
+                <p className="rail-label">工作稿</p>
+                <button
+                  type="button"
+                  className={`stage-row ${workDraftMode && activeView === 'draft' ? 'selected' : ''}`}
+                  data-testid="open-work-drafts"
+                  onClick={openWorkDrafts}
+                >
+                  <Icon name="file-text" />工作稿 · 笔记备忘<span>新建</span>
+                </button>
               </>}
             </div>
             <div className="rail-footer">主办律师 · 林律师</div>
@@ -288,13 +364,13 @@ export function App() {
           <nav className="collapsed-case-icons" aria-label="折叠的案件栏">
             {cases.map((item) => (
               <button key={item.id} aria-label={item.title} title={item.title} onClick={() => setSelectedCaseId(item.id)}>
-                <Icon name="case" />
+                <Icon name="briefcase-business" />
                 {item.id === DEMO_CASE.id && <span className="unread-count">1</span>}
               </button>
             ))}
             {isDemoCase && <>
-              <button aria-label="阅卷整理" title="阅卷整理" onClick={() => selectFlow('S1')}><Icon name="panels" /></button>
-              <button aria-label="合同审查" title="合同审查" onClick={() => selectFlow('S3')}><Icon name="conversation" /></button>
+              <button aria-label="阅卷整理" title="阅卷整理" onClick={() => selectFlow('S1')}><Icon name="panels-top-left" /></button>
+              <button aria-label="合同审查" title="合同审查" onClick={() => selectFlow('S3')}><Icon name="message-square-text" /></button>
             </>}
           </nav>
         </aside>
@@ -316,6 +392,16 @@ export function App() {
               <p>{flow === 'S3' ? '高危 2 项、中危 3 项、低危 1 项。高危与未核验条目需要逐条展开。' : '已形成 47 个事件、14 个主体和 15 条关系；4 处矛盾等待核对。'}</p>
               <CopyButton label="复制卡片内容" getText={() => `${flow === 'S3' ? 'R' : 'E'}\n${flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'}\n${flow === 'S3' ? '高危 2 项、中危 3 项、低危 1 项。高危与未核验条目需要逐条展开。' : '已形成 47 个事件、14 个主体和 15 条关系；4 处矛盾等待核对。'}`} />
             </article>
+            {flow === 'S3' && (
+              <article className="data-card output-file-card" data-testid="output-docx-card">
+                <div className="card-heading"><span className="domain-badge">W</span><strong>合同审查报告.docx</strong></div>
+                <p>审查报告已写入本案「产出」文件夹，可在访达中查看或用系统程序打开。</p>
+                <div className="output-file-actions">
+                  <button type="button" className="quiet-button" data-testid="reveal-output-docx" onClick={revealOutputDocx}>在访达中显示</button>
+                  <button type="button" className="primary-button" data-testid="open-output-docx" onClick={openOutputDocx}>打开文件</button>
+                </div>
+              </article>
+            )}
             <aside className="generated-callout">
               <strong>审阅提示</strong>
               <p>{flow === 'S3' ? '先核对验收条款的原文依据，再决定是否接受对应修订。' : '催告主体、收款账户与验收结论存在交叉矛盾，建议优先核对。'}</p>
@@ -335,7 +421,11 @@ export function App() {
               </div>
             ))}
           </div>
-          <div className="scene-strip"><button onClick={() => selectFlow('S1')}>整理卷宗</button><button onClick={() => selectFlow('S3')}>审查合同</button><button onClick={() => choosePrimaryView('draft')}>起草答辩状</button></div>
+          <div className="scene-strip">
+            <button onClick={() => selectFlow('S1')}>整理卷宗</button>
+            <button onClick={() => selectFlow('S3')}>审查合同</button>
+            <button onClick={() => { setWorkDraftMode(false); choosePrimaryView('draft'); }}>起草答辩状</button>
+          </div>
           <Composer onSend={handleComposerSend} />
         </section>
 
@@ -344,11 +434,11 @@ export function App() {
           <div className="view-tabs" role="tablist" aria-label="结构化工作面">
             {VIEWS.map((view) => <button key={view} role="tab" aria-selected={activeView === view} className={activeView === view ? 'active' : ''} onClick={() => choosePrimaryView(view)} data-testid={`view-${view}`}><span>{VIEW_LABELS[view]}</span><i className="tab-indicator" aria-hidden="true" /></button>)}
             <span className="tab-spacer" />
-            {!comparing && <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照"><Icon name="compare" />对照</button>}
+            {!comparing && <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照"><Icon name="rows-two" />对照</button>}
             {comparing && <>
-              <button className={`icon-button ${splitDirection === 'rows' ? 'active' : ''}`} aria-label="上下对照" title="上下对照" aria-pressed={splitDirection === 'rows'} onClick={() => setSplitDirection('rows')}><Icon name="stack" /></button>
-              <button className={`icon-button ${splitDirection === 'columns' ? 'active' : ''}`} aria-label="左右对照" title={wideSplitAvailable ? '左右对照' : '窗口宽度达到 1600 后可用'} aria-pressed={splitDirection === 'columns'} disabled={!wideSplitAvailable} onClick={() => setSplitDirection('columns')}><Icon name="columns" /></button>
-              <button className="view-action" onClick={resetComparison} data-testid="split-reset" title="退出对照并恢复三栏"><Icon name="reset" />复位</button>
+              <button className={`icon-button ${splitDirection === 'rows' ? 'active' : ''}`} aria-label="上下对照" title="上下对照" aria-pressed={splitDirection === 'rows'} onClick={() => setSplitDirection('rows')}><Icon name="rows-two" /></button>
+              <button className={`icon-button ${splitDirection === 'columns' ? 'active' : ''}`} aria-label="左右对照" title={wideSplitAvailable ? '左右对照' : '窗口宽度达到 1600 后可用'} aria-pressed={splitDirection === 'columns'} disabled={!wideSplitAvailable} onClick={() => setSplitDirection('columns')}><Icon name="columns-two" /></button>
+              <button className="view-action" onClick={resetComparison} data-testid="split-reset" title="退出对照并恢复三栏"><Icon name="rotate-counter-clockwise" />复位</button>
             </>}
           </div>
           <div className="view-content">
@@ -368,6 +458,24 @@ export function App() {
         {usage >= 85 && <button className="continuation-button" disabled={continued} title={continued ? '下一阶段已开启' : '开启下一阶段'} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>继续本案工作</button>}
         {continued && <span className="continued-note" role="status">已开启下一阶段</span>}
         <span className="spacer" />
+        {systemFeedback && (
+          <span
+            className={`system-feedback ${systemFeedback.ok ? 'ok' : 'error'}`}
+            role="status"
+            data-testid="system-open-feedback"
+          >
+            {systemFeedback.message}
+          </span>
+        )}
+        <button
+          type="button"
+          className="quiet-button status-open-folder"
+          data-testid="open-output-folder"
+          title="在访达中打开本案产出文件夹"
+          onClick={openOutputFolder}
+        >
+          打开产出文件夹
+        </button>
         <span>{session.failures.length ? '有步骤需要人工处理' : flow === 'S1' ? '摄取进行中 16 / 20' : `${Object.keys(dispositions).length} / 6 项已处置`}</span>
         <span>{flow === 'S1' ? '阶段一 · 阅卷整理' : '阶段二 · 合同审查'}</span>
       </footer>

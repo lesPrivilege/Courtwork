@@ -1,7 +1,11 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main-window",
-  "description": "主工作台仅使用 WebView 基础窗口能力和应用内部的系统凭证库命令，不开放文件、网络、shell 或外部程序权限。",
+  "description": "主工作台：WebView 基础能力 + 系统凭证库 + 受限 opener（open-path / reveal-in-dir）。应用层另以案件文件夹白名单约束路径；不开放 shell、网络或任意文件系统写权限。",
   "windows": ["main"],
-  "permissions": ["core:default"]
+  "permissions": [
+    "core:default",
+    "opener:allow-open-path",
+    "opener:allow-reveal-item-in-dir"
+  ]
 }
