@@ -160,3 +160,63 @@ eval/src/rules/citation-exists.ts: import ... from '@courtwork/demo-data'
 3. 明确 eval 对 demo-data 的例外范围，并把“唯一装配点”断言改成与最终纪律一致的自动化 grep/架构测试。
 4. core 通用 API 的领域词汇处置结论（保留为通用“证据可采性”概念，或重命名为更中性的 admission/policy API）。
 
+## 补验结论（W6.2 整改）
+
+补验日期：2026-07-10
+
+补验基线：`2afec56`
+
+补验范围：只复验本报告判定的两项契约级阻塞、两项记录件与 W6.2 整改自身回归；W6 原报告已通过项未重跑。
+
+### 总结论
+
+**补验通过，两项契约级阻塞已解除。** 本轮未发现新的实现级或契约级缺陷，无验收修复提交。
+
+- **core 放行供 B 阶段（UI）消费。** `RevisionEvent` 独立落盘可直接定位 session，C 级信源门禁不再依赖 citation 展示文本，不会把 W6 报告中的两项缺口固化成 UI 契约。
+- **core MVP 宣告成立。** W6 原验收已通过的主链能力结论保持不变，本次补验已将原两项阻塞与整改回归全部关闭。
+
+### 1. 干净环境与全量回归
+
+**通过。** 当前无并行会话，验收者实际删除全仓 8 处 `node_modules`，再执行 `pnpm install`：8 个 workspace project、793 个包安装成功，lockfile 无变更。随后实测：
+
+- `pnpm test -- packages/`：37 个文件，**297/297** 通过。
+- `pnpm --filter @courtwork/eval test`：14 个文件，**64/64** 通过。
+- `pnpm lint`：通过，零 error。
+- `pnpm --filter '!@courtwork/eval' -r run build`：6/6 非 eval 包逐包实际执行 `tsc -p tsconfig.json` 并通过。
+- `pnpm --filter @courtwork/core test`：15 个文件，**91/91** 通过。
+
+### 2. 阻塞①：RevisionEvent.sessionId
+
+**通过。** `RevisionEventSchema` 已增加可选的 `sessionId?`，JSDoc 明确 schema 兼容历史数据、core 落盘必填的分层契约。现场重新执行 JSON Schema 导出，已提交导出物无 diff，drift 测试 **8/8** 通过；导出文件含 `sessionId` 的 `string/minLength: 1` 属性且未进入 `required`。
+
+core 内存与文件 `RevisionEventStore.record()` 均在缺少 `sessionId` 时抛 `MissingSessionIdError`，文件存储不落笔；对应测试通过。`buildRevisionEvent` 从待确认记录贯穿 `sessionId`，executor 测试断言 `session-1`。S3 现场产物的 `revision-events.jsonl` 独立读取到 `sessionId: "demo-s3-session"`，无需借助事件流旁证。
+
+### 3. 阻塞②：Citation.evidenceKey 与 C 级门禁
+
+**通过。** `Citation.evidenceKey?` 已进入 zod/TS 契约与 JSON Schema 导出，schema round-trip 与 drift 测试通过。通用门禁 `assertEvidenceKeyAdmissible` 的入参只有台账与 `evidenceKey`，不接受、不解析 citation 展示文本；key 缺失或伪造 key 无法解析时均按 C 级未确认 fail closed。
+
+`grade.test.ts` 保留了 W6 验收报告反例的原值：台账 key `web-search`、C 级未确认、展示文本 `网络参考：web-search`，并断言仍抛 `InadmissibleEvidenceError`。补验现场又临时将该展示文本改为“补验现场改写：这段展示文本不再包含台账键”，单跑 `grade.test.ts` **14/14** 通过，未确认 C 级仍被拦截；测后已恢复提交原文并确认无 diff。另单跑“无 `evidenceKey`”用例 **1/1** 通过，证明手工新增但未附 key 的受管引用按 C 级未确认拒绝。
+
+risk-07 的既有边界未被门禁误改：其编译结果仍不签发 `evidenceKey`，进入 output 后因原文无 locator 而诚实返回唯一的 `locator_not_found`，不是门禁拦截。旧、新 `revision-instruction-set.json` 整文件 `cmp` 完全一致（SHA-256 均为 `7301fbcad5f27d3eb802eb8648da742985f360ec19e9180006e200dd766738ba`），risk-07 片段亦逐字节一致。
+
+### 4. 两项记录件
+
+**通过。** 通用 API 已独立提交改名为 `assertEvidenceKeyAdmissible` / `InadmissibleEvidenceError`。按整改计划口径对 `packages/core/src` 执行领域词汇 grep（排除允许带领域语义的 `composition/`、测试与 `acceptance/`）无输出；旧 API 名全仓 core src grep 亦无输出。
+
+`docs/21-架构决定-演示数据包与样板案.md` 已明文澄清：禁令针对生产链路运行时代码，测试文件与 eval 数据集构建脚本是合法消费方。本次仅核对存在，未触碰 eval 文件。
+
+### 5. demo:s3 回归
+
+**通过。** 验收者亲自重跑 `pnpm --filter @courtwork/core demo:s3`，产物目录为 `/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/courtwork-core-s3-demo-CONw5b`。
+
+- `redline.docx` 为 **39,713 bytes**，`unzip -t` 无错。
+- `comments.xml` 有 6 条可读中文批注，`document.xml` 有 6 个 `commentReference`。
+- risk-01 至 risk-06 均 `applied`；risk-07 唯一 `locator_not_found`。
+- 8 条事件类型序列与 W6 基线一致：`artifact_produced → todo_snapshot → confirmation_requested → confirmation_resolved → revision_recorded → artifact_produced → todo_snapshot → scenario_completed`。
+- 旧、新 docx 的 ZIP 容器流因重新打包元数据不同而哈希不同；解包后全部文件 `diff -rq` 无差异，`word/document.xml`、`word/comments.xml`、`docProps/core.xml` 均与 W6 产物逐字节一致。业务产物无回归。
+
+### 6. 提交与记录卫生
+
+**通过。** 逐个核对 `b3cd453`、`ba91723`、`161804a`、`27c1d25`、`8e3913f` 的文件清单：两个 schemas 契约增量、core 行为整改、通用命名清理、core SPEC 记录各自独立；无 core 会话触碰 `eval/ACCEPTANCE.md` 或其他 eval 文件。当前工作区的 `eval/ACCEPTANCE.md` 修改与未跟踪 `usecase/` 为验收前已有状态，全程保留且未触碰。
+
+`packages/schemas/SPEC.md` 的两个整改提交分别为 `1 insertion / 0 deletion`，`packages/core/SPEC.md` 为 `12 insertions / 0 deletion`，均为文件末尾纯追加。本“补验结论”亦仅追加在原 W6 报告末尾，未改写原结论与证据。
