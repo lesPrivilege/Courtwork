@@ -654,4 +654,24 @@ F-3：越界路径始终可见失败（构造越界用例亲测）；宿主零 s
 处置规则照 AGENTS.md（git 操作全程遵三判例 + 高峰期 CAS 协议）。报告纯追加写入 apps/desktop/ACCEPTANCE.md"F 批验收"节（F-3 tools 部分在 packages/tools/SPEC.md 留痕）。结论三问：三单各自是否放行；产品可用面（composer+全局动词+系统动词+工作稿）是否达"对外可演示版"增补标准；工作树是否安静可放行 F-4 开工。
 ```
 
+## F-4 验收（Claude Code，范围 = 四层提交 d559678/f98a55c/d49080a/06cb66c）
+
+```
+你认领 Courtwork 的 F-4 验收（角色：验收工程师，AGENTS.md 全判例适用；实现者 Grok）。工单原文与完工回报要点在本文件 F-4 节与各 SPEC。
+
+先读：AGENTS.md、docs/47（含全部增补）、packages/schemas/SPEC.md 的 FileOpsPlan 提案合入记录、packages/tools/SPEC.md、registry S6 声明、docs/46 回填。
+
+验收清单：
+1. 干净环境全链：install → schemas 94 → tools 204 → registry（builtin 含 S6）→ Playwright 60/60（假绿下限）→ 生产构建；drift 测试实跑。
+2. 契约核对（本单重点）：FileOpsPlan 落地是否忠实 docs/47 拍板（verb 枚举封闭 move|rename|copy|mkdir、**无 delete**——类型层 + grep 测试双证；哈希前后字段；originalFileName 留痕）；ArtifactTypeEnum 扩展的消费方核对（RevisionEvent 可用范围、registry S6 引用、UI）；CaseFile 增量 originalFileName?/contentHash? 为纯增量；SPEC 以"提案合入"格式记录（W4 先例，非单方改契约）。
+3. tools 新增对 schemas 的依赖：与 CLAUDE.md 架构图"可依赖"修正一致，确认依赖方向合法且 desktop 子路径 import 未把 web-fetch 带进浏览器包（复用 F 批验收手法）。
+4. 执行器语义亲测：吃"已确认"计划（未确认计划拒执行有测试）；哈希比对留痕；**撤销后内存 FS 快照逐字节一致**（亲手跑该测试并读断言真实性）；事务日志无删除路径；单文件 move 仍过轻确认。
+5. S6 声明完整性：触发双通道、产出 FileOpsPlan、门禁计划确认（大批量分层）、工具位齐；strict 校验过。
+6. UI 走查：计划表勾选/理由/目标/原名/哈希列齐全；执行报告；撤销轻 popover；全 app 仍无删除入口；docs/46 回填属实。
+7. 边界记录核对：演示宿主为内存 FS（与 F-3 mock 同构）已在 SPEC 如实声明，真磁盘/Tauri 装配为已知后续（不阻塞）。
+8. git 卫生：四层提交文件清单核对。
+
+报告纯追加写入 apps/desktop/ACCEPTANCE.md"F-4 验收"节（schemas/tools 部分在各自 SPEC 留痕）。结论：F-4 是否放行；S6 卷宗整理是否可进演示剧本；FileOpsPlan 契约是否背书。
+```
+
 后续工单（W3/W8-OCR-v1）验收实例在各实现会话回报后按同一结构生成。
