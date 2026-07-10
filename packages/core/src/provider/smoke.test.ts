@@ -30,4 +30,10 @@ describe('resolveSmokeTargets', () => {
     const deepseek = resolved.find((r) => r.target.name === 'DeepSeek');
     expect(deepseek?.modelId).toBe('deepseek-v4-flash');
   });
+
+  it('treats an empty-string env var the same as unset (not configured)', () => {
+    const resolved = resolveSmokeTargets({ DEEPSEEK_API_KEY: '' });
+    const deepseek = resolved.find((r) => r.target.name === 'DeepSeek');
+    expect(deepseek?.apiKey).toBeUndefined();
+  });
 });

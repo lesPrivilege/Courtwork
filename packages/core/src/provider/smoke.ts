@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import { createDeepSeekProvider, createDoubaoProvider, createQwenProvider } from './openai-compatible-provider.js';
+import { estimateCostUsd } from './pricing-table.js';
 import type { Provider } from './types.js';
 
 export interface SmokeTarget {
@@ -25,11 +26,14 @@ export interface ResolvedSmokeTarget {
 /** 纯函数：从任意 env-like 对象解析出三家的 key 是否存在与要用的模型 id（可被 *_MODEL_ID
  * 覆盖），不做任何网络调用——供 scripts/smoke-provider.ts 与单测共用。 */
 export function resolveSmokeTargets(env: Record<string, string | undefined>): ResolvedSmokeTarget[] {
-  return SMOKE_TARGETS.map((target) => ({
-    target,
-    apiKey: env[target.envKey],
-    modelId: env[target.modelEnvKey] ?? target.defaultModel,
-  }));
+  return SMOKE_TARGETS.map((target) => {
+    const rawApiKey = env[target.envKey];
+    return {
+      target,
+      apiKey: rawApiKey && rawApiKey.length > 0 ? rawApiKey : undefined,
+      modelId: env[target.modelEnvKey] ?? target.defaultModel,
+    };
+  });
 }
 
 const SmokeResponseSchema = z.object({ greeting: z.string().min(1) });
@@ -38,6 +42,7 @@ export interface SmokeRunResult {
   greeting: string;
   usage?: { inputTokens: number; outputTokens: number };
   reasoningLength?: number;
+  costUsd?: number;
 }
 
 /** 真实发网络请求，验证一家 provider 端到端可用（含结构化输出往返）。不在单测里跑——
@@ -55,5 +60,6 @@ export async function runSmokeTest(target: SmokeTarget, apiKey: string, modelId:
     greeting: parsed.greeting,
     usage: response.usage,
     reasoningLength: response.reasoningContent?.length,
+    costUsd: estimateCostUsd(provider.id, provider.modelId, response.usage),
   };
 }
