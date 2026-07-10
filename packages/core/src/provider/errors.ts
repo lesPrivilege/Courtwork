@@ -86,3 +86,18 @@ export class ProviderInvalidResponseError extends Error {
     Object.setPrototypeOf(this, ProviderInvalidResponseError.prototype);
   }
 }
+
+/** 已声明但尚未实现的判别分支（如 auth.kind:'oauth_subscription'、billing.kind:'plan'）
+ * 触发时抛出——语义上对应 @courtwork/tools 的 ToolNotImplementedError（真实适配器骨架
+ * 尚未接入请求/响应逻辑），与"缺少配置"（ProviderNotConfiguredError）是两回事：调用方
+ * 需要知道"这个功能还没做"而不是"你少填了什么"，才能给出正确的用户提示。 */
+export class ProviderNotImplementedError extends Error {
+  constructor(
+    public readonly providerId: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'ProviderNotImplementedError';
+    Object.setPrototypeOf(this, ProviderNotImplementedError.prototype);
+  }
+}
