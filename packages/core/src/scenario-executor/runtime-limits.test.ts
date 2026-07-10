@@ -46,4 +46,29 @@ describe('createRuntimeGuard', () => {
     elapsedSeconds = 6;
     expect(() => guard.checkTime()).toThrow(RuntimeLimitExceededError);
   });
+
+  it('checkUsd accumulates cost across calls and throws RuntimeLimitExceededError once maxUsd is exceeded', () => {
+    const guard = createRuntimeGuard({ maxUsd: 1 }, () => 0);
+    guard.checkUsd(0.6);
+    expect(() => guard.checkUsd(0.5)).toThrow(RuntimeLimitExceededError);
+  });
+
+  it('checkUsd never throws when maxUsd is not configured, no matter how much cost accumulates', () => {
+    const guard = createRuntimeGuard({}, () => 0);
+    expect(() => {
+      guard.checkUsd(1_000_000);
+    }).not.toThrow();
+  });
+
+  it('a RuntimeLimitExceededError from checkUsd carries limit:"maxUsd" and the configured value', () => {
+    const guard = createRuntimeGuard({ maxUsd: 2.5 }, () => 0);
+    try {
+      guard.checkUsd(3);
+      expect.unreachable('should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(RuntimeLimitExceededError);
+      expect((error as RuntimeLimitExceededError).limit).toBe('maxUsd');
+      expect((error as RuntimeLimitExceededError).value).toBe(2.5);
+    }
+  });
 });
