@@ -1,7 +1,7 @@
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadDataset } from '../src/dataset-loader.js';
-import { runRules } from '../src/promptfoo/run-rules.js';
+import { evaluateCase } from '../src/rules/evaluate.js';
 
 const evalRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const datasetsRoot = join(evalRoot, 'datasets');
@@ -11,14 +11,11 @@ console.log(`已加载 ${cases.length} 个 S4 案例。`);
 
 let failures = 0;
 for (const c of cases) {
-  const context = {
-    vars: {
-      scoringRulesJson: JSON.stringify(c.scoringRules),
-      expectedAnswerJson: JSON.stringify(c.expectedAnswer),
-      input: JSON.stringify(c.task.input),
-    },
-  };
-  const result = runRules(c.expectedAnswer, context);
+  const result = evaluateCase(c.expectedAnswer, {
+    scoringRules: c.scoringRules,
+    expectedAnswer: c.expectedAnswer,
+    input: c.task.input,
+  });
   const mark = result.pass ? 'OK  ' : 'FAIL';
   if (!result.pass) failures += 1;
   console.log(`${mark} ${c.id.padEnd(36)} score=${result.score.toFixed(2)} ${result.pass ? '' : result.reason}`);
