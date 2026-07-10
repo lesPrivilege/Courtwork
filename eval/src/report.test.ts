@@ -1,17 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { summarizeByProvider, formatComparisonReportMarkdown } from './report.js';
-import type { PromptfooResultsFile } from './report.js';
+import type { EvalRunResultSet } from './results.js';
 
-function fixture(): PromptfooResultsFile {
+function fixture(): EvalRunResultSet {
   return {
-    results: {
-      results: [
-        { provider: { id: 'mock-thorough' }, success: true, score: 1, latencyMs: 300, cost: 0.02, tokenUsage: { total: 2000 } },
-        { provider: { id: 'mock-thorough' }, success: true, score: 1, latencyMs: 320, cost: 0.02, tokenUsage: { total: 2000 } },
-        { provider: { id: 'mock-fast' }, success: true, score: 1, latencyMs: 40, cost: 0.002, tokenUsage: { total: 300 } },
-        { provider: { id: 'mock-fast' }, success: false, score: 0.5, latencyMs: 45, cost: 0.002, tokenUsage: { total: 300 } },
-      ],
-    },
+    scenario: 'S3',
+    runResults: [
+      { runId: 'r1', caseId: 'c1', provider: 'mock-thorough', pass: true, score: 1, ruleResults: [], judgeResults: [], timings: { latencyMs: 300 }, cost: 0.02, tokensUsed: 2000 },
+      { runId: 'r1', caseId: 'c2', provider: 'mock-thorough', pass: true, score: 1, ruleResults: [], judgeResults: [], timings: { latencyMs: 320 }, cost: 0.02, tokensUsed: 2000 },
+      { runId: 'r1', caseId: 'c1', provider: 'mock-fast', pass: true, score: 1, ruleResults: [], judgeResults: [], timings: { latencyMs: 40 }, cost: 0.002, tokensUsed: 300 },
+      { runId: 'r1', caseId: 'c2', provider: 'mock-fast', pass: false, score: 0.5, ruleResults: [], judgeResults: [], timings: { latencyMs: 45 }, cost: 0.002, tokensUsed: 300 },
+    ],
   };
 }
 
@@ -35,8 +34,8 @@ describe('summarizeByProvider', () => {
     expect(fast.avgScore).toBeCloseTo(0.75);
   });
 
-  it('returns an empty array for an empty results file', () => {
-    const summaries = summarizeByProvider({ results: { results: [] } });
+  it('returns an empty array for an empty result set', () => {
+    const summaries = summarizeByProvider({ scenario: 'S3', runResults: [] });
 
     expect(summaries).toEqual([]);
   });

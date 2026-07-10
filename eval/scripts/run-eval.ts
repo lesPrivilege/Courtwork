@@ -1,8 +1,8 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { runEval } from '../src/runner.js';
-import { summarizeByProvider, formatComparisonReportMarkdown, type PromptfooResultsFile } from '../src/report.js';
+import { runEval } from '../src/promptfoo/runner.js';
+import { summarizeByProvider, formatComparisonReportMarkdown } from '../src/report.js';
 
 const evalRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -23,10 +23,9 @@ async function main() {
   const reportPath = join(reportsDir, `${scenario}-comparison.md`);
 
   console.log(`跑 ${scenario} 评测（provider 列表见 promptfoo/${scenario}.promptfooconfig.yaml）...`);
-  await runEval({ evalRoot, scenario, outputPath: resultsPath });
+  const resultSet = await runEval({ evalRoot, scenario, outputPath: resultsPath });
 
-  const resultsFile = JSON.parse(await readFile(resultsPath, 'utf-8')) as PromptfooResultsFile;
-  const summaries = summarizeByProvider(resultsFile);
+  const summaries = summarizeByProvider(resultSet);
   const markdown = formatComparisonReportMarkdown(summaries, scenario);
 
   await writeFile(reportPath, markdown);

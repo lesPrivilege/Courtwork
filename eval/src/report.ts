@@ -1,18 +1,4 @@
-/** promptfoo `-o results.json` 输出里，本文件与 regression.ts 共用的最小切片。 */
-export interface PromptfooResultRow {
-  provider: { id: string; label?: string };
-  success: boolean;
-  score: number;
-  latencyMs: number;
-  cost: number;
-  tokenUsage?: { total: number };
-  /** generate-tests.ts 里塞进去的 vars，回归对比按 vars.caseId 匹配同一个 case。 */
-  vars?: { caseId?: string; [key: string]: unknown };
-}
-
-export interface PromptfooResultsFile {
-  results: { results: PromptfooResultRow[] };
-}
+import type { EvalRunResult, EvalRunResultSet } from './results.js';
 
 export interface ProviderSummary {
   providerId: string;
@@ -25,17 +11,17 @@ export interface ProviderSummary {
   avgLatencyMs: number;
 }
 
-export function summarizeByProvider(resultsFile: PromptfooResultsFile): ProviderSummary[] {
-  const byProvider = new Map<string, PromptfooResultRow[]>();
-  for (const row of resultsFile.results.results) {
-    const rows = byProvider.get(row.provider.id) ?? [];
+export function summarizeByProvider(resultSet: EvalRunResultSet): ProviderSummary[] {
+  const byProvider = new Map<string, EvalRunResult[]>();
+  for (const row of resultSet.runResults) {
+    const rows = byProvider.get(row.provider) ?? [];
     rows.push(row);
-    byProvider.set(row.provider.id, rows);
+    byProvider.set(row.provider, rows);
   }
 
   return Array.from(byProvider.entries()).map(([providerId, rows]) => {
     const totalTests = rows.length;
-    const passed = rows.filter((r) => r.success).length;
+    const passed = rows.filter((r) => r.pass).length;
     return {
       providerId,
       totalTests,
@@ -43,8 +29,8 @@ export function summarizeByProvider(resultsFile: PromptfooResultsFile): Provider
       passRate: passed / totalTests,
       avgScore: rows.reduce((sum, r) => sum + r.score, 0) / totalTests,
       totalCost: rows.reduce((sum, r) => sum + (r.cost || 0), 0),
-      totalTokens: rows.reduce((sum, r) => sum + (r.tokenUsage?.total || 0), 0),
-      avgLatencyMs: rows.reduce((sum, r) => sum + r.latencyMs, 0) / totalTests,
+      totalTokens: rows.reduce((sum, r) => sum + (r.tokensUsed || 0), 0),
+      avgLatencyMs: rows.reduce((sum, r) => sum + r.timings.latencyMs, 0) / totalTests,
     };
   });
 }

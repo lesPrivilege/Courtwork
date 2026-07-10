@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { findRegressions } from '../src/regression.js';
-import type { PromptfooResultsFile } from '../src/report.js';
+import type { EvalRunResultSet } from '../src/results.js';
 
 /**
  * 回归模式：core / 提示词 / 场景定义变更后，跑一次 `run-eval.ts` 产出新的
@@ -32,8 +32,8 @@ function parseArgs() {
 
 async function main() {
   const { scenario, baselinePath, currentPath, threshold } = parseArgs();
-  const baseline = JSON.parse(await readFile(baselinePath, 'utf-8')) as PromptfooResultsFile;
-  const current = JSON.parse(await readFile(currentPath, 'utf-8')) as PromptfooResultsFile;
+  const baseline = JSON.parse(await readFile(baselinePath, 'utf-8')) as EvalRunResultSet;
+  const current = JSON.parse(await readFile(currentPath, 'utf-8')) as EvalRunResultSet;
 
   const findings = findRegressions(baseline, current, threshold);
   const regressed = findings.filter((f) => f.regressed);
