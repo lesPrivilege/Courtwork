@@ -5,6 +5,17 @@ dist/
 .DS_Store
 coverage/
 
+# 架构预裁：用户本地文档查看器配置，不入 repo
+.obsidian/
+
+# 架构预裁：真实判例 PDF/HTML（获取手法不宜分发），不入 repo
+usecase/
+
+# 环境变量与本地密钥（防御性；仓库内当前无 .env 文件）
+.env
+.env.*
+!.env.example
+
 # 非 TS 语言 spike 产出的构建/环境目录（Python/Java 等，与主线技术基线无关）
 __pycache__/
 *.pyc
@@ -20,3 +31,8 @@ apps/desktop/playwright-report/
 apps/desktop/src-tauri/target/
 apps/desktop/src-tauri/gen/schemas/
 *.tsbuildinfo
+
+# 桌面安装包 / 构建产物（永不入库）
+*.dmg
+*.pkg
+*.app/
