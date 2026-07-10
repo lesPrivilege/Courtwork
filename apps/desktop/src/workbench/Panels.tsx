@@ -87,7 +87,7 @@ export function TimelinePanel({ timeline, grade }: { timeline: Timeline; grade?:
       <article className="detail-card">
         <SignatureLine tone={current.markers?.includes('contradiction') ? 'attention' : undefined} />
         <p>{current.description}</p>
-        <div className="verified-block"><TierBadge grade={grade} /><button title={current.sourceAnchors[0]?.fileId}>{current.sourceAnchors[0]?.fileId}</button><q>{current.sourceAnchors[0]?.quote}</q></div>
+        <div className="verified-block"><TierBadge grade={grade} /><button disabled title="原文定位 · 卷宗原件待连接">{current.sourceAnchors[0]?.fileId}</button><q>{current.sourceAnchors[0]?.quote}</q></div>
       </article>
     </div>
   </StaticViewport>;
@@ -166,7 +166,8 @@ export function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?: 'A' | 
             className={`graph-node ${node.kind}`}
             style={{ left: position.x, top: position.y }}
             key={node.id}
-            title={node.primaryName}
+            title="主体详情 · 待接入"
+            disabled
           >{node.primaryName.replace('有限公司', '')}</button>;
         })}
       </div>
@@ -183,7 +184,7 @@ export function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?: 'A' | 
       </div>
     </div>
     <div className="relation-list">{visibleEdges.map((edge) => <button key={edge.id} title={edge.relationType} className={selectedEdge?.id === edge.id ? 'selected' : ''} onClick={() => setSelectedEdge(edge)}><span>{edge.relationType}</span><small>{edge.id}</small></button>)}</div>
-    {selectedEdge && <article className="verified-block relation-evidence"><TierBadge grade={grade} /><button title={selectedEdge.sourceAnchors[0]?.fileId}>{selectedEdge.sourceAnchors[0]?.fileId}</button><q>{selectedEdge.sourceAnchors[0]?.quote}</q></article>}
+    {selectedEdge && <article className="verified-block relation-evidence"><TierBadge grade={grade} /><button disabled title="原文定位 · 卷宗原件待连接">{selectedEdge.sourceAnchors[0]?.fileId}</button><q>{selectedEdge.sourceAnchors[0]?.quote}</q></article>}
   </div>;
 }
 
@@ -191,7 +192,7 @@ export function MatrixPanel({ matrix }: { matrix: ReviewMatrix }) {
   const questions = matrix.questions.slice(0, 5);
   if (!matrix.rows.length) return <StaticViewport testId="matrix-static-viewport"><EmptyState noun="审阅行" shortcut="⌘I" /></StaticViewport>;
   return <StaticViewport testId="matrix-static-viewport">
-    <div className="matrix-wrap" data-testid="matrix-panel"><table><thead><tr><th>文书</th>{questions.map((question) => <th key={question.id} title={question.text}>{question.id.toUpperCase()}</th>)}</tr></thead><tbody>{matrix.rows.slice(0, 10).map((row) => <tr key={row.documentId}><th title={row.documentId}>{row.documentId.replace('.md', '')}</th>{questions.map((question) => <td key={question.id}><button title={row.answers[question.id]?.answer}>{row.answers[question.id]?.answer ?? '—'}</button></td>)}</tr>)}</tbody></table><div className="matrix-legend"><span>单击单元格查看原文依据</span><span>10 份合同 · 7 个问题</span></div></div>
+    <div className="matrix-wrap" data-testid="matrix-panel"><table><thead><tr><th>文书</th>{questions.map((question) => <th key={question.id} title={question.text}>{question.id.toUpperCase()}</th>)}</tr></thead><tbody>{matrix.rows.slice(0, 10).map((row) => <tr key={row.documentId}><th title={row.documentId}>{row.documentId.replace('.md', '')}</th>{questions.map((question) => <td key={question.id}><button disabled title="原文定位 · 卷宗原件待连接">{row.answers[question.id]?.answer ?? '—'}</button></td>)}</tr>)}</tbody></table><div className="matrix-legend"><span>原文定位将在卷宗原件连接后开放</span><span>10 份合同 · 7 个问题</span></div></div>
   </StaticViewport>;
 }
 
@@ -282,7 +283,7 @@ export function DraftPanel({ value, onChange, frozen, onCompile }: { value: Draf
 
   return <StaticViewport testId="draft-static-viewport">
     <div className={`draft-panel ${frozen ? 'frozen' : ''}`} data-testid="draft-panel">
-      <header><div><strong>答辩状</strong><span>{frozen ? '已定稿 · 2026-07-10 17:40' : '起草中 · 自动保存'}</span></div>{frozen ? <button className="primary-button">打开 Word 文档</button> : <button className="primary-button" onClick={onCompile}>编译为 Word 文档</button>}</header>
+      <header><div><strong>答辩状</strong><span>{frozen ? '已定稿 · 2026-07-10 17:40' : '起草中 · 自动保存'}</span></div>{frozen ? <button className="primary-button" disabled title="打开 Word 文档 · 文件生成完成后可用">打开 Word 文档</button> : <button className="primary-button" onClick={onCompile}>编译为 Word 文档</button>}</header>
       {frozen
         ? <article className="draft-reading"><h2>{value.title}</h2>{value.paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</article>
         : <article

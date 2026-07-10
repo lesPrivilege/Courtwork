@@ -225,8 +225,8 @@ export function App() {
         <strong>{flow === 'S1' ? '阶段一 · 阅卷整理' : '阶段二 · 合同审查'}</strong>
         <span className="spacer" />
         <button className="quiet-button credential-button" onClick={() => setProviderSetupOpen(true)} title="配置文书助手"><Icon name="settings" />模型服务 · {credentialStatus?.configured ? '已连接' : '待连接'}</button>
-        <button className="quiet-button">审阅记录</button>
-        <button className="primary-button" disabled={!draftFrozen && Object.keys(dispositions).length < 4}>导出审阅稿</button>
+        <button className="quiet-button" disabled title="审阅记录 · 待生成">审阅记录</button>
+        <button className="primary-button" disabled title="导出审阅稿 · 待完成文书生成">导出审阅稿</button>
       </nav>
 
       <div className={`workspace ${comparing ? 'comparing' : ''}`} data-testid="workspace" data-comparing={comparing ? 'true' : 'false'}>
@@ -270,7 +270,7 @@ export function App() {
             <aside className="generated-callout"><strong>审阅提示</strong><p>{flow === 'S3' ? '先核对验收条款的原文依据，再决定是否接受对应修订。' : '催告主体、收款账户与验收结论存在交叉矛盾，建议优先核对。'}</p></aside>
           </div>
           <div className="scene-strip"><button onClick={() => selectFlow('S1')}>整理卷宗</button><button onClick={() => selectFlow('S3')}>审查合同</button><button onClick={() => choosePrimaryView('draft')}>起草答辩状</button></div>
-          <div className="composer"><span>描述要办的事，或从上方场景开始…</span><kbd>⌘</kbd><kbd>K</kbd></div>
+          <button className="composer" disabled aria-label="自由输入" title="自由输入 · 模型服务待连接"><span>描述要办的事，或从上方场景开始…</span><kbd>⌘</kbd><kbd>K</kbd></button>
         </section>
 
         <section className="right-workbench">

@@ -15,6 +15,43 @@ test('完整工作台帧与三栏在 1440 视口可见', async ({ page }) => {
   await expect(page.getByTestId('usage-ring')).toBeVisible();
 });
 
+test('五工作面结构常驻且未接功能保留禁用入口与说明', async ({ page }) => {
+  await openWorkbench(page);
+  const tablist = page.getByRole('tablist', { name: '结构化工作面' });
+  await expect(tablist.getByRole('tab')).toHaveCount(5);
+
+  const routes = [
+    ['timeline', 'timeline-panel'],
+    ['graph', 'graph-panel'],
+    ['matrix', 'matrix-panel'],
+    ['revision', 'revision-panel'],
+    ['draft', 'draft-panel'],
+  ] as const;
+  for (const [view, panel] of routes) {
+    await page.getByTestId(`view-${view}`).click();
+    await expect(page.getByTestId(panel)).toBeVisible();
+  }
+
+  const reviewLog = page.getByRole('button', { name: '审阅记录' });
+  await expect(reviewLog).toBeDisabled();
+  await expect(reviewLog).toHaveAttribute('title', '审阅记录 · 待生成');
+  const exportDraft = page.getByRole('button', { name: '导出审阅稿' });
+  await expect(exportDraft).toBeDisabled();
+  await expect(exportDraft).toHaveAttribute('title', '导出审阅稿 · 待完成文书生成');
+  await expect(page.getByRole('button', { name: '自由输入' })).toBeDisabled();
+
+  await page.getByTestId('view-matrix').click();
+  const matrixCells = page.locator('.matrix-wrap td button');
+  expect(await matrixCells.count()).toBeGreaterThan(0);
+  await expect(matrixCells.first()).toBeDisabled();
+  await expect(matrixCells.first()).toHaveAttribute('title', '原文定位 · 卷宗原件待连接');
+
+  await page.getByTestId('view-timeline').click();
+  const sourceJump = page.getByTestId('timeline-panel').locator('.verified-block button');
+  await expect(sourceJump).toBeDisabled();
+  await expect(sourceJump).toHaveAttribute('title', '原文定位 · 卷宗原件待连接');
+});
+
 test('S1 摄取事件回放可进入时间线', async ({ page }) => {
   await openWorkbench(page);
   await page.getByTestId('flow-s1').click();
