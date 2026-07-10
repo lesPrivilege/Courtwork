@@ -1,6 +1,17 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；**UX-1 批次一 + D-1 打回完成（2026-07-11，待独立验收）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；**SET-1 设置页完成（2026-07-11，待独立验收）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
+
+## SET-1 设置页（2026-07-11）
+
+规格：docs/46「设置页清单」——分组/条目/路由状态不增不减。
+
+- 入口：标题栏齿轮 `open-settings` + ⌘K「设置」；全局层浮面，容器无关；分组切换 0ms；Esc 关闭。
+- 真实：key→D-1 探针；provider/模型/推理→`model-config`；maxUsd→`settings-store`（RuntimeGuard）；默认产出目录+reveal；遥测开关；行为数据 opt-in 确认制+时间戳；数据承诺声明页（docs/28）；版本/许可/诊断导出（无密钥）。
+- 预留禁用+tooltip：来源授权、企微/飞书/邮件/企业库、清除偏好、检查更新。
+- 明确不出现：主题、语言、skill 管理。
+
+验证：Vitest settings-store；Playwright `settings.spec.ts`；假绿下限 **78**。
 
 ## UX-1 微调批次一（2026-07-11）
 
