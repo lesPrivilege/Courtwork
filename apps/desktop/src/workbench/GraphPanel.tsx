@@ -214,7 +214,7 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
       <div className="graph-controls" aria-label="图谱视图控制">
         <button aria-label="放大图谱" title="放大" onClick={() => void changeZoom(1.15)}><Icon name="plus" /></button>
         <button aria-label="缩小图谱" title="缩小" onClick={() => void changeZoom(1 / 1.15)}><Icon name="minus" /></button>
-        <button aria-label="复位图谱" title="适应窗口" onClick={() => void fitGraph()}><Icon name="scan-frame" /></button>
+        <button aria-label="复位图谱" title="适应窗口" onClick={() => void fitGraph()}><Icon name="fit" /></button>
       </div>
     </div>
     <div className="relation-list">
