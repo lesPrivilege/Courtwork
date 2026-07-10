@@ -267,4 +267,28 @@ d. 若修复触及契约（RevisionInstructionSet 字段）或需要重构著录
 完工后由 Codex 按原报告第 1、2、6 项补验。
 ```
 
-后续工单（W3/W6/W8）验收实例在各实现会话回报后按同一结构生成。
+## W6 验收（sol 执行，范围 = packages/core + W2.1 + 两处跨层文档修正）
+
+```
+你是 Courtwork 的验收工程师（角色边界见根目录 AGENTS.md，对任何模型同等约束）。验收 W6 工单：packages/core（agent core 收口层）及其附属（W2.1 registry strict 化、CLAUDE.md/registry SPEC 两处授权文档修正）。实现会话已回报完工，你的任务是独立复核并给出放行结论。
+
+先读：CLAUDE.md、AGENTS.md、docs/10、docs/12、docs/20/24/26、packages/core/SPEC.md（含验收记录与全部 TODO 裁决痕迹）、docs/superpowers/plans/2026-07-09-core-package.md（执行依据）。
+
+验收清单（逐项给结论）：
+1. 干净环境自己跑：rm -rf 所有 node_modules → pnpm install → 全量 test（口径 285）→ lint → pnpm --filter '!@courtwork/eval' -r run build（真实 tsc，非 vitest 假绿——本工单曾靠它抓出三处类型错误，验收必须复跑）。
+2. W2.1：registry 三处 .strict() 生效、报错含文件名+未知键名、四个内置 YAML 未误伤（有测试）。
+3. 依赖纯净：packages/core/package.json 无 pi-mono 及任何 agent 框架依赖；provider/模型 id 全部来自配置，grep 无硬编码。
+4. 执行器语义：声明顺序=执行顺序有测试；S1 形状（3 产出 2 门禁）泛化测试存在且非照抄 S3；label-only 门禁落序列尾；门禁暂停→落盘→resume 的跨进程真实性（测试用全新依赖实例，非同对象复用）。
+5. 三条协议预留兑现：确认请求可序列化、actor 通道无关、无同进程假设；Session{id, chainId, predecessorSessionId} 存在且 RevisionEvent/确认记录挂 sessionId；事件流无单 session 生命周期假设。
+6. 信源台账与门禁：等级判定声明在装配点（core 通用代码 grep 无具体工具等级硬编码）；artifact_produced 事件携带 evidenceGrades 投影；C 级未确认进 citation 被拒有测试。
+7. docs/12 五点：todo 快照为纯函数（场景定义→快照，LLM 零参与——读实现确认无模型调用）；step_failed 事件；RuntimeGuard 四限额走配置；Manus 待办复述已接；摄取并行未进 core（确认不存在）。
+8. 修正回放缺口的修复有测试：resumeScenario 应用修正后重发 artifact_produced，回放可见修正后状态。
+9. 装配点纪律：grep 全仓库运行时源码，import @courtwork/demo-data 仅 composition 一处；core 通用层无法律语义词汇（docs/22）。
+10. S3 演示实测：pnpm --filter @courtwork/core demo:s3 亲手跑通；unzip 检查产出 docx 的批注真实非乱码；确认 6 命中 + 1 条 locator_not_found 如实跳过；事件流回放完整（含修正后 artifact 与 todo_snapshot）。
+11. 提交卫生（本工单特别项）：该会话与并行会话共享 git 索引——逐个核对 W6 系列 commit 的文件清单，确认无误扫入他人文件（实现会话已自查，验收复核）。
+12. 工程决策尊重：TS ^6.0.3、@types/node 模式、无凭证入库。
+
+处置规则同 AGENTS.md（实现级顺手修 fix-by-acceptance；契约级标 [需架构拍板]）。报告写入 packages/core/ACCEPTANCE.md。结论必须明确：core 是否放行供 B 阶段（UI）与 CLI 演示消费，core MVP 是否宣告成立。
+```
+
+后续工单（W3/W8）验收实例在各实现会话回报后按同一结构生成。

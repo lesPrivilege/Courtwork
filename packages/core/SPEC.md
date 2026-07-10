@@ -22,6 +22,8 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 
 ## TODO（跨层放入区）
 
+- [W6.1 微工单，2026-07-10 拍板，源自 sol review 裁决 2] **最小审阅遥测事件**：事件协议新增三个事件类型——`review_item_opened` / `review_evidence_expanded` / `review_disposition_submitted`（各带 sessionId/itemRef/时间戳），供确认质量分析（"秒批"识别在分析侧，MVP 只告警不阻断）。不采原始输入流；隐私归 docs/28 使用遥测档。TDD、独立 commit，不改既有事件语义。
+
 - [已解决 2026-07-10] ~~事件流协议设计时假设存在远程瘦客户端与异步确认~~——`ConfirmationActor`（渠道无关身份标识）+ `PendingConfirmation`（打包续行所需的一切并落盘，`ConfirmationStore`）+ `resumeScenario` 接受全新构造的依赖实例（模拟另一进程）。file store 测试证明"指向同一磁盘状态的全新实例能正确接续"不是类型层面的空话。W6 未实现任何真实网关适配器，协议不隐含确认方与 core 同进程/同机/同客户端。
 - [已解决 2026-07-10] ~~session 续行与会话链~~——`src/session/types.ts` 的 `Session{id, chainId, predecessorSessionId?}` + `createSession`/`continueSession`。W6 未实现续行本身（结构化再水化按钮是 W9 之后的事），只保证 `sessionId` 贯穿事件与确认记录、artifact 按引用而非内联复制，未来接 `chainId` 不需要改动现有协议形状。
 - [已解决 2026-07-10，依据 docs/12 调研] ~~长任务协议五点~~——①`deriveTodoSnapshot` 纯函数（场景声明 + 当前产出/暂停位置 → todo 快照），LLM 不参与撰写增删，`todo_snapshot` 事件在每次暂停前与全部完成时发布；②`step_failed` 事件覆盖工具调用粒度（`@courtwork/tools` 的失败契约本身已是结构化降级，不抛异常，这里只是把"发生过一次工具级降级"显式发布到事件流），生成节点级失败仍保持显式抛出中断，不预先构建未经验证的 Saga 式部分成功恢复语义（docs/12 5.3 节明确把跨步骤补偿/子agent并行归为 W8 ingest-v1 场景层的事）；③`createRuntimeGuard`（`maxSteps`/`maxSeconds`/`maxToolCalls` 真实enforcement，`maxUsd` 目前只是类型层面占位——假 provider 无真实费用、真实 provider 未接入，无成本信号可核对，诚实注明 enforcement 待补，不假装已经在管），缺省不限制，MVP 默认行为不变，具体阈值留给场景实测调整；④确认门禁检查点已具体化为 `PendingConfirmation.remainingArtifactTypes`（场景步骤位置）+ `producedArtifacts`（已确认 artifact 内容，按值携带）；⑤摄取子agent并行未进 core（本层没有任何相关代码，留给 W8）。另借 Manus"待办复述进上下文末尾"技巧：`generateArtifact` 的请求 payload 把 `todo` 作为最后一个插入键，JSON 序列化后真的落在请求内容末尾。deepagents 整体架构未引入。
