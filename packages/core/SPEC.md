@@ -22,6 +22,8 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 
 ## TODO（跨层放入区）
 
+- [架构拍板 2026-07-10，T-provider.1 增强] **schema 部分命中的 loop 推进 = 分片验证 + 定点重试 + 部分成功诚实呈现**：数组型 artifact（RiskList/Timeline/FileOpsPlan 条目）逐条 zod 校验，良品入库；次品携具体校验错误定点重生成（重试预算按条目计，走配置）；预算尽仍缺则按 docs/12 三态诚实呈现（"已识别 5/7 项，2 项未通过校验"+ 重试入口），不静默丢弃不假装完整。UI 配套：推理/思考流默认折叠（spark-lines 标识，docs/52 #7）。接真实流式 provider 后实现。
+
 - [架构拍板 2026-07-10，T-provider 范围澄清] **凭证与计费形态正交建模**：provider 配置含 `auth.kind`（`api_key` | `oauth_subscription`，当期只实现前者，判别字段现在预留）与 `billing.kind`（`metered` | `plan`）。metered 下 RuntimeGuard.maxUsd 生效；plan 下护栏切换为额度/次数、UI 用量圆盘显示套餐余量而非美元（UI 侧归 polish）。**合规红线：订阅制只接官方明示允许第三方工具接入的（开放 OpenAI 兼容端点型）；模拟官方客户端/借用会话 token 的灰色桥接永不做。** OAuth 设备流 + refresh token 钥匙串存储为 T-provider.2 增量工单，待首个官方开放的 plan 类 provider 需求拉动。
 
 - [架构拍板 2026-07-10，源自 B 阶段验收发现] **批量确认的协议语义 = 永远逐条**：确认响应必须携带逐条目处置（confirmed/rejected + 字段修正），"批量确认"只是 UI 聚合手势，协议层不存在"一个 confirm 代表一批"的语义——个别条目被驳回/修正时不得统一上报 confirm（审计与 RevisionEvent 完整性要求）。接真实后端前由 UI 侧（polish）与本层协议文档双向核实；demo stub 期间为已知边界。
