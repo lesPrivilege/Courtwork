@@ -25,7 +25,11 @@ async function main(): Promise<void> {
       }
       console.log(`  [${target.name}] 冒烟测试通过`);
     } catch (error) {
-      console.error(`  [${target.name}] 冒烟测试失败：`, error instanceof Error ? error.message : error);
+      const detail =
+        error instanceof Error
+          ? `${error.message}${error.cause ? `（原因：${error.cause instanceof Error ? error.cause.message : error.cause}）` : ''}`
+          : String(error);
+      console.error(`  [${target.name}] 冒烟测试失败：${detail}`);
       process.exitCode = 1;
     }
   }
