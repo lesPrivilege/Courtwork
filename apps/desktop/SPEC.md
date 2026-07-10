@@ -1,6 +1,6 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 完成；**composer 输入区整备完成（2026-07-10，Grok 4.5 实现）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
+状态：P-1 / P-2 / P-3 / P-4 完成；**composer 输入区整备完成（2026-07-10，Grok 4.5 实现）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
 
 ## 定位
 
@@ -152,7 +152,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 | 裁决 | 落地 |
 |---|---|
 | 按钮族平铺不聚合 | 上传（曲别针）/ 案件文件夹 chip / 发送；拍照·扫描与语音常驻 `aria-disabled` + tooltip（模板「即将支持 · 当前可通过…」） |
-| Lucide 隐喻 + stroke 1.35 | `Icon.tsx` 内联 Lucide 路径，全局 `strokeWidth=1.35`，未引入 lucide 运行时包 |
+| Lucide 隐喻 + stroke 1.35 | P-4 已改为 `lucide-react` 1.x 静态具名导入，全局 `LucideProvider` 锁定 `strokeWidth=1.35`；不再维护 TSX 内联路径 |
 | 附件文件名 chip | 类型图标 + 中间截断文件名 + 移除；失败内联重试；2–5s 边框微光（`chip-glow` 1800ms opacity）；>5s 进度文案位；成功/失败 0ms 硬切 + 150ms border-color 光效层 |
 | 仅本条 vs 存入卷宗 | 默认仅本条；徽章 → popover 轻确认 → 硬切绿「已存入卷宗」；无反向操作 |
 | 拖放 / 粘贴 | 全窗 overlay 提示落点（工单覆盖 docs/45 输入框高亮建议）；⌘V 文件进 chip；纯文本粘贴走 textarea |
@@ -170,6 +170,25 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - Playwright：31/31（下限升至 31）；新增 `tests/e2e/composer.spec.ts` 5 例覆盖按钮态 / chip 生命周期与作用域 / 键盘 / 拖放粘贴 / needs_ocr 失败态
 - `lint:motion` / `lint:signature` / `lint:graph` / 生产构建通过
 - 截图：[`14-composer-input-1440.png`](visual-audit/14-composer-input-1440.png)
+
+## P-4 SVG 图标体系与模型编写规范（2026-07-10）
+
+- 通用图标切换为 `lucide-react` 1.24.0（ISC）静态具名导入；应用根与独立审计页都用 `LucideProvider` 将描边锁定为 1.35px。原 `Icon.tsx` 手排路径表及并发新增的 archive/copy/check/focus 内联 SVG 已全部替换；本批 Lucide 无缺口，未引入 Tabler。
+- 权威工程规范见 [`docs/32-设计语言包/svg-standards.md`](../../docs/32-设计语言包/svg-standards.md)：24×24 网格、1.35px / `currentColor` / 禁 fill 和内联色、元素/属性白名单、形状命名、SVGO 4 multipass 与 16px/24px 人审纪律均已成文。
+- docs/44 的 17 个领域概念已建库；其中门禁一行展开为待处理/已确认/已驳回三态，因此落地 19 个形状命名 SVG。`manifest.json` 登记法律用途，生成模块同时导出可 tree-shake 的具名组件与审计用 registry，产品壳不因建库而全量携带尚未使用的领域图标。
+- `verify-icons.mjs` 为自写 CI 门禁：检查根属性、标签/属性白名单、色值/fill/脚本禁止项、两位精度、SVGO 漂移、manifest 一一对应、生成物漂移、全 `src/**/*.tsx` 无内联 SVG、Lucide 静态导入与 Tabler 边界；已接入 `test:e2e` 前置链。
+- 完整 16px/24px 审计板：[`15-p4-icon-audit-1280.png`](visual-audit/15-p4-icon-audit-1280.png)。人审确认 19 个变体在 16px 仍可辨，门禁三态与生成/核验双通道不混淆。
+
+### Lucide 按需打包实测
+
+| 形态 | 首屏主 chunk（raw / gzip） | 图谱懒加载 chunk（raw / gzip） |
+|---|---:|---:|
+| 当前 HEAD、P-4 前基线 | 960.32 / 292.93 kB | 817.42 / 233.29 kB |
+| P-4 最终（Lucide 具名导入 + 领域图标不入首屏 registry） | 962.61 / 294.25 kB | 817.43 / 233.30 kB |
+
+首屏实增 2.29 kB raw / 1.32 kB gzip；图谱 chunk 只有 0.01 kB 计量波动。基线在同一 HEAD 独立 worktree 重装/构建，避免把并发 F-2 的体积算入 P-4。
+
+验证：`icons:build` 与 `lint:icons` 通过；Vitest 26/26；Playwright 38/38；`pnpm lint` 和 desktop 生产构建通过。Base UI 未触发，未新建 `packages/ui`。
 
 ## 验证记录
 
