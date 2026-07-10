@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main-window",
+  "description": "主工作台仅使用 WebView 基础窗口能力，不开放文件、网络、命令或外部程序权限。",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

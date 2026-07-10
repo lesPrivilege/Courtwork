@@ -14,3 +14,9 @@ target/
 # eval 跑分产出：可重新生成，且当前只用 mock provider 验证过机制，不代表真实基线
 eval/reports/*.json
 eval/reports/*.md
+apps/desktop/dist/
+apps/desktop/test-results/
+apps/desktop/playwright-report/
+apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/gen/schemas/
+*.tsbuildinfo
