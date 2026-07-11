@@ -5,7 +5,7 @@ import type { CaseSummary } from './types';
 /** 样板案容器 id——demo 语料与装配只属于此 id（docs/21 + D-1）。 */
 export const DEMO_CASE_ID = 'demo-linjiang';
 
-export function isDemoCaseId(caseId: string): boolean {
+export function isDemoCaseId(caseId: string | null | undefined): boolean {
   return caseId === DEMO_CASE_ID;
 }
 

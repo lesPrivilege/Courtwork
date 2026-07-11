@@ -78,9 +78,10 @@ export function Composer({
 }: ComposerProps) {
   // 仅当父层未注入 cases 时用 DEMO 回落（单测/孤立预览）；App 必须注入投影。
   const caseOptions = cases ?? DEMO_CASE_OPTIONS;
+  const controlledCases = cases !== undefined;
   const [text, setText] = useState('');
   const [attachments, setAttachments] = useState<ComposerAttachment[]>([]);
-  const [caseId, setCaseId] = useState(activeCaseId ?? caseOptions[0]?.id ?? '');
+  const [caseId, setCaseId] = useState(activeCaseId ?? (controlledCases ? '' : caseOptions[0]?.id ?? ''));
   const [caseMenuOpen, setCaseMenuOpen] = useState(false);
   const [plusOpen, setPlusOpen] = useState(false);
   const [containerizeFor, setContainerizeFor] = useState<string | null>(null);
@@ -97,10 +98,10 @@ export function Composer({
   const prevActiveCaseId = useRef(activeCaseId);
   const skipAttachmentClearOnce = useRef(false);
   useEffect(() => {
-    if (activeCaseId === undefined) return;
+    if (activeCaseId === undefined && !controlledCases) return;
     const prev = prevActiveCaseId.current;
     prevActiveCaseId.current = activeCaseId;
-    setCaseId(activeCaseId);
+    setCaseId(activeCaseId ?? '');
     setCaseMenuOpen(false);
     setPlusOpen(false);
     setContainerizeFor(null);
@@ -111,7 +112,7 @@ export function Composer({
         setAttachments([]);
       }
     }
-  }, [activeCaseId]);
+  }, [activeCaseId, controlledCases]);
 
   const selectedCase = caseOptions.find((item) => item.id === caseId);
   const containerKind: ContainerKind = selectedCase?.kind ?? 'case';

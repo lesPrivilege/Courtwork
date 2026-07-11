@@ -5,6 +5,11 @@
 
 export type ContainerKind = 'case' | 'workspace';
 
+/** 内置内容包身份文案；消费方只传数据，不自行散落「样板案」字符串。 */
+export function containerOriginLabel(isDemo: boolean): string | undefined {
+  return isDemo ? '样板案' : undefined;
+}
+
 export function fileCountLabel(kind: ContainerKind, count: number): string {
   const noun = kind === 'workspace' ? '资料' : '卷宗';
   return `${noun} ${count} 件`;

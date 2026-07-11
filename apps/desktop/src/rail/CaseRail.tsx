@@ -1,5 +1,5 @@
 import { ArchiveConfirmPopover } from '../case/ArchiveConfirmPopover';
-import { fileCountLabel, type ContainerKind } from '../case/container-copy';
+import { containerOriginLabel, fileCountLabel, type ContainerKind } from '../case/container-copy';
 import { isDemoCaseId } from '../case/case-scope';
 import type { CaseSummary } from '../case/types';
 import { CONTAINERIZE_COPY } from '../composer';
@@ -21,7 +21,7 @@ interface CaseRailProps {
   cases: CaseSummary[];
   unfiled: UnfiledSession[];
   pinnedIds: ReadonlySet<string>;
-  selectedCaseId: string;
+  selectedCaseId: string | null;
   expandedCaseId: string | null;
   isDemoCase: boolean;
   flow: ScenarioFlow | null;
@@ -117,10 +117,9 @@ export function CaseRail({
               title={item.title}
               onClick={() => onSelectCase(item.id)}
             >
-              <Icon name={item.kind === 'workspace' ? 'folder-open' : 'briefcase-business'} />
-              {(item.isDemo || isDemoCaseId(item.id)) && item.id === selectedCaseId && (
-                <span className="unread-count">1</span>
-              )}
+              <span data-testid={(item.isDemo || isDemoCaseId(item.id)) ? 'demo-package-icon' : undefined}>
+                <Icon name={(item.isDemo || isDemoCaseId(item.id)) ? 'package' : item.kind === 'workspace' ? 'folder-open' : 'briefcase-business'} />
+              </span>
             </button>
           ))}
         </nav>
@@ -151,16 +150,19 @@ export function CaseRail({
       >
         <div className="rail-row-main">
           {/* 主选择按钮须为 card 内第一个 button：既有 e2e 用 getByRole('button').first() */}
-          <span className="rail-type-icon" data-testid={`rail-icon-${row.kind}`} title={railKindLabel(row.kind)}>
-            <Icon name={railIconName(row.kind)} />
+          <span className="rail-type-icon" data-testid={`rail-icon-${row.kind}`} title={demo ? `${containerOriginLabel(true)}内容包` : railKindLabel(row.kind)}>
+            <span data-testid={demo ? 'demo-package-icon' : undefined}><Icon name={demo ? 'package' : railIconName(row.kind)} /></span>
           </span>
           <div className="case-card-select">
             {item ? (
               <>
                 <button type="button" className="case-card-main" onClick={() => onSelectCase(item.id)}>
-                  <strong className="truncate" title={item.title}>
-                    {item.title}
-                  </strong>
+                  <span className="case-title-line">
+                    <strong className="truncate" title={item.title}>
+                      {item.title}
+                    </strong>
+                    {demo && <span className="container-origin-label" data-testid="demo-origin-label">{containerOriginLabel(true)}</span>}
+                  </span>
                   {item.caseNumber && (
                     <span className="case-number truncate" title={item.caseNumber}>
                       {item.caseNumber}
@@ -183,7 +185,6 @@ export function CaseRail({
                     {fileCountLabel(item.kind ?? 'case', item.fileCount)}
                   </button>
                   {item.archived ? <span> · 已归档</span> : null}
-                  {demo ? <span> · 样板案·演示</span> : null}
                 </div>
               </>
             ) : (
@@ -231,7 +232,6 @@ export function CaseRail({
             </button>
           )}
         </div>
-        {demo && <span className="demo-badge case-demo-badge" title="样板案·演示">演示</span>}
         {/* F-1.1：与 composer-first 同一容器化仪式（工作区/案件二选，用户选名词） */}
         {row.kind === 'unfiled' && containerizeUnfiledId === row.id && (
           <div

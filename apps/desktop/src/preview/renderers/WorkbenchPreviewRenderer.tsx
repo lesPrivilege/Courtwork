@@ -50,7 +50,7 @@ export function WorkbenchPreviewRenderer({
   );
 
   return (
-    <PreviewHost title={title} meta={meta} navigation={navigation} onClose={onClose}>
+    <PreviewHost title={title} meta={meta} navigation={navigation} onClose={onClose} progress={{ kind: 'scroll' }}>
       {children}
     </PreviewHost>
   );

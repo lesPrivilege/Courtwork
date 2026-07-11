@@ -27,7 +27,7 @@ import {
   resolveCaseRoot,
   stageLabel,
 } from './case/case-scope';
-import { type ContainerKind } from './case/container-copy';
+import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
@@ -96,6 +96,11 @@ function previewViewForArtifact(artifactType: string): WorkbenchView | undefined
 
 const DEMO_CASE = createDemoCaseSummary();
 
+function storedCaseId(): string | null {
+  const caseId = window.localStorage.getItem('courtwork.selected-case-id');
+  return isDemoCaseId(caseId) ? caseId : null;
+}
+
 type SessionAction = SessionEvent | { type: '__clear__' };
 
 function reduceSession(state: SessionProjection, action: SessionAction): SessionProjection {
@@ -128,8 +133,9 @@ function useNarrowRailRequired() {
 }
 
 export function App() {
+  const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
-  const [flow, setFlow] = useState<ScenarioFlow | null>('S3');
+  const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
   const [session, dispatch] = useReducer(reduceSession, EMPTY_SESSION);
   const [activeView, setActiveView] = useState<WorkbenchView>('revision');
   const [secondaryView, setSecondaryView] = useState<WorkbenchView>();
@@ -146,10 +152,10 @@ export function App() {
   const [draftFrozen, setDraftFrozen] = useState(false);
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ phase: 'pending' });
-  const [providerSetupOpen, setProviderSetupOpen] = useState(true);
+  const [providerSetupOpen, setProviderSetupOpen] = useState(false);
   const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[] }>>([]);
   const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
-  const [selectedCaseId, setSelectedCaseId] = useState(DEMO_CASE.id);
+  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(initialCaseId.current);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
   const [archiveConfirmCaseId, setArchiveConfirmCaseId] = useState<string | null>(null);
   const [focusMode, setFocusMode] = useState(false);
@@ -170,7 +176,7 @@ export function App() {
   /** F-1.1：左栏未归档存入 → containerize-popover 锚定行 */
   const [containerizeUnfiledId, setContainerizeUnfiledId] = useState<string | null>(null);
   const [pinnedIds] = useState(() => new Set<string>([DEMO_CASE_ID]));
-  const [expandedCaseId, setExpandedCaseId] = useState<string | null>(DEMO_CASE_ID);
+  const [expandedCaseId, setExpandedCaseId] = useState<string | null>(initialCaseId.current);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(true);
@@ -202,6 +208,10 @@ export function App() {
   };
 
   const handleComposerSend = (payload: ComposerSendPayload) => {
+    if (credentialStatus.phase !== 'connected') {
+      setProviderSetupOpen(true);
+      return;
+    }
     // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
     setLocalMessages((prev) => [
       ...prev,
@@ -215,8 +225,7 @@ export function App() {
   const probeCredentials = () => {
     void credentialClient.status().then((status) => {
       setCredentialStatus(status);
-      // 仅 pending 时强制首启；failed/connected 不乐观改开
-      if (status.phase === 'pending') setProviderSetupOpen(true);
+      // 探针照常静默运行；凭证 UI 只在发送或主动配置时上浮。
     });
   };
 
@@ -226,6 +235,11 @@ export function App() {
     window.addEventListener('courtwork-credential-probe', onProbe);
     return () => window.removeEventListener('courtwork-credential-probe', onProbe);
   }, []);
+
+  useEffect(() => {
+    if (selectedCaseId) window.localStorage.setItem('courtwork.selected-case-id', selectedCaseId);
+    else window.localStorage.removeItem('courtwork.selected-case-id');
+  }, [selectedCaseId]);
 
   useEffect(() => {
     if (!wideSplitAvailable && splitDirection === 'columns') setSplitDirection('rows');
@@ -363,9 +377,10 @@ export function App() {
     void client.confirmation.resolve(requestId, resolution).then(() => setReviewSubmitted(true));
   }, [dispositions, gate, session.confirmation]);
 
-  const selectedCase = cases.find((item) => item.id === selectedCaseId) ?? cases[0];
-  const isDemoCase = Boolean(selectedCase.isDemo) || isDemoCaseId(selectedCase.id);
-  const caseRoot = resolveCaseRoot(selectedCase);
+  const selectedCase = selectedCaseId ? cases.find((item) => item.id === selectedCaseId) : undefined;
+  const isWelcome = !selectedCase;
+  const isDemoCase = Boolean(selectedCase?.isDemo) || isDemoCaseId(selectedCase?.id);
+  const caseRoot = selectedCase ? resolveCaseRoot(selectedCase) : undefined;
   // demo 语料只属于 demo 容器——禁止 `?? DEMO_ARTIFACTS` 污染真实案件
   const riskList = (
     isDemoCase
@@ -488,11 +503,16 @@ export function App() {
   };
 
   useEffect(() => {
+    if (!selectedCaseId) return;
     const saved = window.localStorage.getItem(`courtwork.case-title.${selectedCaseId}`);
     if (saved) setCases((current) => current.map((item) => item.id === selectedCaseId ? { ...item, title: saved } : item));
   }, [selectedCaseId]);
 
   const commitCaseTitle = () => {
+    if (!selectedCaseId) {
+      setEditingCaseTitle(false);
+      return;
+    }
     const title = caseTitleDraft.trim();
     if (title) {
       setCases((current) => current.map((item) => item.id === selectedCaseId ? { ...item, title } : item));
@@ -544,7 +564,7 @@ export function App() {
         raf = window.requestAnimationFrame(run);
         return;
       }
-      if (expandedCaseId === selectedCaseId) {
+      if (expandedCaseId === selectedCaseId && selectedCase) {
         pendingOriginalsFocus.current = false;
         showSystemFeedback(
           selectedCase.kind === 'workspace' ? '本案工作区尚无资料原件' : '本案尚无卷宗原件',
@@ -558,7 +578,7 @@ export function App() {
       cancelled = true;
       window.cancelAnimationFrame(raf);
     };
-  }, [expandedCaseId, selectedCaseId, originalsFocusTick, selectedCase.kind]);
+  }, [expandedCaseId, selectedCaseId, originalsFocusTick, selectedCase]);
 
   const toggleArchive = (caseId: string) => {
     setCases((current) => current.map((item) => (item.id === caseId ? { ...item, archived: !item.archived } : item)));
@@ -675,6 +695,7 @@ export function App() {
   );
 
   const renderView = (view: WorkbenchView) => {
+    if (!selectedCase) return emptyWorkbench('选择一个案件后开始工作');
     if (fileOpsMode) {
       if (!isDemoCase) {
         return emptyWorkbench(`${selectedCase.title} · 整理计划将在拖入未归档文件后生成`);
@@ -762,17 +783,17 @@ export function App() {
       label: item.archived
         ? `${item.title}（已归档）`
         : item.isDemo || isDemoCaseId(item.id)
-          ? `${item.title}（样板案·演示）`
+          ? `${item.title}（${containerOriginLabel(true)}）`
           : item.title,
       onRun: () => { setSelectedCaseId(item.id); setPaletteOpen(false); },
     })),
     { id: 'action-new-case', section: '操作', label: '新建案件', onRun: () => { setPaletteOpen(false); setNewCaseOpen(true); } },
-    {
+    ...(selectedCase ? [{
       id: 'action-archive',
       section: '操作',
       label: selectedCase.archived ? '取消归档当前案件' : '归档当前案件',
       onRun: () => { setPaletteOpen(false); setArchiveConfirmCaseId(selectedCase.id); },
-    },
+    } satisfies PaletteCommand] : []),
     {
       id: 'action-focus',
       section: '操作',
@@ -818,11 +839,11 @@ export function App() {
     {
       id: 'working-folders' as const,
       title: '工作文件夹',
-      count: isDemoCase ? String(selectedCase.fileCount) : '0',
+      count: isDemoCase ? String(selectedCase?.fileCount ?? 0) : '0',
       status: (isDemoCase ? 'active' : 'idle') as 'active' | 'idle',
       open: moduleOpen['working-folders'],
       onToggle: () => toggleModule('working-folders'),
-      body: <WorkingFoldersTree isDemo={isDemoCase} originalCount={selectedCase.fileCount} onFocusOriginals={focusOriginalsZone} onOpenWorkDrafts={openWorkDrafts} onOpenFileOps={openFileOps} onOpenOutput={openOutputFolder} workDraftSelected={workDraftMode && activeView === 'draft'} fileOpsSelected={fileOpsMode} />,
+      body: <WorkingFoldersTree isDemo={isDemoCase} originalCount={selectedCase?.fileCount ?? 0} onFocusOriginals={focusOriginalsZone} onOpenWorkDrafts={openWorkDrafts} onOpenFileOps={openFileOps} onOpenOutput={openOutputFolder} workDraftSelected={workDraftMode && activeView === 'draft'} fileOpsSelected={fileOpsMode} />,
     },
     {
       id: 'context' as const,
@@ -843,7 +864,7 @@ export function App() {
   return (
     <main className="app-shell" data-testid="workbench" data-compact={compactLayout ? 'true' : 'false'}>
       <div
-        className={`workspace ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
+        className={`workspace ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
         data-testid="workspace"
         data-comparing={comparing ? 'true' : 'false'}
         data-focus-mode={focusMode ? 'true' : 'false'}
@@ -898,7 +919,8 @@ export function App() {
         {/* L0：对话流直接坐页面底色，去卡壳 */}
         {!focusMode && (
           <section className="conversation canvas-layer" data-testid="conversation-canvas">
-            <header className="chat-case-head">
+            <header className={`chat-case-head ${isWelcome ? 'welcome-chat-head' : ''}`}>
+              {isWelcome ? <strong className="welcome-head-label">新工作</strong> : <>
               {editingCaseTitle ? <input
                 autoFocus
                 data-testid="chat-case-title-input"
@@ -909,15 +931,29 @@ export function App() {
               /> : <span data-testid="titlebar-case-title"><button type="button" className="chat-case-title" data-testid="chat-case-title" title="双击编辑案件名称" onDoubleClick={() => { setCaseTitleDraft(selectedCase.title); setEditingCaseTitle(true); }}>
                 {selectedCase.title}
               </button></span>}
-              {isDemoCase && <span className="demo-badge" data-testid="demo-case-badge">样板案·演示</span>}
+              {isDemoCase && <span className="demo-badge" data-testid="demo-case-badge">{containerOriginLabel(true)}</span>}
               <span className="stage-chip" data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</span>
+              </>}
               <span className="spacer" />
               <button type="button" className="quiet-button chat-global-action" data-testid="open-settings" aria-label="设置" title="设置" onClick={() => openSettings('model')}><Icon name="cog" /></button>
               <button type="button" className="shortcut shortcut-trigger" onClick={() => setPaletteOpen(true)}><kbd>⌘</kbd><kbd>K</kbd></button>
             </header>
             {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.ok ? 'ok' : 'error'}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
             <div className="conversation-scroll">
-              {!isDemoCase && (
+              {isWelcome && (
+                <section className="welcome-state" data-testid="welcome-state">
+                  <span className="welcome-mark" aria-hidden="true"><Icon name="panels-top-left" /></span>
+                  <h1>开始一项工作</h1>
+                  <p>描述你要处理的材料或任务，Courtwork 会从对话中建立工作脉络。</p>
+                  <button type="button" className="quiet-button welcome-demo-start" data-testid="welcome-demo-start" onClick={() => {
+                    setSelectedCaseId(DEMO_CASE_ID);
+                    setExpandedCaseId(DEMO_CASE_ID);
+                  }}>
+                    {`从${containerOriginLabel(true)}开始体验`}
+                  </button>
+                </section>
+              )}
+              {!isWelcome && !isDemoCase && selectedCase && (
                 <div className="empty-state" role="status" data-testid="conversation-empty">
                   {selectedCase.title} 刚建立，尚无对话记录 · 从场景按钮开始
                 </div>
@@ -1000,7 +1036,7 @@ export function App() {
                 </div>
               ))}
             </div>
-            <div className="scene-strip" data-testid="scene-strip">
+            {!isWelcome && <div className="scene-strip" data-testid="scene-strip">
               {isDemoCase && (
                 <>
                   <button type="button" className="scene-primary" onClick={() => selectFlow('S1')}>整理卷宗</button>
@@ -1025,7 +1061,7 @@ export function App() {
                   <button type="button" onClick={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); setSceneMoreOpen(false); }}>起草答辩状</button>
                 </div>}
               </div>
-            </div>
+            </div>}
             {/* L1：composer 浮卡 */}
             <div className="composer-stack">
               <div className="composer-float surface-float">
@@ -1035,14 +1071,17 @@ export function App() {
                   name: item.title,
                   kind: item.kind ?? 'case',
                 }))}
-                activeCaseId={selectedCaseId}
+                activeCaseId={selectedCaseId ?? undefined}
                 onSend={handleComposerSend}
                 onContainerize={handleContainerize}
                 modelConfig={modelConfig}
                 modelConfigOpen={modelConfigOpen}
                 modelLabel={modelDisplayName(modelConfig)}
                 connectionPhase={credentialStatus.phase}
-                onToggleModelConfig={() => setModelConfigOpen((open) => !open)}
+                onToggleModelConfig={() => {
+                  if (credentialStatus.phase !== 'connected') setProviderSetupOpen(true);
+                  else setModelConfigOpen((open) => !open);
+                }}
                 onModelConfigChange={updateModelConfig}
                 onCloseModelConfig={() => setModelConfigOpen(false)}
                 />
@@ -1056,7 +1095,7 @@ export function App() {
         )}
 
         {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载 */}
-        {rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
+        {!isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
           <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="展开右栏" title="展开右栏" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
         </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open={previewOpen ? 'true' : 'false'} data-artifact-revision={artifactRevision}>
           <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="折叠右栏" title="折叠右栏" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
@@ -1082,7 +1121,7 @@ export function App() {
             actions={<>
                 {!focusMode && !comparing && (
                   <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照">
-                    <Icon name="rows-two" />对照
+                    <Icon name="rows-two" /><span>对照</span>
                   </button>
                 )}
                 {!focusMode && comparing && (
@@ -1109,7 +1148,7 @@ export function App() {
                       <Icon name="columns-two" />
                     </button>
                     <button className="view-action" onClick={resetComparison} data-testid="split-reset" title="退出对照并恢复三栏">
-                      <Icon name="rotate-counter-clockwise" />复位
+                      <Icon name="rotate-counter-clockwise" /><span>复位</span>
                     </button>
                   </>
                 )}
@@ -1141,7 +1180,7 @@ export function App() {
                 )}
               </div>
           </WorkbenchPreviewRenderer>}
-        </section>}
+        </section>)}
       </div>
 
       {compileOpen && <div className="modal-backdrop" role="presentation"><section className="compile-dialog" role="dialog" aria-modal="true" aria-labelledby="compile-title"><h2 id="compile-title">编译为 Word 文档</h2><p>定稿后，本画布将转为只读存档。后续修改将在文书修订中逐条处理，无法返回起草状态。</p><div><button className="quiet-button" onClick={() => setCompileOpen(false)}>取消</button><button className="primary-button" onClick={() => { setDraftFrozen(true); setCompileOpen(false); }}>确认定稿并编译</button></div></section></div>}
