@@ -20,7 +20,15 @@ test('整理后可撤销并保留确认门禁形态', async ({ page }) => {
   await openWorkbench(page);
   await openWorkingFolders(page);
   await page.getByTestId('wf-open-file-ops').click();
-  await page.getByTestId('file-ops-execute').click();
+  await expect(page.getByTestId('utility-dock-popover')).toHaveCount(0);
+  const execute = page.getByTestId('file-ops-execute');
+  await expect(execute).toBeVisible();
+  const hitTarget = await execute.evaluate((button) => {
+    const rect = button.getBoundingClientRect();
+    return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)?.closest('[data-testid]')?.getAttribute('data-testid');
+  });
+  expect(hitTarget).toBe('file-ops-execute');
+  await execute.click();
   await expect(page.getByTestId('file-ops-report')).toBeVisible();
   await page.getByTestId('file-ops-undo').click();
   await expect(page.getByTestId('file-ops-undo-confirm')).toBeVisible();

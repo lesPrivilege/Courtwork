@@ -396,7 +396,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .turn-card-route:disabled { cursor: default; }
 .turn-card-route:not(:disabled):hover { background: var(--bg-hover); }
 .turn-card-icon { display: grid; place-items: center; color: var(--text-tertiary); }
-.turn-card-icon .line-icon, .turn-card-route > .line-icon { width: 14px; height: 14px; }
+.turn-card-icon .turn-icon, .turn-card-route > .turn-icon { width: 14px; height: 14px; }
 .turn-card-copy { min-width: 0; display: grid; gap: 1px; }
 .turn-card-title { min-width: 0; display: flex; align-items: center; gap: 7px; }
 .turn-card-title strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-dense-body-size); font-weight: var(--control-weight-emphasized); }
@@ -409,8 +409,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   cursor: pointer; list-style: none;
 }
 .tool-call-row summary::-webkit-details-marker { display: none; }
-.tool-call-row summary .line-icon { width: 13px; height: 13px; transition: transform var(--motion-hover) ease-out; }
-.tool-call-row[open] summary .line-icon { transform: rotate(90deg); }
+.tool-call-row summary .turn-icon { width: 13px; height: 13px; transition: transform var(--motion-hover) ease-out; }
+.tool-call-row[open] summary .turn-icon { transform: rotate(90deg); }
 .tool-call-row code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); font: inherit; font-family: var(--mono); }
 .tool-call-details {
   margin: 0 0 5px 24px; display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 2px 8px;

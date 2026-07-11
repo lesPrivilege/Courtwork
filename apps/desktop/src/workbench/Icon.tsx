@@ -71,9 +71,9 @@ const standardIcons = {
 type StandardIconName = keyof typeof standardIcons;
 type IconName = StandardIconName;
 
-export function Icon({ name }: { name: IconName }) {
+export function Icon({ name, scope = 'chrome' }: { name: IconName; scope?: 'chrome' | 'turn' }) {
   const Component = standardIcons[name];
-  return <Component className="line-icon" aria-hidden="true" />;
+  return <Component className={scope === 'turn' ? 'turn-icon' : 'line-icon'} data-icon-scope={scope} aria-hidden="true" />;
 }
 
 export type { IconName };

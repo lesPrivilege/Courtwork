@@ -56,7 +56,12 @@ export function UtilityRail({ mode, items, onOpenPreview }: UtilityRailProps) {
         {dockItem && (
           <aside className="utility-dock-popover" data-testid="utility-dock-popover" aria-label={dockItem.title}>
             <header><strong>{dockItem.title}</strong><span>{dockItem.count}</span></header>
-            <div className="utility-dock-popover-body">{dockItem.body}</div>
+            <div
+              className="utility-dock-popover-body"
+              onClick={(event) => {
+                if ((event.target as Element).closest('button, a')) setDockItemId(null);
+              }}
+            >{dockItem.body}</div>
           </aside>
         )}
       </section>

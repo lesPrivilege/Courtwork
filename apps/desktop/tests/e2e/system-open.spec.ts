@@ -24,8 +24,15 @@ test('新建工作稿进入编辑面且自动保存', async ({ page }) => {
   await openWorkbench(page);
   await openWorkingFolders(page);
   await page.getByTestId('wf-open-work-drafts').click();
+  await expect(page.getByTestId('utility-dock-popover')).toHaveCount(0);
   await expect(page.getByTestId('work-draft-panel')).toBeVisible();
-  await page.getByTestId('new-work-draft').click();
+  const createDraft = page.getByTestId('new-work-draft');
+  const hitTarget = await createDraft.evaluate((button) => {
+    const rect = button.getBoundingClientRect();
+    return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)?.closest('[data-testid]')?.getAttribute('data-testid');
+  });
+  expect(hitTarget).toBe('new-work-draft');
+  await createDraft.click();
   await expect(page.getByTestId('work-draft-editor')).toBeVisible();
   await expect(page.getByTestId('work-draft-list').locator('button')).toHaveCount(1);
   const editor = page.getByTestId('work-draft-editor');

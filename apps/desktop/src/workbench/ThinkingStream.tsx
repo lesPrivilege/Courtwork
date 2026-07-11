@@ -29,7 +29,8 @@ export function ThinkingStream({
     return (
       <div className="thinking-stream is-thinking" data-testid="thinking-stream" data-state="thinking" role="status" aria-label="Reasoning in progress">
         <SparkLinesIcon
-          className="line-icon thinking-stream-glyph"
+          className="turn-icon thinking-stream-glyph"
+          data-icon-scope="turn"
           viewBox="0 0 24 24"
           preserveAspectRatio="none"
           aria-hidden="true"
@@ -50,7 +51,8 @@ export function ThinkingStream({
         onClick={() => setOpen((value) => !value)}
       >
         <SparkLinesIcon
-          className="line-icon thinking-stream-icon"
+          className="turn-icon thinking-stream-icon"
+          data-icon-scope="turn"
           viewBox="0 0 24 24"
           aria-hidden="true"
         />

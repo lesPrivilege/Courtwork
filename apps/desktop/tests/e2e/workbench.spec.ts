@@ -193,6 +193,9 @@ test('法理之线使用域只限右栏且图标保持品牌单色', async ({ pa
 
   const iconColors = await page.locator('.line-icon').evaluateAll((icons) => [...new Set(icons.map((icon) => getComputedStyle(icon).color))]);
   expect(iconColors).toEqual(['rgb(100, 116, 139)']);
+  const assistantTurn = page.getByTestId('assistant-turn-demo');
+  await expect(assistantTurn.locator('.line-icon')).toHaveCount(0);
+  expect(await assistantTurn.locator('.turn-icon').count()).toBeGreaterThan(0);
 });
 
 test('混合处置完成后确认响应按条目上报', async ({ page }) => {
