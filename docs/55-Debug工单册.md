@@ -103,3 +103,19 @@ FIX-KC-1 验收放行（七主张逐条证伪全立，含 trace 注入实测与 
 
 报告纯追加 apps/desktop/ACCEPTANCE.md「RP-2.5 验收」节（先按判例链代提交任何前序未提交追加）。结论：放行与否；0.1.1 是否可出（BUILD-1 工序复用，版本号 0.1.1）。
 ```
+
+## RP-2.5 验收裁决（2026-07-11）：一项修宪 + 三项打回 → RP-2.5.1
+
+阻断一（阴影）修宪解决——**de-slop #6 修正案**：阴影解禁但纪律化：①单点供给（仅 --elevation-shadow token，组件内禁写值）；②限位（仅两侧 L1 浮面；L0 chat 区零影；artifact 卡随提案定）；③极轻且过目（sol 在 SPEC 提案具体值，架构过目后落 tokens）。立法本意是防廉价立体感，三栏已分后极轻阴影是精修不是 slop——立法随格局更新。
+
+## RP-2.5.1 补丁单（sol，验收打回三项 + 阴影落宪）
+
+```
+你（sol）认领 RP-2.5.1：验收打回三项修复 + 阴影修宪落地。范围窄，冻结结构内改。
+
+1. 阴影落宪：SPEC 提案 --elevation-shadow 具体值（藏青基调低透明度短距，附消费位清单：仅两侧 L1 浮面，L0 chat 区零影）→ 架构过目后写 tokens.json + styles.css；组件内零 shadow 字面量（grep 断言）。
+2. Composer 重叠修复：1180/1240 与右栏重叠、1440 侵入 8px gap 的根因修掉；**e2e 断言全面换几何学**——boundingBox 坐标：composer/send/provider 右缘 ≤ chat 右缘、chat 右缘与右栏左缘差恰 8、四档全查。scrollWidth 检查保留但不再作为重叠证明（假绿判例）。
+3. Artifact→Preview 真自动打开：artifact_produced 打开对应 PreviewHost renderer（非旧 moduleOpen）；用户手动关闭后同场景再产 artifact 不强制重开（手动优先状态位）；两条 e2e：自动打开、手动关闭优先。
+4. Model-config 回归断言：popover 打开/改配置/持久化/单实例四点固化为长期 e2e。
+门禁：全绿 + floor 只升（基线 107）；完工报告附阴影提案值截图对照（无影/有影）。
+```
