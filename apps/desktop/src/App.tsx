@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/schemas';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
@@ -70,7 +70,8 @@ import {
 } from './workbench/Panels';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
 import { ThinkingStream } from './workbench/ThinkingStream';
-import GraphPanel from './workbench/GraphPanel';
+
+const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
 type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft';
 
@@ -194,8 +195,8 @@ export function App() {
   const lastReplayedFlow = useRef<string | undefined>(undefined);
   /** RP-2.5.1：用户关闭只压住同一案件/场景后续 artifact；切场景后自动恢复。 */
   const previewDismissedContext = useRef<string | null>(null);
-  /** 用户显式选中的工作面优先于仍在回放中的 artifact 自动路由。 */
-  const manualPreviewContext = useRef<string | null>(null);
+  /** 当前场景内用户显式选中的工作面优先于仍在回放中的 artifact 自动路由。 */
+  const manualPreviewSelected = useRef(false);
   const resolvedRequest = useRef<string | undefined>(undefined);
   const prevCaseId = useRef(selectedCaseId);
   const lastArtifactKeys = useRef('');
@@ -262,7 +263,7 @@ export function App() {
     setFileOpsMode(false);
     setPreviewOpen(true);
     previewDismissedContext.current = null;
-    manualPreviewContext.current = null;
+    manualPreviewSelected.current = false;
     setDraftFrozen(false);
     setDraft(INITIAL_DRAFT);
     setCompileOpen(false);
@@ -296,7 +297,7 @@ export function App() {
       if (event.type !== 'artifact_produced') return;
       setArtifactRevision((revision) => revision + 1);
       const targetView = previewViewForArtifact(event.artifactType);
-      if (!targetView || previewOpenedForReplay || previewDismissedContext.current === context || manualPreviewContext.current === context) return;
+      if (!targetView || previewOpenedForReplay || previewDismissedContext.current === context || manualPreviewSelected.current) return;
       previewOpenedForReplay = true;
       setActiveView(targetView);
       setPreviewOpen(true);
@@ -615,7 +616,7 @@ export function App() {
   const selectFlow = (next: ScenarioFlow) => {
     if (!isDemoCase) return; // 非 demo 不注入样板场景
     if (next !== flow) previewDismissedContext.current = null;
-    manualPreviewContext.current = null;
+    manualPreviewSelected.current = false;
     setFlow(next);
     setReplayEpoch((epoch) => epoch + 1);
     setActiveView(next === 'S1' ? 'timeline' : 'revision');
@@ -632,7 +633,7 @@ export function App() {
 
   const choosePrimaryView = (view: WorkbenchView) => {
     if (secondaryView === view && activeView !== view) setSecondaryView(activeView);
-    manualPreviewContext.current = `${selectedCaseId}:${flow ?? 'none'}`;
+    manualPreviewSelected.current = true;
     setActiveView(view);
     if (view !== 'draft') setWorkDraftMode(false);
     setFileOpsMode(false);
@@ -717,7 +718,9 @@ export function App() {
     }
     if (view === 'graph') {
       if (!graph) return emptyWorkbench('关系图谱尚未生成');
-      return <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />;
+      return <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
+        <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />
+      </Suspense>;
     }
     if (view === 'matrix') {
       if (!matrix) return emptyWorkbench('矩阵审阅尚未生成');

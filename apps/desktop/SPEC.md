@@ -698,5 +698,12 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 视觉证据：`46-rp28-turn-cards-1440.png` / `47-rp28-dock-l2-1440.png`。
 
+### RP-2.8.1 验收打回修复（2026-07-11）
+
+- F-1 两项 dock 遮挡：dock/popover 的层叠与 pointer 边界已收窄；`file-ops.spec.ts` 与 `system-open.spec.ts` 在真实按钮中心用 `elementFromPoint` 锁定命中元素，确认“确认并整理”“新建工作稿”均不再被 dock 截获。
+- F-2 五项图谱断链：保留 `GraphPanel` 的 `lazy`/`Suspense` 管线，以“当前场景已有手动工作面选择”锁阻止 paced artifact 回放抢回 Preview；关系依据、14/15 dagre、缩放、GraphPanel 挂载、`.courtwork-minimap` #9 主题五项回归恢复。
+- F-3 一项图标污染：turn/Thinking 图标使用独立 `turn-icon` 作用域，`line-icon` 继续只承载 P-4 chrome/法理之线审计域；五态色与 icon 品牌单色断言恢复。
+- floor 实测保持 126。独立端口 `:1435`、`:1436` 各执行一轮全部静态门禁 + `playwright test --workers=1`，两轮均显示 `Running 126 tests using 1 worker`、`126 passed (1.4m)`、退出码 0。实现复核时额外发现并修正前置提交将 G6 改为同步导入而触发 `assert-graph-theme` 的遗漏；最终懒加载纪律与挂载行为同时成立。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。
