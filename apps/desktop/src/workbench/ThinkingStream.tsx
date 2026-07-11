@@ -28,17 +28,12 @@ export function ThinkingStream({
   if (state === 'thinking') {
     return (
       <div className="thinking-stream is-thinking" data-testid="thinking-stream" data-state="thinking" role="status" aria-label="Reasoning in progress">
-        <SparkLinesIcon className="line-icon thinking-stream-icon" aria-hidden="true" />
-        <div className="thinking-stream-skeleton" data-testid="thinking-stream-skeleton" aria-hidden="true">
-          {[0, 1, 2].map((line) => (
-            <i
-              key={line}
-              className="thinking-line"
-              data-testid={`thinking-line-${line + 1}`}
-              data-sequence={line + 1}
-            />
-          ))}
-        </div>
+        <SparkLinesIcon
+          className="line-icon thinking-stream-glyph"
+          viewBox="0 0 24 24"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        />
       </div>
     );
   }
@@ -54,7 +49,11 @@ export function ThinkingStream({
         title={open ? 'Hide reasoning' : 'Show reasoning'}
         onClick={() => setOpen((value) => !value)}
       >
-        <SparkLinesIcon className="line-icon thinking-stream-icon" aria-hidden="true" />
+        <SparkLinesIcon
+          className="line-icon thinking-stream-icon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        />
       </button>
       {open && (
         <div className="thinking-stream-body" data-testid="thinking-stream-body" role="region" aria-label="Reasoning">

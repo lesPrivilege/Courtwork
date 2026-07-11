@@ -335,6 +335,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .chat-feedback { position: absolute; z-index: 8; top: 48px; right: 12px; padding: 5px 8px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); }
 .conversation.canvas-layer { position: relative; }
 .conversation-scroll { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 4px; overflow: auto; }
+.assistant-turn { width: 100%; display: flex; flex-direction: column; align-self: stretch; gap: 6px; }
 .welcome-head-label { min-width: 0; padding: 0 4px; font-size: var(--control-font-sm); font-weight: var(--control-weight-emphasized); }
 .welcome-state {
   width: min(520px, calc(100% - 32px)); margin: auto; padding: 28px 24px;
@@ -554,8 +555,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   max-width: 100%; margin: 0 0 4px; border: 0; background: transparent;
 }
 .thinking-stream.is-thinking {
-  width: min(240px, 100%); display: grid; grid-template-columns: 16px minmax(0, 1fr);
-  align-items: start; gap: 8px; padding: 3px 0; margin-bottom: 8px;
+  width: min(240px, 100%); padding: 3px 0; margin-bottom: 8px;
 }
 .thinking-stream-toggle {
   width: 24px; height: 24px; display: grid; place-items: center;
@@ -563,30 +563,36 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   color: var(--text-tertiary);
 }
 .thinking-stream-toggle:hover { background: transparent; color: var(--text-primary); }
+.thinking-stream.is-settled:not(.is-open) { width: 24px; align-self: flex-start; }
+.thinking-stream.is-settled.is-open { width: min(420px, 100%); align-self: flex-start; }
 .thinking-stream-icon { width: 14px; height: 14px; flex: none; }
-.thinking-stream.is-thinking > .thinking-stream-icon { margin-top: 1px; color: var(--text-tertiary); }
-.thinking-stream-skeleton { min-width: 0; display: grid; gap: 5px; padding-top: 2px; }
-.thinking-line {
-  display: block; height: 3px; border-radius: 2px; background: var(--border-strong);
-  transform-origin: left; transition: none;
+.thinking-stream-icon path:nth-of-type(n + 2) { display: none; }
+.thinking-stream-glyph { width: min(240px, 100%); height: 24px; color: var(--text-tertiary); overflow: visible; }
+.thinking-stream-glyph path { transition: none; }
+.thinking-stream-glyph path:first-child {
+  transform-box: fill-box;
+  transform-origin: left center;
+  transform: scaleX(.1);
 }
-.thinking-line {
+.thinking-stream-glyph path:nth-of-type(n + 2) {
+  transform-box: fill-box;
+  transform-origin: left center;
   animation: reasoning-line-write var(--motion-reasoning-line) ease-out both;
 }
-.thinking-line:nth-child(1) { width: 100%; animation-delay: 0ms; }
-.thinking-line:nth-child(2) { width: 78%; animation-delay: var(--motion-reasoning-line); }
-.thinking-line:nth-child(3) { width: 58%; animation-delay: calc(var(--motion-reasoning-line) + var(--motion-reasoning-line)); }
+.thinking-stream-glyph path:nth-of-type(2) { --reasoning-line-shift: -7.2px; animation-delay: 0ms; }
+.thinking-stream-glyph path:nth-of-type(3) { --reasoning-line-shift: -3.2px; animation-delay: var(--motion-reasoning-line); }
+.thinking-stream-glyph path:nth-of-type(4) { --reasoning-line-shift: -3.2px; animation-delay: calc(var(--motion-reasoning-line) + var(--motion-reasoning-line)); }
 .thinking-stream-body {
   max-width: 420px; padding: 2px 0 6px 22px; color: var(--text-tertiary); font-size: 12px; line-height: 1.55;
 }
 .thinking-stream-body p { margin: 0; }
 @keyframes reasoning-line-write {
-  from { opacity: .2; transform: scaleX(.18); }
-  55% { opacity: .48; transform: scaleX(.66); }
-  to { opacity: .62; transform: scaleX(1); }
+  from { opacity: .2; transform: translateX(var(--reasoning-line-shift)) scaleX(.12); }
+  55% { opacity: .48; transform: translateX(var(--reasoning-line-shift)) scaleX(.66); }
+  to { opacity: .62; transform: translateX(var(--reasoning-line-shift)) scaleX(1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .thinking-line { animation: none; opacity: .48; transform: scaleX(1); }
+  .thinking-stream-glyph path:nth-of-type(n + 2) { animation: none; opacity: .48; transform: translateX(var(--reasoning-line-shift)) scaleX(1); }
 }
 
 /* docs/52 #10：状态条模型配置 */

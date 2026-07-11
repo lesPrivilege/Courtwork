@@ -298,7 +298,7 @@ export function App() {
       previewOpenedForReplay = true;
       setActiveView(targetView);
       setPreviewOpen(true);
-    });
+    }, { paced: true });
   }, [flow, replayEpoch, selectedCaseId]);
 
   // docs/49 三章：artifact_produced 自动展开对应模块；用户手动优先
@@ -623,6 +623,7 @@ export function App() {
     setDispositions({});
     setReviewSubmitted(false);
     setContinued(false);
+    dispatch({ type: '__clear__' });
     resolvedRequest.current = undefined;
   };
 
@@ -960,8 +961,12 @@ export function App() {
                       ? '整理全套卷宗，标出事件矛盾并核对当事人关系。'
                       : '审查这份设备采购合同，重点看付款、验收与违约责任。'}
                   </div>
-                  <ThinkingStream />
-                  <div className="event-stream" data-testid="event-stream">
+                  <article className="assistant-turn" data-testid="assistant-turn-demo">
+                    <ThinkingStream
+                      state={session.progress.length === 0 ? 'empty' : session.confirmation ? 'settled' : 'thinking'}
+                      content={session.progress.join('；') || '已梳理请求目标、材料范围与下一步工作面。'}
+                    />
+                    <div className="event-stream" data-testid="event-stream">
                     <div className="event-row success">
                       <span className="domain-badge">{flow === 'S1' ? 'D20' : 'D04'}</span><i className="event-dot" />
                       <span>{flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'}</span>
@@ -975,8 +980,8 @@ export function App() {
                       <span className="domain-badge">完成</span><i className="event-dot" />
                       <span>{flow === 'S3' ? '审阅提示已送达右侧工作面' : '事件与主体关系已完成交叉核对'}</span>
                     </div>
-                  </div>
-                  <article className="data-card compact-result">
+                    </div>
+                    <section className="data-card compact-result">
                     <div className="card-heading">
                       <span className="domain-badge">{flow === 'S3' ? 'R' : 'E'}</span>
                       <strong>{flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'}</strong>
@@ -996,9 +1001,9 @@ export function App() {
                         }`
                       }
                     />
-                  </article>
-                  {flow === 'S3' && (
-                    <article className="data-card output-file-card" data-testid="output-docx-card">
+                    </section>
+                    {flow === 'S3' && (
+                      <section className="data-card output-file-card" data-testid="output-docx-card">
                       <div className="card-heading">
                         <span className="domain-badge">W</span>
                         <strong>合同审查报告.docx</strong>
@@ -1012,8 +1017,9 @@ export function App() {
                           打开文件
                         </button>
                       </div>
-                    </article>
-                  )}
+                      </section>
+                    )}
+                  </article>
                 </>
               )}
               {localMessages.map((message, index) => (

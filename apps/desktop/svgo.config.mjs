@@ -10,6 +10,7 @@ export default {
         overrides: {
           cleanupIds: false,
           collapseGroups: false,
+          mergePaths: false,
         },
       },
     },

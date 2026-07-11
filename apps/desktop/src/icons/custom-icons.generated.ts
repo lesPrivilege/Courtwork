@@ -292,8 +292,29 @@ const customIconNodes = {
     [
       "path",
       {
-        "d": "m7 3 .8 3.2L11 7l-3.2.8L7 11l-.8-3.2L3 7l3.2-.8zm6 3h8m-8 5h6M5 16h16M5 20h12",
+        "d": "m7 3 .8 3.2L11 7l-3.2.8L7 11l-.8-3.2L3 7l3.2-.8z",
         "key": "spark-lines-1"
+      }
+    ],
+    [
+      "path",
+      {
+        "d": "M11 7h10",
+        "key": "spark-lines-2"
+      }
+    ],
+    [
+      "path",
+      {
+        "d": "M7 12h12",
+        "key": "spark-lines-3"
+      }
+    ],
+    [
+      "path",
+      {
+        "d": "M7 17h9",
+        "key": "spark-lines-4"
       }
     ]
   ],
