@@ -865,6 +865,19 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 }
 .settings-status-chip[data-phase="connected"] { border-color: var(--green-graphic); color: var(--green-fg); background: var(--green-bg); }
 .settings-status-chip[data-phase="failed"] { border-color: var(--red-graphic); color: var(--red-fg); background: var(--red-bg); }
+.settings-recovery {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: var(--bg-elevated, var(--bg-secondary));
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.settings-recovery p { margin: 0 0 8px; }
+.settings-recovery p:last-child { margin-bottom: 0; }
+.settings-recovery-message { color: var(--red-fg); font-weight: 500; }
 .settings-path {
   display: block; max-width: 320px; padding: 6px 8px; border: 1px solid var(--border);
   border-radius: 4px; background: var(--bg-surface); color: var(--text-secondary); font-size: 12px;

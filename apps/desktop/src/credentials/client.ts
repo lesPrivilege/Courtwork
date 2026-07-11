@@ -11,11 +11,24 @@ export type CredentialSource = 'pasted' | 'environment';
  */
 export type ConnectionPhase = 'pending' | 'connected' | 'failed';
 
+/**
+ * F4 钥匙串失败分型（诊断导出 credentialFailKind；无密钥）。
+ * 与 Rust KeychainFailKind.wire_name 对齐。
+ */
+export type CredentialFailKind =
+  | 'user_canceled'
+  | 'auth_failed'
+  | 'acl_denied'
+  | 'missing'
+  | 'platform';
+
 export interface CredentialStatus {
   phase: ConnectionPhase;
   source?: CredentialSource;
   /** 仅 failed 时展示，零技术概念 */
   failureMessage?: string;
+  /** F4 分型；仅钥匙串失败时有值 */
+  failKind?: CredentialFailKind;
 }
 
 /** @deprecated 兼容旧断言；请用 phase */
@@ -29,9 +42,30 @@ export function connectionLabel(status?: CredentialStatus | null): string {
   return '连接失败';
 }
 
+/** 默认/平台兜底（与 Rust platform 文案一致） */
 export const KEYCHAIN_FAIL_MESSAGE = '钥匙串授权未通过，请重试或重新填写';
 export const FORMAT_FAIL_MESSAGE = '凭证格式不正确，请检查后重新填写';
 export const ENV_MISSING_MESSAGE = '电脑中未找到该凭证名称，请检查后重试';
+
+/** F4 分型 → 对外零技术概念文案 */
+export const FAIL_KIND_MESSAGES: Record<CredentialFailKind, string> = {
+  user_canceled: '需要允许访问安全凭证库才能连接',
+  auth_failed: '无法解锁电脑的安全凭证库，请确认钥匙串密码后重试',
+  acl_denied: '凭证库访问未授权，请重新完成连接；若刚更新过应用，请删除旧凭证后重试',
+  missing: KEYCHAIN_FAIL_MESSAGE,
+  platform: KEYCHAIN_FAIL_MESSAGE,
+};
+
+export function messageForFailKind(kind?: CredentialFailKind | null): string {
+  if (!kind) return KEYCHAIN_FAIL_MESSAGE;
+  return FAIL_KIND_MESSAGES[kind] ?? KEYCHAIN_FAIL_MESSAGE;
+}
+
+/** F5：设置页连接失败辅助（H4 + 手动清条目） */
+export const KEYCHAIN_RECOVERY_GUIDE = [
+  '系统弹出的是「钥匙串」密码，不一定等于当前登录密码。若您曾修改过 Mac 登录密码，请打开「钥匙串访问」→ 登录钥匙串：若显示锁定，用旧密码解锁，或按系统提示更新钥匙串密码。也可退出登录钥匙串后重新登录 Mac 再试。',
+  '若密码正确仍反复要求授权，请在「钥匙串访问」中删除名称为 cn.courtwork.desktop.provider 的两项（active-source 与 provider-secret），然后回到 Courtwork 重新「完成连接」。开发构建对应名称为 cn.courtwork.desktop.provider.dev。',
+].join('\n');
 
 const MIN_PASTED_LENGTH = 8;
 
@@ -99,6 +133,15 @@ function readForcedProbe(): CredentialStatus | null {
   return forced ?? testOverride;
 }
 
+function normalizeStatus(raw: CredentialStatus): CredentialStatus {
+  if (raw.phase !== 'failed') return raw;
+  // 若仅有 failKind 无文案，补齐映射
+  if (!raw.failureMessage && raw.failKind) {
+    return { ...raw, failureMessage: messageForFailKind(raw.failKind) };
+  }
+  return raw;
+}
+
 /**
  * 浏览器模式只供 Playwright 回归；Tauri 成品走 Rust 钥匙串探针。
  * status() 每次都是探针，不缓存「已连接」乐观态。
@@ -106,16 +149,17 @@ function readForcedProbe(): CredentialStatus | null {
 export const credentialClient = {
   async status(): Promise<CredentialStatus> {
     const forced = readForcedProbe();
-    if (forced) return forced;
+    if (forced) return normalizeStatus(forced);
 
-    if (!isTauriRuntime()) return browserStatus;
+    if (!isTauriRuntime()) return normalizeStatus(browserStatus);
 
     try {
-      return await invoke<CredentialStatus>('provider_credential_status');
+      return normalizeStatus(await invoke<CredentialStatus>('provider_credential_status'));
     } catch {
       return {
         phase: 'failed',
         failureMessage: KEYCHAIN_FAIL_MESSAGE,
+        failKind: 'platform',
       };
     }
   },
@@ -139,7 +183,9 @@ export const credentialClient = {
     }
 
     try {
-      return await invoke<CredentialStatus>('save_provider_credential', { source, value: value.trim() });
+      return normalizeStatus(
+        await invoke<CredentialStatus>('save_provider_credential', { source, value: value.trim() }),
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       const friendly =
@@ -148,7 +194,12 @@ export const credentialClient = {
           : message.includes('格式')
             ? FORMAT_FAIL_MESSAGE
             : KEYCHAIN_FAIL_MESSAGE;
-      return { phase: 'failed', source, failureMessage: friendly };
+      return {
+        phase: 'failed',
+        source,
+        failureMessage: friendly,
+        failKind: friendly === KEYCHAIN_FAIL_MESSAGE ? 'platform' : undefined,
+      };
     }
   },
 
@@ -159,9 +210,13 @@ export const credentialClient = {
       return browserStatus;
     }
     try {
-      return await invoke<CredentialStatus>('clear_provider_credential');
+      return normalizeStatus(await invoke<CredentialStatus>('clear_provider_credential'));
     } catch {
-      return { phase: 'failed', failureMessage: KEYCHAIN_FAIL_MESSAGE };
+      return {
+        phase: 'failed',
+        failureMessage: KEYCHAIN_FAIL_MESSAGE,
+        failKind: 'platform',
+      };
     }
   },
 };

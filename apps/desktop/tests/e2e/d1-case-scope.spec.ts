@@ -37,6 +37,26 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await expect(button).toHaveAttribute('title', /钥匙串授权未通过/);
   });
 
+  test('F4 分型文案：auth_failed 呈现在状态条 title', async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as unknown as {
+        __CW_FORCE_CREDENTIAL__: { phase: string; failKind: string; failureMessage: string };
+      }).__CW_FORCE_CREDENTIAL__ = {
+        phase: 'failed',
+        failKind: 'auth_failed',
+        failureMessage: '无法解锁电脑的安全凭证库，请确认钥匙串密码后重试',
+      };
+    });
+    await page.goto('/');
+    const setup = page.getByTestId('provider-setup');
+    if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+    const button = page.getByTestId('credential-status-button');
+    await expect(button).toHaveAttribute('data-phase', 'failed');
+    await expect(button).toContainText('连接失败');
+    await expect(button).toHaveAttribute('title', /钥匙串密码/);
+  });
+
+
   test('成功态显示已连接（合法凭证长度）', async ({ page }) => {
     await page.goto('/');
     const dialog = page.getByTestId('provider-setup');

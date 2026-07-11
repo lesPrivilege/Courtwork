@@ -99,4 +99,33 @@ test.describe('SET-1 设置页', () => {
     await page.getByTestId('settings-open-credentials').click();
     await expect(page.getByTestId('provider-setup')).toBeVisible();
   });
+
+  test('连接失败态展示分型文案与钥匙串恢复指引', async ({ page }) => {
+    await page.addInitScript(() => {
+      (window as unknown as {
+        __CW_FORCE_CREDENTIAL__: {
+          phase: string;
+          failKind: string;
+          failureMessage: string;
+        };
+      }).__CW_FORCE_CREDENTIAL__ = {
+        phase: 'failed',
+        failKind: 'auth_failed',
+        failureMessage: '无法解锁电脑的安全凭证库，请确认钥匙串密码后重试',
+      };
+    });
+    await page.goto('/');
+    const setup = page.getByTestId('provider-setup');
+    if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+
+    await page.getByTestId('open-settings').click();
+    await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-phase', 'failed');
+    await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-fail-kind', 'auth_failed');
+    const recovery = page.getByTestId('settings-credential-recovery');
+    await expect(recovery).toBeVisible();
+    await expect(page.getByTestId('settings-credential-fail-message')).toContainText('钥匙串密码');
+    await expect(recovery).toContainText('钥匙串访问');
+    await expect(recovery).toContainText('cn.courtwork.desktop.provider');
+    await expect(recovery).toContainText('active-source');
+  });
 });

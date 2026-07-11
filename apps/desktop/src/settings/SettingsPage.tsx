@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import {
   connectionLabel,
+  KEYCHAIN_RECOVERY_GUIDE,
   type CredentialStatus,
 } from '../credentials/client';
 import {
@@ -144,6 +145,7 @@ export function SettingsPage({
     const payload = buildDiagnosticPayload(settings, {
       appVersion: APP_VERSION,
       credentialPhase: credentialStatus.phase,
+      credentialFailKind: credentialStatus.failKind ?? null,
       modelConfig: {
         providerId: modelConfig.providerId,
         modelId: modelConfig.modelId,
@@ -217,6 +219,8 @@ export function SettingsPage({
                     className="settings-status-chip"
                     data-testid="settings-credential-phase"
                     data-phase={credentialStatus.phase}
+                    data-fail-kind={credentialStatus.failKind ?? undefined}
+                    title={credentialStatus.failureMessage}
                   >
                     {connectionLabel(credentialStatus)}
                   </span>
@@ -230,6 +234,23 @@ export function SettingsPage({
                   </button>
                 </div>
               </div>
+
+              {credentialStatus.phase === 'failed' && (
+                <div
+                  className="settings-recovery"
+                  data-testid="settings-credential-recovery"
+                  role="note"
+                >
+                  {credentialStatus.failureMessage && (
+                    <p className="settings-recovery-message" data-testid="settings-credential-fail-message">
+                      {credentialStatus.failureMessage}
+                    </p>
+                  )}
+                  {KEYCHAIN_RECOVERY_GUIDE.split('\n').map((paragraph) => (
+                    <p key={paragraph.slice(0, 24)}>{paragraph}</p>
+                  ))}
+                </div>
+              )}
 
               <div className="settings-row" data-testid="settings-provider-row">
                 <div>

@@ -170,12 +170,14 @@ export function setTelemetryEnabled(current: SettingsSnapshot, enabled: boolean)
   return next;
 }
 
-/** 诊断导出：无密钥、无案件实质内容。 */
+/** 诊断导出：无密钥、无案件实质内容。F4 增 credentialFailKind 枚举字段。 */
 export function buildDiagnosticPayload(
   snapshot: SettingsSnapshot,
   extras: {
     appVersion: string;
     credentialPhase: string;
+    /** F4：user_canceled | auth_failed | acl_denied | missing | platform；非钥匙串失败为 null */
+    credentialFailKind?: string | null;
     modelConfig: { providerId: string; modelId: string; reasoning: string };
   },
 ): Record<string, unknown> {
@@ -183,6 +185,7 @@ export function buildDiagnosticPayload(
     exportedAt: new Date().toISOString(),
     appVersion: extras.appVersion,
     credentialPhase: extras.credentialPhase,
+    credentialFailKind: extras.credentialFailKind ?? null,
     modelConfig: extras.modelConfig,
     runtimeGuard: snapshot.runtimeGuard,
     output: {

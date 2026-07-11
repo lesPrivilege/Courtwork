@@ -1,6 +1,21 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**BUILD-1 首个正式 Build（0.1.0 base 定形版）已产**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**BUILD-1 首个正式 Build（0.1.0 base 定形版）已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+
+## FIX-KC-1 · 凭证授权流（据 DBG-2，2026-07-11）
+
+权威：docs/55 FIX-KC-1。落点 `src-tauri/src/lib.rs` + `credentials/client.ts` + 设置页诊断/恢复。
+
+| 项 | 实现 |
+|---|---|
+| DBG-2.1 trace | `COURTWORK_CRED_TRACE=1` → `~/Library/Logs/cn.courtwork.desktop/credential-probe.log`（1MB 轮转）；默认关；无 secret/source 值 |
+| F2 ACL 止血 | save：`delete`（忽略 NoEntry）→ `set` 整组重写 |
+| F4 分型 | `failKind`：`user_canceled` / `auth_failed` / `acl_denied` / `missing` / `platform`；诊断导出 `credentialFailKind` |
+| F5 恢复 | 设置页 failed 态展示钥匙串密码指引 + 手动删除 `cn.courtwork.desktop.provider` 两项 |
+| F6 dev 隔离 | `debug_assertions` → service `…provider.dev`；release 仍 `…provider` |
+| 不做 | F1 Developer ID（BUILD-2）；F3 单条目合并 |
+
+验证：Rust 9 单测；desktop Vitest 70；Playwright **90/90**（下限 90）。
 
 ## Build 记录（SITE-1 下载区引用）
 

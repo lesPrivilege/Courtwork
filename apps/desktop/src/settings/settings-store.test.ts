@@ -56,5 +56,20 @@ describe('settings-store', () => {
     });
     expect(JSON.stringify(payload)).not.toMatch(/sk-|password|secret/i);
     expect(payload.output).toEqual({ defaultOutputDir: '[configured]' });
+    expect(payload.credentialFailKind).toBeNull();
+  });
+
+  it('diagnostic payload carries credentialFailKind enum only', () => {
+    const payload = buildDiagnosticPayload(loadSettings(), {
+      appVersion: '0.1.0',
+      credentialPhase: 'failed',
+      credentialFailKind: 'auth_failed',
+      modelConfig: { providerId: 'deepseek', modelId: 'deepseek-chat', reasoning: 'standard' },
+    });
+    expect(payload.credentialPhase).toBe('failed');
+    expect(payload.credentialFailKind).toBe('auth_failed');
+    const raw = JSON.stringify(payload);
+    expect(raw).not.toMatch(/sk-/);
+    expect(raw).not.toContain('无法解锁'); // 诊断包不夹带用户长文案密钥面
   });
 });

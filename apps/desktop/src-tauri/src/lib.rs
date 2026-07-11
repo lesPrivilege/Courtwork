@@ -1,10 +1,401 @@
+//! 凭证探针 + 钥匙串读写（FIX-KC-1）。
+//! secret/source 值永不入日志、错误消息或序列化字段。
+
 use keyring::{Entry, Error as KeyringError};
 use serde::{Deserialize, Serialize};
+use std::fs::{self, OpenOptions};
+use std::io::Write;
+use std::path::PathBuf;
+use std::sync::Once;
 
+/// 发行包 service；dev（debug_assertions）加 `.dev` 后缀，避免污染发行 ACL（F6）。
+#[cfg(debug_assertions)]
+const CREDENTIAL_SERVICE: &str = "cn.courtwork.desktop.provider.dev";
+#[cfg(not(debug_assertions))]
 const CREDENTIAL_SERVICE: &str = "cn.courtwork.desktop.provider";
+
 const SOURCE_ACCOUNT: &str = "active-source";
 const SECRET_ACCOUNT: &str = "provider-secret";
 const MIN_PASTED_LEN: usize = 8;
+const TRACE_ENV: &str = "COURTWORK_CRED_TRACE";
+const LOG_DIR_NAME: &str = "cn.courtwork.desktop";
+const LOG_FILE_NAME: &str = "credential-probe.log";
+const LOG_ROTATE_BYTES: u64 = 1024 * 1024;
+
+static STARTUP_TRACE: Once = Once::new();
+
+// ─── 内部枚举（DBG-2.1 / F4）───────────────────────────────────────────────
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum KeychainOp {
+    Get,
+    Set,
+    Delete,
+    EntryNew,
+}
+
+impl KeychainOp {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Get => "get",
+            Self::Set => "set",
+            Self::Delete => "delete",
+            Self::EntryNew => "entry_new",
+        }
+    }
+}
+
+/// 钥匙串失败分型（内部 + 诊断导出 wire name）。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum KeychainFailKind {
+    NoEntry,
+    UserCanceled,
+    AuthFailed,
+    NoAccessForItem,
+    InteractionNotAllowed,
+    NoStorageAccess,
+    PlatformOther { os_status: Option<i32> },
+    EntryBuilder,
+    Unknown,
+}
+
+impl KeychainFailKind {
+    /// 诊断/序列化枚举值（无密钥、闭合集合）。
+    fn wire_name(self) -> &'static str {
+        match self {
+            Self::UserCanceled => "user_canceled",
+            Self::AuthFailed => "auth_failed",
+            Self::NoAccessForItem | Self::InteractionNotAllowed | Self::NoStorageAccess => {
+                "acl_denied"
+            }
+            Self::NoEntry => "missing",
+            Self::PlatformOther { .. } | Self::EntryBuilder | Self::Unknown => "platform",
+        }
+    }
+
+    /// 对外零技术概念文案（F4）。
+    fn user_message(self) -> &'static str {
+        match self {
+            Self::UserCanceled => "需要允许访问安全凭证库才能连接",
+            Self::AuthFailed => "无法解锁电脑的安全凭证库，请确认钥匙串密码后重试",
+            Self::NoAccessForItem | Self::InteractionNotAllowed | Self::NoStorageAccess => {
+                "凭证库访问未授权，请重新完成连接；若刚更新过应用，请删除旧凭证后重试"
+            }
+            Self::NoEntry
+            | Self::PlatformOther { .. }
+            | Self::EntryBuilder
+            | Self::Unknown => "钥匙串授权未通过，请重试或重新填写",
+        }
+    }
+
+    fn os_status(self) -> Option<i32> {
+        match self {
+            Self::UserCanceled => Some(-128),
+            Self::AuthFailed => Some(-25293),
+            Self::NoAccessForItem => Some(-25315),
+            Self::InteractionNotAllowed => Some(-25308),
+            Self::PlatformOther { os_status } => os_status,
+            _ => None,
+        }
+    }
+}
+
+/// 从 OSStatus 映射分型（单测入口）。
+fn classify_os_status(code: i32) -> KeychainFailKind {
+    match code {
+        -128 => KeychainFailKind::UserCanceled,
+        -25293 => KeychainFailKind::AuthFailed,
+        -25315 => KeychainFailKind::NoAccessForItem,
+        -25308 => KeychainFailKind::InteractionNotAllowed,
+        -61 | -25291 | -25292 | -25294 | -25295 => KeychainFailKind::NoStorageAccess,
+        other => KeychainFailKind::PlatformOther {
+            os_status: Some(other),
+        },
+    }
+}
+
+/// 从 Display/Debug 文本解析 OSStatus（security-framework 常见 `error code -N`）。
+fn parse_os_status_from_text(text: &str) -> Option<i32> {
+    // "error code -25293"
+    if let Some(idx) = text.find("error code ") {
+        let rest = &text[idx + "error code ".len()..];
+        let num: String = rest
+            .chars()
+            .take_while(|c| *c == '-' || c.is_ascii_digit())
+            .collect();
+        if let Ok(code) = num.parse::<i32>() {
+            return Some(code);
+        }
+    }
+    // Debug: "code: NonZeroI32(-25293)" or "code: -25293"
+    for marker in ["NonZeroI32(", "code: "] {
+        if let Some(idx) = text.find(marker) {
+            let rest = &text[idx + marker.len()..];
+            let num: String = rest
+                .chars()
+                .skip_while(|c| *c == ' ')
+                .take_while(|c| *c == '-' || c.is_ascii_digit())
+                .collect();
+            if let Ok(code) = num.parse::<i32>() {
+                if code < 0 || marker == "NonZeroI32(" {
+                    return Some(code);
+                }
+            }
+        }
+    }
+    // 已知 OSStatus 作为独立 token
+    for code in [-128, -25293, -25315, -25308, -61, -25291, -25292, -25294, -25295] {
+        let needle = code.to_string();
+        if text.split(|c: char| !c.is_ascii_digit() && c != '-').any(|t| t == needle) {
+            return Some(code);
+        }
+    }
+    None
+}
+
+fn extract_os_status_from_error(err: &(dyn std::error::Error + 'static)) -> Option<i32> {
+    let mut current: Option<&(dyn std::error::Error + 'static)> = Some(err);
+    while let Some(e) = current {
+        let debug = format!("{e:?}");
+        if let Some(code) = parse_os_status_from_text(&debug) {
+            return Some(code);
+        }
+        let display = e.to_string();
+        if let Some(code) = parse_os_status_from_text(&display) {
+            return Some(code);
+        }
+        current = e.source();
+    }
+    None
+}
+
+fn classify_keyring_error(err: &KeyringError) -> KeychainFailKind {
+    match err {
+        KeyringError::NoEntry => KeychainFailKind::NoEntry,
+        KeyringError::NoStorageAccess(inner) => {
+            if let Some(code) = extract_os_status_from_error(inner.as_ref()) {
+                let classified = classify_os_status(code);
+                // 保留 NoStorageAccess 桶当码不在更细表时
+                match classified {
+                    KeychainFailKind::PlatformOther { .. } => KeychainFailKind::NoStorageAccess,
+                    other => other,
+                }
+            } else {
+                KeychainFailKind::NoStorageAccess
+            }
+        }
+        KeyringError::PlatformFailure(inner) => {
+            if let Some(code) = extract_os_status_from_error(inner.as_ref()) {
+                classify_os_status(code)
+            } else {
+                KeychainFailKind::PlatformOther { os_status: None }
+            }
+        }
+        _ => {
+            let text = err.to_string();
+            if let Some(code) = parse_os_status_from_text(&text) {
+                classify_os_status(code)
+            } else {
+                KeychainFailKind::Unknown
+            }
+        }
+    }
+}
+
+// ─── Trace（DBG-2.1）────────────────────────────────────────────────────────
+
+fn trace_enabled() -> bool {
+    matches!(
+        std::env::var(TRACE_ENV).as_deref(),
+        Ok("1") | Ok("true") | Ok("TRUE") | Ok("yes") | Ok("YES")
+    )
+}
+
+fn log_dir() -> Option<PathBuf> {
+    let home = std::env::var_os("HOME")?;
+    Some(PathBuf::from(home).join("Library/Logs").join(LOG_DIR_NAME))
+}
+
+fn log_path() -> Option<PathBuf> {
+    Some(log_dir()?.join(LOG_FILE_NAME))
+}
+
+/// 构造一行 JSON（永不含 secret/source 值/env 值）；供单测断言红线。
+fn build_trace_line(fields: &[(&str, TraceValue)]) -> String {
+    let mut parts = Vec::with_capacity(fields.len() + 1);
+    parts.push(format!(
+        "\"ts\":{}",
+        serde_json::to_string(&chrono_like_now()).unwrap_or_else(|_| "\"\"".into())
+    ));
+    for (k, v) in fields {
+        // 防御：键名禁止敏感词
+        let key = *k;
+        if key_looks_sensitive(key) {
+            continue;
+        }
+        let rendered = match v {
+            TraceValue::Str(s) => serde_json::to_string(s).unwrap_or_else(|_| "\"\"".into()),
+            TraceValue::Bool(b) => b.to_string(),
+            TraceValue::Int(i) => i.to_string(),
+        };
+        parts.push(format!("\"{key}\":{rendered}"));
+    }
+    format!("{{{}}}", parts.join(","))
+}
+
+fn key_looks_sensitive(key: &str) -> bool {
+    let lower = key.to_ascii_lowercase();
+    lower.contains("secret")
+        || lower.contains("password")
+        || lower == "value"
+        || lower == "key"
+        || lower.contains("apikey")
+        || lower.contains("api_key")
+        || lower.contains("token")
+}
+
+enum TraceValue {
+    Str(String),
+    Bool(bool),
+    Int(i64),
+}
+
+fn chrono_like_now() -> String {
+    // 无 chrono 依赖：RFC3339-ish via system time
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let secs = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    format!("{secs}")
+}
+
+fn rotate_log_if_needed(path: &std::path::Path) {
+    if let Ok(meta) = fs::metadata(path) {
+        if meta.len() >= LOG_ROTATE_BYTES {
+            let bak = path.with_extension("log.1");
+            let _ = fs::remove_file(&bak);
+            let _ = fs::rename(path, &bak);
+        }
+    }
+}
+
+fn write_trace_line(line: &str) {
+    if !trace_enabled() {
+        return;
+    }
+    let Some(path) = log_path() else {
+        return;
+    };
+    if let Some(parent) = path.parent() {
+        let _ = fs::create_dir_all(parent);
+    }
+    rotate_log_if_needed(&path);
+    if let Ok(mut file) = OpenOptions::new().create(true).append(true).open(&path) {
+        let _ = writeln!(file, "{line}");
+    }
+    // 同步一份到 stderr，便于 `COURTWORK_CRED_TRACE=1` 终端采集
+    eprintln!("[courtwork-cred] {line}");
+}
+
+fn trace_event(fields: &[(&str, TraceValue)]) {
+    write_trace_line(&build_trace_line(fields));
+}
+
+fn trace_op(
+    op: KeychainOp,
+    account: &str,
+    ok: bool,
+    fail_kind: Option<KeychainFailKind>,
+) {
+    let mut fields = vec![
+        ("event", TraceValue::Str("keychain_op".into())),
+        ("op", TraceValue::Str(op.as_str().into())),
+        ("account", TraceValue::Str(account.into())),
+        ("service", TraceValue::Str(CREDENTIAL_SERVICE.into())),
+        ("ok", TraceValue::Bool(ok)),
+    ];
+    if let Some(kind) = fail_kind {
+        fields.push(("fail_kind", TraceValue::Str(kind.wire_name().into())));
+        if let Some(code) = kind.os_status() {
+            fields.push(("os_status", TraceValue::Int(code as i64)));
+        }
+    }
+    trace_event(&fields);
+}
+
+fn codesign_snapshot(exe: &std::path::Path) -> (Option<String>, Option<String>, Option<String>) {
+    #[cfg(target_os = "macos")]
+    {
+        let output = std::process::Command::new("codesign")
+            .args(["-dv", "--verbose=4"])
+            .arg(exe)
+            .output()
+            .ok();
+        let text = output
+            .map(|o| String::from_utf8_lossy(&o.stderr).into_owned())
+            .unwrap_or_default();
+        let mut cdhash = None;
+        let mut signature = None;
+        let mut team = None;
+        for line in text.lines() {
+            if let Some(rest) = line.strip_prefix("CDHash=") {
+                cdhash = Some(rest.trim().to_string());
+            } else if let Some(rest) = line.strip_prefix("Signature=") {
+                signature = Some(rest.trim().to_string());
+            } else if let Some(rest) = line.strip_prefix("TeamIdentifier=") {
+                team = Some(rest.trim().to_string());
+            }
+        }
+        return (cdhash, signature, team);
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = exe;
+        (None, None, None)
+    }
+}
+
+fn trace_startup_once() {
+    STARTUP_TRACE.call_once(|| {
+        if !trace_enabled() {
+            return;
+        }
+        let exe = std::env::current_exe()
+            .ok()
+            .map(|p| p.display().to_string())
+            .unwrap_or_else(|| "unknown".into());
+        let exe_path = std::env::current_exe().ok();
+        let (cdhash, signature, team) = exe_path
+            .as_ref()
+            .map(|p| codesign_snapshot(p))
+            .unwrap_or((None, None, None));
+        let profile = if cfg!(debug_assertions) {
+            "debug"
+        } else {
+            "release"
+        };
+        let mut fields = vec![
+            ("event", TraceValue::Str("startup".into())),
+            ("service", TraceValue::Str(CREDENTIAL_SERVICE.into())),
+            ("build_profile", TraceValue::Str(profile.into())),
+            ("exe_path", TraceValue::Str(exe)),
+            ("bundle_id", TraceValue::Str("cn.courtwork.desktop".into())),
+        ];
+        if let Some(h) = cdhash {
+            fields.push(("app_cdhash", TraceValue::Str(h)));
+        }
+        if let Some(s) = signature {
+            fields.push(("signature", TraceValue::Str(s)));
+        }
+        if let Some(t) = team {
+            fields.push(("team_id", TraceValue::Str(t)));
+        }
+        trace_event(&fields);
+    });
+}
+
+// ─── 凭证状态 ───────────────────────────────────────────────────────────────
 
 #[derive(Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -14,7 +405,7 @@ enum CredentialSource {
 }
 
 /// 探针驱动三态：pending / connected / failed（D-1）。
-/// 序列化字段仅 phase/source/failureMessage，永不含 secret。
+/// 序列化字段仅 phase/source/failureMessage/failKind，永不含 secret。
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct CredentialStatus {
@@ -23,18 +414,81 @@ struct CredentialStatus {
     source: Option<CredentialSource>,
     #[serde(skip_serializing_if = "Option::is_none")]
     failure_message: Option<&'static str>,
+    /// F4：user_canceled | auth_failed | acl_denied | missing | platform
+    #[serde(skip_serializing_if = "Option::is_none")]
+    fail_kind: Option<&'static str>,
 }
 
-fn entry(account: &str) -> Result<Entry, String> {
-    Entry::new(CREDENTIAL_SERVICE, account)
-        .map_err(|_| "无法访问系统安全凭证库".to_string())
+fn entry(account: &str) -> Result<Entry, KeychainFailKind> {
+    match Entry::new(CREDENTIAL_SERVICE, account) {
+        Ok(e) => {
+            trace_op(KeychainOp::EntryNew, account, true, None);
+            Ok(e)
+        }
+        Err(_) => {
+            let kind = KeychainFailKind::EntryBuilder;
+            trace_op(KeychainOp::EntryNew, account, false, Some(kind));
+            Err(kind)
+        }
+    }
 }
 
-fn read_source() -> Result<Option<String>, String> {
-    match entry(SOURCE_ACCOUNT)?.get_password() {
+fn get_password(account: &str) -> Result<String, KeychainFailKind> {
+    let e = entry(account)?;
+    match e.get_password() {
+        Ok(v) => {
+            trace_op(KeychainOp::Get, account, true, None);
+            Ok(v)
+        }
+        Err(err) => {
+            let kind = classify_keyring_error(&err);
+            trace_op(KeychainOp::Get, account, false, Some(kind));
+            Err(kind)
+        }
+    }
+}
+
+fn delete_credential_ignore_missing(account: &str) -> Result<(), KeychainFailKind> {
+    let e = entry(account)?;
+    match e.delete_credential() {
+        Ok(()) => {
+            trace_op(KeychainOp::Delete, account, true, None);
+            Ok(())
+        }
+        Err(KeyringError::NoEntry) => {
+            trace_op(KeychainOp::Delete, account, true, Some(KeychainFailKind::NoEntry));
+            Ok(())
+        }
+        Err(err) => {
+            let kind = classify_keyring_error(&err);
+            trace_op(KeychainOp::Delete, account, false, Some(kind));
+            Err(kind)
+        }
+    }
+}
+
+/// F2：delete（忽略 NoEntry）→ set，强制当前身份新建 ACL。
+fn rewrite_password(account: &str, value: &str) -> Result<(), KeychainFailKind> {
+    delete_credential_ignore_missing(account)?;
+    let e = entry(account)?;
+    match e.set_password(value) {
+        Ok(()) => {
+            trace_op(KeychainOp::Set, account, true, None);
+            Ok(())
+        }
+        Err(err) => {
+            let kind = classify_keyring_error(&err);
+            trace_op(KeychainOp::Set, account, false, Some(kind));
+            Err(kind)
+        }
+    }
+}
+
+fn read_source() -> Result<Option<String>, KeychainFailKind> {
+    match get_password(SOURCE_ACCOUNT) {
         Ok(value) => Ok(Some(value)),
-        Err(KeyringError::NoEntry) => Ok(None),
-        Err(_) => Err("钥匙串授权未通过，请重试或重新填写".to_string()),
+        Err(KeychainFailKind::NoEntry) => Ok(None),
+        Err(kind) => Err(kind),
     }
 }
 
@@ -43,6 +497,7 @@ fn pending() -> CredentialStatus {
         phase: "pending",
         source: None,
         failure_message: None,
+        fail_kind: None,
     }
 }
 
@@ -51,70 +506,111 @@ fn connected(source: CredentialSource) -> CredentialStatus {
         phase: "connected",
         source: Some(source),
         failure_message: None,
+        fail_kind: None,
     }
 }
 
-fn failed(source: Option<CredentialSource>, message: &'static str) -> CredentialStatus {
+fn failed(
+    source: Option<CredentialSource>,
+    message: &'static str,
+    fail_kind: Option<&'static str>,
+) -> CredentialStatus {
     CredentialStatus {
         phase: "failed",
         source,
         failure_message: Some(message),
+        fail_kind,
     }
+}
+
+fn failed_keychain(source: Option<CredentialSource>, kind: KeychainFailKind) -> CredentialStatus {
+    failed(source, kind.user_message(), Some(kind.wire_name()))
 }
 
 /// 读取 + 格式校验。任何钥匙串拒绝 / 缺失密钥 → failed，绝不乐观 connected。
 fn credential_status() -> Result<CredentialStatus, String> {
+    trace_startup_once();
     let source = match read_source() {
         Ok(value) => value,
-        Err(_) => {
-            return Ok(failed(None, "钥匙串授权未通过，请重试或重新填写"));
+        Err(kind) => {
+            let status = failed_keychain(None, kind);
+            trace_status_exit("credential_status", &status, Some("read_source"));
+            return Ok(status);
         }
     };
 
-    match source.as_deref() {
-        None => Ok(pending()),
-        Some("pasted") => match entry(SECRET_ACCOUNT)?.get_password() {
+    let status = match source.as_deref() {
+        None => pending(),
+        Some("pasted") => match get_password(SECRET_ACCOUNT) {
             Ok(secret) => {
                 let trimmed = secret.trim();
                 if trimmed.is_empty() || trimmed.len() < MIN_PASTED_LEN {
-                    Ok(failed(
+                    failed(
                         Some(CredentialSource::Pasted),
                         "凭证格式不正确，请检查后重新填写",
-                    ))
+                        None,
+                    )
                 } else {
-                    Ok(connected(CredentialSource::Pasted))
+                    connected(CredentialSource::Pasted)
                 }
             }
-            Err(KeyringError::NoEntry) => Ok(pending()),
-            Err(_) => Ok(failed(
-                Some(CredentialSource::Pasted),
-                "钥匙串授权未通过，请重试或重新填写",
-            )),
+            Err(KeychainFailKind::NoEntry) => pending(),
+            Err(kind) => failed_keychain(Some(CredentialSource::Pasted), kind),
         },
         Some(value) if value.starts_with("environment:") => {
             let name = &value["environment:".len()..];
             if name.is_empty() {
-                return Ok(failed(
+                failed(
                     Some(CredentialSource::Environment),
                     "凭证格式不正确，请检查后重新填写",
-                ));
-            }
-            match std::env::var(name) {
-                Ok(resolved) if !resolved.trim().is_empty() => {
-                    Ok(connected(CredentialSource::Environment))
+                    None,
+                )
+            } else {
+                match std::env::var(name) {
+                    Ok(resolved) if !resolved.trim().is_empty() => {
+                        connected(CredentialSource::Environment)
+                    }
+                    Ok(_) => failed(
+                        Some(CredentialSource::Environment),
+                        "电脑中的凭证为空，请检查后重试",
+                        None,
+                    ),
+                    Err(_) => failed(
+                        Some(CredentialSource::Environment),
+                        "电脑中未找到该凭证名称，请检查后重试",
+                        None,
+                    ),
                 }
-                Ok(_) => Ok(failed(
-                    Some(CredentialSource::Environment),
-                    "电脑中的凭证为空，请检查后重试",
-                )),
-                Err(_) => Ok(failed(
-                    Some(CredentialSource::Environment),
-                    "电脑中未找到该凭证名称，请检查后重试",
-                )),
             }
         }
-        _ => Ok(pending()),
+        _ => pending(),
+    };
+    trace_status_exit("credential_status", &status, None);
+    Ok(status)
+}
+
+fn trace_status_exit(event: &str, status: &CredentialStatus, step: Option<&str>) {
+    if !trace_enabled() {
+        return;
     }
+    let source_kind = match status.source {
+        Some(CredentialSource::Pasted) => "pasted",
+        Some(CredentialSource::Environment) => "environment",
+        None => "none",
+    };
+    let mut fields = vec![
+        ("event", TraceValue::Str(event.into())),
+        ("phase", TraceValue::Str(status.phase.into())),
+        ("source_kind", TraceValue::Str(source_kind.into())),
+    ];
+    if let Some(k) = status.fail_kind {
+        fields.push(("fail_kind", TraceValue::Str(k.into())));
+    }
+    if let Some(s) = step {
+        fields.push(("which_step", TraceValue::Str(s.into())));
+    }
+    // 注意：不记录 failure_message 全文也可；记录 wire 足够。此处不记 message 以免与技术栈耦合。
+    trace_event(&fields);
 }
 
 #[tauri::command]
@@ -123,91 +619,104 @@ fn provider_credential_status() -> Result<CredentialStatus, String> {
 }
 
 #[tauri::command]
-fn save_provider_credential(source: CredentialSource, value: String) -> Result<CredentialStatus, String> {
+fn save_provider_credential(
+    source: CredentialSource,
+    value: String,
+) -> Result<CredentialStatus, String> {
+    trace_startup_once();
     let value = value.trim();
     if value.is_empty() {
-        return Ok(failed(Some(source), "凭证不能为空"));
+        let status = failed(Some(source), "凭证不能为空", None);
+        trace_status_exit("save_provider_credential", &status, Some("validate"));
+        return Ok(status);
     }
 
-    match source {
+    let write_result: Result<(), KeychainFailKind> = match source {
         CredentialSource::Pasted => {
             if value.len() < MIN_PASTED_LEN {
-                return Ok(failed(
+                let status = failed(
                     Some(CredentialSource::Pasted),
                     "凭证格式不正确，请检查后重新填写",
-                ));
+                    None,
+                );
+                trace_status_exit("save_provider_credential", &status, Some("validate"));
+                return Ok(status);
             }
-            if let Err(_) = entry(SECRET_ACCOUNT)?.set_password(value) {
-                return Ok(failed(
-                    Some(CredentialSource::Pasted),
-                    "钥匙串授权未通过，请重试或重新填写",
-                ));
-            }
-            if let Err(_) = entry(SOURCE_ACCOUNT)?.set_password("pasted") {
-                return Ok(failed(
-                    Some(CredentialSource::Pasted),
-                    "钥匙串授权未通过，请重试或重新填写",
-                ));
-            }
+            // F2：整组重写 secret → source
+            rewrite_password(SECRET_ACCOUNT, value).and_then(|_| {
+                rewrite_password(SOURCE_ACCOUNT, "pasted")
+            })
         }
         CredentialSource::Environment => {
             if !value.bytes().enumerate().all(|(index, byte)| {
                 byte == b'_' || byte.is_ascii_uppercase() || (index > 0 && byte.is_ascii_digit())
             }) {
-                return Ok(failed(
+                let status = failed(
                     Some(CredentialSource::Environment),
                     "凭证格式不正确，请检查后重新填写",
-                ));
+                    None,
+                );
+                trace_status_exit("save_provider_credential", &status, Some("validate"));
+                return Ok(status);
             }
             match std::env::var(value) {
                 Err(_) => {
-                    return Ok(failed(
+                    let status = failed(
                         Some(CredentialSource::Environment),
                         "电脑中未找到该凭证名称，请检查后重试",
-                    ));
+                        None,
+                    );
+                    trace_status_exit("save_provider_credential", &status, Some("env_resolve"));
+                    return Ok(status);
                 }
                 Ok(resolved) if resolved.trim().is_empty() => {
-                    return Ok(failed(
+                    let status = failed(
                         Some(CredentialSource::Environment),
                         "电脑中的凭证为空，请检查后重试",
-                    ));
+                        None,
+                    );
+                    trace_status_exit("save_provider_credential", &status, Some("env_resolve"));
+                    return Ok(status);
                 }
                 Ok(_) => {}
             }
-            if let Err(_) = entry(SOURCE_ACCOUNT)?.set_password(&format!("environment:{value}")) {
-                return Ok(failed(
-                    Some(CredentialSource::Environment),
-                    "钥匙串授权未通过，请重试或重新填写",
-                ));
-            }
-            if let Err(error) = entry(SECRET_ACCOUNT)?.delete_credential() {
-                if !matches!(error, KeyringError::NoEntry) {
-                    return Ok(failed(
-                        Some(CredentialSource::Environment),
-                        "钥匙串授权未通过，请重试或重新填写",
-                    ));
-                }
-            }
+            // 不把 env 名写入日志；只写 marker 到钥匙串
+            let marker = format!("environment:{value}");
+            rewrite_password(SOURCE_ACCOUNT, &marker).and_then(|_| {
+                delete_credential_ignore_missing(SECRET_ACCOUNT)
+            })
         }
+    };
+
+    if let Err(kind) = write_result {
+        let status = failed_keychain(Some(source), kind);
+        trace_status_exit("save_provider_credential", &status, Some("rewrite"));
+        return Ok(status);
     }
 
-    credential_status()
+    let status = credential_status()?;
+    trace_status_exit("save_provider_credential", &status, Some("reprobe"));
+    Ok(status)
 }
 
 #[tauri::command]
 fn clear_provider_credential() -> Result<CredentialStatus, String> {
+    trace_startup_once();
     for account in [SOURCE_ACCOUNT, SECRET_ACCOUNT] {
-        if let Err(error) = entry(account)?.delete_credential() {
-            if !matches!(error, KeyringError::NoEntry) {
-                return Ok(failed(None, "钥匙串授权未通过，请重试或重新填写"));
-            }
+        if let Err(kind) = delete_credential_ignore_missing(account) {
+            let status = failed_keychain(None, kind);
+            trace_status_exit("clear_provider_credential", &status, Some("delete"));
+            return Ok(status);
         }
     }
-    Ok(pending())
+    let status = pending();
+    trace_status_exit("clear_provider_credential", &status, None);
+    Ok(status)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    trace_startup_once();
     tauri::Builder::default()
         // F-3：仅注册 opener 的 open/reveal 动词；任意 shell 执行不在能力面。
         .plugin(tauri_plugin_opener::init())
@@ -234,12 +743,122 @@ mod tests {
     }
 
     #[test]
-    fn failed_payload_carries_user_facing_message_only() {
-        let status = failed(None, "钥匙串授权未通过，请重试或重新填写");
+    fn failed_payload_carries_user_facing_message_and_fail_kind() {
+        let status = failed_keychain(None, KeychainFailKind::AuthFailed);
         let serialized = serde_json::to_string(&status).expect("status should serialize");
         assert!(serialized.contains("failed"));
-        assert!(serialized.contains("钥匙串授权未通过"));
+        assert!(serialized.contains("auth_failed"));
+        assert!(serialized.contains("无法解锁"));
         assert!(!serialized.contains("Keyring"));
         assert!(!serialized.contains("password"));
+        assert!(!serialized.contains("secret"));
+    }
+
+    #[test]
+    fn classify_os_status_maps_known_codes() {
+        assert_eq!(classify_os_status(-128), KeychainFailKind::UserCanceled);
+        assert_eq!(classify_os_status(-25293), KeychainFailKind::AuthFailed);
+        assert_eq!(classify_os_status(-25315), KeychainFailKind::NoAccessForItem);
+        assert_eq!(
+            classify_os_status(-25308),
+            KeychainFailKind::InteractionNotAllowed
+        );
+        assert_eq!(classify_os_status(-61), KeychainFailKind::NoStorageAccess);
+        assert_eq!(
+            classify_os_status(-99999),
+            KeychainFailKind::PlatformOther {
+                os_status: Some(-99999)
+            }
+        );
+    }
+
+    #[test]
+    fn parse_os_status_from_display_and_debug_text() {
+        assert_eq!(
+            parse_os_status_from_text("error code -25293"),
+            Some(-25293)
+        );
+        assert_eq!(
+            parse_os_status_from_text("Platform failure: error code -128"),
+            Some(-128)
+        );
+        assert_eq!(
+            parse_os_status_from_text("Error { code: NonZeroI32(-25315), message: Some(\"x\") }"),
+            Some(-25315)
+        );
+        assert_eq!(
+            parse_os_status_from_text("Couldn't access platform storage: error code -25308"),
+            Some(-25308)
+        );
+    }
+
+    #[test]
+    fn wire_names_and_messages_are_zero_tech() {
+        assert_eq!(KeychainFailKind::UserCanceled.wire_name(), "user_canceled");
+        assert_eq!(KeychainFailKind::AuthFailed.wire_name(), "auth_failed");
+        assert_eq!(KeychainFailKind::NoAccessForItem.wire_name(), "acl_denied");
+        assert_eq!(KeychainFailKind::NoStorageAccess.wire_name(), "acl_denied");
+        assert_eq!(
+            KeychainFailKind::PlatformOther { os_status: None }.wire_name(),
+            "platform"
+        );
+        for kind in [
+            KeychainFailKind::UserCanceled,
+            KeychainFailKind::AuthFailed,
+            KeychainFailKind::NoAccessForItem,
+        ] {
+            let msg = kind.user_message();
+            assert!(!msg.to_ascii_lowercase().contains("keyring"));
+            assert!(!msg.contains("OSStatus"));
+            assert!(!msg.contains("ACL"));
+        }
+    }
+
+    #[test]
+    fn trace_line_never_embeds_secret_fields_or_values() {
+        let line = build_trace_line(&[
+            ("event", TraceValue::Str("keychain_op".into())),
+            ("op", TraceValue::Str("set".into())),
+            ("account", TraceValue::Str(SECRET_ACCOUNT.into())),
+            ("service", TraceValue::Str(CREDENTIAL_SERVICE.into())),
+            ("ok", TraceValue::Bool(true)),
+            // 即使误传敏感键名也应被丢弃
+            ("secret", TraceValue::Str("sk-leaked".into())),
+            ("password", TraceValue::Str("hunter2".into())),
+            ("apiKey", TraceValue::Str("should-not-appear".into())),
+        ]);
+        assert!(line.contains("\"account\":\"provider-secret\""));
+        assert!(line.contains("\"ok\":true"));
+        let lower = line.to_ascii_lowercase();
+        assert!(!lower.contains("sk-"));
+        assert!(!lower.contains("hunter2"));
+        assert!(!lower.contains("should-not-appear"));
+        // 键名 secret/password 不得出现在 JSON 键位
+        assert!(!line.contains("\"secret\""));
+        assert!(!line.contains("\"password\""));
+        assert!(!line.contains("\"apiKey\""));
+    }
+
+    #[test]
+    fn trace_disabled_by_default() {
+        // 测试进程默认不应开启；若外部环境误开则仍只验证 env 读取语义
+        std::env::remove_var(TRACE_ENV);
+        assert!(!trace_enabled());
+    }
+
+    #[test]
+    fn dev_service_suffix_matches_build_profile() {
+        #[cfg(debug_assertions)]
+        assert!(CREDENTIAL_SERVICE.ends_with(".dev"));
+        #[cfg(not(debug_assertions))]
+        assert_eq!(CREDENTIAL_SERVICE, "cn.courtwork.desktop.provider");
+    }
+
+    #[test]
+    fn classify_keyring_no_entry() {
+        assert_eq!(
+            classify_keyring_error(&KeyringError::NoEntry),
+            KeychainFailKind::NoEntry
+        );
     }
 }
