@@ -516,3 +516,9 @@ FD-2 四件齐（14 白卡穷举/四垂类完整帧+总画廊/结构提案含四
 ```
 认领 BUILD-0.1.1：干净 worktree detached @ 93e7a00（勿用任何脏树）。工序照 BUILD-1（docs/11）：版本号 0.1.1 三处对齐（package.json/tauri.conf/关于页）→ pnpm -r build → 产 dmg → codesign 校验 + hdiutil verify + 前端内容哈希 → SHA-256 与构建环境（Node/pnpm/rustc）写入 apps/desktop/SPEC.md「Build 记录」节 → 提交（显式路径，版本号+SPEC 两类文件）。ad-hoc 签名如实记录（Developer ID 仍挂账）。不改产品行为。回报：dmg 路径、SHA-256、提交 sha、祖先核验输出。
 ```
+
+## DBG-3 首轮分诊追加（2026-07-12，用户真机三发现——随章程一并粘 Fable）
+
+1. **keychain 反复弹窗多次才过**：优先假设 = 双条目双弹（DBG-2 既标记的放大器，F3 单条目合并升格候选——若 trace 证实两条目各弹，架构预批 F3 实施）＋ ad-hoc 跨 build 漂移（治本等 Developer ID）。读 credential-probe.log 分辨。
+2. **API 真请求未成功**：模型名 `deepseek-v4-flash` 高度可疑（DeepSeek 真实模型为 deepseek-chat/deepseek-reasoner）——查 quirk 预设表与 /v1/models 实返；若预设错值或发现降级占位泄漏为真值，修表（quirk 层数据改动，不动协议）；用 F4 分型定位失败环节。
+3. **UI 实现漂移**（不快修，证据移交 MVP-FULL）：三 tap 现为顶栏横条（违 ch12 右列底纸 dock）、右卡未贯通顶、composer 多余图标钮未收五钮、消息按钮超大未缩档、空态虚线占位框（违缺口三态设计）——结构合流但宪法未落地。MVP-FULL 验收标准补一条（用户定调）：**逐屏与 frontier 并排对照**。
