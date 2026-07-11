@@ -85,3 +85,21 @@ FIX-KC-1 验收放行（七主张逐条证伪全立，含 trace 注入实测与 
 2. **import 边界守卫机器化**：UtilityRail ↔ 垂类渲染器互不 import，grep/lint 测试入门禁，越界当场红。
 3. 迁移红线：module-stack 既有 e2e 只因结构迁移改不放宽；floor 只升（基线 90）。
 4. 自动验收清单照案全收（边界不溢出/8px shell gap/声明换行/双宿主态断言/设置 modal 无溢出/三档 scrollWidth）。
+
+## RP-2.5 验收（Claude Code，实现者 sol，850d956）
+
+```
+你认领 Courtwork 的 RP-2.5 验收（AGENTS.md 全判例 + worktree 隔离 + 端口隔离判例——本单实现者已自用独立端口，验收仍须自查 lsof）。范围：850d956（双宿主解耦 + a/b/c 三阶段 + 视觉审计两处回归修正）。先读 docs/55 RP-2.5 批复（四附加条件）+ docs/49 三章修正（双宿主修宪）。
+
+全局门：干净 worktree@850d956 → pnpm -r build → Vitest（自述 70）→ Playwright（自述 107/107，核 --list 与 floor 同步至 107、禁降史 90→107）→ 四门禁 → git 卫生（未触凭证 Rust/TS 与 packages/*、未扫他会话脏文件）。
+
+结构重点：
+1. **import 边界守卫是真门禁**：读守卫实现（grep/lint 测试）——UtilityRail 不 import 垂类 renderer、PreviewHost 无法律语义；故意构造一个越界 import 验证守卫会红（然后撤销），防"守卫存在但断言为空"。
+2. 双宿主行为：通用态三独立浮卡无 schema tabs；Preview 打开 = 主承重 + 三卡收敛 dock（progress 权威位在 dock 保留——完工自述修过此回归，重点复核）；关闭恢复；artifact 自动打开 + 手动关闭优先。
+3. SurfaceCard 阴影 token：解析值必须仍为 none（de-slop #6 不许被"token 化"偷渡投影）；全库 box-shadow 复查。
+4. 收口断言实测：四档宽度 scrollWidth；composer/send/provider 右边界不越 chat；8px shell gap；≥1600 声明单行/窄档整体换行；用户消息右对齐浅底 78% vs agent 直排无气泡；设置 L2 modal 1180 无溢出 + Esc/关闭。
+5. 回归红线：module-stack 旧 e2e 迁移语义不放宽（diff 逐文件）；D-1/SET-1/FIX-KC-1 关键用例抽跑。
+6. 完工自述的两处视觉回归修正（composer popover 裁切/dock 进度权威位）各补一条断言核实已锁。
+
+报告纯追加 apps/desktop/ACCEPTANCE.md「RP-2.5 验收」节（先按判例链代提交任何前序未提交追加）。结论：放行与否；0.1.1 是否可出（BUILD-1 工序复用，版本号 0.1.1）。
+```
