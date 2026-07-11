@@ -13,7 +13,7 @@ interface OriginalsZoneProps {
 export function OriginalsZone({ caseRoot, onFeedback }: OriginalsZoneProps) {
   return (
     <div className="originals-zone" data-testid="originals-zone" data-readonly="true">
-      <p className="rail-label">卷宗原件</p>
+      <p className="rail-label">卷宗原件 · 只读</p>
       <ul className="originals-list" aria-label="卷宗原件（只读）">
         {DEMO_ORIGINALS.map((item) => (
           <li key={item.path} data-testid="original-item" data-readonly="true">

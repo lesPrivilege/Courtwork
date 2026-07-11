@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { createNamedCase, openWorkbench } from './helpers';
 
 test.describe('RP-1 最终重排', () => {
-  test('混排列表：类型图标 + 案件 chevron 展开阶段/三区', async ({ page }) => {
+  test('混排列表：类型图标 + 案件摘要选中 + 展开分区', async ({ page }) => {
     await openWorkbench(page);
     await expect(page.getByTestId('rail-mixed-list')).toBeVisible();
     await expect(page.getByTestId('rail-pinned')).toBeVisible();
@@ -15,6 +15,11 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('flow-s1')).toBeVisible();
     await expect(page.getByTestId('flow-s3')).toBeVisible();
     await expect(page.getByTestId('originals-zone')).toBeVisible();
+    const demo = page.getByTestId('case-card-demo-linjiang');
+    await expect(page.getByText('卷宗原件 · 只读', { exact: true })).toBeVisible();
+    await expect(page.getByText('工作区', { exact: true })).toBeVisible();
+    await expect(demo.locator('.rail-row-main')).toHaveCSS('background-color', 'rgb(233, 238, 244)');
+    await expect(demo.locator('.rail-case-expand')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
     await expect(page.getByTestId('open-work-drafts')).toBeVisible();
 
     await expand.click();

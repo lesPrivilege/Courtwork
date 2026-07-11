@@ -300,9 +300,9 @@ export function CaseRail({
                 </button>
               </>
             )}
-            <p className="rail-label">三区</p>
             {caseRoot && demo && <OriginalsZone caseRoot={caseRoot} onFeedback={onFeedback} />}
             {!demo && <p className="wf-empty rail-pad">尚无卷宗原件</p>}
+            <p className="rail-label">工作区</p>
             <button
               type="button"
               className={`stage-row ${workDraftMode && activeViewIsDraft ? 'selected' : ''}`}

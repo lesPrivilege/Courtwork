@@ -18,4 +18,9 @@ for (const width of [1180, 1280, 1440, 1600]) {
   if (await setupAtWidth.isVisible()) await setupAtWidth.getByRole('button', { name: '先查看演示' }).click();
   await page.screenshot({ path: resolve(`visual-audit/rp2-3-${width}.png`), animations: 'disabled' });
 }
+await page.setViewportSize({ width: 1440, height: 900 });
+await page.reload();
+const setupRail = page.getByTestId('provider-setup');
+if (await setupRail.isVisible()) await setupRail.getByRole('button', { name: '先查看演示' }).click();
+await page.screenshot({ path: resolve('visual-audit/rp2-4-rail-sections-1440.png'), animations: 'disabled' });
 await browser.close();

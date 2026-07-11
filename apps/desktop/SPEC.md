@@ -62,6 +62,13 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 - 自动验收：1180/1280/1440/1600 四档均断言 `scrollWidth ≤ clientWidth`、标题 nowrap/ellipsis、schema 正文 ≥13px；1440 另锁文书 15px。Playwright floor 96→100。
 - visual-audit：[`rp2-3-1180.png`](visual-audit/rp2-3-1180.png) / [`rp2-3-1280.png`](visual-audit/rp2-3-1280.png) / [`rp2-3-1440.png`](visual-audit/rp2-3-1440.png) / [`rp2-3-1600.png`](visual-audit/rp2-3-1600.png)。
 
+### RP-2.4 · 左栏卷宗分区降噪
+
+- 选中底色只覆盖案件摘要行，不再染满整个展开卷宗；展开体固定白底，以 hairline 分区。
+- 展开结构明确为「阶段」→「卷宗原件 · 只读」→「工作区」，撤销抽象且重复的「三区」标题。
+- 原件由松散 hover 小卡改为 34px 紧凑列表 + 行分隔线；文件名、原名、只读状态与打开动作保持可达。
+- visual-audit：[`rp2-4-rail-sections-1440.png`](visual-audit/rp2-4-rail-sections-1440.png)。
+
 ## FIX-KC-1 · 凭证授权流（据 DBG-2，2026-07-11）
 
 权威：docs/55 FIX-KC-1。落点 `src-tauri/src/lib.rs` + `credentials/client.ts` + 设置页诊断/恢复。
