@@ -622,3 +622,52 @@ codesign -dv --verbose=4 "/Applications/Courtwork.app/Contents/MacOS/courtwork-d
 2. **真机采集剧本可直接交用户执行？→ 交付缺失，验收已补可执行版 ✅**。实现完工报告未附剧本（F-KC-a）；验收据实现补一份并实证（codesign 在机跑通证 H1 ad-hoc；trace 步实测无泄漏；路径 `/Applications/Courtwork.app` 在机），**该剧本可直接交用户跑一轮回传**（日志无密钥，安全外发）。建议收编为正式交付物。
 
 > **总判定：FIX-KC-1 放行 ✅（安全敏感·主张逐条证伪·隔离验证）。** trace 无泄漏（读码零写入路径 + 实测注入哨兵整行丢弃 + 默认关不落盘）、F6 release 无 .dev（debug/release 双证）、F4 分型对外零技术且导出无密钥、F2 半写诚实不假 connected、F5 failed-only 恢复指引——docs/27 红线守住。干净隔离 worktree 全门绿（9 build / 9 cargo+release / 509 vitest / 90-90 playwright / floor 90 / 四门禁）；仅 11 文件、主树 RP-2 脏未动。唯 F-KC-a（采集剧本未随交付）记 🟡，验收已补可执行版并实证，可直接交用户，建议收编。
+
+---
+
+## RP-2.5 验收（双宿主解耦 + 响应式收口 + 设置 modal，2026-07-11）
+
+- **角色**：独立验收会话（实现者 sol；实现与验收分离）。
+- **范围**：`850d956`，以 docs/55「RP-2.5 验收」+ docs/49 三章修正 + docs/32 为权威。
+- **隔离**：主树保持在 `4fe2773` 且有他会话 `eval/ACCEPTANCE.md` 修改与 provider 计划稿未跟踪；本验收新建 `/tmp/courtwork-rp25-accept`、分支 `codex/accept-rp25` 固定 `850d956`，未在共享树 checkout/stash。E2E 前 `lsof -nP -iTCP:1427 -sTCP:LISTEN` 为空，使用 `COURTWORK_E2E_PORT=1427` 且 `reuseExistingServer:false` 自起服务。
+
+### 一、全局门与守卫负测
+
+| 门 | 实测结果 |
+|---|---|
+| 干净安装 | `pnpm install --frozen-lockfile`，1046 包复用缓存，退出 0 |
+| 全仓构建 | `pnpm -r build`，9/9 workspace 项通过；desktop Vite 构建退出 0 |
+| Vitest | desktop **70/70**（15 files） |
+| Playwright 清单/floor | `--list` **107**；`assert-test-count.mjs minimum=107`，禁降史 90→107 |
+| 四门禁 + Preview 门禁 | motion / signature / graph / icons / preview 全绿 |
+| Playwright 全量 | 隔离 `:1427`，**107/107 passed（40.8s）** |
+
+**Preview 守卫非空证明**：用临时补丁在 `UtilityRail.tsx` 加 `../preview/renderers/WorkbenchPreviewRenderer` 越界 import，`lint:preview` 实际红：`utility -> renderer import`、exit 1；随即以反向补丁撤销，门禁恢复 `Preview host/import boundaries: OK`，该文件 diff 归零。守卫源码同时递归扫描 `utility/**`、`preview/renderers/**`，并对 `PreviewHost.tsx` 禁词 `(法律|案件|卷宗|合同|风险|修订)`；不是空断言。
+
+### 二、结构、响应式与视觉实测（独立浏览器探针）
+
+**双宿主**：初态 `utility-rail[data-mode=dock]` + Preview 可见；dock 恰 3 项，进度权威位 `0/6`；关闭 Preview 后 `data-mode=base`、恰 3 张 `.utility-card`、schema tab 数 0；等待 800ms 手动关闭仍保持；点击「预览/展开」恢复。旧 e2e 只改两处：D-1 在 dock 点进度回基础态后继续核原断言（+2 无删除），file-ops 从窄档「更多」进入同一路由（结构迁移）；无语义放宽。D-1 / SET-1 / FIX-KC-1 关键例均包含在 107 全量绿色中。
+
+**四档与声明**：1180/1240/1440/1600 的 document `scrollWidth-clientWidth` 均 0，chat↔右栏间隙均精确 8px。免责声明在 1180/1240/1440 为 `white-space:normal`、实高 36.78px（约两行），1600 为 `nowrap`、实高 19.39px；feedback 链接四档均 `nowrap`。场景「更多」popover 在 1180 的盒为 x=142..274、y=651.2..723.2，完整位于 chat；model-config popover 为 x=239..519、y=485.7..775.2，也未被裁切。
+
+**消息与设置**：用户消息右沿与对话流误差 ≤5px，实宽比 0.7664（≤78%）、浅中性底 `rgb(233,238,244)`、border 0；agent bubble 类计数 0。设置页 1180 水平/垂直居中、`scrollWidth-clientWidth=0`，Esc 与关闭按钮均可卸载 dialog。
+
+### 三、发现与处置
+
+| # | 发现 | 定性 | 处置 |
+|---|---|---|---|
+| **F-1** | **阴影契约冲突**：docs/49 第四章仍写 L1「零投影（de-slop #6 不破）」；docs/32 principles §1 写「阴影全站归零（含弹层）」且 `shadow.none=none`。验收工单第 3 条又明确要求 SurfaceCard 解析值必须仍为 none。实现却把 `elevation.shadow` 改为 `0 1px 2px rgba(...), 0 8px 24px rgba(...)`，CSS `--elevation-shadow` 同值；浏览器 computed 的 SurfaceCard 与 composer 均为两层非零 box-shadow。`workbench` 的“零投影”旧例只查 `.case-card`，因此 107 全绿未覆盖 L1 偷渡。 | 🔴 **契约级阻断**；用户上一轮要求轻影接口与既有宪法冲突，验收者无权自行选择新旧口径 | **[需架构拍板]**：若维持 docs/49/32，`elevation.shadow` 必须回 `none` 且增加 SurfaceCard/composer computed 断言；若采纳轻影，须按修宪程序同步 docs/49、docs/32 principles/ACCEPTANCE、验收标准后再验。验收不代改契约。 |
+| **F-2** | **composer 仍越 chat 并与右栏重叠**。内部 overflow 被 `document scrollWidth=0` 掩盖：1180 chat 右=524.45、右栏左=532.45，但 composer 右=562、send 右=553（与右栏重叠 20.55px）；1240 chat 右=591.5、右栏左=599.5，但 composer 右=662、send 右=653、provider 右=619（分别与右栏重叠 62.5/53.5/19.5px）；1440 send 右=753 > chat 右=749.58（侵入 8px gap 3.42px）；仅 1600 全含。现有 `rp25.spec` 只测 document overflow + chat/right gap，未测 composer 控件相对 chat 的边界，故假绿。 | 🔴 明确实现级视觉阻断，正中工单「composer/send/provider 右边界不越 chat」 | 实现会话修 composer 宽度/min-width/containment，并加四档 send/provider/composer `right <= chat.right` 与 `composer.right <= chat.right` 断言；修后隔离复验。 |
+| **F-3** | **artifact 自动打开 Preview 未形成真实机制**。`session.artifacts` effect 只调用 `applyArtifactAutoExpand` 更新 `moduleOpen`，从不 `setPreviewOpen(true)`；Preview 仅因默认 true、选场景/切视图等显式动作而打开。旧名为“artifact 自动展开”的 e2e 只断 `module-progress[data-open=true]` 后主动点击 revision，无法证明 artifact 驱动宿主。手动关闭保持成立，但“artifact 自动打开 + 手动关闭优先”没有可区分的 auto/manual override 状态。 | 🟡 明列结构行为未落实、测试存在命名大于断言 | 增 Preview auto-open 策略与用户 override（新 artifact 仅在未手动关闭时打开），用受控 artifact 事件分别锁自动打开与手动关闭优先。 |
+| **F-4** | 完工自述称已锁“composer popover 裁切”，但提交内无任何 e2e 打开 `model-config-popover` 并断边界；本验收手动探针证明当前 1180 实现未裁切，但回归门未锁。dock 进度权威位则由 `rp1.spec` 的 `progress-module-count=0/6` 实际锁住。 | 🟡 工单第 6 条的测试交付缺一条 | 增 model-config popover 在窄档完整落于 chat/viewport 的 bounding 断言，不以本次手动探针代替长期门禁。 |
+
+### 四、git 卫生
+
+`850d956` 恰 22 文件：仅 `apps/desktop/*` 与 `docs/32-设计语言包/tokens.json`；**未触 `packages/*`、`src-tauri/*` 或凭证 Rust/TS**，无 lockfile 改动。负测与浏览器探针均已删除/反向补丁归零，报告追加前 worktree 干净。主树两项既存脏文件始终未触。
+
+### 五、结论
+
+1. **RP-2.5 放行？→ 不放行 ❌**。全局机器门虽然全绿（build / Vitest 70 / Playwright 107 / floor 107 / 五静态门），但存在两项 🔴：F-1 阴影违反当前权威契约且需架构拍板；F-2 composer 在 1180/1240 与右栏实质重叠、1440 侵入 gap。另有 F-3 artifact 自动开宿主机制缺失、F-4 popover 回归断言缺失。
+2. **0.1.1 可出？→ 不可出 ⛔**。先完成 F-1 架构裁决并按裁决收敛；修 F-2；补 F-3/F-4 自动化后，由独立验收复跑 `pnpm -r build`、70+ Vitest、floor≥107 Playwright、守卫负测与四档浏览器边界，方可触发 BUILD-1 工序复用。
+
+> **总判定：RP-2.5 阻断，不放行；0.1.1 不可出。** 107/107 并非充分证据：现有四档用例只锁全局 scrollWidth，遗漏了内部 composer 越界；现有 de-slop 只锁 case-card，遗漏 SurfaceCard 非零投影。验收实测已分别证实这两处红线。阴影属于契约冲突，标 `[需架构拍板]`，验收不擅改；其余交回实现会话修复后复验。
