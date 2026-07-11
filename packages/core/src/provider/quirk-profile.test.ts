@@ -26,13 +26,17 @@ describe('provider quirk profiles — docs/18 §6.3 已拍板的三家差异', (
 });
 
 describe('reasoning route is profile-driven', () => {
-  it('switches DeepSeek model names without a provider branch', () => {
+  it('DeepSeek V4：thinking 请求字段开关（#41 照官方现值），模型名不被路由覆盖', () => {
+    // 官方语义：思考模式经 thinking 字段控制，与 flash/pro 档位解耦；
+    // standard 档不发 thinking 键（缺省即非思考，未证实的 disabled 形态不编造——docs/18 纪律）。
     expect(applyReasoningRoute(DEEPSEEK_QUIRK_PROFILE, 'deepseek-v4-flash', 'standard')).toEqual({
       model: 'deepseek-v4-flash', extraBody: {},
     });
-    expect(applyReasoningRoute(DEEPSEEK_QUIRK_PROFILE, 'deepseek-v4-flash', 'deep')).toEqual({
-      model: 'deepseek-v4-pro', extraBody: {},
+    expect(applyReasoningRoute(DEEPSEEK_QUIRK_PROFILE, 'deepseek-v4-pro', 'deep')).toEqual({
+      model: 'deepseek-v4-pro', extraBody: { thinking: { type: 'enabled' } },
     });
+    // 用户所选模型永不被静默替换（#40 允许覆盖禁止静默的路由侧保证）
+    expect(applyReasoningRoute(DEEPSEEK_QUIRK_PROFILE, 'deepseek-chat', 'standard').model).toBe('deepseek-chat');
   });
 
   it('maps Qwen and OpenAI-compatible profiles to declared request fields', () => {
@@ -42,5 +46,11 @@ describe('reasoning route is profile-driven', () => {
     expect(applyReasoningRoute(DOUBAO_QUIRK_PROFILE, 'doubao-seed-1.6', 'standard')).toEqual({
       model: 'doubao-seed-1.6', extraBody: { reasoning_effort: 'low' },
     });
+  });
+
+  it('request_field 值为 undefined 时不产键（standard 档"缺省即默认"的 wire 保证）', () => {
+    const wire = JSON.stringify(applyReasoningRoute(DEEPSEEK_QUIRK_PROFILE, 'deepseek-v4-flash', 'standard').extraBody);
+    expect(wire).toBe('{}');
+    expect(Object.keys(applyReasoningRoute(DEEPSEEK_QUIRK_PROFILE, 'deepseek-v4-flash', 'standard').extraBody)).toEqual([]);
   });
 });

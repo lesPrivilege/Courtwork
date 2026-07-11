@@ -1,4 +1,4 @@
-//! 凭证探针 + 钥匙串读写（FIX-KC-1）。
+//! 凭证探针 + 钥匙串读写（FIX-KC-1 / F3 单条目形制）。
 //! secret/source 值永不入日志、错误消息或序列化字段。
 
 use keyring::{Entry, Error as KeyringError};
@@ -14,8 +14,13 @@ const CREDENTIAL_SERVICE: &str = "cn.courtwork.desktop.provider.dev";
 #[cfg(not(debug_assertions))]
 const CREDENTIAL_SERVICE: &str = "cn.courtwork.desktop.provider";
 
-const SOURCE_ACCOUNT: &str = "active-source";
-const SECRET_ACCOUNT: &str = "provider-secret";
+/// F3（docs/55 拍板）：单条目形制——source 标记与 secret 合存一个条目，
+/// status/active_secret 每轮只触发一次受 ACL 保护的读取（弹窗 2→1）。
+const CREDENTIAL_ACCOUNT: &str = "credential";
+/// FIX-KC-1 时代的双条目（legacy）。不迁移读取（读取即弹窗，违 F3 本意）；
+/// save/clear 时静默 delete 清账（delete 不读 data 不弹窗）。
+const LEGACY_SOURCE_ACCOUNT: &str = "active-source";
+const LEGACY_SECRET_ACCOUNT: &str = "provider-secret";
 const MIN_PASTED_LEN: usize = 8;
 const TRACE_ENV: &str = "COURTWORK_CRED_TRACE";
 const LOG_DIR_NAME: &str = "cn.courtwork.desktop";
@@ -397,7 +402,7 @@ fn trace_startup_once() {
 
 // ─── 凭证状态 ───────────────────────────────────────────────────────────────
 
-#[derive(Clone, Copy, Deserialize, Serialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 enum CredentialSource {
     Pasted,
@@ -406,7 +411,7 @@ enum CredentialSource {
 
 /// 探针驱动三态：pending / connected / failed（D-1）。
 /// 序列化字段仅 phase/source/failureMessage/failKind，永不含 secret。
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct CredentialStatus {
     phase: &'static str,
@@ -484,10 +489,29 @@ fn rewrite_password(account: &str, value: &str) -> Result<(), KeychainFailKind> 
     }
 }
 
-fn read_source() -> Result<Option<String>, KeychainFailKind> {
-    match get_password(SOURCE_ACCOUNT) {
-        Ok(value) => Ok(Some(value)),
-        Err(KeychainFailKind::NoEntry) => Ok(None),
+/// F3 单条目存储形制。serde tag 生成 `{"source":"pasted","secret":"…"}` /
+/// `{"source":"environment","name":"…"}`——source 语义与 wire 契约（CredentialStatus.source）
+/// 保持同词，TS 侧零改动。
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "source", rename_all = "snake_case")]
+enum StoredCredential {
+    Pasted { secret: String },
+    Environment { name: String },
+}
+
+/// 单条目读取三态：缺失（未配置）/ 在库 / 损坏（JSON 不可解析——诚实报格式错，重存即修复）。
+enum ReadCredential {
+    Missing,
+    Stored(StoredCredential),
+    Corrupt,
+}
+
+fn read_credential() -> Result<ReadCredential, KeychainFailKind> {
+    match get_password(CREDENTIAL_ACCOUNT) {
+        Ok(raw) => Ok(serde_json::from_str::<StoredCredential>(&raw)
+            .map(ReadCredential::Stored)
+            .unwrap_or(ReadCredential::Corrupt)),
+        Err(KeychainFailKind::NoEntry) => Ok(ReadCredential::Missing),
         Err(kind) => Err(kind),
     }
 }
@@ -527,82 +551,88 @@ fn failed_keychain(source: Option<CredentialSource>, kind: KeychainFailKind) -> 
     failed(source, kind.user_message(), Some(kind.wire_name()))
 }
 
-/// 读取 + 格式校验。任何钥匙串拒绝 / 缺失密钥 → failed，绝不乐观 connected。
-fn credential_status() -> Result<CredentialStatus, String> {
-    trace_startup_once();
-    let source = match read_source() {
-        Ok(value) => value,
-        Err(kind) => {
-            let status = failed_keychain(None, kind);
-            trace_status_exit("credential_status", &status, Some("read_source"));
-            return Ok(status);
-        }
-    };
-
-    let status = match source.as_deref() {
-        None => pending(),
-        Some("pasted") => match get_password(SECRET_ACCOUNT) {
-            Ok(secret) => {
-                let trimmed = secret.trim();
-                if trimmed.is_empty() || trimmed.len() < MIN_PASTED_LEN {
-                    failed(
-                        Some(CredentialSource::Pasted),
-                        "凭证格式不正确，请检查后重新填写",
-                        None,
-                    )
-                } else {
-                    connected(CredentialSource::Pasted)
-                }
-            }
-            Err(KeychainFailKind::NoEntry) => pending(),
-            Err(kind) => failed_keychain(Some(CredentialSource::Pasted), kind),
-        },
-        Some(value) if value.starts_with("environment:") => {
-            let name = &value["environment:".len()..];
-            if name.is_empty() {
+/// 存储形制 → 探针三态（纯函数，单测直测）。任何格式/解析问题 → failed，绝不乐观 connected。
+fn status_from_stored(read: ReadCredential) -> CredentialStatus {
+    match read {
+        ReadCredential::Missing => pending(),
+        ReadCredential::Corrupt => failed(None, "凭证格式不正确，请检查后重新填写", None),
+        ReadCredential::Stored(StoredCredential::Pasted { secret }) => {
+            let trimmed = secret.trim();
+            if trimmed.is_empty() || trimmed.len() < MIN_PASTED_LEN {
                 failed(
-                    Some(CredentialSource::Environment),
+                    Some(CredentialSource::Pasted),
                     "凭证格式不正确，请检查后重新填写",
                     None,
                 )
             } else {
-                match std::env::var(name) {
-                    Ok(resolved) if !resolved.trim().is_empty() => {
-                        connected(CredentialSource::Environment)
-                    }
-                    Ok(_) => failed(
-                        Some(CredentialSource::Environment),
-                        "电脑中的凭证为空，请检查后重试",
-                        None,
-                    ),
-                    Err(_) => failed(
-                        Some(CredentialSource::Environment),
-                        "电脑中未找到该凭证名称，请检查后重试",
-                        None,
-                    ),
-                }
+                connected(CredentialSource::Pasted)
             }
         }
-        _ => pending(),
+        ReadCredential::Stored(StoredCredential::Environment { name }) => {
+            if name.is_empty() {
+                return failed(
+                    Some(CredentialSource::Environment),
+                    "凭证格式不正确，请检查后重新填写",
+                    None,
+                );
+            }
+            match std::env::var(&name) {
+                Ok(resolved) if !resolved.trim().is_empty() => {
+                    connected(CredentialSource::Environment)
+                }
+                Ok(_) => failed(
+                    Some(CredentialSource::Environment),
+                    "电脑中的凭证为空，请检查后重试",
+                    None,
+                ),
+                Err(_) => failed(
+                    Some(CredentialSource::Environment),
+                    "电脑中未找到该凭证名称，请检查后重试",
+                    None,
+                ),
+            }
+        }
+    }
+}
+
+/// 读取 + 格式校验（F3：单次受保护读取）。
+fn credential_status() -> Result<CredentialStatus, String> {
+    trace_startup_once();
+    let status = match read_credential() {
+        Ok(read) => status_from_stored(read),
+        Err(kind) => {
+            let status = failed_keychain(None, kind);
+            trace_status_exit("credential_status", &status, Some("read_credential"));
+            return Ok(status);
+        }
     };
     trace_status_exit("credential_status", &status, None);
     Ok(status)
 }
 
-fn active_secret() -> Result<(CredentialSource, String), CredentialStatus> {
-    let marker = read_source().map_err(|kind| failed_keychain(None, kind))?;
-    match marker.as_deref() {
-        Some("pasted") => get_password(SECRET_ACCOUNT)
-            .map(|secret| (CredentialSource::Pasted, secret))
-            .map_err(|kind| failed_keychain(Some(CredentialSource::Pasted), kind)),
-        Some(value) if value.starts_with("environment:") => {
-            let name = &value["environment:".len()..];
-            std::env::var(name)
-                .map(|secret| (CredentialSource::Environment, secret))
-                .map_err(|_| failed(Some(CredentialSource::Environment), "电脑中未找到该凭证名称，请检查后重试", None))
+/// 存储形制 → 可用 secret（纯函数）。
+fn secret_from_stored(read: ReadCredential) -> Result<(CredentialSource, String), CredentialStatus> {
+    match read {
+        ReadCredential::Missing => Err(pending()),
+        ReadCredential::Corrupt => Err(failed(None, "凭证格式不正确，请检查后重新填写", None)),
+        ReadCredential::Stored(StoredCredential::Pasted { secret }) => {
+            Ok((CredentialSource::Pasted, secret))
         }
-        _ => Err(pending()),
+        ReadCredential::Stored(StoredCredential::Environment { name }) => std::env::var(&name)
+            .map(|secret| (CredentialSource::Environment, secret))
+            .map_err(|_| {
+                failed(
+                    Some(CredentialSource::Environment),
+                    "电脑中未找到该凭证名称，请检查后重试",
+                    None,
+                )
+            }),
     }
+}
+
+fn active_secret() -> Result<(CredentialSource, String), CredentialStatus> {
+    let read = read_credential().map_err(|kind| failed_keychain(None, kind))?;
+    secret_from_stored(read)
 }
 
 #[derive(Deserialize)]
@@ -687,6 +717,78 @@ async fn probe_provider_endpoint(input: ProviderProbeInput, secret: String, sour
     }
 }
 
+// ─── Chat 转发（GOAL-1 链路批：chat 面真 API）────────────────────────────────
+// 窄面代理：仅 `/chat/completions` 对话补全语义。请求体由 TS/core 组装（quirk 与
+// 结构化降级链复用 packages/core），key 唯一注入点在此——JS 侧永不见明文，与
+// validate_provider_connection 同风险面同审计口径（PRV-1 主张 1）。
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ChatForwardInput {
+    url: String,
+    body: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ChatForwardOutput {
+    status: u16,
+    body: String,
+}
+
+/// 仅放行对话补全端点（窄面校验，单测直测）。
+fn chat_forward_url_allowed(url: &str) -> bool {
+    (url.starts_with("http://") || url.starts_with("https://")) && url.ends_with("/chat/completions")
+}
+
+/// secret 参数化的转发体（mock TCP 可测）；HTTP 状态原样透传，
+/// 错误消息零技术概念（F4 口径），且永不包含 URL/body/secret。
+async fn forward_chat_request(url: &str, body: String, secret: &str) -> Result<ChatForwardOutput, String> {
+    let client = reqwest::Client::builder()
+        // 比 core 侧 120s race 更长的兜底：让 TS 侧先超时，保持分型出口唯一
+        .timeout(std::time::Duration::from_secs(180))
+        .build()
+        .map_err(|_| "暂时无法发起请求，请重试".to_string())?;
+    let response = client
+        .post(url)
+        .bearer_auth(secret)
+        .header("content-type", "application/json")
+        .body(body)
+        .send()
+        .await
+        .map_err(|error| {
+            if error.is_timeout() {
+                "服务商响应超时，请稍后重试".to_string()
+            } else {
+                "暂时无法连接服务商，请检查网络后重试".to_string()
+            }
+        })?;
+    let status = response.status().as_u16();
+    let body = response
+        .text()
+        .await
+        .map_err(|_| "服务商返回了无法识别的响应，请稍后重试".to_string())?;
+    Ok(ChatForwardOutput { status, body })
+}
+
+#[tauri::command]
+async fn provider_chat_request(input: ChatForwardInput) -> Result<ChatForwardOutput, String> {
+    trace_startup_once();
+    if !chat_forward_url_allowed(&input.url) {
+        return Err("仅支持对话补全请求".to_string());
+    }
+    let (_source, secret) = match active_secret() {
+        Ok(pair) => pair,
+        Err(status) => {
+            return Err(status
+                .failure_message
+                .unwrap_or("凭证不可用，请先完成连接")
+                .to_string())
+        }
+    };
+    forward_chat_request(&input.url, input.body, &secret).await
+}
+
 #[tauri::command]
 async fn validate_provider_connection(input: ProviderProbeInput) -> Result<ProviderProbeStatus, String> {
     let _provider_id = &input.provider_id; // 仅诊断标识；路由完全由声明生成的 input 驱动。
@@ -741,7 +843,7 @@ fn save_provider_credential(
         return Ok(status);
     }
 
-    let write_result: Result<(), KeychainFailKind> = match source {
+    let stored = match source {
         CredentialSource::Pasted => {
             if value.len() < MIN_PASTED_LEN {
                 let status = failed(
@@ -752,10 +854,7 @@ fn save_provider_credential(
                 trace_status_exit("save_provider_credential", &status, Some("validate"));
                 return Ok(status);
             }
-            // F2：整组重写 secret → source
-            rewrite_password(SECRET_ACCOUNT, value).and_then(|_| {
-                rewrite_password(SOURCE_ACCOUNT, "pasted")
-            })
+            StoredCredential::Pasted { secret: value.to_owned() }
         }
         CredentialSource::Environment => {
             if !value.bytes().enumerate().all(|(index, byte)| {
@@ -790,19 +889,30 @@ fn save_provider_credential(
                 }
                 Ok(_) => {}
             }
-            // 不把 env 名写入日志；只写 marker 到钥匙串
-            let marker = format!("environment:{value}");
-            rewrite_password(SOURCE_ACCOUNT, &marker).and_then(|_| {
-                delete_credential_ignore_missing(SECRET_ACCOUNT)
-            })
+            // 不把 env 名写入日志；名字只进钥匙串条目 JSON
+            StoredCredential::Environment { name: value.to_owned() }
         }
     };
 
-    if let Err(kind) = write_result {
+    // F2 语义照旧：delete → set 整组重写，强制当前身份新建 ACL（F3 下仅一个条目）
+    let payload = match serde_json::to_string(&stored) {
+        Ok(payload) => payload,
+        Err(_) => {
+            let status = failed(Some(source), "钥匙串授权未通过，请重试或重新填写", Some("platform"));
+            trace_status_exit("save_provider_credential", &status, Some("serialize"));
+            return Ok(status);
+        }
+    };
+    if let Err(kind) = rewrite_password(CREDENTIAL_ACCOUNT, &payload) {
         let status = failed_keychain(Some(source), kind);
         trace_status_exit("save_provider_credential", &status, Some("rewrite"));
         return Ok(status);
     }
+
+    // F3 清账：legacy 双条目静默 delete（不读 data 不弹窗）。失败仅 trace 不阻塞——
+    // 新条目已写成，凭证可用；残留旧条目由下次 save/clear 再清。
+    let _ = delete_credential_ignore_missing(LEGACY_SOURCE_ACCOUNT);
+    let _ = delete_credential_ignore_missing(LEGACY_SECRET_ACCOUNT);
 
     let status = credential_status()?;
     trace_status_exit("save_provider_credential", &status, Some("reprobe"));
@@ -812,7 +922,7 @@ fn save_provider_credential(
 #[tauri::command]
 fn clear_provider_credential() -> Result<CredentialStatus, String> {
     trace_startup_once();
-    for account in [SOURCE_ACCOUNT, SECRET_ACCOUNT] {
+    for account in [CREDENTIAL_ACCOUNT, LEGACY_SOURCE_ACCOUNT, LEGACY_SECRET_ACCOUNT] {
         if let Err(kind) = delete_credential_ignore_missing(account) {
             let status = failed_keychain(None, kind);
             trace_status_exit("clear_provider_credential", &status, Some("delete"));
@@ -835,6 +945,7 @@ pub fn run() {
             save_provider_credential,
             clear_provider_credential,
             validate_provider_connection,
+            provider_chat_request,
         ])
         .run(tauri::generate_context!())
         .expect("Courtwork 桌面应用启动失败");
@@ -968,7 +1079,7 @@ mod tests {
         let line = build_trace_line(&[
             ("event", TraceValue::Str("keychain_op".into())),
             ("op", TraceValue::Str("set".into())),
-            ("account", TraceValue::Str(SECRET_ACCOUNT.into())),
+            ("account", TraceValue::Str(CREDENTIAL_ACCOUNT.into())),
             ("service", TraceValue::Str(CREDENTIAL_SERVICE.into())),
             ("ok", TraceValue::Bool(true)),
             // 即使误传敏感键名也应被丢弃
@@ -976,7 +1087,7 @@ mod tests {
             ("password", TraceValue::Str("hunter2".into())),
             ("apiKey", TraceValue::Str("should-not-appear".into())),
         ]);
-        assert!(line.contains("\"account\":\"provider-secret\""));
+        assert!(line.contains("\"account\":\"credential\""));
         assert!(line.contains("\"ok\":true"));
         let lower = line.to_ascii_lowercase();
         assert!(!lower.contains("sk-"));
@@ -1009,5 +1120,126 @@ mod tests {
             classify_keyring_error(&KeyringError::NoEntry),
             KeychainFailKind::NoEntry
         );
+    }
+
+    // ─── F3 单条目形制（docs/55 拍板：单条目/不迁移/清账收尾）───────────────
+
+    #[test]
+    fn stored_credential_wire_shape_roundtrips() {
+        let pasted = serde_json::to_string(&StoredCredential::Pasted { secret: "sk-abcdefgh".into() })
+            .expect("serialize pasted");
+        assert_eq!(pasted, r#"{"source":"pasted","secret":"sk-abcdefgh"}"#);
+        let env = serde_json::to_string(&StoredCredential::Environment { name: "COURTWORK_KEY".into() })
+            .expect("serialize environment");
+        assert_eq!(env, r#"{"source":"environment","name":"COURTWORK_KEY"}"#);
+        assert!(matches!(
+            serde_json::from_str::<StoredCredential>(&pasted).expect("parse pasted"),
+            StoredCredential::Pasted { .. }
+        ));
+        assert!(matches!(
+            serde_json::from_str::<StoredCredential>(&env).expect("parse environment"),
+            StoredCredential::Environment { .. }
+        ));
+    }
+
+    #[test]
+    fn status_from_stored_covers_probe_matrix() {
+        assert_eq!(status_from_stored(ReadCredential::Missing).phase, "pending");
+
+        let corrupt = status_from_stored(ReadCredential::Corrupt);
+        assert_eq!(corrupt.phase, "failed");
+        assert_eq!(corrupt.failure_message, Some("凭证格式不正确，请检查后重新填写"));
+
+        let short = status_from_stored(ReadCredential::Stored(StoredCredential::Pasted {
+            secret: "short".into(),
+        }));
+        assert_eq!(short.phase, "failed");
+
+        let ok = status_from_stored(ReadCredential::Stored(StoredCredential::Pasted {
+            secret: "sk-long-enough".into(),
+        }));
+        assert_eq!(ok.phase, "connected");
+        assert!(matches!(ok.source, Some(CredentialSource::Pasted)));
+
+        let unnamed = status_from_stored(ReadCredential::Stored(StoredCredential::Environment {
+            name: String::new(),
+        }));
+        assert_eq!(unnamed.phase, "failed");
+
+        std::env::set_var("COURTWORK_F3_TEST_ENV", "resolved-secret");
+        let env_ok = status_from_stored(ReadCredential::Stored(StoredCredential::Environment {
+            name: "COURTWORK_F3_TEST_ENV".into(),
+        }));
+        assert_eq!(env_ok.phase, "connected");
+        std::env::remove_var("COURTWORK_F3_TEST_ENV");
+
+        let env_missing = status_from_stored(ReadCredential::Stored(StoredCredential::Environment {
+            name: "COURTWORK_F3_TEST_ENV_ABSENT".into(),
+        }));
+        assert_eq!(env_missing.phase, "failed");
+    }
+
+    #[test]
+    fn secret_from_stored_yields_secret_or_honest_status() {
+        let (source, secret) = secret_from_stored(ReadCredential::Stored(StoredCredential::Pasted {
+            secret: "sk-abcdefgh".into(),
+        }))
+        .expect("pasted secret");
+        assert!(matches!(source, CredentialSource::Pasted));
+        assert_eq!(secret, "sk-abcdefgh");
+
+        let pending_status = secret_from_stored(ReadCredential::Missing).expect_err("missing → pending");
+        assert_eq!(pending_status.phase, "pending");
+        let corrupt_status = secret_from_stored(ReadCredential::Corrupt).expect_err("corrupt → failed");
+        assert_eq!(corrupt_status.phase, "failed");
+    }
+
+    #[test]
+    fn chat_forward_url_narrow_gate() {
+        assert!(chat_forward_url_allowed("https://api.deepseek.com/v1/chat/completions"));
+        assert!(chat_forward_url_allowed("http://127.0.0.1:9/v1/chat/completions"));
+        assert!(!chat_forward_url_allowed("https://api.deepseek.com/v1/models"));
+        assert!(!chat_forward_url_allowed("https://api.deepseek.com/v1/chat/completions?x=1"));
+        assert!(!chat_forward_url_allowed("file:///etc/passwd/chat/completions"));
+        assert!(!chat_forward_url_allowed(""));
+    }
+
+    #[tokio::test]
+    async fn forward_chat_request_passes_status_and_body_through() {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("bind mock endpoint");
+        let address = listener.local_addr().expect("mock address");
+        let server = std::thread::spawn(move || {
+            let (mut socket, _) = listener.accept().expect("accept request");
+            let mut request = vec![0_u8; 8192];
+            let read = socket.read(&mut request).expect("read request");
+            let text = String::from_utf8_lossy(&request[..read]);
+            assert!(text.starts_with("POST /v1/chat/completions"));
+            assert!(text.contains("authorization: Bearer test-secret-never-logged")
+                || text.contains("Authorization: Bearer test-secret-never-logged"));
+            assert!(text.contains("\"stream\":true"));
+            let body = "data: {\"choices\":[{\"delta\":{\"content\":\"x\"}}]}\n\ndata: [DONE]\n";
+            write!(socket, "HTTP/1.1 429 Too Many Requests\r\ncontent-type: text/event-stream\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}", body.len(), body).expect("write response");
+        });
+        let output = forward_chat_request(
+            &format!("http://{address}/v1/chat/completions"),
+            r#"{"model":"m","stream":true}"#.into(),
+            "test-secret-never-logged",
+        )
+        .await
+        .expect("forward should pass HTTP result through");
+        server.join().expect("mock server");
+        // 状态与 body 原样透传：分型判断归 TS/core 一处（出口唯一）
+        assert_eq!(output.status, 429);
+        assert!(output.body.contains("[DONE]"));
+    }
+
+    #[test]
+    fn legacy_accounts_stay_deletable_targets_only() {
+        // F3 不迁移：代码中不存在对 legacy 条目的 get 读取路径（读取即弹窗）。
+        // 本断言锁常量语义：legacy 名与新名互异且非空，清账目标闭合。
+        assert_ne!(CREDENTIAL_ACCOUNT, LEGACY_SOURCE_ACCOUNT);
+        assert_ne!(CREDENTIAL_ACCOUNT, LEGACY_SECRET_ACCOUNT);
+        assert_eq!(LEGACY_SOURCE_ACCOUNT, "active-source");
+        assert_eq!(LEGACY_SECRET_ACCOUNT, "provider-secret");
     }
 }

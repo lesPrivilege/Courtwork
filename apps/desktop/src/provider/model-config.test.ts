@@ -46,8 +46,9 @@ describe('model-config', () => {
   });
 
   it('reasoning request delegates to the declared quirk route', () => {
+    // #41：DeepSeek deep 档经 thinking 请求字段；模型名 = 用户所选，路由不覆盖（#40）
     expect(reasoningRequest({ ...DEFAULT_MODEL_CONFIG, reasoning: 'deep' })).toEqual({
-      model: 'deepseek-v4-pro', extraBody: {},
+      model: 'deepseek-v4-flash', extraBody: { thinking: { type: 'enabled' } },
     });
     expect(reasoningRequest({ ...withProvider(DEFAULT_MODEL_CONFIG, 'qwen'), reasoning: 'deep' }))
       .toMatchObject({ extraBody: { enable_thinking: true } });

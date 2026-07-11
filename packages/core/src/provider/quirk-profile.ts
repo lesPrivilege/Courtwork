@@ -43,7 +43,10 @@ export function resolveReasoningRoute(
   level: ReasoningLevel,
 ): { model: string; extraBody: Record<string, unknown> } {
   if (route.kind === 'model_switch') return { model: route.models[level], extraBody: {} };
-  return { model, extraBody: { [route.field]: route.values[level] } };
+  const value = route.values[level];
+  // undefined 声明为"该档不发此字段"（缺省即 provider 默认），不产生 wire 键
+  if (value === undefined) return { model, extraBody: {} };
+  return { model, extraBody: { [route.field]: value } };
 }
 
 export const DEEPSEEK_QUIRK_PROFILE: ProviderQuirkProfile = {
@@ -52,7 +55,10 @@ export const DEEPSEEK_QUIRK_PROFILE: ProviderQuirkProfile = {
   responseFormat: { tier: 'json_object' },
   reasoningFieldCandidates: ['reasoning_content'],
   recommendedModels: ['deepseek-v4-flash', 'deepseek-v4-pro'],
-  reasoningRoute: { kind: 'model_switch', models: { standard: 'deepseek-v4-flash', deep: 'deepseek-v4-pro' } },
+  // #41（docs/55 拍板）：V4 思考模式经 thinking 请求字段控制，与 flash/pro 档位解耦
+  // （官方 2026-07 现值）；standard 不发键=非思考缺省，deep={type:'enabled'}。
+  // 模型名由用户所选直通，路由不再覆盖（#40 路由侧保证）。
+  reasoningRoute: { kind: 'request_field', field: 'thinking', values: { standard: undefined, deep: { type: 'enabled' } } },
 };
 
 export const QWEN_QUIRK_PROFILE: ProviderQuirkProfile = {
