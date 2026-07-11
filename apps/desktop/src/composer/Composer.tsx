@@ -49,6 +49,9 @@ export interface ComposerProps {
   onToggleModelConfig?: () => void;
   onModelConfigChange?: (config: ModelConfig) => void;
   onCloseModelConfig?: () => void;
+  /** RP-2.11 ⑤：composer 底排 workmode 钮 = chat|work 同源（与顶部段控同一状态源）。 */
+  viewSegment?: 'chat' | 'work';
+  onSegmentChange?: (next: 'chat' | 'work') => void;
 }
 
 let attachmentSeq = 0;
@@ -76,6 +79,8 @@ export function Composer({
   onToggleModelConfig,
   onModelConfigChange,
   onCloseModelConfig,
+  viewSegment,
+  onSegmentChange,
 }: ComposerProps) {
   // 仅当父层未注入 cases 时用 DEMO 回落（单测/孤立预览）；App 必须注入投影。
   const caseOptions = cases ?? DEMO_CASE_OPTIONS;
@@ -426,6 +431,35 @@ export function Composer({
           >
             <Icon name="clipboard" />
           </button>
+
+          {/* RP-2.11 ⑤：add-folder 提为独立沉底钮（原 + 菜单内） */}
+          <button
+            type="button"
+            className="composer-icon-button"
+            data-testid="composer-add-folder"
+            data-composer-slot="add-folder"
+            aria-label={CHROME_COPY.composer.addFolder}
+            title={CHROME_COPY.composer.addFolder}
+            onClick={() => folderInputRef.current?.click()}
+          >
+            <Icon name="folder-open" />
+          </button>
+
+          {/* RP-2.11 ⑤：workmode 钮 = chat|work 同源（与顶部段控同一状态） */}
+          {viewSegment && onSegmentChange && (
+            <button
+              type="button"
+              className={`composer-icon-button ${viewSegment === 'work' ? 'is-active-mode' : ''}`}
+              data-testid="composer-workmode"
+              data-composer-slot="workmode"
+              aria-pressed={viewSegment === 'work'}
+              aria-label={`Mode: ${viewSegment === 'work' ? CHROME_COPY.segment.work : CHROME_COPY.segment.chat}`}
+              title={`${CHROME_COPY.segment.chat} / ${CHROME_COPY.segment.work}`}
+              onClick={() => onSegmentChange(viewSegment === 'work' ? 'chat' : 'work')}
+            >
+              <Icon name="panels-top-left" />
+            </button>
+          )}
 
           <input
             ref={fileInputRef}

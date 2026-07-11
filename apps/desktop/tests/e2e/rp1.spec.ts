@@ -4,10 +4,12 @@ import { connectProvider, createNamedCase, openWorkbench } from './helpers';
 test.describe('RP-1 最终重排', () => {
   test('混排列表：类型图标 + 案件摘要选中 + 展开分区', async ({ page }) => {
     await openWorkbench(page);
-    await expect(page.getByTestId('rail-mixed-list')).toBeVisible();
+    // RP-2.11：Recents 纯容器——mixed-list 只承非置顶容器，唯一 demo 置顶时为空（存在但无高度）。
+    await expect(page.getByTestId('rail-mixed-list')).toHaveCount(1);
     await expect(page.getByTestId('rail-pinned')).toBeVisible();
     await expect(page.getByTestId('rail-icon-case').first()).toBeVisible();
-    await expect(page.getByTestId('rail-icon-unfiled').first()).toBeVisible();
+    // RP-2.11：气泡行退场，Recents 纯容器（docs/25 修正二）——不再有 unfiled 行图标。
+    await expect(page.getByTestId('rail-icon-unfiled')).toHaveCount(0);
 
     const expand = page.getByTestId('rail-expand-demo-linjiang');
     await expect(expand).toHaveAttribute('aria-expanded', 'true');
@@ -28,29 +30,34 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('flow-s3')).toBeVisible();
   });
 
-  test('未归档「存入」→ 容器化 popover → 选案件', async ({ page }) => {
-    // F-1.1：禁止直建 kind:case；用户选名词（docs/49）
+  // RP-2.11：气泡行退场后，「存入」桥接迁至 chat 面（docs/25 修正二）——旧 unfiled-store 流由 chat 面 store-chat 替代，仪式与选名词不变。
+  test('chat 面「存入」→ 容器化 popover → 选案件', async ({ page }) => {
     await openWorkbench(page);
-    const store = page.getByTestId('unfiled-store-unfiled-seed-1');
-    await expect(store).toBeVisible();
-    await expect(store).toHaveText('存入');
-    await store.click();
-    const popover = page.getByTestId('containerize-popover');
+    await page.getByTestId('segment-chat').click();
+    await connectProvider(page);
+    await page.getByTestId('composer-input').fill('先聊后建的对话');
+    await page.getByTestId('composer-send').click();
+    await expect(page.getByTestId('chat-user-message')).toContainText('先聊后建的对话');
+    await page.getByTestId('store-chat').click();
+    const popover = page.getByTestId('store-chat-popover');
     await expect(popover).toBeVisible();
-    await page.getByTestId('containerize-case').click();
+    await page.getByTestId('store-chat-case').click();
     await expect(popover).toHaveCount(0);
-    await expect(page.getByTestId('rail-unfiled-unfiled-seed-1')).toHaveCount(0);
-    await expect(page.getByTestId('titlebar-case-title')).toContainText('先聊后建的对话');
+    // 存入后切 work 面，新容器标题居顶栏
+    await expect(page.getByTestId('titlebar-case-title')).toContainText('案件');
   });
 
-  test('未归档「存入」→ 容器化 popover → 选工作区', async ({ page }) => {
+  test('chat 面「存入」→ 容器化 popover → 选工作区', async ({ page }) => {
     await openWorkbench(page);
-    await page.getByTestId('unfiled-store-unfiled-seed-1').click();
-    await expect(page.getByTestId('containerize-popover')).toBeVisible();
-    await page.getByTestId('containerize-workspace').click();
-    await expect(page.getByTestId('containerize-popover')).toHaveCount(0);
-    await expect(page.getByTestId('rail-unfiled-unfiled-seed-1')).toHaveCount(0);
-    await expect(page.getByTestId('titlebar-case-title')).toContainText('先聊后建的对话');
+    await page.getByTestId('segment-chat').click();
+    await connectProvider(page);
+    await page.getByTestId('composer-input').fill('先聊后建的对话');
+    await page.getByTestId('composer-send').click();
+    await page.getByTestId('store-chat').click();
+    await expect(page.getByTestId('store-chat-popover')).toBeVisible();
+    await page.getByTestId('store-chat-workspace').click();
+    await expect(page.getByTestId('store-chat-popover')).toHaveCount(0);
+    await expect(page.getByTestId('titlebar-case-title')).toContainText('项目');
     // 工作区行图标
     await expect(page.getByTestId('rail-icon-workspace').first()).toBeVisible();
   });

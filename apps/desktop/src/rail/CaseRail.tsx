@@ -31,6 +31,9 @@ interface CaseRailProps {
   archiveConfirmCaseId: string | null;
   /** F-1.1：未归档「存入」锚定的容器化仪式行 id */
   containerizeUnfiledId: string | null;
+  /** RP-2.11 chat|work 二段（段控落左栏顶 Cowork 位） */
+  viewSegment: 'chat' | 'work';
+  onSegmentChange: (next: 'chat' | 'work') => void;
   leftCollapsed: boolean;
   onSelectCase: (id: string) => void;
   onToggleExpand: (id: string) => void;
@@ -61,6 +64,8 @@ export function CaseRail({
   caseRoot,
   archiveConfirmCaseId,
   containerizeUnfiledId,
+  viewSegment,
+  onSegmentChange,
   leftCollapsed,
   onSelectCase,
   onToggleExpand,
@@ -304,6 +309,30 @@ export function CaseRail({
             <Icon name="plus" />
           </button>
         </header>
+
+        {/* RP-2.11：chat|work 段控落左栏顶（Cowork Home|Code 位），真路由 */}
+        <div className="rail-segment" data-testid="view-segment" role="tablist" aria-label="View mode">
+          <button
+            type="button"
+            role="tab"
+            data-testid="segment-chat"
+            className={`rail-segment-tab ${viewSegment === 'chat' ? 'is-active' : ''}`}
+            aria-selected={viewSegment === 'chat'}
+            onClick={() => onSegmentChange('chat')}
+          >
+            {CHROME_COPY.segment.chat}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            data-testid="segment-work"
+            className={`rail-segment-tab ${viewSegment === 'work' ? 'is-active' : ''}`}
+            aria-selected={viewSegment === 'work'}
+            onClick={() => onSegmentChange('work')}
+          >
+            {CHROME_COPY.segment.work}
+          </button>
+        </div>
 
         <nav className="rail-nav-skeleton" aria-label="Navigation" data-testid="rail-nav-skeleton">
           <button type="button" className="rail-nav-item" data-testid="nav-artifacts" onClick={onOpenArtifacts}>

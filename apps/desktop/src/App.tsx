@@ -16,7 +16,7 @@ import {
 } from './protocol/client';
 import type { SessionEvent } from '@courtwork/core';
 import { buildReviewResolution } from './protocol/review-resolution';
-import { Composer, type ComposerSendPayload, type ContainerizeRequest } from './composer';
+import { Composer, CONTAINERIZE_COPY, type ComposerSendPayload, type ContainerizeRequest } from './composer';
 import {
   caseOutputDir,
   caseOutputDocx,
@@ -29,6 +29,7 @@ import {
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import { CHROME_COPY } from './chrome/copy';
 import { QuestionTurnCard, ToolCallRow, TurnCard } from './chat/TurnCard';
+import { CollapsibleMessage } from './chat/CollapsibleMessage';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
@@ -185,6 +186,10 @@ export function App() {
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(true);
+  /** RP-2.11 chat|work 二段（docs/25 修正二）：work=容器工作台 / chat=内存态轻画布（重启即逝，持久化归 HARNESS-1）。 */
+  const [viewSegment, setViewSegment] = useState<'chat' | 'work'>('work');
+  const [chatMessages, setChatMessages] = useState<Array<{ text: string; files: string[]; createdAt: number }>>([]);
+  const [storeChatOpen, setStoreChatOpen] = useState(false);
   const [artifactRevision, setArtifactRevision] = useState(0);
   const [replayEpoch, setReplayEpoch] = useState(0);
   const [sceneMoreOpen, setSceneMoreOpen] = useState(false);
@@ -243,6 +248,40 @@ export function App() {
         createdAt,
       },
     ]);
+  };
+
+  /** chat 面（内存态轻画布）：发送即入内存会话；不落盘（重启即逝，0.1.1 诚实缺口）。 */
+  const handleChatSend = (payload: ComposerSendPayload) => {
+    if (credentialStatus.phase !== 'connected') {
+      probeCredentials();
+      setProviderSetupOpen(true);
+      return;
+    }
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        text: payload.text || (payload.attachments.length ? '（附文件）' : ''),
+        files: payload.attachments.map((item) => item.fileName),
+        createdAt: Date.now(),
+      },
+    ]);
+  };
+
+  /** 两面唯一的桥：从 chat 收当前话题入容器（docs/25 修正二），复用容器化仪式后切 work 面。 */
+  const storeChatIntoContainer = (kind: ContainerKind) => {
+    const title =
+      kind === 'workspace'
+        ? `项目 · ${new Date().toLocaleDateString('zh-CN')}`
+        : `案件 · ${new Date().toLocaleDateString('zh-CN')}`;
+    createCase({ title, fileCount: 0, kind });
+    setChatMessages([]);
+    setStoreChatOpen(false);
+    setViewSegment('work');
+  };
+
+  const switchSegment = (next: 'chat' | 'work') => {
+    setStoreChatOpen(false);
+    setViewSegment(next);
   };
 
   const probeCredentials = async (config: ModelConfig = modelConfig) => {
@@ -889,6 +928,39 @@ export function App() {
     },
   ];
 
+  /** composer 浮卡（chat/work 共用；onSend 与 workmode=viewSegment 同源由调用方注入）。 */
+  const renderComposer = (onSend: (payload: ComposerSendPayload) => void) => (
+    <div className="composer-stack">
+      <div className="composer-float surface-float">
+        <Composer
+          cases={cases.map((item) => ({ id: item.id, name: item.title, kind: item.kind ?? 'case' }))}
+          activeCaseId={selectedCaseId ?? undefined}
+          onSend={onSend}
+          onContainerize={handleContainerize}
+          viewSegment={viewSegment}
+          onSegmentChange={switchSegment}
+          modelConfig={modelConfig}
+          modelConfigOpen={modelConfigOpen}
+          modelLabel={modelDisplayName(modelConfig)}
+          connectionPhase={credentialStatus.phase}
+          onToggleModelConfig={() => {
+            if (credentialStatus.phase === 'connected') setModelConfigOpen((open) => !open);
+            else void probeCredentials().then((status) => {
+              if (status.phase === 'connected') setModelConfigOpen(true);
+              else setProviderSetupOpen(true);
+            });
+          }}
+          onModelConfigChange={updateModelConfig}
+          onCloseModelConfig={() => setModelConfigOpen(false)}
+        />
+      </div>
+      <p className="composer-disclaimer" data-testid="composer-disclaimer">
+        Courtwork is an agent and can make mistakes. Please double-check responses.{' '}
+        <a href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">Give us feedback</a>
+      </p>
+    </div>
+  );
+
   return (
     <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'} data-compact={compactLayout ? 'true' : 'false'}>
       <header className="window-chrome" data-testid="window-chrome" data-tauri-drag-region>
@@ -900,11 +972,15 @@ export function App() {
           title={effectiveLeftCollapsed ? CHROME_COPY.navigation.expandLeft : CHROME_COPY.navigation.collapseLeft}
           onClick={() => effectiveLeftCollapsed ? exitCompactLeft() : setLeftCollapsed(true)}
         ><Icon name="panel-left" /></button>
-        <span className="spacer" />
         <button type="button" className="window-chrome-button" aria-label="Search" title="Search" onClick={() => setPaletteOpen(true)}><Icon name="search" /></button>
+        <span className="spacer" />
+        {viewSegment === 'work' && !isWelcome && !rightCollapsed && (
+          <button type="button" className="window-chrome-button" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
+        )}
       </header>
       <div
-        className={`workspace ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
+        className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
+        data-view-segment={viewSegment}
         data-testid="workspace"
         data-comparing={comparing ? 'true' : 'false'}
         data-focus-mode={focusMode ? 'true' : 'false'}
@@ -916,7 +992,7 @@ export function App() {
         {!focusMode && (
           <CaseRail
             cases={cases}
-            unfiled={unfiledSessions}
+            unfiled={[]}
             pinnedIds={pinnedIds}
             selectedCaseId={selectedCaseId}
             expandedCaseId={expandedCaseId}
@@ -926,6 +1002,8 @@ export function App() {
             caseRoot={caseRoot}
             archiveConfirmCaseId={archiveConfirmCaseId}
             containerizeUnfiledId={containerizeUnfiledId}
+            viewSegment={viewSegment}
+            onSegmentChange={switchSegment}
             leftCollapsed={effectiveLeftCollapsed}
             onSelectCase={(id) => {
               setSelectedCaseId(id);
@@ -949,12 +1027,12 @@ export function App() {
           />
         )}
 
-        {/* L0：对话流直接坐页面底色，去卡壳 */}
-        {!focusMode && (
+        {/* L0：对话流直接坐页面底色，去卡壳（work 面） */}
+        {!focusMode && viewSegment === 'work' && (
           <section className="conversation canvas-layer" data-testid="conversation-canvas">
-            <header className={`chat-case-head ${isWelcome ? 'welcome-chat-head' : ''}`} data-testid="chat-case-head">
-              {isWelcome ? <strong className="welcome-head-label">{CHROME_COPY.welcome.eyebrow}</strong> : <>
-              {editingCaseTitle ? <input
+            {/* ① 案件标题居中栏顶栏、与红绿灯同排（约束于 chat 列，不压 dock）；覆盖 RP-2 #19 */}
+            <div className="chat-titlebar" data-testid="chat-titlebar" data-tauri-drag-region>
+              {selectedCase && (editingCaseTitle ? <input
                 autoFocus
                 data-testid="chat-case-title-input"
                 value={caseTitleDraft}
@@ -963,10 +1041,12 @@ export function App() {
                 onKeyDown={(event) => { if (event.key === 'Enter') commitCaseTitle(); if (event.key === 'Escape') setEditingCaseTitle(false); }}
               /> : <span data-testid="titlebar-case-title"><button type="button" className="chat-case-title" data-testid="chat-case-title" title="双击编辑案件名称" onDoubleClick={() => { setCaseTitleDraft(selectedCase.title); setEditingCaseTitle(true); }}>
                 {selectedCase.title}
-              </button></span>}
+              </button></span>)}
               {isDemoCase && <span className="demo-badge" data-testid="demo-case-badge">{containerOriginLabel(true)}</span>}
-              <span className="stage-chip" data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</span>
-              </>}
+              {selectedCase && <span className="stage-chip" data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</span>}
+              {isWelcome && <strong className="welcome-head-label">{CHROME_COPY.welcome.eyebrow}</strong>}
+            </div>
+            <header className="chat-case-head" data-testid="chat-case-head">
               <span className="spacer" />
             </header>
             {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.ok ? 'ok' : 'error'}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
@@ -996,9 +1076,9 @@ export function App() {
                 <>
                   {sampleTourOpen && <div className="sample-tour" data-testid="sample-tour"><strong>样板案导览</strong><span>从左栏阶段进入卷宗，再在右侧核对结构化工作面。</span><button type="button" onClick={() => setSampleTourOpen(false)}>知道了</button></div>}
                   <div className="user-message">
-                    {flow === 'S1'
+                    <CollapsibleMessage lines={6}>{flow === 'S1'
                       ? '整理全套卷宗，标出事件矛盾并核对当事人关系。'
-                      : '审查这份设备采购合同，重点看付款、验收与违约责任。'}
+                      : '审查这份设备采购合同，重点看付款、验收与违约责任。'}</CollapsibleMessage>
                   </div>
                   <article className="assistant-turn" data-testid="assistant-turn-demo">
                     <ToolCallRow
@@ -1078,7 +1158,7 @@ export function App() {
               )}
               {localMessages.map((message, index) => (
                 <div className="user-message" key={`local-${index}`} data-testid="local-user-message">
-                  {message.text}
+                  <CollapsibleMessage lines={6}>{message.text}</CollapsibleMessage>
                   {message.files.length > 0 && (
                     <div className="user-message-attachments">
                       {message.files.map((name) => (
@@ -1124,48 +1204,61 @@ export function App() {
               </div>
             </div>}
             {/* L1：composer 浮卡 */}
-            <div className="composer-stack">
-              <div className="composer-float surface-float">
-                <Composer
-                cases={cases.map((item) => ({
-                  id: item.id,
-                  name: item.title,
-                  kind: item.kind ?? 'case',
-                }))}
-                activeCaseId={selectedCaseId ?? undefined}
-                onSend={handleComposerSend}
-                onContainerize={handleContainerize}
-                modelConfig={modelConfig}
-                modelConfigOpen={modelConfigOpen}
-                modelLabel={modelDisplayName(modelConfig)}
-                connectionPhase={credentialStatus.phase}
-                onToggleModelConfig={() => {
-                  if (credentialStatus.phase === 'connected') setModelConfigOpen((open) => !open);
-                  else void probeCredentials().then((status) => {
-                    if (status.phase === 'connected') setModelConfigOpen(true);
-                    else setProviderSetupOpen(true);
-                  });
-                }}
-                onModelConfigChange={updateModelConfig}
-                onCloseModelConfig={() => setModelConfigOpen(false)}
-                />
-              </div>
-              <p className="composer-disclaimer" data-testid="composer-disclaimer">
-                Courtwork is an agent and can make mistakes. Please double-check responses.{' '}
-                <a href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">Give us feedback</a>
-              </p>
-            </div>
+            {renderComposer(handleComposerSend)}
           </section>
         )}
 
-        {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载 */}
-        {!isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
+        {/* RP-2.11 chat 面：内存态轻画布（composer + 会话 + 存入桥接容器化仪式） */}
+        {!focusMode && viewSegment === 'chat' && (
+          <section className="conversation canvas-layer" data-testid="chat-canvas" data-segment="chat">
+            <div className="chat-titlebar" data-tauri-drag-region>
+              <strong className="chat-titlebar-label">{CHROME_COPY.segment.chat}</strong>
+            </div>
+            <header className="chat-case-head chat-mode-head" data-testid="chat-mode-head">
+              <span className="spacer" />
+              {chatMessages.length > 0 && (
+                <div className="store-chat-wrap">
+                  <button type="button" className="quiet-button" data-testid="store-chat" aria-expanded={storeChatOpen} onClick={() => setStoreChatOpen((open) => !open)}>
+                    {CHROME_COPY.storeChat.action}
+                  </button>
+                  {storeChatOpen && (
+                    <div className="scope-popover containerize-popover store-chat-popover" role="dialog" aria-label={CHROME_COPY.storeChat.title} data-testid="store-chat-popover">
+                      <strong>{CHROME_COPY.storeChat.title}</strong>
+                      <p>{CHROME_COPY.storeChat.body}</p>
+                      <div className="scope-popover-actions">
+                        <button type="button" className="quiet-button" onClick={() => setStoreChatOpen(false)}>{CONTAINERIZE_COPY.cancel}</button>
+                        <button type="button" className="quiet-button" data-testid="store-chat-workspace" onClick={() => storeChatIntoContainer('workspace')}>{CONTAINERIZE_COPY.createWorkspace}</button>
+                        <button type="button" className="primary-button" data-testid="store-chat-case" onClick={() => storeChatIntoContainer('case')}>{CONTAINERIZE_COPY.createCase}</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </header>
+            <div className="conversation-scroll" data-testid="chat-scroll">
+              {chatMessages.length === 0 ? (
+                <div className="empty-state" role="status" data-testid="chat-empty">{CHROME_COPY.welcome.body}</div>
+              ) : chatMessages.map((message, index) => (
+                <div className="user-message" key={`chat-${index}`} data-testid="chat-user-message">
+                  <CollapsibleMessage lines={6}>{message.text}</CollapsibleMessage>
+                  {message.files.length > 0 && (
+                    <div className="user-message-attachments">
+                      {message.files.map((name) => <span key={name} title={name}>{name}</span>)}
+                    </div>
+                  )}
+                  <MessageActions messageId={`chat-${index}`} text={message.text} createdAt={message.createdAt} />
+                </div>
+              ))}
+            </div>
+            {renderComposer(handleChatSend)}
+          </section>
+        )}
+
+        {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载（work 面独有） */}
+        {viewSegment === 'work' && !isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
           <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
         </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open={previewOpen ? 'true' : 'false'} data-artifact-revision={artifactRevision}>
-          {/* ch12：折叠钮居留空上部居中，坐底纸不占卡 */}
-          <div className="right-rail-chrome">
-            <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
-          </div>
+          {/* RP-2.11：dock 三 tap 卡为右卡顶部、与红绿灯同排；折叠钮迁顶栏浮层右侧 */}
           <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => {
             previewDismissedContext.current = null;
             setPreviewOpen(true);

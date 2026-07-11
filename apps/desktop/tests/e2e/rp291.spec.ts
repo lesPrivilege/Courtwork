@@ -14,7 +14,9 @@ test('window chrome mirrors Codex: sidebar control only, no browser history verb
 
 test('chat header has zero buttons', async ({ page }) => {
   await openWorkbench(page);
-  await expect(page.getByTestId('chat-case-head').locator('button')).toHaveCount(1);
+  // RP-2.11 ①：案件标题迁中栏顶栏（覆盖 RP-2 #19，用户 Debug 3）→ chat 头真正零按钮；标题居 chat-titlebar。
+  await expect(page.getByTestId('chat-case-head').locator('button')).toHaveCount(0);
+  await expect(page.getByTestId('chat-titlebar').getByTestId('chat-case-title')).toBeVisible();
   await expect(page.getByTestId('chat-case-head').locator('.chat-global-action, .shortcut-trigger')).toHaveCount(0);
 });
 

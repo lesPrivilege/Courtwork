@@ -3,6 +3,15 @@
  * outside this module so a future tenant lexicon cannot leak into chrome.
  */
 export const CHROME_COPY = {
+  segment: {
+    chat: 'Chat',
+    work: 'Work',
+  },
+  storeChat: {
+    action: 'Save to a case',
+    title: 'Save this chat',
+    body: 'Store the current conversation into a case or workspace to keep working with structure.',
+  },
   navigation: {
     output: 'Output',
     scheduled: 'Scheduled',

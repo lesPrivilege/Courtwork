@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { BrandMarkIcon } from '../icons/custom-icons.generated';
 
 export type ThinkingStreamState = 'thinking' | 'settled' | 'empty';
 
@@ -12,10 +11,10 @@ interface ThinkingStreamProps {
 }
 
 /**
- * 推理/思考流折叠容器（docs/52 #7 · #26.2/#26.3）。
- * 指示锚 = 品牌 icon 本体（藏青竖线 + 三横杠）：竖线立定、三横杠逐条写下；
- * 静默 = 收回静态 icon（思考流折叠锚）；无内容 = 零痕迹。
- * 四纪律：数据区静止 / 内容到达 0ms 硬切 / 法理之线不参与 / shimmer 灰阶（品牌线例外用藏青）。
+ * 推理/思考流折叠容器（docs/52 #7 · RP-2.11 改判）。
+ * 最小字符版：藏青竖线字符 terminal 式书写指示（非 SVG 图标；icon 本体动画待 post-P-4 另单）。
+ * 三态闭环：进行（闪写光标）→ 静默（字符折叠锚）→ 无（零痕迹）。
+ * 四纪律守全：数据区静止 / 内容 0ms 硬切 / 法理之线不参与 / shimmer 灰阶（竖线本身用藏青）。
  */
 export function ThinkingStream({
   state = 'settled',
@@ -29,12 +28,8 @@ export function ThinkingStream({
   if (state === 'thinking') {
     return (
       <div className="thinking-stream is-thinking" data-testid="thinking-stream" data-state="thinking" role="status" aria-label="Reasoning in progress">
-        <BrandMarkIcon
-          className="turn-icon thinking-stream-glyph"
-          data-icon-scope="turn"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        />
+        <span className="thinking-cursor" aria-hidden="true">▏</span>
+        <span className="thinking-label">Thinking…</span>
       </div>
     );
   }
@@ -50,12 +45,8 @@ export function ThinkingStream({
         title={open ? 'Hide reasoning' : 'Show reasoning'}
         onClick={() => setOpen((value) => !value)}
       >
-        <BrandMarkIcon
-          className="turn-icon thinking-stream-icon"
-          data-icon-scope="turn"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        />
+        <span className="thinking-cursor" aria-hidden="true">▏</span>
+        <span className="thinking-label">Thought process</span>
       </button>
       {open && (
         <div className="thinking-stream-body" data-testid="thinking-stream-body" role="region" aria-label="Reasoning">

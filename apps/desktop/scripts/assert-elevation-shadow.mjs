@@ -33,7 +33,8 @@ for (const value of declarations) {
 
 const tokenConsumers = [...styles.matchAll(/([^{}]+)\{[^{}]*box-shadow\s*:\s*var\(--elevation-shadow\);[^{}]*\}/g)]
   .map((match) => match[1].trim().replace(/\s+/g, ' '));
-const expectedConsumer = '.case-rail.surface-float, .right-rail-collapsed.surface-float, .surface-card-raised';
+// RP-2.11 ⑨：拍板受控扩项——composer 附件 chip 入白名单（藏青双层极轻值）。
+const expectedConsumer = '.case-rail.surface-float, .right-rail-collapsed.surface-float, .surface-card-raised, .attachment-chip';
 if (tokenConsumers.length !== 1 || tokenConsumers[0] !== expectedConsumer) {
   failures.push(`styles.css: elevation consumer whitelist drifted: ${tokenConsumers.join(' | ') || '(none)'}`);
 }

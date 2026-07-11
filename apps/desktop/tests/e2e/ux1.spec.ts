@@ -91,7 +91,8 @@ test.describe('UX-1 批次一', () => {
     await expect(page.getByTestId('thinking-stream-body')).toHaveCount(0);
     await expect(page.getByTestId('thinking-stream-skeleton')).toHaveCount(0);
     await expect(page.getByTestId('thinking-stream-toggle')).toHaveAttribute('aria-label', 'Show reasoning');
-    await expect(page.getByTestId('thinking-stream-toggle').locator('span')).toHaveCount(0);
+    // RP-2.11 改判：静默锚为字符版（竖线光标 + 标签），非 SVG 图标——原「toggle 无 span」断言属 brand-mark 时代。
+    await expect(page.getByTestId('thinking-stream-toggle').locator('.thinking-cursor')).toHaveCount(1);
     await page.getByTestId('thinking-stream-toggle').click();
     await expect(stream).toHaveAttribute('data-open', 'true');
     await expect(page.getByTestId('thinking-stream-body')).toContainText('正在核对合同条款');

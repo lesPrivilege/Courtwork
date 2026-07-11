@@ -781,5 +781,28 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - #28：FileOps 执行器、事务日志、动词闭集与哈希证据均不变；仅报告投影依 docs/36 五节改为中文动作与案件内相对路径，英文枚举、绝对路径和 hash 留在诊断层。E2E 同时锁正向文案和三类不可见字符串。
 - 全门禁：全仓 build 9/9；Vitest 83 files / 725 tests；独立端口 `:1455`、`:1456` 顺序实跑完整静态门禁与 Playwright，两轮均为 146/146（1 worker）；floor 保持 146，未新增或弱化用例。
 
+### RP-2.11 chat|work 二段 + 顶栏秩序 + 字符推理（九条，2026-07-11，Opus 实现，异会话验收）
+
+九条 + 推理改判全落地（MERGE-2 已叠 QF-1/QF-2；合流前本线曾记 151/152 且 composer:56 为 QF-1 前引用）：
+
+- **① 顶部秩序（照搬 Cowork 顶栏重构，用户 crop 定稿）**：`window-chrome` 降**透明绝对浮层**（`app-shell` 去顶栏行 → `grid-template-rows: minmax(0,1fr)`），左右卡片**上下贯通铺到 mac 红绿灯**、顶不留白；红绿灯留白由左卡顶 `padding-top` 让位，wordmark/段控在其下。案件标题迁 `chat-titlebar`——**约束 chat 列居中**、与红绿灯同排、`selectedCase` 门控（不压右卡 dock；`titlebar-case-title` 仅裹标题、badge/stage 兄弟）；chat 面同栏顶显 `Chat` label。浮层仅剩 collapse-left/search（左）+ collapse-right（右）。左栏**除 owner 外全扁平零框线**（rail-head/nav/label/case-card 去边，owner `border-top` 独留）。**composer 扁平**：`composer-box` 改 grid（text 一行占顶、五钮沉 text 下方一排），`composer-float` 横 pad 16px 令两侧留白更宽（尤其 workspace 展开态）。
+- **chat|work 中间档**（docs/25 修正二）：`viewSegment` 真路由；work=容器工作台 / chat=内存态轻画布（`chat-canvas`，二栏、右栏退场、`chatMessages` 重启即逝——0.1.1 诚实缺口）；`unfiled={[]}` 气泡行退场、Recents 纯容器；`storeChatIntoContainer` 存入桥接容器化仪式后切 work。**不做**剪裁/滚动摘要/落盘（HARNESS 系 0.1.2）。
+- **②** 三栏间距 `shellGap/floatInset 8→12`（tokens + css；`@media ≤1280` 已窄列，四档零溢出）。**④** dock 顶对齐左栏（`right-rail-chrome 40px`）。**⑤** composer 五钮沉底零框线：add-folder 提独立钮 + workmode（=viewSegment 同源）。**⑥** message 按钮 24→20 / icon 14→12。**⑦** `--control-hover #e6eaf0`：34 处 `--bg-hover` 扁平按钮 hover 全迁，hover 与 selected 两语义两色。
+- **推理字符版改判**：`▏` terminal 硬闪 + `Thinking…` / 静默 `▏ Thought process`；非 SVG（brand-mark 留册待 post-P-4）；`lint:thinking` 迁 char 契约。
+- **⑧ 长消息收敛**：`CollapsibleMessage`——超 6 行（user 值提案）收敛 + 底部渐隐遮罩（`mask-image`，过渡而非硬切凡例）+ Show more/less（hover 深色块）；纯呈现层不动账本；应用于 user/chat/local 消息。
+- **⑨ 附件 chip**：badge+name+size+remove 已列 composer 顶部；**阴影白名单 +1（`.attachment-chip`，藏青双层极轻值）**，`assert-elevation-shadow` 同步收编。
+
+**迁移的 pinned 断言逐条理由（收尾纪律 1）**：
+- `rp2 #19`（案件头位于 chat）→ 顶栏：**用户 Debug 3 指示覆盖 #19**（架构正式记录）；rp2 testid 断言随迁不放宽。
+- `rp291:15`（chat header 1 button）→ **0 button + 标题居 `chat-titlebar`**：① 迁中栏顶栏后 chat 头真零按钮（名实一致；顶栏重构后标题在 chat-titlebar 而非 window-chrome）。
+- `rp210:77`（折叠钮居右列留空居中 + `right-rail-chrome`）→ **dock 为右卡顶部坐底纸、折叠钮迁顶栏浮层**：顶栏改判后 `right-rail-chrome` 退役、dock 与红绿灯同排，`assert-rp210` 同步撤 right-rail-chrome 断言。
+- `rp25:31`（gap≈8）→ `≈12`：② 三栏间距加大，Cowork 参照即 RP-2.9 锁要真机证据。
+- `rp1:5/31/46`（unfiled 气泡行 + unfiled-store 存入）→ **Recents 纯容器 + chat 面 store-chat**：气泡行退场，存入桥迁 chat 面（docs/25 修正二），仪式/选名词不变。
+- `rp29:35`（composer 序 add/paste/scope/provider/send）→ `+add-folder/workmode`：⑤ 五钮沉底。
+- `rp210:6`/`ux1:81`（brand-mark 锚 / toggle 无 span）→ 字符版：推理改判，brand-mark 旧断言退役、两套不并存。
+
+门禁：`lint:rp211` + `rp211.spec.ts` 6 例；floor `143→146`（本线 152，合流 main 上由终验设定最终值）。视觉证据：`visual-audit/57-rp211-work-topchrome-1440.png`、`58-rp211-chat-canvas-1440.png`。
+
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

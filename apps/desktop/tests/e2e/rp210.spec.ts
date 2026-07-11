@@ -3,21 +3,20 @@ import { openWorkbench } from './helpers';
 
 // —— RP-2.10 三卡一纸 + 品牌 icon 推理动画（docs/49 第十二章 · docs/55 #26.2/#26.3） ——
 
-test('#26.2/#26.3 推理锚 = 品牌 icon 本体，居 turn 尾 message 按钮排之下', async ({ page }) => {
+test('推理锚 = 字符版竖线光标（RP-2.11 改判），居 turn 尾 message 按钮排之下', async ({ page }) => {
   await openWorkbench(page);
   const turn = page.getByTestId('assistant-turn-demo');
   const stream = turn.getByTestId('thinking-stream');
   await expect(stream).toBeVisible({ timeout: 15_000 });
 
-  // 品牌 icon 本体：藏青竖线 + 三横杠（lucide-brand-mark），非星星
-  const glyph = stream.locator('svg.lucide-brand-mark');
-  await expect(glyph).toHaveCount(1);
-  await expect(stream.locator('svg.lucide-spark-lines')).toHaveCount(0);
-  await expect(glyph.locator('path')).toHaveCount(4);
-  // 品牌线用藏青（灰阶 shimmer 唯一例外）
-  await expect(glyph).toHaveCSS('color', 'rgb(10, 37, 64)');
+  // RP-2.11 改判：最小字符版——竖线字符光标（非 SVG 图标；brand-mark 本体动画待 post-P-4 另单）
+  const cursor = stream.locator('.thinking-cursor');
+  await expect(cursor).toHaveCount(1);
+  await expect(stream.locator('svg')).toHaveCount(0);
+  // 竖线用藏青（灰阶 shimmer 唯一例外）
+  await expect(cursor).toHaveCSS('color', 'rgb(10, 37, 64)');
 
-  // 位形：turn 尾、message 按钮排之下
+  // 位形：turn 尾、message 按钮排之下（位形不变）
   const actions = turn.getByTestId('message-actions-assistant-demo');
   const [streamBox, actionsBox] = await Promise.all([stream.boundingBox(), actions.boundingBox()]);
   expect(streamBox).not.toBeNull();
@@ -75,21 +74,20 @@ test('三卡一纸：右列两态皆无 utility 卡，schema 唯一右卡', asyn
   await expect(page.getByTestId('preview-host')).toBeVisible();
 });
 
-test('折叠钮居留空上部居中、坐底纸不占卡；dock 坐底纸', async ({ page }) => {
+test('dock 为右卡顶部坐底纸；折叠钮迁顶栏浮层（RP-2.11 顶栏改判）', async ({ page }) => {
   await openWorkbench(page);
+  // RP-2.11：折叠钮迁 window-chrome 顶栏浮层（right-rail-chrome 退役），dock 为右卡顶部与红绿灯同排
   const collapse = page.getByTestId('collapse-right-rail');
   await expect(collapse).toBeVisible();
-  // 住底纸留空、不占卡
-  await expect(page.locator('.right-rail-chrome [data-testid="collapse-right-rail"]')).toHaveCount(1);
+  await expect(page.getByTestId('window-chrome').getByTestId('collapse-right-rail')).toHaveCount(1);
   await expect(collapse.locator('xpath=ancestor::*[contains(concat(" ",@class," ")," surface-card ")]')).toHaveCount(0);
-  // 居中：水平居中于右列上部留空
+  // dock 与顶栏同排（dock 顶接近右列顶）
   const right = page.getByTestId('right-module-stack');
-  const [cBox, rBox] = await Promise.all([collapse.boundingBox(), right.boundingBox()]);
-  expect(cBox).not.toBeNull();
+  const dock = page.getByTestId('utility-rail');
+  const [dBox, rBox] = await Promise.all([dock.boundingBox(), right.boundingBox()]);
+  expect(dBox).not.toBeNull();
   expect(rBox).not.toBeNull();
-  const collapseCenter = (cBox?.x ?? 0) + (cBox?.width ?? 0) / 2;
-  const rightCenter = (rBox?.x ?? 0) + (rBox?.width ?? 0) / 2;
-  expect(Math.abs(collapseCenter - rightCenter)).toBeLessThan(28);
+  expect((dBox?.y ?? 0) - (rBox?.y ?? 0)).toBeLessThan(4);
   // dock 坐底纸：L0 透明带（非白卡）
-  await expect(page.getByTestId('utility-rail')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(dock).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
 });

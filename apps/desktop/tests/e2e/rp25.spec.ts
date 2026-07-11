@@ -28,7 +28,7 @@ for (const width of [1180, 1240, 1440, 1600]) {
     });
     expect(metrics.root[0]).toBeLessThanOrEqual(metrics.root[1]);
     expect(metrics.body[0]).toBeLessThanOrEqual(metrics.body[1]);
-    expect(metrics.gap).toBeCloseTo(8, 1);
+    expect(metrics.gap).toBeCloseTo(12, 1); // RP-2.11 ②：三栏间距 8→12（Cowork 参照解锁 RP-2.9 锁）
     expect(metrics.composerRight).toBeLessThanOrEqual(metrics.chatRight);
     expect(metrics.sendRight).toBeLessThanOrEqual(metrics.chatRight);
     expect(metrics.providerRight).toBeLessThanOrEqual(metrics.chatRight);

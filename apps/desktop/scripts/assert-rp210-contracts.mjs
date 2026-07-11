@@ -38,8 +38,7 @@ if (!app.includes("status={session.confirmation ? 'success' : 'active'}")) failu
 // —— Item 1：三卡一纸 ——
 // utility 两态皆坐底纸、永不成卡（schema 唯一右卡）
 if (/<SurfaceCard/.test(utility)) failures.push('utility rail 两态皆无卡（schema 唯一右卡）');
-if (!app.includes('<div className="right-rail-chrome">')) failures.push('折叠钮须住 right-rail-chrome 底纸留空');
-has(/\.right-rail-chrome\s*\{[^}]*place-items:\s*center/, '折叠钮居留空上部居中（right-rail-chrome）');
+// RP-2.11 顶栏改判：dock 为右卡顶部、折叠钮迁顶栏浮层（right-rail-chrome 退役）；此处只守 schema 唯一卡不回归。
 has(/\.utility-dock\s*\{\s*position:\s*relative;[^}]*background:\s*transparent/, 'dock 坐底纸（L0 透明带，非白卡）');
 has(/\.utility-reopen\s*\{/, 'base 态 reopen 入口坐底纸不占卡');
 
