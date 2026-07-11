@@ -555,3 +555,8 @@ FD-2 四件齐（14 白卡穷举/四垂类完整帧+总画廊/结构提案含四
 范围：五工作面逐面按 docs/36 回灌对齐（结合 FD-2 编排、皮肤按新色板）；批次三 #13–15（图谱拖拽/矩阵 hover 溯源/修订 glyph）；渐进完备三态与断裂律三态实装核查（无锚待补态/索证引导/partial 诚实）；溯源展开与 gate/question 流真模型下走通；artifact 事件→投影→阶段取流的 harness 接缝实测（真 API 下 S3 全流程 golden 对照）；慢火池顺带（路由/返回/弹窗层级）。
 纪律同 GOAL-1；harness 接缝任何契约变更一律 [需架构拍板]；完工附五面前后对照 + 接缝实测记录。
 ```
+
+### GOAL-1 追加 #43/#44（2026-07-12，用户真机）
+
+**#43 Manage credentials 层级错**：Settings（L2 modal）内点「管理」→ ProviderSetup 打开在首页根层而非 settings 之上，须退出 setting 才见——浮层挂载点错位；与批次五 #31 同族（全局单浮层根治理）：修法方向 = 单浮层根 + 层级栈（L2 之上可叠 L2+，或凭证面板内嵌 settings 页内不另开 modal——倾向后者，减法律）。
+**#44 Verify connection 塌陷**：点击 → keychain 弹窗填写 → 按钮转加载 → 整个界面/浮层消失。排查链：①keychain 系统弹窗夺焦是否触发 modal 的失焦/Esc 关闭 handler；②validate 回调 onStatusChange 的 setState 是否连锁卸载 settings；③未捕获 rejection 是否触发边界重置；④消失后实际 phase 落在哪（若 Connected 则冒烟已成、纯 UI 塌陷——用户复查中）。修复断言：验证全程 settings 稳定在场 + 结果就地呈现（成功绿徽/失败分型文案），系统弹窗期间禁触发任何关闭逻辑。
