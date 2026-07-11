@@ -1,6 +1,6 @@
 [package]
 name = "courtwork-desktop"
-version = "0.1.0"
+version = "0.1.1"
 description = "Courtwork 法律工作台"
 authors = ["Courtwork"]
 edition = "2021"

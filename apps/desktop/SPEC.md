@@ -1,6 +1,6 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**PRV-1 provider 自配最小闭环完成**；**RP-2 UI 完全化完成，RP-2.8.1 三项验收打回已修、待单点复验**；**BUILD-1 首个正式 Build（0.1.0 base 定形版）已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**PRV-1 provider 自配最小闭环完成**；**RP-2 UI 完全化完成，RP-2.8.1 三项验收打回已修、待单点复验**；**BUILD-1 0.1.0 已产**；**BUILD-0.1.1 Ship Gate 正式 Build 已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
 
 ## PRV-1 · provider 自配最小闭环（2026-07-11）
 
@@ -94,6 +94,41 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 验证：Rust 9 单测；desktop Vitest 70；Playwright **90/90**（下限 90）。
 
 ## Build 记录（SITE-1 下载区引用）
+
+
+### BUILD-0.1.1 · Ship Gate 合流后正式 Build（2026-07-12）
+
+| 项 | 值 |
+|---|---|
+| 版本 | **0.1.1**（`package.json` / `tauri.conf.json` / `Cargo.toml` / 关于页 `SettingsPage.APP_VERSION` 对齐） |
+| 裁切 HEAD | `93e7a00`（0.1.1 合流终验放行；main 其后 docs 板面不改产品码） |
+| 构建时刻 (UTC) | `2026-07-11T17:28:24Z` |
+| 标识 | `cn.courtwork.desktop` · productName `Courtwork` |
+| 架构 | `aarch64`（Apple Silicon） |
+| 签名 | **ad-hoc**（`signingIdentity: "-"`；`CodeDirectory flags=adhoc,runtime`；TeamIdentifier 未设） |
+| 公证 | **未做**（无 APPLE_ID/TEAM_ID/API_KEY；挂账：正式发行需 Developer ID + notarization） |
+| 工具链 | Node `v25.9.0` · pnpm `9.15.0` · `rustc 1.97.0 (2d8144b78 2026-07-07)` |
+
+**产物路径（本机构建输出，不入 git）**
+
+| 产物 | 路径 |
+|---|---|
+| App | `apps/desktop/src-tauri/target/release/bundle/macos/Courtwork.app` |
+| DMG | `apps/desktop/src-tauri/target/release/bundle/dmg/Courtwork_0.1.1_aarch64.dmg` |
+| 可执行文件 | `Courtwork.app/Contents/MacOS/courtwork-desktop` |
+
+**校验（B 阶段判例：DMG 级哈希不可复现为唯一真理；签名 + 前端内容哈希做确定性校验）**
+
+| 校验 | 结果 |
+|---|---|
+| `codesign --verify --deep --strict Courtwork.app` | **OK** |
+| `codesign --verify --strict` 可执行文件 | **OK** |
+| `hdiutil verify` DMG | **VALID**（CRC32 校验通过） |
+| 可执行文件 SHA-256 | `d086e23ee001a0756bc8c1a19f3f7629a14655e0fb351bac9f3d3b5cb7f13d1a` |
+| DMG SHA-256（本机本趟） | `dbf0e1c2e31994d02edcad579778152f75cb096db5683bec714dedb182cec39a` |
+| 前端 dist 清单 SHA-256（`find dist -type f | sort | xargs shasum -a 256` 再 hash） | `dc0557b4d8719804c7e5c7977dc64c1a6a30024ff25810ee8ac7214b6b526660` |
+
+注：版本号提交与本 Build 记录同批；产品行为零改（仅版本字面量 + 本记录）。用户闸：装包后 DeepSeek「验证连接」真 key 首跑。
 
 ### BUILD-1 · 0.1.0 base 定形版（2026-07-11）
 

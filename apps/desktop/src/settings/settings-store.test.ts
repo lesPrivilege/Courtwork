@@ -50,7 +50,7 @@ describe('settings-store', () => {
   it('diagnostic payload never embeds secrets or absolute output path', () => {
     const snap = updateOutputDir(loadSettings(), '/Users/secret/path');
     const payload = buildDiagnosticPayload(snap, {
-      appVersion: '0.1.0',
+      appVersion: '0.1.1',
       credentialPhase: 'connected',
       modelConfig: { providerId: 'deepseek', modelId: 'deepseek-chat', reasoning: 'standard' },
     });
@@ -61,7 +61,7 @@ describe('settings-store', () => {
 
   it('diagnostic payload carries credentialFailKind enum only', () => {
     const payload = buildDiagnosticPayload(loadSettings(), {
-      appVersion: '0.1.0',
+      appVersion: '0.1.1',
       credentialPhase: 'failed',
       credentialFailKind: 'auth_failed',
       modelConfig: { providerId: 'deepseek', modelId: 'deepseek-chat', reasoning: 'standard' },

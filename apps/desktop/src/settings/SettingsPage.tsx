@@ -43,7 +43,7 @@ const NAV: ReadonlyArray<{ id: SettingsSection; label: string }> = [
   { id: 'about', label: 'About & updates' },
 ];
 
-const APP_VERSION = '0.1.0';
+const APP_VERSION = '0.1.1';
 
 function chromeConnectionLabel(status: CredentialStatus): string {
   if (status.phase === 'connected') return 'Connected';
