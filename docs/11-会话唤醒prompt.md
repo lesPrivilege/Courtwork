@@ -852,3 +852,25 @@ elevation 一致性专项（三处对表）：SPEC 提案值 ↔ tokens.json ele
 
 报告纯追加 apps/desktop/ACCEPTANCE.md「RP-1 验收」节。结论三问：RP-1 放行与否；base 是否定形；是否可出首个正式 Build（放行即触发，Build 工序另单）。
 ```
+
+## F-1.1 补丁：左栏「存入」接容器化仪式（Grok，Build 前唯一阻塞）
+
+```
+你认领 Courtwork 的 F-1.1 微补丁（RP-1 验收唯一 🟡，架构裁决不豁免：直建 kind:'case' = 替用户选名词，违反 docs/49 核心律）。范围极窄，冻结结构内小改，不重开重排。
+
+改动：左栏未归档行「存入」（handleContainerizeUnfiled）改为打开既有 containerize-popover（与 composer-first 同一 confirmContainerize、工作区/案件二选），废除直建路径。锚定行（popover 定位）按既有 popover 语法处理。
+
+测试：rp1 #2 e2e 改断言——存入 → popover 出现 → 选「案件」→ 行消失 + 标题栏见名（架构已裁定：原断言锁死错误行为，此改不算放宽）；补一分支断言选「工作区」路径成立。floor ≥87 禁降。
+
+自检：pnpm -r build + desktop Vitest + Playwright 全绿 + 四门禁。单枚 fix commit，显式路径。
+```
+
+## BUILD-1 首个正式 Build 工序（Grok，F-1.1 复验通过后执行）
+
+```
+你认领 Courtwork 的 BUILD-1：首个正式 Build（base 定形版）。前置：F-1.1 已合入且复验通过。
+
+工序：版本号定 0.1.0（tauri.conf + package.json 对齐）→ 产 dmg → codesign 校验 + hdiutil verify（B 阶段验收判例：DMG 级哈希不可复现，用签名校验 + 前端内容哈希做确定性校验）→ 记录 SHA-256 与构建环境（Node/pnpm/rustc 版本）→ 产物路径与校验值写入 apps/desktop/SPEC.md「Build 记录」节（SITE-1 下载区将引用）。
+
+纪律：Developer ID 公证仍挂账（无证书则 ad-hoc 签名并如实记录）；构建脚本若有新增走显式路径提交；不顺手改任何产品代码。
+```
