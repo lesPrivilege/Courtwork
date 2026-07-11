@@ -15,7 +15,7 @@ test.describe('SET-1 设置页', () => {
     await expect(page.getByTestId('settings-page')).toHaveCount(0);
 
     await page.keyboard.press('Meta+K');
-    await page.getByRole('option', { name: '设置', exact: true }).click();
+    await page.getByRole('option', { name: 'Settings', exact: true }).click();
     await expect(page.getByTestId('settings-page')).toBeVisible();
   });
 
@@ -27,9 +27,9 @@ test.describe('SET-1 设置页', () => {
     await expect(page.getByTestId('settings-credential-phase')).toBeVisible();
     await page.getByTestId('settings-provider').selectOption('qwen');
     await page.getByTestId('settings-model').selectOption('qwen-max');
-    await page.getByRole('radio', { name: '深思' }).check();
+    await page.getByRole('radio', { name: 'Deep' }).check();
     await expect(page.getByTestId('settings-model-summary')).toContainText('Qwen Max');
-    await expect(page.getByTestId('settings-model-summary')).toContainText('深思');
+    await expect(page.getByTestId('settings-model-summary')).toContainText('Deep');
     await page.getByTestId('settings-maxusd').fill('8');
     await page.getByTestId('settings-maxusd-save').click();
     await expect(page.getByTestId('system-open-feedback')).toContainText('8');
@@ -41,7 +41,7 @@ test.describe('SET-1 设置页', () => {
     const outDir = mkdtempSync(join(tmpdir(), 'cw-settings-out-'));
     writeFileSync(join(outDir, 'note.txt'), 'x');
     await page.getByTestId('settings-output-folder-input').setInputFiles(outDir);
-    await expect(page.getByTestId('settings-output-dir')).not.toHaveText(/尚未设置/);
+    await expect(page.getByTestId('settings-output-dir')).not.toHaveText(/Not set/);
     await expect(page.getByTestId('settings-reveal-output-dir')).toBeEnabled();
 
     // 隐私：遥测开关 + opt-in 确认制带时间戳
@@ -75,22 +75,22 @@ test.describe('SET-1 设置页', () => {
     await page.getByTestId('settings-nav-output').click();
     const sources = page.getByTestId('settings-sources');
     await expect(sources).toHaveAttribute('aria-disabled', 'true');
-    await expect(sources).toHaveAttribute('title', /即将支持/);
+    await expect(sources).toHaveAttribute('title', /coming soon/);
 
     await page.getByTestId('settings-nav-channels').click();
     for (const id of ['wecom', 'feishu', 'email', 'enterprise-lib'] as const) {
       const btn = page.getByTestId(`settings-channel-${id}-btn`);
       await expect(btn).toHaveAttribute('aria-disabled', 'true');
-      await expect(btn).toHaveAttribute('title', /即将支持/);
+      await expect(btn).toHaveAttribute('title', /coming soon/);
     }
 
     await page.getByTestId('settings-nav-privacy').click();
     await expect(page.getByTestId('settings-clear-prefs')).toHaveAttribute('aria-disabled', 'true');
-    await expect(page.getByTestId('settings-clear-prefs')).toHaveAttribute('title', /清除记住的偏好|即将支持/);
+    await expect(page.getByTestId('settings-clear-prefs')).toHaveAttribute('title', /coming soon/);
 
     await page.getByTestId('settings-nav-about').click();
     await expect(page.getByTestId('settings-check-update')).toHaveAttribute('aria-disabled', 'true');
-    await expect(page.getByTestId('settings-check-update')).toHaveAttribute('title', /即将支持/);
+    await expect(page.getByTestId('settings-check-update')).toHaveAttribute('title', /coming soon/);
   });
 
   test('管理凭证打开既有探针对话框', async ({ page }) => {

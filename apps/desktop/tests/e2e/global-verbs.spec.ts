@@ -164,9 +164,9 @@ test.describe('命令面板', () => {
   test('模糊匹配过滤场景与操作', async ({ page }) => {
     await openWorkbench(page);
     await page.keyboard.press('Meta+K');
-    const input = page.getByRole('textbox', { name: '搜索场景、案件或操作' });
-    await input.fill('专注');
-    await expect(page.getByRole('option', { name: /进入专注模式/ })).toBeVisible();
+    const input = page.getByRole('textbox', { name: 'Search scenes, cases, or actions' });
+    await input.fill('focus');
+    await expect(page.getByRole('option', { name: /Enter focus mode/ })).toBeVisible();
     await expect(page.getByRole('option', { name: '整理卷宗' })).toHaveCount(0);
   });
 
@@ -181,24 +181,24 @@ test.describe('命令面板', () => {
   test('⌘K 触发新建案件对话框', async ({ page }) => {
     await openWorkbench(page);
     await page.keyboard.press('Meta+K');
-    await page.getByRole('option', { name: '新建案件' }).click();
+    await page.getByRole('option', { name: 'New case' }).click();
     await expect(page.getByTestId('new-case-dialog')).toBeVisible();
   });
 
   test('⌘K 触发专注模式并可再次通过面板退出', async ({ page }) => {
     await openWorkbench(page);
     await page.keyboard.press('Meta+K');
-    await page.getByRole('option', { name: '进入专注模式' }).click();
+    await page.getByRole('option', { name: 'Enter focus mode' }).click();
     await expect(page.getByTestId('workspace')).toHaveAttribute('data-focus-mode', 'true');
     await page.keyboard.press('Meta+K');
-    await page.getByRole('option', { name: '退出专注模式' }).click();
+    await page.getByRole('option', { name: 'Exit focus mode' }).click();
     await expect(page.getByTestId('workspace')).toHaveAttribute('data-focus-mode', 'false');
   });
 
   test('⌘K 打开产出文件夹显示访达反馈', async ({ page }) => {
     await openWorkbench(page);
     await page.keyboard.press('Meta+K');
-    await page.getByRole('option', { name: '打开产出文件夹' }).click();
+    await page.getByRole('option', { name: 'Open output folder' }).click();
     await expect(page.getByTestId('system-open-feedback')).toHaveText('已在访达中显示');
   });
 

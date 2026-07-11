@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { openWorkbench, openWorkingFolders } from './helpers';
 
 test('卷宗整理计划表可勾选并确认执行', async ({ page }) => {
   await openWorkbench(page);
@@ -18,7 +18,8 @@ test('卷宗整理计划表可勾选并确认执行', async ({ page }) => {
 
 test('整理后可撤销并保留确认门禁形态', async ({ page }) => {
   await openWorkbench(page);
-  await page.getByTestId('open-file-ops').click();
+  await openWorkingFolders(page);
+  await page.getByTestId('wf-open-file-ops').click();
   await page.getByTestId('file-ops-execute').click();
   await expect(page.getByTestId('file-ops-report')).toBeVisible();
   await page.getByTestId('file-ops-undo').click();

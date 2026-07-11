@@ -53,7 +53,6 @@ test('收窄时案件与模块标题横向省略，不竖排溢出', async ({ pa
 test('左下用户菜单收纳设置、更新与 feedback', async ({ page }) => {
   await page.getByTestId('user-menu-trigger').click();
   const menu = page.getByTestId('user-menu');
-  await expect(menu).toContainText('设置');
-  await expect(menu).toContainText('检查更新');
+  await expect(menu).toContainText('Settings & updates');
   await expect(menu).toContainText('Give us feedback');
 });

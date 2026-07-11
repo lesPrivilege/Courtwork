@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { openWorkbench, openWorkingFolders } from './helpers';
 
 test('状态条打开产出文件夹显示访达反馈', async ({ page }) => {
   await openWorkbench(page);
@@ -22,7 +22,8 @@ test('产出 docx 卡片可在访达中显示并打开文件', async ({ page }) 
 
 test('新建工作稿进入编辑面且自动保存', async ({ page }) => {
   await openWorkbench(page);
-  await page.getByTestId('open-work-drafts').click();
+  await openWorkingFolders(page);
+  await page.getByTestId('wf-open-work-drafts').click();
   await expect(page.getByTestId('work-draft-panel')).toBeVisible();
   await page.getByTestId('new-work-draft').click();
   await expect(page.getByTestId('work-draft-editor')).toBeVisible();

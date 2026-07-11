@@ -28,30 +28,26 @@ test.describe('UX-1 批次一', () => {
     await expect(chip).not.toContainText('临江');
   });
 
-  test('#1/#2：卷宗计数可点；双词表案件用卷宗', async ({ page }) => {
+  test('#1/#2：卷宗计数降为元信息；双词表案件用卷宗', async ({ page }) => {
     await openWorkbench(page);
     const count = page.getByTestId('case-file-count').first();
     await expect(count).toContainText('卷宗');
     await expect(count).toContainText('件');
-    await count.click();
-    // RP-1 A2：锚点在案件展开态内；可见 + 滚入高亮链路不放宽
     const zone = page.getByTestId('originals-zone');
     await expect(zone).toBeVisible();
-    await expect(zone).toHaveAttribute('data-highlight', 'true');
 
-    // 收起后再点计数 → 仍须自动展开并高亮（目标随收编迁移）
+    // RP-2.7：计数不再重复承担导航，展开动词只有 chevron。
     await page.getByTestId('rail-expand-demo-linjiang').click();
     await expect(page.getByTestId('originals-zone')).toHaveCount(0);
-    await count.click();
+    await page.getByTestId('rail-expand-demo-linjiang').click();
     await expect(page.getByTestId('originals-zone')).toBeVisible();
-    await expect(page.getByTestId('originals-zone')).toHaveAttribute('data-highlight', 'true');
   });
 
   test('#3：先聊后建 — 无容器存入弹出容器化仪式', async ({ page }) => {
     await openWorkbench(page);
     await page.getByTestId('composer-case').click();
     await page.getByTestId('composer-case-unbind').click();
-    await expect(page.getByTestId('composer-case')).toContainText('选择案件');
+    await expect(page.getByTestId('composer-case')).toContainText('Choose case');
 
     await page.getByTestId('composer-file-input').setInputFiles(fixtureMd);
     const chip = page.locator('[data-testid^="attachment-chip-"]').first();
@@ -64,9 +60,9 @@ test.describe('UX-1 批次一', () => {
     await expect(page.getByTestId('titlebar-case-title')).toContainText('案件');
   });
 
-  test('#4/#5：平铺真实动词 + 溢出菜单收纳相机/语音', async ({ page }) => {
+  test('#4/#5：附件来源统一收进 + 菜单', async ({ page }) => {
     await openWorkbench(page);
-    await expect(page.getByTestId('composer-upload')).toBeVisible();
+    await expect(page.getByTestId('composer-upload')).toHaveCount(0);
     await expect(page.getByTestId('composer-case')).toBeVisible();
     await expect(page.getByTestId('composer-send')).toBeVisible();
     await expect(page.getByTestId('composer-plus')).toBeVisible();
@@ -75,13 +71,14 @@ test.describe('UX-1 批次一', () => {
     await page.getByTestId('composer-plus').click();
     const menu = page.getByTestId('composer-plus-menu');
     await expect(menu).toBeVisible();
+    await expect(page.getByTestId('composer-upload')).toHaveText('Attach files');
     await expect(page.getByTestId('composer-plus-folder')).toBeVisible();
     const camera = page.getByTestId('composer-camera');
     await expect(camera).toHaveAttribute('aria-disabled', 'true');
-    await expect(camera).toHaveAttribute('title', /扫描件识别即将支持/);
+    await expect(camera).toHaveAttribute('title', /Coming soon/);
     const voice = page.getByTestId('composer-voice');
     await expect(voice).toHaveAttribute('aria-disabled', 'true');
-    await expect(voice).toHaveAttribute('title', /语音输入即将支持/);
+    await expect(voice).toHaveAttribute('title', /Coming soon/);
   });
 
   test('#7：思考流默认折叠，点开可看', async ({ page }) => {
@@ -103,9 +100,9 @@ test.describe('UX-1 批次一', () => {
     await expect(popover).toBeVisible();
     await page.getByTestId('model-config-provider').selectOption('qwen');
     await page.getByTestId('model-config-model').selectOption('qwen-max');
-    await page.getByRole('radio', { name: '深思' }).check();
+    await page.getByRole('radio', { name: 'Deep' }).check();
     await expect(page.getByTestId('model-config-summary')).toContainText('Qwen Max');
-    await expect(page.getByTestId('model-config-summary')).toContainText('深思');
+    await expect(page.getByTestId('model-config-summary')).toContainText('Deep');
     await page.getByTestId('model-config-close').click();
     await expect(page.getByTestId('model-config-trigger')).toContainText('Qwen Max');
   });

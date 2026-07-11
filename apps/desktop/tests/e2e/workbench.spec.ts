@@ -257,7 +257,7 @@ test('1600px 以上解锁左右对照', async ({ page }) => {
   await page.setViewportSize({ width: 1700, height: 900 });
   await openWorkbench(page);
   await page.getByTestId('split-start').click();
-  const columns = page.getByRole('button', { name: '左右对照' });
+  const columns = page.getByRole('button', { name: 'Side-by-side comparison' });
   await expect(columns).toBeEnabled();
   await columns.click();
   await expect(page.getByTestId('split-grid')).toHaveAttribute('data-direction', 'columns');
@@ -349,9 +349,9 @@ test('临界用量提供一键续行', async ({ page }) => {
 test('context 模块承载当前阶段用量明细', async ({ page }) => {
   await openWorkbench(page);
   if ((await page.getByTestId('module-context').getAttribute('data-open')) !== 'true') await page.getByTestId('module-context-toggle').click();
-  await expect(page.getByText('卷宗占用 62%')).toBeVisible();
-  await expect(page.getByText('对话占用 23%')).toBeVisible();
-  await expect(page.getByText('可整理内容 6%')).toBeVisible();
+  await expect(page.getByText('Case files 62%')).toBeVisible();
+  await expect(page.getByText('Chat 23%')).toBeVisible();
+  await expect(page.getByText('Compressible 6%')).toBeVisible();
 });
 
 test('控件字体简写不清除全域等宽数字特性', async ({ page }) => {

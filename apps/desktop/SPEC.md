@@ -628,5 +628,33 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - 既有回归通过显式 `openWorkbench` 进入 Demo；需要真实发送/model-config 的用例显式完成授权，避免把冷启动静默态改回旧行为。
 - 当前验证：Playwright 116/116，desktop 生产构建通过；visual-audit：`37-rp26-first-install-1440.png`、`38-rp26-demo-preview-1440.png`、`39-rp26-demo-preview-1180.png`。
 
+## RP-2.7 — 省并减法与语言分层（2026-07-11）
+
+### 双宿主语言边界
+
+- 通用 chrome 使用英文：导航、欢迎态、composer、model-config、UtilityRail、命令面板、设置外壳与 Preview 宿主动作。
+- schema / 容器内容保持中文：五工作面 Tab 与 renderer、场景、卷宗/样板案词表、确认/驳回/修订、案件与文书内容。
+- 设置中的《数据承诺声明》正文与失败态钥匙串恢复说明仍为中文内容，不视为 chrome；它们面向中国律所逐字阅读。
+- `credentials/**` 继续遵守 RP-2 总单冻结线，未为翻译修改；授权 modal 的迁移留给凭证热点所有者，避免 UI 单越界触碰 FIX-KC-1。
+
+### 删除 / 合并清单（每项含保留理由）
+
+| 减法 | 处置 | 理由 |
+|---|---|---|
+| 左栏「工作稿 / 卷宗整理」 | 删除，唯一入口留在 Working folders | 同一 handler 同屏出现两次会让用户无法判断哪个是主路径。 |
+| 左栏卷宗计数导航职责 | 降为只读元信息，展开只走 chevron | 计数既是信息又是隐形按钮，端点不可发现；原件已在展开卡内。 |
+| Working folders「Output」行 | 删除，唯一入口留在左栏 Output | 两个按钮调用同一输出目录动作，没有提供额外上下文。 |
+| 用户菜单 Settings / Check for updates 两行 | 合并为 `Settings & updates` | 两项此前打开同一 about 路由，分列属于假分支。 |
+| composer 平铺上传按钮 | 删除，合并到 `+ → Attach files` | `+` 菜单已是附件来源总入口；平铺回形针重复表达同一动作并挤压输入宽度。 |
+| composer 附件来源散列 | `Attach files / Add folder / photo / voice` 收进同一菜单 | 来源选择属于一族；主序只保留 Add / case / provider / Send，更接近 frontier。 |
+| 左栏三行案件摘要 | 合并为标题 + 单行案号/件数 | 案号与件数同为元信息，分三行会让样板案看起来像一张表单卡。 |
+| 中英文混杂 chrome | 通用词统一英文，法律内容不动 | 语言边界与双宿主一致，未来租户词表替换 chrome 时不牵动 schema 断言。 |
+
+### 机器门禁
+
+- `lint:rp27`：锁定 chrome 词表纯英文；CaseRail 不再持有 Working folders 重复 handler；Settings/update 单入口；Attach files 单入口且必须位于 `+` 菜单；schema renderer 保留中文法律词。
+- Playwright 新增两组互不依赖的语言断言：chrome 英文组不读取 schema，schema 中文组不依赖 chrome 文案；另锁 composer 四位主序与左栏去重。floor 116 → 121。
+- 当前验证：Playwright 121/121；改后首屏视觉证据 `40-rp27-first-install-1440.png`。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

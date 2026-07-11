@@ -17,8 +17,8 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
     const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'pending');
-    await expect(button).toContainText('待连接');
-    await expect(button).not.toContainText('已连接');
+    await expect(button).toContainText('Connect');
+    await expect(button).not.toContainText('Connected');
   });
 
   test('授权失败态显示连接失败与引导文案', async ({ page }) => {
@@ -33,7 +33,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
     const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'failed');
-    await expect(button).toContainText('连接失败');
+    await expect(button).toContainText('Connection failed');
   });
 
   test('F4 分型文案：auth_failed 呈现在状态条 title', async ({ page }) => {
@@ -51,7 +51,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
     const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'failed');
-    await expect(button).toContainText('连接失败');
+    await expect(button).toContainText('Connection failed');
   });
 
 
@@ -65,7 +65,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await expect(dialog).toBeHidden();
     const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'connected');
-    await expect(button).toContainText('DeepSeek Chat · 标准');
+    await expect(button).toContainText('DeepSeek Chat · Standard');
   });
 
   test('短凭证保存失败不显示已连接', async ({ page }) => {
@@ -122,7 +122,7 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     await expect(page.getByTestId('output-docx-card')).toHaveCount(0);
     // RP-2.5：Preview 态 utility 收为 dock；点进度回到通用宿主后核对原语义。
     await page.getByTestId('module-progress-toggle').click();
-    await expect(page.getByTestId('progress-module-body-list')).toContainText('新案件');
+    await expect(page.getByTestId('progress-module-body-list')).toContainText('New case');
 
     // 回到 demo
     await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();

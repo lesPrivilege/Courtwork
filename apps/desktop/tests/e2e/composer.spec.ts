@@ -6,12 +6,11 @@ import { connectProvider, openWorkbench } from './helpers';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixtureMd = path.resolve(here, '../fixtures/sample-brief.md');
 
-test('composer 按钮族：平铺上传/案件/发送 + 溢出菜单收纳拍照/语音（docs/52 #4）', async ({ page }) => {
+test('composer 按钮族：添加/案件/provider/发送主序，附件来源统一收进 +', async ({ page }) => {
   await openWorkbench(page);
   const composer = page.getByTestId('composer');
   await expect(composer).toBeVisible();
 
-  await expect(page.getByTestId('composer-upload')).toBeVisible();
   await expect(page.getByTestId('composer-case')).toBeVisible();
   await expect(page.getByTestId('composer-send')).toBeDisabled();
   await expect(page.getByTestId('composer-plus')).toBeVisible();
@@ -19,16 +18,17 @@ test('composer 按钮族：平铺上传/案件/发送 + 溢出菜单收纳拍照
   // 平铺区无相机/语音；打开 + 菜单后见禁用态
   await expect(page.getByTestId('composer-camera')).toHaveCount(0);
   await page.getByTestId('composer-plus').click();
+  await expect(page.getByTestId('composer-upload')).toHaveText('Attach files');
   const camera = page.getByTestId('composer-camera');
   await expect(camera).toHaveAttribute('aria-disabled', 'true');
-  await expect(camera).toHaveAttribute('title', '扫描件识别即将支持 · 当前可直接上传拍摄照片或 PDF');
+  await expect(camera).toHaveAttribute('title', 'Coming soon · Attach a photo or PDF for now');
 
   const voice = page.getByTestId('composer-voice');
   await expect(voice).toHaveAttribute('aria-disabled', 'true');
-  await expect(voice).toHaveAttribute('title', '语音输入即将支持 · 当前请直接打字');
+  await expect(voice).toHaveAttribute('title', 'Coming soon · Type your message for now');
 
-  await expect(page.getByTestId('composer-kbd-hint')).toContainText('发送');
-  await expect(page.getByTestId('composer-kbd-hint')).toContainText('换行');
+  await expect(page.getByTestId('composer-kbd-hint')).toContainText('Send');
+  await expect(page.getByTestId('composer-kbd-hint')).toContainText('New line');
 });
 
 test('附件 chip 生命周期：上传成功、作用域确认单向落定', async ({ page }) => {

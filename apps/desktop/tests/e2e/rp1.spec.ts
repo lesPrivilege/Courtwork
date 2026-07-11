@@ -17,10 +17,9 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('originals-zone')).toBeVisible();
     const demo = page.getByTestId('case-card-demo-linjiang');
     await expect(page.getByText('卷宗原件 · 只读', { exact: true })).toBeVisible();
-    await expect(page.getByText('工作区', { exact: true })).toBeVisible();
     await expect(demo.locator('.rail-row-main')).toHaveCSS('background-color', 'rgb(233, 238, 244)');
     await expect(demo.locator('.rail-case-expand')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
-    await expect(page.getByTestId('open-work-drafts')).toBeVisible();
+    await expect(page.getByTestId('open-work-drafts')).toHaveCount(0);
 
     await expand.click();
     await expect(expand).toHaveAttribute('aria-expanded', 'false');
@@ -90,7 +89,7 @@ test.describe('RP-1 最终重排', () => {
       await setup.getByRole('button', { name: '先查看演示' }).click();
     }
     await page.mouse.move(0, 0);
-    await expect(page.getByTestId('composer-provider')).toHaveText('待连接');
+    await expect(page.getByTestId('composer-provider')).toHaveText('Connect');
 
     await page.addInitScript(() => {
       (window as unknown as { __CW_FORCE_CREDENTIAL__: { phase: string; failureMessage: string } }).__CW_FORCE_CREDENTIAL__ = {
@@ -115,7 +114,7 @@ test.describe('RP-1 最终重排', () => {
     const warn = page.getByTestId('composer-provider');
     await expect(warn).toBeVisible();
     await expect(warn).toHaveAttribute('data-phase', 'failed');
-    await expect(warn).toContainText('连接失败');
+    await expect(warn).toContainText('Connection failed');
     await expect(page.getByTestId('titlebar-credential-warn')).toHaveCount(0);
   });
 
@@ -136,16 +135,16 @@ test.describe('RP-1 最终重排', () => {
 
   test('#17/#25 demo persona 只在用户位；#16 model-config 关闭动词', async ({ page }) => {
     await openWorkbench(page);
-    await expect(page.getByTestId('user-menu-trigger')).toContainText('林律师 · 样板负责人');
+    await expect(page.getByTestId('user-menu-trigger')).toContainText('林律师 · Sample lead');
 
     await createNamedCase(page, 'RP非演示案');
-    await expect(page.getByTestId('user-menu-trigger')).toContainText('负责人');
+    await expect(page.getByTestId('user-menu-trigger')).toContainText('Owner');
     await expect(page.getByTestId('user-menu-trigger')).not.toContainText('林律师');
 
     await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
     await connectProvider(page);
     await page.getByTestId('model-config-trigger').click();
-    await expect(page.getByTestId('model-config-close')).toHaveText('关闭');
+    await expect(page.getByTestId('model-config-close')).toHaveText('Close');
   });
 
   test('导航骨架：产出真路由；定时/派发禁用+tooltip', async ({ page }) => {
@@ -153,10 +152,10 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('nav-artifacts')).toBeVisible();
     const scheduled = page.getByTestId('nav-scheduled');
     await expect(scheduled).toHaveAttribute('aria-disabled', 'true');
-    await expect(scheduled).toHaveAttribute('title', /即将支持/);
+    await expect(scheduled).toHaveAttribute('title', /Coming soon/);
     const dispatch = page.getByTestId('nav-dispatch');
     await expect(dispatch).toHaveAttribute('aria-disabled', 'true');
-    await expect(dispatch).toHaveAttribute('title', /即将支持/);
+    await expect(dispatch).toHaveAttribute('title', /Coming soon/);
   });
 
   test('#18′：context/状态条撤模型，仅 composer 保留唯一 model-config', async ({ page }) => {
@@ -182,11 +181,11 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
     await page.getByTestId('model-config-provider').selectOption('qwen');
     await page.getByTestId('model-config-model').selectOption('qwen-max');
-    await page.getByRole('radio', { name: '深思' }).check();
+    await page.getByRole('radio', { name: 'Deep' }).check();
     await page.getByTestId('model-config-close').click();
     // connected 态 composer 真实反映变更
     await expect(page.getByTestId('model-config-trigger')).toContainText('Qwen Max');
-    await expect(page.getByTestId('model-config-trigger')).toContainText('深思');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('Deep');
     // 再从 composer 打开仍是同一实例
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-popover')).toHaveCount(1);

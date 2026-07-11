@@ -84,7 +84,7 @@ test('RP-2.5.1 model-config 单实例、无遮挡并持久化配置', async ({ p
   expect(bounds.popoverRight).toBeLessThanOrEqual(bounds.chatRight);
   await page.getByTestId('model-config-provider').selectOption('qwen');
   await page.getByTestId('model-config-model').selectOption('qwen-max');
-  await page.getByRole('radio', { name: '深思' }).check();
+  await page.getByRole('radio', { name: 'Deep' }).check();
   await page.getByTestId('model-config-close').click();
   await page.reload();
   await openApp(page);
@@ -93,7 +93,7 @@ test('RP-2.5.1 model-config 单实例、无遮挡并持久化配置', async ({ p
   await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
   await expect(page.getByTestId('model-config-provider')).toHaveValue('qwen');
   await expect(page.getByTestId('model-config-model')).toHaveValue('qwen-max');
-  await expect(page.getByRole('radio', { name: '深思' })).toBeChecked();
+  await expect(page.getByRole('radio', { name: 'Deep' })).toBeChecked();
 });
 
 test('RP-2.5 场景动作不越界，免责声明链接保持原子', async ({ page }) => {

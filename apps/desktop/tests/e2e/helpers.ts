@@ -40,3 +40,11 @@ export async function connectProvider(page: Page) {
   await dialog.getByRole('button', { name: '完成连接' }).click();
   await dialog.waitFor({ state: 'hidden' });
 }
+
+/** RP-2.7：工作稿/整理等通用文件动作只保留在 Working folders 单一宿主。 */
+export async function openWorkingFolders(page: Page) {
+  const tree = page.getByTestId('working-folders-tree');
+  if (await tree.isVisible().catch(() => false)) return;
+  await page.getByTestId('module-working-folders-toggle').click();
+  await tree.waitFor();
+}

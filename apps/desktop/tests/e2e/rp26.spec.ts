@@ -27,7 +27,7 @@ test('demo identity is inline, data-driven, and opens only by choice', async ({ 
 test('pending credentials surface only on an explicit send attempt', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByTestId('provider-setup')).toHaveCount(0);
-  await page.getByPlaceholder('描述要办的事，或从上方场景开始…').fill('开始处理');
+  await page.getByPlaceholder('Describe a task or ask anything…').fill('开始处理');
   await page.getByTestId('composer-send').click();
   await expect(page.getByTestId('provider-setup')).toBeVisible();
 });
