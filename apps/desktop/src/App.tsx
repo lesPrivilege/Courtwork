@@ -41,7 +41,9 @@ import {
   type ModuleOpenMap,
   type UserModuleOverride,
 } from './modules/module-stack';
-import { ContextModuleBody, StackModule, WorkingFoldersTree } from './modules/ModuleStack';
+import { ContextModuleBody, WorkingFoldersTree } from './modules/ModuleStack';
+import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRenderer';
+import { UtilityRail } from './utility/UtilityRail';
 import {
   loadModelConfig,
   modelDisplayName,
@@ -163,6 +165,8 @@ export function App() {
   const [expandedCaseId, setExpandedCaseId] = useState<string | null>(DEMO_CASE_ID);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(true);
+  const [sceneMoreOpen, setSceneMoreOpen] = useState(false);
   const [editingCaseTitle, setEditingCaseTitle] = useState(false);
   const [caseTitleDraft, setCaseTitleDraft] = useState('');
   const [moduleOpen, setModuleOpen] = useState<ModuleOpenMap>(() => ({ ...DEFAULT_MODULE_OPEN }));
@@ -228,6 +232,7 @@ export function App() {
     setLocalMessages([]);
     setWorkDraftMode(false);
     setFileOpsMode(false);
+    setPreviewOpen(true);
     setDraftFrozen(false);
     setDraft(INITIAL_DRAFT);
     setCompileOpen(false);
@@ -565,6 +570,7 @@ export function App() {
     setActiveView(next === 'S1' ? 'timeline' : 'revision');
     setWorkDraftMode(false);
     setFileOpsMode(false);
+    setPreviewOpen(true);
     setGate(undefined);
     setExpandedEvidence({});
     setDispositions({});
@@ -578,18 +584,21 @@ export function App() {
     setActiveView(view);
     if (view !== 'draft') setWorkDraftMode(false);
     setFileOpsMode(false);
+    setPreviewOpen(true);
   };
 
   const openWorkDrafts = () => {
     setWorkDraftMode(true);
     setFileOpsMode(false);
     setActiveView('draft');
+    setPreviewOpen(true);
   };
 
   const openFileOps = () => {
     setFileOpsMode(true);
     setWorkDraftMode(false);
     setSecondaryView(undefined);
+    setPreviewOpen(true);
   };
 
   const startComparison = () => {
@@ -760,6 +769,48 @@ export function App() {
   const compactLayout = effectiveLeftCollapsed && !moduleOpen.progress && !moduleOpen['working-folders'] && !moduleOpen.context
     && !moduleOpen.timeline && !moduleOpen.graph && !moduleOpen.matrix && !moduleOpen.revision && !moduleOpen.draft;
 
+  const utilityItems = [
+    {
+      id: 'progress' as const,
+      title: '进度',
+      count: progressCount,
+      status: (isDemoCase ? (progressDone >= progressTotal ? 'done' : 'active') : 'idle') as 'done' | 'active' | 'idle',
+      open: moduleOpen.progress,
+      onToggle: () => toggleModule('progress'),
+      body: <>
+        <ul className="progress-module-list" data-testid="progress-module-body-list">
+          {session.progress.length === 0 && <li className="wf-empty">{isDemoCase ? '等待任务事件…' : '新案件 · 等待任务'}</li>}
+          {session.progress.map((message, index) => <li key={`${message}-${index}`}>{message}</li>)}
+        </ul>
+        {isDemoCase && usage >= 85 && <button className="continuation-button" data-testid="continuation-button" disabled={continued} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>{continued ? '已开启下一阶段' : '继续本案工作'}</button>}
+      </>,
+      dockAction: isDemoCase && usage >= 85 ? <button className="continuation-button utility-dock-action" data-testid="continuation-button" disabled={continued} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>{continued ? '已开启下一阶段' : '继续'}</button> : undefined,
+    },
+    {
+      id: 'working-folders' as const,
+      title: '工作文件夹',
+      count: isDemoCase ? String(selectedCase.fileCount) : '0',
+      status: (isDemoCase ? 'active' : 'idle') as 'active' | 'idle',
+      open: moduleOpen['working-folders'],
+      onToggle: () => toggleModule('working-folders'),
+      body: <WorkingFoldersTree isDemo={isDemoCase} originalCount={selectedCase.fileCount} onFocusOriginals={focusOriginalsZone} onOpenWorkDrafts={openWorkDrafts} onOpenFileOps={openFileOps} onOpenOutput={openOutputFolder} workDraftSelected={workDraftMode && activeView === 'draft'} fileOpsSelected={fileOpsMode} />,
+    },
+    {
+      id: 'context' as const,
+      title: '上下文',
+      count: `${usage}%`,
+      status: (usage >= 85 ? 'warn' : 'idle') as 'warn' | 'idle',
+      open: moduleOpen.context,
+      onToggle: () => toggleModule('context'),
+      body: <ContextModuleBody usage={usage} usageDetail={usageDetail} attachmentSources={attachmentSources} modelLabel={modelDisplayName(modelConfig)} modelConnected={false} reasoningLabel={modelConfig.reasoning === 'deep' ? '深思' : '标准'} onOpenModelConfig={() => setModelConfigOpen(true)} />,
+    },
+  ];
+
+  const expandUtilityItem = (id: 'progress' | 'working-folders' | 'context') => {
+    setPreviewOpen(false);
+    setModuleOpen((open) => ({ ...open, [id]: true }));
+  };
+
   return (
     <main className="app-shell" data-testid="workbench" data-compact={compactLayout ? 'true' : 'false'}>
       <div
@@ -920,15 +971,15 @@ export function App() {
                 </div>
               ))}
             </div>
-            <div className="scene-strip">
+            <div className="scene-strip" data-testid="scene-strip">
               {isDemoCase && (
                 <>
-                  <button type="button" onClick={() => selectFlow('S1')}>整理卷宗</button>
-                  <button type="button" onClick={() => selectFlow('S3')}>审查合同</button>
-                  <button type="button" data-testid="scene-file-ops" onClick={openFileOps}>卷宗整理</button>
+                  <button type="button" className="scene-primary" onClick={() => selectFlow('S1')}>整理卷宗</button>
+                  <button type="button" className="scene-primary" onClick={() => selectFlow('S3')}>审查合同</button>
+                  <button type="button" className="scene-wide-only" data-testid="scene-file-ops" onClick={openFileOps}>卷宗整理</button>
                 </>
               )}
-              <button
+              <button className="scene-draft-wide"
                 type="button"
                 onClick={() => {
                   setWorkDraftMode(false);
@@ -938,6 +989,13 @@ export function App() {
               >
                 起草答辩状
               </button>
+              <div className="scene-more-wrap">
+                <button type="button" data-testid="scene-more" aria-expanded={sceneMoreOpen} onClick={() => setSceneMoreOpen((open) => !open)}>更多</button>
+                {sceneMoreOpen && <div className="scene-more-popover surface-card" data-testid="scene-more-popover">
+                  {isDemoCase && <button type="button" className="scene-more-narrow-only" onClick={() => { openFileOps(); setSceneMoreOpen(false); }}>卷宗整理</button>}
+                  <button type="button" onClick={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); setSceneMoreOpen(false); }}>起草答辩状</button>
+                </div>}
+              </div>
             </div>
             {/* L1：composer 浮卡 */}
             <div className="composer-stack">
@@ -968,102 +1026,25 @@ export function App() {
           </section>
         )}
 
-        {/* B：右栏模块栈 + 垂类工作面同栈（Tab/对照/专注增量保留） */}
+        {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载 */}
         {rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
           <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="展开右栏" title="展开右栏" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
-        </aside> : <section className="right-workbench surface-float" data-testid="right-module-stack">
+        </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open={previewOpen ? 'true' : 'false'}>
           <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="折叠右栏" title="折叠右栏" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
-          <div className="module-stack">
-            <StackModule
-              id="progress"
-              title="进度"
-              count={progressCount}
-              status={isDemoCase ? (progressDone >= progressTotal ? 'done' : 'active') : 'idle'}
-              open={moduleOpen.progress}
-              onToggle={() => toggleModule('progress')}
-              testId="module-progress"
-            >
-              <ul className="progress-module-list" data-testid="progress-module-body-list">
-                {session.progress.length === 0 && (
-                  <li className="wf-empty">{isDemoCase ? '等待任务事件…' : '新案件 · 等待任务'}</li>
-                )}
-                {session.progress.map((message, index) => (
-                  <li key={`${message}-${index}`}>{message}</li>
-                ))}
-              </ul>
-              {isDemoCase && usage >= 85 && <button className="continuation-button" data-testid="continuation-button" disabled={continued} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>{continued ? '已开启下一阶段' : '继续本案工作'}</button>}
-            </StackModule>
-
-            <StackModule
-              id="working-folders"
-              title="工作文件夹"
-              count={isDemoCase ? String(selectedCase.fileCount) : '0'}
-              status={isDemoCase ? 'active' : 'idle'}
-              open={moduleOpen['working-folders']}
-              onToggle={() => toggleModule('working-folders')}
-              testId="module-working-folders"
-            >
-              <WorkingFoldersTree
-                isDemo={isDemoCase}
-                originalCount={selectedCase.fileCount}
-                onFocusOriginals={focusOriginalsZone}
-                onOpenWorkDrafts={openWorkDrafts}
-                onOpenFileOps={openFileOps}
-                onOpenOutput={openOutputFolder}
-                workDraftSelected={workDraftMode && activeView === 'draft'}
-                fileOpsSelected={fileOpsMode}
-              />
-            </StackModule>
-
-            <StackModule
-              id="context"
-              title="上下文"
-              count={`${usage}%`}
-              status={usage >= 85 ? 'warn' : 'idle'}
-              open={moduleOpen.context}
-              onToggle={() => toggleModule('context')}
-              testId="module-context"
-            >
-              <ContextModuleBody
-                usage={usage}
-                usageDetail={usageDetail}
-                attachmentSources={attachmentSources}
-                modelLabel={modelDisplayName(modelConfig)}
-                modelConnected={false}
-                reasoningLabel={modelConfig.reasoning === 'deep' ? '深思' : '标准'}
-                /* B2/C2：第二声明位，只开同一 modelConfigOpen → 同一 popover / updateModelConfig */
-                onOpenModelConfig={() => setModelConfigOpen(true)}
-              />
-            </StackModule>
-
-            <div className="work-surface-stack">
-              <header className="panel-head work-surface-head">
-                <h2>{comparing ? '工作面对照' : VIEW_LABELS[activeView]}</h2>
-                <span>{comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}</span>
-                <i />
-              </header>
-              <div className="view-tabs" role="tablist" aria-label="结构化工作面">
-                {VIEWS.map((view) => (
-                  <button
-                    key={view}
-                    type="button"
-                    role="tab"
-                    aria-selected={activeView === view}
-                    className={activeView === view ? 'active' : ''}
-                    onClick={() => {
-                      choosePrimaryView(view);
-                      const moduleId = view as ModuleId;
-                      if (userModuleOverride[moduleId] === undefined) {
-                        setModuleOpen((prev) => ({ ...prev, [moduleId]: true }));
-                      }
-                    }}
-                    data-testid={`view-${view}`}
-                  >
-                    <span>{VIEW_LABELS[view]}</span>
-                    <i className="tab-indicator" aria-hidden="true" />
-                  </button>
-                ))}
-                <span className="tab-spacer" />
+          <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => setPreviewOpen(true)} onExpandItem={expandUtilityItem} />
+          {previewOpen && <WorkbenchPreviewRenderer
+            title={comparing ? '工作面对照' : VIEW_LABELS[activeView]}
+            meta={comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}
+            tabs={VIEWS.map((view) => ({ id: view, label: VIEW_LABELS[view] }))}
+            activeTab={activeView}
+            onSelectTab={(id) => {
+              const view = id as WorkbenchView;
+              choosePrimaryView(view);
+              const moduleId = view as ModuleId;
+              if (userModuleOverride[moduleId] === undefined) setModuleOpen((prev) => ({ ...prev, [moduleId]: true }));
+            }}
+            onClose={() => setPreviewOpen(false)}
+            actions={<>
                 {!focusMode && !comparing && (
                   <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照">
                     <Icon name="rows-two" />对照
@@ -1109,7 +1090,8 @@ export function App() {
                   <span>{focusMode ? '退出专注' : '专注'}</span>
                   {focusMode && <kbd>Esc</kbd>}
                 </button>
-              </div>
+              </>}
+          >
               <div className="view-content">
                 {secondaryView ? (
                   <SplitView
@@ -1123,8 +1105,7 @@ export function App() {
                   renderView(activeView)
                 )}
               </div>
-            </div>
-          </div>
+          </WorkbenchPreviewRenderer>}
         </section>}
       </div>
 

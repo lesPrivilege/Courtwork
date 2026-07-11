@@ -23,6 +23,7 @@ import {
   updateOutputDir,
   updateRuntimeGuard,
 } from './settings-store';
+import { SurfaceCard } from '../surface/SurfaceCard';
 
 export type SettingsSection =
   | 'model'
@@ -38,7 +39,7 @@ const NAV: ReadonlyArray<{ id: SettingsSection; label: string }> = [
   { id: 'channels', label: '通道与集成' },
   { id: 'privacy', label: '数据与隐私' },
   { id: 'promise', label: '数据承诺声明' },
-  { id: 'about', label: '关于' },
+  { id: 'about', label: '关于与更新' },
 ];
 
 const APP_VERSION = '0.1.0';
@@ -176,7 +177,8 @@ export function SettingsPage({
   };
 
   return (
-    <div className="settings-layer" data-testid="settings-page" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+    <div className="settings-backdrop" role="presentation">
+    <SurfaceCard className="settings-layer" data-testid="settings-page" role="dialog" aria-modal="true" aria-labelledby={titleId}>
       <header className="settings-header">
         <h1 id={titleId}>设置</h1>
         <span className="settings-header-note">全局偏好 · 与当前案件无关</span>
@@ -545,7 +547,7 @@ export function SettingsPage({
 
           {section === 'about' && (
             <section className="settings-panel">
-              <h2>关于</h2>
+              <h2>关于与更新</h2>
               <div className="settings-row" data-testid="settings-version-row">
                 <div>
                   <strong>版本</strong>
@@ -590,6 +592,10 @@ export function SettingsPage({
                   检查更新
                 </button>
               </div>
+              <div className="settings-row" data-testid="settings-feedback-row">
+                <div><strong>反馈</strong><p>通过邮件发送产品建议或问题。</p></div>
+                <a className="quiet-button settings-feedback-link" href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">发送反馈</a>
+              </div>
             </section>
           )}
         </div>
@@ -619,6 +625,7 @@ export function SettingsPage({
           </section>
         </div>
       )}
+    </SurfaceCard>
     </div>
   );
 }

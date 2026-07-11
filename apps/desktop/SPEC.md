@@ -564,5 +564,27 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 ## TODO（跨层放入区）
 
+## RP-2.5 — Frontier 壳与垂类 Preview 解耦（2026-07-11）
+
+### 规格提案（架构批复 `c17f392`）
+
+- **双宿主**：`UtilityRail` 只承载进度、工作文件夹、上下文等领域无关能力；`PreviewHost` 是按场景声明 `uiTemplateId` 挂载 renderer 的领域无关宿主。法律五工作面是首个 renderer 集，不是宿主内建语义。
+- **物理边界**：`utility/**` 与 `preview/renderers/**` 禁止互相 import；`PreviewHost.tsx` 禁法律词汇。`lint:preview` 进入 E2E 前置门禁。
+- **状态形态**：基础态为三张独立 Cowork 式能力卡；预览态将能力卡收成顶部 dock，Preview 占据余下空间。既有五工作面行为只迁移结构，不放宽语义断言。
+- **通用浮面接口**：L1 外壳统一消费 `SurfaceCard` 与 `elevation.shadow`；组件内禁止裸写阴影，hover 永不抬升，数据卡与阅读区继续零投影。
+- **响应式**：场景条宽态显示三项 +「更多」，窄态两项 +「更多」；发送键不可裁切，chat/右栏保持 token 化 8px 间隙。1600px 起免责声明单行，以下允许整体换行，feedback 链接保持原子 nowrap。
+- **设置**：L2 居中 modal；导航宽 280–320px，内容按行与分隔线排版；1180px 保证 `scrollWidth <= clientWidth`。
+- **消息层级**：用户消息右对齐、浅中性底、最大 78%；agent 内容直接落画布，保留 artifact 卡，不造 agent 气泡。
+
+验收矩阵覆盖 1180/1240/1440/1600：控件边界、免责声明、双宿主切换、设置 modal、import 守卫与全页横向溢出；Playwright floor 只升。
+
+### 实现与验证记录
+
+- `SurfaceCard` + 单一 `elevation.shadow` token 已落地；Utility 基础态、Preview、设置 modal 共用外壳，数据区与 hover 无投影变化。
+- `UtilityRail` / `PreviewHost` / `WorkbenchPreviewRenderer` 已物理拆分；基础态三能力卡与 Preview 顶部 dock 可互切，五工作面行为和空态保持。
+- 场景区、composer、免责声明、用户消息层级与设置页完成响应式收口；1180 自动收左栏，1600 免责声明单行。
+- 门禁：`lint:preview`、Vitest 70/70、Playwright 107/107（floor 107）、全仓 `pnpm -r build` 通过。
+- visual-audit：`29-rp25-dual-host-1180.png`、`30-rp25-dual-host-1440.png`、`31-rp25-dual-host-1600.png`、`32-rp25-settings-1180.png`、`33-rp25-utility-base-1180.png`。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

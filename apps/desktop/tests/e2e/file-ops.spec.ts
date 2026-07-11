@@ -3,7 +3,8 @@ import { openWorkbench } from './helpers';
 
 test('卷宗整理计划表可勾选并确认执行', async ({ page }) => {
   await openWorkbench(page);
-  await page.getByTestId('scene-file-ops').click();
+  await page.getByTestId('scene-more').click();
+  await page.getByTestId('scene-more-popover').getByRole('button', { name: '卷宗整理' }).click();
   const panel = page.getByTestId('file-ops-panel');
   await expect(panel).toBeVisible();
   await expect(page.getByTestId('file-ops-table')).toBeVisible();

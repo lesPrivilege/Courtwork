@@ -118,6 +118,8 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     await expect(page.getByTestId('conversation-empty')).toBeVisible();
     await expect(page.getByText('发现 6 项合同风险')).toHaveCount(0);
     await expect(page.getByTestId('output-docx-card')).toHaveCount(0);
+    // RP-2.5：Preview 态 utility 收为 dock；点进度回到通用宿主后核对原语义。
+    await page.getByTestId('module-progress-toggle').click();
     await expect(page.getByTestId('progress-module-body-list')).toContainText('新案件');
 
     // 回到 demo
