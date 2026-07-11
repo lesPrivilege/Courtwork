@@ -878,3 +878,31 @@ elevation 一致性专项（三处对表）：SPEC 提案值 ↔ tokens.json ele
 
 纪律：Developer ID 公证仍挂账（无证书则 ad-hoc 签名并如实记录）；构建脚本若有新增走显式路径提交；不顺手改任何产品代码。
 ```
+
+## DBG-2 凭证授权流真机诊断（Grok，仅 review 不改码）
+
+```
+你认领 Courtwork 的 DBG-2 诊断单：真机凭证授权流不通（信任级）。纪律：只诊断与回报，不改任何行为代码——修法由架构拍板后另发。
+
+现象（用户真机）：macOS 弹出钥匙串授权框（service "cn.courtwork.desktop.provider"，login keychain），输入登录密码不通过/授权后仍连接失败；UI 呈"模型服务·连接失败"。D-1 曾修过 probe 三态（credential_status 真实读取），本次是授权环节本身。
+
+诊断范围（按可能性排序假设并逐一验证/排除）：
+1. 签名身份与 keychain ACL：dev 运行（vite/tauri dev 未签名或 ad-hoc）与写入条目时的身份不一致 → macOS 按签名绑定 ACL，异身份读取必弹窗且可能拒绝；重编译后身份变化是否导致每次都被视为新 app。
+2. keyring crate 的 entry 语义：service/account 命名、创建与读取路径是否同一条目；Always Allow 是否因身份漂移失效。
+3. 错误被吞：Rust 侧 keychain 拒绝/取消/超时是否都折叠成 generic failed，无法区分"用户拒绝""ACL 拒绝""条目不存在"——若是，提出错误分型枚举提案（不实现）。
+4. 密码不通过的可能：login keychain 密码与登录密码不同步（用户改过密码的机器常见）——若属此类为环境因素，给出用户侧排查指引文案。
+
+产出（回报架构）：根因假设排序 + 每条的验证方法与证据、诊断日志补丁提案（只加日志不改行为，供用户真机跑一轮采集）、修法提案（含打包签名后的行为差异预判）。不许提交任何行为变更。
+```
+
+## RP-2 批次四实施（Grok，BUILD-1 之后热点串行）
+
+```
+你认领 Courtwork 的 RP-2 工单：批次四 #18–21（docs/52）+ docs/49 第四章修正。前置：BUILD-1 已出 0.1.0。热点独占 App.tsx/styles.css。
+
+1. #18 模型声明位唯一化：状态条 chip 探针三态（connected=模型名·强度／failed=琥珀"连接失败"就地／pending="待连接"）；点开唯一 model-config popover（补状态详情与重试入口）；撤销标题栏琥珀 chip 与工具栏重复项；e2e：failed 态断言不出现模型名 + 全 app 警示位唯一。
+2. #19 层级：标题栏 wordmark 全 app 唯一，左栏去重复 logo/名；卷宗标题迁中栏 chat 区上方案件头（自动命名 + 行内可编辑，改名持久化）；标题栏保留 wordmark + 全局动作。
+3. #20 宽比定档：左栏收敛态右栏默认宽屏档；工作面激活加宽档；档位值先写 SPEC 提案（与 elevation 同纪律）再实现；无极缩放禁止实现。
+4. #21 chat 降噪：系统事件卡合并紧凑事件流（时序单列、无框或极轻框）；人机分辨=对齐+底色（用户右浅底、agent 左直排画布）；artifact 产出卡保留现形制；改版前后对照截图入 visual-audit，形制细节 SPEC 提案。
+验收标准：9 包 build/Vitest/Playwright 全绿，floor 禁降只升；假态零容忍 e2e；宽比档位断言；既有断言只因结构迁移改不放宽。TDD、显式路径、完工报告含 SPEC 提案全量 + 对照截图。
+```
