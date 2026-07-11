@@ -872,6 +872,8 @@ elevation 一致性专项（三处对表）：SPEC 提案值 ↔ tokens.json ele
 ```
 你认领 Courtwork 的 BUILD-1：首个正式 Build（base 定形版）。前置：F-1.1 已合入且复验通过。
 
+第 0 步：apps/desktop/ACCEPTANCE.md 有验收会话留下的未提交纯追加（「九、F-1.1 复验」节 +31/−0）——核实纯追加后原样独立提交（判例链 1800925/8202d18）。
+
 工序：版本号定 0.1.0（tauri.conf + package.json 对齐）→ 产 dmg → codesign 校验 + hdiutil verify（B 阶段验收判例：DMG 级哈希不可复现，用签名校验 + 前端内容哈希做确定性校验）→ 记录 SHA-256 与构建环境（Node/pnpm/rustc 版本）→ 产物路径与校验值写入 apps/desktop/SPEC.md「Build 记录」节（SITE-1 下载区将引用）。
 
 纪律：Developer ID 公证仍挂账（无证书则 ad-hoc 签名并如实记录）；构建脚本若有新增走显式路径提交；不顺手改任何产品代码。
