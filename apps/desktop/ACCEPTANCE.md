@@ -745,3 +745,79 @@ codesign -dv --verbose=4 "/Applications/Courtwork.app/Contents/MacOS/courtwork-d
 2. **下游：可放行 QF-1 清账 ✅**。两轮唯一红均为已登记 `composer:56` 队列语义基线，本验收不越权修改、不把它计作 RP-2.10 失败；QF-1 仍须按独立工单修复并重新跑全门。
 
 > **总判定：RP-2.10 放行；视觉达到 ch12 终章意图。** 两轮独立端口全量稳定为 145/146，唯一红严格等于登记 QF-1；Vitest 79/79、build 9/9、两项门禁反例、`rp25:60` 五连跑、floor 146 与实机逐帧/几何证据全部闭环。
+
+
+---
+
+## PRV-1 验收（provider 自配最小闭环·安全敏感件·主张逐条证伪，2026-07-11）
+
+- **角色**：独立验收会话（Opus 4.8，AGENTS.md 全判例；安全敏感，逐条证伪、不采信自述）。实现者 sol。实现与验收分离。
+- **范围**：`6fb92b9`（core：provider 推理路由声明）+ `193fa7e`（desktop：provider 自配闭环）。**权威**：docs/55 PRV-1 单 + FIX-KC-1 节（凭证语义基线）+ **docs/27 红线**「key 永不进事件流/日志/遥测」+「不做静默扫描本地第三方配置」。
+- **隔离（复核历史提交判例 + 端口隔离判例）**：范围 tip `193fa7e` 落后当前 HEAD `24c61bd`（RP-2.10）两提交，据 AGENTS.md「复核历史提交一律用独立 worktree」建 detached worktree `/private/tmp/courtwork-prv1-accept@193fa7e`，未在共享主树 checkout/stash；`pnpm install --frozen-lockfile` 干净装。Playwright 起跑前 `lsof :1420/:1421` 均空，用 `COURTWORK_E2E_PORT=1421`、config 本身 `reuseExistingServer:false` 自起服务。集成态交叉核在主树 HEAD `24c61bd`（隔离 `:1422`）。
+
+### 一、全局门（worktree@193fa7e 干净环境，退出码单查）
+
+| 门 | 实测结果 | 码 |
+|---|---|---|
+| 9 包 build | `pnpm -r build`：`Scope: 9 of 10`（第 10 = 无 build 的根）全 `Done`，desktop `tsc -b && vite build` ✓ | `BUILD=0` |
+| Vitest core | **158/158**（22 files） | `VITEST_CORE=0` |
+| Vitest desktop | **79/79**（17 files） | `VITEST_DESKTOP=0` |
+| cargo test | **10/10 逐名全过**（status_payload_contains_no_secret_field / mock_endpoint_discovers_models_then_runs_real_one_token_smoke / failed_payload_carries_user_facing_message_and_fail_kind / classify_os_status_maps_known_codes / parse_os_status_from_display_and_debug_text / wire_names_and_messages_are_zero_tech / trace_line_never_embeds_secret_fields_or_values / trace_disabled_by_default / dev_service_suffix_matches_build_profile / classify_keyring_no_entry） | `CARGO=0` |
+| rustfmt（顺手，非阻断） | 装 `rustup component add rustfmt`；`cargo fmt --check` **报格式偏差**（lib.rs 若干处紧凑 match 臂/长数组/多行签名非 rustfmt 规范）——工单明示「失败不阻断但记录」，记录见五节 P-3 | `FMT=1`（非阻断） |
+| Playwright @193fa7e | **139 passed / 141 total（隔离 :1421）**，两红 icons:3 + composer:56 → 二节归因（均非 provider） | `PW=1` |
+| floor 门 | `assert-test-count.mjs`（minimum=143）@193fa7e **实抛红**：`Playwright 用例不足：发现 141，至少需要 143`（exit 1）→ 二节归因 | `1` |
+| 门禁反例可触红 | `assert-elevation-shadow.mjs`：绿→注入 untracked `src/__redtrip__.tsx`（含 `boxShadow` 字面量）→**红 exit1**（`component contains shadow literal`）→删档→复绿，worktree 归零。门禁非空断言实证 | 复绿 0 |
+
+### 二、Playwright 门归因（关键：`143/143 + floor 143` 不在 193fa7e tip 独立成立，系并行线前引用）
+
+**事实（实跑，不采信自述）**：worktree@193fa7e `--list` = **141**；`assert-test-count.mjs`（floor 143）**实抛** `发现 141，至少需要 143`。全量跑 **139/141**，两红：
+
+1. **`icons.spec.ts:3`（确定性，非 provider）**：`git show 193fa7e -- icons.spec.ts` 实证 PRV-1 把断言 `toHaveCount(19)`→`(20)`；但第 20 个图标 **brand-mark 由下一提交 RP-2.10（24c61bd）交付**——`git diff --stat 193fa7e 24c61bd` 实证 RP-2.10 新增 `src/icons/custom/brand-mark.svg`+`custom-icons.generated.ts`(+33)+`manifest.json`(+1)。故 193fa7e 只渲染 **19**（失败日志 `resolved to 19 elements`），期望 20 → 确定性红。**集成态 HEAD 实测 icons:3 绿**（20 齐）。
+2. **`composer.spec.ts:56`（并行 flake，非 provider）**：193fa7e **单跑 composer.spec 5/5 全绿**（隔离 :1421）；仅全量并行下 flake 红——PRV-1 diff 注释自陈「回放进度到达后发送才进入 queued 分支；全量并行下不能只等静态 event-stream 壳」，QF-1 登记为在案基线。集成态 HEAD 单跑亦绿。
+3. **计数缺口**：193fa7e=141 < floor 143。PRV-1 把 floor 禁降 137→143，但第 142–146 例由 **RP-2.10 的 `rp210.spec.ts`（+95 行 ≈ +5 例，141→146）** 补齐。
+
+**集成态交叉核（主树 HEAD `24c61bd`，隔离 `:1422`）**：`--list` = **146 ≥ floor 143** ✓；`prv1.spec` **4/4 绿**、`icons:3` 绿；全量并行 flake 3 例（`composer:56` / `rp210:6` / `ux1:81`——均 paced-replay/品牌动画时序，属视觉/UX 线，非 PRV-1）。`prv1.spec` 四例（预设自动填 URL·custom 露 Base URL / 真冒烟标 connected+发现模型 / 诚实降级不阻塞 / 失败按分型不误报 connected）在两态均全绿。
+
+**定性**：provider 闭环自身测试全绿；`143/143 + floor 143` **仅在集成树（HEAD）成立，193fa7e tip 独立不成立**——系 PRV-1（功能线）与 RP-2.10（视觉线）**并行、错峰提交**（docs/55 明列）且 PRV-1 前引用了 RP-2.10 的 icon#20 与 floor 值所致。**提交卫生问题（193fa7e 非独立门绿），非 provider 逻辑缺陷**；HEAD 已闭环。记 🟡 P-1。
+
+### 三、安全主张逐条证伪
+
+**1. WebView 无明文读取 ✅**：枚举 IPC 面——`invoke_handler`（lib.rs:833-838）恰注册 **4 command**：`provider_credential_status` / `save_provider_credential` / `clear_provider_credential` / `validate_provider_connection`。逐个读返回型：仅 `CredentialStatus`（序列化字段 phase/source/failureMessage/failKind，结构注释 lib.rs:408「永不含 secret」）与 `ProviderProbeStatus`（+ models/model_discovery）——**无 secret 字段**；单测 `status_payload_contains_no_secret_field` 断言精确 JSON `{"phase":"connected","source":"pasted"}`。持 secret 的 `get_password`(436) / `active_secret`(592) 是**私有 Rust fn（非 #[command]），JS 不可达**。key 仅**入**（`save_provider_credential` 的 `value: String` 参，用户粘贴）不**出**。冒烟请求 `bearer_auth(&secret)`（lib.rs:656/678）**全 Rust 侧组装**；JS 只经 `buildProbeInput` 传 base_url/model/reasoning_body，只收 phase/failKind/models（connection-client.ts:8-12,36-44）。
+
+**2. connected 唯冒烟成功论 ✅（D-1 残留证伪）**：状态机读透——App.tsx `credentialStatus` 唯一写入者 `probeCredentials`(240-245) 走 `providerConnectionClient.validate()`（smoke），**非** `credentialClient.status()`（keychain）。`validate`(connection-client.ts:65-85) 以 keychain-connected 为**前置门**（68 早返回非 connected），Tauri 下必 `invoke('validate_provider_connection')`(80) 真冒烟；Rust `probe_provider_endpoint` **唯 `smoke.is_success()` 才 `phase:"connected"`**（lib.rs:680）。三处 `setCredentialStatus`（156 pending 初值 / 243 smoke 结果 / 1245 `onStatusChange`）——ProviderSetup 的 `save` 结果 `onStatusChange` 只在 `stored.phase!=='connected'` 分支触发（ProviderSetup.tsx:36-37），connected 恒来自 smoke `result`（42）。**无「钥匙串读到即 connected」残留**。冷启动零探针（懒探针 RP-2.9，无 mount 时 probe，初值 pending）。**模型发现失败不影响 connected**：probe 中 /models 非 401/403 失败仅置 discovery=unsupported、models=None，冒烟照跑（lib.rs:657-670）。UI 安全声明明写「连接状态只以真实请求成功为准，读取到钥匙串不代表服务可用」（ProviderSetup.tsx:86）。`prv1.spec`「真实请求失败按分型呈现且不得误报 connected」实测（failKind=endpoint → composer-provider `data-phase=failed`）。
+
+**3. key 不进日志 ✅（码 + 实测双证）**：trace builder `build_trace_line`(224) + `key_looks_sensitive`(246) 防御式丢弃敏感键（secret/password/value/key/apiKey/token）；逐个 trace 调用点（`trace_op`/`trace_event`/`trace_status_exit`/`trace_startup_once`）**仅收 account 常量（`provider-secret`/`active-source`，非值）、service、ok、枚举、签名元数据——secret/value/env 名零写入路径**。冒烟路径唯一 trace 是 keychain `get`（记 account 名非值）；`probe_provider_endpoint` 本身零 trace 调用。**实测**：`COURTWORK_CRED_TRACE=1 cargo test -- --nocapture` 一轮（含 mock 冒烟 secret `never-log-this-secret` + 单测注入 `sk-leaked`/`hunter2`/`should-not-appear`）→ 全输出中该等 secret **0 次**、无 `Authorization`/`Bearer` 值；单测 `trace_line_never_embeds_secret_fields_or_values` 真断言（注入敏感键整个被丢弃）。docs/27 红线守住。（真机日志文件 `~/Library/Logs/cn.courtwork.desktop/credential-probe.log` 的 grep = 用户真 key 首跑闭环，见七节；FIX-KC-1 已 runtime 注入实测在案。）
+
+**4. 分型全覆盖 + UI 零技术 ✅**：Rust `classify_http_failure`(637-645) **穷举 match**——401/403→`auth_failed`、404→`endpoint`、429→`rate_limited`、400/422→`model`、else→`invalid_response`；`probe_provider_endpoint` `is_timeout()`→`timeout`、`Err(_)`→`network`。**鉴权/限流/端点/模型/超时/网络六型齐**（+ invalid_response/platform 兜底）。文案全零技术（无 HTTP 码/ACL/OSStatus/keyring/bearer，grep 实证 Rust `user_message` 与 TS `PROVIDER_CONNECTION_MESSAGES`/`FAIL_KIND_MESSAGES`）。**自动 mock/hook 驱动覆盖**：成功（Rust mock TCP 端点 + TS + e2e 三层）、`endpoint`（`prv1.spec` + `connection-client.test`）、`auth_failed`（`d1-case-scope.spec:40` + `settings.spec:118`）——共 3 型 + 成功端到端驱动；余 rate_limited/model/timeout/network 由穷举 match + 文案表覆盖（非各自 mock 端点单驱），列覆盖注记（五节 P-4），非缺陷。
+
+**5. quirk 声明化铁证 ✅**：`ReasoningRoute` = 判别联合 `model_switch | request_field`（quirk-profile.ts:3-5）；`resolveReasoningRoute`(40-47) **switch 于 `route.kind`、非 providerId**（注释「调用方只解释 kind，不按 providerId 分支」）。grep 全域（apps/desktop/src + packages/core/src）**零** `if(providerId==)`/`switch(providerId)` 类路由分支——唯 `.find(item=>item.id===config.providerId)` 数据表查 + `providerId==='custom'` 露 Base URL 的 UI 开关；Rust 侧 `let _provider_id`（lib.rs:692）显式弃用、仅诊断标识，路由由声明生成的 `reasoning_body` 驱动。**三家逐条对 PRV-1 单**：DeepSeek=`model_switch`（standard `deepseek-v4-flash`/deep `deepseek-v4-pro`）、Qwen=`request_field enable_thinking`（false/true）、豆包/custom=`request_field reasoning_effort`（low/high）——与单一致。单测 `quirk-profile.test`「without a provider branch」+ `model-config.test`「reasoning request delegates to the declared quirk route」三路由实证。
+
+**6. 降级诚实 ✅**：/models 不支持（非 401/403 失败/空/畸形）→ `discovery=unsupported`、models=None，**冒烟照跑**，成功即 connected（不阻塞）。空列表 `.filter(|items| !items.is_empty())`→None；畸形 `response.json().await.ok()`→None（lib.rs:664-667）**不崩**。`modelOptions` 合并 discovered+预设+当前 modelId（model-config.ts:154-157）——发现失败仍有预设+手输。UI：ProviderSetup 于 `modelDiscovery==='unsupported'` 提示「服务商未提供模型列表；已保留推荐模型与手动填写，不影响连接」(ProviderSetup.tsx:51-52)。单测 `connection-client.test`「honestly degrades discovery while keeping a successful smoke connected」+ `prv1.spec`「模型发现不支持时诚实降级但不阻塞连接」实测。
+
+**7. 真实网络路径不在本验收（无 key）**：见七节结论闭环标注。
+
+### 四、git 卫生
+
+`6fb92b9` = `packages/core/src/provider/*` 9 文件（quirk-profile + openai-compatible-provider + structured-output + http-client + 各单测 + SPEC/package.json）；`193fa7e` = `apps/desktop` 26 文件（src-tauri/lib.rs +149、connection-client.ts 新、model-config.ts、ProviderSetup.tsx、SettingsPage.tsx、prv1.spec.ts 新、assert-test-count.mjs floor 等）。均**未触** demo-data/其它 src 包越界或 lockfile 语义外改动。验收全程隔离 worktree + 主树 HEAD 只读跑，**主树零改动**（他会话脏 docs/AGENTS.md/eval 未动）；反例 `src/__redtrip__.tsx` 已删、worktree `git status` 归零。本报告仅追加 `apps/desktop/ACCEPTANCE.md` 本节。
+
+### 五、发现与处置
+
+| # | 发现 | 定性 | 处置 |
+|---|---|---|---|
+| **P-1** | **`193fa7e` tip 非独立门绿**：`--list`=141 < floor 143（assert-test-count 实抛红）；`icons.spec:3` 前引用 RP-2.10 的 icon#20（19→20）在 193fa7e 确定性红。 | 🟡 提交卫生（并行线前引用 icon/floor，非 provider 缺陷） | 集成态 HEAD（24c61bd）已闭环（floor 146≥143、icons 绿）。记录供架构判并行线错峰提交口径；本单不代改（回退 19 会碾坏 HEAD）。**不阻 provider 放行。** |
+| **P-2** | 套件全量并行 flake：`composer:56`（单跑绿）/ `rp210:6` / `ux1:81`——均 paced-replay/品牌动画时序敏感。 | 🟡 非 PRV-1（视觉/UX 线；`composer:56` 由 QF-1 在跟） | 记录。非本单范围；provider 四例（prv1.spec）两态全稳。 |
+| **P-3** | `cargo fmt --check` 报 lib.rs 多处格式偏差（紧凑 match 臂/长数组/多行签名）。 | 🟢 非阻断（工单明示「失败不阻断但记录」） | 建议实现会话 `cargo fmt` 一遍归一；不影响功能/安全。 |
+| **P-4** | 六型分型仅 3 型（成功/endpoint/auth_failed）端到端 mock/hook 单驱；rate_limited/model/timeout/network 由穷举 match+文案表覆盖，无各自 mock 端点单测。 | 🟢 覆盖注记（映射与文案代码级完备，穷举 match 低风险） | 建议补四型 mock 端点/hook 驱动固化为长期回归。不阻放行。 |
+
+**无 🔴；无安全红线破口**（无明文返回通道 + connected 唯冒烟 + key 不入日志码+实测双证 + 六型齐零技术 + quirk 数据表零分支 + 降级诚实不崩）。
+
+### 六、真实网络路径（无 key）说明
+
+本验收无真实 provider key，故**未跑真实网络冒烟**（工单第 7 条明示「真实网络路径不在本验收」）。已证：冒烟请求组装、鉴权头、分型、connected 判定、降级、日志脱敏全部**代码 + mock/单测层实证**；真实往返（含真机日志文件 grep 无 key）留待用户产品内『验证连接』真 key 首跑——此为 provider 闭环**最终闭环**，承 FIX-KC-1 已在案的 runtime trace 注入实测。
+
+### 七、结论（两问）
+
+1. **PRV-1 放行？→ 放行 provider 闭环 ✅（附 🟡 提交卫生记录）**。安全七主张逐条证伪全立（WebView 无明文通道 / connected 唯冒烟成功 / key 不入日志码+实测 / 六型齐且 UI 零技术 / quirk 数据表零 `if(provider==)` 分支 / 降级诚实不崩）；provider 自身测试全绿（build 9/10、Vitest core 158 + desktop 79、cargo 10、`prv1.spec` 4/4）。两 Playwright 红**均非 provider 缺陷**：`icons:3` = 前引用 RP-2.10 icon#20（HEAD 绿）、`composer:56` = 并行 flake（单跑绿）。**唯 `193fa7e` tip 非独立门绿**（floor 141<143 + icon 前引用）记 🟡 P-1——系 PRV-1/RP-2.10 并行错峰提交后果，**集成态 HEAD `24c61bd` 已闭环**（`--list` 146≥floor 143、icons 绿、prv1.spec 4/4）；「Playwright 143/143 + floor 143」在集成树成立。
+2. **「验证连接」按钮可直接交用户执行真 key 首跑？→ 可 ✅**。按钮全路径实现正确：Tauri 下 `验证连接`→`validate`→`invoke('validate_provider_connection')`→`probe_provider_endpoint` 真冒烟；bearer 头 Rust 侧组装无 key 外泄；`connected` 唯 `smoke.is_success()`；失败走 F4 六型零技术文案；/models 降级诚实不阻塞。真实网络往返本验收无 key 未跑——**用户产品内『验证连接』真 key 首跑 = provider 闭环最终闭环**（真机日志无 key 承 FIX-KC-1 runtime 实测在案）。
+
+> **总判定：PRV-1 放行 provider 闭环 ✅（安全敏感·逐条证伪·隔离验证）。** 安全七主张全立（无明文返回通道、connected 唯冒烟、key 不入日志码+trace 实测双证、六型齐零技术、quirk 判别联合数据表零分支、降级诚实不崩）；隔离 worktree@193fa7e 全 provider 门绿（9/10 build、Vitest 158+79、cargo 10 逐名、prv1.spec 4/4）；门禁反例 elevation-shadow 触红即撤复绿实证非空。两 Playwright 红经四轮实跑（193fa7e 全量/193fa7e 单跑/HEAD 双 spec/HEAD 全量）归因确定：`icons:3`=RP-2.10 icon#20 前引用（HEAD 绿）、`composer:56`=全量并行 flake（单跑 5/5 绿），**均非 provider 逻辑缺陷**。唯 🟡 P-1：`193fa7e` tip 因并行线前引用 icon/floor 而非独立门绿，集成态 HEAD `24c61bd`（146≥143、icons 绿）已闭环——记录供架构判错峰提交口径，不阻 provider 放行。P-3 rustfmt 偏差 / P-4 分型 3/6 端到端单驱为 🟢 记录建议。「验证连接」按钮可直接交用户执行真 key 首跑（最终闭环）。
