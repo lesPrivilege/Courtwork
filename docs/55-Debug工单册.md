@@ -560,3 +560,7 @@ FD-2 四件齐（14 白卡穷举/四垂类完整帧+总画廊/结构提案含四
 
 **#43 Manage credentials 层级错**：Settings（L2 modal）内点「管理」→ ProviderSetup 打开在首页根层而非 settings 之上，须退出 setting 才见——浮层挂载点错位；与批次五 #31 同族（全局单浮层根治理）：修法方向 = 单浮层根 + 层级栈（L2 之上可叠 L2+，或凭证面板内嵌 settings 页内不另开 modal——倾向后者，减法律）。
 **#44 Verify connection 塌陷**：点击 → keychain 弹窗填写 → 按钮转加载 → 整个界面/浮层消失。排查链：①keychain 系统弹窗夺焦是否触发 modal 的失焦/Esc 关闭 handler；②validate 回调 onStatusChange 的 setState 是否连锁卸载 settings；③未捕获 rejection 是否触发边界重置；④消失后实际 phase 落在哪（若 Connected 则冒烟已成、纯 UI 塌陷——用户复查中）。修复断言：验证全程 settings 稳定在场 + 结果就地呈现（成功绿徽/失败分型文案），系统弹窗期间禁触发任何关闭逻辑。
+
+## GOAL-1 收账（2026-07-12，四枚祖先全验）
+
+411d729/3a01dd1/46de067/51aae20 皆 main 祖先。要点：批 0 色板重铸 + **assert-neutral-source 机器门（换锚色零改脚本——宣言配色机器就位）**；F3 弹窗 2→1（重存一次完成迁移）；#41 thinking 字段照官方；chat 真 API 端到端（Rust 窄面代理 key 零出）；#35–39/43/44 全落（**#44 根因 = 验证成功自动 onClose——"一切消失"即首冒烟成功本身**）；S3 真跑一条命令通道 + docs/66 开档；floor 146→160，R2+R3 双轮全绿，九处迁移逐条对拍板。遗留照登记归 GOAL-2。**GOAL-2 放行开工**（章程在册）。用户闸一链：重存 key → 验证（就地绿徽）→ chat 真消息 → 可选 S3 真跑——每步即 docs/66 首批数据。
