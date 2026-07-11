@@ -656,5 +656,17 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - Playwright 新增两组互不依赖的语言断言：chrome 英文组不读取 schema，schema 中文组不依赖 chrome 文案；另锁 composer 四位主序与左栏去重。floor 116 → 121。
 - 当前验证：Playwright 121/121；改后首屏视觉证据 `40-rp27-first-install-1440.png`。
 
+## #26 ThinkingStream 三态闭环补全（2026-07-11，架构 `be89d34`）
+
+| 状态 | 形制 | 交互 / 动效纪律 |
+|---|---|---|
+| `thinking` | 裸 spark-lines 图标 + 三根中性灰骨架线 | 360ms 一行写下后静止，再轮到下一行；只动 transform/opacity；无框、无语义色。 |
+| `settled` | 文字与骨架全部消失，只留静止灰阶图标 | 图标是折叠锚；点击展开已保存的推理摘要。默认态安静、不闪、不占一行。 |
+| `empty` | 返回 `null` | 无图标、无空壳、零痕迹。 |
+
+四项硬边界：正文到达按父层状态 0ms 硬切；法理之线不 import、不参与动画；骨架只消费灰阶 token；`prefers-reduced-motion` 下当前行直接静止落位。`motion.reasoningLine=360ms` 单点供给，组件内不散落 CSS duration。`lint:thinking` 锁三态封闭集、三行顺序、无框、无语义色与无法理之线依赖；Vitest 覆盖三态输出，Playwright 覆盖静默图标锚展开回看。
+
+视觉证据：`41-thinking-settled-anchor-1440.png`（静默仅留图标）/ `42-thinking-review-open-1440.png`（点击回看）。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

@@ -81,15 +81,19 @@ test.describe('UX-1 批次一', () => {
     await expect(voice).toHaveAttribute('title', /Coming soon/);
   });
 
-  test('#7：思考流默认折叠，点开可看', async ({ page }) => {
+  test('#7/#26：静默态仅留图标折叠锚，点开可回看', async ({ page }) => {
     await openWorkbench(page);
     const stream = page.getByTestId('thinking-stream');
     await expect(stream).toBeVisible();
+    await expect(stream).toHaveAttribute('data-state', 'settled');
     await expect(stream).toHaveAttribute('data-open', 'false');
     await expect(page.getByTestId('thinking-stream-body')).toHaveCount(0);
+    await expect(page.getByTestId('thinking-stream-skeleton')).toHaveCount(0);
+    await expect(page.getByTestId('thinking-stream-toggle')).toHaveAttribute('aria-label', 'Show reasoning');
+    await expect(page.getByTestId('thinking-stream-toggle').locator('span')).toHaveCount(0);
     await page.getByTestId('thinking-stream-toggle').click();
     await expect(stream).toHaveAttribute('data-open', 'true');
-    await expect(page.getByTestId('thinking-stream-body')).toContainText('思考过程');
+    await expect(page.getByTestId('thinking-stream-body')).toContainText('已梳理');
   });
 
   test('#10/#18′：composer 模型位可配置，pending 不冒充已连接', async ({ page }) => {
