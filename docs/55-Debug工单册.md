@@ -123,3 +123,9 @@ FIX-KC-1 验收放行（七主张逐条证伪全立，含 trace 注入实测与 
 ## 阴影值拍板（2026-07-11）：批准落 token
 
 RP-2.5.1（e1ae88e，三缺陷修复 + 几何断言 + floor 110 + 阴影白名单门禁）验收前置全绿。阴影值照 sol 提案批准：`0 1px 2px rgba(10,37,64,0.045), 0 4px 12px rgba(10,37,64,0.035)`——藏青同色相（非黑，冷底不发脏）、双层低透明（存在感而非立体感）。消费白名单：CaseRail、右栏卡/dock、收敛 bar、PreviewHost；chat/composer/artifact/设置/popover/数据区**永久零影**（白名单门禁已机器化）。sol 即落 token + 有影对照图 + 单点复验 → 0.1.1。
+
+## RP-2.6 批复（2026-07-11，sol 提案 → 批准，P0 当场拍板）
+
+四裁决采纳：①Demo 身份去水印（内联样板案标签走 container-copy 词表；package 图标；无未读 1；isDemo 数据驱动）；②首装欢迎空态（selectedCaseId:null 真空态；冷启动零 Demo/零 replay；凭证 modal 不覆盖欢迎——**探针照常静默跑，仅 UI 呈现推迟**至发送/主动配置；引言文案后定；HomeModuleDeclaration 仅接口）；③法理之线 12px renderer gutter（线仍贴语义卡边，gutter 是结构位非线位移；阅读面 full-bleed）；④滚动进度归 PreviewHost（领域无关 PreviewProgressModel、每宿主唯一轨、首期只读、无 transition；**追加色彩纪律：轨道灰阶，markers 仅消费既有语义色白名单**；任务进度仍归 UtilityRail）。
+
+P0 token 表当场批准（28/32/13/14/400 510 二元/16/6/12/2/44/40/36），直接落 tokens.json + SPEC，免二次提交。P4 Tab 永不物理消失、P5 图标走既有 SVG 链禁临时内联、自动验收清单（含字重计算样式断言、阴影白名单不扩大、守卫可触红）照案全收。序 P1→P5。
