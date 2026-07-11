@@ -13,6 +13,14 @@
     "./provider-quirks": {
       "types": "./dist/provider/quirk-profile.d.ts",
       "default": "./dist/provider/quirk-profile.js"
+    },
+    "./provider-openai": {
+      "types": "./dist/provider/openai-compatible-provider.d.ts",
+      "default": "./dist/provider/openai-compatible-provider.js"
+    },
+    "./provider-types": {
+      "types": "./dist/provider/types.d.ts",
+      "default": "./dist/provider/types.js"
     }
   },
   "scripts": {

@@ -11,6 +11,7 @@ import type { SessionEvent } from '../events/types.js';
 import { createFileConfirmationStore } from '../session/confirmation-store.js';
 import { createFileRevisionEventStore } from '../revision/revision-store.js';
 import { runScenario, resumeScenario, type ScenarioExecutorDeps } from '../scenario-executor/executor.js';
+import type { Provider } from '../provider/types.js';
 import { buildDemoS3Runtime } from '../composition/demo-assembly.js';
 import { compileConfirmedRiskListToRevisionInstructions } from '../composition/compile-risk-list-to-revisions.js';
 
@@ -38,6 +39,8 @@ export interface S3DemoResult {
  */
 export async function runS3Demo(
   workDir: string = mkdtempSync(join(tmpdir(), 'courtwork-core-s3-demo-')),
+  /** GOAL-1 真模型首跑：注入真 Provider 覆盖 demo ScriptedProvider；缺省行为零变。 */
+  overrides?: { provider?: Provider },
 ): Promise<S3DemoResult> {
   const sessionId = 'demo-s3-session';
   const runtime = buildDemoS3Runtime();
@@ -48,7 +51,7 @@ export async function runS3Demo(
   const firstDeps: ScenarioExecutorDeps = {
     tools: runtime.tools,
     toolExecutor: createToolExecutor(),
-    provider: runtime.provider,
+    provider: overrides?.provider ?? runtime.provider,
     eventLog: createFileEventLog(sessionId, eventsPath),
     confirmationStore: createFileConfirmationStore(pendingDir),
     revisionStore: createFileRevisionEventStore(revisionEventsPath),
@@ -68,7 +71,7 @@ export async function runS3Demo(
   const secondDeps: ScenarioExecutorDeps = {
     tools: secondRuntime.tools,
     toolExecutor: createToolExecutor(),
-    provider: secondRuntime.provider,
+    provider: overrides?.provider ?? secondRuntime.provider,
     eventLog: createFileEventLog(sessionId, eventsPath),
     confirmationStore: createFileConfirmationStore(pendingDir),
     revisionStore: createFileRevisionEventStore(revisionEventsPath),
