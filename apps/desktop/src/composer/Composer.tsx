@@ -551,11 +551,6 @@ export function Composer({
         <kbd>⏎</kbd>
         <span>换行</span>
       </p>
-      <p className="composer-disclaimer" data-testid="composer-disclaimer">
-        Courtwork is an agent and can make mistakes. Please double-check responses.{' '}
-        <a href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">Give us feedback</a>
-      </p>
-
       {/* 供测试与 a11y 读出当前作用域文案模板 */}
       <span className="sr-only" data-testid="composer-scope-copy">
         {scopeCommitTitle(containerKind)}/{scopeCommittedLabel(containerKind)}/{scopeConfirmBody(containerKind, caseName ?? '')}

@@ -925,8 +925,9 @@ export function App() {
               </button>
             </div>
             {/* L1：composer 浮卡 */}
-            <div className="composer-float surface-float">
-              <Composer
+            <div className="composer-stack">
+              <div className="composer-float surface-float">
+                <Composer
                 cases={cases.map((item) => ({
                   id: item.id,
                   name: item.title,
@@ -942,7 +943,12 @@ export function App() {
                 onToggleModelConfig={() => setModelConfigOpen((open) => !open)}
                 onModelConfigChange={updateModelConfig}
                 onCloseModelConfig={() => setModelConfigOpen(false)}
-              />
+                />
+              </div>
+              <p className="composer-disclaimer" data-testid="composer-disclaimer">
+                Courtwork is an agent and can make mistakes. Please double-check responses.{' '}
+                <a href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">Give us feedback</a>
+              </p>
             </div>
           </section>
         )}

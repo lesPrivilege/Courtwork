@@ -38,6 +38,16 @@ test('composer 定稿声明与 feedback 链接一字不改', async ({ page }) =>
     'Courtwork is an agent and can make mistakes. Please double-check responses. Give us feedback',
   );
   await expect(page.getByRole('link', { name: 'Give us feedback' })).toHaveAttribute('href', /^mailto:/);
+  await expect(page.getByTestId('composer-disclaimer').locator('xpath=..')).toHaveClass(/composer-stack/);
+  await expect(page.getByTestId('composer-disclaimer').locator('xpath=..').locator('.composer-float')).toHaveCount(1);
+});
+
+test('收窄时案件与模块标题横向省略，不竖排溢出', async ({ page }) => {
+  const title = page.getByTestId('chat-case-title');
+  await expect(title).toHaveCSS('white-space', 'nowrap');
+  await expect(title).toHaveCSS('text-overflow', 'ellipsis');
+  await expect(page.locator('.stack-module-title').first()).toHaveCSS('white-space', 'nowrap');
+  await expect(page.locator('.case-card-select strong').first()).toHaveCSS('text-overflow', 'ellipsis');
 });
 
 test('左下用户菜单收纳设置、更新与 feedback', async ({ page }) => {

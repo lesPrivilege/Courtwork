@@ -50,6 +50,7 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 - wordmark 迁左栏顶；chat 顶部仅保留案件名、案号、样板标识、阶段短标签及设置/⌘K，不扩写说明文本。
 - 死路由清理：未接通的「审阅记录」「导出审阅稿」常驻按钮移除；用量归 context，运行态归事件流，继续阶段归 progress，产出文件夹归左栏产出入口与 artifact 卡。
 - visual-audit：[`26-rp2-1-vertical-full-1440.png`](visual-audit/26-rp2-1-vertical-full-1440.png) / [`27-rp2-1-vertical-collapsed-1440.png`](visual-audit/27-rp2-1-vertical-collapsed-1440.png)。
+- RP-2.2：composer 声明移出 L1 输入浮卡，保持同宽底对齐并允许自然换行；chat/rail/module/work-surface 标题统一 `min-width:0 + nowrap + ellipsis`，计数与动作固定，收窄时禁止逐字竖排或越界。Playwright floor 95→96。
 
 ## FIX-KC-1 · 凭证授权流（据 DBG-2，2026-07-11）
 
