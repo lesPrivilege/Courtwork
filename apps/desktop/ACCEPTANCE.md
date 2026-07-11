@@ -700,3 +700,48 @@ codesign -dv --verbose=4 "/Applications/Courtwork.app/Contents/MacOS/courtwork-d
 2. **0.1.1：放行出包 ✅**。RP-2.5 原阻断的几何重叠、Artifact→Preview 行为与阴影契约/白名单均已闭环；可进入既定 BUILD-1 工序复用。
 
 > **总判定：RP-2.5.1 放行，0.1.1 可出。** 隔离 `:1428` 下四档坐标边界与 8px gap 真断言、Artifact 自动打开与手动关闭优先、批准阴影精确 token + 消费白名单 + L0 computed 零影全部实测通过；全仓构建亦绿，验收仅追加报告。
+
+---
+
+## RP-2.10 验收（三卡一纸 + 品牌 icon 推理动画，2026-07-11）
+
+- **角色与范围**：独立验收会话 sol；实现者 Opus 4.8；固定审查提交 `24c61bd` 的 20 文件。权威逐条对照 `docs/49` 第九、十一、十二章与 `docs/55` RP-2.10 单、#26.2/#26.3、收账裁决；未改 schema、跨层接口或 QF-1 队列语义。
+- **隔离**：从 `24c61bd` 新建 `/private/tmp/courtwork-rp210-acceptance`、分支 `codex/accept-rp210`，未在共享主树 checkout/stash。Playwright 配置实核 `reuseExistingServer:false`；全量两轮分别先查空闲端口后自起 `:1431` / `:1432`，定向五连跑使用 `:1433`，目视探针使用 `:1434`。首次 `pnpm install --frozen-lockfile` 虽回报 up to date 却未生成 `node_modules`，首个 build 因 `tsc ENOENT` 未进入编译；以 `pnpm install --frozen-lockfile --force` 重建 1220 个依赖链接后，从 build 重新计次。
+
+### 一、全局门与稳定性
+
+| 门禁 | 原始实跑结果 | 结论 |
+|---|---|---|
+| 全仓 build | `pnpm -r build`：9/9 workspace 完成；desktop `tsc -b && vite build` 完成（3433 modules） | ✅ |
+| desktop Vitest | 17 files passed；**79/79 passed**（699ms） | ✅ |
+| 全门禁 + Playwright 第一轮 | `:1431`：motion/signature/graph/icons 20/preview/elevation/RP-2.6/2.7/thinking/2.8/2.9/2.9.1/2.10 全绿；**145 passed / 146**（1.2m） | ✅（仅登记基线红） |
+| 全门禁 + Playwright 第二轮 | `:1432`：同一整链门禁再绿；**145 passed / 146**（1.2m） | ✅（仅登记基线红） |
+| 唯一失败 | 两轮均仅 `tests/e2e/composer.spec.ts:56`：发送后 `queued-message` 不存在；与 docs/55 QF-1 登记证据逐字相符，本单不计 | 留置 QF-1 |
+| `rp25:60` 竞态修复 | `:1433 --repeat-each=5 --workers=1`：**5/5 passed**（7.6s）；两轮全量中也各过一次 | ✅ |
+| 假绿 floor | 按收账裁决仅改 `assert-test-count.mjs` 一行 `143 → 146`；实跑输出 `146 条用例（下限 146）`，提交 `db9c271` | ✅ |
+
+### 二、ch12 契约与视觉实测
+
+| 验收点 | 实测证据 | 结论 |
+|---|---|---|
+| 至多三卡 / 两态右列 | `rp210.spec.ts` 两轮均绿；Preview 态 `right-module-stack .surface-card = 1` 且唯一为 `preview-host`，dock 透明坐 L0；关闭 Preview 后右列 surface card **0**，`data-mode=base` 且 `preview-open` 可重开。折叠钮 DOM 位于 `right-rail-chrome`、不在卡内，bounding-box 横向居中误差 <28px。 | ✅ |
+| dock 带与留空 | 真机 1440×900 新截帧显示三 tap 横带直接落底纸，折叠钮独居其上留空；chat 两侧 computed padding 为 **12px 16px**，正文、turn 行与 composer 均未贴栏边。 | ✅ |
+| composer / user message | `.composer-box` computed 为 1px `border-strong`（`rgb(213,219,226)`）、`box-shadow:none`、白底，文本与沉底按钮同住该有界容器；user message computed `border-width:0`、无影、微深藏青混合底；编辑态描边语义未被常态占用。 | ✅ |
+| chat 卡片清算 | 两轮实测 gate/question 为白底 1px 轻卡；event/artifact/file 为 `border-radius:0` + transparent 扁平行。active 文本只消费灰阶 `breathe`，`session.confirmation` settle 后切 success，不永久闪烁。 | ✅ |
+| 品牌锚位形 | turn 截图与 bounding-box 均显示 `brand-mark` 位于 assistant message actions 之后、turn 尾左下；静默态仅留无框 icon，点击可展开/收回思考摘要。SVG 恰四 path：藏青竖线 + 三横杠；无 spark-lines 替身。 | ✅ |
+| 四项动效纪律 | `:1434` 真机逐帧采样：t0 竖线 opacity 1 / animation none，三横杠待写；t420ms 第一横完成、第二横书写中、第三横未开始，证明逐写；正文到达后 React 状态直接换 settled，path `transition:none`。Preview 数据卡与法理之线 computed 均 `animation:none`；motion 门仅准 transform/opacity/background/border。 | ✅ |
+
+### 三、门禁反例与 git 卫生
+
+1. **RP-2.10 boundaries 反例**：临时把 composer `border-strong` 降为普通 `border`，`lint:rp210` 立即 exit 1，明确报“composer 外框须略重”；反向补丁后复跑 `RP-2.10 ... boundaries: OK`。
+2. **icons 20 反例**：临时把期望数 20 改为 21，`lint:icons` 立即 exit 1，明确报“实际 20”；反向补丁后复跑 `20 个具名 SVG（18 概念）` 通过。
+3. 两项反例均只存在于隔离 worktree 且已反向补丁归零；未触 credentials、`src-tauri/*`、`packages/*` 或任何契约文件。验收实现级顺手项仅 floor 一行，独立提交前逐项检查 cached name；本节为 `apps/desktop/ACCEPTANCE.md` 纯追加。
+
+### 四、主观视觉判断与结论
+
+**视觉已达到 ch12“壳层视觉终章”的意图。** 1440px 全景里左栏是一张贯通锚卡，chat 回到底纸，composer 成为唯一中栏有界浮面，右侧只由 schema 承重；dock 与折叠钮退到底纸后，三层主从第一次不再互相争抢。gate/question 的轻卡仍可被一眼识别为“需要人回应”，但其描边和体量没有与 schema 卡争级；event/artifact/file 降为账本行后，turn 尾品牌锚成为安静的句号。base 态右栏大片留白不是缺内容，而是清楚表达“工作面已收起”；16px 留空与 composer 强边界把这种克制撑住。品牌横杠逐写短促、静默后只留卷宗形锚，识别度与反馈同体，没有借用法理之线，也没有把数据区带动。
+
+1. **RP-2.10：放行 ✅**。20 文件范围内未发现新增实现级或契约级缺陷；ch12、#26.2/#26.3、chat 清算、composer 凡例与 `rp25:60` 修复均获机器 + 真机双证据。
+2. **下游：可放行 QF-1 清账 ✅**。两轮唯一红均为已登记 `composer:56` 队列语义基线，本验收不越权修改、不把它计作 RP-2.10 失败；QF-1 仍须按独立工单修复并重新跑全门。
+
+> **总判定：RP-2.10 放行；视觉达到 ch12 终章意图。** 两轮独立端口全量稳定为 145/146，唯一红严格等于登记 QF-1；Vitest 79/79、build 9/9、两项门禁反例、`rp25:60` 五连跑、floor 146 与实机逐帧/几何证据全部闭环。
