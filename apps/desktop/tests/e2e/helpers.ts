@@ -15,6 +15,8 @@ export async function openWorkbench(page: Page) {
   const welcomeDemo = page.getByTestId('welcome-demo-start');
   if (await welcomeDemo.isVisible()) {
     await welcomeDemo.click();
+    const onboarding = page.getByTestId('provider-setup');
+    if (await onboarding.isVisible()) await page.getByTestId('provider-skip').click();
     await page.getByTestId('event-stream').waitFor();
   }
   // 加固：点击后光标可能仍悬在中心区域

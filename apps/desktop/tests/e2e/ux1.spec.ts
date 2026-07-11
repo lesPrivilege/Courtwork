@@ -11,6 +11,7 @@ test.describe('UX-1 批次一', () => {
     await page.goto('/');
     await expect(page.getByTestId('composer-case')).toContainText('Choose case');
     await page.getByTestId('welcome-demo-start').click();
+    await page.getByTestId('provider-skip').click();
     await expect(page.getByTestId('composer-case')).toHaveCount(0);
 
     await createNamedCase(page, 'UX一号案·买卖合同');

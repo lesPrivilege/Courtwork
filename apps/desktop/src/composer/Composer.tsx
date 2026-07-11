@@ -328,6 +328,7 @@ export function Composer({
             <button
               type="button"
               className="composer-icon-button"
+              data-composer-slot="add"
               data-testid="composer-plus"
               aria-label={CHROME_COPY.composer.add}
               aria-haspopup="menu"
@@ -410,6 +411,22 @@ export function Composer({
             )}
           </div>
 
+          <button
+            type="button"
+            className="composer-icon-button"
+            data-testid="composer-paste"
+            data-composer-slot="paste"
+            aria-label="Paste"
+            title="Paste"
+            onClick={() => {
+              void navigator.clipboard?.readText().then((value) => {
+                if (value) setText((current) => `${current}${value}`);
+              }).catch(() => textareaRef.current?.focus());
+            }}
+          >
+            <Icon name="clipboard" />
+          </button>
+
           <input
             ref={fileInputRef}
             type="file"
@@ -434,7 +451,7 @@ export function Composer({
             {...({ webkitdirectory: '', directory: '' } as Record<string, string>)}
           />
 
-          {!hasBoundContainer && <div className="case-picker">
+          {!hasBoundContainer && <div className="case-picker" data-composer-slot="scope">
             <button
               type="button"
               className="case-chip"
@@ -453,6 +470,7 @@ export function Composer({
             </button>
             {caseMenuOpen && (
               <ul className="case-menu" role="listbox" aria-label="Case list" data-testid="composer-case-menu">
+                <li className="case-menu-section" role="presentation">Cases</li>
                 {caseOptions.map((item) => (
                   <li key={item.id}>
                     <button
@@ -469,6 +487,9 @@ export function Composer({
                     </button>
                   </li>
                 ))}
+                <li className="case-menu-divider" role="separator" />
+                <li className="case-menu-section" role="presentation">Recent chats</li>
+                <li><button type="button" role="option" aria-selected="false" onClick={() => setCaseMenuOpen(false)}><Icon name="message-circle" /> Untitled chat</button></li>
                 <li>
                   <button
                     type="button"
@@ -511,7 +532,7 @@ export function Composer({
 
         <div className="composer-tools-right">
           {modelConfig && onToggleModelConfig && onModelConfigChange && onCloseModelConfig && (
-            <span className="model-config-anchor composer-provider-anchor">
+            <span className="model-config-anchor composer-provider-anchor" data-composer-slot="provider">
               <button
                 type="button"
                 className={`quiet-button model-config-trigger phase-${connectionPhase}`}
@@ -537,6 +558,7 @@ export function Composer({
           <button
             type="button"
             className="composer-send"
+            data-composer-slot="send"
             data-testid="composer-send"
             aria-label={CHROME_COPY.composer.send}
             title={CHROME_COPY.composer.send}

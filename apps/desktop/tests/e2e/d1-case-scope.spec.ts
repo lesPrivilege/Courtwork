@@ -32,6 +32,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     const setup = page.getByTestId('provider-setup');
     if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
     const button = page.getByTestId('composer-provider');
+    await button.click();
     await expect(button).toHaveAttribute('data-phase', 'failed');
     await expect(button).toContainText('Connection failed');
   });
@@ -50,6 +51,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     const setup = page.getByTestId('provider-setup');
     if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
     const button = page.getByTestId('composer-provider');
+    await button.click();
     await expect(button).toHaveAttribute('data-phase', 'failed');
     await expect(button).toContainText('Connection failed');
   });

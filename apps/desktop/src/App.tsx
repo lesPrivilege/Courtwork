@@ -70,6 +70,7 @@ import {
 } from './workbench/Panels';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
 import { ThinkingStream } from './workbench/ThinkingStream';
+import { MessageActions } from './chat/MessageActions';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
@@ -98,8 +99,8 @@ function previewViewForArtifact(artifactType: string): WorkbenchView | undefined
 const DEMO_CASE = createDemoCaseSummary();
 
 function storedCaseId(): string | null {
-  const caseId = window.localStorage.getItem('courtwork.selected-case-id');
-  return isDemoCaseId(caseId) ? caseId : null;
+  // RP-2.9：启动永不继承上次卷宗作用域；继续区提供显式回到容器的入口。
+  return null;
 }
 
 type SessionAction = SessionEvent | { type: '__clear__' };
@@ -153,8 +154,11 @@ export function App() {
   const [draftFrozen, setDraftFrozen] = useState(false);
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ phase: 'pending' });
+  const [credentialProbed, setCredentialProbed] = useState(false);
   const [providerSetupOpen, setProviderSetupOpen] = useState(false);
-  const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[] }>>([]);
+  const [sampleTourOpen, setSampleTourOpen] = useState(false);
+  const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[]; createdAt: number }>>([]);
+  const [queuedMessages, setQueuedMessages] = useState<Array<{ id: string; text: string; createdAt: number }>>([]);
   const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(initialCaseId.current);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
@@ -203,6 +207,7 @@ export function App() {
   /** UX-1 #1 / RP-1 A2：卷宗计数 → 展开态 originals-zone；展开后 DOM 未就绪时排队重试 */
   const pendingOriginalsFocus = useRef(false);
   const [originalsFocusTick, setOriginalsFocusTick] = useState(0);
+  const assistantCreatedAt = useRef(Date.now());
 
   const showSystemFeedback = (message: string, ok: boolean) => {
     setSystemFeedback({ message, ok });
@@ -212,7 +217,13 @@ export function App() {
 
   const handleComposerSend = (payload: ComposerSendPayload) => {
     if (credentialStatus.phase !== 'connected') {
+      probeCredentials();
       setProviderSetupOpen(true);
+      return;
+    }
+    const createdAt = Date.now();
+    if (isDemoCase && session.progress.length > 0 && !session.confirmation) {
+      setQueuedMessages((current) => [...current, { id: `queued-${createdAt}`, text: payload.text, createdAt }]);
       return;
     }
     // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
@@ -221,19 +232,19 @@ export function App() {
       {
         text: payload.text || (payload.attachments.length ? '（附文件）' : ''),
         files: payload.attachments.map((item) => item.fileName),
+        createdAt,
       },
     ]);
   };
 
-  const probeCredentials = () => {
-    void credentialClient.status().then((status) => {
-      setCredentialStatus(status);
-      // 探针照常静默运行；凭证 UI 只在发送或主动配置时上浮。
-    });
+  const probeCredentials = async () => {
+    setCredentialProbed(true);
+    const status = await credentialClient.status();
+    setCredentialStatus(status);
+    return status;
   };
 
   useEffect(() => {
-    probeCredentials();
     const onProbe = () => probeCredentials();
     window.addEventListener('courtwork-credential-probe', onProbe);
     return () => window.removeEventListener('courtwork-credential-probe', onProbe);
@@ -526,6 +537,7 @@ export function App() {
   };
 
   const openSettings = (section: SettingsSection = 'model') => {
+    void probeCredentials();
     setSettingsSection(section);
     setSettingsOpen(true);
     setPaletteOpen(false);
@@ -642,6 +654,7 @@ export function App() {
   };
 
   const openWorkDrafts = () => {
+    manualPreviewSelected.current = true;
     setWorkDraftMode(true);
     setFileOpsMode(false);
     setActiveView('draft');
@@ -650,6 +663,7 @@ export function App() {
   };
 
   const openFileOps = () => {
+    manualPreviewSelected.current = true;
     setFileOpsMode(true);
     setWorkDraftMode(false);
     setSecondaryView(undefined);
@@ -864,7 +878,7 @@ export function App() {
   ];
 
   return (
-    <main className="app-shell" data-testid="workbench" data-compact={compactLayout ? 'true' : 'false'}>
+    <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'} data-compact={compactLayout ? 'true' : 'false'}>
       <div
         className={`workspace ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
         data-testid="workspace"
@@ -941,12 +955,15 @@ export function App() {
                   <span className="welcome-mark" aria-hidden="true"><Icon name="panels-top-left" /></span>
                   <h1>{CHROME_COPY.welcome.title}</h1>
                   <p>{CHROME_COPY.welcome.body}</p>
-                  <button type="button" className="quiet-button welcome-demo-start" data-testid="welcome-demo-start" onClick={() => {
-                    setSelectedCaseId(DEMO_CASE_ID);
-                    setExpandedCaseId(DEMO_CASE_ID);
-                  }}>
+                  <button type="button" className="quiet-button welcome-demo-start" data-testid="welcome-demo-start" onClick={() => setProviderSetupOpen(true)}>
                     {CHROME_COPY.welcome.sample}
                   </button>
+                  <div className="welcome-continuations" data-testid="welcome-continuations">
+                    <span>Continue</span>
+                    <button type="button" onClick={() => { setSelectedCaseId(DEMO_CASE_ID); setExpandedCaseId(DEMO_CASE_ID); setSampleTourOpen(true); }}>
+                      <strong>{DEMO_CASE.title}</strong><small>合同审查 · 6 项待办</small>
+                    </button>
+                  </div>
                 </section>
               )}
               {!isWelcome && !isDemoCase && selectedCase && (
@@ -956,6 +973,7 @@ export function App() {
               )}
               {isDemoCase && (
                 <>
+                  {sampleTourOpen && <div className="sample-tour" data-testid="sample-tour"><strong>样板案导览</strong><span>从左栏阶段进入卷宗，再在右侧核对结构化工作面。</span><button type="button" onClick={() => setSampleTourOpen(false)}>知道了</button></div>}
                   <div className="user-message">
                     {flow === 'S1'
                       ? '整理全套卷宗，标出事件矛盾并核对当事人关系。'
@@ -1032,6 +1050,7 @@ export function App() {
                         ]}
                       />
                     )}
+                    <MessageActions messageId="assistant-demo" text={flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'} createdAt={assistantCreatedAt.current} />
                   </article>
                 </>
               )}
@@ -1047,8 +1066,14 @@ export function App() {
                       ))}
                     </div>
                   )}
+                  <MessageActions messageId={`local-${index}`} text={message.text} createdAt={message.createdAt} />
                 </div>
               ))}
+              {queuedMessages.map((message) => <div className="queued-message" data-testid="queued-message" key={message.id}>
+                <span className="queued-chip">Queued</span><span>{message.text}</span>
+                <button type="button" onClick={() => setQueuedMessages((current) => current.filter((item) => item.id !== message.id))}>撤回</button>
+                <button type="button" disabled title="停止当前请求将在执行器接线后启用">停止当前</button>
+              </div>)}
             </div>
             {!isWelcome && <div className="scene-strip" data-testid="scene-strip">
               {isDemoCase && (
@@ -1093,8 +1118,11 @@ export function App() {
                 modelLabel={modelDisplayName(modelConfig)}
                 connectionPhase={credentialStatus.phase}
                 onToggleModelConfig={() => {
-                  if (credentialStatus.phase !== 'connected') setProviderSetupOpen(true);
-                  else setModelConfigOpen((open) => !open);
+                  if (credentialStatus.phase === 'connected') setModelConfigOpen((open) => !open);
+                  else void probeCredentials().then((status) => {
+                    if (status.phase === 'connected') setModelConfigOpen(true);
+                    else setProviderSetupOpen(true);
+                  });
                 }}
                 onModelConfigChange={updateModelConfig}
                 onCloseModelConfig={() => setModelConfigOpen(false)}
@@ -1204,6 +1232,13 @@ export function App() {
         allowSkip={credentialStatus.phase !== 'connected'}
         onClose={() => setProviderSetupOpen(false)}
         onStatusChange={setCredentialStatus}
+        onSkip={() => {
+          window.localStorage.setItem('courtwork.onboarding.seen', 'true');
+          setProviderSetupOpen(false);
+          setSelectedCaseId(DEMO_CASE_ID);
+          setExpandedCaseId(DEMO_CASE_ID);
+          setSampleTourOpen(true);
+        }}
       />
       <NewCaseDialog open={newCaseOpen} onClose={() => setNewCaseOpen(false)} onCreate={createCase} />
       <CommandPalette open={paletteOpen} commands={paletteCommands} onClose={() => setPaletteOpen(false)} />
@@ -1214,6 +1249,7 @@ export function App() {
         onClose={() => setSettingsOpen(false)}
         credentialStatus={credentialStatus}
         onOpenCredentialSetup={() => {
+          void probeCredentials();
           setProviderSetupOpen(true);
         }}
         modelConfig={modelConfig}

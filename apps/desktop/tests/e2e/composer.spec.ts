@@ -65,7 +65,8 @@ test('Enter 发送、Shift+Enter 换行；发送后进入对话流', async ({ pa
   await expect(input).toHaveValue(/请核对验收条款[\s\S]*第二行说明/);
 
   await input.press('Enter');
-  await expect(page.getByTestId('local-user-message')).toContainText('请核对验收条款');
+  await expect(page.getByTestId('queued-message')).toContainText('请核对验收条款');
+  await expect(page.getByTestId('queued-message')).toContainText('Queued');
   await expect(input).toHaveValue('');
 });
 

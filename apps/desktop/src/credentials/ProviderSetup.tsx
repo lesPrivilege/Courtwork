@@ -11,9 +11,10 @@ interface ProviderSetupProps {
   allowSkip: boolean;
   onClose: () => void;
   onStatusChange: (status: CredentialStatus) => void;
+  onSkip?: () => void;
 }
 
-export function ProviderSetup({ open, allowSkip, onClose, onStatusChange }: ProviderSetupProps) {
+export function ProviderSetup({ open, allowSkip, onClose, onStatusChange, onSkip }: ProviderSetupProps) {
   const [source, setSource] = useState<CredentialSource>('pasted');
   const [value, setValue] = useState('');
   const [saving, setSaving] = useState(false);
@@ -77,13 +78,13 @@ export function ProviderSetup({ open, allowSkip, onClose, onStatusChange }: Prov
           placeholder={source === 'pasted' ? '粘贴后将始终以圆点显示' : '例如：COURTWORK_ACCESS'}
         />
       </label>
-      <div className="security-note">
+      <div className="security-note" data-testid="provider-security-note">
         <span aria-hidden="true">⌑</span>
         <p>粘贴的内容只保存到电脑的安全凭证库，不写入案件记录、运行记录或使用统计。Courtwork 不会查找其他应用的设置。</p>
       </div>
       {message && <p className="form-message" role="alert" data-testid="provider-setup-error">{message}</p>}
       <footer>
-        {allowSkip && <button className="quiet-button" onClick={onClose}>先查看演示</button>}
+        {allowSkip && <button className="quiet-button" data-testid="provider-skip" onClick={onSkip ?? onClose}>先查看演示</button>}
         {!allowSkip && <button className="quiet-button" onClick={onClose}>取消</button>}
         <button className="primary-button" onClick={() => void save()} disabled={saving}>{saving ? '正在安全保存…' : '完成连接'}</button>
       </footer>

@@ -705,5 +705,36 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - F-3 一项图标污染：turn/Thinking 图标使用独立 `turn-icon` 作用域，`line-icon` 继续只承载 P-4 chrome/法理之线审计域；五态色与 icon 品牌单色断言恢复。
 - floor 实测保持 126。独立端口 `:1435`、`:1436` 各执行一轮全部静态门禁 + `playwright test --workers=1`，两轮均显示 `Running 126 tests using 1 worker`、`126 passed (1.4m)`、退出码 0。实现复核时额外发现并修正前置提交将 G6 改为同步导入而触发 `assert-graph-theme` 的遗漏；最终懒加载纪律与挂载行为同时成立。
 
+## RP-2.9 `home.*` 密度分档 token 提案（待架构过目，2026-07-11）
+
+依据 docs/49 第十一章与 Cowork 真机参照 `visual-audit/24-rp2-frontier-reference.png`，仅为低密度首页/左栏建立一组尺寸别名；不新增颜色、阴影、字重或动效，schema dense 区继续消费既有 `type.dense` / `component.listRow`，严禁反向消费本组。
+
+| token | 提案值 | 复用关系与白名单 |
+|---|---:|---|
+| `home.inset` | `16px` | `space.4`；欢迎态与左栏主体外边距 |
+| `home.sectionGap` | `20px` | `space.5`；欢迎区、继续区、左栏 Pinned/Recents 分节 |
+| `home.itemGap` | `12px` | `space.3`；低密度行内图标/文字与相邻项 |
+| `home.rowHeight` | `36px` | 比 schema `component.listRow.height=30` 高一档；仅首页/左栏导航与容器行 |
+| `home.iconSize` | `18px` | 比通用 control 16px 高一档；仍走 P-4 SVG/Lucide 管线 |
+| `home.controlRadius` | `8px` | 首页/左栏按钮、选择行；不进入数据卡或 schema 控件 |
+| `home.surfaceRadius` | `16px` | 仅欢迎/provider 引导承重面；L1 工作台外壳仍用 `elevation.floatRadius=12` |
+| `home.welcomeMeasure` | `560px` | 欢迎语与一步式引导的最大测宽，避免宽屏散文漂移 |
+
+衬线不进入 token family：只在 `.welcome-state h1` 单点声明系统中文衬线回退栈，并由门禁锁定“全仓恰好一个消费点”；其他首页与左栏文字仍消费全局 sans。提案过目之前不写入 `tokens.json`、CSS 变量或组件。
+
+### RP-2.9 落地记录（2026-07-11，架构批复 `c52102d`）
+
+- `home.*` 八项按批复进入 `docs/32-设计语言包/tokens.json` 与 CSS 单点变量；18px 图标保留光学豁免。16px 只由欢迎主面消费，继续区行卡依授权回落 12，避免行卡与大面同权重。
+- 冷启动不再调用 credential status；`data-credential-probed` 与 `lint:rp29` 锁定零启动探针。发送、composer provider、Settings/凭证入口才触发真实 probe；FIX-KC-1 的保存、失败分型与 keychain 语义未改。
+- 首启路径为欢迎主面 → 一步式 provider 引导（安全声明/Skip）→ Skip 样板案导览 → 样板案工作面；任何启动都不继承上次卷宗，继续区显式提供最多三项入口。
+- macOS 配置使用 `titleBarStyle: Overlay` + `hiddenTitle`，内容提供拖拽标题区；三栏继续上下贯通。Preview dock 收为悬浮三 tap，避开 close/collapse 命中区并保留 L2 点外收起。
+- 左栏与欢迎态消费低密度间距、36px 行、18px icon 与 8px control radius；schema renderer 仍消费 dense 组。欢迎标题为全 app 唯一衬线消费点，静态门锁定唯一性。
+- composer 采用 frontier 底排顺序 Add / Paste / scope / provider / Send；scope 菜单分 Cases 与 Recent chats 两段。Paste 真接文本 clipboard，图片/文件 paste 继续走既有 attachment 管线。
+- 用户气泡加深藏青 hairline；滚动区边缘渐隐、行间贯通细线。请求在途时新消息进入 Queued 列表，可撤回；“停止当前”在执行器接线前诚实禁用，不冒充已实现注入式 steering。message edit 按裁决不做。
+- 消息产生时冻结绝对时间，UI 每 30 秒刷新相对时间；copy 真做，赞/踩写本地 feedback ledger，朗读与更多诚实禁用。继续区、两段 scope 选择器与 question 推荐边界不改变容器作用域纪律。
+- Playwright floor `126 → 132`；`lint:rp29` 锁 home 八值、衬线唯一、16px 半径唯一、Overlay、懒探针与消息账本。
+
+首启逐屏证据：`48-rp29-welcome-1440.png` → `49-rp29-provider-guide-1440.png` → `50-rp29-skip-sample-tour-1440.png` → `51-rp29-sample-case-1440.png`。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。
