@@ -8,6 +8,8 @@ const TEST_PROFILE: ProviderQuirkProfile = {
   baseUrl: 'https://example.invalid/v1',
   responseFormat: { tier: 'json_object' },
   reasoningFieldCandidates: ['reasoning_content'],
+  recommendedModels: ['test-model'],
+  reasoningRoute: { kind: 'request_field', field: 'reasoning_effort', values: { standard: 'low', deep: 'high' } },
 };
 
 function sseResponse(chunks: unknown[], status = 200): Response {

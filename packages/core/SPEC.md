@@ -1,6 +1,6 @@
 # SPEC: packages/core（W6）
 
-状态：已完成
+状态：已完成（含 PRV-1 provider 自配路由声明）
 
 ## 职责
 
@@ -21,6 +21,8 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 无 UI 跑通 S3 全流程：输入合同 → RiskList artifact（依据含信源等级）→ 用户确认（脚本模拟，含一条真实字段修正）→ 修订指令集 → 调 output 产出 docx。全程事件流可回放。CLI 入口：`pnpm --filter @courtwork/core demo:s3`；自动化断言：`src/acceptance/s3-flow.integration.test.ts`。
 
 ## TODO（跨层放入区）
+
+- [已解决 2026-07-11，PRV-1] `ProviderQuirkProfile` 增加推荐模型与声明式 reasoning route；统一解释器把 standard/deep 映射为 DeepSeek 模型切换、Qwen `enable_thinking`、OpenAI 兼容系 `reasoning_effort`。传输与 UI 均不按 providerId 写分支；桌面端经 `@courtwork/core/provider-quirks` 收窄子路径消费，避免把 Node-only core 模块带进 WebView bundle。
 
 - [架构拍板 2026-07-10，T-provider.1 增强] **schema 部分命中的 loop 推进 = 分片验证 + 定点重试 + 部分成功诚实呈现**：数组型 artifact（RiskList/Timeline/FileOpsPlan 条目）逐条 zod 校验，良品入库；次品携具体校验错误定点重生成（重试预算按条目计，走配置）；预算尽仍缺则按 docs/12 三态诚实呈现（"已识别 5/7 项，2 项未通过校验"+ 重试入口），不静默丢弃不假装完整。UI 配套：推理/思考流默认折叠（spark-lines 标识，docs/52 #7）。接真实流式 provider 后实现。
 

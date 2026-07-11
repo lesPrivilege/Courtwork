@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import type { ProviderQuirkProfile } from './quirk-profile.js';
+import { applyReasoningRoute, type ProviderQuirkProfile } from './quirk-profile.js';
 import type { ChatMessage, HttpClientConfig, ResponseFormat } from './http-client.js';
 import { sendChatCompletion } from './http-client.js';
 import { ProviderInvalidResponseError, ProviderResponseFormatUnsupportedError } from './errors.js';
@@ -30,6 +30,7 @@ export interface GenerateStructuredParams {
   responseSchema?: z.ZodTypeAny;
   maxValidationRetries: number;
   httpConfig: HttpClientConfig;
+  reasoningLevel?: 'standard' | 'deep';
 }
 
 export interface GenerateStructuredResult {
@@ -62,14 +63,18 @@ export async function generateStructured(params: GenerateStructuredParams): Prom
   let attempt: number;
 
   for (attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const routed = params.reasoningLevel
+      ? applyReasoningRoute(profile, params.model, params.reasoningLevel)
+      : { model: params.model, extraBody: {} };
     const result = await sendChatCompletion(
       profile,
       {
-        model: params.model,
+        model: routed.model,
         messages,
         stream: true,
         stream_options: { include_usage: true },
         ...(responseFormat ? { response_format: responseFormat } : {}),
+        ...routed.extraBody,
       },
       params.httpConfig,
     );

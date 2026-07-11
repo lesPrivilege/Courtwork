@@ -11,6 +11,7 @@ export interface OpenAICompatibleProviderConfig {
   timeoutMs?: number;
   maxTransportRetries?: number;
   maxValidationRetries?: number;
+  reasoningLevel?: 'standard' | 'deep';
   /** 测试用可注入 fetch；生产缺省用全局 fetch。 */
   fetchImpl?: typeof fetch;
   /** 测试用可注入退避延迟；生产缺省用真实 setTimeout。 */
@@ -67,6 +68,7 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
         messages: request.messages,
         responseSchema: request.responseSchema,
         maxValidationRetries,
+        reasoningLevel: config.reasoningLevel,
         httpConfig,
       });
       return { content: result.content, reasoningContent: result.reasoningContent, usage: result.usage };
@@ -83,6 +85,7 @@ export interface NamedProviderConfig {
   timeoutMs?: number;
   maxTransportRetries?: number;
   maxValidationRetries?: number;
+  reasoningLevel?: 'standard' | 'deep';
   fetchImpl?: typeof fetch;
   delay?: (ms: number) => Promise<void>;
 }
@@ -95,6 +98,7 @@ function toGenericConfig(config: NamedProviderConfig): OpenAICompatibleProviderC
     timeoutMs: config.timeoutMs,
     maxTransportRetries: config.maxTransportRetries,
     maxValidationRetries: config.maxValidationRetries,
+    reasoningLevel: config.reasoningLevel,
     fetchImpl: config.fetchImpl,
     delay: config.delay,
   };
