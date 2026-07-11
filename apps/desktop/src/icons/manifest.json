@@ -1,4 +1,5 @@
 [
+  { "name": "brand-mark", "family": "brand-motif", "tags": ["brand", "stem", "bars"], "concept": "品牌母题·推理指示锚（藏青竖线+三横杠）", "addedInSpec": "RP-2.10" },
   { "name": "bound-folder", "family": "document-container", "tags": ["folder", "binding", "sheets"], "concept": "卷宗/案卷袋", "addedInSpec": "P-4" },
   { "name": "tabbed-sheet", "family": "document-container", "tags": ["sheet", "tab", "divider"], "concept": "分类文书标签页", "addedInSpec": "P-4" },
   { "name": "ring-check", "family": "verification-mark", "tags": ["ring", "check", "stamp"], "concept": "盖章核验", "addedInSpec": "P-4" },

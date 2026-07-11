@@ -757,5 +757,17 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 视觉证据：`visual-audit/52-rp291-flat-chrome-1440.png`。
 
+### RP-2.10 三卡一纸 + 品牌 icon 推理动画（2026-07-11，Opus 4.8 实现，sol 转验收）
+
+- 三卡一纸（docs/49 第十二章）：右列两态皆坐底纸、永不成卡——`UtilityRail` 去 `SurfaceCard`，dock 三 tap 为 L0 透明带，base 态其下附 `preview-open` reopen 入口（仍坐底纸），schema（`preview-host`）为右列唯一 L1 卡；折叠钮迁入 `right-rail-chrome` 底纸留空、水平居中不占卡。chat 面（欢迎/空态）保持两栏。
+- 线影凡例：composer 外框 `border-strong` 略重（含沉底按钮区，无影，色与两侧一致微深）；默认按钮扁平，唯 Send 实底；user message 扁平藏青微加深底（`color-mix`），编辑态描边仍按 Stage 1 fork 未实现；`conversation-scroll` 两侧留空放大（文字不贴边）。
+- chat 卡片清算（第九章修正）：event/artifact/file 保持扁平账本行；唯 question/门禁为轻卡（`border-strong` + 6px 圆角 + 纯白底）；进行态事件行文本灰阶 `breathe` 闪烁，settle 后 demo 收敛为 success（不永久闪烁）。
+- #26.2/#26.3：推理指示锚 = 品牌 icon 本体（新增 `brand-mark` SVG 走 P-4 管线：藏青竖线 + 三横杠）；竖线立定、三横杠逐条写下（`reasoningLine=360ms` 序延迟），静默收回静态 icon 作思考流折叠锚；居 turn 尾、message 按钮排之下、左下角位形。四纪律不变（数据区静止 / 内容 0ms 硬切 / 法理之线不参与 / shimmer 灰阶，品牌线例外用藏青 `--text-primary`）。
+- 修复（Item 1 域内）：paced 回放代号守卫 `replayGeneration` 作废被取代回放的残余事件，消除重叠回放误触自动开卡的竞态（`rp25:60` 手动关闭优先由偶发翻红转 5/5 稳定）。
+- 门禁：`lint:rp210` + `rp210.spec.ts` 5 条 E2E（品牌 icon 位形 / 静默锚回看 / 卡片清算 / 三卡一纸两态无卡 / 折叠钮居中坐底纸）；`lint:thinking` 与 `lint:rp28` 随 #26.3 与卡片清算迁移收严（brand-mark、utility 两态无卡）；`verify-icons` 20 具名 SVG（+brand-mark, RP-2.10）。floor 由并行 PRV-1 已 committed 至 143（本单 +5 使全库计数 146，删本单用例即跌破 143 触红）。
+- 已知：`composer.spec.ts:56`（发送→排队）在本机 paced 回放下于发送前门禁已落定，稳定翻红——属 RP-2.9 #11 队列语义、非本单范围，HEAD 95826ac 基线即红（3/3）。
+
+视觉证据：`visual-audit/53-rp210-three-cards-1440.png`、`54-rp210-turn-tail.png`、`55-rp210-brand-anchor.png`、`56-rp210-base-mode-1440.png`。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

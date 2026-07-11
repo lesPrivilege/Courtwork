@@ -197,6 +197,8 @@ export function App() {
   const narrowRailRequired = useNarrowRailRequired();
   const openedAt = useRef<Record<string, number>>({});
   const lastReplayedFlow = useRef<string | undefined>(undefined);
+  /** 回放代号：切场景/切容器后，旧 paced 回放的残余事件一律作废（防重叠回放误触自动开卡）。 */
+  const replayGeneration = useRef(0);
   /** RP-2.5.1：用户关闭只压住同一案件/场景后续 artifact；切场景后自动恢复。 */
   const previewDismissedContext = useRef<string | null>(null);
   /** 当前场景内用户显式选中的工作面优先于仍在回放中的 artifact 自动路由。 */
@@ -300,10 +302,13 @@ export function App() {
     const replayKey = `${selectedCaseId}:${flow}:${replayEpoch}`;
     if (lastReplayedFlow.current === replayKey) return;
     lastReplayedFlow.current = replayKey;
+    const myGeneration = ++replayGeneration.current;
     setLocalMessages([]);
     const context = `${selectedCaseId}:${flow}`;
     let previewOpenedForReplay = false;
     void client.replay(flow, (event) => {
+      // 被后续回放取代的陈旧回放：残余事件全部丢弃（不 dispatch、不动自动开卡）。
+      if (replayGeneration.current !== myGeneration) return;
       dispatch(event);
       if (event.type !== 'artifact_produced') return;
       setArtifactRevision((revision) => revision + 1);
@@ -999,7 +1004,7 @@ export function App() {
                     <div className="turn-event-stream" data-testid="event-stream">
                       <TurnCard kind="event" icon="chevron-right" eyebrow={flow === 'S1' ? 'D20' : 'D04'} title={flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'} status="success" testId="turn-event-start" />
                       {session.progress.map((message, index) => (
-                        <TurnCard key={`${message}-${index}`} kind="event" icon="chevron-right" eyebrow={String(index + 1).padStart(2, '0')} title={message} status="active" testId={`turn-event-progress-${index}`} />
+                        <TurnCard key={`${message}-${index}`} kind="event" icon="chevron-right" eyebrow={String(index + 1).padStart(2, '0')} title={message} status={session.confirmation ? 'success' : 'active'} testId={`turn-event-progress-${index}`} />
                       ))}
                       <TurnCard kind="event" icon="chevron-right" eyebrow="完成" title={flow === 'S3' ? '审阅提示已送达右侧工作面' : '事件与主体关系已完成交叉核对'} status="success" testId="turn-event-finish" />
                     </div>
@@ -1151,7 +1156,10 @@ export function App() {
         {!isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
           <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
         </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open={previewOpen ? 'true' : 'false'} data-artifact-revision={artifactRevision}>
-          <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
+          {/* ch12：折叠钮居留空上部居中，坐底纸不占卡 */}
+          <div className="right-rail-chrome">
+            <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
+          </div>
           <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => {
             previewDismissedContext.current = null;
             setPreviewOpen(true);

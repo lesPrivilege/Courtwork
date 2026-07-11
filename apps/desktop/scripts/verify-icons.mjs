@@ -109,13 +109,15 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const manifestNames = manifest.map((entry) => entry.name).sort();
 if (new Set(manifestNames).size !== manifestNames.length) violations.push('manifest: name 重复');
 if (JSON.stringify(names) !== JSON.stringify(manifestNames)) violations.push('manifest: 与 SVG 文件不是一一对应');
-if (names.length !== 19) violations.push(`manifest: 应有 17 概念 / 19 具名 SVG，实际 ${names.length}`);
+// P-4 起 17 概念 / 19 具名；RP-2.10 增 brand-mark（#26.3 推理指示锚）→ 20 具名。
+if (names.length !== 20) violations.push(`manifest: 应有 18 概念 / 20 具名 SVG，实际 ${names.length}`);
 if (manifest.filter((entry) => entry.family === 'split-gate').length !== 3) violations.push('manifest: split-gate 必须恰有三态');
+const allowedSpecs = new Set(['P-4', 'RP-2.10']);
 for (const entry of manifest) {
   if (!kebabCase.test(entry.name) || !kebabCase.test(entry.family)) violations.push(`manifest: ${entry.name} 名称或 family 非 kebab-case`);
   if (!Array.isArray(entry.tags) || !entry.tags.length || entry.tags.some((tag) => !kebabCase.test(tag))) violations.push(`manifest: ${entry.name} tags 无效`);
   if (typeof entry.concept !== 'string' || !entry.concept.trim()) violations.push(`manifest: ${entry.name} concept 为空`);
-  if (entry.addedInSpec !== 'P-4') violations.push(`manifest: ${entry.name} addedInSpec 不是 P-4`);
+  if (!allowedSpecs.has(entry.addedInSpec)) violations.push(`manifest: ${entry.name} addedInSpec 非法`);
 }
 
 if (!readFileSync(resolve('src/main.tsx'), 'utf8').includes('<LucideProvider strokeWidth={1.35}>')) violations.push('LucideProvider 未全局锁定 strokeWidth=1.35');
@@ -136,4 +138,4 @@ const actualGenerated = existsSync(generatedPath) ? readFileSync(generatedPath, 
 if (expectedGenerated !== actualGenerated) violations.push('custom-icons.generated.ts 与 SVG 源稿漂移，请运行 pnpm icons:generate');
 
 if (violations.length) throw new Error(`SVG 图标门禁失败：\n${violations.join('\n')}`);
-globalThis.process.stdout.write(`SVG 图标门禁通过：${names.length} 个具名 SVG（17 概念）+ Lucide 静态按需导入\n`);
+globalThis.process.stdout.write(`SVG 图标门禁通过：${names.length} 个具名 SVG（18 概念）+ Lucide 静态按需导入\n`);
