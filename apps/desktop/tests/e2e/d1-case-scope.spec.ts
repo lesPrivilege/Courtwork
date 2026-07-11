@@ -93,7 +93,6 @@ test.describe('D-1 demo 容器隔离与新建空态', () => {
     await expect(page.getByTestId('case-empty-state')).toBeVisible();
     // 不得残留 demo 阶段文案
     await expect(page.getByTestId('toolbar-stage')).not.toContainText('合同审查');
-    await expect(page.getByTestId('statusbar-stage')).toHaveText('尚未开始阶段');
     await expect(page.locator('.user-message')).toHaveCount(0);
     await expect(page.getByText('发现 6 项合同风险')).toHaveCount(0);
     await expect(page.getByTestId('flow-s1')).toHaveCount(0);
@@ -119,7 +118,7 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     await expect(page.getByTestId('conversation-empty')).toBeVisible();
     await expect(page.getByText('发现 6 项合同风险')).toHaveCount(0);
     await expect(page.getByTestId('output-docx-card')).toHaveCount(0);
-    await expect(page.getByTestId('statusbar-progress')).toContainText('新案件');
+    await expect(page.getByTestId('progress-module-body-list')).toContainText('新案件');
 
     // 回到 demo
     await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();

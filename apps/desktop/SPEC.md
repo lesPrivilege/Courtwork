@@ -43,6 +43,14 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 - TDD：新增 `rp2.spec.ts` 5 例；Playwright floor 90→95；Vitest 70/70；RP-1+RP-2 定向 15/15；四静态门禁与生产构建通过。
 - visual-audit：frontier 参照 [`24-rp2-frontier-reference.png`](visual-audit/24-rp2-frontier-reference.png)；改后全栏 [`24-rp2-full-layout-1440.png`](visual-audit/24-rp2-full-layout-1440.png)；双折叠 [`25-rp2-chat-focus-1440.png`](visual-audit/25-rp2-chat-focus-1440.png)。改前基线沿用 RP-1 [`23-rp1-full-layout-1440.png`](visual-audit/23-rp1-full-layout-1440.png)。
 
+### RP-2.1 · 分层悬浮纵向贯通（2026-07-11）
+
+- Cowork 范式优先：app shell 清除 titlebar / toolbar / statusbar 三条跨栏横带；左、右 L1 浮面从窗口内容顶部贯通到底部，中栏保持 L0 chat 画布。
+- 左右栏各自折叠；按钮位于各栏顶部，折叠后形成 48px 贯通 bar，展开按钮保持原坐标。
+- wordmark 迁左栏顶；chat 顶部仅保留案件名、案号、样板标识、阶段短标签及设置/⌘K，不扩写说明文本。
+- 死路由清理：未接通的「审阅记录」「导出审阅稿」常驻按钮移除；用量归 context，运行态归事件流，继续阶段归 progress，产出文件夹归左栏产出入口与 artifact 卡。
+- visual-audit：[`26-rp2-1-vertical-full-1440.png`](visual-audit/26-rp2-1-vertical-full-1440.png) / [`27-rp2-1-vertical-collapsed-1440.png`](visual-audit/27-rp2-1-vertical-collapsed-1440.png)。
+
 ## FIX-KC-1 · 凭证授权流（据 DBG-2，2026-07-11）
 
 权威：docs/55 FIX-KC-1。落点 `src-tauri/src/lib.rs` + `credentials/client.ts` + 设置页诊断/恢复。

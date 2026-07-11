@@ -67,7 +67,7 @@ button { transition: background-color var(--motion-hover) ease-out, border-color
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [contenteditable]:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--blue-graphic); outline-offset: 2px; }
 kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 4px; background: #fff; color: var(--text-secondary); font: 11px/1 var(--mono); font-variant-numeric: tabular-nums; text-align: center; }
 
-.app-shell { height: 100%; min-width: 1180px; display: grid; grid-template-rows: 40px 40px minmax(0, 1fr) 32px; background: var(--elevation-canvas); font-size: 14px; font-variant-numeric: tabular-nums; }
+.app-shell { height: 100%; min-width: 1180px; display: grid; grid-template-rows: minmax(0, 1fr); background: var(--elevation-canvas); font-size: 14px; font-variant-numeric: tabular-nums; }
 .titlebar, .toolbar, .statusbar { display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
 /* C：标题栏透明融入 chrome；只留 wordmark + 全局动作 */
 .titlebar { background: var(--elevation-titlebar); font-size: 13px; border-bottom-color: transparent; }
@@ -112,6 +112,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   transition: none;
   background: var(--elevation-canvas);
 }
+.rail-wordmark { display: flex; align-items: center; gap: 7px; }
+.rail-wordmark img { width: 18px; height: 18px; }
 .workspace.comparing { grid-template-columns: 48px 300px minmax(0, 1fr); }
 .workspace.focus-mode { grid-template-columns: minmax(0, 1fr); padding: var(--elevation-float-inset); }
 .workspace.left-collapsed { grid-template-columns: 48px minmax(400px, .72fr) minmax(680px, 1.55fr); }
@@ -279,9 +281,13 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   border: 0;
   border-radius: 0;
 }
-.chat-case-head { min-height: 44px; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+.chat-case-head { min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-bottom: 1px solid var(--border); }
 .chat-case-title { min-width: 0; max-width: 70%; padding: 2px 4px; border: 0; background: transparent; color: var(--text-primary); cursor: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; font-weight: 510; }
 .chat-case-head input { min-width: 240px; padding: 4px 6px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); }
+.stage-chip { flex: none; color: var(--text-tertiary); font-size: 12px; }
+.chat-global-action { width: 28px; min-height: 28px; padding: 0; display: grid; place-items: center; }
+.chat-feedback { position: absolute; z-index: 8; top: 48px; right: 12px; padding: 5px 8px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); }
+.conversation.canvas-layer { position: relative; }
 .conversation-scroll { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 4px; overflow: auto; }
 .composer-float {
   margin: 0;

@@ -335,8 +335,7 @@ export function CaseRail({
     <aside className="case-rail surface-float" data-testid="case-rail" data-collapsed="false">
       <div className="case-expanded">
         <header className="panel-head rail-head">
-          <h2>工作区</h2>
-          <span>{cases.length + unfiled.length}</span>
+          <h2 className="rail-wordmark"><img src="/courtwork-mark.svg" alt="" />Courtwork</h2>
           <i />
           <button
             className="rail-add-button"

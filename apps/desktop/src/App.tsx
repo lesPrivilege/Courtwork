@@ -748,44 +748,6 @@ export function App() {
 
   return (
     <main className="app-shell" data-testid="workbench" data-compact={compactLayout ? 'true' : 'false'}>
-      {/* C：标题栏透明化 — 只留 wordmark + 全局动作；failed 才琥珀警示 */}
-      <header className="titlebar">
-        <div className="brand"><img src="/courtwork-mark.svg" alt="" />Courtwork</div>
-        <span className="spacer" />
-        <button
-          type="button"
-          className="quiet-button titlebar-settings"
-          data-testid="open-settings"
-          aria-label="设置"
-          title="设置"
-          onClick={() => openSettings('model')}
-        >
-          <Icon name="cog" />
-        </button>
-        <button type="button" className="shortcut shortcut-trigger" onClick={() => setPaletteOpen(true)}>
-          <kbd>⌘</kbd><kbd>K</kbd> 场景与检索
-        </button>
-        {!focusMode && (
-          <button
-            type="button"
-            className="quiet-button"
-            data-testid="enter-compact-layout"
-            title="收缩栏 · 画布专注"
-            aria-label="收缩左右栏"
-            onClick={enterCompactLayout}
-          >
-            <Icon name="panel-left" />
-          </button>
-        )}
-      </header>
-
-      <nav className="toolbar" aria-label="工作台工具栏">
-        <strong className="truncate" title={stageLabel(flow, isDemoCase)} data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</strong>
-        <span className="spacer" />
-        <button className="quiet-button" disabled title="审阅记录 · 待生成">审阅记录</button>
-        <button className="primary-button" disabled title="导出审阅稿 · 待完成文书生成">导出审阅稿</button>
-      </nav>
-
       <div
         className={`workspace ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${leftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
         data-testid="workspace"
@@ -852,9 +814,13 @@ export function App() {
               /> : <span data-testid="titlebar-case-title"><button type="button" className="chat-case-title" data-testid="chat-case-title" title="双击编辑案件名称" onDoubleClick={() => { setCaseTitleDraft(selectedCase.title); setEditingCaseTitle(true); }}>
                 {selectedCase.title}
               </button></span>}
-              {selectedCase.caseNumber && <span className="case-number">{selectedCase.caseNumber}</span>}
               {isDemoCase && <span className="demo-badge" data-testid="demo-case-badge">样板案·演示</span>}
+              <span className="stage-chip" data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</span>
+              <span className="spacer" />
+              <button type="button" className="quiet-button chat-global-action" data-testid="open-settings" aria-label="设置" title="设置" onClick={() => openSettings('model')}><Icon name="cog" /></button>
+              <button type="button" className="shortcut shortcut-trigger" onClick={() => setPaletteOpen(true)}><kbd>⌘</kbd><kbd>K</kbd></button>
             </header>
+            {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.ok ? 'ok' : 'error'}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
             <div className="conversation-scroll">
               {!isDemoCase && (
                 <div className="empty-state" role="status" data-testid="conversation-empty">
@@ -1004,6 +970,7 @@ export function App() {
                   <li key={`${message}-${index}`}>{message}</li>
                 ))}
               </ul>
+              {isDemoCase && usage >= 85 && <button className="continuation-button" data-testid="continuation-button" disabled={continued} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>{continued ? '已开启下一阶段' : '继续本案工作'}</button>}
             </StackModule>
 
             <StackModule
@@ -1139,69 +1106,6 @@ export function App() {
           </div>
         </section>}
       </div>
-
-      <footer className="statusbar">
-        <button className="usage-button" onClick={() => setUsageOpen((open) => !open)} aria-expanded={usageOpen} data-testid="usage-ring">
-          <span className={`usage-ring ${usage >= 85 ? 'critical' : ''}`} style={{ '--usage': `${usage}%` } as React.CSSProperties} />
-          本阶段用量 {usage}%
-        </button>
-        {usageOpen && isDemoCase && (
-          <div className="usage-popover">
-            <strong>本阶段用量</strong>
-            <span>卷宗占用 {flow === 'S1' ? '14%' : '62%'}</span>
-            <span>对话占用 {flow === 'S1' ? '4%' : '23%'}</span>
-            <span>可整理内容 {flow === 'S1' ? '0%' : '6%'}</span>
-          </div>
-        )}
-        {isDemoCase && <span>摄取余量 <b>1,154</b></span>}
-        {isDemoCase && usage >= 85 && (
-          <button
-            className="continuation-button"
-            disabled={continued}
-            title={continued ? '下一阶段已开启' : '开启下一阶段'}
-            onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}
-          >
-            继续本案工作
-          </button>
-        )}
-        {continued && isDemoCase && (
-          <span className="continued-note" role="status">已开启下一阶段</span>
-        )}
-        <span className="spacer" />
-        {systemFeedback && (
-          <span
-            className={`system-feedback ${systemFeedback.ok ? 'ok' : 'error'}`}
-            role="status"
-            data-testid="system-open-feedback"
-          >
-            {systemFeedback.message}
-          </span>
-        )}
-        <button
-          type="button"
-          className="quiet-button status-open-folder"
-          data-testid="open-output-folder"
-          title={caseRoot ? '在访达中打开本案产出文件夹' : '本案尚未绑定文件夹'}
-          disabled={!caseRoot}
-          onClick={openOutputFolder}
-        >
-          打开产出文件夹
-        </button>
-        {/*
-          状态条只迁不清：阶段进度 N/M 升入 progress 面板头（progress-module-count）；
-          此处保留非计数态文案 + 用量/摄取/续行/产出文件夹/模型（下）原位。
-        */}
-        <span className="truncate" data-testid="statusbar-progress">
-          {!isDemoCase
-            ? '新案件 · 等待任务'
-            : session.failures.length
-              ? '有步骤需要人工处理'
-              : flow === 'S1'
-                ? '摄取进行中'
-                : '审阅进行中'}
-        </span>
-        <span className="truncate" data-testid="statusbar-stage">{stageLabel(flow, isDemoCase)}</span>
-      </footer>
 
       {compileOpen && <div className="modal-backdrop" role="presentation"><section className="compile-dialog" role="dialog" aria-modal="true" aria-labelledby="compile-title"><h2 id="compile-title">编译为 Word 文档</h2><p>定稿后，本画布将转为只读存档。后续修改将在文书修订中逐条处理，无法返回起草状态。</p><div><button className="quiet-button" onClick={() => setCompileOpen(false)}>取消</button><button className="primary-button" onClick={() => { setDraftFrozen(true); setCompileOpen(false); }}>确认定稿并编译</button></div></section></div>}
 

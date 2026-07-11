@@ -58,12 +58,10 @@ test.describe('RP-1 最终重排', () => {
     await expect(count).toHaveText(/^\d+\/\d+$/);
     // S3 默认：0/6 起（权威位 = 面板头）
     await expect(count).toHaveText('0/6');
-    // 状态条其余项原位：用量 / 产出文件夹 / 模型；进度计数不重复占 statusbar
-    await expect(page.getByTestId('usage-ring')).toBeVisible();
-    await expect(page.getByTestId('open-output-folder')).toBeVisible();
-    await expect(page.getByTestId('model-config-trigger')).toBeVisible();
-    await expect(page.getByTestId('statusbar-progress')).toContainText('审阅进行中');
-    await expect(page.getByTestId('statusbar-progress')).not.toContainText('/ 6');
+    // 横向状态条清除：用量归 context、产出归左栏、运行态归事件流
+    await expect(page.getByTestId('module-context')).toContainText('91%');
+    await expect(page.getByTestId('nav-artifacts')).toBeVisible();
+    await expect(page.getByTestId('event-stream')).toContainText('正在核对');
   });
 
   test('artifact 自动展开 revision 模块（demo RiskList）', async ({ page }) => {
@@ -118,13 +116,13 @@ test.describe('RP-1 最终重排', () => {
 
   test('收缩态：左栏折叠 + 右栏全折 + 折叠按钮', async ({ page }) => {
     await openWorkbench(page);
-    await page.getByTestId('enter-compact-layout').click();
+    await page.getByTestId('collapse-left-rail').click();
+    await page.getByTestId('collapse-right-rail').click();
     await expect(page.getByTestId('workspace')).toHaveAttribute('data-left-collapsed', 'true');
     await expect(page.getByTestId('case-rail')).toHaveAttribute('data-collapsed', 'true');
     await expect(page.getByTestId('expand-left-rail')).toBeVisible();
-    await expect(page.getByTestId('module-progress')).toHaveAttribute('data-open', 'false');
-    await expect(page.getByTestId('module-working-folders')).toHaveAttribute('data-open', 'false');
-    await expect(page.getByTestId('module-context')).toHaveAttribute('data-open', 'false');
+    await expect(page.getByTestId('module-progress')).toHaveCount(0);
+    await expect(page.getByTestId('expand-right-rail')).toBeVisible();
     await expect(page.getByTestId('conversation-canvas')).toBeVisible();
     await expect(page.locator('.composer-float')).toBeVisible();
     await page.getByTestId('expand-left-rail').click();

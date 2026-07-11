@@ -3,7 +3,7 @@ import { openWorkbench } from './helpers';
 
 test('状态条打开产出文件夹显示访达反馈', async ({ page }) => {
   await openWorkbench(page);
-  await page.getByTestId('open-output-folder').click();
+  await page.getByTestId('nav-artifacts').click();
   const feedback = page.getByTestId('system-open-feedback');
   await expect(feedback).toBeVisible();
   await expect(feedback).toHaveText('已在访达中显示');
