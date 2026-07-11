@@ -858,6 +858,8 @@ elevation 一致性专项（三处对表）：SPEC 提案值 ↔ tokens.json ele
 ```
 你认领 Courtwork 的 F-1.1 微补丁（RP-1 验收唯一 🟡，架构裁决不豁免：直建 kind:'case' = 替用户选名词，违反 docs/49 核心律）。范围极窄，冻结结构内小改，不重开重排。
 
+第 0 步：若 apps/desktop/ACCEPTANCE.md 有验收会话留下的未提交纯追加（RP-1 验收报告 +98/−0），核实纯追加后原样独立提交（判例 1800925）。
+
 改动：左栏未归档行「存入」（handleContainerizeUnfiled）改为打开既有 containerize-popover（与 composer-first 同一 confirmContainerize、工作区/案件二选），废除直建路径。锚定行（popover 定位）按既有 popover 语法处理。
 
 测试：rp1 #2 e2e 改断言——存入 → popover 出现 → 选「案件」→ 行消失 + 标题栏见名（架构已裁定：原断言锁死错误行为，此改不算放宽）；补一分支断言选「工作区」路径成立。floor ≥87 禁降。
