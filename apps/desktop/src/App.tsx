@@ -147,6 +147,8 @@ export function App() {
   const [unfiledSessions, setUnfiledSessions] = useState<UnfiledSession[]>([
     { id: 'unfiled-seed-1', title: '先聊后建的对话', updatedAt: Date.now() },
   ]);
+  /** F-1.1：左栏未归档存入 → containerize-popover 锚定行 */
+  const [containerizeUnfiledId, setContainerizeUnfiledId] = useState<string | null>(null);
   const [pinnedIds] = useState(() => new Set<string>([DEMO_CASE_ID]));
   const [expandedCaseId, setExpandedCaseId] = useState<string | null>(DEMO_CASE_ID);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
@@ -404,11 +406,21 @@ export function App() {
     createCase({ title, fileCount: 0, kind: request.kind });
   };
 
-  const handleContainerizeUnfiled = (unfiledId: string) => {
-    const row = unfiledSessions.find((item) => item.id === unfiledId);
-    const title = row?.title?.trim() || `案件 · ${new Date().toLocaleDateString('zh-CN')}`;
-    createCase({ title, fileCount: 0, kind: 'case' });
-    setUnfiledSessions((current) => current.filter((item) => item.id !== unfiledId));
+  /**
+   * F-1.1：未归档「存入」→ 容器化仪式（与 composer-first 同族）。
+   * 禁止直建 kind:'case'（docs/49：用户选名词，不替用户选）。
+   */
+  const confirmContainerizeUnfiled = (kind: ContainerKind) => {
+    if (!containerizeUnfiledId) return;
+    const row = unfiledSessions.find((item) => item.id === containerizeUnfiledId);
+    const fallback =
+      kind === 'workspace'
+        ? `项目 · ${new Date().toLocaleDateString('zh-CN')}`
+        : `案件 · ${new Date().toLocaleDateString('zh-CN')}`;
+    const title = row?.title?.trim() || fallback;
+    createCase({ title, fileCount: 0, kind });
+    setUnfiledSessions((current) => current.filter((item) => item.id !== containerizeUnfiledId));
+    setContainerizeUnfiledId(null);
   };
 
   const toggleModule = (id: ModuleId) => {
@@ -809,6 +821,7 @@ export function App() {
             activeViewIsDraft={activeView === 'draft'}
             fileOpsMode={fileOpsMode}
             archiveConfirmCaseId={archiveConfirmCaseId}
+            containerizeUnfiledId={containerizeUnfiledId}
             leftCollapsed={leftCollapsed}
             onSelectCase={(id) => {
               setSelectedCaseId(id);
@@ -826,7 +839,9 @@ export function App() {
             onArchiveTrigger={setArchiveConfirmCaseId}
             onArchiveConfirm={toggleArchive}
             onArchiveCancel={() => setArchiveConfirmCaseId(null)}
-            onContainerizeUnfiled={handleContainerizeUnfiled}
+            onRequestContainerizeUnfiled={setContainerizeUnfiledId}
+            onConfirmContainerizeUnfiled={confirmContainerizeUnfiled}
+            onCancelContainerizeUnfiled={() => setContainerizeUnfiledId(null)}
             onExpandLeft={exitCompactLeft}
             onFeedback={showSystemFeedback}
           />

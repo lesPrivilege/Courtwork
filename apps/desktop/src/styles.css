@@ -167,6 +167,12 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   position: relative; border: 1px solid var(--border-strong); border-radius: 6px;
   background: var(--bg-raised); overflow: visible;
 }
+/* F-1.1：左栏未归档「存入」锚定容器化仪式（同 composer containerize-popover 文案/按钮） */
+.rail-containerize-popover {
+  position: absolute; z-index: 40; top: 100%; left: 8px; right: 8px;
+  width: auto; max-width: 280px; margin: 4px 0 0; padding: 10px;
+  border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised);
+}
 .rail-row.unfiled-row + .rail-row, .case-card + .rail-row, .rail-row + .case-card { margin-top: 6px; }
 .case-card-select { flex: 1; min-width: 0; padding: 4px 4px 4px 0; }
 .collapsed-case-icons button { position: relative; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid transparent; border-radius: 4px; background: transparent; cursor: pointer; }

@@ -1,7 +1,8 @@
 import { ArchiveConfirmPopover } from '../case/ArchiveConfirmPopover';
-import { fileCountLabel } from '../case/container-copy';
+import { fileCountLabel, type ContainerKind } from '../case/container-copy';
 import { isDemoCaseId } from '../case/case-scope';
 import type { CaseSummary } from '../case/types';
+import { CONTAINERIZE_COPY } from '../composer';
 import type { ScenarioFlow } from '../protocol/client';
 import { OriginalsZone } from '../system/OriginalsZone';
 import { ArchiveGlyph } from '../workbench/MiniIcon';
@@ -29,6 +30,8 @@ interface CaseRailProps {
   activeViewIsDraft: boolean;
   fileOpsMode: boolean;
   archiveConfirmCaseId: string | null;
+  /** F-1.1：未归档「存入」锚定的容器化仪式行 id */
+  containerizeUnfiledId: string | null;
   leftCollapsed: boolean;
   onSelectCase: (id: string) => void;
   onToggleExpand: (id: string) => void;
@@ -41,7 +44,10 @@ interface CaseRailProps {
   onArchiveTrigger: (id: string) => void;
   onArchiveConfirm: (id: string) => void;
   onArchiveCancel: () => void;
-  onContainerizeUnfiled: (id: string) => void;
+  /** 打开容器化仪式（用户选名词，docs/49） */
+  onRequestContainerizeUnfiled: (id: string) => void;
+  onConfirmContainerizeUnfiled: (kind: ContainerKind) => void;
+  onCancelContainerizeUnfiled: () => void;
   onExpandLeft: () => void;
   onFeedback: (message: string, ok: boolean) => void;
 }
@@ -60,6 +66,7 @@ export function CaseRail({
   activeViewIsDraft,
   fileOpsMode,
   archiveConfirmCaseId,
+  containerizeUnfiledId,
   leftCollapsed,
   onSelectCase,
   onToggleExpand,
@@ -72,7 +79,9 @@ export function CaseRail({
   onArchiveTrigger,
   onArchiveConfirm,
   onArchiveCancel,
-  onContainerizeUnfiled,
+  onRequestContainerizeUnfiled,
+  onConfirmContainerizeUnfiled,
+  onCancelContainerizeUnfiled,
   onExpandLeft,
   onFeedback,
 }: CaseRailProps) {
@@ -199,7 +208,7 @@ export function CaseRail({
               type="button"
               className="rail-store-button"
               data-testid={`unfiled-store-${row.id}`}
-              onClick={() => onContainerizeUnfiled(row.id)}
+              onClick={() => onRequestContainerizeUnfiled(row.id)}
             >
               存入
             </button>
@@ -217,6 +226,39 @@ export function CaseRail({
           )}
         </div>
         {demo && <span className="demo-badge case-demo-badge" title="样板案·演示">演示</span>}
+        {/* F-1.1：与 composer-first 同一容器化仪式（工作区/案件二选，用户选名词） */}
+        {row.kind === 'unfiled' && containerizeUnfiledId === row.id && (
+          <div
+            className="scope-popover containerize-popover rail-containerize-popover"
+            role="dialog"
+            aria-label={CONTAINERIZE_COPY.title}
+            data-testid="containerize-popover"
+          >
+            <strong>{CONTAINERIZE_COPY.title}</strong>
+            <p>{CONTAINERIZE_COPY.body}</p>
+            <div className="scope-popover-actions">
+              <button type="button" className="quiet-button" onClick={onCancelContainerizeUnfiled}>
+                {CONTAINERIZE_COPY.cancel}
+              </button>
+              <button
+                type="button"
+                className="quiet-button"
+                data-testid="containerize-workspace"
+                onClick={() => onConfirmContainerizeUnfiled('workspace')}
+              >
+                {CONTAINERIZE_COPY.createWorkspace}
+              </button>
+              <button
+                type="button"
+                className="primary-button"
+                data-testid="containerize-case"
+                onClick={() => onConfirmContainerizeUnfiled('case')}
+              >
+                {CONTAINERIZE_COPY.createCase}
+              </button>
+            </div>
+          </div>
+        )}
         {item && archiveConfirmCaseId === item.id && (
           <ArchiveConfirmPopover
             caseTitle={item.title}

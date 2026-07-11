@@ -24,14 +24,31 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('flow-s3')).toBeVisible();
   });
 
-  test('未归档对话行尾「存入」触发容器化', async ({ page }) => {
+  test('未归档「存入」→ 容器化 popover → 选案件', async ({ page }) => {
+    // F-1.1：禁止直建 kind:case；用户选名词（docs/49）
     await openWorkbench(page);
     const store = page.getByTestId('unfiled-store-unfiled-seed-1');
     await expect(store).toBeVisible();
     await expect(store).toHaveText('存入');
     await store.click();
+    const popover = page.getByTestId('containerize-popover');
+    await expect(popover).toBeVisible();
+    await page.getByTestId('containerize-case').click();
+    await expect(popover).toHaveCount(0);
     await expect(page.getByTestId('rail-unfiled-unfiled-seed-1')).toHaveCount(0);
     await expect(page.getByTestId('titlebar-case-title')).toContainText('先聊后建的对话');
+  });
+
+  test('未归档「存入」→ 容器化 popover → 选工作区', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('unfiled-store-unfiled-seed-1').click();
+    await expect(page.getByTestId('containerize-popover')).toBeVisible();
+    await page.getByTestId('containerize-workspace').click();
+    await expect(page.getByTestId('containerize-popover')).toHaveCount(0);
+    await expect(page.getByTestId('rail-unfiled-unfiled-seed-1')).toHaveCount(0);
+    await expect(page.getByTestId('titlebar-case-title')).toContainText('先聊后建的对话');
+    // 工作区行图标
+    await expect(page.getByTestId('rail-icon-workspace').first()).toBeVisible();
   });
 
   test('progress 面板头计数 frontier 形制；状态条只迁不清', async ({ page }) => {
