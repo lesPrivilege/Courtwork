@@ -906,3 +906,5 @@ elevation 一致性专项（三处对表）：SPEC 提案值 ↔ tokens.json ele
 4. #21 chat 降噪：系统事件卡合并紧凑事件流（时序单列、无框或极轻框）；人机分辨=对齐+底色（用户右浅底、agent 左直排画布）；artifact 产出卡保留现形制；改版前后对照截图入 visual-audit，形制细节 SPEC 提案。
 验收标准：9 包 build/Vitest/Playwright 全绿，floor 禁降只升；假态零容忍 e2e；宽比档位断言；既有断言只因结构迁移改不放宽。TDD、显式路径、完工报告含 SPEC 提案全量 + 对照截图。
 ```
+
+## 指针（2026-07-11）：Debug 阶段单据入 docs/55-Debug工单册（FIX-KC-1、RP-2 增补条款起）
