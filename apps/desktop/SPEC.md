@@ -1,6 +1,67 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；**RP-1 最终重排完成（Build 门，待独立验收）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**BUILD-1 首个正式 Build（0.1.0 base 定形版）已产**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+
+## Build 记录（SITE-1 下载区引用）
+
+### BUILD-1 · 0.1.0 base 定形版（2026-07-11）
+
+| 项 | 值 |
+|---|---|
+| 版本 | **0.1.0**（`package.json` / `tauri.conf.json` / `Cargo.toml` 对齐） |
+| 裁切 HEAD | `a964baa`（含 F-1.1 `287ca17` + 复验报告代提交） |
+| 构建时刻 (UTC) | `2026-07-11T00:40:44Z` |
+| 标识 | `cn.courtwork.desktop` · productName `Courtwork` |
+| 架构 | `aarch64`（Apple Silicon） |
+| 签名 | **ad-hoc**（`signingIdentity: "-"`；`CodeDirectory flags=adhoc,runtime`；TeamIdentifier 未设） |
+| 公证 | **未做**（无 APPLE_ID/TEAM_ID/API_KEY；挂账：正式发行需 Developer ID + notarization） |
+
+**产物路径（本机构建输出，不入 git）**
+
+| 产物 | 路径 |
+|---|---|
+| App | `apps/desktop/src-tauri/target/release/bundle/macos/Courtwork.app` |
+| DMG | `apps/desktop/src-tauri/target/release/bundle/dmg/Courtwork_0.1.0_aarch64.dmg` |
+| 可执行文件 | `Courtwork.app/Contents/MacOS/courtwork-desktop` |
+
+**校验（B 阶段判例：DMG 级哈希不可复现为唯一真理；签名 + 前端内容哈希做确定性校验）**
+
+| 校验 | 结果 |
+|---|---|
+| `codesign --verify --deep --strict Courtwork.app` | **OK** |
+| `codesign --verify --strict` 可执行文件 | **OK** |
+| `hdiutil verify` DMG | **VALID**（CRC32 校验通过） |
+| 可执行文件 SHA-256 | `1bc04921a0d7079add2e942783a5d0c94b924490b0fcb1b7a98d922892fd9395` |
+| DMG SHA-256（本机本趟） | `3eb460953f72805e7aaeb5ef134e27998046014c772971ebaaeb26d3bb656192` |
+| 前端 dist 清单 SHA-256（`find dist -type f \| sort \| xargs shasum -a 256` 再 hash） | `e3ad17ebcbaaeffff298b532ee70330e260fd8adac032be10628e50adefe8e94` |
+
+dist 文件级哈希（确定性内容）：
+
+| 文件 | SHA-256 |
+|---|---|
+| `assets/GraphPanel-COcw8UHa.js` | `5bee450b91d9e6c01c49b269116a2c4741f09f4b700797d6cf19482fad94045b` |
+| `assets/index-BhnbIzPD.js` | `1ca6fb9378fba0143ba79e192c359b14a3356daadc318fa69825b39b9000ae91` |
+| `assets/index-BJ_am3Ro.js` | `946bea5057385262d78465b8ebc996550727fc2a90531265b9637df5aeca5d7d` |
+| `assets/index-DFzbYuJD.css` | `0696faeab653a5322cf4157ac1701589cd3442776b32d882d4bb9dad4dddebde` |
+| `assets/index-DuJ_cBxF.js` | `de7f32fb04c81152474c6862034de28f0c56ccbaf619e7add7e7b4b708423c2c` |
+| `courtwork-mark.svg` | `674284d99c59879595071b0cce1074874cd57885f92765e60e360de93e557b5e` |
+| `index.html` | `f73370c6c4c4c925aa22d97d3e6f878b9d9601fa21718c43d7ee613e18c2744b` |
+
+**构建环境**
+
+| 工具 | 版本 |
+|---|---|
+| Node | v25.9.0 |
+| pnpm | 9.15.0 |
+| rustc | 1.97.0 (2d8144b78 2026-07-07) |
+| cargo | 1.97.0 (c980f4866 2026-06-30) |
+| 主机 | macOS 26.5.2 · arm64 |
+| 命令 | `pnpm --filter @courtwork/desktop tauri build --bundles app,dmg` |
+
+**挂账（不冒充已公证发行包）**
+
+- Apple Developer ID 证书与 notarization：正式对外分发前必须补齐；当前产物仅 ad-hoc，适用于本机安装验收与 SITE-1 下载区「开发构建」标注。
+- DMG 字节级 SHA-256 因时间戳/元数据可能不可跨机复现；复验以 **codesign 通过 + dist 内容哈希一致 + hdiutil verify VALID** 为准。
 
 ## RP-1 desktop 最终重排（2026-07-11，Build 门）
 
