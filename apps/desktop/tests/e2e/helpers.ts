@@ -12,6 +12,11 @@ export async function openWorkbench(page: Page) {
   if (await setup.isVisible()) {
     await setup.getByRole('button', { name: '先查看演示' }).click();
   }
+  const welcomeDemo = page.getByTestId('welcome-demo-start');
+  if (await welcomeDemo.isVisible()) {
+    await welcomeDemo.click();
+    await page.getByTestId('event-stream').waitFor();
+  }
   // 加固：点击后光标可能仍悬在中心区域
   await page.mouse.move(0, 0);
 }
@@ -23,4 +28,15 @@ export async function createNamedCase(page: Page, name: string) {
   await dialog.getByRole('textbox', { name: '案件名称' }).fill(name);
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await dialog.waitFor({ state: 'hidden' }).catch(() => undefined);
+}
+
+/** 需要真实发送/model-config 的旧回归须先显式授权；冷启动本身保持安静。 */
+export async function connectProvider(page: Page) {
+  const trigger = page.getByTestId('composer-provider');
+  if (await trigger.getAttribute('data-phase') === 'connected') return;
+  await trigger.click();
+  const dialog = page.getByTestId('provider-setup');
+  await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
+  await dialog.getByRole('button', { name: '完成连接' }).click();
+  await dialog.waitFor({ state: 'hidden' });
 }

@@ -603,5 +603,30 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 当前验证：`lint:elevation` 通过；RP-2.5 定向 10/10；Playwright 全量 110/110（floor 110）；全仓 `pnpm -r build` 通过。视觉证据：`34-rp25-1-shadow-none-1440.png`（落值前）、`36-rp25-1-shadow-approved-1440.png`（落值后）、`35-rp25-1-model-popover-1180.png`。
 
+## RP-2.6 — 第一印象凡例、Demo 身份与 Preview 结构收口（2026-07-11）
+
+### P0 凡例 token（架构 `0d7189b` 当场拍板）
+
+| 组 | 定值 | 不变量 |
+|---|---|---|
+| 控件 | 28/32px 高，13/14px 字，400/510 字重，16px 图标，6px gap | 按钮与工具栏只消费统一变量；常规操作 400，强调/选中 510 |
+| Preview | 12px semantic gutter，2px progress track | gutter 属 renderer 结构位；签名线仍贴语义卡边；轨道本体灰阶 |
+| 右栏三区 | Utility 44px / Host head 40px / tabs 36px | Tab 永不物理消失；窄态只允许动作文案收敛，图标与可访问名保留 |
+
+### P1–P5 行为与边界
+
+- **Demo 身份**：`CaseSummary.isDemo` / 固定 ID 数据驱动，禁止按名称猜测。左栏使用 package 图标与卷宗名内联 `样板案` 标签；文案由 `container-copy` 单点供给，不再用绝对水印或未读数字占图标位。
+- **首装欢迎态**：无持久选择时 `selectedCaseId = null`，仅呈现左栏、chat 欢迎内容与未绑定 composer；Demo 通过「从样板案开始体验」显式进入。探针静默照常运行，pending 不自动覆盖欢迎页；发送或主动配置才打开既有授权流。凭证存储/探针实现未改。
+- **Preview 宿主进度**：`PreviewHost` 消费领域无关 `PreviewProgressModel`，全宿主只有一条只读进度轨；renderer 可声明 markers。轨道灰阶，marker tone 仅 `danger/attention/revision/authority/neutral` 既有白名单。任务进度继续属于 `UtilityRail`。
+- **Schema gutter**：时间线与修订 master/detail 工作区从宿主左缘留 12px 结构空隙；法理之线仍在各自语义行/卡的 0 位，文书阅读区维持全宽及 15px reading 不变量。
+- **图标与窄态**：Demo package、Preview close 与动作均走既有 Lucide/P-4 链，无内联 SVG。容器窄于 560px 时动作按钮可收文案，但五个 Tab 与端点始终在 DOM 且可见。
+
+### 机器验收
+
+- `lint:rp26` 锁定 P0 token 值、Demo 去水印/去未读、container-copy 文案边界、Preview 单接口与 marker 色彩封闭集。
+- Playwright 新增冷启动、显式 Demo、凭证按需上浮、单一滚动轨、12px gutter、44/40/36 三区六项；floor 110 → 116。
+- 既有回归通过显式 `openWorkbench` 进入 Demo；需要真实发送/model-config 的用例显式完成授权，避免把冷启动静默态改回旧行为。
+- 当前验证：Playwright 116/116，desktop 生产构建通过；visual-audit：`37-rp26-first-install-1440.png`、`38-rp26-demo-preview-1440.png`、`39-rp26-demo-preview-1180.png`。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

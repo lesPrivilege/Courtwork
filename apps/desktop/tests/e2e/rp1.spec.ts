@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { createNamedCase, openWorkbench } from './helpers';
+import { connectProvider, createNamedCase, openWorkbench } from './helpers';
 
 test.describe('RP-1 最终重排', () => {
   test('混排列表：类型图标 + 案件摘要选中 + 展开分区', async ({ page }) => {
@@ -143,6 +143,7 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('user-menu-trigger')).not.toContainText('林律师');
 
     await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
+    await connectProvider(page);
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-close')).toHaveText('关闭');
   });

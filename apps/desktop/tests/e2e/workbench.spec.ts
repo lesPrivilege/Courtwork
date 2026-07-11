@@ -320,6 +320,7 @@ test('首启引导始终掩码且不把凭证写入页面存储或运行输出',
   page.on('console', (message) => consoleMessages.push(message.text()));
   await page.goto('/');
   const dialog = page.getByTestId('provider-setup');
+  await page.getByTestId('composer-provider').click();
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText('Courtwork 不会查找其他应用的设置');
   const secret = 'cw-test-secret-42';

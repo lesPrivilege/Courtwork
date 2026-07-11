@@ -58,6 +58,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
   test('成功态显示已连接（合法凭证长度）', async ({ page }) => {
     await page.goto('/');
     const dialog = page.getByTestId('provider-setup');
+    await page.getByTestId('composer-provider').click();
     await expect(dialog).toBeVisible();
     await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
     await dialog.getByRole('button', { name: '完成连接' }).click();
@@ -70,6 +71,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
   test('短凭证保存失败不显示已连接', async ({ page }) => {
     await page.goto('/');
     const dialog = page.getByTestId('provider-setup');
+    await page.getByTestId('composer-provider').click();
     await dialog.getByRole('textbox', { name: '访问凭证' }).fill('short');
     await dialog.getByRole('button', { name: '完成连接' }).click();
     await expect(page.getByTestId('provider-setup-error')).toBeVisible();

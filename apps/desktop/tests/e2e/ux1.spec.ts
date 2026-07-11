@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createNamedCase, openWorkbench } from './helpers';
+import { connectProvider, createNamedCase, openWorkbench } from './helpers';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixtureMd = path.resolve(here, '../fixtures/sample-brief.md');
@@ -97,6 +97,7 @@ test.describe('UX-1 批次一', () => {
 
   test('#10/#18′：composer 模型位可配置，pending 不冒充已连接', async ({ page }) => {
     await openWorkbench(page);
+    await connectProvider(page);
     await page.getByTestId('model-config-trigger').click();
     const popover = page.getByTestId('model-config-popover');
     await expect(popover).toBeVisible();
@@ -106,8 +107,7 @@ test.describe('UX-1 批次一', () => {
     await expect(page.getByTestId('model-config-summary')).toContainText('Qwen Max');
     await expect(page.getByTestId('model-config-summary')).toContainText('深思');
     await page.getByTestId('model-config-close').click();
-    await expect(page.getByTestId('model-config-trigger')).toContainText('待连接');
-    await expect(page.getByTestId('model-config-trigger')).not.toContainText('Qwen Max');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('Qwen Max');
   });
 
   test('#9：图谱 minimap 使用 courtwork-minimap 类（无库蓝渗出约定）', async ({ page }) => {

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openWorkbench } from './helpers';
+import { connectProvider, openWorkbench } from './helpers';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixtureMd = path.resolve(here, '../fixtures/sample-brief.md');
@@ -55,6 +55,7 @@ test('附件 chip 生命周期：上传成功、作用域确认单向落定', as
 
 test('Enter 发送、Shift+Enter 换行；发送后进入对话流', async ({ page }) => {
   await openWorkbench(page);
+  await connectProvider(page);
   const input = page.getByTestId('composer-input');
   await input.fill('请核对验收条款');
   await expect(page.getByTestId('composer-send')).toBeEnabled();

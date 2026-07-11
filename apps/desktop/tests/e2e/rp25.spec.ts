@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { connectProvider, openWorkbench } from './helpers';
 
 async function openApp(page: Page) {
   await openWorkbench(page);
@@ -72,6 +72,7 @@ test('RP-2.5.1 同场景再产 artifact 尊重手动关闭 Preview', async ({ pa
 test('RP-2.5.1 model-config 单实例、无遮挡并持久化配置', async ({ page }) => {
   await page.setViewportSize({ width: 1180, height: 900 });
   await openApp(page);
+  await connectProvider(page);
   await page.getByTestId('model-config-trigger').click();
   await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
   const bounds = await page.evaluate(() => {
@@ -87,6 +88,7 @@ test('RP-2.5.1 model-config 单实例、无遮挡并持久化配置', async ({ p
   await page.getByTestId('model-config-close').click();
   await page.reload();
   await openApp(page);
+  await connectProvider(page);
   await page.getByTestId('model-config-trigger').click();
   await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
   await expect(page.getByTestId('model-config-provider')).toHaveValue('qwen');
