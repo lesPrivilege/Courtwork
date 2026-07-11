@@ -45,7 +45,6 @@ interface CaseRailProps {
   onConfirmContainerizeUnfiled: (kind: ContainerKind) => void;
   onCancelContainerizeUnfiled: () => void;
   onExpandLeft: () => void;
-  onCollapseLeft: () => void;
   onOpenSettings: () => void;
   onFeedback: (message: string, ok: boolean) => void;
 }
@@ -75,7 +74,6 @@ export function CaseRail({
   onConfirmContainerizeUnfiled,
   onCancelContainerizeUnfiled,
   onExpandLeft,
-  onCollapseLeft,
   onOpenSettings,
   onFeedback,
 }: CaseRailProps) {
@@ -304,9 +302,6 @@ export function CaseRail({
             title={CHROME_COPY.navigation.newCase}
           >
             <Icon name="plus" />
-          </button>
-          <button type="button" className="rail-add-button" data-testid="collapse-left-rail" aria-label={CHROME_COPY.navigation.collapseLeft} title={CHROME_COPY.navigation.collapseLeft} onClick={onCollapseLeft}>
-            <Icon name="panel-left" />
           </button>
         </header>
 

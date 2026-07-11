@@ -61,7 +61,7 @@ test('right workbench keeps the 44/40/36 hierarchy and tab endpoints', async ({ 
   await page.getByTestId('welcome-demo-start').click();
   await page.getByTestId('provider-skip').click();
 
-  await expect(page.locator('.utility-dock')).toHaveCSS('height', '34px');
+  await expect(page.locator('.utility-dock')).toHaveCSS('height', '44px');
   await expect(page.locator('.preview-host-head')).toHaveCSS('height', '40px');
   await expect(page.locator('.view-tabs')).toHaveCSS('height', '36px');
   await expect(page.locator('.view-tabs [role="tab"]')).toHaveCount(5);

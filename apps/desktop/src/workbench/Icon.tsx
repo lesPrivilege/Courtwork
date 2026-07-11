@@ -26,6 +26,7 @@ import {
   RotateCw,
   Rows2,
   Scan,
+  Search,
   Send,
   SendHorizontal,
   ThumbsDown,
@@ -78,6 +79,7 @@ const standardIcons = {
   'volume-two': Volume2,
   'panel-left': PanelLeft,
   'panel-right': PanelRight,
+  search: Search,
 } satisfies Record<string, LucideIcon>;
 
 type StandardIconName = keyof typeof standardIcons;

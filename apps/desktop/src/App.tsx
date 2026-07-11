@@ -879,6 +879,18 @@ export function App() {
 
   return (
     <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'} data-compact={compactLayout ? 'true' : 'false'}>
+      <header className="window-chrome" data-testid="window-chrome" data-tauri-drag-region>
+        <button
+          type="button"
+          className="window-chrome-button"
+          data-testid="collapse-left-rail"
+          aria-label={effectiveLeftCollapsed ? CHROME_COPY.navigation.expandLeft : CHROME_COPY.navigation.collapseLeft}
+          title={effectiveLeftCollapsed ? CHROME_COPY.navigation.expandLeft : CHROME_COPY.navigation.collapseLeft}
+          onClick={() => effectiveLeftCollapsed ? exitCompactLeft() : setLeftCollapsed(true)}
+        ><Icon name="panel-left" /></button>
+        <span className="spacer" />
+        <button type="button" className="window-chrome-button" aria-label="Search" title="Search" onClick={() => setPaletteOpen(true)}><Icon name="search" /></button>
+      </header>
       <div
         className={`workspace ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
         data-testid="workspace"
@@ -920,7 +932,6 @@ export function App() {
             onConfirmContainerizeUnfiled={confirmContainerizeUnfiled}
             onCancelContainerizeUnfiled={() => setContainerizeUnfiledId(null)}
             onExpandLeft={exitCompactLeft}
-            onCollapseLeft={() => setLeftCollapsed(true)}
             onOpenSettings={() => openSettings('about')}
             onFeedback={showSystemFeedback}
           />
@@ -929,7 +940,7 @@ export function App() {
         {/* L0：对话流直接坐页面底色，去卡壳 */}
         {!focusMode && (
           <section className="conversation canvas-layer" data-testid="conversation-canvas">
-            <header className={`chat-case-head ${isWelcome ? 'welcome-chat-head' : ''}`}>
+            <header className={`chat-case-head ${isWelcome ? 'welcome-chat-head' : ''}`} data-testid="chat-case-head">
               {isWelcome ? <strong className="welcome-head-label">{CHROME_COPY.welcome.eyebrow}</strong> : <>
               {editingCaseTitle ? <input
                 autoFocus
@@ -945,8 +956,6 @@ export function App() {
               <span className="stage-chip" data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</span>
               </>}
               <span className="spacer" />
-              <button type="button" className="quiet-button chat-global-action" data-testid="open-settings" aria-label="Settings" title="Settings" onClick={() => openSettings('model')}><Icon name="cog" /></button>
-              <button type="button" className="shortcut shortcut-trigger" onClick={() => setPaletteOpen(true)}><kbd>⌘</kbd><kbd>K</kbd></button>
             </header>
             {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.ok ? 'ok' : 'error'}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
             <div className="conversation-scroll">

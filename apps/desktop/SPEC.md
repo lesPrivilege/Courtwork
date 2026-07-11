@@ -736,5 +736,17 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 首启逐屏证据：`48-rp29-welcome-1440.png` → `49-rp29-provider-guide-1440.png` → `50-rp29-skip-sample-tour-1440.png` → `51-rp29-sample-case-1440.png`。
 
+### RP-2.9.1 真机快修（2026-07-11）
+
+- 顶部 chrome 按 Codex 参照拆成独立 44px 窗口层：原生红绿灯区域后只放侧栏折叠与 Search；无 Back/Forward。wordmark 留在左栏内容顶部。
+- chat 案件头撤 Settings/⌘K，全局设置改走左下用户菜单或顶部 Search/⌘K 命令面板；案件标题本身仍可双击编辑，不算右上动作。
+- 次级按钮统一透明无框；Send、确认/区域唯一主动作保留实底。user message 回到纯平浅底无边框；message edit 仍按 Stage 1 fork 裁决不实现，未来编辑态才获得 input 描边。
+- composer 的 Add/Paste/scope/provider 全部沉底无框，Send 保留实底；chat turn artifact/file/gate 由带圆角卡收为透明账本行，只用贯通 hairline 分隔。
+- utility dock 不再 absolute 浮压 Preview 标题，而是固定占据右栏上部 44px 通用基座；SchemaPreviewHost 从其下方开始，44/40/36 层级恢复为结构几何事实。
+- 左栏案件与未归档行移除外框/卡底，选中态只保留墨色浅底；阶段与卷宗原件沿左侧大纲线自然下排。折叠与归档动作保持可达。
+- `lint:rp291` 与 5 条 E2E 锁定：窗口 chrome 无历史动词、chat header 零全局按钮、dock 底边不越 schema 顶边、user/rail/control 平面、turn 卡账本形态。floor `132 → 137`。
+
+视觉证据：`visual-audit/52-rp291-flat-chrome-1440.png`。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

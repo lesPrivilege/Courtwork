@@ -109,7 +109,8 @@ test('RP-2.5 场景动作不越界，免责声明链接保持原子', async ({ p
 test('RP-2.5 设置为居中 L2 modal，1180 无溢出', async ({ page }) => {
   await page.setViewportSize({ width: 1180, height: 900 });
   await openApp(page);
-  await page.getByTestId('open-settings').click();
+  await page.getByRole('button', { name: 'Search' }).click();
+  await page.getByRole('option', { name: 'Settings' }).click();
   const box = await page.getByTestId('settings-page').boundingBox();
   expect(box).not.toBeNull();
   expect(box!.x).toBeGreaterThan(0);

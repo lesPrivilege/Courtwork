@@ -47,7 +47,8 @@ test('utility dock and settings stay within the English chrome layer', async ({ 
   await expect(page.getByTestId('module-working-folders')).toContainText('Working folders');
   await expect(page.getByTestId('module-context')).toContainText('Context');
 
-  await page.getByTestId('open-settings').click();
+  await page.getByRole('button', { name: 'Search' }).click();
+  await page.getByRole('option', { name: 'Settings' }).click();
   await expect(page.getByTestId('settings-page')).toContainText('Settings');
   await expect(page.getByTestId('settings-nav-model')).toHaveText('Model');
   await expect(page.getByTestId('settings-close')).toContainText('Close');
