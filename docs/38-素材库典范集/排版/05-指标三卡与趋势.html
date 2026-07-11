@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 05 · 组合页 · 指标三卡 + 趋势图（grid[1,1,1] → chart）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --data-m1:#0A2540; --data-m2:#3A5068; --data-m3:#6A7B90; --data-m4:#9AA6B8; --data-m5:#C6CFDA;
+  --prov-bg:#F5F7F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.speclabel{max-width:880px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.host{max-width:880px;margin:0 auto;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.phead .hint{font-size:12px;color:var(--tx-3)}
+/* section 凡例：标题 510 + 分隔线，无卡壳；section 间距 space.12 由 phead 分隔线承担 */
+.secbody{padding:16px}
+/* grid[1,1,1]：columnGap = space.6 (24px)，格内 statcard 单层圆角容器（语义块上限） */
+.cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+.stat{border:1px solid var(--bd-hair);border-radius:6px;padding:12px 16px}
+.stat .lb{font-size:12px;color:var(--tx-3)}
+.stat .v{font-family:var(--mono);font-size:28px;line-height:1.2;font-weight:510;font-variant-numeric:tabular-nums;margin-top:2px}
+.stat .d{font-size:12px;color:var(--tx-2);margin-top:2px;display:flex;align-items:center;gap:4px}
+.stat .d .arr{font-family:var(--mono);color:var(--tx-3)}
+.chartwrap{padding:8px 16px 16px}
+.axis{font-family:var(--mono);font-size:11px;fill:var(--tx-3)}
+.legend{max-width:880px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 05 · 组合页 · 指标三卡 + 趋势图</h1><span class="m">page.kind = page · sections[ grid{cols:[1,1,1]} statcard ×3, chart(bar) ] · docs/57 §3.1–3.2</span></div>
+
+<div class="host" data-screen-label="指标组合页">
+  <div class="phead"><h2>本周概览</h2><span class="cnt">S11 周报头部 · 数据截至 2026-07-10</span><span class="sp"></span><span class="hint">升降不消费红绿（语义预算不外借）</span></div>
+  <div class="secbody">
+    <div class="cards">
+      <div class="stat" data-screen-label="statcard">
+        <div class="lb">已核引用</div>
+        <div class="v">42</div>
+        <div class="d"><span class="arr">↑</span>较上周 +8 · 口径：cite 工具核验计数</div>
+      </div>
+      <div class="stat">
+        <div class="lb">待确认风险</div>
+        <div class="v">4</div>
+        <div class="d"><span class="arr">↓</span>较上周 −3 · 高危 1 项在列</div>
+      </div>
+      <div class="stat">
+        <div class="lb">临期事项</div>
+        <div class="v">2</div>
+        <div class="d"><span class="arr">→</span>持平 · 最近：举证截止 07-18</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phead" style="border-top:1px solid var(--bd-hair)"><h2>周处理量趋势</h2><span class="cnt">单序列 · color.data.mono 阶</span><span class="sp"></span><span class="hint">零入场动画 · 网格线 hairline 点阵</span></div>
+  <div class="chartwrap" data-screen-label="chart">
+    <svg width="100%" viewBox="0 0 816 200" role="img" aria-label="周处理量趋势条形图">
+      <!-- 网格线：hairline 点阵化 -->
+      <g stroke="#EBEBEB" stroke-dasharray="1 3">
+        <line x1="48" y1="30" x2="800" y2="30"/><line x1="48" y1="70" x2="800" y2="70"/><line x1="48" y1="110" x2="800" y2="110"/>
+      </g>
+      <line x1="48" y1="150" x2="800" y2="150" stroke="#D5DBE2"/>
+      <g class="axis" text-anchor="end"><text x="40" y="34">60</text><text x="40" y="74">40</text><text x="40" y="114">20</text><text x="40" y="154">0</text></g>
+      <!-- 单序列一律 data.mono，零新增色相 -->
+      <g fill="#3A5068">
+        <rect x="80"  y="96"  width="56" height="54"/>
+        <rect x="200" y="78"  width="56" height="72"/>
+        <rect x="320" y="102" width="56" height="48"/>
+        <rect x="440" y="54"  width="56" height="96"/>
+        <rect x="560" y="66"  width="56" height="84"/>
+        <rect x="680" y="42"  width="56" height="108"/>
+      </g>
+      <g class="axis" text-anchor="middle">
+        <text x="108" y="168">06-01</text><text x="228" y="168">06-08</text><text x="348" y="168">06-15</text><text x="468" y="168">06-22</text><text x="588" y="168">06-29</text><text x="708" y="168">07-06</text>
+      </g>
+      <g class="axis" text-anchor="middle" fill="#425466">
+        <text x="108" y="90">27</text><text x="228" y="72">36</text><text x="348" y="96">24</text><text x="468" y="48">48</text><text x="588" y="60">42</text><text x="708" y="36">54</text>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<p class="legend">消费凡例：组合代数 page→section→grid→primitive 两层封顶（docs/57 §3.1）· 三等分 grid columnGap 24px（layout.report.columnGap = space.6）· metric 28px/1.2/510 mono 仅 statcard（§2.4）· delta 中性箭头不消费红绿（§2.5 statcard 防呆）· 单序列图表一律 color.data.mono 阶（§2.1）· 坐标刻度 mono 11 · 数据区绝对静止（motion.dataRegion = none）</p>
+
+</body>
+</html>

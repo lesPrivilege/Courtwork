@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 01 · single 直挂 · 矩阵密度（table matrix 变体）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3; --bg-selected:#E9EEF4;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --sev-high:#DC2626; --sev-high-fg:#B91C1C; --sev-high-bg:#FEF2F2; --sev-med-fg:#B45309; --sev-med-bg:#FCF6E8; --sev-low-fg:#475569; --sev-low-bg:#F1F5F9;
+  --gate-pend-fg:#B45309; --gate-conf-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-c-bg:#FCF6E8;
+  --prov-bg:#F5F7F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.speclabel{max-width:880px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+/* L1 PreviewHost：唯一白卡，radius 12，elevation.shadow 单点供给 */
+.host{max-width:880px;margin:0 auto;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.phead .hint{font-size:12px;color:var(--tx-3)}
+/* 矩阵：列头 28px 吸顶位，数据行 30px，hairline 分隔，无斑马纹（<6 列） */
+.grid7{display:grid;grid-template-columns:180px repeat(5,1fr) 96px;align-items:center}
+.grid7>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ghead{height:28px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.ghead .r{text-align:right}
+.grow{height:30px;border-bottom:1px solid var(--bd-hair);font-size:13px}
+.grow:hover{background:var(--bg-hover)}
+.grow:last-child{border-bottom:none}
+.grow .h{font-weight:400}
+.grow .r{text-align:right;font-family:var(--mono);font-size:12px;color:var(--tx-2)}
+.grow .r b{font-weight:510;color:var(--tx-1)}
+.sev{font-size:12px;border-radius:4px;padding:0 6px;line-height:18px}
+.cellsel{background:var(--bg-selected)}
+.legend{max-width:880px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 01 · single 直挂 · 矩阵密度</h1><span class="m">page.kind = single · 原语：table（matrix 变体）· docs/57 族一</span></div>
+
+<div class="host" data-screen-label="矩阵密度">
+  <div class="phead">
+    <h2>反馈声量矩阵</h2><span class="cnt">6 主题 × 5 版本 · 未处置 4</span>
+    <span class="sp"></span>
+    <span class="hint">列头吸顶 · 选中格 bg.selected 无外框 · 数字右对齐 mono</span>
+  </div>
+  <div class="grid7 ghead"><div>主题（聚类）</div><div class="r">v2.0</div><div class="r">v2.2</div><div class="r">v2.3</div><div class="r">v2.4</div><div class="r">v3.0β</div><div>严重度</div></div>
+  <div class="grid7 grow"><div class="h">设备离线推送延迟</div><div class="r">3</div><div class="r">5</div><div class="r">9</div><div class="r"><b>31</b></div><div class="r cellsel"><b>12</b></div><div><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">高</span></div></div>
+  <div class="grid7 grow"><div class="h">配网失败 / 安装向导</div><div class="r">11</div><div class="r">8</div><div class="r">7</div><div class="r"><b>14</b></div><div class="r">4</div><div><span class="sev" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">中</span></div></div>
+  <div class="grid7 grow"><div class="h">界面老化 / 求换肤</div><div class="r">6</div><div class="r">9</div><div class="r">12</div><div class="r"><b>18</b></div><div class="r">7</div><div><span class="sev" style="color:var(--sev-low-fg);background:var(--sev-low-bg)">低</span></div></div>
+  <div class="grid7 grow"><div class="h">长辈使用困难</div><div class="r">1</div><div class="r">2</div><div class="r">2</div><div class="r">3</div><div class="r"><b>5</b></div><div><span class="sev" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">中</span></div></div>
+  <div class="grid7 grow"><div class="h">耗电异常</div><div class="r">4</div><div class="r">3</div><div class="r">2</div><div class="r">2</div><div class="r">1</div><div><span class="sev" style="color:var(--sev-low-fg);background:var(--sev-low-bg)">低</span></div></div>
+  <div class="grid7 grow" style="color:var(--tx-3)"><div class="h">未能归类（诚实置出）</div><div class="r">—</div><div class="r">1</div><div class="r">—</div><div class="r">1</div><div class="r">—</div><div><span class="sev" style="color:var(--sev-low-fg);background:var(--sev-low-bg)">待补</span></div></div>
+</div>
+
+<p class="legend">消费凡例：五级嵌套 L1→section→语义块→行→字段（docs/36 §一）· 列头 28px bg.surface · 行高 30px hairline 分隔 · 斑马纹默认关（&lt;6 数据列，docs/57 §2.2）· 选中仅 bg.selected 永不加框 · 数字 mono + tabular 右对齐 · 严重度只在等级徽章不上底色行 · out_of_coverage → 「未能归类」（零编码暴露，docs/36 §五）</p>
+
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 10 · 组合页 · 叙事简报页（narrative repeat · 双通道并存）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --gate-pend-fg:#B45309; --tier-c-bg:#FCF6E8;
+  --data-m2:#3A5068;
+  --prov-bg:#F5F7F9; --gen-bg:#FAFAFA;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.speclabel{max-width:880px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.host{max-width:880px;margin:0 auto;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.phead .hint{font-size:12px;color:var(--tx-3)}
+/* narrative：一屏一论点；正文 measure 720（layout.report.maxWidth 档），repeat 按数组映射 */
+.nwrap{max-width:760px;margin:0 auto;padding:24px 20px}
+.nblk{padding:0 0 24px}
+.nblk + .nblk{border-top:1px solid var(--bd-hair);padding-top:24px}
+.nblk .kicker{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.nblk h3{font-size:18px;font-weight:510;line-height:1.4;letter-spacing:-0.01em;margin-top:2px}
+.nblk .lede{font-size:14px;color:var(--tx-2);margin-top:4px;max-width:44em;text-wrap:pretty}
+.nblk ul{margin:8px 0 0 0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.nblk li{font-size:14px;color:var(--tx-2);padding-left:14px;position:relative}
+.nblk li::before{content:'';position:absolute;left:0;top:.62em;width:5px;height:5px;background:var(--bd-strong)}
+/* 双通道：AI 叙事 = sans + generatedBg；核验数字/引语 = mono + verifiedBg */
+.gen{margin-top:8px;background:var(--gen-bg);border-radius:6px;padding:8px 12px;font-size:13px;color:var(--tx-2)}
+.gen .tag{font-size:12px;color:var(--tx-3)}
+.ver{font-family:var(--mono);background:var(--prov-bg);border-radius:4px;padding:0 4px}
+.figrow{margin-top:8px;display:flex;align-items:flex-end;gap:16px}
+.axis{font-family:var(--mono);font-size:11px;fill:var(--tx-3)}
+.chip{display:inline-flex;align-items:center;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;white-space:nowrap}
+.legend{max-width:880px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 10 · 组合页 · 叙事简报页</h1><span class="m">page.kind = page · repeat{over: focusPoints} → narrative(variant) · docs/57 族四 · S11 版型</span></div>
+
+<div class="host" data-screen-label="叙事简报页">
+  <div class="phead"><h2>结案汇报 · 争议焦点</h2><span class="cnt">3 块 · repeat 映射 · 叙事段 1 待确认</span><span class="sp"></span><span class="hint">一页之内两通道并存且永不混用</span></div>
+  <div class="nwrap">
+
+    <!-- narrative variant: statement -->
+    <div class="nblk" data-screen-label="narrative-statement">
+      <div class="kicker">焦点一 · variant: statement</div>
+      <h3>违约金条款调整获得支持，判赔较诉请下降 78%</h3>
+      <p class="lede">法院采纳《民法典》第五百八十五条第二款抗辩，将日 <span class="ver">1%</span> 违约金调整为以 LPR 四倍为上限，判赔 <span class="ver">¥834,000</span>（诉请 <span class="ver">¥3,800,000</span>）。</p>
+      <div class="gen"><span class="tag">AI 起草 · 待确认</span> · 本案违约金抗辩的关键在于举证实际损失范围——同类案件中未能就损失举证的调整幅度普遍低于本案。<span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg);margin-left:4px">待确认</span></div>
+    </div>
+
+    <!-- narrative variant: bullets -->
+    <div class="nblk" data-screen-label="narrative-bullets">
+      <div class="kicker">焦点二 · variant: bullets</div>
+      <h3>验收争议：书面异议期限缺失成为双刃</h3>
+      <ul>
+        <li>合同未约定异议期限，法院认定「视为验收合格」不成立 —— 出处 <span class="ver">判决书 P.14</span></li>
+        <li>会议纪要中的性能异议记录被采信为持续异议 —— 出处 <span class="ver">11-联调会议纪要</span></li>
+        <li>验收单与纪要的同日矛盾未被认定为伪证，但削弱对方证明力</li>
+      </ul>
+    </div>
+
+    <!-- narrative variant: figure-right -->
+    <div class="nblk" data-screen-label="narrative-figure">
+      <div class="kicker">焦点三 · variant: figure-right</div>
+      <h3>诉请与判赔金额对比</h3>
+      <div class="figrow">
+        <p class="lede" style="flex:1">金额类主张全部以 mono + tabular 呈现并锚至判决书原文；图形位引用 chart 原语产物（figureRef），版面本身不绘图。</p>
+        <svg width="280" height="120" viewBox="0 0 280 120" role="img" aria-label="诉请与判赔对比条形图">
+          <line x1="72" y1="10" x2="72" y2="100" stroke="#D5DBE2"/>
+          <g fill="#3A5068">
+            <rect x="72" y="22" width="180" height="20"/>
+            <rect x="72" y="62" width="40" height="20"/>
+          </g>
+          <g class="axis" text-anchor="end"><text x="66" y="36">诉请</text><text x="66" y="76">判赔</text></g>
+          <g class="axis"><text x="258" y="36">380万</text><text x="118" y="76">83.4万</text></g>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<p class="legend">消费凡例：narrative 四版式封闭 statement | bullets | figure-left | figure-right（docs/57 族四，无自由定位）· repeat 声明写一次实例数据定 · 双通道并存：AI 叙事 sans + generatedBg，核验数字/引语 mono + verifiedBg，两通道样式恒定永不混用（principles §11）· 叙事文字无 edit 动词，修改走起草面 · 标题 18px 上限（title 档，工作台不需要更大的字）· measure 760px（layout.report.maxWidth 档）</p>
+
+</body>
+</html>

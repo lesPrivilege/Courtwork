@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>docs/38 · 素材库典范集 · 目录（FD-2）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3; --bg-selected:#E9EEF4;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2; --link:#2563EB;
+  --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-b-fg:#475569; --tier-b-bg:#F1F5F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+a{color:var(--tx-1);text-decoration:none}
+.wrap{max-width:960px;margin:0 auto}
+header{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+header .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:510}
+header h1{font-size:18px;font-weight:510;letter-spacing:-0.01em}
+header .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.sub{font-size:13px;color:var(--tx-2);margin-bottom:16px;max-width:64em;text-wrap:pretty}
+.host{background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden;margin-bottom:24px}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.phead .hint{font-size:12px;color:var(--tx-3)}
+.row{display:flex;align-items:center;gap:12px;height:32px;padding:0 16px;border-bottom:1px solid var(--bd-hair);font-size:13px}
+.row:last-child{border-bottom:none}
+a.row:hover{background:var(--bg-hover)}
+.row .no{font-family:var(--mono);font-size:12px;color:var(--tx-3);width:24px;flex:none}
+.row .t{flex:none;font-weight:400}
+.row .d{color:var(--tx-3);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .tag{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--tx-3);flex:none}
+.chip{display:inline-flex;align-items:center;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;white-space:nowrap;flex:none}
+/* 结构树 */
+.tree{padding:12px 16px 16px;font-family:var(--mono);font-size:12px;line-height:2;color:var(--tx-2)}
+.tree b{color:var(--tx-1);font-weight:510}
+.tree .dim{color:var(--tx-4)}
+.tree .note{color:var(--tx-3)}
+.legend{max-width:960px;margin:0 auto;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="brand">
+    <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><rect width="20" height="20" rx="4.5" fill="#0A2540"/><rect x="5" y="4" width="2" height="12" fill="#FAFAFA"/><rect x="9.5" y="6" width="6" height="1.6" rx=".8" fill="#7A93AC"/><rect x="9.5" y="9.2" width="6" height="1.6" rx=".8" fill="#7A93AC"/><rect x="9.5" y="12.4" width="4" height="1.6" rx=".8" fill="#7A93AC"/></svg>
+    Courtwork
+  </span>
+  <h1>素材库典范集</h1>
+  <span class="m">docs/38 · FD-2 · 2026-07-12 · 迁移源：docs/32 tokens + docs/36 凡例 + docs/57 词表</span>
+</header>
+<p class="sub">schema 工作面排版架构的典范集：排版穷举（白卡视角规格资产）+ 四垂类最小实现（完整帧展品）。全部 northstar 式自包含静态 HTML（tokens 内联、零依赖），每张页脚自声明消费凡例。后续 SCHEMA-SPEC-1 / VOCAB-1 / PM-PKG 以此为设计迁移源。</p>
+
+<div class="host" data-screen-label="四垂类画廊">
+  <div class="phead"><h2>交付② · 四垂类最小实现</h2><span class="cnt">4 + 1 张 · 完整工作台帧</span><span class="sp"></span><span class="hint">同一凡例四域换皮 · 如出一手</span></div>
+  <a class="row" href="垂类/画廊-四域并排.html"><span class="no">◈</span><span class="t" style="font-weight:510">总画廊 · 四域并排</span><span class="d">一图证明：换垂类 = 换声明</span><span class="tag">iframe 并排取证</span></a>
+  <a class="row" href="垂类/法律-合同审查矩阵.html"><span class="no">L</span><span class="t">法律 · 合同审查矩阵</span><span class="d">主从列表 + 修订预览（S3 · 临江精铸案，源自北极星屏）</span><span class="tag">容器：案件</span></a>
+  <a class="row" href="垂类/PM-PRD评审矩阵.html"><span class="no">P</span><span class="t">PM · PRD 评审矩阵 + RICE 表</span><span class="d">评审矩阵 + 计算器族裁量区间（PM-2/PM-3 · 栖屋 3.0）</span><span class="tag">容器：项目</span></a>
+  <a class="row" href="垂类/招投标-响应核对矩阵.html"><span class="no">T</span><span class="t">招投标 · 响应性核对矩阵</span><span class="d">要求 × 投标人矩阵 + 资质核对单（S9 · 线索仅登记）</span><span class="tag">容器：标段</span></a>
+  <a class="row" href="垂类/HR-处分证据链.html"><span class="no">H</span><span class="t">HR · 处分证据链</span><span class="d">时间线矛盾 + 三锚核对 + 索证态（H12 · 缺口不出稿）</span><span class="tag">容器：档案袋</span></a>
+</div>
+
+<div class="host" data-screen-label="排版穷举">
+  <div class="phead"><h2>交付① · 排版架构穷举</h2><span class="cnt">14 张 · 白卡视角</span><span class="sp"></span><span class="hint">page → section → grid → primitive 两层封顶</span></div>
+  <a class="row" href="排版/01-矩阵密度.html"><span class="no">01</span><span class="t">矩阵密度</span><span class="d">single 直挂 · table matrix 变体 · 列头 28 行 30</span><span class="tag">single</span></a>
+  <a class="row" href="排版/02-主从列表.html"><span class="no">02</span><span class="t">主从列表</span><span class="d">list · 行内展开 · 法理之线五态</span><span class="tag">single</span></a>
+  <a class="row" href="排版/03-全宽文书阅读.html"><span class="no">03</span><span class="t">全宽文书阅读</span><span class="d">document 冻结只读态 · 15px justify · measure 720</span><span class="tag">single</span></a>
+  <a class="row" href="排版/04-时间线.html"><span class="no">04</span><span class="t">时间线</span><span class="d">timeline 表格式 · 矛盾 marker 行 · 筛选常显</span><span class="tag">single</span></a>
+  <a class="row" href="排版/05-指标三卡与趋势.html"><span class="no">05</span><span class="t">指标三卡 + 趋势图</span><span class="d">grid[1,1,1] statcard + chart · metric 28 · data.mono 阶</span><span class="tag">page</span></a>
+  <a class="row" href="排版/06-表格与统计卡.html"><span class="no">06</span><span class="t">表格 + 统计卡</span><span class="d">grid 2:1 主次栏 · 语义块单层圆角上限</span><span class="tag">page</span></a>
+  <a class="row" href="排版/07-核对单与期限板.html"><span class="no">07</span><span class="t">核对单 + 期限板</span><span class="d">grid 1:1 · checklist 勾选零执行 × schedule 临期档</span><span class="tag">page</span></a>
+  <a class="row" href="排版/08-并排对照.html"><span class="no">08</span><span class="t">并排对照</span><span class="d">compare 字段级 diff · 复用修订双色 · 只看差异</span><span class="tag">single</span></a>
+  <a class="row" href="排版/09-表单与计算书.html"><span class="no">09</span><span class="t">表单 + 计算书</span><span class="d">form 预填带锚/无源置空 + 分项表 · S10 版型</span><span class="tag">page</span></a>
+  <a class="row" href="排版/10-叙事简报页.html"><span class="no">10</span><span class="t">叙事简报页</span><span class="d">narrative repeat · 四版式封闭 · 双通道并存</span><span class="tag">page</span></a>
+  <a class="row" href="排版/11-门禁栈.html"><span class="no">11</span><span class="t">门禁栈</span><span class="d">gate 三态卡序列 · 承重卡形制不减重</span><span class="tag">single</span></a>
+  <a class="row" href="排版/12-渐进三态.html"><span class="no">12</span><span class="t">渐进完备性三态</span><span class="d">空卷索证 → partial 诚实计数 → 完备 · 同 schema 三时点</span><span class="tag">专项</span></a>
+  <a class="row" href="排版/13-三段式主从文书.html"><span class="no">13</span><span class="t">三段式 · 主从 + 详情 + 文书</span><span class="d">法律核心版型 · 选中即填充 · 联动高亮</span><span class="tag">page</span></a>
+  <a class="row" href="排版/14-溯源展开态.html"><span class="no">14</span><span class="t">溯源展开态</span><span class="d">依据区解剖 + peek 浮层 + hover 折光标示</span><span class="tag">专项</span></a>
+</div>
+
+<div class="host" data-screen-label="结构提案">
+  <div class="phead"><h2>交付③ · 素材库结构提案</h2><span class="cnt">目录组织 · 供轻量包 Design 规范预置引用</span><span class="sp"></span><span class="hint">全文见 README.md</span></div>
+  <div class="tree">
+docs/38-素材库典范集/<br>
+├── <b>index.html</b> <span class="note">← 素材库首页（本页），轻量包 Design 规范的预置引用入口</span><br>
+├── README.md <span class="note">结构提案全文 + 维护纪律（tokens 刷新 / 命名 / 自文档行）</span><br>
+├── 凡例缺漏清单.md <span class="note">交付④ · 补册材料，供 SCHEMA-SPEC-1 裁决</span><br>
+├── <b>排版/</b> <span class="note">01–04 single 直挂 · 05–10 组合页 grid 切法 · 11–14 凡例专项</span><br>
+├── <b>垂类/</b> <span class="note">四域完整帧 + 总画廊（投递展品）</span><br>
+│<br>
+├── <span class="dim">图元/（扩展位）</span> <span class="note">每原语一页规格图 + 间距标注 —— SCHEMA-SPEC-1 产出承接位</span><br>
+├── <span class="dim">状态矩阵/（扩展位）</span> <span class="note">法理之线五态 × 行/卡/详情、gate 三态、字段三态全举</span><br>
+├── <span class="dim">间距样例/（扩展位）</span> <span class="note">4/8 基阶审计模板、行高/列头/三区高度对照卡</span><br>
+└── <span class="dim">词表映射/（扩展位）</span> <span class="note">各包零编码暴露映射表样例（机器枚举 → 专业词）</span>
+  </div>
+</div>
+
+<p class="legend">素材库纪律：每张典范自包含（tokens 内联 CSS vars，与 docs/32 tokens.json 一一对应，版本 1.1.0）· 页脚一行 mono 自声明消费凡例 · 示例数据全虚构（临江案 / 栖屋 3.0 / 青洲标段 / 澄采档案，虚构纪律照 docs/21）· tokens 变更时全量刷新 :root 块，不逐张手改</p>
+
+</div>
+</body>
+</html>

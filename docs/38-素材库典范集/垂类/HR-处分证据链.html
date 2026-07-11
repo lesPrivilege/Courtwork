@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>素材库典范 · HR · 处分证据链（H12 · 时间线 + 依据核对 + 索证态）</title>
+<style>
+/* ============ tokens（与 docs/32 tokens.json 一一对应；同一凡例，换皮零改） ============ */
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3; --bg-selected:#E9EEF4;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC; --tx-inv:#FAFAFA;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --act-bg:#0A2540; --act-hover:#1A3A5C; --link:#2563EB;
+  --tier-a:#16A34A; --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-b:#64748B; --tier-b-fg:#475569; --tier-b-bg:#F1F5F9; --tier-c:#D97706; --tier-c-fg:#B45309; --tier-c-bg:#FCF6E8;
+  --sev-high:#DC2626; --sev-high-fg:#B91C1C; --sev-high-bg:#FEF2F2; --sev-med:#D97706; --sev-med-fg:#B45309; --sev-med-bg:#FCF6E8; --sev-low:#64748B; --sev-low-fg:#475569; --sev-low-bg:#F1F5F9;
+  --rev-ins:#2563EB; --rev-ins-fg:#1D4ED8; --rev-ins-bg:#EFF6FF;
+  --gate-pend:#D97706; --gate-pend-fg:#B45309; --gate-conf:#16A34A; --gate-conf-fg:#15803D; --gate-rej:#64748B; --gate-rej-fg:#475569;
+  --line-rest:#CBD3DC; --prov-bg:#F5F7F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-surface);display:flex;flex-direction:column;min-width:1280px;overflow:hidden;font-variant-numeric:tabular-nums}
+a{color:var(--link);text-decoration:none} a:hover{color:var(--rev-ins-fg);text-decoration:underline}
+:where(a,button,[tabindex]):focus-visible{outline:2px solid var(--link);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+kbd{font-family:var(--mono);font-size:11px;line-height:1;color:var(--tx-2);background:#FFF;border:1px solid var(--bd-strong);border-bottom-width:2px;border-radius:4px;padding:1px 5px;display:inline-block;vertical-align:middle}
+.kbd-hint{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:var(--tx-3)}
+button{font-family:var(--sans)}
+
+/* ============ 工作台帧（与法律域逐像素同构） ============ */
+.titlebar{height:40px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;background:var(--bg-app);border-bottom:1px solid var(--bd-hair)}
+.titlebar .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:510;letter-spacing:-0.01em}
+.titlebar .vdiv{width:1px;height:16px;background:var(--bd-strong)}
+.titlebar .case-t{font-size:13px;color:var(--tx-2)}
+.titlebar .case-no{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.titlebar .sp{flex:1}
+.toolbar{height:40px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair)}
+.crumb{font-size:13px;color:var(--tx-2)}
+.crumb b{color:var(--tx-1);font-weight:510}
+.crumb .sep{color:var(--tx-4);margin:0 6px}
+.toolbar .sp{flex:1}
+.seg{display:inline-flex;border:1px solid var(--bd-strong);border-radius:4px;overflow:hidden}
+.seg button{font-size:12px;padding:3px 12px;border:none;background:var(--bg-raised);color:var(--tx-2);cursor:pointer;border-right:1px solid var(--bd-strong)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--act-bg);color:var(--tx-inv)}
+.btn-primary{font-size:13px;font-weight:510;padding:5px 16px;border:none;border-radius:4px;background:var(--act-bg);color:var(--tx-inv);cursor:pointer}
+.btn-primary:hover{background:var(--act-hover)}
+.btn-primary[disabled]{background:var(--bg-hover);color:var(--tx-4);cursor:not-allowed}
+
+.cols{flex:1;display:flex;min-height:0}
+.rail{width:240px;flex:none;background:var(--bg-app);border-right:1px solid var(--bd-hair);display:flex;flex-direction:column}
+.mid{flex:1 1 0;min-width:440px;background:var(--bg-surface);border-right:1px solid var(--bd-hair);display:flex;flex-direction:column}
+.right{width:47%;max-width:900px;flex:none;background:var(--bg-surface);display:flex;flex-direction:column}
+
+.phead{height:40px;flex:none;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+
+/* ============ 左栏 ============ */
+.rail-scroll{flex:1;overflow-y:auto;padding:8px}
+.case{background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 12px}
+.case .t{font-size:13px;font-weight:510;line-height:1.5}
+.case .m{font-size:12px;color:var(--tx-3);margin-top:2px}
+.rail-label{font-size:12px;color:var(--tx-3);padding:16px 8px 8px}
+.stage{display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:4px;font-size:13px;color:var(--tx-2)}
+.stage:hover{background:var(--bg-hover)}
+.stage.on{background:var(--bg-selected);color:var(--tx-1);font-weight:510}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--tx-4);flex:none}
+.stage.on .dot{background:var(--gate-conf)}
+.stage .m{margin-left:auto;font-size:12px;color:var(--tx-4);font-weight:400}
+.rail-foot{flex:none;padding:8px 16px;font-size:12px;color:var(--tx-3);border-top:1px solid var(--bd-hair)}
+
+/* ============ 中栏 ============ */
+.chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.msg-user{align-self:flex-end;max-width:80%;background:var(--bg-selected);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 16px;font-size:14px}
+.card{position:relative;align-self:flex-start;width:94%;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 16px 8px 16px}
+.card .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,var(--line-rest));border-radius:4px 0 0 4px}
+.card-title{display:flex;align-items:center;gap:8px;font-weight:510;font-size:13px}
+.badge{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;letter-spacing:.02em;color:var(--line-fg,var(--tx-3))}
+.steps{margin-top:4px;display:flex;flex-direction:column;font-size:13px;color:var(--tx-2)}
+.steps>div{display:flex;align-items:center;gap:8px;min-height:24px;flex-wrap:wrap}
+.steps .ok{color:var(--tier-a-fg);font-family:var(--mono);font-size:12px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;vertical-align:middle;white-space:nowrap}
+.tierbox{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;font-family:var(--mono);font-size:12px;flex:none}
+.tier-a{color:var(--tier-a-fg);background:var(--tier-a-bg)} .tier-b{color:var(--tier-b-fg);background:var(--tier-b-bg)} .tier-c{color:var(--tier-c-fg);background:var(--tier-c-bg)}
+
+.callout{align-self:flex-start;width:94%;background:var(--rev-ins-bg);border-left:4px solid var(--rev-ins);border-radius:6px;padding:8px 16px;font-size:13px;color:var(--tx-2)}
+.callout b{color:var(--tx-1);font-weight:510}
+
+.scenes{flex:none;display:flex;gap:8px;padding:8px 16px;border-top:1px solid var(--bd-hair)}
+.scene-btn{font-size:12px;color:var(--tx-2);background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:4px 12px;cursor:pointer;transition:background 100ms cubic-bezier(.25,.46,.45,.94)}
+.scene-btn:hover{background:var(--bg-hover)}
+.composer{flex:none;margin:0 16px 16px;background:var(--bg-raised);border:1px solid var(--bd-strong);border-radius:4px;padding:8px 16px;display:flex;align-items:center;gap:8px}
+.composer .ph{flex:1;color:var(--tx-4);font-size:14px}
+
+/* ============ 全局状态条 ============ */
+.statusbar{height:32px;flex:none;display:flex;align-items:center;gap:24px;padding:0 16px;font-size:12px;color:var(--tx-3);background:var(--bg-surface);border-top:1px solid var(--bd-hair)}
+.statusbar .grow{flex:1}
+.ring{display:inline-flex;align-items:center;gap:8px}
+
+/* ============ 右栏：证据链时间线（timeline 原语 · 表格式，矛盾行消费法理之线） ============ */
+.right-scroll{flex:1;overflow-y:auto}
+.gbtn{font-size:12px;height:24px;padding:0 12px;border-radius:4px;border:1px solid var(--bd-strong);background:var(--bg-raised);color:var(--tx-1);cursor:pointer;transition:background 100ms cubic-bezier(.25,.46,.45,.94);white-space:nowrap;flex:none}
+.gbtn:hover{background:var(--bg-hover)}
+.rtable{background:var(--bg-raised)}
+.tgrid{display:grid;grid-template-columns:48px 96px 1fr 180px 92px;align-items:center}
+.thead{height:28px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.thead>div{padding:0 8px}
+.trow{position:relative;height:30px;border-bottom:1px solid var(--bd-hair);font-size:13px;cursor:default}
+.trow:hover{background:var(--bg-hover)}
+.trow>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,var(--line-rest));padding:0}
+.trow .rb{font-family:var(--mono);font-size:12px;color:var(--line-fg,var(--tx-3));padding-left:16px}
+.trow .dt{font-family:var(--mono);font-size:12px;color:var(--tx-2)}
+.trow.expanded{background:var(--bg-hover)}
+.sev{font-size:12px;border-radius:4px;padding:0 6px;line-height:18px}
+.rdetail{position:relative;border-bottom:1px solid var(--bd-hair);background:var(--bg-raised);padding:8px 16px 16px 16px;font-size:13px}
+.rdetail .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line)}
+.rdetail.detail-lined:hover .sline{background:linear-gradient(to bottom,var(--line) 0,var(--line) calc(var(--gy,50%) - 20px),color-mix(in srgb,var(--line),white 35%) var(--gy,50%),var(--line) calc(var(--gy,50%) + 20px),var(--line) 100%)}
+.rdetail.detail-lined:hover::after{content:attr(data-citation);position:absolute;right:8px;top:var(--gy,8px);font:12px/1.5 var(--mono);color:var(--tx-3);background:var(--bg-raised);padding:0 4px}
+.rdetail p{color:var(--tx-2);line-height:1.6;max-width:64em;text-wrap:pretty}
+.basis{margin-top:8px;background:var(--prov-bg);border-radius:4px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;max-width:64em}
+.basis-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--tx-2)}
+.basis-row .q{font-family:var(--mono);color:var(--tx-3)}
+.gate{margin-top:8px;display:flex;align-items:center;gap:8px}
+.gate .meta{margin-left:auto;font-size:12px;color:var(--tx-3)}
+
+/* ============ 依据核对（list 原语）+ 索证态（渐进完备性凡例） ============ */
+.bgrid{display:grid;grid-template-columns:48px 1fr 240px 92px;align-items:center}
+.bgrid>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bhead{height:28px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.brow{position:relative;height:30px;border-bottom:1px solid var(--bd-hair);font-size:13px}
+.brow:hover{background:var(--bg-hover)}
+.brow .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,var(--line-rest));padding:0}
+.brow .rb{font-family:var(--mono);font-size:12px;color:var(--line-fg,var(--tx-3));padding-left:16px}
+.seek{padding:16px;border-bottom:1px solid var(--bd-hair);background:var(--bg-raised)}
+.seek .t{font-size:13px;font-weight:510;display:flex;align-items:center;gap:8px}
+.seek p{font-size:13px;color:var(--tx-2);margin-top:4px;max-width:64em;text-wrap:pretty}
+.seek .req{margin-top:8px;background:var(--prov-bg);border-radius:4px;padding:8px 12px;font-size:12px;color:var(--tx-2);display:flex;align-items:center;gap:8px;max-width:64em}
+::-webkit-scrollbar{width:10px}::-webkit-scrollbar-thumb{background:var(--bd-strong);border-radius:5px;border:2px solid var(--bg-surface)}::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+
+<!-- ============ 标题栏 ============ -->
+<header class="titlebar" data-screen-label="标题栏">
+  <span class="brand">
+    <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><rect width="20" height="20" rx="4.5" fill="#0A2540"/><rect x="5" y="4" width="2" height="12" fill="#FAFAFA"/><rect x="9.5" y="6" width="6" height="1.6" rx=".8" fill="#7A93AC"/><rect x="9.5" y="9.2" width="6" height="1.6" rx=".8" fill="#7A93AC"/><rect x="9.5" y="12.4" width="4" height="1.6" rx=".8" fill="#7A93AC"/></svg>
+    Courtwork
+  </span>
+  <span class="vdiv"></span>
+  <span class="case-t">员工关系档案 · 顾迟（澄采科技 · 虚构演示档案）</span>
+  <span class="case-no">CC-HR-0217</span>
+  <span class="sp"></span>
+  <span class="kbd-hint"><kbd>⌘</kbd><kbd>K</kbd>&nbsp;场景与检索</span>
+</header>
+
+<!-- ============ 工具栏 ============ -->
+<div class="toolbar" data-screen-label="工具栏">
+  <span class="crumb"><b>纪律处理 · 处分证据链</b><span class="sep">›</span>拟议处分 <span class="mono" style="font-size:12px;color:var(--tx-3)">书面警告</span></span>
+  <span class="sp"></span>
+  <span style="font-size:12px;color:var(--tx-3)">筛选</span>
+  <div class="seg"><button class="on">全部</button><button>矛盾</button><button>缺口</button></div>
+  <button class="btn-primary" disabled title="制度依据缺口 1 项未补齐">生成处分决定草案 · 1 项缺口</button>
+</div>
+
+<div class="cols">
+  <!-- ============ 左栏 ============ -->
+  <aside class="rail" data-screen-label="左栏-档案袋">
+    <div class="phead"><h2>档案袋</h2><span class="cnt">1</span></div>
+    <div class="rail-scroll">
+      <div class="case">
+        <div class="t">顾迟 · 运维工程师</div>
+        <div class="m mono">CC-HR-0217 · 入职 2023-04-10</div>
+        <div class="m">档案材料 <span class="num">12</span> 件 · 已归档摄取</div>
+        <div class="m" style="margin-top:6px"><span class="chip" style="color:var(--tier-b-fg);background:var(--tier-b-bg)">本地存储 · 永不训练</span></div>
+      </div>
+      <div class="rail-label">阶段</div>
+      <div class="stage"><span class="dot"></span>在职管理<span class="m">已归档</span></div>
+      <div class="stage on"><span class="dot"></span>纪律处理</div>
+    </div>
+    <div class="rail-foot">素材库典范 · HR 域 · 同构源：S1 时间线 + S3 依据核对（凡例零改）</div>
+  </aside>
+
+  <!-- ============ 中栏 ============ -->
+  <main class="mid" data-screen-label="中栏-对话流">
+    <div class="phead"><h2>对话</h2><span class="cnt">本阶段 3 轮</span><span class="sp"></span><span class="kbd-hint"><kbd>J</kbd><kbd>K</kbd>&nbsp;逐条</span></div>
+    <div class="chat">
+      <div class="msg-user">把顾迟这件事的证据链理一遍，看看书面警告的依据是否站得住。</div>
+
+      <div class="card" style="--line:var(--line-rest)">
+        <span class="sline"></span>
+        <div class="card-title"><span class="badge">D02</span>处分证据链装配已启动<span class="chip" style="color:var(--tx-2);background:var(--bg-hover)">拟议处分 · 书面警告</span><span class="chip" style="color:var(--tx-2);background:var(--bg-hover)">档案材料 12 件</span></div>
+        <div class="steps">
+          <div><span class="ok">✓</span>事件抽取完成（<span class="num">9</span> 条 · 矛盾 <span class="num">1</span> 处）</div>
+          <div><span class="ok">✓</span>制度与法条依据核对完成（缺口 <span class="num">1</span> 项）</div>
+          <div><span class="ok">✓</span>敏感字段最小读取 — 婚育/健康字段未进入本场景</div>
+        </div>
+      </div>
+
+      <div class="card" style="--line:var(--sev-high)">
+        <span class="sline"></span>
+        <div class="card-title"><span class="badge" style="color:var(--sev-high-fg)">E</span>证据链存在 1 处矛盾、1 项制度缺口</div>
+        <p style="font-size:13px;color:var(--tx-2);margin-top:4px">谈话纪要与考勤记录对 06-23 当日出勤陈述相反（<a href="#">E7</a>）；员工手册公示签收记录缺失。<b style="font-weight:510">缺口未补齐前不生成决定草案</b>——无制度依据、无证据锚、无法条锚，不出任何处分文书。</p>
+      </div>
+
+      <!-- AI callout：建议性发言，与数据卡（法理之线）划界 -->
+      <div class="callout">
+        <b>建议</b> · 公示签收缺失是处分决定在仲裁中被撤销的最高频原因。先补公示签收记录或培训签到表（<a href="#">B1</a>），再处理 <a href="#">E7</a> 矛盾——两件事都落定后草案一键可出。<a href="#">加入待办</a>
+      </div>
+    </div>
+
+    <div class="scenes">
+      <button class="scene-btn">离职结算测算</button>
+      <button class="scene-btn">制度合规审查</button>
+      <button class="scene-btn">期限提醒板</button>
+    </div>
+    <div class="composer"><span class="ph">描述要办的事，或从上方选择…</span><span class="kbd-hint"><kbd>⌘</kbd><kbd>K</kbd></span></div>
+  </main>
+
+  <!-- ============ 右栏 ============ -->
+  <section class="right" data-screen-label="右栏-处分证据链">
+    <div class="phead" data-screen-label="证据链时间线">
+      <h2>证据链时间线</h2><span class="cnt">9 条 · 矛盾 1 · 材料 12 件</span>
+      <span class="sp"></span>
+      <span style="display:inline-flex;gap:4px;align-items:center;font-size:12px;color:var(--tx-3)">信源
+        <span class="tierbox tier-a" title="档案袋内原件（带锚）">A</span>
+        <span class="tierbox tier-b" title="结构化导入（考勤导出等）">B</span>
+        <span class="tierbox tier-c" title="外部参考，未核验">C</span>
+        <span style="background:var(--prov-bg);border-radius:4px;padding:0 6px" title="mono + 底纹 = 核验内容；无底纹 sans = AI 解释">底纹 = 核验内容</span>
+      </span>
+    </div>
+
+    <div class="right-scroll">
+      <div class="rtable">
+        <div class="tgrid thead"><div></div><div>日期</div><div>事件</div><div>证据</div><div>状态</div></div>
+
+        <!-- E3 -->
+        <div class="tgrid trow" style="--line:var(--line-rest)">
+          <span class="sline" style="background:transparent"></span><div class="rb" style="color:var(--tx-3)">E3</div>
+          <div class="dt">2026-05-14</div>
+          <div>考勤异常：当月第三次迟到逾 30 分钟</div>
+          <div class="mono" style="font-size:12px;color:var(--tx-2)">考勤导出 05 月 <span class="tierbox tier-b" style="width:14px;height:14px">B</span></div>
+          <div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核对</span></div>
+        </div>
+
+        <!-- E5 -->
+        <div class="tgrid trow" style="--line:var(--line-rest)">
+          <span class="sline" style="background:transparent"></span><div class="rb" style="color:var(--tx-3)">E5</div>
+          <div class="dt">2026-06-02</div>
+          <div>客户投诉：值班时段工单响应超时</div>
+          <div class="mono" style="font-size:12px;color:var(--tx-2)">06-客户投诉记录 <span class="tierbox tier-a" style="width:14px;height:14px">A</span></div>
+          <div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核对</span></div>
+        </div>
+
+        <!-- E6 -->
+        <div class="tgrid trow" style="--line:var(--line-rest)">
+          <span class="sline" style="background:transparent"></span><div class="rb" style="color:var(--tx-3)">E6</div>
+          <div class="dt">2026-06-09</div>
+          <div>部门约谈并作口头提醒，形成谈话纪要</div>
+          <div class="mono" style="font-size:12px;color:var(--tx-2)">08-谈话纪要 <span class="tierbox tier-a" style="width:14px;height:14px">A</span></div>
+          <div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核对</span></div>
+        </div>
+
+        <!-- E7 矛盾 · 展开态（timeline 矛盾行消费法理之线，白名单第 3 项） -->
+        <div class="tgrid trow expanded" style="--line:var(--sev-high);--line-fg:var(--sev-high-fg)">
+          <span class="sline"></span><div class="rb">E7</div>
+          <div class="dt">2026-06-23</div>
+          <div style="font-weight:510">陈述矛盾：纪要称当日旷工，考勤显示正常打卡 <span style="color:var(--tx-3)">▾</span></div>
+          <div><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">矛盾</span></div>
+          <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+        </div>
+        <div class="rdetail detail-lined" data-citation="考勤导出 06 月 · 第 23 行" style="--line:var(--sev-high)">
+          <span class="sline"></span>
+          <p>二次约谈纪要将 06-23 记为「无故旷工一日」，但结构化导入的考勤记录显示当日 09:02 打卡进入、18:41 打卡离开。两份材料对同一事实陈述相反——该日不应作为处分事实引用，除非人工核实后修正其一。</p>
+          <div class="basis">
+            <div class="basis-row"><span class="tierbox tier-a">A</span><a href="#" title="打开原文并高亮">09-二次约谈纪要</a><span class="q">「6 月 23 日无故旷工一日，情节较重」</span></div>
+            <div class="basis-row"><span class="tierbox tier-b">B</span><a href="#" title="打开原文并高亮">考勤导出 06 月 · 第 23 行</a><span class="q">「09:02 上班打卡 · 18:41 下班打卡 · 正常」</span></div>
+          </div>
+          <div class="gate">
+            <button class="gbtn">确认矛盾 · 移出处分事实</button><button class="gbtn">驳回</button><button class="gbtn">修正</button>
+            <span class="kbd-hint"><kbd>⏎</kbd>&nbsp;确认&nbsp;<kbd>⇧</kbd><kbd>⏎</kbd>&nbsp;驳回</span>
+            <span class="meta">矛盾条目须展开可见双方依据后处置</span>
+          </div>
+        </div>
+
+        <!-- E9 -->
+        <div class="tgrid trow" style="--line:var(--line-rest)">
+          <span class="sline" style="background:transparent"></span><div class="rb" style="color:var(--tx-3)">E9</div>
+          <div class="dt">2026-07-06</div>
+          <div>人事部启动书面警告程序，通知工会</div>
+          <div class="mono" style="font-size:12px;color:var(--tx-2)">11-工会知会函 <span class="tierbox tier-a" style="width:14px;height:14px">A</span></div>
+          <div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核对</span></div>
+        </div>
+      </div>
+
+      <!-- ============ 依据核对（制度 + 法条三锚） ============ -->
+      <div class="phead" style="border-top:1px solid var(--bd-hair)" data-screen-label="依据核对">
+        <h2>处分依据核对</h2><span class="cnt">3 项 · 缺口 1</span>
+        <span class="sp"></span><span style="font-size:12px;color:var(--tx-3)">无制度依据 + 证据锚 + 法条锚不出决定草案</span>
+      </div>
+      <div class="rtable">
+        <div class="bgrid bhead"><div></div><div>依据</div><div>生效要件</div><div>状态</div></div>
+
+        <!-- B1 制度依据 · 公示缺口（琥珀：依据未核验/待补） -->
+        <div class="bgrid brow" style="--line:var(--gate-pend);--line-fg:var(--gate-pend-fg)">
+          <span class="sline"></span><div class="rb">B1</div>
+          <div>员工手册 §7.2「月内三次迟到逾 30 分钟，可予书面警告」</div>
+          <div style="font-size:12px"><span style="color:var(--tier-a-fg)">民主程序 ✓</span> <span class="mono" style="color:var(--tx-3)">2024-03 职代会</span> · <span style="color:var(--gate-pend-fg)">公示签收 缺失</span></div>
+          <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待补</span></div>
+        </div>
+
+        <!-- B2 法条锚 -->
+        <div class="bgrid brow" style="--line:var(--line-rest)">
+          <span class="sline" style="background:transparent"></span><div class="rb" style="color:var(--tx-3)">B2</div>
+          <div class="mono" style="font-size:13px">《劳动合同法》第四条（规章制度民主程序与公示）</div>
+          <div style="font-size:12px;color:var(--tx-3)">法条锚 · 结构化引用</div>
+          <div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核对</span></div>
+        </div>
+
+        <!-- B3 事实锚 -->
+        <div class="bgrid brow" style="--line:var(--line-rest)">
+          <span class="sline" style="background:transparent"></span><div class="rb" style="color:var(--tx-3)">B3</div>
+          <div>处分事实引用：E3 / E5 / E6（E7 矛盾未处置，暂不引用）</div>
+          <div style="font-size:12px;color:var(--tx-3)">证据锚 3 处 · 全部 A/B 级</div>
+          <div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核对</span></div>
+        </div>
+      </div>
+
+      <!-- ============ 决定草案 · 索证态（渐进完备性：兜底即主动索证） ============ -->
+      <div class="phead" style="border-top:1px solid var(--bd-hair)" data-screen-label="决定草案-索证态">
+        <h2>处分决定草案</h2><span class="cnt">未生成 · 待补 1 项</span>
+        <span class="sp"></span><span style="font-size:12px;color:var(--tx-3)">送达永远到门禁为止</span>
+      </div>
+      <div class="seek" data-screen-label="索证卡">
+        <div class="t"><span class="badge" style="color:var(--gate-pend-fg)">B1</span>缺失原因：员工手册公示签收记录未入档，制度依据生效要件不完备</div>
+        <p>补齐下列任一材料后，决定草案可继续生成；已核对的事实与依据不受此缺口阻塞，处置记录已留痕。</p>
+        <div class="req"><span style="color:var(--tx-3)">所需材料</span><span class="mono">员工手册公示签收表（2024-03 版）</span><span style="color:var(--tx-4)">或</span><span class="mono">入职培训签到表（含手册宣讲）</span><button class="gbtn" style="margin-left:auto">上传材料</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ 全局状态条 ============ -->
+<footer class="statusbar" data-screen-label="状态条">
+  <span class="ring" tabindex="0" role="button" aria-label="本阶段用量 22%，查看用量明细" title="档案占用 15% · 对话占用 7%">
+    <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="var(--bd-hair)" stroke-width="2.5"/><circle cx="8" cy="8" r="6" fill="none" stroke="var(--tier-b)" stroke-width="2.5" stroke-dasharray="8.3 29.4" stroke-linecap="butt" transform="rotate(-90 8 8)"/></svg>
+    本阶段用量 <span class="num">22%</span>
+  </span>
+  <span>摄取余量 <span class="num mono">1,460</span></span>
+  <span class="grow"></span>
+  <span>事件 <span class="num">9</span> · 矛盾 <span class="num">1</span> · 制度缺口 <span class="num">1</span></span>
+  <span>纪律处理 · 处分证据链</span>
+</footer>
+
+<!-- 素材库自文档：消费凡例声明（FD-2 交付口径③） -->
+<div style="flex:none;height:24px;display:flex;align-items:center;gap:16px;padding:0 16px;font-family:var(--mono);font-size:11px;color:var(--tx-3);background:var(--bg-app);border-top:1px solid var(--bd-hair);white-space:nowrap;overflow:hidden">素材库自文档 · 消费凡例：timeline 矛盾行消费法理之线（signature-line §三-3）· 字段三态与索证态（docs/36 §四：缺失原因 + 所需材料）· 三锚硬约束（docs/65 §3.2）· provenance 双通道 · 最小必要读取（§3.1）· tabular-nums · 零编码暴露</div>
+
+<script>
+document.querySelectorAll('.detail-lined').forEach(function(el){
+  el.addEventListener('mousemove', function(e){
+    var r = el.getBoundingClientRect();
+    el.style.setProperty('--gy', Math.round((e.clientY - r.top) / r.height * 100) + '%');
+  });
+});
+</script>
+</body>
+</html>

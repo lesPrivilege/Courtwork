@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 06 · 组合页 · 表格 + 统计卡（grid 2:1 主次栏）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3; --bg-selected:#E9EEF4;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --gate-pend-fg:#B45309; --tier-c-bg:#FCF6E8;
+  --data-m2:#3A5068; --data-m4:#9AA6B8;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.speclabel{max-width:880px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.host{max-width:880px;margin:0 auto;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.phead .hint{font-size:12px;color:var(--tx-3)}
+/* grid 2:1 主次栏：主格放 table 语义块，次格 statcard 叠放 */
+.duo{display:grid;grid-template-columns:2fr 1fr;gap:24px;padding:16px}
+.blk{border:1px solid var(--bd-hair);border-radius:6px;overflow:hidden}
+.bhead{height:28px;display:flex;align-items:center;gap:8px;padding:0 8px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.sgrid{display:grid;grid-template-columns:32px 1fr 64px 64px 72px;align-items:center}
+.sgrid>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shead{height:28px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.shead .r{text-align:right}
+.srow{height:30px;border-bottom:1px solid var(--bd-hair);font-size:13px}
+.srow:hover{background:var(--bg-hover)}
+.srow:last-child{border-bottom:none}
+.srow .r{text-align:right;font-family:var(--mono);font-size:12px;color:var(--tx-2)}
+.srow .score{font-weight:510;color:var(--tx-1)}
+.chip{display:inline-flex;align-items:center;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;white-space:nowrap}
+.stat{border:1px solid var(--bd-hair);border-radius:6px;padding:12px 16px}
+.stat + .stat{margin-top:16px}
+.stat .lb{font-size:12px;color:var(--tx-3)}
+.stat .v{font-family:var(--mono);font-size:28px;line-height:1.2;font-weight:510;margin-top:2px}
+.stat .d{font-size:12px;color:var(--tx-2);margin-top:2px}
+.dist{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.dist .row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx-2)}
+.dist .bar{height:8px;background:var(--data-m2);border-radius:0}
+.dist .bar.alt{background:var(--data-m4)}
+.dist .n{font-family:var(--mono);color:var(--tx-3)}
+.legend{max-width:880px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 06 · 组合页 · 表格 + 统计卡</h1><span class="m">page.kind = page · section.grid{cols:[2,1]} → [table, statcard×2] · docs/57 §3.1</span></div>
+
+<div class="host" data-screen-label="表格与统计卡组合页">
+  <div class="phead"><h2>需求优先级 · 得分排序</h2><span class="cnt">12 项 · 权重表 v1</span><span class="sp"></span><span class="hint">排序为建议，采纳过确认</span></div>
+  <div class="duo">
+    <!-- 主格：table 语义块（单层圆角容器上限，内部行靠 hairline 不加框） -->
+    <div class="blk" data-screen-label="主格-表格">
+      <div class="sgrid shead"><div></div><div>需求</div><div class="r">把握</div><div class="r">投入</div><div class="r">得分</div></div>
+      <div class="sgrid srow"><div class="mono r" style="color:var(--tx-3)">1</div><div>设备离线推送延迟修复</div><div class="r">95%</div><div class="r">2</div><div class="r score">4,560</div></div>
+      <div class="sgrid srow"><div class="mono r" style="color:var(--tx-3)">2</div><div>长辈模式（大字 · 简化首页）</div><div class="r">80%</div><div class="r">3</div><div class="r score">720</div></div>
+      <div class="sgrid srow"><div class="mono r" style="color:var(--tx-3)">3</div><div>首次安装配网向导重构</div><div class="r">85%</div><div class="r">3</div><div class="r score">595</div></div>
+      <div class="sgrid srow"><div class="mono r" style="color:var(--tx-3)">4</div><div>换新皮肤主题</div><div class="r">90%</div><div class="r">2</div><div class="r score">540</div></div>
+      <div class="sgrid srow"><div class="mono r" style="color:var(--tx-3)">5</div><div>多设备场景联动</div><div class="r" style="color:var(--gate-pend-fg)">40%</div><div class="r">5</div><div class="r" style="color:var(--tx-2)">224–448</div></div>
+    </div>
+    <!-- 次格：statcard 叠放 -->
+    <div data-screen-label="次格-统计卡">
+      <div class="stat">
+        <div class="lb">已排序需求</div>
+        <div class="v">12</div>
+        <div class="d">参数缺口 1 项 · 出区间不出单值</div>
+      </div>
+      <div class="stat">
+        <div class="lb">建议分布</div>
+        <div class="dist">
+          <div class="row"><span style="width:44px">本迭代</span><span class="bar" style="width:96px"></span><span class="n">2</span></div>
+          <div class="row"><span style="width:44px">次迭代</span><span class="bar alt" style="width:144px"></span><span class="n">3</span></div>
+          <div class="row"><span style="width:44px">观察</span><span class="bar alt" style="width:288px"></span><span class="n">6</span></div>
+          <div class="row"><span style="width:44px">待补</span><span class="bar alt" style="width:48px"></span><span class="n">1</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="legend">消费凡例：grid 2:1 主次栏（6 列栅格合法切法，docs/57 §2.3）· 语义块单层圆角容器上限——blk 内行只用 hairline 不再嵌框（docs/36 §一）· 得分 mono tabular 右对齐 510 · 占比用水平条不用 donut（chart 防呆）· 分档条消费 color.data.mono 双档 · 档位词「本迭代/次迭代/观察」不直出机器枚举（docs/36 §五）</p>
+
+</body>
+</html>

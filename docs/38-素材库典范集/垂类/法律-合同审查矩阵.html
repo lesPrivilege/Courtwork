@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>素材库典范 · 法律 · 合同审查矩阵（S3 · 主从矩阵 + 修订预览）</title>
+<style>
+/* ============ tokens（与 tokens.json 一一对应，二轮修正：圆角≤6、阴影归零、8px 间距 ============ */
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3; --bg-selected:#E9EEF4;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC; --tx-inv:#FAFAFA;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --act-bg:#0A2540; --act-hover:#1A3A5C; --link:#2563EB;
+  --tier-a:#16A34A; --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-b:#64748B; --tier-b-fg:#475569; --tier-b-bg:#F1F5F9; --tier-c:#D97706; --tier-c-fg:#B45309; --tier-c-bg:#FCF6E8;
+  --sev-high:#DC2626; --sev-high-fg:#B91C1C; --sev-high-bg:#FEF2F2; --sev-med:#D97706; --sev-med-fg:#B45309; --sev-med-bg:#FCF6E8; --sev-low:#64748B; --sev-low-fg:#475569; --sev-low-bg:#F1F5F9;
+  --rev-ins:#2563EB; --rev-ins-fg:#1D4ED8; --rev-ins-bg:#EFF6FF; --rev-del:#DC2626; --rev-del-fg:#B91C1C; --rev-del-bg:#FEF2F2;
+  --gate-pend:#D97706; --gate-pend-fg:#B45309; --gate-conf:#16A34A; --gate-conf-fg:#15803D; --gate-rej:#64748B; --gate-rej-fg:#475569;
+  --line-rest:#CBD3DC; --prov-bg:#F5F7F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-surface);display:flex;flex-direction:column;min-width:1280px;overflow:hidden;font-variant-numeric:tabular-nums}
+a{color:var(--link);text-decoration:none} a:hover{color:var(--rev-ins-fg);text-decoration:underline}
+:where(a,button,[tabindex]):focus-visible{outline:2px solid var(--link);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+kbd{font-family:var(--mono);font-size:11px;line-height:1;color:var(--tx-2);background:#FFF;border:1px solid var(--bd-strong);border-bottom-width:2px;border-radius:4px;padding:1px 5px;display:inline-block;vertical-align:middle}
+.kbd-hint{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:var(--tx-3)}
+button{font-family:var(--sans)}
+
+/* ============ 工作台帧：标题栏 / 工具栏 / 三栏 / 状态条（贯穿式 1px 网格线） ============ */
+.titlebar{height:40px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;background:var(--bg-app);border-bottom:1px solid var(--bd-hair)}
+.titlebar .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:510;letter-spacing:-0.01em}
+.titlebar .vdiv{width:1px;height:16px;background:var(--bd-strong)}
+.titlebar .case-t{font-size:13px;color:var(--tx-2)}
+.titlebar .case-no{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.titlebar .sp{flex:1}
+.toolbar{height:40px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair)}
+.crumb{font-size:13px;color:var(--tx-2)}
+.crumb b{color:var(--tx-1);font-weight:510}
+.crumb .sep{color:var(--tx-4);margin:0 6px}
+.toolbar .sp{flex:1}
+.seg{display:inline-flex;border:1px solid var(--bd-strong);border-radius:4px;overflow:hidden}
+.seg button{font-size:12px;padding:3px 12px;border:none;background:var(--bg-raised);color:var(--tx-2);cursor:pointer;border-right:1px solid var(--bd-strong)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--act-bg);color:var(--tx-inv)}
+.btn-primary{font-size:13px;font-weight:510;padding:5px 16px;border:none;border-radius:4px;background:var(--act-bg);color:var(--tx-inv);cursor:pointer}
+.btn-primary:hover{background:var(--act-hover)}
+.btn-primary[disabled]{background:var(--bg-hover);color:var(--tx-4);cursor:not-allowed}
+
+.cols{flex:1;display:flex;min-height:0}
+.rail{width:240px;flex:none;background:var(--bg-app);border-right:1px solid var(--bd-hair);display:flex;flex-direction:column}
+.mid{flex:1 1 0;min-width:440px;background:var(--bg-surface);border-right:1px solid var(--bd-hair);display:flex;flex-direction:column}
+.right{width:47%;max-width:900px;flex:none;background:var(--bg-surface);display:flex;flex-direction:column}
+
+/* 面板头（含计数）：统一 40px，横线贯穿三栏 */
+.phead{height:40px;flex:none;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+
+/* ============ 左栏 ============ */
+.rail-scroll{flex:1;overflow-y:auto;padding:8px}
+.case{background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 12px}
+.case .t{font-size:13px;font-weight:510;line-height:1.5}
+.case .m{font-size:12px;color:var(--tx-3);margin-top:2px}
+.rail-label{font-size:12px;color:var(--tx-3);padding:16px 8px 8px}
+.stage{display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:4px;font-size:13px;color:var(--tx-2)}
+.stage:hover{background:var(--bg-hover)}
+.stage.on{background:var(--bg-selected);color:var(--tx-1);font-weight:510}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--tx-4);flex:none}
+.stage.on .dot{background:var(--gate-conf)}
+.stage .m{margin-left:auto;font-size:12px;color:var(--tx-4);font-weight:400}
+.rail-foot{flex:none;padding:8px 16px;font-size:12px;color:var(--tx-3);border-top:1px solid var(--bd-hair)}
+
+/* ============ 中栏 ============ */
+.chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.msg-user{align-self:flex-end;max-width:80%;background:var(--bg-selected);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 16px;font-size:14px}
+.card{position:relative;align-self:flex-start;width:94%;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 16px 8px 16px}
+.card .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,var(--line-rest));border-radius:4px 0 0 4px}
+.card-title{display:flex;align-items:center;gap:8px;font-weight:510;font-size:13px}
+.badge{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;letter-spacing:.02em;color:var(--line-fg,var(--tx-3))}
+.steps{margin-top:4px;display:flex;flex-direction:column;font-size:13px;color:var(--tx-2)}
+.steps>div{display:flex;align-items:center;gap:8px;min-height:24px;flex-wrap:wrap}
+.steps .ok{color:var(--tier-a-fg);font-family:var(--mono);font-size:12px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;vertical-align:middle;white-space:nowrap}
+.tierbox{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;font-family:var(--mono);font-size:12px;flex:none}
+.tier-a{color:var(--tier-a-fg);background:var(--tier-a-bg)} .tier-b{color:var(--tier-b-fg);background:var(--tier-b-bg)} .tier-c{color:var(--tier-c-fg);background:var(--tier-c-bg)}
+
+/* AI callout：与法理之线的划界见 principles.md —— border-l-4 + 语义 tint 底 + 圆角，仅承载 AI 建议性发言 */
+.callout{align-self:flex-start;width:94%;background:var(--rev-ins-bg);border-left:4px solid var(--rev-ins);border-radius:6px;padding:8px 16px;font-size:13px;color:var(--tx-2)}
+.callout b{color:var(--tx-1);font-weight:510}
+
+@property --ga{syntax:'<angle>';inherits:false;initial-value:0deg}
+.task-glow{border-radius:5px;padding:1px;background:conic-gradient(from var(--ga),var(--bd-hair) 0deg,var(--bd-hair) 300deg,rgba(10,37,64,.55) 330deg,var(--bd-hair) 360deg);animation:glowspin 1800ms linear infinite;align-self:flex-start;width:94%}
+@keyframes glowspin{to{--ga:360deg}}
+.task-glow .inner{position:relative;background:var(--bg-raised);border-radius:4px;padding:8px 16px}
+.task-glow .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line-rest);border-radius:4px 0 0 4px}
+
+.scenes{flex:none;display:flex;gap:8px;padding:8px 16px;border-top:1px solid var(--bd-hair)}
+.scene-btn{font-size:12px;color:var(--tx-2);background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:4px 12px;cursor:pointer;transition:background 100ms cubic-bezier(.25,.46,.45,.94)}
+.scene-btn:hover{background:var(--bg-hover)}
+.composer{flex:none;margin:0 16px 16px;background:var(--bg-raised);border:1px solid var(--bd-strong);border-radius:4px;padding:8px 16px;display:flex;align-items:center;gap:8px}
+.composer .ph{flex:1;color:var(--tx-4);font-size:14px}
+
+/* ============ 全局状态条 ============ */
+.statusbar{height:32px;flex:none;display:flex;align-items:center;gap:24px;padding:0 16px;font-size:12px;color:var(--tx-3);background:var(--bg-surface);border-top:1px solid var(--bd-hair)}
+.statusbar .grow{flex:1}
+.ring{display:inline-flex;align-items:center;gap:8px}
+
+/* ============ 右栏：紧凑列表 ============ */
+.right-scroll{flex:1;overflow-y:auto}
+.batchbar{min-height:36px;display:flex;align-items:center;gap:8px;padding:0 16px;font-size:12px;color:var(--tx-2);background:var(--bg-surface);border-bottom:1px solid var(--bd-hair)}
+.batchbar>span:first-child{white-space:nowrap;flex:none}
+.batchbar .note{margin-left:auto;color:var(--tx-3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gbtn{font-size:12px;height:24px;padding:0 12px;border-radius:4px;border:1px solid var(--bd-strong);background:var(--bg-raised);color:var(--tx-1);cursor:pointer;transition:background 100ms cubic-bezier(.25,.46,.45,.94);white-space:nowrap;flex:none}
+.gbtn:hover{background:var(--bg-hover)}
+
+.rtable{background:var(--bg-raised)}
+.rgrid{display:grid;grid-template-columns:48px 1fr 44px 104px 76px 176px;align-items:center}
+.rhead{height:28px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.rhead>div{padding:0 8px}
+.rrow{position:relative;height:30px;border-bottom:1px solid var(--bd-hair);font-size:13px;cursor:default}
+.rrow:hover{background:var(--bg-hover)}
+.rrow>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rrow .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,var(--line-rest));padding:0}
+.rrow .rb{font-family:var(--mono);font-size:12px;color:var(--line-fg,var(--tx-3));padding-left:16px}
+.rrow .law{font-family:var(--mono);font-size:12px;color:var(--tx-2)}
+.rrow .ops{display:flex;gap:8px;align-items:center;overflow:visible}
+.sev{font-size:12px;border-radius:4px;padding:0 6px;line-height:18px}
+.rrow.expanded{background:var(--bg-hover)}
+.rdetail{position:relative;border-bottom:1px solid var(--bd-hair);background:var(--bg-raised);padding:8px 16px 16px 16px;font-size:13px}
+.rdetail .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line)}
+.rdetail.detail-lined:hover .sline{background:linear-gradient(to bottom,var(--line) 0,var(--line) calc(var(--gy,50%) - 20px),color-mix(in srgb,var(--line),white 35%) var(--gy,50%),var(--line) calc(var(--gy,50%) + 20px),var(--line) 100%)}
+.rdetail.detail-lined:hover::after{content:attr(data-citation);position:absolute;right:8px;top:var(--gy,8px);font:12px/1.5 var(--mono);color:var(--tx-3);background:var(--bg-raised);padding:0 4px}
+.rdetail p{color:var(--tx-2);line-height:1.6;max-width:64em;text-wrap:pretty}
+.basis{margin-top:8px;background:var(--prov-bg);border-radius:4px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;max-width:64em}
+.basis-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--tx-2)}
+.basis-row .q{font-family:var(--mono);color:var(--tx-3)}
+.gate{margin-top:8px;display:flex;align-items:center;gap:8px}
+.gate .meta{margin-left:auto;font-size:12px;color:var(--tx-3)}
+
+/* 修订预览 */
+.rev-wrap{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start;padding:16px}
+.paper{background:var(--bg-raised);border:1px solid var(--bd-hair);padding:24px 32px;font-size:15px;line-height:1.6;text-align:justify;text-justify:inter-ideograph;line-break:strict}
+.paper h4{font-size:16px;font-weight:510;text-align:center;margin-bottom:8px;letter-spacing:-0.01em}
+.paper .docmeta{font-size:12px;color:var(--tx-3);text-align:center;font-family:var(--mono);margin-bottom:16px}
+.paper h5{font-size:15px;font-weight:510;margin:16px 0 4px;text-align:left}
+.paper .gap{color:var(--tx-4);text-align:center;font-size:12px;letter-spacing:.4em;margin:8px 0}
+del{color:var(--rev-del-fg);background:var(--rev-del-bg);text-decoration:line-through}
+ins{color:var(--rev-ins-fg);background:var(--rev-ins-bg);text-decoration:underline}
+mark{background:var(--sev-med-bg);color:inherit;border-bottom:1px dashed var(--sev-med)}
+.comments{display:flex;flex-direction:column;gap:8px}
+.comment{position:relative;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 12px 8px 16px;font-size:12px;line-height:1.5;color:var(--tx-2)}
+.comment .sline{position:absolute;left:0;top:0;bottom:0;width:2px;border-radius:4px 0 0 4px}
+.comment .kind{font-size:12px;border-radius:4px;padding:0 6px;margin-left:4px}
+.comment .cit{margin-top:4px;display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--tx-3);background:var(--prov-bg);border-radius:4px;padding:2px 8px}
+::-webkit-scrollbar{width:10px}::-webkit-scrollbar-thumb{background:var(--bd-strong);border-radius:5px;border:2px solid var(--bg-surface)}::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+
+<!-- ============ 标题栏 ============ -->
+<header class="titlebar" data-screen-label="标题栏">
+  <span class="brand">
+    <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><rect width="20" height="20" rx="4.5" fill="#0A2540"/><rect x="5" y="4" width="2" height="12" fill="#FAFAFA"/><rect x="9.5" y="6" width="6" height="1.6" rx=".8" fill="#7A93AC"/><rect x="9.5" y="9.2" width="6" height="1.6" rx=".8" fill="#7A93AC"/><rect x="9.5" y="12.4" width="4" height="1.6" rx=".8" fill="#7A93AC"/></svg>
+    Courtwork
+  </span>
+  <span class="vdiv"></span>
+  <span class="case-t">临江精铸 诉 起云智能 设备采购合同纠纷</span>
+  <span class="case-no">(2025)云章03民初472号</span>
+  <span class="sp"></span>
+  <span class="kbd-hint"><kbd>⌘</kbd><kbd>K</kbd>&nbsp;场景与检索</span>
+</header>
+
+<!-- ============ 工具栏 ============ -->
+<div class="toolbar" data-screen-label="工具栏">
+  <span class="crumb"><b>阶段二 · 合同审查</b><span class="sep">›</span>设备采购合同 <span class="mono" style="font-size:12px;color:var(--tx-3)">LJJZ-CY-2024-0817</span></span>
+  <span class="sp"></span>
+  <span style="font-size:12px;color:var(--tx-3)">审查立场</span>
+  <div class="seg"><button>甲方</button><button class="on">乙方</button><button>中立</button></div>
+  <button class="btn-primary" disabled title="4 项风险待确认">编译为 Word 文档 · 4 项待确认</button>
+</div>
+
+<div class="cols">
+  <!-- ============ 左栏 ============ -->
+  <aside class="rail" data-screen-label="左栏-案件">
+    <div class="phead"><h2>案件</h2><span class="cnt">1</span></div>
+    <div class="rail-scroll">
+      <div class="case">
+        <div class="t">临江精铸 诉 起云智能 设备采购合同纠纷</div>
+        <div class="m mono">(2025)云章03民初472号</div>
+        <div class="m">卷宗 <span class="num">20</span> 件 · 已归档摄取</div>
+      </div>
+      <div class="rail-label">阶段</div>
+      <div class="stage"><span class="dot"></span>阶段一 · 阅卷整理<span class="m">已归档</span></div>
+      <div class="stage on"><span class="dot"></span>阶段二 · 合同审查</div>
+    </div>
+    <div class="rail-foot">素材库典范 · 法律域 · 源自北极星屏 S3（docs/32）</div>
+  </aside>
+
+  <!-- ============ 中栏 ============ -->
+  <main class="mid" data-screen-label="中栏-对话流">
+    <div class="phead"><h2>对话</h2><span class="cnt">本阶段 6 轮</span><span class="sp"></span><span class="kbd-hint"><kbd>J</kbd><kbd>K</kbd>&nbsp;逐条</span></div>
+    <div class="chat">
+      <div class="msg-user">审查这份《设备采购合同》，我们代理乙方起云智能，重点看付款与违约条款。</div>
+
+      <div class="card" style="--line:var(--line-rest)">
+        <span class="sline"></span>
+        <div class="card-title"><span class="badge">D04</span>合同审查已启动<span class="chip" style="color:var(--tx-2);background:var(--bg-hover)">乙方立场</span><span class="chip" style="color:var(--tx-2);background:var(--bg-hover)">预置清单 · 制造业设备采购</span></div>
+        <div class="steps">
+          <div><span class="ok">✓</span>条款抽取完成（<span class="num">10</span> 条）</div>
+          <div><span class="ok">✓</span>合同主体核验通过 — 临江精铸科技 / 起云智能装备（虚构）<span class="tierbox tier-b" title="库内维护源">B</span></div>
+          <div><span class="ok">✓</span>风险定级完成（<span class="num">6</span> 项）</div>
+        </div>
+      </div>
+
+      <div class="card" style="--line:var(--sev-high)">
+        <span class="sline"></span>
+        <div class="card-title"><span class="badge" style="color:var(--sev-high-fg)">R</span>审查完成：发现 6 项风险</div>
+        <p style="font-size:13px;color:var(--tx-2);margin-top:4px">高危 <span class="num">2</span> 项（违约金畸高、验收标准模糊）、中危 <span class="num">3</span> 项、低危 <span class="num">1</span> 项，修订建议 <span class="num">4</span> 条。请在右侧逐项处理，全部确认后可定稿。</p>
+      </div>
+
+      <!-- AI callout：建议性发言，与数据卡（法理之线）划界 -->
+      <div class="callout">
+        <b>建议</b> · 乙方立场下，若拟对管辖条款（<a href="#">R2</a>）主张格式条款抗辩，需同步收集签约过程中甲方未尽提示义务的证据（磋商记录、合同版本往来）。<a href="#">加入待办</a>
+      </div>
+
+      <div class="task-glow">
+        <div class="inner">
+          <span class="sline"></span>
+          <div class="card-title" style="color:var(--tx-2);font-weight:400">正在起草修订说明，核对依据引用…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scenes">
+      <button class="scene-btn">整理卷宗</button>
+      <button class="scene-btn">审这批合同</button>
+      <button class="scene-btn">起草答辩状</button>
+    </div>
+    <div class="composer"><span class="ph">描述要办的事，或从上方选择…</span><span class="kbd-hint"><kbd>⌘</kbd><kbd>K</kbd></span></div>
+  </main>
+
+  <!-- ============ 右栏 ============ -->
+  <section class="right" data-screen-label="右栏-合同审查产出">
+    <div class="phead" data-screen-label="风险清单">
+      <h2>风险清单</h2><span class="cnt">6 项 · 高 2 / 中 3 / 低 1</span>
+      <span class="sp"></span>
+      <span style="display:inline-flex;gap:4px;align-items:center;font-size:12px;color:var(--tx-3)">信源
+        <span class="tierbox tier-a" title="已核验权威源">A</span>
+        <span class="tierbox tier-b" title="库内维护源">B</span>
+        <span class="tierbox tier-c" title="网络参考，未核验">C</span>
+        <span style="background:var(--prov-bg);border-radius:4px;padding:0 6px" title="mono + 底纹 = 工具核验内容；无底纹 sans = AI 解释">底纹 = 核验内容</span>
+      </span>
+    </div>
+
+    <!-- 分层确认：批量范围硬边界，高危不入批量 -->
+    <div class="batchbar" data-screen-label="分层确认">
+      <span>批量范围：中/低危且依据已核验 · <span class="num">3</span> 项（<a href="#">R2</a> <a href="#">R6</a> <a href="#">R5</a>）</span>
+      <button class="gbtn">批量确认 3 项</button>
+      <span style="margin-left:auto" class="note" title="高危 1 项不入批量，须逐条展开确认；驳回一律逐条">高危 <span class="num">1</span> 项不入批量，须逐条展开确认；驳回一律逐条</span>
+    </div>
+
+    <div class="right-scroll">
+      <div class="rtable">
+        <div class="rgrid rhead"><div></div><div>风险</div><div>等级</div><div>依据法条</div><div>状态</div><div>操作</div></div>
+
+        <!-- R1 高危 · 已确认 -->
+        <div class="rgrid rrow lined" style="--line:var(--sev-high);--line-fg:var(--sev-high-fg)">
+          <span class="sline"></span><div class="rb">R1</div>
+          <div>违约金约定畸高（日 1%，年化约 365%）</div>
+          <div><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">高</span></div>
+          <div class="law">§585</div>
+          <div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已确认</span></div>
+          <div class="ops"><span class="mono" style="font-size:12px;color:var(--tx-3)">07-09 14:22</span></div>
+        </div>
+
+        <!-- R3 高危 · 待确认 · 展开态（不入批量，逐条确认） -->
+        <div class="rgrid rrow lined expanded" style="--line:var(--sev-high);--line-fg:var(--sev-high-fg)">
+          <span class="sline"></span><div class="rb">R3</div>
+          <div style="font-weight:510">验收标准模糊且未约定书面异议期限 <span style="color:var(--tx-3)">▾</span></div>
+          <div><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">高</span></div>
+          <div class="law">§621</div>
+          <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+          <div class="ops"><span class="chip" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">不入批量</span></div>
+        </div>
+        <div class="rdetail detail-lined" data-citation="民法典 §585" style="--line:var(--sev-high)">
+          <span class="sline"></span>
+          <p>合同仅约定"验收标准以甲方（卖方）提供的技术参数为准"，未约定买方提出验收异议的书面期限，实践中易产生"视为验收合格"的举证困境，也为本案验收单与会议纪要陈述矛盾的争议埋下隐患。</p>
+          <div class="basis">
+            <div class="basis-row"><span class="tierbox tier-a">A</span><span class="mono">《中华人民共和国民法典》第六百二十一条</span></div>
+            <div class="basis-row"><span class="tierbox tier-b">B</span><a href="#" title="打开原文并高亮">04-设备采购合同</a><span class="q">「验收标准以甲方提供的技术参数为准」</span></div>
+          </div>
+          <div class="gate">
+            <button class="gbtn">确认</button><button class="gbtn">驳回</button><button class="gbtn">修正</button>
+            <span class="kbd-hint"><kbd>⏎</kbd>&nbsp;确认&nbsp;<kbd>⇧</kbd><kbd>⏎</kbd>&nbsp;驳回</span>
+            <span class="meta">高危条目须展开可见全部依据后确认</span>
+          </div>
+        </div>
+
+        <!-- R2 中危 · 待确认 -->
+        <div class="rgrid rrow lined" style="--line:var(--sev-med);--line-fg:var(--sev-med-fg)">
+          <span class="sline"></span><div class="rb">R2</div>
+          <div>管辖条款单方倾斜（约定卖方所在地法院）</div>
+          <div><span class="sev" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">中</span></div>
+          <div class="law">§496 · §34</div>
+          <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+          <div class="ops"><button class="gbtn">确认</button><button class="gbtn">驳回</button><button class="gbtn">修正</button></div>
+        </div>
+
+        <!-- R4 中危 · 已驳回 -->
+        <div class="rgrid rrow lined" style="--line:var(--gate-rej);--line-fg:var(--gate-rej-fg);color:var(--tx-3)">
+          <span class="sline"></span><div class="rb">R4</div>
+          <div>所有权保留与风险转移条款自相矛盾</div>
+          <div><span class="sev" style="color:var(--sev-low-fg);background:var(--sev-low-bg)">中</span></div>
+          <div class="law">§604</div>
+          <div><span class="chip" style="color:var(--gate-rej-fg);background:var(--sev-low-bg)">已驳回</span></div>
+          <div class="ops"><span style="font-size:12px">改批注不作修订 · <span class="mono">07-09 14:31</span></span></div>
+        </div>
+
+        <!-- R6 中危 · 待确认 -->
+        <div class="rgrid rrow lined" style="--line:var(--sev-med);--line-fg:var(--sev-med-fg)">
+          <span class="sline"></span><div class="rb">R6</div>
+          <div>违约责任条款单向，卖方无对等违约金标准</div>
+          <div><span class="sev" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">中</span></div>
+          <div class="law">§497 · §577</div>
+          <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+          <div class="ops"><button class="gbtn">确认</button><button class="gbtn">驳回</button><button class="gbtn">修正</button></div>
+        </div>
+
+        <!-- R5 低危 · 待确认 -->
+        <div class="rgrid rrow lined" style="--line:var(--sev-low);--line-fg:var(--sev-low-fg)">
+          <span class="sline"></span><div class="rb">R5</div>
+          <div>不可抗力条款范围过窄，未涵盖供应链中断</div>
+          <div><span class="sev" style="color:var(--sev-low-fg);background:var(--sev-low-bg)">低</span></div>
+          <div class="law">§590</div>
+          <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+          <div class="ops"><button class="gbtn">确认</button><button class="gbtn">驳回</button><button class="gbtn">修正</button></div>
+        </div>
+      </div>
+
+      <!-- ============ 修订预览 ============ -->
+      <div class="phead" style="border-top:1px solid var(--bd-hair)" data-screen-label="修订预览">
+        <h2>修订预览</h2><span class="cnt">4 条 · 目标文书 04-设备采购合同</span>
+        <span class="sp"></span><span style="font-size:12px;color:var(--tx-3)">定稿后随 Word 文档一并输出</span>
+      </div>
+      <div class="rev-wrap">
+        <div class="paper">
+          <h4>精密铸造生产线设备采购合同</h4>
+          <div class="docmeta">合同编号 LJJZ-CY-2024-0817 · 签订日期 2024-08-17</div>
+
+          <h5>第四条 验收</h5>
+          <p>双方应在设备到货后组织联调验收。验收标准以甲方提供的技术参数为准<ins>；乙方可于设备到货之日起15日内以书面形式提出验收异议，甲方应于收到异议后10日内组织复验</ins>。</p>
+
+          <div class="gap">· · ·</div>
+
+          <h5>第六条 违约责任</h5>
+          <p>乙方逾期支付任何一期款项的，每逾期一日应按未付金额的<del>1%</del><ins>0.05%</ins>向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准<ins>；甲方逾期交付或交付设备不符合约定的，应按迟延交付部分货款每日0.05%向乙方支付违约金</ins>。</p>
+
+          <div class="gap">· · ·</div>
+
+          <h5>第七条 所有权与风险转移</h5>
+          <p><mark title="批注 V04：条款冲突提示，不作修订">设备交付即视为风险转移至乙方；同时约定验收合格前设备所有权仍归甲方所有。</mark></p>
+
+          <h5>第九条 争议解决</h5>
+          <p>本合同履行过程中发生的争议，双方应协商解决；协商不成的，提交<del>甲方</del><ins>乙方</ins>所在地有管辖权的人民法院管辖。</p>
+        </div>
+
+        <div class="comments">
+          <div class="comment"><span class="sline" style="background:var(--rev-ins)"></span>
+            <b class="badge" style="color:var(--rev-ins-fg)">V01</b><span class="kind" style="color:var(--rev-ins-fg);background:var(--rev-ins-bg)">插入</span>
+            <div style="margin-top:4px">补设书面验收异议期限，避免"视为验收合格"的举证困境。（对应 <a href="#">R3</a>）</div>
+            <div class="cit"><span class="tierbox tier-a">A</span>民法典 §621</div>
+          </div>
+          <div class="comment"><span class="sline" style="background:var(--rev-del)"></span>
+            <b class="badge" style="color:var(--rev-del-fg)">V02</b><span class="kind" style="color:var(--rev-del-fg);background:var(--rev-del-bg)">替换</span>
+            <div style="margin-top:4px">违约金比例降至同业常见区间，并补设卖方对等违约责任。（对应 <a href="#">R1</a>、<a href="#">R6</a>）</div>
+            <div class="cit"><span class="tierbox tier-a">A</span>民法典 §585 / §497</div>
+          </div>
+          <div class="comment"><span class="sline" style="background:var(--sev-med)"></span>
+            <b class="badge" style="color:var(--sev-med-fg)">V04</b><span class="kind" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">批注</span>
+            <div style="margin-top:4px">所有权保留与风险转移存在逻辑冲突，建议明确验收合格前毁损灭失责任归属；按驳回意见仅批注提示。（对应 <a href="#">R4</a>）</div>
+            <div class="cit"><span class="tierbox tier-a">A</span>民法典 §604</div>
+          </div>
+          <div class="comment"><span class="sline" style="background:var(--rev-del)"></span>
+            <b class="badge" style="color:var(--rev-del-fg)">V03</b><span class="kind" style="color:var(--rev-del-fg);background:var(--rev-del-bg)">替换</span>
+            <div style="margin-top:4px">管辖调整为乙方所在地法院；若甲方坚持原约定，需履行格式条款提示说明义务。（对应 <a href="#">R2</a>）</div>
+            <div class="cit"><span class="tierbox tier-a">A</span>民法典 §496</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ 全局状态条 ============ -->
+<footer class="statusbar" data-screen-label="状态条">
+  <span class="ring" tabindex="0" role="button" aria-label="本阶段用量 41%，查看用量明细" title="卷宗占用 28% · 对话占用 13% · 可压缩 6%">
+    <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="var(--bd-hair)" stroke-width="2.5"/><circle cx="8" cy="8" r="6" fill="none" stroke="var(--tier-b)" stroke-width="2.5" stroke-dasharray="15.5 22.2" stroke-linecap="butt" transform="rotate(-90 8 8)"/></svg>
+    本阶段用量 <span class="num">41%</span>
+  </span>
+  <span>摄取余量 <span class="num mono">1,280</span></span>
+  <span class="grow"></span>
+  <span>风险 高 <span class="num">2</span> / 中 <span class="num">3</span> / 低 <span class="num">1</span> · <span class="num">4</span> 项待确认</span>
+  <span>阶段二 · 合同审查</span>
+</footer>
+
+<!-- 素材库自文档：消费凡例声明（FD-2 交付口径③） -->
+<div style="flex:none;height:24px;display:flex;align-items:center;gap:16px;padding:0 16px;font-family:var(--mono);font-size:11px;color:var(--tx-3);background:var(--bg-app);border-top:1px solid var(--bd-hair);white-space:nowrap;overflow:hidden">素材库自文档 · 消费凡例：RP-2.3 dense 13/12 · 法理之线五态白名单（signature-line §三）· 分层确认（principles §10）· provenance 双通道（§11）· 门禁三动作（§4）· 修订红删蓝增 · tabular-nums · 零编码暴露（docs/36 §五）</div>
+
+<script>
+document.querySelectorAll('.detail-lined').forEach(function(el){
+  el.addEventListener('mousemove', function(e){
+    var r = el.getBoundingClientRect();
+    el.style.setProperty('--gy', Math.round((e.clientY - r.top) / r.height * 100) + '%');
+  });
+});
+</script>
+</body>
+</html>

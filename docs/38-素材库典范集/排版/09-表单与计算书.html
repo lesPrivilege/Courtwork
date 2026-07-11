@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 09 · 组合页 · 表单 + 计算书（form × table · 计算器族）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC; --tx-inv:#FAFAFA;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2; --act-bg:#0A2540;
+  --gate-pend-fg:#B45309; --tier-c-bg:#FCF6E8; --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-b-fg:#475569; --tier-b-bg:#F1F5F9;
+  --prov-bg:#F5F7F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.speclabel{max-width:880px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.host{max-width:880px;margin:0 auto;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.phead .hint{font-size:12px;color:var(--tx-3)}
+/* form：label 12 上、控件 28px 高（control.heightSm），预填值带来源角标；无源预填 = 空值 + 占位 */
+.form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px 24px;padding:16px}
+.f .lb{font-size:12px;color:var(--tx-3);display:flex;align-items:center;gap:6px}
+.f .in{margin-top:4px;height:28px;display:flex;align-items:center;gap:8px;padding:0 8px;border:1px solid var(--bd-strong);border-radius:4px;font-size:13px;background:var(--bg-raised)}
+.f .in .v{font-family:var(--mono)}
+.f .in .ph{color:var(--tx-4)}
+.f .in.warn{border-color:#D97706}
+.f .note{margin-top:2px;font-size:12px;color:var(--tx-3)}
+.f .note.warn{color:var(--gate-pend-fg)}
+.tierbox{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;font-family:var(--mono);font-size:12px;flex:none}
+.tier-a{color:var(--tier-a-fg);background:var(--tier-a-bg)} .tier-b{color:var(--tier-b-fg);background:var(--tier-b-bg)}
+/* 计算书分项表：金额右对齐 mono，合计行 510 */
+.sgrid{display:grid;grid-template-columns:40px 1fr 200px 140px;align-items:center}
+.sgrid>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shead{height:28px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.shead .r{text-align:right}
+.srow{height:30px;border-bottom:1px solid var(--bd-hair);font-size:13px}
+.srow:hover{background:var(--bg-hover)}
+.srow .r{text-align:right;font-family:var(--mono);font-size:12px;color:var(--tx-2)}
+.srow .base{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.srow.total{background:var(--bg-surface);font-weight:510}
+.srow.total .r{color:var(--tx-1);font-weight:510;font-size:13px}
+.gatebar{display:flex;align-items:center;gap:8px;padding:8px 16px;border-top:1px solid var(--bd-hair)}
+.btn-primary{font-size:13px;font-weight:510;padding:5px 16px;border:none;border-radius:4px;background:var(--act-bg);color:var(--tx-inv);cursor:pointer}
+.gatebar .meta{margin-left:auto;font-size:12px;color:var(--tx-3)}
+.legend{max-width:880px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 09 · 组合页 · 表单 + 计算书</h1><span class="m">page.kind = page · sections[ form, table ] · docs/57 族五/族一 · S10 计算器族版型</span></div>
+
+<div class="host" data-screen-label="计算面组合页">
+  <div class="phead"><h2>诉讼费测算 · 参数核对</h2><span class="cnt">预填 2/3 · 缺口 1</span><span class="sp"></span><span class="hint">预填值必带来源；无源置空不编数</span></div>
+  <div class="form" data-screen-label="参数表单">
+    <div class="f">
+      <div class="lb">诉讼标的额<span class="tierbox tier-a" title="来源：01-起诉状 诉讼请求">A</span></div>
+      <div class="in"><span class="v">3,800,000</span><span style="color:var(--tx-3)">元</span></div>
+      <div class="note">预填自 01-起诉状 · 点击溯源</div>
+    </div>
+    <div class="f">
+      <div class="lb">案由与程序<span class="tierbox tier-b" title="来源：结构化案件档案">B</span></div>
+      <div class="in"><span>合同纠纷 · 一审普通程序</span></div>
+      <div class="note">预填自案件档案</div>
+    </div>
+    <div class="f">
+      <div class="lb">保全申请金额</div>
+      <div class="in warn"><span class="ph">卷内未见保全申请，留空待补</span></div>
+      <div class="note warn">无来源不预填 · 如需保全请补充材料</div>
+    </div>
+  </div>
+
+  <div class="phead" style="border-top:1px solid var(--bd-hair)"><h2>计算书 · 分项</h2><span class="cnt">规则版本 2026-01 · 计算零模型参与</span></div>
+  <div data-screen-label="计算书">
+    <div class="sgrid shead"><div></div><div>分项</div><div>计算依据</div><div class="r">金额（元）</div></div>
+    <div class="sgrid srow"><div class="mono r" style="color:var(--tx-3);text-align:right">1</div><div>案件受理费 · 分段累进</div><div class="base">《诉讼费用交纳办法》§13</div><div class="r">36,200</div></div>
+    <div class="sgrid srow"><div class="mono r" style="color:var(--tx-3);text-align:right">2</div><div>其中：100 万以下部分</div><div class="base">分段 0.5%–2.5%</div><div class="r">13,800</div></div>
+    <div class="sgrid srow"><div class="mono r" style="color:var(--tx-3);text-align:right">3</div><div>其中：100–500 万部分</div><div class="base">分段 0.8%</div><div class="r">22,400</div></div>
+    <div class="sgrid srow total"><div></div><div>合计（保全费待参数补齐后计入）</div><div class="base">partial · 3/4 分项</div><div class="r">36,200</div></div>
+  </div>
+  <div class="gatebar" data-screen-label="门禁">
+    <button class="btn-primary">采用测算 · 存入产出</button>
+    <span class="meta">提交不触发任何不可逆动作；产物为待确认测算书</span>
+  </div>
+</div>
+
+<p class="legend">消费凡例：form 预填带来源角标，无源预填 = 空值 + 占位提示（docs/57 族五防呆）· 校验警示消费 severity（表单校验属审阅面）· 控件 28px（control.heightSm）label 12px · 计算核心零 LLM，分项 + 依据 + 锚（docs/56 CalcArtifact）· 金额千分位 mono tabular 右对齐 · partial 诚实计数「3/4 分项」（docs/36 §四.2）</p>
+
+</body>
+</html>

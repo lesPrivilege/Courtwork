@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 07 · 组合页 · 核对单 + 期限板（grid 1:1 · checklist × schedule）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --sev-high-fg:#B91C1C; --sev-high-bg:#FEF2F2; --sev-med-fg:#B45309; --sev-med-bg:#FCF6E8;
+  --gate-conf-fg:#15803D; --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.speclabel{max-width:880px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.host{max-width:880px;margin:0 auto;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.phead .hint{font-size:12px;color:var(--tx-3)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:16px}
+.blk{border:1px solid var(--bd-hair);border-radius:6px;overflow:hidden}
+.bhead{height:28px;display:flex;align-items:center;gap:8px;padding:0 8px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.bhead .sp{flex:1}
+.row{display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-bottom:1px solid var(--bd-hair);font-size:13px}
+.row:hover{background:var(--bg-hover)}
+.row:last-child{border-bottom:none}
+.row .grow{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ckbox{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;border:1px solid var(--bd-strong);font-family:var(--mono);font-size:12px;color:var(--tier-a-fg);background:var(--bg-raised);flex:none}
+.ckbox.done{background:var(--tier-a-bg);border-color:var(--tier-a-bg)}
+.pg{font-family:var(--mono);font-size:12px;color:var(--tx-3);flex:none}
+.dt{font-family:var(--mono);font-size:12px;color:var(--tx-2);flex:none;width:84px}
+.sev{font-size:12px;border-radius:4px;padding:0 6px;line-height:18px;flex:none}
+.bfoot{padding:6px 8px;font-size:12px;color:var(--tx-3);background:var(--bg-raised)}
+.legend{max-width:880px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 07 · 组合页 · 核对单 + 期限板</h1><span class="m">page.kind = page · section.grid{cols:[1,1]} → [checklist, schedule] · docs/57 族五/族二</span></div>
+
+<div class="host" data-screen-label="核对与期限组合页">
+  <div class="phead"><h2>庭前准备</h2><span class="cnt">核对 5/8 · 期限 4 项</span><span class="sp"></span><span class="hint">勾选零执行 · 到期计算零模型参与</span></div>
+  <div class="duo">
+    <!-- 格一：checklist -->
+    <div class="blk" data-screen-label="核对单">
+      <div class="bhead">庭前核对单<span class="sp"></span><span class="mono">5/8</span></div>
+      <div class="row"><span class="ckbox done">✓</span><span class="grow">证据清单与原件逐一核对</span><span class="pg">卷二 P.01–P.44</span></div>
+      <div class="row"><span class="ckbox done">✓</span><span class="grow">证人出庭通知已送达并回执</span><span class="pg">16-回执</span></div>
+      <div class="row"><span class="ckbox done">✓</span><span class="grow">授权委托手续补齐（二审）</span><span class="pg">02-委托书</span></div>
+      <div class="row"><span class="ckbox"></span><span class="grow">质证意见提纲（针对新证据）</span><span class="pg">待起草</span></div>
+      <div class="row"><span class="ckbox"></span><span class="grow">庭审提问清单（对方证人）</span><span class="pg">待起草</span></div>
+      <div class="bfoot">勾选 = 记录核对事实，可撤销且同样留痕；全部核对完成仅解锁下游按钮可用态</div>
+    </div>
+    <!-- 格二：schedule -->
+    <div class="blk" data-screen-label="期限板">
+      <div class="bhead">期限板<span class="sp"></span><span class="mono">前瞻 30 日</span></div>
+      <div class="row"><span class="dt">07-18 五</span><span class="grow">举证期限届满</span><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">6 日</span></div>
+      <div class="row"><span class="dt">07-24 四</span><span class="grow">开庭（云章区法院 第3法庭）</span><span class="sev" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">12 日</span></div>
+      <div class="row"><span class="dt">08-02 六</span><span class="grow">管辖权异议答复期</span><span class="mono" style="font-size:12px;color:var(--tx-3)">21 日</span></div>
+      <div class="row"><span class="dt">08-11 一</span><span class="grow">证据交换（第二轮）</span><span class="mono" style="font-size:12px;color:var(--tx-3)">30 日</span></div>
+      <div class="bfoot">倒计时来自确定性规则字段，界面不做日期运算；知悉确认产生留痕事件</div>
+    </div>
+  </div>
+</div>
+
+<p class="legend">消费凡例：grid 1:1 双语义块，columnGap 24px · checklist 勾选零执行语义（docs/57 族五防呆）· schedule 临期告警消费 severity（时效属审阅面，语义色合法；≤7 日红 / ≤14 日琥珀 / 其余 mono 中性）· 日期列 mono ISO + 星期 · 行高 30px hairline · timeline 回看事实，schedule 前瞻义务（族二分工）</p>
+
+</body>
+</html>

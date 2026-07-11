@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 13 · 三段式 · 主从列表 + 详情 + 文书预览（法律核心版型）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --sev-high:#DC2626; --sev-high-fg:#B91C1C; --sev-high-bg:#FEF2F2; --sev-med-fg:#B45309; --sev-med-bg:#FCF6E8;
+  --gate-pend-fg:#B45309; --gate-conf:#16A34A; --gate-conf-fg:#15803D;
+  --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-b-fg:#475569; --tier-b-bg:#F1F5F9; --tier-c-bg:#FCF6E8;
+  --rev-ins:#2563EB; --rev-ins-fg:#1D4ED8; --rev-ins-bg:#EFF6FF; --rev-del-fg:#B91C1C; --rev-del-bg:#FEF2F2;
+  --prov-bg:#F5F7F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.speclabel{max-width:880px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.host{max-width:880px;margin:0 auto;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.phead .hint{font-size:12px;color:var(--tx-3)}
+/* 段一：主列表（收拢态，仅摘要列） */
+.rgrid{display:grid;grid-template-columns:48px 1fr 44px 88px;align-items:center}
+.rhead{height:28px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.rhead>div{padding:0 8px}
+.rrow{position:relative;height:30px;border-bottom:1px solid var(--bd-hair);font-size:13px}
+.rrow:hover{background:var(--bg-hover)}
+.rrow>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rrow .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,transparent);padding:0}
+.rrow .rb{font-family:var(--mono);font-size:12px;color:var(--line-fg,var(--tx-3));padding-left:16px}
+.rrow.sel{background:var(--bg-selected,#E9EEF4)}
+.sev{font-size:12px;border-radius:4px;padding:0 6px;line-height:18px}
+.chip{display:inline-flex;align-items:center;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;white-space:nowrap}
+/* 段二：详情（选中项展开区） */
+.detail{position:relative;border-bottom:1px solid var(--bd-hair);padding:12px 16px 16px;font-size:13px}
+.detail .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--sev-high)}
+.detail p{color:var(--tx-2);max-width:64em;text-wrap:pretty}
+.basis{margin-top:8px;background:var(--prov-bg);border-radius:4px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;max-width:64em}
+.basis-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--tx-2)}
+.basis-row .q{font-family:var(--mono);color:var(--tx-3)}
+.tierbox{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;font-family:var(--mono);font-size:12px;flex:none}
+.tier-a{color:var(--tier-a-fg);background:var(--tier-a-bg)} .tier-b{color:var(--tier-b-fg);background:var(--tier-b-bg)}
+.gate{margin-top:8px;display:flex;align-items:center;gap:8px}
+.gbtn{font-size:12px;height:24px;padding:0 12px;border-radius:4px;border:1px solid var(--bd-strong);background:var(--bg-raised);color:var(--tx-1);cursor:pointer}
+.gbtn:hover{background:var(--bg-hover)}
+.gate .meta{margin-left:auto;font-size:12px;color:var(--tx-3)}
+/* 段三：文书预览（局部纸面，联动高亮） */
+.deck{background:var(--bg-surface);padding:16px;display:flex;justify-content:center}
+.paper{width:100%;max-width:680px;background:var(--bg-raised);border:1px solid var(--bd-hair);padding:20px 28px;font-size:15px;line-height:1.6;text-align:justify;text-justify:inter-ideograph;line-break:strict}
+.paper h5{font-size:15px;font-weight:510;margin:0 0 4px;text-align:left}
+.paper .gap{color:var(--tx-4);text-align:center;font-size:12px;letter-spacing:.4em;margin:6px 0}
+del{color:var(--rev-del-fg);background:var(--rev-del-bg);text-decoration:line-through}
+ins{color:var(--rev-ins-fg);background:var(--rev-ins-bg);text-decoration:underline}
+.legend{max-width:880px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 13 · 三段式 · 主从列表 + 详情 + 文书预览</h1><span class="m">page.kind = page · sections[ list, detail(联动), document(局部) ] · RP-2.3 既裁比例</span></div>
+
+<div class="host" data-screen-label="三段式">
+  <!-- 段一 -->
+  <div class="phead"><h2>风险清单</h2><span class="cnt">6 项 · 选中 R3</span><span class="sp"></span><span class="hint">选中即填充，永不加框</span></div>
+  <div class="rgrid rhead"><div></div><div>风险</div><div>等级</div><div>状态</div></div>
+  <div class="rgrid rrow" style="--line:var(--gate-conf);--line-fg:var(--gate-conf-fg)"><span class="sline"></span><div class="rb">R1</div><div>违约金约定畸高（日 1%）</div><div><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">高</span></div><div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已确认</span></div></div>
+  <div class="rgrid rrow sel" style="--line:var(--sev-high);--line-fg:var(--sev-high-fg)"><span class="sline"></span><div class="rb">R3</div><div style="font-weight:510">验收标准模糊且未约定异议期限</div><div><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">高</span></div><div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div></div>
+  <div class="rgrid rrow"><span class="sline"></span><div class="rb" style="color:var(--tx-3)">R2</div><div>管辖条款单方倾斜</div><div><span class="sev" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">中</span></div><div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div></div>
+
+  <!-- 段二 -->
+  <div class="phead" style="border-top:1px solid var(--bd-hair)"><h2>详情 · R3</h2><span class="cnt">依据 2 条 · 修订建议 1 条</span></div>
+  <div class="detail" data-screen-label="详情段">
+    <span class="sline"></span>
+    <p>合同仅约定「验收标准以甲方提供的技术参数为准」，未约定书面异议期限，实践中易产生「视为验收合格」的举证困境。修订建议：补设 15 日书面异议期限与 10 日复验义务。</p>
+    <div class="basis">
+      <div class="basis-row"><span class="tierbox tier-a">A</span><span class="mono">《中华人民共和国民法典》第六百二十一条</span></div>
+      <div class="basis-row"><span class="tierbox tier-b">B</span><span>04-设备采购合同 · 第四条</span><span class="q">「验收标准以甲方提供的技术参数为准」</span></div>
+    </div>
+    <div class="gate">
+      <button class="gbtn">确认</button><button class="gbtn">驳回</button><button class="gbtn">修正</button>
+      <span class="meta">确认后写入下方修订预览</span>
+    </div>
+  </div>
+
+  <!-- 段三 -->
+  <div class="phead"><h2>文书预览 · 04-设备采购合同</h2><span class="cnt">联动定位 第四条</span><span class="sp"></span><span class="hint">选中风险 ↔ 纸面高亮联动</span></div>
+  <div class="deck" data-screen-label="文书预览段">
+    <div class="paper">
+      <h5>第四条 验收</h5>
+      <p>双方应在设备到货后组织联调验收。验收标准以甲方提供的技术参数为准<ins>；乙方可于设备到货之日起15日内以书面形式提出验收异议，甲方应于收到异议后10日内组织复验</ins>。</p>
+      <div class="gap">· · ·</div>
+      <h5>第六条 违约责任</h5>
+      <p>乙方逾期支付任何一期款项的，每逾期一日应按未付金额的<del>1%</del><ins>0.05%</ins>向甲方支付违约金。</p>
+    </div>
+  </div>
+</div>
+
+<p class="legend">消费凡例：三段式 = list（收拢摘要）→ 详情（选中联动）→ document 局部纸面（RP-2.3 版型）· 选中行仅 bg.selected 填充永不加框（docs/36 左栏共用凡例①）· 详情段与选中行同线色（法理之线跨段一致）· 纸面 15px justify（typography §二例外）· 修订红删蓝增 · 段间由 40px phead 分隔线承担，无额外留白卡壳</p>
+
+</body>
+</html>

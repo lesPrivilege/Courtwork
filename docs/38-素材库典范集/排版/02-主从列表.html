@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 02 · single 直挂 · 主从列表（list 原语 · 行内展开）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3; --bg-selected:#E9EEF4;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --sev-high:#DC2626; --sev-high-fg:#B91C1C; --sev-high-bg:#FEF2F2; --sev-med:#D97706; --sev-med-fg:#B45309; --sev-med-bg:#FCF6E8; --sev-low-fg:#475569; --sev-low-bg:#F1F5F9;
+  --gate-pend-fg:#B45309; --gate-conf:#16A34A; --gate-conf-fg:#15803D; --gate-rej:#64748B; --gate-rej-fg:#475569;
+  --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-b-fg:#475569; --tier-b-bg:#F1F5F9; --tier-c-bg:#FCF6E8;
+  --line-rest:#CBD3DC; --prov-bg:#F5F7F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+kbd{font-family:var(--mono);font-size:11px;line-height:1;color:var(--tx-2);background:#FFF;border:1px solid var(--bd-strong);border-bottom-width:2px;border-radius:4px;padding:1px 5px;display:inline-block;vertical-align:middle}
+.kbd-hint{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:var(--tx-3)}
+.speclabel{max-width:880px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.host{max-width:880px;margin:0 auto;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.rgrid{display:grid;grid-template-columns:48px 1fr 44px 104px 76px 176px;align-items:center}
+.rhead{height:28px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.rhead>div{padding:0 8px}
+.rrow{position:relative;height:30px;border-bottom:1px solid var(--bd-hair);font-size:13px;cursor:default}
+.rrow:hover{background:var(--bg-hover)}
+.rrow>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rrow .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,transparent);padding:0}
+.rrow .rb{font-family:var(--mono);font-size:12px;color:var(--line-fg,var(--tx-3));padding-left:16px}
+.rrow .law{font-family:var(--mono);font-size:12px;color:var(--tx-2)}
+.rrow .ops{display:flex;gap:8px;align-items:center;overflow:visible}
+.rrow.expanded{background:var(--bg-hover)}
+.sev{font-size:12px;border-radius:4px;padding:0 6px;line-height:18px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;white-space:nowrap}
+.tierbox{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;font-family:var(--mono);font-size:12px;flex:none}
+.tier-a{color:var(--tier-a-fg);background:var(--tier-a-bg)} .tier-b{color:var(--tier-b-fg);background:var(--tier-b-bg)}
+.gbtn{font-size:12px;height:24px;padding:0 12px;border-radius:4px;border:1px solid var(--bd-strong);background:var(--bg-raised);color:var(--tx-1);cursor:pointer}
+.gbtn:hover{background:var(--bg-hover)}
+.rdetail{position:relative;border-bottom:1px solid var(--bd-hair);background:var(--bg-raised);padding:8px 16px 16px 16px;font-size:13px}
+.rdetail .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line)}
+.rdetail p{color:var(--tx-2);line-height:1.6;max-width:64em;text-wrap:pretty}
+.basis{margin-top:8px;background:var(--prov-bg);border-radius:4px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;max-width:64em}
+.basis-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--tx-2)}
+.basis-row .q{font-family:var(--mono);color:var(--tx-3)}
+.basis-row a{color:#2563EB;text-decoration:none}
+.gate{margin-top:8px;display:flex;align-items:center;gap:8px}
+.gate .meta{margin-left:auto;font-size:12px;color:var(--tx-3)}
+.legend{max-width:880px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 02 · single 直挂 · 主从列表</h1><span class="m">page.kind = single · 原语：list（expand 行内展开）· docs/57 族一 · principles §2b</span></div>
+
+<div class="host" data-screen-label="主从列表">
+  <div class="phead">
+    <h2>风险清单</h2><span class="cnt">6 项 · 高 2 / 中 3 / 低 1</span>
+    <span class="sp"></span>
+    <span class="kbd-hint"><kbd>J</kbd><kbd>K</kbd>&nbsp;逐条&nbsp;<kbd>⏎</kbd>&nbsp;确认</span>
+  </div>
+  <div class="rgrid rhead"><div></div><div>风险</div><div>等级</div><div>依据法条</div><div>状态</div><div>操作</div></div>
+
+  <div class="rgrid rrow" style="--line:var(--gate-conf);--line-fg:var(--gate-conf-fg)">
+    <span class="sline"></span><div class="rb">R1</div>
+    <div>违约金约定畸高（日 1%，年化约 365%）</div>
+    <div><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">高</span></div>
+    <div class="law">§585</div>
+    <div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已确认</span></div>
+    <div class="ops"><span class="mono" style="font-size:12px;color:var(--tx-3)">07-09 14:22</span></div>
+  </div>
+
+  <div class="rgrid rrow expanded" style="--line:var(--sev-high);--line-fg:var(--sev-high-fg)">
+    <span class="sline"></span><div class="rb">R3</div>
+    <div style="font-weight:510">验收标准模糊且未约定书面异议期限 <span style="color:var(--tx-3)">▾</span></div>
+    <div><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">高</span></div>
+    <div class="law">§621</div>
+    <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+    <div class="ops"><span class="chip" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">不入批量</span></div>
+  </div>
+  <div class="rdetail" style="--line:var(--sev-high)">
+    <span class="sline"></span>
+    <p>合同仅约定「验收标准以甲方提供的技术参数为准」，未约定买方提出验收异议的书面期限，实践中易产生「视为验收合格」的举证困境。单行态省略号截断，完整内容只在本展开行出现——展开是行内的，不是弹窗。</p>
+    <div class="basis">
+      <div class="basis-row"><span class="tierbox tier-a">A</span><span class="mono">《中华人民共和国民法典》第六百二十一条</span></div>
+      <div class="basis-row"><span class="tierbox tier-b">B</span><a href="#" title="打开原文并高亮">04-设备采购合同</a><span class="q">「验收标准以甲方提供的技术参数为准」</span></div>
+    </div>
+    <div class="gate">
+      <button class="gbtn">确认</button><button class="gbtn">驳回</button><button class="gbtn">修正</button>
+      <span class="meta">高危条目须展开可见全部依据后确认</span>
+    </div>
+  </div>
+
+  <div class="rgrid rrow">
+    <span class="sline"></span><div class="rb" style="color:var(--tx-3)">R2</div>
+    <div>管辖条款单方倾斜（约定卖方所在地法院）</div>
+    <div><span class="sev" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">中</span></div>
+    <div class="law">§496 · §34</div>
+    <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+    <div class="ops"><button class="gbtn">确认</button><button class="gbtn">驳回</button><button class="gbtn">修正</button></div>
+  </div>
+
+  <div class="rgrid rrow" style="--line:var(--gate-rej);--line-fg:var(--gate-rej-fg);color:var(--tx-3)">
+    <span class="sline"></span><div class="rb">R4</div>
+    <div>所有权保留与风险转移条款自相矛盾</div>
+    <div><span class="sev" style="color:var(--sev-low-fg);background:var(--sev-low-bg)">中</span></div>
+    <div class="law">§604</div>
+    <div><span class="chip" style="color:var(--gate-rej-fg);background:var(--sev-low-bg)">已驳回</span></div>
+    <div class="ops"><span style="font-size:12px">改批注不作修订 · <span class="mono">07-09 14:31</span></span></div>
+  </div>
+
+  <div class="rgrid rrow">
+    <span class="sline"></span><div class="rb" style="color:var(--tx-3)">R5</div>
+    <div>不可抗力条款范围过窄，未涵盖供应链中断</div>
+    <div><span class="sev" style="color:var(--sev-low-fg);background:var(--sev-low-bg)">低</span></div>
+    <div class="law">§590</div>
+    <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+    <div class="ops"><button class="gbtn">确认</button><button class="gbtn">驳回</button><button class="gbtn">修正</button></div>
+  </div>
+</div>
+
+<p class="legend">消费凡例：紧凑列表优先（principles §2b：28–32px 行高 + 列头，异构详情靠展开行）· 法理之线五态（高危待处理红 / 已确认绿 / 已驳回灰 / 中低危待处理无线，signature-line §二）· 徽章 12px mono 域字母 R · 依据底纹 provenance.verifiedBg + mono 引语 · 门禁三动作行内化 · 驳回灰 = 退出工作集非错误</p>
+
+</body>
+</html>

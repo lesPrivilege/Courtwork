@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 12 · 渐进完备性三态（空卷索证 → partial 诚实计数 → 完备）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --gate-pend-fg:#B45309; --gate-conf-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-c-bg:#FCF6E8; --sev-low-fg:#475569; --sev-low-bg:#F1F5F9;
+  --prov-bg:#F5F7F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.speclabel{max-width:1280px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;max-width:1280px;margin:0 auto}
+.statelb{font-family:var(--mono);font-size:12px;color:var(--tx-3);margin:0 0 6px}
+.host{background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.row{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-bottom:1px solid var(--bd-hair);font-size:13px}
+.row:last-child{border-bottom:none}
+.row .grow{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .v{font-family:var(--mono);font-size:12px;color:var(--tx-2)}
+.chip{display:inline-flex;align-items:center;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;white-space:nowrap;flex:none}
+/* 待补行：灰阶 + 贯通 hairline，不加框 */
+.row.pend{color:var(--tx-4)}
+.row.pend .v{color:var(--tx-4)}
+.seek{padding:16px 12px}
+.seek .t{font-size:13px;font-weight:510}
+.seek p{font-size:13px;color:var(--tx-2);margin-top:4px;text-wrap:pretty}
+.seek .req{margin-top:8px;background:var(--prov-bg);border-radius:4px;padding:8px 12px;font-size:12px;color:var(--tx-2);display:flex;flex-direction:column;gap:4px}
+.seek .req .mono{color:var(--tx-2)}
+.gbtn{font-size:12px;height:24px;padding:0 12px;border-radius:4px;border:1px solid var(--bd-strong);background:var(--bg-raised);color:var(--tx-1);cursor:pointer;align-self:flex-start;margin-top:8px}
+.gbtn:hover{background:var(--bg-hover)}
+.legend{max-width:1280px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 12 · 渐进完备性三态</h1><span class="m">docs/36 §四：从零到全——表是长出来的，非一次铺满 · 同一 schema 三个时点</span></div>
+
+<div class="trio">
+
+  <!-- 态一：空卷索证 -->
+  <div data-screen-label="态一-索证">
+    <p class="statelb">态一 · 空卷 = 索证态（兜底即主动索证）</p>
+    <div class="host">
+      <div class="phead"><h2>当事人核验</h2><span class="cnt">0 项</span></div>
+      <div class="seek">
+        <div class="t">尚无可核验的主体材料</div>
+        <p>倒入含主体信息的材料后自动开始核验；已声明所需材料如下。</p>
+        <div class="req">
+          <span>所需材料（requiredSources 声明）</span>
+          <span class="mono">· 营业执照 / 主体登记信息</span>
+          <span class="mono">· 合同签署页（含印章）</span>
+        </div>
+        <button class="gbtn">上传材料</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 态二：partial -->
+  <div data-screen-label="态二-partial">
+    <p class="statelb">态二 · partial 诚实计数（3/6 已核）</p>
+    <div class="host">
+      <div class="phead"><h2>当事人核验</h2><span class="cnt">3/6 已核 · 1 失败</span></div>
+      <div class="row"><span class="grow">临江精铸科技有限公司</span><span class="v">统一码核对一致</span><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核</span></div>
+      <div class="row"><span class="grow">起云智能装备有限公司</span><span class="v">统一码核对一致</span><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核</span></div>
+      <div class="row"><span class="grow">云汇融资租赁（上海）有限公司</span><span class="v">名称与印章不一致</span><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">未覆盖 · 需补材料</span></div>
+      <div class="row pend"><span class="grow">担保人 · 待补</span><span class="v">缺：担保合同签署页</span><span class="chip" style="color:var(--sev-low-fg);background:var(--sev-low-bg)">待补</span></div>
+      <div class="row pend"><span class="grow">第三人 · 待补</span><span class="v">缺：主体登记信息</span><span class="chip" style="color:var(--sev-low-fg);background:var(--sev-low-bg)">待补</span></div>
+      <div class="row"><span class="grow" style="color:var(--tx-3)">已核字段确认不被未填项阻塞</span><span class="v">台账留痕 · 待确认</span></div>
+    </div>
+  </div>
+
+  <!-- 态三：完备 -->
+  <div data-screen-label="态三-完备">
+    <p class="statelb">态三 · 完备（全部落格，门禁可清）</p>
+    <div class="host">
+      <div class="phead"><h2>当事人核验</h2><span class="cnt">6/6 已核</span></div>
+      <div class="row"><span class="grow">临江精铸科技有限公司</span><span class="v">统一码核对一致</span><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核</span></div>
+      <div class="row"><span class="grow">起云智能装备有限公司</span><span class="v">统一码核对一致</span><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核</span></div>
+      <div class="row"><span class="grow">云汇融资租赁（上海）有限公司</span><span class="v">补件后复核一致</span><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核</span></div>
+      <div class="row"><span class="grow">周衡（担保人）</span><span class="v">签署页核对一致</span><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核</span></div>
+      <div class="row"><span class="grow">云章设备租赁部（第三人）</span><span class="v">登记信息核对一致</span><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核</span></div>
+      <div class="row"><span class="grow" style="color:var(--tx-3)">核验完成 · 下游「写入案件档案」解锁</span><span class="v mono">07-11 09:12</span></div>
+    </div>
+  </div>
+
+</div>
+
+<p class="legend">消费凡例：字段三态 已填（带锚）/ 待补（缺失原因 + requiredSources）/ 不适用（docs/36 §四.1）· 无数据模块不出现，partial 带诚实计数「3/6 已核」（§四.2）· 待补行灰阶 + 贯通 hairline 不加框（§四.5）· 失败字段 →「未覆盖 · 需补材料」永不直出机器枚举（§五.②）· 已填字段确认不被未填阻塞（§四.4）</p>
+
+</body>
+</html>

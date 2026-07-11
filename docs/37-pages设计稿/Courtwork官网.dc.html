@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Courtwork · 案件级 AI 协作工作台</title>
+<style>
+  html,body{margin:0;padding:0;background:#FAFAFA}
+  body{font-family:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;color:#0A2540;font-size:14px;line-height:1.6;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+  a{color:#2563EB;text-decoration:none}
+  a:hover{color:#1D4ED8;text-decoration:underline}
+  ::selection{background:#E9EEF4}
+  @keyframes cw-line-grow{0%{transform:scaleY(0)}12%{transform:scaleY(1)}100%{transform:scaleY(1)}}
+  #cw-hero-lit{animation:cw-line-grow linear both;animation-timeline:scroll(root)}
+  @media (prefers-reduced-motion: reduce){#cw-hero-lit{animation:none !important;transform:scaleY(1) !important}}
+  @media (max-width:880px){.cw-cols{grid-template-columns:1fr !important}.cw-trust-row{grid-template-columns:1fr !important;row-gap:4px !important}.cw-nav-anchors{display:none !important}}
+</style>
+</helmet>
+
+<div data-screen-label="Courtwork 官网单页" style="min-height:100vh;background:#FAFAFA">
+
+  <!-- ═══ 顶栏 ═══ -->
+  <header style="border-bottom:1px solid #EBEBEB;background:#FAFAFA">
+    <div style="max-width:1120px;margin:0 auto;padding:0 40px;height:64px;display:flex;align-items:center;gap:32px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="assets/icon-dark.svg" alt="Courtwork" width="22" height="22" style="display:block;border-radius:5px" />
+        <span style="font-size:15px;font-weight:510;letter-spacing:-0.01em">Courtwork</span>
+      </div>
+      <nav class="cw-nav-anchors" style="display:flex;align-items:center;gap:24px;margin-left:8px">
+        <a href="#scenes" style="font-size:13px;color:#425466">场景</a>
+        <a href="#trust" style="font-size:13px;color:#425466">数据承诺</a>
+        <a href="#craft" style="font-size:13px;color:#425466">工艺</a>
+        <a href="#contact" style="font-size:13px;color:#425466">联系</a>
+      </nav>
+      <div style="flex:1"></div>
+      <a href="#download" style="display:inline-flex;align-items:center;height:32px;padding:0 16px;background:#0A2540;color:#FAFAFA;font-size:13px;font-weight:510;border-radius:4px" style-hover="background:#1A3A5C;color:#FAFAFA;text-decoration:none">下载 macOS 版</a>
+    </div>
+  </header>
+
+  <!-- ═══ Hero ═══ -->
+  <section id="download" data-screen-label="Hero" style="background:#FAFAFA">
+    <div style="max-width:1120px;margin:0 auto;padding:96px 40px 0">
+      <div style="position:relative;padding-left:26px;max-width:720px">
+        <!-- 法理之线 · 签名：静默灰基线 + 滚动点亮层（页面唯一微交互） -->
+        <div aria-hidden="true" style="position:absolute;left:0;top:-16px;bottom:-16px;width:2px;background:#CBD3DC"></div>
+        <div aria-hidden="true" id="cw-hero-lit" style="position:absolute;left:0;top:-16px;bottom:-16px;width:2px;background:#0A2540;transform:scaleY(1);transform-origin:top"></div>
+
+        <h1 style="margin:0;font-size:48px;line-height:1.2;font-weight:510;letter-spacing:-0.01em;text-wrap:pretty">模型只生成，<br />不裁决。</h1>
+        <p style="margin:24px 0 0;font-size:17px;line-height:1.65;color:#425466;max-width:40rem;text-wrap:pretty">Courtwork 是律所与法务团队的案件级 AI 协作工作台：一个文件夹进来就成卷宗，产出逐条有出处，不可逆的动作永远归人。</p>
+
+        <div style="margin-top:40px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <a href="#download" style="display:inline-flex;align-items:center;height:40px;padding:0 24px;background:#0A2540;color:#FAFAFA;font-size:14px;font-weight:510;border-radius:4px" style-hover="background:#1A3A5C;color:#FAFAFA;text-decoration:none" style-active="background:#0A2540">下载 macOS 版</a>
+          <a href="#craft" style="display:inline-flex;align-items:center;height:40px;padding:0 8px;font-size:14px;color:#425466" style-hover="color:#0A2540">它如何工作 ↓</a>
+        </div>
+        <p style="margin:16px 0 0;font-family:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">v0.1.1 · macOS 13+ · Apple Silicon · SHA-256 随构建记录发布</p>
+      </div>
+
+      <!-- Hero 真机窗：CSS 手绘 Mac 窗框 + 截图占位（真图 RP-2.11 后替换） -->
+      <div style="margin-top:72px;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:12px;overflow:hidden">
+        <div style="height:40px;display:flex;align-items:center;gap:16px;padding:0 16px;border-bottom:1px solid #EBEBEB;background:#FAFAFA">
+          <div style="display:flex;gap:8px" aria-hidden="true">
+            <span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span>
+            <span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span>
+          </div>
+          <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">Courtwork — 临江精铸 诉 起云智能 · 阶段二 · 合同审查</span>
+        </div>
+        <div style="aspect-ratio:16/9;background:repeating-linear-gradient(-45deg,#FAFAFA 0 14px,#F1F2F3 14px 28px);display:grid;place-items:center">
+          <sc-if value="{{ showReplaceNotes }}" hint-placeholder-val="{{ true }}">
+            <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:4px;padding:6px 12px">真机截图占位 · 完整工作台（参照 visual-audit/57-rp211-work-topchrome-1440.png）· RP-2.11 后替换</span>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 三招牌场景 ═══ -->
+  <section id="scenes" data-screen-label="三招牌场景" style="background:#FAFAFA">
+    <div style="max-width:1120px;margin:0 auto;padding:112px 40px 24px">
+      <p style="margin:0;font-size:12px;letter-spacing:0.08em;color:#6E8098">招牌场景</p>
+      <h2 style="margin:8px 0 0;font-size:30px;line-height:1.3;font-weight:510;letter-spacing:-0.01em">从进卷到出稿，三步给你看</h2>
+    </div>
+
+    <!-- 场景一 · 成卷 -->
+    <div style="max-width:1120px;margin:0 auto;padding:48px 40px">
+      <div class="cw-cols" style="display:grid;grid-template-columns:minmax(300px,5fr) minmax(340px,7fr);gap:48px;align-items:start">
+        <div>
+          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:4px;background:#F1F5F9;color:#475569;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px">D</span>
+          <h3 style="margin:12px 0 0;font-size:22px;line-height:1.4;font-weight:510;letter-spacing:-0.01em">一个文件夹，进来就成卷宗</h3>
+          <p style="margin:12px 0 0;font-size:15px;line-height:1.6;color:#425466;max-width:40rem;text-wrap:pretty">拖入一整个案件文件夹：扫描件、往来函、聊天记录截图。按文书类型识别、重命名、归入三区——原件、工作稿、产出。</p>
+          <div style="margin-top:20px;border-top:1px solid #EBEBEB">
+            <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #EBEBEB;font-size:13px;color:#425466"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;flex:none;width:64px">只读</span>上传原件永远只读，删除这个动词在系统里不存在</div>
+            <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #EBEBEB;font-size:13px;color:#425466"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;flex:none;width:64px">留痕</span>每次重命名与归位都记在案，原名保留可查</div>
+            <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #EBEBEB;font-size:13px;color:#425466"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;flex:none;width:64px">确认</span>整理计划先给你看，点确认才执行</div>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EBEBEB;border-radius:12px;overflow:hidden">
+          <div style="height:40px;display:flex;align-items:center;gap:16px;padding:0 16px;border-bottom:1px solid #EBEBEB;background:#FAFAFA">
+            <div style="display:flex;gap:8px" aria-hidden="true"><span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span><span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span><span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span></div>
+            <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">卷宗整理 · 整理计划</span>
+          </div>
+          <div style="aspect-ratio:16/10;background:repeating-linear-gradient(-45deg,#FAFAFA 0 14px,#F1F2F3 14px 28px);display:grid;place-items:center">
+            <sc-if value="{{ showReplaceNotes }}" hint-placeholder-val="{{ true }}">
+              <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:4px;padding:6px 12px">真机截图占位 · S6 成卷（整理计划表）· 待摄</span>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 场景二 · 时间线矛盾 -->
+    <div style="max-width:1120px;margin:0 auto;padding:48px 40px">
+      <div class="cw-cols" style="display:grid;grid-template-columns:minmax(300px,5fr) minmax(340px,7fr);gap:48px;align-items:start">
+        <div>
+          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:4px;background:#F1F5F9;color:#475569;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px">E</span>
+          <h3 style="margin:12px 0 0;font-size:22px;line-height:1.4;font-weight:510;letter-spacing:-0.01em">四十七个事件，四处矛盾，逐条有出处</h3>
+          <p style="margin:12px 0 0;font-size:15px;line-height:1.6;color:#425466;max-width:40rem;text-wrap:pretty">全卷事件自动对齐成时间线，交叉核对当事人、账户与日期。矛盾行标出，点开任何一条，跳回原文并高亮引语。</p>
+          <div style="margin-top:20px;border-top:1px solid #EBEBEB">
+            <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #EBEBEB;font-size:13px;color:#425466"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;flex:none;width:64px">溯源</span>没有出处的事件进不了时间线——这是契约，不是承诺</div>
+            <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #EBEBEB;font-size:13px;color:#425466"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;flex:none;width:64px">分级</span>每条依据带信源级别：官方权威、库内维护、网络参考</div>
+            <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #EBEBEB;font-size:13px;color:#425466"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;flex:none;width:64px">静止</span>数据区没有任何自发动效——会晃的数字不可信</div>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EBEBEB;border-radius:12px;overflow:hidden">
+          <div style="height:40px;display:flex;align-items:center;gap:16px;padding:0 16px;border-bottom:1px solid #EBEBEB;background:#FAFAFA">
+            <div style="display:flex;gap:8px" aria-hidden="true"><span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span><span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span><span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span></div>
+            <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">时间线 · 47 件 · 矛盾 4 处</span>
+          </div>
+          <div style="aspect-ratio:16/10;background:repeating-linear-gradient(-45deg,#FAFAFA 0 14px,#F1F2F3 14px 28px);display:grid;place-items:center">
+            <sc-if value="{{ showReplaceNotes }}" hint-placeholder-val="{{ true }}">
+              <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:4px;padding:6px 12px">真机截图占位 · 时间线矛盾（参照 visual-audit/02-s1-timeline-1440.png）· RP-2.11 后替换</span>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 场景三 · 审查出 Word -->
+    <div style="max-width:1120px;margin:0 auto;padding:48px 40px 112px">
+      <div class="cw-cols" style="display:grid;grid-template-columns:minmax(300px,5fr) minmax(340px,7fr);gap:48px;align-items:start">
+        <div>
+          <span style="display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:4px;background:#F1F5F9;color:#475569;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px">V</span>
+          <h3 style="margin:12px 0 0;font-size:22px;line-height:1.4;font-weight:510;letter-spacing:-0.01em">审查意见，落成带修订的 Word</h3>
+          <p style="margin:12px 0 0;font-size:15px;line-height:1.6;color:#425466;max-width:40rem;text-wrap:pretty">合同风险逐条过你的手：确认、驳回、修正。定稿一次性编译为带修订与批注的 docx——红删蓝增，Word 与 WPS 直接打开。</p>
+          <div style="margin-top:20px;border-top:1px solid #EBEBEB">
+            <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #EBEBEB;font-size:13px;color:#425466"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;flex:none;width:64px">门禁</span>高危条目不进批量，必须逐条展开依据后确认</div>
+            <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #EBEBEB;font-size:13px;color:#425466"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;flex:none;width:64px">修订</span>忠实 Word 修订心智：删除保留字形，可核对</div>
+            <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #EBEBEB;font-size:13px;color:#425466"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;flex:none;width:64px">单向</span>编译是一次性仪式，定稿后画布转为只读存档</div>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EBEBEB;border-radius:12px;overflow:hidden">
+          <div style="height:40px;display:flex;align-items:center;gap:16px;padding:0 16px;border-bottom:1px solid #EBEBEB;background:#FAFAFA">
+            <div style="display:flex;gap:8px" aria-hidden="true"><span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span><span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span><span style="width:10px;height:10px;border-radius:50%;background:#D5DBE2"></span></div>
+            <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">合同审查 · 修订预览 · 4 处</span>
+          </div>
+          <div style="aspect-ratio:16/10;background:repeating-linear-gradient(-45deg,#FAFAFA 0 14px,#F1F2F3 14px 28px);display:grid;place-items:center">
+            <sc-if value="{{ showReplaceNotes }}" hint-placeholder-val="{{ true }}">
+              <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:4px;padding:6px 12px">真机截图占位 · 审查→修订 docx（参照 visual-audit/01-s3-revision-1440.png）· RP-2.11 后替换</span>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 信任区（画布带 + 白浮面） ═══ -->
+  <section id="trust" data-screen-label="信任区" style="background:#EDEDED">
+    <div style="max-width:1120px;margin:0 auto;padding:112px 40px">
+      <p style="margin:0;font-size:12px;letter-spacing:0.08em;color:#6E8098">数据承诺</p>
+      <h2 style="margin:8px 0 0;font-size:30px;line-height:1.3;font-weight:510;letter-spacing:-0.01em">四句话，写进主协议正文</h2>
+      <p style="margin:12px 0 0;font-size:15px;color:#425466;max-width:40rem;text-wrap:pretty">不在隐私政策附件里，不用营销形容词升级。</p>
+
+      <div style="margin-top:40px;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:12px;padding:8px 32px">
+        <div class="cw-trust-row" style="display:grid;grid-template-columns:220px 1fr;gap:24px;padding:24px 0;border-bottom:1px solid #EBEBEB">
+          <h3 style="margin:0;font-size:16px;font-weight:510;letter-spacing:-0.01em">案件内容永不训练</h3>
+          <p style="margin:0;font-size:14px;color:#425466;max-width:44rem;text-wrap:pretty">律师无权代当事人同意将案件实质内容用于第三方训练——这不是我们的让步，是委托代理关系的必然。每个接入的模型服务，先拿到书面的"不训练"确认。</p>
+        </div>
+        <div class="cw-trust-row" style="display:grid;grid-template-columns:220px 1fr;gap:24px;padding:24px 0;border-bottom:1px solid #EBEBEB">
+          <h3 style="margin:0;font-size:16px;font-weight:510;letter-spacing:-0.01em">原件只读</h3>
+          <p style="margin:0;font-size:14px;color:#425466;max-width:44rem;text-wrap:pretty">上传的原件永远只读；一切修改发生在工作稿上，逐条留痕。销毁级的动词，在这套系统里不存在。</p>
+        </div>
+        <div class="cw-trust-row" style="display:grid;grid-template-columns:220px 1fr;gap:24px;padding:24px 0;border-bottom:1px solid #EBEBEB">
+          <h3 style="margin:0;font-size:16px;font-weight:510;letter-spacing:-0.01em">密钥留在你的电脑</h3>
+          <p style="margin:0;font-size:14px;color:#425466;max-width:44rem;text-wrap:pretty">模型服务密钥存于 macOS 钥匙串，不经过我们的服务器。诊断导出无密钥、路径脱敏。</p>
+        </div>
+        <div class="cw-trust-row" style="display:grid;grid-template-columns:220px 1fr;gap:24px;padding:24px 0">
+          <h3 style="margin:0;font-size:16px;font-weight:510;letter-spacing:-0.01em">不可逆动作归人</h3>
+          <p style="margin:0;font-size:14px;color:#425466;max-width:44rem;text-wrap:pretty">每个关键产出节点是一道确认门禁：确认、驳回、修正。定稿编译、开启新阶段，永远需要显式点击，永不自动触发。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 工艺区 ═══ -->
+  <section id="craft" data-screen-label="工艺区" style="background:#FAFAFA">
+    <div style="max-width:1120px;margin:0 auto;padding:112px 40px">
+      <p style="margin:0;font-size:12px;letter-spacing:0.08em;color:#6E8098">工艺</p>
+      <h2 style="margin:8px 0 0;font-size:30px;line-height:1.3;font-weight:510;letter-spacing:-0.01em">一条 2 像素的线</h2>
+
+      <div class="cw-cols" style="margin-top:32px;display:grid;grid-template-columns:minmax(300px,5fr) minmax(340px,7fr);gap:48px;align-items:start">
+        <div>
+          <p style="margin:0;font-size:15px;line-height:1.65;color:#425466;max-width:40rem;text-wrap:pretty">纸质卷宗的侧边有朱批。Courtwork 里每一条待你处置的产出，左侧立着一条 2px 的线——我们叫它<b style="color:#0A2540;font-weight:510">法理之线</b>。</p>
+          <p style="margin:16px 0 0;font-size:15px;line-height:1.65;color:#425466;max-width:40rem;text-wrap:pretty">线只在有含义时出现，出现即有含义：红是高危待处理，琥珀是依据未核验，蓝是已修订待确认，绿是已确认，灰是已驳回。确认落章是 0 毫秒的硬切，没有淡入淡出——落定就是落定。</p>
+          <p style="margin:16px 0 0;font-size:15px;line-height:1.65;color:#425466;max-width:40rem;text-wrap:pretty">应用图标就是它：一条线，立在文书旁边。一切产出有边、有据、有人把关。</p>
+
+          <div style="margin-top:32px;display:flex;gap:40px;border-top:1px solid #EBEBEB;padding-top:20px">
+            <div><div style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:24px;font-weight:400;color:#0A2540">6</div><div style="font-size:12px;color:#6E8098;margin-top:2px">内置场景</div></div>
+            <div><div style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:24px;font-weight:400;color:#0A2540">5</div><div style="font-size:12px;color:#6E8098;margin-top:2px">工作面</div></div>
+            <div><div style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:24px;font-weight:400;color:#0A2540">0</div><div style="font-size:12px;color:#6E8098;margin-top:2px">自动执行的不可逆动作</div></div>
+          </div>
+        </div>
+
+        <!-- 五态标本（静态，数据区静止） -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="position:relative;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:6px;padding:12px 16px 12px 18px">
+            <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#DC2626;border-radius:6px 0 0 6px"></span>
+            <div style="display:flex;align-items:baseline;gap:12px"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#B91C1C">R1</span><span style="font-size:13px;font-weight:510">高危待处理</span><span style="font-size:12px;color:#6E8098">不进批量，逐条展开依据后确认</span></div>
+          </div>
+          <div style="position:relative;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:6px;padding:12px 16px 12px 18px">
+            <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#D97706;border-radius:6px 0 0 6px"></span>
+            <div style="display:flex;align-items:baseline;gap:12px"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#B45309">R3</span><span style="font-size:13px;font-weight:510">依据未核验</span><span style="font-size:12px;color:#6E8098">含网络参考源，须人工核对原文</span></div>
+          </div>
+          <div style="position:relative;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:6px;padding:12px 16px 12px 18px">
+            <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#2563EB;border-radius:6px 0 0 6px"></span>
+            <div style="display:flex;align-items:baseline;gap:12px"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#1D4ED8">V2</span><span style="font-size:13px;font-weight:510">已修订待确认</span><span style="font-size:12px;color:#6E8098">修订已写好，等你最后一眼</span></div>
+          </div>
+          <div style="position:relative;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:6px;padding:12px 16px 12px 18px">
+            <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#16A34A;border-radius:6px 0 0 6px"></span>
+            <div style="display:flex;align-items:baseline;gap:12px"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#15803D">R2</span><span style="font-size:13px;font-weight:510">已确认</span><span style="font-size:12px;color:#6E8098">0ms 落章，瞬间生效</span></div>
+          </div>
+          <div style="position:relative;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:6px;padding:12px 16px 12px 18px">
+            <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#64748B;border-radius:6px 0 0 6px"></span>
+            <div style="display:flex;align-items:baseline;gap:12px"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#475569">R5</span><span style="font-size:13px;font-weight:510">已驳回</span><span style="font-size:12px;color:#6E8098">灰不是错误，是退出工作集</span></div>
+          </div>
+          <p style="margin:8px 0 0;font-size:12px;color:#6E8098">五个状态，五个颜色，全站彩色预算的全部。</p>
+        </div>
+      </div>
+
+      <!-- 命名 -->
+      <div style="margin-top:80px;border-top:1px solid #EBEBEB;padding-top:40px;max-width:44rem">
+        <h3 style="margin:0;font-size:18px;font-weight:510;letter-spacing:-0.01em">为什么叫 Courtwork</h3>
+        <p style="margin:12px 0 0;font-size:15px;line-height:1.65;color:#425466;text-wrap:pretty">Court 是场域，work 是工作——先宣告场域归属，再谈工作方式。我们刻意避开了 AI、copilot、buddy 这些词：它不是数字员工，是协作者。</p>
+        <p style="margin:12px 0 0;font-size:14px;line-height:1.65;color:#6E8098;text-wrap:pretty">另有一层：Cowork 多出的三个字母是 <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13px;color:#425466">u&thinsp;r&thinsp;t</span>——you are there。没有人被取代，你就在回路之中。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 合作与联系 ═══ -->
+  <section id="contact" data-screen-label="合作与联系" style="background:#EDEDED;border-top:1px solid #EBEBEB">
+    <div style="max-width:1120px;margin:0 auto;padding:96px 40px 64px">
+      <p style="margin:0;font-size:12px;letter-spacing:0.08em;color:#6E8098">合作与联系</p>
+      <h2 style="margin:8px 0 0;font-size:24px;line-height:1.35;font-weight:510;letter-spacing:-0.01em;max-width:36rem;text-wrap:pretty">在做法律 AI 的模型厂商、想试点的律所与法务团队，欢迎聊。</h2>
+      <p style="margin:16px 0 0;font-size:14px;color:#425466;max-width:40rem;text-wrap:pretty">我们向上游提供评测集与脱敏反馈，向律所提供可培训、可审计的工作秩序。</p>
+      <p style="margin:24px 0 0;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:13px;color:#425466">联系邮箱 · 发布前替换 <sc-if value="{{ showReplaceNotes }}" hint-placeholder-val="{{ true }}"><span style="color:#6E8098">（占位）</span></sc-if></p>
+
+      <div style="margin-top:80px;padding-top:24px;border-top:1px solid #D5DBE2;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <img src="assets/icon-dark.svg" alt="" width="18" height="18" style="display:block;border-radius:4px" />
+        <span style="font-size:13px;font-weight:510">Courtwork</span>
+        <span style="font-size:12px;color:#6E8098">© 2026 · 案件级 AI 协作工作台</span>
+        <span style="flex:1"></span>
+        <a href="#trust" style="font-size:12px;color:#6E8098" style-hover="color:#425466">数据承诺</a>
+        <a href="#download" style="font-size:12px;color:#6E8098" style-hover="color:#425466">下载</a>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;showReplaceNotes&quot;: {
+    &quot;editor&quot;: &quot;boolean&quot;,
+    &quot;default&quot;: true,
+    &quot;tsType&quot;: &quot;boolean&quot;,
+    &quot;section&quot;: &quot;设计稿批注&quot;,
+    &quot;description&quot;: &quot;显示\&quot;真机截图占位·RP-2.11 后替换\&quot;等交付批注；关闭后预览成稿观感&quot;
+  }
+}"></script>
+</body>
+</html>

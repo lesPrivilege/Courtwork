@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>素材库典范 · 招投标 · 响应性核对矩阵 + 资质核对单（S9 采购侧）</title>
+<style>
+/* ============ tokens（与 docs/32 tokens.json 一一对应；同一凡例，换皮零改） ============ */
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3; --bg-selected:#E9EEF4;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC; --tx-inv:#FAFAFA;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --act-bg:#0A2540; --act-hover:#1A3A5C; --link:#2563EB;
+  --tier-a:#16A34A; --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-b:#64748B; --tier-b-fg:#475569; --tier-b-bg:#F1F5F9; --tier-c:#D97706; --tier-c-fg:#B45309; --tier-c-bg:#FCF6E8;
+  --sev-high:#DC2626; --sev-high-fg:#B91C1C; --sev-high-bg:#FEF2F2; --sev-med:#D97706; --sev-med-fg:#B45309; --sev-med-bg:#FCF6E8; --sev-low:#64748B; --sev-low-fg:#475569; --sev-low-bg:#F1F5F9;
+  --rev-ins:#2563EB; --rev-ins-fg:#1D4ED8; --rev-ins-bg:#EFF6FF;
+  --gate-pend:#D97706; --gate-pend-fg:#B45309; --gate-conf:#16A34A; --gate-conf-fg:#15803D; --gate-rej:#64748B; --gate-rej-fg:#475569;
+  --line-rest:#CBD3DC; --prov-bg:#F5F7F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-surface);display:flex;flex-direction:column;min-width:1280px;overflow:hidden;font-variant-numeric:tabular-nums}
+a{color:var(--link);text-decoration:none} a:hover{color:var(--rev-ins-fg);text-decoration:underline}
+:where(a,button,[tabindex]):focus-visible{outline:2px solid var(--link);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+kbd{font-family:var(--mono);font-size:11px;line-height:1;color:var(--tx-2);background:#FFF;border:1px solid var(--bd-strong);border-bottom-width:2px;border-radius:4px;padding:1px 5px;display:inline-block;vertical-align:middle}
+.kbd-hint{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:var(--tx-3)}
+button{font-family:var(--sans)}
+
+/* ============ 工作台帧（与法律域逐像素同构） ============ */
+.titlebar{height:40px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;background:var(--bg-app);border-bottom:1px solid var(--bd-hair)}
+.titlebar .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:510;letter-spacing:-0.01em}
+.titlebar .vdiv{width:1px;height:16px;background:var(--bd-strong)}
+.titlebar .case-t{font-size:13px;color:var(--tx-2)}
+.titlebar .case-no{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.titlebar .sp{flex:1}
+.toolbar{height:40px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair)}
+.crumb{font-size:13px;color:var(--tx-2)}
+.crumb b{color:var(--tx-1);font-weight:510}
+.crumb .sep{color:var(--tx-4);margin:0 6px}
+.toolbar .sp{flex:1}
+.seg{display:inline-flex;border:1px solid var(--bd-strong);border-radius:4px;overflow:hidden}
+.seg button{font-size:12px;padding:3px 12px;border:none;background:var(--bg-raised);color:var(--tx-2);cursor:pointer;border-right:1px solid var(--bd-strong)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--act-bg);color:var(--tx-inv)}
+.btn-primary{font-size:13px;font-weight:510;padding:5px 16px;border:none;border-radius:4px;background:var(--act-bg);color:var(--tx-inv);cursor:pointer}
+.btn-primary:hover{background:var(--act-hover)}
+.btn-primary[disabled]{background:var(--bg-hover);color:var(--tx-4);cursor:not-allowed}
+
+.cols{flex:1;display:flex;min-height:0}
+.rail{width:240px;flex:none;background:var(--bg-app);border-right:1px solid var(--bd-hair);display:flex;flex-direction:column}
+.mid{flex:1 1 0;min-width:440px;background:var(--bg-surface);border-right:1px solid var(--bd-hair);display:flex;flex-direction:column}
+.right{width:47%;max-width:900px;flex:none;background:var(--bg-surface);display:flex;flex-direction:column}
+
+.phead{height:40px;flex:none;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+
+/* ============ 左栏 ============ */
+.rail-scroll{flex:1;overflow-y:auto;padding:8px}
+.case{background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 12px}
+.case .t{font-size:13px;font-weight:510;line-height:1.5}
+.case .m{font-size:12px;color:var(--tx-3);margin-top:2px}
+.rail-label{font-size:12px;color:var(--tx-3);padding:16px 8px 8px}
+.stage{display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:4px;font-size:13px;color:var(--tx-2)}
+.stage:hover{background:var(--bg-hover)}
+.stage.on{background:var(--bg-selected);color:var(--tx-1);font-weight:510}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--tx-4);flex:none}
+.stage.on .dot{background:var(--gate-conf)}
+.stage .m{margin-left:auto;font-size:12px;color:var(--tx-4);font-weight:400}
+.rail-foot{flex:none;padding:8px 16px;font-size:12px;color:var(--tx-3);border-top:1px solid var(--bd-hair)}
+
+/* ============ 中栏 ============ */
+.chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.msg-user{align-self:flex-end;max-width:80%;background:var(--bg-selected);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 16px;font-size:14px}
+.card{position:relative;align-self:flex-start;width:94%;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:8px 16px 8px 16px}
+.card .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,var(--line-rest));border-radius:4px 0 0 4px}
+.card-title{display:flex;align-items:center;gap:8px;font-weight:510;font-size:13px}
+.badge{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;letter-spacing:.02em;color:var(--line-fg,var(--tx-3))}
+.steps{margin-top:4px;display:flex;flex-direction:column;font-size:13px;color:var(--tx-2)}
+.steps>div{display:flex;align-items:center;gap:8px;min-height:24px;flex-wrap:wrap}
+.steps .ok{color:var(--tier-a-fg);font-family:var(--mono);font-size:12px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;vertical-align:middle;white-space:nowrap}
+.tierbox{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;font-family:var(--mono);font-size:12px;flex:none}
+.tier-a{color:var(--tier-a-fg);background:var(--tier-a-bg)} .tier-b{color:var(--tier-b-fg);background:var(--tier-b-bg)} .tier-c{color:var(--tier-c-fg);background:var(--tier-c-bg)}
+
+.callout{align-self:flex-start;width:94%;background:var(--rev-ins-bg);border-left:4px solid var(--rev-ins);border-radius:6px;padding:8px 16px;font-size:13px;color:var(--tx-2)}
+.callout b{color:var(--tx-1);font-weight:510}
+
+.scenes{flex:none;display:flex;gap:8px;padding:8px 16px;border-top:1px solid var(--bd-hair)}
+.scene-btn{font-size:12px;color:var(--tx-2);background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:4px;padding:4px 12px;cursor:pointer;transition:background 100ms cubic-bezier(.25,.46,.45,.94)}
+.scene-btn:hover{background:var(--bg-hover)}
+.composer{flex:none;margin:0 16px 16px;background:var(--bg-raised);border:1px solid var(--bd-strong);border-radius:4px;padding:8px 16px;display:flex;align-items:center;gap:8px}
+.composer .ph{flex:1;color:var(--tx-4);font-size:14px}
+
+/* ============ 全局状态条 ============ */
+.statusbar{height:32px;flex:none;display:flex;align-items:center;gap:24px;padding:0 16px;font-size:12px;color:var(--tx-3);background:var(--bg-surface);border-top:1px solid var(--bd-hair)}
+.statusbar .grow{flex:1}
+.ring{display:inline-flex;align-items:center;gap:8px}
+
+/* ============ 右栏：响应性核对矩阵（table 原语 matrix 变体：要求 × 投标人） ============ */
+.right-scroll{flex:1;overflow-y:auto}
+.batchbar{min-height:36px;display:flex;align-items:center;gap:8px;padding:0 16px;font-size:12px;color:var(--tx-2);background:var(--bg-surface);border-bottom:1px solid var(--bd-hair)}
+.batchbar>span:first-child{white-space:nowrap;flex:none}
+.batchbar .note{margin-left:auto;color:var(--tx-3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gbtn{font-size:12px;height:24px;padding:0 12px;border-radius:4px;border:1px solid var(--bd-strong);background:var(--bg-raised);color:var(--tx-1);cursor:pointer;transition:background 100ms cubic-bezier(.25,.46,.45,.94);white-space:nowrap;flex:none}
+.gbtn:hover{background:var(--bg-hover)}
+
+.rtable{background:var(--bg-raised)}
+.mgrid{display:grid;grid-template-columns:48px 1fr 116px 116px 116px 92px;align-items:center}
+.mhead{height:28px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.mhead>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow{position:relative;height:30px;border-bottom:1px solid var(--bd-hair);font-size:13px;cursor:default}
+.mrow:hover{background:var(--bg-hover)}
+.mrow>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line,var(--line-rest));padding:0}
+.mrow .rb{font-family:var(--mono);font-size:12px;color:var(--line-fg,var(--tx-3));padding-left:16px}
+.mrow.expanded{background:var(--bg-hover)}
+.cell-ok{color:var(--tx-3);font-size:12px}
+.sev{font-size:12px;border-radius:4px;padding:0 6px;line-height:18px}
+.rdetail{position:relative;border-bottom:1px solid var(--bd-hair);background:var(--bg-raised);padding:8px 16px 16px 16px;font-size:13px}
+.rdetail .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line)}
+.rdetail.detail-lined:hover .sline{background:linear-gradient(to bottom,var(--line) 0,var(--line) calc(var(--gy,50%) - 20px),color-mix(in srgb,var(--line),white 35%) var(--gy,50%),var(--line) calc(var(--gy,50%) + 20px),var(--line) 100%)}
+.rdetail.detail-lined:hover::after{content:attr(data-citation);position:absolute;right:8px;top:var(--gy,8px);font:12px/1.5 var(--mono);color:var(--tx-3);background:var(--bg-raised);padding:0 4px}
+.rdetail p{color:var(--tx-2);line-height:1.6;max-width:64em;text-wrap:pretty}
+.basis{margin-top:8px;background:var(--prov-bg);border-radius:4px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;max-width:64em}
+.basis-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--tx-2)}
+.basis-row .q{font-family:var(--mono);color:var(--tx-3)}
+.gate{margin-top:8px;display:flex;align-items:center;gap:8px}
+.gate .meta{margin-left:auto;font-size:12px;color:var(--tx-3)}
+
+/* ============ 资质核对单（checklist 原语：勾选 = 记录核对事实，零执行语义） ============ */
+.cgrid{display:grid;grid-template-columns:48px 1fr 200px 120px;align-items:center}
+.cgrid>div{padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chead{height:28px;background:var(--bg-surface);border-bottom:1px solid var(--bd-hair);font-size:12px;color:var(--tx-3)}
+.crow{height:30px;border-bottom:1px solid var(--bd-hair);font-size:13px}
+.crow:hover{background:var(--bg-hover)}
+.ckbox{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;border:1px solid var(--bd-strong);font-family:var(--mono);font-size:12px;color:var(--tier-a-fg);background:var(--bg-raised);vertical-align:middle}
+.ckbox.done{background:var(--tier-a-bg);border-color:var(--tier-a-bg)}
+.cfoot{padding:8px 16px;font-size:12px;color:var(--tx-3);border-bottom:1px solid var(--bd-hair);background:var(--bg-raised)}
+::-webkit-scrollbar{width:10px}::-webkit-scrollbar-thumb{background:var(--bd-strong);border-radius:5px;border:2px solid var(--bg-surface)}::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+
+<!-- ============ 标题栏 ============ -->
+<header class="titlebar" data-screen-label="标题栏">
+  <span class="brand">
+    <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><rect width="20" height="20" rx="4.5" fill="#0A2540"/><rect x="5" y="4" width="2" height="12" fill="#FAFAFA"/><rect x="9.5" y="6" width="6" height="1.6" rx=".8" fill="#7A93AC"/><rect x="9.5" y="9.2" width="6" height="1.6" rx=".8" fill="#7A93AC"/><rect x="9.5" y="12.4" width="4" height="1.6" rx=".8" fill="#7A93AC"/></svg>
+    Courtwork
+  </span>
+  <span class="vdiv"></span>
+  <span class="case-t">青洲数据中心机电设备采购 · 标段二（宸桥控股 · 虚构演示标段）</span>
+  <span class="case-no">CQ-2026-ZB-014</span>
+  <span class="sp"></span>
+  <span class="kbd-hint"><kbd>⌘</kbd><kbd>K</kbd>&nbsp;场景与检索</span>
+</header>
+
+<!-- ============ 工具栏 ============ -->
+<div class="toolbar" data-screen-label="工具栏">
+  <span class="crumb"><b>阶段四 · 开评标</b><span class="sep">›</span>响应性核对 <span class="mono" style="font-size:12px;color:var(--tx-3)">招标文件定稿 2026-06-03</span></span>
+  <span class="sp"></span>
+  <span style="font-size:12px;color:var(--tx-3)">条目类别</span>
+  <div class="seg"><button class="on">全部</button><button>资格性</button><button>技术</button><button>商务</button></div>
+  <button class="btn-primary" disabled title="3 项偏离待确认">生成评标辅助报告 · 3 项待确认</button>
+</div>
+
+<div class="cols">
+  <!-- ============ 左栏 ============ -->
+  <aside class="rail" data-screen-label="左栏-标段">
+    <div class="phead"><h2>标段</h2><span class="cnt">1</span></div>
+    <div class="rail-scroll">
+      <div class="case">
+        <div class="t">青洲数据中心机电设备采购 · 标段二（UPS 及配电）</div>
+        <div class="m mono">CQ-2026-ZB-014</div>
+        <div class="m">投标文件 <span class="num">3</span> 家 · 已归档摄取</div>
+      </div>
+      <div class="rail-label">阶段</div>
+      <div class="stage"><span class="dot"></span>阶段三 · 发标答疑<span class="m">已归档</span></div>
+      <div class="stage on"><span class="dot"></span>阶段四 · 开评标</div>
+      <div class="stage"><span class="dot"></span>阶段五 · 定标<span class="m">未开始</span></div>
+    </div>
+    <div class="rail-foot">素材库典范 · 招投标域 · 同构源：S2 矩阵审阅 + S9 核对（凡例零改）</div>
+  </aside>
+
+  <!-- ============ 中栏 ============ -->
+  <main class="mid" data-screen-label="中栏-对话流">
+    <div class="phead"><h2>对话</h2><span class="cnt">本阶段 4 轮</span><span class="sp"></span><span class="kbd-hint"><kbd>J</kbd><kbd>K</kbd>&nbsp;逐条</span></div>
+    <div class="chat">
+      <div class="msg-user">三家投标文件收齐了，对照招标文件跑一遍响应性核对，资格性条款从严。</div>
+
+      <div class="card" style="--line:var(--line-rest)">
+        <span class="sline"></span>
+        <div class="card-title"><span class="badge">D07</span>响应性核对已启动<span class="chip" style="color:var(--tx-2);background:var(--bg-hover)">46 条 × 3 家</span></div>
+        <div class="steps">
+          <div><span class="ok">✓</span>招标要求抽取完成（<span class="num">46</span> 条）</div>
+          <div><span class="ok">✓</span>投标主体一致性核验通过 — 三家投标人（虚构）<span class="tierbox tier-b" title="库内维护源">B</span></div>
+          <div><span class="ok">✓</span>逐项核对完成（偏离 <span class="num">4</span> · 修正 <span class="num">1</span>）</div>
+        </div>
+      </div>
+
+      <div class="card" style="--line:var(--sev-high)">
+        <span class="sline"></span>
+        <div class="card-title"><span class="badge" style="color:var(--sev-high-fg)">Q</span>核对完成：重大偏离 2 处</div>
+        <p style="font-size:13px;color:var(--tx-2);margin-top:4px">南屿动力资质等级不符（<a href="#">Q2</a>）、繁星机电保证金凭证缺失（<a href="#">Q3</a>），均属资格性条款。一般偏离 <span class="num">2</span> 处。废标提案须逐条展开确认——评标结论永远由评委作出。</p>
+      </div>
+
+      <!-- AI callout：线索仅登记不裁决 -->
+      <div class="callout">
+        <b>线索登记</b> · 南屿动力与繁星机电投标文件的联系人电话一致（<span class="mono" style="font-size:12px">139****2846</span>），已作围串标线索登记。仅提示，不作任何认定——处置在评标委员会。<a href="#">查看线索台账</a>
+      </div>
+    </div>
+
+    <div class="scenes">
+      <button class="scene-btn">审查招标文件</button>
+      <button class="scene-btn">报价算术复核</button>
+      <button class="scene-btn">起草澄清函</button>
+    </div>
+    <div class="composer"><span class="ph">描述要办的事，或从上方选择…</span><span class="kbd-hint"><kbd>⌘</kbd><kbd>K</kbd></span></div>
+  </main>
+
+  <!-- ============ 右栏 ============ -->
+  <section class="right" data-screen-label="右栏-响应性核对">
+    <div class="phead" data-screen-label="响应性核对矩阵">
+      <h2>响应性核对矩阵</h2><span class="cnt">46 条 × 3 家 · 偏离 4 · 已核 32/46</span>
+      <span class="sp"></span>
+      <span style="display:inline-flex;gap:4px;align-items:center;font-size:12px;color:var(--tx-3)">信源
+        <span class="tierbox tier-a" title="标段内原件（带锚）">A</span>
+        <span class="tierbox tier-b" title="库内维护源">B</span>
+        <span class="tierbox tier-c" title="网络参考，未核验">C</span>
+        <span style="background:var(--prov-bg);border-radius:4px;padding:0 6px" title="mono + 底纹 = 核验内容；无底纹 sans = AI 解释">底纹 = 核验内容</span>
+      </span>
+    </div>
+
+    <!-- 分层确认：重大偏离不入批量 -->
+    <div class="batchbar" data-screen-label="分层确认">
+      <span>批量范围：一般偏离且依据已核验 · <span class="num">2</span> 项（<a href="#">Q4</a> <a href="#">Q6</a>）</span>
+      <button class="gbtn">批量确认 2 项</button>
+      <span style="margin-left:auto" class="note" title="重大偏离 2 项不入批量，须逐条展开确认；废标提案一律逐条">重大偏离 <span class="num">2</span> 项不入批量，废标提案一律逐条</span>
+    </div>
+
+    <div class="right-scroll">
+      <div class="rtable">
+        <div class="mgrid mhead"><div></div><div>招标要求（资格性节选）</div><div>恒澈电气</div><div>南屿动力</div><div>繁星机电</div><div>状态</div></div>
+
+        <!-- Q1 全响应 · 已核对 -->
+        <div class="mgrid mrow" style="--line:var(--gate-conf);--line-fg:var(--gate-conf-fg)">
+          <span class="sline"></span><div class="rb">Q1</div>
+          <div>营业执照，经营范围含机电设备</div>
+          <div class="cell-ok">响应 · P.03</div><div class="cell-ok">响应 · P.05</div><div class="cell-ok">响应 · P.04</div>
+          <div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核对</span></div>
+        </div>
+
+        <!-- Q2 重大偏离 · 展开态 -->
+        <div class="mgrid mrow expanded" style="--line:var(--sev-high);--line-fg:var(--sev-high-fg)">
+          <span class="sline"></span><div class="rb">Q2</div>
+          <div style="font-weight:510">电力工程施工资质 乙级及以上 <span style="color:var(--tx-3)">▾</span></div>
+          <div class="cell-ok">响应 · P.11</div>
+          <div><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">重大偏离</span></div>
+          <div class="cell-ok">响应 · P.09</div>
+          <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+        </div>
+        <div class="rdetail detail-lined" data-citation="招标文件 §2.3.1" style="--line:var(--sev-high)">
+          <span class="sline"></span>
+          <p>南屿动力提供的资质证书等级为丙级，低于招标文件资格性条款要求的乙级及以上，属不可澄清补正的资格性重大偏离。确认后将生成废标提案，提交评标委员会裁决——系统不作废标认定。</p>
+          <div class="basis">
+            <div class="basis-row"><span class="tierbox tier-a">A</span><a href="#" title="打开原文并高亮">01-招标文件定稿 · §2.3.1</a><span class="q">「投标人须具备电力工程施工总承包资质乙级及以上」</span></div>
+            <div class="basis-row"><span class="tierbox tier-a">A</span><a href="#" title="打开原文并高亮">05-南屿动力投标文件 · P.12</a><span class="q">「电力工程施工总承包资质证书 · 等级：丙级」</span></div>
+          </div>
+          <div class="gate">
+            <button class="gbtn">确认 · 生成废标提案</button><button class="gbtn">驳回</button><button class="gbtn">修正</button>
+            <span class="kbd-hint"><kbd>⏎</kbd>&nbsp;确认&nbsp;<kbd>⇧</kbd><kbd>⏎</kbd>&nbsp;驳回</span>
+            <span class="meta">重大偏离须展开可见全部依据后确认</span>
+          </div>
+        </div>
+
+        <!-- Q3 重大偏离（缺漏） -->
+        <div class="mgrid mrow" style="--line:var(--sev-high);--line-fg:var(--sev-high-fg)">
+          <span class="sline"></span><div class="rb">Q3</div>
+          <div>投标保证金 ¥500,000 缴纳凭证</div>
+          <div class="cell-ok">响应 · P.18</div><div class="cell-ok">响应 · P.16</div>
+          <div><span class="sev" style="color:var(--sev-high-fg);background:var(--sev-high-bg)">未提供</span></div>
+          <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+        </div>
+
+        <!-- Q4 一般偏离 -->
+        <div class="mgrid mrow" style="--line:var(--line-rest)">
+          <span class="sline" style="background:transparent"></span><div class="rb" style="color:var(--tx-3)">Q4</div>
+          <div>供货期 ≤ 90 日历天</div>
+          <div><span class="sev" style="color:var(--sev-med-fg);background:var(--sev-med-bg)">偏离 · 120 天</span></div>
+          <div class="cell-ok">响应 · P.22</div><div class="cell-ok">响应 · P.20</div>
+          <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+        </div>
+
+        <!-- Q5 全响应 · 已核对 -->
+        <div class="mgrid mrow" style="--line:var(--gate-conf);--line-fg:var(--gate-conf-fg)">
+          <span class="sline"></span><div class="rb">Q5</div>
+          <div>整机质保期 ≥ 3 年</div>
+          <div class="cell-ok">响应 · P.24</div><div class="cell-ok">响应 · P.23</div><div class="cell-ok">响应 · P.22</div>
+          <div><span class="chip" style="color:var(--gate-conf-fg);background:var(--tier-a-bg)">已核对</span></div>
+        </div>
+
+        <!-- Q6 算术修正（确定性计算，修订蓝） -->
+        <div class="mgrid mrow" style="--line:var(--rev-ins);--line-fg:var(--rev-ins-fg)">
+          <span class="sline"></span><div class="rb">Q6</div>
+          <div>报价算术复核（分项合价 = 单价 × 数量）</div>
+          <div class="cell-ok">无误</div>
+          <div><span class="sev" style="color:var(--rev-ins-fg);background:var(--rev-ins-bg)">修正 −0.3%</span></div>
+          <div class="cell-ok">无误</div>
+          <div><span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+        </div>
+      </div>
+
+      <!-- ============ 资质核对单（checklist 原语） ============ -->
+      <div class="phead" style="border-top:1px solid var(--bd-hair)" data-screen-label="资质核对单">
+        <h2>资质核对单 · 恒澈电气</h2><span class="cnt">已核 5/8</span>
+        <span class="sp"></span><span style="font-size:12px;color:var(--tx-3)">勾选仅记录核对事实，不触发任何动作</span>
+      </div>
+      <div class="rtable">
+        <div class="cgrid chead"><div></div><div>核对项</div><div>出处</div><div>核对人 · 时间</div></div>
+        <div class="cgrid crow"><div style="text-align:right"><span class="ckbox done">✓</span></div><div>营业执照副本（加盖公章）</div><div class="mono" style="font-size:12px;color:var(--tx-2)">投标文件 P.03</div><div class="mono" style="font-size:12px;color:var(--tx-3)">沈其正 · 07-10</div></div>
+        <div class="cgrid crow"><div style="text-align:right"><span class="ckbox done">✓</span></div><div>资质证书（乙级 · 效期至 2027-11）</div><div class="mono" style="font-size:12px;color:var(--tx-2)">投标文件 P.11</div><div class="mono" style="font-size:12px;color:var(--tx-3)">沈其正 · 07-10</div></div>
+        <div class="cgrid crow"><div style="text-align:right"><span class="ckbox done">✓</span></div><div>投标保证金缴纳凭证（¥500,000）</div><div class="mono" style="font-size:12px;color:var(--tx-2)">投标文件 P.18</div><div class="mono" style="font-size:12px;color:var(--tx-3)">沈其正 · 07-10</div></div>
+        <div class="cgrid crow"><div style="text-align:right"><span class="ckbox"></span></div><div>近三年同类项目业绩证明（≥2 项）</div><div class="mono" style="font-size:12px;color:var(--tx-2)">投标文件 P.31–P.40</div><div style="font-size:12px;color:var(--tx-4)">待核对</div></div>
+        <div class="cgrid crow"><div style="text-align:right"><span class="ckbox"></span></div><div>法定代表人授权委托书（原件扫描）</div><div class="mono" style="font-size:12px;color:var(--tx-2)">投标文件 P.02</div><div style="font-size:12px;color:var(--tx-4)">待核对</div></div>
+        <div class="cfoot">全部核对完成后解锁「生成评标辅助报告」按钮的可用态；核对记录随台账留痕 · 其余 <span class="num">3</span> 项已折叠</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ 全局状态条 ============ -->
+<footer class="statusbar" data-screen-label="状态条">
+  <span class="ring" tabindex="0" role="button" aria-label="本阶段用量 47%，查看用量明细" title="投标文件占用 38% · 对话占用 9%">
+    <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="var(--bd-hair)" stroke-width="2.5"/><circle cx="8" cy="8" r="6" fill="none" stroke="var(--tier-b)" stroke-width="2.5" stroke-dasharray="17.7 20.0" stroke-linecap="butt" transform="rotate(-90 8 8)"/></svg>
+    本阶段用量 <span class="num">47%</span>
+  </span>
+  <span>摄取余量 <span class="num mono">940</span></span>
+  <span class="grow"></span>
+  <span>偏离 重大 <span class="num">2</span> / 一般 <span class="num">2</span> · <span class="num">3</span> 项待确认</span>
+  <span>阶段四 · 开评标</span>
+</footer>
+
+<!-- 素材库自文档：消费凡例声明（FD-2 交付口径③） -->
+<div style="flex:none;height:24px;display:flex;align-items:center;gap:16px;padding:0 16px;font-family:var(--mono);font-size:11px;color:var(--tx-3);background:var(--bg-app);border-top:1px solid var(--bd-hair);white-space:nowrap;overflow:hidden">素材库自文档 · 消费凡例：table matrix 变体（docs/57 族一，单元格级审阅）· checklist 勾选零执行（族五）· 法理之线五态白名单 · 分层确认（principles §10）· 线索仅登记不裁决（docs/63 §2.2）· 修订蓝表算术修正 · tabular-nums · 零编码暴露</div>
+
+<script>
+document.querySelectorAll('.detail-lined').forEach(function(el){
+  el.addEventListener('mousemove', function(e){
+    var r = el.getBoundingClientRect();
+    el.style.setProperty('--gy', Math.round((e.clientY - r.top) / r.height * 100) + '%');
+  });
+});
+</script>
+</body>
+</html>

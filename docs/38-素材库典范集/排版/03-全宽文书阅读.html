@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 03 · single 直挂 · 全宽文书阅读（document 原语 · 冻结只读态）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC; --tx-inv:#FAFAFA;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --act-bg:#0A2540;
+  --rev-ins:#2563EB; --rev-ins-fg:#1D4ED8; --rev-ins-bg:#EFF6FF; --rev-del-fg:#B91C1C; --rev-del-bg:#FEF2F2;
+  --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4;
+  --prov-bg:#F5F7F9;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+.speclabel{max-width:880px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.host{max-width:880px;margin:0 auto;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;white-space:nowrap}
+.gbtn{font-size:12px;height:24px;padding:0 12px;border-radius:4px;border:1px solid var(--bd-strong);background:var(--bg-raised);color:var(--tx-1);cursor:pointer}
+.gbtn:hover{background:var(--bg-hover)}
+/* 冻结只读态：底转 bg.surface，纸面居中，阅读 measure 720px */
+.deck{background:var(--bg-surface);padding:24px;display:flex;justify-content:center}
+.paper{width:100%;max-width:720px;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:0;padding:32px 40px;font-size:15px;line-height:1.6;text-align:justify;text-justify:inter-ideograph;line-break:strict}
+.paper h4{font-size:16px;font-weight:510;text-align:center;margin-bottom:8px;letter-spacing:-0.01em}
+.paper .docmeta{font-size:12px;color:var(--tx-3);text-align:center;font-family:var(--mono);margin-bottom:16px}
+.paper h5{font-size:15px;font-weight:510;margin:16px 0 4px;text-align:left}
+.paper p{margin-bottom:8px}
+.paper .gap{color:var(--tx-4);text-align:center;font-size:12px;letter-spacing:.4em;margin:8px 0}
+.legend{max-width:880px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 03 · single 直挂 · 全宽文书阅读</h1><span class="m">page.kind = single · 原语：document（冻结只读态）· docs/57 族四 · reading 15px 不变量</span></div>
+
+<div class="host" data-screen-label="全宽文书阅读">
+  <div class="phead">
+    <h2>答辩状 · 定稿存档</h2><span class="cnt">定稿 2026-07-10 09:41</span>
+    <span class="chip mono" style="color:var(--tier-a-fg);background:var(--tier-a-bg)">已归档 · 只读</span>
+    <span class="sp"></span>
+    <button class="gbtn">打开 Word 文档</button>
+    <button class="gbtn">在文件夹中显示</button>
+  </div>
+  <div class="deck">
+    <div class="paper">
+      <h4>民事答辩状</h4>
+      <div class="docmeta">(2025)云章03民初472号 · 答辩人：起云智能装备有限公司（虚构）</div>
+      <p>答辩人就临江精铸科技有限公司诉答辩人设备采购合同纠纷一案，提出答辩意见如下：</p>
+      <h5>一、涉案合同约定的违约金标准明显过高，依法应予调整</h5>
+      <p>涉案合同第六条约定逾期付款违约金为每日按未付金额的百分之一计算，年化约百分之三百六十五，远超实际损失。依据《中华人民共和国民法典》第五百八十五条第二款，答辩人请求法院予以适当减少。</p>
+      <h5>二、原告主张的验收合格不能成立</h5>
+      <p>合同第四条仅约定「验收标准以甲方提供的技术参数为准」，未约定书面异议期限。答辩人于设备联调期间多次以会议纪要形式提出性能异议，原告关于「视为验收合格」的主张缺乏合同与事实依据。</p>
+      <div class="gap">· · ·</div>
+      <p style="text-align:right;margin-top:24px">答辩人：起云智能装备有限公司<br>2026年7月10日</p>
+    </div>
+  </div>
+</div>
+
+<p class="legend">消费凡例：文书阅读 15px/1.6 不变量（typography §三 reading 档）· justify 仅文书纸面合法（§二：inter-ideograph + line-break:strict）· 纸面 radius 0 + bg.raised，宿主底转 bg.surface 表冻结（principles §8）· measure 720px（layout.report.maxWidth 下限档）· 归档徽章 mono 含定稿时间 · 系统动作按钮化「打开 Word 文档」· 永不提供「转回编辑」</p>
+
+</body>
+</html>

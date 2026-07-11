@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>排版典范 14 · 溯源展开态（带锚引语 · hover 折光与 citation 浮现标示）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF; --bg-hover:#F1F2F3;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098; --tx-4:#9DABBC;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --sev-high:#DC2626; --sev-high-fg:#B91C1C; --sev-high-bg:#FEF2F2;
+  --gate-pend-fg:#B45309; --tier-a-fg:#15803D; --tier-a-bg:#F0FDF4; --tier-b-fg:#475569; --tier-b-bg:#F1F5F9; --tier-c-fg:#B45309; --tier-c-bg:#FCF6E8;
+  --link:#2563EB; --prov-bg:#F5F7F9; --gen-bg:#FAFAFA;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);padding:24px;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+a{color:var(--link);text-decoration:none} a:hover{text-decoration:underline}
+.speclabel{max-width:880px;margin:0 auto 8px;display:flex;align-items:baseline;gap:8px}
+.speclabel h1{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.speclabel .m{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.host{max-width:880px;margin:0 auto;background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:12px;box-shadow:0 1px 2px rgba(10,37,64,.045),0 4px 12px rgba(10,37,64,.035);overflow:hidden}
+.phead{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.phead h2{font-size:13px;font-weight:510;letter-spacing:-0.01em}
+.phead .cnt{font-family:var(--mono);font-size:12px;color:var(--tx-3)}
+.phead .sp{flex:1}
+.phead .hint{font-size:12px;color:var(--tx-3)}
+/* 展开详情卡：hover 折光 + citation 浮现（signature-line §七） */
+.rdetail{position:relative;padding:12px 16px 16px;font-size:13px}
+.rdetail .sline{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line)}
+.rdetail.detail-lined:hover .sline{background:linear-gradient(to bottom,var(--line) 0,var(--line) calc(var(--gy,50%) - 20px),color-mix(in srgb,var(--line),white 35%) var(--gy,50%),var(--line) calc(var(--gy,50%) + 20px),var(--line) 100%)}
+.rdetail.detail-lined:hover::after{content:attr(data-citation);position:absolute;right:8px;top:var(--gy,8px);font:12px/1.5 var(--mono);color:var(--tx-3);background:var(--bg-raised);padding:0 4px}
+.rdetail .head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:510}
+.rdetail .badge{font-family:var(--mono);font-size:12px;color:var(--sev-high-fg)}
+.chip{display:inline-flex;align-items:center;font-size:12px;line-height:18px;border-radius:4px;padding:0 8px;white-space:nowrap}
+.rdetail p{color:var(--tx-2);margin-top:4px;max-width:64em;text-wrap:pretty}
+/* 依据区解剖：verifiedBg 底纹 + tier 角标 + mono 引语 + 跳原文链接 */
+.basis{margin-top:8px;background:var(--prov-bg);border-radius:4px;padding:8px 12px;display:flex;flex-direction:column;gap:6px;max-width:64em}
+.basis-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--tx-2)}
+.basis-row .q{font-family:var(--mono);color:var(--tx-3)}
+.tierbox{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;font-family:var(--mono);font-size:12px;flex:none}
+.tier-a{color:var(--tier-a-fg);background:var(--tier-a-bg)} .tier-b{color:var(--tier-b-fg);background:var(--tier-b-bg)} .tier-c{color:var(--tier-c-fg);background:var(--tier-c-bg)}
+/* peek 浮层（静态示意）：L2 弹层 = 描边 + 底色差，零阴影 */
+.peek{position:relative;margin:12px 16px 16px;max-width:520px;background:var(--bg-raised);border:1px solid var(--bd-strong);border-radius:6px;padding:8px 12px}
+.peek .src{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx-2)}
+.peek .quote{margin-top:4px;font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--tx-2);background:var(--prov-bg);border-radius:4px;padding:6px 8px}
+.peek .foot{margin-top:4px;font-size:12px;color:var(--tx-3);display:flex;gap:12px}
+.anno{padding:0 16px 16px;font-size:12px;color:var(--tx-3)}
+.legend{max-width:880px;margin:8px auto 0;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<div class="speclabel"><h1>排版典范 14 · 溯源展开态</h1><span class="m">peek / goto-source 动词的版面呈现 · signature-line §七 · principles §6/§11</span></div>
+
+<div class="host" data-screen-label="溯源展开态">
+  <div class="phead"><h2>溯源解剖 · 展开详情卡</h2><span class="cnt">依据 3 条 · A×1 B×1 C×1</span><span class="sp"></span><span class="hint">鼠标悬停本卡：线体折光 + 右缘 citation 浮现</span></div>
+
+  <div class="rdetail detail-lined" data-citation="民法典 §585" style="--line:var(--sev-high)">
+    <span class="sline"></span>
+    <div class="head"><span class="badge">R1</span>违约金约定畸高（日 1%，年化约 365%）<span class="chip" style="color:var(--gate-pend-fg);background:var(--tier-c-bg)">待确认</span></div>
+    <p>AI 解释性文字用 sans 无底纹（generated 通道）：该比例远超司法保护上限，存在被整体调低的确定性风险；建议主动调整并补对等条款。</p>
+    <div class="basis">
+      <div class="basis-row"><span class="tierbox tier-a" title="已核验权威源">A</span><span class="mono">《中华人民共和国民法典》第五百八十五条 第二款</span><a href="#" title="打开法条原文">跳原文</a></div>
+      <div class="basis-row"><span class="tierbox tier-b" title="库内维护源">B</span><a href="#" title="打开原文并高亮">04-设备采购合同 · 第六条</a><span class="q">「每逾期一日按未付金额的1%向甲方支付违约金」</span></div>
+      <div class="basis-row"><span class="tierbox tier-c" title="网络参考，未核验——写入产出前须人工确认">C</span><a href="#">类案检索 · 云章中院 2024 判例摘要</a><span class="q">「年化超过 LPR 四倍部分不予支持」</span></div>
+    </div>
+  </div>
+
+  <div class="phead" style="border-top:1px solid var(--bd-hair)"><h2>peek 引语浮层（静态示意）</h2><span class="cnt">120ms hover · 收起瞬发</span></div>
+  <div class="peek" data-screen-label="peek浮层">
+    <div class="src"><span class="tierbox tier-b">B</span><span style="font-weight:510">04-设备采购合同</span><span class="mono" style="color:var(--tx-3)">第六条 · P.04</span></div>
+    <div class="quote">「乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。」</div>
+    <div class="foot"><a href="#">跳转原文并高亮</a><span>引语逐字摘录 · 永不与 AI 解释混排</span></div>
+  </div>
+  <div class="anno">L2 浮层规格：1px border.strong 描边 + 底色差分层，零阴影；出现 120ms（motion.overlay），收起 0ms。无锚字段的「跳原文」呈禁用态而非隐藏。</div>
+</div>
+
+<p class="legend">消费凡例：溯源必达——文件名 + 原文引语 + 点击跳原文高亮（principles §6）· 引语 mono + verifiedBg，AI 解释 sans 无底纹，双通道冗余区隔（§11）· 信源角标 16px 方格 12px mono 常伴引用（signature-line §六）· hover 折光 40px + citation 右缘浮现仅展开卡（§七，触屏不存在）· C 级源写入产出前逐条确认 · 状态变更仍 0ms 硬切</p>
+
+<script>
+document.querySelectorAll('.detail-lined').forEach(function(el){
+  el.addEventListener('mousemove', function(e){
+    var r = el.getBoundingClientRect();
+    el.style.setProperty('--gy', Math.round((e.clientY - r.top) / r.height * 100) + '%');
+  });
+});
+</script>
+</body>
+</html>

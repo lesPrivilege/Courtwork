@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Courtwork · 投递展品页 · 换垂类 = 换声明</title>
+<style>
+  html,body{margin:0;padding:0;background:#EDEDED}
+  body{font-family:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;color:#0A2540;font-size:14px;line-height:1.6;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+  a{color:#2563EB;text-decoration:none} a:hover{color:#1D4ED8}
+</style>
+</helmet>
+
+<div data-screen-label="投递展品页" style="width:1680px;background:#EDEDED;padding:56px 64px 48px;box-sizing:border-box">
+
+  <!-- 页头 -->
+  <header style="display:flex;align-items:baseline;gap:16px">
+    <div style="display:flex;align-items:center;gap:10px;flex:none">
+      <img src="assets/icon-dark.svg" alt="Courtwork" width="20" height="20" style="display:block;border-radius:5px" />
+      <span style="font-size:15px;font-weight:510;letter-spacing:-0.01em">Courtwork</span>
+    </div>
+    <span aria-hidden="true" style="width:1px;height:14px;background:#D5DBE2;align-self:center"></span>
+    <h1 style="margin:0;font-size:20px;font-weight:510;letter-spacing:-0.01em">换垂类 = 换声明</h1>
+    <span style="font-size:13px;color:#425466">同一渲染原语、同一凡例，两个行业的审阅矩阵；底座零改动。</span>
+    <span style="flex:1"></span>
+    <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">展品 · 2026-07</span>
+  </header>
+
+  <!-- 两垂类矩阵并排 -->
+  <div style="margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+
+    <!-- 左：法律 · 合同审查 -->
+    <div style="background:#FFFFFF;border:1px solid #EBEBEB;border-radius:12px;overflow:hidden">
+      <div style="height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid #EBEBEB">
+        <span style="font-size:13px;font-weight:510">法律 · 合同审查</span>
+        <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">RiskList · 6 项</span>
+        <span style="flex:1"></span>
+        <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">临江精铸 诉 起云智能（样板案）</span>
+      </div>
+      <div style="height:28px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;background:#FAFAFA;border-bottom:1px solid #EBEBEB;font-size:12px;color:#6E8098">
+        <div style="padding:0 8px 0 16px">编号</div><div style="padding:0 8px">风险</div><div style="padding:0 8px">等级</div><div style="padding:0 8px">状态</div>
+      </div>
+
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+        <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#DC2626"></span>
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#B91C1C">R1</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">违约金约定畸高：逾期付款每日按未付金额 1% 计（年化 365%）</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FEF2F2;color:#B91C1C">高</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">逐条确认</span></div>
+      </div>
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">R2</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">管辖条款单方倾斜：争议仅可提交卖方所在地法院</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">中</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">待确认</span></div>
+      </div>
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+        <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#D97706"></span>
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#B45309">R3</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">验收标准模糊且未约定书面异议期限（依据含未核验源）</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FEF2F2;color:#B91C1C">高</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">逐条确认</span></div>
+      </div>
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+        <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#2563EB"></span>
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#1D4ED8">R4</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">所有权保留与风险转移条款自相矛盾（修订已拟，待确认）</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">中</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#EFF6FF;color:#1D4ED8">已修订</span></div>
+      </div>
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+        <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#16A34A"></span>
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#15803D">R5</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">不可抗力条款范围过窄：未涵盖政府行为与供应链中断</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#F1F5F9;color:#475569">低</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#F0FDF4;color:#15803D">已确认</span></div>
+      </div>
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;font-size:13px">
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">R6</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">违约责任条款单向：仅约定买方违约责任</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">中</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">待确认</span></div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid #EBEBEB;background:#FAFAFA">
+        <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">schema: RiskListArtifact</span>
+        <span style="font-size:12px;color:#6E8098">枚举：违约金 / 管辖 / 验收 / 权属 / 不可抗力 / 责任分配</span>
+      </div>
+    </div>
+
+    <!-- 右：PM · PRD 评审 -->
+    <div style="background:#FFFFFF;border:1px solid #EBEBEB;border-radius:12px;overflow:hidden">
+      <div style="height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid #EBEBEB">
+        <span style="font-size:13px;font-weight:510">产品 · PRD 评审</span>
+        <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">PrdReview · 6 项</span>
+        <span style="flex:1"></span>
+        <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">栖澜·栖屋 App 3.0（演示语料）</span>
+      </div>
+      <div style="height:28px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;background:#FAFAFA;border-bottom:1px solid #EBEBEB;font-size:12px;color:#6E8098">
+        <div style="padding:0 8px 0 16px">编号</div><div style="padding:0 8px">发现</div><div style="padding:0 8px">等级</div><div style="padding:0 8px">状态</div>
+      </div>
+
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+        <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#DC2626"></span>
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#B91C1C">F1</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">「显著提升留存」未定义指标口径与基线——模糊指标</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FEF2F2;color:#B91C1C">高</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">逐条确认</span></div>
+      </div>
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">F2</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">推送频控策略未给出可验收的判定条件——缺验收标准</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">中</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">待确认</span></div>
+      </div>
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+        <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#D97706"></span>
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#B45309">F3</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">「老用户」未定义边界：注册时长还是活跃度口径（依据待补）</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FEF2F2;color:#B91C1C">高</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">逐条确认</span></div>
+      </div>
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+        <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#2563EB"></span>
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#1D4ED8">F4</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">依赖账号体系 3.0 未排期——依赖缺失（修订建议已拟）</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">中</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#EFF6FF;color:#1D4ED8">已修订</span></div>
+      </div>
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+        <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#16A34A"></span>
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#15803D">F5</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">§3.2 与 §5.1 对推送默认开关要求相反——冲突需求</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">中</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#F0FDF4;color:#15803D">已确认</span></div>
+      </div>
+      <div style="position:relative;height:32px;display:grid;grid-template-columns:44px 1fr 56px 88px;align-items:center;font-size:13px">
+        <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">F6</div>
+        <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">「体验更流畅」为不可测表述，无法转化为验收项</div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#F1F5F9;color:#475569">低</span></div>
+        <div style="padding:0 8px"><span style="font-size:12px;border-radius:4px;padding:1px 6px;background:#FCF6E8;color:#B45309">待确认</span></div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid #EBEBEB;background:#FAFAFA">
+        <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">schema: PrdReviewArtifact</span>
+        <span style="font-size:12px;color:#6E8098">枚举：模糊指标 / 缺验收标准 / 未定义边界 / 依赖缺失 / 冲突需求 / 不可测表述</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 同构注解条 -->
+  <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:24px">
+    <span style="font-size:13px;color:#425466">字段级同构：clause 锚点 · defect 枚举 · severity 三级 · 处置三态</span>
+    <span aria-hidden="true" style="width:1px;height:12px;background:#D5DBE2"></span>
+    <span style="font-size:13px;color:#425466">法理之线五态照用，语义完全同构</span>
+    <span aria-hidden="true" style="width:1px;height:12px;background:#D5DBE2"></span>
+    <span style="font-size:13px;color:#425466">两侧仅枚举表与词表不同</span>
+  </div>
+
+  <!-- 零 core diff 证明 -->
+  <div style="margin-top:32px;background:#FFFFFF;border:1px solid #EBEBEB;border-radius:12px;overflow:hidden">
+    <div style="height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid #EBEBEB">
+      <span style="font-size:13px;font-weight:510">PM 包上架 · 底座零改动证明</span>
+      <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">git log --stat（包上架全部提交）</span>
+      <span style="flex:1"></span>
+      <sc-if value="{{ showReplaceNotes }}" hint-placeholder-val="{{ true }}">
+        <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#B45309;background:#FCF6E8;border-radius:4px;padding:1px 8px">示意数据 · 以真实 commit 清单替换</span>
+      </sc-if>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 380px;align-items:start">
+      <!-- 左：commit 清单 -->
+      <div style="border-right:1px solid #EBEBEB">
+        <div style="height:28px;display:grid;grid-template-columns:96px 1fr 420px;align-items:center;background:#FAFAFA;border-bottom:1px solid #EBEBEB;font-size:12px;color:#6E8098">
+          <div style="padding:0 8px 0 16px">commit</div><div style="padding:0 8px">说明</div><div style="padding:0 8px">改动路径</div>
+        </div>
+        <div style="height:30px;display:grid;grid-template-columns:96px 1fr 420px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+          <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">·······</div>
+          <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">feat(pm): 四场景声明（反馈聚类 / PRD 评审 / 优先级评分 / 行动项）</div>
+          <div style="padding:0 8px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#425466;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">packages/pm-scenarios/*</div>
+        </div>
+        <div style="height:30px;display:grid;grid-template-columns:96px 1fr 420px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+          <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">·······</div>
+          <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">feat(pm): PrdReview / PriorityScore 字段契约与词表映射</div>
+          <div style="padding:0 8px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#425466;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">packages/pm-scenarios/schema/*</div>
+        </div>
+        <div style="height:30px;display:grid;grid-template-columns:96px 1fr 420px;align-items:center;border-bottom:1px solid #EBEBEB;font-size:13px">
+          <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">·······</div>
+          <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">feat(pm): 演示语料「栖澜·栖屋 App 3.0」五考点预埋</div>
+          <div style="padding:0 8px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#425466;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">packages/demo-data/pm/*</div>
+        </div>
+        <div style="height:30px;display:grid;grid-template-columns:96px 1fr 420px;align-items:center;font-size:13px">
+          <div style="padding:0 8px 0 16px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">·······</div>
+          <div style="padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">test(pm): golden files 五考点断言 + 与法律包并存零串扰</div>
+          <div style="padding:0 8px;font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#425466;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">packages/pm-scenarios/__tests__/* · eval/pm/*</div>
+        </div>
+      </div>
+
+      <!-- 右：底座 diff 判定 -->
+      <div>
+        <div style="height:28px;display:flex;align-items:center;background:#FAFAFA;border-bottom:1px solid #EBEBEB;font-size:12px;color:#6E8098;padding:0 16px">底座目录 · 改动行数</div>
+        <div style="height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #EBEBEB"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#425466">packages/core</span><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#15803D">0</span></div>
+        <div style="height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #EBEBEB"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#425466">packages/schemas</span><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#15803D">0</span></div>
+        <div style="height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #EBEBEB"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#425466">packages/registry</span><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#15803D">0</span></div>
+        <div style="height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #EBEBEB"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#425466">packages/tools</span><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#15803D">0</span></div>
+        <div style="height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #EBEBEB"><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#425466">packages/output</span><span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#15803D">0</span></div>
+        <div style="position:relative;display:flex;align-items:center;gap:8px;padding:12px 16px 12px 18px">
+          <span aria-hidden="true" style="position:absolute;left:0;top:0;bottom:0;width:2px;background:#16A34A"></span>
+          <span style="font-size:13px;font-weight:510;color:#15803D">底座零 diff</span>
+          <span style="font-size:12px;color:#6E8098">一个垂类 = 一个依赖包；依赖方向永远由包指向底座</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer style="margin-top:24px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:12px;color:#6E8098">同一个 harness：模型只生成，不裁决；确认门禁与信源纪律随包分发。</span>
+    <span style="flex:1"></span>
+    <span style="font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;color:#6E8098">courtwork · 展品页 1/1</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1680, &quot;height&quot;: 1100 },
+  &quot;showReplaceNotes&quot;: {
+    &quot;editor&quot;: &quot;boolean&quot;,
+    &quot;default&quot;: true,
+    &quot;tsType&quot;: &quot;boolean&quot;,
+    &quot;section&quot;: &quot;设计稿批注&quot;,
+    &quot;description&quot;: &quot;显示\&quot;示意数据·以真实 commit 清单替换\&quot;批注&quot;
+  }
+}"></script>
+</body>
+</html>

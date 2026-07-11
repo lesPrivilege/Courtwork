@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>素材库典范 · 总画廊 · 四垂类如出一手（法律 / PM / 招投标 / HR）</title>
+<style>
+:root{
+  --bg-app:#EDEDED; --bg-surface:#FAFAFA; --bg-raised:#FFFFFF;
+  --tx-1:#0A2540; --tx-2:#425466; --tx-3:#6E8098;
+  --bd-hair:#EBEBEB; --bd-strong:#D5DBE2;
+  --sans:-apple-system,'Segoe UI','PingFang SC','MiSans','Microsoft YaHei','Noto Sans SC','Helvetica Neue',Arial,sans-serif;
+  --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);font-size:14px;line-height:1.6;color:var(--tx-1);background:var(--bg-app);font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono)}
+header{height:56px;display:flex;align-items:center;gap:16px;padding:0 24px;border-bottom:1px solid var(--bd-hair);background:var(--bg-surface)}
+header .brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:510;letter-spacing:-0.01em}
+header h1{font-size:16px;font-weight:510;letter-spacing:-0.01em}
+header .note{margin-left:auto;font-size:12px;color:var(--tx-3)}
+.claim{padding:16px 24px 0;max-width:1400px;margin:0 auto;font-size:13px;color:var(--tx-2)}
+.claim b{font-weight:510}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:16px 24px 24px;max-width:1400px;margin:0 auto}
+.tile{background:var(--bg-raised);border:1px solid var(--bd-hair);border-radius:6px;overflow:hidden}
+.tile .bar{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--bd-hair)}
+.tile .bar .dom{font-size:13px;font-weight:510}
+.tile .bar .scn{font-size:12px;color:var(--tx-2)}
+.tile .bar .src{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--tx-3)}
+.tile .bar a{color:var(--tx-3);font-size:12px;text-decoration:none;margin-left:12px}
+.tile .bar a:hover{color:var(--tx-1);text-decoration:underline}
+.viewport{position:relative;width:100%;aspect-ratio:1440/880;overflow:hidden;background:var(--bg-surface)}
+.viewport iframe{position:absolute;top:0;left:0;width:1440px;height:880px;border:0;transform-origin:0 0;pointer-events:none}
+.legend{max-width:1400px;margin:0 auto;padding:0 24px 24px;font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.8}
+</style>
+</head>
+<body>
+
+<header data-screen-label="画廊头">
+  <span class="brand">
+    <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><rect width="20" height="20" rx="4.5" fill="#0A2540"/><rect x="5" y="4" width="2" height="12" fill="#FAFAFA"/><rect x="9.5" y="6" width="6" height="1.6" rx=".8" fill="#7A93AC"/><rect x="9.5" y="9.2" width="6" height="1.6" rx=".8" fill="#7A93AC"/><rect x="9.5" y="12.4" width="4" height="1.6" rx=".8" fill="#7A93AC"/></svg>
+    Courtwork
+  </span>
+  <h1>素材库典范 · 四垂类总画廊</h1>
+  <span class="note mono">docs/38 · FD-2 交付② · 换垂类 = 换声明</span>
+</header>
+
+<p class="claim"><b>如出一手的实证</b>：四个垂类、同一套凡例——完整工作台帧四横带、法理之线五态、紧凑列表 13/12、分层确认、provenance 双通道、门禁三动作、tabular-nums。底座与设计语言零改动，改变的只有字段语义与文案词表（案件 → 项目 → 标段 → 档案袋）。点击各卡右上「打开」看原尺寸。</p>
+
+<div class="grid">
+  <div class="tile" data-screen-label="法律">
+    <div class="bar"><span class="dom">法律</span><span class="scn">合同审查矩阵 · 主从列表 + 修订预览（S3 · 临江精铸案）</span><span class="src">容器：案件</span><a href="法律-合同审查矩阵.html" target="_blank">打开 →</a></div>
+    <div class="viewport"><iframe src="法律-合同审查矩阵.html" loading="lazy" title="法律 · 合同审查矩阵"></iframe></div>
+  </div>
+  <div class="tile" data-screen-label="PM">
+    <div class="bar"><span class="dom">PM</span><span class="scn">PRD 评审矩阵 + RICE 优先级表（PM-2/PM-3 · 栖屋 3.0）</span><span class="src">容器：项目</span><a href="PM-PRD评审矩阵.html" target="_blank">打开 →</a></div>
+    <div class="viewport"><iframe src="PM-PRD评审矩阵.html" loading="lazy" title="PM · PRD 评审矩阵"></iframe></div>
+  </div>
+  <div class="tile" data-screen-label="招投标">
+    <div class="bar"><span class="dom">招投标</span><span class="scn">响应性核对矩阵 + 资质核对单（S9 · 青洲数据中心标段）</span><span class="src">容器：标段</span><a href="招投标-响应核对矩阵.html" target="_blank">打开 →</a></div>
+    <div class="viewport"><iframe src="招投标-响应核对矩阵.html" loading="lazy" title="招投标 · 响应性核对矩阵"></iframe></div>
+  </div>
+  <div class="tile" data-screen-label="HR">
+    <div class="bar"><span class="dom">HR</span><span class="scn">处分证据链 · 时间线 + 依据核对 + 索证态（H12 · 澄采科技档案）</span><span class="src">容器：档案袋</span><a href="HR-处分证据链.html" target="_blank">打开 →</a></div>
+    <div class="viewport"><iframe src="HR-处分证据链.html" loading="lazy" title="HR · 处分证据链"></iframe></div>
+  </div>
+</div>
+
+<p class="legend">素材库自文档 · 画廊页仅作并排取证，四张典范各自自包含（tokens 内联 · 零依赖）· 同屏差异清单：域字母（R/F/Q/E）、容器词表、阶段词表、依据类型（法条 / 访谈 / 招标要求 / 制度要件）——其余全部同一凡例。</p>
+
+<script>
+function fit(){
+  document.querySelectorAll('.viewport').forEach(function(vp){
+    var f = vp.querySelector('iframe');
+    var s = vp.clientWidth / 1440;
+    f.style.transform = 'scale(' + s + ')';
+  });
+}
+window.addEventListener('resize', fit); fit();
+</script>
+</body>
+</html>
