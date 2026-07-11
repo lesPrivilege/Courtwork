@@ -1,6 +1,47 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**BUILD-1 首个正式 Build（0.1.0 base 定形版）已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**RP-2 UI 完全化完成，待独立验收**；**BUILD-1 首个正式 Build（0.1.0 base 定形版）已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+
+## RP-2 · UI 完全化提案（实现前，2026-07-11）
+
+权威：docs/49 第四章两次修正 + docs/52 批次四 #18′–#26 + docs/32 motion ladder。范围只在 desktop；凭证 Rust/TS 与 `packages/*` 不动。
+
+### 宽比固定档（#20）
+
+| 档位 | 左栏 | chat | 右栏 | 触发 |
+|---|---:|---:|---:|---|
+| `balanced` | 248px | minmax(440px, 0.9fr) | minmax(520px, 1.25fr) | 默认 |
+| `work-wide` | 48px | minmax(400px, 0.72fr) | minmax(680px, 1.55fr) | 工作面对照/用户折叠左栏 |
+| `chat-focus` | 48px | minmax(0, 1fr) | 48px | 双侧折叠 |
+
+只允许以上离散档位，栏折叠 0ms 硬切，不做拖拽无极缩放；展开钮留在原栏位形成 48px 视觉 bar。
+
+### chat 降噪形制（#21）
+
+- 人类消息右对齐、`bg.selected` 浅底、无描边；agent 正文左对齐直接落 L0 画布，不包框。
+- D 编号、请求中/成功/失败、审阅提示合并为单列 `event-stream`：12px 元信息 + 状态点 + 一行办案文案，条目间仅 1px hairline；不再各自成卡。
+- reasoning 默认折叠，运行时才显示 motion ladder 允许的呼吸；完成后内容静止。artifact（docx、风险结果等可操作产出）保留纯白承重卡。
+
+### 运行反馈阶梯（#26）
+
+| 阶段 | 形制 | 动效纪律 |
+|---|---|---|
+| 请求中 | composer 发送键就地禁用 + `正在处理`；事件流追加 active 行 | 2–5s 使用 2000ms opacity 呼吸；不裸奔 spinner |
+| 成功 | active 行 0ms 硬切 confirmed + `已完成` | 状态本体零 transition；可用独立 150ms border-color 回执层 |
+| 失败 | active 行 0ms 硬切 failed + 就地重试 | 琥珀/红只消费既有 semantic token；不显示模型假态 |
+| OCR/摄取 >5s | 事实进度数字 + 当前步骤办案文案 + 骨架块 | 2000ms 骨架呼吸；表格/图谱/文书数据区绝对静止 |
+
+hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-color/border-color；`prefers-reduced-motion` 下长任务动画停用但状态文案与进度必须保留。
+
+### RP-2 实现记录
+
+- #18′：唯一模型声明位迁到 composer 发送键旁；connected 显示模型名·强度，pending/failed 不泄露配置模型名；context、toolbar、statusbar、titlebar 旧声明位清零，复用唯一 popover。
+- #19/#20/#23：wordmark 唯一；案件头进 chat 且双击编辑、按案件 id 写入 localStorage；宽比采用上述固定三档；左右栏各有独立折叠/原位 48px 展开 bar。
+- #21：D 编号、运行进度、审阅提示合并 `event-stream`；用户消息右对齐浅底无框；artifact 卡保留。
+- #24′/#25：定稿英文声明逐字落地，feedback 为 mailto；左下负责人菜单含设置、检查更新路由与 feedback，非 demo 不显示律师名。
+- #26：事件流 active/success 反馈、附件既有失败/重试和 >5s 进度文案沿用；长任务仅 opacity 呼吸，reduced-motion 停用，数据区静止。
+- TDD：新增 `rp2.spec.ts` 5 例；Playwright floor 90→95；Vitest 70/70；RP-1+RP-2 定向 15/15；四静态门禁与生产构建通过。
+- visual-audit：frontier 参照 [`24-rp2-frontier-reference.png`](visual-audit/24-rp2-frontier-reference.png)；改后全栏 [`24-rp2-full-layout-1440.png`](visual-audit/24-rp2-full-layout-1440.png)；双折叠 [`25-rp2-chat-focus-1440.png`](visual-audit/25-rp2-chat-focus-1440.png)。改前基线沿用 RP-1 [`23-rp1-full-layout-1440.png`](visual-audit/23-rp1-full-layout-1440.png)。
 
 ## FIX-KC-1 · 凭证授权流（据 DBG-2，2026-07-11）
 

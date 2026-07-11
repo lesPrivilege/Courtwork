@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/schemas';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
-  connectionLabel,
   credentialClient,
   type CredentialStatus,
 } from './credentials/client';
@@ -49,7 +48,6 @@ import {
   saveModelConfig,
   type ModelConfig,
 } from './provider/model-config';
-import { ModelConfigPopover } from './provider/ModelConfigPopover';
 import { CaseRail } from './rail/CaseRail';
 import type { UnfiledSession } from './rail/types';
 import { SettingsPage, type SettingsSection } from './settings';
@@ -152,6 +150,9 @@ export function App() {
   const [pinnedIds] = useState(() => new Set<string>([DEMO_CASE_ID]));
   const [expandedCaseId, setExpandedCaseId] = useState<string | null>(DEMO_CASE_ID);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [editingCaseTitle, setEditingCaseTitle] = useState(false);
+  const [caseTitleDraft, setCaseTitleDraft] = useState('');
   const [moduleOpen, setModuleOpen] = useState<ModuleOpenMap>(() => ({ ...DEFAULT_MODULE_OPEN }));
   const [userModuleOverride, setUserModuleOverride] = useState<UserModuleOverride>({});
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -441,6 +442,20 @@ export function App() {
   const updateModelConfig = (next: ModelConfig) => {
     setModelConfig(next);
     saveModelConfig(next);
+  };
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(`courtwork.case-title.${selectedCaseId}`);
+    if (saved) setCases((current) => current.map((item) => item.id === selectedCaseId ? { ...item, title: saved } : item));
+  }, [selectedCaseId]);
+
+  const commitCaseTitle = () => {
+    const title = caseTitleDraft.trim();
+    if (title) {
+      setCases((current) => current.map((item) => item.id === selectedCaseId ? { ...item, title } : item));
+      window.localStorage.setItem(`courtwork.case-title.${selectedCaseId}`, title);
+    }
+    setEditingCaseTitle(false);
   };
 
   const openSettings = (section: SettingsSection = 'model') => {
@@ -737,18 +752,6 @@ export function App() {
       <header className="titlebar">
         <div className="brand"><img src="/courtwork-mark.svg" alt="" />Courtwork</div>
         <span className="spacer" />
-        {credentialStatus.phase === 'failed' && (
-          <button
-            type="button"
-            className="titlebar-credential-warn"
-            data-testid="titlebar-credential-warn"
-            data-phase="failed"
-            title={credentialStatus.failureMessage ?? '模型服务连接失败'}
-            onClick={() => setProviderSetupOpen(true)}
-          >
-            模型服务 · {connectionLabel(credentialStatus)}
-          </button>
-        )}
         <button
           type="button"
           className="quiet-button titlebar-settings"
@@ -777,33 +780,19 @@ export function App() {
       </header>
 
       <nav className="toolbar" aria-label="工作台工具栏">
-        <strong className="truncate" title={selectedCase.title} data-testid="titlebar-case-title">{selectedCase.title}</strong>
-        {selectedCase.caseNumber && (
-          <span className="case-number truncate" title={selectedCase.caseNumber}>{selectedCase.caseNumber}</span>
-        )}
-        {isDemoCase && <span className="demo-badge" data-testid="demo-case-badge">样板案·演示</span>}
-        <span className="crumb-sep">›</span>
         <strong className="truncate" title={stageLabel(flow, isDemoCase)} data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</strong>
         <span className="spacer" />
-        <button
-          className="quiet-button credential-button"
-          onClick={() => setProviderSetupOpen(true)}
-          title={credentialStatus.failureMessage ?? '配置文书助手'}
-          data-testid="credential-status-button"
-          data-phase={credentialStatus.phase}
-        >
-          <Icon name="cog" />模型服务 · {connectionLabel(credentialStatus)}
-        </button>
         <button className="quiet-button" disabled title="审阅记录 · 待生成">审阅记录</button>
         <button className="primary-button" disabled title="导出审阅稿 · 待完成文书生成">导出审阅稿</button>
       </nav>
 
       <div
-        className={`workspace ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${leftCollapsed ? 'left-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
+        className={`workspace ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${leftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
         data-testid="workspace"
         data-comparing={comparing ? 'true' : 'false'}
         data-focus-mode={focusMode ? 'true' : 'false'}
         data-left-collapsed={leftCollapsed ? 'true' : 'false'}
+        data-right-collapsed={rightCollapsed ? 'true' : 'false'}
         data-compact={compactLayout ? 'true' : 'false'}
       >
         {!focusMode && (
@@ -843,6 +832,8 @@ export function App() {
             onConfirmContainerizeUnfiled={confirmContainerizeUnfiled}
             onCancelContainerizeUnfiled={() => setContainerizeUnfiledId(null)}
             onExpandLeft={exitCompactLeft}
+            onCollapseLeft={() => setLeftCollapsed(true)}
+            onOpenSettings={() => openSettings('about')}
             onFeedback={showSystemFeedback}
           />
         )}
@@ -850,6 +841,20 @@ export function App() {
         {/* L0：对话流直接坐页面底色，去卡壳 */}
         {!focusMode && (
           <section className="conversation canvas-layer" data-testid="conversation-canvas">
+            <header className="chat-case-head">
+              {editingCaseTitle ? <input
+                autoFocus
+                data-testid="chat-case-title-input"
+                value={caseTitleDraft}
+                onChange={(event) => setCaseTitleDraft(event.target.value)}
+                onBlur={commitCaseTitle}
+                onKeyDown={(event) => { if (event.key === 'Enter') commitCaseTitle(); if (event.key === 'Escape') setEditingCaseTitle(false); }}
+              /> : <span data-testid="titlebar-case-title"><button type="button" className="chat-case-title" data-testid="chat-case-title" title="双击编辑案件名称" onDoubleClick={() => { setCaseTitleDraft(selectedCase.title); setEditingCaseTitle(true); }}>
+                {selectedCase.title}
+              </button></span>}
+              {selectedCase.caseNumber && <span className="case-number">{selectedCase.caseNumber}</span>}
+              {isDemoCase && <span className="demo-badge" data-testid="demo-case-badge">样板案·演示</span>}
+            </header>
             <div className="conversation-scroll">
               {!isDemoCase && (
                 <div className="empty-state" role="status" data-testid="conversation-empty">
@@ -864,33 +869,21 @@ export function App() {
                       : '审查这份设备采购合同，重点看付款、验收与违约责任。'}
                   </div>
                   <ThinkingStream />
-                  <article className="data-card">
-                    <div className="card-heading">
-                      <span className="domain-badge">{flow === 'S1' ? 'D20' : 'D04'}</span>
-                      <strong>{flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'}</strong>
+                  <div className="event-stream" data-testid="event-stream">
+                    <div className="event-row success">
+                      <span className="domain-badge">{flow === 'S1' ? 'D20' : 'D04'}</span><i className="event-dot" />
+                      <span>{flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'}</span>
                     </div>
-                    <p>
-                      {flow === 'S1'
-                        ? '已按卷宗顺序识别文书，并把事件与主体关系交叉核对。'
-                        : '已完成条款抽取与当事人核对，审查结果已送达右侧工作面。'}
-                    </p>
-                    <CopyButton
-                      label="复制卡片内容"
-                      getText={() =>
-                        `${flow === 'S1' ? 'D20' : 'D04'}\n${flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'}\n${
-                          flow === 'S1'
-                            ? '已按卷宗顺序识别文书，并把事件与主体关系交叉核对。'
-                            : '已完成条款抽取与当事人核对，审查结果已送达右侧工作面。'
-                        }`
-                      }
-                    />
-                  </article>
-                  {session.progress.map((message, index) => (
-                    <div className="progress-card" key={`${message}-${index}`}>
-                      <span className="progress-pulse" />
-                      {message}
+                    {session.progress.map((message, index) => (
+                      <div className="event-row active" key={`${message}-${index}`}>
+                        <span className="domain-badge">{String(index + 1).padStart(2, '0')}</span><i className="event-dot" /><span>{message}</span>
+                      </div>
+                    ))}
+                    <div className="event-row success">
+                      <span className="domain-badge">完成</span><i className="event-dot" />
+                      <span>{flow === 'S3' ? '审阅提示已送达右侧工作面' : '事件与主体关系已完成交叉核对'}</span>
                     </div>
-                  ))}
+                  </div>
                   <article className="data-card compact-result">
                     <div className="card-heading">
                       <span className="domain-badge">{flow === 'S3' ? 'R' : 'E'}</span>
@@ -929,24 +922,6 @@ export function App() {
                       </div>
                     </article>
                   )}
-                  <aside className="generated-callout">
-                    <strong>审阅提示</strong>
-                    <p>
-                      {flow === 'S3'
-                        ? '先核对验收条款的原文依据，再决定是否接受对应修订。'
-                        : '催告主体、收款账户与验收结论存在交叉矛盾，建议优先核对。'}
-                    </p>
-                    <CopyButton
-                      label="复制审阅提示"
-                      getText={() =>
-                        `审阅提示\n${
-                          flow === 'S3'
-                            ? '先核对验收条款的原文依据，再决定是否接受对应修订。'
-                            : '催告主体、收款账户与验收结论存在交叉矛盾，建议优先核对。'
-                        }`
-                      }
-                    />
-                  </aside>
                 </>
               )}
               {localMessages.map((message, index) => (
@@ -994,13 +969,23 @@ export function App() {
                 activeCaseId={selectedCaseId}
                 onSend={handleComposerSend}
                 onContainerize={handleContainerize}
+                modelConfig={modelConfig}
+                modelConfigOpen={modelConfigOpen}
+                modelLabel={modelDisplayName(modelConfig)}
+                connectionPhase={credentialStatus.phase}
+                onToggleModelConfig={() => setModelConfigOpen((open) => !open)}
+                onModelConfigChange={updateModelConfig}
+                onCloseModelConfig={() => setModelConfigOpen(false)}
               />
             </div>
           </section>
         )}
 
         {/* B：右栏模块栈 + 垂类工作面同栈（Tab/对照/专注增量保留） */}
-        <section className="right-workbench surface-float" data-testid="right-module-stack">
+        {rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
+          <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="展开右栏" title="展开右栏" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
+        </aside> : <section className="right-workbench surface-float" data-testid="right-module-stack">
+          <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="折叠右栏" title="折叠右栏" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
           <div className="module-stack">
             <StackModule
               id="progress"
@@ -1056,7 +1041,7 @@ export function App() {
                 usageDetail={usageDetail}
                 attachmentSources={attachmentSources}
                 modelLabel={modelDisplayName(modelConfig)}
-                modelConnected={credentialStatus.phase === 'connected'}
+                modelConnected={false}
                 reasoningLabel={modelConfig.reasoning === 'deep' ? '深思' : '标准'}
                 /* B2/C2：第二声明位，只开同一 modelConfigOpen → 同一 popover / updateModelConfig */
                 onOpenModelConfig={() => setModelConfigOpen(true)}
@@ -1152,7 +1137,7 @@ export function App() {
               </div>
             </div>
           </div>
-        </section>
+        </section>}
       </div>
 
       <footer className="statusbar">
@@ -1216,28 +1201,6 @@ export function App() {
                 : '审阅进行中'}
         </span>
         <span className="truncate" data-testid="statusbar-stage">{stageLabel(flow, isDemoCase)}</span>
-        {/* 唯一 model-config 实例：状态条模型名 + context chip 共用 open/handler */}
-        <span className="model-config-anchor">
-          <button
-            type="button"
-            className="quiet-button model-config-trigger"
-            data-testid="model-config-trigger"
-            aria-expanded={modelConfigOpen}
-            title="选择服务商、模型与推理强度"
-            onClick={() => setModelConfigOpen((open) => !open)}
-          >
-            {modelDisplayName(modelConfig)}
-            <span className="model-config-reasoning-tag">
-              {modelConfig.reasoning === 'deep' ? '深思' : '标准'}
-            </span>
-          </button>
-          <ModelConfigPopover
-            open={modelConfigOpen}
-            config={modelConfig}
-            onChange={updateModelConfig}
-            onClose={() => setModelConfigOpen(false)}
-          />
-        </span>
       </footer>
 
       {compileOpen && <div className="modal-backdrop" role="presentation"><section className="compile-dialog" role="dialog" aria-modal="true" aria-labelledby="compile-title"><h2 id="compile-title">编译为 Word 文档</h2><p>定稿后，本画布将转为只读存档。后续修改将在文书修订中逐条处理，无法返回起草状态。</p><div><button className="quiet-button" onClick={() => setCompileOpen(false)}>取消</button><button className="primary-button" onClick={() => { setDraftFrozen(true); setCompileOpen(false); }}>确认定稿并编译</button></div></section></div>}

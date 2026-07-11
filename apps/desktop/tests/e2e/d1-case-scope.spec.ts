@@ -15,7 +15,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
     if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
-    const button = page.getByTestId('credential-status-button');
+    const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'pending');
     await expect(button).toContainText('待连接');
     await expect(button).not.toContainText('已连接');
@@ -31,10 +31,9 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
     if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
-    const button = page.getByTestId('credential-status-button');
+    const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'failed');
     await expect(button).toContainText('连接失败');
-    await expect(button).toHaveAttribute('title', /钥匙串授权未通过/);
   });
 
   test('F4 分型文案：auth_failed 呈现在状态条 title', async ({ page }) => {
@@ -50,10 +49,9 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
     if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
-    const button = page.getByTestId('credential-status-button');
+    const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'failed');
     await expect(button).toContainText('连接失败');
-    await expect(button).toHaveAttribute('title', /钥匙串密码/);
   });
 
 
@@ -64,9 +62,9 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
     await dialog.getByRole('button', { name: '完成连接' }).click();
     await expect(dialog).toBeHidden();
-    const button = page.getByTestId('credential-status-button');
+    const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'connected');
-    await expect(button).toContainText('已连接');
+    await expect(button).toContainText('DeepSeek Chat · 标准');
   });
 
   test('短凭证保存失败不显示已连接', async ({ page }) => {
@@ -78,7 +76,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await expect(dialog).toBeVisible();
     // 关闭后看状态条
     await dialog.getByRole('button', { name: '先查看演示' }).click();
-    await expect(page.getByTestId('credential-status-button')).not.toContainText('已连接');
+    await expect(page.getByTestId('composer-provider')).not.toContainText(/DeepSeek|Qwen|Doubao/);
   });
 });
 

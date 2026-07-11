@@ -1,0 +1,14 @@
+import { resolve } from 'node:path';
+import { chromium } from '@playwright/test';
+
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+await page.emulateMedia({ reducedMotion: 'reduce' });
+await page.goto('http://127.0.0.1:4177');
+const setup = page.getByTestId('provider-setup');
+if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+await page.screenshot({ path: resolve('visual-audit/24-rp2-full-layout-1440.png'), animations: 'disabled' });
+await page.getByTestId('collapse-left-rail').click();
+await page.getByTestId('collapse-right-rail').click();
+await page.screenshot({ path: resolve('visual-audit/25-rp2-chat-focus-1440.png'), animations: 'disabled' });
+await browser.close();

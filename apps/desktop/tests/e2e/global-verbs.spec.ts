@@ -17,18 +17,15 @@ test.describe('AI 消息复制', () => {
     await copyButton.click();
     await expect(copyButton).toContainText('已复制');
     const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
-    expect(clipboardText).toContain('合同审查已完成');
-    expect(clipboardText.startsWith('D04')).toBe(true);
+    expect(clipboardText).toContain('发现 6 项合同风险');
+    expect(clipboardText.startsWith('R')).toBe(true);
   });
 
-  test('generated-callout 复制按钮写入提示全文', async ({ page }) => {
+  test('系统事件合并为紧凑事件流且不再生成 callout 卡', async ({ page }) => {
     await openWorkbench(page);
-    const callout = page.locator('.generated-callout');
-    await callout.hover();
-    await callout.locator('.copy-button').click();
-    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
-    expect(clipboardText).toContain('审阅提示');
-    expect(clipboardText).toContain('先核对验收条款的原文依据');
+    await expect(page.getByTestId('event-stream')).toContainText('合同审查已完成');
+    await expect(page.getByTestId('event-stream')).toContainText('审阅提示已送达右侧工作面');
+    await expect(page.locator('.generated-callout')).toHaveCount(0);
   });
 
   test('按压态落在 60–80ms 区间且不整卡缩放', async ({ page }) => {

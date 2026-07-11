@@ -95,7 +95,7 @@ test.describe('UX-1 批次一', () => {
     await expect(page.getByTestId('thinking-stream-body')).toContainText('思考过程');
   });
 
-  test('#10：状态条模型名可点，读写 provider/模型/推理强度', async ({ page }) => {
+  test('#10/#18′：composer 模型位可配置，pending 不冒充已连接', async ({ page }) => {
     await openWorkbench(page);
     await page.getByTestId('model-config-trigger').click();
     const popover = page.getByTestId('model-config-popover');
@@ -106,8 +106,8 @@ test.describe('UX-1 批次一', () => {
     await expect(page.getByTestId('model-config-summary')).toContainText('Qwen Max');
     await expect(page.getByTestId('model-config-summary')).toContainText('深思');
     await page.getByTestId('model-config-close').click();
-    await expect(page.getByTestId('model-config-trigger')).toContainText('Qwen Max');
-    await expect(page.getByTestId('model-config-trigger')).toContainText('深思');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('待连接');
+    await expect(page.getByTestId('model-config-trigger')).not.toContainText('Qwen Max');
   });
 
   test('#9：图谱 minimap 使用 courtwork-minimap 类（无库蓝渗出约定）', async ({ page }) => {

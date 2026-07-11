@@ -3,6 +3,8 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { ContainerKind } from '../case/container-copy';
 import { scopeCommitTitle, scopeCommittedLabel, scopeConfirmBody } from '../case/container-copy';
 import { Icon } from '../workbench/Icon';
+import { ModelConfigPopover } from '../provider/ModelConfigPopover';
+import type { ModelConfig } from '../provider/model-config';
 import { AttachmentChip } from './AttachmentChip';
 import { createAttachmentShell, resolveAttachmentUpload, withResolvedStatus, type ConvertFn } from './process-upload';
 import {
@@ -39,6 +41,13 @@ export interface ComposerProps {
   onContainerize?: (request: ContainerizeRequest) => void;
   /** 测试钩：强制某次上传处于 uploading 并推进 startedAt 偏移。 */
   uploadClock?: () => number;
+  modelConfig?: ModelConfig;
+  modelConfigOpen?: boolean;
+  modelLabel?: string;
+  connectionPhase?: 'pending' | 'connected' | 'failed';
+  onToggleModelConfig?: () => void;
+  onModelConfigChange?: (config: ModelConfig) => void;
+  onCloseModelConfig?: () => void;
 }
 
 let attachmentSeq = 0;
@@ -59,6 +68,13 @@ export function Composer({
   onSend,
   onContainerize,
   uploadClock = () => Date.now(),
+  modelConfig,
+  modelConfigOpen = false,
+  modelLabel,
+  connectionPhase = 'pending',
+  onToggleModelConfig,
+  onModelConfigChange,
+  onCloseModelConfig,
 }: ComposerProps) {
   // 仅当父层未注入 cases 时用 DEMO 回落（单测/孤立预览）；App 必须注入投影。
   const caseOptions = cases ?? DEMO_CASE_OPTIONS;
@@ -489,6 +505,30 @@ export function Composer({
         />
 
         <div className="composer-tools-right">
+          {modelConfig && onToggleModelConfig && onModelConfigChange && onCloseModelConfig && (
+            <span className="model-config-anchor composer-provider-anchor">
+              <button
+                type="button"
+                className={`quiet-button model-config-trigger phase-${connectionPhase}`}
+                data-testid="model-config-trigger"
+                data-phase={connectionPhase}
+                aria-expanded={modelConfigOpen}
+                onClick={onToggleModelConfig}
+              >
+                <span data-testid="composer-provider" data-phase={connectionPhase}>
+                  {connectionPhase === 'connected'
+                    ? `${modelLabel} · ${modelConfig.reasoning === 'deep' ? '深思' : '标准'}`
+                    : connectionPhase === 'failed' ? '连接失败' : '待连接'}
+                </span>
+              </button>
+              <ModelConfigPopover
+                open={modelConfigOpen}
+                config={modelConfig}
+                onChange={onModelConfigChange}
+                onClose={onCloseModelConfig}
+              />
+            </span>
+          )}
           <button
             type="button"
             className="composer-send"
@@ -510,6 +550,10 @@ export function Composer({
         <kbd>⇧</kbd>
         <kbd>⏎</kbd>
         <span>换行</span>
+      </p>
+      <p className="composer-disclaimer" data-testid="composer-disclaimer">
+        Courtwork is an agent and can make mistakes. Please double-check responses.{' '}
+        <a href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">Give us feedback</a>
       </p>
 
       {/* 供测试与 a11y 读出当前作用域文案模板 */}

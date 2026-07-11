@@ -7,6 +7,7 @@ import type { ScenarioFlow } from '../protocol/client';
 import { OriginalsZone } from '../system/OriginalsZone';
 import { ArchiveGlyph } from '../workbench/MiniIcon';
 import { Icon } from '../workbench/Icon';
+import { useState } from 'react';
 import {
   buildMixedRailRows,
   canExpandRailRow,
@@ -49,6 +50,8 @@ interface CaseRailProps {
   onConfirmContainerizeUnfiled: (kind: ContainerKind) => void;
   onCancelContainerizeUnfiled: () => void;
   onExpandLeft: () => void;
+  onCollapseLeft: () => void;
+  onOpenSettings: () => void;
   onFeedback: (message: string, ok: boolean) => void;
 }
 
@@ -83,8 +86,11 @@ export function CaseRail({
   onConfirmContainerizeUnfiled,
   onCancelContainerizeUnfiled,
   onExpandLeft,
+  onCollapseLeft,
+  onOpenSettings,
   onFeedback,
 }: CaseRailProps) {
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const rows = buildMixedRailRows(cases, unfiled, pinnedIds);
   const pinnedRows = rows.filter((r) => r.pinned);
   const restRows = rows.filter((r) => !r.pinned);
@@ -341,6 +347,9 @@ export function CaseRail({
           >
             <Icon name="plus" />
           </button>
+          <button type="button" className="rail-add-button" data-testid="collapse-left-rail" aria-label="折叠左栏" title="折叠左栏" onClick={onCollapseLeft}>
+            <Icon name="panel-left" />
+          </button>
         </header>
 
         <nav className="rail-nav-skeleton" aria-label="导航骨架" data-testid="rail-nav-skeleton">
@@ -385,11 +394,18 @@ export function CaseRail({
           </div>
         </div>
 
-        {showLeadAttorney(isDemoCase) && (
-          <div className="rail-footer" data-testid="lead-attorney">
-            主办律师 · 林律师
-          </div>
-        )}
+        <div className="rail-user-wrap">
+          <button type="button" className="rail-user" data-testid="user-menu-trigger" aria-expanded={userMenuOpen} onClick={() => setUserMenuOpen((open) => !open)}>
+            <span className="user-avatar">{showLeadAttorney(isDemoCase) ? '林' : '我'}</span>
+            <span>{showLeadAttorney(isDemoCase) ? '林律师 · 样板负责人' : '负责人'}</span>
+            <span aria-hidden="true">⌃</span>
+          </button>
+          {userMenuOpen && <div className="rail-user-menu" data-testid="user-menu" role="menu">
+            <button type="button" role="menuitem" onClick={onOpenSettings}>设置</button>
+            <button type="button" role="menuitem" onClick={onOpenSettings}>检查更新 <span className="update-badge">设置</span></button>
+            <a role="menuitem" href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">Give us feedback</a>
+          </div>}
+        </div>
       </div>
     </aside>
   );
