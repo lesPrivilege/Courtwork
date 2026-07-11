@@ -684,6 +684,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - chat 只保留叙事留痕与路由，详情属于右侧 Preview。通用 `TurnCardKind` 封闭为 `event | artifact | file | gate`；机制、样式与图标路由住 `src/chat/TurnCard.tsx`，内容由场景声明填入。
 - artifact 卡仅显示类型、标题、数量摘要与 Preview 路由；点击打开对应右侧工作面，高/中/低危等详情不再留在 chat 卡中。file / gate 同理只承担摘要与端点。
 - `ToolCallRow` 默认一行收起，展开后仅呈现 `args` / `result` 摘要，消费 `type.dense.mono`；参数与结果不解释法律语义。
+- 第九章再补 `5710d6b` 将词表扩为五类：`question` 是可跳过、不阻塞的结构化提问，选项为封闭 enum，回答后用 value 留痕。卡片不调用工具、不锁 composer / Preview；`ask_user` 注入仍属 HARNESS-1。
 - 图标一律经 `Icon` / Lucide / 登记 SVG-as-code 管线，禁内联 SVG 与图标框。
 
 ### dock 与 composer 减法
@@ -693,7 +694,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - 通用态仍是三张完整 L1 卡竖排；二态宿主约定不变。L2 popover 遵守无投影白名单，仅用边界与层级定位。
 - composer 的 folder / case picker 仅在未绑定新对话显示；已绑定卷宗的身份已由左栏与 chat 案件头声明，composer 不再重复。
 
-`lint:rp28` 锁四类封闭集、通用层 import 边界、composer 条件位、dock 点外收起与 Preview 不置换；Playwright 增 4 条，floor `121 → 125`。
+`lint:rp28` 锁五类封闭集、question enum/skip 留痕、通用层 import 边界、composer 条件位、dock 点外收起与 Preview 不置换；Playwright 增 5 条，floor `121 → 126`。
 
 视觉证据：`46-rp28-turn-cards-1440.png` / `47-rp28-dock-l2-1440.png`。
 

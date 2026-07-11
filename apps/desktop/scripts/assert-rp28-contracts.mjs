@@ -11,11 +11,13 @@ const [turnCard, composer, utility, app, css] = await Promise.all([
 ]);
 
 const failures = [];
-if (!turnCard.includes("'event' | 'artifact' | 'file' | 'gate'")) failures.push('TurnCard vocabulary must remain closed to event/artifact/file/gate');
+if (!turnCard.includes("'event' | 'artifact' | 'file' | 'gate' | 'question'")) failures.push('TurnCard vocabulary must remain closed to event/artifact/file/gate/question');
 if (/preview\/renderers|\.\.\/preview/.test(turnCard)) failures.push('Generic turn-card mechanism may not import Preview renderers');
 for (const kind of ['event', 'artifact', 'file', 'gate']) {
   if (!app.includes(`kind="${kind}"`)) failures.push(`App must declare the ${kind} turn-card route`);
 }
+if (!app.includes('<QuestionTurnCard') || !turnCard.includes("data-kind=\"question\"")) failures.push('Question cards must use the generic closed-option ledger component');
+if (!turnCard.includes("record('skipped')") || !turnCard.includes('data-answer={answer')) failures.push('Question cards must remain skippable and record enum answers');
 if (!app.includes('<ToolCallRow')) failures.push('Tool calls must use the auditable generic row');
 if (!composer.includes('!hasBoundContainer && <div className="case-picker">')) failures.push('Composer folder picker must be conditional on an unbound conversation');
 if (!utility.includes('utility-dock-popover') || !utility.includes('pointerdown')) failures.push('Dock must use an outside-dismissed L2 popover');

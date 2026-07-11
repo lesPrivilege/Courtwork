@@ -53,3 +53,18 @@ test('utility dock opens an L2 dropdown without replacing Preview and closes out
   await expect(dropdown).toHaveCount(0);
   await expect(page.getByTestId('preview-host')).toBeVisible();
 });
+
+test('question turn card records a closed enum answer without blocking the workbench', async ({ page }) => {
+  await openWorkbench(page);
+  const question = page.getByTestId('turn-card-question');
+  await expect(question).toBeVisible();
+  await expect(question.getByTestId('question-option-focus-payment-acceptance')).toBeVisible();
+  await expect(question.getByTestId('question-skip')).toBeVisible();
+  await expect(page.getByTestId('preview-host')).toBeVisible();
+
+  await question.getByTestId('question-option-focus-payment-acceptance').click();
+  await expect(question).toHaveAttribute('data-answer', 'focus-payment-acceptance');
+  await expect(question).toContainText('Recorded');
+  await expect(page.getByTestId('preview-host')).toBeVisible();
+  await expect(page.getByTestId('composer-input')).toBeEnabled();
+});
