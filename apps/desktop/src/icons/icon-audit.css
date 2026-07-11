@@ -1,20 +1,20 @@
-:root { font-family: -apple-system, "Segoe UI", "PingFang SC", "Noto Sans SC", sans-serif; color: #0a2540; background: #ededed; }
+:root { font-family: -apple-system, "Segoe UI", "PingFang SC", "Noto Sans SC", sans-serif; color: #0a2540; background: #f6f9fc; }
 * { box-sizing: border-box; }
 html, body, #icon-audit-root { width: 100%; min-height: 100%; margin: 0; }
-body { background: #ededed; }
+body { background: #f6f9fc; }
 .icon-audit { width: 100%; min-height: 100vh; padding: 24px 32px 32px; }
-.icon-audit > header { display: grid; grid-template-columns: 240px 1fr auto; align-items: end; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #d5dbe2; }
+.icon-audit > header { display: grid; grid-template-columns: 240px 1fr auto; align-items: end; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #cdd8e3; }
 .icon-audit > header div { display: flex; flex-direction: column; gap: 4px; }
 .icon-audit > header strong { font-size: 16px; font-weight: 600; }
 .icon-audit > header span, .icon-audit > header p { margin: 0; color: #6e8098; font: 12px/1.5 ui-monospace, "SF Mono", monospace; font-variant-numeric: tabular-nums; }
 .icon-audit h1 { margin: 0; font-size: 22px; font-weight: 560; text-align: center; }
 .icon-audit-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
-.icon-audit-card { min-height: 174px; display: grid; grid-template-rows: auto 1fr auto; gap: 8px; padding: 12px; border: 1px solid #d5dbe2; border-radius: 6px; background: #fff; }
+.icon-audit-card { min-height: 174px; display: grid; grid-template-rows: auto 1fr auto; gap: 8px; padding: 12px; border: 1px solid #cdd8e3; border-radius: 6px; background: #fff; }
 .icon-audit-title { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .icon-audit-title strong { overflow: hidden; font-size: 13px; font-weight: 560; text-overflow: ellipsis; white-space: nowrap; }
 .icon-audit-title code, .icon-audit-card small { overflow: hidden; color: #6e8098; font: 11px/1.5 ui-monospace, "SF Mono", monospace; text-overflow: ellipsis; white-space: nowrap; }
 .icon-audit-sizes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .icon-audit figure { min-width: 0; display: grid; place-items: center; gap: 4px; margin: 0; }
-.icon-audit figure > span { width: 56px; height: 56px; display: grid; place-items: center; border: 1px solid #ebebeb; background-color: #fff; background-image: linear-gradient(#ebebeb 1px, transparent 1px), linear-gradient(90deg, #ebebeb 1px, transparent 1px); background-size: 8px 8px; color: #0a2540; }
+.icon-audit figure > span { width: 56px; height: 56px; display: grid; place-items: center; border: 1px solid #e3e9ef; background-color: #fff; background-image: linear-gradient(#e3e9ef 1px, transparent 1px), linear-gradient(90deg, #e3e9ef 1px, transparent 1px); background-size: 8px 8px; color: #0a2540; }
 .icon-audit figcaption { color: #425466; font: 11px/1 ui-monospace, "SF Mono", monospace; font-variant-numeric: tabular-nums; }
 .icon-audit-card small { justify-self: end; }

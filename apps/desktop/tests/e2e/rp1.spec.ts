@@ -19,7 +19,7 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('originals-zone')).toBeVisible();
     const demo = page.getByTestId('case-card-demo-linjiang');
     await expect(page.getByText('卷宗原件 · 只读', { exact: true })).toBeVisible();
-    await expect(demo.locator('.rail-row-main')).toHaveCSS('background-color', 'rgb(233, 238, 244)');
+    await expect(demo.locator('.rail-row-main')).toHaveCSS('background-color', 'rgb(221, 231, 242)');
     await expect(demo.locator('.rail-case-expand')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect(page.getByTestId('open-work-drafts')).toHaveCount(0);
 

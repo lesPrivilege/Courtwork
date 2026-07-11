@@ -59,7 +59,7 @@ test('⑥⑦ message 按钮缩档 20px；扁平按钮 hover 深色块 token', as
   await openWorkbench(page);
   await expect(page.getByTestId('message-actions-assistant-demo').locator('button').first()).toHaveCSS('width', '20px');
   const control = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--control-hover').trim());
-  expect(control).toBe('#e6eaf0');
+  expect(control).toBe('#dae3ec');
 });
 
 test('⑧ 长消息收敛：超阈值渐隐 + Show more/less（纯呈现层）', async ({ page }) => {

@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
@@ -69,7 +69,7 @@ test.describe('SET-1 设置页', () => {
 
     // 关于：版本 + 诊断导出（下载不拦截断言按钮可用）
     await page.getByTestId('settings-nav-about').click();
-    await expect(page.getByTestId('settings-version')).toHaveText('0.1.0');
+    await expect(page.getByTestId('settings-version')).toHaveText(JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')).version);
     await expect(page.getByTestId('settings-export-diagnostics')).toBeEnabled();
   });
 

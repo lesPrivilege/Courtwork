@@ -5,13 +5,13 @@ export const COURTWORK_GRAPH_THEME = 'courtwork-light';
 // Mirrors docs/32-设计语言包/tokens.json. G6 receives no library palette defaults.
 export const graphTokens = {
   background: '#FFFFFF',
-  surface: '#FAFAFA',
-  hover: '#F1F2F3',
-  selected: '#E9EEF4',
+  surface: '#EAEFF4',
+  hover: '#E2E9F0',
+  selected: '#DDE7F2',
   ink: '#0A2540',
   textSecondary: '#425466',
-  border: '#EBEBEB',
-  borderStrong: '#D5DBE2',
+  border: '#E3E9EF',
+  borderStrong: '#CDD8E3',
   slate: '#64748B',
   amber: '#D97706',
 } as const;

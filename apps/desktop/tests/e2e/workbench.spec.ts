@@ -274,7 +274,7 @@ test('按压态 70ms 且数据卡零位移零缩放', async ({ page }) => {
   await action.hover();
   await page.mouse.down();
   await expect(action).toHaveCSS('transition-duration', '0.07s, 0.07s');
-  await expect(action).toHaveCSS('background-color', 'rgb(233, 238, 244)');
+  await expect(action).toHaveCSS('background-color', 'rgb(221, 231, 242)');
   await expect(action).toHaveCSS('transform', 'none');
   await expect(dataCard).toHaveCSS('transform', 'none');
   await page.mouse.up();
