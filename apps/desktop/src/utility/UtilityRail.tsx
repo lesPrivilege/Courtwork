@@ -25,7 +25,7 @@ interface UtilityRailProps {
 export function UtilityRail({ mode, items, onOpenPreview, onExpandItem }: UtilityRailProps) {
   if (mode === 'dock') {
     return (
-      <SurfaceCard className="utility-dock" data-testid="utility-rail" data-mode="dock">
+      <SurfaceCard elevation="raised" className="utility-dock" data-testid="utility-rail" data-mode="dock">
         {items.map((item) => (
           <section key={item.id} className="utility-dock-item stack-module" data-testid={`module-${item.id}`} data-open={item.open ? 'true' : 'false'}>
             <button type="button" data-testid={`module-${item.id}-toggle`} onClick={() => onExpandItem(item.id)}>
@@ -41,13 +41,13 @@ export function UtilityRail({ mode, items, onOpenPreview, onExpandItem }: Utilit
 
   return (
     <div className="utility-rail" data-testid="utility-rail" data-mode="base">
-      <SurfaceCard className="utility-preview-entry">
+      <SurfaceCard elevation="raised" className="utility-preview-entry">
         <button type="button" data-testid="preview-open" onClick={onOpenPreview}>
           <span>预览</span><strong>展开</strong>
         </button>
       </SurfaceCard>
       {items.map((item) => (
-        <SurfaceCard key={item.id} className="utility-card">
+        <SurfaceCard elevation="raised" key={item.id} className="utility-card">
           <StackModule
             id={item.id}
             title={item.title}

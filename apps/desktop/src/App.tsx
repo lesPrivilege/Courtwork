@@ -86,6 +86,14 @@ const VIEW_LABELS: Record<WorkbenchView, string> = {
 
 const VIEWS = Object.keys(VIEW_LABELS) as WorkbenchView[];
 
+function previewViewForArtifact(artifactType: string): WorkbenchView | undefined {
+  if (artifactType === 'Timeline') return 'timeline';
+  if (artifactType === 'PartyGraph') return 'graph';
+  if (artifactType === 'ReviewMatrix') return 'matrix';
+  if (artifactType === 'RiskList') return 'revision';
+  return undefined;
+}
+
 const DEMO_CASE = createDemoCaseSummary();
 
 type SessionAction = SessionEvent | { type: '__clear__' };
@@ -166,6 +174,8 @@ export function App() {
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(true);
+  const [artifactRevision, setArtifactRevision] = useState(0);
+  const [replayEpoch, setReplayEpoch] = useState(0);
   const [sceneMoreOpen, setSceneMoreOpen] = useState(false);
   const [editingCaseTitle, setEditingCaseTitle] = useState(false);
   const [caseTitleDraft, setCaseTitleDraft] = useState('');
@@ -175,7 +185,9 @@ export function App() {
   const wideSplitAvailable = useWideSplitAvailable();
   const narrowRailRequired = useNarrowRailRequired();
   const openedAt = useRef<Record<string, number>>({});
-  const lastReplayedFlow = useRef<ScenarioFlow | null | undefined>(undefined);
+  const lastReplayedFlow = useRef<string | undefined>(undefined);
+  /** RP-2.5.1：用户关闭只压住同一案件/场景后续 artifact；切场景后自动恢复。 */
+  const previewDismissedContext = useRef<string | null>(null);
   const resolvedRequest = useRef<string | undefined>(undefined);
   const prevCaseId = useRef(selectedCaseId);
   const lastArtifactKeys = useRef('');
@@ -233,6 +245,7 @@ export function App() {
     setWorkDraftMode(false);
     setFileOpsMode(false);
     setPreviewOpen(true);
+    previewDismissedContext.current = null;
     setDraftFrozen(false);
     setDraft(INITIAL_DRAFT);
     setCompileOpen(false);
@@ -255,11 +268,23 @@ export function App() {
   // demo 容器才回放录制；非 demo 永不注入 DEMO_ARTIFACTS
   useEffect(() => {
     if (!isDemoCaseId(selectedCaseId) || !flow) return;
-    if (lastReplayedFlow.current === flow) return;
-    lastReplayedFlow.current = flow;
+    const replayKey = `${selectedCaseId}:${flow}:${replayEpoch}`;
+    if (lastReplayedFlow.current === replayKey) return;
+    lastReplayedFlow.current = replayKey;
     setLocalMessages([]);
-    void client.replay(flow, (event) => dispatch(event));
-  }, [flow, selectedCaseId]);
+    const context = `${selectedCaseId}:${flow}`;
+    let previewOpenedForReplay = false;
+    void client.replay(flow, (event) => {
+      dispatch(event);
+      if (event.type !== 'artifact_produced') return;
+      setArtifactRevision((revision) => revision + 1);
+      const targetView = previewViewForArtifact(event.artifactType);
+      if (!targetView || previewOpenedForReplay || previewDismissedContext.current === context) return;
+      previewOpenedForReplay = true;
+      setActiveView(targetView);
+      setPreviewOpen(true);
+    });
+  }, [flow, replayEpoch, selectedCaseId]);
 
   // docs/49 三章：artifact_produced 自动展开对应模块；用户手动优先
   useEffect(() => {
@@ -566,11 +591,12 @@ export function App() {
 
   const selectFlow = (next: ScenarioFlow) => {
     if (!isDemoCase) return; // 非 demo 不注入样板场景
+    if (next !== flow) previewDismissedContext.current = null;
     setFlow(next);
+    setReplayEpoch((epoch) => epoch + 1);
     setActiveView(next === 'S1' ? 'timeline' : 'revision');
     setWorkDraftMode(false);
     setFileOpsMode(false);
-    setPreviewOpen(true);
     setGate(undefined);
     setExpandedEvidence({});
     setDispositions({});
@@ -585,6 +611,7 @@ export function App() {
     if (view !== 'draft') setWorkDraftMode(false);
     setFileOpsMode(false);
     setPreviewOpen(true);
+    previewDismissedContext.current = null;
   };
 
   const openWorkDrafts = () => {
@@ -592,6 +619,7 @@ export function App() {
     setFileOpsMode(false);
     setActiveView('draft');
     setPreviewOpen(true);
+    previewDismissedContext.current = null;
   };
 
   const openFileOps = () => {
@@ -599,6 +627,7 @@ export function App() {
     setWorkDraftMode(false);
     setSecondaryView(undefined);
     setPreviewOpen(true);
+    previewDismissedContext.current = null;
   };
 
   const startComparison = () => {
@@ -1029,9 +1058,12 @@ export function App() {
         {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载 */}
         {rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
           <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="展开右栏" title="展开右栏" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
-        </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open={previewOpen ? 'true' : 'false'}>
+        </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open={previewOpen ? 'true' : 'false'} data-artifact-revision={artifactRevision}>
           <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="折叠右栏" title="折叠右栏" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
-          <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => setPreviewOpen(true)} onExpandItem={expandUtilityItem} />
+          <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => {
+            previewDismissedContext.current = null;
+            setPreviewOpen(true);
+          }} onExpandItem={expandUtilityItem} />
           {previewOpen && <WorkbenchPreviewRenderer
             title={comparing ? '工作面对照' : VIEW_LABELS[activeView]}
             meta={comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}
@@ -1043,7 +1075,10 @@ export function App() {
               const moduleId = view as ModuleId;
               if (userModuleOverride[moduleId] === undefined) setModuleOpen((prev) => ({ ...prev, [moduleId]: true }));
             }}
-            onClose={() => setPreviewOpen(false)}
+            onClose={() => {
+              previewDismissedContext.current = `${selectedCaseId}:${flow ?? 'none'}`;
+              setPreviewOpen(false);
+            }}
             actions={<>
                 {!focusMode && !comparing && (
                   <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照">

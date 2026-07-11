@@ -11,7 +11,7 @@ export interface SurfaceCardProps extends HTMLAttributes<HTMLElement> {
 export function SurfaceCard({
   children,
   className = '',
-  elevation = 'raised',
+  elevation = 'flat',
   ...props
 }: SurfaceCardProps) {
   return (

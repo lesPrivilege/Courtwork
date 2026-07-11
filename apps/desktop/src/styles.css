@@ -58,7 +58,7 @@
   --elevation-float-radius: 12px;
   --elevation-float-inset: 8px;
   --elevation-shell-gap: 8px;
-  --elevation-shadow: 0 1px 2px rgba(10, 37, 64, .06), 0 8px 24px rgba(10, 37, 64, .04);
+  --elevation-shadow: none;
   --elevation-titlebar: transparent;
   --elevation-warn-bg: var(--amber-bg);
   --elevation-warn-fg: var(--amber-fg);
@@ -93,16 +93,16 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   background: var(--elevation-float);
   border: 1px solid var(--elevation-float-border);
   border-radius: var(--elevation-float-radius);
-  box-shadow: var(--elevation-shadow);
 }
 .surface-card {
   min-width: 0;
   background: var(--elevation-float);
   border: 1px solid var(--elevation-float-border);
   border-radius: var(--elevation-float-radius);
-  box-shadow: var(--elevation-shadow);
 }
-.surface-card-flat { box-shadow: none; }
+.case-rail.surface-float,
+.right-rail-collapsed.surface-float,
+.surface-card-raised { box-shadow: var(--elevation-shadow); }
 .brand { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 510; }
 .brand img { width: 20px; height: 20px; }
 .bar-divider { width: 1px; height: 16px; background: var(--border-strong); }
@@ -316,12 +316,13 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .conversation.canvas-layer { position: relative; }
 .conversation-scroll { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px 4px; overflow: auto; }
 .composer-float {
+  width: 100%; max-width: 100%; min-width: 0;
   margin: 0;
   padding: 8px;
   flex: none;
 }
-.composer-stack { flex: none; display: grid; gap: 4px; container-type: inline-size; }
-.composer-float .composer-shell { margin: 0; }
+.composer-stack { width: 100%; max-width: 100%; min-width: 0; flex: none; display: grid; gap: 4px; container-type: inline-size; }
+.composer-float .composer-shell { width: 100%; max-width: 100%; min-width: 0; margin: 0; }
 .user-message { align-self: flex-end; max-width: 78%; padding: 7px 10px; border: 0; border-radius: 8px; background: var(--bg-selected); line-height: 1.55; }
 .data-card, .detail-card, .generated-callout { position: relative; }
 .data-card, .detail-card { width: 100%; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: #fff; overflow: hidden; }
@@ -366,10 +367,12 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .composer-shell { position: relative; margin: 0 12px 10px; display: flex; flex-direction: column; gap: 6px; }
 .composer-box {
   display: flex; align-items: flex-end; gap: 4px;
-  min-width: 0; min-height: 42px; padding: 6px 8px;
+  width: 100%; max-width: 100%; min-width: 0; min-height: 42px; padding: 6px 8px;
   border: 1px solid var(--border-strong); border-radius: 6px; background: #fff;
 }
-.composer-tools-left, .composer-tools-right { display: flex; align-items: center; gap: 2px; flex: none; }
+.composer-tools-left, .composer-tools-right { min-width: 0; display: flex; align-items: center; gap: 2px; flex: none; }
+.composer-tools-left { flex: 0 1 auto; overflow: hidden; }
+.composer-tools-right { margin-left: auto; }
 .composer-provider-anchor .model-config-trigger { max-width: 170px; min-height: 28px; padding: 3px 7px; font-size: 12px; }
 .composer-provider-anchor .phase-failed { border-color: var(--amber-graphic); background: var(--amber-bg); color: var(--amber-fg); }
 .composer-icon-button {
@@ -403,7 +406,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .composer-send:active:not(:disabled) { background-color: #1a3a5c; transition-duration: var(--motion-press); }
 .composer-send:disabled { border-color: var(--border); background: var(--bg-hover); color: var(--text-disabled); cursor: not-allowed; }
 
-.case-picker { position: relative; }
+.case-picker { min-width: 0; position: relative; }
 .case-chip {
   max-width: 148px; height: 28px; display: inline-flex; align-items: center; gap: 4px;
   padding: 0 8px; border: 1px solid var(--border-strong); border-radius: 4px;
@@ -547,7 +550,6 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   width: min(280px, calc(100vw - 24px)); padding: 12px;
   border: 1px solid var(--border-strong); border-radius: 6px; background: #fff;
   color: var(--text-secondary); font-size: 12px; line-height: 1.5;
-  box-shadow: none;
 }
 .model-config-popover strong { display: block; margin-bottom: 8px; color: var(--text-primary); font-weight: 510; font-size: 13px; }
 .model-config-field { display: grid; gap: 4px; margin-bottom: 8px; }

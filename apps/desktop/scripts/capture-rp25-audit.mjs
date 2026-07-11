@@ -30,4 +30,10 @@ await page.getByTestId('settings-close').click();
 await page.getByTestId('preview-close').click();
 await page.screenshot({ path: resolve('visual-audit', '33-rp25-utility-base-1180.png'), animations: 'disabled' });
 
+await openAt(1440);
+await page.screenshot({ path: resolve('visual-audit', '34-rp25-1-shadow-none-1440.png'), animations: 'disabled' });
+await openAt(1180);
+await page.getByTestId('model-config-trigger').click();
+await page.screenshot({ path: resolve('visual-audit', '35-rp25-1-model-popover-1180.png'), animations: 'disabled' });
+
 await browser.close();

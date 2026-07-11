@@ -122,7 +122,6 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
           border: `1px solid ${graphTokens.borderStrong}`,
           borderRadius: '4px',
           overflow: 'hidden',
-          boxShadow: 'none',
         },
         maskStyle: {
           border: `1px solid ${graphTokens.ink}`,

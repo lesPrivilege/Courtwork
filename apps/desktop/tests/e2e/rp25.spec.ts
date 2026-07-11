@@ -12,15 +12,26 @@ for (const width of [1180, 1240, 1440, 1600]) {
     const metrics = await page.evaluate(() => {
       const chat = document.querySelector<HTMLElement>('[data-testid="conversation-canvas"]')!;
       const right = document.querySelector<HTMLElement>('[data-testid="right-module-stack"]')!;
+      const composer = document.querySelector<HTMLElement>('[data-testid="composer"]')!;
+      const send = document.querySelector<HTMLElement>('[data-testid="composer-send"]')!;
+      const provider = document.querySelector<HTMLElement>('[data-testid="model-config-trigger"]')!;
+      const edge = (node: HTMLElement) => node.getBoundingClientRect().right;
       return {
         root: [document.documentElement.scrollWidth, document.documentElement.clientWidth],
         body: [document.body.scrollWidth, document.body.clientWidth],
         gap: right.getBoundingClientRect().left - chat.getBoundingClientRect().right,
+        chatRight: chat.getBoundingClientRect().right,
+        composerRight: edge(composer),
+        sendRight: edge(send),
+        providerRight: edge(provider),
       };
     });
     expect(metrics.root[0]).toBeLessThanOrEqual(metrics.root[1]);
     expect(metrics.body[0]).toBeLessThanOrEqual(metrics.body[1]);
-    expect(metrics.gap).toBeGreaterThanOrEqual(8);
+    expect(metrics.gap).toBeCloseTo(8, 1);
+    expect(metrics.composerRight).toBeLessThanOrEqual(metrics.chatRight);
+    expect(metrics.sendRight).toBeLessThanOrEqual(metrics.chatRight);
+    expect(metrics.providerRight).toBeLessThanOrEqual(metrics.chatRight);
     if (width === 1600) await expect(page.getByTestId('composer-disclaimer')).toHaveCSS('white-space', 'nowrap');
   });
 }
@@ -34,6 +45,53 @@ test('RP-2.5 Utility 与 Preview 双宿主互斥切换', async ({ page }) => {
   await expect(page.getByTestId('preview-host')).toHaveCount(0);
   await page.getByTestId('preview-open').click();
   await expect(page.getByTestId('preview-host')).toBeVisible();
+});
+
+test('RP-2.5.1 artifact_produced 自动打开新场景 Preview', async ({ page }) => {
+  await openApp(page);
+  await page.getByTestId('preview-close').click();
+  const before = Number(await page.getByTestId('right-module-stack').getAttribute('data-artifact-revision'));
+  await page.getByTestId('flow-s1').click();
+  await expect(page.getByTestId('right-module-stack')).not.toHaveAttribute('data-artifact-revision', String(before));
+  await expect(page.getByTestId('preview-host')).toBeVisible();
+  await expect(page.getByTestId('view-timeline')).toHaveAttribute('aria-selected', 'true');
+});
+
+test('RP-2.5.1 同场景再产 artifact 尊重手动关闭 Preview', async ({ page }) => {
+  await openApp(page);
+  await page.getByTestId('flow-s1').click();
+  await expect(page.getByTestId('preview-host')).toBeVisible();
+  await page.getByTestId('preview-close').click();
+  const before = Number(await page.getByTestId('right-module-stack').getAttribute('data-artifact-revision'));
+  await page.getByTestId('flow-s1').click();
+  await expect(page.getByTestId('right-module-stack')).not.toHaveAttribute('data-artifact-revision', String(before));
+  await expect(page.getByTestId('preview-host')).toHaveCount(0);
+  await expect(page.getByTestId('utility-rail')).toHaveAttribute('data-mode', 'base');
+});
+
+test('RP-2.5.1 model-config 单实例、无遮挡并持久化配置', async ({ page }) => {
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await openApp(page);
+  await page.getByTestId('model-config-trigger').click();
+  await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
+  const bounds = await page.evaluate(() => {
+    const chat = document.querySelector<HTMLElement>('[data-testid="conversation-canvas"]')!.getBoundingClientRect();
+    const popover = document.querySelector<HTMLElement>('[data-testid="model-config-popover"]')!.getBoundingClientRect();
+    return { chatLeft: chat.left, chatRight: chat.right, popoverLeft: popover.left, popoverRight: popover.right };
+  });
+  expect(bounds.popoverLeft).toBeGreaterThanOrEqual(bounds.chatLeft);
+  expect(bounds.popoverRight).toBeLessThanOrEqual(bounds.chatRight);
+  await page.getByTestId('model-config-provider').selectOption('qwen');
+  await page.getByTestId('model-config-model').selectOption('qwen-max');
+  await page.getByRole('radio', { name: '深思' }).check();
+  await page.getByTestId('model-config-close').click();
+  await page.reload();
+  await openApp(page);
+  await page.getByTestId('model-config-trigger').click();
+  await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
+  await expect(page.getByTestId('model-config-provider')).toHaveValue('qwen');
+  await expect(page.getByTestId('model-config-model')).toHaveValue('qwen-max');
+  await expect(page.getByRole('radio', { name: '深思' })).toBeChecked();
 });
 
 test('RP-2.5 场景动作不越界，免责声明链接保持原子', async ({ page }) => {
