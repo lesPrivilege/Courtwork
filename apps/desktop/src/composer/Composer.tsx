@@ -434,7 +434,7 @@ export function Composer({
             {...({ webkitdirectory: '', directory: '' } as Record<string, string>)}
           />
 
-          <div className="case-picker">
+          {!hasBoundContainer && <div className="case-picker">
             <button
               type="button"
               className="case-chip"
@@ -486,7 +486,7 @@ export function Composer({
                 </li>
               </ul>
             )}
-          </div>
+          </div>}
         </div>
 
         <textarea

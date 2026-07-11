@@ -29,6 +29,7 @@ import {
 } from './case/case-scope';
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import { CHROME_COPY } from './chrome/copy';
+import { ToolCallRow, TurnCard } from './chat/TurnCard';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
@@ -57,7 +58,6 @@ import { SettingsPage, type SettingsSection } from './settings';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { systemOpenClient } from './system/system-open-client';
 import { WorkDraftPanel } from './system/WorkDraftPanel';
-import { CopyButton } from './workbench/CopyButton';
 import { FocusGlyph } from './workbench/MiniIcon';
 import { Icon } from './workbench/Icon';
 import {
@@ -858,11 +858,6 @@ export function App() {
     },
   ];
 
-  const expandUtilityItem = (id: 'progress' | 'working-folders' | 'context') => {
-    setPreviewOpen(false);
-    setModuleOpen((open) => ({ ...open, [id]: true }));
-  };
-
   return (
     <main className="app-shell" data-testid="workbench" data-compact={compactLayout ? 'true' : 'false'}>
       <div
@@ -966,58 +961,62 @@ export function App() {
                       state={session.progress.length === 0 ? 'empty' : session.confirmation ? 'settled' : 'thinking'}
                       content={session.progress.join('；') || '已梳理请求目标、材料范围与下一步工作面。'}
                     />
-                    <div className="event-stream" data-testid="event-stream">
-                    <div className="event-row success">
-                      <span className="domain-badge">{flow === 'S1' ? 'D20' : 'D04'}</span><i className="event-dot" />
-                      <span>{flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'}</span>
-                    </div>
-                    {session.progress.map((message, index) => (
-                      <div className="event-row active" key={`${message}-${index}`}>
-                        <span className="domain-badge">{String(index + 1).padStart(2, '0')}</span><i className="event-dot" /><span>{message}</span>
-                      </div>
-                    ))}
-                    <div className="event-row success">
-                      <span className="domain-badge">完成</span><i className="event-dot" />
-                      <span>{flow === 'S3' ? '审阅提示已送达右侧工作面' : '事件与主体关系已完成交叉核对'}</span>
-                    </div>
-                    </div>
-                    <section className="data-card compact-result">
-                    <div className="card-heading">
-                      <span className="domain-badge">{flow === 'S3' ? 'R' : 'E'}</span>
-                      <strong>{flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'}</strong>
-                    </div>
-                    <p>
-                      {flow === 'S3'
-                        ? '高危 2 项、中危 3 项、低危 1 项。高危与未核验条目需要逐条展开。'
-                        : '已形成 47 个事件、14 个主体和 15 条关系；4 处矛盾等待核对。'}
-                    </p>
-                    <CopyButton
-                      label="复制卡片内容"
-                      getText={() =>
-                        `${flow === 'S3' ? 'R' : 'E'}\n${flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'}\n${
-                          flow === 'S3'
-                            ? '高危 2 项、中危 3 项、低危 1 项。高危与未核验条目需要逐条展开。'
-                            : '已形成 47 个事件、14 个主体和 15 条关系；4 处矛盾等待核对。'
-                        }`
-                      }
+                    <ToolCallRow
+                      label="Ran command"
+                      tool={flow === 'S3' ? 'review-contract' : 'organize-dossier'}
+                      args={flow === 'S3' ? 'case=demo-linjiang scope=payment,acceptance,breach' : 'case=demo-linjiang corpus=20'}
+                      result={flow === 'S3' ? 'risk-list=6 output=contract-review.docx' : 'timeline=47 parties=14 conflicts=4'}
                     />
-                    </section>
+                    <div className="turn-event-stream" data-testid="event-stream">
+                      <TurnCard kind="event" icon="chevron-right" eyebrow={flow === 'S1' ? 'D20' : 'D04'} title={flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'} status="success" testId="turn-event-start" />
+                      {session.progress.map((message, index) => (
+                        <TurnCard key={`${message}-${index}`} kind="event" icon="chevron-right" eyebrow={String(index + 1).padStart(2, '0')} title={message} status="active" testId={`turn-event-progress-${index}`} />
+                      ))}
+                      <TurnCard kind="event" icon="chevron-right" eyebrow="完成" title={flow === 'S3' ? '审阅提示已送达右侧工作面' : '事件与主体关系已完成交叉核对'} status="success" testId="turn-event-finish" />
+                    </div>
+                    <TurnCard
+                      kind="artifact"
+                      icon="package"
+                      eyebrow={flow === 'S3' ? 'R' : 'E'}
+                      title={flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'}
+                      summary={flow === 'S3' ? '6 项 · 打开修订预览' : '47 个事件 · 14 个主体 · 打开时间线'}
+                      routeLabel={flow === 'S3' ? '打开修订预览' : '打开时间线'}
+                      onOpen={() => {
+                        previewDismissedContext.current = null;
+                        setActiveView(flow === 'S3' ? 'revision' : 'timeline');
+                        setPreviewOpen(true);
+                      }}
+                      copyText={`${flow === 'S3' ? 'R' : 'E'}\n${flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'}\n${flow === 'S3' ? '6 项 · 打开修订预览' : '47 个事件 · 14 个主体 · 打开时间线'}`}
+                    />
                     {flow === 'S3' && (
-                      <section className="data-card output-file-card" data-testid="output-docx-card">
-                      <div className="card-heading">
-                        <span className="domain-badge">W</span>
-                        <strong>合同审查报告.docx</strong>
-                      </div>
-                      <p>审查报告已写入本案「产出」文件夹，可在访达中查看或用系统程序打开。</p>
-                      <div className="output-file-actions">
-                        <button type="button" className="quiet-button" data-testid="reveal-output-docx" onClick={revealOutputDocx}>
-                          在访达中显示
-                        </button>
-                        <button type="button" className="primary-button" data-testid="open-output-docx" onClick={openOutputDocx}>
-                          打开文件
-                        </button>
-                      </div>
-                      </section>
+                      <TurnCard
+                        kind="file"
+                        icon="file-text"
+                        eyebrow="W"
+                        title="合同审查报告.docx"
+                        summary="已写入本案「产出」目录"
+                        testId="output-docx-card"
+                        routeLabel="打开合同审查报告"
+                        onOpen={openOutputDocx}
+                        actions={<>
+                          <button type="button" className="quiet-button" data-testid="reveal-output-docx" onClick={revealOutputDocx}>在访达中显示</button>
+                          <button type="button" className="primary-button" data-testid="open-output-docx" onClick={openOutputDocx}>打开文件</button>
+                        </>}
+                      />
+                    )}
+                    {session.confirmation && (
+                      <TurnCard
+                        kind="gate"
+                        icon="briefcase-business"
+                        eyebrow="Gate"
+                        title={session.confirmation.gateLabel}
+                        summary="需要确认 · 打开右侧工作面"
+                        onOpen={() => {
+                          previewDismissedContext.current = null;
+                          setActiveView(flow === 'S3' ? 'revision' : 'timeline');
+                          setPreviewOpen(true);
+                        }}
+                      />
                     )}
                   </article>
                 </>
@@ -1103,7 +1102,7 @@ export function App() {
           <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => {
             previewDismissedContext.current = null;
             setPreviewOpen(true);
-          }} onExpandItem={expandUtilityItem} />
+          }} />
           {previewOpen && <WorkbenchPreviewRenderer
             title={comparing ? '工作面对照' : VIEW_LABELS[activeView]}
             meta={comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}
