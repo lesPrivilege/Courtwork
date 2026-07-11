@@ -29,7 +29,7 @@ import {
 } from './case/case-scope';
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import { CHROME_COPY } from './chrome/copy';
-import { ToolCallRow, TurnCard } from './chat/TurnCard';
+import { QuestionTurnCard, ToolCallRow, TurnCard } from './chat/TurnCard';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
@@ -1016,6 +1016,15 @@ export function App() {
                           setActiveView(flow === 'S3' ? 'revision' : 'timeline');
                           setPreviewOpen(true);
                         }}
+                      />
+                    )}
+                    {session.confirmation && (
+                      <QuestionTurnCard
+                        question="是否继续聚焦付款与验收条款？"
+                        options={[
+                          { value: 'focus-payment-acceptance', label: '继续聚焦' },
+                          { value: 'open-full-review', label: '查看全部风险' },
+                        ]}
                       />
                     )}
                   </article>

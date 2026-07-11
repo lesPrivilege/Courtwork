@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { CopyButton } from '../workbench/CopyButton';
 import { Icon, type IconName } from '../workbench/Icon';
 
-export type TurnCardKind = 'event' | 'artifact' | 'file' | 'gate';
+export type TurnCardKind = 'event' | 'artifact' | 'file' | 'gate' | 'question';
 
 interface TurnCardProps {
   kind: TurnCardKind;
@@ -84,5 +84,51 @@ export function ToolCallRow({ label, tool, args, result }: ToolCallRowProps) {
         </dl>
       )}
     </details>
+  );
+}
+
+interface QuestionOption {
+  value: string;
+  label: string;
+}
+
+interface QuestionTurnCardProps {
+  question: string;
+  options: readonly QuestionOption[];
+  onAnswer?: (value: string) => void;
+}
+
+/** 可跳过、不阻塞的封闭提问；答案以 enum value 留痕。 */
+export function QuestionTurnCard({ question, options, onAnswer }: QuestionTurnCardProps) {
+  const [answer, setAnswer] = useState<string>();
+  const recordedLabel = answer === 'skipped' ? 'Skipped' : options.find((option) => option.value === answer)?.label;
+  const record = (value: string) => {
+    setAnswer(value);
+    onAnswer?.(value);
+  };
+
+  return (
+    <section className="turn-card turn-card-question" data-testid="turn-card-question" data-kind="question" data-answer={answer ?? 'unanswered'}>
+      <header className="question-card-head">
+        <span className="turn-card-icon"><Icon name="message-square-text" /></span>
+        <strong>{question}</strong>
+      </header>
+      <div className="question-card-options">
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            className="quiet-button"
+            data-testid={`question-option-${option.value}`}
+            disabled={Boolean(answer)}
+            onClick={() => record(option.value)}
+          >
+            {option.label}
+          </button>
+        ))}
+        <button type="button" className="quiet-button question-skip" data-testid="question-skip" disabled={Boolean(answer)} onClick={() => record('skipped')}>Skip</button>
+      </div>
+      {recordedLabel && <p className="question-recorded"><span>Recorded</span><code>{answer}</code><strong>{recordedLabel}</strong></p>}
+    </section>
   );
 }

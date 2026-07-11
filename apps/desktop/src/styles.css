@@ -418,6 +418,14 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 .tool-call-details dt { color: var(--text-tertiary); }
 .tool-call-details dd { min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.question-card-head { min-height: 34px; display: flex; align-items: center; gap: 8px; padding: 6px 9px 3px; }
+.question-card-head strong { font-size: var(--type-dense-body-size); font-weight: var(--control-weight-emphasized); }
+.question-card-options { display: flex; flex-wrap: wrap; gap: 5px; padding: 4px 9px 7px 35px; }
+.question-card-options button { min-height: 26px; padding: 3px 7px; font-size: var(--type-dense-meta-size); }
+.question-card-options .question-skip { margin-left: auto; color: var(--text-tertiary); }
+.question-recorded { min-width: 0; margin: 0; display: flex; align-items: center; gap: 7px; padding: 5px 9px 6px 35px; border-top: 1px solid var(--border); color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.question-recorded code { font-family: var(--type-dense-mono); color: var(--text-secondary); }
+.question-recorded strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--control-weight-regular); }
 .progress-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--text-primary); animation: breathe 2s ease-in-out infinite alternate; }
 @keyframes breathe { from { opacity: .55; } to { opacity: 1; } }
 .generated-callout { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--generated); color: var(--text-secondary); font-size: 13px; }
