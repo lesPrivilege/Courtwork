@@ -2,6 +2,7 @@ import { convertToReadingView } from '@courtwork/reading-view';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type { ContainerKind } from '../case/container-copy';
 import { scopeCommitTitle, scopeCommittedLabel, scopeConfirmBody } from '../case/container-copy';
+import { CHROME_COPY } from '../chrome/copy';
 import { Icon } from '../workbench/Icon';
 import { ModelConfigPopover } from '../provider/ModelConfigPopover';
 import type { ModelConfig } from '../provider/model-config';
@@ -257,7 +258,7 @@ export function Composer({
     handleSend();
   };
 
-  const chipLabel = selectedCase ? selectedCase.name : '选择案件';
+  const chipLabel = selectedCase ? selectedCase.name : CHROME_COPY.composer.chooseCase;
 
   return (
     <div className="composer-shell" data-testid="composer" data-active-case={caseId || undefined}>
@@ -265,19 +266,19 @@ export function Composer({
         <div className="composer-drop-overlay" data-testid="composer-drop-overlay" role="status">
           <div className="composer-drop-card">
             <Icon name="paperclip" />
-            <strong>松手即可附到本条</strong>
-            <p>文件将先保留在输入区；需要进卷宗时再在附件上确认。</p>
+            <strong>Drop files to attach</strong>
+            <p>Files stay with this message until you explicitly choose their scope.</p>
           </div>
         </div>
       )}
 
       {attachments.length > 0 && (
-        <ul className="attachment-list" aria-label="待发送附件" id={listId}>
+        <ul className="attachment-list" aria-label="Pending attachments" id={listId}>
           {attachments.map((attachment) => (
             <AttachmentChip
               key={attachment.id}
               attachment={attachment}
-              caseName={caseName ?? '未命名容器'}
+              caseName={caseName ?? 'Unnamed container'}
               containerKind={containerKind}
               onRemove={() => setAttachments((prev) => prev.filter((item) => item.id !== attachment.id))}
               onRetry={() => retryAttachment(attachment.id)}
@@ -328,10 +329,10 @@ export function Composer({
               type="button"
               className="composer-icon-button"
               data-testid="composer-plus"
-              aria-label="添加内容"
+              aria-label={CHROME_COPY.composer.add}
               aria-haspopup="menu"
               aria-expanded={plusOpen}
-              title="添加内容"
+              title={CHROME_COPY.composer.add}
               onClick={() => {
                 setPlusOpen((open) => !open);
                 setCaseMenuOpen(false);
@@ -345,6 +346,20 @@ export function Composer({
                   <button
                     type="button"
                     role="menuitem"
+                    data-testid="composer-upload"
+                    onClick={() => {
+                      setPlusOpen(false);
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    <Icon name="paperclip" />
+                    {CHROME_COPY.composer.attachFiles}
+                  </button>
+                </li>
+                <li role="none">
+                  <button
+                    type="button"
+                    role="menuitem"
                     data-testid="composer-plus-folder"
                     onClick={() => {
                       setPlusOpen(false);
@@ -352,7 +367,7 @@ export function Composer({
                     }}
                   >
                     <Icon name="folder-open" />
-                    选择文件夹
+                    {CHROME_COPY.composer.addFolder}
                   </button>
                 </li>
                 <li role="none">
@@ -370,7 +385,7 @@ export function Composer({
                     }}
                   >
                     <Icon name="camera" />
-                    拍照或扫描
+                    {CHROME_COPY.composer.takePhoto}
                   </button>
                 </li>
                 <li role="none">
@@ -388,24 +403,13 @@ export function Composer({
                     }}
                   >
                     <Icon name="mic" />
-                    语音输入
+                    {CHROME_COPY.composer.voiceInput}
                   </button>
                 </li>
               </ul>
             )}
           </div>
 
-          {/* 真实动词平铺：上传 / 案件文件夹 chip / 发送（docs/52 #4） */}
-          <button
-            type="button"
-            className="composer-icon-button"
-            data-testid="composer-upload"
-            aria-label="上传文件"
-            title="上传文件"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Icon name="paperclip" />
-          </button>
           <input
             ref={fileInputRef}
             type="file"
@@ -438,7 +442,7 @@ export function Composer({
               data-case-id={caseId || undefined}
               aria-haspopup="listbox"
               aria-expanded={caseMenuOpen}
-              title="选择案件文件夹"
+              title={CHROME_COPY.composer.chooseCase}
               onClick={() => {
                 setCaseMenuOpen((open) => !open);
                 setPlusOpen(false);
@@ -448,7 +452,7 @@ export function Composer({
               <span className="case-chip-label mono-ellip">{chipLabel}</span>
             </button>
             {caseMenuOpen && (
-              <ul className="case-menu" role="listbox" aria-label="案件列表" data-testid="composer-case-menu">
+              <ul className="case-menu" role="listbox" aria-label="Case list" data-testid="composer-case-menu">
                 {caseOptions.map((item) => (
                   <li key={item.id}>
                     <button
@@ -477,7 +481,7 @@ export function Composer({
                       setCaseMenuOpen(false);
                     }}
                   >
-                    不绑定容器 · 先聊后建
+                    {CHROME_COPY.composer.unbound}
                   </button>
                 </li>
               </ul>
@@ -490,9 +494,9 @@ export function Composer({
           className="composer-input"
           data-testid="composer-input"
           rows={1}
-          placeholder="描述要办的事，或从上方场景开始…"
+          placeholder={CHROME_COPY.composer.placeholder}
           value={text}
-          aria-label="自由输入"
+          aria-label={CHROME_COPY.composer.inputLabel}
           aria-controls={attachments.length ? listId : undefined}
           onChange={(event) => setText(event.target.value)}
           onKeyDown={onKeyDown}
@@ -518,8 +522,8 @@ export function Composer({
               >
                 <span data-testid="composer-provider" data-phase={connectionPhase}>
                   {connectionPhase === 'connected'
-                    ? `${modelLabel} · ${modelConfig.reasoning === 'deep' ? '深思' : '标准'}`
-                    : connectionPhase === 'failed' ? '连接失败' : '待连接'}
+                    ? `${modelLabel} · ${modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard}`
+                    : connectionPhase === 'failed' ? CHROME_COPY.composer.connectionFailed : CHROME_COPY.composer.connect}
                 </span>
               </button>
               <ModelConfigPopover
@@ -534,8 +538,8 @@ export function Composer({
             type="button"
             className="composer-send"
             data-testid="composer-send"
-            aria-label="发送"
-            title="发送"
+            aria-label={CHROME_COPY.composer.send}
+            title={CHROME_COPY.composer.send}
             disabled={!canSend || busy || attachments.some((item) => item.status.kind === 'failed')}
             onClick={handleSend}
           >
@@ -546,11 +550,11 @@ export function Composer({
 
       <p className="composer-kbd-hint" data-testid="composer-kbd-hint">
         <kbd>⏎</kbd>
-        <span>发送</span>
+        <span>{CHROME_COPY.composer.send}</span>
         <span className="composer-kbd-sep">·</span>
         <kbd>⇧</kbd>
         <kbd>⏎</kbd>
-        <span>换行</span>
+        <span>{CHROME_COPY.composer.newLine}</span>
       </p>
       {/* 供测试与 a11y 读出当前作用域文案模板 */}
       <span className="sr-only" data-testid="composer-scope-copy">

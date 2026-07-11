@@ -234,7 +234,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .case-card:has(.archive-popover) { z-index: 50; }
 .rail-pinned, .rail-mixed-list { position: relative; }
 .case-scroll { position: relative; }
-.case-card-select { width: 100%; display: flex; flex-direction: column; gap: 3px; padding: 8px 28px 8px 10px; text-align: left; color: var(--text-tertiary); font-size: 12px; }
+.case-card-select { width: 100%; display: flex; flex-direction: column; gap: 2px; padding: 6px 28px 6px 8px; text-align: left; color: var(--text-tertiary); font-size: 12px; }
 .case-card-main { width: 100%; display: flex; flex-direction: column; gap: 3px; padding: 0; border: 0; background: transparent; cursor: pointer; text-align: left; font: inherit; color: inherit; }
 .case-card-select strong, .case-card-main strong { color: var(--text-primary); font-size: 13px; font-weight: 510; line-height: 1.5; }
 .case-card-select strong, .case-card-main strong { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -244,12 +244,12 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   flex: none; padding: 1px 5px; border: 1px solid var(--border-strong); border-radius: 4px;
   color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.4 var(--mono); font-weight: var(--control-weight-regular); white-space: nowrap;
 }
-.case-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0; min-width: 0; }
+.case-card-meta { display: flex; flex-wrap: nowrap; align-items: center; gap: 0; min-width: 0; }
+.case-card-meta .case-number { min-width: 0; flex: 1; }
 .case-file-count {
   padding: 0; border: 0; border-bottom: 1px solid transparent; background: transparent;
-  color: var(--text-secondary); cursor: pointer; font: inherit; font-variant-numeric: tabular-nums;
+  flex: none; color: var(--text-secondary); font: inherit; font-variant-numeric: tabular-nums;
 }
-.case-file-count:hover { color: var(--text-primary); border-bottom-color: var(--border-strong); }
 .originals-zone[data-highlight="true"] { outline: 2px solid var(--text-primary); outline-offset: 2px; }
 .rail-add-button { width: 22px; height: 22px; display: grid; place-items: center; padding: 0; border: 1px solid var(--border-strong); border-radius: 4px; background: #fff; cursor: pointer; }
 .rail-add-button:hover { background: var(--bg-hover); }

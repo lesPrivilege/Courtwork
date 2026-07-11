@@ -90,11 +90,11 @@ export function AttachmentChip({
       <span className="attachment-name" title={attachment.fileName}>
         {displayName}
       </span>
-      {uploading && !longUpload && <span className="attachment-meta">正在处理…</span>}
+      {uploading && !longUpload && <span className="attachment-meta">Processing…</span>}
       {longUpload && status.kind === 'uploading' && (
         <span className="attachment-meta" data-testid={`attachment-progress-${attachment.id}`}>
           {status.progressLabel ??
-            `正在处理《${truncateFileName(attachment.fileName, 18)}》${
+            `Processing “${truncateFileName(attachment.fileName, 18)}”${
               status.progress !== undefined ? ` ${status.progress}%` : ''
             }`}
         </span>
@@ -105,7 +105,7 @@ export function AttachmentChip({
           {status.retryable && (
             <button type="button" className="attachment-inline-action" onClick={onRetry} data-testid={`attachment-retry-${attachment.id}`}>
               <Icon name="rotate-clockwise" />
-              重试
+              Retry
             </button>
           )}
         </span>
@@ -153,7 +153,7 @@ export function AttachmentChip({
       <button
         type="button"
         className="attachment-remove"
-        aria-label={`移除 ${attachment.fileName}`}
+        aria-label={`Remove ${attachment.fileName}`}
         data-testid={`attachment-remove-${attachment.id}`}
         onClick={onRemove}
       >

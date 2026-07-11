@@ -74,7 +74,7 @@ export function CommandPalette({ open, commands, onClose }: CommandPaletteProps)
         className="command-palette"
         role="dialog"
         aria-modal="true"
-        aria-label="命令面板"
+        aria-label="Command palette"
         data-testid="command-palette"
       >
         <input
@@ -86,11 +86,11 @@ export function CommandPalette({ open, commands, onClose }: CommandPaletteProps)
             setHighlighted(0);
           }}
           onKeyDown={onInputKeyDown}
-          placeholder="搜索场景、案件或操作…"
-          aria-label="搜索场景、案件或操作"
+          placeholder="Search scenes, cases, or actions…"
+          aria-label="Search scenes, cases, or actions"
         />
-        <div className="palette-results" role="listbox" aria-label="命令结果">
-          {results.length === 0 && <p className="palette-empty">没有找到匹配项</p>}
+        <div className="palette-results" role="listbox" aria-label="Command results">
+          {results.length === 0 && <p className="palette-empty">No matches</p>}
           {results.map((command, index) => {
             const showHeader = command.section !== lastSection;
             lastSection = command.section;

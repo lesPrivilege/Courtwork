@@ -28,12 +28,12 @@ export function ModelConfigPopover({ open, config, onChange, onClose }: ModelCon
     <div
       className="model-config-popover"
       role="dialog"
-      aria-label="模型与推理强度"
+      aria-label="Model and reasoning"
       data-testid="model-config-popover"
     >
-      <strong>模型服务</strong>
+      <strong>Model</strong>
       <label className="model-config-field">
-        <span>服务商</span>
+        <span>Provider</span>
         <select
           data-testid="model-config-provider"
           value={config.providerId}
@@ -47,7 +47,7 @@ export function ModelConfigPopover({ open, config, onChange, onClose }: ModelCon
         </select>
       </label>
       <label className="model-config-field">
-        <span>模型</span>
+        <span>Model</span>
         <select
           data-testid="model-config-model"
           value={config.modelId}
@@ -61,7 +61,7 @@ export function ModelConfigPopover({ open, config, onChange, onClose }: ModelCon
         </select>
       </label>
       <fieldset className="model-config-reasoning" data-testid="model-config-reasoning">
-        <legend>推理强度</legend>
+        <legend>Reasoning</legend>
         {REASONING_OPTIONS.map((item) => (
           <label key={item.id} className="model-config-radio">
             <input
@@ -71,17 +71,17 @@ export function ModelConfigPopover({ open, config, onChange, onClose }: ModelCon
               checked={config.reasoning === item.id}
               onChange={() => onChange({ ...config, reasoning: item.id as ReasoningLevel })}
             />
-            <span>{item.label}</span>
+            <span>{item.id === 'deep' ? 'Deep' : 'Standard'}</span>
           </label>
         ))}
       </fieldset>
       <p className="model-config-summary" data-testid="model-config-summary">
-        当前：{modelDisplayName(config)} · {config.reasoning === 'deep' ? '深思' : '标准'}
+        Current: {modelDisplayName(config)} · {config.reasoning === 'deep' ? 'Deep' : 'Standard'}
       </p>
       <div className="model-config-actions">
         {/* docs/52 #16：关闭=取消/收起，动词直白；quiet 次要层级（docs/32 主次按钮） */}
         <button type="button" className="quiet-button" onClick={onClose} data-testid="model-config-close">
-          关闭
+          Close
         </button>
       </div>
     </div>

@@ -44,8 +44,8 @@ export interface ComposerAttachment {
 }
 
 export const DISABLED_TOOLTIPS = {
-  camera: '扫描件识别即将支持 · 当前可直接上传拍摄照片或 PDF',
-  voice: '语音输入即将支持 · 当前请直接打字',
+  camera: 'Coming soon · Attach a photo or PDF for now',
+  voice: 'Coming soon · Type your message for now',
 } as const;
 
 export const SCOPE_COPY = {

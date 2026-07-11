@@ -28,6 +28,7 @@ import {
   stageLabel,
 } from './case/case-scope';
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
+import { CHROME_COPY } from './chrome/copy';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
@@ -762,8 +763,8 @@ export function App() {
   const pane = (view: WorkbenchView, secondary = false) => <section className="workbench-pane" data-pane={secondary ? 'secondary' : 'primary'}>
     <header className="pane-head">
       {secondary
-        ? <label><span>对照</span><select aria-label="对照工作面" value={view} onChange={(event) => setSecondaryView(event.target.value as WorkbenchView)}>{VIEWS.map((candidate) => <option value={candidate} key={candidate}>{VIEW_LABELS[candidate]}</option>)}</select></label>
-        : <><strong>{VIEW_LABELS[view]}</strong><span>主工作面</span></>}
+        ? <label><span>Compare</span><select aria-label="Comparison view" value={view} onChange={(event) => setSecondaryView(event.target.value as WorkbenchView)}>{VIEWS.map((candidate) => <option value={candidate} key={candidate}>{VIEW_LABELS[candidate]}</option>)}</select></label>
+        : <><strong>{VIEW_LABELS[view]}</strong><span>Primary view</span></>}
     </header>
     <div className="pane-content">{renderView(view)}</div>
   </section>;
@@ -771,15 +772,15 @@ export function App() {
   const paletteCommands: PaletteCommand[] = [
     ...(isDemoCase
       ? [
-          { id: 'scene-s1', section: '场景', label: '整理卷宗', onRun: () => { selectFlow('S1'); setPaletteOpen(false); } },
-          { id: 'scene-s3', section: '场景', label: '审查合同', onRun: () => { selectFlow('S3'); setPaletteOpen(false); } },
-          { id: 'scene-s6', section: '场景', label: '卷宗整理', onRun: () => { openFileOps(); setPaletteOpen(false); } },
+          { id: 'scene-s1', section: 'Scenes', label: '整理卷宗', onRun: () => { selectFlow('S1'); setPaletteOpen(false); } },
+          { id: 'scene-s3', section: 'Scenes', label: '审查合同', onRun: () => { selectFlow('S3'); setPaletteOpen(false); } },
+          { id: 'scene-s6', section: 'Scenes', label: '卷宗整理', onRun: () => { openFileOps(); setPaletteOpen(false); } },
         ]
       : []),
-    { id: 'scene-draft', section: '场景', label: '起草答辩状', onRun: () => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); setPaletteOpen(false); } },
+    { id: 'scene-draft', section: 'Scenes', label: '起草答辩状', onRun: () => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); setPaletteOpen(false); } },
     ...cases.map((item) => ({
       id: `case-${item.id}`,
-      section: '案件',
+      section: 'Cases',
       label: item.archived
         ? `${item.title}（已归档）`
         : item.isDemo || isDemoCaseId(item.id)
@@ -787,30 +788,30 @@ export function App() {
           : item.title,
       onRun: () => { setSelectedCaseId(item.id); setPaletteOpen(false); },
     })),
-    { id: 'action-new-case', section: '操作', label: '新建案件', onRun: () => { setPaletteOpen(false); setNewCaseOpen(true); } },
+    { id: 'action-new-case', section: 'Actions', label: CHROME_COPY.navigation.newCase, onRun: () => { setPaletteOpen(false); setNewCaseOpen(true); } },
     ...(selectedCase ? [{
       id: 'action-archive',
-      section: '操作',
+      section: 'Actions',
       label: selectedCase.archived ? '取消归档当前案件' : '归档当前案件',
       onRun: () => { setPaletteOpen(false); setArchiveConfirmCaseId(selectedCase.id); },
     } satisfies PaletteCommand] : []),
     {
       id: 'action-focus',
-      section: '操作',
-      label: focusMode ? '退出专注模式' : '进入专注模式',
+      section: 'Actions',
+      label: focusMode ? 'Exit focus mode' : 'Enter focus mode',
       onRun: () => { setPaletteOpen(false); toggleFocusMode(); },
     },
     {
       id: 'action-output-folder',
-      section: '操作',
-      label: '打开产出文件夹',
+      section: 'Actions',
+      label: 'Open output folder',
       // F-3 已接通真实 reveal；命令面板走同一路径
       onRun: () => { setPaletteOpen(false); openOutputFolder(); },
     },
     {
       id: 'action-settings',
-      section: '操作',
-      label: '设置',
+      section: 'Actions',
+      label: 'Settings',
       onRun: () => openSettings('model'),
     },
   ];
@@ -822,14 +823,14 @@ export function App() {
   const utilityItems = [
     {
       id: 'progress' as const,
-      title: '进度',
+      title: CHROME_COPY.utility.progress,
       count: progressCount,
       status: (isDemoCase ? (progressDone >= progressTotal ? 'done' : 'active') : 'idle') as 'done' | 'active' | 'idle',
       open: moduleOpen.progress,
       onToggle: () => toggleModule('progress'),
       body: <>
         <ul className="progress-module-list" data-testid="progress-module-body-list">
-          {session.progress.length === 0 && <li className="wf-empty">{isDemoCase ? '等待任务事件…' : '新案件 · 等待任务'}</li>}
+          {session.progress.length === 0 && <li className="wf-empty">{isDemoCase ? 'Waiting for task events…' : 'New case · waiting for a task'}</li>}
           {session.progress.map((message, index) => <li key={`${message}-${index}`}>{message}</li>)}
         </ul>
         {isDemoCase && usage >= 85 && <button className="continuation-button" data-testid="continuation-button" disabled={continued} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>{continued ? '已开启下一阶段' : '继续本案工作'}</button>}
@@ -838,21 +839,21 @@ export function App() {
     },
     {
       id: 'working-folders' as const,
-      title: '工作文件夹',
+      title: CHROME_COPY.utility.workingFolders,
       count: isDemoCase ? String(selectedCase?.fileCount ?? 0) : '0',
       status: (isDemoCase ? 'active' : 'idle') as 'active' | 'idle',
       open: moduleOpen['working-folders'],
       onToggle: () => toggleModule('working-folders'),
-      body: <WorkingFoldersTree isDemo={isDemoCase} originalCount={selectedCase?.fileCount ?? 0} onFocusOriginals={focusOriginalsZone} onOpenWorkDrafts={openWorkDrafts} onOpenFileOps={openFileOps} onOpenOutput={openOutputFolder} workDraftSelected={workDraftMode && activeView === 'draft'} fileOpsSelected={fileOpsMode} />,
+      body: <WorkingFoldersTree isDemo={isDemoCase} originalCount={selectedCase?.fileCount ?? 0} onFocusOriginals={focusOriginalsZone} onOpenWorkDrafts={openWorkDrafts} onOpenFileOps={openFileOps} workDraftSelected={workDraftMode && activeView === 'draft'} fileOpsSelected={fileOpsMode} />,
     },
     {
       id: 'context' as const,
-      title: '上下文',
+      title: CHROME_COPY.utility.context,
       count: `${usage}%`,
       status: (usage >= 85 ? 'warn' : 'idle') as 'warn' | 'idle',
       open: moduleOpen.context,
       onToggle: () => toggleModule('context'),
-      body: <ContextModuleBody usage={usage} usageDetail={usageDetail} attachmentSources={attachmentSources} modelLabel={modelDisplayName(modelConfig)} modelConnected={false} reasoningLabel={modelConfig.reasoning === 'deep' ? '深思' : '标准'} onOpenModelConfig={() => setModelConfigOpen(true)} />,
+      body: <ContextModuleBody usage={usage} usageDetail={usageDetail} attachmentSources={attachmentSources} modelLabel={modelDisplayName(modelConfig)} modelConnected={false} reasoningLabel={modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard} onOpenModelConfig={() => setModelConfigOpen(true)} />,
     },
   ];
 
@@ -884,9 +885,6 @@ export function App() {
             flow={flow}
             dispositionsCount={Object.keys(dispositions).length}
             caseRoot={caseRoot}
-            workDraftMode={workDraftMode}
-            activeViewIsDraft={activeView === 'draft'}
-            fileOpsMode={fileOpsMode}
             archiveConfirmCaseId={archiveConfirmCaseId}
             containerizeUnfiledId={containerizeUnfiledId}
             leftCollapsed={effectiveLeftCollapsed}
@@ -900,9 +898,6 @@ export function App() {
             onNewCase={() => setNewCaseOpen(true)}
             onOpenArtifacts={openOutputFolder}
             onSelectFlow={selectFlow}
-            onOpenWorkDrafts={openWorkDrafts}
-            onOpenFileOps={openFileOps}
-            onFocusOriginals={focusOriginalsZone}
             onArchiveTrigger={setArchiveConfirmCaseId}
             onArchiveConfirm={toggleArchive}
             onArchiveCancel={() => setArchiveConfirmCaseId(null)}
@@ -920,7 +915,7 @@ export function App() {
         {!focusMode && (
           <section className="conversation canvas-layer" data-testid="conversation-canvas">
             <header className={`chat-case-head ${isWelcome ? 'welcome-chat-head' : ''}`}>
-              {isWelcome ? <strong className="welcome-head-label">新工作</strong> : <>
+              {isWelcome ? <strong className="welcome-head-label">{CHROME_COPY.welcome.eyebrow}</strong> : <>
               {editingCaseTitle ? <input
                 autoFocus
                 data-testid="chat-case-title-input"
@@ -935,7 +930,7 @@ export function App() {
               <span className="stage-chip" data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</span>
               </>}
               <span className="spacer" />
-              <button type="button" className="quiet-button chat-global-action" data-testid="open-settings" aria-label="设置" title="设置" onClick={() => openSettings('model')}><Icon name="cog" /></button>
+              <button type="button" className="quiet-button chat-global-action" data-testid="open-settings" aria-label="Settings" title="Settings" onClick={() => openSettings('model')}><Icon name="cog" /></button>
               <button type="button" className="shortcut shortcut-trigger" onClick={() => setPaletteOpen(true)}><kbd>⌘</kbd><kbd>K</kbd></button>
             </header>
             {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.ok ? 'ok' : 'error'}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
@@ -943,13 +938,13 @@ export function App() {
               {isWelcome && (
                 <section className="welcome-state" data-testid="welcome-state">
                   <span className="welcome-mark" aria-hidden="true"><Icon name="panels-top-left" /></span>
-                  <h1>开始一项工作</h1>
-                  <p>描述你要处理的材料或任务，Courtwork 会从对话中建立工作脉络。</p>
+                  <h1>{CHROME_COPY.welcome.title}</h1>
+                  <p>{CHROME_COPY.welcome.body}</p>
                   <button type="button" className="quiet-button welcome-demo-start" data-testid="welcome-demo-start" onClick={() => {
                     setSelectedCaseId(DEMO_CASE_ID);
                     setExpandedCaseId(DEMO_CASE_ID);
                   }}>
-                    {`从${containerOriginLabel(true)}开始体验`}
+                    {CHROME_COPY.welcome.sample}
                   </button>
                 </section>
               )}
@@ -1096,9 +1091,9 @@ export function App() {
 
         {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载 */}
         {!isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
-          <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="展开右栏" title="展开右栏" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
+          <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
         </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open={previewOpen ? 'true' : 'false'} data-artifact-revision={artifactRevision}>
-          <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="折叠右栏" title="折叠右栏" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
+          <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
           <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => {
             previewDismissedContext.current = null;
             setPreviewOpen(true);
@@ -1120,8 +1115,8 @@ export function App() {
             }}
             actions={<>
                 {!focusMode && !comparing && (
-                  <button className="view-action" onClick={startComparison} data-testid="split-start" title="开始上下对照">
-                    <Icon name="rows-two" /><span>对照</span>
+                  <button className="view-action" onClick={startComparison} data-testid="split-start" title="Compare views">
+                    <Icon name="rows-two" /><span>Compare</span>
                   </button>
                 )}
                 {!focusMode && comparing && (
@@ -1129,8 +1124,8 @@ export function App() {
                     <button
                       type="button"
                       className={`icon-button ${splitDirection === 'rows' ? 'active' : ''}`}
-                      aria-label="上下对照"
-                      title="上下对照"
+                      aria-label="Stacked comparison"
+                      title="Stacked comparison"
                       aria-pressed={splitDirection === 'rows'}
                       onClick={() => setSplitDirection('rows')}
                     >
@@ -1139,16 +1134,16 @@ export function App() {
                     <button
                       type="button"
                       className={`icon-button ${splitDirection === 'columns' ? 'active' : ''}`}
-                      aria-label="左右对照"
-                      title={wideSplitAvailable ? '左右对照' : '窗口宽度达到 1600 后可用'}
+                      aria-label="Side-by-side comparison"
+                      title={wideSplitAvailable ? 'Side-by-side comparison' : 'Available at 1600px and above'}
                       aria-pressed={splitDirection === 'columns'}
                       disabled={!wideSplitAvailable}
                       onClick={() => setSplitDirection('columns')}
                     >
                       <Icon name="columns-two" />
                     </button>
-                    <button className="view-action" onClick={resetComparison} data-testid="split-reset" title="退出对照并恢复三栏">
-                      <Icon name="rotate-counter-clockwise" /><span>复位</span>
+                    <button className="view-action" onClick={resetComparison} data-testid="split-reset" title="Reset comparison">
+                      <Icon name="rotate-counter-clockwise" /><span>Reset</span>
                     </button>
                   </>
                 )}
@@ -1158,10 +1153,10 @@ export function App() {
                   onClick={toggleFocusMode}
                   data-testid="focus-toggle"
                   aria-pressed={focusMode}
-                  title={focusMode ? '退出专注模式' : '专注模式 · 单工作面全窗'}
+                  title={focusMode ? 'Exit focus mode' : 'Focus mode · single full-window view'}
                 >
                   <FocusGlyph />
-                  <span>{focusMode ? '退出专注' : '专注'}</span>
+                  <span>{focusMode ? 'Exit focus' : 'Focus'}</span>
                   {focusMode && <kbd>Esc</kbd>}
                 </button>
               </>}

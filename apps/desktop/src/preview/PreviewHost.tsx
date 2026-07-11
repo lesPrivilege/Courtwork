@@ -30,7 +30,7 @@ export function PreviewHost({ title, meta, navigation, children, onClose, progre
         <h2>{title}</h2>
         {meta && <span>{meta}</span>}
         <span className="spacer" />
-        <button type="button" className="icon-button" data-testid="preview-close" onClick={onClose} aria-label="关闭预览" title="关闭预览">
+        <button type="button" className="icon-button" data-testid="preview-close" onClick={onClose} aria-label="Close preview" title="Close preview">
           <Icon name="x" />
         </button>
       </header>
@@ -41,7 +41,7 @@ export function PreviewHost({ title, meta, navigation, children, onClose, progre
           className="preview-scroll-progress"
           data-testid="preview-scroll-progress"
           role="progressbar"
-          aria-label="预览滚动进度"
+          aria-label="Preview scroll progress"
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(scrollProgress * 100)}

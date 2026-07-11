@@ -1,6 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import {
-  connectionLabel,
   KEYCHAIN_RECOVERY_GUIDE,
   type CredentialStatus,
 } from '../credentials/client';
@@ -34,15 +33,21 @@ export type SettingsSection =
   | 'about';
 
 const NAV: ReadonlyArray<{ id: SettingsSection; label: string }> = [
-  { id: 'model', label: '模型服务' },
-  { id: 'output', label: '产出与文件' },
-  { id: 'channels', label: '通道与集成' },
-  { id: 'privacy', label: '数据与隐私' },
-  { id: 'promise', label: '数据承诺声明' },
-  { id: 'about', label: '关于与更新' },
+  { id: 'model', label: 'Model' },
+  { id: 'output', label: 'Output & files' },
+  { id: 'channels', label: 'Channels' },
+  { id: 'privacy', label: 'Data & privacy' },
+  { id: 'promise', label: 'Data promise' },
+  { id: 'about', label: 'About & updates' },
 ];
 
 const APP_VERSION = '0.1.0';
+
+function chromeConnectionLabel(status: CredentialStatus): string {
+  if (status.phase === 'connected') return 'Connected';
+  if (status.phase === 'failed') return 'Connection failed';
+  return 'Connect';
+}
 
 export interface SettingsPageProps {
   open: boolean;
@@ -106,7 +111,7 @@ export function SettingsPage({
     const trimmed = maxUsdDraft.trim();
     const value = trimmed === '' ? undefined : Number(trimmed);
     if (trimmed !== '' && (!Number.isFinite(value) || (value as number) < 0)) {
-      onFeedback('请输入有效的非负数字限额', false);
+      onFeedback('Enter a valid non-negative limit', false);
       return;
     }
     const next = updateRuntimeGuard(settings, { maxUsd: value });
@@ -114,8 +119,8 @@ export function SettingsPage({
     setMaxUsdDraft(next.runtimeGuard.maxUsd === undefined ? '' : String(next.runtimeGuard.maxUsd));
     onFeedback(
       next.runtimeGuard.maxUsd === undefined
-        ? '已取消用量美元限额'
-        : `用量限额已设为 ${next.runtimeGuard.maxUsd} 美元`,
+        ? 'Usage limit removed'
+        : `Usage limit set to $${next.runtimeGuard.maxUsd}`,
       true,
     );
   };
@@ -129,14 +134,14 @@ export function SettingsPage({
     const virtualPath = `/Courtwork/默认产出/${folderName}`;
     const next = updateOutputDir(settings, virtualPath);
     setSettings(next);
-    onFeedback(`默认产出目录已设为「${folderName}」`, true);
+    onFeedback(`Default output folder set to “${folderName}”`, true);
     event.target.value = '';
   };
 
   const revealOutputDir = () => {
     const dir = settings.output.defaultOutputDir;
     if (!dir) {
-      onFeedback('尚未设置默认产出目录', false);
+      onFeedback('Choose a default output folder first', false);
       return;
     }
     onRevealPath(dir);
@@ -160,37 +165,37 @@ export function SettingsPage({
     anchor.download = `courtwork-diagnostics-${Date.now()}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
-    onFeedback('诊断信息已导出（不含密钥与案件内容）', true);
+    onFeedback('Diagnostics exported without credentials or case content', true);
   };
 
   const confirmOptIn = () => {
     const next = setBehaviorDataOptIn(settings, true);
     setSettings(next);
     setOptInConfirmOpen(false);
-    onFeedback('已同意脱敏行为数据 opt-in', true);
+    onFeedback('De-identified product analytics enabled', true);
   };
 
   const toggleOptInOff = () => {
     const next = setBehaviorDataOptIn(settings, false);
     setSettings(next);
-    onFeedback('已关闭脱敏行为数据 opt-in（不溯及既往）', true);
+    onFeedback('De-identified product analytics disabled', true);
   };
 
   return (
     <div className="settings-backdrop" role="presentation">
     <SurfaceCard className="settings-layer" data-testid="settings-page" role="dialog" aria-modal="true" aria-labelledby={titleId}>
       <header className="settings-header">
-        <h1 id={titleId}>设置</h1>
-        <span className="settings-header-note">全局偏好 · 与当前案件无关</span>
+        <h1 id={titleId}>Settings</h1>
+        <span className="settings-header-note">Global preferences</span>
         <span className="spacer" />
-        <button type="button" className="quiet-button" data-testid="settings-close" onClick={onClose} title="关闭设置 · Esc">
-          关闭
+        <button type="button" className="quiet-button" data-testid="settings-close" onClick={onClose} title="Close settings · Esc">
+          Close
           <kbd>Esc</kbd>
         </button>
       </header>
 
       <div className="settings-body">
-        <nav className="settings-nav" aria-label="设置分组">
+        <nav className="settings-nav" aria-label="Settings sections">
           {NAV.map((item) => (
             <button
               key={item.id}
@@ -208,13 +213,13 @@ export function SettingsPage({
         <div className="settings-content" data-testid={`settings-section-${section}`} data-section={section}>
           {section === 'model' && (
             <section className="settings-panel">
-              <h2>模型服务</h2>
-              <p className="settings-lead">密钥仅存本机钥匙串；连接状态由探针驱动，绝不乐观显示已连接。</p>
+              <h2>Model</h2>
+              <p className="settings-lead">Credentials stay in the local keychain. Connection state is probe-driven.</p>
 
               <div className="settings-row" data-testid="settings-key-row">
                 <div>
-                  <strong>访问凭证</strong>
-                  <p>粘贴凭证或指定环境变量名；保存后复探。</p>
+                  <strong>Credentials</strong>
+                  <p>Paste a credential or name an environment variable, then probe again.</p>
                 </div>
                 <div className="settings-row-actions">
                   <span
@@ -224,7 +229,7 @@ export function SettingsPage({
                     data-fail-kind={credentialStatus.failKind ?? undefined}
                     title={credentialStatus.failureMessage}
                   >
-                    {connectionLabel(credentialStatus)}
+                    {chromeConnectionLabel(credentialStatus)}
                   </span>
                   <button
                     type="button"
@@ -232,7 +237,7 @@ export function SettingsPage({
                     data-testid="settings-open-credentials"
                     onClick={onOpenCredentialSetup}
                   >
-                    管理凭证
+                    Manage credentials
                   </button>
                 </div>
               </div>
@@ -256,12 +261,12 @@ export function SettingsPage({
 
               <div className="settings-row" data-testid="settings-provider-row">
                 <div>
-                  <strong>服务商与模型</strong>
-                  <p>写入 provider 配置，接真实流式时 UI 零改动。</p>
+                  <strong>Provider & model</strong>
+                  <p>Choose the provider, model, and reasoning level used by the composer.</p>
                 </div>
                 <div className="settings-fields">
                   <label>
-                    <span>服务商</span>
+                    <span>Provider</span>
                     <select
                       data-testid="settings-provider"
                       value={modelConfig.providerId}
@@ -277,7 +282,7 @@ export function SettingsPage({
                     </select>
                   </label>
                   <label>
-                    <span>模型</span>
+                    <span>Model</span>
                     <select
                       data-testid="settings-model"
                       value={modelConfig.modelId}
@@ -291,7 +296,7 @@ export function SettingsPage({
                     </select>
                   </label>
                   <fieldset data-testid="settings-reasoning">
-                    <legend>推理强度</legend>
+                    <legend>Reasoning</legend>
                     {REASONING_OPTIONS.map((item) => (
                       <label key={item.id} className="settings-radio">
                         <input
@@ -303,21 +308,21 @@ export function SettingsPage({
                             onModelConfigChange({ ...modelConfig, reasoning: item.id as ReasoningLevel })
                           }
                         />
-                        {item.label}
+                        {item.id === 'deep' ? 'Deep' : 'Standard'}
                       </label>
                     ))}
                   </fieldset>
                   <p className="settings-muted" data-testid="settings-model-summary">
-                    当前：{modelDisplayName(modelConfig)} ·{' '}
-                    {modelConfig.reasoning === 'deep' ? '深思' : '标准'}
+                    Current: {modelDisplayName(modelConfig)} ·{' '}
+                    {modelConfig.reasoning === 'deep' ? 'Deep' : 'Standard'}
                   </p>
                 </div>
               </div>
 
               <div className="settings-row" data-testid="settings-maxusd-row">
                 <div>
-                  <strong>用量限额（美元）</strong>
-                  <p>对应 RuntimeGuard.maxUsd；留空表示不限额。超限中断生成。</p>
+                  <strong>Usage limit (USD)</strong>
+                  <p>Leave blank for no limit. Generation stops when the limit is reached.</p>
                 </div>
                 <div className="settings-row-actions">
                   <input
@@ -327,11 +332,11 @@ export function SettingsPage({
                     className="settings-number"
                     data-testid="settings-maxusd"
                     value={maxUsdDraft}
-                    placeholder="不限额"
+                    placeholder="No limit"
                     onChange={(event) => setMaxUsdDraft(event.target.value)}
                   />
                   <button type="button" className="quiet-button" data-testid="settings-maxusd-save" onClick={commitMaxUsd}>
-                    保存限额
+                    Save limit
                   </button>
                 </div>
               </div>
@@ -340,17 +345,17 @@ export function SettingsPage({
 
           {section === 'output' && (
             <section className="settings-panel">
-              <h2>产出与文件</h2>
-              <p className="settings-lead">默认下载落点可改；不逐次询问（docs/46 裁决 10）。</p>
+              <h2>Output & files</h2>
+              <p className="settings-lead">Choose one default destination instead of confirming every export.</p>
 
               <div className="settings-row" data-testid="settings-output-dir-row">
                 <div>
-                  <strong>默认产出目录</strong>
-                  <p>生成文件的默认根目录；可用「在访达中显示」验证路径。</p>
+                  <strong>Default output folder</strong>
+                  <p>The root folder for generated files.</p>
                 </div>
                 <div className="settings-fields">
                   <code className="settings-path mono-ellip" data-testid="settings-output-dir" title={settings.output.defaultOutputDir}>
-                    {settings.output.defaultOutputDir ?? '尚未设置（将使用本案产出子目录）'}
+                    {settings.output.defaultOutputDir ?? 'Not set · using the current case output folder'}
                   </code>
                   <div className="settings-row-actions">
                     <button
@@ -359,17 +364,17 @@ export function SettingsPage({
                       data-testid="settings-pick-output-dir"
                       onClick={() => folderInputRef.current?.click()}
                     >
-                      选择文件夹
+                      Choose folder
                     </button>
                     <button
                       type="button"
                       className="quiet-button"
                       data-testid="settings-reveal-output-dir"
                       disabled={!settings.output.defaultOutputDir}
-                      title={settings.output.defaultOutputDir ? '在访达中显示' : '请先选择目录'}
+                      title={settings.output.defaultOutputDir ? 'Show in Finder' : 'Choose a folder first'}
                       onClick={revealOutputDir}
                     >
-                      在访达中显示
+                      Show in Finder
                     </button>
                   </div>
                   <input
@@ -386,8 +391,8 @@ export function SettingsPage({
 
               <div className="settings-row is-reserved" data-testid="settings-sources-row">
                 <div>
-                  <strong>来源授权</strong>
-                  <p>管理外部资料库与连接器授权范围。</p>
+                  <strong>Source access</strong>
+                  <p>Manage external libraries and connector permissions.</p>
                 </div>
                 <button
                   type="button"
@@ -398,7 +403,7 @@ export function SettingsPage({
                   tabIndex={0}
                   onClick={(event) => event.preventDefault()}
                 >
-                  管理来源
+                  Manage sources
                 </button>
               </div>
             </section>
@@ -406,20 +411,20 @@ export function SettingsPage({
 
           {section === 'channels' && (
             <section className="settings-panel">
-              <h2>通道与集成</h2>
-              <p className="settings-lead">以下通道为路线图预留，入口常驻禁用态（docs/19 空路由判据）。</p>
+              <h2>Channels</h2>
+              <p className="settings-lead">Reserved integrations stay visible and disabled until they are real.</p>
               {(
                 [
-                  ['wecom', '企业微信', RESERVED_COPY.wecom],
-                  ['feishu', '飞书', RESERVED_COPY.feishu],
-                  ['email', '邮件', RESERVED_COPY.email],
-                  ['enterprise-lib', '企业私域库', RESERVED_COPY.enterpriseLib],
+                  ['wecom', 'WeCom', RESERVED_COPY.wecom],
+                  ['feishu', 'Feishu', RESERVED_COPY.feishu],
+                  ['email', 'Email', RESERVED_COPY.email],
+                  ['enterprise-lib', 'Private enterprise library', RESERVED_COPY.enterpriseLib],
                 ] as const
               ).map(([id, label, tip]) => (
                 <div key={id} className="settings-row is-reserved" data-testid={`settings-channel-${id}`}>
                   <div>
                     <strong>{label}</strong>
-                    <p>即将支持的机构通道。</p>
+                    <p>Reserved organization channel.</p>
                   </div>
                   <button
                     type="button"
@@ -430,7 +435,7 @@ export function SettingsPage({
                     tabIndex={0}
                     onClick={(event) => event.preventDefault()}
                   >
-                    连接
+                    Connect
                   </button>
                 </div>
               ))}
@@ -439,13 +444,13 @@ export function SettingsPage({
 
           {section === 'privacy' && (
             <section className="settings-panel">
-              <h2>数据与隐私</h2>
-              <p className="settings-lead">关键授权逐项确认，不埋长文本（docs/28）。</p>
+              <h2>Data & privacy</h2>
+              <p className="settings-lead">Sensitive choices require explicit confirmation.</p>
 
               <div className="settings-row" data-testid="settings-promise-link-row">
                 <div>
-                  <strong>数据承诺声明</strong>
-                  <p>主协议级条款摘录，含「案件内容永不训练」。</p>
+                  <strong>Data promise</strong>
+                  <p>Read the product-level commitments, including the no-training promise.</p>
                 </div>
                 <button
                   type="button"
@@ -453,17 +458,17 @@ export function SettingsPage({
                   data-testid="settings-open-promise"
                   onClick={() => onSectionChange('promise')}
                 >
-                  阅读声明
+                  Read promise
                 </button>
               </div>
 
               <div className="settings-row" data-testid="settings-behavior-optin-row">
                 <div>
-                  <strong>脱敏行为数据 opt-in</strong>
-                  <p>仅字段级修正行为，可随时关，不溯及既往。</p>
+                  <strong>De-identified product analytics</strong>
+                  <p>Field-level correction signals only. You can turn this off at any time.</p>
                   {settings.privacy.behaviorDataConsentedAt && (
                     <p className="settings-muted" data-testid="settings-optin-timestamp">
-                      同意时间：{settings.privacy.behaviorDataConsentedAt}
+                      Enabled: {settings.privacy.behaviorDataConsentedAt}
                     </p>
                   )}
                 </div>
@@ -475,7 +480,7 @@ export function SettingsPage({
                       data-testid="settings-optin-off"
                       onClick={toggleOptInOff}
                     >
-                      关闭授权
+                      Turn off
                     </button>
                   ) : (
                     <button
@@ -484,7 +489,7 @@ export function SettingsPage({
                       data-testid="settings-optin-on"
                       onClick={() => setOptInConfirmOpen(true)}
                     >
-                      逐项确认开启
+                      Review and enable
                     </button>
                   )}
                 </div>
@@ -492,8 +497,8 @@ export function SettingsPage({
 
               <div className="settings-row" data-testid="settings-telemetry-row">
                 <div>
-                  <strong>使用遥测</strong>
-                  <p>不含密钥与案件正文；本机可随时关闭。</p>
+                  <strong>Usage telemetry</strong>
+                  <p>Never includes credentials or case text. Disable it at any time.</p>
                 </div>
                 <label className="settings-switch">
                   <input
@@ -503,17 +508,17 @@ export function SettingsPage({
                     onChange={(event) => {
                       const next = setTelemetryEnabled(settings, event.target.checked);
                       setSettings(next);
-                      onFeedback(event.target.checked ? '已开启使用遥测' : '已关闭使用遥测', true);
+                      onFeedback(event.target.checked ? 'Usage telemetry enabled' : 'Usage telemetry disabled', true);
                     }}
                   />
-                  <span>{settings.privacy.telemetryEnabled ? '已开启' : '已关闭'}</span>
+                  <span>{settings.privacy.telemetryEnabled ? 'On' : 'Off'}</span>
                 </label>
               </div>
 
               <div className="settings-row is-reserved" data-testid="settings-clear-prefs-row">
                 <div>
-                  <strong>清除记住的偏好</strong>
-                  <p>与「清空本次对话」是两个独立入口（docs/25）。</p>
+                  <strong>Clear saved preferences</strong>
+                  <p>This does not clear the current conversation.</p>
                 </div>
                 <button
                   type="button"
@@ -524,7 +529,7 @@ export function SettingsPage({
                   tabIndex={0}
                   onClick={(event) => event.preventDefault()}
                 >
-                  清除偏好
+                  Clear preferences
                 </button>
               </div>
             </section>
@@ -547,11 +552,11 @@ export function SettingsPage({
 
           {section === 'about' && (
             <section className="settings-panel">
-              <h2>关于与更新</h2>
+              <h2>About & updates</h2>
               <div className="settings-row" data-testid="settings-version-row">
                 <div>
-                  <strong>版本</strong>
-                  <p>Courtwork 桌面端</p>
+                  <strong>Version</strong>
+                  <p>Courtwork desktop</p>
                 </div>
                 <span className="settings-mono" data-testid="settings-version">
                   {APP_VERSION}
@@ -559,26 +564,26 @@ export function SettingsPage({
               </div>
               <div className="settings-row" data-testid="settings-license-row">
                 <div>
-                  <strong>许可</strong>
-                  <p>产品软件许可与第三方开源清单以发行包为准。</p>
+                  <strong>Licenses</strong>
+                  <p>Product license and third-party notices ship with the release.</p>
                 </div>
                 <span className="settings-muted" data-testid="settings-license">
-                  Proprietary · 第三方见 NOTICE
+                  Proprietary · See NOTICE for third-party software
                 </span>
               </div>
               <div className="settings-row" data-testid="settings-diagnostics-row">
                 <div>
-                  <strong>诊断导出</strong>
-                  <p>导出配置摘要与连接状态；永不含密钥与案件内容。</p>
+                  <strong>Diagnostics</strong>
+                  <p>Export configuration and connection state without credentials or case content.</p>
                 </div>
                 <button type="button" className="quiet-button" data-testid="settings-export-diagnostics" onClick={exportDiagnostics}>
-                  导出诊断
+                  Export diagnostics
                 </button>
               </div>
               <div className="settings-row is-reserved" data-testid="settings-check-update-row">
                 <div>
-                  <strong>检查更新</strong>
-                  <p>自动更新依赖发行通道与公证。</p>
+                  <strong>Check for updates</strong>
+                  <p>Automatic updates require a signed release channel.</p>
                 </div>
                 <button
                   type="button"
@@ -589,12 +594,12 @@ export function SettingsPage({
                   tabIndex={0}
                   onClick={(event) => event.preventDefault()}
                 >
-                  检查更新
+                  Check for updates
                 </button>
               </div>
               <div className="settings-row" data-testid="settings-feedback-row">
-                <div><strong>反馈</strong><p>通过邮件发送产品建议或问题。</p></div>
-                <a className="quiet-button settings-feedback-link" href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">发送反馈</a>
+                <div><strong>Feedback</strong><p>Send product feedback or report a problem by email.</p></div>
+                <a className="quiet-button settings-feedback-link" href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">Send feedback</a>
               </div>
             </section>
           )}
@@ -610,16 +615,16 @@ export function SettingsPage({
             aria-labelledby="optin-confirm-title"
             data-testid="settings-optin-confirm"
           >
-            <h2 id="optin-confirm-title">确认开启脱敏行为数据 opt-in</h2>
+            <h2 id="optin-confirm-title">Enable de-identified product analytics?</h2>
             <p>
-              仅会在不可逆脱敏后，汇总字段级修正行为（例如否决了哪类风险点），用于产品改进。不含案件实质内容。您可随时关闭；关闭不溯及既往。
+              Courtwork will collect only irreversibly de-identified field-level correction signals. Case content is excluded. You can turn this off at any time.
             </p>
             <div className="scope-popover-actions">
               <button type="button" className="quiet-button" onClick={() => setOptInConfirmOpen(false)}>
-                取消
+                Cancel
               </button>
               <button type="button" className="primary-button" data-testid="settings-optin-confirm-yes" onClick={confirmOptIn}>
-                确认开启
+                Enable
               </button>
             </div>
           </section>

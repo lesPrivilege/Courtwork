@@ -1,4 +1,5 @@
 import { ArchiveConfirmPopover } from '../case/ArchiveConfirmPopover';
+import { CHROME_COPY } from '../chrome/copy';
 import { containerOriginLabel, fileCountLabel, type ContainerKind } from '../case/container-copy';
 import { isDemoCaseId } from '../case/case-scope';
 import type { CaseSummary } from '../case/types';
@@ -27,9 +28,6 @@ interface CaseRailProps {
   flow: ScenarioFlow | null;
   dispositionsCount: number;
   caseRoot: string | undefined;
-  workDraftMode: boolean;
-  activeViewIsDraft: boolean;
-  fileOpsMode: boolean;
   archiveConfirmCaseId: string | null;
   /** F-1.1：未归档「存入」锚定的容器化仪式行 id */
   containerizeUnfiledId: string | null;
@@ -39,9 +37,6 @@ interface CaseRailProps {
   onNewCase: () => void;
   onOpenArtifacts: () => void;
   onSelectFlow: (flow: ScenarioFlow) => void;
-  onOpenWorkDrafts: () => void;
-  onOpenFileOps: () => void;
-  onFocusOriginals: () => void;
   onArchiveTrigger: (id: string) => void;
   onArchiveConfirm: (id: string) => void;
   onArchiveCancel: () => void;
@@ -65,9 +60,6 @@ export function CaseRail({
   flow,
   dispositionsCount,
   caseRoot,
-  workDraftMode,
-  activeViewIsDraft,
-  fileOpsMode,
   archiveConfirmCaseId,
   containerizeUnfiledId,
   leftCollapsed,
@@ -76,9 +68,6 @@ export function CaseRail({
   onNewCase,
   onOpenArtifacts,
   onSelectFlow,
-  onOpenWorkDrafts,
-  onOpenFileOps,
-  onFocusOriginals,
   onArchiveTrigger,
   onArchiveConfirm,
   onArchiveCancel,
@@ -102,13 +91,13 @@ export function CaseRail({
           type="button"
           className="rail-expand-button"
           data-testid="expand-left-rail"
-          title="展开左栏"
-          aria-label="展开左栏"
+          title={CHROME_COPY.navigation.expandLeft}
+          aria-label={CHROME_COPY.navigation.expandLeft}
           onClick={onExpandLeft}
         >
           <Icon name="panel-left" />
         </button>
-        <nav className="collapsed-case-icons" aria-label="折叠的案件栏">
+        <nav className="collapsed-case-icons" aria-label="Collapsed case sidebar">
           {cases.map((item) => (
             <button
               key={item.id}
@@ -163,27 +152,20 @@ export function CaseRail({
                     </strong>
                     {demo && <span className="container-origin-label" data-testid="demo-origin-label">{containerOriginLabel(true)}</span>}
                   </span>
+                </button>
+                <div className="case-card-meta truncate">
                   {item.caseNumber && (
                     <span className="case-number truncate" title={item.caseNumber}>
                       {item.caseNumber}
                     </span>
                   )}
-                </button>
-                <div className="case-card-meta truncate">
-                  <button
-                    type="button"
+                  {item.caseNumber ? <span aria-hidden="true"> · </span> : null}
+                  <span
                     className="case-file-count"
                     data-testid="case-file-count"
-                    title="查看原件区"
-                    onClick={() => {
-                      // A2：只走 onSelectCase（App 对 case 会 setExpandedCaseId=id）+ focus；
-                      // 禁止再 toggle——与 select 同批会把 expand 对消回 null。
-                      onSelectCase(item.id);
-                      onFocusOriginals();
-                    }}
                   >
                     {fileCountLabel(item.kind ?? 'case', item.fileCount)}
-                  </button>
+                  </span>
                   {item.archived ? <span> · 已归档</span> : null}
                 </div>
               </>
@@ -302,29 +284,6 @@ export function CaseRail({
             )}
             {caseRoot && demo && <OriginalsZone caseRoot={caseRoot} onFeedback={onFeedback} />}
             {!demo && <p className="wf-empty rail-pad">尚无卷宗原件</p>}
-            <p className="rail-label">工作区</p>
-            <button
-              type="button"
-              className={`stage-row ${workDraftMode && activeViewIsDraft ? 'selected' : ''}`}
-              data-testid="open-work-drafts"
-              onClick={onOpenWorkDrafts}
-            >
-              <Icon name="file-text" />
-              工作稿 · 笔记备忘
-              <span>新建</span>
-            </button>
-            {demo && (
-              <button
-                type="button"
-                className={`stage-row ${fileOpsMode ? 'selected' : ''}`}
-                data-testid="open-file-ops"
-                onClick={onOpenFileOps}
-              >
-                <Icon name="folder-open" />
-                卷宗整理 · S6
-                <span>计划</span>
-              </button>
-            )}
           </div>
         )}
       </article>
@@ -341,54 +300,54 @@ export function CaseRail({
             className="rail-add-button"
             onClick={onNewCase}
             data-testid="new-case-open"
-            aria-label="新建案件"
-            title="新建案件"
+            aria-label={CHROME_COPY.navigation.newCase}
+            title={CHROME_COPY.navigation.newCase}
           >
             <Icon name="plus" />
           </button>
-          <button type="button" className="rail-add-button" data-testid="collapse-left-rail" aria-label="折叠左栏" title="折叠左栏" onClick={onCollapseLeft}>
+          <button type="button" className="rail-add-button" data-testid="collapse-left-rail" aria-label={CHROME_COPY.navigation.collapseLeft} title={CHROME_COPY.navigation.collapseLeft} onClick={onCollapseLeft}>
             <Icon name="panel-left" />
           </button>
         </header>
 
-        <nav className="rail-nav-skeleton" aria-label="导航骨架" data-testid="rail-nav-skeleton">
+        <nav className="rail-nav-skeleton" aria-label="Navigation" data-testid="rail-nav-skeleton">
           <button type="button" className="rail-nav-item" data-testid="nav-artifacts" onClick={onOpenArtifacts}>
             <Icon name="package" />
-            <span>产出</span>
+            <span>{CHROME_COPY.navigation.output}</span>
           </button>
           <button
             type="button"
             className="rail-nav-item is-disabled-feature"
             data-testid="nav-scheduled"
             aria-disabled="true"
-            title="即将支持 · 定时任务"
+            title="Coming soon · Scheduled tasks"
             onClick={(event) => event.preventDefault()}
           >
             <Icon name="calendar-clock" />
-            <span>定时</span>
+            <span>{CHROME_COPY.navigation.scheduled}</span>
           </button>
           <button
             type="button"
             className="rail-nav-item is-disabled-feature"
             data-testid="nav-dispatch"
             aria-disabled="true"
-            title="即将支持 · 派发"
+            title="Coming soon · Dispatch"
             onClick={(event) => event.preventDefault()}
           >
             <Icon name="send" />
-            <span>派发</span>
+            <span>{CHROME_COPY.navigation.dispatch}</span>
           </button>
         </nav>
 
         <div className="case-scroll">
           {pinnedRows.length > 0 && (
             <div className="rail-pinned" data-testid="rail-pinned">
-              <p className="rail-label">置顶</p>
+              <p className="rail-label">{CHROME_COPY.navigation.pinned}</p>
               {pinnedRows.map(renderRow)}
             </div>
           )}
           <div className="rail-mixed-list" data-testid="rail-mixed-list">
-            {pinnedRows.length > 0 && restRows.length > 0 && <p className="rail-label">最近</p>}
+            {pinnedRows.length > 0 && restRows.length > 0 && <p className="rail-label">{CHROME_COPY.navigation.recent}</p>}
             {restRows.map(renderRow)}
           </div>
         </div>
@@ -396,13 +355,12 @@ export function CaseRail({
         <div className="rail-user-wrap">
           <button type="button" className="rail-user" data-testid="user-menu-trigger" aria-expanded={userMenuOpen} onClick={() => setUserMenuOpen((open) => !open)}>
             <span className="user-avatar">{showLeadAttorney(isDemoCase) ? '林' : '我'}</span>
-            <span>{showLeadAttorney(isDemoCase) ? '林律师 · 样板负责人' : '负责人'}</span>
+            <span>{showLeadAttorney(isDemoCase) ? `林律师 · ${CHROME_COPY.account.sampleLead}` : CHROME_COPY.account.owner}</span>
             <span aria-hidden="true">⌃</span>
           </button>
           {userMenuOpen && <div className="rail-user-menu" data-testid="user-menu" role="menu">
-            <button type="button" role="menuitem" onClick={onOpenSettings}>设置</button>
-            <button type="button" role="menuitem" onClick={onOpenSettings}>检查更新 <span className="update-badge">设置</span></button>
-            <a role="menuitem" href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">Give us feedback</a>
+            <button type="button" role="menuitem" onClick={onOpenSettings}>{CHROME_COPY.account.settingsUpdates}</button>
+            <a role="menuitem" href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">{CHROME_COPY.account.feedback}</a>
           </div>}
         </div>
       </div>

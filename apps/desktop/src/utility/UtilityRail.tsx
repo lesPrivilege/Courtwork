@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { StackModule } from '../modules/ModuleStack';
 import type { ModuleId } from '../modules/module-stack';
 import { SurfaceCard } from '../surface/SurfaceCard';
+import { CHROME_COPY } from '../chrome/copy';
 
 interface UtilityItem {
   id: Extract<ModuleId, 'progress' | 'working-folders' | 'context'>;
@@ -43,7 +44,7 @@ export function UtilityRail({ mode, items, onOpenPreview, onExpandItem }: Utilit
     <div className="utility-rail" data-testid="utility-rail" data-mode="base">
       <SurfaceCard elevation="raised" className="utility-preview-entry">
         <button type="button" data-testid="preview-open" onClick={onOpenPreview}>
-          <span>预览</span><strong>展开</strong>
+          <span>{CHROME_COPY.utility.preview}</span><strong>{CHROME_COPY.utility.open}</strong>
         </button>
       </SurfaceCard>
       {items.map((item) => (

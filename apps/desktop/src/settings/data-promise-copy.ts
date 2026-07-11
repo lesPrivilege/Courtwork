@@ -53,15 +53,15 @@ export const DATA_PROMISE_SECTIONS: ReadonlyArray<{
 
 /** 预留项统一 tooltip 模板（docs/19 / docs/45）。 */
 export function reservedTooltip(feature: string, alternative: string): string {
-  return `${feature}即将支持 · 当前可通过${alternative}实现`;
+  return `${feature} is coming soon · For now, ${alternative}`;
 }
 
 export const RESERVED_COPY = {
-  sources: reservedTooltip('来源授权管理', '在对话中按条确认附件归属'),
-  wecom: reservedTooltip('企业微信通道', '本机导出后手动发送'),
-  feishu: reservedTooltip('飞书通道', '本机导出后手动发送'),
-  email: reservedTooltip('邮件通道', '系统默认邮件客户端发送产出文件'),
-  enterpriseLib: reservedTooltip('企业私域库接入', '将资料放入本案卷宗文件夹'),
-  clearPrefs: reservedTooltip('清除记住的偏好', '在记忆空间上线后管理；与「清空本次对话」是两个独立入口'),
-  checkUpdate: reservedTooltip('检查更新', '从发行渠道手动下载新版本'),
+  sources: reservedTooltip('Source access', 'confirm attachment scope in chat'),
+  wecom: reservedTooltip('WeCom', 'export locally and send it manually'),
+  feishu: reservedTooltip('Feishu', 'export locally and send it manually'),
+  email: reservedTooltip('Email', 'send exported files with your default mail app'),
+  enterpriseLib: reservedTooltip('Private enterprise libraries', 'add material to the current case folder'),
+  clearPrefs: reservedTooltip('Clear saved preferences', 'manage them when memory ships'),
+  checkUpdate: reservedTooltip('Update checks', 'download releases manually'),
 } as const;

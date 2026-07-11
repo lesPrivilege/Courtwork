@@ -63,7 +63,6 @@ interface WorkingFoldersTreeProps {
   onFocusOriginals: () => void;
   onOpenWorkDrafts: () => void;
   onOpenFileOps: () => void;
-  onOpenOutput: () => void;
   workDraftSelected: boolean;
   fileOpsSelected: boolean;
 }
@@ -78,7 +77,6 @@ export function WorkingFoldersTree({
   onFocusOriginals,
   onOpenWorkDrafts,
   onOpenFileOps,
-  onOpenOutput,
   workDraftSelected,
   fileOpsSelected,
 }: WorkingFoldersTreeProps) {
@@ -86,20 +84,20 @@ export function WorkingFoldersTree({
     <div className="working-folders-tree" data-testid="working-folders-tree">
       <div className="wf-zone" data-zone="originals">
         <p className="wf-zone-label">
-          原件<span className="original-badge" data-testid="wf-originals-readonly">只读</span>
+          Originals<span className="original-badge" data-testid="wf-originals-readonly">Read only</span>
         </p>
         {isDemo ? (
           <button type="button" className="stage-row" data-testid="wf-focus-originals" onClick={onFocusOriginals}>
             <Icon name="file" />
             <span className="truncate">卷宗原件 {originalCount} 件</span>
-            <span>只读</span>
+            <span>Read only</span>
           </button>
         ) : (
-          <p className="wf-empty">尚无原件</p>
+          <p className="wf-empty">No originals yet</p>
         )}
       </div>
       <div className="wf-zone" data-zone="drafts">
-        <p className="wf-zone-label">工作稿</p>
+        <p className="wf-zone-label">Work drafts</p>
         <button
           type="button"
           className={`stage-row ${workDraftSelected ? 'selected' : ''}`}
@@ -107,8 +105,8 @@ export function WorkingFoldersTree({
           onClick={onOpenWorkDrafts}
         >
           <Icon name="file-text" />
-          <span className="truncate">工作稿 · 笔记备忘</span>
-          <span>新建</span>
+          <span className="truncate">Notes and drafts</span>
+          <span>New</span>
         </button>
         <button
           type="button"
@@ -119,14 +117,6 @@ export function WorkingFoldersTree({
           <Icon name="folder-open" />
           <span className="truncate">卷宗整理 · S6</span>
           <span>计划</span>
-        </button>
-      </div>
-      <div className="wf-zone" data-zone="outputs">
-        <p className="wf-zone-label">产出</p>
-        <button type="button" className="stage-row" data-testid="wf-open-output" onClick={onOpenOutput}>
-          <Icon name="package" />
-          <span className="truncate">产出目录</span>
-          <span>打开</span>
         </button>
       </div>
     </div>
@@ -161,20 +151,20 @@ export function ContextModuleBody({
           aria-hidden="true"
         />
         <div className="context-usage-text">
-          <strong>本阶段用量 {usage}%</strong>
+          <strong>Current usage {usage}%</strong>
           {usageDetail && (
             <ul>
-              <li>卷宗占用 {usageDetail.dossier}</li>
-              <li>对话占用 {usageDetail.chat}</li>
-              <li>可整理内容 {usageDetail.compressible}</li>
+              <li>Case files {usageDetail.dossier}</li>
+              <li>Chat {usageDetail.chat}</li>
+              <li>Compressible {usageDetail.compressible}</li>
             </ul>
           )}
         </div>
       </div>
       <div className="context-attachments">
-        <p className="wf-zone-label">附件来源</p>
+        <p className="wf-zone-label">Attachment sources</p>
         {attachmentSources.length === 0 ? (
-          <p className="wf-empty">尚无附件</p>
+          <p className="wf-empty">No attachments yet</p>
         ) : (
           <ul>
             {attachmentSources.map((name) => (
@@ -195,7 +185,7 @@ export function ContextModuleBody({
           className="context-model-chip"
           data-testid="context-model-chip"
           onClick={onOpenModelConfig}
-          title="已连接模型 · 点击配置"
+          title="Connected model · Configure"
         >
           <span className="stack-module-dot status-done" aria-hidden="true" />
           {modelLabel}
