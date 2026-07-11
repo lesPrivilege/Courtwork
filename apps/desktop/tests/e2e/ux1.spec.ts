@@ -7,25 +7,23 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const fixtureMd = path.resolve(here, '../fixtures/sample-brief.md');
 
 test.describe('UX-1 批次一', () => {
-  test('0a：composer chip 随容器切换，非 demo 不粘滞临江案名', async ({ page }) => {
-    await openWorkbench(page);
-    const chip = page.getByTestId('composer-case');
-    await expect(chip).toContainText('临江');
-    await expect(chip).toHaveAttribute('data-case-id', 'demo-linjiang');
+  test('0a：composer folder 仅在未绑定新对话出现', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('composer-case')).toContainText('Choose case');
+    await page.getByTestId('welcome-demo-start').click();
+    await expect(page.getByTestId('composer-case')).toHaveCount(0);
 
     await createNamedCase(page, 'UX一号案·买卖合同');
     await expect(page.getByTestId('titlebar-case-title')).toHaveText('UX一号案·买卖合同');
-    await expect(chip).toHaveAttribute('data-case-id', /case-/);
-    await expect(chip).toContainText('UX一号案');
-    await expect(chip).not.toContainText('临江');
+    await expect(page.getByTestId('composer-case')).toHaveCount(0);
 
-    // 回 demo 再出 B
+    // 回 demo 再进 B，容器名只在案件头切换。
     await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
-    await expect(chip).toContainText('临江');
+    await expect(page.getByTestId('titlebar-case-title')).toContainText('临江');
     const bCard = page.locator('.case-card').filter({ hasText: 'UX一号案' });
     await bCard.getByRole('button').first().click();
-    await expect(chip).toContainText('UX一号案');
-    await expect(chip).not.toContainText('临江');
+    await expect(page.getByTestId('titlebar-case-title')).toContainText('UX一号案');
+    await expect(page.getByTestId('composer-case')).toHaveCount(0);
   });
 
   test('#1/#2：卷宗计数降为元信息；双词表案件用卷宗', async ({ page }) => {
@@ -44,9 +42,7 @@ test.describe('UX-1 批次一', () => {
   });
 
   test('#3：先聊后建 — 无容器存入弹出容器化仪式', async ({ page }) => {
-    await openWorkbench(page);
-    await page.getByTestId('composer-case').click();
-    await page.getByTestId('composer-case-unbind').click();
+    await page.goto('/');
     await expect(page.getByTestId('composer-case')).toContainText('Choose case');
 
     await page.getByTestId('composer-file-input').setInputFiles(fixtureMd);
@@ -63,7 +59,7 @@ test.describe('UX-1 批次一', () => {
   test('#4/#5：附件来源统一收进 + 菜单', async ({ page }) => {
     await openWorkbench(page);
     await expect(page.getByTestId('composer-upload')).toHaveCount(0);
-    await expect(page.getByTestId('composer-case')).toBeVisible();
+    await expect(page.getByTestId('composer-case')).toHaveCount(0);
     await expect(page.getByTestId('composer-send')).toBeVisible();
     await expect(page.getByTestId('composer-plus')).toBeVisible();
     // 平铺区不再直接放相机/语音

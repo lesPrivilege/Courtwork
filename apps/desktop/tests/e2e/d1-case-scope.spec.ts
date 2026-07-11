@@ -136,10 +136,9 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     await expect(page.getByTestId('conversation-empty')).toBeVisible();
     await expect(page.getByText('发现 6 项合同风险')).toHaveCount(0);
 
-    // docs/52 #8-⑤ / UX-1 0a：composer chip 零继承 demo 案名
-    const chip = page.getByTestId('composer-case');
-    await expect(chip).toContainText('案件乙');
-    await expect(chip).not.toContainText('临江');
+    // RP-2.8：已绑定案件的容器身份在左栏/案件头声明，composer 不重复显示。
+    await expect(page.getByTestId('composer-case')).toHaveCount(0);
+    await expect(page.getByTestId('chat-case-title')).toContainText('案件乙');
   });
 
   test('归档按钮对长案名不溢出并可打开确认', async ({ page }) => {

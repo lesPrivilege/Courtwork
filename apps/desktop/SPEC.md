@@ -677,5 +677,25 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 修正后视觉证据：`43-thinking-turn-writing-1440.png` / `44-thinking-turn-anchor-1440.png` / `45-thinking-turn-review-open-1440.png`。
 
+## RP-2.8 chat 流减重与 dock L2 下拉（2026-07-11，架构 `c7621be`）
+
+### 注意力主从与 turn 卡 API
+
+- chat 只保留叙事留痕与路由，详情属于右侧 Preview。通用 `TurnCardKind` 封闭为 `event | artifact | file | gate`；机制、样式与图标路由住 `src/chat/TurnCard.tsx`，内容由场景声明填入。
+- artifact 卡仅显示类型、标题、数量摘要与 Preview 路由；点击打开对应右侧工作面，高/中/低危等详情不再留在 chat 卡中。file / gate 同理只承担摘要与端点。
+- `ToolCallRow` 默认一行收起，展开后仅呈现 `args` / `result` 摘要，消费 `type.dense.mono`；参数与结果不解释法律语义。
+- 图标一律经 `Icon` / Lucide / 登记 SVG-as-code 管线，禁内联 SVG 与图标框。
+
+### dock 与 composer 减法
+
+- Preview 态的 44px utility dock 点击只打开一个 L2 临时下拉；当前 Preview tab / renderer 不卸载、不置换。同项再点或点外关闭，不改写 `moduleOpen` 持久状态。
+- 根据第九章补充 `743da05`，dock 不消费 `SurfaceCard` / `elevation="raised"`，而是坐右栏 L0 底色的嵌套带；`SchemaPreviewHost` 是 Preview 态唯一 L1 主承重浮面。白卡从此只表示工作面，不再同时表示通用 chrome。
+- 通用态仍是三张完整 L1 卡竖排；二态宿主约定不变。L2 popover 遵守无投影白名单，仅用边界与层级定位。
+- composer 的 folder / case picker 仅在未绑定新对话显示；已绑定卷宗的身份已由左栏与 chat 案件头声明，composer 不再重复。
+
+`lint:rp28` 锁四类封闭集、通用层 import 边界、composer 条件位、dock 点外收起与 Preview 不置换；Playwright 增 4 条，floor `121 → 125`。
+
+视觉证据：`46-rp28-turn-cards-1440.png` / `47-rp28-dock-l2-1440.png`。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

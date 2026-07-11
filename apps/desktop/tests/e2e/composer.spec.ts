@@ -6,12 +6,12 @@ import { connectProvider, openWorkbench } from './helpers';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixtureMd = path.resolve(here, '../fixtures/sample-brief.md');
 
-test('composer 按钮族：添加/案件/provider/发送主序，附件来源统一收进 +', async ({ page }) => {
+test('composer 按钮族：已绑定卷宗不重复显示 folder，附件来源统一收进 +', async ({ page }) => {
   await openWorkbench(page);
   const composer = page.getByTestId('composer');
   await expect(composer).toBeVisible();
 
-  await expect(page.getByTestId('composer-case')).toBeVisible();
+  await expect(page.getByTestId('composer-case')).toHaveCount(0);
   await expect(page.getByTestId('composer-send')).toBeDisabled();
   await expect(page.getByTestId('composer-plus')).toBeVisible();
 
