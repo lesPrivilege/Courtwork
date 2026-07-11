@@ -821,3 +821,99 @@ codesign -dv --verbose=4 "/Applications/Courtwork.app/Contents/MacOS/courtwork-d
 2. **「验证连接」按钮可直接交用户执行真 key 首跑？→ 可 ✅**。按钮全路径实现正确：Tauri 下 `验证连接`→`validate`→`invoke('validate_provider_connection')`→`probe_provider_endpoint` 真冒烟；bearer 头 Rust 侧组装无 key 外泄；`connected` 唯 `smoke.is_success()`；失败走 F4 六型零技术文案；/models 降级诚实不阻塞。真实网络往返本验收无 key 未跑——**用户产品内『验证连接』真 key 首跑 = provider 闭环最终闭环**（真机日志无 key 承 FIX-KC-1 runtime 实测在案）。
 
 > **总判定：PRV-1 放行 provider 闭环 ✅（安全敏感·逐条证伪·隔离验证）。** 安全七主张全立（无明文返回通道、connected 唯冒烟、key 不入日志码+trace 实测双证、六型齐零技术、quirk 判别联合数据表零分支、降级诚实不崩）；隔离 worktree@193fa7e 全 provider 门绿（9/10 build、Vitest 158+79、cargo 10 逐名、prv1.spec 4/4）；门禁反例 elevation-shadow 触红即撤复绿实证非空。两 Playwright 红经四轮实跑（193fa7e 全量/193fa7e 单跑/HEAD 双 spec/HEAD 全量）归因确定：`icons:3`=RP-2.10 icon#20 前引用（HEAD 绿）、`composer:56`=全量并行 flake（单跑 5/5 绿），**均非 provider 逻辑缺陷**。唯 🟡 P-1：`193fa7e` tip 因并行线前引用 icon/floor 而非独立门绿，集成态 HEAD `24c61bd`（146≥143、icons 绿）已闭环——记录供架构判错峰提交口径，不阻 provider 放行。P-3 rustfmt 偏差 / P-4 分型 3/6 端到端单驱为 🟢 记录建议。「验证连接」按钮可直接交用户执行真 key 首跑（最终闭环）。
+
+
+---
+
+## 0.1.1 合流终验（Ship Gate Phase 3 · 放行 BUILD 的唯一钥匙，2026-07-12）
+
+- **角色**：独立终验会话（Grok 4.5；AGENTS.md 全判例：实跑 / 端口隔离 / 裸 HEAD 禁用 / 提交独立成立 / 合流即清账 / 禁宽 add）。**实现与验收分离**——本会话未参与 QF-2 / RP-2.11 / PRV-1 实现。
+- **tip**：合流后 `main` @ **`3adb34d`**（`docs(design): 终验第 0 步——tokens 契约同步 controlHover/gap12`）。祖先核验：`79f72c4`（QF-2）+ `d563a1b`（RP-2.11）+ `674b21d`（QF-2 merge）+ `193fa7e`/`6fb92b9`（PRV-1）均为 `merge-base --is-ancestor` 真。
+- **隔离**：独立 worktree `/private/tmp/courtwork-final-011` **detached @ 3adb34d**（主树 `main` 当时被 `/private/tmp/courtwork-qf1` 占用且含他会话大量暂存回退，**未**在共享树 checkout/stash；未触 qf1 索引）。`pnpm install --frozen-lockfile` 干净装。Playwright **`reuseExistingServer: false`** + 隔离端口 R1 `:1431` / R2 `:1432`；首屏主观截图另起 `:1435`。
+
+### 第 0 步 · tokens ↔ CSS 契约对表（契约先行·必先）
+
+| 契约键 | tokens.json | styles.css | 期望 | 结果 |
+|---|---|---|---|---|
+| `color.bg.controlHover` | `#E6EAF0` | `--control-hover: #e6eaf0` | `#E6EAF0` / `#e6eaf0` | ✅ |
+| `elevation.floatInset` | `12` | `--elevation-float-inset: 12px` | `12` / `12px` | ✅ |
+| `elevation.shellGap` | `12` | `--elevation-shell-gap: 12px` | `12` / `12px` | ✅ |
+
+tip 已含 `3adb34d`，**无需**另落契约提交。不一致即 🔴——未触发。
+
+### 一、全局门（全量实跑，退出码单查）
+
+| 门 | 实测 | 码 |
+|---|---|---|
+| 9 包 `pnpm -r build` | `Scope: 9 of 10`（根无 build）全 `Done`；desktop `tsc -b && vite build` ✓ | `BUILD=0` |
+| Vitest core | **158/158**（22 files） | `0` |
+| Vitest desktop | **79/79**（17 files） | `0` |
+| `cargo test` | **10/10 逐名全过**（status_payload_contains_no_secret_field / mock_endpoint_discovers_models_then_runs_real_one_token_smoke / failed_payload_carries_user_facing_message_and_fail_kind / classify_os_status_maps_known_codes / parse_os_status_from_display_and_debug_text / wire_names_and_messages_are_zero_tech / trace_line_never_embeds_secret_fields_or_values / trace_disabled_by_default / dev_service_suffix_matches_build_profile / classify_keyring_no_entry） | `0` |
+| floor | `assert-test-count.mjs`：**152 ≥ 146** | `0` |
+| Playwright R1 | **152/152** 隔离 `:1431`，**零红**（含 `composer:56` 合流后绿） | `0` |
+| Playwright R2 | **152/152** 隔离 `:1432`，**零红** | `0` |
+| 全部门禁基线 | motion / signature / graph / icons(20) / preview / elevation-shadow / rp26–rp211 / thinking-stream / floor — **15/15 exit 0** | `0` |
+
+**原始日志路径（本机，非摘要）**：`/tmp/courtwork-final-build.log`、`/tmp/courtwork-final-vitest-core.log`、`/tmp/courtwork-final-vitest-desktop.log`、`/tmp/courtwork-final-cargo.log`、`/tmp/courtwork-final-pw-r1.log`、`/tmp/courtwork-final-pw-r2.log`。
+
+### 二、门禁反例抽三（绿→红→撤→复绿）
+
+| 反例 | 注入 | 触红信息 | 撤后 |
+|---|---|---|---|
+| shadow 白名单 | untracked `src/__redtrip_shadow__.tsx` 含 `boxShadow` 字面量 | exit 1：`component contains shadow literal` | 删档 → elevation OK |
+| thinking 字符契约 | `ThinkingStream.tsx` 注入 `thinking-stream-glyph` | exit 1：`Character version must not use an SVG glyph` | 还原 → thinking OK |
+| elevation 对 tokens | `styles.css` 将 `--elevation-shell-gap` 暂改为 `8px` | tokens 对表 `shellGap=12`≠`8px`；`assert-rp211` exit 1：`② 三栏间距须 8→12` | 还原 → rp211 OK |
+
+worktree 反例后 `git status` **归零**（无脏吞）。
+
+### 三、抽验矩阵
+
+**① QF-2 四步切案 + 报告零编码 ✅**  
+- e2e：`d1-case-scope`「案件 A 有 demo 状态 → 案件 B 零继承 → 回到 A 恢复 demo」含 QF-2 排队随 `caseId` 作用域（A 排队 → B 零 → 回 A 恢复）两轮绿。  
+- `file-ops.spec`：报告断言「机器枚举/绝对路径/hash 留诊断层」+ `not.toContainText('/Users/')` 两轮绿。  
+- 源：`CASE_SCOPE_AUDIT` queued 行；`FileOpsPlanPanel` 零编码暴露律注释与相对路径呈现。
+
+**② RP-2.11 ①–⑧ + gap12 + 字符推理 ✅**  
+- `rp211.spec` 五例全绿（段控真路由 / chat 内存态+存入 / ① 标题居顶栏 / ⑤ workmode 同源 / ⑥⑦ 20px+hover token / ⑧ 渐隐收敛）。  
+- 门禁 `assert-rp211-contracts` + `assert-thinking-stream` 绿；gap12 即第 0 步 `floatInset`/`shellGap`=12。  
+- **brand-mark 旧断言已迁移退役**：`rp210`/`ux1` 注释标明字符版改判；`ThinkingStream` 无 `BrandMarkIcon`/`thinking-stream-glyph` SVG 路径；icons 审计仍 20 具名 SVG（含 brand-mark 资产）但**推理锚不走 SVG 两套并存**。
+
+**③ PRV-1 七主张摘要复核 ✅（合流态）**  
+- 凭证 wire：`CredentialStatus` 序列化仅 phase/source/failureMessage/failKind，注释与单测 `status_payload_contains_no_secret_field` 仍立。  
+- `prv1.spec` 4/4 两轮绿；cargo 10/10 含 trace 脱敏与 mock 冒烟。  
+- **凭证语义零回退**（相对 PRV-1/FIX-KC-1 基线）：无 secret 出通道、connected 仍经冒烟路径、trace 默认关。
+
+**④ ch12 三卡一纸不回归 ✅**  
+- `rp210.spec`「三卡一纸：右列两态皆无 utility 卡，schema 唯一右卡」+ dock 坐底纸 / 折叠钮迁顶栏 两轮绿。  
+- `assert-rp210-contracts` 绿。
+
+**⑤ tokens↔CSS 契约 ✅**  
+- 复证第 0 步三值对表全过。
+
+**⑥ 首屏 1440 主观段**  
+- 实截：`/tmp/courtwork-final-shots/03-work-1440.png`、`04-chat-1440.png`；仓内对照 `visual-audit/57-rp211-work-topchrome-1440.png`、`58-rp211-chat-canvas-1440.png`。  
+- **观感**：Work 面三栏秩序清晰（左容器轨 / 中事件账本+composer / 右 schema 修订预览），法理之线与风险分级可读，字符推理锚（`| Thought process`）克制不抢戏，英/中分层不混；Chat 面轻画布+沉底五钮，顶栏标题居中、chrome 透明浮层不抢内容。  
+- **判定：达投递演示标准 ✅**（可直接用于装包后对内/对外走查；真 key「验证连接」仍为用户闸最终闭环，不阻 BUILD）。
+
+### 四、git 卫生
+
+| 项 | 结果 |
+|---|---|
+| 收编祖先 `79f72c4` + `d563a1b` | ✅ 均为 main tip 祖先 |
+| 凭证语义零回退 | ✅ 见第三节③ + cargo 脱敏单测 |
+| 无脏吞 | ✅ 终验 worktree 始终 clean；反例注入均撤；**未** `git add -A` / 未碰 qf1 他会话暂存 |
+| 本报告提交 | 纯追加 `apps/desktop/ACCEPTANCE.md`；提交时显式核对 `HEAD` → `refs/heads/main`（见提交记录） |
+
+### 五、三问结论
+
+1. **各线放行？**  
+   - QF-2 ✅  
+   - RP-2.11 ✅  
+   - PRV-1（合流集成态）✅  
+   - tokens 契约第 0 步 ✅  
+2. **0.1.1 可 BUILD？→ ✅ 可放行 BUILD 0.1.1**（工序照 BUILD-1，版本号 0.1.1）。全局门 9 包 build / Vitest 158+79 / cargo 10 / Playwright **两轮 152/152 零已知红** / floor 152≥146 / 门禁反例可触红 / 祖先与凭证卫生齐。  
+3. **首屏达标？→ ✅ 达投递演示标准**（见⑥主观段）。
+
+> **总判定：0.1.1 合流终验放行 ✅ —— BUILD 钥匙签发。**  
+> tip `3adb34d` 干净 worktree 全门实测：第 0 步 tokens 三值↔CSS 三变量对齐；9/9 build；Vitest desktop 79 + core 158；cargo 10/10；Playwright 隔离端口两轮 **152/152**（`composer:56` 合流消解后双轮绿）；15 门禁基线绿 + shadow/thinking/elevation 三反例触红即撤；抽验 QF-2 切案队列 + 报告零编码、RP-2.11 ①–⑧/gap12/字符推理（brand-mark 旧断言退役不并存）、PRV-1 七主张摘要、ch12 三卡一纸、首屏 1440 投递级观感均过。无 🔴。下游：**BUILD 0.1.1** → 用户闸（真 key「验证连接」+ 装包走查）。
+
