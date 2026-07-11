@@ -32,11 +32,12 @@ test('home density tokens stay on welcome and rail while schema remains dense', 
   await expect(page.getByTestId('preview-host')).not.toHaveCSS('border-radius', '16px');
 });
 
-test('frontier composer order exposes paste, add, provider and send on the bottom row', async ({ page }) => {
+test('frontier composer order keeps the five-slot bottom row (paste folded into +)', async ({ page }) => {
   const composer = page.getByTestId('composer');
   const order = await composer.locator('[data-composer-slot]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-composer-slot')));
-  // RP-2.11 ⑤：add-folder 提为独立沉底钮 + workmode（chat|work 同源）插入底排。
-  expect(order).toEqual(['add', 'paste', 'add-folder', 'workmode', 'scope', 'provider', 'send']);
+  // RP-2.11 ⑤ + 交接拍板（docs/55）：撤 paste 独立钮（⌘V + 「+」收纳）；
+  // 底排五槽 = add/add-folder/workmode/provider/send，scope chip 为作用域信任件不计钮排。
+  expect(order).toEqual(['add', 'add-folder', 'workmode', 'scope', 'provider', 'send']);
 });
 
 test('welcome continuation rows route explicitly without sticky default scope', async ({ page }) => {

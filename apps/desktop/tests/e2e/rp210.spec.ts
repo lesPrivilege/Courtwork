@@ -74,20 +74,20 @@ test('三卡一纸：右列两态皆无 utility 卡，schema 唯一右卡', asyn
   await expect(page.getByTestId('preview-host')).toBeVisible();
 });
 
-test('dock 为右卡顶部坐底纸；折叠钮迁顶栏浮层（RP-2.11 顶栏改判）', async ({ page }) => {
+test('dock 坐右列底纸；折叠钮迁顶栏浮层（ch12/#35 终态）', async ({ page }) => {
+  // 迁移注记：RP-2.11 时代 dock 居右卡顶部；ch12/#35（docs/55 批次六）落定 dock 坐底纸——
+  // 折叠钮驻 chrome 与"坐底纸（L0 透明带非白卡）"两语义保留，方位断言改为贴右列底缘。
   await openWorkbench(page);
-  // RP-2.11：折叠钮迁 window-chrome 顶栏浮层（right-rail-chrome 退役），dock 为右卡顶部与红绿灯同排
   const collapse = page.getByTestId('collapse-right-rail');
   await expect(collapse).toBeVisible();
   await expect(page.getByTestId('window-chrome').getByTestId('collapse-right-rail')).toHaveCount(1);
   await expect(collapse.locator('xpath=ancestor::*[contains(concat(" ",@class," ")," surface-card ")]')).toHaveCount(0);
-  // dock 与顶栏同排（dock 顶接近右列顶）
   const right = page.getByTestId('right-module-stack');
   const dock = page.getByTestId('utility-rail');
   const [dBox, rBox] = await Promise.all([dock.boundingBox(), right.boundingBox()]);
   expect(dBox).not.toBeNull();
   expect(rBox).not.toBeNull();
-  expect((dBox?.y ?? 0) - (rBox?.y ?? 0)).toBeLessThan(4);
+  expect((dBox?.y ?? 0) + (dBox?.height ?? 0)).toBeGreaterThanOrEqual((rBox?.y ?? 0) + (rBox?.height ?? 0) - 2);
   // dock 坐底纸：L0 透明带（非白卡）
   await expect(dock).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
 });

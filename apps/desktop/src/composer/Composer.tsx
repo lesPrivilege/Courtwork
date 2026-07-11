@@ -5,7 +5,8 @@ import { scopeCommitTitle, scopeCommittedLabel, scopeConfirmBody } from '../case
 import { CHROME_COPY } from '../chrome/copy';
 import { Icon } from '../workbench/Icon';
 import { ModelConfigPopover } from '../provider/ModelConfigPopover';
-import type { ModelConfig } from '../provider/model-config';
+import { reasoningRequest, type ModelConfig } from '../provider/model-config';
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 import { AttachmentChip } from './AttachmentChip';
 import { createAttachmentShell, resolveAttachmentUpload, withResolvedStatus, type ConvertFn } from './process-upload';
 import {
@@ -44,7 +45,6 @@ export interface ComposerProps {
   uploadClock?: () => number;
   modelConfig?: ModelConfig;
   modelConfigOpen?: boolean;
-  modelLabel?: string;
   connectionPhase?: 'pending' | 'connected' | 'failed';
   onToggleModelConfig?: () => void;
   onModelConfigChange?: (config: ModelConfig) => void;
@@ -74,7 +74,6 @@ export function Composer({
   uploadClock = () => Date.now(),
   modelConfig,
   modelConfigOpen = false,
-  modelLabel,
   connectionPhase = 'pending',
   onToggleModelConfig,
   onModelConfigChange,
@@ -97,7 +96,11 @@ export function Composer({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const providerAnchorRef = useRef<HTMLSpanElement>(null);
   const listId = useId();
+
+  // popover 收敛纪律：点别处/Esc 即收（含 trigger 的 anchor 作容器，toggle 不闪烁）
+  useDismissOnOutside(modelConfigOpen, onCloseModelConfig ?? (() => {}), providerAnchorRef);
 
   // 容器切换：同步 chip；跨案清空附件（D-1 0a / docs/52 #8-⑤）
   // 容器化仪式创建后父层切换选中：不误清刚确认存入的附件。
@@ -412,25 +415,26 @@ export function Composer({
                     {CHROME_COPY.composer.voiceInput}
                   </button>
                 </li>
+                {/* #37/RP-2.11 ⑤ 拍板：paste 独立钮撤销——⌘V 原生 + 此处收纳 */}
+                <li role="none">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    data-testid="composer-paste"
+                    onClick={() => {
+                      setPlusOpen(false);
+                      void navigator.clipboard?.readText().then((value) => {
+                        if (value) setText((current) => `${current}${value}`);
+                      }).catch(() => textareaRef.current?.focus());
+                    }}
+                  >
+                    <Icon name="clipboard" />
+                    Paste text
+                  </button>
+                </li>
               </ul>
             )}
           </div>
-
-          <button
-            type="button"
-            className="composer-icon-button"
-            data-testid="composer-paste"
-            data-composer-slot="paste"
-            aria-label="Paste"
-            title="Paste"
-            onClick={() => {
-              void navigator.clipboard?.readText().then((value) => {
-                if (value) setText((current) => `${current}${value}`);
-              }).catch(() => textareaRef.current?.focus());
-            }}
-          >
-            <Icon name="clipboard" />
-          </button>
 
           {/* RP-2.11 ⑤：add-folder 提为独立沉底钮（原 + 菜单内） */}
           <button
@@ -566,7 +570,7 @@ export function Composer({
 
         <div className="composer-tools-right">
           {modelConfig && onToggleModelConfig && onModelConfigChange && onCloseModelConfig && (
-            <span className="model-config-anchor composer-provider-anchor" data-composer-slot="provider">
+            <span ref={providerAnchorRef} className="model-config-anchor composer-provider-anchor" data-composer-slot="provider">
               <button
                 type="button"
                 className={`quiet-button model-config-trigger phase-${connectionPhase}`}
@@ -577,7 +581,8 @@ export function Composer({
               >
                 <span data-testid="composer-provider" data-phase={connectionPhase}>
                   {connectionPhase === 'connected'
-                    ? `${modelLabel} · ${modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard}`
+                    // #40：chip 显示实际生效（wire）模型——单源取自声明路由，禁止静默偏差
+                    ? `${reasoningRequest(modelConfig).model} · ${modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard}`
                     : connectionPhase === 'failed' ? CHROME_COPY.composer.connectionFailed : CHROME_COPY.composer.connect}
                 </span>
               </button>

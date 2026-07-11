@@ -40,6 +40,9 @@ export async function connectProvider(page: Page) {
   const dialog = page.getByTestId('provider-setup');
   await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
   await dialog.getByRole('button', { name: '验证连接' }).click();
+  // #44：验证成功不自动关闭——就地绿徽 + 用户显式「开始使用」
+  await dialog.getByTestId('provider-setup-verified').waitFor();
+  await dialog.getByTestId('provider-setup-done').click();
   await dialog.waitFor({ state: 'hidden' });
 }
 

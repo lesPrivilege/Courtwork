@@ -6,14 +6,12 @@
  * 非空校验填占位符），真值由 Rust bearer_auth 注入。
  */
 
+// 注意：禁止从 '@courtwork/core' 全家桶入口导入——index 含 Node-only 模块（events/event-log
+// 顶层 node:fs），浏览器端即崩；此处只走浏览器安全的子路径导出（与 provider-quirks 同型）。
 import { invoke } from '@tauri-apps/api/core';
-import {
-  createOpenAICompatibleProvider,
-  OPENAI_COMPATIBLE_REASONING_ROUTE,
-  type GenerationMessage,
-  type GenerationResponse,
-  type ProviderQuirkProfile,
-} from '@courtwork/core';
+import { createOpenAICompatibleProvider } from '@courtwork/core/provider-openai';
+import { OPENAI_COMPATIBLE_REASONING_ROUTE, type ProviderQuirkProfile } from '@courtwork/core/provider-quirks';
+import type { GenerationMessage, GenerationResponse } from '@courtwork/core/provider-types';
 import { effectiveBaseUrl, PROVIDER_OPTIONS, type ModelConfig } from './model-config';
 
 /** core 非空校验用占位；无敏感性——桥不向 Rust 传任何 header。 */

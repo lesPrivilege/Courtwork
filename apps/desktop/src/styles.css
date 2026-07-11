@@ -172,6 +172,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 /* 左卡/中栏内容让出顶部红绿灯浮层高度；右卡 dock 与红绿灯同排（不让） */
 .case-rail, .conversation.canvas-layer { padding-top: 40px; }
+/* #36：右卡贯通到顶后，卡内首行同样避让 chrome 带（红绿灯/折叠钮层），与左栏同型 */
+.right-workbench .preview-host { padding-top: 40px; }
 .rail-wordmark { display: flex; align-items: center; gap: 7px; }
 .rail-wordmark img { width: 18px; height: 18px; }
 .workspace.comparing { grid-template-columns: 48px 300px minmax(0, 1fr); }
@@ -429,7 +431,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .message-actions button { width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; }
 .message-actions button:hover:not(:disabled), .message-actions button[aria-pressed="true"] { background: var(--control-hover); color: var(--text-primary); }
 .message-actions button:disabled { color: var(--text-disabled); cursor: not-allowed; }
-.message-actions .line-icon { width: 12px; height: 12px; }
+.message-actions .turn-icon, .message-actions .line-icon { width: 12px; height: 12px; }
 /* RP-2.11 ⑧ 长消息收敛：N 行 + 底部渐隐遮罩虚化（过渡而非硬切凡例）+ Show more/less */
 .collapsible-message { position: relative; }
 .collapsible-body { line-height: 1.55; overflow: hidden; }
@@ -850,8 +852,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .utility-reopen:hover { background: var(--control-hover); color: var(--text-primary); }
 .utility-reopen strong { color: var(--text-primary); font-weight: var(--control-weight-emphasized); }
 /* ch12：dock 三 tap 坐底纸（L0 透明带，非白卡）；base 态其下附 reopen */
-.utility-dock { position: relative; z-index: 8; width: 100%; flex: none; display: flex; flex-direction: column; padding: 0; border: 0; border-radius: 0; background: transparent; overflow: visible; }
-.utility-dock-taps { height: var(--preview-utility-height); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 4px 6px; border-bottom: 1px solid var(--border); }
+.utility-dock { position: relative; z-index: 8; width: 100%; flex: none; margin-top: auto; display: flex; flex-direction: column; padding: 0; border: 0; border-radius: 0; background: transparent; overflow: visible; }
+.utility-dock-taps { height: var(--preview-utility-height); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 4px 6px; border-top: 1px solid var(--border); }
 .utility-dock-item { min-width: 0; display: flex; align-items: center; border-right: 1px solid var(--border); }
 .utility-dock-item:last-child { border-right: 0; }
 .utility-dock-item > button:first-child { width: 100%; height: 34px; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); }
@@ -859,7 +861,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .utility-dock-item strong { flex: none; font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; }
 .utility-dock-action { flex: none; min-height: 26px; margin-right: 4px; padding: 2px 6px; font-size: 11px; }
 .utility-dock-popover {
-  position: absolute; z-index: 24; top: calc(100% + 6px); left: 6px; right: 6px;
+  position: absolute; z-index: 24; bottom: calc(100% + 6px); left: 6px; right: 6px;
   max-height: min(420px, calc(100vh - 160px)); display: grid; grid-template-rows: auto minmax(0, 1fr);
   border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised);
   overflow: hidden;
@@ -884,7 +886,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .preview-progress-marker.tone-authority { color: var(--green-graphic); }
 .preview-progress-marker.tone-neutral { color: var(--slate-graphic); }
 .static-viewport { width: 100%; height: 100%; overflow: auto; overscroll-behavior: contain; }
-.empty-state { margin: 16px; padding: 18px; border: 1px dashed var(--border-strong); border-radius: 6px; color: var(--text-tertiary); font-size: 13px; text-align: center; }
+/* #39（断裂律）：空态是 pending 引导面而非占位框——无框、安静、留白即结构 */
+.empty-state { margin: 24px 16px; padding: 24px 18px; border: 0; color: var(--text-tertiary); font-size: 13px; text-align: center; }
 
 .split-grid { width: 100%; height: 100%; display: grid; min-width: 0; min-height: 0; background: var(--border); }
 .split-grid.rows { grid-template-rows: minmax(0, var(--split-ratio)) 6px minmax(0, 1fr); }
@@ -1104,7 +1107,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .folder-skip-link { display: block; margin: 10px auto 0; border: 0; background: transparent; color: var(--text-tertiary); cursor: pointer; font-size: 12px; text-decoration: underline; }
 .new-case-dialog footer { display: flex; justify-content: flex-end; gap: 7px; margin-top: 16px; }
 
-.provider-backdrop { z-index: 12; background: rgba(10, 37, 64, .22); }
+.provider-backdrop { z-index: 42; background: rgba(10, 37, 64, .22); }
 .provider-dialog { width: min(520px, calc(100vw - 32px)); padding: 18px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }
 .provider-dialog header { border-bottom: 1px solid var(--border); }
 .setup-step { color: var(--text-tertiary); font: 12px/1.5 var(--mono); font-variant-numeric: tabular-nums; }
@@ -1243,3 +1246,17 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* ─── CredentialForm（#43/#44：设置页内嵌 + 引导卡共用，结果就地呈现）──────── */
+.credential-form { display: grid; gap: 10px; }
+.credential-form-actions { display: flex; justify-content: flex-end; }
+.form-success { margin: 0; padding: 6px 10px; border-radius: 4px; background: var(--green-bg); color: var(--green-fg); font-size: 13px; }
+.settings-credential-embed { margin: 8px 0 4px; padding: 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-raised); }
+
+/* ─── chat 面真 API（GOAL-1 链路批）：agent 直排无气泡 + 失败轮 + 在途字符指示 ── */
+.assistant-message { max-width: 78%; margin: 2px 0; align-self: flex-start; font-size: 14px; line-height: 1.6; }
+.assistant-message.is-failed { color: var(--amber-fg); }
+.assistant-message.is-failed::before { content: '连接未完成 · '; font-size: 12px; color: var(--amber-fg); }
+.chat-reasoning { margin-bottom: 4px; color: var(--text-tertiary); font-size: 13px; }
+.chat-reasoning summary { cursor: pointer; color: var(--text-tertiary); font-size: 12px; }
+.chat-pending { display: flex; align-items: center; min-height: 22px; }

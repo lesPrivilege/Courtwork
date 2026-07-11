@@ -98,11 +98,14 @@ test.describe('SET-1 设置页', () => {
     await expect(page.getByTestId('settings-check-update')).toHaveAttribute('title', /coming soon/);
   });
 
-  test('管理凭证打开既有探针对话框', async ({ page }) => {
+  test('管理凭证内嵌设置页展开（#43：不再叠开根层浮层）', async ({ page }) => {
     await openWorkbench(page);
     await openSettings(page);
     await page.getByTestId('settings-open-credentials').click();
-    await expect(page.getByTestId('provider-setup')).toBeVisible();
+    await expect(page.getByTestId('settings-credential-embed')).toBeVisible();
+    // 根层引导卡不被拉起；settings 全程在场（#44 宿主稳定契约）
+    await expect(page.getByTestId('provider-setup')).toHaveCount(0);
+    await expect(page.getByTestId('settings-page')).toBeVisible();
   });
 
   test('连接失败态展示分型文案与钥匙串恢复指引', async ({ page }) => {

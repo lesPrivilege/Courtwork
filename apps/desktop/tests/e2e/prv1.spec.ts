@@ -31,6 +31,9 @@ test.describe('PRV-1 provider 自配闭环', () => {
     await mockProbe(page, { phase: 'connected', models: ['law-model-a', 'law-model-b'], modelDiscovery: 'available' });
     await guide.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
     await guide.getByRole('button', { name: '验证连接' }).click();
+    // #44：成功就地绿徽 + 显式关闭
+    await expect(guide.getByTestId('provider-setup-verified')).toBeVisible();
+    await guide.getByTestId('provider-setup-done').click();
     await expect(guide).toHaveCount(0);
     await expect(page.getByTestId('composer-provider')).toHaveAttribute('data-phase', 'connected');
     await expect(page.getByTestId('composer-provider')).toContainText('law-model-a');

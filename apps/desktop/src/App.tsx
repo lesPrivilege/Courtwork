@@ -72,6 +72,8 @@ import {
 import { SplitView, type SplitDirection } from './workbench/SplitView';
 import { ThinkingStream } from './workbench/ThinkingStream';
 import { MessageActions } from './chat/MessageActions';
+import { sendChatTurn } from './provider/chat-client';
+import { useDismissOnOutside } from './hooks/useDismissOnOutside';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
@@ -188,11 +190,24 @@ export function App() {
   const [previewOpen, setPreviewOpen] = useState(true);
   /** RP-2.11 chat|work 二段（docs/25 修正二）：work=容器工作台 / chat=内存态轻画布（重启即逝，持久化归 HARNESS-1）。 */
   const [viewSegment, setViewSegment] = useState<'chat' | 'work'>('work');
-  const [chatMessages, setChatMessages] = useState<Array<{ text: string; files: string[]; createdAt: number }>>([]);
+  const [chatMessages, setChatMessages] = useState<Array<{
+    role: 'user' | 'assistant';
+    text: string;
+    files: string[];
+    createdAt: number;
+    /** assistant 消息可携带思考内容（折叠回看）；失败轮为分型文案行。 */
+    reasoning?: string;
+    failed?: boolean;
+  }>>([]);
+  /** chat 面在途请求（真 API）；期间 ▏字符指示（RP-2.11 推理字符版）。 */
+  const [chatPending, setChatPending] = useState(false);
   const [storeChatOpen, setStoreChatOpen] = useState(false);
   const [artifactRevision, setArtifactRevision] = useState(0);
   const [replayEpoch, setReplayEpoch] = useState(0);
   const [sceneMoreOpen, setSceneMoreOpen] = useState(false);
+  // popover 收敛纪律（GOAL-1）：点别处/Esc 即收
+  const sceneMoreRef = useRef<HTMLDivElement>(null);
+  const storeChatRef = useRef<HTMLDivElement>(null);
   const [editingCaseTitle, setEditingCaseTitle] = useState(false);
   const [caseTitleDraft, setCaseTitleDraft] = useState('');
   const [moduleOpen, setModuleOpen] = useState<ModuleOpenMap>(() => ({ ...DEFAULT_MODULE_OPEN }));
@@ -250,21 +265,49 @@ export function App() {
     ]);
   };
 
-  /** chat 面（内存态轻画布）：发送即入内存会话；不落盘（重启即逝，0.1.1 诚实缺口）。 */
+  /** chat 面（内存态轻画布）：发送即入内存会话；不落盘（重启即逝，0.1.1 诚实缺口）。
+   *  GOAL-1 链路批：真 API 端到端——发送 → Rust 窄面代理流式请求 → 回复 0ms 落格。 */
   const handleChatSend = (payload: ComposerSendPayload) => {
     if (credentialStatus.phase !== 'connected') {
       probeCredentials();
       setProviderSetupOpen(true);
       return;
     }
+    const userText = payload.text || (payload.attachments.length ? '（附文件）' : '');
+    const history = chatMessages
+      .filter((message) => !message.failed)
+      .map((message) => ({ role: message.role, content: message.text }));
     setChatMessages((prev) => [
       ...prev,
       {
-        text: payload.text || (payload.attachments.length ? '（附文件）' : ''),
+        role: 'user',
+        text: userText,
         files: payload.attachments.map((item) => item.fileName),
         createdAt: Date.now(),
       },
     ]);
+    setChatPending(true);
+    void sendChatTurn(modelConfig, [...history, { role: 'user', content: userText }])
+      .then((result) => {
+        setChatMessages((prev) => [...prev, {
+          role: 'assistant',
+          text: result.content,
+          files: [],
+          createdAt: Date.now(),
+          reasoning: result.reasoningContent,
+        }]);
+      })
+      .catch((error: unknown) => {
+        // 诚实失败：分型/异常文案落格为失败行，不假装成功
+        setChatMessages((prev) => [...prev, {
+          role: 'assistant',
+          text: error instanceof Error ? error.message : '暂时无法完成请求，请稍后重试',
+          files: [],
+          createdAt: Date.now(),
+          failed: true,
+        }]);
+      })
+      .finally(() => setChatPending(false));
   };
 
   /** 两面唯一的桥：从 chat 收当前话题入容器（docs/25 修正二），复用容器化仪式后切 work 面。 */
@@ -283,6 +326,9 @@ export function App() {
     setStoreChatOpen(false);
     setViewSegment(next);
   };
+
+  useDismissOnOutside(sceneMoreOpen, () => setSceneMoreOpen(false), sceneMoreRef);
+  useDismissOnOutside(storeChatOpen, () => setStoreChatOpen(false), storeChatRef);
 
   const probeCredentials = async (config: ModelConfig = modelConfig) => {
     setCredentialProbed(true);
@@ -941,7 +987,6 @@ export function App() {
           onSegmentChange={switchSegment}
           modelConfig={modelConfig}
           modelConfigOpen={modelConfigOpen}
-          modelLabel={modelDisplayName(modelConfig)}
           connectionPhase={credentialStatus.phase}
           onToggleModelConfig={() => {
             if (credentialStatus.phase === 'connected') setModelConfigOpen((open) => !open);
@@ -1195,7 +1240,7 @@ export function App() {
               >
                 起草答辩状
               </button>
-              <div className="scene-more-wrap">
+              <div className="scene-more-wrap" ref={sceneMoreRef}>
                 <button type="button" data-testid="scene-more" aria-expanded={sceneMoreOpen} onClick={() => setSceneMoreOpen((open) => !open)}>更多</button>
                 {sceneMoreOpen && <div className="scene-more-popover surface-card" data-testid="scene-more-popover">
                   {isDemoCase && <button type="button" className="scene-more-narrow-only" onClick={() => { openFileOps(); setSceneMoreOpen(false); }}>卷宗整理</button>}
@@ -1217,7 +1262,7 @@ export function App() {
             <header className="chat-case-head chat-mode-head" data-testid="chat-mode-head">
               <span className="spacer" />
               {chatMessages.length > 0 && (
-                <div className="store-chat-wrap">
+                <div className="store-chat-wrap" ref={storeChatRef}>
                   <button type="button" className="quiet-button" data-testid="store-chat" aria-expanded={storeChatOpen} onClick={() => setStoreChatOpen((open) => !open)}>
                     {CHROME_COPY.storeChat.action}
                   </button>
@@ -1239,16 +1284,35 @@ export function App() {
               {chatMessages.length === 0 ? (
                 <div className="empty-state" role="status" data-testid="chat-empty">{CHROME_COPY.welcome.body}</div>
               ) : chatMessages.map((message, index) => (
-                <div className="user-message" key={`chat-${index}`} data-testid="chat-user-message">
-                  <CollapsibleMessage lines={6}>{message.text}</CollapsibleMessage>
-                  {message.files.length > 0 && (
-                    <div className="user-message-attachments">
-                      {message.files.map((name) => <span key={name} title={name}>{name}</span>)}
-                    </div>
-                  )}
-                  <MessageActions messageId={`chat-${index}`} text={message.text} createdAt={message.createdAt} />
-                </div>
+                message.role === 'user' ? (
+                  <div className="user-message" key={`chat-${index}`} data-testid="chat-user-message">
+                    <CollapsibleMessage lines={6}>{message.text}</CollapsibleMessage>
+                    {message.files.length > 0 && (
+                      <div className="user-message-attachments">
+                        {message.files.map((name) => <span key={name} title={name}>{name}</span>)}
+                      </div>
+                    )}
+                    <MessageActions messageId={`chat-${index}`} text={message.text} createdAt={message.createdAt} />
+                  </div>
+                ) : (
+                  /* agent 直排无气泡（ch12）；失败轮 = 分型文案 + 语义角标，不假装成功 */
+                  <div className={`assistant-message${message.failed ? ' is-failed' : ''}`} key={`chat-${index}`} data-testid={message.failed ? 'chat-assistant-failed' : 'chat-assistant-message'}>
+                    {message.reasoning && (
+                      <details className="chat-reasoning" data-testid="chat-reasoning">
+                        <summary>思考过程</summary>
+                        <CollapsibleMessage lines={12}>{message.reasoning}</CollapsibleMessage>
+                      </details>
+                    )}
+                    <CollapsibleMessage lines={12}>{message.text}</CollapsibleMessage>
+                    {!message.failed && <MessageActions messageId={`chat-${index}`} text={message.text} createdAt={message.createdAt} />}
+                  </div>
+                )
               ))}
+              {chatPending && (
+                <div className="chat-pending" role="status" data-testid="chat-pending">
+                  <span className="thinking-caret" aria-hidden="true">▏</span>
+                </div>
+              )}
             </div>
             {renderComposer(handleChatSend)}
           </section>
@@ -1258,11 +1322,7 @@ export function App() {
         {viewSegment === 'work' && !isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
           <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
         </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open={previewOpen ? 'true' : 'false'} data-artifact-revision={artifactRevision}>
-          {/* RP-2.11：dock 三 tap 卡为右卡顶部、与红绿灯同排；折叠钮迁顶栏浮层右侧 */}
-          <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => {
-            previewDismissedContext.current = null;
-            setPreviewOpen(true);
-          }} />
+          {/* #35（ch12）：dock 三 tap 坐右列底纸——schema 卡贯通到顶（#36），dock 沉底、popover 向上展开 */}
           {previewOpen && <WorkbenchPreviewRenderer
             title={comparing ? '工作面对照' : VIEW_LABELS[activeView]}
             meta={comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}
@@ -1340,6 +1400,10 @@ export function App() {
                 )}
               </div>
           </WorkbenchPreviewRenderer>}
+          <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => {
+            previewDismissedContext.current = null;
+            setPreviewOpen(true);
+          }} />
         </section>)}
       </div>
 
@@ -1368,10 +1432,7 @@ export function App() {
         onSectionChange={setSettingsSection}
         onClose={() => setSettingsOpen(false)}
         credentialStatus={credentialStatus}
-        onOpenCredentialSetup={() => {
-          void probeCredentials();
-          setProviderSetupOpen(true);
-        }}
+        onCredentialStatusChange={setCredentialStatus}
         modelConfig={modelConfig}
         onModelConfigChange={updateModelConfig}
         onValidateProvider={() => probeCredentials()}

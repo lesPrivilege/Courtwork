@@ -3,6 +3,7 @@ import {
   KEYCHAIN_RECOVERY_GUIDE,
   type CredentialStatus,
 } from '../credentials/client';
+import { CredentialForm } from '../credentials/CredentialForm';
 import {
   modelDisplayName,
   effectiveBaseUrl,
@@ -57,7 +58,7 @@ export interface SettingsPageProps {
   onSectionChange: (section: SettingsSection) => void;
   onClose: () => void;
   credentialStatus: CredentialStatus;
-  onOpenCredentialSetup: () => void;
+  onCredentialStatusChange: (status: CredentialStatus) => void;
   modelConfig: ModelConfig;
   onModelConfigChange: (next: ModelConfig) => void;
   onValidateProvider: () => Promise<CredentialStatus>;
@@ -68,6 +69,7 @@ export interface SettingsPageProps {
 /**
  * 设置页（SET-1 / docs/46）：全局层、容器无关，分组切换 0ms。
  * 真实路由接真；预留项禁用态 + tooltip；零假开关。
+ * #43：凭证管理内嵌本页（减法律——不再叠开根层浮层）。
  */
 export function SettingsPage({
   open,
@@ -75,7 +77,7 @@ export function SettingsPage({
   onSectionChange,
   onClose,
   credentialStatus,
-  onOpenCredentialSetup,
+  onCredentialStatusChange,
   modelConfig,
   onModelConfigChange,
   onValidateProvider,
@@ -85,6 +87,7 @@ export function SettingsPage({
   const [settings, setSettings] = useState<SettingsSnapshot>(() => loadSettings());
   const [maxUsdDraft, setMaxUsdDraft] = useState(String(settings.runtimeGuard.maxUsd ?? ''));
   const [optInConfirmOpen, setOptInConfirmOpen] = useState(false);
+  const [credentialFormOpen, setCredentialFormOpen] = useState(false);
   const folderInputRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
 
@@ -237,12 +240,26 @@ export function SettingsPage({
                     type="button"
                     className="primary-button"
                     data-testid="settings-open-credentials"
-                    onClick={onOpenCredentialSetup}
+                    aria-expanded={credentialFormOpen}
+                    onClick={() => setCredentialFormOpen((current) => !current)}
                   >
                     Manage credentials
                   </button>
                 </div>
               </div>
+
+              {/* #43：凭证面板内嵌设置页内（减法律），不再叠开根层浮层；
+                  #44：验证全程本页稳定在场，结果就地呈现 */}
+              {credentialFormOpen && (
+                <div className="settings-credential-embed" data-testid="settings-credential-embed">
+                  <CredentialForm
+                    variant="embedded"
+                    modelConfig={modelConfig}
+                    onModelConfigChange={onModelConfigChange}
+                    onStatusChange={onCredentialStatusChange}
+                  />
+                </div>
+              )}
 
               {credentialStatus.phase === 'failed' && (
                 <div

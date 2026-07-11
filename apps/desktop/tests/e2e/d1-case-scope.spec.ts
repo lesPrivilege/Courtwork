@@ -64,6 +64,9 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await expect(dialog).toBeVisible();
     await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
     await dialog.getByRole('button', { name: '验证连接' }).click();
+    // #44：成功就地绿徽，不自动关闭；显式「开始使用」后收卡
+    await expect(dialog.getByTestId('provider-setup-verified')).toBeVisible();
+    await dialog.getByTestId('provider-setup-done').click();
     await expect(dialog).toBeHidden();
     const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'connected');

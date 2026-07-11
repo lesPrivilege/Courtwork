@@ -3,6 +3,7 @@ import {
   modelOptions,
   PROVIDER_OPTIONS,
   REASONING_OPTIONS,
+  reasoningRequest,
   type ModelConfig,
   type ProviderId,
   type ReasoningLevel,
@@ -73,6 +74,12 @@ export function ModelConfigPopover({ open, config, onChange, onClose }: ModelCon
       <p className="model-config-summary" data-testid="model-config-summary">
         Current: {modelDisplayName(config)} · {config.reasoning === 'deep' ? 'Deep' : 'Standard'}
       </p>
+      {/* #40 允许覆盖禁止静默：声明路由若改写所选模型，就地明示实际生效值 */}
+      {reasoningRequest(config).model !== config.modelId && (
+        <p className="model-config-wire-note" role="status" data-testid="model-config-wire-note">
+          实际请求模型：{reasoningRequest(config).model}（由推理档位声明决定）
+        </p>
+      )}
       <div className="model-config-actions">
         {/* docs/52 #16：关闭=取消/收起，动词直白；quiet 次要层级（docs/32 主次按钮） */}
         <button type="button" className="quiet-button" onClick={onClose} data-testid="model-config-close">

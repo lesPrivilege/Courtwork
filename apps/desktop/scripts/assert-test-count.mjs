@@ -9,8 +9,8 @@ if (result.status !== 0) {
 const output = `${result.stdout}\n${result.stderr}`;
 const match = output.match(/Total:\s+(\d+)\s+tests?/);
 const count = match ? Number(match[1]) : 0;
-// RP-2.11：+rp211 用例；floor 只升，下限 146；合流终验可再上调。
-const minimum = 146;
+// GOAL-1：+goal1 用例；floor 只升（禁降史 …→146→152→160）。
+const minimum = 160;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
