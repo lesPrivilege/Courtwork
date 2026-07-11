@@ -68,3 +68,11 @@ docs/11 为全项目总账；Debug 阶段（0.1.x 真机迭代）单据入本册
 2. **dense 档进 tokens**：`type.dense` 组入 tokens.json（13/12px 档 + mono 位），组件内禁裸 px——与宽度变量同纪律。
 3. **不变量：文书预览 15px reading 不缩**（交付轨阅读优先级 > 信息密度）。
 4. **验收矩阵自动化**：四档宽度断言、nowrap/ellipsis、schema 正文 ≥13px、无横向溢出（scrollWidth ≤ clientWidth）全部进 Playwright，floor 只升；截图入 visual-audit。
+
+## FIX-KC-1 关账（2026-07-11）+ 对 RP-2（sol）的两条追加指令
+
+FIX-KC-1 验收放行（七主张逐条证伪全立，含 trace 注入实测与 release 反转防护双向证明）；验收补写的真机采集剧本收编（见 ACCEPTANCE.md FIX-KC-1 节，用户照跑回传 log 即关 DBG-2 授权链）。新判例：端口隔离（入 AGENTS.md）。
+
+**sol 注意（并入 RP-2 完工要求）**：
+1. 第 0 步代提交：apps/desktop/ACCEPTANCE.md 现有 FIX-KC-1 验收报告 +78/−0 未提交——核实纯追加后原样独立提交（判例链 1800925/8202d18/a964baa）。
+2. floor 交叉核对：FIX-KC-1 已把假绿下限升至 90（你在途改动 assert-test-count.mjs 前基线可能还是 88）——完工前 rebase 到 90 之上只升不降，提交前核对勿回退他单的 floor。
