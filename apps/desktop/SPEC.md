@@ -588,12 +588,12 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 ## RP-2.5.1 — 验收补丁与 de-slop #6 阴影提案（2026-07-11）
 
-### 阴影修宪提案（待架构过目后落 token）
+### 阴影修宪提案（架构已按 `1df436e` 一字不改批准）
 
 - 候选 `--elevation-shadow`：`0 1px 2px rgba(10, 37, 64, 0.045), 0 4px 12px rgba(10, 37, 64, 0.035)`。两层均取既有 ink 藏青，近层只收边、远层仅 4px 下移与 12px 模糊；无 hover 增强、无位移。
 - 唯一消费白名单：左侧 `CaseRail`；右侧收敛 bar；右侧 `UtilityRail` 卡/dock；`PreviewHost`。全部经 `SurfaceCard elevation="raised"` 或既有 rail 外壳消费。
 - 永久零影：L0 chat、composer、artifact/data card、文书预览、设置 modal、popover、图谱与其他数据区。
-- `lint:elevation` 扫描组件 shadow 字面量、CSS 非 token 值与消费白名单漂移。具体值获批前 token 保持 `none`。
+- `lint:elevation` 扫描组件 shadow 字面量、CSS 非 token 值与消费白名单漂移。拍板值已作为唯一 token 落地。
 
 ### 补丁行为
 
@@ -601,7 +601,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - `artifact_produced` 直接驱动 PreviewHost；手动关闭按“案件+场景”记忆，同场景重产不强开，切场景后新 artifact 可自动打开。
 - model-config 长期回归覆盖打开、单实例、无遮挡、改配置及 reload 持久化。
 
-当前验证：`lint:elevation` 通过；RP-2.5 定向 10/10；Playwright 全量 110/110（floor 110）；全仓 `pnpm -r build` 通过。视觉证据：`34-rp25-1-shadow-none-1440.png`（候选值落地前基线）、`35-rp25-1-model-popover-1180.png`。
+当前验证：`lint:elevation` 通过；RP-2.5 定向 10/10；Playwright 全量 110/110（floor 110）；全仓 `pnpm -r build` 通过。视觉证据：`34-rp25-1-shadow-none-1440.png`（落值前）、`36-rp25-1-shadow-approved-1440.png`（落值后）、`35-rp25-1-model-popover-1180.png`。
 
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

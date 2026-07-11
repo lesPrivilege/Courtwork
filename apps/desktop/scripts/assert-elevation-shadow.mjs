@@ -3,6 +3,8 @@ import path from 'node:path';
 
 const srcRoot = path.resolve(import.meta.dirname, '..', 'src');
 const styles = await readFile(path.join(srcRoot, 'styles.css'), 'utf8');
+const tokens = JSON.parse(await readFile(path.resolve(import.meta.dirname, '..', '..', '..', 'docs', '32-设计语言包', 'tokens.json'), 'utf8'));
+const approvedShadow = '0 1px 2px rgba(10,37,64,0.045), 0 4px 12px rgba(10,37,64,0.035)';
 
 async function sourceFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -12,6 +14,11 @@ async function sourceFiles(dir) {
 }
 
 const failures = [];
+const cssShadow = styles.match(/--elevation-shadow:\s*([^;]+);/)?.[1]?.trim();
+const tokenShadow = tokens.elevation?.shadow?.value;
+if (cssShadow !== tokenShadow || tokenShadow !== approvedShadow) {
+  failures.push(`elevation token drift: css=${cssShadow ?? '(missing)'} token=${tokenShadow ?? '(missing)'}`);
+}
 for (const file of await sourceFiles(srcRoot)) {
   const source = await readFile(file, 'utf8');
   if (/boxShadow\s*:|box-shadow/.test(source)) failures.push(`${file}: component contains shadow literal`);
