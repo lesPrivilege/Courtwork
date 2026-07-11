@@ -59,3 +59,12 @@ docs/11 为全项目总账；Debug 阶段（0.1.x 真机迭代）单据入本册
 
 报告纯追加 apps/desktop/ACCEPTANCE.md「FIX-KC-1 验收」节（工作树若有前序未提交追加，先按判例链代提交）。结论：放行与否；真机采集剧本是否可直接交用户执行。
 ```
+
+## RP-2.3 批复（2026-07-11，sol 提案 → 架构批准 + 四条件）
+
+计划照案批准（比例与 Schema 工作面收口，纯视觉不改交互契约，resize handle 另单）。宽比档（左 248/min224，chat 0.9fr/min420，schema 1.25fr/min560，折叠 48）、Schema 四层分层、dense 排版档、板块清晰化（列表+分隔线不堆卡、选中仅 bg.selected、单层圆角容器）、验收矩阵全部采纳。附加条件：
+
+1. **1180 数学修正（必须先解）**：三列最小值合计 1204+间距 > 1180。二选一写死进 SPEC：1180 档 = 左栏收敛态基准（展开态最小窗口 1240）／或 1180–1239 自动收左栏。禁止运行时含糊。
+2. **dense 档进 tokens**：`type.dense` 组入 tokens.json（13/12px 档 + mono 位），组件内禁裸 px——与宽度变量同纪律。
+3. **不变量：文书预览 15px reading 不缩**（交付轨阅读优先级 > 信息密度）。
+4. **验收矩阵自动化**：四档宽度断言、nowrap/ellipsis、schema 正文 ≥13px、无横向溢出（scrollWidth ≤ clientWidth）全部进 Playwright，floor 只升；截图入 visual-audit。
