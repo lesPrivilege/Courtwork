@@ -769,5 +769,11 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 视觉证据：`visual-audit/53-rp210-three-cards-1440.png`、`54-rp210-turn-tail.png`、`55-rp210-brand-anchor.png`、`56-rp210-base-mode-1440.png`。
 
+### QF-1 发送排队语义清账（2026-07-11）
+
+- RP-2.9 #11 的“在途请求”以 session 生命周期为准：`confirmation_requested` 仅表示当前请求进入留人门禁，不表示请求完成；只有 `session_completed` 才结束在途。
+- composer 发送判定由“已有进度且无 confirmation”修为“已有进度且未 completed”。因此 paced 回放先落门禁时，新消息仍进入 `queuedMessages`，保留 `Queued`、撤回与诚实禁用的“停止当前”；未开始或已完成的请求仍走 `localMessages`。
+- 原 `composer.spec.ts:56` 断言不改、不降级。修前独立端口 4 workers × 12 repeats 为 11/12 红；修后同强度为 12/12 绿。Playwright floor 保持 146。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

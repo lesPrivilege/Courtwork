@@ -224,7 +224,8 @@ export function App() {
       return;
     }
     const createdAt = Date.now();
-    if (isDemoCase && session.progress.length > 0 && !session.confirmation) {
+    // RP-2.9 #11：confirmation_requested 是在途请求进入留人门禁，不是请求完成。
+    if (isDemoCase && session.progress.length > 0 && !session.completed) {
       setQueuedMessages((current) => [...current, { id: `queued-${createdAt}`, text: payload.text, createdAt }]);
       return;
     }
