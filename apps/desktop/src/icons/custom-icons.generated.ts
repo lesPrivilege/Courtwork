@@ -5,6 +5,7 @@ export const customIconNames = [
   "anchor-link",
   "archive-lock",
   "bound-folder",
+  "brand-mark",
   "cards-play",
   "check-lines",
   "corner-badge",
@@ -87,6 +88,36 @@ const customIconNodes = {
       {
         "d": "M3 5h6l2 2h10v13H3zm4 0v15M5 10h2m-2 5h2",
         "key": "bound-folder-1"
+      }
+    ]
+  ],
+  "brand-mark": [
+    [
+      "path",
+      {
+        "d": "M8 5v14",
+        "key": "brand-mark-1"
+      }
+    ],
+    [
+      "path",
+      {
+        "d": "M11.5 8H18",
+        "key": "brand-mark-2"
+      }
+    ],
+    [
+      "path",
+      {
+        "d": "M11.5 12H18",
+        "key": "brand-mark-3"
+      }
+    ],
+    [
+      "path",
+      {
+        "d": "M11.5 16h4",
+        "key": "brand-mark-4"
       }
     ]
   ],
@@ -424,6 +455,7 @@ const customIconNodes = {
 export const AnchorLinkIcon: LucideIcon = createLucideIcon('AnchorLink', customIconNodes['anchor-link']);
 export const ArchiveLockIcon: LucideIcon = createLucideIcon('ArchiveLock', customIconNodes['archive-lock']);
 export const BoundFolderIcon: LucideIcon = createLucideIcon('BoundFolder', customIconNodes['bound-folder']);
+export const BrandMarkIcon: LucideIcon = createLucideIcon('BrandMark', customIconNodes['brand-mark']);
 export const CardsPlayIcon: LucideIcon = createLucideIcon('CardsPlay', customIconNodes['cards-play']);
 export const CheckLinesIcon: LucideIcon = createLucideIcon('CheckLines', customIconNodes['check-lines']);
 export const CornerBadgeIcon: LucideIcon = createLucideIcon('CornerBadge', customIconNodes['corner-badge']);
@@ -445,6 +477,7 @@ export const customIcons: Record<CustomIconName, LucideIcon> = {
   'anchor-link': AnchorLinkIcon,
   'archive-lock': ArchiveLockIcon,
   'bound-folder': BoundFolderIcon,
+  'brand-mark': BrandMarkIcon,
   'cards-play': CardsPlayIcon,
   'check-lines': CheckLinesIcon,
   'corner-badge': CornerBadgeIcon,

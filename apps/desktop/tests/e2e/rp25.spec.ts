@@ -83,7 +83,7 @@ test('RP-2.5.1 model-config 单实例、无遮挡并持久化配置', async ({ p
   expect(bounds.popoverLeft).toBeGreaterThanOrEqual(bounds.chatLeft);
   expect(bounds.popoverRight).toBeLessThanOrEqual(bounds.chatRight);
   await page.getByTestId('model-config-provider').selectOption('qwen');
-  await page.getByTestId('model-config-model').selectOption('qwen-max');
+  await page.getByTestId('model-config-model').fill('qwen3.5-plus');
   await page.getByRole('radio', { name: 'Deep' }).check();
   await page.getByTestId('model-config-close').click();
   await page.reload();
@@ -92,7 +92,7 @@ test('RP-2.5.1 model-config 单实例、无遮挡并持久化配置', async ({ p
   await page.getByTestId('model-config-trigger').click();
   await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
   await expect(page.getByTestId('model-config-provider')).toHaveValue('qwen');
-  await expect(page.getByTestId('model-config-model')).toHaveValue('qwen-max');
+  await expect(page.getByTestId('model-config-model')).toHaveValue('qwen3.5-plus');
   await expect(page.getByRole('radio', { name: 'Deep' })).toBeChecked();
 });
 
@@ -109,7 +109,8 @@ test('RP-2.5 场景动作不越界，免责声明链接保持原子', async ({ p
 test('RP-2.5 设置为居中 L2 modal，1180 无溢出', async ({ page }) => {
   await page.setViewportSize({ width: 1180, height: 900 });
   await openApp(page);
-  await page.getByTestId('open-settings').click();
+  await page.getByRole('button', { name: 'Search' }).click();
+  await page.getByRole('option', { name: 'Settings' }).click();
   const box = await page.getByTestId('settings-page').boundingBox();
   expect(box).not.toBeNull();
   expect(box!.x).toBeGreaterThan(0);

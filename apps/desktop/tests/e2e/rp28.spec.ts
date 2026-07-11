@@ -7,6 +7,7 @@ test('bound dossier removes the duplicate composer folder picker', async ({ page
   await expect(page.getByTestId('composer-case')).toContainText('Choose case');
 
   await page.getByTestId('welcome-demo-start').click();
+  await page.getByTestId('provider-skip').click();
   await expect(page.getByTestId('assistant-turn-demo')).toBeVisible();
   await expect(page.getByTestId('composer-case')).toHaveCount(0);
 });

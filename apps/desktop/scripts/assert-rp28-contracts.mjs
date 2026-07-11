@@ -19,11 +19,12 @@ for (const kind of ['event', 'artifact', 'file', 'gate']) {
 if (!app.includes('<QuestionTurnCard') || !turnCard.includes("data-kind=\"question\"")) failures.push('Question cards must use the generic closed-option ledger component');
 if (!turnCard.includes("record('skipped')") || !turnCard.includes('data-answer={answer')) failures.push('Question cards must remain skippable and record enum answers');
 if (!app.includes('<ToolCallRow')) failures.push('Tool calls must use the auditable generic row');
-if (!composer.includes('!hasBoundContainer && <div className="case-picker">')) failures.push('Composer folder picker must be conditional on an unbound conversation');
+if (!composer.includes('!hasBoundContainer && <div className="case-picker"')) failures.push('Composer folder picker must be conditional on an unbound conversation');
 if (!utility.includes('utility-dock-popover') || !utility.includes('pointerdown')) failures.push('Dock must use an outside-dismissed L2 popover');
 if (/setPreviewOpen|onExpandItem/.test(utility)) failures.push('Utility dock may not replace or close the Preview host');
-const dockBranch = utility.slice(utility.indexOf("if (mode === 'dock')"), utility.indexOf("return (\n    <div className=\"utility-rail\""));
-if (dockBranch.includes('<SurfaceCard') || !dockBranch.includes('<section ref={dockRef} className="utility-dock"')) failures.push('Preview dock must be an L0 embedded band, not a raised SurfaceCard');
+// ch12 三卡一纸：utility 两态皆坐底纸，永不成卡（schema 唯一右卡）——比 RP-2.8 更严。
+if (/<SurfaceCard/.test(utility)) failures.push('Preview dock must be card-free in both modes (no SurfaceCard) — schema 唯一右卡');
+if (!utility.includes('<section ref={dockRef} className="utility-dock"')) failures.push('Preview dock must be an L0 embedded band, not a raised SurfaceCard');
 if (!css.includes('.tool-call-details') || !css.includes('var(--type-dense-mono)')) failures.push('Tool details must consume the dense mono token');
 if (/<svg\b/.test(turnCard)) failures.push('Turn cards must use the registered Icon SVG pipeline');
 

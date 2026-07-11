@@ -2,15 +2,18 @@ import {
   BriefcaseBusiness,
   CalendarClock,
   Camera,
+  Clipboard,
   ChevronDown,
   ChevronRight,
   Cog,
   Columns2,
   File,
   FileText,
+  Ellipsis,
   FolderOpen,
   Image,
   MessageSquareText,
+  MessageCircle,
   Mic,
   Minus,
   Package,
@@ -23,8 +26,12 @@ import {
   RotateCw,
   Rows2,
   Scan,
+  Search,
   Send,
   SendHorizontal,
+  ThumbsDown,
+  ThumbsUp,
+  Volume2,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -64,16 +71,23 @@ const standardIcons = {
   package: Package,
   'calendar-clock': CalendarClock,
   send: Send,
+  clipboard: Clipboard,
+  'message-circle': MessageCircle,
+  ellipsis: Ellipsis,
+  'thumbs-down': ThumbsDown,
+  'thumbs-up': ThumbsUp,
+  'volume-two': Volume2,
   'panel-left': PanelLeft,
   'panel-right': PanelRight,
+  search: Search,
 } satisfies Record<string, LucideIcon>;
 
 type StandardIconName = keyof typeof standardIcons;
 type IconName = StandardIconName;
 
-export function Icon({ name }: { name: IconName }) {
+export function Icon({ name, scope = 'chrome' }: { name: IconName; scope?: 'chrome' | 'turn' }) {
   const Component = standardIcons[name];
-  return <Component className="line-icon" aria-hidden="true" />;
+  return <Component className={scope === 'turn' ? 'turn-icon' : 'line-icon'} data-icon-scope={scope} aria-hidden="true" />;
 }
 
 export type { IconName };

@@ -7,6 +7,9 @@ import {
   reasoningLabel,
   saveModelConfig,
   withProvider,
+  effectiveBaseUrl,
+  modelOptions,
+  reasoningRequest,
 } from './model-config';
 
 afterEach(() => {
@@ -16,7 +19,7 @@ afterEach(() => {
 describe('model-config', () => {
   it('defaults and labels', () => {
     expect(loadModelConfig()).toEqual(DEFAULT_MODEL_CONFIG);
-    expect(modelDisplayName(DEFAULT_MODEL_CONFIG)).toBe('DeepSeek Chat');
+    expect(modelDisplayName(DEFAULT_MODEL_CONFIG)).toBe('deepseek-v4-flash');
     expect(reasoningLabel('deep')).toBe('深思');
     expect(reasoningLabel('standard')).toBe('标准');
   });
@@ -30,6 +33,25 @@ describe('model-config', () => {
   it('withProvider falls back to first model of new provider', () => {
     const switched = withProvider(DEFAULT_MODEL_CONFIG, 'doubao');
     expect(switched.providerId).toBe('doubao');
-    expect(switched.modelId).toBe('doubao-pro');
+    expect(switched.modelId).toBe('doubao-seed-1.6');
+  });
+
+  it('presets fill URL/models while custom keeps an editable URL and discovered models', () => {
+    expect(effectiveBaseUrl(DEFAULT_MODEL_CONFIG)).toBe('https://api.deepseek.com/v1');
+    const custom = withProvider(DEFAULT_MODEL_CONFIG, 'custom');
+    expect(custom.baseUrl).toBe('');
+    expect(effectiveBaseUrl({ ...custom, baseUrl: 'https://gateway.example' })).toBe('https://gateway.example/v1');
+    expect(modelOptions({ ...custom, modelId: 'local-law', discoveredModels: ['local-law', 'other'] }))
+      .toEqual(['local-law', 'other']);
+  });
+
+  it('reasoning request delegates to the declared quirk route', () => {
+    expect(reasoningRequest({ ...DEFAULT_MODEL_CONFIG, reasoning: 'deep' })).toEqual({
+      model: 'deepseek-v4-pro', extraBody: {},
+    });
+    expect(reasoningRequest({ ...withProvider(DEFAULT_MODEL_CONFIG, 'qwen'), reasoning: 'deep' }))
+      .toMatchObject({ extraBody: { enable_thinking: true } });
+    expect(reasoningRequest({ ...withProvider(DEFAULT_MODEL_CONFIG, 'custom'), modelId: 'law-local', reasoning: 'deep' }))
+      .toEqual({ model: 'law-local', extraBody: { reasoning_effort: 'high' } });
   });
 });

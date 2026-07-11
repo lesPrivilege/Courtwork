@@ -15,6 +15,8 @@ export async function openWorkbench(page: Page) {
   const welcomeDemo = page.getByTestId('welcome-demo-start');
   if (await welcomeDemo.isVisible()) {
     await welcomeDemo.click();
+    const onboarding = page.getByTestId('provider-setup');
+    if (await onboarding.isVisible()) await page.getByTestId('provider-skip').click();
     await page.getByTestId('event-stream').waitFor();
   }
   // 加固：点击后光标可能仍悬在中心区域
@@ -37,7 +39,7 @@ export async function connectProvider(page: Page) {
   await trigger.click();
   const dialog = page.getByTestId('provider-setup');
   await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
-  await dialog.getByRole('button', { name: '完成连接' }).click();
+  await dialog.getByRole('button', { name: '验证连接' }).click();
   await dialog.waitFor({ state: 'hidden' });
 }
 

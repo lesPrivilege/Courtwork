@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { StackModule } from '../modules/ModuleStack';
 import type { ModuleId } from '../modules/module-stack';
-import { SurfaceCard } from '../surface/SurfaceCard';
 import { CHROME_COPY } from '../chrome/copy';
 
 interface UtilityItem {
@@ -21,15 +19,15 @@ interface UtilityRailProps {
   onOpenPreview: () => void;
 }
 
-/** 通用能力栏；严禁 import 任何垂类 renderer。 */
+/**
+ * 通用能力栏（ch12 三卡一纸）：两态皆为坐底纸的三 tap 行，永不成卡——schema 唯一右卡。
+ * dock 态 = 其下承 schema 卡；base 态 = 无 schema 卡，末附 reopen 入口（仍坐底纸）。
+ * 严禁 import 任何垂类 renderer。
+ */
 export function UtilityRail({ mode, items, onOpenPreview }: UtilityRailProps) {
   const [dockItemId, setDockItemId] = useState<UtilityItem['id'] | null>(null);
   const dockRef = useRef<HTMLElement>(null);
   const dockItem = items.find((item) => item.id === dockItemId);
-
-  useEffect(() => {
-    if (mode !== 'dock') setDockItemId(null);
-  }, [mode]);
 
   useEffect(() => {
     if (!dockItemId) return;
@@ -41,9 +39,9 @@ export function UtilityRail({ mode, items, onOpenPreview }: UtilityRailProps) {
     return () => document.removeEventListener('pointerdown', closeOutside);
   }, [dockItemId]);
 
-  if (mode === 'dock') {
-    return (
-      <section ref={dockRef} className="utility-dock" data-testid="utility-rail" data-mode="dock">
+  return (
+    <section ref={dockRef} className="utility-dock" data-testid="utility-rail" data-mode={mode}>
+      <div className="utility-dock-taps">
         {items.map((item) => (
           <section key={item.id} className="utility-dock-item stack-module" data-testid={`module-${item.id}`} data-open={item.open ? 'true' : 'false'}>
             <button type="button" data-testid={`module-${item.id}-toggle`} aria-expanded={dockItemId === item.id} onClick={() => setDockItemId((open) => open === item.id ? null : item.id)}>
@@ -53,38 +51,23 @@ export function UtilityRail({ mode, items, onOpenPreview }: UtilityRailProps) {
             {item.dockAction}
           </section>
         ))}
-        {dockItem && (
-          <aside className="utility-dock-popover" data-testid="utility-dock-popover" aria-label={dockItem.title}>
-            <header><strong>{dockItem.title}</strong><span>{dockItem.count}</span></header>
-            <div className="utility-dock-popover-body">{dockItem.body}</div>
-          </aside>
-        )}
-      </section>
-    );
-  }
-
-  return (
-    <div className="utility-rail" data-testid="utility-rail" data-mode="base">
-      <SurfaceCard elevation="raised" className="utility-preview-entry">
-        <button type="button" data-testid="preview-open" onClick={onOpenPreview}>
+      </div>
+      {dockItem && (
+        <aside className="utility-dock-popover" data-testid="utility-dock-popover" aria-label={dockItem.title}>
+          <header><strong>{dockItem.title}</strong><span>{dockItem.count}</span></header>
+          <div
+            className="utility-dock-popover-body"
+            onClick={(event) => {
+              if ((event.target as Element).closest('button, a')) setDockItemId(null);
+            }}
+          >{dockItem.body}</div>
+        </aside>
+      )}
+      {mode === 'base' && (
+        <button type="button" className="utility-reopen" data-testid="preview-open" onClick={onOpenPreview}>
           <span>{CHROME_COPY.utility.preview}</span><strong>{CHROME_COPY.utility.open}</strong>
         </button>
-      </SurfaceCard>
-      {items.map((item) => (
-        <SurfaceCard elevation="raised" key={item.id} className="utility-card">
-          <StackModule
-            id={item.id}
-            title={item.title}
-            count={item.count}
-            status={item.status}
-            open={item.open}
-            onToggle={item.onToggle}
-            testId={`module-${item.id}`}
-          >
-            {item.body}
-          </StackModule>
-        </SurfaceCard>
-      ))}
-    </div>
+      )}
+    </section>
   );
 }

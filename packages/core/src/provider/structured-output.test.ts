@@ -8,7 +8,11 @@ import type { HttpClientConfig } from './http-client.js';
 const TestSchema = z.object({ greeting: z.string(), count: z.number() });
 
 function profile(tier: ProviderQuirkProfile['responseFormat']['tier']): ProviderQuirkProfile {
-  return { providerId: 'test-provider', baseUrl: 'https://example.invalid/v1', responseFormat: { tier }, reasoningFieldCandidates: ['reasoning_content'] };
+  return {
+    providerId: 'test-provider', baseUrl: 'https://example.invalid/v1', responseFormat: { tier },
+    reasoningFieldCandidates: ['reasoning_content'], recommendedModels: ['test-model'],
+    reasoningRoute: { kind: 'request_field', field: 'reasoning_effort', values: { standard: 'low', deep: 'high' } },
+  };
 }
 
 function sseBody(payload: unknown): string {

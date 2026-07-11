@@ -1,4 +1,12 @@
 export type ResponseFormatTier = 'json_schema_strict' | 'json_schema' | 'json_object' | 'unsupported';
+export type ReasoningLevel = 'standard' | 'deep';
+export type ReasoningRoute =
+  | { readonly kind: 'model_switch'; readonly models: Readonly<Record<ReasoningLevel, string>> }
+  | { readonly kind: 'request_field'; readonly field: string; readonly values: Readonly<Record<ReasoningLevel, unknown>> };
+
+export const OPENAI_COMPATIBLE_REASONING_ROUTE: ReasoningRoute = {
+  kind: 'request_field', field: 'reasoning_effort', values: { standard: 'low', deep: 'high' },
+};
 
 export interface ProviderQuirkProfile {
   /** provider 的展示/日志用标识（不是 wire 层字段，wire 层的 model 走 modelId 单独配置）。 */
@@ -16,6 +24,26 @@ export interface ProviderQuirkProfile {
    * GenerationResponse.reasoningContent（docs/18 quirk③）。只收录有文档依据的字段名，
    * 未证实的字段名（如 Qwen 是否真的用 reasoning_content 尚待实测）不编造额外候选。 */
   readonly reasoningFieldCandidates: readonly string[];
+  /** 用户自配所需元数据与标准/深思 wire 映射。调用方只解释 kind，不按 providerId 分支。 */
+  readonly recommendedModels: readonly string[];
+  readonly reasoningRoute: ReasoningRoute;
+}
+
+export function applyReasoningRoute(
+  profile: ProviderQuirkProfile,
+  model: string,
+  level: ReasoningLevel,
+): { model: string; extraBody: Record<string, unknown> } {
+  return resolveReasoningRoute(profile.reasoningRoute, model, level);
+}
+
+export function resolveReasoningRoute(
+  route: ReasoningRoute,
+  model: string,
+  level: ReasoningLevel,
+): { model: string; extraBody: Record<string, unknown> } {
+  if (route.kind === 'model_switch') return { model: route.models[level], extraBody: {} };
+  return { model, extraBody: { [route.field]: route.values[level] } };
 }
 
 export const DEEPSEEK_QUIRK_PROFILE: ProviderQuirkProfile = {
@@ -23,6 +51,8 @@ export const DEEPSEEK_QUIRK_PROFILE: ProviderQuirkProfile = {
   baseUrl: 'https://api.deepseek.com/v1',
   responseFormat: { tier: 'json_object' },
   reasoningFieldCandidates: ['reasoning_content'],
+  recommendedModels: ['deepseek-v4-flash', 'deepseek-v4-pro'],
+  reasoningRoute: { kind: 'model_switch', models: { standard: 'deepseek-v4-flash', deep: 'deepseek-v4-pro' } },
 };
 
 export const QWEN_QUIRK_PROFILE: ProviderQuirkProfile = {
@@ -34,6 +64,8 @@ export const QWEN_QUIRK_PROFILE: ProviderQuirkProfile = {
   // docs/18 §1.2 只提到 enable_thinking（请求侧开关），未指名响应字段——这里沿用
   // DeepSeek 已证实的字段名作为推测默认值，未经文档证实，实测后可能需要修正。
   reasoningFieldCandidates: ['reasoning_content'],
+  recommendedModels: ['qwen3.5-plus', 'qwen-flash'],
+  reasoningRoute: { kind: 'request_field', field: 'enable_thinking', values: { standard: false, deep: true } },
 };
 
 export const DOUBAO_QUIRK_PROFILE: ProviderQuirkProfile = {
@@ -43,4 +75,6 @@ export const DOUBAO_QUIRK_PROFILE: ProviderQuirkProfile = {
   // docs/18 §1.6 未提及推理内容字段名——这里沿用 DeepSeek 已证实的字段名作为推测
   // 默认值，未经文档证实，实测后可能需要修正。
   reasoningFieldCandidates: ['reasoning_content'],
+  recommendedModels: ['doubao-seed-1.6'],
+  reasoningRoute: OPENAI_COMPATIBLE_REASONING_ROUTE,
 };

@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./provider-quirks": {
+      "types": "./dist/provider/quirk-profile.d.ts",
+      "default": "./dist/provider/quirk-profile.js"
     }
   },
   "scripts": {

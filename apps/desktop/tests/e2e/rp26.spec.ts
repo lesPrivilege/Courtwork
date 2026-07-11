@@ -20,6 +20,7 @@ test('demo identity is inline, data-driven, and opens only by choice', async ({ 
   await expect(demo.locator('.unread-count')).toHaveCount(0);
 
   await page.getByTestId('welcome-demo-start').click();
+  await page.getByTestId('provider-skip').click();
   await expect(page.getByTestId('event-stream')).toBeVisible();
   await expect(page.getByTestId('preview-host')).toBeVisible();
 });
@@ -35,6 +36,7 @@ test('pending credentials surface only on an explicit send attempt', async ({ pa
 test('preview owns one read-only scroll progress interface', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('welcome-demo-start').click();
+  await page.getByTestId('provider-skip').click();
 
   const progress = page.getByTestId('preview-scroll-progress');
   await expect(progress).toHaveCount(1);
@@ -45,6 +47,7 @@ test('preview owns one read-only scroll progress interface', async ({ page }) =>
 test('schema semantic edge keeps a tokenized gutter from chat', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('welcome-demo-start').click();
+  await page.getByTestId('provider-skip').click();
 
   const host = await page.getByTestId('preview-host').boundingBox();
   const semantic = await page.locator('.risk-master-detail').boundingBox();
@@ -56,6 +59,7 @@ test('schema semantic edge keeps a tokenized gutter from chat', async ({ page })
 test('right workbench keeps the 44/40/36 hierarchy and tab endpoints', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('welcome-demo-start').click();
+  await page.getByTestId('provider-skip').click();
 
   await expect(page.locator('.utility-dock')).toHaveCSS('height', '44px');
   await expect(page.locator('.preview-host-head')).toHaveCSS('height', '40px');

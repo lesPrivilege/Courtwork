@@ -1,0 +1,38 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Icon } from '../workbench/Icon';
+
+function relativeLabel(createdAt: number, now: number) {
+  const minutes = Math.max(0, Math.floor((now - createdAt) / 60_000));
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  return `${Math.floor(minutes / 60)}h ago`;
+}
+
+export function MessageActions({ messageId, text, createdAt }: { messageId: string; text: string; createdAt: number }) {
+  const [now, setNow] = useState(() => Date.now());
+  const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
+  const absolute = useMemo(() => new Date(createdAt).toISOString(), [createdAt]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const record = (value: 'up' | 'down') => {
+    setFeedback(value);
+    const key = 'courtwork.message-feedback-ledger';
+    const current = JSON.parse(window.localStorage.getItem(key) ?? '[]') as unknown[];
+    window.localStorage.setItem(key, JSON.stringify([...current, { messageId, value, createdAt: Date.now() }]));
+  };
+
+  return <footer className="message-actions" data-testid={`message-actions-${messageId}`}>
+    <time dateTime={absolute} title={absolute} data-testid="message-relative-time">{relativeLabel(createdAt, now)}</time>
+    <button type="button" aria-label="Copy message" onClick={() => void navigator.clipboard.writeText(text)}><Icon name="clipboard" scope="turn" /></button>
+    <button type="button" aria-label="Read aloud" disabled title="Coming later"><Icon name="volume-two" scope="turn" /></button>
+    <button type="button" aria-label="Helpful" aria-pressed={feedback === 'up'} onClick={() => record('up')}><Icon name="thumbs-up" scope="turn" /></button>
+    <button type="button" aria-label="Not helpful" aria-pressed={feedback === 'down'} onClick={() => record('down')}><Icon name="thumbs-down" scope="turn" /></button>
+    <button type="button" aria-label="More message actions" disabled title="Message fork editing comes later"><Icon name="ellipsis" scope="turn" /></button>
+  </footer>;
+}
+
+export { relativeLabel };

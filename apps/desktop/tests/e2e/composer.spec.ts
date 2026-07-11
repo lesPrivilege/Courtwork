@@ -56,6 +56,8 @@ test('附件 chip 生命周期：上传成功、作用域确认单向落定', as
 test('Enter 发送、Shift+Enter 换行；发送后进入对话流', async ({ page }) => {
   await openWorkbench(page);
   await connectProvider(page);
+  // 回放进度到达后发送才进入 queued 分支；全量并行下不能只等静态 event-stream 壳。
+  await page.getByTestId('turn-event-progress-0').waitFor();
   const input = page.getByTestId('composer-input');
   await input.fill('请核对验收条款');
   await expect(page.getByTestId('composer-send')).toBeEnabled();
@@ -65,7 +67,8 @@ test('Enter 发送、Shift+Enter 换行；发送后进入对话流', async ({ pa
   await expect(input).toHaveValue(/请核对验收条款[\s\S]*第二行说明/);
 
   await input.press('Enter');
-  await expect(page.getByTestId('local-user-message')).toContainText('请核对验收条款');
+  await expect(page.getByTestId('queued-message')).toContainText('请核对验收条款');
+  await expect(page.getByTestId('queued-message')).toContainText('Queued');
   await expect(input).toHaveValue('');
 });
 

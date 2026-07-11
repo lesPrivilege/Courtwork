@@ -1,5 +1,6 @@
 import {
   modelDisplayName,
+  modelOptions,
   PROVIDER_OPTIONS,
   REASONING_OPTIONS,
   type ModelConfig,
@@ -21,8 +22,6 @@ interface ModelConfigPopoverProps {
  */
 export function ModelConfigPopover({ open, config, onChange, onClose }: ModelConfigPopoverProps) {
   if (!open) return null;
-
-  const provider = PROVIDER_OPTIONS.find((item) => item.id === config.providerId) ?? PROVIDER_OPTIONS[0]!;
 
   return (
     <div
@@ -48,17 +47,13 @@ export function ModelConfigPopover({ open, config, onChange, onClose }: ModelCon
       </label>
       <label className="model-config-field">
         <span>Model</span>
-        <select
+        <input
           data-testid="model-config-model"
+          list="model-config-model-options"
           value={config.modelId}
           onChange={(event) => onChange({ ...config, modelId: event.target.value })}
-        >
-          {provider.models.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </select>
+        />
+        <datalist id="model-config-model-options">{modelOptions(config).map((id) => <option key={id} value={id} />)}</datalist>
       </label>
       <fieldset className="model-config-reasoning" data-testid="model-config-reasoning">
         <legend>Reasoning</legend>

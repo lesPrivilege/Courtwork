@@ -589,6 +589,116 @@ fn credential_status() -> Result<CredentialStatus, String> {
     Ok(status)
 }
 
+fn active_secret() -> Result<(CredentialSource, String), CredentialStatus> {
+    let marker = read_source().map_err(|kind| failed_keychain(None, kind))?;
+    match marker.as_deref() {
+        Some("pasted") => get_password(SECRET_ACCOUNT)
+            .map(|secret| (CredentialSource::Pasted, secret))
+            .map_err(|kind| failed_keychain(Some(CredentialSource::Pasted), kind)),
+        Some(value) if value.starts_with("environment:") => {
+            let name = &value["environment:".len()..];
+            std::env::var(name)
+                .map(|secret| (CredentialSource::Environment, secret))
+                .map_err(|_| failed(Some(CredentialSource::Environment), "电脑中未找到该凭证名称，请检查后重试", None))
+        }
+        _ => Err(pending()),
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ProviderProbeInput {
+    provider_id: String,
+    base_url: String,
+    model_id: String,
+    #[serde(default)]
+    reasoning_body: serde_json::Map<String, serde_json::Value>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ProviderProbeStatus {
+    phase: &'static str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    source: Option<CredentialSource>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    failure_message: Option<&'static str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    fail_kind: Option<&'static str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    models: Option<Vec<String>>,
+    model_discovery: &'static str,
+}
+
+fn provider_failed(source: Option<CredentialSource>, kind: &'static str, message: &'static str) -> ProviderProbeStatus {
+    ProviderProbeStatus { phase: "failed", source, failure_message: Some(message), fail_kind: Some(kind), models: None, model_discovery: "unsupported" }
+}
+
+fn classify_http_failure(source: CredentialSource, status: reqwest::StatusCode) -> ProviderProbeStatus {
+    match status.as_u16() {
+        401 | 403 => provider_failed(Some(source), "auth_failed", "访问凭证未通过服务商验证，请检查后重试"),
+        404 => provider_failed(Some(source), "endpoint", "服务地址无法完成请求，请检查 Base URL"),
+        429 => provider_failed(Some(source), "rate_limited", "服务商暂时限制了请求，请稍后重试"),
+        400 | 422 => provider_failed(Some(source), "model", "当前模型不可用，请从模型列表选择或手动填写"),
+        _ => provider_failed(Some(source), "invalid_response", "服务商返回了无法识别的响应，请稍后重试"),
+    }
+}
+
+async fn probe_provider_endpoint(input: ProviderProbeInput, secret: String, source: CredentialSource) -> ProviderProbeStatus {
+    let base = input.base_url.trim().trim_end_matches('/');
+    if base.is_empty() || input.model_id.trim().is_empty() {
+        return provider_failed(Some(source), "endpoint", "请填写 Base URL 和模型名");
+    }
+    let client = match reqwest::Client::builder().timeout(std::time::Duration::from_secs(20)).build() {
+        Ok(client) => client,
+        Err(_) => return provider_failed(Some(source), "platform", "暂时无法验证连接，请重试"),
+    };
+    let models_response = client.get(format!("{base}/models")).bearer_auth(&secret).send().await;
+    let mut models = None;
+    let mut discovery = "unsupported";
+    if let Ok(response) = models_response {
+        if response.status() == reqwest::StatusCode::UNAUTHORIZED || response.status() == reqwest::StatusCode::FORBIDDEN {
+            return classify_http_failure(source, response.status());
+        }
+        if response.status().is_success() {
+            let payload = response.json::<serde_json::Value>().await.ok();
+            models = payload.and_then(|value| value.get("data").and_then(|data| data.as_array()).map(|items| {
+                items.iter().filter_map(|item| item.get("id").and_then(|id| id.as_str()).map(str::to_owned)).collect::<Vec<_>>()
+            })).filter(|items| !items.is_empty());
+            if models.is_some() { discovery = "available"; }
+        }
+    }
+
+    let mut body = serde_json::Map::new();
+    body.insert("model".into(), serde_json::Value::String(input.model_id));
+    body.insert("messages".into(), serde_json::json!([{"role":"user","content":"Hi"}]));
+    body.insert("max_tokens".into(), serde_json::json!(1));
+    body.insert("stream".into(), serde_json::json!(false));
+    body.extend(input.reasoning_body);
+    let smoke = client.post(format!("{base}/chat/completions")).bearer_auth(&secret).json(&body).send().await;
+    match smoke {
+        Ok(response) if response.status().is_success() => ProviderProbeStatus {
+            phase: "connected", source: Some(source), failure_message: None, fail_kind: None,
+            models, model_discovery: discovery,
+        },
+        Ok(response) => classify_http_failure(source, response.status()),
+        Err(error) if error.is_timeout() => provider_failed(Some(source), "timeout", "服务商响应超时，请稍后重试"),
+        Err(_) => provider_failed(Some(source), "network", "暂时无法连接服务商，请检查网络后重试"),
+    }
+}
+
+#[tauri::command]
+async fn validate_provider_connection(input: ProviderProbeInput) -> Result<ProviderProbeStatus, String> {
+    let _provider_id = &input.provider_id; // 仅诊断标识；路由完全由声明生成的 input 驱动。
+    match active_secret() {
+        Ok((source, secret)) => Ok(probe_provider_endpoint(input, secret, source).await),
+        Err(status) => Ok(ProviderProbeStatus {
+            phase: status.phase, source: status.source, failure_message: status.failure_message,
+            fail_kind: status.fail_kind, models: None, model_discovery: "unsupported",
+        }),
+    }
+}
+
 fn trace_status_exit(event: &str, status: &CredentialStatus, step: Option<&str>) {
     if !trace_enabled() {
         return;
@@ -724,6 +834,7 @@ pub fn run() {
             provider_credential_status,
             save_provider_credential,
             clear_provider_credential,
+            validate_provider_connection,
         ])
         .run(tauri::generate_context!())
         .expect("Courtwork 桌面应用启动失败");
@@ -732,6 +843,8 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
 
     #[test]
     fn status_payload_contains_no_secret_field() {
@@ -740,6 +853,42 @@ mod tests {
         assert_eq!(serialized, r#"{"phase":"connected","source":"pasted"}"#);
         assert!(!serialized.contains("secret"));
         assert!(!serialized.contains("value"));
+    }
+
+    #[tokio::test]
+    async fn mock_endpoint_discovers_models_then_runs_real_one_token_smoke() {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("bind mock endpoint");
+        let address = listener.local_addr().expect("mock address");
+        let server = std::thread::spawn(move || {
+            for index in 0..2 {
+                let (mut socket, _) = listener.accept().expect("accept request");
+                let mut request = vec![0_u8; 8192];
+                let read = socket.read(&mut request).expect("read request");
+                let text = String::from_utf8_lossy(&request[..read]);
+                let body = if index == 0 {
+                    assert!(text.starts_with("GET /v1/models"));
+                    r#"{"data":[{"id":"mock-law-model"}]}"#
+                } else {
+                    assert!(text.starts_with("POST /v1/chat/completions"));
+                    assert!(text.contains("\"max_tokens\":1"));
+                    assert!(text.contains("\"enable_thinking\":true"));
+                    r#"{"choices":[{"message":{"content":"x"}}]}"#
+                };
+                write!(socket, "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}", body.len(), body).expect("write response");
+            }
+        });
+        let status = probe_provider_endpoint(
+            ProviderProbeInput {
+                provider_id: "qwen".into(), base_url: format!("http://{address}/v1"),
+                model_id: "mock-law-model".into(),
+                reasoning_body: serde_json::from_value(serde_json::json!({"enable_thinking": true})).unwrap(),
+            },
+            "never-log-this-secret".into(), CredentialSource::Pasted,
+        ).await;
+        server.join().expect("mock server");
+        assert_eq!(status.phase, "connected");
+        assert_eq!(status.model_discovery, "available");
+        assert_eq!(status.models, Some(vec!["mock-law-model".into()]));
     }
 
     #[test]

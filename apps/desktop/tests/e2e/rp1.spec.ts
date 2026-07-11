@@ -18,7 +18,7 @@ test.describe('RP-1 最终重排', () => {
     const demo = page.getByTestId('case-card-demo-linjiang');
     await expect(page.getByText('卷宗原件 · 只读', { exact: true })).toBeVisible();
     await expect(demo.locator('.rail-row-main')).toHaveCSS('background-color', 'rgb(233, 238, 244)');
-    await expect(demo.locator('.rail-case-expand')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(demo.locator('.rail-case-expand')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect(page.getByTestId('open-work-drafts')).toHaveCount(0);
 
     await expand.click();
@@ -180,15 +180,15 @@ test.describe('RP-1 最终重排', () => {
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
     await page.getByTestId('model-config-provider').selectOption('qwen');
-    await page.getByTestId('model-config-model').selectOption('qwen-max');
+    await page.getByTestId('model-config-model').fill('qwen3.5-plus');
     await page.getByRole('radio', { name: 'Deep' }).check();
     await page.getByTestId('model-config-close').click();
     // connected 态 composer 真实反映变更
-    await expect(page.getByTestId('model-config-trigger')).toContainText('Qwen Max');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('qwen3.5-plus');
     await expect(page.getByTestId('model-config-trigger')).toContainText('Deep');
     // 再从 composer 打开仍是同一实例
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
-    await expect(page.getByTestId('model-config-summary')).toContainText('Qwen Max');
+    await expect(page.getByTestId('model-config-summary')).toContainText('qwen3.5-plus');
   });
 });

@@ -1,14 +1,19 @@
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { openWorkbench } from './helpers';
+
+async function openSettings(page: Page) {
+  await page.getByRole('button', { name: 'Search' }).click();
+  await page.getByRole('option', { name: 'Settings' }).click();
+}
 
 test.describe('SET-1 设置页', () => {
   test('标题栏齿轮与 ⌘K 设置动词打开全局设置层', async ({ page }) => {
     await openWorkbench(page);
     await expect(page.getByTestId('settings-page')).toHaveCount(0);
-    await page.getByTestId('open-settings').click();
+    await openSettings(page);
     await expect(page.getByTestId('settings-page')).toBeVisible();
     await expect(page.getByTestId('settings-section-model')).toBeVisible();
     await page.getByTestId('settings-close').click();
@@ -21,14 +26,14 @@ test.describe('SET-1 设置页', () => {
 
   test('分组切换 0ms 且真实路由组行为可用', async ({ page }) => {
     await openWorkbench(page);
-    await page.getByTestId('open-settings').click();
+    await openSettings(page);
 
     // 模型：凭证入口 + provider + maxUsd
     await expect(page.getByTestId('settings-credential-phase')).toBeVisible();
     await page.getByTestId('settings-provider').selectOption('qwen');
-    await page.getByTestId('settings-model').selectOption('qwen-max');
+    await page.getByTestId('settings-model').fill('qwen3.5-plus');
     await page.getByRole('radio', { name: 'Deep' }).check();
-    await expect(page.getByTestId('settings-model-summary')).toContainText('Qwen Max');
+    await expect(page.getByTestId('settings-model-summary')).toContainText('qwen3.5-plus');
     await expect(page.getByTestId('settings-model-summary')).toContainText('Deep');
     await page.getByTestId('settings-maxusd').fill('8');
     await page.getByTestId('settings-maxusd-save').click();
@@ -70,7 +75,7 @@ test.describe('SET-1 设置页', () => {
 
   test('预留组一律禁用态 + tooltip，无假开关', async ({ page }) => {
     await openWorkbench(page);
-    await page.getByTestId('open-settings').click();
+    await openSettings(page);
 
     await page.getByTestId('settings-nav-output').click();
     const sources = page.getByTestId('settings-sources');
@@ -95,7 +100,7 @@ test.describe('SET-1 设置页', () => {
 
   test('管理凭证打开既有探针对话框', async ({ page }) => {
     await openWorkbench(page);
-    await page.getByTestId('open-settings').click();
+    await openSettings(page);
     await page.getByTestId('settings-open-credentials').click();
     await expect(page.getByTestId('provider-setup')).toBeVisible();
   });
@@ -118,7 +123,7 @@ test.describe('SET-1 设置页', () => {
     const setup = page.getByTestId('provider-setup');
     if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
 
-    await page.getByTestId('open-settings').click();
+    await openSettings(page);
     await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-phase', 'failed');
     await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-fail-kind', 'auth_failed');
     const recovery = page.getByTestId('settings-credential-recovery');

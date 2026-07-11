@@ -9,7 +9,7 @@ if (result.status !== 0) {
 const output = `${result.stdout}\n${result.stderr}`;
 const match = output.match(/Total:\s+(\d+)\s+tests?/);
 const count = match ? Number(match[1]) : 0;
-const minimum = 126;
+const minimum = 146;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

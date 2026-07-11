@@ -17,6 +17,7 @@ export interface ChatCompletionRequestBody {
   stream: true;
   stream_options: { include_usage: true };
   response_format?: ResponseFormat;
+  [key: string]: unknown;
 }
 
 export interface ChatCompletionResult {

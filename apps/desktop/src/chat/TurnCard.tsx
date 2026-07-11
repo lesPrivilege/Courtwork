@@ -37,7 +37,7 @@ export function TurnCard({
   if (kind === 'event') {
     return (
       <div className={`turn-event-row is-${status}`} data-testid={testId}>
-        <span className="turn-card-icon"><Icon name={icon} /></span>
+        <span className="turn-card-icon"><Icon name={icon} scope="turn" /></span>
         {eyebrow && <span className="domain-badge">{eyebrow}</span>}
         <span>{title}</span>
       </div>
@@ -47,12 +47,12 @@ export function TurnCard({
   return (
     <section className={`turn-card turn-card-${kind} ${kind === 'artifact' ? 'data-card' : ''}`} data-testid={testId} data-kind={kind}>
       <button type="button" className="turn-card-route" aria-label={routeLabel} onClick={onOpen} disabled={!onOpen}>
-        <span className="turn-card-icon"><Icon name={icon} /></span>
+        <span className="turn-card-icon"><Icon name={icon} scope="turn" /></span>
         <span className="turn-card-copy">
           <span className="turn-card-title">{eyebrow && <span className="domain-badge">{eyebrow}</span>}<strong>{title}</strong></span>
           {summary && <span className="turn-card-summary">{summary}</span>}
         </span>
-        {onOpen && <Icon name="chevron-right" />}
+        {onOpen && <Icon name="chevron-right" scope="turn" />}
       </button>
       {actions && <div className="turn-card-actions">{actions}</div>}
       {copyText && <CopyButton label="复制卡片内容" getText={() => copyText} />}
@@ -73,7 +73,7 @@ export function ToolCallRow({ label, tool, args, result }: ToolCallRowProps) {
   return (
     <details className="tool-call-row" data-testid="tool-call-row" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
       <summary>
-        <Icon name="chevron-right" />
+        <Icon name="chevron-right" scope="turn" />
         <span>{label}</span>
         <code>{tool}</code>
       </summary>
@@ -110,7 +110,7 @@ export function QuestionTurnCard({ question, options, onAnswer }: QuestionTurnCa
   return (
     <section className="turn-card turn-card-question" data-testid="turn-card-question" data-kind="question" data-answer={answer ?? 'unanswered'}>
       <header className="question-card-head">
-        <span className="turn-card-icon"><Icon name="message-square-text" /></span>
+        <span className="turn-card-icon"><Icon name="message-square-text" scope="turn" /></span>
         <strong>{question}</strong>
       </header>
       <div className="question-card-options">

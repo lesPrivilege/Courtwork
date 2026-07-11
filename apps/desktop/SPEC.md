@@ -1,6 +1,15 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**RP-2 UI 完全化完成，待独立验收**；**BUILD-1 首个正式 Build（0.1.0 base 定形版）已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**PRV-1 provider 自配最小闭环完成**；**RP-2 UI 完全化完成，RP-2.8.1 三项验收打回已修、待单点复验**；**BUILD-1 首个正式 Build（0.1.0 base 定形版）已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+
+## PRV-1 · provider 自配最小闭环（2026-07-11）
+
+- 引导卡与设置页接入 `base URL + API key + 模型名`：DeepSeek/Qwen/豆包由 core quirk 自动给 URL/推荐模型，自定义档才可编辑 URL；根 URL 自动规范到 `/v1`。托管积分档只保留禁用占位。
+- `验证连接` 在 Rust 内从 FIX-KC-1 钥匙串取 key，先尝试 `GET {base}/models`，再发 `POST {base}/chat/completions` 的 `max_tokens: 1` 真请求；WebView 无读取明文命令。只有冒烟成功才进入 connected。
+- 模型发现不支持/失败时保留推荐模型与手输，不阻塞已成功的冒烟；鉴权、限流、端点、模型、超时、网络、非法响应均走闭集分型文案。
+- TDD：core quirk 路由测试；desktop 连接客户端测试；Rust 本地 mock HTTP 端点实收 GET+POST；Playwright 新增 4 条分型闭环；与并行 RP-2.10 两例合流后 floor `137 → 143`。
+- 并行 RP-2.10 新增 `brand-mark` 后，旧 icon audit 仍锁 19 导致全量门禁阻塞；本单仅把审计清单数同步为 20，未修改品牌图标、ThinkingStream 或任何视觉实现。
+- 实跑：desktop Vitest **79/79**；core Vitest **158/158**；Rust **10/10**（含本地 mock HTTP 真 GET+POST）；`pnpm -r build` 9 包通过；Playwright 完整门禁 **143/143**，随后独立端口 `--workers=1` 再跑 **143/143**。全量并行曾暴露 composer 测试只等静态 event-stream 的竞态，补为等待真实首条 progress 后，单文件 repeat 15/15 与两轮全量均绿。
 
 ## RP-2 · UI 完全化提案（实现前，2026-07-11）
 
@@ -697,6 +706,68 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 `lint:rp28` 锁五类封闭集、question enum/skip 留痕、通用层 import 边界、composer 条件位、dock 点外收起与 Preview 不置换；Playwright 增 5 条，floor `121 → 126`。
 
 视觉证据：`46-rp28-turn-cards-1440.png` / `47-rp28-dock-l2-1440.png`。
+
+### RP-2.8.1 验收打回修复（2026-07-11）
+
+- F-1 两项 dock 遮挡：dock/popover 的层叠与 pointer 边界已收窄；`file-ops.spec.ts` 与 `system-open.spec.ts` 在真实按钮中心用 `elementFromPoint` 锁定命中元素，确认“确认并整理”“新建工作稿”均不再被 dock 截获。
+- F-2 五项图谱断链：保留 `GraphPanel` 的 `lazy`/`Suspense` 管线，以“当前场景已有手动工作面选择”锁阻止 paced artifact 回放抢回 Preview；关系依据、14/15 dagre、缩放、GraphPanel 挂载、`.courtwork-minimap` #9 主题五项回归恢复。
+- F-3 一项图标污染：turn/Thinking 图标使用独立 `turn-icon` 作用域，`line-icon` 继续只承载 P-4 chrome/法理之线审计域；五态色与 icon 品牌单色断言恢复。
+- floor 实测保持 126。独立端口 `:1435`、`:1436` 各执行一轮全部静态门禁 + `playwright test --workers=1`，两轮均显示 `Running 126 tests using 1 worker`、`126 passed (1.4m)`、退出码 0。实现复核时额外发现并修正前置提交将 G6 改为同步导入而触发 `assert-graph-theme` 的遗漏；最终懒加载纪律与挂载行为同时成立。
+
+## RP-2.9 `home.*` 密度分档 token 提案（待架构过目，2026-07-11）
+
+依据 docs/49 第十一章与 Cowork 真机参照 `visual-audit/24-rp2-frontier-reference.png`，仅为低密度首页/左栏建立一组尺寸别名；不新增颜色、阴影、字重或动效，schema dense 区继续消费既有 `type.dense` / `component.listRow`，严禁反向消费本组。
+
+| token | 提案值 | 复用关系与白名单 |
+|---|---:|---|
+| `home.inset` | `16px` | `space.4`；欢迎态与左栏主体外边距 |
+| `home.sectionGap` | `20px` | `space.5`；欢迎区、继续区、左栏 Pinned/Recents 分节 |
+| `home.itemGap` | `12px` | `space.3`；低密度行内图标/文字与相邻项 |
+| `home.rowHeight` | `36px` | 比 schema `component.listRow.height=30` 高一档；仅首页/左栏导航与容器行 |
+| `home.iconSize` | `18px` | 比通用 control 16px 高一档；仍走 P-4 SVG/Lucide 管线 |
+| `home.controlRadius` | `8px` | 首页/左栏按钮、选择行；不进入数据卡或 schema 控件 |
+| `home.surfaceRadius` | `16px` | 仅欢迎/provider 引导承重面；L1 工作台外壳仍用 `elevation.floatRadius=12` |
+| `home.welcomeMeasure` | `560px` | 欢迎语与一步式引导的最大测宽，避免宽屏散文漂移 |
+
+衬线不进入 token family：只在 `.welcome-state h1` 单点声明系统中文衬线回退栈，并由门禁锁定“全仓恰好一个消费点”；其他首页与左栏文字仍消费全局 sans。提案过目之前不写入 `tokens.json`、CSS 变量或组件。
+
+### RP-2.9 落地记录（2026-07-11，架构批复 `c52102d`）
+
+- `home.*` 八项按批复进入 `docs/32-设计语言包/tokens.json` 与 CSS 单点变量；18px 图标保留光学豁免。16px 只由欢迎主面消费，继续区行卡依授权回落 12，避免行卡与大面同权重。
+- 冷启动不再调用 credential status；`data-credential-probed` 与 `lint:rp29` 锁定零启动探针。发送、composer provider、Settings/凭证入口才触发真实 probe；FIX-KC-1 的保存、失败分型与 keychain 语义未改。
+- 首启路径为欢迎主面 → 一步式 provider 引导（安全声明/Skip）→ Skip 样板案导览 → 样板案工作面；任何启动都不继承上次卷宗，继续区显式提供最多三项入口。
+- macOS 配置使用 `titleBarStyle: Overlay` + `hiddenTitle`，内容提供拖拽标题区；三栏继续上下贯通。Preview dock 收为悬浮三 tap，避开 close/collapse 命中区并保留 L2 点外收起。
+- 左栏与欢迎态消费低密度间距、36px 行、18px icon 与 8px control radius；schema renderer 仍消费 dense 组。欢迎标题为全 app 唯一衬线消费点，静态门锁定唯一性。
+- composer 采用 frontier 底排顺序 Add / Paste / scope / provider / Send；scope 菜单分 Cases 与 Recent chats 两段。Paste 真接文本 clipboard，图片/文件 paste 继续走既有 attachment 管线。
+- 用户气泡加深藏青 hairline；滚动区边缘渐隐、行间贯通细线。请求在途时新消息进入 Queued 列表，可撤回；“停止当前”在执行器接线前诚实禁用，不冒充已实现注入式 steering。message edit 按裁决不做。
+- 消息产生时冻结绝对时间，UI 每 30 秒刷新相对时间；copy 真做，赞/踩写本地 feedback ledger，朗读与更多诚实禁用。继续区、两段 scope 选择器与 question 推荐边界不改变容器作用域纪律。
+- Playwright floor `126 → 132`；`lint:rp29` 锁 home 八值、衬线唯一、16px 半径唯一、Overlay、懒探针与消息账本。
+
+首启逐屏证据：`48-rp29-welcome-1440.png` → `49-rp29-provider-guide-1440.png` → `50-rp29-skip-sample-tour-1440.png` → `51-rp29-sample-case-1440.png`。
+
+### RP-2.9.1 真机快修（2026-07-11）
+
+- 顶部 chrome 按 Codex 参照拆成独立 44px 窗口层：原生红绿灯区域后只放侧栏折叠与 Search；无 Back/Forward。wordmark 留在左栏内容顶部。
+- chat 案件头撤 Settings/⌘K，全局设置改走左下用户菜单或顶部 Search/⌘K 命令面板；案件标题本身仍可双击编辑，不算右上动作。
+- 次级按钮统一透明无框；Send、确认/区域唯一主动作保留实底。user message 回到纯平浅底无边框；message edit 仍按 Stage 1 fork 裁决不实现，未来编辑态才获得 input 描边。
+- composer 的 Add/Paste/scope/provider 全部沉底无框，Send 保留实底；chat turn artifact/file/gate 由带圆角卡收为透明账本行，只用贯通 hairline 分隔。
+- utility dock 不再 absolute 浮压 Preview 标题，而是固定占据右栏上部 44px 通用基座；SchemaPreviewHost 从其下方开始，44/40/36 层级恢复为结构几何事实。
+- 左栏案件与未归档行移除外框/卡底，选中态只保留墨色浅底；阶段与卷宗原件沿左侧大纲线自然下排。折叠与归档动作保持可达。
+- `lint:rp291` 与 5 条 E2E 锁定：窗口 chrome 无历史动词、chat header 零全局按钮、dock 底边不越 schema 顶边、user/rail/control 平面、turn 卡账本形态。floor `132 → 137`。
+
+视觉证据：`visual-audit/52-rp291-flat-chrome-1440.png`。
+
+### RP-2.10 三卡一纸 + 品牌 icon 推理动画（2026-07-11，Opus 4.8 实现，sol 转验收）
+
+- 三卡一纸（docs/49 第十二章）：右列两态皆坐底纸、永不成卡——`UtilityRail` 去 `SurfaceCard`，dock 三 tap 为 L0 透明带，base 态其下附 `preview-open` reopen 入口（仍坐底纸），schema（`preview-host`）为右列唯一 L1 卡；折叠钮迁入 `right-rail-chrome` 底纸留空、水平居中不占卡。chat 面（欢迎/空态）保持两栏。
+- 线影凡例：composer 外框 `border-strong` 略重（含沉底按钮区，无影，色与两侧一致微深）；默认按钮扁平，唯 Send 实底；user message 扁平藏青微加深底（`color-mix`），编辑态描边仍按 Stage 1 fork 未实现；`conversation-scroll` 两侧留空放大（文字不贴边）。
+- chat 卡片清算（第九章修正）：event/artifact/file 保持扁平账本行；唯 question/门禁为轻卡（`border-strong` + 6px 圆角 + 纯白底）；进行态事件行文本灰阶 `breathe` 闪烁，settle 后 demo 收敛为 success（不永久闪烁）。
+- #26.2/#26.3：推理指示锚 = 品牌 icon 本体（新增 `brand-mark` SVG 走 P-4 管线：藏青竖线 + 三横杠）；竖线立定、三横杠逐条写下（`reasoningLine=360ms` 序延迟），静默收回静态 icon 作思考流折叠锚；居 turn 尾、message 按钮排之下、左下角位形。四纪律不变（数据区静止 / 内容 0ms 硬切 / 法理之线不参与 / shimmer 灰阶，品牌线例外用藏青 `--text-primary`）。
+- 修复（Item 1 域内）：paced 回放代号守卫 `replayGeneration` 作废被取代回放的残余事件，消除重叠回放误触自动开卡的竞态（`rp25:60` 手动关闭优先由偶发翻红转 5/5 稳定）。
+- 门禁：`lint:rp210` + `rp210.spec.ts` 5 条 E2E（品牌 icon 位形 / 静默锚回看 / 卡片清算 / 三卡一纸两态无卡 / 折叠钮居中坐底纸）；`lint:thinking` 与 `lint:rp28` 随 #26.3 与卡片清算迁移收严（brand-mark、utility 两态无卡）；`verify-icons` 20 具名 SVG（+brand-mark, RP-2.10）。floor 由并行 PRV-1 已 committed 至 143（本单 +5 使全库计数 146，删本单用例即跌破 143 触红）。
+- 已知：`composer.spec.ts:56`（发送→排队）在本机 paced 回放下于发送前门禁已落定，稳定翻红——属 RP-2.9 #11 队列语义、非本单范围，HEAD 95826ac 基线即红（3/3）。
+
+视觉证据：`visual-audit/53-rp210-three-cards-1440.png`、`54-rp210-turn-tail.png`、`55-rp210-brand-anchor.png`、`56-rp210-base-mode-1440.png`。
 
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

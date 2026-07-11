@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/schemas';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
-  credentialClient,
   type CredentialStatus,
 } from './credentials/client';
 import { createDemoClient } from './demo/client';
@@ -52,6 +51,7 @@ import {
   saveModelConfig,
   type ModelConfig,
 } from './provider/model-config';
+import { providerConnectionClient } from './provider/connection-client';
 import { CaseRail } from './rail/CaseRail';
 import type { UnfiledSession } from './rail/types';
 import { SettingsPage, type SettingsSection } from './settings';
@@ -70,6 +70,7 @@ import {
 } from './workbench/Panels';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
 import { ThinkingStream } from './workbench/ThinkingStream';
+import { MessageActions } from './chat/MessageActions';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
@@ -98,8 +99,8 @@ function previewViewForArtifact(artifactType: string): WorkbenchView | undefined
 const DEMO_CASE = createDemoCaseSummary();
 
 function storedCaseId(): string | null {
-  const caseId = window.localStorage.getItem('courtwork.selected-case-id');
-  return isDemoCaseId(caseId) ? caseId : null;
+  // RP-2.9：启动永不继承上次卷宗作用域；继续区提供显式回到容器的入口。
+  return null;
 }
 
 type SessionAction = SessionEvent | { type: '__clear__' };
@@ -153,8 +154,11 @@ export function App() {
   const [draftFrozen, setDraftFrozen] = useState(false);
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ phase: 'pending' });
+  const [credentialProbed, setCredentialProbed] = useState(false);
   const [providerSetupOpen, setProviderSetupOpen] = useState(false);
-  const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[] }>>([]);
+  const [sampleTourOpen, setSampleTourOpen] = useState(false);
+  const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[]; createdAt: number }>>([]);
+  const [queuedMessages, setQueuedMessages] = useState<Array<{ id: string; text: string; createdAt: number }>>([]);
   const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(initialCaseId.current);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
@@ -193,14 +197,19 @@ export function App() {
   const narrowRailRequired = useNarrowRailRequired();
   const openedAt = useRef<Record<string, number>>({});
   const lastReplayedFlow = useRef<string | undefined>(undefined);
+  /** 回放代号：切场景/切容器后，旧 paced 回放的残余事件一律作废（防重叠回放误触自动开卡）。 */
+  const replayGeneration = useRef(0);
   /** RP-2.5.1：用户关闭只压住同一案件/场景后续 artifact；切场景后自动恢复。 */
   const previewDismissedContext = useRef<string | null>(null);
+  /** 当前场景内用户显式选中的工作面优先于仍在回放中的 artifact 自动路由。 */
+  const manualPreviewSelected = useRef(false);
   const resolvedRequest = useRef<string | undefined>(undefined);
   const prevCaseId = useRef(selectedCaseId);
   const lastArtifactKeys = useRef('');
   /** UX-1 #1 / RP-1 A2：卷宗计数 → 展开态 originals-zone；展开后 DOM 未就绪时排队重试 */
   const pendingOriginalsFocus = useRef(false);
   const [originalsFocusTick, setOriginalsFocusTick] = useState(0);
+  const assistantCreatedAt = useRef(Date.now());
 
   const showSystemFeedback = (message: string, ok: boolean) => {
     setSystemFeedback({ message, ok });
@@ -210,7 +219,13 @@ export function App() {
 
   const handleComposerSend = (payload: ComposerSendPayload) => {
     if (credentialStatus.phase !== 'connected') {
+      probeCredentials();
       setProviderSetupOpen(true);
+      return;
+    }
+    const createdAt = Date.now();
+    if (isDemoCase && session.progress.length > 0 && !session.confirmation) {
+      setQueuedMessages((current) => [...current, { id: `queued-${createdAt}`, text: payload.text, createdAt }]);
       return;
     }
     // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
@@ -219,23 +234,23 @@ export function App() {
       {
         text: payload.text || (payload.attachments.length ? '（附文件）' : ''),
         files: payload.attachments.map((item) => item.fileName),
+        createdAt,
       },
     ]);
   };
 
-  const probeCredentials = () => {
-    void credentialClient.status().then((status) => {
-      setCredentialStatus(status);
-      // 探针照常静默运行；凭证 UI 只在发送或主动配置时上浮。
-    });
+  const probeCredentials = async (config: ModelConfig = modelConfig) => {
+    setCredentialProbed(true);
+    const status = await providerConnectionClient.validate(config);
+    setCredentialStatus(status);
+    return status;
   };
 
   useEffect(() => {
-    probeCredentials();
     const onProbe = () => probeCredentials();
     window.addEventListener('courtwork-credential-probe', onProbe);
     return () => window.removeEventListener('courtwork-credential-probe', onProbe);
-  }, []);
+  }, [modelConfig]);
 
   useEffect(() => {
     if (selectedCaseId) window.localStorage.setItem('courtwork.selected-case-id', selectedCaseId);
@@ -261,6 +276,7 @@ export function App() {
     setFileOpsMode(false);
     setPreviewOpen(true);
     previewDismissedContext.current = null;
+    manualPreviewSelected.current = false;
     setDraftFrozen(false);
     setDraft(INITIAL_DRAFT);
     setCompileOpen(false);
@@ -286,15 +302,18 @@ export function App() {
     const replayKey = `${selectedCaseId}:${flow}:${replayEpoch}`;
     if (lastReplayedFlow.current === replayKey) return;
     lastReplayedFlow.current = replayKey;
+    const myGeneration = ++replayGeneration.current;
     setLocalMessages([]);
     const context = `${selectedCaseId}:${flow}`;
     let previewOpenedForReplay = false;
     void client.replay(flow, (event) => {
+      // 被后续回放取代的陈旧回放：残余事件全部丢弃（不 dispatch、不动自动开卡）。
+      if (replayGeneration.current !== myGeneration) return;
       dispatch(event);
       if (event.type !== 'artifact_produced') return;
       setArtifactRevision((revision) => revision + 1);
       const targetView = previewViewForArtifact(event.artifactType);
-      if (!targetView || previewOpenedForReplay || previewDismissedContext.current === context) return;
+      if (!targetView || previewOpenedForReplay || previewDismissedContext.current === context || manualPreviewSelected.current) return;
       previewOpenedForReplay = true;
       setActiveView(targetView);
       setPreviewOpen(true);
@@ -501,6 +520,7 @@ export function App() {
   const updateModelConfig = (next: ModelConfig) => {
     setModelConfig(next);
     saveModelConfig(next);
+    if (credentialStatus.phase === 'connected') void probeCredentials(next);
   };
 
   useEffect(() => {
@@ -523,6 +543,7 @@ export function App() {
   };
 
   const openSettings = (section: SettingsSection = 'model') => {
+    void probeCredentials();
     setSettingsSection(section);
     setSettingsOpen(true);
     setPaletteOpen(false);
@@ -613,6 +634,7 @@ export function App() {
   const selectFlow = (next: ScenarioFlow) => {
     if (!isDemoCase) return; // 非 demo 不注入样板场景
     if (next !== flow) previewDismissedContext.current = null;
+    manualPreviewSelected.current = false;
     setFlow(next);
     setReplayEpoch((epoch) => epoch + 1);
     setActiveView(next === 'S1' ? 'timeline' : 'revision');
@@ -629,6 +651,7 @@ export function App() {
 
   const choosePrimaryView = (view: WorkbenchView) => {
     if (secondaryView === view && activeView !== view) setSecondaryView(activeView);
+    manualPreviewSelected.current = true;
     setActiveView(view);
     if (view !== 'draft') setWorkDraftMode(false);
     setFileOpsMode(false);
@@ -637,6 +660,7 @@ export function App() {
   };
 
   const openWorkDrafts = () => {
+    manualPreviewSelected.current = true;
     setWorkDraftMode(true);
     setFileOpsMode(false);
     setActiveView('draft');
@@ -645,6 +669,7 @@ export function App() {
   };
 
   const openFileOps = () => {
+    manualPreviewSelected.current = true;
     setFileOpsMode(true);
     setWorkDraftMode(false);
     setSecondaryView(undefined);
@@ -854,12 +879,24 @@ export function App() {
       status: (usage >= 85 ? 'warn' : 'idle') as 'warn' | 'idle',
       open: moduleOpen.context,
       onToggle: () => toggleModule('context'),
-      body: <ContextModuleBody usage={usage} usageDetail={usageDetail} attachmentSources={attachmentSources} modelLabel={modelDisplayName(modelConfig)} modelConnected={false} reasoningLabel={modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard} onOpenModelConfig={() => setModelConfigOpen(true)} />,
+      body: <ContextModuleBody usage={usage} usageDetail={usageDetail} attachmentSources={attachmentSources} modelLabel={modelDisplayName(modelConfig)} modelConnected={credentialStatus.phase === 'connected'} reasoningLabel={modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard} onOpenModelConfig={() => setModelConfigOpen(true)} />,
     },
   ];
 
   return (
-    <main className="app-shell" data-testid="workbench" data-compact={compactLayout ? 'true' : 'false'}>
+    <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'} data-compact={compactLayout ? 'true' : 'false'}>
+      <header className="window-chrome" data-testid="window-chrome" data-tauri-drag-region>
+        <button
+          type="button"
+          className="window-chrome-button"
+          data-testid="collapse-left-rail"
+          aria-label={effectiveLeftCollapsed ? CHROME_COPY.navigation.expandLeft : CHROME_COPY.navigation.collapseLeft}
+          title={effectiveLeftCollapsed ? CHROME_COPY.navigation.expandLeft : CHROME_COPY.navigation.collapseLeft}
+          onClick={() => effectiveLeftCollapsed ? exitCompactLeft() : setLeftCollapsed(true)}
+        ><Icon name="panel-left" /></button>
+        <span className="spacer" />
+        <button type="button" className="window-chrome-button" aria-label="Search" title="Search" onClick={() => setPaletteOpen(true)}><Icon name="search" /></button>
+      </header>
       <div
         className={`workspace ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
         data-testid="workspace"
@@ -901,7 +938,6 @@ export function App() {
             onConfirmContainerizeUnfiled={confirmContainerizeUnfiled}
             onCancelContainerizeUnfiled={() => setContainerizeUnfiledId(null)}
             onExpandLeft={exitCompactLeft}
-            onCollapseLeft={() => setLeftCollapsed(true)}
             onOpenSettings={() => openSettings('about')}
             onFeedback={showSystemFeedback}
           />
@@ -910,7 +946,7 @@ export function App() {
         {/* L0：对话流直接坐页面底色，去卡壳 */}
         {!focusMode && (
           <section className="conversation canvas-layer" data-testid="conversation-canvas">
-            <header className={`chat-case-head ${isWelcome ? 'welcome-chat-head' : ''}`}>
+            <header className={`chat-case-head ${isWelcome ? 'welcome-chat-head' : ''}`} data-testid="chat-case-head">
               {isWelcome ? <strong className="welcome-head-label">{CHROME_COPY.welcome.eyebrow}</strong> : <>
               {editingCaseTitle ? <input
                 autoFocus
@@ -926,8 +962,6 @@ export function App() {
               <span className="stage-chip" data-testid="toolbar-stage">{stageLabel(flow, isDemoCase)}</span>
               </>}
               <span className="spacer" />
-              <button type="button" className="quiet-button chat-global-action" data-testid="open-settings" aria-label="Settings" title="Settings" onClick={() => openSettings('model')}><Icon name="cog" /></button>
-              <button type="button" className="shortcut shortcut-trigger" onClick={() => setPaletteOpen(true)}><kbd>⌘</kbd><kbd>K</kbd></button>
             </header>
             {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.ok ? 'ok' : 'error'}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
             <div className="conversation-scroll">
@@ -936,12 +970,15 @@ export function App() {
                   <span className="welcome-mark" aria-hidden="true"><Icon name="panels-top-left" /></span>
                   <h1>{CHROME_COPY.welcome.title}</h1>
                   <p>{CHROME_COPY.welcome.body}</p>
-                  <button type="button" className="quiet-button welcome-demo-start" data-testid="welcome-demo-start" onClick={() => {
-                    setSelectedCaseId(DEMO_CASE_ID);
-                    setExpandedCaseId(DEMO_CASE_ID);
-                  }}>
+                  <button type="button" className="quiet-button welcome-demo-start" data-testid="welcome-demo-start" onClick={() => setProviderSetupOpen(true)}>
                     {CHROME_COPY.welcome.sample}
                   </button>
+                  <div className="welcome-continuations" data-testid="welcome-continuations">
+                    <span>Continue</span>
+                    <button type="button" onClick={() => { setSelectedCaseId(DEMO_CASE_ID); setExpandedCaseId(DEMO_CASE_ID); setSampleTourOpen(true); }}>
+                      <strong>{DEMO_CASE.title}</strong><small>合同审查 · 6 项待办</small>
+                    </button>
+                  </div>
                 </section>
               )}
               {!isWelcome && !isDemoCase && selectedCase && (
@@ -951,16 +988,13 @@ export function App() {
               )}
               {isDemoCase && (
                 <>
+                  {sampleTourOpen && <div className="sample-tour" data-testid="sample-tour"><strong>样板案导览</strong><span>从左栏阶段进入卷宗，再在右侧核对结构化工作面。</span><button type="button" onClick={() => setSampleTourOpen(false)}>知道了</button></div>}
                   <div className="user-message">
                     {flow === 'S1'
                       ? '整理全套卷宗，标出事件矛盾并核对当事人关系。'
                       : '审查这份设备采购合同，重点看付款、验收与违约责任。'}
                   </div>
                   <article className="assistant-turn" data-testid="assistant-turn-demo">
-                    <ThinkingStream
-                      state={session.progress.length === 0 ? 'empty' : session.confirmation ? 'settled' : 'thinking'}
-                      content={session.progress.join('；') || '已梳理请求目标、材料范围与下一步工作面。'}
-                    />
                     <ToolCallRow
                       label="Ran command"
                       tool={flow === 'S3' ? 'review-contract' : 'organize-dossier'}
@@ -970,7 +1004,7 @@ export function App() {
                     <div className="turn-event-stream" data-testid="event-stream">
                       <TurnCard kind="event" icon="chevron-right" eyebrow={flow === 'S1' ? 'D20' : 'D04'} title={flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'} status="success" testId="turn-event-start" />
                       {session.progress.map((message, index) => (
-                        <TurnCard key={`${message}-${index}`} kind="event" icon="chevron-right" eyebrow={String(index + 1).padStart(2, '0')} title={message} status="active" testId={`turn-event-progress-${index}`} />
+                        <TurnCard key={`${message}-${index}`} kind="event" icon="chevron-right" eyebrow={String(index + 1).padStart(2, '0')} title={message} status={session.confirmation ? 'success' : 'active'} testId={`turn-event-progress-${index}`} />
                       ))}
                       <TurnCard kind="event" icon="chevron-right" eyebrow="完成" title={flow === 'S3' ? '审阅提示已送达右侧工作面' : '事件与主体关系已完成交叉核对'} status="success" testId="turn-event-finish" />
                     </div>
@@ -1027,6 +1061,12 @@ export function App() {
                         ]}
                       />
                     )}
+                    <MessageActions messageId="assistant-demo" text={flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'} createdAt={assistantCreatedAt.current} />
+                    {/* #26.2：推理指示锚居 turn 尾、message 按钮排之下 */}
+                    <ThinkingStream
+                      state={session.progress.length === 0 ? 'empty' : session.confirmation ? 'settled' : 'thinking'}
+                      content={session.progress.join('；') || '已梳理请求目标、材料范围与下一步工作面。'}
+                    />
                   </article>
                 </>
               )}
@@ -1042,8 +1082,14 @@ export function App() {
                       ))}
                     </div>
                   )}
+                  <MessageActions messageId={`local-${index}`} text={message.text} createdAt={message.createdAt} />
                 </div>
               ))}
+              {queuedMessages.map((message) => <div className="queued-message" data-testid="queued-message" key={message.id}>
+                <span className="queued-chip">Queued</span><span>{message.text}</span>
+                <button type="button" onClick={() => setQueuedMessages((current) => current.filter((item) => item.id !== message.id))}>撤回</button>
+                <button type="button" disabled title="停止当前请求将在执行器接线后启用">停止当前</button>
+              </div>)}
             </div>
             {!isWelcome && <div className="scene-strip" data-testid="scene-strip">
               {isDemoCase && (
@@ -1088,8 +1134,11 @@ export function App() {
                 modelLabel={modelDisplayName(modelConfig)}
                 connectionPhase={credentialStatus.phase}
                 onToggleModelConfig={() => {
-                  if (credentialStatus.phase !== 'connected') setProviderSetupOpen(true);
-                  else setModelConfigOpen((open) => !open);
+                  if (credentialStatus.phase === 'connected') setModelConfigOpen((open) => !open);
+                  else void probeCredentials().then((status) => {
+                    if (status.phase === 'connected') setModelConfigOpen(true);
+                    else setProviderSetupOpen(true);
+                  });
                 }}
                 onModelConfigChange={updateModelConfig}
                 onCloseModelConfig={() => setModelConfigOpen(false)}
@@ -1107,7 +1156,10 @@ export function App() {
         {!isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
           <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
         </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open={previewOpen ? 'true' : 'false'} data-artifact-revision={artifactRevision}>
-          <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
+          {/* ch12：折叠钮居留空上部居中，坐底纸不占卡 */}
+          <div className="right-rail-chrome">
+            <button type="button" className="collapse-right-button" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
+          </div>
           <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => {
             previewDismissedContext.current = null;
             setPreviewOpen(true);
@@ -1199,6 +1251,15 @@ export function App() {
         allowSkip={credentialStatus.phase !== 'connected'}
         onClose={() => setProviderSetupOpen(false)}
         onStatusChange={setCredentialStatus}
+        modelConfig={modelConfig}
+        onModelConfigChange={updateModelConfig}
+        onSkip={() => {
+          window.localStorage.setItem('courtwork.onboarding.seen', 'true');
+          setProviderSetupOpen(false);
+          setSelectedCaseId(DEMO_CASE_ID);
+          setExpandedCaseId(DEMO_CASE_ID);
+          setSampleTourOpen(true);
+        }}
       />
       <NewCaseDialog open={newCaseOpen} onClose={() => setNewCaseOpen(false)} onCreate={createCase} />
       <CommandPalette open={paletteOpen} commands={paletteCommands} onClose={() => setPaletteOpen(false)} />
@@ -1209,10 +1270,12 @@ export function App() {
         onClose={() => setSettingsOpen(false)}
         credentialStatus={credentialStatus}
         onOpenCredentialSetup={() => {
+          void probeCredentials();
           setProviderSetupOpen(true);
         }}
         modelConfig={modelConfig}
         onModelConfigChange={updateModelConfig}
+        onValidateProvider={() => probeCredentials()}
         onRevealPath={revealSettingsPath}
         onFeedback={showSystemFeedback}
       />

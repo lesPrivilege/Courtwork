@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SparkLinesIcon } from '../icons/custom-icons.generated';
+import { BrandMarkIcon } from '../icons/custom-icons.generated';
 
 export type ThinkingStreamState = 'thinking' | 'settled' | 'empty';
 
@@ -12,9 +12,10 @@ interface ThinkingStreamProps {
 }
 
 /**
- * 推理/思考流折叠容器（docs/52 #7）。
- * 仅做容器与折叠交互；内容由 T-provider.1 接流式后注入。
- * spark-lines 标识 = 「机器的话」区隔语义。
+ * 推理/思考流折叠容器（docs/52 #7 · #26.2/#26.3）。
+ * 指示锚 = 品牌 icon 本体（藏青竖线 + 三横杠）：竖线立定、三横杠逐条写下；
+ * 静默 = 收回静态 icon（思考流折叠锚）；无内容 = 零痕迹。
+ * 四纪律：数据区静止 / 内容到达 0ms 硬切 / 法理之线不参与 / shimmer 灰阶（品牌线例外用藏青）。
  */
 export function ThinkingStream({
   state = 'settled',
@@ -28,10 +29,10 @@ export function ThinkingStream({
   if (state === 'thinking') {
     return (
       <div className="thinking-stream is-thinking" data-testid="thinking-stream" data-state="thinking" role="status" aria-label="Reasoning in progress">
-        <SparkLinesIcon
-          className="line-icon thinking-stream-glyph"
+        <BrandMarkIcon
+          className="turn-icon thinking-stream-glyph"
+          data-icon-scope="turn"
           viewBox="0 0 24 24"
-          preserveAspectRatio="none"
           aria-hidden="true"
         />
       </div>
@@ -49,8 +50,9 @@ export function ThinkingStream({
         title={open ? 'Hide reasoning' : 'Show reasoning'}
         onClick={() => setOpen((value) => !value)}
       >
-        <SparkLinesIcon
-          className="line-icon thinking-stream-icon"
+        <BrandMarkIcon
+          className="turn-icon thinking-stream-icon"
+          data-icon-scope="turn"
           viewBox="0 0 24 24"
           aria-hidden="true"
         />
