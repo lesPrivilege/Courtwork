@@ -13,6 +13,24 @@ interface FileOpsPlanPanelProps {
   onFeedback?: (message: string, ok: boolean) => void;
 }
 
+const FILE_OPS_VERB_LABEL: Record<FileOpsPlanEntry['verb'], string> = {
+  move: '移动',
+  rename: '重命名',
+  copy: '复制',
+  mkdir: '新建文件夹',
+};
+
+/**
+ * 零编码暴露律：执行器保留绝对路径供审计，画面只显示案件容器内位置。
+ * 越界值也不得回退为绝对路径；异常详情留给诊断导出。
+ */
+function displayCaseRelativePath(path: string, caseRoot: string): string {
+  const normalizedRoot = caseRoot.replace(/\/$/, '');
+  if (path === normalizedRoot) return '案件目录';
+  if (path.startsWith(`${normalizedRoot}/`)) return path.slice(normalizedRoot.length + 1);
+  return path.split('/').filter(Boolean).pop() ?? '案件目录';
+}
+
 /**
  * S6 卷宗整理：计划表（逐条勾选/理由/目标）→ 确认执行 → 报告 → 一键撤销。
  * 单文件 move 也走本面板轻确认（docs/47）。
@@ -158,8 +176,7 @@ export function FileOpsPlanPanel({ caseId, onFeedback }: FileOpsPlanPanelProps) 
           <span>失败 {report.failed.length}</span>
           {report.applied.map((item) => (
             <p key={item.entryId} className="file-ops-report-line">
-              {item.verb} → {item.targetPath}
-              {item.contentHashAfter ? ` · 哈希 ${item.contentHashAfter.slice(0, 8)}…` : ''}
+              {FILE_OPS_VERB_LABEL[item.verb]} · {displayCaseRelativePath(item.targetPath, plan.caseRoot)}
             </p>
           ))}
         </section>
@@ -177,11 +194,7 @@ function FileOpsRow({
   disabled: boolean;
   onToggle: () => void;
 }) {
-  const verbLabel =
-    entry.verb === 'move' ? '移动'
-      : entry.verb === 'rename' ? '重命名'
-        : entry.verb === 'copy' ? '复制'
-          : '建目录';
+  const verbLabel = FILE_OPS_VERB_LABEL[entry.verb];
   const hash =
     entry.contentHashAfter ?? entry.contentHashBefore;
   return (

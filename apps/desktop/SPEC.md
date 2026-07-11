@@ -775,5 +775,11 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - composer 发送判定由“已有进度且无 confirmation”修为“已有进度且未 completed”。因此 paced 回放先落门禁时，新消息仍进入 `queuedMessages`，保留 `Queued`、撤回与诚实禁用的“停止当前”；未开始或已完成的请求仍走 `localMessages`。
 - 原 `composer.spec.ts:56` 断言不改、不降级。修前独立端口 4 workers × 12 repeats 为 11/12 红；修后同强度为 12/12 绿。Playwright floor 保持 146。
 
+### QF-2 AUDIT-1 两项阻断清账（2026-07-11）
+
+- #27：`queuedMessages` 每条绑定 `caseId`，消息流仅投影当前 `selectedCaseId`；队列随案件保留而不跨案渗出。`CASE_SCOPE_AUDIT` 增对应行，D-1 切换矩阵锁定“A 排队 → B 零继承 → A 恢复 → B 仍为空”。
+- #28：FileOps 执行器、事务日志、动词闭集与哈希证据均不变；仅报告投影依 docs/36 五节改为中文动作与案件内相对路径，英文枚举、绝对路径和 hash 留在诊断层。E2E 同时锁正向文案和三类不可见字符串。
+- 全门禁：全仓 build 9/9；Vitest 83 files / 725 tests；独立端口 `:1455`、`:1456` 顺序实跑完整静态门禁与 Playwright，两轮均为 146/146（1 worker）；floor 保持 146，未新增或弱化用例。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。

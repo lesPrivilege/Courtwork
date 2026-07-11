@@ -158,7 +158,7 @@ export function App() {
   const [providerSetupOpen, setProviderSetupOpen] = useState(false);
   const [sampleTourOpen, setSampleTourOpen] = useState(false);
   const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[]; createdAt: number }>>([]);
-  const [queuedMessages, setQueuedMessages] = useState<Array<{ id: string; text: string; createdAt: number }>>([]);
+  const [queuedMessages, setQueuedMessages] = useState<Array<{ id: string; caseId: string; text: string; createdAt: number }>>([]);
   const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(initialCaseId.current);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
@@ -225,8 +225,13 @@ export function App() {
     }
     const createdAt = Date.now();
     // RP-2.9 #11：confirmation_requested 是在途请求进入留人门禁，不是请求完成。
-    if (isDemoCase && session.progress.length > 0 && !session.completed) {
-      setQueuedMessages((current) => [...current, { id: `queued-${createdAt}`, text: payload.text, createdAt }]);
+    if (selectedCaseId && isDemoCase && session.progress.length > 0 && !session.completed) {
+      setQueuedMessages((current) => [...current, {
+        id: `queued-${createdAt}`,
+        caseId: selectedCaseId,
+        text: payload.text,
+        createdAt,
+      }]);
       return;
     }
     // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
@@ -1086,9 +1091,9 @@ export function App() {
                   <MessageActions messageId={`local-${index}`} text={message.text} createdAt={message.createdAt} />
                 </div>
               ))}
-              {queuedMessages.map((message) => <div className="queued-message" data-testid="queued-message" key={message.id}>
+              {queuedMessages.filter((message) => message.caseId === selectedCaseId).map((message) => <div className="queued-message" data-testid="queued-message" key={message.id}>
                 <span className="queued-chip">Queued</span><span>{message.text}</span>
-                <button type="button" onClick={() => setQueuedMessages((current) => current.filter((item) => item.id !== message.id))}>撤回</button>
+                <button type="button" onClick={() => setQueuedMessages((current) => current.filter((item) => item.caseId !== selectedCaseId || item.id !== message.id))}>撤回</button>
                 <button type="button" disabled title="停止当前请求将在执行器接线后启用">停止当前</button>
               </div>)}
             </div>
