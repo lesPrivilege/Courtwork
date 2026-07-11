@@ -105,6 +105,18 @@ function useWideSplitAvailable() {
   return available;
 }
 
+function useNarrowRailRequired() {
+  const [required, setRequired] = useState(() => window.innerWidth < 1240);
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 1239px)');
+    const update = () => setRequired(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  return required;
+}
+
 export function App() {
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>('S3');
@@ -157,6 +169,7 @@ export function App() {
   const [userModuleOverride, setUserModuleOverride] = useState<UserModuleOverride>({});
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const wideSplitAvailable = useWideSplitAvailable();
+  const narrowRailRequired = useNarrowRailRequired();
   const openedAt = useRef<Record<string, number>>({});
   const lastReplayedFlow = useRef<ScenarioFlow | null | undefined>(undefined);
   const resolvedRequest = useRef<string | undefined>(undefined);
@@ -743,17 +756,19 @@ export function App() {
     },
   ];
 
-  const compactLayout = leftCollapsed && !moduleOpen.progress && !moduleOpen['working-folders'] && !moduleOpen.context
+  const effectiveLeftCollapsed = leftCollapsed || narrowRailRequired;
+  const compactLayout = effectiveLeftCollapsed && !moduleOpen.progress && !moduleOpen['working-folders'] && !moduleOpen.context
     && !moduleOpen.timeline && !moduleOpen.graph && !moduleOpen.matrix && !moduleOpen.revision && !moduleOpen.draft;
 
   return (
     <main className="app-shell" data-testid="workbench" data-compact={compactLayout ? 'true' : 'false'}>
       <div
-        className={`workspace ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${leftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
+        className={`workspace ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
         data-testid="workspace"
         data-comparing={comparing ? 'true' : 'false'}
         data-focus-mode={focusMode ? 'true' : 'false'}
-        data-left-collapsed={leftCollapsed ? 'true' : 'false'}
+        data-left-collapsed={effectiveLeftCollapsed ? 'true' : 'false'}
+        data-auto-left-collapsed={narrowRailRequired ? 'true' : 'false'}
         data-right-collapsed={rightCollapsed ? 'true' : 'false'}
         data-compact={compactLayout ? 'true' : 'false'}
       >
@@ -773,7 +788,7 @@ export function App() {
             fileOpsMode={fileOpsMode}
             archiveConfirmCaseId={archiveConfirmCaseId}
             containerizeUnfiledId={containerizeUnfiledId}
-            leftCollapsed={leftCollapsed}
+            leftCollapsed={effectiveLeftCollapsed}
             onSelectCase={(id) => {
               setSelectedCaseId(id);
               // 案件行：选中即展开（含已选中但被收起的情况 → 强制 expandedCaseId=id）

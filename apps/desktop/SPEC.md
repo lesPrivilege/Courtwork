@@ -52,6 +52,16 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 - visual-audit：[`26-rp2-1-vertical-full-1440.png`](visual-audit/26-rp2-1-vertical-full-1440.png) / [`27-rp2-1-vertical-collapsed-1440.png`](visual-audit/27-rp2-1-vertical-collapsed-1440.png)。
 - RP-2.2：composer 声明移出 L1 输入浮卡，保持同宽底对齐并允许自然换行；chat/rail/module/work-surface 标题统一 `min-width:0 + nowrap + ellipsis`，计数与动作固定，收窄时禁止逐字竖排或越界。Playwright floor 95→96。
 
+### RP-2.3 · 比例与 Schema 工作面收口（架构批准 `43d99cd`）
+
+- 数学闭合写死：`1180–1239px` 自动进入左栏 48px 收敛态；`≥1240px` 才允许左栏展开。禁止依赖用户先手动折叠来消除初始溢出。
+- 宽度钩子：左栏 248/min224、chat min420/0.9fr、schema min560/1.25fr、折叠 48；全部由根 CSS 变量进入 `minmax()`，本单不做 resize handle/持久化。
+- Schema 四层：通用模块头 → 工作面标题/计数 → Tabs → schema 主工作区；正文消费 `type.dense.bodySize=13px`，Tab/表头/计数消费 `type.dense.metaSize=12px`，编号消费 dense mono。
+- 560–700px schema 容器内，风险主从区由左右 38/62 切为上下 34/66；图谱索引下移。选中仍只用 `bg.selected`，内部以 hairline 分隔，不新增卡层。
+- **阅读不变量**：document preview / draft reading 固定 `15px / 1.6`，不随 schema dense 或容器宽度缩小。
+- 自动验收：1180/1280/1440/1600 四档均断言 `scrollWidth ≤ clientWidth`、标题 nowrap/ellipsis、schema 正文 ≥13px；1440 另锁文书 15px。Playwright floor 96→100。
+- visual-audit：[`rp2-3-1180.png`](visual-audit/rp2-3-1180.png) / [`rp2-3-1280.png`](visual-audit/rp2-3-1280.png) / [`rp2-3-1440.png`](visual-audit/rp2-3-1440.png) / [`rp2-3-1600.png`](visual-audit/rp2-3-1600.png)。
+
 ## FIX-KC-1 · 凭证授权流（据 DBG-2，2026-07-11）
 
 权威：docs/55 FIX-KC-1。落点 `src-tauri/src/lib.rs` + `credentials/client.ts` + 设置页诊断/恢复。

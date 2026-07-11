@@ -11,4 +11,11 @@ await page.screenshot({ path: resolve('visual-audit/26-rp2-1-vertical-full-1440.
 await page.getByTestId('collapse-left-rail').click();
 await page.getByTestId('collapse-right-rail').click();
 await page.screenshot({ path: resolve('visual-audit/27-rp2-1-vertical-collapsed-1440.png'), animations: 'disabled' });
+for (const width of [1180, 1280, 1440, 1600]) {
+  await page.setViewportSize({ width, height: 900 });
+  await page.reload();
+  const setupAtWidth = page.getByTestId('provider-setup');
+  if (await setupAtWidth.isVisible()) await setupAtWidth.getByRole('button', { name: '先查看演示' }).click();
+  await page.screenshot({ path: resolve(`visual-audit/rp2-3-${width}.png`), animations: 'disabled' });
+}
 await browser.close();
