@@ -12,7 +12,11 @@ await page.emulateMedia({ reducedMotion: 'reduce' });
 await page.goto(baseURL);
 await page.getByTestId('welcome-demo-start').click();
 await page.getByTestId('thinking-stream').waitFor();
-await page.screenshot({ path: resolve(outputDir, '41-thinking-settled-anchor-1440.png'), animations: 'disabled' });
+// 捕捉第一行已落、第二行正从 core 续写的审计帧。
+await page.waitForTimeout(300);
+await page.screenshot({ path: resolve(outputDir, '43-thinking-turn-writing-1440.png') });
+await page.locator('[data-testid="thinking-stream"][data-state="settled"]').waitFor();
+await page.screenshot({ path: resolve(outputDir, '44-thinking-turn-anchor-1440.png'), animations: 'disabled' });
 await page.getByTestId('thinking-stream-toggle').click();
-await page.screenshot({ path: resolve(outputDir, '42-thinking-review-open-1440.png'), animations: 'disabled' });
+await page.screenshot({ path: resolve(outputDir, '45-thinking-turn-review-open-1440.png'), animations: 'disabled' });
 await browser.close();

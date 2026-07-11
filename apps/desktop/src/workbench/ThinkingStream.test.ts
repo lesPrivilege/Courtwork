@@ -7,7 +7,10 @@ describe('ThinkingStream three-state closure', () => {
   it('renders three staged skeleton lines while thinking', () => {
     const html = renderToStaticMarkup(createElement(ThinkingStream, { state: 'thinking' }));
     expect(html).toContain('data-state="thinking"');
-    expect(html.match(/data-testid="thinking-line-/g)).toHaveLength(3);
+    expect(html.match(/<path/g)).toHaveLength(4);
+    expect(html).toContain('thinking-stream-glyph');
+    expect(html).not.toContain('thinking-stream-skeleton');
+    expect(html).not.toContain('thinking-line');
     expect(html).not.toContain('thinking-stream-body');
   });
 

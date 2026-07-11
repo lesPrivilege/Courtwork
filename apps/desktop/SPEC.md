@@ -668,5 +668,14 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 视觉证据：`41-thinking-settled-anchor-1440.png`（静默仅留图标）/ `42-thinking-review-open-1440.png`（点击回看）。
 
+### #26.1 turn 归属与图标血统修正（2026-07-11，架构 `42a4e4f`）
+
+- `ThinkingStream` 是 owning assistant turn 的直接子节点：推理在该 turn 内发生，`settled` core 也留在原 turn；页面级/底部常驻位均禁止。
+- 推理态只渲染一枚 `spark-lines` SVG：第一根 path 是 core，后三根 path 从 core 的笔画坐标延伸，共用 `1.35` 线宽、round cap 与等距节奏。禁止在 icon 旁另摆 HTML/CSS 骨架条。
+- 静默态隐去后三根 path，仅留 core 作回看锚；三态闭环、`motion.reasoningLine`、0ms 硬切、灰阶与法理之线隔离纪律不变。
+- `lint:thinking` 同时锁定 turn DOM 归属、SVG `1 core + 3 lines` 和无旁置骨架；Playwright 断言锚在 `assistant-turn-demo` 内且不得直挂 `conversation-scroll`。
+
+修正后视觉证据：`43-thinking-turn-writing-1440.png` / `44-thinking-turn-anchor-1440.png` / `45-thinking-turn-review-open-1440.png`。
+
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。
