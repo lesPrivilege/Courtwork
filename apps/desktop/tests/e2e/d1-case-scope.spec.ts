@@ -63,11 +63,11 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await page.getByTestId('composer-provider').click();
     await expect(dialog).toBeVisible();
     await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
-    await dialog.getByRole('button', { name: '完成连接' }).click();
+    await dialog.getByRole('button', { name: '验证连接' }).click();
     await expect(dialog).toBeHidden();
     const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'connected');
-    await expect(button).toContainText('DeepSeek Chat · Standard');
+    await expect(button).toContainText('deepseek-v4-flash · Standard');
   });
 
   test('短凭证保存失败不显示已连接', async ({ page }) => {
@@ -75,7 +75,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     const dialog = page.getByTestId('provider-setup');
     await page.getByTestId('composer-provider').click();
     await dialog.getByRole('textbox', { name: '访问凭证' }).fill('short');
-    await dialog.getByRole('button', { name: '完成连接' }).click();
+    await dialog.getByRole('button', { name: '验证连接' }).click();
     await expect(page.getByTestId('provider-setup-error')).toBeVisible();
     await expect(dialog).toBeVisible();
     // 关闭后看状态条

@@ -5,6 +5,8 @@ import {
 } from '../credentials/client';
 import {
   modelDisplayName,
+  effectiveBaseUrl,
+  modelOptions,
   PROVIDER_OPTIONS,
   REASONING_OPTIONS,
   type ModelConfig,
@@ -58,6 +60,7 @@ export interface SettingsPageProps {
   onOpenCredentialSetup: () => void;
   modelConfig: ModelConfig;
   onModelConfigChange: (next: ModelConfig) => void;
+  onValidateProvider: () => Promise<CredentialStatus>;
   onRevealPath: (path: string) => void;
   onFeedback: (message: string, ok: boolean) => void;
 }
@@ -75,6 +78,7 @@ export function SettingsPage({
   onOpenCredentialSetup,
   modelConfig,
   onModelConfigChange,
+  onValidateProvider,
   onRevealPath,
   onFeedback,
 }: SettingsPageProps) {
@@ -104,8 +108,6 @@ export function SettingsPage({
   }, [open, onClose]);
 
   if (!open) return null;
-
-  const provider = PROVIDER_OPTIONS.find((item) => item.id === modelConfig.providerId) ?? PROVIDER_OPTIONS[0]!;
 
   const commitMaxUsd = () => {
     const trimmed = maxUsdDraft.trim();
@@ -281,19 +283,20 @@ export function SettingsPage({
                       ))}
                     </select>
                   </label>
+                  {modelConfig.providerId === 'custom' && <label>
+                    <span>Base URL</span>
+                    <input data-testid="settings-base-url" type="url" value={modelConfig.baseUrl ?? ''} onChange={(event) => onModelConfigChange({ ...modelConfig, baseUrl: event.target.value })} />
+                  </label>}
+                  {modelConfig.providerId !== 'custom' && <p className="settings-muted" data-testid="settings-preset-url">{effectiveBaseUrl(modelConfig)}</p>}
                   <label>
                     <span>Model</span>
-                    <select
+                    <input
                       data-testid="settings-model"
+                      list="settings-model-options"
                       value={modelConfig.modelId}
                       onChange={(event) => onModelConfigChange({ ...modelConfig, modelId: event.target.value })}
-                    >
-                      {provider.models.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {item.label}
-                        </option>
-                      ))}
-                    </select>
+                    />
+                    <datalist id="settings-model-options">{modelOptions(modelConfig).map((id) => <option key={id} value={id} />)}</datalist>
                   </label>
                   <fieldset data-testid="settings-reasoning">
                     <legend>Reasoning</legend>
@@ -316,7 +319,15 @@ export function SettingsPage({
                     Current: {modelDisplayName(modelConfig)} ·{' '}
                     {modelConfig.reasoning === 'deep' ? 'Deep' : 'Standard'}
                   </p>
+                  <button type="button" className="primary-button" data-testid="settings-validate-provider" onClick={() => void onValidateProvider()}>
+                    Verify connection
+                  </button>
                 </div>
+              </div>
+
+              <div className="settings-row is-reserved" data-testid="settings-managed-provider">
+                <div><strong>Courtwork managed credits</strong><p>Hosted provider billing will appear here.</p></div>
+                <button type="button" className="quiet-button" disabled title="Coming later">Coming later</button>
               </div>
 
               <div className="settings-row" data-testid="settings-maxusd-row">

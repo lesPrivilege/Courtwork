@@ -180,15 +180,15 @@ test.describe('RP-1 最终重排', () => {
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
     await page.getByTestId('model-config-provider').selectOption('qwen');
-    await page.getByTestId('model-config-model').selectOption('qwen-max');
+    await page.getByTestId('model-config-model').fill('qwen3.5-plus');
     await page.getByRole('radio', { name: 'Deep' }).check();
     await page.getByTestId('model-config-close').click();
     // connected 态 composer 真实反映变更
-    await expect(page.getByTestId('model-config-trigger')).toContainText('Qwen Max');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('qwen3.5-plus');
     await expect(page.getByTestId('model-config-trigger')).toContainText('Deep');
     // 再从 composer 打开仍是同一实例
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
-    await expect(page.getByTestId('model-config-summary')).toContainText('Qwen Max');
+    await expect(page.getByTestId('model-config-summary')).toContainText('qwen3.5-plus');
   });
 });

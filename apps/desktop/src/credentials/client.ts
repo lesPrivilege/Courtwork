@@ -20,7 +20,13 @@ export type CredentialFailKind =
   | 'auth_failed'
   | 'acl_denied'
   | 'missing'
-  | 'platform';
+  | 'platform'
+  | 'rate_limited'
+  | 'endpoint'
+  | 'model'
+  | 'timeout'
+  | 'network'
+  | 'invalid_response';
 
 export interface CredentialStatus {
   phase: ConnectionPhase;
@@ -54,6 +60,12 @@ export const FAIL_KIND_MESSAGES: Record<CredentialFailKind, string> = {
   acl_denied: '凭证库访问未授权，请重新完成连接；若刚更新过应用，请删除旧凭证后重试',
   missing: KEYCHAIN_FAIL_MESSAGE,
   platform: KEYCHAIN_FAIL_MESSAGE,
+  rate_limited: '服务商暂时限制了请求，请稍后重试',
+  endpoint: '服务地址无法完成请求，请检查 Base URL',
+  model: '当前模型不可用，请从模型列表选择或手动填写',
+  timeout: '服务商响应超时，请稍后重试',
+  network: '暂时无法连接服务商，请检查网络后重试',
+  invalid_response: '服务商返回了无法识别的响应，请稍后重试',
 };
 
 export function messageForFailKind(kind?: CredentialFailKind | null): string {

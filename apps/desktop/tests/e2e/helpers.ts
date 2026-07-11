@@ -39,7 +39,7 @@ export async function connectProvider(page: Page) {
   await trigger.click();
   const dialog = page.getByTestId('provider-setup');
   await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
-  await dialog.getByRole('button', { name: '完成连接' }).click();
+  await dialog.getByRole('button', { name: '验证连接' }).click();
   await dialog.waitFor({ state: 'hidden' });
 }
 

@@ -1,6 +1,15 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**RP-2 UI 完全化完成，RP-2.8.1 三项验收打回已修、待单点复验**；**BUILD-1 首个正式 Build（0.1.0 base 定形版）已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**PRV-1 provider 自配最小闭环完成**；**RP-2 UI 完全化完成，RP-2.8.1 三项验收打回已修、待单点复验**；**BUILD-1 首个正式 Build（0.1.0 base 定形版）已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+
+## PRV-1 · provider 自配最小闭环（2026-07-11）
+
+- 引导卡与设置页接入 `base URL + API key + 模型名`：DeepSeek/Qwen/豆包由 core quirk 自动给 URL/推荐模型，自定义档才可编辑 URL；根 URL 自动规范到 `/v1`。托管积分档只保留禁用占位。
+- `验证连接` 在 Rust 内从 FIX-KC-1 钥匙串取 key，先尝试 `GET {base}/models`，再发 `POST {base}/chat/completions` 的 `max_tokens: 1` 真请求；WebView 无读取明文命令。只有冒烟成功才进入 connected。
+- 模型发现不支持/失败时保留推荐模型与手输，不阻塞已成功的冒烟；鉴权、限流、端点、模型、超时、网络、非法响应均走闭集分型文案。
+- TDD：core quirk 路由测试；desktop 连接客户端测试；Rust 本地 mock HTTP 端点实收 GET+POST；Playwright 新增 4 条分型闭环；与并行 RP-2.10 两例合流后 floor `137 → 143`。
+- 并行 RP-2.10 新增 `brand-mark` 后，旧 icon audit 仍锁 19 导致全量门禁阻塞；本单仅把审计清单数同步为 20，未修改品牌图标、ThinkingStream 或任何视觉实现。
+- 实跑：desktop Vitest **79/79**；core Vitest **158/158**；Rust **10/10**（含本地 mock HTTP 真 GET+POST）；`pnpm -r build` 9 包通过；Playwright 完整门禁 **143/143**，随后独立端口 `--workers=1` 再跑 **143/143**。全量并行曾暴露 composer 测试只等静态 event-stream 的竞态，补为等待真实首条 progress 后，单文件 repeat 15/15 与两轮全量均绿。
 
 ## RP-2 · UI 完全化提案（实现前，2026-07-11）
 

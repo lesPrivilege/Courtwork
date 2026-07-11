@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/schemas';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
-  credentialClient,
   type CredentialStatus,
 } from './credentials/client';
 import { createDemoClient } from './demo/client';
@@ -52,6 +51,7 @@ import {
   saveModelConfig,
   type ModelConfig,
 } from './provider/model-config';
+import { providerConnectionClient } from './provider/connection-client';
 import { CaseRail } from './rail/CaseRail';
 import type { UnfiledSession } from './rail/types';
 import { SettingsPage, type SettingsSection } from './settings';
@@ -237,9 +237,9 @@ export function App() {
     ]);
   };
 
-  const probeCredentials = async () => {
+  const probeCredentials = async (config: ModelConfig = modelConfig) => {
     setCredentialProbed(true);
-    const status = await credentialClient.status();
+    const status = await providerConnectionClient.validate(config);
     setCredentialStatus(status);
     return status;
   };
@@ -248,7 +248,7 @@ export function App() {
     const onProbe = () => probeCredentials();
     window.addEventListener('courtwork-credential-probe', onProbe);
     return () => window.removeEventListener('courtwork-credential-probe', onProbe);
-  }, []);
+  }, [modelConfig]);
 
   useEffect(() => {
     if (selectedCaseId) window.localStorage.setItem('courtwork.selected-case-id', selectedCaseId);
@@ -515,6 +515,7 @@ export function App() {
   const updateModelConfig = (next: ModelConfig) => {
     setModelConfig(next);
     saveModelConfig(next);
+    if (credentialStatus.phase === 'connected') void probeCredentials(next);
   };
 
   useEffect(() => {
@@ -873,7 +874,7 @@ export function App() {
       status: (usage >= 85 ? 'warn' : 'idle') as 'warn' | 'idle',
       open: moduleOpen.context,
       onToggle: () => toggleModule('context'),
-      body: <ContextModuleBody usage={usage} usageDetail={usageDetail} attachmentSources={attachmentSources} modelLabel={modelDisplayName(modelConfig)} modelConnected={false} reasoningLabel={modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard} onOpenModelConfig={() => setModelConfigOpen(true)} />,
+      body: <ContextModuleBody usage={usage} usageDetail={usageDetail} attachmentSources={attachmentSources} modelLabel={modelDisplayName(modelConfig)} modelConnected={credentialStatus.phase === 'connected'} reasoningLabel={modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard} onOpenModelConfig={() => setModelConfigOpen(true)} />,
     },
   ];
 
@@ -989,10 +990,6 @@ export function App() {
                       : '审查这份设备采购合同，重点看付款、验收与违约责任。'}
                   </div>
                   <article className="assistant-turn" data-testid="assistant-turn-demo">
-                    <ThinkingStream
-                      state={session.progress.length === 0 ? 'empty' : session.confirmation ? 'settled' : 'thinking'}
-                      content={session.progress.join('；') || '已梳理请求目标、材料范围与下一步工作面。'}
-                    />
                     <ToolCallRow
                       label="Ran command"
                       tool={flow === 'S3' ? 'review-contract' : 'organize-dossier'}
@@ -1060,6 +1057,11 @@ export function App() {
                       />
                     )}
                     <MessageActions messageId="assistant-demo" text={flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'} createdAt={assistantCreatedAt.current} />
+                    {/* #26.2：推理指示锚居 turn 尾、message 按钮排之下 */}
+                    <ThinkingStream
+                      state={session.progress.length === 0 ? 'empty' : session.confirmation ? 'settled' : 'thinking'}
+                      content={session.progress.join('；') || '已梳理请求目标、材料范围与下一步工作面。'}
+                    />
                   </article>
                 </>
               )}
@@ -1241,6 +1243,8 @@ export function App() {
         allowSkip={credentialStatus.phase !== 'connected'}
         onClose={() => setProviderSetupOpen(false)}
         onStatusChange={setCredentialStatus}
+        modelConfig={modelConfig}
+        onModelConfigChange={updateModelConfig}
         onSkip={() => {
           window.localStorage.setItem('courtwork.onboarding.seen', 'true');
           setProviderSetupOpen(false);
@@ -1263,6 +1267,7 @@ export function App() {
         }}
         modelConfig={modelConfig}
         onModelConfigChange={updateModelConfig}
+        onValidateProvider={() => probeCredentials()}
         onRevealPath={revealSettingsPath}
         onFeedback={showSystemFeedback}
       />

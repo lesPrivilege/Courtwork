@@ -330,7 +330,7 @@ test('首启引导始终掩码且不把凭证写入页面存储或运行输出',
   const input = dialog.getByRole('textbox', { name: '访问凭证' });
   await expect(input).toHaveAttribute('type', 'password');
   await input.fill(secret);
-  await dialog.getByRole('button', { name: '完成连接' }).click();
+  await dialog.getByRole('button', { name: '验证连接' }).click();
   await expect(dialog).toBeHidden();
   await expect(page.getByTestId('composer-provider')).toHaveAttribute('data-phase', 'connected');
   const browserStorage = await page.evaluate(() => JSON.stringify({ local: { ...localStorage }, session: { ...sessionStorage } }));

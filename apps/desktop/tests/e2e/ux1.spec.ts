@@ -104,12 +104,12 @@ test.describe('UX-1 批次一', () => {
     const popover = page.getByTestId('model-config-popover');
     await expect(popover).toBeVisible();
     await page.getByTestId('model-config-provider').selectOption('qwen');
-    await page.getByTestId('model-config-model').selectOption('qwen-max');
+    await page.getByTestId('model-config-model').fill('qwen3.5-plus');
     await page.getByRole('radio', { name: 'Deep' }).check();
-    await expect(page.getByTestId('model-config-summary')).toContainText('Qwen Max');
+    await expect(page.getByTestId('model-config-summary')).toContainText('qwen3.5-plus');
     await expect(page.getByTestId('model-config-summary')).toContainText('Deep');
     await page.getByTestId('model-config-close').click();
-    await expect(page.getByTestId('model-config-trigger')).toContainText('Qwen Max');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('qwen3.5-plus');
   });
 
   test('#9：图谱 minimap 使用 courtwork-minimap 类（无库蓝渗出约定）', async ({ page }) => {
