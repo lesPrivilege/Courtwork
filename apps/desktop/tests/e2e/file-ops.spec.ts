@@ -11,8 +11,16 @@ test('卷宗整理计划表可勾选并确认执行', async ({ page }) => {
   // 可选条目默认未勾选
   await expect(page.getByTestId('file-ops-select-e-copy-optional')).not.toBeChecked();
   await page.getByTestId('file-ops-execute').click();
-  await expect(page.getByTestId('file-ops-report')).toBeVisible();
-  await expect(page.getByTestId('file-ops-report')).toContainText('已执行');
+  const report = page.getByTestId('file-ops-report');
+  await expect(report).toBeVisible();
+  await expect(report).toContainText('已执行');
+  // QF-2：报告只呈现用户动作与容器内相对位置；机器枚举、绝对路径、hash 留在诊断层。
+  await expect(report).toContainText('新建文件夹 · 重复项');
+  await expect(report).toContainText('移动 · 原件/设备采购合同.pdf');
+  await expect(report).toContainText('重命名 · 原件/催告函扫描.jpg');
+  await expect(report).not.toContainText(/\b(?:mkdir|move|rename|copy)\b/);
+  await expect(report).not.toContainText('/Users/');
+  await expect(report).not.toContainText('哈希');
   await expect(page.getByTestId('system-open-feedback')).toContainText('已执行');
 });
 
