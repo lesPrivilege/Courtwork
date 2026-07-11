@@ -671,3 +671,32 @@ codesign -dv --verbose=4 "/Applications/Courtwork.app/Contents/MacOS/courtwork-d
 2. **0.1.1 可出？→ 不可出 ⛔**。先完成 F-1 架构裁决并按裁决收敛；修 F-2；补 F-3/F-4 自动化后，由独立验收复跑 `pnpm -r build`、70+ Vitest、floor≥107 Playwright、守卫负测与四档浏览器边界，方可触发 BUILD-1 工序复用。
 
 > **总判定：RP-2.5 阻断，不放行；0.1.1 不可出。** 107/107 并非充分证据：现有四档用例只锁全局 scrollWidth，遗漏了内部 composer 越界；现有 de-slop 只锁 case-card，遗漏 SurfaceCard 非零投影。验收实测已分别证实这两处红线。阴影属于契约冲突，标 `[需架构拍板]`，验收不擅改；其余交回实现会话修复后复验。
+
+---
+
+## RP-2.5.1 单点复验（几何 / Artifact→Preview / 阴影白名单，2026-07-11）
+
+- **角色与范围**：独立验收会话；实现提交 `e1ae88e`（三项缺陷修复）+ `e84c9f8`（批准阴影落 token），架构拍板 `1df436e`。严格只复验 docs/55 指定三点，不重跑已绿的 110 例全量。
+- **隔离**：新建 `/private/tmp/courtwork-rp251-spot`、分支 `codex/accept-rp251` 固定 `e84c9f8`；未在共享主树 checkout/stash。E2E 前查 `lsof -nP -iTCP:1428 -sTCP:LISTEN` 为空，使用 `COURTWORK_E2E_PORT=1428` 且 Playwright `reuseExistingServer:false` 自起服务。首次因干净 worktree 尚无 workspace `dist` 而无法解析 reading-view/tools；执行真实 `pnpm -r build`（9/9 workspace 全绿）后重跑，未借用主树产物或服务。
+
+### 一、三点定向证据
+
+| 复验点 | 实测证据 | 结论 |
+|---|---|---|
+| 四档 bounding-box 几何 | 隔离 `:1428` 定向运行 `rp25.spec.ts` 四档用例：1180 / 1240 / 1440 / 1600 全过。独立浏览器探针实值：四档 chat→右栏 gap 均 **8px**；`chatRight / composerRight / sendRight / providerRight` 分别为 `524.453 / 515.453 / 506.453 / 472.453`、`591.5 / 582.5 / 573.5 / 539.5`、`749.578 / 740.578 / 731.578 / 697.578`、`816.547 / 808.438 / 799.438 / 765.438`。三控件右缘逐档均小于 chat 右缘，旧 scrollWidth 假绿口已由坐标学锁死。 | ✅ |
+| `artifact_produced` 真开 Preview + 手动关闭优先 | 定向两例均绿：关闭旧 Preview 后切至新 S1，`data-artifact-revision` 真实变化、Preview 自动出现且 Timeline 为选中 renderer；同案件同 S1 手动关闭后再次回放，revision 仍变化但 Preview 不重开、Utility 恢复 base。与旧 `moduleOpen` 假证明可区分。 | ✅ |
+| 阴影 token / 白名单 / L0 零影 | `pnpm --filter @courtwork/desktop lint:elevation` 输出 `Elevation shadow boundary: OK`。源码 token 与 CSS 均精确为 `0 1px 2px rgba(10,37,64,0.045), 0 4px 12px rgba(10,37,64,0.035)`；组件 TS/TSX 无 shadow 字面量，CSS 非零消费选择器唯一为 `.case-rail.surface-float, .right-rail-collapsed.surface-float, .surface-card-raised`。浏览器 computed 复核：CaseRail、Utility dock、三张 Utility base 卡、PreviewHost、右收敛 bar 均呈批准双层藏青影；chat、composer、artifact、model-config popover、settings 均为 `none`。 | ✅ |
+
+定向 Playwright 总计 **6/6 passed（4.4s）**：四档几何 4 例 + Artifact 行为 2 例。未把 model-config 例重复纳入本次三点单测范围；其长期回归已存在于 `rp25.spec.ts` 且全量 110 由实现前置跑绿。
+
+### 二、视觉与卫生
+
+- 对照 `visual-audit/34-rp25-1-shadow-none-1440.png` 与 `36-rp25-1-shadow-approved-1440.png`：批准影在两侧 L1 边缘提供极轻分层，L0 chat、composer 与数据承重区保持平面；未出现黑灰脏边或廉价悬浮感，符合「存在感而非立体感」。
+- 验收未修改实现、凭证 Rust/TS 或 `packages/*`。独立 worktree 在追加本节前干净；最终只提交 `apps/desktop/ACCEPTANCE.md` 本节。
+
+### 三、结论
+
+1. **RP-2.5.1 单点复验：通过 ✅**。三项指定证据全部成立，无新增发现、无 🔴/🟡。
+2. **0.1.1：放行出包 ✅**。RP-2.5 原阻断的几何重叠、Artifact→Preview 行为与阴影契约/白名单均已闭环；可进入既定 BUILD-1 工序复用。
+
+> **总判定：RP-2.5.1 放行，0.1.1 可出。** 隔离 `:1428` 下四档坐标边界与 8px gap 真断言、Artifact 自动打开与手动关闭优先、批准阴影精确 token + 消费白名单 + L0 computed 零影全部实测通过；全仓构建亦绿，验收仅追加报告。
