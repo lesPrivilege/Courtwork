@@ -93,6 +93,7 @@
   --home-control-radius: 8px;
   --home-surface-radius: 16px;
   --home-welcome-measure: 560px;
+  --content-measure: 760px; /* 五裁①(2026-07-12)：chat 内容列统一测宽,与 welcome 560 成梯度 */
 }
 
 * { box-sizing: border-box; box-shadow: none; scrollbar-width: thin; scrollbar-color: transparent transparent; }
@@ -213,6 +214,9 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 /* chat 面轻画布：二栏（左栏 + chat） */
 .workspace.chat-segment { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr); }
 .workspace.chat-segment.left-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr); }
+/* 五裁①：消息列与 composer 共用 --content-measure——差值随视口扩大的病根消除 */
+.chat-segment .conversation-scroll { padding-inline: max(16px, calc((100% - var(--content-measure)) / 2)); }
+.chat-segment .composer-stack { max-width: var(--content-measure); margin-inline: auto; }
 .chat-mode-head { min-height: 40px; }
 .store-chat-wrap { position: relative; flex: none; }
 .store-chat-wrap > button { min-height: 28px; }
