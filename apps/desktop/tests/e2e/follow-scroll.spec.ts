@@ -6,6 +6,10 @@ import { connectProvider, openWorkbench } from './helpers';
  * 三件套契约：钉底跟随 / 用户上翻暂停跟随 / 暂停期间新消息出浮标、点击回底。
  */
 
+// 本组测滚动跟随，非打字机——reduced-motion 下 assistant reveal 瞬显（Typewriter 瞬完成），
+// 消息立即全高，避免逐字 reveal 期同步读 scrollHeight 判不溢出。
+test.use({ reducedMotion: 'reduce' });
+
 const LONG_REPLY = '这是用于滚动验证的长段落，内容足够多以便撑高容器。'.repeat(30);
 
 async function primeChatWithOverflow(page: Page) {
@@ -25,6 +29,8 @@ async function primeChatWithOverflow(page: Page) {
     await page.getByTestId('composer-input').fill(prompt);
     await page.getByTestId('composer-send').click();
     await expect(page.getByTestId('chat-assistant-message')).toHaveCount(index + 1);
+    // 等打字机 reveal 完成（切富渲染），消息达全高再判溢出
+    await expect(page.getByTestId('chat-typewriter')).toHaveCount(0);
   }
   const overflowing = await page.getByTestId('chat-scroll').evaluate((el) => el.scrollHeight > el.clientHeight + 100);
   expect(overflowing).toBe(true);

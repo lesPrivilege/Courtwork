@@ -8,12 +8,14 @@ import { ChatMarkdown } from './ChatMarkdown';
  * reveal 期间纯文本（pre-wrap 保换行，避免 md 中间态闪烁），完成切 ChatMarkdown 富渲染。
  * prefers-reduced-motion 瞬显（无逐字动画）。
  */
-const CHARS_PER_FRAME = 2;
+// 每帧步进自适应：短消息逐字（打字感），长消息加速，总时长封顶 ~1.5s（≈90 帧）。
+const TARGET_FRAMES = 90;
 
 export function Typewriter({ text, onDone }: { text: string; onDone?: () => void }) {
   const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const [len, setLen] = useState(reduce ? text.length : 0);
   const done = len >= text.length;
+  const step = Math.max(2, Math.ceil(text.length / TARGET_FRAMES));
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
 
@@ -22,9 +24,9 @@ export function Typewriter({ text, onDone }: { text: string; onDone?: () => void
       onDoneRef.current?.();
       return;
     }
-    const raf = requestAnimationFrame(() => setLen((l) => Math.min(text.length, l + CHARS_PER_FRAME)));
+    const raf = requestAnimationFrame(() => setLen((l) => Math.min(text.length, l + step)));
     return () => cancelAnimationFrame(raf);
-  }, [len, text.length, done]);
+  }, [len, text.length, done, step]);
 
   if (done) return <ChatMarkdown text={text} />;
   return <p className="chat-typewriter" data-testid="chat-typewriter">{text.slice(0, len)}</p>;
