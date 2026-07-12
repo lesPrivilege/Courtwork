@@ -580,7 +580,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .composer-tools-right { grid-area: send; }
 .composer-tools-left, .composer-tools-right { min-width: 0; display: flex; align-items: center; gap: 2px; }
 .composer-tools-left { overflow: hidden; }
-.composer-tools-left:has(.case-menu) { overflow: visible; position: relative; z-index: 40; }
+.composer-tools-left:has(.case-menu, .composer-plus-menu) { overflow: visible; position: relative; z-index: 40; } /* 批次七 #1：+ 菜单曾被 overflow 裁剪不可见——case-menu 单独豁免过的同病漏项 */
 .composer-tools-right { margin-left: auto; }
 .composer-provider-anchor .model-config-trigger { max-width: 170px; min-height: 28px; padding: 3px 7px; font-size: var(--type-dense-meta-size); }
 .composer-provider-anchor .phase-failed { border-color: var(--amber-graphic); background: var(--amber-bg); color: var(--amber-fg); }

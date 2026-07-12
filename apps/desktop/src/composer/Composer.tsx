@@ -7,7 +7,7 @@ import { Icon } from '../workbench/Icon';
 import { ModelConfigPopover } from '../provider/ModelConfigPopover';
 import { reasoningRequest, type ModelConfig } from '../provider/model-config';
 import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
-import { PasteBlock, shouldBlockPaste } from '../chat/PasteBlock';
+import { shouldBlockPaste } from '../chat/PasteBlock';
 import { AttachmentChip } from './AttachmentChip';
 import { createAttachmentShell, resolveAttachmentUpload, withResolvedStatus, type ConvertFn } from './process-upload';
 import {
@@ -38,7 +38,8 @@ export interface ComposerProps {
   activeCaseId?: string;
   /** 可注入 reading-view 转换；默认真实 convertToReadingView。 */
   convert?: ConvertFn;
-  onSend?: (payload: ComposerSendPayload) => void;
+  /** 返回 false = 未受理（如未连接被引导层拦截）：composer 保留草稿不清空（批次七 Button 核验 #3）。 */
+  onSend?: (payload: ComposerSendPayload) => boolean | void;
   /**
    * 容器化仪式：无活动容器时「存入」触发（docs/52 #3）。
    * 父层创建案件/项目后应更新 activeCaseId。
@@ -104,10 +105,15 @@ export function Composer({
   const folderInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const providerAnchorRef = useRef<HTMLSpanElement>(null);
+  const plusAnchorRef = useRef<HTMLDivElement>(null);
+  const casePickerRef = useRef<HTMLDivElement>(null);
   const listId = useId();
 
   // popover 收敛纪律：点别处/Esc 即收（含 trigger 的 anchor 作容器，toggle 不闪烁）
   useDismissOnOutside(modelConfigOpen, onCloseModelConfig ?? (() => {}), providerAnchorRef);
+  // 批次七 Button 核验 #2：+ 菜单与 case 下拉此前是收敛纪律的孤立缺口（全局仅这两处不收）
+  useDismissOnOutside(plusOpen, () => setPlusOpen(false), plusAnchorRef);
+  useDismissOnOutside(caseMenuOpen, () => setCaseMenuOpen(false), casePickerRef);
 
   // 容器切换：同步 chip；跨案清空附件（D-1 0a / docs/52 #8-⑤）
   // 容器化仪式创建后父层切换选中：不误清刚确认存入的附件。
@@ -188,7 +194,8 @@ export function Composer({
     if (!canSend || busy) return;
     if (attachments.some((item) => item.status.kind === 'failed')) return;
     const readyAttachments = attachments.filter((item) => item.status.kind === 'ready');
-    onSend?.({ text: text.trim(), attachments: readyAttachments, caseId, pasteBlocks });
+    const accepted = onSend?.({ text: text.trim(), attachments: readyAttachments, caseId, pasteBlocks });
+    if (accepted === false) return; // 未受理（如连接引导拦截）：草稿原样保留
     setText('');
     setAttachments([]);
     setPasteBlocks([]);
@@ -359,7 +366,7 @@ export function Composer({
       <div className="composer-box">
         <div className="composer-tools-left">
           {/* docs/52 #5：+ = 添加内容（附件来源），不承载新建案件 */}
-          <div className="composer-plus">
+          <div className="composer-plus" ref={plusAnchorRef}>
             <button
               type="button"
               className="composer-icon-button"
@@ -506,7 +513,7 @@ export function Composer({
             {...({ webkitdirectory: '', directory: '' } as Record<string, string>)}
           />
 
-          {!hasBoundContainer && <div className="case-picker" data-composer-slot="scope">
+          {!hasBoundContainer && <div className="case-picker" data-composer-slot="scope" ref={casePickerRef}>
             <button
               type="button"
               className="case-chip"

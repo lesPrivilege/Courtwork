@@ -35,7 +35,6 @@ import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
 import {
   applyArtifactAutoExpand,
-  collapseAllModules,
   DEFAULT_MODULE_OPEN,
   progressHeadCount,
   toggleModuleManual,
@@ -157,7 +156,6 @@ export function App() {
   const [expandedEvidence, setExpandedEvidence] = useState<Record<string, boolean>>({});
   const [dispositions, setDispositions] = useState<Record<string, ReviewDispositionState>>({});
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
-  const [usageOpen, setUsageOpen] = useState(false);
   const [continued, setContinued] = useState(false);
   const [compileOpen, setCompileOpen] = useState(false);
   const [draftFrozen, setDraftFrozen] = useState(false);
@@ -287,11 +285,11 @@ export function App() {
   /** chat 面（内存态轻画布）：发送即入内存会话；不落盘（重启即逝，0.1.1 诚实缺口）。
    *  GOAL-1 链路批：真 API 端到端——发送 → Rust 窄面代理流式请求 → 回复 0ms 落格。 */
   const handleChatSend = (payload: ComposerSendPayload) => {
-    if (chatFlightRef.current) return;
+    if (chatFlightRef.current) return false; // 未受理：composer 保留草稿（批次七 #3）
     if (credentialStatus.phase !== 'connected') {
       probeCredentials();
       openCredentialSurface();
-      return;
+      return false; // 引导层拦截≠受理——草稿不清空，连接流程走完原文还在
     }
     const userText = payload.text || (payload.attachments.length ? '（附文件）' : '');
     chatFlightRef.current = true;
@@ -415,7 +413,6 @@ export function App() {
     setSelectedRiskId('risk-03');
     setSecondaryView(undefined);
     setActiveView('revision');
-    setUsageOpen(false);
     resolvedRequest.current = undefined;
     openedAt.current = {};
     lastReplayedFlow.current = undefined;
@@ -643,11 +640,6 @@ export function App() {
       setUserModuleOverride(result.override);
       return result.open;
     });
-  };
-
-  const enterCompactLayout = () => {
-    setLeftCollapsed(true);
-    setModuleOpen((open) => collapseAllModules(open));
   };
 
   const exitCompactLeft = () => setLeftCollapsed(false);
@@ -1382,7 +1374,8 @@ export function App() {
         {viewSegment === 'work' && !isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
           <button type="button" className="rail-seam-toggle" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
         </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open="true" data-artifact-revision={artifactRevision}>
-          <button type="button" className="rail-seam-toggle" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
+          {/* 批次七 #4：Focus 态藏收敛钮——布局位移后残留半角仍可点中,收起即主区全空白 */}
+          {!focusMode && <button type="button" className="rail-seam-toggle" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>}
           {/* 十四章（2026-07-12 拍板）：四模块序 Progress→Preview→Working folders→Context;
               Preview 双态——大纲目录 ↔ 浏览器态（右列唯一,title/tab 条/schema 面三层封闭,back 回目录） */}
           {!previewOpen && <RightRailModules

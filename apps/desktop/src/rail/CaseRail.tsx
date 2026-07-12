@@ -8,7 +8,8 @@ import type { ScenarioFlow } from '../protocol/client';
 import { OriginalsZone } from '../system/OriginalsZone';
 import { ArchiveGlyph } from '../workbench/MiniIcon';
 import { Icon } from '../workbench/Icon';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 import {
   buildMixedRailRows,
   canExpandRailRow,
@@ -83,6 +84,9 @@ export function CaseRail({
   onFeedback,
 }: CaseRailProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  // 批次七 #5 连带：Owner 菜单补收敛纪律（点外/Esc 即收——此前与 +菜单/case 下拉同为孤立缺口）
+  useDismissOnOutside(userMenuOpen, () => setUserMenuOpen(false), userMenuRef);
   const rows = buildMixedRailRows(cases, unfiled, pinnedIds);
   const pinnedRows = rows.filter((r) => r.pinned);
   const restRows = rows.filter((r) => !r.pinned);
@@ -376,14 +380,14 @@ export function CaseRail({
           </div>
         </div>
 
-        <div className="rail-user-wrap">
+        <div className="rail-user-wrap" ref={userMenuRef}>
           <button type="button" className="rail-user" data-testid="user-menu-trigger" aria-expanded={userMenuOpen} onClick={() => setUserMenuOpen((open) => !open)}>
             <span className="user-avatar">{showLeadAttorney(isDemoCase) ? '林' : '我'}</span>
             <span>{showLeadAttorney(isDemoCase) ? `林律师 · ${CHROME_COPY.account.sampleLead}` : CHROME_COPY.account.owner}</span>
             <span aria-hidden="true">⌃</span>
           </button>
           {userMenuOpen && <div className="rail-user-menu" data-testid="user-menu" role="menu">
-            <button type="button" role="menuitem" onClick={onOpenSettings}>{CHROME_COPY.account.settingsUpdates}</button>
+            <button type="button" role="menuitem" onClick={() => { setUserMenuOpen(false); onOpenSettings(); }}>{CHROME_COPY.account.settingsUpdates}</button> {/* 批次七 #5：进设置即收菜单——幽灵开态致关设置后首点被吃 */}
             <a role="menuitem" href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">{CHROME_COPY.account.feedback}</a>
           </div>}
         </div>

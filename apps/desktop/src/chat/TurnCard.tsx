@@ -71,8 +71,9 @@ interface ToolCallRowProps {
 export function ToolCallRow({ label, tool, args, result }: ToolCallRowProps) {
   const [open, setOpen] = useState(false);
   return (
-    <details className="tool-call-row" data-testid="tool-call-row" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
-      <summary>
+    // 批次七 #7：全受控——open prop 与原生 toggle 打架致展开后收不起,preventDefault 后由 state 单源驱动
+    <details className="tool-call-row" data-testid="tool-call-row" open={open}>
+      <summary onClick={(event) => { event.preventDefault(); setOpen((value) => !value); }}>
         <Icon name="chevron-right" scope="turn" />
         <span>{label}</span>
         <code>{tool}</code>
