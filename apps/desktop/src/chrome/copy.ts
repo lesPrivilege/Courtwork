@@ -27,6 +27,8 @@ export const CHROME_COPY = {
     title: 'Start a task',
     body: 'Describe what you need to handle. Courtwork will build the working context with you.',
     sample: 'Get started with the sample case',
+    slogan: '开始一项工作',
+    ideasLabel: 'Ideas for you',
   },
   composer: {
     add: 'Add',

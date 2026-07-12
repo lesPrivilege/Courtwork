@@ -23,9 +23,10 @@ test('active provider entry is the first credential probe point', async ({ page 
 });
 
 test('home density tokens stay on welcome and rail while schema remains dense', async ({ page }) => {
+  // RP-2.12 待机主屏：非卡片（品牌 icon+slogan+居中 composer），welcome 内含 composer
   const welcome = page.getByTestId('welcome-state');
-  await expect(welcome).toHaveCSS('max-width', '560px');
-  await expect(welcome).toHaveCSS('border-radius', '16px');
+  await expect(welcome.locator('.welcome-slogan')).toBeVisible();
+  await expect(welcome.getByTestId('composer')).toBeVisible();
   await page.getByTestId('welcome-demo-start').click();
   await page.getByTestId('provider-skip').click();
   await expect(page.getByTestId('case-rail')).toHaveCSS('--home-row-height', '36px');
@@ -43,8 +44,8 @@ test('frontier composer order keeps the five-slot bottom row (paste folded into 
 test('welcome continuation rows route explicitly without sticky default scope', async ({ page }) => {
   await expect(page.getByTestId('composer')).not.toHaveAttribute('data-active-case');
   const rows = page.getByTestId('welcome-continuations').locator('button');
-  await expect(rows).toHaveCount(1);
-  await rows.first().click();
+  await expect(rows).toHaveCount(2);
+  await rows.nth(1).click();
   await expect(page.getByTestId('demo-case-badge')).toBeVisible();
   await page.reload();
   await expect(page.getByTestId('welcome-state')).toBeVisible();

@@ -21,7 +21,7 @@ test('wordmark 唯一，案件头位于 chat 并可编辑持久化', async ({ pa
   await input.press('Enter');
   await expect(title).toHaveText('临江案 · 第二版');
   await page.reload();
-  await page.getByTestId('welcome-continuations').locator('button').click();
+  await page.getByTestId('welcome-continuations').locator('button').nth(1).click();
   await expect(page.getByTestId('chat-case-title')).toHaveText('临江案 · 第二版');
 });
 

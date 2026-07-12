@@ -1136,18 +1136,23 @@ export function App() {
             </header>
             {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.ok ? 'ok' : 'error'}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
             <div className="conversation-scroll">
+              {/* RP-2.12 待机主屏（Cowork 复刻）：品牌 icon + slogan（非卡）→ 居中 composer → 建议行 */}
               {isWelcome && (
-                <section className="welcome-state" data-testid="welcome-state">
-                  <span className="welcome-mark" aria-hidden="true"><Icon name="panels-top-left" /></span>
-                  <h1>{CHROME_COPY.welcome.title}</h1>
-                  <p>{CHROME_COPY.welcome.body}</p>
-                  <button type="button" className="quiet-button welcome-demo-start" data-testid="welcome-demo-start" onClick={() => setProviderSetupOpen(true)}>
-                    {CHROME_COPY.welcome.sample}
-                  </button>
-                  <div className="welcome-continuations" data-testid="welcome-continuations">
-                    <span>Continue</span>
-                    <button type="button" onClick={() => { setSelectedCaseId(DEMO_CASE_ID); setExpandedCaseId(DEMO_CASE_ID); setSampleTourOpen(true); }}>
-                      <strong>{DEMO_CASE.title}</strong><small>合同审查 · 6 项待办</small>
+                <section className="welcome-home" data-testid="welcome-state">
+                  <div className="welcome-brand">
+                    <span className="welcome-mark" aria-hidden="true"><Icon name="panels-top-left" /></span>
+                    <h1 className="welcome-slogan">{CHROME_COPY.welcome.slogan}</h1>
+                  </div>
+                  {renderComposer(handleComposerSend)}
+                  <div className="welcome-ideas" data-testid="welcome-continuations">
+                    <span className="welcome-ideas-label">{CHROME_COPY.welcome.ideasLabel}</span>
+                    <button type="button" className="welcome-idea-row welcome-demo-start" data-testid="welcome-demo-start" onClick={() => setProviderSetupOpen(true)}>
+                      <span className="welcome-idea-icon"><Icon name="panels-top-left" /></span>
+                      <span>{CHROME_COPY.welcome.sample}</span>
+                    </button>
+                    <button type="button" className="welcome-idea-row" onClick={() => { setSelectedCaseId(DEMO_CASE_ID); setExpandedCaseId(DEMO_CASE_ID); setSampleTourOpen(true); }}>
+                      <span className="welcome-idea-icon"><Icon name="folder-open" /></span>
+                      <span className="welcome-idea-main"><strong>{DEMO_CASE.title}</strong><small>合同审查 · 6 项待办</small></span>
                     </button>
                   </div>
                 </section>
@@ -1289,8 +1294,8 @@ export function App() {
                 </div>}
               </div>
             </div>}
-            {/* L1：composer 浮卡 */}
-            {renderComposer(handleComposerSend)}
+            {/* L1：composer 浮卡（welcome 态 composer 已居中于 welcome-home,不重复渲染） */}
+            {!isWelcome && renderComposer(handleComposerSend)}
           </section>
         )}
 
