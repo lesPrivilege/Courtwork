@@ -45,7 +45,6 @@ import {
 } from './modules/module-stack';
 import { ContextModuleBody, WorkingFoldersTree } from './modules/ModuleStack';
 import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRenderer';
-import { UtilityRail } from './utility/UtilityRail';
 import {
   loadModelConfig,
   modelDisplayName,
@@ -74,6 +73,9 @@ import { ThinkingStream } from './workbench/ThinkingStream';
 import { MessageActions } from './chat/MessageActions';
 import { sendChatTurn } from './provider/chat-client';
 import { BrandThinking } from './chat/BrandThinking';
+import { RightRailModules } from './rail/RightRailModules';
+// 装配点例外（demo/ 同列先例）：原件阅读 fixture 直取 demo-data 文书 md
+import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
 import { useDismissOnOutside } from './hooks/useDismissOnOutside';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
@@ -189,7 +191,12 @@ export function App() {
   const [expandedCaseId, setExpandedCaseId] = useState<string | null>(initialCaseId.current);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(true);
+  /** 十四章浏览器态开关：false=四模块列（大纲目录）,true=浏览器态（右列唯一 Preview） */
+  const [previewOpen, setPreviewOpen] = useState(false);
+  /** 视图汇流：原件阅读文档（浏览器态 body 替换为阅读面;切 tab 即离开） */
+  const [readerDoc, setReaderDoc] = useState<{ name: string; markdown: string } | null>(null);
+  /** Preview 模块大纲目录展开态（默认展开——样板案导览指向此处） */
+  const [outlineOpen, setOutlineOpen] = useState(true);
   /** RP-2.11 chat|work 二段（docs/25 修正二）：work=容器工作台 / chat=内存态轻画布（重启即逝，持久化归 HARNESS-1）。 */
   const [viewSegment, setViewSegment] = useState<'chat' | 'work'>('work');
   const [chatMessages, setChatMessages] = useState<Array<{
@@ -385,7 +392,12 @@ export function App() {
     setLocalMessages([]);
     setWorkDraftMode(false);
     setFileOpsMode(false);
-    setPreviewOpen(true);
+    // 切案即作废任何在途 replay（防 demo 的 paced 回调污染新案——generation 守卫补齐:
+    //  非 demo 案 replay effect 不跑,此处必须主动递增,否则旧回调仍匹配 myGeneration）
+    replayGeneration.current += 1;
+    // 十四章：demo 案有 artifact 进浏览器态;非 demo 空案停四模块列（大纲引导）
+    setPreviewOpen(isDemoCaseId(selectedCaseId));
+    setReaderDoc(null);
     previewDismissedContext.current = null;
     manualPreviewSelected.current = false;
     setDraftFrozen(false);
@@ -766,7 +778,12 @@ export function App() {
     setActiveView(view);
     if (view !== 'draft') setWorkDraftMode(false);
     setFileOpsMode(false);
-    setPreviewOpen(true);
+    // 切案即作废任何在途 replay（防 demo 的 paced 回调污染新案——generation 守卫补齐:
+    //  非 demo 案 replay effect 不跑,此处必须主动递增,否则旧回调仍匹配 myGeneration）
+    replayGeneration.current += 1;
+    // 十四章：demo 案有 artifact 进浏览器态;非 demo 空案停四模块列（大纲引导）
+    setPreviewOpen(isDemoCaseId(selectedCaseId));
+    setReaderDoc(null);
     previewDismissedContext.current = null;
   };
 
@@ -972,7 +989,6 @@ export function App() {
         </ul>
         {isDemoCase && usage >= 85 && <button className="continuation-button" data-testid="continuation-button" disabled={continued} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>{continued ? '已开启下一阶段' : '继续本案工作'}</button>}
       </>,
-      dockAction: isDemoCase && usage >= 85 ? <button className="continuation-button utility-dock-action" data-testid="continuation-button" disabled={continued} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>{continued ? '已开启下一阶段' : '继续'}</button> : undefined,
     },
     {
       id: 'working-folders' as const,
@@ -1344,15 +1360,35 @@ export function App() {
           <button type="button" className="rail-seam-toggle" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
         </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open="true" data-artifact-revision={artifactRevision}>
           <button type="button" className="rail-seam-toggle" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
-          {/* 2026-07-12 改判：三 tap 卡归右列顶（与 chat title 同线，填充卡），schema 卡常驻其下——无关闭钮（收敛=整列；缺 artifact=断裂律空态）；二级=向下大卡画布 */}
-          <UtilityRail mode="dock" items={utilityItems} />
+          {/* 十四章（2026-07-12 拍板）：四模块序 Progress→Preview→Working folders→Context;
+              Preview 双态——大纲目录 ↔ 浏览器态（右列唯一,title/tab 条/schema 面三层封闭,back 回目录） */}
+          {!previewOpen && <RightRailModules
+            modules={utilityItems}
+            outline={VIEWS.map((view) => ({ id: view, label: VIEW_LABELS[view], meta: viewCount(view, draftFrozen, isDemoCase) }))}
+            previewOpenState={outlineOpen}
+            onPreviewToggle={() => setOutlineOpen((open) => !open)}
+            onOpenOutline={(viewId) => {
+              setReaderDoc(null);
+              previewDismissedContext.current = null;
+              manualPreviewSelected.current = true;
+              choosePrimaryView(viewId as WorkbenchView);
+              setPreviewOpen(true);
+            }}
+            readerEntries={[
+              { name: '设备采购合同', onOpen: () => { previewDismissedContext.current = null; manualPreviewSelected.current = true; setReaderDoc({ name: '设备采购合同', markdown: contractSourceMd }); setPreviewOpen(true); } },
+              { name: '催告函', disabled: true },
+              { name: '验收记录扫描件', disabled: true },
+            ]}
+          />}
           {previewOpen && <WorkbenchPreviewRenderer
-            title={comparing ? '工作面对照' : VIEW_LABELS[activeView]}
+            onBack={() => { previewDismissedContext.current = `${selectedCaseId}:${flow ?? 'none'}`; setPreviewOpen(false); setReaderDoc(null); }}
+            title={readerDoc ? readerDoc.name : comparing ? '工作面对照' : VIEW_LABELS[activeView]}
             meta={comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}
             tabs={VIEWS.map((view) => ({ id: view, label: VIEW_LABELS[view] }))}
             activeTab={activeView}
             onSelectTab={(id) => {
               const view = id as WorkbenchView;
+              setReaderDoc(null);
               choosePrimaryView(view);
               const moduleId = view as ModuleId;
               if (userModuleOverride[moduleId] === undefined) setModuleOpen((prev) => ({ ...prev, [moduleId]: true }));
@@ -1407,7 +1443,16 @@ export function App() {
               </>}
           >
               <div className="view-content">
-                {secondaryView ? (
+                {readerDoc ? (
+                  <div className="reader-pane" data-testid="reader-pane">
+                    {readerDoc.markdown.split('\n').map((line, index) => {
+                      const trimmed = line.trim();
+                      if (!trimmed) return null;
+                      if (trimmed.startsWith('#')) return <h3 key={index}>{trimmed.replace(/^#+\s*/, '')}</h3>;
+                      return <p key={index}>{trimmed}</p>;
+                    })}
+                  </div>
+                ) : secondaryView ? (
                   <SplitView
                     direction={splitDirection}
                     ratio={splitRatio}

@@ -59,34 +59,29 @@ test('chat 内唯 question/门禁为轻卡，event/artifact/file 降扁平 messa
 
 // —— Item 1：三卡一纸 ——
 
-test('右列双卡常驻（2026-07-12 改判）：tap 卡+schema 卡，无关闭/重开路径', async ({ page }) => {
+test('十四章浏览器态：右列唯一 surface 卡=Preview,无关闭/重开路径', async ({ page }) => {
   await openWorkbench(page);
   const right = page.getByTestId('right-module-stack');
-  // schema 白卡唯一；tap 卡为填充卡（rail 底色）非白卡
   await expect(right.locator('.surface-card')).toHaveCount(1);
   await expect(right.locator('.surface-card')).toHaveAttribute('data-testid', 'preview-host');
-  await expect(page.getByTestId('utility-rail')).toHaveAttribute('data-mode', 'dock');
   await expect(page.getByTestId('preview-close')).toHaveCount(0);
   await expect(page.getByTestId('preview-open')).toHaveCount(0);
 });
 
-test('tap 卡归右列顶（2026-07-12 改判）；折叠钮驻顶栏浮层', async ({ page }) => {
-  // 迁移链：RP-2.11 卡顶带 → ch12 坐底纸 → 2026-07-12 真机改判顶置填充卡
-  //（与 chat title 同线；填充 rail 色成卡，与 schema 卡上下相接）。折叠钮驻 chrome 不变。
+test('缝钮两态同位；模块列态四模块白卡顶置（十四章）', async ({ page }) => {
+  // 迁移链：卡顶带 → 底纸 → 顶置填充卡 → 白卡 tap → 十四章四模块序。缝钮驻过渡带不变。
   await openWorkbench(page);
   const collapse = page.getByTestId('collapse-right-rail');
   await expect(collapse).toBeVisible();
-  // 2026-07-12 拍板：收敛钮驻 chat|right 过渡缝（不再驻 chrome），两态同位
   await expect(page.getByTestId('window-chrome').getByTestId('collapse-right-rail')).toHaveCount(0);
   const [cBox, rBox2] = await Promise.all([collapse.boundingBox(), page.getByTestId('right-module-stack').boundingBox()]);
   expect((cBox?.x ?? 0) + (cBox?.width ?? 0) / 2).toBeLessThanOrEqual((rBox2?.x ?? 0) + 1);
   await expect(collapse.locator('xpath=ancestor::*[contains(concat(" ",@class," ")," surface-card ")]')).toHaveCount(0);
+  // back → 模块列：首模块白卡顶缘=右列顶缘
+  await page.getByTestId('preview-back').click();
   const right = page.getByTestId('right-module-stack');
-  const dock = page.getByTestId('utility-rail');
-  const [dBox, rBox] = await Promise.all([dock.boundingBox(), right.boundingBox()]);
-  expect(dBox).not.toBeNull();
-  expect(rBox).not.toBeNull();
+  const modules = page.getByTestId('utility-rail');
+  const [dBox, rBox] = await Promise.all([modules.boundingBox(), right.boundingBox()]);
   expect(Math.abs((dBox?.y ?? 0) - (rBox?.y ?? 0))).toBeLessThanOrEqual(2);
-  // tap 卡=白卡（终拍：与 schema 卡统一）
-  await expect(dock).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(modules.locator('.rail-module').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)');
 });

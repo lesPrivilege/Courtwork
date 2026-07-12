@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { openModuleList, openWorkbench } from './helpers';
 
 test('完整工作台帧与三栏在 1440 视口可见', async ({ page }) => {
   await openWorkbench(page);
@@ -8,7 +8,10 @@ test('完整工作台帧与三栏在 1440 视口可见', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Courtwork', exact: true })).toBeVisible();
   await expect(page.getByTestId('conversation-canvas')).toBeVisible();
   await expect(page.getByTestId('right-module-stack')).toBeVisible();
+  // 浏览器态：大纲编排 tab 条在场
   await expect(page.getByRole('tablist', { name: '结构化工作面' })).toBeVisible();
+  // 四模块列：Context 用量（back 回目录）
+  await openModuleList(page);
   await expect(page.getByTestId('module-context')).toContainText('91%');
 });
 
@@ -57,10 +60,12 @@ test('S1 摄取事件回放可进入时间线', async ({ page }) => {
   await page.getByTestId('flow-s1').click();
   await page.getByTestId('view-timeline').click();
   await expect(page.getByTestId('timeline-panel')).toBeVisible();
-  // 阶段进度 N/M 在 progress 面板头，运行事实进入事件流
-  await expect(page.getByTestId('progress-module-count')).toHaveText('16/20');
+  // 运行事实进入事件流（chat 面）
   await expect(page.getByTestId('event-stream')).toContainText('正在');
   await expect(page.getByText('双方签订《精密铸造生产线设备采购合同》', { exact: false })).toBeVisible();
+  // 阶段进度 N/M 在 Progress 模块（十四章：back 回四模块列后可见）
+  await openModuleList(page);
+  await expect(page.getByTestId('progress-module-count')).toHaveText('16/20');
 });
 
 test('时间线只消费 markers 高亮矛盾事件', async ({ page }) => {
@@ -345,7 +350,10 @@ test('首启引导始终掩码且不把凭证写入页面存储或运行输出',
 
 test('临界用量提供一键续行', async ({ page }) => {
   await openWorkbench(page);
+  await openModuleList(page);
   await expect(page.getByTestId('module-context')).toContainText('91%');
+  // 续行钮在 Progress 模块（临界用量触发）
+  if ((await page.getByTestId('module-progress').getAttribute('data-open')) !== 'true') await page.getByTestId('module-progress-toggle').click();
   const continuation = page.getByTestId('continuation-button');
   await continuation.click();
   await expect(continuation).toBeVisible();
@@ -355,6 +363,7 @@ test('临界用量提供一键续行', async ({ page }) => {
 
 test('context 模块承载当前阶段用量明细', async ({ page }) => {
   await openWorkbench(page);
+  await openModuleList(page);
   if ((await page.getByTestId('module-context').getAttribute('data-open')) !== 'true') await page.getByTestId('module-context-toggle').click();
   await expect(page.getByText('Case files 62%')).toBeVisible();
   await expect(page.getByText('Chat 23%')).toBeVisible();
@@ -363,8 +372,11 @@ test('context 模块承载当前阶段用量明细', async ({ page }) => {
 
 test('控件字体简写不清除全域等宽数字特性', async ({ page }) => {
   await openWorkbench(page);
-  await expect(page.getByTestId('module-context')).toHaveCSS('font-variant-numeric', 'tabular-nums');
+  // 浏览器态：数据区等宽数字
   await expect(page.getByTestId('view-revision')).toHaveCSS('font-variant-numeric', 'tabular-nums');
+  // 四模块列：Context/Progress 计数等宽
+  await openModuleList(page);
+  await expect(page.getByTestId('module-context')).toHaveCSS('font-variant-numeric', 'tabular-nums');
   await expect(page.getByTestId('progress-module-count')).toHaveCSS('font-variant-numeric', 'tabular-nums');
 });
 

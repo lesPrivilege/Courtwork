@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { openModuleList, openWorkbench } from './helpers';
 
 test('generic chrome is English on the first-run surface', async ({ page }) => {
   await page.goto('/');
@@ -42,6 +42,7 @@ test('composer keeps four primary positions and consolidates attachment actions 
 
 test('utility dock and settings stay within the English chrome layer', async ({ page }) => {
   await openWorkbench(page);
+  await openModuleList(page);
 
   await expect(page.getByTestId('module-progress')).toContainText('Progress');
   await expect(page.getByTestId('module-working-folders')).toContainText('Working folders');

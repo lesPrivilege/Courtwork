@@ -53,8 +53,11 @@ test.describe('新建案件', () => {
     await nameInput.fill('张三诉李四买卖合同纠纷');
     await dialog.getByRole('button', { name: '创建案件' }).click();
     await expect(dialog).toHaveCount(0);
+    await expect(page.getByTestId('preview-back')).toHaveCount(0);
     await expect(page.locator('.case-card.selected')).toContainText('张三诉李四买卖合同纠纷');
-    await expect(page.locator('.right-workbench .empty-state')).toBeVisible();
+    // 十四章：非 demo 空案右列=四模块列（Preview 大纲引导点开）,无 demo 数据
+    await expect(page.getByTestId('utility-rail')).toHaveAttribute('data-mode', 'modules');
+    await expect(page.getByTestId('preview-host')).toHaveCount(0);
     await expect(page.locator('.right-workbench')).not.toContainText('47 件');
   });
 
@@ -205,6 +208,7 @@ test.describe('命令面板', () => {
   test('方向键在结果间移动高亮', async ({ page }) => {
     // openWorkbench helpers 已 mouse.move(0,0)，消除 onMouseEnter 抢高亮（D-1 0b）
     await openWorkbench(page);
+    await page.mouse.move(0, 0);
     await page.keyboard.press('Meta+K');
     const first = page.getByRole('option').first();
     await expect(first).toHaveAttribute('aria-selected', 'true');

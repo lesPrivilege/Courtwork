@@ -15,6 +15,7 @@ interface WorkbenchPreviewRendererProps {
   actions?: ReactNode;
   children: ReactNode;
   onClose?: () => void;
+  onBack?: () => void;
 }
 
 /** 首个 renderer 集；宿主本身不感知此处挂载的工作面语义。 */
@@ -27,6 +28,7 @@ export function WorkbenchPreviewRenderer({
   actions,
   children,
   onClose,
+  onBack,
 }: WorkbenchPreviewRendererProps) {
   const navigation = (
     <div className="view-tabs" role="tablist" aria-label="结构化工作面">
@@ -50,7 +52,7 @@ export function WorkbenchPreviewRenderer({
   );
 
   return (
-    <PreviewHost title={title} meta={meta} navigation={navigation} onClose={onClose} progress={{ kind: 'scroll' }}>
+    <PreviewHost title={title} meta={meta} navigation={navigation} onClose={onClose} onBack={onBack} progress={{ kind: 'scroll' }}>
       {children}
     </PreviewHost>
   );

@@ -37,25 +37,27 @@ test.describe('GOAL-1 · #43/#44 凭证面', () => {
 });
 
 test.describe('GOAL-1 · #35/#36 三卡一纸位形', () => {
-  test('三 tap 卡归右列顶（2026-07-12 改判）；schema 卡常驻其下；二级向下大卡画布', async ({ page }) => {
+  test('十四章双态：浏览器态右列唯一 Preview（back 回目录）；模块列四序含大纲', async ({ page }) => {
     await openWorkbench(page);
-    const rail = page.getByTestId('right-module-stack');
-    const dock = page.getByTestId('utility-rail');
-    const railBox = (await rail.boundingBox())!;
-    const dockBox = (await dock.boundingBox())!;
-    // tap 卡顶缘即右列顶缘（与左卡同 y=inset，行线对 chat title 带）
-    expect(Math.abs(dockBox.y - railBox.y)).toBeLessThanOrEqual(2);
-    // schema 卡紧随其下（gap 8），常驻无关闭钮
-    const preview = page.getByTestId('preview-host');
-    const previewBox = (await preview.boundingBox())!;
-    expect(previewBox.y).toBeGreaterThanOrEqual(dockBox.y + dockBox.height + 4);
+    // demo replay 自动进浏览器态：preview 唯一,模块列不在,back 在场
+    await expect(page.getByTestId('preview-host')).toBeVisible();
+    await expect(page.getByTestId('utility-rail')).toHaveCount(0);
     await expect(page.getByTestId('preview-close')).toHaveCount(0);
-    // 二级=向下展开的大卡画布：顶在 tap 卡之下，底伸至与左卡底对齐（±16 容差）
-    await page.getByTestId('module-progress-toggle').click();
-    const popover = page.getByTestId('utility-dock-popover');
-    const popBox = (await popover.boundingBox())!;
-    expect(popBox.y).toBeGreaterThanOrEqual(dockBox.y + dockBox.height);
-    expect(Math.abs(popBox.y + popBox.height - (railBox.y + railBox.height))).toBeLessThanOrEqual(16);
+    // back → 模块列：Progress→Preview(大纲)→Working folders→Context 四序
+    await page.getByTestId('preview-back').click();
+    await expect(page.getByTestId('preview-host')).toHaveCount(0);
+    const rail = page.getByTestId('utility-rail');
+    await expect(rail).toHaveAttribute('data-mode', 'modules');
+    const heads = rail.locator('.rail-module-head');
+    await expect(heads.nth(0)).toContainText('Progress');
+    await expect(heads.nth(1)).toContainText('Preview');
+    await expect(heads.nth(2)).toContainText('Working folders');
+    await expect(heads.nth(3)).toContainText('Context');
+    // 大纲行（schema 编排声明渲染）→ 点击回浏览器态并落对应视图
+    await expect(page.getByTestId('preview-outline')).toBeVisible();
+    await page.getByTestId('outline-graph').click();
+    await expect(page.getByTestId('preview-host')).toBeVisible();
+    await expect(page.getByTestId('view-graph')).toHaveAttribute('aria-selected', 'true');
   });
 });
 

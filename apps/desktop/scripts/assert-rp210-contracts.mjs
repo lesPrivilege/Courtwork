@@ -6,7 +6,7 @@ const root = path.resolve(import.meta.dirname, '..');
 const [css, app, utility] = await Promise.all([
   readFile(path.join(root, 'src/styles.css'), 'utf8'),
   readFile(path.join(root, 'src/App.tsx'), 'utf8'),
-  readFile(path.join(root, 'src/utility/UtilityRail.tsx'), 'utf8'),
+  readFile(path.join(root, 'src/rail/RightRailModules.tsx'), 'utf8'),
 ]);
 
 const failures = [];
@@ -37,13 +37,13 @@ if (!app.includes("status={session.confirmation ? 'success' : 'active'}")) failu
 
 // —— Item 1：三卡一纸 ——
 // utility 两态皆坐底纸、永不成卡（schema 唯一右卡）
-if (/<SurfaceCard/.test(utility)) failures.push('utility rail 两态皆无卡（schema 唯一右卡）');
+if (/<SurfaceCard/.test(utility)) failures.push('模块列禁 SurfaceCard（schema 唯一 raised 卡；模块白卡由 CSS 表达）');
 // RP-2.11 顶栏改判：dock 为右卡顶部、折叠钮迁顶栏浮层（right-rail-chrome 退役）；此处只守 schema 唯一卡不回归。
-has(/\.utility-dock\s*\{[^}]*background:\s*var\(--bg-raised\)/, 'tap 卡=白卡（2026-07-12 终拍：与 schema 卡统一）');
+has(/\.rail-module\s*\{[^}]*background:\s*var\(--bg-raised\)/, '四模块=白卡列（十四章：Progress→Preview→Working folders→Context,Cowork 同构）');
 has(/\.utility-reopen\s*\{/, 'base 态 reopen 入口坐底纸不占卡');
 
 // —— 图标管线：无 TSX 内联 svg（品牌 mark 走 SVG-as-code） ——
-if (/<svg\b/.test(utility)) failures.push('UtilityRail 禁 TSX 内联 SVG');
+if (/<svg\b/.test(utility)) failures.push('RightRailModules 禁 TSX 内联 SVG');
 
 if (failures.length) {
   console.error(failures.join('\n'));

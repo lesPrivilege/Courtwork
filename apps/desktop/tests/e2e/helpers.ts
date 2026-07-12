@@ -23,6 +23,13 @@ export async function openWorkbench(page: Page) {
   await page.mouse.move(0, 0);
 }
 
+/** 十四章：从浏览器态返回四模块列（模块级断言前调用）。 */
+export async function openModuleList(page: Page) {
+  const back = page.getByTestId('preview-back');
+  if (await back.isVisible()) await back.click();
+  await page.getByTestId('utility-rail').waitFor();
+}
+
 export async function createNamedCase(page: Page, name: string) {
   await page.getByTestId('new-case-open').click();
   const dialog = page.getByTestId('new-case-dialog');
@@ -50,6 +57,7 @@ export async function connectProvider(page: Page) {
 export async function openWorkingFolders(page: Page) {
   const tree = page.getByTestId('working-folders-tree');
   if (await tree.isVisible().catch(() => false)) return;
+  await openModuleList(page);
   await page.getByTestId('module-working-folders-toggle').click();
   await tree.waitFor();
 }

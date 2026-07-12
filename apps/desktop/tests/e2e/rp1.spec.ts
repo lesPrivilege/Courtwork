@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { connectProvider, createNamedCase, openWorkbench } from './helpers';
+import { connectProvider, createNamedCase, openWorkbench, openModuleList } from './helpers';
 
 test.describe('RP-1 最终重排', () => {
   test('混排列表：类型图标 + 案件摘要选中 + 展开分区', async ({ page }) => {
@@ -64,23 +64,22 @@ test.describe('RP-1 最终重排', () => {
 
   test('progress 面板头计数 frontier 形制；状态条只迁不清', async ({ page }) => {
     await openWorkbench(page);
+    // 运行态归事件流（chat 面）
+    await expect(page.getByTestId('event-stream')).toContainText('正在核对');
+    await expect(page.getByTestId('nav-artifacts')).toBeVisible();
+    // 计数权威位 = Progress 模块；用量归 Context（十四章四模块列）
+    await openModuleList(page);
     const count = page.getByTestId('progress-module-count');
     await expect(count).toBeVisible();
-    await expect(count).toHaveText(/^\d+\/\d+$/);
-    // S3 默认：0/6 起（权威位 = 面板头）
     await expect(count).toHaveText('0/6');
-    // 横向状态条清除：用量归 context、产出归左栏、运行态归事件流
     await expect(page.getByTestId('module-context')).toContainText('91%');
-    await expect(page.getByTestId('nav-artifacts')).toBeVisible();
-    await expect(page.getByTestId('event-stream')).toContainText('正在核对');
   });
 
-  test('artifact 自动展开 revision 模块（demo RiskList）', async ({ page }) => {
+  test('artifact 自动进浏览器态 revision 视图（demo RiskList,十四章）', async ({ page }) => {
     await openWorkbench(page);
-    // 样板案 S3 回落 RiskList → revision 自动展开标记在模块 open 态 / 工作面可选
-    await expect(page.getByTestId('module-progress')).toHaveAttribute('data-open', 'true');
-    // 自动展开 revision 对应工作面数据可达
-    await page.getByTestId('view-revision').click();
+    // 样板案 S3 回落 RiskList → 自动进浏览器态、revision 视图选中
+    await expect(page.getByTestId('preview-host')).toBeVisible();
+    await expect(page.getByTestId('view-revision')).toHaveAttribute('aria-selected', 'true');
     await expect(page.getByText('发现 6 项合同风险')).toBeVisible();
   });
 

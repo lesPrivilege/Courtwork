@@ -36,12 +36,14 @@ for (const width of [1180, 1240, 1440, 1600]) {
   });
 }
 
-test('RP-2.5→2026-07-12 改判：tap 卡与 schema 卡双常驻，无关闭/重开路径', async ({ page }) => {
+test('十四章浏览器态：Preview 唯一卡,back 回四模块列', async ({ page }) => {
   await openApp(page);
-  await expect(page.getByTestId('utility-rail')).toHaveAttribute('data-mode', 'dock');
   await expect(page.getByTestId('preview-host')).toBeVisible();
   await expect(page.getByTestId('preview-close')).toHaveCount(0);
   await expect(page.getByTestId('preview-open')).toHaveCount(0);
+  await page.getByTestId('preview-back').click();
+  await expect(page.getByTestId('utility-rail')).toHaveAttribute('data-mode', 'modules');
+  await expect(page.getByTestId('preview-host')).toHaveCount(0);
 });
 
 test('RP-2.5.1 artifact_produced：preview 常驻下自动跟随新场景视图', async ({ page }) => {
@@ -53,17 +55,14 @@ test('RP-2.5.1 artifact_produced：preview 常驻下自动跟随新场景视图'
   await expect(page.getByTestId('view-timeline')).toHaveAttribute('aria-selected', 'true');
 });
 
-test('2026-07-12 改判：同场景再产 artifact，preview 常驻不弹跳、tap 卡不易位', async ({ page }) => {
+test('十四章：同场景再产 artifact，浏览器态 preview 不弹跳、视图跟随', async ({ page }) => {
   await openApp(page);
   await page.getByTestId('flow-s1').click();
   await expect(page.getByTestId('preview-host')).toBeVisible();
-  const dockBefore = (await page.getByTestId('utility-rail').boundingBox())!;
   const before = Number(await page.getByTestId('right-module-stack').getAttribute('data-artifact-revision'));
   await page.getByTestId('flow-s1').click();
   await expect(page.getByTestId('right-module-stack')).not.toHaveAttribute('data-artifact-revision', String(before));
   await expect(page.getByTestId('preview-host')).toBeVisible();
-  const dockAfter = (await page.getByTestId('utility-rail').boundingBox())!;
-  expect(Math.abs(dockAfter.y - dockBefore.y)).toBeLessThanOrEqual(1);
 });
 
 test('RP-2.5.1 model-config 单实例、无遮挡并持久化配置', async ({ page }) => {

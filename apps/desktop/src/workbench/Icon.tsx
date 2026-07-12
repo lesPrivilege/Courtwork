@@ -1,4 +1,4 @@
-import {
+import { ChevronLeft,
   BriefcaseBusiness,
   CalendarClock,
   Camera,
@@ -66,6 +66,7 @@ const standardIcons = {
   file: File,
   image: Image,
   'rotate-clockwise': RotateCw,
+  'chevron-left': ChevronLeft,
   'chevron-right': ChevronRight,
   'chevron-down': ChevronDown,
   package: Package,

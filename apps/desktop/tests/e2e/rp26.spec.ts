@@ -61,8 +61,11 @@ test('right workbench keeps the 44/40/36 hierarchy and tab endpoints', async ({ 
   await page.getByTestId('welcome-demo-start').click();
   await page.getByTestId('provider-skip').click();
 
-  // 2026-07-12 顶置改判：tap 卡行高 40（与 chat title 带同线）+2px 边框；44 带凡例让位对齐语义
-  await expect(page.locator('.utility-dock')).toHaveCSS('height', '42px');
+  // 十四章：demo 进浏览器态,back 回四模块列——模块头行 40（与 chat title 带同线）
+  await page.getByTestId('preview-back').click();
+  await expect(page.locator('.rail-module-head').first()).toHaveCSS('height', '40px');
+  // 浏览器态：preview 头 40 + tab 条 36 五 tab
+  await page.getByTestId('outline-draft').click();
   await expect(page.locator('.preview-host-head')).toHaveCSS('height', '40px');
   await expect(page.locator('.view-tabs')).toHaveCSS('height', '36px');
   await expect(page.locator('.view-tabs [role="tab"]')).toHaveCount(5);

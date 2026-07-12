@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { connectProvider, createNamedCase, openWorkbench } from './helpers';
+import { connectProvider, createNamedCase, openModuleList, openWorkbench } from './helpers';
 
 async function skipProvider(page: Page) {
   await openWorkbench(page);
@@ -95,9 +95,12 @@ test.describe('D-1 demo 容器隔离与新建空态', () => {
 
     await createNamedCase(page, '张三诉李四买卖合同纠纷');
     await expect(page.getByTestId('titlebar-case-title')).toHaveText('张三诉李四买卖合同纠纷');
+    // 非 demo 空案停四模块列（无浏览器态）——等 back 钮消失确认切案落定
+    await expect(page.getByTestId('preview-back')).toHaveCount(0);
     await expect(page.getByTestId('toolbar-stage')).toHaveText('尚未开始阶段');
     await expect(page.getByTestId('conversation-empty')).toBeVisible();
-    await expect(page.getByTestId('case-empty-state')).toBeVisible();
+    // 十四章：空案右列停四模块列（无浏览器态空卡）
+    await expect(page.getByTestId('utility-rail')).toHaveAttribute('data-mode', 'modules');
     // 不得残留 demo 阶段文案
     await expect(page.getByTestId('toolbar-stage')).not.toContainText('合同审查');
     await expect(page.locator('.user-message')).toHaveCount(0);
@@ -105,9 +108,10 @@ test.describe('D-1 demo 容器隔离与新建空态', () => {
     await expect(page.getByTestId('flow-s1')).toHaveCount(0);
     await expect(page.getByTestId('originals-zone')).toHaveCount(0);
 
+    // 十四章：空案右列停四模块列,Preview 大纲五工作面条目在场（点开即浏览器态,无 demo 数据）
+    await expect(page.getByTestId('preview-outline')).toBeVisible();
     for (const view of ['timeline', 'graph', 'matrix', 'revision', 'draft'] as const) {
-      await page.getByTestId(`view-${view}`).click();
-      await expect(page.getByTestId('case-empty-state')).toBeVisible();
+      await expect(page.getByTestId(`outline-${view}`)).toBeVisible();
     }
   });
 });
@@ -134,12 +138,16 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     await expect(page.getByText('发现 6 项合同风险')).toHaveCount(0);
     await expect(page.getByTestId('output-docx-card')).toHaveCount(0);
     await expect(page.getByTestId('queued-message')).toHaveCount(0);
-    // RP-2.5：Preview 态 utility 收为 dock；点进度回到通用宿主后核对原语义。
-    await page.getByTestId('module-progress-toggle').click();
+    // 十四章：非 demo 案停四模块列;保险回目录（防前序 demo 的 replay 残留浏览器态）后展开 Progress
+    await openModuleList(page);
+    const bProgress = page.getByTestId('module-progress');
+    if ((await bProgress.getAttribute('data-open')) !== 'true') await page.getByTestId('module-progress-toggle').click();
+    await expect(bProgress).toHaveAttribute('data-open', 'true');
     await expect(page.getByTestId('progress-module-body-list')).toContainText('New case');
 
-    // 回到 demo
+    // 回到 demo（等浏览器态 preview 落定确认切回）
     await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();
+    await expect(page.getByTestId('preview-host')).toBeVisible();
     await expect(page.getByTestId('demo-case-badge')).toBeVisible();
     await expect(page.getByTestId('toolbar-stage')).toContainText('合同审查');
     await expect(page.getByText('发现 6 项合同风险')).toBeVisible();

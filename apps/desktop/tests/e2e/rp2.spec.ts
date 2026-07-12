@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { openWorkbench, openModuleList } from './helpers';
 
 test.beforeEach(async ({ page }) => openWorkbench(page));
 
@@ -47,7 +47,8 @@ test('收窄时案件与模块标题横向省略，不竖排溢出', async ({ pa
   const title = page.getByTestId('chat-case-title');
   await expect(title).toHaveCSS('white-space', 'nowrap');
   await expect(title).toHaveCSS('text-overflow', 'ellipsis');
-  await expect(page.locator('.stack-module-title').first()).toHaveCSS('white-space', 'nowrap');
+  await openModuleList(page);
+    await expect(page.locator('.rail-module-title').first()).toHaveCSS('white-space', 'nowrap');
   await expect(page.locator('.case-card-select strong').first()).toHaveCSS('text-overflow', 'ellipsis');
 });
 

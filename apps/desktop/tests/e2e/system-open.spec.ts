@@ -24,6 +24,7 @@ test('新建工作稿进入编辑面且自动保存', async ({ page }) => {
   await openWorkbench(page);
   await openWorkingFolders(page);
   await page.getByTestId('wf-open-work-drafts').click();
+  // 十四章：无 L2 popover（大纲目录即二级）——旧断言退役为恒真占位
   await expect(page.getByTestId('utility-dock-popover')).toHaveCount(0);
   await expect(page.getByTestId('work-draft-panel')).toBeVisible();
   const createDraft = page.getByTestId('new-work-draft');

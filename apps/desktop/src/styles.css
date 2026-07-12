@@ -1312,3 +1312,24 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
    两侧折叠互不依赖——仅此态偏移,展开态零影响 */
 .workspace.left-collapsed .conversation .chat-case-head,
 .workspace.left-collapsed .chat-titlebar { padding-left: 152px; }
+
+/* ─── 十四章右列：四模块手风琴（Cowork 同构）＋浏览器态 ───────────────────── */
+.right-rail-modules { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow: auto; }
+.rail-module { flex: none; border: 1px solid var(--elevation-float-border); border-radius: var(--elevation-float-radius); background: var(--bg-raised); overflow: hidden; }
+.rail-module-head { width: 100%; min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 0; background: transparent; cursor: pointer; font-size: var(--type-body-size); color: var(--text-primary); }
+.rail-module-head:hover { background: var(--control-hover); }
+.rail-module-title { flex: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--control-weight-emphasized); }
+.rail-module-count { margin-left: auto; color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; }
+.rail-module-head .line-icon { width: 14px; height: 14px; color: var(--text-tertiary); }
+.rail-module-body { padding: 4px 8px 10px; font-size: var(--type-dense-body-size); }
+.preview-outline-row { width: 100%; min-height: 32px; display: flex; align-items: center; gap: 8px; padding: 4px 8px; border: 0; border-radius: 4px; background: transparent; cursor: pointer; color: var(--text-primary); font-size: var(--type-dense-body-size); text-align: left; }
+.preview-outline-row:hover:not(:disabled) { background: var(--control-hover); }
+.preview-outline-row:disabled { color: var(--text-disabled); cursor: not-allowed; }
+.preview-outline-row small { margin-left: auto; color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; }
+.preview-outline-row .line-icon { width: 13px; height: 13px; color: var(--text-tertiary); }
+.rail-reader-entries { margin-top: 8px; padding-top: 6px; }
+.preview-back { flex: none; margin-right: 2px; }
+/* 浏览器态阅读面：视图汇流——文书 15px reading 档（docs/31 不变量） */
+.reader-pane { height: 100%; overflow: auto; padding: 18px 22px; background: var(--bg-raised); font-size: var(--type-reading-size); line-height: var(--type-reading-line-height); }
+.reader-pane h3 { margin: 14px 0 6px; font-size: var(--titleSm, 16px); font-weight: var(--control-weight-emphasized); }
+.reader-pane p { margin: 0 0 10px; }

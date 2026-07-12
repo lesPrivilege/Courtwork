@@ -28,6 +28,7 @@ test('整理后可撤销并保留确认门禁形态', async ({ page }) => {
   await openWorkbench(page);
   await openWorkingFolders(page);
   await page.getByTestId('wf-open-file-ops').click();
+  // 十四章：无 L2 popover（大纲目录即二级）——旧断言退役为恒真占位
   await expect(page.getByTestId('utility-dock-popover')).toHaveCount(0);
   const execute = page.getByTestId('file-ops-execute');
   await expect(execute).toBeVisible();

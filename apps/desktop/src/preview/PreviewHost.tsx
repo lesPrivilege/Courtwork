@@ -10,11 +10,12 @@ interface PreviewHostProps {
   children: ReactNode;
   /** 2026-07-12 改判：schema 卡常驻——不传即无关闭钮（收敛走整列） */
   onClose?: () => void;
+  onBack?: () => void;
   progress?: PreviewProgressModel;
 }
 
 /** 领域无关的 Preview 宿主；业务语义只由 renderer 以 props 注入。 */
-export function PreviewHost({ title, meta, navigation, children, onClose, progress }: PreviewHostProps) {
+export function PreviewHost({ title, meta, navigation, children, onClose, onBack, progress }: PreviewHostProps) {
   const [scrollProgress, setScrollProgress] = useState(0);
   const updateProgress = (event: UIEvent<HTMLDivElement>) => {
     if (!progress) return;
@@ -28,6 +29,7 @@ export function PreviewHost({ title, meta, navigation, children, onClose, progre
   return (
     <SurfaceCard elevation="raised" className="preview-host" data-testid="preview-host" data-template-host="preview">
       <header className="panel-head preview-host-head">
+        {onBack && <button type="button" className="icon-button preview-back" data-testid="preview-back" onClick={onBack} aria-label="Back to outline" title="返回大纲"><Icon name="chevron-left" /></button>}
         <h2>{title}</h2>
         {meta && <span>{meta}</span>}
         <span className="spacer" />

@@ -12,7 +12,7 @@ const failures = [];
 if (!app.includes('data-testid="window-chrome"') || !app.includes('data-tauri-drag-region')) failures.push('window chrome must be explicit and draggable');
 if (/aria-label="(?:Back|Forward)"/.test(app)) failures.push('window chrome must not invent browser history actions');
 if (app.includes('chat-global-action') || app.includes('shortcut-trigger')) failures.push('chat header must contain zero global action buttons');
-if (!css.includes('.utility-dock { position: relative;')) failures.push('utility dock must remain structural upper layer');
+if (!css.includes('.right-rail-modules')) failures.push('右列须为四模块手风琴（right-rail-modules）');
 if (!css.includes('.user-message {') || !css.includes('.user-message { align-self: flex-end; max-width: 78%; padding: 7px 10px; border: 0;')) failures.push('user message must remain flat until edit mode exists');
 if (!css.includes('.case-card { position: relative; border: 0;')) failures.push('case rows must remain outline-flat');
 if (!css.includes('.turn-card {') || !css.includes('border-radius: 0;\n  background: transparent')) failures.push('chat turn cards must remain flat ledger rows');

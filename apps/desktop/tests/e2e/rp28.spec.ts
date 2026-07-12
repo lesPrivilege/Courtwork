@@ -39,18 +39,17 @@ test('tool call row is collapsed by default and expands auditable mono details',
   await expect(page.getByTestId('tool-call-details')).toHaveCSS('font-family', /mono/i);
 });
 
-test('utility tap opens a downward canvas card and closes outside (2026-07-12 改判)', async ({ page }) => {
+test('module body opens inline in the rail list and folds back (十四章手风琴)', async ({ page }) => {
   await openWorkbench(page);
-  await expect(page.getByTestId('view-revision')).toHaveAttribute('aria-selected', 'true');
+  await page.getByTestId('preview-back').click();
   await page.getByTestId('module-working-folders-toggle').click();
-  const dropdown = page.getByTestId('utility-dock-popover');
-  await expect(dropdown).toBeVisible();
-  await expect(dropdown).toContainText('Working folders');
-  // 大卡画布覆于 schema 区之上；收起后 preview 原样在场、视图不漂
-  await expect(page.getByTestId('view-revision')).toHaveAttribute('aria-selected', 'true');
-
-  await page.getByTestId('chat-case-title').click();
-  await expect(dropdown).toHaveCount(0);
+  const body = page.getByTestId('module-working-folders');
+  await expect(body).toHaveAttribute('data-open', 'true');
+  await expect(body).toContainText('原件阅读');
+  // 再点折回；大纲行进浏览器态恢复 preview
+  await page.getByTestId('module-working-folders-toggle').click();
+  await expect(body).toHaveAttribute('data-open', 'false');
+  await page.getByTestId('outline-revision').click();
   await expect(page.getByTestId('preview-host')).toBeVisible();
 });
 
