@@ -201,7 +201,11 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 /* —— RP-2.11 chat|work 二段 + 顶栏秩序 —— */
 /* ① 案件标题迁顶栏、与红绿灯同排居中 */
 /* ① 标题居中栏顶（约束 chat 列，与红绿灯同排，不压 dock）；draggable */
-.chat-titlebar { position: absolute; z-index: 5; top: 0; left: 0; right: 0; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; -webkit-app-region: drag; }
+/* 案件态：标题+样板/阶段 chip 左排紧凑（⑦用户拍板，撤居中致长标题溢出/chip 飘右）；welcome「New work」仍居中。
+   overflow hidden + 标题可截断：防长标题+chip 超中栏触发全局横向溢出（rp23）。 */
+.chat-titlebar { position: absolute; z-index: 5; top: 0; left: 0; right: 0; height: 40px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 0 14px; overflow: hidden; -webkit-app-region: drag; }
+.chat-titlebar:has(.welcome-head-label) { justify-content: center; }
+.chat-titlebar [data-testid="titlebar-case-title"] { min-width: 0; }
 .chat-titlebar .chat-case-title { min-width: 0; max-width: 60%; padding: 2px 6px; border: 0; background: transparent; color: var(--text-primary); cursor: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-dense-body-size); font-weight: 510; -webkit-app-region: no-drag; }
 .chat-titlebar input { min-width: 200px; padding: 3px 6px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); -webkit-app-region: no-drag; }
 .chat-titlebar .stage-chip { flex: none; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1052,9 +1056,10 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .document-preview ins { color: var(--blue-fg); background: var(--blue-bg); }
 
 @container (max-width: 700px) {
-  .risk-master-detail { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(150px, 34%) minmax(240px, 66%); }
-  .risk-list { min-height: 0; overflow: auto; border-right: 0; border-bottom: 1px solid var(--border); }
-  .risk-detail { min-height: 0; overflow: auto; }
+  /* ⑩滚动减法（用户拍板）：窄容器 master-detail 上下堆叠但不各自独立滚动——
+     list/detail 随 auto 高度撑开，由最外 static-viewport 单层统一滚动（撤内外多层滚动条）。 */
+  .risk-master-detail { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; min-height: 0; }
+  .risk-list { border-right: 0; border-bottom: 1px solid var(--border); }
   .batch-bar { flex-wrap: wrap; }
   .batch-bar small { width: 100%; margin-left: 0; }
   .graph-layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(300px, 1fr) 160px auto; }
@@ -1359,6 +1364,9 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .preview-outline-row small { margin-left: auto; color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; }
 .preview-outline-row .line-icon { width: 13px; height: 13px; color: var(--text-tertiary); }
 .rail-reader-entries { margin-top: 8px; padding-top: 6px; }
+/* icon-button 统一无框（撤浏览器默认 outset 边框，用户拍板⑧「返回取消框线」）——focus 反馈落柔和 hover 块 */
+.icon-button { border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; border-radius: 6px; }
+.icon-button:hover { background: var(--control-hover); color: var(--text-primary); }
 .preview-back { flex: none; margin-right: 2px; }
 /* 浏览器态阅读面：视图汇流——文书 15px reading 档（docs/31 不变量） */
 .reader-pane { height: 100%; overflow: auto; padding: 18px 22px; background: var(--bg-raised); font-size: var(--type-reading-size); line-height: var(--type-reading-line-height); }
