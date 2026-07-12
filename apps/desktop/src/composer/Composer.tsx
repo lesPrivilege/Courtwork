@@ -313,7 +313,7 @@ export function Composer({
             <AttachmentChip
               key={attachment.id}
               attachment={attachment}
-              caseName={caseName ?? 'Unnamed container'}
+              caseName={caseName ?? '未命名容器'}
               containerKind={containerKind}
               onRemove={() => setAttachments((prev) => prev.filter((item) => item.id !== attachment.id))}
               onRetry={() => retryAttachment(attachment.id)}
