@@ -584,3 +584,10 @@ FD-2 四件齐（14 白卡穷举/四垂类完整帧+总画廊/结构提案含四
 5. golden 长牙：DIFF 非零退出；S3 断言命中预埋考点 ≥N（schema 空数组自由与 golden 失职两层分开）。
 判例（缺口即测试缺口）：五项各附"本应抓住它的测试"。纪律：TDD/floor 只升/实跑两轮/契约变更（组装器接口/registry 声明字段+promptBody）按 docs/53 归包裁决落 schemas-registry 提案随单报。完工：S3 真模型拿到合同正文出有效 RiskList 的端到端记录入 docs/66。
 ```
+
+## 插件 ABI 总收口三拍板 + 施工序（2026-07-12，HARNESS 复核采纳）
+
+三拍板：**①ArtifactType 迁 namespaced ID**（legal.*/pm.*，注册表准入+拒载；中央枚举退役但通用基座类型不退——SourceAnchor/RevisionEvent/信源分级仍中央；ArtifactSchemaRegistry 注入式根治 F-4 病根）；**②续行投影归 artifact descriptor**（场景引 profile+定组合序；docs/62 表述记笔误）；**③confirmationPolicy: none|gates[]**（none 仅纯读取分析零外部写入；写文件/MCP 副作用/外发/改权威态 core 强制 gate 包无权放宽——契约护栏首次机器化）。
+目标三层边界照案（core=契约与机器/包=语义与声明/装配点=绑定与凭证）；capability ID 经装配点绑定、MCP 归一 Tool 契约不开自主路径；package identity（packageId+version+schemaVersion+迁移协议+拒载）入 SCHEMA-SPEC-1；core 的 demo-data/output 依赖迁 composition root。
+**施工序批准**：1 SCHEMA-SPEC-1（base+namespaced+版本迁移）→ 2 PACKAGE-ABI（manifest+五 registry+引用闭合）→ 3 法律迁出 core（兼容过渡）→ 4 HARNESS-1（resolver/组装/投影/byte-stable golden）→ 5 MCP adapter → 6 PM 包上架（**终证=零 core diff+并存零串扰**）。拆批：五缺口 #2/#3/#4/#5 为 HARNESS-0 快批立即修（不依赖 ABI）；#1 组装器并入第 4 步。
+**RM-1 注记**：每次真实请求的 pipeline（契约段→声明段→租户段→投影→会话 ｜ 组装→编排→校验→门禁）为 README 关键章——最先提出并测试的公开主张（push 时间戳背书，宜早）。
