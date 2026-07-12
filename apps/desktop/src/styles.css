@@ -169,17 +169,16 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   display: grid;
   grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), .9fr) minmax(var(--schema-min), 1.25fr);
   gap: var(--elevation-shell-gap);
-  /* 2026-07-12 用户拍板：卡与底纸四边等距（上下圆角边距一致）；红绿灯浮于左卡顶部避让区，
-     dev 与 Tauri 真机卡几何一致（不漂移不溢出） */
-  padding: var(--elevation-float-inset);
+  /* 2026-07-12 用户拍板（顶部对齐统一，覆盖四边等距的顶边）：三栏卡顶边齐贯通到窗口顶，
+     chrome 带（红绿灯 + panel/search + 居中标题）浮于三栏顶部 40px 避让区内（回归 Cowork 布局）；
+     左/右/下 inset 统一 12px，卡间 gap 统一。 */
+  padding: 0 var(--elevation-float-inset) var(--elevation-float-inset);
   transition: none;
   background: var(--elevation-canvas);
 }
-/* 内容避让 chrome 带：窗顶 40px 浮层 − 12px 卡顶 inset = 卡内 28px */
-.conversation.canvas-layer { padding-top: 28px; }
-/* 左卡顶边贯通到窗口顶：红绿灯 + chrome 钮（panel/search）落卡背景内（用户拍板 2026-07-12，覆盖左卡顶部四边等距，
-   回归 RP-2.11 原意「卡片铺到红绿灯」）。负 margin 抵消 workspace 顶 inset，避让整条 40px chrome 带。 */
-.case-rail { margin-top: calc(-1 * var(--elevation-float-inset)); padding-top: 40px; }
+/* 三栏卡顶边齐到窗口顶（workspace 顶 inset 已归零）；卡内 padding-top 40 避让整条 chrome 带
+   （红绿灯 + panel/search 落左卡内、居中标题落中栏内，与红绿灯同排）。 */
+.case-rail, .conversation.canvas-layer { padding-top: 40px; }
 /* L0 对话画布保持不透明：工作面 tab 硬切时不露出 WebView 的透明合成底色。 */
 .conversation.canvas-layer { background: var(--elevation-canvas); }
 .rail-wordmark { display: flex; align-items: center; }
@@ -1373,6 +1372,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 /* 批次七②：chat md 富渲染——对话高频子集；标题降档不抢层级,行内 code 走 mono 凡例,代码块复用 paste 块 */
 .chat-markdown { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .chat-markdown p { margin: 0; }
+.chat-typewriter { margin: 0; white-space: pre-wrap; word-break: break-word; line-height: 1.6; }
 .chat-markdown .md-h { margin: 4px 0 0; font-weight: 510; }
 .chat-markdown .md-h-1 { font-size: calc(var(--type-body-size) + 2px); }
 .chat-markdown .md-h-2 { font-size: calc(var(--type-body-size) + 1px); }

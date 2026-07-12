@@ -75,6 +75,7 @@ import { BrandThinking } from './chat/BrandThinking';
 import { RightRailModules } from './rail/RightRailModules';
 import { PasteBlock } from './chat/PasteBlock';
 import { ChatMarkdown } from './chat/ChatMarkdown';
+import { Typewriter } from './chat/Typewriter';
 import { ScrollToLatest, useFollowScroll } from './chat/follow-scroll';
 // 装配点例外（demo/ 同列先例）：原件阅读 fixture 直取 demo-data 文书 md
 import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
@@ -209,6 +210,8 @@ export function App() {
     /** assistant 消息可携带思考内容（折叠回看）；失败轮为分型文案行。 */
     reasoning?: string;
     failed?: boolean;
+    /** 刚到达的 assistant 轮：打字机逐字 reveal，完成后置 false 切富渲染。 */
+    revealing?: boolean;
   }>>([]);
   /** chat 面在途请求（真 API）；期间 ▏字符指示（RP-2.11 推理字符版）。 */
   const [chatPending, setChatPending] = useState(false);
@@ -317,6 +320,7 @@ export function App() {
           files: [],
           createdAt: Date.now(),
           reasoning: result.reasoningContent,
+          revealing: true, // 打字机逐字 reveal（B）
         }]);
       })
       .catch((error: unknown) => {
@@ -1366,7 +1370,11 @@ export function App() {
                         <CollapsibleMessage lines={12}><ChatMarkdown text={message.reasoning} /></CollapsibleMessage>
                       </details>
                     )}
-                    <CollapsibleMessage lines={12}><ChatMarkdown text={message.text} /></CollapsibleMessage>
+                    {message.revealing ? (
+                      <Typewriter text={message.text} onDone={() => setChatMessages((prev) => prev.map((m, i) => (i === index ? { ...m, revealing: false } : m)))} />
+                    ) : (
+                      <CollapsibleMessage lines={12}><ChatMarkdown text={message.text} /></CollapsibleMessage>
+                    )}
                     {!message.failed && <MessageActions messageId={`chat-${index}`} text={message.text} createdAt={message.createdAt} />}
                   </div>
                 )
