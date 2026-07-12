@@ -33,7 +33,7 @@ export const ARTIFACT_TO_MODULE: Record<string, ModuleId> = {
   'legal.Timeline': 'timeline',
   'legal.PartyGraph': 'graph',
   'legal.ReviewMatrix': 'matrix',
-  FileOpsPlan: 'working-folders',
+  'legal.FileOpsPlan': 'working-folders',
 };
 
 export type UserModuleOverride = Partial<Record<ModuleId, boolean>>;

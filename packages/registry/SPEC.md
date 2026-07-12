@@ -46,3 +46,8 @@
 - 2026-07-09（W4 跨层同步，架构显式授权）：`RevisionInstructionSet` 落地后，S4（文书起草）的 `outputArtifacts` 由 `[]` 更新为 `[RevisionInstructionSet]`，`confirmationGates[0]` 从 label-only 升级为 `artifact: RevisionInstructionSet` 引用型门禁，`builtin-scenarios.test.ts` 对应用例同步更新。仅改动 S4 声明与该测试文件，registry 其余部分未触碰。
 - 2026-07-09（W2.1 微工单，W6 core 会话在开工前完成，独立提交）：TDD 落地 strict 声明加载。先在 `scenario.test.ts`/`loader.test.ts` 写 7 条反例测试（顶层未知键、`trigger` 嵌套未知键、`confirmationGates` 条目嵌套未知键，schema 级与 YAML 加载级各三条 + 一条"良构声明在 strict 下仍通过"的哨兵测试），确认全部按预期失败（未知键当前被静默剥离，`success` 误判为 `true`）后，给三个 `z.object` 加 `.strict()`。`pnpm test -- packages/` 203 例全绿（含四个内置场景 YAML 未被误伤，`builtin-scenarios.test.ts` 4 例照常通过），`pnpm lint`、非 eval 全包 `build` 通过。
 - 2026-07-10（W3.0 阅读视图工单跨层同步，架构显式授权，见对话记录）：docs/41"S1 以阅读视图版运行"拍板落地——S1（卷宗阅卷）`trigger.fileTypes` 由 `[pdf, jpg, png]` 扩展为 `[docx, md, txt, pdf, jpg, png]`。docx/md/txt 经 `packages/reading-view` 直接产出阅读视图；pdf/jpg/png 保留在触发范围内，但会被该包判定为 `needs_ocr`（禁用态声明），不是从触发条件里移除。`fileTypes` 是无枚举白名单的自由字符串数组（`scenario.ts`/`query.ts` 均无固定取值集合），此次是纯数据层追加，无 schema 改动。`builtin-scenarios.test.ts` 新增 1 例断言 S1 完整 `fileTypes` 列表。仅改动 S1 声明与该测试文件，registry 其余部分未触碰。
+
+## FABLE-HARNESS · PACKAGE-ABI（2026-07-13，实现留痕）
+
+- **包 manifest + 准入 + 五 registry** 落地：`VerticalPackageManifest`（身份/descriptor/场景 v2/声明段正文/renderer 声明/词表节/锚色席位）；`admitPackages`（引用闭合：artifact 与 prompt ref 装载期解析、同 id 拒载、命名空间所有权、词表完备性——必备键 + 枚举字段 enumLabels 零编码暴露律机器化、none×副作用 artifact 契约护栏；**一包拒载不传染他包**=加载兜底④底座义务）；`buildPackageRegistries` 五面（artifact schema 注入式+读侧别名归一 / scenario：promptSegmentRef 闭合为 promptBody、steps 确定性派生 / renderer：缺声明→渲染兜底 / projection / vocabulary：包词优先缺词落底座中性话）。
+- **v1 装载面退役**：scenario.ts/loader.ts/query.ts 与 scenarios/*.yaml 五张随 legal 迁包删除——场景声明随包 manifest 走 ABI 门。文案归宿律照裁：不设第六文案 registry。

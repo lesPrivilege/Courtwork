@@ -43,6 +43,8 @@ import {
   type UserModuleOverride,
 } from './modules/module-stack';
 import { ContextModuleBody, WorkingFoldersTree } from './modules/ModuleStack';
+import { GenericStructurePanel } from './workbench/GenericStructurePanel';
+import { HOMED_ARTIFACT_TYPES, unhomedArtifacts } from './workbench/generic-structure';
 import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRenderer';
 import {
   loadModelConfig,
@@ -83,7 +85,7 @@ import { useDismissOnOutside } from './hooks/useDismissOnOutside';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
-type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft';
+type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft' | 'generic';
 
 const client = createDemoClient();
 
@@ -93,15 +95,23 @@ const VIEW_LABELS: Record<WorkbenchView, string> = {
   matrix: '矩阵审阅',
   revision: '修订预览',
   draft: '起草画布',
+  generic: '结构视图',
 };
 
 const VIEWS = Object.keys(VIEW_LABELS) as WorkbenchView[];
+/** 渲染兜底③：结构视图 tab 仅在存在无归宿 artifact 时出现——既有五面零扰动，永不白屏。 */
+function visibleViews(hasUnhomed: boolean): WorkbenchView[] {
+  return hasUnhomed ? VIEWS : VIEWS.filter((view) => view !== 'generic');
+}
 
 function previewViewForArtifact(artifactType: string): WorkbenchView | undefined {
   if (artifactType === 'legal.Timeline') return 'timeline';
   if (artifactType === 'legal.PartyGraph') return 'graph';
   if (artifactType === 'legal.ReviewMatrix') return 'matrix';
   if (artifactType === 'legal.RiskList') return 'revision';
+  // 渲染兜底③：无归宿类型自动落通用结构视图（有 schema 无 renderer 永不白屏）；
+  // 有归宿但无独立预览面的类型（CaseFile/FileOpsPlan）保持原语义不动。
+  if (!HOMED_ARTIFACT_TYPES.has(artifactType)) return 'generic';
   return undefined;
 }
 
@@ -550,24 +560,26 @@ export function App() {
   // demo 语料只属于 demo 容器——禁止 `?? DEMO_ARTIFACTS` 污染真实案件
   const riskList = (
     isDemoCase
-      ? (session.artifacts.RiskList ?? DEMO_ARTIFACTS.riskList)
-      : session.artifacts.RiskList
+      ? (session.artifacts['legal.RiskList'] ?? DEMO_ARTIFACTS.riskList)
+      : session.artifacts['legal.RiskList']
   ) as RiskList | undefined;
   const timeline = (
     isDemoCase
-      ? (session.artifacts.Timeline ?? DEMO_ARTIFACTS.timeline)
-      : session.artifacts.Timeline
+      ? (session.artifacts['legal.Timeline'] ?? DEMO_ARTIFACTS.timeline)
+      : session.artifacts['legal.Timeline']
   ) as Timeline | undefined;
   const graph = (
     isDemoCase
-      ? (session.artifacts.PartyGraph ?? DEMO_ARTIFACTS.partyGraph)
-      : session.artifacts.PartyGraph
+      ? (session.artifacts['legal.PartyGraph'] ?? DEMO_ARTIFACTS.partyGraph)
+      : session.artifacts['legal.PartyGraph']
   ) as PartyGraph | undefined;
   const matrix = (
     isDemoCase
-      ? (session.artifacts.ReviewMatrix ?? DEMO_ARTIFACTS.reviewMatrix)
-      : session.artifacts.ReviewMatrix
+      ? (session.artifacts['legal.ReviewMatrix'] ?? DEMO_ARTIFACTS.reviewMatrix)
+      : session.artifacts['legal.ReviewMatrix']
   ) as ReviewMatrix | undefined;
+  // 渲染兜底③：无归宿 artifact 在场时结构视图 tab 出现（缺席时既有五面零扰动）。
+  const hasUnhomedArtifacts = unhomedArtifacts(session.artifacts).length > 0;
   const selectedRisk = riskList?.risks.find((risk) => risk.id === selectedRiskId) ?? riskList?.risks[0];
   const gradeByKey = useMemo(() => new Map(session.evidenceGrades.map((item) => [item.key, item.grade])), [session.evidenceGrades]);
   const selectedGate = selectedRisk ? gate?.items.find((item) => item.itemRef === selectedRisk.id) : undefined;
@@ -917,6 +929,11 @@ export function App() {
         />
       );
     }
+    if (view === 'generic') {
+      const entries = unhomedArtifacts(session.artifacts);
+      if (!entries.length) return emptyWorkbench('暂无待展示的结构化产出');
+      return <GenericStructurePanel entries={entries} />;
+    }
     if (!riskList || !selectedRisk) return emptyWorkbench('修订预览尚未生成');
     return <RevisionPanel
       riskList={riskList}
@@ -940,7 +957,7 @@ export function App() {
   const pane = (view: WorkbenchView, secondary = false) => <section className="workbench-pane" data-pane={secondary ? 'secondary' : 'primary'}>
     <header className="pane-head">
       {secondary
-        ? <label><span>Compare</span><select aria-label="Comparison view" value={view} onChange={(event) => setSecondaryView(event.target.value as WorkbenchView)}>{VIEWS.map((candidate) => <option value={candidate} key={candidate}>{VIEW_LABELS[candidate]}</option>)}</select></label>
+        ? <label><span>Compare</span><select aria-label="Comparison view" value={view} onChange={(event) => setSecondaryView(event.target.value as WorkbenchView)}>{visibleViews(hasUnhomedArtifacts).map((candidate) => <option value={candidate} key={candidate}>{VIEW_LABELS[candidate]}</option>)}</select></label>
         : <><strong>{VIEW_LABELS[view]}</strong><span>Primary view</span></>}
     </header>
     <div className="pane-content">{renderView(view)}</div>
@@ -1401,7 +1418,7 @@ export function App() {
               Preview 双态——大纲目录 ↔ 浏览器态（右列唯一,title/tab 条/schema 面三层封闭,back 回目录） */}
           {!previewOpen && <RightRailModules
             modules={utilityItems}
-            outline={VIEWS.map((view) => ({ id: view, label: VIEW_LABELS[view], meta: viewCount(view, draftFrozen, isDemoCase) }))}
+            outline={visibleViews(hasUnhomedArtifacts).map((view) => ({ id: view, label: VIEW_LABELS[view], meta: viewCount(view, draftFrozen, isDemoCase) }))}
             previewOpenState={outlineOpen}
             onPreviewToggle={() => setOutlineOpen((open) => !open)}
             onOpenOutline={(viewId) => {
@@ -1421,7 +1438,7 @@ export function App() {
             onBack={() => { previewDismissedContext.current = `${selectedCaseId}:${flow ?? 'none'}`; setPreviewOpen(false); setReaderDoc(null); }}
             title={readerDoc ? readerDoc.name : comparing ? '工作面对照' : VIEW_LABELS[activeView]}
             meta={readerDoc ? '原件 · 只读' : comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}
-            tabs={VIEWS.map((view) => ({ id: view, label: VIEW_LABELS[view] }))}
+            tabs={visibleViews(hasUnhomedArtifacts).map((view) => ({ id: view, label: VIEW_LABELS[view] }))}
             activeTab={readerDoc ? '' : activeView}
             onSelectTab={(id) => {
               const view = id as WorkbenchView;

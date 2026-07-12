@@ -21,6 +21,10 @@
     "./provider-types": {
       "types": "./dist/provider/types.d.ts",
       "default": "./dist/provider/types.js"
+    },
+    "./generic-chat": {
+      "types": "./dist/assembly/generic-chat.d.ts",
+      "default": "./dist/assembly/generic-chat.js"
     }
   },
   "scripts": {
@@ -28,7 +32,8 @@
     "test": "vitest run --root ../.. packages/core",
     "lint": "eslint .",
     "demo:s3": "tsx scripts/demo-s3-flow.ts",
-    "smoke:provider": "tsx scripts/smoke-provider.ts"
+    "smoke:provider": "tsx scripts/smoke-provider.ts",
+    "real:s3": "tsx scripts/real-s3-run.ts"
   },
   "dependencies": {
     "@courtwork/schemas": "workspace:*",

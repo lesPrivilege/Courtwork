@@ -29,7 +29,7 @@ describe('core 事件录制回放契约', () => {
 
   it('机械投影器只按事件字段重建界面状态', () => {
     const projected = S3_RECORDING.reduce(projectSession, EMPTY_SESSION);
-    expect(projected.artifacts.RiskList).toBeDefined();
+    expect(projected.artifacts['legal.RiskList']).toBeDefined();
     expect(projected.confirmation?.requestId).toBe('demo-s3-risk-gate');
     expect(projected.evidenceGrades).toHaveLength(2);
     expect(projected.lastSeq).toBe(4);
@@ -43,7 +43,7 @@ describe('core 事件录制回放契约', () => {
     };
     const projected = projectSession(produced, failed);
     expect(projected.failures).toEqual([failed]);
-    expect(projected.artifacts.RiskList).toBeDefined();
+    expect(projected.artifacts['legal.RiskList']).toBeDefined();
   });
 
   it('provider 降档 notice 随 artifact 机械投影，供 composer chip 轻提示', () => {

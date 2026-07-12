@@ -112,6 +112,33 @@ function producedArtifact(deps: ScenarioExecutorDeps) {
   return event;
 }
 
+describe('confirmationPolicy none × 副作用工具（ABI 拍板③运行时双门第二道）', () => {
+  it('none 场景绑定 file_write 工具即拒跑——core 强制，包无权放宽', async () => {
+    const deps = buildDeps([draftContent('真实存在的原文句子')]);
+    deps.tools.register('writer-tool', {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      tool: { id: 'writer-tool', run: async () => ({ verified: true, source: 'x', data: {} }) } as any,
+      grade: 'A',
+      sideEffect: 'file_write',
+    });
+    const noneScenario: ScenarioRuntime = {
+      ...SCENARIO,
+      toolIds: ['writer-tool'],
+      confirmationPolicy: { mode: 'none' },
+    };
+    await expect(
+      runScenario(noneScenario, { inputArtifacts: {}, toolInputs: {}, materials: [MATERIAL] }, deps),
+    ).rejects.toThrow(/none 仅限纯读取/);
+  });
+
+  it('none 场景 + 纯读工具照常运行（none 本身不是禁令，是判据）', async () => {
+    const deps = buildDeps([draftContent('真实存在的原文句子')]);
+    const noneScenario: ScenarioRuntime = { ...SCENARIO, confirmationPolicy: { mode: 'none' } };
+    const result = await runScenario(noneScenario, { inputArtifacts: {}, toolInputs: {}, materials: [MATERIAL] }, deps);
+    expect(result.status).toBe('completed');
+  });
+});
+
 describe('执行器引用闭环环（受限修复重试 + 终局剪枝）', () => {
   it('首过全收敛：零重试，铸锚落格，stats 全绿', async () => {
     const deps = buildDeps([draftContent('真实存在的原文句子')]);

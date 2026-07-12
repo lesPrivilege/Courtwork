@@ -859,3 +859,9 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - 真实浏览器巡检覆盖欢迎页、样板案三栏、修订预览、Settings 的 Model / Data & privacy，以及 1440、1180 最小支持视口；页面无全局横向溢出、遮挡或双层滚动回归。
 - 修复 Settings → Model 的 Reasoning radio 被通用 `.settings-fields label/input` 规则撑成纵向大控件的问题：局部恢复 14px 原生 radio 与横向 `inline-flex` 对齐，保留 fieldset、label、键盘与读屏语义。
 - Playwright 增加 radio 尺寸与排列回归断言；desktop Vitest 94/94、全仓 build、定向 settings 5/5 通过。完整 E2E 首轮 187/190，3 个既有并发竞态失败在独立端口单 worker 复跑相关 17/17 通过。
+
+## FABLE-HARNESS · 渲染兜底 + namespaced 消费迁移（2026-07-13，实现留痕）
+
+- **渲染兜底③**（兜底四层，底座义务的壳侧落地）：`workbench/generic-structure.ts`（HOMED_ARTIFACT_TYPES 七类归宿表 + 无归宿清单 + 确定性树化，深度/数组诚实截断）+ `GenericStructurePanel`（键值/树形只读保底，可读不可美永不白屏，含「暂无专用工作面」诚实说明）。接线：`previewViewForArtifact` 无归宿类型落 `generic` 视图；**结构视图 tab 仅在无归宿 artifact 在场时出现**——现有五面在既有 flow 下零扰动（e2e 190/190 双轮验证）。
+- **触发兜底①消费面**：chat-assembly.ts 真相源上移 `@courtwork/core/generic-chat`（底座义务住底座），快照测试仍在壳侧锁字节。
+- **namespaced 迁移补漏**（自查抓获）：App.tsx 四处 `session.artifacts.RiskList` 等点访问读旧裸键——demo 兜底数据掩盖了断链（事件驱动路径 silent 失效）；连同 module-stack 漏网 `FileOpsPlan` 键一并改 `legal.*`。教训同「结构断言绿≠宪法落地」：字面量迁移必须含点访问形态（grep `artifacts\.\w+` 补入自查手册）。
