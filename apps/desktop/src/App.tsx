@@ -997,7 +997,8 @@ export function App() {
   /** composer 浮卡（chat/work 共用；onSend 与 workmode=viewSegment 同源由调用方注入）。 */
   const renderComposer = (onSend: (payload: ComposerSendPayload) => void, requestPending = false) => (
     <div className="composer-stack">
-      <div className="composer-float surface-float">
+      {/* 2026-07-12 修：外卡退役（双层框收一层），框只在 shell 整卡 */}
+      <div className="composer-float">
         <Composer
           cases={cases.map((item) => ({ id: item.id, name: item.title, kind: item.kind ?? 'case' }))}
           activeCaseId={selectedCaseId ?? undefined}
