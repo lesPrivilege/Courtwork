@@ -20,6 +20,13 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 
 无 UI 跑通 S3 全流程：输入合同 → RiskList artifact（依据含信源等级）→ 用户确认（脚本模拟，含一条真实字段修正）→ 修订指令集 → 调 output 产出 docx。全程事件流可回放。CLI 入口：`pnpm --filter @courtwork/core demo:s3`；自动化断言：`src/acceptance/s3-flow.integration.test.ts`。
 
+## HARNESS-0 快批实现记录（2026-07-12）
+
+- DeepSeek standard 显式发 `thinking:{type:'disabled'}`，不依赖 V4 默认思考态。
+- `ProviderQuirkProfile.parameterCompatibility` 登记结构化输出×深思互斥；Qwen 自动降为 standard，`GenerationNotice` 随 `artifact_produced.providerNotices` 发布，禁止静默。
+- transport 仅重试明确返回的 429/5xx；超时与不确定网络错误不重试，避免同一生成重复计费。
+- S3 golden 同时检查事件骨架与预埋锚点（至少 5/7）；DIFF 设非零退出，空 `RiskList` 不再假绿。resolver/合同正文组装照 `b2ba682` 留给 PACKAGE-ABI 之后的 HARNESS-1。
+
 ## TODO（跨层放入区）
 
 - [已解决 2026-07-11，PRV-1] `ProviderQuirkProfile` 增加推荐模型与声明式 reasoning route；统一解释器把 standard/deep 映射为 DeepSeek 模型切换、Qwen `enable_thinking`、OpenAI 兼容系 `reasoning_effort`。传输与 UI 均不按 providerId 写分支；桌面端经 `@courtwork/core/provider-quirks` 收窄子路径消费，避免把 Node-only core 模块带进 WebView bundle。
@@ -33,7 +40,7 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 
 - [架构拍板 2026-07-10，依据 docs/18] **Provider wire format 基线**：OpenAI Chat Completions 兼容格式为唯一主基线（国内六家 + vLLM/SGLang 私有化全部对齐）；**Anthropic 为具名例外**，纳入选型时走原生 Messages API 适配器，不做通用双基线。适配层须带 per-provider quirk 处理（docs/18 清单：base URL 差异、response_format 三档支持与静默吞参陷阱、reasoning 字段命名、参数互斥）。**结构化输出统一策略**：strict json_schema 优先 → 降级 json_object + zod 校验重试（校验失败即重试非放行，次数走配置）。MVP 首批接入：DeepSeek + 阿里百炼 Qwen + 火山方舟豆包；GLM（结构化证据弱）与 MiniMax（静默吞 response_format，违背本仓库反静默降级哲学）不进首批。eval 真实基线可先用 DeepSeek key 解锁（成本最低、门槛最低）。[2026-07-10 增补] 甜点区候选池扩充观察项：腾讯混元 Hy3 / Meta Muse Spark 类"上代前沿水平 ~1/10 价"模型是本架构目标客户（docs/92 推论），确认 OpenAI 兼容端点与结构化输出档位后进 eval 评测，quirk 档案按 docs/18 方法补。
 
-  **落地记录（T-provider 工单，2026-07-10）**：上述拍板已实装于 `src/provider/`——`quirk-profile.ts` 固定三家静态配置（base URL/response_format 档位/reasoning 字段候选，Qwen/豆包的 reasoning 字段候选标注为推测非证实）；`http-client.ts` 是 streaming-only 传输层（始终 `stream:true` + 读完整个 SSE body 再解析）+ transport 级重试（429/5xx/网络错误/超时均重试，401/403 与其余 4xx 立即失败不重试）——超时检测用 `Promise.race` 覆盖整条 fetch+读流链路（复用 `packages/tools/contract.ts` 的 `runOnce` 既有模式），不是只在连接阶段的 try/catch（code review 抓到并修复的真实缺口：body 阶段超时曾会漏判成未转换的 AbortError）；`structured-output.ts` 落地 strict→json_schema→json_object 三档 + zod 校验重试（`ProviderInvalidResponseError`，`suspectedSilentParamSwallow` 标记全部尝试均未产出合法 JSON 的情形，成功路径返回剥围栏后而非原始带栏内容——同样是 code review 抓到的真实缺口）+ `tier:'unsupported'` 直接拒绝调用（MiniMax 判例的通用反静默降级机制，用测试专用合成 profile 验证，未接入真实 MiniMax）；`GenerationRequest`/`GenerationResponse` 只做可选字段增量（`responseSchema`/`reasoningContent`/`usage`），`ScriptedProvider` 与既有手写假 provider 零改动、全部既有测试零回归。`RuntimeGuard.checkUsd` 补齐真实 enforcement（`pricing-table.ts`，RMB→USD 近似汇率，仅收录 docs/18 给出完整双价的三个型号，未知组合诚实跳过而非当作零成本——回归测试用负数 maxUsd 真正区分"跳过计价"与"算出零成本后侥幸未超预算"两种情况，同为 code review 抓到的测试强度缺口）。
+  **落地记录（T-provider 工单，2026-07-10）**：上述拍板已实装于 `src/provider/`——`quirk-profile.ts` 固定三家静态配置（base URL/response_format 档位/reasoning 字段候选，Qwen/豆包的 reasoning 字段候选标注为推测非证实）；`http-client.ts` 是 streaming-only 传输层（始终 `stream:true` + 读完整个 SSE body 再解析）+ transport 级重试（HARNESS-0 后仅明确返回的 429/5xx 重试；超时/不确定网络错误为防重复计费不重试；401/403 与其余 4xx 立即失败）——超时检测用 `Promise.race` 覆盖整条 fetch+读流链路（复用 `packages/tools/contract.ts` 的 `runOnce` 既有模式），不是只在连接阶段的 try/catch（code review 抓到并修复的真实缺口：body 阶段超时曾会漏判成未转换的 AbortError）；`structured-output.ts` 落地 strict→json_schema→json_object 三档 + zod 校验重试（`ProviderInvalidResponseError`，`suspectedSilentParamSwallow` 标记全部尝试均未产出合法 JSON 的情形，成功路径返回剥围栏后而非原始带栏内容——同样是 code review 抓到的真实缺口）+ `tier:'unsupported'` 直接拒绝调用（MiniMax 判例的通用反静默降级机制，用测试专用合成 profile 验证，未接入真实 MiniMax）；`GenerationRequest`/`GenerationResponse` 只做可选字段增量（`responseSchema`/`reasoningContent`/`usage`），`ScriptedProvider` 与既有手写假 provider 零改动、全部既有测试零回归。`RuntimeGuard.checkUsd` 补齐真实 enforcement（`pricing-table.ts`，RMB→USD 近似汇率，仅收录 docs/18 给出完整双价的三个型号，未知组合诚实跳过而非当作零成本——回归测试用负数 maxUsd 真正区分“跳过计价”与“算出零成本后侥幸未超预算”两种情况，同为 code review 抓到的测试强度缺口）。
 
   **同日架构增量拍板（凭证与计费形态正交建模）**：provider 配置新增 `auth.kind`（`'api_key' | 'oauth_subscription'`）与 `billing.kind`（`'metered' | 'plan'`）两个判别字段，当期只实现 `api_key`+`metered`（首批三家不变），落入 `types.ts`（provider 无关，非绑死在 openai-compatible-provider.ts 这一具体 wire format 实现文件里——初版误放该文件、code review 抓到后迁移）。未实现分支命中时抛出新增的 `ProviderNotImplementedError`（呼应 `packages/tools/contract.ts` 既有的 `NotConfigured`/`NotImplemented` 语义区分，而非误用"缺配置"语义）。合规红线随字段落档：订阅制只接官方明示允许第三方工具接入的（开放 OpenAI 兼容端点型）；模拟官方客户端/借用会话 token 的灰色桥接永不做。OAuth 设备流 + refresh token 钥匙串存储是独立的 T-provider.2 增量工单，不在本工单范围。
 

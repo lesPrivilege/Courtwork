@@ -33,6 +33,59 @@ export interface S3DemoResult {
   workDir: string;
 }
 
+export const S3_GOLDEN_EVENT_TYPES = [
+  'artifact_produced',
+  'todo_snapshot',
+  'confirmation_requested',
+  'confirmation_resolved',
+  'revision_recorded',
+  'artifact_produced',
+  'todo_snapshot',
+  'scenario_completed',
+] as const satisfies readonly SessionEvent['type'][];
+
+const S3_PRELOADED_ANCHOR_QUOTES = [
+  '百分之十的违约金',
+  '提交甲方所在地人民法院诉讼解决',
+  '质保期为交付之日起壹年',
+  '本合同签订之日起三十日内',
+  '规格、数量、单价详见本合同附表一',
+  '甲方（买受人）：星辰科技有限公司',
+  '起云智能装备（虚构）有限公司',
+] as const;
+
+/** 允许真模型的描述/id 不同，但必须命中至少 5/7 个样板合同预埋锚点。 */
+export const S3_MINIMUM_PRELOADED_FINDINGS = 5;
+
+export interface S3DemoGoldenReport {
+  pass: boolean;
+  structureMatches: boolean;
+  matchedPreloadedFindings: number;
+  issues: string[];
+}
+
+export function evaluateS3DemoGolden(input: {
+  eventTypes: readonly SessionEvent['type'][];
+  riskList: RiskList;
+}): S3DemoGoldenReport {
+  const issues: string[] = [];
+  const structureMatches = JSON.stringify(input.eventTypes) === JSON.stringify(S3_GOLDEN_EVENT_TYPES);
+  if (!structureMatches) {
+    issues.push(`事件骨架 DIFF：预期 ${S3_GOLDEN_EVENT_TYPES.join(' -> ')}`);
+  }
+
+  const actualQuotes = input.riskList.risks.flatMap((risk) =>
+    risk.basis.flatMap((basis) => basis.sourceAnchors.flatMap((anchor) => anchor.quote ? [anchor.quote] : [])),
+  );
+  const matchedPreloadedFindings = S3_PRELOADED_ANCHOR_QUOTES.filter((expected) =>
+    actualQuotes.some((actual) => actual.includes(expected) || expected.includes(actual)),
+  ).length;
+  if (matchedPreloadedFindings < S3_MINIMUM_PRELOADED_FINDINGS) {
+    issues.push(`预埋考点仅命中 ${matchedPreloadedFindings}/${S3_PRELOADED_ANCHOR_QUOTES.length}，门槛为 ${S3_MINIMUM_PRELOADED_FINDINGS}`);
+  }
+  return { pass: issues.length === 0, structureMatches, matchedPreloadedFindings, issues };
+}
+
 /**
  * 验收流程的可复用实现：CLI 脚本（scripts/demo-s3-flow.ts）与集成测试
  * （s3-flow.integration.test.ts）共用同一份逻辑，不是两套平行实现。

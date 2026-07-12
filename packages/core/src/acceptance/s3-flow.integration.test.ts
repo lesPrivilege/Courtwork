@@ -55,6 +55,17 @@ describe('S3 end-to-end acceptance flow', () => {
       const revisionEvents = createFileRevisionEventStore(join(result.workDir, 'revision-events.jsonl')).list();
       expect(revisionEvents).toHaveLength(1);
       expect(revisionEvents[0].sessionId).toBe('demo-s3-session');
+
+      // GOAL-2 接缝细则（docs/58 十二节：交互→RevisionEvent→artifact→投影）：
+      // 留痕事件必须完整携带 actor/字段路径/新旧值/理由——"改了什么、为何改"可审计。
+      const revision = revisionEvents[0];
+      expect(revision.actor.userId).toBe('demo-lawyer');
+      expect(revision.actor.role).toBe('主办律师');
+      expect(revision.fieldPath).toBe('/risks/0/dispositionStatus');
+      expect(revision.previousValue).toBe('pending');
+      expect(revision.newValue).toBe('confirmed');
+      expect(revision.reason).toBeTruthy();
+      expect(revision.timestamp).toBeTruthy();
     } finally {
       rmSync(workDir, { recursive: true, force: true });
     }

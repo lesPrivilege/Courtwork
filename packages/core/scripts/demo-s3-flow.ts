@@ -1,4 +1,4 @@
-import { runS3Demo } from '../src/acceptance/run-s3-demo.js';
+import { evaluateS3DemoGolden, runS3Demo } from '../src/acceptance/run-s3-demo.js';
 import { resolveSmokeTargets } from '../src/provider/smoke.js';
 
 // GOAL-1 真模型首跑：COURTWORK_S3_REAL=DeepSeek|Qwen|豆包 + 对应 *_API_KEY 环境变量
@@ -29,7 +29,19 @@ for (const outcome of result.outcomes) {
 console.log('');
 console.log('事件流回放摘要：');
 console.log(`  事件类型序列：${result.eventTypes.join(' -> ')}`);
+// GOAL-2 接缝对照：真模型下内容可变（风险数量/文本），事件结构骨架不变——
+// 与 scripted golden（s3-flow.integration.test）同一序列即为"接缝不漂移"的实证。
+const golden = evaluateS3DemoGolden({
+  eventTypes: result.eventTypes,
+  riskList: result.replay.artifacts.RiskList as Parameters<typeof evaluateS3DemoGolden>[0]['riskList'],
+});
+console.log(`  golden 骨架对照：${golden.structureMatches ? 'PASS（与 scripted golden 一致）' : 'DIFF'}`);
+console.log(`  预埋考点命中：${golden.matchedPreloadedFindings}/7`);
 console.log(`  产出 artifact 类型：${Object.keys(result.replay.artifacts).join(', ')}`);
 console.log(`  确认记录：${Object.keys(result.replay.confirmations).length} 条`);
 console.log(`  RevisionEvent 记录：${result.replay.revisionEventIds.length} 条`);
 console.log(`  场景完成：${result.replay.completed}`);
+if (!golden.pass) {
+  for (const issue of golden.issues) console.error(`  GOLDEN FAIL: ${issue}`);
+  process.exitCode = 1;
+}
