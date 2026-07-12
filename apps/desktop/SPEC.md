@@ -853,3 +853,9 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 - W6.1 最小审阅遥测事件进入 core 后，将 `ReviewTelemetryEvent` 本地兼容类型替换为 core 导出并把空 sink 接到正式事件记录；事件名与字段边界已按裁决预埋。
 - 正式发行需配置 Apple Developer ID 与 notarization；当前 ad-hoc 签名产物用于本机安装验收，不冒充已公证发行包。
+
+### UX/UI Polish · 设置页表单密度修复（2026-07-13）
+
+- 真实浏览器巡检覆盖欢迎页、样板案三栏、修订预览、Settings 的 Model / Data & privacy，以及 1440、1180 最小支持视口；页面无全局横向溢出、遮挡或双层滚动回归。
+- 修复 Settings → Model 的 Reasoning radio 被通用 `.settings-fields label/input` 规则撑成纵向大控件的问题：局部恢复 14px 原生 radio 与横向 `inline-flex` 对齐，保留 fieldset、label、键盘与读屏语义。
+- Playwright 增加 radio 尺寸与排列回归断言；desktop Vitest 94/94、全仓 build、定向 settings 5/5 通过。完整 E2E 首轮 187/190，3 个既有并发竞态失败在独立端口单 worker 复跑相关 17/17 通过。

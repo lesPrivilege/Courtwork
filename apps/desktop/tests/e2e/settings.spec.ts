@@ -30,7 +30,12 @@ test.describe('SET-1 设置页', () => {
 
     // 收敛令②：模型区用户面只余两档,UI 不暴露模型名;provider/model 撤入 developer 层（字段在,面板隐）
     await expect(page.getByTestId('settings-credential-phase')).toBeVisible();
-    await page.getByRole('radio', { name: 'Deep' }).check();
+    const standardReasoning = page.getByRole('radio', { name: 'Standard' });
+    const deepReasoning = page.getByRole('radio', { name: 'Deep' });
+    await expect(standardReasoning).toHaveCSS('width', '14px');
+    await expect(standardReasoning).toHaveCSS('height', '14px');
+    await expect(standardReasoning.locator('..')).toHaveCSS('display', 'inline-flex');
+    await deepReasoning.check();
     await expect(page.getByTestId('settings-model-summary')).toContainText('Deep');
     // 默认面不泄露模型名（能力全量、暴露最小）
     await expect(page.getByTestId('settings-model')).toBeHidden();
