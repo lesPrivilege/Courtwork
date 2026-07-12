@@ -694,3 +694,17 @@ chat 真对话通 ✓；十四章骨架落位 ✓。登记+预裁：①**system 
 ### 定序补款（2026-07-12）：注入开工前置 = 双线合并落地
 
 work/schema 两线显式实现合并后，再盘 schema 逻辑做真注入。注入验收三纲（用户定调）：**解耦**（六段 typed segment，来源各归其层）、**分块组装**（每段独立生成独立测试，组装序由优先级律锁定）、**可维护**（byte-stable golden + 变异必红 + 调 prompt 只动包不动 core）。
+
+## 发射序（2026-07-12，用户定盘）+ SOL-FINAL 章程
+
+序：双线施工合并 → **SOL-FINAL 最终浏览器 loop** → mirror + pages 落版 → **投递开始**；投递期间迭代不停，真 harness 功能（六段注入正序）持续上桩。
+
+### SOL-FINAL（sol，双线合并后）
+
+```
+你（sol）认领 SOL-FINAL：发射前最后一次全动线浏览器 loop（AGENTS 全判例/独立端口/computer use 真看）。①合并 tip 全门禁实跑 + 全动线走查（首启→引导→样板案→chat 真对话→审查→门禁→修订 Word→设置四件），console 零错误、每个 Button 期待效果抽验；②顺手截图产线：visual-audit 定版 + SITE 演出照六处 + OG 帧（新色板终版，旧图全废）；③发现分级：阻断即报、polish 入慢火池不挡发射。报告纯追加，结论一问：可发射否。
+```
+
+### 发射执行（SOL-FINAL 放行后）
+
+mirror：docs/70 manifest 逐项核对 + deslop/PII 扫描 → orphan 推公开仓 + Release 挂 dmg/SHA；pages：FD-1 编排 + 定版截图 + SITE 文案稿落版（deslop CI 首跑守站），发布于镜像仓 Pages；投递：docs/70 投递信 + 展品页 + 评测集按 docs/54 策略发出（字节系优先、大量积极接触）。kit 占位符同日清零回填。
