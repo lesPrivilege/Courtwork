@@ -75,6 +75,7 @@ import { sendChatTurn } from './provider/chat-client';
 import { BrandThinking } from './chat/BrandThinking';
 import { RightRailModules } from './rail/RightRailModules';
 import { PasteBlock } from './chat/PasteBlock';
+import { ChatMarkdown } from './chat/ChatMarkdown';
 import { ScrollToLatest, useFollowScroll } from './chat/follow-scroll';
 // 装配点例外（demo/ 同列先例）：原件阅读 fixture 直取 demo-data 文书 md
 import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
@@ -1353,10 +1354,10 @@ export function App() {
                     {message.reasoning && (
                       <details className="chat-reasoning" data-testid="chat-reasoning">
                         <summary>思考过程</summary>
-                        <CollapsibleMessage lines={12}>{message.reasoning}</CollapsibleMessage>
+                        <CollapsibleMessage lines={12}><ChatMarkdown text={message.reasoning} /></CollapsibleMessage>
                       </details>
                     )}
-                    <CollapsibleMessage lines={12}>{message.text}</CollapsibleMessage>
+                    <CollapsibleMessage lines={12}><ChatMarkdown text={message.text} /></CollapsibleMessage>
                     {!message.failed && <MessageActions messageId={`chat-${index}`} text={message.text} createdAt={message.createdAt} />}
                   </div>
                 )
