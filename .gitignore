@@ -4,6 +4,7 @@ dist/
 *.log
 .DS_Store
 coverage/
+test-results/
 
 # 架构预裁：用户本地文档查看器配置，不入 repo
 .obsidian/
