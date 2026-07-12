@@ -46,7 +46,7 @@ export async function connectProvider(page: Page) {
   // 2026-07-12 connect 路由：非首启一律 Settings 内嵌凭证面（首启引导卡另测于 rp29/goal1）
   await trigger.click();
   const embed = page.getByTestId('settings-credential-embed');
-  await embed.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
+  await embed.getByRole('textbox', { name: 'Access credential' }).fill('cw-valid-secret-key');
   await embed.getByTestId('settings-credential-validate').click();
   await page.getByTestId('settings-credential-verified').waitFor();
   await page.keyboard.press('Escape');

@@ -63,7 +63,6 @@ export interface SettingsPageProps {
   onAutoOpenConsumed?: () => void;
   modelConfig: ModelConfig;
   onModelConfigChange: (next: ModelConfig) => void;
-  onValidateProvider: () => Promise<CredentialStatus>;
   onRevealPath: (path: string) => void;
   onFeedback: (message: string, ok: boolean) => void;
 }
@@ -84,7 +83,6 @@ export function SettingsPage({
   onAutoOpenConsumed,
   modelConfig,
   onModelConfigChange,
-  onValidateProvider,
   onRevealPath,
   onFeedback,
 }: SettingsPageProps) {
@@ -316,9 +314,7 @@ export function SettingsPage({
                   <p className="settings-muted" data-testid="settings-model-summary">
                     Current: {modelConfig.reasoning === 'deep' ? 'Deep' : 'Standard'}
                   </p>
-                  <button type="button" className="primary-button" data-testid="settings-validate-provider" onClick={() => void onValidateProvider()}>
-                    Verify connection
-                  </button>
+                  {/* 五裁④：双「验证连接」去重——页级唯一入口=凭证表单内 Verify connection（#44 就地绿徽契约随之） */}
                   {/* developer 层：能力全量,默认收起（收敛令②表面减法律） */}
                   <details className="settings-developer" data-testid="settings-developer">
                     <summary>Developer · provider &amp; model</summary>

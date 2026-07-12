@@ -13,7 +13,7 @@ test.describe('GOAL-1 · #43/#44 凭证面', () => {
     await page.getByTestId('settings-open-credentials').click();
     const embed = page.getByTestId('settings-credential-embed');
     await expect(embed).toBeVisible();
-    await embed.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
+    await embed.getByRole('textbox', { name: 'Access credential' }).fill('cw-valid-secret-key');
     await embed.getByTestId('settings-credential-validate').click();
 
     // #44 契约：宿主稳定在场 + 就地绿徽；无任何浮层置换
@@ -27,8 +27,8 @@ test.describe('GOAL-1 · #43/#44 凭证面', () => {
     await page.goto('/');
     const dialog = page.getByTestId('provider-setup');
     if (!(await dialog.isVisible())) await page.getByTestId('composer-provider').click();
-    await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
-    await dialog.getByRole('button', { name: '验证连接' }).click();
+    await dialog.getByRole('textbox', { name: 'Access credential' }).fill('cw-valid-secret-key');
+    await dialog.getByRole('button', { name: 'Verify connection' }).click();
     await expect(dialog.getByTestId('provider-setup-verified')).toBeVisible();
     await expect(dialog).toBeVisible();
     await dialog.getByTestId('provider-setup-done').click();

@@ -333,10 +333,10 @@ test('首启引导始终掩码且不把凭证写入页面存储或运行输出',
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText('Courtwork 不会查找其他应用的设置');
   const secret = 'cw-test-secret-42';
-  const input = dialog.getByRole('textbox', { name: '访问凭证' });
+  const input = dialog.getByRole('textbox', { name: 'Access credential' });
   await expect(input).toHaveAttribute('type', 'password');
   await input.fill(secret);
-  await dialog.getByRole('button', { name: '验证连接' }).click();
+  await dialog.getByRole('button', { name: 'Verify connection' }).click();
   // #44：成功不自动关闭——就地绿徽后由用户显式关闭
   await expect(dialog.getByTestId('provider-setup-verified')).toBeVisible();
   await dialog.getByTestId('provider-setup-done').click();

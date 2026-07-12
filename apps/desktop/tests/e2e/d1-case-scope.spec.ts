@@ -62,8 +62,8 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     const dialog = page.getByTestId('provider-setup');
     await page.getByTestId('composer-provider').click();
     await expect(dialog).toBeVisible();
-    await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
-    await dialog.getByRole('button', { name: '验证连接' }).click();
+    await dialog.getByRole('textbox', { name: 'Access credential' }).fill('cw-valid-secret-key');
+    await dialog.getByRole('button', { name: 'Verify connection' }).click();
     // #44：成功就地绿徽，不自动关闭；显式「开始使用」后收卡
     await expect(dialog.getByTestId('provider-setup-verified')).toBeVisible();
     await dialog.getByTestId('provider-setup-done').click();
@@ -79,8 +79,8 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await page.goto('/');
     const dialog = page.getByTestId('provider-setup');
     await page.getByTestId('composer-provider').click();
-    await dialog.getByRole('textbox', { name: '访问凭证' }).fill('short');
-    await dialog.getByRole('button', { name: '验证连接' }).click();
+    await dialog.getByRole('textbox', { name: 'Access credential' }).fill('short');
+    await dialog.getByRole('button', { name: 'Verify connection' }).click();
     await expect(page.getByTestId('provider-setup-error')).toBeVisible();
     await expect(dialog).toBeVisible();
     // 关闭后看状态条
