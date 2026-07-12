@@ -690,3 +690,7 @@ chat 真对话通 ✓；十四章骨架落位 ✓。登记+预裁：①**system 
 **FABLE-BASE（Fable @ Code）**：全量底座修缮——功能实现 + UX，**验收标准一句话：每一个 Button 都是期待的效果**。范围：批次七全项（system prompt 注入/md 渲染/测宽/路由律/红绿灯/导入反馈）+ 交互基础缺陷清扫（首例登记：**chat 新消息不自动滚底**——跟随滚动 + 用户上翻时暂停跟随 + 新消息浮标，frontier 惯例）+ Button 全量行为核对（骨架先行的填实面：逐钮过一遍"点了会怎样"，存疑项列清单报裁）。热点：壳/chat/路由/设置。
 **GPT-SCHEMA（sol @ Codex，已装 Apple Design skill）**：Schema 面 UX 与视效 polish——docs/69 D 组 + LAYOUT 组为册，FD-2 编排为源、新色板为皮；skill 与 docs/32/36 对拍，冲突报裁（skill 是输入不是宪法）。热点：PreviewHost 内部/renderers。
 两线合并后任务即定：schema 功能注入（HARNESS 组装器正序）为下一主战场。判例全套照旧（实跑/floor 只升/显式路径/错峰提交）。
+
+### 定序补款（2026-07-12）：注入开工前置 = 双线合并落地
+
+work/schema 两线显式实现合并后，再盘 schema 逻辑做真注入。注入验收三纲（用户定调）：**解耦**（六段 typed segment，来源各归其层）、**分块组装**（每段独立生成独立测试，组装序由优先级律锁定）、**可维护**（byte-stable golden + 变异必红 + 调 prompt 只动包不动 core）。
