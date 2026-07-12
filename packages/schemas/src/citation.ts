@@ -57,3 +57,17 @@ export const CitationFailureSchema = z
   })
   .strict();
 export type CitationFailure = z.infer<typeof CitationFailureSchema>;
+
+/**
+ * out_of_coverage 条目（缺口三态的引用闭环形态）：受限修复重试不收敛的条目
+ * 从 artifact 主体移入本表——整 artifact 部分成功呈现，缺口如实标注并说明缺什么
+ * （兜底同时是主动索证：failures 携原判与失败原因）。
+ */
+export const OutOfCoverageEntrySchema = z
+  .object({
+    summary: z.string().min(1),
+    reason: z.literal('citation_unresolved'),
+    failures: z.array(CitationFailureSchema).min(1),
+  })
+  .strict();
+export type OutOfCoverageEntry = z.infer<typeof OutOfCoverageEntrySchema>;

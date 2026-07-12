@@ -88,7 +88,13 @@ describe('validateArtifactDescriptor（descriptor 载体自检）', () => {
   it('citationBinding 要求 draftSchema 成对出现（有引语声明必有模型侧草稿形状）', () => {
     const issues = validateArtifactDescriptor({
       ...base,
-      citationBinding: { draftField: 'quoteClaims', anchorField: 'sourceAnchors' },
+      citationBinding: {
+        draftField: 'quoteClaims',
+        anchorField: 'sourceAnchors',
+        itemScope: '/risks',
+        itemSummaryField: 'description',
+        outOfCoverageField: 'outOfCoverage',
+      },
     });
     expect(issues.some((i) => i.includes('draftSchema'))).toBe(true);
   });

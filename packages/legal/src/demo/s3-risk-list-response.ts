@@ -24,6 +24,7 @@ import type { RiskList } from '../schemas/risk-list.js';
  */
 export const S3_RISK_LIST_RESPONSE: RiskList = {
   caseId: 'case-linjiang-qiyun-2025',
+  outOfCoverage: [],
   risks: [
     {
       id: 'risk-01',

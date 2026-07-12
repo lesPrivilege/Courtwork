@@ -25,6 +25,7 @@ function stubGatekeeper(entries: Record<string, { admissible: boolean }> = {}): 
 function riskList(overrides: Partial<RiskList['risks'][number]> = {}): RiskList {
   return {
     caseId: 'c1',
+    outOfCoverage: [],
     risks: [
       {
         id: 'risk-01',

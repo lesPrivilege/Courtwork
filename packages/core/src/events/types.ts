@@ -1,5 +1,18 @@
 
 import type { EvidenceGradeAnnotation } from '../evidence/grade.js';
+
+/**
+ * 引用闭环观测（docs/93 修订一·锚点经济性条款）：首次命中率与重试率入 docs/66，
+ * 为「甜点档即可完成」的对上游承诺定价。随 artifact_produced 发布（纯增字段，
+ * 提案随单报——providerNotices 追认判例同族）。
+ */
+export interface CitationStats {
+  claims: number;
+  firstPassResolved: number;
+  retryRounds: number;
+  resolvedAfterRetry: number;
+  outOfCoverage: number;
+}
 import type { TodoStep } from '../scenario-executor/todo-snapshot.js';
 import type { GenerationNotice } from '../provider/types.js';
 
@@ -40,6 +53,8 @@ export type SessionEvent =
       evidenceGrades: EvidenceGradeAnnotation[];
       /** provider 为兼容性改变 wire 档位时必须随产出显式发布，供 UI 轻提示。 */
       providerNotices?: GenerationNotice[];
+      /** 引用闭环公证观测（有 citationBinding 的产出才携带）。 */
+      citationStats?: CitationStats;
     })
   | (BaseEvent & {
       type: 'confirmation_requested';

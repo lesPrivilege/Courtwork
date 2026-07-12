@@ -101,6 +101,18 @@ export interface MaterialInput {
   sha256: string;
   /** 阅读视图 md 全文（模型阅读的"母语"，reading-view 产出）。 */
   readingMarkdown: string;
+  /**
+   * 文本层块（引用 resolver 的公证基底），由 reading-view 段落 1:1 派生：
+   * text=原件真实子串、rangeBase=块在文本层坐标系的起点（PDF 页内 0 / docx 段落起点）。
+   * 缺省无块 = 该材料不参与引语公证（如图片件）。
+   */
+  blocks?: {
+    blockId: string;
+    page?: number;
+    text: string;
+    rangeBase: number;
+    textLayerVersion: string;
+  }[];
 }
 
 /** 材料边界标记：语料包在显式数据边界内（docs/93 六段组装条款）。 */

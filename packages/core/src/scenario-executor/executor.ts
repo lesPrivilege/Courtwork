@@ -17,6 +17,13 @@ import { estimateCostUsd } from '../provider/pricing-table.js';
 import type { GenerationNotice } from '../provider/types.js';
 import { assembleScenarioRequest } from '../assembly/assemble.js';
 import type { MaterialInput } from '../assembly/segments.js';
+import {
+  resolveDraftArtifact,
+  resolveDraftArtifactWithPruning,
+  type MaterialTextLayer,
+} from '../citation/resolver.js';
+import type { CitationFailure } from '@courtwork/schemas';
+import type { CitationStats } from '../events/types.js';
 
 export interface ScenarioExecutorDeps {
   tools: ToolRegistry;
@@ -131,6 +138,22 @@ function stepIdForArtifact(scenario: ScenarioRuntime, artifactType: string): str
   return scenario.steps.find((step) => step.artifact === artifactType)?.id ?? `produce-${artifactType}`;
 }
 
+/** 材料文本层：块由 reading-view 段落派生（MaterialInput.blocks），无块材料不参与公证。 */
+function layersFromMaterials(materials: MaterialInput[]): MaterialTextLayer[] {
+  return materials
+    .filter((material) => (material.blocks ?? []).length > 0)
+    .map((material) => ({ fileId: material.fileId, blocks: material.blocks! }));
+}
+
+function sumUsage(
+  a?: { inputTokens: number; outputTokens: number },
+  b?: { inputTokens: number; outputTokens: number },
+): { inputTokens: number; outputTokens: number } | undefined {
+  if (!a) return b;
+  if (!b) return a;
+  return { inputTokens: a.inputTokens + b.inputTokens, outputTokens: a.outputTokens + b.outputTokens };
+}
+
 async function generateArtifact(
   scenario: ScenarioRuntime,
   artifactType: string,
@@ -141,49 +164,116 @@ async function generateArtifact(
     materials: MaterialInput[];
   },
   deps: ScenarioExecutorDeps,
-): Promise<{ artifact: unknown; usage?: { inputTokens: number; outputTokens: number }; notices?: GenerationNotice[] }> {
+): Promise<{
+  artifact: unknown;
+  usage?: { inputTokens: number; outputTokens: number };
+  notices?: GenerationNotice[];
+  citationStats?: CitationStats;
+}> {
   const entry = deps.artifacts.get(artifactType);
   if (!entry) throw new UnknownArtifactTypeError(scenario.id, artifactType);
   // 引用闭环：descriptor 带 draftSchema 时模型侧按草稿形状出格（引语无坐标），
-  // 铸锚发生在 resolver（executor 下游）；无草稿声明则最终 schema 即模型侧。
+  // 铸锚发生在 resolver；无草稿声明则最终 schema 即模型侧。
   const modelSchema = entry.descriptor.draftSchema ?? entry.descriptor.schema;
   const stepId = stepIdForArtifact(scenario, artifactType);
 
   // 六段组装（HARNESS-1）：契约→声明→租户→投影→会话与语料→视图映射。
   // producedSoFar 经续行投影段进 context（声明式投影，非原文回放）；
   // todo 复述归视图映射段尾（docs/12 技巧的正名归宿）。
-  const assembled = assembleScenarioRequest({
-    scenario,
-    stepId,
-    artifactType,
-    modelSchema,
-    projection: {
-      ledgerSeq: deps.eventLog.list().length,
-      artifacts: context.producedSoFar,
-      pendingGateLabels: [],
-    },
-    materials: context.materials,
-    taskInstruction: JSON.stringify({ artifactType, inputArtifacts: context.inputArtifacts, toolResults: context.toolResults }),
-    todo: deriveTodoSnapshot(scenario, context.producedSoFar),
-    registries: { projections: deps.projections, artifacts: deps.artifacts },
-  });
+  const generateOnce = async (repairFailures?: CitationFailure[]) => {
+    const task: Record<string, unknown> = {
+      artifactType,
+      inputArtifacts: context.inputArtifacts,
+      toolResults: context.toolResults,
+    };
+    if (repairFailures !== undefined) {
+      // 受限修复重试（docs/53 校准语义）：携原判与失败原因，只修引语不重写判断。
+      task.repair = {
+        instruction: '以下引语未通过原文精确匹配公证。只修正这些引语（必须与材料原文一字不差、且在声明的页/块内唯一），其余判断与字段保持不变。',
+        failures: repairFailures,
+      };
+    }
+    const assembled = assembleScenarioRequest({
+      scenario,
+      stepId,
+      artifactType,
+      modelSchema,
+      projection: {
+        ledgerSeq: deps.eventLog.list().length,
+        artifacts: context.producedSoFar,
+        pendingGateLabels: [],
+      },
+      materials: context.materials,
+      taskInstruction: JSON.stringify(task),
+      todo: deriveTodoSnapshot(scenario, context.producedSoFar),
+      registries: { projections: deps.projections, artifacts: deps.artifacts },
+    });
+    const response = await deps.provider.generate(assembled.request);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(response.content);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new GenerationValidationError(scenario.id, artifactType, `provider 返回的内容不是合法 JSON：${reason}`);
+    }
+    // 按址收货（四知·知回填）：信封 target 以 literal 锁死，错址与形状错误同层拒收。
+    const result = assembled.envelopeSchema.safeParse(parsed);
+    if (!result.success) {
+      const issues = result.error.issues.map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`).join('\n');
+      throw new GenerationValidationError(scenario.id, artifactType, issues);
+    }
+    const envelope = result.data as { target: { stepId: string; artifactType: string }; artifact: unknown };
+    return { draft: envelope.artifact, usage: response.usage, notices: response.notices };
+  };
 
-  const response = await deps.provider.generate(assembled.request);
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(response.content);
-  } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
-    throw new GenerationValidationError(scenario.id, artifactType, `provider 返回的内容不是合法 JSON：${reason}`);
+  const first = await generateOnce();
+  const binding = entry.descriptor.citationBinding;
+  if (!binding) {
+    return { artifact: first.draft, usage: first.usage, notices: first.notices };
   }
-  // 按址收货（四知·知回填）：信封 target 以 literal 锁死，错址与形状错误同层拒收。
-  const result = assembled.envelopeSchema.safeParse(parsed);
-  if (!result.success) {
-    const issues = result.error.issues.map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`).join('\n');
-    throw new GenerationValidationError(scenario.id, artifactType, issues);
+
+  // 引用闭环三拍：首过公证 → 拒收即受限修复重试一轮 → 终局剪枝（不收敛入 out_of_coverage）。
+  const layers = layersFromMaterials(context.materials);
+  const firstPass = resolveDraftArtifact({ draft: first.draft, binding, layers });
+  if (firstPass.status === 'resolved') {
+    const final = entry.descriptor.schema.safeParse(firstPass.artifact);
+    if (!final.success) {
+      const issues = final.error.issues.map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`).join('\n');
+      throw new GenerationValidationError(scenario.id, artifactType, `公证后的最终形未过 schema：\n${issues}`);
+    }
+    return {
+      artifact: final.data,
+      usage: first.usage,
+      notices: first.notices,
+      citationStats: {
+        claims: firstPass.stats.claims,
+        firstPassResolved: firstPass.stats.resolved,
+        retryRounds: 0,
+        resolvedAfterRetry: firstPass.stats.resolved,
+        outOfCoverage: 0,
+      },
+    };
   }
-  const envelope = result.data as { target: { stepId: string; artifactType: string }; artifact: unknown };
-  return { artifact: envelope.artifact, usage: response.usage, notices: response.notices };
+
+  const second = await generateOnce(firstPass.failures);
+  const pruned = resolveDraftArtifactWithPruning({ draft: second.draft, binding, layers });
+  const final = entry.descriptor.schema.safeParse(pruned.artifact);
+  if (!final.success) {
+    const issues = final.error.issues.map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`).join('\n');
+    throw new GenerationValidationError(scenario.id, artifactType, `剪枝后的最终形未过 schema：\n${issues}`);
+  }
+  return {
+    artifact: final.data,
+    usage: sumUsage(first.usage, second.usage),
+    notices: [...(first.notices ?? []), ...(second.notices ?? [])],
+    citationStats: {
+      claims: firstPass.stats.claims,
+      firstPassResolved: firstPass.stats.resolved,
+      retryRounds: 1,
+      resolvedAfterRetry: pruned.stats.resolved,
+      outOfCoverage: pruned.outOfCoverage.length,
+    },
+  };
 }
 
 interface SequenceState {
@@ -243,7 +333,7 @@ async function produceSequence(
   for (let i = 0; i < remainingArtifactTypes.length; i += 1) {
     guard.checkStep();
     const artifactType = remainingArtifactTypes[i];
-    const { artifact, usage, notices } = await generateArtifact(
+    const { artifact, usage, notices, citationStats } = await generateArtifact(
       scenario,
       artifactType,
       {
@@ -259,7 +349,7 @@ async function produceSequence(
     if (costUsd !== undefined) guard.checkUsd(costUsd);
     state.producedSoFar[artifactType] = artifact;
     deps.eventLog.append({
-      type: 'artifact_produced', artifactType, artifact, evidenceGrades: deps.ledger.snapshot(), providerNotices: notices,
+      type: 'artifact_produced', artifactType, artifact, evidenceGrades: deps.ledger.snapshot(), providerNotices: notices, citationStats,
     });
 
     const gate = findGate(scenario, artifactType);

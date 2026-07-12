@@ -141,13 +141,93 @@
         ],
         "additionalProperties": false
       }
+    },
+    "outOfCoverage": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "const": "citation_unresolved"
+          },
+          "failures": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "claim": {
+                  "type": "object",
+                  "properties": {
+                    "fileId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "page": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "blockId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "exactQuote": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "fileId",
+                    "exactQuote"
+                  ],
+                  "additionalProperties": false,
+                  "title": "QuoteClaim",
+                  "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "not_found",
+                    "ambiguous",
+                    "file_unavailable"
+                  ]
+                },
+                "occurrences": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "claim",
+                "reason"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "summary",
+          "reason",
+          "failures"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
     "caseId",
-    "risks"
+    "risks",
+    "outOfCoverage"
   ],
   "additionalProperties": false,
   "title": "RiskList",
-  "description": "风险清单：风险点 + 等级 + 依据（法条/判例引用 + 来源锚点）+ 处置状态。"
+  "description": "风险清单：风险点 + 等级 + 依据（法条/判例引用 + 来源锚点）+ 处置状态 + 引用闭环缺口表。"
 }

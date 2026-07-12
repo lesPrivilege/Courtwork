@@ -1,6 +1,10 @@
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { findPartyRecord, type PartyCorpusRecord } from '@courtwork/demo-data';
-import { LEGAL_PACKAGE, S3_RISK_LIST_RESPONSE } from '@courtwork/legal';
+import { LEGAL_PACKAGE, S3_RISK_LIST_DRAFT } from '@courtwork/legal';
 import { admitPackages, buildPackageRegistries, type PackageRegistries } from '@courtwork/registry';
+import { convertToReadingView, type ReadingViewOutcome } from '@courtwork/reading-view';
 import {
   createDemoFixturePartyVerifyAdapter,
   createPartyVerifyTool,
@@ -10,6 +14,7 @@ import {
 import { createToolRegistry, type ToolRegistry } from '../tools/tool-registry.js';
 import { createScriptedProvider } from '../provider/scripted-provider.js';
 import type { Provider } from '../provider/types.js';
+import type { MaterialInput } from '../assembly/segments.js';
 
 /**
  * 富语料 → 核验字段子集的投影。参考 packages/tools/src/party-verify.test.ts 的
@@ -55,13 +60,13 @@ export function buildDemoS3Runtime(): DemoS3Runtime {
     sideEffect: 'pure_read',
   });
 
-  // 寻址信封（四知·知输出）：脚本响应同样按址交货——地址错在 schema 层即拒收，
-  // 演示管线与真管线过同一道门。
+  // 寻址信封（四知·知输出）+ 引用闭环（拍板一）：脚本响应交草稿（引语无坐标），
+  // 坐标由 resolver 对材料文本层公证铸造——演示管线与真管线过同一道门。
   const provider = createScriptedProvider('demo-scripted-provider', 'fake-scripted-v1', [
     {
       content: JSON.stringify({
         target: { stepId: 'produce-risk-list', artifactType: 'legal.RiskList' },
-        artifact: S3_RISK_LIST_RESPONSE,
+        artifact: S3_RISK_LIST_DRAFT,
       }),
     },
   ]);
@@ -79,4 +84,44 @@ export function buildDemoS3Runtime(): DemoS3Runtime {
     toolInputs: { 'party-verify': { name: '起云智能装备（虚构）有限公司' } },
     registries: buildPackageRegistries(admission.admitted),
   };
+}
+
+/** ReadingViewOutcome → MaterialInput：语料全文 + sha256 + 文本层块（resolver 公证基底）1:1 派生。 */
+export function materialFromReadingView(outcome: ReadingViewOutcome, sourceBytes: Uint8Array): MaterialInput {
+  if (outcome.status !== 'ok') {
+    throw new Error(`材料 ${outcome.fileId} 阅读视图不可用（${outcome.status}）——公证基底缺失，不静默降级`);
+  }
+  // md/txt 路径有意不填 textLayerVersion（原件本身即文本层，reading-view 既裁）——
+  // 公证锚点仍须携版本作漂移检测，消费侧对全文铸一枚源文版本，不动管线契约。
+  const sourceVersion = `source-text@1+${createHash('sha256').update(outcome.view.markdown).digest('hex').slice(0, 16)}`;
+  return {
+    fileId: outcome.fileId,
+    sha256: createHash('sha256').update(sourceBytes).digest('hex'),
+    readingMarkdown: outcome.view.markdown,
+    blocks: outcome.view.paragraphs.map((paragraph) => ({
+      blockId: String(paragraph.index),
+      page: paragraph.anchor.page,
+      // 块文本取锚点 quote（原件真实子串），非 markdown（含 ## 等装饰）——公证对原文。
+      text: paragraph.anchor.quote ?? '',
+      rangeBase: paragraph.anchor.textRange?.start ?? 0,
+      textLayerVersion: paragraph.anchor.textLayerVersion ?? sourceVersion,
+    })),
+  };
+}
+
+const DEMO_DOCX_PATH = join(import.meta.dirname, '..', '..', '..', 'output', 'test', 'fixtures', 'original.docx');
+const DEMO_CREDIT_MD_PATH = join(import.meta.dirname, '..', '..', '..', 'demo-data', 'data', 'dossier', '20-企业信用信息查询单.md');
+
+/**
+ * S3 演示材料装配：被审合同（docx 文本层，risk-01–06 引语出处）+ 企业信用查询单
+ * （md 文本层，risk-07 引语出处）。真实数据接入 = 换文件来源，派生逻辑零改动。
+ */
+export async function loadDemoS3Materials(): Promise<MaterialInput[]> {
+  const docxBytes = new Uint8Array(readFileSync(DEMO_DOCX_PATH));
+  const creditBytes = new Uint8Array(readFileSync(DEMO_CREDIT_MD_PATH));
+  const [contract, credit] = await Promise.all([
+    convertToReadingView({ fileId: 'sample-sale-contract-v1.docx', fileName: 'sample-sale-contract-v1.docx', data: docxBytes }),
+    convertToReadingView({ fileId: '20-企业信用信息查询单.md', fileName: '20-企业信用信息查询单.md', data: creditBytes }),
+  ]);
+  return [materialFromReadingView(contract, docxBytes), materialFromReadingView(credit, creditBytes)];
 }

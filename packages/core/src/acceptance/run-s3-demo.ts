@@ -15,7 +15,7 @@ import { createFileConfirmationStore } from '../session/confirmation-store.js';
 import { createFileRevisionEventStore } from '../revision/revision-store.js';
 import { runScenario, resumeScenario, type ScenarioExecutorDeps } from '../scenario-executor/executor.js';
 import type { Provider } from '../provider/types.js';
-import { buildDemoS3Runtime } from '../composition/demo-assembly.js';
+import { buildDemoS3Runtime, loadDemoS3Materials } from '../composition/demo-assembly.js';
 
 const ORIGINAL_DOCX_PATH = join(import.meta.dirname, '..', '..', '..', 'output', 'test', 'fixtures', 'original.docx');
 
@@ -100,6 +100,7 @@ export async function runS3Demo(
 ): Promise<S3DemoResult> {
   const sessionId = 'demo-s3-session';
   const runtime = buildDemoS3Runtime();
+  const materials = await loadDemoS3Materials();
   const eventsPath = join(workDir, 'events.jsonl');
   const pendingDir = join(workDir, 'pending');
   const revisionEventsPath = join(workDir, 'revision-events.jsonl');
@@ -121,7 +122,7 @@ export async function runS3Demo(
 
   const firstRun = await runScenario(
     scenario,
-    { inputArtifacts: { 'legal.CaseFile': CASE_FILE }, toolInputs: runtime.toolInputs },
+    { inputArtifacts: { 'legal.CaseFile': CASE_FILE }, toolInputs: runtime.toolInputs, materials },
     firstDeps,
   );
   if (firstRun.status !== 'paused') {

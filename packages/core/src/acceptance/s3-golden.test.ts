@@ -15,7 +15,7 @@ describe('S3 golden 门：事件骨架 + 预埋考点同时有牙', () => {
   it('空 RiskList 即使事件骨架完整也必须失败', () => {
     const report = evaluateS3DemoGolden({
       eventTypes: [...S3_GOLDEN_EVENT_TYPES],
-      riskList: { caseId: S3_RISK_LIST_RESPONSE.caseId, risks: [] },
+      riskList: { caseId: S3_RISK_LIST_RESPONSE.caseId, risks: [], outOfCoverage: [] },
     });
     expect(report.pass).toBe(false);
     expect(report.issues.join('\n')).toMatch(/预埋考点/);

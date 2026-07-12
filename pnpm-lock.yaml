@@ -118,6 +118,9 @@ importers:
       '@courtwork/output':
         specifier: workspace:*
         version: link:../output
+      '@courtwork/reading-view':
+        specifier: workspace:*
+        version: link:../reading-view
       '@courtwork/registry':
         specifier: workspace:*
         version: link:../registry

@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import type { RiskList } from '@courtwork/legal';
 import { runS3Demo } from './run-s3-demo.js';
 import { createFileRevisionEventStore } from '../revision/revision-store.js';
+import { createFileEventLog } from '../events/event-log.js';
+import { loadDemoS3Materials } from '../composition/demo-assembly.js';
 
 describe('S3 end-to-end acceptance flow', () => {
   it('runs CaseFile -> party-verify -> RiskList -> simulated confirmation (with a real RevisionEvent) -> RevisionInstructionSet -> redlined docx, with a fully replayable event stream', async () => {
@@ -49,6 +52,33 @@ describe('S3 end-to-end acceptance flow', () => {
         'todo_snapshot',
         'scenario_completed',
       ]);
+
+      // 引用闭环实证（HARNESS-1 拍板一）：脚本响应只交引语（草稿无坐标），最终形的
+      // 坐标必须全部是 resolver 铸造的——终验等式 anchor.quote === 文本层.slice(start,end)。
+      const resolvedRiskList = result.replay.artifacts['legal.RiskList'] as RiskList;
+      const materials = await loadDemoS3Materials();
+      const anchors = resolvedRiskList.risks.flatMap((risk) => risk.basis.flatMap((basis) => basis.sourceAnchors));
+      expect(anchors.length).toBeGreaterThanOrEqual(7);
+      for (const anchor of anchors) {
+        expect(anchor.textRange, anchor.fileId).toBeDefined();
+        expect(anchor.textLayerVersion, anchor.fileId).toMatch(/@1\+[0-9a-f]+$/);
+        const material = materials.find((m) => m.fileId === anchor.fileId);
+        expect(material, anchor.fileId).toBeDefined();
+        const block = material!.blocks!.find(
+          (b) => anchor.textRange!.start >= b.rangeBase && anchor.textRange!.end <= b.rangeBase + b.text.length,
+        );
+        expect(block, `${anchor.fileId}@${anchor.textRange!.start}`).toBeDefined();
+        const sliced = block!.text.slice(anchor.textRange!.start - block!.rangeBase, anchor.textRange!.end - block!.rangeBase);
+        expect(sliced).toBe(anchor.quote);
+      }
+      expect(resolvedRiskList.outOfCoverage).toEqual([]);
+
+      // 锚点观测（docs/93 修订一·锚点经济性条款）：citationStats 随 artifact_produced 入账本。
+      const producedEvents = createFileEventLog('demo-s3-session', join(result.workDir, 'events.jsonl'))
+        .list()
+        .filter((event) => event.type === 'artifact_produced');
+      const stats = producedEvents[0].type === 'artifact_produced' ? producedEvents[0].citationStats : undefined;
+      expect(stats).toEqual({ claims: 7, firstPassResolved: 7, retryRounds: 0, resolvedAfterRetry: 7, outOfCoverage: 0 });
 
       // 复验入口①（ACCEPTANCE.md）：不经事件流旁证，直接读 revision store 本身，
       // 断言每条落盘记录自带可直接定位到会话的 sessionId。

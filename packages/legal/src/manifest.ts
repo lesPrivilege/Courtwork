@@ -2,7 +2,7 @@ import type { VerticalPackageManifest } from '@courtwork/registry';
 import { CaseFileSchema } from './schemas/case-file.js';
 import { TimelineSchema } from './schemas/timeline.js';
 import { PartyGraphSchema } from './schemas/party-graph.js';
-import { RiskListSchema } from './schemas/risk-list.js';
+import { RiskListDraftSchema, RiskListSchema } from './schemas/risk-list.js';
 import { ReviewMatrixSchema } from './schemas/review-matrix.js';
 import { FileOpsPlanSchema, RevisionInstructionSetSchema } from '@courtwork/schemas';
 
@@ -115,6 +115,15 @@ export const LEGAL_PACKAGE: VerticalPackageManifest = {
       typeId: 'legal.RiskList',
       title: '风险清单',
       schema: RiskListSchema,
+      /** 引用闭环（拍板一）：模型侧草稿出引语，resolver 铸坐标；回填映射随包声明。 */
+      draftSchema: RiskListDraftSchema,
+      citationBinding: {
+        draftField: 'quoteClaims',
+        anchorField: 'sourceAnchors',
+        itemScope: '/risks',
+        itemSummaryField: 'description',
+        outOfCoverageField: 'outOfCoverage',
+      },
       rehydrationProjection: {
         ops: [
           { kind: 'field', path: '/caseId', label: '案件' },

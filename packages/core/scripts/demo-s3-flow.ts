@@ -33,7 +33,7 @@ console.log(`  事件类型序列：${result.eventTypes.join(' -> ')}`);
 // 与 scripted golden（s3-flow.integration.test）同一序列即为"接缝不漂移"的实证。
 const golden = evaluateS3DemoGolden({
   eventTypes: result.eventTypes,
-  riskList: result.replay.artifacts.RiskList as Parameters<typeof evaluateS3DemoGolden>[0]['riskList'],
+  riskList: result.replay.artifacts['legal.RiskList'] as Parameters<typeof evaluateS3DemoGolden>[0]['riskList'],
 });
 console.log(`  golden 骨架对照：${golden.structureMatches ? 'PASS（与 scripted golden 一致）' : 'DIFF'}`);
 console.log(`  预埋考点命中：${golden.matchedPreloadedFindings}/7`);

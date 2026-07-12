@@ -104,13 +104,19 @@ export function projectArtifact(artifact: unknown, projection: RehydrationProjec
 }
 
 /**
- * 引语绑定声明：descriptor 选择加入引用闭环时，声明模型侧草稿中承载 QuoteClaim[]
- * 的字段名与最终 artifact 中承载公证锚点的字段名。resolver 以约定字段名深走草稿，
- * 机制通用零垂类语义（包域律：语义在包，机器在底座）。
+ * 引语绑定声明：descriptor 选择加入引用闭环时的回填映射（包域律：映射住包声明，
+ * 机器住底座）。resolver 以约定字段名深走草稿，零垂类语义：
+ * - draftField/anchorField：草稿中 QuoteClaim[] 的字段名 / 最终形中公证锚点的字段名；
+ * - itemScope：覆盖单元数组的 JSON Pointer（如 /risks）——单元内任一引语不收敛，
+ *   整单元移入 outOfCoverageField（整 artifact 部分成功呈现）；
+ * - itemSummaryField：单元的人读摘要字段（out_of_coverage 条目的 summary 来源）。
  */
 export interface CitationBinding {
   draftField: string;
   anchorField: string;
+  itemScope: string;
+  itemSummaryField: string;
+  outOfCoverageField: string;
 }
 
 /** 字段级词表（文案归宿律：字段级文案随 artifact descriptor）。 */
