@@ -575,6 +575,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .composer-tools-right { margin-left: auto; }
 .composer-provider-anchor .model-config-trigger { max-width: 170px; min-height: 28px; padding: 3px 7px; font-size: var(--type-dense-meta-size); }
 .composer-provider-anchor .phase-failed { border-color: var(--amber-graphic); background: var(--amber-bg); color: var(--amber-fg); }
+/* 收敛令②：chip 主显档位,生效模型退为小字（mono/tertiary,可截断），UI 不把模型名当主角 */
+.composer-provider-model { margin-left: 5px; color: var(--text-tertiary); font: 10px/1.2 var(--mono); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
 .composer-icon-button {
   width: 28px; height: 28px; display: grid; place-items: center;
   padding: 0; border: 0; border-radius: 4px;
@@ -1216,6 +1218,12 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 }
 .settings-fields legend { padding: 0 4px; color: var(--text-tertiary); font-size: 11px; }
 .settings-radio { display: inline-flex; align-items: center; gap: 4px; margin-right: 10px; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); }
+/* 收敛令②：developer 层默认收起,低调链接态;展开后字段沿用 settings-fields 布局 */
+.settings-developer { width: 100%; max-width: 260px; margin-top: 2px; border-top: 1px solid var(--border); padding-top: 8px; display: grid; gap: 8px; justify-items: end; }
+.settings-developer > summary { justify-self: end; list-style: none; cursor: pointer; color: var(--text-tertiary); font-size: 11px; user-select: none; }
+.settings-developer > summary::-webkit-details-marker { display: none; }
+.settings-developer > summary::before { content: '⌥ '; opacity: 0.6; }
+.settings-developer[open] > summary { color: var(--text-secondary); }
 .settings-status-chip {
   display: inline-flex; align-items: center; height: 24px; padding: 0 8px;
   border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised);

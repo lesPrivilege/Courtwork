@@ -598,8 +598,8 @@ export function Composer({
               >
                 <span data-testid="composer-provider" data-phase={connectionPhase}>
                   {connectionPhase === 'connected'
-                    // #40：chip 显示实际生效（wire）模型——单源取自声明路由，禁止静默偏差
-                    ? `${reasoningRequest(modelConfig).model} · ${modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard}`
+                    // 收敛令②：唯一旋钮=档位;chip 主显档位（标准/深思）+ 生效模型小字（单源取声明路由,禁静默偏差）
+                    ? <>{modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard}<small className="composer-provider-model">{reasoningRequest(modelConfig).model}</small></>
                     : connectionPhase === 'failed' ? CHROME_COPY.composer.connectionFailed : CHROME_COPY.composer.connect}
                 </span>
               </button>

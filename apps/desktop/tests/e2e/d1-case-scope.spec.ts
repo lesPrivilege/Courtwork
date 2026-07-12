@@ -70,7 +70,9 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await expect(dialog).toBeHidden();
     const button = page.getByTestId('composer-provider');
     await expect(button).toHaveAttribute('data-phase', 'connected');
-    await expect(button).toContainText('deepseek-v4-flash · Standard');
+    // 收敛令②：chip 主显档位（标准/深思），生效模型退为小字（单源取声明路由）
+    await expect(button).toContainText('Standard');
+    await expect(button.locator('.composer-provider-model')).toHaveText('deepseek-v4-flash');
   });
 
   test('短凭证保存失败不显示已连接', async ({ page }) => {

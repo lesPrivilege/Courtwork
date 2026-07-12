@@ -28,13 +28,17 @@ test.describe('SET-1 设置页', () => {
     await openWorkbench(page);
     await openSettings(page);
 
-    // 模型：凭证入口 + provider + maxUsd
+    // 收敛令②：模型区用户面只余两档,UI 不暴露模型名;provider/model 撤入 developer 层（字段在,面板隐）
     await expect(page.getByTestId('settings-credential-phase')).toBeVisible();
+    await page.getByRole('radio', { name: 'Deep' }).check();
+    await expect(page.getByTestId('settings-model-summary')).toContainText('Deep');
+    // 默认面不泄露模型名（能力全量、暴露最小）
+    await expect(page.getByTestId('settings-model')).toBeHidden();
+    // developer 层展开后字段全量可设——证"字段都在"而非删字段
+    await page.getByTestId('settings-developer').locator('summary').click();
     await page.getByTestId('settings-provider').selectOption('deepseek');
     await page.getByTestId('settings-model').fill('deepseek-v4-pro');
-    await page.getByRole('radio', { name: 'Deep' }).check();
-    await expect(page.getByTestId('settings-model-summary')).toContainText('deepseek-v4-pro');
-    await expect(page.getByTestId('settings-model-summary')).toContainText('Deep');
+    await expect(page.getByTestId('settings-model')).toHaveValue('deepseek-v4-pro');
     await page.getByTestId('settings-maxusd').fill('8');
     await page.getByTestId('settings-maxusd-save').click();
     await expect(page.getByTestId('system-open-feedback')).toContainText('8');

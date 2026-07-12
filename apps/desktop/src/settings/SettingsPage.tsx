@@ -5,7 +5,6 @@ import {
 } from '../credentials/client';
 import { CredentialForm } from '../credentials/CredentialForm';
 import {
-  modelDisplayName,
   effectiveBaseUrl,
   modelOptions,
   PROVIDER_OPTIONS,
@@ -289,43 +288,14 @@ export function SettingsPage({
                 </div>
               )}
 
+              {/* 收敛令②（docs/55 cab982a）：用户唯一旋钮=标准/深思两档;provider/BaseURL/模型撤入 developer 层
+                  （表面减法律：字段全在,面板不见）。两档绑定什么模型是 quirk 声明的事,UI 不知模型名存在。 */}
               <div className="settings-row" data-testid="settings-provider-row">
                 <div>
-                  <strong>Provider & model</strong>
-                  <p>Choose the provider, model, and reasoning level used by the composer.</p>
+                  <strong>Reasoning</strong>
+                  <p>Standard is fast; Deep thinks harder. Which model each maps to is handled for you.</p>
                 </div>
                 <div className="settings-fields">
-                  <label>
-                    <span>Provider</span>
-                    <select
-                      data-testid="settings-provider"
-                      value={modelConfig.providerId}
-                      onChange={(event) =>
-                        onModelConfigChange(withProvider(modelConfig, event.target.value as ProviderId))
-                      }
-                    >
-                      {PROVIDER_OPTIONS.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {item.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  {modelConfig.providerId === 'custom' && <label>
-                    <span>Base URL</span>
-                    <input data-testid="settings-base-url" type="url" value={modelConfig.baseUrl ?? ''} onChange={(event) => onModelConfigChange({ ...modelConfig, baseUrl: event.target.value })} />
-                  </label>}
-                  {modelConfig.providerId !== 'custom' && <p className="settings-muted" data-testid="settings-preset-url">{effectiveBaseUrl(modelConfig)}</p>}
-                  <label>
-                    <span>Model</span>
-                    <input
-                      data-testid="settings-model"
-                      list="settings-model-options"
-                      value={modelConfig.modelId}
-                      onChange={(event) => onModelConfigChange({ ...modelConfig, modelId: event.target.value })}
-                    />
-                    <datalist id="settings-model-options">{modelOptions(modelConfig).map((id) => <option key={id} value={id} />)}</datalist>
-                  </label>
                   <fieldset data-testid="settings-reasoning">
                     <legend>Reasoning</legend>
                     {REASONING_OPTIONS.map((item) => (
@@ -344,12 +314,46 @@ export function SettingsPage({
                     ))}
                   </fieldset>
                   <p className="settings-muted" data-testid="settings-model-summary">
-                    Current: {modelDisplayName(modelConfig)} ·{' '}
-                    {modelConfig.reasoning === 'deep' ? 'Deep' : 'Standard'}
+                    Current: {modelConfig.reasoning === 'deep' ? 'Deep' : 'Standard'}
                   </p>
                   <button type="button" className="primary-button" data-testid="settings-validate-provider" onClick={() => void onValidateProvider()}>
                     Verify connection
                   </button>
+                  {/* developer 层：能力全量,默认收起（收敛令②表面减法律） */}
+                  <details className="settings-developer" data-testid="settings-developer">
+                    <summary>Developer · provider &amp; model</summary>
+                    <label>
+                      <span>Provider</span>
+                      <select
+                        data-testid="settings-provider"
+                        value={modelConfig.providerId}
+                        onChange={(event) =>
+                          onModelConfigChange(withProvider(modelConfig, event.target.value as ProviderId))
+                        }
+                      >
+                        {PROVIDER_OPTIONS.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    {modelConfig.providerId === 'custom' && <label>
+                      <span>Base URL</span>
+                      <input data-testid="settings-base-url" type="url" value={modelConfig.baseUrl ?? ''} onChange={(event) => onModelConfigChange({ ...modelConfig, baseUrl: event.target.value })} />
+                    </label>}
+                    {modelConfig.providerId !== 'custom' && <p className="settings-muted" data-testid="settings-preset-url">{effectiveBaseUrl(modelConfig)}</p>}
+                    <label>
+                      <span>Model</span>
+                      <input
+                        data-testid="settings-model"
+                        list="settings-model-options"
+                        value={modelConfig.modelId}
+                        onChange={(event) => onModelConfigChange({ ...modelConfig, modelId: event.target.value })}
+                      />
+                      <datalist id="settings-model-options">{modelOptions(modelConfig).map((id) => <option key={id} value={id} />)}</datalist>
+                    </label>
+                  </details>
                 </div>
               </div>
 
