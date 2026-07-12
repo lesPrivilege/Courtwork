@@ -241,6 +241,8 @@ export function App() {
   const manualPreviewSelected = useRef(false);
   const resolvedRequest = useRef<string | undefined>(undefined);
   const prevCaseId = useRef(selectedCaseId);
+  // 五裁②：chat 内建案=隐式存入——当前话题随建案带入新容器 work 面（切案 effect 定向注入,不破 D-1 隔离）
+  const chatHandoff = useRef<{ caseId: string; messages: Array<{ text: string; files: string[]; pasteBlocks: string[]; createdAt: number }> } | null>(null);
   const lastArtifactKeys = useRef('');
   /** UX-1 #1 / RP-1 A2：卷宗计数 → 展开态 originals-zone；展开后 DOM 未就绪时排队重试 */
   const pendingOriginalsFocus = useRef(false);
@@ -339,8 +341,13 @@ export function App() {
       kind === 'workspace'
         ? `项目 · ${new Date().toLocaleDateString('zh-CN')}`
         : `案件 · ${new Date().toLocaleDateString('zh-CN')}`;
-    createCase({ title, fileCount: 0, kind });
-    setChatMessages([]);
+    // 五裁②：当前话题的用户消息随建案收进新容器（存入桥天然场景）——切案 effect 据此定向注入
+    const handoff = chatMessages
+      .filter((message) => message.role === 'user')
+      .map((message) => ({ text: message.text, files: message.files, pasteBlocks: message.pasteBlocks ?? [], createdAt: message.createdAt }));
+    const newId = createCase({ title, fileCount: 0, kind });
+    if (handoff.length) chatHandoff.current = { caseId: newId, messages: handoff };
+    // chatspace 侧原对话照单例语义保留（不清空）——切回 chat 面仍可续
     setStoreChatOpen(false);
     setViewSegment('work');
   };
@@ -396,7 +403,13 @@ export function App() {
     setDispositions({});
     setReviewSubmitted(false);
     setContinued(false);
-    setLocalMessages([]);
+    // 五裁②：仅当 handoff 定向到本案时带入 chat 话题，其余一律清空（D-1 隔离不破）
+    if (chatHandoff.current?.caseId === selectedCaseId) {
+      setLocalMessages(chatHandoff.current.messages);
+      chatHandoff.current = null;
+    } else {
+      setLocalMessages([]);
+    }
     setWorkDraftMode(false);
     setFileOpsMode(false);
     // 切案即作废任何在途 replay（防 demo 的 paced 回调污染新案——generation 守卫补齐:
@@ -606,6 +619,7 @@ export function App() {
     setNewCaseOpen(false);
     // 路由律（批次七④）：案件对象住 work 面——建案即切面选中，chat 内建案不再留在原地
     switchSegment('work');
+    return newId;
   };
 
   /** docs/52 #3：composer-first 容器化仪式 → 创建案件/项目并选中 */
@@ -1109,7 +1123,7 @@ export function App() {
             onConfirmContainerizeUnfiled={confirmContainerizeUnfiled}
             onCancelContainerizeUnfiled={() => setContainerizeUnfiledId(null)}
             onExpandLeft={exitCompactLeft}
-            onOpenSettings={() => openSettings('about')}
+            onOpenSettings={() => openSettings('model')} // 五裁③：默认落 Model（最高频入口）
             onFeedback={showSystemFeedback}
           />
         )}
@@ -1516,7 +1530,6 @@ export function App() {
         onAutoOpenConsumed={() => setSettingsAutoCredential(false)}
         modelConfig={modelConfig}
         onModelConfigChange={updateModelConfig}
-        onValidateProvider={() => probeCredentials()}
         onRevealPath={revealSettingsPath}
         onFeedback={showSystemFeedback}
       />
