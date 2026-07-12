@@ -638,3 +638,8 @@ accca2e/91106f0/0e23d49 皆 main 祖先，floor 163、core 165、16 门禁全绿
 ## RP-2.12 预告（右列终章实施，双审归来后开）
 
 docs/49 十四章：四模块序/Preview 双态（大纲↔浏览器）/文件预览同宿主/tap 直连大卡退役。断言迁移照链注记；floor 只升。
+
+## HARNESS-AUDIT-1 收账（2026-07-12，8b63066）+ 九项分流
+
+重拳两记：providerNotices 断链且 chip 降档时刻显错档（GOAL-2 回执半证伪）；语料注入缺位=S3 真跑自证失败预期（docs/66 空档谜底）。裁定表照收；十四章（chat 纲要+Preview 浏览器）**定本确认**；新裁决"输出即视图契约"入 docs/53。
+分流：**HARNESS-0.1 快批（sol 即刻）**=Qwen json_object 修表/转发 host 白名单/TextRange end≥start/单飞行补测/F5 文案；chip 补链归 RP-2.12（订阅发后回执值）；豆包标低置信待真 key 定值；golden 锚点验真+语料注入=HARNESS-1 正戏，真跑通道过渡期标"待组装器"（缺口三态不假装）。SCHEMA-SPEC-1 施工输入收档（enum 53 处全 packages 侧/desktop 零 import/投影绿地/F-4 穷尽性由 ABI 闭合校验接位）。
