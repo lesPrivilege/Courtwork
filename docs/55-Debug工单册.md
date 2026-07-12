@@ -572,3 +572,15 @@ FD-2 四件齐（14 白卡穷举/四垂类完整帧+总画廊/结构提案含四
 一、验收：干净 worktree @ 范围 tip → 全门禁实跑核对（floor ≥160 禁降）→ **computer use 真看逐屏走查**：新色板三级台阶目视（底纸/竖栏/白卡冷调一致、无暖灰残留）、ch12 位形（dock 底纸/右卡贯通/五钮/消息按钮档）、五工作面回灌对齐 docs/36、渐进三态与断裂律实测（点 pending 层有着陆）、popover 点外收敛、#43 内嵌/#44 就地绿徽复验、chat 真 API 一条消息全程目击（▏在途→落格→思考折叠）。发现分级：实现级 fix-by-acceptance/契约级上报。
 二、过验后按清单截图（新色板产线，一鱼两吃）：①visual-audit 全库重截（旧色板全废）；②SITE-1 演出照六处：首装欢迎态/继续区/样板案 Preview 全开/修订预览带法理之线/批量确认门槛（含未核验不入批量）/chat 真回复带思考折叠；③OG 卡素材位（1440 主屏干净帧）。命名规范续 visual-audit 序号，报告纯追加 ACCEPTANCE.md。
 ```
+
+## HARNESS-1 实施单（2026-07-12，五缺口审计转施工——Fable @ Code）
+
+```
+你（Fable @ Code）认领 HARNESS-1 实施（五缺口审计全采纳，诚实判断记功）。必读：docs/53（归包裁决/优先级律）→ docs/58 三/七/九节 → 本单五裁决。
+1. 组装器（P1 正戏）：契约段（core 常量：红线+信源纪律）→ 声明段（registry 解析 promptTemplateRef → 声明携带提示词正文，S3 首个模板正文随单落）→ 语料注入（合同正文入上下文，数据非指令标记）→ 续行块 v0（state+artifact 投影最小版，rehydrationProjection 首实现，golden prompt 快照测试防漂移）。
+2. DeepSeek standard 显式 thinking:disabled（静默升级=静默降级镜像，零容忍）。
+3. 参数互斥律：quirk 互斥表；结构化输出优先深思让位（自动降档+chip 轻提示，禁静默）。
+4. 单飞行请求律：每 turn 至多一在途；超时层级 UI≥Rust≥core；core 仅对确定失败重试、超时不重试（重复计费=信任级）。
+5. golden 长牙：DIFF 非零退出；S3 断言命中预埋考点 ≥N（schema 空数组自由与 golden 失职两层分开）。
+判例（缺口即测试缺口）：五项各附"本应抓住它的测试"。纪律：TDD/floor 只升/实跑两轮/契约变更（组装器接口/registry 声明字段+promptBody）按 docs/53 归包裁决落 schemas-registry 提案随单报。完工：S3 真模型拿到合同正文出有效 RiskList 的端到端记录入 docs/66。
+```
