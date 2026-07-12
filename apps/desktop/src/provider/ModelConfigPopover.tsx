@@ -1,13 +1,10 @@
 import {
   modelDisplayName,
   modelOptions,
-  PROVIDER_OPTIONS,
   REASONING_OPTIONS,
   reasoningRequest,
   type ModelConfig,
-  type ProviderId,
   type ReasoningLevel,
-  withProvider,
 } from './model-config';
 
 interface ModelConfigPopoverProps {
@@ -32,20 +29,8 @@ export function ModelConfigPopover({ open, config, onChange, onClose }: ModelCon
       data-testid="model-config-popover"
     >
       <strong>Model</strong>
-      <label className="model-config-field">
-        <span>Provider</span>
-        <select
-          data-testid="model-config-provider"
-          value={config.providerId}
-          onChange={(event) => onChange(withProvider(config, event.target.value as ProviderId))}
-        >
-          {PROVIDER_OPTIONS.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      {/* 五裁⑤（既裁执行,遵 27d9b2b）：chip 弹层撤 Provider 字段——provider 归 developer 层（收敛令②），
+          与设置页口径一致（RELEASE-1 报的并行入口口径不一致就此消解）。 */}
       <label className="model-config-field">
         <span>Model</span>
         <input

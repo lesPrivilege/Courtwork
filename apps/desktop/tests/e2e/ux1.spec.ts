@@ -104,7 +104,6 @@ test.describe('UX-1 批次一', () => {
     await page.getByTestId('model-config-trigger').click();
     const popover = page.getByTestId('model-config-popover');
     await expect(popover).toBeVisible();
-    await page.getByTestId('model-config-provider').selectOption('deepseek');
     await page.getByTestId('model-config-model').fill('deepseek-v4-pro');
     await page.getByRole('radio', { name: 'Deep' }).check();
     await expect(page.getByTestId('model-config-summary')).toContainText('deepseek-v4-pro');
