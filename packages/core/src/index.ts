@@ -13,6 +13,8 @@ export * from './tools/tool-registry.js';
 export * from './scenario-executor/todo-snapshot.js';
 export * from './scenario-executor/runtime-limits.js';
 export * from './scenario-executor/executor.js';
+export * from './assembly/segments.js';
+export * from './assembly/assemble.js';
 export * from './composition/demo-assembly.js';
 export * from './acceptance/run-s3-demo.js';
 export * from './revision/json-pointer.js';

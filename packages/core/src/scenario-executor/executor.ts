@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { RevisionEvent, SourceAnchor } from '@courtwork/schemas';
 import { RevisionEventSchema } from '@courtwork/schemas';
-import type { ArtifactSchemaRegistry, ScenarioRuntime } from '@courtwork/registry';
+import type { ArtifactSchemaRegistry, ProjectionRegistry, ScenarioRuntime } from '@courtwork/registry';
 import type { ToolExecutor } from '@courtwork/tools';
 import type { Provider } from '../provider/types.js';
 import type { EventLog } from '../events/event-log.js';
@@ -15,6 +15,8 @@ import { deriveTodoSnapshot } from './todo-snapshot.js';
 import { createRuntimeGuard, type RuntimeGuard, type RuntimeLimits } from './runtime-limits.js';
 import { estimateCostUsd } from '../provider/pricing-table.js';
 import type { GenerationNotice } from '../provider/types.js';
+import { assembleScenarioRequest } from '../assembly/assemble.js';
+import type { MaterialInput } from '../assembly/segments.js';
 
 export interface ScenarioExecutorDeps {
   tools: ToolRegistry;
@@ -30,6 +32,8 @@ export interface ScenarioExecutorDeps {
    * 缺失即抛（UnknownArtifactTypeError）——F-4 病根的注入式根治。
    */
   artifacts: ArtifactSchemaRegistry;
+  /** 投影 registry（六段组装的续行投影段数据源）。 */
+  projections: ProjectionRegistry;
   now?: () => string;
   /**
    * 运行时保护四件套（docs/12 长任务协议③），按次 runScenario/resumeScenario 调用
@@ -43,6 +47,8 @@ export interface ScenarioExecutorDeps {
 export interface ScenarioRunInput {
   inputArtifacts: Partial<Record<string, unknown>>;
   toolInputs: Record<string, unknown>;
+  /** 容器材料（阅读视图全文 + 哈希），经会话与语料段在显式数据边界内注入。 */
+  materials?: MaterialInput[];
 }
 
 export type ScenarioRunResult =
@@ -120,6 +126,11 @@ async function runTools(
   return results;
 }
 
+/** 本次产出对应的声明步 id（寻址制地址源）；声明未给步的类型走确定性缺省。 */
+function stepIdForArtifact(scenario: ScenarioRuntime, artifactType: string): string {
+  return scenario.steps.find((step) => step.artifact === artifactType)?.id ?? `produce-${artifactType}`;
+}
+
 async function generateArtifact(
   scenario: ScenarioRuntime,
   artifactType: string,
@@ -127,25 +138,37 @@ async function generateArtifact(
     inputArtifacts: Partial<Record<string, unknown>>;
     toolResults: Record<string, unknown>;
     producedSoFar: Partial<Record<string, unknown>>;
+    materials: MaterialInput[];
   },
   deps: ScenarioExecutorDeps,
 ): Promise<{ artifact: unknown; usage?: { inputTokens: number; outputTokens: number }; notices?: GenerationNotice[] }> {
   const entry = deps.artifacts.get(artifactType);
   if (!entry) throw new UnknownArtifactTypeError(scenario.id, artifactType);
-  const schema = entry.descriptor.schema;
-  // todo 复述进请求末尾（Manus 抗注意力漂移技巧，docs/12，套在声明式步骤上）：
-  // todo 字段放在展开运算符之后插入，JSON.stringify 按插入顺序输出键，
-  // 因此序列化后的字符串里 todo 真的落在末尾，不只是字段存在而已。
-  const response = await deps.provider.generate({
-    systemPrompt: scenario.promptBody,
-    messages: [
-      {
-        role: 'user',
-        content: JSON.stringify({ artifactType, ...context, todo: deriveTodoSnapshot(scenario, context.producedSoFar) }),
-      },
-    ],
-    responseSchema: schema,
+  // 引用闭环：descriptor 带 draftSchema 时模型侧按草稿形状出格（引语无坐标），
+  // 铸锚发生在 resolver（executor 下游）；无草稿声明则最终 schema 即模型侧。
+  const modelSchema = entry.descriptor.draftSchema ?? entry.descriptor.schema;
+  const stepId = stepIdForArtifact(scenario, artifactType);
+
+  // 六段组装（HARNESS-1）：契约→声明→租户→投影→会话与语料→视图映射。
+  // producedSoFar 经续行投影段进 context（声明式投影，非原文回放）；
+  // todo 复述归视图映射段尾（docs/12 技巧的正名归宿）。
+  const assembled = assembleScenarioRequest({
+    scenario,
+    stepId,
+    artifactType,
+    modelSchema,
+    projection: {
+      ledgerSeq: deps.eventLog.list().length,
+      artifacts: context.producedSoFar,
+      pendingGateLabels: [],
+    },
+    materials: context.materials,
+    taskInstruction: JSON.stringify({ artifactType, inputArtifacts: context.inputArtifacts, toolResults: context.toolResults }),
+    todo: deriveTodoSnapshot(scenario, context.producedSoFar),
+    registries: { projections: deps.projections, artifacts: deps.artifacts },
   });
+
+  const response = await deps.provider.generate(assembled.request);
   let parsed: unknown;
   try {
     parsed = JSON.parse(response.content);
@@ -153,12 +176,14 @@ async function generateArtifact(
     const reason = error instanceof Error ? error.message : String(error);
     throw new GenerationValidationError(scenario.id, artifactType, `provider 返回的内容不是合法 JSON：${reason}`);
   }
-  const result = schema.safeParse(parsed);
+  // 按址收货（四知·知回填）：信封 target 以 literal 锁死，错址与形状错误同层拒收。
+  const result = assembled.envelopeSchema.safeParse(parsed);
   if (!result.success) {
     const issues = result.error.issues.map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`).join('\n');
     throw new GenerationValidationError(scenario.id, artifactType, issues);
   }
-  return { artifact: result.data, usage: response.usage, notices: response.notices };
+  const envelope = result.data as { target: { stepId: string; artifactType: string }; artifact: unknown };
+  return { artifact: envelope.artifact, usage: response.usage, notices: response.notices };
 }
 
 interface SequenceState {
@@ -167,6 +192,7 @@ interface SequenceState {
   toolResults: Record<string, unknown>;
   producedSoFar: Partial<Record<string, unknown>>;
   inputArtifacts: Partial<Record<string, unknown>>;
+  materials: MaterialInput[];
 }
 
 function findGate(scenario: ScenarioRuntime, artifactType: string | undefined) {
@@ -195,6 +221,7 @@ function pauseAt(
     toolResults: state.toolResults,
     evidenceLedgerSnapshot: deps.ledger.snapshot(),
     createdAt: now(),
+    materials: state.materials,
   };
   deps.confirmationStore.save(pending);
   // 进度快照先发（docs/12 长任务协议①）：反映"停在哪一步"，再发确认请求本身。
@@ -219,7 +246,12 @@ async function produceSequence(
     const { artifact, usage, notices } = await generateArtifact(
       scenario,
       artifactType,
-      { inputArtifacts: state.inputArtifacts, toolResults: state.toolResults, producedSoFar: state.producedSoFar },
+      {
+        inputArtifacts: state.inputArtifacts,
+        toolResults: state.toolResults,
+        producedSoFar: state.producedSoFar,
+        materials: state.materials,
+      },
       deps,
     );
     guard.checkTime();
@@ -269,6 +301,7 @@ export async function runScenario(
       toolResults,
       producedSoFar: { ...input.inputArtifacts },
       inputArtifacts: input.inputArtifacts,
+      materials: input.materials ?? [],
     },
     deps,
     guard,
@@ -373,6 +406,7 @@ export async function resumeScenario(
       toolResults: pending.toolResults,
       producedSoFar: pending.producedArtifacts,
       inputArtifacts: pending.producedArtifacts,
+      materials: pending.materials ?? [],
     },
     deps,
     createGuardForCall(deps),

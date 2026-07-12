@@ -97,6 +97,11 @@ const VALID_RISK_LIST = {
   ],
 };
 
+/** 寻址信封（四知·知输出）：脚本响应按址交货，与真管线过同一道校验门。 */
+function envelope(stepId: string, artifactType: string, artifact: unknown): string {
+  return JSON.stringify({ target: { stepId, artifactType }, artifact });
+}
+
 function buildDeps(providerScript: GenerationResponse[]): ScenarioExecutorDeps {
   const tools = createToolRegistry();
   tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
@@ -109,12 +114,13 @@ function buildDeps(providerScript: GenerationResponse[]): ScenarioExecutorDeps {
     revisionStore: createInMemoryRevisionEventStore(),
     ledger: createEvidenceLedger(),
     artifacts: TEST_ARTIFACTS,
+    projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
   };
 }
 
 describe('runScenario', () => {
   it('runs the declared tool, records its evidence grade, generates the sole output artifact, and pauses at its gate', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     const result = await runScenario(
       SINGLE_GATE_SCENARIO,
       { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
@@ -132,7 +138,7 @@ describe('runScenario', () => {
 
   it('publishes provider compatibility notices with artifact_produced so a downgrade cannot stay silent', async () => {
     const deps = buildDeps([{
-      content: JSON.stringify(VALID_RISK_LIST),
+      content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST),
       notices: [{
         code: 'reasoning_downgraded_for_structured_output',
         message: '结构化输出已使用标准模式',
@@ -184,7 +190,7 @@ describe('runScenario', () => {
 
 describe('resumeScenario', () => {
   it('confirming a single-gate scenario with no revisions completes it and returns the produced artifacts', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
       { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
@@ -219,7 +225,7 @@ describe('resumeScenario', () => {
   });
 
   it('rejecting a gate completes the scenario immediately without producing further artifacts', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
       { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
@@ -255,7 +261,7 @@ describe('resumeScenario', () => {
   });
 
   it('a confirmation request can only be resumed once — the second resume on the same requestId throws', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
       { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
@@ -270,7 +276,7 @@ describe('resumeScenario', () => {
   });
 
   it('applies a field-level revision before confirming, records it via RevisionEventStore, and emits revision_recorded', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
       { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
@@ -337,7 +343,7 @@ describe('resumeScenario', () => {
   });
 
   it('re-emits artifact_produced for a revised artifact, so replaySession reflects the post-revision state, not the original', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
       { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
@@ -368,7 +374,7 @@ describe('resumeScenario', () => {
 
   it('applies multiple revisions in order and records each independently', async () => {
     const twoRiskList = { caseId: 'c1', risks: [VALID_RISK_LIST.risks[0], { ...VALID_RISK_LIST.risks[0], id: 'risk-02' }] };
-    const deps = buildDeps([{ content: JSON.stringify(twoRiskList) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', twoRiskList) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
       { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
@@ -425,9 +431,9 @@ const PARTY_GRAPH_RESPONSE = { caseId: 'c1', nodes: [], edges: [] };
 describe('runScenario / resumeScenario — multi-artifact sequential gates (S1 shape)', () => {
   it('produces CaseFile ungated, pauses at Timeline, then pauses at PartyGraph after Timeline is confirmed, matching declared order', async () => {
     const deps = buildDeps([
-      { content: JSON.stringify(CASE_FILE_RESPONSE) },
-      { content: JSON.stringify(TIMELINE_RESPONSE) },
-      { content: JSON.stringify(PARTY_GRAPH_RESPONSE) },
+      { content: envelope('produce-test.Doc', 'test.Doc', CASE_FILE_RESPONSE) },
+      { content: envelope('produce-test.Alpha', 'test.Alpha', TIMELINE_RESPONSE) },
+      { content: envelope('produce-test.Beta', 'test.Beta', PARTY_GRAPH_RESPONSE) },
     ]);
 
     const firstPause = await runScenario(MULTI_GATE_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps);
@@ -483,7 +489,7 @@ describe('runScenario — label-only confirmation gate (no artifact anchor)', ()
   };
 
   it('produces the sole output artifact ungated, then pauses on the label-only gate at the end of the sequence', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(CASE_FILE_RESPONSE) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Doc', 'test.Doc', CASE_FILE_RESPONSE) }]);
     const result = await runScenario(LABEL_ONLY_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps);
     expect(result.status).toBe('paused');
     const events = deps.eventLog.list();
@@ -504,12 +510,13 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
       const firstDeps: ScenarioExecutorDeps = {
         tools,
         toolExecutor: createToolExecutor(),
-        provider: createScriptedProvider('p', 'v1', [{ content: JSON.stringify(VALID_RISK_LIST) }]),
+        provider: createScriptedProvider('p', 'v1', [{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]),
         eventLog: createFileEventLog('session-x', eventsPath),
         confirmationStore: createFileConfirmationStore(pendingDir),
         revisionStore: createInMemoryRevisionEventStore(),
         ledger: createEvidenceLedger(),
         artifacts: TEST_ARTIFACTS,
+        projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
       };
       const paused = await runScenario(
         SINGLE_GATE_SCENARIO,
@@ -530,6 +537,7 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
         revisionStore: createInMemoryRevisionEventStore(),
         ledger: createEvidenceLedger(),
         artifacts: TEST_ARTIFACTS,
+        projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
       };
       expect(secondDeps.tools).not.toBe(firstDeps.tools);
       expect(secondDeps.toolExecutor).not.toBe(firstDeps.toolExecutor);
@@ -564,12 +572,13 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
     const deps: ScenarioExecutorDeps = {
       tools,
       toolExecutor: createToolExecutor(),
-      provider: createScriptedProvider('p', 'v1', [{ content: JSON.stringify(VALID_RISK_LIST) }]),
+      provider: createScriptedProvider('p', 'v1', [{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]),
       eventLog: createEventLog('session-1', () => '2026-07-10T00:00:00.000Z'),
       confirmationStore: createInMemoryConfirmationStore(),
       revisionStore: createInMemoryRevisionEventStore(),
       ledger: createEvidenceLedger(),
       artifacts: TEST_ARTIFACTS,
+      projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
     };
 
     const result = await runScenario(
@@ -587,7 +596,7 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
   });
 
   it('emits a todo_snapshot right before pausing, reflecting the scenario declaration with the paused artifact as awaiting_confirmation', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     await runScenario(
       SINGLE_GATE_SCENARIO,
       { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
@@ -603,7 +612,7 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
   });
 
   it('emits a final todo_snapshot marking every step done when the scenario completes', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
       { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
@@ -620,7 +629,7 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
 
 describe('docs/12 长任务协议 ③: runtime protection limits', () => {
   it('does not throw when no limits are configured (default MVP behavior unchanged)', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     await expect(
       runScenario(
         SINGLE_GATE_SCENARIO,
@@ -631,7 +640,7 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
   });
 
   it('throws RuntimeLimitExceededError when maxToolCalls is exceeded by the declared tool phase', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     deps.limits = { maxToolCalls: 0 };
     await expect(
       runScenario(
@@ -643,7 +652,7 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
   });
 
   it('throws RuntimeLimitExceededError when maxSteps is exceeded by the artifact-generation phase', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(CASE_FILE_RESPONSE) }, { content: JSON.stringify(TIMELINE_RESPONSE) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Doc', 'test.Doc', CASE_FILE_RESPONSE) }, { content: envelope('produce-test.Alpha', 'test.Alpha', TIMELINE_RESPONSE) }]);
     deps.limits = { maxSteps: 1 };
     await expect(runScenario(MULTI_GATE_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps)).rejects.toThrow(
       RuntimeLimitExceededError,
@@ -658,7 +667,7 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
       modelId: 'configured-model',
       async generate() {
         nowMs = 6_000;
-        return { content: JSON.stringify(VALID_RISK_LIST) };
+        return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
       },
     };
     deps.limits = { maxSeconds: 5 };
@@ -674,7 +683,7 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
   });
 
   it('a fresh runScenario/resumeScenario call gets a fresh budget (limits are scoped per call, not persisted across resume)', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     deps.limits = { maxSteps: 1 };
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
@@ -699,7 +708,7 @@ describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/
       modelId: 'capture-v1',
       async generate(request: { messages: { content: string }[] }) {
         capturedRequests.push({ content: request.messages[request.messages.length - 1].content });
-        return { content: JSON.stringify(VALID_RISK_LIST) };
+        return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
       },
     };
     const tools = createToolRegistry();
@@ -713,6 +722,7 @@ describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/
       revisionStore: createInMemoryRevisionEventStore(),
       ledger: createEvidenceLedger(),
       artifacts: TEST_ARTIFACTS,
+      projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
     };
 
     await runScenario(
@@ -722,8 +732,11 @@ describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/
     );
 
     expect(capturedRequests).toHaveLength(1);
-    const parsedTail = JSON.parse(capturedRequests[0].content).todo;
-    expect(parsedTail).toEqual([{ stepId: 'produce-test.Risk', artifactType: 'test.Risk', label: '确认风险清单', status: 'pending' }]);
+    // 视图映射段（六段之尾）承载 todo 复述：断言其位于消息末段且逐条在场。
+    const content = capturedRequests[0].content;
+    const tail = content.slice(content.indexOf('[todo 复述]'));
+    expect(tail).toContain('[produce-test.Risk] 确认风险清单：pending');
+    expect(content.indexOf('[输出通道]')).toBeGreaterThan(content.indexOf('<<<材料:')  === -1 ? 0 : content.indexOf('<<<材料:'));
   });
 });
 
@@ -735,7 +748,7 @@ describe('T-provider: generateArtifact passes responseSchema through to provider
       modelId: 'v1',
       async generate(request: { responseSchema?: unknown }) {
         capturedResponseSchema = request.responseSchema;
-        return { content: JSON.stringify(VALID_RISK_LIST) };
+        return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
       },
     };
     const tools = createToolRegistry();
@@ -749,6 +762,7 @@ describe('T-provider: generateArtifact passes responseSchema through to provider
       revisionStore: createInMemoryRevisionEventStore(),
       ledger: createEvidenceLedger(),
       artifacts: TEST_ARTIFACTS,
+      projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
     };
 
     await runScenario(
@@ -758,8 +772,11 @@ describe('T-provider: generateArtifact passes responseSchema through to provider
     );
 
     expect(capturedResponseSchema).toBeDefined();
-    expect((capturedResponseSchema as { safeParse: (v: unknown) => { success: boolean } }).safeParse(VALID_RISK_LIST).success).toBe(true);
-    expect((capturedResponseSchema as { safeParse: (v: unknown) => { success: boolean } }).safeParse({ not: 'a risk list' }).success).toBe(false);
+    const parse = (v: unknown) => (capturedResponseSchema as { safeParse: (x: unknown) => { success: boolean } }).safeParse(v);
+    // 信封 schema：裸 artifact 不再合法；携正确地址的信封合法；错址信封拒收（按址收货）。
+    expect(parse(VALID_RISK_LIST).success).toBe(false);
+    expect(parse({ target: { stepId: 'produce-test.Risk', artifactType: 'test.Risk' }, artifact: VALID_RISK_LIST }).success).toBe(true);
+    expect(parse({ target: { stepId: 'wrong-step', artifactType: 'test.Risk' }, artifact: VALID_RISK_LIST }).success).toBe(false);
   });
 });
 
@@ -769,7 +786,7 @@ describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via respo
       id: 'deepseek',
       modelId: 'deepseek-v4-pro', // 价格表里有真实报价的组合（pricing-table.ts）
       async generate() {
-        return { content: JSON.stringify(VALID_RISK_LIST), usage: { inputTokens: 10_000_000, outputTokens: 10_000_000 } };
+        return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST), usage: { inputTokens: 10_000_000, outputTokens: 10_000_000 } };
       },
     };
     const tools = createToolRegistry();
@@ -783,6 +800,7 @@ describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via respo
       revisionStore: createInMemoryRevisionEventStore(),
       ledger: createEvidenceLedger(),
       artifacts: TEST_ARTIFACTS,
+      projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
       limits: { maxUsd: 0.01 }, // 10M+10M token 在 deepseek-v4-pro 报价下远超这个预算
     };
 
@@ -796,7 +814,7 @@ describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via respo
   });
 
   it('does not throw when usage is absent (ScriptedProvider case) even with a negative maxUsd — proves cost tracking is genuinely skipped, not computed-as-zero-then-compared', async () => {
-    const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     // maxUsd 设为负数是关键：如果实现有 bug、把缺失的 usage 悄悄当成 0 计价再调用
     // checkUsd(0)，0 > -1 为真会立刻抛错——用极小正数 maxUsd 时"跳过计价"与"算出 0
     // 然后侥幸没超预算"两种情况观测结果完全相同，测不出差异，这是 code review 抓到

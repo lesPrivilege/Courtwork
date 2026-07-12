@@ -113,6 +113,7 @@ export async function runS3Demo(
     revisionStore: createFileRevisionEventStore(revisionEventsPath),
     ledger: createEvidenceLedger(),
     artifacts: runtime.registries.artifactSchemas,
+    projections: runtime.registries.projections,
   };
 
   const scenario = runtime.registries.scenarios.get('legal.S3');
@@ -139,6 +140,7 @@ export async function runS3Demo(
     revisionStore: createFileRevisionEventStore(revisionEventsPath),
     ledger: createEvidenceLedger(),
     artifacts: secondRuntime.registries.artifactSchemas,
+    projections: secondRuntime.registries.projections,
   };
 
   const secondRun = await resumeScenario(

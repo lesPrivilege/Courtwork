@@ -17,11 +17,13 @@ describe('buildDemoS3Runtime', () => {
     expect(result.data.litigationSummary.length).toBeGreaterThan(0);
   });
 
-  it('provides a scripted provider that yields the S3 risk list fixture on first generate() call', async () => {
+  it('provides a scripted provider that yields the addressed S3 risk list envelope on first generate() call', async () => {
     const runtime = buildDemoS3Runtime();
     const response = await runtime.provider.generate({ messages: [] });
     const parsed = JSON.parse(response.content);
-    expect(parsed.caseId).toBe('case-linjiang-qiyun-2025');
-    expect(parsed.risks).toHaveLength(7);
+    // 寻址信封：脚本响应与真管线过同一道按址收货门。
+    expect(parsed.target).toEqual({ stepId: 'produce-risk-list', artifactType: 'legal.RiskList' });
+    expect(parsed.artifact.caseId).toBe('case-linjiang-qiyun-2025');
+    expect(parsed.artifact.risks).toHaveLength(7);
   });
 });

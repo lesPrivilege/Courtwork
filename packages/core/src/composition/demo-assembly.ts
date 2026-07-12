@@ -55,8 +55,15 @@ export function buildDemoS3Runtime(): DemoS3Runtime {
     sideEffect: 'pure_read',
   });
 
+  // 寻址信封（四知·知输出）：脚本响应同样按址交货——地址错在 schema 层即拒收，
+  // 演示管线与真管线过同一道门。
   const provider = createScriptedProvider('demo-scripted-provider', 'fake-scripted-v1', [
-    { content: JSON.stringify(S3_RISK_LIST_RESPONSE) },
+    {
+      content: JSON.stringify({
+        target: { stepId: 'produce-risk-list', artifactType: 'legal.RiskList' },
+        artifact: S3_RISK_LIST_RESPONSE,
+      }),
+    },
   ]);
 
   const admission = admitPackages([LEGAL_PACKAGE]);

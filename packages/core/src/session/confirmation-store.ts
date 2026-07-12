@@ -19,6 +19,8 @@ export interface PendingConfirmation {
   toolResults: Record<string, unknown>;
   evidenceLedgerSnapshot: EvidenceGradeAnnotation[];
   createdAt: string;
+  /** 容器材料随暂停封存（续行的生成步仍需材料在场；可序列化，跨进程 resume 语义不破）。 */
+  materials?: { fileId: string; sha256: string; readingMarkdown: string }[];
 }
 
 export interface ConfirmationStore {
