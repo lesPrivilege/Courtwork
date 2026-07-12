@@ -140,7 +140,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .right-rail-collapsed.surface-float,
 .surface-card-raised,
 .rail-module,
-.attachment-chip { box-shadow: var(--elevation-shadow); }
+.attachment-chip,
+.scroll-latest-button { box-shadow: var(--elevation-shadow); }
 .brand { display: flex; align-items: center; gap: 8px; font-size: var(--type-body-size); font-weight: 510; }
 .brand img { width: 20px; height: 20px; }
 .bar-divider { width: 1px; height: 16px; background: var(--border-strong); }
@@ -397,6 +398,11 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .conversation.canvas-layer { position: relative; }
 /* ch12 #3：留空即结构——chat 区两侧视觉留空放大，文字永不贴边 */
 .conversation-scroll { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; overflow: auto; }
+/* 批次七首例（follow-scroll）：新消息浮标——sticky 零高槽位驻底缘不占流式布局；浮面循「浮=影、有影必描边」 */
+.scroll-latest-slot { position: sticky; bottom: 10px; height: 0; display: flex; justify-content: center; overflow: visible; z-index: 4; flex: none; }
+.scroll-latest-button { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg-raised); border: 1px solid var(--border-strong); color: var(--text-secondary); cursor: pointer; padding: 0; transform: translateY(-100%); transition: background-color var(--motion-hover) ease; }
+.scroll-latest-button:hover { background: var(--bg-hover); }
+.scroll-latest-button svg { width: 14px; height: 14px; }
 .assistant-turn { width: 100%; display: flex; flex-direction: column; align-self: stretch; gap: 6px; }
 .welcome-head-label { min-width: 0; padding: 0 4px; font-size: var(--control-font-sm); font-weight: var(--control-weight-emphasized); }
 /* RP-2.12 待机主屏（Cowork 复刻）：品牌 icon + slogan（非卡）→ 居中 composer → 建议行 */
@@ -851,7 +857,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .view-tabs { height: var(--preview-toolbar-height); flex: none; display: flex; gap: 3px; align-items: center; padding: 0 8px; border-bottom: 1px solid var(--border); overflow-x: auto; }
 .view-tabs button { position: relative; height: var(--control-height-sm); padding: 0 8px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: var(--control-font-sm); font-weight: var(--control-weight-regular); white-space: nowrap; }
 .view-tabs button:hover { background: var(--control-hover); }
-.view-tabs button.active { border-color: var(--border-strong); background: var(--bg-raised); color: var(--text-primary); font-weight: var(--control-weight-emphasized); }
+.view-tabs button.active { border-color: transparent; background: var(--bg-selected); color: var(--text-primary); font-weight: var(--control-weight-emphasized); }
 .tab-indicator { position: absolute; right: 6px; bottom: 1px; left: 6px; height: 2px; border-radius: 1px; background: var(--text-primary); transform: scaleX(0); transform-origin: center; transition: transform var(--motion-tab) ease-out; }
 .view-tabs button.active .tab-indicator { transform: scaleX(1); }
 .view-tabs .view-action { display: flex; align-items: center; gap: 5px; border-color: var(--border-strong); }
@@ -884,8 +890,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .utility-dock-popover-body { min-height: 0; padding: 8px 10px; overflow: auto; font-size: var(--type-dense-body-size); }
 .preview-host { min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; container-type: inline-size; }
 .preview-host-head { height: var(--preview-header-height); flex: none; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-bottom: 1px solid var(--border); }
-.preview-host-head h2 { margin: 0; font-size: var(--type-body-size); font-weight: 510; }
-.preview-host-head > span { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.preview-host-head h2 { min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-body-size); font-weight: 510; }
+.preview-host-head .preview-host-meta { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; }
 .preview-host-body { min-height: 0; flex: 1; display: flex; position: relative; }
 .preview-host-content { min-width: 0; min-height: 0; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .preview-scroll-progress { width: 12px; flex: none; display: grid; place-items: center; border-left: 1px solid var(--border); background: var(--bg-surface); }
@@ -1019,7 +1025,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .risk-detail:hover > .signature-line::after { opacity: 1; }
 .settle-flash { position: absolute; z-index: 2; inset: 1px; border: 1px solid transparent; border-radius: 4px; pointer-events: none; }
 .settle-flash[data-kind="confirmed"] { --settle-color: var(--green-graphic); }
-.settle-flash[data-kind="rejected"] { --settle-color: var(--red-graphic); }
+.settle-flash[data-kind="rejected"] { --settle-color: var(--slate-graphic); }
 .individual-note { margin: 6px 0 0; padding: 4px 6px; border-radius: 4px; background: var(--amber-bg); color: var(--amber-fg); font-size: var(--type-dense-meta-size); }
 .evidence-stack { display: flex; flex-direction: column; }
 .evidence-stack .verified-block { grid-template-columns: 22px minmax(0, 1fr); border-bottom: 0; }

@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ReactNode, type UIEvent } from 'react';
+import { useId, useState, type CSSProperties, type ReactNode, type UIEvent } from 'react';
 import { SurfaceCard } from '../surface/SurfaceCard';
 import { Icon } from '../workbench/Icon';
 import type { PreviewProgressModel } from './contracts';
@@ -12,11 +12,14 @@ interface PreviewHostProps {
   onClose?: () => void;
   onBack?: () => void;
   progress?: PreviewProgressModel;
+  contentId?: string;
+  contentLabelledBy?: string;
 }
 
 /** 领域无关的 Preview 宿主；业务语义只由 renderer 以 props 注入。 */
-export function PreviewHost({ title, meta, navigation, children, onClose, onBack, progress }: PreviewHostProps) {
+export function PreviewHost({ title, meta, navigation, children, onClose, onBack, progress, contentId, contentLabelledBy }: PreviewHostProps) {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const titleId = useId();
   const updateProgress = (event: UIEvent<HTMLDivElement>) => {
     if (!progress) return;
     const target = event.target;
@@ -27,11 +30,18 @@ export function PreviewHost({ title, meta, navigation, children, onClose, onBack
   };
 
   return (
-    <SurfaceCard elevation="raised" className="preview-host" data-testid="preview-host" data-template-host="preview">
+    <SurfaceCard
+      elevation="raised"
+      className="preview-host"
+      data-testid="preview-host"
+      data-template-host="preview"
+      data-schema-self-contained="true"
+      aria-labelledby={titleId}
+    >
       <header className="panel-head preview-host-head">
         {onBack && <button type="button" className="icon-button preview-back" data-testid="preview-back" onClick={onBack} aria-label="Back to outline" title="返回大纲"><Icon name="chevron-left" /></button>}
-        <h2>{title}</h2>
-        {meta && <span>{meta}</span>}
+        <h2 id={titleId} className="preview-host-title">{title}</h2>
+        {meta && <span className="preview-host-meta">{meta}</span>}
         <span className="spacer" />
         {onClose && <button type="button" className="icon-button" data-testid="preview-close" onClick={onClose} aria-label="Close preview" title="Close preview">
           <Icon name="x" />
@@ -39,7 +49,13 @@ export function PreviewHost({ title, meta, navigation, children, onClose, onBack
       </header>
       {navigation}
       <div className="preview-host-body">
-        <div className="preview-host-content" onScrollCapture={updateProgress}>{children}</div>
+        <div
+          className="preview-host-content"
+          id={contentId}
+          role={contentId ? 'tabpanel' : undefined}
+          aria-labelledby={contentLabelledBy}
+          onScrollCapture={updateProgress}
+        >{children}</div>
         {progress && <aside
           className="preview-scroll-progress"
           data-testid="preview-scroll-progress"

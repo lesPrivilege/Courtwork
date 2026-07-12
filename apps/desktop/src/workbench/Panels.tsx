@@ -90,14 +90,18 @@ export function TimelinePanel({ timeline, grade }: { timeline: Timeline; grade?:
             <span className="domain-badge">{event.id.replace('evt-', 'E')}</span>
             <span>{event.description}</span>
             {/* 零编码暴露律：来源列显示可读文件名（专业原生编码），不截 wire 前缀 */}
-            <span className="timeline-source truncate" title={event.sourceAnchors[0]?.fileId}>{event.sourceAnchors[0]?.fileId.replace(/\.(md|docx|pdf)$/, '')}</span>
+            <span
+              className="timeline-source truncate"
+              title={event.sourceAnchors[0]?.fileId}
+              aria-label={`来源 ${sourceFileLabel(event.sourceAnchors[0]?.fileId) || '待补'}`}
+            >{sourceFileLabel(event.sourceAnchors[0]?.fileId) || '来源待补'}</span>
           </button>;
         })}
       </div>
       <article className="detail-card">
         <SignatureLine tone={current.markers?.includes('contradiction') ? 'attention' : undefined} />
         <p>{current.description}</p>
-        <div className="verified-block"><TierBadge grade={grade} /><button disabled title={`原文定位 · 卷宗原件待连接 · ${current.sourceAnchors[0]?.fileId ?? ''}`}>{sourceFileLabel(current.sourceAnchors[0]?.fileId)}</button><q>{current.sourceAnchors[0]?.quote}</q></div>
+        <div className="verified-block"><TierBadge grade={grade} /><button disabled aria-label={`原文定位 · ${sourceFileLabel(current.sourceAnchors[0]?.fileId) || '来源待补'}`} title={`原文定位 · 卷宗原件待连接 · ${current.sourceAnchors[0]?.fileId ?? ''}`}>{sourceFileLabel(current.sourceAnchors[0]?.fileId) || '来源待补'}</button><q>{current.sourceAnchors[0]?.quote || '暂无可引用原文'}</q></div>
       </article>
     </div>
   </StaticViewport>;
@@ -187,7 +191,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
           <p>{props.selectedRisk.description}</p>
           <div className="evidence-stack">{props.selectedRisk.basis.map((basis, index) => {
             const open = props.expandedEvidence[`${props.selectedRisk.id}:${index}`];
-            return <section className="verified-block" key={`${basis.citation}-${index}`}><TierBadge grade={props.selectedGrades[index] ?? props.selectedGrades[0]} /><button title={basis.citation} onClick={() => props.onExpandBasis(props.selectedRisk.id, index, selectedGate?.evidenceKeys[index] ?? basis.citation)} aria-expanded={open}>{basis.citation}<span>{open ? '收起' : '展开原文'}</span></button>{open && <q>{basis.sourceAnchors[0]?.quote}</q>}</section>;
+            return <section className="verified-block" key={`${basis.citation}-${index}`}><TierBadge grade={props.selectedGrades[index] ?? props.selectedGrades[0]} /><button title={basis.citation} onClick={() => props.onExpandBasis(props.selectedRisk.id, index, selectedGate?.evidenceKeys[index] ?? basis.citation)} aria-expanded={open}>{basis.citation}<span>{open ? '收起' : '展开原文'}</span></button>{open && <q>{basis.sourceAnchors[0]?.quote || '暂无可引用原文'}</q>}</section>;
           })}</div>
           <footer><span>{selectedGate?.mode === 'individual' ? `逐条确认 · ${reviewedCount}/${props.selectedRisk.basis.length} 依据已展开` : '可在批量范围内确认'}</span><i /><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'rejected')}>驳回</button><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'revision')}>修正</button><button className="primary-button" disabled={!props.individualReady} onClick={() => props.onDispose(props.selectedRisk.id, 'confirmed')}>确认</button></footer>
         </article>

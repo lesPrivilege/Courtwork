@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { PreviewHost } from '../PreviewHost';
 
 export interface PreviewTab {
@@ -30,6 +30,8 @@ export function WorkbenchPreviewRenderer({
   onClose,
   onBack,
 }: WorkbenchPreviewRendererProps) {
+  const rendererId = useId().replaceAll(':', '');
+  const contentId = `preview-panel-${rendererId}`;
   const navigation = (
     <div className="view-tabs" role="tablist" aria-label="结构化工作面">
       {tabs.map((tab) => (
@@ -37,7 +39,9 @@ export function WorkbenchPreviewRenderer({
           key={tab.id}
           type="button"
           role="tab"
+          id={`preview-tab-${rendererId}-${tab.id}`}
           aria-selected={activeTab === tab.id}
+          aria-controls={contentId}
           className={activeTab === tab.id ? 'active' : ''}
           onClick={() => onSelectTab(tab.id)}
           data-testid={`view-${tab.id}`}
@@ -52,7 +56,16 @@ export function WorkbenchPreviewRenderer({
   );
 
   return (
-    <PreviewHost title={title} meta={meta} navigation={navigation} onClose={onClose} onBack={onBack} progress={{ kind: 'scroll' }}>
+    <PreviewHost
+      title={title}
+      meta={meta}
+      navigation={navigation}
+      onClose={onClose}
+      onBack={onBack}
+      progress={{ kind: 'scroll' }}
+      contentId={activeTab ? contentId : undefined}
+      contentLabelledBy={activeTab ? `preview-tab-${rendererId}-${activeTab}` : undefined}
+    >
       {children}
     </PreviewHost>
   );
