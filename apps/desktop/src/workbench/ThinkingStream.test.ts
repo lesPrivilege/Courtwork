@@ -4,11 +4,13 @@ import { describe, expect, it } from 'vitest';
 import { ThinkingStream } from './ThinkingStream';
 
 describe('ThinkingStream three-state closure', () => {
-  it('shows a terminal-style navy vertical-line cursor while thinking, no SVG glyph', () => {
+  it('thinking 态渲染品牌三横（批次七⑦换装），无 SVG、无字符光标', () => {
     const html = renderToStaticMarkup(createElement(ThinkingStream, { state: 'thinking' }));
     expect(html).toContain('data-state="thinking"');
-    // RP-2.11 改判：最小字符版——竖线字符 terminal 式书写指示，非 SVG 图标（lucide 缺席即证）
-    expect(html).toContain('thinking-cursor');
+    // 链注记：RP-2.11 字符版 → 批次七⑦ BrandThinking（与 chat 面 pending 同件收敛）
+    expect(html).toContain('brand-thinking');
+    expect(html).not.toContain('thinking-cursor');
+    expect(html).not.toContain('<svg');
     expect(html).not.toContain('lucide');
     expect(html).not.toContain('thinking-stream-glyph');
     expect(html).not.toContain('thinking-stream-body');

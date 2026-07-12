@@ -386,7 +386,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 
 /* L0：对话流坐画布底色，去卡壳 */
 .conversation.canvas-layer {
-  background: transparent;
+  /* 与 app-shell 同色但保持不透明，避免工作面硬切时露出 WebView 合成底。 */
+  background: var(--elevation-canvas);
   border: 0;
   border-radius: 0;
 }
@@ -736,7 +737,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 .thinking-stream.is-thinking { display: inline-flex; align-items: center; gap: 6px; padding: 2px 0; }
 /* 竖线字符：藏青（灰阶 shimmer 例外），terminal 式硬闪 */
-.thinking-cursor { color: var(--text-primary); font: var(--type-reading-size)/1 var(--mono); animation: terminal-blink 1.06s step-end infinite; }
+.thinking-cursor { color: var(--text-primary); font: var(--type-reading-size)/1 var(--mono); }
 .thinking-label { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .thinking-stream-toggle {
   min-height: 24px; display: inline-flex; align-items: center; gap: 6px;
@@ -744,14 +745,11 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 .thinking-stream-toggle:hover { background: var(--control-hover); }
 /* 静默锚：字符静止（不闪），作思考流折叠头 */
-.thinking-stream-toggle .thinking-cursor { animation: none; }
 .thinking-stream.is-settled.is-open { width: min(420px, 100%); }
 .thinking-stream-body {
   max-width: 420px; padding: 2px 0 6px 8px; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); line-height: 1.55;
 }
 .thinking-stream-body p { margin: 0; }
-@keyframes terminal-blink { 50% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .thinking-cursor { animation: none; } }
 
 /* docs/52 #10：状态条模型配置 */
 .model-config-anchor { position: relative; flex: none; }

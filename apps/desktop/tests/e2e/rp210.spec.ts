@@ -3,13 +3,15 @@ import { openWorkbench } from './helpers';
 
 // —— RP-2.10 三卡一纸 + 品牌 icon 推理动画（docs/49 第十二章 · docs/55 #26.2/#26.3） ——
 
-test('推理锚 = 字符版竖线光标（RP-2.11 改判），居 turn 尾 message 按钮排之下', async ({ page }) => {
+test('推理锚 = settled 字符竖线 / thinking 品牌三横（批次七⑦换装），居 turn 尾 message 按钮排之下', async ({ page }) => {
   await openWorkbench(page);
   const turn = page.getByTestId('assistant-turn-demo');
   const stream = turn.getByTestId('thinking-stream');
   await expect(stream).toBeVisible({ timeout: 15_000 });
 
-  // RP-2.11 改判：最小字符版——竖线字符光标（非 SVG 图标；brand-mark 本体动画待 post-P-4 另单）
+  // 链注记：RP-2.11 字符版 → 批次七⑦ thinking 态 BrandThinking；字符光标只余 settled 静锚。
+  // 时序去耦：等回放落定 settled 再断言锚形（thinking 窗口内无 cursor 属新契约,勿误红）。
+  await expect(stream).toHaveAttribute('data-state', 'settled', { timeout: 15_000 });
   const cursor = stream.locator('.thinking-cursor');
   await expect(cursor).toHaveCount(1);
   await expect(stream.locator('svg')).toHaveCount(0);
