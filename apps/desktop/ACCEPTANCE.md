@@ -1014,3 +1014,19 @@ RELEASE-1 验收表「`pnpm lint` 零 error」为**假绿记录**：历史验证
 ### 六、机器门终值（本单收口）
 
 全仓 build 零错（exit 0 保真）｜root vitest **734/734**｜desktop vitest **94/94**（+9 本单）｜**lint 整仓真绿 exit 0（仓史首次）**｜16 门禁 + Playwright：R1 184/185（Split-Tab 单红=环境性 flake：他线共树编辑触发 vite 重载,隔离 3/3 绿,D-1 flake 判例形制分诊）→ **R2/R3 连续 185/185 exit 0**；floor **181**（本单 +12,禁降史 …169→171→172→173→176→181）。总数 185 含他线在途重建 spec（其 4 条,过验归他线收编,本单不代收）。
+
+---
+
+## FABLE-BASE 五裁执行收账（2026-07-12，用户当场清五项）
+
+用户对 FABLE-BASE 报裁五项当场裁决，逐条落地（浏览器实证 + 守护测试 + 双轮门禁）：
+
+| # | 裁决 | 落地 | 提交 |
+|---|---|---|---|
+| ① | 测宽 760 批准（4 基阶，与 welcome 560 成梯度） | --content-measure 760，内容列与 composer 同源；1280/1600 双测恒 760，病根消除 | ef861c1 |
+| ② | 语义解法：chat 内建案=隐式存入 | chatHandoff ref + createCase 返回 id + 切案 effect 定向注入（D-1 隔离不破）；chatspace 单例保留；浏览器三态实证 | 2c44113 |
+| ③ | 默认 tab = Model（最高频入口） | openSettings('about')→('model') | af56b0a |
+| ④ | Model 页统一英文 + 双验证去重 | CredentialForm 全英译（含信任声明句）；删 Reasoning 区冗余 Verify + 孤儿 prop，页级唯一入口；5 spec 按钮名同步 | af56b0a |
+| ⑤ | Popover Provider = 既裁（27d9b2b），非新裁 | ModelConfigPopover 撤 Provider 下拉（并行入口口径就此统一）；3 spec 删 provider 附带步 | 99b1527 |
+
+**机器门终值**：build 零错｜desktop vitest 94/94｜lint 整仓 exit 0｜16 门禁 + Playwright **R1/R2 连续 186/186 exit 0**；floor 181→182。词表归宿（F4 分型/恢复指引中文、Model 页 chrome 律余项）另裁未动，如实标注。
