@@ -9,8 +9,8 @@ if (result.status !== 0) {
 const output = `${result.stdout}\n${result.stderr}`;
 const match = output.match(/Total:\s+(\d+)\s+tests?/);
 const count = match ? Number(match[1]) : 0;
-// GOAL-1：+goal1 用例；floor 只升（禁降史 …→146→152→160→167→169→171→172→173，FABLE-BASE follow-scroll +2、chat 组装段 +1、md 渲染 +1）。
-const minimum = 173;
+// GOAL-1：+goal1 用例；floor 只升（禁降史 …→146→152→160→167→169→171→172→173→176，FABLE-BASE follow-scroll +2、组装段 +1、md 渲染 +1、路由律 +3）。
+const minimum = 176;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

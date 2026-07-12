@@ -607,6 +607,8 @@ export function App() {
     setSelectedCaseId(newId);
     if (kind === 'case') setExpandedCaseId(newId);
     setNewCaseOpen(false);
+    // 路由律（批次七④）：案件对象住 work 面——建案即切面选中，chat 内建案不再留在原地
+    switchSegment('work');
   };
 
   /** docs/52 #3：composer-first 容器化仪式 → 创建案件/项目并选中 */
@@ -766,6 +768,7 @@ export function App() {
 
   const selectFlow = (next: ScenarioFlow) => {
     if (!isDemoCase) return; // 非 demo 不注入样板场景
+    switchSegment('work'); // 路由律（批次七④）：阶段对象住 work 面，chat 内点阶段隐式切面
     if (next !== flow) previewDismissedContext.current = null;
     manualPreviewSelected.current = false;
     setFlow(next);
@@ -950,7 +953,7 @@ export function App() {
         : item.isDemo || isDemoCaseId(item.id)
           ? `${item.title}（${containerOriginLabel(true)}）`
           : item.title,
-      onRun: () => { setSelectedCaseId(item.id); setPaletteOpen(false); },
+      onRun: () => { setSelectedCaseId(item.id); switchSegment('work'); setPaletteOpen(false); }, // 路由律：⌘K 跳案即切面
     })),
     { id: 'action-new-case', section: 'Actions', label: CHROME_COPY.navigation.newCase, onRun: () => { setPaletteOpen(false); setNewCaseOpen(true); } },
     ...(selectedCase ? [{
@@ -1101,6 +1104,7 @@ export function App() {
               // 案件行：选中即展开（含已选中但被收起的情况 → 强制 expandedCaseId=id）
               const kind = cases.find((c) => c.id === id)?.kind ?? 'case';
               if (kind === 'case') setExpandedCaseId(id);
+              switchSegment('work'); // 路由律（批次七④）：左栏点案隐式切 work
             }}
             onToggleExpand={(id) => setExpandedCaseId((current) => (current === id ? null : id))}
             onNewCase={() => setNewCaseOpen(true)}
