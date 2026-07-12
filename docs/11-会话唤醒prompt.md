@@ -2,6 +2,12 @@
 
 用法：在 Courtwork 仓库根目录启动 Claude Code（Sonnet 5），整段粘贴对应工单的 prompt。一张工单一个会话，不复用。
 
+## SCHEMA-UI/UX 验收工单册（2026-07-12）
+
+schema 工作面 UI/UX、原语、场景、状态、视觉 polish、可访问性与真实协议证据的完整拆单见：[docs/69-schema-ui-ux验收工单册.md](./69-schema-ui-ux验收工单册.md)。
+
+本册的 C/V/L/P/S/I/D/E/F 工单必须按依赖顺序领取；实现与验收分离，core 零 diff，不新增外部依赖。静态素材库 HTML 只能作迁移源，不能代替真实事件、变异红测、独立端口截图和全仓构建证据。
+
 ---
 
 ## W1｜packages/schemas（现在就开，其余全部依赖它）
