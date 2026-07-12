@@ -75,6 +75,7 @@ import { sendChatTurn } from './provider/chat-client';
 import { BrandThinking } from './chat/BrandThinking';
 import { RightRailModules } from './rail/RightRailModules';
 import { PasteBlock } from './chat/PasteBlock';
+import { ScrollToLatest, useFollowScroll } from './chat/follow-scroll';
 // 装配点例外（demo/ 同列先例）：原件阅读 fixture 直取 demo-data 文书 md
 import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
 import { useDismissOnOutside } from './hooks/useDismissOnOutside';
@@ -220,6 +221,9 @@ export function App() {
   const [sceneMoreOpen, setSceneMoreOpen] = useState(false);
   // popover 收敛纪律（GOAL-1）：点别处/Esc 即收
   const sceneMoreRef = useRef<HTMLDivElement>(null);
+  // 批次七首例：会话流跟随滚动（work 与 chat 两容器各自独立钉底态）
+  const workFollow = useFollowScroll();
+  const chatFollow = useFollowScroll();
   const storeChatRef = useRef<HTMLDivElement>(null);
   const [editingCaseTitle, setEditingCaseTitle] = useState(false);
   const [caseTitleDraft, setCaseTitleDraft] = useState('');
@@ -1136,7 +1140,7 @@ export function App() {
               <span className="spacer" />
             </header>
             {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.ok ? 'ok' : 'error'}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
-            <div className="conversation-scroll">
+            <div className="conversation-scroll" ref={workFollow.ref} onScroll={workFollow.onScroll}>
               {/* RP-2.12 待机主屏（Cowork 复刻）：品牌 icon + slogan（非卡）→ 居中 composer → 建议行 */}
               {isWelcome && (
                 <section className="welcome-home" data-testid="welcome-state">
@@ -1268,6 +1272,7 @@ export function App() {
                 <button type="button" onClick={() => setQueuedMessages((current) => current.filter((item) => item.caseId !== selectedCaseId || item.id !== message.id))}>撤回</button>
                 <button type="button" disabled title="停止当前请求将在执行器接线后启用">停止当前</button>
               </div>)}
+              <ScrollToLatest follow={workFollow} />
             </div>
             {!isWelcome && <div className="scene-strip" data-testid="scene-strip">
               {isDemoCase && (
@@ -1327,7 +1332,7 @@ export function App() {
                 </div>
               )}
             </header>
-            <div className="conversation-scroll" data-testid="chat-scroll">
+            <div className="conversation-scroll" data-testid="chat-scroll" ref={chatFollow.ref} onScroll={chatFollow.onScroll}>
               {chatMessages.length === 0 ? (
                 <div className="empty-state" role="status" data-testid="chat-empty">{CHROME_COPY.welcome.body}</div>
               ) : chatMessages.map((message, index) => (
@@ -1361,6 +1366,7 @@ export function App() {
                   <BrandThinking />
                 </div>
               )}
+              <ScrollToLatest follow={chatFollow} />
             </div>
             {renderComposer(handleChatSend, chatPending)}
           </section>

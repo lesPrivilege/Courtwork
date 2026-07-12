@@ -35,7 +35,8 @@ const tokenConsumers = [...styles.matchAll(/([^{}]+)\{[^{}]*box-shadow\s*:\s*var
   .map((match) => match[1].trim().replace(/\s+/g, ' '));
 // RP-2.11 ⑨：拍板受控扩项——composer 附件 chip 入白名单（藏青双层极轻值）。
 // RP-2.12：四模块白卡（rail-module）为右列 L1 浮面,入影白名单（有影必描边同律）。
-const expectedConsumer = '.case-rail.surface-float, .right-rail-collapsed.surface-float, .surface-card-raised, .rail-module, .attachment-chip';
+// 批次七首例（2026-07-12）：会话流新消息浮标为悬浮控件,浮=影语义正当消费（有影必描边同律,border-strong）。
+const expectedConsumer = '.case-rail.surface-float, .right-rail-collapsed.surface-float, .surface-card-raised, .rail-module, .attachment-chip, .scroll-latest-button';
 if (tokenConsumers.length !== 1 || tokenConsumers[0] !== expectedConsumer) {
   failures.push(`styles.css: elevation consumer whitelist drifted: ${tokenConsumers.join(' | ') || '(none)'}`);
 }
