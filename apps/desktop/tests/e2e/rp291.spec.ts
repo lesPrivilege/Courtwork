@@ -20,9 +20,8 @@ test('chat header has zero buttons', async ({ page }) => {
   await expect(page.getByTestId('chat-case-head').locator('.chat-global-action, .shortcut-trigger')).toHaveCount(0);
 });
 
-test('dock is structural (not overlaying) and sits on the base paper below the schema card', async ({ page }) => {
-  // 迁移注记：RP-2.9.1 时代 dock 居右列顶；ch12/#35（docs/55 批次六）改判 dock 坐底纸——
-  // 结构性（非 overlay）语义保留，方位断言按现行宪法反转。
+test('tap card is structural (not overlaying) and sits above the schema card', async ({ page }) => {
+  // 迁移链：底纸案 → 2026-07-12 顶置案；结构性（非 overlay）语义恒定。
   await openWorkbench(page);
   const dock = page.getByTestId('utility-rail');
   const preview = page.getByTestId('preview-host');
@@ -30,7 +29,7 @@ test('dock is structural (not overlaying) and sits on the base paper below the s
   const previewBox = await preview.boundingBox();
   expect(dockBox).not.toBeNull();
   expect(previewBox).not.toBeNull();
-  expect(dockBox?.y ?? 0).toBeGreaterThanOrEqual((previewBox?.y ?? 0) + (previewBox?.height ?? 0) - 1);
+  expect((dockBox?.y ?? 0) + (dockBox?.height ?? 0)).toBeLessThanOrEqual((previewBox?.y ?? 0) + 1);
   await expect(dock).toHaveCSS('position', 'relative');
 });
 

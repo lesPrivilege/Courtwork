@@ -14,9 +14,8 @@ interface UtilityItem {
 }
 
 interface UtilityRailProps {
-  mode: 'base' | 'dock';
+  mode: 'dock';
   items: readonly UtilityItem[];
-  onOpenPreview: () => void;
 }
 
 /**
@@ -24,7 +23,7 @@ interface UtilityRailProps {
  * dock 态 = 其下承 schema 卡；base 态 = 无 schema 卡，末附 reopen 入口（仍坐底纸）。
  * 严禁 import 任何垂类 renderer。
  */
-export function UtilityRail({ mode, items, onOpenPreview }: UtilityRailProps) {
+export function UtilityRail({ mode, items }: UtilityRailProps) {
   const [dockItemId, setDockItemId] = useState<UtilityItem['id'] | null>(null);
   const dockRef = useRef<HTMLElement>(null);
   const dockItem = items.find((item) => item.id === dockItemId);
@@ -62,11 +61,6 @@ export function UtilityRail({ mode, items, onOpenPreview }: UtilityRailProps) {
             }}
           >{dockItem.body}</div>
         </aside>
-      )}
-      {mode === 'base' && (
-        <button type="button" className="utility-reopen" data-testid="preview-open" onClick={onOpenPreview}>
-          <span>{CHROME_COPY.utility.preview}</span><strong>{CHROME_COPY.utility.open}</strong>
-        </button>
       )}
     </section>
   );

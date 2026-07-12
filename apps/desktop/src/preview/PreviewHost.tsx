@@ -8,7 +8,8 @@ interface PreviewHostProps {
   meta?: string;
   navigation: ReactNode;
   children: ReactNode;
-  onClose: () => void;
+  /** 2026-07-12 改判：schema 卡常驻——不传即无关闭钮（收敛走整列） */
+  onClose?: () => void;
   progress?: PreviewProgressModel;
 }
 
@@ -30,9 +31,9 @@ export function PreviewHost({ title, meta, navigation, children, onClose, progre
         <h2>{title}</h2>
         {meta && <span>{meta}</span>}
         <span className="spacer" />
-        <button type="button" className="icon-button" data-testid="preview-close" onClick={onClose} aria-label="Close preview" title="Close preview">
+        {onClose && <button type="button" className="icon-button" data-testid="preview-close" onClick={onClose} aria-label="Close preview" title="Close preview">
           <Icon name="x" />
-        </button>
+        </button>}
       </header>
       {navigation}
       <div className="preview-host-body">

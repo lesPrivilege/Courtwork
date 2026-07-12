@@ -59,24 +59,20 @@ test('chat 内唯 question/门禁为轻卡，event/artifact/file 降扁平 messa
 
 // —— Item 1：三卡一纸 ——
 
-test('三卡一纸：右列两态皆无 utility 卡，schema 唯一右卡', async ({ page }) => {
+test('右列双卡常驻（2026-07-12 改判）：tap 卡+schema 卡，无关闭/重开路径', async ({ page }) => {
   await openWorkbench(page);
   const right = page.getByTestId('right-module-stack');
-  // dock 态：右列唯一 surface 卡 = schema（preview-host）
+  // schema 白卡唯一；tap 卡为填充卡（rail 底色）非白卡
   await expect(right.locator('.surface-card')).toHaveCount(1);
   await expect(right.locator('.surface-card')).toHaveAttribute('data-testid', 'preview-host');
-  // base 态（关闭 schema）：无任何 utility 卡，仅 dock band + reopen 入口
-  await page.getByTestId('preview-close').click();
-  await expect(page.getByTestId('utility-rail')).toHaveAttribute('data-mode', 'base');
-  await expect(right.locator('.surface-card')).toHaveCount(0);
-  await expect(page.getByTestId('preview-open')).toBeVisible();
-  await page.getByTestId('preview-open').click();
-  await expect(page.getByTestId('preview-host')).toBeVisible();
+  await expect(page.getByTestId('utility-rail')).toHaveAttribute('data-mode', 'dock');
+  await expect(page.getByTestId('preview-close')).toHaveCount(0);
+  await expect(page.getByTestId('preview-open')).toHaveCount(0);
 });
 
-test('dock 坐右列底纸；折叠钮迁顶栏浮层（ch12/#35 终态）', async ({ page }) => {
-  // 迁移注记：RP-2.11 时代 dock 居右卡顶部；ch12/#35（docs/55 批次六）落定 dock 坐底纸——
-  // 折叠钮驻 chrome 与"坐底纸（L0 透明带非白卡）"两语义保留，方位断言改为贴右列底缘。
+test('tap 卡归右列顶（2026-07-12 改判）；折叠钮驻顶栏浮层', async ({ page }) => {
+  // 迁移链：RP-2.11 卡顶带 → ch12 坐底纸 → 2026-07-12 真机改判顶置填充卡
+  //（与 chat title 同线；填充 rail 色成卡，与 schema 卡上下相接）。折叠钮驻 chrome 不变。
   await openWorkbench(page);
   const collapse = page.getByTestId('collapse-right-rail');
   await expect(collapse).toBeVisible();
@@ -87,7 +83,7 @@ test('dock 坐右列底纸；折叠钮迁顶栏浮层（ch12/#35 终态）', asy
   const [dBox, rBox] = await Promise.all([dock.boundingBox(), right.boundingBox()]);
   expect(dBox).not.toBeNull();
   expect(rBox).not.toBeNull();
-  expect((dBox?.y ?? 0) + (dBox?.height ?? 0)).toBeGreaterThanOrEqual((rBox?.y ?? 0) + (rBox?.height ?? 0) - 2);
-  // dock 坐底纸：L0 透明带（非白卡）
-  await expect(dock).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  expect(Math.abs((dBox?.y ?? 0) - (rBox?.y ?? 0))).toBeLessThanOrEqual(2);
+  // tap 卡为填充卡（rail 底色 #EAEFF4），非透明带非白卡
+  await expect(dock).toHaveCSS('background-color', 'rgb(234, 239, 244)');
 });

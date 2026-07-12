@@ -37,25 +37,25 @@ test.describe('GOAL-1 · #43/#44 凭证面', () => {
 });
 
 test.describe('GOAL-1 · #35/#36 三卡一纸位形', () => {
-  test('#35 dock 三 tap 坐右列底纸；#36 schema 卡贯通到顶', async ({ page }) => {
+  test('三 tap 卡归右列顶（2026-07-12 改判）；schema 卡常驻其下；二级向下大卡画布', async ({ page }) => {
     await openWorkbench(page);
     const rail = page.getByTestId('right-module-stack');
     const dock = page.getByTestId('utility-rail');
     const railBox = (await rail.boundingBox())!;
     const dockBox = (await dock.boundingBox())!;
-    // dock 底缘贴右列底缘（坐底纸）
-    expect(Math.abs(dockBox.y + dockBox.height - (railBox.y + railBox.height))).toBeLessThanOrEqual(2);
-    // preview 卡顶缘即右列顶缘（贯通到顶，无顶部横条占位）
+    // tap 卡顶缘即右列顶缘（与左卡同 y=inset，行线对 chat title 带）
+    expect(Math.abs(dockBox.y - railBox.y)).toBeLessThanOrEqual(2);
+    // schema 卡紧随其下（gap 8），常驻无关闭钮
     const preview = page.getByTestId('preview-host');
     const previewBox = (await preview.boundingBox())!;
-    expect(previewBox.y - railBox.y).toBeLessThanOrEqual(2);
-    // dock 在卡之下
-    expect(dockBox.y).toBeGreaterThan(previewBox.y + previewBox.height - 2);
-    // dock 弹层向上展开：打开一项，弹层底缘在 taps 顶缘之上
+    expect(previewBox.y).toBeGreaterThanOrEqual(dockBox.y + dockBox.height + 4);
+    await expect(page.getByTestId('preview-close')).toHaveCount(0);
+    // 二级=向下展开的大卡画布：顶在 tap 卡之下，底伸至与左卡底对齐（±16 容差）
     await page.getByTestId('module-progress-toggle').click();
     const popover = page.getByTestId('utility-dock-popover');
     const popBox = (await popover.boundingBox())!;
-    expect(popBox.y + popBox.height).toBeLessThanOrEqual(dockBox.y + 2);
+    expect(popBox.y).toBeGreaterThanOrEqual(dockBox.y + dockBox.height);
+    expect(Math.abs(popBox.y + popBox.height - (railBox.y + railBox.height))).toBeLessThanOrEqual(16);
   });
 });
 

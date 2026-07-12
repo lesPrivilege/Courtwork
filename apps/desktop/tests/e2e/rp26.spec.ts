@@ -61,7 +61,8 @@ test('right workbench keeps the 44/40/36 hierarchy and tab endpoints', async ({ 
   await page.getByTestId('welcome-demo-start').click();
   await page.getByTestId('provider-skip').click();
 
-  await expect(page.locator('.utility-dock')).toHaveCSS('height', '44px');
+  // 2026-07-12 顶置改判：tap 卡行高 40（与 chat title 带同线）+2px 边框；44 带凡例让位对齐语义
+  await expect(page.locator('.utility-dock')).toHaveCSS('height', '42px');
   await expect(page.locator('.preview-host-head')).toHaveCSS('height', '40px');
   await expect(page.locator('.view-tabs')).toHaveCSS('height', '36px');
   await expect(page.locator('.view-tabs [role="tab"]')).toHaveCount(5);

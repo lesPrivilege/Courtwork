@@ -1343,8 +1343,9 @@ export function App() {
         {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载（work 面独有） */}
         {viewSegment === 'work' && !isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
           <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
-        </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open={previewOpen ? 'true' : 'false'} data-artifact-revision={artifactRevision}>
-          {/* #35（ch12）：dock 三 tap 坐右列底纸——schema 卡贯通到顶（#36），dock 沉底、popover 向上展开 */}
+        </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open="true" data-artifact-revision={artifactRevision}>
+          {/* 2026-07-12 改判：三 tap 卡归右列顶（与 chat title 同线，填充卡），schema 卡常驻其下——无关闭钮（收敛=整列；缺 artifact=断裂律空态）；二级=向下大卡画布 */}
+          <UtilityRail mode="dock" items={utilityItems} />
           {previewOpen && <WorkbenchPreviewRenderer
             title={comparing ? '工作面对照' : VIEW_LABELS[activeView]}
             meta={comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}
@@ -1356,10 +1357,7 @@ export function App() {
               const moduleId = view as ModuleId;
               if (userModuleOverride[moduleId] === undefined) setModuleOpen((prev) => ({ ...prev, [moduleId]: true }));
             }}
-            onClose={() => {
-              previewDismissedContext.current = `${selectedCaseId}:${flow ?? 'none'}`;
-              setPreviewOpen(false);
-            }}
+
             actions={<>
                 {!focusMode && !comparing && (
                   <button className="view-action" onClick={startComparison} data-testid="split-start" title="Compare views">
@@ -1422,10 +1420,6 @@ export function App() {
                 )}
               </div>
           </WorkbenchPreviewRenderer>}
-          <UtilityRail mode={previewOpen ? 'dock' : 'base'} items={utilityItems} onOpenPreview={() => {
-            previewDismissedContext.current = null;
-            setPreviewOpen(true);
-          }} />
         </section>)}
       </div>
 

@@ -14,7 +14,7 @@ interface WorkbenchPreviewRendererProps {
   onSelectTab: (id: string) => void;
   actions?: ReactNode;
   children: ReactNode;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 /** 首个 renderer 集；宿主本身不感知此处挂载的工作面语义。 */

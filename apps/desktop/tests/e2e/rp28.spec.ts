@@ -19,8 +19,8 @@ test('artifact turn card is a light summary route back to Preview', async ({ pag
   await expect(artifact).toContainText('发现 6 项合同风险');
   await expect(artifact).not.toContainText('高危 2 项、中危 3 项');
 
-  await page.getByTestId('preview-close').click();
-  await expect(page.getByTestId('preview-host')).toHaveCount(0);
+  // 2026-07-12 改判：preview 常驻——artifact 卡 = 轻摘要路由（切视图），无关闭往返
+  await page.getByTestId('view-timeline').click();
   await artifact.click();
   await expect(page.getByTestId('preview-host')).toBeVisible();
   await expect(page.getByTestId('view-revision')).toHaveAttribute('aria-selected', 'true');
@@ -39,15 +39,14 @@ test('tool call row is collapsed by default and expands auditable mono details',
   await expect(page.getByTestId('tool-call-details')).toHaveCSS('font-family', /mono/i);
 });
 
-test('utility dock opens an L2 dropdown without replacing Preview and closes outside', async ({ page }) => {
+test('utility tap opens a downward canvas card and closes outside (2026-07-12 改判)', async ({ page }) => {
   await openWorkbench(page);
-  await expect(page.getByTestId('utility-rail')).toHaveCSS('box-shadow', 'none');
   await expect(page.getByTestId('view-revision')).toHaveAttribute('aria-selected', 'true');
   await page.getByTestId('module-working-folders-toggle').click();
   const dropdown = page.getByTestId('utility-dock-popover');
   await expect(dropdown).toBeVisible();
   await expect(dropdown).toContainText('Working folders');
-  await expect(page.getByTestId('preview-host')).toBeVisible();
+  // 大卡画布覆于 schema 区之上；收起后 preview 原样在场、视图不漂
   await expect(page.getByTestId('view-revision')).toHaveAttribute('aria-selected', 'true');
 
   await page.getByTestId('chat-case-title').click();
