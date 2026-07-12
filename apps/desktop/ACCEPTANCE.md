@@ -917,3 +917,43 @@ worktree 反例后 `git status` **归零**（无脏吞）。
 > **总判定：0.1.1 合流终验放行 ✅ —— BUILD 钥匙签发。**  
 > tip `3adb34d` 干净 worktree 全门实测：第 0 步 tokens 三值↔CSS 三变量对齐；9/9 build；Vitest desktop 79 + core 158；cargo 10/10；Playwright 隔离端口两轮 **152/152**（`composer:56` 合流消解后双轮绿）；15 门禁基线绿 + shadow/thinking/elevation 三反例触红即撤；抽验 QF-2 切案队列 + 报告零编码、RP-2.11 ①–⑧/gap12/字符推理（brand-mark 旧断言退役不并存）、PRV-1 七主张摘要、ch12 三卡一纸、首屏 1440 投递级观感均过。无 🔴。下游：**BUILD 0.1.1** → 用户闸（真 key「验证连接」+ 装包走查）。
 
+
+---
+
+## RELEASE-1 发版验收（2026-07-12，Fable @ Code · goal 模式——全量验收/debug/polish/push）
+
+角色声明：发版级全量验收 + fix-by-acceptance（AGENTS.md 验收处置规则）；契约零改动，两处实现级缺陷顺手修（独立 commit `09d8b0b`）。
+
+### 一、机器门全量（最终树双轮）
+
+| 门 | 结果 |
+|---|---|
+| `pnpm -r build`（全仓真实 tsc） | ✅ 零错 |
+| `pnpm test`（vitest 全仓） | ✅ 85 文件 / **734/734**（改动后复跑同绿） |
+| `pnpm lint` | ✅ 零 error |
+| 16 道门禁 + Playwright | ✅ **两轮 169/169** |
+| floor | **167→169**（发版验收补测 +2，assert-test-count 禁降史续记） |
+| `demo:s3` golden | ✅ PASS，预埋考点 **7/7**，事件序列与 W6 记录一致 |
+| push 通道 | ✅ dry-run fast-forward |
+
+### 二、浏览器真走查（dev 1420，全程 console 零错误）
+
+待机主屏（品牌 icon/宋体 slogan/居中 composer/Ideas 行）→ 样板案直入 Preview 浏览器态 → 五视图逐 tab（时间线 47 件含 E08 矛盾行+B 级信源 peek / 图谱 14·15 dagre+关系依据 / 矩阵 10×7+「原文定位待接入」诚实句 / 修订预览高危拆出+民法典 C 级引用 / 起草画布+编译为 Word 钮）→ Gate 卡路由回修订预览 + question 轻卡 → 批量确认真按（阶段 0/6→4/6 联动）→ 大纲态四模块序（Progress 实时 4/6 / Preview 五条目 / Working folders 20 / Context 91%）→ 原件阅读汇流（同一 Preview；催告函/验收记录「待接入」三态诚实）。左栏「打开」走 systemOpen 属设计（Tauri 生效浏览器降级），非缺陷。
+
+### 三、发现与处置
+
+**实现级两缺陷（已修，各附"本应抓住它的测试"，`09d8b0b`）：**
+1. 批量确认池不随处置递减——批后仍显"可批量 4 项"且钮可点（假报）；更重语义洞：先逐条驳回批内条目再批量，驳回被覆写回已确认（违"用户修正最高优先级事实"）。修：batchRefs 排除已处置条目；浏览器实证批后 0 项禁钮，e2e 断言驳回条目 data-tone 保持 neutral。
+2. 阅读器三处——只读原件标题漏挂前视图「起草中」（话语层事故：原件只读是信任红线）；读态仍高亮工作面 tab；行内 `**强调**` 19 处字面星号漏出。修：meta=「原件 · 只读」、读态五 tab 零选中、行内 strong 渲染（实证 20 strong/0 星号）。
+
+**契约审计（独立 subagent，只读）：违规零发现。** 依赖方向/装配点唯一性（core/src/composition/demo-assembly.ts 全仓唯一导入点实测）/provider 无关（quirk 单 DeepSeek 属既裁排期，通用工厂+custom 入口在）/留人确认（销毁级动词不存在，S3 修订仅 confirm 后产新文件不覆原件）/key 纪律（Rust 结构化脱敏，JS 全仓零 console.*）逐条通过。三项文档-实况漂移收账（`7a42a74`）。
+
+**desktop 源码质量审计（独立 subagent）：在途未回。** 范围为 polish 级（死代码/孤儿样式/残留），非发版阻塞：技术词暴露与色板纪律已有机器门（AUDIT 正则/assert-neutral-source）双轮压过。回报后按需另行追加处置记录——不冒充已完成。
+
+### 四、收束件
+
+RM-1 定形版 README（`0c8a463`，命令全部当日实跑）；docs/70 镜像材料六件 + career-kit prompt + docs/69 验收册入库、数字对齐实测（`e5cd42f` 等）；根 test-results/ 入 .gitignore（`3241753`）。
+
+### 五、结论
+
+**发版放行 ✅**：build/unit/lint/16 门禁/e2e 双轮 169、demo 全动线真走查零 console 错误、演示无 key 自足、工作树清账、判例卫生（显式路径分批、零宽 add）。push 随本报告提交执行。
