@@ -815,7 +815,51 @@ SPEC/ACCEPTANCE 留痕：
 - [ ] F3.7 视觉线与 schema 线的改动范围可从 git 路径清楚分离。
 - [ ] F3.8 架构会话给出最终“可进入真机 debug / 不可进入”的明确结论。
 
-## 10. 当前明确阻断项
+## 10. Emil Design skill 对拍与冲突裁决
+
+来源：已安装的 `emil-design-eng` skill（`/Users/lesprivilege/.codex/skills/emil-design-eng/SKILL.md`）。本节只把 skill 作为 polish 输入；优先级固定为：**架构拍板 / docs/32 / docs/36 → 本册 → skill**。skill 与既有规范冲突时，以下裁决生效。
+
+### 10.1 可直接吸收的输入
+
+| skill 输入 | 对拍结果 | 适用边界 |
+| --- | --- | --- |
+| reduced-motion 支持 | **采纳** | 保留状态可辨识度；去除移动/位移，不改变 schema 语义 |
+| hover 只在 fine pointer 生效 | **采纳** | `@media (hover: hover) and (pointer: fine)`；触屏不模拟 hover |
+| transition 优先于可快速打断的 keyframes | **采纳** | 仅用于已有允许的 hover/overlay/回执；数据区仍静止 |
+| popover 从触发点 origin 展开 | **有条件采纳** | 只消费现有 popover 底层接口；不引入 Radix/Base UI/Motion |
+| tooltip 首次延迟、相邻提示可即时出现 | **有条件采纳** | 不得改变 docs/32 的 120ms 统一节奏，不得造成状态语义延迟 |
+| 用慢速/逐帧回看检查动效 | **采纳为验收方法** | 只增加证据，不改变产品动效契约 |
+| 原生 CSS/WAAPI 优先 | **采纳** | 与 docs/32“CSS transition/animation + WAAPI、零 motion 库”一致 |
+
+### 10.2 与 schema 宪法冲突，明确拒绝
+
+| skill 建议 | 与 docs/32/36 的冲突 | 裁决 |
+| --- | --- | --- |
+| 按钮 `:active { transform: scale(.97) }` | docs/32 规定操作按钮按压只加深底色；数据卡/行零缩放，且 docs/32 §3b 禁止整卡/整行缩放 | **拒绝用于 PreviewHost/renderers**。若未来非 schema chrome 需要，另立工单，不得回灌本线 |
+| spring、bounce、overshoot、rubber-band | docs/32 §3b 明确禁止弹簧、过冲、阻尼回弹；schema 数据区必须静止 | **拒绝** |
+| Framer Motion / Motion 依赖 | 用户要求不引入外部依赖；docs/32 明确不引入 motion 库 | **拒绝** |
+| scale(0) 或 scale 入口动画 | docs/32 禁止结构/数据区位移缩放；本册 LAYOUT-V4 已禁 scale(0) | **拒绝** |
+| blur 遮盖 crossfade | docs/32 状态本体 0ms、面板内容禁止 crossfade；模糊会掩盖事实状态 | **拒绝** |
+| clip-path 数据揭示、图片 reveal | docs/36/32 要求数据区绝对静止；schema 不是营销叙事面 | **拒绝** |
+| stagger 列表/字段进入动画 | 表格、时间线、图谱、文书为静态事实区，逐项延迟会制造“数据尚未存在”的假象 | **拒绝** |
+| height/padding/margin 等 layout 动画 | docs/32 §3b 禁止 layout property animation；本册 LAYOUT-V4 同步 | **拒绝** |
+| 3D transform、装饰性鼠标追踪 | 与专业工作面、零装饰数据区、无新视觉语言冲突 | **拒绝** |
+| `opacity + height` 列表进出 | height 动画违反布局禁令；partial/expanded 必须硬切并保持锚点 | **拒绝** |
+| 统一采用 skill 的 100–160ms press、125–200ms tooltip | docs/32 已拍板 press 70ms、hover 120ms、状态 0ms | **拒绝覆盖 token**；以现行 token 为准 |
+| 自行发明 custom easing curve | docs/32/36 的 timing token 是现行契约 | **拒绝自行新增**；只有架构新增 token 后才能使用 |
+
+### 10.3 PreviewHost/renderers 对拍硬门
+
+- [ ] SKILL.1 renderer 的按压反馈不使用 scale，computed style 证明只改变允许的背景/边色。
+- [ ] SKILL.2 数据表、时间线、图谱、文书、数字区域无 transform/opacity/height 动画。
+- [ ] SKILL.3 未引入 Motion/Framer Motion/Radix/Base UI 或其他外部依赖。
+- [ ] SKILL.4 overlay/popover 若使用动画，时长与 easing 来自现有 token，且收起符合瞬发/既定规则。
+- [ ] SKILL.5 hover 只在 fine pointer 生效；键盘 focus 不依赖 hover。
+- [ ] SKILL.6 reduced-motion 下状态仍可辨，且无隐藏数据或延迟 gate。
+- [ ] SKILL.7 skill 引入的每一条 polish 建议都能回指 docs/32、docs/36 或本册条目；找不到出处则标 `[需架构拍板]`。
+- [ ] SKILL.8 发现冲突时，验收报告必须附本节表格中的裁决，不得以“skill 建议”为放行理由。
+
+## 11. 当前明确阻断项
 
 以下事项未闭合前，不得把 schema UI 线标记为最终放行：
 
@@ -826,7 +870,7 @@ SPEC/ACCEPTANCE 留痕：
 5. 图谱/复杂表格若底层没有既存 renderer，不能以安装新依赖方式解锁；应先走 deferred/架构提案。
 6. 当前工作树存在其他会话 WIP；实现和验收必须在独立 worktree、独立端口中进行。
 
-## 11. 完工回报格式
+## 12. 完工回报格式
 
 ```text
 工单：SCHEMA- / VOCAB- / LAYOUT- / PRIM- / SCENE- / INTER- / POLISH- / EVID- / FINAL-
