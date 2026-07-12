@@ -595,3 +595,9 @@ FD-2 四件齐（14 白卡穷举/四垂类完整帧+总画廊/结构提案含四
 ## HARNESS-0 收账（2026-07-12，待提交态）+ 提交协调裁决
 
 #2–#5 落地（thinking 显式/互斥自动降档+chip 告知/重试仅确定失败/单飞行锁/golden 长牙 7/7 考点）；TDD 红测全中旧行为（缺口即测试缺口首单达标）；668 单测两轮。**提交协调**：Composer chip 增量移交 GOAL-2 合并提交（热点主场）；其余文件 HARNESS-0 显式路径+临时索引自提（共享索引 11 docs 勿碰）。**providerNotices 追认**：artifact_produced 纯增字段属诚实呈现家族，追认通过、提案补账——下不为例：事件契约动字段亦走提案。GOAL-2 来源两失败归其自修。
+
+## GOAL-2 + HARNESS-0 双收账（2026-07-12，三枚祖先全验）+ 四小项裁决
+
+accca2e/91106f0/0e23d49 皆 main 祖先，floor 163、core 165、16 门禁全绿。亮点收账：视觉指令逐条落（四边等距 inset/收敛撤卡直露底纸+钮位置守恒/composer 零框线/**BrandThinking 品牌动画上 chat 面**）；批次三 #13–15 清账；五面回灌（wire id 清除=零编码暴露落地/legend 诚实计数/R0x 单源/22 处字号 token 化）；RevisionEvent 全字段可审计断言 + demo:s3 golden 真跑对照通道。
+四小项裁决：①TierBadge 行尾照 docs/36 既裁不动；②relation 节头 510 准（510 是唯一加重档，标题即强调，合法消费位）；③graph labelFontSize ≥12 取 12（meta 下限判例）；④溯源 **hover 预览 + click 钉住**双档（阅读不打断、引用可操作——钉住态可复制引语）。
+遗留归位确认：work 面品牌换装随 ICON-ANIM 尾单；out_of_coverage/requiredSources 字段载体归 SCHEMA-SPEC-1；executor 宿主化归 HARNESS 正序。用户真机复验三点（红绿灯避让观感/收敛钮守恒/BrandThinking 节奏）+ **push 仍未做**。
