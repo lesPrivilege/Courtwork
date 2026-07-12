@@ -22,6 +22,14 @@ export interface GenerationUsage {
   outputTokens: number;
 }
 
+/** provider quirk 触发的可呈现调整：禁止兼容性逻辑静默改变用户所选档位。 */
+export interface GenerationNotice {
+  code: 'reasoning_downgraded_for_structured_output';
+  message: string;
+  requested: 'deep';
+  applied: 'standard';
+}
+
 export interface GenerationResponse {
   content: string;
   /** 归一化后的思考/推理内容（docs/18 quirk③：reasoning_content 等字段名归一）。 */
@@ -29,6 +37,8 @@ export interface GenerationResponse {
   /** 真实 provider 才会填充；ScriptedProvider 与假 provider 缺省不填，RuntimeGuard.checkUsd
    * 在 usage 缺失时不做任何计价判断（诚实跳过，不是当作零成本）。 */
   usage?: GenerationUsage;
+  /** wire 兼容性调整，供 UI chip/事件层轻提示；缺省代表未调整。 */
+  notices?: GenerationNotice[];
 }
 
 /**

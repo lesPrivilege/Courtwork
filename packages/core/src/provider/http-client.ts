@@ -38,7 +38,8 @@ export interface HttpClientConfig {
 
 const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
 
-/** transport 级重试：网络错误/超时/429/5xx 重试，401/403 与其余 4xx 立即失败不重试。 */
+/** transport 级重试：仅明确返回的 429/5xx 重试。超时/网络错误可能已被受理，
+ * 为防重复生成与计费一律不重试；401/403 与其余 4xx 同样立即失败。 */
 export async function sendChatCompletion(
   profile: ProviderQuirkProfile,
   body: ChatCompletionRequestBody,
@@ -55,8 +56,13 @@ export async function sendChatCompletion(
     } catch (error) {
       lastError = error;
       if (error instanceof ProviderAuthError) throw error;
-      if (error instanceof ProviderHttpError && !RETRYABLE_STATUS.has(error.status)) throw error;
-      // 超时 / 可重试状态码 / 通用网络错误：继续下一轮循环重试
+      if (error instanceof ProviderHttpError) {
+        if (RETRYABLE_STATUS.has(error.status)) continue;
+        throw error;
+      }
+      // 超时/网络断开时请求可能已被 provider 接收；重试会造成重复生成与计费。
+      // 只有明确返回的 429/5xx 证明本次失败，才允许进入下一轮。
+      throw error;
     }
   }
   throw lastError;

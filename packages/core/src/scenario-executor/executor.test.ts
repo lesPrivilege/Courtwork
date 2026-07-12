@@ -11,6 +11,7 @@ import { createFileConfirmationStore, createInMemoryConfirmationStore } from '..
 import { createInMemoryRevisionEventStore } from '../revision/revision-store.js';
 import { createToolRegistry } from '../tools/tool-registry.js';
 import { createScriptedProvider } from '../provider/scripted-provider.js';
+import type { GenerationResponse } from '../provider/types.js';
 import { RuntimeLimitExceededError } from './runtime-limits.js';
 import {
   GenerationValidationError,
@@ -46,7 +47,7 @@ const VALID_RISK_LIST = {
   ],
 };
 
-function buildDeps(providerScript: { content: string }[]): ScenarioExecutorDeps {
+function buildDeps(providerScript: GenerationResponse[]): ScenarioExecutorDeps {
   const tools = createToolRegistry();
   tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
   return {
@@ -76,6 +77,27 @@ describe('runScenario', () => {
     expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'todo_snapshot', 'confirmation_requested']);
     expect(events[0]).toMatchObject({ type: 'artifact_produced', artifactType: 'RiskList', artifact: VALID_RISK_LIST });
     expect(events[0]).toMatchObject({ evidenceGrades: [{ key: 'party-verify', grade: 'A', sourceId: 'mock', confirmed: false }] });
+  });
+
+  it('publishes provider compatibility notices with artifact_produced so a downgrade cannot stay silent', async () => {
+    const deps = buildDeps([{
+      content: JSON.stringify(VALID_RISK_LIST),
+      notices: [{
+        code: 'reasoning_downgraded_for_structured_output',
+        message: '结构化输出已使用标准模式',
+        requested: 'deep',
+        applied: 'standard',
+      }],
+    }]);
+    await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    expect(deps.eventLog.list()[0]).toMatchObject({
+      type: 'artifact_produced',
+      providerNotices: [expect.objectContaining({ code: 'reasoning_downgraded_for_structured_output' })],
+    });
   });
 
   it('throws UnknownToolError when a scenario references a toolId absent from the tool registry', async () => {

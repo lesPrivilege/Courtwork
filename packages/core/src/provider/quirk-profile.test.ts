@@ -28,9 +28,9 @@ describe('provider quirk profiles — docs/18 §6.3 已拍板的三家差异', (
 describe('reasoning route is profile-driven', () => {
   it('DeepSeek V4：thinking 请求字段开关（#41 照官方现值），模型名不被路由覆盖', () => {
     // 官方语义：思考模式经 thinking 字段控制，与 flash/pro 档位解耦；
-    // standard 档不发 thinking 键（缺省即非思考，未证实的 disabled 形态不编造——docs/18 纪律）。
+    // V4 缺省即 enabled，所以 standard 必须显式发 disabled，否则 UI 档位会静默升级。
     expect(applyReasoningRoute(DEEPSEEK_QUIRK_PROFILE, 'deepseek-v4-flash', 'standard')).toEqual({
-      model: 'deepseek-v4-flash', extraBody: {},
+      model: 'deepseek-v4-flash', extraBody: { thinking: { type: 'disabled' } },
     });
     expect(applyReasoningRoute(DEEPSEEK_QUIRK_PROFILE, 'deepseek-v4-pro', 'deep')).toEqual({
       model: 'deepseek-v4-pro', extraBody: { thinking: { type: 'enabled' } },
@@ -48,9 +48,8 @@ describe('reasoning route is profile-driven', () => {
     });
   });
 
-  it('request_field 值为 undefined 时不产键（standard 档"缺省即默认"的 wire 保证）', () => {
+  it('DeepSeek standard 的 wire 必须显式携带 disabled，禁止依赖 provider 默认值', () => {
     const wire = JSON.stringify(applyReasoningRoute(DEEPSEEK_QUIRK_PROFILE, 'deepseek-v4-flash', 'standard').extraBody);
-    expect(wire).toBe('{}');
-    expect(Object.keys(applyReasoningRoute(DEEPSEEK_QUIRK_PROFILE, 'deepseek-v4-flash', 'standard').extraBody)).toEqual([]);
+    expect(wire).toBe('{"thinking":{"type":"disabled"}}');
   });
 });

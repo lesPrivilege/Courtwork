@@ -1,6 +1,7 @@
 import type { ArtifactType } from '@courtwork/schemas';
 import type { EvidenceGradeAnnotation } from '../evidence/grade.js';
 import type { TodoStep } from '../scenario-executor/todo-snapshot.js';
+import type { GenerationNotice } from '../provider/types.js';
 
 /**
  * 渠道无关身份标识：不隐含确认方与 core 同进程/同机/同客户端（SPEC TODO 异步确认预留）。
@@ -36,6 +37,8 @@ export type SessionEvent =
       artifact: unknown;
       /** D4 台账的投影：W9 渲染信源等级角标的数据源，不需要改 schemas（判断点 3 追加要求）。 */
       evidenceGrades: EvidenceGradeAnnotation[];
+      /** provider 为兼容性改变 wire 档位时必须随产出显式发布，供 UI 轻提示。 */
+      providerNotices?: GenerationNotice[];
     })
   | (BaseEvent & {
       type: 'confirmation_requested';

@@ -10,6 +10,7 @@ const TEST_PROFILE: ProviderQuirkProfile = {
   reasoningFieldCandidates: ['reasoning_content'],
   recommendedModels: ['test-model'],
   reasoningRoute: { kind: 'request_field', field: 'reasoning_effort', values: { standard: 'low', deep: 'high' } },
+  parameterCompatibility: { structuredOutputWithDeepReasoning: 'supported' },
 };
 
 function sseResponse(chunks: unknown[], status = 200): Response {
@@ -133,6 +134,16 @@ describe('sendChatCompletion — retryable transport failures', () => {
     await sendChatCompletion(TEST_PROFILE, baseBody(), noDelayConfig({ fetchImpl, delay: delaySpy }));
     expect(delaySpy).toHaveBeenCalledTimes(1);
   });
+
+  it('does not retry an ambiguous network error because the provider may already be processing the request', async () => {
+    const fetchImpl = vi.fn(async () => {
+      throw new TypeError('connection reset after request write');
+    });
+    await expect(
+      sendChatCompletion(TEST_PROFILE, baseBody(), noDelayConfig({ fetchImpl, maxTransportRetries: 2 })),
+    ).rejects.toThrow('connection reset');
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('sendChatCompletion — timeout', () => {
@@ -147,8 +158,9 @@ describe('sendChatCompletion — timeout', () => {
       });
     });
     await expect(
-      sendChatCompletion(TEST_PROFILE, baseBody(), noDelayConfig({ fetchImpl: fetchImpl as unknown as typeof fetch, timeoutMs: 5, maxTransportRetries: 0 })),
+      sendChatCompletion(TEST_PROFILE, baseBody(), noDelayConfig({ fetchImpl: fetchImpl as unknown as typeof fetch, timeoutMs: 5, maxTransportRetries: 2 })),
     ).rejects.toThrow(ProviderTimeoutError);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
   it('throws ProviderTimeoutError when the response body stream stalls after headers arrive (body-phase timeout, not just connection-phase)', async () => {

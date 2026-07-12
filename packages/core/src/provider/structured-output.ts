@@ -3,6 +3,7 @@ import { applyReasoningRoute, type ProviderQuirkProfile } from './quirk-profile.
 import type { ChatMessage, HttpClientConfig, ResponseFormat } from './http-client.js';
 import { sendChatCompletion } from './http-client.js';
 import { ProviderInvalidResponseError, ProviderResponseFormatUnsupportedError } from './errors.js';
+import type { GenerationNotice } from './types.js';
 
 function stripMarkdownFence(text: string): string {
   const trimmed = text.trim();
@@ -37,6 +38,7 @@ export interface GenerateStructuredResult {
   content: string;
   reasoningContent?: string;
   usage?: { inputTokens: number; outputTokens: number };
+  notices?: GenerationNotice[];
 }
 
 export async function generateStructured(params: GenerateStructuredParams): Promise<GenerateStructuredResult> {
@@ -52,6 +54,20 @@ export async function generateStructured(params: GenerateStructuredParams): Prom
     ? augmentSystemPromptForStructuredOutput(profile, params.systemPrompt, jsonSchema)
     : params.systemPrompt;
 
+  const compatibilityAdjustment =
+    responseSchema && params.reasoningLevel === 'deep' &&
+    profile.parameterCompatibility.structuredOutputWithDeepReasoning === 'downgrade_to_standard'
+      ? {
+          reasoningLevel: 'standard' as const,
+          notices: [{
+            code: 'reasoning_downgraded_for_structured_output' as const,
+            message: `${profile.providerId} 的结构化输出与深思互斥，本次已自动使用标准模式。`,
+            requested: 'deep' as const,
+            applied: 'standard' as const,
+          }],
+        }
+      : { reasoningLevel: params.reasoningLevel, notices: undefined };
+
   let messages: ChatMessage[] = [
     ...(augmentedSystemPrompt ? [{ role: 'system' as const, content: augmentedSystemPrompt }] : []),
     ...params.messages,
@@ -63,8 +79,8 @@ export async function generateStructured(params: GenerateStructuredParams): Prom
   let attempt: number;
 
   for (attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    const routed = params.reasoningLevel
-      ? applyReasoningRoute(profile, params.model, params.reasoningLevel)
+    const routed = compatibilityAdjustment.reasoningLevel
+      ? applyReasoningRoute(profile, params.model, compatibilityAdjustment.reasoningLevel)
       : { model: params.model, extraBody: {} };
     const result = await sendChatCompletion(
       profile,
@@ -80,7 +96,7 @@ export async function generateStructured(params: GenerateStructuredParams): Prom
     );
 
     if (!responseSchema) {
-      return result;
+      return { ...result, notices: compatibilityAdjustment.notices };
     }
 
     const cleaned = stripMarkdownFence(result.content);
@@ -96,7 +112,7 @@ export async function generateStructured(params: GenerateStructuredParams): Prom
     allAttemptsFailedToParse = false;
     const validated = responseSchema.safeParse(parsed);
     if (validated.success) {
-      return { ...result, content: cleaned };
+      return { ...result, content: cleaned, notices: compatibilityAdjustment.notices };
     }
 
     lastIssue = validated.error.issues.map((i) => `${i.path.join('.') || '(root)'}: ${i.message}`).join('; ');

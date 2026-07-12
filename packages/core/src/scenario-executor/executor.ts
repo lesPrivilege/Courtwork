@@ -15,6 +15,7 @@ import { ARTIFACT_SCHEMAS } from './artifact-schemas.js';
 import { deriveTodoSnapshot } from './todo-snapshot.js';
 import { createRuntimeGuard, type RuntimeGuard, type RuntimeLimits } from './runtime-limits.js';
 import { estimateCostUsd } from '../provider/pricing-table.js';
+import type { GenerationNotice } from '../provider/types.js';
 
 export interface ScenarioExecutorDeps {
   tools: ToolRegistry;
@@ -99,7 +100,7 @@ async function generateArtifact(
     producedSoFar: Partial<Record<ArtifactType, unknown>>;
   },
   provider: Provider,
-): Promise<{ artifact: unknown; usage?: { inputTokens: number; outputTokens: number } }> {
+): Promise<{ artifact: unknown; usage?: { inputTokens: number; outputTokens: number }; notices?: GenerationNotice[] }> {
   const schema = ARTIFACT_SCHEMAS[artifactType];
   // todo 复述进请求末尾（Manus 抗注意力漂移技巧，docs/12，套在声明式步骤上）：
   // todo 字段放在展开运算符之后插入，JSON.stringify 按插入顺序输出键，
@@ -126,7 +127,7 @@ async function generateArtifact(
     const issues = result.error.issues.map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`).join('\n');
     throw new GenerationValidationError(scenario.id, artifactType, issues);
   }
-  return { artifact: result.data, usage: response.usage };
+  return { artifact: result.data, usage: response.usage, notices: response.notices };
 }
 
 interface SequenceState {
@@ -179,7 +180,7 @@ async function produceSequence(
   for (let i = 0; i < remainingArtifactTypes.length; i += 1) {
     guard.checkStep();
     const artifactType = remainingArtifactTypes[i];
-    const { artifact, usage } = await generateArtifact(
+    const { artifact, usage, notices } = await generateArtifact(
       scenario,
       artifactType,
       { inputArtifacts: state.inputArtifacts, toolResults: state.toolResults, producedSoFar: state.producedSoFar },
@@ -189,7 +190,9 @@ async function produceSequence(
     const costUsd = estimateCostUsd(deps.provider.id, deps.provider.modelId, usage);
     if (costUsd !== undefined) guard.checkUsd(costUsd);
     state.producedSoFar[artifactType] = artifact;
-    deps.eventLog.append({ type: 'artifact_produced', artifactType, artifact, evidenceGrades: deps.ledger.snapshot() });
+    deps.eventLog.append({
+      type: 'artifact_produced', artifactType, artifact, evidenceGrades: deps.ledger.snapshot(), providerNotices: notices,
+    });
 
     const gate = scenario.confirmationGates.find((g) => g.artifact === artifactType);
     if (gate) {

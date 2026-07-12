@@ -27,6 +27,10 @@ export interface ProviderQuirkProfile {
   /** 用户自配所需元数据与标准/深思 wire 映射。调用方只解释 kind，不按 providerId 分支。 */
   readonly recommendedModels: readonly string[];
   readonly reasoningRoute: ReasoningRoute;
+  /** 已知参数互斥表：结构化输出要求优先，需要时显式降为 standard。 */
+  readonly parameterCompatibility: {
+    readonly structuredOutputWithDeepReasoning: 'supported' | 'downgrade_to_standard';
+  };
 }
 
 export function applyReasoningRoute(
@@ -55,10 +59,11 @@ export const DEEPSEEK_QUIRK_PROFILE: ProviderQuirkProfile = {
   responseFormat: { tier: 'json_object' },
   reasoningFieldCandidates: ['reasoning_content'],
   recommendedModels: ['deepseek-v4-flash', 'deepseek-v4-pro'],
-  // #41（docs/55 拍板）：V4 思考模式经 thinking 请求字段控制，与 flash/pro 档位解耦
-  // （官方 2026-07 现值）；standard 不发键=非思考缺省，deep={type:'enabled'}。
+  // #41（docs/55 拍板 + 修正）：V4 思考模式经 thinking 请求字段控制，与 flash/pro 档位解耦；
+  // V4 缺省即 enabled——standard 档必须显式 disabled，否则 UI 档位被 provider 默认静默升级。
   // 模型名由用户所选直通，路由不再覆盖（#40 路由侧保证）。
-  reasoningRoute: { kind: 'request_field', field: 'thinking', values: { standard: undefined, deep: { type: 'enabled' } } },
+  reasoningRoute: { kind: 'request_field', field: 'thinking', values: { standard: { type: 'disabled' }, deep: { type: 'enabled' } } },
+  parameterCompatibility: { structuredOutputWithDeepReasoning: 'supported' },
 };
 
 export const QWEN_QUIRK_PROFILE: ProviderQuirkProfile = {
@@ -72,6 +77,7 @@ export const QWEN_QUIRK_PROFILE: ProviderQuirkProfile = {
   reasoningFieldCandidates: ['reasoning_content'],
   recommendedModels: ['qwen3.5-plus', 'qwen-flash'],
   reasoningRoute: { kind: 'request_field', field: 'enable_thinking', values: { standard: false, deep: true } },
+  parameterCompatibility: { structuredOutputWithDeepReasoning: 'downgrade_to_standard' },
 };
 
 export const DOUBAO_QUIRK_PROFILE: ProviderQuirkProfile = {
@@ -83,4 +89,5 @@ export const DOUBAO_QUIRK_PROFILE: ProviderQuirkProfile = {
   reasoningFieldCandidates: ['reasoning_content'],
   recommendedModels: ['doubao-seed-1.6'],
   reasoningRoute: OPENAI_COMPATIBLE_REASONING_ROUTE,
+  parameterCompatibility: { structuredOutputWithDeepReasoning: 'supported' },
 };

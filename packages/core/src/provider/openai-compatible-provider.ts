@@ -71,7 +71,7 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
         reasoningLevel: config.reasoningLevel,
         httpConfig,
       });
-      return { content: result.content, reasoningContent: result.reasoningContent, usage: result.usage };
+      return { content: result.content, reasoningContent: result.reasoningContent, usage: result.usage, notices: result.notices };
     },
   };
 }
