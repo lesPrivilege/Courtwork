@@ -1,4 +1,4 @@
-import type { FileOpsPlan, FileOpsPlanEntry, FileOpsVerb } from '@courtwork/schemas';
+import type { FileOpsPlanEntry, FileOpsVerb } from '@courtwork/schemas';
 import { FileOpsPlanSchema } from '@courtwork/schemas';
 import { assertRevealOrOpenAllowed, basenamePath } from './case-path.js';
 import type { FileOpsHost } from './file-ops-host.js';

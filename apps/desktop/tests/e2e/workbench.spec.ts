@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { openModuleList, openWorkbench } from './helpers';
 
 test('完整工作台帧与三栏在 1440 视口可见', async ({ page }) => {

@@ -37,7 +37,7 @@ describe('file-ops redline grep — 销毁级全链路不存在', () => {
   it('executor module exports no log-deletion API', () => {
     const text = readFileSync(join(root, 'file-ops-executor.ts'), 'utf8');
     // 禁止作为可调用 API 出现；注释中的否定表述（「不提供 deleteLog」）不算违规
-    expect(text).not.toMatch(/\b(deleteLog|clearLog|removeLog|destroyLog)\s*[\(=]/);
+    expect(text).not.toMatch(/\b(deleteLog|clearLog|removeLog|destroyLog)\s*[(=]/);
     expect(text).not.toMatch(/export\s+function\s+(deleteLog|clearLog)/);
   });
 });
