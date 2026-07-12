@@ -176,11 +176,14 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   background: var(--elevation-canvas);
 }
 /* 内容避让 chrome 带：窗顶 40px 浮层 − 12px 卡顶 inset = 卡内 28px */
-.case-rail, .conversation.canvas-layer { padding-top: 28px; }
+.conversation.canvas-layer { padding-top: 28px; }
+/* 左卡顶边贯通到窗口顶：红绿灯 + chrome 钮（panel/search）落卡背景内（用户拍板 2026-07-12，覆盖左卡顶部四边等距，
+   回归 RP-2.11 原意「卡片铺到红绿灯」）。负 margin 抵消 workspace 顶 inset，避让整条 40px chrome 带。 */
+.case-rail { margin-top: calc(-1 * var(--elevation-float-inset)); padding-top: 40px; }
 /* L0 对话画布保持不透明：工作面 tab 硬切时不露出 WebView 的透明合成底色。 */
 .conversation.canvas-layer { background: var(--elevation-canvas); }
 .rail-wordmark { display: flex; align-items: center; gap: 7px; }
-.rail-wordmark img { width: 18px; height: 18px; }
+.rail-wordmark-icon { width: 18px; height: 18px; color: var(--text-primary); }
 .workspace.comparing { grid-template-columns: 48px 300px minmax(0, 1fr); }
 .workspace.focus-mode { grid-template-columns: minmax(0, 1fr); padding: var(--elevation-float-inset); }
 /* chatbot 形态（2026-07-12）：收敛不留左窄卡——与 mac 红绿灯零冲突，展开钮驻 chrome 同位 */

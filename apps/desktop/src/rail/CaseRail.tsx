@@ -8,8 +8,12 @@ import type { ScenarioFlow } from '../protocol/client';
 import { OriginalsZone } from '../system/OriginalsZone';
 import { ArchiveGlyph } from '../workbench/MiniIcon';
 import { Icon } from '../workbench/Icon';
+import { customIcons } from '../icons/custom-icons.generated';
 import { useRef, useState } from 'react';
 import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
+
+// 品牌 wordmark 用扁平无框品牌 mark（竖线+三横=工作面隐喻，单色藏青本色）——撤旧 courtwork-mark.svg（带外框+暖灰底）
+const BrandMark = customIcons['brand-mark'];
 import {
   buildMixedRailRows,
   canExpandRailRow,
@@ -301,7 +305,7 @@ export function CaseRail({
     <aside className="case-rail surface-float" data-testid="case-rail" data-collapsed="false">
       <div className="case-expanded">
         <header className="panel-head rail-head">
-          <h2 className="rail-wordmark"><img src="/courtwork-mark.svg" alt="" />Courtwork</h2>
+          <h2 className="rail-wordmark"><BrandMark className="rail-wordmark-icon" aria-hidden="true" />Courtwork</h2>
           <i />
           <button
             className="rail-add-button"
