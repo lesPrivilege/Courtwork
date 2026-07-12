@@ -29,6 +29,8 @@ import { ChevronLeft,
   Search,
   Send,
   SendHorizontal,
+  SlidersHorizontal,
+  MoreHorizontal,
   ThumbsDown,
   ThumbsUp,
   Volume2,
@@ -81,6 +83,8 @@ const standardIcons = {
   'panel-left': PanelLeft,
   'panel-right': PanelRight,
   search: Search,
+  'sliders-horizontal': SlidersHorizontal,
+  'more-horizontal': MoreHorizontal,
 } satisfies Record<string, LucideIcon>;
 
 type StandardIconName = keyof typeof standardIcons;

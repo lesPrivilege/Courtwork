@@ -376,6 +376,13 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .originals-list li { grid-template-columns: 1fr auto auto; }
 .rail-case-expand { margin-left: 18px; padding: 0 0 6px 8px; border-left: 1px solid var(--border); background: transparent; border-radius: 0; }
 .rail-label { margin: 0; padding: 8px 10px 4px; border-top: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); font-weight: 510; letter-spacing: .01em; }
+/* ④分区标题行：标题左、操作钮右，基线层级对齐（右侧钮 hover 才现，静时轻淡） */
+.rail-section-head { display: flex; align-items: center; justify-content: space-between; padding-right: 6px; }
+.rail-section-head .rail-label { flex: 1; }
+.rail-section-actions { display: flex; align-items: center; gap: 2px; }
+.rail-section-actions .icon-button { width: 24px; height: 24px; opacity: 0; transition: opacity var(--motion-hover) ease-out; }
+.rail-section-actions .icon-button .line-icon { width: 15px; height: 15px; }
+.rail-pinned:hover .rail-section-actions .icon-button { opacity: 1; }
 .rail-case-expand > .rail-label:first-child { border-top: 0; }
 .stage-row { width: 100%; min-width: 0; min-height: 32px; display: flex; align-items: center; gap: 7px; padding: 6px 8px; border: 0; border-radius: 4px; background: transparent; cursor: pointer; font-size: var(--type-dense-body-size); text-align: left; }
 .stage-row:hover { background: var(--control-hover); }
@@ -1011,7 +1018,9 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .batch-bar { min-height: 32px; display: flex; align-items: center; gap: 10px; padding: 2px 10px 0; border-bottom: 0; background: transparent; font-size: var(--type-dense-meta-size); }
 .batch-bar small { margin-left: auto; color: var(--text-tertiary); }
 .submission-note { padding: 5px 10px; border-bottom: 1px solid var(--border); color: var(--green-fg); font-size: var(--type-dense-meta-size); }
-.risk-master-detail { min-height: 360px; display: grid; grid-template-columns: minmax(220px, 38%) minmax(0, 62%); margin-left: var(--preview-semantic-gutter); border-bottom: 1px solid var(--border); }
+/* ⑫左右贯通（用户拍板）：撤 margin-left gutter——risk-master-detail 与 batch-bar/document-preview 左对齐贯通；
+   法理之线（signature-line）在各 row/detail 内左边缘 absolute，不依赖此外部 gutter。 */
+.risk-master-detail { min-height: 360px; display: grid; grid-template-columns: minmax(220px, 38%) minmax(0, 62%); border-bottom: 1px solid var(--border); }
 
 @container (max-width: 560px) {
   .view-tabs .view-action > span { display: none; }
