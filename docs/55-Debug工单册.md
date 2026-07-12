@@ -708,3 +708,8 @@ work/schema 两线显式实现合并后，再盘 schema 逻辑做真注入。注
 ### 发射执行（SOL-FINAL 放行后）
 
 mirror：docs/70 manifest 逐项核对 + deslop/PII 扫描 → orphan 推公开仓 + Release 挂 dmg/SHA；pages：FD-1 编排 + 定版截图 + SITE 文案稿落版（deslop CI 首跑守站），发布于镜像仓 Pages；投递：docs/70 投递信 + 展品页 + 评测集按 docs/54 策略发出（字节系优先、大量积极接触）。kit 占位符同日清零回填。
+
+## FABLE-BASE 收账（2026-07-12 夜，12 提交 floor 181）+ 五裁
+
+批次七全落 + Button 七实锤 + 滚底三件套；**lint 假绿自曝记大功**——`| tail` 吞退出码致 143 error 隐身多日、RELEASE-1"零 error"证伪：判例升级为**验证命令保真退出码强制形态**（封装脚本，裸管道验证不采信）；历史绿可被证伪、更正 append-only。功能探针制（Sonnet 双探针真点真测先于修复）入方法库。
+五裁：①测宽 760 批准；②**chat 建案=隐式存入**（话题随建案入容器，观感消解于语义；chatspace 原对话单例保留）；③Settings 默认 Model；④Model 页统一英文+双验证钮去重留页级；⑤Provider 暴露既裁（27d9b2b）归 RP-2.12 执行。push：双线合并后统一推。
