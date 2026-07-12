@@ -1,13 +1,18 @@
-# 独立审计交接：自足版本坐标（2026-07-12）
+# 独立审计交接：自足版本坐标（2026-07-12 建，2026-07-13 更新）
 
-本文件供独立审计会话取用。描述树面合并收尾后的自足版本状态与验证证据。审计完成后可删。
+本文件供独立审计会话取用。描述自足版本状态与验证证据。审计完成后可删。
 
-## 版本坐标
+## 版本坐标（最新）
 
-- **main tip**：`bf9e5a1`（clean 树，`git status --porcelain` 零行）
-- **领先 origin**：35 提交，**未 push**（推送节奏归架构/用户；审计通过后再定）
-- **worktree**：唯一主树，无残留（早先 lint-probe 探测树已清）
-- **分支**：无未合并分支（`git branch --no-merged main` 空）
+- **main tip**：`2e5c014`（我方视觉改动 clean；`git status --porcelain` 仅剩 docs/55、docs/90 = **架构会话在途工单史，他线留置，非我方改动**）
+- **领先 origin**：44 提交，**未 push**（架构已定「独立审计放行即推」）
+- **worktree**：唯一主树，无残留
+- **分支**：无未合并分支
+
+## 本次会话后续批次（bf9e5a1 之后）
+
+- FABLE-BASE 五裁执行（ef861c1→a09d28b）、UI 反馈四项（b434157→e91f15d：撤占位图标/composer focus 砍框线/三栏对齐/打字机 reveal）
+- **12 项视觉 polish（b4c6ac5/cbdb70f/2e5c014，本轮 6/12）**：⑦案件标题左排｜⑧返回及 icon-button 撤黑框｜⑩schema 单层滚动｜②④Pinned 标题两 lucide 操作钮（层级对齐）｜⑫schema 左右贯通（撤 master-detail gutter，rp26 断言随之改判）。**剩 6 项待续**：⑤⑨（实测已对齐，待用户指认具体行）、①③⑥⑪（对齐/圆角间距/schema 拥挤重排，用户授权「视觉友好优先」）。
 
 ## 机器门实测（clean 树，退出码保真——不经 `| tail` 吞码）
 
@@ -17,10 +22,13 @@
 | `pnpm --filter @courtwork/desktop exec tsc -b` | exit 0 |
 | `pnpm test`（vitest 全仓） | 85 文件 / **734/734** |
 | `pnpm --filter @courtwork/desktop test`（desktop 单测） | 20 文件 / **94/94** |
-| `npx eslint .`（整仓真绿） | **exit 0** |
-| 16 门禁 + Playwright（`test:e2e`） | **R1/R2 连续 186/186 exit 0** |
-| floor（`assert-test-count`） | **182**（禁降史 …169→171→172→173→176→181→182） |
-| `demo:s3` golden | PASS，预埋考点 7/7（RELEASE-1 已验，本轮未回归） |
+| `npx eslint .`（整仓真绿） | **exit 0**（2026-07-13 复核） |
+| 16 门禁 + Playwright（`test:e2e`） | **R1/R3 连续 190/190 exit 0**（R2 出 4 红=并发 flaky，隔离单 worker 全过排除，D-1 flake 判例形制） |
+| floor（`assert-test-count`） | **185**（禁降史 …182→183→185；本 12 项视觉批未加 e2e，rp23/rp26 连带门禁随改判随修） |
+| `pnpm test` / `pnpm -r build` / `tsc` | 均 exit 0（2026-07-13 复核） |
+| `demo:s3` golden | PASS，预埋考点 7/7（未回归） |
+
+**审计提示（本会话新增）**：⑫撤 schema gutter 后 rp26「semantic edge keeps gutter」断言改判为「与 batch-bar 贯通对齐」，静态门禁 assert-rp26 仍绿（timeline-layout 保留 gutter token）——审计核对此处是设计变更非绕过。⑦案件标题左排后 rp23「无横向溢出」靠 chat-titlebar overflow hidden + 标题可截断保住。
 
 ## 树面合并收尾明细
 
