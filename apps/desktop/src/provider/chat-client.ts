@@ -13,6 +13,7 @@ import { createOpenAICompatibleProvider } from '@courtwork/core/provider-openai'
 import { OPENAI_COMPATIBLE_REASONING_ROUTE, type ProviderQuirkProfile } from '@courtwork/core/provider-quirks';
 import type { GenerationMessage, GenerationResponse } from '@courtwork/core/provider-types';
 import { effectiveBaseUrl, PROVIDER_OPTIONS, type ModelConfig } from './model-config';
+import { assembleChatSystemPrompt } from './chat-assembly';
 
 /** core 非空校验用占位；无敏感性——桥不向 Rust 传任何 header。 */
 const KEYCHAIN_PLACEHOLDER = '__keychain__';
@@ -66,8 +67,8 @@ export interface ChatTurnResult {
   usage?: { inputTokens: number; outputTokens: number };
 }
 
-/** e2e/浏览器态测试钩：注入脚本化响应，避免真网络。 */
-type ChatOverride = (messages: GenerationMessage[]) => Promise<ChatTurnResult>;
+/** e2e/浏览器态测试钩：注入脚本化响应，避免真网络。systemPrompt 作第二参透传，供测试断言组装段（纯增参，旧 responder 不受影响）。 */
+type ChatOverride = (messages: GenerationMessage[], systemPrompt?: string) => Promise<ChatTurnResult>;
 let browserOverride: ChatOverride | null = null;
 
 export function installChatTestHooks() {
@@ -89,7 +90,8 @@ export async function sendChatTurn(
   messages: GenerationMessage[],
   options?: { fetchImpl?: typeof fetch },
 ): Promise<ChatTurnResult> {
-  if (browserOverride && !options?.fetchImpl) return browserOverride(messages);
+  const systemPrompt = assembleChatSystemPrompt();
+  if (browserOverride && !options?.fetchImpl) return browserOverride(messages, systemPrompt);
   if (!isTauriRuntime() && !options?.fetchImpl) {
     throw new Error('对话请求仅在桌面应用内可用');
   }
@@ -100,7 +102,7 @@ export async function sendChatTurn(
     reasoningLevel: config.reasoning,
     fetchImpl: options?.fetchImpl ?? createKeychainChatFetch(),
   });
-  const response: GenerationResponse = await provider.generate({ messages });
+  const response: GenerationResponse = await provider.generate({ systemPrompt, messages });
   return {
     content: response.content,
     reasoningContent: response.reasoningContent,
