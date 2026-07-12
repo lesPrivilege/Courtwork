@@ -967,3 +967,50 @@ RM-1 定形版 README（`0c8a463`，命令全部当日实跑）；docs/70 镜像
 **慢火池清单（polish 级，非发版阻塞，全部留置待专单）**：①6 处零引用导出（StackModule 族/AttachmentStatusKind/DEMO_WORK_DRAFT_DIR/getDemoHostSnapshot/isConfigured@deprecated/recordingFor）；②9 个 capture-*.mjs 历史审计脚本未接线（visual:audit 之外）；③孤儿 CSS ~30 块——其中 utility-dock 族/generated-callout/chat-global-action 三族有 e2e 负测实锤已死，titlebar/statusbar 族因 rp1/rp2 断言方向未复核置信度降档，长尾未穷举；④icon-audit.css（dev-only 独立页）绕 token 手抄色值。留置理由：宁留置勿误吞——发版前夕批量删码与"克制"相悖，且清单含未定项（statusbar 断言方向）。
 
 **结论不变：发版放行 ✅。**
+
+---
+
+## FABLE-BASE 底座修缮报告（2026-07-12，Fable @ Code——批次七全项 + Button 全量核对 + 滚底首例）
+
+方法照章程：**先分发功能核验**（两支 Sonnet 探针端口隔离 1425/1426，真点真发真量测——批次七探针 9 子场景 23 截图零 console 错误；Button 探针 40 脚本 150+ 次交互全程监听），**证据先行再动码**；每修必附守护测试，floor 只升（169→181，禁降史续记）。
+
+### 一、批次七落地
+
+| 项 | 探针实证现状 | 处置 |
+|---|---|---|
+| ① system prompt | messages 仅 [user]，零 system 段 | chat-assembly 三件（身份/红线简版/语言约定），systemPrompt 一等字段上 wire，快照锁字节（d7ee188） |
+| ② md 渲染 | 标签计数全 0，换行都丢 | 零依赖小解析器：段落/标题/两种列表/围栏代码块（paste 同凡例复用）/行内加重与 code；思考折叠同走（ab5a809） |
+| ③ 测宽 | 消息列 75-76% vs composer 95-97%，差值随视口扩大 | **值提案报裁**（见三-1），未擅动 |
+| ④ 路由律 | chat 内建案/点案/点阶段三条全不切面 | switchSegment 正门四接线：建案（含容器化/存 chat）/左栏点案/点阶段/⌘K 跳案（4f37359） |
+| ⑤ 导入反馈 | 链路全通；"Unnamed container" 英文串泄漏 | 兜底改「未命名容器」（b4202d3）；keychain 多弹与导入怪象照预裁归 DBG-4 等用户 trace |
+| ⑦ 思考动画 | chat 品牌三横/work 字符▏两面不统一 | work thinking 态换 BrandThinking，settled 字符锚保留，terminal-blink 随消费者退役，门禁改判随批（87f17be） |
+| ⑨ 红绿灯 | —（真机项） | 避让机制核对在位（Overlay+浮层 chrome+避让区）；像素间奏照既裁属 sol 真机核 |
+
+滚底首例（工单点名）：MutationObserver 跟随 + 48px 钉底阈 + 上翻暂停 + sticky 零高槽浮标（无字圆钮），浏览器三步实证 + e2e 双守护（a83f43a）。
+
+### 二、Button 全量核对（验收标准：每一个 Button 都是期待的效果）
+
+探针判定表全量在册（探针产物目录）；**七实锤全修**（67a938e，五条可确定性复现项入守护）：+菜单 overflow 裁剪整层不可见（case-menu 单独豁免过的同病漏项）｜+菜单/case 下拉/Owner 菜单三处收敛纪律孤立缺口｜未连接点 Send 吞草稿（onSend 增受理语义）｜Focus+收栏白屏（Focus 态藏钮）｜Owner 菜单幽灵开态｜剪贴板裸异常｜Ran command 收不起（受控 details 打架）。
+
+### 三、[需架构拍板] 报裁清单
+
+1. **测宽收敛值提案**：内容列统一 max-width **760px 居中**，composer 与消息列同宽对齐（现两者 75% vs 96% 且差值随视口扩大；frontier 惯例单列 720-768 封顶）。批②预裁"值提案过目"，此为提案值。
+2. **store-chat 建案后切 work**：照④预裁字面实现，副作用=刚存对话离开当前视野（work 面显示 work 会话）。若观感突兀，可选"切面+chat tab 轻提示"变体。
+3. **Settings 默认落地 tab**：现为 About & updates；探针建议候选 Model（近期改造重心）。
+4. **Model 设置页中英并存**：英文外壳内嵌中文凭证表单，同页两处"验证连接"（中文凭证区/英文 Reasoning 区），词表归宿待裁。
+5. ModelConfigPopover Provider 暴露（RELEASE-1 已上报，仍待裁）。
+
+### 四、留置与他线
+
+- **DBG-4**（keychain 多弹+导入反馈怪）：照批⑤预裁等用户 trace 剧本回传，本单未动。
+- **慢火池追加**：R 卡"复制卡片内容"混入 UI 标签文字；Output 导航"已绑定文件夹"路径补测；probe A 未覆盖项清单（原生对话框系/Review and enable/Usage telemetry/Send feedback）。
+- **原件「打开」裁定非缺陷**：走 systemOpenClient（Tauri 系统打开/浏览器降级 toast），应用内阅读另有 Working folders 入口（RELEASE-1 已验）——探针存疑项①结案。
+- **Panels.tsx 留痕**：他线在途热文件一处 unused param，就地最小修（`(risk, index)`→`(risk)`）不入本会话提交，随他线收编——跨包阻塞性实现级三条件：语义等价/本处留痕/完工回报标出。
+
+### 五、RELEASE-1 更正（假绿自曝）
+
+RELEASE-1 验收表「`pnpm lint` 零 error」为**假绿记录**：历史验证跑法 `pnpm lint | tail` 令管道尾命令吃掉退出码，143 errors 长期隐身（干净 worktree @ HEAD 复现实证）。本批修至 **lint 整仓真绿 exit 0（仓史首次）**：config 补 scripts node 全局与 docs 出面、五处真代码清账（2610c9b）。历史各单 SPEC 中"lint 零 error"记录同疑，未逐条回溯——以今日起的 exit 0 为新基线。同型教训：验证命令一律保真退出码，禁 `| tail`/`| grep` 终端。
+
+### 六、机器门终值（本单收口）
+
+全仓 build 零错（exit 0 保真）｜root vitest **734/734**｜desktop vitest **94/94**（+9 本单）｜**lint 整仓真绿 exit 0（仓史首次）**｜16 门禁 + Playwright：R1 184/185（Split-Tab 单红=环境性 flake：他线共树编辑触发 vite 重载,隔离 3/3 绿,D-1 flake 判例形制分诊）→ **R2/R3 连续 185/185 exit 0**；floor **181**（本单 +12,禁降史 …169→171→172→173→176→181）。总数 185 含他线在途重建 spec（其 4 条,过验归他线收编,本单不代收）。
