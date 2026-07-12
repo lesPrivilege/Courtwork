@@ -172,7 +172,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
       <div className="batch-bar"><span>可批量：中/低危且依据已核验 · {props.batchRefs.length} 项</span><button onClick={props.onBatchConfirm} disabled={!props.batchRefs.length}>批量确认 {props.batchRefs.length} 项</button><small>高危与未核验条目已拆出</small></div>
       {props.submitted && <div className="submission-note" role="status">{props.gate?.items.length ?? 0} 项处置已逐条提交</div>}
       <div className="risk-master-detail">
-        <div className="risk-list"><div className="table-head risk-grid"><span>风险</span><span>等级</span><span>状态</span></div>{props.riskList.risks.map((risk, index) => {
+        <div className="risk-list"><div className="table-head risk-grid"><span>风险</span><span>等级</span><span>状态</span></div>{props.riskList.risks.map((risk) => {
           const gateItem = props.gate?.items.find((item) => item.itemRef === risk.id);
           const disposition = props.dispositions[risk.id];
           const settled = disposition === 'confirmed' || disposition === 'rejected' ? disposition : undefined;
