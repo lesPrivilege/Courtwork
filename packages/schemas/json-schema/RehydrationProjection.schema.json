@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "ops": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "field"
+              },
+              "path": {
+                "type": "string",
+                "pattern": "^\\/"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "path",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "count"
+              },
+              "path": {
+                "type": "string",
+                "pattern": "^\\/"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "where": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "equals": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "field",
+                  "equals"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "kind",
+              "path",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "list"
+              },
+              "path": {
+                "type": "string",
+                "pattern": "^\\/"
+              },
+              "itemField": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "limit": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "path",
+              "itemField",
+              "label",
+              "limit"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "rowBudget": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    }
+  },
+  "required": [
+    "ops",
+    "rowBudget"
+  ],
+  "additionalProperties": false,
+  "title": "RehydrationProjection",
+  "description": "续行块投影声明：闭词表 op 序列 + 行预算。确定性执行、golden 可测、禁 LLM 压缩。"
+}

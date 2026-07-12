@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "packageId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z-.]+)?$"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "legacyTypeAliases": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*\\.[A-Z][A-Za-z0-9]*$"
+      }
+    }
+  },
+  "required": [
+    "packageId",
+    "version",
+    "schemaVersion"
+  ],
+  "additionalProperties": false,
+  "title": "PackageIdentity",
+  "description": "垂类包身份：id/版本/schema 版本/账本读侧迁移别名表。同 id 拒载在 ABI 准入层执行。"
+}

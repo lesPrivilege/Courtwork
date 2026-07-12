@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "fileId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "page": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "blockId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exactQuote": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "fileId",
+    "exactQuote"
+  ],
+  "additionalProperties": false,
+  "title": "QuoteClaim",
+  "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
+}

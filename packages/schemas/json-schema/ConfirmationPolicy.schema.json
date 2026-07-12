@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "const": "none"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "const": "gates"
+        },
+        "gates": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifact": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*\\.[A-Z][A-Za-z0-9]*$",
+                "title": "ArtifactTypeId",
+                "description": "namespaced artifact 类型 id：`包id.类型名`。裸类型名（旧形制）不再合法。"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "mode",
+        "gates"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

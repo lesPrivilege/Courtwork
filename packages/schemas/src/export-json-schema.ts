@@ -8,6 +8,11 @@ import { ReviewMatrixSchema } from './review-matrix.js';
 import { RevisionEventSchema } from './revision-event.js';
 import { RevisionInstructionSetSchema } from './revision-instruction-set.js';
 import { FileOpsPlanSchema } from './file-ops-plan.js';
+import { ArtifactTypeIdSchema } from './artifact-type-id.js';
+import { ConfirmationPolicySchema } from './confirmation-policy.js';
+import { QuoteClaimSchema, CitationFailureSchema } from './citation.js';
+import { RehydrationProjectionSchema } from './artifact-descriptor.js';
+import { PackageIdentitySchema } from './package-identity.js';
 
 export const SCHEMA_REGISTRY = [
   { name: 'SourceAnchor', schema: SourceAnchorSchema },
@@ -19,6 +24,13 @@ export const SCHEMA_REGISTRY = [
   { name: 'RevisionEvent', schema: RevisionEventSchema },
   { name: 'RevisionInstructionSet', schema: RevisionInstructionSetSchema },
   { name: 'FileOpsPlan', schema: FileOpsPlanSchema },
+  // SCHEMA-SPEC-1（2026-07-13）：namespaced/引用闭环/确认策略/投影/包身份五契约入对外契约面。
+  { name: 'ArtifactTypeId', schema: ArtifactTypeIdSchema },
+  { name: 'ConfirmationPolicy', schema: ConfirmationPolicySchema },
+  { name: 'QuoteClaim', schema: QuoteClaimSchema },
+  { name: 'CitationFailure', schema: CitationFailureSchema },
+  { name: 'RehydrationProjection', schema: RehydrationProjectionSchema },
+  { name: 'PackageIdentity', schema: PackageIdentitySchema },
 ] as const;
 
 export function toJSONSchemaRecord(): Record<string, unknown> {
