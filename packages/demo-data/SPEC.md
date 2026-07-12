@@ -42,6 +42,8 @@
 
 ## 验收记录
 
+- 2026-07-12（S3-MATERIAL-0）：补齐 docs/21 分期中的样板卷宗合成 PDF 欠账。`data/contracts/设备采购合同.pdf` 是由 `scripts/generate-contract-pdf.mjs` 读取权威语料 `main-contract.md` 后，经文书级 HTML 排版与 headless Chromium 打印得到的**可再生生成物**；页内和页脚均显式标注虚构样板案与生成来源。生成器是源，PDF 是产物，执行 `pnpm --filter @courtwork/demo-data generate:contract-pdf` 可重新生成。为避免不同宿主中文字体的 PDF ToUnicode 映射漂移，生成器内嵌 OFL 1.1 授权的 Noto Sans CJK SC 最小字符子集（`assets/`，含许可证）。消费侧验收位于 `packages/reading-view/src/pdf/s3-material.test.ts`，覆盖文本层可提取、七条预登记引语、`quote === slice(start,end)`、页码/`textLayerVersion` 与独立字节数组双跑稳定性。
+
 - 2026-07-09：当期范围完成（第二版，替代同日内已删除、从未提交的占位版本）。`party-corpus.ts`/`citation-corpus.ts`/`index.ts` 交付，15 例测试（party-corpus 8 + citation-corpus 7）全绿，`pnpm lint` 无 error，`pnpm -r run build` 通过。新增 `@types/node` devDependency（读文件需要 `node:fs`/`node:path`/`import.meta.dirname`，`lib` 只到 `ES2023` 没有 DOM，沿用 W1 记录过的坑）。
   - 设计取舍：
     - **记录类型不与工具契约字段对齐，如实反映语料形状**：`PartyCorpusRecord`/`CitationCorpusRecord` 系列字段数量远超 `PartyVerifyData`/`CiteCheckData`，投影责任明确留给装配点（见上方"src 只认接口"节），本包不做任何"削足适履"的裁剪。`CitationCorpusRecord` 用判别联合而不是"一个大接口塞满 optional 字段"表达三种条目形状的差异（现行有效/已失效/虚构判例字段集合本就不同），比单一宽接口更诚实。

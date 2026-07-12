@@ -10,7 +10,7 @@
 |------|------|----------------------|----------------------|
 | **S1 卷宗阅卷** | 上传卷宗文件（pdf/jpg/png，此处以干净 .md 文本代替） | `dossier/` 20 份文书（起诉状、答辩状、证据清单、主合同、补充协议、送货单×3、验收单、催告函×2、会议纪要×2、银行流水摘要、情况说明、律师函、债权转让通知书、保证书、授权委托书、企业信用信息查询单） | `artifacts/case-file.json`、`artifacts/timeline.json`（47事件）、`artifacts/party-graph.json`（14节点/15边） |
 | **S2 矩阵审阅** | CaseFile（此处以合同变体集合代替批量文档） | `contracts/variants/` 10 份同类采购合同变体（不同虚构对手方，违约金比例/管辖/付款节点/质保期等条款各异） | `artifacts/review-matrix.json`（10文档 × 7问题） |
-| **S3 合同审查** | CaseFile + party-verify 工具 | `contracts/main-contract.md`（含6处预埋风险条款）；`registries/party-verify.json`（主体核验库，22条记录 + out_of_coverage名单） | `artifacts/risk-list.json`（6个风险点，均带法条依据+来源锚点） |
+| **S3 合同审查** | CaseFile + party-verify 工具 | `contracts/main-contract.md`（含6处预埋风险条款）；`contracts/设备采购合同.pdf`（由 `scripts/generate-contract-pdf.mjs` 从前者生成的带文本层 PDF）；`registries/party-verify.json`（主体核验库，22条记录 + out_of_coverage名单） | `artifacts/risk-list.json`（6个风险点，均带法条依据+来源锚点） |
 | **S4 文书起草** | CaseFile + Timeline + PartyGraph | 复用 S1 的三个 artifact；`dossier/01-起诉状.md`、`dossier/02-答辩状.md` 可作为起草文风参照样本 | 暂无独立 outputArtifacts（`registry/scenarios/S4.yaml` 声明为 label-only 确认门禁，`RevisionInstructionSet` 待 W4 落地，见 `packages/schemas/SPEC.md` TODO），本数据集不预生成，待该产物类型定稿后补充 |
 
 `registries/cite-check.json`（法条/判例引用校验库，67条：57条现行有效真实法条 + 7条已失效旧法 + 3条虚构判例）供 S3/S4 的引用校验能力通用消费，不专属某一场景。

@@ -12,11 +12,13 @@
     }
   },
   "scripts": {
+    "generate:contract-pdf": "node scripts/generate-contract-pdf.mjs",
     "test": "vitest run --root ../.. src/*.test.ts",
     "lint": "eslint .",
     "build": "tsc -p tsconfig.json"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/node": "^26.1.1"
   }
 }

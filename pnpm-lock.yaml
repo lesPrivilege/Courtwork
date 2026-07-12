@@ -128,6 +128,9 @@ importers:
 
   packages/demo-data:
     devDependencies:
+      '@playwright/test':
+        specifier: ^1.55.0
+        version: 1.61.1
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1
