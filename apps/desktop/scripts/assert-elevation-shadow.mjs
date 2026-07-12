@@ -34,7 +34,8 @@ for (const value of declarations) {
 const tokenConsumers = [...styles.matchAll(/([^{}]+)\{[^{}]*box-shadow\s*:\s*var\(--elevation-shadow\);[^{}]*\}/g)]
   .map((match) => match[1].trim().replace(/\s+/g, ' '));
 // RP-2.11 ⑨：拍板受控扩项——composer 附件 chip 入白名单（藏青双层极轻值）。
-const expectedConsumer = '.case-rail.surface-float, .right-rail-collapsed.surface-float, .surface-card-raised, .attachment-chip';
+// RP-2.12：四模块白卡（rail-module）为右列 L1 浮面,入影白名单（有影必描边同律）。
+const expectedConsumer = '.case-rail.surface-float, .right-rail-collapsed.surface-float, .surface-card-raised, .rail-module, .attachment-chip';
 if (tokenConsumers.length !== 1 || tokenConsumers[0] !== expectedConsumer) {
   failures.push(`styles.css: elevation consumer whitelist drifted: ${tokenConsumers.join(' | ') || '(none)'}`);
 }
