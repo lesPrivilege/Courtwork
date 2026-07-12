@@ -612,14 +612,7 @@ export function Composer({
         </div>
       </div>
 
-      <p className="composer-kbd-hint" data-testid="composer-kbd-hint">
-        <kbd>⏎</kbd>
-        <span>{CHROME_COPY.composer.send}</span>
-        <span className="composer-kbd-sep">·</span>
-        <kbd>⇧</kbd>
-        <kbd>⏎</kbd>
-        <span>{CHROME_COPY.composer.newLine}</span>
-      </p>
+      {/* 2026-07-12 减法（重申，防合并回流）：⏎/⇧⏎ 是品类通用规则不作提示；行为不变 */}
       {/* 供测试与 a11y 读出当前作用域文案模板 */}
       <span className="sr-only" data-testid="composer-scope-copy">
         {scopeCommitTitle(containerKind)}/{scopeCommittedLabel(containerKind)}/{scopeConfirmBody(containerKind, caseName ?? '')}
