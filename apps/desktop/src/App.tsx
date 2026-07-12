@@ -73,6 +73,7 @@ import { SplitView, type SplitDirection } from './workbench/SplitView';
 import { ThinkingStream } from './workbench/ThinkingStream';
 import { MessageActions } from './chat/MessageActions';
 import { sendChatTurn } from './provider/chat-client';
+import { BrandThinking } from './chat/BrandThinking';
 import { useDismissOnOutside } from './hooks/useDismissOnOutside';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
@@ -171,6 +172,7 @@ export function App() {
   const [modelConfig, setModelConfig] = useState<ModelConfig>(() => loadModelConfig());
   const [modelConfigOpen, setModelConfigOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsAutoCredential, setSettingsAutoCredential] = useState(false);
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('model');
   /** 起草画布内切换：交付轨文书 vs 工作稿轨笔记 */
   const [workDraftMode, setWorkDraftMode] = useState(false);
@@ -201,6 +203,8 @@ export function App() {
   }>>([]);
   /** chat 面在途请求（真 API）；期间 ▏字符指示（RP-2.11 推理字符版）。 */
   const [chatPending, setChatPending] = useState(false);
+  /** state commit 前即生效的单飞行锁，防双击/Enter 在同一渲染帧发出两请求。 */
+  const chatFlightRef = useRef(false);
   const [storeChatOpen, setStoreChatOpen] = useState(false);
   const [artifactRevision, setArtifactRevision] = useState(0);
   const [replayEpoch, setReplayEpoch] = useState(0);
@@ -240,7 +244,7 @@ export function App() {
   const handleComposerSend = (payload: ComposerSendPayload) => {
     if (credentialStatus.phase !== 'connected') {
       probeCredentials();
-      setProviderSetupOpen(true);
+      openCredentialSurface();
       return;
     }
     const createdAt = Date.now();
@@ -268,12 +272,14 @@ export function App() {
   /** chat 面（内存态轻画布）：发送即入内存会话；不落盘（重启即逝，0.1.1 诚实缺口）。
    *  GOAL-1 链路批：真 API 端到端——发送 → Rust 窄面代理流式请求 → 回复 0ms 落格。 */
   const handleChatSend = (payload: ComposerSendPayload) => {
+    if (chatFlightRef.current) return;
     if (credentialStatus.phase !== 'connected') {
       probeCredentials();
-      setProviderSetupOpen(true);
+      openCredentialSurface();
       return;
     }
     const userText = payload.text || (payload.attachments.length ? '（附文件）' : '');
+    chatFlightRef.current = true;
     const history = chatMessages
       .filter((message) => !message.failed)
       .map((message) => ({ role: message.role, content: message.text }));
@@ -307,7 +313,10 @@ export function App() {
           failed: true,
         }]);
       })
-      .finally(() => setChatPending(false));
+      .finally(() => {
+        chatFlightRef.current = false;
+        setChatPending(false);
+      });
   };
 
   /** 两面唯一的桥：从 chat 收当前话题入容器（docs/25 修正二），复用容器化仪式后切 work 面。 */
@@ -329,6 +338,17 @@ export function App() {
 
   useDismissOnOutside(sceneMoreOpen, () => setSceneMoreOpen(false), sceneMoreRef);
   useDismissOnOutside(storeChatOpen, () => setStoreChatOpen(false), storeChatRef);
+
+  /** 凭证入口路由（2026-07-12）：首启走欢迎引导卡；此后一律 Settings 内嵌（#43 减法律，不再首页弹窗）。 */
+  const openCredentialSurface = () => {
+    if (!window.localStorage.getItem('courtwork.onboarding.seen')) {
+      setProviderSetupOpen(true);
+      return;
+    }
+    setSettingsSection('model');
+    setSettingsAutoCredential(true);
+    setSettingsOpen(true);
+  };
 
   const probeCredentials = async (config: ModelConfig = modelConfig) => {
     setCredentialProbed(true);
@@ -975,7 +995,7 @@ export function App() {
   ];
 
   /** composer 浮卡（chat/work 共用；onSend 与 workmode=viewSegment 同源由调用方注入）。 */
-  const renderComposer = (onSend: (payload: ComposerSendPayload) => void) => (
+  const renderComposer = (onSend: (payload: ComposerSendPayload) => void, requestPending = false) => (
     <div className="composer-stack">
       <div className="composer-float surface-float">
         <Composer
@@ -992,11 +1012,12 @@ export function App() {
             if (credentialStatus.phase === 'connected') setModelConfigOpen((open) => !open);
             else void probeCredentials().then((status) => {
               if (status.phase === 'connected') setModelConfigOpen(true);
-              else setProviderSetupOpen(true);
+              else openCredentialSurface();
             });
           }}
           onModelConfigChange={updateModelConfig}
           onCloseModelConfig={() => setModelConfigOpen(false)}
+          requestPending={requestPending}
         />
       </div>
       <p className="composer-disclaimer" data-testid="composer-disclaimer">
@@ -1034,7 +1055,8 @@ export function App() {
         data-right-collapsed={rightCollapsed ? 'true' : 'false'}
         data-compact={compactLayout ? 'true' : 'false'}
       >
-        {!focusMode && (
+        {/* chatbot 形态：收敛即撤卡（不留窄条），展开钮驻 chrome 同位——与红绿灯零冲突 */}
+        {!focusMode && !effectiveLeftCollapsed && (
           <CaseRail
             cases={cases}
             unfiled={[]}
@@ -1310,11 +1332,11 @@ export function App() {
               ))}
               {chatPending && (
                 <div className="chat-pending" role="status" data-testid="chat-pending">
-                  <span className="thinking-caret" aria-hidden="true">▏</span>
+                  <BrandThinking />
                 </div>
               )}
             </div>
-            {renderComposer(handleChatSend)}
+            {renderComposer(handleChatSend, chatPending)}
           </section>
         )}
 
@@ -1433,6 +1455,8 @@ export function App() {
         onClose={() => setSettingsOpen(false)}
         credentialStatus={credentialStatus}
         onCredentialStatusChange={setCredentialStatus}
+        autoOpenCredentials={settingsAutoCredential}
+        onAutoOpenConsumed={() => setSettingsAutoCredential(false)}
         modelConfig={modelConfig}
         onModelConfigChange={updateModelConfig}
         onValidateProvider={() => probeCredentials()}

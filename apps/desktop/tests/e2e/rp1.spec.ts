@@ -130,13 +130,15 @@ test.describe('RP-1 最终重排', () => {
     await page.getByTestId('collapse-left-rail').click();
     await page.getByTestId('collapse-right-rail').click();
     await expect(page.getByTestId('workspace')).toHaveAttribute('data-left-collapsed', 'true');
-    await expect(page.getByTestId('case-rail')).toHaveAttribute('data-collapsed', 'true');
-    await expect(page.getByTestId('expand-left-rail')).toBeVisible();
+    // chatbot 形态：收敛即撤卡（无窄条），底纸直露
+    await expect(page.getByTestId('case-rail')).toHaveCount(0);
+    // chatbot 形态：收敛撤窄卡，展开钮=chrome 同位钮（位置守恒）
+    await expect(page.getByTestId('collapse-left-rail')).toBeVisible();
     await expect(page.getByTestId('module-progress')).toHaveCount(0);
     await expect(page.getByTestId('expand-right-rail')).toBeVisible();
     await expect(page.getByTestId('conversation-canvas')).toBeVisible();
     await expect(page.locator('.composer-float')).toBeVisible();
-    await page.getByTestId('expand-left-rail').click();
+    await page.getByTestId('collapse-left-rail').click();
     await expect(page.getByTestId('case-rail')).toHaveAttribute('data-collapsed', 'false');
   });
 

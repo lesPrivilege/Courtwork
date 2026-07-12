@@ -33,7 +33,7 @@ need(composer.includes('data-testid="composer-workmode"') && composer.includes('
 need(composer.includes('data-testid="composer-add-folder"'), '⑤ add-folder 须提为独立沉底钮');
 
 // —— ② 三栏间距 8→12 ——
-need(/--elevation-shell-gap:\s*12px/.test(css) && /--elevation-float-inset:\s*12px/.test(css), '② 三栏间距须 8→12');
+need(/--elevation-shell-gap:\s*20px/.test(css) && /--elevation-float-inset:\s*12px/.test(css), '② 三栏 gap=20（12→16→20 两拍）+ inset=12');
 // —— ⑥ message 按钮缩档 ——
 need(/\.message-actions button\s*\{[^}]*width:\s*20px/.test(css), '⑥ message 按钮须缩至 20px');
 // —— ⑦ hover 深色块 token（hover 与 selected 分离） ——

@@ -36,14 +36,14 @@ export async function createNamedCase(page: Page, name: string) {
 export async function connectProvider(page: Page) {
   const trigger = page.getByTestId('composer-provider');
   if (await trigger.getAttribute('data-phase') === 'connected') return;
+  // 2026-07-12 connect 路由：非首启一律 Settings 内嵌凭证面（首启引导卡另测于 rp29/goal1）
   await trigger.click();
-  const dialog = page.getByTestId('provider-setup');
-  await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
-  await dialog.getByRole('button', { name: '验证连接' }).click();
-  // #44：验证成功不自动关闭——就地绿徽 + 用户显式「开始使用」
-  await dialog.getByTestId('provider-setup-verified').waitFor();
-  await dialog.getByTestId('provider-setup-done').click();
-  await dialog.waitFor({ state: 'hidden' });
+  const embed = page.getByTestId('settings-credential-embed');
+  await embed.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
+  await embed.getByTestId('settings-credential-validate').click();
+  await page.getByTestId('settings-credential-verified').waitFor();
+  await page.keyboard.press('Escape');
+  await page.getByTestId('settings-page').waitFor({ state: 'hidden' });
 }
 
 /** RP-2.7：工作稿/整理等通用文件动作只保留在 Working folders 单一宿主。 */

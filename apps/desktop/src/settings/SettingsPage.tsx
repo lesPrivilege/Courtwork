@@ -59,6 +59,9 @@ export interface SettingsPageProps {
   onClose: () => void;
   credentialStatus: CredentialStatus;
   onCredentialStatusChange: (status: CredentialStatus) => void;
+  /** connect 路由（2026-07-12）：打开即自动展开内嵌凭证面（消费一次） */
+  autoOpenCredentials?: boolean;
+  onAutoOpenConsumed?: () => void;
   modelConfig: ModelConfig;
   onModelConfigChange: (next: ModelConfig) => void;
   onValidateProvider: () => Promise<CredentialStatus>;
@@ -78,6 +81,8 @@ export function SettingsPage({
   onClose,
   credentialStatus,
   onCredentialStatusChange,
+  autoOpenCredentials = false,
+  onAutoOpenConsumed,
   modelConfig,
   onModelConfigChange,
   onValidateProvider,
@@ -90,6 +95,12 @@ export function SettingsPage({
   const [credentialFormOpen, setCredentialFormOpen] = useState(false);
   const folderInputRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
+
+  useEffect(() => {
+    if (!open || !autoOpenCredentials) return;
+    setCredentialFormOpen(true);
+    onAutoOpenConsumed?.();
+  }, [open, autoOpenCredentials, onAutoOpenConsumed]);
 
   useEffect(() => {
     if (!open) return;

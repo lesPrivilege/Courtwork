@@ -10,7 +10,7 @@ const output = `${result.stdout}\n${result.stderr}`;
 const match = output.match(/Total:\s+(\d+)\s+tests?/);
 const count = match ? Number(match[1]) : 0;
 // GOAL-1：+goal1 用例；floor 只升（禁降史 …→146→152→160）。
-const minimum = 160;
+const minimum = 163;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

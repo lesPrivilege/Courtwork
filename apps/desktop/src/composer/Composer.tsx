@@ -49,6 +49,8 @@ export interface ComposerProps {
   onToggleModelConfig?: () => void;
   onModelConfigChange?: (config: ModelConfig) => void;
   onCloseModelConfig?: () => void;
+  /** 外层生成请求在途：禁止按钮与 Enter 再次触发，保证每 turn 单飞行。 */
+  requestPending?: boolean;
   /** RP-2.11 ⑤：composer 底排 workmode 钮 = chat|work 同源（与顶部段控同一状态源）。 */
   viewSegment?: 'chat' | 'work';
   onSegmentChange?: (next: 'chat' | 'work') => void;
@@ -78,6 +80,7 @@ export function Composer({
   onToggleModelConfig,
   onModelConfigChange,
   onCloseModelConfig,
+  requestPending = false,
   viewSegment,
   onSegmentChange,
 }: ComposerProps) {
@@ -129,7 +132,7 @@ export function Composer({
   const hasBoundContainer = Boolean(selectedCase);
   const canSend =
     text.trim().length > 0 || attachments.some((item) => item.status.kind === 'ready' || item.status.kind === 'uploading');
-  const busy = attachments.some((item) => item.status.kind === 'uploading');
+  const busy = requestPending || attachments.some((item) => item.status.kind === 'uploading');
 
   const ingestFiles = useCallback(
     async (files: FileList | File[]) => {
@@ -269,7 +272,7 @@ export function Composer({
   const chipLabel = selectedCase ? selectedCase.name : CHROME_COPY.composer.chooseCase;
 
   return (
-    <div className="composer-shell" data-testid="composer" data-active-case={caseId || undefined}>
+    <div className="composer-shell" data-testid="composer" data-active-case={caseId || undefined} aria-busy={requestPending}>
       {dragging && (
         <div className="composer-drop-overlay" data-testid="composer-drop-overlay" role="status">
           <div className="composer-drop-card">

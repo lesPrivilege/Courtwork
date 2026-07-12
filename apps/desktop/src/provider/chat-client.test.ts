@@ -41,14 +41,14 @@ describe('chat 面真 API 客户端（Rust 窄面代理 + core 组装复用）',
     expect(captured.auth).toBe('Bearer __keychain__');
   });
 
-  it('standard 档不发 thinking 键（缺省即非思考）', async () => {
+  it('standard 档显式发 thinking:disabled，不依赖 DeepSeek 默认思考态', async () => {
     let body: Record<string, unknown> = {};
     const fetchImpl: typeof fetch = async (_input, init) => {
       body = JSON.parse(String(init?.body)) as Record<string, unknown>;
       return sseResponse(['data: {"choices":[{"delta":{"content":"ok"}}]}', 'data: [DONE]']);
     };
     await sendChatTurn(DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'hi' }], { fetchImpl });
-    expect('thinking' in body).toBe(false);
+    expect(body.thinking).toEqual({ type: 'disabled' });
   });
 
   it('custom 档按 OpenAI 兼容语义构造临时声明，baseUrl 来自用户配置', async () => {

@@ -56,6 +56,7 @@ function profileFor(config: ModelConfig): ProviderQuirkProfile {
     reasoningFieldCandidates: ['reasoning_content'],
     recommendedModels: [],
     reasoningRoute: OPENAI_COMPATIBLE_REASONING_ROUTE,
+    parameterCompatibility: { structuredOutputWithDeepReasoning: 'supported' },
   };
 }
 

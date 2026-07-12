@@ -45,4 +45,16 @@ describe('core 事件录制回放契约', () => {
     expect(projected.failures).toEqual([failed]);
     expect(projected.artifacts.RiskList).toBeDefined();
   });
+
+  it('provider 降档 notice 随 artifact 机械投影，供 composer chip 轻提示', () => {
+    const event: SessionEvent = {
+      type: 'artifact_produced', artifactType: 'RiskList', artifact: { caseId: 'c1', risks: [] }, evidenceGrades: [],
+      providerNotices: [{
+        code: 'reasoning_downgraded_for_structured_output', message: '结构化输出已使用标准模式', requested: 'deep', applied: 'standard',
+      }],
+      sessionId: 'demo-s3', seq: 1, emittedAt: '2026-07-12T00:00:00.000Z',
+    };
+    const projected = projectSession(EMPTY_SESSION, event);
+    expect(projected.providerNotices).toEqual(event.providerNotices);
+  });
 });

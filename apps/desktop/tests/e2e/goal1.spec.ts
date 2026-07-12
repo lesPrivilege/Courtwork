@@ -22,10 +22,11 @@ test.describe('GOAL-1 · #43/#44 凭证面', () => {
     await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-phase', 'connected');
   });
 
-  test('#44b 引导卡：验证成功不自动关闭——绿徽 + 显式「开始使用」', async ({ page }) => {
-    await openWorkbench(page);
-    await page.getByTestId('composer-provider').click();
+  test('#44b 引导卡（首启专属）：验证成功不自动关闭——绿徽 + 显式「开始使用」', async ({ page }) => {
+    // connect 路由改判后引导卡只在首启出现；非首启一律 Settings 内嵌（#44a 已覆盖）
+    await page.goto('/');
     const dialog = page.getByTestId('provider-setup');
+    if (!(await dialog.isVisible())) await page.getByTestId('composer-provider').click();
     await dialog.getByRole('textbox', { name: '访问凭证' }).fill('cw-valid-secret-key');
     await dialog.getByRole('button', { name: '验证连接' }).click();
     await expect(dialog.getByTestId('provider-setup-verified')).toBeVisible();
@@ -130,5 +131,35 @@ test.describe('GOAL-1 · chat 面真 API 端到端', () => {
     const failed = page.getByTestId('chat-assistant-failed');
     await expect(failed).toBeVisible();
     await expect(failed).toContainText('访问凭证未通过服务商验证');
+  });
+
+  test('单飞行：一轮在途时禁止第二次发送', async ({ page }) => {
+    await openWorkbench(page);
+    await connectProvider(page);
+    await page.getByTestId('segment-chat').click();
+    await page.evaluate(() => {
+      const scope = window as typeof window & {
+        __courtworkChatHooks?: { setResponder(r: ((m: unknown) => Promise<unknown>) | null): void };
+        __resolveHarnessFlight?: () => void;
+        __harnessFlightCalls?: number;
+      };
+      scope.__harnessFlightCalls = 0;
+      scope.__courtworkChatHooks?.setResponder(async () => {
+        scope.__harnessFlightCalls = (scope.__harnessFlightCalls ?? 0) + 1;
+        await new Promise<void>((resolve) => { scope.__resolveHarnessFlight = resolve; });
+        return { content: '完成' };
+      });
+    });
+
+    await page.getByTestId('composer-input').fill('第一轮');
+    await page.getByTestId('composer-send').click();
+    await expect(page.getByTestId('chat-pending')).toBeVisible();
+    await page.getByTestId('composer-input').fill('第二轮');
+    await expect(page.getByTestId('composer-send')).toBeDisabled();
+    await page.getByTestId('composer-input').press('Enter');
+    expect(await page.evaluate(() => (window as typeof window & { __harnessFlightCalls?: number }).__harnessFlightCalls)).toBe(1);
+
+    await page.evaluate(() => (window as typeof window & { __resolveHarnessFlight?: () => void }).__resolveHarnessFlight?.());
+    await expect(page.getByTestId('chat-assistant-message')).toContainText('完成');
   });
 });

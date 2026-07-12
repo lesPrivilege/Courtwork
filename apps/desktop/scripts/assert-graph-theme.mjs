@@ -40,6 +40,10 @@ if (/#[0-9a-f]{3,8}/i.test(panel)) {
 if (!app.includes("lazy(() => import('./workbench/GraphPanel'))")) {
   violations.push('G6 未按关系图谱工作面懒加载');
 }
+// 批次三 #13：拖拽平移是图谱唯一缩放/平移沙盒的组成，behaviors 必须启用 drag-canvas 且关动画
+if (!/behaviors:\s*\[\{ type: 'drag-canvas', animation: false \}\]/.test(panel)) {
+  violations.push('#13 GraphPanel behaviors 缺 drag-canvas（animation:false）——图谱平移沙盒缺位');
+}
 for (const extension of ['Rect', 'Polyline', 'DagreLayout', 'DragCanvas', 'Minimap']) {
   if (!runtime.includes(extension)) violations.push(`G6 按需注册缺少 ${extension}`);
 }

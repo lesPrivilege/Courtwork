@@ -25,13 +25,14 @@ export function MessageActions({ messageId, text, createdAt }: { messageId: stri
     window.localStorage.setItem(key, JSON.stringify([...current, { messageId, value, createdAt: Date.now() }]));
   };
 
+  // frontier 形制（2026-07-12 用户参照）：按钮组在前、时间戳居尾部轻灰
   return <footer className="message-actions" data-testid={`message-actions-${messageId}`}>
-    <time dateTime={absolute} title={absolute} data-testid="message-relative-time">{relativeLabel(createdAt, now)}</time>
     <button type="button" aria-label="Copy message" onClick={() => void navigator.clipboard.writeText(text)}><Icon name="clipboard" scope="turn" /></button>
     <button type="button" aria-label="Read aloud" disabled title="Coming later"><Icon name="volume-two" scope="turn" /></button>
     <button type="button" aria-label="Helpful" aria-pressed={feedback === 'up'} onClick={() => record('up')}><Icon name="thumbs-up" scope="turn" /></button>
     <button type="button" aria-label="Not helpful" aria-pressed={feedback === 'down'} onClick={() => record('down')}><Icon name="thumbs-down" scope="turn" /></button>
     <button type="button" aria-label="More message actions" disabled title="Message fork editing comes later"><Icon name="ellipsis" scope="turn" /></button>
+    <time dateTime={absolute} title={absolute} data-testid="message-relative-time">{relativeLabel(createdAt, now)}</time>
   </footer>;
 }
 

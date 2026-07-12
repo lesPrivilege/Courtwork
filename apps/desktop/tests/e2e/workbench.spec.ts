@@ -44,12 +44,12 @@ test('五工作面结构常驻且未接功能保留禁用入口与说明', async
   const matrixCells = page.locator('.matrix-wrap td button');
   expect(await matrixCells.count()).toBeGreaterThan(0);
   await expect(matrixCells.first()).toBeDisabled();
-  await expect(matrixCells.first()).toHaveAttribute('title', '原文定位 · 卷宗原件待连接');
+  await expect(matrixCells.first()).toHaveAttribute('title', /^原文定位 · 卷宗原件待连接/);
 
   await page.getByTestId('view-timeline').click();
   const sourceJump = page.getByTestId('timeline-panel').locator('.verified-block button');
   await expect(sourceJump).toBeDisabled();
-  await expect(sourceJump).toHaveAttribute('title', '原文定位 · 卷宗原件待连接');
+  await expect(sourceJump).toHaveAttribute('title', /^原文定位 · 卷宗原件待连接/);
 });
 
 test('S1 摄取事件回放可进入时间线', async ({ page }) => {
@@ -82,11 +82,12 @@ test('S1 关系图谱提供关系选择与原文依据', async ({ page }) => {
   await page.getByTestId('view-graph').click();
   await expect(page.getByTestId('graph-panel')).toBeVisible();
   await expect(page.getByRole('group', { name: '当事人关系图谱' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '全资控股母公司（持股100%） e-01' })).toBeVisible();
-  await page.getByRole('button', { name: '临江精铸集团有限公司 p-linjiang-jt' }).click();
+  // 去 wire id 后同名关系可复数（凡例 4 回灌）；取首条即可
+  await expect(page.getByRole('button', { name: '全资控股母公司（持股100%）' }).first()).toBeVisible();
+  await page.getByRole('button', { name: '临江精铸集团', exact: true }).click();
   await expect(page.getByTestId('graph-source-kind')).toHaveText('节点关联依据');
   await expect(page.locator('.relation-evidence q')).toContainText('临江精铸科技有限公司（持股100%）');
-  await page.getByRole('button', { name: '全资控股母公司（持股100%） e-01' }).click();
+  await page.getByRole('button', { name: '全资控股母公司（持股100%）' }).first().click();
   await expect(page.getByTestId('graph-source-kind')).toHaveText('关系依据');
 });
 
@@ -213,8 +214,8 @@ test('矩阵审阅使用样板案十份合同', async ({ page }) => {
   await openWorkbench(page);
   await page.getByTestId('view-matrix').click();
   await expect(page.getByTestId('matrix-panel')).toBeVisible();
-  await expect(page.getByText('V01-卓越智造装备（云章）有限公司')).toBeVisible();
-  await expect(page.getByText('10 份合同 · 7 个问题')).toBeVisible();
+  await expect(page.getByText('V01-卓越智造装备有限公司')).toBeVisible();
+  await expect(page.getByTestId('matrix-legend-count')).toHaveText('10 份文书 · 显示 5/7 个问题');
 });
 
 test('起草画布在编辑态只暴露渲染文书结构', async ({ page }) => {

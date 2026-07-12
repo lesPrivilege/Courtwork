@@ -1,4 +1,4 @@
-import type { EvidenceGradeAnnotation, SessionEvent } from '@courtwork/core';
+import type { EvidenceGradeAnnotation, GenerationNotice, SessionEvent } from '@courtwork/core';
 
 export type ScenarioFlow = 'S1' | 'S3';
 export type ReviewDisposition = 'confirm' | 'reject' | 'revise';
@@ -50,6 +50,7 @@ export interface SessionEventClient {
 export interface SessionProjection {
   artifacts: Partial<Record<string, unknown>>;
   evidenceGrades: EvidenceGradeAnnotation[];
+  providerNotices: GenerationNotice[];
   progress: string[];
   todo: Array<{ artifactType: string; status: string }>;
   confirmation?: Extract<SessionEvent, { type: 'confirmation_requested' }>;
@@ -61,6 +62,7 @@ export interface SessionProjection {
 export const EMPTY_SESSION: SessionProjection = {
   artifacts: {},
   evidenceGrades: [],
+  providerNotices: [],
   progress: [],
   todo: [],
   failures: [],
@@ -81,6 +83,7 @@ export function projectSession(state: SessionProjection, event: SessionEvent): S
         ...base,
         artifacts: { ...state.artifacts, [event.artifactType]: event.artifact },
         evidenceGrades: event.evidenceGrades,
+        providerNotices: event.providerNotices ?? state.providerNotices,
       };
     case 'todo_snapshot':
       return { ...base, todo: event.steps };

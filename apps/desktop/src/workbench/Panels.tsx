@@ -9,6 +9,16 @@ export function TierBadge({ grade }: { grade?: 'A' | 'B' | 'C' }) {
   return <span className={`tier tier-${grade.toLowerCase()}`} aria-label={`信源 ${grade}`}>{grade}</span>;
 }
 
+/** 零编码暴露律：来源文件对外显示可读文件名（专业原生编码），剥扩展名不截前缀。 */
+export function sourceFileLabel(fileId?: string) {
+  return fileId?.replace(/\.(md|docx|pdf|txt)$/i, '') ?? '';
+}
+
+/** demo 身份内联治理（RP-2.6 ①）：对外显示名剥（虚构）/（云章）水印段。 */
+export function displayEntityName(name: string) {
+  return name.replaceAll('（虚构）', '').replaceAll('（云章）', '');
+}
+
 export function SignatureLine({ tone }: { tone?: LineTone }) {
   if (!tone) return null;
   return <span className={`signature-line line-${tone}`} data-tone={tone} aria-hidden="true" />;
@@ -76,27 +86,48 @@ export function TimelinePanel({ timeline, grade }: { timeline: Timeline; grade?:
             onClick={() => setSelected(event.id)}
           >
             <SignatureLine tone={contradiction ? 'attention' : undefined} />
-            <time>{event.date.kind === 'exact' ? event.date.date : '日期待核'}</time>
+            <time>{event.date.kind === 'exact' ? event.date.date : <span className="pending-field">日期待核</span>}</time>
             <span className="domain-badge">{event.id.replace('evt-', 'E')}</span>
             <span>{event.description}</span>
-            <span title={event.sourceAnchors[0]?.fileId}>{event.sourceAnchors[0]?.fileId.slice(0, 3)}</span>
+            {/* 零编码暴露律：来源列显示可读文件名（专业原生编码），不截 wire 前缀 */}
+            <span className="timeline-source truncate" title={event.sourceAnchors[0]?.fileId}>{event.sourceAnchors[0]?.fileId.replace(/\.(md|docx|pdf)$/, '')}</span>
           </button>;
         })}
       </div>
       <article className="detail-card">
         <SignatureLine tone={current.markers?.includes('contradiction') ? 'attention' : undefined} />
         <p>{current.description}</p>
-        <div className="verified-block"><TierBadge grade={grade} /><button disabled title="原文定位 · 卷宗原件待连接">{current.sourceAnchors[0]?.fileId}</button><q>{current.sourceAnchors[0]?.quote}</q></div>
+        <div className="verified-block"><TierBadge grade={grade} /><button disabled title={`原文定位 · 卷宗原件待连接 · ${current.sourceAnchors[0]?.fileId ?? ''}`}>{sourceFileLabel(current.sourceAnchors[0]?.fileId)}</button><q>{current.sourceAnchors[0]?.quote}</q></div>
       </article>
     </div>
   </StaticViewport>;
 }
 
+const CONFIDENCE_LABELS: Record<ReviewMatrix['rows'][number]['answers'][string]['confidence'], string> = {
+  high: '置信高', medium: '置信中', low: '置信低',
+};
+
 export function MatrixPanel({ matrix }: { matrix: ReviewMatrix }) {
   const questions = matrix.questions.slice(0, 5);
   if (!matrix.rows.length) return <StaticViewport testId="matrix-static-viewport"><EmptyState noun="审阅行" shortcut="⌘I" /></StaticViewport>;
   return <StaticViewport testId="matrix-static-viewport">
-    <div className="matrix-wrap" data-testid="matrix-panel"><table><thead><tr><th>文书</th>{questions.map((question) => <th key={question.id} title={question.text}>{question.id.toUpperCase()}</th>)}</tr></thead><tbody>{matrix.rows.slice(0, 10).map((row) => <tr key={row.documentId}><th title={row.documentId}>{row.documentId.replace('.md', '')}</th>{questions.map((question) => <td key={question.id}><button disabled title="原文定位 · 卷宗原件待连接">{row.answers[question.id]?.answer ?? '—'}</button></td>)}</tr>)}</tbody></table><div className="matrix-legend"><span>原文定位将在卷宗原件连接后开放</span><span>10 份合同 · 7 个问题</span></div></div>
+    <div className="matrix-wrap" data-testid="matrix-panel"><table><thead><tr><th>文书</th>{questions.map((question) => <th key={question.id} title={question.text}>{question.id.toUpperCase()}</th>)}</tr></thead><tbody>{matrix.rows.slice(0, 10).map((row) => <tr key={row.documentId}><th title={row.documentId}>{displayEntityName(sourceFileLabel(row.documentId))}</th>{questions.map((question) => {
+      const cell = row.answers[question.id];
+      return <td key={question.id}>
+        {/* 批次三 #14：hover 溯源预览（peek）——格内全文 + 引语，goto-source 待原件连接仍禁用 */}
+        <span className="cell-peek-anchor">
+          <button disabled title="原文定位 · 卷宗原件待连接">{cell?.answer ?? <span className="pending-field">待补</span>}</button>
+          {cell && <span className="cell-peek" role="tooltip" data-testid="matrix-cell-peek">
+            <strong>{question.text}</strong>
+            <span className="cell-peek-answer">{cell.answer}</span>
+            {cell.sourceAnchors[0]?.quote
+              ? <q>{cell.sourceAnchors[0].quote}</q>
+              : <em>该文档未提及此问题，无可引用原文</em>}
+            <small>{CONFIDENCE_LABELS[cell.confidence]}</small>
+          </span>}
+        </span>
+      </td>;
+    })}</tr>)}</tbody></table><div className="matrix-legend"><span>原文定位将在卷宗原件连接后开放</span><span data-testid="matrix-legend-count">{matrix.rows.length} 份文书 · 显示 {questions.length}/{matrix.questions.length} 个问题</span></div></div>
   </StaticViewport>;
 }
 
@@ -144,7 +175,8 @@ export function RevisionPanel(props: RevisionPanelProps) {
           return <button className={`dense-row risk-grid ${props.selectedRiskId === risk.id ? 'selected' : ''}`} data-risk-id={risk.id} title={risk.description} key={risk.id} onClick={() => props.onSelectRisk(risk.id)}>
             <SignatureLine tone={riskLineTone(risk.level, disposition, props.unverifiedRiskIds.includes(risk.id))} />
             <SettlementFlash kind={settled} itemRef={risk.id} testable />
-            <span><b className="domain-badge">R{index + 1}</b>{risk.description}</span><span className={`severity severity-${risk.level}`}>{risk.level === 'high' ? '高' : risk.level === 'medium' ? '中' : '低'}</span><span className={`gate-state ${disposition ?? 'pending'}`}>{disposition === 'confirmed' ? '已确认' : disposition === 'rejected' ? '已驳回' : disposition === 'revision' ? '待修正' : gateItem?.mode === 'individual' ? '逐条' : '待确认'}</span>
+            {/* 编号单源：与详情头同一 id 变换（R03），杜绝 index 序号与 id 双轨漂移 */}
+            <span><b className="domain-badge">{risk.id.replace('risk-', 'R')}</b>{risk.description}</span><span className={`severity severity-${risk.level}`}>{risk.level === 'high' ? '高' : risk.level === 'medium' ? '中' : '低'}</span><span className={`gate-state ${disposition ?? 'pending'}`}>{disposition === 'confirmed' ? '已确认' : disposition === 'rejected' ? '已驳回' : disposition === 'revision' ? '待修正' : gateItem?.mode === 'individual' ? '逐条' : '待确认'}</span>
           </button>;
         })}</div>
         <article className="risk-detail">

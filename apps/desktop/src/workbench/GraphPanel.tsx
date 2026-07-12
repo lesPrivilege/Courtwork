@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type WheelEvent } from 'react';
 import type { PartyGraph } from '@courtwork/schemas';
 import { Icon } from './Icon';
-import { EmptyState, TierBadge } from './Panels';
+import { EmptyState, sourceFileLabel, TierBadge } from './Panels';
 import { EdgeEvent, Graph, GraphEvent, NodeEvent, registerCourtworkGraphRuntime, type IElementEvent } from './g6-runtime';
 import { COURTWORK_GRAPH_THEME, graphGeometry, graphTokens, registerCourtworkGraphTheme } from './graph-theme';
 
@@ -223,13 +223,14 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
       </div>
     </div>
     <div className="relation-list">
+      {/* 零编码暴露律：wire id（p-xx、e-xx）永不可见；列表名与 canvas 同走 graphDisplayName 剥水印 */}
       <h3>主体</h3>
       {graph.nodes.map((node) => <button
         key={node.id}
         title={node.primaryName}
         className={selection.kind === 'node' && selection.id === node.id ? 'selected' : ''}
         onClick={() => selectNode(node.id)}
-      ><span>{node.primaryName}</span><small>{node.id}</small></button>)}
+      ><span>{graphDisplayName(node.primaryName)}</span></button>)}
       <h3>关系</h3>
       {graph.edges.map((edge) => <button
         key={edge.id}
@@ -237,12 +238,12 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
         className={selection.kind === 'edge' && selection.id === edge.id ? 'selected' : ''}
         data-contradiction={hasContradictionMarker(edge) || undefined}
         onClick={() => selectEdge(edge.id)}
-      ><span>{edge.relationType}</span><small>{edge.id}</small></button>)}
+      ><span>{edge.relationType}</span>{hasContradictionMarker(edge) && <small>矛盾</small>}</button>)}
     </div>
     {selectedEdge && <article className="verified-block relation-evidence">
       <header data-testid="graph-source-kind">{selection.kind === 'node' ? '节点关联依据' : '关系依据'}</header>
       <TierBadge grade={grade} />
-      <button disabled title="原文定位 · 卷宗原件待连接">{selectedEdge.sourceAnchors[0]?.fileId}</button>
+      <button disabled title={`原文定位 · 卷宗原件待连接 · ${selectedEdge.sourceAnchors[0]?.fileId ?? ''}`}>{sourceFileLabel(selectedEdge.sourceAnchors[0]?.fileId)}</button>
       <q>{selectedEdge.sourceAnchors[0]?.quote}</q>
     </article>}
   </div>;

@@ -29,7 +29,7 @@ test('双侧折叠保留原位展开 bar', async ({ page }) => {
   await page.getByTestId('collapse-left-rail').click();
   await page.getByTestId('collapse-right-rail').click();
   await expect(page.getByTestId('workspace')).toHaveAttribute('data-right-collapsed', 'true');
-  await expect(page.getByTestId('expand-left-rail')).toBeVisible();
+  await expect(page.getByTestId('collapse-left-rail')).toBeVisible();
   await expect(page.getByTestId('expand-right-rail')).toBeVisible();
   await expect(page.getByTestId('conversation-canvas')).toBeVisible();
 });

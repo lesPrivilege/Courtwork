@@ -58,6 +58,10 @@ export function CredentialForm({
       setValue('');
       setVerified(true);
       onValidated?.();
+    } catch (error: unknown) {
+      // 异常路径也必须有反馈（真机反馈"key 配置没有反馈"的跨版本洞）：
+      // invoke/IPC 异常不落 status 三态,此处诚实呈现,绝不静默吞掉
+      setMessage(error instanceof Error ? error.message : typeof error === 'string' ? error : '暂时无法完成验证，请重试');
     } finally {
       setSaving(false);
     }

@@ -2,6 +2,12 @@
 
 状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**PRV-1 provider 自配最小闭环完成**；**RP-2 UI 完全化完成，RP-2.8.1 三项验收打回已修、待单点复验**；**BUILD-1 0.1.0 已产**；**BUILD-0.1.1 Ship Gate 正式 Build 已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
 
+## HARNESS-0 单飞行与降档提示（2026-07-12）
+
+- chat 每 turn 只允许一条在途请求：同步 ref 锁防同帧双击/Enter，composer 在途时禁用发送。
+- core 事件投影携带 provider notice；若结构化输出迫使深思降为 standard，composer 模型 chip 显示“本次已用标准”。
+- 新增 Playwright 单飞行反例；隔离端口 GOAL-1 9/9 实跑通过。
+
 ## PRV-1 · provider 自配最小闭环（2026-07-11）
 
 - 引导卡与设置页接入 `base URL + API key + 模型名`：DeepSeek/Qwen/豆包由 core quirk 自动给 URL/推荐模型，自定义档才可编辑 URL；根 URL 自动规范到 `/v1`。托管积分档只保留禁用占位。
