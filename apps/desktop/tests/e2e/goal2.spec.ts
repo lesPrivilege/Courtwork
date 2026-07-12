@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { openModuleList, openWorkbench } from './helpers';
 
 /** GOAL-2 schema workspace 专项：批次三器件 + docs/36 回灌断言。 */
 
@@ -57,5 +57,32 @@ test.describe('RP-2.12 · ② paste 文本块 + ③ chat 层级', () => {
     const child = page.locator('.turn-event-row').first();
     const pad = await child.evaluate((el) => parseFloat(getComputedStyle(el).paddingLeft));
     expect(pad).toBeGreaterThanOrEqual(20);
+  });
+});
+
+test.describe('RP-2.12 · 批D 对齐+溢出守护', () => {
+  test('chat title 与右列首模块 title 同带对齐（±2px）', async ({ page }) => {
+    await openWorkbench(page);
+    await openModuleList(page);
+    const chat = (await page.getByTestId('toolbar-stage').boundingBox())!;
+    const rail = (await page.locator('.rail-module-title').first().boundingBox())!;
+    expect(Math.abs(chat.y - rail.y)).toBeLessThanOrEqual(2);
+  });
+
+  test('右列各板块点开零横向溢出', async ({ page }) => {
+    await openWorkbench(page);
+    await openModuleList(page);
+    for (const id of ['progress', 'working-folders', 'context']) {
+      const open = await page.getByTestId(`module-${id}`).getAttribute('data-open');
+      if (open !== 'true') await page.getByTestId(`module-${id}-toggle`).click();
+    }
+    const overflows = await page.evaluate(() => {
+      const bad: string[] = [];
+      document.querySelectorAll('.rail-module-body, .preview-outline-row, .right-rail-modules').forEach((el) => {
+        if (el.scrollWidth > el.clientWidth + 1) bad.push(el.className);
+      });
+      return bad;
+    });
+    expect(overflows).toEqual([]);
   });
 });

@@ -17,8 +17,9 @@ for (const [key, value] of Object.entries(expected)) {
   if (parsed.home?.[key]?.value !== value) failures.push(`home.${key} must remain ${value}`);
 }
 const serifConsumers = [...css.matchAll(/font-family:[^;]*(?:Songti|STSong|Noto Serif)/gi)];
-if (serifConsumers.length !== 1 || !css.includes('.welcome-state h1')) failures.push('Serif must have exactly one welcome-title consumer');
-if ((css.match(/var\(--home-surface-radius\)/g) ?? []).length !== 1) failures.push('home.surfaceRadius must have exactly one low-density main-surface consumer');
+if (serifConsumers.length !== 1 || !css.includes('.welcome-slogan')) failures.push('Serif must have exactly one welcome-slogan consumer');
+// RP-2.12：welcome 从卡片改居中 home 布局,surfaceRadius 低密度大面消费退役（零消费合法,token 留待未来大面）
+if ((css.match(/var\(--home-surface-radius\)/g) ?? []).length > 1) failures.push('home.surfaceRadius 消费漂移（至多一处低密度大面）');
 if (!tauri.includes('"titleBarStyle": "Overlay"') || !tauri.includes('"hiddenTitle": true')) failures.push('macOS title bar must use native Overlay with hidden title');
 if (/probeCredentials\(\);\s*const onProbe/.test(app)) failures.push('cold start must not probe credentials');
 if (!app.includes('data-credential-probed')) failures.push('credential probe timing must stay observable');

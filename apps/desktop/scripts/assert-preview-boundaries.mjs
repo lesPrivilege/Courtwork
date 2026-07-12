@@ -10,7 +10,7 @@ async function files(dir) {
     : [path.join(dir, entry.name)]))).flat().filter((file) => /\.(ts|tsx)$/.test(file));
 }
 
-const utilityFiles = await files(path.join(root, 'utility'));
+const utilityFiles = await files(path.join(root, 'rail'));
 const rendererFiles = await files(path.join(root, 'preview', 'renderers'));
 const failures = [];
 
@@ -18,7 +18,7 @@ for (const file of utilityFiles) {
   if (/from\s+['"][^'"]*preview\/renderers/.test(await readFile(file, 'utf8'))) failures.push(`${file}: utility -> renderer import`);
 }
 for (const file of rendererFiles) {
-  if (/from\s+['"][^'"]*utility/.test(await readFile(file, 'utf8'))) failures.push(`${file}: renderer -> utility import`);
+  if (/from\s+['"][^'"]*\/rail\//.test(await readFile(file, 'utf8'))) failures.push(`${file}: renderer -> rail import`);
 }
 
 const host = await readFile(path.join(root, 'preview', 'PreviewHost.tsx'), 'utf8');
