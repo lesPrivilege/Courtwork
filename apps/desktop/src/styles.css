@@ -1245,7 +1245,14 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
   width: 100%; max-width: 260px; margin: 0; padding: 8px; border: 1px solid var(--border); border-radius: 4px;
 }
 .settings-fields legend { padding: 0 4px; color: var(--text-tertiary); font-size: 11px; }
-.settings-radio { display: inline-flex; align-items: center; gap: 4px; margin-right: 10px; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); }
+.settings-fields .settings-radio {
+  display: inline-flex; width: auto; align-items: center; gap: 6px; margin-right: 12px;
+  color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size);
+}
+.settings-fields .settings-radio input {
+  width: 14px; height: 14px; margin: 0; padding: 0; flex: none;
+  accent-color: var(--action-primary); cursor: pointer;
+}
 /* 收敛令②：developer 层默认收起,低调链接态;展开后字段沿用 settings-fields 布局 */
 .settings-developer { width: 100%; max-width: 260px; margin-top: 2px; border-top: 1px solid var(--border); padding-top: 8px; display: grid; gap: 8px; justify-items: end; }
 .settings-developer > summary { justify-self: end; list-style: none; cursor: pointer; color: var(--text-tertiary); font-size: 11px; user-select: none; }
