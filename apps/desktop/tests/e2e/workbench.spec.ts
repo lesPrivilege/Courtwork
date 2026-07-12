@@ -394,3 +394,37 @@ test('de-slop 基线：无语义线、零投影、紧凑行、细滚动条与线
   const scrollbarWidth = await page.locator('.conversation-scroll').evaluate((element) => getComputedStyle(element, '::-webkit-scrollbar').width);
   expect(scrollbarWidth).toBe('5px');
 });
+
+// ═══ 发版验收补测（2026-07-12）：阅读视图契约 + 批量池处置语义 ═══
+
+test('原件阅读态：只读元信息、无工作面 tab 选中、行内强调不漏星号', async ({ page }) => {
+  await openWorkbench(page);
+  await openModuleList(page);
+  const folders = page.getByTestId('module-working-folders');
+  if ((await folders.getAttribute('data-open')) !== 'true') {
+    await page.getByTestId('module-working-folders-toggle').click();
+  }
+  await page.getByTestId('reader-entry').first().click();
+  const head = page.locator('.preview-host-head');
+  await expect(head.locator('h2')).toHaveText('设备采购合同');
+  await expect(head.getByText('原件 · 只读')).toBeVisible();
+  await expect(head.getByText('起草中')).toHaveCount(0);
+  await expect(page.locator('.view-tabs [role=tab][aria-selected="true"]')).toHaveCount(0);
+  const reader = page.getByTestId('reader-pane');
+  await expect(reader).toBeVisible();
+  expect(await reader.locator('strong').count()).toBeGreaterThan(0);
+  expect(await reader.evaluate((element) => element.textContent?.includes('**') ?? false)).toBe(false);
+  await page.getByTestId('preview-back').click();
+  await expect(page.getByTestId('utility-rail')).toBeVisible();
+});
+
+test('批量池随处置递减：驳回的批内条目不被批量覆写，批后池归零禁钮', async ({ page }) => {
+  await openWorkbench(page);
+  const panel = page.getByTestId('revision-panel');
+  await panel.locator('[data-risk-id="risk-02"]').click();
+  await panel.getByRole('button', { name: '驳回', exact: true }).click();
+  await panel.getByRole('button', { name: '批量确认 3 项' }).click();
+  await expect(panel.locator('[data-risk-id="risk-02"] .signature-line')).toHaveAttribute('data-tone', 'neutral');
+  const spent = panel.getByRole('button', { name: '批量确认 0 项' });
+  await expect(spent).toBeDisabled();
+});

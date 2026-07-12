@@ -9,8 +9,8 @@ if (result.status !== 0) {
 const output = `${result.stdout}\n${result.stderr}`;
 const match = output.match(/Total:\s+(\d+)\s+tests?/);
 const count = match ? Number(match[1]) : 0;
-// GOAL-1：+goal1 用例；floor 只升（禁降史 …→146→152→160）。
-const minimum = 167;
+// GOAL-1：+goal1 用例；floor 只升（禁降史 …→146→152→160→167→169，发版验收补测 +2）。
+const minimum = 169;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

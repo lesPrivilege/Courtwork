@@ -560,7 +560,8 @@ export function App() {
     ? selectedRisk.basis.every((_, index) => expandedEvidence[`${selectedRisk.id}:${index}`])
     : false;
   const individualReady = selectedGate?.mode !== 'individual' || allEvidenceOpened;
-  const batchRefs = gate?.items.filter((item) => item.mode === 'batch').map((item) => item.itemRef) ?? [];
+  // 已处置条目退出批量池：批后计数归零禁钮，且批量永不覆写既有逐条处置（用户修正最高优先级）
+  const batchRefs = gate?.items.filter((item) => item.mode === 'batch' && !dispositions[item.itemRef]).map((item) => item.itemRef) ?? [];
   const comparing = secondaryView !== undefined;
   const usage = isDemoCase ? (flow === 'S3' ? 91 : 18) : 0;
   const progressDone =
@@ -1394,9 +1395,9 @@ export function App() {
           {previewOpen && <WorkbenchPreviewRenderer
             onBack={() => { previewDismissedContext.current = `${selectedCaseId}:${flow ?? 'none'}`; setPreviewOpen(false); setReaderDoc(null); }}
             title={readerDoc ? readerDoc.name : comparing ? '工作面对照' : VIEW_LABELS[activeView]}
-            meta={comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}
+            meta={readerDoc ? '原件 · 只读' : comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}
             tabs={VIEWS.map((view) => ({ id: view, label: VIEW_LABELS[view] }))}
-            activeTab={activeView}
+            activeTab={readerDoc ? '' : activeView}
             onSelectTab={(id) => {
               const view = id as WorkbenchView;
               setReaderDoc(null);
@@ -1460,7 +1461,9 @@ export function App() {
                       const trimmed = line.trim();
                       if (!trimmed) return null;
                       if (trimmed.startsWith('#')) return <h3 key={index}>{trimmed.replace(/^#+\s*/, '')}</h3>;
-                      return <p key={index}>{trimmed}</p>;
+                      // 语料 md 行内语法仅 **强调** 一种（阅读视图管线约定）；星号字面漏出即渲染缺陷
+                      const parts = trimmed.split(/\*\*([^*]+)\*\*/g);
+                      return <p key={index}>{parts.map((part, i) => (i % 2 === 1 ? <strong key={i}>{part}</strong> : part))}</p>;
                     })}
                   </div>
                 ) : secondaryView ? (
