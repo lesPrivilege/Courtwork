@@ -601,3 +601,15 @@ FD-2 四件齐（14 白卡穷举/四垂类完整帧+总画廊/结构提案含四
 accca2e/91106f0/0e23d49 皆 main 祖先，floor 163、core 165、16 门禁全绿。亮点收账：视觉指令逐条落（四边等距 inset/收敛撤卡直露底纸+钮位置守恒/composer 零框线/**BrandThinking 品牌动画上 chat 面**）；批次三 #13–15 清账；五面回灌（wire id 清除=零编码暴露落地/legend 诚实计数/R0x 单源/22 处字号 token 化）；RevisionEvent 全字段可审计断言 + demo:s3 golden 真跑对照通道。
 四小项裁决：①TierBadge 行尾照 docs/36 既裁不动；②relation 节头 510 准（510 是唯一加重档，标题即强调，合法消费位）；③graph labelFontSize ≥12 取 12（meta 下限判例）；④溯源 **hover 预览 + click 钉住**双档（阅读不打断、引用可操作——钉住态可复制引语）。
 遗留归位确认：work 面品牌换装随 ICON-ANIM 尾单；out_of_coverage/requiredSources 字段载体归 SCHEMA-SPEC-1；executor 宿主化归 HARNESS 正序。用户真机复验三点（红绿灯避让观感/收敛钮守恒/BrandThinking 节奏）+ **push 仍未做**。
+
+## SOL-WRAP 总收尾单（2026-07-12，sol——树面清账 + GOAL-2/HARNESS-0 验收 + 截图产线一趟）
+
+```
+你（sol）认领 SOL-WRAP（AGENTS.md 全判例：裸 HEAD 禁用/合流即清账/端口隔离/实跑/S-2 显式路径/worktree detach）。三段：
+
+第 0 段 · 树面清账：`git -c core.quotePath=false status` + `git branch -a --no-merged refs/heads/main` + `git worktree list` 全盘点——逐项归属：①共享索引 12 个 docs 暂存与任何未提交改动，判明属谁（对照各单收账记录）；属已收账工作的遗漏件按显式路径补提交（独立 commit 注明代提交）；属在途会话的留置并列表报告；②未合并分支若含未收编提交（merge-base 核对），列清单报架构，勿擅并；③残留 worktree 建议清理清单。原则：宁留置勿误吞。
+
+第 1 段 · 验收（照 faf76d4 既发章程执行）：干净 worktree detached @ 合流 tip → 全门禁实跑（floor ≥163 禁降）→ computer use 真看逐屏（新色板三级台阶/ch12 位形/五面回灌/BrandThinking 节奏/收敛钮守恒/#43 内嵌/#44 绿徽/渐进与断裂三态着陆/hover+click 双档溯源）→ 发现分级（实现级 fix-by-acceptance / 契约级上报）。
+
+第 2 段 · 截图产线（过验后）：visual-audit 新色板全库重截（旧色板全废）；SITE 演出照六处（首装欢迎/继续区/样板案 Preview 全开/修订预览带法理之线/批量确认门槛/chat 真回复带 BrandThinking）；OG 素材帧。报告纯追加 ACCEPTANCE.md（在 refs/heads/main 上显式提交）。结论三问：树面净否；GOAL-2/HARNESS-0 放行否；截图产线交付否。
+```
