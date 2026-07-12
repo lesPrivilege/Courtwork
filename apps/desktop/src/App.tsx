@@ -74,6 +74,7 @@ import { MessageActions } from './chat/MessageActions';
 import { sendChatTurn } from './provider/chat-client';
 import { BrandThinking } from './chat/BrandThinking';
 import { RightRailModules } from './rail/RightRailModules';
+import { PasteBlock } from './chat/PasteBlock';
 // 装配点例外（demo/ 同列先例）：原件阅读 fixture 直取 demo-data 文书 md
 import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
 import { useDismissOnOutside } from './hooks/useDismissOnOutside';
@@ -163,7 +164,7 @@ export function App() {
   const [credentialProbed, setCredentialProbed] = useState(false);
   const [providerSetupOpen, setProviderSetupOpen] = useState(false);
   const [sampleTourOpen, setSampleTourOpen] = useState(false);
-  const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[]; createdAt: number }>>([]);
+  const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[]; pasteBlocks: string[]; createdAt: number }>>([]);
   const [queuedMessages, setQueuedMessages] = useState<Array<{ id: string; caseId: string; text: string; createdAt: number }>>([]);
   const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(initialCaseId.current);
@@ -203,6 +204,7 @@ export function App() {
     role: 'user' | 'assistant';
     text: string;
     files: string[];
+    pasteBlocks?: string[];
     createdAt: number;
     /** assistant 消息可携带思考内容（折叠回看）；失败轮为分型文案行。 */
     reasoning?: string;
@@ -271,6 +273,7 @@ export function App() {
       {
         text: payload.text || (payload.attachments.length ? '（附文件）' : ''),
         files: payload.attachments.map((item) => item.fileName),
+        pasteBlocks: payload.pasteBlocks,
         createdAt,
       },
     ]);
@@ -296,6 +299,7 @@ export function App() {
         role: 'user',
         text: userText,
         files: payload.attachments.map((item) => item.fileName),
+        pasteBlocks: payload.pasteBlocks,
         createdAt: Date.now(),
       },
     ]);
@@ -1239,7 +1243,8 @@ export function App() {
               )}
               {localMessages.map((message, index) => (
                 <div className="user-message" key={`local-${index}`} data-testid="local-user-message">
-                  <CollapsibleMessage lines={6}>{message.text}</CollapsibleMessage>
+                  {message.text && <CollapsibleMessage lines={6}>{message.text}</CollapsibleMessage>}
+                  {message.pasteBlocks?.map((block, blockIndex) => <PasteBlock key={blockIndex} text={block} />)}
                   {message.files.length > 0 && (
                     <div className="user-message-attachments">
                       {message.files.map((name) => (
@@ -1322,7 +1327,8 @@ export function App() {
               ) : chatMessages.map((message, index) => (
                 message.role === 'user' ? (
                   <div className="user-message" key={`chat-${index}`} data-testid="chat-user-message">
-                    <CollapsibleMessage lines={6}>{message.text}</CollapsibleMessage>
+                    {message.text && <CollapsibleMessage lines={6}>{message.text}</CollapsibleMessage>}
+                    {message.pasteBlocks?.map((block, blockIndex) => <PasteBlock key={blockIndex} text={block} />)}
                     {message.files.length > 0 && (
                       <div className="user-message-attachments">
                         {message.files.map((name) => <span key={name} title={name}>{name}</span>)}

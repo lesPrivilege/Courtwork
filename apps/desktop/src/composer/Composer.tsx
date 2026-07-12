@@ -7,6 +7,7 @@ import { Icon } from '../workbench/Icon';
 import { ModelConfigPopover } from '../provider/ModelConfigPopover';
 import { reasoningRequest, type ModelConfig } from '../provider/model-config';
 import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
+import { PasteBlock, shouldBlockPaste } from '../chat/PasteBlock';
 import { AttachmentChip } from './AttachmentChip';
 import { createAttachmentShell, resolveAttachmentUpload, withResolvedStatus, type ConvertFn } from './process-upload';
 import {
@@ -21,6 +22,8 @@ export interface ComposerSendPayload {
   text: string;
   attachments: ComposerAttachment[];
   caseId: string;
+  /** RP-2.12 ②：粘贴的长文本/代码/命令块（mono 折叠块,与行内文本分离）。 */
+  pasteBlocks: string[];
 }
 
 export interface ContainerizeRequest {
@@ -92,6 +95,7 @@ export function Composer({
   const [caseId, setCaseId] = useState(activeCaseId ?? (controlledCases ? '' : caseOptions[0]?.id ?? ''));
   const [caseMenuOpen, setCaseMenuOpen] = useState(false);
   const [plusOpen, setPlusOpen] = useState(false);
+  const [pasteBlocks, setPasteBlocks] = useState<string[]>([]);
   const [containerizeFor, setContainerizeFor] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const composingRef = useRef(false);
@@ -131,7 +135,7 @@ export function Composer({
   const caseName = selectedCase?.name;
   const hasBoundContainer = Boolean(selectedCase);
   const canSend =
-    text.trim().length > 0 || attachments.some((item) => item.status.kind === 'ready' || item.status.kind === 'uploading');
+    text.trim().length > 0 || pasteBlocks.length > 0 || attachments.some((item) => item.status.kind === 'ready' || item.status.kind === 'uploading');
   const busy = requestPending || attachments.some((item) => item.status.kind === 'uploading');
 
   const ingestFiles = useCallback(
@@ -184,11 +188,12 @@ export function Composer({
     if (!canSend || busy) return;
     if (attachments.some((item) => item.status.kind === 'failed')) return;
     const readyAttachments = attachments.filter((item) => item.status.kind === 'ready');
-    onSend?.({ text: text.trim(), attachments: readyAttachments, caseId });
+    onSend?.({ text: text.trim(), attachments: readyAttachments, caseId, pasteBlocks });
     setText('');
     setAttachments([]);
+    setPasteBlocks([]);
     textareaRef.current?.focus();
-  }, [attachments, busy, canSend, caseId, onSend, text]);
+  }, [attachments, busy, canSend, caseId, onSend, pasteBlocks, text]);
 
   const requestCommitToDossier = (attachmentId: string) => {
     if (!hasBoundContainer) {
@@ -259,6 +264,13 @@ export function Composer({
     if (files.length) {
       event.preventDefault();
       void ingestFiles(files);
+      return;
+    }
+    // RP-2.12 ②：多行/长文粘贴 → 折叠 mono 块（不塞进行内输入）
+    const pasted = event.clipboardData?.getData('text/plain') ?? '';
+    if (shouldBlockPaste(pasted)) {
+      event.preventDefault();
+      setPasteBlocks((current) => [...current, pasted]);
     }
   };
 
@@ -283,6 +295,18 @@ export function Composer({
         </div>
       )}
 
+      {pasteBlocks.length > 0 && (
+        <div className="composer-paste-list" data-testid="composer-paste-list">
+          {pasteBlocks.map((block, index) => (
+            <div className="composer-paste-chip" key={index}>
+              <Icon name="clipboard" />
+              <span className="composer-paste-preview">{block.split('\n')[0].slice(0, 48) || '粘贴内容'}</span>
+              <small>{block.split('\n').length} 行</small>
+              <button type="button" aria-label="移除粘贴块" onClick={() => setPasteBlocks((current) => current.filter((_, i) => i !== index))}><Icon name="x" /></button>
+            </div>
+          ))}
+        </div>
+      )}
       {attachments.length > 0 && (
         <ul className="attachment-list" aria-label="Pending attachments" id={listId}>
           {attachments.map((attachment) => (

@@ -34,3 +34,28 @@ test.describe('GOAL-2 · 零编码暴露律（docs/36 五节）', () => {
     expect(text.endsWith('.md')).toBe(false);
   });
 });
+
+test.describe('RP-2.12 · ② paste 文本块 + ③ chat 层级', () => {
+  test('多行粘贴落 composer mono 折叠块预览,发送后入 user message', async ({ page }) => {
+    await openWorkbench(page);
+    await page.getByTestId('segment-chat').click();
+    const input = page.getByTestId('composer-input');
+    // 模拟多行粘贴（clipboardData text/plain）
+    await input.evaluate((el, text) => {
+      const dt = new DataTransfer();
+      dt.setData('text/plain', text);
+      el.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
+    }, 'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8');
+    await expect(page.getByTestId('composer-paste-list')).toBeVisible();
+    await expect(page.getByTestId('composer-paste-list')).toContainText('8 行');
+  });
+
+  test('③ chat 层级：父行（工具调用）510 字重,子行（事件）缩进灰阶', async ({ page }) => {
+    await openWorkbench(page);
+    const parent = page.locator('.tool-call-row summary').first();
+    await expect(parent).toHaveCSS('font-weight', '510');
+    const child = page.locator('.turn-event-row').first();
+    const pad = await child.evaluate((el) => parseFloat(getComputedStyle(el).paddingLeft));
+    expect(pad).toBeGreaterThanOrEqual(20);
+  });
+});
