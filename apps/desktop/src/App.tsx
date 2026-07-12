@@ -1140,7 +1140,7 @@ export function App() {
               {isWelcome && (
                 <section className="welcome-home" data-testid="welcome-state">
                   <div className="welcome-brand">
-                    <span className="welcome-mark" aria-hidden="true"><Icon name="panels-top-left" /></span>
+                    <span className="welcome-mark" aria-hidden="true"><Icon name="brand-mark" /></span>
                     <h1 className="welcome-slogan">{CHROME_COPY.welcome.slogan}</h1>
                   </div>
                   {renderComposer(handleComposerSend)}

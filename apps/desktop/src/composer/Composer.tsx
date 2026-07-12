@@ -463,18 +463,8 @@ export function Composer({
             )}
           </div>
 
-          {/* RP-2.11 ⑤：add-folder 提为独立沉底钮（原 + 菜单内） */}
-          <button
-            type="button"
-            className="composer-icon-button"
-            data-testid="composer-add-folder"
-            data-composer-slot="add-folder"
-            aria-label={CHROME_COPY.composer.addFolder}
-            title={CHROME_COPY.composer.addFolder}
-            onClick={() => folderInputRef.current?.click()}
-          >
-            <Icon name="folder-open" />
-          </button>
+          {/* 2026-07-12 省并：独立 add-folder 钮撤——与「+」菜单内「Add folder」完全重复（RP-2.7 重复收「+」）;
+              且其 folder-open 图标与 case-chip 撞脸。文件夹附加唯一入口归「+」菜单。 */}
 
           {/* RP-2.11 ⑤：workmode 钮 = chat|work 同源（与顶部段控同一状态） */}
           {viewSegment && onSegmentChange && (
@@ -530,7 +520,7 @@ export function Composer({
                 setPlusOpen(false);
               }}
             >
-              <Icon name="folder-open" />
+              <Icon name="briefcase-business" />
               <span className="case-chip-label mono-ellip">{chipLabel}</span>
             </button>
             {caseMenuOpen && (

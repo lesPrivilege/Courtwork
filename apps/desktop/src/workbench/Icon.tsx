@@ -1,3 +1,4 @@
+import { customIcons, type CustomIconName } from '../icons/custom-icons.generated';
 import { ChevronLeft,
   BriefcaseBusiness,
   CalendarClock,
@@ -83,11 +84,13 @@ const standardIcons = {
   search: Search,
 } satisfies Record<string, LucideIcon>;
 
+// P-4 登记 custom 图标（brand-mark 等）并入,与 Lucide 同 createLucideIcon 契约。
+const allIcons = { ...standardIcons, ...customIcons };
 type StandardIconName = keyof typeof standardIcons;
-type IconName = StandardIconName;
+export type IconName = StandardIconName | CustomIconName;
 
 export function Icon({ name, scope = 'chrome' }: { name: IconName; scope?: 'chrome' | 'turn' }) {
-  const Component = standardIcons[name];
+  const Component = allIcons[name];
   return <Component className={scope === 'turn' ? 'turn-icon' : 'line-icon'} data-icon-scope={scope} aria-hidden="true" />;
 }
 

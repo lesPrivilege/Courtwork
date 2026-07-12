@@ -68,7 +68,8 @@ test.describe('GOAL-1 · #37/#39 composer 与空态', () => {
     const slotNames = await slots.evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-composer-slot')));
     // scope chip 为作用域信任件，不计钮排（拍板）；有绑定容器时不出现
     const buttons = slotNames.filter((name) => name !== 'scope');
-    expect(buttons.sort()).toEqual(['add', 'add-folder', 'provider', 'send', 'workmode']);
+    // 2026-07-12 省并：add-folder 撤（归「+」菜单）;底排四钮 + scope chip（不计）
+    expect(buttons.sort()).toEqual(['add', 'provider', 'send', 'workmode']);
     await page.getByTestId('composer-plus').click();
     await expect(page.getByTestId('composer-paste')).toBeVisible();
   });
