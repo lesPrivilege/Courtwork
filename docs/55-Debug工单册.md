@@ -591,3 +591,7 @@ FD-2 四件齐（14 白卡穷举/四垂类完整帧+总画廊/结构提案含四
 目标三层边界照案（core=契约与机器/包=语义与声明/装配点=绑定与凭证）；capability ID 经装配点绑定、MCP 归一 Tool 契约不开自主路径；package identity（packageId+version+schemaVersion+迁移协议+拒载）入 SCHEMA-SPEC-1；core 的 demo-data/output 依赖迁 composition root。
 **施工序批准**：1 SCHEMA-SPEC-1（base+namespaced+版本迁移）→ 2 PACKAGE-ABI（manifest+五 registry+引用闭合）→ 3 法律迁出 core（兼容过渡）→ 4 HARNESS-1（resolver/组装/投影/byte-stable golden）→ 5 MCP adapter → 6 PM 包上架（**终证=零 core diff+并存零串扰**）。拆批：五缺口 #2/#3/#4/#5 为 HARNESS-0 快批立即修（不依赖 ABI）；#1 组装器并入第 4 步。
 **RM-1 注记**：每次真实请求的 pipeline（契约段→声明段→租户段→投影→会话 ｜ 组装→编排→校验→门禁）为 README 关键章——最先提出并测试的公开主张（push 时间戳背书，宜早）。
+
+## HARNESS-0 收账（2026-07-12，待提交态）+ 提交协调裁决
+
+#2–#5 落地（thinking 显式/互斥自动降档+chip 告知/重试仅确定失败/单飞行锁/golden 长牙 7/7 考点）；TDD 红测全中旧行为（缺口即测试缺口首单达标）；668 单测两轮。**提交协调**：Composer chip 增量移交 GOAL-2 合并提交（热点主场）；其余文件 HARNESS-0 显式路径+临时索引自提（共享索引 11 docs 勿碰）。**providerNotices 追认**：artifact_produced 纯增字段属诚实呈现家族，追认通过、提案补账——下不为例：事件契约动字段亦走提案。GOAL-2 来源两失败归其自修。
