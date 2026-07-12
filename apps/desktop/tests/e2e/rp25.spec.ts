@@ -28,7 +28,7 @@ for (const width of [1180, 1240, 1440, 1600]) {
     });
     expect(metrics.root[0]).toBeLessThanOrEqual(metrics.root[1]);
     expect(metrics.body[0]).toBeLessThanOrEqual(metrics.body[1]);
-    expect(metrics.gap).toBeCloseTo(20, 1); // 2026-07-12 用户两拍 12→16→20（chat 与两栏留白）
+    expect(metrics.gap).toBeCloseTo(24, 1); // 2026-07-12 三拍 12→16→20→24（终值）
     expect(metrics.composerRight).toBeLessThanOrEqual(metrics.chatRight);
     expect(metrics.sendRight).toBeLessThanOrEqual(metrics.chatRight);
     expect(metrics.providerRight).toBeLessThanOrEqual(metrics.chatRight);

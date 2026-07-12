@@ -79,7 +79,7 @@
   --elevation-float-radius: 12px;
   /* RP-2.11 ②：三栏间距加大 8→12（Cowork 参照即 RP-2.9 锁要的真机视觉证据） */
   --elevation-float-inset: 12px;
-  --elevation-shell-gap: 20px;
+  --elevation-shell-gap: 24px;
   --elevation-shadow: 0 1px 2px rgba(10,37,64,0.045), 0 4px 12px rgba(10,37,64,0.035);
   --elevation-titlebar: transparent;
   --elevation-warn-bg: var(--amber-bg);
@@ -174,8 +174,6 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 /* 内容避让 chrome 带：窗顶 40px 浮层 − 12px 卡顶 inset = 卡内 28px */
 .case-rail, .conversation.canvas-layer { padding-top: 28px; }
-/* #36：右卡贯通容器顶，卡内首行同样避让 chrome 带，与左栏同型 */
-.right-workbench .preview-host { padding-top: 28px; }
 .rail-wordmark { display: flex; align-items: center; gap: 7px; }
 .rail-wordmark img { width: 18px; height: 18px; }
 .workspace.comparing { grid-template-columns: 48px 300px minmax(0, 1fr); }
@@ -188,7 +186,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .workspace.left-collapsed.right-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr) var(--rail-collapsed); }
 .workspace.rails-compact { grid-template-columns: 48px minmax(0, 1fr) minmax(280px, 320px); }
 .case-rail, .conversation, .right-workbench { min-width: 0; min-height: 0; display: flex; flex-direction: column; border-right: 0; }
-.right-workbench { border-right: 0; overflow: hidden; position: relative; gap: 8px; }
+/* overflow 归卡级：列容器放行缝钮负偏移（卡自身各管裁切） */
+.right-workbench { border-right: 0; overflow: visible; position: relative; gap: 8px; }
 .right-rail-collapsed { min-width: 0; min-height: 0; background: var(--elevation-rail); display: flex; justify-content: center; }
 /* RP-2.11 顶栏改判：折叠钮迁 window-chrome 透明浮层（right-rail-chrome 退役，dock 已为右卡顶部） */
 .collapse-right-button { width: 30px; height: 30px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; }
@@ -420,8 +419,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .composer-float {
   width: 100%; max-width: 100%; min-width: 0;
   margin: 0;
-  /* 2026-07-12：外卡退役后 float 只做布局位——shell 下沉贴底、横向留白与两侧卡对距 */
-  padding: 4px 16px 0;
+  /* 2026-07-12：外卡退役后 float 只做布局位——shell 下沉贴底；横向 18 含亚像素余量（1600 档几何断言） */
+  padding: 4px 18px 0;
   flex: none;
 }
 .composer-stack { position: relative; z-index: 10; width: 100%; max-width: 100%; min-width: 0; flex: none; display: grid; gap: 4px; container-type: inline-size; }
@@ -588,7 +587,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 .composer-input::placeholder { color: var(--text-disabled); }
 .composer-send {
-  width: 32px; height: 32px; display: grid; place-items: center;
+  width: 28px; height: 28px; display: grid; place-items: center;
   padding: 0; border: 1px solid var(--text-primary); border-radius: 4px;
   background: var(--text-primary); color: var(--text-inverse); cursor: pointer;
   transition: background-color var(--motion-hover) ease-out, border-color var(--motion-hover) ease-out;
@@ -852,7 +851,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .utility-reopen strong { color: var(--text-primary); font-weight: var(--control-weight-emphasized); }
 /* ch12：dock 三 tap 坐底纸（L0 透明带，非白卡）；base 态其下附 reopen */
 /* 2026-07-12 改判：三 tap 卡归右列顶（与 chat title 同线），填充色成卡与 schema 卡相接 */
-.utility-dock { position: relative; z-index: 8; width: 100%; flex: none; display: flex; flex-direction: column; padding: 0; border: 1px solid var(--elevation-float-border); border-radius: var(--elevation-float-radius); background: var(--elevation-rail); overflow: visible; }
+.utility-dock { position: relative; z-index: 8; width: 100%; flex: none; display: flex; flex-direction: column; padding: 0; border: 1px solid var(--elevation-float-border); border-radius: var(--elevation-float-radius); background: var(--bg-raised); overflow: visible; }
 .utility-dock-taps { height: 40px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 3px 6px; }
 .utility-dock-item { min-width: 0; display: flex; align-items: center; border-right: 1px solid var(--border); }
 .utility-dock-item:last-child { border-right: 0; }
@@ -978,7 +977,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .matrix-legend { height: 32px; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 
 .revision-layout { min-width: 0; }
-.batch-bar { min-height: 36px; display: flex; align-items: center; gap: 10px; padding: 4px 10px; border-bottom: 1px solid var(--border); background: var(--bg-surface); font-size: var(--type-dense-meta-size); }
+/* 2026-07-12 schema 过渡层次：批量条融卡（白底无横断线），与拆出说明构成一段 */
+.batch-bar { min-height: 32px; display: flex; align-items: center; gap: 10px; padding: 2px 10px 0; border-bottom: 0; background: transparent; font-size: var(--type-dense-meta-size); }
 .batch-bar small { margin-left: auto; color: var(--text-tertiary); }
 .submission-note { padding: 5px 10px; border-bottom: 1px solid var(--border); color: var(--green-fg); font-size: var(--type-dense-meta-size); }
 .risk-master-detail { min-height: 360px; display: grid; grid-template-columns: minmax(220px, 38%) minmax(0, 62%); margin-left: var(--preview-semantic-gutter); border-bottom: 1px solid var(--border); }
@@ -1298,3 +1298,10 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
   92% { opacity: 0; }
   100% { transform: scaleX(0); opacity: 0; }
 }
+
+
+/* ─── 收敛/展开钮驻缝（2026-07-12 拍板落地）：chat|right 过渡带顶部，两态同位 ── */
+.rail-seam-toggle { position: absolute; z-index: 31; top: 2px; left: -22px; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; }
+.rail-seam-toggle:hover { background: var(--control-hover); color: var(--text-primary); }
+.rail-seam-toggle .line-icon { width: 14px; height: 14px; }
+.right-rail-collapsed { position: relative; }

@@ -39,7 +39,7 @@ if (!app.includes("status={session.confirmation ? 'success' : 'active'}")) failu
 // utility 两态皆坐底纸、永不成卡（schema 唯一右卡）
 if (/<SurfaceCard/.test(utility)) failures.push('utility rail 两态皆无卡（schema 唯一右卡）');
 // RP-2.11 顶栏改判：dock 为右卡顶部、折叠钮迁顶栏浮层（right-rail-chrome 退役）；此处只守 schema 唯一卡不回归。
-has(/\.utility-dock\s*\{[^}]*background:\s*var\(--elevation-rail\)/, 'tap 卡=rail 填充卡（2026-07-12 顶置改判；非白卡非透明带）');
+has(/\.utility-dock\s*\{[^}]*background:\s*var\(--bg-raised\)/, 'tap 卡=白卡（2026-07-12 终拍：与 schema 卡统一）');
 has(/\.utility-reopen\s*\{/, 'base 态 reopen 入口坐底纸不占卡');
 
 // —— 图标管线：无 TSX 内联 svg（品牌 mark 走 SVG-as-code） ——

@@ -1041,9 +1041,6 @@ export function App() {
         ><Icon name="panel-left" /></button>
         <button type="button" className="window-chrome-button" aria-label="Search" title="Search" onClick={() => setPaletteOpen(true)}><Icon name="search" /></button>
         <span className="spacer" />
-        {viewSegment === 'work' && !isWelcome && !rightCollapsed && (
-          <button type="button" className="window-chrome-button" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
-        )}
       </header>
       <div
         className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
@@ -1342,9 +1339,11 @@ export function App() {
         )}
 
         {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载（work 面独有） */}
+        {/* 收敛/展开钮驻缝（2026-07-12 拍板）：chat|right 过渡带顶部，两态同位守恒 */}
         {viewSegment === 'work' && !isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
-          <button type="button" className="rail-expand-button" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
+          <button type="button" className="rail-seam-toggle" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
         </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open="true" data-artifact-revision={artifactRevision}>
+          <button type="button" className="rail-seam-toggle" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>
           {/* 2026-07-12 改判：三 tap 卡归右列顶（与 chat title 同线，填充卡），schema 卡常驻其下——无关闭钮（收敛=整列；缺 artifact=断裂律空态）；二级=向下大卡画布 */}
           <UtilityRail mode="dock" items={utilityItems} />
           {previewOpen && <WorkbenchPreviewRenderer

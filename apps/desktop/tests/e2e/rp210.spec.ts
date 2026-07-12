@@ -76,7 +76,10 @@ test('tap 卡归右列顶（2026-07-12 改判）；折叠钮驻顶栏浮层', as
   await openWorkbench(page);
   const collapse = page.getByTestId('collapse-right-rail');
   await expect(collapse).toBeVisible();
-  await expect(page.getByTestId('window-chrome').getByTestId('collapse-right-rail')).toHaveCount(1);
+  // 2026-07-12 拍板：收敛钮驻 chat|right 过渡缝（不再驻 chrome），两态同位
+  await expect(page.getByTestId('window-chrome').getByTestId('collapse-right-rail')).toHaveCount(0);
+  const [cBox, rBox2] = await Promise.all([collapse.boundingBox(), page.getByTestId('right-module-stack').boundingBox()]);
+  expect((cBox?.x ?? 0) + (cBox?.width ?? 0) / 2).toBeLessThanOrEqual((rBox2?.x ?? 0) + 1);
   await expect(collapse.locator('xpath=ancestor::*[contains(concat(" ",@class," ")," surface-card ")]')).toHaveCount(0);
   const right = page.getByTestId('right-module-stack');
   const dock = page.getByTestId('utility-rail');
@@ -84,6 +87,6 @@ test('tap 卡归右列顶（2026-07-12 改判）；折叠钮驻顶栏浮层', as
   expect(dBox).not.toBeNull();
   expect(rBox).not.toBeNull();
   expect(Math.abs((dBox?.y ?? 0) - (rBox?.y ?? 0))).toBeLessThanOrEqual(2);
-  // tap 卡为填充卡（rail 底色 #EAEFF4），非透明带非白卡
-  await expect(dock).toHaveCSS('background-color', 'rgb(234, 239, 244)');
+  // tap 卡=白卡（终拍：与 schema 卡统一）
+  await expect(dock).toHaveCSS('background-color', 'rgb(255, 255, 255)');
 });
