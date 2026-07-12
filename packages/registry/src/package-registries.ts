@@ -113,9 +113,10 @@ export function buildPackageRegistries(admitted: VerticalPackageManifest[]): Pac
     }
     const prompts = new Map(manifest.promptSegments.map((segment) => [segment.id, segment.body]));
     for (const scenario of manifest.scenarios) {
-      const { promptSegmentRef, steps: _declaredSteps, ...rest } = scenario;
+      const { promptSegmentRef, ...rest } = scenario;
+      delete (rest as { steps?: unknown }).steps;
       scenarioEntries.set(scenario.id, {
-        ...rest,
+        ...(rest as Omit<typeof rest, 'steps'>),
         packageId,
         // 准入已保证引用闭合；此处的 fallback 仅为类型完备，不可达。
         promptBody: prompts.get(promptSegmentRef) ?? '',

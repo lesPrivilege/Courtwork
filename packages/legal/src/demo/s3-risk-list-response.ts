@@ -1,4 +1,4 @@
-import type { RiskList } from '@courtwork/schemas';
+import type { RiskList } from '../schemas/risk-list.js';
 
 /**
  * S3 生成节点的录制回放响应。本演示有意分成两层，不假装无缝——如实记录原因：

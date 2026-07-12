@@ -12,8 +12,8 @@ describe('S3 end-to-end acceptance flow', () => {
       const result = await runS3Demo(workDir);
 
       // party-verify 真实经过 demo-fixture 适配器，落进证据台账（B 级信源）。
-      expect(result.replay.artifacts.RiskList).toBeDefined();
-      const riskList = result.replay.artifacts.RiskList as { risks: { id: string; dispositionStatus: string }[] };
+      expect(result.replay.artifacts['legal.RiskList']).toBeDefined();
+      const riskList = result.replay.artifacts['legal.RiskList'] as { risks: { id: string; dispositionStatus: string }[] };
       expect(riskList.risks).toHaveLength(7);
 
       // 脚本模拟的确认 + 一条真实 RevisionEvent 被记录且体现在最终产出里。

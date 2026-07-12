@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { SourceAnchorSchema } from './source-anchor.js';
+import { SourceAnchorSchema } from '@courtwork/schemas';
 
 export const RiskLevelEnum = z.enum(['high', 'medium', 'low']);
 export type RiskLevel = z.infer<typeof RiskLevelEnum>;

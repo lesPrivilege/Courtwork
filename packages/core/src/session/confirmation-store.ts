@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { ArtifactType } from '@courtwork/schemas';
+
 import type { EvidenceGradeAnnotation } from '../evidence/grade.js';
 
 /**
@@ -13,9 +13,9 @@ export interface PendingConfirmation {
   sessionId: string;
   scenarioId: string;
   gateLabel: string;
-  artifactType?: ArtifactType;
-  producedArtifacts: Partial<Record<ArtifactType, unknown>>;
-  remainingArtifactTypes: ArtifactType[];
+  artifactType?: string;
+  producedArtifacts: Partial<Record<string, unknown>>;
+  remainingArtifactTypes: string[];
   toolResults: Record<string, unknown>;
   evidenceLedgerSnapshot: EvidenceGradeAnnotation[];
   createdAt: string;

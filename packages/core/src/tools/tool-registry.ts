@@ -1,10 +1,17 @@
 import type { ToolDefinition } from '@courtwork/tools';
+import type { SideEffectClass } from '@courtwork/schemas';
 import type { EvidenceGrade } from '../evidence/grade.js';
 
 export interface GradedToolBinding {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tool: ToolDefinition<any, any>;
   grade: EvidenceGrade;
+  /**
+   * 副作用分级（ABI 拍板③运行时门）：confirmationPolicy none 的场景在执行期核对
+   * 所绑定工具全为 pure_read，否则拒跑。缺省 pure_read——装配点为副作用工具
+   * （文件执行器/外发/MCP）显式声明，core 强制、包无权放宽。
+   */
+  sideEffect?: SideEffectClass;
 }
 
 /**

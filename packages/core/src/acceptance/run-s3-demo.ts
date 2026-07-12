@@ -1,11 +1,14 @@
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadScenarioFile } from '@courtwork/registry';
 import { createToolExecutor } from '@courtwork/tools';
 import { applyRevisionInstructionSet, type InstructionOutcome } from '@courtwork/output';
-import type { CaseFile, RiskList } from '@courtwork/schemas';
-import { createEvidenceLedger } from '../evidence/grade.js';
+import {
+  compileConfirmedRiskListToRevisionInstructions,
+  type CaseFile,
+  type RiskList,
+} from '@courtwork/legal';
+import { assertEvidenceKeyAdmissible, createEvidenceLedger } from '../evidence/grade.js';
 import { createFileEventLog, replaySession, type ReplaySummary } from '../events/event-log.js';
 import type { SessionEvent } from '../events/types.js';
 import { createFileConfirmationStore } from '../session/confirmation-store.js';
@@ -13,9 +16,7 @@ import { createFileRevisionEventStore } from '../revision/revision-store.js';
 import { runScenario, resumeScenario, type ScenarioExecutorDeps } from '../scenario-executor/executor.js';
 import type { Provider } from '../provider/types.js';
 import { buildDemoS3Runtime } from '../composition/demo-assembly.js';
-import { compileConfirmedRiskListToRevisionInstructions } from '../composition/compile-risk-list-to-revisions.js';
 
-const S3_YAML_PATH = join(import.meta.dirname, '..', '..', '..', 'registry', 'scenarios', 'S3.yaml');
 const ORIGINAL_DOCX_PATH = join(import.meta.dirname, '..', '..', '..', 'output', 'test', 'fixtures', 'original.docx');
 
 const CASE_FILE: CaseFile = {
@@ -77,8 +78,10 @@ export function evaluateS3DemoGolden(input: {
   const actualQuotes = input.riskList.risks.flatMap((risk) =>
     risk.basis.flatMap((basis) => basis.sourceAnchors.flatMap((anchor) => anchor.quote ? [anchor.quote] : [])),
   );
+  // 单向包含（HARNESS-1 拍板：golden 单向规范化匹配）：模型引语必须复现预埋原文片段，
+  // 反向 expected.includes(actual) 已证实可被通用法律词平凡骗过（docs/68 五节），废除。
   const matchedPreloadedFindings = S3_PRELOADED_ANCHOR_QUOTES.filter((expected) =>
-    actualQuotes.some((actual) => actual.includes(expected) || expected.includes(actual)),
+    actualQuotes.some((actual) => actual.includes(expected)),
   ).length;
   if (matchedPreloadedFindings < S3_MINIMUM_PRELOADED_FINDINGS) {
     issues.push(`预埋考点仅命中 ${matchedPreloadedFindings}/${S3_PRELOADED_ANCHOR_QUOTES.length}，门槛为 ${S3_MINIMUM_PRELOADED_FINDINGS}`);
@@ -109,11 +112,17 @@ export async function runS3Demo(
     confirmationStore: createFileConfirmationStore(pendingDir),
     revisionStore: createFileRevisionEventStore(revisionEventsPath),
     ledger: createEvidenceLedger(),
+    artifacts: runtime.registries.artifactSchemas,
   };
 
-  const scenario = loadScenarioFile(S3_YAML_PATH);
+  const scenario = runtime.registries.scenarios.get('legal.S3');
+  if (!scenario) throw new Error('legal.S3 未在场景注册表中——legal 包装载异常');
 
-  const firstRun = await runScenario(scenario, { inputArtifacts: { CaseFile: CASE_FILE }, toolInputs: runtime.toolInputs }, firstDeps);
+  const firstRun = await runScenario(
+    scenario,
+    { inputArtifacts: { 'legal.CaseFile': CASE_FILE }, toolInputs: runtime.toolInputs },
+    firstDeps,
+  );
   if (firstRun.status !== 'paused') {
     throw new Error(`预期 S3 在 RiskList 确认门禁处暂停，实际状态是 "${firstRun.status}"`);
   }
@@ -129,6 +138,7 @@ export async function runS3Demo(
     confirmationStore: createFileConfirmationStore(pendingDir),
     revisionStore: createFileRevisionEventStore(revisionEventsPath),
     ledger: createEvidenceLedger(),
+    artifacts: secondRuntime.registries.artifactSchemas,
   };
 
   const secondRun = await resumeScenario(
@@ -138,7 +148,7 @@ export async function runS3Demo(
       decision: 'confirm',
       revisions: [
         {
-          artifactType: 'RiskList',
+          artifactType: 'legal.RiskList',
           artifactId: CASE_FILE.caseId,
           fieldPath: '/risks/0/dispositionStatus',
           previousValue: 'pending',
@@ -156,8 +166,13 @@ export async function runS3Demo(
     throw new Error(`预期确认后场景直接完成，实际状态是 "${secondRun.status}"`);
   }
 
-  const riskList = secondRun.artifacts.RiskList as RiskList;
-  const revisionSet = compileConfirmedRiskListToRevisionInstructions(riskList, '04-设备采购合同.docx', secondDeps.ledger);
+  const riskList = secondRun.artifacts['legal.RiskList'] as RiskList;
+  // 信源门禁经注入口绑定 core 台账（legal 包零 core 依赖，包域律）。
+  const gatekeeper = {
+    issueKey: (citation: string) => secondDeps.ledger.issueKey(citation),
+    assertAdmissible: (key: string) => assertEvidenceKeyAdmissible(secondDeps.ledger, key),
+  };
+  const revisionSet = compileConfirmedRiskListToRevisionInstructions(riskList, '04-设备采购合同.docx', gatekeeper);
 
   const originalDocx = readFileSync(ORIGINAL_DOCX_PATH);
   const { docx, outcomes } = applyRevisionInstructionSet(originalDocx, revisionSet, {

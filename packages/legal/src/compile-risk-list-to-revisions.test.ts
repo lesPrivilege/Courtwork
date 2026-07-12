@@ -1,7 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import type { RiskList } from '@courtwork/schemas';
-import { createEvidenceLedger, InadmissibleEvidenceError } from '../evidence/grade.js';
-import { compileConfirmedRiskListToRevisionInstructions, MissingLocatorQuoteError } from './compile-risk-list-to-revisions.js';
+import type { RiskList } from './schemas/risk-list.js';
+import {
+  compileConfirmedRiskListToRevisionInstructions,
+  MissingLocatorQuoteError,
+  type EvidenceGatekeeper,
+} from './compile-risk-list-to-revisions.js';
+
+class StubInadmissibleError extends Error {}
+
+/**
+ * 门禁 stub：模拟 core EvidenceLedger 的 D4 语义子集（精确匹配签发 + C 级未确认拒收）。
+ * 规则本体的测试住 core/evidence；此处验证 compile 与门禁的交互契约——
+ * 签发命中才问门禁、门禁抛错必须外传、未命中不签发不问。
+ */
+function stubGatekeeper(entries: Record<string, { admissible: boolean }> = {}): EvidenceGatekeeper {
+  return {
+    issueKey: (citation) => (entries[citation] !== undefined ? citation : undefined),
+    assertAdmissible: (key) => {
+      if (!entries[key]?.admissible) throw new StubInadmissibleError(`证据 ${key} 未过信源门禁`);
+    },
+  };
+}
 
 function riskList(overrides: Partial<RiskList['risks'][number]> = {}): RiskList {
   return {
@@ -21,8 +40,7 @@ function riskList(overrides: Partial<RiskList['risks'][number]> = {}): RiskList 
 
 describe('compileConfirmedRiskListToRevisionInstructions', () => {
   it('compiles each non-rejected risk into a commentOnly instruction citing its basis', () => {
-    const ledger = createEvidenceLedger();
-    const result = compileConfirmedRiskListToRevisionInstructions(riskList(), 'main-contract.docx', ledger);
+    const result = compileConfirmedRiskListToRevisionInstructions(riskList(), 'main-contract.docx', stubGatekeeper());
     expect(result).toMatchObject({
       id: 'revset-c1',
       caseId: 'c1',
@@ -43,46 +61,53 @@ describe('compileConfirmedRiskListToRevisionInstructions', () => {
   });
 
   it('excludes risks with dispositionStatus "rejected"', () => {
-    const ledger = createEvidenceLedger();
-    const result = compileConfirmedRiskListToRevisionInstructions(riskList({ dispositionStatus: 'rejected' }), 'x.docx', ledger);
+    const result = compileConfirmedRiskListToRevisionInstructions(
+      riskList({ dispositionStatus: 'rejected' }),
+      'x.docx',
+      stubGatekeeper(),
+    );
     expect(result.instructions).toHaveLength(0);
   });
 
   it('throws MissingLocatorQuoteError when the primary basis anchor has no quote', () => {
-    const ledger = createEvidenceLedger();
     const noQuote = riskList({ basis: [{ citation: 'x', sourceAnchors: [{ fileId: 'f1', textRange: { start: 0, end: 1 } }] }] });
-    expect(() => compileConfirmedRiskListToRevisionInstructions(noQuote, 'x.docx', ledger)).toThrow(MissingLocatorQuoteError);
+    expect(() => compileConfirmedRiskListToRevisionInstructions(noQuote, 'x.docx', stubGatekeeper())).toThrow(
+      MissingLocatorQuoteError,
+    );
   });
 
-  it('rejects (via the D4 gate) a citation whose evidence is C-grade and unconfirmed', () => {
-    const ledger = createEvidenceLedger();
-    ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
+  it('propagates the gate rejection when an issued evidence key fails admissibility (D4 语义由 core 台账实现)', () => {
     const webSourced = riskList({
       basis: [{ citation: 'web-search', sourceAnchors: [{ fileId: 'f1', quote: 'x', textRange: { start: 0, end: 1 } }] }],
     });
-    expect(() => compileConfirmedRiskListToRevisionInstructions(webSourced, 'x.docx', ledger)).toThrow(InadmissibleEvidenceError);
+    expect(() =>
+      compileConfirmedRiskListToRevisionInstructions(webSourced, 'x.docx', stubGatekeeper({ 'web-search': { admissible: false } })),
+    ).toThrow(StubInadmissibleError);
   });
 
-  it('admits the same C-grade citation once the ledger entry is explicitly confirmed, and stamps the compiled citation with the issued evidenceKey', () => {
-    const ledger = createEvidenceLedger();
-    ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
-    ledger.confirm('web-search');
+  it('stamps the compiled citation with the issued evidenceKey when the gate admits it', () => {
     const webSourced = riskList({
       basis: [{ citation: 'web-search', sourceAnchors: [{ fileId: 'f1', quote: 'x', textRange: { start: 0, end: 1 } }] }],
     });
-    const result = compileConfirmedRiskListToRevisionInstructions(webSourced, 'x.docx', ledger);
+    const result = compileConfirmedRiskListToRevisionInstructions(
+      webSourced,
+      'x.docx',
+      stubGatekeeper({ 'web-search': { admissible: true } }),
+    );
     const instruction = result.instructions[0];
     if (instruction.kind !== 'commentOnly') throw new Error('unreachable');
     expect(instruction.annotation.citations[0].evidenceKey).toBe('web-search');
   });
 
-  it('leaves evidenceKey unset (and does not throw) when the citation display text does not exactly match any ledger key, even with an unrelated C-grade-unconfirmed entry present — matches the existing risk-07/party-verify boundary in the S3 demo, not a new gap', () => {
-    const ledger = createEvidenceLedger();
-    ledger.record('web-search', { grade: 'C', sourceId: 'web-search', confirmed: false });
+  it('leaves evidenceKey unset (and never consults the gate) when the citation text does not exactly match any ledger key — risk-07/party-verify boundary preserved', () => {
     const decorated = riskList({
       basis: [{ citation: '网络参考：web-search', sourceAnchors: [{ fileId: 'f1', quote: 'x', textRange: { start: 0, end: 1 } }] }],
     });
-    const result = compileConfirmedRiskListToRevisionInstructions(decorated, 'x.docx', ledger);
+    const result = compileConfirmedRiskListToRevisionInstructions(
+      decorated,
+      'x.docx',
+      stubGatekeeper({ 'web-search': { admissible: false } }),
+    );
     const instruction = result.instructions[0];
     if (instruction.kind !== 'commentOnly') throw new Error('unreachable');
     expect(instruction.annotation.citations[0].evidenceKey).toBeUndefined();

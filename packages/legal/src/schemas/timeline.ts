@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { SourceAnchorSchema } from './source-anchor.js';
+import { SourceAnchorSchema } from '@courtwork/schemas';
 
 const EventDateSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('exact'), date: z.iso.date() }),

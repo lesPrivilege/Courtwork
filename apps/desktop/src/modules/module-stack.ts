@@ -29,10 +29,10 @@ export const DEFAULT_MODULE_OPEN: ModuleOpenMap = {
 
 /** artifact schema → 应自动展开的模块 */
 export const ARTIFACT_TO_MODULE: Record<string, ModuleId> = {
-  RiskList: 'revision',
-  Timeline: 'timeline',
-  PartyGraph: 'graph',
-  ReviewMatrix: 'matrix',
+  'legal.RiskList': 'revision',
+  'legal.Timeline': 'timeline',
+  'legal.PartyGraph': 'graph',
+  'legal.ReviewMatrix': 'matrix',
   FileOpsPlan: 'working-folders',
 };
 

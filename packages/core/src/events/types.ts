@@ -1,4 +1,4 @@
-import type { ArtifactType } from '@courtwork/schemas';
+
 import type { EvidenceGradeAnnotation } from '../evidence/grade.js';
 import type { TodoStep } from '../scenario-executor/todo-snapshot.js';
 import type { GenerationNotice } from '../provider/types.js';
@@ -33,7 +33,8 @@ export type SessionEvent =
   | (BaseEvent & { type: 'progress'; message: string })
   | (BaseEvent & {
       type: 'artifact_produced';
-      artifactType: ArtifactType;
+      /** namespaced artifact 类型 id（core 域盲：字符串键，校验在 registry 准入与 executor 边界）。 */
+      artifactType: string;
       artifact: unknown;
       /** D4 台账的投影：W9 渲染信源等级角标的数据源，不需要改 schemas（判断点 3 追加要求）。 */
       evidenceGrades: EvidenceGradeAnnotation[];
@@ -44,7 +45,7 @@ export type SessionEvent =
       type: 'confirmation_requested';
       requestId: string;
       gateLabel: string;
-      artifactType?: ArtifactType;
+      artifactType?: string;
     })
   | (BaseEvent & {
       type: 'confirmation_resolved';

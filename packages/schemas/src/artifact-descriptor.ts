@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { ARTIFACT_TYPE_ID_PATTERN, ArtifactTypeIdSchema, type ArtifactTypeId } from './artifact-type-id.js';
+import { ARTIFACT_TYPE_ID_PATTERN, type ArtifactTypeId } from './artifact-type-id.js';
 
 /**
  * 续行投影（ABI 拍板②：归 artifact descriptor）的声明词表——封闭三种 op，禁自由代码：
@@ -16,7 +16,10 @@ const CountOpSchema = z
     kind: z.literal('count'),
     path: z.string().regex(/^\//),
     label: z.string().min(1),
-    where: z.object({ field: z.string().min(1), equals: z.string() }).strict().optional(),
+    where: z
+      .object({ field: z.string().min(1), equals: z.union([z.string(), z.number(), z.boolean()]) })
+      .strict()
+      .optional(),
   })
   .strict();
 const ListOpSchema = z

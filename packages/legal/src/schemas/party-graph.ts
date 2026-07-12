@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { SourceAnchorSchema } from './source-anchor.js';
+import { SourceAnchorSchema } from '@courtwork/schemas';
 
 export const PartyKindEnum = z.enum(['individual', 'organization']);
 export type PartyKind = z.infer<typeof PartyKindEnum>;

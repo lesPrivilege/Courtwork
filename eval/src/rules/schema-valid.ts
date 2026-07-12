@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { RiskListSchema, RevisionInstructionSetSchema } from '@courtwork/schemas';
+import { RiskListSchema, RevisionInstructionSetSchema } from '@courtwork/legal';
 import type { RuleResult } from './types.js';
 
 /** 用具体产出 schemas 的 zod 定义本身做校验，不额外维护一份 JSON Schema 副本。 */

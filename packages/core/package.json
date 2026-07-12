@@ -36,6 +36,7 @@
     "@courtwork/tools": "workspace:*",
     "@courtwork/output": "workspace:*",
     "@courtwork/demo-data": "workspace:*",
+    "@courtwork/legal": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {

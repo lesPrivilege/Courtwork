@@ -1,11 +1,21 @@
-import type { RevisionInstruction, RevisionInstructionSet, RiskList } from '@courtwork/schemas';
-import { assertEvidenceKeyAdmissible, type EvidenceLedger } from '../evidence/grade.js';
+import type { RevisionInstruction, RevisionInstructionSet, RiskList } from './schemas/index.js';
 
 export class MissingLocatorQuoteError extends Error {
   constructor(riskId: string) {
     super(`风险 ${riskId} 的首个依据缺少可用于定位的 sourceAnchor.quote，无法编译为修订指令`);
     this.name = 'MissingLocatorQuoteError';
   }
+}
+
+/**
+ * 台账门禁的注入口（迁包解耦，2026-07-13）：legal 包零 core 依赖（包域律——包只出
+ * 语义，机器住底座），信源门禁以函数注入。issueKey 命中即签发 evidenceKey；
+ * assertAdmissible 对签发的 key 执行信源分级门禁（不合格即抛）。装配点绑定
+ * core 的 EvidenceLedger 实现。
+ */
+export interface EvidenceGatekeeper {
+  issueKey(citation: string): string | undefined;
+  assertAdmissible(evidenceKey: string): void;
 }
 
 /**
@@ -16,7 +26,7 @@ export class MissingLocatorQuoteError extends Error {
 export function compileConfirmedRiskListToRevisionInstructions(
   riskList: RiskList,
   targetFileId: string,
-  ledger: EvidenceLedger,
+  ledger: EvidenceGatekeeper,
 ): RevisionInstructionSet {
   const instructions: RevisionInstruction[] = [];
   for (const risk of riskList.risks) {
@@ -33,7 +43,7 @@ export function compileConfirmedRiskListToRevisionInstructions(
       // 误关联，见 W6 验收报告）。一旦签发成功，门禁此后只认这个 key，citation
       // 展示文本再怎么编辑都不能让门禁改判。
       const evidenceKey = ledger.issueKey(basis.citation);
-      if (evidenceKey !== undefined) assertEvidenceKeyAdmissible(ledger, evidenceKey);
+      if (evidenceKey !== undefined) ledger.assertAdmissible(evidenceKey);
       return { citation: basis.citation, sourceAnchors: basis.sourceAnchors, evidenceKey };
     });
 

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/schemas';
+import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
   type CredentialStatus,
@@ -98,10 +98,10 @@ const VIEW_LABELS: Record<WorkbenchView, string> = {
 const VIEWS = Object.keys(VIEW_LABELS) as WorkbenchView[];
 
 function previewViewForArtifact(artifactType: string): WorkbenchView | undefined {
-  if (artifactType === 'Timeline') return 'timeline';
-  if (artifactType === 'PartyGraph') return 'graph';
-  if (artifactType === 'ReviewMatrix') return 'matrix';
-  if (artifactType === 'RiskList') return 'revision';
+  if (artifactType === 'legal.Timeline') return 'timeline';
+  if (artifactType === 'legal.PartyGraph') return 'graph';
+  if (artifactType === 'legal.ReviewMatrix') return 'matrix';
+  if (artifactType === 'legal.RiskList') return 'revision';
   return undefined;
 }
 
@@ -485,7 +485,7 @@ export function App() {
   useEffect(() => {
     if (!isDemoCaseId(selectedCaseId) || !flow) return;
     if (Object.keys(session.artifacts).length > 0) return;
-    const seed = flow === 'S1' ? 'Timeline' : 'RiskList';
+    const seed = flow === 'S1' ? 'legal.Timeline' : 'legal.RiskList';
     setModuleOpen((prev) => applyArtifactAutoExpand(prev, userModuleOverride, seed));
   }, [selectedCaseId, flow, session.artifacts, userModuleOverride]);
 

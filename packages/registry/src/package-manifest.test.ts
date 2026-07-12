@@ -64,14 +64,14 @@ describe('PackageScenarioSchema（ABI 场景声明 v2）', () => {
   });
 
   it('steps 缺省合法（由注册期按 outputArtifacts 派生）', () => {
-    const { steps: _omit, ...rest } = VALID_SCENARIO;
-    expect(PackageScenarioSchema.safeParse(rest).success).toBe(true);
+    const withoutSteps = { ...VALID_SCENARIO, steps: undefined };
+    expect(PackageScenarioSchema.safeParse(withoutSteps).success).toBe(true);
   });
 
   it('none 策略在形状层合法（准入层再联判副作用）', () => {
-    const { steps: _omit, ...rest } = VALID_SCENARIO;
+    const withoutSteps = { ...VALID_SCENARIO, steps: undefined };
     expect(
-      PackageScenarioSchema.safeParse({ ...rest, confirmationPolicy: { mode: 'none' } }).success,
+      PackageScenarioSchema.safeParse({ ...withoutSteps, confirmationPolicy: { mode: 'none' } }).success,
     ).toBe(true);
   });
 });

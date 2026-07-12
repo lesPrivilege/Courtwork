@@ -16,7 +16,7 @@ describe('core 事件录制回放契约', () => {
   it('S3 录制保持严格序号并由 artifact_produced 提供信源投影', () => {
     assertRecording(S3_RECORDING);
     const artifact = S3_RECORDING.find((event) => event.type === 'artifact_produced');
-    expect(artifact).toMatchObject({ type: 'artifact_produced', artifactType: 'RiskList' });
+    expect(artifact).toMatchObject({ type: 'artifact_produced', artifactType: 'legal.RiskList' });
     if (artifact?.type === 'artifact_produced') expect(artifact.evidenceGrades.map((item) => item.grade)).toEqual(['B', 'C']);
   });
 
@@ -48,7 +48,7 @@ describe('core 事件录制回放契约', () => {
 
   it('provider 降档 notice 随 artifact 机械投影，供 composer chip 轻提示', () => {
     const event: SessionEvent = {
-      type: 'artifact_produced', artifactType: 'RiskList', artifact: { caseId: 'c1', risks: [] }, evidenceGrades: [],
+      type: 'artifact_produced', artifactType: 'legal.RiskList', artifact: { caseId: 'c1', risks: [] }, evidenceGrades: [],
       providerNotices: [{
         code: 'reasoning_downgraded_for_structured_output', message: '结构化输出已使用标准模式', requested: 'deep', applied: 'standard',
       }],

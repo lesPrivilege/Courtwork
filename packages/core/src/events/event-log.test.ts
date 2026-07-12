@@ -70,7 +70,7 @@ describe('replaySession', () => {
     const summary = replaySession([
       {
         type: 'todo_snapshot',
-        steps: [{ artifactType: 'RiskList', label: '确认风险清单', status: 'pending' }],
+        steps: [{ stepId: 'produce-RiskList', artifactType: 'RiskList', label: '确认风险清单', status: 'pending' }],
         sessionId: 's',
         seq: 0,
         emittedAt: 't0',
@@ -78,14 +78,14 @@ describe('replaySession', () => {
       { type: 'step_failed', scope: 'tool', toolId: 'party-verify', reason: 'timeout', message: '超时', sessionId: 's', seq: 1, emittedAt: 't1' },
       {
         type: 'todo_snapshot',
-        steps: [{ artifactType: 'RiskList', label: '确认风险清单', status: 'awaiting_confirmation' }],
+        steps: [{ stepId: 'produce-RiskList', artifactType: 'RiskList', label: '确认风险清单', status: 'awaiting_confirmation' }],
         sessionId: 's',
         seq: 2,
         emittedAt: 't2',
       },
     ]);
     expect(summary.failedSteps).toEqual([{ scope: 'tool', toolId: 'party-verify', reason: 'timeout', message: '超时' }]);
-    expect(summary.latestTodoSnapshot).toEqual([{ artifactType: 'RiskList', label: '确认风险清单', status: 'awaiting_confirmation' }]);
+    expect(summary.latestTodoSnapshot).toEqual([{ stepId: 'produce-RiskList', artifactType: 'RiskList', label: '确认风险清单', status: 'awaiting_confirmation' }]);
   });
 
   it('completed is false when no scenario_completed event is present', () => {

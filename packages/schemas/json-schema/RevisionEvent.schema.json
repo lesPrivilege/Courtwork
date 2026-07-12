@@ -33,15 +33,9 @@
     },
     "artifactType": {
       "type": "string",
-      "enum": [
-        "CaseFile",
-        "Timeline",
-        "PartyGraph",
-        "RiskList",
-        "ReviewMatrix",
-        "RevisionInstructionSet",
-        "FileOpsPlan"
-      ]
+      "pattern": "^[a-z][a-z0-9-]*\\.[A-Z][A-Za-z0-9]*$",
+      "title": "ArtifactTypeId",
+      "description": "namespaced artifact 类型 id：`包id.类型名`。裸类型名（旧形制）不再合法。"
     },
     "artifactId": {
       "type": "string",

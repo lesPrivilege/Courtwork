@@ -1,4 +1,4 @@
-import type { FileOpsPlan } from '@courtwork/schemas';
+import type { FileOpsPlan } from '@courtwork/legal';
 import {
   createFileOpsExecutor,
   type FileOpsExecuteReport,

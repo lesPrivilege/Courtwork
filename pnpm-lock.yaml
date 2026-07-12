@@ -35,6 +35,9 @@ importers:
       '@courtwork/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@courtwork/legal':
+        specifier: workspace:*
+        version: link:../../packages/legal
       '@courtwork/reading-view':
         specifier: workspace:*
         version: link:../../packages/reading-view
@@ -87,6 +90,9 @@ importers:
       '@courtwork/demo-data':
         specifier: workspace:*
         version: link:../packages/demo-data
+      '@courtwork/legal':
+        specifier: workspace:*
+        version: link:../packages/legal
       '@courtwork/schemas':
         specifier: workspace:*
         version: link:../packages/schemas
@@ -106,6 +112,9 @@ importers:
       '@courtwork/demo-data':
         specifier: workspace:*
         version: link:../demo-data
+      '@courtwork/legal':
+        specifier: workspace:*
+        version: link:../legal
       '@courtwork/output':
         specifier: workspace:*
         version: link:../output
@@ -131,6 +140,22 @@ importers:
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.61.1
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
+
+  packages/legal:
+    dependencies:
+      '@courtwork/registry':
+        specifier: workspace:*
+        version: link:../registry
+      '@courtwork/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1

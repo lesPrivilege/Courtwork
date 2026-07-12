@@ -1,4 +1,4 @@
-import { RiskListSchema } from '@courtwork/schemas';
+import { RiskListSchema } from '@courtwork/legal';
 import type { RuleResult } from './types.js';
 
 function normalizeCitation(citation: string): string {

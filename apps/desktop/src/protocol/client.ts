@@ -52,7 +52,7 @@ export interface SessionProjection {
   evidenceGrades: EvidenceGradeAnnotation[];
   providerNotices: GenerationNotice[];
   progress: string[];
-  todo: Array<{ artifactType: string; status: string }>;
+  todo: Array<{ stepId: string; artifactType?: string; status: string }>;
   confirmation?: Extract<SessionEvent, { type: 'confirmation_requested' }>;
   failures: Extract<SessionEvent, { type: 'step_failed' }>[];
   completed: boolean;

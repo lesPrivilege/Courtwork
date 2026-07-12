@@ -1,10 +1,5 @@
 import * as z from 'zod';
 import { SourceAnchorSchema } from './source-anchor.js';
-import { CaseFileSchema } from './case-file.js';
-import { TimelineSchema } from './timeline.js';
-import { PartyGraphSchema } from './party-graph.js';
-import { RiskListSchema } from './risk-list.js';
-import { ReviewMatrixSchema } from './review-matrix.js';
 import { RevisionEventSchema } from './revision-event.js';
 import { RevisionInstructionSetSchema } from './revision-instruction-set.js';
 import { FileOpsPlanSchema } from './file-ops-plan.js';
@@ -14,13 +9,9 @@ import { QuoteClaimSchema, CitationFailureSchema } from './citation.js';
 import { RehydrationProjectionSchema } from './artifact-descriptor.js';
 import { PackageIdentitySchema } from './package-identity.js';
 
+// 法律七 schema 的对外契约面随包迁移（packages/legal/src/export-json-schema.ts）。
 export const SCHEMA_REGISTRY = [
   { name: 'SourceAnchor', schema: SourceAnchorSchema },
-  { name: 'CaseFile', schema: CaseFileSchema },
-  { name: 'Timeline', schema: TimelineSchema },
-  { name: 'PartyGraph', schema: PartyGraphSchema },
-  { name: 'RiskList', schema: RiskListSchema },
-  { name: 'ReviewMatrix', schema: ReviewMatrixSchema },
   { name: 'RevisionEvent', schema: RevisionEventSchema },
   { name: 'RevisionInstructionSet', schema: RevisionInstructionSetSchema },
   { name: 'FileOpsPlan', schema: FileOpsPlanSchema },

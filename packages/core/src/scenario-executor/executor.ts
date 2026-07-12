@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import type { ArtifactType, RevisionEvent, SourceAnchor } from '@courtwork/schemas';
+import type { RevisionEvent, SourceAnchor } from '@courtwork/schemas';
 import { RevisionEventSchema } from '@courtwork/schemas';
-import type { ScenarioDefinition } from '@courtwork/registry';
+import type { ArtifactSchemaRegistry, ScenarioRuntime } from '@courtwork/registry';
 import type { ToolExecutor } from '@courtwork/tools';
 import type { Provider } from '../provider/types.js';
 import type { EventLog } from '../events/event-log.js';
@@ -11,7 +11,6 @@ import type { ToolRegistry } from '../tools/tool-registry.js';
 import type { ConfirmationStore, PendingConfirmation } from '../session/confirmation-store.js';
 import type { RevisionEventStore } from '../revision/revision-store.js';
 import { applyJsonPointer } from '../revision/json-pointer.js';
-import { ARTIFACT_SCHEMAS } from './artifact-schemas.js';
 import { deriveTodoSnapshot } from './todo-snapshot.js';
 import { createRuntimeGuard, type RuntimeGuard, type RuntimeLimits } from './runtime-limits.js';
 import { estimateCostUsd } from '../provider/pricing-table.js';
@@ -25,6 +24,12 @@ export interface ScenarioExecutorDeps {
   confirmationStore: ConfirmationStore;
   revisionStore: RevisionEventStore;
   ledger: EvidenceLedger;
+  /**
+   * 注入式 artifact schema registry（ABI 拍板①）：中央 ARTIFACT_SCHEMAS 退役。
+   * 穷尽性保障从编译期 Record 迁到准入闭合（引用必在包内解析）+ 本执行器的
+   * 缺失即抛（UnknownArtifactTypeError）——F-4 病根的注入式根治。
+   */
+  artifacts: ArtifactSchemaRegistry;
   now?: () => string;
   /**
    * 运行时保护四件套（docs/12 长任务协议③），按次 runScenario/resumeScenario 调用
@@ -36,12 +41,12 @@ export interface ScenarioExecutorDeps {
 }
 
 export interface ScenarioRunInput {
-  inputArtifacts: Partial<Record<ArtifactType, unknown>>;
+  inputArtifacts: Partial<Record<string, unknown>>;
   toolInputs: Record<string, unknown>;
 }
 
 export type ScenarioRunResult =
-  | { status: 'completed'; sessionId: string; artifacts: Partial<Record<ArtifactType, unknown>> }
+  | { status: 'completed'; sessionId: string; artifacts: Partial<Record<string, unknown>> }
   | { status: 'paused'; sessionId: string; requestId: string };
 
 export class UnknownToolError extends Error {
@@ -51,8 +56,24 @@ export class UnknownToolError extends Error {
   }
 }
 
+export class UnknownArtifactTypeError extends Error {
+  constructor(scenarioId: string, artifactType: string) {
+    super(`场景 ${scenarioId} 声明的产出类型 "${artifactType}" 未在 artifact schema registry 注册——包准入闭合被绕过或装配缺漏`);
+    this.name = 'UnknownArtifactTypeError';
+  }
+}
+
+export class ConfirmationPolicyViolationError extends Error {
+  constructor(scenarioId: string, toolId: string, sideEffect: string) {
+    super(
+      `场景 ${scenarioId} 声明 confirmationPolicy: none，但绑定工具 "${toolId}" 的副作用类为 ${sideEffect}——none 仅限纯读取，core 强制、包无权放宽`,
+    );
+    this.name = 'ConfirmationPolicyViolationError';
+  }
+}
+
 export class GenerationValidationError extends Error {
-  constructor(scenarioId: string, artifactType: ArtifactType, issues: string) {
+  constructor(scenarioId: string, artifactType: string, issues: string) {
     super(`场景 ${scenarioId} 生成的 ${artifactType} 未通过 schema 校验：\n${issues}`);
     this.name = 'GenerationValidationError';
   }
@@ -67,7 +88,7 @@ export class UnknownConfirmationRequestError extends Error {
 
 /** toolIds 声明的全部工具在产出序列开始前一次性执行完毕（registry/SPEC.md 已补注的执行语义）。 */
 async function runTools(
-  scenario: ScenarioDefinition,
+  scenario: ScenarioRuntime,
   toolInputs: Record<string, unknown>,
   deps: ScenarioExecutorDeps,
   guard: RuntimeGuard,
@@ -77,6 +98,14 @@ async function runTools(
     guard.checkToolCall();
     const binding = deps.tools.get(toolId);
     if (!binding) throw new UnknownToolError(scenario.id, toolId);
+    // ABI 拍板③运行时门：none 策略场景的工具必须全为 pure_read（准入层只能核 artifact
+    // 副作用，工具在装配点才绑定——双门的第二道在此）。
+    if (scenario.confirmationPolicy.mode === 'none') {
+      const sideEffect = binding.sideEffect ?? 'pure_read';
+      if (sideEffect !== 'pure_read') {
+        throw new ConfirmationPolicyViolationError(scenario.id, toolId, sideEffect);
+      }
+    }
     const envelope = await deps.toolExecutor.execute(binding.tool, toolInputs[toolId]);
     guard.checkTime();
     results[toolId] = envelope;
@@ -92,21 +121,23 @@ async function runTools(
 }
 
 async function generateArtifact(
-  scenario: ScenarioDefinition,
-  artifactType: ArtifactType,
+  scenario: ScenarioRuntime,
+  artifactType: string,
   context: {
-    inputArtifacts: Partial<Record<ArtifactType, unknown>>;
+    inputArtifacts: Partial<Record<string, unknown>>;
     toolResults: Record<string, unknown>;
-    producedSoFar: Partial<Record<ArtifactType, unknown>>;
+    producedSoFar: Partial<Record<string, unknown>>;
   },
-  provider: Provider,
+  deps: ScenarioExecutorDeps,
 ): Promise<{ artifact: unknown; usage?: { inputTokens: number; outputTokens: number }; notices?: GenerationNotice[] }> {
-  const schema = ARTIFACT_SCHEMAS[artifactType];
+  const entry = deps.artifacts.get(artifactType);
+  if (!entry) throw new UnknownArtifactTypeError(scenario.id, artifactType);
+  const schema = entry.descriptor.schema;
   // todo 复述进请求末尾（Manus 抗注意力漂移技巧，docs/12，套在声明式步骤上）：
   // todo 字段放在展开运算符之后插入，JSON.stringify 按插入顺序输出键，
   // 因此序列化后的字符串里 todo 真的落在末尾，不只是字段存在而已。
-  const response = await provider.generate({
-    systemPrompt: scenario.promptTemplateRef,
+  const response = await deps.provider.generate({
+    systemPrompt: scenario.promptBody,
     messages: [
       {
         role: 'user',
@@ -134,15 +165,20 @@ interface SequenceState {
   sessionId: string;
   scenarioId: string;
   toolResults: Record<string, unknown>;
-  producedSoFar: Partial<Record<ArtifactType, unknown>>;
-  inputArtifacts: Partial<Record<ArtifactType, unknown>>;
+  producedSoFar: Partial<Record<string, unknown>>;
+  inputArtifacts: Partial<Record<string, unknown>>;
+}
+
+function findGate(scenario: ScenarioRuntime, artifactType: string | undefined) {
+  if (scenario.confirmationPolicy.mode !== 'gates') return undefined;
+  return scenario.confirmationPolicy.gates.find((gate) => gate.artifact === artifactType);
 }
 
 function pauseAt(
-  scenario: ScenarioDefinition,
+  scenario: ScenarioRuntime,
   gateLabel: string,
-  artifactType: ArtifactType | undefined,
-  remainingArtifactTypes: ArtifactType[],
+  artifactType: string | undefined,
+  remainingArtifactTypes: string[],
   state: SequenceState,
   deps: ScenarioExecutorDeps,
   now: () => string,
@@ -169,8 +205,8 @@ function pauseAt(
 
 /** outputArtifacts 声明顺序即产出顺序（registry/SPEC.md 已补注的执行语义）。命中门禁即暂停。 */
 async function produceSequence(
-  scenario: ScenarioDefinition,
-  remainingArtifactTypes: ArtifactType[],
+  scenario: ScenarioRuntime,
+  remainingArtifactTypes: string[],
   state: SequenceState,
   deps: ScenarioExecutorDeps,
   guard: RuntimeGuard,
@@ -184,7 +220,7 @@ async function produceSequence(
       scenario,
       artifactType,
       { inputArtifacts: state.inputArtifacts, toolResults: state.toolResults, producedSoFar: state.producedSoFar },
-      deps.provider,
+      deps,
     );
     guard.checkTime();
     const costUsd = estimateCostUsd(deps.provider.id, deps.provider.modelId, usage);
@@ -194,13 +230,13 @@ async function produceSequence(
       type: 'artifact_produced', artifactType, artifact, evidenceGrades: deps.ledger.snapshot(), providerNotices: notices,
     });
 
-    const gate = scenario.confirmationGates.find((g) => g.artifact === artifactType);
+    const gate = findGate(scenario, artifactType);
     if (gate) {
       return pauseAt(scenario, gate.label, artifactType, remainingArtifactTypes.slice(i + 1), state, deps, now);
     }
   }
 
-  const labelOnlyGate = scenario.confirmationGates.find((g) => g.artifact === undefined);
+  const labelOnlyGate = findGate(scenario, undefined);
   if (labelOnlyGate) {
     return pauseAt(scenario, labelOnlyGate.label, undefined, [], state, deps, now);
   }
@@ -218,7 +254,7 @@ function createGuardForCall(deps: ScenarioExecutorDeps): RuntimeGuard {
 }
 
 export async function runScenario(
-  scenario: ScenarioDefinition,
+  scenario: ScenarioRuntime,
   input: ScenarioRunInput,
   deps: ScenarioExecutorDeps,
 ): Promise<ScenarioRunResult> {
@@ -240,7 +276,7 @@ export async function runScenario(
 }
 
 export interface RevisionInput {
-  artifactType: ArtifactType;
+  artifactType: string;
   artifactId: string;
   fieldPath: string;
   previousValue: unknown;
@@ -282,7 +318,7 @@ function buildRevisionEvent(input: RevisionInput, actor: ConfirmationActor, sess
 export async function resumeScenario(
   requestId: string,
   response: ScenarioResumeInput,
-  scenario: ScenarioDefinition,
+  scenario: ScenarioRuntime,
   deps: ScenarioExecutorDeps,
 ): Promise<ScenarioRunResult> {
   const pending = deps.confirmationStore.take(requestId);
@@ -306,7 +342,7 @@ export async function resumeScenario(
     return { status: 'completed', sessionId: pending.sessionId, artifacts: pending.producedArtifacts };
   }
 
-  const revisedArtifactTypes = new Set<ArtifactType>();
+  const revisedArtifactTypes = new Set<string>();
   for (const revision of response.revisions ?? []) {
     const event = buildRevisionEvent(revision, response.actor, pending.sessionId, now);
     deps.revisionStore.record(event);

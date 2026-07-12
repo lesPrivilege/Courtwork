@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { ScenarioDefinition } from '@courtwork/registry';
+import * as z from 'zod';
+import type { ArtifactSchemaRegistry, ScenarioRuntime } from '@courtwork/registry';
+import type { ArtifactDescriptor } from '@courtwork/schemas';
 import { RevisionEventSchema } from '@courtwork/schemas';
 import { createMockPartyVerifyAdapter, createPartyVerifyTool, createQccPartyVerifyAdapter, createToolExecutor } from '@courtwork/tools';
 import { createEventLog, createFileEventLog } from '../events/event-log.js';
@@ -22,16 +24,64 @@ import {
   type ScenarioExecutorDeps,
 } from './executor.js';
 
-const SINGLE_GATE_SCENARIO: ScenarioDefinition = {
-  id: 'S-test-single',
+// 迁 ABI 后 core 域盲：执行器测试全部使用合成 test.* 类型与注入式 registry——
+// 法律语义不再是夹具来源，这本身就是"跑得动包、读不懂包"的自证。
+const TEST_RISK_SCHEMA = z.object({
+  caseId: z.string().min(1),
+  risks: z.array(
+    z.object({
+      id: z.string().min(1),
+      description: z.string().min(1),
+      level: z.enum(['high', 'medium', 'low']),
+      basis: z.array(z.object({ citation: z.string().min(1), sourceAnchors: z.array(z.unknown()).min(1) })).min(1),
+      dispositionStatus: z.enum(['pending', 'confirmed', 'rejected']),
+    }),
+  ),
+});
+const TEST_DOC_SCHEMA = z.object({ caseId: z.string().min(1), files: z.array(z.unknown()) });
+const TEST_ALPHA_SCHEMA = z.object({ caseId: z.string().min(1), events: z.array(z.unknown()) });
+const TEST_BETA_SCHEMA = z.object({ caseId: z.string().min(1), nodes: z.array(z.unknown()), edges: z.array(z.unknown()) });
+
+function testDescriptor(typeId: string, schema: z.ZodTypeAny): ArtifactDescriptor {
+  return {
+    typeId,
+    title: typeId,
+    schema,
+    rehydrationProjection: { ops: [{ kind: 'field', path: '/caseId', label: '案件' }], rowBudget: 2 },
+    uiTemplateId: 'test-panel',
+  };
+}
+
+const TEST_ARTIFACTS: ArtifactSchemaRegistry = (() => {
+  const entries = new Map<string, { descriptor: ArtifactDescriptor; packageId: string }>(
+    (
+      [
+        ['test.Risk', TEST_RISK_SCHEMA],
+        ['test.Doc', TEST_DOC_SCHEMA],
+        ['test.Alpha', TEST_ALPHA_SCHEMA],
+        ['test.Beta', TEST_BETA_SCHEMA],
+      ] as [string, z.ZodTypeAny][]
+    ).map(([typeId, schema]) => [typeId, { descriptor: testDescriptor(typeId, schema), packageId: 'test' }]),
+  );
+  return {
+    get: (typeId: string) => entries.get(typeId),
+    normalizeTypeId: (value: string) => (entries.has(value) ? value : undefined),
+    list: () => [...entries.values()],
+  };
+})();
+
+const SINGLE_GATE_SCENARIO: ScenarioRuntime = {
+  id: 'test.Single',
+  packageId: 'test',
   name: '单产出测试场景',
   trigger: { fileTypes: ['pdf'], userActions: [], classifierTags: [] },
-  inputArtifacts: ['CaseFile'],
+  inputArtifacts: ['test.Doc'],
   toolIds: ['party-verify'],
-  outputArtifacts: ['RiskList'],
+  outputArtifacts: ['test.Risk'],
   uiTemplateId: 'test-panel',
-  confirmationGates: [{ artifact: 'RiskList', label: '确认风险清单' }],
-  promptTemplateRef: 'test-v0',
+  confirmationPolicy: { mode: 'gates', gates: [{ artifact: 'test.Risk', label: '确认风险清单' }] },
+  promptBody: '测试声明段正文',
+  steps: [{ id: 'produce-test.Risk', title: '产出 test.Risk', artifact: 'test.Risk' }],
 };
 
 const VALID_RISK_LIST = {
@@ -58,6 +108,7 @@ function buildDeps(providerScript: GenerationResponse[]): ScenarioExecutorDeps {
     confirmationStore: createInMemoryConfirmationStore(),
     revisionStore: createInMemoryRevisionEventStore(),
     ledger: createEvidenceLedger(),
+    artifacts: TEST_ARTIFACTS,
   };
 }
 
@@ -66,7 +117,7 @@ describe('runScenario', () => {
     const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
     const result = await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
 
@@ -75,7 +126,7 @@ describe('runScenario', () => {
 
     const events = deps.eventLog.list();
     expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'todo_snapshot', 'confirmation_requested']);
-    expect(events[0]).toMatchObject({ type: 'artifact_produced', artifactType: 'RiskList', artifact: VALID_RISK_LIST });
+    expect(events[0]).toMatchObject({ type: 'artifact_produced', artifactType: 'test.Risk', artifact: VALID_RISK_LIST });
     expect(events[0]).toMatchObject({ evidenceGrades: [{ key: 'party-verify', grade: 'A', sourceId: 'mock', confirmed: false }] });
   });
 
@@ -91,7 +142,7 @@ describe('runScenario', () => {
     }]);
     await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
     expect(deps.eventLog.list()[0]).toMatchObject({
@@ -102,7 +153,7 @@ describe('runScenario', () => {
 
   it('throws UnknownToolError when a scenario references a toolId absent from the tool registry', async () => {
     const deps = buildDeps([]);
-    const scenario: ScenarioDefinition = { ...SINGLE_GATE_SCENARIO, toolIds: ['nonexistent-tool'] };
+    const scenario: ScenarioRuntime = { ...SINGLE_GATE_SCENARIO, toolIds: ['nonexistent-tool'] };
     await expect(
       runScenario(scenario, { inputArtifacts: {}, toolInputs: {} }, deps),
     ).rejects.toThrow(UnknownToolError);
@@ -113,7 +164,7 @@ describe('runScenario', () => {
     await expect(
       runScenario(
         SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
         deps,
       ),
     ).rejects.toThrow(GenerationValidationError);
@@ -124,7 +175,7 @@ describe('runScenario', () => {
     await expect(
       runScenario(
         SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
         deps,
       ),
     ).rejects.toThrow(GenerationValidationError);
@@ -136,7 +187,7 @@ describe('resumeScenario', () => {
     const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
     if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
@@ -148,7 +199,7 @@ describe('resumeScenario', () => {
       deps,
     );
 
-    expect(result).toEqual({ status: 'completed', sessionId: 'session-1', artifacts: { CaseFile: { caseId: 'c1', files: [] }, RiskList: VALID_RISK_LIST } });
+    expect(result).toEqual({ status: 'completed', sessionId: 'session-1', artifacts: { 'test.Doc': { caseId: 'c1', files: [] }, 'test.Risk': VALID_RISK_LIST } });
 
     const events = deps.eventLog.list();
     expect(events.map((e) => e.type)).toEqual([
@@ -171,7 +222,7 @@ describe('resumeScenario', () => {
     const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
     if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
@@ -207,7 +258,7 @@ describe('resumeScenario', () => {
     const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
     if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
@@ -222,7 +273,7 @@ describe('resumeScenario', () => {
     const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
     if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
@@ -234,7 +285,7 @@ describe('resumeScenario', () => {
         decision: 'confirm',
         revisions: [
           {
-            artifactType: 'RiskList',
+            artifactType: 'test.Risk',
             artifactId: 'c1',
             fieldPath: '/risks/0/dispositionStatus',
             previousValue: 'pending',
@@ -250,14 +301,14 @@ describe('resumeScenario', () => {
     );
 
     if (result.status !== 'completed') throw new Error('unreachable');
-    const finalRiskList = result.artifacts.RiskList as typeof VALID_RISK_LIST;
+    const finalRiskList = result.artifacts['test.Risk'] as typeof VALID_RISK_LIST;
     expect(finalRiskList.risks[0].dispositionStatus).toBe('confirmed');
 
     const recorded = deps.revisionStore.list();
     expect(recorded).toHaveLength(1);
     expect(RevisionEventSchema.safeParse(recorded[0]).success).toBe(true);
     expect(recorded[0]).toMatchObject({
-      artifactType: 'RiskList',
+      artifactType: 'test.Risk',
       artifactId: 'c1',
       fieldPath: '/risks/0/dispositionStatus',
       previousValue: 'pending',
@@ -281,7 +332,7 @@ describe('resumeScenario', () => {
     expect(events[4]).toMatchObject({ type: 'revision_recorded', revisionEventId: recorded[0].id });
     // 修正后的 artifact 重新发了一次 artifact_produced——事件流可回放才能真正
     // 重建出修正后的状态，而不是只重建出确认门禁触发时那一刻的原始产出。
-    expect(events[5]).toMatchObject({ type: 'artifact_produced', artifactType: 'RiskList' });
+    expect(events[5]).toMatchObject({ type: 'artifact_produced', artifactType: 'test.Risk' });
     expect((events[5] as { artifact: typeof VALID_RISK_LIST }).artifact.risks[0].dispositionStatus).toBe('confirmed');
   });
 
@@ -289,7 +340,7 @@ describe('resumeScenario', () => {
     const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
     if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
@@ -300,7 +351,7 @@ describe('resumeScenario', () => {
         actor: { channelId: 'cli', actorId: 'demo-lawyer' },
         decision: 'confirm',
         revisions: [
-          { artifactType: 'RiskList', artifactId: 'c1', fieldPath: '/risks/0/dispositionStatus', previousValue: 'pending', newValue: 'confirmed' },
+          { artifactType: 'test.Risk', artifactId: 'c1', fieldPath: '/risks/0/dispositionStatus', previousValue: 'pending', newValue: 'confirmed' },
         ],
       },
       SINGLE_GATE_SCENARIO,
@@ -320,7 +371,7 @@ describe('resumeScenario', () => {
     const deps = buildDeps([{ content: JSON.stringify(twoRiskList) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
     if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
@@ -331,8 +382,8 @@ describe('resumeScenario', () => {
         actor: { channelId: 'cli', actorId: 'demo-lawyer' },
         decision: 'confirm',
         revisions: [
-          { artifactType: 'RiskList', artifactId: 'c1', fieldPath: '/risks/0/dispositionStatus', previousValue: 'pending', newValue: 'confirmed' },
-          { artifactType: 'RiskList', artifactId: 'c1', fieldPath: '/risks/1/dispositionStatus', previousValue: 'pending', newValue: 'rejected' },
+          { artifactType: 'test.Risk', artifactId: 'c1', fieldPath: '/risks/0/dispositionStatus', previousValue: 'pending', newValue: 'confirmed' },
+          { artifactType: 'test.Risk', artifactId: 'c1', fieldPath: '/risks/1/dispositionStatus', previousValue: 'pending', newValue: 'rejected' },
         ],
       },
       SINGLE_GATE_SCENARIO,
@@ -343,19 +394,28 @@ describe('resumeScenario', () => {
   });
 });
 
-const MULTI_GATE_SCENARIO: ScenarioDefinition = {
-  id: 'S-test-multi',
+const MULTI_GATE_SCENARIO: ScenarioRuntime = {
+  id: 'test.Multi',
+  packageId: 'test',
   name: '多产出测试场景',
   trigger: { fileTypes: ['pdf'], userActions: [], classifierTags: [] },
   inputArtifacts: [],
   toolIds: [],
-  outputArtifacts: ['CaseFile', 'Timeline', 'PartyGraph'],
+  outputArtifacts: ['test.Doc', 'test.Alpha', 'test.Beta'],
   uiTemplateId: 'test-panel',
-  confirmationGates: [
-    { artifact: 'Timeline', label: '确认事件时间线' },
-    { artifact: 'PartyGraph', label: '确认当事人关系图谱' },
+  confirmationPolicy: {
+    mode: 'gates',
+    gates: [
+      { artifact: 'test.Alpha', label: '确认事件时间线' },
+      { artifact: 'test.Beta', label: '确认当事人关系图谱' },
+    ],
+  },
+  promptBody: '测试声明段正文',
+  steps: [
+    { id: 'produce-test.Doc', title: '产出 test.Doc', artifact: 'test.Doc' },
+    { id: 'produce-test.Alpha', title: '产出 test.Alpha', artifact: 'test.Alpha' },
+    { id: 'produce-test.Beta', title: '产出 test.Beta', artifact: 'test.Beta' },
   ],
-  promptTemplateRef: 'test-v0',
 };
 
 const CASE_FILE_RESPONSE = { caseId: 'c1', files: [] };
@@ -378,7 +438,7 @@ describe('runScenario / resumeScenario — multi-artifact sequential gates (S1 s
       'todo_snapshot',
       'confirmation_requested',
     ]);
-    expect(deps.eventLog.list()[3]).toMatchObject({ gateLabel: '确认事件时间线', artifactType: 'Timeline' });
+    expect(deps.eventLog.list()[3]).toMatchObject({ gateLabel: '确认事件时间线', artifactType: 'test.Alpha' });
 
     const secondPause = await resumeScenario(
       firstPause.requestId,
@@ -390,7 +450,7 @@ describe('runScenario / resumeScenario — multi-artifact sequential gates (S1 s
     const eventsAfterSecondPause = deps.eventLog.list();
     expect(eventsAfterSecondPause[eventsAfterSecondPause.length - 1]).toMatchObject({
       gateLabel: '确认当事人关系图谱',
-      artifactType: 'PartyGraph',
+      artifactType: 'test.Beta',
     });
 
     const done = await resumeScenario(
@@ -402,22 +462,24 @@ describe('runScenario / resumeScenario — multi-artifact sequential gates (S1 s
     expect(done).toEqual({
       status: 'completed',
       sessionId: 'session-1',
-      artifacts: { CaseFile: CASE_FILE_RESPONSE, Timeline: TIMELINE_RESPONSE, PartyGraph: PARTY_GRAPH_RESPONSE },
+      artifacts: { 'test.Doc': CASE_FILE_RESPONSE, 'test.Alpha': TIMELINE_RESPONSE, 'test.Beta': PARTY_GRAPH_RESPONSE },
     });
   });
 });
 
 describe('runScenario — label-only confirmation gate (no artifact anchor)', () => {
-  const LABEL_ONLY_SCENARIO: ScenarioDefinition = {
-    id: 'S-test-label-only',
+  const LABEL_ONLY_SCENARIO: ScenarioRuntime = {
+    id: 'test.LabelOnly',
+    packageId: 'test',
     name: '无锚点门禁测试场景',
     trigger: { fileTypes: [], userActions: ['x'], classifierTags: [] },
     inputArtifacts: [],
     toolIds: [],
-    outputArtifacts: ['CaseFile'],
+    outputArtifacts: ['test.Doc'],
     uiTemplateId: 'test-panel',
-    confirmationGates: [{ label: '整体确认（无产物锚点）' }],
-    promptTemplateRef: 'test-v0',
+    confirmationPolicy: { mode: 'gates', gates: [{ label: '整体确认（无产物锚点）' }] },
+    promptBody: '测试声明段正文',
+    steps: [{ id: 'produce-test.Doc', title: '产出 test.Doc', artifact: 'test.Doc' }],
   };
 
   it('produces the sole output artifact ungated, then pauses on the label-only gate at the end of the sequence', async () => {
@@ -447,10 +509,11 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
         confirmationStore: createFileConfirmationStore(pendingDir),
         revisionStore: createInMemoryRevisionEventStore(),
         ledger: createEvidenceLedger(),
+        artifacts: TEST_ARTIFACTS,
       };
       const paused = await runScenario(
         SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
         firstDeps,
       );
       if (paused.status !== 'paused') throw new Error('expected pause');
@@ -466,6 +529,7 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
         confirmationStore: createFileConfirmationStore(pendingDir),
         revisionStore: createInMemoryRevisionEventStore(),
         ledger: createEvidenceLedger(),
+        artifacts: TEST_ARTIFACTS,
       };
       expect(secondDeps.tools).not.toBe(firstDeps.tools);
       expect(secondDeps.toolExecutor).not.toBe(firstDeps.toolExecutor);
@@ -505,11 +569,12 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
       confirmationStore: createInMemoryConfirmationStore(),
       revisionStore: createInMemoryRevisionEventStore(),
       ledger: createEvidenceLedger(),
+      artifacts: TEST_ARTIFACTS,
     };
 
     const result = await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
 
@@ -525,7 +590,7 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
     const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
     await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
 
@@ -533,7 +598,7 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
     expect(snapshots).toHaveLength(1);
     expect(snapshots[0]).toMatchObject({
       type: 'todo_snapshot',
-      steps: [{ artifactType: 'RiskList', label: '确认风险清单', status: 'awaiting_confirmation' }],
+      steps: [{ artifactType: 'test.Risk', label: '确认风险清单', status: 'awaiting_confirmation' }],
     });
   });
 
@@ -541,7 +606,7 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
     const deps = buildDeps([{ content: JSON.stringify(VALID_RISK_LIST) }]);
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
     if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
@@ -549,7 +614,7 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
 
     const snapshots = deps.eventLog.list().filter((e) => e.type === 'todo_snapshot');
     expect(snapshots).toHaveLength(2);
-    expect(snapshots[1]).toMatchObject({ type: 'todo_snapshot', steps: [{ artifactType: 'RiskList', status: 'done' }] });
+    expect(snapshots[1]).toMatchObject({ type: 'todo_snapshot', steps: [{ artifactType: 'test.Risk', status: 'done' }] });
   });
 });
 
@@ -559,7 +624,7 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
     await expect(
       runScenario(
         SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
         deps,
       ),
     ).resolves.toMatchObject({ status: 'paused' });
@@ -571,7 +636,7 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
     await expect(
       runScenario(
         SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
         deps,
       ),
     ).rejects.toThrow(RuntimeLimitExceededError);
@@ -602,7 +667,7 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
     await expect(
       runScenario(
         SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
         deps,
       ),
     ).rejects.toThrow(RuntimeLimitExceededError);
@@ -613,7 +678,7 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
     deps.limits = { maxSteps: 1 };
     const paused = await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
     if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
@@ -647,22 +712,23 @@ describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/
       confirmationStore: createInMemoryConfirmationStore(),
       revisionStore: createInMemoryRevisionEventStore(),
       ledger: createEvidenceLedger(),
+      artifacts: TEST_ARTIFACTS,
     };
 
     await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
 
     expect(capturedRequests).toHaveLength(1);
     const parsedTail = JSON.parse(capturedRequests[0].content).todo;
-    expect(parsedTail).toEqual([{ artifactType: 'RiskList', label: '确认风险清单', status: 'pending' }]);
+    expect(parsedTail).toEqual([{ stepId: 'produce-test.Risk', artifactType: 'test.Risk', label: '确认风险清单', status: 'pending' }]);
   });
 });
 
 describe('T-provider: generateArtifact passes responseSchema through to provider.generate()', () => {
-  it('the request reaching provider.generate() carries responseSchema matching ARTIFACT_SCHEMAS[artifactType]', async () => {
+  it('the request reaching provider.generate() carries responseSchema matching the injected artifact schema registry entry', async () => {
     let capturedResponseSchema: unknown;
     const capturingProvider = {
       id: 'capture-schema',
@@ -682,11 +748,12 @@ describe('T-provider: generateArtifact passes responseSchema through to provider
       confirmationStore: createInMemoryConfirmationStore(),
       revisionStore: createInMemoryRevisionEventStore(),
       ledger: createEvidenceLedger(),
+      artifacts: TEST_ARTIFACTS,
     };
 
     await runScenario(
       SINGLE_GATE_SCENARIO,
-      { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
 
@@ -715,13 +782,14 @@ describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via respo
       confirmationStore: createInMemoryConfirmationStore(),
       revisionStore: createInMemoryRevisionEventStore(),
       ledger: createEvidenceLedger(),
+      artifacts: TEST_ARTIFACTS,
       limits: { maxUsd: 0.01 }, // 10M+10M token 在 deepseek-v4-pro 报价下远超这个预算
     };
 
     await expect(
       runScenario(
         SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
         deps,
       ),
     ).rejects.toThrow(RuntimeLimitExceededError);
@@ -738,7 +806,7 @@ describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via respo
     await expect(
       runScenario(
         SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { CaseFile: { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
         deps,
       ),
     ).resolves.toMatchObject({ status: 'paused' });

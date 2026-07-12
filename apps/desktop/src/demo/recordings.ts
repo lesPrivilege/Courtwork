@@ -11,10 +11,10 @@ export const S3_RECORDING: SessionEvent[] = [
   { type: 'progress', sessionId: 'demo-s3', seq: 1, emittedAt: at(1), message: '正在核对合同条款与当事人信息…' },
   {
     type: 'todo_snapshot', sessionId: 'demo-s3', seq: 2, emittedAt: at(2),
-    steps: [{ artifactType: 'RiskList', label: '审阅风险清单', status: 'pending' }],
+    steps: [{ stepId: 'produce-legal.RiskList', artifactType: 'legal.RiskList', label: '审阅风险清单', status: 'pending' }],
   },
   {
-    type: 'artifact_produced', sessionId: 'demo-s3', seq: 3, emittedAt: at(3), artifactType: 'RiskList', artifact: riskList,
+    type: 'artifact_produced', sessionId: 'demo-s3', seq: 3, emittedAt: at(3), artifactType: 'legal.RiskList', artifact: riskList,
     evidenceGrades: [
       { key: 'contract-corpus', grade: 'B', sourceId: 'demo-fixture', confirmed: true },
       { key: 'open-reference', grade: 'C', sourceId: 'demo-fixture', confirmed: false },
@@ -22,31 +22,31 @@ export const S3_RECORDING: SessionEvent[] = [
   },
   {
     type: 'confirmation_requested', sessionId: 'demo-s3', seq: 4, emittedAt: at(4), requestId: 'demo-s3-risk-gate',
-    gateLabel: '审阅风险清单', artifactType: 'RiskList',
+    gateLabel: '审阅风险清单', artifactType: 'legal.RiskList',
   },
 ];
 
 export const S1_RECORDING: SessionEvent[] = [
   { type: 'progress', sessionId: 'demo-s1', seq: 1, emittedAt: at(1), message: '已识别 16 / 20 件卷宗，正在识别文书类型…' },
-  { type: 'artifact_produced', sessionId: 'demo-s1', seq: 2, emittedAt: at(2), artifactType: 'CaseFile', artifact: caseFile, evidenceGrades: [] },
+  { type: 'artifact_produced', sessionId: 'demo-s1', seq: 2, emittedAt: at(2), artifactType: 'legal.CaseFile', artifact: caseFile, evidenceGrades: [] },
   {
     type: 'todo_snapshot', sessionId: 'demo-s1', seq: 3, emittedAt: at(3),
     steps: [
-      { artifactType: 'Timeline', label: '核对事件时间线', status: 'pending' },
-      { artifactType: 'PartyGraph', label: '核对当事人关系', status: 'pending' },
+      { stepId: 'produce-legal.Timeline', artifactType: 'legal.Timeline', label: '核对事件时间线', status: 'pending' },
+      { stepId: 'produce-legal.PartyGraph', artifactType: 'legal.PartyGraph', label: '核对当事人关系', status: 'pending' },
     ],
   },
   {
-    type: 'artifact_produced', sessionId: 'demo-s1', seq: 4, emittedAt: at(4), artifactType: 'Timeline', artifact: timeline,
+    type: 'artifact_produced', sessionId: 'demo-s1', seq: 4, emittedAt: at(4), artifactType: 'legal.Timeline', artifact: timeline,
     evidenceGrades: [{ key: 'dossier-corpus', grade: 'B', sourceId: 'demo-fixture', confirmed: true }],
   },
   {
     type: 'confirmation_requested', sessionId: 'demo-s1', seq: 5, emittedAt: at(5), requestId: 'demo-s1-timeline-gate',
-    gateLabel: '核对事件时间线', artifactType: 'Timeline',
+    gateLabel: '核对事件时间线', artifactType: 'legal.Timeline',
   },
   { type: 'progress', sessionId: 'demo-s1', seq: 6, emittedAt: at(6), message: '时间线已生成，正在对齐当事人关系…' },
   {
-    type: 'artifact_produced', sessionId: 'demo-s1', seq: 7, emittedAt: at(7), artifactType: 'PartyGraph', artifact: partyGraph,
+    type: 'artifact_produced', sessionId: 'demo-s1', seq: 7, emittedAt: at(7), artifactType: 'legal.PartyGraph', artifact: partyGraph,
     evidenceGrades: [{ key: 'dossier-corpus', grade: 'B', sourceId: 'demo-fixture', confirmed: true }],
   },
 ];

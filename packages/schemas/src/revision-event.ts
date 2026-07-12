@@ -1,17 +1,6 @@
 import * as z from 'zod';
 import { SourceAnchorSchema } from './source-anchor.js';
-
-export const ArtifactTypeEnum = z.enum([
-  'CaseFile',
-  'Timeline',
-  'PartyGraph',
-  'RiskList',
-  'ReviewMatrix',
-  'RevisionInstructionSet',
-  /** docs/47 卷宗整理计划；F-4 落地 */
-  'FileOpsPlan',
-]);
-export type ArtifactType = z.infer<typeof ArtifactTypeEnum>;
+import { ArtifactTypeIdSchema } from './artifact-type-id.js';
 
 const RevisionActorSchema = z.object({
   userId: z.string().min(1),
@@ -29,7 +18,11 @@ export const RevisionEventSchema = z
      * 下游多背一个依赖。可选是因为部分修正事件不必然挂在具体案件下。
      */
     caseId: z.string().min(1).optional(),
-    artifactType: ArtifactTypeEnum,
+    /**
+     * namespaced artifact 类型 id（ABI 拍板①，2026-07-13 起）。存量账本带旧裸类型名：
+     * append-only 历史永不改写，读侧经包声明的 legacyTypeAliases 归一后再入本 schema。
+     */
+    artifactType: ArtifactTypeIdSchema,
     artifactId: z.string().min(1),
     /** JSON Pointer（RFC 6901），定位到被修正的具体字段，使训练管线可程序化重放/应用这条修正。 */
     fieldPath: z.string().regex(/^\//, 'fieldPath 必须是 JSON Pointer（以 / 开头）'),

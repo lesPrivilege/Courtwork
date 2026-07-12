@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import type { ReviewMatrix, RiskList, Timeline } from '@courtwork/schemas';
+import type { ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import type { ReviewDispositionState, ReviewGateProjection } from '../protocol/client';
 
 export type LineTone = 'danger' | 'attention' | 'revision' | 'authority' | 'neutral';

@@ -1,4 +1,6 @@
 import { findPartyRecord, type PartyCorpusRecord } from '@courtwork/demo-data';
+import { LEGAL_PACKAGE, S3_RISK_LIST_RESPONSE } from '@courtwork/legal';
+import { admitPackages, buildPackageRegistries, type PackageRegistries } from '@courtwork/registry';
 import {
   createDemoFixturePartyVerifyAdapter,
   createPartyVerifyTool,
@@ -8,7 +10,6 @@ import {
 import { createToolRegistry, type ToolRegistry } from '../tools/tool-registry.js';
 import { createScriptedProvider } from '../provider/scripted-provider.js';
 import type { Provider } from '../provider/types.js';
-import { S3_RISK_LIST_RESPONSE } from './s3-risk-list-response.js';
 
 /**
  * 富语料 → 核验字段子集的投影。参考 packages/tools/src/party-verify.test.ts 的
@@ -36,26 +37,39 @@ export interface DemoS3Runtime {
   tools: ToolRegistry;
   provider: Provider;
   toolInputs: Record<string, unknown>;
+  /** 包准入产物：legal 包经 ABI 门装载（装配点绑定，core 其余板块只见 registry 接口）。 */
+  registries: PackageRegistries;
 }
 
 /**
- * 全仓库唯一 import @courtwork/demo-data 的运行时文件（docs/21 定义的装配点例外）。
- * 真实数据接入 = 换这一个文件的 wiring，其余板块零改动。
+ * 装配点（composition root，docs/21 例外条款）：全仓库运行时代码中唯一允许
+ * import @courtwork/demo-data 与 @courtwork/legal 的绑定层——包域律的物理边界
+ * 由 core 单测 package-boundary.test.ts 机器守护。真实数据接入 = 换这一个文件的
+ * wiring，其余板块零改动。
  */
 export function buildDemoS3Runtime(): DemoS3Runtime {
   const tools = createToolRegistry();
   tools.register('party-verify', {
     tool: createPartyVerifyTool(createDemoFixturePartyVerifyAdapter(corpusLookup)),
     grade: 'B',
+    sideEffect: 'pure_read',
   });
 
   const provider = createScriptedProvider('demo-scripted-provider', 'fake-scripted-v1', [
     { content: JSON.stringify(S3_RISK_LIST_RESPONSE) },
   ]);
 
+  const admission = admitPackages([LEGAL_PACKAGE]);
+  if (admission.rejected.length > 0) {
+    // 装配点对包拒载不静默（诚实降级在 UI 层是禁用态；在装配点是显式失败）。
+    const detail = admission.rejected.map((r) => `${r.packageId}: ${r.issues.join('；')}`).join('\n');
+    throw new Error(`legal 包未通过 ABI 准入：\n${detail}`);
+  }
+
   return {
     tools,
     provider,
     toolInputs: { 'party-verify': { name: '起云智能装备（虚构）有限公司' } },
+    registries: buildPackageRegistries(admission.admitted),
   };
 }

@@ -15,9 +15,9 @@ describe('module stack (docs/49 ch.3)', () => {
   });
 
   it('artifact_produced 自动展开对应模块', () => {
-    const open = applyArtifactAutoExpand(DEFAULT_MODULE_OPEN, {}, 'RiskList');
+    const open = applyArtifactAutoExpand(DEFAULT_MODULE_OPEN, {}, 'legal.RiskList');
     expect(open.revision).toBe(true);
-    const timeline = applyArtifactAutoExpand(DEFAULT_MODULE_OPEN, {}, 'Timeline');
+    const timeline = applyArtifactAutoExpand(DEFAULT_MODULE_OPEN, {}, 'legal.Timeline');
     expect(timeline.timeline).toBe(true);
   });
 
@@ -26,7 +26,7 @@ describe('module stack (docs/49 ch.3)', () => {
     // 手动关
     const closed = { ...open, revision: false };
     const ov = { ...override, revision: false };
-    const after = applyArtifactAutoExpand(closed, ov, 'RiskList');
+    const after = applyArtifactAutoExpand(closed, ov, 'legal.RiskList');
     expect(after.revision).toBe(false);
   });
 
@@ -42,9 +42,9 @@ describe('module stack (docs/49 ch.3)', () => {
 
   it('收缩态：全模块折叠', () => {
     const allOpen = applyArtifactAutoExpand(
-      applyArtifactAutoExpand(DEFAULT_MODULE_OPEN, {}, 'RiskList'),
+      applyArtifactAutoExpand(DEFAULT_MODULE_OPEN, {}, 'legal.RiskList'),
       {},
-      'Timeline',
+      'legal.Timeline',
     );
     const collapsed = collapseAllModules(allOpen);
     expect(Object.values(collapsed).every((v) => v === false)).toBe(true);

@@ -1,6 +1,6 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
-import type { ArtifactType } from '@courtwork/schemas';
+
 import type { TodoStep } from '../scenario-executor/todo-snapshot.js';
 import type { ConfirmationActor, SessionEvent, SessionEventInput } from './types.js';
 
@@ -58,7 +58,7 @@ export function createFileEventLog(
 }
 
 export interface ReplaySummary {
-  artifacts: Partial<Record<ArtifactType, unknown>>;
+  artifacts: Partial<Record<string, unknown>>;
   confirmations: Record<string, { actor: ConfirmationActor; decision: 'confirm' | 'reject' }>;
   revisionEventIds: string[];
   completed: boolean;

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type WheelEvent } from 'react';
-import type { PartyGraph } from '@courtwork/schemas';
+import type { PartyGraph } from '@courtwork/legal';
 import { Icon } from './Icon';
 import { EmptyState, sourceFileLabel, TierBadge } from './Panels';
 import { EdgeEvent, Graph, GraphEvent, NodeEvent, registerCourtworkGraphRuntime, type IElementEvent } from './g6-runtime';

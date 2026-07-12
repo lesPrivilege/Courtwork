@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { FileOpsPlan, FileOpsPlanEntry } from '@courtwork/schemas';
+import type { FileOpsPlan, FileOpsPlanEntry } from '@courtwork/legal';
 import type { FileOpsExecuteReport } from '@courtwork/tools/file-ops-executor';
 import {
   createDemoFileOpsPlan,
