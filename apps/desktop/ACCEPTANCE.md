@@ -957,3 +957,13 @@ RM-1 定形版 README（`0c8a463`，命令全部当日实跑）；docs/70 镜像
 ### 五、结论
 
 **发版放行 ✅**：build/unit/lint/16 门禁/e2e 双轮 169、demo 全动线真走查零 console 错误、演示无 key 自足、工作树清账、判例卫生（显式路径分批、零宽 add）。push 随本报告提交执行。
+
+### 六、desktop 源码质量审计回报收账（RELEASE-1 追加，2026-07-12）
+
+**通过项（独立 subagent 实测）**：console.log/debugger/TODO/FIXME 双侧（TS+Rust）零命中；组件零裸 hex，styles.css 色值 100% 收束 :root token 块；5 个 tauri command 调用链零 unwrap/expect（唯一生产 .expect 在启动引导，官方模板惯用）；转发白名单（探针公证 origin 四元精确匹配+禁 userinfo/query+固定子路径）与 CSP/capabilities 窄权限被点名为强项；package.json 脚本零断链；UtilityRail 退役零残留。
+
+**[需架构拍板] 一项**：`provider/ModelConfigPopover.tsx:36` composer 模型 chip 弹层直露 "Provider" 标签与下拉——收敛令②（provider 撤入 developer 层，设置页已落 4030e45）与 #40 拍板（允许显式覆盖禁静默，chip 显实际生效模型为刻意设计、源码注释自证）在此并行入口交叉；弹层归属哪条规则待裁，验收不代判。
+
+**慢火池清单（polish 级，非发版阻塞，全部留置待专单）**：①6 处零引用导出（StackModule 族/AttachmentStatusKind/DEMO_WORK_DRAFT_DIR/getDemoHostSnapshot/isConfigured@deprecated/recordingFor）；②9 个 capture-*.mjs 历史审计脚本未接线（visual:audit 之外）；③孤儿 CSS ~30 块——其中 utility-dock 族/generated-callout/chat-global-action 三族有 e2e 负测实锤已死，titlebar/statusbar 族因 rp1/rp2 断言方向未复核置信度降档，长尾未穷举；④icon-audit.css（dev-only 独立页）绕 token 手抄色值。留置理由：宁留置勿误吞——发版前夕批量删码与"克制"相悖，且清单含未定项（statusbar 断言方向）。
+
+**结论不变：发版放行 ✅。**
