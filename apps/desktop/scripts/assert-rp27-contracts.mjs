@@ -15,7 +15,8 @@ if (/\p{Script=Han}/u.test(copy)) failures.push('chrome/copy.ts must remain Engl
 for (const duplicate of ['onOpenWorkDrafts', 'onOpenFileOps', 'onFocusOriginals']) {
   if (rail.includes(duplicate)) failures.push(`CaseRail retains duplicate route handler: ${duplicate}`);
 }
-if ((rail.match(/onClick=\{onOpenSettings\}/g) ?? []).length !== 1) {
+// 批次七 #5：菜单项进设置前先收敛自身（幽灵开态修复）——断言收紧为「唯一调用点」语义,不锁 JSX 具体形。
+if ((rail.match(/onOpenSettings\(\)/g) ?? []).length !== 1) {
   failures.push('Settings/update route must have one merged trigger in CaseRail');
 }
 if ((composer.match(/data-testid="composer-upload"/g) ?? []).length !== 1) {

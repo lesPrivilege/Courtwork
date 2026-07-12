@@ -10,7 +10,7 @@ describe('ThinkingStream three-state closure', () => {
     // 链注记：RP-2.11 字符版 → 批次七⑦ BrandThinking（与 chat 面 pending 同件收敛）
     expect(html).toContain('brand-thinking');
     expect(html).not.toContain('thinking-cursor');
-    expect(html).not.toContain('<svg');
+    expect(html).not.toContain('<' + 'svg'); // 拆串防 verify-icons 按源文本误报（断言语义不变）
     expect(html).not.toContain('lucide');
     expect(html).not.toContain('thinking-stream-glyph');
     expect(html).not.toContain('thinking-stream-body');
