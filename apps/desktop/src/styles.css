@@ -182,8 +182,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .case-rail { margin-top: calc(-1 * var(--elevation-float-inset)); padding-top: 40px; }
 /* L0 对话画布保持不透明：工作面 tab 硬切时不露出 WebView 的透明合成底色。 */
 .conversation.canvas-layer { background: var(--elevation-canvas); }
-.rail-wordmark { display: flex; align-items: center; gap: 7px; }
-.rail-wordmark-icon { width: 18px; height: 18px; color: var(--text-primary); }
+.rail-wordmark { display: flex; align-items: center; }
 .workspace.comparing { grid-template-columns: 48px 300px minmax(0, 1fr); }
 .workspace.focus-mode { grid-template-columns: minmax(0, 1fr); padding: var(--elevation-float-inset); }
 /* chatbot 形态（2026-07-12）：收敛不留左窄卡——与 mac 红绿灯零冲突，展开钮驻 chrome 同位 */
@@ -420,9 +419,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   width: min(720px, calc(100% - 48px)); margin: auto; padding: 0 0 48px;
   display: grid; justify-items: stretch; gap: var(--home-section-gap); color: var(--text-secondary);
 }
-.welcome-brand { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 4px; }
-.welcome-mark { width: 40px; height: 40px; display: grid; place-items: center; color: var(--action-primary-hover); }
-.welcome-mark .line-icon { width: 30px; height: 30px; }
+/* RP-2.12⑨ 磁吸位：待正式扁平品牌图标到位再落 slogan 侧；当前只 slogan 居中（不放占位简笔图标） */
+.welcome-brand { display: flex; justify-content: center; margin-bottom: 4px; }
 .welcome-slogan { margin: 0; color: var(--text-primary); font-family: "Songti SC", STSong, "Noto Serif CJK SC", serif; font-size: 26px; line-height: 1.3; font-weight: var(--control-weight-emphasized); letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
 /* welcome 态 composer 居中浮卡（沿用 shell 单框） */
 .welcome-home .composer-shell { margin: 0; }
@@ -614,6 +612,10 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   color: var(--text-primary); line-height: 1.5; font-size: var(--type-body-size);
 }
 .composer-input::placeholder { color: var(--text-disabled); }
+/* focus 反馈落圆角外壳、不给 input 描突兀方蓝框（用户拍板 2026-07-12：砍框线，柔和）——
+   全局 focus-visible 蓝 outline 是键盘可达性默认，composer 输入这里改为壳级柔和反馈。 */
+.composer-input:focus-visible { outline: none; }
+.composer-shell:focus-within { border-color: var(--text-tertiary); }
 .composer-send {
   width: 28px; height: 28px; display: grid; place-items: center;
   padding: 0; border: 1px solid var(--text-primary); border-radius: 4px;
