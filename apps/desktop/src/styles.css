@@ -386,7 +386,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   border: 0;
   border-radius: 0;
 }
-.chat-case-head { min-width: 0; min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-bottom: 1px solid var(--border); overflow: hidden; }
+.chat-case-head { min-width: 0; min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 5px 8px; overflow: hidden; }
 .chat-case-head > [data-testid="titlebar-case-title"] { min-width: 0; flex: 1 1 auto; overflow: hidden; }
 .chat-case-title { width: 100%; min-width: 0; padding: 2px 4px; border: 0; background: transparent; color: var(--text-primary); cursor: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; font-weight: 510; text-align: left; }
 .chat-case-head input { min-width: 240px; padding: 4px 6px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); }
@@ -464,15 +464,16 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .data-card p { margin: 2px 0 0; color: var(--text-secondary); font-size: var(--type-dense-body-size); line-height: 1.55; }
 .domain-badge { color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .progress-card { width: 100%; display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: transparent; color: var(--text-secondary); font-size: var(--type-dense-body-size); }
-.event-stream { width: 100%; display: grid; border-top: 1px solid var(--border); }
-.event-row { min-height: 30px; display: grid; grid-template-columns: 42px 8px 1fr; align-items: center; gap: 8px; padding: 4px 8px; border-bottom: 1px solid var(--border); color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+.event-stream { width: 100%; display: grid; }
+.event-row { min-height: 28px; display: grid; grid-template-columns: 42px 8px 1fr; align-items: center; gap: 8px; padding: 3px 8px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .event-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--slate-graphic); }
 .event-row.active .event-dot { animation: breathe 2000ms ease-in-out infinite alternate; background: var(--text-primary); }
 .event-row.success .event-dot { background: var(--green-graphic); }
-.turn-event-stream { width: 100%; display: grid; border-top: 1px solid var(--border); }
+/* 2026-07-12 扁平化：事件流零横线——阶段靠灰度/字重分层（注册表调用 tertiary mono/进度 secondary/回复 primary） */
+.turn-event-stream { width: 100%; display: grid; }
 .turn-event-row {
   min-height: 28px; display: grid; grid-template-columns: 16px 42px minmax(0, 1fr);
-  align-items: center; gap: 6px; padding: 3px 6px; border-bottom: 1px solid var(--border);
+  align-items: center; gap: 6px; padding: 3px 6px;
   color: var(--text-secondary); font-size: var(--type-dense-meta-size);
 }
 .turn-event-row .turn-card-icon { color: var(--text-tertiary); }
@@ -481,7 +482,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 /* ch12 #5：动作进行时文本惯例式闪烁（灰阶 opacity breathe，仅进行态，reduced-motion 停） */
 .turn-event-row.is-active > span:last-child { animation: breathe 2000ms ease-in-out infinite alternate; }
 .turn-card {
-  position: relative; width: 100%; padding: 0; border: 0; border-top: 1px solid var(--border); border-radius: 0;
+  position: relative; width: 100%; padding: 0; border: 0; border-radius: 0;
   background: transparent; overflow: hidden;
 }
 .turn-card.data-card { padding: 0; border-right: 0; border-bottom: 0; border-left: 0; background: transparent; }
@@ -500,7 +501,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .turn-card-title { min-width: 0; display: flex; align-items: center; gap: 7px; }
 .turn-card-title strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-dense-body-size); font-weight: var(--control-weight-emphasized); }
 .turn-card-summary { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
-.turn-card-actions { display: flex; gap: 6px; padding: 5px 9px 7px 35px; border-top: 1px solid var(--border); }
+.turn-card-actions { display: flex; gap: 6px; padding: 3px 9px 7px 35px; }
 .turn-card .copy-button { top: 5px; right: 25px; }
 .tool-call-row { width: 100%; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .tool-call-row summary {
@@ -1305,3 +1306,9 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .rail-seam-toggle:hover { background: var(--control-hover); color: var(--text-primary); }
 .rail-seam-toggle .line-icon { width: 14px; height: 14px; }
 .right-rail-collapsed { position: relative; }
+
+
+/* 左栏收敛（chatbot 形态）：中列成首列,案件头避让 chrome 灯位+钮组（84+30×2+8≈152），
+   两侧折叠互不依赖——仅此态偏移,展开态零影响 */
+.workspace.left-collapsed .conversation .chat-case-head,
+.workspace.left-collapsed .chat-titlebar { padding-left: 152px; }
