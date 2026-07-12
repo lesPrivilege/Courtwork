@@ -10,7 +10,13 @@
 
 ## PRV-1 · provider 自配最小闭环（2026-07-11）
 
-- 引导卡与设置页接入 `base URL + API key + 模型名`：DeepSeek/Qwen/豆包由 core quirk 自动给 URL/推荐模型，自定义档才可编辑 URL；根 URL 自动规范到 `/v1`。托管积分档只保留禁用占位。
+- 引导卡与设置页接入 `base URL + API key + 模型名`：0.1 只内置 DeepSeek，由 core quirk 自动给 URL/推荐模型；自定义档可编辑 URL且须先通过探针。Qwen/豆包移入 provider roadmap，等待团队/上游插件以真 wire 证据接入。根 URL自动规范到 `/v1`。托管积分档只保留禁用占位。
+
+## HARNESS-0.1 实现记录（2026-07-12）
+
+- Rust chat 窄面不再只验 `/chat/completions` 后缀：成功连接探针把 base URL 写入 Rust 可信状态，转发时按 scheme/host/port/完整 path 逐项比对；WebView 入参不能改目标 host，已验证 custom host 仍放行。
+- 单飞行 e2e 改为同一 JS task 双击发送，直接咬住 `chatFlightRef` 同步守卫；删守卫时必须变红。
+- F5 恢复文案同时覆盖现行单条目 `credential`、legacy `active-source`/`provider-secret` 与 dev service 后缀。
 - `验证连接` 在 Rust 内从 FIX-KC-1 钥匙串取 key，先尝试 `GET {base}/models`，再发 `POST {base}/chat/completions` 的 `max_tokens: 1` 真请求；WebView 无读取明文命令。只有冒烟成功才进入 connected。
 - 模型发现不支持/失败时保留推荐模型与手输，不阻塞已成功的冒烟；鉴权、限流、端点、模型、超时、网络、非法响应均走闭集分型文案。
 - TDD：core quirk 路由测试；desktop 连接客户端测试；Rust 本地 mock HTTP 端点实收 GET+POST；Playwright 新增 4 条分型闭环；与并行 RP-2.10 两例合流后 floor `137 → 143`。

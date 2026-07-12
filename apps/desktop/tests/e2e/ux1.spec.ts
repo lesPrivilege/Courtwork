@@ -104,13 +104,13 @@ test.describe('UX-1 批次一', () => {
     await page.getByTestId('model-config-trigger').click();
     const popover = page.getByTestId('model-config-popover');
     await expect(popover).toBeVisible();
-    await page.getByTestId('model-config-provider').selectOption('qwen');
-    await page.getByTestId('model-config-model').fill('qwen3.5-plus');
+    await page.getByTestId('model-config-provider').selectOption('deepseek');
+    await page.getByTestId('model-config-model').fill('deepseek-v4-pro');
     await page.getByRole('radio', { name: 'Deep' }).check();
-    await expect(page.getByTestId('model-config-summary')).toContainText('qwen3.5-plus');
+    await expect(page.getByTestId('model-config-summary')).toContainText('deepseek-v4-pro');
     await expect(page.getByTestId('model-config-summary')).toContainText('Deep');
     await page.getByTestId('model-config-close').click();
-    await expect(page.getByTestId('model-config-trigger')).toContainText('qwen3.5-plus');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('deepseek-v4-pro');
   });
 
   test('#9：图谱 minimap 使用 courtwork-minimap 类（无库蓝渗出约定）', async ({ page }) => {

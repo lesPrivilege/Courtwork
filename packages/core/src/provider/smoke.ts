@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { createDeepSeekProvider, createDoubaoProvider, createQwenProvider } from './openai-compatible-provider.js';
+import { createDeepSeekProvider } from './openai-compatible-provider.js';
 import { estimateCostUsd } from './pricing-table.js';
 import type { Provider } from './types.js';
 
@@ -13,8 +13,6 @@ export interface SmokeTarget {
 
 export const SMOKE_TARGETS: SmokeTarget[] = [
   { name: 'DeepSeek', envKey: 'DEEPSEEK_API_KEY', modelEnvKey: 'DEEPSEEK_MODEL_ID', defaultModel: 'deepseek-v4-pro', create: createDeepSeekProvider },
-  { name: 'Qwen（阿里百炼）', envKey: 'DASHSCOPE_API_KEY', modelEnvKey: 'QWEN_MODEL_ID', defaultModel: 'qwen3.5-plus', create: createQwenProvider },
-  { name: '豆包（火山方舟）', envKey: 'ARK_API_KEY', modelEnvKey: 'ARK_MODEL_ID', defaultModel: 'doubao-seed-1.6', create: createDoubaoProvider },
 ];
 
 export interface ResolvedSmokeTarget {
@@ -23,7 +21,7 @@ export interface ResolvedSmokeTarget {
   modelId: string;
 }
 
-/** 纯函数：从任意 env-like 对象解析出三家的 key 是否存在与要用的模型 id（可被 *_MODEL_ID
+/** 纯函数：从任意 env-like 对象解析 DeepSeek key 与模型 id（可被 *_MODEL_ID
  * 覆盖），不做任何网络调用——供 scripts/smoke-provider.ts 与单测共用。 */
 export function resolveSmokeTargets(env: Record<string, string | undefined>): ResolvedSmokeTarget[] {
   return SMOKE_TARGETS.map((target) => {

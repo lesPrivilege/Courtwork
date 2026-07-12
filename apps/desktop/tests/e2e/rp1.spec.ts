@@ -188,16 +188,16 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.locator('.statusbar [data-testid="model-config-trigger"]')).toHaveCount(0);
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
-    await page.getByTestId('model-config-provider').selectOption('qwen');
-    await page.getByTestId('model-config-model').fill('qwen3.5-plus');
+    await page.getByTestId('model-config-provider').selectOption('deepseek');
+    await page.getByTestId('model-config-model').fill('deepseek-v4-pro');
     await page.getByRole('radio', { name: 'Deep' }).check();
     await page.getByTestId('model-config-close').click();
     // connected 态 composer 真实反映变更
-    await expect(page.getByTestId('model-config-trigger')).toContainText('qwen3.5-plus');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('deepseek-v4-pro');
     await expect(page.getByTestId('model-config-trigger')).toContainText('Deep');
     // 再从 composer 打开仍是同一实例
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
-    await expect(page.getByTestId('model-config-summary')).toContainText('qwen3.5-plus');
+    await expect(page.getByTestId('model-config-summary')).toContainText('deepseek-v4-pro');
   });
 });

@@ -1,19 +1,21 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as z from 'zod';
 import { generateStructured } from './structured-output.js';
-import { QWEN_QUIRK_PROFILE } from './quirk-profile.js';
 import { ProviderInvalidResponseError, ProviderResponseFormatUnsupportedError } from './errors.js';
 import type { ProviderQuirkProfile } from './quirk-profile.js';
 import type { HttpClientConfig } from './http-client.js';
 
 const TestSchema = z.object({ greeting: z.string(), count: z.number() });
 
-function profile(tier: ProviderQuirkProfile['responseFormat']['tier']): ProviderQuirkProfile {
+function profile(
+  tier: ProviderQuirkProfile['responseFormat']['tier'],
+  compatibility: ProviderQuirkProfile['parameterCompatibility']['structuredOutputWithDeepReasoning'] = 'supported',
+): ProviderQuirkProfile {
   return {
     providerId: 'test-provider', baseUrl: 'https://example.invalid/v1', responseFormat: { tier },
     reasoningFieldCandidates: ['reasoning_content'], recommendedModels: ['test-model'],
     reasoningRoute: { kind: 'request_field', field: 'reasoning_effort', values: { standard: 'low', deep: 'high' } },
-    parameterCompatibility: { structuredOutputWithDeepReasoning: 'supported' },
+    parameterCompatibility: { structuredOutputWithDeepReasoning: compatibility },
   };
 }
 
@@ -70,7 +72,7 @@ describe('generateStructured — json_object tier (DeepSeek-like)', () => {
   });
 });
 
-describe('generateStructured — json_schema_strict tier (Qwen-like)', () => {
+describe('generateStructured — generic json_schema_strict tier', () => {
   it('sends response_format:{type:"json_schema", json_schema:{strict:true, schema: <converted from zod>}}', async () => {
     let capturedBody: { response_format?: { type: string; json_schema?: { strict?: boolean; schema?: unknown } } } | undefined;
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
@@ -93,15 +95,18 @@ describe('generateStructured — json_schema_strict tier (Qwen-like)', () => {
     });
   });
 
-  it('结构化输出与 Qwen deep 互斥时自动降为 standard，并返回可呈现 notice', async () => {
+  it('插件声明结构化输出与 deep 互斥时自动降为 standard，并返回可呈现 notice', async () => {
     let capturedBody: Record<string, unknown> | undefined;
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
       capturedBody = JSON.parse(init!.body as string) as Record<string, unknown>;
       return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200 });
     });
     const result = await generateStructured({
-      profile: QWEN_QUIRK_PROFILE,
-      model: 'qwen3.5-plus',
+      profile: {
+        ...profile('json_object', 'downgrade_to_standard'),
+        reasoningRoute: { kind: 'request_field', field: 'thinking_enabled', values: { standard: false, deep: true } },
+      },
+      model: 'plugin-model',
       messages: [{ role: 'user', content: 'go' }],
       responseSchema: TestSchema,
       reasoningLevel: 'deep',
@@ -109,15 +114,18 @@ describe('generateStructured — json_schema_strict tier (Qwen-like)', () => {
       httpConfig: httpConfig(fetchImpl as unknown as typeof fetch),
     });
 
-    expect(capturedBody?.enable_thinking).toBe(false);
-    expect(capturedBody?.response_format).toBeDefined();
+    expect(capturedBody?.thinking_enabled).toBe(false);
+    expect(capturedBody?.response_format).toEqual({ type: 'json_object' });
+    expect(capturedBody?.messages).toEqual(expect.arrayContaining([
+      expect.objectContaining({ role: 'system', content: expect.stringMatching(/json/i) }),
+    ]));
     expect(result.notices).toEqual([
       expect.objectContaining({ code: 'reasoning_downgraded_for_structured_output', requested: 'deep', applied: 'standard' }),
     ]);
   });
 });
 
-describe('generateStructured — json_schema tier, non-strict (Doubao-like)', () => {
+describe('generateStructured — generic json_schema tier, non-strict', () => {
   it('sends response_format:{type:"json_schema", json_schema:{schema: <converted>}} WITHOUT strict', async () => {
     let capturedBody: { response_format?: { type: string; json_schema?: { strict?: boolean; schema?: unknown } } } | undefined;
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {

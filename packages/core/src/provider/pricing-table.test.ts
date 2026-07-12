@@ -28,19 +28,15 @@ describe('estimateCostUsd', () => {
     expect(estimateCostUsd('deepseek', 'deepseek-v4-pro', undefined)).toBeUndefined();
   });
 
-  it('covers all three MVP first-batch providers with a priced entry', () => {
+  it('0.1 只为 DeepSeek 主路径提供价格；roadmap provider 不伪造计价', () => {
     expect(estimateCostUsd('deepseek', 'deepseek-v4-pro', { inputTokens: 1, outputTokens: 1 })).toBeDefined();
-    expect(estimateCostUsd('qwen', 'qwen3.5-plus', { inputTokens: 1, outputTokens: 1 })).toBeDefined();
-    expect(estimateCostUsd('doubao', 'doubao-seed-1.6', { inputTokens: 1, outputTokens: 1 })).toBeDefined();
+    expect(estimateCostUsd('qwen', 'qwen3.5-plus', { inputTokens: 1, outputTokens: 1 })).toBeUndefined();
+    expect(estimateCostUsd('doubao', 'doubao-seed-1.6', { inputTokens: 1, outputTokens: 1 })).toBeUndefined();
   });
 
   it('applies the input rate to input tokens and the output rate to output tokens (not swapped)', () => {
-    // doubao-seed-1.6 有意选一个 input/output 价差很大的型号（¥2.4 vs ¥24）：
-    // 如果实现意外把两个费率用反，这条测试会用不对称的 token 数把它抓出来，
-    // 之前 6 条测试要么 input=output token 数相等、要么某一侧为 0，测不出这种 bug。
-    const cost = estimateCostUsd('doubao', 'doubao-seed-1.6', { inputTokens: 1_000_000, outputTokens: 0 });
-    // 只有 input token，只应按 input 费率（¥2.4/M）计价，不是 output 费率（¥24/M）
-    expect(cost).toBeCloseTo(2.4 / 7.1, 5);
+    const cost = estimateCostUsd('deepseek', 'deepseek-v4-pro', { inputTokens: 1_000_000, outputTokens: 0 });
+    expect(cost).toBeCloseTo(3 / 7.1, 5);
   });
 
   it('returns a real 0 (not undefined) for a known price with legitimately zero usage', () => {

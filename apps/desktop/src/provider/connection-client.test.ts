@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { credentialClient, installCredentialTestHooks } from '../credentials/client';
-import { DEFAULT_MODEL_CONFIG, withProvider } from './model-config';
+import { DEFAULT_MODEL_CONFIG } from './model-config';
 import { buildProbeInput, installProviderConnectionTestHooks, providerConnectionClient } from './connection-client';
 
 describe('provider connection smoke probe', () => {
@@ -11,10 +11,10 @@ describe('provider connection smoke probe', () => {
   });
 
   it('builds the one-token route from declarative quirks', () => {
-    const qwen = { ...withProvider(DEFAULT_MODEL_CONFIG, 'qwen'), reasoning: 'deep' as const };
-    expect(buildProbeInput(qwen)).toMatchObject({
-      baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-      reasoningBody: { enable_thinking: true },
+    const deepseek = { ...DEFAULT_MODEL_CONFIG, reasoning: 'deep' as const };
+    expect(buildProbeInput(deepseek)).toMatchObject({
+      baseUrl: 'https://api.deepseek.com/v1',
+      reasoningBody: { thinking: { type: 'enabled' } },
     });
   });
 

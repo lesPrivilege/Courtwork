@@ -7,10 +7,19 @@ const BoundingBoxSchema = z.object({
   height: z.number().positive(),
 });
 
-const TextRangeSchema = z.object({
-  start: z.number().int().nonnegative(),
-  end: z.number().int().nonnegative(),
-});
+const TextRangeSchema = z
+  .object({
+    start: z.number().int().nonnegative(),
+    end: z.number().int().nonnegative(),
+  })
+  .refine((range) => range.end >= range.start, {
+    message: 'textRange.end 必须大于或等于 start',
+    path: ['end'],
+  })
+  .meta({
+    description: '文本层字符区间；end 必须大于或等于 start，允许 start === end 的零长区间。',
+    'x-courtwork-invariant': 'end >= start',
+  });
 
 const SourceAnchorObjectSchema = z.object({
   fileId: z.string().min(1),

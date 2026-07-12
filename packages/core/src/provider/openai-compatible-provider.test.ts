@@ -2,10 +2,9 @@ import { describe, expect, it, vi } from 'vitest';
 import * as z from 'zod';
 import {
   createDeepSeekProvider,
-  createDoubaoProvider,
   createOpenAICompatibleProvider,
-  createQwenProvider,
 } from './openai-compatible-provider.js';
+import * as providerFactories from './openai-compatible-provider.js';
 import { ProviderNotConfiguredError, ProviderNotImplementedError } from './errors.js';
 import { DEEPSEEK_QUIRK_PROFILE } from './quirk-profile.js';
 
@@ -99,7 +98,7 @@ describe('createOpenAICompatibleProvider — generate() end-to-end', () => {
   });
 });
 
-describe('named factories wire the correct per-provider quirk profile (flat config shape, auth/billing fixed internally)', () => {
+describe('DeepSeek named factory wires the supported 0.1 profile', () => {
   it('createDeepSeekProvider posts to the DeepSeek base URL, and forwards modelId/id correctly', async () => {
     const fetchImpl = vi.fn(async () => new Response(sseBody('ok'), { status: 200 }));
     const provider = createDeepSeekProvider({ apiKey: 'sk-x', modelId: 'deepseek-v4-pro', fetchImpl, delay: async () => {} });
@@ -109,22 +108,9 @@ describe('named factories wire the correct per-provider quirk profile (flat conf
     expect(fetchImpl).toHaveBeenCalledWith('https://api.deepseek.com/v1/chat/completions', expect.anything());
   });
 
-  it('createQwenProvider posts to the DashScope compatible-mode base URL, and forwards modelId/id correctly', async () => {
-    const fetchImpl = vi.fn(async () => new Response(sseBody('ok'), { status: 200 }));
-    const provider = createQwenProvider({ apiKey: 'sk-x', modelId: 'qwen3.5-plus', fetchImpl, delay: async () => {} });
-    expect(provider.id).toBe('qwen');
-    expect(provider.modelId).toBe('qwen3.5-plus');
-    await provider.generate({ messages: [{ role: 'user', content: 'hi' }] });
-    expect(fetchImpl).toHaveBeenCalledWith('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', expect.anything());
-  });
-
-  it('createDoubaoProvider posts to the Volcengine Ark base URL (/api/v3, not /v1), and forwards modelId/id correctly', async () => {
-    const fetchImpl = vi.fn(async () => new Response(sseBody('ok'), { status: 200 }));
-    const provider = createDoubaoProvider({ apiKey: 'sk-x', modelId: 'doubao-seed-1.6', fetchImpl, delay: async () => {} });
-    expect(provider.id).toBe('doubao');
-    expect(provider.modelId).toBe('doubao-seed-1.6');
-    await provider.generate({ messages: [{ role: 'user', content: 'hi' }] });
-    expect(fetchImpl).toHaveBeenCalledWith('https://ark.cn-beijing.volces.com/api/v3/chat/completions', expect.anything());
+  it('不再导出 Qwen/豆包具名工厂', () => {
+    expect(providerFactories).not.toHaveProperty('createQwenProvider');
+    expect(providerFactories).not.toHaveProperty('createDoubaoProvider');
   });
 });
 

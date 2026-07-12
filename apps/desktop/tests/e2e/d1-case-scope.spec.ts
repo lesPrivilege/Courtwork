@@ -83,7 +83,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await expect(dialog).toBeVisible();
     // 关闭后看状态条
     await dialog.getByRole('button', { name: '先查看演示' }).click();
-    await expect(page.getByTestId('composer-provider')).not.toContainText(/DeepSeek|Qwen|Doubao/);
+    await expect(page.getByTestId('composer-provider')).not.toContainText(/DeepSeek/);
   });
 });
 

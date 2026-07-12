@@ -7,14 +7,12 @@
 import {
   OPENAI_COMPATIBLE_REASONING_ROUTE,
   DEEPSEEK_QUIRK_PROFILE,
-  DOUBAO_QUIRK_PROFILE,
-  QWEN_QUIRK_PROFILE,
   resolveReasoningRoute,
   type ReasoningRoute,
   type ProviderQuirkProfile,
 } from '@courtwork/core/provider-quirks';
 
-export type ProviderId = 'deepseek' | 'qwen' | 'doubao' | 'custom';
+export type ProviderId = 'deepseek' | 'custom';
 export type ReasoningLevel = 'standard' | 'deep';
 
 export interface ModelConfig {
@@ -39,20 +37,6 @@ export const PROVIDER_OPTIONS: ReadonlyArray<{
     models: DEEPSEEK_QUIRK_PROFILE.recommendedModels.map((id) => ({ id, label: id })),
     profile: DEEPSEEK_QUIRK_PROFILE,
     reasoningRoute: DEEPSEEK_QUIRK_PROFILE.reasoningRoute,
-  },
-  {
-    id: 'qwen',
-    label: '通义千问',
-    models: QWEN_QUIRK_PROFILE.recommendedModels.map((id) => ({ id, label: id })),
-    profile: QWEN_QUIRK_PROFILE,
-    reasoningRoute: QWEN_QUIRK_PROFILE.reasoningRoute,
-  },
-  {
-    id: 'doubao',
-    label: '豆包',
-    models: DOUBAO_QUIRK_PROFILE.recommendedModels.map((id) => ({ id, label: id })),
-    profile: DOUBAO_QUIRK_PROFILE,
-    reasoningRoute: DOUBAO_QUIRK_PROFILE.reasoningRoute,
   },
   {
     id: 'custom', label: '自定义（OpenAI 兼容）', models: [{ id: '', label: '手动填写模型名' }],

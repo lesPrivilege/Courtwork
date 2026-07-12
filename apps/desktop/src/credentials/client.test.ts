@@ -105,6 +105,7 @@ describe('F5 recovery guide', () => {
   it('mentions keychain password desync and manual delete without embedding secrets', () => {
     expect(KEYCHAIN_RECOVERY_GUIDE).toContain('钥匙串');
     expect(KEYCHAIN_RECOVERY_GUIDE).toContain('cn.courtwork.desktop.provider');
+    expect(KEYCHAIN_RECOVERY_GUIDE).toContain('credential');
     expect(KEYCHAIN_RECOVERY_GUIDE).toContain('active-source');
     expect(KEYCHAIN_RECOVERY_GUIDE).toContain('provider-secret');
     expect(KEYCHAIN_RECOVERY_GUIDE.toLowerCase()).not.toMatch(/sk-/);

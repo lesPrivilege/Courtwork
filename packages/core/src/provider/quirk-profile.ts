@@ -13,8 +13,8 @@ export interface ProviderQuirkProfile {
   readonly providerId: string;
   /**
    * Chat Completions 端点的完整 base URL，含各家自己的路径前缀。客户端只做
-   * `${baseUrl}/chat/completions` 拼接，不额外假设 /v1 前缀——docs/18 quirk①：
-   * GLM 是 /api/paas/v4/、豆包是 /api/v3，"假设都是 /v1" 会直接拼错路径导致 404。
+   * `${baseUrl}/chat/completions` 拼接，不额外假设 /v1 前缀。非 DeepSeek provider
+   * 由后续插件/上游适配器提供完整 base URL，不在 core 猜测路径。
    */
   readonly baseUrl: string;
   /** 本 provider 对 response_format 的已知支持档位（docs/18 §6.3②）：静态声明，不是
@@ -22,7 +22,7 @@ export interface ProviderQuirkProfile {
   readonly responseFormat: { tier: ResponseFormatTier };
   /** 响应体 delta 里 reasoning 内容字段名候选，按数组顺序检查，命中第一个即归一化进
    * GenerationResponse.reasoningContent（docs/18 quirk③）。只收录有文档依据的字段名，
-   * 未证实的字段名（如 Qwen 是否真的用 reasoning_content 尚待实测）不编造额外候选。 */
+   * 未证实的 provider 不在 core 编造额外候选。 */
   readonly reasoningFieldCandidates: readonly string[];
   /** 用户自配所需元数据与标准/深思 wire 映射。调用方只解释 kind，不按 providerId 分支。 */
   readonly recommendedModels: readonly string[];
@@ -63,31 +63,5 @@ export const DEEPSEEK_QUIRK_PROFILE: ProviderQuirkProfile = {
   // V4 缺省即 enabled——standard 档必须显式 disabled，否则 UI 档位被 provider 默认静默升级。
   // 模型名由用户所选直通，路由不再覆盖（#40 路由侧保证）。
   reasoningRoute: { kind: 'request_field', field: 'thinking', values: { standard: { type: 'disabled' }, deep: { type: 'enabled' } } },
-  parameterCompatibility: { structuredOutputWithDeepReasoning: 'supported' },
-};
-
-export const QWEN_QUIRK_PROFILE: ProviderQuirkProfile = {
-  providerId: 'qwen',
-  // 百炼"兼容模式"端点；strict json_schema 目前仅北京地域开放（docs/18 §1.2），
-  // 这个 base URL 就是北京地域端点。
-  baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-  responseFormat: { tier: 'json_schema_strict' },
-  // docs/18 §1.2 只提到 enable_thinking（请求侧开关），未指名响应字段——这里沿用
-  // DeepSeek 已证实的字段名作为推测默认值，未经文档证实，实测后可能需要修正。
-  reasoningFieldCandidates: ['reasoning_content'],
-  recommendedModels: ['qwen3.5-plus', 'qwen-flash'],
-  reasoningRoute: { kind: 'request_field', field: 'enable_thinking', values: { standard: false, deep: true } },
-  parameterCompatibility: { structuredOutputWithDeepReasoning: 'downgrade_to_standard' },
-};
-
-export const DOUBAO_QUIRK_PROFILE: ProviderQuirkProfile = {
-  providerId: 'doubao',
-  baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
-  responseFormat: { tier: 'json_schema' },
-  // docs/18 §1.6 未提及推理内容字段名——这里沿用 DeepSeek 已证实的字段名作为推测
-  // 默认值，未经文档证实，实测后可能需要修正。
-  reasoningFieldCandidates: ['reasoning_content'],
-  recommendedModels: ['doubao-seed-1.6'],
-  reasoningRoute: OPENAI_COMPATIBLE_REASONING_ROUTE,
   parameterCompatibility: { structuredOutputWithDeepReasoning: 'supported' },
 };

@@ -19,6 +19,22 @@ describe('SourceAnchorSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts a zero-length textRange when end equals start', () => {
+    const result = SourceAnchorSchema.safeParse({
+      fileId: 'file-zero-range',
+      textRange: { start: 5, end: 5 },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a reversed textRange whose end is before start', () => {
+    const result = SourceAnchorSchema.safeParse({
+      fileId: 'file-reversed-range',
+      textRange: { start: 5, end: 2 },
+    });
+    expect(result.success).toBe(false);
+  });
+
   it('accepts a fully populated anchor with quote and textLayerVersion', () => {
     const result = SourceAnchorSchema.safeParse({
       fileId: 'file-003',

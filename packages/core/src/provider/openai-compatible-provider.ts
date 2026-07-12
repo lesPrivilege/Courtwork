@@ -1,6 +1,6 @@
 import type { GenerationRequest, GenerationResponse, Provider, ProviderAuth, ProviderBilling } from './types.js';
 import type { ProviderQuirkProfile } from './quirk-profile.js';
-import { DEEPSEEK_QUIRK_PROFILE, DOUBAO_QUIRK_PROFILE, QWEN_QUIRK_PROFILE } from './quirk-profile.js';
+import { DEEPSEEK_QUIRK_PROFILE } from './quirk-profile.js';
 import { generateStructured } from './structured-output.js';
 import { ProviderNotConfiguredError, ProviderNotImplementedError } from './errors.js';
 
@@ -76,7 +76,7 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
   };
 }
 
-/** 三家首批具名工厂的精简配置——固定 auth.kind='api_key'/billing.kind='metered'
+/** DeepSeek 具名工厂的精简配置——固定 auth.kind='api_key'/billing.kind='metered'
  * （架构拍板 2026-07-10：判别字段已在通用工厂/类型层落地防破坏性变更，具名工厂当前只需
  * 暴露调用方真正要填的两项，不强迫调用方拼 auth/billing 对象）。 */
 export interface NamedProviderConfig {
@@ -104,19 +104,11 @@ function toGenericConfig(config: NamedProviderConfig): OpenAICompatibleProviderC
   };
 }
 
-/** MVP 首批三家的具名工厂（docs/18 §6.4/packages/core/SPEC.md TODO）——只需调用方提供
+/** 0.1 主路径只提供 DeepSeek 具名工厂——调用方只需提供
  * apiKey/modelId，quirk 配置由本文件固定绑定，调用方不需要知道 base URL/response_format
  * 档位这些细节，也不需要知道 auth/billing 判别字段的存在。未来新增 provider（如 Kimi）
  * 只需在 quirk-profile.ts 加一份配置 + 这里加一个三行的具名工厂，不需要改传输/校验/
  * 重试任何一层逻辑。 */
 export function createDeepSeekProvider(config: NamedProviderConfig): Provider {
   return createOpenAICompatibleProvider(DEEPSEEK_QUIRK_PROFILE, toGenericConfig(config));
-}
-
-export function createQwenProvider(config: NamedProviderConfig): Provider {
-  return createOpenAICompatibleProvider(QWEN_QUIRK_PROFILE, toGenericConfig(config));
-}
-
-export function createDoubaoProvider(config: NamedProviderConfig): Provider {
-  return createOpenAICompatibleProvider(DOUBAO_QUIRK_PROFILE, toGenericConfig(config));
 }

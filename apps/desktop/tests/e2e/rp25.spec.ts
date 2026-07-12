@@ -79,8 +79,8 @@ test('RP-2.5.1 model-config 单实例、无遮挡并持久化配置', async ({ p
   });
   expect(bounds.popoverLeft).toBeGreaterThanOrEqual(bounds.chatLeft);
   expect(bounds.popoverRight).toBeLessThanOrEqual(bounds.chatRight);
-  await page.getByTestId('model-config-provider').selectOption('qwen');
-  await page.getByTestId('model-config-model').fill('qwen3.5-plus');
+  await page.getByTestId('model-config-provider').selectOption('deepseek');
+  await page.getByTestId('model-config-model').fill('deepseek-v4-pro');
   await page.getByRole('radio', { name: 'Deep' }).check();
   await page.getByTestId('model-config-close').click();
   await page.reload();
@@ -88,8 +88,8 @@ test('RP-2.5.1 model-config 单实例、无遮挡并持久化配置', async ({ p
   await connectProvider(page);
   await page.getByTestId('model-config-trigger').click();
   await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
-  await expect(page.getByTestId('model-config-provider')).toHaveValue('qwen');
-  await expect(page.getByTestId('model-config-model')).toHaveValue('qwen3.5-plus');
+  await expect(page.getByTestId('model-config-provider')).toHaveValue('deepseek');
+  await expect(page.getByTestId('model-config-model')).toHaveValue('deepseek-v4-pro');
   await expect(page.getByRole('radio', { name: 'Deep' })).toBeChecked();
 });
 

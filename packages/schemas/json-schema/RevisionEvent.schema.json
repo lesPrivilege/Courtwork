@@ -114,7 +114,9 @@
               "start",
               "end"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "文本层字符区间；end 必须大于或等于 start，允许 start === end 的零长区间。",
+            "x-courtwork-invariant": "end >= start"
           },
           "textLayerVersion": {
             "type": "string"

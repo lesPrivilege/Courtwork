@@ -25,15 +25,15 @@ describe('model-config', () => {
   });
 
   it('persists provider/model/reasoning round-trip', () => {
-    const next = { providerId: 'qwen' as const, modelId: 'qwen-max', reasoning: 'deep' as const };
+    const next = { providerId: 'custom' as const, modelId: 'law-local', reasoning: 'deep' as const, baseUrl: 'https://gateway.example/v1' };
     saveModelConfig(next);
     expect(loadModelConfig()).toEqual(next);
   });
 
   it('withProvider falls back to first model of new provider', () => {
-    const switched = withProvider(DEFAULT_MODEL_CONFIG, 'doubao');
-    expect(switched.providerId).toBe('doubao');
-    expect(switched.modelId).toBe('doubao-seed-1.6');
+    const switched = withProvider(DEFAULT_MODEL_CONFIG, 'custom');
+    expect(switched.providerId).toBe('custom');
+    expect(switched.modelId).toBe('');
   });
 
   it('presets fill URL/models while custom keeps an editable URL and discovered models', () => {
@@ -50,9 +50,12 @@ describe('model-config', () => {
     expect(reasoningRequest({ ...DEFAULT_MODEL_CONFIG, reasoning: 'deep' })).toEqual({
       model: 'deepseek-v4-flash', extraBody: { thinking: { type: 'enabled' } },
     });
-    expect(reasoningRequest({ ...withProvider(DEFAULT_MODEL_CONFIG, 'qwen'), reasoning: 'deep' }))
-      .toMatchObject({ extraBody: { enable_thinking: true } });
     expect(reasoningRequest({ ...withProvider(DEFAULT_MODEL_CONFIG, 'custom'), modelId: 'law-local', reasoning: 'deep' }))
       .toEqual({ model: 'law-local', extraBody: { reasoning_effort: 'high' } });
+  });
+
+  it('0.1 provider 选择只暴露 DeepSeek 与通用自定义入口', async () => {
+    const { PROVIDER_OPTIONS } = await import('./model-config');
+    expect(PROVIDER_OPTIONS.map((provider) => provider.id)).toEqual(['deepseek', 'custom']);
   });
 });

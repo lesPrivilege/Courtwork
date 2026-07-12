@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { resolveSmokeTargets, SMOKE_TARGETS } from './smoke.js';
 
 describe('resolveSmokeTargets', () => {
-  it('lists all three MVP first-batch providers', () => {
-    expect(SMOKE_TARGETS.map((t) => t.name)).toEqual(['DeepSeek', 'Qwen（阿里百炼）', '豆包（火山方舟）']);
+  it('只列出 0.1 主路径的 DeepSeek', () => {
+    expect(SMOKE_TARGETS.map((t) => t.name)).toEqual(['DeepSeek']);
   });
 
   it('reports apiKey as undefined for a provider whose env var is not set', () => {
@@ -15,8 +15,6 @@ describe('resolveSmokeTargets', () => {
     const resolved = resolveSmokeTargets({ DEEPSEEK_API_KEY: 'sk-abc' });
     const deepseek = resolved.find((r) => r.target.name === 'DeepSeek');
     expect(deepseek?.apiKey).toBe('sk-abc');
-    const qwen = resolved.find((r) => r.target.name.startsWith('Qwen'));
-    expect(qwen?.apiKey).toBeUndefined();
   });
 
   it('falls back to each target default model id when no override env var is set', () => {

@@ -76,7 +76,7 @@ export function messageForFailKind(kind?: CredentialFailKind | null): string {
 /** F5：设置页连接失败辅助（H4 + 手动清条目） */
 export const KEYCHAIN_RECOVERY_GUIDE = [
   '系统弹出的是「钥匙串」密码，不一定等于当前登录密码。若您曾修改过 Mac 登录密码，请打开「钥匙串访问」→ 登录钥匙串：若显示锁定，用旧密码解锁，或按系统提示更新钥匙串密码。也可退出登录钥匙串后重新登录 Mac 再试。',
-  '若密码正确仍反复要求授权，请在「钥匙串访问」中删除名称为 cn.courtwork.desktop.provider 的两项（active-source 与 provider-secret），然后回到 Courtwork 重新「完成连接」。开发构建对应名称为 cn.courtwork.desktop.provider.dev。',
+  '若密码正确仍反复要求授权，请在「钥匙串访问」中删除服务 cn.courtwork.desktop.provider 下现行条目 credential；若还能看到旧版遗留的 active-source 或 provider-secret，也一并删除。然后回到 Courtwork 重新「完成连接」。开发构建的服务名带 .dev 后缀：cn.courtwork.desktop.provider.dev。',
 ].join('\n');
 
 const MIN_PASTED_LENGTH = 8;

@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::PathBuf;
-use std::sync::Once;
+use std::sync::{Once, OnceLock, RwLock};
 
 /// 发行包 service；dev（debug_assertions）加 `.dev` 后缀，避免污染发行 ACL（F6）。
 #[cfg(debug_assertions)]
@@ -28,6 +28,9 @@ const LOG_FILE_NAME: &str = "credential-probe.log";
 const LOG_ROTATE_BYTES: u64 = 1024 * 1024;
 
 static STARTUP_TRACE: Once = Once::new();
+/// 最近一次成功探针确认的 base URL。chat 转发只从此 Rust 侧可信状态取目标，
+/// WebView 的转发入参无权另行选择 host。
+static VERIFIED_PROVIDER_BASE_URL: OnceLock<RwLock<Option<String>>> = OnceLock::new();
 
 // ─── 内部枚举（DBG-2.1 / F4）───────────────────────────────────────────────
 
@@ -736,9 +739,47 @@ struct ChatForwardOutput {
     body: String,
 }
 
-/// 仅放行对话补全端点（窄面校验，单测直测）。
-fn chat_forward_url_allowed(url: &str) -> bool {
-    (url.starts_with("http://") || url.starts_with("https://")) && url.ends_with("/chat/completions")
+fn verified_provider_base_url_store() -> &'static RwLock<Option<String>> {
+    VERIFIED_PROVIDER_BASE_URL.get_or_init(|| RwLock::new(None))
+}
+
+fn set_verified_provider_base_url(base_url: Option<&str>) {
+    if let Ok(mut stored) = verified_provider_base_url_store().write() {
+        *stored = base_url.map(|value| value.trim().trim_end_matches('/').to_owned());
+    }
+}
+
+fn verified_provider_base_url() -> Option<String> {
+    verified_provider_base_url_store().read().ok()?.clone()
+}
+
+/// 仅放行已验证 base URL 的同 origin、固定 `/chat/completions` 子路径。
+/// custom provider 不走中央域名枚举：成功探针后同样进入 Rust 可信状态。
+fn chat_forward_url_allowed(url: &str, verified_base_url: &str) -> bool {
+    let Ok(target) = reqwest::Url::parse(url) else {
+        return false;
+    };
+    let Ok(base) = reqwest::Url::parse(verified_base_url) else {
+        return false;
+    };
+    if !matches!(target.scheme(), "http" | "https")
+        || !matches!(base.scheme(), "http" | "https")
+        || target.scheme() != base.scheme()
+        || target.host_str() != base.host_str()
+        || target.port_or_known_default() != base.port_or_known_default()
+        || !target.username().is_empty()
+        || target.password().is_some()
+        || target.query().is_some()
+        || target.fragment().is_some()
+        || !base.username().is_empty()
+        || base.password().is_some()
+        || base.query().is_some()
+        || base.fragment().is_some()
+    {
+        return false;
+    }
+    let expected_path = format!("{}/chat/completions", base.path().trim_end_matches('/'));
+    target.path() == expected_path
 }
 
 /// secret 参数化的转发体（mock TCP 可测）；HTTP 状态原样透传，
@@ -774,8 +815,10 @@ async fn forward_chat_request(url: &str, body: String, secret: &str) -> Result<C
 #[tauri::command]
 async fn provider_chat_request(input: ChatForwardInput) -> Result<ChatForwardOutput, String> {
     trace_startup_once();
-    if !chat_forward_url_allowed(&input.url) {
-        return Err("仅支持对话补全请求".to_string());
+    let verified_base_url = verified_provider_base_url()
+        .ok_or_else(|| "请先验证服务连接".to_string())?;
+    if !chat_forward_url_allowed(&input.url, &verified_base_url) {
+        return Err("仅支持已验证服务的对话补全请求".to_string());
     }
     let (_source, secret) = match active_secret() {
         Ok(pair) => pair,
@@ -792,8 +835,17 @@ async fn provider_chat_request(input: ChatForwardInput) -> Result<ChatForwardOut
 #[tauri::command]
 async fn validate_provider_connection(input: ProviderProbeInput) -> Result<ProviderProbeStatus, String> {
     let _provider_id = &input.provider_id; // 仅诊断标识；路由完全由声明生成的 input 驱动。
+    // 每次换配置先撤销旧准入；只有新配置真探针成功后才登记。
+    set_verified_provider_base_url(None);
     match active_secret() {
-        Ok((source, secret)) => Ok(probe_provider_endpoint(input, secret, source).await),
+        Ok((source, secret)) => {
+            let base_url = input.base_url.clone();
+            let status = probe_provider_endpoint(input, secret, source).await;
+            if status.phase == "connected" {
+                set_verified_provider_base_url(Some(&base_url));
+            }
+            Ok(status)
+        }
         Err(status) => Ok(ProviderProbeStatus {
             phase: status.phase, source: status.source, failure_message: status.failure_message,
             fail_kind: status.fail_kind, models: None, model_discovery: "unsupported",
@@ -836,6 +888,8 @@ fn save_provider_credential(
     value: String,
 ) -> Result<CredentialStatus, String> {
     trace_startup_once();
+    // 换凭证后必须重新验证 provider；旧 host 准入不能沿用。
+    set_verified_provider_base_url(None);
     let value = value.trim();
     if value.is_empty() {
         let status = failed(Some(source), "凭证不能为空", None);
@@ -922,6 +976,7 @@ fn save_provider_credential(
 #[tauri::command]
 fn clear_provider_credential() -> Result<CredentialStatus, String> {
     trace_startup_once();
+    set_verified_provider_base_url(None);
     for account in [CREDENTIAL_ACCOUNT, LEGACY_SOURCE_ACCOUNT, LEGACY_SECRET_ACCOUNT] {
         if let Err(kind) = delete_credential_ignore_missing(account) {
             let status = failed_keychain(None, kind);
@@ -982,7 +1037,7 @@ mod tests {
                 } else {
                     assert!(text.starts_with("POST /v1/chat/completions"));
                     assert!(text.contains("\"max_tokens\":1"));
-                    assert!(text.contains("\"enable_thinking\":true"));
+                    assert!(text.contains("\"thinking\":{\"type\":\"enabled\"}"));
                     r#"{"choices":[{"message":{"content":"x"}}]}"#
                 };
                 write!(socket, "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}", body.len(), body).expect("write response");
@@ -990,9 +1045,9 @@ mod tests {
         });
         let status = probe_provider_endpoint(
             ProviderProbeInput {
-                provider_id: "qwen".into(), base_url: format!("http://{address}/v1"),
+                provider_id: "deepseek".into(), base_url: format!("http://{address}/v1"),
                 model_id: "mock-law-model".into(),
-                reasoning_body: serde_json::from_value(serde_json::json!({"enable_thinking": true})).unwrap(),
+                reasoning_body: serde_json::from_value(serde_json::json!({"thinking": {"type": "enabled"}})).unwrap(),
             },
             "never-log-this-secret".into(), CredentialSource::Pasted,
         ).await;
@@ -1196,12 +1251,33 @@ mod tests {
 
     #[test]
     fn chat_forward_url_narrow_gate() {
-        assert!(chat_forward_url_allowed("https://api.deepseek.com/v1/chat/completions"));
-        assert!(chat_forward_url_allowed("http://127.0.0.1:9/v1/chat/completions"));
-        assert!(!chat_forward_url_allowed("https://api.deepseek.com/v1/models"));
-        assert!(!chat_forward_url_allowed("https://api.deepseek.com/v1/chat/completions?x=1"));
-        assert!(!chat_forward_url_allowed("file:///etc/passwd/chat/completions"));
-        assert!(!chat_forward_url_allowed(""));
+        let deepseek = "https://api.deepseek.com/v1";
+        assert!(chat_forward_url_allowed(
+            "https://api.deepseek.com/v1/chat/completions",
+            deepseek,
+        ));
+        assert!(!chat_forward_url_allowed(
+            "https://attacker.example/v1/chat/completions",
+            deepseek,
+        ));
+        assert!(!chat_forward_url_allowed("https://api.deepseek.com/v1/models", deepseek));
+        assert!(!chat_forward_url_allowed(
+            "https://api.deepseek.com/v1/chat/completions?x=1",
+            deepseek,
+        ));
+        assert!(!chat_forward_url_allowed("file:///etc/passwd/chat/completions", deepseek));
+        assert!(!chat_forward_url_allowed("", deepseek));
+
+        // custom provider 不按中央域名表裁剪；只绑定用户刚刚验证成功的完整 base URL。
+        let custom = "http://127.0.0.1:9/custom/v1";
+        assert!(chat_forward_url_allowed(
+            "http://127.0.0.1:9/custom/v1/chat/completions",
+            custom,
+        ));
+        assert!(!chat_forward_url_allowed(
+            "http://127.0.0.1:10/custom/v1/chat/completions",
+            custom,
+        ));
     }
 
     #[tokio::test]

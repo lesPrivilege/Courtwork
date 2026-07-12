@@ -38,6 +38,8 @@
 
 ## 验收记录
 
+- [HARNESS-0.1，2026-07-12] `SourceAnchor.textRange` 增加 `end >= start` 约束；`end === start` 的零长区间明确合法，`{start:5,end:2}` 拒绝。Zod 运行时负责跨字段拒绝，生成 JSON Schema 以 description + `x-courtwork-invariant` 公开同一不变量（标准 JSON Schema 无跨字段数值比较关键字）；删除 refine 的变异必须使单测变红。
+
 - 2026-07-09：W1 完成。七个 schema（SourceAnchor / CaseFile / Timeline / PartyGraph / RiskList / ReviewMatrix / RevisionEvent）的 TS 类型 + zod 校验器 + JSON Schema 导出全部交付。`pnpm test` 全绿（57 用例：7 个 schema 各 7 条 + RevisionEvent 8 条 + drift 测试 7 条），`pnpm lint` 无 error，`pnpm -r run build` 通过。全部在移除 node_modules 后的干净环境重新 `pnpm install` 复核过，非增量安装的残留假绿。
   - 设计取舍：
     - `SourceAnchor.textLayerVersion?`：为未来 OCR 重跑导致 `textRange` 偏移失配预留的版本标记字段，由 ingest（W8）填写；现在加是一个字段的成本，以后加是全量数据迁移的成本。

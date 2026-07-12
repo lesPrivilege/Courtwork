@@ -30,10 +30,10 @@ test.describe('SET-1 设置页', () => {
 
     // 模型：凭证入口 + provider + maxUsd
     await expect(page.getByTestId('settings-credential-phase')).toBeVisible();
-    await page.getByTestId('settings-provider').selectOption('qwen');
-    await page.getByTestId('settings-model').fill('qwen3.5-plus');
+    await page.getByTestId('settings-provider').selectOption('deepseek');
+    await page.getByTestId('settings-model').fill('deepseek-v4-pro');
     await page.getByRole('radio', { name: 'Deep' }).check();
-    await expect(page.getByTestId('settings-model-summary')).toContainText('qwen3.5-plus');
+    await expect(page.getByTestId('settings-model-summary')).toContainText('deepseek-v4-pro');
     await expect(page.getByTestId('settings-model-summary')).toContainText('Deep');
     await page.getByTestId('settings-maxusd').fill('8');
     await page.getByTestId('settings-maxusd-save').click();

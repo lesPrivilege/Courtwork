@@ -133,7 +133,7 @@ test.describe('GOAL-1 · chat 面真 API 端到端', () => {
     await expect(failed).toContainText('访问凭证未通过服务商验证');
   });
 
-  test('单飞行：一轮在途时禁止第二次发送', async ({ page }) => {
+  test('单飞行：同一渲染帧双击发送只产生一条在途请求', async ({ page }) => {
     await openWorkbench(page);
     await connectProvider(page);
     await page.getByTestId('segment-chat').click();
@@ -152,11 +152,14 @@ test.describe('GOAL-1 · chat 面真 API 端到端', () => {
     });
 
     await page.getByTestId('composer-input').fill('第一轮');
-    await page.getByTestId('composer-send').click();
+    await page.getByTestId('composer-send').evaluate((button) => {
+      // 同一 JS task 内派发两次，第二次发生在 React 把 disabled 提交到 DOM 之前；
+      // 只有 handleChatSend 的同步 ref 守卫能挡住它。
+      button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
     await expect(page.getByTestId('chat-pending')).toBeVisible();
-    await page.getByTestId('composer-input').fill('第二轮');
     await expect(page.getByTestId('composer-send')).toBeDisabled();
-    await page.getByTestId('composer-input').press('Enter');
     expect(await page.evaluate(() => (window as typeof window & { __harnessFlightCalls?: number }).__harnessFlightCalls)).toBe(1);
 
     await page.evaluate(() => (window as typeof window & { __resolveHarnessFlight?: () => void }).__resolveHarnessFlight?.());
