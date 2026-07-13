@@ -11,6 +11,7 @@
 | [ADR-005](ADR-005-data-security.md) | 状态、隐私与安全 | Accepted |
 | [ADR-006](ADR-006-ui-host.md) | UI 宿主与设计系统 | Accepted |
 | [ADR-007](ADR-007-provider-turn-protocol.md) | Provider、Turn 与受控交互协议 | Accepted |
+| [ADR-008](ADR-008-schema-conformance-and-authority.md) | Schema 包一致性与字段职权 | Proposed |
 
 ## 变更规则
 
