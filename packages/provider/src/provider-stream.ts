@@ -149,8 +149,16 @@ export async function* normalizeProviderTransport(
   let contentLength = 0;
   let terminal = false;
   let observedFinishReason: 'stop' | 'length' | 'content_filter' | 'unknown' = 'unknown';
-  const decoder = new TextDecoder();
+  const decoder = new TextDecoder('utf-8', { fatal: true });
   const parser = new IncrementalSseParser();
+
+  const decode = (bytes?: Uint8Array): string => {
+    try {
+      return bytes ? decoder.decode(bytes, { stream: true }) : decoder.decode();
+    } catch {
+      throw new StreamViolation('protocol', '服务商返回了非法 UTF-8 流');
+    }
+  };
 
   const fail = (kind: ProviderFailureKind, message: string, retryable = false): ProviderStreamEvent => ({
     type: 'failed', requestId: context.requestId, seq: seq++, kind, message, retryable,
@@ -218,11 +226,11 @@ export async function* normalizeProviderTransport(
         return;
       }
       if (event.type === 'chunk') {
-        const text = decoder.decode(Uint8Array.from(event.bytes), { stream: true });
+        const text = decode(Uint8Array.from(event.bytes));
         yield* consumePayloads(parser.push(text));
         continue;
       }
-      const tail = decoder.decode();
+      const tail = decode();
       yield* consumePayloads(parser.push(tail));
       yield* consumePayloads(parser.finish());
       if (!done) {

@@ -64,6 +64,18 @@ describe('incremental provider transport normalization', () => {
     expect(events[2]).toMatchObject({ delta: '法' });
   });
 
+  it('rejects invalid UTF-8 bytes instead of replacing them inside successful content', async () => {
+    const prefix = bytes('data: {"choices":[{"delta":{"content":"');
+    const suffix = bytes('"}}]}\n\ndata: [DONE]\n\n');
+    const events = await collect(normalizeProviderTransport(transports(
+      { type: 'response_started', requestId: 'req-1', status: 200, contentType: 'text/event-stream' },
+      { type: 'chunk', requestId: 'req-1', bytes: [...prefix, 0xff, ...suffix] },
+      { type: 'end', requestId: 'req-1' },
+    ), context));
+    expect(events.at(-1)).toMatchObject({ type: 'failed', kind: 'protocol' });
+    expect(events.some((event) => event.type === 'completed')).toBe(false);
+  });
+
   it.each([
     ['EOF before [DONE]', transports(
       { type: 'response_started', requestId: 'req-1', status: 200, contentType: 'text/event-stream' },
