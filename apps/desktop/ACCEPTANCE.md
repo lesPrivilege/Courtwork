@@ -1165,3 +1165,55 @@ OLD_THINKING_GATE_EXIT=1
 验收未发现实现级缺陷，未产生 `fix-by-acceptance` 代码提交；仅追加本报告。未改契约、未合并、未 push。
 
 > **最终判定：POLISH-P0 放行 ✅。** `3ad5491 + 本验收报告` 允许由架构/收账会话合入 `main@5462989`；Minimap TypeError 已由真实反例与 240+ 轮修复态快切闭环，四档视觉证据与当前代码同源，thinking gate 自身假红亦已由 `944ee8f` 独立反例验证修复。
+
+---
+
+## SCHEMA-POLISH-1 独立验收（2026-07-13）
+
+- 验收角色：独立验收会话，非 `9ec3967` 实现者。
+- 被验实现：`codex/schema-polish-1@9ec3967`；独立 worktree `/Users/lesprivilege/Projects/Courtwork-accept-schema-polish-1`。
+- 集成基线：任务起点 `main@5462989`，首次合并 `9a344cd`；POLISH-P0 独立放行后前进式合并 `main@7ae3be4`，最终集成 merge `f8724d1`。
+- Playwright 均使用隔离端口 `1547/1549/1551/1552/1553`，`reuseExistingServer=false`；未复用共享服务。
+- 结论：**✅ 放行。`9ec3967 + 2e25859 + 本验收记录` 允许合入 main；SCHEMA-POLISH-1 可关闭。**
+
+### 1. 边界与契约
+
+- `git show 9ec3967` 只有 11 个 `apps/desktop/**` 文件：SPEC、呈现组件/CSS、Vitest、E2E 与测试 floor；没有 `packages/schemas`、`packages/core`、`packages/legal`、ADR 或 schema 字段/语义改动。
+- 矩阵短名只由 `question.text` 机械裁切，没有领域 alias 表，也不写回 schema。临时删除 `是否/有无` 前缀裁切后，定向 Vitest 实跑 **1/2 failed**：`expected '是否约定了书面' to be '约定了书面验收'`；恢复目标实现后 **2/2 passed**，变异零残留。
+- 首次完整 `test:e2e` 在进入 Playwright 前被当时 main 的已知 thinking CSS 空切片假红阻塞；该脚本不在 `9ec3967` 差异内，故记为“前置阻塞、非 SCHEMA 回归”。POLISH-P0 独立放行并合入 `main@7ae3be4` 后，本验收只前进式同步 main，没有单独夹带未验提交；最终 ThinkingStream 门与其余 15 道前置门全部通过。
+
+### 2. 呈现、证据与门禁行为
+
+- 矩阵列头呈现 `Q1 · 违约金`；focus 后完整 tooltip 为 `违约金比例（买方逾期付款）是多少？`。真实“查看引语”按钮可 Tab 聚焦、Enter 展开，`aria-expanded/aria-controls` 成对；未接通的“回到原件”保持独立禁用动词，不冒充可跳转。
+- 风险行与详情同时显示严重度、核验、处置、下一步；样板案批量范围为 **4 项**、明确排除 **2 项**。高危/未核验项只有逐条通路，未展开全部依据前确认禁用；展开后下一步从“展开依据”变为“逐条确认”。
+- 引语正文使用 `white-space: normal` 与 `overflow-wrap: anywhere`；文件名元信息承担截断。Context 承载 `Continue this case`，背景计算值为 ink `rgb(10, 37, 64)`；Progress 中无 continuation。L1 实测仍只有 Preview 一个 `.surface-card`，未新增空壳面板或装饰卡；既有空态、English chrome / 中文法律与 schema 内容边界由 RP-2.6/RP-2.7 与 SCHEMA 定向用例共同通过。
+
+### 3. 验收发现与 `fix-by-acceptance`
+
+四档截图发现首行矩阵引语 peek 向上展开：完整 rect `top=-35.5`，而 Preview host `top=8`；自动化此前只判 DOM `visible`，实际截图只剩底部“回到原件”，引语正文被 overflow 裁掉。
+
+- 先补几何守护，旧 CSS 定向实跑 **1/1 failed**：`Expected >= 8, Received -35.5`。
+- 最小修复只把 `.cell-peek` 从 `bottom: calc(100% + 4px)` 改为 `top: calc(100% + 4px)`，不改卡片、锚点、颜色或 schema 语义；提交 `2e25859 fix-by-acceptance: keep matrix evidence inside preview`。
+- 修后定向 **1/1 passed**；1180/1280/1440/1600 四档的完整 peek 均为 `top=140.5, bottom=291.5`，位于 host `8..892` 内，页面均 `scrollWidth === clientWidth`。最终全量也包含该几何守护并通过。
+
+### 4. 四档独立视觉证据
+
+隔离预览 `http://127.0.0.1:1550`，`900px` 高、`deviceScaleFactor=1`、`prefers-reduced-motion=reduce`、截图动画禁用。每档分别生成风险详情、矩阵完整列头 tooltip、矩阵完整引语三帧；以下列出承重的风险/矩阵引语帧 SHA-256：
+
+| 宽度 | 风险详情 | 矩阵引语 | 复核 |
+|---|---|---|---|
+| 1180 | `/tmp/courtwork-schema-polish-1-accept/schema-polish-risk-1180.png` · `95dbee3586d2d2797e7a10ede49282b90713526a64c6d4877313ce2445c2e275` | `/tmp/courtwork-schema-polish-1-accept/schema-polish-matrix-evidence-1180.png` · `0b3563300401d96fc0d19e049921d0317a4a8366596a2cf23efbac6b748040da` | 无全局横溢；引语完整 |
+| 1280 | `/tmp/courtwork-schema-polish-1-accept/schema-polish-risk-1280.png` · `56ddf70ea59291887274b67ae0fdf162d85e1d607f0fe575dcf0bec6cab13412` | `/tmp/courtwork-schema-polish-1-accept/schema-polish-matrix-evidence-1280.png` · `28bc6627d1990ab115f3d226354d040b1ce75792da4eccedf4ef18de88a2214d` | 无全局横溢；tooltip 完整 |
+| 1440 | `/tmp/courtwork-schema-polish-1-accept/schema-polish-risk-1440.png` · `fd70652c1f3e0f31cb5cccd257eeeeb26073c51a08ec30da160372c748efd5fb` | `/tmp/courtwork-schema-polish-1-accept/schema-polish-matrix-evidence-1440.png` · `191c2d55da574db076f00b43f4b8ab5db554b71ccc744bc8f6717794cbc3eb94` | 无全局横溢；来源动作诚实 |
+| 1600 | `/tmp/courtwork-schema-polish-1-accept/schema-polish-risk-1600.png` · `2b33f1546cef32f701631e87e2558a58d72499b02806036a180879677b383990` | `/tmp/courtwork-schema-polish-1-accept/schema-polish-matrix-evidence-1600.png` · `e61f429852aa7ec42b7ea89a539e2fc7ce65c1de68284f31db52c7fd2fca5169` | 引语按窄列自然换行；无截断冒充 |
+
+### 5. 最终机器门原始数字
+
+- `pnpm install --frozen-lockfile`：12 workspace、1047 packages，exit 0。
+- `pnpm -r build`：scope **11/12 workspace projects** 全部通过；desktop **3485 modules**，仅既有 chunk-size warning。
+- `pnpm lint`：exit 0。
+- root `pnpm test`：**104 files / 850 tests passed**。
+- desktop Vitest：**25 files / 108 tests passed**。
+- 提交 `2e25859` 后最终 `:1553` 完整 `test:e2e`：16 道前置静态/设计/边界门全部通过，假绿 floor **198**，Playwright **198/198 passed（4.1m，4 workers）**。
+
+> **最终判定：SCHEMA-POLISH-1 放行 ✅。** 真实证据、状态与下一步动作均达到本单验收标准；验收发现的首行引语裁剪已由红测、最小实现级修复、四档视觉复核与全量回归闭环。无 `[需架构拍板]` 项，无 schema/core 契约变化。
