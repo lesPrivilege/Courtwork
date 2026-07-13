@@ -18,7 +18,10 @@ const need = (cond, msg) => { if (!cond) failures.push(msg); };
 // —— ① 顶部秩序：案件标题迁顶栏（覆盖 RP-2 #19） ——
 need(/chat-titlebar[\s\S]*data-testid="chat-case-title"/.test(app), '① 案件标题须居中栏标题带（chat-titlebar，与右卡首标题同基线、约束 chat 列不压 dock）');
 need(/\.app-shell\s*\{[^}]*grid-template-rows:\s*minmax\(0, 1fr\)/.test(css) && /\.window-chrome\s*\{[^}]*position:\s*absolute/.test(css), '顶栏改判：window-chrome 为卡内绝对对位层，无独立顶栏行');
-need(rail.includes('<WindowChrome') && chrome.includes('data-testid="mac-window-controls-safe-area"'), 'macOS Overlay：window chrome 须为左卡真实子层，并保留原生交通灯不可遮挡区');
+need(rail.includes('<WindowChrome') && chrome.includes('data-testid="mac-window-controls-anchor"') && chrome.includes("sync_macos_window_controls"), 'macOS Overlay：window chrome 须为左卡真实子层，并以动态锚框驱动 AppKit 原生按钮组');
+need(app.includes('!rightCollapsed && <section className="right-workbench"') && app.includes('className="workspace-edge-control right-edge-control"'), '右栏收拢须整卡退出网格，仅保留 app-shell 边缘展开动作');
+need(/\.workspace\.left-collapsed\.right-collapsed\s*\{[^}]*grid-template-columns:\s*minmax\(var\(--chat-min\), 1fr\)[^}]*padding-inline:\s*0/.test(css), '双侧收拢须撤右卡列并让 Chat 占满视口中线');
+need(!/padding-left:\s*152px/.test(css), '收拢态不得用固定 152px 避让；标题须按内容测宽磁吸');
 need(/chat-titlebar[\s\S]*?\{selectedCase &&/.test(app), '① 顶栏标题仅有容器时出现（chat-titlebar 内 selectedCase 门控）');
 
 // —— chat|work 二段真路由 ——

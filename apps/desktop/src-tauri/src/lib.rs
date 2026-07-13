@@ -32,6 +32,163 @@ static STARTUP_TRACE: Once = Once::new();
 /// WebView 的转发入参无权另行选择 host。
 static VERIFIED_PROVIDER_BASE_URL: OnceLock<RwLock<Option<String>>> = OnceLock::new();
 
+// ─── macOS 原生窗口按钮磁吸锚（LAUNCH 壳层审计）────────────────────────────
+
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct WindowControlsAnchor {
+    x: f64,
+    y: f64,
+    width: f64,
+    height: f64,
+}
+
+#[derive(Debug, Clone, Copy, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct WindowControlsMetrics {
+    group_width: f64,
+    button_height: f64,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct NativeButtonGeometry {
+    x: f64,
+    width: f64,
+    height: f64,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct NativeButtonTarget {
+    center_x: f64,
+    center_y: f64,
+}
+
+fn plan_window_controls(
+    anchor: WindowControlsAnchor,
+    buttons: &[NativeButtonGeometry],
+) -> Result<(WindowControlsMetrics, Vec<NativeButtonTarget>), String> {
+    let anchor_values = [anchor.x, anchor.y, anchor.width, anchor.height];
+    if anchor_values.iter().any(|value| !value.is_finite())
+        || anchor.x < 0.0
+        || anchor.y < 0.0
+        || anchor.width <= 0.0
+        || anchor.height <= 0.0
+        || anchor.x + anchor.width > 16_384.0
+        || anchor.y + anchor.height > 16_384.0
+    {
+        return Err("窗口按钮锚框无效".into());
+    }
+    if buttons.len() != 3
+        || buttons.iter().any(|button| {
+            !button.x.is_finite()
+                || !button.width.is_finite()
+                || !button.height.is_finite()
+                || button.width <= 0.0
+                || button.height <= 0.0
+        })
+    {
+        return Err("未取得完整的 macOS 窗口按钮组".into());
+    }
+
+    let group_min_x = buttons
+        .iter()
+        .map(|button| button.x)
+        .fold(f64::INFINITY, f64::min);
+    let group_max_x = buttons
+        .iter()
+        .map(|button| button.x + button.width)
+        .fold(f64::NEG_INFINITY, f64::max);
+    let metrics = WindowControlsMetrics {
+        group_width: group_max_x - group_min_x,
+        button_height: buttons
+            .iter()
+            .map(|button| button.height)
+            .fold(0.0, f64::max),
+    };
+    let group_left = anchor.x + (anchor.width - metrics.group_width) / 2.0;
+    let center_y = anchor.y + anchor.height / 2.0;
+    let targets = buttons
+        .iter()
+        .map(|button| NativeButtonTarget {
+            center_x: group_left + (button.x - group_min_x) + button.width / 2.0,
+            center_y,
+        })
+        .collect();
+    Ok((metrics, targets))
+}
+
+#[tauri::command]
+fn sync_macos_window_controls(
+    window: tauri::WebviewWindow,
+    anchor: WindowControlsAnchor,
+) -> Result<WindowControlsMetrics, String> {
+    #[cfg(target_os = "macos")]
+    {
+        use objc2_app_kit::{NSView, NSWindow, NSWindowButton};
+        use objc2_foundation::NSPoint;
+
+        // Tauri 同步 command 运行在主线程；只取得 NSWindow 已有标准按钮，不重画、不替换 target/action。
+        let native = window
+            .ns_window()
+            .map_err(|_| "无法取得 macOS 窗口".to_string())?;
+        let native_window: &NSWindow = unsafe { &*native.cast() };
+        let buttons = [
+            NSWindowButton::CloseButton,
+            NSWindowButton::MiniaturizeButton,
+            NSWindowButton::ZoomButton,
+        ]
+        .into_iter()
+        .map(|kind| {
+            native_window
+                .standardWindowButton(kind)
+                .ok_or_else(|| "未取得 macOS 标准窗口按钮".to_string())
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+        let geometry = buttons
+            .iter()
+            .map(|button| {
+                let frame = button.frame();
+                NativeButtonGeometry {
+                    x: frame.origin.x,
+                    width: frame.size.width,
+                    height: frame.size.height,
+                }
+            })
+            .collect::<Vec<_>>();
+        let (metrics, targets) = plan_window_controls(anchor, &geometry)?;
+        let content_view = native_window
+            .contentView()
+            .ok_or_else(|| "无法取得 macOS 内容视图".to_string())?;
+        let content_bounds = content_view.bounds();
+
+        for (button, target) in buttons.iter().zip(targets) {
+            let superview =
+                unsafe { button.superview() }.ok_or_else(|| "macOS 窗口按钮未挂载".to_string())?;
+            let content_y = if content_view.isFlipped() {
+                target.center_y
+            } else {
+                content_bounds.size.height - target.center_y
+            };
+            let local_center = superview.convertPoint_fromView(
+                NSPoint::new(target.center_x, content_y),
+                Some(&content_view as &NSView),
+            );
+            let frame = button.frame();
+            button.setFrameOrigin(NSPoint::new(
+                local_center.x - frame.size.width / 2.0,
+                local_center.y - frame.size.height / 2.0,
+            ));
+        }
+        return Ok(metrics);
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = (window, anchor);
+        Err("当前平台没有 macOS 窗口按钮".into())
+    }
+}
+
 // ─── 内部枚举（DBG-2.1 / F4）───────────────────────────────────────────────
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -89,10 +246,9 @@ impl KeychainFailKind {
             Self::NoAccessForItem | Self::InteractionNotAllowed | Self::NoStorageAccess => {
                 "凭证库访问未授权，请重新完成连接；若刚更新过应用，请删除旧凭证后重试"
             }
-            Self::NoEntry
-            | Self::PlatformOther { .. }
-            | Self::EntryBuilder
-            | Self::Unknown => "钥匙串授权未通过，请重试或重新填写",
+            Self::NoEntry | Self::PlatformOther { .. } | Self::EntryBuilder | Self::Unknown => {
+                "钥匙串授权未通过，请重试或重新填写"
+            }
         }
     }
 
@@ -152,9 +308,14 @@ fn parse_os_status_from_text(text: &str) -> Option<i32> {
         }
     }
     // 已知 OSStatus 作为独立 token
-    for code in [-128, -25293, -25315, -25308, -61, -25291, -25292, -25294, -25295] {
+    for code in [
+        -128, -25293, -25315, -25308, -61, -25291, -25292, -25294, -25295,
+    ] {
         let needle = code.to_string();
-        if text.split(|c: char| !c.is_ascii_digit() && c != '-').any(|t| t == needle) {
+        if text
+            .split(|c: char| !c.is_ascii_digit() && c != '-')
+            .any(|t| t == needle)
+        {
             return Some(code);
         }
     }
@@ -310,12 +471,7 @@ fn trace_event(fields: &[(&str, TraceValue)]) {
     write_trace_line(&build_trace_line(fields));
 }
 
-fn trace_op(
-    op: KeychainOp,
-    account: &str,
-    ok: bool,
-    fail_kind: Option<KeychainFailKind>,
-) {
+fn trace_op(op: KeychainOp, account: &str, ok: bool, fail_kind: Option<KeychainFailKind>) {
     let mut fields = vec![
         ("event", TraceValue::Str("keychain_op".into())),
         ("op", TraceValue::Str(op.as_str().into())),
@@ -464,7 +620,12 @@ fn delete_credential_ignore_missing(account: &str) -> Result<(), KeychainFailKin
             Ok(())
         }
         Err(KeyringError::NoEntry) => {
-            trace_op(KeychainOp::Delete, account, true, Some(KeychainFailKind::NoEntry));
+            trace_op(
+                KeychainOp::Delete,
+                account,
+                true,
+                Some(KeychainFailKind::NoEntry),
+            );
             Ok(())
         }
         Err(err) => {
@@ -614,7 +775,9 @@ fn credential_status() -> Result<CredentialStatus, String> {
 }
 
 /// 存储形制 → 可用 secret（纯函数）。
-fn secret_from_stored(read: ReadCredential) -> Result<(CredentialSource, String), CredentialStatus> {
+fn secret_from_stored(
+    read: ReadCredential,
+) -> Result<(CredentialSource, String), CredentialStatus> {
     match read {
         ReadCredential::Missing => Err(pending()),
         ReadCredential::Corrupt => Err(failed(None, "凭证格式不正确，请检查后重新填写", None)),
@@ -663,60 +826,139 @@ struct ProviderProbeStatus {
     model_discovery: &'static str,
 }
 
-fn provider_failed(source: Option<CredentialSource>, kind: &'static str, message: &'static str) -> ProviderProbeStatus {
-    ProviderProbeStatus { phase: "failed", source, failure_message: Some(message), fail_kind: Some(kind), models: None, model_discovery: "unsupported" }
-}
-
-fn classify_http_failure(source: CredentialSource, status: reqwest::StatusCode) -> ProviderProbeStatus {
-    match status.as_u16() {
-        401 | 403 => provider_failed(Some(source), "auth_failed", "访问凭证未通过服务商验证，请检查后重试"),
-        404 => provider_failed(Some(source), "endpoint", "服务地址无法完成请求，请检查 Base URL"),
-        429 => provider_failed(Some(source), "rate_limited", "服务商暂时限制了请求，请稍后重试"),
-        400 | 422 => provider_failed(Some(source), "model", "当前模型不可用，请从模型列表选择或手动填写"),
-        _ => provider_failed(Some(source), "invalid_response", "服务商返回了无法识别的响应，请稍后重试"),
+fn provider_failed(
+    source: Option<CredentialSource>,
+    kind: &'static str,
+    message: &'static str,
+) -> ProviderProbeStatus {
+    ProviderProbeStatus {
+        phase: "failed",
+        source,
+        failure_message: Some(message),
+        fail_kind: Some(kind),
+        models: None,
+        model_discovery: "unsupported",
     }
 }
 
-async fn probe_provider_endpoint(input: ProviderProbeInput, secret: String, source: CredentialSource) -> ProviderProbeStatus {
+fn classify_http_failure(
+    source: CredentialSource,
+    status: reqwest::StatusCode,
+) -> ProviderProbeStatus {
+    match status.as_u16() {
+        401 | 403 => provider_failed(
+            Some(source),
+            "auth_failed",
+            "访问凭证未通过服务商验证，请检查后重试",
+        ),
+        404 => provider_failed(
+            Some(source),
+            "endpoint",
+            "服务地址无法完成请求，请检查 Base URL",
+        ),
+        429 => provider_failed(
+            Some(source),
+            "rate_limited",
+            "服务商暂时限制了请求，请稍后重试",
+        ),
+        400 | 422 => provider_failed(
+            Some(source),
+            "model",
+            "当前模型不可用，请从模型列表选择或手动填写",
+        ),
+        _ => provider_failed(
+            Some(source),
+            "invalid_response",
+            "服务商返回了无法识别的响应，请稍后重试",
+        ),
+    }
+}
+
+async fn probe_provider_endpoint(
+    input: ProviderProbeInput,
+    secret: String,
+    source: CredentialSource,
+) -> ProviderProbeStatus {
     let base = input.base_url.trim().trim_end_matches('/');
     if base.is_empty() || input.model_id.trim().is_empty() {
         return provider_failed(Some(source), "endpoint", "请填写 Base URL 和模型名");
     }
-    let client = match reqwest::Client::builder().timeout(std::time::Duration::from_secs(20)).build() {
+    let client = match reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(20))
+        .build()
+    {
         Ok(client) => client,
         Err(_) => return provider_failed(Some(source), "platform", "暂时无法验证连接，请重试"),
     };
-    let models_response = client.get(format!("{base}/models")).bearer_auth(&secret).send().await;
+    let models_response = client
+        .get(format!("{base}/models"))
+        .bearer_auth(&secret)
+        .send()
+        .await;
     let mut models = None;
     let mut discovery = "unsupported";
     if let Ok(response) = models_response {
-        if response.status() == reqwest::StatusCode::UNAUTHORIZED || response.status() == reqwest::StatusCode::FORBIDDEN {
+        if response.status() == reqwest::StatusCode::UNAUTHORIZED
+            || response.status() == reqwest::StatusCode::FORBIDDEN
+        {
             return classify_http_failure(source, response.status());
         }
         if response.status().is_success() {
             let payload = response.json::<serde_json::Value>().await.ok();
-            models = payload.and_then(|value| value.get("data").and_then(|data| data.as_array()).map(|items| {
-                items.iter().filter_map(|item| item.get("id").and_then(|id| id.as_str()).map(str::to_owned)).collect::<Vec<_>>()
-            })).filter(|items| !items.is_empty());
-            if models.is_some() { discovery = "available"; }
+            models = payload
+                .and_then(|value| {
+                    value
+                        .get("data")
+                        .and_then(|data| data.as_array())
+                        .map(|items| {
+                            items
+                                .iter()
+                                .filter_map(|item| {
+                                    item.get("id").and_then(|id| id.as_str()).map(str::to_owned)
+                                })
+                                .collect::<Vec<_>>()
+                        })
+                })
+                .filter(|items| !items.is_empty());
+            if models.is_some() {
+                discovery = "available";
+            }
         }
     }
 
     let mut body = serde_json::Map::new();
     body.insert("model".into(), serde_json::Value::String(input.model_id));
-    body.insert("messages".into(), serde_json::json!([{"role":"user","content":"Hi"}]));
+    body.insert(
+        "messages".into(),
+        serde_json::json!([{"role":"user","content":"Hi"}]),
+    );
     body.insert("max_tokens".into(), serde_json::json!(1));
     body.insert("stream".into(), serde_json::json!(false));
     body.extend(input.reasoning_body);
-    let smoke = client.post(format!("{base}/chat/completions")).bearer_auth(&secret).json(&body).send().await;
+    let smoke = client
+        .post(format!("{base}/chat/completions"))
+        .bearer_auth(&secret)
+        .json(&body)
+        .send()
+        .await;
     match smoke {
         Ok(response) if response.status().is_success() => ProviderProbeStatus {
-            phase: "connected", source: Some(source), failure_message: None, fail_kind: None,
-            models, model_discovery: discovery,
+            phase: "connected",
+            source: Some(source),
+            failure_message: None,
+            fail_kind: None,
+            models,
+            model_discovery: discovery,
         },
         Ok(response) => classify_http_failure(source, response.status()),
-        Err(error) if error.is_timeout() => provider_failed(Some(source), "timeout", "服务商响应超时，请稍后重试"),
-        Err(_) => provider_failed(Some(source), "network", "暂时无法连接服务商，请检查网络后重试"),
+        Err(error) if error.is_timeout() => {
+            provider_failed(Some(source), "timeout", "服务商响应超时，请稍后重试")
+        }
+        Err(_) => provider_failed(
+            Some(source),
+            "network",
+            "暂时无法连接服务商，请检查网络后重试",
+        ),
     }
 }
 
@@ -784,7 +1026,11 @@ fn chat_forward_url_allowed(url: &str, verified_base_url: &str) -> bool {
 
 /// secret 参数化的转发体（mock TCP 可测）；HTTP 状态原样透传，
 /// 错误消息零技术概念（F4 口径），且永不包含 URL/body/secret。
-async fn forward_chat_request(url: &str, body: String, secret: &str) -> Result<ChatForwardOutput, String> {
+async fn forward_chat_request(
+    url: &str,
+    body: String,
+    secret: &str,
+) -> Result<ChatForwardOutput, String> {
     let client = reqwest::Client::builder()
         // 比 core 侧 120s race 更长的兜底：让 TS 侧先超时，保持分型出口唯一
         .timeout(std::time::Duration::from_secs(180))
@@ -863,7 +1109,8 @@ fn secure_output_dir(case_root: &Path, create: bool) -> Result<Option<PathBuf>, 
         }
         fs::create_dir(&output_dir).map_err(|_| "无法创建案件产出目录".to_string())?;
     }
-    let metadata = fs::symlink_metadata(&output_dir).map_err(|_| "无法读取案件产出目录".to_string())?;
+    let metadata =
+        fs::symlink_metadata(&output_dir).map_err(|_| "无法读取案件产出目录".to_string())?;
     if metadata.file_type().is_symlink() || !metadata.is_dir() {
         return Err("案件产出目录不是安全的实体目录".to_string());
     }
@@ -885,11 +1132,12 @@ fn write_case_output_docx_impl(
     if !bytes.starts_with(b"PK") {
         return Err("Word 产物不是合法的 docx 容器".to_string());
     }
-    let output_dir = secure_output_dir(case_root, true)?
-        .ok_or_else(|| "无法创建案件产出目录".to_string())?;
+    let output_dir =
+        secure_output_dir(case_root, true)?.ok_or_else(|| "无法创建案件产出目录".to_string())?;
     let target = output_dir.join(file_name);
     if target.exists() {
-        let metadata = fs::symlink_metadata(&target).map_err(|_| "无法检查既有 Word 产物".to_string())?;
+        let metadata =
+            fs::symlink_metadata(&target).map_err(|_| "无法检查既有 Word 产物".to_string())?;
         if metadata.file_type().is_symlink() || !metadata.is_file() {
             return Err("既有 Word 产物不是安全的实体文件".to_string());
         }
@@ -906,8 +1154,10 @@ fn write_case_output_docx_impl(
             .create_new(true)
             .open(&temporary)
             .map_err(|_| "无法创建 Word 产物临时文件".to_string())?;
-        file.write_all(bytes).map_err(|_| "无法写入 Word 产物".to_string())?;
-        file.sync_all().map_err(|_| "无法同步 Word 产物".to_string())?;
+        file.write_all(bytes)
+            .map_err(|_| "无法写入 Word 产物".to_string())?;
+        file.sync_all()
+            .map_err(|_| "无法同步 Word 产物".to_string())?;
         fs::rename(&temporary, &target).map_err(|_| "无法提交 Word 产物".to_string())?;
         Ok(())
     })();
@@ -949,8 +1199,8 @@ fn case_output_docx_exists(input: CaseOutputRefInput) -> Result<bool, String> {
 #[tauri::command]
 async fn provider_chat_request(input: ChatForwardInput) -> Result<ChatForwardOutput, String> {
     trace_startup_once();
-    let verified_base_url = verified_provider_base_url()
-        .ok_or_else(|| "请先验证服务连接".to_string())?;
+    let verified_base_url =
+        verified_provider_base_url().ok_or_else(|| "请先验证服务连接".to_string())?;
     if !chat_forward_url_allowed(&input.url, &verified_base_url) {
         return Err("仅支持已验证服务的对话补全请求".to_string());
     }
@@ -967,9 +1217,11 @@ async fn provider_chat_request(input: ChatForwardInput) -> Result<ChatForwardOut
 }
 
 #[tauri::command]
-async fn validate_provider_connection(input: ProviderProbeInput) -> Result<ProviderProbeStatus, String> {
+async fn validate_provider_connection(
+    input: ProviderProbeInput,
+) -> Result<ProviderProbeStatus, String> {
     let _provider_id = &input.provider_id; // 仅诊断标识；路由完全由声明生成的 input 驱动。
-    // 每次换配置先撤销旧准入；只有新配置真探针成功后才登记。
+                                           // 每次换配置先撤销旧准入；只有新配置真探针成功后才登记。
     set_verified_provider_base_url(None);
     match active_secret() {
         Ok((source, secret)) => {
@@ -981,8 +1233,12 @@ async fn validate_provider_connection(input: ProviderProbeInput) -> Result<Provi
             Ok(status)
         }
         Err(status) => Ok(ProviderProbeStatus {
-            phase: status.phase, source: status.source, failure_message: status.failure_message,
-            fail_kind: status.fail_kind, models: None, model_discovery: "unsupported",
+            phase: status.phase,
+            source: status.source,
+            failure_message: status.failure_message,
+            fail_kind: status.fail_kind,
+            models: None,
+            model_discovery: "unsupported",
         }),
     }
 }
@@ -1042,7 +1298,9 @@ fn save_provider_credential(
                 trace_status_exit("save_provider_credential", &status, Some("validate"));
                 return Ok(status);
             }
-            StoredCredential::Pasted { secret: value.to_owned() }
+            StoredCredential::Pasted {
+                secret: value.to_owned(),
+            }
         }
         CredentialSource::Environment => {
             if !value.bytes().enumerate().all(|(index, byte)| {
@@ -1078,7 +1336,9 @@ fn save_provider_credential(
                 Ok(_) => {}
             }
             // 不把 env 名写入日志；名字只进钥匙串条目 JSON
-            StoredCredential::Environment { name: value.to_owned() }
+            StoredCredential::Environment {
+                name: value.to_owned(),
+            }
         }
     };
 
@@ -1086,7 +1346,11 @@ fn save_provider_credential(
     let payload = match serde_json::to_string(&stored) {
         Ok(payload) => payload,
         Err(_) => {
-            let status = failed(Some(source), "钥匙串授权未通过，请重试或重新填写", Some("platform"));
+            let status = failed(
+                Some(source),
+                "钥匙串授权未通过，请重试或重新填写",
+                Some("platform"),
+            );
             trace_status_exit("save_provider_credential", &status, Some("serialize"));
             return Ok(status);
         }
@@ -1111,7 +1375,11 @@ fn save_provider_credential(
 fn clear_provider_credential() -> Result<CredentialStatus, String> {
     trace_startup_once();
     set_verified_provider_base_url(None);
-    for account in [CREDENTIAL_ACCOUNT, LEGACY_SOURCE_ACCOUNT, LEGACY_SECRET_ACCOUNT] {
+    for account in [
+        CREDENTIAL_ACCOUNT,
+        LEGACY_SOURCE_ACCOUNT,
+        LEGACY_SECRET_ACCOUNT,
+    ] {
         if let Err(kind) = delete_credential_ignore_missing(account) {
             let status = failed_keychain(None, kind);
             trace_status_exit("clear_provider_credential", &status, Some("delete"));
@@ -1137,6 +1405,7 @@ pub fn run() {
             provider_chat_request,
             write_case_output_docx,
             case_output_docx_exists,
+            sync_macos_window_controls,
         ])
         .run(tauri::generate_context!())
         .expect("Courtwork 桌面应用启动失败");
@@ -1147,6 +1416,83 @@ mod tests {
     use super::*;
     use std::io::{Read, Write};
     use std::net::TcpListener;
+
+    #[test]
+    fn mac_window_controls_follow_anchor_center_and_preserve_native_spacing() {
+        let anchor = WindowControlsAnchor {
+            x: 13.0,
+            y: 8.0,
+            width: 54.0,
+            height: 32.0,
+        };
+        let native = [
+            NativeButtonGeometry {
+                x: 10.0,
+                width: 14.0,
+                height: 14.0,
+            },
+            NativeButtonGeometry {
+                x: 30.0,
+                width: 14.0,
+                height: 14.0,
+            },
+            NativeButtonGeometry {
+                x: 50.0,
+                width: 14.0,
+                height: 14.0,
+            },
+        ];
+        let (metrics, targets) = plan_window_controls(anchor, &native).expect("valid anchor");
+        assert_eq!(metrics.group_width, 54.0);
+        assert_eq!(metrics.button_height, 14.0);
+        assert_eq!(
+            targets
+                .iter()
+                .map(|target| target.center_x)
+                .collect::<Vec<_>>(),
+            vec![20.0, 40.0, 60.0]
+        );
+        assert!(targets.iter().all(|target| target.center_y == 24.0));
+    }
+
+    #[test]
+    fn mac_window_controls_reject_offscreen_or_partial_anchor_input() {
+        let native = [NativeButtonGeometry {
+            x: 0.0,
+            width: 14.0,
+            height: 14.0,
+        }; 3];
+        assert!(plan_window_controls(
+            WindowControlsAnchor {
+                x: -1.0,
+                y: 0.0,
+                width: 54.0,
+                height: 32.0
+            },
+            &native,
+        )
+        .is_err());
+        assert!(plan_window_controls(
+            WindowControlsAnchor {
+                x: 0.0,
+                y: 0.0,
+                width: 0.0,
+                height: 32.0
+            },
+            &native,
+        )
+        .is_err());
+        assert!(plan_window_controls(
+            WindowControlsAnchor {
+                x: 0.0,
+                y: 0.0,
+                width: 54.0,
+                height: 32.0
+            },
+            &native[..2],
+        )
+        .is_err());
+    }
 
     #[test]
     fn status_payload_contains_no_secret_field() {
@@ -1181,12 +1527,18 @@ mod tests {
         });
         let status = probe_provider_endpoint(
             ProviderProbeInput {
-                provider_id: "deepseek".into(), base_url: format!("http://{address}/v1"),
+                provider_id: "deepseek".into(),
+                base_url: format!("http://{address}/v1"),
                 model_id: "mock-law-model".into(),
-                reasoning_body: serde_json::from_value(serde_json::json!({"thinking": {"type": "enabled"}})).unwrap(),
+                reasoning_body: serde_json::from_value(
+                    serde_json::json!({"thinking": {"type": "enabled"}}),
+                )
+                .unwrap(),
             },
-            "never-log-this-secret".into(), CredentialSource::Pasted,
-        ).await;
+            "never-log-this-secret".into(),
+            CredentialSource::Pasted,
+        )
+        .await;
         server.join().expect("mock server");
         assert_eq!(status.phase, "connected");
         assert_eq!(status.model_discovery, "available");
@@ -1209,7 +1561,10 @@ mod tests {
     fn classify_os_status_maps_known_codes() {
         assert_eq!(classify_os_status(-128), KeychainFailKind::UserCanceled);
         assert_eq!(classify_os_status(-25293), KeychainFailKind::AuthFailed);
-        assert_eq!(classify_os_status(-25315), KeychainFailKind::NoAccessForItem);
+        assert_eq!(
+            classify_os_status(-25315),
+            KeychainFailKind::NoAccessForItem
+        );
         assert_eq!(
             classify_os_status(-25308),
             KeychainFailKind::InteractionNotAllowed
@@ -1225,10 +1580,7 @@ mod tests {
 
     #[test]
     fn parse_os_status_from_display_and_debug_text() {
-        assert_eq!(
-            parse_os_status_from_text("error code -25293"),
-            Some(-25293)
-        );
+        assert_eq!(parse_os_status_from_text("error code -25293"), Some(-25293));
         assert_eq!(
             parse_os_status_from_text("Platform failure: error code -128"),
             Some(-128)
@@ -1317,11 +1669,15 @@ mod tests {
 
     #[test]
     fn stored_credential_wire_shape_roundtrips() {
-        let pasted = serde_json::to_string(&StoredCredential::Pasted { secret: "sk-abcdefgh".into() })
-            .expect("serialize pasted");
+        let pasted = serde_json::to_string(&StoredCredential::Pasted {
+            secret: "sk-abcdefgh".into(),
+        })
+        .expect("serialize pasted");
         assert_eq!(pasted, r#"{"source":"pasted","secret":"sk-abcdefgh"}"#);
-        let env = serde_json::to_string(&StoredCredential::Environment { name: "COURTWORK_KEY".into() })
-            .expect("serialize environment");
+        let env = serde_json::to_string(&StoredCredential::Environment {
+            name: "COURTWORK_KEY".into(),
+        })
+        .expect("serialize environment");
         assert_eq!(env, r#"{"source":"environment","name":"COURTWORK_KEY"}"#);
         assert!(matches!(
             serde_json::from_str::<StoredCredential>(&pasted).expect("parse pasted"),
@@ -1339,7 +1695,10 @@ mod tests {
 
         let corrupt = status_from_stored(ReadCredential::Corrupt);
         assert_eq!(corrupt.phase, "failed");
-        assert_eq!(corrupt.failure_message, Some("凭证格式不正确，请检查后重新填写"));
+        assert_eq!(
+            corrupt.failure_message,
+            Some("凭证格式不正确，请检查后重新填写")
+        );
 
         let short = status_from_stored(ReadCredential::Stored(StoredCredential::Pasted {
             secret: "short".into(),
@@ -1364,24 +1723,28 @@ mod tests {
         assert_eq!(env_ok.phase, "connected");
         std::env::remove_var("COURTWORK_F3_TEST_ENV");
 
-        let env_missing = status_from_stored(ReadCredential::Stored(StoredCredential::Environment {
-            name: "COURTWORK_F3_TEST_ENV_ABSENT".into(),
-        }));
+        let env_missing =
+            status_from_stored(ReadCredential::Stored(StoredCredential::Environment {
+                name: "COURTWORK_F3_TEST_ENV_ABSENT".into(),
+            }));
         assert_eq!(env_missing.phase, "failed");
     }
 
     #[test]
     fn secret_from_stored_yields_secret_or_honest_status() {
-        let (source, secret) = secret_from_stored(ReadCredential::Stored(StoredCredential::Pasted {
-            secret: "sk-abcdefgh".into(),
-        }))
-        .expect("pasted secret");
+        let (source, secret) =
+            secret_from_stored(ReadCredential::Stored(StoredCredential::Pasted {
+                secret: "sk-abcdefgh".into(),
+            }))
+            .expect("pasted secret");
         assert!(matches!(source, CredentialSource::Pasted));
         assert_eq!(secret, "sk-abcdefgh");
 
-        let pending_status = secret_from_stored(ReadCredential::Missing).expect_err("missing → pending");
+        let pending_status =
+            secret_from_stored(ReadCredential::Missing).expect_err("missing → pending");
         assert_eq!(pending_status.phase, "pending");
-        let corrupt_status = secret_from_stored(ReadCredential::Corrupt).expect_err("corrupt → failed");
+        let corrupt_status =
+            secret_from_stored(ReadCredential::Corrupt).expect_err("corrupt → failed");
         assert_eq!(corrupt_status.phase, "failed");
     }
 
@@ -1396,12 +1759,18 @@ mod tests {
             "https://attacker.example/v1/chat/completions",
             deepseek,
         ));
-        assert!(!chat_forward_url_allowed("https://api.deepseek.com/v1/models", deepseek));
+        assert!(!chat_forward_url_allowed(
+            "https://api.deepseek.com/v1/models",
+            deepseek
+        ));
         assert!(!chat_forward_url_allowed(
             "https://api.deepseek.com/v1/chat/completions?x=1",
             deepseek,
         ));
-        assert!(!chat_forward_url_allowed("file:///etc/passwd/chat/completions", deepseek));
+        assert!(!chat_forward_url_allowed(
+            "file:///etc/passwd/chat/completions",
+            deepseek
+        ));
         assert!(!chat_forward_url_allowed("", deepseek));
 
         // custom provider 不按中央域名表裁剪；只绑定用户刚刚验证成功的完整 base URL。
@@ -1426,8 +1795,10 @@ mod tests {
             let read = socket.read(&mut request).expect("read request");
             let text = String::from_utf8_lossy(&request[..read]);
             assert!(text.starts_with("POST /v1/chat/completions"));
-            assert!(text.contains("authorization: Bearer test-secret-never-logged")
-                || text.contains("Authorization: Bearer test-secret-never-logged"));
+            assert!(
+                text.contains("authorization: Bearer test-secret-never-logged")
+                    || text.contains("Authorization: Bearer test-secret-never-logged")
+            );
             assert!(text.contains("\"stream\":true"));
             let body = "data: {\"choices\":[{\"delta\":{\"content\":\"x\"}}]}\n\ndata: [DONE]\n";
             write!(socket, "HTTP/1.1 429 Too Many Requests\r\ncontent-type: text/event-stream\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}", body.len(), body).expect("write response");
@@ -1468,8 +1839,8 @@ mod tests {
         ));
         fs::create_dir_all(&root).expect("create case root");
 
-        let artifact = write_case_output_docx_impl(&root, "答辩意见.docx", docx)
-            .expect("write output");
+        let artifact =
+            write_case_output_docx_impl(&root, "答辩意见.docx", docx).expect("write output");
         let expected = root
             .canonicalize()
             .expect("canonical case root")

@@ -7,13 +7,14 @@ import { openWorkbench } from './helpers';
  * x=12 / y=0 / r=12 下关闭钮切进圆角外侧的假阳性。
  */
 
-test('左卡真实拥有 chrome 与交通灯安全区，应用按钮不侵入系统控制组', async ({ page }) => {
+test('左卡真实拥有 chrome 与 AppKit 交通灯动态锚框，应用按钮不侵入系统控制组', async ({ page }) => {
   await openWorkbench(page);
   const rail = page.getByTestId('case-rail');
   const chrome = rail.getByTestId('window-chrome');
-  const safeArea = rail.getByTestId('mac-window-controls-safe-area');
+  const safeArea = rail.getByTestId('mac-window-controls-anchor');
   await expect(chrome).toHaveCount(1);
   await expect(safeArea).toHaveAttribute('aria-hidden', 'true');
+  await expect(safeArea).toHaveAttribute('data-layout', 'appkit-anchor');
 
   const railBox = (await rail.boundingBox())!;
   const safeBox = (await safeArea.boundingBox())!;
@@ -31,6 +32,26 @@ test('左卡真实拥有 chrome 与交通灯安全区，应用按钮不侵入系
 
   const railHeadBox = (await rail.locator('.rail-head').boundingBox())!;
   expect(safeBox.y + safeBox.height).toBeLessThanOrEqual(railHeadBox.y);
+});
+
+test('双侧收拢撤销右侧卡片，Chat 以视口中线为磁吸锚并随 resize 重新居中', async ({ page }) => {
+  await openWorkbench(page);
+  await page.getByTestId('collapse-left-rail').click();
+  await page.getByTestId('collapse-right-rail').click();
+
+  await expect(page.getByTestId('right-module-stack')).toHaveCount(0);
+  await expect(page.getByTestId('expand-right-rail')).toBeVisible();
+
+  for (const width of [1180, 1440, 1760]) {
+    await page.setViewportSize({ width, height: 900 });
+    const [conversation, composer] = await Promise.all([
+      page.getByTestId('conversation-canvas').boundingBox(),
+      page.locator('.composer-stack').boundingBox(),
+    ]);
+    expect(conversation!.x).toBe(0);
+    expect(conversation!.width).toBe(width);
+    expect(Math.abs(composer!.x + composer!.width / 2 - width / 2)).toBeLessThanOrEqual(1);
+  }
 });
 
 test('系统关闭钮圆周完全落在左卡圆角涂色区（真机 Overlay 几何判例）', async ({ page }) => {

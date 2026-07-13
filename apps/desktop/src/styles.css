@@ -61,7 +61,6 @@
   --rail-left-min: 224px;
   --chat-min: 420px;
   --schema-min: 560px;
-  --rail-collapsed: 48px;
   --motion-press: 70ms;
   --motion-hover: 120ms;
   --motion-tab: 100ms;
@@ -80,8 +79,9 @@
   /* 真机 Overlay 对位：8px 外缘 + 12px 圆角把左上圆心锁在 (20,20)，完整承托原生关闭钮。 */
   --elevation-float-inset: 8px;
   --elevation-shell-gap: 28px;
-  --mac-window-controls-safe-width: 68px;
-  --mac-window-controls-safe-height: 24px;
+  --mac-window-controls-group-width: 54px;
+  --mac-window-control-size: 14px;
+  --window-chrome-row-height: 32px;
   --elevation-shadow: 0 1px 2px rgba(10,37,64,0.045), 0 4px 12px rgba(10,37,64,0.035);
   --elevation-titlebar: transparent;
   --elevation-warn-bg: var(--amber-bg);
@@ -113,11 +113,11 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 
 /* AppKit 仍拥有窗口框架；WebView 只绘制 L0 画布与其上的左右浮卡。 */
 .app-shell { height: 100%; min-width: 1180px; display: grid; grid-template-rows: minmax(0, 1fr); background: var(--elevation-canvas); font-size: var(--type-body-size); font-variant-numeric: tabular-nums; position: relative; }
-/* 展开态 chrome 是左卡的真实子层：先保留原生交通灯区，再排应用按钮。 */
-.window-chrome { position: absolute; z-index: 30; inset: 0 0 auto 0; height: 32px; min-width: 0; display: flex; align-items: flex-start; gap: 8px; padding: 0 12px 0 0; background: transparent; border: 0; -webkit-app-region: drag; pointer-events: none; }
-.window-chrome.is-detached { inset: var(--elevation-float-inset) auto auto var(--elevation-float-inset); width: var(--rail-left-width); }
+/* AppKit 原生按钮组吸附到动态锚框；锚框随左卡/视口流动，不使用屏幕绝对坐标。 */
+.window-chrome { position: absolute; z-index: 30; inset: 0 0 auto 0; height: var(--window-chrome-row-height); min-width: 0; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 max(0px, calc(var(--elevation-float-radius) - var(--mac-window-control-size) / 2)); background: transparent; border: 0; -webkit-app-region: drag; pointer-events: none; }
+.window-chrome.is-detached { inset: var(--elevation-float-inset) auto auto var(--elevation-float-inset); width: max-content; max-width: calc(100% - 2 * var(--elevation-float-inset)); }
 .window-chrome > * { pointer-events: auto; }
-.mac-window-controls-safe-area { width: var(--mac-window-controls-safe-width); height: var(--mac-window-controls-safe-height); flex: none; pointer-events: none !important; }
+.mac-window-controls-anchor { width: var(--mac-window-controls-group-width); height: 100%; flex: none; pointer-events: none !important; }
 .window-chrome-button { width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; -webkit-app-region: no-drag; }
 .window-chrome-button:hover { background: var(--control-hover); color: var(--text-primary); }
 .titlebar, .toolbar, .statusbar { display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
@@ -142,7 +142,6 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   border-radius: var(--elevation-float-radius);
 }
 .case-rail.surface-float,
-.right-rail-collapsed.surface-float,
 .surface-card-raised,
 .rail-module,
 .scroll-latest-button,
@@ -191,15 +190,14 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .workspace.left-collapsed { grid-template-columns: minmax(var(--chat-min), .9fr) minmax(var(--schema-min), 1.25fr); }
 .workspace.welcome-mode { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr); }
 .workspace.welcome-mode.left-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr); }
-.workspace.right-collapsed { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr) var(--rail-collapsed); }
-.workspace.left-collapsed.right-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr) var(--rail-collapsed); }
+.workspace.right-collapsed { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr); }
 .workspace.rails-compact { grid-template-columns: 48px minmax(0, 1fr) minmax(280px, 320px); }
+.workspace.left-collapsed.right-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr); gap: 0; padding-inline: 0; }
 .case-rail, .conversation, .right-workbench { min-width: 0; min-height: 0; display: flex; flex-direction: column; border-right: 0; }
-.case-rail, .right-workbench, .right-rail-collapsed { margin-block: var(--elevation-float-inset); }
+.case-rail, .right-workbench { margin-block: var(--elevation-float-inset); }
 .workspace.focus-mode .right-workbench { margin-block: 0; }
 /* overflow 归卡级：列容器放行缝钮负偏移（卡自身各管裁切） */
 .right-workbench { border-right: 0; overflow: visible; position: relative; gap: 8px; }
-.right-rail-collapsed { min-width: 0; min-height: 0; background: var(--elevation-rail); display: flex; justify-content: center; }
 /* RP-2.11 顶栏改判：折叠钮迁 window-chrome 透明浮层（right-rail-chrome 退役，dock 已为右卡顶部） */
 .collapse-right-button { width: 30px; height: 30px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; }
 
@@ -1362,13 +1360,18 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .rail-seam-toggle { position: absolute; z-index: 31; top: 2px; left: -22px; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; }
 .rail-seam-toggle:hover { background: var(--control-hover); color: var(--text-primary); }
 .rail-seam-toggle .line-icon { width: 14px; height: 14px; }
-.right-rail-collapsed { position: relative; }
-
-
-/* 左栏收敛（chatbot 形态）：中列成首列,案件头避让 chrome 灯位+钮组（84+30×2+8≈152），
-   两侧折叠互不依赖——仅此态偏移,展开态零影响 */
+/* 左栏收敛：案件标题吸附内容测宽中线，随视口重排，避免固定避让值在不同屏宽漂移。 */
 .workspace.left-collapsed .conversation .chat-case-head,
-.workspace.left-collapsed .chat-titlebar { padding-left: 152px; }
+.workspace.left-collapsed .chat-titlebar {
+  justify-content: center;
+  padding-inline: max(14px, calc((100% - var(--content-measure)) / 2));
+}
+
+/* 右栏退场后的无卡展开动作：吸附 app-shell 右上边缘，不占工作区网格。 */
+.workspace-edge-control { position: absolute; z-index: 31; top: var(--elevation-float-inset); width: var(--window-chrome-row-height); height: var(--window-chrome-row-height); display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--text-tertiary); cursor: pointer; -webkit-app-region: no-drag; }
+.workspace-edge-control:hover { background: var(--control-hover); color: var(--text-primary); }
+.right-edge-control { right: var(--elevation-float-inset); }
+.workspace-edge-control .line-icon { width: 15px; height: 15px; }
 
 /* ─── 十四章右列：四模块手风琴（Cowork 同构）＋浏览器态 ───────────────────── */
 .right-rail-modules { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow: auto; }

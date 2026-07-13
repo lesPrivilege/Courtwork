@@ -1513,11 +1513,9 @@ export function App() {
           </section>
         )}
 
-        {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载（work 面独有） */}
-        {/* 收敛/展开钮驻缝（2026-07-12 拍板）：chat|right 过渡带顶部，两态同位守恒 */}
-        {viewSegment === 'work' && !isWelcome && (rightCollapsed ? <aside className="right-rail-collapsed surface-float" data-testid="right-module-stack">
-          <button type="button" className="rail-seam-toggle" data-testid="expand-right-rail" aria-label="Expand inspector" title="Expand inspector" onClick={() => setRightCollapsed(false)}><Icon name="panel-right" /></button>
-        </aside> : <section className="right-workbench" data-testid="right-module-stack" data-preview-open="true" data-artifact-revision={artifactRevision}>
+        {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载（work 面独有）。
+            右栏收拢时整卡退出网格，展开动作由 app-shell 边缘锚点承接。 */}
+        {viewSegment === 'work' && !isWelcome && !rightCollapsed && <section className="right-workbench" data-testid="right-module-stack" data-preview-open="true" data-artifact-revision={artifactRevision}>
           {/* 批次七 #4：Focus 态藏收敛钮——布局位移后残留半角仍可点中,收起即主区全空白 */}
           {!focusMode && <button type="button" className="rail-seam-toggle" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>}
           {/* 十四章（2026-07-12 拍板）：四模块序 Progress→Preview→Working folders→Context;
@@ -1627,8 +1625,20 @@ export function App() {
                 )}
               </div>
           </WorkbenchPreviewRenderer>}
-        </section>)}
+        </section>}
       </div>
+      {!focusMode && viewSegment === 'work' && !isWelcome && rightCollapsed && (
+        <button
+          type="button"
+          className="workspace-edge-control right-edge-control"
+          data-testid="expand-right-rail"
+          aria-label="Expand inspector"
+          title="Expand inspector"
+          onClick={() => setRightCollapsed(false)}
+        >
+          <Icon name="panel-right" />
+        </button>
+      )}
 
       {compileOpen && <div className="modal-backdrop" role="presentation"><section className="compile-dialog" role="dialog" aria-modal="true" aria-labelledby="compile-title"><h2 id="compile-title">编译为 Word 文档</h2><p>定稿后，本画布将转为只读存档。后续修改将在文书修订中逐条处理，无法返回起草状态。</p><div><button className="quiet-button" disabled={compilePending} onClick={() => setCompileOpen(false)}>取消</button><button className="primary-button" data-testid="confirm-draft-compile" disabled={compilePending} onClick={confirmDraftCompile}>{compilePending ? '正在写入…' : '确认定稿并编译'}</button></div></section></div>}
 

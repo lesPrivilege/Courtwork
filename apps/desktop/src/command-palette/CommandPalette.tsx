@@ -79,6 +79,7 @@ export function CommandPalette({ open, commands, onClose }: CommandPaletteProps)
       >
         <input
           ref={inputRef}
+          autoFocus
           className="palette-input"
           value={query}
           onChange={(event) => {
