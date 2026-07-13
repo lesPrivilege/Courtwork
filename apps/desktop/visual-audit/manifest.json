@@ -1,30 +1,47 @@
 {
-  "commit": "43cca1b",
-  "baseURL": "http://127.0.0.1:1501",
-  "port": "1501",
-  "viewport": {
-    "width": 1440,
-    "height": 900
-  },
-  "deviceScaleFactor": 1,
+  "schemaVersion": 1,
+  "actualHead": "304daaca5847ef58621e7818d1ff926a14581416",
+  "baseURL": "http://127.0.0.1:1523",
+  "port": 1523,
   "reducedMotion": "reduce",
-  "generatedAt": "2026-07-13T09:05:37.055Z",
-  "files": [
-    "01-first-install-welcome-1440.png",
-    "02-welcome-continuations-1440.png",
-    "03-sample-preview-open-1440.png",
-    "04-revision-signature-line-1440.png",
-    "05-batch-confirmation-gate-1440.png",
-    "06-chat-real-reply-reasoning-folded-1440.png",
-    "07-og-source-clean-workbench-1440.png"
-  ],
-  "sha256": {
-    "01-first-install-welcome-1440.png": "fa828ea54ed5abe48f90d83c90cdc2779d4b40ebf3d301ae5bec94561d556737",
-    "02-welcome-continuations-1440.png": "73d495dcbc90a3fbedb839892520a2627c19c567601c8c651055fcd3e25794e2",
-    "03-sample-preview-open-1440.png": "7a3852cb8d820f8baecfd9508015147c918360e3bc6861ebea110a7e63437c41",
-    "04-revision-signature-line-1440.png": "93e169aa763c9a0ce1172346dc63862af0d2036577b295c55d07d7197405d3a5",
-    "05-batch-confirmation-gate-1440.png": "9ff8387b0f85413180f97ca0a17c95f2e421a60504b26fc09997133994bedb60",
-    "06-chat-real-reply-reasoning-folded-1440.png": "f77cc7dc4d7980fcc7b6c08e00d3e13639460cf508e8ad93790735b553f650ef",
-    "07-og-source-clean-workbench-1440.png": "2014f7f4373034c0ece342fcec79e106d11afe02040d5c6464032fef97900b96"
-  }
+  "screenshotAnimations": "disabled",
+  "generatedAt": "2026-07-13T12:12:40.519Z",
+  "captures": [
+    {
+      "name": "polish-p0-graph-1180.png",
+      "viewport": {
+        "width": 1180,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "sha256": "46ac12d56ada80529ddaebe0700d51788b2313c62bd2fc91262246d4474f6beb"
+    },
+    {
+      "name": "polish-p0-graph-1280.png",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "sha256": "a1cc64809abd9384dbde04b44249e07db1df6afaa00f07c284704966a9e355e3"
+    },
+    {
+      "name": "polish-p0-graph-1440.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "sha256": "f72590eee8b12ef0b5a505c759ecb06ef1d0e510b4719c3a9fd9427f24d5b117"
+    },
+    {
+      "name": "polish-p0-graph-1600.png",
+      "viewport": {
+        "width": 1600,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "sha256": "af5900a1de1aadfd9eb66e5977394a831e4e85bc6687f8db6a63a4b95b4cb8a4"
+    }
+  ]
 }
