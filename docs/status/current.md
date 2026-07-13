@@ -26,11 +26,14 @@
 
 ## 下一阶段优先序
 
-1. desktop ABI 化：移除包外领域路由与 demo 直连，并用边界守卫触红。
-2. 真实材料链：启动 ingest spike；用脱敏卷宗建立 OCR/实体对齐基线。
-3. schema UX：以真实 artifact 密度完善 renderer，禁止占位供养。
-4. usage ledger：把 token、成本与 context 使用量接入权威账本。
-5. 真实 provider 与真机回归：维持承诺对照 gate，防止 UI 声明超前于能力。
+1. POLISH-P0：修复 Graph/Minimap 快速卸载竞态，并重建 1180 / 1280 / 1440 / 1600 四档视觉基线。
+2. SCHEMA-POLISH-1：以现有真实 artifact 完善证据、状态与下一步，不新增空壳面板、不改 schema。
+3. DESLOP-GATE-1：增加 Courtwork 专用结构守卫与可触红反例；明确保留设计系统白名单。
+4. desktop ABI 化：移除包外领域路由与 demo 直连，并用边界守卫触红。
+5. 真实材料链：启动 ingest spike；用脱敏卷宗建立 OCR/实体对齐基线。
+6. usage ledger：把 token、成本与 context 使用量接入权威账本。
+7. SITE-2：前三项独立验收后，以真实 fixture 把首页重构为“原件 → 引语 → 结论 → 人工确认”的证据链。
+8. 真实 provider 与真机回归：维持承诺对照 gate，防止 UI 声明超前于能力。
 
 ## 非提交态说明
 

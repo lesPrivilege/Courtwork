@@ -2,6 +2,48 @@
 
 状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**PRV-1 provider 自配最小闭环完成**；**RP-2 UI 完全化完成，RP-2.8.1 三项验收打回已修、待单点复验**；**BUILD-1 0.1.0 已产**；**BUILD-0.1.1 Ship Gate 正式 Build 已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
 
+## 现行架构工单（2026-07-13）
+
+### POLISH-P0 · Minimap 生命周期与视觉基线
+
+目标：先消除 Graph 快速卸载时 G6 Minimap 延迟回调访问已销毁 options 的运行时错误，再重建与当前代码同源的视觉证据。
+
+范围：`GraphPanel` 生命周期、对应 Playwright 红测、视觉审计脚本与 `visual-audit/`。不改 `PartyGraph`、renderer ABI、主题语义或布局算法。
+
+验收标准：
+
+1. 先以至少 40 次 Graph ↔ Timeline 快速切换稳定触发当前 `calculateMaskBBox` TypeError；修复后同一测试捕获 `pageerror` / console error 为零。禁止吞异常、全局过滤 console、patch `node_modules` 或移除 minimap 规避。
+2. 普通图谱渲染、选择、缩放、fit view 与 minimap 仍可用，图谱数据区无动画。
+3. 隔离端口生成 1180 / 1280 / 1440 / 1600 四档工作台截图；manifest 必须记录实际 HEAD、viewport、端口、哈希与 reduced-motion，旧提交截图不得冒充现况。
+4. 完成 desktop 定向测试、全量 Playwright、`pnpm -r build`、`pnpm lint`、`pnpm test`；由不同会话在 clean worktree 独立验收。
+
+### SCHEMA-POLISH-1 · 证据、状态与下一步
+
+目标：不新增面板、不改皮肤，让现有结构化工作面更清楚地回答“依据是什么、现在是什么状态、下一步做什么”。
+
+契约边界：只消费现有 `ReviewMatrix.questions[].text`、`sourceAnchors`、`ReviewGateProjection`、disposition 与 usage/continuation 状态；不新增或改写 schema 字段，不把 demo 兜底冒充真实数据。
+
+实现范围：
+
+1. Progress 只保留事件；续行入口迁至 Context 的用量说明附近，使用主操作 ink，不使用风险红色。
+2. 矩阵列头显示 `Qn · 问题短名`，完整问题保留可访问 tooltip；短名由现有 `question.text` 确定性裁切，不新增别名字典。
+3. 引语在证据详情与 peek 中允许换行并完整呈现；只允许截断次要文件元信息。来源入口必须可聚焦，并诚实区分“查看引语”与尚未接通的“回到原件”。
+4. 风险行与详情同时显示严重度、核验状态、处置状态和下一步；批量确认明确范围与排除数量，高危或未核验项仍只可逐条处理。
+5. 空态保持文字型；L1 外壳数量不增加，内部优先使用分割线、排版和密度。触及文案遵循 chrome 英文、法律与案件内容中文。
+6. 新增行为测试与 1180 / 1280 / 1440 / 1600 视觉证据；不得修改法律包 schema 或 core。
+
+### DESLOP-GATE-1 · Courtwork 结构守卫
+
+目标：把反 slop 从通用字符串黑名单升级为仓库专用、可注入反例触红的结构守卫。
+
+验收标准：
+
+1. 保留明确白名单：L1 唯一投影 token、登记圆角、法理之线五态、站点解释性滚动动画；通用 gradient/shadow/radius 检测不得误杀这些例外。
+2. 至少覆盖裸色值、未授权阴影/圆角/渐变、L1 卡中卡、占位编号脚手架、泛化营销文案、活动代码引用 `archive/` 七类反例。
+3. 扫描逻辑可被测试直接调用；每类规则至少一红一绿 fixture。新增例外必须显式写入按规则分组的 allowlist，并说明消费点，禁止宽泛路径豁免。
+4. scoped press feedback 只覆盖主操作、图标按钮与弹层触发器，使用 `motion.press` 的 70ms / scale .98；数据行、表格、卡片与键盘动作不得缩放。popover 从触发器方向出现，且 reduced-motion 下移除位移。
+5. 不复制既有 neutral/elevation/signature/motion gate 的全部规则；新守卫聚焦跨文件结构关系，并在根门禁可执行。
+
 ## HARNESS-0 单飞行与降档提示（2026-07-12）
 
 - chat 每 turn 只允许一条在途请求：同步 ref 锁防同帧双击/Enter，composer 在途时禁用发送。
