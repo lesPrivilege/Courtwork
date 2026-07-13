@@ -90,10 +90,66 @@ test('左右浮卡共用 8px 外缘、12px 圆角和上下基线；中间 Chat �
   await expect(page.getByTestId('preview-host')).toHaveCSS('border-radius', '12px');
 });
 
-test('品牌 wordmark 纯文字（撤占位简笔图标，无 img/svg——待正式扁平图标到位）', async ({ page }) => {
+test('展开态品牌标记位于 Courtwork 左侧，保持单枚 SVG 与无装饰几何契约', async ({ page }) => {
   await openWorkbench(page);
   const wordmark = page.locator('.rail-wordmark');
+  const mark = wordmark.getByTestId('brand-mark');
+  const label = wordmark.locator('.rail-wordmark-label');
+
   await expect(wordmark).toHaveText('Courtwork');
+  await expect(page.getByRole('heading', { name: 'Courtwork' })).toHaveCount(1);
   await expect(wordmark.locator('img')).toHaveCount(0);
-  await expect(wordmark.locator('svg')).toHaveCount(0);
+  await expect(wordmark.locator('svg')).toHaveCount(1);
+  await expect(mark).toHaveCount(1);
+  await expect(mark.locator('rect')).toHaveCount(0);
+  await expect(mark.locator('path')).toHaveCount(4);
+  await expect(mark.locator('title')).toHaveCount(0);
+  await expect(mark).toHaveAttribute('aria-hidden', 'true');
+  await expect(mark).not.toHaveAttribute('aria-label', /.+/);
+  await expect(mark).not.toHaveAttribute('role', /.+/);
+
+  const [markBox, labelBox] = await Promise.all([mark.boundingBox(), label.boundingBox()]);
+  expect(markBox).not.toBeNull();
+  expect(labelBox).not.toBeNull();
+  expect(markBox!.width).toBeGreaterThanOrEqual(16);
+  expect(markBox!.width).toBeLessThanOrEqual(18);
+  expect(markBox!.height).toBeGreaterThanOrEqual(16);
+  expect(markBox!.height).toBeLessThanOrEqual(18);
+  expect(labelBox!.x - (markBox!.x + markBox!.width)).toBeGreaterThanOrEqual(6);
+  expect(labelBox!.x - (markBox!.x + markBox!.width)).toBeLessThanOrEqual(8);
+  expect(Math.abs((markBox!.y + markBox!.height / 2) - (labelBox!.y + labelBox!.height / 2))).toBeLessThanOrEqual(1);
+
+  for (const element of [wordmark, mark]) {
+    await expect(element).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(element).toHaveCSS('box-shadow', 'none');
+    await expect(element).toHaveCSS('border-radius', '0px');
+    await expect(element).toHaveCSS('border-top-width', '0px');
+  }
+
+  const staticStyle = async () => mark.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      animationName: style.animationName,
+      transitionDuration: style.transitionDuration,
+      transform: style.transform,
+      opacity: style.opacity,
+    };
+  });
+  const restingStyle = await staticStyle();
+  expect(restingStyle).toEqual({
+    animationName: 'none',
+    transitionDuration: '0s',
+    transform: 'none',
+    opacity: '1',
+  });
+  await mark.hover();
+  expect(await staticStyle()).toEqual(restingStyle);
+
+  await page.getByTestId('collapse-left-rail').click();
+  await expect(page.getByTestId('brand-mark')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Courtwork' })).toHaveCount(0);
+  await expect(page.getByTestId('collapse-left-rail')).toBeVisible();
+  await page.getByTestId('collapse-left-rail').click();
+  await expect(page.getByTestId('brand-mark')).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Courtwork' })).toHaveCount(1);
 });
