@@ -55,6 +55,8 @@ if (releaseHref) {
 if (!html.includes('原件') || !html.includes('引语') || !html.includes('人工确认')) failures.push('site/index.html: Evidence Line semantics are incomplete');
 if (!/viewBox="0 0 24 24"/.test(icon) || /<(?:rect|circle|ellipse|polygon)\b/.test(icon)) failures.push('site/assets/icon.svg: wordmark mark must be core path geometry without a base');
 if ((icon.match(/<path\b/g) ?? []).length !== 4) failures.push('site/assets/icon.svg: core brand geometry must contain four paths');
+const brandPaths = [...icon.matchAll(/<path d="([^"]+)"\/>/g)].map((match) => match[1]);
+if (JSON.stringify(brandPaths) !== JSON.stringify(['M8 5v14', 'M11.5 8H18', 'M11.5 12H18', 'M11.5 16h4'])) failures.push('site/assets/icon.svg: core brand geometry drifted from the line + long/long/short document motif');
 
 const firstRisk = riskFixture.risks?.[0];
 const sourceAnchor = firstRisk?.basis?.[0]?.sourceAnchors?.[0];
