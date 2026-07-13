@@ -7,10 +7,11 @@ import type {
 } from '@courtwork/provider/types';
 
 import type { TurnStore } from './turn-store.js';
+import { TurnPendingInteractionError } from './turn-store.js';
 import type {
   PersistedTurn,
+  ProviderTurnEventInput,
   TurnEvent,
-  TurnEventInput,
   TurnFailure,
   TurnReasoning,
 } from './types.js';
@@ -19,7 +20,7 @@ export type { TurnEvent } from './types.js';
 
 export interface RunTurnOptions {
   turnId: string;
-  requestId: string;
+  providerRequestId: string;
   provider: Provider;
   request: GenerationRequest;
   store: TurnStore;
@@ -108,7 +109,7 @@ function nextProviderEvent(
 export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
   const {
     turnId,
-    requestId,
+    providerRequestId,
     provider,
     request,
     store,
@@ -117,16 +118,28 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
     now = () => new Date().toISOString(),
   } = options;
 
-  if (turnId.trim().length === 0 || requestId.trim().length === 0) {
-    throw new Error('turnId and requestId must be non-empty');
+  if (turnId.trim().length === 0 || providerRequestId.trim().length === 0) {
+    throw new Error('turnId and providerRequestId must be non-empty');
   }
-  if (store.get(turnId)) {
+  const replay = store.replayTurn(turnId);
+  if (replay.state === 'pending_interaction') {
+    throw new TurnPendingInteractionError(turnId);
+  }
+  if (replay.state === 'completed' || replay.state === 'failed') {
     throw new Error(`Turn ${turnId} already exists`);
   }
 
-  let turnSeq = 0;
-  const emit = (input: TurnEventInput): TurnEvent => {
-    const event = { ...input, turnId, requestId, seq: turnSeq++, emittedAt: now() } as TurnEvent;
+  let turnSeq = replay.events.length === 0
+    ? 0
+    : Math.max(...replay.events.map((event) => event.seq)) + 1;
+  const emit = (input: ProviderTurnEventInput): TurnEvent => {
+    const event = {
+      ...input,
+      turnId,
+      providerRequestId,
+      seq: turnSeq++,
+      emittedAt: now(),
+    } as TurnEvent;
     onEvent(event);
     return event;
   };
@@ -146,7 +159,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
     const record: PersistedTurn = {
       status: 'failed',
       turnId,
-      requestId,
+      providerRequestId,
       providerId: provider.id,
       modelId: provider.modelId,
       ...(assistantMessage.length > 0 ? { assistantMessage } : {}),
@@ -170,7 +183,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
 
   let iterator: AsyncIterator<ProviderStreamEvent> | undefined;
   try {
-    iterator = provider.stream(request, { requestId, signal })[Symbol.asyncIterator]();
+    iterator = provider.stream(request, { requestId: providerRequestId, signal })[Symbol.asyncIterator]();
     while (true) {
       const next = await nextProviderEvent(iterator, signal);
       if (next === ABORTED) {
@@ -183,8 +196,10 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
         failure = protocolFailure('Provider emitted an event after its terminal event');
         break;
       }
-      if (event.requestId !== requestId) {
-        failure = protocolFailure(`Provider requestId drift: expected ${requestId}, received ${event.requestId}`);
+      if (event.requestId !== providerRequestId) {
+        failure = protocolFailure(
+          `Provider requestId drift: expected ${providerRequestId}, received ${event.requestId}`,
+        );
         break;
       }
       if (event.seq !== expectedProviderSeq) {
@@ -301,7 +316,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
   const record: PersistedTurn = {
     status: 'completed',
     turnId,
-    requestId,
+    providerRequestId,
     providerId: provider.id,
     modelId: provider.modelId,
     assistantMessage,

@@ -346,3 +346,59 @@ risk-07 的既有边界未被门禁误改：其编译结果仍不签发 `evidenc
 验收分支随后实际执行 `git merge --no-edit c22fe1ee41a3c85db93dd43126f185c12c206601`，产生合并提交 `60c7e1ebc03d90bbe03e161c9322e8fb2af479c1`，双亲为 `faab12735699a5681aa0ddf07d54733cdbb30d47` 与 `c22fe1ee41a3c85db93dd43126f185c12c206601`；无冲突，合入内容仅为指定 main 基线的 design/status 文档。完整 SHA 祖先检查现已确认 TURN 实现基线与 `main@c22fe1e` 都是合并态 tip 的祖先。
 
 在该真实合并态上重新实跑：TURN 定向 **26/26**、`pnpm -r build` exit 0、core **168/168**、lint exit 0、全仓 **894/894**，结果均与修正前一致。因此第 1 节的放行结论保持有效；唯一被本节取代的是“无需 merge”的错误过程记录。
+
+## INTERACTION-1B 独立验收（2026-07-14，纯追加）
+
+验收角色：未参与 INTERACTION-1B 实现的独立验收者；本会话此前实现的是 INTERACTION-1A，与本工单没有实现继承关系。
+
+### 1. 基线、合并态与结论
+
+- 独立 worktree：`/Users/lesprivilege/Projects/Courtwork-accept-interaction-1b`；分支：`codex/accept-interaction-1b`。
+- 实现基线：`6fd89a3f70df416e4d442835799fd89a8b2976b3`（`feat(core): add replayable interaction journal`）。
+- 指定 `main@075d6161ee93651be90fbfd17ca35d41ad86895f` 已真实合入，合并提交为 `879b41907e1cb6f3c7a7ce1a8fcd51b06670db4c`，双亲正是实现基线与指定 main；完整 SHA 祖先检查均返回 0。
+- 验收范围限制在 `packages/core/src/turn/` 与本报告；未修改 schemas、provider、desktop、registry、SessionEvent、ConfirmationStore 或 ADR。
+
+**结论：INTERACTION-1B 放行。** 实现提供的独立 Interaction journal、可重放状态、原子解决与恢复门禁方向成立；独立反例发现运行时身份和持久可信边界的实现级缺口，已用 `fix-by-acceptance` 修复。修复提交：`6163ee26d069723cd49cc4da1a3335c50b640ed2`（`fix-by-acceptance(interaction): fail closed on journal corruption`）。未发现需要修改 schema、跨层接口、ADR 或 SPEC 验收标准的契约级问题。
+
+### 2. 不采信实现自述：实际注入反例
+
+实现基线的 6 个定向文件原有 **77/77** 通过。验收者随后在未修实现上注入反例并亲眼观察红灯：
+
+1. 首轮 2 files、57 tests 为 **50 通过、7 失败**：内存/文件 store 接受带 secret 对象的非字符串 `actor.role`；新鲜 JSONL 与注入 backend 的未知事件、伪造 resolution、非连续 seq 未 fail closed；非法 JSON 只泄露原始 `SyntaxError`。
+2. 单独注入 `reasoning: { status: 'present', content: '   ' }` 的持久反例，得到 **1 失败、42 skipped**，证明 journal admission 未继承 TURN-1 的非空 reasoning 纪律。
+3. 单独在 SourceAnchor 的嵌套 `textRange` 注入额外 `rawBody` 字段，得到 **1 失败、43 skipped**，证明仅靠顶层检查不能封闭 transport 字段。
+
+修复后同一批反例全部转绿；最终 6 个 INTERACTION-1B 定向文件为 **97/97**。
+
+### 3. 身份、重放与原子性矩阵
+
+| 验收项 | 结果与证据 |
+|---|---|
+| 身份分流 | ✅ Turn 继续以 `providerRequestId` 表达 provider 身份；Interaction 独立使用 `requestId`。消费点 grep 未发现旧 Turn `requestId` 残留。Interaction actor 仅允许精确键集合、非空 `channelId/actorId` 与可选非空字符串 `role`；空白、非字符串、secret 对象均在写入前拒绝，journal 保持 0 条。 |
+| journal 状态与重放 | ✅ fresh / pending / resolved-waiting-resume / completed / failed 均可由 append-only journal 重建；不同 store 实例读取同一 backend/JSONL 可恢复。未知条目、畸形快照、非法迁移、伪造 resolution、跨 turn request 与 seq gap 均抛显式 `TurnJournalCorruptionError`，不清空、不改写原文件。 |
+| anchor 严格性 | ✅ `none/optional/required` 与锚数量一致；ResolvedSourceAnchor 运行时 schema 与顶层、`bbox`、`textRange` 精确键同时检查。混合合法/非法 anchors 整批拒绝并保持零 journal，嵌套 transport 字段不能落盘。 |
+| 原子 resolution | ✅ option 必须来自不可变请求快照，非 skippable 不可 skip；同一 request 的双解决只有一个胜者。CAS 失败后会重读并重新验证，竞争者先解决时败方不能覆盖；连续 32 次 CAS 失败后显式抛 `TurnJournalContentionError`。 |
+| pending 门禁与 resume | ✅ pending interaction 阻断 terminal save 与 provider resume；resolved 后才允许恢复。恢复后的 empty body、provider failure、预先 abort 均保持 TURN-1 的唯一终态语义，未重复发 provider 请求。 |
+| 隔离性 | ✅ backend append 接收 clone，公开 append 返回值、输入对象及 replay 结果后续变异均不能反向污染持久 journal。 |
+
+### 4. Browser/Node 子路径与持久边界
+
+验收者在真实 consumer `apps/desktop` 下临时创建对 `@courtwork/core/turn-protocol` 的导入入口，以 Vite 7.3.6 实际打包：**97 modules transformed**，输出 137.11 kB（gzip 33.72 kB）。产物扫描无 `node:`、`appendFileSync`、`readFileSync`、`createFileTurnStore` 或 `turn-store-file`；动态 import 成功，`runTurn`、`requestInteraction`、`createTurnStore` 均为函数，现场 replay 为 `pending_interaction`。临时入口与配置随后删除，工作树无残留。
+
+Node 侧从 desktop consumer 实际导入 `@courtwork/core/turn-store-file`，用新鲜 JSONL 成功恢复 pending；根 barrel 亦可导入 `createFileTurnStore`、`requestInteraction`、`runTurn`。因此 browser-safe 子路径和 Node-only adapter 的导出边界均成立。
+
+JSONL adapter 对无效 JSON 与任何已解析但不符合闭集/状态机的条目 fail closed，且原字节保持不变。其 CAS 是单 Node 进程内同步 read/append；本次不把它扩张表述为跨进程文件锁或抗恶意重写。真正的多进程/数据库 backend 仍须履行 `TurnJournalBackend.append(entry, expectedLength)` 的原子 CAS 责任；若未来要求对“语义完全合法但被宿主恶意重写”的 journal 做防篡改，需要另立完整性/签名契约，不能在本工单私自添加。
+
+### 5. 门禁、范围与提交卫生
+
+- `pnpm install --frozen-lockfile`：13 个 workspace project、1047 个包安装成功，lockfile 无改写。
+- `pnpm -r build`：exit 0；12/13 workspace projects，core TypeScript 与 desktop Vite（3493 modules）通过；只有既有 dynamic-import/chunk-size warning。
+- `pnpm --filter @courtwork/core test`：**28 files、239/239**，exit 0。
+- `pnpm lint`：exit 0，零 error。
+- `pnpm test`：**114 files、979/979**，exit 0。
+- `git diff --check`：通过；临时 acceptance consumer/config 均已删除。
+- 实现级修复显式逐文件暂存，cached 清单仅含 5 个 `packages/core/src/turn/` 文件；提交前检查无越界文件。指定 main 合并只带入 `docs/status/current.md`，未冒充本会话产品修改。
+
+### 6. 放行边界
+
+本轮放行的是 core 内 provider-neutral、可重放的单次受控 Interaction journal 与恢复门禁，不等于放行 desktop UI、任意 tool calling、SessionEvent/ConfirmationStore 合并、多进程 JSONL 锁或 journal 密码学防篡改。上述边界不阻断当前单进程 core 里程碑；任何扩张必须由后续架构工单明确契约与验收标准。
