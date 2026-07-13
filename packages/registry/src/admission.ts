@@ -140,11 +140,19 @@ function admitOne(
   }
 
   const interactionTemplateIds = new Set<string>();
-  for (const template of manifest.interactionTemplates ?? []) {
+  const interactionTemplates = manifest.interactionTemplates;
+  if (interactionTemplates !== undefined && !Array.isArray(interactionTemplates)) {
+    issues.push('interactionTemplates 声明不合法：必须是数组');
+  }
+  for (const template of Array.isArray(interactionTemplates) ? interactionTemplates : []) {
     const parsed = InteractionTemplateSchema.safeParse(template);
     if (!parsed.success) {
+      const templateId =
+        typeof template === 'object' && template !== null && 'id' in template && typeof template.id === 'string'
+          ? template.id
+          : '(无 id)';
       issues.push(
-        `interaction template ${template.id ?? '(无 id)'} 声明不合法：${parsed.error.issues
+        `interaction template ${templateId} 声明不合法：${parsed.error.issues
           .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
           .join('；')}`,
       );
