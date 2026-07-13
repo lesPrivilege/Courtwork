@@ -115,22 +115,37 @@ test.describe('UX-1 批次一', () => {
   test('#9：图谱 minimap 使用 courtwork-minimap 类（无库蓝渗出约定）', async ({ page }) => {
     await openWorkbench(page);
     await page.getByTestId('view-graph').click();
-    await expect(page.getByTestId('graph-panel')).toBeVisible();
+    const panel = page.getByTestId('graph-panel');
+    const sandbox = page.getByTestId('graph-zoom-sandbox');
+    await expect(panel).toHaveAttribute('data-layout-ready', 'true', { timeout: 15_000 });
     // minimap 由 G6 注入 DOM；class 由 GraphPanel 传入
     await expect(page.locator('.courtwork-minimap')).toBeVisible({ timeout: 15_000 });
+    const fittedZoom = Number(await sandbox.getAttribute('data-zoom'));
+    await page.getByRole('button', { name: '放大图谱' }).click();
+    await expect.poll(async () => Number(await sandbox.getAttribute('data-zoom'))).toBeGreaterThan(fittedZoom);
+    const zoomed = Number(await sandbox.getAttribute('data-zoom'));
+    await page.getByRole('button', { name: '复位图谱' }).click();
+    await expect.poll(async () => Number(await sandbox.getAttribute('data-zoom'))).toBeLessThan(zoomed);
   });
 
   test('LUNA-UI-001：图谱渲染后快速切面不得留下 minimap 迟发异常', async ({ page }) => {
-    const pageErrors: string[] = [];
-    page.on('pageerror', (error) => pageErrors.push(error.message));
+    test.setTimeout(120_000);
+    const runtimeErrors: string[] = [];
+    page.on('pageerror', (error) => runtimeErrors.push(`pageerror: ${error.message}`));
+    page.on('console', (message) => {
+      if (message.type() === 'error') runtimeErrors.push(`console: ${message.text()}`);
+    });
 
+    await page.setViewportSize({ width: 1180, height: 900 });
     await openWorkbench(page);
-    await page.getByTestId('view-graph').click();
-    await expect(page.getByTestId('graph-panel')).toHaveAttribute('data-layout-ready', 'true', { timeout: 15_000 });
-    await page.getByTestId('view-matrix').click();
+    for (let cycle = 0; cycle < 40; cycle += 1) {
+      await page.getByTestId('view-graph').click();
+      if (cycle % 2 === 0) await page.waitForTimeout(5);
+      await page.getByTestId('view-timeline').click();
+    }
 
-    // G6 5.1.1 minimap 默认 debounce 为 128ms；覆盖卸载后的迟发回调窗口。
-    await page.waitForTimeout(250);
-    expect(pageErrors).toEqual([]);
+    // 覆盖 rAF / G6 minimap debounce 与图谱销毁的交错窗口。
+    await page.waitForTimeout(1_200);
+    expect(runtimeErrors).toEqual([]);
   });
 });

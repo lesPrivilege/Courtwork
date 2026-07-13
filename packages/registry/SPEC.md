@@ -22,6 +22,8 @@ type InteractionTemplate = {
 
 内容、选项与锚点策略属于垂类包；颜色、布局、键盘行为属于 desktop 通用 renderer。准入必须拒绝重复 id、空选项、重复 option id、非法 namespace，以及 `required` 却无法由当前请求提供/解析锚点的情形。registry 提供按 package + template id 解析的只读 API，不把法律字段或 demo 真值带入 core/desktop。
 
+解析 API 返回深只读快照；core 在请求时把快照复制进事件，不能在回放时重新查 manifest。模板只声明锚点政策和垂类解析规则，不携带运行时 bbox/textRange，也不接受模型直写系统坐标。
+
 ## 职责
 
 场景注册表：场景以声明式定义存在，产品团队可不动 core 增改场景。
