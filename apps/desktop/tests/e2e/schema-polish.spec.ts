@@ -72,6 +72,14 @@ test('matrix names questions from schema text and exposes full evidence to keybo
   const peek = page.getByTestId('matrix-cell-peek-v01-q1');
   await expect(peek).toBeVisible();
   await expect(peek.locator('q')).toHaveText('每逾期一日应按未付金额的0.05%');
+  const peekGeometry = await peek.evaluate((element) => {
+    const preview = element.closest('[data-testid="preview-host"]');
+    if (!preview) throw new Error('matrix evidence must remain inside preview host');
+    const peekRect = element.getBoundingClientRect();
+    const previewRect = preview.getBoundingClientRect();
+    return { peekTop: peekRect.top, previewTop: previewRect.top };
+  });
+  expect(peekGeometry.peekTop).toBeGreaterThanOrEqual(peekGeometry.previewTop);
   await expect(peek.locator('q')).toHaveCSS('white-space', 'normal');
   await expect(peek.getByRole('button', { name: '回到原件 · 尚未接通' })).toBeDisabled();
 });

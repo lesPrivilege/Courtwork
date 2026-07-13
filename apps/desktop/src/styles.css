@@ -1352,7 +1352,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 /* ─── 批次三 #14：矩阵单元格 hover 溯源预览（peek 动词,docs/architecture/schema-engineering.md 封闭集）────────
    浮层 120ms 现身;引语 mono+verifiedBg 双轨;数据区自身零动效。 */
 .cell-peek-anchor { position: relative; display: block; min-width: 0; }
-.cell-peek { position: absolute; z-index: 26; left: 0; bottom: calc(100% + 4px); min-width: 220px; max-width: 320px; display: none; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); font-size: var(--type-dense-body-size); line-height: 1.5; text-align: left; white-space: normal; }
+.cell-peek { position: absolute; z-index: 26; top: calc(100% + 4px); left: 0; min-width: 220px; max-width: 320px; display: none; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); font-size: var(--type-dense-body-size); line-height: 1.5; text-align: left; white-space: normal; }
 .cell-peek-anchor:hover .cell-peek, .cell-peek-anchor:focus-within .cell-peek, .cell-peek[data-open="true"] { display: flex; }
 .cell-peek strong { font-size: var(--type-dense-meta-size); font-weight: var(--control-weight-emphasized); color: var(--text-secondary); }
 .cell-peek-answer { color: var(--text-primary); }
