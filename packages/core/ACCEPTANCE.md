@@ -287,3 +287,62 @@ risk-07 的既有边界未被门禁误改：其编译结果仍不签发 `evidenc
 3. B 线合流后总数字归位。
 
 在三条件齐备前不 push；luna 不代修、不代收账。
+
+## TURN-1 独立验收（2026-07-13，纯追加）
+
+验收角色：未参与 TURN-1 实现的独立验收者；本会话此前实现的是 INTERACTION-1A，与 TURN-1 无实现继承关系。
+
+### 1. 基线、范围与结论
+
+- 独立 worktree：`/Users/lesprivilege/Projects/Courtwork-accept-turn-1`；分支：`codex/accept-turn-1`。
+- 实现基线：`ea487ef1c85ad18d3131d4c50f3390d594a7463b`（`feat(core): add provider-neutral turn lifecycle`）。指定的 `main@c22fe1ee41a3c85db93dd43126f185c12c206601` 已是该实现基线祖先，`git merge --no-edit` 实测为 `Already up to date`，故没有伪造空 merge commit。
+- 验收范围严格限制在 `packages/core/src/turn/` 与本报告；未改 Interaction、desktop、schemas、provider 契约或 tool calling。
+
+**结论：TURN-1 放行。** 原实现的 provider-neutral TurnEvent、runner 与 append-only JSONL 主体方向成立；独立反例发现 4 项实现级闭集缺口，已用 `fix-by-acceptance` 修复并完成定向、core 与全仓复验。未发现需要架构拍板的 schema、跨层接口、ADR 或 SPEC 验收标准问题。
+
+### 2. 不采信实现自述：反例先红
+
+实现基线的既有 TURN 定向测试为 2 files、14/14 通过。验收者随后注入未覆盖反例，并在未修实现上实际观察到 4 项失败（当时反例集 21 项中 17 通过、4 失败）：
+
+1. 纯空白 `reasoning_delta` 被持久化为 `reasoning: present`，并错误发布空白 reasoning 生命周期；
+2. 未知运行时 stream event 被静默忽略，后续 turn 仍可成功；
+3. 协议闭集外的 completion `finishReason` 被接受；
+4. 协议闭集外的 failure `kind` 被原样持久化。
+
+这 4 项均会让运行时输入绕过 TypeScript 的静态联合类型；红灯证明测试不是只重述类型。修复提交：`9cad130c2b8a52969612be444198bd70d35a1948`（`fix-by-acceptance(turn): close runtime protocol drift`）。
+
+### 3. 协议矩阵实测
+
+| 验收项 | 结果与证据 |
+|---|---|
+| `requestId` / `seq` / started identity | ✅ started 必须为 provider `seq=0`；request 漂移、重复/越序 seq、重复 started、providerId/modelId 任一漂移均收敛为唯一 `invalid_response`。core 公开事件保持同一 turn/request，core seq 从 0 连续。 |
+| reasoning present / absent | ✅ 无 reasoning 与纯空白 reasoning 均为显式 `absent`，不发布伪造事件；一旦后续出现实质内容，之前的前导空白按模型原文保留，并只发布一次 reasoning start。 |
+| 空正文 | ✅ empty 与 whitespace-only assistant content 均不得成功，不发布 assistant completed，唯一终态为 `turn_failed/invalid_response`。 |
+| usage 与终态闭合 | ✅ 非负整数 usage 可进入终局快照；负数、重复 usage 被拒。completed 只在 provider 真 EOF 后转为 core success；EOF 缺终态、终态后事件、未知事件/finish reason/failure kind 均失败且无双终态。 |
+| failure 与 cancellation | ✅ provider canceled、调用前已 abort、在途 provider 忽略 AbortSignal、流外 throw 均不挂起且只落一个失败终态；流外异常文案被替换，不回显异常对象。 |
+| append-only JSONL replay | ✅ 新实例可重建最终正文、reasoning、usage、finish/failure；瞬态 delta 不落盘；重复 turnId 拒绝覆盖。新增 runTurn→真实 JSONL 集成反例验证只落 provider-neutral 终局快照。 |
+| 敏感与 transport 边界 | ✅ request prompt、运行时额外 `rawBody` / `authorization` 字段、流外异常中的 bearer secret 均未进入公开事件、终局记录或 JSONL。协议内 `ProviderFailure.message` 仍按 ADR-007 作为公开、已由 provider 净化的字段保留；core 未读取或落盘私有 transport 帧。 |
+
+修复后的 TURN 定向实跑为 **2 files、26/26** 通过。
+
+### 4. 门禁与范围证据
+
+- `pnpm install --frozen-lockfile`：成功，lockfile 无改写。
+- `pnpm -r build`：exit 0；12/13 workspace projects，core TypeScript 与 desktop Vite 均通过；只有既有 chunk-size warning。
+- `pnpm --filter @courtwork/core test`：首次在尚未生成依赖包 `dist` 的新 worktree 中运行，14 suites 因无法解析 `@courtwork/legal/tools/schemas` 未收集到测试，已通过的 78 项无行为失败。完成 `pnpm -r build` 后原命令复跑：**24 files、168/168**，exit 0。该环境性首跑不冒充通过，亦不列为产品缺陷。
+- `pnpm lint`：exit 0，零 error。
+- `pnpm test`：**110 files、894/894**，exit 0。
+- `git diff --check`：通过。
+- 生产 `packages/core/src/turn` 扫描 `Authorization/Bearer/apiKey/rawBody/header/URL` 无命中；Interaction、SourceAnchor、schema、tool-calling 关键词无命中。
+
+### 5. 放行边界
+
+本轮只放行 TURN-1 的模型回合生命周期与终局快照，不扩张为 Interaction、任意 tool calling、desktop 渲染或垂类 schema 放行。公开失败消息的净化责任仍依 ADR-007 位于 provider 边界；TURN 层拒绝并擦除闭集外事件和流外异常，但不擅自改写协议内用户可读失败文案。
+
+### 6. 基线校正（前进式追加）
+
+前述第 1 节关于 `main@c22fe1e`“已是实现基线祖先 / Already up to date”的记录不正确：早期短 SHA 祖先检查被同一 shell 命令后段的 `|| true` 掩蔽。按共享历史不得重写的纪律，本报告不改写旧句，改以本节显式纠正。
+
+验收分支随后实际执行 `git merge --no-edit c22fe1ee41a3c85db93dd43126f185c12c206601`，产生合并提交 `60c7e1ebc03d90bbe03e161c9322e8fb2af479c1`，双亲为 `faab12735699a5681aa0ddf07d54733cdbb30d47` 与 `c22fe1ee41a3c85db93dd43126f185c12c206601`；无冲突，合入内容仅为指定 main 基线的 design/status 文档。完整 SHA 祖先检查现已确认 TURN 实现基线与 `main@c22fe1e` 都是合并态 tip 的祖先。
+
+在该真实合并态上重新实跑：TURN 定向 **26/26**、`pnpm -r build` exit 0、core **168/168**、lint exit 0、全仓 **894/894**，结果均与修正前一致。因此第 1 节的放行结论保持有效；唯一被本节取代的是“无需 merge”的错误过程记录。

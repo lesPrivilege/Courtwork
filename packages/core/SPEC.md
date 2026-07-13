@@ -1,6 +1,6 @@
 # SPEC: packages/core（W6）
 
-状态：已完成；provider 实现已由 PROVIDER-1 迁至 `@courtwork/provider`，本层只消费协议
+状态：TURN-1 已实现，待独立验收；provider 实现已由 PROVIDER-1 迁至 `@courtwork/provider`，本层只消费协议
 
 ## 现行架构工单（2026-07-13）
 
@@ -8,11 +8,19 @@
 
 依据 ADR-007，provider port、DeepSeek profile、OpenAI wire、SSE、结构化输出与计价已迁至 `packages/provider`。core 生产逻辑直接消费同一 `Provider` / `Generation*` 协议，`ScriptedProvider` 测试形制不变；旧 `src/provider/` 实现目录已清空，`src/provider-compat/` 仅保留三个一行薄重导出以兼容既有 core 子路径，不含第二份实现或 DeepSeek wire 分支。下文 T-provider/HARNESS-0.1 段落属于迁包前历史记录，其中 custom 可用与实现住 `src/provider/` 的陈述已由 ADR-007 和本节取代。
 
-### TURN-1 · 模型回合生命周期
+### TURN-1 · 模型回合生命周期（已实现，待独立验收）
 
 权威：[ADR-007](../../docs/decisions/ADR-007-provider-turn-protocol.md)。core 消费 `@courtwork/provider` 的瞬态流并发布 provider 无关的 turn 生命周期：turn、assistant message、reasoning 的 started/delta/completed，usage，completed/failed。持久层至少保存最终正文、可选 reasoning、usage 与失败；瞬态 delta 不要求逐片落盘。取消、失败、空正文、无 reasoning 均需确定性终态，UI 不得靠计时器猜测状态。
 
 reasoning 只按模型生成内容处理，不具有证据、坐标或裁决权；不得由系统伪造。TURN-1 不实现任意 tool calling，不改垂类 schema。
+
+实现留痕（2026-07-13）：
+
+- `src/turn/turn-runner.ts` 逐事件消费 `Provider.stream()`，发布 `turn_started`、assistant message 与 reasoning 的 started/delta/completed，以及唯一 `turn_completed | turn_failed`。所有公开事件都携同一 `requestId` / `turnId` 与从 0 连续递增的 core `seq`。
+- provider 流必须从 `started@seq=0` 开始，后续 `requestId` 与 `seq` 必须逐项一致；provider/model 身份漂移、重复 usage、越序、缺终态、终态后仍有事件均拒绝，并收敛为单一 `invalid_response` 失败。provider 的完成事件在流真正结束前不发布为成功，避免“先成功、后发现终态后事件”的双终态。
+- 正常 completed 但正文为空或仅空白时转 `turn_failed`；provider `failed`、AbortSignal 与流外异常均确定性收敛。reasoning 使用 `{ status: 'present'; content } | { status: 'absent' }`，无 reasoning 时不发布伪造的 reasoning 事件。
+- `src/turn/turn-store.ts` 提供内存与 append-only JSONL 终局快照存储；跨实例可重建最终正文、可选 reasoning、usage、finish reason 或失败，瞬态 delta 不落盘。相同 `turnId` 不得覆盖既有历史。
+- 本工单没有实现 interaction、desktop UI、模型自主 tool calling 或任何垂类 schema，也未改 ADR。
 
 ### INTERACTION-1 · 受控提问与续行
 
