@@ -83,7 +83,7 @@ packages/reading-view/
                  devDeps: @types/node, @courtwork/demo-data（仅测试引入，遵循 demo-data SPEC 的测试专用例外）
   src/
     types.ts, convert.ts（按扩展名分发的顶层入口）
-    security/{zip-guard,xml-guard,limits}.ts
+    security/{zip-guard,xml-guard,limits,docx-preflight}.ts
     docx/{docx-reader,docx-to-markdown}.ts(+.test.ts)
     markdown/markdown-to-reading-view.ts(+.test.ts)
     text/text-to-reading-view.ts(+.test.ts)
@@ -131,3 +131,5 @@ packages/reading-view/
   - 跨层动作：`packages/schemas`（`IngestStatusEnum` 增补 `needs_ocr`）、`packages/registry`（`S1.yaml` `trigger.fileTypes` 同步）、根 `CLAUDE.md`（架构图补行）三处已在本工单开工前完成并各自独立提交，详见各自 SPEC.md 验收记录。
 
 - 2026-07-10（**F-1 追认留痕，F 批验收会话补写**）：`apps/desktop` F-1 composer（Grok 实现）接通本包 `convertToReadingView` 时实测——`computeTextLayerVersion` 原用 `node:crypto` sha256 + `Buffer`，令 desktop 浏览器壳 Vite 打包因 externalize `node:crypto` 失败。本包据 AGENTS.md「跨包阻塞性实现级修复」追认判例就地改为纯 `DataView`/`charCodeAt` + **FNV-1a 双 32-bit 级联短哈希**（`text-layer-version.ts`，浏览器/Node 同算法、零依赖）。三条件核对：①**语义等价**——短哈希仍仅作文本层漂移检测（非安全用途），docx/PDF `textLayerVersion` 的语义与消费路径不变；②**对方 SPEC 留痕**——本条即是（F-1 完工回报只写进 desktop SPEC「跨包支撑」节，漏在本包留痕，验收核出后按裁决补写）；③**完工回报显著标出**——desktop SPEC 已标。回归：本包 136 例干净环境全绿，无行为变化。**FNV 漂移检测充分性评估**：第二 lane 混入 `(i & 0xff) << 8` 位置量、输出 64-bit，确定性且跨壳同算法；漂移检测只需「内容变→哈希变」高概率成立，偶发碰撞的唯一后果是漏报一次漂移（旧 `textRange` 偏移量被误当仍有效、回指原文可能错位），非安全绕过，对本用途充分——位置 lane 还额外挡住了朴素单 lane 哈希会漏的换位（transposition）碰撞。结论：追认条件补齐，`packages/reading-view` 无独立缺口，随 F 批放行。
+
+- 2026-07-13（**LAUNCH-FIX 异会话验收通过**）：按“管线归底座”拍板把既有 DOCX 防线抽为 `security/docx-preflight.ts`，并以 `@courtwork/reading-view/docx-security` 子路径导出。`readDocxBlocks` 与 `packages/output` 同源消费：中央目录/zip bomb 检查先于 inflate，宏工程与 macroEnabled 拒绝，全部 `.xml/.rels` 在解析前做 XXE 与严格 XML 校验。验收静态追到两端唯一入口，运行时确认 output 解析到本包构建产物；三类恶意输入均由同一 `DocxSecurityError` 闭集拒绝。详见 `packages/reading-view/ACCEPTANCE.md`。

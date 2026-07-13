@@ -35,6 +35,7 @@
     "@antv/g6": "^5.1.1",
     "@courtwork/core": "workspace:*",
     "@courtwork/legal": "workspace:*",
+    "@courtwork/output": "workspace:*",
     "@courtwork/reading-view": "workspace:*",
     "@courtwork/schemas": "workspace:*",
     "@courtwork/tools": "workspace:^",

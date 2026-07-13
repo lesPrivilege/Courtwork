@@ -1,7 +1,6 @@
-import { unzipSync, strFromU8 } from 'fflate';
 import type { Element, Node } from '@xmldom/xmldom';
-import { readZipCentralDirectory, checkZipBomb } from '../security/zip-guard.js';
-import { assertNoDangerousMarkup, parseXmlStrict } from '../security/xml-guard.js';
+import { DocxSecurityError, preflightDocx } from '../security/docx-preflight.js';
+import { parseXmlStrict } from '../security/xml-guard.js';
 import type { ResolvedLimits } from '../security/limits.js';
 import type { DisabledReason } from '../types.js';
 
@@ -22,44 +21,14 @@ export type DocxBlock =
   | { kind: 'table'; rows: string[][]; merged: boolean };
 
 export function readDocxBlocks(data: Uint8Array, limits: ResolvedLimits): DocxBlock[] {
-  let entries;
+  let documentXmlText: string;
   try {
-    entries = readZipCentralDirectory(data);
-  } catch (err) {
-    throw new DocxReadError('corrupt_file', err instanceof Error ? err.message : String(err));
-  }
-
-  const bombCheck = checkZipBomb(entries, limits);
-  if (bombCheck.suspicious) {
-    throw new DocxReadError('zip_bomb_suspected', bombCheck.detail ?? '解压比例超过配置上限');
-  }
-
-  if (entries.some((e) => e.name === 'word/vbaProject.bin')) {
-    throw new DocxReadError('malicious_content', '检测到 word/vbaProject.bin（宏工程），拒绝解析');
-  }
-
-  let files: Record<string, Uint8Array>;
-  try {
-    files = unzipSync(data);
-  } catch (err) {
-    throw new DocxReadError('corrupt_file', `zip 解压失败：${err instanceof Error ? err.message : String(err)}`);
-  }
-
-  const contentTypesBytes = files['[Content_Types].xml'];
-  if (contentTypesBytes && /macroEnabled/i.test(strFromU8(contentTypesBytes))) {
-    throw new DocxReadError('malicious_content', '[Content_Types].xml 声明宏使能内容类型，拒绝解析');
-  }
-
-  const documentXmlBytes = files['word/document.xml'];
-  if (!documentXmlBytes) {
-    throw new DocxReadError('corrupt_file', 'docx 缺少 word/document.xml');
-  }
-  const documentXmlText = strFromU8(documentXmlBytes);
-
-  try {
-    assertNoDangerousMarkup(documentXmlText);
-  } catch (err) {
-    throw new DocxReadError('malicious_content', err instanceof Error ? err.message : String(err));
+    documentXmlText = preflightDocx(data, limits).documentXmlText;
+  } catch (error) {
+    if (error instanceof DocxSecurityError) {
+      throw new DocxReadError(error.reason, error.message);
+    }
+    throw error;
   }
 
   let doc;

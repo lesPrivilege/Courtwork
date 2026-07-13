@@ -5,7 +5,7 @@ use keyring::{Entry, Error as KeyringError};
 use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Component, Path, PathBuf};
 use std::sync::{Once, OnceLock, RwLock};
 
 /// 发行包 service；dev（debug_assertions）加 `.dev` 后缀，避免污染发行 ACL（F6）。
@@ -812,6 +812,140 @@ async fn forward_chat_request(url: &str, body: String, secret: &str) -> Result<C
     Ok(ChatForwardOutput { status, body })
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CaseOutputRefInput {
+    case_root: String,
+    file_name: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct WriteCaseOutputInput {
+    case_root: String,
+    file_name: String,
+    bytes: Vec<u8>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CaseOutputArtifact {
+    absolute_path: String,
+    byte_length: usize,
+}
+
+fn validate_output_file_name(file_name: &str) -> Result<(), String> {
+    let mut components = Path::new(file_name).components();
+    if !matches!(components.next(), Some(Component::Normal(_))) || components.next().is_some() {
+        return Err("产出文件名必须是单一文件名".to_string());
+    }
+    if !file_name.to_ascii_lowercase().ends_with(".docx") {
+        return Err("产出文件必须使用 .docx 扩展名".to_string());
+    }
+    Ok(())
+}
+
+fn canonical_case_root(case_root: &Path) -> Result<PathBuf, String> {
+    if !case_root.is_absolute() {
+        return Err("案件目录必须是绝对路径".to_string());
+    }
+    case_root
+        .canonicalize()
+        .map_err(|_| "案件目录不存在或不可访问".to_string())
+}
+
+fn secure_output_dir(case_root: &Path, create: bool) -> Result<Option<PathBuf>, String> {
+    let canonical_root = canonical_case_root(case_root)?;
+    let output_dir = canonical_root.join("产出");
+    if !output_dir.exists() {
+        if !create {
+            return Ok(None);
+        }
+        fs::create_dir(&output_dir).map_err(|_| "无法创建案件产出目录".to_string())?;
+    }
+    let metadata = fs::symlink_metadata(&output_dir).map_err(|_| "无法读取案件产出目录".to_string())?;
+    if metadata.file_type().is_symlink() || !metadata.is_dir() {
+        return Err("案件产出目录不是安全的实体目录".to_string());
+    }
+    let canonical_output = output_dir
+        .canonicalize()
+        .map_err(|_| "无法读取案件产出目录".to_string())?;
+    if !canonical_output.starts_with(&canonical_root) {
+        return Err("案件产出目录越出案件边界".to_string());
+    }
+    Ok(Some(canonical_output))
+}
+
+fn write_case_output_docx_impl(
+    case_root: &Path,
+    file_name: &str,
+    bytes: &[u8],
+) -> Result<CaseOutputArtifact, String> {
+    validate_output_file_name(file_name)?;
+    if !bytes.starts_with(b"PK") {
+        return Err("Word 产物不是合法的 docx 容器".to_string());
+    }
+    let output_dir = secure_output_dir(case_root, true)?
+        .ok_or_else(|| "无法创建案件产出目录".to_string())?;
+    let target = output_dir.join(file_name);
+    if target.exists() {
+        let metadata = fs::symlink_metadata(&target).map_err(|_| "无法检查既有 Word 产物".to_string())?;
+        if metadata.file_type().is_symlink() || !metadata.is_file() {
+            return Err("既有 Word 产物不是安全的实体文件".to_string());
+        }
+    }
+
+    let nonce = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|_| "系统时钟异常，无法写入 Word 产物".to_string())?
+        .as_nanos();
+    let temporary = output_dir.join(format!(".courtwork-{}-{nonce}.tmp", std::process::id()));
+    let write_result = (|| -> Result<(), String> {
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary)
+            .map_err(|_| "无法创建 Word 产物临时文件".to_string())?;
+        file.write_all(bytes).map_err(|_| "无法写入 Word 产物".to_string())?;
+        file.sync_all().map_err(|_| "无法同步 Word 产物".to_string())?;
+        fs::rename(&temporary, &target).map_err(|_| "无法提交 Word 产物".to_string())?;
+        Ok(())
+    })();
+    if write_result.is_err() {
+        let _ = fs::remove_file(&temporary);
+    }
+    write_result?;
+
+    Ok(CaseOutputArtifact {
+        absolute_path: target.to_string_lossy().into_owned(),
+        byte_length: bytes.len(),
+    })
+}
+
+fn case_output_docx_exists_impl(case_root: &Path, file_name: &str) -> Result<bool, String> {
+    validate_output_file_name(file_name)?;
+    let Some(output_dir) = secure_output_dir(case_root, false)? else {
+        return Ok(false);
+    };
+    let target = output_dir.join(file_name);
+    let metadata = match fs::symlink_metadata(target) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+        Err(_) => return Err("无法检查 Word 产物".to_string()),
+    };
+    Ok(metadata.is_file() && !metadata.file_type().is_symlink())
+}
+
+#[tauri::command]
+fn write_case_output_docx(input: WriteCaseOutputInput) -> Result<CaseOutputArtifact, String> {
+    write_case_output_docx_impl(Path::new(&input.case_root), &input.file_name, &input.bytes)
+}
+
+#[tauri::command]
+fn case_output_docx_exists(input: CaseOutputRefInput) -> Result<bool, String> {
+    case_output_docx_exists_impl(Path::new(&input.case_root), &input.file_name)
+}
+
 #[tauri::command]
 async fn provider_chat_request(input: ChatForwardInput) -> Result<ChatForwardOutput, String> {
     trace_startup_once();
@@ -1001,6 +1135,8 @@ pub fn run() {
             clear_provider_credential,
             validate_provider_connection,
             provider_chat_request,
+            write_case_output_docx,
+            case_output_docx_exists,
         ])
         .run(tauri::generate_context!())
         .expect("Courtwork 桌面应用启动失败");
@@ -1317,5 +1453,45 @@ mod tests {
         assert_ne!(CREDENTIAL_ACCOUNT, LEGACY_SECRET_ACCOUNT);
         assert_eq!(LEGACY_SOURCE_ACCOUNT, "active-source");
         assert_eq!(LEGACY_SECRET_ACCOUNT, "provider-secret");
+    }
+
+    #[test]
+    fn case_output_write_is_bounded_to_case_output_directory() {
+        let docx = include_bytes!("../../../../packages/output/test/fixtures/original.docx");
+        let root = std::env::temp_dir().join(format!(
+            "courtwork-output-test-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        fs::create_dir_all(&root).expect("create case root");
+
+        let artifact = write_case_output_docx_impl(&root, "答辩意见.docx", docx)
+            .expect("write output");
+        let expected = root
+            .canonicalize()
+            .expect("canonical case root")
+            .join("产出")
+            .join("答辩意见.docx");
+        assert_eq!(PathBuf::from(artifact.absolute_path), expected);
+        assert_eq!(artifact.byte_length, docx.len());
+        assert!(case_output_docx_exists_impl(&root, "答辩意见.docx").expect("exists"));
+        assert_eq!(fs::read(expected).expect("read output"), docx);
+
+        fs::remove_file(root.join("产出").join("答辩意见.docx")).expect("delete output");
+        assert!(!case_output_docx_exists_impl(&root, "答辩意见.docx").expect("deleted"));
+
+        fs::remove_dir_all(root).expect("cleanup");
+    }
+
+    #[test]
+    fn case_output_write_rejects_traversal_and_non_docx_names() {
+        let root = std::env::temp_dir();
+        assert!(write_case_output_docx_impl(&root, "../escape.docx", b"PK").is_err());
+        assert!(write_case_output_docx_impl(&root, "nested/a.docx", b"PK").is_err());
+        assert!(write_case_output_docx_impl(&root, "/tmp/escape.docx", b"PK").is_err());
+        assert!(write_case_output_docx_impl(&root, "report.pdf", b"PK").is_err());
     }
 }

@@ -54,3 +54,17 @@
 
 - WPS 右侧 Design Assistant 仍提示文档缺失若干非本管线指定字体（如 MS Gothic / MS Mincho / Courier），但正文实际选择与 OOXML 不变量均指向仿宋/黑体/Times New Roman；未观察到字体交替错乱。
 - `pnpm -r run build` 需待 W7/eval 在途代码修复后恢复全量通过；W4 相关包在排除 eval 后已 build 通过。
+
+---
+
+## LAUNCH-FIX · DOCX 同源预检独立验收（2026-07-13）
+
+对象：`origin/codex/launch-fix@559d8d9`，clean detached worktree。结论：**放行**。
+
+- 静态唯一边：`packages/output/src/docx-zip.ts` 的 `loadDocx` 直接导入 `@courtwork/reading-view/docx-security` 并返回 `preflightDocx(...).files`；output 内无另一份预检或裸 `unzipSync` 读取入口。
+- 运行时解析：拓扑 build 后，Node 从 output 包上下文成功解析该子路径到 reading-view 的 `dist/security/docx-preflight.js`；reading-view 自身 `docx-reader.ts` 直接消费同一个源码函数。
+- 真 output 路径反例（`applyRevisionInstructionSet`）：宏工程 `word/vbaProject.bin` → `malicious_content`；RELS 中 DOCTYPE/ENTITY → `malicious_content`；2MB 高压缩 XML → inflate 前 `zip_bomb_suspected`。逐名 verbose 实跑 **1 file / 3 tests passed**。
+- 联合安全回归：output 集成 + reading-view docx/malformed **3 files / 25 tests passed**；root 全量 **104 files / 850 tests passed**。
+- 新建文书：`compileDraftToDocx` 产物通过同一 `preflightDocx`，且 desktop 真实写入桥仅接受预检通过的 bytes。
+
+无契约红项，无 `[需架构拍板]`。允许 desktop/output 消费并进入发布合流。
