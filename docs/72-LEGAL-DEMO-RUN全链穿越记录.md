@@ -50,10 +50,12 @@
 - 验证命令一律单独执行、退出码亲验（假绿判例）；变异必红后还原；逐锚复算不采信 resolver 自述（luna 判例）；docx zip 级哈希不作断言对象（fflate 条目携时钟 mtime——B 阶段"安装包级哈希不可复现，用内容级校验"判例同族），确定性断言落在指令集字节与部件内容。
 - **完工数字取 clean detached worktree 实测**（数字语境判例），见下节验收数字；共享树预检数字不入册。
 
-## 五、clean worktree 验收数字（detached @ 完工 tip）
+## 五、验收数字（clean detached worktree @ b2c8513 实测，2026-07-13，逐命令独立执行退出码亲验）
 
-见本册末尾「验收数字」段——由干净 worktree 实测后填写（build 全包 / 包域测试 / desktop 测试 / demo:legal 退出码 / demo:s3 兼容回归）。
-
-## 验收数字（clean detached worktree 实测，2026-07-13）
-
-- （随提交后干净树实跑填写）
+- `pnpm install --frozen-lockfile`：0（零新增依赖，锁文件原样）。
+- `pnpm build`：0（全包 tsc + desktop vite）。
+- `pnpm test`：**99 文件 / 823 用例全绿**（= luna 清账基线 817 + 本单新增 6：穿越集成 2 + 隔离守卫 4；共享树同日实测 845 含 B 线 pm-schemas WIP——数字语境判例再证）。
+- `pnpm --filter @courtwork/desktop test`：**21 文件 / 101 用例全绿**（基线 99 + 契约机器锁 2）。
+- `pnpm --filter @courtwork/core demo:legal`：0，黄金对照 PASS（citationStats 11/11 首过、六段标记全在场、6 applied + 1 locator_not_found、redline.docx 4,674 B）。
+- `pnpm --filter @courtwork/core demo:s3`：0（既有 docx 档兼容回归，考点 7/7）。
+- `pnpm lint`：0。
