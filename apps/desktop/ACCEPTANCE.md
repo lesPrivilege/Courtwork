@@ -1259,3 +1259,49 @@ Received:    24
 无实现缺陷、无契约级问题、无 `[需架构拍板]` 项。
 
 > **最终判定：BRAND-1 放行 ✅。** `e9bd9c3 + 4da4e75 + 本验收记录` 已在 `main@c22fe1e` 合流态完成全门验证，可由架构/收账会话合入 main。
+
+---
+
+## CHAT-UI-1 独立验收（2026-07-14）
+
+- 验收角色：独立验收会话，非 `98826e6` / `bb5bddd` 实现者。
+- 被验实现：provider seam `98826e6`，desktop/core/legal 集成 `bb5bddd6ea16fe4ff2e47091c27e0d1a6d0ffd7e`。
+- 验收树：以任务基线 `main@5cce90e` 建立独立 worktree `/Users/lesprivilege/Projects/Courtwork-accept-chat-ui-1`，前进式合并为 `fb290f7`；分支 `codex/accept-chat-ui-1`。未在共享树 checkout、stash 或复用 dev server。
+- 最终 Playwright 使用隔离端口 `1572`、`reuseExistingServer=false`、`--workers=1`，未复用 `1420`。
+- 结论：**✅ 放行。无实现缺陷、无契约级问题、无 `[需架构拍板]` 项。**
+
+### 1. provider / core 流式真值
+
+- 真 HTTP 401 与 transport network failure 均先发 `started(seq=0)`，再分别以 `failed(kind=auth/network, seq=1)` 收敛。验收临时删除 `started` 发布后，provider 定向测试真实 **2/2 failed**：两条失败都从 `seq=0` 开始且缺少 started；恢复后 **2/2 passed**。
+- core 对 provider 失败分类作机械透传。验收临时把 `providerTerminal.kind` 强制改为 `invalid_response`，重新 build core 后 auth/network 两条 desktop 定向测试真实 **2/2 failed**，分别收到 `invalid_response` 而非 `auth` / `network`；恢复后 **2/2 passed**。
+- production chat 只经 `sendChatTurn → core runTurn → provider.stream`；测试 provider 的 `generate()` 明确抛错且测试确认从未调用。`started/reasoning/content/usage/completed/failed/canceled` 均由 core `TurnEvent` 机械投影，真实 content delta 在 provider terminal 前可见；旧 Typewriter/final responder 已退出生产路径。
+- 测试 hook 只在 `import.meta.env.DEV && VITE_COURTWORK_E2E === '1'` 安装，注入面只接受 `ProviderStreamEvent`。验收把安装改为无条件后，`lint:chat-ui` exit 1（`Chat test hook must be explicit DEV+E2E only`），且生产 bundle 可检出 hook；恢复后 production build 中 `__courtworkChatHooks` / `setStreamFactory` / E2E provider 文案均为零命中。
+
+### 2. journal、interaction 与来源授权
+
+- localStorage 只有 `courtwork.turn-journal.v1` 单 envelope，精确字段为 `version/revision/entries/turnIds`。坏 JSON、未知字段、非法 envelope、index drift 均 fail closed 且不改写原始字节；quota 写失败直接抛出并保留前一份合法 envelope。验收临时探针覆盖非法字段、幽灵 turnId 与 quota，结果 **2 tests passed**；另以真实浏览器注入 index drift / 非法 known turn，恢复态 **3/3 passed**。
+- 验收临时删除 index/entries 一致性检查，浏览器 recovery 断言真实变红，幽灵 turn 得以绕过；恢复后变绿。临时删除 `knownTurnIds()` 对每个 id 的 core replay，`lint:chat-ui` exit 1（`Known index must not bypass core replay validation`）；恢复后门禁通过。索引只作导航，不能替代 core replay 校验。
+- `InteractionTurnCard` 只消费 `TurnReplay` 快照；question/options/anchors/resolution 均不另造本地真值。提交锁定 `submittingRef` first-wins、manifest `skippable`、失败后可重试、刷新后 pending card 恢复且不重复请求；Recorded 只在 core 接受 `interaction_resolved` 后出现。
+- legal demo 由 `LEGAL_PACKAGE + registry + requestInteraction` 组装。样板合同引语在当前 `fileId/textLayerVersion` 文本中恰好唯一，range 与 slice 精确相等。source-open 先验证 file/version/range/quote slice，再 focus/scroll 原文；验收临时删掉 fileId 守卫后，未授权 anchor 会错误打开默认合同，定向 E2E 真实失败；恢复后错误可见且 reader 不打开。
+
+### 3. 视觉、输入与静态边界
+
+- interaction card 使用 verified/generated 冷色混合、1px hairline、6px radius；目标 slice 无 shadow、gradient 或 card-in-card。option 采用 ledger 分隔，不新增嵌套白卡。
+- 指针按压只在允许控件产生 `.98` feedback；键盘激活不缩放焦点控件，`focus-visible` 保持；reduced-motion 下取消缩放且 source scroll 使用 `auto`。以上 pointer / keyboard / reduced-motion 与刷新恢复均在完整 E2E 中通过。
+- `lint:chat-ui` 同时锁 production hook、core replay、TurnReplay 取值、样式 slice 与来源校验；`assert-test-count` 实测 **208**，达到 floor **208**。
+
+### 4. 最终机器门原始数字
+
+按验收要求在 `fb290f7` 代码 tip 顺序实跑：
+
+- desktop Vitest：**30 files / 129 tests passed**。
+- provider Vitest：**12 files / 86 tests passed**。
+- `pnpm site:guard`：scanner fixture **12/12 passed**，扫描 **585 active text files**；neutral/elevation/signature/motion 全绿。
+- `pnpm lint`：exit 0。
+- `pnpm -r build`：scope **12/13 workspace projects** 全部通过；desktop **3504 modules**，仅既有 dynamic-import / chunk-size warning。
+- root `pnpm test`：**114 files / 981 tests passed**。
+- `COURTWORK_E2E_PORT=1572 pnpm --filter @courtwork/desktop test:e2e --workers=1`：16 道静态/设计/边界门全绿，假绿防护确认 floor **208**；Playwright **208/208 passed（2.7m，1 worker）**。
+
+验收未产生产品代码修复或 `fix-by-acceptance` 提交；所有破坏性补丁与临时探针均已精确恢复，提交前工作树仅含本报告。
+
+> **最终判定：CHAT-UI-1 放行 ✅。** `98826e6 + bb5bddd + 本验收记录` 可进入架构收账；provider 生命周期、core 终态语义、持久化防腐、interaction replay、legal source 授权与反 slop 输入边界均由真实反例和全量门禁闭环。
