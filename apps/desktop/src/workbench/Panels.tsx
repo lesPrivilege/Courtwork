@@ -68,6 +68,7 @@ export function EmptyState({ noun, shortcut }: { noun: string; shortcut: string 
 export function TimelinePanel({ timeline, grade }: { timeline: Timeline; grade?: 'A' | 'B' | 'C' }) {
   const preferred = timeline.events.find((event) => event.id === 'evt-24') ?? timeline.events[0];
   const [selected, setSelected] = useState(preferred?.id);
+  const [quoteOpen, setQuoteOpen] = useState(true);
   const current = timeline.events.find((item) => item.id === selected) ?? timeline.events[0];
   if (!current) return <StaticViewport testId="timeline-static-viewport"><EmptyState noun="时间线事件" shortcut="⌘I" /></StaticViewport>;
 
@@ -83,7 +84,7 @@ export function TimelinePanel({ timeline, grade }: { timeline: Timeline; grade?:
             data-event-id={event.id}
             data-marker={contradiction ? 'contradiction' : undefined}
             title={event.description}
-            onClick={() => setSelected(event.id)}
+            onClick={() => { setSelected(event.id); setQuoteOpen(true); }}
           >
             <SignatureLine tone={contradiction ? 'attention' : undefined} />
             <time>{event.date.kind === 'exact' ? event.date.date : <span className="pending-field">日期待核</span>}</time>
@@ -101,7 +102,25 @@ export function TimelinePanel({ timeline, grade }: { timeline: Timeline; grade?:
       <article className="detail-card">
         <SignatureLine tone={current.markers?.includes('contradiction') ? 'attention' : undefined} />
         <p>{current.description}</p>
-        <div className="verified-block"><TierBadge grade={grade} /><button disabled aria-label={`原文定位 · ${sourceFileLabel(current.sourceAnchors[0]?.fileId) || '来源待补'}`} title={`原文定位 · 卷宗原件待连接 · ${current.sourceAnchors[0]?.fileId ?? ''}`}>{sourceFileLabel(current.sourceAnchors[0]?.fileId) || '来源待补'}</button><q>{current.sourceAnchors[0]?.quote || '暂无可引用原文'}</q></div>
+        <div className="verified-block evidence-detail">
+          <span className="evidence-grade-slot"><TierBadge grade={grade} /></span>
+          <div className="evidence-body">
+            <div className="evidence-source-actions">
+              <button
+                type="button"
+                className="evidence-toggle"
+                aria-expanded={quoteOpen}
+                aria-controls={`timeline-quote-${current.id}`}
+                onClick={() => setQuoteOpen((open) => !open)}
+              >
+                {quoteOpen ? '收起引语' : '查看引语'} · {sourceFileLabel(current.sourceAnchors[0]?.fileId) || '来源待补'}
+              </button>
+              <button type="button" className="goto-source" disabled title="卷宗原件尚未接通">回到原件 · 尚未接通</button>
+            </div>
+            {quoteOpen && <q id={`timeline-quote-${current.id}`}>{current.sourceAnchors[0]?.quote || '暂无可引用原文'}</q>}
+            <span className="source-file-meta" title={current.sourceAnchors[0]?.fileId}>来源 · {sourceFileLabel(current.sourceAnchors[0]?.fileId) || '待补'}</span>
+          </div>
+        </div>
       </article>
     </div>
   </StaticViewport>;
@@ -111,27 +130,71 @@ const CONFIDENCE_LABELS: Record<ReviewMatrix['rows'][number]['answers'][string][
   high: '置信高', medium: '置信中', low: '置信低',
 };
 
+/** 从 question.text 机械裁切短名；不维护领域别名表，不写回 schema。 */
+export function questionShortName(text: string) {
+  const normalized = text.trim().replace(/\s+/g, '').replace(/^(是否|有无)/, '');
+  const phrase = normalized.split(/（|\(|如何|是多少|为多长|\?|？|，|,|；|;/, 1)[0] ?? normalized;
+  const withoutMeasure = phrase.replace(/(比例|情况|条款)$/u, '');
+  const shortName = Array.from(withoutMeasure || normalized).slice(0, 7).join('');
+  return shortName || '问题';
+}
+
+function matrixCellKey(documentId: string, questionId: string) {
+  const documentKey = documentId.match(/^V\d+/i)?.[0].toLowerCase() ?? 'document';
+  return `${documentKey}-${questionId.toLowerCase()}`;
+}
+
 export function MatrixPanel({ matrix }: { matrix: ReviewMatrix }) {
   const questions = matrix.questions.slice(0, 5);
+  const [openCell, setOpenCell] = useState<string>();
   if (!matrix.rows.length) return <StaticViewport testId="matrix-static-viewport"><EmptyState noun="审阅行" shortcut="⌘I" /></StaticViewport>;
   return <StaticViewport testId="matrix-static-viewport">
-    <div className="matrix-wrap" data-testid="matrix-panel"><table><thead><tr><th>文书</th>{questions.map((question) => <th key={question.id} title={question.text}>{question.id.toUpperCase()}</th>)}</tr></thead><tbody>{matrix.rows.slice(0, 10).map((row) => <tr key={row.documentId}><th title={row.documentId}>{displayEntityName(sourceFileLabel(row.documentId))}</th>{questions.map((question) => {
+    <div className="matrix-wrap" data-testid="matrix-panel"><table><thead><tr><th>文书</th>{questions.map((question) => {
+      const tooltipId = `matrix-question-tooltip-${question.id.toLowerCase()}`;
+      return <th key={question.id}>
+        <span
+          className="matrix-question-header"
+          tabIndex={0}
+          aria-describedby={tooltipId}
+          data-testid={`matrix-question-${question.id.toLowerCase()}`}
+        >
+          <span>{question.id.toUpperCase()} · {questionShortName(question.text)}</span>
+          <span role="tooltip" id={tooltipId} data-testid={tooltipId}>{question.text}</span>
+        </span>
+      </th>;
+    })}</tr></thead><tbody>{matrix.rows.slice(0, 10).map((row) => <tr key={row.documentId}><th className="source-file-meta" title={row.documentId}>{displayEntityName(sourceFileLabel(row.documentId))}</th>{questions.map((question) => {
       const cell = row.answers[question.id];
+      const cellKey = matrixCellKey(row.documentId, question.id);
+      const peekId = `matrix-cell-peek-${cellKey}`;
+      const open = openCell === cellKey;
       return <td key={question.id}>
-        {/* 批次三 #14：hover 溯源预览（peek）——格内全文 + 引语，goto-source 待原件连接仍禁用 */}
+        {/* 查看引语是真入口；回到原件未接通，保持独立禁用动词。 */}
         <span className="cell-peek-anchor">
-          <button disabled title="原文定位 · 卷宗原件待连接">{cell?.answer ?? <span className="pending-field">待补</span>}</button>
-          {cell && <span className="cell-peek" role="tooltip" data-testid="matrix-cell-peek">
+          {cell
+            ? <button
+                type="button"
+                data-testid={`matrix-source-${cellKey}`}
+                aria-label={`查看引语 · ${question.text}`}
+                aria-expanded={open}
+                aria-controls={peekId}
+                onClick={() => setOpenCell((current) => current === cellKey ? undefined : cellKey)}
+              >{cell.answer}</button>
+            : <span className="pending-field">待补</span>}
+          {cell && <span className="cell-peek" role="group" aria-label="引语详情" id={peekId} data-open={open || undefined} data-testid={peekId}>
             <strong>{question.text}</strong>
             <span className="cell-peek-answer">{cell.answer}</span>
             {cell.sourceAnchors[0]?.quote
               ? <q>{cell.sourceAnchors[0].quote}</q>
               : <em>该文档未提及此问题，无可引用原文</em>}
-            <small>{CONFIDENCE_LABELS[cell.confidence]}</small>
+            <span className="cell-peek-meta">
+              <small className="source-file-meta" title={cell.sourceAnchors[0]?.fileId}>来源 · {sourceFileLabel(cell.sourceAnchors[0]?.fileId) || '待补'}</small>
+              <small>{CONFIDENCE_LABELS[cell.confidence]}</small>
+            </span>
+            <button type="button" className="goto-source" disabled title="卷宗原件尚未接通">回到原件 · 尚未接通</button>
           </span>}
         </span>
       </td>;
-    })}</tr>)}</tbody></table><div className="matrix-legend"><span>原文定位将在卷宗原件连接后开放</span><span data-testid="matrix-legend-count">{matrix.rows.length} 份文书 · 显示 {questions.length}/{matrix.questions.length} 个问题</span></div></div>
+    })}</tr>)}</tbody></table><div className="matrix-legend"><span>引语可核对 · 回到原件尚未接通</span><span data-testid="matrix-legend-count">{matrix.rows.length} 份文书 · 显示 {questions.length}/{matrix.questions.length} 个问题</span></div></div>
   </StaticViewport>;
 }
 
@@ -162,36 +225,101 @@ function riskLineTone(level: RiskList['risks'][number]['level'], disposition?: R
   return undefined;
 }
 
+function severityLabel(level: RiskList['risks'][number]['level']) {
+  return level === 'high' ? '高危' : level === 'medium' ? '中危' : '低危';
+}
+
+function dispositionLabel(disposition?: ReviewDispositionState) {
+  if (disposition === 'confirmed') return '已确认';
+  if (disposition === 'rejected') return '已驳回';
+  if (disposition === 'revision') return '待修正';
+  return '待确认';
+}
+
+export function riskNextStep(
+  disposition: ReviewDispositionState | undefined,
+  mode: ReviewGateProjection['items'][number]['mode'] | undefined,
+  evidenceReady: boolean,
+) {
+  if (disposition === 'confirmed') return '已完成';
+  if (disposition === 'rejected') return '已退出';
+  if (disposition === 'revision') return '修正后确认';
+  if (mode === 'individual') return evidenceReady ? '逐条确认' : '展开依据';
+  return mode === 'batch' ? '可批量确认' : '等待门禁';
+}
+
 export function RevisionPanel(props: RevisionPanelProps) {
   const selectedGate = props.gate?.items.find((item) => item.itemRef === props.selectedRisk.id);
   const reviewedCount = props.selectedRisk.basis.filter((_, index) => props.expandedEvidence[`${props.selectedRisk.id}:${index}`]).length;
   const selectedDisposition = props.dispositions[props.selectedRisk.id];
   const selectedSettled = selectedDisposition === 'confirmed' || selectedDisposition === 'rejected' ? selectedDisposition : undefined;
+  const selectedUnverified = props.unverifiedRiskIds.includes(props.selectedRisk.id);
+  const selectedNextStep = riskNextStep(selectedDisposition, selectedGate?.mode, reviewedCount === props.selectedRisk.basis.length);
+  const excludedCount = props.gate?.items.filter((item) => item.mode === 'individual').length ?? 0;
   return <StaticViewport testId="revision-static-viewport">
     <div className="revision-layout" data-testid="revision-panel">
-      <div className="batch-bar"><span>可批量：中/低危且依据已核验 · {props.batchRefs.length} 项</span><button onClick={props.onBatchConfirm} disabled={!props.batchRefs.length}>批量确认 {props.batchRefs.length} 项</button><small>高危与未核验条目已拆出</small></div>
+      <div className="batch-bar" data-testid="batch-scope">
+        <span>本次范围 {props.batchRefs.length} 项 · 待确认且中/低危、依据已核验</span>
+        <button onClick={props.onBatchConfirm} disabled={!props.batchRefs.length}>批量确认 {props.batchRefs.length} 项</button>
+        <small>排除 {excludedCount} 项 · 高危或未核验仅逐条处理</small>
+      </div>
       {props.submitted && <div className="submission-note" role="status">{props.gate?.items.length ?? 0} 项处置已逐条提交</div>}
       <div className="risk-master-detail">
-        <div className="risk-list"><div className="table-head risk-grid"><span>风险</span><span>等级</span><span>状态</span></div>{props.riskList.risks.map((risk) => {
+        <div className="risk-list"><div className="table-head risk-grid"><span>风险</span><span>等级</span><span>核验</span><span>处置</span><span>下一步</span></div>{props.riskList.risks.map((risk) => {
           const gateItem = props.gate?.items.find((item) => item.itemRef === risk.id);
           const disposition = props.dispositions[risk.id];
           const settled = disposition === 'confirmed' || disposition === 'rejected' ? disposition : undefined;
+          const unverified = props.unverifiedRiskIds.includes(risk.id);
+          const evidenceReady = risk.basis.every((_, index) => props.expandedEvidence[`${risk.id}:${index}`]);
+          const nextStep = riskNextStep(disposition, gateItem?.mode, evidenceReady);
           return <button className={`dense-row risk-grid ${props.selectedRiskId === risk.id ? 'selected' : ''}`} data-risk-id={risk.id} title={risk.description} key={risk.id} onClick={() => props.onSelectRisk(risk.id)}>
-            <SignatureLine tone={riskLineTone(risk.level, disposition, props.unverifiedRiskIds.includes(risk.id))} />
+            <SignatureLine tone={riskLineTone(risk.level, disposition, unverified)} />
             <SettlementFlash kind={settled} itemRef={risk.id} testable />
             {/* 编号单源：与详情头同一 id 变换（R03），杜绝 index 序号与 id 双轨漂移 */}
-            <span><b className="domain-badge">{risk.id.replace('risk-', 'R')}</b>{risk.description}</span><span className={`severity severity-${risk.level}`}>{risk.level === 'high' ? '高' : risk.level === 'medium' ? '中' : '低'}</span><span className={`gate-state ${disposition ?? 'pending'}`}>{disposition === 'confirmed' ? '已确认' : disposition === 'rejected' ? '已驳回' : disposition === 'revision' ? '待修正' : gateItem?.mode === 'individual' ? '逐条' : '待确认'}</span>
+            <span className="risk-summary"><b className="domain-badge">{risk.id.replace('risk-', 'R')}</b><span>{risk.description}</span></span>
+            <span className={`severity severity-${risk.level}`}>{severityLabel(risk.level)}</span>
+            <span className={`verification-state ${unverified ? 'unverified' : 'verified'}`}>{unverified ? '未核验' : '已核验'}</span>
+            <span className={`gate-state ${disposition ?? 'pending'}`}>{dispositionLabel(disposition)}</span>
+            <span className="risk-next-step" title={`下一步 · ${nextStep}`}>{nextStep}</span>
           </button>;
         })}</div>
         <article className="risk-detail">
-          <SignatureLine tone={riskLineTone(props.selectedRisk.level, selectedDisposition, props.unverifiedRiskIds.includes(props.selectedRisk.id))} />
+          <SignatureLine tone={riskLineTone(props.selectedRisk.level, selectedDisposition, selectedUnverified)} />
           <SettlementFlash kind={selectedSettled} itemRef={props.selectedRisk.id} />
           <header><span className="domain-badge">{props.selectedRisk.id.replace('risk-', 'R')}</span><strong>{selectedGate?.mode === 'individual' ? '逐条确认' : '常规审阅'}</strong><span>{reviewedCount}/{props.selectedRisk.basis.length} 依据已展开</span></header>
           {selectedGate?.reason && <div className="individual-note">{selectedGate.reason === 'high_risk' ? '高危条目不进入批量范围' : '含未核验依据，不进入批量范围'}</div>}
           <p>{props.selectedRisk.description}</p>
+          <dl className="risk-status-ledger" data-testid="risk-detail-status">
+            <div><dt>严重度</dt><dd>{severityLabel(props.selectedRisk.level)}</dd></div>
+            <div><dt>核验</dt><dd>{selectedUnverified ? '未核验' : '已核验'}</dd></div>
+            <div><dt>处置</dt><dd>{dispositionLabel(selectedDisposition)}</dd></div>
+            <div><dt>下一步</dt><dd>{selectedNextStep}</dd></div>
+          </dl>
           <div className="evidence-stack">{props.selectedRisk.basis.map((basis, index) => {
             const open = props.expandedEvidence[`${props.selectedRisk.id}:${index}`];
-            return <section className="verified-block" key={`${basis.citation}-${index}`}><TierBadge grade={props.selectedGrades[index] ?? props.selectedGrades[0]} /><button title={basis.citation} onClick={() => props.onExpandBasis(props.selectedRisk.id, index, selectedGate?.evidenceKeys[index] ?? basis.citation)} aria-expanded={open}>{basis.citation}<span>{open ? '收起' : '展开原文'}</span></button>{open && <q>{basis.sourceAnchors[0]?.quote || '暂无可引用原文'}</q>}</section>;
+            const quoteId = `risk-quote-${props.selectedRisk.id}-${index}`;
+            const source = basis.sourceAnchors[0];
+            return <section className="verified-block" key={`${basis.citation}-${index}`}>
+              <span className="evidence-grade-slot"><TierBadge grade={props.selectedGrades[index] ?? props.selectedGrades[0]} /></span>
+              <div className="evidence-body">
+                <button
+                  type="button"
+                  className="evidence-toggle"
+                  title={basis.citation}
+                  onClick={() => props.onExpandBasis(props.selectedRisk.id, index, selectedGate?.evidenceKeys[index] ?? basis.citation)}
+                  aria-expanded={open}
+                  aria-controls={quoteId}
+                  aria-label={`${open ? '收起引语' : '查看引语'} · ${basis.citation}`}
+                ><span>{basis.citation}</span><span>{open ? '收起引语' : '查看引语'}</span></button>
+                {open && <>
+                  <q id={quoteId} data-testid={quoteId}>{source?.quote || '暂无可引用原文'}</q>
+                  <div className="evidence-source-actions">
+                    <span className="source-file-meta" title={source?.fileId}>来源 · {sourceFileLabel(source?.fileId) || '待补'}</span>
+                    <button type="button" className="goto-source" disabled title="卷宗原件尚未接通">回到原件 · 尚未接通</button>
+                  </div>
+                </>}
+              </div>
+            </section>;
           })}</div>
           <footer><span>{selectedGate?.mode === 'individual' ? `逐条确认 · ${reviewedCount}/${props.selectedRisk.basis.length} 依据已展开` : '可在批量范围内确认'}</span><i /><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'rejected')}>驳回</button><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'revision')}>修正</button><button className="primary-button" disabled={!props.individualReady} onClick={() => props.onDispose(props.selectedRisk.id, 'confirmed')}>确认</button></footer>
         </article>

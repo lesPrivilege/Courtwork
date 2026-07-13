@@ -44,15 +44,17 @@ test('五工作面结构常驻且未接功能保留禁用入口与说明', async
 
 
   await page.getByTestId('view-matrix').click();
-  const matrixCells = page.locator('.matrix-wrap td button');
+  const matrixCells = page.locator('.matrix-wrap td .cell-peek-anchor > button');
   expect(await matrixCells.count()).toBeGreaterThan(0);
-  await expect(matrixCells.first()).toBeDisabled();
-  await expect(matrixCells.first()).toHaveAttribute('title', /^原文定位 · 卷宗原件待连接/);
+  await expect(matrixCells.first()).toBeEnabled();
+  await expect(matrixCells.first()).toHaveAccessibleName(/^查看引语/);
+  await matrixCells.first().click();
+  await expect(page.getByTestId('matrix-cell-peek-v01-q1').getByRole('button', { name: '回到原件 · 尚未接通' })).toBeDisabled();
 
   await page.getByTestId('view-timeline').click();
-  const sourceJump = page.getByTestId('timeline-panel').locator('.verified-block button');
+  const sourceJump = page.getByTestId('timeline-panel').locator('.verified-block .goto-source');
   await expect(sourceJump).toBeDisabled();
-  await expect(sourceJump).toHaveAttribute('title', /^原文定位 · 卷宗原件待连接/);
+  await expect(sourceJump).toHaveAttribute('title', '卷宗原件尚未接通');
 });
 
 test('S1 摄取事件回放可进入时间线', async ({ page }) => {
@@ -152,16 +154,16 @@ test('S3 高危或未核验条目展开依据前不可确认', async ({ page }) 
   const panel = page.getByTestId('revision-panel');
   const confirm = panel.getByRole('button', { name: '确认', exact: true });
   await expect(confirm).toBeDisabled();
-  await panel.getByRole('button', { name: /展开原文/ }).click();
+  await panel.getByRole('button', { name: /查看引语/ }).click();
   await expect(confirm).toBeEnabled();
   await confirm.click();
-  await expect(panel.getByText('已确认', { exact: true })).toBeVisible();
+  await expect(panel.locator('[data-risk-id="risk-03"] .gate-state')).toHaveText('已确认');
 });
 
 test('S3 批量范围明确排除逐条条目', async ({ page }) => {
   await openWorkbench(page);
   const panel = page.getByTestId('revision-panel');
-  await expect(panel.getByText('高危与未核验条目已拆出')).toBeVisible();
+  await expect(panel.getByTestId('batch-scope')).toContainText('排除 2 项');
   await panel.getByRole('button', { name: '批量确认 4 项' }).click();
   await expect(panel.getByText('已确认', { exact: true })).toHaveCount(4);
 });
@@ -210,7 +212,7 @@ test('混合处置完成后确认响应按条目上报', async ({ page }) => {
   await panel.getByRole('button', { name: '驳回' }).click();
   await panel.getByRole('button', { name: '批量确认 4 项' }).click();
   await panel.locator('[data-risk-id="risk-01"]').click();
-  await panel.getByRole('button', { name: /展开原文/ }).click();
+  await panel.getByRole('button', { name: /查看引语/ }).click();
   await panel.getByRole('button', { name: '修正' }).click();
   await expect(panel.getByRole('status')).toHaveText('6 项处置已逐条提交');
 });
@@ -352,13 +354,13 @@ test('临界用量提供一键续行', async ({ page }) => {
   await openWorkbench(page);
   await openModuleList(page);
   await expect(page.getByTestId('module-context')).toContainText('91%');
-  // 续行钮在 Progress 模块（临界用量触发）
-  if ((await page.getByTestId('module-progress').getAttribute('data-open')) !== 'true') await page.getByTestId('module-progress-toggle').click();
+  // SCHEMA-POLISH-1：续行归 Context 用量附近，Progress 只保留事件。
+  if ((await page.getByTestId('module-context').getAttribute('data-open')) !== 'true') await page.getByTestId('module-context-toggle').click();
   const continuation = page.getByTestId('continuation-button');
   await continuation.click();
   await expect(continuation).toBeVisible();
   await expect(continuation).toBeDisabled();
-  await expect(continuation).toHaveText('已开启下一阶段');
+  await expect(continuation).toHaveText('Next phase opened');
 });
 
 test('context 模块承载当前阶段用量明细', async ({ page }) => {
