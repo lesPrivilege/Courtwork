@@ -1217,3 +1217,45 @@ OLD_THINKING_GATE_EXIT=1
 - 提交 `2e25859` 后最终 `:1553` 完整 `test:e2e`：16 道前置静态/设计/边界门全部通过，假绿 floor **198**，Playwright **198/198 passed（4.1m，4 workers）**。
 
 > **最终判定：SCHEMA-POLISH-1 放行 ✅。** 真实证据、状态与下一步动作均达到本单验收标准；验收发现的首行引语裁剪已由红测、最小实现级修复、四档视觉复核与全量回归闭环。无 `[需架构拍板]` 项，无 schema/core 契约变化。
+
+---
+
+## BRAND-1 独立验收（2026-07-13）
+
+- 验收角色：独立验收会话，非 `e9bd9c3` 实现者。
+- 被验实现：`codex/brand-1@e9bd9c319d2df5e22570136110ae04a552f7fc1a`。
+- 合流基线：独立验收树最终合入 `main@c22fe1e`（含 PROVIDER-2、ADR-008 与现行 Evidence Line）；合流提交 `999e41f`。唯一冲突为 `docs/status/current.md` 的已完成任务排序，按 main 现行状态机械解决；BRAND 组件、样式与测试均无冲突。
+- 独立 worktree：`/Users/lesprivilege/Projects/Courtwork-accept-brand-1`；最终 Playwright 使用隔离端口 `17646`、`reuseExistingServer=false`、单 worker，未复用共享服务。未触碰 `site/` 或 `archive/` WIP。
+- 结论：**✅ 放行。BRAND-1 可合入 main。**
+
+### 1. 品牌形制与边界
+
+- 展开态 `.rail-wordmark` 中只有一枚 `BrandMarkIcon`，DOM 顺序恰在 `Courtwork` 文本左侧；SVG 源为 **4 条 `path`**，没有 `rect`、`img`、`title`、背景、底盘或其他装饰几何。
+- 图标计算尺寸 **17×17px**，图标与文字水平间距 **7px**，两者垂直中心差不超过 **1px**。wordmark 与图标的计算样式均为透明背景、零边框、零圆角、零阴影。
+- 图标 `aria-hidden=true`，没有 `aria-label` 或 `role`；可访问树只有一枚名称为 `Courtwork` 的 heading，没有品牌名重复播报。
+- 静止态与 hover 后均为 `animation-name:none`、`transition-duration:0s`、`transform:none`、`opacity:1`，没有 hover、入场、磁吸或其他动画。
+- 左栏折叠后品牌标记与 heading 同时撤出，原位展开控制仍可见；再次展开后恰恢复一枚标记与一枚 heading，collapsed 行为无退化。
+
+### 2. 独立反例与验收加固
+
+验收把 `.rail-brand-mark` 宽度从 `17px` 临时改为 `24px`，在隔离端口 `17643`、单 worker 只跑 BRAND 用例。用例真实失败：
+
+```text
+Expected: <= 18
+Received:    24
+1 failed
+```
+
+随后用精确补丁恢复 `17px`，确认样式零变异残留。验收另补齐 4-path、无可访问名重复、无 hover/animation 漂移、折叠撤出与再展开恢复断言，提交 `4da4e75 fix-by-acceptance: harden BRAND-1 e2e contract`。该提交只增强既有 E2E，不改变产品契约或实现。
+
+### 3. 合流态最终机器门
+
+- `pnpm -r build`：scope **12/13 workspace projects** 全部通过；desktop **3493 modules**，仅既有 chunk-size warning。
+- `pnpm lint`：exit 0。
+- root `pnpm test`：**108 files / 868 tests passed**。
+- desktop `test:e2e` 前置 **16 道静态/设计/边界门全部通过**，含 motion、signature line、graph theme、SVG icons、preview/elevation、RP-2.6 至 RP-2.11、neutral-source 与 test floor；假绿门确认 **198** 条用例。
+- `COURTWORK_E2E_PORT=17646 pnpm --filter @courtwork/desktop test:e2e --workers=1`：**198/198 passed（4.9m，1 worker）**；BRAND 定向用例包含于全量并通过。
+
+无实现缺陷、无契约级问题、无 `[需架构拍板]` 项。
+
+> **最终判定：BRAND-1 放行 ✅。** `e9bd9c3 + 4da4e75 + 本验收记录` 已在 `main@c22fe1e` 合流态完成全门验证，可由架构/收账会话合入 main。
