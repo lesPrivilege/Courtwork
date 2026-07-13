@@ -758,3 +758,10 @@ sol 审计放行 → push（35+ 提交）‖ 三线收工 → **实机测试 + d
 ## UX-POLISH 轮收账（2026-07-13，185c3b6 @ codex/ux-ui-polish）+ 两裁
 
 radio 密度修复+守护锁定+8 轮受控走查零 console。裁一：**部分截图不做**——定版快门唯一时点=SOL-FINAL（终版色板+全量动线一次成型），现截必废；像素预算押最后一次快门。裁二：**分支即刻收编**——隔离净分支不等三线，实施会话自 merge 入 main（禁 force，回报 sha+祖先核验）。登记：真机键盘项 +1（Tab/方向键切 Standard/Deep 一次，入最后一轮实机清单）。
+
+## FABLE-HARNESS 完工收账（2026-07-13，六提交祖先全验 tip 06de9e5）+ 五提案裁决
+
+宣言功能全量落地：六段组装（四知+寻址信封+材料边界+byte-stable 双 golden）、引用 resolver（quote===slice 终验+修复环三拍）、兜底四层、assert-no-demo-in-real、变异矩阵 8/8 全红。839×2+99×2+190×2+16 门禁。**包域律门施工期咬了实现者自己注释里的「卷宗」——守卫非空转的最佳旁证。**
+五提案裁决：①citationStats **追认**（随单报程序正确，providerNotices 同族）；②core 依赖 legal/reading-view **批准**（装配/验收白名单+机器守卫；CLAUDE.md 已同步）；③**归属判据入册**：底座机器消费的 wire 契约留中央（RevisionInstructionSet/FileOpsPlan/IngestStatus），垂类语义 schema 随包——判据一句话：**谁的机器读，住谁家**；④steps 步骤树+promptSegmentRef+投影 equals 扩型 **批准**（输出即视图的载体化）；⑤statuteRef 挂账+MCP 双轨照案。
+**半判例新立——兜底可观测律**：App.tsx 旧裸键断链被 demo 兜底静默掩盖（自查抓获）——兜底路径必须可观测（命中计数/dev 告警），**兜底无声即断链无踪**；grep 形态已入 desktop SPEC，机器化随 PL 批。
+待办：A 线**待异会话验收**（三不变量）；用户手动项=真卷宗真跑一条命令（evidence JSON 即 docs/66 首条锚点观测）。UX-POLISH 合流 3c2792d 收账关单。

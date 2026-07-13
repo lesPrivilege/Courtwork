@@ -11,7 +11,7 @@
 ```
 packages/schemas   ← 一切的根：领域 schema（typed artifacts），零依赖
 packages/registry  ← 场景注册表：场景定义 schema + 加载校验（依赖 schemas）
-packages/core      ← agent core：headless、协议化、provider 无关（依赖 schemas/registry；作为唯一编排层消费 tools/output；demo-data 仅限 src/composition 装配点——2026-07-12 验收核对与实况同步）
+packages/core      ← agent core：headless、协议化、provider 无关（依赖 schemas/registry；作为唯一编排层消费 tools/output；demo-data 仅限 src/composition 装配点——2026-07-12 验收核对与实况同步）；2026-07-13 起 core 增 @courtwork/legal 与 @courtwork/reading-view 依赖（限装配/验收白名单，机器守卫强制），demo-assembly 同时为 legal 包绑定点
 packages/tools     ← 确定性接口：主体核验、引用校验（可依赖 schemas，MVP 两工具当前无需，见 packages/tools/SPEC.md TODO）
 packages/output    ← 产出管线：md/JSON → 带修订痕迹与批注的 .docx（依赖 schemas）
 packages/reading-view ← 阅读视图管线：docx/md/txt/含文本层 PDF → md 阅读视图 + 段落级 SourceAnchor 映射（依赖 schemas）
