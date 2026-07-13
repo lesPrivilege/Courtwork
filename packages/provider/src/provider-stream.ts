@@ -144,7 +144,7 @@ export async function* normalizeProviderTransport(
   context: ProviderStreamContext,
 ): AsyncIterable<ProviderStreamEvent> {
   let seq = 0;
-  let started = false;
+  let responseStarted = false;
   let done = false;
   let contentLength = 0;
   let terminal = false;
@@ -187,6 +187,16 @@ export async function* normalizeProviderTransport(
     }
   };
 
+  // Provider lifecycle begins when this adapter accepts the request. The HTTP
+  // response_started event is only a transport handshake, including non-2xx responses.
+  yield {
+    type: 'started',
+    requestId: context.requestId,
+    seq: seq++,
+    providerId: context.providerId,
+    modelId: context.modelId,
+  };
+
   try {
     for await (const event of transport) {
       if (terminal) return;
@@ -204,7 +214,7 @@ export async function* normalizeProviderTransport(
         return;
       }
       if (event.type === 'response_started') {
-        if (started) {
+        if (responseStarted) {
           yield fail('protocol', '服务商重复开始响应');
           return;
         }
@@ -217,11 +227,10 @@ export async function* normalizeProviderTransport(
           yield fail('invalid_response', '服务商没有返回 SSE 流');
           return;
         }
-        started = true;
-        yield { type: 'started', requestId: context.requestId, seq: seq++, providerId: context.providerId, modelId: context.modelId };
+        responseStarted = true;
         continue;
       }
-      if (!started) {
+      if (!responseStarted) {
         yield fail('protocol', '服务商在响应开始前发送了数据');
         return;
       }

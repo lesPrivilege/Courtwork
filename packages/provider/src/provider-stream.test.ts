@@ -98,13 +98,29 @@ describe('incremental provider transport normalization', () => {
     expect(events.filter((event) => event.type === 'completed' || event.type === 'failed')).toHaveLength(1);
   });
 
+  it.each([
+    ['HTTP auth failure', transports(
+      { type: 'response_started', requestId: 'req-1', status: 401, contentType: 'application/json' },
+    ), 'auth'],
+    ['transport network failure', transports(
+      { type: 'failed', requestId: 'req-1', kind: 'network', message: 'offline', retryable: true },
+    ), 'network'],
+  ] as const)('publishes lifecycle started before %s terminal', async (_name, raw, kind) => {
+    const events = await collect(normalizeProviderTransport(raw, context));
+    expect(events).toEqual([
+      expect.objectContaining({ type: 'started', seq: 0, requestId: 'req-1' }),
+      expect.objectContaining({ type: 'failed', seq: 1, kind }),
+    ]);
+  });
+
   it('keeps exactly one canceled terminal when end wins the same race afterward', async () => {
     const events = await collect(normalizeProviderTransport(transports(
       { type: 'failed', requestId: 'req-1', kind: 'canceled', message: '请求已取消', retryable: false },
       { type: 'end', requestId: 'req-1' },
     ), context));
     expect(events).toEqual([
-      expect.objectContaining({ type: 'failed', seq: 0, kind: 'canceled' }),
+      expect.objectContaining({ type: 'started', seq: 0 }),
+      expect.objectContaining({ type: 'failed', seq: 1, kind: 'canceled' }),
     ]);
   });
 });
