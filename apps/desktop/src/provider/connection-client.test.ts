@@ -10,35 +10,30 @@ describe('provider connection smoke probe', () => {
     await credentialClient.save('pasted', 'valid-key-for-test');
   });
 
-  it('builds the one-token route from declarative quirks', () => {
-    const deepseek = { ...DEFAULT_MODEL_CONFIG, reasoning: 'deep' as const };
-    expect(buildProbeInput(deepseek)).toMatchObject({
-      baseUrl: 'https://api.deepseek.com/v1',
-      reasoningBody: { thinking: { type: 'enabled' } },
-    });
+  it('builds a provider/model probe with no URL, header, or key', () => {
+    const input = buildProbeInput({ ...DEFAULT_MODEL_CONFIG, reasoning: 'deep' });
+    expect(input).toMatchObject({ providerId: 'deepseek', reasoningBody: { thinking: { type: 'enabled' } } });
+    expect(input).not.toHaveProperty('baseUrl');
+    expect(JSON.stringify(input)).not.toMatch(/authorization|apiKey/i);
   });
 
-  it('accepts a mocked endpoint success and returns discovered models', async () => {
+  it('only a successful probe transitions connection to ready', async () => {
     installProviderConnectionTestHooks().setResult({
-      phase: 'connected', models: ['model-a', 'model-b'], modelDiscovery: 'available',
+      credential: { phase: 'stored', source: 'pasted' },
+      connection: { phase: 'ready', models: ['model-a'], modelDiscovery: 'available' },
     });
     await expect(providerConnectionClient.validate(DEFAULT_MODEL_CONFIG)).resolves.toMatchObject({
-      phase: 'connected', models: ['model-a', 'model-b'],
-    });
-  });
-
-  it('honestly degrades discovery while keeping a successful smoke connected', async () => {
-    installProviderConnectionTestHooks().setResult({ phase: 'connected', modelDiscovery: 'unsupported' });
-    await expect(providerConnectionClient.validate(DEFAULT_MODEL_CONFIG)).resolves.toMatchObject({
-      phase: 'connected', modelDiscovery: 'unsupported',
+      credential: { phase: 'stored' }, connection: { phase: 'ready', models: ['model-a'] },
     });
   });
 
   it('maps a typed endpoint failure to user copy', async () => {
-    installProviderConnectionTestHooks().setResult({ phase: 'failed', failKind: 'endpoint' });
+    installProviderConnectionTestHooks().setResult({
+      credential: { phase: 'stored', source: 'pasted' }, connection: { phase: 'failed', failKind: 'endpoint' },
+    });
     const result = await providerConnectionClient.validate(DEFAULT_MODEL_CONFIG);
-    expect(result.phase).toBe('failed');
-    expect(result.failureMessage).toContain('DeepSeek');
-    expect(result.failureMessage).not.toContain('Base URL');
+    expect(result.connection.phase).toBe('failed');
+    expect(result.connection.failureMessage).toContain('DeepSeek');
+    expect(result.connection.failureMessage).not.toContain('Base URL');
   });
 });

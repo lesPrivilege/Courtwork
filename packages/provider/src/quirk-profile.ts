@@ -54,14 +54,15 @@ export function resolveReasoningRoute(
 }
 
 export const DEEPSEEK_QUIRK_PROFILE: ProviderQuirkProfile = {
-  providerId: 'deepseek',
-  baseUrl: 'https://api.deepseek.com/v1',
+  providerId: DEEPSEEK_CATALOG.id,
+  baseUrl: DEEPSEEK_CATALOG.baseUrl,
   responseFormat: { tier: 'json_object' },
   reasoningFieldCandidates: ['reasoning_content'],
-  recommendedModels: ['deepseek-v4-flash', 'deepseek-v4-pro'],
+  recommendedModels: DEEPSEEK_CATALOG.models,
   // 架构裁决：V4 思考模式经 thinking 请求字段控制，与 flash/pro 档位解耦；
   // V4 缺省即 enabled——standard 档必须显式 disabled，否则 UI 档位被 provider 默认静默升级。
   // 模型名由用户所选直通，路由不再覆盖（#40 路由侧保证）。
   reasoningRoute: { kind: 'request_field', field: 'thinking', values: { standard: { type: 'disabled' }, deep: { type: 'enabled' } } },
   parameterCompatibility: { structuredOutputWithDeepReasoning: 'supported' },
 };
+import { DEEPSEEK_CATALOG } from './catalog.generated.js';

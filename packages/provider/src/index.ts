@@ -6,3 +6,5 @@ export * from './registry.js';
 export * from './pricing-table.js';
 export * from './openai-compatible-provider.js';
 export * from './smoke.js';
+export * from './catalog.generated.js';
+export * from './provider-stream.js';

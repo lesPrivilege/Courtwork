@@ -4,6 +4,13 @@ import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { openWorkbench } from './helpers';
 
+type ForcedReadinessWindow = typeof window & {
+  __CW_FORCE_CREDENTIAL__: {
+    credential: { phase: string };
+    connection: { phase: string; failKind?: string; failureMessage?: string };
+  };
+};
+
 async function openSettings(page: Page) {
   await page.getByRole('button', { name: 'Search' }).click();
   await page.getByRole('option', { name: 'Settings' }).click();
@@ -121,17 +128,7 @@ test.describe('SET-1 设置页', () => {
 
   test('连接失败态展示分型文案与钥匙串恢复指引', async ({ page }) => {
     await page.addInitScript(() => {
-      (window as unknown as {
-        __CW_FORCE_CREDENTIAL__: {
-          phase: string;
-          failKind: string;
-          failureMessage: string;
-        };
-      }).__CW_FORCE_CREDENTIAL__ = {
-        phase: 'failed',
-        failKind: 'auth_failed',
-        failureMessage: '无法解锁电脑的安全凭证库，请确认钥匙串密码后重试',
-      };
+      (window as ForcedReadinessWindow).__CW_FORCE_CREDENTIAL__ = { credential: { phase: 'absent' }, connection: { phase: 'failed', failKind: 'platform', failureMessage: '无法解锁电脑的安全凭证库，请确认钥匙串密码后重试' } };
     });
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
@@ -139,7 +136,7 @@ test.describe('SET-1 设置页', () => {
 
     await openSettings(page);
     await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-phase', 'failed');
-    await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-fail-kind', 'auth_failed');
+    await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-fail-kind', 'platform');
     const recovery = page.getByTestId('settings-credential-recovery');
     await expect(recovery).toBeVisible();
     await expect(page.getByTestId('settings-credential-fail-message')).toContainText('钥匙串密码');

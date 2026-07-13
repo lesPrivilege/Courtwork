@@ -343,7 +343,7 @@ test('首启引导始终掩码且不把凭证写入页面存储或运行输出',
   await expect(dialog.getByTestId('provider-setup-verified')).toBeVisible();
   await dialog.getByTestId('provider-setup-done').click();
   await expect(dialog).toBeHidden();
-  await expect(page.getByTestId('composer-provider')).toHaveAttribute('data-phase', 'connected');
+  await expect(page.getByTestId('composer-provider')).toHaveAttribute('data-phase', 'ready');
   const browserStorage = await page.evaluate(() => JSON.stringify({ local: { ...localStorage }, session: { ...sessionStorage } }));
   expect(browserStorage).not.toContain(secret);
   expect(consoleMessages.join('\n')).not.toContain(secret);

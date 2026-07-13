@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
+  credentialClient,
   type CredentialStatus,
 } from './credentials/client';
 import { createDemoClient } from './demo/client';
@@ -181,7 +182,7 @@ export function App() {
   const [draftOutputExists, setDraftOutputExists] = useState(false);
   const [contractOutputExists, setContractOutputExists] = useState(false);
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
-  const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ phase: 'pending' });
+  const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ credential: { phase: 'absent' }, connection: { phase: 'unverified' } });
   const [credentialProbed, setCredentialProbed] = useState(false);
   const [providerSetupOpen, setProviderSetupOpen] = useState(false);
   const [sampleTourOpen, setSampleTourOpen] = useState(false);
@@ -279,7 +280,7 @@ export function App() {
   };
 
   const handleComposerSend = (payload: ComposerSendPayload) => {
-    if (credentialStatus.phase !== 'connected') {
+    if (credentialStatus.connection.phase !== 'ready') {
       probeCredentials();
       openCredentialSurface();
       return;
@@ -311,7 +312,7 @@ export function App() {
    *  GOAL-1 链路批：真 API 端到端——发送 → Rust 窄面代理流式请求 → 回复 0ms 落格。 */
   const handleChatSend = (payload: ComposerSendPayload) => {
     if (chatFlightRef.current) return false; // 未受理：composer 保留草稿（批次七 #3）
-    if (credentialStatus.phase !== 'connected') {
+    if (credentialStatus.connection.phase !== 'ready') {
       probeCredentials();
       openCredentialSurface();
       return false; // 引导层拦截≠受理——草稿不清空，连接流程走完原文还在
@@ -397,10 +398,21 @@ export function App() {
 
   const probeCredentials = async (config: ModelConfig = modelConfig) => {
     setCredentialProbed(true);
+    setCredentialStatus((current) => current.credential.phase === 'stored'
+      ? { ...current, connection: { phase: 'verifying' } }
+      : current);
     const status = await providerConnectionClient.validate(config);
     setCredentialStatus(status);
     return status;
   };
+
+  useEffect(() => {
+    let active = true;
+    void credentialClient.status().then((status) => {
+      if (active) setCredentialStatus(status);
+    });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     const onProbe = () => probeCredentials();
@@ -758,9 +770,14 @@ export function App() {
   const exitCompactLeft = () => setLeftCollapsed(false);
 
   const updateModelConfig = (next: ModelConfig) => {
+    const connectionChanged = next.providerId !== modelConfig.providerId
+      || next.modelId !== modelConfig.modelId
+      || next.reasoning !== modelConfig.reasoning;
     setModelConfig(next);
     saveModelConfig(next);
-    if (credentialStatus.phase === 'connected') void probeCredentials(next);
+    if (connectionChanged) {
+      setCredentialStatus((current) => ({ ...current, connection: { phase: 'unverified' } }));
+    }
   };
 
   useEffect(() => {
@@ -1156,7 +1173,7 @@ export function App() {
         usageDetail={usageDetail}
         attachmentSources={attachmentSources}
         modelLabel={modelDisplayName(modelConfig)}
-        modelConnected={credentialStatus.phase === 'connected'}
+        modelConnected={credentialStatus.connection.phase === 'ready'}
         reasoningLabel={modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard}
         onOpenModelConfig={() => setModelConfigOpen(true)}
         continuation={isDemoCase && usage >= 85
@@ -1183,11 +1200,11 @@ export function App() {
           onSegmentChange={switchSegment}
           modelConfig={modelConfig}
           modelConfigOpen={modelConfigOpen}
-          connectionPhase={credentialStatus.phase}
+          connectionPhase={credentialStatus.connection.phase}
           onToggleModelConfig={() => {
-            if (credentialStatus.phase === 'connected') setModelConfigOpen((open) => !open);
+            if (credentialStatus.connection.phase === 'ready') setModelConfigOpen((open) => !open);
             else void probeCredentials().then((status) => {
-              if (status.phase === 'connected') setModelConfigOpen(true);
+              if (status.connection.phase === 'ready') setModelConfigOpen(true);
               else openCredentialSurface();
             });
           }}
@@ -1657,7 +1674,7 @@ export function App() {
 
       <ProviderSetup
         open={providerSetupOpen}
-        allowSkip={credentialStatus.phase !== 'connected'}
+        allowSkip={credentialStatus.connection.phase !== 'ready'}
         onClose={() => setProviderSetupOpen(false)}
         onStatusChange={setCredentialStatus}
         modelConfig={modelConfig}

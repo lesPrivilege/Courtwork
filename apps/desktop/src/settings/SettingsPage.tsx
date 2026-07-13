@@ -43,8 +43,9 @@ const NAV: ReadonlyArray<{ id: SettingsSection; label: string }> = [
 const APP_VERSION = '0.1.1';
 
 function chromeConnectionLabel(status: CredentialStatus): string {
-  if (status.phase === 'connected') return 'Connected';
-  if (status.phase === 'failed') return 'Connection failed';
+  if (status.connection.phase === 'ready') return 'Connected';
+  if (status.connection.phase === 'failed') return 'Connection failed';
+  if (status.connection.phase === 'verifying') return 'Verifying';
   return 'Connect';
 }
 
@@ -160,8 +161,8 @@ export function SettingsPage({
   const exportDiagnostics = () => {
     const payload = buildDiagnosticPayload(settings, {
       appVersion: APP_VERSION,
-      credentialPhase: credentialStatus.phase,
-      credentialFailKind: credentialStatus.failKind ?? null,
+      credentialPhase: credentialStatus.connection.phase,
+      credentialFailKind: credentialStatus.connection.failKind ?? null,
       modelConfig: {
         providerId: modelConfig.providerId,
         modelId: modelConfig.modelId,
@@ -235,9 +236,9 @@ export function SettingsPage({
                   <span
                     className="settings-status-chip"
                     data-testid="settings-credential-phase"
-                    data-phase={credentialStatus.phase}
-                    data-fail-kind={credentialStatus.failKind ?? undefined}
-                    title={credentialStatus.failureMessage}
+                    data-phase={credentialStatus.connection.phase}
+                    data-fail-kind={credentialStatus.connection.failKind ?? undefined}
+                    title={credentialStatus.connection.failureMessage}
                   >
                     {chromeConnectionLabel(credentialStatus)}
                   </span>
@@ -266,15 +267,15 @@ export function SettingsPage({
                 </div>
               )}
 
-              {credentialStatus.phase === 'failed' && (
+              {credentialStatus.connection.phase === 'failed' && (
                 <div
                   className="settings-recovery"
                   data-testid="settings-credential-recovery"
                   role="note"
                 >
-                  {credentialStatus.failureMessage && (
+                  {credentialStatus.connection.failureMessage && (
                     <p className="settings-recovery-message" data-testid="settings-credential-fail-message">
-                      {credentialStatus.failureMessage}
+                      {credentialStatus.connection.failureMessage}
                     </p>
                   )}
                   {KEYCHAIN_RECOVERY_GUIDE.split('\n').map((paragraph) => (

@@ -109,7 +109,10 @@ test.describe('UX-1 批次一', () => {
     await expect(page.getByTestId('model-config-summary')).toContainText('deepseek-v4-pro');
     await expect(page.getByTestId('model-config-summary')).toContainText('Deep');
     await page.getByTestId('model-config-close').click();
-    await expect(page.getByTestId('model-config-trigger')).toContainText('deepseek-v4-pro');
+    await expect(page.getByTestId('model-config-trigger')).toHaveAttribute('data-phase', 'unverified');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('Connect');
+    await page.getByTestId('model-config-trigger').click();
+    await expect(page.getByTestId('model-config-summary')).toContainText('deepseek-v4-pro');
   });
 
   test('#9：图谱 minimap 使用 courtwork-minimap 类（无库蓝渗出约定）', async ({ page }) => {

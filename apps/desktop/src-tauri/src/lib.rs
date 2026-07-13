@@ -1,12 +1,14 @@
 //! 凭证探针 + 钥匙串读写（FIX-KC-1 / F3 单条目形制）。
 //! secret/source 值永不入日志、错误消息或序列化字段。
 
+use futures_util::StreamExt;
 use keyring::{Entry, Error as KeyringError};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Component, Path, PathBuf};
-use std::sync::{Once, OnceLock, RwLock};
+use std::sync::{Mutex, Once, OnceLock, RwLock};
 
 /// 发行包 service；dev（debug_assertions）加 `.dev` 后缀，避免污染发行 ACL（F6）。
 #[cfg(debug_assertions)]
@@ -28,9 +30,11 @@ const LOG_FILE_NAME: &str = "credential-probe.log";
 const LOG_ROTATE_BYTES: u64 = 1024 * 1024;
 
 static STARTUP_TRACE: Once = Once::new();
-/// 最近一次成功探针确认的 base URL。chat 转发只从此 Rust 侧可信状态取目标，
-/// WebView 的转发入参无权另行选择 host。
-static VERIFIED_PROVIDER_BASE_URL: OnceLock<RwLock<Option<String>>> = OnceLock::new();
+/// 最近一次成功探针绑定；进程重启即回到 unverified，且只绑定 catalog provider/model。
+static VERIFIED_PROVIDER: OnceLock<RwLock<Option<VerifiedProvider>>> = OnceLock::new();
+static CHAT_CANCELLATIONS: OnceLock<Mutex<HashMap<String, tokio::sync::oneshot::Sender<()>>>> =
+    OnceLock::new();
+static PROVIDER_HTTP_CLIENT: OnceLock<reqwest::Client> = OnceLock::new();
 
 // ─── macOS 原生窗口按钮磁吸锚（LAUNCH 壳层审计）────────────────────────────
 
@@ -801,111 +805,211 @@ fn active_secret() -> Result<(CredentialSource, String), CredentialStatus> {
     secret_from_stored(read)
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct ProviderProbeInput {
-    provider_id: String,
+struct ProviderCatalog {
+    id: String,
     base_url: String,
+    models: Vec<String>,
+    paths: ProviderCatalogPaths,
+}
+
+#[derive(Debug, Deserialize)]
+struct ProviderCatalogPaths {
+    chat: String,
+    models: String,
+}
+
+fn embedded_catalog() -> Result<ProviderCatalog, String> {
+    let catalog: ProviderCatalog = serde_json::from_str(include_str!(
+        "../../../../packages/provider/catalog/deepseek.json"
+    ))
+    .map_err(|_| "服务商目录无效".to_string())?;
+    if catalog.models.is_empty() || catalog.paths.chat.is_empty() || catalog.paths.models.is_empty()
+    {
+        return Err("服务商目录无效".to_string());
+    }
+    Ok(catalog)
+}
+
+fn catalog_for(provider_id: &str) -> Result<ProviderCatalog, String> {
+    let catalog = embedded_catalog()?;
+    if catalog.id != provider_id {
+        return Err("不支持该服务商".to_string());
+    }
+    Ok(catalog)
+}
+
+fn catalog_url(catalog: &ProviderCatalog, path: &str) -> String {
+    format!("{}{}", catalog.base_url.trim_end_matches('/'), path)
+}
+
+fn provider_http_client() -> Result<&'static reqwest::Client, String> {
+    if let Some(client) = PROVIDER_HTTP_CLIENT.get() {
+        return Ok(client);
+    }
+    let client = reqwest::Client::builder()
+        .build()
+        .map_err(|_| "暂时无法发起请求".to_string())?;
+    let _ = PROVIDER_HTTP_CLIENT.set(client);
+    PROVIDER_HTTP_CLIENT
+        .get()
+        .ok_or_else(|| "暂时无法发起请求".to_string())
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct ProviderProbeInput {
+    #[serde(rename = "requestId")]
+    _request_id: String,
+    provider_id: String,
     model_id: String,
     #[serde(default)]
     reasoning_body: serde_json::Map<String, serde_json::Value>,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct ProviderProbeStatus {
+struct CredentialReadiness {
     phase: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
     source: Option<CredentialSource>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    failure_message: Option<&'static str>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ConnectionReadiness {
+    phase: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
     fail_kind: Option<&'static str>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    failure_message: Option<&'static str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     models: Option<Vec<String>>,
-    model_discovery: &'static str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    model_discovery: Option<&'static str>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ProviderReadiness {
+    credential: CredentialReadiness,
+    connection: ConnectionReadiness,
+}
+
+#[derive(Debug, Clone)]
+struct VerifiedProvider {
+    provider_id: String,
+    model_id: String,
+}
+
+fn verified_provider_store() -> &'static RwLock<Option<VerifiedProvider>> {
+    VERIFIED_PROVIDER.get_or_init(|| RwLock::new(None))
+}
+
+fn set_verified_provider(binding: Option<VerifiedProvider>) {
+    if let Ok(mut stored) = verified_provider_store().write() {
+        *stored = binding;
+    }
+}
+
+fn verified_binding_matches(binding: &VerifiedProvider, provider_id: &str, model_id: &str) -> bool {
+    binding.provider_id == provider_id && binding.model_id == model_id
+}
+
+fn credential_readiness(status: &CredentialStatus) -> CredentialReadiness {
+    CredentialReadiness {
+        phase: if status.phase == "connected" {
+            "stored"
+        } else {
+            "absent"
+        },
+        source: status.source,
+    }
+}
+
+fn unverified_readiness(status: &CredentialStatus) -> ProviderReadiness {
+    ProviderReadiness {
+        credential: credential_readiness(status),
+        connection: ConnectionReadiness {
+            phase: if status.phase == "failed" {
+                "failed"
+            } else {
+                "unverified"
+            },
+            fail_kind: status.fail_kind.map(|_| "platform"),
+            failure_message: status.failure_message,
+            models: None,
+            model_discovery: None,
+        },
+    }
 }
 
 fn provider_failed(
     source: Option<CredentialSource>,
     kind: &'static str,
     message: &'static str,
-) -> ProviderProbeStatus {
-    ProviderProbeStatus {
-        phase: "failed",
-        source,
-        failure_message: Some(message),
-        fail_kind: Some(kind),
-        models: None,
-        model_discovery: "unsupported",
+) -> ProviderReadiness {
+    ProviderReadiness {
+        credential: CredentialReadiness {
+            phase: if source.is_some() { "stored" } else { "absent" },
+            source,
+        },
+        connection: ConnectionReadiness {
+            phase: "failed",
+            fail_kind: Some(kind),
+            failure_message: Some(message),
+            models: None,
+            model_discovery: Some("unsupported"),
+        },
     }
 }
 
 fn classify_http_failure(
     source: CredentialSource,
     status: reqwest::StatusCode,
-) -> ProviderProbeStatus {
-    match status.as_u16() {
-        401 | 403 => provider_failed(
-            Some(source),
-            "auth_failed",
-            "访问凭证未通过服务商验证，请检查后重试",
-        ),
-        404 => provider_failed(
-            Some(source),
-            "endpoint",
-            "服务地址无法完成请求，请检查 Base URL",
-        ),
-        429 => provider_failed(
-            Some(source),
-            "rate_limited",
-            "服务商暂时限制了请求，请稍后重试",
-        ),
-        400 | 422 => provider_failed(
-            Some(source),
-            "model",
-            "当前模型不可用，请从模型列表选择或手动填写",
-        ),
-        _ => provider_failed(
-            Some(source),
-            "invalid_response",
-            "服务商返回了无法识别的响应，请稍后重试",
-        ),
-    }
+) -> ProviderReadiness {
+    let (kind, _) = classify_transport_status(status.as_u16());
+    let message = match kind {
+        "auth" => "访问凭证未通过服务商验证，请检查后重试",
+        "endpoint" => "服务地址无法完成请求",
+        "rate_limit" => "服务商暂时限制了请求，请稍后重试",
+        "model" => "当前模型不可用，请重新选择",
+        _ => "服务商返回了无法识别的响应，请稍后重试",
+    };
+    provider_failed(Some(source), kind, message)
 }
 
-async fn probe_provider_endpoint(
-    input: ProviderProbeInput,
+async fn probe_provider_at(
+    input: &ProviderProbeInput,
+    catalog: &ProviderCatalog,
     secret: String,
     source: CredentialSource,
-) -> ProviderProbeStatus {
-    let base = input.base_url.trim().trim_end_matches('/');
-    if base.is_empty() || input.model_id.trim().is_empty() {
-        return provider_failed(Some(source), "endpoint", "请填写 Base URL 和模型名");
+) -> ProviderReadiness {
+    if input.model_id.trim().is_empty() {
+        return provider_failed(Some(source), "model", "请选择模型");
     }
-    let client = match reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(20))
-        .build()
-    {
+    let client = match provider_http_client() {
         Ok(client) => client,
-        Err(_) => return provider_failed(Some(source), "platform", "暂时无法验证连接，请重试"),
+        Err(_) => return provider_failed(Some(source), "network", "暂时无法验证连接，请重试"),
     };
     let models_response = client
-        .get(format!("{base}/models"))
+        .get(catalog_url(catalog, &catalog.paths.models))
+        .timeout(std::time::Duration::from_secs(20))
         .bearer_auth(&secret)
         .send()
         .await;
     let mut models = None;
     let mut discovery = "unsupported";
     if let Ok(response) = models_response {
-        if response.status() == reqwest::StatusCode::UNAUTHORIZED
-            || response.status() == reqwest::StatusCode::FORBIDDEN
-        {
+        if matches!(response.status().as_u16(), 401 | 403) {
             return classify_http_failure(source, response.status());
         }
         if response.status().is_success() {
-            let payload = response.json::<serde_json::Value>().await.ok();
-            models = payload
+            models = response
+                .json::<serde_json::Value>()
+                .await
+                .ok()
                 .and_then(|value| {
                     value
                         .get("data")
@@ -925,30 +1029,38 @@ async fn probe_provider_endpoint(
             }
         }
     }
-
     let mut body = serde_json::Map::new();
-    body.insert("model".into(), serde_json::Value::String(input.model_id));
+    body.insert(
+        "model".into(),
+        serde_json::Value::String(input.model_id.clone()),
+    );
     body.insert(
         "messages".into(),
         serde_json::json!([{"role":"user","content":"Hi"}]),
     );
     body.insert("max_tokens".into(), serde_json::json!(1));
     body.insert("stream".into(), serde_json::json!(false));
-    body.extend(input.reasoning_body);
-    let smoke = client
-        .post(format!("{base}/chat/completions"))
+    body.extend(input.reasoning_body.clone());
+    match client
+        .post(catalog_url(catalog, &catalog.paths.chat))
+        .timeout(std::time::Duration::from_secs(20))
         .bearer_auth(&secret)
         .json(&body)
         .send()
-        .await;
-    match smoke {
-        Ok(response) if response.status().is_success() => ProviderProbeStatus {
-            phase: "connected",
-            source: Some(source),
-            failure_message: None,
-            fail_kind: None,
-            models,
-            model_discovery: discovery,
+        .await
+    {
+        Ok(response) if response.status().is_success() => ProviderReadiness {
+            credential: CredentialReadiness {
+                phase: "stored",
+                source: Some(source),
+            },
+            connection: ConnectionReadiness {
+                phase: "ready",
+                fail_kind: None,
+                failure_message: None,
+                models,
+                model_discovery: Some(discovery),
+            },
         },
         Ok(response) => classify_http_failure(source, response.status()),
         Err(error) if error.is_timeout() => {
@@ -962,100 +1074,194 @@ async fn probe_provider_endpoint(
     }
 }
 
-// ─── Chat 转发（GOAL-1 链路批：chat 面真 API）────────────────────────────────
-// 窄面代理：仅 `/chat/completions` 对话补全语义。请求体由 TS/core 组装（quirk 与
-// 结构化降级链复用 packages/core），key 唯一注入点在此——JS 侧永不见明文，与
-// validate_provider_connection 同风险面同审计口径（PRV-1 主张 1）。
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct ChatForwardInput {
-    url: String,
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct ProviderChatInput {
+    request_id: String,
+    provider_id: String,
+    model_id: String,
+    #[serde(default)]
+    reasoning_body: serde_json::Map<String, serde_json::Value>,
     body: String,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct ChatForwardOutput {
-    status: u16,
-    body: String,
+#[derive(Debug, Clone, Serialize)]
+#[serde(
+    tag = "type",
+    rename_all = "snake_case",
+    rename_all_fields = "camelCase"
+)]
+enum ProviderTransportEvent {
+    ResponseStarted {
+        request_id: String,
+        status: u16,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        content_type: Option<String>,
+    },
+    Chunk {
+        request_id: String,
+        bytes: Vec<u8>,
+    },
+    End {
+        request_id: String,
+    },
+    Failed {
+        request_id: String,
+        kind: &'static str,
+        message: &'static str,
+        retryable: bool,
+    },
 }
 
-fn verified_provider_base_url_store() -> &'static RwLock<Option<String>> {
-    VERIFIED_PROVIDER_BASE_URL.get_or_init(|| RwLock::new(None))
+fn cancellation_store() -> &'static Mutex<HashMap<String, tokio::sync::oneshot::Sender<()>>> {
+    CHAT_CANCELLATIONS.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
-fn set_verified_provider_base_url(base_url: Option<&str>) {
-    if let Ok(mut stored) = verified_provider_base_url_store().write() {
-        *stored = base_url.map(|value| value.trim().trim_end_matches('/').to_owned());
+fn classify_transport_status(status: u16) -> (&'static str, bool) {
+    match status {
+        401 | 403 => ("auth", false),
+        429 => ("rate_limit", true),
+        400 | 422 => ("model", false),
+        404 => ("endpoint", false),
+        500..=599 => ("endpoint", true),
+        _ => ("invalid_response", false),
     }
 }
 
-fn verified_provider_base_url() -> Option<String> {
-    verified_provider_base_url_store().read().ok()?.clone()
-}
-
-/// 仅放行已验证 base URL 的同 origin、固定 `/chat/completions` 子路径。
-/// custom provider 不走中央域名枚举：成功探针后同样进入 Rust 可信状态。
-fn chat_forward_url_allowed(url: &str, verified_base_url: &str) -> bool {
-    let Ok(target) = reqwest::Url::parse(url) else {
-        return false;
+async fn stream_chat_at<F>(url: String, input: &ProviderChatInput, secret: &str, mut emit: F)
+where
+    F: FnMut(ProviderTransportEvent),
+{
+    let request_id = input.request_id.clone();
+    let mut parsed = match serde_json::from_str::<serde_json::Value>(&input.body) {
+        Ok(serde_json::Value::Object(value)) => value,
+        _ => {
+            emit(ProviderTransportEvent::Failed {
+                request_id,
+                kind: "protocol",
+                message: "请求体无效",
+                retryable: false,
+            });
+            return;
+        }
     };
-    let Ok(base) = reqwest::Url::parse(verified_base_url) else {
-        return false;
+    parsed.insert(
+        "model".into(),
+        serde_json::Value::String(input.model_id.clone()),
+    );
+    parsed.insert("stream".into(), serde_json::Value::Bool(true));
+    parsed.extend(input.reasoning_body.clone());
+    let body = match serde_json::to_string(&parsed) {
+        Ok(body) => body,
+        Err(_) => {
+            emit(ProviderTransportEvent::Failed {
+                request_id,
+                kind: "protocol",
+                message: "请求体无效",
+                retryable: false,
+            });
+            return;
+        }
     };
-    if !matches!(target.scheme(), "http" | "https")
-        || !matches!(base.scheme(), "http" | "https")
-        || target.scheme() != base.scheme()
-        || target.host_str() != base.host_str()
-        || target.port_or_known_default() != base.port_or_known_default()
-        || !target.username().is_empty()
-        || target.password().is_some()
-        || target.query().is_some()
-        || target.fragment().is_some()
-        || !base.username().is_empty()
-        || base.password().is_some()
-        || base.query().is_some()
-        || base.fragment().is_some()
-    {
-        return false;
+    let client = match provider_http_client() {
+        Ok(client) => client,
+        Err(_) => {
+            emit(ProviderTransportEvent::Failed {
+                request_id,
+                kind: "network",
+                message: "暂时无法发起请求",
+                retryable: false,
+            });
+            return;
+        }
+    };
+    let (cancel_tx, mut cancel_rx) = tokio::sync::oneshot::channel();
+    if let Ok(mut store) = cancellation_store().lock() {
+        store.insert(request_id.clone(), cancel_tx);
     }
-    let expected_path = format!("{}/chat/completions", base.path().trim_end_matches('/'));
-    target.path() == expected_path
-}
-
-/// secret 参数化的转发体（mock TCP 可测）；HTTP 状态原样透传，
-/// 错误消息零技术概念（F4 口径），且永不包含 URL/body/secret。
-async fn forward_chat_request(
-    url: &str,
-    body: String,
-    secret: &str,
-) -> Result<ChatForwardOutput, String> {
-    let client = reqwest::Client::builder()
-        // 比 core 侧 120s race 更长的兜底：让 TS 侧先超时，保持分型出口唯一
-        .timeout(std::time::Duration::from_secs(180))
-        .build()
-        .map_err(|_| "暂时无法发起请求，请重试".to_string())?;
-    let response = client
+    let request = client
         .post(url)
+        .timeout(std::time::Duration::from_secs(180))
         .bearer_auth(secret)
         .header("content-type", "application/json")
         .body(body)
-        .send()
-        .await
-        .map_err(|error| {
-            if error.is_timeout() {
-                "服务商响应超时，请稍后重试".to_string()
+        .send();
+    let response_result = tokio::select! {
+        _ = &mut cancel_rx => {
+            emit(ProviderTransportEvent::Failed { request_id: request_id.clone(), kind: "canceled", message: "请求已取消", retryable: false });
+            if let Ok(mut store) = cancellation_store().lock() { store.remove(&request_id); }
+            return;
+        }
+        response = request => response,
+    };
+    let response = match response_result {
+        Ok(response) => response,
+        Err(error) => {
+            let (kind, message) = if error.is_timeout() {
+                ("timeout", "服务商响应超时")
             } else {
-                "暂时无法连接服务商，请检查网络后重试".to_string()
+                ("network", "暂时无法连接服务商")
+            };
+            emit(ProviderTransportEvent::Failed {
+                request_id: request_id.clone(),
+                kind,
+                message,
+                retryable: false,
+            });
+            if let Ok(mut store) = cancellation_store().lock() {
+                store.remove(&request_id);
             }
-        })?;
+            return;
+        }
+    };
     let status = response.status().as_u16();
-    let body = response
-        .text()
-        .await
-        .map_err(|_| "服务商返回了无法识别的响应，请稍后重试".to_string())?;
-    Ok(ChatForwardOutput { status, body })
+    let content_type = response
+        .headers()
+        .get(reqwest::header::CONTENT_TYPE)
+        .and_then(|value| value.to_str().ok())
+        .map(str::to_owned);
+    emit(ProviderTransportEvent::ResponseStarted {
+        request_id: request_id.clone(),
+        status,
+        content_type,
+    });
+    if !(200..300).contains(&status) {
+        let (kind, retryable) = classify_transport_status(status);
+        emit(ProviderTransportEvent::Failed {
+            request_id: request_id.clone(),
+            kind,
+            message: "服务商请求失败",
+            retryable,
+        });
+        if let Ok(mut store) = cancellation_store().lock() {
+            store.remove(&request_id);
+        }
+        return;
+    }
+    let mut stream = response.bytes_stream();
+    loop {
+        tokio::select! {
+            _ = &mut cancel_rx => {
+                emit(ProviderTransportEvent::Failed { request_id: request_id.clone(), kind: "canceled", message: "请求已取消", retryable: false });
+                break;
+            }
+            item = stream.next() => match item {
+                Some(Ok(bytes)) => emit(ProviderTransportEvent::Chunk { request_id: request_id.clone(), bytes: bytes.to_vec() }),
+                Some(Err(error)) => {
+                    let kind = if error.is_timeout() { "timeout" } else { "network" };
+                    emit(ProviderTransportEvent::Failed { request_id: request_id.clone(), kind, message: "服务商流读取失败", retryable: false });
+                    break;
+                }
+                None => {
+                    emit(ProviderTransportEvent::End { request_id: request_id.clone() });
+                    break;
+                }
+            }
+        }
+    }
+    if let Ok(mut store) = cancellation_store().lock() {
+        store.remove(&request_id);
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -1197,12 +1403,22 @@ fn case_output_docx_exists(input: CaseOutputRefInput) -> Result<bool, String> {
 }
 
 #[tauri::command]
-async fn provider_chat_request(input: ChatForwardInput) -> Result<ChatForwardOutput, String> {
+async fn provider_chat_request(
+    input: ProviderChatInput,
+    on_event: tauri::ipc::Channel<ProviderTransportEvent>,
+) -> Result<(), String> {
     trace_startup_once();
-    let verified_base_url =
-        verified_provider_base_url().ok_or_else(|| "请先验证服务连接".to_string())?;
-    if !chat_forward_url_allowed(&input.url, &verified_base_url) {
-        return Err("仅支持已验证服务的对话补全请求".to_string());
+    let catalog = catalog_for(&input.provider_id)?;
+    if input.model_id.trim().is_empty() {
+        return Err("请选择模型".to_string());
+    }
+    let verified = verified_provider_store()
+        .read()
+        .ok()
+        .and_then(|value| value.clone())
+        .ok_or_else(|| "请先验证服务连接".to_string())?;
+    if !verified_binding_matches(&verified, &input.provider_id, &input.model_id) {
+        return Err("服务配置已变化，请重新验证".to_string());
     }
     let (_source, secret) = match active_secret() {
         Ok(pair) => pair,
@@ -1213,33 +1429,52 @@ async fn provider_chat_request(input: ChatForwardInput) -> Result<ChatForwardOut
                 .to_string())
         }
     };
-    forward_chat_request(&input.url, input.body, &secret).await
+    let url = catalog_url(&catalog, &catalog.paths.chat);
+    let mut channel_failed = false;
+    stream_chat_at(url, &input, &secret, |event| {
+        if on_event.send(event).is_err() {
+            channel_failed = true;
+        }
+    })
+    .await;
+    if channel_failed {
+        Err("无法发送服务商流事件".to_string())
+    } else {
+        Ok(())
+    }
+}
+
+#[tauri::command]
+fn cancel_provider_request(request_id: String) -> Result<(), String> {
+    if let Ok(mut store) = cancellation_store().lock() {
+        if let Some(cancel) = store.remove(&request_id) {
+            let _ = cancel.send(());
+        }
+    }
+    Ok(())
 }
 
 #[tauri::command]
 async fn validate_provider_connection(
     input: ProviderProbeInput,
-) -> Result<ProviderProbeStatus, String> {
-    let _provider_id = &input.provider_id; // 仅诊断标识；路由完全由声明生成的 input 驱动。
-                                           // 每次换配置先撤销旧准入；只有新配置真探针成功后才登记。
-    set_verified_provider_base_url(None);
+) -> Result<ProviderReadiness, String> {
+    set_verified_provider(None);
     match active_secret() {
         Ok((source, secret)) => {
-            let base_url = input.base_url.clone();
-            let status = probe_provider_endpoint(input, secret, source).await;
-            if status.phase == "connected" {
-                set_verified_provider_base_url(Some(&base_url));
+            let catalog = match catalog_for(&input.provider_id) {
+                Ok(catalog) => catalog,
+                Err(_) => return Ok(provider_failed(Some(source), "endpoint", "不支持该服务商")),
+            };
+            let status = probe_provider_at(&input, &catalog, secret, source).await;
+            if status.connection.phase == "ready" {
+                set_verified_provider(Some(VerifiedProvider {
+                    provider_id: input.provider_id,
+                    model_id: input.model_id,
+                }));
             }
             Ok(status)
         }
-        Err(status) => Ok(ProviderProbeStatus {
-            phase: status.phase,
-            source: status.source,
-            failure_message: status.failure_message,
-            fail_kind: status.fail_kind,
-            models: None,
-            model_discovery: "unsupported",
-        }),
+        Err(status) => Ok(unverified_readiness(&status)),
     }
 }
 
@@ -1268,23 +1503,23 @@ fn trace_status_exit(event: &str, status: &CredentialStatus, step: Option<&str>)
 }
 
 #[tauri::command]
-fn provider_credential_status() -> Result<CredentialStatus, String> {
-    credential_status()
+fn provider_credential_status() -> Result<ProviderReadiness, String> {
+    credential_status().map(|status| unverified_readiness(&status))
 }
 
 #[tauri::command]
 fn save_provider_credential(
     source: CredentialSource,
     value: String,
-) -> Result<CredentialStatus, String> {
+) -> Result<ProviderReadiness, String> {
     trace_startup_once();
     // 换凭证后必须重新验证 provider；旧 host 准入不能沿用。
-    set_verified_provider_base_url(None);
+    set_verified_provider(None);
     let value = value.trim();
     if value.is_empty() {
         let status = failed(Some(source), "凭证不能为空", None);
         trace_status_exit("save_provider_credential", &status, Some("validate"));
-        return Ok(status);
+        return Ok(unverified_readiness(&status));
     }
 
     let stored = match source {
@@ -1296,7 +1531,7 @@ fn save_provider_credential(
                     None,
                 );
                 trace_status_exit("save_provider_credential", &status, Some("validate"));
-                return Ok(status);
+                return Ok(unverified_readiness(&status));
             }
             StoredCredential::Pasted {
                 secret: value.to_owned(),
@@ -1312,7 +1547,7 @@ fn save_provider_credential(
                     None,
                 );
                 trace_status_exit("save_provider_credential", &status, Some("validate"));
-                return Ok(status);
+                return Ok(unverified_readiness(&status));
             }
             match std::env::var(value) {
                 Err(_) => {
@@ -1322,7 +1557,7 @@ fn save_provider_credential(
                         None,
                     );
                     trace_status_exit("save_provider_credential", &status, Some("env_resolve"));
-                    return Ok(status);
+                    return Ok(unverified_readiness(&status));
                 }
                 Ok(resolved) if resolved.trim().is_empty() => {
                     let status = failed(
@@ -1331,7 +1566,7 @@ fn save_provider_credential(
                         None,
                     );
                     trace_status_exit("save_provider_credential", &status, Some("env_resolve"));
-                    return Ok(status);
+                    return Ok(unverified_readiness(&status));
                 }
                 Ok(_) => {}
             }
@@ -1352,13 +1587,13 @@ fn save_provider_credential(
                 Some("platform"),
             );
             trace_status_exit("save_provider_credential", &status, Some("serialize"));
-            return Ok(status);
+            return Ok(unverified_readiness(&status));
         }
     };
     if let Err(kind) = rewrite_password(CREDENTIAL_ACCOUNT, &payload) {
         let status = failed_keychain(Some(source), kind);
         trace_status_exit("save_provider_credential", &status, Some("rewrite"));
-        return Ok(status);
+        return Ok(unverified_readiness(&status));
     }
 
     // F3 清账：legacy 双条目静默 delete（不读 data 不弹窗）。失败仅 trace 不阻塞——
@@ -1368,13 +1603,13 @@ fn save_provider_credential(
 
     let status = credential_status()?;
     trace_status_exit("save_provider_credential", &status, Some("reprobe"));
-    Ok(status)
+    Ok(unverified_readiness(&status))
 }
 
 #[tauri::command]
-fn clear_provider_credential() -> Result<CredentialStatus, String> {
+fn clear_provider_credential() -> Result<ProviderReadiness, String> {
     trace_startup_once();
-    set_verified_provider_base_url(None);
+    set_verified_provider(None);
     for account in [
         CREDENTIAL_ACCOUNT,
         LEGACY_SOURCE_ACCOUNT,
@@ -1383,12 +1618,12 @@ fn clear_provider_credential() -> Result<CredentialStatus, String> {
         if let Err(kind) = delete_credential_ignore_missing(account) {
             let status = failed_keychain(None, kind);
             trace_status_exit("clear_provider_credential", &status, Some("delete"));
-            return Ok(status);
+            return Ok(unverified_readiness(&status));
         }
     }
     let status = pending();
     trace_status_exit("clear_provider_credential", &status, None);
-    Ok(status)
+    Ok(unverified_readiness(&status))
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -1403,6 +1638,7 @@ pub fn run() {
             clear_provider_credential,
             validate_provider_connection,
             provider_chat_request,
+            cancel_provider_request,
             write_case_output_docx,
             case_output_docx_exists,
             sync_macos_window_controls,
@@ -1503,6 +1739,26 @@ mod tests {
         assert!(!serialized.contains("value"));
     }
 
+    #[test]
+    fn readable_credential_is_stored_but_unverified_after_restart() {
+        let readiness = unverified_readiness(&connected(CredentialSource::Pasted));
+        let value = serde_json::to_value(readiness).expect("readiness wire");
+        assert_eq!(value["credential"]["phase"], "stored");
+        assert_eq!(value["connection"]["phase"], "unverified");
+        assert_ne!(value["connection"]["phase"], "ready");
+    }
+
+    #[test]
+    fn changing_provider_or_model_invalidates_verified_binding() {
+        let binding = VerifiedProvider {
+            provider_id: "deepseek".into(),
+            model_id: "model-a".into(),
+        };
+        assert!(verified_binding_matches(&binding, "deepseek", "model-a"));
+        assert!(!verified_binding_matches(&binding, "deepseek", "model-b"));
+        assert!(!verified_binding_matches(&binding, "arbitrary", "model-a"));
+    }
+
     #[tokio::test]
     async fn mock_endpoint_discovers_models_then_runs_real_one_token_smoke() {
         let listener = TcpListener::bind("127.0.0.1:0").expect("bind mock endpoint");
@@ -1525,24 +1781,38 @@ mod tests {
                 write!(socket, "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}", body.len(), body).expect("write response");
             }
         });
-        let status = probe_provider_endpoint(
-            ProviderProbeInput {
-                provider_id: "deepseek".into(),
-                base_url: format!("http://{address}/v1"),
-                model_id: "mock-law-model".into(),
-                reasoning_body: serde_json::from_value(
-                    serde_json::json!({"thinking": {"type": "enabled"}}),
-                )
-                .unwrap(),
+        let input = ProviderProbeInput {
+            _request_id: "probe-test".into(),
+            provider_id: "deepseek".into(),
+            model_id: "mock-law-model".into(),
+            reasoning_body: serde_json::from_value(
+                serde_json::json!({"thinking": {"type": "enabled"}}),
+            )
+            .unwrap(),
+        };
+        let catalog = ProviderCatalog {
+            id: "deepseek".into(),
+            base_url: format!("http://{address}/v1"),
+            models: vec!["mock-law-model".into()],
+            paths: ProviderCatalogPaths {
+                chat: "/chat/completions".into(),
+                models: "/models".into(),
             },
+        };
+        let status = probe_provider_at(
+            &input,
+            &catalog,
             "never-log-this-secret".into(),
             CredentialSource::Pasted,
         )
         .await;
         server.join().expect("mock server");
-        assert_eq!(status.phase, "connected");
-        assert_eq!(status.model_discovery, "available");
-        assert_eq!(status.models, Some(vec!["mock-law-model".into()]));
+        assert_eq!(status.connection.phase, "ready");
+        assert_eq!(status.connection.model_discovery, Some("available"));
+        assert_eq!(
+            status.connection.models,
+            Some(vec!["mock-law-model".into()])
+        );
     }
 
     #[test]
@@ -1749,44 +2019,38 @@ mod tests {
     }
 
     #[test]
-    fn chat_forward_url_narrow_gate() {
-        let deepseek = "https://api.deepseek.com/v1";
-        assert!(chat_forward_url_allowed(
-            "https://api.deepseek.com/v1/chat/completions",
-            deepseek,
-        ));
-        assert!(!chat_forward_url_allowed(
-            "https://attacker.example/v1/chat/completions",
-            deepseek,
-        ));
-        assert!(!chat_forward_url_allowed(
-            "https://api.deepseek.com/v1/models",
-            deepseek
-        ));
-        assert!(!chat_forward_url_allowed(
-            "https://api.deepseek.com/v1/chat/completions?x=1",
-            deepseek,
-        ));
-        assert!(!chat_forward_url_allowed(
-            "file:///etc/passwd/chat/completions",
-            deepseek
-        ));
-        assert!(!chat_forward_url_allowed("", deepseek));
+    fn embedded_catalog_rejects_arbitrary_provider_ids() {
+        assert!(catalog_for("attacker-controlled-provider").is_err());
+        let catalog = catalog_for("deepseek").expect("embedded provider");
+        assert_eq!(catalog.id, "deepseek");
+        assert!(catalog.base_url.starts_with("https://"));
+        assert_eq!(classify_transport_status(401), ("auth", false));
+        assert_eq!(classify_transport_status(429), ("rate_limit", true));
+        assert_eq!(classify_transport_status(503), ("endpoint", true));
+    }
 
-        // custom provider 不按中央域名表裁剪；只绑定用户刚刚验证成功的完整 base URL。
-        let custom = "http://127.0.0.1:9/custom/v1";
-        assert!(chat_forward_url_allowed(
-            "http://127.0.0.1:9/custom/v1/chat/completions",
-            custom,
-        ));
-        assert!(!chat_forward_url_allowed(
-            "http://127.0.0.1:10/custom/v1/chat/completions",
-            custom,
-        ));
+    #[test]
+    fn chat_input_rejects_arbitrary_url_header_and_key_fields() {
+        let base = serde_json::json!({
+            "requestId": "r1", "providerId": "deepseek", "modelId": "m",
+            "reasoningBody": {}, "body": "{}"
+        });
+        assert!(serde_json::from_value::<ProviderChatInput>(base.clone()).is_ok());
+        for field in ["url", "headers", "apiKey"] {
+            let mut forged = base.clone();
+            forged
+                .as_object_mut()
+                .expect("object")
+                .insert(field.into(), serde_json::json!("attacker"));
+            assert!(
+                serde_json::from_value::<ProviderChatInput>(forged).is_err(),
+                "must reject {field}"
+            );
+        }
     }
 
     #[tokio::test]
-    async fn forward_chat_request_passes_status_and_body_through() {
+    async fn real_mock_stream_preserves_fragmented_utf8_as_raw_transport_frames() {
         let listener = TcpListener::bind("127.0.0.1:0").expect("bind mock endpoint");
         let address = listener.local_addr().expect("mock address");
         let server = std::thread::spawn(move || {
@@ -1800,20 +2064,138 @@ mod tests {
                     || text.contains("Authorization: Bearer test-secret-never-logged")
             );
             assert!(text.contains("\"stream\":true"));
-            let body = "data: {\"choices\":[{\"delta\":{\"content\":\"x\"}}]}\n\ndata: [DONE]\n";
-            write!(socket, "HTTP/1.1 429 Too Many Requests\r\ncontent-type: text/event-stream\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}", body.len(), body).expect("write response");
+            let body = "data: {\"choices\":[{\"delta\":{\"content\":\"法\"}}]}\n\ndata: [DONE]\n\n"
+                .as_bytes();
+            write!(socket, "HTTP/1.1 200 OK\r\ncontent-type: text/event-stream\r\ncontent-length: {}\r\nconnection: close\r\n\r\n", body.len()).expect("write headers");
+            let split = body
+                .windows(3)
+                .position(|bytes| bytes == "法".as_bytes())
+                .expect("Han bytes")
+                + 1;
+            socket
+                .write_all(&body[..split])
+                .expect("write first fragment");
+            socket.flush().expect("flush first fragment");
+            std::thread::sleep(std::time::Duration::from_millis(30));
+            socket
+                .write_all(&body[split..])
+                .expect("write second fragment");
         });
-        let output = forward_chat_request(
-            &format!("http://{address}/v1/chat/completions"),
-            r#"{"model":"m","stream":true}"#.into(),
+        let input = ProviderChatInput {
+            request_id: "fragment-test".into(),
+            provider_id: "deepseek".into(),
+            model_id: "deepseek-v4-pro".into(),
+            reasoning_body: serde_json::Map::new(),
+            body: r#"{"messages":[{"role":"user","content":"hi"}],"stream":true}"#.into(),
+        };
+        let mut events = Vec::new();
+        stream_chat_at(
+            format!("http://{address}/v1/chat/completions"),
+            &input,
             "test-secret-never-logged",
+            |event| events.push(event),
         )
-        .await
-        .expect("forward should pass HTTP result through");
+        .await;
         server.join().expect("mock server");
-        // 状态与 body 原样透传：分型判断归 TS/core 一处（出口唯一）
-        assert_eq!(output.status, 429);
-        assert!(output.body.contains("[DONE]"));
+        assert!(matches!(
+            events.first(),
+            Some(ProviderTransportEvent::ResponseStarted { status: 200, .. })
+        ));
+        assert!(matches!(
+            events.last(),
+            Some(ProviderTransportEvent::End { .. })
+        ));
+        let chunks = events
+            .iter()
+            .filter_map(|event| match event {
+                ProviderTransportEvent::Chunk { bytes, .. } => Some(bytes.clone()),
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        assert!(
+            chunks.len() >= 2,
+            "mock server must exercise fragmented delivery"
+        );
+        let joined = chunks.into_iter().flatten().collect::<Vec<_>>();
+        assert!(String::from_utf8(joined)
+            .expect("raw bytes stay valid when joined")
+            .contains("法"));
+    }
+
+    #[test]
+    fn transport_event_wire_shape_is_closed_and_camel_case() {
+        let event = ProviderTransportEvent::ResponseStarted {
+            request_id: "r1".into(),
+            status: 200,
+            content_type: Some("text/event-stream".into()),
+        };
+        assert_eq!(
+            serde_json::to_value(event).expect("serialize"),
+            serde_json::json!({
+                "type": "response_started", "requestId": "r1", "status": 200, "contentType": "text/event-stream"
+            })
+        );
+        let failed = ProviderTransportEvent::Failed {
+            request_id: "r1".into(),
+            kind: "canceled",
+            message: "请求已取消",
+            retryable: false,
+        };
+        let value = serde_json::to_value(failed).expect("serialize failed");
+        assert_eq!(value["type"], "failed");
+        assert_eq!(value["kind"], "canceled");
+        assert!(value.get("url").is_none());
+    }
+
+    #[tokio::test]
+    async fn cancellation_before_response_headers_emits_one_canceled_terminal() {
+        use std::sync::Arc;
+        let listener = TcpListener::bind("127.0.0.1:0").expect("bind cancel endpoint");
+        let address = listener.local_addr().expect("cancel address");
+        let server = std::thread::spawn(move || {
+            let (mut socket, _) = listener.accept().expect("accept cancel request");
+            let mut request = vec![0_u8; 4096];
+            let _ = socket.read(&mut request);
+            std::thread::sleep(std::time::Duration::from_millis(150));
+        });
+        let input = ProviderChatInput {
+            request_id: "cancel-before-headers".into(),
+            provider_id: "deepseek".into(),
+            model_id: "deepseek-v4-pro".into(),
+            reasoning_body: serde_json::Map::new(),
+            body: "{}".into(),
+        };
+        let events = Arc::new(Mutex::new(Vec::new()));
+        let sink = Arc::clone(&events);
+        let task = tokio::spawn(async move {
+            stream_chat_at(
+                format!("http://{address}/chat/completions"),
+                &input,
+                "never-log",
+                |event| {
+                    sink.lock().expect("event lock").push(event);
+                },
+            )
+            .await;
+        });
+        tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+        if let Ok(mut store) = cancellation_store().lock() {
+            let cancel = store
+                .remove("cancel-before-headers")
+                .expect("request registered before HTTP response");
+            let _ = cancel.send(());
+        }
+        task.await.expect("stream task");
+        server.join().expect("cancel server");
+        let events = events.lock().expect("events");
+        assert_eq!(events.len(), 1);
+        assert!(matches!(
+            events[0],
+            ProviderTransportEvent::Failed {
+                kind: "canceled",
+                ..
+            }
+        ));
     }
 
     #[test]

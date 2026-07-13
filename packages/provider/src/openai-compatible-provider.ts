@@ -1,8 +1,10 @@
-import type { GenerationRequest, GenerationResponse, Provider, ProviderAuth, ProviderBilling } from './types.js';
+import type { GenerationRequest, GenerationResponse, Provider, ProviderAuth, ProviderBilling, ProviderStreamEvent, ProviderStreamOptions, ProviderTransport } from './types.js';
 import type { ProviderQuirkProfile } from './quirk-profile.js';
 import { DEEPSEEK_QUIRK_PROFILE } from './quirk-profile.js';
 import { generateStructured } from './structured-output.js';
 import { ProviderNotConfiguredError, ProviderNotImplementedError } from './errors.js';
+import { applyReasoningRoute } from './quirk-profile.js';
+import { streamChatCompletion } from './http-client.js';
 
 export interface OpenAICompatibleProviderConfig {
   auth: ProviderAuth;
@@ -16,6 +18,8 @@ export interface OpenAICompatibleProviderConfig {
   fetchImpl?: typeof fetch;
   /** 测试用可注入退避延迟；生产缺省用真实 setTimeout。 */
   delay?: (ms: number) => Promise<void>;
+  /** Desktop 生产路径注入 Rust Channel transport。 */
+  transport?: ProviderTransport;
 }
 
 const DEFAULT_TIMEOUT_MS = 120_000;
@@ -54,26 +58,72 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
     maxTransportRetries: config.maxTransportRetries ?? DEFAULT_MAX_TRANSPORT_RETRIES,
     fetchImpl: config.fetchImpl ?? fetch,
     delay: config.delay ?? realDelay,
+    transport: config.transport,
   };
   const maxValidationRetries = config.maxValidationRetries ?? DEFAULT_MAX_VALIDATION_RETRIES;
 
-  return {
+  const provider: Provider = {
     id: profile.providerId,
     modelId: config.modelId,
+    async *stream(request: GenerationRequest, options: ProviderStreamOptions = {}): AsyncIterable<ProviderStreamEvent> {
+      if (request.responseSchema) {
+        const result = await generateStructured({
+          profile,
+          model: config.modelId,
+          systemPrompt: request.systemPrompt,
+          messages: request.messages,
+          responseSchema: request.responseSchema,
+          maxValidationRetries,
+          reasoningLevel: config.reasoningLevel,
+          httpConfig,
+        });
+        const requestId = options.requestId ?? `provider-${Date.now()}`;
+        let seq = 0;
+        yield { type: 'started', requestId, seq: seq++, providerId: profile.providerId, modelId: config.modelId };
+        if (result.reasoningContent) yield { type: 'reasoning_delta', requestId, seq: seq++, delta: result.reasoningContent };
+        if (result.content) yield { type: 'content_delta', requestId, seq: seq++, delta: result.content };
+        if (result.usage) yield { type: 'usage', requestId, seq: seq++, ...result.usage };
+        yield { type: 'completed', requestId, seq, finishReason: 'stop' };
+        return;
+      }
+      const routed = config.reasoningLevel
+        ? applyReasoningRoute(profile, config.modelId, config.reasoningLevel)
+        : { model: config.modelId, extraBody: {} };
+      const messages = [
+        ...(request.systemPrompt ? [{ role: 'system' as const, content: request.systemPrompt }] : []),
+        ...request.messages,
+      ];
+      yield* streamChatCompletion(profile, {
+        model: routed.model,
+        messages,
+        stream: true,
+        stream_options: { include_usage: true },
+        ...routed.extraBody,
+      }, httpConfig, options);
+    },
     async generate(request: GenerationRequest): Promise<GenerationResponse> {
-      const result = await generateStructured({
-        profile,
-        model: config.modelId,
-        systemPrompt: request.systemPrompt,
-        messages: request.messages,
-        responseSchema: request.responseSchema,
-        maxValidationRetries,
-        reasoningLevel: config.reasoningLevel,
-        httpConfig,
-      });
-      return { content: result.content, reasoningContent: result.reasoningContent, usage: result.usage, notices: result.notices };
+      let content = '';
+      let reasoningContent = '';
+      let usage: GenerationResponse['usage'];
+      for await (const event of provider.stream(request)) {
+        if (event.type === 'content_delta') content += event.delta;
+        else if (event.type === 'reasoning_delta') reasoningContent += event.delta;
+        else if (event.type === 'usage') usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+        else if (event.type === 'failed') throw new Error(event.message);
+      }
+      const notices = request.responseSchema && config.reasoningLevel === 'deep'
+        && profile.parameterCompatibility.structuredOutputWithDeepReasoning === 'downgrade_to_standard'
+        ? [{
+            code: 'reasoning_downgraded_for_structured_output' as const,
+            message: `${profile.providerId} 的结构化输出与深思互斥，本次已自动使用标准模式。`,
+            requested: 'deep' as const,
+            applied: 'standard' as const,
+          }]
+        : undefined;
+      return { content, reasoningContent: reasoningContent || undefined, usage, notices };
     },
   };
+  return provider;
 }
 
 /** DeepSeek 具名工厂的精简配置——固定 auth.kind='api_key'/billing.kind='metered'
@@ -88,6 +138,7 @@ export interface NamedProviderConfig {
   reasoningLevel?: 'standard' | 'deep';
   fetchImpl?: typeof fetch;
   delay?: (ms: number) => Promise<void>;
+  transport?: ProviderTransport;
 }
 
 function toGenericConfig(config: NamedProviderConfig): OpenAICompatibleProviderConfig {
@@ -101,6 +152,7 @@ function toGenericConfig(config: NamedProviderConfig): OpenAICompatibleProviderC
     reasoningLevel: config.reasoningLevel,
     fetchImpl: config.fetchImpl,
     delay: config.delay,
+    transport: config.transport,
   };
 }
 
