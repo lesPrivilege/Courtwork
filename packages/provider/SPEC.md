@@ -68,6 +68,8 @@ type ProviderStreamEvent =
 
 provider port 新增可取消的 `stream(request): AsyncIterable<ProviderStreamEvent>`；既有 `generate()` 只作为聚合兼容层消费该 stream，不得另走第二条 HTTP 路径。正常 EOF 前没有 `[DONE]`、终态时正文为空、非法 JSON/SSE、重复终态、取消竞态都必须结构化失败。
 
+`started` 固定是 provider 请求生命周期的 `seq: 0`，不是 HTTP 2xx 的同义词；因此 401/429/5xx、transport network 与 cancel 也必须先发布一次 `started`，再发布闭集 `failed`。私有 `response_started` 只完成 transport handshake，成功路径不得再发布第二个 `started`。
+
 ### 凭证与连接状态
 
 用一个 view model 正交表达：
@@ -103,3 +105,4 @@ type ProviderReadiness = {
 - provider 包以 streaming `TextDecoder` 和增量 SSE parser 归一公共事件；覆盖 UTF-8 跨 chunk、首 delta 先于终帧、异常 EOF、空正文、非法 SSE/JSON、重复终态和取消竞态。公开 `generate()` 只聚合公开 `stream()`，单路径测试锁定一次 transport 请求。
 - readiness 已迁移为 credential/connection 正交状态：保存只到 `stored + unverified`，probe 期间 `verifying`，成功才 `ready`；换 key/model/reasoning、clear 与进程重启均撤销 ready。JS 仍无 secret 读回路径。
 - 本节只记录实现证据，不构成放行；Rust、provider、desktop 与全仓门禁由本实现会话实跑，最终仍须不同会话在 clean worktree 独立验收并写入对应 `ACCEPTANCE.md`。
+- 2026-07-14 阻塞修复：`normalizeProviderTransport` 在读取 transport 前发布唯一 lifecycle `started`；HTTP/transport 失败不再因缺失首事件被 core 重分型为 `invalid_response`。401/network 反例锁定 `started(seq 0) → failed(seq 1)`，公开 union 与字段未改。

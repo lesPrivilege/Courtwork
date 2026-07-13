@@ -47,6 +47,9 @@ importers:
       '@courtwork/reading-view':
         specifier: workspace:*
         version: link:../../packages/reading-view
+      '@courtwork/registry':
+        specifier: workspace:*
+        version: link:../../packages/registry
       '@courtwork/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
