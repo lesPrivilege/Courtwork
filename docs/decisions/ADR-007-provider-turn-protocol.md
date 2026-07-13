@@ -65,7 +65,7 @@ core 把一次模型调用投影为可回放的 `TurnEvent`：turn started、ass
 
 ## UI 约束
 
-`ask user` 卡片属于 chat 内的通用协议表面：使用 generated 冷调底色的轻微差异、1px hairline、既有 6px 圆角、无阴影，不新增 L1 白卡。卡片出现不做装饰性入场；主操作与选项只使用既有 70ms / scale(.98) press feedback，并完整支持 focus-visible 与 reduced-motion。内容、选项与锚点由垂类模板注入，桌面只拥有排版和交互状态。
+`ask user` 卡片属于 chat 内的通用协议表面：使用 generated 冷调底色的轻微差异、1px hairline、既有 6px 圆角、无阴影，不新增 L1 白卡。卡片出现不做装饰性入场；主操作与选项只使用既有 120ms / scale(.98) press feedback，并完整支持 focus-visible 与 reduced-motion。内容、选项与锚点由垂类模板注入，桌面只拥有排版和交互状态。
 
 ## 依赖与迁移
 

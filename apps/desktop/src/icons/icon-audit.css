@@ -1,4 +1,4 @@
-:root { font-family: -apple-system, "Segoe UI", "PingFang SC", "Noto Sans SC", sans-serif; color: #0a2540; background: #f6f9fc; }
+:root { --audit-border: #e3e9ef; font-family: -apple-system, "Segoe UI", "PingFang SC", "Noto Sans SC", sans-serif; color: #0a2540; background: #f6f9fc; }
 * { box-sizing: border-box; }
 html, body, #icon-audit-root { width: 100%; min-height: 100%; margin: 0; }
 body { background: #f6f9fc; }
@@ -15,6 +15,6 @@ body { background: #f6f9fc; }
 .icon-audit-title code, .icon-audit-card small { overflow: hidden; color: #6e8098; font: 11px/1.5 ui-monospace, "SF Mono", monospace; text-overflow: ellipsis; white-space: nowrap; }
 .icon-audit-sizes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .icon-audit figure { min-width: 0; display: grid; place-items: center; gap: 4px; margin: 0; }
-.icon-audit figure > span { width: 56px; height: 56px; display: grid; place-items: center; border: 1px solid #e3e9ef; background-color: #fff; background-image: linear-gradient(#e3e9ef 1px, transparent 1px), linear-gradient(90deg, #e3e9ef 1px, transparent 1px); background-size: 8px 8px; color: #0a2540; }
+.icon-audit figure > span { width: 56px; height: 56px; display: grid; place-items: center; border: 1px solid #e3e9ef; background-color: #fff; background-image: linear-gradient(var(--audit-border) 1px, transparent 1px), linear-gradient(90deg, var(--audit-border) 1px, transparent 1px); background-size: 8px 8px; color: #0a2540; }
 .icon-audit figcaption { color: #425466; font: 11px/1 ui-monospace, "SF Mono", monospace; font-variant-numeric: tabular-nums; }
 .icon-audit-card small { justify-self: end; }

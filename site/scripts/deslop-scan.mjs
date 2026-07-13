@@ -1,5 +1,7 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readdirSync, readFileSync } from 'node:fs';
+import { extname, join, relative, resolve } from 'node:path';
+
+import { scanSources } from './deslop-scan-lib.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
 const sources = Object.fromEntries(files.map((file) => [file, readFileSync(resolve(file), 'utf8')]));
@@ -66,8 +68,34 @@ if (!displayedQuote || !sourceAnchor.quote.includes(displayedQuote)) failures.pu
 if (!html.includes(sourceAnchor.quote) || !html.includes('04-设备采购合同 · 第 1 页')) failures.push('site/index.html: original node does not identify the fixture source and quote');
 if (firstRisk?.level !== 'high' || firstRisk?.dispositionStatus !== 'pending' || !html.includes('高风险 · 依据已核验') || !html.includes('待确认 · 不自动送出')) failures.push('site/index.html: conclusion and confirmation states drift from the fixture');
 
+const excludedDirectories = new Set([
+  '.git', 'archive', 'coverage', 'dist', 'node_modules', 'playwright-report',
+  'site-dist', 'target', 'test-results',
+]);
+const activeExtensions = new Set(['.cjs', '.css', '.html', '.js', '.jsx', '.md', '.mjs', '.svg', '.ts', '.tsx']);
+function collectActiveText(directory) {
+  const collected = [];
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const target = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      if (!excludedDirectories.has(entry.name)) collected.push(...collectActiveText(target));
+    } else if (activeExtensions.has(extname(entry.name))) {
+      collected.push(target);
+    }
+  }
+  return collected;
+}
+
+const activeSources = collectActiveText(resolve('.')).map((file) => ({
+  path: relative(resolve('.'), file),
+  content: readFileSync(file, 'utf8'),
+}));
+for (const failure of scanSources(activeSources, { repository: true })) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+}
+
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
 }
-console.log(`deslop: PASS (${files.length + 1} files, structure-aware exit 0)`);
+console.log(`deslop: PASS (${activeSources.length} active text files; archive excluded from scan roots)`);

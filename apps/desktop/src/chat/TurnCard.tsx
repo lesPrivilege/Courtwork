@@ -119,7 +119,7 @@ export function QuestionTurnCard({ question, options, onAnswer }: QuestionTurnCa
           <button
             key={option.value}
             type="button"
-            className="quiet-button"
+            className="quiet-button question-option"
             data-testid={`question-option-${option.value}`}
             disabled={Boolean(answer)}
             onClick={() => record(option.value)}

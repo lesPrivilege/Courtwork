@@ -28,15 +28,15 @@ test.describe('AI 消息复制', () => {
     await expect(page.locator('.generated-callout')).toHaveCount(0);
   });
 
-  test('按压态落在 60–80ms 区间且不整卡缩放', async ({ page }) => {
+  test('复制图标使用 120ms 按压反馈且不整卡缩放', async ({ page }) => {
     await openWorkbench(page);
     const card = page.locator('.data-card').first();
     await card.hover();
     const copyButton = card.locator('.copy-button');
     await copyButton.hover();
     await page.mouse.down();
-    await expect(copyButton).toHaveCSS('transition-duration', '0.07s, 0.07s');
-    await expect(copyButton).toHaveCSS('transform', 'none');
+    await expect(copyButton).toHaveCSS('transition-duration', '0.12s');
+    await expect(copyButton).toHaveCSS('transform', 'matrix(0.98, 0, 0, 0.98, 0, 0)');
     await expect(card).toHaveCSS('transform', 'none');
     await page.mouse.up();
   });
