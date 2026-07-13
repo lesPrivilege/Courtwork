@@ -82,12 +82,14 @@ import { ScrollToLatest, useFollowScroll } from './chat/follow-scroll';
 // 装配点例外（demo/ 同列先例）：原件阅读 fixture 直取 demo-data 文书 md
 import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
 import { useDismissOnOutside } from './hooks/useDismissOnOutside';
+import { createReviewTelemetryEmitter } from './telemetry/review-telemetry';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
 type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft' | 'generic';
 
 const client = createDemoClient();
+const emitReviewTelemetry = createReviewTelemetryEmitter((event) => client.emitReviewTelemetry(event));
 
 const VIEW_LABELS: Record<WorkbenchView, string> = {
   timeline: '时间线',
@@ -538,7 +540,7 @@ export function App() {
   useEffect(() => {
     if (!isDemoCaseId(selectedCaseId)) return;
     openedAt.current[selectedRiskId] = Date.now();
-    client.emitReviewTelemetry({ type: 'review_item_opened', sessionId: 'demo-s3', itemRef: selectedRiskId, emittedAt: new Date().toISOString() });
+    emitReviewTelemetry({ type: 'review_item_opened', sessionId: 'demo-s3', itemRef: selectedRiskId, emittedAt: new Date().toISOString() });
   }, [selectedRiskId, selectedCaseId]);
 
   useEffect(() => {
@@ -883,13 +885,13 @@ export function App() {
   const expandBasis = (riskId: string, index: number, evidenceRef: string) => {
     const key = `${riskId}:${index}`;
     setExpandedEvidence((current) => ({ ...current, [key]: !current[key] }));
-    client.emitReviewTelemetry({ type: 'review_evidence_expanded', sessionId: 'demo-s3', itemRef: riskId, evidenceRef, emittedAt: new Date().toISOString() });
+    emitReviewTelemetry({ type: 'review_evidence_expanded', sessionId: 'demo-s3', itemRef: riskId, evidenceRef, emittedAt: new Date().toISOString() });
   };
 
   const dispose = (itemRef: string, disposition: ReviewDispositionState) => {
     setDispositions((current) => ({ ...current, [itemRef]: disposition }));
     const protocolDisposition = disposition === 'confirmed' ? 'confirm' : disposition === 'rejected' ? 'reject' : 'revise';
-    client.emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: 'demo-s3', itemRef, disposition: protocolDisposition, emittedAt: new Date().toISOString() });
+    emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: 'demo-s3', itemRef, disposition: protocolDisposition, emittedAt: new Date().toISOString() });
   };
 
   const batchConfirm = () => {
