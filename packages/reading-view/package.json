@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./docx-security": {
+      "types": "./dist/security/docx-preflight.d.ts",
+      "default": "./dist/security/docx-preflight.js"
     }
   },
   "scripts": {

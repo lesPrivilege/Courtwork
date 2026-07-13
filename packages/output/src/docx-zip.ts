@@ -1,9 +1,10 @@
-import { unzipSync, zipSync, strToU8, strFromU8, type Zippable } from 'fflate';
+import { preflightDocx } from '@courtwork/reading-view/docx-security';
+import { zipSync, strToU8, strFromU8, type Zippable } from 'fflate';
 
 export type DocxFiles = Record<string, Uint8Array>;
 
 export function loadDocx(buf: Uint8Array | Buffer): DocxFiles {
-  return unzipSync(new Uint8Array(buf));
+  return preflightDocx(new Uint8Array(buf)).files;
 }
 
 export function getText(files: DocxFiles, path: string): string {

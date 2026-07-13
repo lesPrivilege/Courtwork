@@ -15,6 +15,7 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@courtwork/reading-view": "workspace:*",
     "@courtwork/schemas": "workspace:*",
     "@xmldom/xmldom": "^0.9.10",
     "fflate": "^0.8.3",
