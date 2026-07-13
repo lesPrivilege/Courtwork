@@ -1030,3 +1030,19 @@ RELEASE-1 验收表「`pnpm lint` 零 error」为**假绿记录**：历史验证
 | ⑤ | Popover Provider = 既裁（27d9b2b），非新裁 | ModelConfigPopover 撤 Provider 下拉（并行入口口径就此统一）；3 spec 删 provider 附带步 | 99b1527 |
 
 **机器门终值**：build 零错｜desktop vitest 94/94｜lint 整仓 exit 0｜16 门禁 + Playwright **R1/R2 连续 186/186 exit 0**；floor 181→182。词表归宿（F4 分型/恢复指引中文、Model 页 chrome 律余项）另裁未动，如实标注。
+
+---
+
+## LUNA-UI-001 Minimap 生命周期快修（2026-07-13）
+
+实现提交：`7a60764 fix-by-acceptance: flush minimap before graph destroy`。
+
+根因：G6 5.1.1 Minimap 默认以 128ms debounce 执行 `renderMinimap()`，但插件 `destroy()` 不取消已排队回调；关系图谱渲染后快速切到矩阵等工作面时，Graph 已清空 `context`，迟发回调继续执行 `model.getData()`，形成 `Cannot read properties of undefined (reading 'getData')`。
+
+最小修复：Minimap render delay 归零，并把 Graph 销毁推迟到下一宏任务，使已排队 minimap render 在 context 尚有效时先落完；功能、样式与 `.courtwork-minimap` 既有契约不变。
+
+守护测试先红后绿：新增 `LUNA-UI-001：图谱渲染后快速切面不得留下 minimap 迟发异常`，监听 `pageerror`，在 graph `data-layout-ready=true` 后立即切矩阵并覆盖旧 128ms 窗口。旧代码稳定捕获 `getData` 错误；修复后单跑通过，重复 **10/10**，UX-1 **8/8**。
+
+回归：desktop Vitest **99/99**；`pnpm lint` exit 0；`pnpm -r build` exit 0；独立端口 `1422` 的 16 门禁全部通过，Playwright floor **190→191**，全量 **191/191**。
+
+按“实现与验收分离”不变量，本会话只记录实现与自测，`LUNA-UI-001` 正式关闭仍须另一验收会话复验。

@@ -119,4 +119,18 @@ test.describe('UX-1 批次一', () => {
     // minimap 由 G6 注入 DOM；class 由 GraphPanel 传入
     await expect(page.locator('.courtwork-minimap')).toBeVisible({ timeout: 15_000 });
   });
+
+  test('LUNA-UI-001：图谱渲染后快速切面不得留下 minimap 迟发异常', async ({ page }) => {
+    const pageErrors: string[] = [];
+    page.on('pageerror', (error) => pageErrors.push(error.message));
+
+    await openWorkbench(page);
+    await page.getByTestId('view-graph').click();
+    await expect(page.getByTestId('graph-panel')).toHaveAttribute('data-layout-ready', 'true', { timeout: 15_000 });
+    await page.getByTestId('view-matrix').click();
+
+    // G6 5.1.1 minimap 默认 debounce 为 128ms；覆盖卸载后的迟发回调窗口。
+    await page.waitForTimeout(250);
+    expect(pageErrors).toEqual([]);
+  });
 });
