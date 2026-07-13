@@ -183,7 +183,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .conversation.canvas-layer { padding-top: calc(40px + var(--elevation-float-inset)); }
 /* L0 对话画布保持不透明：工作面 tab 硬切时不露出 WebView 的透明合成底色。 */
 .conversation.canvas-layer { background: var(--elevation-canvas); }
-.rail-wordmark { display: flex; align-items: center; }
+.rail-wordmark { display: flex; align-items: center; gap: 7px; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+.rail-brand-mark { width: 17px; height: 17px; flex: none; display: block; color: var(--text-primary); background: transparent; border: 0; border-radius: 0; box-shadow: none; }
 .workspace.comparing { grid-template-columns: 48px 300px minmax(0, 1fr); }
 .workspace.focus-mode { grid-template-columns: minmax(0, 1fr); padding: var(--elevation-float-inset); }
 /* chatbot 形态（2026-07-12）：收敛不留左窄卡——与 mac 红绿灯零冲突，展开钮驻 chrome 同位 */
