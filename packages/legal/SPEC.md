@@ -47,3 +47,7 @@
 
 - TODO 首项已落：`RiskListDraftSchema`（模型侧草稿：basis 携 quoteClaims）+ citationBinding 五声明位入 manifest descriptor；final RiskList gains `outOfCoverage` 缺口表（default []，存量夹具零迁移）。
 - 演示语料升级草稿形：`S3_RISK_LIST_DRAFT`（引语无坐标；risk-07 blockId 消歧双命中实景）；坐标全部由 core resolver 铸造——演示管线与真管线过同一道公证门。
+
+## 状态更新（2026-07-13，LEGAL-DEMO-RUN）
+
+- 演示语料新增 PDF 卷宗档：`S3_PDF_DOSSIER_DRAFT`（src/demo/s3-pdf-dossier-draft.ts）——引语全部出自 demo-data 生成 PDF（设备采购合同.pdf）真实文本层，按页声明；risk-08 首依据出自信用查询单（blockId 声明 + 编译后 output 侧预期 locator_not_found，"定位失败跳过不错插"的保留展示位）；八条风险对应 reading-view s3-material.test 登记的七条诱饵条款 + 主体核验。**考点常量 `S3_PDF_PRELOADED_ANCHOR_QUOTES`（7 条，门槛 5）随剧本同住本包**——golden 考点住 demo 包不住机器（assert-no-demo-in-harness 断言对象）。消费方：core 装配点 buildLegalDemoRunRuntime 与 `demo:legal` 全链穿越通道。
