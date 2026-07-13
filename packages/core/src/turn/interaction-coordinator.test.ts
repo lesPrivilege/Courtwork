@@ -175,6 +175,18 @@ describe('requestInteraction', () => {
     expect(reason).toBeTruthy();
   });
 
+  it('rejects a mixed valid/invalid anchor batch atomically without journaling the valid prefix', () => {
+    const store = createMemoryTurnStore();
+    expect(() => requestInteraction(input([
+      CLAIM,
+      { ...CLAIM, exactQuote: '不存在的第二条引语' },
+    ]), {
+      templateRegistry: registryFor(), materials: LAYERS, store,
+    })).toThrow(InteractionAnchorResolutionError);
+    expect(store.events('turn-1')).toEqual([]);
+    expect(store.replayTurn('turn-1').state).toBe('idle');
+  });
+
   it('runtime-validates strict QuoteClaim and rejects model-supplied coordinates with zero journal entries', () => {
     const store = createMemoryTurnStore();
     const forged = { ...CLAIM, textRange: { start: 3, end: 11 }, bbox: { x: 0, y: 0, width: 1, height: 1 } };

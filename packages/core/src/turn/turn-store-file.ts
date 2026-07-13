@@ -1,7 +1,11 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
-import { createTurnStore, type TurnStore } from './turn-store.js';
+import {
+  TurnJournalCorruptionError,
+  createTurnStore,
+  type TurnStore,
+} from './turn-store.js';
 import type { TurnJournalBackend, TurnJournalEntry } from './types.js';
 
 /** Node-only append-only JSONL adapter. Browser consumers must inject their own TurnJournalBackend. */
@@ -12,10 +16,14 @@ export function createFileTurnStore(
   mkdirSync(dirname(filePath), { recursive: true });
   const readAll = (): TurnJournalEntry[] => {
     if (!existsSync(filePath)) return [];
-    return readFileSync(filePath, 'utf-8')
-      .split('\n')
-      .filter((line) => line.trim().length > 0)
-      .map((line) => JSON.parse(line) as TurnJournalEntry);
+    try {
+      return readFileSync(filePath, 'utf-8')
+        .split('\n')
+        .filter((line) => line.trim().length > 0)
+        .map((line) => JSON.parse(line) as TurnJournalEntry);
+    } catch {
+      throw new TurnJournalCorruptionError('Turn journal contains invalid JSON');
+    }
   };
   const backend: TurnJournalBackend = {
     read: readAll,

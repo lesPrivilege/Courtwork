@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -9,12 +9,20 @@ import {
   InvalidInteractionActorError,
   InvalidInteractionAnswerError,
   TurnInteractionStateError,
+  TurnJournalContentionError,
+  TurnJournalCorruptionError,
   UnknownInteractionRequestError,
   createMemoryTurnStore,
+  createTurnStore,
   type TurnStore,
 } from './turn-store.js';
 import { createFileTurnStore } from './turn-store-file.js';
-import type { InteractionRequestedEventInput, PersistedTurn } from './types.js';
+import type {
+  InteractionRequestedEventInput,
+  PersistedTurn,
+  TurnJournalBackend,
+  TurnJournalEntry,
+} from './types.js';
 
 const requested: InteractionRequestedEventInput = {
   type: 'interaction_requested',
@@ -136,6 +144,11 @@ describe.each([
       error: InvalidInteractionActorError,
     },
     {
+      label: 'empty role',
+      input: { requestId: 'interaction-1', actor: { channelId: 'cli', actorId: 'u', role: '  ' }, answer: { kind: 'option', optionId: 'accept' } },
+      error: InvalidInteractionActorError,
+    },
+    {
       label: 'malformed actor',
       input: { requestId: 'interaction-1', actor: null, answer: { kind: 'option', optionId: 'accept' } },
       error: InvalidInteractionActorError,
@@ -153,6 +166,11 @@ describe.each([
     {
       label: 'malformed answer',
       input: { requestId: 'interaction-1', actor: { channelId: 'cli', actorId: 'u' }, answer: null },
+      error: InvalidInteractionAnswerError,
+    },
+    {
+      label: 'non-string option',
+      input: { requestId: 'interaction-1', actor: { channelId: 'cli', actorId: 'u' }, answer: { kind: 'option', optionId: 42 } },
       error: InvalidInteractionAnswerError,
     },
   ])('does not consume pending on $label', ({ input, error }) => {
@@ -183,6 +201,25 @@ describe.each([
     } as unknown as Parameters<TurnStore['resolveInteraction']>[0])).toThrow(InvalidInteractionAnswerError);
     expect(store.replayTurn('turn-1').state).toBe('pending_interaction');
     expect(JSON.stringify(store.events('turn-1'))).not.toContain('must-not-persist');
+  });
+
+  it('rejects a non-string actor role without consuming pending or persisting its secret payload', () => {
+    const store = createStore();
+    const secret = 'acceptance-actor-role-secret';
+    store.appendInteractionRequested(requested);
+
+    expect(() => store.resolveInteraction({
+      requestId: 'interaction-1',
+      actor: {
+        channelId: 'cli',
+        actorId: 'u',
+        role: { authorization: `Bearer ${secret}` },
+      },
+      answer: { kind: 'option', optionId: 'accept' },
+    } as unknown as Parameters<TurnStore['resolveInteraction']>[0])).toThrow(InvalidInteractionActorError);
+
+    expect(store.replayTurn('turn-1').state).toBe('pending_interaction');
+    expect(JSON.stringify(store.events('turn-1'))).not.toContain(secret);
   });
 
   it('rejects unknown and already resolved requests without overwriting the first answer', () => {
@@ -250,5 +287,177 @@ describe('file TurnStore refresh', () => {
     } finally {
       rmSync(directory, { recursive: true, force: true });
     }
+  });
+
+  it.each([
+    {
+      label: 'unknown event',
+      row: {
+        type: 'transport_debug', turnId: 'turn-1', seq: 0,
+        emittedAt: '2026-07-14T00:00:00.000Z', rawBody: 'must-not-project',
+      },
+    },
+    {
+      label: 'invalid JSON',
+      row: '{"type":"interaction_requested"',
+    },
+  ])('fails closed on $label without clearing or rewriting the journal', ({ row }) => {
+    const directory = mkdtempSync(join(tmpdir(), 'courtwork-interaction-corrupt-'));
+    const filePath = join(directory, 'turns.jsonl');
+    const original = typeof row === 'string' ? `${row}\n` : `${JSON.stringify(row)}\n`;
+    try {
+      writeFileSync(filePath, original, 'utf8');
+      expect(() => createFileTurnStore(filePath).replayTurn('turn-1')).toThrow(TurnJournalCorruptionError);
+      expect(readFileSync(filePath, 'utf8')).toBe(original);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('TurnStore CAS and trust boundary', () => {
+  it('fails explicitly after 32 CAS retries instead of pretending an append succeeded', () => {
+    let appendCalls = 0;
+    const backend: TurnJournalBackend = {
+      read: () => [],
+      append: () => {
+        appendCalls += 1;
+        return false;
+      },
+    };
+    const store = createTurnStore(backend);
+
+    expect(() => store.appendInteractionRequested(requested)).toThrow(TurnJournalContentionError);
+    expect(appendCalls).toBe(32);
+    expect(store.replayTurn('turn-1').state).toBe('idle');
+  });
+
+  it('revalidates after a lost CAS so a competing first answer cannot be overwritten', () => {
+    const seed = createMemoryTurnStore(() => '2026-07-14T00:00:00.000Z');
+    seed.appendInteractionRequested(requested);
+    const entries: TurnJournalEntry[] = structuredClone(seed.events('turn-1'));
+    let firstAppend = true;
+    const backend: TurnJournalBackend = {
+      read: () => structuredClone(entries),
+      append(entry, expectedLength) {
+        if (firstAppend) {
+          firstAppend = false;
+          entries.push({
+            type: 'interaction_resolved',
+            turnId: 'turn-1',
+            seq: 1,
+            emittedAt: '2026-07-14T00:00:01.000Z',
+            requestId: 'interaction-1',
+            actor: { channelId: 'cli', actorId: 'winner' },
+            answer: { kind: 'option', optionId: 'revise' },
+          });
+          return false;
+        }
+        if (entries.length !== expectedLength) return false;
+        entries.push(structuredClone(entry));
+        return true;
+      },
+    };
+    const store = createTurnStore(backend);
+
+    expect(() => resolve(store)).toThrow(UnknownInteractionRequestError);
+    expect(store.events('turn-1').filter((event) => event.type === 'interaction_resolved')).toEqual([
+      expect.objectContaining({ actor: expect.objectContaining({ actorId: 'winner' }) }),
+    ]);
+  });
+
+  it('clones inputs and read results so caller mutation cannot rewrite backend history', () => {
+    const entries: TurnJournalEntry[] = [];
+    const backend: TurnJournalBackend = {
+      read: () => entries,
+      append(entry, expectedLength) {
+        if (entries.length !== expectedLength) return false;
+        entries.push(entry);
+        return true;
+      },
+    };
+    const store = createTurnStore(backend);
+    const mutable = structuredClone(requested);
+    const appended = store.appendInteractionRequested(mutable);
+
+    mutable.question = '调用方篡改输入';
+    (appended.options[0] as { label: string }).label = '调用方篡改返回值';
+    const replay = store.replayTurn('turn-1');
+    (replay.pendingInteraction!.options[0] as { label: string }).label = '调用方篡改回放';
+
+    expect(store.replayTurn('turn-1').pendingInteraction).toMatchObject({
+      question: '请选择',
+      options: [{ id: 'accept', label: '接受' }, { id: 'revise', label: '修正' }],
+    });
+  });
+
+  it.each([
+    {
+      label: 'unknown event type',
+      extra: {
+        type: 'transport_debug', turnId: 'turn-1', seq: 1,
+        emittedAt: '2026-07-14T00:00:01.000Z', rawBody: 'must-not-project',
+      },
+    },
+    {
+      label: 'forged resolution',
+      extra: {
+        type: 'interaction_resolved', turnId: 'turn-1', seq: 1,
+        emittedAt: '2026-07-14T00:00:01.000Z', requestId: 'interaction-1',
+        actor: { channelId: '', actorId: '' }, answer: { kind: 'skip', rawBody: 'forged' },
+      },
+    },
+    {
+      label: 'non-contiguous seq',
+      extra: {
+        type: 'interaction_resolved', turnId: 'turn-1', seq: 3,
+        emittedAt: '2026-07-14T00:00:01.000Z', requestId: 'interaction-1',
+        actor: { channelId: 'cli', actorId: 'u' }, answer: { kind: 'option', optionId: 'accept' },
+      },
+    },
+  ])('fails closed instead of projecting a backend $label', ({ extra }) => {
+    const seed = createMemoryTurnStore(() => '2026-07-14T00:00:00.000Z');
+    seed.appendInteractionRequested(requested);
+    const entries = [...seed.events('turn-1'), extra] as unknown as TurnJournalEntry[];
+    const store = createTurnStore({
+      read: () => structuredClone(entries),
+      append: () => false,
+    });
+
+    expect(() => store.replayTurn('turn-1')).toThrow(TurnJournalCorruptionError);
+  });
+
+  it('rejects a terminal snapshot that reintroduces whitespace-only present reasoning', () => {
+    const corruptTerminal = {
+      ...completed,
+      reasoning: { status: 'present', content: ' \n\t' },
+    } as unknown as TurnJournalEntry;
+    const store = createTurnStore({
+      read: () => [structuredClone(corruptTerminal)],
+      append: () => false,
+    });
+
+    expect(() => store.replayTurn('turn-1')).toThrow(TurnJournalCorruptionError);
+  });
+
+  it('rejects nested transport fields smuggled into a persisted source anchor', () => {
+    const forgedRequest = {
+      ...requested,
+      seq: 0,
+      emittedAt: '2026-07-14T00:00:00.000Z',
+      anchorPolicy: 'required',
+      sourceAnchors: [{
+        fileId: 'file-1',
+        textRange: { start: 0, end: 2, rawBody: 'acceptance-nested-secret' },
+        textLayerVersion: 'v1',
+        quote: '原文',
+      }],
+    } as unknown as TurnJournalEntry;
+    const store = createTurnStore({
+      read: () => [structuredClone(forgedRequest)],
+      append: () => false,
+    });
+
+    expect(() => store.replayTurn('turn-1')).toThrow(TurnJournalCorruptionError);
   });
 });
