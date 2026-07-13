@@ -274,18 +274,63 @@ test('1600px 以上解锁左右对照', async ({ page }) => {
   await expect(page.getByTestId('split-grid')).toHaveAttribute('data-direction', 'columns');
 });
 
-test('按压态 70ms 且数据卡零位移零缩放', async ({ page }) => {
+test('按压态 120ms 且数据卡零位移零缩放', async ({ page }) => {
   await openWorkbench(page);
   const action = page.getByRole('button', { name: '整理卷宗', exact: true });
   const dataCard = page.locator('.data-card').first();
-  await expect(action).toHaveCSS('transition-duration', '0.12s, 0.12s');
+  await expect(action).toHaveCSS('transition-duration', '0.12s, 0.12s, 0.12s, 0.12s');
   await action.hover();
   await page.mouse.down();
-  await expect(action).toHaveCSS('transition-duration', '0.07s, 0.07s');
+  await expect(action).toHaveCSS('transition-duration', '0.12s');
   await expect(action).toHaveCSS('background-color', 'rgb(221, 231, 242)');
-  await expect(action).toHaveCSS('transform', 'none');
+  await expect(action).toHaveCSS('transform', 'matrix(0.98, 0, 0, 0.98, 0, 0)');
   await expect(dataCard).toHaveCSS('transform', 'none');
   await page.mouse.up();
+});
+
+test('键盘触发与 reduced-motion 指针按压都不缩放', async ({ page }) => {
+  await openWorkbench(page);
+  const action = page.getByRole('button', { name: '整理卷宗', exact: true });
+  for (let index = 0; index < 80 && !(await action.evaluate((element) => element === document.activeElement)); index += 1) {
+    await page.keyboard.press('Tab');
+  }
+  await expect(action).toBeFocused();
+  expect(await action.evaluate((element) => element.matches(':focus-visible'))).toBe(true);
+  for (const key of ['Space', 'Enter']) {
+    await page.keyboard.down(key);
+    await expect(action).toHaveCSS('transform', 'none');
+    await page.keyboard.up(key);
+  }
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await action.blur();
+  await action.hover();
+  await page.mouse.down();
+  await expect(action).toHaveCSS('transform', 'none');
+  await page.mouse.up();
+});
+
+test('popover computed motion follows real anchor geometry and reduced-motion', async ({ page }) => {
+  await openWorkbench(page);
+
+  const plusTrigger = page.getByTestId('composer-plus');
+  await plusTrigger.click();
+  const above = page.getByTestId('composer-plus-menu');
+  await expect(above).toHaveCSS('animation-name', 'popover-from-bottom');
+  const aboveGeometry = await Promise.all([plusTrigger.boundingBox(), above.boundingBox()]);
+  expect(aboveGeometry[1]!.y + aboveGeometry[1]!.height).toBeLessThanOrEqual(aboveGeometry[0]!.y + 1);
+  await plusTrigger.click();
+
+  const archiveTrigger = page.getByTestId('archive-trigger').first();
+  await archiveTrigger.click({ force: true });
+  const below = page.getByRole('dialog', { name: '归档确认' });
+  await expect(below).toHaveCSS('animation-name', 'popover-from-top');
+  const belowGeometry = await Promise.all([archiveTrigger.boundingBox(), below.boundingBox()]);
+  expect(belowGeometry[1]!.y).toBeGreaterThanOrEqual(belowGeometry[0]!.y + belowGeometry[0]!.height - 1);
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(below).toHaveCSS('animation-name', 'none');
+  await expect(below).toHaveCSS('transform', 'none');
 });
 
 test('Tab 指示器 100ms、内容与面板 0ms 瞬切', async ({ page }) => {

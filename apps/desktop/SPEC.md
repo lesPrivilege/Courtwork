@@ -8,7 +8,7 @@
 
 前置：PROVIDER-2、TURN-1、INTERACTION-1 已独立验收并合流。desktop 只消费 core turn/interaction view model：真实流驱动思考、reasoning、正文、错误与取消；删除 Typewriter 假流和 `App.tsx` 硬编码演示问题。刷新后从未决事件恢复卡片，提交回答须等待 core 接收，不允许本地 state 假完成。
 
-`question-card` 使用 generated 冷调底色的轻微差异、1px hairline、既有 6px 圆角、无阴影，不新增 L1 外壳；无装饰入场，选项/主操作只用既有 70ms / scale(.98) press feedback，并覆盖 focus-visible、键盘选择、错误重试与 reduced-motion。卡片内容、选项、锚点来自垂类 manifest，desktop 不含领域文案表。
+`question-card` 使用 generated 冷调底色的轻微差异、1px hairline、既有 6px 圆角、无阴影，不新增 L1 外壳；无装饰入场，选项/主操作只用既有 120ms / scale(.98) press feedback，并覆盖 focus-visible、键盘选择、错误重试与 reduced-motion。卡片内容、选项、锚点来自垂类 manifest，desktop 不含领域文案表。
 
 ### PROVIDER-UI-1 · DeepSeek-first 配置面
 
@@ -69,8 +69,17 @@
 1. 保留明确白名单：L1 唯一投影 token、登记圆角、法理之线五态、站点解释性滚动动画；通用 gradient/shadow/radius 检测不得误杀这些例外。
 2. 至少覆盖裸色值、未授权阴影/圆角/渐变、L1 卡中卡、占位编号脚手架、泛化营销文案、活动代码引用 `archive/` 七类反例。
 3. 扫描逻辑可被测试直接调用；每类规则至少一红一绿 fixture。新增例外必须显式写入按规则分组的 allowlist，并说明消费点，禁止宽泛路径豁免。
-4. scoped press feedback 只覆盖主操作、图标按钮与弹层触发器，使用 `motion.press` 的 70ms / scale .98；数据行、表格、卡片与键盘动作不得缩放。popover 从触发器方向出现，且 reduced-motion 下移除位移。
+4. scoped press feedback 只覆盖主操作、图标按钮与弹层触发器，使用 `motion.press` 的 120ms / scale .98；数据行、表格、卡片与键盘动作不得缩放。popover 从触发器方向出现，且 reduced-motion 下移除位移。
 5. 不复制既有 neutral/elevation/signature/motion gate 的全部规则；新守卫聚焦跨文件结构关系，并在根门禁可执行。
+
+DESLOP-GATE-2 实现记录（2026-07-14，待独立验收）：
+
+- `site/scripts/deslop-scan-lib.mjs` 以 rule + file + selector/consumer + property + exact token/value/shape 登记例外；`icon-audit.css`、graph theme、OS traffic chrome 均按消费点锁定，没有整文件通行证。
+- CSS 守卫覆盖 raw color、非零 shadow、8/12/16px 圆角消费域和 gradient 完整值；既有渐变内部颜色已改为 token/语义值，任何 gradient 内部裸色都不因完整值或 selector 命中而豁免。
+- JSX/HTML 守卫覆盖默认 `SurfaceCard`、raised elevation、静态及可静态判定 className 的 L1 嵌套；archive 守卫覆盖 markdown、URL、fetch/import/require 与 path consumer；站点 motion 锁定 evidence observer、target、statement 和 reduced-motion 的完整关系。
+- `motion.press` 单源改为 120ms ease-out / scale(.98)，只供主操作、图标按钮、提问选项与 popover trigger；pointer 按压缩放，数据行、表格、卡片、键盘触发及 reduced-motion 均不缩放，普通/quiet 按钮保留底色反馈。popover 按实际 DOM consumer 与锚点上下方向逐项登记，数据区 cell peek 静止，reduced-motion 移除位移。
+- Pages workflow 通过 `pnpm site:guard` 执行 fixture、全活动源扫描及既有四门；fixture 同时断言 workflow 不得退回只跑 scanner。
+- 根 `site:guard` 先运行 12 组一红一绿 fixture 与全活动源扫描，再串行调用既有 neutral/elevation/signature/motion 四门；四个既有脚本未修改。另对真实活动文件逐项注入八类基础 drift 及拒绝报告中的宽泛逃逸，完整 scanner 均 exit 1，撤除后 570 个活动文本文件恢复全绿。
 
 ## HARNESS-0 单飞行与降档提示（2026-07-12）
 
@@ -524,7 +533,7 @@ Elevation 提案全量（与 tokens.json `elevation` 一致，供架构过目）
 
 ## P-2 交互反馈与空路由收尾（2026-07-10）
 
-- 时长阶梯全站落地：按钮按压 70ms、hover 120ms ease-out、Tab 指示器 100ms / 内容 0ms、面板对切 0ms、确认/驳回本体 0ms + 150ms border-color 光效层、续行回执 240ms。
+- 时长阶梯全站落地：按钮按压 120ms、hover 120ms ease-out、Tab 指示器 100ms / 内容 0ms、面板对切 0ms、确认/驳回本体 0ms + 150ms border-color 光效层、续行回执 240ms。
 - 确认/驳回光效由 Web Animations API 驱动独立叠加层；其余反馈用 CSS transition/keyframes。新增 `lint:motion` 静态门禁并接入 `test:e2e`，只放行 transform / opacity / background-color / border-color。
 - 续行入口落定后保留原位并转禁用态，240ms 回执只动 opacity + `translateY(4px→0)`；未引入任何 motion 依赖。
 
@@ -653,7 +662,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 | 新建案件 | 真实实现 | 左栏 + ⌘K；`NewCaseDialog` + `webkitdirectory` |
 | 归档 | 真实实现 | `ArchiveConfirmPopover` 轻确认，可逆，无删除 |
 | 专注模式 | 真实实现 | 条件渲染卸装左中栏，Esc 退出，0ms 硬切 |
-| callout/数据卡复制 | 真实实现 | `CopyButton` hover 显现，70ms 按压 |
+| callout/数据卡复制 | 真实实现 | `CopyButton` hover 显现，120ms 按压 |
 
 验证：Playwright global-verbs 21 例 + 全仓 57/57；截图 [`19-f2-command-palette-1440.png`](visual-audit/19-f2-command-palette-1440.png) / [`20-f2-focus-mode-1440.png`](visual-audit/20-f2-focus-mode-1440.png) / [`21-f2-archive-popover-1440.png`](visual-audit/21-f2-archive-popover-1440.png)。
 

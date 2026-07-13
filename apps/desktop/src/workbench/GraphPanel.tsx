@@ -130,7 +130,7 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
         },
         maskStyle: {
           border: `1px solid ${graphTokens.ink}`,
-          background: 'rgba(233, 238, 244, 0.36)',
+          background: graphTokens.selected,
           // 显式压掉 G6 默认蓝色描边/填充
           stroke: graphTokens.ink,
           fill: graphTokens.selected,
