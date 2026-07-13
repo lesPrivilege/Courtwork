@@ -9,6 +9,7 @@ const { nodeWidth: NODE_WIDTH, nodeHeight: NODE_HEIGHT } = graphGeometry;
 const MIN_ZOOM = 0.45;
 const MAX_ZOOM = 2.4;
 const MINIMAP_RENDER_DELAY_MS = 0;
+const MINIMAP_DESTROY_GRACE_MS = 32;
 
 type PartyEdge = PartyGraph['edges'][number];
 type Selection = { kind: 'node' | 'edge'; id: string };
@@ -167,9 +168,11 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
       if (!instance) return;
       const destroyAfterMinimapFlush = () => window.setTimeout(() => {
         if (!instance?.destroyed) instance?.destroy();
-      }, MINIMAP_RENDER_DELAY_MS);
-      if (instance.rendered) destroyAfterMinimapFlush();
-      else void renderPromise?.finally(destroyAfterMinimapFlush);
+      }, MINIMAP_DESTROY_GRACE_MS);
+      // `rendered` 会在 render promise 真正 settle 前翻转；若据此提前 destroy，
+      // minimap 仍可在后续 render 尾段排入迟发回调。始终等整个 render settle 再销毁。
+      if (renderPromise) void renderPromise.finally(destroyAfterMinimapFlush);
+      else destroyAfterMinimapFlush();
     };
   }, [graph, selectEdge, selectNode]);
 

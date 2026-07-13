@@ -27,6 +27,14 @@
 3. 隔离端口生成 1180 / 1280 / 1440 / 1600 四档工作台截图；manifest 必须记录实际 HEAD、viewport、端口、哈希与 reduced-motion，旧提交截图不得冒充现况。
 4. 完成 desktop 定向测试、全量 Playwright、`pnpm -r build`、`pnpm lint`、`pnpm test`；由不同会话在 clean worktree 独立验收。
 
+实现记录（2026-07-13）：
+
+- 基线已有 `7a60764` 的首轮 minimap flush 补丁，但 1180×900 下 40 轮 Graph → Timeline 快切（偶数轮仅等 5ms）仍稳定触发 7 条 `this.options is undefined` pageerror。新回归同时记录未过滤的 `pageerror` 与 console error，末尾等待 1200ms 覆盖 rAF、render 尾段与 minimap 迟发回调交错。
+- 最小修复保留 minimap `delay=0`；cleanup 不再依赖提前翻转的 `instance.rendered`，而是始终等完整 render promise settle，再留 32ms 回调清空窗口后销毁 Graph。未吞异常、未过滤 console、未 patch 依赖，也未改 `PartyGraph`、renderer ABI、主题或布局。
+- 修后同一回归 `--repeat-each=5` 连续 5/5（共 200 轮）通过；关系选择、14/15 dagre、缩放、fit view 与 minimap 定向 5/5；desktop Vitest 24 files / 106 tests；全仓 Vitest 104 files / 850 tests；隔离端口 `:1525` 全量 Playwright 194/194（single worker）。`pnpm -r build`、`pnpm lint` 均 exit 0，仅保留既有 chunk size warning。
+- 视觉审计在独立端口 `:1523` 基于实际 HEAD `304daac` 生成 `polish-p0-graph-{1180,1280,1440,1600}.png`；[`visual-audit/manifest.json`](visual-audit/manifest.json) 逐图记录 viewport、SHA-256、`reducedMotion=reduce` 与动画禁用。生成器强制显式 loopback 隔离端口并拒绝共享 `:1420`，旧截图已退役。
+- 全量 E2E 前置门另暴露 `e6d6575` 文档路径迁移把 Thinking CSS slice 的 start/end 改成同一 marker，使门禁结构性必红；阻塞性实现级修复仅恢复紧邻 end marker（`944ee8f`），不改组件、规则或契约。
+
 ### SCHEMA-POLISH-1 · 证据、状态与下一步
 
 目标：不新增面板、不改皮肤，让现有结构化工作面更清楚地回答“依据是什么、现在是什么状态、下一步做什么”。
