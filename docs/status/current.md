@@ -20,19 +20,21 @@
 
 ## 当前架构债
 
-1. desktop 仍有法律类型路由、文案或 demo 语料直连，尚未完全改为 registry/descriptor 驱动。
-2. `services/ingest` 仍只有规格，OCR、分类与实体对齐未落地。
-3. 企业私域 ACL、MCP adapter、机构层记忆仍是后置席位。
-4. usage ledger 与真实 token/cost 投影尚未成为统一权威来源。
-5. 部分 package SPEC/ACCEPTANCE 是长篇编年记录，后续应按层拆成“现行 SPEC + 历史验收”，但本轮不改其证据内容。
+1. desktop 仍有法律 type id 路由与 demo 语料直连，尚未完全由 RendererRegistry/descriptor 驱动；generic fallback 仍可能裸露 wire key。
+2. PM 垂类仍有一套未接入 `VerticalPackageManifest` 的平行 descriptor，需要迁入唯一 ABI。
+3. 除 RiskList 外，部分模型产物的最终 schema 仍直接包含 SourceAnchor，尚未统一为 quote → resolver → system anchor。
+4. `services/ingest` 仍只有规格，OCR、分类与实体对齐未落地。
+5. 企业私域 ACL、MCP adapter、机构层记忆仍是后置席位。
+6. usage ledger 与真实 token/cost 投影尚未成为统一权威来源。
+7. 部分 package SPEC/ACCEPTANCE 是长篇编年记录，后续应按层拆成“现行 SPEC + 历史验收”，但本轮不改其证据内容。
 
 ## 下一阶段优先序
 
 1. PROVIDER-2：统一 Rust 探针与请求路径，接 Tauri 原始字节真流，拆分凭证与连接状态。
 2. TURN-1：把思考、reasoning、正文、usage、失败与取消落成 provider 无关生命周期。
 3. INTERACTION-1 / CHAT-UI-1：垂类 manifest 注入问题、选项与锚点；core 暂停/续行；desktop 渲染通用轻框卡。
-4. DESLOP-GATE-1：首版因 allowlist 过宽被拒收，按拒收报告重做精确消费点白名单，不合入旧实现。
-5. desktop ABI 化：移除包外领域路由与 demo 直连，并用边界守卫触红。
+4. SCHEMA-CONFORMANCE-1：统一 PM descriptor、host renderer 路由、zero-wire fallback 与 SourceAnchor system producer 门。
+5. DESLOP-GATE-1：首版因 allowlist 过宽被拒收，按拒收报告重做精确消费点白名单，不合入旧实现。
 6. 真实材料链与 usage ledger：用脱敏卷宗建立 OCR/实体对齐基线，并把 token、成本、context 接入权威账本。
 7. SITE-2：底座与 chat 工单独立验收后，以真实 fixture 把首页重构为“原件 → 引语 → 结论 → 人工确认”的证据链。
 
