@@ -795,3 +795,7 @@ radio 密度修复+守护锁定+8 轮受控走查零 console。裁一：**部分
 ```
 
 PM Demo（OPUS-VERT）照旧 = 兼容性与泛化代表。
+
+## LUNA-ACCEPT 收账（2026-07-13）+ 裁决
+
+luna 程序正确（数字不符即拦）。裁决：**A 线数字更正后实质放行**——22 差额全属 B 线 WIP（数字语境判例），A 线交付在 clean main 817/817 全绿。三条件闭环即正式放行：①FABLE-HARNESS 记录补数字语境更正；②**LUNA-UI-001 快修**（Minimap 未处理 TypeError，🔴，派 GPT-SCHEMA 线：修复+守护测试+第 0 步代收编 luna 两报告——判例链）；③B 线合流后数字归位。**Push 门=①②③齐即推**。真 key 通道/statuteRef/MCP 留置照案不挡。
