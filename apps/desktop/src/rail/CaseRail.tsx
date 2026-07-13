@@ -1,5 +1,6 @@
 import { ArchiveConfirmPopover } from '../case/ArchiveConfirmPopover';
 import { CHROME_COPY } from '../chrome/copy';
+import { WindowChrome } from '../chrome/WindowChrome';
 import { containerOriginLabel, fileCountLabel, type ContainerKind } from '../case/container-copy';
 import { isDemoCaseId } from '../case/case-scope';
 import type { CaseSummary } from '../case/types';
@@ -49,6 +50,8 @@ interface CaseRailProps {
   onConfirmContainerizeUnfiled: (kind: ContainerKind) => void;
   onCancelContainerizeUnfiled: () => void;
   onExpandLeft: () => void;
+  onCollapseLeft: () => void;
+  onSearch: () => void;
   onOpenSettings: () => void;
   onFeedback: (message: string, ok: boolean) => void;
 }
@@ -80,6 +83,8 @@ export function CaseRail({
   onConfirmContainerizeUnfiled,
   onCancelContainerizeUnfiled,
   onExpandLeft,
+  onCollapseLeft,
+  onSearch,
   onOpenSettings,
   onFeedback,
 }: CaseRailProps) {
@@ -299,6 +304,11 @@ export function CaseRail({
 
   return (
     <aside className="case-rail surface-float" data-testid="case-rail" data-collapsed="false">
+      <WindowChrome
+        leftCollapsed={false}
+        onToggleLeft={onCollapseLeft}
+        onSearch={onSearch}
+      />
       <div className="case-expanded">
         <header className="panel-head rail-head">
           <h2 className="rail-wordmark">Courtwork</h2>

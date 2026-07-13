@@ -880,3 +880,11 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - **Word 真接线**：S3 六项门禁完成后，desktop 装配点复用 LEGAL-DEMO-RUN 的 `RiskList → RevisionInstructionSet → applyRevisionInstructionSet` 链，只编译已确认项；确认前 `output-docx-card` 结构性不存在。起草画布走 output 的 `compileDraftToDocx`，两条路径均经 `output/case-output-client.ts` 写案件 `产出` 子目录。
 - **bridge 与冻结权威**：Tauri 命令只接受案件根 + 单一 `.docx` 文件名，拒绝穿越/子路径/符号链接，以临时文件同步后 rename；浏览器宿主保持同语义供 E2E。`draftFrozen` 不再有 setter，只由桥查询到 `答辩意见.docx` 存在派生。端到端锁“确认前无产物卡 → 六项门禁 → 卡出现”和“确认编译 → 产出存在 → 冻结”。Playwright 实测 192 条，floor 升至 192。
 - **异会话验收补强**：验收发现外部删除产物后同一窗口仍缓存冻结态，先以 E2E 稳定证红，再由 `fix-by-acceptance` `f4a9fb1` 补为窗口重新聚焦时重查宿主存在性；删除后冻结失效。Rust 用真实 37,601-byte DOCX fixture 实盘写入/逐字节核对/删除，并实跑绝对路径与穿越拒绝。完整证据见 `apps/desktop/ACCEPTANCE.md`。
+
+## macOS Overlay 壳层真机纠偏（2026-07-13）
+
+- **官方边界**：Apple 将 macOS 窗口分为系统拥有的 frame 与应用 body；窗口控制与 toolbar 属 frame。透明/全尺寸标题栏只允许内容延伸其下，不把交通灯变成 WebView 控件。实现继续保留 Tauri `titleBarStyle: Overlay` + `hiddenTitle`，不以 CSS 伪造红黄绿按钮；参考 [Windows HIG](https://developer.apple.com/design/human-interface-guidelines/windows)、[Toolbars HIG](https://developer.apple.com/design/human-interface-guidelines/toolbars)、[`NSWindow.contentLayoutRect`](https://developer.apple.com/documentation/appkit/nswindow/contentlayoutrect)。
+- **结构纠偏**：展开态 `WindowChrome` 从 `app-shell` 全局兄弟迁成 `CaseRail` 的真实子层；显式 `mac-window-controls-safe-area` 只做原生控制组不可遮挡区，collapse/search 从其后起排。左栏收起或 Focus 时才使用无卡背景的 detached chrome。
+- **圆角内含，不止 bounding box**：真机 Tauri Overlay 截图实测首枚交通灯中心约 `(20,20)`、半径约 `7px`。左右浮卡外缘统一为 `8px`，L1 圆角维持 `12px`，使左卡圆角圆心落在 `(20,20)`；关闭钮圆周因 `7 < 12` 全落涂色区。该 `8/12` 是本机实测对位，不冒充 Apple 公布尺寸。
+- **层级与基线**：中间 Chat 继续是 L0 全高画布（`y=0 → viewport bottom`），只让左右 L1 浮卡采用 `8px` 上下外缘；左卡、Preview 卡顶部/底部基线与圆角一致。左卡内部 chrome 占 32px，使 wordmark 的全窗起排位置不因新增 top inset 下漂；中间 `chat-titlebar` 只移动内容带到 `y=8`，恢复与右卡首标题 ±2px 对齐，画布本体不下移。
+- **机器锁**：`chrome-in-card.spec.ts` 先稳定证红旧假阳性（chrome 非子层、圆角圆心 x=24、外缘 x=12），再锁卡内所有权、安全区/应用按钮互斥、关闭钮圆周内含、左右 8px/12px 同基线与中间 L0 全高。`lint:rp211` / `lint:rp291` 同步读取 `WindowChrome.tsx`，防止未来把结构搬回全局浮层。

@@ -77,9 +77,11 @@
   --elevation-float: var(--bg-raised);
   --elevation-float-border: var(--border);
   --elevation-float-radius: 12px;
-  /* RP-2.11 ②：三栏间距加大 8→12（Cowork 参照即 RP-2.9 锁要的真机视觉证据） */
-  --elevation-float-inset: 12px;
+  /* 真机 Overlay 对位：8px 外缘 + 12px 圆角把左上圆心锁在 (20,20)，完整承托原生关闭钮。 */
+  --elevation-float-inset: 8px;
   --elevation-shell-gap: 28px;
+  --mac-window-controls-safe-width: 68px;
+  --mac-window-controls-safe-height: 24px;
   --elevation-shadow: 0 1px 2px rgba(10,37,64,0.045), 0 4px 12px rgba(10,37,64,0.035);
   --elevation-titlebar: transparent;
   --elevation-warn-bg: var(--amber-bg);
@@ -109,12 +111,14 @@ button { transition: background-color var(--motion-hover) ease-out, border-color
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [contenteditable]:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--blue-graphic); outline-offset: 2px; }
 kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 4px; background: var(--bg-raised); color: var(--text-secondary); font: 11px/1 var(--mono); font-variant-numeric: tabular-nums; text-align: center; }
 
-/* RP-2.11 顶栏改判：卡片上下贯通铺到红绿灯，无独立顶栏、顶部不留白（照搬 Cowork） */
+/* AppKit 仍拥有窗口框架；WebView 只绘制 L0 画布与其上的左右浮卡。 */
 .app-shell { height: 100%; min-width: 1180px; display: grid; grid-template-rows: minmax(0, 1fr); background: var(--elevation-canvas); font-size: var(--type-body-size); font-variant-numeric: tabular-nums; position: relative; }
-/* window-chrome 降为透明浮层：红绿灯覆左卡顶、标题居中、右侧留给 dock，卡片自底贯穿其后 */
-.window-chrome { position: absolute; z-index: 30; inset: 0 0 auto 0; min-height: 40px; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 84px; background: transparent; border: 0; -webkit-app-region: drag; pointer-events: none; }
+/* 展开态 chrome 是左卡的真实子层：先保留原生交通灯区，再排应用按钮。 */
+.window-chrome { position: absolute; z-index: 30; inset: 0 0 auto 0; height: 32px; min-width: 0; display: flex; align-items: flex-start; gap: 8px; padding: 0 12px 0 0; background: transparent; border: 0; -webkit-app-region: drag; pointer-events: none; }
+.window-chrome.is-detached { inset: var(--elevation-float-inset) auto auto var(--elevation-float-inset); width: var(--rail-left-width); }
 .window-chrome > * { pointer-events: auto; }
-.window-chrome-button { width: 30px; height: 30px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; -webkit-app-region: no-drag; }
+.mac-window-controls-safe-area { width: var(--mac-window-controls-safe-width); height: var(--mac-window-controls-safe-height); flex: none; pointer-events: none !important; }
+.window-chrome-button { width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; -webkit-app-region: no-drag; }
 .window-chrome-button:hover { background: var(--control-hover); color: var(--text-primary); }
 .titlebar, .toolbar, .statusbar { display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
 /* C：标题栏透明融入 chrome；只留 wordmark + 全局动作 */
@@ -169,16 +173,15 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   display: grid;
   grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), .9fr) minmax(var(--schema-min), 1.25fr);
   gap: var(--elevation-shell-gap);
-  /* 2026-07-12 用户拍板（顶部对齐统一，覆盖四边等距的顶边）：三栏卡顶边齐贯通到窗口顶，
-     chrome 带（红绿灯 + panel/search + 居中标题）浮于三栏顶部 40px 避让区内（回归 Cowork 布局）；
-     左/右/下 inset 统一 12px，卡间 gap 统一。 */
-  padding: 0 var(--elevation-float-inset) var(--elevation-float-inset);
+  /* 中间 Chat 是 L0 全高画布；左右浮卡各自用 8px 外缘，卡间 gap 独立。 */
+  padding: 0 var(--elevation-float-inset);
   transition: none;
   background: var(--elevation-canvas);
 }
-/* 三栏卡顶边齐到窗口顶（workspace 顶 inset 已归零）；卡内 padding-top 40 避让整条 chrome 带
-   （红绿灯 + panel/search 落左卡内、居中标题落中栏内，与红绿灯同排）。 */
-.case-rail, .conversation.canvas-layer { padding-top: 40px; }
+/* 左卡外缘 y=8，卡内 32px 后仍让 wordmark 从全窗 y=40 起排。中间画布保持全高，
+   只把标题内容带下移 8px，与右侧浮卡首标题共用基线。 */
+.case-rail { padding-top: 32px; }
+.conversation.canvas-layer { padding-top: calc(40px + var(--elevation-float-inset)); }
 /* L0 对话画布保持不透明：工作面 tab 硬切时不露出 WebView 的透明合成底色。 */
 .conversation.canvas-layer { background: var(--elevation-canvas); }
 .rail-wordmark { display: flex; align-items: center; }
@@ -192,6 +195,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .workspace.left-collapsed.right-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr) var(--rail-collapsed); }
 .workspace.rails-compact { grid-template-columns: 48px minmax(0, 1fr) minmax(280px, 320px); }
 .case-rail, .conversation, .right-workbench { min-width: 0; min-height: 0; display: flex; flex-direction: column; border-right: 0; }
+.case-rail, .right-workbench, .right-rail-collapsed { margin-block: var(--elevation-float-inset); }
+.workspace.focus-mode .right-workbench { margin-block: 0; }
 /* overflow 归卡级：列容器放行缝钮负偏移（卡自身各管裁切） */
 .right-workbench { border-right: 0; overflow: visible; position: relative; gap: 8px; }
 .right-rail-collapsed { min-width: 0; min-height: 0; background: var(--elevation-rail); display: flex; justify-content: center; }
@@ -199,11 +204,11 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .collapse-right-button { width: 30px; height: 30px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; }
 
 /* —— RP-2.11 chat|work 二段 + 顶栏秩序 —— */
-/* ① 案件标题迁顶栏、与红绿灯同排居中 */
-/* ① 标题居中栏顶（约束 chat 列，与红绿灯同排，不压 dock）；draggable */
+/* ① 案件标题迁中栏标题带，与右卡首标题共用 8px 基线。 */
+/* ① 标题约束于 chat 列、不压 dock；标题带仍可拖拽窗口。 */
 /* 案件态：标题+样板/阶段 chip 左排紧凑（⑦用户拍板，撤居中致长标题溢出/chip 飘右）；welcome「New work」仍居中。
    overflow hidden + 标题可截断：防长标题+chip 超中栏触发全局横向溢出（rp23）。 */
-.chat-titlebar { position: absolute; z-index: 5; top: 0; left: 0; right: 0; height: 40px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 0 14px; overflow: hidden; -webkit-app-region: drag; }
+.chat-titlebar { position: absolute; z-index: 5; top: var(--elevation-float-inset); left: 0; right: 0; height: 40px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 0 14px; overflow: hidden; -webkit-app-region: drag; }
 .chat-titlebar:has(.welcome-head-label) { justify-content: center; }
 .chat-titlebar [data-testid="titlebar-case-title"] { min-width: 0; }
 .chat-titlebar .chat-case-title { min-width: 0; max-width: 60%; padding: 2px 6px; border: 0; background: transparent; color: var(--text-primary); cursor: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-dense-body-size); font-weight: 510; -webkit-app-region: no-drag; }
@@ -229,7 +234,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 /* ⑤ composer workmode 沉底钮激活态 */
 .composer-icon-button.is-active-mode { color: var(--text-primary); }
 .collapse-right-button:hover { background: var(--control-hover); color: var(--text-primary); }
-.case-rail { --home-row-height: 36px; background: var(--elevation-rail); overflow: hidden; }
+.case-rail { --home-row-height: 36px; position: relative; background: var(--elevation-rail); overflow: hidden; }
 .case-rail.is-collapsed { align-items: center; padding: 6px 0; }
 .case-expanded { min-height: 0; flex: 1; display: flex; flex-direction: column; }
 .collapsed-case-icons { display: none; }

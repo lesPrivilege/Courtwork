@@ -28,6 +28,7 @@ import {
 } from './case/case-scope';
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import { CHROME_COPY } from './chrome/copy';
+import { WindowChrome } from './chrome/WindowChrome';
 import { QuestionTurnCard, ToolCallRow, TurnCard } from './chat/TurnCard';
 import { CollapsibleMessage } from './chat/CollapsibleMessage';
 import { NewCaseDialog } from './case/NewCaseDialog';
@@ -1191,18 +1192,12 @@ export function App() {
 
   return (
     <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'} data-compact={compactLayout ? 'true' : 'false'}>
-      <header className="window-chrome" data-testid="window-chrome" data-tauri-drag-region>
-        <button
-          type="button"
-          className="window-chrome-button"
-          data-testid="collapse-left-rail"
-          aria-label={effectiveLeftCollapsed ? CHROME_COPY.navigation.expandLeft : CHROME_COPY.navigation.collapseLeft}
-          title={effectiveLeftCollapsed ? CHROME_COPY.navigation.expandLeft : CHROME_COPY.navigation.collapseLeft}
-          onClick={() => effectiveLeftCollapsed ? exitCompactLeft() : setLeftCollapsed(true)}
-        ><Icon name="panel-left" /></button>
-        <button type="button" className="window-chrome-button" aria-label="Search" title="Search" onClick={() => setPaletteOpen(true)}><Icon name="search" /></button>
-        <span className="spacer" />
-      </header>
+      {(focusMode || effectiveLeftCollapsed) && <WindowChrome
+        detached
+        leftCollapsed={effectiveLeftCollapsed}
+        onToggleLeft={() => effectiveLeftCollapsed ? exitCompactLeft() : setLeftCollapsed(true)}
+        onSearch={() => setPaletteOpen(true)}
+      />}
       <div
         className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
         data-view-segment={viewSegment}
@@ -1249,6 +1244,8 @@ export function App() {
             onConfirmContainerizeUnfiled={confirmContainerizeUnfiled}
             onCancelContainerizeUnfiled={() => setContainerizeUnfiledId(null)}
             onExpandLeft={exitCompactLeft}
+            onCollapseLeft={() => setLeftCollapsed(true)}
+            onSearch={() => setPaletteOpen(true)}
             onOpenSettings={() => openSettings('model')} // 五裁③：默认落 Model（最高频入口）
             onFeedback={showSystemFeedback}
           />
