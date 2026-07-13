@@ -1029,7 +1029,7 @@ async fn probe_provider_at(
             }
         }
     }
-    let mut body = serde_json::Map::new();
+    let mut body = input.reasoning_body.clone();
     body.insert(
         "model".into(),
         serde_json::Value::String(input.model_id.clone()),
@@ -1040,7 +1040,6 @@ async fn probe_provider_at(
     );
     body.insert("max_tokens".into(), serde_json::json!(1));
     body.insert("stream".into(), serde_json::json!(false));
-    body.extend(input.reasoning_body.clone());
     match client
         .post(catalog_url(catalog, &catalog.paths.chat))
         .timeout(std::time::Duration::from_secs(20))
@@ -1145,12 +1144,12 @@ where
             return;
         }
     };
+    parsed.extend(input.reasoning_body.clone());
     parsed.insert(
         "model".into(),
         serde_json::Value::String(input.model_id.clone()),
     );
     parsed.insert("stream".into(), serde_json::Value::Bool(true));
-    parsed.extend(input.reasoning_body.clone());
     let body = match serde_json::to_string(&parsed) {
         Ok(body) => body,
         Err(_) => {
@@ -2064,6 +2063,8 @@ mod tests {
                     || text.contains("Authorization: Bearer test-secret-never-logged")
             );
             assert!(text.contains("\"stream\":true"));
+            assert!(text.contains("\"model\":\"deepseek-v4-pro\""));
+            assert!(!text.contains("\"model\":\"forged-model\""));
             let body = "data: {\"choices\":[{\"delta\":{\"content\":\"法\"}}]}\n\ndata: [DONE]\n\n"
                 .as_bytes();
             write!(socket, "HTTP/1.1 200 OK\r\ncontent-type: text/event-stream\r\ncontent-length: {}\r\nconnection: close\r\n\r\n", body.len()).expect("write headers");
@@ -2085,7 +2086,10 @@ mod tests {
             request_id: "fragment-test".into(),
             provider_id: "deepseek".into(),
             model_id: "deepseek-v4-pro".into(),
-            reasoning_body: serde_json::Map::new(),
+            reasoning_body: serde_json::from_value(
+                serde_json::json!({"model": "forged-model", "stream": false}),
+            )
+            .expect("forged reasoning map"),
             body: r#"{"messages":[{"role":"user","content":"hi"}],"stream":true}"#.into(),
         };
         let mut events = Vec::new();
