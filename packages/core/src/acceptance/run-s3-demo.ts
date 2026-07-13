@@ -45,7 +45,7 @@ export const S3_GOLDEN_EVENT_TYPES = [
   'scenario_completed',
 ] as const satisfies readonly SessionEvent['type'][];
 
-const S3_PRELOADED_ANCHOR_QUOTES = [
+export const S3_PRELOADED_ANCHOR_QUOTES = [
   '百分之十的违约金',
   '提交甲方所在地人民法院诉讼解决',
   '质保期为交付之日起壹年',

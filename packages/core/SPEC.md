@@ -123,3 +123,11 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 - **S3 真跑收官通道**（src/acceptance/run-s3-real.ts + scripts/real-s3-run.ts，`real:s3`）：真卷宗 → ReadingView → 六段组装 → 真 provider → 草稿 → 铸锚 → 门禁暂停；**无 key 无全文**（provider 缺席在读材料前拒跑）；**assert-no-demo-in-real** 四断言（provider 非 scripted/事件流零 demo-fixture/材料集恰真/锚点全指真材料）违规非零退出；真机证据七项落 real-run-evidence.json。真 key 真跑为用户手动项（key 不在本会话环境）。
 - **变异矩阵 8/8 全红**（放行标准·变异必红）：契约段抽条/多义放行/信封松绑/枚举词表门旁路/none 门旁路/修复重试旁路/防污染断言空转/golden 回退双向——逐项回退机制其测试必红，全部恢复后 839/839 绿。
 - 依赖增量：`@courtwork/legal`（装配/验收层白名单内）+ `@courtwork/reading-view`（材料文本层派生，同白名单）——依赖面变更随单报架构。
+
+## LEGAL-DEMO-RUN · 全链穿越通道 + 防过拟合守卫（2026-07-13，实现留痕）
+
+- **全链穿越通道**（src/acceptance/run-legal-demo.ts + scripts/legal-demo-run.ts，`demo:legal`）：合同 PDF → ReadingView → 六段组装 → 模型（Scripted/真 key 双档同管线）→ RiskList 真锚 → 门禁逐条处置（7 确认 + 1 驳回，全量 RevisionEvent 留痕）→ 编译修订指令（驳回项不编译）→ 修订 docx 落产出。八站结构化目击记录（stations[]）+ provider 接缝 wire 目击器（六段标记物逐请求断言）+ 逐锚复算（quote===slice 不采信 resolver 自述）随产物落 workDir/legal-demo-evidence.json；黄金对照（事件骨架 15 事件/预埋考点 ≥5/锚点复算/修订命中）任一不符非零退出。真 key 档挂 real 运行时并强制 assert-no-demo-in-real。集成测试 legal-demo-run.integration.test.ts 把穿越锁成常驻门禁（含双跑指令集字节稳定；docx zip 级哈希循 B 阶段安装包判例不作断言对象——fflate zip 条目携时钟 mtime）。
+- **锚点消费方契约（首跑目击，判例入册）**：SourceAnchor.textRange 的坐标系是"块自己的坐标系"——PDF 页内（每页 rangeBase=0，跨页区间重叠）、md/docx 文档级。消费方必须先按 textLayerVersion（携 page 佐证）选块，再在块内做区间与逐字校验；裸拿 range 找块必错页。任何锚点消费面（溯源 hover/click）接真 PDF 卷宗时同守此约。
+- **assert-no-demo-in-harness**（src/no-demo-in-harness.test.ts，与 assert-no-demo-in-real 成对，用户点名的防过拟合隔离审计）：机器层（composition/acceptance 白名单外）零 demo 素材指纹（夹具文件名/样板案主体/案号/装配点标识 11 枚）、零 fixture 特调分支（id 字段×字符串字面量比较的正则指纹）、零 golden 考点引语内嵌（docx 档 + PDF 档共 14 条考点住 demo/legal 包与验收层）；防空转自检（扫描器对植入样本必报警）+ 成对/注入点自证。施工期变异实证 2/2 红：resolver 植入素材名、executor 植入 fileId 字面分支，均被咬，还原后全绿。
+- **材料装配增量**（src/composition/demo-assembly.ts）：buildLegalDemoRunRuntime()（PDF 档剧本回放 S3_PDF_DOSSIER_DRAFT + party-verify 查对方主体临江精铸）+ LEGAL_DEMO_MATERIAL_PATHS（生成 PDF 原件/docx 修订孪生/信用查询单）。剧本与考点住 @courtwork/legal demo 包（见 legal SPEC）；docx 孪生生成器住 demo-data（见 demo-data SPEC）。
+- **确定性边界（目击记录）**：system 侧四段跨跑字节稳定；user 侧语料段内嵌工具信封，checkedAt 为核验时刻证词随真实时钟走——跨跑 user wire 哈希不同是正确行为（组装器对相同输入的字节稳定由 assembly golden 守护）。

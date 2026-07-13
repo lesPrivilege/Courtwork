@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { findPartyRecord, type PartyCorpusRecord } from '@courtwork/demo-data';
-import { LEGAL_PACKAGE, S3_RISK_LIST_DRAFT } from '@courtwork/legal';
+import { LEGAL_PACKAGE, S3_RISK_LIST_DRAFT, S3_PDF_DOSSIER_DRAFT } from '@courtwork/legal';
 import { admitPackages, buildPackageRegistries, type PackageRegistries } from '@courtwork/registry';
 import { convertToReadingView, type ReadingViewOutcome } from '@courtwork/reading-view';
 import {
@@ -109,8 +109,40 @@ export function materialFromReadingView(outcome: ReadingViewOutcome, sourceBytes
   };
 }
 
+/**
+ * LEGAL-DEMO-RUN（PDF 卷宗档）装配：与 buildDemoS3Runtime 同一装配点、不同剧本——
+ * 脚本响应回放 S3_PDF_DOSSIER_DRAFT（引语出自生成 PDF 文本层），party-verify 查询
+ * 对象为对方主体（委托方＝乙方起云智能，核验卖方临江精铸）。剧本与考点住 legal
+ * demo 包，这里只做绑定。
+ */
+export function buildLegalDemoRunRuntime(): DemoS3Runtime {
+  const base = buildDemoS3Runtime();
+  return {
+    ...base,
+    provider: createScriptedProvider('demo-scripted-provider', 'fake-scripted-v1', [
+      {
+        content: JSON.stringify({
+          target: { stepId: 'produce-risk-list', artifactType: 'legal.RiskList' },
+          artifact: S3_PDF_DOSSIER_DRAFT,
+        }),
+        reasoningContent:
+          '通读合同两页与信用查询单：付款、验收、风险转移、所有权、不可抗力、管辖各条对买方的失衡点逐条核对，并对照关联公司网络核验收款主体。',
+      },
+    ]),
+    toolInputs: { 'party-verify': { name: '临江精铸科技有限公司' } },
+  };
+}
+
 const DEMO_DOCX_PATH = join(import.meta.dirname, '..', '..', '..', 'output', 'test', 'fixtures', 'original.docx');
 const DEMO_CREDIT_MD_PATH = join(import.meta.dirname, '..', '..', '..', 'demo-data', 'data', 'dossier', '20-企业信用信息查询单.md');
+const DEMO_CONTRACTS_DIR = join(import.meta.dirname, '..', '..', '..', 'demo-data', 'data', 'contracts');
+
+/** LEGAL-DEMO-RUN 材料路径（装配点数据源绑定）：生成 PDF 原件 + docx 修订孪生 + 信用查询单。 */
+export const LEGAL_DEMO_MATERIAL_PATHS = {
+  contractPdf: join(DEMO_CONTRACTS_DIR, '设备采购合同.pdf'),
+  contractDocxTwin: join(DEMO_CONTRACTS_DIR, '设备采购合同.docx'),
+  creditMd: DEMO_CREDIT_MD_PATH,
+} as const;
 
 /**
  * S3 演示材料装配：被审合同（docx 文本层，risk-01–06 引语出处）+ 企业信用查询单
