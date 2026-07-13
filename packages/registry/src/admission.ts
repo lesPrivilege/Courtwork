@@ -8,6 +8,7 @@ import {
   type SideEffectClass,
 } from '@courtwork/schemas';
 import {
+  InteractionTemplateSchema,
   PackageScenarioSchema,
   PromptSegmentSchema,
   RendererDescriptorSchema,
@@ -82,6 +83,7 @@ function checkEnumVocabulary(descriptor: ArtifactDescriptor): string[] {
 function admitOne(
   manifest: VerticalPackageManifest,
   seenPackageIds: Set<string>,
+  seenInteractionTemplateOwners: ReadonlyMap<string, string>,
   warnings: string[],
 ): string[] {
   const issues: string[] = [];
@@ -135,6 +137,35 @@ function admitOne(
     }
     if (rendererIds.has(renderer.uiTemplateId)) issues.push(`renderer uiTemplateId "${renderer.uiTemplateId}" 重复`);
     rendererIds.add(renderer.uiTemplateId);
+  }
+
+  const interactionTemplateIds = new Set<string>();
+  for (const template of manifest.interactionTemplates ?? []) {
+    const parsed = InteractionTemplateSchema.safeParse(template);
+    if (!parsed.success) {
+      issues.push(
+        `interaction template ${template.id ?? '(无 id)'} 声明不合法：${parsed.error.issues
+          .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+          .join('；')}`,
+      );
+      continue;
+    }
+    const value = parsed.data;
+    if (interactionTemplateIds.has(value.id)) {
+      issues.push(`interaction template id "${value.id}" 在包内重复`);
+    }
+    interactionTemplateIds.add(value.id);
+
+    const templateNamespace = value.id.slice(0, value.id.indexOf('.'));
+    if (templateNamespace !== packageId) {
+      issues.push(`interaction template ${value.id} 越出本包命名空间（命名空间所有权：${packageId}.*）`);
+    }
+    const existingOwner = seenInteractionTemplateOwners.get(value.id);
+    if (existingOwner !== undefined && existingOwner !== packageId) {
+      issues.push(
+        `interaction template id "${value.id}" 与已准入包 ${existingOwner} 跨包重复（后到包拒载）`,
+      );
+    }
   }
 
   const scenarioIds = new Set<string>();
@@ -197,15 +228,19 @@ export function admitPackages(manifests: VerticalPackageManifest[]): AdmissionRe
   const rejected: RejectedPackage[] = [];
   const warnings: string[] = [];
   const seen = new Set<string>();
+  const seenInteractionTemplateOwners = new Map<string, string>();
 
   for (const manifest of manifests) {
-    const issues = admitOne(manifest, seen, warnings);
+    const issues = admitOne(manifest, seen, seenInteractionTemplateOwners, warnings);
     const packageId = manifest.identity?.packageId ?? '(未知)';
     if (issues.length > 0) {
       rejected.push({ packageId, issues });
     } else {
       admitted.push(manifest);
       seen.add(packageId);
+      for (const template of manifest.interactionTemplates ?? []) {
+        seenInteractionTemplateOwners.set(template.id, packageId);
+      }
     }
   }
 

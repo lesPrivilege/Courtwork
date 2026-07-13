@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { PackageScenarioSchema, RendererDescriptorSchema, ScenarioIdSchema } from './package-manifest.js';
+import {
+  InteractionTemplateSchema,
+  PackageScenarioSchema,
+  RendererDescriptorSchema,
+  ScenarioIdSchema,
+} from './package-manifest.js';
 
 const VALID_SCENARIO = {
   id: 'legal.S3',
@@ -83,5 +88,63 @@ describe('RendererDescriptorSchema', () => {
     ).toBe(true);
     expect(RendererDescriptorSchema.safeParse({ uiTemplateId: '', kind: 'workspace', title: 'x' }).success).toBe(false);
     expect(RendererDescriptorSchema.safeParse({ uiTemplateId: 'a', kind: 'popup', title: 'x' }).success).toBe(false);
+  });
+});
+
+const VALID_INTERACTION_TEMPLATE = {
+  id: 'legal.review-position',
+  kind: 'single_choice',
+  question: '本次审查应以哪一方立场展开？',
+  options: [
+    { id: 'buyer', label: '买方', description: '以买方风险与履约目标为审查基准' },
+    { id: 'seller', label: '卖方' },
+  ],
+  skippable: false,
+  anchorPolicy: 'none',
+  uiTemplateId: 'question-card',
+} as const;
+
+describe('InteractionTemplateSchema（ADR-007 垂类受控交互模板）', () => {
+  it('只接受 namespaced id、两种 kind、锚点政策与固定 question-card', () => {
+    expect(InteractionTemplateSchema.safeParse(VALID_INTERACTION_TEMPLATE).success).toBe(true);
+    expect(
+      InteractionTemplateSchema.safeParse({ ...VALID_INTERACTION_TEMPLATE, id: 'review-position' }).success,
+    ).toBe(false);
+    expect(
+      InteractionTemplateSchema.safeParse({ ...VALID_INTERACTION_TEMPLATE, kind: 'free_text' }).success,
+    ).toBe(false);
+    expect(
+      InteractionTemplateSchema.safeParse({ ...VALID_INTERACTION_TEMPLATE, anchorPolicy: 'runtime' }).success,
+    ).toBe(false);
+    expect(
+      InteractionTemplateSchema.safeParse({ ...VALID_INTERACTION_TEMPLATE, uiTemplateId: 'legal-card' }).success,
+    ).toBe(false);
+  });
+
+  it('拒绝空选项与重复 option id', () => {
+    expect(
+      InteractionTemplateSchema.safeParse({ ...VALID_INTERACTION_TEMPLATE, options: [] }).success,
+    ).toBe(false);
+    expect(
+      InteractionTemplateSchema.safeParse({
+        ...VALID_INTERACTION_TEMPLATE,
+        options: [
+          { id: 'buyer', label: '买方' },
+          { id: 'buyer', label: '重复买方' },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it('顶层与 option 均 strict，运行时 anchor/bbox/textRange 不得混入模板', () => {
+    expect(
+      InteractionTemplateSchema.safeParse({ ...VALID_INTERACTION_TEMPLATE, anchorRefs: ['source-1'] }).success,
+    ).toBe(false);
+    expect(
+      InteractionTemplateSchema.safeParse({
+        ...VALID_INTERACTION_TEMPLATE,
+        options: [{ id: 'buyer', label: '买方', bbox: [0, 0, 1, 1], textRange: [0, 8] }],
+      }).success,
+    ).toBe(false);
   });
 });

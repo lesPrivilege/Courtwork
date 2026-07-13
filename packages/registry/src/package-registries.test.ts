@@ -39,11 +39,25 @@ function manifest(): VerticalPackageManifest {
     ],
     promptSegments: [{ id: 'contract-review', body: '审查执行正文。' }],
     renderers: [{ uiTemplateId: 'risk-review-panel', kind: 'workspace', title: '风险审阅' }],
+    interactionTemplates: [
+      {
+        id: 'legal.review-position',
+        kind: 'single_choice',
+        question: '本次审查应以哪一方立场展开？',
+        options: [
+          { id: 'buyer', label: '买方', description: '以买方风险与履约目标为审查基准' },
+          { id: 'seller', label: '卖方' },
+        ],
+        skippable: false,
+        anchorPolicy: 'none',
+        uiTemplateId: 'question-card',
+      },
+    ],
     vocabulary: { 'container.noun': '卷宗', 'stage.noun': '阶段', 'material.noun': '卷宗材料' },
   };
 }
 
-describe('buildPackageRegistries（五 registry）', () => {
+describe('buildPackageRegistries（包运行时 registries）', () => {
   const { admitted } = admitPackages([manifest()]);
   const registries = buildPackageRegistries(admitted);
 
@@ -89,5 +103,48 @@ describe('buildPackageRegistries（五 registry）', () => {
 
   it('场景 id 跨包唯一（同 id 拒载在准入层，此处防御性复核）', () => {
     expect(registries.scenarios.list().map((s) => s.id)).toEqual(['legal.S3']);
+  });
+
+  it('interaction template registry 必须同时按 packageId + namespaced templateId 查询', () => {
+    expect(
+      registries.interactionTemplates.get('legal', 'legal.review-position')?.question,
+    ).toBe('本次审查应以哪一方立场展开？');
+    expect(registries.interactionTemplates.get('pm', 'legal.review-position')).toBeUndefined();
+    expect(registries.interactionTemplates.get('legal', 'legal.missing')).toBeUndefined();
+  });
+
+  it('interaction template 查询返回与 manifest 脱钩的深冻结只读快照', () => {
+    const source = manifest();
+    const local = buildPackageRegistries(admitPackages([source]).admitted);
+    const snapshot = local.interactionTemplates.get('legal', 'legal.review-position')!;
+    const sourceTemplate = source.interactionTemplates![0]!;
+
+    expect(snapshot).not.toBe(sourceTemplate);
+    expect(snapshot.options).not.toBe(sourceTemplate.options);
+    expect(Object.isFrozen(snapshot)).toBe(true);
+    expect(Object.isFrozen(snapshot.options)).toBe(true);
+    expect(Object.isFrozen(snapshot.options[0])).toBe(true);
+
+    expect(() => {
+      (snapshot as { question: string }).question = '调用方篡改';
+    }).toThrow(TypeError);
+    expect(() => {
+      (snapshot.options[0] as { label: string }).label = '调用方篡改';
+    }).toThrow(TypeError);
+    sourceTemplate.question = 'manifest 后改';
+    sourceTemplate.options[0]!.label = 'manifest 后改';
+
+    expect(local.interactionTemplates.get('legal', 'legal.review-position')).toEqual({
+      id: 'legal.review-position',
+      kind: 'single_choice',
+      question: '本次审查应以哪一方立场展开？',
+      options: [
+        { id: 'buyer', label: '买方', description: '以买方风险与履约目标为审查基准' },
+        { id: 'seller', label: '卖方' },
+      ],
+      skippable: false,
+      anchorPolicy: 'none',
+      uiTemplateId: 'question-card',
+    });
   });
 });

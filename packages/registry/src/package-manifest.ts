@@ -17,6 +17,44 @@ export const ScenarioIdSchema = z
   .regex(/^[a-z][a-z0-9-]*\.[A-Za-z][A-Za-z0-9-]*$/, '场景 id 必须是 namespaced 形制（如 legal.S3）');
 export type ScenarioId = z.infer<typeof ScenarioIdSchema>;
 
+/** ADR-007：交互模板随垂类包命名，形制与场景 id 一致。 */
+export const InteractionTemplateIdSchema = z
+  .string()
+  .regex(
+    /^[a-z][a-z0-9-]*\.[A-Za-z][A-Za-z0-9-]*$/,
+    'interaction template id 必须是 namespaced 形制（如 legal.review-position）',
+  );
+
+export const InteractionTemplateOptionSchema = z
+  .object({
+    id: z.string().trim().min(1),
+    label: z.string().trim().min(1),
+    description: z.string().trim().min(1).optional(),
+  })
+  .strict();
+export type InteractionTemplateOption = z.infer<typeof InteractionTemplateOptionSchema>;
+
+export const InteractionTemplateSchema = z
+  .object({
+    id: InteractionTemplateIdSchema,
+    kind: z.enum(['single_choice', 'confirmation']),
+    question: z.string().trim().min(1),
+    options: z.array(InteractionTemplateOptionSchema).min(1),
+    skippable: z.boolean(),
+    anchorPolicy: z.enum(['none', 'optional', 'required']),
+    uiTemplateId: z.literal('question-card'),
+  })
+  .strict()
+  .refine((value) => unique(value.options.map((option) => option.id)), {
+    message: 'interaction template 的 option id 必须唯一',
+    path: ['options'],
+  })
+  .meta({
+    title: 'InteractionTemplate',
+    description: 'ADR-007 受控交互模板：垂类内容 + 锚点政策；不携带运行时锚点或 UI 样式。',
+  });
+export type InteractionTemplate = z.infer<typeof InteractionTemplateSchema>;
+
 export const PackageTriggerSchema = z
   .object({
     fileTypes: z.array(z.string().min(1)).default([]),
@@ -134,6 +172,8 @@ export interface VerticalPackageManifest {
   scenarios: PackageScenario[];
   promptSegments: PromptSegmentDeclaration[];
   renderers: RendererDescriptor[];
+  /** ADR-007：受控交互文案与政策随包；缺省表示本包不声明交互。 */
+  interactionTemplates?: InteractionTemplate[];
   vocabulary: PackageVocabulary;
   /** 宣言配色席位：包可声明一个锚色，派生律不变。当期无消费方，席位先立。 */
   anchorColor?: string;
