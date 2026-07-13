@@ -8,6 +8,7 @@ import { COURTWORK_GRAPH_THEME, graphGeometry, graphTokens, registerCourtworkGra
 const { nodeWidth: NODE_WIDTH, nodeHeight: NODE_HEIGHT } = graphGeometry;
 const MIN_ZOOM = 0.45;
 const MAX_ZOOM = 2.4;
+const MINIMAP_RENDER_DELAY_MS = 0;
 
 type PartyEdge = PartyGraph['edges'][number];
 type Selection = { kind: 'node' | 'edge'; id: string };
@@ -116,6 +117,9 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
         padding: 7,
         position: 'right-bottom',
         className: 'courtwork-minimap',
+        // G6 5.1.1 默认 128ms debounce 在快速卸载后仍会访问已销毁的 graph context。
+        // 归零后配合 cleanup 的下一宏任务销毁，让已排队的 minimap render 先安全落完。
+        delay: MINIMAP_RENDER_DELAY_MS,
         // docs/52 #9：禁用库默认蓝系，全部吃 Courtwork tokens
         containerStyle: {
           background: graphTokens.background,
@@ -161,8 +165,11 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
       cancelAnimationFrame(startFrame);
       graphRef.current = null;
       if (!instance) return;
-      if (instance.rendered) instance.destroy();
-      else void renderPromise?.finally(() => instance?.destroy());
+      const destroyAfterMinimapFlush = () => window.setTimeout(() => {
+        if (!instance?.destroyed) instance?.destroy();
+      }, MINIMAP_RENDER_DELAY_MS);
+      if (instance.rendered) destroyAfterMinimapFlush();
+      else void renderPromise?.finally(destroyAfterMinimapFlush);
     };
   }, [graph, selectEdge, selectNode]);
 
