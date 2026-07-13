@@ -765,3 +765,17 @@ radio 密度修复+守护锁定+8 轮受控走查零 console。裁一：**部分
 五提案裁决：①citationStats **追认**（随单报程序正确，providerNotices 同族）；②core 依赖 legal/reading-view **批准**（装配/验收白名单+机器守卫；CLAUDE.md 已同步）；③**归属判据入册**：底座机器消费的 wire 契约留中央（RevisionInstructionSet/FileOpsPlan/IngestStatus），垂类语义 schema 随包——判据一句话：**谁的机器读，住谁家**；④steps 步骤树+promptSegmentRef+投影 equals 扩型 **批准**（输出即视图的载体化）；⑤statuteRef 挂账+MCP 双轨照案。
 **半判例新立——兜底可观测律**：App.tsx 旧裸键断链被 demo 兜底静默掩盖（自查抓获）——兜底路径必须可观测（命中计数/dev 告警），**兜底无声即断链无踪**；grep 形态已入 desktop SPEC，机器化随 PL 批。
 待办：A 线**待异会话验收**（三不变量）；用户手动项=真卷宗真跑一条命令（evidence JSON 即 docs/66 首条锚点观测）。UX-POLISH 合流 3c2792d 收账关单。
+
+## LUNA-ACCEPT（2026-07-13，合并态独立验收 + 逐屏走查——观察先行制）
+
+```
+你（luna）认领 Courtwork 合并态独立验收。身份：未参与任何实现的独立验收者。必读：AGENTS.md 全判例（worktree detach/端口隔离/实跑保真退出码/不采信自述/S-2 pathspec）→ docs/90 → docs/55 尾部各收账 → docs/69 证据等级（E0–E3）。铁律：**只记录不修复**——一切发现进编号台账，分级 🔴阻断/🟡polish/❓存疑，[需架构拍板] 单列；修复权在裁决之后。
+
+上半 · 契约验收（FABLE-HARNESS，tip 06de9e5 系六提交）：
+干净 worktree detach @ main tip，独立端口。①全门实跑（build/包 839/desktop 99/Playwright 190 双轮/16 门禁/lint 退出码亲验——lint 假绿判例在案，禁管道尾）；②放行八标准逐项复核（byte-stable 双 golden 亲跑 DIFF 敏感性/ref 禁上 wire 全文断言/材料边界祈使句保留/quote===slice 逐锚复算/变异矩阵抽 4 项亲手回退验红/assert-no-demo-in-real 反例触发/真机证据七项通道级核对）；③包域律边界：core 域盲 grep + 越界 import 反例触红；④五提案落地与裁决（41b3a0b）逐条对代码。
+
+下半 · 逐屏走查（computer use / preview，一屏一屏）：
+首启欢迎→provider 引导→Skip 样板案→chat 面（真对话/md 渲染/滚底三件套/思考动画/存入桥）→work 面（左栏展开/继续区/路由律）→样板案五工作面逐面（大纲态→浏览器态/法理之线/溯源 hover+click/批量门槛/门禁流/渐进三态）→settings 全 tab→每个 popover/菜单/二级钮逐个点。每屏记录：截图坐标（commit/viewport/端口）+ 异常编号入台账；**凡与 docs/32/36/49 凡例或"期待效果"不符者皆记，不自行判轻重弃录**。
+
+报告：ACCEPTANCE.md 纯追加（契约半）+ 台账落 docs/52 批次八（走查半）。结论三问：A 线放行否；树面自足可 push 否；屏查有无 🔴。
+```
