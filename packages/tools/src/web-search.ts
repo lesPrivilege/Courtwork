@@ -17,7 +17,7 @@ export const WebSearchInputSchema = z.object({
 export type WebSearchInput = z.infer<typeof WebSearchInputSchema>;
 
 /**
- * 与 web-fetch 同理：search 的成功路径结构上不存在（docs/20"不许让 web 结果以任何
+ * 与 web-fetch 同理：search 的成功路径结构上不存在（docs/decisions/ADR-003-evidence-and-anchors.md"不许让 web 结果以任何
  * 路径获得 verified:true"对 search 与 fetch 一视同仁）。dataSchema 声明 z.never()，
  * 未来接入真实搜索后端时，其成功分支也只能走 ToolWebReferenceError 这一条通道。
  */
@@ -41,7 +41,7 @@ export function createWebSearchTool(adapter: WebSearchAdapter): ToolDefinition<W
 /**
  * mock 适配器不接受任何配置。搜索结果的 title/snippet 同样经过 spotlighting——
  * 搜索引擎返回的标题/摘要一样是第三方不可信文本，是已被记录在案的间接注入向量
- * （docs/14 §4.1），不能因为字数短就豁免消毒。
+ * （docs/decisions/ADR-005-data-security.md §4.1），不能因为字数短就豁免消毒。
  */
 export function createMockWebSearchAdapter(): WebSearchAdapter {
   return {

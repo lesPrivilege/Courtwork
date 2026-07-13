@@ -4,9 +4,9 @@
 
 ## 背景
 
-本包不属于 `docs/10` 原始工单编号序列，是 docs/41 缺口盘点期间新立的 MVP 补强工单（同批的还有 fetch 工具最小实现、provider 首批适配，三张工单可并行）。定位：office 生态原生文件（docx/md/txt/含文本层 PDF）→ md 阅读视图（模型阅读的"母语"）+ 段落级 `SourceAnchor` 映射（UI 溯源与 core 生成节点共用的一等产物）。OCR（扫描件/无文本层）不在范围内，是 W3/W8 ingest v1 的职责；本包对这类输入只负责准确声明"需要 OCR"，不吐半坏的 md，不静默出空文。
+本包不属于 `当时的架构工单册` 原始工单编号序列，是 当时的架构工单册 缺口盘点期间新立的 MVP 补强工单（同批的还有 fetch 工具最小实现、provider 首批适配，三张工单可并行）。定位：office 生态原生文件（docx/md/txt/含文本层 PDF）→ md 阅读视图（模型阅读的"母语"）+ 段落级 `SourceAnchor` 映射（UI 溯源与 core 生成节点共用的一等产物）。OCR（扫描件/无文本层）不在范围内，是 W3/W8 ingest v1 的职责；本包对这类输入只负责准确声明"需要 OCR"，不吐半坏的 md，不静默出空文。
 
-只读、单向：呼应 `docs/23-架构决定-编辑面与单向编译.md` 的"定稿后 docx 永不回 md"，本包同理不做任何反向写入，产出只被模型/UI 消费，不回写原件。
+只读、单向：呼应 `docs/decisions/ADR-004-documents-and-files.md` 的"定稿后 docx 永不回 md"，本包同理不做任何反向写入，产出只被模型/UI 消费，不回写原件。
 
 ## 职责
 
@@ -44,7 +44,7 @@ type ReadingViewOutcome =
   | { status: 'disabled'; fileId: string; fileName: string; reason: DisabledReason; detail?: string };
 ```
 
-顶层入口 `convertToReadingView(input, options?)` 只接受内存字节（`Uint8Array` + `fileName`/`fileId`），不接受文件路径——保持包纯净、可测、不假设 Node `fs` 可用（Tauri/浏览器语境同样适用）。**契约上永不 throw**：任何内部异常兜底为 `disabled`（不静默崩溃，呼应 tools 层"失败降级不猜、不裸抛"的纪律）。`detail` 是开发者诊断字符串（日志/调试用），不是面向终端用户的文案——用户可见文案的措辞归 UI/产品（`docs/24`"零技术概念暴露给普通用户"），本包只出机器可读的 `reason`/`status`。
+顶层入口 `convertToReadingView(input, options?)` 只接受内存字节（`Uint8Array` + `fileName`/`fileId`），不接受文件路径——保持包纯净、可测、不假设 Node `fs` 可用（Tauri/浏览器语境同样适用）。**契约上永不 throw**：任何内部异常兜底为 `disabled`（不静默崩溃，呼应 tools 层"失败降级不猜、不裸抛"的纪律）。`detail` 是开发者诊断字符串（日志/调试用），不是面向终端用户的文案——用户可见文案的措辞归 UI/产品（`docs/decisions/ADR-002-schema-workflow.md`"零技术概念暴露给普通用户"），本包只出机器可读的 `reason`/`status`。
 
 ## 四条转换路径
 
@@ -62,14 +62,14 @@ type ReadingViewOutcome =
 
 **pdf**：`pdfjs-dist` 逐页 `getTextContent()`。全篇所有页均无可提取文本 → `needs_ocr`；只要有一页有文本仍判 `ok`（无文本页的单独提示是 UI 未来可做的细化，不是本包当期粒度）。`jpg`/`png` 直通：扩展名本身即代表天然无文本层，直接短路返回 `needs_ocr`，不进入解析流程。
 
-## 安全基线（呼应 `docs/27-架构决定-sandbox与fetch分期.md` MVP 六条中与本包相关的两条，加一条包级延伸）
+## 安全基线（呼应 `docs/decisions/ADR-005-data-security.md` MVP 六条中与本包相关的两条，加一条包级延伸）
 
 1. **解压比例上限**：docx 是 zip，`fflate.unzipSync` 会一次性全量解压——必须在调用它之前先只读 zip 中央目录拿到每个 entry 的声明压缩/未压缩大小，比例或总未压缩量超配置阈值（默认 100:1 比例、200MB 总量上限，均可配置）直接判 `zip_bomb_suspected` 降级，绝不对可疑 zip 先跑 `unzipSync` 再补救。
 2. **禁 XXE**：解析任何 XML 部件前，先对原始文本做 `<!DOCTYPE`/`<!ENTITY` 字符串级探测（双保险，不单纯信任 `@xmldom/xmldom` 的默认解析行为），命中即判 `malicious_content` 降级。
 3. **禁宏**：仅接受 `.docx` 扩展名 + 校验 `[Content_Types].xml` 声明的 content-type 非宏使能类型；zip 内出现 `word/vbaProject.bin` 一律拒绝，不论扩展名怎么写。
 4. **文件大小上限**：最先检查（最便宜的检查最先做），默认 50MB，可配置。
 5. **超时**：整个转换调用包一层可配置超时（默认 30s），超时判 `disabled`。
-6. **进程隔离不在本包职责内**：`docs/27` 第①条讲的是 ingest Python 服务的进程级隔离，本包是纯库、被 core 进程内调用，无法自我沙箱化。记入 `packages/core` SPEC 的 TODO（调用不可信文件时是否需要 worker/子进程兜底），不是本包能力缺口。
+6. **进程隔离不在本包职责内**：`docs/decisions/ADR-005-data-security.md` 第①条讲的是 ingest Python 服务的进程级隔离，本包是纯库、被 core 进程内调用，无法自我沙箱化。记入 `packages/core` SPEC 的 TODO（调用不可信文件时是否需要 worker/子进程兜底），不是本包能力缺口。
 
 ## CaseFile 对接：自有类型 + 无损投影（`needs_ocr` 已在 schemas 落地，见验收记录）
 

@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import { SourceAnchorSchema } from '@courtwork/schemas';
 
-/** 打分公式族（CalcArtifact 同族第二租户）。权重表团队自定义，零年更（docs/61 §4.1）。 */
+/** 打分公式族（CalcArtifact 同族第二租户）。权重表团队自定义，零年更（docs/product/pm-vertical.md §四）。 */
 export const ScoreFormulaEnum = z.enum(['RICE', 'ICE', 'WSJF']);
 export type ScoreFormula = z.infer<typeof ScoreFormulaEnum>;
 
@@ -15,7 +15,7 @@ const ScoreRangeSchema = z
 
 /**
  * 单个打分参数（reach/impact/confidence/effort 之一）。
- * 裁量区间纪律（docs/62 §三）：confidence 低者出区间不出单值——
+ * 裁量区间纪律（docs/product/pm-vertical.md §三）：confidence 低者出区间不出单值——
  *   - filled 且确定：value 为单值、range 为 null；
  *   - filled 但裁量：range 为区间、value 为 null（供人定档，不伪造单值）；
  *   - 无锚且无值：status=out_of_coverage（诚实置空，绝不编数）。
@@ -71,7 +71,7 @@ const PriorityRowSchema = z.object({
   }),
   /** 脚本计算结果（零 LLM）；参数含裁量区间时得分传导为区间（敏感度标注）。 */
   score: z.union([z.number(), ScoreRangeSchema]),
-  /** 排序**提案**——永远标注"建议"，裁决在人（docs/62 §三 轻确认门禁）。 */
+  /** 排序**提案**——永远标注"建议"，裁决在人（docs/product/pm-vertical.md §三 轻确认门禁）。 */
   rank: z.number().int().positive(),
   band: PriorityBandEnum,
 });

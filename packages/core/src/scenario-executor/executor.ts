@@ -43,7 +43,7 @@ export interface ScenarioExecutorDeps {
   projections: ProjectionRegistry;
   now?: () => string;
   /**
-   * 运行时保护四件套（docs/12 长任务协议③），按次 runScenario/resumeScenario 调用
+   * 运行时保护四件套（docs/architecture/system.md 长任务协议③），按次 runScenario/resumeScenario 调用
    * 单独计额——不跨暂停边界累计（每次续行是新的一段执行，不是同一预算的延续）。
    * 缺省不限制，MVP 默认行为不变。
    */
@@ -126,7 +126,7 @@ async function runTools(
       deps.ledger.record(toolId, { grade: binding.grade, sourceId: envelope.source, confirmed: false });
     } else {
       // 工具契约本身已经把失败降级为结构化的 verified:false（不抛异常）——这里只是把
-      // "发生过一次工具级降级"显式发布到事件流（docs/12 长任务协议②，step_failed）。
+      // "发生过一次工具级降级"显式发布到事件流（docs/architecture/system.md 长任务协议②，step_failed）。
       deps.eventLog.append({ type: 'step_failed', scope: 'tool', toolId, reason: envelope.reason, message: envelope.message });
     }
   }
@@ -179,7 +179,7 @@ async function generateArtifact(
 
   // 六段组装（HARNESS-1）：契约→声明→租户→投影→会话与语料→视图映射。
   // producedSoFar 经续行投影段进 context（声明式投影，非原文回放）；
-  // todo 复述归视图映射段尾（docs/12 技巧的正名归宿）。
+  // todo 复述归视图映射段尾（docs/architecture/system.md 技巧的正名归宿）。
   const generateOnce = async (repairFailures?: CitationFailure[]) => {
     const task: Record<string, unknown> = {
       artifactType,
@@ -187,7 +187,7 @@ async function generateArtifact(
       toolResults: context.toolResults,
     };
     if (repairFailures !== undefined) {
-      // 受限修复重试（docs/53 校准语义）：携原判与失败原因，只修引语不重写判断。
+      // 受限修复重试（docs/architecture/schema-engineering.md 校准语义）：携原判与失败原因，只修引语不重写判断。
       task.repair = {
         instruction: '以下引语未通过原文精确匹配公证。只修正这些引语（必须与材料原文一字不差、且在声明的页/块内唯一），其余判断与字段保持不变。',
         failures: repairFailures,
@@ -314,7 +314,7 @@ function pauseAt(
     materials: state.materials,
   };
   deps.confirmationStore.save(pending);
-  // 进度快照先发（docs/12 长任务协议①）：反映"停在哪一步"，再发确认请求本身。
+  // 进度快照先发（docs/architecture/system.md 长任务协议①）：反映"停在哪一步"，再发确认请求本身。
   deps.eventLog.append({ type: 'todo_snapshot', steps: deriveTodoSnapshot(scenario, state.producedSoFar, artifactType) });
   deps.eventLog.append({ type: 'confirmation_requested', requestId, gateLabel, artifactType });
   return { status: 'paused', sessionId: state.sessionId, requestId };

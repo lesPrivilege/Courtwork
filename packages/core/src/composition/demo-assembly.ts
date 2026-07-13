@@ -47,7 +47,7 @@ export interface DemoS3Runtime {
 }
 
 /**
- * 装配点（composition root，docs/21 例外条款）：全仓库运行时代码中唯一允许
+ * 装配点（composition root，docs/decisions/ADR-001-package-abi.md 例外条款）：全仓库运行时代码中唯一允许
  * import @courtwork/demo-data 与 @courtwork/legal 的绑定层——包域律的物理边界
  * 由 core 单测 package-boundary.test.ts 机器守护。真实数据接入 = 换这一个文件的
  * wiring，其余板块零改动。

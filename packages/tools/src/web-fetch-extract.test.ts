@@ -129,7 +129,7 @@ describe('extractHtmlContent — JS-rendered shell degrades honestly', () => {
 });
 
 describe('extractHtmlContent — scripts are never executed', () => {
-  it('does not let an embedded <script> mutate document.title (no JS execution, per docs/27 red line)', () => {
+  it('does not let an embedded <script> mutate document.title (no JS execution, per docs/decisions/ADR-005-data-security.md red line)', () => {
     const html = `<!DOCTYPE html><html><head><title>Original Title</title><script>document.title = "HACKED";</script></head><body><article><p>${'正文内容需要足够长才能通过 Readability 的最小字数判定，这里再补充一些说明性文字以确保长度充足，避免被误判为内容不足的降级路径，从而干扰这个测试用例真正想验证的行为：脚本标签内的赋值语句绝不能被执行。'.repeat(2)}</p></article></body></html>`;
     const result = extractHtmlContent(html, 'https://example.invalid/x');
     expect(result.title).toBe('Original Title');

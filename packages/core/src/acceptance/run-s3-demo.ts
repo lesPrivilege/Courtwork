@@ -79,7 +79,7 @@ export function evaluateS3DemoGolden(input: {
     risk.basis.flatMap((basis) => basis.sourceAnchors.flatMap((anchor) => anchor.quote ? [anchor.quote] : [])),
   );
   // 单向包含（HARNESS-1 拍板：golden 单向规范化匹配）：模型引语必须复现预埋原文片段，
-  // 反向 expected.includes(actual) 已证实可被通用法律词平凡骗过（docs/68 五节），废除。
+  // 反向 expected.includes(actual) 已证实可被通用法律词平凡骗过，废除。
   const matchedPreloadedFindings = S3_PRELOADED_ANCHOR_QUOTES.filter((expected) =>
     actualQuotes.some((actual) => actual.includes(expected)),
   ).length;

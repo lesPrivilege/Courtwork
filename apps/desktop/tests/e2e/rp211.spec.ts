@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { connectProvider, openWorkbench } from './helpers';
 
-// —— RP-2.11 chat|work 二段 + 顶栏秩序 + 字符推理（docs/25 修正二 · 中间档） ——
+// —— RP-2.11 chat|work 二段 + 顶栏秩序 + 字符推理（docs/decisions/ADR-005-data-security.md 修正二 · 中间档） ——
 
 test('chat|work 段控真路由：work=工作台 / chat=轻画布（右栏退场）', async ({ page }) => {
   await openWorkbench(page);

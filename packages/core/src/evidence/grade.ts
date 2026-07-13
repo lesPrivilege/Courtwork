@@ -25,7 +25,7 @@ export interface EvidenceLedger {
 
 /**
  * 通用证据台账：orchestration 过程中把"这条证据背后是哪次工具调用、什么等级"
- * 记进本次运行的台账。不塞进 schemas 定义的 artifact 本体（docs/20"嵌入形状归
+ * 记进本次运行的台账。不塞进 schemas 定义的 artifact 本体（docs/decisions/ADR-003-evidence-and-anchors.md"嵌入形状归
  * schemas、映射归 core"——现在不嵌，将来要嵌走 schemas 提案）。
  */
 export function createEvidenceLedger(): EvidenceLedger {

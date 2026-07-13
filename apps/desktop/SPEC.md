@@ -25,7 +25,7 @@
 
 ## RP-2 · UI 完全化提案（实现前，2026-07-11）
 
-权威：docs/49 第四章两次修正 + docs/52 批次四 #18′–#26 + docs/32 motion ladder。范围只在 desktop；凭证 Rust/TS 与 `packages/*` 不动。
+权威：docs/decisions/ADR-006-ui-host.md + docs/design/principles.md 动效规则。范围只在 desktop；凭证 Rust/TS 与 `packages/*` 不动。
 
 ### 宽比固定档（#20）
 
@@ -92,7 +92,7 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 
 ## FIX-KC-1 · 凭证授权流（据 DBG-2，2026-07-11）
 
-权威：docs/55 FIX-KC-1。落点 `src-tauri/src/lib.rs` + `credentials/client.ts` + 设置页诊断/恢复。
+权威：当时的架构工单册 FIX-KC-1。落点 `src-tauri/src/lib.rs` + `credentials/client.ts` + 设置页诊断/恢复。
 
 | 项 | 实现 |
 |---|---|
@@ -203,7 +203,7 @@ dist 文件级哈希（确定性内容）：
 
 ## RP-1 desktop 最终重排（2026-07-11，Build 门）
 
-权威：`docs/49` 三/四/五章 + `docs/25` 混排修正 + `docs/32` tokens 纪律 + 批次二 `#11/#12` + 批次三 `#16/#17`。
+权威：`docs/decisions/ADR-006-ui-host.md`、`docs/decisions/ADR-005-data-security.md` 与 `docs/design/tokens.json`；批次编号只用于本节历史追溯。
 
 ### A 左栏
 
@@ -226,7 +226,7 @@ dist 文件级哈希（确定性内容）：
 - L2：popover 既有（`surface-popover`）。
 - 标题栏透明化：wordmark + 全局动作；模型服务常驻状态条；**仅 failed 态**在标题栏浮现琥珀警示。
 - 收缩态：左栏折叠 + 右栏全折 → 画布 + composer 浮卡 + 折叠按钮。
-- `#16`：model-config 关闭按钮动词直白（「关闭」），主次按钮层级照 docs/32（次要 quiet）。
+- `#16`：model-config 关闭按钮动词直白（「关闭」），主次按钮层级照 docs/design/principles.md（次要 quiet）。
 
 ### Elevation token 提案（实现前写入，供架构过目）
 
@@ -235,7 +235,7 @@ dist 文件级哈希（确定性内容）：
 | `elevation.canvas` | `color.bg.app` `#EDEDED` | L0 页面底色 / 对话流地面 |
 | `elevation.float` | `color.bg.raised` `#FFFFFF` | L1 浮面填充（左/右/composer） |
 | `elevation.floatBorder` | `color.border.hairline` `#EBEBEB` | L1 细描边 |
-| `elevation.floatRadius` | `12` | L1 圆角（docs/49 四章；非 `radius.lg` 6 的列表卡） |
+| `elevation.floatRadius` | `12` | L1 圆角（docs/design/tokens.json；非 `radius.lg` 6 的列表卡） |
 | `elevation.floatInset` | `8` | L1 相对画布的 inset 间距（px，4 基阶） |
 | `elevation.shellGap` | `8` | 浮面之间水平/垂直缝 |
 | `elevation.shadow` | `none` | 硬性：零投影（de-slop #6 / shadow.none） |
@@ -276,10 +276,10 @@ Elevation 提案全量（与 tokens.json `elevation` 一致，供架构过目）
 
 ## SET-1 设置页（2026-07-11）
 
-规格：docs/46「设置页清单」——分组/条目/路由状态不增不减。
+规格：当时的 UI 清单「设置页清单」——分组/条目/路由状态不增不减。
 
 - 入口：标题栏齿轮 `open-settings` + ⌘K「设置」；全局层浮面，容器无关；分组切换 0ms；Esc 关闭。
-- 真实：key→D-1 探针；provider/模型/推理→`model-config`；maxUsd→`settings-store`（RuntimeGuard）；默认产出目录+reveal；遥测开关；行为数据 opt-in 确认制+时间戳；数据承诺声明页（docs/28）；版本/许可/诊断导出（无密钥）。
+- 真实：key→D-1 探针；provider/模型/推理→`model-config`；maxUsd→`settings-store`（RuntimeGuard）；默认产出目录+reveal；遥测开关；行为数据 opt-in 确认制+时间戳；数据承诺声明页（docs/decisions/ADR-005-data-security.md）；版本/许可/诊断导出（无密钥）。
 - 预留禁用+tooltip：来源授权、企微/飞书/邮件/企业库、清除偏好、检查更新。
 - 明确不出现：主题、语言、skill 管理。
 
@@ -287,7 +287,7 @@ Elevation 提案全量（与 tokens.json `elevation` 一致，供架构过目）
 
 ## UX-1 微调批次一（2026-07-11）
 
-实现范围：docs/52 #1–#10 + D-1 打回 0a/0b。裁决不重开。
+实现范围：当时的 UI 清单 #1–#10 + D-1 打回 0a/0b。裁决不重开。
 
 ### 0a composer chip 案件作用域
 
@@ -374,9 +374,9 @@ Elevation 提案全量（与 tokens.json `elevation` 一致，供架构过目）
 
 ## 已定约束（Design 阶段的输入）
 
-- 壳选型倾向 Tauri v2（docs/05 结论），Design 阶段最终定
+- 壳选型倾向 Tauri v2（docs/architecture/system.md 结论），Design 阶段最终定
 - UI 是 core 事件流协议的纯客户端，不含业务逻辑
-- 前端组件基线：vis-timeline / AntV G6 / AG Grid Community / react-pdf-highlighter（license 已核，见 docs/05）
+- 前端组件基线：vis-timeline / AntV G6 / AG Grid Community / react-pdf-highlighter（license 已核，见 docs/architecture/system.md）
 - 每个关键产出节点留人确认（交互护栏，产品纪律）
 - 所有对 artifact 的修正是 schema 级操作，经 core 落 RevisionEvent
 
@@ -422,7 +422,7 @@ Elevation 提案全量（与 tokens.json `elevation` 一致，供架构过目）
 | 5 | 微按钮/标签 2–4px，卡与输入 6px，弹层 6px，全局无超出 8px 的非圆形圆角。 |
 | 6 | 全局 `box-shadow:none`；静态面板、卡、弹层全部依靠 1px 描边与底色差分层。 |
 | 7 | `.app-shell` 全域 `font-variant-numeric:tabular-nums`，日期/案号/金额/编号另叠 mono。 |
-| 8 | 色彩全部取 `tokens.json` 现有色值；不采 docs/35 第 8 条的示例映射扩展色义。 |
+| 8 | 色彩全部取 `tokens.json` 现有色值；不采 当时的设计提案 第 8 条的示例映射扩展色义。 |
 | 9 | 数据区无自发动效；P-2 已将 hover 全站统一为 120ms ease-out，并保留长任务已拍板呼吸点；语义状态仍 0ms 硬切。 |
 | 10 | 各工作面无数据时统一文字 + 1px 虚线框 + 快捷键引导，无插画资产。 |
 | 11 | 案件名、风险文本、文件名和矩阵单元格单行省略；图谱画布通用裁去公司法定后缀，右侧主体/关系索引以 `title` 保留完整文本。 |
@@ -511,7 +511,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 ## Composer 输入区整备（2026-07-10）
 
-规格：`docs/45-调研报告-composer输入区惯例.md`（架构审定）+ 工单裁决。实现位：`src/composer/`。
+规格：`docs/design/principles.md`（架构审定）+ 工单裁决。实现位：`src/composer/`。
 
 ### 交付对照
 
@@ -521,7 +521,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 | Lucide 隐喻 + stroke 1.35 | P-4 已改为 `lucide-react` 1.x 静态具名导入，全局 `LucideProvider` 锁定 `strokeWidth=1.35`；不再维护 TSX 内联路径 |
 | 附件文件名 chip | 类型图标 + 中间截断文件名 + 移除；失败内联重试；2–5s 边框微光（`chip-glow` 1800ms opacity）；>5s 进度文案位；成功/失败 0ms 硬切 + 150ms border-color 光效层 |
 | 仅本条 vs 存入卷宗 | 默认仅本条；徽章 → popover 轻确认 → 硬切绿「已存入卷宗」；无反向操作 |
-| 拖放 / 粘贴 | 全窗 overlay 提示落点（工单覆盖 docs/45 输入框高亮建议）；⌘V 文件进 chip；纯文本粘贴走 textarea |
+| 拖放 / 粘贴 | 全窗 overlay 提示落点（工单覆盖 docs/design/principles.md 输入框高亮建议）；⌘V 文件进 chip；纯文本粘贴走 textarea |
 | Enter / Shift+Enter + KBD | IME `compositionstart/end` 防误发；底部 `⏎ 发送 · ⇧⏎ 换行`（typography-density §五） |
 | reading-view 路由 | `convertToReadingView` 真实调用；`needs_ocr` / `disabled` → chip 失败态办案语言（零 OCR/API 黑话） |
 | 协议客户端 | 发送只写入中栏本地消息呈现；不新增 SessionEvent 业务逻辑 |
@@ -540,8 +540,8 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 ## P-4 SVG 图标体系与模型编写规范（2026-07-10）
 
 - 通用图标切换为 `lucide-react` 1.24.0（ISC）静态具名导入；应用根与独立审计页都用 `LucideProvider` 将描边锁定为 1.35px。原 `Icon.tsx` 手排路径表及并发新增的 archive/copy/check/focus 内联 SVG 已全部替换；本批 Lucide 无缺口，未引入 Tabler。
-- 权威工程规范见 [`docs/32-设计语言包/svg-standards.md`](../../docs/32-设计语言包/svg-standards.md)：24×24 网格、1.35px / `currentColor` / 禁 fill 和内联色、元素/属性白名单、形状命名、SVGO 4 multipass 与 16px/24px 人审纪律均已成文。
-- docs/44 的 17 个领域概念已建库；其中门禁一行展开为待处理/已确认/已驳回三态，因此落地 19 个形状命名 SVG。`manifest.json` 登记法律用途，生成模块同时导出可 tree-shake 的具名组件与审计用 registry，产品壳不因建库而全量携带尚未使用的领域图标。
+- 权威工程规范见 [`docs/design/svg-standards.md`](../../docs/design/svg-standards.md)：24×24 网格、1.35px / `currentColor` / 禁 fill 和内联色、元素/属性白名单、形状命名、SVGO 4 multipass 与 16px/24px 人审纪律均已成文。
+- 当时的图标清单 的 17 个领域概念已建库；其中门禁一行展开为待处理/已确认/已驳回三态，因此落地 19 个形状命名 SVG。`manifest.json` 登记法律用途，生成模块同时导出可 tree-shake 的具名组件与审计用 registry，产品壳不因建库而全量携带尚未使用的领域图标。
 - `verify-icons.mjs` 为自写 CI 门禁：检查根属性、标签/属性白名单、色值/fill/脚本禁止项、两位精度、SVGO 漂移、manifest 一一对应、生成物漂移、全 `src/**/*.tsx` 无内联 SVG、Lucide 静态导入与 Tabler 边界；已接入 `test:e2e` 前置链。
 - 完整 16px/24px 审计板：[`15-p4-icon-audit-1280.png`](visual-audit/15-p4-icon-audit-1280.png)。人审确认 19 个变体在 16px 仍可辨，门禁三态与生成/核验双通道不混淆。
 
@@ -558,7 +558,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 ## F-4 文件操作分级与卷宗整理（2026-07-10）
 
-规格：docs/47。交付：
+规格：docs/decisions/ADR-004-documents-and-files.md。交付：
 
 | 层 | 内容 |
 |---|---|
@@ -573,7 +573,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 ## F-2 全局动词补全（2026-07-10）
 
-规格：docs/46 十项裁决（1/3/6/7 + callout 复制）。五项均落地：
+规格：当时的 UI 清单 十项裁决（1/3/6/7 + callout 复制）。五项均落地：
 
 | 项 | 状态 | 落点 |
 |---|---|---|
@@ -587,7 +587,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 ## F-3 最小 work 能力包（2026-07-10）
 
-规格：docs/23 双轨增补 + docs/47 无损级 + docs/46 先登记。实现位：`packages/tools`（case-path / system-open）+ `apps/desktop/src/system/`。
+规格：docs/decisions/ADR-004-documents-and-files.md 双轨增补 + docs/decisions/ADR-004-documents-and-files.md 无损级 + 当时的 UI 清单 先登记。实现位：`packages/tools`（case-path / system-open）+ `apps/desktop/src/system/`。
 
 ### 交付对照
 
@@ -616,7 +616,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - `cargo test`：凭证状态输出不含 secret/value 字段，1/1 通过。
 - `codesign --verify --deep --strict`、`hdiutil verify` 均通过；打包后 `Courtwork.app` 实际启动进程存活。可执行文件 SHA-256：`c10809386eb7fed8a9df2991e24dd4f416a7f815cd443d8d8780807ed0809394`。
 
-探索性 QA：computer use 类 agent（Codex / Claude）按场景剧本自由操作找断点，出缺陷报告，不做回归基础——按 docs/10 届时另立 spike 工单。
+探索性 QA：computer use 类 agent（Codex / Claude）按场景剧本自由操作找断点，出缺陷报告，不做回归基础——按 docs/engineering/workflow.md 届时另立 spike 工单。
 
 ## TODO（跨层放入区）
 
@@ -763,7 +763,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 ## RP-2.9 `home.*` 密度分档 token 提案（待架构过目，2026-07-11）
 
-依据 docs/49 第十一章与 Cowork 真机参照 `visual-audit/24-rp2-frontier-reference.png`，仅为低密度首页/左栏建立一组尺寸别名；不新增颜色、阴影、字重或动效，schema dense 区继续消费既有 `type.dense` / `component.listRow`，严禁反向消费本组。
+依据 docs/decisions/ADR-006-ui-host.md 与 Cowork 真机参照 `visual-audit/24-rp2-frontier-reference.png`，仅为低密度首页/左栏建立一组尺寸别名；不新增颜色、阴影、字重或动效，schema dense 区继续消费既有 `type.dense` / `component.listRow`，严禁反向消费本组。
 
 | token | 提案值 | 复用关系与白名单 |
 |---|---:|---|
@@ -780,7 +780,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 ### RP-2.9 落地记录（2026-07-11，架构批复 `c52102d`）
 
-- `home.*` 八项按批复进入 `docs/32-设计语言包/tokens.json` 与 CSS 单点变量；18px 图标保留光学豁免。16px 只由欢迎主面消费，继续区行卡依授权回落 12，避免行卡与大面同权重。
+- `home.*` 八项按批复进入 `docs/design/tokens.json` 与 CSS 单点变量；18px 图标保留光学豁免。16px 只由欢迎主面消费，继续区行卡依授权回落 12，避免行卡与大面同权重。
 - 冷启动不再调用 credential status；`data-credential-probed` 与 `lint:rp29` 锁定零启动探针。发送、composer provider、Settings/凭证入口才触发真实 probe；FIX-KC-1 的保存、失败分型与 keychain 语义未改。
 - 首启路径为欢迎主面 → 一步式 provider 引导（安全声明/Skip）→ Skip 样板案导览 → 样板案工作面；任何启动都不继承上次卷宗，继续区显式提供最多三项入口。
 - macOS 配置使用 `titleBarStyle: Overlay` + `hiddenTitle`，内容提供拖拽标题区；三栏继续上下贯通。Preview dock 收为悬浮三 tap，避开 close/collapse 命中区并保留 L2 点外收起。
@@ -806,7 +806,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 ### RP-2.10 三卡一纸 + 品牌 icon 推理动画（2026-07-11，Opus 4.8 实现，sol 转验收）
 
-- 三卡一纸（docs/49 第十二章）：右列两态皆坐底纸、永不成卡——`UtilityRail` 去 `SurfaceCard`，dock 三 tap 为 L0 透明带，base 态其下附 `preview-open` reopen 入口（仍坐底纸），schema（`preview-host`）为右列唯一 L1 卡；折叠钮迁入 `right-rail-chrome` 底纸留空、水平居中不占卡。chat 面（欢迎/空态）保持两栏。
+- 三卡一纸（docs/decisions/ADR-006-ui-host.md）：右列两态皆坐底纸、永不成卡——`UtilityRail` 去 `SurfaceCard`，dock 三 tap 为 L0 透明带，base 态其下附 `preview-open` reopen 入口（仍坐底纸），schema（`preview-host`）为右列唯一 L1 卡；折叠钮迁入 `right-rail-chrome` 底纸留空、水平居中不占卡。chat 面（欢迎/空态）保持两栏。
 - 线影凡例：composer 外框 `border-strong` 略重（含沉底按钮区，无影，色与两侧一致微深）；默认按钮扁平，唯 Send 实底；user message 扁平藏青微加深底（`color-mix`），编辑态描边仍按 Stage 1 fork 未实现；`conversation-scroll` 两侧留空放大（文字不贴边）。
 - chat 卡片清算（第九章修正）：event/artifact/file 保持扁平账本行；唯 question/门禁为轻卡（`border-strong` + 6px 圆角 + 纯白底）；进行态事件行文本灰阶 `breathe` 闪烁，settle 后 demo 收敛为 success（不永久闪烁）。
 - #26.2/#26.3：推理指示锚 = 品牌 icon 本体（新增 `brand-mark` SVG 走 P-4 管线：藏青竖线 + 三横杠）；竖线立定、三横杠逐条写下（`reasoningLine=360ms` 序延迟），静默收回静态 icon 作思考流折叠锚；居 turn 尾、message 按钮排之下、左下角位形。四纪律不变（数据区静止 / 内容 0ms 硬切 / 法理之线不参与 / shimmer 灰阶，品牌线例外用藏青 `--text-primary`）。
@@ -825,7 +825,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 ### QF-2 AUDIT-1 两项阻断清账（2026-07-11）
 
 - #27：`queuedMessages` 每条绑定 `caseId`，消息流仅投影当前 `selectedCaseId`；队列随案件保留而不跨案渗出。`CASE_SCOPE_AUDIT` 增对应行，D-1 切换矩阵锁定“A 排队 → B 零继承 → A 恢复 → B 仍为空”。
-- #28：FileOps 执行器、事务日志、动词闭集与哈希证据均不变；仅报告投影依 docs/36 五节改为中文动作与案件内相对路径，英文枚举、绝对路径和 hash 留在诊断层。E2E 同时锁正向文案和三类不可见字符串。
+- #28：FileOps 执行器、事务日志、动词闭集与哈希证据均不变；仅报告投影依 docs/architecture/schema-engineering.md 五节改为中文动作与案件内相对路径，英文枚举、绝对路径和 hash 留在诊断层。E2E 同时锁正向文案和三类不可见字符串。
 - 全门禁：全仓 build 9/9；Vitest 83 files / 725 tests；独立端口 `:1455`、`:1456` 顺序实跑完整静态门禁与 Playwright，两轮均为 146/146（1 worker）；floor 保持 146，未新增或弱化用例。
 
 ### RP-2.11 chat|work 二段 + 顶栏秩序 + 字符推理（九条，2026-07-11，Opus 实现，异会话验收）
@@ -833,7 +833,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 九条 + 推理改判全落地（MERGE-2 已叠 QF-1/QF-2；合流前本线曾记 151/152 且 composer:56 为 QF-1 前引用）：
 
 - **① 顶部秩序（照搬 Cowork 顶栏重构，用户 crop 定稿）**：`window-chrome` 降**透明绝对浮层**（`app-shell` 去顶栏行 → `grid-template-rows: minmax(0,1fr)`），左右卡片**上下贯通铺到 mac 红绿灯**、顶不留白；红绿灯留白由左卡顶 `padding-top` 让位，wordmark/段控在其下。案件标题迁 `chat-titlebar`——**约束 chat 列居中**、与红绿灯同排、`selectedCase` 门控（不压右卡 dock；`titlebar-case-title` 仅裹标题、badge/stage 兄弟）；chat 面同栏顶显 `Chat` label。浮层仅剩 collapse-left/search（左）+ collapse-right（右）。左栏**除 owner 外全扁平零框线**（rail-head/nav/label/case-card 去边，owner `border-top` 独留）。**composer 扁平**：`composer-box` 改 grid（text 一行占顶、五钮沉 text 下方一排），`composer-float` 横 pad 16px 令两侧留白更宽（尤其 workspace 展开态）。
-- **chat|work 中间档**（docs/25 修正二）：`viewSegment` 真路由；work=容器工作台 / chat=内存态轻画布（`chat-canvas`，二栏、右栏退场、`chatMessages` 重启即逝——0.1.1 诚实缺口）；`unfiled={[]}` 气泡行退场、Recents 纯容器；`storeChatIntoContainer` 存入桥接容器化仪式后切 work。**不做**剪裁/滚动摘要/落盘（HARNESS 系 0.1.2）。
+- **chat|work 中间档**（docs/decisions/ADR-006-ui-host.md）：`viewSegment` 真路由；work=容器工作台 / chat=内存态轻画布（`chat-canvas`，二栏、右栏退场、`chatMessages` 重启即逝——0.1.1 诚实缺口）；`unfiled={[]}` 气泡行退场、Recents 纯容器；`storeChatIntoContainer` 存入桥接容器化仪式后切 work。**不做**剪裁/滚动摘要/落盘（HARNESS 系 0.1.2）。
 - **②** 三栏间距 `shellGap/floatInset 8→12`（tokens + css；`@media ≤1280` 已窄列，四档零溢出）。**④** dock 顶对齐左栏（`right-rail-chrome 40px`）。**⑤** composer 五钮沉底零框线：add-folder 提独立钮 + workmode（=viewSegment 同源）。**⑥** message 按钮 24→20 / icon 14→12。**⑦** `--control-hover #e6eaf0`：34 处 `--bg-hover` 扁平按钮 hover 全迁，hover 与 selected 两语义两色。
 - **推理字符版改判**：`▏` terminal 硬闪 + `Thinking…` / 静默 `▏ Thought process`；非 SVG（brand-mark 留册待 post-P-4）；`lint:thinking` 迁 char 契约。
 - **⑧ 长消息收敛**：`CollapsibleMessage`——超 6 行（user 值提案）收敛 + 底部渐隐遮罩（`mask-image`，过渡而非硬切凡例）+ Show more/less（hover 深色块）；纯呈现层不动账本；应用于 user/chat/local 消息。
@@ -844,7 +844,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - `rp291:15`（chat header 1 button）→ **0 button + 标题居 `chat-titlebar`**：① 迁中栏顶栏后 chat 头真零按钮（名实一致；顶栏重构后标题在 chat-titlebar 而非 window-chrome）。
 - `rp210:77`（折叠钮居右列留空居中 + `right-rail-chrome`）→ **dock 为右卡顶部坐底纸、折叠钮迁顶栏浮层**：顶栏改判后 `right-rail-chrome` 退役、dock 与红绿灯同排，`assert-rp210` 同步撤 right-rail-chrome 断言。
 - `rp25:31`（gap≈8）→ `≈12`：② 三栏间距加大，Cowork 参照即 RP-2.9 锁要真机证据。
-- `rp1:5/31/46`（unfiled 气泡行 + unfiled-store 存入）→ **Recents 纯容器 + chat 面 store-chat**：气泡行退场，存入桥迁 chat 面（docs/25 修正二），仪式/选名词不变。
+- `rp1:5/31/46`（unfiled 气泡行 + unfiled-store 存入）→ **Recents 纯容器 + chat 面 store-chat**：气泡行退场，存入桥迁 chat 面（docs/decisions/ADR-006-ui-host.md），仪式/选名词不变。
 - `rp29:35`（composer 序 add/paste/scope/provider/send）→ `+add-folder/workmode`：⑤ 五钮沉底。
 - `rp210:6`/`ux1:81`（brand-mark 锚 / toggle 无 span）→ 字符版：推理改判，brand-mark 旧断言退役、两套不并存。
 
@@ -872,7 +872,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - **artifact 卡取数改投影派生（硬编码计数退役）**：「发现 6 项合同风险」「47 个事件 · 14 个主体」原为字面量——事件里是多少就呈现多少（riskList/timeline/graph 既有类型化访问器取数，demo 兜底行为不变故 e2e 呈现字节不变）；MessageActions/copyText 同步派生。
 - **录制对齐声明真值（防录制漂移）**：S3 录制契约层逐字段对齐真 harness——事件序（artifact → todo → confirmation，pauseAt 语义）、todo 步 id/标签（deriveTodoSnapshot 对 legal.S3 步骤树：verify-parties done + produce-risk-list 停门禁取门禁标签原文）、gateLabel（包声明原文）、citationStats（与 artifact 内 8 枚锚点一致——机器锁施工期首咬即中：手填 6 被 anchorCount 断言抓获）。progress 事件为演示旁白（staging）注释明示分界：真 S3 首跑不发 progress。契约测试新增两例：录制 vs LEGAL_PACKAGE 声明的机器锁 + citationStats 投影/重发保留。
 - **思考流摘要来源核验**：ThinkingStream content = session.progress 序列（join），S3 demo 呈现即 progress 事件原文——来源正确；真事件流（无 progress）落静态兜底文案，reasoningContent（ScriptedProvider 已回携）到思考流的接线仍属 T-provider.1 挂账，不在本单造新 UI。
-- **台账（移交）**：①S1 录制事件序仍为演示节奏（confirmation_resolved 省略、PartyGraph 越门禁出现）——随 S1 流真接线一并对齐；②session.todo 投影无 UI 消费方（todo_snapshot 事件到卡"不丢"的例外位）——归 docs/53 提案④ steps 载体化的落地面；③锚点消费方契约（textRange 为块内坐标系，PDF 页内偏移跨页重叠）——溯源 hover/click 接真 PDF 卷宗时必须按 textLayerVersion/page 选块（判例详见 core SPEC LEGAL-DEMO-RUN 节）。
+- **台账（移交）**：①S1 录制事件序仍为演示节奏（confirmation_resolved 省略、PartyGraph 越门禁出现）——随 S1 流真接线一并对齐；②session.todo 投影无 UI 消费方（todo_snapshot 事件到卡"不丢"的例外位）——归 docs/architecture/schema-engineering.md 提案④ steps 载体化的落地面；③锚点消费方契约（textRange 为块内坐标系，PDF 页内偏移跨页重叠）——溯源 hover/click 接真 PDF 卷宗时必须按 textLayerVersion/page 选块（判例详见 core SPEC LEGAL-DEMO-RUN 节）。
 
 ## LAUNCH-FIX · 承诺对照三红修实（2026-07-13，异会话验收通过）
 

@@ -3,7 +3,7 @@ import { ARTIFACT_TYPE_ID_PATTERN, type ArtifactTypeId } from './artifact-type-i
 
 /**
  * 续行投影（ABI 拍板②：归 artifact descriptor）的声明词表——封闭三种 op，禁自由代码：
- * 投影是确定性契约（golden 可测），不是模型运气，也不是任意函数（docs/58 七节）。
+ * 投影是确定性契约（golden 可测），不是模型运气，也不是任意函数（docs/decisions/ADR-005-data-security.md 七节）。
  * - field：取标量字段值一行；
  * - count：数组计数（可带单字段等值谓词，如「已处置 N」）；
  * - list：数组前 N 项的单字段罗列。

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { openModuleList, openWorkbench } from './helpers';
 
-/** GOAL-2 schema workspace 专项：批次三器件 + docs/36 回灌断言。 */
+/** GOAL-2 schema workspace 专项：批次三器件 + docs/architecture/schema-engineering.md 回灌断言。 */
 
 test.describe('GOAL-2 · #14 矩阵 hover 溯源预览', () => {
   test('单元格 hover 出全文与引语浮层；空锚格诚实注明未提及', async ({ page }) => {
@@ -22,7 +22,7 @@ test.describe('GOAL-2 · #14 矩阵 hover 溯源预览', () => {
   });
 });
 
-test.describe('GOAL-2 · 零编码暴露律（docs/36 五节）', () => {
+test.describe('GOAL-2 · 零编码暴露律（docs/architecture/schema-engineering.md 五节）', () => {
   test('时间线来源列显示可读文件名而非截断 wire 前缀', async ({ page }) => {
     await openWorkbench(page);
     await page.getByTestId('view-timeline').click();

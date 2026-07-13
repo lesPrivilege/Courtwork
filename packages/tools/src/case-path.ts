@@ -1,5 +1,5 @@
 /**
- * 案件文件夹分区约定（docs/23 双轨 + docs/47 文件操作分级）。
+ * 案件文件夹分区约定（docs/decisions/ADR-004-documents-and-files.md 双轨 + docs/decisions/ADR-004-documents-and-files.md 文件操作分级）。
  * 路径运算使用纯 POSIX 语义（不依赖 node:path），以便 desktop WebView 与 Node 测试共用。
  */
 
@@ -135,7 +135,7 @@ export function assertRevealOrOpenAllowed(caseRoot: string, targetPath: string):
 }
 
 /**
- * 工作稿轨写入白名单（docs/23 原件只读红线）：
+ * 工作稿轨写入白名单（docs/decisions/ADR-004-documents-and-files.md 原件只读红线）：
  * 1）必须在案件文件夹内；2）必须在「工作稿」子目录；3）扩展名仅 .md / .txt；
  * 4）分区为 original 时结构上拒绝。
  */

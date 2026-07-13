@@ -1,7 +1,7 @@
 /**
  * 设置页本地持久化（SET-1）。
  * 与 RuntimeGuard / model-config 同族：写配置即真路由，无假开关。
- * 同意态带时间戳（docs/28 审计语义）。
+ * 同意态带时间戳（docs/decisions/ADR-005-data-security.md 审计语义）。
  */
 
 export interface RuntimeGuardSettings {
@@ -15,7 +15,7 @@ export interface OutputSettings {
 }
 
 export interface PrivacySettings {
-  /** 使用遥测；docs/28 桌面默认开启（仅本机） */
+  /** 使用遥测；docs/decisions/ADR-005-data-security.md 桌面默认开启（仅本机） */
   telemetryEnabled: boolean;
   /**
    * 脱敏行为数据 opt-in。

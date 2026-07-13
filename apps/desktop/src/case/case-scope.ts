@@ -2,7 +2,7 @@ import type { ScenarioFlow } from '../protocol/client';
 import { DEMO_CASE_ROOT } from '../system/demo-case-layout';
 import type { CaseSummary } from './types';
 
-/** 样板案容器 id——demo 语料与装配只属于此 id（docs/21 + D-1）。 */
+/** 样板案容器 id——demo 语料与装配只属于此 id（docs/decisions/ADR-001-package-abi.md + D-1）。 */
 export const DEMO_CASE_ID = 'demo-linjiang';
 
 export function isDemoCaseId(caseId: string | null | undefined): boolean {
@@ -110,6 +110,6 @@ export const CASE_SCOPE_AUDIT = [
   {
     symbol: 'rail-footer lead attorney · 林律师',
     kind: '应派生' as const,
-    note: 'docs/52 #17：demo persona 仅 isDemo 案件显示；非 demo 案件不渲染主办律师占位',
+    note: 'docs/design/principles.md：demo persona 仅 isDemo 案件显示；非 demo 案件不渲染主办律师占位',
   },
 ] as const;

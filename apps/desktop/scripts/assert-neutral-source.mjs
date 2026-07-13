@@ -1,4 +1,4 @@
-// 中性色单源律门禁(docs/55 2026-07-12 拍板,MVP-FULL 批 0)
+// 中性色单源律门禁（docs/design/tokens.json）
 // 1) tokens 中性组自查:禁无色相灰(R==G==B,白卡 #FFFFFF 豁免)、禁暖调中性(R>B);
 //    语义色预算(semantic/action/focus/link)豁免——暖色是语义,不是中性。
 // 2) 消费面(src/**.css|ts|tsx)出现的一切 hex 必须 ∈ tokens 声明集(单源:组件内禁造色)。
@@ -6,7 +6,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 
-const tokens = JSON.parse(readFileSync(resolve('../../docs/32-设计语言包/tokens.json'), 'utf8'));
+const tokens = JSON.parse(readFileSync(resolve('../../docs/design/tokens.json'), 'utf8'));
 const violations = [];
 
 const norm = (hex) => {
@@ -38,14 +38,12 @@ const walk = (node, path, semanticScope) => {
       if (key.startsWith('$')) continue; // $meta/$description 为叙述文字,非 token 值
       const nextSemantic = semanticScope
         || key === 'semantic' || key === 'action' || key === 'focus' || key === 'link'
-        || path === 'color.line'; // 法理之线语义五色豁免;line.rest 单独受检(下方显式追加)
+        || path === 'color.line'; // 法理之线五种处置语义色豁免
       walk(value, path ? `${path}.${key}` : key, nextSemantic);
     }
   }
 };
 walk(tokens, '', false);
-// line.rest 是中性阶成员(冷灰),显式纳入受检
-neutralEntries.push({ path: 'color.line.rest', hex: norm(tokens.color.line.rest.value) });
 
 // —— 1) tokens 中性组结构断言(值 ∈ 语义集时豁免:中性位引用语义值合法,如 elevation.warn*)
 for (const { path, hex } of neutralEntries) {

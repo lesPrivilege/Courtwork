@@ -41,7 +41,7 @@ describe('S3 end-to-end acceptance flow', () => {
 
       // 全程事件流可回放：类型序列体现"产出→进度快照→确认请求→确认解决→修正记录→
       // 修正后重发产出→进度快照→完成"的完整生命周期（重发的 artifact_produced 是
-      // replaySession 能重建出修正后状态的原因；todo_snapshot 是 docs/12 长任务协议①）。
+      // replaySession 能重建出修正后状态的原因；todo_snapshot 是 docs/architecture/system.md 长任务协议①）。
       expect(result.eventTypes).toEqual([
         'artifact_produced',
         'todo_snapshot',
@@ -73,7 +73,7 @@ describe('S3 end-to-end acceptance flow', () => {
       }
       expect(resolvedRiskList.outOfCoverage).toEqual([]);
 
-      // 锚点观测（docs/93 修订一·锚点经济性条款）：citationStats 随 artifact_produced 入账本。
+      // 锚点观测（docs/decisions/ADR-003-evidence-and-anchors.md）：citationStats 随 artifact_produced 入账本。
       const producedEvents = createFileEventLog('demo-s3-session', join(result.workDir, 'events.jsonl'))
         .list()
         .filter((event) => event.type === 'artifact_produced');
@@ -86,7 +86,7 @@ describe('S3 end-to-end acceptance flow', () => {
       expect(revisionEvents).toHaveLength(1);
       expect(revisionEvents[0].sessionId).toBe('demo-s3-session');
 
-      // GOAL-2 接缝细则（docs/58 十二节：交互→RevisionEvent→artifact→投影）：
+      // GOAL-2 接缝细则（docs/decisions/ADR-005-data-security.md 十二节：交互→RevisionEvent→artifact→投影）：
       // 留痕事件必须完整携带 actor/字段路径/新旧值/理由——"改了什么、为何改"可审计。
       const revision = revisionEvents[0];
       expect(revision.actor.userId).toBe('demo-lawyer');

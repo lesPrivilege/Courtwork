@@ -30,8 +30,8 @@ describe('S3 golden 门：事件骨架 + 预埋考点同时有牙', () => {
     expect(report.issues.join('\n')).toMatch(/事件骨架/);
   });
 
-  it('平凡输出（通用法律词短引语）必须失败——docs/68 审计探针转常驻门（单向匹配的牙）', () => {
-    // 任何合同审查都会写出的五个词：曾以反向 substring 骗过旧门（docs/68 五节实证）。
+  it('平凡输出（通用法律词短引语）必须失败——审计探针转常驻门（单向匹配的牙）', () => {
+    // 任何合同审查都会写出的五个词：曾以反向 substring 骗过旧门。
     const trivialQuotes = ['违约金', '人民法院', '质保期', '三十日', '附表一'];
     const report = evaluateS3DemoGolden({
       eventTypes: [...S3_GOLDEN_EVENT_TYPES],

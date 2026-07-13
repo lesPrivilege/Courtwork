@@ -11,7 +11,7 @@ import {
  * 包域律：语义全部住包（本文件只定义装载形状），机制住底座（admission/registries）。
  */
 
-/** 场景 id 双命名空间形制（docs/24）：`包id.场景名`，如 legal.S3。 */
+/** 场景 id 双命名空间形制（docs/decisions/ADR-002-schema-workflow.md）：`包id.场景名`，如 legal.S3。 */
 export const ScenarioIdSchema = z
   .string()
   .regex(/^[a-z][a-z0-9-]*\.[A-Za-z][A-Za-z0-9-]*$/, '场景 id 必须是 namespaced 形制（如 legal.S3）');
@@ -32,7 +32,7 @@ export const PackageTriggerSchema = z
 export type PackageTrigger = z.infer<typeof PackageTriggerSchema>;
 
 /**
- * 声明的步骤树（docs/53 输出即视图：step id 对齐声明步骤树，纲要与视图映射段共用）。
+ * 声明的步骤树（docs/architecture/schema-engineering.md 输出即视图：step id 对齐声明步骤树，纲要与视图映射段共用）。
  * 缺省时注册期按 outputArtifacts 确定性派生。
  */
 export const ScenarioStepSchema = z
@@ -94,7 +94,7 @@ export const PackageScenarioSchema = PackageScenarioObjectSchema.refine(
   });
 export type PackageScenario = z.infer<typeof PackageScenarioSchema>;
 
-/** 声明段正文载体：提示词正文随包（docs/68 施工输入「promptBody 载体」）。 */
+/** 声明段正文载体：提示词正文随包（docs/decisions/ADR-001-package-abi.md）。 */
 export const PromptSegmentSchema = z
   .object({ id: z.string().min(1), body: z.string().min(1) })
   .strict();
@@ -135,6 +135,6 @@ export interface VerticalPackageManifest {
   promptSegments: PromptSegmentDeclaration[];
   renderers: RendererDescriptor[];
   vocabulary: PackageVocabulary;
-  /** 宣言配色席位（docs/55 补款：包可声明一个锚色，派生律不变）。当期无消费方，席位先立。 */
+  /** 宣言配色席位：包可声明一个锚色，派生律不变。当期无消费方，席位先立。 */
   anchorColor?: string;
 }

@@ -65,7 +65,7 @@ export function createMockPartyVerifyAdapter(): PartyVerifyAdapter {
 /**
  * demo-fixture 查找函数：调用方（未来的装配点）负责实现，本文件不 import 任何具体的
  * fixture 数据包（@courtwork/demo-data 之类）——"src 只认接口，不认数据"，见
- * docs/21-架构决定-演示数据包与样板案.md。返回 undefined 表示"演示库未收录该主体"，
+ * docs/decisions/ADR-001-package-abi.md。返回 undefined 表示"演示库未收录该主体"，
  * 适配器会把它翻译成 ToolOutOfCoverageError，不是"该主体不存在"的结论。
  */
 export interface PartyFixtureLookup {

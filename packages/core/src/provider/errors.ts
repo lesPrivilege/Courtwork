@@ -44,7 +44,7 @@ export class ProviderHttpError extends Error {
 }
 
 /** 已知/疑似"provider 静默忽略 response_format"时拒绝调用——反静默降级哲学，MiniMax 判例
- * （docs/18：主力模型对 response_format 完全不支持且静默忽略参数，不报错、模型直接吐自由文本）。 */
+ * （docs/architecture/system.md：主力模型对 response_format 完全不支持且静默忽略参数，不报错、模型直接吐自由文本）。 */
 export class ProviderResponseFormatUnsupportedError extends Error {
   constructor(
     public readonly providerId: string,
@@ -61,7 +61,7 @@ export class ProviderResponseFormatUnsupportedError extends Error {
 
 /**
  * 结构化输出重试耗尽后的终态失败——语义上对应 @courtwork/tools 六种降级 reason 里的
- * 'invalid_response'（docs/18 §6.2："最终失败走既有 invalid_response 语义"）：显式抛出、
+ * 'invalid_response'（docs/architecture/principles.md 静默降级零容忍）：显式抛出、
  * 不静默降级、不插入占位数据。这里选择本地字面量类型而非跨包导入 ToolFailureReasonEnum——
  * provider 生成失败不是 ToolEnvelope，语义呼应但不是同一个判别联合的成员。
  */

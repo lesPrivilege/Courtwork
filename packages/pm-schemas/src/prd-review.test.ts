@@ -40,7 +40,7 @@ describe('PrdReviewSchema', () => {
     expect(PrdReviewSchema.safeParse(r).success).toBe(false);
   });
 
-  it('缺陷维度恰为六类（与 docs/62 §二 对齐）', () => {
+  it('缺陷维度恰为六类（与 docs/product/pm-vertical.md §二 对齐）', () => {
     expect(PrdDefectTypeEnum.options).toHaveLength(6);
   });
 

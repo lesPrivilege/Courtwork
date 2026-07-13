@@ -1,8 +1,8 @@
 import { parseArtifactDescriptor, type ArtifactDescriptor } from './descriptor.js';
 
 /**
- * PM 四场景的 artifact 描述符——字段级词表（docs/53 文案归宿律）。
- * 每个枚举 wire 值都映射为可读专业词（零编码暴露律 docs/36 §五）；
+ * PM 四场景的 artifact 描述符——字段级词表（docs/architecture/schema-engineering.md 文案归宿律）。
+ * 每个枚举 wire 值都映射为可读专业词（零编码暴露律 docs/architecture/schema-engineering.md §五）；
  * 领域无关的 view-resolver 消费本表即可渲染，宿主零领域字面量。
  * 全部经 parseArtifactDescriptor 校验（必填齐全 / 无漂移键）。
  */

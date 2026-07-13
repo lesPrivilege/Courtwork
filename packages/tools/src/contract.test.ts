@@ -378,7 +378,7 @@ describe('createToolExecutor().execute — caching', () => {
     expect(resultB.data).toEqual({ value: 2 });
   });
 
-  it('caches a web_reference result even though verified is false: the second call does not invoke run() again (docs/20 允许 C 级抓取本身可缓存，只是永远不是 verified:true)', async () => {
+  it('caches a web_reference result even though verified is false: the second call does not invoke run() again (docs/decisions/ADR-003-evidence-and-anchors.md 允许 C 级抓取本身可缓存，只是永远不是 verified:true)', async () => {
     const run = vi.fn(async () => {
       throw new ToolWebReferenceError('fake-tool', 'ok', fakeWebReference);
     });

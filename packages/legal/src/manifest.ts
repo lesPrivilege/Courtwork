@@ -9,7 +9,7 @@ import { FileOpsPlanSchema, RevisionInstructionSetSchema } from '@courtwork/sche
 /**
  * 法律垂类包 manifest（legal 迁出 core，2026-07-13）：六面声明的唯一权威——
  * schema/场景/提示词正文/renderer 声明/词表全部住包；底座只持机械件。
- * 验证标准（docs/53 包域律）：core 对包是纯执行器——跑得动 legal.*，读不懂 legal.*。
+ * 验证标准（docs/architecture/schema-engineering.md 包域律）：core 对包是纯执行器——跑得动 legal.*，读不懂 legal.*。
  */
 
 const S3_CONTRACT_REVIEW_PROMPT = [

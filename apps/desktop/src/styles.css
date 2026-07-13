@@ -3,7 +3,7 @@
   color: #0a2540;
   background: #f6f9fc;
   font-synthesis: none;
-  /* 中性色单源律（docs/55 2026-07-12）：H=210° 藏青锚派生，三级明度台阶 底纸→竖栏→白卡 */
+  /* 中性色单源律（docs/design/tokens.json）：H=210° 藏青锚派生，三级明度台阶 底纸→竖栏→白卡 */
   --bg-app: #f6f9fc;
   --bg-surface: #eaeff4;
   --bg-raised: #fff;
@@ -583,7 +583,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   .scene-more-narrow-only { display: block; }
 }
 
-/* —— composer 输入区（docs/45 + 工单裁决） —— */
+/* —— composer 输入区（docs/design/principles.md + 工单裁决） —— */
 /* 2026-07-12 修：外框归整卡（shell 含附件区+文本块+沉底钮排），文本块自身扁平 */
 .composer-shell { position: relative; margin: 0 0 6px; display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-raised); }
 /* ch12 #4 / RP-2.9 #9：composer 外框略重（含沉底按钮区，无影），色与两侧一致微深 */
@@ -728,7 +728,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .scope-popover p { margin: 6px 0 10px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
 .scope-popover-actions { display: flex; justify-content: flex-end; gap: 6px; }
 
-/* docs/52 #4/#5：+ 溢出菜单（相机/语音禁用态 + 文件夹批量） */
+/* 设计原则：+ 溢出菜单（相机/语音禁用态 + 文件夹批量） */
 .composer-plus { position: relative; }
 .composer-plus-menu {
   position: absolute; z-index: 30; left: 0; bottom: calc(100% + 6px);
@@ -753,7 +753,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
 
-/* docs/52 #7 · RP-2.11 改判：最小字符版——藏青竖线 terminal 式书写指示（非 SVG） */
+/* docs/design/principles.md 动效原则：最小字符版藏青竖线书写指示（非 SVG） */
 .thinking-stream {
   max-width: 100%; margin: 0; border: 0; background: transparent; align-self: flex-start;
 }
@@ -773,7 +773,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 .thinking-stream-body p { margin: 0; }
 
-/* docs/52 #10：状态条模型配置 */
+/* 状态条模型配置 */
 .model-config-anchor { position: relative; flex: none; }
 .model-config-trigger {
   max-width: 200px; display: inline-flex; align-items: center; gap: 6px;
@@ -976,7 +976,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .graph-canvas:active { cursor: grabbing; }
 .g6-host { position: absolute; inset: 0; }
 .g6-host canvas { display: block; }
-/* docs/52 #9：G6 默认 minimap 视口遮罩会渗出库蓝；强制 Courtwork tokens */
+/* docs/design/tokens.json：G6 minimap 视口遮罩强制使用 Courtwork tokens */
 .courtwork-minimap {
   z-index: 2;
   background: var(--bg-raised) !important;
@@ -1110,7 +1110,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .originals-list li { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 6px; min-height: 34px; padding: 4px 6px; border-bottom: 1px solid var(--border); border-radius: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .originals-list li:last-child { border-bottom: 0; }
 .originals-list li:hover { background: var(--control-hover); }
-/* docs/36 左栏凡例：行尾徽标/动作 hover 现，不常驻（e2e click 自带 hover 满足 actionability） */
+/* docs/architecture/schema-engineering.md 左栏凡例：行尾徽标/动作 hover 现，不常驻（e2e click 自带 hover 满足 actionability） */
 .original-badge { color: var(--text-tertiary); font-size: 11px; opacity: 0; transition: opacity var(--motion-hover) ease-out; }
 .original-open { min-height: 22px; padding: 1px 6px; font-size: 11px; opacity: 0; transition: opacity var(--motion-hover) ease-out; }
 .originals-list li:hover .original-badge, .originals-list li:hover .original-open,
@@ -1323,7 +1323,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .chat-reasoning summary { cursor: pointer; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .chat-pending { display: flex; align-items: center; min-height: 22px; }
 
-/* ─── 批次三 #14：矩阵单元格 hover 溯源预览（peek 动词,docs/57 封闭集）────────
+/* ─── 批次三 #14：矩阵单元格 hover 溯源预览（peek 动词,docs/architecture/schema-engineering.md 封闭集）────────
    浮层 120ms 现身;引语 mono+verifiedBg 双轨;数据区自身零动效。 */
 .cell-peek-anchor { position: relative; display: block; min-width: 0; }
 .cell-peek { position: absolute; z-index: 26; left: 0; bottom: calc(100% + 4px); min-width: 220px; max-width: 320px; display: none; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); font-size: var(--type-dense-body-size); line-height: 1.5; text-align: left; white-space: normal; }
@@ -1335,7 +1335,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .cell-peek small { color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; }
 .timeline-source { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 
-/* docs/36 渐进完备：待补态灰阶（细横线区分靠既有行分隔,不加框）；全量三态待 schema 载体（登记） */
+/* docs/architecture/schema-engineering.md 渐进完备：待补态灰阶（细横线区分靠既有行分隔,不加框）；全量三态待 schema 载体（登记） */
 .pending-field { color: var(--text-disabled); font-style: normal; }
 
 
@@ -1392,7 +1392,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .icon-button { border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; border-radius: 6px; }
 .icon-button:hover { background: var(--control-hover); color: var(--text-primary); }
 .preview-back { flex: none; margin-right: 2px; }
-/* 浏览器态阅读面：视图汇流——文书 15px reading 档（docs/31 不变量） */
+/* 浏览器态阅读面：视图汇流——文书 15px reading 档（docs/design/typography-density.md） */
 .reader-pane { height: 100%; overflow: auto; padding: 18px 22px; background: var(--bg-raised); font-size: var(--type-reading-size); line-height: var(--type-reading-line-height); }
 .reader-pane h3 { margin: 14px 0 6px; font-size: var(--titleSm, 16px); font-weight: var(--control-weight-emphasized); }
 .reader-pane p { margin: 0 0 10px; }

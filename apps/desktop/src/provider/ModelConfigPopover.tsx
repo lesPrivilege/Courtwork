@@ -16,7 +16,7 @@ interface ModelConfigPopoverProps {
 
 /**
  * 状态条模型名可点 → popover：provider / 模型 / 推理强度（标准·深思）。
- * 全部读写 model-config；无假活开关（docs/52 #10 ①）。
+ * 全部读写 model-config；无假活开关（docs/design/principles.md ①）。
  */
 export function ModelConfigPopover({ open, config, onChange, onClose }: ModelConfigPopoverProps) {
   if (!open) return null;
@@ -66,7 +66,7 @@ export function ModelConfigPopover({ open, config, onChange, onClose }: ModelCon
         </p>
       )}
       <div className="model-config-actions">
-        {/* docs/52 #16：关闭=取消/收起，动词直白；quiet 次要层级（docs/32 主次按钮） */}
+        {/* docs/design/principles.md：关闭=取消/收起，动词直白；quiet 次要层级（docs/design 主次按钮） */}
         <button type="button" className="quiet-button" onClick={onClose} data-testid="model-config-close">
           Close
         </button>

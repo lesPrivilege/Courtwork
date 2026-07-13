@@ -5,7 +5,7 @@ import type { FileOpsHost } from './file-ops-host.js';
 
 /**
  * 事务日志条目：撤销 = 按 reverse 逆向重放。
- * 日志本身不可删（docs/47）——执行器只追加、提供 undo 回放，不提供 deleteLog。
+ * 日志本身不可删（docs/decisions/ADR-004-documents-and-files.md）——执行器只追加、提供 undo 回放，不提供 deleteLog。
  */
 export type FileOpsTxnReverse =
   | { kind: 'move-back'; from: string; to: string }

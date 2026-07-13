@@ -3,7 +3,7 @@ import type { ScenarioRuntime } from '@courtwork/registry';
 export type TodoStepStatus = 'pending' | 'awaiting_confirmation' | 'done';
 
 export interface TodoStep {
-  /** 声明步骤树的步 id（docs/53 输出即视图：纲要父行按此对齐）。 */
+  /** 声明步骤树的步 id（docs/architecture/schema-engineering.md 输出即视图：纲要父行按此对齐）。 */
   stepId: string;
   /** 本步产出的 artifact 类型（namespaced）；纯过程步（如工具核验）无产出。 */
   artifactType?: string;
@@ -13,7 +13,7 @@ export interface TodoStep {
 
 /**
  * 进度快照的生成方式是纯函数：场景声明的步骤树 → todo 快照，LLM 不参与撰写/增删
- * 这份清单（docs/12 长任务架构调研，5.2 节核心裁定）。迁 ABI 后快照源从
+ * 这份清单（docs/architecture/system.md 长任务架构调研，5.2 节核心裁定）。迁 ABI 后快照源从
  * outputArtifacts 派生升级为声明步骤树（registry 已在装载期把缺省 steps 派生齐）。
  */
 export function deriveTodoSnapshot(

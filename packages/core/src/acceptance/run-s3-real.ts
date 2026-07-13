@@ -96,7 +96,7 @@ export interface RealS3RunResult {
   status: 'paused' | 'completed';
   requestId?: string;
   workDir: string;
-  /** 真机证据七项载体（docs/66 观测的原始数据）。 */
+  /** 真机证据七项载体（docs/decisions/ADR-003-evidence-and-anchors.md）。 */
   evidence: {
     materialSha256: Record<string, string>;
     promptSha256: string;

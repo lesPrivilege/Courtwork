@@ -4,10 +4,10 @@ import type { ArtifactDescriptor, FieldKind } from './descriptor.js';
  * 描述符驱动的视图解析器——领域无关（本文件零领域字面量）。
  * 输入一份 artifact JSON + 其 descriptor，产出全字符串已词表映射的视图模型；
  * 换 descriptor 即换垂类，解析逻辑不改一行——这是"同宿主 descriptor 切换"的机制内核
- * （docs/69 F2.2：同一宿主按 descriptor 切换，core 与通用 renderer 不改）。
+ * （docs/architecture/schema-engineering.md F2.2：同一宿主按 descriptor 切换，core 与通用 renderer 不改）。
  *
  * 纪律：任一枚举/分级值在词表中无映射 → 抛 DescriptorVocabError，
- * 绝不回落机器字段名（docs/69 line155；docs/36 §五 零编码暴露律）。
+ * 绝不回落机器字段名（docs/architecture/schema-engineering.md §五 零编码暴露律）。
  */
 
 export class DescriptorVocabError extends Error {

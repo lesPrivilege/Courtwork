@@ -15,7 +15,7 @@ const CaseFileEntrySchema = z.object({
   ingestStatus: IngestStatusEnum,
   pageCount: z.number().int().positive().optional(),
   /**
-   * 上传时的原始文件名（docs/47 原件红线精细化）。
+   * 上传时的原始文件名（docs/decisions/ADR-004-documents-and-files.md 原件红线精细化）。
    * 移形（move/rename）后 fileName 可变，originalFileName 永久保留。
    */
   originalFileName: z.string().min(1).optional(),

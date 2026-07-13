@@ -3,7 +3,7 @@ import { SourceAnchorSchema } from '@courtwork/schemas';
 import { GateStatusEnum } from './source-grade.js';
 
 /**
- * PRD 评审缺陷六类（docs/62 §二 步骤）。维度集在声明中封闭——
+ * PRD 评审缺陷六类（docs/product/pm-vertical.md §二 步骤）。维度集在声明中封闭——
  * 与 S3 RiskList 字段级同构，仅枚举表不同（法条依据 → 评审维度）。
  * wire 值稳定，中文维度名（模糊指标/缺验收标准/…）走 descriptor 词表。
  */
@@ -36,10 +36,10 @@ const PrdFindingSchema = z.object({
   suggestion: z.string().min(1),
   /**
    * 可选：引用已确认 artifact（反馈洞察/指标）作佐证。
-   * 引用对象必须是已落格 artifact 的条目 id，握手层不放宽（docs/53 优先级律）。
+   * 引用对象必须是已落格 artifact 的条目 id，握手层不放宽（docs/architecture/schema-engineering.md 优先级律）。
    */
   evidenceRefs: z.array(z.string().min(1)).optional(),
-  /** 逐条确认/驳回三态；确认后写回文档并落 RevisionEvent（docs/62 §二 门禁）。 */
+  /** 逐条确认/驳回三态；确认后写回文档并落 RevisionEvent（docs/product/pm-vertical.md §二 门禁）。 */
   status: GateStatusEnum,
 });
 export type PrdFinding = z.infer<typeof PrdFindingSchema>;

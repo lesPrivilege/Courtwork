@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const appRoot = path.resolve(import.meta.dirname, '..');
 const repoRoot = path.resolve(appRoot, '..', '..');
-const tokens = JSON.parse(await readFile(path.join(repoRoot, 'docs', '32-设计语言包', 'tokens.json'), 'utf8'));
+const tokens = JSON.parse(await readFile(path.join(repoRoot, 'docs', 'design', 'tokens.json'), 'utf8'));
 const css = await readFile(path.join(appRoot, 'src', 'styles.css'), 'utf8');
 const host = await readFile(path.join(appRoot, 'src', 'preview', 'PreviewHost.tsx'), 'utf8');
 const app = await readFile(path.join(appRoot, 'src', 'App.tsx'), 'utf8');

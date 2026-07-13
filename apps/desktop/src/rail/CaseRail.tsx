@@ -45,7 +45,7 @@ interface CaseRailProps {
   onArchiveTrigger: (id: string) => void;
   onArchiveConfirm: (id: string) => void;
   onArchiveCancel: () => void;
-  /** 打开容器化仪式（用户选名词，docs/49） */
+  /** 打开容器化仪式（用户选名词，docs/decisions/ADR-006-ui-host.md） */
   onRequestContainerizeUnfiled: (id: string) => void;
   onConfirmContainerizeUnfiled: (kind: ContainerKind) => void;
   onCancelContainerizeUnfiled: () => void;

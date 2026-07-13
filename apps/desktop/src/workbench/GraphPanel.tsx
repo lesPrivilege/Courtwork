@@ -120,7 +120,7 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
         // G6 5.1.1 默认 128ms debounce 在快速卸载后仍会访问已销毁的 graph context。
         // 归零后配合 cleanup 的下一宏任务销毁，让已排队的 minimap render 先安全落完。
         delay: MINIMAP_RENDER_DELAY_MS,
-        // docs/52 #9：禁用库默认蓝系，全部吃 Courtwork tokens
+        // docs/design/principles.md：禁用库默认蓝系，全部吃 Courtwork tokens
         containerStyle: {
           background: graphTokens.background,
           border: `1px solid ${graphTokens.borderStrong}`,

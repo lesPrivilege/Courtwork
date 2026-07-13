@@ -1,7 +1,7 @@
 import * as z from 'zod';
 
 /**
- * 字段渲染类型（docs/36 五级封闭模型的字段位）：
+ * 字段渲染类型（docs/architecture/schema-engineering.md 五级封闭模型的字段位）：
  *   text   自由文本            mono  专业编码（id/ref/日期/得分，tabular-nums）
  *   number 数值               enum  机器枚举，须词表映射
  *   status 门禁/处置三态，须词表映射（审阅语义色白名单）
@@ -23,21 +23,21 @@ export type FieldKind = z.infer<typeof FieldKindEnum>;
 const DescriptorFieldSchema = z.object({
   /** 字段在条目对象内的取值路径（点分，如 "params.reach.value"）。 */
   key: z.string().min(1),
-  /** 显示名——零编码暴露律：wire 字段名永不直出，一律词表映射为专业名（docs/36 §五①）。 */
+  /** 显示名——零编码暴露律：wire 字段名永不直出，一律词表映射为专业名（docs/architecture/schema-engineering.md §五）。 */
   label: z.string().min(1),
   kind: FieldKindEnum,
 });
 export type DescriptorField = z.infer<typeof DescriptorFieldSchema>;
 
 /**
- * Artifact 描述符——字段级话语宿主（docs/53 文案归宿律"字段级随 artifact descriptor"）。
+ * Artifact 描述符——字段级话语宿主（docs/architecture/schema-engineering.md 文案归宿律"字段级随 artifact descriptor"）。
  * 领域无关宿主（PreviewHost）据此把一份 artifact JSON 渲染为可读工作面：
  * 字段名、枚举值、分级角标全部经词表映射，宿主代码零领域字面量。
  * 这就是"换垂类=换声明"的字段面——同一渲染逻辑换 descriptor 即另一行业。
  */
 export const ArtifactDescriptorSchema = z
   .object({
-    /** 带命名空间的 artifact 类型 id（如 "pm.FeedbackDigest"）——双命名空间准入（docs/24）。 */
+    /** 带命名空间的 artifact 类型 id（如 "pm.FeedbackDigest"）——双命名空间准入（docs/decisions/ADR-002-schema-workflow.md）。 */
     artifactType: z.string().regex(/^[a-z]+\.[A-Za-z]+$/, 'artifactType 必须形如 "<namespace>.<Name>"'),
     /** 工作面标题显示名。 */
     title: z.string().min(1),
@@ -51,8 +51,8 @@ export const ArtifactDescriptorSchema = z
   })
   .strict()
   .superRefine((d, ctx) => {
-    // 必填字段齐全（docs/69 C2.2）：每个 enum/status 字段必须在 enumVocab 备有映射表；
-    // grade 字段必须有 gradeVocab。缺映射 = 包 lint 错误，非运行时惊吓（docs/53 文案归宿律）。
+    // 必填字段齐全（docs/architecture/schema-engineering.md C2.2）：每个 enum/status 字段必须在 enumVocab 备有映射表；
+    // grade 字段必须有 gradeVocab。缺映射 = 包 lint 错误，非运行时惊吓（docs/architecture/schema-engineering.md 文案归宿律）。
     const keys = new Set(d.fields.map((f) => f.key));
     if (new Set(d.fields.map((f) => f.key)).size !== d.fields.length) {
       ctx.addIssue({ code: 'custom', message: 'fields 存在重复 key', path: ['fields'] });
@@ -90,13 +90,13 @@ export const ArtifactDescriptorSchema = z
 
 export type ArtifactDescriptor = z.infer<typeof ArtifactDescriptorSchema>;
 
-/** 解析并校验一份描述符；非法即抛（准入校验，docs/24）。 */
+/** 解析并校验一份描述符；非法即抛（准入校验，docs/decisions/ADR-002-schema-workflow.md）。 */
 export function parseArtifactDescriptor(raw: unknown): ArtifactDescriptor {
   return ArtifactDescriptorSchema.parse(raw);
 }
 
 /**
- * 断言描述符的枚举词表完整覆盖某 zod 枚举的全部 wire 值（映射表完备性，docs/36 §五）。
+ * 断言描述符的枚举词表完整覆盖某 zod 枚举的全部 wire 值（映射表完备性，docs/architecture/schema-engineering.md §五）。
  * 供包上架校验/测试调用：漏一个枚举值 → 断言失败（变异全红的抓手）。
  */
 export function assertVocabCoversEnum(

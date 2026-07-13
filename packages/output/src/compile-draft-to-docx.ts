@@ -40,7 +40,7 @@ function paragraph(text: string, role: 'heading' | 'body'): string {
   return `<w:p>${properties}${run(text, role)}</w:p>`;
 }
 
-/** 起草画布 → 新 Word 文书（docs/23 W4.1）；不含修订痕迹。 */
+/** 起草画布 → 新 Word 文书（docs/decisions/ADR-004-documents-and-files.md W4.1）；不含修订痕迹。 */
 export function compileDraftToDocx(input: DraftDocxInput): Buffer {
   const title = input.title.trim();
   const paragraphs = input.paragraphs.map((text) => text.trim()).filter(Boolean);

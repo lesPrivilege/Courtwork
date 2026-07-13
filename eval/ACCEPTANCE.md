@@ -121,7 +121,7 @@
 - W7 相关提交按层次拆分：judge、dataset、promptfoo adapter/mock、runner/report/regression、SPEC 记录。
 - 验收修复为独立提交：`f83fb7f fix-by-acceptance(eval): run full eval test suite`。
 - 当前工作区干净。
-- 验收期间曾出现一个非 eval 的 `docs/24-...md` 未跟踪文件，随后成为独立文档提交 `67c66cd`，与本次 W7 验收无关，未纳入我的修复范围。
+- 验收期间曾出现一个非 eval 的 `docs/decisions/ADR-002-schema-workflow.md` 未跟踪文件，随后成为独立文档提交 `67c66cd`，与本次 W7 验收无关，未纳入我的修复范围。
 
 ## 最终结论
 

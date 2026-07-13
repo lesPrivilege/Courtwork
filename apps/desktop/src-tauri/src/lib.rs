@@ -14,7 +14,7 @@ const CREDENTIAL_SERVICE: &str = "cn.courtwork.desktop.provider.dev";
 #[cfg(not(debug_assertions))]
 const CREDENTIAL_SERVICE: &str = "cn.courtwork.desktop.provider";
 
-/// F3（docs/55 拍板）：单条目形制——source 标记与 secret 合存一个条目，
+/// 凭证安全裁决（docs/decisions/ADR-005-data-security.md）：source 标记与 secret 合存一个条目，
 /// status/active_secret 每轮只触发一次受 ACL 保护的读取（弹窗 2→1）。
 const CREDENTIAL_ACCOUNT: &str = "credential";
 /// FIX-KC-1 时代的双条目（legacy）。不迁移读取（读取即弹窗，违 F3 本意）；
@@ -1665,7 +1665,7 @@ mod tests {
         );
     }
 
-    // ─── F3 单条目形制（docs/55 拍板：单条目/不迁移/清账收尾）───────────────
+    // ─── 单条目形制（安全裁决：单条目/不迁移/清账收尾）───────────────
 
     #[test]
     fn stored_credential_wire_shape_roundtrips() {

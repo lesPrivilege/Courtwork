@@ -21,7 +21,7 @@
 
 1. **主体全虚构**：卷宗涉及全部企业（临江精铸科技及其母公司/关联公司、起云智能及其母公司、华瑞商业保理、10份变体合同对手方、party-verify噪声主体等共计30余家）与自然人（封文昌、岑瑞霖、梅昭阳、柯清源、麦承业、柏景行、练明轩等）均为虚构，如与现实同名企业/个人重合纯属巧合。统一社会信用代码统一使用 `DEMO` 前缀（如 `DEMO91330100MA2XCJZ01X`），不符合真实18位社会信用代码校验规则，明确不可用于真实核验。案号 `(2025)云章03民初472号` 及法院"云章市中级人民法院"均为虚构地名/机构。
 2. **法条真实**：`registries/cite-check.json` 中 57 条现行有效条文取自《中华人民共和国民法典》（总则编/合同编通则/买卖合同/保证合同）与《中华人民共和国民事诉讼法》，均标注版本（民法典：2021年1月1日施行；民诉法：2022年1月1日施行，2021年12月24日第四次修正）；7条已失效旧法（《合同法》6条、《民法通则》1条）标注失效日期与被替代关系，用于演示 cite-check 识别失效条文的价值；3条虚构判例条目案号/法院明显虚构并标注 `status: demo`，不构成真实裁判依据。
-3. **信源分级标识**：`party-verify.json`、`cite-check.json` 中演示库条目均标注 `source: "demo-fixture"`、`sourceGrade: "B"`（真实法条为 `sourceGrade: "A"`，来自公开发布文本），无 C 级（web search）条目，符合 `docs/20` 信源分级拍板。
+3. **信源分级标识**：`party-verify.json`、`cite-check.json` 中演示库条目均标注 `source: "demo-fixture"`、`sourceGrade: "B"`（真实法条为 `sourceGrade: "A"`，来自公开发布文本），无 C 级（web search）条目，符合 `docs/decisions/ADR-003-evidence-and-anchors.md` 信源分级拍板。
 4. **一致性高于数量**：全部衍生文书由 `case-bible.md` 派生，日期、金额、合同编号在各文书间已交叉核对（见下方"六、一致性检查结果"），4处预埋矛盾点均按圣经清单精确对应，非无意错误。
 
 ---
@@ -104,4 +104,4 @@
 ## 八、变更记录
 
 - 2026-07-10（S-1 微工单，`packages/core/SPEC.md` TODO）：`artifacts/timeline.json` 按 `case-bible.md` 第六节 4 处矛盾点的权威事件映射，为 evt-08/14/17/20/24/28/31/33 共 8 个事件补 `markers: ["contradiction"]` 结构化标记（`evt-25` 仅为矛盾点3的背景诱因描述、非该清单列出的矛盾对成员，故不打标记，与旧版靠 description 文本匹配"矛盾"二字会误纳 evt-25 且漏纳未含该字样的 evt-24 形成对照）；已过 `TimelineSchema`（zod）与 `json-schema/Timeline.schema.json`（结构性）双重重新校验。
-- 2026-07-10（S-2 微工单，`docs/11-会话唤醒prompt.md`，S-1 同构复刻）：`artifacts/party-graph.json` 按 `case-bible.md` 第六节矛盾点清单权威核对，为 `e-14`（临江精铸云章装备→临江精铸科技，"关联公司（受托实际生产与发货，非合同签约主体，见矛盾点2）"）、`e-15`（临江精铸国际贸易→临江精铸科技，"关联公司（异常收款账户主体，非合同约定收款主体，见矛盾点4）"）共 2 条边补 `markers: ["contradiction"]` 结构化标记。两条边的 `relationType` 文案本已注明"见矛盾点2/4"，但 `apps/desktop` 的图谱消费逻辑（`GraphPanel.tsx`）不允许靠该文案或边 ID 猜测矛盾边，结构化字段落地后二者形成权威口径。矛盾点1（催告主体与合同签约主体不一致）、矛盾点3（验收结论与会议纪要陈述矛盾）是文书内容层面的冲突，不体现为 `PartyGraph` 关系边，已由 S-1 的 `timeline.json` markers（evt-31、evt-24/28）覆盖，此处不重复打标。已过 `PartyGraphSchema`（zod）与 `json-schema/PartyGraph.schema.json`（结构性，经 `json-schema-drift.test.ts` 保证与 zod 定义一致，故不重复跑独立的 JSON Schema 校验工具）双重校验；重新校验后 `party-graph.json` 全部 15 条边通过 `PartyGraphSchema`，矛盾边计数为 2（`e-14`/`e-15`）。
+- 2026-07-10（S-2 微工单，`当时的架构工单册`，S-1 同构复刻）：`artifacts/party-graph.json` 按 `case-bible.md` 第六节矛盾点清单权威核对，为 `e-14`（临江精铸云章装备→临江精铸科技，"关联公司（受托实际生产与发货，非合同签约主体，见矛盾点2）"）、`e-15`（临江精铸国际贸易→临江精铸科技，"关联公司（异常收款账户主体，非合同约定收款主体，见矛盾点4）"）共 2 条边补 `markers: ["contradiction"]` 结构化标记。两条边的 `relationType` 文案本已注明"见矛盾点2/4"，但 `apps/desktop` 的图谱消费逻辑（`GraphPanel.tsx`）不允许靠该文案或边 ID 猜测矛盾边，结构化字段落地后二者形成权威口径。矛盾点1（催告主体与合同签约主体不一致）、矛盾点3（验收结论与会议纪要陈述矛盾）是文书内容层面的冲突，不体现为 `PartyGraph` 关系边，已由 S-1 的 `timeline.json` markers（evt-31、evt-24/28）覆盖，此处不重复打标。已过 `PartyGraphSchema`（zod）与 `json-schema/PartyGraph.schema.json`（结构性，经 `json-schema-drift.test.ts` 保证与 zod 定义一致，故不重复跑独立的 JSON Schema 校验工具）双重校验；重新校验后 `party-graph.json` 全部 15 条边通过 `PartyGraphSchema`，矛盾边计数为 2（`e-14`/`e-15`）。

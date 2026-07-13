@@ -13,7 +13,7 @@ interface StackModuleProps {
   testId?: string;
 }
 
-/** 折叠模块面板头：名称 + 计数 + 状态点（docs/49 三章） */
+/** 折叠模块面板头：名称 + 计数 + 状态点（docs/decisions/ADR-006-ui-host.md 三章） */
 export function StackModule({
   id,
   title,

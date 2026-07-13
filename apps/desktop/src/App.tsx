@@ -219,7 +219,7 @@ export function App() {
   const [readerDoc, setReaderDoc] = useState<{ name: string; markdown: string } | null>(null);
   /** Preview 模块大纲目录展开态（默认展开——样板案导览指向此处） */
   const [outlineOpen, setOutlineOpen] = useState(true);
-  /** RP-2.11 chat|work 二段（docs/25 修正二）：work=容器工作台 / chat=内存态轻画布（重启即逝，持久化归 HARNESS-1）。 */
+  /** RP-2.11 chat|work 二段（docs/decisions/ADR-005-data-security.md 修正二）：work=容器工作台 / chat=内存态轻画布（重启即逝，持久化归 HARNESS-1）。 */
   const [viewSegment, setViewSegment] = useState<'chat' | 'work'>('work');
   const [chatMessages, setChatMessages] = useState<Array<{
     role: 'user' | 'assistant';
@@ -359,7 +359,7 @@ export function App() {
       });
   };
 
-  /** 两面唯一的桥：从 chat 收当前话题入容器（docs/25 修正二），复用容器化仪式后切 work 面。 */
+  /** 两面唯一的桥：从 chat 收当前话题入容器（docs/decisions/ADR-005-data-security.md 修正二），复用容器化仪式后切 work 面。 */
   const storeChatIntoContainer = (kind: ContainerKind) => {
     const title =
       kind === 'workspace'
@@ -488,7 +488,7 @@ export function App() {
     }, { paced: true });
   }, [flow, replayEpoch, selectedCaseId]);
 
-  // docs/49 三章：artifact_produced 自动展开对应模块；用户手动优先
+  // docs/decisions/ADR-006-ui-host.md 三章：artifact_produced 自动展开对应模块；用户手动优先
   useEffect(() => {
     const keys = Object.keys(session.artifacts).sort().join(',');
     if (keys === lastArtifactKeys.current) return;
@@ -721,7 +721,7 @@ export function App() {
     return newId;
   };
 
-  /** docs/52 #3：composer-first 容器化仪式 → 创建案件/项目并选中 */
+  /** docs/design/principles.md：composer-first 容器化仪式 → 创建案件/项目并选中 */
   const handleContainerize = (request: ContainerizeRequest) => {
     const title =
       request.kind === 'workspace'
@@ -732,7 +732,7 @@ export function App() {
 
   /**
    * F-1.1：未归档「存入」→ 容器化仪式（与 composer-first 同族）。
-   * 禁止直建 kind:'case'（docs/49：用户选名词，不替用户选）。
+   * 禁止直建 kind:'case'（docs/decisions/ADR-006-ui-host.md：用户选名词，不替用户选）。
    */
   const confirmContainerizeUnfiled = (kind: ContainerKind) => {
     if (!containerizeUnfiledId) return;
@@ -798,7 +798,7 @@ export function App() {
   };
 
   /**
-   * docs/52 #1 + RP-1 A2：卷宗/资料计数 → 展开态内 originals-zone 滚入/高亮。
+   * docs/design/principles.md + RP-1 A2：卷宗/资料计数 → 展开态内 originals-zone 滚入/高亮。
    * 锚点随收编迁入案件 chevron 展开态；展开后 rAF 重试直至节点入 DOM。
    */
   const focusOriginalsZone = () => {

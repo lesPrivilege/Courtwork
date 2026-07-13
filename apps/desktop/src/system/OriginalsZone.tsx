@@ -7,7 +7,7 @@ interface OriginalsZoneProps {
 }
 
 /**
- * 卷宗原件区：只读列表，无编辑入口（docs/23 原件只读红线）。
+ * 卷宗原件区：只读列表，无编辑入口（docs/decisions/ADR-004-documents-and-files.md 原件只读红线）。
  * 仅允许 reveal / open（查看），不提供 contentEditable 或保存动作。
  */
 export function OriginalsZone({ caseRoot, onFeedback }: OriginalsZoneProps) {

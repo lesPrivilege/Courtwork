@@ -14,7 +14,7 @@ PRIVATE_NETWORK_BLOCK_LIST.addSubnet('fc00::', 7, 'ipv6');
 PRIVATE_NETWORK_BLOCK_LIST.addSubnet('fe80::', 10, 'ipv6');
 
 /**
- * 私有网段/云元数据端点黑名单（docs/27 MVP 最小集第 3 条）。用 node:net 内置 BlockList
+ * 私有网段/云元数据端点黑名单（docs/decisions/ADR-005-data-security.md MVP 最小集第 3 条）。用 node:net 内置 BlockList
  * 而非手写 CIDR 数学：`check(address, 'ipv6')` 对 IPv4-mapped IPv6（如 ::ffff:127.0.0.1
  * 或十六进制形式 ::ffff:7f00:1）会自动按其内嵌的 IPv4 部分复核已添加的 IPv4 规则
  * （Node 官方文档示例已验证此行为），不需要为每条 IPv4 规则再手写一条等价的
@@ -53,7 +53,7 @@ const ALLOWED_PROTOCOLS = new Set(['http:', 'https:']);
  * 已知残余风险（如实记录，不过度承诺）：DNS 解析与实际发起请求之间存在理论上的 TOCTOU
  * 窗口（DNS rebinding）——本函数做的是"解析后立即校验"这一层防御，不是形式化证明；
  * 彻底关闭这个窗口需要把解析结果锁定后直接拿 IP 建连（自定义 dispatcher/lookup 钉住
- * 解析结果），这属于 docs/14 §5.1 已经识别、留给 Stage 1 服务端代理统一出口的更彻底方案，
+ * 解析结果），这属于 docs/decisions/ADR-005-data-security.md §5.1 已经识别、留给 Stage 1 服务端代理统一出口的更彻底方案，
  * MVP 阶段这里的验证成本与收益比例更合适。
  */
 export async function assertUrlIsFetchSafe(url: string, resolveHost: HostResolver = defaultHostResolver): Promise<void> {
@@ -100,7 +100,7 @@ export interface GuardedFetchOptions {
 }
 
 /**
- * 逐跳校验的重定向抓取（docs/27"重定向逐跳检查"）：每一跳（含首跳）都先过
+ * 逐跳校验的重定向抓取（docs/decisions/ADR-005-data-security.md"重定向逐跳检查"）：每一跳（含首跳）都先过
  * assertUrlIsFetchSafe 才发起请求，防止"第一跳是公网地址、重定向目标是私网"的绕过。
  * redirect:'manual' 关闭 fetch 的自动跟随，由本函数显式控制每一跳。
  */

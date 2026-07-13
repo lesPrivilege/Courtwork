@@ -11,13 +11,13 @@ export const FeedbackChannelEnum = z.enum([
 ]);
 export type FeedbackChannel = z.infer<typeof FeedbackChannelEnum>;
 
-/** 严重度档位——审阅语义（docs/36 语义色白名单），出档位不出小数分。 */
+/** 严重度档位——审阅语义（docs/architecture/schema-engineering.md 语义色白名单），出档位不出小数分。 */
 export const FeedbackSeverityEnum = z.enum(['high', 'mid', 'low']);
 export type FeedbackSeverity = z.infer<typeof FeedbackSeverityEnum>;
 
 /**
- * 条目处置态。out_of_coverage = 无法归类的诚实置出（docs/62 §一），
- * 不硬塞进任一聚类——渐进完备性的兜底三态在归集域的表达（docs/36 §四）。
+ * 条目处置态。out_of_coverage = 无法归类的诚实置出（docs/product/pm-vertical.md §一），
+ * 不硬塞进任一聚类——渐进完备性的兜底三态在归集域的表达（docs/architecture/schema-engineering.md §四）。
  */
 export const FeedbackStatusEnum = z.enum(['new', 'triaged', 'out_of_coverage']);
 export type FeedbackStatus = z.infer<typeof FeedbackStatusEnum>;

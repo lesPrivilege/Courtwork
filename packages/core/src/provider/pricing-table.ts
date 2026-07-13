@@ -9,7 +9,7 @@ export interface ModelPrice {
 
 /**
  * 价格表：数据与计价逻辑分离，价格变动只改这个文件（deliverable 4："价格表走配置文件
- * 可更新"）。数字来源 docs/18（2026-07 调研快照），只收录该报告给出完整 input+output
+ * 可更新"）。数字来源 docs/architecture/system.md（2026-07 调研快照），只收录该报告给出完整 input+output
  * 双价的型号——未给全价格的型号（如 DeepSeek V4-Flash 只公开缓存命中价）
  * 不编造数字，直接不收录；estimateCostUsd 对未收录组合诚实返回
  * undefined（不计价，不是"零成本"，调用方应据此跳过 RuntimeGuard.checkUsd）。

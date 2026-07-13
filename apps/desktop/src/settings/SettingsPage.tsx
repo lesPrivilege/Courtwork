@@ -68,7 +68,7 @@ export interface SettingsPageProps {
 }
 
 /**
- * 设置页（SET-1 / docs/46）：全局层、容器无关，分组切换 0ms。
+ * 设置页（SET-1 / docs/design/principles.md）：全局层、容器无关，分组切换 0ms。
  * 真实路由接真；预留项禁用态 + tooltip；零假开关。
  * #43：凭证管理内嵌本页（减法律——不再叠开根层浮层）。
  */
@@ -286,7 +286,7 @@ export function SettingsPage({
                 </div>
               )}
 
-              {/* 收敛令②（docs/55 cab982a）：用户唯一旋钮=标准/深思两档;provider/BaseURL/模型撤入 developer 层
+              {/* 架构裁决 cab982a：用户唯一旋钮=标准/深思两档;provider/BaseURL/模型撤入 developer 层
                   （表面减法律：字段全在,面板不见）。两档绑定什么模型是 quirk 声明的事,UI 不知模型名存在。 */}
               <div className="settings-row" data-testid="settings-provider-row">
                 <div>
@@ -577,7 +577,7 @@ export function SettingsPage({
           {section === 'promise' && (
             <article className="settings-panel settings-promise" data-testid="settings-promise-doc">
               <h2>{DATA_PROMISE_TITLE}</h2>
-              <p className="settings-promise-dek">摘自数据承诺分层（docs/28）。以下条款对律所客户具有主协议级效力。</p>
+              <p className="settings-promise-dek">摘自数据承诺分层（docs/decisions/ADR-005-data-security.md）。以下条款对律所客户具有主协议级效力。</p>
               {DATA_PROMISE_SECTIONS.map((block) => (
                 <section key={block.id} className="settings-promise-section" data-testid={`promise-${block.id}`}>
                   <h3>{block.heading}</h3>

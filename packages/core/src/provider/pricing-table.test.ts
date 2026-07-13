@@ -3,7 +3,7 @@ import { estimateCostUsd } from './pricing-table.js';
 
 describe('estimateCostUsd', () => {
   it('computes USD cost for a known (providerId, modelId) pair from RMB per-million-token rates', () => {
-    // deepseek-v4-pro: 输入 ¥3/M、输出 ¥6/M（docs/18 2026-07 快照）
+    // deepseek-v4-pro: 输入 ¥3/M、输出 ¥6/M（docs/architecture/system.md 2026-07 快照）
     const cost = estimateCostUsd('deepseek', 'deepseek-v4-pro', { inputTokens: 1_000_000, outputTokens: 1_000_000 });
     expect(cost).toBeDefined();
     // (3 + 6) 元 / 7.1 汇率 ≈ 1.267 美元，允许浮点误差

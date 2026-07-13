@@ -25,7 +25,7 @@ describe('CaseFileSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts originalFileName and contentHash for move provenance (docs/47)', () => {
+  it('accepts originalFileName and contentHash for move provenance (docs/decisions/ADR-004-documents-and-files.md)', () => {
     const result = CaseFileSchema.safeParse({
       caseId: 'case-hash',
       files: [

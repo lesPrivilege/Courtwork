@@ -10,7 +10,7 @@
    - **直接著录式**（docx4j 的自然用法，也是本 spike 验证过的另一条路）：逐条指令直接在 OOXML 对象模型里构造 w:ins/w:del/批注标记，因为指令本身已经告诉我们改了哪里、改成什么，不需要靠 diff 算法去猜。
    本层的真实输入从来就是"一份指令集"，不是"两份不知道差异的文档"——这个前提天然更贴合直接著录式架构，而不是 diff 式。
 2. **直接著录式架构下，"库选型"的意义被削弱了**：docx4j 提供了类型化的 API（省去手写 XML 的心智负担，但 API 本身晦涩，需要靠反编译/试编译摸索），但 spike 证明同样的技术（构造 w:ins/w:del + 批注）用原始 OOXML/zip 操作在 Python 里 300 行左右就能做到；同一套技术转到 TypeScript（fflate/jszip + 字符串或轻量 XML 拼装）预期成本相当，且能让 packages/output 保持纯 TS，不引入 JVM 或 Python 子进程依赖。**这是本次 spike 最重要的发现，建议作为下一步架构讨论的起点**，详见"关键发现"第 4 条。
-3. 若仍然只在原始两个候选之间选：**docx4j 更适合本产品**，因为 Python-Redlines 的 diff 式架构与"批注"需求存在结构性冲突（见下）。但两者都不能"开箱即用"，都需要自研加固，与 docs/05 的预判一致。
+3. 若仍然只在原始两个候选之间选：**docx4j 更适合本产品**，因为 Python-Redlines 的 diff 式架构与"批注"需求存在结构性冲突（见下）。但两者都不能"开箱即用"，都需要自研加固，与 docs/architecture/system.md 的预判一致。
 
 ## 方法
 
@@ -21,7 +21,7 @@
 ## Python-Redlines（DocxodusEngine）路径发现
 
 **环境与分发**
-- License 已核实为标准 MIT（直接读取仓库 `LICENSE.md` 原文确认，非 GitHub 启发式标签），docs/05 中"待核实"的疑虑可以解除。
+- License 已核实为标准 MIT（直接读取仓库 `LICENSE.md` 原文确认，非 GitHub 启发式标签），docs/architecture/system.md 中"待核实"的疑虑可以解除。
 - 与预期不同：**运行期不需要装 .NET SDK**。比较引擎是预编译、自包含的 .NET 8 二进制，随 PyPI wheel（`python-redlines-docxodus`）分发，按平台（本机命中 osx-arm64）自动解压到用户缓存目录。
 - **可以完全绕开 Python**：解压后的 `redline` 是一个独立的原生可执行文件（Mach-O arm64），有清晰的 CLI（`redline original.docx modified.docx output.docx [--author=... --detect-moves ...]`），直接调用与经 Python 包装调用产出结果一致，启动开销约 0.08s。这意味着若走这条路线，packages/output（TS 包）可以直接 `child_process.execFile` 调用这个二进制，不需要在生产环境常驻 Python——但获取"这个二进制"仍需要在构建期通过 pip/uv 或直接拉取对应平台的 wheel（zip 包）来完成，相当于多了一道构建期依赖。
 
@@ -46,7 +46,7 @@
 **环境与分发**
 - Maven 坐标：`org.docx4j:docx4j-core` + `org.docx4j:docx4j-JAXB-ReferenceImpl`，均为 11.5.3（当前最新）。需要 JVM（本机用 Java 21/26 均可编译运行，未见版本敏感问题）。
 - 确认存在一个久未更新、无文档的 `docx4j-diffx` 模块（内含 2007 年血统的 Topologi DiffX 通用 XML diff 算法 + Eclipse `rangedifferencer`），理论上可能提供"diff 两份文档"能力，但**本 spike 未评估**——零文档、零 GitHub 讨论热度，与 docx4j 主线的活跃维护程度不成比例，不建议作为生产依赖，仅记录存在性以免日后被问起。
-- docx4j **没有对外文档化的"输入指令集直接生成修订"能力**，与 docs/05 的判断一致；但这恰好契合本层"直接著录式"的架构需求，不是缺陷。
+- docx4j **没有对外文档化的"输入指令集直接生成修订"能力**，与 docs/architecture/system.md 的判断一致；但这恰好契合本层"直接著录式"的架构需求，不是缺陷。
 
 **API 可发现性：差，需要反编译摸索**
 - 官方文档对"如何构造 tracked-changes 标记"这个具体场景几乎没有可用示例。实际类名（`RunIns`/`RunDel`/`DelText`/`CommentRangeStart`/`CommentRangeEnd`/`R.CommentReference`/`CommentsPart`）和非直觉的 JAXB 生成方法名（比如 `RunIns` 的内容列表访问器叫 `getCustomXmlOrSmartTagOrSdt()`，因为它是从 XSD choice group 机械生成的）全部靠 `javap` 反编译 jar 包 + 反复试编译摸出来的，不是能照着文档抄的。这是一次性的探索成本——摸清楚之后写出来的代码本身并不长（构造一个 ins/del/批注锚点大约 10–15 行），但对团队里没碰过 docx4j 的人来说，第一次上手的学习曲线比 Python-Redlines 陡得多。

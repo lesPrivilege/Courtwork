@@ -3,7 +3,7 @@ import * as quirks from './quirk-profile.js';
 import { applyReasoningRoute, DEEPSEEK_QUIRK_PROFILE, OPENAI_COMPATIBLE_REASONING_ROUTE } from './quirk-profile.js';
 
 describe('provider quirk profiles — DeepSeek-first', () => {
-  it('DeepSeek: base URL 含 /v1，response_format 档位仅 json_object（docs/18 §3 表格）', () => {
+  it('DeepSeek: base URL 含 /v1，response_format 档位仅 json_object（provider quirk）', () => {
     expect(DEEPSEEK_QUIRK_PROFILE.baseUrl).toBe('https://api.deepseek.com/v1');
     expect(DEEPSEEK_QUIRK_PROFILE.responseFormat.tier).toBe('json_object');
   });

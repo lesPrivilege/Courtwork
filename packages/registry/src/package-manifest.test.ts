@@ -25,7 +25,7 @@ describe('PackageScenarioSchema（ABI 场景声明 v2）', () => {
     expect(PackageScenarioSchema.safeParse(VALID_SCENARIO).success).toBe(true);
   });
 
-  it('场景 id 必须 namespaced（双命名空间，docs/24）', () => {
+  it('场景 id 必须 namespaced（双命名空间，docs/decisions/ADR-002-schema-workflow.md）', () => {
     expect(ScenarioIdSchema.safeParse('S3').success).toBe(false);
     expect(ScenarioIdSchema.safeParse('legal.S3').success).toBe(true);
     expect(PackageScenarioSchema.safeParse({ ...VALID_SCENARIO, id: 'S3' }).success).toBe(false);

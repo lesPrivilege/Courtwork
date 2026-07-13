@@ -2,7 +2,7 @@ import * as z from 'zod';
 import { SourceAnchorSchema } from '@courtwork/schemas';
 
 /**
- * 跨纪要闭环核对标记（docs/62 §四）——与 S1 矛盾标记同构：
+ * 跨纪要闭环核对标记（docs/product/pm-vertical.md §四）——与 S1 矛盾标记同构：
  *   unclosed  = 跨多份纪要仍未闭环
  *   reassigned = 负责人在纪要间被更换
  * 中文（未闭环/换负责人）走 descriptor。
@@ -15,7 +15,7 @@ export type ActionStatus = z.infer<typeof ActionStatusEnum>;
 
 /**
  * 跨纪要接续记录（carryOvers）——同一行动项在历史纪要中的出现轨迹。
- * 演示亮点"上周说好的埋点谁跟了"（docs/61 §3.4）：负责人更迭在此留痕。
+ * 演示亮点"上周说好的埋点谁跟了"（docs/product/pm-vertical.md §三）：负责人更迭在此留痕。
  * 纯文本跨文档接续，≈ 法律包跨文书实体对齐的轻量版（无实体核验）。
  */
 const CarryOverSchema = z.object({

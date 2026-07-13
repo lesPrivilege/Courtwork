@@ -7,7 +7,7 @@ import {
   toggleModuleManual,
 } from './module-stack';
 
-describe('module stack (docs/49 ch.3)', () => {
+describe('module stack (docs/decisions/ADR-006-ui-host.md ch.3)', () => {
   it('progress 面板头计数 frontier 形制 N/M', () => {
     expect(progressHeadCount(0, 6)).toBe('0/6');
     expect(progressHeadCount(3, 6)).toBe('3/6');

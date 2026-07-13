@@ -3,14 +3,13 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    // docs/** 为设计稿与文档资产（含浏览器端 support.js 演示件），非产品代码面，不进 lint。
-    ignores: ['**/dist/**', '**/node_modules/**', '**/json-schema/**', '**/spike/**', '**/target/**', '**/playwright-report/**', '**/test-results/**', 'docs/**'],
+    // 文档、归档与生成物不属于产品代码 lint 面。
+    ignores: ['**/dist/**', '**/node_modules/**', '**/json-schema/**', '**/spike/**', '**/target/**', '**/playwright-report/**', '**/test-results/**', 'docs/**', 'archive/**'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
     // 门禁/截图脚本是 Node 运行面：补 node 全局声明。
-    // 2026-07-12 FABLE-BASE 假绿清账：lint 此前从未整仓真绿——历史验证跑法 `pnpm lint | tail` 让管道尾命令吃掉退出码。
     files: ['**/scripts/**/*.mjs'],
     languageOptions: {
       globals: {
@@ -23,6 +22,27 @@ export default tseslint.config(
         fetch: 'readonly',
         AbortController: 'readonly',
         TextDecoder: 'readonly',
+      },
+    },
+  },
+  {
+    // 截图脚本中的 page.evaluate 回调在浏览器上下文执行。
+    files: ['apps/desktop/scripts/capture-finale-audit.mjs'],
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        localStorage: 'readonly',
+        window: 'readonly',
+      },
+    },
+  },
+  {
+    files: ['site/**/*.js'],
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        IntersectionObserver: 'readonly',
+        window: 'readonly',
       },
     },
   },

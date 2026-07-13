@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const srcRoot = path.resolve(import.meta.dirname, '..', 'src');
 const styles = await readFile(path.join(srcRoot, 'styles.css'), 'utf8');
-const tokens = JSON.parse(await readFile(path.resolve(import.meta.dirname, '..', '..', '..', 'docs', '32-设计语言包', 'tokens.json'), 'utf8'));
+const tokens = JSON.parse(await readFile(path.resolve(import.meta.dirname, '..', '..', '..', 'docs', 'design', 'tokens.json'), 'utf8'));
 const approvedShadow = '0 1px 2px rgba(10,37,64,0.045), 0 4px 12px rgba(10,37,64,0.035)';
 
 async function sourceFiles(dir) {

@@ -4,9 +4,9 @@
 
 ## 职责
 
-法律垂类依赖包（docs/53「垂类即依赖包」的首个实体）：法律域的 schema、场景声明、
+法律垂类依赖包（docs/architecture/schema-engineering.md「垂类即依赖包」的首个实体）：法律域的 schema、场景声明、
 提示词正文、renderer 声明、容器词表、演示语料投影，全部住本包。底座（schemas/registry/core）
-只持机械件——验证标准（docs/53 包域律）：**core 对包是纯执行器——跑得动 legal.*，读不懂 legal.***，
+只持机械件——验证标准（docs/architecture/schema-engineering.md 包域律）：**core 对包是纯执行器——跑得动 legal.*，读不懂 legal.***，
 由 `packages/core/src/package-boundary.test.ts` 机器守护。
 
 ## 交付清单

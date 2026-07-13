@@ -11,7 +11,7 @@ export const DEMO_ORIGINALS = [
   {
     fileName: '设备采购合同.pdf',
     path: `${DEMO_CASE_ROOT}/原件/设备采购合同.pdf`,
-    /** docs/47：移形后永久保留原始文件名 */
+    /** docs/decisions/ADR-004-documents-and-files.md：移形后永久保留原始文件名 */
     originalFileName: '合同v2(1).pdf',
     contentHash: 'c0ffee00deadbeef',
   },

@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
 const [tokens, css, app, tauri, messageActions] = await Promise.all([
-  readFile(path.resolve(root, '../../docs/32-设计语言包/tokens.json'), 'utf8'),
+  readFile(path.resolve(root, '../../docs/design/tokens.json'), 'utf8'),
   readFile(path.join(root, 'src/styles.css'), 'utf8'),
   readFile(path.join(root, 'src/App.tsx'), 'utf8'),
   readFile(path.join(root, 'src-tauri/tauri.conf.json'), 'utf8'),

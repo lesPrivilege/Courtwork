@@ -1,7 +1,7 @@
 import type { ScoreParam, PriorityRow } from './priority-score.js';
 
 /**
- * 确定性打分核心——零 LLM（docs/62 §三）。RICE = Reach × Impact × Confidence ÷ Effort。
+ * 确定性打分核心——零 LLM（docs/product/pm-vertical.md §三）。RICE = Reach × Impact × Confidence ÷ Effort。
  * LLM 只做填表员从语料抽参数；此处纯算术，得分不经模型。
  * 计算器族机制的第二租户（法律包 S10 为第一租户）。
  */

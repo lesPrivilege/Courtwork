@@ -1,7 +1,7 @@
 import type { ReadingViewOutcome } from '@courtwork/reading-view';
 
 /**
- * 把 reading-view 结果映射为 chip 失败态办案语言（docs/41 缺口三态 + principles 零技术概念）。
+ * 把 reading-view 结果映射为 chip 失败态办案语言（docs/architecture/system.md 三态 + 零技术概念）。
  * 成功路径返回 null。
  */
 export function failureCopyForOutcome(outcome: ReadingViewOutcome): { message: string; retryable: boolean } | null {

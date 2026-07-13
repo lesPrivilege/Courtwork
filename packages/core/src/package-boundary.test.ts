@@ -3,8 +3,8 @@ import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 /**
- * 包域律机器守卫（docs/53：core 对包是纯执行器——跑得动 legal.*，读不懂 legal.*）。
- * 装配点例外（docs/21 + ABI 三层边界）：src/composition 与 src/acceptance 是绑定层，
+ * 包域律机器守卫（docs/architecture/schema-engineering.md：core 对包是纯执行器——跑得动 legal.*，读不懂 legal.*）。
+ * 装配点例外（docs/decisions/ADR-001-package-abi.md + ABI 三层边界）：src/composition 与 src/acceptance 是绑定层，
  * 允许 import 垂类包与演示数据；其余 core 板块零垂类依赖、零垂类字面量。
  * 缺口即测试缺口判例：本守卫就是"本应抓住越界的测试"。
  */

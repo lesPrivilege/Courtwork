@@ -3,7 +3,7 @@ import { projectArtifact } from '@courtwork/schemas';
 import type { TodoStep } from '../scenario-executor/todo-snapshot.js';
 
 /**
- * 六段组装（docs/93 协议章 + docs/55 HARNESS-1 实施单，2026-07-13）：
+ * 六段组装（docs/architecture/schema-engineering.md）：
  * 每次请求的 prompt 为确定性组装——契约段→声明段→租户段→续行投影→会话与语料→视图映射段。
  * 每段独立生成独立测试；组装序由优先级律锁定（下层永不覆写上层），恰为变更频率
  * 低→高的缓存稳定序。相同输入字节稳定；模板引用已在装载期闭合，字面值不上 wire。
@@ -50,13 +50,13 @@ export function buildDeclarationSegment(scenario: ScenarioRuntime): PromptSegmen
   return { id: 'declaration', body };
 }
 
-/** 租户段：Stage 1 席位（docs/53 租户约束=声明层顶格）。当期无租户约束，段位固定存在——稳定前缀不因缺席而漂移。 */
+/** 租户段：Stage 1 席位（docs/architecture/schema-engineering.md 租户约束=声明层顶格）。当期无租户约束，段位固定存在——稳定前缀不因缺席而漂移。 */
 export function buildTenantSegment(): PromptSegment {
   return { id: 'tenant', body: '[租户段]\n（本期无租户约束）' };
 }
 
 export interface ProjectionInput {
-  /** 账本序号（docs/93 修订一：投影段按账本序号版本化——读多写少期字节不变，命中跨 turn）。 */
+  /** 账本序号：投影段按账本序号版本化——读多写少期字节不变，命中跨 turn。 */
   ledgerSeq: number;
   /** 已落格 artifact（typeId → 数据），投影按场景声明序输出。 */
   artifacts: Partial<Record<string, unknown>>;
@@ -65,7 +65,7 @@ export interface ProjectionInput {
 }
 
 /**
- * 续行投影段：从权威态确定性组装，禁 LLM 压缩（docs/58 七节）。
+ * 续行投影段：从权威态确定性组装，禁 LLM 压缩（docs/decisions/ADR-005-data-security.md 七节）。
  * 输出序 = 场景声明的 outputArtifacts 序 → inputArtifacts 序（字段序固定），
  * 未决门禁挤尾部。找不到投影声明的类型如实跳过（准入闭合下不可达，防御性）。
  */
@@ -115,7 +115,7 @@ export interface MaterialInput {
   }[];
 }
 
-/** 材料边界标记：语料包在显式数据边界内（docs/93 六段组装条款）。 */
+/** 材料边界标记：语料包在显式数据边界内（docs/architecture/schema-engineering.md 六段组装条款）。 */
 export const MATERIAL_OPEN = (m: { fileId: string; sha256: string }) => `<<<材料:开始 fileId=${m.fileId} sha256=${m.sha256}>>>`;
 export const MATERIAL_CLOSE = (m: { fileId: string }) => `<<<材料:结束 fileId=${m.fileId}>>>`;
 
@@ -139,12 +139,12 @@ export interface ViewMappingInput {
   stepId: string;
   /** 本次产出目标类型（回填地址）。 */
   artifactType: string;
-  /** todo 复述（易变尾部——抗注意力漂移技巧的正名归宿，docs/12）。 */
+  /** todo 复述（易变尾部——抗注意力漂移技巧的正名归宿，docs/architecture/system.md）。 */
   todo: TodoStep[];
 }
 
 /**
- * 视图映射段（docs/53 输出即视图契约）：输出通道拓扑 + 本次寻址。六段之尾——
+ * 视图映射段（docs/architecture/schema-engineering.md 输出即视图契约）：输出通道拓扑 + 本次寻址。六段之尾——
  * 携当次地址与 todo 复述，是变更频率最高的一段（稳定前缀纪律的尾部）。
  */
 export function buildViewMappingSegment(input: ViewMappingInput): PromptSegment {

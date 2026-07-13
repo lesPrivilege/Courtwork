@@ -1,4 +1,4 @@
-/** composer 附件与按钮族的领域无关状态（docs/45 + docs/52 修正案 + 工单裁决）。 */
+/** composer 附件与按钮族的领域无关状态（docs/design/principles.md + docs/design/principles.md 修正案 + 工单裁决）。 */
 
 import type { ContainerKind } from '../case/container-copy';
 
@@ -73,7 +73,7 @@ export const DEMO_CASE_OPTIONS: CaseOption[] = [
   },
 ];
 
-/** 容器化仪式文案（docs/52 #3：先聊后建，与「存入卷宗」同族 popover）。 */
+/** 容器化仪式文案（docs/design/principles.md：先聊后建，与「存入卷宗」同族 popover）。 */
 export const CONTAINERIZE_COPY = {
   title: '创建承载容器',
   body: '将附件存入前，需先建立案件或项目容器以承接文件与后续对话。',

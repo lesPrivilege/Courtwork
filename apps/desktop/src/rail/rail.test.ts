@@ -29,7 +29,7 @@ const unfiled: UnfiledSession[] = [
   { id: 'unfiled-1', title: '先聊后建的对话', updatedAt: 1 },
 ];
 
-describe('rail mixed list (docs/25)', () => {
+describe('rail mixed list (docs/decisions/ADR-005-data-security.md)', () => {
   it('混排：案件/工作区/未归档同列，Pinned 在上，不分区', () => {
     const rows = buildMixedRailRows([demo, workspace], unfiled, new Set(['demo-linjiang']));
     expect(rows.map((r) => r.id)).toEqual(['demo-linjiang', 'ws-1', 'unfiled-1']);

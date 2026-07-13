@@ -6,7 +6,7 @@ import type { WebReferenceContentType } from './contract.js';
 const MIN_CONTENT_LENGTH = 200;
 
 /**
- * content-type 白名单（docs/27 MVP 最小集第 3 条）：html/text/json 三类，参数带解析
+ * content-type 白名单（docs/decisions/ADR-005-data-security.md MVP 最小集第 3 条）：html/text/json 三类，参数带解析
  * 忽略大小写与 `; charset=...` 等附加参数。其余一律不支持（图片/PDF/二进制等）。
  */
 export function classifyContentType(header: string): WebReferenceContentType | undefined {
@@ -61,7 +61,7 @@ export interface ExtractedContent {
 }
 
 /**
- * html → 正文提取（docs/27 MVP 最小集第 3 条）：jsdom 构造 DOM 后交给
+ * html → 正文提取（docs/decisions/ADR-005-data-security.md MVP 最小集第 3 条）：jsdom 构造 DOM 后交给
  * @mozilla/readability 做正文识别。**不设置 runScripts / resources 选项是刚性安全要求，
  * 不是遗漏**——默认值即"不执行任何嵌入脚本、不拉取外部资源"，这是"不执行 JS"红线在
  * 这一层的落点，后续维护者不得为了兼容某个站点而打开这两个选项。

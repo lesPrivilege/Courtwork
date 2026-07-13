@@ -1,7 +1,7 @@
 import type { ContainerKind } from '../case/container-copy';
 import type { CaseSummary } from '../case/types';
 
-/** 左栏混排行类型（docs/25 修正 + docs/49 五章） */
+/** 左栏混排行类型（docs/decisions/ADR-005-data-security.md 修正 + docs/decisions/ADR-006-ui-host.md 五章） */
 export type RailRowKind = 'case' | 'workspace' | 'unfiled';
 
 export interface UnfiledSession {
@@ -25,7 +25,7 @@ export function containerRowKind(summary: CaseSummary): RailRowKind {
   return summary.kind === 'workspace' ? 'workspace' : 'case';
 }
 
-/** Pinned 在上，其余按 updatedAt/顺序时序；不分区（docs/25） */
+/** Pinned 在上，其余按 updatedAt/顺序时序；不分区（docs/decisions/ADR-005-data-security.md） */
 export function buildMixedRailRows(
   cases: CaseSummary[],
   unfiled: UnfiledSession[],

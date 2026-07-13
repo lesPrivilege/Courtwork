@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
-// RP-2.10 三卡一纸 + 线影凡例 + chat 卡片清算（docs/49 第十二章）
+// RP-2.10 三卡一纸 + 线影凡例 + chat 卡片清算（docs/decisions/ADR-006-ui-host.md）
 const root = path.resolve(import.meta.dirname, '..');
 const [css, app, utility] = await Promise.all([
   readFile(path.join(root, 'src/styles.css'), 'utf8'),

@@ -46,7 +46,7 @@ export const CitationFailureReasonEnum = z.enum(['not_found', 'ambiguous', 'file
 export type CitationFailureReason = z.infer<typeof CitationFailureReasonEnum>;
 
 /**
- * 引语拒收记录：受限修复重试携带原判与失败原因（docs/53 校准语义）；
+ * 引语拒收记录：受限修复重试携带原判与失败原因（docs/architecture/schema-engineering.md 校准语义）；
  * ambiguous 时附命中次数，供模型补足上下文使引语唯一化。
  */
 export const CitationFailureSchema = z

@@ -1,7 +1,7 @@
 import * as z from 'zod';
 
 /**
- * 文件操作动词（docs/47 三级分级）。
+ * 文件操作动词（docs/decisions/ADR-004-documents-and-files.md 三级分级）。
  * 故意 **不包含** delete / overwrite——销毁级永不进入能力面。
  * 类型层即证明：此枚举是全仓文件操作动词的唯一权威词表。
  */
@@ -9,7 +9,7 @@ export const FileOpsVerbEnum = z.enum(['move', 'rename', 'copy', 'mkdir']);
 export type FileOpsVerb = z.infer<typeof FileOpsVerbEnum>;
 
 /**
- * 整理计划单条（docs/47 移形级计划 artifact 的行）。
+ * 整理计划单条（docs/decisions/ADR-004-documents-and-files.md 移形级计划 artifact 的行）。
  * - 勾选态 `selected`：确认门禁前用户可逐条勾选
  * - 内容哈希前后：证明移形零字节变动（原件红线精细化）
  * - originalFileName：移动/重命名后永久保留原始文件名
@@ -33,7 +33,7 @@ const FileOpsPlanEntryObjectSchema = z
     contentHashBefore: z.string().min(1).optional(),
     /** 执行后内容哈希；move/rename 应与 before 相等（证据零字节变动）。 */
     contentHashAfter: z.string().min(1).optional(),
-    /** 原始文件名永久记录（docs/47 原件红线精细化）。 */
+    /** 原始文件名永久记录（docs/decisions/ADR-004-documents-and-files.md 原件红线精细化）。 */
     originalFileName: z.string().min(1).optional(),
   })
   .strict()
@@ -61,7 +61,7 @@ export const FileOpsPlanEntrySchema = FileOpsPlanEntryObjectSchema;
 export type FileOpsPlanEntry = z.infer<typeof FileOpsPlanEntrySchema>;
 
 /**
- * 卷宗整理计划（docs/47 杀手场景产出）。
+ * 卷宗整理计划（docs/decisions/ADR-004-documents-and-files.md 杀手场景产出）。
  * 执行形状：计划 artifact → 确认门禁 → 执行 + 报告 → 一键撤销。
  * 本 schema 只描述计划本身；事务日志/撤销由 tools 执行器承载，不进 artifact。
  */

@@ -36,7 +36,7 @@ test('home density tokens stay on welcome and rail while schema remains dense', 
 test('frontier composer order keeps the five-slot bottom row (paste folded into +)', async ({ page }) => {
   const composer = page.getByTestId('composer');
   const order = await composer.locator('[data-composer-slot]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-composer-slot')));
-  // RP-2.11 ⑤ + 交接拍板（docs/55）：撤 paste 独立钮（⌘V + 「+」收纳）；
+  // RP-2.11 ⑤ + 交接拍板：撤 paste 独立钮（⌘V + 「+」收纳）；
   // 2026-07-12 省并：add-folder 撤（重复,归「+」菜单）;底排 add/workmode/provider/send + scope chip。
   expect(order).toEqual(['add', 'workmode', 'scope', 'provider', 'send']);
 });

@@ -57,7 +57,7 @@ export const CitationSchema = CitationObjectSchema.refine(
   (value) => value.sourceAnchors.length > 0 || value.statuteRef !== undefined,
   {
     message:
-      'sourceAnchors 与 statuteRef 至少提供一个：纯散文依据引用不可核验（docs/20，C 级事实不得未经确认流入 docx 批注依据）',
+      'sourceAnchors 与 statuteRef 至少提供一个：纯散文依据引用不可核验（docs/decisions/ADR-003-evidence-and-anchors.md，C 级事实不得未经确认流入 docx 批注依据）',
     path: ['sourceAnchors'],
   },
 );

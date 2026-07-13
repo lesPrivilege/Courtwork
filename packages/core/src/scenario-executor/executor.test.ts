@@ -565,7 +565,7 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
   });
 });
 
-describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission', () => {
+describe('docs/architecture/system.md 长任务协议 ①②: todo_snapshot + step_failed emission', () => {
   it('emits a step_failed event (without throwing) when a declared tool degrades to unverified, and still proceeds to generate the artifact', async () => {
     const tools = createToolRegistry();
     tools.register('party-verify', { tool: createPartyVerifyTool(createQccPartyVerifyAdapter(undefined)), grade: 'A' });
@@ -627,7 +627,7 @@ describe('docs/12 长任务协议 ①②: todo_snapshot + step_failed emission',
   });
 });
 
-describe('docs/12 长任务协议 ③: runtime protection limits', () => {
+describe('docs/architecture/system.md 长任务协议 ③: runtime protection limits', () => {
   it('does not throw when no limits are configured (default MVP behavior unchanged)', async () => {
     const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     await expect(
@@ -700,7 +700,7 @@ describe('docs/12 长任务协议 ③: runtime protection limits', () => {
   });
 });
 
-describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/12，套在声明式步骤上）', () => {
+describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/architecture/system.md，套在声明式步骤上）', () => {
   it('appends the current todo snapshot to the end of the generation request content', async () => {
     const capturedRequests: { content: string }[] = [];
     const capturingProvider = {

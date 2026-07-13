@@ -1,5 +1,5 @@
 /**
- * 渲染兜底（兜底四层之③，docs/93 组装-回填包域律）：artifact 有 schema 无 renderer 时，
+ * 渲染兜底（兜底四层之③，docs/architecture/schema-engineering.md 组装-回填包域律）：artifact 有 schema 无 renderer 时，
  * 底座以键值/树形只读保底——可读不可美，永不白屏。本文件是纯逻辑层（路由与树化），
  * 组件见 GenericStructurePanel。
  */

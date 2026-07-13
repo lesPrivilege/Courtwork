@@ -1,5 +1,5 @@
 /**
- * 容器语义双词表（docs/52 #2 + docs/49 context）。
+ * 容器语义双词表（docs/design/principles.md + docs/decisions/ADR-006-ui-host.md context）。
  * 案件容器用「卷宗」；通用工作区用「资料」——法律词汇不出现在通用容器。
  */
 

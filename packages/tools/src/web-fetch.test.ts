@@ -35,7 +35,7 @@ describe('createMockWebFetchAdapter — never impersonates a verified result', (
     expect(createMockWebFetchAdapter().sourceId).toBe('mock');
   });
 
-  it('end to end through the executor: always verified:false with reason web_reference, never verified:true (docs/20 红线，mock 也不例外)', async () => {
+  it('end to end through the executor: always verified:false with reason web_reference, never verified:true (docs/decisions/ADR-003-evidence-and-anchors.md 红线，mock 也不例外)', async () => {
     const tool = createWebFetchTool(createMockWebFetchAdapter());
     const executor = createToolExecutor();
 
@@ -116,7 +116,7 @@ describe('createHttpWebFetchAdapter — SSRF block degrades to adapter_error, no
   });
 });
 
-describe('createHttpWebFetchAdapter — certificate failure degrades to adapter_error, never silently retried with relaxed TLS (docs/27 红线)', () => {
+describe('createHttpWebFetchAdapter — certificate failure degrades to adapter_error, never silently retried with relaxed TLS (docs/decisions/ADR-005-data-security.md 红线)', () => {
   it('propagates a TLS/cert error as adapter_error without retrying', async () => {
     const certError = Object.assign(new TypeError('fetch failed'), {
       cause: Object.assign(new Error('certificate has expired'), { code: 'CERT_HAS_EXPIRED' }),

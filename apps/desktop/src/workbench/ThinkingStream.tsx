@@ -12,7 +12,7 @@ interface ThinkingStreamProps {
 }
 
 /**
- * 推理/思考流折叠容器（docs/52 #7 · RP-2.11 改判 · 批次七⑦品牌换装/RP-2.12⑩ 既裁）。
+ * 推理/思考流折叠容器（docs/design/principles.md · RP-2.11 改判 · 批次七⑦品牌换装/RP-2.12⑩ 既裁）。
  * 进行态＝品牌三横写开（BrandThinking，与 chat 面 pending 同件收敛）；静默锚保留藏青竖线字符（terminal 式，quiet）。
  * 三态闭环：进行（品牌动画）→ 静默（字符折叠锚）→ 无（零痕迹）。
  * 四纪律守全：数据区静止 / 内容 0ms 硬切 / 法理之线不参与 / 动画只走 transform（motion 白名单）。

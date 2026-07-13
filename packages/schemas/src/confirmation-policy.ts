@@ -2,7 +2,7 @@ import * as z from 'zod';
 import { ArtifactTypeIdSchema } from './artifact-type-id.js';
 
 /**
- * 能力副作用分级（ABI 拍板③配套新契约，docs/68 施工输入）：confirmationPolicy 为
+ * 能力副作用分级（docs/decisions/ADR-001-package-abi.md）：confirmationPolicy 为
  * none 的准入判据。封闭枚举——工具绑定与 artifact descriptor 各自声明其副作用类，
  * core/ABI 据此双门强制：任一非 pure_read 即禁 none，包无权放宽。
  */

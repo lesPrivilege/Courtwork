@@ -1,5 +1,5 @@
 /**
- * 长任务运行时保护四件套（docs/12 长任务协议③）：max_steps / max_seconds /
+ * 长任务运行时保护四件套（docs/architecture/system.md 长任务协议③）：max_steps / max_seconds /
  * max_tool_calls / max_usd。具体阈值按 Courtwork 场景实测调整，不是照抄行业默认值——
  * 因此本模块不预置任何默认阈值，全部可选、缺省即不限制。
  *

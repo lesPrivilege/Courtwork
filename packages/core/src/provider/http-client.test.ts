@@ -190,7 +190,7 @@ describe('sendChatCompletion — timeout', () => {
   });
 });
 
-describe('sendChatCompletion — credential discipline (docs/27 红线)', () => {
+describe('sendChatCompletion — credential discipline (docs/decisions/ADR-005-data-security.md 红线)', () => {
   it('never leaks apiKey into a thrown error message, stack, or serialized form, even on repeated failures', async () => {
     const secretKey = 'sk-super-secret-leak-canary-9f8e7d6c';
     const fetchImpl = vi.fn(async () => new Response('server exploded', { status: 500 }));

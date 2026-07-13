@@ -37,7 +37,7 @@ test('五工作面结构常驻且未接功能保留禁用入口与说明', async
   // composer 已整备：输入区可用；发送在空输入时禁用；拍照/语音为禁用态常驻。
   await expect(page.getByTestId('composer')).toBeVisible();
   await expect(page.getByTestId('composer-send')).toBeDisabled();
-  // docs/52 #4：相机/语音收进 + 溢出菜单
+  // docs/design/principles.md：相机/语音收进 + 溢出菜单
   await page.getByTestId('composer-plus').click();
   await expect(page.getByTestId('composer-camera')).toHaveAttribute('aria-disabled', 'true');
   await expect(page.getByTestId('composer-voice')).toHaveAttribute('aria-disabled', 'true');

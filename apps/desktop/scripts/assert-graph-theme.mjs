@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const tokens = JSON.parse(readFileSync(resolve('../../docs/32-设计语言包/tokens.json'), 'utf8'));
+const tokens = JSON.parse(readFileSync(resolve('../../docs/design/tokens.json'), 'utf8'));
 const theme = readFileSync(resolve('src/workbench/graph-theme.ts'), 'utf8');
 const panel = readFileSync(resolve('src/workbench/GraphPanel.tsx'), 'utf8');
 const runtime = readFileSync(resolve('src/workbench/g6-runtime.ts'), 'utf8');

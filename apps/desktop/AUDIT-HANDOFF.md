@@ -4,7 +4,7 @@
 
 ## 版本坐标（最新）
 
-- **main tip**：`2e5c014`（我方视觉改动 clean；`git status --porcelain` 仅剩 docs/55、docs/90 = **架构会话在途工单史，他线留置，非我方改动**）
+- **main tip**：`2e5c014`（我方视觉改动 clean；`git status --porcelain` 仅剩 当时的架构工单册、当时的架构工单册 = **架构会话在途工单史，他线留置，非我方改动**）
 - **领先 origin**：44 提交，**未 push**（架构已定「独立审计放行即推」）
 - **worktree**：唯一主树，无残留
 - **分支**：无未合并分支
@@ -36,7 +36,7 @@
 
 - **真实净内容改动两处已收编**：
   1. `72827da` Panels.tsx 一处未用 `index` 参数清除（FABLE-BASE lint 清账遗留，标注"随他线收编"的一处）
-  2. `bf9e5a1` docs/69 第 10 章 Emil Design skill 对拍裁决（**代 GPT-SCHEMA/sol 线收编**其完成态文档产出）
+  2. `bf9e5a1` 当时的 UI 清单 第 10 章 Emil Design skill 对拍裁决（**代 GPT-SCHEMA/sol 线收编**其完成态文档产出）
 - **索引残骸已清（reset）**：sol 在 index 里 staged 但工作树已回退的净零中间态（PreviewHost/renderers 改动、schema-polish/schema-seams spec 删除、docs 48/53/55/90/93 幽灵删除）。工作树整体 == 会话全程门禁基线，reset 未丢任何工作树真实产出。
 - **安全网**：清理前 index staged 全量（10 文件/429 行）备份至会话 scratchpad `index-staged-backup.patch`——若 sol 线需恢复其中间态，可从该 patch 取。
 

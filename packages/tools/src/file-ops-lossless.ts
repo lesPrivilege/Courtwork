@@ -4,7 +4,7 @@ import { defineTool, type ToolAdapter, type ToolDefinition } from './contract.js
 import type { FileOpsHost } from './file-ops-host.js';
 
 /**
- * 无损级动词（docs/47）：copy / mkdir —— 加法操作，可直执。
+ * 无损级动词（docs/decisions/ADR-004-documents-and-files.md）：copy / mkdir —— 加法操作，可直执。
  * 路径白名单复用 F-3 case-path；目标已存在 = 拒绝（无覆盖）。
  */
 

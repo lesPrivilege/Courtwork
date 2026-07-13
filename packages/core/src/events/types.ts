@@ -2,7 +2,7 @@
 import type { EvidenceGradeAnnotation } from '../evidence/grade.js';
 
 /**
- * 引用闭环观测（docs/93 修订一·锚点经济性条款）：首次命中率与重试率入 docs/66，
+ * 引用闭环观测（docs/decisions/ADR-003-evidence-and-anchors.md）：首次命中率与重试率进入运行账本，
  * 为「甜点档即可完成」的对上游承诺定价。随 artifact_produced 发布（纯增字段，
  * 提案随单报——providerNotices 追认判例同族）。
  */
@@ -28,7 +28,7 @@ export interface ConfirmationActor {
 }
 
 /**
- * 确认质量埋点透传字段（docs/09 防呆调研 + docs/30 拍板"防呆三原则"之三，2026-07-09
+ * 确认质量埋点透传字段（docs/design/principles.md 防呆调研 + docs/design/principles.md 拍板"防呆三原则"之三，2026-07-09
  * 追加）：core 只记录，不解读、不告警——告警/重新设计判定是 MVP 后 eval/运营面板的职责。
  */
 export interface ConfirmationInstrumentation {
@@ -72,7 +72,7 @@ export type SessionEvent =
   | (BaseEvent & { type: 'revision_recorded'; revisionEventId: string })
   | (BaseEvent & {
       /**
-       * 进度快照（docs/12 长任务协议①）：steps 由 deriveTodoSnapshot 纯函数从场景声明
+       * 进度快照（docs/architecture/system.md 长任务协议①）：steps 由 deriveTodoSnapshot 纯函数从场景声明
        * 派生，LLM 不参与撰写/增删这份清单。
        */
       type: 'todo_snapshot';
@@ -80,7 +80,7 @@ export type SessionEvent =
     })
   | (BaseEvent & {
       /**
-       * 步骤级失败（docs/12 长任务协议②），区别于笼统的 error 事件：目前只覆盖工具调用
+       * 步骤级失败（docs/architecture/system.md 长任务协议②），区别于笼统的 error 事件：目前只覆盖工具调用
        * 粒度的失败——工具契约本身已经把失败降级为结构化的 verified:false（不抛异常，
        * 见 @courtwork/tools），这里只是把"发生过一次工具级降级"这件事显式发布到会话
        * 事件流，使调用方不需要另外轮询/推断。生成节点级失败（provider 返回内容不合规）

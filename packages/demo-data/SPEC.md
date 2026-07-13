@@ -4,7 +4,7 @@
 
 ## 背景
 
-承接 `docs/21-架构决定-演示数据包与样板案.md`：演示数据从"放在 packages/tools 内"改为独立成包，与消费方 src 完全解耦。本包不属于 `docs/10` 原始工单编号序列，是 W5 在途期间的架构增量（见 `packages/tools/SPEC.md` 的 W5.1 验收记录）。
+承接 `docs/decisions/ADR-001-package-abi.md`：演示数据从"放在 packages/tools 内"改为独立成包，与消费方 src 完全解耦。本包不属于 `当时的架构工单册` 原始工单编号序列，是 W5 在途期间的架构增量（见 `packages/tools/SPEC.md` 的 W5.1 验收记录）。
 
 **所有权切分（架构拍板）**：`data/**`（语料本体）由用户侧 subagent 产出（commit `8dcac60`，作者 `Courtwork DemoData (subagent)`），本层（W5 会话）只拥有包外壳（`package.json`/`tsconfig.json`/`SPEC.md`）与 `src/**`（读语料的类型化访问器）。两者在同一个 `data/` 目录下并发写入的时间窗口内互不知情——本层最初按"当期先给个最小占位 fixture"的理解写了一版内联 4 条主体 + 3 条法条的 `party-fixtures.ts`/`citation-fixtures.ts`，subagent 同时产出了一套完整得多（22 条主体、67 条法条判例、20 份卷宗文书、10 份合同变体、5 个预生成 artifact）的真实语料。架构侧确认语料是权威数据源后，占位版本已删除，`src/` 按下方"交付清单"重写为读取真实语料的访问器。此事记入验收记录，供以后回看"多会话并发写同一新目录"这类情况的处置参考。
 
@@ -42,7 +42,7 @@
 
 ## 验收记录
 
-- 2026-07-12（S3-MATERIAL-0）：补齐 docs/21 分期中的样板卷宗合成 PDF 欠账。`data/contracts/设备采购合同.pdf` 是由 `scripts/generate-contract-pdf.mjs` 读取权威语料 `main-contract.md` 后，经文书级 HTML 排版与 headless Chromium 打印得到的**可再生生成物**；页内和页脚均显式标注虚构样板案与生成来源。生成器是源，PDF 是产物，执行 `pnpm --filter @courtwork/demo-data generate:contract-pdf` 可重新生成。为避免不同宿主中文字体的 PDF ToUnicode 映射漂移，生成器内嵌 OFL 1.1 授权的 Noto Sans CJK SC 最小字符子集（`assets/`，含许可证）。消费侧验收位于 `packages/reading-view/src/pdf/s3-material.test.ts`，覆盖文本层可提取、七条预登记引语、`quote === slice(start,end)`、页码/`textLayerVersion` 与独立字节数组双跑稳定性。
+- 2026-07-12（S3-MATERIAL-0）：补齐 docs/decisions/ADR-001-package-abi.md 分期中的样板卷宗合成 PDF 欠账。`data/contracts/设备采购合同.pdf` 是由 `scripts/generate-contract-pdf.mjs` 读取权威语料 `main-contract.md` 后，经文书级 HTML 排版与 headless Chromium 打印得到的**可再生生成物**；页内和页脚均显式标注虚构样板案与生成来源。生成器是源，PDF 是产物，执行 `pnpm --filter @courtwork/demo-data generate:contract-pdf` 可重新生成。为避免不同宿主中文字体的 PDF ToUnicode 映射漂移，生成器内嵌 OFL 1.1 授权的 Noto Sans CJK SC 最小字符子集（`assets/`，含许可证）。消费侧验收位于 `packages/reading-view/src/pdf/s3-material.test.ts`，覆盖文本层可提取、七条预登记引语、`quote === slice(start,end)`、页码/`textLayerVersion` 与独立字节数组双跑稳定性。
 
 - 2026-07-09：当期范围完成（第二版，替代同日内已删除、从未提交的占位版本）。`party-corpus.ts`/`citation-corpus.ts`/`index.ts` 交付，15 例测试（party-corpus 8 + citation-corpus 7）全绿，`pnpm lint` 无 error，`pnpm -r run build` 通过。新增 `@types/node` devDependency（读文件需要 `node:fs`/`node:path`/`import.meta.dirname`，`lib` 只到 `ES2023` 没有 DOM，沿用 W1 记录过的坑）。
   - 设计取舍：

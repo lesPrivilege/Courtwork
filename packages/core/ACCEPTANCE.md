@@ -11,7 +11,7 @@
 1. `[需架构拍板]` 独立落盘的 `RevisionEvent` 没有 `sessionId`，不满足验收 prompt 的“RevisionEvent 挂 sessionId”。
 2. `[需架构拍板]` C 级门禁用 artifact 的 `basis.citation` 字符串与台账 key 做完全相等匹配；带展示前缀的未确认 C 级 citation 可绕过门禁。当前 schema 没有稳定的 evidence-key 关联字段，不能用字符串包含匹配安全修补。
 
-另有一项架构纪律冲突需澄清：全仓库生产源码并非只有 composition 一处导入 `@courtwork/demo-data`，`eval/src/rules/citation-exists.ts` 也是运行时导入；同时 core 通用层公开命名仍有 `assertCitationAdmissible`/`InadmissibleCitationError` 等领域词汇，与 docs/22 的字面纪律不一致。
+另有一项架构纪律冲突需澄清：全仓库生产源码并非只有 composition 一处导入 `@courtwork/demo-data`，`eval/src/rules/citation-exists.ts` 也是运行时导入；同时 core 通用层公开命名仍有 `assertCitationAdmissible`/`InadmissibleCitationError` 等领域词汇，与 docs/decisions/ADR-001-package-abi.md 的字面纪律不一致。
 
 因此：
 
@@ -100,7 +100,7 @@ basis.citation: 网络参考：web-search
 
 原因是 `assertCitationAdmissible(ledger, basis.citation)` 只做 Map 的完全相等查询，查不到即按“非工具来源”放行。citation 是展示文本而不是稳定外键；字符串模糊/包含匹配会产生误关联，不能作为安全修复。需由 schemas/core 契约明确 citation 与 evidence ledger 的稳定关联方式，再补“任意展示文本都不能绕过”的测试。
 
-### 7. docs/12 五点
+### 7. docs/architecture/system.md 五点
 
 **通过（按 SPEC 已披露的 maxUsd 边界）。** `deriveTodoSnapshot` 仅接收场景声明、已产出状态与暂停位置，源码无 provider/模型调用；`todo_snapshot`、`step_failed` 已进入事件协议和 replay；Manus todo 被放在 generation JSON payload 的最后一个键；core 不含摄取子agent并行。
 
@@ -122,7 +122,7 @@ eval/src/rules/citation-exists.ts: import ... from '@courtwork/demo-data'
 
 该导入已被 W7 的 SPEC/ACCEPTANCE 当作有意依赖，和 W6/CLAUDE.md 的“全仓唯一 composition”字面结论冲突。`[需架构拍板]` 应明确 eval 是否是例外；验收者不越界修改 W7。
 
-此外，core 通用层仍有 `assertCitationAdmissible`、`InadmissibleCitationError` 公开命名，以及“修订指令集/citation/docx 批注/卷宗原文”等注释或错误文案。它们与 docs/22“通用层命名与依赖不得渗入法律语义、发现领域词汇即上报”的字面纪律不一致。重命名公开 API 会影响消费契约，故只上报，不擅改。
+此外，core 通用层仍有 `assertCitationAdmissible`、`InadmissibleCitationError` 公开命名，以及“修订指令集/citation/docx 批注/卷宗原文”等注释或错误文案。它们与 docs/decisions/ADR-001-package-abi.md“通用层命名与依赖不得渗入法律语义、发现领域词汇即上报”的字面纪律不一致。重命名公开 API 会影响消费契约，故只上报，不擅改。
 
 ### 10. S3 演示与 docx 解包
 
@@ -203,7 +203,7 @@ risk-07 的既有边界未被门禁误改：其编译结果仍不签发 `evidenc
 
 **通过。** 通用 API 已独立提交改名为 `assertEvidenceKeyAdmissible` / `InadmissibleEvidenceError`。按整改计划口径对 `packages/core/src` 执行领域词汇 grep（排除允许带领域语义的 `composition/`、测试与 `acceptance/`）无输出；旧 API 名全仓 core src grep 亦无输出。
 
-`docs/21-架构决定-演示数据包与样板案.md` 已明文澄清：禁令针对生产链路运行时代码，测试文件与 eval 数据集构建脚本是合法消费方。本次仅核对存在，未触碰 eval 文件。
+`docs/decisions/ADR-001-package-abi.md` 已明文澄清：禁令针对生产链路运行时代码，测试文件与 eval 数据集构建脚本是合法消费方。本次仅核对存在，未触碰 eval 文件。
 
 ### 5. demo:s3 回归
 

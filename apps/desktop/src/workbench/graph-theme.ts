@@ -2,7 +2,7 @@ import { ExtensionCategory, getExtension, register } from './g6-runtime';
 
 export const COURTWORK_GRAPH_THEME = 'courtwork-light';
 
-// Mirrors docs/32-设计语言包/tokens.json. G6 receives no library palette defaults.
+// Mirrors docs/design/tokens.json. G6 receives no library palette defaults.
 export const graphTokens = {
   background: '#FFFFFF',
   surface: '#EAEFF4',

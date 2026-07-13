@@ -143,7 +143,7 @@ function augmentSystemPromptForStructuredOutput(
   jsonSchema: unknown | undefined,
 ): string {
   // json_object 档位（DeepSeek）或 schema 转换失败的降级情形都必须在 prompt 里显式给结构
-  // 提示——DeepSeek 官方文档明确要求 prompt 含 "json" 字样并给出结构示例（docs/18 §3①）。
+  // 提示——DeepSeek 官方文档明确要求 prompt 含 "json" 字样并给出结构示例（provider quirk）。
   // json_schema(_strict) 档位且转换成功时，wire 层约束已足够，不额外注入提示（省 token）。
   if (profile.responseFormat.tier !== 'json_object' && jsonSchema) {
     return systemPrompt ?? '';

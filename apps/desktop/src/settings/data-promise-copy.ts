@@ -1,5 +1,5 @@
 /**
- * 数据承诺声明页文案（docs/28 矩阵摘录）。
+ * 数据承诺声明页文案（docs/decisions/ADR-005-data-security.md 矩阵摘录）。
  * 主协议级、文书排版；律所客户会逐字读——不增不减语义。
  */
 
@@ -51,7 +51,7 @@ export const DATA_PROMISE_SECTIONS: ReadonlyArray<{
   },
 ] as const;
 
-/** 预留项统一 tooltip 模板（docs/19 / docs/45）。 */
+/** 预留项统一 tooltip 模板（docs/design/principles.md / docs/design/principles.md）。 */
 export function reservedTooltip(feature: string, alternative: string): string {
   return `${feature} is coming soon · For now, ${alternative}`;
 }

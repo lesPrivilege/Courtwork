@@ -44,7 +44,7 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
   if (!config.auth.apiKey || config.auth.apiKey.trim().length === 0) {
     throw new ProviderNotConfiguredError(
       profile.providerId,
-      `provider "${profile.providerId}" 缺少 apiKey 配置：凭证必须通过配置注入（docs/27 三形态），不允许硬编码或静默回退到无鉴权调用。`,
+      `provider "${profile.providerId}" 缺少 apiKey 配置：凭证必须通过配置注入（docs/decisions/ADR-005-data-security.md 三形态），不允许硬编码或静默回退到无鉴权调用。`,
     );
   }
 

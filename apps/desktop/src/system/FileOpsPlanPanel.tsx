@@ -33,7 +33,7 @@ function displayCaseRelativePath(path: string, caseRoot: string): string {
 
 /**
  * S6 卷宗整理：计划表（逐条勾选/理由/目标）→ 确认执行 → 报告 → 一键撤销。
- * 单文件 move 也走本面板轻确认（docs/47）。
+ * 单文件 move 也走本面板轻确认（docs/decisions/ADR-004-documents-and-files.md）。
  */
 export function FileOpsPlanPanel({ caseId, onFeedback }: FileOpsPlanPanelProps) {
   const [plan, setPlan] = useState<FileOpsPlan>(() => {

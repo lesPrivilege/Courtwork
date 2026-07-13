@@ -29,7 +29,7 @@ describe('WebSearchInputSchema', () => {
   });
 });
 
-describe('createMockWebSearchAdapter — never impersonates a verified result (docs/20 红线对 search 同样适用)', () => {
+describe('createMockWebSearchAdapter — never impersonates a verified result (docs/decisions/ADR-003-evidence-and-anchors.md 红线对 search 同样适用)', () => {
   it('takes no configuration at all', () => {
     expect(createMockWebSearchAdapter.length).toBe(0);
   });

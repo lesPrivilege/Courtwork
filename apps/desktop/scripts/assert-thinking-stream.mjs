@@ -22,8 +22,8 @@ const turnEnd = app.indexOf('</article>', turnStart);
 const streamInTurn = app.indexOf('<ThinkingStream', turnStart);
 if (turnStart < 0 || streamInTurn < turnStart || streamInTurn > turnEnd) failures.push('ThinkingStream must remain inside its owning assistant turn');
 
-const cssStart = css.indexOf('/* docs/52 #7');
-const cssEnd = css.indexOf('/* docs/52 #10', cssStart);
+const cssStart = css.indexOf('/* docs/design/principles.md');
+const cssEnd = css.indexOf('/* docs/design/principles.md', cssStart);
 const thinkingCss = css.slice(cssStart, cssEnd);
 if (!thinkingCss.includes('.thinking-stream-toggle') || !thinkingCss.includes('border: 0')) failures.push('Silent anchor must have no frame');
 // 竖线字符用藏青（settled 静锚,无闪烁——blink 随批次七⑦换装退役）；品牌三横只走 transform（motion 白名单同源）。

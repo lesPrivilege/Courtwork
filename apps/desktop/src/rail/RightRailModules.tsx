@@ -1,5 +1,5 @@
 /**
- * 右列四模块序（docs/49 十四章,2026-07-12 拍板）：Progress → Preview → Working folders → Context。
+ * 右列四模块序（docs/decisions/ADR-006-ui-host.md 十四章,2026-07-12 拍板）：Progress → Preview → Working folders → Context。
  * 手风琴列（Cowork 同构）；Preview 展开=大纲目录（schema 编排声明渲染,零依赖）,
  * 点大纲行进入浏览器态（App 层切换）;原件行走同一 Preview（视图汇流定理）。
  */

@@ -8,7 +8,7 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('rail-mixed-list')).toHaveCount(1);
     await expect(page.getByTestId('rail-pinned')).toBeVisible();
     await expect(page.getByTestId('rail-icon-case').first()).toBeVisible();
-    // RP-2.11：气泡行退场，Recents 纯容器（docs/25 修正二）——不再有 unfiled 行图标。
+    // RP-2.11：气泡行退场，Recents 纯容器（docs/decisions/ADR-005-data-security.md 修正二）——不再有 unfiled 行图标。
     await expect(page.getByTestId('rail-icon-unfiled')).toHaveCount(0);
 
     const expand = page.getByTestId('rail-expand-demo-linjiang');
@@ -30,7 +30,7 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('flow-s3')).toBeVisible();
   });
 
-  // RP-2.11：气泡行退场后，「存入」桥接迁至 chat 面（docs/25 修正二）——旧 unfiled-store 流由 chat 面 store-chat 替代，仪式与选名词不变。
+  // RP-2.11：气泡行退场后，「存入」桥接迁至 chat 面（docs/decisions/ADR-005-data-security.md 修正二）——旧 unfiled-store 流由 chat 面 store-chat 替代，仪式与选名词不变。
   test('chat 面「存入」→ 容器化 popover → 选案件', async ({ page }) => {
     await openWorkbench(page);
     await page.getByTestId('segment-chat').click();

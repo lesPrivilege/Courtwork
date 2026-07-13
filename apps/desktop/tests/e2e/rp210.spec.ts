@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { confirmDemoReview, openWorkbench } from './helpers';
 
-// —— RP-2.10 三卡一纸 + 品牌 icon 推理动画（docs/49 第十二章 · docs/55 #26.2/#26.3） ——
+// —— RP-2.10 三卡一纸 + 品牌 icon 推理动画（docs/decisions/ADR-006-ui-host.md） ——
 
 test('推理锚 = settled 字符竖线 / thinking 品牌三横（批次七⑦换装），居 turn 尾 message 按钮排之下', async ({ page }) => {
   await openWorkbench(page);

@@ -20,7 +20,7 @@ export interface EvidenceGatekeeper {
 
 /**
  * 验收脚本自己的 demo glue：把已确认的风险清单编译成修订指令集。
- * 领域判断不属于通用层——docs/40（S5 设计）先例：即便产出也是
+ * 领域判断不属于通用层——docs/decisions/ADR-004-documents-and-files.md（S5 设计）先例：即便产出也是
  * RevisionInstructionSet，编译逻辑仍归场景/演示自己，不进 core 通用库。
  */
 export function compileConfirmedRiskListToRevisionInstructions(

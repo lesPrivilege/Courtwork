@@ -41,7 +41,7 @@ export interface ComposerProps {
   /** 返回 false = 未受理（如未连接被引导层拦截）：composer 保留草稿不清空（批次七 Button 核验 #3）。 */
   onSend?: (payload: ComposerSendPayload) => boolean | void;
   /**
-   * 容器化仪式：无活动容器时「存入」触发（docs/52 #3）。
+   * 容器化仪式：无活动容器时「存入」触发（docs/design/principles.md）。
    * 父层创建案件/项目后应更新 activeCaseId。
    */
   onContainerize?: (request: ContainerizeRequest) => void;
@@ -115,7 +115,7 @@ export function Composer({
   useDismissOnOutside(plusOpen, () => setPlusOpen(false), plusAnchorRef);
   useDismissOnOutside(caseMenuOpen, () => setCaseMenuOpen(false), casePickerRef);
 
-  // 容器切换：同步 chip；跨案清空附件（D-1 0a / docs/52 #8-⑤）
+  // 容器切换：同步 chip；跨案清空附件（D-1 0a / docs/design/principles.md）
   // 容器化仪式创建后父层切换选中：不误清刚确认存入的附件。
   const prevActiveCaseId = useRef(activeCaseId);
   const skipAttachmentClearOnce = useRef(false);
@@ -204,7 +204,7 @@ export function Composer({
 
   const requestCommitToDossier = (attachmentId: string) => {
     if (!hasBoundContainer) {
-      // 先聊后建：无容器时弹仪式（docs/52 #3）
+      // 先聊后建：无容器时弹仪式（docs/design/principles.md）
       setContainerizeFor(attachmentId);
       return;
     }
@@ -365,7 +365,7 @@ export function Composer({
 
       <div className="composer-box">
         <div className="composer-tools-left">
-          {/* docs/52 #5：+ = 添加内容（附件来源），不承载新建案件 */}
+          {/* docs/design/principles.md：+ = 添加内容（附件来源），不承载新建案件 */}
           <div className="composer-plus" ref={plusAnchorRef}>
             <button
               type="button"

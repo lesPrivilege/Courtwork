@@ -1,5 +1,5 @@
 /**
- * 右栏模块栈状态机（docs/49 三章）。
+ * 右栏模块栈状态机（docs/decisions/ADR-006-ui-host.md 三章）。
  * 用户手动折叠/展开优先于 artifact 自动展开。
  */
 
