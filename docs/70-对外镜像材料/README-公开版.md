@@ -28,13 +28,13 @@ Courtwork 是一个文件夹级协作的法律 workagent：把案件装进容器
 
 ## 数字
 
-500+ 提交 · 192 条端到端断言（假绿下限禁降）· 16 道机器门禁 · 850 条单元测试 · 一套跨模型治理判例集。
+500+ 提交 · 194 条端到端断言（假绿下限禁降）· 16 道机器门禁 · 850 条单元测试 · 一套跨模型治理判例集。
 
 ## 下载
 
 macOS v0.1.1（Apple Silicon）：[下载 dmg](https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.1/Courtwork_0.1.1_aarch64.dmg)
 
-SHA-256：`65e05db7fca017c8b4580a0050744c6168062d285eb5b0caf7a056c0dad856f7`
+SHA-256：`9b760ccbd853c9c2a988db8f4055a655cd048c4f5e0614c5d40094e19e8f4877`
 
 仓库：[github.com/lesPrivilege/Courtwork](https://github.com/lesPrivilege/Courtwork) ｜ 产品站：[lesprivilege.github.io/Courtwork](https://lesprivilege.github.io/Courtwork/)
 

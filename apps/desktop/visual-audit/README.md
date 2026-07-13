@@ -1,8 +1,8 @@
 # SOL-FINALE visual audit
 
-- commit: `0e39fc2e99a25cdcbf7648b14c8c1fbc3c8b0355`
+- commit: `43cca1b`
 - viewport: `1440×900@1x`
-- isolated preview: `http://127.0.0.1:1488` (port `1488`)
+- isolated preview: `http://127.0.0.1:1501` (port `1501`)
 - motion: `prefers-reduced-motion: reduce`; screenshot animations disabled
 - old screenshots: retired and removed by this capture pipeline
 
