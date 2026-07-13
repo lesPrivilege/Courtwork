@@ -526,10 +526,10 @@ function scanL1(file, content, failures) {
 
 function scanArchiveReference(file, content, failures) {
   const patterns = [
-    /\]\(<?[^)\n>]*(?:^|\/)archive\/[^)\n>]*>?\)/gim,
-    /\b(?:href|src)\s*=\s*["'][^"']*(?:^|\/)archive\/[^"']*["']/gim,
-    /\b(?:fetch|require|readFile(?:Sync)?|open|new\s+URL|import)\s*\(\s*["'`][^"'`]*(?:^|\/)archive\/[^"'`]*/gim,
-    /\b(?:import|export)[\s\S]{0,120}?\bfrom\s*["'][^"']*(?:^|\/)archive\/[^"']*["']/gim,
+    /\]\(<?(?:archive\/|[^)\n>]*\/archive\/)[^)\n>]*>?\)/gim,
+    /\b(?:href|src)\s*=\s*["'](?:archive\/|[^"']*\/archive\/)[^"']*["']/gim,
+    /\b(?:fetch|require|readFile(?:Sync)?|open|new\s+URL|import)\s*\(\s*["'`](?:archive\/|[^"'`]*\/archive\/)[^"'`]*/gim,
+    /\b(?:import|export)[\s\S]{0,120}?\bfrom\s*["'](?:archive\/|[^"']*\/archive\/)[^"']*["']/gim,
     /\bpath\.(?:join|resolve)\s*\([^)]*["']archive["'][^)]*\)/gim,
   ];
   for (const pattern of patterns) {

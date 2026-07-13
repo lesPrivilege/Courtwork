@@ -86,13 +86,20 @@ test('L1 nesting detects default SurfaceCard, raised elevation, and static class
 
 test('archive references cover markdown, URL, fetch, import, require, and path consumers', () => {
   const archive = ['..', 'archive', 'legacy.json'].join('/');
+  const directArchive = ['archive', 'legacy.json'].join('/');
   const archiveName = ['arch', 'ive'].join('');
   const cases = [
     source('docs/live.md', `[legacy](${archive})`),
+    source('docs/direct-live.md', `[legacy](${directArchive})`),
     source('site/live.js', `fetch('${archive}')`),
+    source('site/direct-live.js', `fetch('${directArchive}')`),
     source('site/live.js', `import data from '${archive}'`),
+    source('site/direct-live.js', `import data from '${directArchive}'`),
     source('site/live.cjs', `require('${archive}')`),
+    source('site/direct-live.cjs', `require('${directArchive}')`),
     source('site/live.js', `new URL('${archive}', import.meta.url)`),
+    source('site/direct-live.js', `new URL('${directArchive}', import.meta.url)`),
+    source('site/direct-live.html', `<a href="${directArchive}">legacy</a><img src="${directArchive}">`),
     source('site/live.mjs', `readFile(path.resolve('${archiveName}', 'legacy.json'))`),
   ];
   for (const fixture of cases) assert.ok(rules([fixture]).includes('archive-reference'), fixture.content);
