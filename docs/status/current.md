@@ -1,6 +1,6 @@
 # 当前基线
 
-更新时间：2026-07-13
+更新时间：2026-07-14
 重整输入基线：`f03e742`
 新基线：以本文件所在提交为准。
 分支状态：重整开始时，除当前重整分支外的所有已命名本地与远端分支 tip 均为输入基线祖先，提交层已合流。
@@ -16,6 +16,10 @@
 - Tauri desktop、provider 凭证流、chat/work 双面与 schema 工作面；
 - `@courtwork/provider` 独立包与 DeepSeek-only 产品注册；custom/base URL 猜测入口已退役；
 - PROVIDER-2 已经异会话验收并合流：DeepSeek catalog 单源、Rust 原始字节真分片、Provider 增量 SSE、单一生成路径与 credential/connection 正交状态成立；
+- TURN-1 已经异会话验收并合流：正文、reasoning、usage、失败、取消与严格事件闭集拥有 provider 无关生命周期和终局回放；
+- INTERACTION-1A 已经异会话验收并合流：垂类 manifest 提供 strict 通用问题模板，legal 内容与锚点政策由 registry 深冻结注入；
+- BRAND-1 已经异会话验收并合流：CaseRail 的透明核心标记固定在 `Courtwork` 左侧，无底盘、阴影或动画；
+- SITE-2A 结构已经异会话验收并合流：首页以“原件 → 引语 → 结论 → 人工确认”为主骨架；最终产品截图等待 Chat-UI 验收后重拍；
 - POLISH-P0 与 SCHEMA-POLISH-1 已经异会话全量验收并合流；
 - demo 全链穿越、发布修实三项（遥测真开关、共享 docx 预检、产物存在后冻结）。
 
@@ -31,12 +35,11 @@
 
 ## 下一阶段优先序
 
-1. TURN-1：把思考、reasoning、正文、usage、失败与取消落成 provider 无关生命周期。
-2. INTERACTION-1 / CHAT-UI-1：垂类 manifest 注入问题、选项与锚点；core 暂停/续行；desktop 渲染通用轻框卡。
+1. INTERACTION-1B / CHAT-UI-1：Turn journal 持久提问快照与回答，core 真暂停/续行；desktop 删除硬编码问题和本地假完成，渲染通用轻框卡。
+2. 真机截图与 Pages：Chat-UI 验收后用 computer use 重拍真实界面，更新 SITE-2 资产并部署；真实 macOS 制品发布前保持无下载/SHA 状态。
 3. SCHEMA-CONFORMANCE-1：统一 PM descriptor、host renderer 路由、zero-wire fallback 与 SourceAnchor system producer 门。
 4. DESLOP-GATE-1：首版因 allowlist 过宽被拒收，按拒收报告重做精确消费点白名单，不合入旧实现。
 5. 真实材料链与 usage ledger：用脱敏卷宗建立 OCR/实体对齐基线，并把 token、成本、context 接入权威账本。
-6. SITE-2：底座与 chat 工单独立验收后，以真实 fixture 把首页重构为“原件 → 引语 → 结论 → 人工确认”的证据链。
 
 ## 非提交态说明
 
