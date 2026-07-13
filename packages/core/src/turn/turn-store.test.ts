@@ -7,13 +7,13 @@ import { describe, expect, it } from 'vitest';
 import type { GenerationResponse, Provider, ProviderStreamEvent } from '@courtwork/provider/types';
 
 import { runTurn } from './turn-runner.js';
-import { createFileTurnStore } from './turn-store.js';
+import { createFileTurnStore } from './turn-store-file.js';
 import type { PersistedTurn } from './types.js';
 
 const completed: PersistedTurn = {
   status: 'completed',
   turnId: 'turn-1',
-  requestId: 'request-1',
+  providerRequestId: 'request-1',
   providerId: 'provider-a',
   modelId: 'model-a',
   assistantMessage: '最终正文',
@@ -76,7 +76,7 @@ describe('createFileTurnStore', () => {
       const store = createFileTurnStore(filePath);
       const record = await runTurn({
         turnId: 'turn-1',
-        requestId: 'request-1',
+        providerRequestId: 'request-1',
         provider,
         request: {
           systemPrompt: 'acceptance-system-prompt-secret',

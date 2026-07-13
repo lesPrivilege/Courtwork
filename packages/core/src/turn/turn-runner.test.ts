@@ -53,7 +53,7 @@ describe('runTurn', () => {
 
     const record = await runTurn({
       turnId: 'turn-1',
-      requestId: 'request-1',
+      providerRequestId: 'request-1',
       provider: providerFrom(baseEvents()),
       request,
       store,
@@ -74,11 +74,13 @@ describe('runTurn', () => {
     ]);
     expect(published.map((event) => event.seq)).toEqual(published.map((_, index) => index));
     expect(new Set(published.map((event) => event.turnId))).toEqual(new Set(['turn-1']));
-    expect(new Set(published.map((event) => event.requestId))).toEqual(new Set(['request-1']));
+    expect(new Set(published.map((event) => (
+      'providerRequestId' in event ? event.providerRequestId : undefined
+    )))).toEqual(new Set(['request-1']));
     expect(record).toEqual({
       status: 'completed',
       turnId: 'turn-1',
-      requestId: 'request-1',
+      providerRequestId: 'request-1',
       providerId: 'provider-a',
       modelId: 'model-a',
       assistantMessage: '结论',
@@ -111,7 +113,7 @@ describe('runTurn', () => {
     });
 
     const running = runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider, request, store,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request, store,
       onEvent: (event) => published.push(event),
     });
     await terminalYielded;
@@ -134,7 +136,7 @@ describe('runTurn', () => {
     ]);
 
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider, request, store,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request, store,
       onEvent: (event) => published.push(event),
     });
 
@@ -153,7 +155,7 @@ describe('runTurn', () => {
     ]);
 
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider, request,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request,
       store: createMemoryTurnStore(), onEvent: (event) => published.push(event),
     });
 
@@ -173,7 +175,7 @@ describe('runTurn', () => {
     ]);
 
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider, request,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request,
       store: createMemoryTurnStore(), onEvent: (event) => published.push(event),
     });
 
@@ -197,7 +199,7 @@ describe('runTurn', () => {
     ]);
 
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider, request, store,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request, store,
       onEvent: (event) => published.push(event),
     });
 
@@ -209,7 +211,7 @@ describe('runTurn', () => {
   it('maps provider EOF without a terminal event to one invalid_response failure', async () => {
     const published: TurnEvent[] = [];
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', request,
+      turnId: 'turn-1', providerRequestId: 'request-1', request,
       provider: providerFrom([
         { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
         { type: 'content_delta', requestId: 'request-1', seq: 1, delta: '未完成正文' },
@@ -229,7 +231,7 @@ describe('runTurn', () => {
     });
 
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider, request,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request,
       store: createMemoryTurnStore(), onEvent: (event) => published.push(event),
     });
 
@@ -248,7 +250,7 @@ describe('runTurn', () => {
     ]);
 
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider, request, store,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request, store,
       onEvent: (event) => published.push(event),
     });
 
@@ -273,7 +275,7 @@ describe('runTurn', () => {
     const published: TurnEvent[] = [];
 
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider: providerFrom([]), request,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider: providerFrom([]), request,
       store: createMemoryTurnStore(), signal: controller.signal,
       onEvent: (event) => published.push(event),
     });
@@ -295,7 +297,7 @@ describe('runTurn', () => {
     });
 
     const running = runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider, request,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request,
       store: createMemoryTurnStore(), signal: controller.signal,
       onEvent: (event) => {
         published.push(event);
@@ -349,7 +351,7 @@ describe('runTurn', () => {
     const store = createMemoryTurnStore();
 
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider: providerFrom(events), request, store,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider: providerFrom(events), request, store,
       onEvent: (event) => published.push(event),
     });
 
@@ -380,7 +382,7 @@ describe('runTurn', () => {
     },
   ])('rejects $label as invalid_response', async ({ events }) => {
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider: providerFrom(events), request,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider: providerFrom(events), request,
       store: createMemoryTurnStore(),
     });
     expect(record).toMatchObject({ status: 'failed', failure: { kind: 'invalid_response' } });
@@ -422,7 +424,7 @@ describe('runTurn', () => {
   ])('rejects runtime $label outside the closed provider protocol without leaking transport fields', async ({ events }) => {
     const published: TurnEvent[] = [];
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider: providerFrom(events), request,
+      turnId: 'turn-1', providerRequestId: 'request-1', provider: providerFrom(events), request,
       store: createMemoryTurnStore(), onEvent: (item) => published.push(item),
     });
 
@@ -442,7 +444,7 @@ describe('runTurn', () => {
     ]);
 
     const record = await runTurn({
-      turnId: 'turn-1', requestId: 'request-1', provider, request, store: createMemoryTurnStore(),
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request, store: createMemoryTurnStore(),
       onEvent: (event) => published.push(event),
     });
 
