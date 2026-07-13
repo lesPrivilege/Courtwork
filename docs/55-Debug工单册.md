@@ -779,3 +779,19 @@ radio 密度修复+守护锁定+8 轮受控走查零 console。裁一：**部分
 
 报告：ACCEPTANCE.md 纯追加（契约半）+ 台账落 docs/52 批次八（走查半）。结论三问：A 线放行否；树面自足可 push 否；屏查有无 🔴。
 ```
+
+## 数字语境判例（2026-07-13，luna 中期抓获）+ 后续序
+
+839×2 为共享树数字（含 B 线 WIP），clean main 实测 753/817——非虚报，属**环境混同**：立判例——完工门数字一律取 clean detached worktree 实测，共享树数字不入报告；FABLE-HARNESS 记录随 luna 终报更正标注。后续序（用户定盘）：luna 收账 → pm-schemas 合流 main + 全量 build → **用户实测记录问题** → 派单（harness 底层仍归 Fable）。
+
+### LEGAL-DEMO-RUN 章程（备发，Fable @ Code——"文档穿上去的一刻"）
+
+```
+你（Fable @ Code）认领 LEGAL-DEMO-RUN：法律 Demo 全量跑通——合成卷宗从上传到带修订 Word 的全链首次穿越（合成数据即可，成就感时刻）。三件：
+1. 全链穿越：自产合同 PDF → ReadingView → 六段组装 → 模型（真 key 或 Scripted 双档）→ RiskList 真锚 → 门禁逐条 → 修订 docx 落产出——每站事件与 UI 呈现逐一目击记录。
+2. **防过拟合隔离审计（用户点名）**：demo 数据与 schema/harness 底层零渗透——机器断言：组装器/resolver/executor 零 demo 引用、零 fixture 特调分支（assert-no-demo-in-harness，与 assert-no-demo-in-real 成对）；demo 只经装配点注入，golden 考点住 demo 包不住机器。
+3. chat 侧对接 debug：harness 事件 → turn 卡五类/推理态/摘要的调用链逐段核（事件到卡不丢不错位、思考流摘要来源正确、citationStats 等观测字段呈现）。
+判例全套 + 数字语境判例（clean worktree 数字）。完工附全链录屏或逐站截图。
+```
+
+PM Demo（OPUS-VERT）照旧 = 兼容性与泛化代表。
