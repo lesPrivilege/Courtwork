@@ -2,6 +2,7 @@ import type {
   GenerationRequest,
   GenerationUsage,
   Provider,
+  ProviderFailureKind,
   ProviderStreamEvent,
 } from '@courtwork/provider/types';
 
@@ -36,6 +37,24 @@ const CANCELED_FAILURE: TurnFailure = {
   retryable: false,
 };
 
+const PROVIDER_FAILURE_KINDS: ReadonlySet<ProviderFailureKind> = new Set([
+  'auth',
+  'rate_limit',
+  'endpoint',
+  'model',
+  'timeout',
+  'network',
+  'protocol',
+  'invalid_response',
+  'canceled',
+]);
+const PROVIDER_FINISH_REASONS: ReadonlySet<string> = new Set([
+  'stop',
+  'length',
+  'content_filter',
+  'unknown',
+]);
+
 function protocolFailure(message: string): TurnFailure {
   return { kind: 'invalid_response', message, retryable: false };
 }
@@ -49,6 +68,12 @@ function validUsage(event: Extract<ProviderStreamEvent, { type: 'usage' }>): boo
     && event.inputTokens >= 0
     && Number.isInteger(event.outputTokens)
     && event.outputTokens >= 0;
+}
+
+function validProviderFailure(event: Extract<ProviderStreamEvent, { type: 'failed' }>): boolean {
+  return PROVIDER_FAILURE_KINDS.has(event.kind)
+    && typeof event.message === 'string'
+    && typeof event.retryable === 'boolean';
 }
 
 function nextProviderEvent(
@@ -108,6 +133,8 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
 
   let assistantMessage = '';
   let reasoningContent = '';
+  let pendingReasoning = '';
+  let reasoningStarted = false;
   let usage: GenerationUsage | undefined;
   let providerTerminal: ProviderTerminal | undefined;
   let providerStarted = false;
@@ -153,7 +180,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
       if (next.done) break;
       const event = next.value;
       if (providerTerminal) {
-        failure = protocolFailure(`Provider event ${event.type} arrived after terminal event ${providerTerminal.type}`);
+        failure = protocolFailure('Provider emitted an event after its terminal event');
         break;
       }
       if (event.requestId !== requestId) {
@@ -167,7 +194,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
       expectedProviderSeq += 1;
 
       if (!providerStarted && event.type !== 'started') {
-        failure = protocolFailure(`Provider stream must start with started, received ${event.type}`);
+        failure = protocolFailure('Provider stream must start with a valid started event');
         break;
       }
 
@@ -184,14 +211,28 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
           }
           break;
         case 'reasoning_delta':
-          if (event.delta.length > 0) {
-            if (reasoningContent.length === 0) emit({ type: 'reasoning_started' });
-            reasoningContent += event.delta;
-            emit({ type: 'reasoning_delta', delta: event.delta });
+          if (typeof event.delta !== 'string') {
+            failure = protocolFailure('Provider emitted an invalid reasoning delta');
+          } else if (event.delta.length > 0) {
+            if (!reasoningStarted) {
+              pendingReasoning += event.delta;
+              if (pendingReasoning.trim().length > 0) {
+                reasoningStarted = true;
+                reasoningContent = pendingReasoning;
+                pendingReasoning = '';
+                emit({ type: 'reasoning_started' });
+                emit({ type: 'reasoning_delta', delta: reasoningContent });
+              }
+            } else {
+              reasoningContent += event.delta;
+              emit({ type: 'reasoning_delta', delta: event.delta });
+            }
           }
           break;
         case 'content_delta':
-          if (event.delta.length > 0) {
+          if (typeof event.delta !== 'string') {
+            failure = protocolFailure('Provider emitted an invalid content delta');
+          } else if (event.delta.length > 0) {
             assistantMessage += event.delta;
             emit({ type: 'assistant_message_delta', delta: event.delta });
           }
@@ -206,8 +247,21 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
           }
           break;
         case 'completed':
+          if (!PROVIDER_FINISH_REASONS.has(event.finishReason)) {
+            failure = protocolFailure('Provider emitted an invalid completion reason');
+          } else {
+            providerTerminal = event;
+          }
+          break;
         case 'failed':
-          providerTerminal = event;
+          if (!validProviderFailure(event)) {
+            failure = protocolFailure('Provider emitted an invalid failure terminal');
+          } else {
+            providerTerminal = event;
+          }
+          break;
+        default:
+          failure = protocolFailure('Provider emitted an unknown stream event');
           break;
       }
 
