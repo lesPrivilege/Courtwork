@@ -9,7 +9,9 @@
   "scripts": {
     "test": "vitest run",
     "lint": "eslint .",
-    "build": "pnpm -r run build"
+    "build": "pnpm -r run build",
+    "site:guard": "node site/scripts/deslop-scan.mjs",
+    "site:build": "node site/scripts/build.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

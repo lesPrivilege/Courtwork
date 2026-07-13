@@ -1,0 +1,15 @@
+# SOL-FINALE visual audit
+
+- commit: `0e39fc2e99a25cdcbf7648b14c8c1fbc3c8b0355`
+- viewport: `1440×900@1x`
+- isolated preview: `http://127.0.0.1:1488` (port `1488`)
+- motion: `prefers-reduced-motion: reduce`; screenshot animations disabled
+- old screenshots: retired and removed by this capture pipeline
+
+- `01-first-install-welcome-1440.png`
+- `02-welcome-continuations-1440.png`
+- `03-sample-preview-open-1440.png`
+- `04-revision-signature-line-1440.png`
+- `05-batch-confirmation-gate-1440.png`
+- `06-chat-real-reply-reasoning-folded-1440.png`
+- `07-og-source-clean-workbench-1440.png`

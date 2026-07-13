@@ -1,0 +1,30 @@
+{
+  "commit": "0e39fc2e99a25cdcbf7648b14c8c1fbc3c8b0355",
+  "baseURL": "http://127.0.0.1:1488",
+  "port": "1488",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "deviceScaleFactor": 1,
+  "reducedMotion": "reduce",
+  "generatedAt": "2026-07-13T07:38:03.586Z",
+  "files": [
+    "01-first-install-welcome-1440.png",
+    "02-welcome-continuations-1440.png",
+    "03-sample-preview-open-1440.png",
+    "04-revision-signature-line-1440.png",
+    "05-batch-confirmation-gate-1440.png",
+    "06-chat-real-reply-reasoning-folded-1440.png",
+    "07-og-source-clean-workbench-1440.png"
+  ],
+  "sha256": {
+    "01-first-install-welcome-1440.png": "8c7d68ba2a95a9b22450861e301d6e011ff4a6ca8fed9a4d5a04fbdeedc8b0c6",
+    "02-welcome-continuations-1440.png": "e7644ea64cbf07f5a06f82a81d0d54a38209ef3dc4cad66952d92593df7b9dcb",
+    "03-sample-preview-open-1440.png": "f414ba25c24635ab1da9703c18b7c98e3b73af8054dd6d6d44b744555d99a317",
+    "04-revision-signature-line-1440.png": "ab5149a838a7fe7d794f5031fb4a1be0722d87fe748ccbb3a5135af70ea12627",
+    "05-batch-confirmation-gate-1440.png": "0433074f195ca7e31ff1366c88f48e5e68ebec3b63b350b258076492c8140f15",
+    "06-chat-real-reply-reasoning-folded-1440.png": "1765bf2c7a5e433e35ae5b70f5e00ce356d297693b2d809a8eaf2ac3642793e0",
+    "07-og-source-clean-workbench-1440.png": "cb45221de3268add1d23f7d79ed732578dc6a447b4e00ebc832de233c08b4965"
+  }
+}

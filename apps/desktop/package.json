@@ -28,7 +28,8 @@
     "icons:optimize": "svgo --folder src/icons/custom --config svgo.config.mjs",
     "icons:generate": "node scripts/generate-custom-icons.mjs",
     "icons:build": "pnpm icons:optimize && pnpm icons:generate && pnpm lint:icons",
-    "visual:audit": "node scripts/capture-visual-audit.mjs",
+    "visual:audit": "node scripts/capture-finale-audit.mjs",
+    "site:og": "node scripts/render-site-og.mjs",
     "tauri": "tauri"
   },
   "dependencies": {

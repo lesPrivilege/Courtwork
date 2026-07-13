@@ -32,6 +32,7 @@ apps/desktop/playwright-report/
 apps/desktop/src-tauri/target/
 apps/desktop/src-tauri/gen/schemas/
 *.tsbuildinfo
+site-dist/
 
 # 桌面安装包 / 构建产物（永不入库）
 *.dmg
