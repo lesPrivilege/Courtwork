@@ -1,4 +1,5 @@
 import { preflightDocx } from '@courtwork/reading-view/docx-security';
+import { Buffer } from 'buffer';
 import { zipSync, strToU8, strFromU8, type Zippable } from 'fflate';
 
 export type DocxFiles = Record<string, Uint8Array>;

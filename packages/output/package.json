@@ -18,6 +18,7 @@
     "@courtwork/reading-view": "workspace:*",
     "@courtwork/schemas": "workspace:*",
     "@xmldom/xmldom": "^0.9.10",
+    "buffer": "^6.0.3",
     "fflate": "^0.8.3",
     "zod": "^4.4.3"
   },

@@ -83,6 +83,9 @@ import { ScrollToLatest, useFollowScroll } from './chat/follow-scroll';
 import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
 import { useDismissOnOutside } from './hooks/useDismissOnOutside';
 import { createReviewTelemetryEmitter } from './telemetry/review-telemetry';
+import { compileDraftToDocx } from '@courtwork/output';
+import { caseOutputClient } from './output/case-output-client';
+import { compileConfirmedReviewToDocx } from './output/compile-review-output';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
@@ -90,6 +93,8 @@ type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft' | 'g
 
 const client = createDemoClient();
 const emitReviewTelemetry = createReviewTelemetryEmitter((event) => client.emitReviewTelemetry(event));
+const CONTRACT_OUTPUT_FILE = '合同审查报告.docx';
+const DRAFT_OUTPUT_FILE = '答辩意见.docx';
 
 const VIEW_LABELS: Record<WorkbenchView, string> = {
   timeline: '时间线',
@@ -171,7 +176,9 @@ export function App() {
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [continued, setContinued] = useState(false);
   const [compileOpen, setCompileOpen] = useState(false);
-  const [draftFrozen, setDraftFrozen] = useState(false);
+  const [compilePending, setCompilePending] = useState(false);
+  const [draftOutputExists, setDraftOutputExists] = useState(false);
+  const [contractOutputExists, setContractOutputExists] = useState(false);
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ phase: 'pending' });
   const [credentialProbed, setCredentialProbed] = useState(false);
@@ -436,9 +443,11 @@ export function App() {
     setReaderDoc(null);
     previewDismissedContext.current = null;
     manualPreviewSelected.current = false;
-    setDraftFrozen(false);
+    setDraftOutputExists(false);
+    setContractOutputExists(false);
     setDraft(INITIAL_DRAFT);
     setCompileOpen(false);
+    setCompilePending(false);
     setSelectedRiskId('risk-03');
     setSecondaryView(undefined);
     setActiveView('revision');
@@ -543,18 +552,6 @@ export function App() {
     emitReviewTelemetry({ type: 'review_item_opened', sessionId: 'demo-s3', itemRef: selectedRiskId, emittedAt: new Date().toISOString() });
   }, [selectedRiskId, selectedCaseId]);
 
-  useEffect(() => {
-    const requestId = session.confirmation?.requestId;
-    if (!requestId || !gate?.items.length || resolvedRequest.current === requestId) return;
-    if (!gate.items.every((item) => dispositions[item.itemRef])) return;
-
-    const dwellMs = gate.items.reduce((total, item) => total + Math.max(0, Date.now() - (openedAt.current[item.itemRef] ?? Date.now())), 0);
-    const expandedEvidenceKeys = gate.items.flatMap((item) => item.evidenceKeys).filter((key, index, all) => all.indexOf(key) === index);
-    const resolution = buildReviewResolution(gate.items, dispositions, { dwellMs, expandedEvidenceKeys });
-    resolvedRequest.current = requestId;
-    void client.confirmation.resolve(requestId, resolution).then(() => setReviewSubmitted(true));
-  }, [dispositions, gate, session.confirmation]);
-
   const selectedCase = selectedCaseId ? cases.find((item) => item.id === selectedCaseId) : undefined;
   const isWelcome = !selectedCase;
   const isDemoCase = Boolean(selectedCase?.isDemo) || isDemoCaseId(selectedCase?.id);
@@ -611,6 +608,7 @@ export function App() {
   const individualReady = selectedGate?.mode !== 'individual' || allEvidenceOpened;
   // 已处置条目退出批量池：批后计数归零禁钮，且批量永不覆写既有逐条处置（用户修正最高优先级）
   const batchRefs = gate?.items.filter((item) => item.mode === 'batch' && !dispositions[item.itemRef]).map((item) => item.itemRef) ?? [];
+  const draftFrozen = draftOutputExists;
   const comparing = secondaryView !== undefined;
   const usage = isDemoCase ? (flow === 'S3' ? 91 : 18) : 0;
   const progressDone =
@@ -625,6 +623,61 @@ export function App() {
         compressible: flow === 'S1' ? '0%' : '6%',
       }
     : null;
+
+  useEffect(() => {
+    let cancelled = false;
+    setDraftOutputExists(false);
+    setContractOutputExists(false);
+    if (!caseRoot) return;
+    void Promise.all([
+      caseOutputClient.exists(caseRoot, DRAFT_OUTPUT_FILE),
+      caseOutputClient.exists(caseRoot, CONTRACT_OUTPUT_FILE),
+    ]).then(([draftExists, contractExists]) => {
+      if (cancelled) return;
+      setDraftOutputExists(draftExists);
+      setContractOutputExists(contractExists);
+    }).catch(() => {
+      if (cancelled) return;
+      setDraftOutputExists(false);
+      setContractOutputExists(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [caseRoot]);
+
+  useEffect(() => {
+    const requestId = session.confirmation?.requestId;
+    if (!requestId || !gate?.items.length || resolvedRequest.current === requestId) return;
+    if (!gate.items.every((item) => dispositions[item.itemRef])) return;
+
+    const dwellMs = gate.items.reduce((total, item) => total + Math.max(0, Date.now() - (openedAt.current[item.itemRef] ?? Date.now())), 0);
+    const expandedEvidenceKeys = gate.items.flatMap((item) => item.evidenceKeys).filter((key, index, all) => all.indexOf(key) === index);
+    const resolution = buildReviewResolution(gate.items, dispositions, { dwellMs, expandedEvidenceKeys });
+    resolvedRequest.current = requestId;
+    void (async () => {
+      try {
+        await client.confirmation.resolve(requestId, resolution);
+        setReviewSubmitted(true);
+        if (!caseRoot || !riskList) throw new Error('本案尚未绑定可写入的案件目录');
+        const { docx } = compileConfirmedReviewToDocx({
+          riskList,
+          dispositions,
+          sourceMarkdown: contractSourceMd,
+          targetFileName: '04-设备采购合同.docx',
+          evidenceGrades: session.evidenceGrades,
+        });
+        await caseOutputClient.writeDocx(caseRoot, CONTRACT_OUTPUT_FILE, docx);
+        const exists = await caseOutputClient.exists(caseRoot, CONTRACT_OUTPUT_FILE);
+        if (!exists) throw new Error('Word 产物写入后未能在案件产出目录确认');
+        setContractOutputExists(true);
+        showSystemFeedback(`已写入本案「产出」目录：${CONTRACT_OUTPUT_FILE}`, true);
+      } catch (error) {
+        setContractOutputExists(false);
+        showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
+      }
+    })();
+  }, [caseRoot, dispositions, gate, riskList, session.confirmation, session.evidenceGrades]);
 
   const createCase = ({
     title,
@@ -794,16 +847,39 @@ export function App() {
 
   const revealOutputDocx = () => {
     if (!caseRoot) return;
-    void systemOpenClient.revealInFolder(caseOutputDocx(caseRoot), caseRoot).then((feedback) => {
+    void systemOpenClient.revealInFolder(caseOutputDocx(caseRoot, CONTRACT_OUTPUT_FILE), caseRoot).then((feedback) => {
       showSystemFeedback(feedback.message, feedback.ok);
     });
   };
 
-  const openOutputDocx = () => {
+  const openCaseOutputDocx = (fileName: string) => {
     if (!caseRoot) return;
-    void systemOpenClient.openFile(caseOutputDocx(caseRoot), caseRoot).then((feedback) => {
+    void systemOpenClient.openFile(caseOutputDocx(caseRoot, fileName), caseRoot).then((feedback) => {
       showSystemFeedback(feedback.message, feedback.ok);
     });
+  };
+
+  const openOutputDocx = () => openCaseOutputDocx(CONTRACT_OUTPUT_FILE);
+
+  const confirmDraftCompile = () => {
+    if (!caseRoot || compilePending) return;
+    setCompilePending(true);
+    void (async () => {
+      try {
+        const docx = compileDraftToDocx(draft);
+        await caseOutputClient.writeDocx(caseRoot, DRAFT_OUTPUT_FILE, docx);
+        const exists = await caseOutputClient.exists(caseRoot, DRAFT_OUTPUT_FILE);
+        if (!exists) throw new Error('Word 产物写入后未能在案件产出目录确认');
+        setDraftOutputExists(true);
+        setCompileOpen(false);
+        showSystemFeedback(`已写入本案「产出」目录：${DRAFT_OUTPUT_FILE}`, true);
+      } catch (error) {
+        setDraftOutputExists(false);
+        showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
+      } finally {
+        setCompilePending(false);
+      }
+    })();
   };
 
   const selectFlow = (next: ScenarioFlow) => {
@@ -943,7 +1019,7 @@ export function App() {
           onChange={setDraft}
           frozen={draftFrozen}
           onCompile={() => setCompileOpen(true)}
-          onOpenDocx={draftFrozen ? openOutputDocx : undefined}
+          onOpenDocx={draftFrozen ? () => openCaseOutputDocx(DRAFT_OUTPUT_FILE) : undefined}
         />
       );
     }
@@ -1229,7 +1305,11 @@ export function App() {
                       label="Ran command"
                       tool={flow === 'S3' ? 'review-contract' : 'organize-dossier'}
                       args={flow === 'S3' ? 'case=demo-linjiang scope=payment,acceptance,breach' : 'case=demo-linjiang corpus=20'}
-                      result={flow === 'S3' ? 'risk-list=6 output=contract-review.docx' : 'timeline=47 parties=14 conflicts=4'}
+                      result={flow === 'S3'
+                        ? contractOutputExists
+                          ? 'risk-list=6 output=contract-review.docx'
+                          : 'risk-list=6 gate=awaiting-review'
+                        : 'timeline=47 parties=14 conflicts=4'}
                     />
                     <div className="turn-event-stream" data-testid="event-stream">
                       <TurnCard kind="event" icon="chevron-right" eyebrow={flow === 'S1' ? 'D20' : 'D04'} title={flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'} status="success" testId="turn-event-start" />
@@ -1252,7 +1332,7 @@ export function App() {
                       }}
                       copyText={`${flow === 'S3' ? 'R' : 'E'}\n${demoArtifactCard.title}\n${demoArtifactCard.summary}`}
                     />
-                    {flow === 'S3' && (
+                    {flow === 'S3' && contractOutputExists && (
                       <TurnCard
                         kind="file"
                         icon="file-text"
@@ -1542,7 +1622,7 @@ export function App() {
         </section>)}
       </div>
 
-      {compileOpen && <div className="modal-backdrop" role="presentation"><section className="compile-dialog" role="dialog" aria-modal="true" aria-labelledby="compile-title"><h2 id="compile-title">编译为 Word 文档</h2><p>定稿后，本画布将转为只读存档。后续修改将在文书修订中逐条处理，无法返回起草状态。</p><div><button className="quiet-button" onClick={() => setCompileOpen(false)}>取消</button><button className="primary-button" onClick={() => { setDraftFrozen(true); setCompileOpen(false); }}>确认定稿并编译</button></div></section></div>}
+      {compileOpen && <div className="modal-backdrop" role="presentation"><section className="compile-dialog" role="dialog" aria-modal="true" aria-labelledby="compile-title"><h2 id="compile-title">编译为 Word 文档</h2><p>定稿后，本画布将转为只读存档。后续修改将在文书修订中逐条处理，无法返回起草状态。</p><div><button className="quiet-button" disabled={compilePending} onClick={() => setCompileOpen(false)}>取消</button><button className="primary-button" data-testid="confirm-draft-compile" disabled={compilePending} onClick={confirmDraftCompile}>{compilePending ? '正在写入…' : '确认定稿并编译'}</button></div></section></div>}
 
       <ProviderSetup
         open={providerSetupOpen}

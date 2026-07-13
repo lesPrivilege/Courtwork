@@ -23,6 +23,19 @@ export async function openWorkbench(page: Page) {
   await page.mouse.move(0, 0);
 }
 
+/** LAUNCH-FIX：走完 S3 六项门禁，等待真实 output 写入桥回报产物存在。 */
+export async function confirmDemoReview(page: Page) {
+  const panel = page.getByTestId('revision-panel');
+  await panel.getByRole('button', { name: '批量确认 4 项' }).click();
+  await panel.locator('[data-risk-id="risk-03"]').click();
+  await panel.getByRole('button', { name: /展开原文/ }).click();
+  await panel.getByRole('button', { name: '确认', exact: true }).click();
+  await panel.locator('[data-risk-id="risk-01"]').click();
+  await panel.getByRole('button', { name: /展开原文/ }).click();
+  await panel.getByRole('button', { name: '确认', exact: true }).click();
+  await page.getByTestId('output-docx-card').waitFor();
+}
+
 /** 十四章：从浏览器态返回四模块列（模块级断言前调用）。 */
 export async function openModuleList(page: Page) {
   const back = page.getByTestId('preview-back');

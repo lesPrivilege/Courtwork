@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { confirmDemoReview, openWorkbench } from './helpers';
 
 // —— RP-2.10 三卡一纸 + 品牌 icon 推理动画（docs/49 第十二章 · docs/55 #26.2/#26.3） ——
 
@@ -45,6 +45,7 @@ test('chat 内唯 question/门禁为轻卡，event/artifact/file 降扁平 messa
   const artifact = page.getByTestId('turn-card-artifact');
   await expect(artifact).toHaveCSS('border-radius', '0px');
   await expect(artifact).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await confirmDemoReview(page);
   const file = page.getByTestId('output-docx-card');
   await expect(file).toHaveCSS('border-radius', '0px');
   await expect(file).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
