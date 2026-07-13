@@ -1046,3 +1046,35 @@ RELEASE-1 验收表「`pnpm lint` 零 error」为**假绿记录**：历史验证
 回归：desktop Vitest **99/99**；`pnpm lint` exit 0；`pnpm -r build` exit 0；独立端口 `1422` 的 16 门禁全部通过，Playwright floor **190→191**，全量 **191/191**。
 
 按“实现与验收分离”不变量，本会话只记录实现与自测，`LUNA-UI-001` 正式关闭仍须另一验收会话复验。
+
+---
+
+## LAUNCH-FIX 独立验收（2026-07-13）
+
+验收对象：`origin/codex/launch-fix@559d8d9`；环境：全新 detached worktree `/Users/lesprivilege/Projects/Courtwork-launch-fix-accept`，`pnpm install --frozen-lockfile`，Playwright 独立端口 `1521/1522`，未复用共享 dev server。
+
+结论：**三项承诺护栏全部放行；允许合流 main 并恢复 SOL-LAUNCH。** 验收中发现并修复一项实现级缺口，提交 `f4a9fb1 fix-by-acceptance: rederive Word freeze after artifact removal`；无契约改动、无 `[需架构拍板]` 项。
+
+### 1. 遥测真开关
+
+- 运行码静态核对：`App.tsx` 三类事件（`review_item_opened`、`review_evidence_expanded`、`review_disposition_submitted`）只调用 `emitReviewTelemetry`；唯一 `.emitReviewTelemetry(` 直连仅存在于门后 sink 装配行。
+- 关闭实测：真实 spy sink 收到 **0/3** 事件；开→关→开逐发射重读，sink 只收到第 1、3 枚。定向 Vitest **1 file / 2 tests passed**。
+- 拔门变异：临时把 `if (!readEnabled()) return` 改为无条件 sink，原测试实跑 **2/2 failed**；首例明确显示 sink 被调用 3 次，第二例明确多出 `review_evidence_expanded`。随后用补丁原样恢复，复跑 **2/2 passed**，worktree 无变异残留。
+
+### 2. Word 真接线与冻结权威
+
+- S3 UI：确认前 `output-docx-card` 数量为 0；完成六项门禁后复用 `RiskList → RevisionInstructionSet → applyRevisionInstructionSet`，卡片出现并可打开/在访达显示。
+- S4 UI：确认编译后桥回报 `答辩意见.docx` 存在，起草面才进入 `.frozen`；浏览器宿主仅承担 UI 接线测试，不作为磁盘证据。
+- 删除反例首次实跑稳定红：删除浏览器宿主产物并派发窗口 focus 后，旧实现仍返回 `draft-panel frozen`。验收修复 `f4a9fb1` 后，同一用例证实 focus 会重新查询存在性，冻结与“打开 Word”能力均撤回。
+- 真实磁盘证据：Rust 测试把仓内 **37,601 bytes 的真实 OOXML DOCX** 写到临时案件根的 `产出/答辩意见.docx`，核对绝对路径、长度、逐字节内容与 `exists=true`；随后真实 `remove_file`，复查 `exists=false`。`../escape.docx`、`nested/a.docx`、`/tmp/escape.docx`、非 docx 扩展名均被拒。
+- Rust 全量：**18/18 passed**；Word/browser 客户端定向：**2 files / 3 tests passed**；`system-open.spec.ts`：**5/5 passed**。
+
+### 3. 全门回归
+
+- root Vitest：**104 files / 850 tests passed**。
+- desktop Vitest：**24 files / 106 tests passed**。
+- `pnpm lint`：exit 0；`pnpm -r build`：11/11 workspace projects exit 0。
+- 16 道静态门禁：全部 exit 0；Playwright 独立端口 `1521` 全量 **192/192 passed**（4 workers），独立端口 `1522` 顺序复跑 **192/192 passed**（1 worker）。
+- 环境事实：clean install 后若在 workspace 依赖尚无 `dist` 时直接单跑 output 跨包测试，会因 export 指向未构建产物而找不到模块；先执行仓库标准拓扑 `pnpm -r build` 后定向/全量均绿。此为现行 workspace 测试顺序要求，不是产品路径红项。
+
+最终放行：**是**。`559d8d9 + f4a9fb1 + 本验收记录` 可由收账会话合流 main；本验收会话不自行 merge/push main。

@@ -874,8 +874,9 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - **思考流摘要来源核验**：ThinkingStream content = session.progress 序列（join），S3 demo 呈现即 progress 事件原文——来源正确；真事件流（无 progress）落静态兜底文案，reasoningContent（ScriptedProvider 已回携）到思考流的接线仍属 T-provider.1 挂账，不在本单造新 UI。
 - **台账（移交）**：①S1 录制事件序仍为演示节奏（confirmation_resolved 省略、PartyGraph 越门禁出现）——随 S1 流真接线一并对齐；②session.todo 投影无 UI 消费方（todo_snapshot 事件到卡"不丢"的例外位）——归 docs/53 提案④ steps 载体化的落地面；③锚点消费方契约（textRange 为块内坐标系，PDF 页内偏移跨页重叠）——溯源 hover/click 接真 PDF 卷宗时必须按 textLayerVersion/page 选块（判例详见 core SPEC LEGAL-DEMO-RUN 节）。
 
-## LAUNCH-FIX · 承诺对照三红修实（2026-07-13，实现留痕，待异会话验收）
+## LAUNCH-FIX · 承诺对照三红修实（2026-07-13，异会话验收通过）
 
 - **遥测真开关**：`telemetry/review-telemetry.ts` 每枚发射时重读设置，不缓存快照；App 三个发射点零直连 sink。反例测试使用真实 spy sink 覆盖 opened/expanded/disposition 三类，关闭时 0 事件，并锁开→关→开即时生效。
 - **Word 真接线**：S3 六项门禁完成后，desktop 装配点复用 LEGAL-DEMO-RUN 的 `RiskList → RevisionInstructionSet → applyRevisionInstructionSet` 链，只编译已确认项；确认前 `output-docx-card` 结构性不存在。起草画布走 output 的 `compileDraftToDocx`，两条路径均经 `output/case-output-client.ts` 写案件 `产出` 子目录。
 - **bridge 与冻结权威**：Tauri 命令只接受案件根 + 单一 `.docx` 文件名，拒绝穿越/子路径/符号链接，以临时文件同步后 rename；浏览器宿主保持同语义供 E2E。`draftFrozen` 不再有 setter，只由桥查询到 `答辩意见.docx` 存在派生。端到端锁“确认前无产物卡 → 六项门禁 → 卡出现”和“确认编译 → 产出存在 → 冻结”。Playwright 实测 192 条，floor 升至 192。
+- **异会话验收补强**：验收发现外部删除产物后同一窗口仍缓存冻结态，先以 E2E 稳定证红，再由 `fix-by-acceptance` `f4a9fb1` 补为窗口重新聚焦时重查宿主存在性；删除后冻结失效。Rust 用真实 37,601-byte DOCX fixture 实盘写入/逐字节核对/删除，并实跑绝对路径与穿越拒绝。完整证据见 `apps/desktop/ACCEPTANCE.md`。
