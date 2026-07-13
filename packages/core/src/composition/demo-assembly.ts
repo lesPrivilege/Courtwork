@@ -12,8 +12,8 @@ import {
   type PartyVerifyInput,
 } from '@courtwork/tools';
 import { createToolRegistry, type ToolRegistry } from '../tools/tool-registry.js';
-import { createScriptedProvider } from '../provider/scripted-provider.js';
-import type { Provider } from '../provider/types.js';
+import { createScriptedProvider } from '@courtwork/provider/scripted';
+import type { Provider } from '@courtwork/provider/types';
 import type { MaterialInput } from '../assembly/segments.js';
 
 /**

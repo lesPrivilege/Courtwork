@@ -39,9 +39,11 @@ test.describe('SET-1 设置页', () => {
     await expect(page.getByTestId('settings-model-summary')).toContainText('Deep');
     // 默认面不泄露模型名（能力全量、暴露最小）
     await expect(page.getByTestId('settings-model')).toBeHidden();
-    // developer 层展开后字段全量可设——证"字段都在"而非删字段
+    // developer 层只保留受控 DeepSeek 模型；provider/base URL 不进入产品配置。
     await page.getByTestId('settings-developer').locator('summary').click();
-    await page.getByTestId('settings-provider').selectOption('deepseek');
+    await expect(page.getByTestId('settings-developer')).toContainText('DeepSeek');
+    await expect(page.getByTestId('settings-provider')).toHaveCount(0);
+    await expect(page.getByTestId('settings-base-url')).toHaveCount(0);
     await page.getByTestId('settings-model').fill('deepseek-v4-pro');
     await expect(page.getByTestId('settings-model')).toHaveValue('deepseek-v4-pro');
     await page.getByTestId('settings-maxusd').fill('8');

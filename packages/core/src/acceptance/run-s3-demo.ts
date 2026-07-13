@@ -14,7 +14,7 @@ import type { SessionEvent } from '../events/types.js';
 import { createFileConfirmationStore } from '../session/confirmation-store.js';
 import { createFileRevisionEventStore } from '../revision/revision-store.js';
 import { runScenario, resumeScenario, type ScenarioExecutorDeps } from '../scenario-executor/executor.js';
-import type { Provider } from '../provider/types.js';
+import type { Provider } from '@courtwork/provider/types';
 import { buildDemoS3Runtime, loadDemoS3Materials } from '../composition/demo-assembly.js';
 
 const ORIGINAL_DOCX_PATH = join(import.meta.dirname, '..', '..', '..', 'output', 'test', 'fixtures', 'original.docx');

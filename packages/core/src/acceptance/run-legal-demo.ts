@@ -20,7 +20,7 @@ import type { CitationStats, SessionEvent } from '../events/types.js';
 import { createFileConfirmationStore } from '../session/confirmation-store.js';
 import { createFileRevisionEventStore } from '../revision/revision-store.js';
 import { runScenario, resumeScenario, type ScenarioExecutorDeps, type RevisionInput } from '../scenario-executor/executor.js';
-import type { GenerationRequest, Provider } from '../provider/types.js';
+import type { GenerationRequest, Provider } from '@courtwork/provider/types';
 import type { PackageRegistries } from '@courtwork/registry';
 import {
   buildLegalDemoRunRuntime,

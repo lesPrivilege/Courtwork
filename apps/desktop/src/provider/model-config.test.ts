@@ -6,7 +6,6 @@ import {
   modelDisplayName,
   reasoningLabel,
   saveModelConfig,
-  withProvider,
   effectiveBaseUrl,
   modelOptions,
   reasoningRequest,
@@ -24,25 +23,16 @@ describe('model-config', () => {
     expect(reasoningLabel('standard')).toBe('标准');
   });
 
-  it('persists provider/model/reasoning round-trip', () => {
-    const next = { providerId: 'custom' as const, modelId: 'law-local', reasoning: 'deep' as const, baseUrl: 'https://gateway.example/v1' };
+  it('persists DeepSeek model/reasoning and discovered models round-trip', () => {
+    const next = { ...DEFAULT_MODEL_CONFIG, modelId: 'deepseek-v4-pro', reasoning: 'deep' as const, discoveredModels: ['deepseek-v4-pro'] };
     saveModelConfig(next);
     expect(loadModelConfig()).toEqual(next);
   });
 
-  it('withProvider falls back to first model of new provider', () => {
-    const switched = withProvider(DEFAULT_MODEL_CONFIG, 'custom');
-    expect(switched.providerId).toBe('custom');
-    expect(switched.modelId).toBe('');
-  });
-
-  it('presets fill URL/models while custom keeps an editable URL and discovered models', () => {
+  it('uses the registered DeepSeek endpoint and never accepts an editable base URL', () => {
     expect(effectiveBaseUrl(DEFAULT_MODEL_CONFIG)).toBe('https://api.deepseek.com/v1');
-    const custom = withProvider(DEFAULT_MODEL_CONFIG, 'custom');
-    expect(custom.baseUrl).toBe('');
-    expect(effectiveBaseUrl({ ...custom, baseUrl: 'https://gateway.example' })).toBe('https://gateway.example/v1');
-    expect(modelOptions({ ...custom, modelId: 'local-law', discoveredModels: ['local-law', 'other'] }))
-      .toEqual(['local-law', 'other']);
+    expect(modelOptions({ ...DEFAULT_MODEL_CONFIG, modelId: 'deepseek-v4-pro', discoveredModels: ['deepseek-v4-pro'] }))
+      .toEqual(['deepseek-v4-pro', 'deepseek-v4-flash']);
   });
 
   it('reasoning request delegates to the declared quirk route', () => {
@@ -50,12 +40,22 @@ describe('model-config', () => {
     expect(reasoningRequest({ ...DEFAULT_MODEL_CONFIG, reasoning: 'deep' })).toEqual({
       model: 'deepseek-v4-flash', extraBody: { thinking: { type: 'enabled' } },
     });
-    expect(reasoningRequest({ ...withProvider(DEFAULT_MODEL_CONFIG, 'custom'), modelId: 'law-local', reasoning: 'deep' }))
-      .toEqual({ model: 'law-local', extraBody: { reasoning_effort: 'high' } });
   });
 
-  it('0.1 provider 选择只暴露 DeepSeek 与通用自定义入口', async () => {
+  it('0.1 product registry exposes only DeepSeek', async () => {
     const { PROVIDER_OPTIONS } = await import('./model-config');
-    expect(PROVIDER_OPTIONS.map((provider) => provider.id)).toEqual(['deepseek', 'custom']);
+    expect(PROVIDER_OPTIONS.map((provider) => provider.id)).toEqual(['deepseek']);
+  });
+
+  it('migrates legacy custom/baseUrl storage back to the DeepSeek default', () => {
+    const store = new Map<string, string>();
+    store.set('courtwork.model-config.v1', JSON.stringify({
+      providerId: 'custom', modelId: 'law-local', reasoning: 'deep', baseUrl: 'https://gateway.example/v1',
+    }));
+    __setModelConfigStoreForTests({
+      getItem: (key) => store.get(key) ?? null,
+      setItem: (key, value) => store.set(key, value),
+    });
+    expect(loadModelConfig()).toEqual(DEFAULT_MODEL_CONFIG);
   });
 });

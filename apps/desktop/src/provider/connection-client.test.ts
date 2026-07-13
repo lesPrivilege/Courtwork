@@ -38,6 +38,7 @@ describe('provider connection smoke probe', () => {
     installProviderConnectionTestHooks().setResult({ phase: 'failed', failKind: 'endpoint' });
     const result = await providerConnectionClient.validate(DEFAULT_MODEL_CONFIG);
     expect(result.phase).toBe('failed');
-    expect(result.failureMessage).toContain('Base URL');
+    expect(result.failureMessage).toContain('DeepSeek');
+    expect(result.failureMessage).not.toContain('Base URL');
   });
 });

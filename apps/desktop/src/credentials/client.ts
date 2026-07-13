@@ -61,7 +61,7 @@ export const FAIL_KIND_MESSAGES: Record<CredentialFailKind, string> = {
   missing: KEYCHAIN_FAIL_MESSAGE,
   platform: KEYCHAIN_FAIL_MESSAGE,
   rate_limited: '服务商暂时限制了请求，请稍后重试',
-  endpoint: '服务地址无法完成请求，请检查 Base URL',
+  endpoint: 'DeepSeek 服务地址暂时无法完成请求，请稍后重试',
   model: '当前模型不可用，请从模型列表选择或手动填写',
   timeout: '服务商响应超时，请稍后重试',
   network: '暂时无法连接服务商，请检查网络后重试',

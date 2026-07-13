@@ -1,8 +1,12 @@
 # SPEC: packages/core（W6）
 
-状态：已完成（0.1 DeepSeek-first；含 PRV-1 provider 自配路由声明）
+状态：已完成；provider 实现已由 PROVIDER-1 迁至 `@courtwork/provider`，本层只消费协议
 
 ## 现行架构工单（2026-07-13）
+
+### PROVIDER-1 · core 边界收口（已实现，待独立验收）
+
+依据 ADR-007，provider port、DeepSeek profile、OpenAI wire、SSE、结构化输出与计价已迁至 `packages/provider`。core 生产逻辑直接消费同一 `Provider` / `Generation*` 协议，`ScriptedProvider` 测试形制不变；旧 `src/provider/` 实现目录已清空，`src/provider-compat/` 仅保留三个一行薄重导出以兼容既有 core 子路径，不含第二份实现或 DeepSeek wire 分支。下文 T-provider/HARNESS-0.1 段落属于迁包前历史记录，其中 custom 可用与实现住 `src/provider/` 的陈述已由 ADR-007 和本节取代。
 
 ### TURN-1 · 模型回合生命周期
 
@@ -41,7 +45,7 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 - transport 仅重试明确返回的 429/5xx；超时与不确定网络错误不重试，避免同一生成重复计费。
 - S3 golden 同时检查事件骨架与预埋锚点（至少 5/7）；DIFF 设非零退出，空 `RiskList` 不再假绿。resolver/合同正文组装照 `b2ba682` 留给 PACKAGE-ABI 之后的 HARNESS-1。
 
-## HARNESS-0.1 / Provider 历史决策（2026-07-12；产品入口已由 ADR-007 覆盖）
+## HARNESS-0.1 / Provider 历史决策（2026-07-12；现由 ADR-007 取代冲突项）
 
 本节保留当时实现源流，不再定义现行产品准入。2026-07-13 起以 [ADR-007](../../docs/decisions/ADR-007-provider-turn-protocol.md) 和 `packages/provider/SPEC.md` 为准：通用 OpenAI-compatible adapter 保留，但 custom 产品入口与任意 base URL 退役，当期只登记 DeepSeek。
 

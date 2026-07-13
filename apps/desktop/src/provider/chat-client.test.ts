@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createKeychainChatFetch, sendChatTurn } from './chat-client';
-import { DEFAULT_MODEL_CONFIG, withProvider } from './model-config';
+import { DEFAULT_MODEL_CONFIG, type ModelConfig } from './model-config';
 
 function sseResponse(lines: string[], status = 200): Response {
   return new Response(lines.join('\n'), {
@@ -51,21 +51,11 @@ describe('chat 面真 API 客户端（Rust 窄面代理 + core 组装复用）',
     expect(body.thinking).toEqual({ type: 'disabled' });
   });
 
-  it('custom 档按 OpenAI 兼容语义构造临时声明，baseUrl 来自用户配置', async () => {
-    let url = '';
-    const fetchImpl: typeof fetch = async (input, init) => {
-      url = String(input);
-      const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
-      expect(body.reasoning_effort).toBe('low');
-      return sseResponse(['data: {"choices":[{"delta":{"content":"ok"}}]}', 'data: [DONE]']);
-    };
-    const custom = {
-      ...withProvider(DEFAULT_MODEL_CONFIG, 'custom'),
-      baseUrl: 'https://llm.example.internal',
-      modelId: 'internal-model',
-    };
-    await sendChatTurn(custom, [{ role: 'user', content: 'hi' }], { fetchImpl });
-    expect(url).toBe('https://llm.example.internal/v1/chat/completions');
+  it('rejects a forged custom provider id instead of guessing OpenAI-compatible capabilities', async () => {
+    const forged = { ...DEFAULT_MODEL_CONFIG, providerId: 'custom', modelId: 'internal-model' } as unknown as ModelConfig;
+    const fetchImpl: typeof fetch = async () => sseResponse(['data: [DONE]']);
+    await expect(sendChatTurn(forged, [{ role: 'user', content: 'hi' }], { fetchImpl }))
+      .rejects.toThrow(/未登记|not registered/i);
   });
 
   it('鉴权失败原样进入 core 分型（401 → 拒绝并携带 provider 语义）', async () => {

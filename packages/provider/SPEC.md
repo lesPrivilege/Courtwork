@@ -1,6 +1,6 @@
 # SPEC: packages/provider
 
-状态：ADR-007 已接受；PROVIDER-1 待实现
+状态：ADR-007 已接受；PROVIDER-1 已实现，待独立验收
 
 ## 职责
 
@@ -21,6 +21,14 @@
 - 既有 OpenAI wire、SSE、structured-output、pricing、reasoning route 与 smoke 测试迁移后全绿，并有 custom profile/任意 base URL 不进入产品注册表的触红测试；
 - desktop 不再显示或提交 custom/base URL；key 仍只写钥匙串且 JS 无读回明文路径；
 - `pnpm -r build`、`pnpm lint`、`pnpm test` 与隔离端口 desktop 全量 Playwright 实跑；由不同会话独立验收。
+
+### PROVIDER-1 实现留痕（2026-07-13）
+
+- `@courtwork/provider` 已成为唯一实现位置：provider port、错误、ScriptedProvider、OpenAI Chat Completions adapter、HTTP/SSE、结构化输出、计价、smoke 与 DeepSeek quirk 均从 core 迁入；core 内部直接消费新包，`src/provider-compat/` 只保留三个显式薄重导出以兼容既有 `@courtwork/core/provider-*` ABI。
+- `registry.ts` 以 descriptor 登记产品 provider；`ProviderId` 从 `PRODUCT_PROVIDER_IDS` 推导，当期闭集仅 `deepseek`。未知 id、`custom` 与任意 URL 不会得到能力 profile，也不能进入 chat 组装。
+- desktop 直接消费新包的浏览器安全子路径；遗留 `custom/baseUrl` 本地配置回落 DeepSeek 默认值。凭证引导和 Settings 不再渲染 provider selector 或 Base URL，仍保留钥匙串 key、模型发现/手填与 standard/deep reasoning。
+- `package-boundary.test.ts` 同时扫描 manifest/生产源码，并以注入的 core/demo 反例自证；另锁 core provider 目录只能是薄重导出。原 OpenAI wire、SSE、structured-output、pricing、reasoning route、smoke 与 ScriptedProvider 测试随源码迁移。
+- 本批明确未修改 `apps/desktop/src-tauri/`：Rust 仍携旧 base URL/custom 兼容注释与请求形态，统一 descriptor 解析、真实逐帧流和连接状态正交继续属于 PROVIDER-2。
 
 ## PROVIDER-2 · 单一请求路径与真实流
 

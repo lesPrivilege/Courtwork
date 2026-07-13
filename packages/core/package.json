@@ -11,16 +11,16 @@
       "default": "./dist/index.js"
     },
     "./provider-quirks": {
-      "types": "./dist/provider/quirk-profile.d.ts",
-      "default": "./dist/provider/quirk-profile.js"
+      "types": "./dist/provider-compat/provider-quirks.d.ts",
+      "default": "./dist/provider-compat/provider-quirks.js"
     },
     "./provider-openai": {
-      "types": "./dist/provider/openai-compatible-provider.d.ts",
-      "default": "./dist/provider/openai-compatible-provider.js"
+      "types": "./dist/provider-compat/provider-openai.d.ts",
+      "default": "./dist/provider-compat/provider-openai.js"
     },
     "./provider-types": {
-      "types": "./dist/provider/types.d.ts",
-      "default": "./dist/provider/types.js"
+      "types": "./dist/provider-compat/provider-types.d.ts",
+      "default": "./dist/provider-compat/provider-types.js"
     },
     "./generic-chat": {
       "types": "./dist/assembly/generic-chat.d.ts",
@@ -37,6 +37,7 @@
     "real:s3": "tsx scripts/real-s3-run.ts"
   },
   "dependencies": {
+    "@courtwork/provider": "workspace:*",
     "@courtwork/schemas": "workspace:*",
     "@courtwork/registry": "workspace:*",
     "@courtwork/tools": "workspace:*",
