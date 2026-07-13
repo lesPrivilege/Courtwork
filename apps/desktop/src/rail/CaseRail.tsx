@@ -9,6 +9,7 @@ import type { ScenarioFlow } from '../protocol/client';
 import { OriginalsZone } from '../system/OriginalsZone';
 import { ArchiveGlyph } from '../workbench/MiniIcon';
 import { Icon } from '../workbench/Icon';
+import { BrandMarkIcon } from '../icons/custom-icons.generated';
 import { useRef, useState } from 'react';
 import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 import {
@@ -311,7 +312,15 @@ export function CaseRail({
       />
       <div className="case-expanded">
         <header className="panel-head rail-head">
-          <h2 className="rail-wordmark">Courtwork</h2>
+          <h2 className="rail-wordmark">
+            <BrandMarkIcon
+              aria-hidden="true"
+              className="rail-brand-mark"
+              data-testid="brand-mark"
+              strokeWidth={1.35}
+            />
+            <span className="rail-wordmark-label">Courtwork</span>
+          </h2>
           <i />
           <button
             className="rail-add-button"

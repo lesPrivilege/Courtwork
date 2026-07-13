@@ -963,3 +963,12 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - **真机坐标证据**：隔离 Tauri dev 窗在 1440×859 与最小支持 1180×720 两档实跑；1180 档 Accessibility 读取 close/minimize/zoom 均为 `16×16pt`，三者中心 y=`57pt`，同排 WebView collapse 控件中心 y=`58pt`（误差 1pt）。窗口收窄后组内间距、标题中线与右缘按钮均随容器重排，没有留在旧屏幕坐标。
 - **机器锁**：`chrome-in-card.spec.ts` 先稳定证红旧假阳性（动态锚不存在、双收拢仍留右卡），再锁卡内所有权、AppKit 锚框/应用按钮互斥、关闭钮圆周内含、左右 8px/12px 同基线、中间 L0 全高，以及三档 resize 的 Chat 中线。Rust 两反例锁按钮组间距/同排与锚框越界拒绝；`lint:rp211` / `lint:rp291` 同步读取 `WindowChrome.tsx`。Playwright floor `193→194`。
 - **全量审计连带**：单 worker 全量首轮抓到命令面板挂载后用下一帧才聚焦输入框的竞态；用户在面板出现后立即按 `ArrowDown` 时事件可能落到页面、首项“留在原地”。输入框补原生 `autoFocus` 作同步主路径，既有 `requestAnimationFrame` 保留为 WebView 兜底；原方向键断言不放宽。
+
+## BRAND-1 · CaseRail 静态品牌锁定区（2026-07-13，实现留痕）
+
+- 展开态 CaseRail 的 `Courtwork` 文字左侧接入既有生成组件 `BrandMarkIcon`；母题仍是 `brand-mark.svg` 的一根竖线 + 三根横线，沿用源文件 `1.35` 线宽，不修改 SVG 节点。
+- 标记固定为 `17×17px`，与文字间距 `7px`，使用 `--text-primary`；品牌 SVG `aria-hidden`，可访问名称继续由可见 `Courtwork` 标题承担。
+- 品牌位不增加底座、背景、边框、圆角、阴影、hover、入场、磁吸或其他动效。`emil-design-eng` 的高频固定元素纪律与本工单的静态边界一致。
+- `chrome-in-card.spec.ts` 先在旧纯文字实现上以“SVG 期望 1、实际 0”稳定证红，再锁定：锁定区恰一枚 SVG、无 `img`/`rect`、标记在文字左侧、尺寸 `16–18px`、间距 `6–8px`、垂直中心误差不超过 `1px`，且锁定区与 SVG 均无背景/边框/圆角/阴影。
+- 隔离预览 `http://127.0.0.1:1532`、`900px @1x`、`prefers-reduced-motion: reduce`、截图动画禁用；证据位于 `/tmp/courtwork-brand-1-1180.png`（最小视口按既有响应式规则收起 CaseRail，SHA-256 `eac388e81014eaf5982c0ecde5c95b1d8b8615d8481b863dc09dab5155ec5fb7`）与 `/tmp/courtwork-brand-1-1440.png`（展开态品牌锁定区，SHA-256 `331acb299e5a61dbfb3235d441a19292e6f7cda563f8ad4f06fba2493a77dce9`）。
+- 最终门禁：全仓 build 12/12 workspace、ESLint 通过、Vitest 106 files / 856 tests；desktop 静态门禁全绿且 Playwright 198 条首轮四 worker 为 195 绿，失败的 follow-scroll / archive popover / chat hierarchy 三项均与本单文件无交集，换独立端口单 worker 完整复跑三文件 29/29 通过。BRAND-1 新契约在两轮均通过。
