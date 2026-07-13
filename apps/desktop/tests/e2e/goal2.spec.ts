@@ -9,16 +9,17 @@ test.describe('GOAL-2 · #14 矩阵 hover 溯源预览', () => {
     await page.getByTestId('view-matrix').click();
     await expect(page.getByTestId('matrix-panel')).toBeVisible();
     const firstCell = page.getByTestId('matrix-panel').locator('tbody td').first();
-    await firstCell.locator('button').hover();
-    const peek = firstCell.getByTestId('matrix-cell-peek');
+    const quoteTrigger = firstCell.locator('.cell-peek-anchor > button');
+    await quoteTrigger.hover();
+    const peek = firstCell.locator('[data-testid^="matrix-cell-peek-"]');
     await expect(peek).toBeVisible();
     // 引语走 verified 双轨（mono + verifiedBg）或诚实"未提及"，二者必居其一
     const hasQuote = await peek.locator('q').count();
     const hasHonestEmpty = await peek.locator('em').count();
     expect(hasQuote + hasHonestEmpty).toBeGreaterThanOrEqual(1);
-    await expect(peek.locator('small')).toContainText('置信');
+    await expect(peek.locator('small').last()).toContainText('置信');
     // 数据区静止：hover 不产生位移动画（浮层是显隐不是动效）
-    await expect(firstCell.locator('button')).toHaveCSS('transform', 'none');
+    await expect(quoteTrigger).toHaveCSS('transform', 'none');
   });
 });
 

@@ -29,6 +29,14 @@
 3. 隔离端口生成 1180 / 1280 / 1440 / 1600 四档工作台截图；manifest 必须记录实际 HEAD、viewport、端口、哈希与 reduced-motion，旧提交截图不得冒充现况。
 4. 完成 desktop 定向测试、全量 Playwright、`pnpm -r build`、`pnpm lint`、`pnpm test`；由不同会话在 clean worktree 独立验收。
 
+实现记录（2026-07-13）：
+
+- 基线已有 `7a60764` 的首轮 minimap flush 补丁，但 1180×900 下 40 轮 Graph → Timeline 快切（偶数轮仅等 5ms）仍稳定触发 7 条 `this.options is undefined` pageerror。新回归同时记录未过滤的 `pageerror` 与 console error，末尾等待 1200ms 覆盖 rAF、render 尾段与 minimap 迟发回调交错。
+- 最小修复保留 minimap `delay=0`；cleanup 不再依赖提前翻转的 `instance.rendered`，而是始终等完整 render promise settle，再留 32ms 回调清空窗口后销毁 Graph。未吞异常、未过滤 console、未 patch 依赖，也未改 `PartyGraph`、renderer ABI、主题或布局。
+- 修后同一回归 `--repeat-each=5` 连续 5/5（共 200 轮）通过；关系选择、14/15 dagre、缩放、fit view 与 minimap 定向 5/5；desktop Vitest 24 files / 106 tests；全仓 Vitest 104 files / 850 tests；隔离端口 `:1525` 全量 Playwright 194/194（single worker）。`pnpm -r build`、`pnpm lint` 均 exit 0，仅保留既有 chunk size warning。
+- 视觉审计在独立端口 `:1523` 基于实际 HEAD `304daac` 生成 `polish-p0-graph-{1180,1280,1440,1600}.png`；[`visual-audit/manifest.json`](visual-audit/manifest.json) 逐图记录 viewport、SHA-256、`reducedMotion=reduce` 与动画禁用。生成器强制显式 loopback 隔离端口并拒绝共享 `:1420`，旧截图已退役。
+- 全量 E2E 前置门另暴露 `e6d6575` 文档路径迁移把 Thinking CSS slice 的 start/end 改成同一 marker，使门禁结构性必红；阻塞性实现级修复仅恢复紧邻 end marker（`944ee8f`），不改组件、规则或契约。
+
 ### SCHEMA-POLISH-1 · 证据、状态与下一步
 
 目标：不新增面板、不改皮肤，让现有结构化工作面更清楚地回答“依据是什么、现在是什么状态、下一步做什么”。
@@ -43,6 +51,14 @@
 4. 风险行与详情同时显示严重度、核验状态、处置状态和下一步；批量确认明确范围与排除数量，高危或未核验项仍只可逐条处理。
 5. 空态保持文字型；L1 外壳数量不增加，内部优先使用分割线、排版和密度。触及文案遵循 chrome 英文、法律与案件内容中文。
 6. 新增行为测试与 1180 / 1280 / 1440 / 1600 视觉证据；不得修改法律包 schema 或 core。
+
+实现记录（2026-07-13，待独立验收）：
+
+- Progress 回归纯事件列表；临界用量续行迁入 Context 用量块后的 `Next step` 行，继续消费既有 `ContinuationClient`，主操作使用 ink，红色只留给 usage critical 状态。
+- 矩阵列头由 `question.text` 机械去问式、去括注与定长裁切为 `Qn · 短名`，无别名字典；完整问题以可聚焦、`aria-describedby` 关联的 tooltip 保留。
+- 矩阵 cell、时间线详情与风险依据把“查看引语”和禁用的“回到原件 · 尚未接通”拆成两个诚实动词；引语全文换行，只有来源文件元信息省略。
+- 风险 master 行在既有紧凑行内同时投影等级、核验、处置与下一步；详情使用分割线台账重复四态。批量条显示本次范围与逐条排除数量，`ReviewGateProjection` 的 batch/individual 资格和确认门禁未改。
+- 新增纯函数 Vitest 与 Playwright 行为覆盖键盘 Enter、focus tooltip、完整引语、批量范围及 1180 横向边界；四档自审图只生成于 `/tmp/courtwork-schema-polish-1-{1180,1280,1440,1600}.png`，未修改 `visual-audit/` 或 finale manifest。
 
 ### DESLOP-GATE-1 · Courtwork 结构守卫
 
@@ -63,6 +79,8 @@
 - 新增 Playwright 单飞行反例；隔离端口 GOAL-1 9/9 实跑通过。
 
 ## PRV-1 · provider 自配最小闭环（2026-07-11）
+
+历史实现记录；其中 custom/base URL 产品入口已由 ADR-007 与 PROVIDER-UI-1 覆盖，不再是现行要求。钥匙串明文隔离、连接探针和错误分型仍有效，待 PROVIDER-2 收口请求路径。
 
 - 历史实现：引导卡与设置页曾接入 `base URL + API key + 模型名`，并开放自定义 OpenAI-compatible 档。该产品入口已由 ADR-007 / PROVIDER-1 取代；现行 UI 只登记 DeepSeek，不再允许编辑 URL 或猜测任意端点能力。托管积分档仍只保留禁用占位。
 

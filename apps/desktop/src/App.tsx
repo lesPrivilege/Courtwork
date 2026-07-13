@@ -1133,7 +1133,6 @@ export function App() {
           {session.progress.length === 0 && <li className="wf-empty">{isDemoCase ? 'Waiting for task events…' : 'New case · waiting for a task'}</li>}
           {session.progress.map((message, index) => <li key={`${message}-${index}`}>{message}</li>)}
         </ul>
-        {isDemoCase && usage >= 85 && <button className="continuation-button" data-testid="continuation-button" disabled={continued} onClick={() => void client.continuation.continueSession('demo-s3').then(() => setContinued(true))}>{continued ? '已开启下一阶段' : '继续本案工作'}</button>}
       </>,
     },
     {
@@ -1152,7 +1151,21 @@ export function App() {
       status: (usage >= 85 ? 'warn' : 'idle') as 'warn' | 'idle',
       open: moduleOpen.context,
       onToggle: () => toggleModule('context'),
-      body: <ContextModuleBody usage={usage} usageDetail={usageDetail} attachmentSources={attachmentSources} modelLabel={modelDisplayName(modelConfig)} modelConnected={credentialStatus.phase === 'connected'} reasoningLabel={modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard} onOpenModelConfig={() => setModelConfigOpen(true)} />,
+      body: <ContextModuleBody
+        usage={usage}
+        usageDetail={usageDetail}
+        attachmentSources={attachmentSources}
+        modelLabel={modelDisplayName(modelConfig)}
+        modelConnected={credentialStatus.phase === 'connected'}
+        reasoningLabel={modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard}
+        onOpenModelConfig={() => setModelConfigOpen(true)}
+        continuation={isDemoCase && usage >= 85
+          ? {
+              done: continued,
+              onContinue: () => void client.continuation.continueSession('demo-s3').then(() => setContinued(true)),
+            }
+          : undefined}
+      />,
     },
   ];
 

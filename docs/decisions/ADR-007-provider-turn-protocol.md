@@ -40,6 +40,12 @@ core 把一次模型调用投影为可回放的 `TurnEvent`：turn started、ass
 - 合法请求写入不可变 `interaction_requested` 事件并暂停 turn；用户回答写入 `interaction_resolved` 事件后才可续行。回答须可审计，不能用改写历史消息代替。
 - desktop 只渲染 core 给出的通用 view model，不 import 法律字段或 demo 语料。第一版只实现单选/确认型交互，不开放任意模型 tool calling。
 
+### 交互事件快照
+
+`interaction_requested` 必须保存请求当时已经解析完成的不可变快照，而非回放时重新读取模板：`requestId`、`turnId`、`packageId`、`templateId`、`kind`、`question`、完整 options、`skippable` 与系统解析后的 `SourceAnchor[]`。垂类包升级不得改写历史问题。模型不得直接提交 bbox/textRange；它只能提供模板允许的引用声明，由既有 citation/anchor 机制解析出系统坐标后才能写入事件。
+
+`interaction_resolved` 保存 `requestId`、actor 与判别联合回答：`{ kind: 'option'; optionId }` 或 `{ kind: 'skip' }`。option 必须存在于请求快照，skip 只在 `skippable` 为真时合法；同一 request 只可解决一次。未知、过期或已解决 request 必须失败，不得覆盖旧答案。
+
 ## UI 约束
 
 `ask user` 卡片属于 chat 内的通用协议表面：使用 generated 冷调底色的轻微差异、1px hairline、既有 6px 圆角、无阴影，不新增 L1 白卡。卡片出现不做装饰性入场；主操作与选项只使用既有 70ms / scale(.98) press feedback，并完整支持 focus-visible 与 reduced-motion。内容、选项与锚点由垂类模板注入，桌面只拥有排版和交互状态。
