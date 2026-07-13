@@ -580,6 +580,22 @@ export function App() {
   ) as ReviewMatrix | undefined;
   // 渲染兜底③：无归宿 artifact 在场时结构视图 tab 出现（缺席时既有五面零扰动）。
   const hasUnhomedArtifacts = unhomedArtifacts(session.artifacts).length > 0;
+  // LEGAL-DEMO-RUN ③：chat 侧 artifact 卡取数改为投影派生——事件里是多少就呈现多少，
+  // 硬编码计数退役；citationStats 仅事件携带（无 demo 兜底，观测字段不冒充）。
+  const demoArtifactCard =
+    flow === 'S3'
+      ? {
+          title: `发现 ${riskList?.risks.length ?? 0} 项合同风险`,
+          summary: `${riskList?.risks.length ?? 0} 项 · 打开修订预览${
+            session.citationStats
+              ? ` · 引语公证 ${session.citationStats.resolvedAfterRetry}/${session.citationStats.claims}`
+              : ''
+          }`,
+        }
+      : {
+          title: '时间线与关系图谱已生成',
+          summary: `${timeline?.events.length ?? 0} 个事件 · ${graph?.nodes.length ?? 0} 个主体 · 打开时间线`,
+        };
   const selectedRisk = riskList?.risks.find((risk) => risk.id === selectedRiskId) ?? riskList?.risks[0];
   const gradeByKey = useMemo(() => new Map(session.evidenceGrades.map((item) => [item.key, item.grade])), [session.evidenceGrades]);
   const selectedGate = selectedRisk ? gate?.items.find((item) => item.itemRef === selectedRisk.id) : undefined;
@@ -1224,15 +1240,15 @@ export function App() {
                       kind="artifact"
                       icon="package"
                       eyebrow={flow === 'S3' ? 'R' : 'E'}
-                      title={flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'}
-                      summary={flow === 'S3' ? '6 项 · 打开修订预览' : '47 个事件 · 14 个主体 · 打开时间线'}
+                      title={demoArtifactCard.title}
+                      summary={demoArtifactCard.summary}
                       routeLabel={flow === 'S3' ? '打开修订预览' : '打开时间线'}
                       onOpen={() => {
                         previewDismissedContext.current = null;
                         setActiveView(flow === 'S3' ? 'revision' : 'timeline');
                         setPreviewOpen(true);
                       }}
-                      copyText={`${flow === 'S3' ? 'R' : 'E'}\n${flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'}\n${flow === 'S3' ? '6 项 · 打开修订预览' : '47 个事件 · 14 个主体 · 打开时间线'}`}
+                      copyText={`${flow === 'S3' ? 'R' : 'E'}\n${demoArtifactCard.title}\n${demoArtifactCard.summary}`}
                     />
                     {flow === 'S3' && (
                       <TurnCard
@@ -1273,7 +1289,7 @@ export function App() {
                         ]}
                       />
                     )}
-                    <MessageActions messageId="assistant-demo" text={flow === 'S3' ? '发现 6 项合同风险' : '时间线与关系图谱已生成'} createdAt={assistantCreatedAt.current} />
+                    <MessageActions messageId="assistant-demo" text={demoArtifactCard.title} createdAt={assistantCreatedAt.current} />
                     {/* #26.2：推理指示锚居 turn 尾、message 按钮排之下 */}
                     <ThinkingStream
                       state={session.progress.length === 0 ? 'empty' : session.confirmation ? 'settled' : 'thinking'}

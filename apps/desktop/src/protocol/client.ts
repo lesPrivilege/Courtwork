@@ -1,4 +1,4 @@
-import type { EvidenceGradeAnnotation, GenerationNotice, SessionEvent } from '@courtwork/core';
+import type { CitationStats, EvidenceGradeAnnotation, GenerationNotice, SessionEvent } from '@courtwork/core';
 
 export type ScenarioFlow = 'S1' | 'S3';
 export type ReviewDisposition = 'confirm' | 'reject' | 'revise';
@@ -51,6 +51,8 @@ export interface SessionProjection {
   artifacts: Partial<Record<string, unknown>>;
   evidenceGrades: EvidenceGradeAnnotation[];
   providerNotices: GenerationNotice[];
+  /** 引用闭环公证观测（LEGAL-DEMO-RUN ③：观测字段随 artifact_produced 机械透传，不解读）。 */
+  citationStats?: CitationStats;
   progress: string[];
   todo: Array<{ stepId: string; artifactType?: string; status: string }>;
   confirmation?: Extract<SessionEvent, { type: 'confirmation_requested' }>;
@@ -84,6 +86,8 @@ export function projectSession(state: SessionProjection, event: SessionEvent): S
         artifacts: { ...state.artifacts, [event.artifactType]: event.artifact },
         evidenceGrades: event.evidenceGrades,
         providerNotices: event.providerNotices ?? state.providerNotices,
+        // 续行重发的 artifact_produced 不携观测字段（executor 语义）——保留最近一次公证观测。
+        citationStats: event.citationStats ?? state.citationStats,
       };
     case 'todo_snapshot':
       return { ...base, todo: event.steps };

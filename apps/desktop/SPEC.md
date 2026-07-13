@@ -865,3 +865,11 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - **渲染兜底③**（兜底四层，底座义务的壳侧落地）：`workbench/generic-structure.ts`（HOMED_ARTIFACT_TYPES 七类归宿表 + 无归宿清单 + 确定性树化，深度/数组诚实截断）+ `GenericStructurePanel`（键值/树形只读保底，可读不可美永不白屏，含「暂无专用工作面」诚实说明）。接线：`previewViewForArtifact` 无归宿类型落 `generic` 视图；**结构视图 tab 仅在无归宿 artifact 在场时出现**——现有五面在既有 flow 下零扰动（e2e 190/190 双轮验证）。
 - **触发兜底①消费面**：chat-assembly.ts 真相源上移 `@courtwork/core/generic-chat`（底座义务住底座），快照测试仍在壳侧锁字节。
 - **namespaced 迁移补漏**（自查抓获）：App.tsx 四处 `session.artifacts.RiskList` 等点访问读旧裸键——demo 兜底数据掩盖了断链（事件驱动路径 silent 失效）；连同 module-stack 漏网 `FileOpsPlan` 键一并改 `legal.*`。教训同「结构断言绿≠宪法落地」：字面量迁移必须含点访问形态（grep `artifacts\.\w+` 补入自查手册）。
+
+## LEGAL-DEMO-RUN ③ · chat 侧对接 debug（2026-07-13，实现留痕）
+
+- **citationStats 观测字段呈现（章程点名）**：projectSession 原样丢弃 artifact_produced.citationStats（首个发现）——SessionProjection 纯增 `citationStats?` 并机械透传；续行重发（executor 语义：re-emit 不携观测字段）保留最近一次观测不清空。呈现位：S3 artifact 卡摘要尾追「引语公证 N/M」chip（仅事件携带时出现，无 demo 兜底——观测字段不冒充）。
+- **artifact 卡取数改投影派生（硬编码计数退役）**：「发现 6 项合同风险」「47 个事件 · 14 个主体」原为字面量——事件里是多少就呈现多少（riskList/timeline/graph 既有类型化访问器取数，demo 兜底行为不变故 e2e 呈现字节不变）；MessageActions/copyText 同步派生。
+- **录制对齐声明真值（防录制漂移）**：S3 录制契约层逐字段对齐真 harness——事件序（artifact → todo → confirmation，pauseAt 语义）、todo 步 id/标签（deriveTodoSnapshot 对 legal.S3 步骤树：verify-parties done + produce-risk-list 停门禁取门禁标签原文）、gateLabel（包声明原文）、citationStats（与 artifact 内 8 枚锚点一致——机器锁施工期首咬即中：手填 6 被 anchorCount 断言抓获）。progress 事件为演示旁白（staging）注释明示分界：真 S3 首跑不发 progress。契约测试新增两例：录制 vs LEGAL_PACKAGE 声明的机器锁 + citationStats 投影/重发保留。
+- **思考流摘要来源核验**：ThinkingStream content = session.progress 序列（join），S3 demo 呈现即 progress 事件原文——来源正确；真事件流（无 progress）落静态兜底文案，reasoningContent（ScriptedProvider 已回携）到思考流的接线仍属 T-provider.1 挂账，不在本单造新 UI。
+- **台账（移交）**：①S1 录制事件序仍为演示节奏（confirmation_resolved 省略、PartyGraph 越门禁出现）——随 S1 流真接线一并对齐；②session.todo 投影无 UI 消费方（todo_snapshot 事件到卡"不丢"的例外位）——归 docs/53 提案④ steps 载体化的落地面；③锚点消费方契约（textRange 为块内坐标系，PDF 页内偏移跨页重叠）——溯源 hover/click 接真 PDF 卷宗时必须按 textLayerVersion/page 选块（判例详见 core SPEC LEGAL-DEMO-RUN 节）。
