@@ -66,6 +66,37 @@ export async function connectProvider(page: Page) {
   await page.getByTestId('settings-page').waitFor({ state: 'hidden' });
 }
 
+export async function installChatStream(page: Page, script: {
+  content?: string;
+  chunks?: string[];
+  reasoning?: string;
+  failure?: { kind: 'auth' | 'network' | 'rate_limit' | 'invalid_response'; message: string; retryable?: boolean };
+  usage?: { inputTokens: number; outputTokens: number };
+}) {
+  await page.evaluate((input) => {
+    type StreamContext = { requestId: string; providerId: string; modelId: string };
+    type StreamFactory = (context: StreamContext) => AsyncIterable<unknown>;
+    const hooks = (window as typeof window & {
+      __courtworkChatHooks?: { setStreamFactory(factory: StreamFactory | null): void };
+    }).__courtworkChatHooks;
+    if (!hooks) throw new Error('chat stream hooks missing');
+    hooks.setStreamFactory(async function* ({ requestId, providerId, modelId }) {
+      let seq = 0;
+      yield { type: 'started', requestId, seq: seq++, providerId, modelId };
+      if (input.reasoning) yield { type: 'reasoning_delta', requestId, seq: seq++, delta: input.reasoning };
+      if (input.failure) {
+        yield { type: 'failed', requestId, seq, ...input.failure, retryable: input.failure.retryable ?? false };
+        return;
+      }
+      for (const delta of input.chunks ?? [input.content ?? '完成']) {
+        yield { type: 'content_delta', requestId, seq: seq++, delta };
+      }
+      if (input.usage) yield { type: 'usage', requestId, seq: seq++, ...input.usage };
+      yield { type: 'completed', requestId, seq, finishReason: 'stop' };
+    });
+  }, script);
+}
+
 /** RP-2.7：工作稿/整理等通用文件动作只保留在 Working folders 单一宿主。 */
 export async function openWorkingFolders(page: Page) {
   const tree = page.getByTestId('working-folders-tree');

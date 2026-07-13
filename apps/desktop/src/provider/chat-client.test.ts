@@ -1,6 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { buildChatInvokeInput, sendChatTurn } from './chat-client';
 import { DEFAULT_MODEL_CONFIG, type ModelConfig } from './model-config';
+import { TurnProtocolClient, createLocalStorageTurnJournalBackend } from './turn-protocol-client';
+
+class MemoryStorage implements Storage {
+  private readonly values = new Map<string, string>();
+  get length() { return this.values.size; }
+  clear() { this.values.clear(); }
+  getItem(key: string) { return this.values.get(key) ?? null; }
+  key(index: number) { return [...this.values.keys()][index] ?? null; }
+  removeItem(key: string) { this.values.delete(key); }
+  setItem(key: string, value: string) { this.values.set(key, value); }
+}
+
+function protocolClient() {
+  return new TurnProtocolClient(createLocalStorageTurnJournalBackend(new MemoryStorage()));
+}
 
 function sseResponse(lines: string[], status = 200): Response {
   return new Response(`${lines.join('\n\n')}\n\n`, {
@@ -25,11 +40,11 @@ describe('chat 面真 API 客户端（Rust 窄面代理 + core 组装复用）',
     };
 
     const config = { ...DEFAULT_MODEL_CONFIG, reasoning: 'deep' as const };
-    const result = await sendChatTurn(config, [{ role: 'user', content: '你好' }], { fetchImpl });
+    const result = await sendChatTurn(protocolClient(), config, [{ role: 'user', content: '你好' }], { fetchImpl });
 
-    expect(result.content).toBe('好的');
-    expect(result.reasoningContent).toBe('想');
-    expect(result.usage).toEqual({ inputTokens: 3, outputTokens: 2 });
+    expect(result.projection.assistantMessage).toBe('好的');
+    expect(result.projection.reasoning).toEqual({ status: 'present', content: '想' });
+    expect(result.projection.usage).toEqual({ inputTokens: 3, outputTokens: 2 });
     expect(captured.url).toBe('https://api.deepseek.com/v1/chat/completions');
     // #41：deep 档经 thinking 请求字段，模型名 = 用户所选（不被路由覆盖）
     expect(captured.body).toMatchObject({
@@ -47,22 +62,21 @@ describe('chat 面真 API 客户端（Rust 窄面代理 + core 组装复用）',
       body = JSON.parse(String(init?.body)) as Record<string, unknown>;
       return sseResponse(['data: {"choices":[{"delta":{"content":"ok"}}]}', 'data: [DONE]']);
     };
-    await sendChatTurn(DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'hi' }], { fetchImpl });
+    await sendChatTurn(protocolClient(), DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'hi' }], { fetchImpl });
     expect(body.thinking).toEqual({ type: 'disabled' });
   });
 
   it('rejects a forged custom provider id instead of guessing OpenAI-compatible capabilities', async () => {
     const forged = { ...DEFAULT_MODEL_CONFIG, providerId: 'custom', modelId: 'internal-model' } as unknown as ModelConfig;
     const fetchImpl: typeof fetch = async () => sseResponse(['data: [DONE]']);
-    await expect(sendChatTurn(forged, [{ role: 'user', content: 'hi' }], { fetchImpl }))
+    await expect(sendChatTurn(protocolClient(), forged, [{ role: 'user', content: 'hi' }], { fetchImpl }))
       .rejects.toThrow(/未登记|not registered/i);
   });
 
   it('鉴权失败原样进入 core 分型（401 → 拒绝并携带 provider 语义）', async () => {
     const fetchImpl: typeof fetch = async () => sseResponse(['data: [DONE]'], 401);
-    await expect(
-      sendChatTurn(DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'hi' }], { fetchImpl }),
-    ).rejects.toThrow(/HTTP 401/);
+    const result = await sendChatTurn(protocolClient(), DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'hi' }], { fetchImpl });
+    expect(result.projection).toMatchObject({ status: 'failed', failure: { kind: 'auth', message: expect.stringMatching(/HTTP 401/) } });
   });
 
   it('keychain 桥入参没有 URL、header 或 key', () => {

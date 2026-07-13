@@ -11,13 +11,14 @@ const [turnCard, composer, utility, app, css] = await Promise.all([
 ]);
 
 const failures = [];
-if (!turnCard.includes("'event' | 'artifact' | 'file' | 'gate' | 'question'")) failures.push('TurnCard vocabulary must remain closed to event/artifact/file/gate/question');
+if (!turnCard.includes("'event' | 'artifact' | 'file' | 'gate'")) failures.push('TurnCard route vocabulary must remain closed to event/artifact/file/gate');
 if (/preview\/renderers|\.\.\/preview/.test(turnCard)) failures.push('Generic turn-card mechanism may not import Preview renderers');
 for (const kind of ['event', 'artifact', 'file', 'gate']) {
   if (!app.includes(`kind="${kind}"`)) failures.push(`App must declare the ${kind} turn-card route`);
 }
-if (!app.includes('<QuestionTurnCard') || !turnCard.includes("data-kind=\"question\"")) failures.push('Question cards must use the generic closed-option ledger component');
-if (!turnCard.includes("record('skipped')") || !turnCard.includes('data-answer={answer')) failures.push('Question cards must remain skippable and record enum answers');
+if (!app.includes('<InteractionTurnCard') || !turnCard.includes('export function InteractionTurnCard') || !turnCard.includes('data-kind="interaction"')) failures.push('Interaction cards must use the generic core-replay ledger component');
+if (!turnCard.includes('view.request.skippable') || !turnCard.includes("submit({ kind: 'skip' })")) failures.push('Skip must be rendered only from the immutable skippable snapshot');
+if (!turnCard.includes('view.resolution?.answer') || turnCard.includes('setAnswer(')) failures.push('Recorded answer must come from core replay, never local answer state');
 if (!app.includes('<ToolCallRow')) failures.push('Tool calls must use the auditable generic row');
 if (!composer.includes('!hasBoundContainer && <div className="case-picker"')) failures.push('Composer folder picker must be conditional on an unbound conversation');
 // 十四章：模块列为手风琴（body 内联展开,非 L2 popover）——旧 dock popover 语义退役

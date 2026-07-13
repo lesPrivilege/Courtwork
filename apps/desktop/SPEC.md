@@ -1,6 +1,6 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**PRV-1 provider 自配最小闭环完成**；**RP-2 UI 完全化完成，RP-2.8.1 三项验收打回已修、待单点复验**；**BUILD-1 0.1.0 已产**；**BUILD-0.1.1 Ship Gate 正式 Build 已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**CHAT-UI-1 已实现、待独立验收**；**PRV-1 provider 自配最小闭环完成**；**RP-2 UI 完全化完成，RP-2.8.1 三项验收打回已修、待单点复验**；**BUILD-1 0.1.0 已产**；**BUILD-0.1.1 Ship Gate 正式 Build 已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
 
 ## 现行架构工单（2026-07-13）
 
@@ -9,6 +9,14 @@
 前置：PROVIDER-2、TURN-1、INTERACTION-1 已独立验收并合流。desktop 只消费 core turn/interaction view model：真实流驱动思考、reasoning、正文、错误与取消；删除 Typewriter 假流和 `App.tsx` 硬编码演示问题。刷新后从未决事件恢复卡片，提交回答须等待 core 接收，不允许本地 state 假完成。
 
 `question-card` 使用 generated 冷调底色的轻微差异、1px hairline、既有 6px 圆角、无阴影，不新增 L1 外壳；无装饰入场，选项/主操作只用既有 120ms / scale(.98) press feedback，并覆盖 focus-visible、键盘选择、错误重试与 reduced-motion。卡片内容、选项、锚点来自垂类 manifest，desktop 不含领域文案表。
+
+实现留痕（2026-07-14，待独立验收）：
+
+- 新增 browser-safe `TurnProtocolClient` 与 localStorage journal envelope；core store 仍独占 replay/resolve 校验，known turnId 索引只导航、不绕过 core。损坏 JSON/index drift 与 quota 失败均 fail closed，不清历史；持久层只写 turn terminal/interaction events，不写 prompt、secret 或 transport。
+- chat 统一经 `runTurn(provider.stream)`；started/reasoning/content/usage/completed/failed/canceled 全由 core `TurnEvent` 机械投影。正文 delta 在 provider terminal 前可见，terminal 后才做 Markdown；reasoning absent 有显式文案，Stop 只触发 AbortController，删除 Typewriter 与 final-result responder。
+- `InteractionTurnCard` 只消费 replay request/resolution 快照；提交锁、失败重试和 first-wins 由 core resolve 驱动，non-skippable 不显示 Skip。本地 answer state 退役，Recorded 只在 `interaction_resolved` 回放后出现。
+- legal demo 通过 `LEGAL_PACKAGE → admitPackages/buildPackageRegistries → requestInteraction` 注入。首条真实 risk quote 经当前合同 TextLayer resolver 铸造 range/version；source-open 校验 file/version/range/quote 后才打开原件并 focus/scroll 精确引语，未知或漂移显式失败。
+- 问题卡使用 generated/verified 微差底色、1px hairline、6px、零 shadow/入场；选项是连续 ledger，证据引语完整换行。新增 `assert-chat-ui-contracts` 与独立 `chat-interaction.spec.ts`，Playwright 防降下限由 198 升至 208。
 
 ### PROVIDER-UI-1 · DeepSeek-first 配置面
 

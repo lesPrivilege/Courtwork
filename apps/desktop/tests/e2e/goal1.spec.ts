@@ -1,5 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
-import { connectProvider, openWorkbench } from './helpers';
+import { expect, test } from '@playwright/test';
+import { connectProvider, installChatStream, openWorkbench } from './helpers';
 
 /** GOAL-1 壳与链路：#35/36 dock 底纸与贯通、#37 五钮、#39 空态三态、#43/44 凭证内嵌与就地呈现、popover 收敛、chat 真 API。 */
 
@@ -98,24 +98,12 @@ test.describe('GOAL-1 · popover 收敛纪律', () => {
   });
 });
 
-async function installChatResponder(page: Page, mode: 'ok' | 'fail') {
-  await page.evaluate((kind) => {
-    const hooks = (window as typeof window & {
-      __courtworkChatHooks?: { setResponder(r: ((m: unknown) => Promise<unknown>) | null): void };
-    }).__courtworkChatHooks;
-    if (!hooks) throw new Error('chat hooks missing');
-    hooks.setResponder(kind === 'ok'
-      ? async () => ({ content: '已收到，这是真实链路的回复。', reasoningContent: '先梳理请求要点。' })
-      : async () => { throw new Error('访问凭证未通过服务商验证，请检查后重试'); });
-  }, mode);
-}
-
 test.describe('GOAL-1 · chat 面真 API 端到端', () => {
   test('发送 → 在途指示 → assistant 落格（含思考折叠）', async ({ page }) => {
     await openWorkbench(page);
     await connectProvider(page);
     await page.getByTestId('segment-chat').click();
-    await installChatResponder(page, 'ok');
+    await installChatStream(page, { content: '已收到，这是真实链路的回复。', reasoning: '先梳理请求要点。' });
     await page.getByTestId('composer-input').fill('给我一句确认');
     await page.getByTestId('composer-send').click();
     await expect(page.getByTestId('chat-assistant-message')).toBeVisible();
@@ -128,7 +116,7 @@ test.describe('GOAL-1 · chat 面真 API 端到端', () => {
     await openWorkbench(page);
     await connectProvider(page);
     await page.getByTestId('segment-chat').click();
-    await installChatResponder(page, 'fail');
+    await installChatStream(page, { failure: { kind: 'auth', message: '访问凭证未通过服务商验证，请检查后重试' } });
     await page.getByTestId('composer-input').fill('触发失败');
     await page.getByTestId('composer-send').click();
     const failed = page.getByTestId('chat-assistant-failed');
@@ -142,15 +130,17 @@ test.describe('GOAL-1 · chat 面真 API 端到端', () => {
     await page.getByTestId('segment-chat').click();
     await page.evaluate(() => {
       const scope = window as typeof window & {
-        __courtworkChatHooks?: { setResponder(r: ((m: unknown) => Promise<unknown>) | null): void };
+        __courtworkChatHooks?: { setStreamFactory(factory: ((context: { requestId: string; providerId: string; modelId: string }) => AsyncIterable<unknown>) | null): void };
         __resolveHarnessFlight?: () => void;
         __harnessFlightCalls?: number;
       };
       scope.__harnessFlightCalls = 0;
-      scope.__courtworkChatHooks?.setResponder(async () => {
+      scope.__courtworkChatHooks?.setStreamFactory(async function* ({ requestId, providerId, modelId }) {
         scope.__harnessFlightCalls = (scope.__harnessFlightCalls ?? 0) + 1;
+        yield { type: 'started', requestId, seq: 0, providerId, modelId };
         await new Promise<void>((resolve) => { scope.__resolveHarnessFlight = resolve; });
-        return { content: '完成' };
+        yield { type: 'content_delta', requestId, seq: 1, delta: '完成' };
+        yield { type: 'completed', requestId, seq: 2, finishReason: 'stop' };
       });
     });
 
@@ -167,5 +157,32 @@ test.describe('GOAL-1 · chat 面真 API 端到端', () => {
 
     await page.evaluate(() => (window as typeof window & { __resolveHarnessFlight?: () => void }).__resolveHarnessFlight?.());
     await expect(page.getByTestId('chat-assistant-message')).toContainText('完成');
+  });
+
+  test('Stop 经 AbortController 只收敛为 core canceled，并保留已到达正文', async ({ page }) => {
+    await openWorkbench(page);
+    await connectProvider(page);
+    await page.getByTestId('segment-chat').click();
+    await page.evaluate(() => {
+      type Context = { requestId: string; providerId: string; modelId: string; signal?: AbortSignal };
+      const hooks = (window as typeof window & {
+        __courtworkChatHooks?: { setStreamFactory(factory: ((context: Context) => AsyncIterable<unknown>) | null): void };
+      }).__courtworkChatHooks;
+      hooks?.setStreamFactory(async function* ({ requestId, providerId, modelId, signal }) {
+        yield { type: 'started', requestId, seq: 0, providerId, modelId };
+        yield { type: 'content_delta', requestId, seq: 1, delta: '已经到达的部分正文' };
+        await new Promise<void>((resolve) => signal?.addEventListener('abort', () => resolve(), { once: true }));
+      });
+    });
+    await page.getByTestId('composer-input').fill('停止验证');
+    await page.getByTestId('composer-send').click();
+    await expect(page.getByTestId('chat-stream-content')).toContainText('已经到达');
+    await page.getByTestId('chat-stop').click();
+    const failed = page.getByTestId('chat-assistant-failed');
+    await expect(failed).toHaveAttribute('data-status', 'failed');
+    await expect(failed).toContainText('已经到达的部分正文');
+    await expect(failed.getByTestId('chat-turn-failure')).toHaveText('已停止');
+    await expect(failed.getByTestId('chat-reasoning-absent')).toBeVisible();
+    await expect(page.getByTestId('chat-pending')).toHaveCount(0);
   });
 });
