@@ -1,34 +1,26 @@
 import { expect, test } from '@playwright/test';
 import { connectProvider, openWorkbench } from './helpers';
 
-/** Legacy filename retained for test history: real provider delta replaces UI-fabricated typewriter reveal. */
-test('assistant 在 provider terminal 前显示真实 delta，terminal 后才切 Markdown', async ({ page }) => {
+/** 用户拍板 2026-07-12：LLM 回复逐字打字机 reveal（UI 层），完成后切 ChatMarkdown 富渲染。 */
+test('assistant 回复逐字 reveal，完成切富渲染（打字机）', async ({ page }) => {
   await openWorkbench(page);
   await connectProvider(page);
   await page.getByTestId('segment-chat').click();
   await page.evaluate(() => {
-    const scope = window as typeof window & {
-      __courtworkChatHooks?: { setStreamFactory(factory: ((context: { requestId: string; providerId: string; modelId: string }) => AsyncIterable<unknown>) | null): void };
-      __releaseChatTerminal?: () => void;
-    };
-    scope.__courtworkChatHooks?.setStreamFactory(async function* ({ requestId, providerId, modelId }) {
-      yield { type: 'started', requestId, seq: 0, providerId, modelId };
-      yield { type: 'content_delta', requestId, seq: 1, delta: '终态前可见，' };
-      await new Promise<void>((resolve) => { scope.__releaseChatTerminal = resolve; });
-      yield { type: 'content_delta', requestId, seq: 2, delta: '包含**加重**与完整结论。' };
-      yield { type: 'completed', requestId, seq: 3, finishReason: 'stop' };
-    });
+    const hooks = (window as typeof window & {
+      __courtworkChatHooks?: { setResponder(r: (() => Promise<unknown>) | null): void };
+    }).__courtworkChatHooks;
+    hooks?.setResponder(async () => ({ content: '这是一段用于验证打字机逐字输出的回复文本，包含**加重**与足够长度以观察 reveal 过程。' }));
   });
-  await page.getByTestId('composer-input').fill('真实流验证');
+  await page.getByTestId('composer-input').fill('打字机验证');
   await page.getByTestId('composer-send').click();
-
-  const message = page.getByTestId('chat-assistant-message');
-  await expect(message).toHaveAttribute('data-status', 'running');
-  await expect(message.getByTestId('chat-stream-content')).toHaveText('终态前可见，');
-  await expect(message.getByTestId('chat-markdown')).toHaveCount(0);
-
-  await page.evaluate(() => (window as typeof window & { __releaseChatTerminal?: () => void }).__releaseChatTerminal?.());
-  await expect(message).toHaveAttribute('data-status', 'completed');
-  await expect(message.getByTestId('chat-stream-content')).toHaveCount(0);
-  await expect(message.getByTestId('chat-markdown').locator('strong')).toHaveText('加重');
+  // reveal 进行中：typewriter 元素出现且文本尚未全长
+  const typewriter = page.getByTestId('chat-typewriter');
+  await expect(typewriter).toBeVisible();
+  const partial = (await typewriter.textContent())!.length;
+  expect(partial).toBeGreaterThan(0);
+  // 完成后：typewriter 退场，切 ChatMarkdown 富渲染（加重成 strong）
+  await expect(typewriter).toHaveCount(0);
+  const md = page.getByTestId('chat-assistant-message').getByTestId('chat-markdown');
+  await expect(md.locator('strong')).toHaveText('加重');
 });

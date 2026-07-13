@@ -39,7 +39,7 @@ test('#26.3 静默锚展开回看思考流，收回静态 icon', async ({ page }
 
 // —— Item 3：chat 内卡片清算 ——
 
-test('chat 内 interaction/门禁为轻卡，event/artifact/file 降扁平 message 行', async ({ page }) => {
+test('chat 内唯 question/门禁为轻卡，event/artifact/file 降扁平 message 行', async ({ page }) => {
   await openWorkbench(page);
   // artifact/file：扁平 message 行——无四周框、无圆角、透明底
   const artifact = page.getByTestId('turn-card-artifact');
@@ -49,10 +49,10 @@ test('chat 内 interaction/门禁为轻卡，event/artifact/file 降扁平 messa
   const file = page.getByTestId('output-docx-card');
   await expect(file).toHaveCSS('border-radius', '0px');
   await expect(file).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-  // interaction：轻卡——hairline + 6px + generated/verified 微差底色（非白卡套白卡）
+  // question：轻卡——四周框 + 圆角 + 纯白底（承重确认体）
   const question = page.getByTestId('turn-card-question');
-  await expect(question).toHaveCSS('border-radius', '6px');
-  await expect(question).not.toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(question).not.toHaveCSS('border-radius', '0px');
+  await expect(question).toHaveCSS('background-color', 'rgb(255, 255, 255)');
   await expect(question).toHaveCSS('border-top-width', '1px');
   // gate：轻卡
   const gate = page.getByTestId('turn-card-gate');

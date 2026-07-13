@@ -53,15 +53,17 @@ test('module body opens inline in the rail list and folds back (十四章手风�
   await expect(page.getByTestId('preview-host')).toBeVisible();
 });
 
-test('interaction turn card exposes manifest options without local skip or blocking workbench', async ({ page }) => {
+test('question turn card records a closed enum answer without blocking the workbench', async ({ page }) => {
   await openWorkbench(page);
   const question = page.getByTestId('turn-card-question');
   await expect(question).toBeVisible();
-  await expect(question.getByTestId('question-option-confirm')).toBeVisible();
-  await expect(question.getByTestId('question-option-revise')).toBeVisible();
-  await expect(question.getByTestId('question-skip')).toHaveCount(0);
+  await expect(question.getByTestId('question-option-focus-payment-acceptance')).toBeVisible();
+  await expect(question.getByTestId('question-skip')).toBeVisible();
   await expect(page.getByTestId('preview-host')).toBeVisible();
 
-  await expect(question).toHaveAttribute('data-answer', 'unanswered');
+  await question.getByTestId('question-option-focus-payment-acceptance').click();
+  await expect(question).toHaveAttribute('data-answer', 'focus-payment-acceptance');
+  await expect(question).toContainText('Recorded');
+  await expect(page.getByTestId('preview-host')).toBeVisible();
   await expect(page.getByTestId('composer-input')).toBeEnabled();
 });

@@ -1,12 +1,13 @@
 import { expect, test, type Page } from '@playwright/test';
-import { connectProvider, installChatStream, openWorkbench } from './helpers';
+import { connectProvider, openWorkbench } from './helpers';
 
 /**
  * 批次七首例登记缺陷（FABLE-BASE）：chat 新消息不自动滚底。
  * 三件套契约：钉底跟随 / 用户上翻暂停跟随 / 暂停期间新消息出浮标、点击回底。
  */
 
-// 本组测滚动跟随；reduced-motion 下滚动回底必须使用 auto。
+// 本组测滚动跟随，非打字机——reduced-motion 下 assistant reveal 瞬显（Typewriter 瞬完成），
+// 消息立即全高，避免逐字 reveal 期同步读 scrollHeight 判不溢出。
 test.use({ reducedMotion: 'reduce' });
 
 const LONG_REPLY = '这是用于滚动验证的长段落，内容足够多以便撑高容器。'.repeat(30);
@@ -15,13 +16,21 @@ async function primeChatWithOverflow(page: Page) {
   await openWorkbench(page);
   await connectProvider(page);
   await page.getByTestId('segment-chat').click();
-  await installChatStream(page, { content: LONG_REPLY });
+  await page.evaluate((text) => {
+    const hooks = (window as typeof window & {
+      __courtworkChatHooks?: { setResponder(r: ((m: unknown) => Promise<unknown>) | null): void };
+    }).__courtworkChatHooks;
+    if (!hooks) throw new Error('chat hooks missing');
+    let turn = 0;
+    hooks.setResponder(async () => ({ content: `回复 ${++turn}：${text}` }));
+  }, LONG_REPLY);
   const prompts = ['滚动一', '滚动二', '滚动三'];
   for (const [index, prompt] of prompts.entries()) {
     await page.getByTestId('composer-input').fill(prompt);
     await page.getByTestId('composer-send').click();
     await expect(page.getByTestId('chat-assistant-message')).toHaveCount(index + 1);
-    await expect(page.getByTestId('chat-assistant-message').nth(index)).toHaveAttribute('data-status', 'completed');
+    // 等打字机 reveal 完成（切富渲染），消息达全高再判溢出
+    await expect(page.getByTestId('chat-typewriter')).toHaveCount(0);
   }
   const overflowing = await page.getByTestId('chat-scroll').evaluate((el) => el.scrollHeight > el.clientHeight + 100);
   expect(overflowing).toBe(true);
