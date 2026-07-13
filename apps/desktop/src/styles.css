@@ -521,8 +521,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   background: transparent; overflow: hidden;
 }
 .turn-card.data-card { padding: 0; border-right: 0; border-bottom: 0; border-left: 0; background: transparent; }
-/* ch12 #5：唯 question/门禁确认体为轻卡（承重不减重）；event/artifact/file 保持扁平 message 行 */
-.turn-card-gate, .turn-card-question { margin: 8px 0; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }
+/* ch12 #5：门禁确认体为轻卡；event/artifact/file 保持扁平 message 行。 */
+.turn-card-gate { margin: 8px 0; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }
 .turn-card-route {
   width: 100%; min-width: 0; display: grid; grid-template-columns: 18px minmax(0, 1fr) 16px;
   align-items: center; gap: 8px; padding: 7px 9px; border: 0; background: transparent;
@@ -555,14 +555,28 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 .tool-call-details dt { color: var(--text-tertiary); }
 .tool-call-details dd { min-width: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.question-card-head { min-height: 34px; display: flex; align-items: center; gap: 8px; padding: 6px 9px 3px; }
-.question-card-head strong { font-size: var(--type-dense-body-size); font-weight: var(--control-weight-emphasized); }
-.question-card-options { display: flex; flex-wrap: wrap; gap: 5px; padding: 4px 9px 7px 35px; }
-.question-card-options button { min-height: 26px; padding: 3px 7px; font-size: var(--type-dense-meta-size); }
-.question-card-options .question-skip { margin-left: auto; color: var(--text-tertiary); }
-.question-recorded { min-width: 0; margin: 0; display: flex; align-items: center; gap: 7px; padding: 5px 9px 6px 35px; border-top: 1px solid var(--border); color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
-.question-recorded code { font-family: var(--type-dense-mono); color: var(--text-secondary); }
-.question-recorded strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--control-weight-regular); }
+.interaction-turn-card { width: 100%; margin: 8px 0; border: 1px solid var(--border); border-radius: 6px; background: color-mix(in srgb, var(--generated) 82%, var(--verified) 18%); overflow: hidden; }
+.interaction-card-head { min-height: 38px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; }
+.interaction-card-head strong { font-size: var(--type-dense-body-size); font-weight: var(--control-weight-emphasized); line-height: 1.5; }
+.interaction-options { display: grid; border-top: 1px solid var(--border); }
+.interaction-options .question-option { width: 100%; min-height: 34px; display: grid; gap: 1px; padding: 6px 10px 6px 36px; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; color: var(--text-primary); cursor: pointer; text-align: left; }
+.interaction-options .question-option:last-child { border-bottom: 0; }
+.interaction-options .question-option:hover:not(:disabled) { background: var(--control-hover); }
+.interaction-options .question-option:disabled { color: var(--text-disabled); cursor: default; }
+.interaction-options .question-option strong { font-size: var(--type-dense-body-size); font-weight: var(--control-weight-emphasized); }
+.interaction-options .question-option span { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
+.interaction-options .question-skip { color: var(--text-tertiary); }
+.interaction-anchor-ledger { display: grid; border-top: 1px solid var(--border); }
+.interaction-anchor { width: 100%; min-width: 0; display: grid; gap: 5px; padding: 8px 10px 9px 36px; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; color: var(--text-primary); text-align: left; }
+button.interaction-anchor { cursor: pointer; }
+button.interaction-anchor:hover { background: var(--control-hover); }
+.interaction-anchor:last-child { border-bottom: 0; }
+.interaction-anchor q { display: block; min-width: 0; padding: 5px 7px; background: var(--verified); color: var(--text-secondary); font: var(--type-dense-meta-size)/1.55 var(--type-dense-mono); overflow-wrap: anywhere; white-space: normal; }
+.interaction-anchor-meta { color: var(--text-tertiary); font: 11px/1.5 var(--type-dense-mono); overflow-wrap: anywhere; }
+.interaction-submit-error, .turn-recovery-error { margin: 0; padding: 7px 10px 8px 36px; border-top: 1px solid var(--border); color: var(--red-fg); font-size: var(--type-dense-meta-size); line-height: 1.5; }
+.interaction-recorded { min-width: 0; margin: 0; display: flex; align-items: center; gap: 7px; padding: 6px 10px 7px 36px; border-top: 1px solid var(--border); color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.interaction-recorded code { font-family: var(--type-dense-mono); color: var(--text-secondary); }
+.interaction-recorded strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: var(--control-weight-regular); }
 .progress-pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--text-primary); animation: breathe 2s ease-in-out infinite alternate; }
 @keyframes breathe { from { opacity: .55; } to { opacity: 1; } }
 .generated-callout { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--generated); color: var(--text-secondary); font-size: var(--type-dense-body-size); }
@@ -1345,10 +1359,16 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 /* ─── chat 面真 API（GOAL-1 链路批）：agent 直排无气泡 + 失败轮 + 在途字符指示 ── */
 .assistant-message { max-width: 78%; margin: 2px 0; align-self: flex-start; font-size: var(--type-body-size); line-height: 1.6; }
 .assistant-message.is-failed { color: var(--amber-fg); }
-.assistant-message.is-failed::before { content: '连接未完成 · '; font-size: var(--type-dense-meta-size); color: var(--amber-fg); }
 .chat-reasoning { margin-bottom: 4px; color: var(--text-tertiary); font-size: var(--type-dense-body-size); }
 .chat-reasoning summary { cursor: pointer; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
-.chat-pending { display: flex; align-items: center; min-height: 22px; }
+.chat-reasoning-stream, .chat-stream-content { white-space: pre-wrap; overflow-wrap: anywhere; }
+.chat-reasoning-absent, .chat-turn-failure, .chat-turn-usage { margin: 3px 0; font-size: var(--type-dense-meta-size); }
+.chat-reasoning-absent, .chat-turn-usage { color: var(--text-tertiary); }
+.chat-turn-usage { font-family: var(--type-dense-mono); }
+.chat-turn-failure { color: var(--amber-fg); }
+.chat-pending { display: flex; align-items: center; gap: 8px; min-height: 28px; }
+.chat-stop { min-height: 26px; padding: 3px 8px; }
+.chat-recovery-error { max-width: 78%; margin: 2px 0; padding-left: 9px; border-left: 2px solid var(--red-graphic); color: var(--red-fg); font-size: var(--type-dense-body-size); line-height: 1.55; }
 
 /* ─── 批次三 #14：矩阵单元格 hover 溯源预览（peek 动词,docs/architecture/schema-engineering.md 封闭集）────────
    浮层 120ms 现身;引语 mono+verifiedBg 双轨;数据区自身零动效。 */
@@ -1426,6 +1446,8 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .reader-pane { height: 100%; overflow: auto; padding: 18px 22px; background: var(--bg-raised); font-size: var(--type-reading-size); line-height: var(--type-reading-line-height); }
 .reader-pane h3 { margin: 14px 0 6px; font-size: var(--titleSm, 16px); font-weight: var(--control-weight-emphasized); }
 .reader-pane p { margin: 0 0 10px; }
+.reader-focus-anchor { background: var(--verified); color: inherit; border-bottom: 1px solid var(--blue-graphic); scroll-margin-block: 40%; }
+.reader-focus-anchor:focus { outline: 2px solid var(--blue-graphic); outline-offset: 2px; }
 
 /* ─── RP-2.12 ②：粘贴文本块（user message 内容形态,mono 折叠）───────────────── */
 .paste-block { margin: 4px 0; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-app); overflow: hidden; }
@@ -1434,7 +1456,6 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 /* 批次七②：chat md 富渲染——对话高频子集；标题降档不抢层级,行内 code 走 mono 凡例,代码块复用 paste 块 */
 .chat-markdown { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .chat-markdown p { margin: 0; }
-.chat-typewriter { margin: 0; white-space: pre-wrap; word-break: break-word; line-height: 1.6; }
 .chat-markdown .md-h { margin: 4px 0 0; font-weight: 510; }
 .chat-markdown .md-h-1 { font-size: calc(var(--type-body-size) + 2px); }
 .chat-markdown .md-h-2 { font-size: calc(var(--type-body-size) + 1px); }

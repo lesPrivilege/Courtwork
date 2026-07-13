@@ -25,8 +25,9 @@ has(/\.user-message\s*\{[^}]*border:\s*0;[^}]*background:\s*color-mix\(in srgb, 
 has(/\.conversation-scroll\s*\{[^}]*padding:\s*12px 16px/, '留空即结构：chat 两侧留空须放大（文字不贴边）');
 
 // —— Item 3：chat 内卡片清算 ——
-// 唯 question/门禁为轻卡
-has(/\.turn-card-gate,\s*\.turn-card-question\s*\{[^}]*border:\s*1px solid var\(--border-strong\);\s*border-radius:\s*6px;\s*background:\s*var\(--bg-raised\)/, 'question/门禁须为轻卡（描边+圆角+纯白底）');
+// interaction 使用 generated/verified 微差底色；门禁仍为既有白色轻卡
+has(/\.interaction-turn-card\s*\{[^}]*border:\s*1px solid var\(--border\);\s*border-radius:\s*6px;\s*background:\s*color-mix\(in srgb, var\(--generated\) 82%, var\(--verified\) 18%\)/, 'interaction 须为 hairline + 6px + generated/verified 微差底色');
+has(/\.turn-card-gate\s*\{[^}]*border:\s*1px solid var\(--border-strong\);\s*border-radius:\s*6px;\s*background:\s*var\(--bg-raised\)/, '门禁须保留既有白色轻卡');
 // turn-card 基座保持扁平 message 行（event/artifact/file）
 has(/\.turn-card\s*\{[^}]*border-radius:\s*0;\s*background:\s*transparent/, 'turn-card 基座须保持扁平 message 行');
 // 动作进行时文本惯例式闪烁（灰阶 opacity breathe）

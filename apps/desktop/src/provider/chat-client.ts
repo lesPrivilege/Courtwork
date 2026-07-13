@@ -1,15 +1,24 @@
 import { Channel, invoke } from '@tauri-apps/api/core';
+import { runTurn, type PersistedTurn, type TurnEvent } from '@courtwork/core/turn-protocol';
 import { createOpenAICompatibleProvider } from '@courtwork/provider/openai';
 import { getProviderDescriptor } from '@courtwork/provider/registry';
 import type {
   GenerationMessage,
-  GenerationResponse,
+  GenerationRequest,
+  Provider,
+  ProviderStreamEvent,
   ProviderTransport,
   ProviderTransportEvent,
   ProviderTransportRequest,
 } from '@courtwork/provider/types';
 import type { ModelConfig } from './model-config';
 import { assembleChatSystemPrompt } from './chat-assembly';
+import {
+  createEmptyTurnProjection,
+  projectTurn,
+  type TurnProjection,
+  type TurnProtocolClient,
+} from './turn-protocol-client';
 
 const KEYCHAIN_PLACEHOLDER = '__keychain__';
 
@@ -46,7 +55,7 @@ class AsyncEventQueue implements AsyncIterable<ProviderTransportEvent> {
   }
 }
 
-/** WebView 只提交 provider/model/body；endpoint、header 与 key 全由 Rust catalog/钥匙串决定。 */
+/** WebView only submits provider/model/body; Rust owns endpoint, headers and keychain material. */
 export function createKeychainTransport(): ProviderTransport {
   return {
     stream(request: ProviderTransportRequest): AsyncIterable<ProviderTransportEvent> {
@@ -77,37 +86,118 @@ export function buildChatInvokeInput(request: ProviderTransportRequest) {
   };
 }
 
-export interface ChatTurnResult {
-  content: string;
-  reasoningContent?: string;
-  usage?: { inputTokens: number; outputTokens: number };
+export interface ChatProviderFactoryContext {
+  config: ModelConfig;
+  fetchImpl?: typeof fetch;
+  transport?: ProviderTransport;
 }
 
-type ChatOverride = (messages: GenerationMessage[], systemPrompt?: string) => Promise<ChatTurnResult>;
-let browserOverride: ChatOverride | null = null;
+export type ChatProviderFactory = (context: ChatProviderFactoryContext) => Provider;
 
+export interface ChatStreamTestContext {
+  request: GenerationRequest;
+  requestId: string;
+  providerId: string;
+  modelId: string;
+  signal?: AbortSignal;
+}
+
+export type ChatStreamTestFactory = (context: ChatStreamTestContext) => AsyncIterable<ProviderStreamEvent>;
+
+let browserStreamFactory: ChatStreamTestFactory | null = null;
+
+/** Installed only by main.tsx in explicit DEV+E2E mode. It injects provider events, never a final answer. */
 export function installChatTestHooks() {
-  const hooks = { setResponder(responder: ChatOverride | null) { browserOverride = responder; } };
+  const hooks = {
+    setStreamFactory(factory: ChatStreamTestFactory | null) {
+      browserStreamFactory = factory;
+    },
+  };
   (window as typeof window & { __courtworkChatHooks?: typeof hooks }).__courtworkChatHooks = hooks;
   return hooks;
 }
 
-export async function sendChatTurn(
-  config: ModelConfig,
-  messages: GenerationMessage[],
-  options?: { fetchImpl?: typeof fetch; transport?: ProviderTransport },
-): Promise<ChatTurnResult> {
-  const systemPrompt = assembleChatSystemPrompt();
-  if (browserOverride && !options?.fetchImpl && !options?.transport) return browserOverride(messages, systemPrompt);
-  if (!isTauriRuntime() && !options?.fetchImpl && !options?.transport) throw new Error('对话请求仅在桌面应用内可用');
-  const provider = createOpenAICompatibleProvider(getProviderDescriptor(config.providerId), {
+function configuredProvider({ config, fetchImpl, transport }: ChatProviderFactoryContext): Provider {
+  if (browserStreamFactory && !fetchImpl && !transport) {
+    const streamFactory = browserStreamFactory;
+    return {
+      id: config.providerId,
+      modelId: config.modelId,
+      stream(request, options) {
+        return streamFactory({
+          request,
+          requestId: options?.requestId ?? crypto.randomUUID(),
+          providerId: config.providerId,
+          modelId: config.modelId,
+          ...(options?.signal ? { signal: options.signal } : {}),
+        });
+      },
+      async generate() {
+        throw new Error('E2E stream providers must run through core runTurn');
+      },
+    };
+  }
+  if (!isTauriRuntime() && !fetchImpl && !transport) throw new Error('对话请求仅在桌面应用内可用');
+  return createOpenAICompatibleProvider(getProviderDescriptor(config.providerId), {
     auth: { kind: 'api_key', apiKey: KEYCHAIN_PLACEHOLDER },
     billing: { kind: 'metered' },
     modelId: config.modelId,
     reasoningLevel: config.reasoning,
-    ...(options?.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
-    transport: options?.transport ?? (!options?.fetchImpl ? createKeychainTransport() : undefined),
+    ...(fetchImpl ? { fetchImpl } : {}),
+    transport: transport ?? (!fetchImpl ? createKeychainTransport() : undefined),
   });
-  const response: GenerationResponse = await provider.generate({ systemPrompt, messages });
-  return { content: response.content, reasoningContent: response.reasoningContent, usage: response.usage };
+}
+
+export interface SendChatTurnOptions {
+  fetchImpl?: typeof fetch;
+  transport?: ProviderTransport;
+  providerFactory?: ChatProviderFactory;
+  signal?: AbortSignal;
+  onEvent?: (event: TurnEvent) => void;
+  onProjection?: (projection: TurnProjection, event: TurnEvent) => void;
+  identityFactory?: () => { turnId: string; providerRequestId: string };
+}
+
+export interface ChatTurnRun {
+  turnId: string;
+  providerRequestId: string;
+  terminal: PersistedTurn;
+  projection: TurnProjection;
+}
+
+function nextIdentity(): { turnId: string; providerRequestId: string } {
+  return {
+    turnId: `chat-${crypto.randomUUID()}`,
+    providerRequestId: `provider-${crypto.randomUUID()}`,
+  };
+}
+
+/** Every visible delta and terminal state is projected from core TurnEvent. */
+export async function sendChatTurn(
+  client: TurnProtocolClient,
+  config: ModelConfig,
+  messages: GenerationMessage[],
+  options: SendChatTurnOptions = {},
+): Promise<ChatTurnRun> {
+  const identity = (options.identityFactory ?? nextIdentity)();
+  const provider = (options.providerFactory ?? configuredProvider)({
+    config,
+    ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
+    ...(options.transport ? { transport: options.transport } : {}),
+  });
+  let projection = createEmptyTurnProjection(identity.turnId);
+  const terminal = await runTurn({
+    turnId: identity.turnId,
+    providerRequestId: identity.providerRequestId,
+    provider,
+    request: { systemPrompt: assembleChatSystemPrompt(), messages },
+    store: client.store,
+    ...(options.signal ? { signal: options.signal } : {}),
+    onEvent(event) {
+      projection = projectTurn(projection, event);
+      options.onEvent?.(event);
+      options.onProjection?.(projection, event);
+    },
+  });
+  return { ...identity, terminal, projection };
 }
