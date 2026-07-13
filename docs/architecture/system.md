@@ -8,9 +8,9 @@
 apps/desktop
     │  产品壳、宿主能力、renderer host
     ▼
-packages/core ───── packages/legal / packages/pm-schemas
+packages/core ─────► packages/provider
     │                         │
-    ├── packages/registry ◄───┘
+    ├── packages/registry ◄── packages/legal / packages/pm-schemas
     ├── packages/tools
     ├── packages/output ───► packages/reading-view
     └── packages/schemas ◄── registry/tools/output/reading-view/vertical packages
@@ -29,6 +29,7 @@ services/ingest       Python OCR/分类/实体对齐（尚待实现）
 | `packages/schemas` | 领域无关 wire 契约与基础类型 |
 | `packages/registry` | 包 ABI、准入校验与运行注册表 |
 | `packages/core` | provider 无关的执行、组装、事件、门禁与续行机制 |
+| `packages/provider` | provider port、OpenAI Chat Completions adapter、流归一、能力 profile 与当期 DeepSeek 实现 |
 | `packages/tools` | 确定性工具契约及受限宿主执行器 |
 | `packages/reading-view` | docx/md/txt/文本层 PDF 到阅读视图与 SourceAnchor |
 | `packages/output` | docx 安全预检、定位、修订、批注与编译 |
@@ -69,17 +70,17 @@ services/ingest       Python OCR/分类/实体对齐（尚待实现）
 
 desktop 可以承载系统文件选择、钥匙串、打开文件、renderer host 与用户交互，但不得复制垂类类型路由、词表或 demo 语料真值。所有领域显示应由 package registry 和 descriptor 驱动。当前仍有少量 desktop 直连法律/demo 的历史漂移，列入 [当前基线](../status/current.md)。
 
-## Provider 兼容边界
+## Provider 与 Turn 兼容边界
 
-core 只依赖 OpenAI-compatible 抽象。结构化输出优先使用严格 `json_schema`；provider 仅支持 `json_object` 时，由 quirk profile 显式声明并继续经过 Zod 校验与受限重试。能力降档、重试耗尽和响应非法都必须变成结构化失败，不能静默返回空 artifact。
+core 只依赖 `packages/provider` 的 provider port 与流事件，不依赖 OpenAI wire 字段或具名 provider。`packages/provider` 当期以 OpenAI Chat Completions 为协议基线，只注册 DeepSeek；结构化输出优先严格 `json_schema`，具名 profile 仅支持 `json_object` 时才显式降档，并继续经过 Zod 校验与受限重试。能力降档、重试耗尽和响应非法都必须变成结构化失败，不能静默返回空 artifact。
 
-provider 的 base URL、模型、推理字段和 response format 差异集中在 profile/adapter 层；业务代码、场景和垂类包不得按模型名称分支。
+base URL、模型、推理字段和 response format 差异集中在具名 profile/adapter；业务代码、场景和垂类包不得按模型名称分支。desktop 不开放猜测能力的 custom provider。详细 Turn、受控提问、持久化与钥匙串边界见 [ADR-007](../decisions/ADR-007-provider-turn-protocol.md)。
 
 ## 技术基线
 
 - Node 22+、pnpm workspace、TypeScript strict、Vitest；
 - Tauri v2 + React；
 - Python ingest 独立服务，uv 管理；
-- provider 统一走 OpenAI-compatible 抽象，具名例外必须进入 quirk 层；
+- provider 当期统一走 OpenAI Chat Completions adapter，具名例外必须进入 provider profile；
 - agent loop 自研，只借鉴轻量、协议化、provider 无关的设计形状；
 - 模型和 provider 不得写死在业务代码。

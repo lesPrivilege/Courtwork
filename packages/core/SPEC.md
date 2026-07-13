@@ -2,6 +2,18 @@
 
 状态：已完成（0.1 DeepSeek-first；含 PRV-1 provider 自配路由声明）
 
+## 现行架构工单（2026-07-13）
+
+### TURN-1 · 模型回合生命周期
+
+权威：[ADR-007](../../docs/decisions/ADR-007-provider-turn-protocol.md)。core 消费 `@courtwork/provider` 的瞬态流并发布 provider 无关的 turn 生命周期：turn、assistant message、reasoning 的 started/delta/completed，usage，completed/failed。持久层至少保存最终正文、可选 reasoning、usage 与失败；瞬态 delta 不要求逐片落盘。取消、失败、空正文、无 reasoning 均需确定性终态，UI 不得靠计时器猜测状态。
+
+reasoning 只按模型生成内容处理，不具有证据、坐标或裁决权；不得由系统伪造。TURN-1 不实现任意 tool calling，不改垂类 schema。
+
+### INTERACTION-1 · 受控提问与续行
+
+core 只接受 registry 已解析的 `templateId + anchorRefs` 请求。校验通过后追加不可变 `interaction_requested` 并暂停 turn；回答追加 `interaction_resolved` 后续行。未知模板、非法选项、越权/失效锚点必须失败，刷新后未决交互必须可重建。批量确认与已有 artifact confirmation 语义不被本工单改写。
+
 ## 职责
 
 Headless agent core。协议化对外（会话/事件流），UI 是纯客户端；provider 无关；场景执行器是核心。
