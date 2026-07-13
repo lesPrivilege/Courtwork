@@ -4,6 +4,8 @@ import { resolve } from 'node:path';
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
 const sources = Object.fromEntries(files.map((file) => [file, readFileSync(resolve(file), 'utf8')]));
 const icon = readFileSync(resolve('site/assets/icon.svg'), 'utf8');
+const contractFixture = readFileSync(resolve('packages/demo-data/data/dossier/04-设备采购合同.md'), 'utf8');
+const riskFixture = JSON.parse(readFileSync(resolve('packages/demo-data/data/artifacts/risk-list.json'), 'utf8'));
 const failures = [];
 const bannedCopy = ['赋能', '打造', '一站式', 'streamline', 'empower', 'supercharge', 'scroll to explore'];
 const bannedVisual = ['linear-gradient', 'radial-gradient', 'conic-gradient', 'gradient-text', 'aurora', 'mesh-gradient', 'drop-shadow'];
@@ -40,10 +42,27 @@ if ((html.match(/class="mac-window/g) ?? []).length !== 1) failures.push('site/i
 if (/scene-mark|>\s*0[1-9]\s*</i.test(html)) failures.push('site/index.html: placeholder section scaffolding is not allowed');
 if (/trust-list|feature-card|card-grid/i.test(`${html}\n${css}`)) failures.push('site: card-grid trust/feature scaffolding is not allowed');
 if (!/<a class="wordmark"[^>]*><img[^>]*><span>Courtwork<\/span><\/a>/.test(html)) failures.push('site/index.html: core mark must sit immediately left of Courtwork');
-if (!html.includes('下载 macOS 版') || html.includes('Download for macOS')) failures.push('site/index.html: macOS CTA must use the product language');
+const releaseHref = html.match(/href="([^"]+\.dmg)"/i)?.[1];
+const releaseSha = html.match(/data-release-sha[^>]*>([0-9a-f]{64})</i)?.[1];
+if (html.includes('Download for macOS')) failures.push('site/index.html: macOS CTA must use the product language');
+if (releaseHref) {
+  if (!html.includes('下载 macOS 版') || !releaseSha) failures.push('site/index.html: published macOS CTA requires Chinese copy and a 64-character artifact SHA');
+  if (html.includes('macOS 制品尚未发布')) failures.push('site/index.html: published and unpublished release states cannot coexist');
+} else {
+  if (!html.includes('macOS 制品尚未发布')) failures.push('site/index.html: missing macOS artifact must be stated explicitly');
+  if (releaseSha || /releases\/(?:download|tag)\//i.test(html)) failures.push('site/index.html: unpublished macOS state must not expose an artifact SHA or release link');
+}
 if (!html.includes('原件') || !html.includes('引语') || !html.includes('人工确认')) failures.push('site/index.html: Evidence Line semantics are incomplete');
 if (!/viewBox="0 0 24 24"/.test(icon) || /<(?:rect|circle|ellipse|polygon)\b/.test(icon)) failures.push('site/assets/icon.svg: wordmark mark must be core path geometry without a base');
 if ((icon.match(/<path\b/g) ?? []).length !== 4) failures.push('site/assets/icon.svg: core brand geometry must contain four paths');
+
+const firstRisk = riskFixture.risks?.[0];
+const sourceAnchor = firstRisk?.basis?.[0]?.sourceAnchors?.[0];
+const displayedQuote = html.match(/data-stage="quote"[\s\S]*?<blockquote>“?([^<”]+)”?<\/blockquote>/)?.[1];
+if (sourceAnchor?.fileId !== '04-设备采购合同.md' || !contractFixture.includes(sourceAnchor?.quote ?? '')) failures.push('site: Evidence Line source anchor is not backed by the dossier fixture');
+if (!displayedQuote || !sourceAnchor.quote.includes(displayedQuote)) failures.push('site/index.html: displayed quote is not a verbatim slice of the fixture anchor');
+if (!html.includes(sourceAnchor.quote) || !html.includes('04-设备采购合同 · 第 1 页')) failures.push('site/index.html: original node does not identify the fixture source and quote');
+if (firstRisk?.level !== 'high' || firstRisk?.dispositionStatus !== 'pending' || !html.includes('高风险 · 依据已核验') || !html.includes('待确认 · 不自动送出')) failures.push('site/index.html: conclusion and confirmation states drift from the fixture');
 
 if (failures.length) {
   console.error(failures.join('\n'));
