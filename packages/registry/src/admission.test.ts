@@ -3,6 +3,37 @@ import * as z from 'zod';
 import type { VerticalPackageManifest } from './package-manifest.js';
 import { admitPackages } from './admission.js';
 
+type TestInteractionTemplate = {
+  id: string;
+  kind: string;
+  question: string;
+  options: Array<{ id: string; label: string; description?: string }>;
+  skippable: boolean;
+  anchorPolicy: string;
+  uiTemplateId: string;
+};
+
+const VALID_INTERACTION_TEMPLATE: TestInteractionTemplate = {
+  id: 'legal.review-position',
+  kind: 'single_choice',
+  question: '本次审查应以哪一方立场展开？',
+  options: [
+    { id: 'buyer', label: '买方' },
+    { id: 'seller', label: '卖方' },
+  ],
+  skippable: false,
+  anchorPolicy: 'none',
+  uiTemplateId: 'question-card',
+};
+
+function withInteractionTemplates(
+  manifest: VerticalPackageManifest,
+  templates: TestInteractionTemplate[],
+): VerticalPackageManifest {
+  (manifest as unknown as { interactionTemplates?: TestInteractionTemplate[] }).interactionTemplates = templates;
+  return manifest;
+}
+
 function makeManifest(overrides: Partial<VerticalPackageManifest> = {}): VerticalPackageManifest {
   return {
     identity: { packageId: 'legal', version: '0.1.0', schemaVersion: 1 },
@@ -54,6 +85,102 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
     const result = admitPackages([makeManifest()]);
     expect(result.rejected).toEqual([]);
     expect(result.admitted).toHaveLength(1);
+  });
+
+  it('合法 InteractionTemplate 随包准入', () => {
+    const result = admitPackages([withInteractionTemplates(makeManifest(), [VALID_INTERACTION_TEMPLATE])]);
+    expect(result.rejected).toEqual([]);
+    expect(result.admitted).toHaveLength(1);
+  });
+
+  it('非对象 interaction template 必须形成拒载结果而不是击穿准入边界', () => {
+    const malformed = makeManifest();
+    (malformed as unknown as { interactionTemplates: unknown[] }).interactionTemplates = [null];
+
+    const result = admitPackages([malformed]);
+
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected).toHaveLength(1);
+    expect(result.rejected[0]!.issues.join()).toContain('interaction template');
+  });
+
+  it('非数组 interactionTemplates 必须形成拒载结果而不是击穿准入边界', () => {
+    const malformed = makeManifest();
+    (malformed as unknown as { interactionTemplates: unknown }).interactionTemplates = {};
+
+    const result = admitPackages([malformed]);
+
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected).toHaveLength(1);
+    expect(result.rejected[0]!.issues.join()).toContain('interactionTemplates');
+  });
+
+  it('先到拒载包的 interaction template id 不占用后到合法包', () => {
+    const rejected = withInteractionTemplates(makeManifest(), [VALID_INTERACTION_TEMPLATE]);
+    rejected.vocabulary = { 'container.noun': '卷宗' };
+    const valid = withInteractionTemplates(makeManifest(), [VALID_INTERACTION_TEMPLATE]);
+
+    const result = admitPackages([rejected, valid]);
+
+    expect(result.rejected.map((entry) => entry.packageId)).toEqual(['legal']);
+    expect(result.admitted).toEqual([valid]);
+    expect(result.rejected[0]!.issues.join()).not.toContain('跨包重复');
+  });
+
+  it('interaction template id 必须归本包命名空间', () => {
+    const alien = { ...VALID_INTERACTION_TEMPLATE, id: 'pm.review-position' };
+    const result = admitPackages([withInteractionTemplates(makeManifest(), [alien])]);
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toContain('interaction template');
+    expect(result.rejected[0]!.issues.join()).toContain('命名空间');
+  });
+
+  it('interaction template 空选项与重复 option id 均拒载', () => {
+    const empty = admitPackages([
+      withInteractionTemplates(makeManifest(), [{ ...VALID_INTERACTION_TEMPLATE, options: [] }]),
+    ]);
+    expect(empty.admitted).toEqual([]);
+    expect(empty.rejected[0]!.issues.join()).toContain('options');
+
+    const duplicate = admitPackages([
+      withInteractionTemplates(makeManifest(), [
+        {
+          ...VALID_INTERACTION_TEMPLATE,
+          options: [
+            { id: 'same', label: '一' },
+            { id: 'same', label: '二' },
+          ],
+        },
+      ]),
+    ]);
+    expect(duplicate.admitted).toEqual([]);
+    expect(duplicate.rejected[0]!.issues.join()).toContain('option id 必须唯一');
+  });
+
+  it('interaction template 非 question-card uiTemplateId 拒载', () => {
+    const invalidUi = { ...VALID_INTERACTION_TEMPLATE, uiTemplateId: 'legal-question-card' };
+    const result = admitPackages([withInteractionTemplates(makeManifest(), [invalidUi])]);
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toContain('uiTemplateId');
+  });
+
+  it('跨包重复 interaction template id 拒绝后到包，不污染先到包', () => {
+    const first = withInteractionTemplates(makeManifest(), [VALID_INTERACTION_TEMPLATE]);
+    first.artifacts = [];
+    first.scenarios = [];
+    first.promptSegments = [];
+    first.renderers = [];
+
+    const second = withInteractionTemplates(makeManifest(), [VALID_INTERACTION_TEMPLATE]);
+    second.identity = { packageId: 'pm', version: '0.1.0', schemaVersion: 1 };
+    second.artifacts = [];
+    second.scenarios = [];
+    second.promptSegments = [];
+    second.renderers = [];
+
+    const result = admitPackages([first, second]);
+    expect(result.admitted.map((manifest) => manifest.identity.packageId)).toEqual(['legal']);
+    expect(result.rejected[0]!.issues.join()).toContain('跨包重复');
   });
 
   it('同 packageId 拒载后到者，先到者存活', () => {

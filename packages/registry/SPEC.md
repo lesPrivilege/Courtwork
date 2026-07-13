@@ -6,6 +6,8 @@
 
 ### INTERACTION-1 · 垂类注入的通用交互模板
 
+实现状态：INTERACTION-1A registry/vertical 段已完成，待异会话验收；core 暂停续行与 desktop 通用 renderer 不在本工单。
+
 在 `VerticalPackageManifest` 增加可选 `interactionTemplates`。每项是 strict、namespaced、装载期可校验的 `InteractionTemplate`：
 
 ```ts
@@ -23,6 +25,14 @@ type InteractionTemplate = {
 内容、选项与锚点策略属于垂类包；颜色、布局、键盘行为属于 desktop 通用 renderer。准入必须拒绝重复 id、空选项、重复 option id、非法 namespace，以及 `required` 却无法由当前请求提供/解析锚点的情形。registry 提供按 package + template id 解析的只读 API，不把法律字段或 demo 真值带入 core/desktop。
 
 解析 API 返回深只读快照；core 在请求时把快照复制进事件，不能在回放时重新查 manifest。模板只声明锚点政策和垂类解析规则，不携带运行时 bbox/textRange，也不接受模型直写系统坐标。
+
+#### INTERACTION-1A 实现记录（2026-07-13）
+
+- `InteractionTemplateSchema` 与嵌套 option 均为 strict；模板 id namespaced，kind 仅 `single_choice | confirmation`，`uiTemplateId` 仅 `question-card`，选项至少一项且 option id 唯一。未知字段会拒载，因此 `anchorRefs`、`bbox`、`textRange` 等运行时事实不能混入包模板。
+- `VerticalPackageManifest.interactionTemplates` 可选；未声明的存量包保持原行为。`admitPackages` 逐包校验模板形状、命名空间所有权、包内/跨包 template id 冲突，并保持“一包拒载不传染他包”。只有成功准入包的 template id 才占用全局所有权，失败包不会污染后到包。
+- `buildPackageRegistries().interactionTemplates.get(packageId, templateId)` 使用双键查询；装配时复制 template、options 与每个 option 后逐层 `Object.freeze`。调用方既不能经返回值改写，也不能靠事后修改源 manifest 改写已装配快照。
+- 本段只落包级声明与查询机械件。`anchorPolicy: required` 的请求期锚点存在性/解析校验属于 ADR-007 后续 core 工单；本段不创建运行时 anchor、不写 interaction 事件、不实现暂停续行。
+- TDD 证据：旧实现定点 36 条中 9 条按预期红（schema/准入/查询面缺失）；实现后 registry 三文件与 legal manifest 合计 45/45 绿。最终全仓 build 12/12 workspace、ESLint 通过、Vitest 108 files / 879 tests。
 
 ## 职责
 

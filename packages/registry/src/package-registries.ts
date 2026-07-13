@@ -6,6 +6,7 @@ import {
 } from '@courtwork/schemas';
 import {
   NEUTRAL_VOCABULARY,
+  type InteractionTemplate,
   type PackageScenario,
   type RendererDescriptor,
   type ScenarioStep,
@@ -64,12 +65,31 @@ export interface VocabularyRegistry {
   lookup(packageId: string, key: string): string;
 }
 
+export type InteractionTemplateSnapshot = Readonly<
+  Omit<InteractionTemplate, 'options'> & {
+    options: readonly Readonly<InteractionTemplate['options'][number]>[];
+  }
+>;
+
+export interface InteractionTemplateRegistry {
+  /** packageId 与 namespaced templateId 双键查询；返回装载时复制并深冻结的快照。 */
+  get(packageId: string, templateId: string): InteractionTemplateSnapshot | undefined;
+}
+
 export interface PackageRegistries {
   artifactSchemas: ArtifactSchemaRegistry;
   scenarios: ScenarioRegistryV2;
   renderers: RendererRegistry;
   projections: ProjectionRegistry;
   vocabulary: VocabularyRegistry;
+  interactionTemplates: InteractionTemplateRegistry;
+}
+
+function snapshotInteractionTemplate(template: InteractionTemplate): InteractionTemplateSnapshot {
+  const options = Object.freeze(
+    template.options.map((option) => Object.freeze({ ...option })),
+  );
+  return Object.freeze({ ...template, options });
 }
 
 function deriveSteps(scenario: PackageScenario, descriptors: Map<string, ArtifactDescriptor>): ScenarioStep[] {
@@ -94,7 +114,7 @@ function scenarioMatches(
 }
 
 /**
- * 五 registry 装配（准入通过的包 → 运行时查询面）。纯函数：同輸入同结构；
+ * 运行时 registries 装配（准入通过的包 → 查询面）。纯函数：同输入同结构；
  * 加载期解析闭合在此完成（promptSegmentRef → promptBody、steps 派生）。
  */
 export function buildPackageRegistries(admitted: VerticalPackageManifest[]): PackageRegistries {
@@ -103,6 +123,7 @@ export function buildPackageRegistries(admitted: VerticalPackageManifest[]): Pac
   const rendererEntries = new Map<string, RendererDescriptor>();
   const legacyAliases: Record<string, string> = {};
   const vocabularies = new Map<string, Record<string, string>>();
+  const interactionEntries = new Map<string, Map<string, InteractionTemplateSnapshot>>();
 
   for (const manifest of admitted) {
     const packageId = manifest.identity.packageId;
@@ -126,6 +147,11 @@ export function buildPackageRegistries(admitted: VerticalPackageManifest[]): Pac
     for (const renderer of manifest.renderers) {
       rendererEntries.set(renderer.uiTemplateId, renderer);
     }
+    const packageInteractionEntries = new Map<string, InteractionTemplateSnapshot>();
+    for (const template of manifest.interactionTemplates ?? []) {
+      packageInteractionEntries.set(template.id, snapshotInteractionTemplate(template));
+    }
+    interactionEntries.set(packageId, packageInteractionEntries);
     for (const [legacy, target] of Object.entries(manifest.identity.legacyTypeAliases ?? {})) {
       // 先到者持有别名（准入层同 id 拒载使跨包撞名不可达；防御性不覆写）。
       if (legacyAliases[legacy] === undefined) legacyAliases[legacy] = target;
@@ -152,6 +178,9 @@ export function buildPackageRegistries(admitted: VerticalPackageManifest[]): Pac
     },
     vocabulary: {
       lookup: (packageId, key) => vocabularies.get(packageId)?.[key] ?? NEUTRAL_VOCABULARY[key] ?? '',
+    },
+    interactionTemplates: {
+      get: (packageId, templateId) => interactionEntries.get(packageId)?.get(templateId),
     },
   };
 }

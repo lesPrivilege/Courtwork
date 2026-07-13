@@ -65,4 +65,31 @@ describe('LEGAL_PACKAGE（法律包准入自证：迁包后包必须过自己要
   it('容器词表：卷宗语义住包', () => {
     expect(registries.vocabulary.lookup('legal', 'container.noun')).toBe('卷宗');
   });
+
+  it('受控交互模板内容住 legal，至少覆盖无锚选择与 required 锚点确认', () => {
+    expect(LEGAL_PACKAGE.interactionTemplates?.map((template) => template.id)).toEqual([
+      'legal.contract-review-position',
+      'legal.risk-evidence-confirmation',
+    ]);
+
+    const position = registries.interactionTemplates.get('legal', 'legal.contract-review-position');
+    expect(position).toMatchObject({
+      kind: 'single_choice',
+      anchorPolicy: 'none',
+      uiTemplateId: 'question-card',
+      skippable: false,
+    });
+    expect(position?.question).toContain('哪一方立场');
+    expect(position?.options.map((option) => option.id)).toEqual(['buyer', 'seller', 'balanced']);
+
+    const evidence = registries.interactionTemplates.get('legal', 'legal.risk-evidence-confirmation');
+    expect(evidence).toMatchObject({
+      kind: 'confirmation',
+      anchorPolicy: 'required',
+      uiTemplateId: 'question-card',
+      skippable: false,
+    });
+    expect(evidence?.question).toContain('回到原文');
+    expect(evidence?.options.map((option) => option.id)).toEqual(['confirm', 'revise']);
+  });
 });
