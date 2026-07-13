@@ -220,3 +220,70 @@ risk-07 的既有边界未被门禁误改：其编译结果仍不签发 `evidenc
 **通过。** 逐个核对 `b3cd453`、`ba91723`、`161804a`、`27c1d25`、`8e3913f` 的文件清单：两个 schemas 契约增量、core 行为整改、通用命名清理、core SPEC 记录各自独立；无 core 会话触碰 `eval/ACCEPTANCE.md` 或其他 eval 文件。当前工作区的 `eval/ACCEPTANCE.md` 修改与未跟踪 `usecase/` 为验收前已有状态，全程保留且未触碰。
 
 `packages/schemas/SPEC.md` 的两个整改提交分别为 `1 insertion / 0 deletion`，`packages/core/SPEC.md` 为 `12 insertions / 0 deletion`，均为文件末尾纯追加。本“补验结论”亦仅追加在原 W6 报告末尾，未改写原结论与证据。
+
+## LUNA-ACCEPT 合并态独立验收（2026-07-13，纯追加）
+
+角色：未参与任何实现的独立验收者。只记录，不修复；本轮无 `fix-by-acceptance`，无产品代码改动。
+
+### 1. 验收基线与证据等级
+
+- 独立 worktree：`/Users/lesprivilege/Projects/Courtwork-acceptance-luna`，detached `HEAD`，基线 `4ab60449692c31a066ebb20ba47d6d49981469cc`；`06de9e5`、`41b3a0b` 均为祖先。
+- 端口：独立 `http://127.0.0.1:1421`；共享主树服务未复用。浏览器走查 viewport 为 `1280×720`。
+- 依赖：该 worktree 实跑 `pnpm install --frozen-lockfile`，无 lockfile 改写。
+- E3 已满足的部分：独立 worktree/端口、全仓 build、双轮 Playwright、真实退出码、浏览器截图与控制台读取。E3 未闭合项在下文明确列出：真 key/真 provider 七通道尚未取得，且包测试计数不符。
+
+### 2. 全门实跑（不采信完工自述）
+
+| 门 | 实测结果 |
+|---|---|
+| `pnpm -r build` | ✅ exit 0；10/11 workspace project 实际构建，desktop Vite 3452 modules；仅 chunk size warning |
+| `pnpm test -- packages/` | ✅ exit 0；83 files，753 tests |
+| `pnpm exec vitest run packages eval/src` | ✅ exit 0；97 files，817 tests |
+| FABLE-HARNESS 声称的 package 839 | 🔴 clean main 仅 817（全 packages 口径为 753），少 22；主树未跟踪 `packages/pm-schemas` 含 3 个测试文件/约 22 tests，但不在本 detached main tip，不能借用其结果 |
+| desktop Vitest | ✅ exit 0；21 files，99 tests |
+| Playwright list | ✅ exit 0；190 tests / 32 files |
+| Playwright full run #1 | ✅ exit 0；16 gate scripts 全通过，190 passed |
+| Playwright full run #2 | ✅ exit 0；16 gate scripts 全通过，190 passed |
+| `pnpm lint` | ✅ standalone exit 0；未接管道尾码 |
+| Rust `cargo test` | ✅ exit 0；16 passed，0 failed，0 doc-test failed |
+
+结论：`build / desktop 99 / e2e 190×2 / 16 gates / lint / cargo` 亲跑成立；**839 这一必要门在 clean main 不成立**。该差额不能以共享主树的未跟踪 WIP 补齐，列为 `LUNA-CONTRACT-001 🔴`。
+
+### 3. 八项放行标准与反例
+
+| 标准 | 证据与结果 |
+|---|---|
+| byte-stable 双 golden、DIFF 敏感性 | ✅ 两座 golden/字节稳定/正交段断言通过；临时改 golden 1 字符后单跑 exit 1，golden 对照变红，恢复后无 diff |
+| ref 禁上 wire | ✅ `promptSegmentRef`/`-v0` wire 全文断言通过；临时回填 `promptSegmentRef` 后 registry 单跑 exit 1 |
+| 材料边界与祈使句保留 | ✅ boundary 与 imperative sentence 通过；临时清空 boundary 后 2 个测试变红 |
+| `quote===slice` 逐锚 | ✅ resolver 精确坐标/quote slice 通过；临时 `start + 1` 后 3 个测试变红 |
+| 变异矩阵抽验 | ✅ 本轮亲手抽 4 项，4/4 变红；另以越界 import/字面量 sentinel 验证 package-boundary 不是空转 |
+| `assert-no-demo-in-real` 反例 | ✅ `run-s3-real.test.ts` 7/7；缺 provider、脚本 provider、事件 `demo-fixture`、demo material、假 anchor 等反例均被拒 |
+| 真机证据七通道 | ❓ real-shaped provider 测试得到 sha256、promptSha256、versionTriple、modelEvents、citationStats、gatePaused、demo violations 等字段；但本会话无真 key，未完成真 provider/真卷宗七通道，按 `packages/core/SPEC.md` 的用户手动项留置 |
+| core 包域律 | ✅ clean grep 通过，composition/acceptance 白名单例外成立；临时新增 forbidden import/literal 后 package-boundary exit 1 |
+
+### 4. 五提案逐条核对
+
+1. `citationStats`：✅ `artifact_produced` 可选字段、executor 入账、desktop providerNotices 传递及测试均在。
+2. core 依赖 legal/reading-view：✅ `package.json` 依赖存在；生产越界仅限已批准的 composition/acceptance 白名单；real S3 走 legal/reading-view，机器守卫通过。
+3. “谁的机器读，住谁家”：✅ `RevisionInstructionSet`、`FileOpsPlan`、`IngestStatus` 留中央 schemas；legal 仅消费/re-export，output/tools/reading-view 依中央契约。
+4. steps + `promptSegmentRef` + projection：✅ registry/runtime 去 ref、步骤树、prompt 构造与 projection 断言均通过。
+5. `statuteRef` 挂账 + MCP 双轨：❓ `[需架构拍板]`。`statuteRef` 已在 schemas/output 使用，但 `packages/legal/SPEC.md:43` 仍保留未勾选的“提案，需架构拍板”；本 tip 代码未见 MCP 双轨落地，不能把“照案”自述当作完成。
+
+### 5. 上半结论
+
+- A 线放行：**❌ 不放行**。直接阻断为 `LUNA-CONTRACT-001 🔴`（clean main 817 ≠ 要求 839）；真 key 七通道与 `statuteRef/MCP` 仍需分别补证/拍板。
+- 树面自足可 push：**❌ 不可判定为可 push**。detached 树本身干净且可 build，但不能自足重现 839；共享主树的 `packages/pm-schemas` WIP 不在验收树内，本轮没有推送。
+- 本报告仅追加；修复权留给裁决之后。
+
+### 6. 架构裁决追加（2026-07-13）
+
+架构裁决确认 luna “数字不符即拦”程序正确，并建立数字语境判例：839 中的 22 项全属 B 线 WIP；A 线交付在 clean main 的正确口径为 **817/817 全绿**。据此，A 线在数字语境更正后判为**实质放行**，真 key 通道与 `statuteRef/MCP` 留置照案，不构成当前阻断。
+
+正式放行与 Push 门仍须三条件同时闭环：
+
+1. FABLE-HARNESS 记录补入数字语境更正；
+2. GPT-SCHEMA 线修复 `LUNA-UI-001` Minimap 未处理 TypeError，补守护测试，并在第 0 步代收编 luna 两份报告；
+3. B 线合流后总数字归位。
+
+在三条件齐备前不 push；luna 不代修、不代收账。
