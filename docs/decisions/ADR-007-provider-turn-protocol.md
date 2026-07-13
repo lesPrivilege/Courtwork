@@ -1,8 +1,8 @@
 # ADR-007：Provider、Turn 与受控交互协议
 
-- 状态：Proposed
+- 状态：Accepted
 - 日期：2026-07-13
-- 来源：`ffde4ab`
+- 来源：`0ba871d`
 
 ## 背景
 

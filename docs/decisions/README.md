@@ -10,7 +10,7 @@
 | [ADR-004](ADR-004-documents-and-files.md) | 文档生命周期与文件操作 | Accepted |
 | [ADR-005](ADR-005-data-security.md) | 状态、隐私与安全 | Accepted |
 | [ADR-006](ADR-006-ui-host.md) | UI 宿主与设计系统 | Accepted |
-| [ADR-007](ADR-007-provider-turn-protocol.md) | Provider、Turn 与受控交互协议 | Proposed |
+| [ADR-007](ADR-007-provider-turn-protocol.md) | Provider、Turn 与受控交互协议 | Accepted |
 
 ## 变更规则
 

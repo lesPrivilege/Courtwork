@@ -1,6 +1,6 @@
 # SPEC: packages/provider
 
-状态：架构工单已提出，待 ADR-007 Accepted 后实现
+状态：ADR-007 已接受；PROVIDER-1 待实现
 
 ## 职责
 
