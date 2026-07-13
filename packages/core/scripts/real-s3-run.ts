@@ -1,5 +1,5 @@
 import { runS3Real } from '../src/acceptance/run-s3-real.js';
-import { resolveSmokeTargets } from '../src/provider/smoke.js';
+import { resolveSmokeTargets } from '@courtwork/provider/smoke';
 
 /**
  * LEGAL-REAL 真卷宗真跑（用户执行）：

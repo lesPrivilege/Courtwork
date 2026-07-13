@@ -14,6 +14,8 @@
 
 随 PROVIDER-1 移除 custom provider 与可编辑 base URL；只显示 DeepSeek API key、模型和 reasoning 选择。UI 分开表达“凭证已存储”和“连接已验证/失败”，不得以填入 key 直接显示 connected。未来 provider 由 descriptor 驱动追加，当前不造空壳 provider 面板。
 
+实现留痕（2026-07-13，待独立验收）：引导卡与 Settings 已删除 provider selector、`custom` 分支和 Base URL 输入，固定显示注册表中的 DeepSeek；key 继续只经既有 credential client 写钥匙串，模型发现/手填与 standard/deep reasoning 保留。`model-config` 从 `@courtwork/provider` descriptor 派生 provider/model/route，旧 `custom/baseUrl` localStorage 值回落默认配置；chat 对伪造 provider id 显式拒绝，不再合成 `json_object + reasoning_content + reasoning_effort` 临时 profile。端点失败文案不再要求用户检查不可编辑的 Base URL。Rust 兼容层未改，归 PROVIDER-2。
+
 ### POLISH-P0 · Minimap 生命周期与视觉基线
 
 目标：先消除 Graph 快速卸载时 G6 Minimap 延迟回调访问已销毁 options 的运行时错误，再重建与当前代码同源的视觉证据。
@@ -62,7 +64,7 @@
 
 ## PRV-1 · provider 自配最小闭环（2026-07-11）
 
-- 引导卡与设置页接入 `base URL + API key + 模型名`：0.1 只内置 DeepSeek，由 core quirk 自动给 URL/推荐模型；自定义档可编辑 URL且须先通过探针。Qwen/豆包移入 provider roadmap，等待团队/上游插件以真 wire 证据接入。根 URL自动规范到 `/v1`。托管积分档只保留禁用占位。
+- 历史实现：引导卡与设置页曾接入 `base URL + API key + 模型名`，并开放自定义 OpenAI-compatible 档。该产品入口已由 ADR-007 / PROVIDER-1 取代；现行 UI 只登记 DeepSeek，不再允许编辑 URL 或猜测任意端点能力。托管积分档仍只保留禁用占位。
 
 ## HARNESS-0.1 实现记录（2026-07-12）
 

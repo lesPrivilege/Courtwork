@@ -1,5 +1,5 @@
 import { evaluateS3DemoGolden, runS3Demo } from '../src/acceptance/run-s3-demo.js';
-import { resolveSmokeTargets } from '../src/provider/smoke.js';
+import { resolveSmokeTargets } from '@courtwork/provider/smoke';
 
 // DeepSeek-first 真模型首跑：COURTWORK_S3_REAL=DeepSeek + DEEPSEEK_API_KEY
 // （形制同 smoke:provider）；未设置时保持 demo ScriptedProvider 缺省。

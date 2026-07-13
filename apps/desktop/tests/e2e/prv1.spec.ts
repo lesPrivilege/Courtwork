@@ -16,14 +16,13 @@ async function mockProbe(page: Page, result: Record<string, unknown>) {
 }
 
 test.describe('PRV-1 provider 自配闭环', () => {
-  test('预设自动填 URL/推荐模型，自定义档才露 Base URL', async ({ page }) => {
+  test('产品配置只显示 DeepSeek key/model/reasoning，不显示 custom 或可编辑 Base URL', async ({ page }) => {
     const guide = await openGuide(page);
-    await expect(guide.getByTestId('provider-preset-url')).toContainText('api.deepseek.com/v1');
+    await expect(guide).toContainText('DeepSeek');
+    await expect(guide.getByTestId('provider-setup-provider')).toHaveCount(0);
     await expect(guide.getByTestId('provider-setup-base-url')).toHaveCount(0);
     await expect(guide.getByTestId('provider-setup-model')).toHaveValue('deepseek-v4-flash');
-    await guide.getByTestId('provider-setup-provider').selectOption('custom');
-    await expect(guide.getByTestId('provider-setup-base-url')).toBeVisible();
-    await expect(guide.getByTestId('provider-preset-url')).toHaveCount(0);
+    await expect(guide.getByText(/custom|自定义/i)).toHaveCount(0);
   });
 
   test('校验成功把发现模型写入下拉并以真冒烟标 connected', async ({ page }) => {
@@ -52,7 +51,8 @@ test.describe('PRV-1 provider 自配闭环', () => {
     await mockProbe(page, { phase: 'failed', failKind: 'endpoint' });
     await guide.getByRole('textbox', { name: 'Access credential' }).fill('cw-valid-secret-key');
     await guide.getByRole('button', { name: 'Verify connection' }).click();
-    await expect(guide.getByTestId('provider-setup-error')).toContainText('Base URL');
+    await expect(guide.getByTestId('provider-setup-error')).toContainText('DeepSeek');
+    await expect(guide.getByTestId('provider-setup-error')).not.toContainText('Base URL');
     await expect(page.getByTestId('composer-provider')).toHaveAttribute('data-phase', 'failed');
   });
 });

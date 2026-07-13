@@ -1,8 +1,12 @@
 # SPEC: packages/core（W6）
 
-状态：已完成（0.1 DeepSeek-first；含 PRV-1 provider 自配路由声明）
+状态：已完成；provider 实现已由 PROVIDER-1 迁至 `@courtwork/provider`，本层只消费协议
 
 ## 现行架构工单（2026-07-13）
+
+### PROVIDER-1 · core 边界收口（已实现，待独立验收）
+
+依据 ADR-007，provider port、DeepSeek profile、OpenAI wire、SSE、结构化输出与计价已迁至 `packages/provider`。core 生产逻辑直接消费同一 `Provider` / `Generation*` 协议，`ScriptedProvider` 测试形制不变；旧 `src/provider/` 实现目录已清空，`src/provider-compat/` 仅保留三个一行薄重导出以兼容既有 core 子路径，不含第二份实现或 DeepSeek wire 分支。下文 T-provider/HARNESS-0.1 段落属于迁包前历史记录，其中 custom 可用与实现住 `src/provider/` 的陈述已由 ADR-007 和本节取代。
 
 ### TURN-1 · 模型回合生命周期
 
@@ -39,7 +43,7 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 - transport 仅重试明确返回的 429/5xx；超时与不确定网络错误不重试，避免同一生成重复计费。
 - S3 golden 同时检查事件骨架与预埋锚点（至少 5/7）；DIFF 设非零退出，空 `RiskList` 不再假绿。resolver/合同正文组装照 `b2ba682` 留给 PACKAGE-ABI 之后的 HARNESS-1。
 
-## HARNESS-0.1 / Provider 当前决策（2026-07-12）
+## HARNESS-0.1 / Provider 历史决策（2026-07-12；现由 ADR-007 取代冲突项）
 
 - **0.1 主路径只内置 DeepSeek**：具名 quirk profile、factory、价格表、真实 smoke 与桌面 provider 选项只保留 DeepSeek；通用 OpenAI-compatible 工厂与 custom 入口保留为扩展 ABI。
 - **Qwen 与火山方舟豆包移入 roadmap**：core 不再猜测其 reasoning 响应字段、结构化输出档位或参数互斥，也不暴露具名工厂/计价/冒烟目标。后续由团队或上游插件带官方文档、真 key wire 实证、变异必红测试后接入。

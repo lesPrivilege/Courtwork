@@ -1,0 +1,57 @@
+{
+  "name": "@courtwork/provider",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
+    "./quirks": {
+      "types": "./dist/quirk-profile.d.ts",
+      "default": "./dist/quirk-profile.js"
+    },
+    "./registry": {
+      "types": "./dist/registry.d.ts",
+      "default": "./dist/registry.js"
+    },
+    "./openai": {
+      "types": "./dist/openai-compatible-provider.d.ts",
+      "default": "./dist/openai-compatible-provider.js"
+    },
+    "./errors": {
+      "types": "./dist/errors.d.ts",
+      "default": "./dist/errors.js"
+    },
+    "./pricing": {
+      "types": "./dist/pricing-table.d.ts",
+      "default": "./dist/pricing-table.js"
+    },
+    "./scripted": {
+      "types": "./dist/scripted-provider.d.ts",
+      "default": "./dist/scripted-provider.js"
+    },
+    "./smoke": {
+      "types": "./dist/smoke.d.ts",
+      "default": "./dist/smoke.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --root ../.. packages/provider",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
+  }
+}

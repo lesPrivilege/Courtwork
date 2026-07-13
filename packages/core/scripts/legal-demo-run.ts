@@ -1,5 +1,5 @@
 import { runLegalDemo } from '../src/acceptance/run-legal-demo.js';
-import { resolveSmokeTargets } from '../src/provider/smoke.js';
+import { resolveSmokeTargets } from '@courtwork/provider/smoke';
 
 /**
  * LEGAL-DEMO-RUN 全链穿越（合成卷宗 → 带修订 Word）：

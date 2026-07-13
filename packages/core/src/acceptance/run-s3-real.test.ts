@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import type { Provider } from '../provider/types.js';
+import type { Provider } from '@courtwork/provider/types';
 import { assertNoDemoInReal, runS3Real } from './run-s3-real.js';
 
 const workRoot = mkdtempSync(join(tmpdir(), 'courtwork-s3-real-test-'));

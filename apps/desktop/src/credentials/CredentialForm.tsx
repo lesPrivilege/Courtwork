@@ -8,9 +8,7 @@
 import { useState } from 'react';
 import { credentialClient, type CredentialSource, type CredentialStatus } from './client';
 import { providerConnectionClient } from '../provider/connection-client';
-import {
-  effectiveBaseUrl, modelOptions, PROVIDER_OPTIONS, type ModelConfig, type ProviderId, withProvider,
-} from '../provider/model-config';
+import { modelOptions, PROVIDER_OPTIONS, type ModelConfig } from '../provider/model-config';
 
 export interface CredentialFormProps {
   variant: 'dialog' | 'embedded';
@@ -69,16 +67,9 @@ export function CredentialForm({
   };
 
   return <div className="credential-form" data-testid={`${idPrefix}-form`}>
-    <label className="credential-field"><span>Provider</span>
-      <select data-testid={`${idPrefix}-provider`} value={modelConfig.providerId} onChange={(event) => onModelConfigChange(withProvider(modelConfig, event.target.value as ProviderId))}>
-        {PROVIDER_OPTIONS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-      </select>
-    </label>
-    {modelConfig.providerId === 'custom' && <label className="credential-field"><span>Base URL</span>
-      <input data-testid={`${idPrefix}-base-url`} type="url" value={modelConfig.baseUrl ?? ''} onChange={(event) => onModelConfigChange({ ...modelConfig, baseUrl: event.target.value })} placeholder="https://example.com/v1" />
-    </label>}
-    {/* 兼容既有 e2e：dialog 变体保留 FIX-KC-1 时代的 provider-preset-url 名 */}
-    {modelConfig.providerId !== 'custom' && <p className="provider-preset-url" data-testid={variant === 'dialog' ? 'provider-preset-url' : `${idPrefix}-preset-url`}>{effectiveBaseUrl(modelConfig)}</p>}
+    <p className="credential-field credential-provider-fixed" data-testid={`${idPrefix}-fixed-provider`}>
+      <span>Provider</span><strong>{PROVIDER_OPTIONS[0]!.label}</strong>
+    </p>
 
     <div className="credential-modes" role="tablist" aria-label="Authorization method">
       <button type="button" role="tab" aria-selected={source === 'pasted'} className={source === 'pasted' ? 'active' : ''} onClick={() => { setSource('pasted'); setValue(''); setMessage(''); }}>Paste a credential</button>

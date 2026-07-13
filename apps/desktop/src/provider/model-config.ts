@@ -5,22 +5,21 @@
  */
 
 import {
-  OPENAI_COMPATIBLE_REASONING_ROUTE,
-  DEEPSEEK_QUIRK_PROFILE,
+  PROVIDER_DESCRIPTORS,
+  getProviderDescriptor,
+  isProviderId,
   resolveReasoningRoute,
   type ReasoningRoute,
-  type ProviderQuirkProfile,
-} from '@courtwork/core/provider-quirks';
+  type ProviderId,
+} from '@courtwork/provider';
 
-export type ProviderId = 'deepseek' | 'custom';
+export type { ProviderId } from '@courtwork/provider';
 export type ReasoningLevel = 'standard' | 'deep';
 
 export interface ModelConfig {
   providerId: ProviderId;
   modelId: string;
   reasoning: ReasoningLevel;
-  /** 预设档由 quirk 自动给出；custom 才允许用户编辑。 */
-  baseUrl?: string;
   discoveredModels?: string[];
 }
 
@@ -28,21 +27,13 @@ export const PROVIDER_OPTIONS: ReadonlyArray<{
   id: ProviderId;
   label: string;
   models: ReadonlyArray<{ id: string; label: string }>;
-  profile?: ProviderQuirkProfile;
   reasoningRoute: ReasoningRoute;
-}> = [
-  {
-    id: 'deepseek',
-    label: 'DeepSeek',
-    models: DEEPSEEK_QUIRK_PROFILE.recommendedModels.map((id) => ({ id, label: id })),
-    profile: DEEPSEEK_QUIRK_PROFILE,
-    reasoningRoute: DEEPSEEK_QUIRK_PROFILE.reasoningRoute,
-  },
-  {
-    id: 'custom', label: '自定义（OpenAI 兼容）', models: [{ id: '', label: '手动填写模型名' }],
-    reasoningRoute: OPENAI_COMPATIBLE_REASONING_ROUTE,
-  },
-] as const;
+}> = PROVIDER_DESCRIPTORS.map((descriptor) => ({
+  id: descriptor.id,
+  label: descriptor.label,
+  models: descriptor.recommendedModels.map((id) => ({ id, label: id })),
+  reasoningRoute: descriptor.reasoningRoute,
+}));
 
 export const REASONING_OPTIONS: ReadonlyArray<{ id: ReasoningLevel; label: string }> = [
   { id: 'standard', label: '标准' },
@@ -122,17 +113,7 @@ export function modelDisplayName(config: ModelConfig): string {
 }
 
 export function effectiveBaseUrl(config: ModelConfig): string {
-  const option = PROVIDER_OPTIONS.find((item) => item.id === config.providerId);
-  if (option?.profile) return option.profile.baseUrl;
-  const raw = config.baseUrl?.trim() ?? '';
-  if (!raw) return '';
-  try {
-    const url = new URL(raw);
-    if (url.pathname === '/' || url.pathname === '') url.pathname = '/v1';
-    return url.toString().replace(/\/$/, '');
-  } catch {
-    return raw.replace(/\/$/, '');
-  }
+  return getProviderDescriptor(config.providerId).baseUrl;
 }
 
 export function modelOptions(config: ModelConfig): string[] {
@@ -141,8 +122,7 @@ export function modelOptions(config: ModelConfig): string[] {
 }
 
 export function reasoningRequest(config: ModelConfig): { model: string; extraBody: Record<string, unknown> } {
-  const option = PROVIDER_OPTIONS.find((item) => item.id === config.providerId) ?? PROVIDER_OPTIONS[0]!;
-  return resolveReasoningRoute(option.reasoningRoute, config.modelId, config.reasoning);
+  return resolveReasoningRoute(getProviderDescriptor(config.providerId).reasoningRoute, config.modelId, config.reasoning);
 }
 
 export function loadModelConfig(): ModelConfig {
@@ -150,8 +130,8 @@ export function loadModelConfig(): ModelConfig {
     const raw = activeStore.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULT_MODEL_CONFIG };
     const parsed = JSON.parse(raw) as Partial<ModelConfig>;
-    const provider = PROVIDER_OPTIONS.find((item) => item.id === parsed.providerId);
-    if (!provider) return { ...DEFAULT_MODEL_CONFIG };
+    if (typeof parsed.providerId !== 'string' || !isProviderId(parsed.providerId)) return { ...DEFAULT_MODEL_CONFIG };
+    const provider = PROVIDER_OPTIONS.find((item) => item.id === parsed.providerId)!;
     const discoveredModels = Array.isArray(parsed.discoveredModels)
       ? parsed.discoveredModels.filter((item): item is string => typeof item === 'string' && item.length > 0)
       : undefined;
@@ -159,7 +139,7 @@ export function loadModelConfig(): ModelConfig {
       ? parsed.modelId : provider.models[0]!.id;
     const reasoning: ReasoningLevel =
       parsed.reasoning === 'deep' || parsed.reasoning === 'standard' ? parsed.reasoning : 'standard';
-    return { providerId: provider.id, modelId, reasoning, baseUrl: parsed.baseUrl, discoveredModels };
+    return { providerId: provider.id, modelId, reasoning, discoveredModels };
   } catch {
     return { ...DEFAULT_MODEL_CONFIG };
   }
@@ -167,13 +147,4 @@ export function loadModelConfig(): ModelConfig {
 
 export function saveModelConfig(config: ModelConfig): void {
   activeStore.setItem(STORAGE_KEY, JSON.stringify(config));
-}
-
-/** 切换 provider 时若当前 model 不属于新 provider，落到该 provider 首个模型。 */
-export function withProvider(config: ModelConfig, providerId: ProviderId): ModelConfig {
-  const provider = PROVIDER_OPTIONS.find((item) => item.id === providerId) ?? PROVIDER_OPTIONS[0]!;
-  const modelId = provider.models.some((item) => item.id === config.modelId)
-    ? config.modelId
-    : provider.models[0]!.id;
-  return { ...config, providerId: provider.id, modelId, baseUrl: provider.id === 'custom' ? '' : undefined, discoveredModels: undefined };
 }

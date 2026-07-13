@@ -12,8 +12,8 @@ import { createEvidenceLedger } from '../evidence/grade.js';
 import { createFileConfirmationStore, createInMemoryConfirmationStore } from '../session/confirmation-store.js';
 import { createInMemoryRevisionEventStore } from '../revision/revision-store.js';
 import { createToolRegistry } from '../tools/tool-registry.js';
-import { createScriptedProvider } from '../provider/scripted-provider.js';
-import type { GenerationResponse } from '../provider/types.js';
+import { createScriptedProvider } from '@courtwork/provider/scripted';
+import type { GenerationResponse } from '@courtwork/provider/types';
 import { RuntimeLimitExceededError } from './runtime-limits.js';
 import {
   GenerationValidationError,

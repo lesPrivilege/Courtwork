@@ -11,7 +11,7 @@ export interface GenerationRequest {
   /**
    * 若提供，provider 实现应尽力保证最终返回的 content 经 JSON.parse 后能通过该 schema 校验：
    * strict json_schema 优先 → 降级 json_object + zod 校验重试（docs/architecture/system.md provider 兼容边界，
-   * packages/core/SPEC.md TODO "Provider wire format 基线"）。ScriptedProvider 与手写假
+   * packages/provider/SPEC.md "Provider wire format 基线"）。ScriptedProvider 与手写假
    * provider 可以完全忽略此字段（不做任何校验）——这是新增可选字段，不是破坏性变更。
    */
   responseSchema?: z.ZodTypeAny;

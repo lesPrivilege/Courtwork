@@ -5,14 +5,11 @@ import {
 } from '../credentials/client';
 import { CredentialForm } from '../credentials/CredentialForm';
 import {
-  effectiveBaseUrl,
   modelOptions,
   PROVIDER_OPTIONS,
   REASONING_OPTIONS,
   type ModelConfig,
-  type ProviderId,
   type ReasoningLevel,
-  withProvider,
 } from '../provider/model-config';
 import { DATA_PROMISE_SECTIONS, DATA_PROMISE_TITLE, RESERVED_COPY } from './data-promise-copy';
 import {
@@ -286,8 +283,8 @@ export function SettingsPage({
                 </div>
               )}
 
-              {/* 架构裁决 cab982a：用户唯一旋钮=标准/深思两档;provider/BaseURL/模型撤入 developer 层
-                  （表面减法律：字段全在,面板不见）。两档绑定什么模型是 quirk 声明的事,UI 不知模型名存在。 */}
+              {/* 用户旋钮只保留标准/深思；受控 DeepSeek 模型留在 developer 层，
+                  provider 与端点由产品注册表固定，不作为可编辑字段。 */}
               <div className="settings-row" data-testid="settings-provider-row">
                 <div>
                   <strong>Reasoning</strong>
@@ -315,30 +312,10 @@ export function SettingsPage({
                     Current: {modelConfig.reasoning === 'deep' ? 'Deep' : 'Standard'}
                   </p>
                   {/* 五裁④：双「验证连接」去重——页级唯一入口=凭证表单内 Verify connection（#44 就地绿徽契约随之） */}
-                  {/* developer 层：能力全量,默认收起（收敛令②表面减法律） */}
+                  {/* developer 层：受控模型可编辑，默认收起。 */}
                   <details className="settings-developer" data-testid="settings-developer">
-                    <summary>Developer · provider &amp; model</summary>
-                    <label>
-                      <span>Provider</span>
-                      <select
-                        data-testid="settings-provider"
-                        value={modelConfig.providerId}
-                        onChange={(event) =>
-                          onModelConfigChange(withProvider(modelConfig, event.target.value as ProviderId))
-                        }
-                      >
-                        {PROVIDER_OPTIONS.map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    {modelConfig.providerId === 'custom' && <label>
-                      <span>Base URL</span>
-                      <input data-testid="settings-base-url" type="url" value={modelConfig.baseUrl ?? ''} onChange={(event) => onModelConfigChange({ ...modelConfig, baseUrl: event.target.value })} />
-                    </label>}
-                    {modelConfig.providerId !== 'custom' && <p className="settings-muted" data-testid="settings-preset-url">{effectiveBaseUrl(modelConfig)}</p>}
+                    <summary>Developer · model</summary>
+                    <p className="settings-muted">Provider: {PROVIDER_OPTIONS[0]!.label}</p>
                     <label>
                       <span>Model</span>
                       <input

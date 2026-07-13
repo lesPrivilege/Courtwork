@@ -14,7 +14,7 @@ export interface CitationStats {
   outOfCoverage: number;
 }
 import type { TodoStep } from '../scenario-executor/todo-snapshot.js';
-import type { GenerationNotice } from '../provider/types.js';
+import type { GenerationNotice } from '@courtwork/provider/types';
 
 /**
  * 渠道无关身份标识：不隐含确认方与 core 同进程/同机/同客户端（SPEC TODO 异步确认预留）。

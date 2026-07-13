@@ -41,6 +41,9 @@ importers:
       '@courtwork/output':
         specifier: workspace:*
         version: link:../../packages/output
+      '@courtwork/provider':
+        specifier: workspace:*
+        version: link:../../packages/provider
       '@courtwork/reading-view':
         specifier: workspace:*
         version: link:../../packages/reading-view
@@ -121,6 +124,9 @@ importers:
       '@courtwork/output':
         specifier: workspace:*
         version: link:../output
+      '@courtwork/provider':
+        specifier: workspace:*
+        version: link:../provider
       '@courtwork/reading-view':
         specifier: workspace:*
         version: link:../reading-view
@@ -196,6 +202,16 @@ importers:
       '@courtwork/schemas':
         specifier: workspace:*
         version: link:../schemas
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
+
+  packages/provider:
+    dependencies:
       zod:
         specifier: ^4.4.3
         version: 4.4.3

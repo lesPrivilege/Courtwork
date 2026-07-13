@@ -1,6 +1,6 @@
 import * as z from 'zod';
 import type { ArtifactSchemaRegistry, ProjectionRegistry, ScenarioRuntime } from '@courtwork/registry';
-import type { GenerationRequest } from '../provider/types.js';
+import type { GenerationRequest } from '@courtwork/provider/types';
 import {
   buildContractSegment,
   buildDeclarationSegment,

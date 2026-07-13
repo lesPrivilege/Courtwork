@@ -12,7 +12,7 @@ import type { SessionEvent } from '../events/types.js';
 import { createFileConfirmationStore } from '../session/confirmation-store.js';
 import { createFileRevisionEventStore } from '../revision/revision-store.js';
 import { runScenario, type ScenarioExecutorDeps } from '../scenario-executor/executor.js';
-import type { Provider } from '../provider/types.js';
+import type { Provider } from '@courtwork/provider/types';
 import { createToolRegistry, type ToolRegistry } from '../tools/tool-registry.js';
 import { materialFromReadingView } from '../composition/demo-assembly.js';
 import type { MaterialInput } from '../assembly/segments.js';

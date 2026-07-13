@@ -1,4 +1,4 @@
-import { resolveSmokeTargets, runSmokeTest } from '../src/provider/smoke.js';
+import { resolveSmokeTargets, runSmokeTest } from '@courtwork/provider/smoke';
 
 async function main(): Promise<void> {
   const resolved = resolveSmokeTargets(process.env);

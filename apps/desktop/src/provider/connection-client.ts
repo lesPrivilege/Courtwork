@@ -14,7 +14,7 @@ export interface ProviderConnectionResult extends Omit<CredentialStatus, 'failKi
 export const PROVIDER_CONNECTION_MESSAGES: Record<ProviderConnectionFailKind, string> = {
   auth_failed: '访问凭证未通过服务商验证，请检查后重试',
   rate_limited: '服务商暂时限制了请求，请稍后重试',
-  endpoint: '服务地址无法完成请求，请检查 Base URL',
+  endpoint: 'DeepSeek 服务地址暂时无法完成请求，请稍后重试',
   model: '当前模型不可用，请从模型列表选择或手动填写',
   timeout: '服务商响应超时，请稍后重试',
   network: '暂时无法连接服务商，请检查网络后重试',
@@ -67,7 +67,7 @@ export const providerConnectionClient = {
     const credential = await credentialClient.status();
     if (credential.phase !== 'connected') return credential;
     if (!effectiveBaseUrl(config) || !config.modelId.trim()) {
-      return { phase: 'failed', failureMessage: '请填写 Base URL 和模型名', failKind: 'endpoint' };
+      return { phase: 'failed', failureMessage: 'DeepSeek 服务配置不完整，请填写模型名', failKind: 'endpoint' };
     }
     if (!isTauriRuntime()) {
       if (browserOverride) return normalize(browserOverride);
