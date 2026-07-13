@@ -89,6 +89,17 @@ describe('sendChatCompletion — non-retryable client errors fail fast', () => {
     await expect(sendChatCompletion(TEST_PROFILE, baseBody(), noDelayConfig({ fetchImpl }))).rejects.toThrow(ProviderHttpError);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
+
+  it('rejects a successful response that declares a non-SSE content type', async () => {
+    const body = 'data: {"choices":[{"delta":{"content":"not-really-sse"}}]}\n\ndata: [DONE]\n\n';
+    const fetchImpl = vi.fn(async () => new Response(body, {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    }));
+    await expect(sendChatCompletion(TEST_PROFILE, baseBody(), noDelayConfig({ fetchImpl })))
+      .rejects.toThrow(/SSE/i);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('sendChatCompletion — retryable transport failures', () => {

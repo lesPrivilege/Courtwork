@@ -85,9 +85,7 @@ export function createFetchTransport(profile: ProviderQuirkProfile, config: Http
           type: 'response_started',
           requestId: request.requestId,
           status: response.status,
-          contentType: response.headers.get('content-type')?.includes('text/event-stream')
-            ? response.headers.get('content-type') ?? undefined
-            : undefined,
+          contentType: response.headers.get('content-type') ?? undefined,
         };
         if (!response.ok) return;
         if (!response.body) {
