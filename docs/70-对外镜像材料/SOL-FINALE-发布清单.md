@@ -26,7 +26,7 @@
 
 - [x] v0.1.1 Apple Silicon DMG：4,619,716 bytes；`hdiutil verify` VALID；ad-hoc codesign 验证通过
 - [x] SHA-256：`65e05db7fca017c8b4580a0050744c6168062d285eb5b0caf7a056c0dad856f7`
-- [ ] 增量史秘密终扫与工作树密钥样式扫描
+- [x] 增量史秘密终扫：`5c1dbd1..0b052a5` 12 提交逐 tip + 新增行；密钥赋值样式 `0`，prefix 新增 `0`，11 个历史命中路径均为 `task-pane` / `risk-*` 词段或明示测试金丝雀
 - [ ] 用户一键确认把 `lesPrivilege/Courtwork` 从 private 改为 public
 - [ ] GitHub Pages 就地启用并验证站点
 - [ ] GitHub Release `v0.1.1` 挂 dmg + `.sha256`
