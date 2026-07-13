@@ -361,6 +361,10 @@ function scanCss(file, content, failures, { repository }) {
   ]);
   for (const rule of rules.values()) {
     const animation = normalizeCssValue(rule.declarations.get('animation') ?? '');
+    if (rule.selector.includes('.cell-peek') && animation && animation !== 'none') {
+      push(failures, 'popover-motion', file, rule.line, 'data cell peek must remain static');
+      continue;
+    }
     if (!rule.selector.includes('popover') || !animation || animation === 'none') continue;
     const contract = popoverDirections.get(rule.selector);
     const origin = normalizeCssValue(rule.declarations.get('transform-origin') ?? '');

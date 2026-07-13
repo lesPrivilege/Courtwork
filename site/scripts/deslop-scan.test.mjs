@@ -136,6 +136,10 @@ test('popover motion is tied to direction and has a reduced-motion branch', () =
   assert.deepEqual(rules([good]), []);
   assert.ok(rules([source('apps/desktop/src/styles.css',
     '.archive-popover { animation: spin 2s linear infinite; }')]).includes('popover-motion'));
+  assert.ok(rules([source('apps/desktop/src/styles.css',
+    '.popover { animation: popover-from-top 120ms ease-out both; transform-origin: top left; }')]).includes('popover-motion'));
+  assert.ok(rules([source('apps/desktop/src/styles.css',
+    '.cell-peek { animation: popover-from-top 120ms ease-out both; transform-origin: top left; }')]).includes('popover-motion'));
 });
 
 test('placeholder scaffolding and generic marketing copy remain red', () => {
