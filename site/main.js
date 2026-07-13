@@ -1,15 +1,15 @@
-const rows = [...document.querySelectorAll('.line-ledger li')];
+const steps = [...document.querySelectorAll('.evidence-step')];
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+if (reduceMotion || !('IntersectionObserver' in window)) {
+  steps.forEach((step) => step.classList.add('is-visible'));
+} else {
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
-      const index = rows.indexOf(entry.target);
-      window.setTimeout(() => entry.target.classList.add('is-lit'), index * 90);
+      entry.target.classList.add('is-visible');
       observer.unobserve(entry.target);
     }
-  }, { threshold: 0.65 });
-  rows.forEach((row) => observer.observe(row));
-} else {
-  rows.forEach((row) => row.classList.add('is-lit'));
+  }, { threshold: 0.55 });
+  steps.forEach((step) => observer.observe(step));
 }

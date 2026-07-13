@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   {
     // 文档、归档与生成物不属于产品代码 lint 面。
-    ignores: ['**/dist/**', '**/node_modules/**', '**/json-schema/**', '**/spike/**', '**/target/**', '**/playwright-report/**', '**/test-results/**', 'docs/**', 'archive/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/json-schema/**', '**/spike/**', '**/target/**', '**/playwright-report/**', '**/test-results/**', 'site-dist/**', 'docs/**', 'archive/**'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
