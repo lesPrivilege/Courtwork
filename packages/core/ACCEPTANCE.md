@@ -338,3 +338,11 @@ risk-07 的既有边界未被门禁误改：其编译结果仍不签发 `evidenc
 ### 5. 放行边界
 
 本轮只放行 TURN-1 的模型回合生命周期与终局快照，不扩张为 Interaction、任意 tool calling、desktop 渲染或垂类 schema 放行。公开失败消息的净化责任仍依 ADR-007 位于 provider 边界；TURN 层拒绝并擦除闭集外事件和流外异常，但不擅自改写协议内用户可读失败文案。
+
+### 6. 基线校正（前进式追加）
+
+前述第 1 节关于 `main@c22fe1e`“已是实现基线祖先 / Already up to date”的记录不正确：早期短 SHA 祖先检查被同一 shell 命令后段的 `|| true` 掩蔽。按共享历史不得重写的纪律，本报告不改写旧句，改以本节显式纠正。
+
+验收分支随后实际执行 `git merge --no-edit c22fe1ee41a3c85db93dd43126f185c12c206601`，产生合并提交 `60c7e1ebc03d90bbe03e161c9322e8fb2af479c1`，双亲为 `faab12735699a5681aa0ddf07d54733cdbb30d47` 与 `c22fe1ee41a3c85db93dd43126f185c12c206601`；无冲突，合入内容仅为指定 main 基线的 design/status 文档。完整 SHA 祖先检查现已确认 TURN 实现基线与 `main@c22fe1e` 都是合并态 tip 的祖先。
+
+在该真实合并态上重新实跑：TURN 定向 **26/26**、`pnpm -r build` exit 0、core **168/168**、lint exit 0、全仓 **894/894**，结果均与修正前一致。因此第 1 节的放行结论保持有效；唯一被本节取代的是“无需 merge”的错误过程记录。
