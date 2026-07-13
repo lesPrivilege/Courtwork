@@ -131,6 +131,10 @@ interface ContextModuleBodyProps {
   modelConnected: boolean;
   reasoningLabel: string;
   onOpenModelConfig: () => void;
+  continuation?: {
+    done: boolean;
+    onContinue: () => void;
+  };
 }
 
 export function ContextModuleBody({
@@ -141,6 +145,7 @@ export function ContextModuleBody({
   modelConnected,
   reasoningLabel,
   onOpenModelConfig,
+  continuation,
 }: ContextModuleBodyProps) {
   return (
     <div className="context-module-body" data-testid="context-module-body">
@@ -161,6 +166,23 @@ export function ContextModuleBody({
           )}
         </div>
       </div>
+      {continuation && (
+        <div className="context-next-step" data-testid="context-next-step">
+          <div>
+            <span>Next step</span>
+            <strong>{continuation.done ? 'Continue in the opened phase' : 'Open a fresh phase with this case context'}</strong>
+          </div>
+          <button
+            type="button"
+            className="primary-button continuation-button"
+            data-testid="continuation-button"
+            disabled={continuation.done}
+            onClick={continuation.onContinue}
+          >
+            {continuation.done ? 'Next phase opened' : 'Continue this case'}
+          </button>
+        </div>
+      )}
       <div className="context-attachments">
         <p className="wf-zone-label">Attachment sources</p>
         {attachmentSources.length === 0 ? (

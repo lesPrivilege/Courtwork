@@ -28,10 +28,10 @@ export async function confirmDemoReview(page: Page) {
   const panel = page.getByTestId('revision-panel');
   await panel.getByRole('button', { name: '批量确认 4 项' }).click();
   await panel.locator('[data-risk-id="risk-03"]').click();
-  await panel.getByRole('button', { name: /展开原文/ }).click();
+  await panel.getByRole('button', { name: /查看引语/ }).click();
   await panel.getByRole('button', { name: '确认', exact: true }).click();
   await panel.locator('[data-risk-id="risk-01"]').click();
-  await panel.getByRole('button', { name: /展开原文/ }).click();
+  await panel.getByRole('button', { name: /查看引语/ }).click();
   await panel.getByRole('button', { name: '确认', exact: true }).click();
   await page.getByTestId('output-docx-card').waitFor();
 }

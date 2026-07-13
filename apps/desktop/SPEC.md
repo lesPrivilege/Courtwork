@@ -32,6 +32,14 @@
 5. 空态保持文字型；L1 外壳数量不增加，内部优先使用分割线、排版和密度。触及文案遵循 chrome 英文、法律与案件内容中文。
 6. 新增行为测试与 1180 / 1280 / 1440 / 1600 视觉证据；不得修改法律包 schema 或 core。
 
+实现记录（2026-07-13，待独立验收）：
+
+- Progress 回归纯事件列表；临界用量续行迁入 Context 用量块后的 `Next step` 行，继续消费既有 `ContinuationClient`，主操作使用 ink，红色只留给 usage critical 状态。
+- 矩阵列头由 `question.text` 机械去问式、去括注与定长裁切为 `Qn · 短名`，无别名字典；完整问题以可聚焦、`aria-describedby` 关联的 tooltip 保留。
+- 矩阵 cell、时间线详情与风险依据把“查看引语”和禁用的“回到原件 · 尚未接通”拆成两个诚实动词；引语全文换行，只有来源文件元信息省略。
+- 风险 master 行在既有紧凑行内同时投影等级、核验、处置与下一步；详情使用分割线台账重复四态。批量条显示本次范围与逐条排除数量，`ReviewGateProjection` 的 batch/individual 资格和确认门禁未改。
+- 新增纯函数 Vitest 与 Playwright 行为覆盖键盘 Enter、focus tooltip、完整引语、批量范围及 1180 横向边界；四档自审图只生成于 `/tmp/courtwork-schema-polish-1-{1180,1280,1440,1600}.png`，未修改 `visual-audit/` 或 finale manifest。
+
 ### DESLOP-GATE-1 · Courtwork 结构守卫
 
 目标：把反 slop 从通用字符串黑名单升级为仓库专用、可注入反例触红的结构守卫。
