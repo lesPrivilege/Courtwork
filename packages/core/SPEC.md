@@ -39,11 +39,13 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 - transport 仅重试明确返回的 429/5xx；超时与不确定网络错误不重试，避免同一生成重复计费。
 - S3 golden 同时检查事件骨架与预埋锚点（至少 5/7）；DIFF 设非零退出，空 `RiskList` 不再假绿。resolver/合同正文组装照 `b2ba682` 留给 PACKAGE-ABI 之后的 HARNESS-1。
 
-## HARNESS-0.1 / Provider 当前决策（2026-07-12）
+## HARNESS-0.1 / Provider 历史决策（2026-07-12；产品入口已由 ADR-007 覆盖）
 
-- **0.1 主路径只内置 DeepSeek**：具名 quirk profile、factory、价格表、真实 smoke 与桌面 provider 选项只保留 DeepSeek；通用 OpenAI-compatible 工厂与 custom 入口保留为扩展 ABI。
+本节保留当时实现源流，不再定义现行产品准入。2026-07-13 起以 [ADR-007](../../docs/decisions/ADR-007-provider-turn-protocol.md) 和 `packages/provider/SPEC.md` 为准：通用 OpenAI-compatible adapter 保留，但 custom 产品入口与任意 base URL 退役，当期只登记 DeepSeek。
+
+- **当时的 0.1 主路径**：具名 quirk profile、factory、价格表、真实 smoke 与桌面 provider 选项只保留 DeepSeek；当时曾保留通用 OpenAI-compatible 工厂与 custom 入口作为扩展 ABI，后者现已由 ADR-007 废止。
 - **Qwen 与火山方舟豆包移入 roadmap**：core 不再猜测其 reasoning 响应字段、结构化输出档位或参数互斥，也不暴露具名工厂/计价/冒烟目标。后续由团队或上游插件带官方文档、真 key wire 实证、变异必红测试后接入。
-- HARNESS-0.1 同批补齐：转发目标绑定 Rust 侧最近一次成功探针确认的 base URL；异 host 即使路径合法也拒绝。该机制不设中央域名表，因此已验证的 custom provider 仍可用。
+- HARNESS-0.1 同批补齐的历史实现：转发目标绑定 Rust 侧最近一次成功探针确认的 base URL；异 host 即使路径合法也拒绝。该实现会在 PROVIDER-2 改为从受控 DeepSeek descriptor 解析目标；不能据此重新暴露 custom 产品入口。
 
 ## TODO（跨层放入区）
 

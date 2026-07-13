@@ -62,6 +62,8 @@
 
 ## PRV-1 · provider 自配最小闭环（2026-07-11）
 
+历史实现记录；其中 custom/base URL 产品入口已由 ADR-007 与 PROVIDER-UI-1 覆盖，不再是现行要求。钥匙串明文隔离、连接探针和错误分型仍有效，待 PROVIDER-2 收口请求路径。
+
 - 引导卡与设置页接入 `base URL + API key + 模型名`：0.1 只内置 DeepSeek，由 core quirk 自动给 URL/推荐模型；自定义档可编辑 URL且须先通过探针。Qwen/豆包移入 provider roadmap，等待团队/上游插件以真 wire 证据接入。根 URL自动规范到 `/v1`。托管积分档只保留禁用占位。
 
 ## HARNESS-0.1 实现记录（2026-07-12）
