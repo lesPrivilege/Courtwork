@@ -19,6 +19,9 @@ describe('caseOutputClient browser host', () => {
     });
     await expect(caseOutputClient.exists(caseRoot, fileName)).resolves.toBe(true);
     await expect(caseOutputClient.exists('/Cases/别案', fileName)).resolves.toBe(false);
+
+    caseOutputClient.resetBrowserFiles();
+    await expect(caseOutputClient.exists(caseRoot, fileName)).resolves.toBe(false);
   });
 
   it('拒绝目录穿越、子路径与非 docx 文件名', async () => {

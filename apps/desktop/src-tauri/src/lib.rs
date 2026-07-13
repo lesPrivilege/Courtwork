@@ -1457,6 +1457,7 @@ mod tests {
 
     #[test]
     fn case_output_write_is_bounded_to_case_output_directory() {
+        let docx = include_bytes!("../../../../packages/output/test/fixtures/original.docx");
         let root = std::env::temp_dir().join(format!(
             "courtwork-output-test-{}-{}",
             std::process::id(),
@@ -1467,7 +1468,7 @@ mod tests {
         ));
         fs::create_dir_all(&root).expect("create case root");
 
-        let artifact = write_case_output_docx_impl(&root, "答辩意见.docx", &[0x50, 0x4b, 1])
+        let artifact = write_case_output_docx_impl(&root, "答辩意见.docx", docx)
             .expect("write output");
         let expected = root
             .canonicalize()
@@ -1475,9 +1476,12 @@ mod tests {
             .join("产出")
             .join("答辩意见.docx");
         assert_eq!(PathBuf::from(artifact.absolute_path), expected);
-        assert_eq!(artifact.byte_length, 3);
+        assert_eq!(artifact.byte_length, docx.len());
         assert!(case_output_docx_exists_impl(&root, "答辩意见.docx").expect("exists"));
-        assert_eq!(fs::read(expected).expect("read output"), [0x50, 0x4b, 1]);
+        assert_eq!(fs::read(expected).expect("read output"), docx);
+
+        fs::remove_file(root.join("产出").join("答辩意见.docx")).expect("delete output");
+        assert!(!case_output_docx_exists_impl(&root, "答辩意见.docx").expect("deleted"));
 
         fs::remove_dir_all(root).expect("cleanup");
     }
@@ -1487,6 +1491,7 @@ mod tests {
         let root = std::env::temp_dir();
         assert!(write_case_output_docx_impl(&root, "../escape.docx", b"PK").is_err());
         assert!(write_case_output_docx_impl(&root, "nested/a.docx", b"PK").is_err());
+        assert!(write_case_output_docx_impl(&root, "/tmp/escape.docx", b"PK").is_err());
         assert!(write_case_output_docx_impl(&root, "report.pdf", b"PK").is_err());
     }
 }

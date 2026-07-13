@@ -626,23 +626,34 @@ export function App() {
 
   useEffect(() => {
     let cancelled = false;
+    let requestVersion = 0;
     setDraftOutputExists(false);
     setContractOutputExists(false);
     if (!caseRoot) return;
-    void Promise.all([
-      caseOutputClient.exists(caseRoot, DRAFT_OUTPUT_FILE),
-      caseOutputClient.exists(caseRoot, CONTRACT_OUTPUT_FILE),
-    ]).then(([draftExists, contractExists]) => {
-      if (cancelled) return;
-      setDraftOutputExists(draftExists);
-      setContractOutputExists(contractExists);
-    }).catch(() => {
-      if (cancelled) return;
-      setDraftOutputExists(false);
-      setContractOutputExists(false);
-    });
+
+    const refreshOutputExistence = () => {
+      const currentRequest = ++requestVersion;
+      void Promise.all([
+        caseOutputClient.exists(caseRoot, DRAFT_OUTPUT_FILE),
+        caseOutputClient.exists(caseRoot, CONTRACT_OUTPUT_FILE),
+      ]).then(([draftExists, contractExists]) => {
+        if (cancelled || currentRequest !== requestVersion) return;
+        setDraftOutputExists(draftExists);
+        setContractOutputExists(contractExists);
+      }).catch(() => {
+        if (cancelled || currentRequest !== requestVersion) return;
+        setDraftOutputExists(false);
+        setContractOutputExists(false);
+      });
+    };
+
+    refreshOutputExistence();
+    // 用户在访达删除/替换产物后回到应用时重新询问宿主；冻结不能由一次 true
+    // 永久缓存成裸 UI 状态。
+    window.addEventListener('focus', refreshOutputExistence);
     return () => {
       cancelled = true;
+      window.removeEventListener('focus', refreshOutputExistence);
     };
   }, [caseRoot]);
 

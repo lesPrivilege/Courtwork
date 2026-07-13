@@ -34,6 +34,19 @@ test('确认编译后产出目录存在 docx，起草画布才进入冻结态', 
   await expect(page.getByTestId('system-open-feedback')).toHaveText('已写入本案「产出」目录：答辩意见.docx');
   await expect(draft).toHaveClass(/frozen/);
   await expect(draft.getByTestId('open-word-doc')).toBeEnabled();
+
+  // 浏览器宿主只用于 UI 接线，不冒充真实磁盘；显式删除其产物并模拟从访达
+  // 返回窗口，界面必须重新询问宿主，而不能把曾经的 true 当永久 UI 权威。
+  await page.evaluate(async () => {
+    const importClient = new Function('return import("/src/output/case-output-client.ts")') as () => Promise<{
+      caseOutputClient: { resetBrowserFiles(): void };
+    }>;
+    const { caseOutputClient } = await importClient();
+    caseOutputClient.resetBrowserFiles();
+    window.dispatchEvent(new Event('focus'));
+  });
+  await expect(draft).not.toHaveClass(/frozen/);
+  await expect(draft.getByRole('button', { name: '编译为 Word 文档' })).toBeEnabled();
 });
 
 test('新建工作稿进入编辑面且自动保存', async ({ page }) => {
