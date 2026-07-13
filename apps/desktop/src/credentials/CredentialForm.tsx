@@ -36,22 +36,33 @@ export function CredentialForm({
     setVerified(false);
     try {
       const stored = await credentialClient.save(source, value);
-      if (stored.phase !== 'connected') {
+      if (stored.credential.phase !== 'stored') {
         onStatusChange(stored);
-        setMessage(stored.failureMessage ?? 'Couldn\u2019t save the credential. Check and retry.');
+        setMessage(stored.connection.failureMessage ?? 'Couldn\u2019t save the credential. Check and retry.');
         return;
       }
-      const result = await providerConnectionClient.validate(modelConfig);
+      onStatusChange({ ...stored, connection: { phase: 'verifying' } });
+      let result = await providerConnectionClient.validate(modelConfig);
       onStatusChange(result as CredentialStatus);
-      if (result.phase !== 'connected') {
-        setMessage(result.failureMessage ?? 'Couldn\u2019t complete the connection. Check and retry.');
+      if (result.connection.phase !== 'ready') {
+        setMessage(result.connection.failureMessage ?? 'Couldn\u2019t complete the connection. Check and retry.');
         return;
       }
-      if (result.models?.length) {
-        const next = { ...modelConfig, discoveredModels: result.models };
-        if (!result.models.includes(next.modelId)) next.modelId = result.models[0]!;
+      if (result.connection.models?.length) {
+        const next = { ...modelConfig, discoveredModels: result.connection.models };
+        const modelChanged = !result.connection.models.includes(next.modelId);
+        if (modelChanged) next.modelId = result.connection.models[0]!;
         onModelConfigChange(next);
-      } else if (result.modelDiscovery === 'unsupported') {
+        if (modelChanged) {
+          onStatusChange({ ...result, connection: { phase: 'verifying' } });
+          result = await providerConnectionClient.validate(next);
+          onStatusChange(result);
+          if (result.connection.phase !== 'ready') {
+            setMessage(result.connection.failureMessage ?? 'Couldn\u2019t verify the selected model. Check and retry.');
+            return;
+          }
+        }
+      } else if (result.connection.modelDiscovery === 'unsupported') {
         setMessage('Provider returned no model list; recommended and manual entries remain. Connection unaffected.');
       }
       setValue('');

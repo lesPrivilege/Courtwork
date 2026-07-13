@@ -21,6 +21,7 @@ function realShapedProvider(fileId: string): Provider {
   return {
     id: 'deepseek',
     modelId: 'deepseek-v4-flash',
+    async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
     async generate() {
       return {
         content: JSON.stringify({

@@ -15,16 +15,37 @@ export class ScriptedProviderExhaustedError extends Error {
  */
 export function createScriptedProvider(id: string, modelId: string, script: GenerationResponse[]): Provider {
   let cursor = 0;
-  return {
+  const noticesByRequestId = new Map<string, GenerationResponse['notices']>();
+  const provider: Provider = {
     id,
     modelId,
-    async generate(): Promise<GenerationResponse> {
-      if (cursor >= script.length) {
-        throw new ScriptedProviderExhaustedError(id, script.length);
-      }
+    async *stream(_request, options = {}) {
+      if (cursor >= script.length) throw new ScriptedProviderExhaustedError(id, script.length);
       const response = script[cursor];
       cursor += 1;
-      return response;
+      const requestId = options.requestId ?? `scripted-${cursor}`;
+      if (response.notices) noticesByRequestId.set(requestId, response.notices);
+      let seq = 0;
+      yield { type: 'started' as const, requestId, seq: seq++, providerId: id, modelId };
+      if (response.reasoningContent) yield { type: 'reasoning_delta' as const, requestId, seq: seq++, delta: response.reasoningContent };
+      if (response.content) yield { type: 'content_delta' as const, requestId, seq: seq++, delta: response.content };
+      if (response.usage) yield { type: 'usage' as const, requestId, seq: seq++, ...response.usage };
+      yield { type: 'completed' as const, requestId, seq, finishReason: 'stop' as const };
+    },
+    async generate(request): Promise<GenerationResponse> {
+      const requestId = `scripted-generate-${cursor + 1}`;
+      let content = '';
+      let reasoningContent = '';
+      let usage: GenerationResponse['usage'];
+      for await (const event of provider.stream(request, { requestId })) {
+        if (event.type === 'content_delta') content += event.delta;
+        else if (event.type === 'reasoning_delta') reasoningContent += event.delta;
+        else if (event.type === 'usage') usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+      }
+      const notices = noticesByRequestId.get(requestId);
+      noticesByRequestId.delete(requestId);
+      return { content, reasoningContent: reasoningContent || undefined, usage, notices };
     },
   };
+  return provider;
 }

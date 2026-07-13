@@ -49,7 +49,7 @@ export interface ComposerProps {
   uploadClock?: () => number;
   modelConfig?: ModelConfig;
   modelConfigOpen?: boolean;
-  connectionPhase?: 'pending' | 'connected' | 'failed';
+  connectionPhase?: 'unverified' | 'verifying' | 'ready' | 'failed';
   onToggleModelConfig?: () => void;
   onModelConfigChange?: (config: ModelConfig) => void;
   onCloseModelConfig?: () => void;
@@ -80,7 +80,7 @@ export function Composer({
   uploadClock = () => Date.now(),
   modelConfig,
   modelConfigOpen = false,
-  connectionPhase = 'pending',
+  connectionPhase = 'unverified',
   onToggleModelConfig,
   onModelConfigChange,
   onCloseModelConfig,
@@ -604,7 +604,7 @@ export function Composer({
                 onClick={onToggleModelConfig}
               >
                 <span data-testid="composer-provider" data-phase={connectionPhase}>
-                  {connectionPhase === 'connected'
+                  {connectionPhase === 'ready'
                     // 收敛令②：唯一旋钮=档位;chip 主显档位（标准/深思）+ 生效模型小字（单源取声明路由,禁静默偏差）
                     ? <>{modelConfig.reasoning === 'deep' ? CHROME_COPY.composer.deep : CHROME_COPY.composer.standard}<small className="composer-provider-model">{reasoningRequest(modelConfig).model}</small></>
                     : connectionPhase === 'failed' ? CHROME_COPY.composer.connectionFailed : CHROME_COPY.composer.connect}

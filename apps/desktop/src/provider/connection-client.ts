@@ -1,33 +1,11 @@
 import { invoke } from '@tauri-apps/api/core';
-import { credentialClient, type CredentialStatus } from '../credentials/client';
-import { effectiveBaseUrl, modelOptions, reasoningRequest, type ModelConfig } from './model-config';
+import { credentialClient, messageForFailKind, type CredentialFailKind, type ProviderReadiness } from '../credentials/client';
+import { modelOptions, reasoningRequest, type ModelConfig } from './model-config';
 
-export type ProviderConnectionFailKind =
-  | 'auth_failed' | 'rate_limited' | 'endpoint' | 'model' | 'timeout' | 'network' | 'invalid_response' | 'platform';
+export type ProviderConnectionFailKind = CredentialFailKind;
+export type ProviderConnectionResult = ProviderReadiness;
 
-export interface ProviderConnectionResult extends Omit<CredentialStatus, 'failKind'> {
-  models?: string[];
-  modelDiscovery?: 'available' | 'unsupported';
-  failKind?: CredentialStatus['failKind'] | ProviderConnectionFailKind;
-}
-
-export const PROVIDER_CONNECTION_MESSAGES: Record<ProviderConnectionFailKind, string> = {
-  auth_failed: '访问凭证未通过服务商验证，请检查后重试',
-  rate_limited: '服务商暂时限制了请求，请稍后重试',
-  endpoint: 'DeepSeek 服务地址暂时无法完成请求，请稍后重试',
-  model: '当前模型不可用，请从模型列表选择或手动填写',
-  timeout: '服务商响应超时，请稍后重试',
-  network: '暂时无法连接服务商，请检查网络后重试',
-  invalid_response: '服务商返回了无法识别的响应，请稍后重试',
-  platform: '暂时无法验证连接，请重试',
-};
-
-type ProbeInput = {
-  providerId: string;
-  baseUrl: string;
-  modelId: string;
-  reasoningBody: Record<string, unknown>;
-};
+type ProbeInput = { requestId: string; providerId: string; modelId: string; reasoningBody: Record<string, unknown> };
 
 function isTauriRuntime() {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
@@ -36,15 +14,12 @@ function isTauriRuntime() {
 export function buildProbeInput(config: ModelConfig): ProbeInput {
   const route = reasoningRequest(config);
   return {
-    providerId: config.providerId,
-    baseUrl: effectiveBaseUrl(config),
-    modelId: route.model,
-    reasoningBody: route.extraBody,
+    requestId: typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `probe-${Date.now()}`,
+    providerId: config.providerId, modelId: route.model, reasoningBody: route.extraBody,
   };
 }
 
 let browserOverride: ProviderConnectionResult | null = null;
-
 export function installProviderConnectionTestHooks() {
   const hooks = {
     setResult(result: ProviderConnectionResult) { browserOverride = result; },
@@ -57,29 +32,29 @@ export function installProviderConnectionTestHooks() {
 }
 
 function normalize(result: ProviderConnectionResult): ProviderConnectionResult {
-  if (result.phase !== 'failed' || result.failureMessage) return result;
-  const kind = result.failKind as ProviderConnectionFailKind | undefined;
-  return { ...result, failureMessage: kind ? PROVIDER_CONNECTION_MESSAGES[kind] : PROVIDER_CONNECTION_MESSAGES.platform };
+  const connection = result.connection;
+  if (connection.phase !== 'failed' || connection.failureMessage || !connection.failKind) return result;
+  return { ...result, connection: { ...connection, failureMessage: messageForFailKind(connection.failKind) } };
 }
 
 export const providerConnectionClient = {
   async validate(config: ModelConfig): Promise<ProviderConnectionResult> {
-    const credential = await credentialClient.status();
-    if (credential.phase !== 'connected') return credential;
-    if (!effectiveBaseUrl(config) || !config.modelId.trim()) {
-      return { phase: 'failed', failureMessage: 'DeepSeek 服务配置不完整，请填写模型名', failKind: 'endpoint' };
+    const readiness = await credentialClient.status();
+    if (readiness.credential.phase !== 'stored') return readiness;
+    if (!config.modelId.trim()) {
+      return { ...readiness, connection: { phase: 'failed', failureMessage: '请选择模型', failKind: 'model' } };
     }
     if (!isTauriRuntime()) {
       if (browserOverride) return normalize(browserOverride);
       return {
-        phase: 'connected', source: credential.source,
-        models: modelOptions(config), modelDiscovery: 'available',
+        credential: readiness.credential,
+        connection: { phase: 'ready', models: modelOptions(config), modelDiscovery: 'available' },
       };
     }
     try {
       return normalize(await invoke<ProviderConnectionResult>('validate_provider_connection', { input: buildProbeInput(config) }));
     } catch {
-      return { phase: 'failed', failureMessage: PROVIDER_CONNECTION_MESSAGES.platform, failKind: 'platform' };
+      return { ...readiness, connection: { phase: 'failed', failureMessage: messageForFailKind('platform'), failKind: 'platform' } };
     }
   },
 };

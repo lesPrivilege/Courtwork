@@ -19,7 +19,7 @@ test.describe('GOAL-1 · #43/#44 凭证面', () => {
     // #44 契约：宿主稳定在场 + 就地绿徽；无任何浮层置换
     await expect(page.getByTestId('settings-credential-verified')).toBeVisible();
     await expect(page.getByTestId('settings-page')).toBeVisible();
-    await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-phase', 'connected');
+    await expect(page.getByTestId('settings-credential-phase')).toHaveAttribute('data-phase', 'ready');
   });
 
   test('#44b 引导卡（首启专属）：验证成功不自动关闭——绿徽 + 显式「开始使用」', async ({ page }) => {

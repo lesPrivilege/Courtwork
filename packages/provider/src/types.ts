@@ -17,6 +17,50 @@ export interface GenerationRequest {
   responseSchema?: z.ZodTypeAny;
 }
 
+export type ProviderFailureKind =
+  | 'auth'
+  | 'rate_limit'
+  | 'endpoint'
+  | 'model'
+  | 'timeout'
+  | 'network'
+  | 'protocol'
+  | 'invalid_response'
+  | 'canceled';
+
+export type ProviderTransportEvent =
+  | { type: 'response_started'; requestId: string; status: number; contentType?: string }
+  | { type: 'chunk'; requestId: string; bytes: number[] }
+  | { type: 'end'; requestId: string }
+  | { type: 'failed'; requestId: string; kind: ProviderFailureKind; message: string; retryable: boolean };
+
+export type ProviderStreamEvent =
+  | { type: 'started'; requestId: string; seq: number; providerId: string; modelId: string }
+  | { type: 'reasoning_delta'; requestId: string; seq: number; delta: string }
+  | { type: 'content_delta'; requestId: string; seq: number; delta: string }
+  | { type: 'usage'; requestId: string; seq: number; inputTokens: number; outputTokens: number }
+  | { type: 'completed'; requestId: string; seq: number; finishReason: 'stop' | 'length' | 'content_filter' | 'unknown' }
+  | { type: 'failed'; requestId: string; seq: number; kind: ProviderFailureKind; message: string; retryable: boolean };
+
+export interface ProviderStreamOptions {
+  signal?: AbortSignal;
+  /** 测试、跨 IPC 关联与取消用；生产缺省生成 UUID。 */
+  requestId?: string;
+}
+
+export interface ProviderTransportRequest {
+  requestId: string;
+  providerId: string;
+  modelId: string;
+  body: string;
+  reasoningBody: Record<string, unknown>;
+  signal?: AbortSignal;
+}
+
+export interface ProviderTransport {
+  stream(request: ProviderTransportRequest): AsyncIterable<ProviderTransportEvent>;
+}
+
 export interface GenerationUsage {
   inputTokens: number;
   outputTokens: number;
@@ -50,6 +94,7 @@ export interface GenerationResponse {
 export interface Provider {
   readonly id: string;
   readonly modelId: string;
+  stream(request: GenerationRequest, options?: ProviderStreamOptions): AsyncIterable<ProviderStreamEvent>;
   generate(request: GenerationRequest): Promise<GenerationResponse>;
 }
 

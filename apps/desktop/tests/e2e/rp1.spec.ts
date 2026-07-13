@@ -1,6 +1,13 @@
 import { expect, test } from '@playwright/test';
 import { connectProvider, createNamedCase, openWorkbench, openModuleList } from './helpers';
 
+type ForcedReadinessWindow = typeof window & {
+  __CW_FORCE_CREDENTIAL__: {
+    credential: { phase: string; source?: string };
+    connection: { phase: string; failKind?: string; failureMessage?: string };
+  };
+};
+
 test.describe('RP-1 最终重排', () => {
   test('混排列表：类型图标 + 案件摘要选中 + 展开分区', async ({ page }) => {
     await openWorkbench(page);
@@ -85,9 +92,7 @@ test.describe('RP-1 最终重排', () => {
 
   test('模型异常只在 composer 唯一声明位显示', async ({ page }) => {
     await page.addInitScript(() => {
-      (window as unknown as { __CW_FORCE_CREDENTIAL__: { phase: string } }).__CW_FORCE_CREDENTIAL__ = {
-        phase: 'pending',
-      };
+      (window as ForcedReadinessWindow).__CW_FORCE_CREDENTIAL__ = { credential: { phase: 'absent' }, connection: { phase: 'unverified' } };
     });
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
@@ -98,10 +103,7 @@ test.describe('RP-1 最终重排', () => {
     await expect(page.getByTestId('composer-provider')).toHaveText('Connect');
 
     await page.addInitScript(() => {
-      (window as unknown as { __CW_FORCE_CREDENTIAL__: { phase: string; failureMessage: string } }).__CW_FORCE_CREDENTIAL__ = {
-        phase: 'failed',
-        failureMessage: '钥匙串授权未通过，请重试或重新填写',
-      };
+      (window as ForcedReadinessWindow).__CW_FORCE_CREDENTIAL__ = { credential: { phase: 'absent' }, connection: { phase: 'failed', failureMessage: '钥匙串授权未通过，请重试或重新填写' } };
     });
     await page.goto('/');
     const setup2 = page.getByTestId('provider-setup');
@@ -111,10 +113,7 @@ test.describe('RP-1 最终重排', () => {
     await page.mouse.move(0, 0);
     // 需重新探针 failed：通过自定义事件或直接 force
     await page.evaluate(() => {
-      (window as unknown as { __CW_FORCE_CREDENTIAL__: { phase: string; failureMessage: string } }).__CW_FORCE_CREDENTIAL__ = {
-        phase: 'failed',
-        failureMessage: '钥匙串授权未通过，请重试或重新填写',
-      };
+      (window as ForcedReadinessWindow).__CW_FORCE_CREDENTIAL__ = { credential: { phase: 'absent' }, connection: { phase: 'failed', failureMessage: '钥匙串授权未通过，请重试或重新填写' } };
       window.dispatchEvent(new Event('courtwork-credential-probe'));
     });
     const warn = page.getByTestId('composer-provider');
@@ -168,10 +167,7 @@ test.describe('RP-1 最终重排', () => {
 
   test('#18′：context/状态条撤模型，仅 composer 保留唯一 model-config', async ({ page }) => {
     await page.addInitScript(() => {
-      (window as unknown as { __CW_FORCE_CREDENTIAL__: { phase: string; source: string } }).__CW_FORCE_CREDENTIAL__ = {
-        phase: 'connected',
-        source: 'pasted',
-      };
+      (window as ForcedReadinessWindow).__CW_FORCE_CREDENTIAL__ = { credential: { phase: 'stored', source: 'pasted' }, connection: { phase: 'ready' } };
     });
     // connected 态 allowSkip=false，无「先查看演示」——关引导用取消
     await page.goto('/');
@@ -190,10 +186,9 @@ test.describe('RP-1 最终重排', () => {
     await page.getByTestId('model-config-model').fill('deepseek-v4-pro');
     await page.getByRole('radio', { name: 'Deep' }).check();
     await page.getByTestId('model-config-close').click();
-    // connected 态 composer 真实反映变更
-    await expect(page.getByTestId('model-config-trigger')).toContainText('deepseek-v4-pro');
-    await expect(page.getByTestId('model-config-trigger')).toContainText('Deep');
-    // 再从 composer 打开仍是同一实例
+    // PROVIDER-2：换模型/推理档必须撤销旧 probe，显式重探后才重新开放配置。
+    await expect(page.getByTestId('model-config-trigger')).toHaveAttribute('data-phase', 'unverified');
+    await expect(page.getByTestId('model-config-trigger')).toContainText('Connect');
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
     await expect(page.getByTestId('model-config-summary')).toContainText('deepseek-v4-pro');

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { createKeychainChatFetch, sendChatTurn } from './chat-client';
+import { buildChatInvokeInput, sendChatTurn } from './chat-client';
 import { DEFAULT_MODEL_CONFIG, type ModelConfig } from './model-config';
 
 function sseResponse(lines: string[], status = 200): Response {
-  return new Response(lines.join('\n'), {
+  return new Response(`${lines.join('\n\n')}\n\n`, {
     status,
     headers: { 'content-type': 'text/event-stream' },
   });
@@ -62,12 +62,15 @@ describe('chat 面真 API 客户端（Rust 窄面代理 + core 组装复用）',
     const fetchImpl: typeof fetch = async () => sseResponse(['data: [DONE]'], 401);
     await expect(
       sendChatTurn(DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'hi' }], { fetchImpl }),
-    ).rejects.toThrow(/deepseek/);
+    ).rejects.toThrow(/HTTP 401/);
   });
 
-  it('keychain 桥窄面：拒绝非对话补全请求（与 Rust 侧双侧同宽）', async () => {
-    const bridge = createKeychainChatFetch();
-    await expect(bridge('https://api.deepseek.com/v1/models', { method: 'POST' })).rejects.toThrow(TypeError);
-    await expect(bridge('https://api.deepseek.com/v1/chat/completions', { method: 'GET' })).rejects.toThrow(TypeError);
+  it('keychain 桥入参没有 URL、header 或 key', () => {
+    const input = buildChatInvokeInput({
+      requestId: 'r1', providerId: 'deepseek', modelId: 'deepseek-v4-pro',
+      reasoningBody: {}, body: '{"stream":true}',
+    });
+    expect(input).toEqual({ requestId: 'r1', providerId: 'deepseek', modelId: 'deepseek-v4-pro', reasoningBody: {}, body: '{"stream":true}' });
+    expect(JSON.stringify(input)).not.toMatch(/url|header|authorization|apiKey/i);
   });
 });

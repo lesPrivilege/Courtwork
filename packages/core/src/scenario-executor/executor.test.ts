@@ -665,6 +665,7 @@ describe('docs/architecture/system.md 长任务协议 ③: runtime protection li
     deps.provider = {
       id: 'slow-provider',
       modelId: 'configured-model',
+      async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
       async generate() {
         nowMs = 6_000;
         return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
@@ -706,6 +707,7 @@ describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/
     const capturingProvider = {
       id: 'capture',
       modelId: 'capture-v1',
+      async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
       async generate(request: { messages: { content: string }[] }) {
         capturedRequests.push({ content: request.messages[request.messages.length - 1].content });
         return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
@@ -746,6 +748,7 @@ describe('T-provider: generateArtifact passes responseSchema through to provider
     const capturingProvider = {
       id: 'capture-schema',
       modelId: 'v1',
+      async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
       async generate(request: { responseSchema?: unknown }) {
         capturedResponseSchema = request.responseSchema;
         return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
@@ -785,6 +788,7 @@ describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via respo
     const expensiveProvider = {
       id: 'deepseek',
       modelId: 'deepseek-v4-pro', // 价格表里有真实报价的组合（pricing-table.ts）
+      async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
       async generate() {
         return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST), usage: { inputTokens: 10_000_000, outputTokens: 10_000_000 } };
       },

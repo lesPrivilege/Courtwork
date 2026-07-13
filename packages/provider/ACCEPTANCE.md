@@ -85,3 +85,105 @@ chat adapter 使用无敏感性的 `__keychain__` 占位符；桥接层丢弃全
 - 契约级问题：无。
 - 可否合入 `main`：**可以**；应连同前向 merge 与本验收报告一起合入。
 - 后续边界：Rust descriptor 解析、单一请求路径与真实逐帧流仍严格留给 PROVIDER-2。
+
+---
+
+# PROVIDER-2 独立验收报告
+
+验收日期：2026-07-13
+
+验收角色：独立验收会话
+
+实现提交：`6d7851e`（基线 `main@896e6bf`）
+
+验收分支修复：`0fa585e`、`753e5e3`、`87eeda8`
+
+## 结论
+
+**带验收修复放行。** 原始实现 `6d7851e` 单独存在三项实现级协议缺陷，不应单独合入；三枚 `fix-by-acceptance` 均不改变 ADR/SPEC 或公开类型，修复后全量门禁通过。`codex/accept-provider-2` 的完整提交链可合入 `main`。
+
+没有发现契约级问题。实现没有进入 Turn、Interaction、schema、registry 或 vertical 契约；现有 core 变化只为 Provider port 新增 `stream()` 后补齐 acceptance/test fake。
+
+## 逐项验收
+
+### 1. Catalog 单源与端点边界
+
+**通过。** `packages/provider/catalog/deepseek.json` 是唯一机器源，声明 id、HTTPS base URL、推荐模型及 chat/models 路径。TS descriptor 由脚本生成；Rust 使用 `include_str!` 内嵌同一 JSON。手写 `quirk-profile.ts`、`registry.ts` 与 Rust 生产源码没有 DeepSeek 端点字面量。
+
+现场把生成 TS 的 base URL 改成攻击者地址后，`pnpm --filter @courtwork/provider catalog:check` 明确失败并报告 generated descriptor drift；恢复后 build 中同一检查通过。
+
+现场再临时放开 Rust `catalog_for()` 的 providerId 比对，`embedded_catalog_rejects_arbitrary_provider_ids` 立即变红；恢复后 Cargo 全绿。生产 handler 只从 catalog 解析 URL，旧 verified arbitrary base URL/custom host 状态已经删除，当前 verified binding 只保存 providerId/modelId。
+
+### 2. WebView 窄入参与 Rust 权威字段
+
+**通过（含验收修复）。** probe/chat invoke 入参只有 requestId、providerId、modelId、reasoningBody 与 chat body；没有 URL、headers、Authorization 或 key。Rust input 使用 `deny_unknown_fields`，现场/既有测试确认注入 `url`、`headers`、`apiKey` 均拒绝。key 仍只由 Rust 从钥匙串读取并用 `bearer_auth` 注入；Channel、错误、日志和 readiness 不含 URL/body/key。
+
+验收发现原始实现把 `reasoningBody` 最后合并，伪造的 `model` 或 `stream` 可覆盖 Rust 控制字段。现场把 `{"model":"forged-model","stream":false}` 注入真实 mock-server 用例后，`stream:true` 断言按预期变红。`87eeda8` 改为先合并可选推理参数，再由 Rust 最后写入 catalog 绑定 model、固定 probe 消息/限额和 stream；真实 mock-server 与 Cargo 25/25 复验通过。
+
+### 3. Rust raw Channel 真分片
+
+**通过。** Rust `ProviderTransportEvent` 只发布 `response_started | chunk(Vec<u8>) | end | failed`，使用 `reqwest::Response::bytes_stream()` 逐块转发，不调用 `.text()`，也不解析 reasoning/content delta。probe 与 chat 共用 catalog、HTTP client、Bearer 注入及 HTTP 闭集分型。
+
+Rust mock server 把汉字“法”的 UTF-8 三字节跨两次 socket 写入并延迟终片；Rust 至少收到两个 raw chunk，拼接后字节仍可还原“法”。Provider 层的 terminal gate 测试在释放 `[DONE]/end` 前已经观察到首个 `content_delta`，证明公共流没有等待终帧聚合。
+
+401/403 → auth，429 → rate_limit，400/422 → model，404/5xx → endpoint；连接/流读取的 timeout/network 与取消在 Rust 侧均进入闭集 failed。取消发生在 response headers 前时只产生一个 canceled 终态。
+
+### 4. Provider 增量 SSE 与公共事件
+
+**通过（含两枚验收修复）。** Provider 使用 streaming `TextDecoder` 和增量 SSE parser，reasoning/content/usage 保持原序；requestId 一致性、从 0 单调递增的 seq、`[DONE]`、空正文、异常 EOF、非法 JSON/SSE、状态码和取消竞态都收敛到唯一 `completed | failed`。
+
+验收新增两个失败反例：
+
+1. 非法 UTF-8 `0xff` 原会被替换成 `�`，最终错误产生 `completed`。`0fa585e` 启用 fatal UTF-8 解码，并将错误归为唯一 protocol 终态。
+2. fetch/CLI transport 原会隐藏明确的非 SSE Content-Type，使 `application/json` 响应被当作 SSE 成功。`753e5e3` 保留实际 Content-Type，让 normalizer 按 invalid_response 拒绝；旧测试夹具同步声明真实 `text/event-stream`。
+
+修复后 Provider **12 files / 84 tests** 全绿。UTF-8 跨 chunk、首 delta 早于终帧、异常 EOF、空正文、非法 SSE/JSON、401/403、429、400、500/503、timeout、network、cancel race 与密钥不泄漏均有实跑证据。
+
+### 5. `generate()` 单路径聚合
+
+**通过。** 非结构化 `generate()` 只迭代同一实例公开的 `provider.stream()`，不另开 HTTP 路径；注入 transport 的测试断言结果为同一 stream 的 content/reasoning/usage 聚合，且只有一次 transport request。结构化输出继续保留既有校验/反馈重试语义，但 `generate()` 本身仍通过同一 `stream()` 入口消费结果。
+
+阶段边界：当前 desktop chat 为兼容既有 UI 仍调用 `generate()` 取得最终消息；Tauri transport 与 Provider 公共 stream 已是真分片。Turn 持久化与 UI 逐 delta 消费属于后续 TURN-1/Chat-UI，不在本批新增事件契约。
+
+### 6. Readiness 正交状态
+
+**通过。** 状态形状明确分离 `credential: absent | stored` 与 `connection: unverified | verifying | ready | failed`：
+
+- 保存 key 只得到 `stored + unverified`，不会乐观显示 connected；
+- UI 在 probe 期间显式进入 verifying，只有本次真实 probe 成功才 ready；
+- key 保存与 clear 都清除 Rust verified binding；进程重启只从钥匙串恢复 stored，连接回 unverified；
+- verified binding 同时绑定 providerId/modelId，换模型后 Rust 拒绝旧 ready，desktop 也立即显示 unverified；
+- 失败保留 credential 状态并发布闭集 failKind/用户文案。
+
+Rust restart/model-binding 测试、desktop readiness 单测，以及 Playwright 的未配置、失败、成功、模型切换、设置页与冒烟流程均通过。
+
+### 7. 范围与依赖纪律
+
+**通过。** 实现提交没有改动 `packages/schemas`、`packages/legal`、`packages/pm-schemas`、`packages/registry` 或 ADR，也没有新增 Turn/Interaction 协议。core 的四处变化仅给 acceptance/test provider fake 补 `stream()`，生产执行器继续只消费 Provider port；DeepSeek quirk 仍只住 `packages/provider`。
+
+## 验收修复提交
+
+- `0fa585e fix-by-acceptance: reject invalid UTF-8 provider streams`
+- `753e5e3 fix-by-acceptance: reject non-SSE provider responses`
+- `87eeda8 fix-by-acceptance: keep Rust provider fields authoritative`
+
+三枚均为实现级小修，没有修改公开事件形状、schema、ADR 或跨层验收标准。
+
+## 最终门禁
+
+| 门禁 | 实测结果 |
+| --- | --- |
+| `cargo test` | **25/25** Rust tests 通过；doc tests 通过 |
+| `cargo fmt --check` | 通过 |
+| `pnpm --filter @courtwork/provider test` | **12 files / 84 tests** 通过 |
+| `pnpm -r build` | **12/12** 有 build 脚本的 workspace 通过；catalog drift check 与 desktop Vite build 通过 |
+| `pnpm lint` | 通过，零 error |
+| `pnpm test` | **108 files / 868 tests** 通过 |
+| Desktop 完整 E2E（端口 15422） | 所有前置 guards 通过；**198/198，1 worker，3.1m** |
+
+## 最终判定
+
+- 原始 `6d7851e`：**不可单独合入**，缺陷已由三枚验收提交关闭。
+- `codex/accept-provider-2` 完整提交链：**放行，可合入 `main`**。
+- 契约级阻塞：无。
+- 后续范围：TURN-1 承接可回放 turn 生命周期；Chat-UI 再消费公共 delta，不得回退到 transport body 聚合。
