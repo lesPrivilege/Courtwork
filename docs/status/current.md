@@ -26,14 +26,15 @@
 
 ## 下一阶段优先序
 
-1. POLISH-P0：修复 Graph/Minimap 快速卸载竞态，并重建 1180 / 1280 / 1440 / 1600 四档视觉基线。
-2. SCHEMA-POLISH-1：以现有真实 artifact 完善证据、状态与下一步，不新增空壳面板、不改 schema。
-3. DESLOP-GATE-1：增加 Courtwork 专用结构守卫与可触红反例；明确保留设计系统白名单。
-4. desktop ABI 化：移除包外领域路由与 demo 直连，并用边界守卫触红。
-5. 真实材料链：启动 ingest spike；用脱敏卷宗建立 OCR/实体对齐基线。
-6. usage ledger：把 token、成本与 context 使用量接入权威账本。
-7. SITE-2：前三项独立验收后，以真实 fixture 把首页重构为“原件 → 引语 → 结论 → 人工确认”的证据链。
-8. 真实 provider 与真机回归：维持承诺对照 gate，防止 UI 声明超前于能力。
+1. PROVIDER-1：抽出 `packages/provider`，产品只注册 DeepSeek，移除会猜测能力的 custom/base URL 配置。
+2. PROVIDER-2：统一 Rust 探针与请求路径，接 Tauri 真流，拆分凭证与连接状态。
+3. TURN-1：把思考、reasoning、正文、usage、失败与取消落成 provider 无关生命周期。
+4. INTERACTION-1 / CHAT-UI-1：垂类 manifest 注入问题、选项与锚点；core 暂停/续行；desktop 渲染通用轻框卡。
+5. POLISH-P0 / SCHEMA-POLISH-1：两枚实现已在独立分支，须先通过异会话全量验收再合流。
+6. DESLOP-GATE-1：首版因 allowlist 过宽被拒收，按拒收报告重做精确消费点白名单，不合入旧实现。
+7. desktop ABI 化：移除包外领域路由与 demo 直连，并用边界守卫触红。
+8. 真实材料链与 usage ledger：用脱敏卷宗建立 OCR/实体对齐基线，并把 token、成本、context 接入权威账本。
+9. SITE-2：底座与 polish 独立验收后，以真实 fixture 把首页重构为“原件 → 引语 → 结论 → 人工确认”的证据链。
 
 ## 非提交态说明
 

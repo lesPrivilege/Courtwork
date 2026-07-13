@@ -2,6 +2,26 @@
 
 状态：已完成
 
+## 现行架构工单（2026-07-13）
+
+### INTERACTION-1 · 垂类注入的通用交互模板
+
+在 `VerticalPackageManifest` 增加可选 `interactionTemplates`。每项是 strict、namespaced、装载期可校验的 `InteractionTemplate`：
+
+```ts
+type InteractionTemplate = {
+  id: string;
+  kind: 'single_choice' | 'confirmation';
+  question: string;
+  options: Array<{ id: string; label: string; description?: string }>;
+  skippable: boolean;
+  anchorPolicy: 'none' | 'optional' | 'required';
+  uiTemplateId: 'question-card';
+};
+```
+
+内容、选项与锚点策略属于垂类包；颜色、布局、键盘行为属于 desktop 通用 renderer。准入必须拒绝重复 id、空选项、重复 option id、非法 namespace，以及 `required` 却无法由当前请求提供/解析锚点的情形。registry 提供按 package + template id 解析的只读 API，不把法律字段或 demo 真值带入 core/desktop。
+
 ## 职责
 
 场景注册表：场景以声明式定义存在，产品团队可不动 core 增改场景。

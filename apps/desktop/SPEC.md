@@ -4,6 +4,16 @@
 
 ## 现行架构工单（2026-07-13）
 
+### CHAT-UI-1 · Turn 投影与通用提问卡
+
+前置：PROVIDER-2、TURN-1、INTERACTION-1 已独立验收并合流。desktop 只消费 core turn/interaction view model：真实流驱动思考、reasoning、正文、错误与取消；删除 Typewriter 假流和 `App.tsx` 硬编码演示问题。刷新后从未决事件恢复卡片，提交回答须等待 core 接收，不允许本地 state 假完成。
+
+`question-card` 使用 generated 冷调底色的轻微差异、1px hairline、既有 6px 圆角、无阴影，不新增 L1 外壳；无装饰入场，选项/主操作只用既有 70ms / scale(.98) press feedback，并覆盖 focus-visible、键盘选择、错误重试与 reduced-motion。卡片内容、选项、锚点来自垂类 manifest，desktop 不含领域文案表。
+
+### PROVIDER-UI-1 · DeepSeek-first 配置面
+
+随 PROVIDER-1 移除 custom provider 与可编辑 base URL；只显示 DeepSeek API key、模型和 reasoning 选择。UI 分开表达“凭证已存储”和“连接已验证/失败”，不得以填入 key 直接显示 connected。未来 provider 由 descriptor 驱动追加，当前不造空壳 provider 面板。
+
 ### POLISH-P0 · Minimap 生命周期与视觉基线
 
 目标：先消除 Graph 快速卸载时 G6 Minimap 延迟回调访问已销毁 options 的运行时错误，再重建与当前代码同源的视觉证据。
@@ -59,6 +69,8 @@
 - 新增 Playwright 单飞行反例；隔离端口 GOAL-1 9/9 实跑通过。
 
 ## PRV-1 · provider 自配最小闭环（2026-07-11）
+
+历史实现记录；其中 custom/base URL 产品入口已由 ADR-007 与 PROVIDER-UI-1 覆盖，不再是现行要求。钥匙串明文隔离、连接探针和错误分型仍有效，待 PROVIDER-2 收口请求路径。
 
 - 引导卡与设置页接入 `base URL + API key + 模型名`：0.1 只内置 DeepSeek，由 core quirk 自动给 URL/推荐模型；自定义档可编辑 URL且须先通过探针。Qwen/豆包移入 provider roadmap，等待团队/上游插件以真 wire 证据接入。根 URL自动规范到 `/v1`。托管积分档只保留禁用占位。
 
