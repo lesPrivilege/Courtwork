@@ -1,6 +1,13 @@
 import { expect, test, type Page } from '@playwright/test';
 import { connectProvider, createNamedCase, openModuleList, openWorkbench } from './helpers';
 
+type ForcedReadinessWindow = typeof window & {
+  __CW_FORCE_CREDENTIAL__: {
+    credential: { phase: string; source?: string };
+    connection: { phase: string; failKind?: string; failureMessage?: string };
+  };
+};
+
 async function skipProvider(page: Page) {
   await openWorkbench(page);
 }
@@ -8,25 +15,20 @@ async function skipProvider(page: Page) {
 test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
   test('未配置态显示待连接，不乐观已连接', async ({ page }) => {
     await page.addInitScript(() => {
-      (window as unknown as { __CW_FORCE_CREDENTIAL__: { phase: string } }).__CW_FORCE_CREDENTIAL__ = {
-        phase: 'pending',
-      };
+      (window as ForcedReadinessWindow).__CW_FORCE_CREDENTIAL__ = { credential: { phase: 'absent' }, connection: { phase: 'unverified' } };
     });
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
     if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
     const button = page.getByTestId('composer-provider');
-    await expect(button).toHaveAttribute('data-phase', 'pending');
+    await expect(button).toHaveAttribute('data-phase', 'unverified');
     await expect(button).toContainText('Connect');
     await expect(button).not.toContainText('Connected');
   });
 
   test('授权失败态显示连接失败与引导文案', async ({ page }) => {
     await page.addInitScript(() => {
-      (window as unknown as { __CW_FORCE_CREDENTIAL__: { phase: string; failureMessage: string } }).__CW_FORCE_CREDENTIAL__ = {
-        phase: 'failed',
-        failureMessage: '钥匙串授权未通过，请重试或重新填写',
-      };
+      (window as ForcedReadinessWindow).__CW_FORCE_CREDENTIAL__ = { credential: { phase: 'absent' }, connection: { phase: 'failed', failureMessage: '钥匙串授权未通过，请重试或重新填写' } };
     });
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
@@ -39,13 +41,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
 
   test('F4 分型文案：auth_failed 呈现在状态条 title', async ({ page }) => {
     await page.addInitScript(() => {
-      (window as unknown as {
-        __CW_FORCE_CREDENTIAL__: { phase: string; failKind: string; failureMessage: string };
-      }).__CW_FORCE_CREDENTIAL__ = {
-        phase: 'failed',
-        failKind: 'auth_failed',
-        failureMessage: '无法解锁电脑的安全凭证库，请确认钥匙串密码后重试',
-      };
+      (window as ForcedReadinessWindow).__CW_FORCE_CREDENTIAL__ = { credential: { phase: 'absent' }, connection: { phase: 'failed', failKind: 'platform', failureMessage: '无法解锁电脑的安全凭证库，请确认钥匙串密码后重试' } };
     });
     await page.goto('/');
     const setup = page.getByTestId('provider-setup');
@@ -69,7 +65,7 @@ test.describe('D-1 凭证探针三态（非 demo 装配）', () => {
     await dialog.getByTestId('provider-setup-done').click();
     await expect(dialog).toBeHidden();
     const button = page.getByTestId('composer-provider');
-    await expect(button).toHaveAttribute('data-phase', 'connected');
+    await expect(button).toHaveAttribute('data-phase', 'ready');
     // 收敛令②：chip 主显档位（标准/深思），生效模型退为小字（单源取声明路由）
     await expect(button).toContainText('Standard');
     await expect(button.locator('.composer-provider-model')).toHaveText('deepseek-v4-flash');

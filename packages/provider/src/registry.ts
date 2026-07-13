@@ -1,6 +1,7 @@
 import { DEEPSEEK_QUIRK_PROFILE, type ProviderQuirkProfile } from './quirk-profile.js';
+import { DEEPSEEK_CATALOG } from './catalog.generated.js';
 
-export const PRODUCT_PROVIDER_IDS = ['deepseek'] as const;
+export const PRODUCT_PROVIDER_IDS = [DEEPSEEK_CATALOG.id] as const;
 export type ProviderId = (typeof PRODUCT_PROVIDER_IDS)[number];
 
 export interface ProviderDescriptor extends ProviderQuirkProfile {
@@ -10,8 +11,8 @@ export interface ProviderDescriptor extends ProviderQuirkProfile {
 
 export const DEEPSEEK_PROVIDER_DESCRIPTOR: ProviderDescriptor = {
   ...DEEPSEEK_QUIRK_PROFILE,
-  id: 'deepseek',
-  label: 'DeepSeek',
+  id: DEEPSEEK_CATALOG.id,
+  label: DEEPSEEK_CATALOG.label,
 };
 
 export const PROVIDER_DESCRIPTORS: readonly ProviderDescriptor[] = [DEEPSEEK_PROVIDER_DESCRIPTOR];

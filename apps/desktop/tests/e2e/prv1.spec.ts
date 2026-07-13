@@ -27,28 +27,28 @@ test.describe('PRV-1 provider 自配闭环', () => {
 
   test('校验成功把发现模型写入下拉并以真冒烟标 connected', async ({ page }) => {
     const guide = await openGuide(page);
-    await mockProbe(page, { phase: 'connected', models: ['law-model-a', 'law-model-b'], modelDiscovery: 'available' });
+    await mockProbe(page, { credential: { phase: 'stored', source: 'pasted' }, connection: { phase: 'ready', models: ['law-model-a', 'law-model-b'], modelDiscovery: 'available' } });
     await guide.getByRole('textbox', { name: 'Access credential' }).fill('cw-valid-secret-key');
     await guide.getByRole('button', { name: 'Verify connection' }).click();
     // #44：成功就地绿徽 + 显式关闭
     await expect(guide.getByTestId('provider-setup-verified')).toBeVisible();
     await guide.getByTestId('provider-setup-done').click();
     await expect(guide).toHaveCount(0);
-    await expect(page.getByTestId('composer-provider')).toHaveAttribute('data-phase', 'connected');
+    await expect(page.getByTestId('composer-provider')).toHaveAttribute('data-phase', 'ready');
     await expect(page.getByTestId('composer-provider')).toContainText('law-model-a');
   });
 
   test('模型发现不支持时诚实降级但不阻塞连接', async ({ page }) => {
     const guide = await openGuide(page);
-    await mockProbe(page, { phase: 'connected', modelDiscovery: 'unsupported' });
+    await mockProbe(page, { credential: { phase: 'stored', source: 'pasted' }, connection: { phase: 'ready', modelDiscovery: 'unsupported' } });
     await guide.getByRole('textbox', { name: 'Access credential' }).fill('cw-valid-secret-key');
     await guide.getByRole('button', { name: 'Verify connection' }).click();
-    await expect(page.getByTestId('composer-provider')).toHaveAttribute('data-phase', 'connected');
+    await expect(page.getByTestId('composer-provider')).toHaveAttribute('data-phase', 'ready');
   });
 
   test('真实请求失败按分型呈现且不得误报 connected', async ({ page }) => {
     const guide = await openGuide(page);
-    await mockProbe(page, { phase: 'failed', failKind: 'endpoint' });
+    await mockProbe(page, { credential: { phase: 'stored', source: 'pasted' }, connection: { phase: 'failed', failKind: 'endpoint' } });
     await guide.getByRole('textbox', { name: 'Access credential' }).fill('cw-valid-secret-key');
     await guide.getByRole('button', { name: 'Verify connection' }).click();
     await expect(guide.getByTestId('provider-setup-error')).toContainText('DeepSeek');

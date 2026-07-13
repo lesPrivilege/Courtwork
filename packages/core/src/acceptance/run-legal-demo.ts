@@ -107,6 +107,7 @@ function withWireWitness(provider: Provider, wires: CapturedWire[]): Provider {
   return {
     id: provider.id,
     modelId: provider.modelId,
+    stream(request, options) { return provider.stream(request, options); },
     async generate(request: GenerationRequest) {
       const system = request.systemPrompt ?? '';
       const user = request.messages.map((m) => m.content).join('\n');

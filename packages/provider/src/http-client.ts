@@ -1,6 +1,12 @@
 import { ProviderAuthError, ProviderHttpError, ProviderTimeoutError } from './errors.js';
-import { parseSseEvents } from './sse.js';
+import { normalizeProviderTransport } from './provider-stream.js';
 import type { ProviderQuirkProfile } from './quirk-profile.js';
+import type {
+  ProviderFailureKind,
+  ProviderStreamEvent,
+  ProviderTransport,
+  ProviderTransportEvent,
+} from './types.js';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -30,16 +36,133 @@ export interface HttpClientConfig {
   apiKey: string;
   timeoutMs: number;
   maxTransportRetries: number;
-  /** 测试用可注入 fetch 实现；生产由调用方传入全局 fetch。 */
   fetchImpl: typeof fetch;
-  /** 测试用可注入退避延迟（零延迟假实现），避免真实等待。 */
   delay: (ms: number) => Promise<void>;
+  /** Desktop 注入 Rust Channel transport；缺省为仅供 Node/测试使用的 fetch transport。 */
+  transport?: ProviderTransport;
 }
 
 const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
+let requestSequence = 0;
 
-/** transport 级重试：仅明确返回的 429/5xx 重试。超时/网络错误可能已被受理，
- * 为防重复生成与计费一律不重试；401/403 与其余 4xx 同样立即失败。 */
+function nextRequestId(): string {
+  requestSequence += 1;
+  return `provider-${Date.now()}-${requestSequence}`;
+}
+
+function safeFailure(kind: ProviderFailureKind, message: string, retryable: boolean, requestId: string): ProviderTransportEvent {
+  return { type: 'failed', requestId, kind, message, retryable };
+}
+
+/** Browser/Node 直连实现只用于测试和 CLI；桌面生产路径注入 Rust Channel transport。 */
+export function createFetchTransport(profile: ProviderQuirkProfile, config: HttpClientConfig): ProviderTransport {
+  return {
+    async *stream(request): AsyncIterable<ProviderTransportEvent> {
+      const controller = new AbortController();
+      const abort = () => controller.abort();
+      request.signal?.addEventListener('abort', abort, { once: true });
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      let timedOut = false;
+      const timeout = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          timedOut = true;
+          controller.abort();
+          reject(new Error('provider_timeout'));
+        }, config.timeoutMs);
+      });
+
+      try {
+        const response = await Promise.race([config.fetchImpl(`${profile.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            authorization: `Bearer ${config.apiKey}`,
+          },
+          body: request.body,
+          signal: controller.signal,
+        }), timeout]);
+        yield {
+          type: 'response_started',
+          requestId: request.requestId,
+          status: response.status,
+          contentType: response.headers.get('content-type') ?? undefined,
+        };
+        if (!response.ok) return;
+        if (!response.body) {
+          yield safeFailure('invalid_response', '服务商返回了空响应体', false, request.requestId);
+          return;
+        }
+        const reader = response.body.getReader();
+        while (true) {
+          const item = await Promise.race([reader.read(), timeout]);
+          if (item.done) break;
+          if (item.value.byteLength > 0) {
+            yield { type: 'chunk', requestId: request.requestId, bytes: Array.from(item.value) };
+          }
+        }
+        yield { type: 'end', requestId: request.requestId };
+      } catch (error) {
+        if (request.signal?.aborted) {
+          yield safeFailure('canceled', '请求已取消', false, request.requestId);
+        } else if (timedOut) {
+          yield safeFailure('timeout', `服务商在 ${config.timeoutMs}ms 内未返回完整响应`, false, request.requestId);
+        } else {
+          const message = error instanceof Error
+            ? error.message.replaceAll(config.apiKey, '[redacted]')
+            : '服务商网络请求失败';
+          yield safeFailure('network', message, false, request.requestId);
+        }
+      } finally {
+        clearTimeout(timer);
+        request.signal?.removeEventListener('abort', abort);
+      }
+    },
+  };
+}
+
+export function streamChatCompletion(
+  profile: ProviderQuirkProfile,
+  body: ChatCompletionRequestBody,
+  config: HttpClientConfig,
+  options: { requestId?: string; signal?: AbortSignal } = {},
+): AsyncIterable<ProviderStreamEvent> {
+  const requestId = options.requestId ?? nextRequestId();
+  const transport = config.transport ?? createFetchTransport(profile, config);
+  return normalizeProviderTransport(
+    transport.stream({
+      requestId,
+      providerId: profile.providerId,
+      modelId: body.model,
+      body: JSON.stringify(body),
+      reasoningBody: {},
+      signal: options.signal,
+    }),
+    {
+      requestId,
+      providerId: profile.providerId,
+      modelId: body.model,
+      reasoningFieldCandidates: profile.reasoningFieldCandidates,
+      signal: options.signal,
+    },
+  );
+}
+
+function errorFromFailure(profile: ProviderQuirkProfile, event: Extract<ProviderStreamEvent, { type: 'failed' }>, timeoutMs: number): Error {
+  if (event.kind === 'auth') return new ProviderAuthError(profile.providerId, 401);
+  if (event.kind === 'timeout') return new ProviderTimeoutError(profile.providerId, timeoutMs);
+  if (event.kind === 'rate_limit') return new ProviderHttpError(profile.providerId, 429, event.message);
+  if (event.kind === 'endpoint') {
+    const match = /HTTP (\d+)/.exec(event.message);
+    return new ProviderHttpError(profile.providerId, match ? Number(match[1]) : 500, event.message);
+  }
+  if (event.kind === 'model' || event.kind === 'invalid_response') {
+    const match = /HTTP (\d+)/.exec(event.message);
+    if (match) return new ProviderHttpError(profile.providerId, Number(match[1]), event.message);
+  }
+  return new Error(event.message);
+}
+
+/** generate/结构化校验用聚合器；数据源与公开 stream() 完全相同。 */
 export async function sendChatCompletion(
   profile: ProviderQuirkProfile,
   body: ChatCompletionRequestBody,
@@ -47,115 +170,23 @@ export async function sendChatCompletion(
 ): Promise<ChatCompletionResult> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= config.maxTransportRetries; attempt += 1) {
-    if (attempt > 0) {
-      const backoffMs = Math.min(500 * 2 ** (attempt - 1), 8_000);
-      await config.delay(backoffMs);
+    if (attempt > 0) await config.delay(Math.min(500 * 2 ** (attempt - 1), 8_000));
+    let content = '';
+    let reasoningContent = '';
+    let usage: ChatCompletionResult['usage'];
+    let failure: Extract<ProviderStreamEvent, { type: 'failed' }> | undefined;
+    for await (const event of streamChatCompletion(profile, body, config)) {
+      if (event.type === 'content_delta') content += event.delta;
+      else if (event.type === 'reasoning_delta') reasoningContent += event.delta;
+      else if (event.type === 'usage') usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+      else if (event.type === 'failed') failure = event;
     }
-    try {
-      return await attemptOnce(profile, body, config);
-    } catch (error) {
-      lastError = error;
-      if (error instanceof ProviderAuthError) throw error;
-      if (error instanceof ProviderHttpError) {
-        if (RETRYABLE_STATUS.has(error.status)) continue;
-        throw error;
-      }
-      // 超时/网络断开时请求可能已被 provider 接收；重试会造成重复生成与计费。
-      // 只有明确返回的 429/5xx 证明本次失败，才允许进入下一轮。
-      throw error;
-    }
+    if (!failure) return { content, reasoningContent: reasoningContent || undefined, usage };
+    const error = errorFromFailure(profile, failure, config.timeoutMs);
+    lastError = error;
+    if (error instanceof ProviderAuthError) throw error;
+    if (error instanceof ProviderHttpError && RETRYABLE_STATUS.has(error.status)) continue;
+    throw error;
   }
   throw lastError;
-}
-
-/**
- * 用 Promise.race 对抗一个"到点即 reject(ProviderTimeoutError)"的计时器 promise，
- * 而不是在某个具体 await 点用 try/catch 转换 AbortError——后者只能覆盖它包住的那一个
- * await，fetch() 拿到响应头就 resolve、真正的流式读取发生在后续 response.text()，
- * 单点 try/catch 会漏掉"连接建立后、读流阶段才超时"这个最常见的真实场景。
- * 整条链路（fetchImpl + 两处 response.text()）都在 race 的左侧 promise 里，
- * 不管计时器在哪个 await 点触发，右侧 promise 先 settle 就直接拿到正确的错误类型。
- * 这是 packages/tools/src/contract.ts 的 runOnce 已经验证过的同一模式。
- */
-async function attemptOnce(
-  profile: ProviderQuirkProfile,
-  body: ChatCompletionRequestBody,
-  config: HttpClientConfig,
-): Promise<ChatCompletionResult> {
-  const controller = new AbortController();
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => {
-      controller.abort();
-      reject(new ProviderTimeoutError(profile.providerId, config.timeoutMs));
-    }, config.timeoutMs);
-  });
-
-  try {
-    return await Promise.race([fetchAndAccumulate(profile, body, config, controller.signal), timeout]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-async function fetchAndAccumulate(
-  profile: ProviderQuirkProfile,
-  body: ChatCompletionRequestBody,
-  config: HttpClientConfig,
-  signal: AbortSignal,
-): Promise<ChatCompletionResult> {
-  const response = await config.fetchImpl(`${profile.baseUrl}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${config.apiKey}`,
-    },
-    body: JSON.stringify(body),
-    signal,
-  });
-
-  if (response.status === 401 || response.status === 403) {
-    throw new ProviderAuthError(profile.providerId, response.status);
-  }
-  if (!response.ok) {
-    const text = await response.text();
-    throw new ProviderHttpError(profile.providerId, response.status, text);
-  }
-
-  // 用 .text() 读完整个 SSE body 后一次性解析：应用层不需要增量消费（见 sse.ts 顶部说明），
-  // 网络层依然是逐块到达，代理判定连接空闲的窗口不受影响。
-  const text = await response.text();
-  return accumulateSseEvents(parseSseEvents(text), profile);
-}
-
-function accumulateSseEvents(events: unknown[], profile: ProviderQuirkProfile): ChatCompletionResult {
-  let content = '';
-  let reasoningContent = '';
-  let usage: { inputTokens: number; outputTokens: number } | undefined;
-
-  for (const event of events) {
-    const chunk = event as {
-      choices?: Array<{ delta?: Record<string, unknown> }>;
-      usage?: { prompt_tokens?: number; completion_tokens?: number };
-    };
-    const delta = chunk.choices?.[0]?.delta;
-    if (delta) {
-      if (typeof delta.content === 'string') content += delta.content;
-      for (const field of profile.reasoningFieldCandidates) {
-        const value = delta[field];
-        if (typeof value === 'string') {
-          reasoningContent += value;
-          break;
-        }
-      }
-    }
-    if (chunk.usage) {
-      usage = {
-        inputTokens: chunk.usage.prompt_tokens ?? 0,
-        outputTokens: chunk.usage.completion_tokens ?? 0,
-      };
-    }
-  }
-
-  return { content, reasoningContent: reasoningContent.length > 0 ? reasoningContent : undefined, usage };
 }

@@ -90,6 +90,7 @@ function buildDeps(responses: string[], capture?: string[]): ScenarioExecutorDep
     provider: {
       id: 'scripted',
       modelId: 'v1',
+      async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
       async generate(request) {
         capture?.push(request.messages[request.messages.length - 1]!.content);
         const content = responses[Math.min(call, responses.length - 1)];

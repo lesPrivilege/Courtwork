@@ -89,6 +89,17 @@ describe('sendChatCompletion — non-retryable client errors fail fast', () => {
     await expect(sendChatCompletion(TEST_PROFILE, baseBody(), noDelayConfig({ fetchImpl }))).rejects.toThrow(ProviderHttpError);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
+
+  it('rejects a successful response that declares a non-SSE content type', async () => {
+    const body = 'data: {"choices":[{"delta":{"content":"not-really-sse"}}]}\n\ndata: [DONE]\n\n';
+    const fetchImpl = vi.fn(async () => new Response(body, {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    }));
+    await expect(sendChatCompletion(TEST_PROFILE, baseBody(), noDelayConfig({ fetchImpl })))
+      .rejects.toThrow(/SSE/i);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('sendChatCompletion — retryable transport failures', () => {
@@ -166,14 +177,7 @@ describe('sendChatCompletion — timeout', () => {
   it('throws ProviderTimeoutError when the response body stream stalls after headers arrive (body-phase timeout, not just connection-phase)', async () => {
     // fetch() 立刻 resolve 一个 200 响应（头已到达），但响应体的 ReadableStream 从不
     // enqueue、从不 close——模拟"连上了、但模型迟迟不吐完整流"这个最常见的真实超时场景。
-    // 不需要给 signal 接 abort 监听去手动 cancel 这个 stream：生产代码里的 timeout
-    // promise 是一个独立的 setTimeout，到点就直接 reject(ProviderTimeoutError)，
-    // 不依赖"另一侧 promise 是否真的被打断"——Promise.race 谁先 settle 就用谁。
-    // （最初按协调者给的原始 fake 手动实现过 abort→cancel(response.body)：实测会在
-    // fetchAndAccumulate 内部 response.text() 已经 getReader() 锁定 stream 之后才触发，
-    // 导致 `TypeError: Invalid state: ReadableStream is locked` 变成未捕获的 promise
-    // rejection，被 vitest 标记为 "Unhandled Errors"——该 cancel() 调用对断言结果其实
-    // 不是必需的，删掉后既更简单也不再有这个副作用。）
+    // 增量 reader.read() 与统一超时 promise 竞争；即使头已到达，body 阶段仍会按时失败。
     const fetchImpl = vi.fn(async () => {
       const stallingBody = new ReadableStream<Uint8Array>({
         start() {},

@@ -7,6 +7,7 @@ import {
 import * as providerFactories from './openai-compatible-provider.js';
 import { ProviderNotConfiguredError, ProviderNotImplementedError } from './errors.js';
 import { DEEPSEEK_QUIRK_PROFILE } from './quirk-profile.js';
+import type { ProviderTransport } from './types.js';
 
 function sseBody(content: string): string {
   return `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\ndata: [DONE]\n\n`;
@@ -57,6 +58,25 @@ describe('createOpenAICompatibleProvider — auth.kind / billing.kind 判别（�
 });
 
 describe('createOpenAICompatibleProvider — generate() end-to-end', () => {
+  it('generate() aggregates the same public stream and opens exactly one transport request', async () => {
+    let calls = 0;
+    const encoder = new TextEncoder();
+    const transport: ProviderTransport = {
+      async *stream(request) {
+        calls += 1;
+        yield { type: 'response_started', requestId: request.requestId, status: 200, contentType: 'text/event-stream' };
+        yield { type: 'chunk', requestId: request.requestId, bytes: Array.from(encoder.encode('data: {"choices":[{"delta":{"content":"one-path"}}]}\n\ndata: [DONE]\n\n')) };
+        yield { type: 'end', requestId: request.requestId };
+      },
+    };
+    const provider = createOpenAICompatibleProvider(DEEPSEEK_QUIRK_PROFILE, {
+      auth: { kind: 'api_key', apiKey: 'placeholder' }, billing: { kind: 'metered' },
+      modelId: 'deepseek-v4-pro', transport,
+    });
+    await expect(provider.generate({ messages: [{ role: 'user', content: 'hi' }] })).resolves.toMatchObject({ content: 'one-path' });
+    expect(calls).toBe(1);
+  });
+
   it('assembles a GenerationResponse from the underlying SSE call, including usage and reasoningContent', async () => {
     const fetchImpl = vi.fn(async () =>
       new Response(
@@ -65,7 +85,7 @@ describe('createOpenAICompatibleProvider — generate() end-to-end', () => {
           `data: ${JSON.stringify({ choices: [], usage: { prompt_tokens: 3, completion_tokens: 2 } })}`,
           'data: [DONE]',
         ].join('\n\n') + '\n\n',
-        { status: 200 },
+        { status: 200, headers: { 'content-type': 'text/event-stream' } },
       ),
     );
     const provider = createOpenAICompatibleProvider(DEEPSEEK_QUIRK_PROFILE, {
@@ -85,7 +105,7 @@ describe('createOpenAICompatibleProvider — generate() end-to-end', () => {
   });
 
   it('propagates plain-text generation (no responseSchema) without attempting to parse JSON', async () => {
-    const fetchImpl = vi.fn(async () => new Response(sseBody('just a sentence, no json'), { status: 200 }));
+    const fetchImpl = vi.fn(async () => new Response(sseBody('just a sentence, no json'), { status: 200, headers: { 'content-type': 'text/event-stream' } }));
     const provider = createOpenAICompatibleProvider(DEEPSEEK_QUIRK_PROFILE, {
       auth: { kind: 'api_key', apiKey: 'sk-x' },
       billing: { kind: 'metered' },
@@ -100,7 +120,7 @@ describe('createOpenAICompatibleProvider — generate() end-to-end', () => {
 
 describe('DeepSeek named factory wires the supported 0.1 profile', () => {
   it('createDeepSeekProvider posts to the DeepSeek base URL, and forwards modelId/id correctly', async () => {
-    const fetchImpl = vi.fn(async () => new Response(sseBody('ok'), { status: 200 }));
+    const fetchImpl = vi.fn(async () => new Response(sseBody('ok'), { status: 200, headers: { 'content-type': 'text/event-stream' } }));
     const provider = createDeepSeekProvider({ apiKey: 'sk-x', modelId: 'deepseek-v4-pro', fetchImpl, delay: async () => {} });
     expect(provider.id).toBe('deepseek');
     expect(provider.modelId).toBe('deepseek-v4-pro');

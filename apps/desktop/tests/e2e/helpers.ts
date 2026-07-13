@@ -55,7 +55,7 @@ export async function createNamedCase(page: Page, name: string) {
 /** 需要真实发送/model-config 的旧回归须先显式授权；冷启动本身保持安静。 */
 export async function connectProvider(page: Page) {
   const trigger = page.getByTestId('composer-provider');
-  if (await trigger.getAttribute('data-phase') === 'connected') return;
+  if (await trigger.getAttribute('data-phase') === 'ready') return;
   // 2026-07-12 connect 路由：非首启一律 Settings 内嵌凭证面（首启引导卡另测于 rp29/goal1）
   await trigger.click();
   const embed = page.getByTestId('settings-credential-embed');

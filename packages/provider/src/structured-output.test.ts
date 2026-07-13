@@ -36,7 +36,7 @@ describe('generateStructured — no responseSchema (plain generation)', () => {
     let capturedBody: unknown;
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
       capturedBody = JSON.parse(init!.body as string);
-      return new Response(rawSseBody('plain free text, not json at all'), { status: 200 });
+      return new Response(rawSseBody('plain free text, not json at all'), { status: 200, headers: { 'content-type': 'text/event-stream' } });
     });
     const result = await generateStructured({
       profile: profile('json_object'),
@@ -55,7 +55,7 @@ describe('generateStructured — json_object tier (DeepSeek-like)', () => {
     let capturedBody: { response_format?: unknown; messages: { role: string; content: string }[] } | undefined;
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
       capturedBody = JSON.parse(init!.body as string);
-      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200 });
+      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200, headers: { 'content-type': 'text/event-stream' } });
     });
     const result = await generateStructured({
       profile: profile('json_object'),
@@ -77,7 +77,7 @@ describe('generateStructured — generic json_schema_strict tier', () => {
     let capturedBody: { response_format?: { type: string; json_schema?: { strict?: boolean; schema?: unknown } } } | undefined;
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
       capturedBody = JSON.parse(init!.body as string);
-      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200 });
+      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200, headers: { 'content-type': 'text/event-stream' } });
     });
     await generateStructured({
       profile: profile('json_schema_strict'),
@@ -99,7 +99,7 @@ describe('generateStructured — generic json_schema_strict tier', () => {
     let capturedBody: Record<string, unknown> | undefined;
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
       capturedBody = JSON.parse(init!.body as string) as Record<string, unknown>;
-      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200 });
+      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200, headers: { 'content-type': 'text/event-stream' } });
     });
     const result = await generateStructured({
       profile: {
@@ -130,7 +130,7 @@ describe('generateStructured — generic json_schema tier, non-strict', () => {
     let capturedBody: { response_format?: { type: string; json_schema?: { strict?: boolean; schema?: unknown } } } | undefined;
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
       capturedBody = JSON.parse(init!.body as string);
-      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200 });
+      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200, headers: { 'content-type': 'text/event-stream' } });
     });
     await generateStructured({
       profile: profile('json_schema'),
@@ -156,9 +156,9 @@ describe('generateStructured — retry with feedback on invalid JSON', () => {
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
       call += 1;
       const body = JSON.parse(init!.body as string);
-      if (call === 1) return new Response(rawSseBody('not json at all'), { status: 200 });
+      if (call === 1) return new Response(rawSseBody('not json at all'), { status: 200, headers: { 'content-type': 'text/event-stream' } });
       secondCallMessages = body.messages;
-      return new Response(sseBody({ greeting: 'fixed', count: 2 }), { status: 200 });
+      return new Response(sseBody({ greeting: 'fixed', count: 2 }), { status: 200, headers: { 'content-type': 'text/event-stream' } });
     });
     const result = await generateStructured({
       profile: profile('json_object'),
@@ -181,8 +181,8 @@ describe('generateStructured — retry with feedback on schema mismatch', () => 
     let call = 0;
     const fetchImpl = vi.fn(async () => {
       call += 1;
-      if (call === 1) return new Response(sseBody({ greeting: 'hi' /* missing count */ }), { status: 200 });
-      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200 });
+      if (call === 1) return new Response(sseBody({ greeting: 'hi' /* missing count */ }), { status: 200, headers: { 'content-type': 'text/event-stream' } });
+      return new Response(sseBody({ greeting: 'hi', count: 1 }), { status: 200, headers: { 'content-type': 'text/event-stream' } });
     });
     const result = await generateStructured({
       profile: profile('json_object'),
@@ -199,7 +199,7 @@ describe('generateStructured — retry with feedback on schema mismatch', () => 
 
 describe('generateStructured — retries exhausted', () => {
   it('throws ProviderInvalidResponseError with suspectedSilentParamSwallow=true when every attempt fails to produce syntactically valid JSON', async () => {
-    const fetchImpl = vi.fn(async () => new Response(rawSseBody('still not json'), { status: 200 }));
+    const fetchImpl = vi.fn(async () => new Response(rawSseBody('still not json'), { status: 200, headers: { 'content-type': 'text/event-stream' } }));
     const promise = generateStructured({
       profile: profile('json_object'),
       model: 'm',
@@ -213,7 +213,7 @@ describe('generateStructured — retries exhausted', () => {
   });
 
   it('throws ProviderInvalidResponseError with suspectedSilentParamSwallow=false when at least one attempt parsed as JSON but never matched the schema', async () => {
-    const fetchImpl = vi.fn(async () => new Response(sseBody({ greeting: 'hi' /* missing count, every time */ }), { status: 200 }));
+    const fetchImpl = vi.fn(async () => new Response(sseBody({ greeting: 'hi' /* missing count, every time */ }), { status: 200, headers: { 'content-type': 'text/event-stream' } }));
     const promise = generateStructured({
       profile: profile('json_object'),
       model: 'm',
@@ -243,7 +243,7 @@ describe('generateStructured — unsupported tier refuses immediately (MiniMax �
   });
 
   it('does NOT throw for an "unsupported" tier profile when no responseSchema is requested (plain text generation is unaffected)', async () => {
-    const fetchImpl = vi.fn(async () => new Response(rawSseBody('free text is fine'), { status: 200 }));
+    const fetchImpl = vi.fn(async () => new Response(rawSseBody('free text is fine'), { status: 200, headers: { 'content-type': 'text/event-stream' } }));
     const result = await generateStructured({
       profile: profile('unsupported'),
       model: 'known-bad-model',
@@ -262,7 +262,7 @@ describe('generateStructured — zod→JSON Schema conversion failure falls back
     let capturedBody: { response_format?: unknown } | undefined;
     const fetchImpl = vi.fn(async (_url: string, init?: RequestInit) => {
       capturedBody = JSON.parse(init!.body as string);
-      return new Response(sseBody({ ok: true }), { status: 200 });
+      return new Response(sseBody({ ok: true }), { status: 200, headers: { 'content-type': 'text/event-stream' } });
     });
     const result = await generateStructured({
       profile: profile('json_schema_strict'),
@@ -285,7 +285,7 @@ describe('generateStructured — returns the fence-stripped content, not the raw
         `data: ${JSON.stringify({ choices: [{ delta: { content: fencedPayload, reasoning_content: 'because' } }] })}\n\n` +
           `data: ${JSON.stringify({ choices: [], usage: { prompt_tokens: 3, completion_tokens: 2 } })}\n\n` +
           'data: [DONE]\n\n',
-        { status: 200 },
+        { status: 200, headers: { 'content-type': 'text/event-stream' } },
       ),
     );
     const result = await generateStructured({
