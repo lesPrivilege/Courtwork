@@ -1,6 +1,6 @@
 # SPEC: packages/provider
 
-状态：ADR-007 已接受；PROVIDER-1 已实现，待独立验收
+状态：PROVIDER-1 已独立验收并合流；PROVIDER-2 待实现
 
 ## 职责
 
@@ -32,4 +32,65 @@
 
 ## PROVIDER-2 · 单一请求路径与真实流
 
-在 PROVIDER-1 独立验收并合流后启动：Rust 从受控 descriptor 解析 DeepSeek 固定端点，探针与正式调用共享同一 wire builder；凭证与连接状态正交。通过 Tauri channel 逐帧发布 `started | reasoning_delta | content_delta | usage | completed | failed`，删除 `.text()` 聚合和 UI 模拟打字。取消、空正文、异常 EOF 与错误分型必须有可注入反例。
+### 权威端点与 Rust 边界
+
+- 新增单一机器源 `packages/provider/catalog/deepseek.json`，至少声明 id、HTTPS base URL、models 与 chat/models 路径。TS descriptor 与 Rust 用同一文件生成/嵌入，drift 测试必须可触红；Rust 不维护第二份字符串常量。
+- WebView 的 probe/chat command 只提交 `requestId`、`providerId`、`modelId`、reasoning 参数与已组装请求 body，永不提交 URL/header/key。Rust 只接受 catalog 中的 providerId，从 descriptor 解析固定端点；删除 verified arbitrary base URL 状态与 custom host 放行。
+- probe 与正式调用复用同一个 Rust client/endpoint/auth/error classifier。Rust 负责钥匙串取 key、目标约束、HTTP 状态与原始字节传输，不解析 `reasoning_content` 或其他 provider delta 字段。
+
+### 两层流协议
+
+Rust 通过 Tauri channel 发布私有 transport 帧，保留跨 UTF-8 chunk 边界的原始字节：
+
+```ts
+type ProviderTransportEvent =
+  | { type: 'response_started'; requestId: string; status: number; contentType?: string }
+  | { type: 'chunk'; requestId: string; bytes: number[] }
+  | { type: 'end'; requestId: string }
+  | { type: 'failed'; requestId: string; kind: ProviderFailureKind; message: string; retryable: boolean };
+```
+
+`@courtwork/provider` 使用 streaming `TextDecoder` + 增量 SSE parser 归一为公共事件；每个 request 的 `seq` 从 0 单调递增，恰有一个终态，终态后不得再发 delta：
+
+```ts
+type ProviderFailureKind =
+  | 'auth' | 'rate_limit' | 'endpoint' | 'model' | 'timeout'
+  | 'network' | 'protocol' | 'invalid_response' | 'canceled';
+
+type ProviderStreamEvent =
+  | { type: 'started'; requestId: string; seq: number; providerId: string; modelId: string }
+  | { type: 'reasoning_delta'; requestId: string; seq: number; delta: string }
+  | { type: 'content_delta'; requestId: string; seq: number; delta: string }
+  | { type: 'usage'; requestId: string; seq: number; inputTokens: number; outputTokens: number }
+  | { type: 'completed'; requestId: string; seq: number; finishReason: 'stop' | 'length' | 'content_filter' | 'unknown' }
+  | { type: 'failed'; requestId: string; seq: number; kind: ProviderFailureKind; message: string; retryable: boolean };
+```
+
+provider port 新增可取消的 `stream(request): AsyncIterable<ProviderStreamEvent>`；既有 `generate()` 只作为聚合兼容层消费该 stream，不得另走第二条 HTTP 路径。正常 EOF 前没有 `[DONE]`、终态时正文为空、非法 JSON/SSE、重复终态、取消竞态都必须结构化失败。
+
+### 凭证与连接状态
+
+用一个 view model 正交表达：
+
+```ts
+type ProviderReadiness = {
+  credential: { phase: 'absent' | 'stored'; source?: 'pasted' | 'environment' };
+  connection: {
+    phase: 'unverified' | 'verifying' | 'ready' | 'failed';
+    failKind?: ProviderFailureKind | 'platform';
+    failureMessage?: string;
+    models?: string[];
+    modelDiscovery?: 'available' | 'unsupported';
+  };
+};
+```
+
+保存 key 只能进入 `stored + unverified`；只有本次 probe 成功才进入 `ready`。更换 key/model、清除凭证、应用重启均使连接回到 unverified；不得把“钥匙串可读”显示成“服务已连接”。JS 无 secret 读回路径不变。
+
+### 验收
+
+- Rust mock server 分片发送一个汉字的 UTF-8 字节、reasoning/content 多帧、usage 与 `[DONE]`，前端按原顺序实时收到；首个 delta 必须在服务器释放终帧前可观察，证明未聚合 body；
+- 注入 arbitrary URL/providerId、endpoint catalog drift、异常 EOF、空正文、非法 SSE、401/429/5xx、timeout/network 与 cancel race 均触发预期闭集终态；日志/错误不含 URL、body、key；
+- `generate()` 与 stream 聚合结果一致且只产生一次网络请求；DeepSeek quirk 仍只在 provider 包；
+- key 保存/重启/换模型/探针成功失败的双状态测试与 UI 文案实测；
+- Rust、provider、desktop 定向测试，`pnpm -r build`、`pnpm lint`、`pnpm test`、隔离端口完整 desktop Playwright；不同会话独立验收。
