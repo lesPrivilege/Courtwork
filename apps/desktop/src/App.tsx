@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState, type RefObject } from 'react';
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
@@ -8,6 +8,11 @@ import {
 import { createDemoClient } from './demo/client';
 import { DEMO_ARTIFACTS } from './demo/recordings';
 import {
+  LEGAL_DEMO_INTERACTION_TURN_ID,
+  ensureLegalDemoInteraction,
+  resolveLegalDemoSource,
+} from './demo/legal-interaction';
+import {
   EMPTY_SESSION,
   projectSession,
   type ReviewDispositionState,
@@ -16,6 +21,7 @@ import {
   type SessionProjection,
 } from './protocol/client';
 import type { SessionEvent } from '@courtwork/core';
+import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
 import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, CONTAINERIZE_COPY, type ComposerSendPayload, type ContainerizeRequest } from './composer';
 import {
@@ -30,7 +36,7 @@ import {
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import { CHROME_COPY } from './chrome/copy';
 import { WindowChrome } from './chrome/WindowChrome';
-import { QuestionTurnCard, ToolCallRow, TurnCard } from './chat/TurnCard';
+import { InteractionTurnCard, ToolCallRow, TurnCard, interactionViewFromReplay } from './chat/TurnCard';
 import { CollapsibleMessage } from './chat/CollapsibleMessage';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
@@ -75,11 +81,15 @@ import { SplitView, type SplitDirection } from './workbench/SplitView';
 import { ThinkingStream } from './workbench/ThinkingStream';
 import { MessageActions } from './chat/MessageActions';
 import { sendChatTurn } from './provider/chat-client';
+import {
+  TurnProtocolClient,
+  createLocalStorageTurnJournalBackend,
+  type TurnProjection,
+} from './provider/turn-protocol-client';
 import { BrandThinking } from './chat/BrandThinking';
 import { RightRailModules } from './rail/RightRailModules';
 import { PasteBlock } from './chat/PasteBlock';
 import { ChatMarkdown } from './chat/ChatMarkdown';
-import { Typewriter } from './chat/Typewriter';
 import { ScrollToLatest, useFollowScroll } from './chat/follow-scroll';
 // 装配点例外（demo/ 同列先例）：原件阅读 fixture 直取 demo-data 文书 md
 import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
@@ -92,6 +102,28 @@ import { compileConfirmedReviewToDocx } from './output/compile-review-output';
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
 type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft' | 'generic';
+
+interface ReaderDocument {
+  name: string;
+  markdown: string;
+  focusAnchor?: ReturnType<typeof resolveLegalDemoSource>['focusAnchor'];
+}
+
+type ChatMessage =
+  | {
+      role: 'user';
+      text: string;
+      files: string[];
+      pasteBlocks?: string[];
+      createdAt: number;
+    }
+  | {
+      role: 'assistant';
+      text: string;
+      files: [];
+      createdAt: number;
+      turn: TurnProjection;
+    };
 
 const client = createDemoClient();
 const emitReviewTelemetry = createReviewTelemetryEmitter((event) => client.emitReviewTelemetry(event));
@@ -122,6 +154,77 @@ function previewViewForArtifact(artifactType: string): WorkbenchView | undefined
   // 有归宿但无独立预览面的类型（CaseFile/FileOpsPlan）保持原语义不动。
   if (!HOMED_ARTIFACT_TYPES.has(artifactType)) return 'generic';
   return undefined;
+}
+
+function readableError(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message.trim().length > 0 ? error.message : fallback;
+}
+
+function renderReaderInline(text: string, focusQuote?: string, focusRef?: RefObject<HTMLElement | null>) {
+  return text.split(/\*\*([^*]+)\*\*/g).map((part, index) => {
+    const quoteAt = focusQuote ? part.indexOf(focusQuote) : -1;
+    const content = quoteAt >= 0 && focusQuote ? (
+      <>
+        {part.slice(0, quoteAt)}
+        <mark
+          ref={focusRef}
+          tabIndex={-1}
+          className="reader-focus-anchor"
+          data-testid="reader-focus-anchor"
+        >
+          {focusQuote}
+        </mark>
+        {part.slice(quoteAt + focusQuote.length)}
+      </>
+    ) : part;
+    return index % 2 === 1 ? <strong key={index}>{content}</strong> : <span key={index}>{content}</span>;
+  });
+}
+
+function ChatAssistantMessage({ message, index }: {
+  message: Extract<ChatMessage, { role: 'assistant' }>;
+  index: number;
+}) {
+  const { turn } = message;
+  const terminal = turn.status === 'completed' || turn.status === 'failed';
+  return (
+    <div
+      className={`assistant-message${turn.status === 'failed' ? ' is-failed' : ''}`}
+      data-testid={turn.status === 'failed' ? 'chat-assistant-failed' : 'chat-assistant-message'}
+      data-turn-id={turn.turnId}
+      data-status={turn.status}
+    >
+      {turn.reasoning.status === 'present' && (
+        <details className="chat-reasoning" data-testid="chat-reasoning" open={turn.status === 'running'}>
+          <summary>思考过程</summary>
+          {turn.status === 'running'
+            ? <div className="chat-reasoning-stream">{turn.reasoning.content}</div>
+            : <CollapsibleMessage lines={12}><ChatMarkdown text={turn.reasoning.content} /></CollapsibleMessage>}
+        </details>
+      )}
+      {terminal && turn.reasoning.status === 'absent' && (
+        <p className="chat-reasoning-absent" data-testid="chat-reasoning-absent">无可用推理内容</p>
+      )}
+      {turn.assistantMessage && (turn.status === 'running' ? (
+        <div className="chat-stream-content" data-testid="chat-stream-content">{turn.assistantMessage}</div>
+      ) : (
+        <CollapsibleMessage lines={12}><ChatMarkdown text={turn.assistantMessage} /></CollapsibleMessage>
+      ))}
+      {turn.status === 'failed' && (
+        <p className="chat-turn-failure" role="alert" data-testid="chat-turn-failure">
+          {turn.failure?.kind === 'canceled' ? '已停止' : turn.failure?.message}
+        </p>
+      )}
+      {terminal && turn.usage && (
+        <p className="chat-turn-usage" data-testid="chat-turn-usage">
+          Input {turn.usage.inputTokens} · Output {turn.usage.outputTokens}
+        </p>
+      )}
+      {turn.status === 'completed' && (
+        <MessageActions messageId={`chat-${index}`} text={turn.assistantMessage} createdAt={message.createdAt} />
+      )}
+    </div>
+  );
 }
 
 const DEMO_CASE = createDemoCaseSummary();
@@ -217,27 +320,26 @@ export function App() {
   /** 十四章浏览器态开关：false=四模块列（大纲目录）,true=浏览器态（右列唯一 Preview） */
   const [previewOpen, setPreviewOpen] = useState(false);
   /** 视图汇流：原件阅读文档（浏览器态 body 替换为阅读面;切 tab 即离开） */
-  const [readerDoc, setReaderDoc] = useState<{ name: string; markdown: string } | null>(null);
+  const [readerDoc, setReaderDoc] = useState<ReaderDocument | null>(null);
+  const readerFocusRef = useRef<HTMLElement>(null);
   /** Preview 模块大纲目录展开态（默认展开——样板案导览指向此处） */
   const [outlineOpen, setOutlineOpen] = useState(true);
   /** RP-2.11 chat|work 二段（docs/decisions/ADR-005-data-security.md 修正二）：work=容器工作台 / chat=内存态轻画布（重启即逝，持久化归 HARNESS-1）。 */
   const [viewSegment, setViewSegment] = useState<'chat' | 'work'>('work');
-  const [chatMessages, setChatMessages] = useState<Array<{
-    role: 'user' | 'assistant';
-    text: string;
-    files: string[];
-    pasteBlocks?: string[];
-    createdAt: number;
-    /** assistant 消息可携带思考内容（折叠回看）；失败轮为分型文案行。 */
-    reasoning?: string;
-    failed?: boolean;
-    /** 刚到达的 assistant 轮：打字机逐字 reveal，完成后置 false 切富渲染。 */
-    revealing?: boolean;
-  }>>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   /** chat 面在途请求（真 API）；期间 ▏字符指示（RP-2.11 推理字符版）。 */
   const [chatPending, setChatPending] = useState(false);
   /** state commit 前即生效的单飞行锁，防双击/Enter 在同一渲染帧发出两请求。 */
   const chatFlightRef = useRef(false);
+  const chatAbortRef = useRef<AbortController | null>(null);
+  const turnClientRef = useRef<TurnProtocolClient | null>(null);
+  if (turnClientRef.current === null) {
+    turnClientRef.current = new TurnProtocolClient(createLocalStorageTurnJournalBackend(window.localStorage));
+  }
+  const turnClient = turnClientRef.current;
+  const [interactionReplay, setInteractionReplay] = useState<TurnReplay>();
+  const [turnRecoveryError, setTurnRecoveryError] = useState<string>();
+  const [chatRecoveryError, setChatRecoveryError] = useState<string>();
   const [storeChatOpen, setStoreChatOpen] = useState(false);
   const [artifactRevision, setArtifactRevision] = useState(0);
   const [replayEpoch, setReplayEpoch] = useState(0);
@@ -279,6 +381,56 @@ export function App() {
     feedbackTimer.current = setTimeout(() => setSystemFeedback(null), 3200);
   };
 
+  useEffect(() => {
+    try {
+      const known = turnClient.knownTurnIds();
+      if (known.includes(LEGAL_DEMO_INTERACTION_TURN_ID)) {
+        setInteractionReplay(turnClient.replayTurn(LEGAL_DEMO_INTERACTION_TURN_ID));
+      }
+      setTurnRecoveryError(undefined);
+    } catch (error) {
+      // Journal corruption and source drift fail closed. Existing raw storage is never cleared here.
+      setTurnRecoveryError(readableError(error, 'Unable to recover interaction history'));
+    }
+  }, [turnClient]);
+
+  useEffect(() => {
+    if (!previewOpen || !readerDoc?.focusAnchor) return;
+    const frame = window.requestAnimationFrame(() => {
+      const target = readerFocusRef.current;
+      if (!target) return;
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.focus({ preventScroll: true });
+      target.scrollIntoView({ block: 'center', behavior: reduced ? 'auto' : 'smooth' });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [previewOpen, readerDoc]);
+
+  const resolveInteraction = async (answer: InteractionAnswer) => {
+    if (!interactionReplay?.pendingInteraction) throw new Error('Interaction is no longer pending');
+    const replay = turnClient.resolveInteraction({
+      requestId: interactionReplay.pendingInteraction.requestId,
+      actor: { channelId: 'desktop', actorId: 'local-user' },
+      answer,
+    });
+    setInteractionReplay(replay);
+  };
+
+  const openInteractionSource = async (anchor: Parameters<typeof resolveLegalDemoSource>[0]) => {
+    try {
+      const route = resolveLegalDemoSource(anchor);
+      previewDismissedContext.current = null;
+      manualPreviewSelected.current = true;
+      setReaderDoc(route);
+      setPreviewOpen(true);
+      setRightCollapsed(false);
+      setTurnRecoveryError(undefined);
+    } catch (error) {
+      setTurnRecoveryError(readableError(error, 'Unable to open source'));
+      throw error;
+    }
+  };
+
   const handleComposerSend = (payload: ComposerSendPayload) => {
     if (credentialStatus.connection.phase !== 'ready') {
       probeCredentials();
@@ -308,8 +460,7 @@ export function App() {
     ]);
   };
 
-  /** chat 面（内存态轻画布）：发送即入内存会话；不落盘（重启即逝，0.1.1 诚实缺口）。
-   *  GOAL-1 链路批：真 API 端到端——发送 → Rust 窄面代理流式请求 → 回复 0ms 落格。 */
+  /** Chat transcript remains memory-only; lifecycle truth is streamed and terminalized by core Turn. */
   const handleChatSend = (payload: ComposerSendPayload) => {
     if (chatFlightRef.current) return false; // 未受理：composer 保留草稿（批次七 #3）
     if (credentialStatus.connection.phase !== 'ready') {
@@ -319,9 +470,11 @@ export function App() {
     }
     const userText = payload.text || (payload.attachments.length ? '（附文件）' : '');
     chatFlightRef.current = true;
-    const history = chatMessages
-      .filter((message) => !message.failed)
-      .map((message) => ({ role: message.role, content: message.text }));
+    const history = chatMessages.reduce<Array<{ role: 'user' | 'assistant'; content: string }>>((messages, message) => {
+      if (message.role === 'user') messages.push({ role: 'user', content: message.text });
+      else if (message.turn.status === 'completed') messages.push({ role: 'assistant', content: message.turn.assistantMessage });
+      return messages;
+    }, []);
     setChatMessages((prev) => [
       ...prev,
       {
@@ -332,33 +485,41 @@ export function App() {
         createdAt: Date.now(),
       },
     ]);
+    setChatRecoveryError(undefined);
     setChatPending(true);
-    void sendChatTurn(modelConfig, [...history, { role: 'user', content: userText }])
-      .then((result) => {
-        setChatMessages((prev) => [...prev, {
-          role: 'assistant',
-          text: result.content,
-          files: [],
-          createdAt: Date.now(),
-          reasoning: result.reasoningContent,
-          revealing: true, // 打字机逐字 reveal（B）
-        }]);
-      })
+    const controller = new AbortController();
+    chatAbortRef.current = controller;
+    const assistantAt = Date.now();
+    void sendChatTurn(turnClient, modelConfig, [...history, { role: 'user' as const, content: userText }], {
+      signal: controller.signal,
+      onProjection: (projection) => {
+        setChatMessages((current) => {
+          const index = current.findIndex((message) => message.role === 'assistant' && message.turn.turnId === projection.turnId);
+          const next: ChatMessage = {
+            role: 'assistant',
+            text: projection.assistantMessage,
+            files: [],
+            createdAt: assistantAt,
+            turn: projection,
+          };
+          if (index === -1) return [...current, next];
+          return current.map((message, messageIndex) => messageIndex === index ? next : message);
+        });
+      },
+    })
       .catch((error: unknown) => {
-        // 诚实失败：分型/异常文案落格为失败行，不假装成功
-        setChatMessages((prev) => [...prev, {
-          role: 'assistant',
-          text: error instanceof Error ? error.message : '暂时无法完成请求，请稍后重试',
-          files: [],
-          createdAt: Date.now(),
-          failed: true,
-        }]);
+        // Only infrastructure/journal exceptions reach this path; provider/cancel terminal states are core events.
+        setChatRecoveryError(readableError(error, 'Unable to recover this turn'));
       })
       .finally(() => {
         chatFlightRef.current = false;
+        if (chatAbortRef.current === controller) chatAbortRef.current = null;
         setChatPending(false);
       });
+    return true;
   };
+
+  const stopChatTurn = () => chatAbortRef.current?.abort();
 
   /** 两面唯一的桥：从 chat 收当前话题入容器（docs/decisions/ADR-005-data-security.md 修正二），复用容器化仪式后切 work 面。 */
   const storeChatIntoContainer = (kind: ContainerKind) => {
@@ -568,6 +729,17 @@ export function App() {
   const selectedCase = selectedCaseId ? cases.find((item) => item.id === selectedCaseId) : undefined;
   const isWelcome = !selectedCase;
   const isDemoCase = Boolean(selectedCase?.isDemo) || isDemoCaseId(selectedCase?.id);
+
+  useEffect(() => {
+    if (!isDemoCase || flow !== 'S3' || !session.confirmation) return;
+    try {
+      setInteractionReplay(ensureLegalDemoInteraction(turnClient));
+      setTurnRecoveryError(undefined);
+    } catch (error) {
+      setTurnRecoveryError(readableError(error, 'Unable to recover interaction history'));
+    }
+  }, [flow, isDemoCase, session.confirmation, turnClient]);
+
   const caseRoot = selectedCase ? resolveCaseRoot(selectedCase) : undefined;
   // demo 语料只属于 demo 容器——禁止 `?? DEMO_ARTIFACTS` 污染真实案件
   const riskList = (
@@ -1400,14 +1572,15 @@ export function App() {
                         }}
                       />
                     )}
-                    {session.confirmation && (
-                      <QuestionTurnCard
-                        question="是否继续聚焦付款与验收条款？"
-                        options={[
-                          { value: 'focus-payment-acceptance', label: '继续聚焦' },
-                          { value: 'open-full-review', label: '查看全部风险' },
-                        ]}
+                    {session.confirmation && interactionReplay && interactionReplay.state !== 'idle' && (
+                      <InteractionTurnCard
+                        view={interactionViewFromReplay(interactionReplay)}
+                        onResolve={resolveInteraction}
+                        onOpenSource={openInteractionSource}
                       />
+                    )}
+                    {session.confirmation && turnRecoveryError && (
+                      <p className="turn-recovery-error" role="alert" data-testid="turn-recovery-error">{turnRecoveryError}</p>
                     )}
                     <MessageActions messageId="assistant-demo" text={demoArtifactCard.title} createdAt={assistantCreatedAt.current} />
                     {/* #26.2：推理指示锚居 turn 尾、message 按钮排之下 */}
@@ -1515,26 +1688,16 @@ export function App() {
                     <MessageActions messageId={`chat-${index}`} text={message.text} createdAt={message.createdAt} />
                   </div>
                 ) : (
-                  /* agent 直排无气泡（ch12）；失败轮 = 分型文案 + 语义角标，不假装成功 */
-                  <div className={`assistant-message${message.failed ? ' is-failed' : ''}`} key={`chat-${index}`} data-testid={message.failed ? 'chat-assistant-failed' : 'chat-assistant-message'}>
-                    {message.reasoning && (
-                      <details className="chat-reasoning" data-testid="chat-reasoning">
-                        <summary>思考过程</summary>
-                        <CollapsibleMessage lines={12}><ChatMarkdown text={message.reasoning} /></CollapsibleMessage>
-                      </details>
-                    )}
-                    {message.revealing ? (
-                      <Typewriter text={message.text} onDone={() => setChatMessages((prev) => prev.map((m, i) => (i === index ? { ...m, revealing: false } : m)))} />
-                    ) : (
-                      <CollapsibleMessage lines={12}><ChatMarkdown text={message.text} /></CollapsibleMessage>
-                    )}
-                    {!message.failed && <MessageActions messageId={`chat-${index}`} text={message.text} createdAt={message.createdAt} />}
-                  </div>
+                  <ChatAssistantMessage message={message} index={index} key={`chat-${index}`} />
                 )
               ))}
+              {chatRecoveryError && (
+                <p className="chat-recovery-error" role="alert" data-testid="chat-recovery-error">{chatRecoveryError}</p>
+              )}
               {chatPending && (
                 <div className="chat-pending" role="status" data-testid="chat-pending">
                   <BrandThinking />
+                  <button type="button" className="quiet-button chat-stop" data-testid="chat-stop" onClick={stopChatTurn}>Stop</button>
                 </div>
               )}
               <ScrollToLatest follow={chatFollow} />
@@ -1637,9 +1800,12 @@ export function App() {
                       const trimmed = line.trim();
                       if (!trimmed) return null;
                       if (trimmed.startsWith('#')) return <h3 key={index}>{trimmed.replace(/^#+\s*/, '')}</h3>;
-                      // 语料 md 行内语法仅 **强调** 一种（阅读视图管线约定）；星号字面漏出即渲染缺陷
-                      const parts = trimmed.split(/\*\*([^*]+)\*\*/g);
-                      return <p key={index}>{parts.map((part, i) => (i % 2 === 1 ? <strong key={i}>{part}</strong> : part))}</p>;
+                      // 语料 md 行内语法仅 **强调** 一种；focus mark 住在同一 renderer 内，星号不会漏出。
+                      return (
+                        <p key={index} data-focus-source={readerDoc.focusAnchor?.quote && trimmed.includes(readerDoc.focusAnchor.quote) ? 'true' : undefined}>
+                          {renderReaderInline(trimmed, readerDoc.focusAnchor?.quote, readerFocusRef)}
+                        </p>
+                      );
                     })}
                   </div>
                 ) : secondaryView ? (

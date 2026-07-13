@@ -14,7 +14,7 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: `pnpm dev --port ${port}`,
+    command: `VITE_COURTWORK_E2E=1 pnpm dev --port ${port}`,
     url: baseURL,
     reuseExistingServer: false,
   },

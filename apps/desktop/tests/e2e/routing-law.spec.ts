@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { connectProvider, createNamedCase, openWorkbench } from './helpers';
+import { connectProvider, createNamedCase, installChatStream, openWorkbench } from './helpers';
 
 /** 批次七④ 路由律：对象在哪面，点击即切面。探针实证旧态三条全断（chat 内建案/点案/点阶段均不切）。 */
 
@@ -39,12 +39,7 @@ test('chat 内点阶段行 → 隐式切 work 且右列挂载', async ({ page })
 test('chat 建案隐式存入：话题带入 work 面且 chat 对话保留', async ({ page }) => {
   await enterChatSegment(page);
   await connectProvider(page);
-  await page.evaluate(() => {
-    const hooks = (window as typeof window & {
-      __courtworkChatHooks?: { setResponder(r: (() => Promise<unknown>) | null): void };
-    }).__courtworkChatHooks;
-    hooks?.setResponder(async () => ({ content: '助手已回复。' }));
-  });
+  await installChatStream(page, { content: '助手已回复。' });
   await page.getByTestId('composer-input').fill('存入桥话题验证');
   await page.getByTestId('composer-send').click();
   await expect(page.getByTestId('chat-assistant-message')).toBeVisible();
