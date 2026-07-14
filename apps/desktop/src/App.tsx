@@ -22,6 +22,7 @@ import {
 } from './protocol/client';
 import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
+import type { ProviderTransport } from '@courtwork/provider/types';
 import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, CONTAINERIZE_COPY, type ComposerSendPayload, type ContainerizeRequest } from './composer';
 import {
@@ -265,7 +266,11 @@ function useNarrowRailRequired() {
   return required;
 }
 
-export function App() {
+export interface AppProps {
+  providerTransport?: ProviderTransport;
+}
+
+export function App({ providerTransport }: AppProps = {}) {
   const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
@@ -491,6 +496,7 @@ export function App() {
     chatAbortRef.current = controller;
     const assistantAt = Date.now();
     void sendChatTurn(turnClient, modelConfig, [...history, { role: 'user' as const, content: userText }], {
+      ...(providerTransport ? { transport: providerTransport } : {}),
       signal: controller.signal,
       onProjection: (projection) => {
         setChatMessages((current) => {

@@ -1,6 +1,6 @@
 # SPEC: apps/desktop（W9）
 
-状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI 已验收。现行工单 `HOST-PORT-1` 待实现，后续 VIEW/WORK live 接线受 ADR-009 约束。
+状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI 已验收。现行工单 `HOST-PORT-1` 已实现、待独立验收，后续 VIEW/WORK live 接线受 ADR-009 约束。
 
 ## 现行架构工单（2026-07-14）
 
@@ -9,6 +9,14 @@
 权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。将 `Channel`/`invoke`、异步 transport queue 与 cancel command 从 chat orchestration 移入 host adapter；chat client/Turn projection 只消费注入的 `ProviderTransport`/factory。desktop composition root 负责选择 Tauri adapter，测试可注入 fake transport。
 
 本单不改 Rust command、请求 body、provider catalog、DeepSeek 产品范围、credential UI、TurnEvent、chat 视觉或持久化语义；不得新增 localhost server、Node sidecar 或第三方 chat runtime。机器门至少证明 chat 业务模块不再 import `@tauri-apps/api`，fake transport 覆盖 stream/cancel/failure，既有 chat/credential 测试与完整 Playwright 零回归。
+
+实现留痕（2026-07-14，待独立验收）：
+
+- 新增 `host/tauri-provider-transport.ts`：`Channel`/`invoke`、异步 raw-event queue、既有 `provider_chat_request` / `cancel_provider_request` 与窄 input 构造全部收口于 host adapter；Rust command、body、失败分型和 keychain 安全边界未改。
+- `main.tsx` 作为 composition root，只在 Tauri runtime 创建并向 `App` 注入 `ProviderTransport`；浏览器 E2E 不装配 host adapter，仍只经既有 stream-event hook 注入事件。
+- `App` 与 `chat-client.ts` 只消费可注入 transport/provider factory；chat 业务模块移除 Tauri import、runtime 探测、command 名与 queue 实现。DeepSeek-only descriptor、OpenAI-compatible provider、Turn journal 与投影语义保持不变。
+- 静态边界红测锁定 chat 不得回引 Tauri；fake host 单测覆盖 raw stream、同 request id cancel、invoke rejection 转 typed non-retryable network failure，并锁 Rust 入参不出现 URL、header 或 key。
+- 实现侧门禁：desktop Vitest 31 files / 133 tests；全仓 Vitest 114 files / 981 tests；全仓 build 12 个 workspace、ESLint 均通过；隔离端口 `:1591` 完整静态门与 Playwright 208/208 通过。独立验收尚未执行。
 
 ## 已完成架构工单（2026-07-13）
 

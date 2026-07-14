@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildChatInvokeInput, sendChatTurn } from './chat-client';
+import { sendChatTurn } from './chat-client';
 import { DEFAULT_MODEL_CONFIG, type ModelConfig } from './model-config';
 import { TurnProtocolClient, createLocalStorageTurnJournalBackend } from './turn-protocol-client';
 
@@ -77,14 +77,5 @@ describe('chat 面真 API 客户端（Rust 窄面代理 + core 组装复用）',
     const fetchImpl: typeof fetch = async () => sseResponse(['data: [DONE]'], 401);
     const result = await sendChatTurn(protocolClient(), DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'hi' }], { fetchImpl });
     expect(result.projection).toMatchObject({ status: 'failed', failure: { kind: 'auth', message: expect.stringMatching(/HTTP 401/) } });
-  });
-
-  it('keychain 桥入参没有 URL、header 或 key', () => {
-    const input = buildChatInvokeInput({
-      requestId: 'r1', providerId: 'deepseek', modelId: 'deepseek-v4-pro',
-      reasoningBody: {}, body: '{"stream":true}',
-    });
-    expect(input).toEqual({ requestId: 'r1', providerId: 'deepseek', modelId: 'deepseek-v4-pro', reasoningBody: {}, body: '{"stream":true}' });
-    expect(JSON.stringify(input)).not.toMatch(/url|header|authorization|apiKey/i);
   });
 });
