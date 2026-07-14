@@ -3,10 +3,40 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { scanSources } from './deslop-scan-lib.mjs';
+import {
+  loadFixtureClaimInputs,
+  validateFixtureClaims,
+} from './fixture-claims.mjs';
 
 const source = (path, content) => ({ path, content });
 const rules = (sources) => scanSources(sources).map((failure) => failure.rule);
 const hex = (value) => `#${value}`;
+const repoRoot = new URL('../../', import.meta.url);
+
+const GOOD_FIXTURE_CLAIMS = String.raw`
+<section data-site-generalization>
+  <article data-runtime-state="accepted"><span>已验收工作链</span></article>
+  <article>
+    <strong data-fixture-count="dossier-materials">20</strong><span>份卷宗材料</span>
+    <strong data-fixture-count="timeline-events">47</strong><span>个事件</span>
+    <strong data-fixture-count="party-nodes">14</strong><span>个主体节点</span>
+    <strong data-fixture-count="contradiction-events">8</strong><span>个矛盾事件</span>
+  </article>
+  <article data-pm-finding-id="prd-finding-05" data-pm-defect-type="conflicting-requirement" data-pm-status="pending" data-runtime-state="catalog">
+    <blockquote data-pm-clause>所有成员都能编辑路线图，但路线图只有负责人可以修改。</blockquote>
+    <span data-pm-defect-label>冲突需求</span>
+    <p data-pm-suggestion>区分评论、提议和正式修改，并给出唯一权限矩阵。</p>
+    <span data-pm-disposition>待确认</span>
+    <small>Schema catalog preview / 尚未接通运行链</small>
+  </article>
+</section>
+`;
+
+const fixtureFailures = (html = GOOD_FIXTURE_CLAIMS, mutate = () => {}) => {
+  const inputs = JSON.parse(JSON.stringify(loadFixtureClaimInputs(repoRoot)));
+  mutate(inputs);
+  return validateFixtureClaims(html, inputs);
+};
 
 const GOOD_SITE_MOTION = String.raw`
 const steps = [...document.querySelectorAll('.evidence-step')];
@@ -151,4 +181,53 @@ test('Pages deploy executes the complete root guard instead of the scanner alone
   const workflow = readFileSync(new URL('../../.github/workflows/pages.yml', import.meta.url), 'utf8');
   assert.match(workflow, /run:\s*pnpm site:guard/);
   assert.doesNotMatch(workflow, /run:\s*node site\/scripts\/deslop-scan\.mjs/);
+});
+
+test('SITE-GEN fixture claims accept the authoritative Legal and PM snapshot', () => {
+  assert.deepEqual(fixtureFailures(), []);
+});
+
+test('SITE-GEN rejects a 46-event page claim', () => {
+  assert.ok(fixtureFailures(GOOD_FIXTURE_CLAIMS.replace('>47</strong>', '>46</strong>')).some((failure) => failure.includes('timeline-events')));
+});
+
+test('SITE-GEN rejects a deleted contradiction marker', () => {
+  assert.ok(fixtureFailures(GOOD_FIXTURE_CLAIMS, (inputs) => {
+    delete inputs.legal.timeline.events.find((event) => event.markers?.includes('contradiction')).markers;
+  }).some((failure) => failure.includes('contradiction-events')));
+});
+
+test('SITE-GEN rejects a 15-party page claim', () => {
+  assert.ok(fixtureFailures(GOOD_FIXTURE_CLAIMS.replace('>14</strong>', '>15</strong>')).some((failure) => failure.includes('party-nodes')));
+});
+
+test('SITE-GEN requires the contradiction-event unit instead of claiming eight contradictions', () => {
+  assert.ok(fixtureFailures(GOOD_FIXTURE_CLAIMS.replace('个矛盾事件', '个矛盾')).some((failure) => failure.includes('矛盾事件')));
+});
+
+test('SITE-GEN rejects a PM UTF-16 anchor offset drift', () => {
+  assert.ok(fixtureFailures(GOOD_FIXTURE_CLAIMS, (inputs) => {
+    inputs.pm.prdReview.findings.find((finding) => finding.id === 'prd-finding-05').sourceAnchors[0].textRange.start += 1;
+  }).some((failure) => failure.includes('UTF-16')));
+});
+
+test('SITE-GEN rejects a confirmed PM fixture presented as pending', () => {
+  assert.ok(fixtureFailures(GOOD_FIXTURE_CLAIMS, (inputs) => {
+    inputs.pm.prdReview.findings.find((finding) => finding.id === 'prd-finding-05').status = 'confirmed';
+  }).some((failure) => failure.includes('pending')));
+});
+
+test('SITE-GEN rejects a live PM claim while the descriptor has no scenario', () => {
+  const live = GOOD_FIXTURE_CLAIMS
+    .replace('data-runtime-state="catalog"', 'data-runtime-state="live"')
+    .replace('Schema catalog preview / 尚未接通运行链', 'Live / 已接通运行链');
+  assert.ok(fixtureFailures(live).some((failure) => failure.includes('catalog')));
+});
+
+test('SITE-GEN rejects a PriorityScore fixture or score claim', () => {
+  assert.ok(fixtureFailures(GOOD_FIXTURE_CLAIMS, (inputs) => {
+    inputs.pm.fixtureFiles.push('artifacts/priority-score.json');
+  }).some((failure) => failure.includes('PriorityScore')));
+  assert.ok(fixtureFailures(GOOD_FIXTURE_CLAIMS.replace('</section>', '<p>PriorityScore · RICE 排序</p></section>'))
+    .some((failure) => failure.includes('PriorityScore')));
 });
