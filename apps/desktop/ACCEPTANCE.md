@@ -1363,3 +1363,71 @@ Running `target/debug/courtwork-desktop`
 操作留痕：首次临时命令误写成 `pnpm dev -- --port 1593`，Vite 把 `--` 后参数当 positional，短暂启动默认 `:1420`。发现 Tauri 正在等待 `:1593` 后立即在 Rust shell 启动前终止，并确认 `:1420/:1593` 均无 listener，再以正确 `pnpm dev --port 1593` 重跑上述真实壳 smoke。未连接、复用或污染其他会话服务。
 
 > **最终判定：HOST-PORT-1 放行 ✅。** `ba6426a + 本验收记录` 可进入架构收账。下游可依赖唯一 `ProviderTransport` 注入缝接 Tauri provider transport；本单只完成 provider host adapter，不把它冒充完整 Work/Credential/File port，也未改变任何 provider、Turn、Rust 或 UI 契约。
+
+---
+
+## VIEW-ABI-1 / VIEW-ABI-1C 独立验收（2026-07-14）
+
+- **验收角色**：独立验收会话；未参与 `43e617607f4be694834b23005eeb807474f5986c` 的实现，也不是实现会话前身。
+- **验收树**：`/Users/lesprivilege/Projects/Courtwork-worktrees/accept-view-abi-1`，分支 `codex/accept-view-abi-1`，直接从实现 tip 建立；未在共享主树 checkout/stash，未复用共享 dev server。
+- **合入序列**：初始实现 `43e6176`；验收修正 `9b06175`、`cabdac0`；架构拍板原提交 `5ed2713` 在本树的等价 cherry-pick `3f55f59`；estimate 实现 `e48cc2c` 在本树的 cherry-pick `0b4c5a8`。
+- **安装**：`pnpm install --frozen-lockfile`，13 workspace projects、1047 packages，lockfile 零漂移。
+- **结论**：**✅ 放行。** 首轮发现的一项契约缺口已由架构角色拍板并由原实现会话补齐；验收会话未自行修改 schema/ADR。最终无未决契约问题或 `[需架构拍板]` 项。
+
+### 1. 准入、路由与零入口边界
+
+composition root 实测同次准入 `legal + pm`，artifact registry 共 **11** 项；scenario registry 共 **5** 项且全部来自 Legal。PM 只贡献 4 个 artifact/schema/presentation 与 `courtwork.artifact-table.v1` renderer 声明，`scenarios=[]`、`promptSegments=[]`，没有 PM 导航、demo 或空工作面。
+
+生产路由先按 admitted artifact descriptor 取 `uiTemplateId`，再查 host blueprint。`App.tsx` 不再用四个 `artifactType === 'legal.*'` 分支、`HOMED_ARTIFACT_TYPES` 或 raw generic tree；模块状态机也不再持有 Legal type-id map。未知 artifact、未知 template、缺 host blueprint、schema/pointer/format drift 全部汇入同一 `UnsupportedArtifactView`，只显示人读标题或中性“结构化产出”与固定不兼容文案。
+
+Legal 七类 template 与旧实现逐项对照：Timeline/PartyGraph/RiskList/ReviewMatrix 保持自动打开对应五面，CaseFile 保持 passive，FileOpsPlan 只展开 Working Folders，RevisionInstructionSet 保持不自动打开。首轮实现给 draft blueprint 留了 `moduleTarget:'draft'`，模块展开路径不读取 `autoOpen:false`，会改变旧行为；验收删除该 target 并把七个 blueprint 的完整形状锁入测试，提交 `cabdac0 fix-by-acceptance(view-abi): preserve draft auto-open behavior`。
+
+### 2. 通用表、证据与 estimate 契约
+
+原始 PrdReview 合法 fixture 证明：表头只来自 field-local label，枚举/status/tags 只显示 field-local `valueLabels`；anchor 只显示来源数、去重页码与完整 quote。含绝对路径、bbox、textRange、textLayerVersion/hash 的 fixture 静态 HTML 对这些值均零命中，quote CSS 为正常换行而非截断。
+
+首轮验收额外构造 schema-valid `pm.PriorityScore`：低置信参数为 `{value:null, range:{low,high}}`，score 也为区间。实测当时 `schema.safeParse=true`，但 renderer 返回 `{status:'unsupported'}`，暴露 `/params/*/value + mono score` 无法承载合法区间。该项属于 presentation 契约，验收未越权修复；架构随后以 ADR-009 增量拍板通用 `estimate` format，原实现会话完成 registry 静态准入、PM descriptor `0.1.1`（`schemaVersion` 仍为 1）与宿主投影。
+
+补丁后实际混合载荷同表投影成功：
+
+- 直接 number score 与 envelope 单值显示 `8` / `10` / `0.8`；
+- 直接 range 与 envelope range 显示 `10–12` / `0.4–0.8` / score `4–8`；
+- envelope 的 value/range 皆空时只显示 field-local “未覆盖·需补材料”；
+- 静态 HTML 对 `low/high/status/filled/out_of_coverage/range/value/fileId` 全部零命中，无 wire key/status 泄漏。
+
+registry 准入只接受 finite number、精确 `{low,high}`、两者 union 或 `{value:number|null, range:{low,high}|null, status:enum}` envelope。envelope status labels 必须精确覆盖 enum；直接 number/range 禁带 labels。非法形状只拒载所属 PM 包，不污染同批 Legal catalog。
+
+### 3. 真实变异与 fail-closed 证据
+
+所有补丁均用 `apply_patch` 临时注入并精确恢复；下列红灯不是读取实现自述：
+
+| 变异 | 实测红灯 |
+|---|---|
+| host 的通用 table template 改成未知 id | Host/composition 定向 **2 failed / 1 passed** |
+| 删除通用 table host blueprint | Host/composition 定向 **2 failed / 1 passed** |
+| PrdReview presentation pointer 改为 `/missing` 并重建 PM | desktop renderer 三项因 package admission fail closed，**3 failed** |
+| 同时绕过 schema-first 与未知 enum label 拒绝 | malformed payload 泄漏 `wire-secret`，renderer 定向 **1 failed / 2 passed** |
+| 在 `App` 恢复 `artifactType === 'legal.Timeline'` | `lint:view-abi` exit 1，精确报 Legal type-id switch |
+| 在 fallback 恢复 `JSON.stringify(payload)` | 原门禁曾错误保持 9/9 绿；增强后同一变异 exit 1，精确报 raw payload serialization |
+| PriorityScore Reach 退回旧 `/params/reach/value` | PM admission 报 estimate shape 不兼容，**2 failed / 6 passed** |
+| 删除 `out_of_coverage` status label | 四参数分别报缺映射，PM 整包拒载，**2 failed / 6 passed** |
+| 同时绕过 schema-first 与 envelope 双值守卫 | 双值被错误投影为 `1100`，renderer **1 failed / 7 passed** |
+| 同时绕过 schema-first 与逆区间守卫 | 错误显示 `640–400`，renderer **1 failed / 7 passed** |
+| 同时绕过 schema-first 与未知 status 拒绝 | 泄漏 `future-wire-status`，renderer **1 failed / 7 passed** |
+
+raw fallback 静态门的首轮假绿是实现级缺陷，验收提交 `9b06175 fix-by-acceptance(view-abi): block raw artifact fallbacks`，新增对 `JSON.stringify(payload)`、`Object.entries/keys/values(payload)` 与 `Reflect.ownKeys(payload)` 的扫描；恢复后 VIEW-ABI 门为 **12/12**。这枚修正不改变 schema/ADR 或产品契约。
+
+### 4. 最终机器门
+
+在所有变异恢复、estimate 架构与实现合入后的最终 tip 顺序实跑：
+
+- registry + PM 定向：**3 files / 69 tests passed**；desktop VIEW 定向：**4 files / 14 tests passed**。
+- desktop Vitest：**34 files / 142 tests passed**。
+- root Vitest：**120 files / 1060 tests passed**。
+- `pnpm lint`：exit 0；`pnpm build`：scope **13 of 14 workspace projects** 全绿，desktop **3519 modules**，仅既有 Tauri dynamic/static import 与 chunk-size warning。
+- `pnpm site:guard`：scanner fixtures **12/12**，扫描 **613 active text files**；neutral/elevation/signature/motion 全绿。
+- `COURTWORK_E2E_PORT=1601 pnpm --filter @courtwork/desktop run test:e2e --workers=1`：全部静态/设计/边界前置门通过，假绿下限 **208**；Playwright **208/208 passed（2.8m，1 worker）**，配置 `reuseExistingServer=false`。
+
+验收曾为可视抽查建立临时 PM/fallback 页面，但 in-app browser control 返回可用浏览器列表 `[]`，因此没有冒充 computer-use 截图。临时 HTML/TSX 与 Vite `:1599` 服务已全部删除/结束，git 零残留；视觉与几何仍由隔离真实 Chromium 全量用例覆盖，其中包含 1180/1280/1440/1600、品牌 SVG 位置、证据换行、零溢出与反 slop 判例。
+
+> **最终判定：VIEW-ABI-1 与 VIEW-ABI-1C 放行 ✅。** `43e6176 + 9b06175 + cabdac0 + 3f55f59 + 0b4c5a8 + 本验收记录` 可进入架构收账。下游可以依赖 admitted descriptor → host blueprint → schema-first presentation 的唯一工作面链；PM 仍是 catalog-only，不得把本次通用表准入误解为已存在 PM workflow 或产品入口。
