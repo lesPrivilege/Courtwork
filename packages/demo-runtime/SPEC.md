@@ -1,6 +1,6 @@
 # SPEC: packages/demo-runtime
 
-状态：`CORE-BOUNDARY-1` 已独立验收放行。
+状态：`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行。
 
 ## 职责
 
@@ -25,7 +25,7 @@ demo/acceptance composition root。迁移后所有 scripted/real S3 与 legal de
 既有 fixture 字节、引用修复轮数、artifact、确认、修订、docx 与 golden 不变；新增证据只允许是
 `turn_linked`/model `step_failed`/Turn journal。真 provider 缺 key 仍必须在读取材料前拒绝。
 
-### TURN-WORK-1 实现留痕（2026-07-14，待独立验收）
+### TURN-WORK-1 实现留痕（2026-07-14，已独立验收）
 
 - `composeRuntimeTurnRunner` 是本包统一的 provider + TurnStore 装配点；scripted S3、real S3 与 legal demo 都向 `ScenarioExecutorDeps` 注入 `TurnRunnerPort`，Work 路径不再持有 provider。
 - S3/legal 全链在各自 workDir 追加 `turns.jsonl`，wire witness 改在 `Provider.stream` 接缝记录，`generate()` 明确拒绝旁路；fixture、引用修复、artifact、确认、修订与 docx 语义未改。

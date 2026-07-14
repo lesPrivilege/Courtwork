@@ -1,6 +1,6 @@
 # SPEC: packages/provider
 
-状态：PROVIDER-1 / PROVIDER-2 已独立验收并合流；现行跨层工单 `TURN-WORK-1` 补齐 notice 单一真源
+状态：PROVIDER-1 / PROVIDER-2 / TURN-WORK-1 均已独立验收并合流；notice 已进入 stream → Turn → Work 单一真源
 
 ## 职责
 

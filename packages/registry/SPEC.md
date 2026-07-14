@@ -28,7 +28,7 @@ status 是 enum 且 field-local `valueLabels` 精确覆盖；直接 number/range
 version 随 descriptor 行为增量递增，payload schema 未变，`schemaVersion` 仍为 1。非法 estimate 逐包拒载，
 不把失败推迟成运行时空表。
 
-#### VIEW-ABI-1C 实现记录（2026-07-14，待独立验收）
+#### VIEW-ABI-1C 实现记录（2026-07-14，已独立验收）
 
 - `ArtifactFieldFormatSchema` 纯增加 `estimate`；既有 format 和 ABI version 均未改名或重解释。
 - 准入沿 field pointer 静态解析 Zod 终端形状，只接受非 coercing finite number、严格 `{low,high}` range、二者 union，或含 `value/range/status` 的 envelope。envelope 的 status 必须是 enum，field-local labels 必须精确覆盖；直接 number/range 携 labels、缺漏/多余 labels、未知或复合形状均逐包拒载。

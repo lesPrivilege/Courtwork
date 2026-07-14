@@ -24,6 +24,8 @@
 - POLISH-P0 与 SCHEMA-POLISH-1 已经异会话全量验收并合流；
 - DESLOP-GATE-2 已经异会话验收并合流：裸色、阴影、圆角、渐变、L1 嵌套、archive 消费、press/popover 与泛化文案使用精确消费点白名单；
 - ADR-009 第一波与 ABI 收口已经异会话验收并合流：HOST-PORT-1、CONFIRM-CAS-1、ABI-2A、CORE-BOUNDARY-1、ABI-2B 全部进入 main；Legal/PM 同次走唯一 descriptor/bindings ABI，PM 保持 catalog-only；
+- VIEW-ABI-1/1C 已经异会话验收并合流：desktop 生产路由由 descriptor + host blueprint 驱动，通用表严格按 schema/presentation 投影，未知或漂移载荷统一 zero-wire fail closed；
+- TURN-WORK-1 已经异会话验收并合流：Work 模型步骤只经 `TurnRunnerPort`，每次调用先链接 Turn，notice、失败与取消沿统一 Turn 账本回放；
 - v0.1.1 Apple Silicon 开发构建已发布：annotated tag `v0.1.1` 指向 `39555d6`，GitHub Release 与 Pages 均已上线；desktop 129、provider 86、root 981、Rust 25、Playwright 208 全绿，远端 DMG 复算 SHA-256 与仓库记录一致。构建为 ad-hoc 且未公证，官网与 Release 明示该边界；
 - demo 全链穿越、发布修实三项（遥测真开关、共享 docx 预检、产物存在后冻结）。
 
@@ -32,27 +34,28 @@
 - Pages：<https://lesprivilege.github.io/Courtwork/>
 - GitHub Release：<https://github.com/lesPrivilege/Courtwork/releases/tag/v0.1.1>
 - 发布与部署证据：[`release/DEPLOYMENT.md`](../../release/DEPLOYMENT.md)
-- 分支 / worktree：发布清账时本地与远端只保留 `main`；当前架构工单使用临时 `codex/*` worktree，必须在实现与验收提交均确认进入 main 后删除，远端仍只发布 `main`。
+- 分支 / worktree：本地、远端与 worktree 当前只保留 `main`；后续临时 `codex/*` 工单仍须在实现与验收提交均确认成为 `main` 祖先、报告收账后删除。
 
 ## 当前架构债
 
-1. desktop 仍有法律 type id 路由与 raw generic structure fallback；尚未由 host renderer blueprint + descriptor 全量驱动。
-2. Chat 已走真实 Turn 流，Work 模型步骤仍绕过 Turn；生产 Work 面仍以 demo recording 为主。
+1. 生产 desktop 的 `WorkCommandPort` 仍以 demo recording 驱动；真实 run/resume 尚未接入已成立的 Work/Turn 底座。
+2. ArtifactEnvelope 的持久读写与 package migration 尚未接入真实生产账本；当前 ABI 已定义形状与准入，但 Work live 持久层未落地。
 3. 除 RiskList 外，部分模型产物的最终 schema 仍直接包含 SourceAnchor，尚未统一为 quote → resolver → system anchor。
 4. `services/ingest` 仍只有规格，OCR、分类与实体对齐未落地。
 5. 企业私域 ACL、MCP adapter、机构层记忆仍是后置席位。
 6. usage ledger 与真实 token/cost 投影尚未成为统一权威来源。
 7. 部分 package SPEC/ACCEPTANCE 是长篇编年记录，后续应按层拆成“现行 SPEC + 历史验收”，但本轮不改其证据内容。
-8. ArtifactEnvelope 的持久读写与 package migration 尚未接入真实生产账本；当前 ABI 已定义形状与准入，但 Work live 持久层未落地。
+8. `PriorityScore` 的确定性计算在任一参数 OOC 时返回 `null`，但 v1 payload schema 的 `score` 仍不接受 `null`；在创建任何 PM scenario 前须由 `PM-SCHEMA-1` 以版本化契约收口。
 
 ## 下一阶段优先序
 
-ADR-009 第一波与 ABI-2B 已清账。当前并行两单：
+ADR-009 的 VIEW/TURN 两条前置线已独立验收、进入 main 并清账。下一张主线工单是
+`WORK-LIVE-1`：生产 `WorkCommandPort` 接真实 run/resume，recording 退回 fixture/demo mode；只复用既有
+Scenario/Turn/confirmation/artifact 账本，不引入第二套 chat runtime、agent loop 或 PM 空壳流程。
 
-1. `VIEW-ABI-1`：host renderer registry、`courtwork.artifact-table.v1` 与 zero-wire fallback；不造 PM 空壳流程。
-2. `TURN-WORK-1`：provider notice 进入统一 stream/Turn，Work model 步骤只经 `TurnRunnerPort` 并链接账本。
-
-两单都独立验收并进入 main 后，才启动 `WORK-LIVE-1`：生产 WorkCommandPort 接真实 run/resume，recording 退回 fixture/demo mode。SourceAnchor system producer 门随 VIEW conformance kit 持续推进，不由 desktop 特判补洞。
+`PM-SCHEMA-1` 是独立的垂类契约修复：令 OOC score 与确定性计算同义，并完成 payload 版本、JSON Schema、
+descriptor 与迁移边界。它可在不触碰 desktop/Work live 的条件下另行派发，但未完成前不得创建 PM scenario。
+SourceAnchor system producer 门随 VIEW conformance kit 持续推进，不由 desktop 特判补洞。
 
 正式 macOS 公证、真实材料链/usage ledger 与包内 SPEC 瘦身继续保留，但不插队破坏上述依赖序。
 

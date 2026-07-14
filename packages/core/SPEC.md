@@ -1,6 +1,6 @@
 # SPEC: packages/core（W6）
 
-状态：既有 TURN/INTERACTION、`CONFIRM-CAS-1` 与 `CORE-BOUNDARY-1` 已独立验收放行；后续 `TURN-WORK-1` 受 ADR-009 约束
+状态：既有 TURN/INTERACTION、`CONFIRM-CAS-1`、`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行
 
 ## 现行架构工单（2026-07-14）
 
@@ -26,7 +26,7 @@ tool calling、动态图、自动恢复或新 Work journal。
 从 provider stream 经 PersistedTurn 到 artifact 不丢失；core executor 源码零 `.generate(`。全仓门禁外，
 demo-runtime 两条既有全链/golden 必须等价。实现与验收异会话。
 
-实现留痕（2026-07-14，待独立验收）：
+实现留痕（2026-07-14，已独立验收）：
 
 - `ScenarioExecutorDeps.provider` 已删除；新增 `TurnRunnerPort`/`createTurnRunner` 与可注入身份工厂。executor 每轮先校验非空、未重复的 turn/provider request identity，再写 `turn_linked`；引用修复固定为新身份 attempt 2。
 - completed Work 只读 `PersistedTurn.assistantMessage/providerId/modelId/usage/notices` 做解析、公证与逐 Turn 计价。failed terminal 先写 model `step_failed`，再抛携终态的 `WorkTurnFailedError`；反例锁定一次调用、零 artifact、零 scenario_completed。
