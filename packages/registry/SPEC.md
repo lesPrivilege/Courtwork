@@ -1,8 +1,14 @@
 # SPEC: packages/registry（W2）
 
-状态：既有 PACKAGE-ABI/INTERACTION 已验收；`ABI-2A` 已独立验收放行
+状态：既有 PACKAGE-ABI/INTERACTION 已验收；`ABI-2A` 已独立验收放行；现行跨包工单 `ABI-2B` 待实现
 
 ## 现行架构工单（2026-07-14）
+
+### ABI-2B · PM 迁入唯一 Package ABI
+
+权威：[ADR-008](../../docs/decisions/ADR-008-schema-conformance-and-authority.md) 与 [ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。删除 PM 自建 descriptor/view-resolver 真源，把四类 schema、通用表 presentation、完整值词表与 bindings 收入 `PM_PACKAGE`；与 Legal 一起走同一个 `admitPackages/buildPackageRegistries`。PM 当期是 catalog-only：`scenarios/promptSegments` 为空，不造不能运行的面板或流程；统一声明 `courtwork.artifact-table.v1`，真实 host renderer 由后续 `VIEW-ABI-1` 交付。
+
+presentation 的 collection pointer 从 artifact 根取数组，field pointer 从条目根取值；禁止 dot-path/通配符。enum/status/tags/grade 的 `valueLabels` 必须完整，普通字段不得携无意义 labels；wire 值不得回落 UI。PM 含锚 artifact 在没有 draft/citation binding 时不得被任何 scenario 声明为模型输出，准入需有红测。范围不含 desktop renderer、PM prompt/scenario、法律 schema、provider/core 或模型 tool calling。
 
 ### ABI-2A · Descriptor / Bindings 双平面
 

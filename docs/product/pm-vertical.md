@@ -1,6 +1,6 @@
 # PM 垂类契约
 
-状态：现行包级产品契约。实现位于 `packages/pm-schemas`；通用机制仍以 architecture 与 ADR 为准。
+状态：现行包级产品契约。实现位于 `packages/pm-schemas`；ABI-2B 先将四类 schema/presentation 迁入唯一 Package ABI，保持 catalog-only，不提前声明尚未接通的场景与提示词。通用机制仍以 architecture 与 ADR 为准。
 
 ## 一、反馈归集
 
@@ -21,3 +21,5 @@ RICE 等公式由确定性代码计算，不交给模型心算。低置信度输
 ActionItem 以稳定 id、负责人、截止时间、来源和处置状态跨会议串联。矛盾、逾期与负责人更迭使用结构化 marker，不靠自然语言或颜色猜测。
 
 信源文案、缺陷词表、打分区间与 renderer 归 PM 包所有；core、desktop 和通用 schema 不得内置 PM 语义。
+
+ABI-2B 的 presentation 使用 JSON Pointer：主集合从 artifact 根寻址，字段从集合条目根寻址；枚举/状态/标记/分级的显示词随字段声明。PM 的最终 schema 可以保存系统铸造的 SourceAnchor，但在 draft schema 与 citation binding 落地前，不得把这些 artifact 接成模型输出场景。

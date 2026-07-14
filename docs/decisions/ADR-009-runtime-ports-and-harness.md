@@ -2,7 +2,7 @@
 
 - 状态：Accepted
 - 日期：2026-07-14
-- 来源：`b0767144271ae165b3a61d79f809b0f9a257652d`、`b8815080501d7775a6e2fa27fefa756588496d92`、`016567904ded5edede614dbd8cbe7b6c5cdf59a8`、`4a8fc2f75e33b2b342b6be1149946cc5d7af2fe5`
+- 来源：`b0767144271ae165b3a61d79f809b0f9a257652d`、`b8815080501d7775a6e2fa27fefa756588496d92`、`016567904ded5edede614dbd8cbe7b6c5cdf59a8`、`4a8fc2f75e33b2b342b6be1149946cc5d7af2fe5`、`0fd4df18cad9a1cd3e7b171ee372464a70ad2951`
 
 ## 背景
 
@@ -95,6 +95,7 @@ interface ArtifactDescriptorDataV1 {
       pointer: string;
       label: string;
       format: 'text' | 'mono' | 'number' | 'enum' | 'status' | 'grade' | 'anchor' | 'tags';
+      valueLabels?: Record<string, string>;
     }>;
   };
 }
@@ -119,10 +120,13 @@ interface VerticalPackageBindings {
 
 - desktop 只按版本化 `uiTemplateId` 查询 host-owned renderer；生产代码不得按 `legal.*`、`pm.*` type id switch。
 - 垂类只声明 presentation、词表、动作能力和 anchor policy；不得注入 JSX、函数、CSS 或自由坐标。
+- `presentation.collectionPointer` 是从 artifact 根求值的 RFC 6901 JSON Pointer，命中主条目数组；存在 collection 时，`fields[].pointer` 是从每个条目根求值的 JSON Pointer，不存在 collection 时则从 artifact 根求值。两者均禁止 dot-path、通配符、函数与隐式数组遍历，pointer 不命中必须显式报不兼容而非显示空字符串。
+- `fields[].label` 是该工作面的字段显示权威。`enum | status | tags | grade` 必须在同一 field 上提供完整 `valueLabels`；`text | mono | number | anchor` 不得携带无消费意义的 valueLabels。宿主不得按叶子 key 猜词表，也不得回落 wire 值。
 - 通用 renderer 只能遍历 `presentation.fields` 白名单，禁止 `Object.entries(payload)`。
 - presentation 引用字段缺 label、enum 值缺映射、renderer 未知或版本不兼容时显式拒载/降级。
 - 安全兜底只显示人读 title 与“当前版本不支持此工作面”。type id、wire key、原始枚举、绝对路径、hash 和 raw JSON 只允许进入显式 developer diagnostics/导出。
 - 既有 `question-card` 以 compatibility alias 迁往 `courtwork.question-card.v1`；历史事件保存当时的模板/文案/锚点快照，回放不重查当前 manifest。
+- `ABI-2B` 中 PM 先作为 catalog-only 包准入：四类 artifact/schema/presentation 可以装载，但 `scenarios` 与 prompt 为空，不生成空壳工作流。任何后续 scenario 若把含 `format: 'anchor'` 的 artifact 列为模型输出，准入必须要求独立 `draftSchemaId + citationBinding`；最终 SourceAnchor 仍只能由 resolver/system producer 铸造。
 
 ## 决定五：版本、事件与迁移
 
