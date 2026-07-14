@@ -1,6 +1,6 @@
 # SPEC: packages/schemas（W1）
 
-状态：已完成
+状态：已完成；ABI-2A Draft 2020-12 单向出口已独立验收放行
 
 ## 职责
 

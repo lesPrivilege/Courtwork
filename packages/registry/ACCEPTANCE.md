@@ -72,3 +72,44 @@
 ## 下游放行
 
 **允许合入 main。** 下游可开始 core 的请求解析、锚点校验、不可变 `interaction_requested` / `interaction_resolved` 事件与暂停续行；本验收不授权变更 ADR-007 的事件快照或回答语义。
+
+---
+
+# ABI-2A 独立验收（2026-07-14）
+
+验收分支：`codex/accept-abi-2a`
+
+实现提交：`3702f1a`、`db819b5`（实现 tip `db819b5a92bc8083e65b7beec455868777645fc9`）
+
+验收修复：`c35ccb7 fix-by-acceptance(registry): reject remote dynamic schema refs`
+
+结论：**放行。ABI-2A 的 descriptor / bindings 双平面、Legal 迁移与 Draft 2020-12 单向出口符合 ADR-001/008/009；一处远程动态引用守卫漏网已由验收补丁修复。**
+
+## 契约复核
+
+1. **data plane 与不可变快照：通过。** `VerticalPackageDescriptorV1` 只含 strict 声明字段；准入在解析前递归拒绝 function、symbol、bigint、非有限 number、循环、accessor、Zod/React-like 非普通对象，再由 V1 schema 克隆并递归冻结。源对象后改与调用方写入均不能污染已准入快照。
+2. **runtime plane：通过。** `VerticalPackageBindings.schemas` 是按显式逻辑 `schemaId` 索引的 `ReadonlyMap<string, ZodType>`；final `schemaId` 与可选 draft `draftSchemaId` 各自独立绑定，Legal 实际为七个 final + `legal.RiskListDraft`，没有以 artifact type 猜 key 或把 final/draft 藏进同一 value。
+3. **准入隔离：通过。** 未知 ABI、缺 final/draft binding、重复 schema 引用、binding/descriptor 越 namespace、执行对象混入均显式拒载；先到拒载包不占 package/template id、不泄漏 warning，也不污染后到合法包。
+4. **compatibility 唯一性：通过。** 全仓生产搜索只有 `package-registries.ts` 的 `bindArtifactDescriptorCompatibility` 一处把 bindings 接回既有 `descriptor.schema/draftSchema`；data plane 往返字段不漂移。core 的三处 schema 消费继续走既有 registry entry，未出现第二准入真源。
+5. **JSON Schema 出口：通过。** `toDraft202012JsonSchema` 显式固定 `target: 'draft-2020-12'` 与 `unrepresentable: 'throw'`，`z.date()` 反例会抛错；逻辑 id 与 schemaVersion 生成固定 `urn:courtwork:schema:<logicalSchemaId>:v<schemaVersion>`。本地 fragment 可用，远程/相对 `$ref`、`$dynamicRef`、`$recursiveRef` 均 fail closed。
+6. **Legal 契约面：通过。** 提交态恰有 8 份 schema，全部为 Draft 2020-12 且 `$id` 与 descriptor 引用一致；drift 测试逐份对比生成结果。FileOpsPlan 与 RevisionInstructionSet 去除 `$schema/$id` 后与中央 wire schema 结构一致，法律字段语义未改。
+7. **范围与下游兼容：通过。** 实现差异未触及 `packages/pm-schemas`、`apps/desktop`、`packages/provider`、`packages/core` 或依赖锁；没有新增 Ajv 产品依赖、动态插件、反向 schema 转换或第二 runtime。PM 仍按 ADR-009 留给 ABI-2B。
+
+## 反例注入与验收修复
+
+- 临时削弱 `$ref` 守卫后运行 `packages/registry/src/schema-export.test.ts`，稳定得到 **1 failed / 2 passed**：远程 URL 不再抛错，证明门禁真实咬住；随后原样恢复，**3/3** 转绿。
+- 独立探针证明 Zod metadata 可原样导出远程 `$dynamicRef` / `$recursiveRef`，原实现只检查 `$ref`。新增回归先稳定得到 **1 failed / 3 passed**，再以 `c35ccb7` 扩展同一守卫；最终 schema-export **4/4**、registry **54/54**、legal **70/70**。该补丁未改字段、接口或准入语义。
+
+## 最终实测
+
+- clean worktree 执行 `pnpm install --frozen-lockfile`：通过，13 个 workspace project、1047 个包完成链接。
+- 三包定向：schemas **11 files / 90 tests**；registry **4 files / 54 tests**；legal **8 files / 70 tests**。
+- 全仓 `pnpm -r build`：通过，12/12 workspace build 完成；desktop 仅保留既有 chunk-size warning。
+- 全仓 `pnpm lint`：通过，0 error。
+- 全仓 `pnpm test`：**116 files / 1003 tests** 全绿。
+- `pnpm --filter @courtwork/core demo:legal`：黄金对照 PASS；8 risks、11/11 anchors、7 confirmed / 1 rejected、7 revision instructions，事件骨架从 `artifact_produced` 经确认、revision 到 `scenario_completed` 完整。
+- 本单无 UI 行为变化，按工单不运行 Playwright。
+
+## 下游放行
+
+**允许合入 main。** ABI-2B 可在这套唯一 descriptor/bindings 准入真源上迁 PM；不得复制 admission、compatibility rebind 或 JSON Schema export 逻辑。

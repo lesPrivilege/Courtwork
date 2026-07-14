@@ -1,6 +1,6 @@
 # SPEC: packages/registry（W2）
 
-状态：既有 PACKAGE-ABI/INTERACTION 已验收；`ABI-2A` 已实现，待异会话验收
+状态：既有 PACKAGE-ABI/INTERACTION 已验收；`ABI-2A` 已独立验收放行
 
 ## 现行架构工单（2026-07-14）
 
