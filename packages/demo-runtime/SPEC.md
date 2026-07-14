@@ -1,6 +1,6 @@
 # SPEC: packages/demo-runtime
 
-状态：`CORE-BOUNDARY-1` 已实现，待独立验收。
+状态：`CORE-BOUNDARY-1` 已独立验收放行。
 
 ## 职责
 
@@ -23,3 +23,10 @@
 - `demo:s3` 继续产出 39,713 bytes redline，7/7 预埋考点，事件序列与指令结果不变；`demo:legal` 仍为 8 风险、7 确认 + 1 驳回、11 引用全命中、15 事件，golden PASS。
 - 本包不引入新第三方 runtime；仅承接原 core 的 workspace 绑定依赖。
 - 全仓最终门禁：`pnpm -r build`、`pnpm lint`、`pnpm test` 116 文件 1000/1000 通过。
+
+## 独立验收留痕（2026-07-14）
+
+- 迁移差异经 rename 与逐文件 diff 复核，只包含物理搬迁、跨包 import 改接 core 公共契约、CLI 包名更新和边界守卫；未改 fixture、事件、锚点、确认、修订或 output 语义。
+- 本包 **8 files / 26 tests**；S3 与 LEGAL 两条 CLI 均通过既有 golden。迁移前后六段组装 golden SHA-256 完全一致。
+- 整包临时移出 workspace 后，core 清空 `dist` 仍可独立 build 并通过 **22 files / 232 tests**；依赖图守卫及注入环自检通过，core/desktop 对本包无反向依赖。
+- 详细证据与放行边界见 `packages/core/ACCEPTANCE.md` 的“CORE-BOUNDARY-1 独立验收”。
