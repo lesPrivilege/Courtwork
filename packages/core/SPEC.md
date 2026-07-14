@@ -2,7 +2,7 @@
 
 状态：既有 TURN/INTERACTION、`CONFIRM-CAS-1`、`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行
 
-## HARNESS-KERNEL-1 · 现有 Turn runtime facade（待派发）
+## HARNESS-KERNEL-1 · 现有 Turn runtime facade（已实现，待独立验收）
 
 权威：`docs/decisions/ADR-011-minimal-harness-kernel.md`。本单不是新 agent loop，必须等待
 `WORK-BROWSER-1` 清账后，纯机械收口现有 `createTurnRunner`、interaction coordinator 与 Turn replay：
@@ -20,6 +20,26 @@ interface TurnHarnessRuntime {
 - browser-safe 出口与真实 Vite consumer 必须证明无 `node:*`；Chat/Work 直接 import Provider/TurnStore、调用 `generate()` 或 package descriptor 含可执行 hook 的反例必须变红。
 
 Steering/follow-up、session tree、MCP proxy、动态 tool set、subagent 与后台任务不属于本单。
+
+实现留痕（2026-07-14，待独立验收）：
+
+- 新增 browser-safe `turn-harness-runtime.ts`，只定义 `TurnHarnessRuntime { turns, interactions }` 与
+  `createTurnHarnessRuntime({ provider, store, templateRegistry, now? })`。factory 在闭包内装配既有
+  `createTurnRunner`、`requestInteraction`、`TurnStore.resolveInteraction/replayTurn`；返回对象及两个窄 port
+  均冻结，不转售 provider、store、template registry、events 或 lifecycle mutation hook。
+- `InteractionRuntimePort.request(input, { materials })` 原样进入既有 coordinator；`resolve(input)` 与
+  `replay(turnId)` 原样进入同一 store。为接受 ADR 指定的只读材料上下文，仅把 resolver/coordinator 的
+  `MaterialTextLayer[]` 入参类型增宽为 `readonly MaterialTextLayer[]`，算法、事件与持久形状未变。
+- `@courtwork/core/turn-protocol` 增量导出 facade；新增真实 Vite package-subpath consumer，bundle 扫描继续
+  拒绝 browser external 与 `node:crypto/fs/path`。未改 core 根导出、TurnStore、TurnEvent/SessionEvent、
+  ScenarioExecutorDeps、provider、schema、desktop 或 demo composition，也未增加第三方依赖。
+- TDD 首轮因缺 `turn-harness-runtime.js` 明确红；最小实现后 facade 定向 **5/5**、turn browser/Vite 合计
+  **9/9**、core **24 files / 260 tests**。等价测试锁定直接旧函数与 facade 的同序 TurnEvent、同 terminal、
+  interaction request/resolve/replay 与 first-wins；pending interaction 下 `turns.run` 的 provider 调用为 0。
+- 实现侧最终门禁：frozen install 为 14 workspace / 1047 packages；`pnpm -r build` 为 13/14 workspace 全绿，
+  desktop 3521 modules；`pnpm lint` 通过；`pnpm test` 为 **124 files / 1095 tests**。只有既有 Tauri
+  static/dynamic import 与 chunk-size warning。放行仍须另一会话在 clean worktree 注入反例并写
+  `packages/core/ACCEPTANCE.md`。
 
 ## 现行架构工单（2026-07-14）
 
