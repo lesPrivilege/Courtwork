@@ -48,7 +48,7 @@
 6. usage ledger 与真实 token/cost 投影尚未成为统一权威来源。
 7. 部分 package SPEC/ACCEPTANCE 是长篇编年记录，后续应按层拆成“现行 SPEC + 历史验收”，但本轮不改其证据内容。
 8. `PriorityScore` 的确定性计算在任一参数 OOC 时返回 `null`，但 v1 payload schema 的 `score` 仍不接受 `null`；在创建任何 PM scenario 前须由 `PM-SCHEMA-1` 以版本化契约收口。
-9. PM 仍以 `packages/pm-schemas` / `@courtwork/pm-schemas` 命名，package release version 与 descriptor version 漂移；Legal 根出口仍转售 demo fixture，两包脚本与 JSON Schema drift 门也未统一。
+9. PM package path/name/version 与 metadata/schema drift 门已按 ADR-012 对齐；后续只剩两包 exports/layout 分面，Legal 根出口仍需停止转售 demo fixture。
 10. Chat 与 Work 已复用品牌等待动画，但 reasoning disclosure 与 Work progress 仍是两套 DOM/交互；必须由 TRACE-UI-1 收成同一宿主组件，同时保持 Turn reasoning 与 Work progress 两种真源不混写。
 11. 当前唯一通用生产 blueprint 是 `courtwork.artifact-table.v1`；Legal 仍有未版本化专用 panel。可视化组件样板、权威 PM fixture 与多场景 Pages 泛化证明尚未落地。
 
@@ -65,8 +65,8 @@ ADR-010 已把依赖收口，`WORK-PORT-1` 已独立验收清账。现先做 `WO
 descriptor 与迁移边界。它可在不触碰 desktop/Work live 的条件下另行派发，但未完成前不得创建 PM scenario。
 SourceAnchor system producer 门随 VIEW conformance kit 持续推进，不由 desktop 特判补洞。
 
-新方向按不冲突文件面并行：`TRACE-UI-1` 与 `VPKG-META-1` 可先做；随后顺序执行
-`PM-PACKAGE-RENAME-1 → VPKG-EXPORTS-1/VPKG-LAYOUT-1`。`VISUAL-KIT-1` 先由真实 Legal fixture
+新方向按不冲突文件面并行：`TRACE-UI-1` 已进入实现，`VPKG-META-1` 已独立验收；
+`PM-PACKAGE-RENAME-1` 完成实现并等待独立验收后，再执行 `VPKG-EXPORTS-1/VPKG-LAYOUT-1`。`VISUAL-KIT-1` 先由真实 Legal fixture
 建立第一批原语，PM 场景证明必须等待权威 PM fixture 与 `PM-SCHEMA-1`；`SITE-GEN-1` 最后消费
 已验收真机截图。`HARNESS-KERNEL-1` 只在 `WORK-BROWSER-1` 后收口现有 facade，不改变 ADR-010 的
 Work live 依赖链。

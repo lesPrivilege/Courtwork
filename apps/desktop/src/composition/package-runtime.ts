@@ -1,5 +1,5 @@
 import { LEGAL_PACKAGE } from '@courtwork/legal';
-import { PM_PACKAGE } from '@courtwork/pm-schemas';
+import { PM_PACKAGE } from '@courtwork/pm';
 import {
   admitPackages,
   buildPackageRegistries,

@@ -1,6 +1,6 @@
 # PM 垂类契约
 
-状态：现行包级产品契约。实现位于 `packages/pm-schemas`；ABI-2B 先将四类 schema/presentation 迁入唯一 Package ABI，保持 catalog-only，不提前声明尚未接通的场景与提示词。通用机制仍以 architecture 与 ADR 为准。
+状态：现行包级产品契约。实现位于 `packages/pm`，npm 名为 `@courtwork/pm`；ABI-2B 已将四类 schema/presentation 迁入唯一 Package ABI，保持 catalog-only，不提前声明尚未接通的场景与提示词。通用机制仍以 architecture 与 ADR 为准。
 
 ## 一、反馈归集
 

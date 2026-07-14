@@ -1,5 +1,5 @@
 {
-  "name": "@courtwork/pm-schemas",
+  "name": "@courtwork/pm",
   "version": "0.1.1",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "test": "vitest run --root ../.. packages/pm-schemas/src",
+    "test": "vitest run --root ../.. packages/pm/src",
     "lint": "eslint .",
     "build": "tsc -p tsconfig.json",
     "generate:json-schema": "tsx scripts/generate-json-schema.ts"

@@ -1,24 +1,31 @@
-# SPEC: packages/pm-schemas
+# SPEC: packages/pm
 
 状态：`ABI-2B` 与 `VIEW-ABI-1C` 已独立验收放行；`PM-SCHEMA-1` 契约债已登记，完成前不得创建 PM scenario。
 
-## VPKG 体例迁移（待派发）
+## VPKG 体例迁移（进行中）
 
 权威：`docs/decisions/ADR-012-vertical-package-kit-and-visual-blueprints.md` 与
 `docs/architecture/vertical-package-authoring.md`。
 
-1. `VPKG-META-1` 先令 `package.json.version` 与 descriptor `identity.version=0.1.1` 同字节，并与 Legal 共用 package version / JSON Schema drift / browser-safe conformance 门。不得改变 `schemaVersion=1`。
-2. `PM-PACKAGE-RENAME-1` 再把目录、npm 名改为 `packages/pm` / `@courtwork/pm`，机械更新全部生产/测试/文档 consumer 与 lockfile；`packageId=pm`、全部 `pm.*` schema/type id、payload 和 fixture 字节不变。
+1. `VPKG-META-1` 已令 `package.json.version` 与 descriptor `identity.version=0.1.1` 同字节，并与 Legal 共用 package version / JSON Schema drift / browser-safe conformance 门。不得改变 `schemaVersion=1`。
+2. `PM-PACKAGE-RENAME-1` 将迁移前目录/npm 名 `packages/pm-schemas` / `@courtwork/pm-schemas` 机械改为 `packages/pm` / `@courtwork/pm`，更新全部生产/测试/文档 consumer 与 lockfile；`packageId=pm`、全部 `pm.*` schema/type id、payload 和 fixture 字节不变。实现已完成，待独立验收。
 3. `VPKG-LAYOUT-1` 把 schema 迁入 `src/schemas/`，计算器迁入 `src/domain/`，package data/runtime plane 迁入 `src/package/`；不创建空 `scenarios / interactions / runtime / testing`。
 
 PM 在 `PM-SCHEMA-1` 与权威样板项目完成前继续 catalog-only。体例一致不等于补空 scenario、prompt 或企业 stub。
 
-### VPKG-META-1 实现记录（2026-07-14，待独立验收）
+### VPKG-META-1 实现记录（2026-07-14，已独立验收放行）
 
 - `package.json.version` 已从 `0.1.0` 对齐 descriptor release `0.1.1`；`packageId=pm`、全部 `pm.*` id、`schemaVersion=1` 与 payload/fixture 字节均未变化。
 - 包内 metadata conformance 锁定 release version 与四枚统一脚本；JSON Schema drift 门继续锁定四份文件全集、Draft 2020-12 与 URN，并改为复用 registry 的递归 remote-ref 守卫覆盖 `$ref/$dynamicRef/$recursiveRef`。
 - TDD 红灯证明原 `0.1.0` 版本漂移被拒；临时向提交态 schema 注入远程 `$ref` 时明确以 remote/外部 schema 错误失败；最终 PM 包 **6 files / 37 tests** 全绿。
-- 本单未 rename 目录/npm 包，未修改 descriptor、scenario、prompt、payload、JSON Schema 字节或产品 UI；全仓 build/lint 与 Vitest **122 files / 1083 tests** 通过，等待异会话验收。
+- 本单未 rename 目录/npm 包，未修改 descriptor、scenario、prompt、payload、JSON Schema 字节或产品 UI；全仓 build/lint 与 Vitest **122 files / 1083 tests** 通过，独立验收已放行。
+
+### PM-PACKAGE-RENAME-1 实现记录（2026-07-14，待独立验收）
+
+- 包目录与 npm 名已唯一对齐为 `packages/pm` / `@courtwork/pm`；desktop composition 与 lockfile importer 只消费新名，没有 alias、双包或 compatibility 出口。
+- metadata conformance 新增目录/npm name/descriptor packageId 同字节守卫，并锁定包内 test 脚本的新路径；迁移前定点实际得到 **2 failed / 1 passed**。
+- 本单只移动包并更新 active consumer/docs；`manifest.ts`、payload/schema 源、四份 JSON Schema、`packageId=pm`、全部 `pm.*` id、`identity.version=0.1.1`、`schemaVersion=1`、`scenarios=[]` 与 `promptSegments=[]` 均未改变。
+- 实现门禁：冻结 lockfile 安装通过；PM **6 files / 38 tests**、Legal **9 files / 73 tests**，两包 lint/build/schema 重生成均通过且无 drift；全仓 build 13 个 workspace、lint 与 Vitest **122 files / 1084 tests** 全绿。本记录不构成验收结论。
 
 ## 职责
 

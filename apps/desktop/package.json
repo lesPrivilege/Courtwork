@@ -41,7 +41,7 @@
     "@courtwork/core": "workspace:*",
     "@courtwork/legal": "workspace:*",
     "@courtwork/output": "workspace:*",
-    "@courtwork/pm-schemas": "workspace:*",
+    "@courtwork/pm": "workspace:*",
     "@courtwork/provider": "workspace:*",
     "@courtwork/reading-view": "workspace:*",
     "@courtwork/registry": "workspace:*",

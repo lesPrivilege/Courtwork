@@ -1,4 +1,4 @@
-# ACCEPTANCE: packages/pm-schemas
+# ACCEPTANCE: packages/pm
 
 ## ABI-2B 独立验收（2026-07-14）
 
@@ -35,7 +35,7 @@
 ### JSON Schema 与工程门禁
 
 - `pnpm install --frozen-lockfile`：13 个 workspace project、1047 个包，lockfile 无改写。
-- `pnpm --filter @courtwork/pm-schemas generate:json-schema`：四文件重生成成功，随后 `git status` 无 drift。
+- 迁移前命令 `pnpm --filter @courtwork/pm-schemas generate:json-schema`：四文件重生成成功，随后 `git status` 无 drift；现行 npm 名为 `@courtwork/pm`。
 - PM：**5 files / 33 tests**；registry：**4 files / 62 tests**；legal：**8 files / 70 tests**；schemas：**11 files / 90 tests**。四包合跑为 **28 files / 255 tests**。
 - `pnpm -r build`：exit 0，12/13 workspace projects；desktop Vite **3507 modules transformed**，只有既有 dynamic-import/chunk-size warning。
 - `pnpm lint`：exit 0，零 error。

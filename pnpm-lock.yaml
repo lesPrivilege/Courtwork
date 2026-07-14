@@ -41,9 +41,9 @@ importers:
       '@courtwork/output':
         specifier: workspace:*
         version: link:../../packages/output
-      '@courtwork/pm-schemas':
+      '@courtwork/pm':
         specifier: workspace:*
-        version: link:../../packages/pm-schemas
+        version: link:../../packages/pm
       '@courtwork/provider':
         specifier: workspace:*
         version: link:../../packages/provider
@@ -222,7 +222,7 @@ importers:
         specifier: ^26.1.1
         version: 26.1.1
 
-  packages/pm-schemas:
+  packages/pm:
     dependencies:
       '@courtwork/registry':
         specifier: workspace:*

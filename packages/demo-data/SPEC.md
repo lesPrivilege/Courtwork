@@ -26,7 +26,7 @@ data/pm/
 - `FeedbackDigest` 至少覆盖两个 cluster、三个 channel 与一个 `out_of_coverage` 条目；每个 item/cluster evidence 都逐字回到 `02-feedback.md`，OOC 的 clusterId/rootCause 保持 null。
 - textRange 以 JS UTF-16 string offset 为口径；每枚锚必须满足 `source.slice(start,end) === quote`，并携材料内容 hash 形成 `textLayerVersion`。禁止沿用现有 Legal 旧 fixture 的 `start=0` 占位做法。
 - accessor 只读数据；schema、锚点、id 交叉闭合、虚构水印、确定性 hash 与文件全集均有变异可触红测试。
-- 本单在 `PM-PACKAGE-RENAME-1` 后消费 `@courtwork/pm`，不再新增 `@courtwork/pm-schemas` consumer。
+- 本单在 `PM-PACKAGE-RENAME-1` 后只消费 `@courtwork/pm`，不得新增旧 npm 名 consumer。
 - `PriorityScore` fixture、排序提案与 PM scenario 继续等待 `PM-SCHEMA-1`；Pages 第一版只能把本样板标为 `schema catalog preview`。
 
 ## 背景

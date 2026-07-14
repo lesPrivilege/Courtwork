@@ -10,7 +10,7 @@ apps/desktop
     ▼
 packages/core ─────► packages/provider
     │                         │
-    ├── packages/registry ◄── packages/legal / packages/pm-schemas
+    ├── packages/registry ◄── packages/legal / packages/pm
     ├── packages/tools
     ├── packages/output ───► packages/reading-view
     └── packages/schemas ◄── registry/tools/output/reading-view/vertical packages
@@ -35,7 +35,7 @@ services/ingest       Python OCR/分类/实体对齐（尚待实现）
 | `packages/output` | docx 安全预检、定位、修订、批注与编译 |
 | `packages/demo-data` | 虚构样板案、导览与测试语料，不含业务逻辑 |
 | `packages/legal` | 法律领域 schema、场景、词表、投影与领域编译器 |
-| `packages/pm-schemas` | 第二垂类的 schema 基础 |
+| `packages/pm` | PM 垂类 schema、presentation、词表与确定性计算 |
 | `apps/desktop` | 通用 UI 宿主、系统权限桥与产品交互 |
 | `eval` | 跑分器无关结果格式、规则与 provider 适配 |
 
