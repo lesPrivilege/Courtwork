@@ -218,5 +218,11 @@ describe('VerticalPackageDescriptorV1（ABI-2A data plane）', () => {
         presentation: { fields: [{ pointer: '/description', label: '风险', format: 'html' }] },
       }).success,
     ).toBe(false);
+    expect(
+      ArtifactDescriptorDataV1Schema.safeParse({
+        ...VALID_ARTIFACT_DESCRIPTOR_DATA,
+        presentation: { fields: [{ pointer: '/description', label: '估值', format: 'estimate' }] },
+      }).success,
+    ).toBe(true);
   });
 });
