@@ -1,6 +1,6 @@
 # 发布手册
 
-本手册定义 Courtwork 从已验收 `main` 生成 macOS 制品、GitHub Release 与 Pages 的唯一现行路径。发布不改变产品契约；任何产品代码变化必须先完成独立实现与验收。
+本手册定义 Courtwork 从已验收 `main` 生成 macOS 制品、GitHub Release 与 Pages 的唯一现行路径。发布不改变产品契约；任何产品代码变化必须先完成独立实现与验收。除非另有说明，以下命令均从仓库根目录执行。
 
 ## 发布通道
 
@@ -21,11 +21,11 @@
 pnpm install --frozen-lockfile
 pnpm site:guard
 pnpm lint
+pnpm -r build
 pnpm --filter @courtwork/desktop test
 pnpm --filter @courtwork/provider test
 pnpm test
 cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml
-pnpm -r build
 COURTWORK_E2E_PORT=1583 pnpm --filter @courtwork/desktop test:e2e --workers=1
 ```
 
@@ -36,12 +36,38 @@ E2E 必须自起独立端口，禁止复用 `:1420`。报告只采信候选 tip 
 ```sh
 rm -rf apps/desktop/src-tauri/target/release/bundle
 pnpm --filter @courtwork/desktop tauri build --bundles app,dmg
-codesign --verify --deep --strict Courtwork.app
-hdiutil verify Courtwork_0.1.1_aarch64.dmg
-shasum -a 256 Courtwork_0.1.1_aarch64.dmg
+
+APP=apps/desktop/src-tauri/target/release/bundle/macos/Courtwork.app
+DMG=apps/desktop/src-tauri/target/release/bundle/dmg/Courtwork_0.1.1_aarch64.dmg
+EXE="$APP/Contents/MacOS/courtwork-desktop"
+
+codesign --verify --deep --strict "$APP"
+hdiutil verify "$DMG"
+shasum -a 256 "$DMG"
+shasum -a 256 "$EXE"
+file "$EXE"
+lipo -archs "$EXE"
 ```
 
-还必须挂载 DMG，复验其中 app 的签名与可执行文件哈希；实际启动一次再退出。若 `spctl` 拒绝 ad-hoc 包，作为未公证边界记录，不得删去或伪装通过。
+还必须挂载 DMG，复验其中 app 的签名与可执行文件哈希；实际启动一次再退出：
+
+```sh
+DMG=apps/desktop/src-tauri/target/release/bundle/dmg/Courtwork_0.1.1_aarch64.dmg
+MOUNT=$(mktemp -d /tmp/courtwork-release.XXXXXX)
+hdiutil attach -readonly -nobrowse -noautoopen -mountpoint "$MOUNT" "$DMG"
+codesign --verify --deep --strict "$MOUNT/Courtwork.app"
+shasum -a 256 "$MOUNT/Courtwork.app/Contents/MacOS/courtwork-desktop"
+hdiutil detach "$MOUNT"
+rmdir "$MOUNT"
+```
+
+用下列命令记录签名 identity 与 Gatekeeper 结果；没有 notarytool 凭证时必须明确记为不可公证。`spctl` 对 ad-hoc 包返回 rejected 是当前发行边界，不得删去或伪装通过。
+
+```sh
+APP=apps/desktop/src-tauri/target/release/bundle/macos/Courtwork.app
+security find-identity -v -p codesigning
+spctl --assess --type execute --verbose=4 "$APP"
+```
 
 ## 4. 真值切换
 
@@ -53,9 +79,14 @@ shasum -a 256 Courtwork_0.1.1_aarch64.dmg
 ## 5. 发布与部署
 
 ```sh
+DMG=apps/desktop/src-tauri/target/release/bundle/dmg/Courtwork_0.1.1_aarch64.dmg
+SHA_FILE=release/Courtwork_0.1.1_aarch64.dmg.sha256
+NOTES=release/RELEASE_NOTES_v0.1.1.md
+
+git tag -a v0.1.1 -m "Courtwork v0.1.1"
 git push origin main
 git push origin v0.1.1
-gh release create v0.1.1 Courtwork_0.1.1_aarch64.dmg Courtwork_0.1.1_aarch64.dmg.sha256 --notes-file RELEASE_NOTES_v0.1.1.md
+gh release create v0.1.1 "$DMG" "$SHA_FILE" --notes-file "$NOTES" --title "Courtwork v0.1.1"
 ```
 
 Pages workflow 由 `main` push 触发，必须执行完整 `pnpm site:guard`。完成条件同时包括：Release asset 200、SHA 与本地一致、Pages workflow success、部署页下载链接与 SHA 正确、无横向溢出或破图。
