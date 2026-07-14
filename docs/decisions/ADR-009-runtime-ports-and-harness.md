@@ -2,7 +2,7 @@
 
 - 状态：Accepted
 - 日期：2026-07-14
-- 来源：`b0767144271ae165b3a61d79f809b0f9a257652d`
+- 来源：`b0767144271ae165b3a61d79f809b0f9a257652d`、`b8815080501d7775a6e2fa27fefa756588496d92`
 
 ## 背景
 
@@ -100,16 +100,14 @@ interface ArtifactDescriptorDataV1 {
 }
 
 interface VerticalPackageBindings {
-  artifactSchemas: ReadonlyMap<string, {
-    schema: ZodType;
-    draftSchema?: ZodType;
-  }>;
+  schemas: ReadonlyMap<string, ZodType>;
   migrations?: ReadonlyMap<number, PackageMigration>;
 }
 ```
 
 - `VerticalPackageDescriptorV1` 必须可以 JSON 序列化、深冻结和稳定 hash；不得含 Zod、React、函数、CSS、任意 URL 或可执行插件。
-- `schemaId`/`draftSchemaId` 只能引用同包 bindings；准入时引用必须闭合，重复 id、缺 binding、越 namespace 均拒载。
+- bindings 的 key 明确是逻辑 `schemaId`，每个 value 只对应一个 Zod schema。final 的 `schemaId` 与可选 draft 的 `draftSchemaId` 分别独立查表；不得以 artifact `typeId` 充当隐式 key，也不得把 final/draft 藏进同一个 value。
+- 逻辑 schema id 使用包命名空间（如 `legal.RiskList`、`legal.RiskListDraft`）；JSON Schema 导出时以该逻辑 id 与 `identity.schemaVersion` 确定性生成绝对 `$id`。`schemaId`/`draftSchemaId` 只能引用同包 bindings；准入时引用必须闭合，重复 id、缺 binding、越 namespace 均拒载。
 - Zod 4 继续是 TS authoring 与本进程 runtime validator。构建期以显式 Draft 2020-12、`unrepresentable: 'throw'` 单向导出 JSON Schema；不依赖实验性 reverse conversion。
 - JSON Schema 是 IPC/跨语言 wire 契约；Zod 或其他 validator 实例不是 wire。
 - Ajv2020 只用于独立 contract/CI 合规验证，必须 strict，禁止 coercion、default 注入、strip unknown 或其他输入改写；正常 TS 产品链不同时跑两套 validator。
