@@ -1,4 +1,10 @@
-import type { CitationStats, EvidenceGradeAnnotation, GenerationNotice, SessionEvent } from '@courtwork/core';
+import type {
+  CitationStats,
+  EvidenceGradeAnnotation,
+  GenerationNotice,
+  RevisionInput,
+  SessionEvent,
+} from '@courtwork/core';
 
 export type ScenarioFlow = 'S1' | 'S3';
 export type ReviewDisposition = 'confirm' | 'reject' | 'revise';
@@ -31,20 +37,81 @@ export type ReviewTelemetryEvent =
   | { type: 'review_evidence_expanded'; sessionId: string; itemRef: string; evidenceRef: string; emittedAt: string }
   | { type: 'review_disposition_submitted'; sessionId: string; itemRef: string; disposition: ReviewDisposition; emittedAt: string };
 
-export interface ConfirmationClient {
-  getGateProjection(requestId: string): Promise<ReviewGateProjection>;
-  resolve(requestId: string, resolution: ReviewResolution): Promise<void>;
+export interface WorkSessionRef {
+  caseId: string;
+  sessionId: string;
 }
 
-export interface ContinuationClient {
-  continueSession(sessionId: string): Promise<void>;
+export interface WorkModelRoute {
+  providerId: string;
+  modelId: string;
+  reasoning: 'standard' | 'deep';
 }
 
-export interface SessionEventClient {
-  replay(flow: ScenarioFlow, publish: (event: SessionEvent) => void, options?: { paced?: boolean }): Promise<void>;
-  confirmation: ConfirmationClient;
-  continuation: ContinuationClient;
-  emitReviewTelemetry(event: ReviewTelemetryEvent): void;
+export interface StartWorkCommand {
+  commandId: string;
+  caseId: string;
+  scenarioId: string;
+  materialRefs: string[];
+  modelRoute: WorkModelRoute;
+}
+
+export interface ResumeWorkCommand extends WorkSessionRef {
+  commandId: string;
+  requestId: string;
+  decision: 'confirm' | 'reject';
+  revisions?: RevisionInput[];
+}
+
+export interface CancelWorkCommand extends WorkSessionRef {
+  commandId: string;
+}
+
+export type WorkProjectionPhase =
+  | 'running'
+  | 'paused'
+  | 'completed'
+  | 'failed'
+  | 'canceled'
+  | 'interrupted';
+
+export type WorkCommandOutcome =
+  | { status: 'completed'; ref: WorkSessionRef }
+  | { status: 'paused'; ref: WorkSessionRef; requestId: string }
+  | {
+      status: 'failed';
+      ref: WorkSessionRef;
+      reason: 'provider' | 'invalid_output' | 'runtime_limit' | 'configuration' | 'internal';
+      message: string;
+      retryable: boolean;
+    }
+  | { status: 'canceled'; ref: WorkSessionRef };
+
+export interface WorkProjectionPort {
+  replay(query: WorkSessionRef & { afterSeq?: number }): Promise<{
+    ref: WorkSessionRef;
+    phase: WorkProjectionPhase;
+    events: SessionEvent[];
+  }>;
+}
+
+/**
+ * Production command boundary. WORK-PORT-1 deliberately declares this port without
+ * constructing or wiring an implementation into React.
+ */
+export interface WorkCommandPort {
+  start(
+    command: StartWorkCommand,
+    publish: (event: SessionEvent) => void,
+  ): { sessionId: string; done: Promise<WorkCommandOutcome> };
+  resume(
+    command: ResumeWorkCommand,
+    publish: (event: SessionEvent) => void,
+  ): Promise<WorkCommandOutcome>;
+  cancel(command: CancelWorkCommand): Promise<
+    | { accepted: true }
+    | { accepted: false; reason: 'not_running' | 'already_requested' }
+  >;
 }
 
 export interface SessionProjection {

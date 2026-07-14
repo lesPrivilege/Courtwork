@@ -5,8 +5,6 @@ import {
   credentialClient,
   type CredentialStatus,
 } from './credentials/client';
-import { createDemoClient } from './demo/client';
-import { DEMO_ARTIFACTS } from './demo/recordings';
 import {
   LEGAL_DEMO_INTERACTION_TURN_ID,
   ensureLegalDemoInteraction,
@@ -19,7 +17,10 @@ import {
   type ReviewGateProjection,
   type ScenarioFlow,
   type SessionProjection,
+  type WorkProjectionPort,
 } from './protocol/client';
+import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
+import { replayWorkProjection } from './protocol/work-replay';
 import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
 import type { ProviderTransport } from '@courtwork/provider/types';
@@ -127,8 +128,6 @@ type ChatMessage =
       turn: TurnProjection;
     };
 
-const client = createDemoClient();
-const emitReviewTelemetry = createReviewTelemetryEmitter((event) => client.emitReviewTelemetry(event));
 const CONTRACT_OUTPUT_FILE = '合同审查报告.docx';
 const DRAFT_OUTPUT_FILE = '答辩意见.docx';
 
@@ -279,9 +278,11 @@ export interface AppProps {
   providerTransport?: ProviderTransport;
   packageRegistries: PackageRegistries;
   hostRenderers: HostRendererRegistry;
+  workProjection: WorkProjectionPort;
+  workFixture: DemoWorkFixtureAdapter;
 }
 
-export function App({ providerTransport, packageRegistries, hostRenderers }: AppProps) {
+export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture }: AppProps) {
   const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
@@ -361,6 +362,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
   const [artifactRevision, setArtifactRevision] = useState(0);
   const [replayEpoch, setReplayEpoch] = useState(0);
   const [sceneMoreOpen, setSceneMoreOpen] = useState(false);
+  const activeFixtureRef = useMemo(() => (
+    selectedCaseId && flow && isDemoCaseId(selectedCaseId)
+      ? workFixture.sessionRefFor(selectedCaseId, flow)
+      : undefined
+  ), [flow, selectedCaseId, workFixture]);
+  const emitReviewTelemetry = useMemo(() => createReviewTelemetryEmitter((event) => {
+    if (!activeFixtureRef) return;
+    workFixture.telemetry.emit(activeFixtureRef, event);
+  }), [activeFixtureRef, workFixture]);
   // popover 收敛纪律（GOAL-1）：点别处/Esc 即收
   const sceneMoreRef = useRef<HTMLDivElement>(null);
   // 批次七首例：会话流跟随滚动（work 与 chat 两容器各自独立钉底态）
@@ -656,9 +666,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
     }
   }, [selectedCaseId]);
 
-  // demo 容器才回放录制；非 demo 永不注入 DEMO_ARTIFACTS
+  // demo 容器才查询 fixture replay；非 demo 永不进入该路径。
   useEffect(() => {
-    if (!isDemoCaseId(selectedCaseId) || !flow) return;
+    if (!selectedCaseId || !isDemoCaseId(selectedCaseId) || !flow) return;
     const replayKey = `${selectedCaseId}:${flow}:${replayEpoch}`;
     if (lastReplayedFlow.current === replayKey) return;
     lastReplayedFlow.current = replayKey;
@@ -666,7 +676,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
     setLocalMessages([]);
     const context = `${selectedCaseId}:${flow}`;
     let previewOpenedForReplay = false;
-    void client.replay(flow, (event) => {
+    const ref = workFixture.sessionRefFor(selectedCaseId, flow);
+    void replayWorkProjection(workProjection, workFixture.presentReplay, ref, (event) => {
       // 被后续回放取代的陈旧回放：残余事件全部丢弃（不 dispatch、不动自动开卡）。
       if (replayGeneration.current !== myGeneration) return;
       dispatch(event);
@@ -678,8 +689,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
       if (targetView === 'artifact') setActiveArtifactType(event.artifactType);
       setActiveView(targetView);
       setPreviewOpen(true);
-    }, { paced: true });
-  }, [flow, replayEpoch, selectedCaseId, packageRegistries, hostRenderers]);
+    });
+  }, [flow, replayEpoch, selectedCaseId, packageRegistries, hostRenderers, workProjection, workFixture]);
 
   // docs/decisions/ADR-006-ui-host.md 三章：artifact_produced 自动展开对应模块；用户手动优先
   useEffect(() => {
@@ -740,15 +751,16 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
 
   useEffect(() => {
     const requestId = session.confirmation?.requestId;
-    if (!requestId) return;
-    void client.confirmation.getGateProjection(requestId).then(setGate);
-  }, [session.confirmation]);
+    if (!requestId || !selectedCaseId || !flow || !isDemoCaseId(selectedCaseId)) return;
+    const ref = workFixture.sessionRefFor(selectedCaseId, flow);
+    void workFixture.review.getGateProjection({ ...ref, requestId }).then(setGate);
+  }, [flow, selectedCaseId, session.confirmation, workFixture]);
 
   useEffect(() => {
-    if (!isDemoCaseId(selectedCaseId)) return;
+    if (!activeFixtureRef) return;
     openedAt.current[selectedRiskId] = Date.now();
-    emitReviewTelemetry({ type: 'review_item_opened', sessionId: 'demo-s3', itemRef: selectedRiskId, emittedAt: new Date().toISOString() });
-  }, [selectedRiskId, selectedCaseId]);
+    emitReviewTelemetry({ type: 'review_item_opened', sessionId: activeFixtureRef.sessionId, itemRef: selectedRiskId, emittedAt: new Date().toISOString() });
+  }, [activeFixtureRef, emitReviewTelemetry, selectedRiskId]);
 
   const selectedCase = selectedCaseId ? cases.find((item) => item.id === selectedCaseId) : undefined;
   const isWelcome = !selectedCase;
@@ -765,25 +777,26 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
   }, [flow, isDemoCase, session.confirmation, turnClient]);
 
   const caseRoot = selectedCase ? resolveCaseRoot(selectedCase) : undefined;
-  // demo 语料只属于 demo 容器——禁止 `?? DEMO_ARTIFACTS` 污染真实案件
+  const fixtureRef = isDemoCase ? activeFixtureRef : undefined;
+  // fixture fallback 只属于显式 demo ref；非 demo 分支不会询问 fixture adapter。
   const riskList = (
-    isDemoCase
-      ? (session.artifacts['legal.RiskList'] ?? DEMO_ARTIFACTS.riskList)
+    fixtureRef
+      ? (session.artifacts['legal.RiskList'] ?? workFixture.artifactFor(fixtureRef, 'legal.RiskList'))
       : session.artifacts['legal.RiskList']
   ) as RiskList | undefined;
   const timeline = (
-    isDemoCase
-      ? (session.artifacts['legal.Timeline'] ?? DEMO_ARTIFACTS.timeline)
+    fixtureRef
+      ? (session.artifacts['legal.Timeline'] ?? workFixture.artifactFor(fixtureRef, 'legal.Timeline'))
       : session.artifacts['legal.Timeline']
   ) as Timeline | undefined;
   const graph = (
-    isDemoCase
-      ? (session.artifacts['legal.PartyGraph'] ?? DEMO_ARTIFACTS.partyGraph)
+    fixtureRef
+      ? (session.artifacts['legal.PartyGraph'] ?? workFixture.artifactFor(fixtureRef, 'legal.PartyGraph'))
       : session.artifacts['legal.PartyGraph']
   ) as PartyGraph | undefined;
   const matrix = (
-    isDemoCase
-      ? (session.artifacts['legal.ReviewMatrix'] ?? DEMO_ARTIFACTS.reviewMatrix)
+    fixtureRef
+      ? (session.artifacts['legal.ReviewMatrix'] ?? workFixture.artifactFor(fixtureRef, 'legal.ReviewMatrix'))
       : session.artifacts['legal.ReviewMatrix']
   ) as ReviewMatrix | undefined;
   const artifactViewEntries = Object.entries(session.artifacts).filter(([artifactType]) => {
@@ -873,7 +886,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
 
   useEffect(() => {
     const requestId = session.confirmation?.requestId;
-    if (!requestId || !gate?.items.length || resolvedRequest.current === requestId) return;
+    if (!requestId || !selectedCaseId || !flow || !isDemoCaseId(selectedCaseId)) return;
+    if (!gate?.items.length || resolvedRequest.current === requestId) return;
     if (!gate.items.every((item) => dispositions[item.itemRef])) return;
 
     const dwellMs = gate.items.reduce((total, item) => total + Math.max(0, Date.now() - (openedAt.current[item.itemRef] ?? Date.now())), 0);
@@ -882,7 +896,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
     resolvedRequest.current = requestId;
     void (async () => {
       try {
-        await client.confirmation.resolve(requestId, resolution);
+        const ref = workFixture.sessionRefFor(selectedCaseId, flow);
+        await workFixture.review.resolve({ ...ref, requestId, resolution });
         setReviewSubmitted(true);
         if (!caseRoot || !riskList) throw new Error('本案尚未绑定可写入的案件目录');
         const { docx } = compileConfirmedReviewToDocx({
@@ -902,7 +917,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
         showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
       }
     })();
-  }, [caseRoot, dispositions, gate, riskList, session.confirmation, session.evidenceGrades]);
+  }, [caseRoot, dispositions, flow, gate, riskList, selectedCaseId, session.confirmation, session.evidenceGrades, workFixture]);
 
   const createCase = ({
     title,
@@ -1191,13 +1206,17 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
   const expandBasis = (riskId: string, index: number, evidenceRef: string) => {
     const key = `${riskId}:${index}`;
     setExpandedEvidence((current) => ({ ...current, [key]: !current[key] }));
-    emitReviewTelemetry({ type: 'review_evidence_expanded', sessionId: 'demo-s3', itemRef: riskId, evidenceRef, emittedAt: new Date().toISOString() });
+    if (fixtureRef) {
+      emitReviewTelemetry({ type: 'review_evidence_expanded', sessionId: fixtureRef.sessionId, itemRef: riskId, evidenceRef, emittedAt: new Date().toISOString() });
+    }
   };
 
   const dispose = (itemRef: string, disposition: ReviewDispositionState) => {
     setDispositions((current) => ({ ...current, [itemRef]: disposition }));
     const protocolDisposition = disposition === 'confirmed' ? 'confirm' : disposition === 'rejected' ? 'reject' : 'revise';
-    emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: 'demo-s3', itemRef, disposition: protocolDisposition, emittedAt: new Date().toISOString() });
+    if (fixtureRef) {
+      emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: fixtureRef.sessionId, itemRef, disposition: protocolDisposition, emittedAt: new Date().toISOString() });
+    }
   };
 
   const batchConfirm = () => {
@@ -1386,7 +1405,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers }: App
         continuation={isDemoCase && usage >= 85
           ? {
               done: continued,
-              onContinue: () => void client.continuation.continueSession('demo-s3').then(() => setContinued(true)),
+              onContinue: () => {
+                if (!fixtureRef) return;
+                void workFixture.continuation.continueSession(fixtureRef).then(() => setContinued(true));
+              },
             }
           : undefined}
       />,
