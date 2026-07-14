@@ -11,6 +11,7 @@
 | `svg-standards.md` | SVG 工程规则 |
 | `icon.md` | 品牌图标规则 |
 | `site-evidence-line.md` | Pages 首页的证据链叙事、真实材料与发布验收规则 |
+| `visualization-kit.md` | Schema 工作面的原生构件、视图原语、有限组合与 blueprint 接入门 |
 
 历史北极星稿、竞稿、截图调研、验收记录和素材画廊不属于现行设计契约，已退出本目录。
 

@@ -2,6 +2,28 @@
 
 状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C` 与 `WORK-PORT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## TRACE-UI-1 · Chat/Work 同源过程轨迹（待派发）
+
+权威：ADR-011。目标是复用同一宿主组件与动效，不混淆两种账本语义。
+
+- 新建领域盲 `ProcessTrace`（名称可等义调整），封闭 view state 为 `running | settled | empty | failed`，并显式区分 `reasoning | progress` 文案。Chat reasoning 只从 Turn projection 映射；Work progress 只从 Work projection 映射。
+- Chat pending、流式 reasoning、settled disclosure 与 Work thinking/progress 全部消费同一组件和 CSS；不得保留一套 `<details class=chat-reasoning>` 与另一套 `ThinkingStream` 交互实现。
+- reasoning absent 不伪造；Work progress 不标为模型思考；失败/取消不显示 completed。running 内容到达时可以逐字增量，语义 terminal 仍 0ms 硬切。
+- 现有品牌三横等待指示、focus-visible、键盘展开、reduced-motion 与 Stop 必须保留；数据行与 schema 工作面不消费动画。
+- 通用 ask-user 卡继续只消费 Turn interaction snapshot；内容、选项与锚点来自垂类注入。卡底只允许相对 chat 底纸的微差 generated surface + 1px 中性框线、6px 圆角、零阴影；不得写法律 type switch。
+- 纯函数/DOM/Playwright 必须覆盖 Chat 与 Work 同一组件身份、running→settled、absent、failed、键盘展开、reduced-motion 和 ask-user 锚点/first-wins 回放。完整 desktop Playwright 由独立会话在独立端口验收。
+
+## VISUAL-KIT-1 · 原生可视化构件与 gallery（待派发）
+
+权威：ADR-012 与 `docs/design/visualization-kit.md`。先在 desktop 宿主内部建立
+`preview/projection`、`preview/primitives`、`preview/blueprints`、`preview/composition` 与
+`preview/registry` 边界，暂不抽 `packages/ui`。
+
+- 第一批只实现有真实消费的 `Field / Anchor / Status / Evidence / Decision / Estimate / Partial`，并让至少两个现有工作面或两个 namespace 真消费；禁止只做未引用组件陈列。
+- gallery 可以展示 implemented/candidate/deferred 全谱，但 candidate/deferred 只能是原生静态样板，不注册生产 blueprint、不造假数据。样板使用 Legal fixture 与后续权威 PM fixture。
+- 新 blueprint 独立定义 presentation config 与 fail-closed projection；不得膨胀 `courtwork.artifact-table.v1` 的 fields 为万能 DSL。
+- 1180/1280/1440/1600、键盘、完整引语、零 wire、reduced-motion 与 de-slop 门必须通过；截图来自已验收 main 的真机 gallery。
+
 ## 现行架构工单（2026-07-14）
 
 ### WORK-PORT-1 · Work command/projection 注入缝

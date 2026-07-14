@@ -2,6 +2,17 @@
 
 状态：`ABI-2B` 与 `VIEW-ABI-1C` 已独立验收放行；`PM-SCHEMA-1` 契约债已登记，完成前不得创建 PM scenario。
 
+## VPKG 体例迁移（待派发）
+
+权威：`docs/decisions/ADR-012-vertical-package-kit-and-visual-blueprints.md` 与
+`docs/architecture/vertical-package-authoring.md`。
+
+1. `VPKG-META-1` 先令 `package.json.version` 与 descriptor `identity.version=0.1.1` 同字节，并与 Legal 共用 package version / JSON Schema drift / browser-safe conformance 门。不得改变 `schemaVersion=1`。
+2. `PM-PACKAGE-RENAME-1` 再把目录、npm 名改为 `packages/pm` / `@courtwork/pm`，机械更新全部生产/测试/文档 consumer 与 lockfile；`packageId=pm`、全部 `pm.*` schema/type id、payload 和 fixture 字节不变。
+3. `VPKG-LAYOUT-1` 把 schema 迁入 `src/schemas/`，计算器迁入 `src/domain/`，package data/runtime plane 迁入 `src/package/`；不创建空 `scenarios / interactions / runtime / testing`。
+
+PM 在 `PM-SCHEMA-1` 与权威样板项目完成前继续 catalog-only。体例一致不等于补空 scenario、prompt 或企业 stub。
+
 ## 职责
 
 PM 第二垂类包。拥有反馈归集、PRD 评审、优先级计算与跨纪要行动项的 schema、presentation、词表和确定性计算；不得把 PM 语义放进 core、registry 或 desktop。

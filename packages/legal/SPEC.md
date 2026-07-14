@@ -2,6 +2,17 @@
 
 状态：PACKAGE-ABI 已成立；ABI-2A 双平面迁移已独立验收放行
 
+## VPKG 体例迁移（待派发）
+
+权威：`docs/decisions/ADR-012-vertical-package-kit-and-visual-blueprints.md` 与
+`docs/architecture/vertical-package-authoring.md`。
+
+- `VPKG-META-1`：与 PM 对齐 test/lint/build/generate 脚本、版本一致性门与 JSON Schema 全集/URN/Draft/remote-ref drift 门；不改 payload、descriptor 或场景语义。
+- `VPKG-EXPORTS-1`：根出口保持 browser-safe；三份 demo fixture 迁入显式 `/testing`，只允许 demo-runtime/acceptance 消费。`/package`、`/schemas` 与 `/testing` 形成可被依赖图审计的出口。
+- `VPKG-LAYOUT-1`：按 `src/package / schemas / presentation / scenarios / interactions / domain / testing` 逐步归位。纯物理迁移不得顺手改未版本化 blueprint、prompt 字节、typeId 或历史 snapshot。
+
+新增企业接口只可在第一项真实 integration 到来后建立 `/runtime`；不得预建空 adapter 或让 core/registry import 厂商类型。
+
 ## 职责
 
 法律垂类依赖包（docs/architecture/schema-engineering.md「垂类即依赖包」的首个实体）：法律域的 schema、场景声明、

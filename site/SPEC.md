@@ -2,6 +2,16 @@
 
 状态：SITE-1 已上线；SITE-2A 结构与 SITE-2B 真机证据已经独立验收；v0.1.1 Release 真值切换、独立验收与部署复核均已完成。
 
+## SITE-GEN-1 · 多场景泛化台账（待 VISUAL-KIT/PM fixture）
+
+保留 Evidence Line Hero，不改成场景卡片目录。在既有连续台账后增加“同一底座，换的是判断”三段：
+
+1. 合同审查：原句 → 风险 → 修订 → 人工确认，标记为已验收工作链；
+2. 卷宗阅卷：20 份材料 → 47 个事件 → 14 个主体 → 8 个矛盾，全部计数由 Legal fixture 校验；
+3. PM 决策：PRD 原句 → 缺陷维度 → 建议 → 排序提案。只有权威 PM fixture 与 host renderer 通过独立验收后才上线；scenario 未接通期间必须显示 `Schema catalog preview / 尚未接通运行链`，不得暗示 live。
+
+三段仍使用连续行、分割线和真实局部裁片，不新增等权 feature card 或重复 Mac window。站点构建/guard 必须读取权威 fixture 或其确定性快照，锁定计数、引语、状态、公式版本与 live/catalog 标签；截图必须来自已验收 main 经真机操作。
+
 ## SITE-2 · Evidence Line：首页约束链
 
 目标：在不重写整站、不虚构材料的前提下，把首页从平均分配截图的产品介绍，推进为“一个结论如何被证明”的连续叙事。

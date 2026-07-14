@@ -2,6 +2,25 @@
 
 状态：既有 TURN/INTERACTION、`CONFIRM-CAS-1`、`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行
 
+## HARNESS-KERNEL-1 · 现有 Turn runtime facade（待派发）
+
+权威：`docs/decisions/ADR-011-minimal-harness-kernel.md`。本单不是新 agent loop，必须等待
+`WORK-BROWSER-1` 清账后，纯机械收口现有 `createTurnRunner`、interaction coordinator 与 Turn replay：
+
+```ts
+interface TurnHarnessRuntime {
+  turns: TurnRunnerPort;
+  interactions: InteractionRuntimePort;
+}
+```
+
+- factory 可以持有 Provider、TurnStore、InteractionTemplateRegistry 与时钟；Chat/Work 只取得窄 port。
+- Work 仍只消费 `runtime.turns`；不把完整 runtime 塞入 ScenarioExecutorDeps，不新增 Work interaction step。
+- 不新增 TurnEvent/SessionEvent、不改 journal/terminal、不引入第三方 agent runtime、不开放 lifecycle mutation hook。
+- browser-safe 出口与真实 Vite consumer 必须证明无 `node:*`；Chat/Work 直接 import Provider/TurnStore、调用 `generate()` 或 package descriptor 含可执行 hook 的反例必须变红。
+
+Steering/follow-up、session tree、MCP proxy、动态 tool set、subagent 与后台任务不属于本单。
+
 ## 现行架构工单（2026-07-14）
 
 ### WORK-STATE 前置线（架构已定，WORK-PORT-1 已放行）
