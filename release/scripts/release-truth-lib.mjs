@@ -77,7 +77,7 @@ export function validateSiteDownloadTruth(sources, { expectedVersion } = {}) {
   const links = collectDownloadLinks(sources.html);
   const rawDmgLinks = [...sources.html.matchAll(/href="([^"]+\.dmg)"/g)].map((match) => match[1]);
 
-  if (links.length === 0) failures.push('site download URL: no canonical GitHub DMG link found');
+  if (links.length !== 2) failures.push(`site download URL: expected exactly two canonical DMG entrances, got ${links.length}`);
   if (rawDmgLinks.length !== links.length) failures.push('site download URL: non-canonical DMG link found');
   if (new Set(links.map((link) => link.url)).size > 1) failures.push('site download URL: all DMG links must be identical');
 
@@ -95,6 +95,17 @@ export function validateSiteDownloadTruth(sources, { expectedVersion } = {}) {
       failures.push('site download URL: tag or asset drift across links');
       break;
     }
+  }
+
+  const releaseFactBlocks = [...sources.html.matchAll(/<p\b[^>]*class="[^"]*\brelease-fact\b[^"]*"[^>]*>([\s\S]*?)<\/p>/gi)]
+    .map((match) => match[1]);
+  const visibleVersions = releaseFactBlocks.flatMap((block) => (
+    [...block.matchAll(/\bv(\d+\.\d+\.\d+)\s*·\s*Apple Silicon\b/g)].map((match) => match[1])
+  ));
+  if (visibleVersions.length !== 1) {
+    failures.push(`site release-fact: expected exactly one visible vX.Y.Z · Apple Silicon, got ${visibleVersions.length}`);
+  } else if (version && visibleVersions[0] !== version) {
+    failures.push(`site release-fact: visible ${visibleVersions[0]} does not match download ${version}`);
   }
 
   const displayedShas = [...sources.html.matchAll(/data-release-sha[^>]*>\s*([0-9a-f]{64})\s*</gi)]

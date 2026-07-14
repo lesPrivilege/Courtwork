@@ -93,12 +93,27 @@ spctl --assess --type execute --verbose=4 "$APP"
 
 ```sh
 git tag -a "$TAG" -m "Courtwork ${TAG}"
-git push origin main
 git push origin "$TAG"
 gh release create "$TAG" "$DMG" "$SHA_FILE" --notes-file "$NOTES" --title "Courtwork ${TAG}"
+
+VERIFY_DIR=$(mktemp -d /tmp/courtwork-release-download.XXXXXX)
+ASSET_URL="https://github.com/lesPrivilege/Courtwork/releases/download/${TAG}/${ASSET}"
+curl --fail --silent --show-error --location --head "$ASSET_URL" >/dev/null
+gh release download "$TAG" --dir "$VERIFY_DIR" --pattern "$ASSET" --pattern "${ASSET}.sha256"
+(
+  cd "$VERIFY_DIR"
+  shasum -a 256 --check "${ASSET}.sha256"
+)
+rm -rf "$VERIFY_DIR"
+
+git push origin main
 ```
 
-Pages workflow 由 `main` push 触发，必须执行完整 `pnpm site:guard`。完成条件同时包括：Release asset 200、SHA 与本地一致、Pages workflow success、部署页下载链接与 SHA 正确、无横向溢出或破图。
+顺序不可交换：annotated tag 先单独 push，使候选提交可由 tag 到达；GitHub Release 及两个资产创建后，必须重新下载并通过 HTTP 与 SHA 核验，才允许 push `main`。这样 Pages 首次暴露新下载链接时，目标资产已经存在，不能出现发布窗口 404。
+
+Pages workflow 由后续 `main` push 触发，必须执行完整 `pnpm site:guard`。完成条件同时包括：Release asset 200、SHA 与本地一致、Pages workflow success、部署页下载链接与 SHA 正确、无横向溢出或破图。
+
+部署记录严格后置：只有上述远端 Release 与 Pages 复核全部通过，才写入本版部署实录并提交、push；记录必须引用实际 workflow、tag 解引用、公开资产大小与重新下载 SHA，不得用候选预填结果。
 
 ## 6. 收尾
 
