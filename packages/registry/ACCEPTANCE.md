@@ -113,3 +113,11 @@
 ## 下游放行
 
 **允许合入 main。** ABI-2B 可在这套唯一 descriptor/bindings 准入真源上迁 PM；不得复制 admission、compatibility rebind 或 JSON Schema export 逻辑。
+
+---
+
+# ABI-2B 跨层验收指向（2026-07-14）
+
+结论：**放行。** 独立验收以真实 `LEGAL_PACKAGE + PM_PACKAGE` 同次准入得到 `[legal, pm]`、零拒载、零 warning，四个 PM artifact 全部进入统一 `artifactSchemas` registry；注入坏 PM 后只有 `pm` 被拒，Legal 不受污染。registry 的 RFC 6901/valueLabels 门和 anchor model-output draft/citation 门均经强制变异实际观察红灯，恢复后 registry **4 files / 62 tests**、PM/registry/legal/schemas 合跑 **28 files / 255 tests**。
+
+完整 PM catalog、JSON Schema、旧真源清零、变异与全仓门禁证据见 [`packages/pm-schemas/ACCEPTANCE.md`](../pm-schemas/ACCEPTANCE.md)。本节不重复建立第二份验收真源。
