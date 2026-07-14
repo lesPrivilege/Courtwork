@@ -42,6 +42,52 @@ function textCell(value: unknown, mono: boolean): ProjectedCell | undefined {
   return undefined;
 }
 
+function rangeText(value: unknown): string | undefined {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  const low = (value as { low?: unknown }).low;
+  const high = (value as { high?: unknown }).high;
+  if (
+    typeof low !== 'number'
+    || !Number.isFinite(low)
+    || typeof high !== 'number'
+    || !Number.isFinite(high)
+    || high < low
+  ) {
+    return undefined;
+  }
+  return `${low}–${high}`;
+}
+
+function estimateCell(field: PresentationField, value: unknown): ProjectedCell | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return { kind: 'text', text: String(value), mono: true };
+  }
+  const directRange = rangeText(value);
+  if (directRange !== undefined) return { kind: 'text', text: directRange, mono: true };
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined;
+
+  const envelope = value as { value?: unknown; range?: unknown; status?: unknown };
+  if (!Object.hasOwn(envelope, 'value') || !Object.hasOwn(envelope, 'range') || !Object.hasOwn(envelope, 'status')) {
+    return undefined;
+  }
+  if (typeof envelope.status !== 'string') return undefined;
+  const statusLabel = field.valueLabels?.[envelope.status];
+  if (statusLabel === undefined) return undefined;
+  const hasValue = typeof envelope.value === 'number' && Number.isFinite(envelope.value);
+  const range = envelope.range === null ? undefined : rangeText(envelope.range);
+  const hasRange = range !== undefined;
+  if (envelope.value !== null && !hasValue) return undefined;
+  if (envelope.range !== null && !hasRange) return undefined;
+  if (hasValue === hasRange) {
+    return hasValue ? undefined : { kind: 'text', text: statusLabel, mono: false };
+  }
+  return {
+    kind: 'text',
+    text: hasValue ? String(envelope.value) : range!,
+    mono: true,
+  };
+}
+
 function projectCell(field: PresentationField, value: unknown): ProjectedCell | undefined {
   if (field.format === 'text') return textCell(value, false);
   if (field.format === 'mono') return textCell(value, true);
@@ -51,6 +97,7 @@ function projectCell(field: PresentationField, value: unknown): ProjectedCell | 
       ? { kind: 'text', text: String(value), mono: false }
       : undefined;
   }
+  if (field.format === 'estimate') return estimateCell(field, value);
   if (field.format === 'enum' || field.format === 'status' || field.format === 'grade') {
     if (typeof value !== 'string') return undefined;
     const label = field.valueLabels?.[value];

@@ -108,6 +108,32 @@ function setRiskPresentation(
   return manifest;
 }
 
+const ESTIMATE_RANGE_SCHEMA = z.object({ low: z.number(), high: z.number() });
+const ESTIMATE_STATUS_LABELS = { filled: '已填充', out_of_coverage: '未覆盖·需补材料' };
+
+function makeEstimateManifest(
+  estimateSchema: z.ZodType,
+  valueLabels?: Record<string, string>,
+): VerticalPackageManifest {
+  const manifest = makeManifest();
+  manifest.bindings = {
+    schemas: new Map([
+      [
+        'legal.RiskList',
+        z.object({
+          caseId: z.string(),
+          risks: z.array(z.object({ estimate: estimateSchema })),
+        }),
+      ],
+      ['legal.CaseFile', z.object({ caseId: z.string() })],
+    ]),
+  };
+  return setRiskPresentation(manifest, {
+    collectionPointer: '/risks',
+    fields: [{ pointer: '/estimate', label: '估值', format: 'estimate', ...(valueLabels ? { valueLabels } : {}) }],
+  });
+}
+
 describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + 词表完备性）', () => {
   it('合法包准入，零错误', () => {
     const result = admitPackages([makeManifest()]);
@@ -361,6 +387,83 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
 
     expect(result.admitted).toEqual([]);
     expect(result.rejected[0]!.issues.join()).toContain('valueLabels');
+  });
+
+  it.each([
+    ['finite number', z.number(), undefined],
+    ['low-high range', ESTIMATE_RANGE_SCHEMA, undefined],
+    ['number-or-range union', z.union([z.number(), ESTIMATE_RANGE_SCHEMA]), undefined],
+    [
+      'value/range/status envelope',
+      z.object({
+        value: z.number().nullable(),
+        range: ESTIMATE_RANGE_SCHEMA.nullable(),
+        status: z.enum(['filled', 'out_of_coverage']),
+        note: z.string().optional(),
+      }),
+      ESTIMATE_STATUS_LABELS,
+    ],
+  ])('estimate 静态接受 %s', (_name, estimateSchema, labels) => {
+    const result = admitPackages([makeEstimateManifest(estimateSchema, labels)]);
+    expect(result.rejected).toEqual([]);
+    expect(result.admitted).toHaveLength(1);
+  });
+
+  it.each([
+    ['string', z.string(), undefined],
+    ['coerced number', z.coerce.number(), undefined],
+    ['number with labels', z.number(), ESTIMATE_STATUS_LABELS],
+    ['range with labels', ESTIMATE_RANGE_SCHEMA, ESTIMATE_STATUS_LABELS],
+    [
+      'envelope without labels',
+      z.object({
+        value: z.number().nullable(),
+        range: ESTIMATE_RANGE_SCHEMA.nullable(),
+        status: z.enum(['filled', 'out_of_coverage']),
+      }),
+      undefined,
+    ],
+    [
+      'envelope incomplete labels',
+      z.object({
+        value: z.number().nullable(),
+        range: ESTIMATE_RANGE_SCHEMA.nullable(),
+        status: z.enum(['filled', 'out_of_coverage']),
+      }),
+      { filled: '已填充' },
+    ],
+    [
+      'envelope contains extra label',
+      z.object({
+        value: z.number().nullable(),
+        range: ESTIMATE_RANGE_SCHEMA.nullable(),
+        status: z.enum(['filled', 'out_of_coverage']),
+      }),
+      { ...ESTIMATE_STATUS_LABELS, future: '未来状态' },
+    ],
+    [
+      'envelope status is not enum',
+      z.object({
+        value: z.number().nullable(),
+        range: ESTIMATE_RANGE_SCHEMA.nullable(),
+        status: z.string(),
+      }),
+      ESTIMATE_STATUS_LABELS,
+    ],
+    [
+      'envelope value is not nullable number',
+      z.object({
+        value: z.string().nullable(),
+        range: ESTIMATE_RANGE_SCHEMA.nullable(),
+        status: z.enum(['filled', 'out_of_coverage']),
+      }),
+      ESTIMATE_STATUS_LABELS,
+    ],
+    ['union includes unknown shape', z.union([z.number(), z.string()]), undefined],
+  ])('estimate 非法静态形状逐包拒载：%s', (_name, estimateSchema, labels) => {
+    const result = admitPackages([makeEstimateManifest(estimateSchema, labels)]);
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toMatch(/estimate|valueLabels|枚举/);
   });
 
   it('含 anchor presentation 的 artifact 未声明 draftSchemaId + citationBinding 时不得成为模型输出', () => {

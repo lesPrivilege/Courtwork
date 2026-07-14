@@ -28,6 +28,12 @@ status 是 enum 且 field-local `valueLabels` 精确覆盖；直接 number/range
 version 随 descriptor 行为增量递增，payload schema 未变，`schemaVersion` 仍为 1。非法 estimate 逐包拒载，
 不把失败推迟成运行时空表。
 
+#### VIEW-ABI-1C 实现记录（2026-07-14，待独立验收）
+
+- `ArtifactFieldFormatSchema` 纯增加 `estimate`；既有 format 和 ABI version 均未改名或重解释。
+- 准入沿 field pointer 静态解析 Zod 终端形状，只接受非 coercing finite number、严格 `{low,high}` range、二者 union，或含 `value/range/status` 的 envelope。envelope 的 status 必须是 enum，field-local labels 必须精确覆盖；直接 number/range 携 labels、缺漏/多余 labels、未知或复合形状均逐包拒载。
+- 反例锁定 coercing number、不完整 range、双值 envelope、非法 status 与 labels 漂移，防止 presentation 错误延迟到 desktop。实现侧定向 registry + PM **3 files / 69 tests**、registry 全量 **4 files / 76 tests** 全绿；最终全仓 **120 files / 1060 tests**。
+
 ### ABI-2A · Descriptor / Bindings 双平面
 
 权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。新增纯 JSON `VerticalPackageDescriptorV1` 与仅进程内可见的 `VerticalPackageBindings`，通过稳定 id 闭合 artifact schema/draft schema 引用；bindings 精确形状为 `schemas: ReadonlyMap<schemaId, ZodType>`，final/draft 各用自己的逻辑 schema id，不以 artifact type 作隐式 key。先迁 Legal，PM 留给 `ABI-2B`。descriptor 必须可 JSON stringify、深冻结且递归不含 function/Zod/React；未知 ABI、缺 binding、重复/越 namespace id 必须隔离拒载。

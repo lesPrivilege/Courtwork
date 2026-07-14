@@ -184,6 +184,7 @@ export const PresentationFieldFormatSchema = z.enum([
   'text',
   'mono',
   'number',
+  'estimate',
   'enum',
   'status',
   'grade',

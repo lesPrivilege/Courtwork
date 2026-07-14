@@ -10,6 +10,10 @@ import { PrdReviewSchema } from './prd-review.js';
 import { PriorityScoreSchema } from './priority-score.js';
 
 const SEVERITY_LABELS = { high: '高', mid: '中', low: '低' } as const;
+const ESTIMATE_STATUS_LABELS = {
+  filled: '已填充',
+  out_of_coverage: '未覆盖·需补材料',
+} as const;
 
 /**
  * PM 垂类包的唯一可序列化声明面。ABI-2B 只上架 schema/catalog，
@@ -17,7 +21,7 @@ const SEVERITY_LABELS = { high: '高', mid: '中', low: '低' } as const;
  */
 export const PM_PACKAGE_DESCRIPTOR: VerticalPackageDescriptorV1 = {
   abiVersion: 1,
-  identity: { packageId: 'pm', version: '0.1.0', schemaVersion: 1 },
+  identity: { packageId: 'pm', version: '0.1.1', schemaVersion: 1 },
   artifacts: [
     {
       typeId: 'pm.FeedbackDigest',
@@ -129,15 +133,15 @@ export const PM_PACKAGE_DESCRIPTOR: VerticalPackageDescriptorV1 = {
         fields: [
           { pointer: '/id', label: '编号', format: 'mono' },
           { pointer: '/item', label: '需求', format: 'text' },
-          { pointer: '/params/reach/value', label: 'Reach', format: 'number' },
+          { pointer: '/params/reach', label: 'Reach', format: 'estimate', valueLabels: ESTIMATE_STATUS_LABELS },
           { pointer: '/params/reach/sourceAnchors', label: 'Reach 来源', format: 'anchor' },
-          { pointer: '/params/impact/value', label: 'Impact', format: 'number' },
+          { pointer: '/params/impact', label: 'Impact', format: 'estimate', valueLabels: ESTIMATE_STATUS_LABELS },
           { pointer: '/params/impact/sourceAnchors', label: 'Impact 来源', format: 'anchor' },
-          { pointer: '/params/confidence/value', label: 'Confidence', format: 'number' },
+          { pointer: '/params/confidence', label: 'Confidence', format: 'estimate', valueLabels: ESTIMATE_STATUS_LABELS },
           { pointer: '/params/confidence/sourceAnchors', label: 'Confidence 来源', format: 'anchor' },
-          { pointer: '/params/effort/value', label: 'Effort', format: 'number' },
+          { pointer: '/params/effort', label: 'Effort', format: 'estimate', valueLabels: ESTIMATE_STATUS_LABELS },
           { pointer: '/params/effort/sourceAnchors', label: 'Effort 来源', format: 'anchor' },
-          { pointer: '/score', label: '得分', format: 'mono' },
+          { pointer: '/score', label: '得分', format: 'estimate' },
           { pointer: '/rank', label: '排序建议', format: 'number' },
           {
             pointer: '/band',
