@@ -27,6 +27,9 @@
 - VIEW-ABI-1/1C 已经异会话验收并合流：desktop 生产路由由 descriptor + host blueprint 驱动，通用表严格按 schema/presentation 投影，未知或漂移载荷统一 zero-wire fail closed；
 - TURN-WORK-1 已经异会话验收并合流：Work 模型步骤只经 `TurnRunnerPort`，每次调用先链接 Turn，notice、失败与取消沿统一 Turn 账本回放；
 - WORK-PORT-1 已经异会话验收并合流：App 只消费注入的 Work projection，demo recording/gate/review 全部收口 fixture adapter，非 demo 与跨 session 查询 fail closed；
+- WORK-BROWSER-1 已经异会话验收并合流：Work protocol 与 Node 文件适配器物理分面，`@courtwork/core/work-protocol` 经递归依赖图和真实 Vite consumer 证明 browser-safe，Web Crypto 身份无弱降级；
+- TRACE-UI-1 已经异会话验收并合流：Chat reasoning 与 Work progress 复用同一 `ProcessTrace` 投影/宿主组件，同时保留 Turn 与 Work 两种事实源；通用 ask-user 卡继续只消费 registry 快照与系统锚点；
+- VPKG-META-1 与 PM-PACKAGE-RENAME-1 已经异会话验收并合流：PM 唯一身份为 `packages/pm` / `@courtwork/pm` / `packageId=pm`，Legal/PM 版本与 JSON Schema drift 门同体例，旧目录残留会触红；
 - ADR-011/012 已冻结下一阶段边界：Pi 只作为最小 primitive 参考，不引入第二 agent runtime；Legal/PM 将统一为可扩展垂类包体例，企业 SDK 只进真实垂类 runtime，schema 可视化由宿主版本化 blueprint 与有限原语承担；
 - v0.1.1 Apple Silicon 开发构建已发布：annotated tag `v0.1.1` 指向 `39555d6`，GitHub Release 与 Pages 均已上线；desktop 129、provider 86、root 981、Rust 25、Playwright 208 全绿，远端 DMG 复算 SHA-256 与仓库记录一致。构建为 ad-hoc 且未公证，官网与 Release 明示该边界；
 - demo 全链穿越、发布修实三项（遥测真开关、共享 docx 预检、产物存在后冻结）。
@@ -36,7 +39,7 @@
 - Pages：<https://lesprivilege.github.io/Courtwork/>
 - GitHub Release：<https://github.com/lesPrivilege/Courtwork/releases/tag/v0.1.1>
 - 发布与部署证据：[`release/DEPLOYMENT.md`](../../release/DEPLOYMENT.md)
-- 分支 / worktree：本地、远端与 worktree 当前只保留 `main`；后续临时 `codex/*` 工单仍须在实现与验收提交均确认成为 `main` 祖先、报告收账后删除。
+- 分支 / worktree：`main` 是唯一发布真源；当前实现/验收工单使用临时 `codex/*` 与 clean worktree。只有实现和独立验收提交均成为 `main` 祖先、报告收账后，才删除对应分支与 worktree。
 
 ## 当前架构债
 
@@ -49,15 +52,14 @@
 7. 部分 package SPEC/ACCEPTANCE 是长篇编年记录，后续应按层拆成“现行 SPEC + 历史验收”，但本轮不改其证据内容。
 8. `PriorityScore` 的确定性计算在任一参数 OOC 时返回 `null`，但 v1 payload schema 的 `score` 仍不接受 `null`；在创建任何 PM scenario 前须由 `PM-SCHEMA-1` 以版本化契约收口。
 9. PM package path/name/version 与 metadata/schema drift 门已按 ADR-012 对齐；后续只剩两包 exports/layout 分面，Legal 根出口仍需停止转售 demo fixture。
-10. Chat 与 Work 已复用品牌等待动画，但 reasoning disclosure 与 Work progress 仍是两套 DOM/交互；必须由 TRACE-UI-1 收成同一宿主组件，同时保持 Turn reasoning 与 Work progress 两种真源不混写。
-11. 当前唯一通用生产 blueprint 是 `courtwork.artifact-table.v1`；Legal 仍有未版本化专用 panel。可视化组件样板、权威 PM fixture 与多场景 Pages 泛化证明尚未落地。
+10. 当前唯一通用生产 blueprint 是 `courtwork.artifact-table.v1`；Legal 仍有未版本化专用 panel。视觉母版已建立，但权威 PM fixture、宿主原生 gallery、版本化 blueprint 与多场景 Pages 泛化证明尚未形成闭环。
 
 ## 下一阶段优先序
 
 ADR-009 的 VIEW/TURN 两条前置线已独立验收、进入 main 并清账。代码审计证明不能把
 `WORK-LIVE-1` 直接当接线单：当前缺 browser-safe/durable Work state、真实材料入口与 S3 垂类 binding。
-ADR-010 已把依赖收口，`WORK-PORT-1` 已独立验收清账。现先做 `WORK-BROWSER-1`，把 core Work graph
-收成 WebView 可消费的纯协议出口；之后 `WORK-STORE-1` 与 `CASE-ROOT-1 → MATERIAL-INGRESS-1` 再按
+ADR-010 已把依赖收口，`WORK-PORT-1` 与 `WORK-BROWSER-1` 已独立验收清账。后续 `WORK-STORE-1` 与
+`CASE-ROOT-1 → MATERIAL-INGRESS-1` 按
 文件面错峰，最后 `LEGAL-S3-BINDING-1 → WORK-LIVE-1`。recording 永久只在 fixture/demo mode，不引入
 第二 chat runtime、agent loop 或 PM 空壳流程。
 
@@ -65,11 +67,12 @@ ADR-010 已把依赖收口，`WORK-PORT-1` 已独立验收清账。现先做 `WO
 descriptor 与迁移边界。它可在不触碰 desktop/Work live 的条件下另行派发，但未完成前不得创建 PM scenario。
 SourceAnchor system producer 门随 VIEW conformance kit 持续推进，不由 desktop 特判补洞。
 
-新方向按不冲突文件面并行：`TRACE-UI-1` 已进入实现，`VPKG-META-1` 已独立验收；
-`PM-PACKAGE-RENAME-1` 完成实现并等待独立验收后，再执行 `VPKG-EXPORTS-1/VPKG-LAYOUT-1`。`VISUAL-KIT-1` 先由真实 Legal fixture
-建立第一批原语，PM 场景证明必须等待权威 PM fixture 与 `PM-SCHEMA-1`；`SITE-GEN-1` 最后消费
-已验收真机截图。`HARNESS-KERNEL-1` 只在 `WORK-BROWSER-1` 后收口现有 facade，不改变 ADR-010 的
-Work live 依赖链。
+新方向按不冲突文件面并行：`HARNESS-KERNEL-1` 只收口既有 Turn/interaction facade；
+`VPKG-EXPORTS-1` 收紧两包公开面；`PM-FIXTURE-1` 建立第二垂类可逐字回锚的 catalog 真值。
+三者均不得创建第二 runtime、PM 空壳场景或企业 adapter。随后执行 `VPKG-LAYOUT-1` 与
+`VISUAL-KIT-1`：先以 Legal + PM 真实 fixture 在 desktop 原生 gallery 验证有限原语，再版本化生产
+blueprint。`SITE-GEN-1` 最后消费独立验收后的状态标签与真机截图。PM 的 live 场景仍必须等待
+`PM-SCHEMA-1`，不以 catalog preview 冒充已接通运行链。
 
 正式 macOS 公证、真实材料链/usage ledger 与包内 SPEC 瘦身继续保留，但不插队破坏上述依赖序。
 
