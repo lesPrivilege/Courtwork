@@ -171,3 +171,84 @@ COURTWORK_E2E_PORT=1551 pnpm --filter @courtwork/desktop exec playwright test --
 > **DESLOP-GATE-2 放行 ✅。** `0a73723 + 4fd7cf5 + 7dc3866 + 本验收记录` 允许进入架构合流；旧 `a50c03d` 拒绝项已逐条关闭。
 
 本结论只覆盖精确 anti-slop scanner、Pages 完整 guard、press feedback、popover 锚点动效、reduced-motion 与本工单定义的 token/consumer 边界；不替代 SCHEMA-POLISH 的视觉审计，也不授权新增空壳面板、装饰卡、品牌反色方案或其他未验收契约。
+
+---
+
+## SITE-2B · 已验收主树真机证据刷新独立验收（2026-07-14，纯追加）
+
+- 验收角色：未参与 SITE-2B 实现的独立验收者。
+- 独立 worktree：`/Users/lesprivilege/Projects/Courtwork-accept-site-2b`；分支：`codex/accept-site-2b`。
+- 被验实现：`cb6e8198f0e73bd9b71cca67a1ef58dd43e55151`，父提交为已放行 CHAT-UI `ce09110ddb930f9a4bc91f1cc0b709c6bb604b32`。后续 canonical OG 提交 `1983a6bd540b1d4fd1d9e1802afabb8dc111ddd9` 为 `cb6e819` 直接后继，已在验收分支 fast-forward 后一并验收。
+- 实现范围：`site/index.html`、`site/SPEC.md`、四枚新 WebP；OG 增量另含 `site/assets/og.png` 与 SPEC 一行。验收没有修改下载 CTA、发布状态、站点结构或契约。
+
+### 1. 总结论
+
+> **SITE-2B 放行部署 ✅。** 真机证据刷新与 canonical OG 可以进入 Pages 部署；页面仍必须保持“macOS 制品尚未发布”，本结论不授权创建 Release、恢复下载 CTA 或宣称已有 macOS 制品。
+
+Hero、坐标与确认台账已经改用同一轮已验收主树真机帧；页面仍只有一个完整 `.mac-window`，没有新增 feature card、第二个窗口或营销脚手架。独立验收发现一项实现级资产格式缺陷：`1983a6b` 的 `og.png` 实质为 JPEG。已在不改变解码像素的前提下修复为真实 PNG，提交为 `9c2eb158f176e1e2328873d4dc8598a12296353a`（`fix-by-acceptance: store OG asset as real PNG`）。无契约级问题或 `[需架构拍板]` 项。
+
+### 2. 真机源帧与 WebP 忠实度
+
+派单给出的两枚源文件校验和现场复核一致：
+
+- `accepted-workbench-2026-07-14.png`：`0a4e70a4b4d3402844f291ae488e2457b55c46a8e23cc8471cb9a8bedc24ee8d`；
+- `accepted-confirmed-anchor-2026-07-14.png`：`bbb3f0da2649ca9746e5f7ced7e57c036e010c5e1b1101dc46c0e696cad2b4b2`。
+
+两文件名虽为 `.png`，实际容器均是 1280×720 baseline JPEG；本报告按真实格式记录，不把扩展名冒充编码。四枚站点 WebP 均由 `dwebp` 实际解码成功：1280 档为 1280×720，720 档为 720×405，均为单帧 lossy WebP。与对应源帧解码像素对比：
+
+| 资产 | SHA-256 | 对源 PSNR |
+|---|---|---:|
+| `08-interaction-evidence-1280.webp` | `f44450e7e8aca9aed995474617326b2a899207b813c3ad07ec9dcecb62c841be` | 43.340 dB |
+| `08-interaction-evidence-720.webp` | `4d851386d366c235cd4fbb47a132fbbb185cd1ac547e39260feff49bda489ebe` | 35.460 dB |
+| `09-source-confirmed-1280.webp` | `bece439d672c447d9a9555b2bd91ff92ade8311cd77daeabd82babcc81e0f62f` | 43.602 dB |
+| `09-source-confirmed-720.webp` | `b993035f8a89ec526fd3c2ab6e27473f8ca0dbb582189c946bd7c6a7df55cd7e` | 34.727 dB |
+
+四枚图逐张目视与源帧一致：08 为待选择的通用交互卡与右侧风险/依据工作面，09 为已记录人工确认、完整引语和右侧原件精确高亮；没有 API key、Authorization、Bearer token 或真实客户信息。二进制 strings 敏感模式扫描亦无命中。
+
+### 3. 页面结构、fixture 与叙述真实性
+
+- DOM 静态与浏览器实测均为 `.mac-window = 1`、`.work-row = 3`、`.work-crop = 3`、证据节点 4 个。Hero 使用 09 的确认+原件帧；“坐标”复用 09，“确认”使用同轮 08，未出现第二层窗口或新卡片。
+- Hero figcaption 如实写 `1280 × 720 · 已验收主树`，`width/height` 与文件一致；两档 `srcset` 在 375px 实际选择 720，在 1280px Hero 实际选择 1280。三处新 alt 分别说明人工确认记录、原件高亮、封闭选项/来源锚点，没有写成模型自动裁决。
+- 首页原件句子可逐字追到 `packages/demo-data/data/dossier/04-设备采购合同.md:40` 与 `risk-list.json`；`04-设备采购合同 · 第 1 页` 与现有 S3 reading fixture 的 `第 1 / 2 页` 一致。页面无伪 release、伪 `.dmg`、自动确认或替用户裁决叙述。
+- 现场在真实 `site/index.html` 注入第二个 `.mac-window`，scanner 实际以 `exactly one complete workbench window is allowed` 非零退出；恢复后 `deslop: PASS`。这证明结构门不是只运行绿例。
+
+### 4. canonical OG 反例与修复
+
+`1983a6b` 的 OG 画面为正确 1200×630、无 404 文案，wordmark 左侧是四路径核心 icon，没有旧 navy square/底盘；但独立格式断言实际得到 `format=JPEG` 并以 `expected PNG bytes, got JPEG` 失败。该提交中伪 `.png` 的 SHA-256 为 `bd058c63bbe3b805ddb8a692023ab6dfc4bccf81db4e7554a95650058dc1ae30`。
+
+验收修复只把同一解码像素封装成真实 PNG：新 SHA-256 为 `5ffed8cb6b389f95f7cb22687f0ad5ea82707ca9d5f7380bfec5a5795ad2970f`，Pillow 与 `file` 均识别为 1200×630 RGB PNG，源 JPEG 与新 PNG 解码后的 `ImageChops.difference().getbbox()` 为 `None`。`site:build` 后源/产物 `cmp` 相同，经 HTTP 返回 `Content-Type: image/png` 且可解码；没有引入画面变异。
+
+### 5. 隔离浏览器、键盘与 Pages 子路径
+
+Codex in-app Browser 运行时已按技能说明连接，但 `agent.browsers.list()` 为空；本验收没有冒充 in-app Browser 证据，也未复用共享 Chrome。回退使用仓库锁定的 `@playwright/test` Chromium，并在独立 `127.0.0.1:17724` 自起静态服务，目标 URL 为模拟 GitHub Pages 项目子路径的 `http://127.0.0.1:17724/Courtwork/`。
+
+逐屏滚动触发 lazy-load 后，两档全部图片 `complete && naturalWidth > 0`，所有资源 HTTP 200，无 failed request、console error 或 page error；`documentElement/body.scrollWidth` 均等于 viewport，越界元素为 0。
+
+| 视口 | 全页截图 | 尺寸 | SHA-256 |
+|---|---|---:|---|
+| 375×900 | `/tmp/courtwork-site2b-final-375.png` | 375×7265 | `666520a1deb1cc313c9a7cfec2149660f9371da780bd23e89f03eee919684fae` |
+| 1280×900 | `/tmp/courtwork-site2b-final-1280.png` | 1280×6424 | `38a4373e1925985516c362c948e3a186a962fba1e99bb8b2061902dcec5ff433` |
+
+两张逐张目视：首屏为 09 完整工作台，坐标与确认两枚承重裁片均已加载且可辨；375px 单列、1280px 双栏无横滚、遮挡、空白 lazy 图或截断的核心文字。
+
+键盘从页面顶部 Tab：第一个焦点是可见 skip link（top 16px），随后 wordmark、导航和 CTA；抽验焦点均为 `2px solid` focus-visible。`prefers-reduced-motion: reduce` 下 4 个节点直接 `is-visible`，`scroll-behavior:auto`，step/button transition 为 `0s`，主按钮 transform 为 `none`。关闭 JS 后 h1、4 个证据节点、4 项承诺、未发布说明和全部图片仍完整。
+
+生产 HTML 的 `src/href` 无根绝对路径，CSS、JS、icon 与截图都从 `/Courtwork/` 下相对解析并实测 200；canonical OG URL 为 `https://lesprivilege.github.io/Courtwork/assets/og.png`。因此当前资源路径可部署到 GitHub Pages 项目子路径。
+
+### 6. 发布真值
+
+验收当时只读查询 `gh release list --repo lesPrivilege/Courtwork` 无条目；GitHub API releases 长度为 0，`releases/latest` 为 HTTP 404。首页在 Hero 与 closing 两处明确写“macOS 制品尚未发布”，只有 GitHub 源码 CTA，无 release tag、`.dmg` URL 或制品 SHA。SITE-2B 可以部署页面，但不能据此宣称 macOS 已发布。
+
+### 7. 最终机器门与提交卫生
+
+- `pnpm install --frozen-lockfile`：13 个 workspace project、1047 个包，lockfile 无改写。
+- `pnpm site:guard`：exit 0；scanner fixture **12/12**，`deslop: PASS (585 active text files)`，desktop neutral/elevation/signature/motion 四门通过。
+- `pnpm site:build`：exit 0；`site-dist/assets/og.png` 与源文件逐字节一致。
+- `pnpm lint`：exit 0。
+- `pnpm -r build`：exit 0；scope **12/13 workspace projects**，desktop Vite **3504 modules**；只有既有 dynamic-import/chunk-size warning。
+- `pnpm test`：新 worktree 在尚无 workspace dist 时首跑有 46 个 suite 收集失败，原因均为内部包入口未构建；当时已运行 **585/585** 无行为失败。完成全仓 build 后原命令复跑：**114 files、981/981**，exit 0。环境性首跑不冒充通过，也不列为 SITE-2B 产品缺陷。
+- `git diff --check`：通过。验收修复提交只暂存 `site/assets/og.png`；没有触碰 CTA、HTML、CSS、JS、四枚 WebP 或跨层契约。
+
+### 8. 放行边界
+
+本轮只放行 SITE-2B 的真机证据刷新、canonical OG 与当前未发布状态下的 Pages 站点部署。后续若创建真实 Release，必须在真实制品、校验和与下载目标成立后另行更新 CTA，并重新执行发布态 claim guard 与线上 URL 复核；不得沿用本报告把未发布页面直接改写为已发布。
