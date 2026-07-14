@@ -21,6 +21,14 @@
 查询被拒；定向测试用 injected fake projection 证明 App 不依赖模块 singleton。完整 desktop Vitest、全仓门与
 隔离端口 Playwright 全绿。实现与验收异会话。
 
+实现留痕（2026-07-14，待独立验收）：
+
+- `protocol/client.ts` 删除混合的 `SessionEventClient`，按 ADR-010 落 `WorkSessionRef`、model route、start/resume/cancel command、六态 projection phase、command outcome，以及通用 `WorkProjectionPort` / 只声明不装配的 `WorkCommandPort`。React 不构造 `ScenarioRunInput`、tool input、provider、actor 或 schema。
+- `main.tsx` 成为 demo Work 的唯一 composition root：显式创建 `createDemoWorkFixture()`，分别注入 projection 与 fixture adapter；`App.tsx` 删除模块顶层 singleton、`demo/client` 与 recordings import，只经注入的 `WorkProjectionPort` 查询并机械发布 `SessionEvent`。
+- paced replay、固定 `demo-s1` / `demo-s3` recording、`GATES`、fixture artifact、review/continuation 与 telemetry 空 sink 全部收口 `demo/client.ts`。所有入口先校验 `{caseId:'demo-linjiang', sessionId}`；非 demo case、未知 session、跨 session request/telemetry 均 fail closed，未知 gate 不再回落空门禁。
+- `replayWorkProjection` 以 injected fake projection 定向证明 UI orchestration 不依赖 singleton；`assert-work-port-contracts` 锁 App 零 recording/client 构造、main 唯一装配、legacy interface 退役、两枚通用 port 存在及 UI 零 executor input，并进入完整 E2E 前置门。
+- 红灯基线：新静态门在旧实现上稳定报 **8 项 violations**；新定向 suite 因 `work-replay` / fixture port 缺席整组失败。实现侧转绿：定向 **3/3**，desktop Vitest **35 files / 145 tests**，root Vitest **120 files / 1078 tests**，13 workspace build 与 ESLint 全绿；`COURTWORK_E2E_PORT=1603`、`reuseExistingServer=false` 完整前置门与 Playwright **208/208 passed（4 workers，1.5m）**。既有样板案 pace、自动开面、gate、review、continue 与视觉断言未改。
+
 ### VIEW-ABI-1 · Host renderer 与 zero-wire fallback
 
 权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。desktop composition root 同次准入

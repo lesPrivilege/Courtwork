@@ -53,9 +53,9 @@ export const CASE_SCOPE_AUDIT = [
     note: '仅标识样板案容器，不注入非 demo 会话',
   },
   {
-    symbol: 'DEMO_ARTIFACTS fallback in render',
+    symbol: 'main-injected fixture artifact fallback',
     kind: '死路由' as const,
-    note: '已改为仅 isDemo 时回落；非 demo 禁止 demo 语料',
+    note: 'App 仅持有效 demo case/session ref 时查询 fixture artifact；非 demo 零调用',
   },
   {
     symbol: 'flow / session / dispositions',
@@ -93,9 +93,9 @@ export const CASE_SCOPE_AUDIT = [
     note: '本机凭证，非案件域',
   },
   {
-    symbol: 'createDemoClient module singleton',
+    symbol: 'main composition → createDemoWorkFixture',
     kind: '合法全局' as const,
-    note: '协议客户端；replay 仅 demo 容器调用',
+    note: '显式注入 projection/fixture adapter；App 无模块 singleton，非 demo 不查询 fixture',
   },
   {
     symbol: 'Composer DEMO_CASE_OPTIONS / case chip',

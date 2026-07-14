@@ -7,6 +7,7 @@ import { installProviderConnectionTestHooks } from './provider/connection-client
 import { installChatTestHooks } from './provider/chat-client';
 import { createTauriProviderTransport, isTauriHostRuntime } from './host/tauri-provider-transport';
 import { createDesktopPackageRuntime } from './composition/package-runtime';
+import { createDemoWorkFixture } from './demo/client';
 import './styles.css';
 
 // Playwright 三态探针注入点（非 demo 装配）
@@ -16,6 +17,7 @@ if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') installCh
 
 const providerTransport = isTauriHostRuntime() ? createTauriProviderTransport() : undefined;
 const packageRuntime = createDesktopPackageRuntime();
+const demoWorkFixture = createDemoWorkFixture();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -24,6 +26,8 @@ createRoot(document.getElementById('root')!).render(
         providerTransport={providerTransport}
         packageRegistries={packageRuntime.packageRegistries}
         hostRenderers={packageRuntime.hostRenderers}
+        workProjection={demoWorkFixture.projection}
+        workFixture={demoWorkFixture}
       />
     </LucideProvider>
   </StrictMode>,

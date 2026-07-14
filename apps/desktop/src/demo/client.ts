@@ -1,5 +1,17 @@
-import type { ReviewGateProjection, ReviewTelemetryEvent, ScenarioFlow, SessionEventClient } from '../protocol/client';
-import { S1_RECORDING, S3_RECORDING } from './recordings';
+import type { SessionEvent } from '@courtwork/core';
+import { DEMO_CASE_ID } from '../case/case-scope.js';
+import type { DemoWorkFixtureAdapter } from '../protocol/demo-fixture.js';
+import type {
+  ReviewGateProjection,
+  ScenarioFlow,
+  WorkProjectionPhase,
+  WorkProjectionPort,
+  WorkSessionRef,
+} from '../protocol/client.js';
+import { DEMO_ARTIFACTS, S1_RECORDING, S3_RECORDING } from './recordings.js';
+
+export const DEMO_S1_SESSION_ID = 'demo-s1';
+export const DEMO_S3_SESSION_ID = 'demo-s3';
 
 const GATES: Record<string, ReviewGateProjection> = {
   'demo-s3-risk-gate': {
@@ -16,37 +28,116 @@ const GATES: Record<string, ReviewGateProjection> = {
   'demo-s1-timeline-gate': { requestId: 'demo-s1-timeline-gate', items: [] },
 };
 
-/**
- * 演示装配点：只回放已经录制的 core 事件并实现确认/续行接口的本地替身。
- * 生产接入时替换此对象，组件与事件投影无需改动。
- */
-export function createDemoClient(): SessionEventClient {
-  return {
-    async replay(flow, publish, options) {
-      const recording = flow === 'S1' ? S1_RECORDING : S3_RECORDING;
-      for (const event of recording) {
+const SESSION_RECORDINGS: Record<string, SessionEvent[]> = {
+  [DEMO_S1_SESSION_ID]: S1_RECORDING,
+  [DEMO_S3_SESSION_ID]: S3_RECORDING,
+};
+
+const SESSION_FOR_FLOW: Record<ScenarioFlow, string> = {
+  S1: DEMO_S1_SESSION_ID,
+  S3: DEMO_S3_SESSION_ID,
+};
+
+function assertDemoRef(ref: WorkSessionRef): SessionEvent[] {
+  const recording = SESSION_RECORDINGS[ref.sessionId];
+  if (ref.caseId !== DEMO_CASE_ID || !recording) {
+    throw new Error('Demo fixture rejects non-demo case/session refs');
+  }
+  return recording;
+}
+
+function phaseFor(events: SessionEvent[]): WorkProjectionPhase {
+  if (events.some((event) => event.type === 'scenario_completed')) return 'completed';
+  if (events.some((event) => event.type === 'step_failed')) return 'failed';
+  if (events.some((event) => event.type === 'confirmation_requested')) return 'paused';
+  return 'running';
+}
+
+function expectedRequestSession(requestId: string): string | undefined {
+  if (requestId === 'demo-s3-risk-gate') return DEMO_S3_SESSION_ID;
+  if (requestId === 'demo-s1-timeline-gate') return DEMO_S1_SESSION_ID;
+  return undefined;
+}
+
+function assertDemoRequest(ref: WorkSessionRef, requestId: string): ReviewGateProjection {
+  assertDemoRef(ref);
+  const gate = GATES[requestId];
+  if (!gate || expectedRequestSession(requestId) !== ref.sessionId) {
+    throw new Error('Demo fixture rejects unknown or cross-session review requests');
+  }
+  return gate;
+}
+
+export interface DemoWorkFixture extends DemoWorkFixtureAdapter {
+  projection: WorkProjectionPort;
+}
+
+/** Explicit demo-only composition. No production command implementation lives here. */
+export function createDemoWorkFixture(options: { replayDelayMs?: number } = {}): DemoWorkFixture {
+  const replayDelayMs = options.replayDelayMs ?? 180;
+  const projection: WorkProjectionPort = {
+    async replay(query) {
+      const recording = assertDemoRef(query);
+      const events = recording.filter((event) => event.seq > (query.afterSeq ?? 0));
+      return {
+        ref: { caseId: query.caseId, sessionId: query.sessionId },
+        phase: phaseFor(recording),
+        events,
+      };
+    },
+  };
+
+  const adapter: DemoWorkFixtureAdapter = {
+    sessionRefFor(caseId, flow) {
+      const ref = { caseId, sessionId: SESSION_FOR_FLOW[flow] };
+      assertDemoRef(ref);
+      return ref;
+    },
+    async presentReplay(events, publish) {
+      for (const event of events) {
         publish(event);
-        if (options?.paced) await new Promise((resolve) => window.setTimeout(resolve, 180));
+        if (replayDelayMs > 0) {
+          await new Promise<void>((resolve) => globalThis.setTimeout(resolve, replayDelayMs));
+        }
       }
     },
-    confirmation: {
-      async getGateProjection(requestId) {
-        return GATES[requestId] ?? { requestId, items: [] };
+    review: {
+      async getGateProjection(query) {
+        return assertDemoRequest(query, query.requestId);
       },
-      async resolve() {
-        return Promise.resolve();
+      async resolve(input) {
+        assertDemoRequest(input, input.requestId);
       },
     },
     continuation: {
-      async continueSession() {
-        return Promise.resolve();
+      async continueSession(ref) {
+        assertDemoRef(ref);
       },
     },
-    emitReviewTelemetry(event: ReviewTelemetryEvent) {
-      // W6.1 尚未落地：保留三个已拍板事件名的发射点，当前明确为空实现。
-      void event;
+    telemetry: {
+      emit(ref, event) {
+        assertDemoRef(ref);
+        if (event.sessionId !== ref.sessionId) {
+          throw new Error('Demo fixture rejects cross-session telemetry');
+        }
+        // W6.1 尚未落地：门后 sink 明确为空；事件不得越出 fixture composition。
+        void event;
+      },
+    },
+    artifactFor(ref, artifactType) {
+      assertDemoRef(ref);
+      const artifacts: Record<string, unknown> = {
+        'legal.CaseFile': DEMO_ARTIFACTS.caseFile,
+        'legal.PartyGraph': DEMO_ARTIFACTS.partyGraph,
+        'legal.ReviewMatrix': DEMO_ARTIFACTS.reviewMatrix,
+        'legal.RiskList': DEMO_ARTIFACTS.riskList,
+        'legal.Timeline': DEMO_ARTIFACTS.timeline,
+      };
+      return artifacts[artifactType];
     },
   };
+
+  return { projection, ...adapter };
 }
 
 export function recordingFor(flow: ScenarioFlow) {
