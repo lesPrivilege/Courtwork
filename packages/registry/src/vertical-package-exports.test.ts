@@ -25,11 +25,16 @@ function packageMetadata(packageRoot: string): PackageMetadata {
 }
 
 function sourceEntry(packageRoot: string, exportName: string): string {
-  const target = packageMetadata(packageRoot).exports[exportName]?.default;
-  if (typeof target !== 'string' || !target.startsWith('./dist/') || !target.endsWith('.js')) {
+  const target = packageMetadata(packageRoot).exports[exportName];
+  const runtimeTarget = target?.default;
+  if (typeof runtimeTarget !== 'string' || !runtimeTarget.startsWith('./dist/') || !runtimeTarget.endsWith('.js')) {
     throw new Error(`${relative(REPO_ROOT, packageRoot)} 缺少可审计的 ${exportName} ESM 出口`);
   }
-  const source = join(packageRoot, 'src', target.slice('./dist/'.length).replace(/\.js$/, '.ts'));
+  const expectedTypesTarget = runtimeTarget.replace(/\.js$/, '.d.ts');
+  if (target.types !== expectedTypesTarget) {
+    throw new Error(`${relative(REPO_ROOT, packageRoot)} 的 ${exportName} types 出口与 ESM 出口漂移`);
+  }
+  const source = join(packageRoot, 'src', runtimeTarget.slice('./dist/'.length).replace(/\.js$/, '.ts'));
   if (!existsSync(source)) throw new Error(`${exportName} 出口没有源码入口 ${relative(REPO_ROOT, source)}`);
   return source;
 }
@@ -115,10 +120,21 @@ function testingConsumerViolations(records: readonly SourceRecord[]): string[] {
 
 describe('VPKG-EXPORTS-1 垂类包出口与递归依赖图', () => {
   it('Legal 明确提供 root/package/schemas/testing；PM 只提供 browser-safe root/package/schemas', () => {
-    expect(Object.keys(packageMetadata(LEGAL_ROOT).exports)).toEqual(['.', './package', './schemas', './testing']);
-    expect(Object.keys(packageMetadata(PM_ROOT).exports)).toEqual(['.', './package', './schemas']);
+    expect(packageMetadata(LEGAL_ROOT).exports).toEqual({
+      '.': { types: './dist/index.d.ts', default: './dist/index.js' },
+      './package': { types: './dist/manifest.d.ts', default: './dist/manifest.js' },
+      './schemas': { types: './dist/schemas/index.d.ts', default: './dist/schemas/index.js' },
+      './testing': { types: './dist/testing/index.d.ts', default: './dist/testing/index.js' },
+    });
+    expect(packageMetadata(PM_ROOT).exports).toEqual({
+      '.': { types: './dist/index.d.ts', default: './dist/index.js' },
+      './package': { types: './dist/manifest.d.ts', default: './dist/manifest.js' },
+      './schemas': { types: './dist/schemas.d.ts', default: './dist/schemas.js' },
+    });
     expect(existsSync(join(PM_ROOT, 'src', 'testing'))).toBe(false);
     expect(existsSync(join(PM_ROOT, 'src', 'runtime'))).toBe(false);
+    expect(existsSync(join(PM_ROOT, 'src', 'scenarios'))).toBe(false);
+    expect(existsSync(join(PM_ROOT, 'src', 'interactions'))).toBe(false);
   });
 
   it('Legal root/package/schemas 递归图 browser-safe 且 root 不可达 fixture；testing 独占三份 fixture', () => {
@@ -127,10 +143,20 @@ describe('VPKG-EXPORTS-1 垂类包出口与递归依赖图', () => {
     const schemasGraph = collectImportGraph(sourceEntry(LEGAL_ROOT, './schemas'));
     const testingGraph = collectImportGraph(sourceEntry(LEGAL_ROOT, './testing'));
     const fixtureMarkers = ['S3_RISK_LIST_RESPONSE', 'S3_RISK_LIST_DRAFT', 'S3_PDF_DOSSIER_DRAFT'];
+    const fixtureFiles = [
+      's3-risk-list-response.ts',
+      's3-risk-list-draft.ts',
+      's3-pdf-dossier-draft.ts',
+    ];
 
     expect(browserUnsafeImports([...rootGraph, ...packageGraph, ...schemasGraph])).toEqual([]);
     expect(rootGraph.some((record) => record.path.includes('/testing/'))).toBe(false);
     expect(rootGraph.flatMap((record) => fixtureMarkers.filter((marker) => record.content.includes(marker)))).toEqual([]);
+    expect(existsSync(join(LEGAL_ROOT, 'src', 'demo'))).toBe(false);
+    expect(collectCodeFiles(join(LEGAL_ROOT, 'src'))
+      .filter((file) => fixtureFiles.includes(file.slice(file.lastIndexOf('/') + 1)))
+      .map((file) => relative(REPO_ROOT, file)).sort()).toEqual(fixtureFiles
+      .map((file) => `packages/legal/src/testing/${file}`).sort());
     expect(testingGraph.filter((record) => /packages\/legal\/src\/testing\/s3-/.test(record.path))).toHaveLength(3);
     for (const marker of fixtureMarkers) {
       expect(testingGraph.some((record) => record.content.includes(`export const ${marker}`))).toBe(true);
