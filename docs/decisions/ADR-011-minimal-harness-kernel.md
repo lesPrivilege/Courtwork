@@ -2,6 +2,7 @@
 
 - 状态：Accepted
 - 日期：2026-07-14
+- 来源：`1fdd7c8`
 - 关系：细化 ADR-007、ADR-009 与 ADR-010；不替代 Turn、Work 或 Package ABI
 
 ## 背景
