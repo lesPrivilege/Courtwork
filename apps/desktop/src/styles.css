@@ -976,6 +976,21 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .dense-row.selected { background: var(--bg-selected); }
 .dense-row > span:not(.signature-line), .dense-row > time, .table-head > span { min-width: 0; padding: 5px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* VIEW-ABI-1：通用 artifact 只复用 L1 内既有 ledger/table 分割线，不新增长卡外壳。 */
+.artifact-table-view { width: 100%; height: 100%; min-width: 0; display: flex; flex-direction: column; background: var(--bg-raised); }
+.artifact-table-view > h3 { min-height: 32px; margin: 0; padding: 6px 10px; border-bottom: 1px solid var(--border); background: var(--bg-surface); font-size: var(--type-dense-body-size); font-weight: 510; }
+.artifact-table-scroll { min-width: 0; min-height: 0; flex: 1; overflow: auto; }
+.artifact-table { min-width: 100%; border-collapse: collapse; background: var(--bg-raised); font-size: var(--type-dense-meta-size); line-height: var(--type-dense-line-height); }
+.artifact-table th, .artifact-table td { min-width: 96px; padding: 6px 8px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); vertical-align: top; text-align: left; }
+.artifact-table th { position: sticky; z-index: 1; top: 0; background: var(--bg-surface); color: var(--text-tertiary); font-weight: 510; white-space: nowrap; }
+.artifact-table-mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.artifact-anchor-summary { min-width: 170px; display: grid; gap: 3px; color: var(--text-secondary); }
+.artifact-anchor-summary > span { color: var(--text-tertiary); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.artifact-anchor-summary q { color: var(--text-primary); white-space: normal; overflow-wrap: anywhere; }
+.artifact-incompatible { margin: 24px 16px; padding: 24px 18px; border: 0; background: transparent; text-align: center; }
+.artifact-incompatible h3 { margin: 0 0 6px; font-size: var(--type-dense-body-size); font-weight: 510; }
+.artifact-incompatible p { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-body-size); }
+
 .timeline-layout { min-height: 100%; margin-left: var(--preview-semantic-gutter); background: var(--bg-surface); }
 .timeline-grid { display: grid; grid-template-columns: 98px 48px minmax(260px, 1fr) 64px; }
 .timeline-grid time { padding-left: 12px; color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; }

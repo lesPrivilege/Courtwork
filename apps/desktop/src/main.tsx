@@ -6,6 +6,7 @@ import { installCredentialTestHooks } from './credentials/client';
 import { installProviderConnectionTestHooks } from './provider/connection-client';
 import { installChatTestHooks } from './provider/chat-client';
 import { createTauriProviderTransport, isTauriHostRuntime } from './host/tauri-provider-transport';
+import { createDesktopPackageRuntime } from './composition/package-runtime';
 import './styles.css';
 
 // Playwright 三态探针注入点（非 demo 装配）
@@ -14,11 +15,16 @@ installProviderConnectionTestHooks();
 if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') installChatTestHooks();
 
 const providerTransport = isTauriHostRuntime() ? createTauriProviderTransport() : undefined;
+const packageRuntime = createDesktopPackageRuntime();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <LucideProvider strokeWidth={1.35}>
-      <App providerTransport={providerTransport} />
+      <App
+        providerTransport={providerTransport}
+        packageRegistries={packageRuntime.packageRegistries}
+        hostRenderers={packageRuntime.hostRenderers}
+      />
     </LucideProvider>
   </StrictMode>,
 );

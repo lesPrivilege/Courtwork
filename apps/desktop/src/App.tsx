@@ -23,6 +23,7 @@ import {
 import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
 import type { ProviderTransport } from '@courtwork/provider/types';
+import type { PackageRegistries } from '@courtwork/registry';
 import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, CONTAINERIZE_COPY, type ComposerSendPayload, type ContainerizeRequest } from './composer';
 import {
@@ -43,7 +44,7 @@ import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
 import {
-  applyArtifactAutoExpand,
+  applyModuleAutoExpand,
   DEFAULT_MODULE_OPEN,
   progressHeadCount,
   toggleModuleManual,
@@ -52,9 +53,9 @@ import {
   type UserModuleOverride,
 } from './modules/module-stack';
 import { ContextModuleBody, WorkingFoldersTree } from './modules/ModuleStack';
-import { GenericStructurePanel } from './workbench/GenericStructurePanel';
-import { HOMED_ARTIFACT_TYPES, unhomedArtifacts } from './workbench/generic-structure';
 import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRenderer';
+import { ArtifactHostView, resolveHostArtifact } from './preview/ArtifactHostView';
+import type { HostRendererRegistry } from './preview/HostRendererRegistry';
 import {
   loadModelConfig,
   modelDisplayName,
@@ -102,7 +103,7 @@ import { compileConfirmedReviewToDocx } from './output/compile-review-output';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
-type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft' | 'generic';
+type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft' | 'artifact';
 
 interface ReaderDocument {
   name: string;
@@ -137,24 +138,32 @@ const VIEW_LABELS: Record<WorkbenchView, string> = {
   matrix: '矩阵审阅',
   revision: '修订预览',
   draft: '起草画布',
-  generic: '结构视图',
+  artifact: '结构化产出',
 };
 
 const VIEWS = Object.keys(VIEW_LABELS) as WorkbenchView[];
-/** 渲染兜底③：结构视图 tab 仅在存在无归宿 artifact 时出现——既有五面零扰动，永不白屏。 */
-function visibleViews(hasUnhomed: boolean): WorkbenchView[] {
-  return hasUnhomed ? VIEWS : VIEWS.filter((view) => view !== 'generic');
+function visibleViews(hasArtifactView: boolean): WorkbenchView[] {
+  return hasArtifactView ? VIEWS : VIEWS.filter((view) => view !== 'artifact');
 }
 
-function previewViewForArtifact(artifactType: string): WorkbenchView | undefined {
-  if (artifactType === 'legal.Timeline') return 'timeline';
-  if (artifactType === 'legal.PartyGraph') return 'graph';
-  if (artifactType === 'legal.ReviewMatrix') return 'matrix';
-  if (artifactType === 'legal.RiskList') return 'revision';
-  // 渲染兜底③：无归宿类型自动落通用结构视图（有 schema 无 renderer 永不白屏）；
-  // 有归宿但无独立预览面的类型（CaseFile/FileOpsPlan）保持原语义不动。
-  if (!HOMED_ARTIFACT_TYPES.has(artifactType)) return 'generic';
-  return undefined;
+function previewViewForArtifact(
+  artifactType: string,
+  packageRegistries: PackageRegistries,
+  hostRenderers: HostRendererRegistry,
+): WorkbenchView | undefined {
+  const resolved = resolveHostArtifact(artifactType, packageRegistries, hostRenderers);
+  if (resolved.status === 'unsupported') return 'artifact';
+  if (resolved.renderer.kind === 'passive' || !resolved.renderer.autoOpen) return undefined;
+  return resolved.renderer.view;
+}
+
+function moduleTargetForArtifact(
+  artifactType: string,
+  packageRegistries: PackageRegistries,
+  hostRenderers: HostRendererRegistry,
+): ModuleId | undefined {
+  const resolved = resolveHostArtifact(artifactType, packageRegistries, hostRenderers);
+  return resolved.status === 'ready' ? resolved.renderer.moduleTarget : undefined;
 }
 
 function readableError(error: unknown, fallback: string): string {
@@ -268,14 +277,17 @@ function useNarrowRailRequired() {
 
 export interface AppProps {
   providerTransport?: ProviderTransport;
+  packageRegistries: PackageRegistries;
+  hostRenderers: HostRendererRegistry;
 }
 
-export function App({ providerTransport }: AppProps = {}) {
+export function App({ providerTransport, packageRegistries, hostRenderers }: AppProps) {
   const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
   const [session, dispatch] = useReducer(reduceSession, EMPTY_SESSION);
   const [activeView, setActiveView] = useState<WorkbenchView>('revision');
+  const [activeArtifactType, setActiveArtifactType] = useState<string>();
   const [secondaryView, setSecondaryView] = useState<WorkbenchView>();
   const [splitDirection, setSplitDirection] = useState<SplitDirection>('rows');
   const [splitRatio, setSplitRatio] = useState(50);
@@ -631,6 +643,7 @@ export function App({ providerTransport }: AppProps = {}) {
     setSelectedRiskId('risk-03');
     setSecondaryView(undefined);
     setActiveView('revision');
+    setActiveArtifactType(undefined);
     resolvedRequest.current = undefined;
     openedAt.current = {};
     lastReplayedFlow.current = undefined;
@@ -659,13 +672,14 @@ export function App({ providerTransport }: AppProps = {}) {
       dispatch(event);
       if (event.type !== 'artifact_produced') return;
       setArtifactRevision((revision) => revision + 1);
-      const targetView = previewViewForArtifact(event.artifactType);
+      const targetView = previewViewForArtifact(event.artifactType, packageRegistries, hostRenderers);
       if (!targetView || previewOpenedForReplay || previewDismissedContext.current === context || manualPreviewSelected.current) return;
       previewOpenedForReplay = true;
+      if (targetView === 'artifact') setActiveArtifactType(event.artifactType);
       setActiveView(targetView);
       setPreviewOpen(true);
     }, { paced: true });
-  }, [flow, replayEpoch, selectedCaseId]);
+  }, [flow, replayEpoch, selectedCaseId, packageRegistries, hostRenderers]);
 
   // docs/decisions/ADR-006-ui-host.md 三章：artifact_produced 自动展开对应模块；用户手动优先
   useEffect(() => {
@@ -676,19 +690,23 @@ export function App({ providerTransport }: AppProps = {}) {
     setModuleOpen((prev) => {
       let next = prev;
       for (const artifactType of Object.keys(session.artifacts)) {
-        next = applyArtifactAutoExpand(next, userModuleOverride, artifactType);
+        const target = moduleTargetForArtifact(artifactType, packageRegistries, hostRenderers);
+        next = applyModuleAutoExpand(next, userModuleOverride, target);
       }
       return next;
     });
-  }, [session.artifacts, userModuleOverride]);
+  }, [session.artifacts, userModuleOverride, packageRegistries, hostRenderers]);
 
   // 样板案首屏：无 session artifact 键时仍按当前场景预展开（demo 回落语料）
   useEffect(() => {
     if (!isDemoCaseId(selectedCaseId) || !flow) return;
     if (Object.keys(session.artifacts).length > 0) return;
-    const seed = flow === 'S1' ? 'legal.Timeline' : 'legal.RiskList';
-    setModuleOpen((prev) => applyArtifactAutoExpand(prev, userModuleOverride, seed));
-  }, [selectedCaseId, flow, session.artifacts, userModuleOverride]);
+    const scenario = packageRegistries.scenarios.get(`legal.${flow}`);
+    const target = scenario?.outputArtifacts
+      .map((artifactType) => moduleTargetForArtifact(artifactType, packageRegistries, hostRenderers))
+      .find((moduleId) => moduleId !== undefined);
+    setModuleOpen((prev) => applyModuleAutoExpand(prev, userModuleOverride, target));
+  }, [selectedCaseId, flow, session.artifacts, userModuleOverride, packageRegistries, hostRenderers]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -768,8 +786,13 @@ export function App({ providerTransport }: AppProps = {}) {
       ? (session.artifacts['legal.ReviewMatrix'] ?? DEMO_ARTIFACTS.reviewMatrix)
       : session.artifacts['legal.ReviewMatrix']
   ) as ReviewMatrix | undefined;
-  // 渲染兜底③：无归宿 artifact 在场时结构视图 tab 出现（缺席时既有五面零扰动）。
-  const hasUnhomedArtifacts = unhomedArtifacts(session.artifacts).length > 0;
+  const artifactViewEntries = Object.entries(session.artifacts).filter(([artifactType]) => {
+    const resolved = resolveHostArtifact(artifactType, packageRegistries, hostRenderers);
+    return resolved.status === 'unsupported' || resolved.renderer.kind === 'component';
+  });
+  const artifactViewEntry = artifactViewEntries.find(([artifactType]) => artifactType === activeArtifactType)
+    ?? artifactViewEntries.at(-1);
+  const hasArtifactView = artifactViewEntry !== undefined;
   // LEGAL-DEMO-RUN ③：chat 侧 artifact 卡取数改为投影派生——事件里是多少就呈现多少，
   // 硬编码计数退役；citationStats 仅事件携带（无 demo 兜底，观测字段不冒充）。
   const demoArtifactCard =
@@ -1230,10 +1253,16 @@ export function App({ providerTransport }: AppProps = {}) {
         />
       );
     }
-    if (view === 'generic') {
-      const entries = unhomedArtifacts(session.artifacts);
-      if (!entries.length) return emptyWorkbench('暂无待展示的结构化产出');
-      return <GenericStructurePanel entries={entries} />;
+    if (view === 'artifact') {
+      if (!artifactViewEntry) return emptyWorkbench('暂无待展示的结构化产出');
+      return (
+        <ArtifactHostView
+          artifactType={artifactViewEntry[0]}
+          payload={artifactViewEntry[1]}
+          packageRegistries={packageRegistries}
+          hostRenderers={hostRenderers}
+        />
+      );
     }
     if (!riskList || !selectedRisk) return emptyWorkbench('修订预览尚未生成');
     return <RevisionPanel
@@ -1258,7 +1287,7 @@ export function App({ providerTransport }: AppProps = {}) {
   const pane = (view: WorkbenchView, secondary = false) => <section className="workbench-pane" data-pane={secondary ? 'secondary' : 'primary'}>
     <header className="pane-head">
       {secondary
-        ? <label><span>Compare</span><select aria-label="Comparison view" value={view} onChange={(event) => setSecondaryView(event.target.value as WorkbenchView)}>{visibleViews(hasUnhomedArtifacts).map((candidate) => <option value={candidate} key={candidate}>{VIEW_LABELS[candidate]}</option>)}</select></label>
+        ? <label><span>Compare</span><select aria-label="Comparison view" value={view} onChange={(event) => setSecondaryView(event.target.value as WorkbenchView)}>{visibleViews(hasArtifactView).map((candidate) => <option value={candidate} key={candidate}>{VIEW_LABELS[candidate]}</option>)}</select></label>
         : <><strong>{VIEW_LABELS[view]}</strong><span>Primary view</span></>}
     </header>
     <div className="pane-content">{renderView(view)}</div>
@@ -1721,7 +1750,7 @@ export function App({ providerTransport }: AppProps = {}) {
               Preview 双态——大纲目录 ↔ 浏览器态（右列唯一,title/tab 条/schema 面三层封闭,back 回目录） */}
           {!previewOpen && <RightRailModules
             modules={utilityItems}
-            outline={visibleViews(hasUnhomedArtifacts).map((view) => ({ id: view, label: VIEW_LABELS[view], meta: viewCount(view, draftFrozen, isDemoCase) }))}
+            outline={visibleViews(hasArtifactView).map((view) => ({ id: view, label: VIEW_LABELS[view], meta: viewCount(view, draftFrozen, isDemoCase, hasArtifactView) }))}
             previewOpenState={outlineOpen}
             onPreviewToggle={() => setOutlineOpen((open) => !open)}
             onOpenOutline={(viewId) => {
@@ -1740,8 +1769,8 @@ export function App({ providerTransport }: AppProps = {}) {
           {previewOpen && <WorkbenchPreviewRenderer
             onBack={() => { previewDismissedContext.current = `${selectedCaseId}:${flow ?? 'none'}`; setPreviewOpen(false); setReaderDoc(null); }}
             title={readerDoc ? readerDoc.name : comparing ? '工作面对照' : VIEW_LABELS[activeView]}
-            meta={readerDoc ? '原件 · 只读' : comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase)}
-            tabs={visibleViews(hasUnhomedArtifacts).map((view) => ({ id: view, label: VIEW_LABELS[view] }))}
+            meta={readerDoc ? '原件 · 只读' : comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase, hasArtifactView)}
+            tabs={visibleViews(hasArtifactView).map((view) => ({ id: view, label: VIEW_LABELS[view] }))}
             activeTab={readerDoc ? '' : activeView}
             onSelectTab={(id) => {
               const view = id as WorkbenchView;
@@ -1879,7 +1908,8 @@ export function App({ providerTransport }: AppProps = {}) {
   );
 }
 
-function viewCount(view: WorkbenchView, draftFrozen: boolean, isDemo: boolean) {
+function viewCount(view: WorkbenchView, draftFrozen: boolean, isDemo: boolean, hasArtifactView: boolean) {
+  if (view === 'artifact') return hasArtifactView ? '已生成' : '尚无';
   if (!isDemo) return '尚无';
   if (view === 'timeline') return '47 件';
   if (view === 'graph') return '14 · 15';

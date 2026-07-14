@@ -35,7 +35,9 @@ describe('CHAT-UI-1 static boundaries', () => {
 
   it('desktop composition root 只在 Tauri runtime 注入 provider transport', () => {
     expect(main).toContain('isTauriHostRuntime() ? createTauriProviderTransport() : undefined');
-    expect(main).toContain('<App providerTransport={providerTransport} />');
+    expect(main).toContain('providerTransport={providerTransport}');
+    expect(main).toContain('packageRegistries={packageRuntime.packageRegistries}');
+    expect(main).toContain('hostRenderers={packageRuntime.hostRenderers}');
     expect(app).toContain('providerTransport?: ProviderTransport');
     expect(app).toContain('transport: providerTransport');
   });

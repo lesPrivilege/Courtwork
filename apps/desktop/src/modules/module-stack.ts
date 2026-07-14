@@ -27,15 +27,6 @@ export const DEFAULT_MODULE_OPEN: ModuleOpenMap = {
   draft: false,
 };
 
-/** artifact schema → 应自动展开的模块 */
-export const ARTIFACT_TO_MODULE: Record<string, ModuleId> = {
-  'legal.RiskList': 'revision',
-  'legal.Timeline': 'timeline',
-  'legal.PartyGraph': 'graph',
-  'legal.ReviewMatrix': 'matrix',
-  'legal.FileOpsPlan': 'working-folders',
-};
-
 export type UserModuleOverride = Partial<Record<ModuleId, boolean>>;
 
 /**
@@ -54,14 +45,14 @@ export function toggleModuleManual(
 }
 
 /**
- * artifact_produced 自动展开：若用户曾手动设定该模块，则尊重 override，不改。
+ * 宿主 renderer 已解析出的 module target 自动展开；模块状态机不理解垂类 type id。
+ * 若用户曾手动设定该模块，则尊重 override，不改。
  */
-export function applyArtifactAutoExpand(
+export function applyModuleAutoExpand(
   open: ModuleOpenMap,
   override: UserModuleOverride,
-  artifactType: string,
+  target: ModuleId | undefined,
 ): ModuleOpenMap {
-  const target = ARTIFACT_TO_MODULE[artifactType];
   if (!target) return open;
   if (override[target] !== undefined) return open;
   return { ...open, [target]: true, progress: open.progress || true };
