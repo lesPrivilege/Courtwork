@@ -49,9 +49,11 @@
 
 ## 下一阶段优先序
 
-ADR-009 的 VIEW/TURN 两条前置线已独立验收、进入 main 并清账。下一张主线工单是
-`WORK-LIVE-1`：生产 `WorkCommandPort` 接真实 run/resume，recording 退回 fixture/demo mode；只复用既有
-Scenario/Turn/confirmation/artifact 账本，不引入第二套 chat runtime、agent loop 或 PM 空壳流程。
+ADR-009 的 VIEW/TURN 两条前置线已独立验收、进入 main 并清账。代码审计证明不能把
+`WORK-LIVE-1` 直接当接线单：当前缺 browser-safe/durable Work state、真实材料入口与 S3 垂类 binding。
+ADR-010 已把依赖收口。现在先做 `WORK-PORT-1`；验收后并行 `WORK-BROWSER-1 / WORK-STORE-1 /
+CASE-ROOT-1`，随后 `MATERIAL-INGRESS-1 → LEGAL-S3-BINDING-1 → WORK-LIVE-1`。recording 永久只在
+fixture/demo mode，不引入第二 chat runtime、agent loop 或 PM 空壳流程。
 
 `PM-SCHEMA-1` 是独立的垂类契约修复：令 OOC score 与确定性计算同义，并完成 payload 版本、JSON Schema、
 descriptor 与迁移边界。它可在不触碰 desktop/Work live 的条件下另行派发，但未完成前不得创建 PM scenario。

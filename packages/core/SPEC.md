@@ -4,6 +4,17 @@
 
 ## 现行架构工单（2026-07-14）
 
+### WORK-STATE 前置线（架构已定，待 WORK-PORT-1 验收后派发）
+
+权威：[ADR-010](../../docs/decisions/ADR-010-work-live-boundaries.md)。production Work 不得直接把当前
+同步 Node file stores 接入 WebView，也不得以 localStorage 或命令结束批量 flush 冒充 durable state。
+
+后续拆为 `WORK-BROWSER-1`（browser-safe work protocol 出口、Node adapter 分文件）与 `WORK-STORE-1`
+（async/CAS WorkState、ArtifactEnvelope、scenario terminal、迁移和 Tauri opaque blob host）。必须保持
+`turn_linked → provider`、`pending → confirmation_requested`、`revision payload → revision_recorded` 的
+持久先后，并使 validate-before-consume 与 confirmation resolved 成为一个 CAS 状态转换。字段、终局闭集、
+材料引用及验收反例以 ADR-010 为准；实现会话不得自行简化为内存真源 + 异步镜像。
+
 ### TURN-WORK-1 · Work model 步骤复用 Turn Engine
 
 权威：[ADR-007](../../docs/decisions/ADR-007-provider-turn-protocol.md) 与

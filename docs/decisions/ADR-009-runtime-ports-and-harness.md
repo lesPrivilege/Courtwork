@@ -257,7 +257,7 @@ type ArtifactEnvelope = {
 4. `CORE-BOUNDARY-1`：demo/legal composition 与 acceptance 退出 core 生产依赖和根导出。
 5. `ABI-2B`：PM 迁入唯一 ABI。
 6. `VIEW-ABI-1` 与 `TURN-WORK-1`：ABI-2B 放行后可在互不重叠的 worktree 并行；前者交付 host renderer/zero-wire fallback，后者交付 Work→Turn 单一调用链和账本链接。
-7. `WORK-LIVE-1`：必须等待 VIEW-ABI-1 与 TURN-WORK-1 都独立验收并进入 main，再接生产 WorkCommandPort；recording 仅保留 fixture/demo mode。
+7. `WORK-LIVE-1`：必须等待 VIEW-ABI-1 与 TURN-WORK-1 都独立验收并进入 main；其材料、状态、垂类绑定与命令前置由 ADR-010 细化。前置未清账前不得把 recording 替换成假 live；recording 仅保留 fixture/demo mode。
 
 每单必须先红测、后最小实现、全仓 build/test/lint；desktop 行为单另跑隔离端口完整 Playwright。实现与验收必须由不同会话承担。
 

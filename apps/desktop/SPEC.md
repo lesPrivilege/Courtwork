@@ -4,6 +4,23 @@
 
 ## 现行架构工单（2026-07-14）
 
+### WORK-PORT-1 · Work command/projection 注入缝
+
+权威：[ADR-010](../../docs/decisions/ADR-010-work-live-boundaries.md)。本单只建立行为等价的端口边界，
+不宣称 production live：
+
+- 将 `protocol/client.ts` 中混合的 demo `SessionEventClient` 拆为通用 `WorkProjectionPort`、只声明不装配的
+  `WorkCommandPort`，以及明确住在 `demo/` 的 fixture review/telemetry adapter；
+- `App` 不得模块顶层 `createDemoClient()`，改由 `main.tsx` composition root 显式注入；
+- recording replay 查询至少携 `caseId/sessionId`，fixture adapter 只接受 `demo-linjiang` 与固定 demo session；
+- 非 demo case 不得 fallback 到 recording、`GATES`、DEMO_ARTIFACTS 或 demo continuation；
+- UI projection 继续只机械消费 `SessionEvent`，既有样板案节奏、自动开面、gate、review、continue 与视觉零改动；
+- 不导入 core executor、不新增 Tauri command、不接 localStorage Work state、不新增 provider 路径或 PM UI。
+
+静态门至少证明 App 零 `createDemoClient`/recording import，demo client 只由 composition root 装配，非 demo
+查询被拒；定向测试用 injected fake projection 证明 App 不依赖模块 singleton。完整 desktop Vitest、全仓门与
+隔离端口 Playwright 全绿。实现与验收异会话。
+
 ### VIEW-ABI-1 · Host renderer 与 zero-wire fallback
 
 权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。desktop composition root 同次准入

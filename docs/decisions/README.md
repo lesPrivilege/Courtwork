@@ -13,6 +13,7 @@
 | [ADR-007](ADR-007-provider-turn-protocol.md) | Provider、Turn 与受控交互协议 | Accepted |
 | [ADR-008](ADR-008-schema-conformance-and-authority.md) | Schema 包一致性与字段职权 | Accepted |
 | [ADR-009](ADR-009-runtime-ports-and-harness.md) | Runtime Ports、双 Harness 与 Package 双平面 | Accepted |
+| [ADR-010](ADR-010-work-live-boundaries.md) | Work live 的材料、状态与命令边界 | Accepted |
 
 ## 变更规则
 
