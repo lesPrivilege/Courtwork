@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createEventLog, createFileEventLog, replaySession } from './event-log.js';
+import { createEventLog, replaySession } from './event-log.js';
+import { createFileEventLog } from './event-log-file.js';
 import type { SessionEvent } from './types.js';
 
 describe('createEventLog (in-memory)', () => {

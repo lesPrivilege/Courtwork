@@ -33,6 +33,14 @@
     "./turn-store-file": {
       "types": "./dist/turn/turn-store-file.d.ts",
       "default": "./dist/turn/turn-store-file.js"
+    },
+    "./work-protocol": {
+      "types": "./dist/work/work-protocol.d.ts",
+      "default": "./dist/work/work-protocol.js"
+    },
+    "./work-store-file": {
+      "types": "./dist/work/work-store-file.d.ts",
+      "default": "./dist/work/work-store-file.js"
     }
   },
   "courtwork": {
