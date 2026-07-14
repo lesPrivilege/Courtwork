@@ -11,8 +11,8 @@
       "default": "./dist/index.js"
     },
     "./package": {
-      "types": "./dist/manifest.d.ts",
-      "default": "./dist/manifest.js"
+      "types": "./dist/package/index.d.ts",
+      "default": "./dist/package/index.js"
     },
     "./schemas": {
       "types": "./dist/schemas/index.d.ts",

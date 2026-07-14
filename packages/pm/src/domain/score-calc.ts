@@ -1,4 +1,4 @@
-import type { ScoreParam, PriorityRow } from './priority-score.js';
+import type { ScoreParam, PriorityRow } from '../schemas/priority-score.js';
 
 /**
  * 确定性打分核心——零 LLM（docs/product/pm-vertical.md §三）。RICE = Reach × Impact × Confidence ÷ Effort。

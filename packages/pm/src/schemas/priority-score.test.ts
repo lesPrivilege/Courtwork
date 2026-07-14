@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PriorityScoreSchema } from './priority-score.js';
-import { computeRicePoint, computeRowScore } from './score-calc.js';
+import { computeRicePoint, computeRowScore } from '../domain/score-calc.js';
 
 const filled = (value: number) => ({ fill: 'manual' as const, value, range: null, sourceAnchors: [], status: 'filled' as const });
 const ranged = (low: number, high: number) => ({ fill: 'auto' as const, value: null, range: { low, high }, sourceAnchors: [], status: 'filled' as const });

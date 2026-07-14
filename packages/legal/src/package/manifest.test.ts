@@ -4,7 +4,7 @@ import {
   LEGAL_PACKAGE,
   LEGAL_PACKAGE_BINDINGS,
   LEGAL_PACKAGE_DESCRIPTOR,
-} from './manifest.js';
+} from './index.js';
 
 describe('LEGAL_PACKAGE（法律包准入自证：迁包后包必须过自己要过的门）', () => {
   const result = admitPackages([LEGAL_PACKAGE]);

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { LEGAL_PACKAGE_DESCRIPTOR } from './manifest.js';
+import { LEGAL_PACKAGE_DESCRIPTOR } from './package/index.js';
 
 interface PackageMetadata {
   version: string;

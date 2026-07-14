@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { RiskList } from './schemas/risk-list.js';
+import type { RiskList } from '../schemas/risk-list.js';
 import {
   compileConfirmedRiskListToRevisionInstructions,
   MissingLocatorQuoteError,

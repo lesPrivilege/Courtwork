@@ -1,13 +1,4 @@
-import type {
-  VerticalPackageBindings,
-  VerticalPackageDescriptorV1,
-  VerticalPackageManifest,
-} from '@courtwork/registry';
-import type { ZodType } from 'zod';
-import { ActionItemsSchema } from './action-items.js';
-import { FeedbackDigestSchema } from './feedback-digest.js';
-import { PrdReviewSchema } from './prd-review.js';
-import { PriorityScoreSchema } from './priority-score.js';
+import type { VerticalPackageDescriptorV1 } from '@courtwork/registry';
 
 const SEVERITY_LABELS = { high: '高', mid: '中', low: '低' } as const;
 const ESTIMATE_STATUS_LABELS = {
@@ -15,14 +6,7 @@ const ESTIMATE_STATUS_LABELS = {
   out_of_coverage: '未覆盖·需补材料',
 } as const;
 
-/**
- * PM 垂类包的唯一可序列化声明面。ABI-2B 只上架 schema/catalog，
- * 不虚构尚无执行链的 scenario、prompt 或 demo workflow。
- */
-export const PM_PACKAGE_DESCRIPTOR: VerticalPackageDescriptorV1 = {
-  abiVersion: 1,
-  identity: { packageId: 'pm', version: '0.1.1', schemaVersion: 1 },
-  artifacts: [
+export const PM_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
     {
       typeId: 'pm.FeedbackDigest',
       title: '反馈归集',
@@ -189,33 +173,12 @@ export const PM_PACKAGE_DESCRIPTOR: VerticalPackageDescriptorV1 = {
         ],
       },
     },
-  ],
-  scenarios: [],
-  promptSegments: [],
-  renderers: [
+];
+
+export const PM_RENDERERS: VerticalPackageDescriptorV1['renderers'] = [
     {
       uiTemplateId: 'courtwork.artifact-table.v1',
       kind: 'workspace',
       title: '通用产物表',
     },
-  ],
-  vocabulary: {
-    'container.noun': '项目空间',
-    'stage.noun': '阶段',
-    'material.noun': '项目材料',
-  },
-};
-
-export const PM_PACKAGE_BINDINGS: VerticalPackageBindings = {
-  schemas: new Map<string, ZodType>([
-    ['pm.FeedbackDigest', FeedbackDigestSchema],
-    ['pm.PrdReview', PrdReviewSchema],
-    ['pm.PriorityScore', PriorityScoreSchema],
-    ['pm.ActionItems', ActionItemsSchema],
-  ]),
-};
-
-export const PM_PACKAGE: VerticalPackageManifest = {
-  ...PM_PACKAGE_DESCRIPTOR,
-  bindings: PM_PACKAGE_BINDINGS,
-};
+];

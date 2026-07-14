@@ -8,7 +8,7 @@ import {
   PM_PACKAGE,
   PM_PACKAGE_BINDINGS,
   PM_PACKAGE_DESCRIPTOR,
-} from './manifest.js';
+} from './index.js';
 
 const anchor = (fileId: string, quote: string) => ({
   fileId,

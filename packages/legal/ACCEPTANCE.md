@@ -95,3 +95,57 @@ Legal `manifest.ts` 在基线/实现的 blob 同为 `470cc9923401b1ef4d063600740
 ### 放行边界
 
 本结论只放行 Legal/PM 当前 package export 分面及 fixture 消费迁移；不放行 VPKG-LAYOUT-1、PM scenario/prompt、企业 `/runtime`、bindings 真只读快照、blueprint 版本迁移或任何新 payload。Legal `/testing` 仍只允许 demo-runtime、acceptance 与 test 使用，生产 Desktop/Core/Provider/Registry 不得消费。
+
+---
+
+## VPKG-LAYOUT-1 独立验收（2026-07-14）
+
+- 验收角色：未参与实现的独立验收会话；此前只做过只读可视化依赖调研。
+- 基线：`f7532f72570ed0a5c19e78ed988461ef45c3725f`；实现：`697f196bea2c4c07f7a8706fce7f7005b442f0d7`。
+- 环境：clean worktree `/tmp/courtwork-vpkg-layout-1-acceptance`，分支 `codex/accept-vpkg-layout-1`；另建 detached parent worktree 做迁移前运行时基线，不采信实现自述。
+
+### 结论
+
+**VPKG-LAYOUT-1 放行。** Legal 的 package、presentation、scenarios、interactions、domain、schemas、testing 已按 ADR-012 归位；PM 只建立真实存在的 package、presentation、schemas、domain，继续 catalog-only，未制造 scenarios/interactions/runtime/testing 空壳。未发现 schema、prompt、fixture、计算或编译语义漂移，也没有 `[需架构拍板]` 项。
+
+验收发现三项实现级守卫缺口并以 `8b21e39`（`fix-by-acceptance(vertical): harden layout identity guards`）补齐：`PACKAGE.bindings` 必须与公开 `*_PACKAGE_BINDINGS` 保持对象同一；垂类 browser-safe 图只允许 Courtwork workspace 与登记的 `zod` 外部依赖；全仓 consumer 不得绕过 exports 读取迁移前 `manifest/score-calc/compile-risk-list` 内部路径。只改测试，不改产品实现、ABI、schema 或字段语义。
+
+### 基线等价与真实出口
+
+- 从 desktop 真实 consumer 上下文由 Node 导入 Legal root/package/schemas/testing 与 PM root/package/schemas 全部成功；运行时 export key 集合与 parent 基线逐字节相同。
+- 同一进程内 root/subpath 共用 `PACKAGE`、descriptor、bindings 与各 Zod schema 对象；新增守卫进一步锁定 `PACKAGE.bindings === *_PACKAGE_BINDINGS`。
+- parent 与实现的完整运行快照逐字节相同：Legal descriptor `620105…410b1`、prompt blob `41b807…618a`、三份 fixture `8cd777…36487 / e8713e…37a14 / 33f6b7…cb1b`、真实 fixture 编译结果 `9f3f82…398b2`；PM descriptor `4513f7…8ef5`，RICE 结果保持 `640 / {low:250,high:1500} / null`。
+- Legal 旧 `src/manifest.ts` 与根编译器真源不存在；PM 旧 manifest、根 schema/计算器与四类空能力目录不存在。活动 consumer 对旧内部 import 零命中。
+- Legal 八份、PM 四份 JSON Schema 实际重生成后零 diff；Draft、URN 与 remote-ref 门保持闭合。
+
+### 强制变异：实际触红后撤回
+
+| 反例 | 观察到的红灯 |
+|---|---|
+| 恢复 Legal `src/manifest.ts` 与根编译器第二真源 | layout 定点明确列出两枚 forbidden path |
+| 删除 PM `package/descriptor.ts` | layout 定点明确报告 missing path |
+| 给 PM 建空 `scenarios/` | layout 定点明确报告 forbidden `scenarios` |
+| 分别改 Legal descriptor、prompt 正文、fixture | content golden 分别因整面 hash 或 fixture hash 漂移失败 |
+| 把 `PM_PACKAGE.bindings` 改为同内容的新 Map | 原门意外全绿；补入对象同一守卫后定点 **1 failed / 1 passed** |
+| 把 Legal `/package` 指回 root | exports 精确快照失败，显示 ESM/types target 漂移 |
+| PM presentation 注入 `node:fs` | browser-safe 递归图报告具体 builtin import |
+| PM presentation 注入 `@vendor/sdk` | 新增 allowlist 门报告 unapproved external |
+| desktop consumer import 旧 `@courtwork/legal/manifest` | 新增全仓门报告 old vertical internal import |
+| PM 提交态 schema 注入远程 `$ref` | remote-ref 门精确报 `https://vendor.example/schema.json` |
+| 同时破坏 RICE 单点、区间下界与 OOC | PM golden 显示 `800 / low 500 / 0`，三类语义全部触红 |
+| Legal 编译指令 id 改为 `mutant-*` | compile golden **1 failed / 5 passed** |
+
+全部反例均精确撤回；最终无临时文件、空目录、schema drift 或生产源码差异残留。
+
+### 最终工程门
+
+- `pnpm install --frozen-lockfile`：14 个 workspace project、1047 个包，lockfile 无改写；clean install 后先按仓库拓扑 build，再运行依赖 dist 的包测试。
+- 定点：Legal **11 files / 79 tests**；PM **8 / 44**；registry **6 / 84**；demo-runtime **8 / 29**；eval **14 / 64**。
+- `pnpm -r build`：13/14 workspace project 全绿；desktop **3524 modules transformed**，只有既存 Tauri dynamic/static import 与 chunk-size warning。
+- `pnpm lint`：exit 0。
+- `pnpm test`：**131 files / 1127 tests**，exit 0。
+- 本单是纯目录与出口整理，没有 desktop 行为或视觉变化，按范围不运行 Playwright。
+
+### 放行边界
+
+本结论只放行 Legal/PM 的 VPKG-LAYOUT-1 物理归位与等价守卫；不放行 PM-SCHEMA-1、PM scenario/prompt、企业 runtime、blueprint 迁移、UI gallery 或任何新 payload。PM 仍为 catalog-only。

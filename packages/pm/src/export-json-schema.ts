@@ -1,5 +1,5 @@
 import { exportPackageJsonSchemas } from '@courtwork/registry';
-import { PM_PACKAGE_BINDINGS, PM_PACKAGE_DESCRIPTOR } from './manifest.js';
+import { PM_PACKAGE_BINDINGS, PM_PACKAGE_DESCRIPTOR } from './package/index.js';
 
 /** PM descriptor 引用面的四份自包含 Draft 2020-12 schema。 */
 export function toJSONSchemaRecord(): Record<string, unknown> {
