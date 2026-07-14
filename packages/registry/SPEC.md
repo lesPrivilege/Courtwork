@@ -4,6 +4,13 @@
 
 ## 现行架构工单（2026-07-14）
 
+### [提案，需架构拍板] VPKG bindings 真只读快照
+
+ADR-012 要求已准入的 runtime bindings 不能由调用方通过 `.set()` 改写。当前 TypeScript 面虽声明
+`ReadonlyMap`，准入后仍以普通 `Map` 承载；`Object.freeze` 只冻结外壳，不冻结 Map 内部槽位。
+`VPKG-META-1` 只建立包元数据与 JSON Schema drift 门，按范围不修改 registry 语义。后续需由架构角色
+拍板采用不可变 facade、查询接口或其他等价实现，并以真实 `.set()` 反例及现有 consumer grep 定义迁移工单。
+
 ### ABI-2B · PM 迁入唯一 Package ABI
 
 权威：[ADR-008](../../docs/decisions/ADR-008-schema-conformance-and-authority.md) 与 [ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。删除 PM 自建 descriptor/view-resolver 真源，把四类 schema、通用表 presentation、完整值词表与 bindings 收入 `PM_PACKAGE`；与 Legal 一起走同一个 `admitPackages/buildPackageRegistries`。PM 当期是 catalog-only：`scenarios/promptSegments` 为空，不造不能运行的面板或流程；统一声明 `courtwork.artifact-table.v1`，真实 host renderer 由后续 `VIEW-ABI-1` 交付。

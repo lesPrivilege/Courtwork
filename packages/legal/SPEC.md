@@ -13,6 +13,13 @@
 
 新增企业接口只可在第一项真实 integration 到来后建立 `/runtime`；不得预建空 adapter 或让 core/registry import 厂商类型。
 
+### VPKG-META-1 实现记录（2026-07-14，待独立验收）
+
+- `package.json` 已补齐与 PM 同体例的 `test / lint / build / generate:json-schema`；包内 metadata conformance 同时锁定脚本文字与 `package.json.version === descriptor identity.version`。
+- JSON Schema drift 门现锁定 descriptor 引用的八份文件全集、Draft 2020-12、`urn:courtwork:schema:legal.<Name>:v1` 与禁止 remote/外部 ref；新增残余旧文件会直接触红。
+- TDD 红灯分别证明缺 `test/lint` 时 metadata 门失败；临时加入 `Legacy.schema.json` 时全集门失败；最终 Legal 包 **9 files / 73 tests** 全绿。
+- 本单未修改 Legal descriptor、bindings、scenario、prompt、payload、JSON Schema 字节、导出或目录；全仓 build/lint 与 Vitest **122 files / 1083 tests** 通过，等待异会话验收。
+
 ## 职责
 
 法律垂类依赖包（docs/architecture/schema-engineering.md「垂类即依赖包」的首个实体）：法律域的 schema、场景声明、
