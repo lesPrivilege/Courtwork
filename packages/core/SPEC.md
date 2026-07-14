@@ -1,6 +1,6 @@
 # SPEC: packages/core（W6）
 
-状态：既有 TURN/INTERACTION 已验收；现行工单 `CONFIRM-CAS-1` 已实现、待独立验收，后续 `CORE-BOUNDARY-1` / `TURN-WORK-1` 受 ADR-009 约束
+状态：既有 TURN/INTERACTION 与 `CONFIRM-CAS-1` 已独立验收；后续 `CORE-BOUNDARY-1` / `TURN-WORK-1` 受 ADR-009 约束
 
 ## 现行架构工单（2026-07-14）
 
@@ -10,12 +10,13 @@
 
 范围只限 `ConfirmationStore`、`resumeScenario`、相应测试与本 SPEC/ACCEPTANCE 留痕；不改 SessionEvent/schema 字段、Turn interaction、UI、provider 或场景语义。验收必须实际注入非法 actor/decision/revision、重复保存、两次消费和 fresh file-store instance。
 
-实现留痕（2026-07-14，待独立验收）：
+实现与验收留痕（2026-07-14，已独立验收）：
 
 - `ConfirmationStore` 增加非破坏 `peek(requestId) -> { pending, version }` 与 `consume(requestId, expectedVersion)`；`resumeScenario` 只走这条 CAS 路径。旧 `take()` 仅作 deprecated 兼容包装，不再是生产续行入口。
 - 内存 store 用不透明 SHA-256 version + 已见 request id 集合拒绝覆盖/复用；file store 保持旧 `<requestId>.json` 载荷可读，以原子 `wx` 创建 `<requestId>.consumed` 作 first-wins 提交点，不在 tombstone 内保留 artifact 载荷。同 id 在待处理或已消费后都不得重存。
 - `resumeScenario` 先核 request/session/scenario identity，再校验 actor、decision 与 revisions；revision 在深克隆 artifact 上预构造 `RevisionEvent` 并预执行 JSON Pointer。全部通过后才条件消费，然后写 `confirmation_resolved` / revision / artifact 事件；无效、重复或竞争失败的回答零落账。
 - TDD 红测实证旧实现会接受空 actor/未知 decision、错 scenario，且非法 JSON Pointer 失败前已消费 pending 并追加 `confirmation_resolved`。修复后 core 定向 38/38、core 全包 245/245、全仓 987/987 通过；`pnpm -r build` 与 `pnpm lint` 通过。
+- 独立验收补齐 reject 路径的 revision 预校验、身份漂移、双消费者、旧文件兼容、tombstone 最小载荷与崩溃窗口反例；发现 reject 携非法 revision 会先消费 pending 的实现缺陷，以 `fix-by-acceptance` 修复。最终定向 44/44、core 251/251、全仓 993/993，变异删除 expectedVersion 校验实际出现 1 项红灯。详见本包 `ACCEPTANCE.md`。
 
 ## 已完成架构工单（2026-07-13）
 
