@@ -159,5 +159,6 @@
   ],
   "additionalProperties": false,
   "title": "ReviewMatrix",
-  "description": "矩阵审阅：行 = 文档，列 = 问题，格 = 答案 + 来源锚点 + 置信标记。"
+  "description": "矩阵审阅：行 = 文档，列 = 问题，格 = 答案 + 来源锚点 + 置信标记。",
+  "$id": "urn:courtwork:schema:legal.ReviewMatrix:v1"
 }

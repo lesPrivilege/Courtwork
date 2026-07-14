@@ -2,17 +2,22 @@ import { describe, expect, it } from 'vitest';
 import * as z from 'zod';
 import type { VerticalPackageManifest } from './package-manifest.js';
 import { admitPackages } from './admission.js';
-import { buildPackageRegistries, NEUTRAL_VOCABULARY } from './package-registries.js';
+import {
+  bindArtifactDescriptorCompatibility,
+  buildPackageRegistries,
+  NEUTRAL_VOCABULARY,
+} from './package-registries.js';
 
 function manifest(): VerticalPackageManifest {
   return {
+    abiVersion: 1,
     identity: { packageId: 'legal', version: '0.1.0', schemaVersion: 1, legacyTypeAliases: { RiskList: 'legal.RiskList' } },
     artifacts: [
       {
         typeId: 'legal.RiskList',
         title: '风险清单',
-        schema: z.object({ caseId: z.string() }),
-        draftSchema: z.object({ caseId: z.string(), quoteClaims: z.array(z.unknown()) }),
+        schemaId: 'legal.RiskList',
+        draftSchemaId: 'legal.RiskListDraft',
         citationBinding: {
           draftField: 'quoteClaims',
           anchorField: 'sourceAnchors',
@@ -24,6 +29,12 @@ function manifest(): VerticalPackageManifest {
         uiTemplateId: 'risk-review-panel',
       },
     ],
+    bindings: {
+      schemas: new Map([
+        ['legal.RiskList', z.object({ caseId: z.string() })],
+        ['legal.RiskListDraft', z.object({ caseId: z.string(), quoteClaims: z.array(z.unknown()) })],
+      ]),
+    },
     scenarios: [
       {
         id: 'legal.S3',
@@ -65,6 +76,17 @@ describe('buildPackageRegistries（包运行时 registries）', () => {
     const entry = registries.artifactSchemas.get('legal.RiskList');
     expect(entry?.descriptor.title).toBe('风险清单');
     expect(registries.artifactSchemas.get('legal.Nope')).toBeUndefined();
+  });
+
+  it('唯一 compatibility adapter 不漂移 data plane，并按两个显式 id 绑定 final/draft', () => {
+    const source = manifest();
+    const data = source.artifacts[0]!;
+    const runtime = bindArtifactDescriptorCompatibility(data, source.bindings.schemas);
+    const { schema, draftSchema, ...roundTrippedData } = runtime;
+
+    expect(roundTrippedData).toEqual(data);
+    expect(schema).toBe(source.bindings.schemas.get('legal.RiskList'));
+    expect(draftSchema).toBe(source.bindings.schemas.get('legal.RiskListDraft'));
   });
 
   it('② scenario registry：promptSegmentRef 已闭合为正文，ref 字面值不出 runtime 形状', () => {

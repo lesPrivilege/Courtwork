@@ -229,5 +229,6 @@
   ],
   "additionalProperties": false,
   "title": "RiskList",
-  "description": "风险清单：风险点 + 等级 + 依据（法条/判例引用 + 来源锚点）+ 处置状态 + 引用闭环缺口表。"
+  "description": "风险清单：风险点 + 等级 + 依据（法条/判例引用 + 来源锚点）+ 处置状态 + 引用闭环缺口表。",
+  "$id": "urn:courtwork:schema:legal.RiskList:v1"
 }

@@ -2,8 +2,9 @@ import * as z from 'zod';
 import {
   ArtifactTypeIdSchema,
   ConfirmationPolicySchema,
-  type ArtifactDescriptor,
-  type PackageIdentity,
+  PackageIdentitySchema,
+  RehydrationProjectionSchema,
+  SideEffectClassEnum,
 } from '@courtwork/schemas';
 
 /**
@@ -162,19 +163,100 @@ export const NEUTRAL_VOCABULARY: Readonly<Record<string, string>> = {
 };
 export const REQUIRED_VOCABULARY_KEYS = Object.keys(NEUTRAL_VOCABULARY);
 
+const CitationBindingDataSchema = z
+  .object({
+    draftField: z.string().min(1),
+    anchorField: z.string().min(1),
+    itemScope: z.string().regex(/^\//),
+    itemSummaryField: z.string().min(1),
+    outOfCoverageField: z.string().min(1),
+  })
+  .strict();
+
+const ArtifactVocabularyDataSchema = z
+  .object({
+    fieldLabels: z.record(z.string(), z.string()).optional(),
+    enumLabels: z.record(z.string(), z.record(z.string(), z.string())).optional(),
+  })
+  .strict();
+
+export const PresentationFieldFormatSchema = z.enum([
+  'text',
+  'mono',
+  'number',
+  'enum',
+  'status',
+  'grade',
+  'anchor',
+  'tags',
+]);
+
+const ArtifactPresentationSchema = z
+  .object({
+    collectionPointer: z.string().regex(/^\//).optional(),
+    fields: z.array(
+      z
+        .object({
+          pointer: z.string().regex(/^\//),
+          label: z.string().min(1),
+          format: PresentationFieldFormatSchema,
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+
+/** ADR-009 data plane：只存稳定 id 与纯声明，不携带 runtime validator。 */
+export const ArtifactDescriptorDataV1Schema = z
+  .object({
+    typeId: ArtifactTypeIdSchema,
+    title: z.string().trim().min(1),
+    schemaId: ArtifactTypeIdSchema,
+    draftSchemaId: ArtifactTypeIdSchema.optional(),
+    citationBinding: CitationBindingDataSchema.optional(),
+    rehydrationProjection: RehydrationProjectionSchema,
+    uiTemplateId: z.string().trim().min(1),
+    sideEffect: SideEffectClassEnum.optional(),
+    vocabulary: ArtifactVocabularyDataSchema.optional(),
+    presentation: ArtifactPresentationSchema.optional(),
+  })
+  .strict()
+  .refine((value) => value.citationBinding === undefined || value.draftSchemaId !== undefined, {
+    message: '声明 citationBinding 时必须提供 draftSchemaId',
+    path: ['draftSchemaId'],
+  });
+export type ArtifactDescriptorDataV1 = z.infer<typeof ArtifactDescriptorDataV1Schema>;
+
+/** 可序列化 Package ABI v1；未知 major 由 literal 在准入边界 fail closed。 */
+export const VerticalPackageDescriptorV1Schema = z
+  .object({
+    abiVersion: z.literal(1),
+    identity: PackageIdentitySchema,
+    artifacts: z.array(ArtifactDescriptorDataV1Schema),
+    scenarios: z.array(PackageScenarioSchema),
+    promptSegments: z.array(PromptSegmentSchema),
+    renderers: z.array(RendererDescriptorSchema),
+    interactionTemplates: z.array(InteractionTemplateSchema).optional(),
+    vocabulary: z.record(z.string(), z.string()),
+    anchorColor: z.string().optional(),
+  })
+  .strict();
+export type VerticalPackageDescriptorV1 = z.infer<typeof VerticalPackageDescriptorV1Schema>;
+
+/** ADR-009 读侧 upcaster 席位；执行与版本链校验留给后续 migration harness。 */
+export type PackageMigration = (payload: unknown) => unknown;
+
+/** runtime plane：只在进程内装配，禁止越过 IPC/wire。 */
+export interface VerticalPackageBindings {
+  /** key 是显式逻辑 schemaId；final/draft 各占一个 key、一个 Zod schema。 */
+  schemas: ReadonlyMap<string, z.ZodType>;
+  migrations?: ReadonlyMap<number, PackageMigration>;
+}
+
 /**
- * 垂类包 manifest：一个垂类 = 一个依赖包，六面声明的装载单元。
- * zod schema 是运行时对象，manifest 因此是 TS 载体；结构与闭合校验走 admitPackages。
+ * 当期 composition 单元：data plane 字段保持在根上，保障既有只读声明消费方零行为迁移；
+ * 唯一新增的 runtime plane 是 bindings。可序列化边界只取 VerticalPackageDescriptorV1。
  */
-export interface VerticalPackageManifest {
-  identity: PackageIdentity;
-  artifacts: ArtifactDescriptor[];
-  scenarios: PackageScenario[];
-  promptSegments: PromptSegmentDeclaration[];
-  renderers: RendererDescriptor[];
-  /** ADR-007：受控交互文案与政策随包；缺省表示本包不声明交互。 */
-  interactionTemplates?: InteractionTemplate[];
-  vocabulary: PackageVocabulary;
-  /** 宣言配色席位：包可声明一个锚色，派生律不变。当期无消费方，席位先立。 */
-  anchorColor?: string;
+export interface VerticalPackageManifest extends VerticalPackageDescriptorV1 {
+  bindings: VerticalPackageBindings;
 }

@@ -36,15 +36,13 @@ function withInteractionTemplates(
 
 function makeManifest(overrides: Partial<VerticalPackageManifest> = {}): VerticalPackageManifest {
   return {
+    abiVersion: 1,
     identity: { packageId: 'legal', version: '0.1.0', schemaVersion: 1 },
     artifacts: [
       {
         typeId: 'legal.RiskList',
         title: '风险清单',
-        schema: z.object({
-          caseId: z.string(),
-          risks: z.array(z.object({ level: z.enum(['high', 'medium', 'low']) })),
-        }),
+        schemaId: 'legal.RiskList',
         rehydrationProjection: { ops: [{ kind: 'field', path: '/caseId', label: '案件' }], rowBudget: 3 },
         uiTemplateId: 'risk-review-panel',
         vocabulary: { enumLabels: { level: { high: '高', medium: '中', low: '低' } } },
@@ -52,7 +50,7 @@ function makeManifest(overrides: Partial<VerticalPackageManifest> = {}): Vertica
       {
         typeId: 'legal.CaseFile',
         title: '卷宗清单',
-        schema: z.object({ caseId: z.string() }),
+        schemaId: 'legal.CaseFile',
         rehydrationProjection: { ops: [{ kind: 'field', path: '/caseId', label: '案件' }], rowBudget: 2 },
         uiTemplateId: 'case-file-panel',
       },
@@ -76,6 +74,18 @@ function makeManifest(overrides: Partial<VerticalPackageManifest> = {}): Vertica
       { uiTemplateId: 'case-file-panel', kind: 'workspace', title: '卷宗' },
     ],
     vocabulary: { 'container.noun': '卷宗', 'stage.noun': '阶段', 'material.noun': '卷宗材料' },
+    bindings: {
+      schemas: new Map([
+        [
+          'legal.RiskList',
+          z.object({
+            caseId: z.string(),
+            risks: z.array(z.object({ level: z.enum(['high', 'medium', 'low']) })),
+          }),
+        ],
+        ['legal.CaseFile', z.object({ caseId: z.string() })],
+      ]),
+    },
     ...overrides,
   };
 }
@@ -170,6 +180,7 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
     first.scenarios = [];
     first.promptSegments = [];
     first.renderers = [];
+    first.bindings = { schemas: new Map() };
 
     const second = withInteractionTemplates(makeManifest(), [VALID_INTERACTION_TEMPLATE]);
     second.identity = { packageId: 'pm', version: '0.1.0', schemaVersion: 1 };
@@ -177,6 +188,7 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
     second.scenarios = [];
     second.promptSegments = [];
     second.renderers = [];
+    second.bindings = { schemas: new Map() };
 
     const result = admitPackages([first, second]);
     expect(result.admitted.map((manifest) => manifest.identity.packageId)).toEqual(['legal']);
@@ -239,8 +251,10 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
 
   it('schema 内枚举字段缺 enumLabels 即拒载（零编码暴露律机器化）', () => {
     const bare = makeManifest();
+    const withoutVocabulary = { ...bare.artifacts[0]! };
+    delete withoutVocabulary.vocabulary;
     bare.artifacts = [
-      { ...bare.artifacts[0]!, vocabulary: undefined },
+      withoutVocabulary,
       bare.artifacts[1]!,
     ];
     const result = admitPackages([bare]);
@@ -260,6 +274,7 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
     const bad = makeManifest({ promptSegments: [] });
     bad.identity = { ...bad.identity, packageId: 'pm' };
     bad.artifacts = [];
+    bad.bindings = { schemas: new Map() };
     bad.scenarios = [
       {
         id: 'pm.S1',
@@ -276,5 +291,111 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
     const result = admitPackages([good, bad]);
     expect(result.admitted.map((p) => p.identity.packageId)).toEqual(['legal']);
     expect(result.rejected.map((r) => r.packageId)).toEqual(['pm']);
+    expect(result.warnings.join()).not.toContain('x-panel');
+  });
+
+  it('未知 abiVersion 显式拒载', () => {
+    const future = makeManifest();
+    (future as unknown as { abiVersion: number }).abiVersion = 2;
+
+    const result = admitPackages([future]);
+
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toContain('abiVersion');
+  });
+
+  it('schemaId 与 draftSchemaId 必须独立闭合到 bindings.schemas', () => {
+    const missingFinal = makeManifest();
+    missingFinal.bindings = { schemas: new Map([['legal.CaseFile', z.object({})]]) };
+    expect(admitPackages([missingFinal]).rejected[0]!.issues.join()).toContain('legal.RiskList');
+
+    const missingDraft = makeManifest();
+    missingDraft.artifacts[0] = {
+      ...missingDraft.artifacts[0]!,
+      draftSchemaId: 'legal.RiskListDraft',
+    };
+    expect(admitPackages([missingDraft]).rejected[0]!.issues.join()).toContain('legal.RiskListDraft');
+  });
+
+  it('schema id 重复引用与越出包命名空间均拒载', () => {
+    const duplicate = makeManifest();
+    duplicate.artifacts[1] = { ...duplicate.artifacts[1]!, schemaId: 'legal.RiskList' };
+    expect(admitPackages([duplicate]).rejected[0]!.issues.join()).toContain('schema id');
+
+    const alien = makeManifest();
+    alien.artifacts[0] = { ...alien.artifacts[0]!, schemaId: 'pm.RiskList' };
+    alien.bindings = {
+      schemas: new Map([...alien.bindings.schemas, ['pm.RiskList', z.object({})]]),
+    };
+    expect(admitPackages([alien]).rejected[0]!.issues.join()).toContain('schema id');
+    expect(admitPackages([alien]).rejected[0]!.issues.join()).toContain('命名空间');
+  });
+
+  it('恶意 ReadonlyMap 迭代出重复 binding id 时也拒载，不依赖 Map 构造器去重', () => {
+    const duplicateBinding = makeManifest();
+    const riskSchema = duplicateBinding.bindings.schemas.get('legal.RiskList')!;
+    const caseSchema = duplicateBinding.bindings.schemas.get('legal.CaseFile')!;
+    duplicateBinding.bindings = {
+      schemas: {
+        *entries() {
+          yield ['legal.RiskList', riskSchema] as [string, z.ZodType];
+          yield ['legal.RiskList', riskSchema] as [string, z.ZodType];
+          yield ['legal.CaseFile', caseSchema] as [string, z.ZodType];
+        },
+      } as unknown as ReadonlyMap<string, z.ZodType>,
+    };
+
+    const result = admitPackages([duplicateBinding]);
+
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toContain('binding schema id legal.RiskList 重复');
+  });
+
+  it('descriptor 递归拒绝 function、Zod 与 React-like 执行对象', () => {
+    const executable = makeManifest();
+    (executable.artifacts[0] as unknown as { schema: unknown }).schema = z.object({});
+    (executable as unknown as { component: unknown }).component = () => null;
+    (executable.artifacts[1] as unknown as { reactElement: unknown }).reactElement = {
+      $$typeof: Symbol.for('react.element'),
+      type: 'div',
+    };
+
+    const result = admitPackages([executable]);
+
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toMatch(/function|Zod|symbol|纯 JSON|未知/);
+  });
+
+  it('抛错 accessor 只拒载当前包，不执行或击穿后到合法包', () => {
+    const trapped = makeManifest();
+    Object.defineProperty(trapped, 'identity', {
+      enumerable: true,
+      get() {
+        throw new Error('不应执行的 getter');
+      },
+    });
+    const good = makeManifest();
+
+    const result = admitPackages([trapped, good]);
+
+    expect(result.rejected).toHaveLength(1);
+    expect(result.rejected[0]!.issues.join()).toContain('accessor');
+    expect(result.admitted.map((item) => item.identity.packageId)).toEqual(['legal']);
+  });
+
+  it('成功准入返回与源对象脱钩的递归深冻结 descriptor', () => {
+    const source = makeManifest();
+    const admitted = admitPackages([source]).admitted[0]!;
+
+    expect(Object.isFrozen(admitted)).toBe(true);
+    expect(Object.isFrozen(admitted.identity)).toBe(true);
+    expect(Object.isFrozen(admitted.artifacts)).toBe(true);
+    expect(Object.isFrozen(admitted.artifacts[0])).toBe(true);
+    expect(Object.isFrozen(admitted.artifacts[0]!.rehydrationProjection.ops)).toBe(true);
+    expect(() => {
+      (admitted.artifacts[0] as { title: string }).title = '篡改';
+    }).toThrow(TypeError);
+    source.artifacts[0]!.title = '源对象后改';
+    expect(admitted.artifacts[0]!.title).toBe('风险清单');
   });
 });

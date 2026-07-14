@@ -1,23 +1,12 @@
-import * as z from 'zod';
-import { CaseFileSchema } from './schemas/case-file.js';
-import { TimelineSchema } from './schemas/timeline.js';
-import { PartyGraphSchema } from './schemas/party-graph.js';
-import { RiskListSchema } from './schemas/risk-list.js';
-import { ReviewMatrixSchema } from './schemas/review-matrix.js';
+import { exportPackageJsonSchemas } from '@courtwork/registry';
+import { LEGAL_PACKAGE_BINDINGS, LEGAL_PACKAGE_DESCRIPTOR } from './manifest.js';
 
-/** 法律包对外 JSON Schema 契约面（随包迁移，drift 门同纪律）。 */
-export const LEGAL_SCHEMA_REGISTRY = [
-  { name: 'CaseFile', schema: CaseFileSchema },
-  { name: 'Timeline', schema: TimelineSchema },
-  { name: 'PartyGraph', schema: PartyGraphSchema },
-  { name: 'RiskList', schema: RiskListSchema },
-  { name: 'ReviewMatrix', schema: ReviewMatrixSchema },
-] as const;
-
+/** 法律包 descriptor 的全部 final/draft schema 契约面；文件名仅是逻辑 id 的本包短名。 */
 export function toJSONSchemaRecord(): Record<string, unknown> {
   const record: Record<string, unknown> = {};
-  for (const entry of LEGAL_SCHEMA_REGISTRY) {
-    record[entry.name] = z.toJSONSchema(entry.schema);
+  const exported = exportPackageJsonSchemas(LEGAL_PACKAGE_DESCRIPTOR, LEGAL_PACKAGE_BINDINGS);
+  for (const [schemaId, document] of exported) {
+    record[schemaId.slice('legal.'.length)] = document;
   }
   return record;
 }

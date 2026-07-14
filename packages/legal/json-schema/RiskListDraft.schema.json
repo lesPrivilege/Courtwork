@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "caseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "basis": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "citation": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "quoteClaims": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "fileId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "page": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "blockId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "exactQuote": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "fileId",
+                      "exactQuote"
+                    ],
+                    "additionalProperties": false,
+                    "title": "QuoteClaim",
+                    "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
+                  }
+                }
+              },
+              "required": [
+                "citation",
+                "quoteClaims"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "dispositionStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed",
+              "rejected"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "level",
+          "basis",
+          "dispositionStatus"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "caseId",
+    "risks"
+  ],
+  "additionalProperties": false,
+  "title": "RiskListDraft",
+  "description": "风险清单草稿（模型侧）：依据只携文件+页/块+逐字引语；坐标由 resolver 公证铸造。",
+  "$id": "urn:courtwork:schema:legal.RiskListDraft:v1"
+}

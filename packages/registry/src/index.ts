@@ -4,3 +4,4 @@
 export * from './package-manifest.js';
 export * from './admission.js';
 export * from './package-registries.js';
+export * from './schema-export.js';

@@ -4,8 +4,10 @@ import {
   type ArtifactTypeId,
   type RehydrationProjection,
 } from '@courtwork/schemas';
+import type * as z from 'zod';
 import {
   NEUTRAL_VOCABULARY,
+  type ArtifactDescriptorDataV1,
   type InteractionTemplate,
   type PackageScenario,
   type RendererDescriptor,
@@ -34,8 +36,35 @@ export interface ScenarioRuntime {
 }
 
 export interface ArtifactSchemaRegistryEntry {
+  /** ABI-2A compatibility 只读面；data plane 另由 package descriptor 查询。 */
   descriptor: ArtifactDescriptor;
   packageId: string;
+}
+
+/**
+ * ABI-2A 迁移期唯一 compatibility 形状：既保留 data plane 字段，又把 binding 重新接成
+ * core 现有的 descriptor.schema/draftSchema 只读消费面。不得在别处再造第二套重绑定。
+ */
+export type RuntimeArtifactDescriptor = ArtifactDescriptorDataV1 & {
+  schema: z.ZodType;
+  draftSchema?: z.ZodType;
+};
+
+export function bindArtifactDescriptorCompatibility(
+  descriptor: ArtifactDescriptorDataV1,
+  schemas: ReadonlyMap<string, z.ZodType>,
+): RuntimeArtifactDescriptor {
+  const schema = schemas.get(descriptor.schemaId);
+  if (schema === undefined) throw new Error(`schema binding missing after admission: ${descriptor.schemaId}`);
+  const draftSchema = descriptor.draftSchemaId === undefined ? undefined : schemas.get(descriptor.draftSchemaId);
+  if (descriptor.draftSchemaId !== undefined && draftSchema === undefined) {
+    throw new Error(`draft schema binding missing after admission: ${descriptor.draftSchemaId}`);
+  }
+  return Object.freeze({
+    ...descriptor,
+    schema,
+    ...(draftSchema === undefined ? {} : { draftSchema }),
+  });
 }
 
 /** ① artifact schema registry（注入式，替换中央 ARTIFACT_SCHEMAS——F-4 编译期穷尽性由准入闭合接位）。 */
@@ -92,7 +121,7 @@ function snapshotInteractionTemplate(template: InteractionTemplate): Interaction
   return Object.freeze({ ...template, options });
 }
 
-function deriveSteps(scenario: PackageScenario, descriptors: Map<string, ArtifactDescriptor>): ScenarioStep[] {
+function deriveSteps(scenario: PackageScenario, descriptors: Map<string, RuntimeArtifactDescriptor>): ScenarioStep[] {
   if (scenario.steps !== undefined && scenario.steps.length > 0) return scenario.steps;
   return scenario.outputArtifacts.map((typeId) => ({
     id: `produce-${typeId}`,
@@ -127,8 +156,9 @@ export function buildPackageRegistries(admitted: VerticalPackageManifest[]): Pac
 
   for (const manifest of admitted) {
     const packageId = manifest.identity.packageId;
-    const descriptorIndex = new Map<string, ArtifactDescriptor>();
-    for (const descriptor of manifest.artifacts) {
+    const descriptorIndex = new Map<string, RuntimeArtifactDescriptor>();
+    for (const descriptorData of manifest.artifacts) {
+      const descriptor = bindArtifactDescriptorCompatibility(descriptorData, manifest.bindings.schemas);
       descriptorIndex.set(descriptor.typeId, descriptor);
       artifactEntries.set(descriptor.typeId, { descriptor, packageId });
     }

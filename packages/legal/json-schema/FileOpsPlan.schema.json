@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "caseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "caseRoot": {
+      "type": "string",
+      "minLength": 1
+    },
+    "entries": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verb": {
+            "type": "string",
+            "enum": [
+              "move",
+              "rename",
+              "copy",
+              "mkdir"
+            ]
+          },
+          "sourcePath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "targetPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "selected": {
+            "type": "boolean"
+          },
+          "contentHashBefore": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contentHashAfter": {
+            "type": "string",
+            "minLength": 1
+          },
+          "originalFileName": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "verb",
+          "targetPath",
+          "reason",
+          "selected"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "id",
+    "caseId",
+    "caseRoot",
+    "entries",
+    "createdAt"
+  ],
+  "additionalProperties": false,
+  "title": "FileOpsPlan",
+  "description": "卷宗整理计划：逐条可勾选的文件操作表（move/rename/copy/mkdir）。销毁级动词不在词表内。",
+  "$id": "urn:courtwork:schema:legal.FileOpsPlan:v1"
+}
