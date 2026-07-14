@@ -1,6 +1,6 @@
 # SPEC: apps/desktop（W9）
 
-状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI 已验收。现行工单 `HOST-PORT-1` 已实现、待独立验收，后续 VIEW/WORK live 接线受 ADR-009 约束。
+状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI 已验收。现行工单 `HOST-PORT-1` 已独立验收放行，后续 VIEW/WORK live 接线受 ADR-009 约束。
 
 ## 现行架构工单（2026-07-14）
 
@@ -16,7 +16,15 @@
 - `main.tsx` 作为 composition root，只在 Tauri runtime 创建并向 `App` 注入 `ProviderTransport`；浏览器 E2E 不装配 host adapter，仍只经既有 stream-event hook 注入事件。
 - `App` 与 `chat-client.ts` 只消费可注入 transport/provider factory；chat 业务模块移除 Tauri import、runtime 探测、command 名与 queue 实现。DeepSeek-only descriptor、OpenAI-compatible provider、Turn journal 与投影语义保持不变。
 - 静态边界红测锁定 chat 不得回引 Tauri；fake host 单测覆盖 raw stream、同 request id cancel、invoke rejection 转 typed non-retryable network failure，并锁 Rust 入参不出现 URL、header 或 key。
-- 实现侧门禁：desktop Vitest 31 files / 133 tests；全仓 Vitest 114 files / 981 tests；全仓 build 12 个 workspace、ESLint 均通过；隔离端口 `:1591` 完整静态门与 Playwright 208/208 通过。独立验收尚未执行。
+- 实现侧门禁：desktop Vitest 31 files / 133 tests；全仓 Vitest 114 files / 981 tests；全仓 build 12 个 workspace、ESLint 均通过；隔离端口 `:1591` 完整静态门与 Playwright 208/208 通过。该组数字为实现侧记录；独立结果见下。
+
+独立验收（2026-07-14）：
+
+- 独立 clean worktree 从实现 tip `ba6426a` 建立；`b881508..ba6426a` 只触及 desktop 的 host adapter、composition root、chat 注入点、测试与本 SPEC。Rust、请求 body、provider catalog/security、Turn、持久化、样式与 UI 语义均无差异。
+- `App.tsx` / `chat-client.ts` 对 `@tauri-apps/api` 与 Rust command 名零引用；Tauri adapter 只由 `main.tsx` 在 `__TAURI_INTERNALS__` runtime 注入。浏览器 hook 仍只注入 provider stream events，测试 provider 的 `generate()` 继续硬失败，不能绕过 `runTurn` 注入 final answer。
+- 临时向 `chat-client.ts` 注入 Tauri API 边界漂移后，静态守卫真实 **1/5 failed**；精确撤除后 **5/5 passed**。fake adapter、chat client 与边界定向 **12/12**；desktop **133/133**；root **981/981**；Rust **25/25**；desktop/full build 与 desktop/root lint 全绿。
+- `COURTWORK_E2E_PORT=1592`、`reuseExistingServer=false`、单 worker 完整前置门与 Playwright **208/208 passed（3.5m）**。另以临时 Tauri config 在独立 `:1593` 启动真实 Rust/Tauri 壳，`target/debug/courtwork-desktop` 存活 13 秒后正常结束，端口与进程均清理。
+- **结论：HOST-PORT-1 放行。** 收账合入后，下游可把该 `ProviderTransport` 注入缝作为唯一 Tauri provider transport 边界；本单不代表 WorkCommandPort、CredentialCommandPort 或通用文件 HostTransportPort 已实现。
 
 ## 已完成架构工单（2026-07-13）
 
