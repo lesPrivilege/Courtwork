@@ -9,7 +9,11 @@ import { RevisionEventSchema } from '@courtwork/schemas';
 import { createMockPartyVerifyAdapter, createPartyVerifyTool, createQccPartyVerifyAdapter, createToolExecutor } from '@courtwork/tools';
 import { createEventLog, createFileEventLog } from '../events/event-log.js';
 import { createEvidenceLedger } from '../evidence/grade.js';
-import { createFileConfirmationStore, createInMemoryConfirmationStore } from '../session/confirmation-store.js';
+import {
+  createFileConfirmationStore,
+  createInMemoryConfirmationStore,
+  type ConfirmationStore,
+} from '../session/confirmation-store.js';
 import { createInMemoryRevisionEventStore } from '../revision/revision-store.js';
 import { createToolRegistry } from '../tools/tool-registry.js';
 import { createScriptedProvider } from '@courtwork/provider/scripted';
@@ -241,6 +245,37 @@ describe('resumeScenario', () => {
     ).resolves.toMatchObject({ status: 'completed' });
   });
 
+  it('validates malformed revisions even when the decision is reject, without consuming pending', async () => {
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
+    const paused = await pauseSingleGate(deps);
+    const eventsBefore = deps.eventLog.list();
+
+    await expect(
+      resumeScenario(
+        paused.requestId,
+        {
+          actor: { channelId: 'cli', actorId: 'actor-1' },
+          decision: 'reject',
+          revisions: [{
+            artifactType: 'test.Risk',
+            artifactId: 'c1',
+            fieldPath: 'not-a-json-pointer',
+            previousValue: 'pending',
+            newValue: 'rejected',
+          }],
+        },
+        SINGLE_GATE_SCENARIO,
+        deps,
+      ),
+    ).rejects.toThrow(/fieldPath|JSON Pointer/);
+
+    expect(deps.eventLog.list()).toEqual(eventsBefore);
+    expect(deps.revisionStore.list()).toEqual([]);
+    await expect(
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'reject' }, SINGLE_GATE_SCENARIO, deps),
+    ).resolves.toMatchObject({ status: 'completed' });
+  });
+
   it('prevalidates every revision before consuming pending or recording a partial response', async () => {
     const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     const paused = await pauseSingleGate(deps);
@@ -270,6 +305,83 @@ describe('resumeScenario', () => {
     expect(deps.eventLog.list()).toEqual(eventsBefore);
     expect(deps.revisionStore.list()).toEqual([]);
     expect(deps.eventLog.list().filter((event) => event.type === 'artifact_produced')).toHaveLength(1);
+    await expect(
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
+    ).resolves.toMatchObject({ status: 'completed' });
+  });
+
+  it('rejects a structurally invalid revision before consuming pending', async () => {
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
+    const paused = await pauseSingleGate(deps);
+    const eventsBefore = deps.eventLog.list();
+
+    await expect(
+      resumeScenario(
+        paused.requestId,
+        {
+          actor: { channelId: 'cli', actorId: 'actor-1' },
+          decision: 'confirm',
+          revisions: [{
+            artifactType: 'test.Risk',
+            artifactId: '',
+            fieldPath: '/risks/0/dispositionStatus',
+            previousValue: 'pending',
+            newValue: 'confirmed',
+          }],
+        },
+        SINGLE_GATE_SCENARIO,
+        deps,
+      ),
+    ).rejects.toThrow(/RevisionEvent|artifactId/);
+
+    expect(deps.eventLog.list()).toEqual(eventsBefore);
+    expect(deps.revisionStore.list()).toEqual([]);
+    await expect(
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
+    ).resolves.toMatchObject({ status: 'completed' });
+  });
+
+  it('rejects request and session identity drift without calling consume', async () => {
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
+    const paused = await pauseSingleGate(deps);
+    const eventsBefore = deps.eventLog.list();
+    const originalStore = deps.confirmationStore;
+    let consumeCalls = 0;
+    const requestDriftStore: ConfirmationStore = {
+      save: (pending) => originalStore.save(pending),
+      peek: (requestId) => {
+        const snapshot = originalStore.peek(requestId);
+        return snapshot
+          ? { ...snapshot, pending: { ...snapshot.pending, requestId: 'different-request' } }
+          : undefined;
+      },
+      consume: (requestId, expectedVersion) => {
+        consumeCalls += 1;
+        return originalStore.consume(requestId, expectedVersion);
+      },
+      take: (requestId) => originalStore.take(requestId),
+    };
+
+    await expect(
+      resumeScenario(
+        paused.requestId,
+        { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'confirm' },
+        SINGLE_GATE_SCENARIO,
+        { ...deps, confirmationStore: requestDriftStore },
+      ),
+    ).rejects.toThrow(/identity/);
+    expect(consumeCalls).toBe(0);
+
+    await expect(
+      resumeScenario(
+        paused.requestId,
+        { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'confirm' },
+        SINGLE_GATE_SCENARIO,
+        { ...deps, eventLog: createEventLog('different-session') },
+      ),
+    ).rejects.toThrow(/session identity/);
+    expect(deps.eventLog.list()).toEqual(eventsBefore);
+
     await expect(
       resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
     ).resolves.toMatchObject({ status: 'completed' });
@@ -375,6 +487,21 @@ describe('resumeScenario', () => {
     await expect(
       resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'x' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
     ).rejects.toThrow(UnknownConfirmationRequestError);
+  });
+
+  it('allows exactly one of two competing resume consumers to commit', async () => {
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
+    const paused = await pauseSingleGate(deps);
+
+    const attempts = await Promise.allSettled([
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'first' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'second' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
+    ]);
+
+    expect(attempts.filter((attempt) => attempt.status === 'fulfilled')).toHaveLength(1);
+    expect(attempts.filter((attempt) => attempt.status === 'rejected')).toHaveLength(1);
+    expect(deps.eventLog.list().filter((event) => event.type === 'confirmation_resolved')).toHaveLength(1);
+    expect(deps.eventLog.list().filter((event) => event.type === 'scenario_completed')).toHaveLength(1);
   });
 
   it('applies a field-level revision before confirming, records it via RevisionEventStore, and emits revision_recorded', async () => {
