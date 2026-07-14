@@ -169,5 +169,6 @@
   ],
   "additionalProperties": false,
   "title": "PartyGraph",
-  "description": "当事人关系图谱：节点（自然人/法人 + 别名数组）+ 边（关系类型 + 证据锚点）。"
+  "description": "当事人关系图谱：节点（自然人/法人 + 别名数组）+ 边（关系类型 + 证据锚点）。",
+  "$id": "urn:courtwork:schema:legal.PartyGraph:v1"
 }

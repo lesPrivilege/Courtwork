@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ArtifactDescriptorDataV1Schema,
   InteractionTemplateSchema,
   PackageScenarioSchema,
   RendererDescriptorSchema,
   ScenarioIdSchema,
+  VerticalPackageDescriptorV1Schema,
 } from './package-manifest.js';
 
 const VALID_SCENARIO = {
@@ -144,6 +146,76 @@ describe('InteractionTemplateSchema（ADR-007 垂类受控交互模板）', () =
       InteractionTemplateSchema.safeParse({
         ...VALID_INTERACTION_TEMPLATE,
         options: [{ id: 'buyer', label: '买方', bbox: [0, 0, 1, 1], textRange: [0, 8] }],
+      }).success,
+    ).toBe(false);
+  });
+});
+
+const VALID_ARTIFACT_DESCRIPTOR_DATA = {
+  typeId: 'legal.RiskList',
+  title: '风险清单',
+  schemaId: 'legal.RiskList',
+  draftSchemaId: 'legal.RiskListDraft',
+  citationBinding: {
+    draftField: 'quoteClaims',
+    anchorField: 'sourceAnchors',
+    itemScope: '/risks',
+    itemSummaryField: 'description',
+    outOfCoverageField: 'outOfCoverage',
+  },
+  rehydrationProjection: {
+    ops: [{ kind: 'field', path: '/caseId', label: '案件' }],
+    rowBudget: 3,
+  },
+  uiTemplateId: 'risk-review-panel',
+  presentation: {
+    collectionPointer: '/risks',
+    fields: [{ pointer: '/description', label: '风险', format: 'text' }],
+  },
+} as const;
+
+const VALID_PACKAGE_DESCRIPTOR_V1 = {
+  abiVersion: 1,
+  identity: { packageId: 'legal', version: '0.1.0', schemaVersion: 1 },
+  artifacts: [VALID_ARTIFACT_DESCRIPTOR_DATA],
+  scenarios: [VALID_SCENARIO],
+  promptSegments: [{ id: 'contract-review', body: '合同审查提示词。' }],
+  renderers: [{ uiTemplateId: 'risk-review-panel', kind: 'workspace', title: '风险审阅' }],
+  vocabulary: { 'container.noun': '卷宗', 'stage.noun': '阶段', 'material.noun': '卷宗材料' },
+} as const;
+
+describe('VerticalPackageDescriptorV1（ABI-2A data plane）', () => {
+  it('只含 ADR-009 声明字段且可以 JSON stringify', () => {
+    const parsed = VerticalPackageDescriptorV1Schema.parse(VALID_PACKAGE_DESCRIPTOR_V1);
+
+    expect(() => JSON.stringify(parsed)).not.toThrow();
+    expect(JSON.parse(JSON.stringify(parsed))).toEqual(parsed);
+  });
+
+  it('artifact schema 只以稳定 id 引用，不接受 Zod/function/React 等执行对象', () => {
+    expect(ArtifactDescriptorDataV1Schema.safeParse(VALID_ARTIFACT_DESCRIPTOR_DATA).success).toBe(true);
+    expect(
+      ArtifactDescriptorDataV1Schema.safeParse({
+        ...VALID_ARTIFACT_DESCRIPTOR_DATA,
+        schema: { parse() {} },
+      }).success,
+    ).toBe(false);
+    expect(
+      ArtifactDescriptorDataV1Schema.safeParse({
+        ...VALID_ARTIFACT_DESCRIPTOR_DATA,
+        render: () => null,
+      }).success,
+    ).toBe(false);
+  });
+
+  it('未知 ABI 与未拍板 presentation format fail closed', () => {
+    expect(
+      VerticalPackageDescriptorV1Schema.safeParse({ ...VALID_PACKAGE_DESCRIPTOR_V1, abiVersion: 2 }).success,
+    ).toBe(false);
+    expect(
+      ArtifactDescriptorDataV1Schema.safeParse({
+        ...VALID_ARTIFACT_DESCRIPTOR_DATA,
+        presentation: { fields: [{ pointer: '/description', label: '风险', format: 'html' }] },
       }).success,
     ).toBe(false);
   });

@@ -1,6 +1,6 @@
 # SPEC: packages/registry（W2）
 
-状态：既有 PACKAGE-ABI/INTERACTION 已验收；现行工单 `ABI-2A` 待实现
+状态：既有 PACKAGE-ABI/INTERACTION 已验收；`ABI-2A` 已实现，待异会话验收
 
 ## 现行架构工单（2026-07-14）
 
@@ -9,6 +9,14 @@
 权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。新增纯 JSON `VerticalPackageDescriptorV1` 与仅进程内可见的 `VerticalPackageBindings`，通过稳定 id 闭合 artifact schema/draft schema 引用；bindings 精确形状为 `schemas: ReadonlyMap<schemaId, ZodType>`，final/draft 各用自己的逻辑 schema id，不以 artifact type 作隐式 key。先迁 Legal，PM 留给 `ABI-2B`。descriptor 必须可 JSON stringify、深冻结且递归不含 function/Zod/React；未知 ABI、缺 binding、重复/越 namespace id 必须隔离拒载。
 
 迁移期只允许一个有 drift 测试的 compatibility adapter；不得保留第二套准入真源，不改法律 schema 字段语义、renderer UI、desktop 路由或 provider。Zod 继续作为 runtime validator；本单只建立显式 Draft 2020-12 导出入口与不可表达类型 throw 门，`$id` 固定为 `urn:courtwork:schema:<logicalSchemaId>:v<schemaVersion>` 且禁止远程 ref，不引 Ajv 产品依赖或动态插件。
+
+#### ABI-2A 实现记录（2026-07-14）
+
+- 新增 strict `VerticalPackageDescriptorV1` / `ArtifactDescriptorDataV1` data plane 与 `VerticalPackageBindings.schemas: ReadonlyMap<schemaId, ZodType>` runtime plane。final/draft 各自使用显式逻辑 id；重复引用、缺 binding、越 namespace、未知 ABI 与非纯 JSON 对象均逐包拒载。
+- 准入递归拒绝 function/symbol/bigint/accessor/Zod/React-like 非普通对象，再以 V1 schema 解析克隆并深冻结；拒载包不占 id、不泄漏 warning，也不污染后到包。
+- `bindArtifactDescriptorCompatibility` 是迁移期唯一兼容适配器，只在 registry 装配点把 binding 接回 core 既有 `descriptor.schema/draftSchema` 消费面；drift 测试证明 data plane 往返不丢字段。
+- JSON Schema 出口固定 Draft 2020-12 + `unrepresentable: 'throw'`；包 schema 使用已拍板 URN `$id`，且只允许 fragment `$ref`。
+- Legal 已迁移；PM、desktop、provider 与 core 行为未改。PM 后续只由 `ABI-2B` 迁移，不得复制本单准入逻辑。
 
 ## 已完成架构工单（2026-07-13）
 

@@ -1,4 +1,9 @@
-import type { VerticalPackageManifest } from '@courtwork/registry';
+import type {
+  VerticalPackageBindings,
+  VerticalPackageDescriptorV1,
+  VerticalPackageManifest,
+} from '@courtwork/registry';
+import type { ZodType } from 'zod';
 import { CaseFileSchema } from './schemas/case-file.js';
 import { TimelineSchema } from './schemas/timeline.js';
 import { PartyGraphSchema } from './schemas/party-graph.js';
@@ -43,7 +48,8 @@ const S6_FILE_OPS_PROMPT = [
   '计划是待确认清单：不执行任何操作，执行发生在用户确认之后、由确定性执行器完成。目标路径一律相对案件文件夹根。',
 ].join('\n');
 
-export const LEGAL_PACKAGE: VerticalPackageManifest = {
+export const LEGAL_PACKAGE_DESCRIPTOR: VerticalPackageDescriptorV1 = {
+  abiVersion: 1,
   identity: {
     packageId: 'legal',
     version: '0.1.0',
@@ -63,7 +69,7 @@ export const LEGAL_PACKAGE: VerticalPackageManifest = {
     {
       typeId: 'legal.CaseFile',
       title: '卷宗清单',
-      schema: CaseFileSchema,
+      schemaId: 'legal.CaseFile',
       rehydrationProjection: {
         ops: [
           { kind: 'field', path: '/caseId', label: '案件' },
@@ -82,7 +88,7 @@ export const LEGAL_PACKAGE: VerticalPackageManifest = {
     {
       typeId: 'legal.Timeline',
       title: '事件时间线',
-      schema: TimelineSchema,
+      schemaId: 'legal.Timeline',
       rehydrationProjection: {
         ops: [
           { kind: 'field', path: '/caseId', label: '案件' },
@@ -96,7 +102,7 @@ export const LEGAL_PACKAGE: VerticalPackageManifest = {
     {
       typeId: 'legal.PartyGraph',
       title: '当事人图谱',
-      schema: PartyGraphSchema,
+      schemaId: 'legal.PartyGraph',
       rehydrationProjection: {
         ops: [
           { kind: 'field', path: '/caseId', label: '案件' },
@@ -114,9 +120,9 @@ export const LEGAL_PACKAGE: VerticalPackageManifest = {
     {
       typeId: 'legal.RiskList',
       title: '风险清单',
-      schema: RiskListSchema,
+      schemaId: 'legal.RiskList',
       /** 引用闭环（拍板一）：模型侧草稿出引语，resolver 铸坐标；回填映射随包声明。 */
-      draftSchema: RiskListDraftSchema,
+      draftSchemaId: 'legal.RiskListDraft',
       citationBinding: {
         draftField: 'quoteClaims',
         anchorField: 'sourceAnchors',
@@ -145,7 +151,7 @@ export const LEGAL_PACKAGE: VerticalPackageManifest = {
     {
       typeId: 'legal.ReviewMatrix',
       title: '矩阵审阅',
-      schema: ReviewMatrixSchema,
+      schemaId: 'legal.ReviewMatrix',
       rehydrationProjection: {
         ops: [
           { kind: 'field', path: '/caseId', label: '案件' },
@@ -162,7 +168,7 @@ export const LEGAL_PACKAGE: VerticalPackageManifest = {
     {
       typeId: 'legal.RevisionInstructionSet',
       title: '修订指令集',
-      schema: RevisionInstructionSetSchema,
+      schemaId: 'legal.RevisionInstructionSet',
       /** 确认后编译为 docx 修订写入——文件级副作用，confirmationPolicy 不得为 none。 */
       sideEffect: 'file_write',
       rehydrationProjection: {
@@ -177,7 +183,7 @@ export const LEGAL_PACKAGE: VerticalPackageManifest = {
     {
       typeId: 'legal.FileOpsPlan',
       title: '整理计划',
-      schema: FileOpsPlanSchema,
+      schemaId: 'legal.FileOpsPlan',
       /** 确认后由确定性执行器移形文件——文件级副作用。 */
       sideEffect: 'file_write',
       rehydrationProjection: {
@@ -352,3 +358,23 @@ export const LEGAL_PACKAGE: VerticalPackageManifest = {
     'material.noun': '卷宗材料',
   },
 };
+
+/** runtime plane：final/draft 使用各自逻辑 schema id，绝不以 typeId 隐式猜 binding。 */
+export const LEGAL_PACKAGE_BINDINGS: VerticalPackageBindings = {
+  schemas: new Map<string, ZodType>([
+    ['legal.CaseFile', CaseFileSchema],
+    ['legal.Timeline', TimelineSchema],
+    ['legal.PartyGraph', PartyGraphSchema],
+    ['legal.RiskList', RiskListSchema],
+    ['legal.RiskListDraft', RiskListDraftSchema],
+    ['legal.ReviewMatrix', ReviewMatrixSchema],
+    ['legal.RevisionInstructionSet', RevisionInstructionSetSchema],
+    ['legal.FileOpsPlan', FileOpsPlanSchema],
+  ]),
+};
+
+/** 既有 composition 名保持不变；准入真源只有 descriptor + bindings 这一套。 */
+export const LEGAL_PACKAGE: VerticalPackageManifest = Object.freeze({
+  ...LEGAL_PACKAGE_DESCRIPTOR,
+  bindings: LEGAL_PACKAGE_BINDINGS,
+});

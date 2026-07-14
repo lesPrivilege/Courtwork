@@ -181,5 +181,6 @@
   ],
   "additionalProperties": false,
   "title": "Timeline",
-  "description": "事件时间线：事件 + 日期（含模糊日期表达）+ 当事人关联 + 来源锚点。"
+  "description": "事件时间线：事件 + 日期（含模糊日期表达）+ 当事人关联 + 来源锚点。",
+  "$id": "urn:courtwork:schema:legal.Timeline:v1"
 }

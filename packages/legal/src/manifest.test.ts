@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { admitPackages, buildPackageRegistries } from '@courtwork/registry';
-import { LEGAL_PACKAGE } from './manifest.js';
+import {
+  LEGAL_PACKAGE,
+  LEGAL_PACKAGE_BINDINGS,
+  LEGAL_PACKAGE_DESCRIPTOR,
+} from './manifest.js';
 
 describe('LEGAL_PACKAGE（法律包准入自证：迁包后包必须过自己要过的门）', () => {
   const result = admitPackages([LEGAL_PACKAGE]);
@@ -8,6 +12,35 @@ describe('LEGAL_PACKAGE（法律包准入自证：迁包后包必须过自己要
   it('准入零拒载（引用闭合/命名空间/词表完备性全过）', () => {
     expect(result.rejected).toEqual([]);
     expect(result.admitted).toHaveLength(1);
+  });
+
+  it('descriptor 是纯 JSON，runtime Zod 只存在 bindings plane', () => {
+    const serialized = JSON.stringify(LEGAL_PACKAGE_DESCRIPTOR);
+    const snapshot = JSON.parse(serialized) as Record<string, unknown>;
+
+    expect(snapshot).toEqual(LEGAL_PACKAGE_DESCRIPTOR);
+    expect(serialized).not.toContain('Zod');
+    expect(serialized).not.toContain('"schema"');
+    expect([...LEGAL_PACKAGE_BINDINGS.schemas.keys()]).toEqual([
+      'legal.CaseFile',
+      'legal.Timeline',
+      'legal.PartyGraph',
+      'legal.RiskList',
+      'legal.RiskListDraft',
+      'legal.ReviewMatrix',
+      'legal.RevisionInstructionSet',
+      'legal.FileOpsPlan',
+    ]);
+  });
+
+  it('准入快照递归深冻结，源 descriptor 后改不能污染运行 registries', () => {
+    const admitted = result.admitted[0]!;
+    expect(Object.isFrozen(admitted)).toBe(true);
+    expect(Object.isFrozen(admitted.artifacts)).toBe(true);
+    expect(Object.isFrozen(admitted.artifacts[0]!.rehydrationProjection.ops)).toBe(true);
+    expect(() => {
+      (admitted.artifacts[0] as { title: string }).title = '篡改';
+    }).toThrow(TypeError);
   });
 
   it('renderer 声明齐备：零渲染兜底警告', () => {

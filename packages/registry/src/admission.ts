@@ -1,10 +1,8 @@
 import * as z from 'zod';
 import {
-  PackageIdentitySchema,
+  ArtifactTypeIdSchema,
   parseArtifactTypeId,
-  validateArtifactDescriptor,
   sideEffectsPermitNoGate,
-  type ArtifactDescriptor,
   type SideEffectClass,
 } from '@courtwork/schemas';
 import {
@@ -13,6 +11,8 @@ import {
   PromptSegmentSchema,
   RendererDescriptorSchema,
   REQUIRED_VOCABULARY_KEYS,
+  VerticalPackageDescriptorV1Schema,
+  type ArtifactDescriptorDataV1,
   type VerticalPackageManifest,
 } from './package-manifest.js';
 
@@ -61,10 +61,10 @@ function collectEnumFields(schema: z.ZodTypeAny, fieldName: string | undefined, 
   }
 }
 
-function checkEnumVocabulary(descriptor: ArtifactDescriptor): string[] {
+function checkEnumVocabulary(descriptor: ArtifactDescriptorDataV1, schema: z.ZodType): string[] {
   const issues: string[] = [];
   const found = new Map<string, Set<string>>();
-  collectEnumFields(descriptor.schema, undefined, found);
+  collectEnumFields(schema, undefined, found);
   for (const [field, options] of found) {
     const labels = descriptor.vocabulary?.enumLabels?.[field];
     if (labels === undefined) {
@@ -80,110 +80,213 @@ function checkEnumVocabulary(descriptor: ArtifactDescriptor): string[] {
   return issues;
 }
 
+function inspectJsonData(
+  value: unknown,
+  path: string,
+  seen: Set<object>,
+  issues: string[],
+): void {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') return;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) issues.push(`${path} 含非有限 number，不是合法 JSON`);
+    return;
+  }
+  if (typeof value === 'undefined' || typeof value === 'function' || typeof value === 'symbol' || typeof value === 'bigint') {
+    issues.push(`${path} 含 ${typeof value}，descriptor 必须是纯 JSON`);
+    return;
+  }
+  if (seen.has(value)) {
+    issues.push(`${path} 含循环引用，descriptor 必须可以 JSON stringify`);
+    return;
+  }
+  seen.add(value);
+
+  const prototype = Object.getPrototypeOf(value);
+  if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) {
+    issues.push(`${path} 含 ${prototype?.constructor?.name ?? '非普通对象'}，descriptor 不得含 Zod/React/可执行对象`);
+    seen.delete(value);
+    return;
+  }
+  for (const key of Reflect.ownKeys(value)) {
+    if (typeof key === 'symbol') {
+      issues.push(`${path} 含 symbol key，descriptor 必须是纯 JSON`);
+      continue;
+    }
+    const property = Object.getOwnPropertyDescriptor(value, key);
+    if (property === undefined) continue;
+    if ('get' in property || 'set' in property) {
+      issues.push(`${path}.${key} 是 accessor，descriptor 不得执行代码`);
+      continue;
+    }
+    inspectJsonData(property.value, `${path}.${key}`, seen, issues);
+  }
+  seen.delete(value);
+}
+
+function descriptorCandidate(manifest: VerticalPackageManifest, issues: string[]): unknown {
+  if (manifest === null || typeof manifest !== 'object') {
+    issues.push('包声明必须是对象');
+    return manifest;
+  }
+  const candidate: Record<string, unknown> = {};
+  for (const key of Reflect.ownKeys(manifest)) {
+    if (key === 'bindings') {
+      const bindingProperty = Object.getOwnPropertyDescriptor(manifest, key);
+      if (bindingProperty !== undefined && ('get' in bindingProperty || 'set' in bindingProperty)) {
+        issues.push('bindings 是 accessor，准入边界拒绝执行 getter/setter');
+      }
+      continue;
+    }
+    if (typeof key === 'symbol') {
+      issues.push('descriptor 根含 symbol key，必须是纯 JSON');
+      continue;
+    }
+    const property = Object.getOwnPropertyDescriptor(manifest, key);
+    if (property === undefined) continue;
+    if ('get' in property || 'set' in property) {
+      issues.push(`descriptor.${key} 是 accessor，descriptor 不得执行代码`);
+      continue;
+    }
+    candidate[key] = property.value;
+  }
+  inspectJsonData(candidate, 'descriptor', new Set(), issues);
+  return candidate;
+}
+
+function deepFreezeJson<T>(value: T): T {
+  if (value !== null && typeof value === 'object' && !Object.isFrozen(value)) {
+    for (const child of Object.values(value)) deepFreezeJson(child);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+interface AdmitOneResult {
+  manifest?: VerticalPackageManifest;
+  issues: string[];
+  warnings: string[];
+}
+
 function admitOne(
-  manifest: VerticalPackageManifest,
+  source: VerticalPackageManifest,
   seenPackageIds: Set<string>,
   seenInteractionTemplateOwners: ReadonlyMap<string, string>,
-  warnings: string[],
-): string[] {
+): AdmitOneResult {
   const issues: string[] = [];
-
-  const identity = PackageIdentitySchema.safeParse(manifest.identity);
-  if (!identity.success) {
-    issues.push(`包身份不合法：${identity.error.issues.map((i) => i.message).join('；')}`);
-    return issues;
+  const warnings: string[] = [];
+  const candidate = descriptorCandidate(source, issues);
+  if (issues.length > 0) return { issues, warnings };
+  const descriptorResult = VerticalPackageDescriptorV1Schema.safeParse(candidate);
+  if (!descriptorResult.success) {
+    issues.push(
+      `descriptor V1 不合法${descriptorResult.error.issues.some((issue) => issue.path[0] === 'interactionTemplates') ? '（interaction template）' : ''}：${descriptorResult.error.issues
+        .map((issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`)
+        .join('；')}`,
+    );
+    return { issues, warnings };
   }
-  const packageId = identity.data.packageId;
+  const descriptor = descriptorResult.data;
+  const packageId = descriptor.identity.packageId;
   if (seenPackageIds.has(packageId)) {
     issues.push(`packageId "${packageId}" 已被先到的包占用（同 id 拒载）`);
-    return issues;
+    return { issues, warnings };
   }
 
+  const schemaEntries: Array<[string, z.ZodType]> = [];
+  const schemas = source.bindings?.schemas;
+  if (schemas === undefined || typeof schemas.entries !== 'function') {
+    issues.push('bindings.schemas 必须是 ReadonlyMap<schemaId, ZodType>');
+  } else {
+    try {
+      for (const rawEntry of schemas.entries()) {
+        if (!Array.isArray(rawEntry) || rawEntry.length !== 2) {
+          issues.push('bindings.schemas 迭代项必须是 [schemaId, ZodType]');
+          continue;
+        }
+        const [schemaId, schema] = rawEntry as [unknown, unknown];
+        if (typeof schemaId !== 'string' || !ArtifactTypeIdSchema.safeParse(schemaId).success) {
+          issues.push(`binding schema id "${String(schemaId)}" 不是 namespaced 逻辑 id`);
+          continue;
+        }
+        if (parseArtifactTypeId(schemaId).namespace !== packageId) {
+          issues.push(`binding schema id ${schemaId} 越出本包命名空间（命名空间所有权：${packageId}.*）`);
+        }
+        if (!(schema instanceof z.ZodType)) {
+          issues.push(`binding schema id ${schemaId} 未绑定 ZodType`);
+          continue;
+        }
+        if (schemaEntries.some(([seenId]) => seenId === schemaId)) {
+          issues.push(`binding schema id ${schemaId} 重复`);
+          continue;
+        }
+        schemaEntries.push([schemaId, schema]);
+      }
+    } catch (error) {
+      issues.push(`bindings.schemas 无法安全迭代：${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  const schemaBindings = new Map(schemaEntries);
+
   const declaredTypes = new Set<string>();
+  const declaredSchemaIds = new Set<string>();
   const declaredEffects = new Map<string, SideEffectClass>();
-  for (const descriptor of manifest.artifacts) {
-    for (const issue of validateArtifactDescriptor(descriptor)) {
-      issues.push(`descriptor ${descriptor.typeId}：${issue}`);
-    }
-    const { namespace } = parseArtifactTypeId(descriptor.typeId);
+  for (const artifact of descriptor.artifacts) {
+    const { namespace } = parseArtifactTypeId(artifact.typeId);
     if (namespace !== packageId) {
-      issues.push(`descriptor ${descriptor.typeId} 越出本包命名空间（命名空间所有权：${packageId}.*）`);
+      issues.push(`descriptor ${artifact.typeId} 越出本包命名空间（命名空间所有权：${packageId}.*）`);
     }
-    if (declaredTypes.has(descriptor.typeId)) {
-      issues.push(`descriptor 类型 ${descriptor.typeId} 在包内重复声明`);
+    if (declaredTypes.has(artifact.typeId)) issues.push(`descriptor 类型 ${artifact.typeId} 在包内重复声明`);
+    declaredTypes.add(artifact.typeId);
+    declaredEffects.set(artifact.typeId, artifact.sideEffect ?? 'pure_read');
+
+    for (const schemaId of [artifact.schemaId, artifact.draftSchemaId].filter(
+      (value): value is string => value !== undefined,
+    )) {
+      if (parseArtifactTypeId(schemaId).namespace !== packageId) {
+        issues.push(`descriptor ${artifact.typeId} 的 schema id ${schemaId} 越出本包命名空间`);
+      }
+      if (declaredSchemaIds.has(schemaId)) issues.push(`schema id ${schemaId} 被重复引用`);
+      declaredSchemaIds.add(schemaId);
+      if (!schemaBindings.has(schemaId)) {
+        issues.push(`descriptor ${artifact.typeId} 的 schema id ${schemaId} 缺 binding`);
+      }
     }
-    declaredTypes.add(descriptor.typeId);
-    declaredEffects.set(descriptor.typeId, descriptor.sideEffect ?? 'pure_read');
-    issues.push(...checkEnumVocabulary(descriptor));
+    const finalSchema = schemaBindings.get(artifact.schemaId);
+    if (finalSchema !== undefined) issues.push(...checkEnumVocabulary(artifact, finalSchema));
   }
 
   const promptIds = new Set<string>();
-  for (const segment of manifest.promptSegments) {
-    const parsed = PromptSegmentSchema.safeParse(segment);
-    if (!parsed.success) {
-      issues.push(`promptSegment 不合法：${parsed.error.issues.map((i) => i.message).join('；')}`);
-      continue;
-    }
-    if (promptIds.has(segment.id)) issues.push(`promptSegment id "${segment.id}" 重复`);
-    promptIds.add(segment.id);
+  for (const segment of descriptor.promptSegments) {
+    const parsed = PromptSegmentSchema.parse(segment);
+    if (promptIds.has(parsed.id)) issues.push(`promptSegment id "${parsed.id}" 重复`);
+    promptIds.add(parsed.id);
   }
 
   const rendererIds = new Set<string>();
-  for (const renderer of manifest.renderers) {
-    const parsed = RendererDescriptorSchema.safeParse(renderer);
-    if (!parsed.success) {
-      issues.push(`renderer 声明不合法：${parsed.error.issues.map((i) => i.message).join('；')}`);
-      continue;
-    }
-    if (rendererIds.has(renderer.uiTemplateId)) issues.push(`renderer uiTemplateId "${renderer.uiTemplateId}" 重复`);
-    rendererIds.add(renderer.uiTemplateId);
+  for (const renderer of descriptor.renderers) {
+    const parsed = RendererDescriptorSchema.parse(renderer);
+    if (rendererIds.has(parsed.uiTemplateId)) issues.push(`renderer uiTemplateId "${parsed.uiTemplateId}" 重复`);
+    rendererIds.add(parsed.uiTemplateId);
   }
 
   const interactionTemplateIds = new Set<string>();
-  const interactionTemplates = manifest.interactionTemplates;
-  if (interactionTemplates !== undefined && !Array.isArray(interactionTemplates)) {
-    issues.push('interactionTemplates 声明不合法：必须是数组');
-  }
-  for (const template of Array.isArray(interactionTemplates) ? interactionTemplates : []) {
-    const parsed = InteractionTemplateSchema.safeParse(template);
-    if (!parsed.success) {
-      const templateId =
-        typeof template === 'object' && template !== null && 'id' in template && typeof template.id === 'string'
-          ? template.id
-          : '(无 id)';
-      issues.push(
-        `interaction template ${templateId} 声明不合法：${parsed.error.issues
-          .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
-          .join('；')}`,
-      );
-      continue;
-    }
-    const value = parsed.data;
-    if (interactionTemplateIds.has(value.id)) {
-      issues.push(`interaction template id "${value.id}" 在包内重复`);
-    }
+  for (const template of descriptor.interactionTemplates ?? []) {
+    const value = InteractionTemplateSchema.parse(template);
+    if (interactionTemplateIds.has(value.id)) issues.push(`interaction template id "${value.id}" 在包内重复`);
     interactionTemplateIds.add(value.id);
-
     const templateNamespace = value.id.slice(0, value.id.indexOf('.'));
     if (templateNamespace !== packageId) {
       issues.push(`interaction template ${value.id} 越出本包命名空间（命名空间所有权：${packageId}.*）`);
     }
     const existingOwner = seenInteractionTemplateOwners.get(value.id);
     if (existingOwner !== undefined && existingOwner !== packageId) {
-      issues.push(
-        `interaction template id "${value.id}" 与已准入包 ${existingOwner} 跨包重复（后到包拒载）`,
-      );
+      issues.push(`interaction template id "${value.id}" 与已准入包 ${existingOwner} 跨包重复（后到包拒载）`);
     }
   }
 
   const scenarioIds = new Set<string>();
-  for (const scenario of manifest.scenarios) {
-    const parsed = PackageScenarioSchema.safeParse(scenario);
-    if (!parsed.success) {
-      issues.push(`场景 ${scenario.id ?? '(无 id)'} 声明不合法：${parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('；')}`);
-      continue;
-    }
-    const value = parsed.data;
+  for (const scenario of descriptor.scenarios) {
+    const value = PackageScenarioSchema.parse(scenario);
     if (scenarioIds.has(value.id)) issues.push(`场景 id "${value.id}" 在包内重复`);
     scenarioIds.add(value.id);
     const scenarioNamespace = value.id.slice(0, value.id.indexOf('.'));
@@ -201,9 +304,7 @@ function admitOne(
     if (value.confirmationPolicy.mode === 'none') {
       const effects = value.outputArtifacts.map((ref) => declaredEffects.get(ref) ?? 'pure_read');
       if (!sideEffectsPermitNoGate(effects)) {
-        issues.push(
-          `场景 ${value.id} 声明 confirmationPolicy: none，但产出含副作用 artifact——none 仅限纯读取分析零外部写入，包无权放宽（工具侧副作用由 executor 运行时门复核）`,
-        );
+        issues.push(`场景 ${value.id} 声明 confirmationPolicy: none，但产出含副作用 artifact——none 仅限纯读取分析零外部写入，包无权放宽（工具侧副作用由 executor 运行时门复核）`);
       }
     }
     if (!rendererIds.has(value.uiTemplateId)) {
@@ -211,20 +312,26 @@ function admitOne(
     }
   }
 
-  for (const descriptor of manifest.artifacts) {
-    if (!rendererIds.has(descriptor.uiTemplateId)) {
-      warnings.push(`descriptor ${descriptor.typeId} 的 uiTemplateId "${descriptor.uiTemplateId}" 未声明 renderer——运行时将落通用结构视图（渲染兜底）`);
+  for (const artifact of descriptor.artifacts) {
+    if (!rendererIds.has(artifact.uiTemplateId)) {
+      warnings.push(`descriptor ${artifact.typeId} 的 uiTemplateId "${artifact.uiTemplateId}" 未声明 renderer——运行时将落通用结构视图（渲染兜底）`);
     }
   }
-
   for (const key of REQUIRED_VOCABULARY_KEYS) {
-    const word = manifest.vocabulary[key];
+    const word = descriptor.vocabulary[key];
     if (word === undefined || word.trim() === '') {
       issues.push(`词表缺必备键 "${key}"（缺词=包 lint 错误非运行时惊吓）`);
     }
   }
+  if (issues.length > 0) return { issues, warnings };
 
-  return issues;
+  const frozenDescriptor = deepFreezeJson(descriptor);
+  const bindings = Object.freeze({
+    schemas: new Map(schemaEntries),
+    ...(source.bindings.migrations === undefined ? {} : { migrations: new Map(source.bindings.migrations) }),
+  });
+  const manifest = Object.freeze({ ...frozenDescriptor, bindings });
+  return { manifest, issues, warnings };
 }
 
 /**
@@ -238,17 +345,37 @@ export function admitPackages(manifests: VerticalPackageManifest[]): AdmissionRe
   const seen = new Set<string>();
   const seenInteractionTemplateOwners = new Map<string, string>();
 
-  for (const manifest of manifests) {
-    const issues = admitOne(manifest, seen, seenInteractionTemplateOwners, warnings);
-    const packageId = manifest.identity?.packageId ?? '(未知)';
-    if (issues.length > 0) {
-      rejected.push({ packageId, issues });
-    } else {
-      admitted.push(manifest);
+  for (const source of manifests) {
+    let packageId = '(未知)';
+    try {
+      const result = admitOne(source, seen, seenInteractionTemplateOwners);
+      packageId = result.manifest?.identity.packageId ?? packageId;
+      if (result.manifest === undefined) {
+        const identityProperty =
+          source !== null && typeof source === 'object'
+            ? Object.getOwnPropertyDescriptor(source, 'identity')
+            : undefined;
+        const rawIdentity = identityProperty !== undefined && 'value' in identityProperty ? identityProperty.value : undefined;
+        if (rawIdentity !== null && typeof rawIdentity === 'object') {
+          const packageIdProperty = Object.getOwnPropertyDescriptor(rawIdentity, 'packageId');
+          if (packageIdProperty !== undefined && 'value' in packageIdProperty && typeof packageIdProperty.value === 'string') {
+            packageId = packageIdProperty.value;
+          }
+        }
+        rejected.push({ packageId, issues: result.issues });
+        continue;
+      }
+      admitted.push(result.manifest);
+      warnings.push(...result.warnings);
       seen.add(packageId);
-      for (const template of manifest.interactionTemplates ?? []) {
+      for (const template of result.manifest.interactionTemplates ?? []) {
         seenInteractionTemplateOwners.set(template.id, packageId);
       }
+    } catch (error) {
+      rejected.push({
+        packageId,
+        issues: [`准入边界捕获异常：${error instanceof Error ? error.message : String(error)}`],
+      });
     }
   }
 

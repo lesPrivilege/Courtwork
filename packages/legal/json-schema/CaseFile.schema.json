@@ -63,5 +63,6 @@
   ],
   "additionalProperties": false,
   "title": "CaseFile",
-  "description": "案件档案：卷内文件清单、文书类型分类、摄取状态。"
+  "description": "案件档案：卷内文件清单、文书类型分类、摄取状态。",
+  "$id": "urn:courtwork:schema:legal.CaseFile:v1"
 }

@@ -1,6 +1,6 @@
 # SPEC: packages/legal（FABLE-HARNESS 第 3 步，2026-07-13 立包）
 
-状态：在建（legal 迁出 core——ABI 施工序第 3 步）
+状态：PACKAGE-ABI 已成立；ABI-2A 双平面迁移已实现，待异会话验收
 
 ## 职责
 
@@ -15,14 +15,14 @@
   自 packages/schemas 迁入（git mv 保历史）。**基座契约不迁**：SourceAnchor/RevisionEvent/
   信源分级（拍板既裁）+ RevisionInstructionSet（output 管线 wire 契约）+ FileOpsPlan（tools
   文件执行器 wire 契约）+ IngestStatus（材料管线状态词汇）留中央，本包 re-export 消费。
-- `src/manifest.ts`：`LEGAL_PACKAGE`（VerticalPackageManifest）——包身份（含七个旧裸类型名
+- `src/manifest.ts`：`LEGAL_PACKAGE_DESCRIPTOR`（纯 JSON）+ `LEGAL_PACKAGE_BINDINGS`（进程内 Zod）及既有 composition 名 `LEGAL_PACKAGE`——包身份（含七个旧裸类型名
   的账本读侧迁移别名表）、七 artifact descriptor（含续行投影声明/枚举词表/副作用分级）、
   五场景声明 v2（legal.S1–S4/S6，namespaced + confirmationPolicy + promptSegmentRef + 步骤树）、
   五段声明级提示词正文、七 renderer 声明、两枚受控交互模板、容器词表（卷宗/阶段/卷宗材料）。
 - `src/compile-risk-list-to-revisions.ts`：RiskList→RevisionInstructionSet 编译（法律语义，
   自 core/composition 迁入）。信源门禁经 `EvidenceGatekeeper` 注入口绑定——本包零 core 依赖。
 - `src/demo/s3-risk-list-response.ts`：S3 演示脚本响应（自 core/composition 迁入）。
-- `json-schema/` + drift 测试：法律五 schema 的对外 JSON Schema 契约面（随包迁移，同纪律）。
+- `json-schema/` + drift 测试：descriptor 引用的八枚 final/draft schema 对外契约面（含 RiskListDraft、RevisionInstructionSet、FileOpsPlan；随包迁移，同纪律）。
 
 ## 依赖
 
@@ -39,7 +39,7 @@
 
 ## TODO
 
-- [ ] RiskList 引用闭环草稿形状（draftSchema + citationBinding）随 HARNESS-1 resolver 步落地。
+- [x] RiskList 引用闭环草稿形状已落地；ABI-2A 后以 `draftSchemaId` + bindings 闭合，citationBinding 字段语义不变。
 - [ ] [提案，需架构拍板] RevisionInstructionSet 的 statuteRef（法条引用）是基座契约里唯一的
   法律味字段——远期可拆为通用 citation + 包级扩展位；当期保持原状（output 管线依赖稳定优先）。
 
@@ -58,3 +58,9 @@
 - 两枚模板不读取 demo-data、不包含样板案人物/条款真值，也不携带 `anchorRefs`、bbox、textRange 或其他运行时坐标。`uiTemplateId` 统一为底座批准的 `question-card`；颜色、布局、键盘与动效不进入 legal。
 - manifest 自证经 registry 双键查询核对 kind、anchorPolicy、skippable 与 option id；本工单不新增场景运行步骤，不接 core 暂停续行，不改变既有 artifact/prompt/renderer 声明。
 - `manifest.test.ts` 先以 `interactionTemplates === undefined` 稳定证红，再随两枚声明转绿；最终与 registry 契约定点合计 45/45 通过。
+
+## 状态更新（2026-07-14，ABI-2A）
+
+- 七个 artifact 的 Zod schema 已全部移出 descriptor，改由八枚显式逻辑 id 闭合到 bindings；RiskList final/draft 分别是 `legal.RiskList` / `legal.RiskListDraft`，不再把 draft 藏在 final binding。
+- `LEGAL_PACKAGE_DESCRIPTOR` 可原样 JSON stringify；准入快照递归深冻结。registry 唯一 compatibility adapter 使 core/desktop 现有读取行为保持不变。
+- 八份提交态 JSON Schema 均携绝对 URN `$id` 与 Draft 2020-12 声明，drift 门覆盖全部 descriptor 引用；本单没有改法律 schema 字段语义、场景、renderer、交互文案或 PM 包。
