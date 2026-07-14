@@ -63,4 +63,6 @@ blueprint 只使用：
 
 组件母版放入 `docs/design/assets/`，文件名包含版本。母版应同时展示 implemented、candidate、deferred，但不得使用假案号、随机法律段落、假百分比或营销指标。
 
+当前视觉母版：[`assets/schema-visualization-kit-v1.png`](assets/schema-visualization-kit-v1.png)。它只使用抽象字段、占位线和状态词展示十二种结构，明确标记“非业务数据”；其中排版、图标与组合仅供原生实现取舍，不能作为字段、计数、公式或 fixture 权威。
+
 生产实现遵守：浅色、冷调中性层级、数据区静止、tabular numbers、1px hairline、圆角不超过登记 token、零 glow/gradient、证据可换行、状态只消费封闭语义色。新场景应先在原生 gallery 中用真实 fixture 全量绘制，再选择是否升级为生产 blueprint。
