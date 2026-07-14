@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { basename, dirname } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { PM_PACKAGE_DESCRIPTOR } from './manifest.js';
@@ -15,11 +15,16 @@ const packageMetadata = JSON.parse(
   readFileSync(packageJsonUrl, 'utf-8'),
 ) as PackageMetadata;
 const packageDirectory = basename(dirname(fileURLToPath(packageJsonUrl)));
+const packagesDirectory = dirname(dirname(fileURLToPath(packageJsonUrl)));
 
 describe('PM package metadata conformance', () => {
   it('目录、npm name 与 descriptor packageId 同字节', () => {
     expect(packageDirectory).toBe(PM_PACKAGE_DESCRIPTOR.identity.packageId);
     expect(packageMetadata.name).toBe(`@courtwork/${PM_PACKAGE_DESCRIPTOR.identity.packageId}`);
+  });
+
+  it('迁移前目录不存在，不允许双包共存', () => {
+    expect(existsSync(join(packagesDirectory, 'pm-schemas'))).toBe(false);
   });
 
   it('package release version 与 descriptor identity.version 同字节', () => {
