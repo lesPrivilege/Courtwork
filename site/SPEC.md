@@ -8,7 +8,7 @@
 
 1. 合同审查：原句 → 风险 → 修订 → 人工确认，标记为已验收工作链；
 2. 卷宗阅卷：20 份材料 → 47 个事件 → 14 个主体 → 8 个矛盾，全部计数由 Legal fixture 校验；
-3. PM 决策：PRD 原句 → 缺陷维度 → 建议 → 排序提案。只有权威 PM fixture 与 host renderer 通过独立验收后才上线；scenario 未接通期间必须显示 `Schema catalog preview / 尚未接通运行链`，不得暗示 live。
+3. PM 决策：PRD 原句 → 缺陷维度 → 修改建议 → 人工处置。只有 `PM-FIXTURE-1` 与 host renderer 通过独立验收后才上线；scenario 未接通期间必须显示 `Schema catalog preview / 尚未接通运行链`，不得暗示 live。排序提案继续等待 `PM-SCHEMA-1`，本单不以假分数补位。
 
 三段仍使用连续行、分割线和真实局部裁片，不新增等权 feature card 或重复 Mac window。站点构建/guard 必须读取权威 fixture 或其确定性快照，锁定计数、引语、状态、公式版本与 live/catalog 标签；截图必须来自已验收 main 经真机操作。
 

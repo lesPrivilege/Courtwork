@@ -2,6 +2,33 @@
 
 状态：已完成（当期范围，随 W5.1 落地）
 
+## PM-FIXTURE-1 · 第二垂类权威样板（待 PM rename 后派发）
+
+权威：ADR-012、`docs/product/pm-vertical.md` 与 `docs/design/visualization-kit.md`。本单只建立可校验的
+catalog/demo 真值，不创建 PM scenario、prompt 或 live harness。
+
+固定目录：
+
+```text
+data/pm/
+├── case-bible.md
+├── manifest.md
+├── materials/
+│   ├── 01-prd.md
+│   └── 02-feedback.md
+└── artifacts/
+    ├── prd-review.json
+    └── feedback-digest.json
+```
+
+- 全部主体、产品与材料显式标注虚构；不使用真实公司、人名、产品指标或线上数据。
+- `PrdReview` 固定覆盖六种 defect type，每项含真实存在于 `01-prd.md` 的逐字 clause 与精确 SourceAnchor；初始 status 只允许 `pending`。
+- `FeedbackDigest` 至少覆盖两个 cluster、三个 channel 与一个 `out_of_coverage` 条目；每个 item/cluster evidence 都逐字回到 `02-feedback.md`，OOC 的 clusterId/rootCause 保持 null。
+- textRange 以 JS UTF-16 string offset 为口径；每枚锚必须满足 `source.slice(start,end) === quote`，并携材料内容 hash 形成 `textLayerVersion`。禁止沿用现有 Legal 旧 fixture 的 `start=0` 占位做法。
+- accessor 只读数据；schema、锚点、id 交叉闭合、虚构水印、确定性 hash 与文件全集均有变异可触红测试。
+- 本单在 `PM-PACKAGE-RENAME-1` 后消费 `@courtwork/pm`，不再新增 `@courtwork/pm-schemas` consumer。
+- `PriorityScore` fixture、排序提案与 PM scenario 继续等待 `PM-SCHEMA-1`；Pages 第一版只能把本样板标为 `schema catalog preview`。
+
 ## 背景
 
 承接 `docs/decisions/ADR-001-package-abi.md`：演示数据从"放在 packages/tools 内"改为独立成包，与消费方 src 完全解耦。本包不属于 `当时的架构工单册` 原始工单编号序列，是 W5 在途期间的架构增量（见 `packages/tools/SPEC.md` 的 W5.1 验收记录）。

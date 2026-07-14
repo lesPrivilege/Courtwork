@@ -23,3 +23,5 @@ ActionItem 以稳定 id、负责人、截止时间、来源和处置状态跨会
 信源文案、缺陷词表、打分区间与 renderer 归 PM 包所有；core、desktop 和通用 schema 不得内置 PM 语义。
 
 ABI-2B 的 presentation 使用 JSON Pointer：主集合从 artifact 根寻址，字段从集合条目根寻址；枚举/状态/标记/分级的显示词随字段声明。PM 的最终 schema 可以保存系统铸造的 SourceAnchor，但在 draft schema 与 citation binding 落地前，不得把这些 artifact 接成模型输出场景。
+
+对外展示的第一份 PM 样板由 `packages/demo-data/SPEC.md` 的 `PM-FIXTURE-1` 约束：它只证明 schema、锚点与宿主 renderer 的 catalog 泛化，不冒充 live scenario。PriorityScore 的 OOC 契约在 `PM-SCHEMA-1` 收口前不进入样板或 Pages。
