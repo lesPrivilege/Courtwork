@@ -135,7 +135,7 @@ describe('ArtifactTableRenderer（schema first + presentation only）', () => {
   });
 
   it('完整 schema 必填项缺失时先于 presentation 整面拒绝', () => {
-    const { documentId: _documentId, ...schemaInvalid } = FIXTURE;
+    const schemaInvalid = { projectId: FIXTURE.projectId, findings: FIXTURE.findings };
     const result = projectArtifactTable(descriptor(), schemaInvalid);
     expect(result).toEqual({ status: 'unsupported' });
     const html = renderToStaticMarkup(createElement(ArtifactTableRenderer, {
