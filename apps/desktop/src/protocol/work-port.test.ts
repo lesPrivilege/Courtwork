@@ -87,4 +87,26 @@ describe('WORK-PORT-1 fixture boundary', () => {
     })).toThrow(/demo fixture/i);
     expect(() => fixture.artifactFor(realRef, 'legal.RiskList')).toThrow(/demo fixture/i);
   });
+
+  it('rejects review requests and telemetry that cross fixed demo sessions', async () => {
+    const fixture = createDemoWorkFixture({ replayDelayMs: 0 });
+    const s1Ref = { caseId: DEMO_CASE_ID, sessionId: DEMO_S1_SESSION_ID };
+    const s3Ref = { caseId: DEMO_CASE_ID, sessionId: DEMO_S3_SESSION_ID };
+
+    await expect(fixture.review.getGateProjection({
+      ...s1Ref,
+      requestId: 'demo-s3-risk-gate',
+    })).rejects.toThrow(/cross-session review requests/i);
+    await expect(fixture.review.resolve({
+      ...s3Ref,
+      requestId: 'demo-s1-timeline-gate',
+      resolution: { items: [] },
+    })).rejects.toThrow(/cross-session review requests/i);
+    expect(() => fixture.telemetry.emit(s3Ref, {
+      type: 'review_item_opened',
+      sessionId: DEMO_S1_SESSION_ID,
+      itemRef: 'risk-01',
+      emittedAt: '2026-07-14T00:00:00.000Z',
+    })).toThrow(/cross-session telemetry/i);
+  });
 });

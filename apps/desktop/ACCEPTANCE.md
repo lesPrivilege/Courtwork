@@ -1431,3 +1431,52 @@ raw fallback 静态门的首轮假绿是实现级缺陷，验收提交 `9b06175 
 验收曾为可视抽查建立临时 PM/fallback 页面，但 in-app browser control 返回可用浏览器列表 `[]`，因此没有冒充 computer-use 截图。临时 HTML/TSX 与 Vite `:1599` 服务已全部删除/结束，git 零残留；视觉与几何仍由隔离真实 Chromium 全量用例覆盖，其中包含 1180/1280/1440/1600、品牌 SVG 位置、证据换行、零溢出与反 slop 判例。
 
 > **最终判定：VIEW-ABI-1 与 VIEW-ABI-1C 放行 ✅。** `43e6176 + 9b06175 + cabdac0 + 3f55f59 + 0b4c5a8 + 本验收记录` 可进入架构收账。下游可以依赖 admitted descriptor → host blueprint → schema-first presentation 的唯一工作面链；PM 仍是 catalog-only，不得把本次通用表准入误解为已存在 PM workflow 或产品入口。
+
+---
+
+## WORK-PORT-1 独立验收（2026-07-14）
+
+- **验收角色**：独立验收会话；未参与本工单实现，也不是实现会话前身。
+- **对象**：精确实现 SHA `c2fcf6c149a9733638ebde29e245ecbaa8de1f47`；任务基线 `7be2855`。
+- **验收树**：`/Users/lesprivilege/Projects/Courtwork-worktrees/accept-work-port-1`，分支 `codex/accept-work-port-1`；未在共享主树 checkout/stash，未复用共享 dev server。
+- **结论**：**✅ 放行。** 无产品代码缺陷、无契约级问题、无 `[需架构拍板]` 项；验收补强一项 fixture 跨 session 回归测试。
+
+### 1. 差异与架构边界
+
+`git diff 7be2855..c2fcf6c` 共 11 个 `apps/desktop/**` 文件：通用 Work port 类型、demo fixture、composition root 注入、App 机械回放、静态边界门、定向测试与 SPEC。差异中没有 `packages/core/**`、`src-tauri/**`、provider、schema、registry、样式或 PM 代码。
+
+- `WorkCommandPort` 只在 `protocol/client.ts` 声明 `start/resume/cancel` 契约；没有实例、React prop、executor 或 live wiring。
+- `App` 不再 import/构造 demo client 或 recordings；`main.tsx` 是 `createDemoWorkFixture()` 的唯一装配点，显式注入 `WorkProjectionPort` 与 fixture-only adapter。
+- `ScenarioRunInput`、`inputArtifacts`、`toolInputs`、actor/schema 构造在 React 中均为零；本单没有新增 Tauri command、provider path、localStorage Work state 或 PM UI。
+- recording、paced replay、固定 gate、DEMO_ARTIFACTS、review/continuation 与 telemetry 空 sink 全留在 `demo/client.ts`。App 对非 demo case 不调用 fixture；已存在的 chat/provider/Tauri transport 路径相对基线没有语义改动。
+
+### 2. 真实反例与 fail-closed 证据
+
+所有破坏性补丁均用精确 patch 注入并恢复，提交前零残留：
+
+| 反例 | 实测红灯 |
+|---|---|
+| App 临时回引 `createDemoClient` | `lint:work-port` exit 1，精确报 `App must not import or construct demo recordings` |
+| `assertDemoRef` 临时取消 caseId 约束 | 定向 **2 failed / 2 passed**；非 demo case 得以读取 recording，被现有测试咬住 |
+| 未知 session 临时回退 S3 recording | 定向 **1 failed / 3 passed**；错误 session 得以回放，被现有测试咬住 |
+| 临时取消 requestId → session 归属校验 | 定向 **1 failed / 3 passed**；S1 ref 错读 S3 gate 被新增测试咬住 |
+| 临时取消 telemetry event.sessionId 校验 | 定向 **1 failed / 3 passed**；S3 ref 携 S1 telemetry 被新增测试咬住 |
+
+实现原测试已覆盖非 demo case、未知 session、非 demo review/continuation/telemetry/artifact 与 injected fake projection；但未永久锁住合法 demo ref 之间的跨 request/telemetry 污染。验收新增一条用例同时覆盖 S1 ref 读取 S3 gate、S3 ref resolve S1 request 与 telemetry session 错配，提交 `5b3441f26cf9cc6770e94052de79a59e837c7687 fix-by-acceptance(desktop): lock fixture session isolation`。该提交只改测试，不改实现或契约。恢复态定向为 **4/4 passed**，静态门全绿。
+
+fake injected projection 由 `replayWorkProjection` 定向用例实测：查询参数精确传给 fake port，返回 events 只经 injected presenter 发布，phase 原样回传；结合 App 静态门对模块 singleton、demo import 与直接 recording 构造的禁止，证明 UI orchestration 不依赖隐藏 singleton。
+
+### 3. clean 环境与完整机器门
+
+- `pnpm install --frozen-lockfile`：scope **14 workspace projects**、**1047 packages**，lockfile 零漂移，exit 0。
+- fresh install 尚无 workspace `dist` 时直接跑 desktop，真实出现 **14 failed suites / 21 passed files / 84 passed tests**，均为 workspace exports 指向未构建产物；随后按仓库拓扑执行 build，同一 desktop 全量转绿。该记录是现行 clean workspace 构建前置，不是本工单回归。
+- `pnpm -r build`：scope **13 of 14 workspace projects** 全绿；desktop **3520 modules**，仅既有 Tauri static/dynamic import 与 chunk-size warning。
+- desktop Vitest：**35 files / 146 tests passed**。
+- root Vitest：**120 files / 1078 tests passed**。
+- `pnpm lint`：exit 0。
+- `pnpm site:guard`：scanner fixtures **12/12 passed**，扫描 **618 active text files**；neutral/elevation/signature/motion 全绿。
+- `COURTWORK_E2E_PORT=1604` 完整 desktop `test:e2e`：所有静态/设计/边界前置门通过，WORK-PORT 门通过，假绿守卫确认 floor **208**；Playwright **208/208 passed（1.6m，4 workers）**。配置 `reuseExistingServer=false`，启动前确认 `:1604` 无 listener；未复用共享服务。
+
+完整 Playwright 覆盖既有样板案节奏、artifact 自动开面、S3 gate、逐条/批量 review、确认响应、Context continuation 与跨案件清空/恢复；208 条零回归，证明端口抽离保持 demo UX 等价。
+
+> **最终判定：WORK-PORT-1 放行 ✅。** `c2fcf6c + 5b3441f + 本验收记录` 可进入架构收账；验收提交必须与实现一同合入。下游 **WORK-BROWSER-1、WORK-STORE-1、CASE-ROOT-1 均可放行开工**，但本结论只背书 command/projection 注入缝与 fixture/live 物理分界，不代表 executor、durable store、material ingress、Tauri Work host 或 production live 已实现。
