@@ -1,5 +1,62 @@
 # ACCEPTANCE: packages/pm
 
+## PM-PACKAGE-RENAME-1 独立验收（2026-07-14）
+
+验收对象：实现提交 `6f12d1b31cbd0e2f79a51ae579637ecd1c09be91`。验收在独立 clean worktree
+`/tmp/courtwork-pm-package-rename-1-acceptance`、分支 `codex/accept-pm-package-rename-1` 完成，未使用实现
+worktree 或共享 main。
+
+### 结论
+
+**PM-PACKAGE-RENAME-1 放行。** 目录、npm 名与真实 desktop consumer 已唯一迁为
+`packages/pm` / `@courtwork/pm`；旧 npm import 失败，活动源码、workspace 与 lockfile 不再消费旧名。
+`packageId=pm`、`identity.version=0.1.1`、`schemaVersion=1`、四个 `pm.*` id、payload、descriptor、
+四份 JSON Schema、`scenarios=[]` 与 `promptSegments=[]` 均保持不变。
+
+验收发现一个实现级小缺陷：临时创建第二个 `packages/pm-schemas` workspace 时，pnpm 9 的 frozen install
+意外返回成功并向 lockfile 写入空 importer，不能独立承担“双目录禁止”门禁。已以
+`fix-by-acceptance(pm): reject legacy package directory` 补入显式 metadata guard；该修复只检查旧目录不存在，
+不修改包 ABI、schema、导出或跨层契约。
+
+### 身份、消费与 rename-only 证据
+
+| 验收项 | 结果 |
+|---|---|
+| 唯一目录 | ✅ `packages/*` 只有 `packages/pm`，新增 guard 锁定 `packages/pm-schemas` 不存在。 |
+| npm import | ✅ 从 desktop 依赖图真实 `import('@courtwork/pm')` 得到 `pm / 0.1.1`；`import('@courtwork/pm-schemas')` 明确得到 `ERR_MODULE_NOT_FOUND`。 |
+| desktop consumer | ✅ `apps/desktop/src/composition/package-runtime.test.ts` **1/1**；真实 composition 同次准入 `[legal, pm]`，PM artifact 可查询且 scenario 仍全属 Legal。 |
+| 活动消费点 | ✅ apps/packages/eval（排除历史 SPEC/ACCEPTANCE）对旧 npm 名和旧路径零命中；desktop `package.json`、composition 与 lockfile 只使用新名。历史文档仅以“迁移前”语境保留旧名。 |
+| lockfile | ✅ `apps/desktop` 依赖键为 `@courtwork/pm → link:../../packages/pm`，唯一 importer 为 `packages/pm`；最终 frozen install 无改写。 |
+| blob 同一性 | ✅ 将当前 `packages/pm/src` 与 `json-schema` 逐文件映射到父提交 `packages/pm-schemas`，排除本单 metadata test 后 **18/18** blob 逐字节一致。Git 对四份 schema 与其余业务源码亦均识别为 100% rename。 |
+| catalog-only | ✅ `identity={packageId:'pm',version:'0.1.1',schemaVersion:1}`；四 binding/type/schema id 不变；`scenarios=[]`、`promptSegments=[]`、interaction templates 缺省。 |
+
+### 强制变异：实际变红后撤回
+
+1. 把 desktop 活动 import 改回 `@courtwork/pm-schemas`：composition suite **1 failed / 0 tests**，明确无法解析旧包；撤回后 **1/1**。
+2. 临时创建第二个 `packages/pm-schemas/package.json`：原 frozen install 未触红，确认守卫缺口；新增 metadata guard 后 **1 failed / 3 passed**，明确“双包共存”；删除旧目录后 **4/4**。
+3. 把 lockfile 的 desktop 依赖名改回旧名：frozen install 以 `ERR_PNPM_OUTDATED_LOCKFILE` 拒绝，明确 package.json 为 `@courtwork/pm`；把 importer `packages/pm` 改回旧路径时同样以 outdated lockfile 拒绝。
+4. 分别把 `package.json.name` 改为 `@courtwork/pm-drift`、version 改为 `9.9.9`：metadata 各 **1 failed / 3 passed**；把 descriptor packageId 改为 `pm-drift`：metadata + manifest **5 failed / 7 passed**，并触发 namespace 拒载。
+5. 在非 metadata 的 `score-calc.ts` 注入一行注释：父/子 blob 比较在 **char 1780 / line 44** 明确失败；撤回后全量 **18/18** 同字节。
+6. 把 `ActionItems.schema.json` 根 description 改写：JSON Schema drift **1 failed / 4 passed**；撤回并重生成后四份 schema 零 diff。
+
+所有变异均已原样撤回；最终工作树只有验收 guard 与本报告。
+
+### 最终工程门
+
+- `pnpm install --frozen-lockfile`：全部 **14 workspace projects**，初始 clean 安装复用/落盘 **1047 packages**，lockfile 无改写。
+- PM：**6 files / 39 tests**；Legal：**9 files / 73 tests**；desktop 真实 consumer：**1/1**。两垂类 lint/build 均通过。
+- PM 与 Legal JSON Schema 均实际重生成；PM 四份提交态 schema 零 drift。
+- `pnpm -r build`：**13/14 workspace projects** 全绿；desktop Vite **3520 modules transformed**，只有既有 dynamic-import/chunk-size warning。
+- `pnpm lint`：exit 0；`pnpm test`：**122 files / 1085 tests**，exit 0；`git diff --check`：通过。
+- clean install 后、全仓拓扑 build 前直接跑垂类测试时，两包都因 workspace registry/schemas 尚无 `dist` 而无法解析；按仓库标准先完成 `pnpm -r build` 后，以上定点与全仓结果稳定全绿。该前置对 Legal/PM 对称，不是 rename 回归。
+- 本单不改变 desktop 行为或 UI，按 SPEC 不运行 Playwright。
+
+### 放行边界
+
+本结论只放行 PM 包路径/npm 名的机械迁移及其 metadata 防回归门。`VPKG-LAYOUT-1`、`PM-SCHEMA-1`、
+PM scenario/prompt/runtime/testing 出口与新 UI 均未交付；不得因新包已被 desktop catalog consumer 导入而宣称
+PM 执行链已经接通。
+
 ## ABI-2B 独立验收（2026-07-14）
 
 验收角色：未参与 ABI-2B 实现的独立验收者。验收在 clean worktree `/Users/lesprivilege/Projects/Courtwork-worktrees/accept-abi-2b`、分支 `codex/accept-abi-2b` 完成；实现 tip 为 `7fc531a9008b667235d13a534da05a0c6081a3eb`，指定 baseline 为 `bb4919dc913d0b4fdc22ccf7e01c71b8675b7d5d`。
