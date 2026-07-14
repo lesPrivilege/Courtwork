@@ -13,6 +13,13 @@
 
 PM 在 `PM-SCHEMA-1` 与权威样板项目完成前继续 catalog-only。体例一致不等于补空 scenario、prompt 或企业 stub。
 
+### VPKG-META-1 实现记录（2026-07-14，待独立验收）
+
+- `package.json.version` 已从 `0.1.0` 对齐 descriptor release `0.1.1`；`packageId=pm`、全部 `pm.*` id、`schemaVersion=1` 与 payload/fixture 字节均未变化。
+- 包内 metadata conformance 锁定 release version 与四枚统一脚本；JSON Schema drift 门继续锁定四份文件全集、Draft 2020-12 与 URN，并改为复用 registry 的递归 remote-ref 守卫覆盖 `$ref/$dynamicRef/$recursiveRef`。
+- TDD 红灯证明原 `0.1.0` 版本漂移被拒；临时向提交态 schema 注入远程 `$ref` 时明确以 remote/外部 schema 错误失败；最终 PM 包 **6 files / 37 tests** 全绿。
+- 本单未 rename 目录/npm 包，未修改 descriptor、scenario、prompt、payload、JSON Schema 字节或产品 UI；全仓 build/lint 与 Vitest **122 files / 1083 tests** 通过，等待异会话验收。
+
 ## 职责
 
 PM 第二垂类包。拥有反馈归集、PRD 评审、优先级计算与跨纪要行动项的 schema、presentation、词表和确定性计算；不得把 PM 语义放进 core、registry 或 desktop。
