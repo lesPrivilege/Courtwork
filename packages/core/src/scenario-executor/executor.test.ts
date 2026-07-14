@@ -189,6 +189,108 @@ describe('runScenario', () => {
 });
 
 describe('resumeScenario', () => {
+  async function pauseSingleGate(deps: ScenarioExecutorDeps) {
+    const paused = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    if (paused.status !== 'paused') throw new Error('setup assumption broken: expected paused');
+    return paused;
+  }
+
+  it('rejects an invalid actor before consuming pending or writing any event, revision, or artifact change', async () => {
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
+    const paused = await pauseSingleGate(deps);
+    const eventsBefore = deps.eventLog.list();
+
+    await expect(
+      resumeScenario(
+        paused.requestId,
+        { actor: { channelId: 'cli', actorId: '' }, decision: 'confirm' },
+        SINGLE_GATE_SCENARIO,
+        deps,
+      ),
+    ).rejects.toThrow(/actor/i);
+
+    expect(deps.eventLog.list()).toEqual(eventsBefore);
+    expect(deps.revisionStore.list()).toEqual([]);
+    await expect(
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'valid-actor' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
+    ).resolves.toMatchObject({ status: 'completed' });
+  });
+
+  it('rejects an invalid decision before consuming pending or writing side effects', async () => {
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
+    const paused = await pauseSingleGate(deps);
+    const eventsBefore = deps.eventLog.list();
+
+    await expect(
+      resumeScenario(
+        paused.requestId,
+        { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'approve' } as never,
+        SINGLE_GATE_SCENARIO,
+        deps,
+      ),
+    ).rejects.toThrow(/decision/i);
+
+    expect(deps.eventLog.list()).toEqual(eventsBefore);
+    expect(deps.revisionStore.list()).toEqual([]);
+    await expect(
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'reject' }, SINGLE_GATE_SCENARIO, deps),
+    ).resolves.toMatchObject({ status: 'completed' });
+  });
+
+  it('prevalidates every revision before consuming pending or recording a partial response', async () => {
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
+    const paused = await pauseSingleGate(deps);
+    const eventsBefore = deps.eventLog.list();
+
+    await expect(
+      resumeScenario(
+        paused.requestId,
+        {
+          actor: { channelId: 'cli', actorId: 'actor-1' },
+          decision: 'confirm',
+          revisions: [
+            {
+              artifactType: 'test.Risk',
+              artifactId: 'c1',
+              fieldPath: 'not-a-json-pointer',
+              previousValue: 'pending',
+              newValue: 'confirmed',
+            },
+          ],
+        },
+        SINGLE_GATE_SCENARIO,
+        deps,
+      ),
+    ).rejects.toThrow(/fieldPath|JSON Pointer/);
+
+    expect(deps.eventLog.list()).toEqual(eventsBefore);
+    expect(deps.revisionStore.list()).toEqual([]);
+    expect(deps.eventLog.list().filter((event) => event.type === 'artifact_produced')).toHaveLength(1);
+    await expect(
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
+    ).resolves.toMatchObject({ status: 'completed' });
+  });
+
+  it('rejects a pending/scenario identity mismatch without consuming the request', async () => {
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
+    const paused = await pauseSingleGate(deps);
+    const eventsBefore = deps.eventLog.list();
+    const wrongScenario = { ...SINGLE_GATE_SCENARIO, id: 'test.Other' };
+
+    await expect(
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'confirm' }, wrongScenario, deps),
+    ).rejects.toThrow(/scenario|identity/i);
+
+    expect(deps.eventLog.list()).toEqual(eventsBefore);
+    await expect(
+      resumeScenario(paused.requestId, { actor: { channelId: 'cli', actorId: 'actor-1' }, decision: 'confirm' }, SINGLE_GATE_SCENARIO, deps),
+    ).resolves.toMatchObject({ status: 'completed' });
+  });
+
   it('confirming a single-gate scenario with no revisions completes it and returns the produced artifacts', async () => {
     const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     const paused = await runScenario(
