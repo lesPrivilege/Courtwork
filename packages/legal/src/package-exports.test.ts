@@ -24,6 +24,7 @@ describe('@courtwork/legal public export surfaces', () => {
   it('/package and /schemas expose the same stable descriptor, bindings and schema identities', () => {
     expect(LEGAL_PACKAGE_DESCRIPTOR).toBe(legalRoot.LEGAL_PACKAGE_DESCRIPTOR);
     expect(LEGAL_PACKAGE_BINDINGS).toBe(legalRoot.LEGAL_PACKAGE_BINDINGS);
+    expect(LEGAL_PACKAGE.bindings).toBe(LEGAL_PACKAGE_BINDINGS);
     expect(LEGAL_PACKAGE.bindings.schemas.get('legal.RiskList')).toBe(RiskListSchema);
     expect(LEGAL_PACKAGE.bindings.schemas.get('legal.RiskListDraft')).toBe(RiskListDraftSchema);
   });

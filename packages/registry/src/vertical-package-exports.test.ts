@@ -95,6 +95,23 @@ function browserUnsafeImports(records: readonly SourceRecord[]): string[] {
     .map((specifier) => `${record.path} imports ${specifier}`));
 }
 
+const ALLOWED_BROWSER_EXTERNALS = new Set(['zod']);
+
+function unexpectedBrowserExternals(records: readonly SourceRecord[]): string[] {
+  return records.flatMap((record) => importSpecifiers(record.content)
+    .filter((specifier) => !specifier.startsWith('.') && !specifier.startsWith('@courtwork/'))
+    .filter((specifier) => !specifier.startsWith('node:'))
+    .filter((specifier) => !ALLOWED_BROWSER_EXTERNALS.has(specifier))
+    .map((specifier) => `${record.path} imports unapproved external ${specifier}`));
+}
+
+function oldVerticalInternalImports(records: readonly SourceRecord[]): string[] {
+  const oldInternal = /(?:^@courtwork\/(?:legal|pm)\/(?:src|dist|manifest|score-calc|compile-risk-list-to-revisions)(?:\/|$)|packages\/(?:legal|pm)\/src\/(?:manifest|score-calc|compile-risk-list-to-revisions)(?:\.[cm]?[jt]s)?$)/;
+  return records.flatMap((record) => importSpecifiers(record.content)
+    .filter((specifier) => oldInternal.test(specifier))
+    .map((specifier) => `${record.path} imports old vertical internal ${specifier}`));
+}
+
 function collectCodeFiles(root: string, output: string[] = []): string[] {
   for (const entry of readdirSync(root, { withFileTypes: true })) {
     if (['node_modules', 'dist', 'archive', '.git'].includes(entry.name)) continue;
@@ -150,6 +167,7 @@ describe('VPKG-EXPORTS-1 垂类包出口与递归依赖图', () => {
     ];
 
     expect(browserUnsafeImports([...rootGraph, ...packageGraph, ...schemasGraph])).toEqual([]);
+    expect(unexpectedBrowserExternals([...rootGraph, ...packageGraph, ...schemasGraph])).toEqual([]);
     expect(rootGraph.some((record) => record.path.includes('/testing/'))).toBe(false);
     expect(rootGraph.flatMap((record) => fixtureMarkers.filter((marker) => record.content.includes(marker)))).toEqual([]);
     expect(existsSync(join(LEGAL_ROOT, 'src', 'demo'))).toBe(false);
@@ -167,6 +185,7 @@ describe('VPKG-EXPORTS-1 垂类包出口与递归依赖图', () => {
     const graphs = ['.', './package', './schemas']
       .flatMap((exportName) => collectImportGraph(sourceEntry(PM_ROOT, exportName)));
     expect(browserUnsafeImports(graphs)).toEqual([]);
+    expect(unexpectedBrowserExternals(graphs)).toEqual([]);
     expect(Object.keys(packageMetadata(PM_ROOT).exports)).not.toEqual(expect.arrayContaining([
       './testing', './runtime', './scenarios', './interactions',
     ]));
@@ -177,6 +196,13 @@ describe('VPKG-EXPORTS-1 垂类包出口与递归依赖图', () => {
       .flatMap((root) => collectCodeFiles(root))
       .map((file) => ({ path: relative(REPO_ROOT, file), content: readFileSync(file, 'utf8') }));
     expect(testingConsumerViolations(records)).toEqual([]);
+  });
+
+  it('全仓 consumer 不可绕过 package exports 读取迁移前内部路径', () => {
+    const records = [join(REPO_ROOT, 'apps'), join(REPO_ROOT, 'packages'), join(REPO_ROOT, 'eval')]
+      .flatMap((root) => collectCodeFiles(root))
+      .map((file) => ({ path: relative(REPO_ROOT, file), content: readFileSync(file, 'utf8') }));
+    expect(oldVerticalInternalImports(records)).toEqual([]);
   });
 
   it('守卫自检：desktop/core/provider/registry 生产图植入 /testing import 必须逐项触红', () => {
