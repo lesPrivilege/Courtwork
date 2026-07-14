@@ -44,6 +44,7 @@ party-verify/cite-check 各有三种适配器（承接 `docs/decisions/ADR-003-e
 
 ## TODO（跨层放入区）
 
+- [架构债] `FileOpsHost.hash()` 当前使用 FNV-1a，而 `FileOpsPlan` schema 注释承诺 SHA-256。依据 ADR-004，举证/移动前后内容哈希必须改为 SHA-256 或更强；实现前不得改 schema 字段语义，也不得继续把 FNV 值写入该字段。
 - [架构已确认 2026-07-09] 根 CLAUDE.md 架构依赖图原标注 `packages/tools` 依赖 `packages/schemas`，本层实现未添加该依赖，已提交架构层确认：`party-verify`/`cite-check` 两个 MVP 工具的输入输出（主体名称/统一社会信用代码/引用文本 → 工商状态/涉诉概要/存在性/现行有效性）推演下来找不到非人为拼凑的具体引用点——`SourceAnchor` 定位的是"卷宗内文件的页码/坐标"，核验类工具的结果来源是外部权威源（企查查/法条库等），不是卷宗内某页，塞进输出是类型误用；塞进输入作为"该主体名/引用文本在卷宗里的出处"倒是说得通，但调用方本来就持有这个锚点（先知道要核验谁/什么，才会发起调用），工具原样透传没有实质收益，还会给缓存 key 引入"要不要把 sourceAnchor 排除在 key 之外"的额外复杂度（核验同一个真实主体但出处不同文档，语义上应命中同一条缓存）。**架构层裁决**：CLAUDE.md 依赖图已修正为"可依赖、当前无需"；边界记录一句——将来 `RiskList` 的依据字段要嵌入工具结果时，**嵌入形状定义在 schemas，映射发生在 core**，`packages/tools` 保持自持不依赖 schemas，依赖方向依然干净。
 - [消费方责任提醒] `verified:false` 结果最终要在用户可见的 artifact 里呈现为"未核验"状态，这是消费方（W6 core 编排 / apps/desktop UI）的责任，不在本层范围内。本层能保证的是：`reason`（`timeout` / `not_configured` / `not_implemented` / `out_of_coverage` / `adapter_error` / `invalid_response`，W5.1 新增 `out_of_coverage`）这一分类是下游唯一的数据源，消费方按 `reason` 做展示区分时，这六个字面量需要保持稳定——如果未来要改名或增删，需要通知已消费这些值的下游一并更新。UI 层（W9）按 `docs/decisions/ADR-003-evidence-and-anchors.md` 的信源分级角标设计（已核验/库内/网络参考）应该直接消费 `source`（`mock`/`demo-fixture`/真实适配器各自的 sourceId）+ `reason` 两个字段的组合，不需要另建一套分级逻辑。
 - [留给 W6] 真正的装配点（工具注册表装配代码）落地时，`party-verify`/`cite-check` 的 demo-fixture 适配器需要接上 `@courtwork/demo-data` 的访问器——写法与踩坑点见 `packages/demo-data/SPEC.md` 的 TODO 区。

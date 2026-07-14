@@ -110,6 +110,7 @@ type InteractionTemplate = {
 
 ## TODO（跨层放入区）
 
+- [VPKG-CONFORMANCE-1] 把目录名、npm 名、descriptor `packageId` 与 version 的跨包校验集中为同一 registry conformance helper。当前 PM 已锁三者一致，Legal 只锁 version；不得以复制更多包内特判或引入新工具链掩盖该缺口。
 - [已解决 2026-07-09] ~~S4（文书起草）当前不声明 outputArtifacts，confirmationGates 用 label-only 门禁过渡~~——`RevisionInstructionSet` 已在 `packages/schemas` 落地，S4 声明已同步更新为 `outputArtifacts: [RevisionInstructionSet]` + artifact 引用型确认门禁（由 W4 在架构显式授权下完成，非 registry 会话越界改动）。
 - [架构拍板 2026-07-09] S1（卷宗阅卷）当前 `outputArtifacts` 不含"供述/证据矛盾清单"，因为对应的 `ContradictionList` 产物类型待 W3 spike 结论后另行判断是否新增（详见 `packages/schemas/SPEC.md` TODO）。若新增，S1 声明需同步更新。
 - [已解决 2026-07-09，W2.1] ~~YAML 声明加载路径收紧为 strict：未知键必须报错~~——`ScenarioDefinitionObjectSchema`/`TriggerConditionSchema`/`ConfirmationGateSchema` 三处均加 `.strict()`（在各自的 `.refine()` 之前），未知键经既有 `parseScenarioYaml → ScenarioValidationError` 管线自动报错并带上文件名（`sourceLabel`）与未知键名。schemas 包数据流 artifact 的默认剥离语义未动。详见下方验收记录。

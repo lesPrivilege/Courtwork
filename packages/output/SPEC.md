@@ -1,6 +1,6 @@
 # SPEC: packages/output（W4）
 
-状态：核心完成，待人工核验（管线与自动化测试全绿；Word/WPS 双端渲染需你按 `verification-checklist.md` 执行核验）
+状态：核心完成；WPS 兼容尚未实测，不得宣称已验证（管线与自动化测试全绿；Word/WPS 双端仍须按 `verification-checklist.md` 核验）
 
 ## 职责
 
