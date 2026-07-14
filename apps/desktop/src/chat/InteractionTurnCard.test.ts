@@ -31,6 +31,7 @@ describe('InteractionTurnCard', () => {
     expect(html).toContain('原件.md');
     expect(html).not.toContain('>Skip<');
     expect(html).not.toContain('Recorded');
+    expect(html).not.toContain('data-primitive="partial"');
   });
 
   it('resolved 显示只来自 interaction_resolved 回放，不存在 local answer 占位', () => {
@@ -48,6 +49,7 @@ describe('InteractionTurnCard', () => {
     expect(html).toContain('Recorded');
     expect(html).toContain('接受');
     expect(html).toContain('data-answer="accept"');
+    expect(html).not.toContain('data-primitive="partial"');
   });
 
   it('skippable snapshot 才出现 Skip', () => {

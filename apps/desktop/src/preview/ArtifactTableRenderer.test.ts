@@ -93,6 +93,9 @@ describe('ArtifactTableRenderer（schema first + presentation only）', () => {
   it('schema-valid PM fixture 只显示人读 label/valueLabel 与完整证据摘要', () => {
     const result = projectArtifactTable(descriptor(), FIXTURE);
     expect(result.status).toBe('ready');
+    if (result.status !== 'ready') throw new Error('fixture projection failed');
+    const projectedAnchor = result.rows[0]?.find((cell) => cell.kind === 'anchor');
+    expect(projectedAnchor).toMatchObject({ kind: 'anchor', views: [{ fileLabel: 'prd' }] });
 
     const html = renderToStaticMarkup(
       createElement(ArtifactTableRenderer, { descriptor: descriptor(), payload: FIXTURE }),
@@ -129,6 +132,18 @@ describe('ArtifactTableRenderer（schema first + presentation only）', () => {
     expect(html).toContain('当前版本不支持此工作面');
     expect(html).not.toContain('wire-secret');
     expect(html).not.toContain('missing');
+  });
+
+  it('完整 schema 必填项缺失时先于 presentation 整面拒绝', () => {
+    const schemaInvalid = { projectId: FIXTURE.projectId, findings: FIXTURE.findings };
+    const result = projectArtifactTable(descriptor(), schemaInvalid);
+    expect(result).toEqual({ status: 'unsupported' });
+    const html = renderToStaticMarkup(createElement(ArtifactTableRenderer, {
+      descriptor: descriptor(),
+      payload: schemaInvalid,
+    }));
+    expect(html).toContain('当前版本不支持此工作面');
+    expect(html).not.toContain('及时没有量化口径');
   });
 
   it('schema-valid PriorityScore 区间显示 low–high，不因单值 pointer 缺席整面降级', () => {

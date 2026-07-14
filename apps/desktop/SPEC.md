@@ -20,7 +20,7 @@
 - BrandThinking、Stop、原生 button 键盘展开、全局 reduced-motion 与 0ms terminal 卸载保留；ask-user 继续消费 replay snapshot，卡底改为 generated 单语义微差底色，hairline/6px/零阴影不变。
 - 旧 `assert-thinking-stream` 退役为 `assert-process-trace`，并把单组件身份、来源隔离、absent、取消优先级、禁双实现、灰阶与 reduced-motion 纳入前置门。红灯基线为新 suite 因组件/适配器缺席 **2 files failed**；实现侧定向 Vitest **7/7**、全仓 Vitest **120 files / 1078 tests**、13 workspace build、ESLint 与静态门全绿；隔离端口定向 Playwright 先跑 **44/44**，最终 tip 复核本单关键路径 **5/5**。完整 Playwright 仍由独立验收会话实跑并填写最终数字。
 
-## VISUAL-KIT-1 · 原生可视化构件与 gallery（待派发）
+## VISUAL-KIT-1 · 原生可视化构件与 gallery（实现完成，待独立验收）
 
 权威：ADR-012 与 `docs/design/visualization-kit.md`。先在 desktop 宿主内部建立
 `preview/projection`、`preview/primitives`、`preview/blueprints`、`preview/composition` 与
@@ -34,6 +34,15 @@
 - 新 blueprint 独立定义 presentation config 与 fail-closed projection；不得膨胀 `courtwork.artifact-table.v1` 的 fields 为万能 DSL。
 - 本单新增第三方依赖为 0；语义 HTML/CSS/SVG 为默认，已有 G6 只保留给复杂 graph 且继续懒加载。不得引入 TanStack Table、React Flow、ECharts 或整套 UI kit。
 - 1180/1280/1440/1600、键盘、完整引语、零 wire、reduced-motion 与 de-slop 门必须通过；截图来自已验收 main 的真机 gallery。
+
+实现留痕（2026-07-14，待独立验收）：
+
+- `preview/projection/view-model.ts` 固定七类递归冻结宿主 ViewModel；`preview/primitives/index.tsx` 只消费这些 ViewModel 与可选 callback。Anchor 无真实 source callback 时保持静态，Decision 无 callback/提交中/已回放时逐按钮禁用；Estimate 互斥形状与 Partial 计数均 fail closed。
+- 通用 artifact table 拆为纯 `projection/artifact-table.ts` 与现有 renderer：生产复用 Field/Anchor/Status/Estimate；anchor 必须验证 `fileId`，只投影去扩展名的安全 basename 与完整引语，不显示绝对路径。通用 interaction 拆为纯 `projection/interaction.ts`：ask-user 复用 Evidence/Decision，选项、Skip、完整引语与回放答案只从 core snapshot 投影；Partial 不在普通 pending/resolved 卡常驻，只在提交/来源错误时保留旧 `role=alert` 语义。
+- `composition/FiniteComposition.tsx` 只登记 section、四种 grid 比例与 repeat；生产 registry 仍只登记 `courtwork.artifact-table.v1`，candidate/deferred 不进入 blueprint。primitive 源码不解释 descriptor/pointer/raw artifact/store/event，不含 Legal/PM import 或 typeId 分支。
+- 独立 `visual-gallery.html` / `preview/gallery/main.tsx` 原生绘制十二族连续 hairline 样板面，删除 `01/02` 编号脚手架；Status overview 经 `RepeatComposition` 同面展示 neutral/generated/verified/warning/critical 五个封闭 tone，使有限组合边界有真实消费。生产入口只带抽象 candidate/deferred 结构，不带 fixture。test/demo composition 从公开 `@courtwork/demo-data` 与 `@courtwork/legal/testing` 注入递归冻结 ViewModel，锁 PM hash `e627e10e…082f9c` 与 Legal hash `8cd77784…a36487`，两 namespace 复用同一 Evidence/Anchor 源码。
+- 新增第三方依赖为 0；`@courtwork/demo-data` 仅作为 workspace test-only devDependency。生产 `src` 静态门拒绝 demo-data、垂类 `/testing`、Node builtin、新 visual dependency、namespace/typeId switch 与 candidate/deferred registry 回流。
+- 红灯基线先由缺失七项边界稳定报错；实现侧定向 Vitest **6 files / 20 tests**、desktop 全量 **39 files / 156 tests**、root Vitest **128 files / 1117 tests**、全仓 **13 workspace build**、ESLint 与 site/de-slop guard 全绿。独立 gallery capture harness 在 1180/1280/1440/1600 四档实际浏览器渲染十二族；最终完整前置门与 Playwright **209/209 passed（4 workers，1.6m）**。这些是实现自证，正式截图清单与放行结论仍由验收会话在 clean worktree/main 产生。
 
 ## 现行架构工单（2026-07-14）
 
