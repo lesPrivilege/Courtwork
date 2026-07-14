@@ -7,13 +7,15 @@ import { applyRevisionInstructionSet, type InstructionOutcome } from '@courtwork
 import { convertToReadingView } from '@courtwork/reading-view';
 import {
   compileConfirmedRiskListToRevisionInstructions,
+  type CaseFile,
+  type RiskList,
+} from '@courtwork/legal';
+import {
   S3_PDF_CONTRACT_FILE_ID,
   S3_PDF_CREDIT_FILE_ID,
   S3_PDF_MINIMUM_PRELOADED_FINDINGS,
   S3_PDF_PRELOADED_ANCHOR_QUOTES,
-  type CaseFile,
-  type RiskList,
-} from '@courtwork/legal';
+} from '@courtwork/legal/testing';
 import {
   assertEvidenceKeyAdmissible,
   createEvidenceLedger,

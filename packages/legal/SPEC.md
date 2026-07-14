@@ -1,6 +1,6 @@
 # SPEC: packages/legal（FABLE-HARNESS 第 3 步，2026-07-13 立包）
 
-状态：PACKAGE-ABI 已成立；ABI-2A 双平面迁移已独立验收放行
+状态：PACKAGE-ABI 已成立；ABI-2A 双平面迁移已独立验收放行；VPKG-EXPORTS-1 已实现待独立验收
 
 ## VPKG 体例迁移（待派发）
 
@@ -19,6 +19,13 @@
 - JSON Schema drift 门现锁定 descriptor 引用的八份文件全集、Draft 2020-12、`urn:courtwork:schema:legal.<Name>:v1` 与禁止 remote/外部 ref；新增残余旧文件会直接触红。
 - TDD 红灯分别证明缺 `test/lint` 时 metadata 门失败；临时加入 `Legacy.schema.json` 时全集门失败；最终 Legal 包 **9 files / 73 tests** 全绿。
 - 本单未修改 Legal descriptor、bindings、scenario、prompt、payload、JSON Schema 字节、导出或目录；全仓 build/lint 与 Vitest **122 files / 1083 tests** 通过，等待异会话验收。
+
+### VPKG-EXPORTS-1 实现记录（2026-07-14，待独立验收）
+
+- 根出口继续只转售 browser-safe schema、descriptor/bindings 与确定性编译逻辑；三份 S3 fixture/考点按原字节机械迁入 `src/testing/`，只能从 `@courtwork/legal/testing` 获取。
+- 新增 `@courtwork/legal/package` 与 `@courtwork/legal/schemas`；desktop composition、eval 与 demo-runtime 分别成为 package、schema、testing 的真实 consumer，旧根 fixture 名为零。
+- registry 递归解析 root/package/schemas/testing 的本地 import graph，阻止 Node/React/CSS 进入 browser-safe 面；全仓扫描只准 demo-runtime、acceptance 与 test 消费 `/testing`，并以 desktop/core/provider/registry 四类注入反例自证门禁有牙。
+- 三份 fixture 与迁移前逐字节 `cmp` 一致；本单未修改 descriptor、bindings、schema、prompt、typeId、blueprint、payload、fixture 内容或 JSON Schema，也未建立 Legal runtime。
 
 ## 职责
 
@@ -39,7 +46,7 @@
   五段声明级提示词正文、七 renderer 声明、两枚受控交互模板、容器词表（卷宗/阶段/卷宗材料）。
 - `src/compile-risk-list-to-revisions.ts`：RiskList→RevisionInstructionSet 编译（法律语义，
   自 core/composition 迁入）。信源门禁经 `EvidenceGatekeeper` 注入口绑定——本包零 core 依赖。
-- `src/demo/s3-risk-list-response.ts`：S3 演示脚本响应（自 core/composition 迁入）。
+- `src/testing/s3-risk-list-response.ts`：S3 演示脚本响应（自 core/composition 迁入）；只从 `/testing` 出口消费。
 - `json-schema/` + drift 测试：descriptor 引用的八枚 final/draft schema 对外契约面（含 RiskListDraft、RevisionInstructionSet、FileOpsPlan；随包迁移，同纪律）。
 
 ## 依赖
@@ -68,7 +75,7 @@
 
 ## 状态更新（2026-07-13，LEGAL-DEMO-RUN）
 
-- 演示语料新增 PDF 卷宗档：`S3_PDF_DOSSIER_DRAFT`（src/demo/s3-pdf-dossier-draft.ts）——引语全部出自 demo-data 生成 PDF（设备采购合同.pdf）真实文本层，按页声明；risk-08 首依据出自信用查询单（blockId 声明 + 编译后 output 侧预期 locator_not_found，"定位失败跳过不错插"的保留展示位）；八条风险对应 reading-view s3-material.test 登记的七条诱饵条款 + 主体核验。**考点常量 `S3_PDF_PRELOADED_ANCHOR_QUOTES`（7 条，门槛 5）随剧本同住本包**——golden 考点住 demo 包不住机器（assert-no-demo-in-harness 断言对象）。消费方：core 装配点 buildLegalDemoRunRuntime 与 `demo:legal` 全链穿越通道。
+- 演示语料新增 PDF 卷宗档：`S3_PDF_DOSSIER_DRAFT`（src/testing/s3-pdf-dossier-draft.ts）——引语全部出自 demo-data 生成 PDF（设备采购合同.pdf）真实文本层，按页声明；risk-08 首依据出自信用查询单（blockId 声明 + 编译后 output 侧预期 locator_not_found，"定位失败跳过不错插"的保留展示位）；八条风险对应 reading-view s3-material.test 登记的七条诱饵条款 + 主体核验。**考点常量 `S3_PDF_PRELOADED_ANCHOR_QUOTES`（7 条，门槛 5）随剧本同住本包**——golden 考点住 testing 包面不住机器（assert-no-demo-in-harness 断言对象）。消费方：demo-runtime 装配点 buildLegalDemoRunRuntime 与 `demo:legal` 全链穿越通道。
 
 ## 状态更新（2026-07-13，INTERACTION-1A）
 
