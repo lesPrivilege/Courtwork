@@ -1,6 +1,6 @@
 # SPEC: packages/legal（FABLE-HARNESS 第 3 步，2026-07-13 立包）
 
-状态：PACKAGE-ABI 已成立；ABI-2A 双平面迁移已实现，待异会话验收
+状态：PACKAGE-ABI 已成立；ABI-2A 双平面迁移已独立验收放行
 
 ## 职责
 
