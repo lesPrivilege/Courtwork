@@ -76,3 +76,10 @@
 - 从 GitHub Release 重新下载 DMG 后独立复算：`37792b767fe08119edab3cc6b793e59cd4511758110f8b42e6242e80a023db7e`，大小 `4,667,331` bytes，与页面、校验文件及独立验收报告一致。
 - Pages workflow `29301065279` 在 `39555d6` 上成功；部署首页 HTTP 200。macOS Safari 真机页复核可见四项硬承诺、下载 CTA 与“Apple Silicon 开发构建 · 未公证”边界。
 - 完整外部证据与链接见 [`release/DEPLOYMENT.md`](../release/DEPLOYMENT.md)。
+
+## RELEASE-0.1.2-CANDIDATE · 下载真值切换（2026-07-14，待独立验收）
+
+- 官网两个下载入口已同次切换到 `releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg`，页面显示真实 DMG SHA-256 `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d`。
+- `release-truth` 同时核对四个应用版本源、Cargo.lock、全部 DMG URL、tag/asset 版本、SHA 文件、Release notes、README 与未公证声明；发布中间态允许官网保持上一公开版，候选真值切换后必须用 `--require-site-match` 收紧。
+- 页面继续明示 Apple Silicon、ad-hoc、未公证；本次没有改变 Evidence Line、SITE-GEN fixture claim、截图、动画、布局或视觉 token。
+- 当前只形成随同发布的官网候选，尚未 tag、push、创建 GitHub Release 或部署 Pages；资产 HTTP 200、远端 SHA、workflow 与真机部署页仍由发布/部署会话完成。

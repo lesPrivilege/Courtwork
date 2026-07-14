@@ -325,6 +325,30 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 
 ## Build 记录（SITE-1 下载区引用）
 
+### BUILD-0.1.2-CANDIDATE · 架构收口后的开发构建（2026-07-14，待独立验收）
+
+| 项 | 值 |
+|---|---|
+| 版本 | **0.1.2**（`package.json` / `tauri.conf.json` / `Cargo.toml` / `SettingsPage.APP_VERSION` 对齐；Cargo.lock 同步） |
+| 纳入 main | `0399d0476a7874bc608edd4ed4ddb444f0f57f7f` |
+| 产品源码 | `2021c8cd2379739bbd0cef229c0e7d141b5cd8ee`；后续只回填 release/docs/site 真值 |
+| 构建时刻 (UTC) | `2026-07-14T13:51:55Z` |
+| 标识 / 架构 | `cn.courtwork.desktop` · `Courtwork` · thin `arm64`（Apple Silicon） |
+| 工具链 | Node `v25.9.0` · pnpm `9.15.0` · rustc/cargo `1.97.0` · macOS `26.5.2` |
+| 签名 / 公证 | **ad-hoc / 未公证**；`Signature=adhoc`、`TeamIdentifier=not set`、identity 0；Apple 公证环境项均 absent |
+
+| 产物 / 校验 | 结果 |
+|---|---|
+| DMG | `apps/desktop/src-tauri/target/release/bundle/dmg/Courtwork_0.1.2_aarch64.dmg` · 4,679,277 bytes |
+| DMG SHA-256 | `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d` |
+| 可执行 SHA-256 | `f80d46c0bf1ed03593dbb1ed5e0db512937f3473361b92e47580ec1cd7ae0b51` |
+| 前端 dist 清单 SHA-256 | `e3f27e21a833a2fad6f8824ed1946e960e745d529e6f625dad375da76fc0ad9a` |
+| 完整性 | App 与挂载副本 `codesign --deep --strict` 通过；`hdiutil verify` VALID；DMG 含 `Applications` symlink |
+| Gatekeeper | `spctl` exit 3 / rejected，符合未公证开发构建预期 |
+| 挂载启动 | 排除 main 与 `/Applications` 同 bundle id 串包后，直接执行挂载 Mach-O；PID/path 逐字命中挂载点，存活 8 秒后 TERM |
+
+实现侧全门：site guard 产品源码前置门 **25/25 / 685 active files**，真值回填后 **25/25 / 687**；desktop **39 files / 161 tests**、provider **12 / 88**、root **131 / 1127**、Rust **25/25**；全仓 build desktop **3532 modules**；隔离 `:1612`、单 worker Playwright **209/209**。完整证据见 [`release/CANDIDATE_v0.1.2.md`](../../release/CANDIDATE_v0.1.2.md)；本记录不构成独立验收或发布放行。
+
 ### BUILD-0.1.1-R2 · 全量验收后 GitHub Release 候选（2026-07-14）
 
 | 项 | 值 |
