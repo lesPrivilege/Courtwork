@@ -1,4 +1,4 @@
-import type { RevisionInstruction, RevisionInstructionSet, RiskList } from './schemas/index.js';
+import type { RevisionInstruction, RevisionInstructionSet, RiskList } from '../schemas/index.js';
 
 export class MissingLocatorQuoteError extends Error {
   constructor(riskId: string) {

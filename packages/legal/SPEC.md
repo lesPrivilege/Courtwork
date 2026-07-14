@@ -1,8 +1,8 @@
 # SPEC: packages/legal（FABLE-HARNESS 第 3 步，2026-07-13 立包）
 
-状态：PACKAGE-ABI 已成立；ABI-2A 双平面迁移已独立验收放行；VPKG-EXPORTS-1 已实现待独立验收
+状态：PACKAGE-ABI 已成立；ABI-2A 双平面迁移已独立验收放行；VPKG-LAYOUT-1 已实现待独立验收
 
-## VPKG 体例迁移（待派发）
+## VPKG 体例迁移（进行中）
 
 权威：`docs/decisions/ADR-012-vertical-package-kit-and-visual-blueprints.md` 与
 `docs/architecture/vertical-package-authoring.md`。
@@ -27,6 +27,14 @@
 - registry 递归解析 root/package/schemas/testing 的本地 import graph，阻止 Node/React/CSS 进入 browser-safe 面；全仓扫描只准 demo-runtime、acceptance 与 test 消费 `/testing`，并以 desktop/core/provider/registry 四类注入反例自证门禁有牙。
 - 三份 fixture 与迁移前逐字节 `cmp` 一致；本单未修改 descriptor、bindings、schema、prompt、typeId、blueprint、payload、fixture 内容或 JSON Schema，也未建立 Legal runtime。
 
+### VPKG-LAYOUT-1 实现记录（2026-07-14，待独立验收）
+
+- 唯一 package 真源已拆为 `src/package/{descriptor.ts,bindings.ts,index.ts}`；artifact/renderer、五个真实 scenario 与 prompt、两枚受控 interaction 分别归入 `presentation / scenarios / interactions`，旧 `src/manifest.ts` 不保留 alias 或第二实现。
+- RiskList→RevisionInstructionSet 编译器及测试迁入 `src/domain/`；既有 `src/schemas/` 与 `src/testing/` 原样保留，未创建无真实 integration 的 `runtime/`。
+- `/package` 改指 `dist/package/index`，根、`/schemas`、`/testing` 的运行时导出集合与对象身份保持不变。固定 hash 锁定完整 descriptor、五段 prompt blob 与三份 fixture；JSON Schema 重生成零 drift。
+- layout 门先在旧树得到 Legal/PM 各一项明确失败，再随物理归位转绿；本单没有修改 descriptor JSON、prompt 正文、任何 id/version/binding/payload/fixture、编译结果、blueprint 或 UI。独立放行仍由异会话完成。
+- 实现侧实跑：Legal **11 files / 79 tests**、PM **8 / 44**、registry **6 / 84**、demo-runtime **8 / 29**、eval **14 / 64**；全仓 build（13 个 workspace project）、lint 与 Vitest **131 files / 1126 tests** 全绿。
+
 ## 职责
 
 法律垂类依赖包（docs/architecture/schema-engineering.md「垂类即依赖包」的首个实体）：法律域的 schema、场景声明、
@@ -40,11 +48,11 @@
   自 packages/schemas 迁入（git mv 保历史）。**基座契约不迁**：SourceAnchor/RevisionEvent/
   信源分级（拍板既裁）+ RevisionInstructionSet（output 管线 wire 契约）+ FileOpsPlan（tools
   文件执行器 wire 契约）+ IngestStatus（材料管线状态词汇）留中央，本包 re-export 消费。
-- `src/manifest.ts`：`LEGAL_PACKAGE_DESCRIPTOR`（纯 JSON）+ `LEGAL_PACKAGE_BINDINGS`（进程内 Zod）及既有 composition 名 `LEGAL_PACKAGE`——包身份（含七个旧裸类型名
+- `src/package/`：`LEGAL_PACKAGE_DESCRIPTOR`（纯 JSON）+ `LEGAL_PACKAGE_BINDINGS`（进程内 Zod）及既有 composition 名 `LEGAL_PACKAGE`——包身份（含七个旧裸类型名
   的账本读侧迁移别名表）、七 artifact descriptor（含续行投影声明/枚举词表/副作用分级）、
-  五场景声明 v2（legal.S1–S4/S6，namespaced + confirmationPolicy + promptSegmentRef + 步骤树）、
-  五段声明级提示词正文、七 renderer 声明、两枚受控交互模板、容器词表（卷宗/阶段/卷宗材料）。
-- `src/compile-risk-list-to-revisions.ts`：RiskList→RevisionInstructionSet 编译（法律语义，
+  并从 `presentation / scenarios / interactions` 组装五场景声明 v2（legal.S1–S4/S6，namespaced + confirmationPolicy + promptSegmentRef + 步骤树）、
+  五段声明级提示词正文、七 renderer 声明、两枚受控交互模板与容器词表（卷宗/阶段/卷宗材料）。
+- `src/domain/compile-risk-list-to-revisions.ts`：RiskList→RevisionInstructionSet 编译（法律语义，
   自 core/composition 迁入）。信源门禁经 `EvidenceGatekeeper` 注入口绑定——本包零 core 依赖。
 - `src/testing/s3-risk-list-response.ts`：S3 演示脚本响应（自 core/composition 迁入）；只从 `/testing` 出口消费。
 - `json-schema/` + drift 测试：descriptor 引用的八枚 final/draft schema 对外契约面（含 RiskListDraft、RevisionInstructionSet、FileOpsPlan；随包迁移，同纪律）。

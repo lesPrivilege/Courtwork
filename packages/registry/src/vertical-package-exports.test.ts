@@ -122,14 +122,14 @@ describe('VPKG-EXPORTS-1 垂类包出口与递归依赖图', () => {
   it('Legal 明确提供 root/package/schemas/testing；PM 只提供 browser-safe root/package/schemas', () => {
     expect(packageMetadata(LEGAL_ROOT).exports).toEqual({
       '.': { types: './dist/index.d.ts', default: './dist/index.js' },
-      './package': { types: './dist/manifest.d.ts', default: './dist/manifest.js' },
+      './package': { types: './dist/package/index.d.ts', default: './dist/package/index.js' },
       './schemas': { types: './dist/schemas/index.d.ts', default: './dist/schemas/index.js' },
       './testing': { types: './dist/testing/index.d.ts', default: './dist/testing/index.js' },
     });
     expect(packageMetadata(PM_ROOT).exports).toEqual({
       '.': { types: './dist/index.d.ts', default: './dist/index.js' },
-      './package': { types: './dist/manifest.d.ts', default: './dist/manifest.js' },
-      './schemas': { types: './dist/schemas.d.ts', default: './dist/schemas.js' },
+      './package': { types: './dist/package/index.d.ts', default: './dist/package/index.js' },
+      './schemas': { types: './dist/schemas/index.d.ts', default: './dist/schemas/index.js' },
     });
     expect(existsSync(join(PM_ROOT, 'src', 'testing'))).toBe(false);
     expect(existsSync(join(PM_ROOT, 'src', 'runtime'))).toBe(false);
