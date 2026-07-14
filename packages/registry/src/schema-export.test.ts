@@ -60,4 +60,10 @@ describe('package JSON Schema export（ABI-2A）', () => {
     );
     expect(() => assertNoRemoteSchemaRefs({ $ref: './other.schema.json' })).toThrow(/remote|外部/i);
   });
+
+  it('动态与递归引用同样只允许本地 fragment', () => {
+    expect(() => assertNoRemoteSchemaRefs({ $dynamicRef: '#Local' })).not.toThrow();
+    expect(() => assertNoRemoteSchemaRefs({ $dynamicRef: 'https://evil.example/schema' })).toThrow(/remote|外部/i);
+    expect(() => assertNoRemoteSchemaRefs({ $recursiveRef: './other.schema.json' })).toThrow(/remote|外部/i);
+  });
 });

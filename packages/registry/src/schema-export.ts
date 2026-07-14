@@ -19,8 +19,11 @@ export function assertNoRemoteSchemaRefs(document: unknown, path = '$'): void {
     return;
   }
   for (const [key, value] of Object.entries(document as Record<string, unknown>)) {
-    if (key === '$ref' && (typeof value !== 'string' || !value.startsWith('#'))) {
-      throw new Error(`${path}.$ref 指向 remote/外部 schema，Courtwork 禁止解析：${String(value)}`);
+    if (
+      (key === '$ref' || key === '$dynamicRef' || key === '$recursiveRef')
+      && (typeof value !== 'string' || !value.startsWith('#'))
+    ) {
+      throw new Error(`${path}.${key} 指向 remote/外部 schema，Courtwork 禁止解析：${String(value)}`);
     }
     assertNoRemoteSchemaRefs(value, `${path}.${key}`);
   }
