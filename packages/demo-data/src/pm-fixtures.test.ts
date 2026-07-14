@@ -52,7 +52,7 @@ describe('PM-FIXTURE-1 file and watermark boundary', () => {
   it('marks every material and both schema-constrained artifacts as synthetic', () => {
     const fixture = getPmFixture();
     for (const text of [fixture.caseBible, fixture.manifest, ...Object.values(fixture.materials)]) {
-      expect(text).toContain('虚构');
+      expect(text).toMatch(/^> .*虚构.*水印/m);
     }
     expect(fixture.artifacts.prdReview.projectId).toMatch(/^DEMO-/);
     expect(fixture.artifacts.feedbackDigest.projectId).toMatch(/^DEMO-/);
@@ -64,6 +64,15 @@ describe('PM-FIXTURE-1 schema and evidence closure', () => {
     const fixture = getPmFixture();
     expect(PrdReviewSchema.safeParse(fixture.artifacts.prdReview).success).toBe(true);
     expect(FeedbackDigestSchema.safeParse(fixture.artifacts.feedbackDigest).success).toBe(true);
+  });
+
+  it('keeps project and document identities closed across the snapshot', () => {
+    const fixture = getPmFixture();
+    const review = fixture.artifacts.prdReview;
+    expect(review.projectId).toBe(fixture.artifacts.feedbackDigest.projectId);
+    expect(fixture.caseBible).toContain(`项目 ID：\`${review.projectId}\``);
+    expect(review.documentId).toBe('01-prd.md');
+    expect(Object.keys(fixture.materials)).toContain(review.documentId);
   });
 
   it('covers the six PRD defects exactly once, all pending, with exact UTF-16 anchors', () => {
