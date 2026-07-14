@@ -14,12 +14,22 @@ import {
   type CaseFile,
   type RiskList,
 } from '@courtwork/legal';
-import { assertEvidenceKeyAdmissible, createEvidenceLedger } from '../evidence/grade.js';
-import { createFileEventLog, replaySession, type ReplaySummary } from '../events/event-log.js';
-import type { CitationStats, SessionEvent } from '../events/types.js';
-import { createFileConfirmationStore } from '../session/confirmation-store.js';
-import { createFileRevisionEventStore } from '../revision/revision-store.js';
-import { runScenario, resumeScenario, type ScenarioExecutorDeps, type RevisionInput } from '../scenario-executor/executor.js';
+import {
+  assertEvidenceKeyAdmissible,
+  createEvidenceLedger,
+  createFileConfirmationStore,
+  createFileEventLog,
+  createFileRevisionEventStore,
+  replaySession,
+  resumeScenario,
+  runScenario,
+  type CitationStats,
+  type MaterialInput,
+  type ReplaySummary,
+  type RevisionInput,
+  type ScenarioExecutorDeps,
+  type SessionEvent,
+} from '@courtwork/core';
 import type { GenerationRequest, Provider } from '@courtwork/provider/types';
 import type { PackageRegistries } from '@courtwork/registry';
 import {
@@ -28,7 +38,6 @@ import {
   LEGAL_DEMO_MATERIAL_PATHS,
 } from '../composition/demo-assembly.js';
 import { buildRealS3Runtime, assertNoDemoInReal } from './run-s3-real.js';
-import type { MaterialInput } from '../assembly/segments.js';
 
 /**
  * LEGAL-DEMO-RUN 全链穿越（2026-07-13）：合成卷宗从上传到带修订 Word 的首次全链——

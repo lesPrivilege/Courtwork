@@ -11,10 +11,9 @@ import {
   type PartyVerifyData,
   type PartyVerifyInput,
 } from '@courtwork/tools';
-import { createToolRegistry, type ToolRegistry } from '../tools/tool-registry.js';
+import { createToolRegistry, type MaterialInput, type ToolRegistry } from '@courtwork/core';
 import { createScriptedProvider } from '@courtwork/provider/scripted';
 import type { Provider } from '@courtwork/provider/types';
-import type { MaterialInput } from '../assembly/segments.js';
 
 /**
  * 富语料 → 核验字段子集的投影。参考 packages/tools/src/party-verify.test.ts 的

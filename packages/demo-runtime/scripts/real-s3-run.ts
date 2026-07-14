@@ -4,7 +4,7 @@ import { resolveSmokeTargets } from '@courtwork/provider/smoke';
 /**
  * LEGAL-REAL 真卷宗真跑（用户执行）：
  *   COURTWORK_S3_REAL=DeepSeek DEEPSEEK_API_KEY=sk-… COURTWORK_S3_CONTRACT=/路径/合同.pdf \
- *     pnpm --filter @courtwork/core real:s3
+ *     pnpm --filter @courtwork/demo-runtime real:s3
  * 无 key 无全文：provider 缺席即拒跑，材料不读。防 Demo 污染断言违规即非零退出。
  * 产出：workDir/real-run-evidence.json（docs/decisions/ADR-003-evidence-and-anchors.md 原始证据）。
  */

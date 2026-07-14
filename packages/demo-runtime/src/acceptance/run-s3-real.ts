@@ -6,16 +6,20 @@ import { LEGAL_PACKAGE, type RiskList } from '@courtwork/legal';
 import { admitPackages, buildPackageRegistries, type PackageRegistries } from '@courtwork/registry';
 import { convertToReadingView } from '@courtwork/reading-view';
 import { createPartyVerifyTool, createQccPartyVerifyAdapter, createToolExecutor } from '@courtwork/tools';
-import { createEvidenceLedger } from '../evidence/grade.js';
-import { createFileEventLog } from '../events/event-log.js';
-import type { SessionEvent } from '../events/types.js';
-import { createFileConfirmationStore } from '../session/confirmation-store.js';
-import { createFileRevisionEventStore } from '../revision/revision-store.js';
-import { runScenario, type ScenarioExecutorDeps } from '../scenario-executor/executor.js';
+import {
+  createEvidenceLedger,
+  createFileConfirmationStore,
+  createFileEventLog,
+  createFileRevisionEventStore,
+  createToolRegistry,
+  runScenario,
+  type MaterialInput,
+  type ScenarioExecutorDeps,
+  type SessionEvent,
+  type ToolRegistry,
+} from '@courtwork/core';
 import type { Provider } from '@courtwork/provider/types';
-import { createToolRegistry, type ToolRegistry } from '../tools/tool-registry.js';
 import { materialFromReadingView } from '../composition/demo-assembly.js';
-import type { MaterialInput } from '../assembly/segments.js';
 
 /**
  * LEGAL-REAL 真跑通道（S3 真卷宗真跑收官）：上传真卷宗 → ReadingView → 六段组装 →

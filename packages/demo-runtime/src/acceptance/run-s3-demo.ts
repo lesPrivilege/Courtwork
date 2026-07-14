@@ -8,12 +8,19 @@ import {
   type CaseFile,
   type RiskList,
 } from '@courtwork/legal';
-import { assertEvidenceKeyAdmissible, createEvidenceLedger } from '../evidence/grade.js';
-import { createFileEventLog, replaySession, type ReplaySummary } from '../events/event-log.js';
-import type { SessionEvent } from '../events/types.js';
-import { createFileConfirmationStore } from '../session/confirmation-store.js';
-import { createFileRevisionEventStore } from '../revision/revision-store.js';
-import { runScenario, resumeScenario, type ScenarioExecutorDeps } from '../scenario-executor/executor.js';
+import {
+  assertEvidenceKeyAdmissible,
+  createEvidenceLedger,
+  createFileConfirmationStore,
+  createFileEventLog,
+  createFileRevisionEventStore,
+  replaySession,
+  resumeScenario,
+  runScenario,
+  type ReplaySummary,
+  type ScenarioExecutorDeps,
+  type SessionEvent,
+} from '@courtwork/core';
 import type { Provider } from '@courtwork/provider/types';
 import { buildDemoS3Runtime, loadDemoS3Materials } from '../composition/demo-assembly.js';
 

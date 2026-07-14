@@ -3,8 +3,8 @@ import { resolveSmokeTargets } from '@courtwork/provider/smoke';
 
 /**
  * LEGAL-DEMO-RUN 全链穿越（合成卷宗 → 带修订 Word）：
- *   Scripted 档（缺省）：pnpm --filter @courtwork/core demo:legal
- *   真 key 档：COURTWORK_S3_REAL=DeepSeek DEEPSEEK_API_KEY=sk-… pnpm --filter @courtwork/core demo:legal
+ *   Scripted 档（缺省）：pnpm --filter @courtwork/demo-runtime demo:legal
+ *   真 key 档：COURTWORK_S3_REAL=DeepSeek DEEPSEEK_API_KEY=sk-… pnpm --filter @courtwork/demo-runtime demo:legal
  * 黄金对照（事件骨架/预埋考点/锚点复算/六段标记/修订命中）任一不符即非零退出。
  */
 

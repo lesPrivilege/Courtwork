@@ -35,24 +35,24 @@
       "default": "./dist/turn/turn-store-file.js"
     }
   },
+  "courtwork": {
+    "deprecatedExports": {
+      "./provider-quirks": "@courtwork/provider/quirks",
+      "./provider-openai": "@courtwork/provider/openai",
+      "./provider-types": "@courtwork/provider/types"
+    }
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run --root ../.. packages/core",
     "lint": "eslint .",
-    "demo:s3": "tsx scripts/demo-s3-flow.ts",
-    "demo:legal": "tsx scripts/legal-demo-run.ts",
-    "smoke:provider": "tsx scripts/smoke-provider.ts",
-    "real:s3": "tsx scripts/real-s3-run.ts"
+    "smoke:provider": "tsx scripts/smoke-provider.ts"
   },
   "dependencies": {
     "@courtwork/provider": "workspace:*",
     "@courtwork/schemas": "workspace:*",
     "@courtwork/registry": "workspace:*",
     "@courtwork/tools": "workspace:*",
-    "@courtwork/output": "workspace:*",
-    "@courtwork/demo-data": "workspace:*",
-    "@courtwork/legal": "workspace:*",
-    "@courtwork/reading-view": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {

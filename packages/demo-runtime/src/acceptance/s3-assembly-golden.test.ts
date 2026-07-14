@@ -1,9 +1,8 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { assembleScenarioRequest, deriveTodoSnapshot } from '@courtwork/core';
 import { buildDemoS3Runtime } from '../composition/demo-assembly.js';
-import { assembleScenarioRequest } from '../assembly/assemble.js';
-import { deriveTodoSnapshot } from '../scenario-executor/todo-snapshot.js';
 
 /**
  * legal.S3 六段组装 golden（HARNESS-1 放行标准之 byte-stable golden）：
