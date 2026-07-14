@@ -1,6 +1,6 @@
 # SPEC: packages/core（W6）
 
-状态：既有 TURN/INTERACTION 与 `CONFIRM-CAS-1` 已独立验收；现行工单 `CORE-BOUNDARY-1` 已实现、待独立验收，后续 `TURN-WORK-1` 受 ADR-009 约束
+状态：既有 TURN/INTERACTION、`CONFIRM-CAS-1` 与 `CORE-BOUNDARY-1` 已独立验收放行；后续 `TURN-WORK-1` 受 ADR-009 约束
 
 ## 现行架构工单（2026-07-14）
 
@@ -12,7 +12,7 @@
 
 验收至少实际证明：core 的 package.json/src/root exports 对四个垂类/demo 包零依赖；删除 `packages/demo-runtime` 后 core 定向 build/test 仍通过；demo-runtime 全链与旧 golden 等价；依赖图无环；根 barrel 无 provider 实现转售；全仓门禁全绿。
 
-实现留痕（2026-07-14，待独立验收）：
+实现留痕（2026-07-14，已独立验收）：
 
 - 新建 `@courtwork/demo-runtime`，机械搬迁原 `core/src/composition`、`core/src/acceptance`、三个 demo/real CLI、六段组装 golden 与全链测试。仅将跨包相对 import 改为 `@courtwork/core` 公开契约，未改 fixture、场景、事件、引用、确认、修订或 output 语义。
 - core 生产依赖已删除 legal/demo-data/output/reading-view，根 barrel 删除 demo/acceptance 与 provider scripted/quirks/errors/pricing/openai 转售；只保留 desktop 真实消费的 `GenerationNotice` type export。
@@ -20,6 +20,15 @@
 - `package-boundary.test.ts` 取消 core 内 binding-layer 例外，同时扫 package dependency、生产 import、根 barrel 和旧目录；`demo-runtime` 侧锁定反向依赖为零、内部 Courtwork 包图无环且防 demo 污染守卫仍在岗。
 - TDD 红测实际报出 10 处绑定 import、4 项 package dependency、旧 composition/acceptance 目录、根 barrel provider 转售与 compat 缺弃用标记。搬迁前旧全链 19/19，搬迁后 demo-runtime 26/26；旧 `s3-assembly.golden.txt` SHA-256 仍为 `0047e71264f6ddb6aa25cf5ceb10aca7b4a0bd7aee913b9630bb8cafb79bcd07`。
 - 实际把 `packages/demo-runtime` 整目录临时移出 workspace 并清空 core `dist` 后，core build + 22 文件 232/232 仍绿；恢复后 `pnpm -r build`、`pnpm lint`、全仓 116 文件 1000/1000 通过。
+
+独立验收留痕（2026-07-14）：
+
+- 独立 clean worktree 从实现 tip `e42165d` 建立。`0f6b094..e42165d` 的 golden、两项 integration test、demo assembly test 与 `demo:s3` CLI 为 100% rename；其余 runner 只把 core 内相对 import 改为 `@courtwork/core` 公共契约，CLI 文案改为新包名。core 中旧 `composition/acceptance` 目录与第二份实现均不存在。
+- core 的 package dependency、生产 import、根 exports 对 legal/demo-data/output/reading-view/demo-runtime 均为零；根 barrel 只保留 desktop 真实消费的 `GenerationNotice` type，不转售 provider scripted/quirks/errors/pricing/openai。三个 `provider-*` compatibility 子路径均为一行一跳重导出，替代路径写入 `courtwork.deprecatedExports`，真实 consumer 上下文可解析且与替代路径 runtime exports 等价。
+- 临时向 core 根 barrel 注入 `@courtwork/provider/openai` 转售，边界守卫真实 **2 failed / 5 passed**；精确撤除后 core/demo/compat 三组边界 **10/10**。将整个 `packages/demo-runtime` 移出 workspace 并清空 core `dist` 后，core 仍从零 build 且 **22 files / 232 tests** 全绿。
+- demo-runtime **8 files / 26 tests**；迁移前后 `s3-assembly.golden.txt` SHA-256 同为 `0047e71264f6ddb6aa25cf5ceb10aca7b4a0bd7aee913b9630bb8cafb79bcd07`。`demo:s3` 为 39,713 bytes、7/7 考点与 8 事件；`demo:legal` 为 8 风险、11/11 锚点、7 确认 + 1 驳回、15 事件，golden PASS。
+- clean frozen install 为 14 workspace / 1047 packages；最终 `pnpm -r build`、`pnpm lint`、全仓 **116 files / 1000 tests** 全绿。无 UI 变更，未跑 Playwright。环境有 DeepSeek key 但没有用户提供的真实卷宗路径，`real:s3` 正确以 exit 1 拒跑；本验收不声称完成真材料网络验证。
+- **结论：CORE-BOUNDARY-1 放行。** `@courtwork/core` 可独立于 demo/legal composition 构建测试，`@courtwork/demo-runtime` 是开发/验收装配的单一真源；兼容子路径仅为有弃用替代路径的临时 ABI，不构成第二 provider 实现。
 
 ### CONFIRM-CAS-1 · Work confirmation 原子消费
 
