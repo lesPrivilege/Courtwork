@@ -1,8 +1,8 @@
 # SPEC: apps/desktop（W9）
 
-状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C` 与 `WORK-PORT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
+状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1` 与 `TRACE-UI-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
-## TRACE-UI-1 · Chat/Work 同源过程轨迹（已实现，待独立验收）
+## TRACE-UI-1 · Chat/Work 同源过程轨迹（已独立验收放行）
 
 权威：ADR-011。目标是复用同一宿主组件与动效，不混淆两种账本语义。
 
@@ -27,8 +27,12 @@
 `preview/registry` 边界，暂不抽 `packages/ui`。
 
 - 第一批只实现有真实消费的 `Field / Anchor / Status / Evidence / Decision / Estimate / Partial`，并让至少两个现有工作面或两个 namespace 真消费；禁止只做未引用组件陈列。
+- 七类构件只接收 `docs/design/visualization-kit.md` 冻结的宿主 ViewModel；不得接收 descriptor、JSON pointer、artifact 原始对象、自由 tone/color、布局数值或 event/store。
+- 第一批生产复用固定为：通用 artifact table 的 field/anchor/estimate/status，以及 Legal 风险/证据或通用 interaction 的 evidence/decision/partial。至少一处 Legal 与一处 PM projection 必须消费同一 primitives 源码；不得按 typeId 写分支。
 - gallery 可以展示 implemented/candidate/deferred 全谱，但 candidate/deferred 只能是原生静态样板，不注册生产 blueprint、不造假数据。样板使用 Legal fixture 与后续权威 PM fixture。
+- gallery fixture 只能由 demo/test composition 注入递归冻结的 ViewModel；desktop 生产 graph 不得 import `@courtwork/demo-data`、垂类 `/testing` 或 Node builtin。截图清单记录 fixture hash、main SHA、viewport 与 reduced-motion。
 - 新 blueprint 独立定义 presentation config 与 fail-closed projection；不得膨胀 `courtwork.artifact-table.v1` 的 fields 为万能 DSL。
+- 本单新增第三方依赖为 0；语义 HTML/CSS/SVG 为默认，已有 G6 只保留给复杂 graph 且继续懒加载。不得引入 TanStack Table、React Flow、ECharts 或整套 UI kit。
 - 1180/1280/1440/1600、键盘、完整引语、零 wire、reduced-motion 与 de-slop 门必须通过；截图来自已验收 main 的真机 gallery。
 
 ## 现行架构工单（2026-07-14）
