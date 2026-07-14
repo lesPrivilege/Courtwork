@@ -23,8 +23,15 @@
 - SITE-2A / SITE-2B 已经异会话验收并合流：首页以“原件 → 引语 → 结论 → 人工确认”为主骨架，产品图来自已验收主树的 computer-use 真机操作，OG 消费无底盘核心标记；
 - POLISH-P0 与 SCHEMA-POLISH-1 已经异会话全量验收并合流；
 - DESLOP-GATE-2 已经异会话验收并合流：裸色、阴影、圆角、渐变、L1 嵌套、archive 消费、press/popover 与泛化文案使用精确消费点白名单；
-- v0.1.1 Apple Silicon Release 候选已从全量门后的主树生成：desktop 129、provider 86、root 981、Rust 25、Playwright 208；DMG 已通过 codesign/hdiutil/挂载/启动校验。构建为 ad-hoc 且未公证，官网与 Release 明示该边界；
+- v0.1.1 Apple Silicon 开发构建已发布：annotated tag `v0.1.1` 指向 `39555d6`，GitHub Release 与 Pages 均已上线；desktop 129、provider 86、root 981、Rust 25、Playwright 208 全绿，远端 DMG 复算 SHA-256 与仓库记录一致。构建为 ad-hoc 且未公证，官网与 Release 明示该边界；
 - demo 全链穿越、发布修实三项（遥测真开关、共享 docx 预检、产物存在后冻结）。
+
+## 已发布入口
+
+- Pages：<https://lesprivilege.github.io/Courtwork/>
+- GitHub Release：<https://github.com/lesPrivilege/Courtwork/releases/tag/v0.1.1>
+- 发布与部署证据：[`release/DEPLOYMENT.md`](../../release/DEPLOYMENT.md)
+- 分支 / worktree：本地与远端均只保留 `main`；已验收分支已确认进入 `main` 历史后删除，已淘汰的 DESLOP-GATE-1 未合流分支直接删除。
 
 ## 当前架构债
 

@@ -1,6 +1,6 @@
 # SPEC: site
 
-状态：SITE-1 已上线；SITE-2A 结构与 SITE-2B 真机证据已经独立验收；v0.1.1 Release 真值切换已实现，待发布候选独立验收与部署。
+状态：SITE-1 已上线；SITE-2A 结构与 SITE-2B 真机证据已经独立验收；v0.1.1 Release 真值切换、独立验收与部署复核均已完成。
 
 ## SITE-2 · Evidence Line：首页约束链
 
@@ -44,4 +44,11 @@
 
 - 下载 URL 固定为 `releases/download/v0.1.1/Courtwork_0.1.1_aarch64.dmg`，与待创建 GitHub Release 的 tag / asset 同名。
 - 页面同时呈现本趟 DMG 的 64 位 SHA-256 与 `Apple Silicon 开发构建 · ad-hoc 签名 · 未公证`，不得只展示“下载”而隐藏 Gatekeeper 边界。
-- Release 资产尚未创建时本节只构成同批发布候选；完成条件是 asset 200、SHA 匹配、Pages workflow success 与部署页复核全部成立。
+- 发布前本节只构成同批候选；当前 asset 可下载、SHA 匹配、Pages workflow success 与部署页复核四项条件均已成立。
+
+## RELEASE-1 · 部署实录（2026-07-14）
+
+- annotated tag `v0.1.1` 指向 `main@39555d6`；GitHub Release 已发布，DMG 与 SHA 文件均为公开资产。
+- 从 GitHub Release 重新下载 DMG 后独立复算：`37792b767fe08119edab3cc6b793e59cd4511758110f8b42e6242e80a023db7e`，大小 `4,667,331` bytes，与页面、校验文件及独立验收报告一致。
+- Pages workflow `29301065279` 在 `39555d6` 上成功；部署首页 HTTP 200。macOS Safari 真机页复核可见四项硬承诺、下载 CTA 与“Apple Silicon 开发构建 · 未公证”边界。
+- 完整外部证据与链接见 [`release/DEPLOYMENT.md`](../release/DEPLOYMENT.md)。
