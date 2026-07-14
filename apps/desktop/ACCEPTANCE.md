@@ -4,6 +4,53 @@
 
 ---
 
+## VISUAL-KIT-1 · 十二族可视化组件样板与 schema-first 运行时（2026-07-14）— ✅ 放行
+
+- **角色与对象**：独立验收会话；实现提交 `4f4b4ac6e7ae963b18964b52a40b5026f3219a8b`，基线 `f7532f7`。验收在独立 worktree、独立分支 `codex/accept-visual-kit-1` 完成，不采信实现自述。
+- **验收修复**：`670ec29abede695d088d0e95994edea5e7fb0e6c`（runtime 比例白名单、gallery `implemented` 必须绑定真实 primitive，并补强 schema-first/零 wire/展示契约测试）；`16f764d15ccb2feaf11199ab3d55fdca799d9949`（仅消除验收测试的 lint 告警）。两枚均为实现级 fail-closed 小修，无 schema 字段、跨层接口、导出或 ADR 变更。
+- **边界核验**：仓库无 `packages/ui`；生产代码未依赖 demo/testing、Node builtin 或第三方可视化运行时；实现只在 desktop `devDependencies` 增加 `@courtwork/demo-data`。G6 仍由既有 `GraphPanel` lazy boundary 管理，本工单未触碰。registry 仅登记 `courtwork.artifact-table.v1`，candidate/deferred 不进入运行时；Legal/PM fixture 复用同一 primitives，锁定各自 provenance/hash。
+
+### 反例注入（均先红后恢复）
+
+| 边界 | 实际注入的反例 | 观察到的红灯 |
+|---|---|---|
+| 冻结与状态 | shallow freeze；放入未知 status tone | contract 分别 `4 failed`、`1 failed` |
+| Estimate / Partial | 同时提供多个 estimate 形态；未知总量伪造 `20%` | contract 各 `1 failed` |
+| 组合与 gallery | 接受 `3:2`；伪造 implemented 无 primitive；删 missing-family guard；标题加 `01 ·` | 对应 contract/gallery 测试逐项变红 |
+| 零 wire 与命名空间 | primitive 读取 `descriptor/pointer/payload/artifact/store/event/typeId`；加入 PM `typeId` 分支；输出 raw payload | visual-kit guard 或 namespace/zero-wire 测试变红 |
+| blueprint 登记边界 | 临时登记 candidate blueprint；临时生产文件导入 demo/testing、`node:path`、`echarts` | static guard 分别报告违规 |
+| Interaction | Anchor 无回调仍可点；Decision 无回调不锁；删 first-wins；吞掉 error；提前显示 Recorded；截断 quote | SSR/DOM 测试分别捕获 source-ready、重复 resolve、错误态、阶段与原文完整性漂移 |
+| Artifact schema-first | 绕过必填 `documentId`；缺 pointer 默认空串；enum 忽略 `valueLabels`；文件标签泄漏完整 `fileId` | renderer 9 例中的对应 schema/pointer/enum/provenance 断言逐项变红 |
+| fixture 固定性 | 改动 PM fixture hash 一位 | fixture hash 测试 `1 failed` |
+
+所有临时 mutation 均已逆向恢复；最终工作树不含反例残留。验收过程中真实暴露的任意 runtime 比例与假 implemented 两个 fail-open 缺口，已由 `670ec29` 前进式修复。
+
+### 最终门禁实跑
+
+| 门禁 | 结果 |
+|---|---|
+| `lint:visual-kit` | PASS |
+| focused Vitest | **25/25**（6 文件） |
+| desktop Vitest | **161/161**（39 文件） |
+| root Vitest | **1117/1117**（128 文件） |
+| `pnpm -r build` | 13 个 workspace project 通过；desktop 3524 modules，仅既有 Tauri dynamic/static import 与 chunk-size 提示 |
+| `pnpm lint` | exit 0 |
+| `pnpm site:guard` | fixture **12/12**；deslop 扫描 670 个 active text files，neutral/elevation/signature/motion 全绿 |
+| 独立 Playwright | `COURTWORK_E2E_PORT=1638 pnpm exec playwright test --workers=1`：**209/209**，明确 `Running 209 tests using 1 worker`，3.2m |
+
+### 真机渲染与人工目检
+
+- Playwright 在真实 Chromium 生成 1180 / 1280 / 1440 / 1600 四档 gallery 全页截图，并逐张以原图/高分辨率人工目检：1180 为两列，1280–1600 为三列；十二族齐全，hairline grid 连续，Legal/PM provenance 与 fixture hash 可见，Partial 显示 `Completed 2/3 · Pending 1` 且不伪造百分比，无全局横向溢出或 card-inside-card 膨胀。
+- 普通 ask-user 的 pending/resolved 不出现 Partial 噪音、error 只呈失败态、Recorded 仅在 core acceptance 后出现，并由同一次单 worker Chromium 全量用例及 SSR/DOM focused 测试共同锁定。
+- **非阻断 P2 观察**：1280/1440 的个别 Evidence 样板中，`implemented` 状态 badge 靠近单元格边界时存在局部遮挡；不影响 primitive、数据或交互契约，也不进入生产 blueprint，后续仅作 gallery 排版 polish，不扩成本工单契约修复。
+- 已按 browser skill 尝试 in-app browser，但本地 browser-client bootstrap 两次均在初始化时报 `Cannot redefine property: process`；因此本报告不伪称完成 in-app 手工点击。该环境阻塞不影响独立真实 Chromium 的 209/209 与四档截图证据；accepted main 上的 in-app browser 真机证据留给主会话补录。
+
+### 结论
+
+**✅ 放行 VISUAL-KIT-1。** 十二族样板、schema-first 校验、零 wire、跨垂类同源 primitive、interaction 阶段语义及静态边界均有绿门与实际 mutation 红灯证据。上述 gallery-only badge 边界观察与 browser-client 本机 bootstrap 故障均已透明留痕，不构成实现/契约阻断；下游可基于 `4f4b4ac + 670ec29 + 16f764d` 继续集成。
+
+---
+
 ## F 批合批验收（2026-07-10）
 
 - **角色**：验收工程师（Opus 4.8 会话）。三不变量核对：实现与验收异会话异模型（实现 = Grok 为主，F-2 前半 = Sonnet；验收 = 本会话，非任一实现前身）；契约未单方面更改（唯一契约缺口 `PartyEdge.markers` 沿用既有 `[需架构拍板]`，本批未动）；纪律对模型一视同仁。
