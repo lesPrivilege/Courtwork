@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -12,11 +12,18 @@ interface PackageJson {
 }
 
 function readPackageJson(dir: string): PackageJson {
-  return JSON.parse(readFileSync(join(dir, 'package.json'), 'utf-8')) as PackageJson;
+  const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf-8')) as Partial<PackageJson>;
+  if (typeof manifest.name !== 'string' || manifest.name.trim().length === 0) {
+    throw new Error(`${dir}/package.json 缺少合法 name`);
+  }
+  return manifest as PackageJson;
 }
 
 function courtworkGraph(): Map<string, string[]> {
-  const packageDirs = readdirSync(PACKAGES_ROOT).map((name) => join(PACKAGES_ROOT, name));
+  const packageDirs = readdirSync(PACKAGES_ROOT, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => join(PACKAGES_ROOT, entry.name))
+    .filter((dir) => existsSync(join(dir, 'package.json')));
   const manifests = [readPackageJson(join(REPO_ROOT, 'apps', 'desktop')), ...packageDirs.map(readPackageJson)];
   const names = new Set(manifests.map((manifest) => manifest.name));
   return new Map(
@@ -48,6 +55,46 @@ function findCycles(graph: Map<string, string[]>): string[][] {
 }
 
 describe('@courtwork/demo-runtime dependency boundary', () => {
+  it('ignores a non-directory entry under packages', () => {
+    const plainFile = join(PACKAGES_ROOT, '.core-boundary-file-fixture');
+    try {
+      writeFileSync(plainFile, 'not a package');
+      expect(courtworkGraph().has('@courtwork/core')).toBe(true);
+    } finally {
+      rmSync(plainFile, { force: true });
+    }
+  });
+
+  it('ignores a directory without package.json', () => {
+    const noPackageDir = join(PACKAGES_ROOT, '.core-boundary-empty-dir-fixture');
+    try {
+      mkdirSync(noPackageDir);
+      expect(courtworkGraph().has('@courtwork/core')).toBe(true);
+    } finally {
+      rmSync(noPackageDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not skip a workspace directory with a valid package.json', () => {
+    const workspaceDir = join(PACKAGES_ROOT, '.core-boundary-workspace-fixture');
+    try {
+      mkdirSync(workspaceDir);
+      writeFileSync(
+        join(workspaceDir, 'package.json'),
+        JSON.stringify({
+          name: '@courtwork/core-boundary-workspace-fixture',
+          private: true,
+          dependencies: { '@courtwork/core': 'workspace:*' },
+        }),
+      );
+
+      const graph = courtworkGraph();
+      expect(graph.get('@courtwork/core-boundary-workspace-fixture')).toEqual(['@courtwork/core']);
+    } finally {
+      rmSync(workspaceDir, { recursive: true, force: true });
+    }
+  });
+
   it('is the one-way development composition root and is not imported by core or desktop', () => {
     const graph = courtworkGraph();
     expect(graph.get('@courtwork/demo-runtime')).toEqual(expect.arrayContaining([
