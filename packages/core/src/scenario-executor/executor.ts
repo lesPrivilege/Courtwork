@@ -496,17 +496,20 @@ function prepareResume(
   now: () => string,
 ): PreparedResume {
   const producedArtifacts = structuredClone(pending.producedArtifacts);
+  const validationArtifacts = response.decision === 'confirm'
+    ? producedArtifacts
+    : structuredClone(pending.producedArtifacts);
   const revisionEvents: RevisionEvent[] = [];
   const revisedArtifactTypes = new Set<string>();
 
-  if (response.decision === 'confirm') {
-    for (const revision of response.revisions ?? []) {
-      const event = buildRevisionEvent(revision, response.actor, pending.sessionId, now);
-      const artifact = producedArtifacts[revision.artifactType];
-      if (!artifact || typeof artifact !== 'object') {
-        throw new Error(`revision artifactType "${revision.artifactType}" 不存在或不可修正`);
-      }
-      applyJsonPointer(artifact as Record<string, unknown>, revision.fieldPath, revision.newValue);
+  for (const revision of response.revisions ?? []) {
+    const event = buildRevisionEvent(revision, response.actor, pending.sessionId, now);
+    const artifact = validationArtifacts[revision.artifactType];
+    if (!artifact || typeof artifact !== 'object') {
+      throw new Error(`revision artifactType "${revision.artifactType}" 不存在或不可修正`);
+    }
+    applyJsonPointer(artifact as Record<string, unknown>, revision.fieldPath, revision.newValue);
+    if (response.decision === 'confirm') {
       revisionEvents.push(event);
       revisedArtifactTypes.add(revision.artifactType);
     }

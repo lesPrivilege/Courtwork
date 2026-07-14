@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createFileConfirmationStore, createInMemoryConfirmationStore, type PendingConfirmation } from './confirmation-store.js';
@@ -113,6 +113,49 @@ describe('createFileConfirmationStore (durable, simulates cross-process resume)'
       writer.consume('req-1', snapshot.version);
       expect(() => createFileConfirmationStore(dir).save(samplePending('req-1'))).toThrow(/req-1/);
       expect(createFileConfirmationStore(dir).peek('req-1')).toBeUndefined();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('reads and consumes a legacy pending JSON file that has no version field or tombstone', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-confirmstore-'));
+    try {
+      writeFileSync(join(dir, 'req-legacy.json'), JSON.stringify(samplePending('req-legacy')), 'utf-8');
+
+      const freshStore = createFileConfirmationStore(dir);
+      const snapshot = freshStore.peek('req-legacy');
+      expect(snapshot?.pending).toEqual(samplePending('req-legacy'));
+      expect(snapshot && freshStore.consume('req-legacy', snapshot.version)).toEqual(samplePending('req-legacy'));
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('writes a payload-free tombstone, masks a crash-window pending file, and blocks deprecated take() resurrection', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-confirmstore-'));
+    try {
+      const store = createFileConfirmationStore(dir);
+      const pending = {
+        ...samplePending('req-1'),
+        materials: [{ fileId: 'secret-file', sha256: 'secret-sha', readingMarkdown: 'TOP-SECRET-ARTIFACT' }],
+      };
+      store.save(pending);
+      expect(store.take('req-1')).toEqual(pending);
+
+      const tombstonePath = join(dir, 'req-1.consumed');
+      const tombstone = readFileSync(tombstonePath, 'utf-8');
+      expect(tombstone).not.toContain('TOP-SECRET-ARTIFACT');
+      expect(tombstone).not.toContain('secret-file');
+      expect(Object.keys(JSON.parse(tombstone) as Record<string, unknown>).sort()).toEqual(['requestId', 'version']);
+      expect(existsSync(join(dir, 'req-1.json'))).toBe(false);
+
+      // 模拟 marker 已提交、pending 清理前崩溃：旧载荷即使仍在，也不能重新可见或被覆盖。
+      writeFileSync(join(dir, 'req-1.json'), JSON.stringify(pending), 'utf-8');
+      const afterCrash = createFileConfirmationStore(dir);
+      expect(afterCrash.peek('req-1')).toBeUndefined();
+      expect(afterCrash.take('req-1')).toBeUndefined();
+      expect(() => afterCrash.save(pending)).toThrow(/req-1/);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
