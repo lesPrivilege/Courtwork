@@ -20,47 +20,99 @@ function samplePending(requestId: string): PendingConfirmation {
 }
 
 describe('createInMemoryConfirmationStore', () => {
-  it('save then take round-trips the pending confirmation', () => {
+  it('save then peek/consume round-trips the pending confirmation without consuming during peek', () => {
     const store = createInMemoryConfirmationStore();
     store.save(samplePending('req-1'));
-    expect(store.take('req-1')).toEqual(samplePending('req-1'));
+    const snapshot = store.peek('req-1');
+    expect(snapshot?.pending).toEqual(samplePending('req-1'));
+    expect(store.peek('req-1')).toEqual(snapshot);
+    expect(snapshot && store.consume('req-1', snapshot.version)).toEqual(samplePending('req-1'));
   });
 
-  it('take() removes the entry — a second take() returns undefined', () => {
+  it('consume() is expected-version conditional and first-wins', () => {
     const store = createInMemoryConfirmationStore();
     store.save(samplePending('req-1'));
-    store.take('req-1');
-    expect(store.take('req-1')).toBeUndefined();
+    const snapshot = store.peek('req-1');
+    if (!snapshot) throw new Error('expected pending snapshot');
+
+    expect(store.consume('req-1', 'stale-version')).toBeUndefined();
+    expect(store.peek('req-1')).toEqual(snapshot);
+    expect(store.consume('req-1', snapshot.version)).toEqual(samplePending('req-1'));
+    expect(store.consume('req-1', snapshot.version)).toBeUndefined();
+    expect(store.peek('req-1')).toBeUndefined();
   });
 
-  it('take() on an unknown requestId returns undefined', () => {
+  it('rejects a duplicate requestId without replacing the original pending value', () => {
     const store = createInMemoryConfirmationStore();
-    expect(store.take('never-saved')).toBeUndefined();
+    store.save(samplePending('req-1'));
+    const replacement = { ...samplePending('req-1'), sessionId: 'replacement-session' };
+
+    expect(() => store.save(replacement)).toThrow(/req-1/);
+    expect(store.peek('req-1')?.pending).toEqual(samplePending('req-1'));
+
+    const snapshot = store.peek('req-1');
+    if (!snapshot) throw new Error('expected pending snapshot');
+    store.consume('req-1', snapshot.version);
+    expect(() => store.save(samplePending('req-1'))).toThrow(/req-1/);
+    expect(store.peek('req-1')).toBeUndefined();
+  });
+
+  it('peek()/consume() on an unknown requestId returns undefined', () => {
+    const store = createInMemoryConfirmationStore();
+    expect(store.peek('never-saved')).toBeUndefined();
+    expect(store.consume('never-saved', 'any-version')).toBeUndefined();
   });
 });
 
 describe('createFileConfirmationStore (durable, simulates cross-process resume)', () => {
-  it('a fresh instance pointed at the same directory can take() what a prior instance saved', () => {
+  it('a fresh instance pointed at the same directory can peek/consume what a prior instance saved', () => {
     const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-confirmstore-'));
     try {
       const writer = createFileConfirmationStore(dir);
       writer.save(samplePending('req-1'));
 
       const reader = createFileConfirmationStore(dir);
-      expect(reader.take('req-1')).toEqual(samplePending('req-1'));
+      const snapshot = reader.peek('req-1');
+      expect(snapshot?.pending).toEqual(samplePending('req-1'));
+      expect(snapshot && reader.consume('req-1', snapshot.version)).toEqual(samplePending('req-1'));
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
-  it('take() deletes the backing file so a second take() (even via a new instance) returns undefined', () => {
+  it('expected-version consumption is first-wins across fresh instances', () => {
     const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-confirmstore-'));
     try {
       const writer = createFileConfirmationStore(dir);
       writer.save(samplePending('req-1'));
-      writer.take('req-1');
-      const reader = createFileConfirmationStore(dir);
-      expect(reader.take('req-1')).toBeUndefined();
+      const firstReader = createFileConfirmationStore(dir);
+      const secondReader = createFileConfirmationStore(dir);
+      const snapshot = firstReader.peek('req-1');
+      if (!snapshot) throw new Error('expected pending snapshot');
+
+      expect(secondReader.consume('req-1', 'stale-version')).toBeUndefined();
+      expect(secondReader.peek('req-1')).toEqual(snapshot);
+      expect(firstReader.consume('req-1', snapshot.version)).toEqual(samplePending('req-1'));
+      expect(secondReader.consume('req-1', snapshot.version)).toBeUndefined();
+      expect(createFileConfirmationStore(dir).peek('req-1')).toBeUndefined();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects duplicate saves before and after consumption without replacing or resurrecting the request', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-confirmstore-'));
+    try {
+      const writer = createFileConfirmationStore(dir);
+      writer.save(samplePending('req-1'));
+      expect(() => createFileConfirmationStore(dir).save({ ...samplePending('req-1'), sessionId: 'replacement-session' })).toThrow(/req-1/);
+      expect(writer.peek('req-1')?.pending).toEqual(samplePending('req-1'));
+
+      const snapshot = writer.peek('req-1');
+      if (!snapshot) throw new Error('expected pending snapshot');
+      writer.consume('req-1', snapshot.version);
+      expect(() => createFileConfirmationStore(dir).save(samplePending('req-1'))).toThrow(/req-1/);
+      expect(createFileConfirmationStore(dir).peek('req-1')).toBeUndefined();
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

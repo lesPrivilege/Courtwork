@@ -1,6 +1,6 @@
 # SPEC: packages/core（W6）
 
-状态：既有 TURN/INTERACTION 已验收；现行工单 `CONFIRM-CAS-1` 待实现，后续 `CORE-BOUNDARY-1` / `TURN-WORK-1` 受 ADR-009 约束
+状态：既有 TURN/INTERACTION 已验收；现行工单 `CONFIRM-CAS-1` 已实现、待独立验收，后续 `CORE-BOUNDARY-1` / `TURN-WORK-1` 受 ADR-009 约束
 
 ## 现行架构工单（2026-07-14）
 
@@ -9,6 +9,13 @@
 权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。`resumeScenario` 不得先 destructive `take()` 再校验回答。实现必须在零事件、零 revision、零 artifact 变更的阶段完成 actor、decision、revisions 与 pending identity 的全部验证，再以 expected identity/version 条件消费；同 request id 的保存不得覆盖，竞争消费只有第一笔成功。未知、非法、重复回答均不消费 pending，原有 file-store 跨实例续行继续成立。
 
 范围只限 `ConfirmationStore`、`resumeScenario`、相应测试与本 SPEC/ACCEPTANCE 留痕；不改 SessionEvent/schema 字段、Turn interaction、UI、provider 或场景语义。验收必须实际注入非法 actor/decision/revision、重复保存、两次消费和 fresh file-store instance。
+
+实现留痕（2026-07-14，待独立验收）：
+
+- `ConfirmationStore` 增加非破坏 `peek(requestId) -> { pending, version }` 与 `consume(requestId, expectedVersion)`；`resumeScenario` 只走这条 CAS 路径。旧 `take()` 仅作 deprecated 兼容包装，不再是生产续行入口。
+- 内存 store 用不透明 SHA-256 version + 已见 request id 集合拒绝覆盖/复用；file store 保持旧 `<requestId>.json` 载荷可读，以原子 `wx` 创建 `<requestId>.consumed` 作 first-wins 提交点，不在 tombstone 内保留 artifact 载荷。同 id 在待处理或已消费后都不得重存。
+- `resumeScenario` 先核 request/session/scenario identity，再校验 actor、decision 与 revisions；revision 在深克隆 artifact 上预构造 `RevisionEvent` 并预执行 JSON Pointer。全部通过后才条件消费，然后写 `confirmation_resolved` / revision / artifact 事件；无效、重复或竞争失败的回答零落账。
+- TDD 红测实证旧实现会接受空 actor/未知 decision、错 scenario，且非法 JSON Pointer 失败前已消费 pending 并追加 `confirmation_resolved`。修复后 core 定向 38/38、core 全包 245/245、全仓 987/987 通过；`pnpm -r build` 与 `pnpm lint` 通过。
 
 ## 已完成架构工单（2026-07-13）
 

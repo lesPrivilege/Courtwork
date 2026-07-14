@@ -438,15 +438,98 @@ function buildRevisionEvent(input: RevisionInput, actor: ConfirmationActor, sess
   return result.data;
 }
 
+interface PreparedResume {
+  producedArtifacts: Partial<Record<string, unknown>>;
+  revisionEvents: RevisionEvent[];
+  revisedArtifactTypes: Set<string>;
+}
+
+function assertResumeIdentity(
+  requestId: string,
+  pending: PendingConfirmation,
+  scenario: ScenarioRuntime,
+  deps: ScenarioExecutorDeps,
+): void {
+  if (typeof requestId !== 'string' || requestId.trim().length === 0) {
+    throw new Error('confirmation request identity 必须是非空字符串');
+  }
+  if (pending.requestId !== requestId) {
+    throw new Error(`confirmation identity 不匹配：请求 "${requestId}" 读到 "${pending.requestId}"`);
+  }
+  if (typeof pending.scenarioId !== 'string' || pending.scenarioId.trim().length === 0) {
+    throw new Error('confirmation scenario identity 必须是非空字符串');
+  }
+  if (pending.scenarioId !== scenario.id) {
+    throw new Error(`confirmation scenario identity 不匹配：待确认属于 "${pending.scenarioId}"，收到 "${scenario.id}"`);
+  }
+  if (typeof pending.sessionId !== 'string' || pending.sessionId.trim().length === 0) {
+    throw new Error('confirmation session identity 必须是非空字符串');
+  }
+  if (pending.sessionId !== deps.eventLog.sessionId) {
+    throw new Error(`confirmation session identity 不匹配：待确认属于 "${pending.sessionId}"，事件账本为 "${deps.eventLog.sessionId}"`);
+  }
+}
+
+function assertResumeResponse(response: ScenarioResumeInput): void {
+  if (!response || typeof response !== 'object') throw new Error('confirmation response 必须是对象');
+  if (!response.actor || typeof response.actor !== 'object') throw new Error('confirmation actor 必须是对象');
+  if (typeof response.actor.channelId !== 'string' || response.actor.channelId.trim().length === 0) {
+    throw new Error('confirmation actor.channelId 必须是非空字符串');
+  }
+  if (typeof response.actor.actorId !== 'string' || response.actor.actorId.trim().length === 0) {
+    throw new Error('confirmation actor.actorId 必须是非空字符串');
+  }
+  if (response.actor.role !== undefined && (typeof response.actor.role !== 'string' || response.actor.role.trim().length === 0)) {
+    throw new Error('confirmation actor.role 如提供必须是非空字符串');
+  }
+  if (response.decision !== 'confirm' && response.decision !== 'reject') {
+    throw new Error(`confirmation decision 必须是 confirm 或 reject：收到 "${String(response.decision)}"`);
+  }
+  if (response.revisions !== undefined && !Array.isArray(response.revisions)) {
+    throw new Error('confirmation revisions 如提供必须是数组');
+  }
+}
+
+function prepareResume(
+  pending: PendingConfirmation,
+  response: ScenarioResumeInput,
+  now: () => string,
+): PreparedResume {
+  const producedArtifacts = structuredClone(pending.producedArtifacts);
+  const revisionEvents: RevisionEvent[] = [];
+  const revisedArtifactTypes = new Set<string>();
+
+  if (response.decision === 'confirm') {
+    for (const revision of response.revisions ?? []) {
+      const event = buildRevisionEvent(revision, response.actor, pending.sessionId, now);
+      const artifact = producedArtifacts[revision.artifactType];
+      if (!artifact || typeof artifact !== 'object') {
+        throw new Error(`revision artifactType "${revision.artifactType}" 不存在或不可修正`);
+      }
+      applyJsonPointer(artifact as Record<string, unknown>, revision.fieldPath, revision.newValue);
+      revisionEvents.push(event);
+      revisedArtifactTypes.add(revision.artifactType);
+    }
+  }
+
+  return { producedArtifacts, revisionEvents, revisedArtifactTypes };
+}
+
 export async function resumeScenario(
   requestId: string,
   response: ScenarioResumeInput,
   scenario: ScenarioRuntime,
   deps: ScenarioExecutorDeps,
 ): Promise<ScenarioRunResult> {
-  const pending = deps.confirmationStore.take(requestId);
-  if (!pending) throw new UnknownConfirmationRequestError(requestId);
+  const snapshot = deps.confirmationStore.peek(requestId);
+  if (!snapshot) throw new UnknownConfirmationRequestError(requestId);
   const now = deps.now ?? (() => new Date().toISOString());
+  assertResumeIdentity(requestId, snapshot.pending, scenario, deps);
+  assertResumeResponse(response);
+  const prepared = prepareResume(snapshot.pending, response, now);
+
+  const pending = deps.confirmationStore.consume(requestId, snapshot.version);
+  if (!pending) throw new UnknownConfirmationRequestError(requestId);
 
   for (const entry of pending.evidenceLedgerSnapshot) {
     deps.ledger.record(entry.key, { grade: entry.grade, sourceId: entry.sourceId, confirmed: entry.confirmed });
@@ -462,27 +545,20 @@ export async function resumeScenario(
 
   if (response.decision === 'reject') {
     deps.eventLog.append({ type: 'scenario_completed' });
-    return { status: 'completed', sessionId: pending.sessionId, artifacts: pending.producedArtifacts };
+    return { status: 'completed', sessionId: pending.sessionId, artifacts: prepared.producedArtifacts };
   }
 
-  const revisedArtifactTypes = new Set<string>();
-  for (const revision of response.revisions ?? []) {
-    const event = buildRevisionEvent(revision, response.actor, pending.sessionId, now);
+  for (const event of prepared.revisionEvents) {
     deps.revisionStore.record(event);
     deps.eventLog.append({ type: 'revision_recorded', revisionEventId: event.id });
-    const artifact = pending.producedArtifacts[revision.artifactType];
-    if (artifact && typeof artifact === 'object') {
-      applyJsonPointer(artifact as Record<string, unknown>, revision.fieldPath, revision.newValue);
-      revisedArtifactTypes.add(revision.artifactType);
-    }
   }
   // 修正过的 artifact 重新发一次 artifact_produced（同一 artifactType 的最新一条对
   // replaySession 生效）——否则事件流"可回放"只能重建出修正前的原始产出，不是真话。
-  for (const artifactType of revisedArtifactTypes) {
+  for (const artifactType of prepared.revisedArtifactTypes) {
     deps.eventLog.append({
       type: 'artifact_produced',
       artifactType,
-      artifact: pending.producedArtifacts[artifactType],
+      artifact: prepared.producedArtifacts[artifactType],
       evidenceGrades: deps.ledger.snapshot(),
     });
   }
@@ -494,8 +570,8 @@ export async function resumeScenario(
       sessionId: pending.sessionId,
       scenarioId: pending.scenarioId,
       toolResults: pending.toolResults,
-      producedSoFar: pending.producedArtifacts,
-      inputArtifacts: pending.producedArtifacts,
+      producedSoFar: prepared.producedArtifacts,
+      inputArtifacts: prepared.producedArtifacts,
       materials: pending.materials ?? [],
     },
     deps,
