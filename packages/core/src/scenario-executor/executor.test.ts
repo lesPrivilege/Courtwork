@@ -7,13 +7,14 @@ import type { ArtifactSchemaRegistry, ScenarioRuntime } from '@courtwork/registr
 import type { ArtifactDescriptor } from '@courtwork/schemas';
 import { RevisionEventSchema } from '@courtwork/schemas';
 import { createMockPartyVerifyAdapter, createPartyVerifyTool, createQccPartyVerifyAdapter, createToolExecutor } from '@courtwork/tools';
-import { createEventLog, createFileEventLog } from '../events/event-log.js';
+import { createEventLog } from '../events/event-log.js';
+import { createFileEventLog } from '../events/event-log-file.js';
 import { createEvidenceLedger } from '../evidence/grade.js';
 import {
-  createFileConfirmationStore,
   createInMemoryConfirmationStore,
   type ConfirmationStore,
 } from '../session/confirmation-store.js';
+import { createFileConfirmationStore } from '../session/confirmation-store-file.js';
 import { createInMemoryRevisionEventStore } from '../revision/revision-store.js';
 import { createToolRegistry } from '../tools/tool-registry.js';
 import { createScriptedProvider } from '@courtwork/provider/scripted';

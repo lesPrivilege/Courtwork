@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createFileConfirmationStore, createInMemoryConfirmationStore, type PendingConfirmation } from './confirmation-store.js';
+import { createInMemoryConfirmationStore, type PendingConfirmation } from './confirmation-store.js';
+import { createFileConfirmationStore } from './confirmation-store-file.js';
 
 function samplePending(requestId: string): PendingConfirmation {
   return {

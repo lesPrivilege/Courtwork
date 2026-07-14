@@ -3,7 +3,8 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { RevisionEventSchema, type RevisionEvent } from '@courtwork/schemas';
-import { createFileRevisionEventStore, createInMemoryRevisionEventStore, MissingSessionIdError } from './revision-store.js';
+import { createInMemoryRevisionEventStore, MissingSessionIdError } from './revision-store.js';
+import { createFileRevisionEventStore } from './revision-store-file.js';
 
 function sampleEvent(id: string): RevisionEvent {
   return {

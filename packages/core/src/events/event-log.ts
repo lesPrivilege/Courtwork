@@ -1,6 +1,3 @@
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
-import { dirname } from 'node:path';
-
 import type { TodoStep } from '../scenario-executor/todo-snapshot.js';
 import type { ConfirmationActor, SessionEvent, SessionEventInput } from './types.js';
 
@@ -28,38 +25,6 @@ export function createEventLog(sessionId: string, now: () => string = () => new 
     },
     list() {
       return [...events];
-    },
-  };
-}
-
-/**
- * 落盘实现：append 追加一行 JSONL，list()/append() 每次都从磁盘重新读取整段历史——
- * 用一个指向同一文件的新实例，就是"另一个进程接续同一 session"的忠实模拟，
- * 覆盖异步确认预留要求的"事件流不隐含单进程/单机/单客户端假设"。
- */
-export function createFileEventLog(
-  sessionId: string,
-  filePath: string,
-  now: () => string = () => new Date().toISOString(),
-): EventLog {
-  mkdirSync(dirname(filePath), { recursive: true });
-  const readAll = (): SessionEvent[] => {
-    if (!existsSync(filePath)) return [];
-    return readFileSync(filePath, 'utf-8')
-      .split('\n')
-      .filter((line) => line.trim().length > 0)
-      .map((line) => JSON.parse(line) as SessionEvent);
-  };
-  return {
-    sessionId,
-    append(input) {
-      const seq = readAll().length;
-      const event = { ...input, sessionId, seq, emittedAt: now() } as SessionEvent;
-      appendFileSync(filePath, `${JSON.stringify(event)}\n`, 'utf-8');
-      return event;
-    },
-    list() {
-      return readAll();
     },
   };
 }

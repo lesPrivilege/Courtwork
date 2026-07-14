@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import type { RevisionEvent, SourceAnchor } from '@courtwork/schemas';
 import { RevisionEventSchema } from '@courtwork/schemas';
 import type { ArtifactSchemaRegistry, ProjectionRegistry, ScenarioRuntime } from '@courtwork/registry';
@@ -190,8 +189,15 @@ function sumUsage(
   return { inputTokens: a.inputTokens + b.inputTokens, outputTokens: a.outputTokens + b.outputTokens };
 }
 
+function webCryptoRandomUUID(): string {
+  if (typeof globalThis.crypto?.randomUUID !== 'function') {
+    throw new Error('当前运行环境不支持 Web Crypto randomUUID，拒绝以时间戳或弱随机数降级');
+  }
+  return globalThis.crypto.randomUUID();
+}
+
 function defaultTurnIdentity(): WorkTurnIdentity {
-  return { turnId: randomUUID(), providerRequestId: randomUUID() };
+  return { turnId: webCryptoRandomUUID(), providerRequestId: webCryptoRandomUUID() };
 }
 
 function assertFreshTurnIdentity(identity: unknown, deps: ScenarioExecutorDeps): asserts identity is WorkTurnIdentity {
@@ -418,7 +424,7 @@ function pauseAt(
   deps: ScenarioExecutorDeps,
   now: () => string,
 ): ScenarioRunResult {
-  const requestId = randomUUID();
+  const requestId = webCryptoRandomUUID();
   const pending: PendingConfirmation = {
     requestId,
     sessionId: state.sessionId,
@@ -536,7 +542,7 @@ export interface ScenarioResumeInput {
 
 function buildRevisionEvent(input: RevisionInput, actor: ConfirmationActor, sessionId: string, now: () => string): RevisionEvent {
   const candidate = {
-    id: randomUUID(),
+    id: webCryptoRandomUUID(),
     timestamp: now(),
     actor: { userId: actor.actorId, role: actor.role },
     caseId: input.caseId,
