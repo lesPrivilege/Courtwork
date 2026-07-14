@@ -29,6 +29,14 @@ data/pm/
 - 本单在 `PM-PACKAGE-RENAME-1` 后只消费 `@courtwork/pm`，不得新增旧 npm 名 consumer。
 - `PriorityScore` fixture、排序提案与 PM scenario 继续等待 `PM-SCHEMA-1`；Pages 第一版只能把本样板标为 `schema catalog preview`。
 
+### PM-FIXTURE-1 实现留痕（2026-07-14，待独立验收）
+
+- 按上述冻结目录交付两份虚构材料、两份 schema-constrained artifact、案情册与 manifest；没有 PriorityScore、排序、scenario、prompt、live harness 或 UI。
+- `PrdReview` 六类缺陷各一条且均为 `pending`；`FeedbackDigest` 含两个双向闭合 cluster、五个 channel 与一条未归类 OOC。
+- 11 条逐字引语全部使用 JS UTF-16 精确区间并绑定材料完整内容 SHA-256；材料在首个锚前含 surrogate 字符，测试会拒绝误用码点偏移。
+- `getPmFixture()` 只消费 `@courtwork/pm` 的公开 schema，在模块加载时解析数据并返回递归冻结的单例；访问器不做业务投影、排序或降级。
+- TDD 红线先由缺失 `@courtwork/pm` 依赖与 accessor 触发；常驻测试覆盖冻结文件全集、公开 schema、id/cluster 双向闭合、逐字锚、水印、内容 hash 与深层不可变性。门禁结果随本单提交记录，最终放行留给独立验收会话。
+
 ## 背景
 
 承接 `docs/decisions/ADR-001-package-abi.md`：演示数据从"放在 packages/tools 内"改为独立成包，与消费方 src 完全解耦。本包不属于 `当时的架构工单册` 原始工单编号序列，是 W5 在途期间的架构增量（见 `packages/tools/SPEC.md` 的 W5.1 验收记录）。
