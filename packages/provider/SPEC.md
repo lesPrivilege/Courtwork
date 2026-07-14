@@ -1,10 +1,24 @@
 # SPEC: packages/provider
 
-状态：PROVIDER-1 已独立验收并合流；PROVIDER-2 已实现，待独立验收
+状态：PROVIDER-1 / PROVIDER-2 已独立验收并合流；现行跨层工单 `TURN-WORK-1` 补齐 notice 单一真源
 
 ## 职责
 
 唯一 provider 边界：provider port、OpenAI Chat Completions adapter、SSE 归一、结构化输出降档、能力 profile、定价与当期 DeepSeek 产品登记。不得依赖 core、desktop、垂类包或 demo-data。
+
+## TURN-WORK-1 · notice 进入统一 stream
+
+权威：[ADR-007](../../docs/decisions/ADR-007-provider-turn-protocol.md) 与
+[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。
+
+- `ProviderStreamEvent` 增加 `notice`，承载闭集 `GenerationNotice`；只允许在 `started` 后、终态前出现。
+- structured-output/deep-reasoning 降档必须从真实 `stream()` 发布 notice；`generate()` 只聚合同一 stream，删除按 request 重算与 scripted side map。
+- `runTurn` 校验 notice 形状与同 code 去重，并把 notice 写入 `provider_notice` 瞬态事件和 completed/failed `PersistedTurn`。
+- 本单不得改 DeepSeek catalog、Rust transport 帧、credential、OpenAI wire、定价、产品 provider 范围或引入第三方 runtime。
+
+验收必须注入：started 前 notice、重复 code、未知/畸形 notice、terminal 后 notice，均收敛为单一
+`invalid_response`；合法降档在 stream → Turn → Work artifact 三层同值且一次网络/脚本消费；failed Turn
+仍保留终态前 notice。实现与验收异会话。
 
 ## PROVIDER-1 · 抽包与 DeepSeek-first
 

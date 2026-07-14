@@ -23,6 +23,7 @@
 - SITE-2A / SITE-2B 已经异会话验收并合流：首页以“原件 → 引语 → 结论 → 人工确认”为主骨架，产品图来自已验收主树的 computer-use 真机操作，OG 消费无底盘核心标记；
 - POLISH-P0 与 SCHEMA-POLISH-1 已经异会话全量验收并合流；
 - DESLOP-GATE-2 已经异会话验收并合流：裸色、阴影、圆角、渐变、L1 嵌套、archive 消费、press/popover 与泛化文案使用精确消费点白名单；
+- ADR-009 第一波与 ABI 收口已经异会话验收并合流：HOST-PORT-1、CONFIRM-CAS-1、ABI-2A、CORE-BOUNDARY-1、ABI-2B 全部进入 main；Legal/PM 同次走唯一 descriptor/bindings ABI，PM 保持 catalog-only；
 - v0.1.1 Apple Silicon 开发构建已发布：annotated tag `v0.1.1` 指向 `39555d6`，GitHub Release 与 Pages 均已上线；desktop 129、provider 86、root 981、Rust 25、Playwright 208 全绿，远端 DMG 复算 SHA-256 与仓库记录一致。构建为 ad-hoc 且未公证，官网与 Release 明示该边界；
 - demo 全链穿越、发布修实三项（遥测真开关、共享 docx 预检、产物存在后冻结）。
 
@@ -31,29 +32,27 @@
 - Pages：<https://lesprivilege.github.io/Courtwork/>
 - GitHub Release：<https://github.com/lesPrivilege/Courtwork/releases/tag/v0.1.1>
 - 发布与部署证据：[`release/DEPLOYMENT.md`](../../release/DEPLOYMENT.md)
-- 分支 / worktree：本地与远端均只保留 `main`；已验收分支已确认进入 `main` 历史后删除，已淘汰的 DESLOP-GATE-1 未合流分支直接删除。
+- 分支 / worktree：发布清账时本地与远端只保留 `main`；当前架构工单使用临时 `codex/*` worktree，必须在实现与验收提交均确认进入 main 后删除，远端仍只发布 `main`。
 
 ## 当前架构债
 
-1. desktop 仍有法律 type id 路由与 demo 语料直连，尚未完全由 RendererRegistry/descriptor 驱动；generic fallback 仍可能裸露 wire key。
-2. PM 垂类仍有一套未接入 `VerticalPackageManifest` 的平行 descriptor，需要迁入唯一 ABI。
+1. desktop 仍有法律 type id 路由与 raw generic structure fallback；尚未由 host renderer blueprint + descriptor 全量驱动。
+2. Chat 已走真实 Turn 流，Work 模型步骤仍绕过 Turn；生产 Work 面仍以 demo recording 为主。
 3. 除 RiskList 外，部分模型产物的最终 schema 仍直接包含 SourceAnchor，尚未统一为 quote → resolver → system anchor。
 4. `services/ingest` 仍只有规格，OCR、分类与实体对齐未落地。
 5. 企业私域 ACL、MCP adapter、机构层记忆仍是后置席位。
 6. usage ledger 与真实 token/cost 投影尚未成为统一权威来源。
 7. 部分 package SPEC/ACCEPTANCE 是长篇编年记录，后续应按层拆成“现行 SPEC + 历史验收”，但本轮不改其证据内容。
-8. Chat 已走真实 Turn 流，Work 产品面仍以 demo recording 为主且模型步骤绕过 Turn；Tauri provider transport 与 chat orchestration 尚未通过 host port 分离。
-9. Package manifest 仍把可序列化声明与 Zod runtime 对象混装，尚未形成 ADR-009 定义的 descriptor/bindings 双平面与版本化 artifact envelope。
+8. ArtifactEnvelope 的持久读写与 package migration 尚未接入真实生产账本；当前 ABI 已定义形状与准入，但 Work live 持久层未落地。
 
 ## 下一阶段优先序
 
-ADR-009 已拍板，第一波三单可并行但不得互相扩 scope：
+ADR-009 第一波与 ABI-2B 已清账。当前并行两单：
 
-1. `CONFIRM-CAS-1`：修复 Work confirmation 的 destructive take-before-validate，非法输入零消费、竞争 first-wins。
-2. `ABI-2A`：建立可序列化 descriptor / runtime bindings 双平面，先迁 Legal；保留单点 compatibility adapter。
-3. `HOST-PORT-1`：把 Tauri provider transport 从 chat orchestration 抽成可注入 host adapter，Rust wire 零变化。
+1. `VIEW-ABI-1`：host renderer registry、`courtwork.artifact-table.v1` 与 zero-wire fallback；不造 PM 空壳流程。
+2. `TURN-WORK-1`：provider notice 进入统一 stream/Turn，Work model 步骤只经 `TurnRunnerPort` 并链接账本。
 
-第二波必须等对应前置独立验收并进入 main：`CORE-BOUNDARY-1` → `ABI-2B`（PM 唯一 ABI）→ `VIEW-ABI-1`（host renderer/zero-wire）→ `TURN-WORK-1`（Work 复用 Turn）→ `WORK-LIVE-1`（真实 WorkCommandPort 退役生产 recording）。SourceAnchor system producer 门随 ABI/VIEW conformance kit 持续推进，不由 desktop 特判补洞。
+两单都独立验收并进入 main 后，才启动 `WORK-LIVE-1`：生产 WorkCommandPort 接真实 run/resume，recording 退回 fixture/demo mode。SourceAnchor system producer 门随 VIEW conformance kit 持续推进，不由 desktop 特判补洞。
 
 正式 macOS 公证、真实材料链/usage ledger 与包内 SPEC 瘦身继续保留，但不插队破坏上述依赖序。
 

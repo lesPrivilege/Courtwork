@@ -49,6 +49,73 @@ React UI
 - 两个 harness 共用 provider、Turn、interaction resolver 与 runtime guard，但不合并顶层状态：`TurnJournal` 保存模型回合与 ask-user；`SessionEvent` 保存步骤、artifact、引用、修订和人工确认。
 - “存入 Work”是显式 promotion command，创建目标容器引用；不能把 chat transcript 偷换成 artifact 或原地改写历史。
 
+### Work 到 Turn 的精确端口
+
+Work 只持有下列窄口，不持有 `Provider` 或 `TurnStore`：
+
+```ts
+interface TurnRunnerPort {
+  run(input: {
+    turnId: string;
+    providerRequestId: string;
+    request: GenerationRequest;
+    signal?: AbortSignal;
+    onEvent?: (event: TurnEvent) => void;
+  }): Promise<PersistedTurn>;
+}
+
+type WorkTurnIdentityContext = {
+  sessionId: string;
+  scenarioId: string;
+  stepId: string;
+  artifactType: string;
+  attempt: number; // 从 1 开始；当前最多 2（引语修复）
+};
+```
+
+composition root 用同一个 provider 与 `TurnStore` 构造端口；executor 只负责为每次调用取得新的
+`turnId/providerRequestId`。身份工厂可注入以支持确定性测试，缺省使用随机 UUID；空值、重复值或同一
+artifact 两次调用复用身份均须失败。`AbortSignal` 是瞬态运行控制，不进入 SessionEvent、TurnStore、
+confirmation payload 或 package descriptor。
+
+每次调用前，Work 先追加：
+
+```ts
+{
+  type: 'turn_linked';
+  stepId: string;
+  artifactType: string;
+  attempt: number;
+  turnId: string;
+  providerRequestId: string;
+}
+```
+
+初次生成是 attempt 1；citation repair 是新的 Turn/attempt 2，不复用首轮身份。Turn 返回 completed 后，
+Work 只从 `PersistedTurn` 读取正文、provider/model、usage 与 notices，再做 JSON/schema/引用公证并计价；
+不得回读 provider 或旁路重算 notice。Turn 返回 failed 时，Work 在 SessionEvent 追加：
+
+```ts
+{
+  type: 'step_failed';
+  scope: 'model';
+  stepId: string;
+  artifactType: string;
+  attempt: number;
+  turnId: string;
+  providerRequestId: string;
+  reason: ProviderFailureKind;
+  message: string;
+  retryable: boolean;
+}
+```
+
+随后抛出携该终态的 `WorkTurnFailedError` 并中止本 leg：不自动重试、不发布 artifact、不伪造
+`scenario_completed`。provider 内部已有的受限 transport retry 不因此改变；citation repair 是已声明的
+语义修复，不是失败重试。completed Turn 后的 Work JSON/schema 校验失败仍是
+`GenerationValidationError`：`turn_linked` 保留原调用审计，但不得把已完成 Turn 篡成 provider failure。
+`replaySession` 必须重建有序 linked turns 和工具/模型两类 failed steps；旧工具事件形状保持兼容。
+
 Work 第一版步骤种类封闭为：
 
 ```text
@@ -119,12 +186,15 @@ interface VerticalPackageBindings {
 ## 决定四：Renderer 是宿主 blueprint，垂类只注入投影
 
 - desktop 只按版本化 `uiTemplateId` 查询 host-owned renderer；生产代码不得按 `legal.*`、`pm.*` type id switch。
+- package `RendererRegistry` 只登记声明；desktop 另有 `HostRendererRegistry` 保存 React/投影函数，两者不得混成可执行 package ABI。宿主先以 artifact type 向已准入的 artifact registry 取 descriptor，再以 descriptor 的 `uiTemplateId` 查 blueprint；任何一步失败都不得猜测。
 - 垂类只声明 presentation、词表、动作能力和 anchor policy；不得注入 JSX、函数、CSS 或自由坐标。
 - `presentation.collectionPointer` 是从 artifact 根求值的 RFC 6901 JSON Pointer，命中主条目数组；存在 collection 时，`fields[].pointer` 是从每个条目根求值的 JSON Pointer，不存在 collection 时则从 artifact 根求值。两者均禁止 dot-path、通配符、函数与隐式数组遍历，pointer 不命中必须显式报不兼容而非显示空字符串。
 - `fields[].label` 是该工作面的字段显示权威。`enum | status | tags | grade` 必须在同一 field 上提供完整 `valueLabels`；`text | mono | number | anchor` 不得携带无消费意义的 valueLabels。宿主不得按叶子 key 猜词表，也不得回落 wire 值。
 - 通用 renderer 只能遍历 `presentation.fields` 白名单，禁止 `Object.entries(payload)`。
 - presentation 引用字段缺 label、enum 值缺映射、renderer 未知或版本不兼容时显式拒载/降级。
 - 安全兜底只显示人读 title 与“当前版本不支持此工作面”。type id、wire key、原始枚举、绝对路径、hash 和 raw JSON 只允许进入显式 developer diagnostics/导出。
+- `courtwork.artifact-table.v1` 是首个通用 blueprint：先用 descriptor 绑定的 Zod schema 校验整个 payload，再按 collection/field pointer 投影。`text | mono | number` 只接受对应标量；枚举类只显示 field-local `valueLabels`；`anchor` 只显示来源数、可用页码与完整 quote，不展示 bbox/textRange/raw object。pointer 不命中、类型不符或 label 缺失都进入同一个不泄漏 wire 的 incompatible fallback，不能渲染半张表。
+- 现有 Legal 专用面板继续由宿主拥有，但自动打开与路由改按 `uiTemplateId`；允许某些 blueprint 不自动打开。不得用 `HOMED_ARTIFACT_TYPES` 一类 type-id 白名单代替 registry。
 - 既有 `question-card` 以 compatibility alias 迁往 `courtwork.question-card.v1`；历史事件保存当时的模板/文案/锚点快照，回放不重查当前 manifest。
 - `ABI-2B` 中 PM 先作为 catalog-only 包准入：四类 artifact/schema/presentation 可以装载，但 `scenarios` 与 prompt 为空，不生成空壳工作流。任何后续 scenario 若把含 `format: 'anchor'` 的 artifact 列为模型输出，准入必须要求独立 `draftSchemaId + citationBinding`；最终 SourceAnchor 仍只能由 resolver/system producer 铸造。
 
@@ -185,9 +255,8 @@ type ArtifactEnvelope = {
 3. `HOST-PORT-1`：Tauri provider transport 从 chat orchestration 抽离。
 4. `CORE-BOUNDARY-1`：demo/legal composition 与 acceptance 退出 core 生产依赖和根导出。
 5. `ABI-2B`：PM 迁入唯一 ABI。
-6. `VIEW-ABI-1`：renderer registry、版本化 blueprint、zero-wire fallback。
-7. `TURN-WORK-1`：Work model 步骤改走 Turn Engine，SessionEvent 链接 turn。
-8. `WORK-LIVE-1`：生产 WorkCommandPort 接真实 run/resume；recording 仅保留 fixture/demo mode。
+6. `VIEW-ABI-1` 与 `TURN-WORK-1`：ABI-2B 放行后可在互不重叠的 worktree 并行；前者交付 host renderer/zero-wire fallback，后者交付 Work→Turn 单一调用链和账本链接。
+7. `WORK-LIVE-1`：必须等待 VIEW-ABI-1 与 TURN-WORK-1 都独立验收并进入 main，再接生产 WorkCommandPort；recording 仅保留 fixture/demo mode。
 
 每单必须先红测、后最小实现、全仓 build/test/lint；desktop 行为单另跑隔离端口完整 Playwright。实现与验收必须由不同会话承担。
 

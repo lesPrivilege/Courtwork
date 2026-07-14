@@ -4,6 +4,28 @@
 
 ## 现行架构工单（2026-07-14）
 
+### TURN-WORK-1 · Work model 步骤复用 Turn Engine
+
+权威：[ADR-007](../../docs/decisions/ADR-007-provider-turn-protocol.md) 与
+[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。
+
+`ScenarioExecutorDeps.provider` 退役，替换为 `TurnRunnerPort` 与可注入的 Work turn identity factory；
+每次模型调用先写 `turn_linked(stepId/artifactType/attempt/turnId/providerRequestId)`，再经 Turn Engine。
+初次生成与 citation repair 必须使用不同身份。executor 只消费 completed `PersistedTurn` 的
+assistantMessage、provider/model、usage、notices；计价不得再读 provider。failed terminal 写
+`step_failed(scope:model, ...ProviderFailureKind)` 后抛 `WorkTurnFailedError`，不产 artifact、不完成场景、
+不自动 retry。工具级 `step_failed` 旧形状保持兼容；`replaySession` 新增有序 linked turns 投影。
+
+`TurnRunnerPort.run` 接受瞬态 `signal/onEvent`；signal 不持久化。core 提供由 provider + TurnStore 构造端口的
+唯一 adapter，demo-runtime 负责实际装配。`Provider.generate()` 仍是兼容 API，但 core Scenario executor
+及其测试/装配不得再调用或伪造它。本单不改 scenario/schema/citation/confirmation 语义，不实现模型自主
+tool calling、动态图、自动恢复或新 Work journal。
+
+验收至少真实证明：删除/破坏 Turn runner 会让 Work 全链变红；每次调用先 link 后 terminal；citation repair
+产生 attempt 1/2 两个 Turn；失败 Turn 已持久化且 Work 零 artifact/零 completed；取消进入 canceled；notice
+从 provider stream 经 PersistedTurn 到 artifact 不丢失；core executor 源码零 `.generate(`。全仓门禁外，
+demo-runtime 两条既有全链/golden 必须等价。实现与验收异会话。
+
 ### CORE-BOUNDARY-1 · Demo composition 退出 core
 
 权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。新建 `packages/demo-runtime`，原样迁移 `src/composition`、`src/acceptance`、对应 CLI 与 golden/integration tests；该包是唯一允许同时绑定 core/legal/demo-data/output/reading-view 的开发装配点，生产 desktop/core 不得反向依赖。

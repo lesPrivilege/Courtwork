@@ -22,6 +22,7 @@ provider 对 core 发布瞬态 `ProviderStreamEvent`：
 
 ```text
 started
+notice
 reasoning_delta
 content_delta
 usage
@@ -29,9 +30,15 @@ completed
 failed
 ```
 
+`notice` 是 provider 为兼容性显式改变本次请求语义时发布的闭集事实，精确形状为
+`{ type: 'notice'; requestId; seq; notice: GenerationNotice }`。它必须在唯一 `started`
+之后、终态之前发布；同一请求不得重复发布同一 `notice.code`。结构化输出迫使 deep
+reasoning 降为 standard 是当前唯一 notice。`Provider.generate()` 只能聚合同一条 stream
+得到 `GenerationResponse.notices`，不得再用请求参数重算、side map 或第二条调用旁路补写。
+
 Rust/Tauri 传输必须逐帧转发，禁止先 `.text()` 聚合再模拟流式。网络、鉴权、限流、协议、取消与非法响应均进入闭集失败；正常结束但正文缺失不得伪装成功。
 
-core 把一次模型调用投影为可回放的 `TurnEvent`：turn started、assistant message started/delta/completed、reasoning started/delta/completed、interaction requested/resolved、turn completed/failed。增量可只存在于在途流；持久层至少保存最终 assistant message、可选 reasoning、usage、失败与交互请求/回答。reasoning 是模型生成内容，不是证据、系统事实或锚点权威；provider 不支持或未返回时必须显式呈现“无可用推理内容”，不得伪造思考过程。
+core 把一次模型调用投影为可回放的 `TurnEvent`：turn started、provider notice、assistant message started/delta/completed、reasoning started/delta/completed、interaction requested/resolved、turn completed/failed。增量可只存在于在途流；持久层至少保存最终 assistant message、可选 reasoning、usage、notice、失败与交互请求/回答。`provider_notice` 只机械转发已经通过闭集校验的 `GenerationNotice`；completed 与 failed 的 `PersistedTurn` 都保留已观察到的 notice，使 Chat/Work 重放不依赖瞬态监听。reasoning 是模型生成内容，不是证据、系统事实或锚点权威；provider 不支持或未返回时必须显式呈现“无可用推理内容”，不得伪造思考过程。
 
 ### Turn 事件身份与持久日志
 

@@ -4,6 +4,30 @@
 
 ## 现行架构工单（2026-07-14）
 
+### VIEW-ABI-1 · Host renderer 与 zero-wire fallback
+
+权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。desktop composition root 同次准入
+`LEGAL_PACKAGE` 与 catalog-only `PM_PACKAGE`；只装载 descriptor/schema/presentation，不为 PM 虚构 scenario、
+prompt、导航入口或 demo 数据。
+
+新增 host-owned `HostRendererRegistry`，以版本化 `uiTemplateId` 绑定现有 Legal 面板和
+`courtwork.artifact-table.v1` 通用表；package `RendererRegistry` 仍是纯声明，禁止注入 JSX/函数/CSS。
+artifact 先从准入后的 artifact registry 取 descriptor，再查 host blueprint；`App.tsx` 与生产 workbench
+路由删除 `artifactType === 'legal.*'`、`HOMED_ARTIFACT_TYPES` 和 raw object fallback。Legal 现有面板、
+自动打开行为与视觉保持等价，只把路由依据从 type id 换成 `uiTemplateId`。
+
+通用表必须整体验证 payload，再严格执行 presentation：collection pointer 从 artifact 根、field pointer
+从 item 根；枚举/status/tags/grade 只显示 field-local `valueLabels`。anchor cell 只显示来源数量、可用页码和
+完整 quote，不显示 bbox/textRange/raw JSON。未知 artifact、未知/不兼容 template、payload/schema/pointer/
+format 不符统一进入安全兜底：只显示 descriptor 人读 title（无 descriptor 时使用中性标题）和
+“当前版本不支持此工作面”。兜底不得出现 type id、wire key、原始枚举、绝对路径、hash 或 raw JSON。
+
+UI 只复用现有 L1 外壳和 ledger/table 分割线，不新增入口、装饰卡、阴影、渐变或空 PM 页面。验收必须
+使用 schema-valid PM fixture 证明 labels/valueLabels/完整 quote；分别注入未知 template、pointer drift、
+畸形 payload 和 host blueprint 缺席，证明 fail closed 且零 wire 泄漏；静态门证明生产路由零垂类 type-id
+switch。Legal 既有交互、desktop Vitest、全仓 build/lint/test 与隔离端口完整 Playwright 必须全绿。
+实现与验收异会话。
+
 ### HOST-PORT-1 · Tauri provider transport 适配器
 
 权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。将 `Channel`/`invoke`、异步 transport queue 与 cancel command 从 chat orchestration 移入 host adapter；chat client/Turn projection 只消费注入的 `ProviderTransport`/factory。desktop composition root 负责选择 Tauri adapter，测试可注入 fake transport。

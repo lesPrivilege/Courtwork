@@ -17,6 +17,14 @@
 
 原 demo/acceptance 定向测试、S3 全链、LEGAL-DEMO 全链、真跑防污染、六段组装 golden 全部等价；`s3-assembly.golden.txt` 保持原始 SHA-256 `0047e71264f6ddb6aa25cf5ceb10aca7b4a0bd7aee913b9630bb8cafb79bcd07`。
 
+## TURN-WORK-1 装配边界
+
+本包是唯一允许把 provider、TurnStore、`createTurnRunner` 与 core Scenario executor 绑定在一起的
+demo/acceptance composition root。迁移后所有 scripted/real S3 与 legal demo 都必须经
+`TurnRunnerPort`；不得为保 golden 在本包重造 `Provider.generate()` 旁路、伪终态或 notice side channel。
+既有 fixture 字节、引用修复轮数、artifact、确认、修订、docx 与 golden 不变；新增证据只允许是
+`turn_linked`/model `step_failed`/Turn journal。真 provider 缺 key 仍必须在读取材料前拒绝。
+
 ## 实现留痕（2026-07-14）
 
 - 搬迁前原 core demo/acceptance 定向 19/19；搬迁后本包 8 个测试文件 26/26（含新的依赖无环/反向依赖守卫）。
