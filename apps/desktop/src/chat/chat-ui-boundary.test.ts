@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import app from '../App.tsx?raw';
+import main from '../main.tsx?raw';
 import turnCard from './TurnCard.tsx?raw';
 import chatClient from '../provider/chat-client.ts?raw';
 
@@ -24,5 +25,18 @@ describe('CHAT-UI-1 static boundaries', () => {
     expect(chatClient).toContain("@courtwork/core/turn-protocol");
     expect(chatClient).not.toMatch(/@courtwork\/core(?:['"]|\/src)/);
     expect(chatClient).not.toContain('replayTurnEntries');
+  });
+
+  it('chat 业务编排不依赖 Tauri host API 或 Rust command 名', () => {
+    expect(chatClient).not.toContain('@tauri-apps/api');
+    expect(chatClient).not.toMatch(/\b(?:Channel|invoke)\b/);
+    expect(chatClient).not.toMatch(/provider_chat_request|cancel_provider_request/);
+  });
+
+  it('desktop composition root 只在 Tauri runtime 注入 provider transport', () => {
+    expect(main).toContain('isTauriHostRuntime() ? createTauriProviderTransport() : undefined');
+    expect(main).toContain('<App providerTransport={providerTransport} />');
+    expect(app).toContain('providerTransport?: ProviderTransport');
+    expect(app).toContain('transport: providerTransport');
   });
 });
