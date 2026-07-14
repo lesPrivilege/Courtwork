@@ -1305,3 +1305,61 @@ Received:    24
 验收未产生产品代码修复或 `fix-by-acceptance` 提交；所有破坏性补丁与临时探针均已精确恢复，提交前工作树仅含本报告。
 
 > **最终判定：CHAT-UI-1 放行 ✅。** `98826e6 + bb5bddd + 本验收记录` 可进入架构收账；provider 生命周期、core 终态语义、持久化防腐、interaction replay、legal source 授权与反 slop 输入边界均由真实反例和全量门禁闭环。
+
+---
+
+## HOST-PORT-1 独立验收（2026-07-14）
+
+- **验收角色**：独立验收会话；未参与本工单实现，也不是实现会话前身。
+- **对象**：`codex/host-port-1@ba6426acdc76b56b183c7b44edd3f33600b608fb`；任务基线 `b8815080501d7775a6e2fa27fefa756588496d92`。
+- **验收树**：`/Users/lesprivilege/Projects/Courtwork-worktrees/accept-host-port-1`，分支 `codex/accept-host-port-1`，直接基于实现 tip 建立；未在共享主树 checkout、stash 或复用 dev server。
+- **结论**：**✅ 放行。** 无产品代码修复、无契约级问题、无 `[需架构拍板]` 项。
+
+### 1. 差异与架构边界
+
+`git diff b881508..ba6426a` 共 8 个 `apps/desktop/**` 文件：新增 Tauri provider transport adapter 与 fake 测试，修改 composition root、`App` transport 注入、chat client 去宿主依赖、静态边界测试和 SPEC。以下范围在差异中均为零：
+
+- `apps/desktop/src-tauri/**`：Rust command、受控 catalog、keychain、请求 body 与 raw frame 传输未改；
+- `packages/provider/**` / `packages/core/**`：DeepSeek-only catalog、OpenAI-compatible adapter、provider stream/Turn 生命周期、失败闭集与 journal 未改；
+- `packages/registry/**` / `packages/schemas/**`：manifest/schema/interaction 契约未改；
+- `styles.css` 与工作面组件：chat 视觉、credential UI、持久化和 Work 语义未改。
+
+新 `host/tauri-provider-transport.ts` 是从旧 `chat-client.ts` 搬出的同一窄桥：只提交 `requestId/providerId/modelId/reasoningBody/body`，没有 URL、header、authorization 或 key；`Channel`、async queue、`provider_chat_request` 与同 request id 的 `cancel_provider_request` 只留在 host adapter。`App.tsx` 与 `chat-client.ts` 对 `@tauri-apps/api`、`Channel/invoke` 和两枚 Rust command 名均为零命中；production 代码中 adapter 只由 `main.tsx` 在 `isTauriHostRuntime()` 成立时创建并注入。
+
+没有第二 provider 状态机：`sendChatTurn` 仍构造已登记 descriptor 的 OpenAI-compatible provider，并唯一进入 core `runTurn`。浏览器 E2E hook 的形状仍是 `setStreamFactory(context) → AsyncIterable<ProviderStreamEvent>`；测试 provider 的 `generate()` 明确抛出 `E2E stream providers must run through core runTurn`。实际 E2E 脚本逐帧注入 `started/reasoning_delta/content_delta/usage/completed|failed`，没有 final answer 或 terminal projection 捷径。
+
+### 2. fake transport 与边界反例
+
+定向执行 adapter、chat client、静态边界三文件：**3 files / 12 tests passed**。其中 fake host 实测：
+
+1. raw `response_started → chunk(bytes) → end` 原序透传，invoke 入参保持既有窄形；
+2. `AbortSignal` 映射到同一 `requestId` 的 cancel command；
+3. host invoke rejection 收敛为 typed、non-retryable `network` failure。
+
+按验收纪律实际注入边界反例：在 `chat-client.ts` 临时加入 `@tauri-apps/api/core` 字面依赖，运行 `src/chat/chat-ui-boundary.test.ts` 后真实 **1 failed / 4 passed**，失败点精确为“chat 业务编排不依赖 Tauri host API”；撤除反例、确认 git 零残留后同文件 **5/5 passed**。
+
+### 3. clean 环境与完整机器门
+
+- `pnpm install --frozen-lockfile`：scope **13 workspace projects**，lockfile 无漂移，**1047 packages**，exit 0。worktree 安装前无任何 `node_modules`。
+- clean install 后第一次定向 desktop 测试因 workspace package 尚无 `dist`，`@courtwork/core/turn-protocol` 无法解析；先执行仓库规定的真实 `pnpm -r build` 后，同一测试转为 12/12。该失败是 clean workspace 的构建前置证据，不是 HOST-PORT 回归。
+- `pnpm -r build`：scope **12/13 workspace projects** 全部通过；desktop **3505 modules**，仅既有 Tauri static/dynamic import 与 chunk-size warning。
+- `pnpm --filter @courtwork/desktop build`：**3505 modules**，exit 0。
+- `pnpm exec eslint apps/desktop` 与 root `pnpm lint`：均 exit 0。
+- desktop Vitest：**31 files / 133 tests passed**。
+- root Vitest：**114 files / 981 tests passed**。
+- `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：lib **25/25 passed**，bin/doc tests 0，exit 0；含 arbitrary provider/input 安全、raw UTF-8 frame 与 cancellation tests。
+- `COURTWORK_E2E_PORT=1592 pnpm --filter @courtwork/desktop test:e2e --workers=1`：所有静态/设计/边界前置门通过，假绿守卫确认 **208** 条，Playwright **208/208 passed（3.5m，1 worker）**；`reuseExistingServer=false`。
+
+### 4. 真实 Tauri 壳 smoke 与端口记录
+
+默认 Tauri 配置固定 `:1420`，验收用 CLI 临时 merge config 把 `beforeDevCommand` 与 `devUrl` 改到独立 `:1593`，未写仓库配置。`Vite :1593` ready 后 Rust dev binary 编译并出现：
+
+```text
+Running `target/debug/courtwork-desktop`
+```
+
+外部核验 PID `45560` 为 `target/debug/courtwork-desktop`，状态 `S+`，持续存活至少 **13 秒**；Vite 仅监听 `127.0.0.1:1593`。验收后 Ctrl-C 正常结束，复核无残留 Tauri 进程、无 `:1593` listener。
+
+操作留痕：首次临时命令误写成 `pnpm dev -- --port 1593`，Vite 把 `--` 后参数当 positional，短暂启动默认 `:1420`。发现 Tauri 正在等待 `:1593` 后立即在 Rust shell 启动前终止，并确认 `:1420/:1593` 均无 listener，再以正确 `pnpm dev --port 1593` 重跑上述真实壳 smoke。未连接、复用或污染其他会话服务。
+
+> **最终判定：HOST-PORT-1 放行 ✅。** `ba6426a + 本验收记录` 可进入架构收账。下游可依赖唯一 `ProviderTransport` 注入缝接 Tauri provider transport；本单只完成 provider host adapter，不把它冒充完整 Work/Credential/File port，也未改变任何 provider、Turn、Rust 或 UI 契约。
