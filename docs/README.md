@@ -11,7 +11,8 @@
 5. [PM 垂类契约](product/pm-vertical.md)：第二垂类的包级边界。
 6. [ADR 索引](decisions/README.md)：已经拍板的跨层契约。
 7. [工程工作流](engineering/workflow.md)：角色、TDD、提交与验收纪律。
-8. [当前基线](status/current.md)：已完成、已知缺口、下一阶段。
+8. [发布手册](engineering/release.md)：全量门、制品校验、GitHub Release 与 Pages 真值切换。
+9. [当前基线](status/current.md)：已完成、已知缺口、下一阶段。
 
 设计实现另读 [设计系统](design/README.md)。各包的职责、公开 API 与验收记录仍以包内 `SPEC.md` / `ACCEPTANCE.md` 为准。
 

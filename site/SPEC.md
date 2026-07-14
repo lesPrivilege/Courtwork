@@ -1,6 +1,6 @@
 # SPEC: site
 
-状态：SITE-1 已上线；SITE-2A 结构已放行；SITE-2B 真机证据刷新已实现，待独立验收与部署。
+状态：SITE-1 已上线；SITE-2A 结构与 SITE-2B 真机证据已经独立验收；v0.1.1 Release 真值切换已实现，待发布候选独立验收与部署。
 
 ## SITE-2 · Evidence Line：首页约束链
 
@@ -39,3 +39,9 @@
 - 原始真机帧为 1280×720；站点只派生 1280 / 720 两档 WebP。alt 必须说明交互快照、原件高亮与人工确认关系，不得把截图描述为模型自动裁决。
 - DeepSeek 首启凭证面另有真机验收帧，但不进入首页主叙事；provider 配置不是证据链的视觉主角。
 - `assets/og.png` 由现行 `og.html` 重新渲染为 1200×630；wordmark 直接消费四路径核心 SVG，文字左侧不再残留旧版底盘。
+
+## RELEASE-1 · v0.1.1 下载真值
+
+- 下载 URL 固定为 `releases/download/v0.1.1/Courtwork_0.1.1_aarch64.dmg`，与待创建 GitHub Release 的 tag / asset 同名。
+- 页面同时呈现本趟 DMG 的 64 位 SHA-256 与 `Apple Silicon 开发构建 · ad-hoc 签名 · 未公证`，不得只展示“下载”而隐藏 Gatekeeper 边界。
+- Release 资产尚未创建时本节只构成同批发布候选；完成条件是 asset 200、SHA 匹配、Pages workflow success 与部署页复核全部成立。

@@ -1,6 +1,6 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4 完成；composer 完成；D-1 完成；UX-1 完成；SET-1 完成；RP-1 完成；**CHAT-UI-1 已实现、待独立验收**；**PRV-1 provider 自配最小闭环完成**；**RP-2 UI 完全化完成，RP-2.8.1 三项验收打回已修、待单点复验**；**BUILD-1 0.1.0 已产**；**BUILD-0.1.1 Ship Gate 正式 Build 已产**；**FIX-KC-1 凭证授权流修复已落（trace+F2+F4+F5+F6；F1 Developer ID 仍挂账）**；PartyGraph 矛盾 marker 契约缺口仍标记 `[需架构拍板]`；Developer ID 公证仍挂账。
+状态：P-1 / P-2 / P-3 / P-4、composer、D-1、UX-1、SET-1、RP-1、RP-2、PROVIDER-1/2、TURN-1、INTERACTION-1A/1B、CHAT-UI-1、POLISH-P0、SCHEMA-POLISH-1、BRAND-1 均已实现并经异会话验收；**BUILD-0.1.1-R2 已生成 GitHub Release 候选**。FIX-KC-1 凭证授权流已落（trace+F2+F4+F5+F6）；Developer ID / notarization 因本机无证书与公证凭证仍是外部挂账，当前制品只作为明确标注的 ad-hoc 开发构建。
 
 ## 现行架构工单（2026-07-13）
 
@@ -195,6 +195,32 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 验证：Rust 9 单测；desktop Vitest 70；Playwright **90/90**（下限 90）。
 
 ## Build 记录（SITE-1 下载区引用）
+
+### BUILD-0.1.1-R2 · 全量验收后 GitHub Release 候选（2026-07-14）
+
+| 项 | 值 |
+|---|---|
+| 版本 | **0.1.1**（`package.json` / `tauri.conf.json` / `Cargo.toml` / `SettingsPage.APP_VERSION` 对齐） |
+| 产品源码 HEAD | `0443e81b1b97cf47b45fa8f2dd7f8ed886c80f31`（CHAT-UI-1 与 SITE-2B 均已独立放行） |
+| 构建时刻 (UTC) | `2026-07-14T02:02:57Z` |
+| 标识 / 架构 | `cn.courtwork.desktop` · `Courtwork` · `aarch64`（Apple Silicon） |
+| 工具链 | Node `v25.9.0` · pnpm `9.15.0` · rustc `1.97.0 (2d8144b78 2026-07-07)` · cargo `1.97.0` · macOS `26.5.2` |
+| 构建命令 | `pnpm --filter @courtwork/desktop tauri build --bundles app,dmg` |
+| 签名 / 公证 | **ad-hoc / 未公证**；`Signature=adhoc`、`TeamIdentifier=not set`。本机 `security find-identity` 为 0，notarytool profile 与 Apple 环境凭证均不存在 |
+
+| 产物 / 校验 | 结果 |
+|---|---|
+| App | `apps/desktop/src-tauri/target/release/bundle/macos/Courtwork.app` |
+| DMG | `apps/desktop/src-tauri/target/release/bundle/dmg/Courtwork_0.1.1_aarch64.dmg` · 4,667,331 bytes |
+| `codesign --verify --deep --strict` | **OK**；DMG 挂载副本同样通过 |
+| `hdiutil verify` | **VALID**；CRC32 `$405ED3DE` |
+| 真机启动 smoke | app 进程启动存活，验后正常退出 |
+| Gatekeeper | `spctl` exit 3 / rejected，符合未公证开发构建预期；Release 与官网必须显式告知 |
+| 可执行文件 SHA-256 | `4f43773ecdfbb21c795d31e84cd9781a500acf0e029bbc8458e872aae546b499` |
+| DMG SHA-256 | `37792b767fe08119edab3cc6b793e59cd4511758110f8b42e6242e80a023db7e` |
+| 前端 dist 清单 SHA-256 | `d8c6c84e864fe305e27ce1a8ed2114834f15e60ae59333e7478f0cbdbbfb3510` |
+
+发布前主树实跑：site guard **12/12 / 590 active files**；desktop **129**、provider **86**、root **981**、Rust **25**；全仓 build desktop **3504 modules**；隔离 `:1583`、单 worker Playwright **208/208**。Release 元数据提交只修改文档、官网与校验文件，不改变上述产品源码/制品字节。
 
 
 ### BUILD-0.1.1 · Ship Gate 合流后正式 Build（2026-07-12）
