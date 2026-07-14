@@ -84,6 +84,32 @@ test('site download truth requires exactly two identical canonical DMG entrances
   assert.ok(failures.some((failure) => failure.includes('exactly two canonical')));
 });
 
+test('site download truth ignores data-href and aria-href when counting real entrances', () => {
+  for (const attribute of ['data-href', 'aria-href']) {
+    const decoy = SITE_SOURCES.html.replace(
+      '<a href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a>',
+      `<a ${attribute}="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a>`,
+    );
+    const failures = validateSiteDownloadTruth({ ...SITE_SOURCES, html: decoy }).failures;
+    assert.ok(failures.some((failure) => failure.includes('exactly two canonical')), attribute);
+  }
+});
+
+test('site download truth ignores a canonical-looking URL in script text', () => {
+  const scriptDecoy = SITE_SOURCES.html.concat(
+    '<script>const href = "https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg";</script>',
+  );
+  assert.deepEqual(validateSiteDownloadTruth({ ...SITE_SOURCES, html: scriptDecoy }).failures, []);
+});
+
+test('site download truth accepts both single- and double-quoted real href attributes', () => {
+  const mixedQuotes = SITE_SOURCES.html.replace(
+    'href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg"',
+    "href='https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg'",
+  );
+  assert.deepEqual(validateSiteDownloadTruth({ ...SITE_SOURCES, html: mixedQuotes }).failures, []);
+});
+
 test('site download truth rejects a visible release-fact version that drifts from the URL', () => {
   const html = SITE_SOURCES.html.replace('v0.1.2 · Apple Silicon', 'v0.1.1 · Apple Silicon');
   const failures = validateSiteDownloadTruth({ ...SITE_SOURCES, html }).failures;

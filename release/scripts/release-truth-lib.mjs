@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
-const DOWNLOAD_PATTERN = /https:\/\/github\.com\/lesPrivilege\/Courtwork\/releases\/download\/v(\d+\.\d+\.\d+)\/(Courtwork_(\d+\.\d+\.\d+)_aarch64\.dmg)/g;
+const DOWNLOAD_PATTERN = /^https:\/\/github\.com\/lesPrivilege\/Courtwork\/releases\/download\/v(\d+\.\d+\.\d+)\/(Courtwork_(\d+\.\d+\.\d+)_aarch64\.dmg)$/;
 
 function parseJsonVersion(source, label, failures) {
   try {
@@ -63,19 +63,32 @@ export function validateApplicationVersions(sources, { expectedVersion } = {}) {
   return { version, failures };
 }
 
+function collectHrefValues(html) {
+  const markup = html
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, '');
+  return [...markup.matchAll(/<[a-z][^<>]*>/gi)].flatMap((tag) => {
+    const href = tag[0].match(/(?:^|\s)href\s*=\s*(["'])(.*?)\1/i);
+    return href ? [href[2]] : [];
+  });
+}
+
 function collectDownloadLinks(html) {
-  return [...html.matchAll(DOWNLOAD_PATTERN)].map((match) => ({
-    url: match[0],
-    tagVersion: match[1],
-    asset: match[2],
-    assetVersion: match[3],
-  }));
+  return collectHrefValues(html).flatMap((url) => {
+    const match = url.match(DOWNLOAD_PATTERN);
+    return match ? [{
+      url,
+      tagVersion: match[1],
+      asset: match[2],
+      assetVersion: match[3],
+    }] : [];
+  });
 }
 
 export function validateSiteDownloadTruth(sources, { expectedVersion } = {}) {
   const failures = [];
   const links = collectDownloadLinks(sources.html);
-  const rawDmgLinks = [...sources.html.matchAll(/href="([^"]+\.dmg)"/g)].map((match) => match[1]);
+  const rawDmgLinks = collectHrefValues(sources.html).filter((href) => /\.dmg(?:$|[?#])/i.test(href));
 
   if (links.length !== 2) failures.push(`site download URL: expected exactly two canonical DMG entrances, got ${links.length}`);
   if (rawDmgLinks.length !== links.length) failures.push('site download URL: non-canonical DMG link found');
