@@ -1,8 +1,16 @@
 # SPEC: apps/desktop（W9）
 
-状态：P-1 / P-2 / P-3 / P-4、composer、D-1、UX-1、SET-1、RP-1、RP-2、PROVIDER-1/2、TURN-1、INTERACTION-1A/1B、CHAT-UI-1、POLISH-P0、SCHEMA-POLISH-1、BRAND-1 均已实现并经异会话验收；**BUILD-0.1.1-R2 已生成 GitHub Release 候选**。FIX-KC-1 凭证授权流已落（trace+F2+F4+F5+F6）；Developer ID / notarization 因本机无证书与公证凭证仍是外部挂账，当前制品只作为明确标注的 ad-hoc 开发构建。
+状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI 已验收。现行工单 `HOST-PORT-1` 待实现，后续 VIEW/WORK live 接线受 ADR-009 约束。
 
-## 现行架构工单（2026-07-13）
+## 现行架构工单（2026-07-14）
+
+### HOST-PORT-1 · Tauri provider transport 适配器
+
+权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。将 `Channel`/`invoke`、异步 transport queue 与 cancel command 从 chat orchestration 移入 host adapter；chat client/Turn projection 只消费注入的 `ProviderTransport`/factory。desktop composition root 负责选择 Tauri adapter，测试可注入 fake transport。
+
+本单不改 Rust command、请求 body、provider catalog、DeepSeek 产品范围、credential UI、TurnEvent、chat 视觉或持久化语义；不得新增 localhost server、Node sidecar 或第三方 chat runtime。机器门至少证明 chat 业务模块不再 import `@tauri-apps/api`，fake transport 覆盖 stream/cancel/failure，既有 chat/credential 测试与完整 Playwright 零回归。
+
+## 已完成架构工单（2026-07-13）
 
 ### CHAT-UI-1 · Turn 投影与通用提问卡
 

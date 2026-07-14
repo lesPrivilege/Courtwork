@@ -42,6 +42,7 @@ services/ingest                        Python OCR/分类/实体对齐
 - ingest 是独立 Python 服务，uv 管理，通过 HTTP + JSON Schema 与 TS 边界通信。
 - core 与业务代码 provider 无关；通用协议、adapter 与具名怪癖只住 `packages/provider`。当期产品只注册 DeepSeek，未来 provider 以具名 profile/adapter 接入，不开放猜测能力的任意 URL。
 - agent loop 自研；场景是用户触发的声明式固定编排，不让模型自主选择不可逆流程。
+- Chat 与 Work 共用 provider 无关的 Turn Engine，但分别维护 Turn journal 与 Session/artifact 账本；desktop 以 command/projection port 隔离 UI，Rust 只做受控宿主能力。Package ABI 的可序列化 descriptor 与进程内 runtime bindings 分离。细则见 `docs/decisions/ADR-009-runtime-ports-and-harness.md`。
 - 产品代码与文档用中文说明，标识符用英文。
 
 ## 必须自研加固

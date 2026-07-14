@@ -1,8 +1,16 @@
 # SPEC: packages/core（W6）
 
-状态：INTERACTION-1B 已实现，待独立验收；TURN-1 已独立验收；provider 实现已由 PROVIDER-1 迁至 `@courtwork/provider`，本层只消费协议
+状态：既有 TURN/INTERACTION 已验收；现行工单 `CONFIRM-CAS-1` 待实现，后续 `CORE-BOUNDARY-1` / `TURN-WORK-1` 受 ADR-009 约束
 
-## 现行架构工单（2026-07-13）
+## 现行架构工单（2026-07-14）
+
+### CONFIRM-CAS-1 · Work confirmation 原子消费
+
+权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。`resumeScenario` 不得先 destructive `take()` 再校验回答。实现必须在零事件、零 revision、零 artifact 变更的阶段完成 actor、decision、revisions 与 pending identity 的全部验证，再以 expected identity/version 条件消费；同 request id 的保存不得覆盖，竞争消费只有第一笔成功。未知、非法、重复回答均不消费 pending，原有 file-store 跨实例续行继续成立。
+
+范围只限 `ConfirmationStore`、`resumeScenario`、相应测试与本 SPEC/ACCEPTANCE 留痕；不改 SessionEvent/schema 字段、Turn interaction、UI、provider 或场景语义。验收必须实际注入非法 actor/decision/revision、重复保存、两次消费和 fresh file-store instance。
+
+## 已完成架构工单（2026-07-13）
 
 ### PROVIDER-1 · core 边界收口（已实现，待独立验收）
 

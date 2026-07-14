@@ -12,6 +12,7 @@
 | [ADR-006](ADR-006-ui-host.md) | UI 宿主与设计系统 | Accepted |
 | [ADR-007](ADR-007-provider-turn-protocol.md) | Provider、Turn 与受控交互协议 | Accepted |
 | [ADR-008](ADR-008-schema-conformance-and-authority.md) | Schema 包一致性与字段职权 | Accepted |
+| [ADR-009](ADR-009-runtime-ports-and-harness.md) | Runtime Ports、双 Harness 与 Package 双平面 | Accepted |
 
 ## 变更规则
 

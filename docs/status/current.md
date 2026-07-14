@@ -42,13 +42,20 @@
 5. 企业私域 ACL、MCP adapter、机构层记忆仍是后置席位。
 6. usage ledger 与真实 token/cost 投影尚未成为统一权威来源。
 7. 部分 package SPEC/ACCEPTANCE 是长篇编年记录，后续应按层拆成“现行 SPEC + 历史验收”，但本轮不改其证据内容。
+8. Chat 已走真实 Turn 流，Work 产品面仍以 demo recording 为主且模型步骤绕过 Turn；Tauri provider transport 与 chat orchestration 尚未通过 host port 分离。
+9. Package manifest 仍把可序列化声明与 Zod runtime 对象混装，尚未形成 ADR-009 定义的 descriptor/bindings 双平面与版本化 artifact envelope。
 
 ## 下一阶段优先序
 
-1. SCHEMA-CONFORMANCE-1：统一 PM descriptor、host renderer 路由、zero-wire fallback 与 SourceAnchor system producer 门。
-2. 正式 macOS 分发：外部提供 Developer ID 与 notarization 凭证后，把当前开发构建升级为 Apple 公证通道；仓库不得保存证书或密码。
-3. 真实材料链与 usage ledger：用脱敏卷宗建立 OCR/实体对齐基线，并把 token、成本、context 接入权威账本。
-4. 包内文档瘦身：保持当前证据不丢失，把长篇编年验收拆成现行摘要与 Git 提交索引。
+ADR-009 已拍板，第一波三单可并行但不得互相扩 scope：
+
+1. `CONFIRM-CAS-1`：修复 Work confirmation 的 destructive take-before-validate，非法输入零消费、竞争 first-wins。
+2. `ABI-2A`：建立可序列化 descriptor / runtime bindings 双平面，先迁 Legal；保留单点 compatibility adapter。
+3. `HOST-PORT-1`：把 Tauri provider transport 从 chat orchestration 抽成可注入 host adapter，Rust wire 零变化。
+
+第二波必须等对应前置独立验收并进入 main：`CORE-BOUNDARY-1` → `ABI-2B`（PM 唯一 ABI）→ `VIEW-ABI-1`（host renderer/zero-wire）→ `TURN-WORK-1`（Work 复用 Turn）→ `WORK-LIVE-1`（真实 WorkCommandPort 退役生产 recording）。SourceAnchor system producer 门随 ABI/VIEW conformance kit 持续推进，不由 desktop 特判补洞。
+
+正式 macOS 公证、真实材料链/usage ledger 与包内 SPEC 瘦身继续保留，但不插队破坏上述依赖序。
 
 ## 发行边界
 

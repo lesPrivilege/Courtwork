@@ -1,8 +1,16 @@
 # SPEC: packages/registry（W2）
 
-状态：已完成
+状态：既有 PACKAGE-ABI/INTERACTION 已验收；现行工单 `ABI-2A` 待实现
 
-## 现行架构工单（2026-07-13）
+## 现行架构工单（2026-07-14）
+
+### ABI-2A · Descriptor / Bindings 双平面
+
+权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。新增纯 JSON `VerticalPackageDescriptorV1` 与仅进程内可见的 `VerticalPackageBindings`，通过稳定 id 闭合 artifact schema/draft schema 引用；先迁 Legal，PM 留给 `ABI-2B`。descriptor 必须可 JSON stringify、深冻结且递归不含 function/Zod/React；未知 ABI、缺 binding、重复/越 namespace id 必须隔离拒载。
+
+迁移期只允许一个有 drift 测试的 compatibility adapter；不得保留第二套准入真源，不改法律 schema 字段语义、renderer UI、desktop 路由或 provider。Zod 继续作为 runtime validator；本单只建立显式 Draft 2020-12 导出入口与不可表达类型 throw 门，不引 Ajv 产品依赖或动态插件。
+
+## 已完成架构工单（2026-07-13）
 
 ### INTERACTION-1 · 垂类注入的通用交互模板
 
