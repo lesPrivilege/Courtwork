@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
 import { scanSources } from './deslop-scan-lib.mjs';
+import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
 const sources = Object.fromEntries(files.map((file) => [file, readFileSync(resolve(file), 'utf8')]));
@@ -67,6 +68,9 @@ if (sourceAnchor?.fileId !== '04-设备采购合同.md' || !contractFixture.incl
 if (!displayedQuote || !sourceAnchor.quote.includes(displayedQuote)) failures.push('site/index.html: displayed quote is not a verbatim slice of the fixture anchor');
 if (!html.includes(sourceAnchor.quote) || !html.includes('04-设备采购合同 · 第 1 页')) failures.push('site/index.html: original node does not identify the fixture source and quote');
 if (firstRisk?.level !== 'high' || firstRisk?.dispositionStatus !== 'pending' || !html.includes('高风险 · 依据已核验') || !html.includes('待确认 · 不自动送出')) failures.push('site/index.html: conclusion and confirmation states drift from the fixture');
+for (const failure of validateFixtureClaims(html, loadFixtureClaimInputs(resolve('.')))) {
+  failures.push(`site: fixture claim ${failure}`);
+}
 
 const excludedDirectories = new Set([
   '.git', 'archive', 'coverage', 'dist', 'node_modules', 'playwright-report',

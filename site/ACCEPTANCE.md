@@ -4,6 +4,85 @@
 
 ---
 
+## SITE-GEN-1 · 多场景泛化台账独立验收（2026-07-14）— ✅ 放行
+
+- **验收角色**：独立验收会话，未参与实现；不采信实现自述。
+- **被验实现**：`f47bdb4ff4b380dd45ec710177209645a9d2a9cb`，基线 `868a75cc24527d129525803a04d8fb4ab6c2c2d5`。
+- **隔离环境**：分支 `codex/accept-site-gen-1`；独立 worktree `/private/tmp/courtwork-site-gen-1-acceptance`；浏览器服务使用独立 `127.0.0.1:1641`，验收后已停止，未复用或触碰长期 `:4177`。
+- **实现级修复**：无。未改变 schema 字段、统计口径、跨层接口或 SPEC 验收标准。
+
+### 1. fixture claim validator 实际 mutation
+
+验收用临时探针深拷贝权威输入并逐项注入反例，每次都让同一个 `validateFixtureClaims` 返回对应 failure；探针随后删除，工作树无 mutation 残留。
+
+| mutation | 实际红灯 |
+|---|---|
+| CaseFile 删除一项、与 `dossier/*.md` 集合不等 | `CaseFile fileIds must equal ... dossier markdown file set`，并报页面 20 / fixture 19 |
+| 页面 Timeline `47 → 46` | `timeline-events: page claims 46, fixture has 47` |
+| 删除一条 Timeline `contradiction` marker | `contradiction-events: page claims 8, fixture has 7` |
+| 页面主体 `14 → 15` | `party-nodes: page claims 15, fixture has 14` |
+| 单位“个矛盾事件”改为“个矛盾” | `visible unit must be 个矛盾事件` |
+| `prd-finding-05` UTF-16 start `+1` | 锚点不能逐字切片闭合 |
+| `textLayerVersion` 改为假 full hash | full material hash 不匹配 |
+| anchor `fileId` 改为 `02-feedback.md` | 锚点文件/文档与逐字切片闭合失败 |
+| finding `pending → confirmed` | catalog findings 必须 pending；页面 wire metadata 同时漂移 |
+| descriptor `scenarios` 非空 | descriptor 必须保持 scenario/prompt-free |
+| descriptor `promptSegments` 非空 | descriptor 必须保持 scenario/prompt-free |
+| 页面 `catalog → live` 并改成 Live 文案 | 必须显示精确 catalog preview 边界且不得声称 live |
+| fixture 文件集加入 `priority-score.json` | PM catalog 固定文件集 / PriorityScore 边界失败 |
+| 页面分别注入 `RICE`、`P0`、`公式` | 三项分别触发“不得虚构 score / formula / rank / band” |
+
+另将真实 `site/index.html` 的 47 临时改为 46，在 `site-dist` 放入 `acceptance-sentinel` 后执行 `pnpm site:build`：构建以 fixture claim error 非零退出，sentinel 仍存在，证明 validator 在 `rmSync(site-dist)` **之前**执行。页面与产物目录随后精确恢复。
+
+### 2. 结构、依赖与静态减法
+
+- HTML 恰有一个 `data-site-generalization`，其 `.scenario-rows` 恰有三条连续 `.scenario-row`：合同审查、卷宗阅卷、PM 决策；阅读顺序就是 DOM 顺序。
+- 全页仍恰有一个 `.mac-window`；本提交未新增 feature/trust/card grid、`01/02/03` 编号脚手架、button/input/select/textarea、`role="button"`、`tabindex`、动画或可点击假控件。
+- `site/main.js` 未进入实现 diff；实现与基线 SHA-256 均为 `8ef0eb00a49ab5d8954c6a3c6465e65720a4d4a9805fb54d8b63ba8780ae5f19`，逐字节相同。
+- 合同段只复用已验收 Evidence Line 语义；站点没有消费 `@courtwork/legal/testing` 或任何 Legal `/testing` 修订草稿。fixture validator 读取 `packages/demo-data` 的权威 Legal/PM artifact 与原文，不把测试草稿升级为官网真值。
+- PM 明确显示 `Schema catalog preview / 尚未接通运行链`；descriptor 的 scenario/prompt 仍为空，页面不出现 PriorityScore、RICE、P0、排序、排名或公式。
+
+### 3. 独立 Chromium 响应式、无 JS 与可访问性
+
+按主会话指示使用仓库锁定的 Playwright Chromium，不使用 browser-client。八档均从独立静态服务读取真实站点文件，并保存全页截图到 `/private/tmp/courtwork-site-gen-1-screens/`（不写站点资产）。
+
+| 视口 | 页面/内容检查 | 截图 SHA-256 |
+|---|---|---|
+| 375 | PASS | `a5813778719dd3b3ed1e75da49efaa3bf4eb9f4dc68959e823235ae1374d3ba1` |
+| 540 | PASS | `29519e1b63ccae4376fdaaec2b905fb8059bf03fe48276dc0a5ac1b3b0ecda35` |
+| 760 | PASS | `6a362e4e7804ddad18b55e53d65b767df9b9f3f10e7738b93b947582dd43ad9b` |
+| 900 | PASS | `4373d85aa8a6462aa574df92780e41ddc5b8b0650298e7957f7f69427d79f0b1` |
+| 1180 | PASS | `c660b1dc0f13a8b33ba990fda46ab35801bd8c947dfa95417cfdc5955859ef72` |
+| 1280 | PASS | `e941687b7350c9ad5c535cf2b4c80f18c8f5f8aa361a42fdbac3239f0aa737ed` |
+| 1440 | PASS | `70e1815bbe9946dddc113b69a68b3ef59ee3ecb7e72febb2becc29081bb16fb1` |
+| 1600 | PASS | `c2a4c21c0ac768fd55856ee039c099e0891bdbc78ab6e9ce27260facf42919c3` |
+
+每档实测 `documentElement/body scrollWidth === clientWidth`、越出视口元素 `[]`、内部 overflow `[]`、三行互不重叠；fixture 文案、长中英 label 与四个计数完整可见。375 下 PRD 原句与建议自然换行；其余宽度按可用空间排版，无截断。八张均经 `view_image` 人工目检，连续台账、分割线和宽窄屏层级无隐藏遮挡。
+
+- **JS disabled**：375 与 1280 均保留 3 条泛化台账、4 条 Evidence、4 项承诺与 2 个下载入口，所有 fixture 文案完整。
+- **reduced-motion**：媒体条件命中，`document.getAnimations({subtree:true}) = 0`，scroll behavior 为 `auto`，新区块所有 transition duration 均为 `0s`。
+- **键盘**：9 个真实链接依 DOM 顺序逐一获得焦点，全部命中 `:focus-visible` 且 outline 非零；泛化台账自身无交互元素。
+- **语义**：section 的 `aria-labelledby=scenarios-title` 有效；三条 proof 均有明确 `aria-label`；4 张内容图 alt 完整，wordmark 装饰 icon 使用空 alt。
+
+### 4. 最终机器门
+
+| 门禁 | 实跑结果 |
+|---|---|
+| `pnpm install --frozen-lockfile` | 14 workspace projects，1047 packages，exit 0 |
+| `pnpm site:guard` | node tests **21/21**；deslop **682 active text files**；neutral/elevation/signature/motion 全绿 |
+| `pnpm site:build` | exit 0 |
+| `pnpm -r build` | 13/14 workspace projects 通过；desktop **3532 modules**；仅既有 Tauri import 与 chunk-size warning |
+| `pnpm lint` | exit 0 |
+| `pnpm test` | **131 files / 1127 tests passed**，exit 0 |
+
+本工单只修改 `site/` 静态 HTML/CSS、fixture validator 与站点 build/guard，没有 desktop 行为或共享 desktop CSS/JS 变化；按验收委派不重复运行 209 条 desktop E2E。
+
+### 5. 结论
+
+> **SITE-GEN-1 放行 ✅。** `f47bdb4` 的三个连续场景台账可以合入 `main`。Legal 计数与 PM 锚点/状态/catalog 边界均由权威 fixture 与可触红的构建门锁定；页面诚实证明同一宿主的泛化能力，没有把 catalog 包装成 live，也没有以评分公式或视觉脚手架补位。
+
+---
+
 ## SITE-2A · Evidence Line 独立验收（2026-07-13）
 
 - 验收角色：独立验收会话，非 `77dae47` 实现者。
