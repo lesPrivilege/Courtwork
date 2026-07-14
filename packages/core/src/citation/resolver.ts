@@ -52,7 +52,7 @@ function occurrencesIn(text: string, quote: string): number[] {
 }
 
 /** 单条引语公证：候选块（按页/块声明收窄）内唯一精确匹配 → 铸锚；否则拒收。 */
-export function resolveClaim(claim: QuoteClaim, layers: MaterialTextLayer[]): ClaimResolution {
+export function resolveClaim(claim: QuoteClaim, layers: readonly MaterialTextLayer[]): ClaimResolution {
   const layer = layers.find((l) => l.fileId === claim.fileId);
   if (!layer) {
     return { failure: { claim, reason: 'file_unavailable' } };

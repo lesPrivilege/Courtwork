@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,6 +9,8 @@ import { describe, expect, it } from 'vitest';
 import * as protocol from './turn-protocol.js';
 
 const SOURCE_DIR = dirname(fileURLToPath(import.meta.url));
+const CORE_DIR = resolve(SOURCE_DIR, '../..');
+const REPO_ROOT = resolve(CORE_DIR, '../..');
 
 function runtimeRelativeImports(filePath: string): string[] {
   const source = readFileSync(filePath, 'utf8');
@@ -29,6 +33,13 @@ function collectRuntimeGraph(entryPath: string): string[] {
   return [...visited];
 }
 
+function listFiles(dir: string): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    return statSync(path).isDirectory() ? listFiles(path) : [path];
+  });
+}
+
 describe('@courtwork/core/turn-protocol browser-safe boundary', () => {
   it('exports the protocol/store algorithm but not the Node file adapter', () => {
     expect(protocol).toMatchObject({
@@ -36,6 +47,7 @@ describe('@courtwork/core/turn-protocol browser-safe boundary', () => {
       requestInteraction: expect.any(Function),
       createTurnStore: expect.any(Function),
       createMemoryTurnStore: expect.any(Function),
+      createTurnHarnessRuntime: expect.any(Function),
     });
     expect(protocol).not.toHaveProperty('createFileTurnStore');
   });
@@ -47,10 +59,29 @@ describe('@courtwork/core/turn-protocol browser-safe boundary', () => {
     expect(packageJson.exports).toHaveProperty('./turn-protocol');
 
     const graph = collectRuntimeGraph(join(SOURCE_DIR, 'turn-protocol.ts'));
-    expect(graph.map((file) => file.replace(`${SOURCE_DIR}/`, ''))).not.toContain('turn-store-file.ts');
+    const relativeGraph = graph.map((file) => file.replace(`${SOURCE_DIR}/`, ''));
+    expect(relativeGraph).toContain('turn-harness-runtime.ts');
+    expect(relativeGraph).not.toContain('turn-store-file.ts');
     for (const filePath of graph) {
-      expect(readFileSync(filePath, 'utf8'), filePath).not.toMatch(/(?:from\s+|import\s*)['"]node:/);
+      const source = readFileSync(filePath, 'utf8');
+      expect(source, filePath).not.toMatch(/(?:from\s+|import\s*)['"]node:/);
+      expect(source, `${filePath} must not add weak identity randomness`).not.toMatch(/\bMath\.random\s*\(/);
     }
+  });
+
+  it('does not wire the full facade into Chat, Work UI, or ScenarioExecutorDeps', () => {
+    const facadePattern = /\b(?:createTurnHarnessRuntime|TurnHarnessRuntime|InteractionRuntimePort)\b/;
+    const desktopSourceRoot = join(REPO_ROOT, 'apps/desktop/src');
+    const desktopViolations = listFiles(desktopSourceRoot)
+      .filter((file) => /\.(?:ts|tsx)$/.test(file) && !file.endsWith('.test.ts') && !file.endsWith('.test.tsx'))
+      .filter((file) => facadePattern.test(readFileSync(file, 'utf8')))
+      .map((file) => file.replace(`${REPO_ROOT}/`, ''));
+    expect(desktopViolations).toEqual([]);
+
+    const executorPath = join(REPO_ROOT, 'packages/core/src/scenario-executor/executor.ts');
+    const executorSource = readFileSync(executorPath, 'utf8');
+    expect(executorSource).not.toMatch(facadePattern);
+    expect(executorSource).toContain('turnRunner: TurnRunnerPort;');
   });
 
   it('lets a browser adapter inject storage while retaining the shared validation algorithm', () => {
@@ -79,4 +110,32 @@ describe('@courtwork/core/turn-protocol browser-safe boundary', () => {
     });
     expect(store.replayTurn('turn-browser').state).toBe('pending_interaction');
   });
+
+  it('bundles the harness facade through the real package subpath without browser externals', () => {
+    const outDir = mkdtempSync(join(tmpdir(), 'courtwork-turn-protocol-vite-'));
+    try {
+      const output = execFileSync(
+        'pnpm',
+        [
+          '--dir', join(REPO_ROOT, 'apps/desktop'),
+          'exec', 'vite', 'build',
+          '--config', join(CORE_DIR, 'vite.turn-protocol.config.mjs'),
+        ],
+        {
+          cwd: REPO_ROOT,
+          encoding: 'utf-8',
+          env: { ...process.env, COURTWORK_TURN_PROTOCOL_OUT_DIR: outDir },
+        },
+      );
+      expect(output).toContain('built in');
+      expect(existsSync(join(outDir, 'index.html'))).toBe(true);
+      const bundledJavaScript = listFiles(outDir)
+        .filter((file) => file.endsWith('.js'))
+        .map((file) => readFileSync(file, 'utf-8'))
+        .join('\n');
+      expect(bundledJavaScript).not.toMatch(/__vite-browser-external|node:(?:crypto|fs|path)/);
+    } finally {
+      rmSync(outDir, { recursive: true, force: true });
+    }
+  }, 30_000);
 });

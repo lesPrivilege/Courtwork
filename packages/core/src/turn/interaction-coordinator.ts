@@ -21,7 +21,7 @@ export interface InteractionRequestInput {
 
 export interface InteractionCoordinatorDeps {
   templateRegistry: InteractionTemplateRegistry;
-  materials: MaterialTextLayer[];
+  materials: readonly MaterialTextLayer[];
   store: TurnStore;
 }
 
