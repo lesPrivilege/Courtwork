@@ -23,6 +23,7 @@ import {
   Partial,
   Status,
 } from './primitives/index.js';
+import { GridComposition } from './composition/FiniteComposition.js';
 
 const anchor: AnchorView = freezeViewModel({
   id: 'source-1',
@@ -81,6 +82,24 @@ describe('VISUAL-KIT-1 frozen host ViewModel and primitives', () => {
     expect(() => renderToStaticMarkup(createElement(Anchor, {
       view: freezeViewModel({ ...anchor, quote: '' }) as AnchorView,
     }))).toThrow(/anchor/i);
+    expect(() => renderToStaticMarkup(createElement(Estimate, {
+      view: freezeViewModel({ point: 1, range: { low: 1, high: 2 }, statusLabel: '缺口' }) as EstimateView,
+    }))).toThrow(/exactly one/i);
+  });
+
+  it('Partial 在 total 未知时只显示事实计数，不伪造百分比', () => {
+    const html = renderToStaticMarkup(createElement(Partial, {
+      view: freezeViewModel({ completed: 2, failures: [], pending: 1 }),
+    }));
+    expect(html).toContain('<dd>2</dd>');
+    expect(html).not.toContain('%');
+  });
+
+  it('有限组合在运行时拒绝任意 grid ratio', () => {
+    expect(() => renderToStaticMarkup(createElement(GridComposition, {
+      ratio: '3:2' as never,
+      children: createElement('span', null, '非法比例'),
+    }))).toThrow(/ratio/i);
   });
 
   it('freezeViewModel 收敛外部浅冻结对象，不留下可变子节点', () => {

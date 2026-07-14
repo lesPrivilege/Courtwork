@@ -110,6 +110,9 @@ export function VisualizationGallery({ view }: { view: VisualizationGalleryView 
   }
   const received = new Set(view.specimens.map((specimen) => specimen.kind));
   if (GALLERY_SPECIMEN_KINDS.some((kind) => !received.has(kind))) throw new Error('Visualization gallery specimen family drift');
+  if (view.specimens.some((specimen) => specimen.state === 'implemented' && specimen.primitive === undefined)) {
+    throw new Error('Implemented gallery specimens require a real host primitive');
+  }
   return (
     <main className="visualization-gallery" data-testid="visualization-gallery">
       <header className="gallery-header"><p>SCHEMA VISUALIZATION KIT</p><h1>{view.title}</h1><small>{view.provenance}</small></header>

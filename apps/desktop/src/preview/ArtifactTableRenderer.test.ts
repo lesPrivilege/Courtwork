@@ -134,6 +134,18 @@ describe('ArtifactTableRenderer（schema first + presentation only）', () => {
     expect(html).not.toContain('missing');
   });
 
+  it('完整 schema 必填项缺失时先于 presentation 整面拒绝', () => {
+    const { documentId: _documentId, ...schemaInvalid } = FIXTURE;
+    const result = projectArtifactTable(descriptor(), schemaInvalid);
+    expect(result).toEqual({ status: 'unsupported' });
+    const html = renderToStaticMarkup(createElement(ArtifactTableRenderer, {
+      descriptor: descriptor(),
+      payload: schemaInvalid,
+    }));
+    expect(html).toContain('当前版本不支持此工作面');
+    expect(html).not.toContain('及时没有量化口径');
+  });
+
   it('schema-valid PriorityScore 区间显示 low–high，不因单值 pointer 缺席整面降级', () => {
     expect(priorityDescriptor().schema.safeParse(PRIORITY_INTERVAL_FIXTURE).success).toBe(true);
     const html = renderToStaticMarkup(createElement(ArtifactTableRenderer, {
