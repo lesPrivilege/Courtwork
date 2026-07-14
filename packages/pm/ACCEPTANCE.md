@@ -113,3 +113,15 @@ PM 执行链已经接通。
 - 与 Legal 合计的工程证据、另两类反例与全仓 **122 files / 1083 tests** 结果，见 `packages/legal/ACCEPTANCE.md` 的同名验收记录。
 
 放行范围仅为 VPKG metadata 与 JSON Schema drift 门；PM 仍是 catalog-only，后续 rename/layout/export/runtime/scenario 不在本结论内。
+
+---
+
+## VPKG-LAYOUT-1 独立验收（2026-07-14）
+
+**结论：放行。** 实现 `697f196bea2c4c07f7a8706fce7f7005b442f0d7` 已把 PM 的唯一 package 真源迁入 `src/package`、四类 presentation 迁入 `src/presentation`、payload schema 迁入 `src/schemas`、RICE 迁入 `src/domain`；`scenarios / interactions / runtime / testing` 均不存在，catalog-only 边界未变。
+
+独立 parent/实现运行快照证明 root/package/schemas export 集合、descriptor/bindings/schema 对象身份、descriptor hash 与 RICE `point/range/OOC` 全部等价；四份 JSON Schema 重生成零 drift。实际注入缺 descriptor、空 scenarios、bindings 复制、旧 internal consumer、Node/vendor import、remote ref 与 RICE 三类漂移均观察红灯后撤回。
+
+验收以 `8b21e39` 补强 bindings 对象同一、browser-safe 外部依赖 allowlist 与旧内部路径 consumer 守卫；只改测试。完整变异表、Legal 编译对照和全仓 **131 files / 1127 tests** 证据见 `packages/legal/ACCEPTANCE.md` 同名主记录。
+
+本结论不解除 `PM-SCHEMA-1` 前的 catalog-only 限制，不放行 PM scenario/prompt/runtime/testing、UI 或新 payload。
