@@ -23,7 +23,7 @@ test.describe('AI 消息复制', () => {
 
   test('系统事件合并为紧凑事件流且不再生成 callout 卡', async ({ page }) => {
     await openWorkbench(page);
-    await expect(page.getByTestId('event-stream')).toContainText('合同审查已完成');
+    await expect(page.getByTestId('event-stream')).toContainText('合同审查已启动');
     await expect(page.getByTestId('event-stream')).toContainText('审阅提示已送达右侧工作面');
     await expect(page.locator('.generated-callout')).toHaveCount(0);
   });

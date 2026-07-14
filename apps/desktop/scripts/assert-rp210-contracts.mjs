@@ -25,8 +25,8 @@ has(/\.user-message\s*\{[^}]*border:\s*0;[^}]*background:\s*color-mix\(in srgb, 
 has(/\.conversation-scroll\s*\{[^}]*padding:\s*12px 16px/, '留空即结构：chat 两侧留空须放大（文字不贴边）');
 
 // —— Item 3：chat 内卡片清算 ——
-// interaction 使用 generated/verified 微差底色；门禁仍为既有白色轻卡
-has(/\.interaction-turn-card\s*\{[^}]*border:\s*1px solid var\(--border\);\s*border-radius:\s*6px;\s*background:\s*color-mix\(in srgb, var\(--generated\) 82%, var\(--verified\) 18%\)/, 'interaction 须为 hairline + 6px + generated/verified 微差底色');
+// interaction 使用 generated 微差底色；门禁仍为既有白色轻卡
+has(/\.interaction-turn-card\s*\{[^}]*border:\s*1px solid var\(--border\);\s*border-radius:\s*6px;\s*background:\s*color-mix\(in srgb, var\(--generated\) 94%, var\(--bg-raised\) 6%\)/, 'interaction 须为 hairline + 6px + generated 微差底色');
 has(/\.turn-card-gate\s*\{[^}]*border:\s*1px solid var\(--border-strong\);\s*border-radius:\s*6px;\s*background:\s*var\(--bg-raised\)/, '门禁须保留既有白色轻卡');
 // turn-card 基座保持扁平 message 行（event/artifact/file）
 has(/\.turn-card\s*\{[^}]*border-radius:\s*0;\s*background:\s*transparent/, 'turn-card 基座须保持扁平 message 行');
@@ -34,7 +34,7 @@ has(/\.turn-card\s*\{[^}]*border-radius:\s*0;\s*background:\s*transparent/, 'tur
 has(/\.turn-event-row\.is-active\s*>\s*span:last-child\s*\{[^}]*animation:\s*breathe/, '进行态须文本惯例式闪烁（breathe）');
 if (/\.turn-event-row\.is-active\s*>\s*span:last-child\s*\{[^}]*var\(--(?:red|amber|blue|green)-/.test(css)) failures.push('进行态闪烁须灰阶，不落语义色');
 // 进行态诚实：settle 后不再 active（demo 收敛为 success）
-if (!app.includes("status={session.confirmation ? 'success' : 'active'}")) failures.push('demo 进行态须在 settle 后收敛（不永久闪烁）');
+if (!app.includes("status={workStopped ? 'idle' : session.confirmation ? 'success' : 'active'}")) failures.push('demo 进行态须在 settle 后收敛，失败后静止（不永久闪烁）');
 
 // —— Item 1：三卡一纸 ——
 // utility 两态皆坐底纸、永不成卡（schema 唯一右卡）

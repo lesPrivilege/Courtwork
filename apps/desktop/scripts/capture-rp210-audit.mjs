@@ -22,7 +22,7 @@ async function enterDemo() {
   }
   await page.getByTestId('assistant-turn-demo').waitFor();
   // 等推理静默锚落定（settled）
-  await page.getByTestId('thinking-stream').getByTestId('thinking-stream-toggle').waitFor({ timeout: 15_000 }).catch(() => {});
+  await page.getByTestId('process-trace').getByTestId('process-trace-toggle').waitFor({ timeout: 15_000 }).catch(() => {});
   await page.mouse.move(0, 0);
 }
 
@@ -37,7 +37,7 @@ await turn.scrollIntoViewIfNeeded();
 await turn.screenshot({ path: resolve(outputDir, '54-rp210-turn-tail.png'), animations: 'disabled' });
 
 // 3) 品牌 icon 静默锚特写（藏青竖线 + 三横杠）
-await page.getByTestId('thinking-stream').screenshot({ path: resolve(outputDir, '55-rp210-brand-anchor.png'), animations: 'disabled' });
+await page.getByTestId('process-trace').screenshot({ path: resolve(outputDir, '55-rp210-brand-anchor.png'), animations: 'disabled' });
 
 // 4) base 态：关闭 schema → dock 三 tap 坐底纸 + reopen 入口（两态皆无 utility 卡）
 await page.getByTestId('preview-close').click();

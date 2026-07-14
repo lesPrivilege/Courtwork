@@ -2,7 +2,7 @@
 
 状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C` 与 `WORK-PORT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
-## TRACE-UI-1 · Chat/Work 同源过程轨迹（待派发）
+## TRACE-UI-1 · Chat/Work 同源过程轨迹（已实现，待独立验收）
 
 权威：ADR-011。目标是复用同一宿主组件与动效，不混淆两种账本语义。
 
@@ -12,6 +12,13 @@
 - 现有品牌三横等待指示、focus-visible、键盘展开、reduced-motion 与 Stop 必须保留；数据行与 schema 工作面不消费动画。
 - 通用 ask-user 卡继续只消费 Turn interaction snapshot；内容、选项与锚点来自垂类注入。卡底只允许相对 chat 底纸的微差 generated surface + 1px 中性框线、6px 圆角、零阴影；不得写法律 type switch。
 - 纯函数/DOM/Playwright 必须覆盖 Chat 与 Work 同一组件身份、running→settled、absent、failed、键盘展开、reduced-motion 和 ask-user 锚点/first-wins 回放。完整 desktop Playwright 由独立会话在独立端口验收。
+
+实现留痕（2026-07-14，待独立验收）：
+
+- 新增领域盲 `chat/ProcessTrace.tsx` 与机械适配器 `chat/process-trace-projection.ts`；四态、双 mode、文案、折叠交互与 CSS 仅此一份。Chat pending/流式/终态 reasoning 只消费 `TurnProjection`，Work 只消费 projected `progress`/failure/terminal，不互抄账本。
+- 删除 `ThinkingStream` 与 Chat 原生 reasoning `<details>`；Turn terminal 明示 absent 时返回空，Work body 删除静态兜底。失败、取消、interrupted 优先映射 `failed`，不受 completed 位影响。
+- BrandThinking、Stop、原生 button 键盘展开、全局 reduced-motion 与 0ms terminal 卸载保留；ask-user 继续消费 replay snapshot，卡底改为 generated 单语义微差底色，hairline/6px/零阴影不变。
+- 旧 `assert-thinking-stream` 退役为 `assert-process-trace`，并把单组件身份、来源隔离、absent、取消优先级、禁双实现、灰阶与 reduced-motion 纳入前置门。红灯基线为新 suite 因组件/适配器缺席 **2 files failed**；实现侧定向 Vitest **7/7**、全仓 Vitest **120 files / 1078 tests**、13 workspace build、ESLint 与静态门全绿；隔离端口定向 Playwright 先跑 **44/44**，最终 tip 复核本单关键路径 **5/5**。完整 Playwright 仍由独立验收会话实跑并填写最终数字。
 
 ## VISUAL-KIT-1 · 原生可视化构件与 gallery（待派发）
 
