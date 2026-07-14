@@ -1,0 +1,135 @@
+{
+  "projectId": "DEMO-PM-FOGLAMP",
+  "items": [
+    {
+      "id": "feedback-01",
+      "quote": "提醒经常在会议结束后才出现。",
+      "sourceAnchors": [
+        {
+          "fileId": "02-feedback.md",
+          "textRange": { "start": 97, "end": 111 },
+          "textLayerVersion": "sha256:ba5c16a8b3f32cdf117017b93b126e49a6899b36b6a8fb6236e20d2204005a6c",
+          "quote": "提醒经常在会议结束后才出现。"
+        }
+      ],
+      "channel": "support-ticket",
+      "clusterId": "cluster-reminder",
+      "rootCause": "提醒送达状态不透明",
+      "volume": 2,
+      "severity": "high",
+      "status": "triaged"
+    },
+    {
+      "id": "feedback-02",
+      "quote": "任务变更后，我隔很久才看到提醒。",
+      "sourceAnchors": [
+        {
+          "fileId": "02-feedback.md",
+          "textRange": { "start": 130, "end": 146 },
+          "textLayerVersion": "sha256:ba5c16a8b3f32cdf117017b93b126e49a6899b36b6a8fb6236e20d2204005a6c",
+          "quote": "任务变更后，我隔很久才看到提醒。"
+        }
+      ],
+      "channel": "interview",
+      "clusterId": "cluster-reminder",
+      "rootCause": "提醒送达状态不透明",
+      "volume": 2,
+      "severity": "high",
+      "status": "triaged"
+    },
+    {
+      "id": "feedback-03",
+      "quote": "导入表格后看不出哪一行失败了。",
+      "sourceAnchors": [
+        {
+          "fileId": "02-feedback.md",
+          "textRange": { "start": 177, "end": 192 },
+          "textLayerVersion": "sha256:ba5c16a8b3f32cdf117017b93b126e49a6899b36b6a8fb6236e20d2204005a6c",
+          "quote": "导入表格后看不出哪一行失败了。"
+        }
+      ],
+      "channel": "app-review",
+      "clusterId": "cluster-import",
+      "rootCause": "批量导入缺少可核对的错误反馈",
+      "volume": 2,
+      "severity": "mid",
+      "status": "triaged"
+    },
+    {
+      "id": "feedback-04",
+      "quote": "批量导入没有错误摘要，我只能逐行检查。",
+      "sourceAnchors": [
+        {
+          "fileId": "02-feedback.md",
+          "textRange": { "start": 214, "end": 233 },
+          "textLayerVersion": "sha256:ba5c16a8b3f32cdf117017b93b126e49a6899b36b6a8fb6236e20d2204005a6c",
+          "quote": "批量导入没有错误摘要，我只能逐行检查。"
+        }
+      ],
+      "channel": "nps",
+      "clusterId": "cluster-import",
+      "rootCause": "批量导入缺少可核对的错误反馈",
+      "volume": 2,
+      "severity": "mid",
+      "status": "triaged"
+    },
+    {
+      "id": "feedback-05",
+      "quote": "我希望周五办公室供应草莓蛋糕。",
+      "sourceAnchors": [
+        {
+          "fileId": "02-feedback.md",
+          "textRange": { "start": 263, "end": 278 },
+          "textLayerVersion": "sha256:ba5c16a8b3f32cdf117017b93b126e49a6899b36b6a8fb6236e20d2204005a6c",
+          "quote": "我希望周五办公室供应草莓蛋糕。"
+        }
+      ],
+      "channel": "community",
+      "clusterId": null,
+      "rootCause": null,
+      "volume": 0,
+      "severity": "low",
+      "status": "out_of_coverage"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "cluster-reminder",
+      "name": "提醒延迟与可见性",
+      "memberIds": ["feedback-01", "feedback-02"],
+      "evidence": [
+        {
+          "fileId": "02-feedback.md",
+          "textRange": { "start": 97, "end": 111 },
+          "textLayerVersion": "sha256:ba5c16a8b3f32cdf117017b93b126e49a6899b36b6a8fb6236e20d2204005a6c",
+          "quote": "提醒经常在会议结束后才出现。"
+        },
+        {
+          "fileId": "02-feedback.md",
+          "textRange": { "start": 130, "end": 146 },
+          "textLayerVersion": "sha256:ba5c16a8b3f32cdf117017b93b126e49a6899b36b6a8fb6236e20d2204005a6c",
+          "quote": "任务变更后，我隔很久才看到提醒。"
+        }
+      ]
+    },
+    {
+      "id": "cluster-import",
+      "name": "批量导入错误反馈",
+      "memberIds": ["feedback-03", "feedback-04"],
+      "evidence": [
+        {
+          "fileId": "02-feedback.md",
+          "textRange": { "start": 177, "end": 192 },
+          "textLayerVersion": "sha256:ba5c16a8b3f32cdf117017b93b126e49a6899b36b6a8fb6236e20d2204005a6c",
+          "quote": "导入表格后看不出哪一行失败了。"
+        },
+        {
+          "fileId": "02-feedback.md",
+          "textRange": { "start": 214, "end": 233 },
+          "textLayerVersion": "sha256:ba5c16a8b3f32cdf117017b93b126e49a6899b36b6a8fb6236e20d2204005a6c",
+          "quote": "批量导入没有错误摘要，我只能逐行检查。"
+        }
+      ]
+    }
+  ]
+}

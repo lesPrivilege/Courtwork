@@ -142,6 +142,10 @@ importers:
         version: 26.1.1
 
   packages/demo-data:
+    dependencies:
+      '@courtwork/pm':
+        specifier: workspace:*
+        version: link:../pm
     devDependencies:
       '@playwright/test':
         specifier: ^1.55.0

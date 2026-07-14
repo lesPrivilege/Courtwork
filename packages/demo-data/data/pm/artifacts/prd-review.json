@@ -1,0 +1,114 @@
+{
+  "projectId": "DEMO-PM-FOGLAMP",
+  "documentId": "01-prd.md",
+  "findings": [
+    {
+      "id": "prd-finding-01",
+      "section": "2.1 消息提醒",
+      "clause": "消息提醒应当足够及时，让团队感到顺畅。",
+      "sourceAnchors": [
+        {
+          "fileId": "01-prd.md",
+          "textRange": { "start": 87, "end": 106 },
+          "textLayerVersion": "sha256:8adf1e571a47a6016786819d61201fe084c2026e256319dbf84ae78c3caa4042",
+          "quote": "消息提醒应当足够及时，让团队感到顺畅。"
+        }
+      ],
+      "defectType": "vague-metric",
+      "severity": "high",
+      "issue": "“足够及时”和“顺畅”没有可核对的指标口径。",
+      "suggestion": "补充提醒送达时限、统计窗口与达标阈值。",
+      "status": "pending"
+    },
+    {
+      "id": "prd-finding-02",
+      "section": "2.2 批量导入",
+      "clause": "批量导入需要支持项目成员上传表格。",
+      "sourceAnchors": [
+        {
+          "fileId": "01-prd.md",
+          "textRange": { "start": 121, "end": 138 },
+          "textLayerVersion": "sha256:8adf1e571a47a6016786819d61201fe084c2026e256319dbf84ae78c3caa4042",
+          "quote": "批量导入需要支持项目成员上传表格。"
+        }
+      ],
+      "defectType": "missing-acceptance",
+      "severity": "mid",
+      "issue": "需求未给出文件格式、容量和成功失败的验收标准。",
+      "suggestion": "列出支持格式、行数上限、错误反馈与验收样例。",
+      "status": "pending"
+    },
+    {
+      "id": "prd-finding-03",
+      "section": "2.3 管理权限",
+      "clause": "项目管理员可以查看全部工作区内容。",
+      "sourceAnchors": [
+        {
+          "fileId": "01-prd.md",
+          "textRange": { "start": 153, "end": 170 },
+          "textLayerVersion": "sha256:8adf1e571a47a6016786819d61201fe084c2026e256319dbf84ae78c3caa4042",
+          "quote": "项目管理员可以查看全部工作区内容。"
+        }
+      ],
+      "defectType": "undefined-boundary",
+      "severity": "high",
+      "issue": "“全部工作区内容”没有定义私密项目和敏感字段的权限边界。",
+      "suggestion": "明确管理员可见范围、例外数据与审计要求。",
+      "status": "pending"
+    },
+    {
+      "id": "prd-finding-04",
+      "section": "2.4 外部访谈",
+      "clause": "系统自动同步外部访谈记录。",
+      "sourceAnchors": [
+        {
+          "fileId": "01-prd.md",
+          "textRange": { "start": 185, "end": 198 },
+          "textLayerVersion": "sha256:8adf1e571a47a6016786819d61201fe084c2026e256319dbf84ae78c3caa4042",
+          "quote": "系统自动同步外部访谈记录。"
+        }
+      ],
+      "defectType": "missing-dependency",
+      "severity": "mid",
+      "issue": "自动同步依赖的外部系统、授权方式和失败策略均未声明。",
+      "suggestion": "补充依赖接口、授权前置条件、重试与降级路径。",
+      "status": "pending"
+    },
+    {
+      "id": "prd-finding-05",
+      "section": "2.5 路线图协作",
+      "clause": "所有成员都能编辑路线图，但路线图只有负责人可以修改。",
+      "sourceAnchors": [
+        {
+          "fileId": "01-prd.md",
+          "textRange": { "start": 214, "end": 240 },
+          "textLayerVersion": "sha256:8adf1e571a47a6016786819d61201fe084c2026e256319dbf84ae78c3caa4042",
+          "quote": "所有成员都能编辑路线图，但路线图只有负责人可以修改。"
+        }
+      ],
+      "defectType": "conflicting-requirement",
+      "severity": "high",
+      "issue": "同一句同时授予所有成员编辑权并把修改权限定给负责人。",
+      "suggestion": "区分评论、提议和正式修改，并给出唯一权限矩阵。",
+      "status": "pending"
+    },
+    {
+      "id": "prd-finding-06",
+      "section": "2.6 首页体验",
+      "clause": "首页应呈现令人惊艳且专业的体验。",
+      "sourceAnchors": [
+        {
+          "fileId": "01-prd.md",
+          "textRange": { "start": 255, "end": 271 },
+          "textLayerVersion": "sha256:8adf1e571a47a6016786819d61201fe084c2026e256319dbf84ae78c3caa4042",
+          "quote": "首页应呈现令人惊艳且专业的体验。"
+        }
+      ],
+      "defectType": "untestable",
+      "severity": "low",
+      "issue": "“惊艳且专业”是主观判断，无法形成稳定测试结论。",
+      "suggestion": "改写为可观察的任务完成率、信息层级和可用性指标。",
+      "status": "pending"
+    }
+  ]
+}
