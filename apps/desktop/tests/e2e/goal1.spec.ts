@@ -99,7 +99,7 @@ test.describe('GOAL-1 · popover 收敛纪律', () => {
 });
 
 test.describe('GOAL-1 · chat 面真 API 端到端', () => {
-  test('发送 → 在途指示 → assistant 落格（含思考折叠）', async ({ page }) => {
+  test('发送 → 在途指示 → assistant 落格（同源思考折叠 + 键盘展开）', async ({ page }) => {
     await openWorkbench(page);
     await connectProvider(page);
     await page.getByTestId('segment-chat').click();
@@ -108,7 +108,13 @@ test.describe('GOAL-1 · chat 面真 API 端到端', () => {
     await page.getByTestId('composer-send').click();
     await expect(page.getByTestId('chat-assistant-message')).toBeVisible();
     await expect(page.getByTestId('chat-assistant-message')).toContainText('真实链路的回复');
-    await expect(page.getByTestId('chat-reasoning')).toBeVisible();
+    const trace = page.getByTestId('chat-assistant-message').getByTestId('process-trace');
+    await expect(trace).toHaveAttribute('data-mode', 'reasoning');
+    await expect(trace).toHaveAttribute('data-state', 'settled');
+    const toggle = trace.getByTestId('process-trace-toggle');
+    await toggle.focus();
+    await page.keyboard.press('Enter');
+    await expect(trace.getByTestId('process-trace-body')).toContainText('先梳理请求要点');
     await expect(page.getByTestId('chat-pending')).toHaveCount(0);
   });
 
@@ -151,7 +157,7 @@ test.describe('GOAL-1 · chat 面真 API 端到端', () => {
       button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
-    await expect(page.getByTestId('chat-pending')).toBeVisible();
+    await expect(page.locator('[data-testid="process-trace"][data-mode="reasoning"][data-state="running"]')).toBeVisible();
     await expect(page.getByTestId('composer-send')).toBeDisabled();
     expect(await page.evaluate(() => (window as typeof window & { __harnessFlightCalls?: number }).__harnessFlightCalls)).toBe(1);
 
@@ -163,6 +169,7 @@ test.describe('GOAL-1 · chat 面真 API 端到端', () => {
     await openWorkbench(page);
     await connectProvider(page);
     await page.getByTestId('segment-chat').click();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.evaluate(() => {
       type Context = { requestId: string; providerId: string; modelId: string; signal?: AbortSignal };
       const hooks = (window as typeof window & {
@@ -177,12 +184,19 @@ test.describe('GOAL-1 · chat 面真 API 端到端', () => {
     await page.getByTestId('composer-input').fill('停止验证');
     await page.getByTestId('composer-send').click();
     await expect(page.getByTestId('chat-stream-content')).toContainText('已经到达');
+    const runningTrace = page.locator('[data-testid="process-trace"][data-mode="reasoning"][data-state="running"]');
+    await expect(runningTrace).toBeVisible();
+    const reducedDurationMs = await runningTrace.locator('.brand-thinking-line').first().evaluate((element) => {
+      const value = getComputedStyle(element).animationDuration;
+      return value.endsWith('ms') ? Number.parseFloat(value) : Number.parseFloat(value) * 1000;
+    });
+    expect(reducedDurationMs).toBeLessThanOrEqual(0.01);
     await page.getByTestId('chat-stop').click();
     const failed = page.getByTestId('chat-assistant-failed');
     await expect(failed).toHaveAttribute('data-status', 'failed');
     await expect(failed).toContainText('已经到达的部分正文');
     await expect(failed.getByTestId('chat-turn-failure')).toHaveText('已停止');
-    await expect(failed.getByTestId('chat-reasoning-absent')).toBeVisible();
+    await expect(failed.getByTestId('process-trace')).toHaveCount(0);
     await expect(page.getByTestId('chat-pending')).toHaveCount(0);
   });
 });

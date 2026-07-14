@@ -1,18 +1,19 @@
 import { expect, test } from '@playwright/test';
 import { confirmDemoReview, openWorkbench } from './helpers';
 
-// —— RP-2.10 三卡一纸 + 品牌 icon 推理动画（docs/decisions/ADR-006-ui-host.md） ——
+// —— RP-2.10 三卡一纸 + 同源过程动画（docs/decisions/ADR-011-minimal-harness-kernel.md） ——
 
-test('推理锚 = settled 字符竖线 / thinking 品牌三横（批次七⑦换装），居 turn 尾 message 按钮排之下', async ({ page }) => {
+test('Work progress 锚 = settled 字符竖线 / running 品牌三横，居 turn 尾 message 按钮排之下', async ({ page }) => {
   await openWorkbench(page);
   const turn = page.getByTestId('assistant-turn-demo');
-  const stream = turn.getByTestId('thinking-stream');
+  const stream = turn.getByTestId('process-trace');
   await expect(stream).toBeVisible({ timeout: 15_000 });
 
   // 链注记：RP-2.11 字符版 → 批次七⑦ thinking 态 BrandThinking；字符光标只余 settled 静锚。
   // 时序去耦：等回放落定 settled 再断言锚形（thinking 窗口内无 cursor 属新契约,勿误红）。
   await expect(stream).toHaveAttribute('data-state', 'settled', { timeout: 15_000 });
-  const cursor = stream.locator('.thinking-cursor');
+  await expect(stream).toHaveAttribute('data-mode', 'progress');
+  const cursor = stream.locator('.process-trace-cursor');
   await expect(cursor).toHaveCount(1);
   await expect(stream.locator('svg')).toHaveCount(0);
   // 竖线用藏青（灰阶 shimmer 唯一例外）
@@ -26,15 +27,15 @@ test('推理锚 = settled 字符竖线 / thinking 品牌三横（批次七⑦换
   expect((streamBox?.y ?? 0)).toBeGreaterThanOrEqual((actionsBox?.y ?? 0));
 });
 
-test('#26.3 静默锚展开回看思考流，收回静态 icon', async ({ page }) => {
+test('#26.3 静默锚展开回看工作进度，收回静态 icon', async ({ page }) => {
   await openWorkbench(page);
-  const stream = page.getByTestId('assistant-turn-demo').getByTestId('thinking-stream');
+  const stream = page.getByTestId('assistant-turn-demo').getByTestId('process-trace');
   await expect(stream).toHaveAttribute('data-state', 'settled', { timeout: 15_000 });
-  await expect(page.getByTestId('thinking-stream-body')).toHaveCount(0);
-  await page.getByTestId('thinking-stream-toggle').click();
-  await expect(page.getByTestId('thinking-stream-body')).toBeVisible();
-  await page.getByTestId('thinking-stream-toggle').click();
-  await expect(page.getByTestId('thinking-stream-body')).toHaveCount(0);
+  await expect(page.getByTestId('process-trace-body')).toHaveCount(0);
+  await page.getByTestId('process-trace-toggle').click();
+  await expect(page.getByTestId('process-trace-body')).toBeVisible();
+  await page.getByTestId('process-trace-toggle').click();
+  await expect(page.getByTestId('process-trace-body')).toHaveCount(0);
 });
 
 // —— Item 3：chat 内卡片清算 ——
@@ -49,7 +50,7 @@ test('chat 内 interaction/门禁为轻卡，event/artifact/file 降扁平 messa
   const file = page.getByTestId('output-docx-card');
   await expect(file).toHaveCSS('border-radius', '0px');
   await expect(file).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-  // interaction：轻卡——hairline + 6px + generated/verified 微差底色（非白卡套白卡）
+  // interaction：轻卡——hairline + 6px + generated 微差底色（非白卡套白卡）
   const question = page.getByTestId('turn-card-question');
   await expect(question).toHaveCSS('border-radius', '6px');
   await expect(question).not.toHaveCSS('background-color', 'rgb(255, 255, 255)');

@@ -17,6 +17,7 @@ import {
   type ReviewGateProjection,
   type ScenarioFlow,
   type SessionProjection,
+  type WorkProjectionPhase,
   type WorkProjectionPort,
 } from './protocol/client';
 import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
@@ -81,7 +82,6 @@ import {
   type DraftDocument,
 } from './workbench/Panels';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
-import { ThinkingStream } from './workbench/ThinkingStream';
 import { MessageActions } from './chat/MessageActions';
 import { sendChatTurn } from './provider/chat-client';
 import {
@@ -89,7 +89,8 @@ import {
   createLocalStorageTurnJournalBackend,
   type TurnProjection,
 } from './provider/turn-protocol-client';
-import { BrandThinking } from './chat/BrandThinking';
+import { ProcessTrace } from './chat/ProcessTrace';
+import { processTraceFromTurn, processTraceFromWorkProjection } from './chat/process-trace-projection';
 import { RightRailModules } from './rail/RightRailModules';
 import { PasteBlock } from './chat/PasteBlock';
 import { ChatMarkdown } from './chat/ChatMarkdown';
@@ -190,9 +191,10 @@ function renderReaderInline(text: string, focusQuote?: string, focusRef?: RefObj
   });
 }
 
-function ChatAssistantMessage({ message, index }: {
+function ChatAssistantMessage({ message, index, onStop }: {
   message: Extract<ChatMessage, { role: 'assistant' }>;
   index: number;
+  onStop?: () => void;
 }) {
   const { turn } = message;
   const terminal = turn.status === 'completed' || turn.status === 'failed';
@@ -203,17 +205,15 @@ function ChatAssistantMessage({ message, index }: {
       data-turn-id={turn.turnId}
       data-status={turn.status}
     >
-      {turn.reasoning.status === 'present' && (
-        <details className="chat-reasoning" data-testid="chat-reasoning" open={turn.status === 'running'}>
-          <summary>思考过程</summary>
-          {turn.status === 'running'
-            ? <div className="chat-reasoning-stream">{turn.reasoning.content}</div>
-            : <CollapsibleMessage lines={12}><ChatMarkdown text={turn.reasoning.content} /></CollapsibleMessage>}
-        </details>
-      )}
-      {terminal && turn.reasoning.status === 'absent' && (
-        <p className="chat-reasoning-absent" data-testid="chat-reasoning-absent">无可用推理内容</p>
-      )}
+      <ProcessTrace
+        view={processTraceFromTurn(turn)}
+        actions={onStop && (
+          <button type="button" className="quiet-button chat-stop" data-testid="chat-stop" onClick={onStop}>Stop</button>
+        )}
+        renderContent={(content) => turn.status === 'running'
+          ? <div className="chat-reasoning-stream">{content}</div>
+          : <CollapsibleMessage lines={12}><ChatMarkdown text={content} /></CollapsibleMessage>}
+      />
       {turn.assistantMessage && (turn.status === 'running' ? (
         <div className="chat-stream-content" data-testid="chat-stream-content">{turn.assistantMessage}</div>
       ) : (
@@ -287,6 +287,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
   const [session, dispatch] = useReducer(reduceSession, EMPTY_SESSION);
+  const [workPhase, setWorkPhase] = useState<WorkProjectionPhase>();
   const [activeView, setActiveView] = useState<WorkbenchView>('revision');
   const [activeArtifactType, setActiveArtifactType] = useState<string>();
   const [secondaryView, setSecondaryView] = useState<WorkbenchView>();
@@ -658,6 +659,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     openedAt.current = {};
     lastReplayedFlow.current = undefined;
     dispatch({ type: '__clear__' });
+    setWorkPhase(undefined);
 
     if (isDemoCaseId(selectedCaseId)) {
       setFlow('S3');
@@ -689,6 +691,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       if (targetView === 'artifact') setActiveArtifactType(event.artifactType);
       setActiveView(targetView);
       setPreviewOpen(true);
+    }).then((replay) => {
+      if (replayGeneration.current === myGeneration) setWorkPhase(replay.phase);
     });
   }, [flow, replayEpoch, selectedCaseId, packageRegistries, hostRenderers, workProjection, workFixture]);
 
@@ -1143,6 +1147,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setReviewSubmitted(false);
     setContinued(false);
     dispatch({ type: '__clear__' });
+    setWorkPhase(undefined);
     resolvedRequest.current = undefined;
   };
 
@@ -1449,6 +1454,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     </div>
   );
 
+  const workTraceView = processTraceFromWorkProjection({ ...session, phase: workPhase });
+  const workStopped = workTraceView.state === 'failed';
+
   return (
     <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'} data-compact={compactLayout ? 'true' : 'false'}>
       {(focusMode || effectiveLeftCollapsed) && <WindowChrome
@@ -1579,11 +1587,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                         : 'timeline=47 parties=14 conflicts=4'}
                     />
                     <div className="turn-event-stream" data-testid="event-stream">
-                      <TurnCard kind="event" icon="chevron-right" eyebrow={flow === 'S1' ? 'D20' : 'D04'} title={flow === 'S1' ? '卷宗整理已启动' : '合同审查已完成'} status="success" testId="turn-event-start" />
+                      <TurnCard kind="event" icon="chevron-right" eyebrow={flow === 'S1' ? 'D20' : 'D04'} title={flow === 'S1' ? '卷宗整理已启动' : '合同审查已启动'} status="success" testId="turn-event-start" />
                       {session.progress.map((message, index) => (
-                        <TurnCard key={`${message}-${index}`} kind="event" icon="chevron-right" eyebrow={String(index + 1).padStart(2, '0')} title={message} status={session.confirmation ? 'success' : 'active'} testId={`turn-event-progress-${index}`} />
+                        <TurnCard key={`${message}-${index}`} kind="event" icon="chevron-right" eyebrow={String(index + 1).padStart(2, '0')} title={message} status={workStopped ? 'idle' : session.confirmation ? 'success' : 'active'} testId={`turn-event-progress-${index}`} />
                       ))}
-                      <TurnCard kind="event" icon="chevron-right" eyebrow="完成" title={flow === 'S3' ? '审阅提示已送达右侧工作面' : '事件与主体关系已完成交叉核对'} status="success" testId="turn-event-finish" />
+                      {!workStopped && (session.confirmation || session.completed) && (
+                        <TurnCard kind="event" icon="chevron-right" eyebrow="完成" title={flow === 'S3' ? '审阅提示已送达右侧工作面' : '事件与主体关系已完成交叉核对'} status="success" testId="turn-event-finish" />
+                      )}
                     </div>
                     <TurnCard
                       kind="artifact"
@@ -1640,11 +1650,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                       <p className="turn-recovery-error" role="alert" data-testid="turn-recovery-error">{turnRecoveryError}</p>
                     )}
                     <MessageActions messageId="assistant-demo" text={demoArtifactCard.title} createdAt={assistantCreatedAt.current} />
-                    {/* #26.2：推理指示锚居 turn 尾、message 按钮排之下 */}
-                    <ThinkingStream
-                      state={session.progress.length === 0 ? 'empty' : session.confirmation ? 'settled' : 'thinking'}
-                      content={session.progress.join('；') || '已梳理请求目标、材料范围与下一步工作面。'}
-                    />
+                    <ProcessTrace view={workTraceView} />
                   </article>
                 </>
               )}
@@ -1745,16 +1751,23 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                     <MessageActions messageId={`chat-${index}`} text={message.text} createdAt={message.createdAt} />
                   </div>
                 ) : (
-                  <ChatAssistantMessage message={message} index={index} key={`chat-${index}`} />
+                  <ChatAssistantMessage
+                    message={message}
+                    index={index}
+                    onStop={chatPending && message.turn.status === 'running' ? stopChatTurn : undefined}
+                    key={`chat-${index}`}
+                  />
                 )
               ))}
               {chatRecoveryError && (
                 <p className="chat-recovery-error" role="alert" data-testid="chat-recovery-error">{chatRecoveryError}</p>
               )}
-              {chatPending && (
-                <div className="chat-pending" role="status" data-testid="chat-pending">
-                  <BrandThinking />
-                  <button type="button" className="quiet-button chat-stop" data-testid="chat-stop" onClick={stopChatTurn}>Stop</button>
+              {chatPending && !chatMessages.some((message) => message.role === 'assistant' && message.turn.status === 'running') && (
+                <div className="chat-pending" data-testid="chat-pending">
+                  <ProcessTrace
+                    view={{ mode: 'reasoning', state: 'running' }}
+                    actions={<button type="button" className="quiet-button chat-stop" data-testid="chat-stop" onClick={stopChatTurn}>Stop</button>}
+                  />
                 </div>
               )}
               <ScrollToLatest follow={chatFollow} />

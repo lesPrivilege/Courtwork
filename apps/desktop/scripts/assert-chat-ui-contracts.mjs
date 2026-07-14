@@ -39,9 +39,11 @@ requireText('legal', 'contractSourceMd.slice(start, end) !== anchor.quote', 'Sou
 
 const interactionCss = files.css.slice(files.css.indexOf('.interaction-turn-card'), files.css.indexOf('.progress-pulse'));
 if (!/border:\s*1px solid var\(--border\)/.test(interactionCss)) failures.push('Interaction card must use a hairline border');
-if (!/background:\s*color-mix\(in srgb, var\(--generated\) 82%, var\(--verified\) 18%\)/.test(interactionCss)) failures.push('Interaction card must use the approved subtle generated/verified mix');
+if (!/background:\s*color-mix\(in srgb, var\(--generated\) 94%, var\(--bg-raised\) 6%\)/.test(interactionCss)) failures.push('Interaction card must use the approved subtle generated surface');
 if (/box-shadow|gradient|glow/i.test(interactionCss)) failures.push('Interaction card may not add shadow, gradient or glow');
-requireText('app', 'chat-reasoning-absent', 'Terminal turns without reasoning need an explicit absent state');
+requireText('app', 'processTraceFromTurn(turn)', 'Chat reasoning must consume the shared ProcessTrace adapter');
+forbidText('app', 'chat-reasoning-absent', 'Absent reasoning must leave no UI placeholder');
+forbidText('app', '<details className="chat-reasoning"', 'Native chat details may not fork the shared ProcessTrace interaction');
 requireText('app', 'chatAbortRef.current?.abort()', 'Stop must use the active AbortController');
 
 try {

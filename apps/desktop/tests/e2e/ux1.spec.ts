@@ -80,22 +80,22 @@ test.describe('UX-1 批次一', () => {
 
   test('#7/#26/#26.1：静默锚留在原 turn，点开可回看', async ({ page }) => {
     await openWorkbench(page);
-    const stream = page.getByTestId('thinking-stream');
+    const stream = page.getByTestId('process-trace');
     await expect(stream).toBeVisible();
     const turn = page.getByTestId('assistant-turn-demo');
     await expect(turn).toBeVisible();
-    await expect(turn.getByTestId('thinking-stream')).toHaveCount(1);
-    await expect(page.locator('.conversation-scroll > [data-testid="thinking-stream"]')).toHaveCount(0);
+    await expect(turn.getByTestId('process-trace')).toHaveCount(1);
+    await expect(page.locator('.conversation-scroll > [data-testid="process-trace"]')).toHaveCount(0);
+    await expect(stream).toHaveAttribute('data-mode', 'progress');
     await expect(stream).toHaveAttribute('data-state', 'settled');
     await expect(stream).toHaveAttribute('data-open', 'false');
-    await expect(page.getByTestId('thinking-stream-body')).toHaveCount(0);
-    await expect(page.getByTestId('thinking-stream-skeleton')).toHaveCount(0);
-    await expect(page.getByTestId('thinking-stream-toggle')).toHaveAttribute('aria-label', 'Show reasoning');
+    await expect(page.getByTestId('process-trace-body')).toHaveCount(0);
+    await expect(page.getByTestId('process-trace-toggle')).toHaveAttribute('aria-label', 'Show progress');
     // RP-2.11 改判：静默锚为字符版（竖线光标 + 标签），非 SVG 图标——原「toggle 无 span」断言属 brand-mark 时代。
-    await expect(page.getByTestId('thinking-stream-toggle').locator('.thinking-cursor')).toHaveCount(1);
-    await page.getByTestId('thinking-stream-toggle').click();
+    await expect(page.getByTestId('process-trace-toggle').locator('.process-trace-cursor')).toHaveCount(1);
+    await page.getByTestId('process-trace-toggle').click();
     await expect(stream).toHaveAttribute('data-open', 'true');
-    await expect(page.getByTestId('thinking-stream-body')).toContainText('正在核对合同条款');
+    await expect(page.getByTestId('process-trace-body')).toContainText('正在核对合同条款');
   });
 
   test('#10/#18′：composer 模型位可配置，pending 不冒充已连接', async ({ page }) => {
