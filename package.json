@@ -10,7 +10,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "build": "pnpm -r run build",
-    "site:guard": "node --test site/scripts/deslop-scan.test.mjs && node site/scripts/deslop-scan.mjs && pnpm --filter @courtwork/desktop lint:neutral && pnpm --filter @courtwork/desktop lint:elevation && pnpm --filter @courtwork/desktop lint:signature && pnpm --filter @courtwork/desktop lint:motion",
+    "site:guard": "node --test site/scripts/deslop-scan.test.mjs release/scripts/release-truth.test.mjs && node release/scripts/assert-release-truth.mjs && node site/scripts/deslop-scan.mjs && pnpm --filter @courtwork/desktop lint:neutral && pnpm --filter @courtwork/desktop lint:elevation && pnpm --filter @courtwork/desktop lint:signature && pnpm --filter @courtwork/desktop lint:motion",
+    "release:guard": "node --test release/scripts/release-truth.test.mjs && node release/scripts/assert-release-truth.mjs",
     "site:build": "node site/scripts/build.mjs"
   },
   "devDependencies": {

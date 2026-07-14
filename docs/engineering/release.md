@@ -2,6 +2,19 @@
 
 本手册定义 Courtwork 从已验收 `main` 生成 macOS 制品、GitHub Release 与 Pages 的唯一现行路径。发布不改变产品契约；任何产品代码变化必须先完成独立实现与验收。除非另有说明，以下命令均从仓库根目录执行。
 
+每次发布先在同一 shell 设置参数；版本不带 `v` 前缀：
+
+```sh
+export VERSION="<x.y.z>"
+export TAG="v${VERSION}"
+export ASSET="Courtwork_${VERSION}_aarch64.dmg"
+export APP="apps/desktop/src-tauri/target/release/bundle/macos/Courtwork.app"
+export DMG="apps/desktop/src-tauri/target/release/bundle/dmg/${ASSET}"
+export EXE="${APP}/Contents/MacOS/courtwork-desktop"
+export SHA_FILE="release/${ASSET}.sha256"
+export NOTES="release/RELEASE_NOTES_v${VERSION}.md"
+```
+
 ## 发布通道
 
 - 当前公开通道：Apple Silicon 开发构建。
@@ -14,12 +27,14 @@
 2. `git status --porcelain` 必须为空；所有目标提交必须是 `main` 祖先。
 3. 四处版本一致：desktop `package.json`、Tauri config、Cargo manifest、Settings 关于页。
 4. 检查 GitHub tag / Release 不存在，防止覆盖已发布版本。
+5. 运行 `node release/scripts/assert-release-truth.mjs --expected "$VERSION"`；制品尚未生成时，官网可继续诚实指向上一已发布版本。
 
 ## 2. 全量门
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm site:guard
+pnpm site:build
 pnpm lint
 pnpm -r build
 pnpm --filter @courtwork/desktop test
@@ -37,10 +52,6 @@ E2E 必须自起独立端口，禁止复用 `:1420`。报告只采信候选 tip 
 rm -rf apps/desktop/src-tauri/target/release/bundle
 pnpm --filter @courtwork/desktop tauri build --bundles app,dmg
 
-APP=apps/desktop/src-tauri/target/release/bundle/macos/Courtwork.app
-DMG=apps/desktop/src-tauri/target/release/bundle/dmg/Courtwork_0.1.1_aarch64.dmg
-EXE="$APP/Contents/MacOS/courtwork-desktop"
-
 codesign --verify --deep --strict "$APP"
 hdiutil verify "$DMG"
 shasum -a 256 "$DMG"
@@ -52,9 +63,10 @@ lipo -archs "$EXE"
 还必须挂载 DMG，复验其中 app 的签名与可执行文件哈希；实际启动一次再退出：
 
 ```sh
-DMG=apps/desktop/src-tauri/target/release/bundle/dmg/Courtwork_0.1.1_aarch64.dmg
 MOUNT=$(mktemp -d /tmp/courtwork-release.XXXXXX)
 hdiutil attach -readonly -nobrowse -noautoopen -mountpoint "$MOUNT" "$DMG"
+test -L "$MOUNT/Applications"
+test "$(readlink "$MOUNT/Applications")" = "/Applications"
 codesign --verify --deep --strict "$MOUNT/Courtwork.app"
 shasum -a 256 "$MOUNT/Courtwork.app/Contents/MacOS/courtwork-desktop"
 hdiutil detach "$MOUNT"
@@ -75,21 +87,33 @@ spctl --assess --type execute --verbose=4 "$APP"
 2. Release notes 写清架构、签名、公证、Gatekeeper、SHA 与已知边界。
 3. 官网只在真实产物即将随同一发布推送时切换到 `releases/download/<tag>/<asset>`；同时呈现 64 位 SHA 与未公证声明。
 4. 由不同会话复验 DMG、校验文件、Release notes、站点链接和部署构建后，才可创建 tag。
+5. 真值切换完成后运行 `node release/scripts/assert-release-truth.mjs --expected "$VERSION" --require-site-match`，缺一处即停止。
 
 ## 5. 发布与部署
 
 ```sh
-DMG=apps/desktop/src-tauri/target/release/bundle/dmg/Courtwork_0.1.1_aarch64.dmg
-SHA_FILE=release/Courtwork_0.1.1_aarch64.dmg.sha256
-NOTES=release/RELEASE_NOTES_v0.1.1.md
+git tag -a "$TAG" -m "Courtwork ${TAG}"
+git push origin "$TAG"
+gh release create "$TAG" "$DMG" "$SHA_FILE" --notes-file "$NOTES" --title "Courtwork ${TAG}"
 
-git tag -a v0.1.1 -m "Courtwork v0.1.1"
+VERIFY_DIR=$(mktemp -d /tmp/courtwork-release-download.XXXXXX)
+ASSET_URL="https://github.com/lesPrivilege/Courtwork/releases/download/${TAG}/${ASSET}"
+curl --fail --silent --show-error --location --head "$ASSET_URL" >/dev/null
+gh release download "$TAG" --dir "$VERIFY_DIR" --pattern "$ASSET" --pattern "${ASSET}.sha256"
+(
+  cd "$VERIFY_DIR"
+  shasum -a 256 --check "${ASSET}.sha256"
+)
+rm -rf "$VERIFY_DIR"
+
 git push origin main
-git push origin v0.1.1
-gh release create v0.1.1 "$DMG" "$SHA_FILE" --notes-file "$NOTES" --title "Courtwork v0.1.1"
 ```
 
-Pages workflow 由 `main` push 触发，必须执行完整 `pnpm site:guard`。完成条件同时包括：Release asset 200、SHA 与本地一致、Pages workflow success、部署页下载链接与 SHA 正确、无横向溢出或破图。
+顺序不可交换：annotated tag 先单独 push，使候选提交可由 tag 到达；GitHub Release 及两个资产创建后，必须重新下载并通过 HTTP 与 SHA 核验，才允许 push `main`。这样 Pages 首次暴露新下载链接时，目标资产已经存在，不能出现发布窗口 404。
+
+Pages workflow 由后续 `main` push 触发，必须执行完整 `pnpm site:guard`。完成条件同时包括：Release asset 200、SHA 与本地一致、Pages workflow success、部署页下载链接与 SHA 正确、无横向溢出或破图。
+
+部署记录严格后置：只有上述远端 Release 与 Pages 复核全部通过，才写入本版部署实录并提交、push；记录必须引用实际 workflow、tag 解引用、公开资产大小与重新下载 SHA，不得用候选预填结果。
 
 ## 6. 收尾
 
