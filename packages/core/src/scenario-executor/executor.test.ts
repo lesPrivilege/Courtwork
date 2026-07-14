@@ -1104,6 +1104,24 @@ describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via respo
 });
 
 describe('TURN-WORK-1: Work model steps use the TurnRunnerPort', () => {
+  it('fails closed before linking or calling TurnRunnerPort when Web Crypto is unavailable', async () => {
+    const cryptoDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+    const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
+    Object.defineProperty(globalThis, 'crypto', { configurable: true, value: undefined });
+
+    try {
+      await expect(runScenario(
+        SINGLE_GATE_SCENARIO,
+        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+        deps,
+      )).rejects.toThrow(/Web Crypto randomUUID/);
+      expect(deps.eventLog.list()).toEqual([]);
+    } finally {
+      if (cryptoDescriptor) Object.defineProperty(globalThis, 'crypto', cryptoDescriptor);
+      else Reflect.deleteProperty(globalThis, 'crypto');
+    }
+  });
+
   it('rejects empty identities before linking or touching the TurnRunnerPort', async () => {
     const base = buildDeps([]);
     let calls = 0;

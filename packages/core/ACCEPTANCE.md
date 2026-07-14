@@ -599,3 +599,63 @@ CORE-BOUNDARY-1 合流主树后，真实 `packages/.DS_Store` 暴露 `packages/d
 验收发现的是测试可证伪性缺口，不是生产缺陷：非法 notice 夹具的失败原因不唯一；OpenAI/Scripted 只数 transport、未数公开 stream consumption。以独立提交 `1e9e54d`（`fix-by-acceptance(core): strengthen turn-work lifecycle guards`）补齐 4 个测试文件，共新增 3 条 Work 真链测试并加强 notice/单消费断言；未改生产代码或契约。
 
 > **最终判定：TURN-WORK-1 放行 ✅。** 可合入实现 `35d38b0`、验收测试补强 `1e9e54d` 与本报告。放行范围是 Work 模型步骤复用单一 Turn Engine 及其审计链接；不扩张为自动 retry、动态图、模型自主工具、跨存储事务或生产 WorkCommandPort。
+
+---
+
+## WORK-BROWSER-1 独立验收（2026-07-14）
+
+- **验收角色**：未参与 WORK-BROWSER-1 实现的独立验收会话；未修改 ADR、schema 或跨层契约。
+- **对象**：实现 `f18ad31073810bfe913022eb3324096804352149`，指定基线 `bed44095133723d33de3e153b58a286a886a612b`。
+- **验收树**：独立 clean worktree `/tmp/courtwork-work-browser-1-acceptance`，分支 `codex/accept-work-browser-1`；未在共享主树 checkout/stash，未复用共享服务。
+- **结论**：**✅ 放行。** browser-safe Work protocol、Node-only file adapter 边界、根入口兼容与既有持久语义均成立。无生产代码修复、无契约级问题、无 `[需架构拍板]` 项。
+
+### 1. 包出口与运行时图
+
+实现把 EventLog、ConfirmationStore、RevisionEventStore 的同步 Node file adapter 物理迁到独立文件，并发布三个有意不同的面：
+
+- `@courtwork/core/work-protocol`：Scenario executor、Work/Session 类型、内存实现与 TurnRunner port；没有 file adapter；
+- `@courtwork/core/work-store-file`：三个 Node-only file factory；
+- `@courtwork/core`：为既有消费者保留三个 file factory，不破坏根入口兼容。
+
+验收新增真实 package export 导入，逐一确认 `createFileEventLog`、`createFileConfirmationStore`、`createFileRevisionEventStore` 在根入口和 file 子路径中是同一函数，而 browser protocol 不具有这些属性。已有 Vite consumer 从 package subpath 而非源码相对路径导入，并扫描真实 bundle；最终构建无 `__vite-browser-external`、`node:crypto/fs/path`。
+
+实现差异共 22 个文件，集中于 core 的 adapter 拆分、executor 身份源、package exports、Vite consumer 和本层 SPEC。对 `SessionEvent`、session types、schemas、legal 与 pm-schemas 的基线差异均为空；没有新增事件、字段、终局或跨层接口。file adapter 仍是同步接口，未冒充 WORK-STORE-1 的 async/CAS host。
+
+### 2. 不采信实现自述：实际红灯与撤回
+
+所有反例都在独立树实际注入、观察失败，再用精确 patch 撤回；最终生产源码无 mutation 残留。
+
+| 反例 | 实测红灯 |
+|---|---|
+| `work-protocol.ts` 直接注入 `node:fs` | 递归图门 **1 failed / 3 skipped**；重建 core 后真实 Vite consumer 同样 **1 failed / 3 skipped**，bundle 命中 Vite browser-external。 |
+| 可达子模块 `events/event-log.ts` 递归注入 `node:crypto` | **1 failed / 3 skipped**，错误精确指向子模块路径与 `node:crypto`，证明不是只扫入口文本。 |
+| Web Crypto 缺失时弱降级为固定字符串 | 新 fail-closed 测试 **1 failed / 42 skipped**；期望 Web Crypto 错误，实际落到弱身份错误。恢复后缺 `crypto.randomUUID` 会在 link/runner 前失败且事件为零。 |
+| 删除空 `turnId` 的 trim 校验 | **1 failed / 42 skipped**；非法空身份进入 runner，暴露 `must not run`。 |
+| 删除已链接 turn/provider request 去重 | citation repair **1 failed / 6 skipped**；原应拒绝的第二轮错误完成，证明身份唯一门真实承重。 |
+| file CAS version 改为固定值 | SHA 字节契约 **1 failed / 9 skipped**；实际 version 与原始 pending JSON 的 SHA-256 不同。 |
+| tombstone 注入完整 pending payload | **1 failed / 9 skipped**；marker 现场泄漏 `TOP-SECRET-ARTIFACT`。 |
+| 删除 `snapshot.version !== expectedVersion` | **1 failed / 9 skipped**；fresh instance 以 stale version 错误消费 pending。 |
+
+### 3. store 与演示等价
+
+file confirmation adapter 保留原始 pending JSON 字节的 SHA-256 version、仅含 `requestId/version` 的 tombstone、`wx` first-wins 和 expected-version CAS。验收新增直接读取文件字节并独立计算 SHA-256 的守卫，避免只验证长度或实现自身返回值。内存 store 按 SPEC 使用进程内不透明 `memory-N` token，不把 file hash 契约错误扩张到 browser 内存实现。
+
+EventLog 与 RevisionEventStore 的既有持久/回放测试随 core 全套通过；根出口和 file 子路径实际动态导入通过。两条 scripted 全链未发生事件、confirmation、revision、artifact 或输出漂移：
+
+- `demo:s3`：redline **39,713 bytes**，risk-01–06 applied、risk-07 `locator_not_found`，事件骨架 golden PASS，预埋考点 **7/7**，1 条 confirmation、1 条 RevisionEvent，场景完成；
+- `demo:legal`：8 risks，**11/11** claims resolved、out-of-coverage 0，7 confirmed + 1 rejected，6 applied + 1 `locator_not_found`，骨架/考点/锚点复算/六段标记/修订命中全部 PASS。
+
+### 4. 最终门禁与验收补强
+
+- `pnpm install --frozen-lockfile`：14 workspace projects、1047 packages，lockfile 无改写。
+- browser/executor/citation/confirmation 定向：**4 files / 64 tests passed**。
+- `pnpm --filter @courtwork/core test`：**23 files / 254 tests passed**。
+- `pnpm --filter @courtwork/demo-runtime test`：**8 files / 29 tests passed**。
+- `pnpm -r build`：**13/14 workspace projects** 全绿；desktop **3520 modules transformed**，仅既有 Tauri static/dynamic import 与 chunk-size warning。
+- `pnpm lint`：exit 0，零 error。
+- `pnpm test`：**121 files / 1084 tests passed**。
+- 无 desktop 行为或视觉变化，按 SPEC 不要求 Playwright，未运行。
+
+验收补强 3 条守卫：缺 Web Crypto fail-closed、file CAS version 对原始 JSON 字节的 SHA-256、根/browser/file 三入口的实际导入与隔离。它们只增强可证伪性，不改产品代码、导出或契约。
+
+> **最终判定：WORK-BROWSER-1 放行 ✅。** 可合入实现 `f18ad31`、本验收测试补强与报告。放行范围仅是现有同步 Work protocol 的 browser-safe 图和 Node file adapter 物理边界；不扩张为 WORK-STORE-1、Tauri durable host、跨存储事务、live Work command 或 HARNESS-KERNEL-1。
