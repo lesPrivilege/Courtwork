@@ -45,3 +45,14 @@
 ### 放行边界
 
 本轮只放行 PM catalog、presentation、bindings、统一准入与 JSON Schema wire 契约。`courtwork.artifact-table.v1` 的真实 host renderer、PM scenario/prompt、模型 draft/citation 链和 desktop zero-wire fallback 仍属于后续 `VIEW-ABI-1`/垂类场景工单；不得把 catalog 准入表述成这些下游能力已经交付。
+
+## VPKG-META-1 独立验收（2026-07-14）
+
+**结论：放行。** 实现 `07c317ee4e01aacc160ccecb6541741c41849669` 把 PM `package.json.version` 对齐既有 descriptor release `0.1.1`，并补齐与 Legal 同体例的 metadata 门；`packageId=pm`、`schemaVersion=1`、四个 `pm.*` artifact、payload、descriptor、`scenarios=[]` 与 `promptSegments=[]` 均未变化。
+
+- PM 定点：**6 files / 37 tests**；包内 lint、build、四份 JSON Schema 重生成通过且无 drift。
+- 版本漂移反例：把 package release 改为 `9.9.9` 后，metadata 定点 **1 failed / 1 passed**，明确期望 descriptor `0.1.1`。
+- 深层 remote-ref 反例：在 `ActionItems` 的 `$.properties.items.items.allOf[0].$ref` 注入远程 URL 后，drift 定点 **1 failed / 4 passed**，递归守卫精确拒绝；撤回后全绿。
+- 与 Legal 合计的工程证据、另两类反例与全仓 **122 files / 1083 tests** 结果，见 `packages/legal/ACCEPTANCE.md` 的同名验收记录。
+
+放行范围仅为 VPKG metadata 与 JSON Schema drift 门；PM 仍是 catalog-only，后续 rename/layout/export/runtime/scenario 不在本结论内。
