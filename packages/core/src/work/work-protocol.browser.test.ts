@@ -61,6 +61,22 @@ function listFiles(dir: string): string[] {
 }
 
 describe('@courtwork/core/work-protocol browser boundary', () => {
+  it('keeps root compatibility and the Node-only/browser-safe package surfaces physically split', async () => {
+    const root = await import('@courtwork/core');
+    const browserProtocol = await import('@courtwork/core/work-protocol');
+    const fileStores = await import('@courtwork/core/work-store-file');
+
+    for (const name of [
+      'createFileEventLog',
+      'createFileConfirmationStore',
+      'createFileRevisionEventStore',
+    ] as const) {
+      expect(root[name]).toBeTypeOf('function');
+      expect(fileStores[name]).toBe(root[name]);
+      expect(browserProtocol).not.toHaveProperty(name);
+    }
+  });
+
   it('publishes the dedicated browser-safe package subpath without file adapters', () => {
     const manifest = JSON.parse(readFileSync(join(CORE_DIR, 'package.json'), 'utf-8')) as {
       exports?: Record<string, { types?: string; default?: string }>;

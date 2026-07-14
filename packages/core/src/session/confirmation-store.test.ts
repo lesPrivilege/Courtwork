@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -66,6 +67,21 @@ describe('createInMemoryConfirmationStore', () => {
 });
 
 describe('createFileConfirmationStore (durable, simulates cross-process resume)', () => {
+  it('derives the persisted CAS version from the exact pending JSON bytes with SHA-256', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-confirmstore-'));
+    try {
+      const store = createFileConfirmationStore(dir);
+      store.save(samplePending('req-sha'));
+      const raw = readFileSync(join(dir, 'req-sha.json'), 'utf-8');
+      const expectedVersion = createHash('sha256').update(raw).digest('hex');
+
+      expect(store.peek('req-sha')?.version).toBe(expectedVersion);
+      expect(expectedVersion).toMatch(/^[0-9a-f]{64}$/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('a fresh instance pointed at the same directory can peek/consume what a prior instance saved', () => {
     const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-confirmstore-'));
     try {
