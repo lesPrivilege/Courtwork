@@ -13,9 +13,8 @@ import { S3_PRELOADED_ANCHOR_QUOTES } from './acceptance/run-s3-demo.js';
  * 在此逐一断言关死。
  */
 
-const SRC_ROOT = join(import.meta.dirname);
-/** 与 package-boundary.test.ts 同界：composition 与 acceptance 是声明的绑定/验收层。 */
-const BINDING_LAYERS = ['composition', 'acceptance'];
+const CORE_SRC_ROOT = join(import.meta.dirname, '..', '..', 'core', 'src');
+const DEMO_SRC_ROOT = import.meta.dirname;
 
 /** demo 素材指纹：夹具文件名 / 样板案主体 / 案号 / 装配点标识。机器层出现任意一枚即越界。 */
 const DEMO_FIXTURE_MARKERS = [
@@ -47,11 +46,6 @@ function collectSourceFiles(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-function isBindingLayer(file: string): boolean {
-  const rel = relative(SRC_ROOT, file);
-  return BINDING_LAYERS.some((layer) => rel.startsWith(`${layer}/`) || rel.startsWith(`${layer}\\`));
-}
-
 /** 可复用扫描器（供机器扫描与防空转自检共用同一实现，不留两套判定）。 */
 function scanForDemoLeakage(rel: string, content: string): string[] {
   const violations: string[] = [];
@@ -67,11 +61,11 @@ function scanForDemoLeakage(rel: string, content: string): string[] {
 }
 
 describe('assert-no-demo-in-harness（机器零 demo 渗透）', () => {
-  const machineFiles = collectSourceFiles(SRC_ROOT).filter((file) => !isBindingLayer(file));
+  const machineFiles = collectSourceFiles(CORE_SRC_ROOT);
 
   it('机器层零 demo 素材指纹、零 fixture 特调分支', () => {
     const violations = machineFiles.flatMap((file) =>
-      scanForDemoLeakage(relative(SRC_ROOT, file), readFileSync(file, 'utf-8')),
+      scanForDemoLeakage(relative(CORE_SRC_ROOT, file), readFileSync(file, 'utf-8')),
     );
     expect(violations).toEqual([]);
   });
@@ -83,7 +77,7 @@ describe('assert-no-demo-in-harness（机器零 demo 渗透）', () => {
       const content = readFileSync(file, 'utf-8');
       for (const quote of quotes) {
         if (content.includes(quote)) {
-          violations.push(`${relative(SRC_ROOT, file)} 内嵌考点引语 "${quote.slice(0, 12)}…"`);
+          violations.push(`${relative(CORE_SRC_ROOT, file)} 内嵌考点引语 "${quote.slice(0, 12)}…"`);
         }
       }
     }
@@ -101,9 +95,9 @@ describe('assert-no-demo-in-harness（机器零 demo 渗透）', () => {
   });
 
   it('成对与注入点自证：real 侧断言在岗，demo 内容确经装配点绑定', () => {
-    const realSource = readFileSync(join(SRC_ROOT, 'acceptance', 'run-s3-real.ts'), 'utf-8');
+    const realSource = readFileSync(join(DEMO_SRC_ROOT, 'acceptance', 'run-s3-real.ts'), 'utf-8');
     expect(realSource).toContain('export function assertNoDemoInReal');
-    const composition = readFileSync(join(SRC_ROOT, 'composition', 'demo-assembly.ts'), 'utf-8');
+    const composition = readFileSync(join(DEMO_SRC_ROOT, 'composition', 'demo-assembly.ts'), 'utf-8');
     expect(composition).toContain('createScriptedProvider');
     expect(composition).toContain('S3_PDF_DOSSIER_DRAFT');
     // 剧本与考点住 legal demo 包（不在 core）——从包导入即是位置证明。

@@ -118,21 +118,9 @@ importers:
 
   packages/core:
     dependencies:
-      '@courtwork/demo-data':
-        specifier: workspace:*
-        version: link:../demo-data
-      '@courtwork/legal':
-        specifier: workspace:*
-        version: link:../legal
-      '@courtwork/output':
-        specifier: workspace:*
-        version: link:../output
       '@courtwork/provider':
         specifier: workspace:*
         version: link:../provider
-      '@courtwork/reading-view':
-        specifier: workspace:*
-        version: link:../reading-view
       '@courtwork/registry':
         specifier: workspace:*
         version: link:../registry
@@ -155,6 +143,37 @@ importers:
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.61.1
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
+
+  packages/demo-runtime:
+    dependencies:
+      '@courtwork/core':
+        specifier: workspace:*
+        version: link:../core
+      '@courtwork/demo-data':
+        specifier: workspace:*
+        version: link:../demo-data
+      '@courtwork/legal':
+        specifier: workspace:*
+        version: link:../legal
+      '@courtwork/output':
+        specifier: workspace:*
+        version: link:../output
+      '@courtwork/provider':
+        specifier: workspace:*
+        version: link:../provider
+      '@courtwork/reading-view':
+        specifier: workspace:*
+        version: link:../reading-view
+      '@courtwork/registry':
+        specifier: workspace:*
+        version: link:../registry
+      '@courtwork/tools':
+        specifier: workspace:*
+        version: link:../tools
+    devDependencies:
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1

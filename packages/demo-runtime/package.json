@@ -1,0 +1,35 @@
+{
+  "name": "@courtwork/demo-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --root ../.. packages/demo-runtime",
+    "lint": "eslint .",
+    "demo:s3": "tsx scripts/demo-s3-flow.ts",
+    "demo:legal": "tsx scripts/legal-demo-run.ts",
+    "real:s3": "tsx scripts/real-s3-run.ts"
+  },
+  "dependencies": {
+    "@courtwork/core": "workspace:*",
+    "@courtwork/demo-data": "workspace:*",
+    "@courtwork/legal": "workspace:*",
+    "@courtwork/output": "workspace:*",
+    "@courtwork/provider": "workspace:*",
+    "@courtwork/reading-view": "workspace:*",
+    "@courtwork/registry": "workspace:*",
+    "@courtwork/tools": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
+  }
+}

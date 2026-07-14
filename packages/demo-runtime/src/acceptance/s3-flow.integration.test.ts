@@ -3,9 +3,8 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { RiskList } from '@courtwork/legal';
+import { createFileEventLog, createFileRevisionEventStore } from '@courtwork/core';
 import { runS3Demo } from './run-s3-demo.js';
-import { createFileRevisionEventStore } from '../revision/revision-store.js';
-import { createFileEventLog } from '../events/event-log.js';
 import { loadDemoS3Materials } from '../composition/demo-assembly.js';
 
 describe('S3 end-to-end acceptance flow', () => {

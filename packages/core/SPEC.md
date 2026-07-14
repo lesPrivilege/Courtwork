@@ -1,6 +1,6 @@
 # SPEC: packages/core（W6）
 
-状态：既有 TURN/INTERACTION 与 `CONFIRM-CAS-1` 已独立验收；现行工单 `CORE-BOUNDARY-1` 待实现，后续 `TURN-WORK-1` 受 ADR-009 约束
+状态：既有 TURN/INTERACTION 与 `CONFIRM-CAS-1` 已独立验收；现行工单 `CORE-BOUNDARY-1` 已实现、待独立验收，后续 `TURN-WORK-1` 受 ADR-009 约束
 
 ## 现行架构工单（2026-07-14）
 
@@ -11,6 +11,15 @@
 `@courtwork/core` 删除 legal/demo-data/output/reading-view package dependencies 与 demo/acceptance 根导出；根 barrel 不再重导出 provider scripted/quirks/errors/pricing/openai，只保留 core 自身契约和外部实际消费的最小 provider type。ADR-007 三个 `provider-*` compatibility 子路径本单保留并锁弃用边界。原 demo CLI、fixture 字节、场景、事件、引用、确认、输出与 golden 语义必须等价；不得借搬包重写实现或新增 runtime 依赖。
 
 验收至少实际证明：core 的 package.json/src/root exports 对四个垂类/demo 包零依赖；删除 `packages/demo-runtime` 后 core 定向 build/test 仍通过；demo-runtime 全链与旧 golden 等价；依赖图无环；根 barrel 无 provider 实现转售；全仓门禁全绿。
+
+实现留痕（2026-07-14，待独立验收）：
+
+- 新建 `@courtwork/demo-runtime`，机械搬迁原 `core/src/composition`、`core/src/acceptance`、三个 demo/real CLI、六段组装 golden 与全链测试。仅将跨包相对 import 改为 `@courtwork/core` 公开契约，未改 fixture、场景、事件、引用、确认、修订或 output 语义。
+- core 生产依赖已删除 legal/demo-data/output/reading-view，根 barrel 删除 demo/acceptance 与 provider scripted/quirks/errors/pricing/openai 转售；只保留 desktop 真实消费的 `GenerationNotice` type export。
+- ADR-007 三个 `provider-*` compatibility 子路径保留，`package.json#courtwork.deprecatedExports` 显式登记替代路径，边界测试锁定源文件仍为一行一跳重导出；根 barrel 不可藉此重新泄漏 provider 实现。
+- `package-boundary.test.ts` 取消 core 内 binding-layer 例外，同时扫 package dependency、生产 import、根 barrel 和旧目录；`demo-runtime` 侧锁定反向依赖为零、内部 Courtwork 包图无环且防 demo 污染守卫仍在岗。
+- TDD 红测实际报出 10 处绑定 import、4 项 package dependency、旧 composition/acceptance 目录、根 barrel provider 转售与 compat 缺弃用标记。搬迁前旧全链 19/19，搬迁后 demo-runtime 26/26；旧 `s3-assembly.golden.txt` SHA-256 仍为 `0047e71264f6ddb6aa25cf5ceb10aca7b4a0bd7aee913b9630bb8cafb79bcd07`。
+- 实际把 `packages/demo-runtime` 整目录临时移出 workspace 并清空 core `dist` 后，core build + 22 文件 232/232 仍绿；恢复后 `pnpm -r build`、`pnpm lint`、全仓 116 文件 1000/1000 通过。
 
 ### CONFIRM-CAS-1 · Work confirmation 原子消费
 
@@ -77,11 +86,11 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 - Provider 封装：模型 id/参数来自配置，禁止写死；接 eval/ 的选型结论；不含工具调用能力（场景是声明式固定编排，工具调用由执行器编排，不是模型自主选择）。
 - RevisionEvent 捕获：客户端对 artifact 的每次修正经 core 落盘（追加写 JSONL）。
 - 信源等级传播与门禁：证据台账 + 通用门禁函数，等级判定在装配点声明，通用机制不认识任何具体工具/场景。
-- 装配点：`src/composition/demo-assembly.ts` 是全仓库唯一 import `@courtwork/demo-data` 的运行时文件。
+- 装配点：跨 legal/demo-data/output/reading-view 的开发与验收绑定只住 `packages/demo-runtime`；core 不再设装配例外。
 
 ## 验收
 
-无 UI 跑通 S3 全流程：输入合同 → RiskList artifact（依据含信源等级）→ 用户确认（脚本模拟，含一条真实字段修正）→ 修订指令集 → 调 output 产出 docx。全程事件流可回放。CLI 入口：`pnpm --filter @courtwork/core demo:s3`；自动化断言：`src/acceptance/s3-flow.integration.test.ts`。
+无 UI 跑通 S3 全流程：输入合同 → RiskList artifact（依据含信源等级）→ 用户确认（脚本模拟，含一条真实字段修正）→ 修订指令集 → 调 output 产出 docx。全程事件流可回放。自 2026-07-14 起 CLI 入口为 `pnpm --filter @courtwork/demo-runtime demo:s3`，自动化断言住 `packages/demo-runtime/src/acceptance/s3-flow.integration.test.ts`。下文历史记录中的原 `src/composition` / `src/acceptance` 路径从本日起对应 `packages/demo-runtime/src/`。
 
 ## HARNESS-0 快批实现记录（2026-07-12）
 

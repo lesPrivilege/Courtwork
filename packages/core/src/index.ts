@@ -1,9 +1,4 @@
-export * from '@courtwork/provider/types';
-export * from '@courtwork/provider/scripted';
-export * from '@courtwork/provider/quirks';
-export * from '@courtwork/provider/errors';
-export * from '@courtwork/provider/pricing';
-export * from '@courtwork/provider/openai';
+export type { GenerationNotice } from '@courtwork/provider/types';
 export * from './evidence/grade.js';
 export * from './events/types.js';
 export * from './events/event-log.js';
@@ -20,7 +15,5 @@ export * from './scenario-executor/runtime-limits.js';
 export * from './scenario-executor/executor.js';
 export * from './assembly/segments.js';
 export * from './assembly/assemble.js';
-export * from './composition/demo-assembly.js';
-export * from './acceptance/run-s3-demo.js';
 export * from './revision/json-pointer.js';
 export * from './revision/revision-store.js';
