@@ -10,7 +10,11 @@ import type { InteractionTemplateRegistry, InteractionTemplateSnapshot } from '@
 import type { QuoteClaim } from '@courtwork/schemas';
 
 import type { MaterialTextLayer } from '../citation/resolver.js';
-import { requestInteraction } from './interaction-coordinator.js';
+import {
+  InteractionAnchorResolutionError,
+  UnknownInteractionTemplateError,
+  requestInteraction,
+} from './interaction-coordinator.js';
 import { createTurnHarnessRuntime } from './turn-harness-runtime.js';
 import { createTurnRunner } from './turn-runner.js';
 import {
@@ -198,6 +202,42 @@ describe('createTurnHarnessRuntime', () => {
     expect(() => directStore.resolveInteraction(answer)).toThrow(UnknownInteractionRequestError);
     expect(() => runtime.interactions.resolve(answer)).toThrow(UnknownInteractionRequestError);
     expect(runtime.interactions.replay('turn-interaction')).toEqual(directStore.replayTurn('turn-interaction'));
+  });
+
+  it('cannot bypass the injected template registry or the system anchor resolver', () => {
+    const missingTemplateStore = createMemoryTurnStore(() => NOW);
+    const missingTemplateRuntime = createTurnHarnessRuntime({
+      provider: providerFrom([]),
+      store: missingTemplateStore,
+      templateRegistry: { get: () => undefined },
+      now: () => NOW,
+    });
+
+    expect(() => missingTemplateRuntime.interactions.request(
+      interactionInput(),
+      { materials: MATERIALS },
+    )).toThrow(UnknownInteractionTemplateError);
+    expect(missingTemplateRuntime.interactions.replay('turn-interaction')).toMatchObject({
+      state: 'idle',
+      events: [],
+    });
+
+    const unresolvedAnchorStore = createMemoryTurnStore(() => NOW);
+    const unresolvedAnchorRuntime = createTurnHarnessRuntime({
+      provider: providerFrom([]),
+      store: unresolvedAnchorStore,
+      templateRegistry: registry(),
+      now: () => NOW,
+    });
+
+    expect(() => unresolvedAnchorRuntime.interactions.request(
+      interactionInput(),
+      { materials: [] },
+    )).toThrow(InteractionAnchorResolutionError);
+    expect(unresolvedAnchorRuntime.interactions.replay('turn-interaction')).toMatchObject({
+      state: 'idle',
+      events: [],
+    });
   });
 
   it('does not let request extras inject context or journal events', () => {

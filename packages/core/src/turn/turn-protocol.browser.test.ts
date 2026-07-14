@@ -63,8 +63,25 @@ describe('@courtwork/core/turn-protocol browser-safe boundary', () => {
     expect(relativeGraph).toContain('turn-harness-runtime.ts');
     expect(relativeGraph).not.toContain('turn-store-file.ts');
     for (const filePath of graph) {
-      expect(readFileSync(filePath, 'utf8'), filePath).not.toMatch(/(?:from\s+|import\s*)['"]node:/);
+      const source = readFileSync(filePath, 'utf8');
+      expect(source, filePath).not.toMatch(/(?:from\s+|import\s*)['"]node:/);
+      expect(source, `${filePath} must not add weak identity randomness`).not.toMatch(/\bMath\.random\s*\(/);
     }
+  });
+
+  it('does not wire the full facade into Chat, Work UI, or ScenarioExecutorDeps', () => {
+    const facadePattern = /\b(?:createTurnHarnessRuntime|TurnHarnessRuntime|InteractionRuntimePort)\b/;
+    const desktopSourceRoot = join(REPO_ROOT, 'apps/desktop/src');
+    const desktopViolations = listFiles(desktopSourceRoot)
+      .filter((file) => /\.(?:ts|tsx)$/.test(file) && !file.endsWith('.test.ts') && !file.endsWith('.test.tsx'))
+      .filter((file) => facadePattern.test(readFileSync(file, 'utf8')))
+      .map((file) => file.replace(`${REPO_ROOT}/`, ''));
+    expect(desktopViolations).toEqual([]);
+
+    const executorPath = join(REPO_ROOT, 'packages/core/src/scenario-executor/executor.ts');
+    const executorSource = readFileSync(executorPath, 'utf8');
+    expect(executorSource).not.toMatch(facadePattern);
+    expect(executorSource).toContain('turnRunner: TurnRunnerPort;');
   });
 
   it('lets a browser adapter inject storage while retaining the shared validation algorithm', () => {
