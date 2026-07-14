@@ -54,7 +54,7 @@
 3. **系统坐标边界：通过。** 模板内 `anchorRefs`、bbox、textRange（含 option 嵌套）均被 strict schema 拒绝；legal 声明未携带这些运行时事实。
 4. **查询与不可变快照：通过。** registry 按 `packageId + templateId` 双键解析；装配时复制顶层、options 数组及 option 对象并逐层冻结。修改源 manifest 或尝试改写查询结果均不能污染已装配快照。
 5. **垂类声明：通过。** legal 提供无锚 `single_choice` 与 required 锚点 `confirmation` 两枚最小真实语义模板，覆盖 `none` / `required`；未读取 demo-data，未写入样板案真值，UI 样式与运行时坐标没有进入垂类包。
-6. **范围纪律：通过。** 实现差异只触及 `packages/registry` 与 `packages/legal`；`packages/core`、`apps/desktop`、`packages/pm-schemas`、ADR 均为零差异，未提前实现暂停续行或 renderer。
+6. **范围纪律：通过。** 实现差异只触及 `packages/registry` 与 `packages/legal`；`packages/core`、`apps/desktop`、PM 垂类包、ADR 均为零差异，未提前实现暂停续行或 renderer。
 
 ## 反例注入与修复
 
@@ -93,7 +93,7 @@
 4. **compatibility 唯一性：通过。** 全仓生产搜索只有 `package-registries.ts` 的 `bindArtifactDescriptorCompatibility` 一处把 bindings 接回既有 `descriptor.schema/draftSchema`；data plane 往返字段不漂移。core 的三处 schema 消费继续走既有 registry entry，未出现第二准入真源。
 5. **JSON Schema 出口：通过。** `toDraft202012JsonSchema` 显式固定 `target: 'draft-2020-12'` 与 `unrepresentable: 'throw'`，`z.date()` 反例会抛错；逻辑 id 与 schemaVersion 生成固定 `urn:courtwork:schema:<logicalSchemaId>:v<schemaVersion>`。本地 fragment 可用，远程/相对 `$ref`、`$dynamicRef`、`$recursiveRef` 均 fail closed。
 6. **Legal 契约面：通过。** 提交态恰有 8 份 schema，全部为 Draft 2020-12 且 `$id` 与 descriptor 引用一致；drift 测试逐份对比生成结果。FileOpsPlan 与 RevisionInstructionSet 去除 `$schema/$id` 后与中央 wire schema 结构一致，法律字段语义未改。
-7. **范围与下游兼容：通过。** 实现差异未触及 `packages/pm-schemas`、`apps/desktop`、`packages/provider`、`packages/core` 或依赖锁；没有新增 Ajv 产品依赖、动态插件、反向 schema 转换或第二 runtime。PM 仍按 ADR-009 留给 ABI-2B。
+7. **范围与下游兼容：通过。** 实现差异未触及 PM 垂类包、`apps/desktop`、`packages/provider`、`packages/core` 或依赖锁；没有新增 Ajv 产品依赖、动态插件、反向 schema 转换或第二 runtime。PM 仍按 ADR-009 留给 ABI-2B。
 
 ## 反例注入与验收修复
 
@@ -120,4 +120,4 @@
 
 结论：**放行。** 独立验收以真实 `LEGAL_PACKAGE + PM_PACKAGE` 同次准入得到 `[legal, pm]`、零拒载、零 warning，四个 PM artifact 全部进入统一 `artifactSchemas` registry；注入坏 PM 后只有 `pm` 被拒，Legal 不受污染。registry 的 RFC 6901/valueLabels 门和 anchor model-output draft/citation 门均经强制变异实际观察红灯，恢复后 registry **4 files / 62 tests**、PM/registry/legal/schemas 合跑 **28 files / 255 tests**。
 
-完整 PM catalog、JSON Schema、旧真源清零、变异与全仓门禁证据见 [`packages/pm-schemas/ACCEPTANCE.md`](../pm-schemas/ACCEPTANCE.md)。本节不重复建立第二份验收真源。
+完整 PM catalog、JSON Schema、旧真源清零、变异与全仓门禁证据见 [`packages/pm/ACCEPTANCE.md`](../pm/ACCEPTANCE.md)。本节不重复建立第二份验收真源。

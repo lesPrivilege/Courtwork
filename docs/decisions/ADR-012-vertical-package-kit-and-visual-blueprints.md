@@ -7,7 +7,7 @@
 
 ## 背景
 
-Legal 与 PM 已进入同一 descriptor/bindings ABI，但工程体例仍漂移：PM 的目录和 npm 名仍是 `pm-schemas`，package 与 descriptor 版本不一致；Legal 根出口转售 demo fixture；两包目录、脚本、JSON Schema drift 门和宿主 renderer 命名处于不同代际。
+Legal 与 PM 已进入同一 descriptor/bindings ABI，但工程体例曾漂移：PM 迁移前的目录和 npm 名为 `pm-schemas`，package 与 descriptor 版本也曾不一致；Legal 根出口转售 demo fixture，两包目录与宿主 renderer 命名仍处于不同代际。
 
 与此同时，新增垂类需要以有限原生组件复用表格、矩阵、时序、关系、证据、指标和确认交互，而不是每个场景新增卡片或让模型输出样式。企业 SDK 与私域接口也必须留在垂类编排层，不能污染 core。
 

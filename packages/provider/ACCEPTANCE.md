@@ -18,7 +18,7 @@ PROVIDER-1 的六项验收面均通过：包边界与 core 兼容层、既有 Op
 
 - 从实现 tip `7450819` 建立独立 worktree/验收分支，再前向合并 `main@dd4f19a`。
 - 仅 `apps/desktop/SPEC.md` 与 `packages/core/SPEC.md` 出现文档冲突；机械保留双方有效记录后生成 merge commit `f3aaea3`。没有产品代码冲突。
-- `7450819` 未修改 `apps/desktop/src-tauri/`、`packages/schemas/`、`packages/legal/`、`packages/pm-schemas/`、`packages/registry/src/` 或 ADR；因此 Rust、turn/interaction、schema 与 vertical 契约均无 scope creep。
+- `7450819` 未修改 `apps/desktop/src-tauri/`、`packages/schemas/`、`packages/legal/`、PM 垂类包、`packages/registry/src/` 或 ADR；因此 Rust、turn/interaction、schema 与 vertical 契约均无 scope creep。
 - git rename 检测确认原 provider 实现与测试均保留源流：除 `types.ts` 因注释归宿更新为 97% 相似外，HTTP、OpenAI adapter、SSE、structured output、pricing、quirks、smoke、scripted provider 与错误类型均为 100% rename。
 
 ## 逐项验收
@@ -159,7 +159,7 @@ Rust restart/model-binding 测试、desktop readiness 单测，以及 Playwright
 
 ### 7. 范围与依赖纪律
 
-**通过。** 实现提交没有改动 `packages/schemas`、`packages/legal`、`packages/pm-schemas`、`packages/registry` 或 ADR，也没有新增 Turn/Interaction 协议。core 的四处变化仅给 acceptance/test provider fake 补 `stream()`，生产执行器继续只消费 Provider port；DeepSeek quirk 仍只住 `packages/provider`。
+**通过。** 实现提交没有改动 `packages/schemas`、`packages/legal`、PM 垂类包、`packages/registry` 或 ADR，也没有新增 Turn/Interaction 协议。core 的四处变化仅给 acceptance/test provider fake 补 `stream()`，生产执行器继续只消费 Provider port；DeepSeek quirk 仍只住 `packages/provider`。
 
 ## 验收修复提交
 

@@ -239,7 +239,7 @@ risk-07 的既有边界未被门禁误改：其编译结果仍不签发 `evidenc
 | `pnpm -r build` | ✅ exit 0；10/11 workspace project 实际构建，desktop Vite 3452 modules；仅 chunk size warning |
 | `pnpm test -- packages/` | ✅ exit 0；83 files，753 tests |
 | `pnpm exec vitest run packages eval/src` | ✅ exit 0；97 files，817 tests |
-| FABLE-HARNESS 声称的 package 839 | 🔴 clean main 仅 817（全 packages 口径为 753），少 22；主树未跟踪 `packages/pm-schemas` 含 3 个测试文件/约 22 tests，但不在本 detached main tip，不能借用其结果 |
+| FABLE-HARNESS 声称的 package 839 | 🔴 clean main 仅 817（全 packages 口径为 753），少 22；主树当时未跟踪迁移前旧路径 `packages/pm-schemas`（现为 `packages/pm`）含 3 个测试文件/约 22 tests，但不在本 detached main tip，不能借用其结果 |
 | desktop Vitest | ✅ exit 0；21 files，99 tests |
 | Playwright list | ✅ exit 0；190 tests / 32 files |
 | Playwright full run #1 | ✅ exit 0；16 gate scripts 全通过，190 passed |
@@ -273,7 +273,7 @@ risk-07 的既有边界未被门禁误改：其编译结果仍不签发 `evidenc
 ### 5. 上半结论
 
 - A 线放行：**❌ 不放行**。直接阻断为 `LUNA-CONTRACT-001 🔴`（clean main 817 ≠ 要求 839）；真 key 七通道与 `statuteRef/MCP` 仍需分别补证/拍板。
-- 树面自足可 push：**❌ 不可判定为可 push**。detached 树本身干净且可 build，但不能自足重现 839；共享主树的 `packages/pm-schemas` WIP 不在验收树内，本轮没有推送。
+- 树面自足可 push：**❌ 不可判定为可 push**。detached 树本身干净且可 build，但不能自足重现 839；共享主树当时位于迁移前旧路径 `packages/pm-schemas`（现为 `packages/pm`）的 WIP 不在验收树内，本轮没有推送。
 - 本报告仅追加；修复权留给裁决之后。
 
 ### 6. 架构裁决追加（2026-07-13）
