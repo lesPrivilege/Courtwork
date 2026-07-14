@@ -80,6 +80,9 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
         const requestId = options.requestId ?? `provider-${Date.now()}`;
         let seq = 0;
         yield { type: 'started', requestId, seq: seq++, providerId: profile.providerId, modelId: config.modelId };
+        for (const notice of result.notices ?? []) {
+          yield { type: 'notice', requestId, seq: seq++, notice };
+        }
         if (result.reasoningContent) yield { type: 'reasoning_delta', requestId, seq: seq++, delta: result.reasoningContent };
         if (result.content) yield { type: 'content_delta', requestId, seq: seq++, delta: result.content };
         if (result.usage) yield { type: 'usage', requestId, seq: seq++, ...result.usage };
@@ -105,22 +108,20 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
       let content = '';
       let reasoningContent = '';
       let usage: GenerationResponse['usage'];
+      const notices: NonNullable<GenerationResponse['notices']> = [];
       for await (const event of provider.stream(request)) {
         if (event.type === 'content_delta') content += event.delta;
         else if (event.type === 'reasoning_delta') reasoningContent += event.delta;
         else if (event.type === 'usage') usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+        else if (event.type === 'notice') notices.push(event.notice);
         else if (event.type === 'failed') throw new Error(event.message);
       }
-      const notices = request.responseSchema && config.reasoningLevel === 'deep'
-        && profile.parameterCompatibility.structuredOutputWithDeepReasoning === 'downgrade_to_standard'
-        ? [{
-            code: 'reasoning_downgraded_for_structured_output' as const,
-            message: `${profile.providerId} 的结构化输出与深思互斥，本次已自动使用标准模式。`,
-            requested: 'deep' as const,
-            applied: 'standard' as const,
-          }]
-        : undefined;
-      return { content, reasoningContent: reasoningContent || undefined, usage, notices };
+      return {
+        content,
+        reasoningContent: reasoningContent || undefined,
+        usage,
+        ...(notices.length > 0 ? { notices } : {}),
+      };
     },
   };
   return provider;

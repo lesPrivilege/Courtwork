@@ -530,3 +530,72 @@ CORE-BOUNDARY-1 合流主树后，真实 `packages/.DS_Store` 暴露 `packages/d
 - fixture 均在 `finally` 精确清理；`git diff --check` 通过，无 `.DS_Store`、临时文件或目录进入提交。
 
 该修复只加固测试侧 workspace 枚举，不改 package ABI、依赖图语义、生产导出或任何产品代码。CORE-BOUNDARY-1 放行结论保持有效。
+
+---
+
+## TURN-WORK-1 独立验收（2026-07-14）
+
+- **验收角色**：未参与 TURN-WORK-1 实现的独立验收会话；未修改 ADR、schema 或跨层契约。
+- **对象**：实现 `35d38b026e0fbacc97c46ad6bb076a085c3ac418`，指定基线 `00c77e2`。
+- **验收树**：独立 clean worktree `/Users/lesprivilege/Projects/Courtwork-worktrees/accept-turn-work-1`，分支 `codex/accept-turn-work-1`。
+- **结论**：**✅ 放行。** Work 的模型步骤已只经 `TurnRunnerPort` 进入 Turn Engine；provider notice、成功/失败/取消终态、Work link 与失败账本均保持单一真源。无契约级问题、无 `[需架构拍板]` 项、无生产实现缺陷。
+
+### 1. 差异与边界审核
+
+`00c77e2..35d38b0` 共 27 个文件、836 insertions / 144 deletions。改动集中于 provider notice、Turn 终态持久化、SessionEvent/replay、Scenario executor 与 demo-runtime 装配；desktop 两个文件只把已经验真的 notice 机械投影到 `TurnProjection`，未新增请求路径、视觉或协议判断。未修改 Rust、credential、provider catalog、场景/schema/citation/confirmation 契约或产品 provider 范围。
+
+生产源码扫描结果：
+
+- `packages/core/src/scenario-executor` 与 `packages/demo-runtime/src` 中 `.generate(` 为 **0**；
+- 非测试运行时代码的 `createTurnRunner(provider, turnStore)` 绑定只在 `packages/demo-runtime/src/composition/demo-assembly.ts`，core 只提供 adapter 定义；
+- `ScenarioExecutorDeps` 已无 `provider`，S3 scripted/real 与 legal demo 全部注入 `turnRunner`；
+- core 对 legal/demo-data/output/reading-view/demo-runtime 的生产依赖保持为 0；没有第二 Work journal 或自主 tool loop。
+
+### 2. notice 闭集与单一消费
+
+合法 downgrade notice 实测沿同一对象通过 `Provider.stream → provider_notice/PersistedTurn → artifact_produced.providerNotices`，stream 调用 **1** 次、`Provider.generate` 调用 **0**。completed 与 failed 的 TurnStore 快照均保留 notice；desktop projection 在瞬态与 terminal 快照间不丢失。
+
+验收把既有非法 notice 夹具补成“非法事件后仍有完整 started/content/completed 后缀”，消除“因缺 terminal 偶然得到 invalid_response”的假阳性；随后逐项变异：
+
+| 变异 | 实测红灯 |
+|---|---|
+| 删除 notice shape 与同 code 去重 | **3 failed**：duplicate / unknown code / extra field；其余协议反例仍按各自守卫失败 |
+| 允许 notice 在 started 前 | **1 failed**：原应 failed，实际 completed |
+| 允许 terminal 后继续消费 notice | **1 failed**：原应 failed，实际 completed |
+| OpenAI `generate()` 预消费第二条 stream | **1 failed**：stream consumption 2 ≠ 1 |
+| ScriptedProvider `generate()` 预消费第二条 stream | **1 failed**：脚本被第二次消费并耗尽 |
+
+全部变异均用精确 patch 撤除；生产源码无反例残留。OpenAI 与 Scripted 的测试现在同时锁定“同一公开 stream 聚合”和“一次 stream consumption”，不再只数底层 transport。
+
+### 3. Work → Turn 生命周期与失败语义
+
+验收新增真实 Turn Engine 链路反例而非只信 fake terminal：
+
+- rate-limit provider 先持久化 failed Turn，再由 Work 写 `step_failed(scope:model)`；stream 仅 1 次，零 artifact、零 `scenario_completed`、零自动 retry；
+- 预先 abort 持久化 `canceled`，SessionEvent 同步记 model failure，signal 未进入 Turn/Session 持久载荷；
+- completed Turn 的 assistant content 若随后被 Work schema 拒绝，异常仍为 `GenerationValidationError`；TurnStore 保持 completed，Session 只保留 `turn_linked`，不伪造 provider failure；
+- citation repair 产生 attempt 1/2，turnId 与 providerRequestId 各自不同；复用身份在第二次调用前拒绝；
+- replay 按事件顺序重建 linked turns，并同时兼容旧 tool 与新 model 两类 `step_failed`。
+
+对应强制变异均真实咬住：link 移到 runner 调用后为 **1 failed**；`createTurnRunner` 绕过 Turn Engine 后 S3 全链 **1 failed**（`WorkTurnFailedError`）；citation 第二轮改回 attempt 1 为 **1 failed**；失败后注入第二次 runner 调用为 **1 failed**（calls 2 ≠ 1）；model failure 改写成 progress 为 **1 failed**；replay 改为逆序插入为 **1 failed**。恢复后 core **22 files / 248 tests** 全绿。
+
+### 4. demo、golden 与产品回归
+
+- `demo:s3`：redline **39,713 bytes**；risk-01–06 applied、risk-07 `locator_not_found`；事件骨架只增加前置 `turn_linked`，预埋考点 **7/7**，golden PASS。
+- `demo:legal` scripted：**8 风险**、**11/11 锚点**、out-of-coverage 0、**7 confirm + 1 reject**；6 条 applied、1 条 `locator_not_found`；六段 wire marker、事件骨架、锚点复算与修订命中全部 PASS。provider stream witness 只观察到 **1** 次调用。
+- `packages/demo-runtime`：**8 files / 29 tests**；`packages/provider`：**12 files / 88 tests**。
+
+实现触及 desktop projection，因此即使没有视觉改动，仍以隔离端口 `COURTWORK_E2E_PORT=1649` 自起服务运行完整静态门与 Playwright：测试计数门为 208，最终 **208/208 passed**，未复用共享 `:1420` 服务。
+
+### 5. 干净环境、最终门禁与验收修复
+
+- `pnpm install --frozen-lockfile`：**14 workspace projects / 1047 packages**，lockfile 无改写。
+- 干净安装后、依赖包尚无 `dist` 时直接跑 core 定向会有 13 个 suite 无法解析 workspace exports；按仓库真实构建顺序先执行 `pnpm -r build` 后，provider/core/demo 分别为 **88 / 245 / 29** 全绿。该现象是 exports 指向 build 产物的既有顺序要求，不是本实现失败。
+- 验收补强后最终 `pnpm -r build`：**13/14 workspace projects** 全绿，desktop **3507 modules transformed**；只有既有 dynamic-import/chunk-size warning。
+- `pnpm lint`：exit 0，零 error。
+- `pnpm test`：**120 files / 1062 tests passed**。
+- `git diff --check`：通过；所有 mutation、临时服务与反例均已撤除。
+
+验收发现的是测试可证伪性缺口，不是生产缺陷：非法 notice 夹具的失败原因不唯一；OpenAI/Scripted 只数 transport、未数公开 stream consumption。以独立提交 `1e9e54d`（`fix-by-acceptance(core): strengthen turn-work lifecycle guards`）补齐 4 个测试文件，共新增 3 条 Work 真链测试并加强 notice/单消费断言；未改生产代码或契约。
+
+> **最终判定：TURN-WORK-1 放行 ✅。** 可合入实现 `35d38b0`、验收测试补强 `1e9e54d` 与本报告。放行范围是 Work 模型步骤复用单一 Turn Engine 及其审计链接；不扩张为自动 retry、动态图、模型自主工具、跨存储事务或生产 WorkCommandPort。

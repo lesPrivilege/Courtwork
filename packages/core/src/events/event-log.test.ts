@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createEventLog, createFileEventLog, replaySession } from './event-log.js';
+import type { SessionEvent } from './types.js';
 
 describe('createEventLog (in-memory)', () => {
   it('assigns a monotonic seq starting at 0 and stamps sessionId/emittedAt', () => {
@@ -91,5 +92,25 @@ describe('replaySession', () => {
   it('completed is false when no scenario_completed event is present', () => {
     const summary = replaySession([{ type: 'progress', message: 'x', sessionId: 's', seq: 0, emittedAt: 't0' }]);
     expect(summary.completed).toBe(false);
+  });
+
+  it('replays ordered linked turns and both legacy tool and model failures', () => {
+    const events: SessionEvent[] = [
+      { type: 'turn_linked', stepId: 'produce-risk', artifactType: 'legal.RiskList', attempt: 1, turnId: 'turn-1', providerRequestId: 'provider-1', sessionId: 's', seq: 0, emittedAt: 't0' },
+      { type: 'step_failed', scope: 'tool', toolId: 'party-verify', reason: 'timeout', message: '超时', sessionId: 's', seq: 1, emittedAt: 't1' },
+      { type: 'turn_linked', stepId: 'produce-risk', artifactType: 'legal.RiskList', attempt: 2, turnId: 'turn-2', providerRequestId: 'provider-2', sessionId: 's', seq: 2, emittedAt: 't2' },
+      { type: 'step_failed', scope: 'model', stepId: 'produce-risk', artifactType: 'legal.RiskList', attempt: 2, turnId: 'turn-2', providerRequestId: 'provider-2', reason: 'rate_limit', message: '稍后重试', retryable: true, sessionId: 's', seq: 3, emittedAt: 't3' },
+    ];
+
+    expect(replaySession(events)).toMatchObject({
+      linkedTurns: [
+        { stepId: 'produce-risk', artifactType: 'legal.RiskList', attempt: 1, turnId: 'turn-1', providerRequestId: 'provider-1' },
+        { stepId: 'produce-risk', artifactType: 'legal.RiskList', attempt: 2, turnId: 'turn-2', providerRequestId: 'provider-2' },
+      ],
+      failedSteps: [
+        { scope: 'tool', toolId: 'party-verify', reason: 'timeout', message: '超时' },
+        { scope: 'model', stepId: 'produce-risk', artifactType: 'legal.RiskList', attempt: 2, turnId: 'turn-2', providerRequestId: 'provider-2', reason: 'rate_limit', message: '稍后重试', retryable: true },
+      ],
+    });
   });
 });

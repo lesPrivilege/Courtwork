@@ -17,7 +17,9 @@ import {
 import { createInMemoryRevisionEventStore } from '../revision/revision-store.js';
 import { createToolRegistry } from '../tools/tool-registry.js';
 import { createScriptedProvider } from '@courtwork/provider/scripted';
-import type { GenerationResponse } from '@courtwork/provider/types';
+import type { GenerationRequest, GenerationResponse, Provider } from '@courtwork/provider/types';
+import { createMemoryTurnStore } from '../turn/turn-store.js';
+import { createTurnRunner, type TurnRunnerPort } from '../turn/turn-runner.js';
 import { RuntimeLimitExceededError } from './runtime-limits.js';
 import {
   GenerationValidationError,
@@ -106,13 +108,48 @@ function envelope(stepId: string, artifactType: string, artifact: unknown): stri
   return JSON.stringify({ target: { stepId, artifactType }, artifact });
 }
 
+function scriptedTurnRunner(
+  script: GenerationResponse[],
+  providerId = 'test-provider',
+  modelId = 'fake-v1',
+): TurnRunnerPort {
+  return createTurnRunner(createScriptedProvider(providerId, modelId, script), createMemoryTurnStore());
+}
+
+function responseTurnRunner(
+  generate: (request: GenerationRequest) => Promise<GenerationResponse> | GenerationResponse,
+  providerId = 'test-provider',
+  modelId = 'fake-v1',
+): TurnRunnerPort {
+  return {
+    async run(input) {
+      const response = await generate(input.request);
+      return {
+        status: 'completed',
+        turnId: input.turnId,
+        providerRequestId: input.providerRequestId,
+        providerId,
+        modelId,
+        assistantMessage: response.content,
+        reasoning: response.reasoningContent
+          ? { status: 'present', content: response.reasoningContent }
+          : { status: 'absent' },
+        ...(response.usage ? { usage: response.usage } : {}),
+        ...(response.notices ? { notices: response.notices } : {}),
+        finishReason: 'stop',
+        completedAt: '2026-07-14T00:00:00.000Z',
+      };
+    },
+  };
+}
+
 function buildDeps(providerScript: GenerationResponse[]): ScenarioExecutorDeps {
   const tools = createToolRegistry();
   tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
   return {
     tools,
     toolExecutor: createToolExecutor(),
-    provider: createScriptedProvider('test-provider', 'fake-v1', providerScript),
+    turnRunner: scriptedTurnRunner(providerScript),
     eventLog: createEventLog('session-1', () => '2026-07-10T00:00:00.000Z'),
     confirmationStore: createInMemoryConfirmationStore(),
     revisionStore: createInMemoryRevisionEventStore(),
@@ -135,9 +172,9 @@ describe('runScenario', () => {
     expect(deps.ledger.get('party-verify')).toEqual({ grade: 'A', sourceId: 'mock', confirmed: false });
 
     const events = deps.eventLog.list();
-    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'todo_snapshot', 'confirmation_requested']);
-    expect(events[0]).toMatchObject({ type: 'artifact_produced', artifactType: 'test.Risk', artifact: VALID_RISK_LIST });
-    expect(events[0]).toMatchObject({ evidenceGrades: [{ key: 'party-verify', grade: 'A', sourceId: 'mock', confirmed: false }] });
+    expect(events.map((e) => e.type)).toEqual(['turn_linked', 'artifact_produced', 'todo_snapshot', 'confirmation_requested']);
+    expect(events[1]).toMatchObject({ type: 'artifact_produced', artifactType: 'test.Risk', artifact: VALID_RISK_LIST });
+    expect(events[1]).toMatchObject({ evidenceGrades: [{ key: 'party-verify', grade: 'A', sourceId: 'mock', confirmed: false }] });
   });
 
   it('publishes provider compatibility notices with artifact_produced so a downgrade cannot stay silent', async () => {
@@ -155,7 +192,7 @@ describe('runScenario', () => {
       { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
       deps,
     );
-    expect(deps.eventLog.list()[0]).toMatchObject({
+    expect(deps.eventLog.list()[1]).toMatchObject({
       type: 'artifact_produced',
       providerNotices: [expect.objectContaining({ code: 'reasoning_downgraded_for_structured_output' })],
     });
@@ -423,6 +460,7 @@ describe('resumeScenario', () => {
 
     const events = deps.eventLog.list();
     expect(events.map((e) => e.type)).toEqual([
+      'turn_linked',
       'artifact_produced',
       'todo_snapshot',
       'confirmation_requested',
@@ -430,7 +468,7 @@ describe('resumeScenario', () => {
       'todo_snapshot',
       'scenario_completed',
     ]);
-    expect(events[3]).toMatchObject({
+    expect(events[4]).toMatchObject({
       type: 'confirmation_resolved',
       requestId: paused.requestId,
       actor: { channelId: 'cli', actorId: 'demo-lawyer', role: '主办律师' },
@@ -459,6 +497,7 @@ describe('resumeScenario', () => {
     // reject 分支不再跑 produceSequence，所以只有暂停那一刻的一份 todo_snapshot，
     // 没有"全部完成"那份——这是诚实的：reject 之后并没有真的把剩余步骤走完。
     expect(events.map((e) => e.type)).toEqual([
+      'turn_linked',
       'artifact_produced',
       'todo_snapshot',
       'confirmation_requested',
@@ -554,6 +593,7 @@ describe('resumeScenario', () => {
 
     const events = deps.eventLog.list();
     expect(events.map((e) => e.type)).toEqual([
+      'turn_linked',
       'artifact_produced',
       'todo_snapshot',
       'confirmation_requested',
@@ -563,12 +603,12 @@ describe('resumeScenario', () => {
       'todo_snapshot',
       'scenario_completed',
     ]);
-    expect(events[3]).toMatchObject({ instrumentation: { dwellMs: 4200, expandedEvidenceKeys: ['party-verify'] } });
-    expect(events[4]).toMatchObject({ type: 'revision_recorded', revisionEventId: recorded[0].id });
+    expect(events[4]).toMatchObject({ instrumentation: { dwellMs: 4200, expandedEvidenceKeys: ['party-verify'] } });
+    expect(events[5]).toMatchObject({ type: 'revision_recorded', revisionEventId: recorded[0].id });
     // 修正后的 artifact 重新发了一次 artifact_produced——事件流可回放才能真正
     // 重建出修正后的状态，而不是只重建出确认门禁触发时那一刻的原始产出。
-    expect(events[5]).toMatchObject({ type: 'artifact_produced', artifactType: 'test.Risk' });
-    expect((events[5] as { artifact: typeof VALID_RISK_LIST }).artifact.risks[0].dispositionStatus).toBe('confirmed');
+    expect(events[6]).toMatchObject({ type: 'artifact_produced', artifactType: 'test.Risk' });
+    expect((events[6] as { artifact: typeof VALID_RISK_LIST }).artifact.risks[0].dispositionStatus).toBe('confirmed');
   });
 
   it('re-emits artifact_produced for a revised artifact, so replaySession reflects the post-revision state, not the original', async () => {
@@ -668,12 +708,14 @@ describe('runScenario / resumeScenario — multi-artifact sequential gates (S1 s
     const firstPause = await runScenario(MULTI_GATE_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps);
     if (firstPause.status !== 'paused') throw new Error('expected pause at Timeline');
     expect(deps.eventLog.list().map((e) => e.type)).toEqual([
+      'turn_linked',
       'artifact_produced', // CaseFile, ungated
+      'turn_linked',
       'artifact_produced', // Timeline
       'todo_snapshot',
       'confirmation_requested',
     ]);
-    expect(deps.eventLog.list()[3]).toMatchObject({ gateLabel: '确认事件时间线', artifactType: 'test.Alpha' });
+    expect(deps.eventLog.list()[5]).toMatchObject({ gateLabel: '确认事件时间线', artifactType: 'test.Alpha' });
 
     const secondPause = await resumeScenario(
       firstPause.requestId,
@@ -722,8 +764,8 @@ describe('runScenario — label-only confirmation gate (no artifact anchor)', ()
     const result = await runScenario(LABEL_ONLY_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps);
     expect(result.status).toBe('paused');
     const events = deps.eventLog.list();
-    expect(events.map((e) => e.type)).toEqual(['artifact_produced', 'todo_snapshot', 'confirmation_requested']);
-    expect(events[2]).toMatchObject({ gateLabel: '整体确认（无产物锚点）', artifactType: undefined });
+    expect(events.map((e) => e.type)).toEqual(['turn_linked', 'artifact_produced', 'todo_snapshot', 'confirmation_requested']);
+    expect(events[3]).toMatchObject({ gateLabel: '整体确认（无产物锚点）', artifactType: undefined });
   });
 });
 
@@ -739,7 +781,7 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
       const firstDeps: ScenarioExecutorDeps = {
         tools,
         toolExecutor: createToolExecutor(),
-        provider: createScriptedProvider('p', 'v1', [{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]),
+        turnRunner: scriptedTurnRunner([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }], 'p', 'v1'),
         eventLog: createFileEventLog('session-x', eventsPath),
         confirmationStore: createFileConfirmationStore(pendingDir),
         revisionStore: createInMemoryRevisionEventStore(),
@@ -760,7 +802,7 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
       const secondDeps: ScenarioExecutorDeps = {
         tools: secondTools,
         toolExecutor: createToolExecutor(),
-        provider: createScriptedProvider('p-fresh', 'v1', []),
+        turnRunner: scriptedTurnRunner([], 'p-fresh', 'v1'),
         eventLog: createFileEventLog('session-x', eventsPath),
         confirmationStore: createFileConfirmationStore(pendingDir),
         revisionStore: createInMemoryRevisionEventStore(),
@@ -770,7 +812,7 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
       };
       expect(secondDeps.tools).not.toBe(firstDeps.tools);
       expect(secondDeps.toolExecutor).not.toBe(firstDeps.toolExecutor);
-      expect(secondDeps.provider).not.toBe(firstDeps.provider);
+      expect(secondDeps.turnRunner).not.toBe(firstDeps.turnRunner);
       expect(secondDeps.eventLog).not.toBe(firstDeps.eventLog);
       expect(secondDeps.confirmationStore).not.toBe(firstDeps.confirmationStore);
       expect(secondDeps.revisionStore).not.toBe(firstDeps.revisionStore);
@@ -787,7 +829,7 @@ describe('resumeScenario — genuinely fresh dependency instances (simulated cro
       expect(secondDeps.ledger.get('party-verify')).toEqual({ grade: 'A', sourceId: 'mock', confirmed: false });
       // 完整历史（含 firstDeps 阶段写入的事件，加两份 todo_snapshot：暂停时一份、
       // 完成时一份）在全新 eventLog 实例里依然可读：
-      expect(secondDeps.eventLog.list()).toHaveLength(6);
+      expect(secondDeps.eventLog.list()).toHaveLength(7);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -801,7 +843,7 @@ describe('docs/architecture/system.md 长任务协议 ①②: todo_snapshot + st
     const deps: ScenarioExecutorDeps = {
       tools,
       toolExecutor: createToolExecutor(),
-      provider: createScriptedProvider('p', 'v1', [{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]),
+      turnRunner: scriptedTurnRunner([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }], 'p', 'v1'),
       eventLog: createEventLog('session-1', () => '2026-07-10T00:00:00.000Z'),
       confirmationStore: createInMemoryConfirmationStore(),
       revisionStore: createInMemoryRevisionEventStore(),
@@ -891,15 +933,14 @@ describe('docs/architecture/system.md 长任务协议 ③: runtime protection li
   it('throws when one provider call itself crosses maxSeconds before returning', async () => {
     let nowMs = 0;
     const deps = buildDeps([]);
-    deps.provider = {
-      id: 'slow-provider',
-      modelId: 'configured-model',
-      async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
-      async generate() {
+    deps.turnRunner = responseTurnRunner(
+      async () => {
         nowMs = 6_000;
         return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
       },
-    };
+      'slow-provider',
+      'configured-model',
+    );
     deps.limits = { maxSeconds: 5 };
     deps.nowMs = () => nowMs;
 
@@ -933,21 +974,20 @@ describe('docs/architecture/system.md 长任务协议 ③: runtime protection li
 describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/architecture/system.md，套在声明式步骤上）', () => {
   it('appends the current todo snapshot to the end of the generation request content', async () => {
     const capturedRequests: { content: string }[] = [];
-    const capturingProvider = {
-      id: 'capture',
-      modelId: 'capture-v1',
-      async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
-      async generate(request: { messages: { content: string }[] }) {
+    const capturingTurnRunner = responseTurnRunner(
+      async (request) => {
         capturedRequests.push({ content: request.messages[request.messages.length - 1].content });
         return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
       },
-    };
+      'capture',
+      'capture-v1',
+    );
     const tools = createToolRegistry();
     tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
     const deps: ScenarioExecutorDeps = {
       tools,
       toolExecutor: createToolExecutor(),
-      provider: capturingProvider,
+      turnRunner: capturingTurnRunner,
       eventLog: createEventLog('session-1'),
       confirmationStore: createInMemoryConfirmationStore(),
       revisionStore: createInMemoryRevisionEventStore(),
@@ -971,24 +1011,23 @@ describe('Manus "todo 复述进上下文末尾" 抗注意力漂移技巧（docs/
   });
 });
 
-describe('T-provider: generateArtifact passes responseSchema through to provider.generate()', () => {
-  it('the request reaching provider.generate() carries responseSchema matching the injected artifact schema registry entry', async () => {
+describe('T-provider: generateArtifact passes responseSchema through to TurnRunnerPort', () => {
+  it('the request reaching TurnRunnerPort carries responseSchema matching the injected artifact schema registry entry', async () => {
     let capturedResponseSchema: unknown;
-    const capturingProvider = {
-      id: 'capture-schema',
-      modelId: 'v1',
-      async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
-      async generate(request: { responseSchema?: unknown }) {
+    const capturingTurnRunner = responseTurnRunner(
+      async (request) => {
         capturedResponseSchema = request.responseSchema;
         return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
       },
-    };
+      'capture-schema',
+      'v1',
+    );
     const tools = createToolRegistry();
     tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
     const deps: ScenarioExecutorDeps = {
       tools,
       toolExecutor: createToolExecutor(),
-      provider: capturingProvider,
+      turnRunner: capturingTurnRunner,
       eventLog: createEventLog('session-1'),
       confirmationStore: createInMemoryConfirmationStore(),
       revisionStore: createInMemoryRevisionEventStore(),
@@ -1014,20 +1053,19 @@ describe('T-provider: generateArtifact passes responseSchema through to provider
 
 describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via response.usage', () => {
   it('throws RuntimeLimitExceededError("maxUsd") when a priced provider/model returns usage that exceeds the configured budget', async () => {
-    const expensiveProvider = {
-      id: 'deepseek',
-      modelId: 'deepseek-v4-pro', // 价格表里有真实报价的组合（pricing-table.ts）
-      async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
-      async generate() {
+    const expensiveTurnRunner = responseTurnRunner(
+      async () => {
         return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST), usage: { inputTokens: 10_000_000, outputTokens: 10_000_000 } };
       },
-    };
+      'deepseek',
+      'deepseek-v4-pro', // 价格表里有真实报价的组合（pricing-table.ts）
+    );
     const tools = createToolRegistry();
     tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
     const deps: ScenarioExecutorDeps = {
       tools,
       toolExecutor: createToolExecutor(),
-      provider: expensiveProvider,
+      turnRunner: expensiveTurnRunner,
       eventLog: createEventLog('session-1'),
       confirmationStore: createInMemoryConfirmationStore(),
       revisionStore: createInMemoryRevisionEventStore(),
@@ -1061,5 +1099,240 @@ describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via respo
         deps,
       ),
     ).resolves.toMatchObject({ status: 'paused' });
+  });
+});
+
+describe('TURN-WORK-1: Work model steps use the TurnRunnerPort', () => {
+  it('rejects empty identities before linking or touching the TurnRunnerPort', async () => {
+    const base = buildDeps([]);
+    let calls = 0;
+    const deps = {
+      ...base,
+      createTurnIdentity: () => ({ turnId: ' ', providerRequestId: 'provider-request-1' }),
+      turnRunner: { async run() { calls += 1; throw new Error('must not run'); } },
+    } as unknown as ScenarioExecutorDeps;
+
+    await expect(runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    )).rejects.toMatchObject({ name: 'WorkTurnIdentityError' });
+
+    expect(calls).toBe(0);
+    expect(deps.eventLog.list()).toEqual([]);
+  });
+
+  it('links a fresh identity before the call and derives artifact, usage pricing, and notices only from the completed turn', async () => {
+    const base = buildDeps([]);
+    const calls: unknown[] = [];
+    const notice = {
+      code: 'reasoning_downgraded_for_structured_output' as const,
+      message: '结构化输出已使用标准模式',
+      requested: 'deep' as const,
+      applied: 'standard' as const,
+    };
+    const deps = {
+      ...base,
+      createTurnIdentity: () => ({ turnId: 'turn-1', providerRequestId: 'provider-request-1' }),
+      turnRunner: {
+        async run(input: unknown) {
+          calls.push(input);
+          expect(base.eventLog.list().at(-1)).toMatchObject({
+            type: 'turn_linked', stepId: 'produce-test.Risk', artifactType: 'test.Risk', attempt: 1,
+            turnId: 'turn-1', providerRequestId: 'provider-request-1',
+          });
+          return {
+            status: 'completed' as const,
+            turnId: 'turn-1', providerRequestId: 'provider-request-1',
+            providerId: 'deepseek', modelId: 'deepseek-v4-pro',
+            assistantMessage: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST),
+            reasoning: { status: 'absent' as const },
+            usage: { inputTokens: 1, outputTokens: 1 }, notices: [notice],
+            finishReason: 'stop' as const, completedAt: '2026-07-14T00:00:00.000Z',
+          };
+        },
+      },
+    } as unknown as ScenarioExecutorDeps;
+
+    await expect(runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    )).resolves.toMatchObject({ status: 'paused' });
+
+    expect(calls).toHaveLength(1);
+    expect(deps.eventLog.list().find((event) => event.type === 'artifact_produced')).toMatchObject({
+      providerNotices: [notice], artifact: VALID_RISK_LIST,
+    });
+  });
+
+  it('carries one notice through Provider.stream, persisted Turn, and Work artifact without generate bypass', async () => {
+    const base = buildDeps([]);
+    const store = createMemoryTurnStore();
+    const notice = {
+      code: 'reasoning_downgraded_for_structured_output' as const,
+      message: '结构化输出已使用标准模式',
+      requested: 'deep' as const,
+      applied: 'standard' as const,
+    };
+    let streamCalls = 0;
+    let generateCalls = 0;
+    const provider: Provider = {
+      id: 'deepseek',
+      modelId: 'deepseek-v4-pro',
+      async *stream(_request, options) {
+        streamCalls += 1;
+        const requestId = options?.requestId ?? 'unexpected-request';
+        yield { type: 'started', requestId, seq: 0, providerId: 'deepseek', modelId: 'deepseek-v4-pro' };
+        yield { type: 'notice', requestId, seq: 1, notice };
+        yield { type: 'content_delta', requestId, seq: 2, delta: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
+        yield { type: 'completed', requestId, seq: 3, finishReason: 'stop' };
+      },
+      async generate() {
+        generateCalls += 1;
+        throw new Error('Work must not call Provider.generate');
+      },
+    };
+    const deps: ScenarioExecutorDeps = {
+      ...base,
+      createTurnIdentity: () => ({ turnId: 'turn-notice-e2e', providerRequestId: 'provider-notice-e2e' }),
+      turnRunner: createTurnRunner(provider, store),
+    };
+
+    await expect(runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    )).resolves.toMatchObject({ status: 'paused' });
+
+    expect(streamCalls).toBe(1);
+    expect(generateCalls).toBe(0);
+    expect(store.get('turn-notice-e2e')).toMatchObject({ status: 'completed', notices: [notice] });
+    expect(deps.eventLog.list().find((event) => event.type === 'artifact_produced')).toMatchObject({
+      type: 'artifact_produced', providerNotices: [notice], artifact: VALID_RISK_LIST,
+    });
+  });
+
+  it('records a model step failure then throws without artifact, completion, or automatic retry', async () => {
+    const base = buildDeps([]);
+    let calls = 0;
+    const deps = {
+      ...base,
+      createTurnIdentity: () => ({ turnId: 'turn-failed', providerRequestId: 'provider-failed' }),
+      turnRunner: {
+        async run() {
+          calls += 1;
+          return {
+            status: 'failed' as const,
+            turnId: 'turn-failed', providerRequestId: 'provider-failed',
+            providerId: 'deepseek', modelId: 'deepseek-v4-pro',
+            reasoning: { status: 'absent' as const },
+            failure: { kind: 'rate_limit' as const, message: '稍后重试', retryable: true },
+            failedAt: '2026-07-14T00:00:00.000Z',
+          };
+        },
+      },
+    } as unknown as ScenarioExecutorDeps;
+
+    await expect(runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    )).rejects.toMatchObject({ name: 'WorkTurnFailedError', turn: { status: 'failed', failure: { kind: 'rate_limit' } } });
+
+    expect(calls).toBe(1);
+    expect(deps.eventLog.list().map((event) => event.type)).toEqual(['turn_linked', 'step_failed']);
+    expect(deps.eventLog.list()[1]).toMatchObject({
+      type: 'step_failed', scope: 'model', stepId: 'produce-test.Risk', artifactType: 'test.Risk', attempt: 1,
+      turnId: 'turn-failed', providerRequestId: 'provider-failed', reason: 'rate_limit', retryable: true,
+    });
+  });
+
+  it('persists a provider failure before Work records model step_failed, with zero artifact and zero retry', async () => {
+    const base = buildDeps([]);
+    const store = createMemoryTurnStore();
+    let streamCalls = 0;
+    const provider: Provider = {
+      id: 'deepseek',
+      modelId: 'deepseek-v4-pro',
+      async *stream(_request, options) {
+        streamCalls += 1;
+        const requestId = options?.requestId ?? 'unexpected-request';
+        yield { type: 'started', requestId, seq: 0, providerId: 'deepseek', modelId: 'deepseek-v4-pro' };
+        yield { type: 'failed', requestId, seq: 1, kind: 'rate_limit', message: '稍后重试', retryable: true };
+      },
+      async generate() {
+        throw new Error('Work must not call Provider.generate');
+      },
+    };
+    const deps: ScenarioExecutorDeps = {
+      ...base,
+      createTurnIdentity: () => ({ turnId: 'turn-rate-limit', providerRequestId: 'provider-rate-limit' }),
+      turnRunner: createTurnRunner(provider, store),
+    };
+
+    await expect(runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    )).rejects.toMatchObject({ name: 'WorkTurnFailedError', turn: { failure: { kind: 'rate_limit' } } });
+
+    expect(streamCalls).toBe(1);
+    expect(store.get('turn-rate-limit')).toMatchObject({ status: 'failed', failure: { kind: 'rate_limit' } });
+    expect(deps.eventLog.list().map((event) => event.type)).toEqual(['turn_linked', 'step_failed']);
+    expect(deps.eventLog.list().some((event) => event.type === 'artifact_produced' || event.type === 'scenario_completed')).toBe(false);
+  });
+
+  it('keeps a completed Turn immutable when Work schema validation rejects its assistant content', async () => {
+    const base = buildDeps([]);
+    const store = createMemoryTurnStore();
+    const deps: ScenarioExecutorDeps = {
+      ...base,
+      createTurnIdentity: () => ({ turnId: 'turn-schema-invalid', providerRequestId: 'provider-schema-invalid' }),
+      turnRunner: createTurnRunner(
+        createScriptedProvider('test-provider', 'fake-v1', [{ content: '{"notARiskList":true}' }]),
+        store,
+      ),
+    };
+
+    await expect(runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    )).rejects.toBeInstanceOf(GenerationValidationError);
+
+    expect(store.get('turn-schema-invalid')).toMatchObject({
+      status: 'completed', assistantMessage: '{"notARiskList":true}', finishReason: 'stop',
+    });
+    expect(deps.eventLog.list().map((event) => event.type)).toEqual(['turn_linked']);
+  });
+
+  it('passes cancellation transiently into the real Turn engine and links its persisted canceled terminal', async () => {
+    const base = buildDeps([]);
+    const store = createMemoryTurnStore();
+    const controller = new AbortController();
+    controller.abort();
+    const deps: ScenarioExecutorDeps = {
+      ...base,
+      signal: controller.signal,
+      createTurnIdentity: () => ({ turnId: 'turn-canceled', providerRequestId: 'provider-canceled' }),
+      turnRunner: createTurnRunner(
+        createScriptedProvider('test-provider', 'fake-v1', [{ content: 'must-not-be-consumed' }]),
+        store,
+      ),
+    };
+
+    await expect(runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    )).rejects.toMatchObject({ name: 'WorkTurnFailedError', turn: { failure: { kind: 'canceled' } } });
+
+    expect(store.get('turn-canceled')).toMatchObject({ status: 'failed', failure: { kind: 'canceled' } });
+    expect(JSON.stringify(store.get('turn-canceled'))).not.toContain('signal');
+    expect(deps.eventLog.list()).toEqual([
+      expect.objectContaining({ type: 'turn_linked', turnId: 'turn-canceled', providerRequestId: 'provider-canceled' }),
+      expect.objectContaining({ type: 'step_failed', scope: 'model', reason: 'canceled', retryable: false }),
+    ]);
   });
 });

@@ -15,7 +15,6 @@ export class ScriptedProviderExhaustedError extends Error {
  */
 export function createScriptedProvider(id: string, modelId: string, script: GenerationResponse[]): Provider {
   let cursor = 0;
-  const noticesByRequestId = new Map<string, GenerationResponse['notices']>();
   const provider: Provider = {
     id,
     modelId,
@@ -24,9 +23,11 @@ export function createScriptedProvider(id: string, modelId: string, script: Gene
       const response = script[cursor];
       cursor += 1;
       const requestId = options.requestId ?? `scripted-${cursor}`;
-      if (response.notices) noticesByRequestId.set(requestId, response.notices);
       let seq = 0;
       yield { type: 'started' as const, requestId, seq: seq++, providerId: id, modelId };
+      for (const notice of response.notices ?? []) {
+        yield { type: 'notice' as const, requestId, seq: seq++, notice };
+      }
       if (response.reasoningContent) yield { type: 'reasoning_delta' as const, requestId, seq: seq++, delta: response.reasoningContent };
       if (response.content) yield { type: 'content_delta' as const, requestId, seq: seq++, delta: response.content };
       if (response.usage) yield { type: 'usage' as const, requestId, seq: seq++, ...response.usage };
@@ -37,14 +38,19 @@ export function createScriptedProvider(id: string, modelId: string, script: Gene
       let content = '';
       let reasoningContent = '';
       let usage: GenerationResponse['usage'];
+      const notices: NonNullable<GenerationResponse['notices']> = [];
       for await (const event of provider.stream(request, { requestId })) {
         if (event.type === 'content_delta') content += event.delta;
         else if (event.type === 'reasoning_delta') reasoningContent += event.delta;
         else if (event.type === 'usage') usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+        else if (event.type === 'notice') notices.push(event.notice);
       }
-      const notices = noticesByRequestId.get(requestId);
-      noticesByRequestId.delete(requestId);
-      return { content, reasoningContent: reasoningContent || undefined, usage, notices };
+      return {
+        content,
+        reasoningContent: reasoningContent || undefined,
+        usage,
+        ...(notices.length > 0 ? { notices } : {}),
+      };
     },
   };
   return provider;

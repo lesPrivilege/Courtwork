@@ -30,4 +30,28 @@ describe('createScriptedProvider', () => {
     const response = await provider.generate({ systemPrompt: 'irrelevant', messages: [{ role: 'user', content: 'anything at all' }] });
     expect(response.content).toBe('x');
   });
+
+  it('publishes compatibility notices on the same public stream that generate aggregates', async () => {
+    const notice = {
+      code: 'reasoning_downgraded_for_structured_output' as const,
+      message: '结构化输出已使用标准模式',
+      requested: 'deep' as const,
+      applied: 'standard' as const,
+    };
+    const streamed = createScriptedProvider('demo-provider', 'fake-v1', [{ content: 'x', notices: [notice] }]);
+    const events = [];
+    for await (const event of streamed.stream({ messages: [] }, { requestId: 'request-stream' })) events.push(event);
+
+    expect(events).toContainEqual({ type: 'notice', requestId: 'request-stream', seq: 1, notice });
+
+    const aggregated = createScriptedProvider('demo-provider', 'fake-v1', [{ content: 'x', notices: [notice] }]);
+    const originalStream = aggregated.stream.bind(aggregated);
+    let streamConsumptions = 0;
+    aggregated.stream = (request, options) => {
+      streamConsumptions += 1;
+      return originalStream(request, options);
+    };
+    await expect(aggregated.generate({ messages: [] })).resolves.toMatchObject({ notices: [notice] });
+    expect(streamConsumptions).toBe(1);
+  });
 });

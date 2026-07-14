@@ -4,6 +4,13 @@ import { dirname } from 'node:path';
 import type { TodoStep } from '../scenario-executor/todo-snapshot.js';
 import type { ConfirmationActor, SessionEvent, SessionEventInput } from './types.js';
 
+export type LinkedTurn = Omit<Extract<SessionEvent, { type: 'turn_linked' }>, 'type' | 'sessionId' | 'seq' | 'emittedAt'>;
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, Extract<K, keyof T>> : never;
+export type FailedStep = DistributiveOmit<
+  Extract<SessionEvent, { type: 'step_failed' }>,
+  'type' | 'sessionId' | 'seq' | 'emittedAt'
+>;
+
 export interface EventLog {
   readonly sessionId: string;
   append(event: SessionEventInput): SessionEvent;
@@ -62,7 +69,8 @@ export interface ReplaySummary {
   confirmations: Record<string, { actor: ConfirmationActor; decision: 'confirm' | 'reject' }>;
   revisionEventIds: string[];
   completed: boolean;
-  failedSteps: { scope: 'tool'; toolId: string; reason: string; message: string }[];
+  linkedTurns: LinkedTurn[];
+  failedSteps: FailedStep[];
   latestTodoSnapshot?: TodoStep[];
 }
 
@@ -73,6 +81,7 @@ export function replaySession(events: SessionEvent[]): ReplaySummary {
     confirmations: {},
     revisionEventIds: [],
     completed: false,
+    linkedTurns: [],
     failedSteps: [],
   };
   for (const event of events) {
@@ -84,8 +93,30 @@ export function replaySession(events: SessionEvent[]): ReplaySummary {
       summary.revisionEventIds.push(event.revisionEventId);
     } else if (event.type === 'scenario_completed') {
       summary.completed = true;
+    } else if (event.type === 'turn_linked') {
+      summary.linkedTurns.push({
+        stepId: event.stepId,
+        artifactType: event.artifactType,
+        attempt: event.attempt,
+        turnId: event.turnId,
+        providerRequestId: event.providerRequestId,
+      });
     } else if (event.type === 'step_failed') {
-      summary.failedSteps.push({ scope: event.scope, toolId: event.toolId, reason: event.reason, message: event.message });
+      if (event.scope === 'tool') {
+        summary.failedSteps.push({ scope: 'tool', toolId: event.toolId, reason: event.reason, message: event.message });
+      } else {
+        summary.failedSteps.push({
+          scope: 'model',
+          stepId: event.stepId,
+          artifactType: event.artifactType,
+          attempt: event.attempt,
+          turnId: event.turnId,
+          providerRequestId: event.providerRequestId,
+          reason: event.reason,
+          message: event.message,
+          retryable: event.retryable,
+        });
+      }
     } else if (event.type === 'todo_snapshot') {
       summary.latestTodoSnapshot = event.steps;
     }

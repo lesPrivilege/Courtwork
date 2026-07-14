@@ -36,6 +36,7 @@ export type ProviderTransportEvent =
 
 export type ProviderStreamEvent =
   | { type: 'started'; requestId: string; seq: number; providerId: string; modelId: string }
+  | { type: 'notice'; requestId: string; seq: number; notice: GenerationNotice }
   | { type: 'reasoning_delta'; requestId: string; seq: number; delta: string }
   | { type: 'content_delta'; requestId: string; seq: number; delta: string }
   | { type: 'usage'; requestId: string; seq: number; inputTokens: number; outputTokens: number }

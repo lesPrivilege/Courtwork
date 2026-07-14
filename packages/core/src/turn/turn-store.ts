@@ -128,6 +128,26 @@ function isUsage(value: unknown): boolean {
     && Number(value.outputTokens) >= 0;
 }
 
+function isNotice(value: unknown): boolean {
+  return isRecord(value)
+    && hasOnlyKeys(value, ['code', 'message', 'requested', 'applied'])
+    && Object.keys(value).length === 4
+    && value.code === 'reasoning_downgraded_for_structured_output'
+    && isNonEmptyString(value.message)
+    && value.requested === 'deep'
+    && value.applied === 'standard';
+}
+
+function isNotices(value: unknown): boolean {
+  if (!Array.isArray(value)) return false;
+  const codes = new Set<string>();
+  for (const notice of value) {
+    if (!isNotice(notice) || codes.has(notice.code as string)) return false;
+    codes.add(notice.code as string);
+  }
+  return true;
+}
+
 function isReasoning(value: unknown): boolean {
   if (!isRecord(value) || !hasOnlyKeys(value, ['status', 'content'])) return false;
   return value.status === 'absent'
@@ -163,12 +183,13 @@ function isPersistedTurn(value: unknown): value is PersistedTurn {
     && isNonEmptyString(value.providerId)
     && isNonEmptyString(value.modelId)
     && isReasoning(value.reasoning)
-    && (value.usage === undefined || isUsage(value.usage));
+    && (value.usage === undefined || isUsage(value.usage))
+    && (value.notices === undefined || isNotices(value.notices));
   if (!baseValid) return false;
   if (value.status === 'completed') {
     return hasOnlyKeys(value, [
       'status', 'turnId', 'providerRequestId', 'providerId', 'modelId', 'reasoning', 'usage',
-      'assistantMessage', 'finishReason', 'completedAt',
+      'notices', 'assistantMessage', 'finishReason', 'completedAt',
     ])
       && isNonEmptyString(value.assistantMessage)
       && typeof value.finishReason === 'string'
@@ -178,7 +199,7 @@ function isPersistedTurn(value: unknown): value is PersistedTurn {
   if (value.status === 'failed') {
     return hasOnlyKeys(value, [
       'status', 'turnId', 'providerRequestId', 'providerId', 'modelId', 'reasoning', 'usage',
-      'assistantMessage', 'failure', 'failedAt',
+      'notices', 'assistantMessage', 'failure', 'failedAt',
     ])
       && (value.assistantMessage === undefined || typeof value.assistantMessage === 'string')
       && isFailure(value.failure)

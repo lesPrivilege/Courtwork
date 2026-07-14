@@ -11,7 +11,15 @@ import {
   type PartyVerifyData,
   type PartyVerifyInput,
 } from '@courtwork/tools';
-import { createToolRegistry, type MaterialInput, type ToolRegistry } from '@courtwork/core';
+import {
+  createMemoryTurnStore,
+  createToolRegistry,
+  createTurnRunner,
+  type MaterialInput,
+  type ToolRegistry,
+  type TurnRunnerPort,
+  type TurnStore,
+} from '@courtwork/core';
 import { createScriptedProvider } from '@courtwork/provider/scripted';
 import type { Provider } from '@courtwork/provider/types';
 
@@ -40,9 +48,17 @@ function corpusLookup(input: PartyVerifyInput): PartyVerifyData | undefined {
 export interface DemoS3Runtime {
   tools: ToolRegistry;
   provider: Provider;
+  turnRunner: TurnRunnerPort;
   toolInputs: Record<string, unknown>;
   /** 包准入产物：legal 包经 ABI 门装载（装配点绑定，core 其余板块只见 registry 接口）。 */
   registries: PackageRegistries;
+}
+
+export function composeRuntimeTurnRunner(
+  provider: Provider,
+  turnStore: TurnStore = createMemoryTurnStore(),
+): TurnRunnerPort {
+  return createTurnRunner(provider, turnStore);
 }
 
 /**
@@ -51,7 +67,7 @@ export interface DemoS3Runtime {
  * 由 core 单测 package-boundary.test.ts 机器守护。真实数据接入 = 换这一个文件的
  * wiring，其余板块零改动。
  */
-export function buildDemoS3Runtime(): DemoS3Runtime {
+export function buildDemoS3Runtime(options: { provider?: Provider; turnStore?: TurnStore } = {}): DemoS3Runtime {
   const tools = createToolRegistry();
   tools.register('party-verify', {
     tool: createPartyVerifyTool(createDemoFixturePartyVerifyAdapter(corpusLookup)),
@@ -61,7 +77,7 @@ export function buildDemoS3Runtime(): DemoS3Runtime {
 
   // 寻址信封（四知·知输出）+ 引用闭环（拍板一）：脚本响应交草稿（引语无坐标），
   // 坐标由 resolver 对材料文本层公证铸造——演示管线与真管线过同一道门。
-  const provider = createScriptedProvider('demo-scripted-provider', 'fake-scripted-v1', [
+  const provider = options.provider ?? createScriptedProvider('demo-scripted-provider', 'fake-scripted-v1', [
     {
       content: JSON.stringify({
         target: { stepId: 'produce-risk-list', artifactType: 'legal.RiskList' },
@@ -80,6 +96,7 @@ export function buildDemoS3Runtime(): DemoS3Runtime {
   return {
     tools,
     provider,
+    turnRunner: composeRuntimeTurnRunner(provider, options.turnStore),
     toolInputs: { 'party-verify': { name: '起云智能装备（虚构）有限公司' } },
     registries: buildPackageRegistries(admission.admitted),
   };
@@ -114,20 +131,20 @@ export function materialFromReadingView(outcome: ReadingViewOutcome, sourceBytes
  * 对象为对方主体（委托方＝乙方起云智能，核验卖方临江精铸）。剧本与考点住 legal
  * demo 包，这里只做绑定。
  */
-export function buildLegalDemoRunRuntime(): DemoS3Runtime {
-  const base = buildDemoS3Runtime();
+export function buildLegalDemoRunRuntime(turnStore: TurnStore = createMemoryTurnStore()): DemoS3Runtime {
+  const provider = createScriptedProvider('demo-scripted-provider', 'fake-scripted-v1', [
+    {
+      content: JSON.stringify({
+        target: { stepId: 'produce-risk-list', artifactType: 'legal.RiskList' },
+        artifact: S3_PDF_DOSSIER_DRAFT,
+      }),
+      reasoningContent:
+      '通读合同两页与信用查询单：付款、验收、风险转移、所有权、不可抗力、管辖各条对买方的失衡点逐条核对，并对照关联公司网络核验收款主体。',
+    },
+  ]);
+  const base = buildDemoS3Runtime({ provider, turnStore });
   return {
     ...base,
-    provider: createScriptedProvider('demo-scripted-provider', 'fake-scripted-v1', [
-      {
-        content: JSON.stringify({
-          target: { stepId: 'produce-risk-list', artifactType: 'legal.RiskList' },
-          artifact: S3_PDF_DOSSIER_DRAFT,
-        }),
-        reasoningContent:
-          '通读合同两页与信用查询单：付款、验收、风险转移、所有权、不可抗力、管辖各条对买方的失衡点逐条核对，并对照关联公司网络核验收款主体。',
-      },
-    ]),
     toolInputs: { 'party-verify': { name: '临江精铸科技有限公司' } },
   };
 }

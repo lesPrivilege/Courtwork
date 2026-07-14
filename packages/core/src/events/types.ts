@@ -14,7 +14,7 @@ export interface CitationStats {
   outOfCoverage: number;
 }
 import type { TodoStep } from '../scenario-executor/todo-snapshot.js';
-import type { GenerationNotice } from '@courtwork/provider/types';
+import type { GenerationNotice, ProviderFailureKind } from '@courtwork/provider/types';
 
 /**
  * 渠道无关身份标识：不隐含确认方与 core 同进程/同机/同客户端（SPEC TODO 异步确认预留）。
@@ -71,6 +71,14 @@ export type SessionEvent =
     })
   | (BaseEvent & { type: 'revision_recorded'; revisionEventId: string })
   | (BaseEvent & {
+      type: 'turn_linked';
+      stepId: string;
+      artifactType: string;
+      attempt: number;
+      turnId: string;
+      providerRequestId: string;
+    })
+  | (BaseEvent & {
       /**
        * 进度快照（docs/architecture/system.md 长任务协议①）：steps 由 deriveTodoSnapshot 纯函数从场景声明
        * 派生，LLM 不参与撰写/增删这份清单。
@@ -91,6 +99,18 @@ export type SessionEvent =
       toolId: string;
       reason: string;
       message: string;
+    })
+  | (BaseEvent & {
+      type: 'step_failed';
+      scope: 'model';
+      stepId: string;
+      artifactType: string;
+      attempt: number;
+      turnId: string;
+      providerRequestId: string;
+      reason: ProviderFailureKind;
+      message: string;
+      retryable: boolean;
     })
   | (BaseEvent & { type: 'scenario_completed' })
   | (BaseEvent & { type: 'error'; message: string });
