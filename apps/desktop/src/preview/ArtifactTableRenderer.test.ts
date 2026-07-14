@@ -93,6 +93,9 @@ describe('ArtifactTableRenderer（schema first + presentation only）', () => {
   it('schema-valid PM fixture 只显示人读 label/valueLabel 与完整证据摘要', () => {
     const result = projectArtifactTable(descriptor(), FIXTURE);
     expect(result.status).toBe('ready');
+    if (result.status !== 'ready') throw new Error('fixture projection failed');
+    const projectedAnchor = result.rows[0]?.find((cell) => cell.kind === 'anchor');
+    expect(projectedAnchor).toMatchObject({ kind: 'anchor', views: [{ fileLabel: 'prd' }] });
 
     const html = renderToStaticMarkup(
       createElement(ArtifactTableRenderer, { descriptor: descriptor(), payload: FIXTURE }),

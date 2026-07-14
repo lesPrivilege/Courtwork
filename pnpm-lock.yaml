@@ -75,6 +75,9 @@ importers:
         specifier: ^19.1.1
         version: 19.2.7(react@19.2.7)
     devDependencies:
+      '@courtwork/demo-data':
+        specifier: workspace:*
+        version: link:../../packages/demo-data
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.61.1

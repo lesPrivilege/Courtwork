@@ -8,6 +8,7 @@ const files = Object.fromEntries(await Promise.all([
   ['client', 'src/provider/chat-client.ts'],
   ['journal', 'src/provider/turn-protocol-client.ts'],
   ['card', 'src/chat/TurnCard.tsx'],
+  ['interactionProjection', 'src/preview/projection/interaction.ts'],
   ['legal', 'src/demo/legal-interaction.ts'],
   ['css', 'src/styles.css'],
 ].map(async ([name, relative]) => [name, await readFile(path.join(root, relative), 'utf8')])));
@@ -31,7 +32,8 @@ forbidText('journal', 'removeItem(', 'Corrupt turn history must never be silentl
 for (const domainText of ['是否继续聚焦付款与验收条款', 'focus-payment-acceptance', 'legal.risk-evidence-confirmation']) {
   if (`${files.app}\n${files.card}\n${files.client}`.includes(domainText)) failures.push(`Generic chat surface contains vertical content: ${domainText}`);
 }
-requireText('card', 'view.request.options.map', 'Interaction options must render from the immutable request snapshot');
+requireText('card', 'request: view.request', 'Interaction projection must receive the immutable request snapshot');
+requireText('interactionProjection', 'input.request.options.map', 'Interaction options must project from the immutable request snapshot');
 requireText('card', 'view.resolution?.answer', 'Recorded answer must render from core replay');
 requireText('card', 'submittingRef.current', 'Interaction resolve must guard concurrent submission');
 requireText('legal', 'requestInteraction({', 'Legal demo must inject through the generic interaction coordinator');

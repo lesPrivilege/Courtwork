@@ -8,6 +8,8 @@ import type {
 import type { ResolvedSourceAnchor } from '@courtwork/schemas';
 import { CopyButton } from '../workbench/CopyButton';
 import { Icon, type IconName } from '../workbench/Icon';
+import { Decision, Evidence, Partial } from '../preview/primitives/index.js';
+import { projectInteractionPrimitives } from '../preview/projection/interaction.js';
 
 export type TurnCardKind = 'event' | 'artifact' | 'file' | 'gate';
 
@@ -136,9 +138,13 @@ export function InteractionTurnCard({ view, onResolve, onOpenSource }: Interacti
   const resolved = view.state === 'resolved';
   const answer = view.resolution?.answer;
   const answerId = answer?.kind === 'option' ? answer.optionId : answer?.kind === 'skip' ? 'skipped' : undefined;
-  const recordedLabel = answer?.kind === 'option'
-    ? view.request.options.find((option) => option.id === answer.optionId)?.label
-    : answer?.kind === 'skip' ? 'Skipped' : undefined;
+  const projection = projectInteractionPrimitives({
+    request: view.request,
+    ...(view.resolution ? { resolution: view.resolution } : {}),
+    submitting,
+    ...(error ? { error } : {}),
+    sourceReady: onOpenSource !== undefined,
+  });
 
   const submit = async (next: InteractionAnswer) => {
     if (resolved || submittingRef.current) return;
@@ -165,6 +171,16 @@ export function InteractionTurnCard({ view, onResolve, onOpenSource }: Interacti
     }
   };
 
+  const resolveAction = (actionId: string) => {
+    void submit(actionId === 'skipped' ? { kind: 'skip' } : { kind: 'option', optionId: actionId });
+  };
+
+  const openProjectedSource = (anchorId: string) => {
+    const index = Number(anchorId.replace('interaction-source-', ''));
+    const anchor = view.request.sourceAnchors[index];
+    if (anchor) void openSource(anchor);
+  };
+
   return (
     <section
       className="interaction-turn-card"
@@ -173,69 +189,19 @@ export function InteractionTurnCard({ view, onResolve, onOpenSource }: Interacti
       data-state={view.state}
       data-answer={answerId ?? 'unanswered'}
     >
-      <header className="interaction-card-head">
-        <span className="turn-card-icon"><Icon name="message-square-text" scope="turn" /></span>
-        <strong>{view.request.question}</strong>
-      </header>
-      <div className="interaction-options">
-        {view.request.options.map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            className="question-option"
-            data-testid={`question-option-${option.id}`}
-            disabled={resolved || submitting}
-            onClick={() => void submit({ kind: 'option', optionId: option.id })}
-          >
-            <strong>{option.label}</strong>
-            {option.description && <span>{option.description}</span>}
-          </button>
-        ))}
-        {view.request.skippable && (
-          <button
-            type="button"
-            className="question-option question-skip"
-            data-testid="question-skip"
-            disabled={resolved || submitting}
-            onClick={() => void submit({ kind: 'skip' })}
-          >
-            Skip
-          </button>
-        )}
-      </div>
-      {view.request.sourceAnchors.length > 0 && (
-        <div className="interaction-anchor-ledger">
-          {view.request.sourceAnchors.map((anchor, index) => {
-            const body = (
-              <>
-                {anchor.quote && <q>{anchor.quote}</q>}
-                <span className="interaction-anchor-meta">
-                  {anchor.fileId}{anchor.page ? ` · p.${anchor.page}` : ''}
-                </span>
-              </>
-            );
-            return onOpenSource ? (
-              <button
-                key={`${anchor.fileId}-${index}`}
-                type="button"
-                className="interaction-anchor"
-                data-testid={`interaction-source-${index}`}
-                onClick={() => void openSource(anchor)}
-              >
-                {body}
-              </button>
-            ) : (
-              <div key={`${anchor.fileId}-${index}`} className="interaction-anchor">{body}</div>
-            );
-          })}
+      {projection.evidence ? (
+        <div className="interaction-evidence-shell">
+          <span className="turn-card-icon"><Icon name="message-square-text" scope="turn" /></span>
+          <Evidence view={projection.evidence} onOpen={onOpenSource ? openProjectedSource : undefined} />
         </div>
+      ) : (
+        <header className="interaction-card-head">
+          <span className="turn-card-icon"><Icon name="message-square-text" scope="turn" /></span>
+          <strong>{view.request.question}</strong>
+        </header>
       )}
-      {error && <p className="interaction-submit-error" role="alert">{error}</p>}
-      {recordedLabel && (
-        <p className="interaction-recorded">
-          <span>Recorded</span><code>{answerId}</code><strong>{recordedLabel}</strong>
-        </p>
-      )}
+      <Decision view={projection.decision} onAction={resolveAction} />
+      {projection.partial && <Partial view={projection.partial} />}
     </section>
   );
 }
