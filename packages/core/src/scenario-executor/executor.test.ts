@@ -17,7 +17,7 @@ import {
 import { createInMemoryRevisionEventStore } from '../revision/revision-store.js';
 import { createToolRegistry } from '../tools/tool-registry.js';
 import { createScriptedProvider } from '@courtwork/provider/scripted';
-import type { GenerationRequest, GenerationResponse } from '@courtwork/provider/types';
+import type { GenerationRequest, GenerationResponse, Provider } from '@courtwork/provider/types';
 import { createMemoryTurnStore } from '../turn/turn-store.js';
 import { createTurnRunner, type TurnRunnerPort } from '../turn/turn-runner.js';
 import { RuntimeLimitExceededError } from './runtime-limits.js';
@@ -1166,6 +1166,53 @@ describe('TURN-WORK-1: Work model steps use the TurnRunnerPort', () => {
     });
   });
 
+  it('carries one notice through Provider.stream, persisted Turn, and Work artifact without generate bypass', async () => {
+    const base = buildDeps([]);
+    const store = createMemoryTurnStore();
+    const notice = {
+      code: 'reasoning_downgraded_for_structured_output' as const,
+      message: '结构化输出已使用标准模式',
+      requested: 'deep' as const,
+      applied: 'standard' as const,
+    };
+    let streamCalls = 0;
+    let generateCalls = 0;
+    const provider: Provider = {
+      id: 'deepseek',
+      modelId: 'deepseek-v4-pro',
+      async *stream(_request, options) {
+        streamCalls += 1;
+        const requestId = options?.requestId ?? 'unexpected-request';
+        yield { type: 'started', requestId, seq: 0, providerId: 'deepseek', modelId: 'deepseek-v4-pro' };
+        yield { type: 'notice', requestId, seq: 1, notice };
+        yield { type: 'content_delta', requestId, seq: 2, delta: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
+        yield { type: 'completed', requestId, seq: 3, finishReason: 'stop' };
+      },
+      async generate() {
+        generateCalls += 1;
+        throw new Error('Work must not call Provider.generate');
+      },
+    };
+    const deps: ScenarioExecutorDeps = {
+      ...base,
+      createTurnIdentity: () => ({ turnId: 'turn-notice-e2e', providerRequestId: 'provider-notice-e2e' }),
+      turnRunner: createTurnRunner(provider, store),
+    };
+
+    await expect(runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    )).resolves.toMatchObject({ status: 'paused' });
+
+    expect(streamCalls).toBe(1);
+    expect(generateCalls).toBe(0);
+    expect(store.get('turn-notice-e2e')).toMatchObject({ status: 'completed', notices: [notice] });
+    expect(deps.eventLog.list().find((event) => event.type === 'artifact_produced')).toMatchObject({
+      type: 'artifact_produced', providerNotices: [notice], artifact: VALID_RISK_LIST,
+    });
+  });
+
   it('records a model step failure then throws without artifact, completion, or automatic retry', async () => {
     const base = buildDeps([]);
     let calls = 0;
@@ -1199,6 +1246,65 @@ describe('TURN-WORK-1: Work model steps use the TurnRunnerPort', () => {
       type: 'step_failed', scope: 'model', stepId: 'produce-test.Risk', artifactType: 'test.Risk', attempt: 1,
       turnId: 'turn-failed', providerRequestId: 'provider-failed', reason: 'rate_limit', retryable: true,
     });
+  });
+
+  it('persists a provider failure before Work records model step_failed, with zero artifact and zero retry', async () => {
+    const base = buildDeps([]);
+    const store = createMemoryTurnStore();
+    let streamCalls = 0;
+    const provider: Provider = {
+      id: 'deepseek',
+      modelId: 'deepseek-v4-pro',
+      async *stream(_request, options) {
+        streamCalls += 1;
+        const requestId = options?.requestId ?? 'unexpected-request';
+        yield { type: 'started', requestId, seq: 0, providerId: 'deepseek', modelId: 'deepseek-v4-pro' };
+        yield { type: 'failed', requestId, seq: 1, kind: 'rate_limit', message: '稍后重试', retryable: true };
+      },
+      async generate() {
+        throw new Error('Work must not call Provider.generate');
+      },
+    };
+    const deps: ScenarioExecutorDeps = {
+      ...base,
+      createTurnIdentity: () => ({ turnId: 'turn-rate-limit', providerRequestId: 'provider-rate-limit' }),
+      turnRunner: createTurnRunner(provider, store),
+    };
+
+    await expect(runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    )).rejects.toMatchObject({ name: 'WorkTurnFailedError', turn: { failure: { kind: 'rate_limit' } } });
+
+    expect(streamCalls).toBe(1);
+    expect(store.get('turn-rate-limit')).toMatchObject({ status: 'failed', failure: { kind: 'rate_limit' } });
+    expect(deps.eventLog.list().map((event) => event.type)).toEqual(['turn_linked', 'step_failed']);
+    expect(deps.eventLog.list().some((event) => event.type === 'artifact_produced' || event.type === 'scenario_completed')).toBe(false);
+  });
+
+  it('keeps a completed Turn immutable when Work schema validation rejects its assistant content', async () => {
+    const base = buildDeps([]);
+    const store = createMemoryTurnStore();
+    const deps: ScenarioExecutorDeps = {
+      ...base,
+      createTurnIdentity: () => ({ turnId: 'turn-schema-invalid', providerRequestId: 'provider-schema-invalid' }),
+      turnRunner: createTurnRunner(
+        createScriptedProvider('test-provider', 'fake-v1', [{ content: '{"notARiskList":true}' }]),
+        store,
+      ),
+    };
+
+    await expect(runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    )).rejects.toBeInstanceOf(GenerationValidationError);
+
+    expect(store.get('turn-schema-invalid')).toMatchObject({
+      status: 'completed', assistantMessage: '{"notARiskList":true}', finishReason: 'stop',
+    });
+    expect(deps.eventLog.list().map((event) => event.type)).toEqual(['turn_linked']);
   });
 
   it('passes cancellation transiently into the real Turn engine and links its persisted canceled terminal', async () => {

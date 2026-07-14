@@ -49,6 +49,7 @@ function terminalEvents(events: readonly TurnEvent[]) {
 describe('runTurn', () => {
   it('forwards one valid provider notice and retains it in a completed terminal snapshot', async () => {
     const published: TurnEvent[] = [];
+    const store = createMemoryTurnStore();
     const notice = {
       code: 'reasoning_downgraded_for_structured_output' as const,
       message: '结构化输出已使用标准模式',
@@ -63,15 +64,17 @@ describe('runTurn', () => {
         { type: 'content_delta', requestId: 'request-1', seq: 2, delta: '正文' },
         { type: 'completed', requestId: 'request-1', seq: 3, finishReason: 'stop' },
       ]),
-      store: createMemoryTurnStore(), onEvent: (event) => published.push(event),
+      store, onEvent: (event) => published.push(event),
     });
 
     expect(published).toContainEqual(expect.objectContaining({ type: 'provider_notice', notice }));
     expect(record).toMatchObject({ status: 'completed', notices: [notice] });
+    expect(store.get('turn-notice')).toEqual(record);
     expect(published.at(-1)).toMatchObject({ type: 'turn_completed', notices: [notice] });
   });
 
   it('retains notices observed before a provider failure terminal', async () => {
+    const store = createMemoryTurnStore();
     const notice = {
       code: 'reasoning_downgraded_for_structured_output' as const,
       message: '结构化输出已使用标准模式',
@@ -85,10 +88,11 @@ describe('runTurn', () => {
         { type: 'notice', requestId: 'request-1', seq: 1, notice },
         { type: 'failed', requestId: 'request-1', seq: 2, kind: 'rate_limit', message: '稍后重试', retryable: true },
       ]),
-      store: createMemoryTurnStore(),
+      store,
     });
 
     expect(record).toMatchObject({ status: 'failed', notices: [notice], failure: { kind: 'rate_limit' } });
+    expect(store.get('turn-notice-failed')).toEqual(record);
   });
 
   it.each([
@@ -96,6 +100,9 @@ describe('runTurn', () => {
       label: 'notice before started',
       events: [
         { type: 'notice', requestId: 'request-1', seq: 0, notice: { code: 'reasoning_downgraded_for_structured_output', message: 'x', requested: 'deep', applied: 'standard' } },
+        { type: 'started', requestId: 'request-1', seq: 1, providerId: 'provider-a', modelId: 'model-a' },
+        { type: 'content_delta', requestId: 'request-1', seq: 2, delta: '正文' },
+        { type: 'completed', requestId: 'request-1', seq: 3, finishReason: 'stop' },
       ],
     },
     {
@@ -104,6 +111,8 @@ describe('runTurn', () => {
         { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
         { type: 'notice', requestId: 'request-1', seq: 1, notice: { code: 'reasoning_downgraded_for_structured_output', message: 'a', requested: 'deep', applied: 'standard' } },
         { type: 'notice', requestId: 'request-1', seq: 2, notice: { code: 'reasoning_downgraded_for_structured_output', message: 'b', requested: 'deep', applied: 'standard' } },
+        { type: 'content_delta', requestId: 'request-1', seq: 3, delta: '正文' },
+        { type: 'completed', requestId: 'request-1', seq: 4, finishReason: 'stop' },
       ],
     },
     {
@@ -111,6 +120,8 @@ describe('runTurn', () => {
       events: [
         { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
         { type: 'notice', requestId: 'request-1', seq: 1, notice: { code: 'future_notice', message: 'x', requested: 'deep', applied: 'standard' } },
+        { type: 'content_delta', requestId: 'request-1', seq: 2, delta: '正文' },
+        { type: 'completed', requestId: 'request-1', seq: 3, finishReason: 'stop' },
       ],
     },
     {
@@ -118,6 +129,8 @@ describe('runTurn', () => {
       events: [
         { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
         { type: 'notice', requestId: 'request-1', seq: 1, notice: { code: 'reasoning_downgraded_for_structured_output', message: 'x', requested: 'deep', applied: 'standard', extra: true } },
+        { type: 'content_delta', requestId: 'request-1', seq: 2, delta: '正文' },
+        { type: 'completed', requestId: 'request-1', seq: 3, finishReason: 'stop' },
       ],
     },
     {

@@ -106,7 +106,14 @@ describe('createOpenAICompatibleProvider — generate() end-to-end', () => {
       auth: { kind: 'api_key', apiKey: 'placeholder' }, billing: { kind: 'metered' },
       modelId: 'deepseek-v4-pro', transport,
     });
+    const originalStream = provider.stream.bind(provider);
+    let streamConsumptions = 0;
+    provider.stream = (request, options) => {
+      streamConsumptions += 1;
+      return originalStream(request, options);
+    };
     await expect(provider.generate({ messages: [{ role: 'user', content: 'hi' }] })).resolves.toMatchObject({ content: 'one-path' });
+    expect(streamConsumptions).toBe(1);
     expect(calls).toBe(1);
   });
 
