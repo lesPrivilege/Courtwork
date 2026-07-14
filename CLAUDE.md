@@ -17,11 +17,12 @@ packages/output                       docx 编译、定位、修订与批注
 packages/reading-view                 文档安全预检、阅读视图与锚点
 packages/schemas                      领域无关 wire 契约
 packages/demo-data                    虚构导览、测试与验收语料
+packages/demo-runtime                 demo/acceptance 唯一装配点与 CLI；只由开发/验收消费
 eval                                  中性评测底座
 services/ingest                        Python OCR/分类/实体对齐
 ```
 
-依赖必须无环并向更稳定的契约层收敛。跨域绑定只允许出现在垂类 manifest、composition、acceptance 或 desktop host 边界；core 机器层、tools、reading-view、output 不得理解法律或其他垂类语义。详细规则见 `docs/decisions/ADR-001-package-abi.md`。
+依赖必须无环并向更稳定的契约层收敛。跨域绑定只允许出现在垂类 manifest、`packages/demo-runtime`、acceptance 或 desktop host 边界；core 机器层、tools、reading-view、output 不得理解法律或其他垂类语义。详细规则见 `docs/decisions/ADR-001-package-abi.md`。
 
 ## 核心不变量
 

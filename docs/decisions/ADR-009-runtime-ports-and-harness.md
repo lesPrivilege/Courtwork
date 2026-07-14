@@ -2,7 +2,7 @@
 
 - 状态：Accepted
 - 日期：2026-07-14
-- 来源：`b0767144271ae165b3a61d79f809b0f9a257652d`、`b8815080501d7775a6e2fa27fefa756588496d92`、`016567904ded5edede614dbd8cbe7b6c5cdf59a8`
+- 来源：`b0767144271ae165b3a61d79f809b0f9a257652d`、`b8815080501d7775a6e2fa27fefa756588496d92`、`016567904ded5edede614dbd8cbe7b6c5cdf59a8`、`4a8fc2f75e33b2b342b6be1149946cc5d7af2fe5`
 
 ## 背景
 
@@ -165,6 +165,14 @@ type ArtifactEnvelope = {
 - TypeBox、Effect Schema：不迁移；Zod/JSON Schema 双层已经满足当前边界。
 
 本阶段新增第三方 Chat/Agent runtime 依赖数必须为零。
+
+## 决定八：Demo composition 是独立开发包
+
+- 新建 `packages/demo-runtime` 作为唯一 demo/acceptance composition root，承接现有 core 内的 demo assembly、真实/脚本化演示 runner、CLI 与端到端 golden。
+- `demo-runtime` 可以依赖 core、legal、registry、provider、tools、output、reading-view 与 demo-data；反向依赖禁止。生产 desktop/core 不得 import `demo-runtime`。
+- `packages/core` 的生产依赖收敛为自身机制实际需要的 provider、schemas、registry、tools 与 Zod；legal、demo-data、output、reading-view 退出 core package dependency 与根导出。
+- core 根导出只发布 core 契约。provider 实现、scripted、quirks、pricing 与 OpenAI adapter 不再经根 barrel 转售；ADR-007 已登记的 `provider-*` compatibility 子路径暂时保留并带弃用测试，待真实消费者清零后另单删除。
+- demo/acceptance 搬包是纯物理边界调整，不得改变 fixture 字节、场景、artifact、引用、确认、输出或评测语义；原有 CLI 在新包提供等价入口。
 
 ## 实施顺序
 

@@ -1,8 +1,16 @@
 # SPEC: packages/core（W6）
 
-状态：既有 TURN/INTERACTION 与 `CONFIRM-CAS-1` 已独立验收；后续 `CORE-BOUNDARY-1` / `TURN-WORK-1` 受 ADR-009 约束
+状态：既有 TURN/INTERACTION 与 `CONFIRM-CAS-1` 已独立验收；现行工单 `CORE-BOUNDARY-1` 待实现，后续 `TURN-WORK-1` 受 ADR-009 约束
 
 ## 现行架构工单（2026-07-14）
+
+### CORE-BOUNDARY-1 · Demo composition 退出 core
+
+权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。新建 `packages/demo-runtime`，原样迁移 `src/composition`、`src/acceptance`、对应 CLI 与 golden/integration tests；该包是唯一允许同时绑定 core/legal/demo-data/output/reading-view 的开发装配点，生产 desktop/core 不得反向依赖。
+
+`@courtwork/core` 删除 legal/demo-data/output/reading-view package dependencies 与 demo/acceptance 根导出；根 barrel 不再重导出 provider scripted/quirks/errors/pricing/openai，只保留 core 自身契约和外部实际消费的最小 provider type。ADR-007 三个 `provider-*` compatibility 子路径本单保留并锁弃用边界。原 demo CLI、fixture 字节、场景、事件、引用、确认、输出与 golden 语义必须等价；不得借搬包重写实现或新增 runtime 依赖。
+
+验收至少实际证明：core 的 package.json/src/root exports 对四个垂类/demo 包零依赖；删除 `packages/demo-runtime` 后 core 定向 build/test 仍通过；demo-runtime 全链与旧 golden 等价；依赖图无环；根 barrel 无 provider 实现转售；全仓门禁全绿。
 
 ### CONFIRM-CAS-1 · Work confirmation 原子消费
 
