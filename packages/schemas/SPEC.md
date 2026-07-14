@@ -74,3 +74,8 @@
 - **五契约落地**（ABI 三拍板 + HARNESS-1 Plan 拍板一）：`ArtifactTypeId`（namespaced 形制 + 账本读侧别名归一 `normalizeArtifactTypeId`，历史不改写）；`ConfirmationPolicy none|gates[]` + 副作用五级封闭枚举（`sideEffectsPermitNoGate`——none 判据，core 强制包无权放宽）；`QuoteClaim`（strict：坐标字段结构性不存在）+ `ResolvedSourceAnchor` + `CitationFailure` 三型 + `OutOfCoverageEntry`；`ArtifactDescriptor` 载体（schema/draftSchema/citationBinding 五声明位/rehydrationProjection 闭词表三 op + 确定性投影执行器 `projectArtifact`/uiTemplateId/字段级词表）；`PackageIdentity`（packageId+semver+schemaVersion+迁移别名表）。
 - **法律七 schema 迁出**（legal 迁包）：CaseFile/Timeline/PartyGraph/RiskList/ReviewMatrix 随 `@courtwork/legal` 走；**底座机器消费的契约留中央**（归属判据）——RevisionInstructionSet（output wire）/FileOpsPlan（tools wire）/IngestStatus（材料管线词汇）留本包，legal re-export。
 - `ArtifactTypeEnum` 退役；`RevisionEvent.artifactType` 收窄为 `ArtifactTypeIdSchema`。JSON Schema 契约面同步（新契约六件入 SCHEMA_REGISTRY，法律五件随包迁 `packages/legal/json-schema/`）。
+
+## ABI-2A · JSON Schema 单向出口（2026-07-14，实现留痕）
+
+- 新增唯一 `toDraft202012JsonSchema` 出口，显式固定 `target: 'draft-2020-12'` 与 `unrepresentable: 'throw'`；schemas 与 legal 的生成路径均复用该入口。
+- 反例以 `z.date()` 证明不可表达节点会抛错，不得静默退化成任意 JSON。本单未改变任何既有 schema 字段或运行时解析语义，也未引入 Ajv、反向转换或第三方 runtime。

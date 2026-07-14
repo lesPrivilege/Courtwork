@@ -6,6 +6,7 @@ export * from './confirmation-policy.js';
 export * from './citation.js';
 export * from './artifact-descriptor.js';
 export * from './package-identity.js';
+export * from './json-schema-export.js';
 export * from './revision-event.js';
 export * from './ingest-status.js';
 // 文书修订指令集 = output 管线的 wire 契约（基座），非法律专属；statuteRef 拆分候选见 SPEC 提案。

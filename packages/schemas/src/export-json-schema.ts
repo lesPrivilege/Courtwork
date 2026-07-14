@@ -1,4 +1,3 @@
-import * as z from 'zod';
 import { SourceAnchorSchema } from './source-anchor.js';
 import { RevisionEventSchema } from './revision-event.js';
 import { RevisionInstructionSetSchema } from './revision-instruction-set.js';
@@ -8,6 +7,7 @@ import { ConfirmationPolicySchema } from './confirmation-policy.js';
 import { QuoteClaimSchema, CitationFailureSchema } from './citation.js';
 import { RehydrationProjectionSchema } from './artifact-descriptor.js';
 import { PackageIdentitySchema } from './package-identity.js';
+import { toDraft202012JsonSchema } from './json-schema-export.js';
 
 // 法律七 schema 的对外契约面随包迁移（packages/legal/src/export-json-schema.ts）。
 export const SCHEMA_REGISTRY = [
@@ -27,7 +27,7 @@ export const SCHEMA_REGISTRY = [
 export function toJSONSchemaRecord(): Record<string, unknown> {
   const record: Record<string, unknown> = {};
   for (const entry of SCHEMA_REGISTRY) {
-    record[entry.name] = z.toJSONSchema(entry.schema);
+    record[entry.name] = toDraft202012JsonSchema(entry.schema);
   }
   return record;
 }
