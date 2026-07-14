@@ -1,6 +1,6 @@
 # SPEC: packages/registry（W2）
 
-状态：既有 PACKAGE-ABI/INTERACTION 已验收；`ABI-2A` 已独立验收放行；现行跨包工单 `ABI-2B` 待实现
+状态：既有 PACKAGE-ABI/INTERACTION 已验收；`ABI-2A` 已独立验收放行；现行跨包工单 `ABI-2B` 已实现，待独立验收
 
 ## 现行架构工单（2026-07-14）
 
@@ -9,6 +9,14 @@
 权威：[ADR-008](../../docs/decisions/ADR-008-schema-conformance-and-authority.md) 与 [ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。删除 PM 自建 descriptor/view-resolver 真源，把四类 schema、通用表 presentation、完整值词表与 bindings 收入 `PM_PACKAGE`；与 Legal 一起走同一个 `admitPackages/buildPackageRegistries`。PM 当期是 catalog-only：`scenarios/promptSegments` 为空，不造不能运行的面板或流程；统一声明 `courtwork.artifact-table.v1`，真实 host renderer 由后续 `VIEW-ABI-1` 交付。
 
 presentation 的 collection pointer 从 artifact 根取数组，field pointer 从条目根取值；禁止 dot-path/通配符。enum/status/tags/grade 的 `valueLabels` 必须完整，普通字段不得携无意义 labels；wire 值不得回落 UI。PM 含锚 artifact 在没有 draft/citation binding 时不得被任何 scenario 声明为模型输出，准入需有红测。范围不含 desktop renderer、PM prompt/scenario、法律 schema、provider/core 或模型 tool calling。
+
+#### ABI-2B 实现记录（2026-07-14）
+
+- `ArtifactDescriptorDataV1.presentation.fields[]` 已加入 field-local `valueLabels`；manifest 结构门只接受 RFC 6901 pointer，并拒绝 dot-path 与 `*` 通配符。
+- 准入按绑定的 Zod schema 静态解析 `collectionPointer` 与 item-relative field pointer：collection 必须命中数组、field 必须命中；`enum/status/grade` 对应 Zod enum，`tags` 对应 enum array，`valueLabels` 必须与 wire 集合精确覆盖，普通格式携 labels 直接拒载。
+- 有 presentation 时，该工作面不再依赖旧 artifact-level `vocabulary.enumLabels`；field-local labels 是唯一显示权威。无 presentation 的 Legal 既有 descriptor 继续走原词表门，行为未迁移。
+- scenario 若把含 `format: anchor` 的 artifact 列为 output，缺任一独立 `draftSchemaId` 或 `citationBinding` 即拒载；catalog-only PM 因无 scenario 正常准入。
+- PM 四份 schema/presentation/bindings 已接入同一准入面；旧 PM descriptor/view resolver 删除。漏词、pointer 漂移、无 draft anchor output 与逐包隔离均有可注入反例。
 
 ### ABI-2A · Descriptor / Bindings 双平面
 

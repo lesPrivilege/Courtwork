@@ -221,6 +221,9 @@ importers:
 
   packages/pm-schemas:
     dependencies:
+      '@courtwork/registry':
+        specifier: workspace:*
+        version: link:../registry
       '@courtwork/schemas':
         specifier: workspace:*
         version: link:../schemas

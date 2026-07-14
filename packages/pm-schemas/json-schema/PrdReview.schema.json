@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "projectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "documentId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "section": {
+            "type": "string",
+            "minLength": 1
+          },
+          "clause": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sourceAnchors": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fileId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "page": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "bbox": {
+                  "type": "object",
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "width": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "height": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y",
+                    "width",
+                    "height"
+                  ],
+                  "additionalProperties": false
+                },
+                "textRange": {
+                  "type": "object",
+                  "properties": {
+                    "start": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "end": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "start",
+                    "end"
+                  ],
+                  "additionalProperties": false,
+                  "description": "文本层字符区间；end 必须大于或等于 start，允许 start === end 的零长区间。",
+                  "x-courtwork-invariant": "end >= start"
+                },
+                "textLayerVersion": {
+                  "type": "string"
+                },
+                "quote": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "fileId"
+              ],
+              "additionalProperties": false,
+              "title": "SourceAnchor",
+              "description": "来源引用锚：一切可溯源交互的地基。定位到具体文件的页面坐标区域（bbox）和/或文本层字符区间（textRange）。quote 仅作展示与重锚定辅助，不是权威定位器。"
+            }
+          },
+          "defectType": {
+            "type": "string",
+            "enum": [
+              "vague-metric",
+              "missing-acceptance",
+              "undefined-boundary",
+              "missing-dependency",
+              "conflicting-requirement",
+              "untestable"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "high",
+              "mid",
+              "low"
+            ]
+          },
+          "issue": {
+            "type": "string",
+            "minLength": 1
+          },
+          "suggestion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed",
+              "rejected"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "section",
+          "clause",
+          "sourceAnchors",
+          "defectType",
+          "severity",
+          "issue",
+          "suggestion",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "projectId",
+    "documentId",
+    "findings"
+  ],
+  "additionalProperties": false,
+  "title": "pm.PrdReview",
+  "description": "PM-2 PRD 评审：章节 × 缺陷维度带锚评审矩阵。字段级同构 S3 合同审查（RiskList.riskItem→finding），逐条确认/驳回落 RevisionEvent。",
+  "$id": "urn:courtwork:schema:pm.PrdReview:v1"
+}
