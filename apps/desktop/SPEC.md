@@ -1,6 +1,6 @@
 # SPEC: apps/desktop（W9）
 
-状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1` 与 `VIEW-ABI-1/1C` 均已独立验收放行；后续 WORK live 接线受 ADR-009 约束。
+状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C` 与 `WORK-PORT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
 ## 现行架构工单（2026-07-14）
 
@@ -21,7 +21,7 @@
 查询被拒；定向测试用 injected fake projection 证明 App 不依赖模块 singleton。完整 desktop Vitest、全仓门与
 隔离端口 Playwright 全绿。实现与验收异会话。
 
-实现留痕（2026-07-14，待独立验收）：
+实现留痕（2026-07-14，已独立验收）：
 
 - `protocol/client.ts` 删除混合的 `SessionEventClient`，按 ADR-010 落 `WorkSessionRef`、model route、start/resume/cancel command、六态 projection phase、command outcome，以及通用 `WorkProjectionPort` / 只声明不装配的 `WorkCommandPort`。React 不构造 `ScenarioRunInput`、tool input、provider、actor 或 schema。
 - `main.tsx` 成为 demo Work 的唯一 composition root：显式创建 `createDemoWorkFixture()`，分别注入 projection 与 fixture adapter；`App.tsx` 删除模块顶层 singleton、`demo/client` 与 recordings import，只经注入的 `WorkProjectionPort` 查询并机械发布 `SessionEvent`。

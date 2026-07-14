@@ -4,7 +4,7 @@
 
 ## 现行架构工单（2026-07-14）
 
-### WORK-STATE 前置线（架构已定，待 WORK-PORT-1 验收后派发）
+### WORK-STATE 前置线（架构已定，WORK-PORT-1 已放行）
 
 权威：[ADR-010](../../docs/decisions/ADR-010-work-live-boundaries.md)。production Work 不得直接把当前
 同步 Node file stores 接入 WebView，也不得以 localStorage 或命令结束批量 flush 冒充 durable state。
@@ -14,6 +14,23 @@
 `turn_linked → provider`、`pending → confirmation_requested`、`revision payload → revision_recorded` 的
 持久先后，并使 validate-before-consume 与 confirmation resolved 成为一个 CAS 状态转换。字段、终局闭集、
 材料引用及验收反例以 ADR-010 为准；实现会话不得自行简化为内存真源 + 异步镜像。
+
+#### WORK-BROWSER-1 · browser-safe Work protocol（现行下一单）
+
+本单只做 browser graph 收口，不实现 async store 或 live：
+
+- 将 EventLog、ConfirmationStore、RevisionEventStore 的 Node file adapter 从接口/内存实现模块物理拆出；
+  原公开 file API 经 Node-only 入口保持兼容，demo-runtime 行为与文件字节不变；
+- executor 删除 `node:crypto` 运行依赖，身份继续由可注入工厂控制，缺省只用 Node/WebView 均具备的
+  Web Crypto `randomUUID`；不得以 Math.random 或时间戳降级；
+- 新增 `@courtwork/core/work-protocol` browser-safe 子路径，只导出 Scenario executor、Work/Session 类型、
+  内存 store/registry/ledger 与 TurnRunner 端口；不得转售任一 file adapter 或 demo composition；
+- 增加递归 import/实际 Vite consumer 门，证明该子路径及生产闭包零 `node:*`，而 core 根与 Node-only file
+  入口保持现有消费者兼容。
+
+本单不得改变 SessionEvent、store 同步语义、ArtifactEnvelope、scenario、confirmation、provider、desktop UI
+或 Tauri。实现与验收异会话；验收需真实向 browser graph 注入 `node:fs` 证明门会红，并复跑 demo-runtime
+两条 golden、全仓 build/lint/test。无 desktop 行为变化时不要求 Playwright。
 
 ### TURN-WORK-1 · Work model 步骤复用 Turn Engine
 

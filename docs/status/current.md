@@ -26,6 +26,7 @@
 - ADR-009 第一波与 ABI 收口已经异会话验收并合流：HOST-PORT-1、CONFIRM-CAS-1、ABI-2A、CORE-BOUNDARY-1、ABI-2B 全部进入 main；Legal/PM 同次走唯一 descriptor/bindings ABI，PM 保持 catalog-only；
 - VIEW-ABI-1/1C 已经异会话验收并合流：desktop 生产路由由 descriptor + host blueprint 驱动，通用表严格按 schema/presentation 投影，未知或漂移载荷统一 zero-wire fail closed；
 - TURN-WORK-1 已经异会话验收并合流：Work 模型步骤只经 `TurnRunnerPort`，每次调用先链接 Turn，notice、失败与取消沿统一 Turn 账本回放；
+- WORK-PORT-1 已经异会话验收并合流：App 只消费注入的 Work projection，demo recording/gate/review 全部收口 fixture adapter，非 demo 与跨 session 查询 fail closed；
 - v0.1.1 Apple Silicon 开发构建已发布：annotated tag `v0.1.1` 指向 `39555d6`，GitHub Release 与 Pages 均已上线；desktop 129、provider 86、root 981、Rust 25、Playwright 208 全绿，远端 DMG 复算 SHA-256 与仓库记录一致。构建为 ad-hoc 且未公证，官网与 Release 明示该边界；
 - demo 全链穿越、发布修实三项（遥测真开关、共享 docx 预检、产物存在后冻结）。
 
@@ -38,7 +39,7 @@
 
 ## 当前架构债
 
-1. 生产 desktop 的 `WorkCommandPort` 仍以 demo recording 驱动；真实 run/resume 尚未接入已成立的 Work/Turn 底座。
+1. `WorkCommandPort` 契约与 projection 注入缝已经成立，但生产实现仍未装配；真实 run/resume 必须等待 ADR-010 的 browser/store/material/binding 前置。
 2. ArtifactEnvelope 的持久读写与 package migration 尚未接入真实生产账本；当前 ABI 已定义形状与准入，但 Work live 持久层未落地。
 3. 除 RiskList 外，部分模型产物的最终 schema 仍直接包含 SourceAnchor，尚未统一为 quote → resolver → system anchor。
 4. `services/ingest` 仍只有规格，OCR、分类与实体对齐未落地。
@@ -51,9 +52,10 @@
 
 ADR-009 的 VIEW/TURN 两条前置线已独立验收、进入 main 并清账。代码审计证明不能把
 `WORK-LIVE-1` 直接当接线单：当前缺 browser-safe/durable Work state、真实材料入口与 S3 垂类 binding。
-ADR-010 已把依赖收口。现在先做 `WORK-PORT-1`；验收后并行 `WORK-BROWSER-1 / WORK-STORE-1 /
-CASE-ROOT-1`，随后 `MATERIAL-INGRESS-1 → LEGAL-S3-BINDING-1 → WORK-LIVE-1`。recording 永久只在
-fixture/demo mode，不引入第二 chat runtime、agent loop 或 PM 空壳流程。
+ADR-010 已把依赖收口，`WORK-PORT-1` 已独立验收清账。现先做 `WORK-BROWSER-1`，把 core Work graph
+收成 WebView 可消费的纯协议出口；之后 `WORK-STORE-1` 与 `CASE-ROOT-1 → MATERIAL-INGRESS-1` 再按
+文件面错峰，最后 `LEGAL-S3-BINDING-1 → WORK-LIVE-1`。recording 永久只在 fixture/demo mode，不引入
+第二 chat runtime、agent loop 或 PM 空壳流程。
 
 `PM-SCHEMA-1` 是独立的垂类契约修复：令 OOC score 与确定性计算同义，并完成 payload 版本、JSON Schema、
 descriptor 与迁移边界。它可在不触碰 desktop/Work live 的条件下另行派发，但未完成前不得创建 PM scenario。
