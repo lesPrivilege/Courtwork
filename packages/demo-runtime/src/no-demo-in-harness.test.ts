@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { S3_PDF_PRELOADED_ANCHOR_QUOTES } from '@courtwork/legal';
+import { S3_PDF_PRELOADED_ANCHOR_QUOTES } from '@courtwork/legal/testing';
 import { S3_PRELOADED_ANCHOR_QUOTES } from './acceptance/run-s3-demo.js';
 
 /**

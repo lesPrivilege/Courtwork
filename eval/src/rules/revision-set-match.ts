@@ -1,4 +1,4 @@
-import { RevisionInstructionSetSchema, type RevisionInstruction } from '@courtwork/legal';
+import { RevisionInstructionSetSchema, type RevisionInstruction } from '@courtwork/legal/schemas';
 import type { RuleResult } from './types.js';
 
 /** text/tableCell 策略带 quote 字段，tableRow 不带——按需要抽出 {id, quote}，不核验 tableRow。 */

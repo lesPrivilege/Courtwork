@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { PM_PACKAGE_DESCRIPTOR } from '@courtwork/pm';
+import { PrdReviewSchema } from '@courtwork/pm/schemas';
 import { createDesktopPackageRuntime } from './package-runtime.js';
 
 describe('desktop package composition', () => {
@@ -10,5 +12,7 @@ describe('desktop package composition', () => {
     expect(runtime.packageRegistries.scenarios.list().every((scenario) => scenario.packageId === 'legal')).toBe(true);
     expect(runtime.packageRegistries.scenarios.list()).toHaveLength(5);
     expect(runtime.hostRenderers.get('courtwork.artifact-table.v1')).toBeDefined();
+    expect(PM_PACKAGE_DESCRIPTOR.identity.packageId).toBe('pm');
+    expect(typeof PrdReviewSchema.safeParse).toBe('function');
   });
 });

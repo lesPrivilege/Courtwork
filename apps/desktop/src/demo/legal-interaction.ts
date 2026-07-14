@@ -1,5 +1,5 @@
 import { requestInteraction, type TurnReplay } from '@courtwork/core/turn-protocol';
-import { LEGAL_PACKAGE } from '@courtwork/legal';
+import { LEGAL_PACKAGE } from '@courtwork/legal/package';
 import { admitPackages, buildPackageRegistries } from '@courtwork/registry';
 import type { ResolvedSourceAnchor } from '@courtwork/schemas';
 

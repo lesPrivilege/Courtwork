@@ -2,7 +2,8 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { findPartyRecord, type PartyCorpusRecord } from '@courtwork/demo-data';
-import { LEGAL_PACKAGE, S3_RISK_LIST_DRAFT, S3_PDF_DOSSIER_DRAFT } from '@courtwork/legal';
+import { LEGAL_PACKAGE } from '@courtwork/legal/package';
+import { S3_RISK_LIST_DRAFT, S3_PDF_DOSSIER_DRAFT } from '@courtwork/legal/testing';
 import { admitPackages, buildPackageRegistries, type PackageRegistries } from '@courtwork/registry';
 import { convertToReadingView, type ReadingViewOutcome } from '@courtwork/reading-view';
 import {
