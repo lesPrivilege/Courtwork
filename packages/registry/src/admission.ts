@@ -80,6 +80,120 @@ function checkEnumVocabulary(descriptor: ArtifactDescriptorDataV1, schema: z.Zod
   return issues;
 }
 
+function unwrapSchema(schema: z.ZodTypeAny): z.ZodTypeAny {
+  let current = schema;
+  while (
+    current instanceof z.ZodOptional
+    || current instanceof z.ZodNullable
+    || current instanceof z.ZodDefault
+    || current instanceof z.ZodReadonly
+    || current instanceof z.ZodCatch
+  ) {
+    current = current.unwrap() as z.ZodTypeAny;
+  }
+  return current;
+}
+
+function decodePointerSegment(segment: string): string {
+  return segment.replaceAll('~1', '/').replaceAll('~0', '~');
+}
+
+function resolveSchemaPointer(schema: z.ZodTypeAny, pointer: string): z.ZodTypeAny | undefined {
+  let current = schema;
+  if (pointer === '') return unwrapSchema(current);
+  for (const rawSegment of pointer.slice(1).split('/')) {
+    const segment = decodePointerSegment(rawSegment);
+    current = unwrapSchema(current);
+    if (current instanceof z.ZodObject) {
+      const next = (current.shape as Record<string, z.ZodTypeAny>)[segment];
+      if (next === undefined) return undefined;
+      current = next;
+      continue;
+    }
+    if (current instanceof z.ZodArray && /^(?:0|[1-9]\d*)$/.test(segment)) {
+      current = current.element as z.ZodTypeAny;
+      continue;
+    }
+    return undefined;
+  }
+  return unwrapSchema(current);
+}
+
+function labelValuesForSchema(schema: z.ZodTypeAny, format: string): string[] | undefined {
+  const target = unwrapSchema(schema);
+  if (format === 'tags') {
+    if (!(target instanceof z.ZodArray)) return undefined;
+    const element = unwrapSchema(target.element as z.ZodTypeAny);
+    return element instanceof z.ZodEnum ? (element.options as string[]).map(String) : undefined;
+  }
+  return target instanceof z.ZodEnum ? (target.options as string[]).map(String) : undefined;
+}
+
+function checkPresentation(descriptor: ArtifactDescriptorDataV1, schema: z.ZodType): string[] {
+  const presentation = descriptor.presentation;
+  if (presentation === undefined) return [];
+
+  const issues: string[] = [];
+  let itemSchema: z.ZodTypeAny = schema;
+  if (presentation.collectionPointer !== undefined) {
+    const collectionSchema = resolveSchemaPointer(schema, presentation.collectionPointer);
+    if (!(collectionSchema instanceof z.ZodArray)) {
+      issues.push(
+        `descriptor ${descriptor.typeId} presentation.collectionPointer "${presentation.collectionPointer}" 未命中数组`,
+      );
+      return issues;
+    }
+    itemSchema = collectionSchema.element as z.ZodTypeAny;
+  }
+
+  for (const field of presentation.fields) {
+    const fieldSchema = resolveSchemaPointer(itemSchema, field.pointer);
+    if (fieldSchema === undefined) {
+      issues.push(`descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 未命中 schema`);
+      continue;
+    }
+
+    const needsLabels = ['enum', 'status', 'tags', 'grade'].includes(field.format);
+    if (!needsLabels) {
+      if (field.valueLabels !== undefined) {
+        issues.push(
+          `descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 的 ${field.format} 字段不得携 valueLabels`,
+        );
+      }
+      continue;
+    }
+
+    const values = labelValuesForSchema(fieldSchema, field.format);
+    if (values === undefined) {
+      issues.push(
+        `descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 的 ${field.format} 字段无法确定枚举值，拒绝 wire fallback`,
+      );
+      continue;
+    }
+    if (field.valueLabels === undefined) {
+      issues.push(
+        `descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 缺 valueLabels，禁止回落 wire 值`,
+      );
+      continue;
+    }
+    for (const value of values) {
+      if (field.valueLabels[value] === undefined || field.valueLabels[value]!.trim() === '') {
+        issues.push(
+          `descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 的值 "${value}" 缺 valueLabels，禁止回落 wire 值`,
+        );
+      }
+    }
+    for (const value of Object.keys(field.valueLabels)) {
+      if (!values.includes(value)) {
+        issues.push(
+          `descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 的 valueLabels 含 schema 外取值 "${value}"`,
+        );
+      }
+    }
+  }
+  return issues;
+}
+
 function inspectJsonData(
   value: unknown,
   path: string,
@@ -228,6 +342,7 @@ function admitOne(
   const schemaBindings = new Map(schemaEntries);
 
   const declaredTypes = new Set<string>();
+  const declaredArtifacts = new Map<string, ArtifactDescriptorDataV1>();
   const declaredSchemaIds = new Set<string>();
   const declaredEffects = new Map<string, SideEffectClass>();
   for (const artifact of descriptor.artifacts) {
@@ -237,6 +352,7 @@ function admitOne(
     }
     if (declaredTypes.has(artifact.typeId)) issues.push(`descriptor 类型 ${artifact.typeId} 在包内重复声明`);
     declaredTypes.add(artifact.typeId);
+    declaredArtifacts.set(artifact.typeId, artifact);
     declaredEffects.set(artifact.typeId, artifact.sideEffect ?? 'pure_read');
 
     for (const schemaId of [artifact.schemaId, artifact.draftSchemaId].filter(
@@ -252,7 +368,10 @@ function admitOne(
       }
     }
     const finalSchema = schemaBindings.get(artifact.schemaId);
-    if (finalSchema !== undefined) issues.push(...checkEnumVocabulary(artifact, finalSchema));
+    if (finalSchema !== undefined) {
+      if (artifact.presentation === undefined) issues.push(...checkEnumVocabulary(artifact, finalSchema));
+      else issues.push(...checkPresentation(artifact, finalSchema));
+    }
   }
 
   const promptIds = new Set<string>();
@@ -296,6 +415,15 @@ function admitOne(
     for (const ref of [...value.inputArtifacts, ...value.outputArtifacts]) {
       if (!declaredTypes.has(ref)) {
         issues.push(`场景 ${value.id} 引用了未声明的 artifact 类型 ${ref}（引用闭合：包间零横向依赖，引用必须在包内解析）`);
+      }
+    }
+    for (const ref of value.outputArtifacts) {
+      const artifact = declaredArtifacts.get(ref);
+      const containsAnchor = artifact?.presentation?.fields.some((field) => field.format === 'anchor') ?? false;
+      if (containsAnchor && (artifact?.draftSchemaId === undefined || artifact.citationBinding === undefined)) {
+        issues.push(
+          `场景 ${value.id} 将含 anchor presentation 的 ${ref} 列为模型输出时必须同时声明独立 draftSchemaId + citationBinding`,
+        );
       }
     }
     if (!promptIds.has(value.promptSegmentRef)) {

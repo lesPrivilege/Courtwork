@@ -191,15 +191,26 @@ export const PresentationFieldFormatSchema = z.enum([
   'tags',
 ]);
 
+/** RFC 6901 JSON Pointer；拒绝 dot-path 与 `*` 通配符，不提供隐式数组遍历。 */
+const JsonPointerSchema = z
+  .string()
+  .refine((value) => /^(?:\/(?:[^~/]|~[01])*)*$/.test(value), {
+    message: '必须是 RFC 6901 JSON Pointer（禁止 dot-path）',
+  })
+  .refine((value) => !value.split('/').slice(1).includes('*'), {
+    message: 'JSON Pointer 禁止通配符 `*`',
+  });
+
 const ArtifactPresentationSchema = z
   .object({
-    collectionPointer: z.string().regex(/^\//).optional(),
+    collectionPointer: JsonPointerSchema.optional(),
     fields: z.array(
       z
         .object({
-          pointer: z.string().regex(/^\//),
-          label: z.string().min(1),
+          pointer: JsonPointerSchema,
+          label: z.string().trim().min(1),
           format: PresentationFieldFormatSchema,
+          valueLabels: z.record(z.string(), z.string().trim().min(1)).optional(),
         })
         .strict(),
     ),

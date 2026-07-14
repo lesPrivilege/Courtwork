@@ -90,6 +90,24 @@ function makeManifest(overrides: Partial<VerticalPackageManifest> = {}): Vertica
   };
 }
 
+type TestPresentation = {
+  collectionPointer?: string;
+  fields: Array<{
+    pointer: string;
+    label: string;
+    format: string;
+    valueLabels?: Record<string, string>;
+  }>;
+};
+
+function setRiskPresentation(
+  manifest: VerticalPackageManifest,
+  presentation: TestPresentation,
+): VerticalPackageManifest {
+  (manifest.artifacts[0] as unknown as { presentation: TestPresentation }).presentation = presentation;
+  return manifest;
+}
+
 describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + 词表完备性）', () => {
   it('合法包准入，零错误', () => {
     const result = admitPackages([makeManifest()]);
@@ -260,6 +278,159 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
     const result = admitPackages([bare]);
     expect(result.admitted).toEqual([]);
     expect(result.rejected[0]!.issues.join()).toContain('enumLabels');
+  });
+
+  it('presentation 以 RFC 6901 pointer 命中 collection/item，值词表成为该工作面的唯一显示权威', () => {
+    const presented = makeManifest();
+    delete presented.artifacts[0]!.vocabulary;
+    setRiskPresentation(presented, {
+      collectionPointer: '/risks',
+      fields: [
+        {
+          pointer: '/level',
+          label: '风险等级',
+          format: 'enum',
+          valueLabels: { high: '高', medium: '中', low: '低' },
+        },
+      ],
+    });
+
+    const result = admitPackages([presented]);
+
+    expect(result.rejected).toEqual([]);
+    expect(result.admitted).toHaveLength(1);
+  });
+
+  it.each([
+    ['dot-path', 'level'],
+    ['wildcard', '/*'],
+    ['pointer drift', '/missing'],
+  ])('presentation 拒绝 %s 字段路径且不把缺值显示为空', (_name, pointer) => {
+    const invalid = setRiskPresentation(makeManifest(), {
+      collectionPointer: '/risks',
+      fields: [
+        {
+          pointer,
+          label: '风险等级',
+          format: 'enum',
+          valueLabels: { high: '高', medium: '中', low: '低' },
+        },
+      ],
+    });
+
+    const result = admitPackages([invalid]);
+
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toMatch(/pointer|通配符|命中/);
+  });
+
+  it('enum/status/tags/grade 缺任一 valueLabels 值即拒载，禁止 wire fallback', () => {
+    const incomplete = setRiskPresentation(makeManifest(), {
+      collectionPointer: '/risks',
+      fields: [
+        {
+          pointer: '/level',
+          label: '风险等级',
+          format: 'enum',
+          valueLabels: { high: '高', medium: '中' },
+        },
+      ],
+    });
+
+    const result = admitPackages([incomplete]);
+
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toContain('low');
+    expect(result.rejected[0]!.issues.join()).toContain('valueLabels');
+  });
+
+  it('普通 presentation 字段不得携带无消费意义的 valueLabels', () => {
+    const redundant = setRiskPresentation(makeManifest(), {
+      collectionPointer: '/risks',
+      fields: [
+        {
+          pointer: '/level',
+          label: '风险等级',
+          format: 'text',
+          valueLabels: { high: '高' },
+        },
+      ],
+    });
+
+    const result = admitPackages([redundant]);
+
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toContain('valueLabels');
+  });
+
+  it('含 anchor presentation 的 artifact 未声明 draftSchemaId + citationBinding 时不得成为模型输出', () => {
+    const unsafe = makeManifest();
+    unsafe.bindings = {
+      schemas: new Map([
+        [
+          'legal.RiskList',
+          z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                level: z.enum(['high', 'medium', 'low']),
+                sourceAnchors: z.array(z.object({ fileId: z.string() })),
+              }),
+            ),
+          }),
+        ],
+        ['legal.CaseFile', z.object({ caseId: z.string() })],
+      ]),
+    };
+    setRiskPresentation(unsafe, {
+      collectionPointer: '/risks',
+      fields: [{ pointer: '/sourceAnchors', label: '原文依据', format: 'anchor' }],
+    });
+
+    const result = admitPackages([unsafe]);
+
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toMatch(/draftSchemaId.*citationBinding|citationBinding.*draftSchemaId/);
+  });
+
+  it('含 anchor presentation 的模型输出在 final/draft 与 citation binding 独立闭合后可准入', () => {
+    const safe = makeManifest();
+    const finalSchema = z.object({
+      caseId: z.string(),
+      risks: z.array(
+        z.object({
+          level: z.enum(['high', 'medium', 'low']),
+          sourceAnchors: z.array(z.object({ fileId: z.string() })),
+        }),
+      ),
+    });
+    safe.artifacts[0] = {
+      ...safe.artifacts[0]!,
+      draftSchemaId: 'legal.RiskListDraft',
+      citationBinding: {
+        draftField: 'quoteClaims',
+        anchorField: 'sourceAnchors',
+        itemScope: '/risks',
+        itemSummaryField: 'description',
+        outOfCoverageField: 'outOfCoverage',
+      },
+    };
+    safe.bindings = {
+      schemas: new Map([
+        ['legal.RiskList', finalSchema],
+        ['legal.RiskListDraft', z.object({ caseId: z.string(), risks: z.array(z.object({})) })],
+        ['legal.CaseFile', z.object({ caseId: z.string() })],
+      ]),
+    };
+    setRiskPresentation(safe, {
+      collectionPointer: '/risks',
+      fields: [{ pointer: '/sourceAnchors', label: '原文依据', format: 'anchor' }],
+    });
+
+    const result = admitPackages([safe]);
+
+    expect(result.rejected).toEqual([]);
+    expect(result.admitted).toHaveLength(1);
   });
 
   it('uiTemplateId 未声明 renderer 仅记警告（渲染兜底是设计态，不是准入失败）', () => {
