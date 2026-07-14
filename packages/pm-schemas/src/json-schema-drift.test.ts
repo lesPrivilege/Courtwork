@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { assertNoRemoteSchemaRefs } from '@courtwork/registry';
 import { describe, expect, it } from 'vitest';
 import { toJSONSchemaRecord } from './export-json-schema.js';
 
@@ -25,10 +26,10 @@ describe('PM JSON Schema export drift', () => {
   for (const [name, generated] of Object.entries(record)) {
     it(`${name}.schema.json 与当前 Zod schema 一致且使用不可解引用 URN`, () => {
       const committed = JSON.parse(readFileSync(join(jsonSchemaDir, `${name}.schema.json`), 'utf-8'));
+      expect(() => assertNoRemoteSchemaRefs(committed)).not.toThrow();
       expect(generated).toEqual(committed);
-      expect((generated as { $schema?: string }).$schema).toBe('https://json-schema.org/draft/2020-12/schema');
-      expect((generated as { $id?: string }).$id).toBe(`urn:courtwork:schema:pm.${name}:v1`);
-      expect(JSON.stringify(generated)).not.toMatch(/"\$ref":"(?!#)/);
+      expect((committed as { $schema?: string }).$schema).toBe('https://json-schema.org/draft/2020-12/schema');
+      expect((committed as { $id?: string }).$id).toBe(`urn:courtwork:schema:pm.${name}:v1`);
     });
   }
 });
