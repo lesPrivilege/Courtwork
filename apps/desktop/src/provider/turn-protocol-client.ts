@@ -10,7 +10,7 @@ import {
   type TurnReplay,
   type TurnStore,
 } from '@courtwork/core/turn-protocol';
-import type { GenerationUsage } from '@courtwork/provider/types';
+import type { GenerationNotice, GenerationUsage } from '@courtwork/provider/types';
 
 export const TURN_JOURNAL_STORAGE_KEY = 'courtwork.turn-journal.v1';
 
@@ -23,6 +23,7 @@ export interface TurnProjection {
   assistantMessage: string;
   reasoning: { status: 'pending' } | TurnReasoning;
   usage?: GenerationUsage;
+  notices?: GenerationNotice[];
   finishReason?: 'stop' | 'length' | 'content_filter' | 'unknown';
   failure?: TurnFailure;
 }
@@ -72,6 +73,12 @@ export function projectTurn(state: TurnProjection, event: TurnEvent): TurnProjec
       return { ...state, providerRequestId: event.providerRequestId, assistantMessage: event.content };
     case 'reasoning_completed':
       return { ...state, providerRequestId: event.providerRequestId, reasoning: { status: 'present', content: event.content } };
+    case 'provider_notice':
+      return {
+        ...state,
+        providerRequestId: event.providerRequestId,
+        notices: [...(state.notices ?? []), event.notice],
+      };
     case 'turn_completed':
       return {
         ...state,
@@ -80,6 +87,7 @@ export function projectTurn(state: TurnProjection, event: TurnEvent): TurnProjec
         assistantMessage: event.assistantMessage,
         reasoning: event.reasoning,
         ...(event.usage ? { usage: event.usage } : {}),
+        ...(event.notices ? { notices: event.notices } : {}),
         finishReason: event.finishReason,
       };
     case 'turn_failed':
@@ -90,6 +98,7 @@ export function projectTurn(state: TurnProjection, event: TurnEvent): TurnProjec
         assistantMessage: event.partialAssistantMessage ?? state.assistantMessage,
         reasoning: event.reasoning,
         ...(event.usage ? { usage: event.usage } : {}),
+        ...(event.notices ? { notices: event.notices } : {}),
         failure: event.failure,
       };
     case 'interaction_requested':

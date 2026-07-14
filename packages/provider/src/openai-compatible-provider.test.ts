@@ -58,6 +58,39 @@ describe('createOpenAICompatibleProvider — auth.kind / billing.kind 判别（�
 });
 
 describe('createOpenAICompatibleProvider — generate() end-to-end', () => {
+  it('publishes a structured-output downgrade notice on stream and generate aggregates that same notice', async () => {
+    const fetchImpl = vi.fn(async () => new Response(sseBody('{"a":1}'), {
+      status: 200,
+      headers: { 'content-type': 'text/event-stream' },
+    }));
+    const downgradeProfile = {
+      ...DEEPSEEK_QUIRK_PROFILE,
+      providerId: 'synthetic-downgrade',
+      parameterCompatibility: { structuredOutputWithDeepReasoning: 'downgrade_to_standard' as const },
+    };
+    const create = () => createOpenAICompatibleProvider(downgradeProfile, {
+      auth: { kind: 'api_key' as const, apiKey: 'sk-x' },
+      billing: { kind: 'metered' as const },
+      modelId: 'deepseek-v4-pro',
+      reasoningLevel: 'deep' as const,
+      fetchImpl,
+      delay: async () => {},
+    });
+    const request = { messages: [{ role: 'user' as const, content: 'hi' }], responseSchema: z.object({ a: z.number() }) };
+    const events = [];
+    for await (const event of create().stream(request, { requestId: 'structured-1' })) events.push(event);
+
+    const notice = {
+      code: 'reasoning_downgraded_for_structured_output',
+      requested: 'deep',
+      applied: 'standard',
+    };
+    expect(events.map((event) => event.type)).toEqual(['started', 'notice', 'content_delta', 'completed']);
+    expect(events[1]).toMatchObject({ type: 'notice', requestId: 'structured-1', seq: 1, notice });
+    await expect(create().generate(request)).resolves.toMatchObject({ notices: [notice] });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
   it('generate() aggregates the same public stream and opens exactly one transport request', async () => {
     let calls = 0;
     const encoder = new TextEncoder();

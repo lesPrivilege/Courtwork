@@ -20,6 +20,7 @@ import {
   createFileConfirmationStore,
   createFileEventLog,
   createFileRevisionEventStore,
+  createFileTurnStore,
   replaySession,
   resumeScenario,
   runScenario,
@@ -34,6 +35,7 @@ import type { GenerationRequest, Provider } from '@courtwork/provider/types';
 import type { PackageRegistries } from '@courtwork/registry';
 import {
   buildLegalDemoRunRuntime,
+  composeRuntimeTurnRunner,
   materialFromReadingView,
   LEGAL_DEMO_MATERIAL_PATHS,
 } from '../composition/demo-assembly.js';
@@ -80,8 +82,9 @@ export interface LegalDemoResult {
   goldenIssues: string[];
 }
 
-/** 全链黄金事件骨架：暂停前 3 + 续行后（确认、8 条逐条处置、修正重发、快照、完成）。 */
+/** 全链黄金事件骨架：暂停前 link+3 + 续行后（确认、8 条逐条处置、修正重发、快照、完成）。 */
 export const LEGAL_DEMO_GOLDEN_EVENT_TYPES = [
+  'turn_linked',
   'artifact_produced',
   'todo_snapshot',
   'confirmation_requested',
@@ -111,24 +114,29 @@ const SEGMENT_WIRE_MARKERS: Record<string, (wire: { system: string; user: string
 
 const sha256 = (data: string | Uint8Array) => createHash('sha256').update(data).digest('hex');
 
-/** provider 接缝目击器：透传生成，记录每次请求的 wire 摘要（哈希 + 六段标记物在场性）。 */
+/** provider 接缝目击器：只透传 stream，记录每次请求的 wire 摘要（哈希 + 六段标记物在场性）。 */
 function withWireWitness(provider: Provider, wires: CapturedWire[]): Provider {
+  const record = (request: GenerationRequest) => {
+    const system = request.systemPrompt ?? '';
+    const user = request.messages.map((m) => m.content).join('\n');
+    wires.push({
+      call: wires.length + 1,
+      systemPromptSha256: sha256(system),
+      userMessageSha256: sha256(user),
+      segmentMarkers: Object.fromEntries(
+        Object.entries(SEGMENT_WIRE_MARKERS).map(([id, probe]) => [id, probe({ system, user })]),
+      ),
+    });
+  };
   return {
     id: provider.id,
     modelId: provider.modelId,
-    stream(request, options) { return provider.stream(request, options); },
-    async generate(request: GenerationRequest) {
-      const system = request.systemPrompt ?? '';
-      const user = request.messages.map((m) => m.content).join('\n');
-      wires.push({
-        call: wires.length + 1,
-        systemPromptSha256: sha256(system),
-        userMessageSha256: sha256(user),
-        segmentMarkers: Object.fromEntries(
-          Object.entries(SEGMENT_WIRE_MARKERS).map(([id, probe]) => [id, probe({ system, user })]),
-        ),
-      });
-      return provider.generate(request);
+    async *stream(request, options) {
+      record(request);
+      yield* provider.stream(request, options);
+    },
+    async generate() {
+      throw new Error('wire witness 只允许经 TurnRunnerPort 消费 Provider.stream');
     },
   };
 }
@@ -256,10 +264,11 @@ export async function runLegalDemo(options: RunLegalDemoOptions = {}): Promise<L
   const eventsPath = join(workDir, 'events.jsonl');
   const pendingDir = join(workDir, 'pending');
   const revisionEventsPath = join(workDir, 'revision-events.jsonl');
+  const turnsPath = join(workDir, 'turns.jsonl');
   const makeDeps = (): ScenarioExecutorDeps => ({
     tools: runtime.tools,
     toolExecutor: createToolExecutor(),
-    provider,
+    turnRunner: composeRuntimeTurnRunner(provider, createFileTurnStore(turnsPath)),
     eventLog: createFileEventLog(sessionId, eventsPath),
     confirmationStore: createFileConfirmationStore(pendingDir),
     revisionStore: createFileRevisionEventStore(revisionEventsPath),

@@ -42,6 +42,7 @@ describe('S3 end-to-end acceptance flow', () => {
       // 修正后重发产出→进度快照→完成"的完整生命周期（重发的 artifact_produced 是
       // replaySession 能重建出修正后状态的原因；todo_snapshot 是 docs/architecture/system.md 长任务协议①）。
       expect(result.eventTypes).toEqual([
+        'turn_linked',
         'artifact_produced',
         'todo_snapshot',
         'confirmation_requested',

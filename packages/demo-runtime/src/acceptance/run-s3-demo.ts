@@ -14,6 +14,7 @@ import {
   createFileConfirmationStore,
   createFileEventLog,
   createFileRevisionEventStore,
+  createFileTurnStore,
   replaySession,
   resumeScenario,
   runScenario,
@@ -42,6 +43,7 @@ export interface S3DemoResult {
 }
 
 export const S3_GOLDEN_EVENT_TYPES = [
+  'turn_linked',
   'artifact_produced',
   'todo_snapshot',
   'confirmation_requested',
@@ -106,16 +108,20 @@ export async function runS3Demo(
   overrides?: { provider?: Provider },
 ): Promise<S3DemoResult> {
   const sessionId = 'demo-s3-session';
-  const runtime = buildDemoS3Runtime();
   const materials = await loadDemoS3Materials();
   const eventsPath = join(workDir, 'events.jsonl');
   const pendingDir = join(workDir, 'pending');
   const revisionEventsPath = join(workDir, 'revision-events.jsonl');
+  const turnsPath = join(workDir, 'turns.jsonl');
+  const runtime = buildDemoS3Runtime({
+    provider: overrides?.provider,
+    turnStore: createFileTurnStore(turnsPath),
+  });
 
   const firstDeps: ScenarioExecutorDeps = {
     tools: runtime.tools,
     toolExecutor: createToolExecutor(),
-    provider: overrides?.provider ?? runtime.provider,
+    turnRunner: runtime.turnRunner,
     eventLog: createFileEventLog(sessionId, eventsPath),
     confirmationStore: createFileConfirmationStore(pendingDir),
     revisionStore: createFileRevisionEventStore(revisionEventsPath),
@@ -138,11 +144,14 @@ export async function runS3Demo(
 
   // 模拟"另一个进程"接续：全部依赖重新构造，只共享磁盘路径与可序列化配置，
   // 不复用 firstDeps 的任何实例/闭包。
-  const secondRuntime = buildDemoS3Runtime();
+  const secondRuntime = buildDemoS3Runtime({
+    provider: overrides?.provider,
+    turnStore: createFileTurnStore(turnsPath),
+  });
   const secondDeps: ScenarioExecutorDeps = {
     tools: secondRuntime.tools,
     toolExecutor: createToolExecutor(),
-    provider: overrides?.provider ?? secondRuntime.provider,
+    turnRunner: secondRuntime.turnRunner,
     eventLog: createFileEventLog(sessionId, eventsPath),
     confirmationStore: createFileConfirmationStore(pendingDir),
     revisionStore: createFileRevisionEventStore(revisionEventsPath),

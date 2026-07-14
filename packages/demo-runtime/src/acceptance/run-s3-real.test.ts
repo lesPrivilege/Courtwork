@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import type { Provider } from '@courtwork/provider/types';
+import { createScriptedProvider } from '@courtwork/provider/scripted';
 import { assertNoDemoInReal, runS3Real } from './run-s3-real.js';
 
 const workRoot = mkdtempSync(join(tmpdir(), 'courtwork-s3-real-test-'));
@@ -18,12 +19,8 @@ function writeRealContract(): string {
 
 /** 真形状假 provider：id/modelId 像真的一样，返回引用真材料的草稿信封——用于通道级验证，不冒充真机证据。 */
 function realShapedProvider(fileId: string): Provider {
-  return {
-    id: 'deepseek',
-    modelId: 'deepseek-v4-flash',
-    async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
-    async generate() {
-      return {
+  return createScriptedProvider('deepseek', 'deepseek-v4-flash', [
+    {
         content: JSON.stringify({
           target: { stepId: 'produce-risk-list', artifactType: 'legal.RiskList' },
           artifact: {
@@ -40,9 +37,8 @@ function realShapedProvider(fileId: string): Provider {
           },
         }),
         usage: { inputTokens: 1000, outputTokens: 300 },
-      };
     },
-  };
+  ]);
 }
 
 describe('runS3Real（LEGAL-REAL 真跑通道）', () => {

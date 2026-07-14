@@ -61,17 +61,24 @@ describe('projectTurn', () => {
       { ...base, seq: 2, type: 'reasoning_started' },
       { ...base, seq: 3, type: 'reasoning_delta', delta: '核对' },
       { ...base, seq: 4, type: 'assistant_message_delta', delta: '正文' },
-      { ...base, seq: 5, type: 'reasoning_completed', content: '核对' },
-      { ...base, seq: 6, type: 'assistant_message_completed', content: '正文' },
       {
-        ...base, seq: 7, type: 'turn_completed', assistantMessage: '正文',
-        reasoning: { status: 'present', content: '核对' }, usage: { inputTokens: 3, outputTokens: 2 }, finishReason: 'stop',
+        ...base, seq: 5, type: 'provider_notice',
+        notice: { code: 'reasoning_downgraded_for_structured_output', message: '已降为标准模式', requested: 'deep', applied: 'standard' },
+      },
+      { ...base, seq: 6, type: 'reasoning_completed', content: '核对' },
+      { ...base, seq: 7, type: 'assistant_message_completed', content: '正文' },
+      {
+        ...base, seq: 8, type: 'turn_completed', assistantMessage: '正文',
+        reasoning: { status: 'present', content: '核对' }, usage: { inputTokens: 3, outputTokens: 2 },
+        notices: [{ code: 'reasoning_downgraded_for_structured_output', message: '已降为标准模式', requested: 'deep', applied: 'standard' }],
+        finishReason: 'stop',
       },
     ];
     const result = events.reduce(projectTurn, createEmptyTurnProjection('turn-1'));
     expect(result).toMatchObject({
       status: 'completed', assistantMessage: '正文',
       reasoning: { status: 'present', content: '核对' }, usage: { inputTokens: 3, outputTokens: 2 },
+      notices: [expect.objectContaining({ code: 'reasoning_downgraded_for_structured_output' })],
     });
   });
 

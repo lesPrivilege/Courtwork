@@ -8,6 +8,7 @@ import { createEvidenceLedger } from '../evidence/grade.js';
 import { createInMemoryConfirmationStore } from '../session/confirmation-store.js';
 import { createInMemoryRevisionEventStore } from '../revision/revision-store.js';
 import { createToolRegistry } from '../tools/tool-registry.js';
+import type { TurnRunnerPort } from '../turn/turn-runner.js';
 import { runScenario, type ScenarioExecutorDeps } from './executor.js';
 
 /** 引用闭环的执行器级行为：首过拒收 → 受限修复重试（携原判）→ 终局剪枝入缺口表。 */
@@ -84,20 +85,28 @@ function draftContent(quote: string, note = '条目一'): string {
 
 function buildDeps(responses: string[], capture?: string[]): ScenarioExecutorDeps {
   let call = 0;
+  const turnRunner: TurnRunnerPort = {
+    async run(input) {
+      capture?.push(input.request.messages[input.request.messages.length - 1]!.content);
+      const content = responses[Math.min(call, responses.length - 1)];
+      call += 1;
+      return {
+        status: 'completed',
+        turnId: input.turnId,
+        providerRequestId: input.providerRequestId,
+        providerId: 'scripted',
+        modelId: 'v1',
+        assistantMessage: content!,
+        reasoning: { status: 'absent' },
+        finishReason: 'stop',
+        completedAt: '2026-07-14T00:00:00.000Z',
+      };
+    },
+  };
   return {
     tools: createToolRegistry(),
     toolExecutor: createToolExecutor(),
-    provider: {
-      id: 'scripted',
-      modelId: 'v1',
-      async *stream() { yield await Promise.reject(new Error('test fake only exercises generate')); },
-      async generate(request) {
-        capture?.push(request.messages[request.messages.length - 1]!.content);
-        const content = responses[Math.min(call, responses.length - 1)];
-        call += 1;
-        return { content };
-      },
-    },
+    turnRunner,
     eventLog: createEventLog('s-cite', () => '2026-07-13T00:00:00.000Z'),
     confirmationStore: createInMemoryConfirmationStore(),
     revisionStore: createInMemoryRevisionEventStore(),
@@ -161,8 +170,23 @@ describe('执行器引用闭环环（受限修复重试 + 终局剪枝）', () =
     expect(prompts[1]).toContain('编造的句子');
     expect(prompts[1]).toContain('not_found');
     expect(prompts[1]).toContain('一字不差');
+    const linked = deps.eventLog.list().filter((event) => event.type === 'turn_linked');
+    expect(linked.map((event) => event.attempt)).toEqual([1, 2]);
+    expect(new Set(linked.map((event) => event.turnId)).size).toBe(2);
+    expect(new Set(linked.map((event) => event.providerRequestId)).size).toBe(2);
     const event = producedArtifact(deps);
     expect(event.citationStats).toEqual({ claims: 1, firstPassResolved: 0, retryRounds: 1, resolvedAfterRetry: 1, outOfCoverage: 0 });
+  });
+
+  it('citation repair 拒绝复用首轮身份，并且第二轮不触碰 TurnRunnerPort', async () => {
+    const deps = buildDeps([draftContent('编造的句子'), draftContent('真实存在的原文句子')]);
+    deps.createTurnIdentity = () => ({ turnId: 'same-turn', providerRequestId: 'same-provider-request' });
+
+    await expect(
+      runScenario(SCENARIO, { inputArtifacts: {}, toolInputs: {}, materials: [MATERIAL] }, deps),
+    ).rejects.toMatchObject({ name: 'WorkTurnIdentityError' });
+
+    expect(deps.eventLog.list().map((event) => event.type)).toEqual(['turn_linked']);
   });
 
   it('重试仍不收敛：条目移入 outOfCoverage，整 artifact 部分成功呈现（诚实 partial）', async () => {

@@ -11,6 +11,7 @@ import {
   createFileConfirmationStore,
   createFileEventLog,
   createFileRevisionEventStore,
+  createFileTurnStore,
   createToolRegistry,
   runScenario,
   type MaterialInput,
@@ -19,7 +20,7 @@ import {
   type ToolRegistry,
 } from '@courtwork/core';
 import type { Provider } from '@courtwork/provider/types';
-import { materialFromReadingView } from '../composition/demo-assembly.js';
+import { composeRuntimeTurnRunner, materialFromReadingView } from '../composition/demo-assembly.js';
 
 /**
  * LEGAL-REAL 真跑通道（S3 真卷宗真跑收官）：上传真卷宗 → ReadingView → 六段组装 →
@@ -141,7 +142,7 @@ export async function runS3Real(input: {
   const deps: ScenarioExecutorDeps = {
     tools: runtime.tools,
     toolExecutor: createToolExecutor(),
-    provider: input.provider,
+    turnRunner: composeRuntimeTurnRunner(input.provider, createFileTurnStore(join(workDir, 'turns.jsonl'))),
     eventLog,
     confirmationStore: createFileConfirmationStore(join(workDir, 'pending')),
     revisionStore: createFileRevisionEventStore(join(workDir, 'revision-events.jsonl')),

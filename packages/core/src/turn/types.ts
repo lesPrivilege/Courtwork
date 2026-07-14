@@ -1,4 +1,5 @@
 import type {
+  GenerationNotice,
   GenerationUsage,
   ProviderFailureKind,
 } from '@courtwork/provider/types';
@@ -35,12 +36,14 @@ type ProviderTurnEvent =
   | (TurnEventBase & { type: 'reasoning_started'; providerRequestId: string })
   | (TurnEventBase & { type: 'reasoning_delta'; providerRequestId: string; delta: string })
   | (TurnEventBase & { type: 'reasoning_completed'; providerRequestId: string; content: string })
+  | (TurnEventBase & { type: 'provider_notice'; providerRequestId: string; notice: GenerationNotice })
   | (TurnEventBase & {
       type: 'turn_completed';
       providerRequestId: string;
       assistantMessage: string;
       reasoning: TurnReasoning;
       usage?: GenerationUsage;
+      notices?: GenerationNotice[];
       finishReason: 'stop' | 'length' | 'content_filter' | 'unknown';
     })
   | (TurnEventBase & {
@@ -50,6 +53,7 @@ type ProviderTurnEvent =
       partialAssistantMessage?: string;
       reasoning: TurnReasoning;
       usage?: GenerationUsage;
+      notices?: GenerationNotice[];
     });
 
 export interface InteractionOptionSnapshot {
@@ -115,6 +119,7 @@ interface PersistedTurnBase {
   modelId: string;
   reasoning: TurnReasoning;
   usage?: GenerationUsage;
+  notices?: GenerationNotice[];
 }
 
 export type PersistedTurn =

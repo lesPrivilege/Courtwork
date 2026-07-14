@@ -3,7 +3,6 @@ import type { RevisionEvent, SourceAnchor } from '@courtwork/schemas';
 import { RevisionEventSchema } from '@courtwork/schemas';
 import type { ArtifactSchemaRegistry, ProjectionRegistry, ScenarioRuntime } from '@courtwork/registry';
 import type { ToolExecutor } from '@courtwork/tools';
-import type { Provider } from '@courtwork/provider/types';
 import type { EventLog } from '../events/event-log.js';
 import type { ConfirmationActor, ConfirmationInstrumentation } from '../events/types.js';
 import type { EvidenceLedger } from '../evidence/grade.js';
@@ -24,11 +23,31 @@ import {
 } from '../citation/resolver.js';
 import type { CitationFailure } from '@courtwork/schemas';
 import type { CitationStats } from '../events/types.js';
+import type { TurnRunnerPort } from '../turn/turn-runner.js';
+import type { PersistedTurn, TurnEvent } from '../turn/types.js';
+
+export interface WorkTurnIdentity {
+  turnId: string;
+  providerRequestId: string;
+}
+
+export interface WorkTurnIdentityContext {
+  sessionId: string;
+  scenarioId: string;
+  stepId: string;
+  artifactType: string;
+  attempt: number;
+}
+
+export type WorkTurnIdentityFactory = (context: WorkTurnIdentityContext) => WorkTurnIdentity;
 
 export interface ScenarioExecutorDeps {
   tools: ToolRegistry;
   toolExecutor: ToolExecutor;
-  provider: Provider;
+  turnRunner: TurnRunnerPort;
+  createTurnIdentity?: WorkTurnIdentityFactory;
+  signal?: AbortSignal;
+  onTurnEvent?: (event: TurnEvent) => void;
   eventLog: EventLog;
   confirmationStore: ConfirmationStore;
   revisionStore: RevisionEventStore;
@@ -89,6 +108,23 @@ export class GenerationValidationError extends Error {
   constructor(scenarioId: string, artifactType: string, issues: string) {
     super(`场景 ${scenarioId} 生成的 ${artifactType} 未通过 schema 校验：\n${issues}`);
     this.name = 'GenerationValidationError';
+  }
+}
+
+export class WorkTurnIdentityError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'WorkTurnIdentityError';
+  }
+}
+
+export class WorkTurnFailedError extends Error {
+  constructor(
+    readonly turn: Extract<PersistedTurn, { status: 'failed' }>,
+    readonly context: WorkTurnIdentityContext,
+  ) {
+    super(`场景 ${context.scenarioId} 的 ${context.artifactType} 模型步骤失败：${turn.failure.message}`);
+    this.name = 'WorkTurnFailedError';
   }
 }
 
@@ -154,6 +190,79 @@ function sumUsage(
   return { inputTokens: a.inputTokens + b.inputTokens, outputTokens: a.outputTokens + b.outputTokens };
 }
 
+function defaultTurnIdentity(): WorkTurnIdentity {
+  return { turnId: randomUUID(), providerRequestId: randomUUID() };
+}
+
+function assertFreshTurnIdentity(identity: unknown, deps: ScenarioExecutorDeps): asserts identity is WorkTurnIdentity {
+  if (
+    typeof identity !== 'object'
+    || identity === null
+    || Array.isArray(identity)
+    || typeof (identity as Partial<WorkTurnIdentity>).turnId !== 'string'
+    || typeof (identity as Partial<WorkTurnIdentity>).providerRequestId !== 'string'
+  ) {
+    throw new WorkTurnIdentityError('Work turnId/providerRequestId 必须是非空字符串');
+  }
+  const candidate = identity as WorkTurnIdentity;
+  if (
+    candidate.turnId.trim().length === 0
+    || candidate.providerRequestId.trim().length === 0
+    || candidate.turnId === candidate.providerRequestId
+  ) {
+    throw new WorkTurnIdentityError('Work turnId/providerRequestId 必须非空且彼此不同');
+  }
+  const linked = deps.eventLog.list().filter((event) => event.type === 'turn_linked');
+  if (linked.some((event) => event.turnId === candidate.turnId)) {
+    throw new WorkTurnIdentityError(`Work turnId 重复：${candidate.turnId}`);
+  }
+  if (linked.some((event) => event.providerRequestId === candidate.providerRequestId)) {
+    throw new WorkTurnIdentityError(`Work providerRequestId 重复：${candidate.providerRequestId}`);
+  }
+}
+
+async function runWorkTurn(
+  context: WorkTurnIdentityContext,
+  request: Parameters<TurnRunnerPort['run']>[0]['request'],
+  deps: ScenarioExecutorDeps,
+): Promise<Extract<PersistedTurn, { status: 'completed' }>> {
+  const identity = (deps.createTurnIdentity ?? defaultTurnIdentity)(context);
+  assertFreshTurnIdentity(identity, deps);
+  deps.eventLog.append({
+    type: 'turn_linked',
+    stepId: context.stepId,
+    artifactType: context.artifactType,
+    attempt: context.attempt,
+    turnId: identity.turnId,
+    providerRequestId: identity.providerRequestId,
+  });
+  const turn = await deps.turnRunner.run({
+    ...identity,
+    request,
+    ...(deps.signal ? { signal: deps.signal } : {}),
+    ...(deps.onTurnEvent ? { onEvent: deps.onTurnEvent } : {}),
+  });
+  if (turn.turnId !== identity.turnId || turn.providerRequestId !== identity.providerRequestId) {
+    throw new WorkTurnIdentityError('TurnRunnerPort 返回的终态身份与 Work 链接身份不一致');
+  }
+  if (turn.status === 'failed') {
+    deps.eventLog.append({
+      type: 'step_failed',
+      scope: 'model',
+      stepId: context.stepId,
+      artifactType: context.artifactType,
+      attempt: context.attempt,
+      turnId: turn.turnId,
+      providerRequestId: turn.providerRequestId,
+      reason: turn.failure.kind,
+      message: turn.failure.message,
+      retryable: turn.failure.retryable,
+    });
+    throw new WorkTurnFailedError(turn, context);
+  }
+  return turn;
+}
+
 async function generateArtifact(
   scenario: ScenarioRuntime,
   artifactType: string,
@@ -164,6 +273,7 @@ async function generateArtifact(
     materials: MaterialInput[];
   },
   deps: ScenarioExecutorDeps,
+  guard: RuntimeGuard,
 ): Promise<{
   artifact: unknown;
   usage?: { inputTokens: number; outputTokens: number };
@@ -180,7 +290,7 @@ async function generateArtifact(
   // 六段组装（HARNESS-1）：契约→声明→租户→投影→会话与语料→视图映射。
   // producedSoFar 经续行投影段进 context（声明式投影，非原文回放）；
   // todo 复述归视图映射段尾（docs/architecture/system.md 技巧的正名归宿）。
-  const generateOnce = async (repairFailures?: CitationFailure[]) => {
+  const generateOnce = async (attempt: number, repairFailures?: CitationFailure[]) => {
     const task: Record<string, unknown> = {
       artifactType,
       inputArtifacts: context.inputArtifacts,
@@ -208,10 +318,19 @@ async function generateArtifact(
       todo: deriveTodoSnapshot(scenario, context.producedSoFar),
       registries: { projections: deps.projections, artifacts: deps.artifacts },
     });
-    const response = await deps.provider.generate(assembled.request);
+    const turn = await runWorkTurn({
+      sessionId: deps.eventLog.sessionId,
+      scenarioId: scenario.id,
+      stepId,
+      artifactType,
+      attempt,
+    }, assembled.request, deps);
+    guard.checkTime();
+    const costUsd = estimateCostUsd(turn.providerId, turn.modelId, turn.usage);
+    if (costUsd !== undefined) guard.checkUsd(costUsd);
     let parsed: unknown;
     try {
-      parsed = JSON.parse(response.content);
+      parsed = JSON.parse(turn.assistantMessage);
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
       throw new GenerationValidationError(scenario.id, artifactType, `provider 返回的内容不是合法 JSON：${reason}`);
@@ -223,10 +342,10 @@ async function generateArtifact(
       throw new GenerationValidationError(scenario.id, artifactType, issues);
     }
     const envelope = result.data as { target: { stepId: string; artifactType: string }; artifact: unknown };
-    return { draft: envelope.artifact, usage: response.usage, notices: response.notices };
+    return { draft: envelope.artifact, usage: turn.usage, notices: turn.notices };
   };
 
-  const first = await generateOnce();
+  const first = await generateOnce(1);
   const binding = entry.descriptor.citationBinding;
   if (!binding) {
     return { artifact: first.draft, usage: first.usage, notices: first.notices };
@@ -255,7 +374,7 @@ async function generateArtifact(
     };
   }
 
-  const second = await generateOnce(firstPass.failures);
+  const second = await generateOnce(2, firstPass.failures);
   const pruned = resolveDraftArtifactWithPruning({ draft: second.draft, binding, layers });
   const final = entry.descriptor.schema.safeParse(pruned.artifact);
   if (!final.success) {
@@ -333,7 +452,7 @@ async function produceSequence(
   for (let i = 0; i < remainingArtifactTypes.length; i += 1) {
     guard.checkStep();
     const artifactType = remainingArtifactTypes[i];
-    const { artifact, usage, notices, citationStats } = await generateArtifact(
+    const { artifact, notices, citationStats } = await generateArtifact(
       scenario,
       artifactType,
       {
@@ -343,10 +462,9 @@ async function produceSequence(
         materials: state.materials,
       },
       deps,
+      guard,
     );
     guard.checkTime();
-    const costUsd = estimateCostUsd(deps.provider.id, deps.provider.modelId, usage);
-    if (costUsd !== undefined) guard.checkUsd(costUsd);
     state.producedSoFar[artifactType] = artifact;
     deps.eventLog.append({
       type: 'artifact_produced', artifactType, artifact, evidenceGrades: deps.ledger.snapshot(), providerNotices: notices, citationStats,

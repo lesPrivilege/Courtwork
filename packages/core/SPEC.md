@@ -26,6 +26,14 @@ tool calling、动态图、自动恢复或新 Work journal。
 从 provider stream 经 PersistedTurn 到 artifact 不丢失；core executor 源码零 `.generate(`。全仓门禁外，
 demo-runtime 两条既有全链/golden 必须等价。实现与验收异会话。
 
+实现留痕（2026-07-14，待独立验收）：
+
+- `ScenarioExecutorDeps.provider` 已删除；新增 `TurnRunnerPort`/`createTurnRunner` 与可注入身份工厂。executor 每轮先校验非空、未重复的 turn/provider request identity，再写 `turn_linked`；引用修复固定为新身份 attempt 2。
+- completed Work 只读 `PersistedTurn.assistantMessage/providerId/modelId/usage/notices` 做解析、公证与逐 Turn 计价。failed terminal 先写 model `step_failed`，再抛携终态的 `WorkTurnFailedError`；反例锁定一次调用、零 artifact、零 scenario_completed。
+- `replaySession` 现按序投影 linked turns，并以判别联合兼容旧 tool 与新 model 两类 failed steps；core executor 生产源码已无 `.generate(`。signal/onEvent 只透传端口，不进入任何持久 payload。
+- core 定向实现会话当前为 22 files / 245 tests；数字仅是实现证据，最终放行由另一会话在 clean worktree 重跑并写 `ACCEPTANCE.md`。
+- 全仓实现侧门禁：13 个 workspace package build 通过，ESLint 通过，Vitest 120 files / 1059 tests；desktop 纯 projection 因新判别成员机械保留 notices，隔离端口 `:1637` 的完整静态门与 Playwright 208/208 通过。未修改视觉、Rust、credential、schema/citation/confirmation 契约。
+
 ### CORE-BOUNDARY-1 · Demo composition 退出 core
 
 权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)。新建 `packages/demo-runtime`，原样迁移 `src/composition`、`src/acceptance`、对应 CLI 与 golden/integration tests；该包是唯一允许同时绑定 core/legal/demo-data/output/reading-view 的开发装配点，生产 desktop/core 不得反向依赖。

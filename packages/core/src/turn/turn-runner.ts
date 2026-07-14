@@ -1,5 +1,6 @@
 import type {
   GenerationRequest,
+  GenerationNotice,
   GenerationUsage,
   Provider,
   ProviderFailureKind,
@@ -27,6 +28,23 @@ export interface RunTurnOptions {
   signal?: AbortSignal;
   onEvent?: (event: TurnEvent) => void;
   now?: () => string;
+}
+
+/** Work/Chat composition boundary: callers receive one Turn engine, never Provider/TurnStore. */
+export interface TurnRunnerPort {
+  run(input: Omit<RunTurnOptions, 'provider' | 'store' | 'now'>): Promise<PersistedTurn>;
+}
+
+export function createTurnRunner(
+  provider: Provider,
+  store: TurnStore,
+  now?: () => string,
+): TurnRunnerPort {
+  return {
+    run(input) {
+      return runTurn({ ...input, provider, store, ...(now ? { now } : {}) });
+    },
+  };
 }
 
 type ProviderTerminal = Extract<ProviderStreamEvent, { type: 'completed' | 'failed' }>;
@@ -75,6 +93,31 @@ function validProviderFailure(event: Extract<ProviderStreamEvent, { type: 'faile
   return PROVIDER_FAILURE_KINDS.has(event.kind)
     && typeof event.message === 'string'
     && typeof event.retryable === 'boolean';
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
+}
+
+function validGenerationNotice(value: unknown): value is GenerationNotice {
+  return isRecord(value)
+    && hasExactKeys(value, ['code', 'message', 'requested', 'applied'])
+    && value.code === 'reasoning_downgraded_for_structured_output'
+    && typeof value.message === 'string'
+    && value.message.trim().length > 0
+    && value.requested === 'deep'
+    && value.applied === 'standard';
+}
+
+function validNoticeEvent(event: Extract<ProviderStreamEvent, { type: 'notice' }>): boolean {
+  return hasExactKeys(event as unknown as Record<string, unknown>, ['type', 'requestId', 'seq', 'notice'])
+    && validGenerationNotice(event.notice);
 }
 
 function nextProviderEvent(
@@ -149,6 +192,8 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
   let pendingReasoning = '';
   let reasoningStarted = false;
   let usage: GenerationUsage | undefined;
+  const notices: GenerationNotice[] = [];
+  const noticeCodes = new Set<GenerationNotice['code']>();
   let providerTerminal: ProviderTerminal | undefined;
   let providerStarted = false;
   let expectedProviderSeq = 0;
@@ -165,6 +210,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
       ...(assistantMessage.length > 0 ? { assistantMessage } : {}),
       reasoning: reasoningSnapshot(reasoningContent),
       ...(usage ? { usage } : {}),
+      ...(notices.length > 0 ? { notices: [...notices] } : {}),
       failure: turnFailure,
       failedAt,
     };
@@ -175,6 +221,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
       ...(assistantMessage.length > 0 ? { partialAssistantMessage: assistantMessage } : {}),
       reasoning: record.reasoning,
       ...(usage ? { usage } : {}),
+      ...(notices.length > 0 ? { notices: [...notices] } : {}),
     });
     return record;
   };
@@ -261,6 +308,17 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
             usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
           }
           break;
+        case 'notice':
+          if (!validNoticeEvent(event)) {
+            failure = protocolFailure('Provider emitted an invalid notice');
+          } else if (noticeCodes.has(event.notice.code)) {
+            failure = protocolFailure(`Provider emitted duplicate notice code: ${event.notice.code}`);
+          } else {
+            noticeCodes.add(event.notice.code);
+            notices.push(event.notice);
+            emit({ type: 'provider_notice', notice: event.notice });
+          }
+          break;
         case 'completed':
           if (!PROVIDER_FINISH_REASONS.has(event.finishReason)) {
             failure = protocolFailure('Provider emitted an invalid completion reason');
@@ -322,6 +380,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
     assistantMessage,
     reasoning,
     ...(usage ? { usage } : {}),
+    ...(notices.length > 0 ? { notices: [...notices] } : {}),
     finishReason: providerTerminal.finishReason,
     completedAt,
   };
@@ -334,6 +393,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
     assistantMessage,
     reasoning,
     ...(usage ? { usage } : {}),
+    ...(notices.length > 0 ? { notices: [...notices] } : {}),
     finishReason: providerTerminal.finishReason,
   });
   return record;

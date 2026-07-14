@@ -73,6 +73,7 @@ type ProviderFailureKind =
 
 type ProviderStreamEvent =
   | { type: 'started'; requestId: string; seq: number; providerId: string; modelId: string }
+  | { type: 'notice'; requestId: string; seq: number; notice: GenerationNotice }
   | { type: 'reasoning_delta'; requestId: string; seq: number; delta: string }
   | { type: 'content_delta'; requestId: string; seq: number; delta: string }
   | { type: 'usage'; requestId: string; seq: number; inputTokens: number; outputTokens: number }
@@ -81,6 +82,13 @@ type ProviderStreamEvent =
 ```
 
 provider port 新增可取消的 `stream(request): AsyncIterable<ProviderStreamEvent>`；既有 `generate()` 只作为聚合兼容层消费该 stream，不得另走第二条 HTTP 路径。正常 EOF 前没有 `[DONE]`、终态时正文为空、非法 JSON/SSE、重复终态、取消竞态都必须结构化失败。
+
+### TURN-WORK-1 实现留痕（2026-07-14）
+
+- OpenAI-compatible structured 路径与 ScriptedProvider 都在 `started` 后从公开 stream 发布 notice；`generate()` 只聚合该事件，原请求参数重算与 request side map 已删除。
+- core Turn 对 notice 外层/内层精确形状、当前闭集 code 与同 code 去重做运行时校验；合法 notice 机械转发为 `provider_notice`，并进入 completed/failed 终态快照。
+- 合成 downgrade profile 锁定 stream 与 generate 同值、单请求；ScriptedProvider 锁定脚本 notice 不再走旁路。本节只记录实现，不构成验收放行。
+- 实现会话定向门禁：provider 12 files / 88 tests，build/catalog check 与 ESLint 均通过；未修改 DeepSeek catalog、Rust、credential 或产品 provider 范围。
 
 `started` 固定是 provider 请求生命周期的 `seq: 0`，不是 HTTP 2xx 的同义词；因此 401/429/5xx、transport network 与 cancel 也必须先发布一次 `started`，再发布闭集 `failed`。私有 `response_started` 只完成 transport handshake，成功路径不得再发布第二个 `started`。
 

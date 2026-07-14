@@ -25,6 +25,13 @@ demo/acceptance composition root。迁移后所有 scripted/real S3 与 legal de
 既有 fixture 字节、引用修复轮数、artifact、确认、修订、docx 与 golden 不变；新增证据只允许是
 `turn_linked`/model `step_failed`/Turn journal。真 provider 缺 key 仍必须在读取材料前拒绝。
 
+### TURN-WORK-1 实现留痕（2026-07-14，待独立验收）
+
+- `composeRuntimeTurnRunner` 是本包统一的 provider + TurnStore 装配点；scripted S3、real S3 与 legal demo 都向 `ScenarioExecutorDeps` 注入 `TurnRunnerPort`，Work 路径不再持有 provider。
+- S3/legal 全链在各自 workDir 追加 `turns.jsonl`，wire witness 改在 `Provider.stream` 接缝记录，`generate()` 明确拒绝旁路；fixture、引用修复、artifact、确认、修订与 docx 语义未改。
+- golden 只增加模型调用前的 `turn_linked` 审计事件：S3 由 8 变 9，legal demo 由 15 变 16。当前定向为 8 files / 29 tests；本节不构成验收放行。
+- CLI 实跑：`demo:s3` 仍产出 39,713 bytes redline、7/7 考点、golden PASS；`demo:legal` 仍为 8 风险、11/11 锚点、7 确认 + 1 驳回、golden PASS。
+
 ## 实现留痕（2026-07-14）
 
 - 搬迁前原 core demo/acceptance 定向 19/19；搬迁后本包 8 个测试文件 26/26（含新的依赖无环/反向依赖守卫）。
