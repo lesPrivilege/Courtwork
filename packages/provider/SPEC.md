@@ -6,6 +6,12 @@
 
 唯一 provider 边界：provider port、OpenAI Chat Completions adapter、SSE 归一、结构化输出降档、能力 profile、定价与当期 DeepSeek 产品登记。不得依赖 core、desktop、垂类包或 demo-data。
 
+## USAGE-LEDGER-1 · 已知缺口
+
+- 当前 `provider-stream.ts` 归一化只保留 input/output token，DeepSeek wire 已提供的 cache hit、cache miss 与 reasoning token 会被丢弃；实现前须由架构角色冻结通用可选槽位，并同步 adapter、HTTP/SSE、ScriptedProvider、Turn 持久与消费点。
+- 当前 `estimateCostUsd` 返回没有价目表版本、假设或“估算”判别的裸数。后续输出必须同时保存原始 usage、price table 版本/生效时间与 assumptions；历史记录不得用新价格静默重算为旧账单真值。
+- usage 缺失表示 unknown，不表示 0；失败/取消竞态必须有反例。价格、峰谷时段与别名日期不写入本 SPEC，更新只以当期官方 catalog/price table 与独立验收为准。
+
 ## TURN-WORK-1 · notice 进入统一 stream
 
 权威：[ADR-007](../../docs/decisions/ADR-007-provider-turn-protocol.md) 与

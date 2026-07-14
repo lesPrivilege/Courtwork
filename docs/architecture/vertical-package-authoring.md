@@ -59,5 +59,5 @@
 - schema 导出全集、URN、Draft、remote-ref 与 drift；
 - 字段词表零 wire、pointer 与 renderer fail closed；
 - 模型伪造 SourceAnchor、确认绕过、非法/重复回答与坏包隔离；
-- 根出口无 fixture/Node/vendor 泄漏；browser-safe 图无 `node:*`；
+- 根出口无 fixture/Node/vendor 泄漏；稳定 browser 出口同时通过递归源码依赖门与真实 browser bundler consumer，字符串扫描只能作前置防线，不能单独宣称 browser-safe；
 - `pnpm -r build`、`pnpm lint`、`pnpm test`，行为变更另跑独立端口完整 Playwright。

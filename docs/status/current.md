@@ -51,7 +51,7 @@
 3. 除 RiskList 外，部分模型产物的最终 schema 仍直接包含 SourceAnchor，尚未统一为 quote → resolver → system anchor。
 4. `services/ingest` 仍只有规格，OCR、分类与实体对齐未落地。
 5. 企业私域 ACL、MCP adapter、机构层记忆仍是后置席位。
-6. usage ledger 与真实 token/cost 投影尚未成为统一权威来源。
+6. usage ledger 仍丢弃 cache hit/miss 与 reasoning token；成本函数仍返回无价目表版本/假设的裸估算。缺失 usage 的 unknown 语义、原始计量与派生估算尚未形成统一权威来源。
 7. 部分 package SPEC/ACCEPTANCE 是长篇编年记录，后续应按层拆成“现行 SPEC + 历史验收”，但本轮不改其证据内容。
 8. `PriorityScore` 的确定性计算在任一参数 OOC 时返回 `null`，但 v1 payload schema 的 `score` 仍不接受 `null`；在创建任何 PM scenario 前须由 `PM-SCHEMA-1` 以版本化契约收口。
 9. PM package identity、两包 metadata/schema drift 与 exports 已按 ADR-012 对齐；后续只剩 package/schemas/domain 等内部 layout 机械归位，公开 ABI 与 payload 不再变化。

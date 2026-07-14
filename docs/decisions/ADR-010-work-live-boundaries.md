@@ -158,9 +158,15 @@ interface WorkStateHostPort {
 }
 ```
 
+`version` 由 host 在 CAS 成功时铸造为不透明、单调递增的 generation；它与信封内由 TS 状态机维护的
+`revision` 相互独立。调用方不得用 mtime、内容 hash 或 `revision` 冒充 host version，以免合法回退、
+规范化序列化或跨进程竞争造成 ABA 误判。
+
 TS runtime 独占 envelope 校验、事件状态机与 CAS 重试；Rust 只强制 app-data scope、id 形状、大小上限、
-符号链接/路径穿越隔离和原子替换。localStorage 不得充当生产 Work store：pending 内含材料快照，容量、
-跨进程 first-wins 与原子性均不足。
+符号链接/路径穿越隔离和原子替换。原子替换至少验证同目录临时文件落盘、rename 与目录项落盘；
+macOS/APFS 实现还必须在真机证明文件与目录的 `F_FULLFSYNC` 实际发生，普通 `fsync` 或库级
+`sync_all` 名称不能替代该证据。Windows/Linux 的对应耐久调用须在支持该平台时另行验证。localStorage 与 `tauri-plugin-store` 都不得充当生产 Work store：pending
+内含材料快照，容量、跨进程 first-wins 与原子性均不足。
 
 core 需要异步、可等待的 durable store 边界。以下顺序是契约，不是性能建议：
 
@@ -172,6 +178,9 @@ core 需要异步、可等待的 durable store 边界。以下顺序是契约，
 6. revision 载荷成功持久后才能发布 `revision_recorded`。
 
 不得用 fire-and-forget、命令结束批量 flush 或同步内存真源 + 异步镜像绕过上述顺序。
+若 `turn_linked` 已成功持久，但对应 Turn terminal 尚未持久就发生崩溃，本地无法证明 provider 请求是否
+已经发出、计费或完成；恢复时必须把该 attempt 标为 interrupted，以全新 Turn/attempt 身份由用户重新发起，
+不得自动重放、重连或假装续接同一次 provider 调用。
 
 ## 决定三：持久 artifact 必须使用版本信封
 
@@ -220,7 +229,8 @@ type MaterialRef = {
 };
 ```
 
-- Tauri folder/file picker 返回 opaque case/material id；绝对路径和授权只住 host。
+- Tauri 系统原生 folder/file picker 返回 opaque case/material id；绝对路径和授权只住 host。生产入口不得用
+  Web `<input type="file" webkitdirectory>` 代替，因为该控件不能建立可持久复验的宿主绝对路径授权。
 - 原件只读；TS reading-view 从宿主读取受限 bytes，确定性产生 markdown、paragraphs/blocks、页码与版本哈希。
 - `MaterialInput` 与 deterministic `CaseFile` 只从已持久、哈希一致的 MaterialRef/ReadingView 派生。
 - provider 前重验原件/ReadingView hash；漂移、删除、需 OCR 或缺材料必须显式阻断，不读取 demo、不猜内容。
@@ -275,6 +285,9 @@ WORK-BROWSER-1、WORK-STORE-1 与 CASE-ROOT-1 可在 WORK-PORT-1 验收后按不
 - pending 保存失败时不得出现 `confirmation_requested`；两个并发 resume 只能一笔成功；
 - paused 后销毁 composition，重建后仍能 replay/resume；残缺 session 必须是 interrupted；
 - 原件改一字节、删除或 ReadingView hash 漂移时 provider 前失败；
+- CASE-ROOT 必须分别注入系统 picker 取消/TCC 拒绝、卷卸载与需重新授权，三者均显式失败且不返回空来源；
+- `turn_linked` 已持久而 Turn terminal 缺席时不得自动重放 provider，必须产生新的 Turn/attempt 身份；
+- Work store 的 generation、原子替换与 macOS 强同步路径必须以并发/崩溃反例和系统调用级证据验收；
 - 未知 schemaVersion/缺 migration 不得渲染 raw payload；
 - `revise` 不得完成门禁，单项 reject 不得终止全场景；
 - provider/validation/cancel 后不得再有 artifact 或 `scenario_completed`；
