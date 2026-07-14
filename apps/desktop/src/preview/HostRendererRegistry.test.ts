@@ -9,11 +9,25 @@ describe('HostRendererRegistry（宿主以 uiTemplateId 绑定可执行工作面
   it('Legal 既有工作面与通用表都由宿主 blueprint 显式登记', () => {
     const registry = createCourtworkHostRendererRegistry();
 
-    expect(registry.get('timeline-panel')).toMatchObject({ kind: 'route', view: 'timeline' });
-    expect(registry.get('party-graph-panel')).toMatchObject({ kind: 'route', view: 'graph' });
-    expect(registry.get('risk-review-panel')).toMatchObject({ kind: 'route', view: 'revision' });
-    expect(registry.get('matrix-review-panel')).toMatchObject({ kind: 'route', view: 'matrix' });
-    expect(registry.get('draft-review-panel')).toMatchObject({ kind: 'route', view: 'draft' });
+    expect(registry.get('case-intake-panel')).toEqual({ uiTemplateId: 'case-intake-panel', kind: 'passive' });
+    expect(registry.get('timeline-panel')).toEqual({
+      uiTemplateId: 'timeline-panel', kind: 'route', view: 'timeline', moduleTarget: 'timeline', autoOpen: true,
+    });
+    expect(registry.get('party-graph-panel')).toEqual({
+      uiTemplateId: 'party-graph-panel', kind: 'route', view: 'graph', moduleTarget: 'graph', autoOpen: true,
+    });
+    expect(registry.get('risk-review-panel')).toEqual({
+      uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', moduleTarget: 'revision', autoOpen: true,
+    });
+    expect(registry.get('matrix-review-panel')).toEqual({
+      uiTemplateId: 'matrix-review-panel', kind: 'route', view: 'matrix', moduleTarget: 'matrix', autoOpen: true,
+    });
+    expect(registry.get('draft-review-panel')).toEqual({
+      uiTemplateId: 'draft-review-panel', kind: 'route', view: 'draft', autoOpen: false,
+    });
+    expect(registry.get('file-ops-plan-panel')).toEqual({
+      uiTemplateId: 'file-ops-plan-panel', kind: 'passive', moduleTarget: 'working-folders',
+    });
     expect(registry.get('courtwork.artifact-table.v1')).toMatchObject({ kind: 'component', view: 'artifact' });
   });
 

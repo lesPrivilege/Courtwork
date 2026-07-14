@@ -15,7 +15,7 @@ export function createCourtworkHostRendererRegistry(): HostRendererRegistry {
     { uiTemplateId: 'party-graph-panel', kind: 'route', view: 'graph', moduleTarget: 'graph', autoOpen: true },
     { uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', moduleTarget: 'revision', autoOpen: true },
     { uiTemplateId: 'matrix-review-panel', kind: 'route', view: 'matrix', moduleTarget: 'matrix', autoOpen: true },
-    { uiTemplateId: 'draft-review-panel', kind: 'route', view: 'draft', moduleTarget: 'draft', autoOpen: false },
+    { uiTemplateId: 'draft-review-panel', kind: 'route', view: 'draft', autoOpen: false },
     { uiTemplateId: 'file-ops-plan-panel', kind: 'passive', moduleTarget: 'working-folders' },
     {
       uiTemplateId: 'courtwork.artifact-table.v1',
