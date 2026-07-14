@@ -161,7 +161,7 @@ interface ArtifactDescriptorDataV1 {
     fields: Array<{
       pointer: string;
       label: string;
-      format: 'text' | 'mono' | 'number' | 'enum' | 'status' | 'grade' | 'anchor' | 'tags';
+      format: 'text' | 'mono' | 'number' | 'estimate' | 'enum' | 'status' | 'grade' | 'anchor' | 'tags';
       valueLabels?: Record<string, string>;
     }>;
   };
@@ -190,10 +190,11 @@ interface VerticalPackageBindings {
 - 垂类只声明 presentation、词表、动作能力和 anchor policy；不得注入 JSX、函数、CSS 或自由坐标。
 - `presentation.collectionPointer` 是从 artifact 根求值的 RFC 6901 JSON Pointer，命中主条目数组；存在 collection 时，`fields[].pointer` 是从每个条目根求值的 JSON Pointer，不存在 collection 时则从 artifact 根求值。两者均禁止 dot-path、通配符、函数与隐式数组遍历，pointer 不命中必须显式报不兼容而非显示空字符串。
 - `fields[].label` 是该工作面的字段显示权威。`enum | status | tags | grade` 必须在同一 field 上提供完整 `valueLabels`；`text | mono | number | anchor` 不得携带无消费意义的 valueLabels。宿主不得按叶子 key 猜词表，也不得回落 wire 值。
+- `estimate` 是主观/计算数值的通用呈现形，不是 PM 特判。其 pointer 只允许命中以下三种 schema 形状：有限 number；`{ low: number; high: number }` 区间；或 `{ value: number | null; range: { low; high } | null; status: enum; ... }` envelope。宿主分别显示单值、`low–high`，或 envelope 中恰居其一的 value/range；两者都为空时只显示 field-local `valueLabels[status]`。envelope 的 status labels 必须完整覆盖 enum，直接 number/range 不得携 labels；双值、非法区间、未知 status 或不合形状整面 fail closed。整份 artifact schema 仍先于 presentation 执行，renderer 不重写领域不变量。
 - 通用 renderer 只能遍历 `presentation.fields` 白名单，禁止 `Object.entries(payload)`。
 - presentation 引用字段缺 label、enum 值缺映射、renderer 未知或版本不兼容时显式拒载/降级。
 - 安全兜底只显示人读 title 与“当前版本不支持此工作面”。type id、wire key、原始枚举、绝对路径、hash 和 raw JSON 只允许进入显式 developer diagnostics/导出。
-- `courtwork.artifact-table.v1` 是首个通用 blueprint：先用 descriptor 绑定的 Zod schema 校验整个 payload，再按 collection/field pointer 投影。`text | mono | number` 只接受对应标量；枚举类只显示 field-local `valueLabels`；`anchor` 只显示来源数、可用页码与完整 quote，不展示 bbox/textRange/raw object。pointer 不命中、类型不符或 label 缺失都进入同一个不泄漏 wire 的 incompatible fallback，不能渲染半张表。
+- `courtwork.artifact-table.v1` 是首个通用 blueprint：先用 descriptor 绑定的 Zod schema 校验整个 payload，再按 collection/field pointer 投影。`text | mono | number` 只接受对应标量，`estimate` 按上条显示单值/区间/缺口状态；枚举类只显示 field-local `valueLabels`；`anchor` 只显示来源数、可用页码与完整 quote，不展示 bbox/textRange/raw object。pointer 不命中、类型不符或 label 缺失都进入同一个不泄漏 wire 的 incompatible fallback，不能渲染半张表。
 - 现有 Legal 专用面板继续由宿主拥有，但自动打开与路由改按 `uiTemplateId`；允许某些 blueprint 不自动打开。不得用 `HOMED_ARTIFACT_TYPES` 一类 type-id 白名单代替 registry。
 - 既有 `question-card` 以 compatibility alias 迁往 `courtwork.question-card.v1`；历史事件保存当时的模板/文案/锚点快照，回放不重查当前 manifest。
 - `ABI-2B` 中 PM 先作为 catalog-only 包准入：四类 artifact/schema/presentation 可以装载，但 `scenarios` 与 prompt 为空，不生成空壳工作流。任何后续 scenario 若把含 `format: 'anchor'` 的 artifact 列为模型输出，准入必须要求独立 `draftSchemaId + citationBinding`；最终 SourceAnchor 仍只能由 resolver/system producer 铸造。
