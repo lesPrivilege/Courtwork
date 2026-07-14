@@ -125,7 +125,7 @@ describe('PM_PACKAGE（ABI-2B catalog-only 第二垂类包）', () => {
   const result = admitPackages([PM_PACKAGE]);
 
   it('identity、四 schema bindings 与 catalog-only 边界固定', () => {
-    expect(PM_PACKAGE_DESCRIPTOR.identity).toEqual({ packageId: 'pm', version: '0.1.0', schemaVersion: 1 });
+    expect(PM_PACKAGE_DESCRIPTOR.identity).toEqual({ packageId: 'pm', version: '0.1.1', schemaVersion: 1 });
     expect([...PM_PACKAGE_BINDINGS.schemas.keys()]).toEqual([
       'pm.FeedbackDigest',
       'pm.PrdReview',
@@ -191,6 +191,20 @@ describe('PM_PACKAGE（ABI-2B catalog-only 第二垂类包）', () => {
     ]);
   });
 
+  it('PriorityScore 参数以完整 envelope 投影，score 以同一 estimate 格式覆盖单值与区间', () => {
+    const estimateFields = presentationOf('pm.PriorityScore').fields
+      .filter((field) => String(field.format) === 'estimate')
+      .map((field) => ({ pointer: field.pointer, valueLabels: field.valueLabels }));
+
+    expect(estimateFields).toEqual([
+      { pointer: '/params/reach', valueLabels: { filled: '已填充', out_of_coverage: '未覆盖·需补材料' } },
+      { pointer: '/params/impact', valueLabels: { filled: '已填充', out_of_coverage: '未覆盖·需补材料' } },
+      { pointer: '/params/confidence', valueLabels: { filled: '已填充', out_of_coverage: '未覆盖·需补材料' } },
+      { pointer: '/params/effort', valueLabels: { filled: '已填充', out_of_coverage: '未覆盖·需补材料' } },
+      { pointer: '/score', valueLabels: undefined },
+    ]);
+  });
+
   it('漏一枚 valueLabels 或 pointer 漂移时 PM 整包拒载', () => {
     const missingLabel = clonePackage();
     const channel = missingLabel.artifacts[0]!.presentation!.fields.find((field) => field.pointer === '/channel')!;
@@ -220,5 +234,27 @@ describe('PM_PACKAGE（ABI-2B catalog-only 第二垂类包）', () => {
 
     expect(mixed.rejected.map((entry) => entry.packageId)).toEqual(['pm']);
     expect(mixed.admitted.map((manifest) => manifest.identity.packageId)).toEqual(['legal']);
+  });
+
+  it('非法 estimate pointer 只拒载 PM，不污染同批 Legal catalog', () => {
+    const badPm = clonePackage();
+    const score = badPm.artifacts[2]!.presentation!.fields.find((field) => field.pointer === '/score')!;
+    score.pointer = '/id';
+    (score as unknown as { format: string }).format = 'estimate';
+    const legalCatalog: VerticalPackageManifest = {
+      abiVersion: 1,
+      identity: { packageId: 'legal', version: '0.1.0', schemaVersion: 1 },
+      artifacts: [],
+      scenarios: [],
+      promptSegments: [],
+      renderers: [],
+      vocabulary: { 'container.noun': '卷宗', 'stage.noun': '阶段', 'material.noun': '材料' },
+      bindings: { schemas: new Map() },
+    };
+
+    const mixed = admitPackages([badPm, legalCatalog]);
+    expect(mixed.rejected.map((entry) => entry.packageId)).toEqual(['pm']);
+    expect(mixed.admitted.map((manifest) => manifest.identity.packageId)).toEqual(['legal']);
+    expect(mixed.rejected[0]!.issues.join()).toContain('estimate');
   });
 });

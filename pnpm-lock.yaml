@@ -41,6 +41,9 @@ importers:
       '@courtwork/output':
         specifier: workspace:*
         version: link:../../packages/output
+      '@courtwork/pm-schemas':
+        specifier: workspace:*
+        version: link:../../packages/pm-schemas
       '@courtwork/provider':
         specifier: workspace:*
         version: link:../../packages/provider

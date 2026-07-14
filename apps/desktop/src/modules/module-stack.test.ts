@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  applyArtifactAutoExpand,
+  applyModuleAutoExpand,
   collapseAllModules,
   DEFAULT_MODULE_OPEN,
   progressHeadCount,
@@ -14,10 +14,10 @@ describe('module stack (docs/decisions/ADR-006-ui-host.md ch.3)', () => {
     expect(progressHeadCount(9, 6)).toBe('6/6');
   });
 
-  it('artifact_produced 自动展开对应模块', () => {
-    const open = applyArtifactAutoExpand(DEFAULT_MODULE_OPEN, {}, 'legal.RiskList');
+  it('宿主 renderer 提供的 module target 自动展开对应模块', () => {
+    const open = applyModuleAutoExpand(DEFAULT_MODULE_OPEN, {}, 'revision');
     expect(open.revision).toBe(true);
-    const timeline = applyArtifactAutoExpand(DEFAULT_MODULE_OPEN, {}, 'legal.Timeline');
+    const timeline = applyModuleAutoExpand(DEFAULT_MODULE_OPEN, {}, 'timeline');
     expect(timeline.timeline).toBe(true);
   });
 
@@ -26,7 +26,7 @@ describe('module stack (docs/decisions/ADR-006-ui-host.md ch.3)', () => {
     // 手动关
     const closed = { ...open, revision: false };
     const ov = { ...override, revision: false };
-    const after = applyArtifactAutoExpand(closed, ov, 'legal.RiskList');
+    const after = applyModuleAutoExpand(closed, ov, 'revision');
     expect(after.revision).toBe(false);
   });
 
@@ -41,10 +41,10 @@ describe('module stack (docs/decisions/ADR-006-ui-host.md ch.3)', () => {
   });
 
   it('收缩态：全模块折叠', () => {
-    const allOpen = applyArtifactAutoExpand(
-      applyArtifactAutoExpand(DEFAULT_MODULE_OPEN, {}, 'legal.RiskList'),
+    const allOpen = applyModuleAutoExpand(
+      applyModuleAutoExpand(DEFAULT_MODULE_OPEN, {}, 'revision'),
       {},
-      'legal.Timeline',
+      'timeline',
     );
     const collapsed = collapseAllModules(allOpen);
     expect(Object.values(collapsed).every((v) => v === false)).toBe(true);

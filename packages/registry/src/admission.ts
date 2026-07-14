@@ -98,9 +98,13 @@ function decodePointerSegment(segment: string): string {
   return segment.replaceAll('~1', '/').replaceAll('~0', '~');
 }
 
-function resolveSchemaPointer(schema: z.ZodTypeAny, pointer: string): z.ZodTypeAny | undefined {
+function resolveSchemaPointer(
+  schema: z.ZodTypeAny,
+  pointer: string,
+  unwrapTerminal = true,
+): z.ZodTypeAny | undefined {
   let current = schema;
-  if (pointer === '') return unwrapSchema(current);
+  if (pointer === '') return unwrapTerminal ? unwrapSchema(current) : current;
   for (const rawSegment of pointer.slice(1).split('/')) {
     const segment = decodePointerSegment(rawSegment);
     current = unwrapSchema(current);
@@ -116,7 +120,7 @@ function resolveSchemaPointer(schema: z.ZodTypeAny, pointer: string): z.ZodTypeA
     }
     return undefined;
   }
-  return unwrapSchema(current);
+  return unwrapTerminal ? unwrapSchema(current) : current;
 }
 
 function labelValuesForSchema(schema: z.ZodTypeAny, format: string): string[] | undefined {
@@ -127,6 +131,93 @@ function labelValuesForSchema(schema: z.ZodTypeAny, format: string): string[] | 
     return element instanceof z.ZodEnum ? (element.options as string[]).map(String) : undefined;
   }
   return target instanceof z.ZodEnum ? (target.options as string[]).map(String) : undefined;
+}
+
+function isEstimateNumberSchema(schema: z.ZodTypeAny): boolean {
+  return schema instanceof z.ZodNumber && (schema as z.ZodNumber & { _zod: { def: { coerce?: boolean } } })._zod.def.coerce !== true;
+}
+
+function isEstimateRangeSchema(schema: z.ZodTypeAny): boolean {
+  if (!(schema instanceof z.ZodObject)) return false;
+  const shape = schema.shape as Record<string, z.ZodTypeAny>;
+  const keys = Object.keys(shape).sort();
+  return keys.length === 2
+    && keys[0] === 'high'
+    && keys[1] === 'low'
+    && isEstimateNumberSchema(shape.low!)
+    && isEstimateNumberSchema(shape.high!);
+}
+
+function nullableInner(schema: z.ZodTypeAny): z.ZodTypeAny | undefined {
+  if (schema instanceof z.ZodNullable) return schema.unwrap() as z.ZodTypeAny;
+  if (schema instanceof z.ZodUnion) {
+    const options = schema.options as z.ZodTypeAny[];
+    if (options.length !== 2) return undefined;
+    const nullIndex = options.findIndex((option) => option instanceof z.ZodNull);
+    if (nullIndex === -1) return undefined;
+    return options[nullIndex === 0 ? 1 : 0];
+  }
+  return undefined;
+}
+
+type EstimateSchemaShape =
+  | { kind: 'direct' }
+  | { kind: 'envelope'; statuses: string[] };
+
+function classifyEstimateSchema(schema: z.ZodTypeAny): EstimateSchemaShape | undefined {
+  if (isEstimateNumberSchema(schema) || isEstimateRangeSchema(schema)) return { kind: 'direct' };
+  if (schema instanceof z.ZodUnion) {
+    const options = schema.options as z.ZodTypeAny[];
+    if (
+      options.length > 0
+      && options.every((option) => isEstimateNumberSchema(option) || isEstimateRangeSchema(option))
+    ) {
+      return { kind: 'direct' };
+    }
+    return undefined;
+  }
+  if (!(schema instanceof z.ZodObject)) return undefined;
+  const shape = schema.shape as Record<string, z.ZodTypeAny>;
+  const value = shape.value === undefined ? undefined : nullableInner(shape.value);
+  const range = shape.range === undefined ? undefined : nullableInner(shape.range);
+  const status = shape.status;
+  if (
+    value === undefined
+    || !isEstimateNumberSchema(value)
+    || range === undefined
+    || !isEstimateRangeSchema(range)
+    || !(status instanceof z.ZodEnum)
+  ) {
+    return undefined;
+  }
+  return { kind: 'envelope', statuses: (status.options as string[]).map(String) };
+}
+
+function checkExactValueLabels(
+  descriptor: ArtifactDescriptorDataV1,
+  pointer: string,
+  values: string[],
+  labels: Record<string, string> | undefined,
+): string[] {
+  if (labels === undefined) {
+    return [`descriptor ${descriptor.typeId} presentation pointer "${pointer}" 缺 valueLabels，禁止回落 wire 值`];
+  }
+  const issues: string[] = [];
+  for (const value of values) {
+    if (labels[value] === undefined || labels[value]!.trim() === '') {
+      issues.push(
+        `descriptor ${descriptor.typeId} presentation pointer "${pointer}" 的值 "${value}" 缺 valueLabels，禁止回落 wire 值`,
+      );
+    }
+  }
+  for (const value of Object.keys(labels)) {
+    if (!values.includes(value)) {
+      issues.push(
+        `descriptor ${descriptor.typeId} presentation pointer "${pointer}" 的 valueLabels 含 schema 外取值 "${value}"`,
+      );
+    }
+  }
+  return issues;
 }
 
 function checkPresentation(descriptor: ArtifactDescriptorDataV1, schema: z.ZodType): string[] {
@@ -147,9 +238,30 @@ function checkPresentation(descriptor: ArtifactDescriptorDataV1, schema: z.ZodTy
   }
 
   for (const field of presentation.fields) {
-    const fieldSchema = resolveSchemaPointer(itemSchema, field.pointer);
-    if (fieldSchema === undefined) {
+    const rawFieldSchema = resolveSchemaPointer(itemSchema, field.pointer, false);
+    if (rawFieldSchema === undefined) {
       issues.push(`descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 未命中 schema`);
+      continue;
+    }
+    const fieldSchema = unwrapSchema(rawFieldSchema);
+
+    if (field.format === 'estimate') {
+      const shape = classifyEstimateSchema(rawFieldSchema);
+      if (shape === undefined) {
+        issues.push(
+          `descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 的 estimate schema 形状不兼容`,
+        );
+        continue;
+      }
+      if (shape.kind === 'direct') {
+        if (field.valueLabels !== undefined) {
+          issues.push(
+            `descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 的直接 number/range estimate 不得携 valueLabels`,
+          );
+        }
+      } else {
+        issues.push(...checkExactValueLabels(descriptor, field.pointer, shape.statuses, field.valueLabels));
+      }
       continue;
     }
 
@@ -170,26 +282,7 @@ function checkPresentation(descriptor: ArtifactDescriptorDataV1, schema: z.ZodTy
       );
       continue;
     }
-    if (field.valueLabels === undefined) {
-      issues.push(
-        `descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 缺 valueLabels，禁止回落 wire 值`,
-      );
-      continue;
-    }
-    for (const value of values) {
-      if (field.valueLabels[value] === undefined || field.valueLabels[value]!.trim() === '') {
-        issues.push(
-          `descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 的值 "${value}" 缺 valueLabels，禁止回落 wire 值`,
-        );
-      }
-    }
-    for (const value of Object.keys(field.valueLabels)) {
-      if (!values.includes(value)) {
-        issues.push(
-          `descriptor ${descriptor.typeId} presentation pointer "${field.pointer}" 的 valueLabels 含 schema 外取值 "${value}"`,
-        );
-      }
-    }
+    issues.push(...checkExactValueLabels(descriptor, field.pointer, values, field.valueLabels));
   }
   return issues;
 }
