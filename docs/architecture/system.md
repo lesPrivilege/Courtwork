@@ -54,7 +54,9 @@ services/ingest       Python OCR/分类/实体对齐（尚待实现）
 
 低频稳定段在前，高频段在后，同时服务语义优先级与 provider 前缀缓存（前三段字节稳定有确定性测试锁定；对真实 provider 缓存命中率的收益属设计意图，未实测）。模型输出必须携目标地址；回填按地址经 schema 严格校验，错步/错类型/裸 artifact 一律拒收，不按生成位置猜测。
 
-消费范围如实声明：六段组装只由 scenario executor 消费，当前仅 demo/acceptance 链路实跑。desktop 产品 Chat 走独立的单段通用组装（`generic-chat`，场景无命中时的兜底路径），不经过六段。两者何时在 production Work 汇合以[当前基线](../status/current.md)与[实现就绪图](implementation-readiness.md)为准。
+这是双轨设计，不是过渡状态：自由对话走轻组装（`generic-chat` 单段），不背 schema 义务，memory 与 session 管理不转嫁给用户，对话即用即走；场景声明走 Work，一套卷宗就是整个 session，schema 是工作语义真源，续行依赖声明式投影锚点（权威态、artifact 摘要、账本尾部、未决门禁），不依赖模型总结历史。
+
+消费范围如实声明：六段组装只由 scenario executor 消费，当前仅 demo/acceptance 链路实跑；production Work 装配进度以[当前基线](../status/current.md)与[实现就绪图](implementation-readiness.md)为准。
 
 ## 场景与包 ABI
 
