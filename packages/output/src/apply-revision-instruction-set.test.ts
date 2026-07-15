@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import type { Element } from '@xmldom/xmldom';
 import { RevisionInstructionSetSchema } from '@courtwork/schemas';
-import { applyRevisionInstructionSet } from './apply-revision-instruction-set.js';
+import { applyRevisionInstructionSet, NonAppliedInstructionsError } from './apply-revision-instruction-set.js';
 import { loadDocx, getText } from './docx-zip.js';
 import { W } from './apply-instructions.js';
 import { SAMPLE_INSTRUCTION_SET } from './test-fixtures/instruction-set.js';
@@ -107,21 +107,68 @@ describe('applyRevisionInstructionSet', () => {
     expect(childElement(untouchedPlain, 'rPr'), '未触碰的纯 run 被补写了 rPr').toBeUndefined();
   });
 
-  it('reports locator_not_found (and skips) rather than mis-inserting when the quote no longer exists', () => {
+  const mixedSet = {
+    ...SAMPLE_INSTRUCTION_SET,
+    instructions: [
+      SAMPLE_INSTRUCTION_SET.instructions[0]!, // 可定位（违约金）
+      {
+        id: 'ins-broken',
+        kind: 'replace' as const,
+        locator: { strategy: 'text' as const, quote: '这段文字在样例合同里根本不存在，绝无可能命中任何段落内容啦啦啦' },
+        text: '不会被用到',
+      },
+    ],
+  };
+
+  it('blocks the whole persist (throws typed error, no docx) when any instruction is non-applied — no silent skip-and-ship (OUTPUT-CORRECTNESS-1 #6)', () => {
     const original = readFileSync(join(FIXTURES_DIR, 'original.docx'));
-    const brokenInstructionSet = {
-      ...SAMPLE_INSTRUCTION_SET,
-      instructions: [
-        {
-          id: 'ins-broken',
-          kind: 'replace' as const,
-          locator: { strategy: 'text' as const, quote: '这段文字在样例合同里根本不存在，绝无可能命中任何段落内容啦啦啦' },
-          text: '不会被用到',
-        },
-      ],
-    };
-    const { outcomes } = applyRevisionInstructionSet(original, brokenInstructionSet, { now: FIXED_NOW });
-    expect(outcomes).toEqual([{ id: 'ins-broken', status: 'locator_not_found' }]);
+    // 默认策略 block：哪怕另一条可应用，整份也不落盘。
+    expect(() => applyRevisionInstructionSet(original, mixedSet, { now: FIXED_NOW })).toThrow(
+      NonAppliedInstructionsError,
+    );
+    try {
+      applyRevisionInstructionSet(original, mixedSet, { now: FIXED_NOW });
+      expect.unreachable('should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(NonAppliedInstructionsError);
+      const typed = error as NonAppliedInstructionsError;
+      // 逐条 typed outcome 在错误对象上显式暴露，供落盘前展示。
+      expect(typed.outcomes.map((o) => o.id)).toEqual(['ins-01', 'ins-broken']);
+      expect(typed.nonApplied.map((o) => [o.id, o.status])).toEqual([['ins-broken', 'locator_not_found']]);
+    }
+  });
+
+  it('proceeds only with targeted per-id confirmation of the non-applied instruction (confirm policy)', () => {
+    const original = readFileSync(join(FIXTURES_DIR, 'original.docx'));
+    const { docx, outcomes } = applyRevisionInstructionSet(original, mixedSet, {
+      now: FIXED_NOW,
+      onNonApplied: 'confirm',
+      confirmNonApplied: ['ins-broken'],
+    });
+    expect(docx.length).toBeGreaterThan(0);
+    // 未应用项仍逐条返回，只是被显式确认后放行。
+    expect(outcomes.map((o) => [o.id, o.status])).toEqual([
+      ['ins-01', 'applied'],
+      ['ins-broken', 'locator_not_found'],
+    ]);
+  });
+
+  it('still blocks under confirm policy when a non-applied instruction is not among the confirmed ids (not a blanket allow)', () => {
+    const original = readFileSync(join(FIXTURES_DIR, 'original.docx'));
+    expect(() =>
+      applyRevisionInstructionSet(original, mixedSet, {
+        now: FIXED_NOW,
+        onNonApplied: 'confirm',
+        confirmNonApplied: ['some-other-id'],
+      }),
+    ).toThrow(NonAppliedInstructionsError);
+  });
+
+  it('returns the docx normally when every instruction applies (no gate triggered)', () => {
+    const original = readFileSync(join(FIXTURES_DIR, 'original.docx'));
+    const { docx, outcomes } = applyRevisionInstructionSet(original, SAMPLE_INSTRUCTION_SET, { now: FIXED_NOW });
+    expect(docx.length).toBeGreaterThan(0);
+    expect(outcomes.every((o) => o.status === 'applied')).toBe(true);
   });
 
   it('golden snapshot: document.xml matches the committed reference byte-for-byte', async () => {

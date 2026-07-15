@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createToolExecutor } from '@courtwork/tools';
-import { applyRevisionInstructionSet, type InstructionOutcome } from '@courtwork/output';
+import { applyRevisionInstructionSet, NonAppliedInstructionsError, type InstructionOutcome } from '@courtwork/output';
 import {
   compileConfirmedRiskListToRevisionInstructions,
   type CaseFile,
@@ -194,9 +194,22 @@ export async function runS3Demo(
   const revisionSet = compileConfirmedRiskListToRevisionInstructions(riskList, '04-设备采购合同.docx', gatekeeper);
 
   const originalDocx = readFileSync(ORIGINAL_DOCX_PATH);
-  const { docx, outcomes } = applyRevisionInstructionSet(originalDocx, revisionSet, {
-    now: new Date('2026-07-10T09:00:00.000Z'),
-  });
+  const now = new Date('2026-07-10T09:00:00.000Z');
+  // 落盘门禁：合成合同里 instr-risk-07 定位不上。真实产品会把未应用项交用户逐条处置；
+  // 本脚本化 demo 先撞门禁拿到未应用项、再以显式针对性确认继续演示"确认→docx"终链——
+  // 绝不静默跳过后照常交付。
+  const { docx, outcomes } = (() => {
+    try {
+      return applyRevisionInstructionSet(originalDocx, revisionSet, { now });
+    } catch (error) {
+      if (!(error instanceof NonAppliedInstructionsError)) throw error;
+      return applyRevisionInstructionSet(originalDocx, revisionSet, {
+        now,
+        onNonApplied: 'confirm',
+        confirmNonApplied: error.nonApplied.map((o) => o.id),
+      });
+    }
+  })();
 
   const finalEvents = createFileEventLog(sessionId, eventsPath).list();
   const replay = replaySession(finalEvents);

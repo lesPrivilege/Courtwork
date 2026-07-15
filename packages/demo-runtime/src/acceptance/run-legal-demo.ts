@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createToolExecutor } from '@courtwork/tools';
-import { applyRevisionInstructionSet, type InstructionOutcome } from '@courtwork/output';
+import { applyRevisionInstructionSet, NonAppliedInstructionsError, type InstructionOutcome } from '@courtwork/output';
 import { convertToReadingView } from '@courtwork/reading-view';
 import {
   compileConfirmedRiskListToRevisionInstructions,
@@ -379,10 +379,22 @@ export async function runLegalDemo(options: RunLegalDemoOptions = {}): Promise<L
     },
   });
 
-  // ── 站 8 · 修订 docx 落产出（定位失败即跳过不错插；产物 + 指令集落盘）──
-  const { docx, outcomes } = applyRevisionInstructionSet(twinBytes, revisionSet, {
-    now: new Date('2026-07-13T09:00:00.000Z'),
-  });
+  // ── 站 8 · 修订 docx 落产出（定位失败不错插；未应用项显式确认后落盘，不静默跳过）──
+  // 孪生里 instr-risk-08 定位不上。真实产品把未应用项交用户逐条处置；本脚本化 demo 先撞
+  // 落盘门禁拿到未应用项，再以显式针对性确认继续演示"确认→docx"终链。
+  const revisionNow = new Date('2026-07-13T09:00:00.000Z');
+  const { docx, outcomes } = (() => {
+    try {
+      return applyRevisionInstructionSet(twinBytes, revisionSet, { now: revisionNow });
+    } catch (error) {
+      if (!(error instanceof NonAppliedInstructionsError)) throw error;
+      return applyRevisionInstructionSet(twinBytes, revisionSet, {
+        now: revisionNow,
+        onNonApplied: 'confirm',
+        confirmNonApplied: error.nonApplied.map((o) => o.id),
+      });
+    }
+  })();
   writeFileSync(join(workDir, 'redline.docx'), docx);
   writeFileSync(join(workDir, 'revision-instruction-set.json'), JSON.stringify(revisionSet, null, 2));
   stations.push({
