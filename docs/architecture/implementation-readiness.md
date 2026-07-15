@@ -37,8 +37,9 @@ Chat 线（ADR-013）
 └─ CHAT-SESSION-1 ──► CHAT-MEMORY-1
 
 独立契约线
-├─ USAGE-LEDGER-1（已实现，验收中）
-└─ PM-SCHEMA-1
+├─ USAGE-LEDGER-1（已清账）
+├─ PM-SCHEMA-1
+└─ UI-RESIDUE-1
 ```
 
 主线中的箭头是开工依赖，不是建议顺序；前置未独立验收时，后项不得用临时 adapter 越过。Chat 线与 Work 主线互不依赖，可并行施工，但 `CHAT-MEMORY-1` 不得先于 `CHAT-SESSION-1` 的窗口/transcript 语义落地。
@@ -58,6 +59,7 @@ Chat 线（ADR-013）
 | `WORK-LIVE-1` | production run/replay/resume/cancel，只装配已验收前置 | 真实材料跨重启完成证据—确认—docx 链；recording 消费为零 |
 | `USAGE-LEDGER-1` | 保存 provider 原始 usage、unknown 语义、cache/reasoning 计量和版本化估算 | DeepSeek fixture 与缺字段反例可重放；原始计量和派生价格不互相覆盖 |
 | `PM-SCHEMA-1` | 令 OOC score 与确定性计算同义，并版本化 payload/schema/migration | OOC、drift、旧版本迁移与 catalog-only 边界触红；不夹带 PM scenario |
+| `UI-RESIDUE-1` | 疊層/可开合组件的「开合闭合门」（开→关后与初始基线像素+DOM 双重等价）与 `expectNoOverlayResidue` DOM 残留 helper（动画归零、无孤儿 portal、focus 归还、无残留 aria-hidden/inert）；像素基线仅对 Chromium 闭环，WKWebView 由 DOM 层兜底；含抖动控制清单落地 | 至少一个现存残留缺陷先以红测坐实；疊層组件清单逐一入册并有静态门防漏报；注入残留（不清 portal/不停动画/不归还 focus）逐类触红 |
 
 ## 需要实测，不再泛化调研
 
