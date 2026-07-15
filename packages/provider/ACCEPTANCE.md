@@ -187,3 +187,89 @@ Rust restart/model-binding 测试、desktop readiness 单测，以及 Playwright
 - `codex/accept-provider-2` 完整提交链：**放行，可合入 `main`**。
 - 契约级阻塞：无。
 - 后续范围：TURN-1 承接可回放 turn 生命周期；Chat-UI 再消费公共 delta，不得回退到 transport body 聚合。
+
+---
+
+# USAGE-LEDGER-1 独立验收报告
+
+验收日期：2026-07-15
+
+验收角色：独立验收会话（`USAGE-LEDGER-1-ACCEPT`）
+
+验收对象：`main@13eb33f`；实现提交 `ce37d53`；基线 `fc05282`
+
+## 结论
+
+**带一项验收修复放行。** ProviderUsage、CostEstimate、rawUsage 真源、unknown 传染、DeepSeek 失配处理、Turn 持久与 desktop 消费均符合冻结契约；未发现契约级问题或 `[需架构拍板]` 项。
+
+验收发现 desktop 的「unknown 显示为未知」虽实现正确，但原 168 项单测没有直接守卫：现场注入 `unknown → 0` 后仍 168/168 假绿。已补最小实现级门，将 formatter 抽为可单测模块，并锁定 unknown 与合法 0 不得混同；不改公开类型、跨层语义或 UI 输出。修复后 a–h 全部反例均能触红。
+
+## 范围、契约与依赖
+
+- `git diff fc05282..ce37d53 --name-only` 实测恰 **32 文件**，全部位于 `packages/provider`、`packages/core`、`apps/desktop` 三个授权层；`docs/status/current.md` 零触碰。
+- `ProviderUsage` 只有冻结的六个可选槽位：`inputTokens`、`outputTokens`、`cacheHitInputTokens`、`cacheMissInputTokens`、`reasoningOutputTokens`、`rawUsage`；没有新增 mismatch/status 槽位。
+- `CostEstimate` 精确为 `kind: 'estimate'`、`usd`、`priceTableVersion`、`effectiveAt`、`assumptions`；原始计量与派生估价分开。
+- `git diff fc05282..ce37d53 -- packages/provider/src/pricing-table.ts` 逐项核对：既有 DeepSeek 输入/输出价仍为 **3 / 6 RMB per million**，汇率仍为 **1 / 7.1**；只增加版本、effectiveAt、assumptions 与判别式返回形状，没有改价、增峰谷时段或别名日期。
+- provider boundary 定向实跑 **4/4**；manifest 生产依赖只有 `zod`，开发依赖只有 `@types/node`；排除测试反例后，生产源码/脚本对 core、desktop、垂类、demo、registry、schemas 等 `@courtwork/*` 禁止依赖 grep 为 **0**。
+- core 与 desktop 的 `USAGE-LEDGER-1` SPEC trace 均存在并与代码一致；验收修复后 desktop trace 已同步到 `src/provider/usage-metering.ts` 与对应测试。
+
+## DeepSeek fixture 诚实性
+
+- `deepseek-usage-fixture.test.ts` 实测包含三型 fixture：完整 cache/reasoning、仅 reasoning、仅 prompt/completion，另有 hit+miss 与 prompt_tokens 失配 fixture。
+- 文件头与 describe 明示 fixture 为**构造、非 external-validated**；`packages/provider/SPEC.md` 保留「真实响应捕获：阻塞」节并说明缺 `DEEPSEEK_API_KEY`。
+- 对现行源码与文档搜索 `external-validated`，Provider 相关命中全部是否定声明；没有真实响应已验证的误宣称。
+
+## 反例注入实证
+
+每项均在 13eb33f 验收 worktree 注入，观察非零退出后还原；最终仅保留 h 的测试门修复。
+
+| 反例 | 实测触红 |
+| --- | --- |
+| a. 归一化丢弃 cache/reasoning 投影 | `provider-stream.test.ts` **1 failed / 11**，缺三枚 provider 槽位 |
+| b. `sumUsage` 把 unknown 折叠为 0 | `sum-usage.test.ts` **1 failed / 4**，得到 10 而非 unknown |
+| c. DeepSeek 失配仍投影 hit/miss | `deepseek-usage-fixture.test.ts` **2 failed / 7**，wire 与 profile 双门均红；raw 断言仍保留原数 |
+| d. 新价目表就地覆写旧 estimate | `pricing-table.test.ts` **1 failed / 13**，旧 V1 usd 被 V2 改为 4 |
+| e. Turn drift 门丢 `rawUsage` | `turn-store.test.ts` **1 failed / 4**，以 `TurnJournalCorruptionError` 拒绝 |
+| f. ScriptedProvider 缺字段折叠为 0 | `scripted-provider.test.ts` **1 failed / 7**，多出 input/cache 的 0 |
+| g1. 允许终态后 usage | `turn-runner.test.ts` 定向 **1 failed**，非法流被错误完成 |
+| g2. 失败终态丢弃先到 usage | `turn-runner.test.ts` 定向 **1 failed**，failed record 缺完整计量 |
+| h. desktop unknown 渲染为 0 | 原门假绿后补门；`usage-metering.test.ts` 注入时 **1 failed / 2**，明确收到 `Input 0` 而非 `Input 未知` |
+
+## Playwright 基线归责
+
+13eb33f 在隔离端口 18374 首轮完整实跑：前置静态 guards 全通过，Playwright **210 passed / 2 failed / 212**。失败为：
+
+- `rp210.spec.ts:43`
+- `system-open.spec.ts:12`
+
+两例均在 `confirmDemoReview` 等待 `output-docx-card` 30 秒逾时。随后另建 `fc05282` detached clean worktree，执行 frozen install、全仓 build，并在隔离端口 18375 只跑这两例；结果 **0 passed / 2 failed**，同一行、同一等待点、同一逾时。因此两例确认为基线既有的纯 Vite 环境缺 Tauri output-write 宿主桥，不归责 USAGE-LEDGER-1。
+
+验收修复后又在端口 18376 完整复跑，仍为 **210 passed / 2 baseline failures / 212**，没有新增 E2E 失败。
+
+## 最终门禁
+
+| 门禁 | 实测结果 |
+| --- | --- |
+| `pnpm install --frozen-lockfile` | 成功；lockfile 无变更 |
+| `pnpm -r build` | 13/14 workspace scope 全部成功；provider catalog check 与 desktop Vite build 通过 |
+| `pnpm lint` | 通过，零 error |
+| `pnpm test` | **136 files / 1175 tests** 全绿 |
+| desktop unit（原实现） | **39 files / 168 tests** 全绿，但 h 注入假绿，故补门 |
+| desktop unit（验收修复后） | **40 files / 170 tests** 全绿 |
+| desktop 完整 Playwright（18376） | 前置 guards 全绿；**210/212**，仅两项已在 fc05282 复现的基线失败 |
+
+## 验收修复
+
+- `apps/desktop/src/provider/usage-metering.ts`：抽出原有 formatter，行为不变。
+- `apps/desktop/src/provider/usage-metering.test.ts`：锁定缺失槽位显示「未知」、合法 0 保持 0。
+- `apps/desktop/src/App.tsx`：改为消费同一 formatter。
+- `apps/desktop/SPEC.md`：同步实现留痕。
+
+以上均为实现级小修，不改变 ProviderUsage/CostEstimate、公开导出或跨层契约。
+
+## 最终判定
+
+- `USAGE-LEDGER-1`：**带验收修复放行**。
+- 契约级问题：无。
+- `docs/status/current.md`：未更新。
+- 推送：不执行。

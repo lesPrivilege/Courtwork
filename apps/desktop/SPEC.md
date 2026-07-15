@@ -1207,8 +1207,9 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 - `src/provider/turn-protocol-client.ts`：`TurnProjection.usage` 由 `GenerationUsage` 改为 `ProviderUsage`；
   `usage` 流事件承载 `ProviderUsage`（`projectTurn` 原样转发 `event.usage`，含 rawUsage 与可选槽位）。
-- `src/App.tsx`：`chat-turn-usage` 最小展示改为 `formatUsageMetering`——缺失槽位显示为「未知」而非 0，
-  cache/reasoning 分账仅在有值时追加，不做 UI 重设计。
+- `src/provider/usage-metering.ts`：`App.tsx` 的 `chat-turn-usage` 通过 `formatUsageMetering` 最小展示——
+  缺失槽位显示为「未知」而非 0，cache/reasoning 分账仅在有值时追加，不做 UI 重设计；独立验收补入
+  `usage-metering.test.ts`，锁定 unknown 与合法 0 不得混同。
 - 反例：`turn-protocol-client.test.ts` / `chat-client.test.ts` 的 usage 事件与投影断言随新形状更新
   （wire 归一化后 `usage` 携 rawUsage）。
 - 门禁：desktop 168 unit 全绿；隔离端口（`COURTWORK_E2E_PORT`）完整 Playwright 210 passed。
