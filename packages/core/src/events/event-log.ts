@@ -37,6 +37,8 @@ export interface ReplaySummary {
   linkedTurns: LinkedTurn[];
   failedSteps: FailedStep[];
   latestTodoSnapshot?: TodoStep[];
+  /** 场景级终局失败（scenario_failed）：与 completed 互斥的终态，供投影据此收敛为 failed。 */
+  scenarioFailure?: { reason: 'invalid_output' | 'runtime_limit' | 'configuration' | 'internal'; message: string };
 }
 
 /** 纯函数：只靠事件流本身重建产出与确认结果，证明"事件流可回放"不是一句空话。 */
@@ -58,6 +60,8 @@ export function replaySession(events: SessionEvent[]): ReplaySummary {
       summary.revisionEventIds.push(event.revisionEventId);
     } else if (event.type === 'scenario_completed') {
       summary.completed = true;
+    } else if (event.type === 'scenario_failed') {
+      summary.scenarioFailure = { reason: event.reason, message: event.message };
     } else if (event.type === 'turn_linked') {
       summary.linkedTurns.push({
         stepId: event.stepId,

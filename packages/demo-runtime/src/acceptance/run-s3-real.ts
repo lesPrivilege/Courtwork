@@ -99,7 +99,8 @@ export function assertNoDemoInReal(input: NoDemoAuditInput): string[] {
 }
 
 export interface RealS3RunResult {
-  status: 'paused' | 'completed';
+  // WORK-STORE-1：runScenario 现可返回 typed `failed`（runtime_limit 终态落盘），随契约加法式纳入。
+  status: 'paused' | 'completed' | 'failed';
   requestId?: string;
   workDir: string;
   /** 真机证据七项载体（docs/decisions/ADR-003-evidence-and-anchors.md）。 */

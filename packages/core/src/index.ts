@@ -20,3 +20,6 @@ export * from './assembly/assemble.js';
 export * from './revision/json-pointer.js';
 export * from './revision/revision-store.js';
 export * from './revision/revision-store-file.js';
+export * from './work-state/envelope.js';
+export * from './work-state/work-state-store.js';
+export * from './work-state/work-state-host-file.js';

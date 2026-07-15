@@ -10,7 +10,7 @@ import type { ConfirmationStore, PendingConfirmation } from '../session/confirma
 import type { RevisionEventStore } from '../revision/revision-store.js';
 import { applyJsonPointer } from '../revision/json-pointer.js';
 import { deriveTodoSnapshot } from './todo-snapshot.js';
-import { createRuntimeGuard, type RuntimeGuard, type RuntimeLimits } from './runtime-limits.js';
+import { createRuntimeGuard, RuntimeLimitExceededError, type RuntimeGuard, type RuntimeLimits } from './runtime-limits.js';
 import { estimateCostUsd } from '@courtwork/provider/pricing';
 import type { GenerationNotice, ProviderUsage } from '@courtwork/provider/types';
 import { assembleScenarioRequest } from '../assembly/assemble.js';
@@ -67,6 +67,13 @@ export interface ScenarioExecutorDeps {
    */
   limits?: RuntimeLimits;
   nowMs?: () => number;
+  /**
+   * durable 屏障（WORK-STORE-1 / ADR-010 决定二）：在每个 durable-before-effect 顺序点，把当前
+   * whole-envelope 持久落盘后才返回。生产由 WorkStateStore.commit 注入；缺省（纯逻辑单测）为 no-op，
+   * 此时 store 视图仍是内存真源、行为与历史一致。effect（provider 调用、artifact/确认发布、
+   * revision 记录）严格发生在对应屏障 await 之后——顺序反例（先 effect 后落盘）必须触红。
+   */
+  persistBarrier?: () => Promise<void>;
 }
 
 export interface ScenarioRunInput {
@@ -76,9 +83,13 @@ export interface ScenarioRunInput {
   materials?: MaterialInput[];
 }
 
+/** 场景终局失败原因（对齐 ScenarioFailedEvent.reason，映射为 typed WorkCommandOutcome）。 */
+export type ScenarioFailureReason = 'invalid_output' | 'runtime_limit' | 'configuration' | 'internal';
+
 export type ScenarioRunResult =
   | { status: 'completed'; sessionId: string; artifacts: Partial<Record<string, unknown>> }
-  | { status: 'paused'; sessionId: string; requestId: string };
+  | { status: 'paused'; sessionId: string; requestId: string }
+  | { status: 'failed'; sessionId: string; reason: ScenarioFailureReason; message: string; retryable: false };
 
 export class UnknownToolError extends Error {
   constructor(scenarioId: string, toolId: string) {
@@ -254,6 +265,9 @@ async function runWorkTurn(
     turnId: identity.turnId,
     providerRequestId: identity.providerRequestId,
   });
+  // 屏障②（ADR-010 决定二第 2 条）：turn_linked 成功持久后才能调用 Turn/provider。
+  // 这是 durable-before-effect 的关键点——provider 调用严格发生在本次落盘之后。
+  await deps.persistBarrier?.();
   const turn = await deps.turnRunner.run({
     ...identity,
     request,
@@ -428,7 +442,7 @@ function findGate(scenario: ScenarioRuntime, artifactType: string | undefined) {
   return scenario.confirmationPolicy.gates.find((gate) => gate.artifact === artifactType);
 }
 
-function pauseAt(
+async function pauseAt(
   scenario: ScenarioRuntime,
   gateLabel: string,
   artifactType: string | undefined,
@@ -436,7 +450,7 @@ function pauseAt(
   state: SequenceState,
   deps: ScenarioExecutorDeps,
   now: () => string,
-): ScenarioRunResult {
+): Promise<ScenarioRunResult> {
   const requestId = webCryptoRandomUUID();
   const pending: PendingConfirmation = {
     requestId,
@@ -455,6 +469,10 @@ function pauseAt(
   // 进度快照先发（docs/architecture/system.md 长任务协议①）：反映"停在哪一步"，再发确认请求本身。
   deps.eventLog.append({ type: 'todo_snapshot', steps: deriveTodoSnapshot(scenario, state.producedSoFar, artifactType) });
   deps.eventLog.append({ type: 'confirmation_requested', requestId, gateLabel, artifactType });
+  // 屏障④（ADR-010 决定二第 4 条）：pending confirmation（含材料快照）成功持久后才能发布
+  // confirmation_requested。whole-envelope CAS 让 pending 与 confirmation_requested 同一次落盘原子在场，
+  // reload 绝不会看到「有确认请求却无 pending」的残缺态。
+  await deps.persistBarrier?.();
   return { status: 'paused', sessionId: state.sessionId, requestId };
 }
 
@@ -488,20 +506,25 @@ async function produceSequence(
     deps.eventLog.append({
       type: 'artifact_produced', artifactType, artifact, evidenceGrades: deps.ledger.snapshot(), providerNotices: notices, citationStats,
     });
+    // 屏障③（ADR-010 决定二第 3 条）：Turn terminal 成功持久后才能解析并发布 artifact。
+    // 本次落盘把 turn journal 快照（含 terminal）与 artifact_produced 一并持久。
+    await deps.persistBarrier?.();
 
     const gate = findGate(scenario, artifactType);
     if (gate) {
-      return pauseAt(scenario, gate.label, artifactType, remainingArtifactTypes.slice(i + 1), state, deps, now);
+      return await pauseAt(scenario, gate.label, artifactType, remainingArtifactTypes.slice(i + 1), state, deps, now);
     }
   }
 
   const labelOnlyGate = findGate(scenario, undefined);
   if (labelOnlyGate) {
-    return pauseAt(scenario, labelOnlyGate.label, undefined, [], state, deps, now);
+    return await pauseAt(scenario, labelOnlyGate.label, undefined, [], state, deps, now);
   }
 
   deps.eventLog.append({ type: 'todo_snapshot', steps: deriveTodoSnapshot(scenario, state.producedSoFar) });
   deps.eventLog.append({ type: 'scenario_completed' });
+  // 终局屏障：完成事件持久后才算终态落盘。
+  await deps.persistBarrier?.();
   return { status: 'completed', sessionId: state.sessionId, artifacts: state.producedSoFar };
 }
 
@@ -512,27 +535,59 @@ function createGuardForCall(deps: ScenarioExecutorDeps): RuntimeGuard {
   return createRuntimeGuard(deps.limits ?? {}, () => (nowMs() - startedAtMs) / 1000);
 }
 
+/**
+ * runtime limit 触线 → 持久化 `scenario_failed(runtime_limit)` 终态并映射为 typed failed 结果，
+ * 不留裸 Promise rejection、不留 running（ADR-010 第 225 行）。其余错误（生成校验失败、Turn 失败、
+ * CAS 冲突/超大等 store blocker）按原语义继续上抛，由调用方/WORK-PORT 处置。
+ */
+async function terminalizeRuntimeLimit(error: unknown, deps: ScenarioExecutorDeps): Promise<ScenarioRunResult> {
+  if (error instanceof RuntimeLimitExceededError) {
+    deps.eventLog.append({
+      type: 'scenario_failed',
+      scope: 'scenario',
+      reason: 'runtime_limit',
+      message: error.message,
+      retryable: false,
+    });
+    await deps.persistBarrier?.();
+    return {
+      status: 'failed',
+      sessionId: deps.eventLog.sessionId,
+      reason: 'runtime_limit',
+      message: error.message,
+      retryable: false,
+    };
+  }
+  throw error;
+}
+
 export async function runScenario(
   scenario: ScenarioRuntime,
   input: ScenarioRunInput,
   deps: ScenarioExecutorDeps,
 ): Promise<ScenarioRunResult> {
   const guard = createGuardForCall(deps);
-  const toolResults = await runTools(scenario, input.toolInputs, deps, guard);
-  return produceSequence(
-    scenario,
-    scenario.outputArtifacts,
-    {
-      sessionId: deps.eventLog.sessionId,
-      scenarioId: scenario.id,
-      toolResults,
-      producedSoFar: { ...input.inputArtifacts },
-      inputArtifacts: input.inputArtifacts,
-      materials: input.materials ?? [],
-    },
-    deps,
-    guard,
-  );
+  try {
+    // 屏障①（ADR-010 决定二第 1 条）：session header 成功持久后才能执行工具或调用 provider。
+    await deps.persistBarrier?.();
+    const toolResults = await runTools(scenario, input.toolInputs, deps, guard);
+    return await produceSequence(
+      scenario,
+      scenario.outputArtifacts,
+      {
+        sessionId: deps.eventLog.sessionId,
+        scenarioId: scenario.id,
+        toolResults,
+        producedSoFar: { ...input.inputArtifacts },
+        inputArtifacts: input.inputArtifacts,
+        materials: input.materials ?? [],
+      },
+      deps,
+      guard,
+    );
+  } catch (error) {
+    return await terminalizeRuntimeLimit(error, deps);
+  }
 }
 
 export interface RevisionInput {
@@ -683,38 +738,48 @@ export async function resumeScenario(
     instrumentation: response.instrumentation,
   });
 
-  if (response.decision === 'reject') {
-    deps.eventLog.append({ type: 'scenario_completed' });
-    return { status: 'completed', sessionId: pending.sessionId, artifacts: prepared.producedArtifacts };
-  }
+  const guard = createGuardForCall(deps);
+  try {
+    if (response.decision === 'reject') {
+      deps.eventLog.append({ type: 'scenario_completed' });
+      // 屏障⑤（ADR-010 决定二第 5 条）：条件消费与 confirmation_resolved（含 reject 终态）同一次 CAS 落盘。
+      await deps.persistBarrier?.();
+      return { status: 'completed', sessionId: pending.sessionId, artifacts: prepared.producedArtifacts };
+    }
 
-  for (const event of prepared.revisionEvents) {
-    deps.revisionStore.record(event);
-    deps.eventLog.append({ type: 'revision_recorded', revisionEventId: event.id });
-  }
-  // 修正过的 artifact 重新发一次 artifact_produced（同一 artifactType 的最新一条对
-  // replaySession 生效）——否则事件流"可回放"只能重建出修正前的原始产出，不是真话。
-  for (const artifactType of prepared.revisedArtifactTypes) {
-    deps.eventLog.append({
-      type: 'artifact_produced',
-      artifactType,
-      artifact: prepared.producedArtifacts[artifactType],
-      evidenceGrades: deps.ledger.snapshot(),
-    });
-  }
+    for (const event of prepared.revisionEvents) {
+      deps.revisionStore.record(event);
+      deps.eventLog.append({ type: 'revision_recorded', revisionEventId: event.id });
+    }
+    // 修正过的 artifact 重新发一次 artifact_produced（同一 artifactType 的最新一条对
+    // replaySession 生效）——否则事件流"可回放"只能重建出修正前的原始产出，不是真话。
+    for (const artifactType of prepared.revisedArtifactTypes) {
+      deps.eventLog.append({
+        type: 'artifact_produced',
+        artifactType,
+        artifact: prepared.producedArtifacts[artifactType],
+        evidenceGrades: deps.ledger.snapshot(),
+      });
+    }
+    // 屏障⑤+⑥（ADR-010 决定二第 5、6 条）：pending 条件消费、confirmation_resolved、revision 载荷与
+    // revision_recorded 作为同一次 whole-envelope CAS 原子落盘——revision 载荷与其记录事件同批持久。
+    await deps.persistBarrier?.();
 
-  return produceSequence(
-    scenario,
-    pending.remainingArtifactTypes,
-    {
-      sessionId: pending.sessionId,
-      scenarioId: pending.scenarioId,
-      toolResults: pending.toolResults,
-      producedSoFar: prepared.producedArtifacts,
-      inputArtifacts: prepared.producedArtifacts,
-      materials: pending.materials ?? [],
-    },
-    deps,
-    createGuardForCall(deps),
-  );
+    return await produceSequence(
+      scenario,
+      pending.remainingArtifactTypes,
+      {
+        sessionId: pending.sessionId,
+        scenarioId: pending.scenarioId,
+        toolResults: pending.toolResults,
+        producedSoFar: prepared.producedArtifacts,
+        inputArtifacts: prepared.producedArtifacts,
+        materials: pending.materials ?? [],
+      },
+      deps,
+      guard,
+    );
+  } catch (error) {
+    return await terminalizeRuntimeLimit(error, deps);
+  }
 }
