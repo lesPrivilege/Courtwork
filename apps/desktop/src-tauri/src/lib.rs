@@ -10,6 +10,8 @@ use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 use std::sync::{Mutex, Once, OnceLock, RwLock};
 
+mod host_auth;
+
 /// 发行包 service；dev（debug_assertions）加 `.dev` 后缀，避免污染发行 ACL（F6）。
 #[cfg(debug_assertions)]
 const CREDENTIAL_SERVICE: &str = "cn.courtwork.desktop.provider.dev";
@@ -1401,6 +1403,120 @@ fn case_output_docx_exists(input: CaseOutputRefInput) -> Result<bool, String> {
     case_output_docx_exists_impl(Path::new(&input.case_root), &input.file_name)
 }
 
+// ─── HOST-AUTH-LITE：最小宿主文件授权（纯逻辑在 host_auth 模块）───────────────
+// 命令层只做 app-data 路径解析、系统 picker 调用与 grant id 递增；绝对路径与授权只住宿主，
+// renderer 只见 opaque grantId 与展示 label。失败一律走 host_auth 的闭集 reason，零静默降级。
+
+static HOST_GRANT_SEQ: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+fn host_grant_store_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    use tauri::Manager;
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|_| "无法定位应用数据目录".to_string())?;
+    Ok(dir.join("host-grants.json"))
+}
+
+fn host_unix_nanos() -> u128 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(0)
+}
+
+/// macOS 原生文件夹 picker。`None` = 用户取消/未授权（→ `denied`）。
+/// 只取用户显式选中的目录，绝对路径立即交给 `host_auth` 铸造 opaque grant，绝不返回给 renderer。
+/// 与 `sync_macos_window_controls` 同规约：同步命令运行在主线程，AppKit modal 在主线程执行。
+#[cfg(target_os = "macos")]
+fn pick_folder_native() -> Option<PathBuf> {
+    use objc2_app_kit::{NSModalResponseOK, NSOpenPanel};
+    use objc2_foundation::MainThreadMarker;
+
+    let mtm = MainThreadMarker::new()?;
+    let panel = unsafe { NSOpenPanel::openPanel(mtm) };
+    unsafe {
+        panel.setCanChooseDirectories(true);
+        panel.setCanChooseFiles(false);
+        panel.setAllowsMultipleSelection(false);
+        panel.setResolvesAliases(true);
+    }
+    let response = unsafe { panel.runModal() };
+    if response != NSModalResponseOK {
+        return None;
+    }
+    let urls = unsafe { panel.URLs() };
+    let url = urls.firstObject()?;
+    let path = unsafe { url.path() }?;
+    Some(PathBuf::from(path.to_string()))
+}
+
+#[cfg(not(target_os = "macos"))]
+fn pick_folder_native() -> Option<PathBuf> {
+    None
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct HostReadInput {
+    grant_id: String,
+    relative_path: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct HostWriteInput {
+    grant_id: String,
+    relative_path: String,
+    bytes: Vec<u8>,
+}
+
+#[tauri::command]
+fn host_authorize_folder(app: tauri::AppHandle) -> Result<host_auth::AuthorizeOutcome, String> {
+    let store = host_grant_store_path(&app)?;
+    let pick = pick_folder_native();
+    let seq = HOST_GRANT_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    Ok(host_auth::authorize_from_pick(
+        &store,
+        pick,
+        seq,
+        host_unix_nanos(),
+    ))
+}
+
+#[tauri::command]
+fn host_list_grants(app: tauri::AppHandle) -> Result<Vec<host_auth::HostGrant>, String> {
+    let store = host_grant_store_path(&app)?;
+    Ok(host_auth::public_grants(&store))
+}
+
+#[tauri::command]
+fn host_read_file(
+    app: tauri::AppHandle,
+    input: HostReadInput,
+) -> Result<host_auth::ReadOutcome, String> {
+    let store = host_grant_store_path(&app)?;
+    Ok(host_auth::read_in_grant(
+        &store,
+        &input.grant_id,
+        &input.relative_path,
+    ))
+}
+
+#[tauri::command]
+fn host_write_file(
+    app: tauri::AppHandle,
+    input: HostWriteInput,
+) -> Result<host_auth::WriteOutcome, String> {
+    let store = host_grant_store_path(&app)?;
+    Ok(host_auth::write_in_grant(
+        &store,
+        &input.grant_id,
+        &input.relative_path,
+        &input.bytes,
+    ))
+}
+
 #[tauri::command]
 async fn provider_chat_request(
     input: ProviderChatInput,
@@ -1640,6 +1756,10 @@ pub fn run() {
             cancel_provider_request,
             write_case_output_docx,
             case_output_docx_exists,
+            host_authorize_folder,
+            host_list_grants,
+            host_read_file,
+            host_write_file,
             sync_macos_window_controls,
         ])
         .run(tauri::generate_context!())

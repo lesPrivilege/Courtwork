@@ -22,6 +22,8 @@ import {
   updateRuntimeGuard,
 } from './settings-store';
 import { SurfaceCard } from '../surface/SurfaceCard';
+import { HostAccessPanel } from '../host/HostAccessPanel';
+import type { HostAuthPort } from '../host/host-auth-port';
 
 export type SettingsSection =
   | 'model'
@@ -63,6 +65,8 @@ export interface SettingsPageProps {
   onModelConfigChange: (next: ModelConfig) => void;
   onRevealPath: (path: string) => void;
   onFeedback: (message: string, ok: boolean) => void;
+  /** HOST-AUTH-LITE：注入的宿主授权端口（失败可见面消费）。 */
+  hostAuth: HostAuthPort;
 }
 
 /**
@@ -83,6 +87,7 @@ export function SettingsPage({
   onModelConfigChange,
   onRevealPath,
   onFeedback,
+  hostAuth,
 }: SettingsPageProps) {
   const [settings, setSettings] = useState<SettingsSnapshot>(() => loadSettings());
   const [maxUsdDraft, setMaxUsdDraft] = useState(String(settings.runtimeGuard.maxUsd ?? ''));
@@ -405,6 +410,8 @@ export function SettingsPage({
                   />
                 </div>
               </div>
+
+              <HostAccessPanel hostAuth={hostAuth} />
 
               <div className="settings-row is-reserved" data-testid="settings-sources-row">
                 <div>
