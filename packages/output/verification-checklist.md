@@ -6,6 +6,23 @@
 
 我已做过的程序化核验（不需要你重复）：zip 完整性（`unzip -t`）、OOXML 结构（`w:ins`/`w:del`/`w:trPr/w:del`/`commentReference` 计数与对照）、每个管线写入的 run 是否带完整 `w:rFonts`——全部通过，详见 [`spike-report.md`](spike-report.md) 与 `src/*.test.ts`。**以下是程序无法判断、需要你用眼睛看的部分。**
 
+## 实测记录体例
+
+每次核验单独保存一份记录；不能在未填环境或未跑项目上打总勾。记录至少包含：
+
+| 字段 | 必填内容 |
+|---|---|
+| App | Microsoft Word 或 WPS 文字的精确产品版本、build 与位数/架构 |
+| 环境 | OS 精确版本、CPU 架构、系统语言、Office/WPS 显示与修订过滤设置 |
+| 字体 | 仿宋_GB2312、黑体、Times New Roman 的实际安装名称/版本；缺失与回退如实记录 |
+| 输入 | 原始 docx 文件名、字节数与 SHA-256 |
+| Courtwork 输出 | 应用指令后的 docx 文件名、字节数、SHA-256 与对应代码 SHA |
+| 外部保存输出 | Word/WPS 轻改保存副本的文件名、字节数与 SHA-256 |
+| 结构差异 | 保存前后 ZIP parts 清单、`[Content_Types].xml`、相关 `.rels`、comments 与 document XML diff 摘要 |
+| 结论 | 每项只用 `pass` / `fail` / `not-run` / `n/a`；`fail` 附最小复现与原始截图 |
+
+显示层验收前先记录“所有标记/原始状态/简单标记/无标记”、批注过滤、作者过滤与修订窗格设置；过滤导致的不可见必须排除后才能判 `fail` 或 `pass`。WPS 产生的保存副本还必须回到 Courtwork/reading-view 重读，并记录解析结果、SourceAnchor 重定位与 part/relationship 差异；“能打开”或截图正常不能替代回读。
+
 ## 核验项
 
 在 **Microsoft Word** 与 **WPS 文字** 里各打开一次 `sample-redline.docx`，逐项确认。WPS 至少覆盖当前 macOS 与 Windows 桌面版；任何一端未实测时，不得宣称“WPS 兼容已验证”。

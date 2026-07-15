@@ -5,15 +5,17 @@
 ## 阅读顺序
 
 1. [产品定位](product/vision.md)：解决什么问题、为谁服务、什么不做。
-2. [系统架构](architecture/system.md)：包边界、依赖方向、运行链路。
-3. [架构原则](architecture/principles.md)：所有实现必须保持的不变量。
-4. [Schema Engineering](architecture/schema-engineering.md)：模型、系统与人共同消费的契约方法。
-5. [PM 垂类契约](product/pm-vertical.md)：第二垂类的包级边界。
-6. [垂类包开工手册](architecture/vertical-package-authoring.md)：新增 package、企业 runtime 与 UI 接入的固定体例。
-7. [ADR 索引](decisions/README.md)：已经拍板的跨层契约。
-8. [工程工作流](engineering/workflow.md)：角色、TDD、提交与验收纪律。
-9. [发布手册](engineering/release.md)：全量门、制品校验、GitHub Release 与 Pages 真值切换。
-10. [当前基线](status/current.md)：已完成、已知缺口、下一阶段。
+2. [产品路线图](product/roadmap.md)：Stage 0–4 的进入条件、退出证据与禁止抢跑。
+3. [系统架构](architecture/system.md)：包边界、依赖方向、运行链路。
+4. [架构原则](architecture/principles.md)：所有实现必须保持的不变量。
+5. [Schema Engineering](architecture/schema-engineering.md)：模型、系统与人共同消费的契约方法。
+6. [PM 垂类契约](product/pm-vertical.md)：第二垂类的包级边界。
+7. [垂类包开工手册](architecture/vertical-package-authoring.md)：新增 package、企业 runtime 与 UI 接入的固定体例。
+8. [ADR 索引](decisions/README.md)：已经拍板的跨层契约。
+9. [实现就绪图](architecture/implementation-readiness.md)：下一批工单的依赖、实测证据与拒绝项；不复制当前状态。
+10. [工程工作流](engineering/workflow.md)：角色、TDD、提交与验收纪律。
+11. [发布手册](engineering/release.md)：全量门、制品校验、GitHub Release 与 Pages 真值切换。
+12. [当前基线](status/current.md)：产品 live、包级、demo、外部验证与发布事实的唯一状态真源。
 
 设计实现另读 [设计系统](design/README.md) 与 [Schema 可视化组件库](design/visualization-kit.md)。各包的职责、公开 API 与验收记录仍以包内 `SPEC.md` / `ACCEPTANCE.md` 为准。
 

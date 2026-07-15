@@ -68,7 +68,9 @@ services/ingest       Python OCR/分类/实体对齐（尚待实现）
 
 ## 宿主边界
 
-desktop 可以承载系统文件选择、钥匙串、打开文件、renderer host 与用户交互，但不得复制垂类类型路由、词表或 demo 语料真值。所有领域显示应由 package registry 和 descriptor 驱动。当前仍有少量 desktop 直连法律/demo 的历史漂移，列入 [当前基线](../status/current.md)。
+desktop 可以承载系统文件选择、钥匙串、打开文件、renderer host 与用户交互，但不得复制垂类类型路由、词表或 demo 语料真值。所有领域显示应由 package registry 和 descriptor 驱动。当前 desktop 仍承载显著的产品编排，并保留 Legal 专用工作面与 demo 装配；这些边界的实际成熟度和开工顺序见[当前基线](../status/current.md)与[实现就绪图](implementation-readiness.md)，不能用“已有 UI”推导为通用宿主已经完成。
+
+第二宿主应复用 browser-safe ports、core 状态机、package descriptor 与 host-owned blueprint，在新的 composition root 注入身份、transport、文件和 renderer 能力；不得搬运 `App` 的业务编排、按垂类 id 分支，或复制 Chat/Work runtime。进程内 port 中的 callback 不是 IPC wire；跨进程宿主必须另有等义、可序列化的 command/event 协议。
 
 ## Provider 与 Turn 兼容边界
 

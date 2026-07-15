@@ -73,7 +73,12 @@ type WorkCommandOutcome =
       message: string;
       retryable: boolean;
     }
-  | { status: 'canceled'; ref: WorkSessionRef };
+  | { status: 'canceled'; ref: WorkSessionRef }
+  | {
+      status: 'rejected';
+      reason: 'command_conflict' | 'case_busy' | 'invalid_scope' | 'not_configured';
+      message: string;
+    };
 
 interface WorkProjectionPort {
   replay(
@@ -97,12 +102,14 @@ interface WorkCommandPort {
 }
 ```
 
+`WorkCommandPort` 是 browser-safe、同一进程 composition 内的 service port；`publish` callback 只用于进程内事件投影，不是 wire，也不得直接暴露给 IPC、插件或第二宿主。未来出现跨进程 gateway 或第二宿主时，必须另立等义、可序列化的 command/event wire，并保持身份、顺序、拒绝原因和终态语义一致。
+
 - UI 只提交 case/scenario/material refs、冻结后的 model route 与人工决定；不得构造
   `ScenarioRunInput`、`inputArtifacts`、`toolInputs`、provider、schema 或系统锚点。
 - `ScenarioRunInput` 只能由受信 composition binding 依据已准入 package 与 MaterialStore 构造。
 - actor 由 desktop identity dependency 注入，React 不能自报 actor。
 - `commandId` first-wins：同 id + 同规范化 payload 返回既有结果；同 id + 不同 payload 返回
-  `command_conflict`，不得覆盖。
+  typed `rejected/command_conflict`，不得覆盖。已有 active command、scope 非法或 production composition 未装配时分别返回闭集中的 `case_busy`、`invalid_scope` 或 `not_configured`，不得抛裸 Promise rejection 或回退 demo。
 - 一次 start 创建一枚新 `sessionId`；resume 沿用原 session。rerun 必须重新 start，不能复用旧终态身份。
 - scenario、package/schema snapshot 与 model route 在 start 时冻结；resume 不接受 UI 改传。
 - 第一版每个 case 只允许一个 active Work command；不支持并行 agent/subagent 或自动 retry。
@@ -132,6 +139,27 @@ type WorkStateEnvelopeV1 = {
   modelRoute: WorkModelRoute;
   materialRefs: string[];
   createdAt: string;
+  runtimeBudget: {
+    limits: {
+      maxSteps?: number;
+      maxSeconds?: number;
+      maxToolCalls?: number;
+      maxUsd?: number;
+    };
+    costBasis: {
+      currency: 'USD';
+      priceTableVersion?: string;
+      priceTableEffectiveAt?: string;
+      assumptions: string[];
+    };
+    consumed: {
+      steps: number;
+      toolCalls: number;
+      executionMs: number;
+      estimatedUsd: number;
+      costCoverage: 'complete' | 'partial';
+    };
+  };
   events: StoredSessionEvent[];
   turnEntries: TurnJournalEntry[];
   pendingConfirmations: PendingConfirmation[];
@@ -181,6 +209,20 @@ core 需要异步、可等待的 durable store 边界。以下顺序是契约，
 若 `turn_linked` 已成功持久，但对应 Turn terminal 尚未持久就发生崩溃，本地无法证明 provider 请求是否
 已经发出、计费或完成；恢复时必须把该 attempt 标为 interrupted，以全新 Turn/attempt 身份由用户重新发起，
 不得自动重放、重连或假装续接同一次 provider 调用。
+
+### v1 whole-envelope CAS 与测量门
+
+v1 继续把完整 `WorkStateEnvelopeV1` 作为一次 CAS 的权威值。`events`、`turnEntries`、`pendingConfirmations` 与 `revisionEvents` 都是可审计历史，不得为了减小写入而压缩、覆盖或丢弃。`WORK-STORE-MEASURE` 与 `WORK-STORE-1` 同批必须记录实际 envelope bytes、CAS latency、write count 和 kill/crash 恢复窗口；在真实阈值触线前，不得自行换成 snapshot + tail，更不得手写 WAL。
+
+若测量证明 whole-envelope 已触及产品阈值，必须另立 ADR，对成熟嵌入式存储与 snapshot/tail 方案进行比较，并说明迁移、原子性、损坏恢复和历史保留。研究报告中的复杂度推测不能直接改变 v1。
+
+v1 是单机、单写者产品语义；CAS 只用于 first-wins、崩溃恢复与并发反例，不构成多人协作声明。多写者、共享状态、ACL、伦理墙和跨案治理必须后续另立 ADR。actor 仍必须由真实 identity dependency 注入，不能因单写者而硬编码。
+
+### session 累计 runtime budget
+
+`runtimeBudget.limits` 与 `costBasis` 在 start 时冻结，resume 不接受 UI 改传。`consumed.steps`、`toolCalls`、`executionMs` 与 `estimatedUsd` 对同一 Work session 跨 leg 单调累计，并和事件/终态一起 CAS；resume 不得创建新额度。暂停等待人工决定的墙钟时间不计入 `executionMs`，`maxSeconds` 以 `executionMs / 1000` 判定。
+
+`estimatedUsd` 只累计同时具备 usage 与版本化 price 的已知子集，`costCoverage` 明示估算是否完整。缺 `priceTableVersion`、`priceTableEffectiveAt`，或任一 paid attempt 缺 usage/price，都令 coverage 为 `partial`。若配置了 `maxUsd`，不得把未知成本当作零或继续按已知子集放行下一次 paid Turn；必须在下一次调用前形成 `configuration` blocker，并在 UI 同时显示估算值、`costBasis.assumptions` 与覆盖不完整。steps/toolCalls/time 超限必须持久化为 `scenario_failed(reason='runtime_limit')` 并映射为 typed `WorkCommandOutcome`；成本覆盖不足映射 `scenario_failed(reason='configuration')` 与相应 failed outcome。两类都不得只抛异常、留下 running，或在下一次 resume 清零后继续。
 
 ## 决定三：持久 artifact 必须使用版本信封
 
@@ -236,6 +278,8 @@ type MaterialRef = {
 - provider 前重验原件/ReadingView hash；漂移、删除、需 OCR 或缺材料必须显式阻断，不读取 demo、不猜内容。
 - Browser/E2E adapter 可保存测试 bytes，但必须只在 DEV + E2E 装配，不能进入正式 Tauri composition。
 
+`MaterialRef` v1 保持 opaque、source-neutral：wire 不携带绝对路径，也不提前加入文件、邮件、DMS 等来源判别联合；宿主独占路径、授权和来源 provenance。只有第二个真实来源适配器进入 production 后，才可基于实际差异提案版本化来源契约，不以未来兼容性猜测扩展当前 wire。
+
 ## 决定五：首个 live 场景是 S3，但须先闭合垂类 binding
 
 S1 的 Timeline/PartyGraph 仍直接包含最终 SourceAnchor，不先作为 production live。S3 已有
@@ -259,22 +303,26 @@ RiskListDraft → quote resolver，但 `LEGAL-S3-BINDING-1` 必须先完成：
 WORK-PORT-1
 ├─ WORK-BROWSER-1
 │  └─ 拆 Node adapters，建立 @courtwork/core/work-protocol browser-safe 出口与静态门
-├─ WORK-STORE-1
-│  └─ async/CAS WorkState、ArtifactEnvelope、终局、迁移与 Tauri opaque blob host
-└─ CASE-ROOT-1
-   └─ 宿主目录授权与 opaque case ref
-      └─ MATERIAL-INGRESS-1
-         └─ 原件 hash、ReadingView blocks、MaterialRef 与 deterministic CaseFile
+├─ WORK-STORE-MEASURE
+│  └─ whole-envelope bytes/CAS latency/write count/crash 证据
+│     └─ WORK-STORE-1
+│        └─ async/CAS WorkState、ArtifactEnvelope、终局、迁移、累计预算与 Tauri opaque blob host
+└─ HOST-AUTH-TRUTH
+   └─ 签名/TCC/重授权真机事实
+      └─ CASE-ROOT-1
+         └─ 宿主目录授权与 opaque case ref
+            └─ MATERIAL-INGRESS-1
+               └─ 原件 hash、ReadingView blocks、MaterialRef 与 deterministic CaseFile
 
 上述前置独立验收后
+WORK-STORE-1 + MATERIAL-INGRESS-1
 └─ LEGAL-S3-BINDING-1
    └─ 显式主体输入、tool input、gate projection 与逐条 revision mapping
       └─ WORK-LIVE-1
          └─ production run/replay/resume/cancel；recording 永久 fixture-only
 ```
 
-WORK-BROWSER-1、WORK-STORE-1 与 CASE-ROOT-1 可在 WORK-PORT-1 验收后按不重叠文件面并行；
-不得提前把 non-demo UI 标为 live。
+`WORK-PORT-1` 与 `WORK-BROWSER-1` 已完成；后续实际派发顺序只认[实现就绪图](../architecture/implementation-readiness.md)。不得提前把 non-demo UI 标为 live。
 
 ## 验收下限
 
@@ -291,6 +339,9 @@ WORK-BROWSER-1、WORK-STORE-1 与 CASE-ROOT-1 可在 WORK-PORT-1 验收后按不
 - 未知 schemaVersion/缺 migration 不得渲染 raw payload；
 - `revise` 不得完成门禁，单项 reject 不得终止全场景；
 - provider/validation/cancel 后不得再有 artifact 或 `scenario_completed`；
+- 同一 session 的 frozen limits 与 consumed 必须跨 start/resume 同 CAS 持久、单调累计；暂停等待不计 `executionMs`，超限必须有持久 `scenario_failed/runtime_limit` 与 typed command 终态；
+- 配置 `maxUsd` 且缺 price table 版本/生效时间，或任一 paid attempt 缺 usage/price 时，`costCoverage=partial` 必须阻断下一次 paid Turn并持久映射 `scenario_failed/configuration`；UI 不得隐藏覆盖缺口与 assumptions；
+- confirmation gate 只能授权其后的对应 effect；每一笔 `external_send`、`file_write` 或改变权限的 effect 必须在执行前取得匹配 scope/actor/input 的授权，gate 前已经发生的动作不得事后追认；
 - 非 demo case 任何 recording、DEMO_ARTIFACTS、demo party adapter 或 demo 原文消费必须触红；
 - desktop 行为变更除全仓门外，必须用隔离端口完整 Playwright；Tauri host 变化另跑 Rust 全量测试。
 

@@ -1,84 +1,84 @@
 # 当前基线
 
 更新时间：2026-07-15
-重整输入基线：`f03e742`
-发布基线：annotated tag `v0.1.2` 解引用到 `2fe8bf54dad12f58bccf06a9d692f7c14f65cbd3`；本文件所在 `main` 继续承载发布后的部署实录，不改 tag 历史。
-分支策略：发布完成后只保留 `main`；实现/验收分支在确认均为 `main` 祖先且报告已收账后删除。
 
-## 已成立
+文档重整输入基线：`f03e742`
 
-- schemas / registry / package ABI 与 namespaced artifact 基础；
-- provider 无关 core、六段 harness、事件账本、确认续行与 runtime guard；
-- 模型引语到系统坐标的 citation resolver，含受限重试与 coverage 剪枝；
-- legal 包、PM 第二垂类 schema 基础；
-- docx/md/txt/文本层 PDF 阅读视图与 docx 修订/批注管线；
-- web fetch 安全基线、受限系统文件动词与可撤销 FileOpsPlan；
-- Tauri desktop、provider 凭证流、chat/work 双面与 schema 工作面；
-- `@courtwork/provider` 独立包与 DeepSeek-only 产品注册；custom/base URL 猜测入口已退役；
-- PROVIDER-2 已经异会话验收并合流：DeepSeek catalog 单源、Rust 原始字节真分片、Provider 增量 SSE、单一生成路径与 credential/connection 正交状态成立；
-- TURN-1 已经异会话验收并合流：正文、reasoning、usage、失败、取消与严格事件闭集拥有 provider 无关生命周期和终局回放；
-- INTERACTION-1A 已经异会话验收并合流：垂类 manifest 提供 strict 通用问题模板，legal 内容与锚点政策由 registry 深冻结注入；
-- INTERACTION-1B 与 CHAT-UI-1 已经异会话验收并合流：Turn journal、刷新回放、core first-wins 回答、真实 stream projection、Stop/cancel 与通用交互卡成立；
-- BRAND-1 已经异会话验收并合流：CaseRail 的透明核心标记固定在 `Courtwork` 左侧，无底盘、阴影或动画；
-- SITE-2A / SITE-2B 已经异会话验收并合流：首页以“原件 → 引语 → 结论 → 人工确认”为主骨架，产品图来自已验收主树的 computer-use 真机操作，OG 消费无底盘核心标记；
-- POLISH-P0 与 SCHEMA-POLISH-1 已经异会话全量验收并合流；
-- DESLOP-GATE-2 已经异会话验收并合流：裸色、阴影、圆角、渐变、L1 嵌套、archive 消费、press/popover 与泛化文案使用精确消费点白名单；
-- ADR-009 第一波与 ABI 收口已经异会话验收并合流：HOST-PORT-1、CONFIRM-CAS-1、ABI-2A、CORE-BOUNDARY-1、ABI-2B 全部进入 main；Legal/PM 同次走唯一 descriptor/bindings ABI，PM 保持 catalog-only；
-- VIEW-ABI-1/1C 已经异会话验收并合流：desktop 生产路由由 descriptor + host blueprint 驱动，通用表严格按 schema/presentation 投影，未知或漂移载荷统一 zero-wire fail closed；
-- TURN-WORK-1 已经异会话验收并合流：Work 模型步骤只经 `TurnRunnerPort`，每次调用先链接 Turn，notice、失败与取消沿统一 Turn 账本回放；
-- WORK-PORT-1 已经异会话验收并合流：App 只消费注入的 Work projection，demo recording/gate/review 全部收口 fixture adapter，非 demo 与跨 session 查询 fail closed；
-- WORK-BROWSER-1 已经异会话验收并合流：Work protocol 与 Node 文件适配器物理分面，`@courtwork/core/work-protocol` 经递归依赖图和真实 Vite consumer 证明 browser-safe，Web Crypto 身份无弱降级；
-- TRACE-UI-1 已经异会话验收并合流：Chat reasoning 与 Work progress 复用同一 `ProcessTrace` 投影/宿主组件，同时保留 Turn 与 Work 两种事实源；通用 ask-user 卡继续只消费 registry 快照与系统锚点；
-- VPKG-META-1 与 PM-PACKAGE-RENAME-1 已经异会话验收并合流：PM 唯一身份为 `packages/pm` / `@courtwork/pm` / `packageId=pm`，Legal/PM 版本与 JSON Schema drift 门同体例，旧目录残留会触红；
-- HARNESS-KERNEL-1 已经异会话验收并合流：browser-safe `TurnHarnessRuntime` 只冻结并转售现有 `TurnRunnerPort` 与 interaction runtime，未新增 loop、事件、journal、hook 或 Chat/Work 整包接入；
-- VPKG-EXPORTS-1 已经异会话验收并合流：Legal demo fixture 只从 `/testing` 暴露，PM 不建空 testing/runtime；两包根、`/package`、`/schemas` 均 browser-safe，生产图消费 `/testing` 会触红；
-- PM-FIXTURE-1 已经异会话验收并合流：第二垂类 catalog 样板包含逐字 UTF-16/全文 hash 锚定的 PrdReview 与 FeedbackDigest，并明确保持无 scenario、prompt、PriorityScore 与 live 声明；
-- VPKG-LAYOUT-1 与 VISUAL-KIT-1 已经异会话验收并合流：Legal/PM 内部工程体例对齐；宿主以七类有限原语、递归冻结 ViewModel、有限 composition 与十二族原生 gallery 证明可复用可视化边界，未新增第二 UI runtime 或第三方可视化依赖；
-- SITE-GEN-1 已经异会话验收并部署：官网连续台账同时呈现合同链、Legal 卷宗 `20 / 47 / 14 / 8` 与 PM catalog preview；fixture validator、build 与 guard 锁定锚点、计数、无公式和 catalog-only 边界；
-- ADR-011/012 已冻结下一阶段边界：Pi 只作为最小 primitive 参考，不引入第二 agent runtime；Legal/PM 将统一为可扩展垂类包体例，企业 SDK 只进真实垂类 runtime，schema 可视化由宿主版本化 blueprint 与有限原语承担；
-- v0.1.2 Apple Silicon 开发构建已发布：annotated tag object `0c998d45bcc892ac56c8800902659b5ecc78f084` 解引用到 `2fe8bf5`，GitHub Release 与 Pages 均已上线；desktop 161、provider 88、root 1127、Rust 25、Playwright 209 全绿，远端 DMG 重新下载并通过 SHA 文件校验。构建为 ad-hoc 且未公证，官网与 Release 明示该边界；
-- demo 全链穿越、发布修实三项（遥测真开关、共享 docx 预检、产物存在后冻结）。
+本文件是能力成熟度与发布事实的唯一状态真源；开工依赖见[实现就绪图](../architecture/implementation-readiness.md)。
 
-## 已发布入口
+## 发布真值
 
-- Pages：<https://lesprivilege.github.io/Courtwork/>
-- GitHub Release：<https://github.com/lesPrivilege/Courtwork/releases/tag/v0.1.2>
-- 发布与部署证据：[`release/DEPLOYMENT.md`](../../release/DEPLOYMENT.md)
-- 真机截图清单：[`release/evidence/v0.1.2/README.md`](../../release/evidence/v0.1.2/README.md)
-- 分支 / worktree：`main` 是唯一发布真源；当前实现/验收工单使用临时 `codex/*` 与 clean worktree。只有实现和独立验收提交均成为 `main` 祖先、报告收账后，才删除对应分支与 worktree。
+- 发布版本：`v0.1.2`；annotated tag object `0c998d45bcc892ac56c8800902659b5ecc78f084`，解引用到 `2fe8bf54dad12f58bccf06a9d692f7c14f65cbd3`。
+- Pages：<https://lesprivilege.github.io/Courtwork/>；GitHub Release：<https://github.com/lesPrivilege/Courtwork/releases/tag/v0.1.2>。
+- DMG：`Courtwork_0.1.2_aarch64.dmg`，`4,679,277` bytes，SHA-256 `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d`；发布后回下载校验通过。
+- 制品边界：Apple Silicon、ad-hoc 签名、未 Apple 公证。`codesign`、DMG 完整性与挂载启动通过不等于 Gatekeeper 公证。
+- 发布与部署证据：[`release/DEPLOYMENT.md`](../../release/DEPLOYMENT.md)；真机截图清单：[`release/evidence/v0.1.2/README.md`](../../release/evidence/v0.1.2/README.md)。
+- `v0.1.2` tag 不含其后的部署实录与文档重整；当前 `main` 继续前进，但不得改写 tag 历史。
 
-## 当前架构债
+## 产品 live
 
-1. `WorkCommandPort` 契约与 projection 注入缝已经成立，但生产实现仍未装配；真实 run/resume 必须等待 ADR-010 的 browser/store/material/binding 前置。
-2. ArtifactEnvelope 的持久读写与 package migration 尚未接入真实生产账本；当前 ABI 已定义形状与准入，但 Work live 持久层未落地。
-3. 除 RiskList 外，部分模型产物的最终 schema 仍直接包含 SourceAnchor，尚未统一为 quote → resolver → system anchor。
-4. `services/ingest` 仍只有规格，OCR、分类与实体对齐未落地。
-5. 企业私域 ACL、MCP adapter、机构层记忆仍是后置席位。
-6. usage ledger 仍丢弃 cache hit/miss 与 reasoning token；成本函数仍返回无价目表版本/假设的裸估算。缺失 usage 的 unknown 语义、原始计量与派生估算尚未形成统一权威来源。
-7. 部分 package SPEC/ACCEPTANCE 是长篇编年记录，后续应按层拆成“现行 SPEC + 历史验收”，但本轮不改其证据内容。
-8. `PriorityScore` 的确定性计算在任一参数 OOC 时返回 `null`，但 v1 payload schema 的 `score` 仍不接受 `null`；在创建任何 PM scenario 前须由 `PM-SCHEMA-1` 以版本化契约收口。
-9. PM package identity、两包 metadata/schema drift、exports 与内部 layout 已按 ADR-012 对齐；企业 SDK/runtime 仍不得进入通用底座，公开 ABI 与 payload 不再随内部整理变化。
-10. 宿主原生 gallery 与多场景 Pages 泛化证明已经闭环，但当前唯一通用生产 blueprint 仍是 `courtwork.artifact-table.v1`；Legal 仍有未版本化专用 panel，PM 仍是 catalog-only。新 production blueprint 只能由新的真实垂类 fixture 与 fail-closed projection 拉动。
+| 能力 | 现行事实 | 未成立边界 |
+|---|---|---|
+| Chat 文本 | desktop 可用真实 DeepSeek key、受控 transport 与 provider stream 完成文本 Turn；reasoning、正文、usage、失败、取消和刷新回放共享 Turn journal | 只注册 DeepSeek；不能据此宣称任意 OpenAI-compatible provider 已支持 |
+| Chat 受控提问 | ask-user 使用 registry 冻结模板、严格回答闭集与系统锚点，UI 与 thinking progress 复用同源 Turn 投影 | interaction actor 仍由 desktop 写死为 `desktop/local-user`，真实 identity dependency 未装配 |
+| Chat 附件 | Composer 可解析支持格式并得到 `readingMarkdown` | 实际模型请求仍只发送文本或“（附文件）”占位，附件内容没有进入请求；不得宣称附件理解 live |
+| Provider 设置 | key 与 provider 配置分离，凭证经宿主钥匙串边界；custom/base URL 猜测入口已退役 | provider usage 的 cache/reasoning 计量与成本真源尚未闭合 |
 
-## 下一阶段优先序
+Composer 的“存入卷宗/资料”目前是容器化仪式、消息与附件状态迁移，不等于 MaterialStore、原件 hash、宿主授权或 Work materialRef 已持久接入。
 
-ADR-009 的 VIEW/TURN 两条前置线已独立验收、进入 main 并清账。代码审计证明不能把
-`WORK-LIVE-1` 直接当接线单：当前缺 browser-safe/durable Work state、真实材料入口与 S3 垂类 binding。
-ADR-010 已把依赖收口，`WORK-PORT-1` 与 `WORK-BROWSER-1` 已独立验收清账。后续 `WORK-STORE-1` 与
-`CASE-ROOT-1 → MATERIAL-INGRESS-1` 按
-文件面错峰，最后 `LEGAL-S3-BINDING-1 → WORK-LIVE-1`。recording 永久只在 fixture/demo mode，不引入
-第二 chat runtime、agent loop 或 PM 空壳流程。
+## 包与契约成立，但 production 未完全装配
 
-`PM-SCHEMA-1` 是独立的垂类契约修复：令 OOC score 与确定性计算同义，并完成 payload 版本、JSON Schema、
-descriptor 与迁移边界。它可在不触碰 desktop/Work live 的条件下另行派发，但未完成前不得创建 PM scenario。
-SourceAnchor system producer 门随 VIEW conformance kit 持续推进，不由 desktop 特判补洞。
+- schemas、registry、namespaced package ABI、JSON Schema drift 与 fail-closed 准入；
+- provider-independent core、六段 harness、Turn engine、interaction resolver、事件/修订/确认账本和 runtime guard；
+- `@courtwork/core/work-protocol`、`@courtwork/core/turn-protocol` 的 browser-safe 子路径；`@courtwork/core` 根出口不具备同一声明；
+- citation resolver、coverage 剪枝和 Legal RiskList 的 quote → system anchor 路径；其他部分模型最终 schema 仍直接含 SourceAnchor；
+- reading-view 对 docx/md/txt/文本层 PDF 的解析，以及图片/扫描 PDF 的诚实 `needs_ocr`；
+- output 的 docx 安全预检、基础修订/批注、起草与字体自动化；`OUTPUT-CORRECTNESS-1` 尚未完成；
+- Legal 垂类包；PM 的 descriptor/schema/presentation 与 catalog fixture，PM 仍无 scenario/prompt/live；
+- Work command/projection 类型、注入缝、Scenario executor 与 Turn 链接；production command/store/material/binding 尚未接通；
+- Tauri 文件、钥匙串、网络与窗口宿主能力；宿主存在不等于 CASE-ROOT 授权事实和材料库已经成立；
+- host-owned blueprint、有限可视化原语与 descriptor-driven 通用表；Legal 仍有专用 panel，PM 仍是 catalog-only。
 
-`HARNESS-KERNEL-1`、VPKG 体例、`PM-FIXTURE-1`、`VISUAL-KIT-1` 与 `SITE-GEN-1` 均已清账并进入
-`v0.1.2`。下一枚视觉或 Pages 扩展只能由新的真实垂类 fixture 与 production projection 拉动；不得以 gallery
-静态样板反向制造产品能力。PM 的 live 场景仍必须等待 `PM-SCHEMA-1`，不以 catalog preview 冒充已接通运行链。
+## Demo / fixture 集成
 
-正式 macOS 公证、真实材料链/usage ledger 与包内 SPEC 瘦身继续保留，但不插队破坏上述依赖序。
+- demo-runtime 已穿越样板材料、Legal artifacts、引用、gate、revision 与 output bundle，只证明包间契约和确定性 fixture 自洽。
+- Work UI 的 recording、paced replay、demo gate、demo party adapter 与 demo 原文都属于 fixture/demo mode；非 demo case 必须 fail closed，当前 production Work 尚不可达。
+- Pages 展示 Legal 合同链、卷宗 `20 / 47 / 14 / 8` 与 PM catalog preview；这些是已校验的展示数据，不把 PM preview 或 demo 工作链升级为 product-live。
+- gallery 与十二族可视化样板证明有限原语可编排，不证明每一族已经有 production schema 或真实数据管线。
 
-## 发行边界
+## 外部兼容验证
 
-v0.1.2 的公开制品是 Apple Silicon 开发构建：ad-hoc 签名、未 Apple 公证。`codesign` 与 DMG 完整性通过不等于 Gatekeeper 公证；官网、Release notes 与校验文件必须持续保留这一区分，直到正式公证制品替换。
+- output 已有 golden、ZIP/OOXML 安全反例与包级自动化；2026-07-09 W4 验收在 macOS WPS 对样例做过一次基础打开和视觉抽核。
+- 本机当时未安装 Microsoft Word；Word/WPS 双端的打开—轻改—保存—回读、现有 comments/rels 保全、Windows WPS 与精确版本矩阵均未完成。因此完整 Office/WPS P0 仍是缺口。
+- `v0.1.2` 远端 DMG 已回下载、校验、只读挂载并直接运行；这证明该开发制品可启动，不证明正式签名、公证、升级后 TCC 或持久文件授权。
+
+## 已发布与已清账工单源流
+
+以下工单均已有实现与异会话验收记录进入提交史或对应 `ACCEPTANCE.md`；表格省并过程叙述，不改变各包 SPEC/ACCEPTANCE 的证据权威。
+
+| 主题 | 已清账工单 |
+|---|---|
+| Provider / Turn / Chat | `PROVIDER-2`、`TURN-1`、`INTERACTION-1A`、`INTERACTION-1B`、`CHAT-UI-1` |
+| Ports / ABI / projection | `HOST-PORT-1`、`CONFIRM-CAS-1`、`ABI-2A`、`CORE-BOUNDARY-1`、`ABI-2B`、`VIEW-ABI-1`、`VIEW-ABI-1C`、`TURN-WORK-1` |
+| Work 基础边界 | `WORK-PORT-1`、`WORK-BROWSER-1`、`TRACE-UI-1` |
+| 垂类包与最小 harness | `VPKG-META-1`、`PM-PACKAGE-RENAME-1`、`HARNESS-KERNEL-1`、`VPKG-EXPORTS-1`、`PM-FIXTURE-1`、`VPKG-LAYOUT-1` |
+| UI / 视觉 / 站点 | `BRAND-1`、`POLISH-P0`、`SCHEMA-POLISH-1`、`DESLOP-GATE-2`、`VISUAL-KIT-1`、`SITE-2A`、`SITE-2B`、`SITE-GEN-1` |
+| 发布收口 | 遥测真开关、共享 docx 预检、产物存在后冻结、v0.1.2 build/release/Pages 与独立部署验收 |
+
+ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第二 agent runtime；企业 SDK 编排只进真实垂类 runtime；新 production blueprint 只能由真实 fixture 与 fail-closed projection 拉动。
+
+## 当前阻断与下一序
+
+严格按[实现就绪图](../architecture/implementation-readiness.md)派发：
+
+1. P0：`CHAT-MATERIAL-1`，让附件阅读内容真实进入模型请求；`OUTPUT-CORRECTNESS-1`，收口段落属性、字体作用域、既有批注、rels/content-types、paragraphHint 与 non-applied 落盘语义。
+2. Work store：先 `WORK-STORE-MEASURE`，再 `WORK-STORE-1`。v1 继续 whole-envelope CAS；当前 RuntimeGuard 按每个 leg 重置，超限没有跨 resume 累计的持久终态映射，尚不满足 live。
+3. 材料链：`HOST-AUTH-TRUTH → CASE-ROOT-1 → MATERIAL-INGRESS-1`。当前缺稳定签名/TCC/重授权事实、opaque case root、原件/ReadingView hash 与生产 MaterialStore。
+4. 场景装配：`LEGAL-S3-BINDING-1 → WORK-LIVE-1`。主体输入、真实工具、逐条 gate/revision 与 session 原文绑定未闭合；非 demo 不得接 recording fallback。
+5. 独立线：`USAGE-LEDGER-1` 保存 cache hit/miss、reasoning token、unknown 与版本化价格估算；`PM-SCHEMA-1` 收口 OOC `score=null`、payload 版本与迁移，完成前不得创建 PM scenario。
+
+后置但仍真实存在的缺口：`services/ingest` 只有规格，OCR/分类/实体对齐与 HTTP/progress wire 均未实现；正式 macOS Developer ID、公证和升级授权矩阵未完成；企业 identity、ACL、伦理墙、MCP/私域 adapter、scheduled invocation、多写者与跨案图谱属于以后阶段，不得插入本轮 Work live。
+
+## 分支与清账纪律
+
+`main` 是唯一长期与发布真源。临时 `codex/*` 分支和 clean worktree 只有在目标 SHA 成为 `main` 祖先、对应 SPEC/ACCEPTANCE 留痕且实现与独立验收都完成后才可删除；未提交工作树不由其他会话代为合入。
