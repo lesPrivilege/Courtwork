@@ -8,5 +8,9 @@ export * from '../scenario-executor/todo-snapshot.js';
 export * from '../scenario-executor/runtime-limits.js';
 export * from '../scenario-executor/executor.js';
 export * from '../revision/revision-store.js';
+// WORK-STORE-1：whole-envelope 持久格式与异步 CAS store 是 browser-safe（零 node:*）；
+// Node-only 的 fs host adapter 不在此导出，只走根 barrel 与 Node-only 子路径。
+export * from '../work-state/envelope.js';
+export * from '../work-state/work-state-store.js';
 export type { TurnRunnerPort } from '../turn/turn-runner.js';
 export type { PersistedTurn, TurnEvent } from '../turn/types.js';

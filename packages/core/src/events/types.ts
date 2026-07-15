@@ -113,7 +113,19 @@ export type SessionEvent =
       retryable: boolean;
     })
   | (BaseEvent & { type: 'scenario_completed' })
-  | (BaseEvent & { type: 'error'; message: string });
+  | (BaseEvent & {
+      /**
+       * 场景级终局失败（ADR-010 决定三）：取代此前无人消费的泛化 `error` 分支。
+       * provider failure/cancel 继续只认 model `step_failed`，不在此双记；本事件覆盖
+       * runtime_limit（本单实现的生产者）、以及类型上支持的 invalid_output / configuration /
+       * internal（后续按 ADR 接生产者，见 packages/core/SPEC.md WORK-STORE-1 记录）。
+       */
+      type: 'scenario_failed';
+      scope: 'scenario';
+      reason: 'invalid_output' | 'runtime_limit' | 'configuration' | 'internal';
+      message: string;
+      retryable: false;
+    });
 
 /**
  * 普通 Omit 在判别联合上不分发（keyof (A|B) 只保留两者共有的键），会把

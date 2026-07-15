@@ -21,7 +21,6 @@ import { createScriptedProvider } from '@courtwork/provider/scripted';
 import type { GenerationRequest, GenerationResponse, Provider } from '@courtwork/provider/types';
 import { createMemoryTurnStore } from '../turn/turn-store.js';
 import { createTurnRunner, type TurnRunnerPort } from '../turn/turn-runner.js';
-import { RuntimeLimitExceededError } from './runtime-limits.js';
 import {
   GenerationValidationError,
   resumeScenario,
@@ -30,6 +29,13 @@ import {
   UnknownToolError,
   type ScenarioExecutorDeps,
 } from './executor.js';
+import { readWorkStateEnvelope, type WorkSessionRef } from '../work-state/envelope.js';
+import {
+  createInMemoryWorkStateHost,
+  loadWorkStateStore,
+  type WorkStateHeader,
+  type WorkStateHostPort,
+} from '../work-state/work-state-store.js';
 
 // 迁 ABI 后 core 域盲：执行器测试全部使用合成 test.* 类型与注入式 registry——
 // 法律语义不再是夹具来源，这本身就是"跑得动包、读不懂包"的自证。
@@ -911,27 +917,28 @@ describe('docs/architecture/system.md 长任务协议 ③: runtime protection li
     ).resolves.toMatchObject({ status: 'paused' });
   });
 
-  it('throws RuntimeLimitExceededError when maxToolCalls is exceeded by the declared tool phase', async () => {
+  it('persists scenario_failed(runtime_limit) and returns a typed failed result when maxToolCalls is exceeded by the declared tool phase', async () => {
     const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
     deps.limits = { maxToolCalls: 0 };
-    await expect(
-      runScenario(
-        SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
-        deps,
-      ),
-    ).rejects.toThrow(RuntimeLimitExceededError);
+    const result = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    // ADR-010：runtime limit 不得只抛异常/留 running——终态落盘 + typed 结果。
+    expect(result).toMatchObject({ status: 'failed', reason: 'runtime_limit', retryable: false });
+    expect(deps.eventLog.list().some((e) => e.type === 'scenario_failed' && e.reason === 'runtime_limit')).toBe(true);
   });
 
-  it('throws RuntimeLimitExceededError when maxSteps is exceeded by the artifact-generation phase', async () => {
+  it('persists scenario_failed(runtime_limit) when maxSteps is exceeded by the artifact-generation phase', async () => {
     const deps = buildDeps([{ content: envelope('produce-test.Doc', 'test.Doc', CASE_FILE_RESPONSE) }, { content: envelope('produce-test.Alpha', 'test.Alpha', TIMELINE_RESPONSE) }]);
     deps.limits = { maxSteps: 1 };
-    await expect(runScenario(MULTI_GATE_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps)).rejects.toThrow(
-      RuntimeLimitExceededError,
-    );
+    const result = await runScenario(MULTI_GATE_SCENARIO, { inputArtifacts: {}, toolInputs: {} }, deps);
+    expect(result).toMatchObject({ status: 'failed', reason: 'runtime_limit' });
+    expect(deps.eventLog.list().some((e) => e.type === 'scenario_failed')).toBe(true);
   });
 
-  it('throws when one provider call itself crosses maxSeconds before returning', async () => {
+  it('terminalizes with scenario_failed when one provider call itself crosses maxSeconds before returning', async () => {
     let nowMs = 0;
     const deps = buildDeps([]);
     deps.turnRunner = responseTurnRunner(
@@ -945,13 +952,13 @@ describe('docs/architecture/system.md 长任务协议 ③: runtime protection li
     deps.limits = { maxSeconds: 5 };
     deps.nowMs = () => nowMs;
 
-    await expect(
-      runScenario(
-        SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
-        deps,
-      ),
-    ).rejects.toThrow(RuntimeLimitExceededError);
+    const result = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    expect(result).toMatchObject({ status: 'failed', reason: 'runtime_limit' });
+    expect(deps.eventLog.list().some((e) => e.type === 'scenario_failed')).toBe(true);
   });
 
   it('a fresh runScenario/resumeScenario call gets a fresh budget (limits are scoped per call, not persisted across resume)', async () => {
@@ -1053,7 +1060,7 @@ describe('T-provider: generateArtifact passes responseSchema through to TurnRunn
 });
 
 describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via response.usage', () => {
-  it('throws RuntimeLimitExceededError("maxUsd") when a priced provider/model returns usage that exceeds the configured budget', async () => {
+  it('persists scenario_failed(runtime_limit) when a priced provider/model returns usage that exceeds maxUsd', async () => {
     const expensiveTurnRunner = responseTurnRunner(
       async () => {
         return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST), usage: { inputTokens: 10_000_000, outputTokens: 10_000_000 } };
@@ -1076,13 +1083,13 @@ describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via respo
       limits: { maxUsd: 0.01 }, // 10M+10M token 在 deepseek-v4-pro 报价下远超这个预算
     };
 
-    await expect(
-      runScenario(
-        SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
-        deps,
-      ),
-    ).rejects.toThrow(RuntimeLimitExceededError);
+    const result = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    expect(result).toMatchObject({ status: 'failed', reason: 'runtime_limit' });
+    expect(deps.eventLog.list().some((e) => e.type === 'scenario_failed')).toBe(true);
   });
 
   it('does not throw when usage is absent (ScriptedProvider case) even with a negative maxUsd — proves cost tracking is genuinely skipped, not computed-as-zero-then-compared', async () => {
@@ -1353,5 +1360,156 @@ describe('TURN-WORK-1: Work model steps use the TurnRunnerPort', () => {
       expect.objectContaining({ type: 'turn_linked', turnId: 'turn-canceled', providerRequestId: 'provider-canceled' }),
       expect.objectContaining({ type: 'step_failed', scope: 'model', reason: 'canceled', retryable: false }),
     ]);
+  });
+});
+
+describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier', () => {
+  const STORE_REF: WorkSessionRef = { caseId: 'case-1', sessionId: 'session-1' };
+  const FIXED_NOW = () => '2026-07-15T00:00:00.000Z';
+
+  function storeHeader(): WorkStateHeader {
+    return {
+      caseId: 'case-1',
+      sessionId: 'session-1',
+      chainId: 'session-1',
+      scenarioId: SINGLE_GATE_SCENARIO.id,
+      packageId: 'test',
+      packageVersion: '0.1.0',
+      schemaVersion: 1,
+      scenarioFingerprint: 'test.Single@1+' + '0'.repeat(64),
+      modelRoute: { providerId: 'p', modelId: 'm', reasoning: 'standard' },
+      materialRefs: [],
+      createdAt: '2026-07-15T00:00:00.000Z',
+      runtimeBudget: {
+        limits: {},
+        costBasis: { currency: 'USD', assumptions: [] },
+        consumed: { steps: 0, toolCalls: 0, executionMs: 0, estimatedUsd: 0, costCoverage: 'partial' },
+      },
+    };
+  }
+
+  async function storeBackedDeps(
+    host: WorkStateHostPort,
+    turnRunner: TurnRunnerPort,
+    limits?: ScenarioExecutorDeps['limits'],
+  ): Promise<{ deps: ScenarioExecutorDeps }> {
+    const store = await loadWorkStateStore({ host, ref: STORE_REF, header: storeHeader(), now: FIXED_NOW });
+    const tools = createToolRegistry();
+    tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
+    return {
+      deps: {
+        tools,
+        toolExecutor: createToolExecutor(),
+        turnRunner,
+        eventLog: store.eventLog,
+        confirmationStore: store.confirmationStore,
+        revisionStore: store.revisionStore,
+        ledger: createEvidenceLedger(),
+        artifacts: TEST_ARTIFACTS,
+        projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
+        persistBarrier: async () => {
+          await store.commit();
+        },
+        now: FIXED_NOW,
+        ...(limits ? { limits } : {}),
+      },
+    };
+  }
+
+  const START_INPUT = {
+    inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } },
+    toolInputs: { 'party-verify': { name: '张三' } },
+  };
+
+  it('calls the provider only after turn_linked is durably persisted to the host', async () => {
+    const host = createInMemoryWorkStateHost();
+    let providerSawDurableTurnLink: boolean | undefined;
+    const turnRunner: TurnRunnerPort = {
+      async run(input) {
+        // effect（provider 调用）现场读 host：turn_linked 必须已经落盘。
+        const read = await host.read(STORE_REF);
+        providerSawDurableTurnLink =
+          read.found &&
+          readWorkStateEnvelope(read.bytes).events.some(
+            (e) => e.type === 'turn_linked' && e.turnId === input.turnId,
+          );
+        return {
+          status: 'completed',
+          turnId: input.turnId,
+          providerRequestId: input.providerRequestId,
+          providerId: 'p',
+          modelId: 'm',
+          assistantMessage: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST),
+          reasoning: { status: 'absent' },
+          finishReason: 'stop',
+          completedAt: '2026-07-15T00:00:00.000Z',
+        };
+      },
+    };
+    const { deps } = await storeBackedDeps(host, turnRunner);
+    const result = await runScenario(SINGLE_GATE_SCENARIO, START_INPUT, deps);
+    expect(result.status).toBe('paused');
+    // 反例守卫：移除 runWorkTurn 中 provider 前的 persistBarrier，本断言即变 false（effect 先于落盘）。
+    expect(providerSawDurableTurnLink).toBe(true);
+  });
+
+  it('resumes a durably paused session to completion from a fresh store on the same host (restart recovery)', async () => {
+    const host = createInMemoryWorkStateHost();
+    const { deps: deps1 } = await storeBackedDeps(
+      host,
+      scriptedTurnRunner([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]),
+    );
+    const paused = await runScenario(SINGLE_GATE_SCENARIO, START_INPUT, deps1);
+    if (paused.status !== 'paused') throw new Error('setup: expected paused');
+
+    // 新 store 从同一 host 读回 == 换进程重开案件
+    const store2 = await loadWorkStateStore({ host, ref: STORE_REF, header: storeHeader(), now: FIXED_NOW });
+    const tools = createToolRegistry();
+    tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
+    const deps2: ScenarioExecutorDeps = {
+      tools,
+      toolExecutor: createToolExecutor(),
+      turnRunner: scriptedTurnRunner([]),
+      eventLog: store2.eventLog,
+      confirmationStore: store2.confirmationStore,
+      revisionStore: store2.revisionStore,
+      ledger: createEvidenceLedger(),
+      artifacts: TEST_ARTIFACTS,
+      projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
+      persistBarrier: async () => {
+        await store2.commit();
+      },
+      now: FIXED_NOW,
+    };
+    const done = await resumeScenario(
+      paused.requestId,
+      { actor: { channelId: 'cli', actorId: 'u' }, decision: 'confirm' },
+      SINGLE_GATE_SCENARIO,
+      deps2,
+    );
+    expect(done.status).toBe('completed');
+    const finalRead = await host.read(STORE_REF);
+    expect(
+      finalRead.found &&
+        readWorkStateEnvelope(finalRead.bytes).events.some((e) => e.type === 'scenario_completed'),
+    ).toBe(true);
+  });
+
+  it('persists scenario_failed(runtime_limit) to the host on a single-leg limit, not a bare rejection', async () => {
+    const host = createInMemoryWorkStateHost();
+    const { deps } = await storeBackedDeps(
+      host,
+      scriptedTurnRunner([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]),
+      { maxToolCalls: 0 },
+    );
+    const result = await runScenario(SINGLE_GATE_SCENARIO, START_INPUT, deps);
+    expect(result).toMatchObject({ status: 'failed', reason: 'runtime_limit', retryable: false });
+    const read = await host.read(STORE_REF);
+    expect(
+      read.found &&
+        readWorkStateEnvelope(read.bytes).events.some(
+          (e) => e.type === 'scenario_failed' && e.reason === 'runtime_limit',
+        ),
+    ).toBe(true);
   });
 });

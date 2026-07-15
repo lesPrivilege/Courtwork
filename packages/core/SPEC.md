@@ -345,3 +345,76 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
   `turn-store.test.ts`（rawUsage + 槽位 round-trip）、`scenario-executor/sum-usage.test.ts`（unknown 传染）先红后绿。
 - 门禁：全仓 `pnpm -r build`、`pnpm lint`、`pnpm test`（root 1175）全绿；core 定向 turn + scenario-executor 全绿。
   不更新 `docs/status/current.md`。
+
+## WORK-STORE-1 · 异步 whole-envelope CAS、终态与迁移（2026-07-15，实现留痕，待独立验收）
+
+权威：[ADR-010 决定二/三](../../docs/decisions/ADR-010-work-live-boundaries.md)、[实现就绪图 WORK-STORE-1 行](../../docs/architecture/implementation-readiness.md)、
+[WORK-STORE-MEASURE REPORT](../demo-runtime/scripts/work-store-measure/REPORT.md)。实现分支 `impl/work-store-1`（基线 `main @ 540269a`），
+worktree 施工，未推送、未改 `docs/status/current.md`、未动 `packages/schemas` 导出。
+
+### 复杂度留痕（本单新增概念）
+
+新增两个受 ADR 拍板的概念，别无其它通用抽象/持久格式/状态机：
+
+1. **`WorkStateEnvelopeV1` 持久格式 v1**（`src/work-state/envelope.ts`，browser-safe）：ADR-010 决定二形状的可序列化容器 +
+   `serializeWorkStateEnvelope` / `readWorkStateEnvelope`（读侧 fail-closed 迁移闸）+ 软/硬大小上限常量。它是「既有四段账本的持久容器」，
+   不是第二套 journal。`events` 以别名 `StoredSessionEvent = SessionEvent` 直存（见下「未纳入本单」）。
+2. **`WorkStateStore` 异步 whole-envelope CAS 权威**（`src/work-state/work-state-store.ts`，browser-safe）：`WorkStateHostPort`（ADR 指定的 opaque
+   blob read/CAS port）+ `createInMemoryWorkStateHost` + store 本体。store 拥有四段账本、以内存视图暴露既有 `EventLog` / `ConfirmationStore` /
+   `RevisionEventStore` 接口 + turnEntries 注入读取，`commit()` 装配信封 → 大小闸 → 序列化 → CAS → 落盘成功才推进 generation/revision。
+   这是「store 接口收口」：把四段账本收敛到一次 CAS 的单一权威值。
+
+其余新增物均非新概念：
+- **`src/work-state/work-state-host-file.ts`（Node-only）** 是 ADR 指定 host port 的 Node 参考实现（原子替换 + `F_FULLFSYNC`），
+  与既有 `event-log-file` / `confirmation-store-file` 同型的 file adapter，不引入新依赖。
+- **`persistBarrier?: () => Promise<void>`（executor 新增可选 dep）** 是概念二的注入缝，不是新状态机：缺省 no-op（既有纯逻辑单测行为不变），
+  生产由 `WorkStateStore.commit` 注入。executor 不 import work-state 实现，只依赖该 async 回调类型，保持解耦。
+- **`scenario_failed` SessionEvent + `ScenarioFailureReason` + `ScenarioRunResult` 的 `failed` 变体** 是 ADR-010 决定三明文指派（取代死 `error` 分支），非自创契约。
+
+### durable-before-effect 屏障映射（ADR-010 决定二第 1–6 条）
+
+executor 在六个顺序点 `await deps.persistBarrier?.()`，effect 严格发生在对应落盘之后（与 measurement 的 6 屏障归并口径一致）：
+
+| # | ADR 顺序 | executor 落点 | effect |
+|---|---|---|---|
+| ① | header 持久 → 才可执行工具/调 provider | `runScenario` 开头 | `runTools` / provider |
+| ② | `turn_linked` 持久 → 才可调 Turn | `runWorkTurn` append 后、`turnRunner.run` 前 | provider 调用 |
+| ③ | Turn terminal 持久 → 才可发布 artifact | `produceSequence` append `artifact_produced` 后 | artifact 发布 |
+| ④ | pending 持久 → 才可发布 `confirmation_requested` | `pauseAt`（whole-envelope 原子含 pending + 事件） | confirmation 发布 |
+| ⑤ | validate-before-consume；条件消费与 `confirmation_resolved` 同一 CAS | `resumeScenario` 消费 + resolved 后一次落盘 | 续行 |
+| ⑥ | revision 载荷持久 → 才可发布 `revision_recorded` | 与⑤同一次 CAS（同批原子落盘 revision + 记录事件） | revision 发布 |
+
+`runtime_limit` 触线：catch `RuntimeLimitExceededError` → append `scenario_failed(runtime_limit)` → 落盘 → 返回 typed `failed` 结果，
+不留裸 Promise rejection（ADR-010 第 225 行）。其余错误（`GenerationValidationError`、`WorkTurnFailedError`、CAS 冲突/超大 store blocker）按原语义上抛。
+
+### 反例（先红后绿）
+
+- `envelope.test.ts`（8）：round-trip；未知/缺失 `storageVersion` fail-closed；损坏字节/账本段非数组/缺元数据 fail-closed；软硬阈值常量钉定。
+- `work-state-store.test.ts`（11）：首写 `expectedVersion=null`；revision 单调；四段账本 reload 复原并可续 commit；**并发 CAS 败者显式 `WorkStateConflictError` 不覆盖赢者**；
+  软 4 MiB 发 `onSoftLimitWarning` 且仍落盘；硬 16 MiB `WorkStateTooLargeError` 且 CAS **不触达 host**；load 遇未知版本 fail-closed；interrupted attempt（`turn_linked` 无终态）识别。
+- `work-state-host-file.test.ts`（6）：原子替换 round-trip；陈旧 expectedVersion 拒覆盖；generation 跨实例持久单调；ref id 编码阻路径穿越；**真实 `kill -9` 崩溃窗口零撕裂**（复用 measurement crash-inject 手法，6 轮 SIGKILL）。
+- `executor.test.ts` WORK-STORE-1 段（3 + 4 更新）：**durable-before-effect**（provider 现场读 host 验证 `turn_linked` 已落盘——移除屏障即变红，已实证）；重启恢复（同 host 新 store resume 到 `scenario_completed`）；`runtime_limit` 终态落 host；4 条原 runtime-limit 由 `rejects.toThrow` 改判为 typed `failed` + 持久 `scenario_failed`。
+- `event-log.test.ts`：`replaySession` 新增 `scenarioFailure` 投影。
+
+变异实证：删除 `runWorkTurn` 中 provider 前的 `persistBarrier` → durable-before-effect 断言实测变红（`providerSawDurableTurnLink=false`），恢复后全绿。
+
+### 未纳入本单 / 已知边界（如实登记，部分待架构拍板）
+
+- **跨 resume 累计 runtime budget**：Round 3 复杂度拍板降级为已知边界，本单不实现。`runtimeBudget` 作为契约位随信封持久（composition 填入），但 `consumed` 不跨 leg 累加，`RuntimeGuard` 仍按 leg 重置（就绪图 WORK-STORE-1 行）。
+- **`scenario_failed` 的 `configuration` 终态**（成本覆盖不足阻断下一次 paid Turn）：绑定上项累计预算逻辑，本单不产生；类型槽位在场。`invalid_output` / `internal` 同为类型支持、本单未接生产者——本单只实现 `runtime_limit` 生产者取代死 `error` 分支。
+- **软上限「警示事件」实现为结构化回调 `onSoftLimitWarning`，非新增 SessionEvent 类型** `[需架构拍板]`：为守「契约先行/不擅扩 wire 事件」，未把软告警提升为可回放的 durable SessionEvent。若架构要求软告警进事件流可回放，需拍板新增事件类型并同步 replay/desktop 投影。
+- **ADR-010 决定三的 `ArtifactEnvelope`（版本化 artifact 持久形态 + 读侧按 package/schema 版本迁移 + 未知版本隔离）** `[需架构拍板]`：不在本单派发的 deliverable/反例清单内（本单迁移反例是 envelope `storageVersion`，非 artifact schemaVersion）。故 `events` 以 `StoredSessionEvent = SessionEvent` 直存。ADR 依赖图把 ArtifactEnvelope 列在 WORK-STORE-1 名下——请架构裁定「本单补做」抑或「拆后续工单」。
+- **Node file host 单写者边界**：generation 比较拒绝陈旧 expectedVersion（真实 resume 场景）；同 generation 的真并发写者严格冲突检测由 store 契约 + in-memory host 反例守护，file adapter 不设 OS 级锁（多写者是就绪图明确拒绝项）。
+- **信封内 confirmation 无跨 reload consumed tombstone**：已消费 pending 在信封中直接移除，requestId 为每次暂停铸造的 UUID 不复用——与内存 confirmation store 保证一致（file confirmation store 的 `.consumed` tombstone 是更强保证，生产 Work 走信封不复用该路径）。
+
+### WORK-STORE-MEASURE 提案区承接（`SPEC.md` 复杂度扫描四项）
+
+- **`SessionEvent` 的 `type:'error'` 分支**：本单**删除**，由 `scenario_failed`（真实生产者 `runtime_limit`）取代。全仓无生产者/消费者，`replaySession` 亦未曾处理它——移除零回归。
+- **`ConfirmationStore.take()` @deprecated**：**仍只列不删**（按本单派发口径，跨接口面待架构拍板）。注意：新 `WorkStateStore` 的 confirmation 视图为接口一致性同样实现 `take`，但生产续行仍走 `peek`+`consume`（validate-before-consume），`take` 无生产消费方。
+- **`ScenarioExecutorDeps.onTurnEvent` 零消费**：**仍只列不删**（疑为 WORK-LIVE-1 UI 流式预留缝；本单未消费亦未删）。
+- **`work/work-store-file.ts` 重复面兼边界标记**：WORK-STORE-1 评估后**保留**——它现在同时是 Node-only 的 async host adapter（`createFileWorkStateHost`）出口，边界价值（browser-safe barrel 不可触达 Node host）不变且增强。
+
+### 门禁
+
+worktree 内：`pnpm -r build`、`pnpm lint` 全绿；`pnpm test` **139 files / 1203 tests** 全绿（基线 1175 + 本单 28：envelope 8 / store 11 / host 6 / executor 段 3）。
+work-protocol browser 递归门 + 真实 Vite bundle 证明新增 envelope/store 出口零 `node:*`（Node host 只走根 barrel 与 Node-only 子路径）。demo-runtime `demo:s3` / `demo:legal` golden 与集成测试等价未破坏（executor 无 `persistBarrier` 时屏障为 no-op，demo 路径字节不变）。放行由异会话在 clean worktree 独立注入反例复验。
