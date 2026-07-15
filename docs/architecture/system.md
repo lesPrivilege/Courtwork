@@ -16,6 +16,7 @@ packages/core ─────► packages/provider
     └── packages/schemas ◄── registry/tools/output/reading-view/vertical packages
 
 packages/demo-data    测试、导览与验收语料
+packages/demo-runtime demo/acceptance 唯一装配点与 CLI（组合根，只由开发/验收消费）
 eval                  中性评测底座 + 垂类数据集适配
 services/ingest       Python OCR/分类/实体对齐（尚待实现）
 ```
@@ -34,6 +35,7 @@ services/ingest       Python OCR/分类/实体对齐（尚待实现）
 | `packages/reading-view` | docx/md/txt/文本层 PDF 到阅读视图与 SourceAnchor |
 | `packages/output` | docx 安全预检、定位、修订、批注与编译 |
 | `packages/demo-data` | 虚构样板案、导览与测试语料，不含业务逻辑 |
+| `packages/demo-runtime` | demo/acceptance 唯一组合根：装配 core 与垂类/能力包为可执行演示、真跑入口与端到端 golden；core 与 desktop 不得反向依赖 |
 | `packages/legal` | 法律领域 schema、场景、词表、投影与领域编译器 |
 | `packages/pm` | PM 垂类 schema、presentation、词表与确定性计算 |
 | `apps/desktop` | 通用 UI 宿主、系统权限桥与产品交互 |
