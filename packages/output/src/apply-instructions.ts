@@ -355,10 +355,14 @@ export interface InstructionOutcome {
   detail?: string;
 }
 
-function resolveTextParagraph(body: Element, quote: string): { paragraph: Element; status: ApplyStatus } | null {
+function resolveTextParagraph(
+  body: Element,
+  quote: string,
+  paragraphHint: string | undefined,
+): { paragraph: Element; status: ApplyStatus } | null {
   const paragraphs = bodyParagraphs(body);
   const texts = paragraphs.map((p) => textOf(p));
-  const located = locateQuote(texts, quote);
+  const located = locateQuote(texts, quote, { paragraphHint });
   if (located.status === 'exact') {
     return { paragraph: paragraphs[located.paragraphIndex]!, status: 'applied' };
   }
@@ -416,11 +420,11 @@ function applyOne(doc: Document, body: Element, instruction: RevisionInstruction
 
   // strategy === 'text'
   if (kind === 'insert') {
-    const resolved = resolveTextParagraph(body, locator.quote);
+    const resolved = resolveTextParagraph(body, locator.quote, locator.paragraphHint);
     if (!resolved) {
       const paragraphs = bodyParagraphs(body);
       const texts = paragraphs.map((p) => textOf(p));
-      const located = locateQuote(texts, locator.quote);
+      const located = locateQuote(texts, locator.quote, { paragraphHint: locator.paragraphHint });
       return { id, status: located.status === 'ambiguous' ? 'locator_ambiguous' : 'locator_not_found' };
     }
     const anchor = resolved.paragraph;
@@ -437,7 +441,7 @@ function applyOne(doc: Document, body: Element, instruction: RevisionInstruction
 
   const paragraphs = bodyParagraphs(body);
   const texts = paragraphs.map((p) => textOf(p));
-  const located = locateQuote(texts, locator.quote);
+  const located = locateQuote(texts, locator.quote, { paragraphHint: locator.paragraphHint });
   if (located.status === 'not_found') return { id, status: 'locator_not_found' };
   if (located.status === 'ambiguous') return { id, status: 'locator_ambiguous' };
   const p = paragraphs[located.paragraphIndex]!;

@@ -153,6 +153,60 @@ describe('applyInstructionsToDocumentXml scopes font writes to touched runs (OUT
   });
 });
 
+describe('applyInstructionsToDocumentXml threads paragraphHint into the locator (OUTPUT-CORRECTNESS-1 #5)', () => {
+  const xml = minimalDocumentXml(
+    `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>第六条 违约责任</w:t></w:r></w:p>` +
+      `<w:p><w:r><w:t>应向守约方支付合同总价款百分之十的违约金。</w:t></w:r></w:p>` +
+      `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>第九条 补充违约条款</w:t></w:r></w:p>` +
+      `<w:p><w:r><w:t>迟延履行的，还应支付合同总价款百分之十的违约金。</w:t></w:r></w:p>`,
+  );
+
+  it('edits the paragraph named by paragraphHint, not the other verbatim occurrence', () => {
+    const instructionSet: RevisionInstructionSet = {
+      id: 'ris-hint',
+      caseId: 'case-hint',
+      targetDocument: { fileId: 'f-hint' },
+      instructions: [
+        {
+          id: 'i1',
+          kind: 'replace',
+          locator: { strategy: 'text', quote: '百分之十的违约金', paragraphHint: '第九条 补充违约条款' },
+          text: '百分之二十的违约金',
+        },
+      ],
+    };
+    const { documentXml, outcomes } = applyInstructionsToDocumentXml(xml, instructionSet, FIXED_NOW);
+    expect(outcomes[0]!.status).toBe('applied');
+    const doc = new DOMParser().parseFromString(documentXml, 'text/xml');
+    const paras = Array.from(doc.getElementsByTagNameNS(W_NS, 'p'));
+    const textOfPara = (p: Element) =>
+      Array.from(p.getElementsByTagNameNS(W_NS, 't'))
+        .map((t) => t.textContent ?? '')
+        .join('');
+    // 第六条那段（index 1）保持原样，第九条那段（index 3）被改写。
+    expect(textOfPara(paras[1]!)).toBe('应向守约方支付合同总价款百分之十的违约金。');
+    expect(textOfPara(paras[3]!)).toContain('百分之二十');
+  });
+
+  it('without a hint the same ambiguous quote is not applied (skips, does not mis-edit)', () => {
+    const instructionSet: RevisionInstructionSet = {
+      id: 'ris-hint-none',
+      caseId: 'case-hint-none',
+      targetDocument: { fileId: 'f-hint-none' },
+      instructions: [
+        {
+          id: 'i1',
+          kind: 'replace',
+          locator: { strategy: 'text', quote: '百分之十的违约金' },
+          text: '百分之二十的违约金',
+        },
+      ],
+    };
+    const { outcomes } = applyInstructionsToDocumentXml(xml, instructionSet, FIXED_NOW);
+    expect(outcomes[0]!.status).toBe('locator_ambiguous');
+  });
+});
+
 describe('applyInstructionsToDocumentXml font role detection', () => {
   it('uses the body font (仿宋_GB2312) for edits inside a plain (non-bold) paragraph', () => {
     const xml = minimalDocumentXml(

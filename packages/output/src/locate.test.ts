@@ -40,3 +40,39 @@ describe('locateQuote', () => {
     expect(result.status).toBe('not_found');
   });
 });
+
+describe('locateQuote consumes paragraphHint to disambiguate (OUTPUT-CORRECTNESS-1 #5)', () => {
+  // 同一 quote 出现在两个条款下，只有条款标题（在前的最近段落）不同。
+  const paragraphs = [
+    '第六条 违约责任',
+    '任何一方违反本合同约定，应向守约方支付合同总价款百分之十的违约金。',
+    '第九条 补充违约条款',
+    '迟延履行的，还应向守约方支付合同总价款百分之十的违约金。',
+  ];
+  const quote = '百分之十的违约金';
+
+  it('without a hint, two verbatim matches remain ambiguous (unchanged)', () => {
+    expect(locateQuote(paragraphs, quote).status).toBe('ambiguous');
+  });
+
+  it('a correct hint resolves the ambiguity to the governed paragraph (exact)', () => {
+    const result = locateQuote(paragraphs, quote, { paragraphHint: '第六条 违约责任' });
+    expect(result).toEqual({ status: 'exact', paragraphIndex: 1 });
+  });
+
+  it('a different hint selects the other occurrence (proves the hint is really read, not position)', () => {
+    const result = locateQuote(paragraphs, quote, { paragraphHint: '第九条 补充违约条款' });
+    expect(result).toEqual({ status: 'exact', paragraphIndex: 3 });
+  });
+
+  it('a hint that both candidates match equally does NOT disambiguate (stays ambiguous, never guesses)', () => {
+    // "违约" 同时出现在两个条款标题里 → 两个候选到最近 hint 的距离相等 → 拒绝自动择一。
+    const result = locateQuote(paragraphs, quote, { paragraphHint: '违约' });
+    expect(result.status).toBe('ambiguous');
+  });
+
+  it('a hint that matches no preceding paragraph does NOT force a pick (stays ambiguous)', () => {
+    const result = locateQuote(paragraphs, quote, { paragraphHint: '第三条 交付期限' });
+    expect(result.status).toBe('ambiguous');
+  });
+});
