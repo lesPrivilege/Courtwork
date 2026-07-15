@@ -2,6 +2,12 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## DOCS-SELF-CONTAINED-1 · 历史视觉索引退役（实现完成，待独立验收）
+
+- 将本文件 33 个目标不存在的历史 `visual-audit/*.png` 链接退为 inline code 文件名；不伪造或重建截图，也不以 `archive/` 补链。
+- 经架构扩单，同类处理 `apps/desktop/ACCEPTANCE.md` 中已删除 `ThinkingStream.tsx` 的一处历史源码坐标，不改变原验收结论。
+- 活动 Markdown 链接扫描同时解析文档相对路径、仓库根路径与 `:line` 坐标；116 份活动文档的本地相对链接由 34 个缺失目标收敛为 0。
+
 ## TRACE-UI-1 · Chat/Work 同源过程轨迹（已独立验收放行）
 
 权威：ADR-011。目标是复用同一宿主组件与动效，不混淆两种账本语义。
@@ -274,13 +280,17 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 
 ### RP-2 实现记录
 
+历史视觉记录中的文件名仅保留源流索引，原 PNG 未纳入现行最小自足集，因此不构成链接；现行真机证据以
+[`release/evidence/v0.1.2/README.md`](../../release/evidence/v0.1.2/README.md) 与
+[`apps/desktop/visual-audit/manifest.json`](visual-audit/manifest.json) 为准。
+
 - #18′：唯一模型声明位迁到 composer 发送键旁；connected 显示模型名·强度，pending/failed 不泄露配置模型名；context、toolbar、statusbar、titlebar 旧声明位清零，复用唯一 popover。
 - #19/#20/#23：wordmark 唯一；案件头进 chat 且双击编辑、按案件 id 写入 localStorage；宽比采用上述固定三档；左右栏各有独立折叠/原位 48px 展开 bar。
 - #21：D 编号、运行进度、审阅提示合并 `event-stream`；用户消息右对齐浅底无框；artifact 卡保留。
 - #24′/#25：定稿英文声明逐字落地，feedback 为 mailto；左下负责人菜单含设置、检查更新路由与 feedback，非 demo 不显示律师名。
 - #26：事件流 active/success 反馈、附件既有失败/重试和 >5s 进度文案沿用；长任务仅 opacity 呼吸，reduced-motion 停用，数据区静止。
 - TDD：新增 `rp2.spec.ts` 5 例；Playwright floor 90→95；Vitest 70/70；RP-1+RP-2 定向 15/15；四静态门禁与生产构建通过。
-- visual-audit：frontier 参照 [`24-rp2-frontier-reference.png`](visual-audit/24-rp2-frontier-reference.png)；改后全栏 [`24-rp2-full-layout-1440.png`](visual-audit/24-rp2-full-layout-1440.png)；双折叠 [`25-rp2-chat-focus-1440.png`](visual-audit/25-rp2-chat-focus-1440.png)。改前基线沿用 RP-1 [`23-rp1-full-layout-1440.png`](visual-audit/23-rp1-full-layout-1440.png)。
+- visual-audit：frontier 参照 `24-rp2-frontier-reference.png`；改后全栏 `24-rp2-full-layout-1440.png`；双折叠 `25-rp2-chat-focus-1440.png`。改前基线沿用 RP-1 `23-rp1-full-layout-1440.png`。
 
 ### RP-2.1 · 分层悬浮纵向贯通（2026-07-11）
 
@@ -288,7 +298,7 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 - 左右栏各自折叠；按钮位于各栏顶部，折叠后形成 48px 贯通 bar，展开按钮保持原坐标。
 - wordmark 迁左栏顶；chat 顶部仅保留案件名、案号、样板标识、阶段短标签及设置/⌘K，不扩写说明文本。
 - 死路由清理：未接通的「审阅记录」「导出审阅稿」常驻按钮移除；用量归 context，运行态归事件流，继续阶段归 progress，产出文件夹归左栏产出入口与 artifact 卡。
-- visual-audit：[`26-rp2-1-vertical-full-1440.png`](visual-audit/26-rp2-1-vertical-full-1440.png) / [`27-rp2-1-vertical-collapsed-1440.png`](visual-audit/27-rp2-1-vertical-collapsed-1440.png)。
+- visual-audit：`26-rp2-1-vertical-full-1440.png` / `27-rp2-1-vertical-collapsed-1440.png`。
 - RP-2.2：composer 声明移出 L1 输入浮卡，保持同宽底对齐并允许自然换行；chat/rail/module/work-surface 标题统一 `min-width:0 + nowrap + ellipsis`，计数与动作固定，收窄时禁止逐字竖排或越界。Playwright floor 95→96。
 
 ### RP-2.3 · 比例与 Schema 工作面收口（架构批准 `43d99cd`）
@@ -299,14 +309,14 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 - 560–700px schema 容器内，风险主从区由左右 38/62 切为上下 34/66；图谱索引下移。选中仍只用 `bg.selected`，内部以 hairline 分隔，不新增卡层。
 - **阅读不变量**：document preview / draft reading 固定 `15px / 1.6`，不随 schema dense 或容器宽度缩小。
 - 自动验收：1180/1280/1440/1600 四档均断言 `scrollWidth ≤ clientWidth`、标题 nowrap/ellipsis、schema 正文 ≥13px；1440 另锁文书 15px。Playwright floor 96→100。
-- visual-audit：[`rp2-3-1180.png`](visual-audit/rp2-3-1180.png) / [`rp2-3-1280.png`](visual-audit/rp2-3-1280.png) / [`rp2-3-1440.png`](visual-audit/rp2-3-1440.png) / [`rp2-3-1600.png`](visual-audit/rp2-3-1600.png)。
+- visual-audit：`rp2-3-1180.png` / `rp2-3-1280.png` / `rp2-3-1440.png` / `rp2-3-1600.png`。
 
 ### RP-2.4 · 左栏卷宗分区降噪
 
 - 选中底色只覆盖案件摘要行，不再染满整个展开卷宗；展开体固定白底，以 hairline 分区。
 - 展开结构明确为「阶段」→「卷宗原件 · 只读」→「工作区」，撤销抽象且重复的「三区」标题。
 - 原件由松散 hover 小卡改为 34px 紧凑列表 + 行分隔线；文件名、原名、只读状态与打开动作保持可达。
-- visual-audit：[`rp2-4-rail-sections-1440.png`](visual-audit/rp2-4-rail-sections-1440.png)。
+- visual-audit：`rp2-4-rail-sections-1440.png`。
 
 ## FIX-KC-1 · 凭证授权流（据 DBG-2，2026-07-11）
 
@@ -702,14 +712,14 @@ Elevation 提案全量（与 tokens.json `elevation` 一致，供架构过目）
 
 | 截图 | 走查结论 |
 |---|---|
-| [`00-provider-first-run-1440.png`](visual-audit/00-provider-first-run-1440.png) | 首启文字引导，凭证框掩码，无插画/投影/技术概念文案。 |
-| [`01-s3-revision-1440.png`](visual-audit/01-s3-revision-1440.png) | 风险主从台仅语义线发光，内层依据用分割线，10 行级密度无横向溢出。 |
-| [`02-s1-timeline-1440.png`](visual-audit/02-s1-timeline-1440.png) | 无 marker 行无线，marker 行琥珀线；日期/编号等宽，长文本省略。 |
-| [`03-s1-graph-1440.png`](visual-audit/03-s1-graph-1440.png) | 默认适配全节点，连线精确指向节点中心，缩放控件与 overview 仅存于图谱。 |
-| [`04-matrix-1440.png`](visual-audit/04-matrix-1440.png) | 10×6 首屏可见，数据行 30px，纯白表格 + 1px 网格线。 |
-| [`05-draft-1440.png`](visual-audit/05-draft-1440.png) | 文书纸面绝对静止，编辑态显示标题/段落而非 Markdown 源符号。 |
-| [`06-split-rows-1440.png`](visual-audit/06-split-rows-1440.png) | 默认上下对切；左栏 48px 图标条、中栏紧凑态和一键复位均可见。 |
-| [`07-split-columns-1700.png`](visual-audit/07-split-columns-1700.png) | 1700px 解锁左右对照，起草与时间线均保留可读行宽。 |
+| `00-provider-first-run-1440.png` | 首启文字引导，凭证框掩码，无插画/投影/技术概念文案。 |
+| `01-s3-revision-1440.png` | 风险主从台仅语义线发光，内层依据用分割线，10 行级密度无横向溢出。 |
+| `02-s1-timeline-1440.png` | 无 marker 行无线，marker 行琥珀线；日期/编号等宽，长文本省略。 |
+| `03-s1-graph-1440.png` | 默认适配全节点，连线精确指向节点中心，缩放控件与 overview 仅存于图谱。 |
+| `04-matrix-1440.png` | 10×6 首屏可见，数据行 30px，纯白表格 + 1px 网格线。 |
+| `05-draft-1440.png` | 文书纸面绝对静止，编辑态显示标题/段落而非 Markdown 源符号。 |
+| `06-split-rows-1440.png` | 默认上下对切；左栏 48px 图标条、中栏紧凑态和一键复位均可见。 |
+| `07-split-columns-1700.png` | 1700px 解锁左右对照，起草与时间线均保留可读行宽。 |
 
 ## P-1 法理之线语义收敛微补丁（2026-07-10）
 
@@ -717,7 +727,7 @@ Elevation 提案全量（与 tokens.json `elevation` 一致，供架构过目）
 - P-1 增补按使用域白名单落地：法理之线只进入右栏风险处置、修订预览、时间线矛盾行、确认门禁卡；中栏 D/E 芯片与 AI callout 零线，icon 固定品牌中性色。`lint:signature` 同时锁定白名单、五色封闭集与 icon 不随状态变色。
 - UI 只从门禁处置与事件流提供的 evidence grade 计算线态。Playwright 锁定 R5 低危待处理无线、中危 R2 确认转绿、中危 R4 驳回转灰。
 - 恢复被删除的状态圆盘用量明细回归，并按当前 S3 演示值锁定卷宗/对话/可整理内容；所有 `font` 简写点显式恢复 `font-variant-numeric: tabular-nums`，避免全域数字特性被静默重置。
-- 修复前后截图：[`08-p1-signature-before-1440.png`](visual-audit/08-p1-signature-before-1440.png) / [`09-p1-signature-after-1440.png`](visual-audit/09-p1-signature-after-1440.png)。修复后同屏可见 R2 绿、R4 灰、R5 无线。
+- 修复前后截图：`08-p1-signature-before-1440.png` / `09-p1-signature-after-1440.png`。修复后同屏可见 R2 绿、R4 灰、R5 无线。
 - `pnpm --filter @courtwork/desktop test:e2e`：20/20 通过，假绿下限同步升至 20；定向生产构建通过。
 
 ## P-2 交互反馈与空路由收尾（2026-07-10）
@@ -753,7 +763,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 | 7 动画 layout 属性 | 通过：`lint:motion` 扫描 CSS transition/keyframes 与 WAAPI，只允许四类属性。 |
 | 8 入口物理消失重现 | 通过：五 Tab / 三栏帧常驻；续行、工具栏、输入、溯源空缺均保留原位禁用并说明。 |
 
-视觉对照：[`10-p2-feedback-before-1440.png`](visual-audit/10-p2-feedback-before-1440.png) / [`11-p2-feedback-after-1440.png`](visual-audit/11-p2-feedback-after-1440.png)。修复后可见 Tab 指示器及审阅记录/导出/自由输入的诚实禁用态。
+视觉对照：`10-p2-feedback-before-1440.png` / `11-p2-feedback-after-1440.png`。修复后可见 Tab 指示器及审阅记录/导出/自由输入的诚实禁用态。
 
 验证：`pnpm --filter @courtwork/desktop test:e2e` 24/24、Vitest 6/6、`pnpm lint`、desktop 生产构建、`lint:motion` 全部通过。
 
@@ -775,7 +785,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 图谱代码经 `React.lazy` 只在打开关系图谱工作面时下载，首屏主 chunk 未增长；相对全预设探针，图谱路由总 chunk raw 减少 42.1%，gzip 减少 42.7%。生产构建仍提示单 chunk 超过 500 kB raw，已如实保留，Stage 2 再按既定量级判据评估进一步拆分。
 
-视觉对照：[`12-p3-graph-before-1440.png`](visual-audit/12-p3-graph-before-1440.png) / [`13-p3-graph-after-1440.png`](visual-audit/13-p3-graph-after-1440.png)。修复前只手排 10 节点 / 12 边；修复后 14 / 15 全量、dagre 自动分层、minimap 与完整主体/关系索引同屏。
+视觉对照：`12-p3-graph-before-1440.png` / `13-p3-graph-after-1440.png`。修复前只手排 10 节点 / 12 边；修复后 14 / 15 全量、dagre 自动分层、minimap 与完整主体/关系索引同屏。
 
 验证：`pnpm --filter @courtwork/desktop test:e2e` 26/26；G6 定向 3/3；`lint:graph`、`lint:signature`、`lint:motion`、desktop 生产构建通过；1440 实机复核控制台零 warning/error。
 
@@ -805,7 +815,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - Vitest（desktop）：17/17（协议 6 + composer 11）
 - Playwright：31/31（下限升至 31）；新增 `tests/e2e/composer.spec.ts` 5 例覆盖按钮态 / chip 生命周期与作用域 / 键盘 / 拖放粘贴 / needs_ocr 失败态
 - `lint:motion` / `lint:signature` / `lint:graph` / 生产构建通过
-- 截图：[`14-composer-input-1440.png`](visual-audit/14-composer-input-1440.png)
+- 截图：`14-composer-input-1440.png`
 
 ## P-4 SVG 图标体系与模型编写规范（2026-07-10）
 
@@ -813,7 +823,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - 权威工程规范见 [`docs/design/svg-standards.md`](../../docs/design/svg-standards.md)：24×24 网格、1.35px / `currentColor` / 禁 fill 和内联色、元素/属性白名单、形状命名、SVGO 4 multipass 与 16px/24px 人审纪律均已成文。
 - 当时的图标清单 的 17 个领域概念已建库；其中门禁一行展开为待处理/已确认/已驳回三态，因此落地 19 个形状命名 SVG。`manifest.json` 登记法律用途，生成模块同时导出可 tree-shake 的具名组件与审计用 registry，产品壳不因建库而全量携带尚未使用的领域图标。
 - `verify-icons.mjs` 为自写 CI 门禁：检查根属性、标签/属性白名单、色值/fill/脚本禁止项、两位精度、SVGO 漂移、manifest 一一对应、生成物漂移、全 `src/**/*.tsx` 无内联 SVG、Lucide 静态导入与 Tabler 边界；已接入 `test:e2e` 前置链。
-- 完整 16px/24px 审计板：[`15-p4-icon-audit-1280.png`](visual-audit/15-p4-icon-audit-1280.png)。人审确认 19 个变体在 16px 仍可辨，门禁三态与生成/核验双通道不混淆。
+- 完整 16px/24px 审计板：`15-p4-icon-audit-1280.png`。人审确认 19 个变体在 16px 仍可辨，门禁三态与生成/核验双通道不混淆。
 
 ### Lucide 按需打包实测
 
@@ -853,7 +863,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 | 专注模式 | 真实实现 | 条件渲染卸装左中栏，Esc 退出，0ms 硬切 |
 | callout/数据卡复制 | 真实实现 | `CopyButton` hover 显现，120ms 按压 |
 
-验证：Playwright global-verbs 21 例 + 全仓 57/57；截图 [`19-f2-command-palette-1440.png`](visual-audit/19-f2-command-palette-1440.png) / [`20-f2-focus-mode-1440.png`](visual-audit/20-f2-focus-mode-1440.png) / [`21-f2-archive-popover-1440.png`](visual-audit/21-f2-archive-popover-1440.png)。
+验证：Playwright global-verbs 21 例 + 全仓 57/57；截图 `19-f2-command-palette-1440.png` / `20-f2-focus-mode-1440.png` / `21-f2-archive-popover-1440.png`。
 
 ## F-3 最小 work 能力包（2026-07-10）
 
@@ -874,7 +884,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 - tools：193 例（+24）
 - desktop Vitest：35/35；Playwright：42/42（假绿下限 42）
-- 截图：[`16-f3-reveal-feedback-1440.png`](visual-audit/16-f3-reveal-feedback-1440.png) / [`17-f3-work-draft-1440.png`](visual-audit/17-f3-work-draft-1440.png) / [`18-f3-originals-readonly-1440.png`](visual-audit/18-f3-originals-readonly-1440.png)
+- 截图：`16-f3-reveal-feedback-1440.png` / `17-f3-work-draft-1440.png` / `18-f3-originals-readonly-1440.png`
 
 ## 验证记录
 
