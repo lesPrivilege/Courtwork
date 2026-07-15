@@ -8,6 +8,15 @@
 2. **契约拍板属于架构角色**：schema 字段/语义、跨层接口、ADR 与 SPEC 验收标准只能由架构角色决定。实现或验收会话只能标记 `[需架构拍板]`。
 3. **纪律对所有模型一致**：角色由工单任命，不由模型名称决定；TDD、边界、门禁与提交卫生一视同仁。
 
+## 架构角色与续行
+
+- 接手或 reconnect 时，先核对 `git status --short --branch`、HEAD 与 `main` 的关系及近期提交；不得用旧聊天或遗留 worktree 推定当前事实。
+- 固定读取顺序：`CLAUDE.md` → `docs/README.md` → `docs/status/current.md` → `docs/architecture/implementation-readiness.md` → 相关 roadmap / ADR / `SPEC.md` / `ACCEPTANCE.md`。
+- `current.md` 是唯一能力状态真源，implementation-readiness 是唯一开工项与依赖图，roadmap 只定义阶段条件；`archive/`、commit message、调研原稿与聊天记录仅作证据或线索。
+- 派单前由架构角色把关键决策、字段、依赖、验收标准和禁止范围写入 ADR / SPEC / implementation-readiness；调研只能提供建议，不能形成隐含契约。
+- 工单至少携带：编号、权威文档、依赖、精确层级或文件范围、验收证据、禁止扩张项。完成后更新对应 SPEC / ACCEPTANCE；只有能力成熟度或发布事实变化时才更新 `current.md`。不得把轮次状态或工单清单复制进根治理文件。
+- 仓库事实与交接叙述不一致时，以可验证的仓库状态为准并显式上报差异，不得静默补写或重构历史。
+
 ## 实现角色
 
 - 只做工单与 SPEC 的范围；跨层需求进入相关层 SPEC 的 TODO/提案区。
