@@ -96,3 +96,60 @@ test('空内容附件阻断发送：chip 失败态且不发起模型请求', asy
   );
   expect(requested).toBe(false);
 });
+
+test('第二轮 history 复用首轮组装正文，而非只存展示文本', async ({ page }) => {
+  await openWorkbench(page);
+  await connectProvider(page);
+  await page.getByTestId('segment-chat').click();
+
+  await page.evaluate(() => {
+    type Message = { role: string; content: string };
+    type Ctx = {
+      request: { messages: Message[] };
+      requestId: string;
+      providerId: string;
+      modelId: string;
+    };
+    const hooks = (window as typeof window & {
+      __courtworkChatHooks?: { setStreamFactory(factory: ((context: Ctx) => AsyncIterable<unknown>) | null): void };
+    }).__courtworkChatHooks;
+    if (!hooks) throw new Error('chat hooks missing');
+    const target = window as typeof window & { __capturedMessageRounds?: Message[][] };
+    target.__capturedMessageRounds = [];
+    hooks.setStreamFactory(async function* ({ request, requestId, providerId, modelId }) {
+      target.__capturedMessageRounds?.push(request.messages.map((message) => ({ ...message })));
+      yield { type: 'started', requestId, seq: 0, providerId, modelId };
+      yield { type: 'content_delta', requestId, seq: 1, delta: '收到。' };
+      yield { type: 'completed', requestId, seq: 2, finishReason: 'stop' };
+    });
+  });
+
+  const historyMarker = 'MATERIAL-HISTORY-8R4X';
+  const firstText = 'FIRST-DISPLAY-TEXT-8R4X';
+  const secondText = 'SECOND-TEXT-8R4X';
+  await page.getByTestId('composer-file-input').setInputFiles({
+    name: 'history.md',
+    mimeType: 'text/markdown',
+    buffer: Buffer.from(`# 历史附件\n\n${historyMarker}`),
+  });
+  await expect(page.locator('[data-testid^="attachment-chip-"]').first()).toHaveAttribute('data-status', 'ready');
+  await page.getByTestId('composer-input').fill(firstText);
+  await page.getByTestId('composer-send').click();
+  await expect(page.getByTestId('chat-assistant-message')).toHaveCount(1);
+
+  await page.getByTestId('composer-input').fill(secondText);
+  await page.getByTestId('composer-send').click();
+  await expect(page.getByTestId('chat-assistant-message')).toHaveCount(2);
+
+  const rounds = await page.evaluate(
+    () => (window as typeof window & { __capturedMessageRounds?: Array<Array<{ role: string; content: string }>> })
+      .__capturedMessageRounds ?? [],
+  );
+  expect(rounds).toHaveLength(2);
+  const secondRoundUsers = rounds[1].filter((message) => message.role === 'user');
+  expect(secondRoundUsers).toHaveLength(2);
+  expect(secondRoundUsers[0].content).toContain(firstText);
+  expect(secondRoundUsers[0].content).toContain(historyMarker);
+  expect(secondRoundUsers[0].content).not.toBe(firstText);
+  expect(secondRoundUsers[1].content).toContain(secondText);
+});

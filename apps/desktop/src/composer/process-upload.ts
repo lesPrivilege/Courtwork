@@ -67,7 +67,7 @@ export interface OutgoingContentInput {
 
 /**
  * 出站消息正文的唯一组装点（CHAT-MATERIAL-1）——Chat 请求路径与回显路径共用同一函数，
- * 杜绝 `payload.text || '（附文件）'` 占位符各自漂移。
+ * 杜绝旧 `payload.text || attachment-placeholder` 分支各自漂移。
  *
  * 逐字纳入：用户文本、每个粘贴块、每个「就绪」附件的 readingMarkdown。
  * 只读 ready 附件；failed（含 needs_ocr / empty）已被 Composer 阻断在发送之前，

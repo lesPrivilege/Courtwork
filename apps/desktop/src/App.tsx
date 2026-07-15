@@ -482,7 +482,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     }
     // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
     // 回显路径与请求路径同源：气泡只显示用户原文，附件/粘贴块由 chip 与 PasteBlock 呈现，
-    // 不再用 '（附文件）' 占位符（该占位符正是 CHAT-MATERIAL-1 的断点之一）。
+    // 不再使用旧附件占位文案（该占位逻辑正是 CHAT-MATERIAL-1 的断点之一）。
     setLocalMessages((prev) => [
       ...prev,
       {

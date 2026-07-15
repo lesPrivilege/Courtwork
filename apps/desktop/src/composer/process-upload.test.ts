@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import appSource from '../App.tsx?raw';
 import {
   assembleRequestContent,
   createAttachmentShell,
@@ -9,6 +10,8 @@ import type { ComposerAttachment } from './types.js';
 import { DEFAULT_MODEL_CONFIG } from '../provider/model-config';
 import { sendChatTurn } from '../provider/chat-client';
 import { TurnProtocolClient, createLocalStorageTurnJournalBackend } from '../provider/turn-protocol-client';
+
+const LEGACY_ATTACHMENT_PLACEHOLDER = ['（', '附文件', '）'].join('');
 
 class MemoryStorage implements Storage {
   private readonly values = new Map<string, string>();
@@ -138,7 +141,7 @@ describe('assembleRequestContent（回显/请求同源正文组装）', () => {
     expect(content).toContain('lead text');
     for (const block of pasteBlocks) expect(content).toContain(block);
     for (const att of attachments) expect(content).toContain(att.readingMarkdown!);
-    expect(content).not.toContain('（附文件）');
+    expect(content).not.toContain(LEGACY_ATTACHMENT_PLACEHOLDER);
   });
 
   it('只纳入就绪附件内容；失败/需OCR/空态附件被跳过', () => {
@@ -176,5 +179,17 @@ describe('assembleRequestContent（回显/请求同源正文组装）', () => {
     expect(serialized).toContain(mdMarker);
     expect(serialized).toContain(pasteMarker);
     expect(serialized).toContain(textMarker);
+  });
+
+  it('App 请求、首轮留存与后续 history 共用 requestContent，不得绕开唯一组装点', () => {
+    const start = appSource.indexOf('const handleChatSend =');
+    const end = appSource.indexOf('const stopChatTurn =', start);
+    expect(start).toBeGreaterThanOrEqual(0);
+    expect(end).toBeGreaterThan(start);
+    const handler = appSource.slice(start, end);
+    expect(handler).toContain('const requestContent = assembleRequestContent({');
+    expect(handler).toMatch(/role: 'user',\s*text: payload\.text,\s*content: requestContent/);
+    expect(handler).toMatch(/sendChatTurn\([\s\S]*content: requestContent/);
+    expect(handler).not.toContain(LEGACY_ATTACHMENT_PLACEHOLDER);
   });
 });
