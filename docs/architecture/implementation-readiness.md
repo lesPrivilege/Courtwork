@@ -27,7 +27,7 @@ Round 2 的 P0（`CHAT-MATERIAL-1`、`OUTPUT-CORRECTNESS-1`）已实现并独立
 
 ```text
 Work live 主线
-├─ WORK-STORE-MEASURE ──► WORK-STORE-1
+├─ WORK-STORE-MEASURE（已清账）──► WORK-STORE-1
 ├─ HOST-AUTH-LITE ──► CASE-ROOT-1 ──► MATERIAL-INGRESS-1
 └─ MATERIAL-INGRESS-1 ──► LEGAL-S3-BINDING-1 ──► WORK-LIVE-1
                               ▲                       ▲
@@ -50,8 +50,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 
 | 工单 | 最小范围 | 退出证据 |
 |---|---|---|
-| `WORK-STORE-MEASURE` | 在不换存储形状前测 whole-envelope 的 bytes、CAS latency、write count 与崩溃窗口 | 真实或上界 fixture 的可复现实验、阈值和系统调用证据；不产新存储架构 |
-| `WORK-STORE-1` | 实现 ADR-010 的异步 whole-envelope CAS、终态与迁移。跨 resume 累计预算持久化经 Round 3 复杂度拍板**降级为已知边界登记**：单机单写者 MVP 阶段 RuntimeGuard 按 leg 重置可接受，本单不实现 | durable-before-effect 顺序、并发 CAS、重启、崩溃和单 leg runtime limit 反例触红；已知边界在 SPEC 与当前基线如实登记 |
+| `WORK-STORE-1` | 实现 ADR-010 的异步 whole-envelope CAS、终态与迁移。测量已清账（`b993d8f`+`f91d52e`），拍板阈值：大小上限硬 16 MiB / 软 4 MiB、每屏障 ~10ms、归并到 ~6 次 CAS/场景；F_FULLFSYNC 尺寸无关与原子替换 0 撕裂经独立复跑证实，无 WAL 论证成立。跨 resume 累计预算持久化经 Round 3 复杂度拍板**降级为已知边界登记**：单机单写者 MVP 阶段 RuntimeGuard 按 leg 重置可接受，本单不实现 | durable-before-effect 顺序、并发 CAS、重启、崩溃和单 leg runtime limit 反例触红；已知边界在 SPEC 与当前基线如实登记 |
 | `HOST-AUTH-LITE` | 最小授权路径：系统 picker 取得授权、happy path 读写成立；拒绝、撤权、卷卸载、路径失效全部显式 fail-closed，不做完整签名/TCC/重授权真机矩阵 | happy path 与每一类失败态都有自动化或可复现记录；任何失败不得静默降级或回落 demo；矩阵后置声明留痕 |
 | `CHAT-SESSION-1` | ADR-013 的会话窗口划界（1 小时连续性）、只读 transcript 缓存与跨窗续行；不改 Turn journal 语义 | 窗口边界、跨窗新开、transcript 只读与分叉不涂改均有反例触红；无用户管理入口 |
 | `CHAT-MEMORY-1` | ADR-013 的蒸馏写入（携来源坐标）、低频前缀注入、hook 检索与一键清除；案件内容与密钥隔离 | 蒸馏可追溯、清除彻底、注入位于稳定前缀段、案件内容/密钥进入 memory 的反例触红 |
