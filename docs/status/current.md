@@ -23,7 +23,7 @@
 |---|---|---|
 | Chat 文本 | desktop 可用真实 DeepSeek key、受控 transport 与 provider stream 完成文本 Turn；reasoning、正文、usage、失败、取消和刷新回放共享 Turn journal | 只注册 DeepSeek；不能据此宣称任意 OpenAI-compatible provider 已支持 |
 | Chat 受控提问 | ask-user 使用 registry 冻结模板、严格回答闭集与系统锚点，UI 与 thinking progress 复用同源 Turn 投影 | interaction actor 仍由 desktop 写死为 `desktop/local-user`，真实 identity dependency 未装配 |
-| Chat 附件 | Composer 可解析支持格式并得到 `readingMarkdown` | 实际模型请求仍只发送文本或“（附文件）”占位，附件内容没有进入请求；粘贴长文本块（pasteBlocks）同样只进 UI 展示、不进请求；不得宣称附件理解 live |
+| Chat 附件 | ready 附件的 `readingMarkdown`、粘贴块与用户文本经同源组装逐字进入真实请求；needs_ocr 与空内容以类型级 reason 显式阻断发送；多轮 history 复用组装正文（`6420f50`+`74b5c19`，独立验收 `ab21d6d` 条件放行） | 仅文本阅读正文进请求：MaterialStore、原件 hash、宿主授权、OCR 与图片多模态均未接入；不得宣称超出文本正文的附件理解 |
 | Provider 设置 | key 与 provider 配置分离，凭证经宿主钥匙串边界；custom/base URL 猜测入口已退役 | provider usage 的 cache/reasoning 计量与成本真源尚未闭合 |
 
 Composer 的“存入卷宗/资料”目前是容器化仪式、消息与附件状态迁移，不等于 MaterialStore、原件 hash、宿主授权或 Work materialRef 已持久接入。
