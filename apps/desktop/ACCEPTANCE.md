@@ -1,3 +1,42 @@
+# ACCEPTANCE: DOCS-SELF-CONTAINED-1
+
+日期：2026-07-15
+
+角色：独立验收会话
+
+对象：实现提交 `fde08a8c46c788d086d437728f232bf4a1a63b9f`，基线 `7db01fafd67bf5b70349c275205309ca56b416f7`
+
+## 范围与历史语义
+
+- 独立 clean worktree / `codex/accept-docs-self-contained-1` 上复核；未采信实现自述。基线到实现 tip 的 diff 仅有 `apps/desktop/SPEC.md` 与 `apps/desktop/ACCEPTANCE.md` 两个 Markdown 文件，无源码、契约、测试、二进制或视觉资产增删。
+- 机械提取差异得到恰好 **33** 个退役的 `visual-audit/*.png` Markdown 链接，33 个目标在现行树均不存在、33 个文件名均原样保留为 inline code，且没有新增同名链接或伪造图片。受影响的 19 行在只去除链接标记后与现行文本逐字命中，历史结论与说明未删除。
+- `apps/desktop/ACCEPTANCE.md` 恰好退役 1 个指向已删除 `apps/desktop/src/workbench/ThinkingStream.tsx` 的链接；该目标确实不存在，路径改为 inline code，冒号后的历史验收正文逐字不变。
+- 新的现行证据入口 [`release/evidence/v0.1.2/README.md`](../../release/evidence/v0.1.2/README.md) 与 [`apps/desktop/visual-audit/manifest.json`](visual-audit/manifest.json) 均存在且受 git 跟踪。差异未增加 `archive/` 链接；额外 consumer grep 覆盖 Markdown link、import/from/require/fetch/readFile 与 href/src，活动树为 **0 命中**。
+
+## 独立活动 Markdown 链接扫描
+
+- 验收侧独立实现扫描器，输入为 `git ls-files '*.md'` 后排除 `archive/**`；实际覆盖 **116** 个 tracked 活动 Markdown、**133** 个本地链接。
+- 扫描器剔除 fenced code block 与 inline code，跳过外部 scheme 和纯锚点，解析 inline/reference Markdown link，并处理 query、hash、URI decode、`:line[:column]` 坐标；路径按文档相对路径、仓库根前缀与 `/` repo-root 约定解析。
+- 实现 tip 实跑结果：`markdownFiles=116`、`localLinks=133`、`brokenCount=0`。
+- 真实红测：先记录 `docs/status/current.md` SHA-256 为 `ba614f9ff8d7b9aa8c9b129e9b9588e4e7e4179e0aff7ace5fac38dfdbc598c6`，临时注入 `./__missing_docs_self_contained_probe__.md`；同一扫描器报告 **134 local / broken=1** 并精确指出该文件。撤除反例后 SHA-256 恢复为同值，git diff 为空，扫描恢复 **133 local / broken=0**；写入本报告的两个有效证据链接后再次复跑为 **135 local / broken=0**。
+
+## 最终门禁
+
+| 门禁 | 独立实跑结果 |
+|---|---|
+| `pnpm release:guard` | **10/10** Node tests；release truth PASS |
+| strict release truth | `--expected 0.1.2 --require-site-match` PASS；app/site `0.1.2` 与 DMG SHA `f4af2a…de83d` 一致 |
+| `pnpm site:guard` | **31/31** tests；deslop **689 active text files**；neutral/elevation/signature/motion 全绿 |
+| `pnpm lint` | exit 0；clean worktree 初次无 `node_modules`，先以 frozen lock + offline cache 安装后重新完整实跑 |
+| `pnpm -r build` | **13** workspace projects 通过；desktop **3532 modules**；仅既有 Tauri dynamic/static import 与 chunk-size advisory |
+| `pnpm test` | **131 files / 1127 tests** 全绿 |
+
+## 结论
+
+**✅ 放行 DOCS-SELF-CONTAINED-1。** 本单只把不存在的历史目标从可点击链接退为可追溯文件名，不伪造资产、不召回 archive、不改写历史结论；现行证据入口有效，活动 Markdown 本地链接为零断链，且扫描器已由真实反例证明能报红。下游可以把该实现与本验收报告合入 main。
+
+---
+
 # ACCEPTANCE: apps/desktop（W9）
 
 验收记录按批次追加。每节结论必须明确回答是否放行下游工单（AGENTS.md 验收处置规则）。验证一律实测（干净环境重装、drift 类实际触发），不采信实现会话自述。
