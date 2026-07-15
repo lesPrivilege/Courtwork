@@ -51,3 +51,15 @@ demo/acceptance composition root。迁移后所有 scripted/real S3 与 legal de
 - 本包 **8 files / 26 tests**；S3 与 LEGAL 两条 CLI 均通过既有 golden。迁移前后六段组装 golden SHA-256 完全一致。
 - 整包临时移出 workspace 后，core 清空 `dist` 仍可独立 build 并通过 **22 files / 232 tests**；依赖图守卫及注入环自检通过，core/desktop 对本包无反向依赖。
 - 详细证据与放行边界见 `packages/core/ACCEPTANCE.md` 的“CORE-BOUNDARY-1 独立验收”。
+
+## WORK-STORE-MEASURE 度量脚本（2026-07-15，dev-only）
+
+为 `WORK-STORE-1` 开工提供 whole-envelope 的实测数字，落 `scripts/work-store-measure/`（dev/acceptance-only，本包唯一允许跨 core/legal/demo-data 绑定的装配根性质不变）。度量项、数字与阈值建议见该目录 `REPORT.md`；一键复现 `bash scripts/work-store-measure/run.sh`。
+
+**复杂度节制留痕——本工单在产品代码新增概念 = 0**：无新依赖、无新持久化格式、无新状态机、无新通用抽象。新增物全部是 dev-only 测量脚本：
+
+- `measure-envelope.ts`（tsx）：驱动真实 `legal.S3` scripted 全链，在每个真实落账点按 ADR-010 决定二形状组装 whole-envelope 度量字节。内部 `WorkStateEnvelopeV1` 是 ADR 已拍板形状的**本地镜像**，只在脚本内、不落 core（WORK-STORE-1 才拥有真本），不构成新契约。
+- `cas-latency.c`（clang 直编）：原子替换 CAS 的系统调用级延迟（`fsync` / `F_BARRIERFSYNC` / `F_FULLFSYNC` / none）。属测量工具非产品依赖：无 benchmark 库、无 npm 包。
+- `crash-inject.mjs`（node + 真实 SIGKILL）：kill -9 崩溃注入验证原子替换恢复窗口。无新依赖。
+
+结论：v1 whole-envelope CAS + 原子替换 + F_FULLFSYNC 足够正确，未触任何阈值，**不需要 snapshot+tail / 手写 WAL**（确认 ADR-010 决定二，非推翻）。对 `src/work/` 与 `src/scenario-executor/` 既有偶然复杂度的扫描提案已列入 `packages/core/SPEC.md` 的 TODO（跨层放入区），本工单只列不删。
