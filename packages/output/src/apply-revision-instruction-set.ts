@@ -1,7 +1,7 @@
 import type { RevisionInstructionSet } from '@courtwork/schemas';
 import { loadDocx, getText, setText, saveDocx } from './docx-zip.js';
 import { applyInstructionsToDocumentXml, type InstructionOutcome } from './apply-instructions.js';
-import { writeCommentsPart } from './comments-part.js';
+import { writeCommentsPart, nextCommentId } from './comments-part.js';
 
 export interface ApplyRevisionInstructionSetOptions {
   /** 修订/批注元数据的时间戳；缺省为真实当前时间。golden file 测试必须显式传入固定时间。 */
@@ -26,8 +26,12 @@ export function applyRevisionInstructionSet(
   const now = options.now ?? new Date();
   const files = loadDocx(originalDocx);
 
+  // 输入文档既有批注决定新批注 id 起点，保证新写入的 comment/range id 不与既有冲突。
+  const commentIdBase = nextCommentId(files);
   const documentXmlText = getText(files, 'word/document.xml');
-  const { documentXml, comments, outcomes } = applyInstructionsToDocumentXml(documentXmlText, instructionSet, now);
+  const { documentXml, comments, outcomes } = applyInstructionsToDocumentXml(documentXmlText, instructionSet, now, {
+    commentIdBase,
+  });
   setText(files, 'word/document.xml', documentXml);
 
   if (comments.length > 0) {

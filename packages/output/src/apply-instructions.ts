@@ -15,10 +15,11 @@ let revisionDate = '';
  * 每次跑管线前重置计数器与时间戳，保证同一进程内多次调用互不干扰。
  * now 缺省为真实当前时间（生产用途）；golden file 快照测试必须显式传入固定时间，
  * 否则每次跑测试修订元数据里的日期都不同，快照永远对不上。
+ * commentIdBase 缺省 0；输入文档已有批注时由上层传入"既有最大 id + 1"，避免新批注 id 冲突。
  */
-export function resetIdCounters(now: Date = new Date()): void {
+export function resetIdCounters(now: Date = new Date(), commentIdBase = 0): void {
   revIdCounter = 1000;
-  commentIdCounter = 0;
+  commentIdCounter = commentIdBase;
   revisionDate = now.toISOString();
 }
 
@@ -467,12 +468,18 @@ export interface ApplyResult {
   outcomes: InstructionOutcome[];
 }
 
+export interface ApplyDocumentXmlOptions {
+  /** 既有批注最大 id + 1；新批注/批注 range 的 id 从此起，避免与输入文档既有 comment id 冲突。 */
+  commentIdBase?: number;
+}
+
 export function applyInstructionsToDocumentXml(
   documentXmlText: string,
   instructionSet: RevisionInstructionSet,
   now: Date = new Date(),
+  options: ApplyDocumentXmlOptions = {},
 ): ApplyResult {
-  resetIdCounters(now);
+  resetIdCounters(now, options.commentIdBase ?? 0);
   const doc = new DOMParser().parseFromString(documentXmlText, 'text/xml');
   const bodyList = doc.getElementsByTagNameNS(W, 'body');
   const body = bodyList[0];
