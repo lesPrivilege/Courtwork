@@ -138,12 +138,6 @@ function ensureCompleteRFonts(doc: Document, r: Element): void {
   attr(fonts, 'w:cs', LATIN_FONT);
 }
 
-function ensureCompleteRFontsForAllRuns(doc: Document): void {
-  for (const r of Array.from(doc.getElementsByTagNameNS(W, 'r'))) {
-    ensureCompleteRFonts(doc, r);
-  }
-}
-
 function plainRun(doc: Document, text: string, templateRPr: Element | null): Element {
   const r = el(doc, 'w:r');
   r.appendChild(buildRPr(doc, templateRPr));
@@ -201,6 +195,7 @@ function attachCommentAround(doc: Document, p: Element, anchor: Element, text: s
   const end = el(doc, 'w:commentRangeEnd');
   attr(end, 'w:id', cid);
   const refRun = el(doc, 'w:r');
+  ensureCompleteRFonts(doc, refRun); // 批注引用 run 也是本次新写入，需显式完整 rFonts
   const ref = el(doc, 'w:commentReference');
   attr(ref, 'w:id', cid);
   refRun.appendChild(ref);
@@ -221,6 +216,7 @@ function attachCommentToWholeParagraph(doc: Document, p: Element, text: string, 
   const end = el(doc, 'w:commentRangeEnd');
   attr(end, 'w:id', cid);
   const refRun = el(doc, 'w:r');
+  ensureCompleteRFonts(doc, refRun); // 批注引用 run 也是本次新写入，需显式完整 rFonts
   const ref = el(doc, 'w:commentReference');
   attr(ref, 'w:id', cid);
   refRun.appendChild(ref);
@@ -319,7 +315,12 @@ function applyMinimalReplace(
   const inserted = newFull.slice(prefixLen, newFull.length - suffixLen);
   const suffix = full.slice(full.length - suffixLen);
 
+  // 段落级属性（编号 w:numPr、样式 w:pStyle、段前分页 w:pageBreakBefore 等）承载在 w:pPr 上，
+  // 与被替换的正文 run 无关。清空重建 run 时必须原样保留 w:pPr，并保持它仍是段落首个子节点
+  // （OOXML 要求 w:pPr 位于 w:p 之首）——否则替换一句话会连带丢掉整段的编号/样式/分页。
+  const pPr = firstChildOf(p, 'pPr');
   while (p.firstChild) p.removeChild(p.firstChild);
+  if (pPr) p.appendChild(pPr);
 
   let insertedWrapper: Element | null = null;
   if (prefix) p.appendChild(plainRun(doc, prefix, template));
@@ -478,7 +479,9 @@ export function applyInstructionsToDocumentXml(
   for (const instruction of instructionSet.instructions) {
     outcomes.push(applyOne(doc, body, instruction, comments));
   }
-  ensureCompleteRFontsForAllRuns(doc);
+  // 字体只作用于本次新写入或实际触碰的 run（plainRun/delRun 经 buildRPr、批注引用 run 经
+  // ensureCompleteRFonts 均已就地写全 rFonts）；未触碰的原文 run 一律逐节点原样保留，
+  // 即使它本来没有 w:rFonts 也不补写——旧的"全局改写所有 run"会污染未编辑内容的字体。
 
   return {
     documentXml: new XMLSerializer().serializeToString(doc),

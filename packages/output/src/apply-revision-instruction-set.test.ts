@@ -14,25 +14,43 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = join(__dirname, '..', 'test', 'fixtures');
 const FIXED_NOW = new Date('2026-07-09T00:00:00.000Z');
 
-function assertEveryRunHasCompleteRFonts(xml: string, partName: string): void {
-  const doc = new DOMParser().parseFromString(xml, 'text/xml');
-  const runs = Array.from(doc.getElementsByTagNameNS(W, 'r'));
-  expect(runs.length).toBeGreaterThan(0);
+function childElement(node: Element, localName: string): Element | undefined {
+  return Array.from(node.childNodes).find(
+    (c) => c.nodeType === 1 && (c as Element).localName === localName,
+  ) as Element | undefined;
+}
 
+function assertRunsHaveCompleteRFonts(runs: Element[], partName: string): void {
+  expect(runs.length, `${partName} has no runs to check`).toBeGreaterThan(0);
   for (const [index, run] of runs.entries()) {
-    const rPr = Array.from(run.childNodes).find((c) => c.nodeType === 1 && (c as Element).localName === 'rPr') as
-      | Element
-      | undefined;
+    const rPr = childElement(run, 'rPr');
     expect(rPr, `${partName} run #${index} missing rPr entirely: ${run.toString()}`).toBeDefined();
-    const rFonts = Array.from(rPr!.childNodes).find(
-      (c) => c.nodeType === 1 && (c as Element).localName === 'rFonts',
-    ) as Element | undefined;
+    const rFonts = childElement(rPr!, 'rFonts');
     expect(rFonts, `${partName} run #${index} missing w:rFonts: ${run.toString()}`).toBeDefined();
     expect(rFonts!.getAttributeNS(W, 'ascii'), `${partName} run #${index} missing w:ascii`).toBeTruthy();
     expect(rFonts!.getAttributeNS(W, 'eastAsia'), `${partName} run #${index} missing w:eastAsia`).toBeTruthy();
     expect(rFonts!.getAttributeNS(W, 'hAnsi'), `${partName} run #${index} missing w:hAnsi`).toBeTruthy();
     expect(rFonts!.getAttributeNS(W, 'cs'), `${partName} run #${index} missing w:cs`).toBeTruthy();
   }
+}
+
+/** 管线新写入/触碰的 run：w:ins 内层、w:del 内层、承载 w:commentReference 的 run。 */
+function pipelineWrittenRuns(xml: string): Element[] {
+  const doc = new DOMParser().parseFromString(xml, 'text/xml');
+  return Array.from(doc.getElementsByTagNameNS(W, 'r')).filter((r) => {
+    const parentLocal = (r.parentNode as Element | null)?.localName;
+    if (parentLocal === 'ins' || parentLocal === 'del') return true;
+    return r.getElementsByTagNameNS(W, 'commentReference').length > 0;
+  });
+}
+
+function runContaining(xml: string, needle: string): Element {
+  const doc = new DOMParser().parseFromString(xml, 'text/xml');
+  const hit = Array.from(doc.getElementsByTagNameNS(W, 'r')).find((r) =>
+    Array.from(r.getElementsByTagNameNS(W, 't')).some((t) => (t.textContent ?? '').includes(needle)),
+  );
+  if (!hit) throw new Error(`no run containing ${needle}`);
+  return hit;
 }
 
 describe('applyRevisionInstructionSet', () => {
@@ -65,12 +83,28 @@ describe('applyRevisionInstructionSet', () => {
     expect(contentTypes).toContain('wordprocessingml.comments+xml');
   });
 
-  it('marks every output <w:r> run with explicit rFonts (ascii/eastAsia/hAnsi/cs), never leaves font unspecified', () => {
+  it('gives every pipeline-written run complete rFonts, but leaves untouched original runs byte-identical (OUTPUT-CORRECTNESS-1 #2)', () => {
     const original = readFileSync(join(FIXTURES_DIR, 'original.docx'));
     const { docx } = applyRevisionInstructionSet(original, SAMPLE_INSTRUCTION_SET, { now: FIXED_NOW });
     const files = loadDocx(docx);
-    assertEveryRunHasCompleteRFonts(getText(files, 'word/document.xml'), 'document.xml');
-    assertEveryRunHasCompleteRFonts(getText(files, 'word/comments.xml'), 'comments.xml');
+    const documentXml = getText(files, 'word/document.xml');
+
+    // 新写入的修订/批注引用 run，以及全部批注正文 run，必须写全 rFonts。
+    assertRunsHaveCompleteRFonts(pipelineWrittenRuns(documentXml), 'document.xml written runs');
+    const commentsDoc = new DOMParser().parseFromString(getText(files, 'word/comments.xml'), 'text/xml');
+    assertRunsHaveCompleteRFonts(Array.from(commentsDoc.getElementsByTagNameNS(W, 'r')), 'comments.xml');
+
+    // 未被任何指令触碰的原文 run 必须原样保留：标题 run 保留 <w:b/><w:sz val=32> 且不被注入 rFonts；
+    // 无 rPr 的普通原文 run 不得被补写 rPr——管线不动它没编辑到的内容的字体。
+    const title = runContaining(documentXml, '买卖合同');
+    const titleRPr = childElement(title, 'rPr');
+    expect(titleRPr, 'title run lost its rPr').toBeDefined();
+    expect(childElement(titleRPr!, 'b'), 'title bold lost').toBeDefined();
+    expect(childElement(titleRPr!, 'sz'), 'title size lost').toBeDefined();
+    expect(childElement(titleRPr!, 'rFonts'), '未触碰的标题 run 被注入了 rFonts').toBeUndefined();
+
+    const untouchedPlain = runContaining(documentXml, '恒源贸易有限公司');
+    expect(childElement(untouchedPlain, 'rPr'), '未触碰的纯 run 被补写了 rPr').toBeUndefined();
   });
 
   it('reports locator_not_found (and skips) rather than mis-inserting when the quote no longer exists', () => {
