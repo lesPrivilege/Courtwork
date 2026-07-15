@@ -17,14 +17,9 @@
 | `external-validated` | 在明确版本、系统与输入输出证据下通过真实外部软件、宿主或数据源验证 |
 | `released` | 精确代码和资产进入指定 tag、Release 或 Pages；不扩大其运行能力 |
 
-## 当前可核实边界
+## 开工时读取成熟度
 
-- Chat 文本调用和 DeepSeek 真 provider 是 `product-live`；附件可以生成 `readingMarkdown`，但请求正文仍只发送占位文字，因此附件理解不是 product-live。
-- Work protocol、Turn protocol、Scenario executor、projection 注入缝与 Legal/PM 包能力为 `package-ready` 或 `contract-only`；生产 command/store/material/binding 未闭合。
-- demo-runtime 的材料、artifact、引用、确认和 output 穿越是 `demo-integrated`，不得作为真实案件证据。
-- 已验证 browser-safe 的是 `@courtwork/core/work-protocol` 与 `@courtwork/core/turn-protocol` 子路径，不是 `@courtwork/core` 根出口。
-- `packages/output` 有包级自动化与一次 macOS WPS 基础视觉抽核，但缺 Word/WPS 双端 P0 roundtrip，也缺与 core 子路径同等级的真实 Vite browser consumer 证明。
-- Composer 的“存入”是产品仪式与容器切换，不等于 MaterialStore、原件 hash 或宿主授权已经持久接入。
+能力事实只从[当前基线](../status/current.md)的“产品 live / 包与契约 / Demo / 外部兼容”四节读取，再按上表映射标签；本图不保存任何能力快照。工单完成后只更新当前基线和对应 SPEC/ACCEPTANCE，不在本节补写“已完成”清单。
 
 ## Round 2 目标链
 
@@ -46,6 +41,8 @@ Work live 主线
 ```
 
 `CHAT-MATERIAL-1` 与 `OUTPUT-CORRECTNESS-1` 是 P0，不因 Work 主线较长而后置。主线中的箭头是开工依赖，不是建议顺序；前置未独立验收时，后项不得用临时 adapter 越过。
+
+`OUTPUT-CORRECTNESS-1` 不阻塞 Work store、材料或 Legal binding 的独立施工，但必须在 `WORK-LIVE-1` 退出验收前放行；否则不能交付该工单所承诺的“确认 → docx”终链。
 
 ## 工单边界与退出证据
 
