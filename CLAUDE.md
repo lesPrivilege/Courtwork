@@ -46,7 +46,7 @@ services/ingest                        Python OCR/分类/实体对齐
 - ingest 是独立 Python 服务，uv 管理，以 Legal JSON Schema 作为输出边界；在版本化 request / response / error / progress wire 被接受前，不得宣称 HTTP 集成或接入 desktop 与第二宿主。
 - core 与业务代码 provider 无关；通用协议、adapter 与具名怪癖只住 `packages/provider`。当期产品只注册 DeepSeek，未来 provider 以具名 profile/adapter 接入，不开放猜测能力的任意 URL。
 - agent loop 自研；场景是声明式固定编排，当前产品只允许用户显式触发。未来 scheduled / webhook 触发必须先用 ADR 定义 authenticated principal、trigger context、idempotency、session budget 与 effect authorization；模型不得自主选择或绕过不可逆动作授权。
-- Chat 与 Work 共用 provider 无关的 Turn Engine，但分别维护 Turn journal 与 Session/artifact 账本；desktop 以 command/projection port 隔离 UI，Rust 只做受控宿主能力。Package ABI 的可序列化 descriptor 与进程内 runtime bindings 分离；现有 port 是进程内 callback 契约，不得误写为 IPC、HTTP 或 gateway wire。细则见 `docs/decisions/ADR-009-runtime-ports-and-harness.md`。
+- Chat 与 Work 共用 provider 无关的 Turn Engine，但分别维护 Turn journal 与 Session/artifact 账本；desktop 以 command/projection port 隔离 UI，Rust 只做受控宿主能力。Package ABI 的可序列化 descriptor 与进程内 runtime bindings 分离；现有 `WorkCommandPort.publish` 是进程内 callback 契约，不得误写为 IPC、HTTP 或 gateway wire。细则见 `docs/decisions/ADR-009-runtime-ports-and-harness.md`。
 - 产品代码与文档用中文说明，标识符用英文。
 
 ## 必须自研加固
