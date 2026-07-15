@@ -1,3 +1,90 @@
+# ACCEPTANCE: DEPLOYMENT-0.1.2
+
+验收日期：2026-07-15
+
+角色：DEPLOYMENT-0.1.2-RECORD 独立验收；未参与发布、截图采集或部署记录实现
+
+唯一实现：`941067d44c568c9efd80545521dc6fecf3358e44`
+
+发布 tag 基线：`2fe8bf54dad12f58bccf06a9d692f7c14f65cbd3`
+
+独立 worktree：`/private/tmp/courtwork-deployment-0.1.2-acceptance`
+
+## 结论
+
+**✅ 放行。** `v0.1.2` 的 annotated tag、公开 Release、两项资产、Pages workflow、公开页面真值、三张真机截图与部署后记录相互一致。实现只做发布后文档收账和证据入库，没有改产品、站点页面、Release notes、SHA 文件或既有 `RELEASE-0.1.2` 验收结论。
+
+本结论放行的是 **DEPLOYMENT-0.1.2 的后置实录**，不重写 `v0.1.2` tag，也不把开发构建升级为正式签名发行。公开 DMG 仍是 Apple Silicon、ad-hoc 签名、未 Apple 公证；`spctl` exit 3 是已声明边界。
+
+## 实现范围与历史保全
+
+- `git diff 2fe8bf5..941067d` 恰为 10 项：`apps/desktop/SPEC.md`、`docs/status/current.md`、`release/DEPLOYMENT.md`、`release/DEPLOYMENT_v0.1.1.md`、`release/README.md`、`release/evidence/v0.1.2/README.md`、三张 PNG 与 `site/SPEC.md`。
+- 限定 diff 对产品源码、`site/index.html`、`site/styles.css`、`site/main.js`、Release notes、`.sha256`、既有 `release/ACCEPTANCE.md` 均为空。
+- `release/DEPLOYMENT_v0.1.1.md` 与实现父提交的 `release/DEPLOYMENT.md` 逐字节相等；v0.1.1 部署事实没有被覆盖。
+- 当前态文档没有残留 `BUILD-0.1.2-CANDIDATE`、`RELEASE-0.1.2-CANDIDATE`、待验收或尚未发布表述。`release/CANDIDATE_v0.1.2.md` 与下方原 `RELEASE-0.1.2` 报告仍按当时语境保留，不被冒充为当前状态。
+
+## Git、Release 与远端资产
+
+- 本地与远端均独立读取到 annotated tag object `0c998d45bcc892ac56c8800902659b5ecc78f084`，`v0.1.2^{}` 解引用为 `2fe8bf54dad12f58bccf06a9d692f7c14f65cbd3`。
+- 验收时 `git ls-remote --heads origin` 只有 `main`，且为同一 `2fe8bf5`。
+- `gh release view`：`Courtwork v0.1.2`，非 draft、非 prerelease，发布时间 `2026-07-14T15:17:12Z`，目标分支 `main`。
+- Release 两项资产均为 `uploaded`：
+
+| 资产 | 大小 | GitHub digest |
+|---|---:|---|
+| `Courtwork_0.1.2_aarch64.dmg` | `4,679,277` bytes | `sha256:f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d` |
+| `Courtwork_0.1.2_aarch64.dmg.sha256` | `94` bytes | `sha256:4d7231e67f97ba5693bf501ac842d6187fa80b14fba40517255d1b923e3a9ee2` |
+
+- 本验收用两次精确 `gh release download` 把 DMG 与 SHA 文件重新下载到独立目录；独立 `stat` / `shasum` 与 GitHub 元数据一致，`shasum -a 256 --check Courtwork_0.1.2_aarch64.dmg.sha256` 返回 `OK`。
+
+## Pages 与公开页面
+
+- `gh run view 29383926592`：Pages workflow `success`，head `2fe8bf54dad12f58bccf06a9d692f7c14f65cbd3`，时间 `2026-07-15T02:22:23Z` 至 `02:22:45Z`。
+- job `87253159770` 名为 `guard-and-deploy`，`success`；checkout、完整 guard、build、upload 与 Deploy to GitHub Pages 各步均成功。
+- 公开首页、`assets/icon.svg`、`styles.css`、`main.js`、`assets/og.png`、Hero `09-source-confirmed-1280.webp` 与 DMG 最终响应均为 HTTP 200。
+- 重新下载的公开首页与仓库 `site/index.html` 逐字节相等；恰有两个真实 DMG `href`，可见 `v0.1.2`、唯一 64 位 SHA、未公证边界、原件/引语/结论/人工确认、Legal 合同链、卷宗 `20 / 47 / 14 / 8` 与 PM `Schema catalog preview / 尚未接通运行链` 全部命中。
+
+## 真机 PNG 与直接启动边界
+
+三帧均已重新计算尺寸、大小、SHA，并与 `/tmp/courtwork-v0.1.2-evidence` 采集原件 `cmp` 相等；本验收使用原始分辨率逐帧目视，而不是只看清单文字。
+
+| 文件 | 尺寸 | 大小 | SHA-256 | 目视结论 |
+|---|---:|---:|---|---|
+| `pages-hero-safari.png` | `2700×1718` | `622,744` | `52d854a91fe1fb099216276954c4c21e1c686e977ba4b5c93432361b08fed4f6` | 公开 Hero、核心 icon 位于 Courtwork 左侧；版本、SHA、下载与未公证边界可见，页面比例符合 100% 记录。 |
+| `pages-scenarios-safari.png` | `2700×1718` | `599,324` | `5782000a27b82ab89fd379661226a4ca8114b59af7ce0320783a67e10d6aa1cc` | 页面整体缩小后同屏展示合同、卷宗四计数与 PM catalog-only；没有把 PM 冒充 live。 |
+| `app-mounted-direct.png` | `2700×1792` | `558,614` | `5fda3c17fe6dfdd3d0fc79b8d1b2422d9ec6e9b17f732eaf048e386a0a20b010` | 原生 App Work 首屏；隔离无 key 时诚实显示 `Connection failed`，无假成功态。 |
+
+截图像素本身不携带 Safari zoom 或进程路径的可验证元数据，因此本报告不把画面单独冒充为操作日志。部署记录已准确区分“Safari 原生页面缩小四档”和“PNG 入库后未重采样”；三 PNG 与采集目录逐字节相同，未发现后期像素变换。Hero 的 `100%` 与场景的四档缩小属于采集方法记录，画面形态与之不冲突。
+
+为独立复核 App 路径，本验收从**重新下载的远端 DMG**另行只读挂载并直接执行挂载点 Mach-O，没有调用 `open` / LaunchServices：
+
+- `hdiutil` 验证通过，CRC32 `$3C3B7DAB`；App short/build version 均为 `0.1.2`，最低 macOS `12.0`，thin `arm64`。
+- `codesign --verify --deep --strict` 通过；`Signature=adhoc`、`TeamIdentifier=not set`；`spctl` exit `3 / rejected`。
+- 隔离 HOME/TMPDIR 后直接启动 `/tmp/courtwork-deployment-0.1.2-accept-mount.47828/Courtwork.app/Contents/MacOS/courtwork-desktop`；PID `47884` 存活 8 秒，`ps` 路径逐字命中。
+- TERM 后 `wait=143`、进程消失；随后 `/dev/disk13` 成功 eject，并确认无本验收挂载或进程残留。
+
+这条独立复跑验证的是 DMG 的“挂载点直接运行”能力与边界；原截图清单中的采集 PID `31776` 仍是部署会话的操作日志，不由 PNG 单独证明。
+
+## 链接、archive 隔离与基线断链
+
+- 本次新增/改写的相对链接全部在现行仓库内解析；活动 Markdown 没有链接到 `archive/`，活动源码也没有 import/fetch/read consumer。
+- 实际把 `site/index.html` 的一个真实 `href` 临时指向被禁历史目录后运行完整 `pnpm site:guard`：前置 Node 31/31 后 scanner 精确报告 `[archive-reference] site/index.html:159`，exit 1。反向补丁撤回后文件 SHA 恢复、最终门禁全绿。
+- 复现一项**实现前既存**文档债：`apps/desktop/SPEC.md` 共有 33 个 `visual-audit/*.png` 相对链接目标缺失；在 `941067d^` 与实现 tip 上清单完全相同（before=33 / after=33）。本部署实录没有新增或扩大该断链，验收角色不越界补历史素材。
+
+## 全量门禁
+
+- `pnpm install --frozen-lockfile`：14 workspace projects；lockfile 未变。
+- `node release/scripts/assert-release-truth.mjs --require-site-match`：PASS，app/site 均为 `0.1.2`，SHA 一致。
+- `pnpm site:guard`：Node **31/31**；deslop **689 active text files**；archive、neutral、elevation、signature、motion 全绿。
+- `pnpm site:build`：通过。
+- `pnpm lint`：通过。
+- `pnpm -r build`：13/14 workspace projects；desktop **3532 modules**；仅既有 chunk-size warning。
+- `pnpm test`：Vitest **131 files / 1127 tests** 全绿。
+
+本单只改文档与证据 PNG，不改变 desktop 行为、Rust 或发布制品；因此不重复运行 Playwright/Rust，也不以本单替代上一个 `RELEASE-0.1.2` 报告已完成的 209/209 与 25/25 产品验收。
+
+---
+
 # ACCEPTANCE: RELEASE-0.1.2
 
 验收日期：2026-07-14
