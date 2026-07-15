@@ -1,3 +1,68 @@
+# ACCEPTANCE: HOST-AUTH-LITE-ACCEPT
+
+日期：2026-07-15
+
+角色：獨立驗收會話
+
+對象：`main @ f44a13d`；功能實現 `d58701a` + 前進修復 `580e90c`，diff 基準 `a600cc5`
+
+## 裁決
+
+**✅ 放行 HOST-AUTH-LITE。** 授權作用域的詞法與 canonical 兩層 fail-closed、opaque grant 邊界、四類失敗可見、composition-root 注入與零 demo 回落均由獨立實跑及反例觸紅證實。完整 Playwright 的兩個非本單 timeout 已在乾淨基線 `a600cc5` 逐例復現，排除本單問責。未發現需新增 `[需架構拍板]` 的契約問題；persisted-scope 不採用、durable ref 延後 `CASE-ROOT-1` 的既有裁定保持不變。
+
+驗收在獨立 worktree `/private/tmp/courtwork-host-auth-lite-accept.moDrgS`、分支 `codex/accept-host-auth-lite` 完成；共享樹未 checkout、未 stash、未寫入，未更新 `docs/status/current.md`，不推送。
+
+## 範圍、依賴與事故複核
+
+- `git diff --name-only a600cc5..580e90c` 實得 **16 文件**，`outside apps/desktop = 0`。`Cargo.lock`、根 `package.json`、`pnpm-lock.yaml` 與 `docs/status/current.md` 均零差異；`Cargo.toml` 僅為既有 objc2 crate 開啟 `NSPanel/NSSavePanel/NSOpenPanel/NSApplication/NSString/NSArray/NSURL` feature，沒有新 crate/npm 依賴。
+- `main.tsx` 在 composition root 選擇 Tauri/browser adapter 並注入 `App`；`App.tsx` 要求 `HostAuthPort` 並透傳；`SettingsPage.tsx` 要求同一 port 並掛載 `HostAccessPanel`。`pnpm -r build` 的 `tsc -b` 通過，注入鏈閉合。
+- `9518953 → a600cc5 → d58701a → 580e90c` 均為祖先鏈；tip 的已提交 `App.tsx` 對 `SessionHistory|continuationHistory` 為 **0 命中**，未含 CHAT-SESSION-1 內容。
+- renderer HostAuth port/wire 對外 grant 只含 `{ grantId, label }`；HostAuth 相關 renderer 文件無 `absolutePath/caseRoot/app_data_dir` 通道，Tauri adapter 只傳 opaque id、relative path 與 bytes。
+
+## 獨立門禁實跑
+
+驗收機：macOS 26.5.2（arm64）、Node v25.9.0、pnpm 9.15.0、rustc/cargo 1.97.0。先執行 `pnpm install --frozen-lockfile`（1047 packages）及全倉 build，再跑包級測試。
+
+| 門禁 | 實跑結果 |
+|---|---|
+| `pnpm -r build` | PASS；13 個 workspace project，desktop `tsc -b && vite build` 通過 |
+| `pnpm lint` | PASS，exit 0 |
+| root `pnpm test` | **136 files / 1175 tests passed** |
+| desktop Vitest | **41 files / 176 tests passed**；SPEC 的 `44 / 199` 是實現自述數字漂移，不作驗收數字 |
+| `cargo test` | **38/38 passed**；`cargo test host_auth::tests -- --list` 實得 **13** 個 HostAuth 測試 |
+| `COURTWORK_E2E_PORT=18473 pnpm --dir apps/desktop test:e2e` | 所有靜態門通過，floor 實得 **216**；Playwright **214 passed / 2 failed** |
+| focused HostAuth E2E（還原後） | 隔離端口 18476，**4/4 passed** |
+
+完整 E2E 的兩例失敗為 `rp210.spec.ts:43` 與 `system-open.spec.ts:12`，均在 `confirmDemoReview` 等待 `output-docx-card` 30 秒超時。另建乾淨 `/private/tmp/courtwork-host-auth-baseline.a600`，checkout `a600cc5`，frozen install + 全倉 build 後以隔離端口 18475 專跑兩例，得到 **同樣 2/2 timeout、相同 locator 與堆疊**，故確認是基線既有，不歸責 HOST-AUTH-LITE。
+
+## Fail-closed 反例注入
+
+所有 mutation 均為「注入 → 觀察紅 → apply_patch 還原」，最終靜態門與 focused E2E 再次全綠，三個被改源文件 `git diff` 為空。
+
+| 反例 | 實際紅燈 |
+|---|---|
+| 停用 `lexical_relative_ok` 的 component 拒絕 | `lexical_scope_rejects_absolute_parent_and_empty` 失敗，`../escape.txt` 被測試捕獲 |
+| 還原詞法層，再停用 canonical target containment | `symlink_escape_is_out_of_scope` 失敗，實際結果由 `OutOfScope` 漂為讀取成功 |
+| UI `data-reason` 硬編為 `denied` | HostAuth E2E 在期望 `revoked` 時收到 `denied`，**3 passed / 1 failed** |
+| 對 renderer `HostGrant` 注入 `absolutePath?: string` | `assert-host-auth-contracts.mjs` exit 1，同時報「不得出現絕對路徑通道」與「只允許 grantId + label」 |
+
+四類失敗均由 Playwright browser stub 驅動到 UI：authorize 的 `denied`，write 的 `revoked`/`unavailable`，read 的 `out_of_scope`；逐類斷言 `data-reason` 與可見文案，沒有靜默成功或 demo 回落。同一 unknown grant 分類測試連跑兩次都穩定得到 `revoked`，判定順序具確定性。
+
+## 手工記錄與複雜度審視
+
+- 此驗收環境不能自動控制 Tauri 原生 `NSOpenPanel`，因此不偽稱完成真彈窗點擊。驗收機 `diskutil list external physical` 為空，沒有可安全卸載的外接卷，亦不偽稱完成真卷卸載。可自動化部分實跑：grant record round-trip 與 missing-root/unmounted 分類各 **1/1 passed**；macOS picker 代碼已由 cargo 完整編譯。
+- 原 SPEC 只列項目、沒有可操作步驟，不足以稱為可復現記錄。已以 fix-by-acceptance 補上真彈窗/取消、可卸載卷、退出重啟三套步驟與預期 UI/宿主觀察；未把未執行的真機結果寫成成功。
+- `webkitdirectory` production 命中恰 **3**：SettingsPage、Composer、NewCaseDialog；只列未刪。
+- renderer 絕對 `case_root` 反模式仍存在於 `case-output-client.ts`，Rust 的 `write_case_output_docx` / `case_output_docx_exists` 仍接收 `case_root: String`；只列未改。
+- `CASE_SCOPE_AUDIT` 實際 **13** 條，consumer 只有 `case-scope.ts` 與 `case-scope.test.ts`，測試只守 `>=12` 與少數 symbol；原 SPEC「14 項」已更正為 13。
+- `.gitignore` 有 `.DS_Store` 規則，但 `git ls-files`、全歷史路徑查詢與現行文件查找均為零；原 SPEC「已被跟蹤」被事實推翻，已更正，沒有文件可 `git rm --cached`。
+
+## 驗收自修
+
+只修改 desktop 文檔：`apps/desktop/SPEC.md` 更正兩項複雜度掃描事實並補完整手工復現步驟；本報告追加到 `apps/desktop/ACCEPTANCE.md`。未修改產品代碼、schema、依賴或跨層契約。
+
+---
+
 # ACCEPTANCE: DOCS-SELF-CONTAINED-1
 
 日期：2026-07-15

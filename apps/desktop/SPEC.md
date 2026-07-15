@@ -57,8 +57,8 @@
 
 1. **`webkitdirectory` 生产入口反模式（3 处）**——`SettingsPage.tsx:409`（默认产出文件夹，附 `virtualPath` 假路径 hack `/Courtwork/默认产出/…`，见 `:145`）、`Composer.tsx:513`、`NewCaseDialog.tsx:66` 仍用 `<input type="file" webkitdirectory>` 选目录。ADR-010 决定四明禁该控件作生产入口（不能建立可持久复验的宿主绝对路径授权）。HOST-AUTH-LITE 的原生 picker + `CASE-ROOT-1` 的 opaque case ref 是正解；建议 `CASE-ROOT-1`/`MATERIAL-INGRESS-1` 逐处收敛并退役 `virtualPath` hack。本单不动（会破坏现有 demo/output 链）。
 2. **renderer 供绝对 `case_root`**——`lib.rs` 的 `write_case_output_docx` / `case_output_docx_exists` 以 `case_root: String` 从 renderer 收绝对路径（`case-scope.ts::resolveCaseRoot → folderPath`）。同属 ADR-010 决定四反模式；HOST-AUTH-LITE 的 opaque grant 是替代寻址方式。留 `CASE-ROOT-1` 把输出写入迁到 grant handle 上，本单不改其形制。
-3. **`CASE_SCOPE_AUDIT` 静态审计表**——`case-scope.ts` 的 14 项手工审计数组，唯一消费者是 `case-scope.test.ts` 的形状断言（条数 ≥12 + 若干 symbol 存在）。属「文档即数据」的偶然复杂度：随代码演进需手工维护，测试只校验条数/个别字符串、不校验审计结论真伪。建议架构评估退役为纯文档或删除。
-4. **git 跟踪的 `.DS_Store`**——`apps/desktop/src-tauri/.DS_Store` 已被 git 跟踪（先于 `.gitignore` 的 `.DS_Store` 规则入库）。macOS 垃圾文件，建议 `git rm --cached` 清理；本单不顺手动，避免混入无关变更。
+3. **`CASE_SCOPE_AUDIT` 静态审计表**——`case-scope.ts` 的 13 项手工审计数组，唯一消费者是 `case-scope.test.ts` 的形状断言（條數 ≥12 + 若干 symbol 存在）。屬「文檔即數據」的偶然複雜度：隨代碼演進需手工維護，測試只校驗條數/個別字符串、不校驗審計結論真偽。建議架構評估退役為純文檔或刪除。
+4. **`.DS_Store` 跟蹤複核（驗收更正）**——實現留痕原稱 `apps/desktop/src-tauri/.DS_Store` 已被 git 跟蹤；獨立驗收以 `git ls-files` 與全歷史路徑查詢複核均為零，現行樹亦無該文件，根 `.gitignore` 已有 `.DS_Store` 規則。故無文件可 `git rm --cached`，本項不構成待清理複雜度。
 
 ### 实现留痕（2026-07-15，待独立验收）
 
@@ -67,7 +67,10 @@
 - UI：`HostAccessPanel.tsx` 内嵌 Settings·Output；空态 / 已授权（只显示 label）/ 已验证读写 / 四类结构化失败（`data-reason`）/ 意外错误各自可见，复用既有 `settings-row`/`settings-recovery` 样式，零新 CSS。
 - Playwright `host-auth.spec.ts` **4/4**（空态、denied、happy 授权+读写探针、读写三类失败逐一 fail-closed，并断言面内无绝对路径）；反例触红：hardcode `data-reason='denied'` → 失败类断言红。floor `212 → 216`。
 - 静态门 `assert-host-auth-contracts.mjs` 纳入 `test:e2e` 链：锁 renderer 零绝对路径通道、`HostAuthPort` 经 composition root 注入（App 不自造适配器）、闭集四 reason、无 demo 回落、Rust 命令注册齐备。注入 `absolutePath` 反例 → 门 exit 1，撤除 → passed。
-- 手工可复现（非自动化门，真机矩阵已后置）：真实 `NSOpenPanel` 弹窗取授权、真实 TCC 拒绝、真实卷卸载、重启后 `host-grants.json` 仍在且 `listGrants` 可见。最终门禁数字由独立验收在 clean worktree/隔离端口实跑填写。
+- 手工可復現（非自動化門，真機矩陣已後置）：真實 `NSOpenPanel` 彈窗取授權、真實 TCC 拒絕、真實卷卸載、重啟後 `host-grants.json` 仍在且 `listGrants` 可見。最終門禁數字由獨立驗收在 clean worktree/隔離端口實跑填寫。
+  1. 在 macOS 執行 `pnpm --dir apps/desktop tauri dev`，進入 Settings → Output → Host folder access，點擊 **Authorize a folder**；應出現只能選目錄、不可多選的原生 `NSOpenPanel`。取消時 UI 應以 `data-reason="denied"` 顯示拒絕；選擇一個臨時目錄時只顯示 basename label，不顯示絕對路徑。
+  2. 將待授權目錄放在可卸載卷上，授權後點擊 **Verify read/write** 應成功；卸載該卷後再次驗證，UI 應以 `data-reason="unavailable"` 顯示失敗，不回落 demo、不自行改寫 grant。
+  3. 授權本機臨時目錄並記下 UI label，正常退出再重啟；同一 label 應由 `listGrants` 恢復，重新驗證應成功。宿主側可檢查 app-data 下 `host-grants.json` 仍有同一 grant；renderer/UI 不得呈現其中 path。完成後刪除測試目錄與測試 grant 記錄。
 
 ## CHAT-MATERIAL-1 · 附件阅读内容与粘贴块进入真实请求（实现完成，待独立验收）
 
