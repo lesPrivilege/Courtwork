@@ -1,6 +1,13 @@
 # SPEC: packages/output（W4）
 
-状态：核心完成；WPS 兼容尚未实测，不得宣称已验证（管线与自动化测试全绿；Word/WPS 双端仍须按 `verification-checklist.md` 核验）
+状态：包级核心与自动化成立；完成过一次 macOS WPS 基础视觉抽核；`OUTPUT-CORRECTNESS-1` 与 Word/WPS 双端 P0 roundtrip 尚未完成
+
+## 现行能力边界
+
+- `applyRevisionInstructionSet` 与 `compileDraftToDocx` 是 Courtwork 内唯一权威修订/文书著录器；desktop、插件和垂类包不得复制 OOXML 生成逻辑。
+- golden、ZIP/OOXML 安全预检、基础修订/批注与字体自动化已经成立；这些是 `package-ready`，不等于任意真实 docx 均可无损往返。
+- 2026-07-09 W4 验收曾在 macOS 的 WPS 打开样例并做基础视觉抽核；Microsoft Word、Windows WPS、打开—轻改—保存—回读、现有复杂批注/关系保全尚未形成 P0 证据，不得概括成“Word/WPS 兼容已验证”。
+- 本包尚缺与 `@courtwork/core/work-protocol`、`@courtwork/core/turn-protocol` 同等级的真实 Vite browser consumer 证明；进入 desktop production 编排前必须补齐。
 
 ## 职责
 
@@ -14,13 +21,25 @@
 - 定位鲁棒性：文档被用户轻改后指令集仍能定位（模糊锚点匹配，`src/locate.ts`）
 - **字体规则**：正文仿宋_GB2312、标题黑体、西文/数字 Times New Roman，不用微软雅黑；管线写出的每个 run 显式声明完整 `w:rFonts`（`src/fonts.ts` + `apply-instructions.ts` 的 `buildRPr`）
 
+## OUTPUT-CORRECTNESS-1（P0）
+
+在真实材料链把本包接入 production 之前，必须同时满足：
+
+1. `replace` 保留原段落的 `w:pPr`，不得把编号、样式、分页或段落级属性随文字替换丢掉；
+2. 只给本次新写入或实际触碰的 run 设置必要字体，不得全局改写未触碰 run 的字体与 run properties；
+3. 保留输入文档既有 comments、comment ids、range 与关系，不得以新建 Courtwork 批注覆盖或重置；
+4. comments、relationships 与 content-types 的新增/复用必须幂等；重复应用、已有 part 和非连续 id 均不得制造重复关系或悬挂引用；
+5. `paragraphHint` 要么被定位器真实消费并有歧义反例，要么通过版本化契约删除；不得保留一个看似可消歧、实际无人读取的字段；
+6. 每条未应用指令都返回逐条、typed outcome；任何 non-applied outcome 必须在落盘前向用户显式展示，并由策略阻断整份落盘或取得针对性确认，不能“报错并跳过后照常交付”；
+7. 真实 Vite consumer、Word/WPS P0 roundtrip 与保存前后 OOXML part/rel diff 按 `verification-checklist.md` 留证。
+
 ## 验收
 
-Golden files 快照测试；Word + WPS 双端渲染核验清单；定位失败时报错并跳过（不错插）。
+Golden files 与安全反例；真实 Vite browser consumer；Word + WPS 双端渲染与 roundtrip 清单；歧义或定位失败逐条显式、落盘前阻断/确认，不错插也不静默漏改。
 
 ## TODO（跨层放入区）
 
-- [记录 2026-07-10，依据 docs/architecture/system.md] **本层著录器是全生态唯一可靠修订执行引擎**：Word（Office.js）与 WPS 开放平台均无"程序化插入干净修订"的 API（结构性缺失，非版本问题）。Stage 1 插件为 task pane 薄客户端，修订运算全部回本层。未来任何"来源"类枚举设计预留 `word-addin` / `wps-addin` / `email-inbound` 取值空间，避免破坏性变更；当前契约不动。
+- [现行边界] **本层著录器是 Courtwork 内唯一权威修订著录器**：Stage 1 若出现 Word/WPS task pane，只能作为触发与展示入口，修订运算仍回本层。外部宿主 API 能力必须在开工时按精确版本重新验证；不以旧调研的“全生态唯一可靠”概括替代当前证据，也不为想象中的来源提前扩枚举。
 
 - [已解决 2026-07-13，LAUNCH-FIX] **新建文书路径与本层同栈**：`compileDraftToDocx` 已落为纯 TypeScript OOXML 直接著录，复用 `src/fonts.ts`（标题黑体、正文仿宋_GB2312、西文 Times New Roman）与同一 zip 引擎；不引入 pandoc/JVM，也未另造第二套桌面侧文档生成器。测试先锁空文书拒绝、XML 转义、字体与共享安全预检，再接 desktop 写入桥。
 

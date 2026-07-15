@@ -4,7 +4,24 @@
 
 该文件由 `applyRevisionInstructionSet` 对 [`test/fixtures/original.docx`](test/fixtures/original.docx)（虚构样例买卖合同）套用十条指令（[`src/test-fixtures/instruction-set.ts`](src/test-fixtures/instruction-set.ts)）生成，覆盖：条款内文字替换（含纯插入、删+插两种最小化 diff 形态）、插入新条款、整条删除、表格单元格替换、表格整行删除、纯批注不改文字，全部十条带批注，其中两条附结构化法条引用（`statuteRef`）。
 
-我已做过的程序化核验（不需要你重复）：zip 完整性（`unzip -t`）、OOXML 结构（`w:ins`/`w:del`/`w:trPr/w:del`/`commentReference` 计数与对照）、每个管线写入的 run 是否带完整 `w:rFonts`——全部通过，详见 [`spike-report.md`](spike-report.md) 与 `src/*.test.ts`。**以下是程序无法判断、需要你用眼睛看的部分。**
+现行基线已做过的程序化核验：zip 完整性（`unzip -t`）、OOXML 结构（`w:ins`/`w:del`/`w:trPr/w:del`/`commentReference` 计数与对照）以及序列化后所有 run 的完整 `w:rFonts`——全部通过，详见 [`spike-report.md`](spike-report.md) 与 `src/*.test.ts`。最后一项同时暴露了全局改写未触碰 run 的缺陷，不是目标保证；`OUTPUT-CORRECTNESS-1` 必须把它改成只验证新写入或实际触碰的 run，并另证未触碰 `w:rPr` 原样保留。**以下是程序无法判断、需要你用眼睛看的部分。**
+
+## 实测记录体例
+
+每次核验单独保存一份记录；不能在未填环境或未跑项目上打总勾。记录至少包含：
+
+| 字段 | 必填内容 |
+|---|---|
+| App | Microsoft Word 或 WPS 文字的精确产品版本、build 与位数/架构 |
+| 环境 | OS 精确版本、CPU 架构、系统语言、Office/WPS 显示与修订过滤设置 |
+| 字体 | 仿宋_GB2312、黑体、Times New Roman 的实际安装名称/版本；缺失与回退如实记录 |
+| 输入 | 原始 docx 文件名、字节数与 SHA-256 |
+| Courtwork 输出 | 应用指令后的 docx 文件名、字节数、SHA-256 与对应代码 SHA |
+| 外部保存输出 | Word/WPS 轻改保存副本的文件名、字节数与 SHA-256 |
+| 结构差异 | 保存前后 ZIP parts 清单、`[Content_Types].xml`、相关 `.rels`、comments 与 document XML diff 摘要 |
+| 结论 | 每项只用 `pass` / `fail` / `not-run` / `n/a`；`fail` 附最小复现与原始截图 |
+
+显示层验收前先记录“所有标记/原始状态/简单标记/无标记”、批注过滤、作者过滤与修订窗格设置；过滤导致的不可见必须排除后才能判 `fail` 或 `pass`。WPS 产生的保存副本还必须回到 Courtwork/reading-view 重读，并记录解析结果、SourceAnchor 重定位与 part/relationship 差异；“能打开”或截图正常不能替代回读。
 
 ## 核验项
 
@@ -37,7 +54,7 @@
 - [ ] 选中任意一处**管线新写入的文字**（插入的"五"、"标的物"、新插入的保密条款整段等），查看字体面板：中文应显示为**仿宋_GB2312**，不是宋体、不是微软雅黑、不是"最合适字体"之类的回退提示
 - [ ] 同一处文字的西文/数字部分（如有）应显示为 **Times New Roman**
 - [ ] 未被本次指令触碰的原文字体保持原样（本管线不应该改动它没有编辑到的内容的字体）
-- [ ] 回归病例：若出现"部分仿宋正确、部分回退成主题字体，且隔行/隔字交替"的字体错乱，先解包检查 `word/document.xml` 与 `word/comments.xml` 中**每个 `w:r`** 是否都有完整 `w:rPr/w:rFonts` 四属性（`w:ascii` + `w:eastAsia` + `w:hAnsi` + `w:cs`）。重点看未修改原文 run、`w:ins`/`w:del` 内层 run、批注引用 run、批注正文 run；任一处缺失都按阻塞处理。
+- [ ] 回归病例：若出现"部分仿宋正确、部分回退成主题字体，且隔行/隔字交替"的字体错乱，先解包检查**本次新写入或实际触碰的 run** 是否都有完整 `w:rPr/w:rFonts` 四属性（`w:ascii` + `w:eastAsia` + `w:hAnsi` + `w:cs`），重点看 `w:ins`/`w:del` 内层 run、批注引用 run 与批注正文 run；任一处缺失都按阻塞处理。未触碰原文 run 必须逐节点保留原 `w:rPr`，即使原文没有显式 `w:rFonts` 也不得为通过本项而补写。
 
 ### 4. 表格整行删除（已知风险点，重点看）
 - [ ] "第三期"整行在开启修订标记查看时，应显示为整行带删除线（不是内容清空但边框还在、或表格结构错乱）
