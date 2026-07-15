@@ -32,6 +32,12 @@ demo/acceptance composition root。迁移后所有 scripted/real S3 与 legal de
 - golden 只增加模型调用前的 `turn_linked` 审计事件：S3 由 8 变 9，legal demo 由 15 变 16。当前定向为 8 files / 29 tests；本节不构成验收放行。
 - CLI 实跑：`demo:s3` 仍产出 39,713 bytes redline、7/7 考点、golden PASS；`demo:legal` 仍为 8 风险、11/11 锚点、7 确认 + 1 驳回、golden PASS。
 
+## OUTPUT-CORRECTNESS-1 消费者同步留痕（2026-07-15）
+
+- `run-s3-demo.ts` 与 `run-legal-demo.ts` 已同步 `applyRevisionInstructionSet` 的 non-applied 落盘门禁：先按默认策略调用并接住 `NonAppliedInstructionsError`，逐条读取 `error.nonApplied`，再把这些精确 instruction id 传给 `onNonApplied: 'confirm'` / `confirmNonApplied` 后才取得并写出 docx。
+- 两条 demo 链仍显式保留每条 `InstructionOutcome`，包括 `locator_not_found`；不得把捕获异常改回静默跳过，也不得用整批 always-allow 代替逐条确认。
+- 本同步只修正 demo/acceptance composition consumer，不改变 output 契约、schema 字段、公开导出或 production 装配边界。
+
 ## 实现留痕（2026-07-14）
 
 - 搬迁前原 core demo/acceptance 定向 19/19；搬迁后本包 8 个测试文件 26/26（含新的依赖无环/反向依赖守卫）。

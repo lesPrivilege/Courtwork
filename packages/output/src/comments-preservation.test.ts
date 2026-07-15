@@ -159,6 +159,28 @@ describe('comments/relationships/content-types preservation (OUTPUT-CORRECTNESS-
 });
 
 describe('comments/relationships/content-types idempotency (OUTPUT-CORRECTNESS-1 #4)', () => {
+  it('re-applying the exact same instruction set keeps one rel/override and no dangling comment reference', () => {
+    const clean = buildDocx({ editableParagraphs: ['重复应用锚点句。'], withInfra: false });
+    const sameSet: RevisionInstructionSet = {
+      id: 'ris-4-same',
+      caseId: 'case-4-same',
+      targetDocument: { fileId: 'f-4-same' },
+      instructions: [commentOnly('c-same', '重复应用锚点句', '同一条批注。')],
+    };
+    const out1 = applyRevisionInstructionSet(clean, sameSet, { now: FIXED_NOW }).docx;
+    const out2 = applyRevisionInstructionSet(out1, sameSet, { now: FIXED_NOW }).docx;
+    const files = loadDocx(out2);
+
+    expect(commentsRelCount(files)).toBe(1);
+    expect(commentsOverrideCount(files)).toBe(1);
+    const ids = commentIds(getText(files, 'word/comments.xml'));
+    expect(new Set(ids).size).toBe(ids.length);
+    const defined = new Set(ids);
+    for (const ref of commentReferenceIds(getText(files, 'word/document.xml'))) {
+      expect(defined.has(ref), `commentReference ${ref} 悬挂（无对应 comment）`).toBe(true);
+    }
+  });
+
   it('reuses the existing comments relationship and content-type override (no duplicates, no dangling refs)', () => {
     const original = buildDocx({
       existingComments: [{ id: 2, text: '既有批注二' }, { id: 7, text: '既有批注七' }],
