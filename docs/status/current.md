@@ -76,9 +76,10 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 
 1. P0 已清账：`CHAT-MATERIAL-1` 与 `OUTPUT-CORRECTNESS-1` 均已实现并独立验收（见上文产品 live 与包级两节）；Word/WPS 真机 roundtrip 为 output 遗留缺口，另行安排。
 2. Work store：先 `WORK-STORE-MEASURE`，再 `WORK-STORE-1`。v1 继续 whole-envelope CAS；当前 RuntimeGuard 按每个 leg 重置，超限没有跨 resume 累计的持久终态映射，尚不满足 live。
-3. 材料链：`HOST-AUTH-TRUTH → CASE-ROOT-1 → MATERIAL-INGRESS-1`。当前缺稳定签名/TCC/重授权事实、opaque case root、原件/ReadingView hash 与生产 MaterialStore。
+3. 材料链：`HOST-AUTH-LITE → CASE-ROOT-1 → MATERIAL-INGRESS-1`（Round 3 拍板：完整签名/TCC 真机矩阵后置，最小授权路径要求全部失败态显式 fail-closed）。当前缺 opaque case root、原件/ReadingView hash 与生产 MaterialStore。
 4. 场景装配：`LEGAL-S3-BINDING-1 → WORK-LIVE-1`。主体输入、真实工具、逐条 gate/revision 与 session 原文绑定未闭合；非 demo 不得接 recording fallback。
-5. 独立线：`USAGE-LEDGER-1` 保存 cache hit/miss、reasoning token、unknown 与版本化价格估算；`PM-SCHEMA-1` 收口 OOC `score=null`、payload 版本与迁移，完成前不得创建 PM scenario。
+5. Chat 线（ADR-013）：`CHAT-SESSION-1 → CHAT-MEMORY-1`，会话窗口、只读 transcript、自动记忆缓存层；无用户管理入口。
+6. 独立线：`USAGE-LEDGER-1` 已实现待独立验收（真实 DeepSeek usage 捕获阻塞于带 key 环境）；`PM-SCHEMA-1` 收口 OOC `score=null`、payload 版本与迁移，完成前不得创建 PM scenario。
 
 后置但仍真实存在的缺口：`services/ingest` 只有规格，OCR/分类/实体对齐与 HTTP/progress wire 均未实现；正式 macOS Developer ID、公证和升级授权矩阵未完成；企业 identity、ACL、伦理墙、MCP/私域 adapter、scheduled invocation、多写者与跨案图谱属于以后阶段，不得插入本轮 Work live。
 

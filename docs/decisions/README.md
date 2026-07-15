@@ -16,6 +16,7 @@
 | [ADR-010](ADR-010-work-live-boundaries.md) | Work live 的材料、状态与命令边界 | Accepted |
 | [ADR-011](ADR-011-minimal-harness-kernel.md) | 最小 Harness Kernel 与扩展边界 | Accepted |
 | [ADR-012](ADR-012-vertical-package-kit-and-visual-blueprints.md) | 垂类包体例、企业编排与可视化 Blueprint | Accepted |
+| [ADR-013](ADR-013-chat-session-and-memory.md) | Chat 会话生命周期与自动记忆 | Accepted |
 
 ## 变更规则
 
