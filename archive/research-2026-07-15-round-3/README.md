@@ -1,0 +1,9 @@
+# Round 3 调研批次（2026-07-15）
+
+本目录是 Round 3 期间的外部调研原稿，**只作线索与历史证据，不具约束力**；结论只有被 ADR 或工单 prompt 吸收后才生效（吸收记录见对应工单与 `docs/architecture/implementation-readiness.md`）。
+
+| 文档 | 主题 | 已吸收落点 |
+|---|---|---|
+| `provider-switch-mechanisms.md` | cc-switch / claude-code-router / New API / Cherry Studio 的 provider 切换机制 | 三个 profile schema 盲点（参数化怪癖、双层粒度、模型别名）待第二 provider 需求到来时立 ADR 吸收 |
+| `interaction-visual-regression.md` | 交互态视觉回归与 UI 残留检验方案 | 已吸收为 `UI-RESIDUE-1` 工单（开合闭合门 + DOM 残留 helper + 抖动清单） |
+| `oss-gui-source-patterns.md` | Radix/cmdk/LobeUI/dockview/kunkun/TanStack 源码级机制拆解 | 采收清单 8 项分别标注 `UI-RESIDUE-1` / `CHAT-SESSION-1` / workbench 演进落点，派单时嵌入工单 prompt |
