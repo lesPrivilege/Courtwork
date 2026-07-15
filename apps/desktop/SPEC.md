@@ -2,6 +2,26 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## CHAT-MATERIAL-1 · 附件阅读内容与粘贴块进入真实请求（实现完成，待独立验收）
+
+权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) Round 2 P0 与[当前基线](../../docs/status/current.md)「Chat 附件」行。基线 `main @ ab79b5b`。desktop 内部闭合，不触碰任何跨层契约。
+
+目标：让已就绪附件的 `readingMarkdown` 与粘贴块（`pasteBlocks`）逐字进入真实模型请求；失败、需 OCR 与空内容显式阻断发送；回显路径与请求路径的内容组装同源、不漂移。
+
+- **断点修复（App.tsx 两处）**：`handleChatSend`（请求路径）与 `handleComposerSend`（回显路径）原先均硬编码 `payload.text || '（附文件）'`，从不读 `readingMarkdown` 与 `pasteBlocks`。现新增唯一组装点 `assembleRequestContent`（`composer/process-upload.ts`），逐字纳入用户文本、每个粘贴块与每个「就绪」附件的 `readingMarkdown`；请求路径以其结果作为模型请求正文，并存入 `ChatMessage.content` 供多轮 history 复用（不再用展示文本 `message.text` 当 history）。两处 `'（附文件）'` 占位符删除；气泡只显示用户原文，附件/粘贴块仍由既有 chip 与 `PasteBlock` 呈现。
+- **类型级建模 needs_ocr 与空内容（不用文案当 discriminant）**：`AttachmentFailed` 新增 `reason: AttachmentBlockReason`（`'needs_ocr' | 'empty' | 'error'`）。`outcome-copy.ts` 的 `failureCopyForOutcome` 返回该 `reason`；`process-upload.ts` 把 needs_ocr 归 `reason:'needs_ocr'`、其余处理失败归 `'error'`。reading-view 对空文件返回 `ok + 空 markdown`，现由 `resolveAttachmentUpload` 判空（`markdown.trim()===''`）归入 `failed·empty`（`EMPTY_CONTENT_COPY`，`retryable:false`），`ready` 态自此保证携带非空正文。
+- **阻断在源同 gate 复用，未扩面**：needs_ocr/empty 仍是 `kind:'failed'`，因此 `Composer.handleSend` 既有 `attachments.some(kind==='failed')` 守卫与发送键 `disabled`、`AttachmentChip` 既有失败态文案/无 Retry（`retryable:false`）**无需改动**即对二者生效；`assembleRequestContent` 另做防御性过滤（只读 `ready` 且非空），双重杜绝占位符/空内容让模型调用成功。据此本单未触碰 `Composer.tsx`、`AttachmentChip.tsx`。
+- **设计取舍留痕（供验收核对，非跨层拍板）**：把 needs_ocr/empty 建模为 `failed` 上的类型级 `reason`（而非新增顶层 `AttachmentStatusKind`），是为在工单「精确文件范围」四文件内闭合、避免改动 composer 展示与发送组件；`readingMarkdown` 仍留在 `ComposerAttachment`（`ready ⟹ 非空` 由 `process-upload` 构造保证，已在类型注释登记）。二者均满足「类型层显式建模、不用文案当 discriminant、空内容显式阻断」，未改任何导出契约。若后续要把「`ready` 携非空正文」升为纯类型不变量（把 `readingMarkdown` 移入 `ready` 变体），需一并改 `Composer.tsx` 的 retry 重置行，属越界，留待架构拍板。
+- **同源保证**：出站正文只有 `assembleRequestContent` 一个组装点，请求路径直接消费；回显路径与请求路径均改为直取 `payload` 字段（`text/files/pasteBlocks`），不再各自持占位符逻辑，故不会漂移。回显路径（`localMessages`）经核为纯展示、永不达模型（`localMessages`/`chatHandoff` 全链只喂展示与 `attachmentSources` 文件名），故「内容入请求」只作用于请求路径。
+
+TDD（先红后绿）与门禁（实现自证，最终数字以独立验收实跑为准）：
+
+- 红灯基线：新增/改写 `process-upload.test.ts`、`outcome-copy.test.ts` 在现行代码上 **2 files / 11 tests failed**；其中 `fetchImpl` 捕获 `init.body` 的判例显示用户消息 `content` 仅含文本标记，附件 `readingMarkdown`（`MD-…`）与粘贴块（`PASTE-…`）标记逐字缺席——正是断点。
+- 转绿：定向 `process-upload`+`outcome-copy` **2 files / 14 tests**；desktop 全量 Vitest **39 files / 167 tests**（floor 161→167）；`tsc -b && vite build` 通过。
+- 端到端接线：新增 `tests/e2e/chat-material.spec.ts` 2 例——就绪附件 `readingMarkdown`+文本逐字进入 `request.messages`（非 `'（附文件）'`）、空内容附件 `data-status='failed'`+发送键禁用+零模型请求；这覆盖 Vitest 触及不到的 App `handleChatSend` 接线。`assert-test-count` floor 209→**211**。
+- 完工门（隔离端口 `:1633`）：`pnpm -r build` 全 workspace、`pnpm lint`、root Vitest **131 files / 1127 tests**、desktop `test:e2e` 全静态门 + Playwright **211/211 passed（1.5m）** 均绿。完整 Playwright 仍由独立验收会话在 clean worktree 复跑填写最终数字。
+- 精确触面：`App.tsx`、`composer/types.ts`、`composer/process-upload.ts`、`composer/outcome-copy.ts` 及其 Vitest；新增 `tests/e2e/chat-material.spec.ts` 与 `scripts/assert-test-count.mjs` floor 同步（新增 Playwright 用例的必然配套）。未动 `packages/schemas`、`@courtwork/core/turn-protocol`、`packages/provider` 任何导出，未接 MaterialStore/原件 hash/宿主授权，未做图片多模态理解，未改「存入卷宗」仪式语义；无 `[需架构拍板]` 项。验收放行前不更新 `docs/status/current.md`。
+
 ## DOCS-SELF-CONTAINED-1 · 历史视觉索引退役（已独立验收放行）
 
 - 将本文件 33 个目标不存在的历史 `visual-audit/*.png` 链接退为 inline code 文件名；不伪造或重建截图，也不以 `archive/` 补链。

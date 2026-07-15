@@ -8,6 +8,14 @@ export type FileKind = 'docx' | 'pdf' | 'md' | 'txt' | 'image' | 'other';
 
 export type AttachmentStatusKind = 'uploading' | 'ready' | 'failed';
 
+/**
+ * 阻断态的类型级判别（CHAT-MATERIAL-1）：needs_ocr 与空内容不得再靠文案字符串区分。
+ * - needs_ocr：文件需要文字识别，当前不可入请求。
+ * - empty：reading-view 成功但正文为空，无内容可逐字进入请求。
+ * - error：其余处理失败（不支持、损坏、过大、安全风险等）。
+ */
+export type AttachmentBlockReason = 'needs_ocr' | 'empty' | 'error';
+
 export interface AttachmentUploading {
   kind: 'uploading';
   /** 进入 uploading 的时刻（ms），用于 2–5s 微光 vs >5s 进度文案分流。 */
@@ -24,6 +32,8 @@ export interface AttachmentReady {
 
 export interface AttachmentFailed {
   kind: 'failed';
+  /** 类型级阻断原因；needs_ocr / 空内容由此判别，不靠文案字符串。 */
+  reason: AttachmentBlockReason;
   /** 办案语言失败说明，含替代路径。 */
   message: string;
   retryable: boolean;
@@ -39,7 +49,11 @@ export interface ComposerAttachment {
   status: AttachmentStatus;
   /** 原始字节，供失败重试与存入卷宗后的本地保留。 */
   bytes: Uint8Array;
-  /** reading-view 成功时的 md 母语文本（壳只展示状态，不解析业务）。 */
+  /**
+   * reading-view 成功时的 md 母语文本（壳只展示状态，不解析业务）。
+   * 不变量（CHAT-MATERIAL-1）：status.kind === 'ready' 时此字段必为非空正文；
+   * 空正文由 process-upload 归入 failed·empty，绝不作为 ready 落地。
+   */
   readingMarkdown?: string;
 }
 

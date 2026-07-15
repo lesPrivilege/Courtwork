@@ -28,6 +28,7 @@ import type { ProviderTransport } from '@courtwork/provider/types';
 import type { PackageRegistries } from '@courtwork/registry';
 import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, CONTAINERIZE_COPY, type ComposerSendPayload, type ContainerizeRequest } from './composer';
+import { assembleRequestContent } from './composer/process-upload';
 import {
   caseOutputDir,
   caseOutputDocx,
@@ -116,7 +117,10 @@ interface ReaderDocument {
 type ChatMessage =
   | {
       role: 'user';
+      /** 展示气泡文本（用户原文，可空）；附件与粘贴块另由 chip / PasteBlock 呈现。 */
       text: string;
+      /** 送入模型的正文（text + 就绪附件 readingMarkdown + 粘贴块，逐字）；亦作多轮 history 的用户内容。 */
+      content: string;
       files: string[];
       pasteBlocks?: string[];
       createdAt: number;
@@ -477,10 +481,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       return;
     }
     // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
+    // 回显路径与请求路径同源：气泡只显示用户原文，附件/粘贴块由 chip 与 PasteBlock 呈现，
+    // 不再用 '（附文件）' 占位符（该占位符正是 CHAT-MATERIAL-1 的断点之一）。
     setLocalMessages((prev) => [
       ...prev,
       {
-        text: payload.text || (payload.attachments.length ? '（附文件）' : ''),
+        text: payload.text,
         files: payload.attachments.map((item) => item.fileName),
         pasteBlocks: payload.pasteBlocks,
         createdAt,
@@ -496,10 +502,16 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       openCredentialSurface();
       return false; // 引导层拦截≠受理——草稿不清空，连接流程走完原文还在
     }
-    const userText = payload.text || (payload.attachments.length ? '（附文件）' : '');
+    // CHAT-MATERIAL-1：就绪附件的 readingMarkdown 与粘贴块逐字进入真实请求（同源组装）。
+    // 失败 / 需 OCR / 空内容已在 Composer 阻断（failed 态），发送时 payload.attachments 只含 ready。
+    const requestContent = assembleRequestContent({
+      text: payload.text,
+      attachments: payload.attachments,
+      pasteBlocks: payload.pasteBlocks,
+    });
     chatFlightRef.current = true;
     const history = chatMessages.reduce<Array<{ role: 'user' | 'assistant'; content: string }>>((messages, message) => {
-      if (message.role === 'user') messages.push({ role: 'user', content: message.text });
+      if (message.role === 'user') messages.push({ role: 'user', content: message.content });
       else if (message.turn.status === 'completed') messages.push({ role: 'assistant', content: message.turn.assistantMessage });
       return messages;
     }, []);
@@ -507,7 +519,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       ...prev,
       {
         role: 'user',
-        text: userText,
+        text: payload.text,
+        content: requestContent,
         files: payload.attachments.map((item) => item.fileName),
         pasteBlocks: payload.pasteBlocks,
         createdAt: Date.now(),
@@ -518,7 +531,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     const controller = new AbortController();
     chatAbortRef.current = controller;
     const assistantAt = Date.now();
-    void sendChatTurn(turnClient, modelConfig, [...history, { role: 'user' as const, content: userText }], {
+    void sendChatTurn(turnClient, modelConfig, [...history, { role: 'user' as const, content: requestContent }], {
       ...(providerTransport ? { transport: providerTransport } : {}),
       signal: controller.signal,
       onProjection: (projection) => {
