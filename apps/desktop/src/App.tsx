@@ -70,7 +70,6 @@ import { providerConnectionClient } from './provider/connection-client';
 import { CaseRail } from './rail/CaseRail';
 import type { UnfiledSession } from './rail/types';
 import { SettingsPage, type SettingsSection } from './settings';
-import type { HostAuthPort } from './host/host-auth-port';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { systemOpenClient } from './system/system-open-client';
 import { WorkDraftPanel } from './system/WorkDraftPanel';
@@ -286,10 +285,9 @@ export interface AppProps {
   hostRenderers: HostRendererRegistry;
   workProjection: WorkProjectionPort;
   workFixture: DemoWorkFixtureAdapter;
-  hostAuth: HostAuthPort;
 }
 
-export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture, hostAuth }: AppProps) {
+export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture }: AppProps) {
   const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
@@ -1954,7 +1952,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         onModelConfigChange={updateModelConfig}
         onRevealPath={revealSettingsPath}
         onFeedback={showSystemFeedback}
-        hostAuth={hostAuth}
       />
     </main>
   );
