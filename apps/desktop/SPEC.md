@@ -1,6 +1,6 @@
 # SPEC: apps/desktop（W9）
 
-状态：v0.1.1 已发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1` 与 `TRACE-UI-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
+状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
 ## TRACE-UI-1 · Chat/Work 同源过程轨迹（已独立验收放行）
 
@@ -325,13 +325,15 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 
 ## Build 记录（SITE-1 下载区引用）
 
-### BUILD-0.1.2-CANDIDATE · 架构收口后的开发构建（2026-07-14，待独立验收）
+### BUILD-0.1.2 · 架构收口后的已发布开发构建（2026-07-14）
 
 | 项 | 值 |
 |---|---|
 | 版本 | **0.1.2**（`package.json` / `tauri.conf.json` / `Cargo.toml` / `SettingsPage.APP_VERSION` 对齐；Cargo.lock 同步） |
 | 纳入 main | `0399d0476a7874bc608edd4ed4ddb444f0f57f7f` |
 | 产品源码 | `2021c8cd2379739bbd0cef229c0e7d141b5cd8ee`；后续只回填 release/docs/site 真值 |
+| 发布 tag / 提交 | annotated `v0.1.2`（tag object `0c998d45bcc892ac56c8800902659b5ecc78f084`）→ `2fe8bf54dad12f58bccf06a9d692f7c14f65cbd3` |
+| 公开 Release | <https://github.com/lesPrivilege/Courtwork/releases/tag/v0.1.2>；`2026-07-14T15:17:12Z` 发布，非 draft、非 prerelease |
 | 构建时刻 (UTC) | `2026-07-14T13:51:55Z` |
 | 标识 / 架构 | `cn.courtwork.desktop` · `Courtwork` · thin `arm64`（Apple Silicon） |
 | 工具链 | Node `v25.9.0` · pnpm `9.15.0` · rustc/cargo `1.97.0` · macOS `26.5.2` |
@@ -347,7 +349,7 @@ hover 统一 120ms ease-out；动画属性只许 transform/opacity/background-co
 | Gatekeeper | `spctl` exit 3 / rejected，符合未公证开发构建预期 |
 | 挂载启动 | 排除 main 与 `/Applications` 同 bundle id 串包后，直接执行挂载 Mach-O；PID/path 逐字命中挂载点，存活 8 秒后 TERM |
 
-实现侧全门：site guard 产品源码前置门 **25/25 / 685 active files**，真值回填后 **25/25 / 687**；desktop **39 files / 161 tests**、provider **12 / 88**、root **131 / 1127**、Rust **25/25**；全仓 build desktop **3532 modules**；隔离 `:1612`、单 worker Playwright **209/209**。完整证据见 [`release/CANDIDATE_v0.1.2.md`](../../release/CANDIDATE_v0.1.2.md)；本记录不构成独立验收或发布放行。
+实现侧全门：site guard 产品源码前置门 **25/25 / 685 active files**，真值回填后 **25/25 / 687**；desktop **39 files / 161 tests**、provider **12 / 88**、root **131 / 1127**、Rust **25/25**；全仓 build desktop **3532 modules**；隔离 `:1612`、单 worker Playwright **209/209**。候选构建原始证据保留在 [`release/CANDIDATE_v0.1.2.md`](../../release/CANDIDATE_v0.1.2.md)；不同会话的制品复验与全量门见 [`release/ACCEPTANCE.md`](../../release/ACCEPTANCE.md)，远端发布、Pages 与真机证据见 [`release/DEPLOYMENT.md`](../../release/DEPLOYMENT.md)。发布后没有重建或替换 DMG。
 
 ### BUILD-0.1.1-R2 · 全量验收后 GitHub Release 候选（2026-07-14）
 
