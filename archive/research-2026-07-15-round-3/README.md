@@ -8,3 +8,4 @@
 | `interaction-visual-regression.md` | 交互态视觉回归与 UI 残留检验方案 | 已吸收为 `UI-RESIDUE-1` 工单（开合闭合门 + DOM 残留 helper + 抖动清单） |
 | `oss-gui-source-patterns.md` | Radix/cmdk/LobeUI/dockview/kunkun/TanStack 源码级机制拆解 | 采收清单 8 项分别标注 `UI-RESIDUE-1` / `CHAT-SESSION-1` / workbench 演进落点，派单时嵌入工单 prompt |
 | `geist-design-md.md` | Vercel Geist design.md 对照与分发形态分析 | 已吸收为 `VOICE-SPEC-1` 与 `DESIGN-MD-1` 提案（见 implementation-readiness） |
+| `vault-site-craft.md` | arlan.me/vault 技法拆解（MIT），Pages 站巧思候选 | 已吸收为 `SITE-CRAFT-1` 提案：Typer hero、Inset/Satin CTA、Ghosty reveal 三落点 |
