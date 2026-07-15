@@ -1,8 +1,8 @@
 # SPEC: site
 
-状态：SITE-1 已上线；SITE-2A 结构与 SITE-2B 真机证据已经独立验收；v0.1.1 Release 真值切换、独立验收与部署复核均已完成。
+状态：SITE-2 Evidence Line 与 SITE-GEN-1 多场景台账已经独立验收；`v0.1.2` Release、Pages、远端资产校验与 macOS/Safari 真机复核均已完成。
 
-## SITE-GEN-1 · 多场景泛化台账（待 VISUAL-KIT/PM fixture）
+## SITE-GEN-1 · 多场景泛化台账（已独立验收并上线）
 
 保留 Evidence Line Hero，不改成场景卡片目录。在既有连续台账后增加“同一底座，换的是判断”三段：
 
@@ -20,11 +20,11 @@
 - 合同审查复用既有已验收 Evidence Line 与截图；SITE-GEN 不新增对垂类 `/testing` 修订草稿的生产消费，也不把测试草稿升级为官网真值。
 - 新区块全部是静态语义内容：关闭 JS 仍完整；不新增可点击假控件或 `tabindex`；窄屏 DOM 顺序即阅读顺序；reduced-motion 不引入新动画。
 
-### SITE-GEN-1 实现留痕（2026-07-14，待独立验收）
+### SITE-GEN-1 实现与验收留痕（2026-07-14）
 
 - 泛化台账已落在既有工作台账与产品边界之间；合同审查只复用上方已验收证据链语义，卷宗四个可见计数来自 Legal artifact，PM 只展示 `prd-finding-05` 的权威原句、缺陷维度、建议与待确认状态。
 - `fixture-claims.mjs` 从 CaseFile、Timeline、PartyGraph、PM PrdReview、PRD 原文、PM manifest 与 descriptor/presentation 真源计算 claim；build 在清空产物前先校验，deslop guard 复用同一实现。
-- 八类反例锁定 46 事件、删除矛盾 marker、15 主体、错误“矛盾”单位、PM UTF-16 偏移、confirmed 漂移、伪 live 与 PriorityScore 注入。本单没有修改 `main.js`、Hero、下载真值或截图，也没有新增卡片、第二个 Mac window、假控件或动画；本记录不构成验收结论。
+- 八类反例锁定 46 事件、删除矛盾 marker、15 主体、错误“矛盾”单位、PM UTF-16 偏移、confirmed 漂移、伪 live 与 PriorityScore 注入。本单没有修改 `main.js`、Hero、截图、动画或视觉 token，也没有新增卡片、第二个 Mac window 或假控件；独立验收结论见 [`site/ACCEPTANCE.md`](ACCEPTANCE.md)。
 
 ## SITE-2 · Evidence Line：首页约束链
 
@@ -64,22 +64,24 @@
 - DeepSeek 首启凭证面另有真机验收帧，但不进入首页主叙事；provider 配置不是证据链的视觉主角。
 - `assets/og.png` 由现行 `og.html` 重新渲染为 1200×630；wordmark 直接消费四路径核心 SVG，文字左侧不再残留旧版底盘。
 
-## RELEASE-1 · v0.1.1 下载真值
+## RELEASE-1 · v0.1.1 下载真值（历史）
 
-- 下载 URL 固定为 `releases/download/v0.1.1/Courtwork_0.1.1_aarch64.dmg`，与待创建 GitHub Release 的 tag / asset 同名。
+- 下载 URL 固定为 `releases/download/v0.1.1/Courtwork_0.1.1_aarch64.dmg`，与已发布 GitHub Release 的 tag / asset 同名。
 - 页面同时呈现本趟 DMG 的 64 位 SHA-256 与 `Apple Silicon 开发构建 · ad-hoc 签名 · 未公证`，不得只展示“下载”而隐藏 Gatekeeper 边界。
-- 发布前本节只构成同批候选；当前 asset 可下载、SHA 匹配、Pages workflow success 与部署页复核四项条件均已成立。
+- 该版 asset 可下载、SHA 匹配、Pages workflow success 与部署页复核四项条件均已成立；现由 `v0.1.2` 替代为首页当前下载真值。
 
 ## RELEASE-1 · 部署实录（2026-07-14）
 
 - annotated tag `v0.1.1` 指向 `main@39555d6`；GitHub Release 已发布，DMG 与 SHA 文件均为公开资产。
 - 从 GitHub Release 重新下载 DMG 后独立复算：`37792b767fe08119edab3cc6b793e59cd4511758110f8b42e6242e80a023db7e`，大小 `4,667,331` bytes，与页面、校验文件及独立验收报告一致。
 - Pages workflow `29301065279` 在 `39555d6` 上成功；部署首页 HTTP 200。macOS Safari 真机页复核可见四项硬承诺、下载 CTA 与“Apple Silicon 开发构建 · 未公证”边界。
-- 完整外部证据与链接见 [`release/DEPLOYMENT.md`](../release/DEPLOYMENT.md)。
+- 完整外部证据与链接见 [`release/DEPLOYMENT_v0.1.1.md`](../release/DEPLOYMENT_v0.1.1.md)。
 
-## RELEASE-0.1.2-CANDIDATE · 下载真值切换（2026-07-14，待独立验收）
+## RELEASE-0.1.2 · 下载真值与部署实录（2026-07-15）
 
 - 官网两个下载入口已同次切换到 `releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg`，页面显示真实 DMG SHA-256 `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d`。
-- `release-truth` 同时核对四个应用版本源、Cargo.lock、全部 DMG URL、tag/asset 版本、SHA 文件、Release notes、README 与未公证声明；发布中间态允许官网保持上一公开版，候选真值切换后必须用 `--require-site-match` 收紧。
+- `release-truth` 同时核对四个应用版本源、Cargo.lock、全部 DMG URL、tag/asset 版本、SHA 文件、Release notes、README 与未公证声明；最终严格门使用 `--require-site-match`，当前站点与 `v0.1.2` 完全一致。
 - 页面继续明示 Apple Silicon、ad-hoc、未公证；本次没有改变 Evidence Line、SITE-GEN fixture claim、截图、动画、布局或视觉 token。
-- 当前只形成随同发布的官网候选，尚未 tag、push、创建 GitHub Release 或部署 Pages；资产 HTTP 200、远端 SHA、workflow 与真机部署页仍由发布/部署会话完成。
+- annotated tag `v0.1.2` 解引用到 `2fe8bf54dad12f58bccf06a9d692f7c14f65cbd3`；GitHub Release 为非 draft、非 prerelease，DMG 与 SHA 两项资产已重新下载并通过 `shasum --check`。
+- Pages workflow `29383926592` / job `87253159770` 在 `2fe8bf5` 上成功；首页、icon、CSS、JS、OG、Hero WebP 与 DMG 均 HTTP 200，两个真实下载 `href`、可见版本和 SHA 一致。
+- macOS `26.5.2` / Safari 原始真机帧证明 Hero 与三垂类台账；完整外部事实见 [`release/DEPLOYMENT.md`](../release/DEPLOYMENT.md)，原始 PNG 清单见 [`release/evidence/v0.1.2/README.md`](../release/evidence/v0.1.2/README.md)。
