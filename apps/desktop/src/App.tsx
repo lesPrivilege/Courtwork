@@ -24,7 +24,7 @@ import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
 import { replayWorkProjection } from './protocol/work-replay';
 import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
-import type { ProviderTransport } from '@courtwork/provider/types';
+import type { ProviderTransport, ProviderUsage } from '@courtwork/provider/types';
 import type { PackageRegistries } from '@courtwork/registry';
 import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, CONTAINERIZE_COPY, type ComposerSendPayload, type ContainerizeRequest } from './composer';
@@ -195,6 +195,17 @@ function renderReaderInline(text: string, focusQuote?: string, focusRef?: RefObj
   });
 }
 
+/** 用量最小展示（USAGE-LEDGER-1）：缺失槽位语义 unknown，显示为“未知”而非 0；
+ * cache/reasoning 分账仅在有值时追加，不做 UI 重设计。 */
+function formatUsageMetering(usage: ProviderUsage): string {
+  const slot = (value?: number): string => (value === undefined ? '未知' : String(value));
+  const parts = [`Input ${slot(usage.inputTokens)}`, `Output ${slot(usage.outputTokens)}`];
+  if (usage.reasoningOutputTokens !== undefined) parts.push(`Reasoning ${usage.reasoningOutputTokens}`);
+  if (usage.cacheHitInputTokens !== undefined) parts.push(`Cache hit ${usage.cacheHitInputTokens}`);
+  if (usage.cacheMissInputTokens !== undefined) parts.push(`Cache miss ${usage.cacheMissInputTokens}`);
+  return parts.join(' · ');
+}
+
 function ChatAssistantMessage({ message, index, onStop }: {
   message: Extract<ChatMessage, { role: 'assistant' }>;
   index: number;
@@ -230,7 +241,7 @@ function ChatAssistantMessage({ message, index, onStop }: {
       )}
       {terminal && turn.usage && (
         <p className="chat-turn-usage" data-testid="chat-turn-usage">
-          Input {turn.usage.inputTokens} · Output {turn.usage.outputTokens}
+          {formatUsageMetering(turn.usage)}
         </p>
       )}
       {turn.status === 'completed' && (

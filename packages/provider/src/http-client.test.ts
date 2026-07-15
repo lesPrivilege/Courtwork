@@ -46,7 +46,7 @@ describe('sendChatCompletion — happy path', () => {
     expect(result).toEqual({
       content: 'Hello',
       reasoningContent: 'thinking-more',
-      usage: { inputTokens: 10, outputTokens: 5 },
+      usage: { inputTokens: 10, outputTokens: 5, rawUsage: { prompt_tokens: 10, completion_tokens: 5 } },
     });
   });
 

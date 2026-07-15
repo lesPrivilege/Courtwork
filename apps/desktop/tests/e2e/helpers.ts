@@ -91,7 +91,7 @@ export async function installChatStream(page: Page, script: {
       for (const delta of input.chunks ?? [input.content ?? '完成']) {
         yield { type: 'content_delta', requestId, seq: seq++, delta };
       }
-      if (input.usage) yield { type: 'usage', requestId, seq: seq++, ...input.usage };
+      if (input.usage) yield { type: 'usage', requestId, seq: seq++, usage: input.usage };
       yield { type: 'completed', requestId, seq, finishReason: 'stop' };
     });
   }, script);

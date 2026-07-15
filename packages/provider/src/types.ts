@@ -39,7 +39,7 @@ export type ProviderStreamEvent =
   | { type: 'notice'; requestId: string; seq: number; notice: GenerationNotice }
   | { type: 'reasoning_delta'; requestId: string; seq: number; delta: string }
   | { type: 'content_delta'; requestId: string; seq: number; delta: string }
-  | { type: 'usage'; requestId: string; seq: number; inputTokens: number; outputTokens: number }
+  | { type: 'usage'; requestId: string; seq: number; usage: ProviderUsage }
   | { type: 'completed'; requestId: string; seq: number; finishReason: 'stop' | 'length' | 'content_filter' | 'unknown' }
   | { type: 'failed'; requestId: string; seq: number; kind: ProviderFailureKind; message: string; retryable: boolean };
 
@@ -62,9 +62,47 @@ export interface ProviderTransport {
   stream(request: ProviderTransportRequest): AsyncIterable<ProviderTransportEvent>;
 }
 
-export interface GenerationUsage {
-  inputTokens: number;
-  outputTokens: number;
+/**
+ * provider port 层计量真源（USAGE-LEDGER-1 架构冻结 2026-07-15，packages/provider/SPEC.md
+ * "架构冻结：通用可选槽位"）：全可选槽位，任一字段缺失一律语义 unknown，不得折叠为 0；
+ * 聚合/求和遇 unknown 必须显式传染而非跳过。归一化槽位是 rawUsage 的投影，不得反向改写
+ * raw。通用槽位扩展需架构重新拍板，profile 内映射调整不需要。
+ */
+export interface ProviderUsage {
+  /** 现有口径不变：输入 token（缓存命中与未命中之和）。 */
+  inputTokens?: number;
+  /** 现有口径不变：输出 token（含 reasoning）。 */
+  outputTokens?: number;
+  /** 输入侧缓存命中分账（DeepSeek prompt_cache_hit_tokens，由具名 profile 映射）。 */
+  cacheHitInputTokens?: number;
+  /** 输入侧缓存未命中分账（DeepSeek prompt_cache_miss_tokens，由具名 profile 映射）。 */
+  cacheMissInputTokens?: number;
+  /** 推理 token（DeepSeek completion_tokens_details.reasoning_tokens，由 profile 映射）。 */
+  reasoningOutputTokens?: number;
+  /** provider 原始 usage 对象原样留存，是计量真源；归一化槽位只是它的投影，不得反向改写它。 */
+  rawUsage?: unknown;
+}
+
+/**
+ * 具名 profile 从 raw usage 投影出的 provider 专属槽位（input/output 走通用归一，不在此列）。
+ * profile 无法可信投影某槽位时不设该键（保持 unknown），绝不折叠成 0。
+ */
+export type ProviderUsageSlots = Pick<
+  ProviderUsage,
+  'cacheHitInputTokens' | 'cacheMissInputTokens' | 'reasoningOutputTokens'
+>;
+
+/**
+ * 派生估价判别式（USAGE-LEDGER-1 架构冻结 2026-07-15）：与原始计量分开保存、互不覆盖；
+ * 历史记录不得用新价目表重算。priceTableVersion/effectiveAt 锁定所用价目表版本，
+ * assumptions 记录建模口径（缓存命中未单独计价、RMB→USD 近似汇率等）。
+ */
+export interface CostEstimate {
+  readonly kind: 'estimate';
+  readonly usd: number;
+  readonly priceTableVersion: string;
+  readonly effectiveAt: string;
+  readonly assumptions: string[];
 }
 
 /** provider quirk 触发的可呈现调整：禁止兼容性逻辑静默改变用户所选档位。 */
@@ -80,8 +118,8 @@ export interface GenerationResponse {
   /** 归一化后的思考/推理内容（docs/architecture/system.md quirk③：reasoning_content 等字段名归一）。 */
   reasoningContent?: string;
   /** 真实 provider 才会填充；ScriptedProvider 与假 provider 缺省不填，RuntimeGuard.checkUsd
-   * 在 usage 缺失时不做任何计价判断（诚实跳过，不是当作零成本）。 */
-  usage?: GenerationUsage;
+   * 在 usage 缺失时不做任何计价判断（诚实跳过，不是当作零成本）。全可选槽位见 ProviderUsage。 */
+  usage?: ProviderUsage;
   /** wire 兼容性调整，供 UI chip/事件层轻提示；缺省代表未调整。 */
   notices?: GenerationNotice[];
 }

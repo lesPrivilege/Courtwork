@@ -1,7 +1,7 @@
 import type {
   GenerationNotice,
-  GenerationUsage,
   ProviderFailureKind,
+  ProviderUsage,
 } from '@courtwork/provider/types';
 import type { ResolvedSourceAnchor } from '@courtwork/schemas';
 
@@ -42,7 +42,7 @@ type ProviderTurnEvent =
       providerRequestId: string;
       assistantMessage: string;
       reasoning: TurnReasoning;
-      usage?: GenerationUsage;
+      usage?: ProviderUsage;
       notices?: GenerationNotice[];
       finishReason: 'stop' | 'length' | 'content_filter' | 'unknown';
     })
@@ -52,7 +52,7 @@ type ProviderTurnEvent =
       failure: TurnFailure;
       partialAssistantMessage?: string;
       reasoning: TurnReasoning;
-      usage?: GenerationUsage;
+      usage?: ProviderUsage;
       notices?: GenerationNotice[];
     });
 
@@ -118,7 +118,7 @@ interface PersistedTurnBase {
   providerId: string;
   modelId: string;
   reasoning: TurnReasoning;
-  usage?: GenerationUsage;
+  usage?: ProviderUsage;
   notices?: GenerationNotice[];
 }
 

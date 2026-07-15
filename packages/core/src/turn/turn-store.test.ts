@@ -38,6 +38,31 @@ describe('createFileTurnStore', () => {
     }
   });
 
+  it('round-trips the extended usage projection (cache/reasoning slots + rawUsage) without dropping or corrupting it', () => {
+    // USAGE-LEDGER-1：drift 门必须接受并原样回放全部可选槽位与 rawUsage（计量真源），
+    // 旧 isUsage 只认 input/output 两键 → 本测先红。
+    const withFullUsage: PersistedTurn = {
+      ...completed,
+      turnId: 'turn-usage',
+      usage: {
+        inputTokens: 100,
+        outputTokens: 50,
+        cacheHitInputTokens: 80,
+        cacheMissInputTokens: 20,
+        reasoningOutputTokens: 30,
+        rawUsage: { prompt_tokens: 100, completion_tokens: 50, prompt_cache_hit_tokens: 80, prompt_cache_miss_tokens: 20 },
+      },
+    };
+    const directory = mkdtempSync(join(tmpdir(), 'courtwork-turn-'));
+    const filePath = join(directory, 'turns.jsonl');
+    try {
+      createFileTurnStore(filePath).save(withFullUsage);
+      expect(createFileTurnStore(filePath).get('turn-usage')).toEqual(withFullUsage);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
   it('rejects duplicate turn ids instead of overwriting immutable history', () => {
     const directory = mkdtempSync(join(tmpdir(), 'courtwork-turn-'));
     const filePath = join(directory, 'turns.jsonl');

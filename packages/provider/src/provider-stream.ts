@@ -2,6 +2,8 @@ import type {
   ProviderFailureKind,
   ProviderStreamEvent,
   ProviderTransportEvent,
+  ProviderUsage,
+  ProviderUsageSlots,
 } from './types.js';
 
 export interface ProviderStreamContext {
@@ -9,6 +11,9 @@ export interface ProviderStreamContext {
   providerId: string;
   modelId: string;
   reasoningFieldCandidates: readonly string[];
+  /** 具名 profile 的 provider 专属 usage 槽位映射（cache hit/miss、reasoning）。缺省仅走通用
+   * input/output 归一。input/output 与 rawUsage 由通用归一负责，与本映射正交。 */
+  mapUsage?: (rawUsage: unknown) => ProviderUsageSlots;
   signal?: AbortSignal;
 }
 
@@ -82,11 +87,15 @@ function finishReason(value: unknown): 'stop' | 'length' | 'content_filter' | 'u
 type ParsedPayload = {
   reasoning: string[];
   content: string[];
-  usage?: { inputTokens: number; outputTokens: number };
+  usage?: ProviderUsage;
   finishReason?: 'stop' | 'length' | 'content_filter' | 'unknown';
 };
 
-function parsePayload(raw: string, candidates: readonly string[]): ParsedPayload {
+function parsePayload(
+  raw: string,
+  candidates: readonly string[],
+  mapUsage?: (rawUsage: unknown) => ProviderUsageSlots,
+): ParsedPayload {
   let value: unknown;
   try {
     value = JSON.parse(raw);
@@ -134,7 +143,15 @@ function parsePayload(raw: string, candidates: readonly string[]): ParsedPayload
     if (typeof usage.prompt_tokens !== 'number' || typeof usage.completion_tokens !== 'number') {
       throw new StreamViolation('invalid_response', 'usage token 不是数字');
     }
-    output.usage = { inputTokens: usage.prompt_tokens, outputTokens: usage.completion_tokens };
+    // 通用归一：input/output（现有口径不变）+ rawUsage 原样留存（计量真源，不丢弃 cache/reasoning）。
+    // provider 专属 cache/reasoning 槽位由具名 profile 的 mapUsage 投影，与通用归一正交。
+    const projected: ProviderUsage = {
+      inputTokens: usage.prompt_tokens,
+      outputTokens: usage.completion_tokens,
+      rawUsage: record.usage,
+    };
+    if (mapUsage) Object.assign(projected, mapUsage(record.usage));
+    output.usage = projected;
   }
   return output;
 }
@@ -172,7 +189,7 @@ export async function* normalizeProviderTransport(
         continue;
       }
       if (done) throw new StreamViolation('protocol', '服务商在终态后继续发送数据');
-      const parsed = parsePayload(raw, context.reasoningFieldCandidates);
+      const parsed = parsePayload(raw, context.reasoningFieldCandidates, context.mapUsage);
       for (const delta of parsed.reasoning) {
         yield { type: 'reasoning_delta', requestId: context.requestId, seq: seq++, delta };
       }
@@ -181,7 +198,7 @@ export async function* normalizeProviderTransport(
         yield { type: 'content_delta', requestId: context.requestId, seq: seq++, delta };
       }
       if (parsed.usage) {
-        yield { type: 'usage', requestId: context.requestId, seq: seq++, ...parsed.usage };
+        yield { type: 'usage', requestId: context.requestId, seq: seq++, usage: parsed.usage };
       }
       if (parsed.finishReason) observedFinishReason = parsed.finishReason;
     }

@@ -48,7 +48,7 @@ async function* successfulEvents(requestId: string, reasoning = ''): AsyncIterab
   if (reasoning) yield { type: 'reasoning_delta', requestId, seq: seq++, delta: reasoning };
   yield { type: 'content_delta', requestId, seq: seq++, delta: '第一段' };
   yield { type: 'content_delta', requestId, seq: seq++, delta: '第二段' };
-  yield { type: 'usage', requestId, seq: seq++, inputTokens: 7, outputTokens: 5 };
+  yield { type: 'usage', requestId, seq: seq++, usage: { inputTokens: 7, outputTokens: 5 } };
   yield { type: 'completed', requestId, seq, finishReason: 'stop' };
 }
 

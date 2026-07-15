@@ -10,7 +10,7 @@ import {
   type TurnReplay,
   type TurnStore,
 } from '@courtwork/core/turn-protocol';
-import type { GenerationNotice, GenerationUsage } from '@courtwork/provider/types';
+import type { GenerationNotice, ProviderUsage } from '@courtwork/provider/types';
 
 export const TURN_JOURNAL_STORAGE_KEY = 'courtwork.turn-journal.v1';
 
@@ -22,7 +22,7 @@ export interface TurnProjection {
   status: 'idle' | 'running' | 'completed' | 'failed';
   assistantMessage: string;
   reasoning: { status: 'pending' } | TurnReasoning;
-  usage?: GenerationUsage;
+  usage?: ProviderUsage;
   notices?: GenerationNotice[];
   finishReason?: 'stop' | 'length' | 'content_filter' | 'unknown';
   failure?: TurnFailure;

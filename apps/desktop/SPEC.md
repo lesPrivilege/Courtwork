@@ -1200,3 +1200,18 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 - `chrome-in-card.spec.ts` 先在旧纯文字实现上以“SVG 期望 1、实际 0”稳定证红，再锁定：锁定区恰一枚 SVG、无 `img`/`rect`、标记在文字左侧、尺寸 `16–18px`、间距 `6–8px`、垂直中心误差不超过 `1px`，且锁定区与 SVG 均无背景/边框/圆角/阴影。
 - 隔离预览 `http://127.0.0.1:1532`、`900px @1x`、`prefers-reduced-motion: reduce`、截图动画禁用；证据位于 `/tmp/courtwork-brand-1-1180.png`（最小视口按既有响应式规则收起 CaseRail，SHA-256 `eac388e81014eaf5982c0ecde5c95b1d8b8615d8481b863dc09dab5155ec5fb7`）与 `/tmp/courtwork-brand-1-1440.png`（展开态品牌锁定区，SHA-256 `331acb299e5a61dbfb3235d441a19292e6f7cda563f8ad4f06fba2493a77dce9`）。
 - 最终门禁：全仓 build 12/12 workspace、ESLint 通过、Vitest 106 files / 856 tests；desktop 静态门禁全绿且 Playwright 198 条首轮四 worker 为 195 绿，失败的 follow-scroll / archive popover / chat hierarchy 三项均与本单文件无交集，换独立端口单 worker 完整复跑三文件 29/29 通过。BRAND-1 新契约在两轮均通过。
+
+## USAGE-LEDGER-1 · 用量消费点跟进新形状（2026-07-15，跨层留痕）
+
+权威在 `packages/provider/SPEC.md`「架构冻结：通用可选槽位（2026-07-15 拍板）」。desktop 只跟进消费形状，不做计费 UI/报表：
+
+- `src/provider/turn-protocol-client.ts`：`TurnProjection.usage` 由 `GenerationUsage` 改为 `ProviderUsage`；
+  `usage` 流事件承载 `ProviderUsage`（`projectTurn` 原样转发 `event.usage`，含 rawUsage 与可选槽位）。
+- `src/App.tsx`：`chat-turn-usage` 最小展示改为 `formatUsageMetering`——缺失槽位显示为「未知」而非 0，
+  cache/reasoning 分账仅在有值时追加，不做 UI 重设计。
+- 反例：`turn-protocol-client.test.ts` / `chat-client.test.ts` 的 usage 事件与投影断言随新形状更新
+  （wire 归一化后 `usage` 携 rawUsage）。
+- 门禁：desktop 168 unit 全绿；隔离端口（`COURTWORK_E2E_PORT`）完整 Playwright 210 passed。
+  遗留 2 例失败 `rp210.spec.ts:43` 与 `system-open.spec.ts:12`（均卡在 `confirmDemoReview` 等 `output-docx-card`，
+  需真实 output 写入桥/Tauri 宿主，纯 vite e2e 环境缺失）——在**净基线 `02c1e52`** 独立 worktree 同样确定性
+  失败，证与 USAGE-LEDGER-1 无关；本单未新增任何 e2e 失败。

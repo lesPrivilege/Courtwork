@@ -3,7 +3,7 @@ import { applyReasoningRoute, type ProviderQuirkProfile } from './quirk-profile.
 import type { ChatMessage, HttpClientConfig, ResponseFormat } from './http-client.js';
 import { sendChatCompletion } from './http-client.js';
 import { ProviderInvalidResponseError, ProviderResponseFormatUnsupportedError } from './errors.js';
-import type { GenerationNotice } from './types.js';
+import type { GenerationNotice, ProviderUsage } from './types.js';
 
 function stripMarkdownFence(text: string): string {
   const trimmed = text.trim();
@@ -37,7 +37,7 @@ export interface GenerateStructuredParams {
 export interface GenerateStructuredResult {
   content: string;
   reasoningContent?: string;
-  usage?: { inputTokens: number; outputTokens: number };
+  usage?: ProviderUsage;
   notices?: GenerationNotice[];
 }
 

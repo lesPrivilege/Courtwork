@@ -30,7 +30,7 @@ export function createScriptedProvider(id: string, modelId: string, script: Gene
       }
       if (response.reasoningContent) yield { type: 'reasoning_delta' as const, requestId, seq: seq++, delta: response.reasoningContent };
       if (response.content) yield { type: 'content_delta' as const, requestId, seq: seq++, delta: response.content };
-      if (response.usage) yield { type: 'usage' as const, requestId, seq: seq++, ...response.usage };
+      if (response.usage) yield { type: 'usage' as const, requestId, seq: seq++, usage: response.usage };
       yield { type: 'completed' as const, requestId, seq, finishReason: 'stop' as const };
     },
     async generate(request): Promise<GenerationResponse> {
@@ -42,7 +42,7 @@ export function createScriptedProvider(id: string, modelId: string, script: Gene
       for await (const event of provider.stream(request, { requestId })) {
         if (event.type === 'content_delta') content += event.delta;
         else if (event.type === 'reasoning_delta') reasoningContent += event.delta;
-        else if (event.type === 'usage') usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+        else if (event.type === 'usage') usage = event.usage;
         else if (event.type === 'notice') notices.push(event.notice);
       }
       return {

@@ -12,7 +12,7 @@ import { applyJsonPointer } from '../revision/json-pointer.js';
 import { deriveTodoSnapshot } from './todo-snapshot.js';
 import { createRuntimeGuard, type RuntimeGuard, type RuntimeLimits } from './runtime-limits.js';
 import { estimateCostUsd } from '@courtwork/provider/pricing';
-import type { GenerationNotice } from '@courtwork/provider/types';
+import type { GenerationNotice, ProviderUsage } from '@courtwork/provider/types';
 import { assembleScenarioRequest } from '../assembly/assemble.js';
 import type { MaterialInput } from '../assembly/segments.js';
 import {
@@ -180,13 +180,25 @@ function layersFromMaterials(materials: MaterialInput[]): MaterialTextLayer[] {
     .map((material) => ({ fileId: material.fileId, blocks: material.blocks! }));
 }
 
-function sumUsage(
-  a?: { inputTokens: number; outputTokens: number },
-  b?: { inputTokens: number; outputTokens: number },
-): { inputTokens: number; outputTokens: number } | undefined {
+function addUsageSlot(x: number | undefined, y: number | undefined): number | undefined {
+  // unknown 传染：任一操作数未知则和未知，绝不用单边已知值冒充和，也不折叠为 0。
+  return x === undefined || y === undefined ? undefined : x + y;
+}
+
+/**
+ * 两遍生成计量求和（USAGE-LEDGER-1）。数值槽位遇 unknown 显式传染；派生聚合不合成 rawUsage
+ * ——聚合是派生总量，不存在单一 provider 原始响应真源。仅一侧计量在场时原样返回该侧。
+ */
+export function sumUsage(a?: ProviderUsage, b?: ProviderUsage): ProviderUsage | undefined {
   if (!a) return b;
   if (!b) return a;
-  return { inputTokens: a.inputTokens + b.inputTokens, outputTokens: a.outputTokens + b.outputTokens };
+  return {
+    inputTokens: addUsageSlot(a.inputTokens, b.inputTokens),
+    outputTokens: addUsageSlot(a.outputTokens, b.outputTokens),
+    cacheHitInputTokens: addUsageSlot(a.cacheHitInputTokens, b.cacheHitInputTokens),
+    cacheMissInputTokens: addUsageSlot(a.cacheMissInputTokens, b.cacheMissInputTokens),
+    reasoningOutputTokens: addUsageSlot(a.reasoningOutputTokens, b.reasoningOutputTokens),
+  };
 }
 
 function webCryptoRandomUUID(): string {
@@ -282,7 +294,7 @@ async function generateArtifact(
   guard: RuntimeGuard,
 ): Promise<{
   artifact: unknown;
-  usage?: { inputTokens: number; outputTokens: number };
+  usage?: ProviderUsage;
   notices?: GenerationNotice[];
   citationStats?: CitationStats;
 }> {
@@ -332,8 +344,9 @@ async function generateArtifact(
       attempt,
     }, assembled.request, deps);
     guard.checkTime();
-    const costUsd = estimateCostUsd(turn.providerId, turn.modelId, turn.usage);
-    if (costUsd !== undefined) guard.checkUsd(costUsd);
+    // 派生估价与原始计量分开：只取版本化 estimate 的美元数交给护栏，不改写 turn.usage 计量真源。
+    const estimate = estimateCostUsd(turn.providerId, turn.modelId, turn.usage);
+    if (estimate !== undefined) guard.checkUsd(estimate.usd);
     let parsed: unknown;
     try {
       parsed = JSON.parse(turn.assistantMessage);

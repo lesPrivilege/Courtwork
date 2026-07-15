@@ -119,13 +119,23 @@ function isInteractionAnswer(value: unknown): value is InteractionAnswer {
   return value.kind === 'skip' && hasOnlyKeys(value, ['kind']);
 }
 
+function isUsageSlot(value: unknown): boolean {
+  // 全可选槽位：缺失（undefined）语义 unknown，合法；出现时必须是非负整数。
+  return value === undefined || (Number.isInteger(value) && Number(value) >= 0);
+}
+
 function isUsage(value: unknown): boolean {
-  return isRecord(value)
-    && hasOnlyKeys(value, ['inputTokens', 'outputTokens'])
-    && Number.isInteger(value.inputTokens)
-    && Number(value.inputTokens) >= 0
-    && Number.isInteger(value.outputTokens)
-    && Number(value.outputTokens) >= 0;
+  if (!isRecord(value)) return false;
+  // USAGE-LEDGER-1：接受全部可选归一化槽位与 rawUsage（任意 JSON 计量真源，形状不校验，
+  // 只需能 round-trip），拒绝契约外的顶层字段。
+  if (!hasOnlyKeys(value, [
+    'inputTokens', 'outputTokens', 'cacheHitInputTokens', 'cacheMissInputTokens', 'reasoningOutputTokens', 'rawUsage',
+  ])) return false;
+  return isUsageSlot(value.inputTokens)
+    && isUsageSlot(value.outputTokens)
+    && isUsageSlot(value.cacheHitInputTokens)
+    && isUsageSlot(value.cacheMissInputTokens)
+    && isUsageSlot(value.reasoningOutputTokens);
 }
 
 function isNotice(value: unknown): boolean {

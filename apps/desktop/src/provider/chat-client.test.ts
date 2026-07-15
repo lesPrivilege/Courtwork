@@ -44,7 +44,7 @@ describe('chat 面真 API 客户端（Rust 窄面代理 + core 组装复用）',
 
     expect(result.projection.assistantMessage).toBe('好的');
     expect(result.projection.reasoning).toEqual({ status: 'present', content: '想' });
-    expect(result.projection.usage).toEqual({ inputTokens: 3, outputTokens: 2 });
+    expect(result.projection.usage).toEqual({ inputTokens: 3, outputTokens: 2, rawUsage: { prompt_tokens: 3, completion_tokens: 2 } });
     expect(captured.url).toBe('https://api.deepseek.com/v1/chat/completions');
     // #41：deep 档经 thinking 请求字段，模型名 = 用户所选（不被路由覆盖）
     expect(captured.body).toMatchObject({

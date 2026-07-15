@@ -141,7 +141,7 @@ describe('createOpenAICompatibleProvider — generate() end-to-end', () => {
     const response = await provider.generate({ messages: [{ role: 'user', content: 'hi' }], responseSchema: z.object({ a: z.number() }) });
     expect(response.content).toBe('{"a":1}');
     expect(response.reasoningContent).toBe('because');
-    expect(response.usage).toEqual({ inputTokens: 3, outputTokens: 2 });
+    expect(response.usage).toEqual({ inputTokens: 3, outputTokens: 2, rawUsage: { prompt_tokens: 3, completion_tokens: 2 } });
   });
 
   it('propagates plain-text generation (no responseSchema) without attempting to parse JSON', async () => {

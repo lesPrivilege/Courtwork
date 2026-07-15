@@ -6,6 +6,7 @@ import type {
   ProviderStreamEvent,
   ProviderTransport,
   ProviderTransportEvent,
+  ProviderUsage,
 } from './types.js';
 
 export interface ChatMessage {
@@ -29,7 +30,7 @@ export interface ChatCompletionRequestBody {
 export interface ChatCompletionResult {
   content: string;
   reasoningContent?: string;
-  usage?: { inputTokens: number; outputTokens: number };
+  usage?: ProviderUsage;
 }
 
 export interface HttpClientConfig {
@@ -142,6 +143,7 @@ export function streamChatCompletion(
       providerId: profile.providerId,
       modelId: body.model,
       reasoningFieldCandidates: profile.reasoningFieldCandidates,
+      ...(profile.mapUsage ? { mapUsage: profile.mapUsage } : {}),
       signal: options.signal,
     },
   );
@@ -178,7 +180,7 @@ export async function sendChatCompletion(
     for await (const event of streamChatCompletion(profile, body, config)) {
       if (event.type === 'content_delta') content += event.delta;
       else if (event.type === 'reasoning_delta') reasoningContent += event.delta;
-      else if (event.type === 'usage') usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+      else if (event.type === 'usage') usage = event.usage;
       else if (event.type === 'failed') failure = event;
     }
     if (!failure) return { content, reasoningContent: reasoningContent || undefined, usage };

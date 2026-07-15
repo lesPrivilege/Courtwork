@@ -318,3 +318,22 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 - **assert-no-demo-in-harness**（src/no-demo-in-harness.test.ts，与 assert-no-demo-in-real 成对，用户点名的防过拟合隔离审计）：机器层（composition/acceptance 白名单外）零 demo 素材指纹（夹具文件名/样板案主体/案号/装配点标识 11 枚）、零 fixture 特调分支（id 字段×字符串字面量比较的正则指纹）、零 golden 考点引语内嵌（docx 档 + PDF 档共 14 条考点住 demo/legal 包与验收层）；防空转自检（扫描器对植入样本必报警）+ 成对/注入点自证。施工期变异实证 2/2 红：resolver 植入素材名、executor 植入 fileId 字面分支，均被咬，还原后全绿。
 - **材料装配增量**（src/composition/demo-assembly.ts）：buildLegalDemoRunRuntime()（PDF 档剧本回放 S3_PDF_DOSSIER_DRAFT + party-verify 查对方主体临江精铸）+ LEGAL_DEMO_MATERIAL_PATHS（生成 PDF 原件/docx 修订孪生/信用查询单）。剧本与考点住 @courtwork/legal demo 包（见 legal SPEC）；docx 孪生生成器住 demo-data（见 demo-data SPEC）。
 - **确定性边界（目击记录）**：system 侧四段跨跑字节稳定；user 侧语料段内嵌工具信封，checkedAt 为核验时刻证词随真实时钟走——跨跑 user wire 哈希不同是正确行为（组装器对相同输入的字节稳定由 assembly golden 守护）。
+
+## USAGE-LEDGER-1 · provider 计量落入 Turn 持久与聚合（2026-07-15，跨层留痕）
+
+权威在 `packages/provider/SPEC.md`「架构冻结：通用可选槽位（2026-07-15 拍板）」。本单由 provider 会话主导，
+在 core 的落点如下（契约随 `@courtwork/provider` 的 `ProviderUsage` 走，core 不定义第二份形状）：
+
+- `src/turn/types.ts`：`turn_completed` / `turn_failed` 事件与 `PersistedTurn` 的 `usage?` 由 `GenerationUsage`
+  改为 `ProviderUsage`（全可选槽位 + rawUsage），加法式扩展，不改其余字段。
+- `src/turn/turn-runner.ts`：`usage` 流事件改为承载 `ProviderUsage`；`validUsage` 校验每个可选数值槽位为
+  非负整数、顶层不得出现契约外字段、rawUsage 任意 JSON 不校验形状；缺失槽位语义 unknown（不折叠 0）。
+  失败/取消竞态：终态前到达的 usage 原样进 failed `PersistedTurn`，终态后到达的 usage 仍判 `invalid_response`。
+- `src/turn/turn-store.ts`：`isUsage` drift 门接受全部可选槽位与 rawUsage 并 round-trip，拒绝契约外顶层字段。
+- `src/scenario-executor/executor.ts`：`sumUsage` 导出并支持全槽位，遇 unknown 显式传染（不冒充单边已知值、
+  不折叠 0），派生聚合不合成 rawUsage；`estimateCostUsd` 消费点改用判别式 `CostEstimate` 的 `.usd` 交护栏，
+  原始计量 `turn.usage` 不被改写。
+- 反例：`turn-runner.test.ts`（全槽位持久/失败竞态/终态后 usage/槽位非负校验/缺字段不折叠 0）、
+  `turn-store.test.ts`（rawUsage + 槽位 round-trip）、`scenario-executor/sum-usage.test.ts`（unknown 传染）先红后绿。
+- 门禁：全仓 `pnpm -r build`、`pnpm lint`、`pnpm test`（root 1175）全绿；core 定向 turn + scenario-executor 全绿。
+  不更新 `docs/status/current.md`。

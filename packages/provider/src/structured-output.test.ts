@@ -301,6 +301,6 @@ describe('generateStructured — returns the fence-stripped content, not the raw
     // 锁定 { ...result, content: cleaned } 的 spread 不会漏掉这两个字段——
     // 这正是之前那个 bug 的同一类回归（success 分支返回值丢字段）。
     expect(result.reasoningContent).toBe('because');
-    expect(result.usage).toEqual({ inputTokens: 3, outputTokens: 2 });
+    expect(result.usage).toEqual({ inputTokens: 3, outputTokens: 2, rawUsage: { prompt_tokens: 3, completion_tokens: 2 } });
   });
 });

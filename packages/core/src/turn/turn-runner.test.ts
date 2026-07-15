@@ -37,7 +37,7 @@ function baseEvents(requestId = 'request-1'): ProviderStreamEvent[] {
     { type: 'reasoning_delta', requestId, seq: 1, delta: '先核对' },
     { type: 'content_delta', requestId, seq: 2, delta: '结' },
     { type: 'content_delta', requestId, seq: 3, delta: '论' },
-    { type: 'usage', requestId, seq: 4, inputTokens: 12, outputTokens: 5 },
+    { type: 'usage', requestId, seq: 4, usage: { inputTokens: 12, outputTokens: 5 } },
     { type: 'completed', requestId, seq: 5, finishReason: 'stop' },
   ];
 }
@@ -468,7 +468,7 @@ describe('runTurn', () => {
       label: 'negative usage',
       events: [
         { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
-        { type: 'usage', requestId: 'request-1', seq: 1, inputTokens: -1, outputTokens: 1 },
+        { type: 'usage', requestId: 'request-1', seq: 1, usage: { inputTokens: -1, outputTokens: 1 } },
         { type: 'content_delta', requestId: 'request-1', seq: 2, delta: '正文' },
         { type: 'completed', requestId: 'request-1', seq: 3, finishReason: 'stop' },
       ] satisfies ProviderStreamEvent[],
@@ -477,8 +477,8 @@ describe('runTurn', () => {
       label: 'duplicate usage',
       events: [
         { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
-        { type: 'usage', requestId: 'request-1', seq: 1, inputTokens: 1, outputTokens: 1 },
-        { type: 'usage', requestId: 'request-1', seq: 2, inputTokens: 1, outputTokens: 1 },
+        { type: 'usage', requestId: 'request-1', seq: 1, usage: { inputTokens: 1, outputTokens: 1 } },
+        { type: 'usage', requestId: 'request-1', seq: 2, usage: { inputTokens: 1, outputTokens: 1 } },
         { type: 'content_delta', requestId: 'request-1', seq: 3, delta: '正文' },
         { type: 'completed', requestId: 'request-1', seq: 4, finishReason: 'stop' },
       ] satisfies ProviderStreamEvent[],
@@ -553,5 +553,83 @@ describe('runTurn', () => {
 
     expect(record).toMatchObject({ status: 'failed', failure: { kind: 'invalid_response' } });
     expect(published).toEqual([expect.objectContaining({ type: 'turn_failed', seq: 0 })]);
+  });
+});
+
+describe('runTurn usage metering (USAGE-LEDGER-1)', () => {
+  const fullUsage = {
+    inputTokens: 100,
+    outputTokens: 50,
+    cacheHitInputTokens: 80,
+    cacheMissInputTokens: 20,
+    reasoningOutputTokens: 30,
+    rawUsage: { prompt_tokens: 100, completion_tokens: 50, prompt_cache_hit_tokens: 80 },
+  };
+
+  it('persists the full usage projection (cache/reasoning slots + rawUsage) verbatim on a completed turn', async () => {
+    const provider = providerFrom([
+      { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
+      { type: 'content_delta', requestId: 'request-1', seq: 1, delta: '结论' },
+      { type: 'usage', requestId: 'request-1', seq: 2, usage: fullUsage },
+      { type: 'completed', requestId: 'request-1', seq: 3, finishReason: 'stop' },
+    ]);
+    const record = await runTurn({
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request, store: createMemoryTurnStore(),
+    });
+    expect(record).toMatchObject({ status: 'completed', usage: fullUsage });
+  });
+
+  it('preserves pre-terminal usage on a provider-failed turn (failure/cancel race keeps metering)', async () => {
+    const provider = providerFrom([
+      { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
+      { type: 'content_delta', requestId: 'request-1', seq: 1, delta: '部分' },
+      { type: 'usage', requestId: 'request-1', seq: 2, usage: fullUsage },
+      { type: 'failed', requestId: 'request-1', seq: 3, kind: 'network', message: 'dropped', retryable: true },
+    ]);
+    const record = await runTurn({
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request, store: createMemoryTurnStore(),
+    });
+    expect(record).toMatchObject({ status: 'failed', failure: { kind: 'network' }, usage: fullUsage });
+  });
+
+  it('rejects a usage event that arrives after the completed terminal as invalid_response', async () => {
+    const provider = providerFrom([
+      { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
+      { type: 'content_delta', requestId: 'request-1', seq: 1, delta: '结论' },
+      { type: 'completed', requestId: 'request-1', seq: 2, finishReason: 'stop' },
+      { type: 'usage', requestId: 'request-1', seq: 3, usage: { inputTokens: 1, outputTokens: 1 } },
+    ]);
+    const record = await runTurn({
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request, store: createMemoryTurnStore(),
+    });
+    expect(record).toMatchObject({ status: 'failed', failure: { kind: 'invalid_response' } });
+  });
+
+  it('rejects a usage event whose cache/reasoning slot is not a non-negative integer', async () => {
+    const provider = providerFrom([
+      { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
+      { type: 'usage', requestId: 'request-1', seq: 1, usage: { inputTokens: 5, outputTokens: 5, reasoningOutputTokens: -1 } },
+      { type: 'content_delta', requestId: 'request-1', seq: 2, delta: '正文' },
+      { type: 'completed', requestId: 'request-1', seq: 3, finishReason: 'stop' },
+    ]);
+    const record = await runTurn({
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request, store: createMemoryTurnStore(),
+    });
+    expect(record).toMatchObject({ status: 'failed', failure: { kind: 'invalid_response' } });
+  });
+
+  it('accepts a missing-field usage (unknown slots stay unknown, never coerced to 0)', async () => {
+    const partial = { outputTokens: 50, reasoningOutputTokens: 30 };
+    const provider = providerFrom([
+      { type: 'started', requestId: 'request-1', seq: 0, providerId: 'provider-a', modelId: 'model-a' },
+      { type: 'content_delta', requestId: 'request-1', seq: 1, delta: '结论' },
+      { type: 'usage', requestId: 'request-1', seq: 2, usage: partial },
+      { type: 'completed', requestId: 'request-1', seq: 3, finishReason: 'stop' },
+    ]);
+    const record = await runTurn({
+      turnId: 'turn-1', providerRequestId: 'request-1', provider, request, store: createMemoryTurnStore(),
+    });
+    expect(record).toMatchObject({ status: 'completed', usage: partial });
+    expect(record.status === 'completed' && record.usage?.inputTokens).toBeUndefined();
   });
 });

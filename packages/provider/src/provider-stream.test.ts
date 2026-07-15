@@ -124,3 +124,48 @@ describe('incremental provider transport normalization', () => {
     ]);
   });
 });
+
+function usageEventOf(events: ProviderStreamEvent[]): Extract<ProviderStreamEvent, { type: 'usage' }> {
+  const event = events.find((candidate) => candidate.type === 'usage');
+  if (!event || event.type !== 'usage') throw new Error('no usage event');
+  return event;
+}
+
+describe('usage normalization preserves raw metering and provider slots', () => {
+  it('preserves the raw usage object verbatim and maps generic input/output', async () => {
+    // rawUsage 是计量真源：即便 context 未提供 provider 槽位映射，wire 里的 cache 分账字段
+    // 也必须原样留存在 rawUsage（现行归一化把它们丢弃 → 本测先红）。
+    const events = await collect(normalizeProviderTransport(transports(
+      { type: 'response_started', requestId: 'req-1', status: 200, contentType: 'text/event-stream' },
+      { type: 'chunk', requestId: 'req-1', bytes: bytes('data: {"choices":[{"delta":{"content":"x"}}]}\n\n') },
+      { type: 'chunk', requestId: 'req-1', bytes: bytes('data: {"choices":[],"usage":{"prompt_tokens":10,"completion_tokens":5,"prompt_cache_hit_tokens":8,"prompt_cache_miss_tokens":2}}\n\ndata: [DONE]\n\n') },
+      { type: 'end', requestId: 'req-1' },
+    ), context));
+    const usageEvent = usageEventOf(events);
+    expect(usageEvent.usage).toMatchObject({ inputTokens: 10, outputTokens: 5 });
+    expect(usageEvent.usage.rawUsage).toEqual({
+      prompt_tokens: 10, completion_tokens: 5, prompt_cache_hit_tokens: 8, prompt_cache_miss_tokens: 2,
+    });
+  });
+
+  it('applies the provider usage mapper to project cache/reasoning slots (no longer discarded)', async () => {
+    const mapUsage = (raw: unknown) => {
+      const record = raw as Record<string, number> & { completion_tokens_details?: { reasoning_tokens?: number } };
+      return {
+        cacheHitInputTokens: record.prompt_cache_hit_tokens,
+        cacheMissInputTokens: record.prompt_cache_miss_tokens,
+        reasoningOutputTokens: record.completion_tokens_details?.reasoning_tokens,
+      };
+    };
+    const events = await collect(normalizeProviderTransport(transports(
+      { type: 'response_started', requestId: 'req-1', status: 200, contentType: 'text/event-stream' },
+      { type: 'chunk', requestId: 'req-1', bytes: bytes('data: {"choices":[{"delta":{"content":"x"}}]}\n\n') },
+      { type: 'chunk', requestId: 'req-1', bytes: bytes('data: {"choices":[],"usage":{"prompt_tokens":10,"completion_tokens":5,"prompt_cache_hit_tokens":8,"prompt_cache_miss_tokens":2,"completion_tokens_details":{"reasoning_tokens":3}}}\n\ndata: [DONE]\n\n') },
+      { type: 'end', requestId: 'req-1' },
+    ), { ...context, mapUsage }));
+    const usageEvent = usageEventOf(events);
+    expect(usageEvent.usage).toMatchObject({
+      inputTokens: 10, outputTokens: 5, cacheHitInputTokens: 8, cacheMissInputTokens: 2, reasoningOutputTokens: 3,
+    });
+  });
+});

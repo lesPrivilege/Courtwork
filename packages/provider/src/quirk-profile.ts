@@ -1,3 +1,5 @@
+import type { ProviderUsageSlots } from './types.js';
+
 export type ResponseFormatTier = 'json_schema_strict' | 'json_schema' | 'json_object' | 'unsupported';
 export type ReasoningLevel = 'standard' | 'deep';
 export type ReasoningRoute =
@@ -31,6 +33,51 @@ export interface ProviderQuirkProfile {
   readonly parameterCompatibility: {
     readonly structuredOutputWithDeepReasoning: 'supported' | 'downgrade_to_standard';
   };
+  /**
+   * provider 专属 usage 槽位映射（USAGE-LEDGER-1）：把 provider 原始 usage 对象投影为
+   * cache hit/miss、reasoning 槽位。input/output 走通用归一，不在此列。缺省（无此字段）
+   * 表示该 provider 只有通用 input/output 计量。provider 语义校验（如 hit+miss 与 prompt_tokens
+   * 的关系）只住这里，校验不符时不投影不可信槽位（保持 unknown），rawUsage 由上游原样留存。
+   */
+  readonly mapUsage?: (rawUsage: unknown) => ProviderUsageSlots;
+}
+
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0;
+}
+
+/**
+ * DeepSeek 原始 usage → provider 专属归一化槽位。语义校验（hit+miss 与 prompt_tokens 的关系）
+ * 只住此处：校验不符时不投影不可信的缓存分账（诚实保持 unknown），rawUsage 在上游原样留存，
+ * 此处不修改任何原始数字，也不折叠缺失为 0。
+ */
+export function mapDeepSeekUsage(rawUsage: unknown): ProviderUsageSlots {
+  if (!rawUsage || typeof rawUsage !== 'object' || Array.isArray(rawUsage)) return {};
+  const record = rawUsage as Record<string, unknown>;
+  const slots: {
+    cacheHitInputTokens?: number;
+    cacheMissInputTokens?: number;
+    reasoningOutputTokens?: number;
+  } = {};
+
+  const details = record.completion_tokens_details;
+  if (details && typeof details === 'object' && !Array.isArray(details)) {
+    const reasoning = (details as Record<string, unknown>).reasoning_tokens;
+    if (isNonNegativeInteger(reasoning)) slots.reasoningOutputTokens = reasoning;
+  }
+
+  const hit = record.prompt_cache_hit_tokens;
+  const miss = record.prompt_cache_miss_tokens;
+  const hitOk = isNonNegativeInteger(hit);
+  const missOk = isNonNegativeInteger(miss);
+  const prompt = record.prompt_tokens;
+  // 只有 hit 与 miss 都在场才能做和值校验；对不上 prompt_tokens 就整体不投影缓存分账。
+  if (hitOk && missOk && isNonNegativeInteger(prompt) && hit + miss !== prompt) {
+    return slots;
+  }
+  if (hitOk) slots.cacheHitInputTokens = hit;
+  if (missOk) slots.cacheMissInputTokens = miss;
+  return slots;
 }
 
 export function applyReasoningRoute(
@@ -64,5 +111,6 @@ export const DEEPSEEK_QUIRK_PROFILE: ProviderQuirkProfile = {
   // 模型名由用户所选直通，路由不再覆盖（#40 路由侧保证）。
   reasoningRoute: { kind: 'request_field', field: 'thinking', values: { standard: { type: 'disabled' }, deep: { type: 'enabled' } } },
   parameterCompatibility: { structuredOutputWithDeepReasoning: 'supported' },
+  mapUsage: mapDeepSeekUsage,
 };
 import { DEEPSEEK_CATALOG } from './catalog.generated.js';

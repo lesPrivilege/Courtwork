@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import { createDeepSeekProvider } from './openai-compatible-provider.js';
 import { estimateCostUsd } from './pricing-table.js';
-import type { Provider } from './types.js';
+import type { CostEstimate, Provider, ProviderUsage } from './types.js';
 
 export interface SmokeTarget {
   name: string;
@@ -38,9 +38,11 @@ const SmokeResponseSchema = z.object({ greeting: z.string().min(1) });
 
 export interface SmokeRunResult {
   greeting: string;
-  usage?: { inputTokens: number; outputTokens: number };
+  /** 归一化计量（含 rawUsage 原始 usage）；缺失槽位语义 unknown，不是 0。 */
+  usage?: ProviderUsage;
   reasoningLength?: number;
-  costUsd?: number;
+  /** 版本化派生估价；与 usage 原始计量分开留存。 */
+  costEstimate?: CostEstimate;
 }
 
 /** 真实发网络请求，验证一家 provider 端到端可用（含结构化输出往返）。不在单测里跑——
@@ -58,6 +60,6 @@ export async function runSmokeTest(target: SmokeTarget, apiKey: string, modelId:
     greeting: parsed.greeting,
     usage: response.usage,
     reasoningLength: response.reasoningContent?.length,
-    costUsd: estimateCostUsd(provider.id, provider.modelId, response.usage),
+    costEstimate: estimateCostUsd(provider.id, provider.modelId, response.usage),
   };
 }

@@ -85,7 +85,7 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
         }
         if (result.reasoningContent) yield { type: 'reasoning_delta', requestId, seq: seq++, delta: result.reasoningContent };
         if (result.content) yield { type: 'content_delta', requestId, seq: seq++, delta: result.content };
-        if (result.usage) yield { type: 'usage', requestId, seq: seq++, ...result.usage };
+        if (result.usage) yield { type: 'usage', requestId, seq: seq++, usage: result.usage };
         yield { type: 'completed', requestId, seq, finishReason: 'stop' };
         return;
       }
@@ -112,7 +112,7 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
       for await (const event of provider.stream(request)) {
         if (event.type === 'content_delta') content += event.delta;
         else if (event.type === 'reasoning_delta') reasoningContent += event.delta;
-        else if (event.type === 'usage') usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+        else if (event.type === 'usage') usage = event.usage;
         else if (event.type === 'notice') notices.push(event.notice);
         else if (event.type === 'failed') throw new Error(event.message);
       }

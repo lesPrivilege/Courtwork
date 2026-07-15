@@ -54,4 +54,32 @@ describe('createScriptedProvider', () => {
     await expect(aggregated.generate({ messages: [] })).resolves.toMatchObject({ notices: [notice] });
     expect(streamConsumptions).toBe(1);
   });
+
+  it('replays a complete usage projection (all slots + rawUsage) verbatim through stream and generate', async () => {
+    const usage = {
+      inputTokens: 100,
+      outputTokens: 50,
+      cacheHitInputTokens: 80,
+      cacheMissInputTokens: 20,
+      reasoningOutputTokens: 30,
+      rawUsage: { prompt_tokens: 100, completion_tokens: 50, prompt_cache_hit_tokens: 80 },
+    };
+    const provider = createScriptedProvider('demo-provider', 'fake-v1', [{ content: 'x', usage }]);
+    const events = [];
+    for await (const event of provider.stream({ messages: [] }, { requestId: 'r' })) events.push(event);
+    expect(events).toContainEqual({ type: 'usage', requestId: 'r', seq: 2, usage });
+
+    const aggregated = createScriptedProvider('demo-provider', 'fake-v1', [{ content: 'x', usage }]);
+    await expect(aggregated.generate({ messages: [] })).resolves.toMatchObject({ usage });
+  });
+
+  it('replays a missing-field usage projection: unknown slots stay unknown, never coerced to 0', async () => {
+    // 缺字段型 fixture：inputTokens/cache 未知，只有 outputTokens 与 reasoning。
+    const usage = { outputTokens: 50, reasoningOutputTokens: 30 };
+    const aggregated = createScriptedProvider('demo-provider', 'fake-v1', [{ content: 'x', usage }]);
+    const result = await aggregated.generate({ messages: [] });
+    expect(result.usage).toEqual(usage);
+    expect(result.usage?.inputTokens).toBeUndefined();
+    expect(result.usage?.cacheHitInputTokens).toBeUndefined();
+  });
 });

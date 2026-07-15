@@ -1,10 +1,10 @@
 import type {
   GenerationRequest,
   GenerationNotice,
-  GenerationUsage,
   Provider,
   ProviderFailureKind,
   ProviderStreamEvent,
+  ProviderUsage,
 } from '@courtwork/provider/types';
 
 import type { TurnStore } from './turn-store.js';
@@ -82,11 +82,30 @@ function reasoningSnapshot(content: string): TurnReasoning {
   return content.length === 0 ? { status: 'absent' } : { status: 'present', content };
 }
 
+const USAGE_SLOT_KEYS: readonly string[] = [
+  'inputTokens',
+  'outputTokens',
+  'cacheHitInputTokens',
+  'cacheMissInputTokens',
+  'reasoningOutputTokens',
+  'rawUsage',
+];
+
+function validUsageSlot(value: unknown): boolean {
+  // 全可选槽位：缺失（undefined）语义 unknown，合法；出现时必须是非负整数。
+  return value === undefined || (Number.isInteger(value) && (value as number) >= 0);
+}
+
 function validUsage(event: Extract<ProviderStreamEvent, { type: 'usage' }>): boolean {
-  return Number.isInteger(event.inputTokens)
-    && event.inputTokens >= 0
-    && Number.isInteger(event.outputTokens)
-    && event.outputTokens >= 0;
+  const usage = event.usage;
+  if (!isRecord(usage)) return false;
+  // rawUsage 是任意 JSON 的计量真源（形状不校验），但顶层不得出现契约外字段。
+  if (!Object.keys(usage).every((key) => USAGE_SLOT_KEYS.includes(key))) return false;
+  return validUsageSlot(usage.inputTokens)
+    && validUsageSlot(usage.outputTokens)
+    && validUsageSlot(usage.cacheHitInputTokens)
+    && validUsageSlot(usage.cacheMissInputTokens)
+    && validUsageSlot(usage.reasoningOutputTokens);
 }
 
 function validProviderFailure(event: Extract<ProviderStreamEvent, { type: 'failed' }>): boolean {
@@ -191,7 +210,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
   let reasoningContent = '';
   let pendingReasoning = '';
   let reasoningStarted = false;
-  let usage: GenerationUsage | undefined;
+  let usage: ProviderUsage | undefined;
   const notices: GenerationNotice[] = [];
   const noticeCodes = new Set<GenerationNotice['code']>();
   let providerTerminal: ProviderTerminal | undefined;
@@ -305,7 +324,7 @@ export async function runTurn(options: RunTurnOptions): Promise<PersistedTurn> {
           } else if (!validUsage(event)) {
             failure = protocolFailure('Provider emitted invalid token usage');
           } else {
-            usage = { inputTokens: event.inputTokens, outputTokens: event.outputTokens };
+            usage = event.usage;
           }
           break;
         case 'notice':
