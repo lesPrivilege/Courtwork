@@ -39,7 +39,9 @@ Chat 线（ADR-013）
 独立契约线
 ├─ USAGE-LEDGER-1（已清账）
 ├─ PM-SCHEMA-1
-└─ UI-RESIDUE-1
+├─ UI-RESIDUE-1
+├─ VOICE-SPEC-1
+└─ DESIGN-MD-1
 ```
 
 主线中的箭头是开工依赖，不是建议顺序；前置未独立验收时，后项不得用临时 adapter 越过。Chat 线与 Work 主线互不依赖，可并行施工，但 `CHAT-MEMORY-1` 不得先于 `CHAT-SESSION-1` 的窗口/transcript 语义落地。
@@ -60,6 +62,8 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 | `WORK-LIVE-1` | production run/replay/resume/cancel，只装配已验收前置 | 真实材料跨重启完成证据—确认—docx 链；recording 消费为零 |
 | `USAGE-LEDGER-1` | 保存 provider 原始 usage、unknown 语义、cache/reasoning 计量和版本化估算 | DeepSeek fixture 与缺字段反例可重放；原始计量和派生价格不互相覆盖 |
 | `PM-SCHEMA-1` | 令 OOC score 与确定性计算同义，并版本化 payload/schema/migration | OOC、drift、旧版本迁移与 catalog-only 边界触红；不夹带 PM scenario |
+| `VOICE-SPEC-1` | 文案规范入设计系统：动作命名动词+名词、错误文案「发生了什么+下一步」、toast 禁「成功」、进行态与空态体例；与「零技术概念暴露」合并成 `docs/design/voice.md`，可机器断言条款转静态门 | 规范文档 + UI 字符串静态扫描门；注入违例文案（裸「确认」、「成功删除」）触红 |
+| `DESIGN-MD-1` | 从 `tokens.json` + `principles.md` 编译机器可读 `courtwork-design.md` 供效果图生成管线前置约束；编译件非权威，tokens.json 仍是唯一真值 | 编译脚本 + drift 门（tokens 变更未重编译触红）；不新增手写第二份 token 真值 |
 | `UI-RESIDUE-1` | 疊層/可开合组件的「开合闭合门」（开→关后与初始基线像素+DOM 双重等价）与 `expectNoOverlayResidue` DOM 残留 helper（动画归零、无孤儿 portal、focus 归还、无残留 aria-hidden/inert）；像素基线仅对 Chromium 闭环，WKWebView 由 DOM 层兜底；含抖动控制清单落地 | 至少一个现存残留缺陷先以红测坐实；疊層组件清单逐一入册并有静态门防漏报；注入残留（不清 portal/不停动画/不归还 focus）逐类触红 |
 
 ## 需要实测，不再泛化调研
