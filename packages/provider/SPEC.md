@@ -12,6 +12,17 @@
 - 当前 `estimateCostUsd` 返回没有价目表版本、假设或“估算”判别的裸数。后续输出必须同时保存原始 usage、price table 版本/生效时间与 assumptions；历史记录不得用新价格静默重算为旧账单真值。
 - usage 缺失表示 unknown，不表示 0；失败/取消竞态必须有反例。价格、峰谷时段与别名日期不写入本 SPEC，更新只以当期官方 catalog/price table 与独立验收为准。
 
+### 架构冻结：通用可选槽位（2026-07-15 拍板）
+
+provider port 层 `ProviderUsage` 冻结为以下全可选槽位；任一字段缺失一律语义 unknown，不得折叠为 0，聚合/求和遇 unknown 必须显式传染而非跳过：
+
+- `inputTokens?` / `outputTokens?` — 现有口径不变；
+- `cacheHitInputTokens?` / `cacheMissInputTokens?` — 输入侧缓存命中/未命中分账（DeepSeek `prompt_cache_hit_tokens` / `prompt_cache_miss_tokens` 由具名 profile 映射）；
+- `reasoningOutputTokens?` — 推理 token（DeepSeek `completion_tokens_details.reasoning_tokens` 由 profile 映射）；
+- `rawUsage?: unknown` — provider 原始 usage 对象原样留存，是计量真源；归一化槽位是投影，不得反向修改 raw。
+
+派生估算冻结为判别式 `CostEstimate = { kind: 'estimate', usd, priceTableVersion, effectiveAt, assumptions: string[] }`；原始计量与派生估算分开保存、互不覆盖，历史记录不得用新价目表重算。provider 语义校验（如 hit+miss 与 prompt_tokens 的关系）只住具名 profile，校验不符时保留 raw 并显式标记，不修数。通用槽位扩展需重新拍板，profile 内映射调整不需要。
+
 ## TURN-WORK-1 · notice 进入统一 stream
 
 权威：[ADR-007](../../docs/decisions/ADR-007-provider-turn-protocol.md) 与
