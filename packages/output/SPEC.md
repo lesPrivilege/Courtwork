@@ -1,13 +1,13 @@
 # SPEC: packages/output（W4）
 
-状态：包级核心与自动化成立；完成过一次 macOS WPS 基础视觉抽核；`OUTPUT-CORRECTNESS-1` 与 Word/WPS 双端 P0 roundtrip 尚未完成
+状态：包级核心与自动化成立；完成过一次 macOS WPS 基础视觉抽核；`OUTPUT-CORRECTNESS-1` 收口清单第 1–6 条及第 7 条自动化部分（真实 Vite browser consumer、OOXML part/rel diff 留证）已实现并自测通过，**等待独立验收**；Word/WPS 双端 P0 真机 roundtrip 仍未完成（架构另行安排，不在本工单）
 
 ## 现行能力边界
 
 - `applyRevisionInstructionSet` 与 `compileDraftToDocx` 是 Courtwork 内唯一权威修订/文书著录器；desktop、插件和垂类包不得复制 OOXML 生成逻辑。
 - golden、ZIP/OOXML 安全预检、基础修订/批注与字体自动化已经成立；这些是 `package-ready`，不等于任意真实 docx 均可无损往返。
 - 2026-07-09 W4 验收曾在 macOS 的 WPS 打开样例并做基础视觉抽核；Microsoft Word、Windows WPS、打开—轻改—保存—回读、现有复杂批注/关系保全尚未形成 P0 证据，不得概括成“Word/WPS 兼容已验证”。
-- 本包尚缺与 `@courtwork/core/work-protocol`、`@courtwork/core/turn-protocol` 同等级的真实 Vite browser consumer 证明；进入 desktop production 编排前必须补齐。
+- 与 `@courtwork/core/work-protocol`、`@courtwork/core/turn-protocol` 同等级的真实 Vite browser consumer 证明已由 `OUTPUT-CORRECTNESS-1` 第 7 条补齐（`vite.output.config.mjs` + `src/__vite__/` + `src/output.browser.test.ts`），等待独立验收。
 
 ## 职责
 
@@ -32,6 +32,22 @@
 5. `paragraphHint` 要么被定位器真实消费并有歧义反例，要么通过版本化契约删除；不得保留一个看似可消歧、实际无人读取的字段；
 6. 每条未应用指令都返回逐条、typed outcome；任何 non-applied outcome 必须在落盘前向用户显式展示，并由策略阻断整份落盘或取得针对性确认，不能“报错并跳过后照常交付”；
 7. 真实 Vite consumer、Word/WPS P0 roundtrip 与保存前后 OOXML part/rel diff 按 `verification-checklist.md` 留证。
+
+### 实现留痕（本工单已完成，等待独立验收）
+
+清单各条完成证据位置（基线 `main @ 39ba300`；本工单提交 `6ed28aa`→`b64161e`）：
+
+1. **replace 保留 `w:pPr`** — `src/apply-instructions.ts` `applyMinimalReplace` 清空重建 run 前摘出并复位 `w:pPr`，保持其为 `w:p` 首子节点。反例测试 `src/apply-instructions.test.ts` “preserves paragraph properties on replace”（带 `w:numPr`/`w:pStyle`/`w:pageBreakBefore` 的段落替换后逐一保留）。提交 `6ed28aa`。
+2. **字体只落触碰 run** — `src/apply-instructions.ts` 删除 `ensureCompleteRFontsForAllRuns` 全局改写；`plainRun`/`delRun` 经 `buildRPr`、批注引用 run 经 `ensureCompleteRFonts` 就地写全 `w:rFonts`，未触碰 run 逐节点原样保留（本无 `rFonts` 者不补写）。反例 `src/apply-instructions.test.ts` “scopes font writes to touched runs” + `src/apply-revision-instruction-set.test.ts` “gives every pipeline-written run complete rFonts, but leaves untouched original runs byte-identical”；`src/__snapshots__/golden-document.xml` 回归（23 个未触碰 run 移除被注入的 rFonts，触碰 run 不变）。提交 `6ed28aa`。
+3. **既有 comments/id/range 保全** — `src/comments-part.ts` `writeCommentsPart` 改为合并（既有 `<w:comment>` 逐一保留，新批注追加），`nextCommentId` 取“既有最大 id + 1”经 `applyInstructionsToDocumentXml` 的 `commentIdBase` 传入 `resetIdCounters`。反例 `src/comments-preservation.test.ts` “does not overwrite existing comments…” / “allocates new comment ids above the max existing id…”。提交 `0d4e398`。
+4. **comments/关系/内容类型幂等** — `src/comments-part.ts` 已存在 comments 关系（按 Type 或 Target 命中）/`/word/comments.xml` Override 时复用不新增。反例 `src/comments-preservation.test.ts` “reuses the existing comments relationship and content-type override…” / “re-applying comments… stays idempotent”。提交 `0d4e398`。
+5. **`paragraphHint` 真实消费（包内闭合，未删字段、未碰 schema）** — `src/locate.ts` `locateQuote({ paragraphHint })` + `disambiguateByHint`（最近且含 hint 的在前段落 governs，取距离最小的唯一候选；并列/无匹配维持 ambiguous），`src/apply-instructions.ts` 三处 text 定位调用点透传。歧义反例 `src/locate.test.ts` “consumes paragraphHint to disambiguate” + `src/apply-instructions.test.ts` “threads paragraphHint into the locator”。提交 `cad9235`。**未论证删除字段，故无 `packages/schemas` 提案与 `[需架构拍板]`。**
+6. **未应用指令落盘门禁** — `src/apply-revision-instruction-set.ts` 新增 `NonAppliedInstructionsError`（携带全部逐条 outcomes 与触发阻断的未应用项）；默认 `onNonApplied:'block'` 抛错拒绝交付 docx，`onNonApplied:'confirm'`+`confirmNonApplied[]` 逐条针对性确认后才交付。反例 `src/apply-revision-instruction-set.test.ts` “blocks the whole persist…” / “still blocks under confirm policy when a non-applied instruction is not among the confirmed ids”。提交 `f38c17a`。
+   - **契约取舍**：全部 applied 时返回形状保持 `{ docx, outcomes }` 不变，故 desktop 编排（`apps/desktop/src/App.tsx:920` 的既有 try/catch）与 `apps/desktop/src/output/compile-review-output.ts` 无需改动即吸收该抛出（未接 desktop 编排）；仅 `packages/demo-runtime` 两处装配点按“契约同步消费者”纪律更新为显式演示“撞门禁→读未应用项→针对性确认→落盘”，替代此前静默跳过（`run-legal-demo.ts`/`run-s3-demo.ts`）。
+7. **Vite consumer + OOXML diff（自动化部分）** — `vite.output.config.mjs` + `src/__vite__/`（真实消费 `@courtwork/output` 跑“起草→修订”终链）+ `src/output.browser.test.ts`（入口图零 `node:*` 且注入 `node:fs` 反例触红；经 `apps/desktop` 的 vite 真实 build 产干净 bundle）。保存前后 part/rel 结构差异由 `src/ooxml-diff.test.ts` 生成并入库 `test/manual-verification/ooxml-part-rel-diff.md`（两场景，示 #2/#3/#4）。提交 `b64161e`。
+   - **仍未完成（不在本工单）**：Word/WPS 双端 P0 真机打开—轻改—保存—回读及其字节/SHA 记录，按 `verification-checklist.md` 「实测记录体例」由架构另行安排；本工单自动化证据已按该清单「结构差异」行体例对齐留好接口。
+
+自测门禁（本工单 tip `b64161e`）：`pnpm -r build`、`pnpm lint`、`pnpm test`（134 files / 1148 tests）全绿。**不代表已验收**——实现与验收分离，验收由另一会话独立完成。
 
 ## 验收
 
