@@ -68,3 +68,45 @@
 - 新建文书：`compileDraftToDocx` 产物通过同一 `preflightDocx`，且 desktop 真实写入桥仅接受预检通过的 bytes。
 
 无契约红项，无 `[需架构拍板]`。允许 desktop/output 消费并进入发布合流。
+
+---
+
+## OUTPUT-CORRECTNESS-1-ACCEPT · 独立验收（2026-07-15）
+
+验收对象：`main @ 968a6cc`，基线 `39ba300`；实现链为 `6ed28aa`、`cad9235`、`0d4e398`、`f38c17a`、`b64161e`、`968a6cc`。其间 `8af98dd` 只改 `README.md` / `docs/architecture/system.md`，不作为代码验收对象。
+
+结论：**放行 `OUTPUT-CORRECTNESS-1` 的本单范围**。七条自动化/契约收口、真实 Vite consumer、两场景 OOXML part/rel 证据与三个真实消费者均通过；无契约红项、无 `[需架构拍板]`。Word/WPS 真机打开—轻改—保存—回读明确未跑，不能据本报告声明 `external-validated` 或完整 Office/WPS 兼容。
+
+### 环境、范围与全量门
+
+- 使用独立 worktree `/tmp/courtwork-output-correctness-accept`，从无 `node_modules`、无 `packages/output/dist`、无工作树/索引差异的 `968a6cc` 建立；`pnpm install --frozen-lockfile` 成功，复用/安装 1047 个包，lockfile 未改。
+- `git diff 39ba300..968a6cc --name-only` 实测 20 个文件：`packages/output/**` 16 个、`packages/demo-runtime` 两个指定装配点、`README.md` 与 `docs/architecture/system.md`；`packages/schemas`、`packages/core`、`apps/desktop` 差异为零。
+- 目标 SHA 上首次从无预存 dist 跑 `pnpm -r build` 全绿（13/14 workspace project；output 先 build，随后 demo-runtime 与 desktop `tsc -b && vite build` 均通过），`pnpm lint` 全绿，`pnpm test` 实测 **134 files / 1148 tests**。
+- 验收补入一条“同一指令集重复应用”精确守卫并留 demo-runtime SPEC 痕迹后，再跑 `pnpm -r build`、`pnpm lint` 全绿；`pnpm test` 实测 **134 files / 1149 tests**。
+
+### 七条反例触红
+
+所有反例均直接修改独立验收树中的真实实现/consumer，观察红后用精确反向 patch 还原；还原后相关六个测试文件实测 **37/37** 全绿。
+
+1. 删除 `applyMinimalReplace` 对 `w:pPr` 的摘出/复位：`apply-instructions.test.ts` **1 failed / 8 passed**，明确报 `replaced paragraph lost its w:pPr entirely`；编号、样式与段前分页守卫有效。
+2. 恢复对所有 `w:r` 的全局 `ensureCompleteRFonts`：两文件 **4 failed / 15 passed**；私有楷体被改成仿宋、无 `rPr` 的未触碰 run 被补写、标题被注入 `rFonts`，且 `golden-document.xml` snapshot 漂移。
+3. 强制清空既有 comments body：`comments-preservation.test.ts` **4/4 失败**，既有正文/id 丢失、非连续 id 保全与重复应用保全均触红。
+4. 强制无条件新增 comments relationship / content-type Override：原守卫触红；另以**完全相同**的 `commentOnly` 指令集连续应用两次，正常实现保持单一 rel、单一 Override、comment id 唯一且无悬挂引用；注入后该精确测试以 `2 !== 1` 触红。既有 id `[2,7]` 时新 id 均 `>=8`。
+5. 令定位器忽略 `paragraphHint`：两文件 **3 failed / 17 passed**，两个 hint 选择测试与上层透传测试均红；“两个候选同距”及“hint 无匹配”两项仍维持 `ambiguous`，没有误消歧。
+6. 关闭 non-applied 落盘门禁恢复跳过后交付：`apply-revision-instruction-set.test.ts` **2 failed / 8 passed**；默认策略与 confirm 缺精确 id 两项都因“不再抛错”触红。
+7. 向真实 Vite consumer 注入 `import 'node:fs'`：browser consumer **1 failed / 1 passed**，bundle 出现 Vite browser-external / `node:fs` 后被守卫抓住。
+
+### 结构与契约复核
+
+- Golden 节点级比较：基线与当前均 59 个 run；只移除 **23** 个未触碰 run 的 `rFonts`。把这 23 处从旧 golden 移除后，整份 canonical document XML 完全相等，其他 run 差异为 0；这 23 个当前 run 均可在输入 docx 找到逐节点相同内容，无夹带。
+- `ooxml-diff.test.ts -u` 重新生成两场景证据后，`test/manual-verification/ooxml-part-rel-diff.md` 与入库文件零 diff。场景一为 17→18 parts、单一 comments rel/Override、comment ids `[0..9]`；场景二保持 5→5 parts、既有 id `4` 与新 id `5`、单一 rel/Override。
+- `NonAppliedInstructionsError` 默认阻断并携带全部逐条 typed `outcomes` 与未确认的 `nonApplied`；`onNonApplied:'confirm'` 只按 `confirmNonApplied` 的逐条 id 放行，错 id 仍阻断。
+- 非 archive 执行码 grep 后，跨包真实消费者只有 desktop `compile-review-output.ts` 与 demo-runtime 两个装配点，未发现遗漏。output 内部测试与 Vite consumer 同步使用新契约；`src/index.ts` 公开导出 typed error/options。
+- desktop 定向反例实跑证明 non-applied 会在 `writeDocx` 前抛 `NonAppliedInstructionsError`，携带 `instr-risk-confirmed(locator_not_found)`；`App.tsx` 的既有 catch 以 `ok=false` 展示原错误 message 并跳过后续写入，不是静默失败。还原临时反例后 desktop 定向测试 **1/1** 通过。
+- `demo:s3` 实跑产出 **39,651 bytes** docx，6 applied + 1 `locator_not_found`、7/7 考点、golden PASS；`demo:legal` 实跑产出 **4,606 bytes** docx，6 applied + 1 `locator_not_found`、11/11 锚点、golden PASS。两条链在默认必阻断的前提下仍取得含 non-applied outcome 的 docx，证明“先撞门禁→读 `error.nonApplied`→精确 id 确认→再落盘”真实执行；两份产物 `unzip -t` 均零错误。
+- `packages/output/SPEC.md` 七条证据所指函数、测试与留档文件逐一存在且匹配。本次以 `9720d39`（`fix-by-acceptance`）补上同一指令集重复应用的精确守卫，并在 `packages/demo-runtime/SPEC.md` 补消费者同步留痕。
+
+### 口径边界
+
+- demo-runtime / core SPEC 中 `39,713 bytes` 与 core W6 的“报错并跳过”均是 2026-07-10/14 的历史验收叙述；本次当前实跑数字与现行落盘契约以上述结果为准。未修改超出工单范围的 core 历史记录。
+- 未更新 `docs/status/current.md`，未执行 Word/WPS 真机 roundtrip，未推送。
