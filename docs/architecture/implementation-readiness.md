@@ -48,7 +48,7 @@ Work live 主线
 
 | 工单 | 最小范围 | 退出证据 |
 |---|---|---|
-| `CHAT-MATERIAL-1` | 让已就绪附件的阅读内容真实进入 Chat 请求；失败、需 OCR 与空内容显式阻断 | 捕获真实请求证明逐字内容存在，附件占位符不能让模型调用成功 |
+| `CHAT-MATERIAL-1` | 让已就绪附件的阅读内容与粘贴块（pasteBlocks）真实进入 Chat 请求；失败、需 OCR 与空内容显式阻断，回显路径与请求路径不得漂移 | 捕获真实请求证明逐字内容存在，附件占位符不能让模型调用成功 |
 | `OUTPUT-CORRECTNESS-1` | 收口现行 output P0 结构与非应用指令语义 | 包门、Vite consumer、OOXML diff 和 Word/WPS 记录共同通过；细则见 output SPEC |
 | `WORK-STORE-MEASURE` | 在不换存储形状前测 whole-envelope 的 bytes、CAS latency、write count 与崩溃窗口 | 真实或上界 fixture 的可复现实验、阈值和系统调用证据；不产新存储架构 |
 | `WORK-STORE-1` | 实现 ADR-010 的异步 whole-envelope CAS、终态、迁移与累计预算 | durable-before-effect 顺序、并发 CAS、重启、崩溃和 runtime limit 反例触红 |
