@@ -67,3 +67,49 @@
 ## 放行结论
 
 目标提交加验收修复后，Round 2 文档包满足：现行权威链单一、归档低权威且不可消费、状态与路线分责、关键源码事实不过度声称、下一批依赖和实验门可执行。**允许合入 main。**
+
+## 根治理续行补丁独立验收
+
+- 基线：`cef954acf280c74cde02c6de7e91285e9e1a9caf`
+- 最终实现对象：`7c9ae1cb77ed6f8a67b359924e0bf53be3836954`
+- 验收修复：`e795851ef994efa44fada6d001bb594079d3cd1b`
+- 验收分支：`codex/accept-governance-handoff`
+- 独立 worktree：`/Users/lesprivilege/Projects/Courtwork-accept-governance-handoff`
+- 验收日期：2026-07-15
+- 结论：**修复后放行**
+
+### 独立性与权威入口
+
+验收从最终实现对象新建 clean worktree，不复用实现工作树或实现自述。完整读取并交叉核对 `CLAUDE.md`、`AGENTS.md`、`docs/engineering/workflow.md`、`docs/README.md`、`docs/status/current.md`、`docs/architecture/implementation-readiness.md`、`docs/product/roadmap.md`、Accepted ADR-001/006/009/010/012、`services/ingest/SPEC.md`，以及 registry、Legal/PM package、desktop host renderer 与 Work command port 的实际源码。
+
+根治理现在能让下一架构角色仅凭仓库完成续行：先验证工作树、HEAD 与 `main`，再按固定顺序找到 `current.md` 的唯一能力/发布状态、implementation-readiness 的唯一开工依赖图、roadmap 的阶段条件和 ADR/SPEC/ACCEPTANCE 的契约及证据。`CLAUDE.md` 保留跨会话架构不变量，`AGENTS.md` 只补角色、派单、接手和提交纪律；两者没有复制 Round 2 当前工单、能力数字或发布快照。
+
+### 契约与源码交叉验证
+
+- 垂类包只在 data plane 声明 schema、scenario、词表、`presentation` 与 `uiTemplateId`；`VerticalPackageBindings` 仍只含进程内 schema/migration。可执行 React/projection blueprint 实际只登记在 desktop `HostRendererRegistry`，与 ADR-009/012 和根总纲一致。
+- `packages/legal` / `packages/pm` 的 `presentation`、`package`、`domain` 体例与根边界相符；descriptor 没有注入 JSX、CSS、函数、endpoint 或 vendor client。企业 adapter 仍只允许未来有真实需求时进入垂类 `/runtime`。
+- `services/ingest` 当前只有 SPEC；其中 HTTP、队列和 progress 明示为 W8 目标，尚无版本化 wire。根总纲已撤回“通过 HTTP 集成”的过度声明，只保留 Legal JSON Schema 输出边界。
+- scheduled/webhook 仍是未来能力，必须先由新 ADR 拍板 identity、trigger、幂等、累计预算与 effect authorization；没有把 trigger-blind executor 升格为支持证据。
+- `released`、`demo-integrated`、`package-ready` 均没有被写成 `product-live`；统一成熟度枚举只在 implementation-readiness 定义，事实只在 `current.md` 更新。
+- ADR-006 的早期“renderer 由包提供”概括由更高层根总纲及细化它的 ADR-009/012 收窄为“包提供声明，宿主持有可执行 blueprint”；现行源码也只实现后一边界，不构成双实现。
+
+### 验收中修复
+
+原实现将“现有 port”整体称为进程内 callback，可能误涵盖 `HostTransportPort` 等其他边界。验收以 `e795851`（`fix-by-acceptance: narrow callback port wording`）把表述精确收窄为 ADR-010 已定义的 `WorkCommandPort.publish`；该字段是同进程投影 callback，不是 IPC、HTTP 或 gateway wire。此修复只消除文字歧义，没有改变字段或契约语义；无 `[需架构拍板]` 项。
+
+### 实跑与反例证据
+
+最终验收 tip 实跑：
+
+- `git diff --check`：exit 0；
+- `pnpm site:guard`：exit 0；Node guard **31/31**，release truth 仍为 app/site `0.1.2` 与既有 DMG SHA，deslop 扫描 **691 active text files**，desktop 四项视觉静态门全绿；
+- 活动 Markdown 本地链接独立扫描：**118 files / 148 local links / 0 broken**，排除 `archive/` 并兼容仓库既有 repo-root 与 `path:line` 体例；
+- `pnpm -r build`：13 个可构建 workspace 全通过；desktop 仅有既存动态/静态 import 与 chunk-size warning；
+- `pnpm lint`：exit 0；
+- `pnpm test`：**131 files / 1127 tests** 全通过。
+
+实际向 `site/index.html` 注入到 `archive/should-never-be-authority.md` 的链接后，`node site/scripts/deslop-scan.mjs` exit 1，同时报 `active site references archive` 与 `[archive-reference] site/index.html:2`；撤除反例后恢复为 691 个活动文本文件全绿，`site/index.html` 无残留差异。
+
+### 放行结论
+
+根治理补丁把“长期不变量”和“续行操作”分责清楚，并以 repo 内唯一状态真源、唯一开工图和既有契约层级闭合下一架构师的接手路径；没有把归档、调研或聊天提升为权威，也没有把未实现边界写成 live。验收文字修复后，**允许合入 main**。
