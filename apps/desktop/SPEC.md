@@ -2,7 +2,7 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
-## DOCS-SELF-CONTAINED-1 · 历史视觉索引退役（实现完成，待独立验收）
+## DOCS-SELF-CONTAINED-1 · 历史视觉索引退役（已独立验收放行）
 
 - 将本文件 33 个目标不存在的历史 `visual-audit/*.png` 链接退为 inline code 文件名；不伪造或重建截图，也不以 `archive/` 补链。
 - 经架构扩单，同类处理 `apps/desktop/ACCEPTANCE.md` 中已删除 `ThinkingStream.tsx` 的一处历史源码坐标，不改变原验收结论。
