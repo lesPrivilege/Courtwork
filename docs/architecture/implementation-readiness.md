@@ -59,7 +59,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 | `CHAT-MEMORY-1` | ADR-013 的蒸馏写入（携来源坐标）、低频前缀注入、hook 检索与一键清除；案件内容与密钥隔离 | 蒸馏可追溯、清除彻底、注入位于稳定前缀段、案件内容/密钥进入 memory 的反例触红 |
 | `CASE-ROOT-1` | 系统 picker、opaque case ref 和 host 授权，不让绝对路径进入 renderer/wire | 取消、TCC 拒绝、卷卸载、重授权和跨 case 访问全部显式失败 |
 | `MATERIAL-INGRESS-1` | 原件 bytes/hash、ReadingView/hash 与 source-neutral MaterialRef 持久闭合 | 改字节、删除、需 OCR、hash 漂移、跨 case 引用均在 provider 前阻断 |
-| `LEGAL-S3-BINDING-1` | 显式主体、真实工具输入、RiskList gate 与逐条 revision mapping | 缺主体/工具、revise、单项 reject、demo 依赖注入均按 ADR-010 触红 |
+| `LEGAL-S3-BINDING-1` | 显式主体、真实工具输入、RiskList gate 与逐条 revision mapping。架构裁定（2026-07-15）：ADR-010 决定三的 `ArtifactEnvelope`（版本化 artifact + 读侧迁移）由本单作为首个真实 artifact 生产者一并拉动，体量过大时拆 `WORK-STORE-2` | 缺主体/工具、revise、单项 reject、demo 依赖注入均按 ADR-010 触红 |
 | `WORK-LIVE-1` | production run/replay/resume/cancel，只装配已验收前置 | 真实材料跨重启完成证据—确认—docx 链；recording 消费为零 |
 | `USAGE-LEDGER-1` | 保存 provider 原始 usage、unknown 语义、cache/reasoning 计量和版本化估算 | DeepSeek fixture 与缺字段反例可重放；原始计量和派生价格不互相覆盖 |
 | `PM-SCHEMA-1` | 令 OOC score 与确定性计算同义，并版本化 payload/schema/migration | OOC、drift、旧版本迁移与 catalog-only 边界触红；不夹带 PM scenario |
