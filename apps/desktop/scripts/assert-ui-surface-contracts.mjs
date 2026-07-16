@@ -20,28 +20,38 @@ const failures = [];
 
 const MARKETING_TONE = ['敬请期待', '即将震撼', '敬请关注', 'Stay tuned'];
 
-/** 断言 `needle` 在 `file` 中出现，且其前后 `window` 字符内同时含 disabled 语义与非空 title/tooltip。 */
-function requireHonestUnwired(fileKey, needle, message) {
+/** 逐个断言 `needle` 所在 JSX opening tag 同时含 disabled 语义与非空 title/tooltip。 */
+function requireHonestUnwired(fileKey, needle, expectedCount, message) {
   const text = files[fileKey];
-  const at = text.indexOf(needle);
-  if (at === -1) {
-    failures.push(`${message}：未找到锚点文本`);
-    return;
+  const matches = [];
+  let cursor = 0;
+  while (cursor < text.length) {
+    const at = text.indexOf(needle, cursor);
+    if (at === -1) break;
+    matches.push(at);
+    cursor = at + needle.length;
   }
-  const windowText = text.slice(Math.max(0, at - 400), at + 400);
-  if (!/\bdisabled\b|aria-disabled="true"/.test(windowText)) {
-    failures.push(`${message}：附近缺少 disabled / aria-disabled="true"`);
+  if (matches.length !== expectedCount) {
+    failures.push(`${message}：标记数应为 ${expectedCount}，实得 ${matches.length}`);
   }
-  if (!/title=(\{[^}]+\}|"[^"]+")/.test(windowText)) {
-    failures.push(`${message}：附近缺少非空 title`);
-  }
+  matches.forEach((at, index) => {
+    const tagStart = text.lastIndexOf('<', at);
+    const tagEnd = text.indexOf('>', at);
+    const openingTag = text.slice(tagStart, tagEnd === -1 ? at + needle.length : tagEnd + 1);
+    if (!/\bdisabled(?:\s|=)|aria-disabled="true"/.test(openingTag)) {
+      failures.push(`${message} #${index + 1}：同一元素缺少 disabled / aria-disabled="true"`);
+    }
+    if (!/title=(\{[^}]+\}|"[^"]+")/.test(openingTag)) {
+      failures.push(`${message} #${index + 1}：同一元素缺少非空 title`);
+    }
+  });
 }
 
-requireHonestUnwired('messageActions', 'data-state="unwired"', 'MessageActions 未开通态标记（Read aloud / More）');
-requireHonestUnwired('composer', 'data-state="unwired"', 'Composer 未开通态标记（camera / voice）');
-requireHonestUnwired('railModules', "data-state={entry.disabled ? 'unwired' : undefined}", 'RightRailModules reader-entry 未开通态标记');
-requireHonestUnwired('materialsZone', 'data-state="unwired"', 'MaterialsZone 在访达中显示未开通态标记');
-requireHonestUnwired('app', 'data-state="unwired"', 'App.tsx 排队消息「停止当前」未开通态标记');
+requireHonestUnwired('messageActions', 'data-state="unwired"', 2, 'MessageActions 未开通态标记（Read aloud / More）');
+requireHonestUnwired('composer', 'data-state="unwired"', 2, 'Composer 未开通态标记（camera / voice）');
+requireHonestUnwired('railModules', "data-state={entry.disabled ? 'unwired' : undefined}", 1, 'RightRailModules reader-entry 未开通态标记');
+requireHonestUnwired('materialsZone', 'data-state="unwired"', 1, 'MaterialsZone 在访达中显示未开通态标记');
+requireHonestUnwired('app', 'data-state="unwired"', 1, 'App.tsx 排队消息「停止当前」未开通态标记');
 
 // 反例覆盖：Retry 是本单接线的真实控件，不得携带未开通标记。
 if (/data-testid="chat-retry"[^>]*data-state="unwired"/.test(files.app)) {
