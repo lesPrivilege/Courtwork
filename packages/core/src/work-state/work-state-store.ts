@@ -18,6 +18,12 @@ import {
   serializeWorkStateEnvelope,
   type WorkStateEnvelopeV1,
 } from './envelope.js';
+import {
+  encodeStoredEvents,
+  hydrateStoredEvents,
+  type ArtifactEnvelopeCodec,
+  type IsolatedArtifact,
+} from './artifact-envelope.js';
 
 // WorkModelRoute / WorkSessionRef 的唯一属主是 ./envelope.js（wire 形状层）；本模块只引用不转售，
 // 避免 barrel `export *` 双属主歧义。store/port 类型（WorkStateStore、WorkStateHostPort、WorkStateHeader…）由本模块拥有。
@@ -93,6 +99,12 @@ export interface LoadWorkStateStoreOptions {
   readTurnEntries?: () => readonly TurnJournalEntry[];
   onSoftLimitWarning?: (warning: SoftLimitWarning) => void;
   now?: () => string;
+  /**
+   * ArtifactEnvelope 编解码器（LEGAL-S3-BINDING-1 / ADR-010 决定三）：注入即生产装配——
+   * commit 时把 `artifact_produced.artifact` 封为版本信封（payload 唯一真源），reload 时按包/版本
+   * 迁移并校验回裸 artifact。缺省（纯逻辑单测/非生产）保持 WORK-STORE-1 直存行为。见 `artifact-envelope.ts`。
+   */
+  artifactCodec?: ArtifactEnvelopeCodec;
 }
 
 /** 超硬上限 fail-closed；结构化错误，绝不静默丢历史或换设计（ADR-010 第 217 行触发闸）。 */
@@ -119,6 +131,22 @@ export class WorkStateRefMismatchError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'WorkStateRefMismatchError';
+  }
+}
+
+/**
+ * reload 持久 artifact 信封时有 contribution 无法迁移（未知包/类型/版本或 payload 不合 schema）→
+ * 恢复自身会话必须 fail-closed（不能续行一个连自家 artifact 都迁移不了的会话，更禁 raw payload fallback）。
+ * UI 投影侧不走本路径——它以 `hydrateStoredEvents` 优雅隔离显示（见 ADR-010 决定三）。
+ */
+export class StoredArtifactIsolatedError extends Error {
+  constructor(readonly isolated: readonly IsolatedArtifact[]) {
+    super(
+      `持久 artifact 无法迁移，拒绝续行（fail-closed）：${isolated
+        .map((entry) => `seq ${entry.seq} ${entry.typeId} → ${entry.reason}`)
+        .join('；')}`,
+    );
+    this.name = 'StoredArtifactIsolatedError';
   }
 }
 
@@ -269,7 +297,14 @@ export async function loadWorkStateStore(options: LoadWorkStateStoreOptions): Pr
     };
     revision = envelope.revision;
     cachedVersion = existing.version;
-    events.push(...envelope.events);
+    if (options.artifactCodec) {
+      // 读侧迁移（ADR-010 决定三）：持久信封 → 裸 artifact。恢复自身会话时任一 isolated 即 fail-closed。
+      const hydrated = hydrateStoredEvents(envelope.events, options.artifactCodec);
+      if (hydrated.isolated.length > 0) throw new StoredArtifactIsolatedError(hydrated.isolated);
+      events.push(...hydrated.events);
+    } else {
+      events.push(...envelope.events);
+    }
     revisionEvents.push(...envelope.revisionEvents);
     pendingSeed = envelope.pendingConfirmations;
   } else {
@@ -287,7 +322,8 @@ export async function loadWorkStateStore(options: LoadWorkStateStoreOptions): Pr
     storageVersion: 1,
     revision: rev,
     ...header,
-    events: eventLog.list(),
+    // 写侧封版本信封（ADR-010 决定三）：注入 codec 即生产装配；缺省保持 WORK-STORE-1 直存。
+    events: options.artifactCodec ? encodeStoredEvents(eventLog.list(), options.artifactCodec) : eventLog.list(),
     turnEntries: [...(readTurnEntries?.() ?? [])],
     pendingConfirmations: pendingLedger.snapshot(),
     revisionEvents: revisionStore.list(),

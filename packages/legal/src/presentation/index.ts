@@ -16,7 +16,7 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
       uiTemplateId: 'case-intake-panel',
       vocabulary: {
         enumLabels: {
-          ingestStatus: { pending: '待摄取', processing: '摄取中', done: '已完成', failed: '摄取失败', needs_ocr: '需 OCR' },
+          ingestStatus: { pending: '待摄取', processing: '摄取中', done: '已完成', failed: '摄取失败', needs_ocr: '需文字识别' },
         },
       },
     },
