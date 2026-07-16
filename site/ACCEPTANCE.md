@@ -468,3 +468,44 @@ Codex in-app Browser 运行时已按技能说明连接，但 `agent.browsers.lis
 - `git diff --check`：通过；未推送，验收分支之外零写入。
 
 放行只覆盖 `47c9c6b` 裁定后的 SITE-CRAFT-1：Pages 展示站 Typer、Ghosty、Satin 及其 reduced/JS-off 边界。不授权把媒体层动效回迁产品壳，也不改变卷宗数字绝对静止、发布真值或 deslop 精确 AST 锁。
+
+---
+
+## SITE-CRAFT-1-FADE-ACCEPT · deecb52 独立终局验收（2026-07-16）— ✅ 放行
+
+### 1. 对象、隔离与范围
+
+- **验收对象**：`impl/site-craft-1-fade@deecb52`；独立 clean worktree checkout 为 `main@ff12539`，目标提交已在其祖先链，未采信实现会话自述。
+- **范围证据**：`git diff 357ae1d..deecb52 -- site` 恰为 5 个文件，全部位于 `site/`：`SPEC.md`、`craft-evidence/SITE-CRAFT-1/README.md`、`craft-evidence/SITE-CRAFT-1/measurements.json`、`scripts/deslop-scan.test.mjs`、`styles.css`。`git diff --quiet 357ae1d..deecb52 -- site/main.js` 通过；三枚 `site/main.js` blob（基线、实现 tip、验收 HEAD）均为 `6d97484f5c6c79f6051328910cfc6973f85bd46f`。package manifest 与 lockfile 无差异，零新依赖。
+- `site:build` 产物中的 `assets/ghosty-mask.svg` 与源资产逐字节 `cmp` 通过；`git diff --check` 通过。
+
+### 2. reduced-motion 逐帧实测
+
+仓库锁定 Chromium **149.0.7827.55**，`1280×860`，独立静态服务 `127.0.0.1:18417`，`prefers-reduced-motion: reduce` context；从页面初始化前安装 rAF 采样，并滚动三张 `.work-crop` 使图片实际解码。
+
+- 共 **43 帧**（`t=0` 至 `704.5ms`）；每一帧 `CSSAnimation` 恰为 **3**，动画名均为 `ghosty-reduced-fade`；全程 `CSSTransition=0`，无 transition property 样本。
+- **24 帧**存在 `0 < opacity < 1`；其中 **22 帧**三张图均已加载，代表中间帧 `t=71.2ms` 的三图 opacity 均为 **0.462888**。`getKeyframes()` 实测属性集合只有 `opacity`；三图全程 `mask-image:none`、`transform:none`、computed `transition-duration:0s`。
+- 收尾三图均 `opacity:1`、`naturalWidth:640`；reduce 采样期间卷宗四项数字的动画向量恒为 **`0,0,0,0`**，每项 computed `animation-name:none`、`transition-duration:0s`、`transform:none`。
+
+### 3. 正常态与 JS 关闭回归
+
+- `no-preference` 独立 context 共 **74 帧**：隐藏 **13** 帧（初始 `mask-position:0px 100%`），中扫 **53** 帧（首末约 `92.0245% → 0.000075685%`，代表帧 `0px 3.40174%`，活动 CSSTransition 恰 **1**），全显 **8** 帧（`0px 0px`）。正常态所有帧均未出现 `ghosty-reduced-fade`，故 reduced keyframe 没有回流到正常态。
+- JS 关闭 context：`documentElement.className` 为空、无 `.js`；H1 文本与 `aria-label` 均为“模型只生成，不裁决。”；三图均 `opacity:1`、`mask:none`、`animation:none`、`naturalWidth:640`。
+
+### 4. 契约反例触红
+
+- 临时移除 reduce 块的 `transition:none`：`node --test site/scripts/deslop-scan.test.mjs` 观察到 **21 pass / 1 fail**，失败命中新增 Ghosty CSS 契约断言；还原后 **22/22**。
+- 临时把 `.is-visible img` 的 `ghosty-reduced-fade` keyframe 改回 `transition`：同样观察到 **21 pass / 1 fail**；还原后 **22/22**。反例均在验收 worktree 内完成并恢复，未进入报告提交内容。
+
+### 5. 全量门禁与交叉证据
+
+- `pnpm site:guard`：exit 0；Node **32/32**、release-truth PASS、deslop PASS（完整实跑 **739 active text files**）、desktop neutral/elevation/signature/motion 四门全绿。
+- `pnpm site:build`：exit 0；`pnpm lint`：exit 0；`pnpm -r build`：exit 0，scope **13/14 workspace projects**，仅既有 Vite chunk-size/dynamic-import warning。
+- `pnpm test`：exit 0，完整实跑 **140 files / 1210 tests**；本次记录以实跑数字为准，不沿用实现声称的 139/1204。
+- 部署复核曾在 [`release/DEPLOYMENT.md`](../release/DEPLOYMENT.md) 的 SITE-CRAFT-1 节捕获旧实现的不可见 `mask-position` 幽灵过渡；本节逐帧证明当前 reduce consumer 已显式 `transition:none`，该证据链现已闭合。
+
+### 6. 裁决
+
+> **SITE-CRAFT-1-FADE 放行 ✅。** reduced-motion 现在是三条真实渲染的 420ms opacity keyframe，遮罩、位移与 CSSTransition 均为零；正常态三态、JS 关闭、卷宗数字静止、`main.js` AST/blob 锁、契约反例与全量门禁均通过。
+
+本次只写入本验收记录；未更新 `docs/status/current.md`，未推送。
