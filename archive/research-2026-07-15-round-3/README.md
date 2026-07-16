@@ -9,3 +9,4 @@
 | `oss-gui-source-patterns.md` | Radix/cmdk/LobeUI/dockview/kunkun/TanStack 源码级机制拆解 | 采收清单 8 项分别标注 `UI-RESIDUE-1` / `CHAT-SESSION-1` / workbench 演进落点，派单时嵌入工单 prompt |
 | `geist-design-md.md` | Vercel Geist design.md 对照与分发形态分析 | 已吸收为 `VOICE-SPEC-1` 与 `DESIGN-MD-1` 提案（见 implementation-readiness） |
 | `vault-site-craft.md` | arlan.me/vault 技法拆解（MIT），Pages 站巧思候选 | 已吸收为 `SITE-CRAFT-1` 提案：Typer hero、Inset/Satin CTA、Ghosty reveal 三落点 |
+| `feldar-page-narrative.md` | feldar.com 能力×微演示台账叙事结构 | 终局 polish / 未来 SITE-LEDGER 参照；与 site-evidence-line 台账裁决同构，只取结构不取皮肤 |
