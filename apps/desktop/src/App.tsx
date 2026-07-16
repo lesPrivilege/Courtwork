@@ -1963,7 +1963,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
               {queuedMessages.filter((message) => message.caseId === selectedCaseId).map((message) => <div className="queued-message" data-testid="queued-message" key={message.id}>
                 <span className="queued-chip">Queued</span><span>{message.text}</span>
                 <button type="button" onClick={() => setQueuedMessages((current) => current.filter((item) => item.caseId !== selectedCaseId || item.id !== message.id))}>撤回</button>
-                <button type="button" disabled data-state="unwired" title="停止当前请求将在执行器接线后启用">停止当前</button>
+                <button type="button" disabled data-state="unwired" title="停止当前运行即将开通">停止当前</button>
               </div>)}
               <ScrollToLatest follow={workFollow} />
             </div>

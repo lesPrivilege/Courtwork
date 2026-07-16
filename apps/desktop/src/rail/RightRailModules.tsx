@@ -92,11 +92,11 @@ export function RightRailModules({
               data-testid="reader-entry"
               data-state={entry.disabled ? 'unwired' : undefined}
               disabled={entry.disabled}
-              title={entry.disabled ? '阅读视图待接入' : `在 Preview 中阅读 ${entry.name}`}
+              title={entry.disabled ? '阅读视图即将开通' : `在 Preview 中阅读 ${entry.name}`}
               onClick={entry.onOpen}
             >
               <span className="truncate">{entry.name}</span>
-              {entry.disabled ? <small>待接入</small> : <Icon name="chevron-right" />}
+              {entry.disabled ? <small>即将开通</small> : <Icon name="chevron-right" />}
             </button>
           ))}
         </div>

@@ -2,7 +2,7 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
-## UI-SURFACE-1 · Chat/Work 控件面对标补齐（实现完成，待独立验收）
+## UI-SURFACE-1 · Chat/Work 控件面对标补齐（实现完成；一轮驳回后经 UI-SURFACE-1-FIX 修复三项，待独立复验）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `UI-SURFACE-1` 行、[docs/product/vision.md](../../docs/product/vision.md) 路线原则末段（对齐上游只做减法、未接线显式未开通）、[docs/design/principles.md](../../docs/design/principles.md) §5（动效）/§6（人工确认）/§9（零技术概念暴露）、[ADR-006](../../docs/decisions/ADR-006-ui-host.md)（UI 宿主边界）。工单基线 `main @ 056500a`。
 
@@ -11,6 +11,8 @@
 ### 对标清单（核心交付物，先于代码撰写）
 
 方法：以 Claude Code / Cowork / Codex 一类成熟 agent 桌面产品的通用控件集为对标基线，逐项核对 `apps/desktop/src` 现状（源码 file:line 为证，非印象），标注三态之一：**已有**（Courtwork 已实现，含既有的诚实未开通态，本单不改）／**本单补**（接线，或新增显式未开通态）／**减法不取**（附理由）。
+
+**证据锚约定与基准 SHA（UI-SURFACE-1-FIX 修复）**：每条证据用**双锚**——主锚为稳定的**符号/testid**（可 `grep` 复定位，随合并漂移可检而非致命），次锚为 **`file:line`**。下列全部 `file:line` 校准于**基准 `9f5dfc2`**（本修复分支基线，即当次驳回记录的合并尖端）；本修复对源码只做 W5/reader-entry 两处同行字符串替换，零行数漂移，故行号在本修复提交尖端与 `9f5dfc2` 一致。行号若因后续合并漂移，以符号/testid 为准重新定位。
 
 #### 词汇基准（架构补充：namethatui.com 正名）
 
@@ -36,34 +38,34 @@
 
 | # | 控件 | 处置 | 依据 |
 |---|---|---|---|
-| C1 | 停止生成 | 已有 | `stopChatTurn`(`App.tsx:610`) 中断真实 `AbortController`；核心 `runTurn` 消费 `signal`（`packages/core/src/turn/turn-runner.ts`）并落 `canceled` 终态；按钮仅在 `turn.status==='running'` 时出现（`App.tsx:227,2026,2038`）。Chat 文本 Turn 取消属[当前基线](../../docs/status/current.md)「产品 live」范围。 |
-| C2 | 重试失败轮次 | **本单补·接线** | `turn.status==='failed'` 时只显示失败原因（`App.tsx:238-242`），无重试入口；Chat Turn 发送已 product-live，重试=复用既有 `sendChatTurn` 通路重提交同一用户正文，非新后端能力。范围收窄：只对**当前会话末位**失败轮次提供重试（对标主流产品的通行简化——只重试最新一次，不对历史中段轮次开放，避免引入「替换哪一条」的排序歧义）；「重新生成已完成回复」是不同语义（丢弃一个成功产出并另生一份），本单不做，见下方「减法不取」。 |
-| C3 | 复制消息 | 已有 | `MessageActions.tsx:30`，真实 clipboard 写入。 |
-| C4 | 赞/踩反馈 | 已有 | `MessageActions.tsx:32-33`，写入本地 `courtwork.message-feedback-ledger`（localStorage）。 |
-| C5 | 朗读 / TTS（禁用态文案走 **Tooltip** 正名） | 已有（未开通态；补测试标记） | `MessageActions.tsx:31` `disabled title="Coming later"`，已是诚实文案，本单补 `data-state="unwired"` 可测标记，不改行为。 |
-| C6 | 更多操作 / 消息分支编辑（三点触发器，namethatui「The Three Dots」族；禁用态文案走 **Tooltip**） | 已有（未开通态；补测试标记） | `MessageActions.tsx:34` `disabled title="Message fork editing comes later"`；RP-2.9/RP-2.11 已裁决消息编辑「Stage 1 fork 裁决不做」，本单不重启该裁决，只补标记。 |
-| C7 | 引用回跳（ask-user 证据锚点） | 已有 | `InteractionTurnCard`→`Evidence`→`onOpenSource`（`TurnCard.tsx:195`）→`openInteractionSource`（`App.tsx:472`）→阅读视图 `reader-focus-anchor` 定位滚动，全链路真实（当前只解析一条 demo 锚点，属内容覆盖面而非控件接线缺口）。 |
+| C1 | 停止生成 | 已有 | 符号 `stopChatTurn`(`App.tsx:630`) 中断真实 `AbortController`；testid `chat-stop`(`App.tsx:228`)仅在 `turn.status==='running'` 注入；核心 `runTurn`(`packages/core/src/turn/turn-runner.ts`) 消费 `signal` 落 `canceled` 终态。Chat 文本 Turn 取消属[当前基线](../../docs/status/current.md)「产品 live」范围。 |
+| C2 | 重试失败轮次 | **本单补·接线** | 失败态仅显示原因（testid `chat-turn-failure`, `App.tsx:241`），本单补 符号 `retryChatTurn`(`App.tsx:638`) + testid `chat-retry`(`App.tsx:245`)，复用 `sendChatTurn` 通路重提交同一用户正文，非新后端能力。范围收窄：只对**当前会话末位**失败轮次（只重试最新一次，避免「替换哪一条」歧义）；「重新生成已完成回复」是不同语义，本单不做，见「减法不取」。 |
+| C3 | 复制消息 | 已有 | testid/aria `Copy message`(`MessageActions.tsx:30`)，真实 clipboard 写入。 |
+| C4 | 赞/踩反馈 | 已有 | aria `Helpful`/`Not helpful`(`MessageActions.tsx:32-33`)，写入本地 `courtwork.message-feedback-ledger`（localStorage）。 |
+| C5 | 朗读 / TTS（禁用态文案走 **Tooltip** 正名） | 已有（未开通态；补测试标记） | aria `Read aloud`(`MessageActions.tsx:31`) `disabled title="Coming later" data-state="unwired"`，已是诚实文案，本单补可测标记不改行为。 |
+| C6 | 更多操作 / 消息分支编辑（三点触发器，namethatui「The Three Dots」族；禁用态文案走 **Tooltip**） | 已有（未开通态；补测试标记） | aria `More message actions`(`MessageActions.tsx:34`) `disabled title="Message fork editing comes later" data-state="unwired"`；RP-2.9/RP-2.11 已裁决消息编辑「Stage 1 fork 裁决不做」。注：`fork` 为产品功能名（消息分叉编辑），非实现内部工程词，§9 扫描判定保留（见「UI-SURFACE-1-FIX」驳回项 2）。 |
+| C7 | 引用回跳（ask-user 证据锚点） | 已有 | `InteractionTurnCard`→`Evidence onOpen`(`TurnCard.tsx:195`)→符号 `openInteractionSource`(`App.tsx:480`，注入点 `onOpenSource=` `App.tsx:1936`)→阅读视图 testid `reader-focus-anchor` 定位滚动，全链路真实（当前只解析一条 demo 锚点，属内容覆盖面而非控件接线缺口）。 |
 | C8 | 引用回跳（chat 自由正文内联引注） | 减法不取 | `ChatMarkdown.tsx` 是零依赖 markdown 微解析器，assistant 正文不携带 wire 级 `SourceAnchor`；给自由正文追加锚点需扩 Turn/schema 携带结构化引用字段，属本单明令禁止的「不改 Turn/Work 协议」范畴。结构化引用已有专属承载面（Evidence/Anchor，Work 侧 schema 工作面），不重复造第二套。 |
 | C9 | 引用回跳（通用 artifact table / Legal schema 面板） | 已有（未开通态，出既有范围不动） | `ArtifactTableRenderer.tsx:30` 的 `Anchor` 未传 `onOpen`（VISUAL-KIT-1 原语按 `source_ready` 状态自行降级为纯文本 `is-quote-only`，非假交互）；`workbench/Panels.tsx:119/194/372`「回到原件 · 尚未接通」与 `GraphPanel.tsx:256`「原文定位 · 卷宗原件待连接」均已是 disabled + 诚实文案。这四个 route panel 的源码产权归 [implementation-readiness.md](../../docs/architecture/implementation-readiness.md) `PANEL-BLUEPRINT-1` 行（"App.tsx 对应硬编码分支删除"迁移），本单不触 `workbench/Panels.tsx`/`GraphPanel.tsx`/`ArtifactTableRenderer.tsx`，只记录现状。 |
-| C10 | 会话导航（历史会话列表） | 已有 | `SessionHistory.tsx`，只读列表 + 进入/返回；CHAT-SESSION-1 已裁决不做重命名/归档/置顶（`SessionHistory.tsx:5-11` 注释明文）。 |
-| C11 | 长期记忆查看 / 一键清除 | 已有 | `ChatMemoryPanel.tsx`（CHAT-MEMORY-1），只读列表 + 单键清除，ADR-013 已明确拒绝编辑/分条管理/导入导出。 |
-| C12 | 模型 / 推理档位信息（承载容器 = **Popover**；档位选择器实为原生 **Radio Group**，非 Segmented Control，见词汇基准） | 已有 | `ModelConfigPopover.tsx`，模型名 + Standard/Deep 档位。 |
-| C13 | 多 provider 切换器 | 减法不取（已有先例） | `ModelConfigPopover.tsx:32-33` 注释「provider 归 developer 层」；`packages/provider/src/registry.ts` 当前仅注册一个 `PROVIDER_DESCRIPTORS`，结构上无第二 provider 可切换。RP-2 #18′ 已裁决单模型信息展示替代切换器，本单不重启该裁决。 |
-| C14 | 单轮用量信息 | 已有 | `chat-turn-usage`（`App.tsx:243-247`）经 `formatUsageMetering` 展示 input/output/reasoning/cache 分账，缺失槽位显式「未知」不伪造 0。 |
-| C15 | 费用/成本估算展示 | 减法不取（已有先例） | `packages/provider` 的 `CostEstimate` 只用于 CLI 诊断（`smoke.ts`）与 Work 侧场景执行器内部预算门（`scenario-executor/executor.ts` 的 `checkUsd`），从未流入 desktop UI；`USAGE-LEDGER-1`（`apps/desktop/SPEC.md:1561`）已明文「desktop 只跟进消费形状，不做计费 UI/报表」。本单不新增。 |
-| C16 | 输入区：附件（文件/文件夹/粘贴/拖放；「+」触发器打开的菜单 = **Dropdown Menu**，动作列表、选中后关闭） | 已有 | Attach files（`Composer.tsx:393-406`）、Add folder（`:409-422`，MATERIAL-INGRESS-1 真实宿主授权）、Paste text（`:460-475`）、剪贴板文件粘贴与长文本折叠块（`:266-287`）、拖放（`:231-264`）均真实wired。 |
-| C17 | 输入区：拍照 / 语音（同一 **Dropdown Menu** 内菜单项；禁用态文案走 **Tooltip**） | 已有（未开通态；补测试标记） | `Composer.tsx:423-458`，`aria-disabled="true"` + `DISABLED_TOOLTIPS.camera/voice`（`composer/types.ts:60-63`，已是「Coming soon」诚实文案），本单补 `data-state="unwired"`。 |
-| C18 | 输入区：Enter 发送 / Shift+Enter 换行 | 已有 | `Composer.tsx:289-294`，IME 输入安全；RP-2.9 已裁决「品类通用规则不作提示」，不新增提示文案。 |
-| C19 | 输入区：排队消息 + 撤回（「Queued」标签是非交互状态标记，按正名判据应属 **Badge** 而非现有类名 `queued-chip` 暗示的 Chip——移除动作在独立的「撤回」按钮上，不在标签本身；命名与实现类名有出入，见下方精度笔记） | 已有 | `App.tsx:1926-1928`，撤回真实从 `queuedMessages` 移除。 |
+| C10 | 会话导航（历史会话列表） | 已有 | 符号 `SessionHistory`(`SessionHistory.tsx:30`)，testid `session-history`(`:36`)，只读列表 + 进入/返回；CHAT-SESSION-1 已裁决不做重命名/归档/置顶（`SessionHistory.tsx:5-11` 注释明文）。 |
+| C11 | 长期记忆查看 / 一键清除 | 已有 | 符号 `ChatMemoryPanel`(`ChatMemoryPanel.tsx:22`)，testid `settings-memory-row`(`:34`)，只读列表 + 单键清除，ADR-013 已明确拒绝编辑/分条管理/导入导出。 |
+| C12 | 模型 / 推理档位信息（承载容器 = **Popover**；档位选择器实为原生 **Radio Group**，非 Segmented Control，见词汇基准） | 已有 | 符号 `ModelConfigPopover`(`ModelConfigPopover.tsx:21`)，testid `model-config-popover`(`:26`)，模型名 + Standard/Deep 档位。 |
+| C13 | 多 provider 切换器 | 减法不取（已有先例） | 注释「provider 归 developer 层」(`ModelConfigPopover.tsx:32`)；符号 `PROVIDER_DESCRIPTORS`(`packages/provider/src/registry.ts:18`) 当前仅注册一个，结构上无第二 provider 可切换。RP-2 #18′ 已裁决单模型信息展示替代切换器，本单不重启该裁决。 |
+| C14 | 单轮用量信息 | 已有 | testid `chat-turn-usage`(`App.tsx:252`) 经 `formatUsageMetering` 展示 input/output/reasoning/cache 分账，缺失槽位显式「未知」不伪造 0。 |
+| C15 | 费用/成本估算展示 | 减法不取（已有先例） | 符号 `CostEstimate` 只被 CLI `smoke.ts`(`packages/provider/src/smoke.ts:45`) 与场景执行器内部预算门 `checkUsd`(`packages/core/src/scenario-executor/executor.ts:367`) 消费，从未流入 desktop UI；`USAGE-LEDGER-1`（`apps/desktop/SPEC.md`）已明文「desktop 只跟进消费形状，不做计费 UI/报表」。本单不新增。 |
+| C16 | 输入区：附件（文件/文件夹/粘贴/拖放；「+」触发器打开的菜单 = **Dropdown Menu**，动作列表、选中后关闭） | 已有 | testid `composer-upload`(`Composer.tsx:397`)、`composer-plus-folder`(`:413`，MATERIAL-INGRESS-1 真实宿主授权)、`composer-paste`(`:466`)、符号 `onPaste`(`:266`)/`onDrop`(`:247`) 拖放，均真实 wired。 |
+| C17 | 输入区：拍照 / 语音（同一 **Dropdown Menu** 内菜单项；禁用态文案走 **Tooltip**） | 已有（未开通态；补测试标记） | testid `composer-camera`(`Composer.tsx:428`)/`composer-voice`(`:447`)，`aria-disabled="true"` + `DISABLED_TOOLTIPS.camera/voice`(`composer/types.ts:60-63`，「Coming soon」诚实文案)，本单补 `data-state="unwired"`。 |
+| C18 | 输入区：Enter 发送 / Shift+Enter 换行 | 已有 | 符号 `onKeyDown`(`Composer.tsx:289`)，IME 输入安全；RP-2.9 已裁决「品类通用规则不作提示」，不新增提示文案。 |
+| C19 | 输入区：排队消息 + 撤回（「Queued」标签是非交互状态标记，按正名判据应属 **Badge** 而非现有类名 `queued-chip` 暗示的 Chip——移除动作在独立的「撤回」按钮上，不在标签本身；命名与实现类名有出入，见下方精度笔记） | 已有 | testid `queued-message`(`App.tsx:1963`)，撤回真实从 `queuedMessages` 移除；class `queued-chip`(`App.tsx:1964`) 即被勘误为 Badge 的标记。 |
 | C20 | 输入区：Slash 命令 / 快捷指令语法 | 减法不取 | ⌘K 命令面板（`CommandPalette.tsx`）已是全局动作发现的唯一入口；RP-2.7 已把重复入口收敛为单一路径（composer 平铺上传按钮、独立 add-folder 钮等均已删）。composer 内再开一套命令语法会违反已确立的「唯一入口」纪律，且命令语法本身即工程词汇，触 §9。 |
-| C21 | ⌘K **Command Palette** | 已有 | `CommandPalette.tsx`，模糊匹配 + 键盘导航 + 场景/案件/全局动作，均调用真实状态转移（非 stub）。 |
-| C22 | 长消息折叠（**Truncation (Line Clamp)** + 内嵌展开按钮） | 已有 | `CollapsibleMessage.tsx`。 |
-| C23 | 粘贴块（长文本/代码折叠；形态近 Truncation 但整块折叠而非纯文字截断，无精确对应词条） | 已有 | `PasteBlock.tsx`。 |
-| C24 | 附件 **Chip**（进度/失败重试/移除/存入卷宗；可交互、可移除，与正名判据精确吻合） | 已有 | `AttachmentChip.tsx`。 |
-| C25 | 推理/思考过程展示（running 态指示器近似 **Spinner**，自定义品牌样式；settled 折叠锚 = **Disclosure**） | 已有 | `ProcessTrace.tsx` 四态（running/settled/empty/failed），键盘展开，reduced-motion 遵守全局规则。 |
-| C26 | Turn **Card** 族（event/artifact/file/gate/question；event 为扁平账本行，非卡） | 已有 | `TurnCard.tsx`；`file` 卡（`App.tsx:1865-1880`）含真实「在访达中显示」+「打开文件」（经 `systemOpenClient`）。 |
-| C27 | 工具调用步骤展开（**Disclosure**，原生 `<details>`） | 已有 | `ToolCallRow`（`TurnCard.tsx:80-98`），一行收起、展开显 args/result 摘要，全受控 `<details>`。 |
-| C28 | 存入卷宗 / 工作区（chat→work 桥） | 已有 | `storeChatIntoContainer`（`App.tsx:625`）。 |
+| C21 | ⌘K **Command Palette** | 已有 | 符号 `CommandPalette`(`CommandPalette.tsx:23`)，testid `command-palette`(`:74`)，模糊匹配 + 键盘导航 + 场景/案件/全局动作，均调用真实状态转移（非 stub）。 |
+| C22 | 长消息折叠（**Truncation (Line Clamp)** + 内嵌展开按钮） | 已有 | 符号 `CollapsibleMessage`(`CollapsibleMessage.tsx`)。 |
+| C23 | 粘贴块（长文本/代码折叠；形态近 Truncation 但整块折叠而非纯文字截断，无精确对应词条） | 已有 | 符号 `PasteBlock`(`PasteBlock.tsx`)。 |
+| C24 | 附件 **Chip**（进度/失败重试/移除/存入卷宗；可交互、可移除，与正名判据精确吻合） | 已有 | 符号 `AttachmentChip`(`AttachmentChip.tsx:24`)。 |
+| C25 | 推理/思考过程展示（running 态指示器近似 **Spinner**，自定义品牌样式；settled 折叠锚 = **Disclosure**） | 已有 | 符号 `ProcessTrace`(`ProcessTrace.tsx:44`) 四态（running/settled/empty/failed），键盘展开，reduced-motion 遵守全局规则。 |
+| C26 | Turn **Card** 族（event/artifact/file/gate/question；event 为扁平账本行，非卡） | 已有 | 符号 `TurnCard`(`TurnCard.tsx`)；`file` 卡（`kind="file"`, `App.tsx:1904`）含真实「在访达中显示」+「打开文件」（经 `systemOpenClient`）。 |
+| C27 | 工具调用步骤展开（**Disclosure**，原生 `<details>`） | 已有 | 符号 `ToolCallRow`(`TurnCard.tsx:80`)，一行收起、展开显 args/result 摘要，全受控 `<details>`。 |
+| C28 | 存入卷宗 / 工作区（chat→work 桥） | 已有 | 符号 `storeChatIntoContainer`(`App.tsx:662`)。 |
 | C29 | 新建对话（手动清空当前 canvas） | 减法不取（架构裁定：原则合规，归 CHAT 线后续） | 当前 chat canvas 无手动重置入口。**架构裁定（2026-07-16）**：ADR-013 禁止的是管理负担（重命名/归档/置顶/删除），不是「开始新对话」这一动作本身；手动新开在语义上等价于「用户主动触发窗口边界」（效果等同等满 1 小时），历史 transcript 照旧只读、memory 照旧生效，不涂改任何东西，与不变量无冲突——原则合规。但它属 CHAT 线体验增量而非本单的控件面对齐范围，本单不做；未来实现时在 ADR-013 补一句澄清（显式新开＝强制窗口边界）而非修改既有语义。 |
 | C30 | 键盘快捷键速查面板 | 减法不取 | 未在对标三例（对标清单方法论列的具名基准控件）中出现；现有交互刻意不加提示（RP-2.9「行为不变，不作提示」），新增速查面板是净增功能面而非对齐减法，超出「只做减法」框架。 |
 | C31 | 导出对话 / 下载 transcript | 减法不取 | Courtwork 定位是容器化工作证据链（"存入"仪式退出临时画布），聊天导出脱离案件容器审计链，未点名对标控件，不做。 |
@@ -72,15 +74,15 @@
 
 | # | 控件 | 处置 | 依据 |
 |---|---|---|---|
-| W1 | 任务/运行进度 | 已有 | `RightRailModules` Progress 模块消费 `session.progress` 消息流（`App.tsx:1629-1634`）；`PreviewProgressModel` 滚动进度轨 + 语义 marker（`PreviewHost.tsx:59-79`）。 |
-| W2 | 步骤展开（**Disclosure**） | 已有 | 同 C27（`ToolCallRow` 跨 Chat/Work 复用同一组件）。 |
-| W3 | 产物入口（承载容器 = **Inspector**；未注册 blueprint 回退态「当前版本不支持此工作面」= **Empty State**） | 已有 | `artifact_produced` 事件直接驱动 PreviewHost 自动打开（`App.tsx` 的 `previewViewForArtifact`/`moduleTargetForArtifact`），手动关闭按「案件+场景」记忆；`ArtifactHostView.tsx` 对未注册 blueprint 诚实回退 `UnsupportedArtifactView`（非假交互）；docx 产物卡（`file` 卡）真实「在访达中显示」+「打开文件」。 |
-| W4 | 确认队列 | 已有 | 三条各自独立且完整的就地确认面：审阅门禁（`RevisionPanel`，`Panels.tsx:265-380`，逐条 + 批量）、`OUTPUT-CONFIRM-UI-1` 未落点修订逐条确认（`Panels.tsx:281-319`）、ask-user 交互卡（`InteractionTurnCard`）。三者均在其发生处就地呈现，符合 §6「高风险逐条确认」；Courtwork 单容器单飞行架构（ADR-011「不引入第二 agent runtime」，无并行工具执行）下不存在「多运行并发待办」的场景，故不额外造跨案/跨运行的全局聚合审批收件箱（对比 Cowork/Codex 多并行 agent 场景下的队列控件，产品模型不同不强行对齐，此项减法理由与"已有"并记）。 |
-| W5 | 停止当前请求（Work/排队消息级；禁用态文案走 **Tooltip**） | 已有（未开通态；补测试标记） | `App.tsx:1929` `disabled title="停止当前请求将在执行器接线后启用"`，已是诚实文案（Work 场景执行器确未接线，`current.md`「Work command/projection...production 尚未接通」）。本单补 `data-state="unwired"`，不改行为、不伪装可用。 |
-| W6 | 卷宗整理计划（FileOps；空态文案属 **Empty State**） | 已有 | `FileOpsPlanPanel.tsx`，勾选/执行/撤销/报告全链真实（经 `@courtwork/tools/file-ops-executor`）；非 demo 案显式空态「整理计划将在拖入未归档文件后生成」（`App.tsx:1483-1487`），非假交互。 |
-| W7 | 工作稿（WorkDraft） | 已有 | `WorkDraftPanel.tsx`，新建/编辑/自动保存真实（当前内存态存储，重载丢失——数据持久层缺口非控件接线缺口，登记入复杂度扫描提案区，本单不改存储）。 |
-| W8 | 材料区「打开原件」（新按钮禁用态文案走 **Tooltip**） | 已有（demo）／**本单补·未开通态**（真实案） | Demo `OriginalsZone.tsx:27-39` 有真实「打开」（`systemOpenClient.openFile`，需绝对路径）。真实案 `MaterialsZone.tsx`（MATERIAL-INGRESS-1）只有「核验」，无打开/在访达中显示——真实材料只持 `grantId`+`relativePath`（渲染层不可见绝对路径，ADR-010 决定四），宿主侧目前无「按 grantId 打开/reveal」命令（`host_auth.rs`/`material_store.rs` 均未提供）。本单不建新宿主命令（"不做新後端能力"禁止扩张项），故补一枚显式未开通的「在访达中显示」按钮，对齐 demo 侧已有的用户期待，同时诚实标注尚未接线。 |
-| W9 | 主机文件夹授权面板 | 已有 | `HostAccessPanel.tsx`（HOST-AUTH-LITE），全链路真实。 |
+| W1 | 任务/运行进度 | 已有 | 符号 `RightRailModules` Progress 模块（`id:'progress'`, `App.tsx:1660`）消费 `session.progress`；testid `preview-scroll-progress`(`PreviewHost.tsx:60`) 滚动进度轨 + 语义 marker。 |
+| W2 | 步骤展开（**Disclosure**） | 已有 | 同 C27（符号 `ToolCallRow`, `TurnCard.tsx:80`，跨 Chat/Work 复用同一组件）。 |
+| W3 | 产物入口（承载容器 = **Inspector**；未注册 blueprint 回退态「当前版本不支持此工作面」= **Empty State**） | 已有 | `artifact_produced`(`App.tsx:794`) 驱动 PreviewHost 自动打开（符号 `previewViewForArtifact`, `App.tsx:165`），手动关闭按「案件+场景」记忆；符号 `ArtifactHostView`(`ArtifactHostView.tsx:35`) 对未注册 blueprint 诚实回退 `UnsupportedArtifactView`(`ArtifactTableRenderer.tsx:14`)（非假交互）；docx `file` 卡真实「在访达中显示」+「打开文件」。 |
+| W4 | 确认队列 | 已有 | 三条各自独立且完整的就地确认面：审阅门禁（符号 `RevisionPanel`, `Panels.tsx:265`，逐条 + 批量）、`OUTPUT-CONFIRM-UI-1` 未落点修订逐条确认（class `nonapplied-confirm`, `Panels.tsx:282`）、ask-user 交互卡（符号 `InteractionTurnCard`）。三者均在其发生处就地呈现，符合 §6「高风险逐条确认」；Courtwork 单容器单飞行架构（ADR-011「不引入第二 agent runtime」，无并行工具执行）下不存在「多运行并发待办」的场景，故不额外造跨案/跨运行的全局聚合审批收件箱（对比 Cowork/Codex 多并行 agent 场景下的队列控件，产品模型不同不强行对齐，此项减法理由与"已有"并记）。 |
+| W5 | 停止当前请求（Work/排队消息级；禁用态文案走 **Tooltip**） | 已有（未开通态；本单修 §9 文案 + 补测试标记） | testid `queued-message` 内「停止当前」按钮（`App.tsx:1966`）`disabled data-state="unwired"`。**本单 §9 修复**：title 由 `停止当前请求将在执行器接线后启用`（泄漏「执行器／接线」工程内部概念，违 §9）改为 `停止当前运行即将开通`（产品语言，无工程词）。Work 场景执行器确未接通（`current.md`「Work command/projection...production 尚未接通」），未开通态不伪装可用。 |
+| W6 | 卷宗整理计划（FileOps；空态文案属 **Empty State**） | 已有 | testid `file-ops-panel`(`FileOpsPlanPanel.tsx:100`)，勾选/执行/撤销/报告全链真实（经 `@courtwork/tools/file-ops-executor`）；非 demo 案显式空态「整理计划将在拖入未归档文件后生成」(`App.tsx:1522`)，非假交互。 |
+| W7 | 工作稿（WorkDraft） | 已有 | testid `work-draft-panel`(`WorkDraftPanel.tsx:81`)，新建/编辑/自动保存真实（当前内存态存储，重载丢失——数据持久层缺口非控件接线缺口，登记入复杂度扫描提案区，本单不改存储）。 |
+| W8 | 材料区「打开原件」（新按钮禁用态文案走 **Tooltip**） | 已有（demo）／**本单补·未开通态**（真实案） | Demo：testid `original-open`(`OriginalsZone.tsx:29`) 真实「打开」（`systemOpenClient.openFile`，需绝对路径）。真实案 `MaterialsZone.tsx`（MATERIAL-INGRESS-1）原只有 testid `material-verify`(`:56`)——真实材料只持 `grantId`+`relativePath`（渲染层不可见绝对路径，ADR-010 决定四），宿主侧无「按 grantId 打开/reveal」命令（`host_auth.rs`/`material_store.rs` 均未提供）。本单不建新宿主命令，补一枚显式未开通按钮 testid `material-reveal`(`:46`)，对齐 demo 侧用户期待并诚实标注尚未接线。 |
+| W9 | 主机文件夹授权面板 | 已有 | testid `host-access-row`(`HostAccessPanel.tsx:91`)（HOST-AUTH-LITE），全链路真实。 |
 | W10 | Working folders / Output 入口 | 已有 | RP-2.7 已收敛为左栏单一入口。 |
 | W11 | Legal 专用工作面（timeline/matrix/revision/graph）内部控件 | 已有（出既有范围不动） | 见 C9；产权归 `PANEL-BLUEPRINT-1`，本单不触其源码。 |
 
@@ -88,26 +90,33 @@
 
 #### 疊层控件清单与 dismiss 语义分类
 
-架构补充要求：疊层类（浮层/悬浮）控件逐项标注 dismiss 语义类别，决定其未来进入 `UI-RESIDUE-1` 残留门清单（`expectNoOverlayResidue`）的方式——**sheet 窗口级模态**（背板阻断全窗交互，需焦点陷阱+背景 `inert`/`aria-hidden` 回收）／**panel 浮动辅助**（非模态浮动内容区，不阻断背景，只需自身状态归零）／**popover 锚定**（绑定单一触发元素定位，`useDismissOnOutside` 点外/Esc 收敛，需回收锚点监听与 focus 归还）。以下清单覆盖本仓当前全部疊层控件（不止本单触面）；全部已遵守既有点外收敛/Esc 收敛/焦点管理纪律，本单未改变任何一个的行为——纯分类留痕。
+架构补充要求：疊层类（浮层/悬浮）控件逐项标注 dismiss 语义类别，决定其未来进入 `UI-RESIDUE-1` 残留门清单（`expectNoOverlayResidue`）的方式——**sheet 窗口级模态**（全窗背板阻断全窗交互，需焦点陷阱+背景 `inert`/`aria-hidden` 回收）／**panel 浮动辅助**（非模态浮动内容区，不阻断背景，只需自身状态归零）／**popover 锚定**（绑定单一触发元素定位，`useDismissOnOutside` 点外/Esc 收敛，需回收锚点监听与 focus 归还）。
 
-| 控件 | 正名（namethatui） | 触发 / 内容 | dismiss 语义类别 | 备注 |
+**UI-SURFACE-1-FIX 完整性重验（驳回项 1）**：架构已裁定「完整性是契约义务」——本表是 `UI-RESIDUE-1` 的直接输入，漏列/幽灵项会污染后续残留门清单。本会话起隔离 dev server（`127.0.0.1:1521`，全 workspace 先 build），对全 app `role=dialog/menu/listbox`、`*-popover`/`modal-backdrop`/`*-overlay` 全源码扫描后**逐个实开活 DOM 锚定**，不凭源码记忆。相较驳回前：**补入 3 个漏列**（「编译为 Word」modal、analytics opt-in confirm modal、owner/user menu）；**删除 1 个幽灵项**（「RightRailModules dock 态 L2 临时下拉」——RP-2.8 的 dock 已随 RP-2.11 顶栏重构退役，现行 `RightRailModules.tsx:61` 根节点固定 `data-mode="modules"`，`rg data-mode="dock"` = 0，live DOM 查询 `[data-mode="dock"]` 亦 0 节点）。**验证基准**：`验实` = 本会话亲自实开活 DOM 核验（testid/role/dismiss 已录）；`验收实` = 上轮独立验收会话已实开抽查（驳回报告「疊层清单抽查」5 项）；`e2e` = 既有 Playwright 真机套件覆盖其开合。source 行 @`9f5dfc2`。
+
+| 控件 | 正名（namethatui） | testid / 选择器 @`9f5dfc2` | dismiss 语义类别 | dismiss 触发 · 验证 |
 |---|---|---|---|---|
-| `ModelConfigPopover` | Popover | click；表单控件（model 输入 + Radio Group） | **popover 锚定** | `useDismissOnOutside`，锚定 composer 模型 chip |
-| Composer 「+」菜单 | Dropdown Menu | click；动作列表（`role=menu`/`menuitem`），选中后关闭 | **popover 锚定** | `composer-plus-menu` |
-| Composer 案件选择下拉 | Dropdown Menu（选择变体） | click；`role=listbox`/`option` | **popover 锚定** | `composer-case-menu` |
-| AttachmentChip 归属域确认 | Popover | click；确认文案 + 两按钮 | **popover 锚定** | `scope-popover-*` |
-| 容器化仪式确认 | Popover | click；说明文案 + 三按钮 | **popover 锚定** | `containerize-popover` |
-| 存入卷宗确认 | Popover | click；说明 + 三按钮 | **popover 锚定** | `store-chat-popover` |
-| 案件归档确认 | Popover | click；确认/取消 | **popover 锚定** | `ArchiveConfirmPopover.tsx` |
-| 卷宗整理撤销确认 | Popover | click；确认/取消 | **popover 锚定** | `file-ops-undo-popover` |
-| 场景「更多」菜单 | Dropdown Menu（语义）／通用 popover div（实现未走 `role=menu`） | click；备选场景按钮列表 | **popover 锚定** | `scene-more-popover` |
-| ⌘K **Command Palette** | Command Palette（自成词条；dismiss 力学近 Modal Dialog） | click/⌘K；全窗背板 `role=dialog aria-modal="true"` | **sheet 窗口级模态** | 阻断全窗直至 Esc/选中/点外 |
-| Settings 页 | Modal Dialog | 全窗居中，`role=dialog` | **sheet 窗口级模态** | SPEC 既有称呼「L2 居中 modal」 |
-| 首启/凭证 Provider-setup 对话框 | Modal Dialog | 全窗居中，`role=dialog` | **sheet 窗口级模态** | 首启专属路径 |
-| `NewCaseDialog` | Modal Dialog | 全窗居中，`role=dialog` | **sheet 窗口级模态** | |
-| RightRailModules dock 态 L2 临时下拉 | Panel（浮动辅助，近似对应） | click；显示模块正文（非动作列表/表单），不阻断背景交互 | **panel 浮动辅助** | RP-2.8「44px utility dock 点击只打开一个 L2 临时下拉」；本仓无独立 OS 级浮动窗口，取行为最近似分类 |
+| `ModelConfigPopover` | Popover | `model-config-popover`(`ModelConfigPopover.tsx:26`) | **popover 锚定** | `useDismissOnOutside`（点外/Esc）· 验收实 |
+| Composer 「+」菜单 | Dropdown Menu | `composer-plus-menu` `role=menu`(`Composer.tsx:392`) | **popover 锚定** | `useDismissOnOutside`；选中即收 · 验收实 |
+| Composer 案件选择下拉 | Dropdown Menu（选择变体） | `composer-case-menu` `role=listbox`(`Composer.tsx:531`) | **popover 锚定** | `useDismissOnOutside` · 验收实 |
+| AttachmentChip 归属域确认 | Popover | `scope-popover-*` `role=dialog`(`AttachmentChip.tsx:130`) | **popover 锚定** | 显式（取消/确认存入），无点外收敛 · 验实 |
+| 容器化仪式确认（composer 先聊后建） | Popover | `containerize-popover` `role=dialog`(`Composer.tsx:340`) | **popover 锚定** | 显式（取消/工作区/案件）· e2e（ux1 #3） |
+| 容器化仪式确认（rail 未归档行） | Popover | `containerize-popover`（同 testid，另一挂载点）`role=dialog`(`CaseRail.tsx:241`) | **popover 锚定** | 显式；随行渲染 · e2e |
+| 存入卷宗确认（chat→容器桥） | Popover | `store-chat-popover` `role=dialog`(`App.tsx:2024`) | **popover 锚定** | `useDismissOnOutside`（`App.tsx:684`）· e2e |
+| 案件归档确认 | Popover | `.archive-popover` `role=dialog`(`ArchiveConfirmPopover.tsx:10`) | **popover 锚定** | 显式（取消/归档），随行渲染 · 验实 |
+| 卷宗整理撤销确认 | Popover | `.file-ops-undo-popover` `role=dialog`；confirm `file-ops-undo-confirm`(`FileOpsPlanPanel.tsx:133`) | **popover 锚定** | 显式（取消/确认撤销）· 验实 |
+| 场景「更多」菜单 | Dropdown Menu（语义）／通用 popover div（未走 `role=menu`） | `scene-more-popover`(`App.tsx:1990`) | **popover 锚定** | `useDismissOnOutside`（`App.tsx:683`）· 验实 |
+| **owner/user 菜单**（补） | Dropdown Menu | `user-menu` `role=menu`；trigger `user-menu-trigger`(`CaseRail.tsx:429`/`:424`) | **popover 锚定** | `useDismissOnOutside`（点外/Esc，`CaseRail.tsx:103`）· 验实（实开：Settings/Feedback 两项，Esc 收敛） |
+| ⌘K **Command Palette** | Command Palette（自成词条；dismiss 力学近 Modal Dialog） | `command-palette` `role=dialog aria-modal`；backdrop `palette-backdrop`(`CommandPalette.tsx:74`/`:67`) | **sheet 窗口级模态** | 全窗背板：Esc/选中/点背板 · 验收实 |
+| Settings 页 | Modal Dialog | `settings-page` `role=dialog aria-modal`(`SettingsPage.tsx:177`) | **sheet 窗口级模态** | `settings-close`/Esc · 验实 |
+| 首启/凭证 Provider-setup | Modal Dialog | `provider-setup` `.provider-dialog role=dialog aria-modal`(`ProviderSetup.tsx:46`) | **sheet 窗口级模态** | 显式（首启路径）· 验实（导览时实渲，内含 `provider-skip`） |
+| `NewCaseDialog` | Modal Dialog | `new-case-dialog` `role=dialog aria-modal`(`NewCaseDialog.tsx:83`) | **sheet 窗口级模态** | 显式 · 验收实 |
+| **「编译为 Word」定稿 modal**（补） | Modal Dialog | `.compile-dialog role=dialog aria-modal aria-labelledby=compile-title`；confirm `confirm-draft-compile`；backdrop `.modal-backdrop`(`App.tsx:2217`) | **sheet 窗口级模态** | 显式（取消/确认定稿并编译），背板 `role=presentation` 无 onClick · 验实 |
+| **analytics opt-in confirm modal**（补） | Modal Dialog | `settings-optin-confirm` `.settings-confirm-dialog role=dialog aria-modal`；backdrop `.settings-confirm-backdrop`(`SettingsPage.tsx:576`/`:574`) | **sheet 窗口级模态**（嵌于 Settings 内，modal-over-modal） | 显式（Cancel/Enable）· 验实 |
 
-未列入上表：RightRailModules 手风琴（内嵌展开，非浮层）、ToolCallRow/CollapsibleMessage（Disclosure/Truncation，内嵌非浮层）、composer 拖放遮罩（Drag & Drop 落点提示，随拖拽状态自动生灭非用户主动关闭）、`NSOpenPanel`（系统托管生命周期，非本仓 DOM）——理由见「词汇基准」表。
+**panel 浮动辅助：本仓当前无成员。** 原表「RightRailModules dock 态 L2 临时下拉」为幽灵项已删（见上「完整性重验」）；分类定义保留供未来真出现非模态浮动辅助窗口时归类。
+
+未列入上表（非疊层浮面，理由见「词汇基准」表）：RightRailModules 手风琴（内嵌展开）、ToolCallRow/CollapsibleMessage（Disclosure/Truncation，内嵌）、composer 拖放遮罩 `composer-drop-overlay`（Drag & Drop 落点提示，随拖拽状态自动生灭，非用户主动关闭）、`NSOpenPanel`（系统托管生命周期，非本仓 DOM）。
 
 ### 处置摘要
 
@@ -166,6 +175,15 @@
 - 未开通态标记：`MessageActions.tsx`（Read aloud / More）、`Composer.tsx`（camera / voice）、`RightRailModules.tsx`（reader-entry）、`App.tsx`（排队消息「停止当前」）四处既有诚实未开通控件补 `data-state="unwired"`，行为与文案零改动；`MaterialsZone.tsx` 新增「在访达中显示」按钮（disabled + 诚实文案 + 标记），对齐 demo 侧 `OriginalsZone` 已有的「打开」用户期待，同时如实呈现真实材料侧尚无宿主 reveal 命令的边界。新静态门 `assert-ui-surface-contracts.mjs` 把这一约定变成可回归断言，并扫描全触面文件禁止营销腔文案。
 - 明确不动 `workbench/Panels.tsx`/`GraphPanel.tsx`/`ArtifactTableRenderer.tsx`（Legal 专用工作面四个 route panel 的产权边界，归 `PANEL-BLUEPRINT-1`）；不建任何新宿主/Tauri 命令；不改 Turn/Work 协议；不做 PREVIEW-TAB。
 - 工作树留痕：本会话在隔离 worktree `impl/ui-surface-1`（自 `main @ 056500a`）逐文件手术暂存；全部完工门在该 tip 隔离端口实跑为绿，未见既有红例；最终门禁数字与放行结论由独立验收在 clean worktree/隔离端口复跑填写。
+
+### UI-SURFACE-1-FIX · 验收驳回三项修复（实现完成，待独立复验）
+
+权威：`apps/desktop/ACCEPTANCE.md`「UI-SURFACE-1-ACCEPT ❌ 不放行」末节三项阻断。基线 `main @ 9f5dfc2`（含 Codex 两枚守卫加固 `b757d20`/`04185ac`，本单未回退其内容——静态门逐 marker 枚举与三个 e2e 的 force-click 行为断言均保留并被本单文案改动如实同步）。隔离 worktree `impl/ui-surface-1-fix`。纯修复：不动重试接线与七处 unwired 行为、不做新控件、不碰 Codex 加固语义。
+
+- **驳回项 1（疊层清单完整性 + 幽灵项）——已修**：起隔离 dev server 全源码扫 + 逐个实开活 DOM 重验（见「疊层控件清单」小节重写）。补 3 漏列（`.compile-dialog`/`confirm-draft-compile`、`settings-optin-confirm`、`user-menu`），删 1 幽灵（dock L2 下拉；`data-mode="dock"` 源码与 live DOM 双零）。每行改为 testid/选择器 + `file:line@9f5dfc2` + 验证基准（验实/验收实/e2e）。panel 类如实标注「本仓当前无成员」。本会话亲自实开核验：user-menu（role=menu、Settings/Feedback 两项、Esc 收敛）、settings-optin-confirm（modal-over-modal、Cancel 收）、compile-dialog（aria-modal、取消收）、settings-page、scene-more、archive、file-ops-undo、scope-popover、provider-setup（导览时实渲）。
+- **驳回项 2（W5 §9 工程词）——已修**：W5 title `停止当前请求将在执行器接线后启用`（泄漏「执行器／接线」）→ `停止当前运行即将开通`（产品语言）。grep 全部未开通/禁用文案复扫工程词：另发现 reader-entry `阅读视图待接入`/`待接入`（「接入」同属 wiring 内部概念）一并改 `阅读视图即将开通`/`即将开通`。其余未开通文案（`Coming later`/`Coming soon`/`即将开通`/`即将上线`）§9 洁净。**C6 `Message fork editing comes later` 的 `fork` 判定保留**：是产品功能名（消息分叉编辑）而非实现内部工程词，与「执行器/接线/schema/token」等实现内部概念不同类，不在 §9 禁列。**静态门补 §9 守卫**：`assert-ui-surface-contracts.mjs` 新增工程词黑名单（接线/接入/执行器/端口/schema/instruction/locator/trace/prompt/token/wire/endpoint/executor…），只扫 title 属性的**字符串值**（不含周围 opening tag，故 `data-state="unwired"` 里的 `wire` 不误触）+ `DISABLED_TOOLTIPS` 值；覆盖 `title="X"` 与 reader-entry 的三元 `title={... 'X' ...}`。反例触红实证：重注入 `执行器接线`→门 exit 1 精确报「含工程词『接线』」；注入 `待接入` 入三元→exit 1 报「接入」；还原→exit 0。触及的 2 个既有 e2e title 断言（`composer.spec.ts` W5、`ui-surface.spec.ts` reader-entry）如实同步为新文案。
+- **驳回项 3（31+11 file:line 漂移/缺位）——已修**：全部 C1–C31/W1–W11 依据对照 `9f5dfc2` 尖端重校，drift 逐条纠正（如 C1 `:610→:630`、C14 `:243-247→:252`、C19 `:1926-1928→:1963-1966`、C28 `:625→:662`、W5 `:1929→:1966`）；只列档名的行（C10/C12/C21/C24/C25/W7/W9 等）补精确行号；证据锚统一为「符号/testid + `file:line@9f5dfc2`」双锚，并在「对标清单」小节头注明基准 SHA 与「行号漂移以符号 grep 复定位」原则。本单源码仅 W5/reader-entry 两处同行字符串替换、零行数漂移，故行号在本修复尖端与 `9f5dfc2` 一致。
+- **触面**（全 `apps/desktop`）：`src/App.tsx`（W5 title）、`src/rail/RightRailModules.tsx`（reader-entry title×2）、`scripts/assert-ui-surface-contracts.mjs`（§9 守卫 + 读 `composer/types.ts`）、`tests/e2e/composer.spec.ts` + `tests/e2e/ui-surface.spec.ts`（title 断言同步）、`SPEC.md`（三项留痕）。floor 231 不动（纯修复，无新增/删除用例）。`current.md` 不更新，不推送。
 
 ## OUTPUT-CONFIRM-UI-1 · 审阅→docx 未落点修订的产品侧逐条确认（实现完成，待独立验收）
 

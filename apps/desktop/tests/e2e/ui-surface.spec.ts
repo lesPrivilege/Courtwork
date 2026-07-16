@@ -109,10 +109,10 @@ test.describe('UI-SURFACE-1 · Work 侧未开通态可测标记', () => {
     await openWorkingFolders(page);
     const entries = page.getByTestId('reader-entry');
     await expect(entries).toHaveCount(3);
-    // 第一条（设备采购合同）已接入；后两条（催告函/验收记录扫描件）显式未开通。
+    // 第一条（设备采购合同）已接入；后两条（催告函/验收记录扫描件）显式未开通（§9 产品语言）。
     const unwired = entries.filter({ hasText: '催告函' });
     await expect(unwired).toBeDisabled();
-    await expect(unwired).toHaveAttribute('title', '阅读视图待接入');
+    await expect(unwired).toHaveAttribute('title', '阅读视图即将开通');
     await expect(unwired).toHaveAttribute('data-state', 'unwired');
     const dialogsBefore = await page.getByRole('dialog').count();
     await unwired.click({ force: true });
