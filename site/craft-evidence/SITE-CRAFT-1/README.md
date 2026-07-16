@@ -19,7 +19,7 @@
 
 ## 退化实测（`measurements.json`）
 
-- **reduced-motion**：Typer `getAnimations`（`.tc`）= `0`、`animation-name:none`、定格 `color: rgb(10,37,64)`（`--ink`）；Ghosty `mask:none` + `transition: opacity 0.42s`；CTA `::before` 背景静态存在、`animation-name:none`；整页 `getAnimations()` = `0`。
+- **reduced-motion**：Typer `getAnimations`（`.tc`）= `0`、`animation-name:none`、定格 `color: rgb(10,37,64)`（`--ink`）；Ghosty `mask:none` / `opacity:1`，无 opacity transition，从首帧起 0ms 直接全显且活动动画为 `0`；CTA `::before` 背景静态存在、`animation-name:none`；整页 `getAnimations()` = `0`。
 - **normalMotion**：Typer 挂载 `10` 条逐字动画；Ghosty `mask-image` 命中 `ghosty-mask`、`mask-size:100% 300%`、隐藏预态 `mask-position: 0px 100%`、`transition` 含 `mask-position 0.9s`；`document.documentElement` 带 `js` 类。
 - **JS 关闭**（另测）：无 `js` 类、`h1` 文本与 `aria-label` 均为「模型只生成，不裁决。」、案例截图 `mask:none` / `opacity:1` / `naturalWidth 640`，内容完整。
 

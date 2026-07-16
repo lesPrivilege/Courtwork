@@ -134,7 +134,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 
 /* Ghosty reveal：案例截图经羽化遮罩纵向扫过显影，IntersectionObserver 滚动触发（main.js）。
    隐藏预态仅在 JS 就绪（.js）时武装，故 JS 关闭时截图完整可见；卷宗数字属数据区，保持绝对静止不参与。
-   reduced-motion 退化为 opacity 淡入（不做遮罩位移）。SITE-CRAFT-1（Pages 就地破例 principles.md §5）。 */
+   reduced-motion 取消遮罩并直接全显（0ms、零运动）。SITE-CRAFT-1（Pages 就地破例 principles.md §5）。 */
 .js .work-crop[data-reveal] img {
   -webkit-mask-image: url(assets/ghosty-mask.svg);
   mask-image: url(assets/ghosty-mask.svg);
@@ -154,10 +154,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
   .js .work-crop[data-reveal] img {
     -webkit-mask-image: none;
     mask-image: none;
-    opacity: 0;
-    transition: opacity 420ms var(--ease-out);
   }
-  .js .work-crop[data-reveal].is-visible img { opacity: 1; }
 }
 
 .scenario-ledger { padding: 112px max(24px, calc((100% - 1120px) / 2)) 96px; border-block: 1px solid var(--border-hairline); background: var(--bg-raised); }
