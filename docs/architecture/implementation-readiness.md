@@ -65,6 +65,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 | `WORK-LIVE-1` | production run/replay/resume/cancel，只装配已验收前置 | 真实材料跨重启完成证据—确认—docx 链；recording 消费为零 |
 | `USAGE-LEDGER-1` | 保存 provider 原始 usage、unknown 语义、cache/reasoning 计量和版本化估算 | DeepSeek fixture 与缺字段反例可重放；原始计量和派生价格不互相覆盖 |
 | `PM-SCHEMA-1` | 令 OOC score 与确定性计算同义，并版本化 payload/schema/migration | OOC、drift、旧版本迁移与 catalog-only 边界触红；不夹带 PM scenario |
+| `SITE-CRAFT-2` | Pages 视效升级（对标 trae.ai 级门面，避免被归入普通 repo）。架构定向：不拼通用工艺（渐变/3D 与克制纪律相悖且拼不过预算），高级感由**产品本体的 schema 可视化承担**——hero 升级为活的 schema 工作面微演示（锚点跳转/逐条确认/修订对照的录制回放或轻交互重建，feldar 台账的活化版）；新增动效逐个走 site-evidence-line 例外条款 + AST 锁扩展 + 逐帧采样。供料：Sol 视觉扫 trae.ai 一类站点（computer use）+ Codex image 穷举存货 | 微演示可视对照与逐帧证据；例外条款留痕；site:guard 全绿；数据区绝对静止不破 |
 | `UI-SURFACE-1` | 控件面向成熟 agent 产品对齐（对标 Cowork/Codex 类，只做减法）：补齐 Chat/Work 工作面应有的控件全集（停止/重试/复制/引用回跳/会话导航/模型信息等，以实测对标清单为准）；**未接线控件一律显式未开通态**（disabled + 诚实文案），不伪装可用、不造假交互；零新依赖，全落设计语言 | 对标清单留痕（哪些取/哪些减及理由）；每个未开通控件有显式态测试；已接线控件行为测试；四设计门与残留门约束适用 |
 | `VOICE-SPEC-1` | 文案规范入设计系统：动作命名动词+名词、错误文案「发生了什么+下一步」、toast 禁「成功」、进行态与空态体例；与「零技术概念暴露」合并成 `docs/design/voice.md`，可机器断言条款转静态门 | 规范文档 + UI 字符串静态扫描门；注入违例文案（裸「确认」、「成功删除」）触红 |
 | `DESIGN-MD-1` | 从 `tokens.json` + `principles.md` 编译机器可读 `courtwork-design.md` 供效果图生成管线前置约束；编译件非权威，tokens.json 仍是唯一真值 | 编译脚本 + drift 门（tokens 变更未重编译触红）；不新增手写第二份 token 真值 |
