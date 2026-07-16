@@ -1,3 +1,65 @@
+# ACCEPTANCE: UI-SURFACE-1-FIX-FOCUSED-REACCEPT
+
+日期：2026-07-16
+
+角色：獨立驗收會話（聚焦復驗；未重跑完整產品審計）
+
+對象：`impl/ui-surface-1-fix @ 7cac094`，基線 `9f5dfc2`（含前輪驗收加固 `b757d20` / `04185ac`），合併尖端 `main @ 0d120e8`
+
+## 裁決
+
+**❌ 不放行 UI-SURFACE-1。**
+
+前輪三項阻斷中，疊層清單修復與 §9 文案／靜態門修復均由獨立實開、源碼核對及 mutation 觸紅證實成立；前輪兩枚驗收加固亦未回退，合併尖端全量門為綠。然而第三項「C1–C31／W1–W11 證據雙錨」仍未完成：指定抽樣 10 行實得 9 行正確、1 行錯位，且同表仍殘留多個「已有」項只有檔名或沒有 `file:line`。這正是上輪驳回項本身，不能以符號可 grep 或全量測試綠替代「file:line 指向正確」的修復義務。
+
+本次驗收在獨立 clean worktree `/private/tmp/courtwork-ui-surface-1-fix-accept`、分支 `codex/accept-ui-surface-1-fix` 完成；共享樹未 checkout、未 stash。未更新 `docs/status/current.md`，不推送。
+
+## 1. 疊層清單：通過
+
+17 行逐行對照 `9f5dfc2` 源碼完成；3 個新增項另由驗收會話在隔離 `127.0.0.1:18601` 親自實開：
+
+| 新增項 | 活 DOM 實得 | 反向收斂 |
+|---|---|---|
+| owner/user menu | `user-menu`、`role=menu`；恰有 Settings & updates / Give us feedback 兩項；trigger `aria-expanded=true` | Esc 後節點 0 |
+| analytics opt-in confirm | `settings-optin-confirm`、`role=dialog`、`aria-modal=true`；Settings modal 同時在場，背板 1 | Cancel 後 confirm 0，Settings 仍為 1 |
+| 編譯為 Word modal | `.compile-dialog`、`role=dialog`、`aria-modal=true`、`aria-labelledby=compile-title`；confirm testid 1，父背板 `role=presentation` | 取消後節點 0 |
+
+幽靈 dock 由源碼與活 DOM雙證為零：`rg data-mode="dock" apps/desktop/src apps/desktop/tests/e2e` 無命中；頁面 `[data-mode="dock"]` 實得 0；`RightRailModules` 根節點固定 `data-mode="modules"`。
+
+dismiss 語義抽查 5 行均與實作一致：ModelConfigPopover（popover，`useDismissOnOutside`）、AttachmentChip scope（popover，僅顯式取消／確認）、store-chat（popover，`useDismissOnOutside`）、Command Palette（sheet，Esc／選中／點背板）、Settings（sheet，Close／Esc）。panel 類現行無成員。
+
+## 2. §9 文案與門：通過
+
+- W5 title 實得 `停止當前運行即將開通`；reader-entry disabled title 實得 `閱讀視圖即將開通`，兩者均無執行器／接線／接入等工程詞。
+- 獨立掃描 6 個未開通文案真源（App、MessageActions、Composer、composer/types、RightRailModules、MaterialsZone），工程詞違例 **0**；7 枚 unwired marker 的 disabled／title 形制保持成立。
+- mutation 實證：把 W5 重注入舊字串 `停止當前請求將在執行器接線後啟用`，`lint:ui-surface` exit 1，精確報 `含工程詞「接線」`；以精確 patch 還原後門重新 exit 0，產品源碼零 mutation diff。
+
+## 3. 證據雙錨：不通過
+
+按要求抽 10 行在 `9f5dfc2` 實地核對 C1、C2、C10、C14、C16、C19、C21、C28、W1、W5：
+
+- 9 行的符號／testid 與行號吻合；
+- **C21 不吻合**：SPEC 寫 `testid command-palette (CommandPalette.tsx:74)`；`9f5dfc2` 的 `:74` 是 `className="command-palette"`，真正 `data-testid="command-palette"` 在 `:78`。若意圖以 class 作次錨，文字就不能宣稱 testid。
+
+此外，在同一 31+11 清單可直接確認「全行雙錨」宣稱尚未成立：C22 `CollapsibleMessage.tsx`、C23 `PasteBlock.tsx`、C26 `TurnCard.tsx` 仍只有檔名無行號；W10 僅寫 RP-2.7，無符號/testid 與 `file:line`。C12 同樣把 `model-config-popover` testid 寫在 `ModelConfigPopover.tsx:26`，實際 testid 在 `:29`（`:26` 是 class）。
+
+所需修復是文件證據校準，不涉及產品行為或跨層契約；但在精確修復完成前，第三項驳回阻斷仍在。
+
+## 4. 不回退與全量門
+
+- 前輪加固保持：`MINIMUM_UNWIRED_MARKERS = 7`；未開通控件 force-click 不產生 dialog／feedback；非末位失敗輪次不提供 Retry。
+- Playwright floor：**231**，未下降。
+- `pnpm -r build`：PASS（僅既有 chunk-size warning）。
+- `pnpm lint`：PASS。
+- root Vitest：**140 files / 1210 tests passed**。
+- desktop Vitest：**49 files / 265 tests passed**。
+- 完整靜態門：全部 PASS，含 motion/signature/neutral/elevation/view ABI/work port/host auth/material/UI surface 等。
+- 隔離端口 `COURTWORK_E2E_PORT=18602`：**231/231 passed**（1.8m），零 fail／skip；`goal2:54` 本輪正常通過，無需 6 次隔離定性。
+
+> **最終判定：不放行。** 下一輪只需聚焦復核第三項：把所有「已有」能力的雙錨補全並校準 testid／symbol 的實際行，至少修正 C12、C21、C22、C23、C26、W10；其餘兩項與全量產品行為本輪已證成立，不要求重做。
+
+---
+
 # ACCEPTANCE: UI-SURFACE-1-ACCEPT
 
 日期：2026-07-16
