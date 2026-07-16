@@ -20,6 +20,8 @@
 
 驗收於獨立 clean worktree `/private/tmp/courtwork-ui-surface-1-accept`、分支 `codex/accept-ui-surface-1` 執行；未 checkout/stash 共享樹、未執行 `git worktree prune`、未更新 `docs/status/current.md`、不推送。不採信實現自述。
 
+交接事實差異：驗收開始時共享 `main` 尖端為 `e238563`；報告提交後復核時共享 `main` 已前進至 `246448c`，新增內容僅為 `archive/research-2026-07-15-round-3/README.md` 與 `chinese-display-font.md` 的調研歸檔。`e238563` 仍是其祖先，`apps/desktop` 與本單組合碼未變；因此驗收證據仍鎖定指定合併尖端 `e238563`，不把並行 archive 變化混入本單裁決。
+
 ## 全量門（獨立實跑）
 
 | 門禁 | 結果 |
