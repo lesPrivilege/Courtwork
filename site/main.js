@@ -1,8 +1,9 @@
-const steps = [...document.querySelectorAll('.evidence-step')];
+document.documentElement.classList.add('js');
+const revealTargets = [...document.querySelectorAll('.evidence-step, [data-reveal]')];
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 if (reduceMotion || !('IntersectionObserver' in window)) {
-  steps.forEach((step) => step.classList.add('is-visible'));
+  revealTargets.forEach((target) => target.classList.add('is-visible'));
 } else {
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
@@ -11,5 +12,5 @@ if (reduceMotion || !('IntersectionObserver' in window)) {
       observer.unobserve(entry.target);
     }
   }, { threshold: 0.55 });
-  steps.forEach((step) => observer.observe(step));
+  revealTargets.forEach((target) => observer.observe(target));
 }
