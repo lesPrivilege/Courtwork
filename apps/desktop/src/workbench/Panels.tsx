@@ -375,7 +375,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
               </div>
             </section>;
           })}</div>
-          <footer><span>{selectedGate?.mode === 'individual' ? `逐条确认 · ${reviewedCount}/${props.selectedRisk.basis.length} 依据已展开` : '可在批量范围内确认'}</span><i /><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'rejected')}>驳回</button><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'revision')}>修正</button><button className="primary-button" disabled={!props.individualReady} onClick={() => props.onDispose(props.selectedRisk.id, 'confirmed')}>确认</button></footer>
+          <footer><span>{selectedGate?.mode === 'individual' ? `逐条确认 · ${reviewedCount}/${props.selectedRisk.basis.length} 依据已展开` : '可在批量范围内确认'}</span><i /><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'rejected')}>驳回</button><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'revision')}>修正</button><button className="primary-button" disabled={!props.individualReady} onClick={() => props.onDispose(props.selectedRisk.id, 'confirmed')}>确认此项</button></footer>
         </article>
       </div>
       <div className="document-preview"><header><strong title="精密铸造生产线设备采购合同">精密铸造生产线设备采购合同</strong><span>修订 4 处</span></header><p>乙方应于本合同签订后 7 日内支付预付款。逾期付款的，<del>每逾期一日按未付金额的 1%</del><ins>违约金以实际损失为基础，并依法定标准调整</ins>。</p><p>设备到货后，买方应在 <ins>7 个工作日内书面提出验收异议</ins>；逾期未提出不当然视为验收合格。</p></div>

@@ -22,7 +22,7 @@ test('schema and container semantics remain Chinese behind English chrome', asyn
   await expect(page.getByTestId('flow-s3')).toContainText('合同审查');
   await expect(page.getByTestId('view-revision')).toHaveText(/修订预览/);
   await expect(page.getByTestId('case-file-count')).toContainText('卷宗');
-  await expect(page.getByRole('button', { name: '确认', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '确认此项', exact: true })).toBeVisible();
 });
 
 test('composer keeps four primary positions and consolidates attachment actions under plus', async ({ page }) => {
