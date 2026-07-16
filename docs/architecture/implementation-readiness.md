@@ -65,6 +65,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 | `WORK-LIVE-1` | production run/replay/resume/cancel，只装配已验收前置 | 真实材料跨重启完成证据—确认—docx 链；recording 消费为零 |
 | `USAGE-LEDGER-1` | 保存 provider 原始 usage、unknown 语义、cache/reasoning 计量和版本化估算 | DeepSeek fixture 与缺字段反例可重放；原始计量和派生价格不互相覆盖 |
 | `PM-SCHEMA-1` | 令 OOC score 与确定性计算同义，并版本化 payload/schema/migration | OOC、drift、旧版本迁移与 catalog-only 边界触红；不夹带 PM scenario |
+| `UI-SURFACE-1` | 控件面向成熟 agent 产品对齐（对标 Cowork/Codex 类，只做减法）：补齐 Chat/Work 工作面应有的控件全集（停止/重试/复制/引用回跳/会话导航/模型信息等，以实测对标清单为准）；**未接线控件一律显式未开通态**（disabled + 诚实文案），不伪装可用、不造假交互；零新依赖，全落设计语言 | 对标清单留痕（哪些取/哪些减及理由）；每个未开通控件有显式态测试；已接线控件行为测试；四设计门与残留门约束适用 |
 | `VOICE-SPEC-1` | 文案规范入设计系统：动作命名动词+名词、错误文案「发生了什么+下一步」、toast 禁「成功」、进行态与空态体例；与「零技术概念暴露」合并成 `docs/design/voice.md`，可机器断言条款转静态门 | 规范文档 + UI 字符串静态扫描门；注入违例文案（裸「确认」、「成功删除」）触红 |
 | `DESIGN-MD-1` | 从 `tokens.json` + `principles.md` 编译机器可读 `courtwork-design.md` 供效果图生成管线前置约束；编译件非权威，tokens.json 仍是唯一真值 | 编译脚本 + drift 门（tokens 变更未重编译触红）；不新增手写第二份 token 真值 |
 | `PREVIEW-TAB-1` | ADR-014 决定一/二：tab 集合按会话 artifact 动态生成（tab=一张 schema 表）、多 artifact 并列、`containerPackBinding` 数组席位（恒 1）；与 Legal panel 迁移解耦，共存语义按 ADR-014 | 多 artifact 动态开 tab、切换不销毁状态（残留门约束）、单 artifact 回退、混包命名空间隔离反例触红 |
