@@ -357,6 +357,10 @@ async function generateArtifact(
       artifactType,
       attempt,
     }, assembled.request, deps);
+    // 屏障③（ADR-010 决定二第 3 条）：Turn terminal 成功持久后才能解析并发布 artifact。必须先于
+    // JSON/schema/citation 解析——即使解析中途抛出或崩溃，已完成（可能已计费）的 provider 调用
+    // 仍有落盘证据，不依赖"等 artifact 也解析完再补一次合并落盘"侥幸兜底。
+    await deps.persistBarrier?.();
     guard.checkTime();
     // 派生估价与原始计量分开：只取版本化 estimate 的美元数交给护栏，不改写 turn.usage 计量真源。
     const estimate = estimateCostUsd(turn.providerId, turn.modelId, turn.usage);
@@ -506,9 +510,10 @@ async function produceSequence(
     deps.eventLog.append({
       type: 'artifact_produced', artifactType, artifact, evidenceGrades: deps.ledger.snapshot(), providerNotices: notices, citationStats,
     });
-    // 屏障③（ADR-010 决定二第 3 条）：Turn terminal 成功持久后才能解析并发布 artifact。
-    // 本次落盘把 turn journal 快照（含 terminal）与 artifact_produced 一并持久。
-    await deps.persistBarrier?.();
+    // artifact_produced 本身不再在此单开一次屏障：其终态 Turn 已经在 generateOnce 里屏障③落盘，
+    // 本条 artifact_produced 与该屏障共享同一份内存 whole-envelope，必定被本函数返回前的下一次
+    // 屏障（下一件 artifact 的 turn_linked、pauseAt 的 pending，或本函数末尾的终局屏障）一并落盘——
+    // 三者必居其一，故"发布前必须已落盘"仍然成立，且不额外增加落盘次数（归并 ~6 次/场景不变）。
 
     const gate = findGate(scenario, artifactType);
     if (gate) {
