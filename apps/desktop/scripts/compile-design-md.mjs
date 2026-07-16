@@ -22,7 +22,9 @@ const generated = compileDesignMd({
 
 if (process.argv.includes('--write')) {
   writeFileSync(OUT, generated, 'utf8');
-  process.stdout.write(`design-md: 已写入 docs/design/courtwork-design.md（${generated.length} 字节）\n`);
+  process.stdout.write(
+    `design-md: 已写入 docs/design/courtwork-design.md（${Buffer.byteLength(generated, 'utf8')} 字节）\n`,
+  );
 } else {
   let committed;
   try {
