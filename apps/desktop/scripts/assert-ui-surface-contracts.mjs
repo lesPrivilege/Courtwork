@@ -14,11 +14,24 @@ const files = Object.fromEntries(await Promise.all([
   ['composer', 'src/composer/Composer.tsx'],
   ['railModules', 'src/rail/RightRailModules.tsx'],
   ['materialsZone', 'src/system/MaterialsZone.tsx'],
+  ['composerTypes', 'src/composer/types.ts'],
 ].map(async ([name, relative]) => [name, await readFile(path.join(root, relative), 'utf8')])));
 
 const failures = [];
 
 const MARKETING_TONE = ['敬请期待', '即将震撼', '敬请关注', 'Stay tuned'];
+
+// §9 零技术概念暴露：未开通态文案（tooltip/title）不得泄漏工程内部概念。
+// 中文子串直配；英文按词界匹配避免误伤（如 'unwired' 不得因含 'wire' 触发）。
+// 覆盖驳回报告点名的「执行器/接线」及其同族「接入/端口」，与 §9 例词。
+const NINE_ENGINEERING_ZH = ['接线', '接入', '执行器', '端口', '句柄', '钩子', '渲染器', '适配器'];
+const NINE_ENGINEERING_EN = ['schema', 'instruction', 'locator', 'trace', 'prompt', 'token', 'wire', 'endpoint', 'executor'];
+function ninthViolation(copy) {
+  const zh = NINE_ENGINEERING_ZH.find((term) => copy.includes(term));
+  if (zh) return zh;
+  const en = NINE_ENGINEERING_EN.find((term) => new RegExp(`\\b${term}\\b`, 'i').test(copy));
+  return en ?? null;
+}
 
 /** 逐个断言 `needle` 所在 JSX opening tag 同时含 disabled 语义与非空 title/tooltip。 */
 function requireHonestUnwired(fileKey, needle, expectedCount, message) {
@@ -73,6 +86,24 @@ for (const [fileKey, text] of Object.entries(files)) {
   for (const phrase of MARKETING_TONE) {
     if (text.includes(phrase)) failures.push(`${fileKey} 含营销腔文案「${phrase}」，未开通态必须用 §9 产品语言（如「即将开通」）`);
   }
+}
+
+// §9 工程词守卫：扫描 5 个 UI 文件里 title 属性的字符串字面值 + DISABLED_TOOLTIPS 值。
+// 只取 title 的「值」（不含周围 opening tag），故 `data-state="unwired"` 里的 'wire' 不会误触。
+// title="X" / title={... 'X' ...}（取内联单引号串，覆盖 reader-entry 的三元 disabled 分支）。
+const TITLE_VALUE = /title=(?:"([^"]*)"|\{[^}]*?'([^']*)'[^}]*?\})/g;
+for (const fileKey of ['app', 'messageActions', 'composer', 'railModules', 'materialsZone']) {
+  const text = files[fileKey];
+  for (const match of text.matchAll(TITLE_VALUE)) {
+    const value = match[1] ?? match[2] ?? '';
+    const term = ninthViolation(value);
+    if (term) failures.push(`${fileKey} 的 title 文案「${value}」含工程词「${term}」，违反 §9 零技术概念暴露（改产品语言，如「即将开通」）`);
+  }
+}
+// DISABLED_TOOLTIPS 值（camera/voice 未开通态文案的真源，经 Composer title 间接消费）。
+for (const match of files.composerTypes.matchAll(/'([^']*)'/g)) {
+  const term = ninthViolation(match[1]);
+  if (term) failures.push(`composerTypes 的 DISABLED_TOOLTIPS 文案「${match[1]}」含工程词「${term}」，违反 §9`);
 }
 
 if (failures.length) {

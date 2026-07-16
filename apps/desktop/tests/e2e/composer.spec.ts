@@ -82,10 +82,10 @@ test('Enter 发送、Shift+Enter 换行；发送后进入对话流', async ({ pa
   await expect(page.getByTestId('queued-message')).toContainText('Queued');
   await expect(input).toHaveValue('');
 
-  // UI-SURFACE-1：排队消息的「停止当前」在执行器接线前诚实未开通（不伪装可用）。
+  // UI-SURFACE-1：排队消息的「停止当前」诚实未开通（不伪装可用）；文案走 §9 产品语言，无工程词。
   const stopQueued = page.getByTestId('queued-message').getByRole('button', { name: '停止当前' });
   await expect(stopQueued).toBeDisabled();
-  await expect(stopQueued).toHaveAttribute('title', '停止当前请求将在执行器接线后启用');
+  await expect(stopQueued).toHaveAttribute('title', '停止当前运行即将开通');
   await expect(stopQueued).toHaveAttribute('data-state', 'unwired');
   const queuedBefore = await page.getByTestId('queued-message').innerText();
   const dialogsBefore = await page.getByRole('dialog').count();
