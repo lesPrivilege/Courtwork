@@ -39,11 +39,12 @@ const fixtureFailures = (html = GOOD_FIXTURE_CLAIMS, mutate = () => {}) => {
 };
 
 const GOOD_SITE_MOTION = String.raw`
-const steps = [...document.querySelectorAll('.evidence-step')];
+document.documentElement.classList.add('js');
+const revealTargets = [...document.querySelectorAll('.evidence-step, [data-reveal]')];
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 if (reduceMotion || !('IntersectionObserver' in window)) {
-  steps.forEach((step) => step.classList.add('is-visible'));
+  revealTargets.forEach((target) => target.classList.add('is-visible'));
 } else {
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
@@ -52,7 +53,7 @@ if (reduceMotion || !('IntersectionObserver' in window)) {
       observer.unobserve(entry.target);
     }
   }, { threshold: 0.55 });
-  steps.forEach((step) => observer.observe(step));
+  revealTargets.forEach((target) => observer.observe(target));
 }
 `;
 
@@ -141,6 +142,9 @@ test('site motion is an exact observer/reduced-motion AST shape', () => {
   assert.ok(rules([source('site/main.js', `${GOOD_SITE_MOTION}\nrequestAnimationFrame(() => confetti());`)]).includes('site-motion'));
   assert.ok(rules([source('site/main.js', GOOD_SITE_MOTION.replace('entry.target', 'document.body'))]).includes('site-motion'));
   assert.ok(rules([source('site/main.js', GOOD_SITE_MOTION.replace('observer.unobserve(entry.target);', 'entry.target.animate([], {});'))]).includes('site-motion'));
+  // SITE-CRAFT-1: the broadened reveal selector and the JS-off progressive-enhancement flag are part of the locked shape.
+  assert.ok(rules([source('site/main.js', GOOD_SITE_MOTION.replace(', [data-reveal]', ''))]).includes('site-motion'));
+  assert.ok(rules([source('site/main.js', GOOD_SITE_MOTION.replace("document.documentElement.classList.add('js');\n", ''))]).includes('site-motion'));
 });
 
 test('press feedback is restricted, tactile, keyboard-visible, and reduced-motion safe', () => {

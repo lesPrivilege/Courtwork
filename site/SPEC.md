@@ -85,3 +85,42 @@
 - annotated tag `v0.1.2` 解引用到 `2fe8bf54dad12f58bccf06a9d692f7c14f65cbd3`；GitHub Release 为非 draft、非 prerelease，DMG 与 SHA 两项资产已重新下载并通过 `shasum --check`。
 - Pages workflow `29383926592` / job `87253159770` 在 `2fe8bf5` 上成功；首页、icon、CSS、JS、OG、Hero WebP 与 DMG 均 HTTP 200，两个真实下载 `href`、可见版本和 SHA 一致。
 - macOS `26.5.2` / Safari 原始真机帧证明 Hero 与三垂类台账；完整外部事实见 [`release/DEPLOYMENT.md`](../release/DEPLOYMENT.md)，原始 PNG 清单见 [`release/evidence/v0.1.2/README.md`](../release/evidence/v0.1.2/README.md)。
+
+## SITE-CRAFT-1 · Pages 三处巧思（实现完成，待独立验收）
+
+在不改叙事、不动 fixture、不回迁产品壳的前提下，为 Pages 展示站落地三处 vault 技法（arlan.me/vault，MIT）：Hero 逐字显影 Typer、案例截图 Ghosty reveal、主 CTA Satin 材质。只动 `site/`（含其构建配套 `site/scripts/*`），`apps/desktop` 零触碰。色彩全落藏青派生色阶，三处均实现 `prefers-reduced-motion` 退化，零新构建依赖。
+
+### 架构裁定（本会话，2026-07-16）
+
+三处技法与站点已验收设计契约 `docs/design/principles.md` 存在结构性冲突，经架构角色就地拍板（三问三答，取推荐项）：
+
+1. **动效破例**：`principles.md §5` 动效白名单只允许 `transform / opacity / background-color / border-color`；Typer 反色态动画 `color`、Ghosty reveal 动画 `mask-position` 均在白名单外。裁定 **Pages 展示站就地破例**：按 vault 技法忠实实现，deslop 白名单精确锁定这三处新消费点 + 漂移红测，其余 slop 仍全封；`principles.md` 分歧标 `[需架构拍板]` 留待批复（见下）。
+2. **CTA 材质**：Satin 缎面需渐变、Inset 凹刻需 `inset` 阴影，二者都被 `site/styles.css` 顶层门禁硬封（`bannedVisual` + `box-shadow` 行禁）且与 §1 零投影相悖。裁定 **扁平伪元素高光**：`::before/::after` 用 `color-mix(var(--bg-app)…, transparent)` 叠上部微光带 + 顶缘高光细线，无渐变无阴影，只取三子技法里的「伪元素高光」，尊重站点零投影身份，零门禁改动。
+3. **Ghosty 作用域**：卷宗数字（20/47/14/8）是 fixture 校验的数据区，§5 明令「数据区绝对静止」。裁定 **仅作用于 `.work-crop` 截图媒体**，卷宗数字保持零动效。
+
+### 本单新增概念（复杂度台账）
+
+按根 `CLAUDE.md` 复杂度节制条，本单预算内新增 **3 个效果模块 + 1 张遮罩资产**，无额外抽象、无新持久化格式、无新状态机：
+
+| 新增 | 位置 | 为何非加不可 |
+|---|---|---|
+| Typer 逐字显影模块 | `index.html` 每字 `.tc` span（`aria-hidden`，h1 挂 `aria-label` 保可达）+ `styles.css` `@keyframes typer-develop` | Hero 逐字 pill/反色/outline 闪烁定格是工单落点一；纯 CSS 交付（无 JS、无渐变、无阴影），动画仅挂在 `no-preference` 下，reduced-motion 与 JS 关闭都直接呈现定格标题 |
+| Ghosty reveal 模块 | `styles.css` `.js .work-crop[data-reveal] img` 遮罩 + 过渡 | 截图进场是落点三；`mask-image` + `mask-position` 过渡由 IntersectionObserver 加 `.is-visible` 触发，隐藏预态仅在 `.js` 就绪时武装，JS 关闭时截图完整可见；reduced-motion 退化为 opacity 淡入 |
+| CTA Satin 伪元素高光 | `styles.css` `.button-primary::before/::after` | 主 CTA 材质是落点二（裁定为扁平高光）；`z-index:-1` 压在填充色之上、文字之下，纯静态，reduced-motion 不受影响；两处 CTA 同时生效 |
+| `assets/ghosty-mask.svg` | 新资产（预期内的 1 张遮罩） | Ghosty 的羽化遮罩：竖向 alpha 羽化（实顶三分之一 / 中段羽化 / 透明底三分之一），仅用 `stop-opacity`、色相无关；`mask-size:100% 300%` 下隐藏预态透至底、显影后全实 |
+
+### 门禁扩展（deslop 是站点构建配套，属本单可动范围）
+
+- `site/scripts/deslop-scan-lib.mjs` 的 `canonicalSiteMotion` 与 `site/scripts/deslop-scan.test.mjs` 的 `GOOD_SITE_MOTION` 同步更新：`main.js` 观察器目标由 `.evidence-step` 扩为 `.evidence-step, [data-reveal]`，并新增 `document.documentElement.classList.add('js')` 渐进增强旗标。观察器/收尾/reduced-motion 的 AST 形状仍逐字锁定；新增两条漂移红测锁定「去掉 `, [data-reveal]`」与「去掉 `.js` 旗标行」均触红 `site-motion`。
+- `site/scripts/build.mjs` 资产拷贝清单加入 `ghosty-mask.svg`（不加则 Pages 部署缺遮罩）。
+- 其余门禁面（gradient/box-shadow/raw-color/L1/archive/press/popover/fixture-claim）零改动、零放宽；Typer/Ghosty/CTA 的颜色全部经 `var()` + `color-mix(…transparent)` + `white/transparent` 关键字表达，未新增任何 hex/rgb/hsl 或非白名单 gradient/shadow。
+
+### 退出证据
+
+- 三落点前后对照 + reduced-motion + JS 关闭实测截图与量化记录在 [`craft-evidence/SITE-CRAFT-1/`](craft-evidence/SITE-CRAFT-1/)（含 `measurements.json`）。reduced-motion 实测：Typer `getAnimations`（`.tc`）= 0、`animation-name:none`；Ghosty `mask:none` + `transition:opacity .42s`；CTA `::before` 静态、`animation-name:none`；整页 `getAnimations()` = 0。JS 关闭实测：无 `.js` 类、h1 全文与 `aria-label` 完整、截图 `mask:none` / `opacity:1` 完整可见。
+- 机器门（本单 tip 实跑）：`pnpm site:guard` exit 0（deslop **729** 活动文件、release-truth PASS、desktop neutral/elevation/signature/motion 四门全绿）；`node site/scripts/build.mjs` exit 0；`pnpm lint` exit 0；`pnpm -r build` exit 0（13/14 项目，仅既有 desktop chunk-size warning）；`pnpm test` **139 files / 1204 tests**（先 `-r build` 建 dist 后复跑，环境性首跑失败不冒充通过，见 SITE-2B 先例）。
+
+### 提案区（交架构拍板，本单不越权改）
+
+- **`[需架构拍板]` principles.md 破例入册**：Pages 展示站已就地破例 §5 动效属性白名单（Typer 动 `color`、Ghosty 动 `mask-position`）与「数据区绝对静止」之外的媒体显影。`principles.md` 不在 `site/` 范围，本会话未改；建议架构在 `principles.md` 或 `site-evidence-line.md` 增设「Pages 展示站动效例外」条款，明确产品壳仍受四属性白名单约束、例外只限展示站媒体层，以消除实现与写面契约的分歧。
+- **偶然复杂度（顺手扫描发现，未删）**：`site/styles.css:190` 的 `.text-link { color: var(--text-secondary); font-size: 13px; }` 无任何 HTML/JS 消费点，为历史遗留死 CSS。建议删除，交架构确认。

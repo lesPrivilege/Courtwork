@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" preserveAspectRatio="none">
+  <!-- Ghosty reveal 羽化遮罩：竖向 alpha 羽化（上段实、下缘渐隐），供 mask-image 扫过显影。
+       仅用 alpha（stop-opacity），色相无关；SITE-CRAFT-1。 -->
+  <linearGradient id="ghosty" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="white" stop-opacity="1"/>
+    <stop offset="0.38" stop-color="white" stop-opacity="1"/>
+    <stop offset="0.72" stop-color="white" stop-opacity="0"/>
+    <stop offset="1" stop-color="white" stop-opacity="0"/>
+  </linearGradient>
+  <rect width="12" height="12" fill="url(#ghosty)"/>
+</svg>
