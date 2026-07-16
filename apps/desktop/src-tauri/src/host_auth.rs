@@ -324,6 +324,104 @@ pub fn write_in_grant(
     }
 }
 
+// ─── 作用域内目录枚举（MATERIAL-INGRESS-1：文件夹授权 → 就地入库的文件清单）────────
+// 只列单层直接子项、只回文件（跳过子目录、符号链接、以 `.` 起头的隐藏/临时项）；
+// relativePath 相对 grant root（与 read/write 同一相对寻址契约，绝不返回绝对路径）。
+
+/// 单个可入库文件项（wire，camelCase）：relativePath 供后续读取寻址，fileName 供展示。
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DirEntry {
+    pub relative_path: String,
+    pub file_name: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "status", rename_all = "snake_case")]
+pub enum ListDirOutcome {
+    Listed { entries: Vec<DirEntry> },
+    Failed { reason: HostAuthReason },
+}
+
+/// 授权目录内单层文件枚举（root 注入，纯函数）。`relative_dir` 为空即 grant root 本身。
+/// 只回文件（非目录、非符号链接、非隐藏），结果按 relativePath 稳定排序。
+pub fn scoped_list_dir(root: &Path, relative_dir: &str) -> ListDirOutcome {
+    let dir = if relative_dir.is_empty() {
+        let canonical_root = match root.canonicalize() {
+            Ok(path) => path,
+            Err(error) => {
+                return ListDirOutcome::Failed {
+                    reason: classify_io(&error),
+                }
+            }
+        };
+        match fs::metadata(&canonical_root) {
+            Ok(meta) if meta.is_dir() => canonical_root,
+            Ok(_) => {
+                return ListDirOutcome::Failed {
+                    reason: HostAuthReason::Unavailable,
+                }
+            }
+            Err(error) => {
+                return ListDirOutcome::Failed {
+                    reason: classify_io(&error),
+                }
+            }
+        }
+    } else {
+        match resolve_target(root, relative_dir, RequireExisting::Yes) {
+            Ok(target) => target,
+            Err(reason) => return ListDirOutcome::Failed { reason },
+        }
+    };
+    let read = match fs::read_dir(&dir) {
+        Ok(read) => read,
+        Err(error) => {
+            return ListDirOutcome::Failed {
+                reason: classify_io(&error),
+            }
+        }
+    };
+    let prefix = relative_dir.trim_end_matches('/');
+    let mut entries: Vec<DirEntry> = Vec::new();
+    for item in read.flatten() {
+        let name = item.file_name().to_string_lossy().into_owned();
+        // 跳过隐藏/临时项（含本进程原子写残留 `.courtwork-*.tmp`）。
+        if name.starts_with('.') {
+            continue;
+        }
+        let meta = match fs::symlink_metadata(item.path()) {
+            Ok(meta) => meta,
+            Err(_) => continue,
+        };
+        // 只回实体文件：符号链接一律排除（不跟随，杜绝逃逸枚举）。
+        if meta.file_type().is_symlink() || !meta.is_file() {
+            continue;
+        }
+        let relative_path = if prefix.is_empty() {
+            name.clone()
+        } else {
+            format!("{prefix}/{name}")
+        };
+        entries.push(DirEntry {
+            relative_path,
+            file_name: name,
+        });
+    }
+    entries.sort_by(|a, b| a.relative_path.cmp(&b.relative_path));
+    ListDirOutcome::Listed { entries }
+}
+
+/// 命令层枚举入口：grant→root（未知→revoked），再作用域内单层文件枚举。
+pub fn list_dir_in_grant(store_path: &Path, grant_id: &str, relative_dir: &str) -> ListDirOutcome {
+    match resolve_root(store_path, grant_id) {
+        Some(root) => scoped_list_dir(&root, relative_dir),
+        None => ListDirOutcome::Failed {
+            reason: HostAuthReason::Revoked,
+        },
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -596,6 +694,78 @@ mod tests {
             reason_of_write(write_in_grant(&store, "grant-nope", "x.txt", b"x")),
             Some(HostAuthReason::Revoked)
         );
+        fs::remove_dir_all(store.parent().unwrap()).ok();
+    }
+
+    fn listed_paths(outcome: ListDirOutcome) -> Vec<String> {
+        match outcome {
+            ListDirOutcome::Listed { entries } => {
+                entries.into_iter().map(|entry| entry.relative_path).collect()
+            }
+            ListDirOutcome::Failed { reason } => panic!("expected listing, got {reason:?}"),
+        }
+    }
+
+    #[test]
+    fn scoped_list_dir_lists_files_only_and_skips_dirs_symlinks_hidden() {
+        let root = temp_root("list");
+        fs::write(root.join("合同.md"), b"contract").expect("md");
+        fs::write(root.join("清单.txt"), b"list").expect("txt");
+        fs::create_dir_all(root.join("子目录")).expect("subdir"); // 目录不入列
+        fs::write(root.join(".hidden"), b"x").expect("hidden"); // 隐藏不入列
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::symlink;
+            let outside = root.parent().unwrap().join(format!(
+                "courtwork-listtarget-{}.txt",
+                std::process::id()
+            ));
+            fs::write(&outside, b"outside").expect("outside");
+            symlink(&outside, root.join("逃逸.txt")).expect("symlink"); // 符号链接不入列
+            let paths = listed_paths(scoped_list_dir(&root, ""));
+            assert_eq!(paths, vec!["合同.md".to_string(), "清单.txt".to_string()]);
+            fs::remove_file(&outside).ok();
+        }
+        #[cfg(not(unix))]
+        {
+            let paths = listed_paths(scoped_list_dir(&root, ""));
+            assert_eq!(paths, vec!["合同.md".to_string(), "清单.txt".to_string()]);
+        }
+        fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
+    fn scoped_list_dir_scopes_a_subdirectory_with_prefixed_relative_paths() {
+        let root = temp_root("list-sub");
+        fs::create_dir_all(root.join("材料")).expect("subdir");
+        fs::write(root.join("材料/证据.md"), b"evidence").expect("md");
+        let paths = listed_paths(scoped_list_dir(&root, "材料"));
+        assert_eq!(paths, vec!["材料/证据.md".to_string()]);
+        fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
+    fn scoped_list_dir_traversal_is_out_of_scope() {
+        let root = temp_root("list-escape");
+        let outcome = scoped_list_dir(&root, "../");
+        assert!(matches!(
+            outcome,
+            ListDirOutcome::Failed {
+                reason: HostAuthReason::OutOfScope
+            }
+        ));
+        fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
+    fn list_dir_in_grant_unknown_grant_is_revoked() {
+        let store = temp_root("list-revoked").join("host-grants.json");
+        assert!(matches!(
+            list_dir_in_grant(&store, "grant-nope", ""),
+            ListDirOutcome::Failed {
+                reason: HostAuthReason::Revoked
+            }
+        ));
         fs::remove_dir_all(store.parent().unwrap()).ok();
     }
 
