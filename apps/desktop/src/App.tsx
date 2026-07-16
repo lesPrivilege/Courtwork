@@ -105,6 +105,7 @@ import { ScrollToLatest, useFollowScroll } from './chat/follow-scroll';
 import { continuationHistory } from './chat/session-window';
 import { SessionHistory } from './chat/SessionHistory';
 import { readTranscriptSessions, type TranscriptSession } from './chat/session-transcript';
+import { appendDistilled, distillMemory, memorySegmentFor } from './chat/chat-memory';
 // 装配点例外（demo/ 同列先例）：原件阅读 fixture 直取 demo-data 文书 md
 import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
 import { useDismissOnOutside } from './hooks/useDismissOnOutside';
@@ -548,8 +549,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     const controller = new AbortController();
     chatAbortRef.current = controller;
     const assistantAt = Date.now();
+    // CHAT-MEMORY-1（ADR-013 §2）：组装时把蒸馏记忆作为低频前缀段注入（fail-closed：不可读即空段）。
+    const memorySegment = memorySegmentFor();
     void sendChatTurn(turnClient, modelConfig, [...history, { role: 'user' as const, content: requestContent }], {
       ...(providerTransport ? { transport: providerTransport } : {}),
+      ...(memorySegment ? { memorySegment } : {}),
       signal: controller.signal,
       onProjection: (projection) => {
         setChatMessages((current) => {
@@ -566,6 +570,25 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         });
       },
     })
+      .then((run) => {
+        // CHAT-MEMORY-1（ADR-013 §2）：请求完成即规则蒸馏。只喂用户 chat 正文 payload.text
+        // （绝不喂附件 readingMarkdown / 组装 content——案件隔离在此结构上成立），案件/密钥守卫在 distill 内兜底。
+        // 来源坐标取真实 transcript 会话与本轮答复 turn；蒸馏是尽力而为的缓存写入，异常不影响主对话。
+        if (run.terminal.status !== 'completed') return;
+        try {
+          const sessions = readTranscriptSessions(turnClient.store);
+          const session = sessions.find((item) => item.turns.some((turn) => turn.turnId === run.turnId));
+          if (!session) return;
+          const distilled = distillMemory({
+            userText: payload.text,
+            source: { sessionId: session.id, turnId: run.turnId },
+            now: Date.now(),
+          });
+          if (distilled.length > 0) appendDistilled(distilled);
+        } catch {
+          /* 蒸馏失败静默于缓存层：不改事实、不断对话，用户可在设置页一键清除 */
+        }
+      })
       .catch((error: unknown) => {
         // Only infrastructure/journal exceptions reach this path; provider/cancel terminal states are core events.
         setChatRecoveryError(readableError(error, 'Unable to recover this turn'));

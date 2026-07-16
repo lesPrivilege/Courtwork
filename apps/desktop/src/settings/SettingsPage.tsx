@@ -23,6 +23,7 @@ import {
 import { SurfaceCard } from '../surface/SurfaceCard';
 import { HostAccessPanel } from '../host/HostAccessPanel';
 import type { HostAuthPort } from '../host/host-auth-port';
+import { ChatMemoryPanel } from '../chat/ChatMemoryPanel';
 
 export type SettingsSection =
   | 'model'
@@ -474,6 +475,9 @@ export function SettingsPage({
                   <span>{settings.privacy.telemetryEnabled ? 'On' : 'Off'}</span>
                 </label>
               </div>
+
+              {/* CHAT-MEMORY-1（ADR-013 §2）：长期记忆的查看 + 一键清除（真实路由，非预留）。 */}
+              <ChatMemoryPanel onFeedback={onFeedback} />
 
               <div className="settings-row is-reserved" data-testid="settings-clear-prefs-row">
                 <div>

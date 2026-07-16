@@ -89,6 +89,11 @@ export interface SendChatTurnOptions {
   onEvent?: (event: TurnEvent) => void;
   onProjection?: (projection: TurnProjection, event: TurnEvent) => void;
   identityFactory?: () => { turnId: string; providerRequestId: string };
+  /**
+   * CHAT-MEMORY-1（ADR-013 §2）：宿主蒸馏产出的低频记忆前缀段（memorySegmentFor）。
+   * 由 core 组装缝置于基身份之后、messages 之前；缺省即退回纯基身份（前缀不漂移）。
+   */
+  memorySegment?: string;
 }
 
 export interface ChatTurnRun {
@@ -123,7 +128,7 @@ export async function sendChatTurn(
     turnId: identity.turnId,
     providerRequestId: identity.providerRequestId,
     provider,
-    request: { systemPrompt: assembleChatSystemPrompt(), messages },
+    request: { systemPrompt: assembleChatSystemPrompt(options.memorySegment), messages },
     store: client.store,
     ...(options.signal ? { signal: options.signal } : {}),
     onEvent(event) {
