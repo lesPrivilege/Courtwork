@@ -43,6 +43,16 @@ export function MaterialsZone({ materials, onVerify }: MaterialsZoneProps) {
             <button
               type="button"
               className="quiet-button original-open"
+              data-testid="material-reveal"
+              data-state="unwired"
+              disabled
+              title="真实材料的访达显示即将开通"
+            >
+              在访达中显示
+            </button>
+            <button
+              type="button"
+              className="quiet-button original-open"
               data-testid="material-verify"
               title="核验原件是否仍与入库时一致"
               onClick={() => onVerify(material.materialId)}

@@ -426,6 +426,7 @@ export function Composer({
                     role="menuitem"
                     className="is-disabled-feature"
                     data-testid="composer-camera"
+                    data-state="unwired"
                     aria-disabled="true"
                     title={DISABLED_TOOLTIPS.camera}
                     tabIndex={0}
@@ -444,6 +445,7 @@ export function Composer({
                     role="menuitem"
                     className="is-disabled-feature"
                     data-testid="composer-voice"
+                    data-state="unwired"
                     aria-disabled="true"
                     title={DISABLED_TOOLTIPS.voice}
                     tabIndex={0}

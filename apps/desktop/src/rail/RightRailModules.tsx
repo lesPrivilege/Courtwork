@@ -90,6 +90,7 @@ export function RightRailModules({
               type="button"
               className="preview-outline-row"
               data-testid="reader-entry"
+              data-state={entry.disabled ? 'unwired' : undefined}
               disabled={entry.disabled}
               title={entry.disabled ? '阅读视图待接入' : `在 Preview 中阅读 ${entry.name}`}
               onClick={entry.onOpen}
