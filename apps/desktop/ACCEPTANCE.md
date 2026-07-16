@@ -1,3 +1,94 @@
+# ACCEPTANCE: OUTPUT-CONFIRM-UI-1-ACCEPT
+
+日期：2026-07-16
+
+角色：獨立驗收會話
+
+對象：`impl/output-confirm-ui-1 @ bf64fe5`（基線 `47c9c6b`，9 文件全在 desktop）；經衝突解決合入 `main @ 700bc3c`；驗收基準 **合併尖端 `main @ 936d9ef`**（含 CHAT-MEMORY 與本單接線）
+
+## 裁決
+
+**✅ 放行 OUTPUT-CONFIRM-UI-1（含合併組合）。**
+
+OUTPUT-CORRECTNESS #6 的產品側確認在合併尖端閉合：non-applied 逐條顯式展示 + 針對性確認後落盤、取消零產出；`packages/output` 契約與門禁零觸碰。歷史兩條 e2e 紅（`rp210:43` / `system-open:12`）於合併尖端全量門 **首次轉綠**，根因台賬（`instr-risk-02`/`instr-risk-06` 的 `basis[0]` 為法條正文 → `locator_not_found` → 門禁正確阻斷、產品確認 UI 此前缺席）由獨立 probe 復現。CHAT-MEMORY 注入鏈與本單確認鏈互不干擾（定向 e2e 同端口雙綠）。未發現需標 `[需架構拍板]` 的契約問題。
+
+驗收在獨立 worktree `/private/tmp/courtwork-output-confirm-ui-1-accept.31533`、detached `936d9ef` 完成；共享樹未 checkout、未 stash；未更新 `docs/status/current.md`，不推送。不採信實現自述。
+
+## 合併組合完整性
+
+| 門禁 | 合併尖端 `936d9ef` 實跑 |
+|---|---|
+| `pnpm install --frozen-lockfile` | 1047 packages，lock 一致 |
+| `pnpm -r build` | PASS |
+| `pnpm lint` | PASS，exit 0 |
+| root Vitest | **140 files / 1210 tests passed**（實現自述 1204 為合入 CHAT-MEMORY 前數字；驗收以尖端實得為準） |
+| desktop Vitest | **48 files / 251 tests passed** |
+| 四設計門 neutral/elevation/signature/motion | 均 exit 0 |
+| `assert-test-count` floor | **225**（223 CHAT-MEMORY + 2 本單；門禁文案「假綠防護通過：225 條用例（下限 225）」） |
+| 隔離端口 Playwright `COURTWORK_E2E_PORT=18611` | **225 passed / 0 failed（1.7m）** |
+
+關鍵轉綠（全量門內）：
+
+- `rp210.spec.ts:43` ✓
+- `system-open.spec.ts:12` ✓
+- `output-confirm.spec.ts` ×2 ✓
+- `chat-memory.spec.ts` ✓（合併後記憶注入鏈仍過）
+
+定向複跑（還原後，`COURTWORK_E2E_PORT=18612`）：`chat-memory` + `output-confirm` ×2 = **3/3 passed**，互不干擾。
+
+## 範圍核對
+
+| 項 | 實得 |
+|---|---|
+| `git diff --name-only 47c9c6b..bf64fe5` | 恰 **9** 文件，全部 `apps/desktop/**` |
+| `packages/output` / `packages/demo-runtime` | 功能 diff 零觸；#6 API（`onNonApplied:'block'\|'confirm'` + `confirmNonApplied` + `NonAppliedInstructionsError`）源碼仍在 |
+| 「跳過並交付」 | `apps/desktop` 對 `跳过并交付` / skip-deliver 等 **0 命中**；`needs_confirmation` 分支不攜 `docx` |
+| CLI demo 流 | 本單 diff 未改 `demo-runtime` |
+| App.tsx 合併 | 同時持有 `memorySegmentFor`/`distillMemory` 與 `produceContractDocx`/`confirmNonApplied`/`needs_confirmation` 兩鏈 |
+
+## 產品語義反例（注入→紅→還原；終態 clean）
+
+| 反例 | 變異 | 實得 |
+|---|---|---|
+| a. 確認清單不一致 | 任意非空 confirm 列表 loose 確認全部 non-applied | 「確認清單與實際 outcome 不一致」例：`expected needs_confirmation, received compiled`（1 failed） |
+| b. 取消仍落盤 | `needs_confirmation` 非法附帶 `docx` | 「取消即零落盤」例：`expected not to have property docx`（1 failed） |
+| c. 全應用直通 | 清潔樹：`全部落点` **綠**；強行恒返回 `needs_confirmation` → 直通/落盤例紅；還原後直通再綠 | 不誤傷正常流 |
+| d. §9 零技術概念 | 原因文案改為 `locator_not_found instruction schema` | `output-confirm` e2e 紅（未見「未能在文書中找到對應原文」；received 含工程詞）；還原後 3/3 綠 |
+| e. §6 邊界 | 靜態審計 | 無「確認全部」一鍵；僅逐條「確認知悉」+ footer「已確認 c/N」+ 標題「有 N 處…」；無隱式全批控件 |
+
+## 根因閉環（獨立 probe，3/3）
+
+以真源 `packages/demo-data/data/artifacts/risk-list.json` + `packages/demo-data/data/dossier/04-设备采购合同.md`：
+
+1. `risk-02`/`risk-06` 的 `basis[0].sourceAnchors[0].quote` **不在**合同正文（法條正文）。
+2. `compileConfirmedRiskListToRevisionInstructions` 僅取 `basis[0]` 作 locator quote。
+3. `applyRevisionInstructionSet(..., { onNonApplied:'block' })` 拋 `NonAppliedInstructionsError`，未應用項恰為  
+   `instr-risk-02:locator_not_found`、`instr-risk-06:locator_not_found`。
+4. desktop `compileConfirmedReviewToDocx`（全 confirmed）→ `needs_confirmation`，pending ids 同上、reason 皆 `not_located`、無 `docx`。
+
+與就緒圖台賬一致：`f38c17a` 門禁行為正確；歷史 e2e 紅是產品確認 UI 缺席，非「環境性/缺宿主橋」。本單補 UI 後全量 225 全綠。
+
+## 視覺與交互
+
+- 確認區 `nonapplied-confirm` 居審閱面內：逐項「確認知悉」/「已確認」禁鈕、`SignatureLine` attention→authority、footer「已確認 c/N」+「取消，不生成產物」——e2e 實跑與文案斷言一致。
+- CSS：token 化、1px 描邊、`border-radius: 6px`、**無 box-shadow / 無新動畫屬性**（註釋明示無投影無動效）。
+- 簽名線/零投影/動效白名單四門均過。
+
+## 複雜度審視
+
+- 聲明「判別聯合 `CompileConfirmedReviewOutcome` 是把中間態建模進編排的最小手段」成立：#6 要求未落點在落盤前可交互確認，拋出的 error 無法承載審閱面逐步確認；`PendingRevisionConfirmation` + `NonAppliedReason` 投影為 §9 所必需。
+- 零新依賴、零新持久格式、零跨層契約；僅 desktop 內部類型 + 兩枚 React state + `recompileGuard` ref。
+- 提案區「demo 未落點是結構性的」——probe 證實；本單不動 legal 語料、不繞過門禁，驗收同意只登記。
+
+## 契約與禁止項
+
+- 無 `[需架構拍板]` 項。
+- 未改 `packages/output` 門禁語義；未做「跳過並交付」；未改 CLI demo 流。
+- 已知邊界（誠實）：取消後無「重新生成」入口——屬本單明示範圍外，非缺陷。
+- 未更新 `docs/status/current.md`；不推送。
+
+---
+
 # ACCEPTANCE: CHAT-MEMORY-1-ACCEPT
 
 日期：2026-07-16
