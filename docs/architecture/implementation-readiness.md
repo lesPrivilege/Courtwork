@@ -57,7 +57,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 | `HOST-AUTH-LITE` | 最小授权路径：系统 picker 取得授权、happy path 读写成立；拒绝、撤权、卷卸载、路径失效全部显式 fail-closed，不做完整签名/TCC/重授权真机矩阵。架构裁定（2026-07-15）：预批的 persisted-scope 经实现评估**不采用**（仅持久 fs scope、无 grantId→root 解析、需引 fs 底座），宿主自持扁平授权记录，零新依赖；durable ref 形制归 `CASE-ROOT-1` 拍板 | happy path 与每一类失败态都有自动化或可复现记录；任何失败不得静默降级或回落 demo；矩阵后置声明留痕 |
 | `CHAT-SESSION-1` | ADR-013 的会话窗口划界（1 小时连续性）、只读 transcript 缓存与跨窗续行；不改 Turn journal 语义 | 窗口边界、跨窗新开、transcript 只读与分叉不涂改均有反例触红；无用户管理入口 |
 | `CHAT-MEMORY-1` | ADR-013 的蒸馏写入（携来源坐标）、低频前缀注入、hook 检索与一键清除；案件内容与密钥隔离 | 蒸馏可追溯、清除彻底、注入位于稳定前缀段、案件内容/密钥进入 memory 的反例触红 |
-| `CASE-ROOT-1` | 系统 picker、opaque case ref 和 host 授权，不让绝对路径进入 renderer/wire | 取消、TCC 拒绝、卷卸载、重授权和跨 case 访问全部显式失败 |
+| `CASE-ROOT-1` | 系统 picker、opaque case ref 和 host 授权，不让绝对路径进入 renderer/wire。架构裁定（2026-07-15）：ref 形制复用 HOST-AUTH-LITE 的 `grantId`（宿主自持扁平记录即 durable ref，不新造第二套授权格式）；case 记录持 `grantId` 退役 `folderPath`；`webkitdirectory` 生产入口 ×3 与 renderer 绝对 `case_root` 一并收口 | 取消、TCC 拒绝、卷卸载、重授权和跨 case 访问全部显式失败 |
 | `MATERIAL-INGRESS-1` | 原件 bytes/hash、ReadingView/hash 与 source-neutral MaterialRef 持久闭合 | 改字节、删除、需 OCR、hash 漂移、跨 case 引用均在 provider 前阻断 |
 | `LEGAL-S3-BINDING-1` | 显式主体、真实工具输入、RiskList gate 与逐条 revision mapping。架构裁定（2026-07-15）：ADR-010 决定三的 `ArtifactEnvelope`（版本化 artifact + 读侧迁移）由本单作为首个真实 artifact 生产者一并拉动，体量过大时拆 `WORK-STORE-2` | 缺主体/工具、revise、单项 reject、demo 依赖注入均按 ADR-010 触红 |
 | `WORK-LIVE-1` | production run/replay/resume/cancel，只装配已验收前置 | 真实材料跨重启完成证据—确认—docx 链；recording 消费为零 |
