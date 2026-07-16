@@ -185,6 +185,84 @@
 - **驳回项 3（31+11 file:line 漂移/缺位）——已修**：全部 C1–C31/W1–W11 依据对照 `9f5dfc2` 尖端重校，drift 逐条纠正（如 C1 `:610→:630`、C14 `:243-247→:252`、C19 `:1926-1928→:1963-1966`、C28 `:625→:662`、W5 `:1929→:1966`）；只列档名的行（C10/C12/C21/C24/C25/W7/W9 等）补精确行号；证据锚统一为「符号/testid + `file:line@9f5dfc2`」双锚，并在「对标清单」小节头注明基准 SHA 与「行号漂移以符号 grep 复定位」原则。本单源码仅 W5/reader-entry 两处同行字符串替换、零行数漂移，故行号在本修复尖端与 `9f5dfc2` 一致。
 - **触面**（全 `apps/desktop`）：`src/App.tsx`（W5 title）、`src/rail/RightRailModules.tsx`（reader-entry title×2）、`scripts/assert-ui-surface-contracts.mjs`（§9 守卫 + 读 `composer/types.ts`）、`tests/e2e/composer.spec.ts` + `tests/e2e/ui-surface.spec.ts`（title 断言同步）、`SPEC.md`（三项留痕）。floor 231 不动（纯修复，无新增/删除用例）。`current.md` 不更新，不推送。
 
+## UI-RESIDUE-1（批一）· 可逆交互零残留闭合门（实现完成，待独立验收）
+
+权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `UI-RESIDUE-1` 行（批一/批二划分与目标措辞）、本 SPEC「疊层控件清单」（UI-SURFACE-1-FIX 修正版 = 入册基准）、`archive/research/workbuddy-interaction-bench-2026-07-16/BEHAVIOR-MATRIX.md`（行为语料·点击穿透反例）、`archive/research-2026-07-15-round-3/interaction-visual-regression.md`（确定性工程清单）、[principles.md](../../docs/design/principles.md) §5（动效）。工单基线 `main @ 2ad8eda`。隔离 worktree `impl/ui-residue-1`、隔离端口实跑。**只做批一，不做批二（三分区状态代数、竞态、关键帧采样另单）。零新依赖（Playwright 内建封顶）。**
+
+**目标措辞（严守，不作绝对零 bug 宣称）**：本单在已枚举的疊层清单 17 行状态图内**无已知残留 / 焦点丢失 / 状态串线 / 不可逆跳变**。
+
+### 批一交付
+
+1. **`expectNoOverlayResidue(page, opts?)`**（`tests/e2e/overlay-residue.ts`）：动画归零（基线差集，见下）、无孤儿 `[role=dialog|menu|listbox]`、无残留背板（`modal-backdrop`/`palette-backdrop`/`settings-confirm-backdrop`）、`activeElement` 归还触发元素（给 trigger 时）、无残留 `inert` / app 背景容器 `aria-hidden`、`body.pointerEvents` 未卡死。**当前仓无 inert / 背景 aria-hidden / body 锁**，故此三项为前向守卫（现绿，接住未来浮层库回归）。
+2. **开合闭合门**（`ui-residue.spec.ts` · `runClosureGate`）：对疊层清单每一可达行跑「静止基线快照 A → 开 → 中间态断言（可见 + role）→ 可逆关 → 残留门 → A≡B」。
+3. **点击穿透反例**（BENCH 语料）：外点收敛不得把同次 pointer 送到底层可交互控件——**先查坐实缺陷、再修**（见下）。
+4. **门禁自证 mutation**：故意不清 portal / 不还 focus / 不停动画三类注入，确定性令 `expectNoOverlayResidue` 触红（`rejects`）——「全绿≠无 bug」自证。
+
+### 疊层清单 17 行覆盖（消费 UI-SURFACE-1-FIX 修正后清单）
+
+15 行跑完整 A≡B 闭合门；1 行为一次性链式仪式（无对称关闭基线，跑 dismiss→残留门）；1 行 harness 内结构性不可达（组件由同 testid 行覆盖）：
+
+| 清单行（testid） | 处置 | 关闭·焦点归还 |
+|---|---|---|
+| `model-config-popover` | A≡B | Esc · trigger |
+| `composer-plus-menu` | A≡B | Esc · trigger |
+| `composer-case-menu`（未绑容器面） | A≡B | Esc · trigger |
+| `scope-popover-*`（真实入库 15s） | A≡B | 取消 · body |
+| `containerize-popover`（composer·先聊后建） | **一次性链式 → dismiss 残留门**（无对称 A） | 取消 |
+| `containerize-popover`（rail 挂载） | **结构性不可达**（见复杂度提案 1），组件由上行覆盖 | — |
+| `store-chat-popover` | A≡B | Esc · trigger |
+| `.archive-popover` | A≡B | 取消 · body |
+| `.file-ops-undo-popover` | A≡B | 取消 · body |
+| `scene-more-popover` | A≡B | Esc · trigger |
+| `user-menu` | A≡B | Esc · trigger |
+| `command-palette` | A≡B | Esc · body |
+| `settings-page` | A≡B | settings-close · body |
+| `provider-setup`（欢迎面基线，Esc 退回） | A≡B | Esc · trigger |
+| `new-case-dialog` | A≡B | Esc · trigger |
+| `.compile-dialog` | A≡B | 取消 · body |
+| `settings-optin-confirm`（modal-over-modal，白名单 `settings-page`） | A≡B | 取消 · body |
+
+### 点击穿透反例：先红坐实 → 修复（deliverable 3）
+
+- **根因（先证后改）**：`src/hooks/useDismissOnOutside.ts` 在 document `pointerdown` 判定外点即 `onDismiss()`，**无 `preventDefault`/`stopPropagation`** → 收敛后尾随的 `click` 继续命中并激活底层可交互控件（WorkBuddy Settings→search 反例同型）。
+- **先红坐实**：`点击穿透反例`（user-menu 开 → 点底层 `new-case-open`）修前红——user-menu 被收敛，但 `new-case-dialog` 被同一次 pointer 穿透打开。
+- **修**：外点收敛时挂一次性**捕获阶段 `click` 吞噬器**（`stopPropagation`+`preventDefault`，首个 click 后自摘；无 click 的手势由 `setTimeout(0)` 兜底撤除），抢在 React 根委托之前吞掉尾随 click。自管理、不依赖 React effect 清理时序（输入任务优先于定时器，兜底不与 click 竞争）。修后该反例转绿；另加 `composer-plus 外点 user-menu-trigger` 守卫例。
+- **既有回归（同层测试同步）**：`workbench.spec.ts:18` 原借「点 `view-matrix` 顺带关 `composer-plus` 菜单并切换」的旧穿透行为，修后穿透被吞 → tab 不切换 → matrix 空 → 红。按 corrected 语义（一次 pointer 一意图）改为导航前显式 `Escape` 收菜单（语义等价）。**全量 252 例仅此 1 例依赖旧穿透**，佐证修复面窄。
+
+### 确定性工程（调研抖动清单落地）
+
+- **A≡B 用同机运行时缓冲逐字节比对，非提交 golden PNG**：A、B 同一次运行内采集，天然同机同环境，规避「渲染依赖 host OS/硬件」的基线宿主依赖（独立验收异会话、同机隔离端口可复现）。
+- **`residue` Playwright project 隔离确定性启动参数**（`--force-color-profile=srgb --disable-lcd-text --font-render-hinting=none`、`deviceScaleFactor:1`、`scale:'css'`）——`testMatch` 只匹配本谱，既有 231 例归 `app` project（`testIgnore`），参数不外溢、行为与单 project 时一致。
+- **视觉静止轮询 `waitForVisualQuiescence`**：demo 回放推进是移动靶（Working→完成→gate→ask-user，右栏 0→4 项），取基线 A 前轮询到连续两帧逐字节相等再拍。
+- **鼠标停靠安全位 + 焦点指示归一**：截图前 `mouse.move(0,0)` 消 `:hover` 抖动；A/B 双侧 `blur()` + `suppressFocusRing`，把 `:focus-within`/焦点描边移出像素比对——**焦点「位置」由残留门断言，焦点「轮廓」不入 A≡B**。
+- **动画基线差集（非绝对归零）**：工作台常驻装饰动画（`breathe`/`chip-glow`/`brand-line-write`，`styles.css:519/626/743/1488`）本就 `infinite` 在跑；残留门只追问「开合后是否**新增**了本不在跑的动画」（有界落定轮询吸收焦点归还引发的瞬时 transition），即动画维度的开→关闭合等价，正是门禁自证注入能被接住的判据。
+- **亚感知容差 `expectClosureShotsMatch`**：默认逐字节相等（多数行走此快路径）；不等时退到判据「无任何像素通道差 > 2/255」+ 总差像素上限。理由：React 重渲染触发元素所在容器会令 Chromium 对同一内容重栅格化，圆角描边等 AA 边缘产生 ±1/255 舍入差（同帧连拍仍逐字节相等，证明非随机抖动、非应用缺陷、不可在应用侧消除）；真实残留单通道差达数十，必被 `> 2/255` 判据接住——**设阈不设大容差，不掩盖真实回归**（调研 §1 口径）。
+
+### 新增概念留痕（复杂度节制条）
+
+1. **`expectNoOverlayResidue` 残留门 helper**——非加不可：工单原文要求的 DOM 级残留门，把「可逆交互零残留」变成可回归机器断言 + 可注入反例自证；纯读取无副作用。
+2. **`residue` Playwright project**——非加不可：像素闭合门需确定性启动参数（调研抖动清单），隔离 project 是「不外溢既有用例」的最小手段（非新范式，Playwright 内建 projects 机制）。
+3. **`expectClosureShotsMatch` 亚感知容差**——非加不可：运行时 A≡B 需容 React 重渲染的 AA 舍入，否则组件重渲即误红；以「超阈像素必 0」守真实残留判据。
+4. **`waitForVisualQuiescence` 静止轮询**——非加不可：demo 回放是移动靶，无静止基线则 A≡B 恒假；两帧逐字节相等判静止是最小手段。
+
+**明确未新增**：无新依赖（Playwright 内建封顶）、无新持久化格式、无新状态机、无新通用抽象逃出测试层、无 Turn/Work 协议改动、无新宿主/Tauri 命令、无 `packages/*` 与 `src/` 业务改动（唯一 `src` 触面是 `useDismissOnOutside` 的穿透修）。
+
+### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权删）
+
+1. **rail 未归档容器化通路为死线索**——单一 `<CaseRail>` 挂载恒收 `unfiled={[]}`（`App.tsx:1771`），seeded `unfiledSessions`（`App.tsx:359-361`）从未接入 rail，`unfiled-store-*` 触发行与 rail 侧 `containerize-popover` 挂载永不渲染（该流已迁至 chat-panel `store-chat`）。疊层清单第 6 行因此 harness 内结构性不可达。`[需架构拍板]`：删除死 prop 通路与 seeded state（或如实标注退役）；本单不复活亦不删。
+2. **模态 focus-restore 不一致**——`provider-setup`/`new-case` 关闭归还触发元素；`command-palette`/`settings`/`compile` 关闭焦点落 `body`（autofocus 内容后未 restore-to-trigger）。均非「焦点丢失/trapped」（`body` 是合法落点，不构成残留），本单按各行实测焦点如实断言；但 WAI-ARIA APG 期望模态归还触发元素。`[需架构拍板]`：是否统一模态 focus-restore（属批二 focus-management 矩阵范畴，本单只观测留痕不改）。
+
+### TDD 与门禁（先红后绿）
+
+- **先红实证**：点击穿透用例修前红（穿透实际发生，`new-case-dialog` 被穿透打开）→ 修后绿；门禁自证 3 例（注入孤儿 `[role=dialog]` / 焦点落别处 / 起一个 `infinite` 动画）确定性令 `expectNoOverlayResidue` `rejects`，精确命中「孤儿浮层 / 焦点未归还 / 动画未归零」三条错误信息。
+- **floor**：`assert-test-count.mjs` `231 → 252`（`residue` project +21：15 A≡B + 1 dismiss 残留 + 2 穿透反例 + 3 门禁自证），如实登记并留史。
+- **完工门（隔离 worktree `impl/ui-residue-1` tip、隔离端口）**：`pnpm -r build` 全 13 workspace 过（仅既有 chunk-size 提示）；`pnpm lint`（根 `eslint .`）exit 0；root Vitest **140 files / 1210 tests** 全绿（未触 `packages/*`）；desktop Vitest **49 files / 265 tests** 全绿；desktop `test:e2e`（端口 1552）全静态门过（四设计门 + `中性色单源律` + 各既有契约门 + `Playwright 假绿防护通过：252 条用例（下限 252）`）+ Playwright **252 passed / 252 total**，零失败零 skip；`residue` project 另连跑多轮稳定（无像素/时序抖动）；Rust/`src-tauri` 零改动，未跑 `cargo test`（无触面）。
+
+### 精确触面与禁止扩张
+
+- **触面**（全 `apps/desktop`）：`src/hooks/useDismissOnOutside.ts`（穿透修）、`playwright.config.ts`（`residue` project）、`tests/e2e/overlay-residue.ts`（新残留门原语模块）、`tests/e2e/ui-residue.spec.ts`（新残留门套件）、`tests/e2e/workbench.spec.ts`（穿透语义同步一处）、`scripts/assert-test-count.mjs`（floor `231→252`）、`SPEC.md`（本节留痕）。
+- **禁止扩张（遵守）**：不改 `packages/*` 任何导出与语义；不建新宿主/Tauri 命令；不改 Turn/Work 协议；**不做批二**（三分区状态代数与竞态另单）；零新依赖；不做复杂度提案区两项越权删；验收放行前不更新 `docs/status/current.md`；逐文件暂存、不推送。
+
 ## OUTPUT-CONFIRM-UI-1 · 审阅→docx 未落点修订的产品侧逐条确认（实现完成，待独立验收）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `OUTPUT-CONFIRM-UI-1` 行（含根因台账）、[packages/output/SPEC.md](../../packages/output/SPEC.md) #6（落盘门禁语义与 `onNonApplied:'confirm'`+`confirmNonApplied` API）、[docs/design/principles.md](../../docs/design/principles.md) §6（留人确认）/§9（零技术概念暴露）。工单基线 `main @ 47c9c6b`（≥ 派单 floor `dd32fc1`）。

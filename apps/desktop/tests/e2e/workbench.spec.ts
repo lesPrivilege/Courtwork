@@ -41,7 +41,10 @@ test('五工作面结构常驻且未接功能保留禁用入口与说明', async
   await page.getByTestId('composer-plus').click();
   await expect(page.getByTestId('composer-camera')).toHaveAttribute('aria-disabled', 'true');
   await expect(page.getByTestId('composer-voice')).toHaveAttribute('aria-disabled', 'true');
-
+  // UI-RESIDUE-1：外点收敛不再穿透（同次 pointer 只收敛不激活底层控件），
+  // 故导航前显式 Escape 收起 + 菜单，不再借「点 tab 顺带关菜单并切换」的旧穿透行为。
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('composer-plus-menu')).toHaveCount(0);
 
   await page.getByTestId('view-matrix').click();
   const matrixCells = page.locator('.matrix-wrap td .cell-peek-anchor > button');

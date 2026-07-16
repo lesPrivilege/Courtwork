@@ -14,6 +14,16 @@ export function useDismissOnOutside(
     const onPointerDown = (event: PointerEvent) => {
       if (ref.current?.contains(event.target as Node)) return;
       onDismiss();
+      // 防穿透(UI-RESIDUE-1):吞掉本次外点手势尾随的 click,避免收敛的同一次 pointer
+      // 继续激活底层可交互控件(WorkBuddy Settings→search 反例)。捕获阶段抢在 React
+      // 根委托之前 stop+prevent;首个 click 后自摘,无 click 的手势(拖拽/右键)由兜底撤除。
+      const swallowClick = (click: Event) => {
+        click.stopPropagation();
+        click.preventDefault();
+        document.removeEventListener('click', swallowClick, true);
+      };
+      document.addEventListener('click', swallowClick, true);
+      window.setTimeout(() => document.removeEventListener('click', swallowClick, true), 0);
     };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onDismiss();
