@@ -17,4 +17,5 @@
 | `emil-skills-polish-input.md` | emilkowalski/skills 设计工程规则包（MIT） | polish 阶段直接工具：八类审计清单改造为 Fable 审计骨架；principles.md 为上位法逐条过滤 |
 | `cognitive-debt-mapping.md` | 认知债三部曲（UL/可执行 PRD/Headless POC）对照 | 三步已有更硬实现（词表 drift 门/SPEC 反例强制/demo-runtime 即可执行业务说明书）；gap：agent 驱动业务路径探索，eval 线候选挂起 |
 | `namethatui-vocabulary.md` | namethatui.com UI 正名词典 | UI-SURFACE-1 对标清单词汇基准；VOICE-SPEC/DESIGN-MD 命名参照；只取词汇不取实现 |
+| `trae-work-landscape.md` | Trae Work 公开材料细拆（竞品地形） | 投递叙事精确化：护城河=契约与锚点非执行隔离；其沙箱/自动化为真实长处须正面承认；技能（提示词分发）vs 场景包（契约编译）为核心分野 |
 | （外部）`~/Downloads/anti-ai-slop-kit/` | 反 AI slop 设计参考包（产品负责人维护的权威副本，2026-07-16 定稿；入口 00-发凡起例.md） | polish 阶段第一读物：05/12 AGENTS 片段过滤后入 polish 会话系统提示、05/09 检测清单入上线审计、03/06 冷调八站拆解与 04/08 法律工作台场景直接对口；其反制流水线与本仓已行机制同构（tokens 先于页面=tokens.json 真值、确定性检测=deslop-scan、人工 taste 门禁=独立视觉验收） |
