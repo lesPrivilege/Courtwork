@@ -1813,7 +1813,7 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 | # | 位置 | 现文案 | 条款 | 判定 | 处置 |
 |---|---|---|---|---|---|
 | 1 | `src/workbench/Panels.tsx:378` | `确认`（RiskGate 主按钮） | §1 | **机器违例** | 改 `确认此项`；6 处 e2e 定位符同步（`helpers.ts`×2、`workbench.spec.ts`×3、`rp27.spec.ts`×1） |
-| 2 | `packages/legal/src/presentation/index.ts:19` | `需 OCR`（ingestStatus 词表） | §6 一致性 | 用语偏差（app 全用「文字识别」） | **登记为提案，不擅改**——改此值会漂移 `packages/legal` 的 `VPKG-LAYOUT-1` golden（descriptor hash 内容契约），属垂类内容决定，薄单不越权；见复杂度扫描提案区 2 |
+| 2 | `packages/legal/src/presentation/index.ts:19` | `需 OCR`（ingestStatus 词表） | §6 一致性 | 用语偏差（app 全用「文字识别」） | 本单不擅改（会漂 `packages/legal` 的 `VPKG-LAYOUT-1` golden 内容契约）。**架构 2026-07-17 裁定：统一批准，载体定为 `LEGAL-S3-BINDING-1`**（正在 legal 领地施工，golden 重算随该单）——补充已跨会话转达，本单只回滚+登记，边界不变 |
 | 3 | `src/App.tsx:1862` | `知道了`（导览气泡关闭） | §1 例外 | 合规 | 保留——纯告知性关闭、无副作用，属 §1 明列例外 |
 | 4 | `src/chat/SessionHistory.tsx:63` | `此轮请求未成功` | §3 边缘 | 合规 | 保留——失败态陈述非成功自评；门以动词邻接判据不误伤 |
 | 5 | `src/credentials/ProviderSetup.tsx:55` | `…只以真实请求成功为准` | §3 边缘 | 合规 | 保留——解释性判据非完成提示；门不误伤 |
@@ -1841,8 +1841,10 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
 
 ### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权）
 
-1. **空态第一动作缺口（#6/#7）**——`App.tsx:1564` 与 `CaseRail.tsx:312` 两处主区空态未指向第一动作。`[需设计拍板]`：措辞与入库/运行 affordance 由终局 UI polish 一并定夺（本单为薄单，不擅改产品措辞）。
-2. **`需 OCR` 与 app「文字识别」不一致（#2）**——`legal` 的 `ingestStatus.needs_ocr` 词表值 `需 OCR` 与 desktop 全局「文字识别」用语不一致（§9 更宜平白语）。`[需架构拍板]`：改此值会漂移 `packages/legal` 的 `VPKG-LAYOUT-1` golden（descriptor hash 内容契约），属垂类内容决定，薄单不擅改；一并请架构确认「垂类 `presentation` 词表是否纳入 `lint:voice` 扫描面」（当前门只守 desktop，词表由评审兜底）。
+1. **空态第一动作缺口（#6/#7）**——`App.tsx:1564` 与 `CaseRail.tsx:312` 两处主区空态未指向第一动作。~~`[需设计拍板]`~~ **架构 2026-07-17 照准：留终局 UI polish**，措辞与入库/运行 affordance 由 polish 阶段一并定夺，本薄单不改。
+2. **`需 OCR` 与 app「文字识别」不一致（#2）**——~~`[需架构拍板]`~~ **架构 2026-07-17 裁定**：（a）`需 OCR`→`需文字识别` **统一批准**，因涉 `VPKG-LAYOUT-1` golden 重算（契约级、不归验收改），载体定为 `LEGAL-S3-BINDING-1`（补充已转达该会话）；（b）垂类 `presentation` 词表纳入 `lint:voice` 扫描面**批准但后置**——待 legal 词表统一落地后一行 glob 扩展（否则门立刻红在已批的待修项上），扩展挂便利单顺带做，就绪图已记（`implementation-readiness.md` VOICE-SPEC-1 行）。
+
+**已知合并考量（非本单缺陷）**：本单与 `LEGAL-S3-BINDING-1`（tip `bdbb526`，待验收）均在 `apps/desktop/package.json` 的 `test:e2e` 链尾追加节点，合并时该行冲突需人工按序合并（两节点并存，非二选一），归验收/合并角色定值。
 
 ### TDD 与门禁（先红后绿；隔离 worktree `impl/voice-spec-1`）
 
