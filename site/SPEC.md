@@ -123,4 +123,4 @@
 ### 提案区（交架构拍板，本单不越权改）
 
 - **`[需架构拍板]` principles.md 破例入册**：Pages 展示站已就地破例 §5 动效属性白名单（Typer 动 `color`、Ghosty 动 `mask-position`）与「数据区绝对静止」之外的媒体显影。`principles.md` 不在 `site/` 范围，本会话未改；建议架构在 `principles.md` 或 `site-evidence-line.md` 增设「Pages 展示站动效例外」条款，明确产品壳仍受四属性白名单约束、例外只限展示站媒体层，以消除实现与写面契约的分歧。
-- **偶然复杂度（顺手扫描发现，未删）**：`site/styles.css:190` 的 `.text-link { color: var(--text-secondary); font-size: 13px; }` 无任何 HTML/JS 消费点，为历史遗留死 CSS。建议删除，交架构确认。
+- **偶然复杂度（SITE-CRAFT-1-ACCEPT 已清理）**：`.text-link { color: var(--text-secondary); font-size: 13px; }` 经确认无任何 HTML/JS 消费点；架构批准后由独立验收以 `fix-by-acceptance` 删除。
