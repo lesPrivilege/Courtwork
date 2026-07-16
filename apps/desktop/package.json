@@ -33,6 +33,8 @@
     "lint:material": "node scripts/assert-material-contracts.mjs",
     "lint:visual-kit": "node scripts/assert-visual-kit-contracts.mjs",
     "lint:ui-surface": "node scripts/assert-ui-surface-contracts.mjs",
+    "lint:design-md": "node scripts/compile-design-md.mjs",
+    "design:md": "node scripts/compile-design-md.mjs --write",
     "icons:optimize": "svgo --folder src/icons/custom --config svgo.config.mjs",
     "icons:generate": "node scripts/generate-custom-icons.mjs",
     "icons:build": "pnpm icons:optimize && pnpm icons:generate && pnpm lint:icons",

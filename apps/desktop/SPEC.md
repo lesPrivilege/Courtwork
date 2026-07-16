@@ -2,6 +2,42 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## DESIGN-MD-1 · tokens.json + principles.md 编译为机器可读 courtwork-design.md 与 drift 门（实现完成，待独立验收）
+
+权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `DESIGN-MD-1` 行（退出证据：编译脚本 + drift 门；编译件非权威，`tokens.json` 仍是唯一真值；不新增手写第二份 token）、[docs/design/principles.md](../../docs/design/principles.md)、[docs/design/tokens.json](../../docs/design/tokens.json)。分发形态参照 Geist `design.md`（YAML frontmatter 承载 token 值、正文承载用法语义）。工单基线 `main @ 2ad8eda`（独立契约线，无前置依赖）。
+
+目标：把 `tokens.json`（机器值）+ `principles.md`（交互/视觉原则要点）编译成一份机器可读 `docs/design/courtwork-design.md`，供效果图/视觉生成管线作**前置约束**——三层表面、动效四属性白名单、色阶纪律在生成时即生效，把回迁护栏从事后过滤提前到生成时约束。编译件**非权威**，唯一机器真值仍是 `tokens.json`（产物 frontmatter `authoritative: false` + 正文 ⚠️ 双声明）。drift 门保证 token/原则变更未重编译即触红。
+
+### 编译形态（Geist 同形态）
+
+- **frontmatter（YAML，机器值）**：`courtwork_design_md`（非权威声明 + generator + 两源 sha256 溯源 + tokenSet 元信息）+ `tokens`（value-only 树：剥离 `$*`/`description` 叙述键，只留机器值）。
+- **正文（用法语义）**：一、token 集元信息（`$meta` 叙述）；二、principles 要点（丢弃 H1 标题与状态前言，从首个 `## ` 起转录并降一级为 `###`）；三、逐 token 用法（从 `$description`/`description` 派生的 path→值→语义行）。
+
+### 新增概念留痕（复杂度节制条）
+
+1. **`compile-design-md-lib.mjs`（纯编译核心）+ `compile-design-md.mjs`（CLI）+ `compile-design-md.test.mjs`（node:test）+ 产物 `courtwork-design.md`**——非加不可：工单退出证据明列「编译脚本 + drift 门 + 产物入库供效果图管线消费」。三件套形制沿用本仓既有 `release-truth-lib/assert-release-truth/release-truth.test` 范式（纯逻辑/CLI 门/hermetic 反例三分），非新范式。
+2. **最小 YAML 发射器（零依赖，受限子集）**——非加不可：Geist 同形态要求 YAML frontmatter，工单硬约束「零新依赖（Node 脚本封顶）」，故不引 `js-yaml`；只支持嵌套 map + 标量 + 标量数组，字符串一律双引号（`JSON.stringify` 转义即合法 YAML 双引号标量）规避 `#`/`:`/`,`/CJK 歧义；遇对象数组 fail-closed 抛错（静默降级零容忍，不静默产出脏 YAML）。
+3. **drift 门沿用既有 golden 范式，不新造聚合门**——`compile-design-md.mjs` 默认模式即「按现行两源重编译 vs 已入库产物逐字节比对」，与 `json-schema-drift.test.ts`/`release-truth` 同构；挂载点复用 `site:guard`（已托管 `lint:neutral/elevation/signature/motion` 四设计门，是 token 派生机器门的既定聚合面），未新增 CI 工作流或第二聚合门。
+4. **不新增第二份 token 真值**——frontmatter token 值（`stripNarrative` 走 JSON 树）与正文描述（`collectUsage`）全部从 `tokens.json` 派生，脚本模板零手写 hex；测试断言「产物每个 `#hex` ∈ `tokens.json` 声明集」把这条不变量变成可回归机器断言。
+
+### 精确触面与禁止扩张
+
+- **新增**：`apps/desktop/scripts/{compile-design-md.mjs,compile-design-md-lib.mjs,compile-design-md.test.mjs}`；`docs/design/courtwork-design.md`（编译产物）。
+- **改动**：`apps/desktop/package.json`（`lint:design-md` = 默认 drift 校验；`design:md` = `--write` 重生成）；根 `package.json`（`site:guard` 的 `node --test` 列追加本单测文件 + 末尾追加 `lint:design-md`）；`docs/design/README.md`（产物行，标注非权威/重生成/守护门）；本 `SPEC.md`。
+- **禁止扩张**：`tokens.json`/`principles.md` 只读消费，不改任何值或语义；不触 desktop `src/`、不改 Turn/Work 协议、不改 vitest/playwright 用例（test floor 不动）；产物非权威，不被任何产品运行时 `import`；不动 `current.md`、不推送。
+
+### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权删）
+
+- **`assert-neutral-source.mjs` 路径锚定不一致**：既有四设计门中 `assert-neutral-source.mjs` 用 CWD 相对路径 `resolve('../../docs/design/tokens.json')`（依赖 `pnpm --filter` 把 CWD 置为 `apps/desktop`），本单新脚本改用 `import.meta.url` 锚定 repo root，直跑/`--filter` 皆稳。二者风格不一致属既有轻微脆弱、非本单引入；**登记不改**——是否把四门统一到 `import.meta.url` 由架构拍板。`[需架构拍板]`
+- 触碰范围内未见其他可删死配置、无消费导出或多余抽象。
+
+### TDD 与门禁（先红后绿；隔离 worktree `impl/design-md-1` / `main @ 2ad8eda` 实跑，最终数字以独立验收为准）
+
+- **先红**：`compile-design-md.test.mjs` 先落，`node --test` → 红（`ERR_MODULE_NOT_FOUND`，lib 缺失）；补 lib → 7 例全绿（编译确定性 / Geist 同形态 frontmatter·正文分轨 / 要点丢弃状态前言 / 非权威头 / 漂移敏感且新值入产物 / 无第二份手写 token（真实 tokens）/ 两源 sha 溯源随源变化）。
+- **drift 门自身接受反例（实证）**：产物未生成时 `lint:design-md` exit 1（「缺失」）；`--write` 生成后 exit 0；改 lib（`## → ###` 降级）后 exit 1（「与现行不一致」）、重生成后 exit 0；**注入 token 反例**：`tokens.json` 一个 hex `#0A2540`→`#0B2641`，`pnpm --filter @courtwork/desktop lint:design-md` 确定性 exit 1，还原后 exit 0。
+- **全量门（本会话隔离 worktree/端口实跑）**：`pnpm -r build` 绿、`pnpm lint`（eslint）绿、`pnpm test` 1210 绿、`pnpm site:guard` 绿——其 `node --test` 组 39 例（含本单 7 例）全过、`lint:design-md` drift 门通过、四设计门（neutral 24 值/elevation/signature/motion）不变。无 desktop `src/`/行为变更，Playwright 不适用。
+- **实现留痕（2026-07-16，待独立验收）**：本会话在隔离 worktree `impl/design-md-1`（自 `main @ 2ad8eda`）逐文件手术暂存；全量门在该 tip 隔离端口实跑为绿，未见既有红例。最终门禁数字与放行结论由独立验收在 clean worktree/隔离端口复跑填写。
+
 ## UI-SURFACE-1 · Chat/Work 控件面对标补齐（实现完成；一轮驳回后经 UI-SURFACE-1-FIX 修复三项，待独立复验）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `UI-SURFACE-1` 行、[docs/product/vision.md](../../docs/product/vision.md) 路线原则末段（对齐上游只做减法、未接线显式未开通）、[docs/design/principles.md](../../docs/design/principles.md) §5（动效）/§6（人工确认）/§9（零技术概念暴露）、[ADR-006](../../docs/decisions/ADR-006-ui-host.md)（UI 宿主边界）。工单基线 `main @ 056500a`。

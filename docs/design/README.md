@@ -12,6 +12,7 @@
 | `icon.md` | 品牌图标规则 |
 | `site-evidence-line.md` | Pages 首页的证据链叙事、真实材料与发布验收规则 |
 | `visualization-kit.md` | Schema 工作面的原生构件、视图原语、有限组合与 blueprint 接入门 |
+| `courtwork-design.md` | **编译产物，非权威。** 由 `apps/desktop/scripts/compile-design-md.mjs` 从 `tokens.json` + `principles.md` 编译（Geist 同形态：YAML frontmatter 承载 token 值、正文承载用法语义），供效果图/视觉生成管线作前置约束。改 token 或原则后运行 `pnpm --filter @courtwork/desktop design:md` 重生成；drift 门（`lint:design-md`，并入 `site:guard`）守护同步 |
 
 历史北极星稿、竞稿、截图调研、验收记录和素材画廊不属于现行设计契约，已退出本目录。
 
