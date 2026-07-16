@@ -1,3 +1,61 @@
+# ACCEPTANCE: DESIGN-MD-1-ACCEPT
+
+日期：2026-07-16
+
+角色：獨立驗收會話
+
+對象：`impl/design-md-1 @ 67577a3`（基線 `2ad8eda`，8 文件），合入 `main @ 348155a`；驗收基準為 `main` 尖端 `348155a`。
+
+## 裁決
+
+**✅ 放行 DESIGN-MD-1（含兩項 fix-by-acceptance 實現級小修）。**
+
+`tokens.json` + `principles.md` 到 `courtwork-design.md` 的純編譯、非權威雙聲明、兩源 SHA 溯源、drift 接線與零第二手寫 token 源均成立。驗收實際注入 token hex、principles 要點、刪除產物三類漂移，`lint:design-md` 均 exit 1；第四類「向產物手寫 tokens.json 外的 `#ABCDEF`」起初暴露一項測試假綠：專門的「無第二份手寫 token」測試錯查記憶體中新編譯結果而非入庫產物，故 exit 0（同時 drift lint 正確 exit 1）。本驗收會話將該測試改為直接讀入庫產物後，同一反例確定性 exit 1，還原後全門轉綠。另修正 CLI 把 JavaScript 字符長度誤報為字節的誠實性小缺陷（`17901` 誤稱字節 → UTF-8 實值 `24586` 字節）。兩項均不改契約、導出、依賴或產品運行時。
+
+驗收在獨立 clean worktree `/private/tmp/courtwork-design-md-1-accept`、detached `348155a` 完成；共享樹未 checkout、未 stash，未執行 `git worktree prune`。未更新 `docs/status/current.md`，不推送。不採信實現自述。
+
+## 確定性、溯源與非權威聲明
+
+- 連續兩次 `pnpm --filter @courtwork/desktop design:md`：產物 SHA-256 均為 `255eb9847c5088f54aaa8be6d2cdd3a52a5906f67083b866e7feec7a89d9f21f`，與入庫原件一致；`cmp` 字節恒等，實際大小 `24586` bytes。
+- 源文件現算 SHA-256：`tokens.json = 17b63a2ff442b6e4b1b1995c74ddfc3a6162e626346d2acd5526f9b5b013ac23`；`principles.md = 309b58b49d202a8cf1eab236de625f41afc79b986036dc7ee474ba51d982da79`；兩值均逐字出現在 frontmatter `sources`。
+- frontmatter 實見 `authoritative: false`、`truth: "docs/design/tokens.json"`；正文實見 `⚠️ **非權威。**` 且再次聲明 `tokens.json` 為唯一機器真值。
+- `docs/design/README.md` 新增行如實標為「編譯產物，非權威」，明示兩源、重生成命令、`lint:design-md`/`site:guard` 接線與 `tokens.json` 唯一真值。
+
+## drift 門紅證四連
+
+| 注入反例 | 未修正產物時的實跑結果 | 還原 |
+|---|---:|---:|
+| `tokens.json`：`#EAEFF4` → `#EAEFF5` | `lint:design-md` exit **1** | exit 0 |
+| `principles.md`：L0 要點追加「保持靜止」 | `lint:design-md` exit **1** | exit 0 |
+| 刪除 `courtwork-design.md` | `lint:design-md` exit **1**，精確報產物缺失 | `design:md --write` 後 exit 0 |
+| 產物正文手寫 `#ABCDEF` | 修前專門測試 exit **0 假綠**；fix-by-acceptance 後同一測試 exit **1**，精確報 `#abcdef` 不在 token 聲明集；drift lint 亦 exit 1 | 重生成後專門測試與 lint 均 exit 0 |
+
+第四項修正保留既有 7 例數量，只把檢查對象從 `compileDesignMd(...)` 的新鮮輸出改為 `docs/design/courtwork-design.md` 入庫產物；因此名義與實際守護對齊，沒有新增測試范式。
+
+## 接線與全量門
+
+| 門禁 | 獨立實跑結果 |
+|---|---:|
+| `pnpm install --frozen-lockfile` | PASS；14 workspace、1047 packages，lockfile 一致 |
+| `pnpm site:guard` | PASS；`node --test` **39/39**（含本單 7），末段 `lint:design-md` PASS |
+| 四既有設計門 | neutral（24 token 值 / src 158 文件）、elevation、signature、motion 全部 PASS |
+| `pnpm -r build` | PASS（13/14 workspace；僅既有 Vite chunk/dynamic-import warning） |
+| `pnpm lint` | PASS，exit 0 |
+| root Vitest（build 後） | **140 files / 1210 tests passed** |
+
+根 `vitest.config.ts` 的 include 僅為 `packages/*/src/**/*.test.ts` 與 `eval/src/**/*.test.ts`；desktop include 僅為 `src/**/*.test.ts`。本單 `.test.mjs` 只由 `site:guard` 的 `node --test` 顯式收集，未污染 Vitest 的 1210 floor。fresh install 尚未 build 時直接跑 root Vitest 會因 workspace `dist` 缺失而發生既有 package-entry 解析失敗；按門禁順序完成 `pnpm -r build` 後完整實跑即為上述 1210/1210，裁決只采用 build 後全量數字。
+
+## 範圍與消費可用性
+
+- `2ad8eda..67577a3` 恰好 **8 文件**：3 個 compiler/CLI/test 文件、入庫產物、desktop/root scripts 接線、設計 README 與 desktop SPEC；無第 9 文件。
+- `pnpm-lock.yaml` 零 diff、零新依賴；`docs/status/current.md` 零 diff；`apps/desktop/src/` 零 diff。無 desktop 行為變更，Playwright **N/A** 成立。
+- 編譯核心只有 Node 內建 `node:crypto`，CLI 只有 Node 內建 fs/path/url；YAML emitter 為嵌套 map + scalar + scalar array 的受限、fail-closed 自寫子集，未引第三方依賴。
+- 真實機器消費模擬：用 Ruby YAML parser 成功讀出 frontmatter `tokens.color.bg.app.value = #F6F9FC`，再從正文讀出 `- L0 画布：页面底纸与对话地面，无投影。`，成功組成視覺生成 prompt：「為 Courtwork 生成法律 Agent 工作台；畫布底色嚴格使用 `#F6F9FC`；L0 無投影；不得自行新增顏色或投影。」證明 token 機器值與正文語義可被同一次生成前置約束共同消費。
+
+> **最終判定：放行 DESIGN-MD-1。** 驗收小修與本報告應以 `fix-by-acceptance` 前綴提交；`current.md` 仍不更新，本會話不推送。
+
+---
+
 # ACCEPTANCE: UI-SURFACE-1-FIX-FOCUSED-REACCEPT
 
 日期：2026-07-16
