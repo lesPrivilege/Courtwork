@@ -12,3 +12,4 @@
 | `feldar-page-narrative.md` | feldar.com 能力×微演示台账叙事结构 | 终局 polish / 未来 SITE-LEDGER 参照；与 site-evidence-line 台账裁决同构，只取结构不取皮肤 |
 | `grok-build-patterns.md` | xai-org/grok-build 授权/审阅/compaction/沙箱设计形状（行为级证据） | 派单时嵌入 `OUTPUT-CONFIRM-UI-1`（deny 分层+Plan Mode 三态）与 `CHAT-MEMORY-1`（先蒸馏后裁剪）；内核级沙箱 gap 登记为发布阶段加固提案 |
 | `fortune-invest-schema-stress-test.md` | 算命/炒股垂类 schema 可表达性压力测试 | 解耦验证：两域 core 零改动、RiskList 字段级零改迁植；投递叙事素材（跨域可信 agent 底座）；ChartElementRef 契约项挂起待真实需求 |
+| `coding-agent-strategies-subtraction.md` | coding agent 上下文纪律的下放与减法对照 | 大部分已结构化（场景=编译 goal、投影=handoff、蒸馏=先缩）；两候选挂起：step 级模型档位（待多 provider ADR）、Chat→Work 晋升桥（待 Work live 后） |
