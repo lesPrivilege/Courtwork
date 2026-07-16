@@ -105,7 +105,7 @@
 | 新增 | 位置 | 为何非加不可 |
 |---|---|---|
 | Typer 逐字显影模块 | `index.html` 每字 `.tc` span（`aria-hidden`，h1 挂 `aria-label` 保可达）+ `styles.css` `@keyframes typer-develop` | Hero 逐字 pill/反色/outline 闪烁定格是工单落点一；纯 CSS 交付（无 JS、无渐变、无阴影），动画仅挂在 `no-preference` 下，reduced-motion 与 JS 关闭都直接呈现定格标题 |
-| Ghosty reveal 模块 | `styles.css` `.js .work-crop[data-reveal] img` 遮罩 + 过渡 | 截图进场是落点三；`mask-image` + `mask-position` 过渡由 IntersectionObserver 加 `.is-visible` 触发，隐藏预态仅在 `.js` 就绪时武装，JS 关闭时截图完整可见；reduced-motion 退化为 opacity 淡入 |
+| Ghosty reveal 模块 | `styles.css` `.js .work-crop[data-reveal] img` 遮罩 + 过渡 | 截图进场是落点三；`mask-image` + `mask-position` 过渡由 IntersectionObserver 加 `.is-visible` 触发，隐藏预态仅在 `.js` 就绪时武装，JS 关闭时截图完整可见；reduced-motion 取消遮罩并直接全显（0ms），无 opacity 预隐藏或过渡 |
 | CTA Satin 伪元素高光 | `styles.css` `.button-primary::before/::after` | 主 CTA 材质是落点二（裁定为扁平高光）；`z-index:-1` 压在填充色之上、文字之下，纯静态，reduced-motion 不受影响；两处 CTA 同时生效 |
 | `assets/ghosty-mask.svg` | 新资产（预期内的 1 张遮罩） | Ghosty 的羽化遮罩：竖向 alpha 羽化（实顶三分之一 / 中段羽化 / 透明底三分之一），仅用 `stop-opacity`、色相无关；`mask-size:100% 300%` 下隐藏预态透至底、显影后全实 |
 
@@ -117,7 +117,7 @@
 
 ### 退出证据
 
-- 三落点前后对照 + reduced-motion + JS 关闭实测截图与量化记录在 [`craft-evidence/SITE-CRAFT-1/`](craft-evidence/SITE-CRAFT-1/)（含 `measurements.json`）。reduced-motion 实测：Typer `getAnimations`（`.tc`）= 0、`animation-name:none`；Ghosty `mask:none` + `transition:opacity .42s`；CTA `::before` 静态、`animation-name:none`；整页 `getAnimations()` = 0。JS 关闭实测：无 `.js` 类、h1 全文与 `aria-label` 完整、截图 `mask:none` / `opacity:1` 完整可见。
+- 三落点前后对照 + reduced-motion + JS 关闭实测截图与量化记录在 [`craft-evidence/SITE-CRAFT-1/`](craft-evidence/SITE-CRAFT-1/)（含 `measurements.json`）。reduced-motion 实测：Typer `getAnimations`（`.tc`）= 0、`animation-name:none`；Ghosty `mask:none` / `opacity:1`，无 opacity transition，0ms 直接全显且活动动画为 0；CTA `::before` 静态、`animation-name:none`；整页 `getAnimations()` = 0。JS 关闭实测：无 `.js` 类、h1 全文与 `aria-label` 完整、截图 `mask:none` / `opacity:1` 完整可见。
 - 机器门（本单 tip 实跑）：`pnpm site:guard` exit 0（deslop **729** 活动文件、release-truth PASS、desktop neutral/elevation/signature/motion 四门全绿）；`node site/scripts/build.mjs` exit 0；`pnpm lint` exit 0；`pnpm -r build` exit 0（13/14 项目，仅既有 desktop chunk-size warning）；`pnpm test` **139 files / 1204 tests**（先 `-r build` 建 dist 后复跑，环境性首跑失败不冒充通过，见 SITE-2B 先例）。
 
 ### 提案区（交架构拍板，本单不越权改）

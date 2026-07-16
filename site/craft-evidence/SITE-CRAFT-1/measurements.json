@@ -7,7 +7,10 @@
       "color": "rgb(10, 37, 64)"
     },
     "workImgMaskUnderReduce": "none",
-    "workImgTransition": "opacity 0.42s",
+    "workImgOpacityUnderReduce": "1",
+    "workImgOpacityTransitionUnderReduce": "absent",
+    "workImgAnimationsUnderReduce": 0,
+    "workImgBehaviorUnderReduce": "direct full visibility (0ms)",
     "ctaBeforeStatic": {
       "background": "color(srgb 0.964706 0.976471 0.988235 / 0.12)",
       "animationName": "none"
