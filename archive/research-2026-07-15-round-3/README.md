@@ -15,3 +15,4 @@
 | `coding-agent-strategies-subtraction.md` | coding agent 上下文纪律的下放与减法对照 | 大部分已结构化（场景=编译 goal、投影=handoff、蒸馏=先缩）；两候选挂起：step 级模型档位（待多 provider ADR）、Chat→Work 晋升桥（待 Work live 后） |
 | `chat-as-dossier-thesis.md` | 容器同构论（chat 目录即卷宗）+ 角色扮演垂类纸面案例 | 待 CHAT 自动压缩/渐进披露 index 立项时升 ADR；roleplay 为第三个 core 零改动可表达性案例 |
 | `emil-skills-polish-input.md` | emilkowalski/skills 设计工程规则包（MIT） | polish 阶段直接工具：八类审计清单改造为 Fable 审计骨架；principles.md 为上位法逐条过滤 |
+| `cognitive-debt-mapping.md` | 认知债三部曲（UL/可执行 PRD/Headless POC）对照 | 三步已有更硬实现（词表 drift 门/SPEC 反例强制/demo-runtime 即可执行业务说明书）；gap：agent 驱动业务路径探索，eval 线候选挂起 |
