@@ -147,6 +147,27 @@ test('site motion is an exact observer/reduced-motion AST shape', () => {
   assert.ok(rules([source('site/main.js', GOOD_SITE_MOTION.replace("document.documentElement.classList.add('js');\n", ''))]).includes('site-motion'));
 });
 
+test('SITE-CRAFT-1 reduced Ghosty uses a real opacity keyframe without phantom transitions', () => {
+  const styles = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  const reducedGhostyContract = String.raw`@keyframes ghosty-reduced-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .js .work-crop[data-reveal] img {
+    -webkit-mask-image: none;
+    mask-image: none;
+    opacity: 0;
+    transition: none;
+  }
+  .js .work-crop[data-reveal].is-visible img {
+    animation: ghosty-reduced-fade 420ms var(--ease-out) both;
+  }
+}`;
+
+  assert.ok(styles.includes(reducedGhostyContract), 'reduced Ghosty CSS contract drifted');
+});
+
 test('press feedback is restricted, tactile, keyboard-visible, and reduced-motion safe', () => {
   const good = source('apps/desktop/src/styles.css', String.raw`
 :root { --motion-press: 120ms; }

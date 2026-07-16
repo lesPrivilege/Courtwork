@@ -7,15 +7,24 @@
       "color": "rgb(10, 37, 64)"
     },
     "workImgMaskUnderReduce": "none",
-    "workImgOpacityUnderReduce": "1",
-    "workImgOpacityTransitionUnderReduce": "absent",
-    "workImgAnimationsUnderReduce": 0,
-    "workImgBehaviorUnderReduce": "direct full visibility (0ms)",
+    "workImgOpacityUnderReduce": "0 -> 1",
+    "workImgOpacityAnimationUnderReduce": {
+      "name": "ghosty-reduced-fade",
+      "duration": "0.42s",
+      "count": 3
+    },
+    "workImgTransitionDurationUnderReduce": "0s",
+    "workImgTransitionAnimationsUnderReduce": 0,
+    "workImgBehaviorUnderReduce": "real opacity keyframe fade",
+    "sampledFrames": 40,
+    "sampledFramesWithIntermediateOpacity": 24,
+    "representativeIntermediateOpacity": "0.970183",
+    "dossierAnimations": [0, 0, 0, 0],
     "ctaBeforeStatic": {
       "background": "color(srgb 0.964706 0.976471 0.988235 / 0.12)",
       "animationName": "none"
     },
-    "allAnimationsCount": 0
+    "allAnimationsCount": 3
   },
   "normalMotion": {
     "typerAnimations": 10,
@@ -24,5 +33,12 @@
     "workImgHiddenPosition": "0px 100%",
     "workImgTransition": "-webkit-mask-position, mask-position 0.9s, 0.9s",
     "htmlHasJsClass": true
+  },
+  "javaScriptDisabled": {
+    "htmlHasJsClass": false,
+    "workImgMask": "none",
+    "workImgOpacity": "1",
+    "workImgAnimationName": "none",
+    "workImgNaturalWidths": [640, 640, 640]
   }
 }
