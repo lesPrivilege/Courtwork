@@ -207,10 +207,11 @@ function renderReaderInline(text: string, focusQuote?: string, focusRef?: RefObj
   });
 }
 
-function ChatAssistantMessage({ message, index, onStop }: {
+function ChatAssistantMessage({ message, index, onStop, onRetry }: {
   message: Extract<ChatMessage, { role: 'assistant' }>;
   index: number;
   onStop?: () => void;
+  onRetry?: () => void;
 }) {
   const { turn } = message;
   const terminal = turn.status === 'completed' || turn.status === 'failed';
@@ -236,9 +237,16 @@ function ChatAssistantMessage({ message, index, onStop }: {
         <CollapsibleMessage lines={12}><ChatMarkdown text={turn.assistantMessage} /></CollapsibleMessage>
       ))}
       {turn.status === 'failed' && (
-        <p className="chat-turn-failure" role="alert" data-testid="chat-turn-failure">
-          {turn.failure?.kind === 'canceled' ? '已停止' : turn.failure?.message}
-        </p>
+        <>
+          <p className="chat-turn-failure" role="alert" data-testid="chat-turn-failure">
+            {turn.failure?.kind === 'canceled' ? '已停止' : turn.failure?.message}
+          </p>
+          {onRetry && (
+            <button type="button" className="quiet-button chat-retry" data-testid="chat-retry" onClick={onRetry}>
+              <Icon name="rotate-clockwise" scope="turn" />Retry
+            </button>
+          )}
+        </>
       )}
       {terminal && turn.usage && (
         <p className="chat-turn-usage" data-testid="chat-turn-usage">
@@ -516,40 +524,23 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   };
 
   /** Chat transcript remains memory-only; lifecycle truth is streamed and terminalized by core Turn. */
-  const handleChatSend = (payload: ComposerSendPayload) => {
-    if (chatFlightRef.current) return false; // 未受理：composer 保留草稿（批次七 #3）
-    if (credentialStatus.connection.phase !== 'ready') {
-      probeCredentials();
-      openCredentialSurface();
-      return false; // 引导层拦截≠受理——草稿不清空，连接流程走完原文还在
-    }
-    // CHAT-MATERIAL-1：就绪附件的 readingMarkdown 与粘贴块逐字进入真实请求（同源组装）。
-    // 失败 / 需 OCR / 空内容已在 Composer 阻断（failed 态），发送时 payload.attachments 只含 ready。
-    const requestContent = assembleRequestContent({
-      text: payload.text,
-      attachments: payload.attachments,
-      pasteBlocks: payload.pasteBlocks,
-    });
+  /**
+   * UI-SURFACE-1：新发送与失败轮次重试共用的提交核心（先例：OUTPUT-CONFIRM-UI-1 的
+   * `produceContractDocx(confirmedNonApplied?)` 统一首编与重编，同一手法）。`historyBase` 是
+   * 「本次提交内容」之前的存活消息（新发送=当前 chatMessages；重试=裁掉失败态与其配对用户消息后的余下部分），
+   * `onProjection` 按 turnId find-or-append 落位对新发送与重试都成立：重试时旧失败态已从存活视图裁掉，
+   * 新 turnId 必然落在配对用户消息之后，等价于「原位替换」。
+   */
+  const submitChatContent = (content: string, userTextForMemory: string, historyBase: ChatMessage[]) => {
     chatFlightRef.current = true;
     // CHAT-SESSION-1（ADR-013 §1）：续行历史只取当前连续性会话——距最近一次请求 ≤ 1 小时才延续。
     // 超窗即新 session，续行为空：不回灌历史全文（memory 注入属 CHAT-MEMORY-1，不在本单）。
-    const sessionMessages = continuationHistory(chatMessages, Date.now());
+    const sessionMessages = continuationHistory(historyBase, Date.now());
     const history = sessionMessages.reduce<Array<{ role: 'user' | 'assistant'; content: string }>>((messages, message) => {
       if (message.role === 'user') messages.push({ role: 'user', content: message.content });
       else if (message.turn.status === 'completed') messages.push({ role: 'assistant', content: message.turn.assistantMessage });
       return messages;
     }, []);
-    setChatMessages((prev) => [
-      ...prev,
-      {
-        role: 'user',
-        text: payload.text,
-        content: requestContent,
-        files: payload.attachments.map((item) => item.fileName),
-        pasteBlocks: payload.pasteBlocks,
-        createdAt: Date.now(),
-      },
-    ]);
     setChatRecoveryError(undefined);
     setChatPending(true);
     const controller = new AbortController();
@@ -557,7 +548,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     const assistantAt = Date.now();
     // CHAT-MEMORY-1（ADR-013 §2）：组装时把蒸馏记忆作为低频前缀段注入（fail-closed：不可读即空段）。
     const memorySegment = memorySegmentFor();
-    void sendChatTurn(turnClient, modelConfig, [...history, { role: 'user' as const, content: requestContent }], {
+    void sendChatTurn(turnClient, modelConfig, [...history, { role: 'user' as const, content }], {
       ...(providerTransport ? { transport: providerTransport } : {}),
       ...(memorySegment ? { memorySegment } : {}),
       signal: controller.signal,
@@ -577,7 +568,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       },
     })
       .then((run) => {
-        // CHAT-MEMORY-1（ADR-013 §2）：请求完成即规则蒸馏。只喂用户 chat 正文 payload.text
+        // CHAT-MEMORY-1（ADR-013 §2）：请求完成即规则蒸馏。只喂用户 chat 正文
         // （绝不喂附件 readingMarkdown / 组装 content——案件隔离在此结构上成立），案件/密钥守卫在 distill 内兜底。
         // 来源坐标取真实 transcript 会话与本轮答复 turn；蒸馏是尽力而为的缓存写入，异常不影响主对话。
         if (run.terminal.status !== 'completed') return;
@@ -586,7 +577,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           const session = sessions.find((item) => item.turns.some((turn) => turn.turnId === run.turnId));
           if (!session) return;
           const distilled = distillMemory({
-            userText: payload.text,
+            userText: userTextForMemory,
             source: { sessionId: session.id, turnId: run.turnId },
             now: Date.now(),
           });
@@ -604,10 +595,56 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         if (chatAbortRef.current === controller) chatAbortRef.current = null;
         setChatPending(false);
       });
+  };
+
+  const handleChatSend = (payload: ComposerSendPayload) => {
+    if (chatFlightRef.current) return false; // 未受理：composer 保留草稿（批次七 #3）
+    if (credentialStatus.connection.phase !== 'ready') {
+      probeCredentials();
+      openCredentialSurface();
+      return false; // 引导层拦截≠受理——草稿不清空，连接流程走完原文还在
+    }
+    // CHAT-MATERIAL-1：就绪附件的 readingMarkdown 与粘贴块逐字进入真实请求（同源组装）。
+    // 失败 / 需 OCR / 空内容已在 Composer 阻断（failed 态），发送时 payload.attachments 只含 ready。
+    const requestContent = assembleRequestContent({
+      text: payload.text,
+      attachments: payload.attachments,
+      pasteBlocks: payload.pasteBlocks,
+    });
+    const historyBase = chatMessages;
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        role: 'user',
+        text: payload.text,
+        content: requestContent,
+        files: payload.attachments.map((item) => item.fileName),
+        pasteBlocks: payload.pasteBlocks,
+        createdAt: Date.now(),
+      },
+    ]);
+    submitChatContent(requestContent, payload.text, historyBase);
     return true;
   };
 
   const stopChatTurn = () => chatAbortRef.current?.abort();
+
+  /**
+   * UI-SURFACE-1：仅当失败轮次是 chat 存活视图的末位消息时可重试（对标主流产品的通行简化——
+   * 只重试最新一次，不对历史中段轮次开放）。复用其配对的上一条 user 消息已组装的 `content`，
+   * 先把失败态从存活视图裁掉（Turn journal 内该失败 Turn 的记录不受影响，历史不可涂改的不变量不破），
+   * 再走 `submitChatContent` 的同一提交核心。
+   */
+  const retryChatTurn = () => {
+    if (chatFlightRef.current) return;
+    const last = chatMessages[chatMessages.length - 1];
+    if (!last || last.role !== 'assistant' || last.turn.status !== 'failed') return;
+    const userMessage = chatMessages[chatMessages.length - 2];
+    if (!userMessage || userMessage.role !== 'user') return;
+    const historyBase = chatMessages.slice(0, -2);
+    setChatMessages((current) => current.slice(0, -1));
+    submitChatContent(userMessage.content, userMessage.text, historyBase);
+  };
 
   /** 打开历史会话列表：从持久 journal 派生只读会话；涂改/损坏 fail closed，不清除原件。 */
   const openSessionHistory = () => {
@@ -1926,7 +1963,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
               {queuedMessages.filter((message) => message.caseId === selectedCaseId).map((message) => <div className="queued-message" data-testid="queued-message" key={message.id}>
                 <span className="queued-chip">Queued</span><span>{message.text}</span>
                 <button type="button" onClick={() => setQueuedMessages((current) => current.filter((item) => item.caseId !== selectedCaseId || item.id !== message.id))}>撤回</button>
-                <button type="button" disabled title="停止当前请求将在执行器接线后启用">停止当前</button>
+                <button type="button" disabled data-state="unwired" title="停止当前请求将在执行器接线后启用">停止当前</button>
               </div>)}
               <ScrollToLatest follow={workFollow} />
             </div>
@@ -2024,6 +2061,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                     message={message}
                     index={index}
                     onStop={chatPending && message.turn.status === 'running' ? stopChatTurn : undefined}
+                    onRetry={!chatPending && index === chatMessages.length - 1 ? retryChatTurn : undefined}
                     key={`chat-${index}`}
                   />
                 )

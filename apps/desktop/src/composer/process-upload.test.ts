@@ -182,14 +182,25 @@ describe('assembleRequestContent（回显/请求同源正文组装）', () => {
   });
 
   it('App 请求、首轮留存与后续 history 共用 requestContent，不得绕开唯一组装点', () => {
-    const start = appSource.indexOf('const handleChatSend =');
-    const end = appSource.indexOf('const stopChatTurn =', start);
-    expect(start).toBeGreaterThanOrEqual(0);
-    expect(end).toBeGreaterThan(start);
-    const handler = appSource.slice(start, end);
+    // UI-SURFACE-1：sendChatTurn 提交核心自 handleChatSend 抽出为 submitChatContent（重试共用），
+    // 断言随之拆两段：handleChatSend 只需把同一个 requestContent 变量原样递给 submitChatContent；
+    // submitChatContent 内部把其 content 形参原样递给 sendChatTurn——链路仍不可绕开、不可分叉。
+    const submitStart = appSource.indexOf('const submitChatContent =');
+    const handleStart = appSource.indexOf('const handleChatSend =');
+    const handleEnd = appSource.indexOf('const stopChatTurn =', handleStart);
+    expect(submitStart).toBeGreaterThanOrEqual(0);
+    expect(handleStart).toBeGreaterThan(submitStart);
+    expect(handleEnd).toBeGreaterThan(handleStart);
+
+    const submitFn = appSource.slice(submitStart, handleStart);
+    const handler = appSource.slice(handleStart, handleEnd);
+
     expect(handler).toContain('const requestContent = assembleRequestContent({');
     expect(handler).toMatch(/role: 'user',\s*text: payload\.text,\s*content: requestContent/);
-    expect(handler).toMatch(/sendChatTurn\([\s\S]*content: requestContent/);
+    expect(handler).toMatch(/submitChatContent\(requestContent,/);
     expect(handler).not.toContain(LEGACY_ATTACHMENT_PLACEHOLDER);
+
+    expect(submitFn).toMatch(/sendChatTurn\([\s\S]*content \}/);
+    expect(submitFn).not.toContain(LEGACY_ATTACHMENT_PLACEHOLDER);
   });
 });

@@ -94,6 +94,26 @@ test('Add folder 就地入库：真实原件按状态入卷，源中立无绝对
   expect(await zone.innerText()).not.toMatch(NO_ABSOLUTE_PATH);
 });
 
+test('UI-SURFACE-1：真实材料的「在访达中显示」诚实未开通（宿主无按 grantId reveal 的命令）', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await createGrantCase(page);
+  await setFile(page, '设备采购合同.md', '# 设备采购合同\n\n第一条 付款。');
+  await addFolderIngest(page);
+
+  const item = page.getByTestId('material-item').filter({ hasText: '设备采购合同.md' });
+  await expect(item).toHaveAttribute('data-status', 'ready');
+
+  const reveal = item.getByTestId('material-reveal');
+  await expect(reveal).toBeVisible();
+  await expect(reveal).toBeDisabled();
+  await expect(reveal).toHaveAttribute('title', '真实材料的访达显示即将开通');
+  await expect(reveal).toHaveAttribute('data-state', 'unwired');
+
+  // 核验按钮保持既有真实接线，不受本单影响
+  await expect(item.getByTestId('material-verify')).toBeEnabled();
+});
+
 test('核验＝provider 前重验：原件漂移与删除显式阻断', async ({ page }) => {
   await openWorkbench(page);
   await resetHooks(page);
