@@ -97,3 +97,7 @@
 - 七个 artifact 的 Zod schema 已全部移出 descriptor，改由八枚显式逻辑 id 闭合到 bindings；RiskList final/draft 分别是 `legal.RiskList` / `legal.RiskListDraft`，不再把 draft 藏在 final binding。
 - `LEGAL_PACKAGE_DESCRIPTOR` 可原样 JSON stringify；准入快照递归深冻结。registry 唯一 compatibility adapter 使 core/desktop 现有读取行为保持不变。
 - 八份提交态 JSON Schema 均携绝对 URN `$id` 与 Draft 2020-12 声明，drift 门覆盖全部 descriptor 引用；本单没有改法律 schema 字段语义、场景、renderer、交互文案或 PM 包。
+
+## 状态更新（2026-07-17，VOICE-SPEC-1 §9 词表统一，架构拍板的内容契约变更）
+
+- 词表统一（产品负责人 2026-07-17 拍板，随 LEGAL-S3-BINDING-1 载体落地）：`presentation` 的 `enumLabels.ingestStatus.needs_ocr` 由 `'需 OCR'` 改 `'需文字识别'`，与 desktop 全局「文字识别」用语统一（OCR 系工程缩写，`docs/design/principles.md` §9 直接适用）。**这是有意的内容契约变更，非 golden 漂移**：`VPKG-LAYOUT-1` 描述符 golden `sha256(LEGAL_PACKAGE_DESCRIPTOR)` 随之重算为 `d9c789baf973786e8022c5545b56391b65eadf7dbbe273cf31cef882a60c882b`（`layout-golden.test.ts`）；`promptBlob()` hash 不受影响（enumLabel 不在 promptSegments，期望值不变）。VOICE-SPEC-1 侧 `lint:voice` 只扫 `apps/desktop/src`，普查发现此不一致后回滚其改动并登记提案，由正在 legal 领地施工的本单承载，不越权跨包改 golden。
