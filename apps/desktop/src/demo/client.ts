@@ -46,8 +46,11 @@ function assertDemoRef(ref: WorkSessionRef): SessionEvent[] {
   return recording;
 }
 
-function phaseFor(events: SessionEvent[]): WorkProjectionPhase {
+export function phaseFor(events: SessionEvent[]): WorkProjectionPhase {
   if (events.some((event) => event.type === 'scenario_completed')) return 'completed';
+  // 场景级终局失败（ADR-010 决定三）：与 completed 互斥的终态，必须先于弱得多的
+  // 工具/模型步级 step_failed 信号收敛，否则真正失败的场景会被误判为仍在 running。
+  if (events.some((event) => event.type === 'scenario_failed')) return 'failed';
   if (events.some((event) => event.type === 'step_failed')) return 'failed';
   if (events.some((event) => event.type === 'confirmation_requested')) return 'paused';
   return 'running';

@@ -96,6 +96,18 @@ describe('core 事件录制回放契约', () => {
     expect(projected.artifacts['legal.RiskList']).toBeDefined();
   });
 
+  it('scenario_failed 收敛为场景级终局失败，不落入 default 分支丢弃（WORK-STORE-1-FIX B2）', () => {
+    const event: SessionEvent = {
+      type: 'scenario_failed', scope: 'scenario', reason: 'runtime_limit',
+      message: '运行时保护触发：maxSeconds 已达到配置上限 5', retryable: false,
+      sessionId: 'demo-s3', seq: 0, emittedAt: '2026-07-16T00:00:00.000Z',
+    };
+    const projected = projectSession(EMPTY_SESSION, event);
+    expect(projected.scenarioFailure).toEqual({ reason: 'runtime_limit', message: event.message });
+    expect(projected.completed).toBe(false);
+    expect(projected.lastSeq).toBe(0);
+  });
+
   it('provider 降档 notice 随 artifact 机械投影，供 composer chip 轻提示', () => {
     const event: SessionEvent = {
       type: 'artifact_produced', artifactType: 'legal.RiskList', artifact: { caseId: 'c1', risks: [] }, evidenceGrades: [],

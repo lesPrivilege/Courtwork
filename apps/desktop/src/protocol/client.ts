@@ -125,6 +125,8 @@ export interface SessionProjection {
   confirmation?: Extract<SessionEvent, { type: 'confirmation_requested' }>;
   failures: Extract<SessionEvent, { type: 'step_failed' }>[];
   completed: boolean;
+  /** 场景级终局失败（ADR-010 决定三）：与 completed 互斥的终态，镜像 core replaySession 的 scenarioFailure。 */
+  scenarioFailure?: { reason: Extract<SessionEvent, { type: 'scenario_failed' }>['reason']; message: string };
   lastSeq: number;
 }
 
@@ -166,6 +168,8 @@ export function projectSession(state: SessionProjection, event: SessionEvent): S
       return { ...base, failures: [...state.failures, event] };
     case 'scenario_completed':
       return { ...base, completed: true, confirmation: undefined };
+    case 'scenario_failed':
+      return { ...base, scenarioFailure: { reason: event.reason, message: event.message }, confirmation: undefined };
     default:
       return base;
   }
