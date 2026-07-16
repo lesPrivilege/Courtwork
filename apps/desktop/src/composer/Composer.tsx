@@ -58,6 +58,11 @@ export interface ComposerProps {
   /** RP-2.11 ⑤：composer 底排 workmode 钮 = chat|work 同源（与顶部段控同一状态源）。 */
   viewSegment?: 'chat' | 'work';
   onSegmentChange?: (next: 'chat' | 'work') => void;
+  /**
+   * CASE-ROOT-1：「+」菜单「Add folder」经宿主原生 picker 取文件夹授权（替代浏览器目录选择控件，
+   * ADR-010 决定四）。父层注入（App → hostAuth.authorizeFolder + 反馈）；材料导入属 MATERIAL-INGRESS-1。
+   */
+  onAddFolder?: () => void;
 }
 
 let attachmentSeq = 0;
@@ -87,6 +92,7 @@ export function Composer({
   requestPending = false,
   viewSegment,
   onSegmentChange,
+  onAddFolder,
 }: ComposerProps) {
   // 仅当父层未注入 cases 时用 DEMO 回落（单测/孤立预览）；App 必须注入投影。
   const caseOptions = cases ?? DEMO_CASE_OPTIONS;
@@ -102,7 +108,6 @@ export function Composer({
   const composingRef = useRef(false);
   const dragDepth = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const folderInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const providerAnchorRef = useRef<HTMLSpanElement>(null);
   const plusAnchorRef = useRef<HTMLDivElement>(null);
@@ -399,6 +404,8 @@ export function Composer({
                     {CHROME_COPY.composer.attachFiles}
                   </button>
                 </li>
+                {/* CASE-ROOT-1：文件夹入口从浏览器目录选择控件（ADR-010 决定四禁令）改经宿主原生 picker，
+                    取得可持久复验的宿主授权（grant）；实际材料导入接入属 MATERIAL-INGRESS-1。 */}
                 <li role="none">
                   <button
                     type="button"
@@ -406,7 +413,7 @@ export function Composer({
                     data-testid="composer-plus-folder"
                     onClick={() => {
                       setPlusOpen(false);
-                      folderInputRef.current?.click();
+                      onAddFolder?.();
                     }}
                   >
                     <Icon name="folder-open" />
@@ -499,18 +506,6 @@ export function Composer({
               if (event.target.files?.length) void ingestFiles(event.target.files);
               event.target.value = '';
             }}
-          />
-          <input
-            ref={folderInputRef}
-            type="file"
-            multiple
-            hidden
-            data-testid="composer-folder-input"
-            onChange={(event) => {
-              if (event.target.files?.length) void ingestFiles(event.target.files);
-              event.target.value = '';
-            }}
-            {...({ webkitdirectory: '', directory: '' } as Record<string, string>)}
           />
 
           {!hasBoundContainer && <div className="case-picker" data-composer-slot="scope" ref={casePickerRef}>

@@ -35,8 +35,9 @@ import {
   createDemoCaseSummary,
   DEMO_CASE_ID,
   isDemoCaseId,
-  resolveCaseRoot,
+  resolveCaseBinding,
   stageLabel,
+  type CaseBinding,
 } from './case/case-scope';
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import { CHROME_COPY } from './chrome/copy';
@@ -70,10 +71,13 @@ import { providerConnectionClient } from './provider/connection-client';
 import { CaseRail } from './rail/CaseRail';
 import type { UnfiledSession } from './rail/types';
 import { SettingsPage, type SettingsSection } from './settings';
-import type { HostAuthPort } from './host/host-auth-port';
+import { hostAuthReasonCopy, type HostAuthPort } from './host/host-auth-port';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { systemOpenClient } from './system/system-open-client';
 import { WorkDraftPanel } from './system/WorkDraftPanel';
+// CASE-ROOT-1：样板案的虚拟根仅供 demo 呈现（原件区/工作稿/在访达显示，皆浏览器 mock），
+// 非 wire 字段、非真实授权路径；真实案件根一律经 grantId 在宿主侧解析，不入 renderer。
+import { DEMO_CASE_ROOT } from './system/demo-case-layout';
 import { FocusGlyph } from './workbench/MiniIcon';
 import { Icon } from './workbench/Icon';
 import {
@@ -818,7 +822,14 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     }
   }, [flow, isDemoCase, session.confirmation, turnClient]);
 
-  const caseRoot = selectedCase ? resolveCaseRoot(selectedCase) : undefined;
+  // CASE-ROOT-1：案件根改为 opaque 绑定。真实案件根绝对路径只在宿主侧按 grantId 解析，
+  // renderer 只见 binding（demo|grant|unbound）。`demoCaseRoot` 是样板案的虚拟根，仅供 demo
+  // 浏览器 mock 呈现（原件区/工作稿/在访达显示），真实案永不在 renderer 暴露绝对路径。
+  const caseBinding = useMemo<CaseBinding>(
+    () => (selectedCase ? resolveCaseBinding(selectedCase) : { kind: 'unbound' }),
+    [selectedCase],
+  );
+  const demoCaseRoot = caseBinding.kind === 'demo' ? DEMO_CASE_ROOT : undefined;
   const fixtureRef = isDemoCase ? activeFixtureRef : undefined;
   // fixture fallback 只属于显式 demo ref；非 demo 分支不会询问 fixture adapter。
   const riskList = (
@@ -898,13 +909,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     let requestVersion = 0;
     setDraftOutputExists(false);
     setContractOutputExists(false);
-    if (!caseRoot) return;
+    if (caseBinding.kind === 'unbound') return;
 
     const refreshOutputExistence = () => {
       const currentRequest = ++requestVersion;
       void Promise.all([
-        caseOutputClient.exists(caseRoot, DRAFT_OUTPUT_FILE),
-        caseOutputClient.exists(caseRoot, CONTRACT_OUTPUT_FILE),
+        caseOutputClient.exists(caseBinding, DRAFT_OUTPUT_FILE),
+        caseOutputClient.exists(caseBinding, CONTRACT_OUTPUT_FILE),
       ]).then(([draftExists, contractExists]) => {
         if (cancelled || currentRequest !== requestVersion) return;
         setDraftOutputExists(draftExists);
@@ -924,7 +935,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       cancelled = true;
       window.removeEventListener('focus', refreshOutputExistence);
     };
-  }, [caseRoot]);
+  }, [caseBinding]);
 
   useEffect(() => {
     const requestId = session.confirmation?.requestId;
@@ -941,7 +952,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         const ref = workFixture.sessionRefFor(selectedCaseId, flow);
         await workFixture.review.resolve({ ...ref, requestId, resolution });
         setReviewSubmitted(true);
-        if (!caseRoot || !riskList) throw new Error('本案尚未绑定可写入的案件目录');
+        if (caseBinding.kind === 'unbound' || !riskList) throw new Error('本案尚未绑定可写入的案件目录');
         const { docx } = compileConfirmedReviewToDocx({
           riskList,
           dispositions,
@@ -949,8 +960,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           targetFileName: '04-设备采购合同.docx',
           evidenceGrades: session.evidenceGrades,
         });
-        await caseOutputClient.writeDocx(caseRoot, CONTRACT_OUTPUT_FILE, docx);
-        const exists = await caseOutputClient.exists(caseRoot, CONTRACT_OUTPUT_FILE);
+        await caseOutputClient.writeDocx(caseBinding, CONTRACT_OUTPUT_FILE, docx);
+        const exists = await caseOutputClient.exists(caseBinding, CONTRACT_OUTPUT_FILE);
         if (!exists) throw new Error('Word 产物写入后未能在案件产出目录确认');
         setContractOutputExists(true);
         showSystemFeedback(`已写入本案「产出」目录：${CONTRACT_OUTPUT_FILE}`, true);
@@ -959,16 +970,21 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
       }
     })();
-  }, [caseRoot, dispositions, flow, gate, riskList, selectedCaseId, session.confirmation, session.evidenceGrades, workFixture]);
+  }, [caseBinding, dispositions, flow, gate, riskList, selectedCaseId, session.confirmation, session.evidenceGrades, workFixture]);
 
   const createCase = ({
     title,
-    fileCount,
+    fileCount = 0,
     kind = 'case',
+    grantId,
+    label,
   }: {
     title: string;
-    fileCount: number;
+    fileCount?: number;
     kind?: ContainerKind;
+    // CASE-ROOT-1：绑定文件夹时携 opaque grantId + 展示 label（无绝对路径）；未绑定则二者为空。
+    grantId?: string;
+    label?: string;
   }) => {
     const newId = `case-${Date.now()}-${title}`;
     setCases((current) => [
@@ -978,7 +994,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         title,
         fileCount,
         archived: false,
-        folderPath: undefined,
+        grantId,
+        label,
         isDemo: false,
         kind,
       },
@@ -1065,13 +1082,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setModelConfigOpen(false);
   };
 
-  const revealSettingsPath = (path: string) => {
-    // 设置页默认产出目录：浏览器下以路径本身作 root 白名单边界
-    void systemOpenClient.revealInFolder(path, path).then((feedback) => {
-      showSystemFeedback(feedback.message, feedback.ok);
-    });
-  };
-
   /**
    * docs/design/principles.md + RP-1 A2：卷宗/资料计数 → 展开态内 originals-zone 滚入/高亮。
    * 锚点随收编迁入案件 chevron 展开态；展开后 rAF 重试直至节点入 DOM。
@@ -1122,40 +1132,71 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setArchiveConfirmCaseId(null);
   };
 
-  const openOutputFolder = () => {
-    if (!caseRoot) {
+  // CASE-ROOT-1：在访达显示/打开只对样板案（虚拟根、浏览器 mock）走原生 reveal；真实案的绝对路径
+  // 只住宿主，本单不引入按 grantId 的 reveal 命令（属后续），故显式告知去已授权文件夹查看，绝不静默。
+  const notifyRevealUnavailable = () => {
+    if (caseBinding.kind === 'grant') {
+      showSystemFeedback(
+        `产出已写入已授权的案件文件夹〔${selectedCase?.label ?? ''}〕，请在系统文件管理器中查看`,
+        false,
+      );
+    } else {
       showSystemFeedback('本案尚未绑定文件夹', false);
+    }
+  };
+
+  const openOutputFolder = () => {
+    if (!demoCaseRoot) {
+      notifyRevealUnavailable();
       return;
     }
-    void systemOpenClient.revealInFolder(caseOutputDir(caseRoot), caseRoot).then((feedback) => {
+    void systemOpenClient.revealInFolder(caseOutputDir(demoCaseRoot), demoCaseRoot).then((feedback) => {
       showSystemFeedback(feedback.message, feedback.ok);
     });
   };
 
   const revealOutputDocx = () => {
-    if (!caseRoot) return;
-    void systemOpenClient.revealInFolder(caseOutputDocx(caseRoot, CONTRACT_OUTPUT_FILE), caseRoot).then((feedback) => {
+    if (!demoCaseRoot) {
+      notifyRevealUnavailable();
+      return;
+    }
+    void systemOpenClient.revealInFolder(caseOutputDocx(demoCaseRoot, CONTRACT_OUTPUT_FILE), demoCaseRoot).then((feedback) => {
       showSystemFeedback(feedback.message, feedback.ok);
     });
   };
 
   const openCaseOutputDocx = (fileName: string) => {
-    if (!caseRoot) return;
-    void systemOpenClient.openFile(caseOutputDocx(caseRoot, fileName), caseRoot).then((feedback) => {
+    if (!demoCaseRoot) {
+      notifyRevealUnavailable();
+      return;
+    }
+    void systemOpenClient.openFile(caseOutputDocx(demoCaseRoot, fileName), demoCaseRoot).then((feedback) => {
       showSystemFeedback(feedback.message, feedback.ok);
     });
   };
 
   const openOutputDocx = () => openCaseOutputDocx(CONTRACT_OUTPUT_FILE);
 
+  // CASE-ROOT-1：composer「Add folder」经宿主原生 picker 取文件夹授权（替代浏览器目录选择控件，ADR-010 决定四）。
+  // 授权成立即形成可持久复验的宿主 grant（Settings·Host folder access 可见）；材料导入接入属 MATERIAL-INGRESS-1。
+  const authorizeCaseFolder = () => {
+    void hostAuth.authorizeFolder().then((result) => {
+      if (result.status === 'granted') {
+        showSystemFeedback(`已授权文件夹〔${result.grant.label}〕`, true);
+      } else {
+        showSystemFeedback(hostAuthReasonCopy(result.reason), false);
+      }
+    });
+  };
+
   const confirmDraftCompile = () => {
-    if (!caseRoot || compilePending) return;
+    if (caseBinding.kind === 'unbound' || compilePending) return;
     setCompilePending(true);
     void (async () => {
       try {
         const docx = compileDraftToDocx(draft);
-        await caseOutputClient.writeDocx(caseRoot, DRAFT_OUTPUT_FILE, docx);
-        const exists = await caseOutputClient.exists(caseRoot, DRAFT_OUTPUT_FILE);
+        await caseOutputClient.writeDocx(caseBinding, DRAFT_OUTPUT_FILE, docx);
+        const exists = await caseOutputClient.exists(caseBinding, DRAFT_OUTPUT_FILE);
         if (!exists) throw new Error('Word 产物写入后未能在案件产出目录确认');
         setDraftOutputExists(true);
         setCompileOpen(false);
@@ -1300,7 +1341,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         return (
           <WorkDraftPanel
             caseId={selectedCase.id}
-            caseRoot={caseRoot ?? ''}
+            caseRoot={demoCaseRoot ?? ''}
             onFeedback={showSystemFeedback}
           />
         );
@@ -1468,6 +1509,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           activeCaseId={selectedCaseId ?? undefined}
           onSend={onSend}
           onContainerize={handleContainerize}
+          onAddFolder={authorizeCaseFolder}
           viewSegment={viewSegment}
           onSegmentChange={switchSegment}
           modelConfig={modelConfig}
@@ -1525,7 +1567,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             isDemoCase={isDemoCase}
             flow={flow}
             dispositionsCount={Object.keys(dispositions).length}
-            caseRoot={caseRoot}
+            caseRoot={demoCaseRoot}
             archiveConfirmCaseId={archiveConfirmCaseId}
             containerizeUnfiledId={containerizeUnfiledId}
             viewSegment={viewSegment}
@@ -1978,7 +2020,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           setSampleTourOpen(true);
         }}
       />
-      <NewCaseDialog open={newCaseOpen} onClose={() => setNewCaseOpen(false)} onCreate={createCase} />
+      <NewCaseDialog
+        open={newCaseOpen}
+        onClose={() => setNewCaseOpen(false)}
+        onCreate={createCase}
+        onAuthorizeFolder={() => hostAuth.authorizeFolder()}
+      />
       <CommandPalette open={paletteOpen} commands={paletteCommands} onClose={() => setPaletteOpen(false)} />
       <SettingsPage
         open={settingsOpen}
@@ -1991,7 +2038,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         onAutoOpenConsumed={() => setSettingsAutoCredential(false)}
         modelConfig={modelConfig}
         onModelConfigChange={updateModelConfig}
-        onRevealPath={revealSettingsPath}
         onFeedback={showSystemFeedback}
         hostAuth={hostAuth}
       />

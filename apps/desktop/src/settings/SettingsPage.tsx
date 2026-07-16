@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import {
   KEYCHAIN_RECOVERY_GUIDE,
   type CredentialStatus,
@@ -18,7 +18,6 @@ import {
   setBehaviorDataOptIn,
   setTelemetryEnabled,
   type SettingsSnapshot,
-  updateOutputDir,
   updateRuntimeGuard,
 } from './settings-store';
 import { SurfaceCard } from '../surface/SurfaceCard';
@@ -63,7 +62,6 @@ export interface SettingsPageProps {
   onAutoOpenConsumed?: () => void;
   modelConfig: ModelConfig;
   onModelConfigChange: (next: ModelConfig) => void;
-  onRevealPath: (path: string) => void;
   onFeedback: (message: string, ok: boolean) => void;
   /** HOST-AUTH-LITE：注入的宿主授权端口（失败可见面消费）。 */
   hostAuth: HostAuthPort;
@@ -85,7 +83,6 @@ export function SettingsPage({
   onAutoOpenConsumed,
   modelConfig,
   onModelConfigChange,
-  onRevealPath,
   onFeedback,
   hostAuth,
 }: SettingsPageProps) {
@@ -93,7 +90,6 @@ export function SettingsPage({
   const [maxUsdDraft, setMaxUsdDraft] = useState(String(settings.runtimeGuard.maxUsd ?? ''));
   const [optInConfirmOpen, setOptInConfirmOpen] = useState(false);
   const [credentialFormOpen, setCredentialFormOpen] = useState(false);
-  const folderInputRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
 
   useEffect(() => {
@@ -139,28 +135,6 @@ export function SettingsPage({
         : `Usage limit set to $${next.runtimeGuard.maxUsd}`,
       true,
     );
-  };
-
-  const pickOutputFolder = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files?.length) return;
-    const relative = (files[0] as File & { webkitRelativePath?: string }).webkitRelativePath ?? '';
-    const folderName = relative.split('/')[0] || '产出';
-    // 浏览器无法得绝对路径；用虚拟前缀 + 文件夹名，Tauri 真机可后续替换
-    const virtualPath = `/Courtwork/默认产出/${folderName}`;
-    const next = updateOutputDir(settings, virtualPath);
-    setSettings(next);
-    onFeedback(`Default output folder set to “${folderName}”`, true);
-    event.target.value = '';
-  };
-
-  const revealOutputDir = () => {
-    const dir = settings.output.defaultOutputDir;
-    if (!dir) {
-      onFeedback('Choose a default output folder first', false);
-      return;
-    }
-    onRevealPath(dir);
   };
 
   const exportDiagnostics = () => {
@@ -368,49 +342,11 @@ export function SettingsPage({
           {section === 'output' && (
             <section className="settings-panel">
               <h2>Output & files</h2>
-              <p className="settings-lead">Choose one default destination instead of confirming every export.</p>
+              <p className="settings-lead">Authorize a case folder for reading originals and writing generated files.</p>
 
-              <div className="settings-row" data-testid="settings-output-dir-row">
-                <div>
-                  <strong>Default output folder</strong>
-                  <p>The root folder for generated files.</p>
-                </div>
-                <div className="settings-fields">
-                  <code className="settings-path mono-ellip" data-testid="settings-output-dir" title={settings.output.defaultOutputDir}>
-                    {settings.output.defaultOutputDir ?? 'Not set · using the current case output folder'}
-                  </code>
-                  <div className="settings-row-actions">
-                    <button
-                      type="button"
-                      className="quiet-button"
-                      data-testid="settings-pick-output-dir"
-                      onClick={() => folderInputRef.current?.click()}
-                    >
-                      Choose folder
-                    </button>
-                    <button
-                      type="button"
-                      className="quiet-button"
-                      data-testid="settings-reveal-output-dir"
-                      disabled={!settings.output.defaultOutputDir}
-                      title={settings.output.defaultOutputDir ? 'Show in Finder' : 'Choose a folder first'}
-                      onClick={revealOutputDir}
-                    >
-                      Show in Finder
-                    </button>
-                  </div>
-                  <input
-                    ref={folderInputRef}
-                    type="file"
-                    multiple
-                    hidden
-                    data-testid="settings-output-folder-input"
-                    onChange={pickOutputFolder}
-                    {...({ webkitdirectory: '', directory: '' } as Record<string, string>)}
-                  />
-                </div>
-              </div>
-
+              {/* CASE-ROOT-1：原「默认产出文件夹」行用浏览器目录选择控件 + 虚拟路径 hack 选目录
+                  （ADR-010 决定四禁令），且与下方 HostAccessPanel 的原生授权重复——整行退役，
+                  文件夹授权统一归 HostAccessPanel（宿主原生 picker，grantId 绑定）。 */}
               <HostAccessPanel hostAuth={hostAuth} />
 
               <div className="settings-row is-reserved" data-testid="settings-sources-row">
