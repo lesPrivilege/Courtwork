@@ -1808,3 +1808,55 @@ Playwright 两项失败均为既有输出链路径：`tests/e2e/rp210.spec.ts:43
 所以纯 Vite browser stub 尚未被调用，补 Tauri output-write stub 不能修复当前失败；要么由架构角色决定 desktop 如何对 `locator_not_found` 做逐条针对性确认/修正 demo locator，要么由架构角色明确把这条输出契约改判为 Tauri-only 并同步测试与 floor。该问题触及跨层输出契约，验收会话不做 `fix-by-acceptance`，标记 **[需架构拍板]**，不以 skip 掩盖真实 fail-closed 行为。
 
 > **裁决：不放行 CHAT-SESSION-1。** CHAT-SESSION-1 自身的窗口、跨窗不回灌、只读 transcript、journal fail-closed、分叉不涂改与无管理入口均有独立绿测和反例红测；但本单要求的全量 Playwright 门在实现祖先已有的 OUTPUT-CORRECTNESS-1 契约失败上仍为 217/219。待架构拍板并收口该输出契约/环境门后，须在新 clean worktree 复跑完整门禁；本报告不更新 `docs/status/current.md`，不推送。
+
+## CASE-ROOT-1-ACCEPT · 独立验收（2026-07-16）
+
+验收对象：`impl/case-root-1 @ 2c5470d`，验收基线为已合入 `main @ ec4f29e`，工单基线 `1e9efc2`。本报告由独立 clean worktree `/Users/lesprivilege/Projects/Courtwork-case-root-1-accept-ec4f29e` 在 detached `ec4f29e` 完成；未复用实现 worktree、未 checkout/重写共享树、未运行 `git worktree prune`，不更新 `docs/status/current.md`，不推送。
+
+### 1. 范围、依赖与复杂度
+
+- `git diff --name-only 1e9efc2..2c5470d` 精确为 **19 文件**，全部在 `apps/desktop`；`packages/*`、`docs/status/current.md` 均为零触碰。
+- `pnpm-lock.yaml` 与 `apps/desktop/src-tauri/Cargo.lock` 相对 `1e9efc2` 无变化；无新依赖。
+- `CaseBinding` 是唯一新增概念：`demo | grant | unbound` 判别式 union；复用 HOST-AUTH-LITE 的 `grantId`，不引入第二套授权格式、状态机、持久化格式或跨包导出。
+- `CASE_SCOPE_AUDIT` 整表与实现 tip 字节等价，未动。
+- 按已批清理先以 `rg -n "defaultOutputDir|updateOutputDir" apps/desktop/src apps/desktop/tests` 自证无其他消费后，`fix-by-acceptance` 删除 settings-store 的退役 output 配置、`updateOutputDir` 与诊断冗余输出，并保留“snapshot 无退役 output 配置”测试护栏；同时删除 Rust 宿主内部未消费的 `CaseOutputArtifact.absolute_path`，回执只保留 `byteLength`。清理后 grep 为零。
+
+### 2. 全量门（最终 clean worktree 实跑）
+
+| 门禁 | 结果 |
+|---|---:|
+| `pnpm install --frozen-lockfile` | 通过 |
+| `pnpm -r build` | 通过（13/14 workspace project 执行，desktop Vite build 通过） |
+| `pnpm lint` | 通过 |
+| root `pnpm test` | **139 files / 1204 passed** |
+| desktop `pnpm --dir apps/desktop test` | **46 files / 216 passed** |
+| `cargo test` | **41 passed / 0 failed**（其中 CASE-ROOT 新增 3） |
+| `assert-host-auth-contracts` | 通过 |
+| Playwright floor | **222/222**，静态门全绿 |
+| 完整 Playwright，`COURTWORK_E2E_PORT=17894` | **220 passed / 2 failed** |
+
+CASE-ROOT 新增的 3 个 E2E（denied 不推进、授权建案无绝对路径、重授权换 grant）均通过；renderer 只见 `grantId`/`label`，产出回执无绝对路径。
+
+### 3. 反例触红（每项均注入 → 红 → 还原）
+
+| 边界 | 注入与红灯证据 | 还原后 |
+|---|---|---|
+| Rust 跨案 | 同时移除 lexical `..` 与 canonical root 边界守卫；`cargo test grant_root_isolates_cases_and_never_reaches_a_sibling_case` 在 `left: None / right: Some(OutOfScope)` 处失败 | targeted 通过，最终 Rust **41/41** |
+| Rust 重授权 | `resolve_root` 临时反向匹配 grant，旧 grant 测试收到新目录而非旧目录，断言失败 | 最终 Rust **41/41** |
+| 静态绝对路径三连 | `CaseSummary.folderPath`、`CaseSummary.absolutePath`、生产 `webkitdirectory` 注入分别令 `lint:host-auth` exit 1；webkit 注入同时命中组件门与生产源码扫描门 | `HOST-AUTH-LITE boundary checks passed` |
+| NewCaseDialog 四类失败 | 将宿主失败 reason 临时只映射 `denied`；四类 stub 测试 **1 failed / 4 passed**，恢复映射后定向 **5/5 passed** | 四类 `denied/revoked/unavailable/out_of_scope` 均 `data-reason` 可见且停留选择步 |
+| demo 边界 | 临时把 grantId 判定放到 `isDemo` 前；`isDemo 优先于 grantId` 测试收到 `{kind:'grant'}` 而非 `{kind:'demo'}` | case-scope 与最终 desktop **216/216** 通过 |
+
+另外，case-output-client 定向 **4 files / 26 passed**，覆盖回执、跨案隔离、unbound 阻断及 demo 内存宿主往返。
+
+### 4. 非通过用例复核
+
+- 完整 Playwright 的两个失败固定为 `tests/e2e/rp210.spec.ts:43` 与 `tests/e2e/system-open.spec.ts:12`，均在 `helpers.ts:36` 等待 `output-docx-card` 超时；CASE-ROOT 相关用例无失败。
+- 在独立 clean worktree `/Users/lesprivilege/Projects/Courtwork-case-root-1-baseline-1e9efc2`、checkout `1e9efc2`、frozen install + build、隔离端口 `17892` 对这两个精确用例重跑，得到 **2 failed / 2**，相同 locator、相同堆栈。因此维持既有 `OUTPUT-CONFIRM-UI-1` 缺口定性，不归责 CASE-ROOT-1。
+- `tests/e2e/global-verbs.spec.ts:7` 在隔离端口 `17893` 使用 `--repeat-each=3` 得 **3/3 passed**；不改断言、不新增稳定化补丁。
+
+### 5. 最终裁决
+
+**CASE-ROOT-1 放行 ✅。** `CaseBinding` 三态、`isDemo` 优先 fail-closed、Rust grant root 宿主解析、grant 产出回执剥离绝对路径、跨案/重授权隔离、生产 `webkitdirectory` 零出现、composer-plus-folder 入口保留并改走 host picker、floor `219→222` 均有独立绿测与反例触红证据。全量 E2E 的两项红为基线已存在且已独立复现的 OUTPUT-CONFIRM-UI-1 缺口，不构成本单不放行理由；本报告未新增 `[需架构拍板]` 契约问题。
+
+交接事实差异：验收开始时共享 `main` 为 `ec4f29e`；报告提交前再次核对时共享 `main` 已由并行会话前进至 `70a7d8f`，新增内容仅为 `archive/research-2026-07-15-round-3/` 调研归档（`docs(archive): file grok-build design-pattern research`），未改变 CASE-ROOT 代码。验收证据仍锁定于独立 clean worktree 的 `ec4f29e`；未将并行归档变更纳入本单裁决。

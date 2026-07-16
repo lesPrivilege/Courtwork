@@ -9,11 +9,6 @@ export interface RuntimeGuardSettings {
   maxUsd?: number;
 }
 
-export interface OutputSettings {
-  /** 默认产出根目录（绝对路径或浏览器虚拟路径） */
-  defaultOutputDir?: string;
-}
-
 export interface PrivacySettings {
   /** 使用遥测；docs/decisions/ADR-005-data-security.md 桌面默认开启（仅本机） */
   telemetryEnabled: boolean;
@@ -27,13 +22,11 @@ export interface PrivacySettings {
 
 export interface SettingsSnapshot {
   runtimeGuard: RuntimeGuardSettings;
-  output: OutputSettings;
   privacy: PrivacySettings;
 }
 
 export const DEFAULT_SETTINGS: SettingsSnapshot = {
   runtimeGuard: { maxUsd: 5 },
-  output: {},
   privacy: {
     telemetryEnabled: true,
     behaviorDataOptIn: false,
@@ -98,12 +91,6 @@ export function loadSettings(): SettingsSnapshot {
     const maxUsd = clampMaxUsd(parsed.runtimeGuard?.maxUsd ?? DEFAULT_SETTINGS.runtimeGuard.maxUsd);
     return {
       runtimeGuard: { maxUsd },
-      output: {
-        defaultOutputDir:
-          typeof parsed.output?.defaultOutputDir === 'string' && parsed.output.defaultOutputDir.trim()
-            ? parsed.output.defaultOutputDir.trim()
-            : undefined,
-      },
       privacy: {
         telemetryEnabled: parsed.privacy?.telemetryEnabled !== false,
         behaviorDataOptIn: Boolean(parsed.privacy?.behaviorDataOptIn),
@@ -129,15 +116,6 @@ export function updateRuntimeGuard(
   const next: SettingsSnapshot = {
     ...current,
     runtimeGuard: { maxUsd: clampMaxUsd(patch.maxUsd) },
-  };
-  saveSettings(next);
-  return next;
-}
-
-export function updateOutputDir(current: SettingsSnapshot, dir: string | undefined): SettingsSnapshot {
-  const next: SettingsSnapshot = {
-    ...current,
-    output: { defaultOutputDir: dir?.trim() || undefined },
   };
   saveSettings(next);
   return next;
@@ -188,9 +166,6 @@ export function buildDiagnosticPayload(
     credentialFailKind: extras.credentialFailKind ?? null,
     modelConfig: extras.modelConfig,
     runtimeGuard: snapshot.runtimeGuard,
-    output: {
-      defaultOutputDir: snapshot.output.defaultOutputDir ? '[configured]' : null,
-    },
     privacy: {
       telemetryEnabled: snapshot.privacy.telemetryEnabled,
       behaviorDataOptIn: snapshot.privacy.behaviorDataOptIn,
