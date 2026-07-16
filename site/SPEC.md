@@ -105,7 +105,7 @@
 | 新增 | 位置 | 为何非加不可 |
 |---|---|---|
 | Typer 逐字显影模块 | `index.html` 每字 `.tc` span（`aria-hidden`，h1 挂 `aria-label` 保可达）+ `styles.css` `@keyframes typer-develop` | Hero 逐字 pill/反色/outline 闪烁定格是工单落点一；纯 CSS 交付（无 JS、无渐变、无阴影），动画仅挂在 `no-preference` 下，reduced-motion 与 JS 关闭都直接呈现定格标题 |
-| Ghosty reveal 模块 | `styles.css` `.js .work-crop[data-reveal] img` 遮罩 + 过渡 | 截图进场是落点三；`mask-image` + `mask-position` 过渡由 IntersectionObserver 加 `.is-visible` 触发，隐藏预态仅在 `.js` 就绪时武装，JS 关闭时截图完整可见；reduced-motion 取消遮罩并直接全显（0ms），无 opacity 预隐藏或过渡 |
+| Ghosty reveal 模块 | `styles.css` `.js .work-crop[data-reveal] img` 遮罩 + 过渡 | 截图进场是落点三；正常态 `mask-image` + `mask-position` 过渡由 IntersectionObserver 加 `.is-visible` 触发，隐藏预态仅在 `.js` 就绪时武装，JS 关闭时截图完整可见；reduced-motion 取消遮罩、以 `transition:none` 中和基础 mask 过渡，并由 `.is-visible img` 挂载 420ms、仅 opacity 0→1 的 `ghosty-reduced-fade` keyframe |
 | CTA Satin 伪元素高光 | `styles.css` `.button-primary::before/::after` | 主 CTA 材质是落点二（裁定为扁平高光）；`z-index:-1` 压在填充色之上、文字之下，纯静态，reduced-motion 不受影响；两处 CTA 同时生效 |
 | `assets/ghosty-mask.svg` | 新资产（预期内的 1 张遮罩） | Ghosty 的羽化遮罩：竖向 alpha 羽化（实顶三分之一 / 中段羽化 / 透明底三分之一），仅用 `stop-opacity`、色相无关；`mask-size:100% 300%` 下隐藏预态透至底、显影后全实 |
 
@@ -117,8 +117,16 @@
 
 ### 退出证据
 
-- 三落点前后对照 + reduced-motion + JS 关闭实测截图与量化记录在 [`craft-evidence/SITE-CRAFT-1/`](craft-evidence/SITE-CRAFT-1/)（含 `measurements.json`）。reduced-motion 实测：Typer `getAnimations`（`.tc`）= 0、`animation-name:none`；Ghosty `mask:none` / `opacity:1`，无 opacity transition，0ms 直接全显且活动动画为 0；CTA `::before` 静态、`animation-name:none`；整页 `getAnimations()` = 0。JS 关闭实测：无 `.js` 类、h1 全文与 `aria-label` 完整、截图 `mask:none` / `opacity:1` 完整可见。
-- 机器门（本单 tip 实跑）：`pnpm site:guard` exit 0（deslop **729** 活动文件、release-truth PASS、desktop neutral/elevation/signature/motion 四门全绿）；`node site/scripts/build.mjs` exit 0；`pnpm lint` exit 0；`pnpm -r build` exit 0（13/14 项目，仅既有 desktop chunk-size warning）；`pnpm test` **139 files / 1204 tests**（先 `-r build` 建 dist 后复跑，环境性首跑失败不冒充通过，见 SITE-2B 先例）。
+- 三落点前后对照 + reduced-motion + JS 关闭实测截图与量化记录在 [`craft-evidence/SITE-CRAFT-1/`](craft-evidence/SITE-CRAFT-1/)（含 `measurements.json`）。三修后的 reduced-motion 实测：Typer `getAnimations`（`.tc`）= 0、`animation-name:none`；三张 Ghosty 均 `mask:none`，加载时恰有 3 条 `ghosty-reduced-fade` CSSAnimation，420ms 内真实计算出 opacity 0→1，逐帧 transition 数恒为 0；CTA `::before` 静态、`animation-name:none`。JS 关闭实测：无 `.js` 类、h1 全文与 `aria-label` 完整、截图 `mask:none` / `opacity:1` 完整可见。
+- 机器门（SITE-CRAFT-1-FADE tip 实跑）：Node **32/32**；`pnpm site:guard` exit 0（deslop **733** 活动文件、release-truth PASS、desktop neutral/elevation/signature/motion 四门全绿）；`pnpm site:build` exit 0；`pnpm lint` exit 0；`pnpm -r build` exit 0（13/14 项目，仅既有 desktop dynamic-import/chunk-size warning）；`pnpm test` **139 files / 1204 tests**。
+
+### SITE-CRAFT-1-FADE · reduced-motion 三修（2026-07-16，待独立验收）
+
+- 根因是正常态基础规则的 900ms `mask-position` transition 在 reduce 分支取消遮罩后仍被 `.is-visible` 的位置翻转触发，形成视觉不可见但 Web Animations API 可见的 6 条幽灵过渡；本修复在 reduce 精确 consumer 上显式 `transition:none`，不改正常态规则。
+- 淡入只由 `@keyframes ghosty-reduced-fade` 的 opacity 0→1 实现，`.js .work-crop[data-reveal].is-visible img` 挂载 `420ms var(--ease-out) both`；不用 transition，故不受同帧赋类跳变影响。`site/main.js` 一字不动，reduce 分支仍在加载时一次为三张图加 `.is-visible`。
+- TDD 先加入 CSS 精确契约测试并在旧实现上得到 0/1 红，再以最小 CSS 转绿；同次抽验既有 `main.js` canonical AST 测试继续通过。
+- Chromium `149.0.7827.55`、1280×860 逐帧实测：reduce 共 40 帧，每帧恰有 3 条 `ghosty-reduced-fade`，24 帧存在 `0 < opacity < 1`，代表中间样本为 `0.970183`；元素与整页 CSSTransition 违例帧均为 0，三图 `mask:none`、computed transition duration `0s`，卷宗 20/47/14/8 动画数仍全 0。
+- 正常态第一张图保持隐藏 `100%` → 220ms 中扫 `27.2963%` → 收尾 `0%`，全程没有 reduced opacity keyframe；JS 关闭时无 `.js` arming，三图均 `opacity:1`、`mask:none`、`animation:none`、`naturalWidth:640`。
 
 ### 提案区（交架构拍板，本单不越权改）
 
