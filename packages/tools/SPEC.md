@@ -2,6 +2,12 @@
 
 状态：已完成
 
+## 子路径导出增量（2026-07-16，LEGAL-S3-BINDING-1 拉动，实现角色留痕）
+
+- 新增 browser-safe 子路径导出 `./party-verify`（`packages/tools/package.json`，纯加法）。`party-verify.ts` 仅依赖 `./contract`（已是 browser-safe 子路径先例）+ zod，传递闭包零 `node:*`。
+- 动因：`legal.S3` 的生产装配点（`apps/desktop`）在浏览器壳内运行 core executor，需以真实 `createQccPartyVerifyAdapter` 装配 `party-verify` 工具（未配置/未实现即诚实 `not_configured`/`not_implemented`，绝不换 demo/mock）；根 barrel `@courtwork/tools` 转售 `web-fetch-*`/`case-path` 会拖入 `node:*`，故走子路径。
+- 未改 `party-verify.ts`/`contract.ts` 任何契约或实现；与 `./case-path`/`./system-open`/`./contract` 同一「把 node 依赖挡在浏览器壳外」纪律。
+
 ## 职责
 
 确定性接口层：把有权威源的事实交给接口，不让模型猜（意见稿第三.1 的工程落点）。
