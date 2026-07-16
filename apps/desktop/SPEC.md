@@ -177,6 +177,81 @@
 - 反例触红齐备：静态门注入 folderPath/webkitdirectory/absolutePath 逐一触红；Rust 跨案越权 `out_of_scope`、未知 grant None；Vitest demo/grant/unbound 与跨案隔离；Playwright denied 不推进 + 授权建案零绝对路径 + 重授权换 grant。
 - 工作树留痕：本会话在隔离 worktree `impl/case-root-1` 逐文件手术暂存；`rp210:43`/`system-open:12` 两条基线即红（stash 至 `1e9efc2` 隔离复跑坐实），属 `OUTPUT-CONFIRM-UI-1`，非本单缺陷；最终门禁数字由独立验收在 clean worktree/隔离端口复跑填写。
 
+## MATERIAL-INGRESS-1 · 原件 hash、ReadingView 与 source-neutral MaterialRef 持久闭合（实现完成，待独立验收）
+
+权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) Round 3 `MATERIAL-INGRESS-1` 行、[ADR-010 决定四](../../docs/decisions/ADR-010-work-live-boundaries.md)（材料入口只传引用、绝对路径留宿主、原件只读原地不动、provider 前重验 hash）。工单基线 `main @ 47c9c6b`（`ca4edae`+`47c9c6b` 均为纯文档提交，与 `dd32fc1` 代码等价）。desktop + src-tauri 内闭合；**零改 `packages/core`/`schemas`/`tools`/`provider`/`reading-view` 导出**。
+
+本单是材料链（`HOST-AUTH-LITE → CASE-ROOT-1 → MATERIAL-INGRESS-1`）第三环：原件 bytes/hash、ReadingView 派生内容/hash 与 source-neutral MaterialRef 持久闭合；改字节、删除、需 OCR、hash 漂移、跨 case 引用全部在 provider 前显式阻断。Composer「Add folder」从「只授权」变为「就地真实入库」。
+
+### 目标与形制（架构已裁定/已确认，照用）
+
+- **原件永远只读、原地不动**（grant root 之下）；入库只读原件字节、就地派生，绝不移动/改写原件、绝不复制进案件目录。
+- **MaterialStore 只持久元数据**（宿主侧 app-data，沿 `host-grants.json` 扁平记录先例）：`materialId`、`caseId` 绑定、原件 `contentSha256`、ReadingView 派生内容（`readingMarkdown` + 文本层 `blocks`）及其 `readingViewSha256`、来源 `grantId`/`relativePath`（provenance，宿主独占）。
+- **MaterialRef source-neutral**（ADR-010 决定四逐字）：`{ materialId, caseId, fileName, mediaType, byteLength, contentSha256, readingViewVersion, readingViewSha256, status }`；wire 不含绝对/相对路径，经 `materialId` 引用；不提前加入来源判别联合。
+- **落点裁定（2026-07-16，产品负责人确认）**：MaterialRef 型别驻 `apps/desktop`，零改 core 导出——ADR-010 未强制 core 落点（Work wire 用 `materialRefs: string[]` id，executor 消费 `MaterialInput` 而非 `MaterialRef`，当前无 core 消费者）；纯加法、最小侵入。
+- **入库接缝裁定（2026-07-16，产品负责人确认）**：真实入库入口＝Composer「Add folder」（CASE-ROOT-1 明确移交「实际文件夹材料导入接入属 MATERIAL-INGRESS-1」），最忠于「原件原地不动 grant root 之下」；`NewCaseDialog` 建案不改（其绑定案经后续 Add folder 入库）。
+
+### 设计与契约（分层）
+
+- **Rust `src-tauri/src/material_store.rs`（新）**：app-data 扁平 per-material 持久 `materials/<materialId>.json`（`materialId` 校验为安全 token，拒 `..`/分隔符/越长）；`put_material`（原子 temp+rename）、`get_material`（**跨 case fail-closed**：`case_id` 不匹配即当作不存在，投影剥离 provenance）、`read_original`（按 provenance 委托 `host_auth::read_in_grant` 再读原件字节；记录缺失→`revoked`、跨 case→`out_of_scope`、删/卸载→`unavailable`）、`list_materials`（重启后原件列表真源，source-neutral）。哈希与 reading-view 派生**不在 Rust**（Rust 不理解 reading-view 语义），只做记录 CAS 与按 provenance 再读字节。**磁盘记录 `MaterialRecord` 含 provenance；对外投影 `MaterialWire` 剥离 provenance**。
+- **Rust `host_auth.rs`（加法）**：`scoped_list_dir`/`list_dir_in_grant`——授权文件夹单层文件枚举（只回实体文件，跳过子目录、符号链接、`.` 隐藏/临时项；复用既有 `resolve_target` 作用域守卫，`relativePath` 相对 grant root，与 read/write 同契约）。`lib.rs` 加 `mod material_store` 与 5 枚命令 `host_list_dir`/`material_put`/`material_get`/`material_list`/`material_read_original`（+ `invoke_handler` 注册）；`materials` 目录只落 app-data，绝不落用户案件目录。
+- **TS `src/material/`（新）**：`material-ref.ts`（source-neutral `MaterialRef`/`StoredMaterial` + `MaterialBlockReason` 闭集 + 可见文案）；`sha256.ts`（**Web Crypto `crypto.subtle` 真 SHA-256**——不用 `node:crypto`，desktop 浏览器壳打包会 externalize `node:crypto` 失败，见 reading-view F-1 追认）；`material-store.ts`（`MaterialHostPort` 接缝 + `MaterialStore`：`ingest`＝就地读字节→sha256→`convertToReadingView` 确定性派生→持久；`resolveForProvider`＝再读原件→重算 content hash→再派生 ReadingView 比对持久哈希→status/跨 case 门，**通过时喂 provider 的是刚重新验证的当前原件视图**）；`tauri-material-host.ts`（Tauri 适配器，动态 invoke 命令）。浏览器/E2E 内存宿主与测试 hook 与 `case-output-client`/`browser-host-auth` 同族，**只在 DEV+E2E 装配**。
+- **UI**：`src/system/MaterialsZone.tsx`（新，真实案卷宗原件区，只读 + 状态徽标 + 「核验」＝provider 前重验）；`App.tsx` 注入 `materialStore`、`caseMaterials` 状态随选中 grant 案加载/切走清空、`ingestAuthorizedFolder`（枚举→逐件 ingest→诚实计数反馈）、`verifyMaterial`（`resolveForProvider`→闭集阻断文案）、`authorizeCaseFolder` 重写（授权成立→就地入库；未绑定案先绑此 grant 为案件根）；`CaseRail.tsx` 真实案渲染 `MaterialsZone`；`main.tsx` 组合根构造 Tauri/浏览器材料宿主 + E2E hook。
+
+### 新增概念留痕（复杂度节制条）
+
+本单新增概念，逐一说明为何非加不可；**依赖：零新 crate、零新持久化格式家族**（沿 `host-grants.json` 扁平 JSON 先例）、零新状态机：
+
+1. **`MaterialRef`/`StoredMaterial`（source-neutral 材料引用）**——非加不可：ADR-010 决定四逐字要求 opaque、source-neutral 的材料引用。落点 desktop（架构确认），零改 core 导出。
+2. **`MaterialBlockReason`（provider 前阻断原因闭集，8 值）**——非加不可：本单本质复杂度是「provider 前每类失败必须显式」。无类型级闭集，漂移/删除/需 OCR/跨 case 只能塌成字符串或静默，违零静默降级红线。
+3. **宿主材料元数据记录（`materials/<materialId>.json`，app-data 内扁平）**——非加不可：持久闭合（重启后仍可验证）+ provenance 宿主独占的最小载体。沿 `host-grants.json` 先例，per-material 一文件（原子写、跨 case 由记录内 `caseId` 匹配 fail-closed），无 DB、无第二套抽象。
+4. **`MaterialHostPort`（注入接缝）**——非加不可：Tauri 命令持久 vs 浏览器/E2E 内存桩的物理分界必须可注入（与 `HostAuthPort`/`caseOutputClient` 同族）；哈希与 reading-view 派生是纯 TS，两适配器共用。
+5. **`host_list_dir`（作用域内单层文件枚举）**——非加不可：Add-folder 就地入库需要授权文件夹的文件清单；复用 `host_auth` 作用域守卫，零新 crate。非「材料检索/图谱」（那是语义检索，明禁）。
+
+**明确未新增**：未做 OCR 实现（needs_ocr 只阻断）；未接 LEGAL-S3-BINDING（`resolveForProvider` 已实现且全测，但未接入 live provider 调用——WORK-LIVE/LEGAL-S3 消费）；未动 `ArtifactEnvelope`；未做材料检索/图谱；未改 core/schemas/tools/provider/reading-view 任何导出。
+
+### TDD 反例映射（六条，先红后绿；最终数字以独立验收实跑为准）
+
+- **改字节（hash 漂移）→ provider 前阻断**：`resolveForProvider` 再读原件、重算 content hash 与持久 `contentSha256` 比对，不符→`content_drift`。Vitest + e2e（核验后改字节→「已改动」）+ Rust `read_original` 命中/漂移；**红证**：mutate `freshContent !== stored.contentSha256` 守卫→定向 Vitest 红。
+- **删除/卷卸载 → 显式失败非静默**：`read_original` 委托 `read_in_grant`，`NotFound`→`unavailable`。Rust `read_original_returns_bytes_then_fails_on_delete_and_cross_case` + Vitest + e2e（删原件→核验「找不到原件」）。
+- **needs_ocr → 阻断入请求**：图片扩展名 reading-view 短路 `needs_ocr`，`ingest` 记 status、`resolveForProvider` 直接 `needs_ocr` 阻断；未做 OCR。Vitest + e2e（`公章页.png`→`data-status="needs_ocr"`）。
+- **跨 case 引用 → fail-closed**：Rust `get_material`/`read_original` 按 `case_id` 匹配，不符→None/`out_of_scope`；TS `resolveForProvider` 得 null→`not_found`。Rust `get_cross_case_is_none_fail_closed` + Vitest；**红证**：mutate 跨 case 守卫为 `if false`→Rust `get_cross_case…` 红（实证）。
+- **重启后 ref 仍可验证（持久闭合）**：Rust `list_materials_filters_by_case_and_survives_restart`（新读磁盘、无内存态）+ Vitest（新 `MaterialStore` 实例复用同一持久 host records→`resolveForProvider` 仍 ready）。
+- **demo case 不走生产 MaterialStore（双向隔离）**：`ingest`/`resolveForProvider` 以 `isDemoCaseId` 拒绝 demo；App 侧 demo binding 从不查询生产 store。Vitest（ingest 抛错 / resolve 阻断 `out_of_scope`）；静态门；**红证**：删 `resolveForProvider` demo 守卫→静态门红（实证）。
+
+### 门禁实跑（本会话隔离端口，最终以独立验收为准）
+
+- `cargo test` **52 passed**（41 既有 + `host_auth` 枚举 4 + `material_store` 7）。
+- desktop Vitest **47 files / 230 tests**（新 `material-store.test.ts` 14 例，先以「模块缺失」红、实现后绿）；`tsc -b` 通过；`vite build` 通过。
+- root Vitest **139 files / 1204 tests**（不含 desktop，desktop 单列）。
+- `pnpm -r build` 全 workspace 通过；`pnpm lint` exit 0。
+- 静态门 `assert-material-contracts.mjs` 纳入 `test:e2e` 链：MaterialRef/StoredMaterial/Rust `MaterialWire` source-neutral（无路径/provenance）、`material_get`/`list` 只回 `MaterialWire`、跨 case fail-closed、5 命令注册、`MaterialStore` 经组合根注入非 singleton、浏览器桩仅 DEV+E2E、阻断原因闭集+文案、demo 双向隔离、哈希用 `crypto.subtle`、MaterialsZone 只读零路径。**红证（实证）**：注入 `grantId` 入 MaterialRef→门 exit 1；删 `resolveForProvider` demo 守卫→门 exit 1；撤除→passed。
+- Playwright floor `222 → 224`；新增 `material-ingress.spec.ts` **2 例**（就地入库真实原件按状态入卷+源中立无绝对路径；核验＝provider 前重验，漂移与删除显式阻断），隔离端口 **2/2 passed**。完整 Playwright **224 total → 222 passed / 2 failed**。
+- **诚实上报——两条非通过用例逐一定性，无一为本单回归**（`--reporter=list` 定名，`retries:0`）：`system-open.spec.ts:12`、`rp210.spec.ts:43` 均 30s 超时卡在 `confirmDemoReview` 的 `output-docx-card`——即 CASE-ROOT-1 已登记的 `OUTPUT-CONFIRM-UI-1` 产品确认 UI 缺口（demo S3 审阅→docx 流），与材料链无关；本单不触碰 demo 审阅/输出编译/confirmDemoReview 任何代码面。`visual-gallery.spec.ts:5` 复核为绿（其 test-results 目录为跨运行残留）。
+
+### 精确触面与禁止扩张
+
+- **触面**：`src-tauri/src/material_store.rs`（新）、`src-tauri/src/host_auth.rs`（+`scoped_list_dir`/`list_dir_in_grant`+4 测，加法）、`src-tauri/src/lib.rs`（+`mod material_store`、+5 命令、+`invoke_handler`）、`src/material/{material-ref,sha256,material-store,tauri-material-host}.ts`（新，+`material-store.test.ts`）、`src/system/MaterialsZone.tsx`（新）、`src/App.tsx`（`materialStore` prop、`caseMaterials` 状态/effect、`ingestAuthorizedFolder`、`verifyMaterial`、`authorizeCaseFolder` 重写、CaseRail props）、`src/rail/CaseRail.tsx`（`materials`/`onVerifyMaterial` props + 渲染）、`src/main.tsx`（组合根注入 + E2E hook）、`scripts/assert-material-contracts.mjs`（新）、`scripts/assert-test-count.mjs`（floor 224）、`package.json`（`test:e2e` 链 + `lint:material`）、`tests/e2e/material-ingress.spec.ts`（新）。
+- **禁止扩张（遵守）**：未做 OCR 实现；未接 LEGAL-S3-BINDING；未动 `ArtifactEnvelope`；未做材料检索/图谱；未改 `packages/core`/`schemas`/`tools`/`provider`/`reading-view` 任何导出；未改 `NewCaseDialog` 绑定语义（就地入库经 Add folder）；验收放行前不更新 `docs/status/current.md`。
+
+### 已知边界（诚实留痕，非缺口）
+
+- **浏览器/E2E 内存宿主重启即清**：故「重启后 ref 仍可验证」由 Rust 真磁盘（`list_materials`/`read_original` 存活）与 TS 单测（新实例复用同一持久 records）坐实；e2e 覆盖入库/漂移/删除/needs_ocr，不覆盖重启持久（内存态无法诚实模拟）。
+- **`resolveForProvider` 已实现且全测，但未接入 live provider 调用**：本单不接 WORK-LIVE/LEGAL-S3，无 live Work run 消费点；「核验」按钮是其可观测出口。成熟度诚实为 package-ready（宿主 production 链的材料→provider 装配属 WORK-LIVE-1）。
+- **`NewCaseDialog` 建案不 on-bind 入库**：绑定文件夹的案经后续 Composer「Add folder」入库；on-bind 自动入库属可选后续，本单不做（避免触碰 CASE-ROOT-1 的 NewCaseDialog）。
+- **Add folder 入已绑定 grant 的案**：材料带自身来源 `grantId` provenance，案件根 grant（供 docx 产出）保持首次绑定；多来源材料并存不冲突。
+
+### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权删）
+
+1. **`OriginalsZone`（demo）与 `MaterialsZone`（真实案）近重复**——两者都是「只读原件列表」，但数据源与动作不同（demo 静态 `DEMO_ORIGINALS`+reveal/open vs 真实 `StoredMaterial`+核验）。当前分开是诚实的（demo 虚拟根 vs 真实 source-neutral 材料）；若未来 demo 也走 MaterialStore（demo 材料入生产 store 违隔离，故不会），或真实案补 reveal/open，可评估归拢。**本单登记不动。** `[需架构拍板]`
+2. **`CASE_SCOPE_AUDIT` 文档即数据表**——HOST-AUTH-LITE 提案 #3 / CASE-ROOT-1 提案 #2 已登记待架构拍板退役；本单未触碰该表，沿留。
+
+### 实现留痕（2026-07-16，待独立验收）
+
+- 材料元数据宿主持久（app-data per-material 扁平记录，provenance 宿主独占、投影 source-neutral）；原件永远只读、原地不动，只读字节就地派生。Composer「Add folder」从「只授权」变为「就地真实入库」，诚实计数反馈；真实案卷宗原件区渲染已入库材料 + 「核验」provider 前重验。
+- 反例触红齐备（实证）：静态门注入 `grantId` 入 MaterialRef / 删 `resolveForProvider` demo 守卫逐一 exit 1；Rust 跨 case 守卫 mutate → `get_cross_case…` 红；TS content-drift 守卫 mutate → 定向 Vitest 红；material-store.test 先以「模块缺失」红后绿。
+- 工作树留痕：本会话在隔离 worktree `impl/material-ingress-1`（自 `main @ 47c9c6b`）逐文件手术暂存；`rp210:43`/`system-open:12` 两条即 CASE-ROOT-1 已登记的 `OUTPUT-CONFIRM-UI-1` 基线红（`--reporter=list` 定名、`retries:0`、30s 超时卡 `confirmDemoReview`），非本单缺陷；最终门禁数字由独立验收在 clean worktree/隔离端口复跑填写。
+
 ## CHAT-MATERIAL-1 · 附件阅读内容与粘贴块进入真实请求（实现完成，待独立验收）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) Round 2 P0 与[当前基线](../../docs/status/current.md)「Chat 附件」行。基线 `main @ ab79b5b`。desktop 内部闭合，不触碰任何跨层契约。

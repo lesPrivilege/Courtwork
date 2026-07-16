@@ -11,6 +11,7 @@ use std::path::{Component, Path, PathBuf};
 use std::sync::{Mutex, Once, OnceLock, RwLock};
 
 mod host_auth;
+mod material_store;
 
 /// 发行包 service；dev（debug_assertions）加 `.dev` 后缀，避免污染发行 ACL（F6）。
 #[cfg(debug_assertions)]
@@ -1543,6 +1544,92 @@ fn host_write_file(
     ))
 }
 
+// ─── MATERIAL-INGRESS-1：文件夹枚举 + 材料元数据宿主持久（ADR-010 决定四）──────────
+// 命令层只做 app-data 路径解析与搬运；来源 provenance（grantId/relativePath）持久在宿主，
+// 对 renderer 的投影严格 source-neutral。哈希/reading-view 派生在 TS 侧（Rust 不解析语义）。
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct HostListDirInput {
+    grant_id: String,
+    #[serde(default)]
+    relative_dir: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MaterialLookupInput {
+    case_id: String,
+    material_id: String,
+}
+
+/// 材料元数据目录（app-data 内，绝不落用户案件目录——原件原地不动）。
+fn materials_dir_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    use tauri::Manager;
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|_| "无法定位应用数据目录".to_string())?;
+    Ok(dir.join("materials"))
+}
+
+/// 授权文件夹单层文件枚举（就地入库的文件清单来源）。grant 未知/失效 → 闭集失败，绝不静默。
+#[tauri::command]
+fn host_list_dir(
+    app: tauri::AppHandle,
+    input: HostListDirInput,
+) -> Result<host_auth::ListDirOutcome, String> {
+    let store = host_grant_store_path(&app)?;
+    Ok(host_auth::list_dir_in_grant(
+        &store,
+        &input.grant_id,
+        &input.relative_dir,
+    ))
+}
+
+/// 原子持久一条材料记录（含 provenance）。materialId 非法 token → 显式错误。
+#[tauri::command]
+fn material_put(app: tauri::AppHandle, record: material_store::MaterialRecord) -> Result<(), String> {
+    let dir = materials_dir_path(&app)?;
+    material_store::put_material(&dir, &record)
+}
+
+/// 按 (caseId, materialId) 取 source-neutral 投影。跨 case/未知 → `null`（fail-closed）。
+#[tauri::command]
+fn material_get(
+    app: tauri::AppHandle,
+    input: MaterialLookupInput,
+) -> Result<Option<material_store::MaterialWire>, String> {
+    let dir = materials_dir_path(&app)?;
+    Ok(material_store::get_material(&dir, &input.case_id, &input.material_id))
+}
+
+/// 本 case 材料清单（重启后原件列表真源），source-neutral。
+#[tauri::command]
+fn material_list(
+    app: tauri::AppHandle,
+    case_id: String,
+) -> Result<Vec<material_store::MaterialWire>, String> {
+    let dir = materials_dir_path(&app)?;
+    Ok(material_store::list_materials(&dir, &case_id))
+}
+
+/// provider 前漂移/删除检测的字节源：按 provenance 再读原件。跨 case → out_of_scope；删/卸载 → unavailable。
+#[tauri::command]
+fn material_read_original(
+    app: tauri::AppHandle,
+    input: MaterialLookupInput,
+) -> Result<host_auth::ReadOutcome, String> {
+    let grant_store = host_grant_store_path(&app)?;
+    let dir = materials_dir_path(&app)?;
+    Ok(material_store::read_original(
+        &grant_store,
+        &dir,
+        &input.case_id,
+        &input.material_id,
+    ))
+}
+
 #[tauri::command]
 async fn provider_chat_request(
     input: ProviderChatInput,
@@ -1786,6 +1873,11 @@ pub fn run() {
             host_list_grants,
             host_read_file,
             host_write_file,
+            host_list_dir,
+            material_put,
+            material_get,
+            material_list,
+            material_read_original,
             sync_macos_window_controls,
         ])
         .run(tauri::generate_context!())
