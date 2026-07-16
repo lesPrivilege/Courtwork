@@ -7,6 +7,8 @@ import type { CaseSummary } from '../case/types';
 import { CONTAINERIZE_COPY } from '../composer';
 import type { ScenarioFlow } from '../protocol/client';
 import { OriginalsZone } from '../system/OriginalsZone';
+import { MaterialsZone } from '../system/MaterialsZone';
+import type { StoredMaterial } from '../material/material-ref';
 import { ArchiveGlyph } from '../workbench/MiniIcon';
 import { Icon } from '../workbench/Icon';
 import { BrandMarkIcon } from '../icons/custom-icons.generated';
@@ -31,6 +33,10 @@ interface CaseRailProps {
   flow: ScenarioFlow | null;
   dispositionsCount: number;
   caseRoot: string | undefined;
+  /** MATERIAL-INGRESS-1：真实（grant）案的已入库材料清单（source-neutral）。 */
+  materials: StoredMaterial[];
+  /** 核验一件材料（provider 前重验：漂移/删除/需 OCR/跨 case 显式呈现）。 */
+  onVerifyMaterial: (materialId: string) => void;
   archiveConfirmCaseId: string | null;
   /** F-1.1：未归档「存入」锚定的容器化仪式行 id */
   containerizeUnfiledId: string | null;
@@ -67,6 +73,8 @@ export function CaseRail({
   flow,
   dispositionsCount,
   caseRoot,
+  materials,
+  onVerifyMaterial,
   archiveConfirmCaseId,
   containerizeUnfiledId,
   viewSegment,
@@ -296,7 +304,13 @@ export function CaseRail({
               </>
             )}
             {caseRoot && demo && <OriginalsZone caseRoot={caseRoot} onFeedback={onFeedback} />}
-            {!demo && <p className="wf-empty rail-pad">尚无卷宗原件</p>}
+            {/* MATERIAL-INGRESS-1：真实案的已入库材料（只读 + 核验）；仅选中案有已加载清单。 */}
+            {!demo && item.id === selectedCaseId && materials.length > 0 && (
+              <MaterialsZone materials={materials} onVerify={onVerifyMaterial} />
+            )}
+            {!demo && !(item.id === selectedCaseId && materials.length > 0) && (
+              <p className="wf-empty rail-pad">尚无卷宗原件</p>
+            )}
           </div>
         )}
       </article>

@@ -8,6 +8,9 @@ import { installChatTestHooks } from './provider/chat-client';
 import { createTauriProviderTransport, isTauriHostRuntime } from './host/tauri-provider-transport';
 import { createTauriHostAuth } from './host/tauri-host-auth';
 import { createBrowserHostAuth, installHostAuthTestHooks } from './host/browser-host-auth';
+import { MaterialStore } from './material/material-store';
+import { createBrowserMaterialHost, installMaterialHostTestHooks } from './material/material-store';
+import { createTauriMaterialHost } from './material/tauri-material-host';
 import { createDesktopPackageRuntime } from './composition/package-runtime';
 import { createDemoWorkFixture } from './demo/client';
 import './styles.css';
@@ -15,14 +18,19 @@ import './styles.css';
 // Playwright 探针注入点（非 demo 装配）
 installCredentialTestHooks();
 installProviderConnectionTestHooks();
-if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') {
-  installChatTestHooks();
-  installHostAuthTestHooks();
-}
-
 const providerTransport = isTauriHostRuntime() ? createTauriProviderTransport() : undefined;
 // HOST-AUTH-LITE：产品运行时用 Tauri 适配器；DEV/E2E 无原生 picker 时用 browser 樁（诚实失败，非 demo 回落）。
 const hostAuth = isTauriHostRuntime() ? createTauriHostAuth() : createBrowserHostAuth();
+// MATERIAL-INGRESS-1：产品运行时经 src-tauri 命令持久；DEV/E2E 用内存宿主（绝不进正式 Tauri composition）。
+const materialHost = isTauriHostRuntime() ? createTauriMaterialHost() : createBrowserMaterialHost();
+const materialStore = new MaterialStore(materialHost);
+
+if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') {
+  installChatTestHooks();
+  installHostAuthTestHooks();
+  installMaterialHostTestHooks();
+}
+
 const packageRuntime = createDesktopPackageRuntime();
 const demoWorkFixture = createDemoWorkFixture();
 
@@ -36,6 +44,7 @@ createRoot(document.getElementById('root')!).render(
         workProjection={demoWorkFixture.projection}
         workFixture={demoWorkFixture}
         hostAuth={hostAuth}
+        materialStore={materialStore}
       />
     </LucideProvider>
   </StrictMode>,

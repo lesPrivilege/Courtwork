@@ -40,6 +40,8 @@ import {
   type CaseBinding,
 } from './case/case-scope';
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
+import type { MaterialStore } from './material/material-store';
+import { MATERIAL_BLOCK_REASON_COPY, type StoredMaterial } from './material/material-ref';
 import { CHROME_COPY } from './chrome/copy';
 import { WindowChrome } from './chrome/WindowChrome';
 import { InteractionTurnCard, ToolCallRow, TurnCard, interactionViewFromReplay } from './chat/TurnCard';
@@ -294,9 +296,10 @@ export interface AppProps {
   workProjection: WorkProjectionPort;
   workFixture: DemoWorkFixtureAdapter;
   hostAuth: HostAuthPort;
+  materialStore: MaterialStore;
 }
 
-export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture, hostAuth }: AppProps) {
+export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture, hostAuth, materialStore }: AppProps) {
   const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
@@ -830,6 +833,25 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     [selectedCase],
   );
   const demoCaseRoot = caseBinding.kind === 'demo' ? DEMO_CASE_ROOT : undefined;
+
+  // MATERIAL-INGRESS-1：真实（grant）案的已入库材料清单，重启后由宿主 MaterialStore 复列。
+  // demo/unbound 永不查询生产 store（双向隔离）；切案即重载，切走清空。
+  const [caseMaterials, setCaseMaterials] = useState<StoredMaterial[]>([]);
+  useEffect(() => {
+    if (caseBinding.kind !== 'grant' || !selectedCaseId) {
+      setCaseMaterials([]);
+      return;
+    }
+    let cancelled = false;
+    const caseId = selectedCaseId;
+    void materialStore.listForCase(caseId).then((materials) => {
+      if (!cancelled) setCaseMaterials(materials);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [caseBinding.kind, selectedCaseId, materialStore]);
+
   const fixtureRef = isDemoCase ? activeFixtureRef : undefined;
   // fixture fallback 只属于显式 demo ref；非 demo 分支不会询问 fixture adapter。
   const riskList = (
@@ -1177,14 +1199,86 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   const openOutputDocx = () => openCaseOutputDocx(CONTRACT_OUTPUT_FILE);
 
-  // CASE-ROOT-1：composer「Add folder」经宿主原生 picker 取文件夹授权（替代浏览器目录选择控件，ADR-010 决定四）。
-  // 授权成立即形成可持久复验的宿主 grant（Settings·Host folder access 可见）；材料导入接入属 MATERIAL-INGRESS-1。
-  const authorizeCaseFolder = () => {
-    void hostAuth.authorizeFolder().then((result) => {
-      if (result.status === 'granted') {
-        showSystemFeedback(`已授权文件夹〔${result.grant.label}〕`, true);
+  // MATERIAL-INGRESS-1：就地入库一个授权文件夹的原件——枚举单层文件 → 逐件读原件、哈希、
+  // reading-view 派生 → 持久 source-neutral MaterialRef。原件永远只读、原地不动（grant root 之下）。
+  // demo 案不走生产 store（双向隔离）；诚实计数上报（就绪/需识别/不可用/失败），零静默。
+  const ingestAuthorizedFolder = async (caseId: string, grantId: string, label: string) => {
+    const listing = await materialStore.listDir(grantId);
+    if (listing.status === 'failed') {
+      showSystemFeedback(hostAuthReasonCopy(listing.reason), false);
+      return;
+    }
+    if (listing.entries.length === 0) {
+      showSystemFeedback(`〔${label}〕内没有可入库的文件`, false);
+      return;
+    }
+    let ready = 0;
+    let needsOcr = 0;
+    let rejected = 0;
+    let failed = 0;
+    for (const entry of listing.entries) {
+      const result = await materialStore.ingest(caseId, {
+        grantId,
+        relativePath: entry.relativePath,
+        fileName: entry.fileName,
+      });
+      if (result.status === 'failed') {
+        failed += 1;
+      } else if (result.material.status === 'ready') {
+        ready += 1;
+      } else if (result.material.status === 'needs_ocr') {
+        needsOcr += 1;
       } else {
+        rejected += 1;
+      }
+    }
+    const materials = await materialStore.listForCase(caseId);
+    setCaseMaterials(materials);
+    setCases((current) =>
+      current.map((item) => (item.id === caseId ? { ...item, fileCount: materials.length } : item)),
+    );
+    const parts = [`已从〔${label}〕入库 ${ready} 件卷宗原件`];
+    if (needsOcr > 0) parts.push(`${needsOcr} 件需文字识别后方可引用`);
+    if (rejected > 0) parts.push(`${rejected} 件无法转为可引用的阅读视图`);
+    if (failed > 0) parts.push(`${failed} 件读取失败`);
+    showSystemFeedback(parts.join('；'), failed === 0);
+  };
+
+  // CASE-ROOT-1 授权 + MATERIAL-INGRESS-1 入库：composer「Add folder」经宿主原生 picker 取文件夹授权。
+  // 授权成立且当前为真实案 → 就地入库该文件夹原件；未绑定案先绑此 grant 为案件根，再入库。
+  // 无选中案 / demo 案 → 只授权不入库（demo 双向隔离），诚实反馈。
+  const authorizeCaseFolder = () => {
+    void hostAuth.authorizeFolder().then(async (result) => {
+      if (result.status !== 'granted') {
         showSystemFeedback(hostAuthReasonCopy(result.reason), false);
+        return;
+      }
+      const targetCaseId = selectedCaseId;
+      if (!targetCaseId || isDemoCaseId(targetCaseId)) {
+        showSystemFeedback(`已授权文件夹〔${result.grant.label}〕`, true);
+        return;
+      }
+      // 未绑定案：把此 grant 记为案件根（label 供展示）；已绑定案保留原案根，材料仍带自身来源 grant。
+      setCases((current) =>
+        current.map((item) =>
+          item.id === targetCaseId && !item.grantId
+            ? { ...item, grantId: result.grant.grantId, label: result.grant.label }
+            : item,
+        ),
+      );
+      await ingestAuthorizedFolder(targetCaseId, result.grant.grantId, result.grant.label);
+    });
+  };
+
+  // MATERIAL-INGRESS-1：核验即 provider 前重验（再读原件、比对 content/ReadingView 哈希、status/跨 case 门）。
+  // 漂移、删除、需 OCR、跨 case 全部显式呈现闭集原因；通过则报可用于生成。
+  const verifyMaterial = (materialId: string) => {
+    if (!selectedCaseId) return;
+    void materialStore.resolveForProvider(selectedCaseId, materialId).then((resolved) => {
+      if (resolved.status === 'ready') {
+        showSystemFeedback(`原件校验通过：${resolved.material.fileName} 可用于生成`, true);
+      } else {
+        showSystemFeedback(MATERIAL_BLOCK_REASON_COPY[resolved.reason], false);
       }
     });
   };
@@ -1568,6 +1662,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             flow={flow}
             dispositionsCount={Object.keys(dispositions).length}
             caseRoot={demoCaseRoot}
+            materials={caseMaterials}
+            onVerifyMaterial={verifyMaterial}
             archiveConfirmCaseId={archiveConfirmCaseId}
             containerizeUnfiledId={containerizeUnfiledId}
             viewSegment={viewSegment}
