@@ -331,3 +331,88 @@ Codex in-app Browser 运行时已按技能说明连接，但 `agent.browsers.lis
 ### 8. 放行边界
 
 本轮只放行 SITE-2B 的真机证据刷新、canonical OG 与当前未发布状态下的 Pages 站点部署。后续若创建真实 Release，必须在真实制品、校验和与下载目标成立后另行更新 CTA，并重新执行发布态 claim guard 与线上 URL 复核；不得沿用本报告把未发布页面直接改写为已发布。
+
+---
+
+## SITE-CRAFT-1-ACCEPT · Pages 三处巧思独立验收（2026-07-16）— ❌ 不放行
+
+- **验收角色**：独立验收会话，未参与 `SITE-CRAFT-1` 实现；不采信实现自述。
+- **被验实现**：`impl/site-craft-1@134796ba2237a3511056e905f03aa6cd35290a04`，实现基线 `31123fc`；已由 `b31dad6` 合入 `main`。
+- **验收尖端**：从 `5a1fcf71eb55b48a35f379fdc93daa031068da20` 建立独立 clean worktree `/Users/lesprivilege/Projects/Courtwork-site-craft-1-accept-5a1fcf7`，分支 `codex/site-craft-1-accept`；静态站只使用独立 `127.0.0.1:17416`。
+- **权威契约**：`docs/design/site-evidence-line.md` 的 2026-07-15 Pages 动效例外与本 SPEC 的 `SITE-CRAFT-1` 节；验收没有改写动效契约、跨层接口或 `docs/status/current.md`。
+
+### 1. 总结论
+
+> **SITE-CRAFT-1 不放行 ❌。** Typer、正常态 Ghosty、Satin CTA、JS 关闭退化、数据区静止、AST 锁、构建资产与全量机器门均通过；但 Ghosty 的 reduced-motion 分支只有 `transition: opacity 0.42s` 声明，实际首个可观察 frame 起即为 `opacity:1`，没有发生 SPEC 要求的 opacity 淡入。实现证据把“存在 transition 声明”写成“退化为 opacity 淡入”，与独立逐帧实测不一致。
+
+这是实现行为缺口，不由验收会话把“直接全显”等价改写为“opacity 淡入”。若架构希望 reduced-motion 直接全显也合规，必须先修改权威验收契约并重新派单；否则实现需让淡入真实发生，且不得放宽精确 motion 锁或波及卷宗数字区，之后重新独立验收。
+
+### 2. 范围、依赖与提交事实
+
+- `git diff 31123fc..134796b` 恰为 **20 files changed, 171 insertions, 15 deletions**；20/20 全在 `site/`。
+- `apps/desktop/`、`packages/*`、`docs/status/current.md` 均为零触碰；`pnpm-lock.yaml`、根 manifest、workspace 与 `site/package.json` 无差异。
+- `pnpm install --frozen-lockfile` 成功：14 个 workspace 范围、1047 个包全部复用，lockfile 无改写。
+- 合并提交 `b31dad6` 的第二父为 `134796b`；`134796b`、`b31dad6` 与验收尖端 `5a1fcf7` 均为 `main` 祖先。
+
+### 3. deslop AST 锁与真实漂移红测
+
+逐行比较 `31123fc..134796b` 的 `deslop-scan-lib.mjs` 与 fixture：`canonicalSiteMotion` 的语义扩展只有两点——在脚本首行加入 `document.documentElement.classList.add('js')`，以及把同一个 observer/reduced-motion 收尾链的目标从 `.evidence-step` 扩为 `.evidence-step, [data-reveal]`；对应变量名由 `steps/step` 改成 `revealTargets/target`，阈值 `0.55`、相交判断、`is-visible` 收尾与 `unobserve` 形状均未放宽。`deslop-scan.test.mjs` 只同步 canonical fixture 并新增两条对应反例。
+
+验收在真实活动文件逐项注入、观察非零退出，再用反向 patch 完整撤除：
+
+1. `site/main.js` 去掉 `, [data-reveal]`：exit 1，命中 `[site-motion]`；
+2. 去掉 `.js` 旗标行：exit 1，命中 `[site-motion]`；
+3. `site/styles.css` 新增一个 `linear-gradient(...)`：exit 1，同时命中顶层 banned tell 与 `[gradient]`；
+4. 新增一个 `box-shadow: 0 2px`：exit 1，同时命中 unauthorized shadow 与 `[shadow]`；
+5. 另注入 `color: #123456`：exit 1，同时命中 raw hex 与 `[raw-color]`。
+
+全部反例撤除后 `git diff --check` 通过、工作树恢复 clean，deslop 重新全绿。指定尖端的实跑扫描数为 **731 active text files**，不是派单中预期的 730；本报告按仓库事实记录，没有改门禁计数口径。
+
+### 4. 三效果与三态浏览器实测
+
+同一 `site-dist` 与独立端口在 1280×860 下由 in-app Browser 逐帧实看，并以仓库锁定的 `@playwright/test` Chromium context 补齐 Web Animations API、reduced-motion 与 JS 关闭量测。
+
+**Typer**
+
+- 正常态约 220ms：十个 `.tc` 各有 1 条动画，`document.getAnimations()` 为 **10**；前段字符已进入藏青反色/pill 状态，后段仍为 opacity 0，左右错峰肉眼可辨。
+- 收尾后十字均为 `color:rgb(10,37,64)`、透明背景、opacity 1；`h1.textContent` 与 `aria-label` 都完整为“模型只生成，不裁决。”。
+- reduced-motion 媒体查询真实命中：整页与十个字符 `getAnimations()` 均为 **0**，`animation-name:none`，十字直接以 `rgb(10,37,64)` / opacity 1 定格。
+
+**Ghosty**
+
+- 正常态初始 observer 未命中时为 `mask-position:0px 100%`、`mask-size:100% 300%`；滚入后实看约 `50.4%` 的中扫帧，再收尾到 `0px 0px` 全显。仓库 hidden/midsweep/revealed 三图两两均有明确像素差（changed channels 26.282% / 39.086% / 29.295%），与实看顺序一致。
+- reduced-motion 下三图都计算为 `mask-image:none`、`opacity:1`，声明 `transition:opacity 0.42s cubic-bezier(...)`；但验收从页面脚本前安装只读逐帧采样，首个样本 `t=29.7ms` 到 `t=664.4ms` 共 **40** 帧全部为 opacity 1、动画数 0，中间 opacity 样本为零。故“直接全显”成立，“opacity 淡入”不成立。
+- 卷宗统计 20/47/14/8 四项逐一为 `getAnimations()=0`、`animation-name:none`、`transition-duration:0s`、`transform:none`；数据区未被媒体例外波及。
+
+**Satin CTA**
+
+- 主按钮本体为 `rgb(10,37,64)`，文字为 `rgb(246,249,252)`；`isolation:isolate`、`overflow:hidden` 保证伪元素留在按钮内，`::before/::after` 均 `z-index:-1`，文字位于材质之上。
+- `::before` 为 `--bg-app` 派生的 12% 静态上部高光，`::after` 为 55% 顶缘细线；两者 `animation-name:none`，无 gradient、shadow 或新 raw color。
+- `before-cta.png` 与 `after-cta.png` 同为 760×43；逐通道比较有 **8.237%** 通道变化、平均绝对差 2.358、最大差 142，主按钮顶缘/上半部材质肉眼可辨，文字清晰。
+
+**JavaScript 关闭**
+
+- `documentElement.className` 为空、无 `.js`；等待 Typer 定格后 H1 十字均 opacity 1，文本与 `aria-label` 完整。
+- 三张 `.work-crop` 图片均 `mask-image:none`、`opacity:1`、`visibility:visible`、`display:block`；naturalWidth 均为 640，内容实际解码并完整可见。
+
+### 5. 证据与构建资产复核
+
+- `craft-evidence/SITE-CRAFT-1/` 的 Typer 闪烁/定格、CTA 前后与 Ghosty 三态截图已逐张目视；除 reduced opacity 行为措辞外，画面与正常态、JS 关闭实测一致。
+- `measurements.json` 的 Typer 10/0、Ghosty mask/size/position、CTA 静态背景、HTML `.js` 与整页 reduced 动画 0 均可复现；它只记录了 `transition` 声明，没有逐帧证明 opacity 曾低于 1，因此不能支持 README/SPEC 的“淡入”结论。
+- `node site/scripts/build.mjs` exit 0；`site-dist/assets/ghosty-mask.svg` 存在且与源资产逐字节 `cmp` 相同，固定拷贝清单生效。
+
+### 6. 架构已批清理
+
+全站 `rg` 只在 SPEC 提案与 CSS 声明命中 `.text-link`，无 HTML/JS 消费者。验收按明确批准删除死 CSS，并同步关闭 SPEC 的偶然复杂度提案；提交为 `73f9f9bf582cca2116f9888681b08e73e03f6e7d`（`fix-by-acceptance: remove dead site text-link style`）。该提交只含 `site/styles.css` 与 `site/SPEC.md`，提交 tip 的 deslop 与站点 build 均通过。
+
+### 7. 全量机器门
+
+- `pnpm site:guard`：exit 0；Node fixture **31/31**，release-truth PASS，deslop **731 active text files**，desktop neutral/elevation/signature/motion 四门全绿。
+- `pnpm lint`：exit 0。
+- `pnpm -r build`：exit 0；scope **13/14 workspace projects**，desktop Vite **3540 modules**；只有既有 dynamic-import/chunk-size warning。
+- `pnpm test`：exit 0；**139 files / 1204 tests**。
+- `git diff --check`：通过；未更新 `docs/status/current.md`，未推送。
+
+### 8. 不放行边界
+
+`134796b + 73f9f9b + 本验收记录` 当前不得作为 `SITE-CRAFT-1` 放行依据。修复只需关闭 reduced Ghosty 实际行为与书面契约的差距；不得借机改变正常态 Typer/Ghosty、CTA 材质、卷宗数字静止边界、observer 精确 AST 锁、发布真值或产品壳。任何实现修订都必须在新的独立 clean worktree 重新注入 drift/guard 反例、复测三态并出具独立验收结论。
