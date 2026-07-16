@@ -416,3 +416,55 @@ Codex in-app Browser 运行时已按技能说明连接，但 `agent.browsers.lis
 ### 8. 不放行边界
 
 `134796b + 73f9f9b + 本验收记录` 当前不得作为 `SITE-CRAFT-1` 放行依据。修复只需关闭 reduced Ghosty 实际行为与书面契约的差距；不得借机改变正常态 Typer/Ghosty、CTA 材质、卷宗数字静止边界、observer 精确 AST 锁、发布真值或产品壳。任何实现修订都必须在新的独立 clean worktree 重新注入 drift/guard 反例、复测三态并出具独立验收结论。
+
+---
+
+## SITE-CRAFT-1-REACCEPT · reduced-motion 裁定后复验（2026-07-16）— ✅ 放行
+
+- **架构裁定**：`47c9c6bdd7c0bed34f4c9c8ad107c90eb071d44b` 将 reduced-motion 合规标准明确为直接全显（0ms）；淡入非必需，但声称必须与实测一致，永不触发的过渡声明须删。
+- **复验对象**：`134796b` 的 SITE-CRAFT-1 实现、既有验收清理 `73f9f9b`，以及本轮修复 `7f6d1b631b587e5f492321d1fc2e7acb6d734328`（`fix-by-acceptance: align reduced Ghosty with direct reveal`）。
+- **隔离环境**：原独立 worktree `/Users/lesprivilege/Projects/Courtwork-site-craft-1-accept-5a1fcf7` 与分支 `codex/site-craft-1-accept` 已 fast-forward 到 `main@47c9c6b`；静态站只使用独立 `127.0.0.1:17417`，未触碰共享树。
+
+### 1. 总结论
+
+> **SITE-CRAFT-1 放行 ✅。** 首轮唯一拒绝项已经按架构新裁定闭合：reduced Ghosty 从首帧起无遮罩、无预隐藏、无活动动画，0ms 直接全显；CSS、SPEC、README 与 measurements 的声称现与实测一致。正常态 Ghosty 三态未回归，Typer、Satin、JS 关闭、数据区静止、AST 锁与首轮其余通过项继续有效。
+
+### 2. fix-by-acceptance 范围
+
+`site/styles.css` 的 reduced media block 只保留 `-webkit-mask-image:none` 与 `mask-image:none`；删除三处死行为：`opacity:0`、`transition:opacity 420ms ...` 与 `.is-visible { opacity:1 }` 翻转。正常态 `mask-position 900ms` 过渡及 observer 形状未改。
+
+同步修改四个受控文件：
+
+- `styles.css` 注释改为“取消遮罩并直接全显（0ms、零运动）”；
+- `site/SPEC.md` 两处 reduced 声称改为 `mask:none` / `opacity:1`、无 opacity transition、活动动画 0；
+- `craft-evidence/SITE-CRAFT-1/README.md` 使用相同口径；
+- `measurements.json` 记录 opacity 1、opacity transition absent、active animations 0 与 `direct full visibility (0ms)`。
+
+正常态所需的 base `mask-position 0.9s` 声明仍可出现在 computed style；reduced 下遮罩已取消且不存在 mask/opacity 状态差，逐帧 `getAnimations()` 恒为 0。报告没有把“无活动动画”误写成不存在正常态 base 声明。
+
+### 3. reduced-motion 逐帧复验
+
+仓库锁定 Chromium 在 1280×860、`prefers-reduced-motion:reduce` context 下，从页面脚本执行前安装只读 rAF 采样：
+
+- `t=32.5ms` 至 `t=713ms` 共 **41 帧**；每帧均 `opacity:1`、`mask-image:none`、元素动画数 0；违例样本为 0。
+- `document.getAnimations()` 为 0；三张 `.work-crop` 逐一滚入完成 lazy-load 后 naturalWidth 均为 640，且全部 opacity 1、mask none、动画 0。
+- 页面没有 reduced 预隐藏、遮罩扫动或 opacity 淡入；声称与 0ms 直接全显行为一致。
+
+### 4. 正常态回归复验
+
+另起 `no-preference` context，等待初始武装稳定后复测第一张 Ghosty：
+
+- 隐藏预态：无 `.is-visible`，`mask-position:0px 100%`，活动动画 0；
+- 触发后：从 100% 开始显影，220ms 中间帧为约 `23.97%`，活动 mask 动画 1；
+- 收尾：`mask-position:0px 0px`，活动动画回到 0。
+
+因此本轮只删除 reduced 死 opacity 过渡，没有改变正常态隐藏→中扫→全显链。
+
+### 5. 门禁与放行边界
+
+- 既有 Node 测试：**31/31**，exit 0。
+- `pnpm site:guard`：exit 0；release-truth PASS、desktop neutral/elevation/signature/motion 四门全绿。当前 main 新增活动文档后 deslop 实跑为 **733 active text files**；派单中的 731 是上一尖端计数，本报告不改写仓库事实。
+- `pnpm site:build` / `node site/scripts/build.mjs`：exit 0；`site-dist/assets/ghosty-mask.svg` 与源资产逐字节相同。
+- `git diff --check`：通过；未推送，验收分支之外零写入。
+
+放行只覆盖 `47c9c6b` 裁定后的 SITE-CRAFT-1：Pages 展示站 Typer、Ghosty、Satin 及其 reduced/JS-off 边界。不授权把媒体层动效回迁产品壳，也不改变卷宗数字绝对静止、发布真值或 deslop 精确 AST 锁。
