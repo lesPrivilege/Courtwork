@@ -1741,3 +1741,70 @@ target `6420f50` 原样实跑：
 操作留痕：验收补测最初使用 `node:fs` 读取 App 源码，desktop TypeScript 因不含 Node types 令 build 真实失败；该未提交验收写法随即改为 Vite `?raw` 导入，未新增依赖，随后上述全仓 build 与全部门从头转绿。
 
 > **最终判定：条件放行 ✅。** `6420f50` 单独因 src 字面残留及两处防回归缺口不放行；`6420f50 + 74b5c19 + 本验收记录` 放行 CHAT-MATERIAL-1。成立范围仅为 desktop Chat：ready 附件正文、pasteBlocks 与用户文本逐字进入真实请求，needs_ocr/空内容显式阻断，且多轮 history 复用同源组装正文；不升级 MaterialStore、原件 hash、宿主授权、OCR、多模态或任何跨层契约。`docs/status/current.md` 未修改，能力行留给架构角色更新。
+
+## CHAT-SESSION-1 独立验收（2026-07-16）— ❌ 不放行（[需架构拍板]）
+
+验收对象：`e4832364325b0d49f6865e7be03427a8bf3788f7`，基线 `f4f06a6`；验收 checkout 为 `main @ 79d583d5b841b65bdae4cb37211af86f615f68f2`，确认实现提交是其祖先。验收在独立 clean worktree `/Users/lesprivilege/Projects/Courtwork-chat-session-1-accept` 完成，未在共享树 checkout、stash 或 prune worktree。
+
+### 1. 范围与复杂度核对
+
+`git diff f4f06a6..e483236 --name-status` 实收恰好 10 文件、`+810/-5`：
+
+- `apps/desktop/scripts/assert-test-count.mjs`
+- `apps/desktop/src/App.tsx`
+- `apps/desktop/src/chat/SessionHistory.dom.test.ts`
+- `apps/desktop/src/chat/SessionHistory.tsx`
+- `apps/desktop/src/chat/session-transcript.test.ts`
+- `apps/desktop/src/chat/session-transcript.ts`
+- `apps/desktop/src/chat/session-window.test.ts`
+- `apps/desktop/src/chat/session-window.ts`
+- `apps/desktop/src/styles.css`
+- `apps/desktop/tests/e2e/chat-session.spec.ts`
+
+`packages/core`、`packages/schemas`、`packages/provider`、provider 导出及 `docs/status/current.md` 相对基线均零差异；package manifest 与 `pnpm-lock.yaml` 零差异。transcript 只通过 `readTranscriptSessions(store)` → `store.list()` 读取既有 Turn journal，没有新持久化格式、依赖、状态机或状态机库。复杂度扫描结论：确为 SPEC 声明的三个新模块；`effectiveBaseUrl` 无生产消费者，`reasoningLabel` 函数也无生产消费者（同名 React prop 不属于该函数），两项均留在提案区，未越权删除。
+
+SPEC 对持久边界登记诚实：journal 只持久化助手 turn 与 interaction，历史 transcript 因而只有助手侧记录；用户 prompt 不入 journal。既有 `turn-protocol-client.test.ts:212` 实测锁定 prompt、secret、transport/systemPrompt 均不进入持久内容；当前实时会话仍在内存保留用户+助手上下文。
+
+### 2. 全量门禁实跑
+
+先执行 `pnpm install --frozen-lockfile`：14 workspace projects、1047 packages，lockfile 零漂移。
+
+| 门禁 | 独立实跑结果 |
+|---|---|
+| `pnpm -r build` | 13/13 workspace project 通过；desktop Vite build 通过，仅既有 Tauri dynamic/static import 与 chunk-size warning |
+| `pnpm lint` | exit 0 |
+| root `pnpm test` | 139 files / **1203 tests passed** |
+| desktop `pnpm test` | 44 files / **200 tests passed** |
+| CHAT-SESSION 定向 Vitest（还原后） | 3 files / **24 tests passed** |
+| `COURTWORK_E2E_PORT=1657 pnpm test:e2e` | 静态门全绿，floor 219；Playwright **217/219 passed**（4 workers、`reuseExistingServer=false`） |
+
+Playwright 两项失败均为既有输出链路径：`tests/e2e/rp210.spec.ts:43` 与 `tests/e2e/system-open.spec.ts:12`，两者都在 `helpers.ts:36` 等待 `output-docx-card` 超时。CHAT-SESSION 新增的三项（跨窗新开、窗口内延续、只读导航）均通过。由于全量门没有全绿，本单不能放行；floor 已按实现提交的 `216 → 219` 保持，不伪造为 219/219。
+
+### 3. ADR-013 §1 反例触红（每项注入后均还原）
+
+| 边界 | 注入 | 红灯证据 |
+|---|---|---|
+| 窗口边界 | `withinWindow` 临时由 `<=` 改为 `<` | `session-window.test.ts` **1 failed / 9 passed**，恰在 60 分整边界失败 |
+| 跨窗续行 | `App.tsx` 临时把 `sessionMessages` 改回全量 `chatMessages` | `chat-session.spec.ts` **1 failed / 2 passed**；跨窗捕获请求重新含 `FIRST-SESSION-MARK-7K2Z` |
+| transcript 涂改 | `readTranscriptSessions` 临时吞掉 `store.list()` 异常并返回空数组 | `session-transcript.test.ts` **1 failed / 8 passed**；损坏 journal 未再显式抛错 |
+| 分叉不涂改 | 临时把追加 turn 的 id 改成既有 `t1` 并改正文 | `session-transcript.test.ts` **1 failed / 8 passed**，core `TurnAlreadyExistsError` 触红；正常追加仍保持既有条目字节不变 |
+| 管理入口 | `SessionHistory` 临时注入 `data-testid="session-delete"` | `SessionHistory.dom.test.ts` **3 failed / 2 passed**，列表与只读态管理入口断言触红 |
+
+全部 mutation 已撤除；最终验收 worktree `git status --short` clean、`git diff --check` clean。还原后 CHAT-SESSION 三文件定向测试为 3/3、24/24。
+
+### 4. 既有两项 Playwright 失败的根因收口
+
+交接叙述称两项是“纯 Vite 缺真实 Tauri output-write 宿主桥”。仓库事实不一致：当前树已经有 `apps/desktop/src/output/case-output-client.ts` 的纯 Vite 内存宿主，且 `system-open.spec.ts` 的 draft 编译、window focus 重新询问等其余路径通过；失败页面捕获到的真实反馈是：
+
+`修订指令集有 2 条指令未应用且未获针对性确认，已阻断整份落盘：instr-risk-02(locator_not_found)、instr-risk-06(locator_not_found)`。
+
+历史复核与独立实跑如下：
+
+- `ab21d6d`（实现记录 211/211 的树）：先 build，在隔离端口 `1663` 定向跑这两项为 **2/2 passed**。
+- `f38c17a` 是之后的第一个行为根因提交：`applyRevisionInstructionSet` 把未应用指令从“跳过后继续交付”改为默认 `NonAppliedInstructionsError` fail-closed。该提交属于 OUTPUT-CORRECTNESS-1 的输出契约加固。
+- `02c1e52`（端口 `1660`）与 `fc05282`（端口 `1661`）各自 frozen install + build 后，定向两项均为 **0/2 passed、2 failed**；因此不是 CHAT-SESSION-1 引入，也不是当前环境偶发。
+- `ce37d53` 的实现留痕后来首次记录“210 passed + 2 docx failures”；该提交只改 usage 形状，失败根因仍来自更早的 `f38c17a` output gate。
+
+所以纯 Vite browser stub 尚未被调用，补 Tauri output-write stub 不能修复当前失败；要么由架构角色决定 desktop 如何对 `locator_not_found` 做逐条针对性确认/修正 demo locator，要么由架构角色明确把这条输出契约改判为 Tauri-only 并同步测试与 floor。该问题触及跨层输出契约，验收会话不做 `fix-by-acceptance`，标记 **[需架构拍板]**，不以 skip 掩盖真实 fail-closed 行为。
+
+> **裁决：不放行 CHAT-SESSION-1。** CHAT-SESSION-1 自身的窗口、跨窗不回灌、只读 transcript、journal fail-closed、分叉不涂改与无管理入口均有独立绿测和反例红测；但本单要求的全量 Playwright 门在实现祖先已有的 OUTPUT-CORRECTNESS-1 契约失败上仍为 217/219。待架构拍板并收口该输出契约/环境门后，须在新 clean worktree 复跑完整门禁；本报告不更新 `docs/status/current.md`，不推送。
