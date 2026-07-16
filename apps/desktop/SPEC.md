@@ -338,8 +338,8 @@
 
 ### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权删）
 
-1. **rail 未归档容器化通路为死线索**——单一 `<CaseRail>` 挂载恒收 `unfiled={[]}`（`App.tsx:1771`），seeded `unfiledSessions`（`App.tsx:359-361`）从未接入 rail，`unfiled-store-*` 触发行与 rail 侧 `containerize-popover` 挂载永不渲染（该流已迁至 chat-panel `store-chat`）。疊层清单第 6 行因此 harness 内结构性不可达。`[需架构拍板]`：删除死 prop 通路与 seeded state（或如实标注退役）；本单不复活亦不删。
-2. **模态 focus-restore 不一致**——`provider-setup`/`new-case` 关闭归还触发元素；`command-palette`/`settings`/`compile` 关闭焦点落 `body`（autofocus 内容后未 restore-to-trigger）。均非「焦点丢失/trapped」（`body` 是合法落点，不构成残留），本单按各行实测焦点如实断言；但 WAI-ARIA APG 期望模态归还触发元素。`[需架构拍板]`：是否统一模态 focus-restore（属批二 focus-management 矩阵范畴，本单只观测留痕不改）。
+1. **rail 未归档容器化通路为死线索**——单一 `<CaseRail>` 挂载恒收 `unfiled={[]}`（`App.tsx:1771`），seeded `unfiledSessions`（`App.tsx:359-361`）从未接入 rail，`unfiled-store-*` 触发行与 rail 侧 `containerize-popover` 挂载永不渲染（该流已迁至 chat-panel `store-chat`）。疊层清单第 6 行因此 harness 内结构性不可达。**架构裁定（2026-07-17）：登记保留，不删不复活**——该通路归未来 Chat→Work 晋升桥评估（若届时復用则复活，否则随 polish 阶段复杂度清扫一并删除）；本单处置（不动 + 如实留痕）即为终态。
+2. **模态 focus-restore 不一致**——`provider-setup`/`new-case` 关闭归还触发元素；`command-palette`/`settings`/`compile` 关闭焦点落 `body`（autofocus 内容后未 restore-to-trigger）。均非「焦点丢失/trapped」（`body` 是合法落点，不构成残留），本单按各行实测焦点如实断言；但 WAI-ARIA APG 期望模态归还触发元素。**架构裁定（2026-07-17）：归 UI-RESIDUE-1 批二**——focus-management 属三分区状态代数与竞态矩阵范畴，批二一并统一并测；本单只观测留痕的处置正确。
 
 ### TDD 与门禁（先红后绿）
 
