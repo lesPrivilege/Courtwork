@@ -54,7 +54,7 @@ const unwiredOccurrences = [files.messageActions, files.composer, files.railModu
   // RightRailModules 用条件表达式而非字面量，单独计入
   + (files.railModules.includes("data-state={entry.disabled ? 'unwired' : undefined}") ? 1 : 0);
 
-const MINIMUM_UNWIRED_MARKERS = 6;
+const MINIMUM_UNWIRED_MARKERS = 7;
 if (unwiredOccurrences < MINIMUM_UNWIRED_MARKERS) {
   failures.push(`未开通态标记数不足：发现 ${unwiredOccurrences}，至少需要 ${MINIMUM_UNWIRED_MARKERS}（对标清单留痕的最小可核验数）`);
 }

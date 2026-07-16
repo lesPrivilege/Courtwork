@@ -67,7 +67,7 @@
 ### 处置摘要
 
 - **本单补·接线**：1 项（C2 失败轮次重试）。
-- **本单补·未开通态**：6 项（C5/C6 补标记、C17 补标记、W5 补标记、W8 新控件、且 C5/C6/C17/W5 四项行为不变只补 `data-state="unwired"` 可测标记）。
+- **本单补·未开通态**：5 项对标清单条目（C5/C6/C17/W5/W8），落地为 7 处 `data-state="unwired"` 标记位点——MessageActions（Read aloud/More）、Composer（camera/voice）、RightRailModules（reader-entry）、App.tsx（排队消息「停止当前」）共 6 处对既有诚实未开通控件补标记（行为/文案零改动），MaterialsZone「在访达中显示」1 处为新增控件。
 - **减法不取**：7 项（C8/C13/C15/C20/C30/C31/W4，均附理由）。
 - **[需架构拍板]**：1 项（C29，登记不实现）。
 - **已有，本单不动**：其余全部（含 C9/C11/W11 等已是合规未开通态的既有控件）。
