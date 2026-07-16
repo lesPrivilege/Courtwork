@@ -111,7 +111,7 @@ import { useDismissOnOutside } from './hooks/useDismissOnOutside';
 import { createReviewTelemetryEmitter } from './telemetry/review-telemetry';
 import { compileDraftToDocx } from '@courtwork/output';
 import { caseOutputClient } from './output/case-output-client';
-import { compileConfirmedReviewToDocx } from './output/compile-review-output';
+import { compileConfirmedReviewToDocx, type PendingRevisionConfirmation } from './output/compile-review-output';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
@@ -317,6 +317,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [compilePending, setCompilePending] = useState(false);
   const [draftOutputExists, setDraftOutputExists] = useState(false);
   const [contractOutputExists, setContractOutputExists] = useState(false);
+  // OUTPUT-CONFIRM-UI-1：未能落到文书上的修订，逐条待用户确认后才落盘。
+  const [nonAppliedPending, setNonAppliedPending] = useState<PendingRevisionConfirmation[]>([]);
+  const [confirmedNonAppliedIds, setConfirmedNonAppliedIds] = useState<string[]>([]);
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ credential: { phase: 'absent' }, connection: { phase: 'unverified' } });
   const [credentialProbed, setCredentialProbed] = useState(false);
@@ -937,6 +940,64 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     };
   }, [caseBinding]);
 
+  // OUTPUT-CONFIRM-UI-1：审阅确认后编译合同产物。落盘门禁语义（OUTPUT-CORRECTNESS #6）由
+  // @courtwork/output 决定，本处只做产品侧编排：未能落到文书上的修订不静默跳过——首次编译遇
+  // 未落点项挂起逐条待确认（不产出任何 docx），用户逐条确认后带 confirmedNonApplied 重编译落盘，
+  // 取消则从不产出。
+  const recompileGuard = useRef(false);
+  const produceContractDocx = async (confirmedNonApplied?: string[]) => {
+    if (caseBinding.kind === 'unbound' || !riskList) throw new Error('本案尚未绑定可写入的案件目录');
+    const result = compileConfirmedReviewToDocx({
+      riskList,
+      dispositions,
+      sourceMarkdown: contractSourceMd,
+      targetFileName: '04-设备采购合同.docx',
+      evidenceGrades: session.evidenceGrades,
+      confirmedNonApplied,
+    });
+    if (result.status === 'needs_confirmation') {
+      recompileGuard.current = false;
+      setNonAppliedPending(result.pending);
+      return;
+    }
+    await caseOutputClient.writeDocx(caseBinding, CONTRACT_OUTPUT_FILE, result.docx);
+    const exists = await caseOutputClient.exists(caseBinding, CONTRACT_OUTPUT_FILE);
+    if (!exists) throw new Error('Word 产物写入后未能在案件产出目录确认');
+    setNonAppliedPending([]);
+    setConfirmedNonAppliedIds([]);
+    setContractOutputExists(true);
+    showSystemFeedback(`已写入本案「产出」目录：${CONTRACT_OUTPUT_FILE}`, true);
+  };
+
+  const confirmNonApplied = (instructionId: string) => {
+    setConfirmedNonAppliedIds((prev) => (prev.includes(instructionId) ? prev : [...prev, instructionId]));
+  };
+  const cancelNonApplied = () => {
+    recompileGuard.current = false;
+    setNonAppliedPending([]);
+    setConfirmedNonAppliedIds([]);
+  };
+
+  // 逐条确认满即重编译落盘（针对性确认，非笼统放行；覆盖不全由 output 门禁继续阻断）。
+  useEffect(() => {
+    if (nonAppliedPending.length === 0) {
+      recompileGuard.current = false;
+      return;
+    }
+    const allConfirmed = nonAppliedPending.every((item) => confirmedNonAppliedIds.includes(item.instructionId));
+    if (!allConfirmed || recompileGuard.current) return;
+    recompileGuard.current = true;
+    void (async () => {
+      try {
+        await produceContractDocx(confirmedNonAppliedIds);
+      } catch (error) {
+        recompileGuard.current = false;
+        setContractOutputExists(false);
+        showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
+      }
+    })();
+  }, [nonAppliedPending, confirmedNonAppliedIds]);
+
   useEffect(() => {
     const requestId = session.confirmation?.requestId;
     if (!requestId || !selectedCaseId || !flow || !isDemoCaseId(selectedCaseId)) return;
@@ -952,19 +1013,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         const ref = workFixture.sessionRefFor(selectedCaseId, flow);
         await workFixture.review.resolve({ ...ref, requestId, resolution });
         setReviewSubmitted(true);
-        if (caseBinding.kind === 'unbound' || !riskList) throw new Error('本案尚未绑定可写入的案件目录');
-        const { docx } = compileConfirmedReviewToDocx({
-          riskList,
-          dispositions,
-          sourceMarkdown: contractSourceMd,
-          targetFileName: '04-设备采购合同.docx',
-          evidenceGrades: session.evidenceGrades,
-        });
-        await caseOutputClient.writeDocx(caseBinding, CONTRACT_OUTPUT_FILE, docx);
-        const exists = await caseOutputClient.exists(caseBinding, CONTRACT_OUTPUT_FILE);
-        if (!exists) throw new Error('Word 产物写入后未能在案件产出目录确认');
-        setContractOutputExists(true);
-        showSystemFeedback(`已写入本案「产出」目录：${CONTRACT_OUTPUT_FILE}`, true);
+        // 首次编译：全落点直接落盘；有未落点项则挂起逐条待确认，本次不产出任何 docx。
+        await produceContractDocx();
       } catch (error) {
         setContractOutputExists(false);
         showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
@@ -1384,6 +1434,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       batchRefs={batchRefs}
       onBatchConfirm={batchConfirm}
       submitted={reviewSubmitted}
+      nonAppliedPending={nonAppliedPending}
+      confirmedNonAppliedIds={confirmedNonAppliedIds}
+      onConfirmNonApplied={confirmNonApplied}
+      onCancelNonApplied={cancelNonApplied}
     />;
   };
 

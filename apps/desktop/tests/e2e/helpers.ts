@@ -23,8 +23,8 @@ export async function openWorkbench(page: Page) {
   await page.mouse.move(0, 0);
 }
 
-/** LAUNCH-FIX：走完 S3 六项门禁，等待真实 output 写入桥回报产物存在。 */
-export async function confirmDemoReview(page: Page) {
+/** 走完 S3 六项风险处置（批量 4 + risk-03 + risk-01 逐条确认），停在编译前。 */
+export async function disposeAllDemoRisks(page: Page) {
   const panel = page.getByTestId('revision-panel');
   await panel.getByRole('button', { name: '批量确认 4 项' }).click();
   await panel.locator('[data-risk-id="risk-03"]').click();
@@ -33,6 +33,26 @@ export async function confirmDemoReview(page: Page) {
   await panel.locator('[data-risk-id="risk-01"]').click();
   await panel.getByRole('button', { name: /查看引语/ }).click();
   await panel.getByRole('button', { name: '确认', exact: true }).click();
+}
+
+/**
+ * OUTPUT-CONFIRM-UI-1：确认全部风险后，risk-02/risk-06 的批注未能落到文书上，
+ * 逐条确认后才生成产物（不再静默阻断在落盘门禁处，也不静默跳过交付）。
+ */
+export async function confirmNonAppliedRevisions(page: Page) {
+  const nonApplied = page.getByTestId('nonapplied-confirm');
+  await nonApplied.waitFor();
+  const confirmButtons = nonApplied.getByTestId('confirm-nonapplied');
+  const count = await confirmButtons.count();
+  for (let i = 0; i < count; i += 1) {
+    await confirmButtons.nth(i).click();
+  }
+}
+
+/** LAUNCH-FIX：走完 S3 六项门禁，逐条确认未落点修订，等待真实 output 写入桥回报产物存在。 */
+export async function confirmDemoReview(page: Page) {
+  await disposeAllDemoRisks(page);
+  await confirmNonAppliedRevisions(page);
   await page.getByTestId('output-docx-card').waitFor();
 }
 
