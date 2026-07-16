@@ -1,3 +1,91 @@
+# ACCEPTANCE: CHAT-MEMORY-1-ACCEPT
+
+日期：2026-07-16
+
+角色：獨立驗收會話
+
+對象：`impl/chat-memory-1 @ 49d0ef8`（已合入 `main @ 2d82252`）；基線 `47c9c6b`；功能 diff 14 文件
+
+## 裁決
+
+**✅ 放行 CHAT-MEMORY-1。**
+
+ADR-013 §2/§3 退出證據均由獨立 clean worktree 實跑與反例注入觸紅證實：規則蒸餾（兩族）攜來源坐標、`generic-chat` 純加法注入縫（缺省字節等同基線常量）、substring 檢索 hook、Settings 僅查看+一鍵清除、版本化單鍵 fail-closed、案件/密鑰隔離。未發現需標 `[需架構拍板]` 的契約問題。兩條 e2e 紅（`rp210:43` / `system-open:12`）於基線 `47c9c6b` 同簽名復現，歸檔為 OUTPUT-CONFIRM-UI-1 既有缺口（該單尚未合入 tip），不歸責本單。
+
+驗收在獨立 worktree `/private/tmp/courtwork-chat-memory-1-accept.6053`、detached `2d82252` 完成；共享樹未 checkout、未 stash；未更新 `docs/status/current.md`，不推送。不採信實現自述。
+
+## 範圍與複雜度核對
+
+| 項 | 實得 |
+|---|---|
+| 文件清單 | `git diff --name-only 47c9c6b..49d0ef8` 恰 **14** 文件（desktop 12 + core 2），與宣稱一致 |
+| 零新依賴 | `package.json` / `pnpm-lock.yaml` / Cargo 於 `47c9c6b..49d0ef8` 與 `47c9c6b..2d82252` 均零 diff |
+| 零模型/embedding | `chat-memory.ts` 僅註釋否定；蒸餾為 `DIRECTIVE_RULES`/`PREFERENCE_RULES`/`ENTITY_RULES` 正則；檢索為 substring；grep 無 openai/embed/vector 實現 |
+| 存儲 | 單鍵 `courtwork.chat-memory.v1`，信封 `{version,entries}`，localStorage 版本化；無新持久格式 genre |
+| core 觸碰 | 僅 `assembleGenericChatSystemPrompt(memorySegment?)` 可選參；缺省/`''`/空白 → 返回 `GENERIC_CHAT_SYSTEM_PROMPT` |
+| 缺省字節等同 | 基線常量 vs tip 常量：`BASELINE_CONSTANT === TIP_CONSTANT`（len 180）；`assembleGenericChatSystemPrompt()` 與常量逐字相等；diff 無 golden/snapshot 文件 |
+| floor | `assert-test-count.mjs` `minimum = 223`（222→223） |
+
+真源隔離：`App.tsx` 完成回調只以 `payload.text` 餵 `distillMemory`，不餵 `readingMarkdown` / 組裝 content。`ChatMemoryPanel` 僅一枚清除 `<button>`，無 input/textarea/分條編輯/導入導出。
+
+### 複雜度審視（SPEC 聲明 + 提案區）
+
+- SPEC「新增概念留痕」四項（`chat-memory` 模塊、`MemoryEntry`/`v1` 信封、`ChatMemoryPanel`、core 可選參）均為 ADR 退出證據所必需，形態落在拍板上限內（規則/substring/單鍵 localStorage/加法縫）。
+- 明確未新增：模型判定、embedding、第二持久格式、狀態機、新依賴、雲同步、autonomous hook 觸發、Turn/schema 語義改動——與源碼一致。
+- 提案區已登記、本單只列不刪：`settings-clear-prefs-row` 與真實記憶清除並列易混淆；`effectiveBaseUrl`/`reasoningLabel` 沿 CHAT-SESSION-1 待架構拍板。驗收同意只登記、不越權刪。
+
+## 全量門（獨立實跑）
+
+環境：macOS 26.5.2 arm64、Node v25.9.0、pnpm 9.15.0。`pnpm install --frozen-lockfile`（1047 packages）後全倉 build（跨包經 dist）。
+
+| 門禁 | 實跑結果 |
+|---|---|
+| `pnpm -r build` | PASS（既有 chunk-size warning） |
+| `pnpm lint` | PASS，exit 0 |
+| root Vitest | 首輪 1 紅：`packages/output/src/ooxml-diff.test.ts` 5000ms timeout（**非本單**；本單零觸 output）；單測連跑 2/2 綠；全量複跑 **140 files / 1210 tests passed** |
+| desktop Vitest | **48 files / 247 tests passed** |
+| 四設計門 neutral/elevation/signature/motion | 均 exit 0 |
+| `assert-test-count` | Playwright 假綠防護通過：**223** 條（下限 223） |
+| 隔離端口 Playwright `COURTWORK_E2E_PORT=18591` | **221 passed / 2 failed**（floor 223） |
+
+定向 memory 單測：`chat-memory.test.ts` **25/25**；`ChatMemoryPanel.dom.test.ts` **4/4**；`generic-chat.test.ts` **6/6**；`chat-client` memory 段 **2** 例含於 desktop 全量綠。
+
+## ADR-013 反例（注入→紅→還原）
+
+全部 mutation 在 accept worktree 對源碼局部改寫後跑定向 Vitest，觀察失敗後 `git checkout --` 還原；終態 `git status --short` 空、memory/core 定向再綠。
+
+| 反例 | 變異 | 實得紅燈 |
+|---|---|---|
+| a. 可追溯 | `verifyTraceable` 恒 `{ok:true}` | 偽 `turnId` / 偽 `sessionId` 兩例：`expected true to be false`（2 failed） |
+| b. 清除徹底 | `clearMemory` 改 no-op | 「清除後組裝零 memory」與「未知版本亦重置」雙證紅：entries 殘留 / 仍 unreadable（2 failed） |
+| c. 穩定前綴 | `assembleGenericChatSystemPrompt` 改為 prepend memory | 「基身份是穩定前綴」等 3 例紅（`startsWith` 失敗） |
+| d. 案件/Work 隔離 | 頂層 `containsCaseContent` 短路為 false | 材料邊界內嵌 `記住：本案被告是張三` 被蒸出 length 1（1 failed）——獨立重放變異實證 |
+| e. 密鑰隔離（兩層） | e1 僅去頂層 secret → **仍 25 綠**（切出正文層兜底）；e2 僅去正文層 → **仍 25 綠**（頂層兜底）；e3 兩層同去 → 攜 `sk-…` 輸入蒸出 length 1（1 failed） |
+| f. 未知版本 fail-closed | 版本守衛短路 | `loadMemory` 對 version 99 返回 `ok` 而非 `unreadable`（1 failed）；契約要求 fail-closed 讀入成立 |
+
+## 端到端
+
+- 隔離端口 `COURTWORK_E2E_PORT=18592` 定向 `tests/e2e/chat-memory.spec.ts`：**1/1 passed**（7.0s）。
+- 鏈路實證：發送含標記文本 → localStorage v1 含正文與 `chat-` 前綴 turn 坐標 → 次輪 system 含 `[長期記憶]` 且基身份前綴保留 → Settings privacy 只讀列表含來源、面板內 input/textarea/select = 0 → 一鍵清除後空信封 `{version:1,entries:[]}` → 再請求 system 無 `[長期記憶]`。
+- 無管理入口：僅查看 + 清除；面板零編輯控件（e2e 與源碼雙證）。
+
+## 兩條既有紅歸檔
+
+tip `2d82252` 與基線 `47c9c6b`（獨立 worktree `/private/tmp/courtwork-chat-memory-1-baseline-47c9c6b.10051`，frozen install + 全倉 build，`COURTWORK_E2E_PORT=18593`）均：
+
+- `tests/e2e/rp210.spec.ts:43` — `confirmDemoReview` 等待 `output-docx-card` 30s timeout
+- `tests/e2e/system-open.spec.ts:12` — 同上 stack（`helpers.ts:36`）
+
+簽名一致，故確認為 OUTPUT-CONFIRM-UI-1 缺口（`impl/output-confirm-ui-1` 仍停在 `47c9c6b`，未合入 tip），非 CHAT-MEMORY-1 引入。
+
+## 契約與禁止項
+
+- 無 `[需架構拍板]` 項。
+- 未改 Turn journal / session 窗口語義；未接 autonomous trigger；未改 schema / provider 契約語義。
+- 未更新 `docs/status/current.md`；不推送。
+
+---
+
 # ACCEPTANCE: HOST-AUTH-LITE-ACCEPT
 
 日期：2026-07-15
