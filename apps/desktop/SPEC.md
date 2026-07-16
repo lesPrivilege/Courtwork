@@ -72,6 +72,63 @@
   2. 將待授權目錄放在可卸載卷上，授權後點擊 **Verify read/write** 應成功；卸載該卷後再次驗證，UI 應以 `data-reason="unavailable"` 顯示失敗，不回落 demo、不自行改寫 grant。
   3. 授權本機臨時目錄並記下 UI label，正常退出再重啟；同一 label 應由 `listGrants` 恢復，重新驗證應成功。宿主側可檢查 app-data 下 `host-grants.json` 仍有同一 grant；renderer/UI 不得呈現其中 path。完成後刪除測試目錄與測試 grant 記錄。
 
+## CASE-ROOT-1 · 案件根 opaque 引用与宿主原生文件夹授权（实现完成，待独立验收）
+
+权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) Round 3 `CASE-ROOT-1` 行与 ref 形制架构裁定（2026-07-15）、[ADR-010 决定四](../../docs/decisions/ADR-010-work-live-boundaries.md)（材料入口只传引用、绝对路径留宿主、`webkitdirectory` 禁令）。工单基线 `main @ 1e9efc2`。desktop 内部闭合，不触碰 `packages/schemas`/`packages/core`/`packages/tools` 导出（case ref 进 Work wire 属下一环）。
+
+本单是材料链（`HOST-AUTH-LITE → CASE-ROOT-1 → MATERIAL-INGRESS-1`）第二环：案件根从绝对路径改为 opaque 宿主引用（复用 HOST-AUTH-LITE 的 `grantId`），退役三处 `webkitdirectory` 生产入口；不做原件 hash/ReadingView/MaterialStore（MATERIAL-INGRESS-1）、不做完整签名/TCC 真机矩阵、不做重授权向导 UI。
+
+### 目标与形制（架构已裁定，照用）
+
+- 案件根 = HOST-AUTH-LITE 的 `grantId`（宿主自持扁平记录即 durable ref，不新造第二套授权格式）。`CaseSummary` 退役 `folderPath`，改持 opaque `grantId` + 展示 `label`；绝对路径与授权只在 Rust 宿主侧按 grantId 还原，renderer/wire 永不携带真实案件根绝对路径。
+- 四类失败（`denied`/`revoked`/`unavailable`/`out_of_scope`）语义沿用 HOST-AUTH-LITE 闭集。
+
+### 设计与契约
+
+- **CaseBinding（`case/case-scope.ts`）**：`resolveCaseBinding(active)` 返回 `{kind:'demo'} | {kind:'grant';grantId} | {kind:'unbound'}`，替代返回绝对路径的 `resolveCaseRoot`。样板案→`demo`（虚拟布局仅浏览器/E2E mock，不触真实 FS）；真实案有 grantId→`grant`；否则 `unbound`。`isDemo` 优先于 grantId（样板案永不落真实授权，fail-closed）。
+- **grant 寻址的产出命令（`src-tauri/src/host_auth.rs`+`lib.rs`）**：新增 `host_auth::grant_root(store, grantId)`（grantId→根，宿主侧解析，未知→None）；`case_output_write_in_grant`/`case_output_exists_in_grant` 按 grantId 解析根后复用既有 `write_case_output_docx_impl`/`case_output_docx_exists_impl`（产出目录创建、docx 校验、符号链接/越界守卫不变），写回执 `{byteLength}` 剥离绝对路径。退役收绝对 `case_root` 的 `write_case_output_docx`/`case_output_docx_exists` 命令与其 wire 结构。grant 未知→写显式错误（`revoked` 语义）、存在性回 `false`，绝不静默。
+- **case-output-client 按 CaseBinding 寻址（`output/case-output-client.ts`）**：`writeDocx`/`exists` 收 `CaseBinding`；grant 在 Tauri 下走宿主命令，样板案与浏览器/E2E 走内存宿主（按 `grant:<id>`/`demo` key，跨案隔离），unbound 显式阻断。`CaseOutputArtifact` 剥离 `absolutePath`。
+- **NewCaseDialog 经宿主原生 picker（`case/NewCaseDialog.tsx`）**：`webkitdirectory` 退役，改经注入 `onAuthorizeFolder`（App→`hostAuth.authorizeFolder`）取授权；grant→携 grantId+label 建案（名称建议=label），四类失败结构化可见（`data-reason`），重选文件夹显式换新 grant（旧 ref 不粘滞）。
+
+### webkitdirectory 生产入口退役（3 处，ADR-010 决定四禁令）
+
+1. `NewCaseDialog`：改经宿主原生 picker（grant 绑定案件根）。
+2. `SettingsPage`「默认产出文件夹」行（附 `virtualPath` 假路径 hack）：整行退役——文件夹授权与下方 `HostAccessPanel`（宿主原生 picker）重复，统一归 HostAccessPanel。
+3. `Composer`「+」菜单「Add folder」：入口从浏览器目录选择控件改经注入 `onAddFolder`（App→`hostAuth.authorizeFolder` + 反馈），取得可持久复验的宿主 grant；RP-2.11 契约（`assert-rp211-contracts`）要求该菜单项保留，故保留入口、只换机制。实际文件夹材料导入接入属 MATERIAL-INGRESS-1。
+
+### 新增概念留痕（复杂度节制条）
+
+- **唯一新增概念：CaseBinding（案件根 opaque 绑定）** —— 非加不可：ADR-010 决定四要求真实案件根绝对路径不入 renderer/wire，又要区分样板案（虚拟）/真实案（grant）/未绑定三态；一个判别式 union 是最平铺的承载，无状态机、无新持久化、无第二套授权格式。grant 寻址的产出命令复用既有 docx impl，非新概念（只换寻址：绝对 case_root→grantId）。
+- **删减（非新增）**：`folderPath` 字段、`resolveCaseRoot`、绝对 `case_root` 产出命令、`CaseOutputArtifact.absolutePath`、`CASE_SCOPE_AUDIT` 两条 caseRoot/demo 回落死路由行——皆随绝对路径退役而删。
+- **明确未新增**：无 MaterialStore/原件 hash、无新持久化格式/状态机、无 core/schemas/tools 导出改动、无重授权向导 UI。
+
+### TDD 与门禁（先红后绿；最终数字以独立验收实跑为准）
+
+- **Rust `cargo test` 41 passed（38→41，+3）**：host_auth 跨案隔离（grant A 相对寻址不触 grant B 根，越权 `out_of_scope`）、重授权（旧 grant 稳定指向旧根、不被新授权重指）；lib grant→根→产出只落该案根、别案零、未知 grant 解析 None。
+- **Vitest**：case-scope binding（demo 无 folderPath、grant/unbound、跨案、isDemo 优先）；case-output-client（回执无绝对路径、跨案隔离、unbound 阻断、demo 内存宿主往返）；NewCaseDialog.dom（零 file input/`webkitdirectory`、授权建案携 opaque 引用无绝对路径、四类失败可见不推进、重授权换 grant、跳过绑定建未绑定案）。desktop 全量 **46 files / 216 tests**；root **139 files / 1204 tests**；`tsc -b` 通过。
+- **静态门 `assert-host-auth-contracts.mjs` 扩至 case 层**：`CaseSummary` 无 `folderPath`/绝对字段且持 `grantId`、`resolveCaseRoot` 退役、`resolveCaseBinding` 在场、case-output-client 零 `absolutePath`/`caseRoot`、NewCaseDialog 零 file/目录控件且经 `onAuthorizeFolder`；`webkitdirectory` 扫描 `src/` 生产源码（排除 *.test.*/*.spec.*）零出现。反例触红实证（逐一注入→exit 1，撤除→绿）：注入 `folderPath` 字段、注入 `webkitdirectory` 属性、注入 `absolutePath`。
+- **Playwright（floor 219→222，+3）**：新增 `case-root.spec.ts`——新建案 denied 结构化可见不推进命名、授权建案（renderer 只见 label 无绝对路径、非 demo）、重授权换新 grant；`global-verbs`「文件夹派生案名」迁移到宿主 picker（label→名称建议）。完工门 `COURTWORK_E2E_PORT` 隔离端口完整前置门（含扩展后的 host-auth 门与 floor 222，全部静态门绿）+ Playwright 全量 222；本单相关用例全绿。
+- **诚实上报——非通过用例逐一定性，无一为本单回归**（`retries:0`，flake 直接呈红）：
+  - `rp210.spec.ts:43`、`system-open.spec.ts:12`（均卡在 `confirmDemoReview` 的 `output-docx-card`）—— **pre-existing 红**：本会话 `git stash` 至基线 `1e9efc2` 隔离复跑坐实基线同样两条红（`global-verbs` 文件夹派生用例基线绿，佐证 stash 生效）；即[实现就绪图](../../docs/architecture/implementation-readiness.md) `OUTPUT-CONFIRM-UI-1` 登记的产品确认 UI 缺口，与 CASE-ROOT-1 无关。本单 demo 产出路径（demo binding→内存宿主）单测往返成立、未回归。
+  - `global-verbs.spec.ts:7`（`.copy-button` 点击后未及时显「已复制」）—— **环境性 flake**：满并发下剪贴板 focus 竞争偶发；`--repeat-each=3` 隔离复跑 **3/3 通过**，且首轮完整链与定向链均绿；本单未触碰 chat/剪贴板任何代码。
+
+### 精确触面与禁止扩张
+
+- **触面**：`case/types.ts`、`case/case-scope.ts`(+test)、`case/NewCaseDialog.tsx`(+新 `NewCaseDialog.dom.test.ts`)、`output/case-output-client.ts`(+test)、`App.tsx`（binding、createCase grantId/label、demo reveal、dialog authorize、composer addFolder、退 revealSettingsPath）、`composer/Composer.tsx`（Add folder 改经 `onAddFolder`，退 folder input/ref）、`settings/SettingsPage.tsx`（退默认产出行 + pick/reveal/ref/import/prop）、`system/demo-case-layout.ts`（注释）、`src-tauri/src/host_auth.rs`+`lib.rs`（grant_root + grant 产出命令 + invoke_handler）、`scripts/assert-host-auth-contracts.mjs`（case 层 + webkitdirectory 扫描）、`scripts/assert-test-count.mjs`（floor 222）、e2e（新 `case-root.spec.ts`；`global-verbs`/`settings` 随退役迁移；`ux1`/`rp27` 净零复原）。
+- **禁止扩张（遵守）**：未动 `packages/schemas`/`packages/core`/`packages/tools` 导出；未做 MaterialStore/原件 hash/ReadingView；未做完整 TCC/签名真机矩阵；未做重授权向导 UI；未把 case ref 送入 Work wire（下一环）。
+- **已知边界（诚实留痕）**：真实（grant）案的产出「在访达显示/打开」本单未接按 grantId 的系统 reveal 命令（reveal 仍只对样板案虚拟根走浏览器 mock）；grant 案点开显式反馈「产出已写入已授权文件夹…」而非静默，其完整 UI 链随 MATERIAL-INGRESS-1/WORK-LIVE-1 接入。grant 案产出写入已按 grantId 在宿主侧闭合（Rust 单测覆盖）。
+
+### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权删）
+
+1. **settings-store `defaultOutputDir` + `updateOutputDir` 死配置** —— 「默认产出文件夹」UI 行退役后，`updateOutputDir` 无生产消费者、`SettingsSnapshot.output.defaultOutputDir` 永不被写（仅 diagnostics 冗余脱敏保留）。本单不动 `settings-store`（越界），建议架构评估退役该字段与函数。`[需架构拍板]`
+2. **`CASE_SCOPE_AUDIT` 文档即数据表** —— HOST-AUTH-LITE 提案 #3 已建议退役为纯文档或删除；本单随绝对路径退役删两条死路由行、其余保留，整表是否退役仍待架构拍板。`[需架构拍板]`
+
+### 实现留痕（2026-07-16，待独立验收）
+
+- 案件根改为 opaque `CaseBinding`；真实案件根绝对路径只在 Rust 宿主侧按 grantId 还原，renderer/wire 零绝对路径。三处 `webkitdirectory` 生产入口全部退役（NewCaseDialog/Settings 收敛到宿主原生 picker，Composer「Add folder」换机制保入口）。
+- 反例触红齐备：静态门注入 folderPath/webkitdirectory/absolutePath 逐一触红；Rust 跨案越权 `out_of_scope`、未知 grant None；Vitest demo/grant/unbound 与跨案隔离；Playwright denied 不推进 + 授权建案零绝对路径 + 重授权换 grant。
+- 工作树留痕：本会话在隔离 worktree `impl/case-root-1` 逐文件手术暂存；`rp210:43`/`system-open:12` 两条基线即红（stash 至 `1e9efc2` 隔离复跑坐实），属 `OUTPUT-CONFIRM-UI-1`，非本单缺陷；最终门禁数字由独立验收在 clean worktree/隔离端口复跑填写。
+
 ## CHAT-MATERIAL-1 · 附件阅读内容与粘贴块进入真实请求（实现完成，待独立验收）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) Round 2 P0 与[当前基线](../../docs/status/current.md)「Chat 附件」行。基线 `main @ ab79b5b`。desktop 内部闭合，不触碰任何跨层契约。

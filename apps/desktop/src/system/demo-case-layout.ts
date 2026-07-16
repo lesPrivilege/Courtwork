@@ -1,6 +1,7 @@
 /**
  * 演示案件的文件夹分区布局（与 packages/tools case-path 分区名一致）。
- * 浏览器/Playwright 用虚拟绝对路径；真实 Tauri 下由案件绑定的 folderPath 覆盖。
+ * 仅样板案使用此虚拟绝对路径，且只在浏览器/Playwright mock 呈现（原件区/工作稿/在访达显示）；
+ * 真实案件根一律经 opaque grantId 在宿主侧解析（CASE-ROOT-1），绝不进入 renderer。
  */
 export const DEMO_CASE_ROOT = '/Users/demo/Courtwork/案件/临江精铸诉起云智能';
 

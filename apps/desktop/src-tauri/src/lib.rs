@@ -1265,25 +1265,33 @@ where
     }
 }
 
+// CASE-ROOT-1：产出寻址只收 opaque grantId，绝对 case_root 不再过 wire。
+// grantId→根解析发生在宿主侧（host_auth::grant_root），renderer 只见 grantId + 文件名。
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct CaseOutputRefInput {
-    case_root: String,
+struct CaseOutputExistsInGrantInput {
+    grant_id: String,
     file_name: String,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct WriteCaseOutputInput {
-    case_root: String,
+struct CaseOutputWriteInGrantInput {
+    grant_id: String,
     file_name: String,
     bytes: Vec<u8>,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
+/// 宿主内部产出记录（含绝对路径，供 impl 自用，**永不返回 renderer**）。
 struct CaseOutputArtifact {
     absolute_path: String,
+    byte_length: usize,
+}
+
+/// 对 renderer 的写入回执：只报字节数，绝对路径留宿主（ADR-010 决定四）。
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CaseOutputWriteAck {
     byte_length: usize,
 }
 
@@ -1393,14 +1401,34 @@ fn case_output_docx_exists_impl(case_root: &Path, file_name: &str) -> Result<boo
     Ok(metadata.is_file() && !metadata.file_type().is_symlink())
 }
 
+/// CASE-ROOT-1：按 opaque grantId 解析案件根后，在其「产出」目录内原子写 docx。
+/// grant 未知/失效 → 显式错误（renderer 呈现为可见失败，绝不静默回落）；回执不含绝对路径。
 #[tauri::command]
-fn write_case_output_docx(input: WriteCaseOutputInput) -> Result<CaseOutputArtifact, String> {
-    write_case_output_docx_impl(Path::new(&input.case_root), &input.file_name, &input.bytes)
+fn case_output_write_in_grant(
+    app: tauri::AppHandle,
+    input: CaseOutputWriteInGrantInput,
+) -> Result<CaseOutputWriteAck, String> {
+    let store = host_grant_store_path(&app)?;
+    let root = host_auth::grant_root(&store, &input.grant_id)
+        .ok_or_else(|| "此前的访问授权已失效，请重新绑定案件文件夹".to_string())?;
+    let artifact = write_case_output_docx_impl(&root, &input.file_name, &input.bytes)?;
+    Ok(CaseOutputWriteAck {
+        byte_length: artifact.byte_length,
+    })
 }
 
+/// CASE-ROOT-1：按 grantId 解析案件根后查产出是否已在。grant 未知/根不可达一律回 `false`
+/// （无法确认存在即视为不存在），不抛裸错、不泄漏路径。
 #[tauri::command]
-fn case_output_docx_exists(input: CaseOutputRefInput) -> Result<bool, String> {
-    case_output_docx_exists_impl(Path::new(&input.case_root), &input.file_name)
+fn case_output_exists_in_grant(
+    app: tauri::AppHandle,
+    input: CaseOutputExistsInGrantInput,
+) -> Result<bool, String> {
+    let store = host_grant_store_path(&app)?;
+    let Some(root) = host_auth::grant_root(&store, &input.grant_id) else {
+        return Ok(false);
+    };
+    case_output_docx_exists_impl(&root, &input.file_name)
 }
 
 // ─── HOST-AUTH-LITE：最小宿主文件授权（纯逻辑在 host_auth 模块）───────────────
@@ -1754,8 +1782,8 @@ pub fn run() {
             validate_provider_connection,
             provider_chat_request,
             cancel_provider_request,
-            write_case_output_docx,
-            case_output_docx_exists,
+            case_output_write_in_grant,
+            case_output_exists_in_grant,
             host_authorize_folder,
             host_list_grants,
             host_read_file,
@@ -2370,5 +2398,59 @@ mod tests {
         assert!(write_case_output_docx_impl(&root, "nested/a.docx", b"PK").is_err());
         assert!(write_case_output_docx_impl(&root, "/tmp/escape.docx", b"PK").is_err());
         assert!(write_case_output_docx_impl(&root, "report.pdf", b"PK").is_err());
+    }
+
+    #[test]
+    fn grant_scoped_output_resolves_root_from_grant_and_stays_within_that_case() {
+        // CASE-ROOT-1 命令层核心：grantId→根解析在宿主侧发生，产出只落在该 grant 的案件根，
+        // 别案 grant 解析出别的根；未知 grant 解析为 None（命令层据此显式失败）。
+        let docx = include_bytes!("../../../../packages/output/test/fixtures/original.docx");
+        let base = std::env::temp_dir().join(format!(
+            "courtwork-grant-output-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        let root_a = base.join("案件甲");
+        let root_b = base.join("案件乙");
+        fs::create_dir_all(&root_a).expect("root a");
+        fs::create_dir_all(&root_b).expect("root b");
+        let store = base.join("host-grants.json");
+
+        let grant_a = match host_auth::authorize_from_pick(&store, Some(root_a.clone()), 1, 1) {
+            host_auth::AuthorizeOutcome::Granted { grant } => grant,
+            host_auth::AuthorizeOutcome::Failed { reason } => panic!("grant a: {reason:?}"),
+        };
+        let grant_b = match host_auth::authorize_from_pick(&store, Some(root_b.clone()), 2, 2) {
+            host_auth::AuthorizeOutcome::Granted { grant } => grant,
+            host_auth::AuthorizeOutcome::Failed { reason } => panic!("grant b: {reason:?}"),
+        };
+
+        // 命令体等价逻辑：grant_root(A) → 写入 → 只落在 A/产出，B 内绝无该文件。
+        let root_from_grant = host_auth::grant_root(&store, &grant_a.grant_id).expect("root a");
+        let artifact =
+            write_case_output_docx_impl(&root_from_grant, "合同审查报告.docx", docx).expect("write");
+        assert_eq!(artifact.byte_length, docx.len());
+        assert!(root_a.join("产出").join("合同审查报告.docx").exists());
+        assert!(!root_b.join("产出").join("合同审查报告.docx").exists());
+
+        // exists 走各自 grant 根：A 有、B 无
+        assert!(case_output_docx_exists_impl(
+            &host_auth::grant_root(&store, &grant_a.grant_id).unwrap(),
+            "合同审查报告.docx"
+        )
+        .expect("exists a"));
+        assert!(!case_output_docx_exists_impl(
+            &host_auth::grant_root(&store, &grant_b.grant_id).unwrap(),
+            "合同审查报告.docx"
+        )
+        .expect("exists b"));
+
+        // 未知 grant → 无根（命令层显式失败入口）
+        assert!(host_auth::grant_root(&store, "grant-unknown").is_none());
+
+        fs::remove_dir_all(&base).ok();
     }
 }

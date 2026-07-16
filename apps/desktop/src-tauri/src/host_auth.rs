@@ -292,6 +292,13 @@ fn resolve_root(store_path: &Path, grant_id: &str) -> Option<PathBuf> {
         .map(|entry| PathBuf::from(entry.path))
 }
 
+/// CASE-ROOT-1：grantId → 案件根绝对路径的宿主侧解析入口。opaque case ref 即 grantId；
+/// 绝对路径只在此（宿主侧）由记录还原，renderer/wire 永不携带。未知 grant → `None`
+/// （命令层据此显式失败，绝不静默指向别的路径）。
+pub fn grant_root(store_path: &Path, grant_id: &str) -> Option<PathBuf> {
+    resolve_root(store_path, grant_id)
+}
+
 /// 命令层读入口：grant→root（未知→revoked），再作用域内读。
 pub fn read_in_grant(store_path: &Path, grant_id: &str, relative: &str) -> ReadOutcome {
     match resolve_root(store_path, grant_id) {
@@ -503,6 +510,70 @@ mod tests {
         assert!(serialized.contains("grantId"));
         assert!(serialized.contains("label"));
         fs::remove_dir_all(store.parent().unwrap()).ok();
+    }
+
+    #[test]
+    fn grant_root_isolates_cases_and_never_reaches_a_sibling_case() {
+        // CASE-ROOT-1：两案各自授权 → 各自 grantId 解析出各自根；
+        // case A 的 grantId 解析根内的相对寻址永不触达 case B 的路径（out_of_scope 触红）。
+        let base = temp_root("case-isolate");
+        let root_a = base.join("case-a");
+        let root_b = base.join("case-b");
+        fs::create_dir_all(&root_a).expect("root a");
+        fs::create_dir_all(&root_b).expect("root b");
+        // case B 内落一份机密，验证 case A 的 grant 无法读到
+        fs::write(root_b.join("secret.txt"), b"case-b-secret").expect("secret");
+
+        let store = base.join("host-grants.json");
+        let grant_a = match authorize_from_pick(&store, Some(root_a.clone()), 1, 11) {
+            AuthorizeOutcome::Granted { grant } => grant,
+            AuthorizeOutcome::Failed { reason } => panic!("grant a: {reason:?}"),
+        };
+        let grant_b = match authorize_from_pick(&store, Some(root_b.clone()), 2, 22) {
+            AuthorizeOutcome::Granted { grant } => grant,
+            AuthorizeOutcome::Failed { reason } => panic!("grant b: {reason:?}"),
+        };
+        assert_ne!(grant_a.grant_id, grant_b.grant_id);
+
+        // grantId 解析出各自根
+        let resolved_a = grant_root(&store, &grant_a.grant_id).expect("root a");
+        let resolved_b = grant_root(&store, &grant_b.grant_id).expect("root b");
+        assert_eq!(resolved_a, root_a.canonicalize().unwrap());
+        assert_eq!(resolved_b, root_b.canonicalize().unwrap());
+        assert_ne!(resolved_a, resolved_b);
+
+        // 跨 case 逃逸：case A 的 grant + 指向同级 case B 的相对路径 → out_of_scope
+        let escape = format!("../{}/secret.txt", root_b.file_name().unwrap().to_string_lossy());
+        assert_eq!(
+            reason_of_read(read_in_grant(&store, &grant_a.grant_id, &escape)),
+            Some(HostAuthReason::OutOfScope)
+        );
+        fs::remove_dir_all(&base).ok();
+    }
+
+    #[test]
+    fn reauthorizing_a_new_folder_keeps_old_grant_pointing_at_its_own_root() {
+        // CASE-ROOT-1 重授权：旧 grant 必须稳定指向自己的旧根，绝不因新授权被静默重指到新路径。
+        let base = temp_root("reauth");
+        let root_old = base.join("old-folder");
+        let root_new = base.join("new-folder");
+        fs::create_dir_all(&root_old).expect("old");
+        fs::create_dir_all(&root_new).expect("new");
+        let store = base.join("host-grants.json");
+
+        let old = match authorize_from_pick(&store, Some(root_old.clone()), 1, 1) {
+            AuthorizeOutcome::Granted { grant } => grant,
+            AuthorizeOutcome::Failed { reason } => panic!("old: {reason:?}"),
+        };
+        let new = match authorize_from_pick(&store, Some(root_new.clone()), 2, 2) {
+            AuthorizeOutcome::Granted { grant } => grant,
+            AuthorizeOutcome::Failed { reason } => panic!("new: {reason:?}"),
+        };
+        assert_ne!(old.grant_id, new.grant_id, "不同目录必须铸造不同 grantId");
+        // 旧 grantId 仍解析到旧根，新 grantId 解析到新根，互不串扰
+        assert_eq!(grant_root(&store, &old.grant_id).unwrap(), root_old.canonicalize().unwrap());
+        assert_eq!(grant_root(&store, &new.grant_id).unwrap(), root_new.canonicalize().unwrap());
+        fs::remove_dir_all(&base).ok();
     }
 
     #[test]

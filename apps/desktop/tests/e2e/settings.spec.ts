@@ -1,6 +1,4 @@
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 import { openWorkbench } from './helpers';
 
@@ -57,15 +55,13 @@ test.describe('SET-1 设置页', () => {
     await page.getByTestId('settings-maxusd-save').click();
     await expect(page.getByTestId('system-open-feedback')).toContainText('8');
 
-    // 产出目录：选择文件夹路径可见 + reveal 在有路径时可用
+    // Output & files：文件夹授权统一归宿主原生 picker（HostAccessPanel）；
+    // CASE-ROOT-1 退役 webkitdirectory「默认产出文件夹」行，其 input 不得复活。
     await page.getByTestId('settings-nav-output').click();
     await expect(page.getByTestId('settings-section-output')).toBeVisible();
-    await expect(page.getByTestId('settings-reveal-output-dir')).toBeDisabled();
-    const outDir = mkdtempSync(join(tmpdir(), 'cw-settings-out-'));
-    writeFileSync(join(outDir, 'note.txt'), 'x');
-    await page.getByTestId('settings-output-folder-input').setInputFiles(outDir);
-    await expect(page.getByTestId('settings-output-dir')).not.toHaveText(/Not set/);
-    await expect(page.getByTestId('settings-reveal-output-dir')).toBeEnabled();
+    await expect(page.getByTestId('host-access-authorize')).toBeVisible();
+    await expect(page.getByTestId('settings-output-folder-input')).toHaveCount(0);
+    await expect(page.getByTestId('settings-pick-output-dir')).toHaveCount(0);
 
     // 隐私：遥测开关 + opt-in 确认制带时间戳
     await page.getByTestId('settings-nav-privacy').click();

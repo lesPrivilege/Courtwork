@@ -1,26 +1,47 @@
 import { readFile } from 'node:fs/promises';
+import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-// HOST-AUTH-LITE 边界守卫：
-// - renderer 只见 opaque grantId + label，绝无绝对路径通道；
+// HOST-AUTH-LITE + CASE-ROOT-1 边界守卫：
+// - renderer 只见 opaque grantId + label，绝无绝对路径通道（含案件根：无 folderPath、无绝对 caseRoot）；
 // - HostAuthPort 经 composition root 注入，非模块 singleton；
 // - 失败分类是闭集四值；
-// - 无 demo 回落。
+// - 无 demo 回落；
+// - webkitdirectory 生产入口退役（ADR-010 决定四禁令），扫描生产源码零出现。
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relative) => readFile(path.join(root, relative), 'utf8');
 
-const [port, browser, tauri, panel, app, main, rust, lib] = await Promise.all([
-  read('src/host/host-auth-port.ts'),
-  read('src/host/browser-host-auth.ts'),
-  read('src/host/tauri-host-auth.ts'),
-  read('src/host/HostAccessPanel.tsx'),
-  read('src/App.tsx'),
-  read('src/main.tsx'),
-  read('src-tauri/src/host_auth.rs'),
-  read('src-tauri/src/lib.rs'),
-]);
+/** 递归收集 src/ 下的生产 .ts/.tsx（排除 *.test.* / *.spec.*）。 */
+function collectProductionSources(dir) {
+  const out = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...collectProductionSources(full));
+    } else if (/\.tsx?$/.test(entry.name) && !/\.(test|spec)\.tsx?$/.test(entry.name)) {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
+const [port, browser, tauri, panel, app, main, rust, lib, caseTypes, caseScope, newCaseDialog, caseOutput] =
+  await Promise.all([
+    read('src/host/host-auth-port.ts'),
+    read('src/host/browser-host-auth.ts'),
+    read('src/host/tauri-host-auth.ts'),
+    read('src/host/HostAccessPanel.tsx'),
+    read('src/App.tsx'),
+    read('src/main.tsx'),
+    read('src-tauri/src/host_auth.rs'),
+    read('src-tauri/src/lib.rs'),
+    read('src/case/types.ts'),
+    read('src/case/case-scope.ts'),
+    read('src/case/NewCaseDialog.tsx'),
+    read('src/output/case-output-client.ts'),
+  ]);
 
 const failures = [];
 const requireMatch = (source, pattern, message) => {
@@ -109,6 +130,28 @@ requireMatch(tauri, /import\(['"]@tauri-apps\/api\/core['"]\)/, 'tauri 适配器
 // ── Rust 命令注册齐备 ─────────────────────────────────────────────────
 for (const command of ['host_authorize_folder', 'host_list_grants', 'host_read_file', 'host_write_file']) {
   requireMatch(lib, new RegExp(`${command},`), `lib.rs invoke_handler 必须注册 ${command}`);
+}
+
+// ── CASE-ROOT-1：案件根是 opaque grantId 引用，renderer/wire 零绝对路径 ─────
+// CaseSummary 退役 folderPath 字段，改持 opaque grantId；注入 folderPath/绝对路径字段即红。
+forbidMatch(caseTypes, /folderPath\s*[?:]/, 'CaseSummary 不得携带 folderPath（绝对路径字段已退役）');
+forbidMatch(caseTypes, /\bcaseRoot\s*[?:]|absolutePath\s*[?:]/, 'CaseSummary 不得携带 caseRoot/absolutePath 绝对路径字段');
+requireMatch(caseTypes, /grantId\?: string/, 'CaseSummary 必须以 opaque grantId 承载案件根引用');
+// 案件根解析返回 opaque 绑定，不再返回绝对路径；resolveCaseRoot 必须退役。
+requireMatch(caseScope, /export function resolveCaseBinding/, 'case-scope 必须以 resolveCaseBinding 提供 opaque 绑定');
+forbidMatch(caseScope, /export function resolveCaseRoot/, 'resolveCaseRoot（绝对路径解析）必须退役');
+// case 输出客户端只按 opaque 绑定寻址，不出现绝对路径/caseRoot 通道。
+forbidMatch(caseOutput, /absolutePath|caseRoot/, 'case-output-client 不得出现绝对路径/caseRoot 通道');
+requireMatch(caseOutput, /CaseBinding/, 'case-output-client 必须按 opaque CaseBinding 寻址');
+// 新建案件经注入的宿主授权取文件夹，不自造浏览器 file/目录控件。
+forbidMatch(newCaseDialog, /type="file"|webkitdirectory/, 'NewCaseDialog 不得用浏览器 file/目录控件（须经 hostAuth picker）');
+requireMatch(newCaseDialog, /onAuthorizeFolder/, 'NewCaseDialog 必须经注入的 onAuthorizeFolder（hostAuth）取授权');
+
+// ── webkitdirectory 生产入口退役防回归：扫描 src/ 生产源码零出现 ───────────
+for (const file of collectProductionSources(path.join(root, 'src'))) {
+  if (readFileSync(file, 'utf8').includes('webkitdirectory')) {
+    failures.push(`webkitdirectory 生产入口必须退役（命中 ${path.relative(root, file)}）`);
+  }
 }
 
 if (failures.length > 0) {

@@ -1,6 +1,3 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { openWorkbench } from './helpers';
 
@@ -61,16 +58,22 @@ test.describe('新建案件', () => {
     await expect(page.locator('.right-workbench')).not.toContainText('47 件');
   });
 
-  test('文件夹选择派生案件名称建议', async ({ page }) => {
+  test('宿主授权文件夹派生案件名称建议（原生 picker，非 webkitdirectory）', async ({ page }) => {
     await openWorkbench(page);
+    // CASE-ROOT-1：文件夹经宿主原生 picker（hostAuth）取授权，名称建议来自 grant 的展示 label。
+    await page.evaluate(() => {
+      (window as unknown as {
+        __courtworkHostAuth: { setNextAuthorize(result: unknown): void };
+      }).__courtworkHostAuth.setNextAuthorize({
+        status: 'granted',
+        grant: { grantId: 'grant-王五案', label: '王五诉赵六侵权纠纷' },
+      });
+    });
     await page.getByTestId('new-case-open').click();
     const dialog = page.getByTestId('new-case-dialog');
-    const caseFolder = join(mkdtempSync(join(tmpdir(), 'courtwork-')), '王五诉赵六侵权纠纷');
-    mkdirSync(caseFolder);
-    writeFileSync(join(caseFolder, '合同.pdf'), 'demo');
-    const fileInput = dialog.locator('input[type="file"]');
-    await fileInput.setInputFiles(caseFolder);
-    await expect(dialog.getByRole('textbox', { name: '案件名称' })).toHaveValue(/王五诉赵六侵权纠纷/);
+    await expect(dialog).toBeVisible();
+    await dialog.getByTestId('new-case-authorize').click();
+    await expect(dialog.getByRole('textbox', { name: '案件名称' })).toHaveValue('王五诉赵六侵权纠纷');
   });
 
   test('取消关闭对话框且不新增案件', async ({ page }) => {
