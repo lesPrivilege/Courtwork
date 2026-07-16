@@ -1341,6 +1341,21 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .settings-row > div:first-child p { margin: 4px 0 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
 .settings-row.is-reserved { opacity: 0.92; }
 .settings-row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; justify-content: flex-end; }
+/* CHAT-MEMORY-1：长期记忆查看列表（只读 + 一键清除），沿 settings 密度与 token。 */
+.settings-memory { min-width: 0; }
+.settings-memory-note { margin: 8px 0 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
+.settings-memory-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+.settings-memory-item {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 8px;
+  padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-raised);
+  font-size: var(--type-dense-meta-size);
+}
+.settings-memory-kind {
+  flex: none; padding: 1px 6px; border-radius: 3px; border: 1px solid var(--border); background: var(--bg-app);
+  color: var(--text-tertiary); font-size: 11px; white-space: nowrap;
+}
+.settings-memory-text { color: var(--text-primary); overflow-wrap: anywhere; }
+.settings-memory-source { color: var(--text-tertiary); font-size: 11px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .settings-fields { display: grid; gap: 8px; justify-items: end; min-width: 220px; }
 .settings-fields label { display: grid; gap: 3px; width: 100%; max-width: 260px; font-size: var(--type-dense-meta-size); color: var(--text-tertiary); }
 .settings-fields select, .settings-fields input, .settings-number {

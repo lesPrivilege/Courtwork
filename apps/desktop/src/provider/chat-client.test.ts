@@ -79,3 +79,40 @@ describe('chat 面真 API 客户端（Rust 窄面代理 + core 组装复用）',
     expect(result.projection).toMatchObject({ status: 'failed', failure: { kind: 'auth', message: expect.stringMatching(/HTTP 401/) } });
   });
 });
+
+/** CHAT-MEMORY-1：memory 段作为 generic-chat 低频前缀段注入 system——基身份仍是稳定前缀。 */
+describe('chat 面 memory 注入', () => {
+  function systemContent(body: Record<string, unknown>): string {
+    const messages = (body.messages ?? []) as Array<{ role: string; content: string }>;
+    return messages.find((m) => m.role === 'system')?.content ?? '';
+  }
+
+  it('无 memory 段：system 仅基身份（前缀不漂移）', async () => {
+    let body: Record<string, unknown> = {};
+    const fetchImpl: typeof fetch = async (_i, init) => {
+      body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+      return sseResponse(['data: {"choices":[{"delta":{"content":"ok"}}]}', 'data: [DONE]']);
+    };
+    await sendChatTurn(protocolClient(), DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'hi' }], { fetchImpl });
+    const system = systemContent(body);
+    expect(system).toContain('Courtwork 的协作助手');
+    expect(system).not.toContain('[长期记忆]');
+  });
+
+  it('有 memory 段：追加于基身份之后，基前缀逐字节不动', async () => {
+    const captured: string[] = [];
+    const fetchImpl: typeof fetch = async (_i, init) => {
+      captured.push(systemContent(JSON.parse(String(init?.body)) as Record<string, unknown>));
+      return sseResponse(['data: {"choices":[{"delta":{"content":"ok"}}]}', 'data: [DONE]']);
+    };
+    const memorySegment = '[长期记忆]\n- 偏好：简短回答';
+    const client = protocolClient();
+    await sendChatTurn(client, DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'a' }], { fetchImpl });
+    await sendChatTurn(client, DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'b' }], { fetchImpl, memorySegment });
+    const [withoutMemory, withMemory] = captured;
+    expect(withMemory).toContain('[长期记忆]');
+    expect(withMemory).toContain('简短回答');
+    // 基身份是 with-memory 的严格前缀——账本推进/注入 memory 都不动前缀字节。
+    expect(withMemory.startsWith(withoutMemory)).toBe(true);
+  });
+});
