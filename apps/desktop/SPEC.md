@@ -120,7 +120,7 @@
 
 ### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权删）
 
-1. **settings-store `defaultOutputDir` + `updateOutputDir` 死配置** —— 「默认产出文件夹」UI 行退役后，`updateOutputDir` 无生产消费者、`SettingsSnapshot.output.defaultOutputDir` 永不被写（仅 diagnostics 冗余脱敏保留）。本单不动 `settings-store`（越界），建议架构评估退役该字段与函数。`[需架构拍板]`
+1. **settings-store `defaultOutputDir` + `updateOutputDir` 死配置** —— 已按架构批准由验收会话以 `fix-by-acceptance` 清理：`OutputSettings`/`SettingsSnapshot.output`/`updateOutputDir` 及 diagnostics 冗余输出一并删除；清理前 grep 仅命中该 store、自身单测与本条留痕，未发现其他生产消费者。`CASE_SCOPE_AUDIT` 整表不动。
 2. **`CASE_SCOPE_AUDIT` 文档即数据表** —— HOST-AUTH-LITE 提案 #3 已建议退役为纯文档或删除；本单随绝对路径退役删两条死路由行、其余保留，整表是否退役仍待架构拍板。`[需架构拍板]`
 
 ### 实现留痕（2026-07-16，待独立验收）

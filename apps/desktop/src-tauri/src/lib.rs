@@ -1284,7 +1284,6 @@ struct CaseOutputWriteInGrantInput {
 
 /// 宿主内部产出记录（含绝对路径，供 impl 自用，**永不返回 renderer**）。
 struct CaseOutputArtifact {
-    absolute_path: String,
     byte_length: usize,
 }
 
@@ -1382,7 +1381,6 @@ fn write_case_output_docx_impl(
     write_result?;
 
     Ok(CaseOutputArtifact {
-        absolute_path: target.to_string_lossy().into_owned(),
         byte_length: bytes.len(),
     })
 }
@@ -2380,7 +2378,6 @@ mod tests {
             .expect("canonical case root")
             .join("产出")
             .join("答辩意见.docx");
-        assert_eq!(PathBuf::from(artifact.absolute_path), expected);
         assert_eq!(artifact.byte_length, docx.len());
         assert!(case_output_docx_exists_impl(&root, "答辩意见.docx").expect("exists"));
         assert_eq!(fs::read(expected).expect("read output"), docx);

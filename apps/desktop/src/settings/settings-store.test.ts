@@ -6,7 +6,6 @@ import {
   loadSettings,
   setBehaviorDataOptIn,
   setTelemetryEnabled,
-  updateOutputDir,
   updateRuntimeGuard,
 } from './settings-store';
 
@@ -42,20 +41,19 @@ describe('settings-store', () => {
     expect(next.privacy.telemetryEnabled).toBe(false);
   });
 
-  it('output dir persists', () => {
-    updateOutputDir(loadSettings(), '/tmp/courtwork-output');
-    expect(loadSettings().output.defaultOutputDir).toBe('/tmp/courtwork-output');
+  it('settings snapshot has no retired output config', () => {
+    expect(loadSettings()).not.toHaveProperty('output');
   });
 
-  it('diagnostic payload never embeds secrets or absolute output path', () => {
-    const snap = updateOutputDir(loadSettings(), '/Users/secret/path');
+  it('diagnostic payload never embeds secrets or removed output config', () => {
+    const snap = loadSettings();
     const payload = buildDiagnosticPayload(snap, {
       appVersion: '0.1.1',
       credentialPhase: 'connected',
       modelConfig: { providerId: 'deepseek', modelId: 'deepseek-chat', reasoning: 'standard' },
     });
     expect(JSON.stringify(payload)).not.toMatch(/sk-|password|secret/i);
-    expect(payload.output).toEqual({ defaultOutputDir: '[configured]' });
+    expect(payload).not.toHaveProperty('output');
     expect(payload.credentialFailKind).toBeNull();
   });
 
