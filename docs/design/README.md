@@ -6,6 +6,7 @@
 |---|---|
 | `tokens.json` | 颜色、排版、密度、圆角、层级与首页 token 的唯一机器真值 |
 | `principles.md` | 组件与交互原则 |
+| `voice.md` | 文案与用语规范（动作命名、错误/完成/进行/空态体例、零技术概念暴露），可机器断言条款由 `lint:voice` 守 |
 | `signature-line.md` | “法理之线”状态语义与白名单 |
 | `typography-density.md` | 排版与密度 |
 | `svg-standards.md` | SVG 工程规则 |
