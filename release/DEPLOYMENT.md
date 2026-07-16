@@ -89,3 +89,34 @@ GitHub Release 公开资产：
 ### 结论
 
 > **本次 SITE-CRAFT-1 Pages 站面更新部署复核不放行。** GitHub Pages 已成功部署，正常态三效果、公开资源、响应式页面健康与 `v0.1.2` 下载真值均通过；唯一阻塞是 reduced-motion 的活动 `mask-position` transition 与已验收的“全程动画数 0”声称不一致。在该行为修正并重新部署、逐帧复核前，不应把本节登记为 SITE-CRAFT-1 已成功上线的发布事实。
+
+---
+
+## SITE-CRAFT-1-FADE · Pages 站面更新上线第二轮复核（2026-07-16）— ✅ 放行
+
+本轮验收对象为最新 `main@d1f6563468dd604cef8b326ce17a1d9bd35a0123`，不是 `v0.1.2` 重发；使用独立 clean worktree 与独立浏览器上下文复核远端公开部署。
+
+### Workflow 与远端来源
+
+- Pages workflow run [`29488113178`](https://github.com/lesPrivilege/Courtwork/actions/runs/29488113178) / job [`87587379633`](https://github.com/lesPrivilege/Courtwork/actions/runs/29488113178/job/87587379633)：`success`，head 精确为 `d1f6563468dd604cef8b326ce17a1d9bd35a0123`；运行时间为 `2026-07-16T09:42:15Z` 至 `2026-07-16T09:42:38Z`。
+- workflow 实录：`release-truth: PASS`（app/site `0.1.2`，DMG SHA 不变）、`deslop: PASS (740 active text files; archive excluded from scan roots)`；Pages artifact `github-pages.zip` ID `8371235936`，部署日志为 `Created deployment for d1f6563...` 与 `Reported success!`。
+- 公开站 <https://lesprivilege.github.io/Courtwork/>、`styles.css` 与 `main.js` 均返回 HTTP 200；远端 `styles.css` SHA-256 `715d6c455448e06d0a24572bc25f2640f90b0b6323b74a11fc973127774b456a`、`main.js` SHA-256 `f0f036e78e463bc8710f1ce9bbdf32b2777277f0151fc5742b8a8e28bbba9620`，分别与 `d1f6563:site/` 对应文件一致。
+
+### 远端逐帧复核
+
+以 Playwright Chromium `149.0.7827.55`、`1280×860` 视口和 `requestAnimationFrame` 逐帧采样；reduce 主采样共 `107` 帧，其中实际运行 `ghosty-reduced-fade` 的 `89` 帧全部恰有 `3` 条 CSSAnimation，且每一帧 `CSSTransition=0`。其中 `24` 帧采到至少一个 `opacity ∈ (0,1)`；缓存预热后重载的代表中间帧为 `t=112.6ms`，三图 opacity 均为 `0.581038`，`mask-image:none`、`transform:none`、`transition-duration:0s`、`animation-duration:0.42s`，三图 `naturalWidth=640`。动画结束后三图均为 opacity `1`、`naturalWidth=640`。
+
+- 正常态逐帧共 `129` 帧：隐藏 `7`、中扫 `109`、全显 `13`；中扫代表为 `mask-position: 0% 15.7369%`，保留正常态 `0.9s` mask transition、`transform:none`，且 `ghosty-reduced-fade` 出现次数为 `0`。三图最终均为 `mask-position:0px 0px`、opacity `1`、`naturalWidth=640`。
+- JS 关闭抽查：`html.class` 为空；`h1` 文本与 `aria-label` 均为「模型只生成，不裁决。」；三图均 `opacity:1`、`mask:none`、`animation:none`、`naturalWidth=640`。
+- 卷宗数字在逐帧采样期间恒为 `20 / 47 / 14 / 8`，四项 `getAnimations()` 恒为 `0`。
+
+### v0.1.2 下载真值回归
+
+- 线上两个真实 DMG `href` 均仍指向 [`Courtwork_0.1.2_aarch64.dmg`](https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg)，页面可见 SHA 仍为 `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d`。
+- 重新下载 HTTP 200，大小 `4,679,277` bytes，SHA-256 为 `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d`；对应 [`Courtwork_0.1.2_aarch64.dmg.sha256`](https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg.sha256) 内容一致。
+
+### 闭环与裁决
+
+上轮不放行证据见本文件前一节「[`SITE-CRAFT-1 · Pages 站面更新复核（2026-07-16）— ❌ 不放行`](#site-craft-1--pages-站面更新复核2026-07-16--不放行)」：当时记录了 `6` 条幽灵 `CSSTransition`，并持续至 `t=886.5ms`。本轮以含 `47c693c` 独立验收的 `d1f6563` 部署重新逐帧确认该项归零，且其余正常态、JS 关闭、卷宗数字和 DMG 真值均通过。
+
+> **SITE-CRAFT-1-FADE Pages 上线第二轮复核放行。** 本节只记录部署验收事实；未更新 `docs/status/current.md`，未推送。
