@@ -98,6 +98,9 @@ import { RightRailModules } from './rail/RightRailModules';
 import { PasteBlock } from './chat/PasteBlock';
 import { ChatMarkdown } from './chat/ChatMarkdown';
 import { ScrollToLatest, useFollowScroll } from './chat/follow-scroll';
+import { continuationHistory } from './chat/session-window';
+import { SessionHistory } from './chat/SessionHistory';
+import { readTranscriptSessions, type TranscriptSession } from './chat/session-transcript';
 // 装配点例外（demo/ 同列先例）：原件阅读 fixture 直取 demo-data 文书 md
 import contractSourceMd from '../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
 import { useDismissOnOutside } from './hooks/useDismissOnOutside';
@@ -367,6 +370,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [turnRecoveryError, setTurnRecoveryError] = useState<string>();
   const [chatRecoveryError, setChatRecoveryError] = useState<string>();
   const [storeChatOpen, setStoreChatOpen] = useState(false);
+  /** CHAT-SESSION-1：历史会话列表导航（只读 transcript 缓存派生自持久 Turn journal）。 */
+  const [chatSessionsOpen, setChatSessionsOpen] = useState(false);
+  const [sessionHistory, setSessionHistory] = useState<TranscriptSession[]>([]);
+  const [sessionHistoryError, setSessionHistoryError] = useState<string>();
   const [artifactRevision, setArtifactRevision] = useState(0);
   const [replayEpoch, setReplayEpoch] = useState(0);
   const [sceneMoreOpen, setSceneMoreOpen] = useState(false);
@@ -513,7 +520,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       pasteBlocks: payload.pasteBlocks,
     });
     chatFlightRef.current = true;
-    const history = chatMessages.reduce<Array<{ role: 'user' | 'assistant'; content: string }>>((messages, message) => {
+    // CHAT-SESSION-1（ADR-013 §1）：续行历史只取当前连续性会话——距最近一次请求 ≤ 1 小时才延续。
+    // 超窗即新 session，续行为空：不回灌历史全文（memory 注入属 CHAT-MEMORY-1，不在本单）。
+    const sessionMessages = continuationHistory(chatMessages, Date.now());
+    const history = sessionMessages.reduce<Array<{ role: 'user' | 'assistant'; content: string }>>((messages, message) => {
       if (message.role === 'user') messages.push({ role: 'user', content: message.content });
       else if (message.turn.status === 'completed') messages.push({ role: 'assistant', content: message.turn.assistantMessage });
       return messages;
@@ -565,6 +575,18 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   };
 
   const stopChatTurn = () => chatAbortRef.current?.abort();
+
+  /** 打开历史会话列表：从持久 journal 派生只读会话；涂改/损坏 fail closed，不清除原件。 */
+  const openSessionHistory = () => {
+    try {
+      setSessionHistory(readTranscriptSessions(turnClient.store));
+      setSessionHistoryError(undefined);
+    } catch (error) {
+      setSessionHistory([]);
+      setSessionHistoryError(readableError(error, '无法读取历史会话'));
+    }
+    setChatSessionsOpen(true);
+  };
 
   /** 两面唯一的桥：从 chat 收当前话题入容器（docs/decisions/ADR-005-data-security.md 修正二），复用容器化仪式后切 work 面。 */
   const storeChatIntoContainer = (kind: ContainerKind) => {
@@ -1731,8 +1753,17 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
               <strong className="chat-titlebar-label">{CHROME_COPY.segment.chat}</strong>
             </div>
             <header className="chat-case-head chat-mode-head" data-testid="chat-mode-head">
+              <button
+                type="button"
+                className="quiet-button"
+                data-testid="chat-history-toggle"
+                aria-expanded={chatSessionsOpen}
+                onClick={() => (chatSessionsOpen ? setChatSessionsOpen(false) : openSessionHistory())}
+              >
+                历史会话
+              </button>
               <span className="spacer" />
-              {chatMessages.length > 0 && (
+              {!chatSessionsOpen && chatMessages.length > 0 && (
                 <div className="store-chat-wrap" ref={storeChatRef}>
                   <button type="button" className="quiet-button" data-testid="store-chat" aria-expanded={storeChatOpen} onClick={() => setStoreChatOpen((open) => !open)}>
                     {CHROME_COPY.storeChat.action}
@@ -1751,6 +1782,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                 </div>
               )}
             </header>
+            {chatSessionsOpen ? (
+              <SessionHistory
+                sessions={sessionHistory}
+                {...(sessionHistoryError ? { error: sessionHistoryError } : {})}
+                onClose={() => setChatSessionsOpen(false)}
+              />
+            ) : (
             <div className="conversation-scroll" data-testid="chat-scroll" ref={chatFollow.ref} onScroll={chatFollow.onScroll}>
               {chatMessages.length === 0 ? (
                 <div className="empty-state" role="status" data-testid="chat-empty">{CHROME_COPY.welcome.body}</div>
@@ -1788,7 +1826,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
               )}
               <ScrollToLatest follow={chatFollow} />
             </div>
-            {renderComposer(handleChatSend, chatPending)}
+            )}
+            {!chatSessionsOpen && renderComposer(handleChatSend, chatPending)}
           </section>
         )}
 

@@ -421,6 +421,21 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .conversation.canvas-layer { position: relative; }
 /* ch12 #3：留空即结构——chat 区两侧视觉留空放大，文字永不贴边 */
 .conversation-scroll { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; overflow: auto; }
+/* CHAT-SESSION-1：历史会话列表导航（只读 transcript）——连续台账，只用分割线与密度，不加卡中卡/阴影。 */
+.session-history { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: auto; padding: 0 16px 12px; }
+.session-history-head { height: 40px; flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--border); font-size: var(--control-font-sm); }
+.session-history-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.session-entry { width: 100%; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 9px 2px; border: 0; border-bottom: 1px solid var(--border); background: transparent; color: var(--text-primary); font-size: var(--type-dense-body-size); text-align: left; cursor: pointer; }
+.session-entry:hover { background: var(--bg-selected); }
+.session-entry-count { flex: none; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); font-variant-numeric: tabular-nums; }
+.session-history-empty { margin: 24px 2px; color: var(--text-tertiary); font-size: var(--type-dense-body-size); text-align: center; }
+.session-history-error { margin: 12px 0; padding-left: 9px; border-left: 2px solid var(--red-graphic); color: var(--red-fg); font-size: var(--type-dense-body-size); line-height: 1.55; }
+.session-transcript-readonly { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; }
+.session-transcript-meta { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.session-transcript-turn { display: flex; flex-direction: column; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.session-transcript-empty-turn { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.session-transcript-failed { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.session-transcript-back { align-self: flex-start; }
 /* 批次七首例（follow-scroll）：新消息浮标——sticky 零高槽位驻底缘不占流式布局；浮面循「浮=影、有影必描边」 */
 .scroll-latest-slot { position: sticky; bottom: 10px; height: 0; display: flex; justify-content: center; overflow: visible; z-index: 4; flex: none; }
 .scroll-latest-button { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg-raised); border: 1px solid var(--border-strong); color: var(--text-secondary); cursor: pointer; padding: 0; transform: translateY(-100%); transition: background-color var(--motion-hover) ease; }
