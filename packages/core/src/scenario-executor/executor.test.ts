@@ -1453,6 +1453,54 @@ describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier
     expect(providerSawDurableTurnLink).toBe(true);
   });
 
+  it('durably persists the Turn terminal before the JSON/schema parse that turns it into an artifact (WORK-STORE-1-FIX B1)', async () => {
+    // ADR-010 决定二第 3 条：Turn terminal 成功持久后才能解析并发布 artifact——屏障必须先于
+    // JSON.parse/schema safeParse，而不是等 artifact 已经解析、追加后才补一次合并落盘。
+    // 观测手法：用 superRefine 包一层 test.Risk schema，在 schema 实际执行校验的那一刻记录当时
+    // 已完成的 commit 次数。header=1、turn_linked=2 之后，terminal 若已先持久，此刻应至少见到 3。
+    const host = createInMemoryWorkStateHost();
+    let commitCount = 0;
+    const barrierCountsAtParse: number[] = [];
+    const observedRiskSchema = TEST_RISK_SCHEMA.superRefine(() => {
+      barrierCountsAtParse.push(commitCount);
+    });
+    const artifacts: ArtifactSchemaRegistry = {
+      get: (typeId: string) =>
+        typeId === 'test.Risk'
+          ? { descriptor: testDescriptor('test.Risk', observedRiskSchema), packageId: 'test' }
+          : TEST_ARTIFACTS.get(typeId),
+      normalizeTypeId: (value: string) => TEST_ARTIFACTS.normalizeTypeId(value),
+      list: () => TEST_ARTIFACTS.list(),
+    };
+    const store = await loadWorkStateStore({ host, ref: STORE_REF, header: storeHeader(), now: FIXED_NOW });
+    const tools = createToolRegistry();
+    tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
+    const deps: ScenarioExecutorDeps = {
+      tools,
+      toolExecutor: createToolExecutor(),
+      turnRunner: scriptedTurnRunner([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]),
+      eventLog: store.eventLog,
+      confirmationStore: store.confirmationStore,
+      revisionStore: store.revisionStore,
+      ledger: createEvidenceLedger(),
+      artifacts,
+      projections: { get: (typeId: string) => artifacts.get(typeId)?.descriptor.rehydrationProjection },
+      persistBarrier: async () => {
+        await store.commit();
+        commitCount += 1;
+      },
+      now: FIXED_NOW,
+    };
+    const result = await runScenario(SINGLE_GATE_SCENARIO, START_INPUT, deps);
+    expect(result.status).toBe('paused');
+    expect(barrierCountsAtParse.length).toBeGreaterThan(0);
+    expect(barrierCountsAtParse[0]).toBeGreaterThanOrEqual(3);
+    // 归并目标回归锁：拆分出的 terminal-only 屏障不得让总落盘次数偏离原有归并预算——
+    // header/turn_linked/terminal 三次之后，artifact 免费搭乘 pauseAt 的 pending 屏障，
+    // 到 paused 为止仍是 4 次（与修复前 header/turn_linked/terminal+artifact合并/pending 的 4 次相同）。
+    expect(commitCount).toBe(4);
+  });
+
   it('resumes a durably paused session to completion from a fresh store on the same host (restart recovery)', async () => {
     const host = createInMemoryWorkStateHost();
     const { deps: deps1 } = await storeBackedDeps(
