@@ -41,6 +41,7 @@
 - overlay：使用 token 规定时长；关闭应即时、确定。
 - 数据区绝对静止；禁止卡片抬升、缩放、弹簧、layout 动画和内容 crossfade。
 - 长任务用品牌化思考反馈或事件流进度；禁止 spinner 裸奔。
+- 例外：Pages 展示站（`site/`）的媒体与标题层动效允许超出四属性白名单（如逐字显影动 `color`、截图显影动 `mask-position`），条件见 `site-evidence-line.md` 的展示站动效例外条款；产品壳不适用该例外，desktop 四属性门禁不变。
 
 ## 6. 人工确认
 
