@@ -22,6 +22,10 @@
       "types": "./dist/contract.d.ts",
       "default": "./dist/contract.js"
     },
+    "./party-verify": {
+      "types": "./dist/party-verify.d.ts",
+      "default": "./dist/party-verify.js"
+    },
     "./file-ops-host": {
       "types": "./dist/file-ops-host.d.ts",
       "default": "./dist/file-ops-host.js"

@@ -441,3 +441,42 @@ work-protocol browser 递归门 + 真实 Vite bundle 证明新增 envelope/store
 抽样复验驳回报告已列证据未回归：临时移除 `runWorkTurn` 内 provider 前的 `persistBarrier`（屏障②）→ `providerSawDurableTurnLink` 断言真实变红，恢复后绿；临时使 `createInMemoryWorkStateHost.compareAndSwap` 的 `expectedVersion` 校验恒假 → `concurrent CAS` 两例均真实变红（一为 rejects 断言失败、一为 promise resolve 而非 reject），恢复后绿。`work-state-host-file.test.ts`（含真实 `kill -9` 崩溃窗口）与 `work-protocol.browser.test.ts`/`turn-protocol.browser.test.ts`（browser bundle 零 `node:*`）本轮未改动相关源码，独立重跑均绿，无回归。
 
 复验入口：架构/验收角色需独立复核本节的"屏障迁移不增加落盘次数"论证与写次数回归锁断言，并按驳回报告要求在新验收轮重跑全量门、a–g 变异与 demo 基线等价。
+
+## LEGAL-S3-BINDING-1 · ArtifactEnvelope 版本信封 + 读侧迁移（2026-07-16，实现留痕，待独立验收）
+
+权威：[ADR-010 决定三](../../docs/decisions/ADR-010-work-live-boundaries.md)、[实现就绪图 LEGAL-S3-BINDING-1 行](../../docs/architecture/implementation-readiness.md)、
+`packages/core/SPEC.md` WORK-STORE-1 记录（决定三延后至本单拉动）。实现分支 `impl/legal-s3-binding-1`（基线 `main @ 2ad8eda`），
+worktree 施工，未推送、未改 `docs/status/current.md`、未动 `packages/schemas` 导出。core 侧只闭合决定三（版本化 artifact 持久形 + 读侧迁移）；场景生产装配点落 `apps/desktop`（见 desktop SPEC）。
+
+### 复杂度留痕（本单在 core 新增概念）
+
+本单是 WORK-STORE-1 明载"首个真实 artifact 生产者拉动决定三"的兑现。core 侧新增**一个**受 ADR 拍板的概念，别无其它通用抽象/持久格式/状态机：
+
+1. **`ArtifactEnvelope` 版本信封 + 编解码器**（`src/work-state/artifact-envelope.ts`，browser-safe）：ADR-010 决定三逐字形状
+   `{ packageId, typeId, schemaVersion, payload }` + `ArtifactEnvelopeCodec`（写侧 `encode` 封装 / 读侧 `decode` 迁移+校验+隔离）+
+   `ArtifactVersioningSource`（装配点从已准入包 descriptor 派生 typeId→包/版本/校验器）+ 事件级 `encodeStoredEvents`/`hydrateStoredEvents`。
+   非加不可：决定三要求生产 `StoredSessionEvent.artifact_produced` 只存版本信封（payload 唯一真源），读侧按 package/schema 版本迁移并校验，
+   未知版本/缺 migration/迁移后不合 schema 均**隔离**该 contribution（禁 raw JSON fallback）——无版本信封则模型产出跨版本无法安全再投影，违决定三。
+
+**明确未新增**：未改 `SessionEvent`/`StoredSessionEvent` 类型别名（`artifact_produced.artifact: unknown` 在生产运行时容纳信封，编解码在 store 序列化/读取缝完成；持久字节里 payload 只出现在 `envelope.payload` 一处，无第二份裸真源）；未新增 SessionEvent 类型；未改 WORK-STORE-1 的 envelope v1 格式、CAS 语义或阈值。
+
+### 与 WorkStateStore 的集成（可选注入，不动 WORK-STORE-1 已验收行为）
+
+`loadWorkStateStore` 新增**可选** `artifactCodec?`：
+- 注入即生产装配——`commit` 时 `buildEnvelope` 以 `encodeStoredEvents` 把 `artifact_produced.artifact` 封为版本信封；`reload`（已有 blob）时以 `hydrateStoredEvents` 按包/版本迁移回裸 artifact。
+- 恢复自身会话时任一 contribution 隔离即 `StoredArtifactIsolatedError` **fail-closed**（不能续行一个连自家 artifact 都迁移不了的会话，更禁 raw payload fallback）；UI 投影侧另以 `hydrateStoredEvents` 的 `{events, isolated}` 优雅隔离显示（本单提供原语，desktop 投影链接线归 WORK-LIVE-1）。
+- **缺省（不注入）保持 WORK-STORE-1 直存行为**：纯逻辑单测与 demo 路径零改动、字节不变。生产装配点（desktop `createLegalS3Binding`）必注入 codec，由 desktop 静态门守卫。
+
+### 反例（先红后绿）
+
+- `artifact-envelope.test.ts`（8）：encode 封版本信封（payload 唯一真源）；encode 未登记类型抛 `UnregisteredArtifactTypeError`；合法信封 round-trip；**未知 `schemaVersion` → 隔离 `unknown_version` fail-closed**；未登记 typeId→`unknown_type`；packageId 不符→`package_mismatch`；payload 不过 schema→`schema_mismatch`；信封畸形→`malformed`。全部隔离型绝不 raw fallback。
+- `work-state-store.artifact-envelope.test.ts`（4）：注入 codec→commit 持久为版本信封且持久字节里 payload 只出现一次；write→reload round-trip 复原原始 artifact；**reload 未知版本信封→抛 `StoredArtifactIsolatedError` fail-closed**；不注入 codec→artifact 直存裸形（WORK-STORE-1 默认行为不变）。
+
+### 门禁（本轮）
+
+worktree 内：`pnpm -r build`、`pnpm lint` 全绿；core 定向 **31 files / 319 tests**（基线 307 + 本单 12：codec 8 / store 集成 4）；`pnpm test`（root）**142 files / 1222 tests** 全绿。work-protocol 递归门 + browser bundle 证明新增 `artifact-envelope` 出口零 `node:*`（随根 barrel 与 work-protocol 子路径导出）。demo-runtime `demo:s3`/`demo:legal` golden 与 no-demo-in-harness 审计等价未破坏（demo 路径不注入 codec，直存字节不变）。放行由异会话在 clean worktree 独立注入反例复验。
+
+### 已知边界（如实登记）
+
+- **单版本 v1 无迁移阶梯**：`decode` 对任何 `schemaVersion` 不等于当前登记版本一律隔离 `unknown_version`；真实迁移函数阶梯待第二个 schemaVersion 出现时按 ADR 拉动（不预造空迁移器）。
+- **`StoredSessionEvent = SessionEvent` 别名保留**：本单以 store 序列化/读取缝的运行时编解码兑现决定三"持久只存信封"，未把 `artifact_produced` 拆成两个 TS 类型——`artifact: unknown` 容纳信封、持久 payload 单点、读侧强制迁移已满足决定三语义与 fail-closed；若架构要求类型层显式区分 Stored/UI 形，可另拆 `WORK-STORE-2` `[需架构拍板]`（本单体量未失控，未触发拆单）。

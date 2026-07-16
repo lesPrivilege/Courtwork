@@ -2,6 +2,59 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## LEGAL-S3-BINDING-1 · legal.S3 合同审查生产装配点（实现完成，待独立验收）
+
+权威：[ADR-010 决定五](../../docs/decisions/ADR-010-work-live-boundaries.md)（首个 live 场景是 S3，须先闭合垂类 binding）+ [决定三](../../docs/decisions/ADR-010-work-live-boundaries.md)（ArtifactEnvelope，core 侧闭合见 core SPEC）、[实现就绪图 `LEGAL-S3-BINDING-1` 行](../../docs/architecture/implementation-readiness.md)（主线倒数第二环）。上游 `MATERIAL-INGRESS-1` 的 `resolveForProvider` 与 `WORK-STORE-1` 的 whole-envelope CAS + ArtifactEnvelope codec 是直接消费对象。分支 `impl/legal-s3-binding-1`（基线 `main @ 2ad8eda`），worktree 施工，未推送、未改 `docs/status/current.md`。
+
+本单闭合 legal.S3 的**生产装配语义**（就绪图倒数第二环）：显式主体输入、真实工具输入、live gate projection、逐条 revision mapping、session 原文绑定、ArtifactEnvelope 首个真实生产者。`WorkCommandPort` start/{done}/cancel 全链、跨重启 replay 与 desktop 运行控制/docx-in-UI 归 `WORK-LIVE-1`（消费本模块纯装配件）——故成熟度诚实为 **package-ready**（装配件成立且全测，未接产品 UI 运行入口）。
+
+### 落点裁定与新增概念留痕（复杂度节制条）
+
+生产装配点驻 `apps/desktop/src/work/legal-s3-binding.ts`（desktop host 边界是 ADR-010/根 CLAUDE.md 允许的可执行跨域绑定组合点；legal 包禁依赖 core 故不能承装配，demo-runtime 是 demo/验收专用不得进生产）。本单新增**一个**概念，逐一说明为何非加不可；**依赖：零新 crate/持久格式/状态机**：
+
+1. **`legal.S3` 生产装配模块**（browser-safe）——非加不可：ADR-010 决定五列的六项语义缺口（显式主体/真实工具/live gate/逐条 revision/session 原文/首个 artifact 生产者）必须在受信组合点闭合，且与 demo 路径物理隔离。模块提供纯装配件：`buildS3RunInput`（缺主体 `MissingContractPartyError`/缺工具 `MissingToolInputError` 显式阻断，不默认补全）、`createProductionS3ToolRegistry`（party-verify 挂 `createQccPartyVerifyAdapter`，未配置即 typed `not_configured`，**绝不换 demo-fixture/mock**）、`resolveSessionMaterials`（逐件经 `resolveForProvider` 核验，任一 blocked→`MaterialResolutionBlockedError`，绝不入 provider）、`projectRiskListGate`（由真实 RiskList + 证据台账派生逐条 gate，high→high_risk、C 级未确认→unverified，**不复用 demo `GATES`**）、`mapReviewResolutionToResume`（confirm→confirmed / reject→`/risks/<i>/dispositionStatus=rejected`，revise→`ReviseNotTerminalError` 保持 pending 非终态，全覆盖才 `decision='confirm'`）、`bindDocxSourceMarkdown`（docx 源文只从复验后会话材料 `readingMarkdown` 取，**绝不消费 demo `contractSourceMd`**）、`buildArtifactVersioningSource`/`createLegalS3ScenarioDeps`（ArtifactEnvelope 版本源 + executor deps 装配缝，`persistBarrier=store.commit` durable-before-effect）。
+
+**明确未新增**：未改 `packages/core`（除消费 core 侧本单同批 ArtifactEnvelope 出口）/`schemas`/`registry`/`legal`/`reading-view` 任何契约或实现；未接 `WorkCommandPort` 生产实现、desktop 运行 UI、跨重启 replay、docx-in-UI（WORK-LIVE-1）；未改 `App.tsx`/`main.tsx`（demo 审阅链的 `contractSourceMd` 属 demo case，本单不触碰、不升级为 live）。
+
+### 跨包加法（在对方 SPEC 留痕）
+
+- `packages/tools` 新增 browser-safe 子路径导出 `./party-verify`（纯加法，`party-verify→contract→cache` 传递闭包零 `node:*`），使生产装配点可在浏览器壳内以真实 qcc 适配器装配工具。详见 `packages/tools/SPEC.md`。
+- core 侧 ArtifactEnvelope 版本信封 + 读侧迁移由本单同批拉动，闭合于 `packages/core`（见 core SPEC `LEGAL-S3-BINDING-1` 节）；desktop 只消费其 browser-safe 出口。
+
+### TDD 反例映射（先红后绿；`legal-s3-binding.test.ts` 15 例）
+
+- **缺主体**（空/仅空白）→ `MissingContractPartyError`，不默认补全。
+- **缺工具输入**（`buildS3RunInput` subject 缺省）→ `MissingToolInputError`。
+- **材料 provider 前核验**：ready→source-neutral MaterialInput；漂移→`MaterialResolutionBlockedError`（content_drift/reading_drift），绝不入 provider。
+- **session 原文绑定漂移**：首次复验通过→绑定源文；漂移后复验整体阻断→拿不到源文（不回落 demo）。
+- **live gate**：由真实 RiskList 逐条派生（high_risk/unverified/batch），不复用 demo GATES。
+- **逐条 revision mapping**：全 confirm/reject→decision=confirm + 逐条 dispositionStatus；**单项 reject**→`/risks/<i>/dispositionStatus=rejected`；**revise 往返**→`ReviseNotTerminalError`；未覆盖全部→`IncompleteReviewError`；未知项→`UnknownReviewItemError`。
+- **真实工具**：生产工具注册表 `party-verify` sourceId=`qcc`（非 demo/mock）。
+- **ArtifactEnvelope 未知版本 fail-closed**：从已准入 legal 包构造版本源，RiskList round-trip；未知版本→隔离 `unknown_version`。
+- **生产装配闭合**（零 demo）：真实 registries + qcc 工具 + WorkStateStore(codec) 跑通 start→gate→resume→complete；artifact 持久为版本信封；party-verify qcc 未配置诚实降级 `not_configured`（未换 demo/mock）。
+
+### 静态门（`scripts/assert-legal-s3-contracts.mjs`，纳入 `test:e2e` 链 + `lint:legal-s3`）
+
+守 `legal-s3-binding.ts`（剥注释后扫代码）：零 demo 依赖（demo-data/demo-runtime/`../demo/`/recording/DEMO_ARTIFACTS/GATES/contractSourceMd/demo-fixture·mock 适配器）；party-verify 用 qcc；材料经 `resolveForProvider`、docx 源文从会话材料；live gate 由真实 riskList 派生 + 逐条 dispositionStatus + revise 非终态；显式错误闭集齐备；ArtifactEnvelope 版本源装配 + `descriptor.schema` 校验；`persistBarrier=store.commit`；browser-safe（零 `node:*`、`@courtwork/core` 根 barrel 仅 `import type`、runtime 走 work-protocol 子路径）。**红证（实证）**：注入 `@courtwork/demo-runtime` + `createMockPartyVerifyAdapter` → 门 exit 1（2 violations），撤除→passed。
+
+### 门禁实跑（本会话隔离端口，最终以独立验收为准）
+
+- `pnpm -r build`（13/14 workspace，仅既有 chunk-size/dynamic-import advisory）、`pnpm lint` exit 0 全绿。
+- `pnpm test`（root）**142 files / 1222 tests**（core +12 ArtifactEnvelope）；desktop Vitest **50 files / 280 tests**（新 `legal-s3-binding.test.ts` 15 例）。
+- 静态门链（含新 `assert-legal-s3-contracts`）全过；**Playwright 隔离端口 `:1481` `231/231 passed`（floor 231 只升未降——本单装配件未接产品 UI 运行入口，无新 e2e 观测面，归 WORK-LIVE-1）**。
+- demo golden `demo:s3`（7/7 考点）/`demo:legal`（golden PASS）与 no-demo-in-harness 审计未破坏。未触 Rust（无 `src-tauri` 改动），不需 cargo。
+
+### 精确触面与禁止扩张
+
+- **触面**：`src/work/legal-s3-binding.ts`（新，+`legal-s3-binding.test.ts`）、`scripts/assert-legal-s3-contracts.mjs`（新）、`package.json`（`test:e2e` 链 + `lint:legal-s3`）。core 侧 `src/work-state/artifact-envelope.ts`（新）+ `work-state-store.ts` 可选 codec 集成 + barrel/work-protocol 导出 + 两测（见 core SPEC）；`packages/tools/package.json` `./party-verify` 子路径 + tools SPEC 留痕。
+- **禁止扩张（遵守）**：未接 `WorkCommandPort` 生产实现/运行 UI/跨重启 replay/docx-in-UI（WORK-LIVE-1）；未改 core/schemas/registry/legal/reading-view 契约（除 core 同批 ArtifactEnvelope 出口）；未把 demo 审阅链 `contractSourceMd` 升级为 live；未新增 crate/持久格式/状态机；验收放行前不更新 `docs/status/current.md`。
+
+### 已知边界（诚实留痕，非缺口）
+
+- **成熟度 package-ready**：装配件成立且全测，但未接产品 UI 运行入口（`WorkCommandPort` start/{done}/cancel、run/cancel 控件、跨重启 replay、docx-in-UI 链归 `WORK-LIVE-1` 消费本模块）。
+- **party-verify qcc 未实现真实请求**：`createQccPartyVerifyAdapter` 骨架在有 key 时仍抛 `not_implemented`（无官方 API 文档，见 `packages/tools`）；本单只保证"未配置/未实现即诚实 typed 降级、绝不换 demo/mock"，不声称真实主体核验已接入。
+- **gate `unverified` 依赖证据台账**：`projectRiskListGate` 的 `unverified` 由传入 `EvidenceGradeAnnotation[]`（C 级未确认）派生；缺台账则只标 high_risk，不臆造 unverified。
+
 ## UI-SURFACE-1 · Chat/Work 控件面对标补齐（实现完成；一轮驳回后经 UI-SURFACE-1-FIX 修复三项，待独立复验）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `UI-SURFACE-1` 行、[docs/product/vision.md](../../docs/product/vision.md) 路线原则末段（对齐上游只做减法、未接线显式未开通）、[docs/design/principles.md](../../docs/design/principles.md) §5（动效）/§6（人工确认）/§9（零技术概念暴露）、[ADR-006](../../docs/decisions/ADR-006-ui-host.md)（UI 宿主边界）。工单基线 `main @ 056500a`。
