@@ -1115,6 +1115,21 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .batch-bar { min-height: 32px; display: flex; align-items: center; gap: 10px; padding: 2px 10px 0; border-bottom: 0; background: transparent; font-size: var(--type-dense-meta-size); }
 .batch-bar small { margin-left: auto; color: var(--text-tertiary); }
 .submission-note { padding: 5px 10px; border-bottom: 1px solid var(--border); color: var(--green-fg); font-size: var(--type-dense-meta-size); }
+/* OUTPUT-CONFIRM-UI-1：未能落到文书上的修订，逐条确认区（审阅面内轻卡，无投影、无动效）。 */
+.nonapplied-confirm { margin: 4px 10px 10px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }
+.nonapplied-confirm > header { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.nonapplied-confirm > header strong { color: var(--amber-fg); font-size: var(--type-dense-body-size); font-weight: 510; }
+.nonapplied-confirm > header span { color: var(--text-secondary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
+.nonapplied-list { margin: 0; padding: 0; list-style: none; }
+.nonapplied-item { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) max-content; gap: 10px; align-items: center; padding: 8px 10px 8px 12px; border-bottom: 1px solid var(--border); }
+.nonapplied-item:last-child { border-bottom: 0; }
+.nonapplied-body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.nonapplied-head { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.nonapplied-summary { min-width: 0; overflow: hidden; color: var(--text-primary); font-size: var(--type-dense-body-size); text-overflow: ellipsis; white-space: nowrap; }
+.nonapplied-reason { color: var(--amber-fg); font-size: var(--type-dense-meta-size); }
+.nonapplied-quote { color: var(--text-secondary); font-family: var(--mono); font-size: var(--type-dense-meta-size); line-height: 1.5; overflow-wrap: anywhere; }
+.nonapplied-confirm > footer { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-top: 1px solid var(--border); }
+.nonapplied-progress { margin-left: auto; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 /* ⑫左右贯通（用户拍板）：撤 margin-left gutter——risk-master-detail 与 batch-bar/document-preview 左对齐贯通；
    法理之线（signature-line）在各 row/detail 内左边缘 absolute，不依赖此外部 gutter。 */
 .risk-master-detail { min-height: 360px; display: grid; grid-template-columns: minmax(220px, 38%) minmax(0, 62%); border-bottom: 1px solid var(--border); }

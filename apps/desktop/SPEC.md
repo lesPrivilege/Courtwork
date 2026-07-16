@@ -2,6 +2,54 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## OUTPUT-CONFIRM-UI-1 · 审阅→docx 未落点修订的产品侧逐条确认（实现完成，待独立验收）
+
+权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `OUTPUT-CONFIRM-UI-1` 行（含根因台账）、[packages/output/SPEC.md](../../packages/output/SPEC.md) #6（落盘门禁语义与 `onNonApplied:'confirm'`+`confirmNonApplied` API）、[docs/design/principles.md](../../docs/design/principles.md) §6（留人确认）/§9（零技术概念暴露）。工单基线 `main @ 47c9c6b`（≥ 派单 floor `dd32fc1`）。
+
+补齐 OUTPUT-CORRECTNESS #6 的**产品侧**确认：`NonAppliedInstructionsError` 不再只是一句可见失败——未能落到文书上的修订逐条显式展示（typed outcome + 原因），用户逐项针对性确认后重编译落盘，取消则不产出任何 docx。`packages/output` 的契约与落盘门禁语义**一字未动**，本单只在 desktop 编排与审阅面把既有 `confirm` 策略接出来。
+
+### 根因（先证后改）
+
+`rp210.spec.ts:43`/`system-open.spec.ts:12` 两条 e2e 红即此缺口（此前「环境性/缺宿主桥」归因有误；`f38c17a` 门禁行为正确、产品确认 UI 缺席）。探针实测坐实：desktop S3 demo 确认全部 6 项风险后，`compileConfirmedReviewToDocx` 内 `instr-risk-02`/`instr-risk-06` 判 `locator_not_found`（二者 `basis[0].sourceAnchors[0].quote` 是法条正文，`compileConfirmedRiskListToRevisionInstructions` 恰以 `basis[0]` 作定位引语，故定位不到合同正文），默认 `block` 策略抛错、docx 卡永不出现。
+
+### 设计与契约（desktop 内，零跨层契约改动）
+
+- `compile-review-output.ts` 由「返回 `ApplyRevisionInstructionSetResult`、撞门即抛」改为返回判别联合 `CompileConfirmedReviewOutcome`：`{ status:'compiled' } & ApplyRevisionInstructionSetResult` | `{ status:'needs_confirmation'; pending: PendingRevisionConfirmation[] }`；新增可选入参 `confirmedNonApplied` 透传给 output 的 `onNonApplied:'confirm'`+`confirmNonApplied`。撞门不再抛给编排，而是把 `NonAppliedInstructionsError.nonApplied` 逐条翻译成 `pending` 交审阅面——**不是**「报错并跳过后照常交付」，`needs_confirmation` 分支不携任何 docx。
+- 产品语言：`NonAppliedReason`（`not_located`/`ambiguous`/`text_changed`/`unsupported`）是语义枚举，审阅面再映射为「未能在文书中找到对应原文」等中文文案；`PendingRevisionConfirmation` 只出 `summary`（风险描述）、`reason`、`quote`（原文片段）与 `riskId`，`instructionId` 只作回传门禁的诊断字段、不进用户可见文本。§9 零技术概念暴露：UI 不出现 instruction/locator/schema 等工程词。
+- 编排（`App.tsx`）：审阅门禁解决后首次编译；`needs_confirmation` 则挂起 `nonAppliedPending`、不落盘；用户逐条 `confirmNonApplied` 满则一个 effect 带 `confirmedNonApplied` 重编译落盘（针对性确认，覆盖不全由 output 门禁继续阻断）；`cancelNonApplied` 清空、零产出。
+- 审阅面（`RevisionPanel`）：确认区落在既有审阅面内、复用 `.primary-button`/`.quiet-button`/`SignatureLine`（attention/authority 双 tone 均在白名单），**不新开弹层体系**、无投影、无动效；逐条一枚「确认知悉」按钮（§6 高风险/含未核验只能逐条），确认后转 authority 线 + 禁钮；footer 显示范围数量「已确认 c/N」+「取消，不生成产物」。
+
+### 新增概念留痕（复杂度节制条；均 desktop 内部类型，不触跨层契约）
+
+1. **判别联合 `CompileConfirmedReviewOutcome`（compiled | needs_confirmation）**——非加不可：#6 要求未落点项在落盘前逐条显式展示并取得针对性确认。一个抛出的 error 无法把「非错误、但也未完成、等待用户逐项确认」这一中间态作为可交互步骤带进审阅面。判别联合是把该中间态建模进编排的最小手段（编排据 `status` 决定挂起还是落盘）。
+2. **`PendingRevisionConfirmation` + `NonAppliedReason` 投影**——非加不可：§9 禁止把 output 的 `ApplyStatus`/instruction id/locator 词暴露给用户。该投影把工程 `InstructionOutcome` 翻成产品三元（说明+原因+原文）。缺它则 UI 要么泄漏工程词、要么把文案硬编码进组件（不可单测映射）。投影严格一一对应实际未落点 outcome，无法对应已确认风险的 outcome 直接抛错（不给失真清单）。
+
+依赖：**零新依赖、零新持久化格式、零新状态机**。仅新增两个 React state（`nonAppliedPending`/`confirmedNonAppliedIds`）与一枚 `recompileGuard` ref（防 StrictMode/重复触发）；CSS 全走既有 token，无新影、无新动画属性。
+
+### TDD 与门禁（先红后绿）
+
+- 单测 `compile-review-output.test.ts` **5 例**（先红后绿）：全落点直通（`compiled`，排除驳回项）；部分未落点 `needs_confirmation` 且 `pending` 与实际未落点 outcome 一一对应；确认全部未落点 id 即落盘且未落点项在 `outcomes` 中如实保留；确认错/漏 id 继续阻断（针对性确认非笼统放行，注入不一致触红）；`needs_confirmation` 分支不携 docx（取消零落盘）。
+- e2e：改写 `helpers.ts`——`confirmDemoReview` 拆为 `disposeAllDemoRisks` + `confirmNonAppliedRevisions`，两条目标用例 `rp210:43`/`system-open:12` 经该确认步转绿；新增 `output-confirm.spec.ts` **2 例**（逐条确认后落盘，含 §9 零工程词断言与范围数量「有 2 处…」/「已确认 1/2」；取消则确认区消失、零产物）。
+- floor：`assert-test-count.mjs` `222 → 224`（新增 2 例，如实上调并留痕）。
+- **先红实证**：在隔离 worktree 内 `git stash` 仅 4 枚实现文件（保留测试），隔离端口 1473 复跑——4 条确认相关用例（`rp210:43`/`system-open:12`/`output-confirm` ×2）全红（均卡在 `nonapplied-confirm` waitFor），其余 220 绿（含 `workbench:209` 混合处置，证 helper 改写未误伤）；`stash pop` 复原后全绿。
+
+### 精确触面与禁止扩张
+
+- 触面（全在 apps/desktop）：`src/output/compile-review-output.ts`(+`.test.ts`)、`src/App.tsx`、`src/workbench/Panels.tsx`、`src/styles.css`、`tests/e2e/helpers.ts`(+新 `tests/e2e/output-confirm.spec.ts`)、`scripts/assert-test-count.mjs` floor。
+- 禁止扩张（均遵守）：不动 `packages/output` 契约与门禁语义；不做「跳过并交付」回退；不改 CLI demo 流（`packages/demo-runtime` 未触）；非 demo 语义不变；验收放行前不更新 `docs/status/current.md`。
+- 已知边界：审阅门禁一次解决后，若用户在未落点确认区点「取消」，本单不提供「重新生成」入口（`resolvedRequest` 守卫已置位，编排不复触发）——「取消=本次不产出」为终态，重生成入口超出本单范围。
+
+### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权删）
+
+1. **demo 未落点是结构性的**——`packages/legal` 的 `compileConfirmedRiskListToRevisionInstructions` 以 `risk.basis[0].sourceAnchors[0].quote` 作唯一定位引语，而 `risk-02`/`risk-06` 的 `basis[0]` 是法条正文（非合同正文），故在真实合同 md 上必然 `locator_not_found`。本单借此天然触发确认流（真实产品本就该逐条处置未落点项），非缺陷；但若架构希望 demo 语料「全落点」，应在 legal demo-glue 侧择合同正文引语作 `basis[0]`，不在本层绕过门禁。本单不动 legal 包。
+
+### 实现留痕（2026-07-16，待独立验收）
+
+- 模块 `compile-review-output.ts`：判别联合 + `confirmedNonApplied` 透传 + `describeNonApplied`（未落点 outcome→产品三元，无法对应已确认风险即抛，防失真清单）。单测 5/5（先红 5/5 → 绿 5/5）。
+- 编排 `App.tsx`：`produceContractDocx(confirmedNonApplied?)` 统一首编与重编，`needs_confirmation` 挂起不落盘；`confirmNonApplied`/`cancelNonApplied` handler + 「逐条满即重编」effect（`recompileGuard` 防重复）。
+- 审阅面 `Panels.tsx` + `styles.css`：确认区（`nonapplied-confirm`/`nonapplied-item`/`confirm-nonapplied`/`cancel-nonapplied` testid），复用既有按钮/线/token，零新影零新动画。视觉实拍复核（隔离端口截图）：确认区居审阅面内、逐条 R 徽+说明+原因+原文+「确认知悉」，确认转绿线禁钮、footer「已确认 1/2」，与相邻风险列同构。
+- 全量门（隔离端口，本 tip 自测；最终数字由独立验收 clean worktree 复跑为准）：`pnpm -r build` 通过、`pnpm lint` 通过、root Vitest **139 files / 1204 tests** 全绿；desktop `test:e2e`（端口 1474）静态门全过 + `假绿防护通过：224 条用例（下限 224）` + `RP-2.10 …boundaries: OK` + Playwright **224 passed**（含 `rp210:43`/`system-open:12`/`output-confirm` ×2 转绿）。
+
 ## HOST-AUTH-LITE · 最小宿主文件授权路径与失败可见（实现中，待独立验收）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md)（Round 3 拍板以 `HOST-AUTH-LITE` 替代完整真机矩阵解冻材料链）、[ADR-010 决定四](../../docs/decisions/ADR-010-work-live-boundaries.md)（材料入口只传引用，绝对路径留宿主）。工单基线 `main @ 303f2d2`；实现落在其后代 `860c709`（唯一差异是 `docs/design/README.md` +14 行的纯文档提交，不触碰本单任何代码面，故与 `303f2d2` 代码等价）。

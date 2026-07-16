@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import type { ReviewDispositionState, ReviewGateProjection } from '../protocol/client';
+import type { NonAppliedReason, PendingRevisionConfirmation } from '../output/compile-review-output';
 
 export type LineTone = 'danger' | 'attention' | 'revision' | 'authority' | 'neutral';
 
@@ -214,6 +215,19 @@ export interface RevisionPanelProps {
   batchRefs: string[];
   onBatchConfirm: () => void;
   submitted: boolean;
+  // OUTPUT-CONFIRM-UI-1：未能落到文书上的修订，逐条交用户确认后才生成产物。
+  nonAppliedPending: PendingRevisionConfirmation[];
+  confirmedNonAppliedIds: string[];
+  onConfirmNonApplied: (instructionId: string) => void;
+  onCancelNonApplied: () => void;
+}
+
+/** 未落点原因的产品文案：只讲「发生了什么」，不出现工程词。 */
+function nonAppliedReasonLabel(reason: NonAppliedReason) {
+  if (reason === 'ambiguous') return '文书中有多处相同表述，无法确定位置';
+  if (reason === 'text_changed') return '文书原文已改动，与这处修订不再吻合';
+  if (reason === 'unsupported') return '这类修订暂不支持自动定位';
+  return '未能在文书中找到对应原文';
 }
 
 function riskLineTone(level: RiskList['risks'][number]['level'], disposition?: ReviewDispositionState, unverified = false): LineTone | undefined {
@@ -264,6 +278,46 @@ export function RevisionPanel(props: RevisionPanelProps) {
         <small>排除 {excludedCount} 项 · 高危或未核验仅逐条处理</small>
       </div>
       {props.submitted && <div className="submission-note" role="status">{props.gate?.items.length ?? 0} 项处置已逐条提交</div>}
+      {props.nonAppliedPending.length > 0 && (
+        <section className="nonapplied-confirm" data-testid="nonapplied-confirm" aria-label="未能落到文书上的修订">
+          <header>
+            <strong>有 {props.nonAppliedPending.length} 处修订未能落到文书上</strong>
+            <span>请逐条核对；确认后将照常生成文书，这几处不会自动标注。取消则不生成产物。</span>
+          </header>
+          <ul className="nonapplied-list">
+            {props.nonAppliedPending.map((item) => {
+              const confirmed = props.confirmedNonAppliedIds.includes(item.instructionId);
+              return (
+                <li
+                  className="nonapplied-item"
+                  data-testid="nonapplied-item"
+                  data-instruction-id={item.instructionId}
+                  data-confirmed={confirmed}
+                  key={item.instructionId}
+                >
+                  <SignatureLine tone={confirmed ? 'authority' : 'attention'} />
+                  <div className="nonapplied-body">
+                    <span className="nonapplied-head"><b className="domain-badge">{item.riskId.replace('risk-', 'R')}</b><span className="nonapplied-summary">{item.summary}</span></span>
+                    <span className="nonapplied-reason">{nonAppliedReasonLabel(item.reason)}</span>
+                    {item.quote && <q className="nonapplied-quote">{item.quote}</q>}
+                  </div>
+                  <button
+                    type="button"
+                    className="primary-button"
+                    data-testid="confirm-nonapplied"
+                    disabled={confirmed}
+                    onClick={() => props.onConfirmNonApplied(item.instructionId)}
+                  >{confirmed ? '已确认' : '确认知悉'}</button>
+                </li>
+              );
+            })}
+          </ul>
+          <footer>
+            <button type="button" className="quiet-button" data-testid="cancel-nonapplied" onClick={props.onCancelNonApplied}>取消，不生成产物</button>
+            <span className="nonapplied-progress">已确认 {props.confirmedNonAppliedIds.length}/{props.nonAppliedPending.length}</span>
+          </footer>
+        </section>
+      )}
       <div className="risk-master-detail">
         <div className="risk-list"><div className="table-head risk-grid"><span>风险</span><span>等级</span><span>核验</span><span>处置</span><span>下一步</span></div>{props.riskList.risks.map((risk) => {
           const gateItem = props.gate?.items.find((item) => item.itemRef === risk.id);
