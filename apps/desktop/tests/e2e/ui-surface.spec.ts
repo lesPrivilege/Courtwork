@@ -73,6 +73,14 @@ test.describe('UI-SURFACE-1 · Chat 失败轮次重试', () => {
     await expect(more).toBeDisabled();
     await expect(more).toHaveAttribute('title', 'Message fork editing comes later');
     await expect(more).toHaveAttribute('data-state', 'unwired');
+
+    // 两枚未开通消息动作即使被强制派发点击，也不得产生弹层、toast 或本地反馈状态。
+    const dialogsBefore = await page.getByRole('dialog').count();
+    const feedbackBefore = await page.evaluate(() => window.localStorage.getItem('courtwork.message-feedback-ledger'));
+    await readAloud.click({ force: true });
+    await more.click({ force: true });
+    await expect(page.getByRole('dialog')).toHaveCount(dialogsBefore);
+    expect(await page.evaluate(() => window.localStorage.getItem('courtwork.message-feedback-ledger'))).toBe(feedbackBefore);
   });
 
   test('未在途且非末位失败轮次不提供 Retry', async ({ page }) => {
@@ -81,10 +89,17 @@ test.describe('UI-SURFACE-1 · Chat 失败轮次重试', () => {
     await page.getByTestId('segment-chat').click();
     await installFailThenSucceedStream(page, '不会用到。');
 
-    // 单条失败、且就是末位，但尚未点击重试——Retry 应该在场（覆盖“至少一条失败”场景的基础可用性）。
+    // 第一条先失败；此时它仍是末位，Retry 应在场。
     await page.getByTestId('composer-input').fill('第一条');
     await page.getByTestId('composer-send').click();
-    await expect(page.getByTestId('chat-assistant-failed').getByTestId('chat-retry')).toBeVisible();
+    const failed = page.getByTestId('chat-assistant-failed');
+    await expect(failed.getByTestId('chat-retry')).toBeVisible();
+
+    // 再发送一条并成功落位，使第一条失败消息成为历史中段；此时不得继续暴露 Retry。
+    await page.getByTestId('composer-input').fill('第二条');
+    await page.getByTestId('composer-send').click();
+    await expect(page.getByTestId('chat-assistant-message')).toContainText('不会用到。');
+    await expect(failed.getByTestId('chat-retry')).toHaveCount(0);
   });
 });
 
@@ -99,6 +114,10 @@ test.describe('UI-SURFACE-1 · Work 侧未开通态可测标记', () => {
     await expect(unwired).toBeDisabled();
     await expect(unwired).toHaveAttribute('title', '阅读视图待接入');
     await expect(unwired).toHaveAttribute('data-state', 'unwired');
+    const dialogsBefore = await page.getByRole('dialog').count();
+    await unwired.click({ force: true });
+    await expect(page.getByRole('dialog')).toHaveCount(dialogsBefore);
+    await expect(unwired).toBeDisabled();
 
     const wired = entries.filter({ hasText: '设备采购合同' });
     await expect(wired).toBeEnabled();

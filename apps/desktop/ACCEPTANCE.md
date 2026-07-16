@@ -1,3 +1,100 @@
+# ACCEPTANCE: UI-SURFACE-1-ACCEPT
+
+日期：2026-07-16
+
+角色：獨立驗收會話
+
+對象：`impl/ui-surface-1 @ 16a319b`（基線 `056500a`，13 文件、4 提交），合入 `main @ e238563`；驗收基準為 `main` 尖端 `e238563`。
+
+## 裁決
+
+**❌ 不放行 UI-SURFACE-1。**
+
+實作行為與全量門本身成立：失敗輪次 Retry 復用既有 Turn 發送/取消路徑，末位失敗原地替換且無重複；7 處 `unwired` 控件均為 disabled/aria-disabled，逐一強制派發 click 後無 toast、空彈窗或狀態改變；完整 Playwright **231/231** 通過。範圍、零依賴、零新後端、Legal 四 panel 與 `current.md` 零觸碰也成立。
+
+但核心交付物不能放行：
+
+1. **[需架構拍板] 全 app 疊層清單不完整且含不存在項。** SPEC 聲稱覆蓋「本倉當前全部疊層控件」，源碼卻至少漏列 `App.tsx:2217` 的「編譯為 Word」modal、`SettingsPage.tsx:574-590` 的 analytics opt-in confirm modal、`CaseRail.tsx:424-434` 的 owner/user menu；反之表內「RightRailModules dock 態 L2 臨時下拉」在現行 `RightRailModules.tsx` 無 dock 分支，唯一根節點固定 `data-mode="modules"`，`rg data-mode="dock"` 為零。該表是 `UI-RESIDUE-1` 的直接輸入，漏列/幽靈項會污染後續殘留門清單；驗收角色不擅自改契約分類。
+2. **未開通態文案未全數遵守 §9。** W5 實際 title 為 `停止当前请求将在执行器接线后启用`（`App.tsx:1966`），向普通使用者暴露「執行器／接線」工程概念；新靜態門的黑名單只掃行銷腔，未守 §9 工程詞。此項是產品文案實作缺陷，但正確替代措辭應先由架構/產品拍板後同步 SPEC 與測試。
+3. **31+11 清單的 file:line 證據有漂移/缺位。** 抽查超過 15 行時，三態與功能實況大致一致，C19 `queued-chip` 實為 Badge 的勘誤亦屬實；但多個 App 行號仍指向實作前位置（如 C1 `App.tsx:610` 實為 `:630`、C14 `:243-247` 實為 `:252-256`、C19 `:1926-1928` 實為 `:1964-1966`、C28 `:625` 實為 `:662`、W5 `:1929` 實為 `:1966`），另 C10/C12/C21/C24 等只列檔名或元件名、沒有 line。核心交付物要求 file:line 證據，不能把語義「找得到」等同精確證據成立。
+
+驗收於獨立 clean worktree `/private/tmp/courtwork-ui-surface-1-accept`、分支 `codex/accept-ui-surface-1` 執行；未 checkout/stash 共享樹、未執行 `git worktree prune`、未更新 `docs/status/current.md`、不推送。不採信實現自述。
+
+交接事實差異：驗收開始時共享 `main` 尖端為 `e238563`；報告提交後復核時共享 `main` 已前進至 `246448c`，新增內容僅為 `archive/research-2026-07-15-round-3/README.md` 與 `chinese-display-font.md` 的調研歸檔。`e238563` 仍是其祖先，`apps/desktop` 與本單組合碼未變；因此驗收證據仍鎖定指定合併尖端 `e238563`，不把並行 archive 變化混入本單裁決。
+
+## 全量門（獨立實跑）
+
+| 門禁 | 結果 |
+|---|---:|
+| `pnpm install --frozen-lockfile` | 14 workspace projects、1047 packages；lockfile 一致 |
+| `pnpm -r build` | PASS（13/14 workspace 執行；僅既有 chunk/dynamic-import warning） |
+| `pnpm lint` | PASS，exit 0 |
+| root Vitest | **140 files / 1210 tests passed** |
+| desktop Vitest | **49 files / 265 tests passed** |
+| 四設計門 motion/signature/elevation/neutral | 全部 exit 0 |
+| 全靜態門 | 全部通過，含修正後 `assert-ui-surface-contracts` |
+| `assert-test-count` | floor **231**，實收 231 |
+| 完整 Playwright，`COURTWORK_E2E_PORT=15931` | **231/231 passed（1.8m，4 workers，reuseExistingServer=false）** |
+
+全量 231 先在實作尖端原始測試完整通過。驗收補強三個既有 e2e 檔後，用例數不變；定向 `ui-surface + composer + material-ingress` 復跑 **11/11**（其中 composer 初版驗收斷言寫法 2 紅，改成 force click/innerText 等價比較後 `composer` **5/5**，其餘已先得 **6/6**）。報告與驗收修正落定後再於隔離端口 `15936` 從頭跑完整靜態鏈 + Playwright，最終仍為 **231/231 passed（1.8m）**。
+
+## 31+11 對標清單審計
+
+抽查 C1/C2/C3/C5/C7/C9/C10/C12/C14/C16/C17/C18/C19/C21/C24/C27/C28/C29/W1/W4/W5/W8/W11，超過要求的 15 行：
+
+- **處置語義**：已有／本單補／減法不取均與現況相符；唯一新 wired 項是 C2 Retry；C8/C13/C15/C20/C29/C30/C31/W4 的減法理由均可由現行協議/單入口/容器化定位支持。
+- **C29**：已明確記為「原則合規、歸 CHAT 線後續」，舊 `[需架構拍板]` 已撤；沒有 C29 懸掛裁決。SPEC 提案區仍有 WorkDraft 持久化的另一個 `[需架構拍板]`，與 C29 無關。
+- **C19 正名**：`App.tsx:1964` 的 `queued-chip` 只是非互動狀態標記；移除在 `:1965` 的獨立「撤回」button，按判據確為 **Badge** 而非 Chip，文檔只記錄不改 class 的處置成立。
+- **file:line 精度**：如裁決第 3 點，若只核功能可找到；若按核心交付物要求核精確 line，則多項不合格，須修正文檔錨點。
+
+## Retry 接線與反例
+
+- a. 清潔實作：`ui-surface.spec.ts` 真實 fail→Retry→success；舊失敗 DOM 消失，assistant 消息總數保持 1，**原地替換不重複**。
+- b. 實作提交原測試雖名為「非末位失敗」，實際只建立單條末位失敗並斷言 Retry 可見，沒有覆蓋題名。驗收最小修正為：再送第二條並成功，使首條失敗成為中段，再斷言 Retry count 0；清潔實作 **3/3 綠**。隨後臨時把 `onRetry` 條件由 `!chatPending && index === chatMessages.length - 1` 退化為只看 `!chatPending`，定向例 **exit 1**，收到 `Expected 0 / Received 1`；還原後綠。
+- c. `handleChatSend` 與 `retryChatTurn` 均進入 `submitChatContent`；該共享函數建立同一 `AbortController` 並把 signal 傳給 `sendChatTurn`，`stopChatTurn` 仍 abort 同一 ref。`056500a..16a319b` 的新增碼對 `invoke/fetch/http/CommandPort` 無新增命中，`src-tauri`、packages、host command/port 零 diff，故零新後端成立。
+
+## 七處未開通態與靜態紅證
+
+| 位點 | disabled 語義／title | click 行為 |
+|---|---|---|
+| MessageActions · Read aloud | native disabled；`Coming later` | 強制 click 無 dialog/ledger 變化 |
+| MessageActions · More | native disabled；`Message fork editing comes later` | 強制 click 無 dialog/ledger 變化 |
+| Composer · camera | `aria-disabled=true`；提供替代路徑 | 強制 click 後 menu 留在原態，無 dialog/toast |
+| Composer · voice | `aria-disabled=true`；提供替代路徑 | 強制 click 後 menu 留在原態，無 dialog/toast |
+| RightRail · reader-entry | native disabled；`閱讀視圖待接入` | 強制 click 無 dialog/狀態變化 |
+| Work queued · 停止當前 | native disabled；含 §9 違規工程詞 | 強制 click 後 queued 文本/DOM 不變，無 dialog |
+| MaterialsZone · 在訪達中顯示 | native disabled；誠實即將開通 | 強制 click 後 feedback、material status、dialog 均不變 |
+
+靜態門反例：
+
+- 原門對每個檔案只用 `indexOf` 檢查第一個 marker，再取 ±400 字窗；臨時令 MessageActions 第二個 marker 移除 disabled 並加 `alert`，門仍 **exit 0 假綠**。
+- 驗收以實作級最小修正令門逐一枚舉 2+2+1+1+1 個 marker、限定在同一 JSX opening tag 核 disabled/title、並鎖每檔精確數量。重注入同一第二 marker 可點擊行為後門 **exit 1**，精確報 `MessageActions ... #2：同一元素缺少 disabled`；還原後 exit 0。
+- 另以 MaterialsZone 單 marker 移除 disabled 並加入 `alert`，原/修正門均 exit 1，證明基本紅證成立；較隱蔽的同檔第二 marker 假綠則由驗收修正補閉。
+
+## 疊層清單抽查與完整性
+
+指定抽查 5 項均與代碼一致：
+
+1. `ModelConfigPopover`：錨定 composer model chip，`useDismissOnOutside`，popover 分類正確。
+2. Composer `+` menu：`role=menu/menuitem`，選中收斂，popover 錨定正確。
+3. Composer case menu：`role=listbox/option`，錨定選擇下拉分類正確。
+4. `CommandPalette`：全窗 backdrop + `role=dialog aria-modal=true`，sheet/window modal 分類正確。
+5. `NewCaseDialog`：全窗 backdrop + modal dialog，sheet/window modal 分類正確。
+
+但「抽查 5 項為真」不等於「全 app 清單完整」；裁決第 1 點的三個漏列與一個幽靈 dock 項已由全源碼 `role=dialog/menu/listbox`、popover/menu/dialog/backdrop/overlay 掃描坐實。因其直接供 `UI-RESIDUE-1` 消費，列為阻斷項。
+
+## 範圍、複雜度與驗收修正
+
+- `git diff 056500a..16a319b --name-status` 恰 **13 文件**，全部 `apps/desktop/**`；主線合併尖端另有與本單無關的 readiness/archive 提交，範圍判定只認實作分支 diff，不誤算 main 另一父線。
+- `pnpm-lock.yaml` 零 diff，package manifest 只加 script 接線；zero 新依賴。
+- `workbench/Panels.tsx`、`GraphPanel.tsx`、`ArtifactTableRenderer.tsx`、`docs/status/current.md`、`src-tauri` 零觸碰。
+- 新概念留痕與實況一致：`submitChatContent` 是既有發送狀態流程的必要因子化，沒有新狀態機/持久化；`data-state="unwired"` + 靜態門是唯一新標記約定。除此之外無新通用抽象。
+- 驗收保留的實作級小修僅三個既有 e2e 的真 click/非末位反例補強，以及靜態門逐 marker 精確檢查；不改產品契約、產品碼、依賴或 floor，應以 `fix-by-acceptance` 前綴提交。
+
+> **最終判定：UI-SURFACE-1 不放行。** 待架構角色修正/拍板全 app overlay 清單，產品/架構拍板 W5 的 §9 文案，並把 31+11 的 file:line 錨點更新到合入後實況；之後須在新的獨立 clean worktree 復跑全量門與兩個 mutation。`current.md` 不更新，不推送。
+
+---
+
 # ACCEPTANCE: OUTPUT-CONFIRM-UI-1-ACCEPT
 
 日期：2026-07-16
