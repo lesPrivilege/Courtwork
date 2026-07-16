@@ -811,3 +811,44 @@ SessionEvent 的旧 `type:'error'` 生产/消费正则在现行 `packages/core/s
 这三项不构成本次阻塞，也未更新 `docs/status/current.md`。本验收没有发现需要另立新语义的契约问题；B1/B2 都是现行 Accepted ADR 已能直接判定的实现偏差。
 
 > **最终判定：WORK-STORE-1 不放行 ❌。** 复验前至少须：①把 Turn terminal durable barrier 移到 artifact JSON/schema/citation 解析之前，并以真实顺序反例锁定；②同步 desktop `scenario_failed` projection/phase 消费及反例。修复后须在新验收轮重跑全量门、a–g 变异与 demo 基线等价；不得据本报告更新能力成熟度或 `docs/status/current.md`。
+
+## WORK-STORE-1 聚焦复验（WORK-STORE-1-FIX-REACCEPT，2026-07-16）
+
+- **验收角色**：未参与 WORK-STORE-1-FIX 实现的独立验收会话；本轮只复验前轮报告点名的 B1/B2 两项阻塞及指定不回退抽样，不重跑前轮已成立的完整审计矩阵。
+- **验收对象**：独立 clean worktree `/Users/lesprivilege/Projects/Courtwork-work-store-1-fix-accept-2be3e72`，detached `HEAD 2be3e72192af4ad3ec4c33dae4e252116e86e81e`。`79d583d..2be3e72` 实际为 **7 文件**，正是 `ddb6a5f`、`ad05d88`、`da911a9` 修复链及其 SPEC/测试留痕；无 envelope 格式、store 接口、阈值、lockfile 或 `docs/status/current.md` 触碰。
+- **仓库事实差异**：验收开始时共享 `main` 为 `2be3e72`；验收期间其他会话将共享主树前进至 `31123fc`。本节全部证据固定来自上述 detached `2be3e72`，未使用后继主树，也未 checkout、stash 或运行 `git worktree prune`。
+
+### 1. 环境、B1 与写次数
+
+- `pnpm install --frozen-lockfile`：14 workspace、1047 packages，lockfile 无改写；实现与临时突变还原后，除本报告追加外无工作树改动。
+- B1 现场重放 schema parse 反例：观测到 `barrierCountsAtParse=[3]`，暂停 leg 实测 `commitCount=4`。这证明 `runWorkTurn` 返回后的 Turn terminal 屏障先于 JSON/schema 解析，且 artifact 没有新增一次 CAS。
+- 对照 `WORK-STORE-MEASURE` 实跑：屏障最小模型仍为 **6 次 CAS/场景**（per-mutation 上界 28）；本轮 4 次是单 artifact、在确认门暂停的 leg 计数，与归并目标一致。
+- 注入指定回退：移除 `runWorkTurn` 返回后的屏障并把屏障挪回 `artifact_produced` append 后；新 B1 回归实测 **1 failed / 46 skipped**，失败值为 `expected 2 to be greater than or equal to 3`。突变已还原；最终 B1 定向测试 **1/1** 通过。
+
+### 2. B2 与全仓 SessionEvent 消费审计
+
+- `projectSession(EMPTY_SESSION, scenario_failed(runtime_limit))` 的回归测试实测投影含 `{ reason: 'runtime_limit', message }`，且 `completed=false`；`phaseFor([progress, scenario_failed])` 实测为 `'failed'`。desktop 两个定向文件共 **11/11** 通过。
+- 分别注入回退并观察变红：删除 `projectSession` 的 `scenario_failed` case 得 **1 failed / 7 skipped**（`scenarioFailure` 变 `undefined`）；删除 `phaseFor` 的场景失败判定得 **1 failed / 2 skipped**（错误回到 `'running'`）。两处均已还原。
+- 验收者重新 grep 全仓生产消费点：`packages/core/src/events/event-log.ts#replaySession` 已处理 `scenario_failed`；desktop 的 `projectSession` 与 `phaseFor` 已处理；`work-state-store.ts#interruptedTurns` 只处理 `turn_linked` 与 Turn terminal 的中断关系，demo-runtime 脚本只做 artifact/黄金字段提取，不是场景终态投影。除上述已修复两点外，未发现第三处同类遗漏。
+
+### 3. 指定不回退抽样
+
+| 抽样 | 反例实测 |
+|---|---|
+| `turn_linked` 屏障 mutation | 删除 provider 前屏障后，`providerSawDurableTurnLink=false`，**1 failed / 46 skipped**；还原后绿 |
+| 并发 CAS 败者 | 将 in-memory `expectedVersion` 守卫改为恒不触发，两例均错误 resolve，**2 failed / 9 skipped**；还原后绿 |
+| kill-9 崩溃窗口 | 临时将真实 SIGKILL 试验设为 10 轮并输出计数：`trials=10, killed=10, completeCount=10, torn=0`；还原测试默认值 |
+| browser bundle | `work-protocol.browser.test.ts` **4/4** 通过；递归 runtime graph 与真实 Vite consumer 均无 `node:*` |
+
+### 4. demo/golden 字节与门禁
+
+- `demo:s3`：golden PASS，`redline.docx` **39,651 bytes**，预埋考点 **7/7**，事件骨架 **9** 项，risk-01–06 applied、risk-07 `locator_not_found`。
+- `demo:legal`：golden PASS，`redline.docx` **4,606 bytes**，**11/11** claims resolved，out-of-coverage 0，**7 confirmed + 1 rejected**，事件骨架 **16** 项。
+- 与独立 `79d583d` 基线树重跑并逐字节对照：`s3-assembly.golden.txt` SHA-256 均为 `0047e71264f6ddb6aa25cf5ceb10aca7b4a0bd7aee913b9630bb8cafb79bcd07`；`assembled-request.golden.txt` SHA-256 均为 `43fda441828a5b76871c98a6f07451a1eea002a3c480af7c8a209210b3831759`；S3/Legal `revision-instruction-set.json` 均 `cmp` 相同；两条 docx 的主要 OOXML parts 逐字节相同，且两档 `unzip -t` 均无错。
+- `pnpm -r build`：**13/14 workspace projects** 全绿，desktop **3540 modules transformed**；仅既有动态导入/chunk-size advisory。
+- `pnpm lint`：exit 0，零 error。
+- `pnpm test`：**139 files / 1204 tests passed**。
+
+### 5. 复验裁决
+
+**WORK-STORE-1 放行 ✅。** B1 的 terminal durable barrier 已在 artifact 解析前成立，且迁移没有增加暂停 leg 的 CAS 次数；B2 的两个 desktop `scenario_failed` 消费点已补齐，全仓 grep 未发现第三处同类遗漏；指定的 turn-link/CAS/kill-9/browser 抽样均保持前轮结论。放行仅覆盖 `2be3e72` 中 WORK-STORE-1-FIX 的实现与本节证据，不升级 `docs/status/current.md` 的能力成熟度，不扩张 envelope schema、store 接口、阈值或 Work live 装配边界。
