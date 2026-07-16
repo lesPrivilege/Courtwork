@@ -49,7 +49,7 @@
 | C9 | 引用回跳（通用 artifact table / Legal schema 面板） | 已有（未开通态，出既有范围不动） | `ArtifactTableRenderer.tsx:30` 的 `Anchor` 未传 `onOpen`（VISUAL-KIT-1 原语按 `source_ready` 状态自行降级为纯文本 `is-quote-only`，非假交互）；`workbench/Panels.tsx:119/194/372`「回到原件 · 尚未接通」与 `GraphPanel.tsx:256`「原文定位 · 卷宗原件待连接」均已是 disabled + 诚实文案。这四个 route panel 的源码产权归 [implementation-readiness.md](../../docs/architecture/implementation-readiness.md) `PANEL-BLUEPRINT-1` 行（"App.tsx 对应硬编码分支删除"迁移），本单不触 `workbench/Panels.tsx`/`GraphPanel.tsx`/`ArtifactTableRenderer.tsx`，只记录现状。 |
 | C10 | 会话导航（历史会话列表） | 已有 | 符号 `SessionHistory`(`SessionHistory.tsx:30`)，testid `session-history`(`:36`)，只读列表 + 进入/返回；CHAT-SESSION-1 已裁决不做重命名/归档/置顶（`SessionHistory.tsx:5-11` 注释明文）。 |
 | C11 | 长期记忆查看 / 一键清除 | 已有 | 符号 `ChatMemoryPanel`(`ChatMemoryPanel.tsx:22`)，testid `settings-memory-row`(`:34`)，只读列表 + 单键清除，ADR-013 已明确拒绝编辑/分条管理/导入导出。 |
-| C12 | 模型 / 推理档位信息（承载容器 = **Popover**；档位选择器实为原生 **Radio Group**，非 Segmented Control，见词汇基准） | 已有 | 符号 `ModelConfigPopover`(`ModelConfigPopover.tsx:21`)，testid `model-config-popover`(`:26`)，模型名 + Standard/Deep 档位。 |
+| C12 | 模型 / 推理档位信息（承载容器 = **Popover**；档位选择器实为原生 **Radio Group**，非 Segmented Control，见词汇基准） | 已有 | 符号 `ModelConfigPopover`(`provider/ModelConfigPopover.tsx:21`)，testid `model-config-popover`(`provider/ModelConfigPopover.tsx:29`)，模型名 + Standard/Deep 档位。 |
 | C13 | 多 provider 切换器 | 减法不取（已有先例） | 注释「provider 归 developer 层」(`ModelConfigPopover.tsx:32`)；符号 `PROVIDER_DESCRIPTORS`(`packages/provider/src/registry.ts:18`) 当前仅注册一个，结构上无第二 provider 可切换。RP-2 #18′ 已裁决单模型信息展示替代切换器，本单不重启该裁决。 |
 | C14 | 单轮用量信息 | 已有 | testid `chat-turn-usage`(`App.tsx:252`) 经 `formatUsageMetering` 展示 input/output/reasoning/cache 分账，缺失槽位显式「未知」不伪造 0。 |
 | C15 | 费用/成本估算展示 | 减法不取（已有先例） | 符号 `CostEstimate` 只被 CLI `smoke.ts`(`packages/provider/src/smoke.ts:45`) 与场景执行器内部预算门 `checkUsd`(`packages/core/src/scenario-executor/executor.ts:367`) 消费，从未流入 desktop UI；`USAGE-LEDGER-1`（`apps/desktop/SPEC.md`）已明文「desktop 只跟进消费形状，不做计费 UI/报表」。本单不新增。 |
@@ -58,12 +58,12 @@
 | C18 | 输入区：Enter 发送 / Shift+Enter 换行 | 已有 | 符号 `onKeyDown`(`Composer.tsx:289`)，IME 输入安全；RP-2.9 已裁决「品类通用规则不作提示」，不新增提示文案。 |
 | C19 | 输入区：排队消息 + 撤回（「Queued」标签是非交互状态标记，按正名判据应属 **Badge** 而非现有类名 `queued-chip` 暗示的 Chip——移除动作在独立的「撤回」按钮上，不在标签本身；命名与实现类名有出入，见下方精度笔记） | 已有 | testid `queued-message`(`App.tsx:1963`)，撤回真实从 `queuedMessages` 移除；class `queued-chip`(`App.tsx:1964`) 即被勘误为 Badge 的标记。 |
 | C20 | 输入区：Slash 命令 / 快捷指令语法 | 减法不取 | ⌘K 命令面板（`CommandPalette.tsx`）已是全局动作发现的唯一入口；RP-2.7 已把重复入口收敛为单一路径（composer 平铺上传按钮、独立 add-folder 钮等均已删）。composer 内再开一套命令语法会违反已确立的「唯一入口」纪律，且命令语法本身即工程词汇，触 §9。 |
-| C21 | ⌘K **Command Palette** | 已有 | 符号 `CommandPalette`(`CommandPalette.tsx:23`)，testid `command-palette`(`:74`)，模糊匹配 + 键盘导航 + 场景/案件/全局动作，均调用真实状态转移（非 stub）。 |
-| C22 | 长消息折叠（**Truncation (Line Clamp)** + 内嵌展开按钮） | 已有 | 符号 `CollapsibleMessage`(`CollapsibleMessage.tsx`)。 |
-| C23 | 粘贴块（长文本/代码折叠；形态近 Truncation 但整块折叠而非纯文字截断，无精确对应词条） | 已有 | 符号 `PasteBlock`(`PasteBlock.tsx`)。 |
+| C21 | ⌘K **Command Palette** | 已有 | 符号 `CommandPalette`(`command-palette/CommandPalette.tsx:23`)，testid `command-palette`(`command-palette/CommandPalette.tsx:78`)，模糊匹配 + 键盘导航 + 场景/案件/全局动作，均调用真实状态转移（非 stub）。 |
+| C22 | 长消息折叠（**Truncation (Line Clamp)** + 内嵌展开按钮） | 已有 | 符号 `CollapsibleMessage`(`chat/CollapsibleMessage.tsx:14`)，testid `collapsible-message`(`chat/CollapsibleMessage.tsx:36`)。 |
+| C23 | 粘贴块（长文本/代码折叠；形态近 Truncation 但整块折叠而非纯文字截断，无精确对应词条） | 已有 | 符号 `PasteBlock`(`chat/PasteBlock.tsx:8`)，testid `paste-block`(`chat/PasteBlock.tsx:15`)。 |
 | C24 | 附件 **Chip**（进度/失败重试/移除/存入卷宗；可交互、可移除，与正名判据精确吻合） | 已有 | 符号 `AttachmentChip`(`AttachmentChip.tsx:24`)。 |
 | C25 | 推理/思考过程展示（running 态指示器近似 **Spinner**，自定义品牌样式；settled 折叠锚 = **Disclosure**） | 已有 | 符号 `ProcessTrace`(`ProcessTrace.tsx:44`) 四态（running/settled/empty/failed），键盘展开，reduced-motion 遵守全局规则。 |
-| C26 | Turn **Card** 族（event/artifact/file/gate/question；event 为扁平账本行，非卡） | 已有 | 符号 `TurnCard`(`TurnCard.tsx`)；`file` 卡（`kind="file"`, `App.tsx:1904`）含真实「在访达中显示」+「打开文件」（经 `systemOpenClient`）。 |
+| C26 | Turn **Card** 族（event/artifact/file/gate/question；event 为扁平账本行，非卡） | 已有 | 符号 `TurnCard`(`chat/TurnCard.tsx:33`)，默认 testid 工厂 `turn-card-${kind}`(`chat/TurnCard.tsx:40`)；`file` 卡（`kind="file"`, `App.tsx:1904`；testid `output-docx-card`, `App.tsx:1909`）含真实「在访达中显示」+「打开文件」（经 `systemOpenClient`）。 |
 | C27 | 工具调用步骤展开（**Disclosure**，原生 `<details>`） | 已有 | 符号 `ToolCallRow`(`TurnCard.tsx:80`)，一行收起、展开显 args/result 摘要，全受控 `<details>`。 |
 | C28 | 存入卷宗 / 工作区（chat→work 桥） | 已有 | 符号 `storeChatIntoContainer`(`App.tsx:662`)。 |
 | C29 | 新建对话（手动清空当前 canvas） | 减法不取（架构裁定：原则合规，归 CHAT 线后续） | 当前 chat canvas 无手动重置入口。**架构裁定（2026-07-16）**：ADR-013 禁止的是管理负担（重命名/归档/置顶/删除），不是「开始新对话」这一动作本身；手动新开在语义上等价于「用户主动触发窗口边界」（效果等同等满 1 小时），历史 transcript 照旧只读、memory 照旧生效，不涂改任何东西，与不变量无冲突——原则合规。但它属 CHAT 线体验增量而非本单的控件面对齐范围，本单不做；未来实现时在 ADR-013 补一句澄清（显式新开＝强制窗口边界）而非修改既有语义。 |
@@ -83,7 +83,7 @@
 | W7 | 工作稿（WorkDraft） | 已有 | testid `work-draft-panel`(`WorkDraftPanel.tsx:81`)，新建/编辑/自动保存真实（当前内存态存储，重载丢失——数据持久层缺口非控件接线缺口，登记入复杂度扫描提案区，本单不改存储）。 |
 | W8 | 材料区「打开原件」（新按钮禁用态文案走 **Tooltip**） | 已有（demo）／**本单补·未开通态**（真实案） | Demo：testid `original-open`(`OriginalsZone.tsx:29`) 真实「打开」（`systemOpenClient.openFile`，需绝对路径）。真实案 `MaterialsZone.tsx`（MATERIAL-INGRESS-1）原只有 testid `material-verify`(`:56`)——真实材料只持 `grantId`+`relativePath`（渲染层不可见绝对路径，ADR-010 决定四），宿主侧无「按 grantId 打开/reveal」命令（`host_auth.rs`/`material_store.rs` 均未提供）。本单不建新宿主命令，补一枚显式未开通按钮 testid `material-reveal`(`:46`)，对齐 demo 侧用户期待并诚实标注尚未接线。 |
 | W9 | 主机文件夹授权面板 | 已有 | testid `host-access-row`(`HostAccessPanel.tsx:91`)（HOST-AUTH-LITE），全链路真实。 |
-| W10 | Working folders / Output 入口 | 已有 | RP-2.7 已收敛为左栏单一入口。 |
+| W10 | Working folders / Output 入口 | 已有 | RP-2.7 已收敛为左栏单一入口：符号 `CaseRail`(`rail/CaseRail.tsx:66`)，testid `nav-artifacts`(`rail/CaseRail.tsx:375`) 接 `openOutputFolder`(`App.tsx:1280`)。 |
 | W11 | Legal 专用工作面（timeline/matrix/revision/graph）内部控件 | 已有（出既有范围不动） | 见 C9；产权归 `PANEL-BLUEPRINT-1`，本单不触其源码。 |
 
 **正名覆盖精度笔记**：两表逐项核对过 namethatui 目录；未在「控件」列标注正名的行（C1-C4/C7-C11/C13-C15/C18/C20/C23/C28-C31、W1/W4/W7/W9-W11 等）描述的是功能性动作（停止/重试/复制/赞踩等）或自定义复合面板（确认队列、工作稿编辑面、授权面板等），namethatui 目录未收录对应具名 widget，非遗漏。唯一发现的命名与实现不符处：**C19 排队消息的 `queued-chip` 类名应为 Badge**（非交互状态标记，移除动作在独立按钮上）——本单只记录，不改类名（"只取词汇不取实现"，改类名属视觉/结构改动，出本单范围）。

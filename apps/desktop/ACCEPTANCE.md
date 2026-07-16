@@ -58,6 +58,27 @@ dismiss 語義抽查 5 行均與實作一致：ModelConfigPopover（popover，`u
 
 > **最終判定：不放行。** 下一輪只需聚焦復核第三項：把所有「已有」能力的雙錨補全並校準 testid／symbol 的實際行，至少修正 C12、C21、C22、C23、C26、W10；其餘兩項與全量產品行為本輪已證成立，不要求重做。
 
+## 5. 終局裁決（fix-by-acceptance）
+
+日期：2026-07-16
+
+架構裁定上述 6 格屬文檔級實現小缺陷，由本驗收會話按 AGENTS 紀律直接修正；本節保留前述驳回歷史並取代其終態裁決。
+
+**✅ 放行 UI-SURFACE-1。** 前述疊層清單與 §9 文案／靜態門兩項已獨立驗收通過；本次產品證據表只修 `apps/desktop/SPEC.md` 的 6 個證據格，並追加本終局裁決；未動產品碼、測試、契約語義或 `current.md`。逐格以 `git show 9f5dfc2:<file> | nl -ba` 及 `git grep -n` 自核如下：
+
+| 格 | 穩定主錨 | `file:line @ 9f5dfc2` 自證 |
+|---|---|---|
+| C12 | 符號 `ModelConfigPopover`；testid `model-config-popover` | `provider/ModelConfigPopover.tsx:21`；`:29` |
+| C21 | 符號 `CommandPalette`；testid `command-palette` | `command-palette/CommandPalette.tsx:23`；`:78` |
+| C22 | 符號 `CollapsibleMessage`；testid `collapsible-message` | `chat/CollapsibleMessage.tsx:14`；`:36` |
+| C23 | 符號 `PasteBlock`；testid `paste-block` | `chat/PasteBlock.tsx:8`；`:15` |
+| C26 | 符號 `TurnCard`；預設 testid 工廠 `turn-card-${kind}`；具體 file 卡 testid `output-docx-card` | `chat/TurnCard.tsx:33`；`:40`；`App.tsx:1909`（`kind="file"` 在 `:1904`） |
+| W10 | 符號 `CaseRail`；testid `nav-artifacts`；handler `openOutputFolder` | `rail/CaseRail.tsx:66`；`:375`；`App.tsx:1280` |
+
+六格均形成「可 grep 的 symbol/testid + `file:line@9f5dfc2`」雙錨，錯位與缺位歸零。此前全量門證據仍鎖定同一產品合併尖端 `0d120e8`，本修正只改文檔，不重跑產品門。
+
+> **終局判定：放行 UI-SURFACE-1。** `current.md` 仍由架構角色按能力成熟度另行處置；本驗收會話不更新、不推送。
+
 ---
 
 # ACCEPTANCE: UI-SURFACE-1-ACCEPT
