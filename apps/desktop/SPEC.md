@@ -64,7 +64,7 @@
 | C26 | Turn **Card** 族（event/artifact/file/gate/question；event 为扁平账本行，非卡） | 已有 | `TurnCard.tsx`；`file` 卡（`App.tsx:1865-1880`）含真实「在访达中显示」+「打开文件」（经 `systemOpenClient`）。 |
 | C27 | 工具调用步骤展开（**Disclosure**，原生 `<details>`） | 已有 | `ToolCallRow`（`TurnCard.tsx:80-98`），一行收起、展开显 args/result 摘要，全受控 `<details>`。 |
 | C28 | 存入卷宗 / 工作区（chat→work 桥） | 已有 | `storeChatIntoContainer`（`App.tsx:625`）。 |
-| C29 | 新建对话（手动清空当前 canvas） | **[需架构拍板]，本单不做** | 当前 chat canvas 无手动重置入口，只能等 ADR-013 的 1 小时连续性窗口自动划界或切案清空；技术上清空 `chatMessages` 不丢数据（Turn journal 独立持久，`session-transcript.ts` 全部派生自 journal，非 React state）。但 ADR-013 §1 原文「唯一阈值：1 小时连续性窗口，由系统在协议层判定」——是否允许用户手动提前断开会话边界，是对该语义的扩权，非实现会话可自行裁定，记入本节提案区、不实现。 |
+| C29 | 新建对话（手动清空当前 canvas） | 减法不取（架构裁定：原则合规，归 CHAT 线后续） | 当前 chat canvas 无手动重置入口。**架构裁定（2026-07-16）**：ADR-013 禁止的是管理负担（重命名/归档/置顶/删除），不是「开始新对话」这一动作本身；手动新开在语义上等价于「用户主动触发窗口边界」（效果等同等满 1 小时），历史 transcript 照旧只读、memory 照旧生效，不涂改任何东西，与不变量无冲突——原则合规。但它属 CHAT 线体验增量而非本单的控件面对齐范围，本单不做；未来实现时在 ADR-013 补一句澄清（显式新开＝强制窗口边界）而非修改既有语义。 |
 | C30 | 键盘快捷键速查面板 | 减法不取 | 未在对标三例（对标清单方法论列的具名基准控件）中出现；现有交互刻意不加提示（RP-2.9「行为不变，不作提示」），新增速查面板是净增功能面而非对齐减法，超出「只做减法」框架。 |
 | C31 | 导出对话 / 下载 transcript | 减法不取 | Courtwork 定位是容器化工作证据链（"存入"仪式退出临时画布），聊天导出脱离案件容器审计链，未点名对标控件，不做。 |
 
@@ -113,8 +113,7 @@
 
 - **本单补·接线**：1 项（C2 失败轮次重试）。
 - **本单补·未开通态**：5 项对标清单条目（C5/C6/C17/W5/W8），落地为 7 处 `data-state="unwired"` 标记位点——MessageActions（Read aloud/More）、Composer（camera/voice）、RightRailModules（reader-entry）、App.tsx（排队消息「停止当前」）共 6 处对既有诚实未开通控件补标记（行为/文案零改动），MaterialsZone「在访达中显示」1 处为新增控件。
-- **减法不取**：7 项（C8/C13/C15/C20/C30/C31/W4，均附理由）。
-- **[需架构拍板]**：1 项（C29，登记不实现）。
+- **减法不取**：8 项（C8/C13/C15/C20/C29/C30/C31/W4，均附理由；C29 经架构裁定为「原则合规、归 CHAT 线后续」，非本单范围）。
 - **已有，本单不动**：其余全部（含 C9/C11/W11 等已是合规未开通态的既有控件）。
 
 ### 设计与契约
@@ -135,12 +134,12 @@
 ### 精确触面与禁止扩张
 
 - **触面**：`src/App.tsx`（`submitChatContent`/`retryChatTurn`/`ChatAssistantMessage` 新 prop/`chat-retry` 按钮）、`src/chat/MessageActions.tsx`（补标记）、`src/composer/Composer.tsx`（camera/voice 补标记）、`src/rail/RightRailModules.tsx`（reader-entry 补标记）、`src/system/MaterialsZone.tsx`（新按钮）、`scripts/assert-ui-surface-contracts.mjs`（新）、`package.json`（`lint:ui-surface` + `test:e2e` 链）、`scripts/assert-test-count.mjs`（floor 上调）、对应 Vitest/Playwright 用例。
-- **禁止扩张（遵守）**：不改 `packages/core`/`packages/provider`/`packages/tools`/`packages/output`/`packages/schemas` 任何导出；不建新 Tauri/宿主命令；不动 `workbench/Panels.tsx`/`GraphPanel.tsx`/`ArtifactTableRenderer.tsx`（Legal 专用工作面产权边界）；不做 PREVIEW-TAB；不做 C29/C30/C31/C13/C15/C20/C8/W4 列出的减法不取与需架构拍板项；验收放行前不更新 `docs/status/current.md`。
+- **禁止扩张（遵守）**：不改 `packages/core`/`packages/provider`/`packages/tools`/`packages/output`/`packages/schemas` 任何导出；不建新 Tauri/宿主命令；不动 `workbench/Panels.tsx`/`GraphPanel.tsx`/`ArtifactTableRenderer.tsx`（Legal 专用工作面产权边界）；不做 PREVIEW-TAB；不做 C8/C13/C15/C20/C29/C30/C31/W4 列出的减法不取项（C29 虽经架构裁定原则合规，仍归 CHAT 线后续工单，本单不实现）；验收放行前不更新 `docs/status/current.md`。
 
 ### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权删）
 
 1. **`WorkDraftPanel`/`work-draft-store.ts` 只有内存存储**——`work-draft-store.ts` 用 `Map` 存草稿，重载即丢失，但同时计算并展示真实 `absolutePath`（观感像已持久）。本单在勘查中发现，未改动（新增磁盘持久化属新后端能力，超出本单范围）。`[需架构拍板]`：是否需要给工作稿补真实持久化，或至少在 UI 侧诚实标注「本次会话内有效」。
-2. **C29 手动新建对话 与 ADR-013 §1「唯一阈值」表述**——见对标清单 C29；技术上零风险（journal 独立持久，清空 React 状态不丢数据），但语义上是否属于 ADR-013 授权范围内的产品决策，需架构裁定。`[需架构拍板]`
+2. ~~C29 手动新建对话 与 ADR-013 §1「唯一阈值」表述~~——**已裁定（2026-07-16）**：原则合规（ADR-013 禁的是管理负担而非「开始新对话」本身，手动新开≡用户主动触发窗口边界，不涂改历史/memory 不变量），但归 CHAT 线体验增量后续工单，非本单范围；本单不实现，实现时在 ADR-013 补澄清句而非改语义。见对标清单 C29。
 
 ### TDD 与门禁（先红后绿；本会话隔离 worktree/端口实跑，最终数字以独立验收为准）
 
@@ -160,7 +159,8 @@
 
 ### 实现留痕（2026-07-16，待独立验收）
 
-- 对标清单先于代码写入本节（C1–C31、W1–W11），三态分布：本单补·接线 1 项、本单补·未开通态 5 项清单条目（C5/C6/C17/W5/W8，落地为 7 处 `data-state="unwired"` 标记位点：6 处补标记既有诚实未开通控件 + 1 处 MaterialsZone 新控件）、减法不取 7 项（附理由）、`[需架构拍板]` 1 项（登记不实现）、其余均为已有（含既有已合规未开通态，逐项列出出处 file:line，未重复劳动）。
+- 对标清单先于代码写入本节（C1–C31、W1–W11），三态分布：本单补·接线 1 项、本单补·未开通态 5 项清单条目（C5/C6/C17/W5/W8，落地为 7 处 `data-state="unwired"` 标记位点：6 处补标记既有诚实未开通控件 + 1 处 MaterialsZone 新控件）、减法不取 8 项（附理由，含 C29）、其余均为已有（含既有已合规未开通态，逐项列出出处 file:line，未重复劳动）。
+- 架构裁定（2026-07-16，二轮）：C29「新建对话」原则合规（ADR-013 禁的是管理负担而非动作本身，手动新开≡用户主动触发窗口边界，不破不变量），但归 CHAT 线体验增量后续工单，本单仍不实现，改列「减法不取」（原「`[需架构拍板]`」标记撤销，问题已获裁定不再悬置）；未来实现只需给 ADR-013 补一句澄清，不改既有语义。
 - 架构补充（2026-07-16）：控件命名统一到 [namethatui.com](https://namethatui.com) 正名——结构级对应（Inspector=右栏工作面、Sidebar/Source List=CaseRail、Split View=Panels 主从区、Command Palette=⌘K、Segmented Control=chat/work 二段切换等）与两表逐项正名标注写入「词汇基准」小节；新增「疊层控件清单与 dismiss 语义分类」小节，覆盖本仓全部疊层控件（不止本单触面）并标注 sheet/panel/popover 三类 dismiss 语义，供 `UI-RESIDUE-1` 未来残留门清单消费。全程「只取词汇不取实现与视觉」——零代码/CSS 改动，唯一发现的命名precision issue（`queued-chip` 应为 Badge）只记录不改类名。
 - 失败轮次重试：`App.tsx` 抽出共享提交核心 `submitChatContent(content, userTextForMemory, historyBase)`（先例 `produceContractDocx(confirmedNonApplied?)`），`handleChatSend` 与新 `retryChatTurn` 均只负责准备各自的 `content`/`historyBase` 后调用它；重试只对**存活视图末位**失败轮次开放，复用其配对用户消息的已组装 `content`，先裁掉失败态末位（不触碰 Turn journal 内该 turn 的持久记录）再走同一 find-or-append 落位，等价于原位替换。UI 侧 `ChatAssistantMessage` 新增 `onRetry`，仅在 `!chatPending && index === chatMessages.length - 1` 时注入；按钮复用 `AttachmentChip` 既有的 `rotate-clockwise` 图标 + "Retry" 文案惯例。
 - 未开通态标记：`MessageActions.tsx`（Read aloud / More）、`Composer.tsx`（camera / voice）、`RightRailModules.tsx`（reader-entry）、`App.tsx`（排队消息「停止当前」）四处既有诚实未开通控件补 `data-state="unwired"`，行为与文案零改动；`MaterialsZone.tsx` 新增「在访达中显示」按钮（disabled + 诚实文案 + 标记），对齐 demo 侧 `OriginalsZone` 已有的「打开」用户期待，同时如实呈现真实材料侧尚无宿主 reveal 命令的边界。新静态门 `assert-ui-surface-contracts.mjs` 把这一约定变成可回归断言，并扫描全触面文件禁止营销腔文案。
