@@ -10,7 +10,7 @@ courtwork_design_md:
     "docs/design/tokens.json":
       sha256: "17b63a2ff442b6e4b1b1995c74ddfc3a6162e626346d2acd5526f9b5b013ac23"
     "docs/design/principles.md":
-      sha256: "309b58b49d202a8cf1eab236de625f41afc79b986036dc7ee474ba51d982da79"
+      sha256: "cbab3412945749b98da12c7e5a5ad49b8d8347c96c93ec3e9cb407b87c7c8cfe"
   tokenSet:
     name: "courtwork-design-tokens"
     version: "1.2.0"
@@ -438,6 +438,8 @@ tokens:
 ### 9. 零技术概念暴露
 
 普通用户界面不出现 schema、JSON、token、prompt、command、trace 等工程词。wire id 与错误码只进入诊断层；用户文案用案件、材料、依据、核对、确认、定稿与归档。
+
+完整文案与用语规范（动作命名、错误体例、完成/进行/空态体例，与本节合并成册）见 `voice.md`；可机器断言的条款由 `lint:voice` 静态门强制。
 
 ### 10. 命名与宿主边界
 
