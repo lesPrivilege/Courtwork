@@ -98,9 +98,9 @@ requireMatch(main, /VITE_COURTWORK_E2E === '1'[\s\S]*installMaterialHostTestHook
 
 // ── demo 双向隔离：ingest 与 resolveForProvider 拒绝 demo 案 ────────────
 requireMatch(store, /isDemoCaseId/, 'material-store 必须以 isDemoCaseId 阻断 demo 案（双向隔离）');
-const ingestBody = store.match(/async ingest\([\s\S]*?\n  \}/)?.[0] ?? '';
+const ingestBody = store.match(/async ingest\([\s\S]*?\n {2}\}/)?.[0] ?? '';
 requireMatch(ingestBody, /isDemoCaseId\(caseId\)/, 'ingest 必须拒绝 demo 案');
-const resolveBody = store.match(/async resolveForProvider\([\s\S]*?\n  \}/)?.[0] ?? '';
+const resolveBody = store.match(/async resolveForProvider\([\s\S]*?\n {2}\}/)?.[0] ?? '';
 requireMatch(resolveBody, /isDemoCaseId\(caseId\)/, 'resolveForProvider 必须拒绝 demo 案');
 
 // ── 无 demo 依赖；哈希浏览器安全；tauri 适配器动态 import ────────────────
