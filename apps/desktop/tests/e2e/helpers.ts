@@ -29,10 +29,10 @@ export async function disposeAllDemoRisks(page: Page) {
   await panel.getByRole('button', { name: '批量确认 4 项' }).click();
   await panel.locator('[data-risk-id="risk-03"]').click();
   await panel.getByRole('button', { name: /查看引语/ }).click();
-  await panel.getByRole('button', { name: '确认', exact: true }).click();
+  await panel.getByRole('button', { name: '确认此项', exact: true }).click();
   await panel.locator('[data-risk-id="risk-01"]').click();
   await panel.getByRole('button', { name: /查看引语/ }).click();
-  await panel.getByRole('button', { name: '确认', exact: true }).click();
+  await panel.getByRole('button', { name: '确认此项', exact: true }).click();
 }
 
 /**

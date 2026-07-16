@@ -1790,3 +1790,68 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
   遗留 2 例失败 `rp210.spec.ts:43` 与 `system-open.spec.ts:12`（均卡在 `confirmDemoReview` 等 `output-docx-card`，
   需真实 output 写入桥/Tauri 宿主，纯 vite e2e 环境缺失）——在**净基线 `02c1e52`** 独立 worktree 同样确定性
   失败，证与 USAGE-LEDGER-1 无关；本单未新增任何 e2e 失败。
+
+## VOICE-SPEC-1 · 文案规范入设计系统 + 文案静态门（实现完成，待独立验收）
+
+权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `VOICE-SPEC-1` 行、[docs/design/principles.md](../../docs/design/principles.md) §9（零技术概念暴露）、采收源 `archive/research-2026-07-15-round-3/geist-design-md.md`（Voice & Content 提案）。工单基线 `main @ 2ad8eda`。
+
+目标：把文案与用语体例落成设计系统的一册（`docs/design/voice.md`，与 §9 合并），并把其中可机器断言的条款转成静态门（扫 `apps/desktop/src` 用户文案，注入违例触红）；对现有 UI 文案扫一遍、如实列册、逐处小改。薄单：不动 Turn/Work/schema 语义，floor 不涉，逐文件暂存，不动 `current.md`。
+
+### 规则 → 机器门映射
+
+| voice.md 条款 | 门规则（`assert-voice-copy.mjs`） | 机器判据 |
+|---|---|---|
+| §1 动作命名 = 动词+名词 | `bare-confirm` | 文案整体等于 `确认`／`确定`／`OK`（去空白精确匹配；`OK` 区分大小写以避让枚举 `'ok'`） |
+| §3 完成提示不喊「成功」 | `success-claim` | 动作动词紧邻「成功」，或「操作成功」，或整体为「成功/成功了」 |
+| §6 零技术概念暴露（§9） | `eng-leak` | 工程词黑名单（英文按词界）与中文同串 |
+| §2 错误体例 / §4 进行态 / §5 空态 | —（不转硬门） | 需语义与相邻 DOM 判断，机器易误伤；留人工评审 + 本册登记 |
+
+**扫描面**：`apps/desktop/src` 的 `.ts/.tsx`（排除 `*.test.*`）——产品 UI 宿主，用户文案著作面。`packages/*/src/schemas/` 是携技术描述与校验消息的诊断层（§9 明许 wire id/错误码入诊断层），`presentation/` 词表随 desktop 渲染，二者不入门自动扫描面。规则库注释与 `${…}` 插值已剔除，且**正则字面量感知**（见下「假阴修复」）。
+
+### 现有 UI 文案违例列册（census，file:line @ `2ad8eda`）
+
+| # | 位置 | 现文案 | 条款 | 判定 | 处置 |
+|---|---|---|---|---|---|
+| 1 | `src/workbench/Panels.tsx:378` | `确认`（RiskGate 主按钮） | §1 | **机器违例** | 改 `确认此项`；6 处 e2e 定位符同步（`helpers.ts`×2、`workbench.spec.ts`×3、`rp27.spec.ts`×1） |
+| 2 | `packages/legal/src/presentation/index.ts:19` | `需 OCR`（ingestStatus 词表） | §6 一致性 | 用语偏差（app 全用「文字识别」） | **登记为提案，不擅改**——改此值会漂移 `packages/legal` 的 `VPKG-LAYOUT-1` golden（descriptor hash 内容契约），属垂类内容决定，薄单不越权；见复杂度扫描提案区 2 |
+| 3 | `src/App.tsx:1862` | `知道了`（导览气泡关闭） | §1 例外 | 合规 | 保留——纯告知性关闭、无副作用，属 §1 明列例外 |
+| 4 | `src/chat/SessionHistory.tsx:63` | `此轮请求未成功` | §3 边缘 | 合规 | 保留——失败态陈述非成功自评；门以动词邻接判据不误伤 |
+| 5 | `src/credentials/ProviderSetup.tsx:55` | `…只以真实请求成功为准` | §3 边缘 | 合规 | 保留——解释性判据非完成提示；门不误伤 |
+| 6 | `src/App.tsx:1564` | `暂无待展示的结构化产出` | §5 空态 | 观察（无第一动作指向） | 登记（判断项）——建议「· 运行场景后在此查看」（沿用本文件既有「场景」词），措辞留设计定夺，本薄单不改 |
+| 7 | `src/rail/CaseRail.tsx:312` | `尚无卷宗原件`（真实案） | §5 空态 | 观察（无第一动作指向） | 登记（判断项）——入库 affordance 措辞 `[需架构/设计拍板]`，本薄单不改 |
+
+已合规空态（已指向第一动作，不改）：`App.tsx:1527`（`从对话或场景开始整理`）、`App.tsx:1857`（`从场景按钮开始`）、`WorkDraftPanel.tsx:100`（`点击「新建工作稿」开始笔记`）。被动数据位（用户在此无可发起动作，只述状态即合规）：`SessionHistory.tsx:69`、`Panels.tsx:121/369`、`App.tsx:1249`（瞬态反馈）。进行态（§4）全树体例统一（`……中`／`正在……`），零违例。
+
+**门自动面结论**：§3/§6 全树扫描零机器违例（纯回归护栏）；§1 一处（#1）修复后归零。
+
+### 新增概念留痕（复杂度节制条）
+
+1. **`docs/design/voice.md`**——非加不可：工单原文要求「文案规范入设计系统…与『零技术概念暴露』合并成册」。§9 保留为册中一节且**不重编号**（既有 `assert-ui-surface-contracts.mjs` 注释与本 SPEC 对「§9」的按序号引用不破），`principles.md §9` 只补一行指针。
+2. **`voice-copy-lib.mjs` + `assert-voice-copy.mjs`**——非加不可：工单要求「可机器断言条款转静态门」；本仓每张 UI 工单均以 `assert-*.mjs` 把不变量变可回归机器断言（`deslop-scan`/`assert-ui-surface-contracts` 先例）。规则库沿 `deslop-scan-lib`+`.test.mjs` 的「纯函数库 + node --test 反例」形制，非新范式。**正则字面量感知的注释剔除**是本质复杂度（否则 `/…i'm…/` 类正则内引号会误判为字符串起始、拖垮分词——见「假阴修复」）。
+3. **`lint:voice` + `test:e2e` 链**——复用既有 `lint:*`/门链惯例。
+
+**明确未新增**：无新持久化格式、无新状态机、无新依赖、无 Turn/Work 协议改动、无 schema 语义改动、无 floor 变更（不加 Playwright 用例，只加 `node --test` 反例门 + 一处按钮文案）。
+
+### 精确触面与禁止扩张
+
+- **新增**：`docs/design/voice.md`、`apps/desktop/scripts/{voice-copy-lib,assert-voice-copy,assert-voice-copy.test}.mjs`。
+- **改**：`docs/design/principles.md`（§9 加指针，不重编号）、`docs/design/README.md`（新行）、`apps/desktop/package.json`（`lint:voice` + `test:e2e` 链）、`src/workbench/Panels.tsx`（`确认`→`确认此项`）、`tests/e2e/{helpers.ts,workbench.spec.ts,rp27.spec.ts}`（6 定位符随文案同步）。
+- **未改（登记为提案）**：`packages/legal/src/presentation/index.ts` 的 `需 OCR`——见 census #2 / 提案区 2，跨垂类内容契约，交架构拍板。
+- **禁止扩张（遵守）**：不改 `core`/`provider`/`tools`/`output`/`schemas` 导出；不动 Legal 工作面结构与词表（仅一处按钮文案）；不改 schema 语义；不做 §2/§4/§5 的语义硬门；验收放行前不更新 `docs/status/current.md`。
+
+### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权）
+
+1. **空态第一动作缺口（#6/#7）**——`App.tsx:1564` 与 `CaseRail.tsx:312` 两处主区空态未指向第一动作。`[需设计拍板]`：措辞与入库/运行 affordance 由终局 UI polish 一并定夺（本单为薄单，不擅改产品措辞）。
+2. **`需 OCR` 与 app「文字识别」不一致（#2）**——`legal` 的 `ingestStatus.needs_ocr` 词表值 `需 OCR` 与 desktop 全局「文字识别」用语不一致（§9 更宜平白语）。`[需架构拍板]`：改此值会漂移 `packages/legal` 的 `VPKG-LAYOUT-1` golden（descriptor hash 内容契约），属垂类内容决定，薄单不擅改；一并请架构确认「垂类 `presentation` 词表是否纳入 `lint:voice` 扫描面」（当前门只守 desktop，词表由评审兜底）。
+
+### TDD 与门禁（先红后绿；隔离 worktree `impl/voice-spec-1`）
+
+- **先红（实证）**：`assert-voice-copy.mjs` 落地即对全树扫描确定性 `exit 1`，唯一真实命中 `Panels.tsx:378「确认」`；`assert-voice-copy.test.mjs`（`node --test`）5 组反例各自触红——`成功删除`/`保存成功`/`操作成功`/`已成功归档`、`解析 schema 失败`/`token 已用完`/`生成 prompt 出错`、`<button>OK</button>`；安全用法放行——`未成功`/`以成功为准`/`Ran command`/`case=demo scope=…`/`${anchor.fileId}`/注释/JSX 注释。
+- **假阴修复（实证）**：首版朴素字符串分词把 `chat-memory.ts:92` 正则 `/^(?:my name is|i am|i'm|call me)…/i` 内 `i'm` 的引号误判为字符串起始，吞没整段代码，误报 `payload`/`json` 两假阳。改为**正则字面量感知**分词（`/` 处依前一有效字符判定正则 vs 除法/JSX 闭合，正则内引号不再触发字符串态）后复扫，假阳消解、仅剩真实一例。
+- **转绿**：改 `确认此项` 后门 `exit 0`（扫描 107 个 UI 源文件）；mutation test 5/5。
+- **完工门（实现侧，隔离 worktree `impl/voice-spec-1`，隔离端口 `:1544`）**：
+  - `pnpm lint`（根 `eslint .`）exit 0（新 3 个 `.mjs` 落 `**/scripts/**/*.mjs` node 全局面，零告警）；
+  - `pnpm -r build` 全 workspace 通过（仅既有 chunk-size 提示）；
+  - `pnpm -r test`（Vitest）全绿：packages/core 307、tools 204、provider 104、legal 79（`VPKG-LAYOUT-1` golden 未漂移——`需 OCR` 已回滚）、pm 44、demo-runtime 29、demo-data 23、eval 64；desktop 49 files / 265 tests；
+  - desktop `test:e2e`：全静态门链通过（含四设计门、`lint:ui-surface`、新 `node --test assert-voice-copy.test.mjs` 5/5 反例、新 `assert-voice-copy.mjs` 扫 107 文件、`assert-test-count` floor 231 未变），隔离端口完整 Playwright **231 passed / 231 total**（约 2.6 分钟），零失败零 skip，含 `确认此项` 定位符的 `workbench.spec.ts` 处置用例全绿；
+  - floor 不涉（未增 Playwright 用例，只增 `node --test` 反例门）；Rust/`src-tauri` 零改动。
