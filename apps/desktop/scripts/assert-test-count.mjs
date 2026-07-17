@@ -23,8 +23,9 @@ const count = match ? Number(match[1]) : 0;
 // PILOT-LIVE-1-FIX：墙钟自证（相对时间戳 A→B 窗口内翻字不破 A≡B，先红后绿）+1 → 276。
 // READER-ISOLATION-1：非 demo 案零 demo 语料入口（隔离红证）+ demo 案对照锁 +2 → 278。
 // PILOT-LIVE-2 F：grant 语境上传入库主红证 + 同名同容幂等 + 同名异容显式拒绝 +3 → 279
-// READER 与 F 为并发只升点；合并树取用例并集：276 + 2 + 3 → 281。
-const minimum = 281;
+// PILOT-LIVE-2 E：最新回复不折叠红证 + 历史折叠展开回看与块界对齐 +2 → 281。
+// READER 与 PILOT-LIVE-2 为并发只升点；合并树取用例并集：276 + 2 + 3 + 2 → 283。
+const minimum = 283;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

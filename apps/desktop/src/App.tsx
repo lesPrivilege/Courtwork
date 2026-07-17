@@ -212,9 +212,11 @@ function renderReaderInline(text: string, focusQuote?: string, focusRef?: RefObj
   });
 }
 
-function ChatAssistantMessage({ message, index, onStop, onRetry }: {
+function ChatAssistantMessage({ message, index, latest, onStop, onRetry }: {
   message: Extract<ChatMessage, { role: 'assistant' }>;
   index: number;
+  /** PILOT-LIVE-2 E：最新回复默认全文展开（折叠仅限历史轮次）；推理轨迹折叠不随此豁免（辅助信息）。 */
+  latest?: boolean;
   onStop?: () => void;
   onRetry?: () => void;
 }) {
@@ -238,6 +240,8 @@ function ChatAssistantMessage({ message, index, onStop, onRetry }: {
       />
       {turn.assistantMessage && (turn.status === 'running' ? (
         <div className="chat-stream-content" data-testid="chat-stream-content">{turn.assistantMessage}</div>
+      ) : latest ? (
+        <ChatMarkdown text={turn.assistantMessage} />
       ) : (
         <CollapsibleMessage lines={12}><ChatMarkdown text={turn.assistantMessage} /></CollapsibleMessage>
       ))}
@@ -1085,6 +1089,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const progressTotal = !isDemoCase ? 6 : flow === 'S1' ? 20 : 6;
   const progressCount = progressHeadCount(progressDone, progressTotal);
   const attachmentSources = localMessages.flatMap((message) => message.files);
+  // PILOT-LIVE-2 E：最新助手回复豁免折叠（裁定：最新默认全文展开；折叠仅限历史轮次）。
+  // 取最后一条助手消息而非末位消息：发送在途窗口内（末位为 user）上一条回复仍是「最新」，不得瞬时坍缩。
+  const lastAssistantIndex = chatMessages.reduce((last, item, i) => (item.role === 'assistant' ? i : last), -1);
   const usageDetail = isDemoCase
     ? {
         dossier: flow === 'S1' ? '14%' : '62%',
@@ -2445,6 +2452,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                   <ChatAssistantMessage
                     message={message}
                     index={index}
+                    latest={index === lastAssistantIndex}
                     onStop={chatPending && message.turn.status === 'running' ? stopChatTurn : undefined}
                     onRetry={!chatPending && index === chatMessages.length - 1 ? retryChatTurn : undefined}
                     key={`chat-${index}`}
