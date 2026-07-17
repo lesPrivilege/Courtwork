@@ -246,8 +246,10 @@ pub fn commit_blob(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Read;
     use std::os::unix::process::ExitStatusExt;
     use std::process::{Command, Stdio};
+    use std::time::{Duration, Instant};
 
     const CASE: &str = "grant-abc-1";
     const SESSION: &str = "8a1f0c2e-0000-4000-8000-000000000001";
@@ -425,7 +427,7 @@ mod tests {
         }
         let reply = read_blob(&dir, CASE, SESSION).expect("full frame reads");
         assert!(inspect_complete(&reply), "完整帧必须判为完整");
-        // 截断帧（丢尾字节，破坏 sentinel）应被判为损坏
+        // 截断帧（丢尾 16 字节）应被判为损坏：bytes 短于该代 payload → 逐字节比对不等
         {
             let mut framed = Vec::new();
             framed.extend_from_slice(b"7\n");
@@ -437,11 +439,23 @@ mod tests {
         fs::remove_dir_all(&dir).ok();
     }
 
-    // ── kill -9 崩溃注入：commit 中被 SIGKILL，旧版本完好、target 恒完整 ──────
+    // ── kill -9 崩溃注入：写中被 SIGKILL，旧版本完好、target 恒完整 ──────────────
     //
-    // 复用 WORK-STORE-MEASURE 度量三手法（crash-inject.mjs）：一个 writer 子进程猛写 CAS，
-    // 父进程随机延迟后 kill -9，读回 target 判定是否撕裂。原子替换应恒完整（≥20 次真实 SIGKILL 零撕裂）。
+    // 一个 writer 子进程猛写 CAS，父进程崩溃编排读回 target 判定是否撕裂。原子替换应恒完整。
     // 子进程即本测试二进制（`current_exe`）以 `--exact` 过滤只跑 `crash_writer_child`，由环境变量触发写循环。
+    //
+    // WORK-HOST-1 驳回项根因与本单加固（检测力，实现本体的原子替换不动）：
+    // 旧版用 64 KiB payload + 随机 1–12ms `kill -9`，直写突变（`fs::rename`→`fs::write`）下**假绿翻覆**——
+    // 64 KiB 页缓存写只需数微秒，随机杀点几乎总落在别处（读、tmp 写、两次 F_FULLFSYNC 阻塞），
+    // 极少咬住 target 被 O_TRUNC 归零到重填满的写中窗口；一次 SIGKILL 又常在页缓存写完成后才投递，
+    // 故直写突变时红/绿随机（实测 6 连跑 4 绿 2 红），不满足「紅證以復現為準」。加固三处：
+    //   ① 每代确定性指纹载荷（splitmix64 派生 2 MiB 级伪随机字节），恢复后按代次逐字节验证（截断/撕裂即红）；
+    //   ② 杀点采样覆盖写中窗口：父进程紧循环轮询 target 尺寸——**唯有非原子直写**会令 target 本身被
+    //      O_TRUNC 归零/半写而短于完整帧；原子替换只动 tmp+rename，target 对并发读者**恒是完整帧尺寸**。
+    //      故「观测到 target < 完整帧尺寸」是原子替换被破坏的确定性、不靠运气的信号（rename 下此事件不可能发生），
+    //      咬到即记一次撕裂并把 SIGKILL 铺在写中；
+    //   ③ 退出证据以复现为准：直写突变下该采样必然咬到子完整帧尺寸 → 红；还原后原子实现恒绿。
+    // 帧格式与生产代码零改动（仅测试侧加固：载荷、采样-杀点编排、恢复校验）。
 
     /// writer 子进程：仅当被崩溃编排 spawn（置环境变量）时进入无限 CAS 写循环，直到被 SIGKILL；
     /// 正常 `cargo test` 运行（无环境变量）即刻空转通过，不干扰其它测试。
@@ -461,25 +475,44 @@ mod tests {
         }
     }
 
-    /// 轮询 target 当前 generation（读失败/缺失记为 0）。
-    fn current_generation(dir: &Path) -> u64 {
-        read_blob(dir, CASE, SESSION)
-            .ok()
-            .and_then(|reply| reply.version)
-            .and_then(|version| version.parse::<u64>().ok())
-            .unwrap_or(0)
+    /// 最小完整帧字节数：`<version>\n<payload>`——version 至少 1 位 ASCII + 换行 + 定长 payload。
+    /// 任何 `len < MIN_COMPLETE_FRAME_BYTES` 的 target 必非完整帧（被 O_TRUNC 归零或写到一半）。
+    /// 原子替换（tmp+rename）下 target 恒是某个完整帧，故其尺寸恒 ≥ 此值；直写才会短于它。
+    const MIN_COMPLETE_FRAME_BYTES: u64 = CRASH_PAYLOAD_BYTES as u64 + 2;
+
+    /// target 当前字节数（缺失/stat 失败 → None）。采样热路径，只 stat 不读内容。
+    fn target_len(target: &Path) -> Option<u64> {
+        fs::metadata(target).ok().map(|meta| meta.len())
+    }
+
+    /// 只读首 32 字节解析 generation 前缀，追踪 writer 进度（避免每次读满 2 MiB）。
+    /// 完整帧前缀恒为 `<digits>\n`；被归零/半写的 target 读不到换行 → None。
+    fn peek_version(target: &Path) -> Option<u64> {
+        let mut file = File::open(target).ok()?;
+        let mut head = [0u8; 32];
+        let read = file.read(&mut head).ok()?;
+        let newline = head[..read].iter().position(|&byte| byte == b'\n')?;
+        std::str::from_utf8(&head[..newline]).ok()?.parse::<u64>().ok()
     }
 
     #[test]
     fn crash_injection_atomic_replace_never_tears_across_real_sigkills() {
         let self_exe = std::env::current_exe().expect("current_exe");
-        let trials = 24; // ≥20 次真实 SIGKILL
-        let mut killed_by_sig = 0;
+        let trials = 24; // ≥20 次真实 SIGKILL 注入
+        let kill_at_version = 3; // 原子路径：writer 越过播种版本、真演练了「已有文件的原子替换」后再杀
+        let sampler_deadline = Duration::from_secs(5); // 安全上限：子进程异常时不挂死
+
+        let mut killed_by_sig = 0u64;
         let mut max_version_seen = 0u64;
+        // 并发采样咬到 target 处于「子完整帧」尺寸的次数：原子替换下必为 0，直写突变下必 > 0（确定性红证）。
+        let mut partial_observations = 0u64;
+        // 恢复读到损坏/半写/缺失帧的次数：SIGKILL 恰好凝固在写中时触发（第二道证据）。
+        let mut torn_recoveries = 0u64;
 
         for trial in 0..trials {
             let dir = temp_dir(&format!("crash-{trial}"));
-            // 通过真实 host 播种完整 v1（generation "1"），target 从 t=0 即存在完整帧
+            let target = path_for(&dir, CASE, SESSION).unwrap();
+            // 真实 host 播种完整 v1：target 从 t=0 即是完整帧（原子路径下此后恒完整）。
             commit(&dir, None, &crash_payload(1));
 
             let mut child = Command::new(&self_exe)
@@ -491,51 +524,96 @@ mod tests {
                 .spawn()
                 .expect("spawn writer child");
 
-            // 先等 writer 越过播种版本（generation≥2）——证明它已真在写，且随后的 kill 命中「已有文件的
-            // 原子替换」（生产真实路径），而非 libtest 启动期。5s 安全上限防子进程异常时挂死。
-            let mut waited = 0u64;
-            while current_generation(&dir) < 2 && waited < 5000 {
-                std::thread::sleep(std::time::Duration::from_millis(1));
-                waited += 1;
+            // ── 采样-杀点编排（②）：紧循环轮询 target 尺寸，把 SIGKILL 铺在写中窗口 ──────────
+            //   * target < 完整帧尺寸 → 写者正把 target 本身写到一半（唯有非原子直写会如此；原子替换
+            //     只动 tmp+rename，target 对并发读者恒是完整帧）。记一次撕裂观测并立即杀。
+            //   * 否则等 writer 越过 kill_at_version（证明已真在写已有文件）再杀——原子路径正常出口。
+            //   * deadline 兜底。
+            let sampling_started = Instant::now();
+            loop {
+                if let Some(len) = target_len(&target) {
+                    if len < MIN_COMPLETE_FRAME_BYTES {
+                        partial_observations += 1;
+                        break;
+                    }
+                }
+                if let Some(version) = peek_version(&target) {
+                    if version > max_version_seen {
+                        max_version_seen = version;
+                    }
+                    if version >= kill_at_version {
+                        break;
+                    }
+                }
+                if sampling_started.elapsed() >= sampler_deadline {
+                    break;
+                }
+                // 紧采样：不用定时 sleep（macOS 亚毫秒 sleep 粒度会漏掉写中窗口），只让度。
+                std::thread::yield_now();
             }
-            // 抖动延迟（1–12ms）后 kill，把 SIGKILL 铺在下一次原子替换的不同相位以命中在途写
-            let delay_ms = 1 + (unix_nanos() % 12) as u64;
-            std::thread::sleep(std::time::Duration::from_millis(delay_ms));
-            let _ = child.kill(); // Unix：SIGKILL
+            let _ = child.kill(); // Unix：SIGKILL（真实崩溃，无 unwind/flush）
             let status = child.wait().expect("wait child");
             if status.signal() == Some(9) {
                 killed_by_sig += 1;
             }
 
-            // 崩溃后判定：target 必是某个**完整**版本（version 可解析 + bytes == 该版本 payload），绝不撕裂。
-            // 旧版本（在途替换的前一版）与新版本都完整 → 恢复窗口 = 至多 1 次在途 CAS。
-            let reply = read_blob(&dir, CASE, SESSION)
-                .expect("post-kill read must not surface a corrupt frame");
-            assert!(reply.found, "trial {trial}: target 消失（原子替换应始终留下完整版本）");
-            let n: u64 = reply.version.clone().unwrap().parse().expect("version 可解析为 generation");
-            assert!(
-                inspect_complete(&reply),
-                "trial {trial}: 帧撕裂——version {n} 的 bytes 与该版本 payload 不符（原子替换被破坏）"
-            );
-            if n > max_version_seen {
-                max_version_seen = n;
+            // ── 恢复后逐字节验证（①）：崩溃后 target 必是某个**完整**代次 ─────────────────────
+            // 原子替换下恒成立（rename 全有全无，恢复窗口至多 1 次在途 CAS）；直写突变下若 SIGKILL
+            // 恰好凝固在写中，这里记一次撕裂（第二道证据）。
+            match read_blob(&dir, CASE, SESSION) {
+                Ok(reply) if reply.found && inspect_complete(&reply) => {
+                    if let Some(version) = reply.version.and_then(|v| v.parse::<u64>().ok()) {
+                        if version > max_version_seen {
+                            max_version_seen = version;
+                        }
+                    }
+                }
+                _ => torn_recoveries += 1,
             }
             fs::remove_dir_all(&dir).ok();
         }
 
+        // ── 非空转守卫（clean 运行三者同时成立，证明本测试非空转）────────────────────────────
         assert!(killed_by_sig >= 1, "没有任何一轮投递到真实 SIGKILL（编排失效）");
         assert!(
             max_version_seen >= 2,
             "writer 从未推进过版本（未真正演练已有文件的原子替换，崩溃测试形同虚设）"
         );
+
+        // ── 原子替换完整性（③ 的确定性红证锚点）─────────────────────────────────────────────
+        // 原子替换：并发采样**永不**观测到 target 短于完整帧、恢复恒读到完整代次 → 二计数皆 0 → 绿。
+        // 直写突变（fs::rename→fs::write）：target 每轮被 O_TRUNC 归零再重填，采样必然咬到子完整帧尺寸
+        //   → partial_observations > 0 → 红（不靠运气；post-kill 逐字节校验是第二道）。
+        assert_eq!(
+            (partial_observations, torn_recoveries),
+            (0, 0),
+            "原子替换被破坏：并发读者 {partial_observations} 次观测到 target 短于完整帧、\
+             {torn_recoveries} 次恢复读到损坏/半写帧——非原子写在此刻崩溃即撕裂（rename 原子替换下二者必为 0）"
+        );
     }
 
-    /// 崩溃测试 payload：`<version=rev>` 与 bytes 一一对应，尾部 sentinel `__complete` 用于识别截断。
-    /// bytes 足够大（~64KiB）以拉宽写窗口，令随机 kill 更可能命中在途写。
+    /// 崩溃测试 payload 长度（2 MiB 级）：把 target 被 O_TRUNC 归零到重填满的直写窗口拉到亚毫秒，
+    /// 供并发采样咬住写中态。低于软上限 4 MiB，不触发软告警。
+    const CRASH_PAYLOAD_BYTES: usize = 2 * 1024 * 1024;
+
+    /// 崩溃测试 payload：`rev` 决定的确定性伪随机字节（splitmix64 逐 8 字节填充），长 `CRASH_PAYLOAD_BYTES`。
+    /// 不同代次 → 不同字节流且可逐字节重算，故恢复后按代次精确比对能识别任何截断/撕裂/交错（非仅靠长度）。
     fn crash_payload(rev: u64) -> Vec<u8> {
-        let filler = "E".repeat(64 * 1024);
-        format!("{{\"storageVersion\":1,\"revision\":{rev},\"filler\":\"{filler}\",\"__complete\":true}}")
-            .into_bytes()
+        let mut out = Vec::with_capacity(CRASH_PAYLOAD_BYTES);
+        // splitmix64：seed 由 rev 派生，逐 8 字节推进填满定长载荷。
+        let mut state = rev
+            .wrapping_mul(0x9E37_79B9_7F4A_7C15)
+            .wrapping_add(0x1234_5678_9ABC_DEF0);
+        while out.len() < CRASH_PAYLOAD_BYTES {
+            state = state.wrapping_add(0x9E37_79B9_7F4A_7C15);
+            let mut z = state;
+            z = (z ^ (z >> 30)).wrapping_mul(0xBF58_476D_1CE4_E5B9);
+            z = (z ^ (z >> 27)).wrapping_mul(0x94D0_49BB_1331_11EB);
+            z ^= z >> 31;
+            out.extend_from_slice(&z.to_le_bytes());
+        }
+        out.truncate(CRASH_PAYLOAD_BYTES);
+        out
     }
 
     /// 判定读回的帧是否为某个**完整** crash_payload：version 解析为 rev，bytes 必须逐字节等于 payload(rev)。
