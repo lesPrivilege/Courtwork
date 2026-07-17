@@ -13,6 +13,8 @@ import { createBrowserMaterialHost, installMaterialHostTestHooks } from './mater
 import { createTauriMaterialHost } from './material/tauri-material-host';
 import { createDesktopPackageRuntime } from './composition/package-runtime';
 import { createDemoWorkFixture } from './demo/client';
+import { createDesktopWorkCommand, installWorkTestHooks } from './work/work-runtime';
+import { loadModelConfig } from './provider/model-config';
 import './styles.css';
 
 // Playwright 探针注入点（非 demo 装配）
@@ -29,10 +31,19 @@ if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') {
   installChatTestHooks();
   installHostAuthTestHooks();
   installMaterialHostTestHooks();
+  installWorkTestHooks();
 }
 
 const packageRuntime = createDesktopPackageRuntime();
 const demoWorkFixture = createDemoWorkFixture();
+// WORK-LIVE-1：production Work 命令端口（进程内 callback）。host=内存参考实现（跨真机重启持久待 Tauri host，
+// 见 work-runtime `[需架构拍板]`）；provider 走注入 transport（生产 DeepSeek）/DEV+E2E 走 Work turn 樁。
+const workCommand = createDesktopWorkCommand({
+  registries: packageRuntime.packageRegistries,
+  materialResolver: materialStore,
+  providerConfig: () => loadModelConfig(),
+  ...(providerTransport ? { transport: providerTransport } : {}),
+});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -43,6 +54,7 @@ createRoot(document.getElementById('root')!).render(
         hostRenderers={packageRuntime.hostRenderers}
         workProjection={demoWorkFixture.projection}
         workFixture={demoWorkFixture}
+        workCommand={workCommand}
         hostAuth={hostAuth}
         materialStore={materialStore}
       />

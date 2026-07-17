@@ -85,7 +85,15 @@ export type WorkCommandOutcome =
       message: string;
       retryable: boolean;
     }
-  | { status: 'canceled'; ref: WorkSessionRef };
+  | { status: 'canceled'; ref: WorkSessionRef }
+  // WORK-LIVE-1：命令级拒绝闭集（ADR-010 决定一逐字）。WORK-PORT-1 的 contract-only 声明遗漏了此变体；
+  // 完成 WorkCommandPort 生产实现（本单明令「替换仅类型声明现状」）必须能返回 case_busy/command_conflict/
+  // invalid_scope/not_configured 而非抛裸 Promise rejection（ADR-010 第 112 行）。纯增量并集成员，无既有消费方。
+  | {
+      status: 'rejected';
+      reason: 'command_conflict' | 'case_busy' | 'invalid_scope' | 'not_configured';
+      message: string;
+    };
 
 export interface WorkProjectionPort {
   replay(query: WorkSessionRef & { afterSeq?: number }): Promise<{
