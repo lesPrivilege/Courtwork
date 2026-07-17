@@ -79,6 +79,7 @@ import { CaseRail } from './rail/CaseRail';
 import type { UnfiledSession } from './rail/types';
 import { SettingsPage, type SettingsSection } from './settings';
 import { hostAuthReasonCopy, type HostAuthPort } from './host/host-auth-port';
+import { LEGACY_CASE_SCENARIO_COPY, isWorkSafeCaseId, mintCaseId } from './case/case-id';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { systemOpenClient } from './system/system-open-client';
 import { WorkDraftPanel } from './system/WorkDraftPanel';
@@ -1239,6 +1240,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // 正文/模型猜测）；材料经 resolveForProvider 复验才入 provider；事件机械发布进同一 session 投影（零 recording）。
   const startWorkRun = () => {
     if (caseBinding.kind !== 'grant' || !selectedCaseId || workRunning) return;
+    // WORK-TURN-1 G 存量守卫：旧版铸号（标题拼入 id）在 work_state 安全 token 外——原位容忍，
+    // 场景运行前显式引导（发生了什么+下一步），不让 Rust 侧技术红条兜底。
+    if (!isWorkSafeCaseId(selectedCaseId)) {
+      showSystemFeedback(LEGACY_CASE_SCENARIO_COPY, false, 'info');
+      return;
+    }
     const partyName = workSubject.trim();
     if (!partyName) return;
     const ready = caseMaterials.filter((material) => material.status === 'ready');
@@ -1365,7 +1372,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     grantId?: string;
     label?: string;
   }) => {
-    const newId = `case-${Date.now()}-${title}`;
+    // WORK-TURN-1 G：铸号去标题化——标题只作展示字段；id 恒过 work_state 安全 token（真机红条根因）。
+    const newId = mintCaseId();
     setCases((current) => [
       ...current,
       {

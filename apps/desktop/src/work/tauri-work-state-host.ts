@@ -1,4 +1,5 @@
 import type { WorkSessionRef, WorkStateHostPort } from '@courtwork/core/work-protocol';
+import { LEGACY_CASE_SCENARIO_COPY } from '../case/case-id';
 
 /**
  * Tauri WorkState opaque-blob 宿主适配器（WORK-HOST-1 / ADR-010 决定二）。
@@ -21,13 +22,28 @@ async function tauriCore() {
   return import('@tauri-apps/api/core');
 }
 
+/**
+ * WORK-TURN-1 G 显示边界映射（belt）：src-tauri 本单零触碰，Rust `InvalidRef` 的技术报文
+ * 「Work 状态引用非法」在 TS 边界改写为产品语言（发生了什么+下一步）。UI 主守卫在
+ * `startWorkRun` 前置（存量非安全 id 显式引导），本映射兜非 UI 路径（如恢复读取）。
+ */
+function mapWorkStateHostError(error: unknown): never {
+  if (error instanceof Error && error.message.includes('状态引用非法')) {
+    throw new Error(LEGACY_CASE_SCENARIO_COPY);
+  }
+  if (typeof error === 'string' && error.includes('状态引用非法')) {
+    throw new Error(LEGACY_CASE_SCENARIO_COPY);
+  }
+  throw error;
+}
+
 export function createTauriWorkStateHost(): WorkStateHostPort {
   return {
     async read(ref: WorkSessionRef) {
       const { invoke } = await tauriCore();
       const outcome = await invoke<WireRead>('work_state_read', {
         input: { caseId: ref.caseId, sessionId: ref.sessionId },
-      });
+      }).catch(mapWorkStateHostError);
       if (!outcome.found) return { found: false };
       return { found: true, version: outcome.version, bytes: Uint8Array.from(outcome.bytes) };
     },
@@ -41,7 +57,7 @@ export function createTauriWorkStateHost(): WorkStateHostPort {
           expectedVersion,
           bytes: Array.from(bytes),
         },
-      });
+      }).catch(mapWorkStateHostError);
     },
   };
 }
