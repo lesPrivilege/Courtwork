@@ -277,6 +277,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .rail-nav-item:hover:not(.is-disabled-feature) { background: var(--control-hover); color: var(--text-primary); }
 .rail-nav-item.is-disabled-feature { color: var(--text-disabled); cursor: not-allowed; }
 .rail-row-main {
+  position: relative;
   display: flex; align-items: center; gap: 2px;
   padding: 4px 28px 4px 2px; /* 右侧留给绝对定位归档钮，避免挡 chevron */
   min-width: 0;
@@ -347,7 +348,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .rail-add-button { width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; cursor: pointer; }
 .rail-add-button:hover { background: var(--control-hover); }
 .rail-add-button .line-icon { width: 14px; height: 14px; }
-.case-archive-button { position: absolute; z-index: 3; top: 6px; right: 6px; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; opacity: 0; transition: opacity var(--motion-hover) ease-out, background-color var(--motion-hover) ease-out; flex: none; }
+.case-archive-button { position: absolute; z-index: 3; top: 50%; right: 6px; transform: translateY(-50%); width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; opacity: 0; transition: opacity var(--motion-hover) ease-out, background-color var(--motion-hover) ease-out; flex: none; }
 .case-card:hover .case-archive-button, .case-card:focus-within .case-archive-button { opacity: 1; }
 .case-archive-button:hover { border-color: var(--border-strong); background: var(--control-hover); }
 /* CASE-PERSIST-1：绑定文件夹授权失效的显式失效态（复用语义 warn 色，不新增色/影/渐变）。 */
@@ -1636,6 +1637,9 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
   transition: transform var(--motion-press) ease-out, background-color var(--motion-hover) ease-out, border-color var(--motion-hover) ease-out, opacity var(--motion-hover) ease-out;
 }
 :is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: scale(.98); transition-duration: var(--motion-press); }
+/* .case-archive-button 用 translateY(-50%) 做行内垂直居中定位（非动效变换），按压叠加 scale
+   须保留该偏移，否则会被上条规则的裸 scale(.98) 覆盖，按压瞬间从居中跳回顶部对齐。 */
+.case-archive-button:active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: translateY(-50%) scale(.98); }
 
 /* popover 只沿触发器方向移动 4px；每个 consumer 独立登记，避免类名级通行证。 */
 .case-card .archive-popover { animation: popover-from-top var(--motion-overlay) var(--motion-overlay-ease) both; transform-origin: top right; }
@@ -1652,6 +1656,8 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 
 @media (prefers-reduced-motion: reduce) {
   :is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: none; }
+  /* 居中定位偏移不是动效，reduced-motion 只去按压缩放，不去 translateY 定位。 */
+  .case-archive-button:active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: translateY(-50%); }
   .case-card .archive-popover { animation: none; transform: none; }
   .file-ops-undo-popover { animation: none; transform: none; }
   .rail-containerize-popover { animation: none; transform: none; }
