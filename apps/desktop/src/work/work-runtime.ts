@@ -5,10 +5,11 @@
  * 组装成 `LegalS3WorkCommand`。provider 无关的 Turn 引擎：生产走注入的 `ProviderTransport`（DeepSeek），
  * DEV/E2E 走注入的 Work turn 樁（绝不进正式 Tauri composition）。
  *
- * **WorkState host 边界（`[需架构拍板]`）**：本单按拍板走「精简装配」——注入 `createInMemoryWorkStateHost`
- * 参考实现。它 browser-safe、跨 store 实例存活（故 store-driven 的 replay/resume 反例成立），但**不跨真机重启**
- * 持久（无 Tauri opaque blob host 命令）。真机跨重启需下一环的 Rust WorkState host（ADR-010 决定二，就绪图
- * 曾挂 WORK-STORE-1 未交付）；届时只换本处 host 注入、零改 `work-command.ts`。产品运行时如实标注「会话内有效」。
+ * **WorkState host 边界**：生产（Tauri 运行时）由组合根（`main.tsx`）注入 WORK-HOST-1 的 Tauri WorkState
+ * opaque-blob 宿主（`createTauriWorkStateHost`，ADR-010 决定二：临时文件 + F_FULLFSYNC + rename 原子替换 +
+ * whole-envelope CAS + 软/硬大小上限），跨真机重启耐久持久。未注入 `host` 时（DEV/E2E）缺省
+ * `createInMemoryWorkStateHost` 参考实现：browser-safe、跨 store 实例存活（故 store-driven 的
+ * replay/resume/crash-inject 反例在樁宿主成立），但不跨真机重启。两条路径都零改 `work-command.ts`。
  */
 import { createInMemoryWorkStateHost, createArtifactEnvelopeCodec } from '@courtwork/core/work-protocol';
 import { createTurnRunner } from '@courtwork/core/turn-protocol';
