@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import * as z from 'zod';
 import { createOpenAICompatibleProvider } from './openai-compatible-provider.js';
-import { DEEPSEEK_QUIRK_PROFILE } from './quirk-profile.js';
-import { clearStreamEvidence, readStreamEvidence } from './stream-evidence.js';
-import type { ProviderStreamEvent } from './types.js';
+import { DEEPSEEK_QUIRK_PROFILE, type ProviderQuirkProfile } from './quirk-profile.js';
+import {
+  clearStreamEvidence,
+  readStreamEvidence,
+  recordStreamEvidence,
+  type StreamEvidenceEntry,
+} from './stream-evidence.js';
+import type { ProviderStreamEvent, ProviderTransport } from './types.js';
 
 /**
  * PROVIDER-STREAM-1（真机第四轮 I，P0）：结构化分支（responseSchema → generateStructured 聚合）
@@ -15,14 +20,24 @@ import type { ProviderStreamEvent } from './types.js';
 
 const SCHEMA = z.object({ ok: z.boolean() }).strict();
 
-function structuredProvider(fetchImpl: typeof fetch, extra: { maxValidationRetries?: number } = {}) {
-  return createOpenAICompatibleProvider(DEEPSEEK_QUIRK_PROFILE, {
+function structuredProvider(
+  fetchImpl: typeof fetch,
+  extra: {
+    maxValidationRetries?: number;
+    timeoutMs?: number;
+    transport?: ProviderTransport;
+    profile?: ProviderQuirkProfile;
+  } = {},
+) {
+  return createOpenAICompatibleProvider(extra.profile ?? DEEPSEEK_QUIRK_PROFILE, {
     auth: { kind: 'api_key', apiKey: 'sk-test' },
     billing: { kind: 'metered' },
     modelId: 'deepseek-v4-flash',
     fetchImpl,
     maxTransportRetries: 0,
     maxValidationRetries: extra.maxValidationRetries ?? 0,
+    ...(extra.timeoutMs !== undefined ? { timeoutMs: extra.timeoutMs } : {}),
+    ...(extra.transport ? { transport: extra.transport } : {}),
   });
 }
 
@@ -47,51 +62,97 @@ function sseResponse(content: string): Response {
   return new Response(sse(content), { status: 200, headers: { 'content-type': 'text/event-stream' } });
 }
 
-describe('结构化分支闭合失败协议（异常零抛穿）', () => {
-  it('HTTP 400（如 json_object×thinking 组合被拒）→ failed(kind=model) 事件，不抛出', async () => {
+const UNUSED_FETCH: typeof fetch = async () => {
+  throw new Error('fetch should not be reached');
+};
+
+const TIMEOUT_TRANSPORT: ProviderTransport = {
+  async *stream(request) {
+    yield {
+      type: 'failed',
+      requestId: request.requestId,
+      kind: 'timeout',
+      message: 'provider timed out before completion',
+      retryable: true,
+    };
+  },
+};
+
+const UNSUPPORTED_PROFILE: ProviderQuirkProfile = {
+  ...DEEPSEEK_QUIRK_PROFILE,
+  responseFormat: { tier: 'unsupported' },
+};
+
+describe('五类已知错误族均收编为 failed 终态', () => {
+  it('ProviderAuthError 不抛穿', async () => {
+    const events = await collect(structuredProvider(async () => new Response('', { status: 401 })));
+    expect(events[0]).toMatchObject({ type: 'started', seq: 0 });
+    expect(events.at(-1)).toMatchObject({ type: 'failed', kind: 'auth', retryable: false });
+  });
+
+  it('ProviderHttpError 不抛穿', async () => {
     clearStreamEvidence();
-    const fetchImpl: typeof fetch = async () =>
-      new Response('{"error":{"message":"SECRET-CASE-CONTENT-9X bad request"}}', { status: 400 });
-    const events = await collect(structuredProvider(fetchImpl));
-    expect(events[0]).toMatchObject({ type: 'started' });
-    const failed = events.at(-1);
-    expect(failed).toMatchObject({ type: 'failed', kind: 'model', retryable: false });
-    // 报文产品语（中文），不裸透英文技术措辞。
-    expect((failed as { message: string }).message).not.toMatch(/Provider |protocol/);
+    const events = await collect(structuredProvider(async () =>
+      new Response('{"error":{"message":"SECRET-CASE-CONTENT-9X"}}', { status: 400 })));
+    expect(events[0]).toMatchObject({ type: 'started', seq: 0 });
+    expect(events.at(-1)).toMatchObject({ type: 'failed', kind: 'model', retryable: false });
+    expect(readStreamEvidence().at(-1)).toMatchObject({ errorName: 'ProviderHttpError', kind: 'model' });
+    expect(JSON.stringify(readStreamEvidence())).not.toContain('SECRET-CASE-CONTENT-9X');
   });
 
-  it('校验耗尽（模型只回自由文本）→ failed(kind=invalid_response) 事件，不抛出', async () => {
-    const fetchImpl: typeof fetch = async () => sseResponse('这不是 JSON 只是自由文本');
-    const events = await collect(structuredProvider(fetchImpl, { maxValidationRetries: 0 }));
-    expect(events.at(-1)).toMatchObject({ type: 'failed', kind: 'invalid_response', retryable: false });
-  });
+  it('ProviderTimeoutError 不抛穿', async () => {
+    const events = await collect(structuredProvider(UNUSED_FETCH, { transport: TIMEOUT_TRANSPORT }));
+    expect(events[0]).toMatchObject({ type: 'started', seq: 0 });
+    expect(events.at(-1)).toMatchObject({ type: 'failed', kind: 'timeout', retryable: true });
 
-  it('已中止信号 → failed(kind=canceled) 事件（结构化分支此前整体无视 signal）', async () => {
     const controller = new AbortController();
     controller.abort();
-    const fetchImpl: typeof fetch = async () => sseResponse('{"ok":true}');
-    const events = await collect(structuredProvider(fetchImpl), controller.signal);
-    expect(events.at(-1)).toMatchObject({ type: 'failed', kind: 'canceled' });
+    const canceled = await collect(structuredProvider(async () => sseResponse('{"ok":true}')), controller.signal);
+    expect(canceled[0]).toMatchObject({ type: 'started', seq: 0 });
+    expect(canceled.at(-1)).toMatchObject({ type: 'failed', kind: 'canceled', retryable: false });
   });
 
-  it('未知底层异常 → failed(kind=network) 事件兜底，不抛出', async () => {
-    const fetchImpl: typeof fetch = async () => {
-      throw new Error('weird transport boom SECRET-CASE-CONTENT-9X');
-    };
-    const events = await collect(structuredProvider(fetchImpl));
-    expect(events.at(-1)).toMatchObject({ type: 'failed' });
-    expect(['network', 'endpoint']).toContain((events.at(-1) as { kind: string }).kind);
-  });
-
-  it('证据留证脱敏：错误信封级元数据在册，案件内容/响应正文零入证', async () => {
+  it('ProviderInvalidResponseError 不抛穿', async () => {
     clearStreamEvidence();
-    const fetchImpl: typeof fetch = async () =>
-      new Response('{"error":{"message":"SECRET-CASE-CONTENT-9X"}}', { status: 400 });
-    await collect(structuredProvider(fetchImpl));
-    const evidence = readStreamEvidence();
-    expect(evidence.length).toBeGreaterThan(0);
-    const last = evidence.at(-1);
-    expect(last).toMatchObject({ phase: 'structured', errorName: 'ProviderHttpError', kind: 'model' });
-    expect(JSON.stringify(evidence)).not.toContain('SECRET-CASE-CONTENT-9X');
+    const events = await collect(structuredProvider(async () => sseResponse('CASE-FRAGMENT-INVALID-9X')));
+    expect(events[0]).toMatchObject({ type: 'started', seq: 0 });
+    expect(events.at(-1)).toMatchObject({ type: 'failed', kind: 'invalid_response', retryable: false });
+    expect(JSON.stringify(events)).not.toContain('CASE-FRAGMENT-INVALID-9X');
+    expect(JSON.stringify(readStreamEvidence())).not.toContain('CASE-FRAGMENT-INVALID-9X');
+
+    const baseEntry: StreamEvidenceEntry = {
+      phase: 'structured',
+      providerId: 'deepseek',
+      modelId: 'deepseek-chat',
+      errorName: 'ProviderInvalidResponseError',
+      kind: 'invalid_response',
+      retryable: false,
+      attempts: 1,
+    };
+    const compileOnlyFreeTextInjection = () => {
+      recordStreamEvidence({
+        ...baseEntry,
+        // @ts-expect-error evidence 信封禁止自由文本 message 字段。
+        message: 'CASE-FRAGMENT-INVALID-9X',
+      });
+    };
+    expect(compileOnlyFreeTextInjection).toBeTypeOf('function');
+    const injected = { ...baseEntry, message: 'CASE-FRAGMENT-INVALID-9X' } as StreamEvidenceEntry;
+    expect(() => recordStreamEvidence(injected)).toThrow();
+    expect(JSON.stringify(readStreamEvidence())).not.toContain('CASE-FRAGMENT-INVALID-9X');
+
+    class CaseFragmentError extends Error {}
+    clearStreamEvidence();
+    await collect(structuredProvider(async () => {
+      throw new CaseFragmentError('SECRET-CASE-CONTENT-9X');
+    }));
+    expect(readStreamEvidence().at(-1)).toMatchObject({ errorName: 'UnknownError', kind: 'network' });
+    expect(JSON.stringify(readStreamEvidence())).not.toMatch(/CaseFragment|SECRET-CASE/);
+  });
+
+  it('ProviderResponseFormatUnsupportedError 不抛穿', async () => {
+    const events = await collect(structuredProvider(UNUSED_FETCH, { profile: UNSUPPORTED_PROFILE }));
+    expect(events[0]).toMatchObject({ type: 'started', seq: 0 });
+    expect(events.at(-1)).toMatchObject({ type: 'failed', kind: 'model', retryable: false });
   });
 });

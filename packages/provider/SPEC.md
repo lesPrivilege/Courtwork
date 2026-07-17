@@ -6,6 +6,17 @@
 
 唯一 provider 边界：provider port、OpenAI Chat Completions adapter、SSE 归一、结构化输出降档、能力 profile、定价与当期 DeepSeek 产品登记。不得依赖 core、desktop、垂类包或 demo-data。
 
+## PROVIDER-STREAM-1 · 结构化真流失败协议收编（2026-07-17）
+
+状态：实现完成，等待独立验收。权威为实现就绪图 `PROVIDER-STREAM-1` 行与 desktop 同单 SPEC；本节只记录 provider 层实现，不扩大 wire/schema。
+
+- `responseSchema` 分支在调用聚合器前发出 `started`；`generateStructured` 抛出的既有五类错误族（Auth/Http/Timeout/InvalidResponse/ResponseFormatUnsupported）在 adapter 内收编为唯一 `failed` 终态，未知异常固定归入 network，协议外抛出守卫保留但触发即 bug。
+- `AbortSignal` 沿 `stream → generateStructured → sendChatCompletion → streamChatCompletion` 贯通；取消同样闭合为 canceled，不再从异步生成器抛穿。
+- `StreamEvidenceEntry` 只允许版本内冻结的信封键、失败枚举与错误名枚举；写入口运行时拒绝额外字段并逐字段重建冻结快照。模型输出、错误 message、请求正文与密钥不在入参形状中，未知异常名固定为 `UnknownError`，不得抄录 constructor/message 自由文本。
+- `packages/provider` 既有测试零修改；本单新增 `stream-closed-protocol.test.ts` 仍固定五例，在同一五例内足额覆盖五错误族、started、signal、案件片段双环不泄漏与自由文本字段类型/运行时拒绝。provider 总数保持 **109/109**，没有用加测试数掩盖 floor。
+
+验收中发现原留证函数会在运行时原样保存经类型逃逸注入的额外 `message` 字段，且未知异常会抄录任意 constructor name；这不满足“结构性零自由文本”。验收修复收紧为上述闭合信封，不改失败事件、公开 wire、依赖或持久格式。
+
 ## USAGE-LEDGER-1 · 原始 usage 与版本化估价
 
 状态：已实现，等待独立验收（实现与验收异会话）。下方“架构冻结”是本单契约权威，照抄未改；

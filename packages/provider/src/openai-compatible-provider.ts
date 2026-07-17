@@ -14,7 +14,7 @@ import {
 import { applyReasoningRoute } from './quirk-profile.js';
 import { streamChatCompletion } from './http-client.js';
 import { failureKindForStatus } from './provider-stream.js';
-import { recordStreamEvidence } from './stream-evidence.js';
+import { recordStreamEvidence, type StreamEvidenceErrorName } from './stream-evidence.js';
 
 interface StructuredFailure {
   kind: ProviderFailureKind;
@@ -61,6 +61,16 @@ function classifyStructuredFailure(error: unknown, signal?: AbortSignal): Struct
     };
   }
   return { kind: 'network', message: '服务商流读取失败', retryable: false };
+}
+
+function evidenceErrorName(error: unknown): StreamEvidenceErrorName {
+  if (error instanceof ProviderAuthError) return 'ProviderAuthError';
+  if (error instanceof ProviderHttpError) return 'ProviderHttpError';
+  if (error instanceof ProviderTimeoutError) return 'ProviderTimeoutError';
+  if (error instanceof ProviderInvalidResponseError) return 'ProviderInvalidResponseError';
+  if (error instanceof ProviderResponseFormatUnsupportedError) return 'ProviderResponseFormatUnsupportedError';
+  if (error instanceof Error && error.name === 'AbortError') return 'AbortError';
+  return 'UnknownError';
 }
 
 export interface OpenAICompatibleProviderConfig {
@@ -150,7 +160,7 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
             phase: 'structured',
             providerId: profile.providerId,
             modelId: config.modelId,
-            errorName: error instanceof Error ? error.constructor.name : typeof error,
+            errorName: evidenceErrorName(error),
             kind: failure.kind,
             retryable: failure.retryable,
             ...(failure.status !== undefined ? { status: failure.status } : {}),

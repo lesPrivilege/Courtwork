@@ -15,8 +15,8 @@
 ### 三件事（实现）
 
 1. **闭合收编（`openai-compatible-provider.ts` 结构化分支）**：`started` 前置（生命周期与流式分支一致）；`classifyStructuredFailure` 按既有错误族映射 kind/retryable（auth/timeout/HTTP→`failureKindForStatus` 复用/model/invalid_response/canceled，未知兜底 network）；报文一律产品语中文且**不携模型/响应正文**（`ProviderInvalidResponseError.message` 内嵌模型输出片段——真机即案件内容，显示零透传）；`signal` 贯通 `generateStructured→sendChatCompletion→streamChatCompletion`（结构化分支此前整体无视取消）。**协议外守卫保留，触发即 bug**。
-2. **脱敏留证（`stream-evidence.ts` 新，`./evidence` 子路径导出）**：内存环形（容量 5），只记错误信封级元数据（errorName/kind/retryable/status/attempts），**结构性不记任何自由文本**——案件内容与密钥不可达。desktop 失败显示边界读取并持久 `courtwork.provider-evidence.v1`（versioned 单键先例）；**债务清偿路径**：下轮真机复现→读该键→按 `deepseek-usage-fixture` 先例回填 `packages/provider` fixture 定谳具体怪癖（SPEC 即流程留痕）。
-3. **显示守门（`work-failure-copy.ts` 新）**：判据「零中文即技术残文」——provider 归一后的产品语（含 HTTP 状态短词）透传，协议外守卫/任何英文异常文本一律改写为兜底产品语（发生了什么+下一步，过 voice 门）。`App.startWorkRun` failed 分支接线。
+2. **脱敏留证（`stream-evidence.ts` 新，`./evidence` 子路径导出）**：内存环形（容量 5），只记错误信封级元数据（errorName/kind/retryable/status/attempts），**结构性不记任何自由文本**——案件内容与密钥不可达。验收补强为类型闭集 + 运行时额外字段拒绝 + 未知错误名固定 `UnknownError`，避免类型逃逸把 `message`/任意 constructor name 写入环。desktop 失败显示边界读取并持久 `courtwork.provider-evidence.v1`（versioned 单键先例）；**债务清偿路径**：下轮真机复现→读该键→按 `deepseek-usage-fixture` 先例回填 `packages/provider` fixture 定谳具体怪癖（SPEC 即流程留痕）。
+3. **显示守门（`work-failure-copy.ts` 新）**：原判据「零中文即技术残文」会放行夹带一个中文字的技术栈。独立验收裁定该洞与“技术报文零裸透”冲突，不接受；现先拒绝 error/provider/protocol/schema/stack/路径等技术标记，再以零中文兜底。provider 归一后的产品语（含 HTTP 状态短词）透传，其余改写为兜底产品语（发生了什么+下一步，过 voice 门）。`App.startWorkRun` failed 分支接线。
 
 ### 复杂度节制留痕
 

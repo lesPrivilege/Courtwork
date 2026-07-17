@@ -8,23 +8,81 @@
  * 由此构造上不可达。desktop 显示边界在失败时读取并持久（versioned 单键），本模块零持久。
  */
 
+import type { ProviderFailureKind } from './types.js';
+
+export type StreamEvidenceErrorName =
+  | 'AbortError'
+  | 'ProviderAuthError'
+  | 'ProviderHttpError'
+  | 'ProviderInvalidResponseError'
+  | 'ProviderResponseFormatUnsupportedError'
+  | 'ProviderTimeoutError'
+  | 'UnknownError';
+
 export interface StreamEvidenceEntry {
-  phase: 'structured' | 'chat';
-  providerId: string;
-  modelId: string;
-  errorName: string;
-  kind: string;
-  retryable: boolean;
-  status?: number;
-  attempts?: number;
-  contentChars?: number;
+  readonly phase: 'structured' | 'chat';
+  readonly providerId: string;
+  readonly modelId: string;
+  readonly errorName: StreamEvidenceErrorName;
+  readonly kind: ProviderFailureKind;
+  readonly retryable: boolean;
+  readonly status?: number;
+  readonly attempts?: number;
+  readonly contentChars?: number;
 }
 
 const CAPACITY = 5;
+const EVIDENCE_KEYS = new Set<keyof StreamEvidenceEntry>([
+  'phase',
+  'providerId',
+  'modelId',
+  'errorName',
+  'kind',
+  'retryable',
+  'status',
+  'attempts',
+  'contentChars',
+]);
+const ERROR_NAMES = new Set<StreamEvidenceErrorName>([
+  'AbortError',
+  'ProviderAuthError',
+  'ProviderHttpError',
+  'ProviderInvalidResponseError',
+  'ProviderResponseFormatUnsupportedError',
+  'ProviderTimeoutError',
+  'UnknownError',
+]);
+const FAILURE_KINDS = new Set<ProviderFailureKind>([
+  'auth',
+  'rate_limit',
+  'endpoint',
+  'model',
+  'timeout',
+  'network',
+  'protocol',
+  'invalid_response',
+  'canceled',
+]);
 let entries: StreamEvidenceEntry[] = [];
 
 export function recordStreamEvidence(entry: StreamEvidenceEntry): void {
-  entries = [...entries.slice(-(CAPACITY - 1)), entry];
+  const unknownKey = Object.keys(entry).find((key) => !EVIDENCE_KEYS.has(key as keyof StreamEvidenceEntry));
+  if (unknownKey) throw new TypeError(`provider evidence contains unsupported field: ${unknownKey}`);
+  if (!ERROR_NAMES.has(entry.errorName)) throw new TypeError('provider evidence contains unsupported errorName');
+  if (!FAILURE_KINDS.has(entry.kind)) throw new TypeError('provider evidence contains unsupported failure kind');
+
+  const snapshot: StreamEvidenceEntry = Object.freeze({
+    phase: entry.phase,
+    providerId: entry.providerId,
+    modelId: entry.modelId,
+    errorName: entry.errorName,
+    kind: entry.kind,
+    retryable: entry.retryable,
+    ...(entry.status !== undefined ? { status: entry.status } : {}),
+    ...(entry.attempts !== undefined ? { attempts: entry.attempts } : {}),
+    ...(entry.contentChars !== undefined ? { contentChars: entry.contentChars } : {}),
+  });
+  entries = [...entries.slice(-(CAPACITY - 1)), snapshot];
 }
 
 export function readStreamEvidence(): readonly StreamEvidenceEntry[] {
