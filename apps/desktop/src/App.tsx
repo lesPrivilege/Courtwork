@@ -543,26 +543,26 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       }]);
       return;
     }
-    if (selectedCaseId && isDemoCase) {
-      // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
-      // 回显路径与请求路径同源：气泡只显示用户原文，附件/粘贴块由 chip 与 PasteBlock 呈现，
-      // 不再使用旧附件占位文案（该占位逻辑正是 CHAT-MATERIAL-1 的断点之一）。
-      setLocalMessages((prev) => [
-        ...prev,
-        {
-          text: payload.text,
-          files: payload.attachments.map((item) => item.fileName),
-          pasteBlocks: payload.pasteBlocks,
-          createdAt,
-        },
-      ]);
-      return;
-    }
     // PILOT-LIVE-1 A：welcome（无案）与非 demo 案不再纯回显——work 段 composer 发送即走真实请求链
     // （与 chat 段同一组装/提交核心），随即切 chat 面承接回复（路由律：对象在哪面，点击即切面）。
-    const accepted = handleChatSend(payload);
-    if (accepted !== false) switchSegment('chat');
-    return accepted;
+    // 非 demo 在此早退：其后 demo 回显块保持 CHAT-MATERIAL-1 原字节（物理隔离，PILOT-LIVE-1-FIX #1）。
+    if (!(selectedCaseId && isDemoCase)) {
+      const accepted = handleChatSend(payload);
+      if (accepted !== false) switchSegment('chat');
+      return accepted;
+    }
+    // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
+    // 回显路径与请求路径同源：气泡只显示用户原文，附件/粘贴块由 chip 与 PasteBlock 呈现，
+    // 不再使用旧附件占位文案（该占位逻辑正是 CHAT-MATERIAL-1 的断点之一）。
+    setLocalMessages((prev) => [
+      ...prev,
+      {
+        text: payload.text,
+        files: payload.attachments.map((item) => item.fileName),
+        pasteBlocks: payload.pasteBlocks,
+        createdAt,
+      },
+    ]);
   };
 
   /** Chat transcript remains memory-only; lifecycle truth is streamed and terminalized by core Turn. */
