@@ -27,14 +27,15 @@ async function tauriCore() {
  * 「Work 状态引用非法」在 TS 边界改写为产品语言（发生了什么+下一步）。UI 主守卫在
  * `startWorkRun` 前置（存量非安全 id 显式引导），本映射兜非 UI 路径（如恢复读取）。
  */
-function mapWorkStateHostError(error: unknown): never {
+export function mapWorkStateHostError(error: unknown): never {
   if (error instanceof Error && error.message.includes('状态引用非法')) {
     throw new Error(LEGACY_CASE_SCENARIO_COPY);
   }
   if (typeof error === 'string' && error.includes('状态引用非法')) {
     throw new Error(LEGACY_CASE_SCENARIO_COPY);
   }
-  throw error;
+  // 宿主未知报文可能携路径、generation 或内部错误名；显示边界一律收敛为可行动产品语言。
+  throw new Error('案件进度暂时无法读取或保存，请重新开始合同审查');
 }
 
 export function createTauriWorkStateHost(): WorkStateHostPort {

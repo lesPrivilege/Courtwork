@@ -33,11 +33,20 @@ describe('workContextSegmentFor', () => {
     expect(segment).toContain('尚未开始');
   });
 
-  it('场景三态逐一可编译且互斥（running/paused_review/recoverable）', () => {
-    expect(workContextSegmentFor({ ...BASE, scenarioState: 'running' })).toContain('运行中');
-    expect(workContextSegmentFor({ ...BASE, scenarioState: 'paused_review' })).toContain('等待逐项确认');
-    expect(workContextSegmentFor({ ...BASE, scenarioState: 'recoverable' })).toContain('可继续');
-    expect(workContextSegmentFor({ ...BASE, scenarioState: 'running' })).not.toContain('尚未开始');
+  it('场景四态逐一可编译且互斥（not_started/running/paused_review/recoverable）', () => {
+    const expected = new Map<WorkContextInput['scenarioState'], string>([
+      ['not_started', '尚未开始'],
+      ['running', '运行中'],
+      ['paused_review', '等待逐项确认'],
+      ['recoverable', '可继续'],
+    ]);
+    for (const [state, ownCopy] of expected) {
+      const segment = workContextSegmentFor({ ...BASE, scenarioState: state });
+      expect(segment).toContain(ownCopy);
+      for (const otherCopy of expected.values()) {
+        if (otherCopy !== ownCopy) expect(segment).not.toContain(otherCopy);
+      }
+    }
   });
 
   it('零材料如实计数（不留空壳清单行）', () => {
@@ -46,8 +55,16 @@ describe('workContextSegmentFor', () => {
     expect(segment).not.toContain('设备采购合同');
   });
 
-  it('确定性：同输入同字节；零绝对路径', () => {
+  it('确定性：同输入同字节；注入含路径材料仍零绝对路径', () => {
     expect(workContextSegmentFor(BASE)).toBe(workContextSegmentFor(BASE));
-    expect(workContextSegmentFor(BASE)).not.toMatch(/[/\\]Users[/\\]|[A-Za-z]:\\/);
+    const injected = workContextSegmentFor({
+      ...BASE,
+      bindingLabel: '/Users/alice/客户甲',
+      materials: [material('/Users/alice/客户甲/设备采购合同.md', 'ready'), material('C:\\客户甲\\公章页.png', 'needs_ocr')],
+    });
+    expect(injected).not.toMatch(/[/\\]Users[/\\]|[A-Za-z]:\\/);
+    expect(injected).not.toContain('alice');
+    expect(injected).toContain('设备采购合同.md');
+    expect(injected).toContain('公章页.png');
   });
 });

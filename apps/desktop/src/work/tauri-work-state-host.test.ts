@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const invokeMock = vi.fn();
 vi.mock('@tauri-apps/api/core', () => ({ invoke: (...args: unknown[]) => invokeMock(...args) }));
 
-import { createTauriWorkStateHost } from './tauri-work-state-host';
+import { createTauriWorkStateHost, mapWorkStateHostError } from './tauri-work-state-host';
 
 const REF = { caseId: 'grant-abc-1', sessionId: '8a1f0c2e-0000-4000-8000-000000000001' };
 
@@ -52,5 +52,22 @@ describe('createTauriWorkStateHost', () => {
       input: { caseId: REF.caseId, sessionId: REF.sessionId, expectedVersion: '4', bytes: [] },
     });
     expect(out).toEqual({ applied: false, version: '5' });
+  });
+
+  it('WORK-TURN-1 G：未知 Rust 技术报文不在 TS 显示边界裸透', () => {
+    const raw = 'WorkStateError::Io(/Users/alice/案件/work-state.env generation=7)';
+    const caught = (() => {
+      try {
+        mapWorkStateHostError(new Error(raw));
+      } catch (error) {
+        return error;
+      }
+    })();
+    expect(caught).toBeInstanceOf(Error);
+    const message = (caught as Error).message;
+    expect(message).not.toContain('WorkStateError');
+    expect(message).not.toContain('/Users/alice');
+    expect(message).not.toContain('generation');
+    expect(message).toContain('重新');
   });
 });
