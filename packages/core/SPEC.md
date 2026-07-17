@@ -4,7 +4,7 @@
 
 ## PROJECTION-RESUME-1 · 续行投影「未产出/待执行」三态子节（实现完成，待独立验收）
 
-权威：[实现就绪图 `PROJECTION-RESUME-1` 行](../../docs/architecture/implementation-readiness.md) + 来源调研 [`archive/research-2026-07-15-round-3/session-handoff-survey.md`](../../archive/research-2026-07-15-round-3/session-handoff-survey.md)（集成方案节：不新增段，投影段内部新增纯编译子节；调研原稿不具约束力，本 SPEC 是实现权威）。工单基线 `main @ 0db350c`。分支 `impl/projection-resume-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。**core 内闭合：零新事件类型、零 envelope schema 变更、零 ADR-009 port 触碰、禁 LLM 参与；desktop 零触碰（e2e 不需重跑，floor 275 不动）。**
+权威：[实现就绪图 `PROJECTION-RESUME-1` 行](../../docs/architecture/implementation-readiness.md) + 2026-07-15 第三轮 session-handoff 来源调研（集成方案节：不新增段，投影段内部新增纯编译子节；调研原稿不具约束力，本 SPEC 是实现权威）。工单基线 `main @ 0db350c`。分支 `impl/projection-resume-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。**core 内闭合：零新事件类型、零 envelope schema 变更、零 ADR-009 port 触碰、禁 LLM 参与；desktop 零触碰（e2e 不需重跑，floor 275 不动）。**
 
 ### 为何非加不可（复杂度节制条）
 
