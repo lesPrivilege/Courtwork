@@ -1954,8 +1954,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   ];
 
   const effectiveLeftCollapsed = leftCollapsed || narrowRailRequired;
-  const compactLayout = effectiveLeftCollapsed && !moduleOpen.progress && !moduleOpen['working-folders'] && !moduleOpen.context
+  // PILOT-LIVE-1 D：previewOpen 开原件/结构化视图时不得继续用 rails-compact 窄轨压 Preview
+  // （左收 + 全折 + Preview 开的组合此前会把 Preview 面板压进 280~320px 窄轨——错态）。
+  const compactLayout = effectiveLeftCollapsed && !previewOpen && !moduleOpen.progress && !moduleOpen['working-folders'] && !moduleOpen.context
     && !moduleOpen.timeline && !moduleOpen.graph && !moduleOpen.matrix && !moduleOpen.revision && !moduleOpen.draft;
+  // PILOT-LIVE-1 D：右栏默认窄态——Preview 未开时右栏只需容纳 Progress/Working folders/Context
+  // 摘要，不应常驻与主内容同级宽度（旧缺陷：DEFAULT_MODULE_OPEN.progress=true 致 compactLayout
+  // 事实上恒不触发，右栏恒宽）。排除 welcome/comparing/focus-mode/right-collapsed——那些态右栏
+  // 或不存在、或另有专属网格，不应叠加窄态类。
+  const rightNarrow = viewSegment === 'work' && !isWelcome && !rightCollapsed && !focusMode && !comparing && !previewOpen;
 
   const utilityItems = [
     {
@@ -2056,7 +2063,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         onSearch={() => setPaletteOpen(true)}
       />}
       <div
-        className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
+        className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''} ${rightNarrow ? 'right-narrow' : ''}`}
         data-view-segment={viewSegment}
         data-testid="workspace"
         data-comparing={comparing ? 'true' : 'false'}
@@ -2065,6 +2072,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         data-auto-left-collapsed={narrowRailRequired ? 'true' : 'false'}
         data-right-collapsed={rightCollapsed ? 'true' : 'false'}
         data-compact={compactLayout ? 'true' : 'false'}
+        data-right-narrow={rightNarrow ? 'true' : 'false'}
       >
         {/* chatbot 形态：收敛即撤卡（不留窄条），展开钮驻 chrome 同位——与红绿灯零冲突 */}
         {!focusMode && !effectiveLeftCollapsed && (

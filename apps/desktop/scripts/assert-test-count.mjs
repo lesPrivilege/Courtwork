@@ -17,7 +17,10 @@ const count = match ? Number(match[1]) : 0;
 // CASE-PERSIST-1：真跨重载三层重建 + 失效 grant 显式态可移除 + demo 恒挂/归档清除对称 +3 → 261。
 // PILOT-LIVE-1 B：grant 案显式导航开面（起草答辩状非零反应）+ 面板内切 tab 不闪回 +2 → 263。
 // PILOT-LIVE-1 A/C：非 demo 案 work 段 composer 发送走真实请求链 + 建案/欢迎态授权自动入库（新增 pilot-entry.spec.ts 三例）+3 → 266。
-const minimum = 266;
+// PILOT-LIVE-1 D：双侧收敛居中（都开/仅左收/仅右收 + 双收回归锁升级双证）+ 右栏默认窄态（非 demo
+// 窄轨/宽轨往返 + compactLayout×previewOpen 互斥）+ chat 段/welcome 回归锁 + 窄态零溢出目检
+// ×2（新增 pilot-layout.spec.ts 九例）+9 → 275。
+const minimum = 275;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
