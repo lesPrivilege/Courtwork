@@ -85,7 +85,8 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 5. Chat 线（ADR-013）：**已闭环**。`CHAT-SESSION-1`（`e483236`，架构放行）+ `CHAT-MEMORY-1`（`49d0ef8`，验收 `fc3d9f6` 放行：规则蒸馏携来源坐标、稳定前缀注入、substring 检索 hook、查看+一键清除；案件/密钥隔离与未知版本 fail-closed 反例全部触红；core 注入缝缺省字节等同）。
 6. `OUTPUT-CONFIRM-UI-1` 已清账（`bf64fe5`，验收 `d7bda19` 含合并组合全量门）：non-applied 修订逐条产品语言展示、逐项针对性确认后重编译落盘、取消零产出；根因（risk-02/06 的 basis[0] 为法条正文致 locator_not_found）独立 probe 复现闭环。**历史两红 `rp210:43`/`system-open:12` 首次在全量门转绿，e2e 225/225 零悬案。**
 7. 独立线：`USAGE-LEDGER-1` 已清账（真实 DeepSeek usage 捕获仍待带 key 环境补做）；`PM-SCHEMA-1` 收口 OOC `score=null`、payload 版本与迁移，完成前不得创建 PM scenario。
-8. `PROJECTION-RESUME-1` 已清账（`2f6b43c`，验收 `b31c905` 放行）：续行投影新增「未产出/待执行」三态子节（等待确认/曾失败待重试携 reason/从未开始），从既有 `step_failed`+Turn journal 终态确定性编译，零新事件与 schema 变更；pending 缺省时输出逐字节等同（既有 golden 未重铸为证），稳定前缀不动。诚实边界：interrupted/awaitingConfirmation 生产供给面当前为窄（沿 `pendingGateLabels` 恒空先例登记），工具级失败即刻可见、模型级随账本生效。
+8. `READER-ISOLATION-1` 已清账（`04cf728`，验收 `ac46612` 放行）：demo 语料入口按 `isDemoCase` 隔离，非 demo 案右栏「原件阅读」整块诚实缺席（真实案预览归 `FILE-PREVIEW-1`）；不变量 7 UI 面违规闭合，e2e 278/278（floor 278）。rails-compact 四步退役已批准、执行挂 `FILE-PREVIEW-1` 顺带条款。
+9. `PROJECTION-RESUME-1` 已清账（`2f6b43c`，验收 `b31c905` 放行）：续行投影新增「未产出/待执行」三态子节（等待确认/曾失败待重试携 reason/从未开始），从既有 `step_failed`+Turn journal 终态确定性编译，零新事件与 schema 变更；pending 缺省时输出逐字节等同（既有 golden 未重铸为证），稳定前缀不动。诚实边界：interrupted/awaitingConfirmation 生产供给面当前为窄（沿 `pendingGateLabels` 恒空先例登记），工具级失败即刻可见、模型级随账本生效。
 
 后置但仍真实存在的缺口：`services/ingest` 只有规格，OCR/分类/实体对齐与 HTTP/progress wire 均未实现；正式 macOS Developer ID、公证和升级授权矩阵未完成；企业 identity、ACL、伦理墙、MCP/私域 adapter、scheduled invocation、多写者与跨案图谱属于以后阶段，不得插入本轮 Work live。
 
