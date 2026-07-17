@@ -26,8 +26,16 @@ const fixtureMd = path.resolve(here, '../fixtures/sample-brief.md');
 
 /** 进入演示工作台并等待回放推进到「待用户确认」终点；此后页面静止，A≡B 才成立。 */
 async function enterSettledDemo(page: Page): Promise<void> {
+  // PILOT-LIVE-1-FIX #2：回放逐事件延时归零（residue 谱专用，main.tsx DEV+E2E 双门读取）——
+  // 事件仍全量逐序发布、终点仍由下方条件等待把守，只消除「负载下 180ms×N 回放时长 < 30s 上限」
+  // 的时序赌注（曾于 4-worker 全量轮实证超时于本函数的批量确认等待）。
+  await page.addInitScript(() => {
+    (window as { __courtworkDemoReplayDelayMs?: number }).__courtworkDemoReplayDelayMs = 0;
+  });
   await openWorkbench(page);
-  await page.getByRole('button', { name: /批量确认/ }).waitFor();
+  // 锚定精确名（批量确认 N 项动作钮）：裸 /批量确认/ 是潜伏歧义定位符——风险行 next-step 文案
+  // 「可批量确认」同样命中，分步回放的中间帧曾掩住它，零延时一帧落齐后即 strict violation。
+  await page.getByRole('button', { name: /^批量确认 \d+ 项$/ }).waitFor();
   await page.waitForTimeout(400);
 }
 
@@ -98,6 +106,35 @@ test.describe('开合闭合门 · 疊层清单', () => {
       role: 'menu',
       focus: trigger,
       open: () => trigger.click(),
+      close: () => page.keyboard.press('Escape'),
+    });
+  });
+
+  /**
+   * PILOT-LIVE-1-FIX #2 · 墙钟稳定性自证：message-actions 的相对时间戳按设计随墙钟翻字
+   * （just now→1m ago→…，MessageActions.tsx 30s interval），翻字落在 A→B 窗口内曾以
+   * ~1/14 全量轮概率破 A≡B（2026-07-17 收割实证 274/275 于 model-config 例，与验收失败
+   * 轮廓同款；慢机窗口更长故更频）。本例把翻字确定性注入 A→B 窗口：掩蔽缺席必红（红证），
+   * 墙钟归一化（suppressFocusRing 注入 visibility:hidden，盒占位保留）后必绿——时间语义不属像素域，
+   * 该元素的存在/位置仍受 DOM 残留门与全域比对约束（掩蔽矩形方案因 bbox 随文本变宽已证不可行）。
+   */
+  test('墙钟自证 · 相对时间戳在 A→B 窗口内翻字不得破 A≡B（墙钟归一化）', async ({ page }) => {
+    await enterSettledDemo(page);
+    const trigger = page.getByTestId('user-menu-trigger');
+    await runClosureGate(page, {
+      label: 'wall-clock-mask',
+      overlay: page.getByTestId('user-menu'),
+      role: 'menu',
+      focus: trigger,
+      open: async () => {
+        // 确定性重演跨分钟界翻字（像素形态与真实翻字同构：同元素文本变更）。
+        await page.evaluate(() => {
+          document.querySelectorAll('[data-testid="message-relative-time"]').forEach((el) => {
+            el.textContent = '59m ago';
+          });
+        });
+        await trigger.click();
+      },
       close: () => page.keyboard.press('Escape'),
     });
   });

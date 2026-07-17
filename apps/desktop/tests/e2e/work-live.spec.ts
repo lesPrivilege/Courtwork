@@ -273,3 +273,47 @@ test('grant 案未装配（无 transport 且无 stub）：start → rejected/not
   await expect(page.getByTestId('work-output-docx')).toHaveCount(0);
   await expect(page.getByTestId('s3-launcher')).toBeVisible();
 });
+
+/**
+ * PILOT-LIVE-1 B：grant 案的显式导航必须打开工作面。真机首轮试点缺陷——「起草答辩状」「更多」
+ * 等场景入口点击零变化（previewOpen 在 choosePrimaryView 内按 demo 判定，grant 案恒 false），
+ * 命令链自始至终未被触达；未开通工作面的显式提示也因此永不可达。
+ */
+test('grant 案点「起草答辩状」打开工作面并显式提示未适用（非零反应）', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await createGrantCase(page);
+
+  // 新建 grant 案初始停四模块列（十四章：非 demo 空案停大纲引导）
+  await expect(page.getByTestId('preview-host')).toHaveCount(0);
+  // 与真机操作同径：窄容器下「起草答辩状」驻「更多」popover（真机反馈原话即「起草答辩状/更多」）
+  await page.getByTestId('scene-more').click();
+  await page.getByTestId('scene-more-popover').getByRole('button', { name: '起草答辩状' }).click();
+
+  // 点击必须有可观察结果：工作面打开，且是显式「未适用」提示而非伪装可用
+  await expect(page.getByTestId('preview-host')).toBeVisible();
+  await expect(page.getByTestId('preview-host')).toContainText('该工作面暂不适用于合同审查');
+});
+
+test('grant 案审阅面板内切换 tab 不关闭工作面', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await setSuccessTurnStub(page, QUOTE);
+  await createGrantCase(page);
+  await ingestContract(page);
+
+  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('s3-run').click();
+  await expect(page.getByTestId('revision-panel')).toBeVisible();
+
+  // 面板内切 tab（起草）不得把整个工作面闪回大纲列——切到的面未适用时显式提示
+  await page.getByTestId('view-draft').click();
+  await expect(page.getByTestId('preview-host')).toBeVisible();
+  await expect(page.getByTestId('preview-host')).toContainText('该工作面暂不适用于合同审查');
+
+  // 切回审阅 tab，审阅面完整回归（状态未被销毁）
+  await page.getByTestId('view-revision').click();
+  await expect(page.getByTestId('revision-panel')).toBeVisible();
+  await expect(page.getByTestId('revision-panel')).toContainText('付款期限较长');
+});

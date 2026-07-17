@@ -196,6 +196,13 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
    自动排布否则把正文列挤进那条 48px），与撤卡策略对齐为「正文 + 窄右栏」两列。 */
 .workspace.rails-compact { grid-template-columns: minmax(0, 1fr) minmax(280px, 320px); }
 .workspace.left-collapsed.right-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr); gap: 0; padding-inline: 0; }
+/* PILOT-LIVE-1 D：右栏默认窄态——Preview 未开时右栏只需容纳摘要模块，不常驻与主内容同级
+   宽度（旧缺陷：DEFAULT_MODULE_OPEN.progress=true 致 rails-compact 事实上恒不触发，右栏
+   恒宽 560~1.25fr）。previewOpen 开原件/结构化视图时 App 层不加此类，回退复用上方既有宽轨。
+   .right-narrow.left-collapsed 三类复合选择器特异度高于 .rails-compact / .left-collapsed
+   （二者皆两类），左收+全折+右栏窄三态并存时窄轨组合规则正确胜出，见 SPEC §5 自查。 */
+.workspace.right-narrow { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr) minmax(280px, 320px); }
+.workspace.right-narrow.left-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr) minmax(280px, 320px); }
 /* LAYOUT-CONVERGE-1 P1-3（架构裁定：跨模式阅读宽度一致）：work 单列态（双侧收拢）正文列
    套用与 chat-segment 同一 --content-measure，正文不再随视口全宽漂移。 */
 .workspace.left-collapsed.right-collapsed .conversation-scroll { padding-inline: max(16px, calc((100% - var(--content-measure)) / 2)); }
@@ -204,6 +211,14 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
    才封得住，flex 行的 auto margin 才不塌成 min-content。 */
 .workspace.left-collapsed.right-collapsed .scene-strip,
 .workspace.left-collapsed.right-collapsed .composer-stack { width: 100%; max-width: var(--content-measure); margin-inline: auto; }
+/* PILOT-LIVE-1 D：双侧收拢外的三态（都开/仅左收/仅右收）此前无正文测宽覆盖——正文随列宽
+   flex-stretch 铺满，与已收敛的双侧收拢/chat 段测宽基准不一致。:not(.left-collapsed.right-collapsed)
+   复合排除只挡「双侧都收」（该态已由上方规则覆盖，值相同不冲突）；chat-segment 排除因其为另一
+   DOM 分支下的同名类（.conversation-scroll 等），有自己的既有规则（见下方 :237-238），本规则
+   命中与否互不影响结果，排除只为避免重复语义。 */
+.workspace:not(.chat-segment):not(.left-collapsed.right-collapsed) .conversation-scroll { padding-inline: max(16px, calc((100% - var(--content-measure)) / 2)); }
+.workspace:not(.chat-segment):not(.left-collapsed.right-collapsed) .scene-strip,
+.workspace:not(.chat-segment):not(.left-collapsed.right-collapsed) .composer-stack { width: 100%; max-width: var(--content-measure); margin-inline: auto; }
 .case-rail, .conversation, .right-workbench { min-width: 0; min-height: 0; display: flex; flex-direction: column; border-right: 0; }
 .case-rail, .right-workbench { margin-block: var(--elevation-float-inset); }
 .workspace.focus-mode .right-workbench { margin-block: 0; }
@@ -1529,9 +1544,19 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .rail-seam-toggle { position: absolute; z-index: 31; top: 2px; left: -22px; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; }
 .rail-seam-toggle:hover { background: var(--control-hover); color: var(--text-primary); }
 .rail-seam-toggle .line-icon { width: 14px; height: 14px; }
-/* 左栏收敛：案件标题吸附内容测宽中线，随视口重排，避免固定避让值在不同屏宽漂移。 */
+/* 左栏收敛：案件标题吸附内容测宽中线，随视口重排，避免固定避让值在不同屏宽漂移。
+   （chat 段+左收共用同一 .chat-titlebar/.chat-case-head 类名，此规则一并覆盖，保留不动。） */
 .workspace.left-collapsed .conversation .chat-case-head,
 .workspace.left-collapsed .chat-titlebar {
+  justify-content: center;
+  padding-inline: max(14px, calc((100% - var(--content-measure)) / 2));
+}
+/* PILOT-LIVE-1 D：work 段正文测宽覆盖扩展到全部收拢组合后，标题带须跟随同一基准——不再只
+   在左收态居中（都开/仅右收下正文已居中而标题仍贴左会错位）。用 data-testid 精确限定 work
+   段画布（conversation.canvas-layer 与 chat 段共用同一复合类名，不能靠 class 区分），不影响
+   上方 chat 段+左收的既有规则。 */
+[data-testid="conversation-canvas"] .chat-case-head,
+[data-testid="conversation-canvas"] .chat-titlebar {
   justify-content: center;
   padding-inline: max(14px, calc((100% - var(--content-measure)) / 2));
 }
@@ -1592,6 +1617,8 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .composer-paste-chip small { flex: none; color: var(--text-tertiary); font: var(--type-dense-meta-size)/1 var(--mono); }
 .composer-paste-chip button { flex: none; display: grid; place-items: center; width: 18px; height: 18px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; }
 .composer-paste-chip button:hover { background: var(--control-hover); color: var(--text-primary); }
+/* PILOT-LIVE-1 C1：入口收窄引导——行内提示，零新色/影/渐变，复用既有 border/bg-app/text-secondary token。 */
+.composer-entry-guidance { margin: 0 0 6px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-app); color: var(--text-secondary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
 
 /* DESLOP-GATE-2：按压只属于主操作、图标与 popover trigger；键盘触发不进入 :active。 */
 :is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger) {

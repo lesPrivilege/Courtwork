@@ -2,7 +2,57 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
-## WORK-HOST-1 · Tauri/Rust WorkState opaque-blob 宿主（实现完成，待独立验收）
+## PILOT-LIVE-1 · 真机试点首轮四缺陷闭合（P0 伞单）（实现完成，待独立验收）
+
+权威：[试点台账 `pilot-2026-07-17.md`](../../docs/status/pilot-2026-07-17.md)（本单事实源）+ [实现就绪图 `PILOT-LIVE-1` 行](../../docs/architecture/implementation-readiness.md)。工单基线 `main @ 1d287a6`；实际起点 `f6f0da5`（`1d287a6..f6f0da5` 经核仅 docs+site，含 643176f 的 D 项右栏窄态补充台账，与本单代码零重叠）。分支 `impl/pilot-live-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`/`ACCEPTANCE.md`。**不改 harness/schema/wire 语义**——四项全为真机 live 装配与产品面路由缺口；desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动。分批提交，每批独立可验：B=`04a19e2`、A+C=`08148a7`、D=`84edc8b`。
+
+### 四项根因与修复（每项先红后绿，红证均红在断言点）
+
+| 项 | 根因（一句话） | 修复 | 红证位置 |
+|---|---|---|---|
+| A 附件正文未入请求【P0·不变量 4】 | welcome/work 段 composer 走 `handleComposerSend`＝demo 排队/回显之外的**纯本地回显**（气泡+文件名 chip），从不调用模型；chat 段追问的 history（`chatMessages`）不含回显消息，模型故答「没有文件」（Input token 241/327 印证）；e2e 只测 chat 段 composer 故工程面恒绿——**非 Tauri 文件读取差异**（浏览器/Tauri 的 TS 组装链逐环核实同码） | 非 demo/welcome 发送统一走 `handleChatSend`（`assembleRequestContent` 同源组装入请求）并按批次七④路由律切 chat 面承接回复。demo 路径物理隔离（PILOT-LIVE-1-FIX #1 纠偏：首轮为条件包裹重构，「字节不动」宣称与实测不符经验收驳回，现复原为**纯插入**）：非 demo 路由以早退置前，demo 排队与回显块相对 CHAT-MATERIAL-1 基线逐字节未动（`git diff` 该函数仅 + 行），行为不变另有 demo 谱（routing-law 存入桥/ux1/rp2x）与 demo golden 全绿加证。伴生加固：`ingestFiles` 逐文件 try/catch + `resolveAttachmentUpload` 双 `.catch`，读取/处理失败一律显式 failed chip（`FILE_READ_FAILURE_COPY`/`UNEXPECTED_PROCESSING_FAILURE_COPY`，过 voice 门），杜绝整批静默消失 | `pilot-entry.spec.ts` A 主红证（修复前：请求零发出、`data-view-segment` 恒 work）；`Composer.dom.test.ts`「readFileBytes 抛错」（修复前：零 chip + Unhandled Rejection） |
+| B Work 场景零反应【P0】 | `choosePrimaryView` 内 `setPreviewOpen(isDemoCaseId(...))`（f3f61d0 回归）——grant 案点「起草答辩状/更多/⌘K/面板内 tab」DOM 零变化，命令链自始至终未被触达，显式未开通提示（`该工作面暂不适用于合同审查`）也因此不可达；work 装配链本身（transport→turn engine→work runtime→宿主 CAS→rejected 反馈）逐环核实无恙 | 恢复无条件 `setPreviewOpen(true)`（十四章「demo 进浏览器态/非 demo 空案停大纲」语义由切案 effect `App.tsx` 独立承载，双处判定正是回归根源）；`onOpenOutline` 的单点补丁随之退役 | `work-live.spec.ts`「起草答辩状…非零反应」（修复前 stash 复跑：`preview-host` 不可见）+「切换 tab 不关闭工作面」（修复前：面板闪回大纲） |
+| C 材料入口范式错位【P0】 | 旧 `webkitdirectory` 摊平机制的 `ingestFiles` 原班未动，经 `composer-file-input multiple` 与 window 级 drop（不查目录项）两条残余触达口仍可爆平；「任一 failed→整条阻断」解释「且未成功」；NewCaseDialog 建案绑 grant 不入库、welcome/demo 态 Add folder 只 toast 留悬空 grant 两处死端把用户逼向 chat 附件 | `admitEntry` 唯一准入点（目录检测 `webkitGetAsEntry` + `type===''&&size===0` 兜底启发式／多文件／已有附件再添 → 零 chip + 行内引导 `composer-entry-guidance`，无 overlay）；`composer-file-input` 退 `multiple`（单文件律）；建案 on-bind 自动入库（`createCaseWithFolder` 显式传 `newId` 不依赖 setState 时序）；welcome/demo 态授权即建案+选中+入库——文件夹入口一律路由 `grant→case-root→material-ingress` 链（复用已验收 `ingestAuthorizedFolder`，**零新入库语义**） | `Composer.dom.test.ts` 目录/双文件/再添三例（修复前：爆平出 chip）；`pilot-entry.spec.ts` C2 两例（修复前：卷宗空、只 toast） |
+| D 居中不对齐 + 右栏默认占宽【P1】 | work 段正文测宽只覆盖双侧收拢与 chat 段，都开/仅左收/仅右收三态 flex-stretch 铺满（实测 870/986/2108px vs 760）；右栏宽窄从不读 `previewOpen`，`DEFAULT_MODULE_OPEN.progress=true` 使 rails-compact 事实恒不触发（右栏恒宽 651px+） | `:not(.chat-segment):not(.left-collapsed.right-collapsed)` 补齐三态同式测宽（gate 锁定块字节不动）；work 段标题带全态跟随同一基准；新增 `right-narrow` 态（work && !welcome && !rightCollapsed && !focusMode && !comparing && !previewOpen → `minmax(280px,320px)` 窄轨，展开 Preview 回宽轨）；`compactLayout` 补 `!previewOpen` 修「左收+全折+Preview 开」窄轨压 Preview 错态 | `pilot-layout.spec.ts` 九例（修复前：三态宽度断言红、右栏 651 vs ≤340、`data-compact` 未让位） |
+
+### 复杂度节制留痕（本单新增了什么概念、为何非加不可）
+
+**零新概念**。全部修复为既有机制的路由/覆盖面修正：A 复用 `handleChatSend`+`switchSegment`；B 为一行回归修复；C 的 `admitEntry`/`entryGuidance`/`createCaseWithFolder` 是平铺守卫函数、布尔态与薄包装（零新抽象层/状态机/持久面/依赖）；D 的 `right-narrow` 是既有 `.workspace` 态族新成员（与 `left-collapsed`/`rails-compact` 同机制），非新范式。零新 crate、零新持久化格式、零契约改动。
+
+### 触面与门禁
+
+- **触面（全 `apps/desktop`）**：`src/App.tsx`（B 开面回归 + A 路由 + C2 建案入库闭环 + D 态类/互斥）、`src/composer/Composer.tsx`（A2 显式失败 + C1 准入收窄）、`src/composer/outcome-copy.ts`（+2 文案）、`src/styles.css`（C 引导样式 + D 测宽/窄轨规则，全 token 零新色影渐变）、新增 `src/composer/Composer.dom.test.ts`（4）、`tests/e2e/pilot-entry.spec.ts`（3）、`tests/e2e/pilot-layout.spec.ts`（9）、`tests/e2e/work-live.spec.ts`（+2）、`scripts/assert-test-count.mjs`（floor 261→263→266→275，逐批注明本单）。
+- **门禁实跑（本会话隔离端口，最终以独立验收为准）**：`pnpm -r build` 全 workspace、根 `pnpm lint`、root Vitest **1222/1222**、desktop Vitest **55 files / 332 tests**；全静态门链（五 contract 门 + voice 门 + layout-converge/motion/neutral/elevation 设计门）不回退；隔离端口完整 Playwright：分批单 worker 复跑 app 254/254 + residue 21/21，全链终值见实现留痕末行。
+- **禁止扩张（遵守）**：未改 harness/schema/wire；未动 `packages/**`/`src-tauri`/门禁脚本（除 floor 只升）；未动 demo 排队/回显与存入桥仪式语义；未改 `docs/status/current.md`/`ACCEPTANCE.md`/试点台账（真机复验回填归产品负责人）。
+
+### 已知边界（诚实留痕，真机复验清单归产品负责人）
+
+1. **A 的真机全链**（Tauri 壳+真实 key：work 面附 md 发送→模型确认收到正文）为本单修复的最终判据；自动化 parity（请求体逐字断言）已闭合，但不得以 e2e 绿宣称真机成立。
+2. **C 的目录检测启发式**：`webkitGetAsEntry` 与 `type===''&&size===0` 兜底在真机 WKWebView/Tauri `dragDropEnabled`（默认 true，可能在 WebView 前拦截原生拖放）下的实际行为未证实——即便检测全落空，A2 的显式失败 chip 兜底保证不再静默。真机应分别验证「点选文件」与「拖拽文件夹」两径。
+3. **A 路由后的跨面观感**：work 面发送切 chat 面承接回复（路由律既定），多轮 history 沿 `continuationHistory` 1 小时窗口既有行为，未新增非 demo 多轮专项覆盖。
+4. **D 的窄态视觉**：280–320px 下双案型全展开零横向溢出经自动化+截图留证；多显示器/系统缩放未验。
+5. `entryGuidance` 清除时机为成功附件/发送/下次拖放判定三触发点；「移除 chip」不清除（下次动作即重判），如需更积极清除属文案层微调。
+
+### 复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权）
+
+1. **`RightRailModules` 的 `readerEntries` 硬编码 demo 语料对非 demo 案渲染**（`App.tsx` 大纲下方「设备采购合同/催告函/验收记录扫描件」，点击注入 demo `contractSourceMd`）——grant 案右栏出现演示原件入口，与 demo/真实双向隔离的观感相悖；建议按 `isDemoCase` 过滤或接真实材料列表。
+2. **`data-preview-open="true"` 死字面量**（`App.tsx` `.right-workbench` 上，恒真、无 CSS/测试消费者）——从未绑定真实 `previewOpen`，建议删除或绑真值。
+3. **`rails-compact` 成为 `right-narrow.left-collapsed` 的子集冗余**——`right-narrow` 使模块开合不再影响列宽后，rails-compact 的触发面（左收+全折+preview 关）被完全覆盖且轨值相同；其 class/CSS 受 `assert-layout-converge.mjs` 字面锁定，退役需连门禁一并拍板。
+4. **测宽规则等值冗余**：`:not()` 通用规则使双收态专属测宽块成为等值冗余（同受门禁字面锁定，收敛候选）。
+5. **composer 拖放悬浮层文案硬编码英文未走 `CHROME_COPY`**（`Composer.tsx` drop overlay「Drop files to attach…」）——沿 voice/词表纪律应入册。
+
+### 实现留痕（2026-07-17，待独立验收）
+
+侦察四腿（链路/装配/入口/布局）→ 根因逐一在代码行级核实 → 分批 TDD 施工。B 的红证经 stash 隔离复跑坐实（未修复码上 `preview-host` 不可见）；A 的红证以「请求零发出」为断言点（非 UI 断言）；C 的爆平红证直接复现旧摊平行为；D 红证带像素级偏差记录。全链 e2e 终值：完整 `test:e2e`（静态门链 + Playwright app 254 + residue 21 = 275）于合并树隔离端口实跑，见对应提交与完工报告。
+
+### PILOT-LIVE-1-FIX · 驳回答复（2026-07-17，三条逐一）
+
+1. **宣称纠偏 + demo 字节复原**：首轮把 demo 回显块条件包裹重构却宣称「字节不动」，宣称与实测不符。现改为非 demo 早退置前**纯插入**（`git diff` 基线该函数仅 + 行，demo 排队与回显块逐字节复原），SPEC A 行措辞同步对齐（见上表）。
+2. **合并树 e2e 追平**：rebase 至 `main @ 0db350c`（`f6f0da5..0db350c` 纯 docs，desktop 零漂移无冲突）。失败例收割：14 轮全量（workers 5/6 + 外置 CPU 榨压）复现验收同款 **274/275 于 `model-config-popover` A≡B**（另有 4-worker 轮 `批量确认` 等待超时前科）。三根因全部定性为**既有谱自身不确定性，非本单四修改动诱发**（机制均先于本单存在），逐条修稳：
+   - **墙钟翻字破 A≡B**（主根因）：`MessageActions` 相对时间戳恒可见且按 30s interval 随墙钟翻字（`just now→1m ago→…`），跨分钟界落在 A→B 窗口内即破像素等同——慢机窗口更长故验收更频。修法＝**墙钟归一化**：`suppressFocusRing` 注入面加 `[data-testid="message-relative-time"]{visibility:hidden}`（盒占位保留、与焦点轮廓归一同族；时间语义不属像素域，元素存在/位置仍受 DOM 残留门约束）。新增「墙钟自证」用例把翻字确定性注入窗口内：**先红**（Δ=52-136 @ y≈674，与收割实况同签名）**后绿**；中途曾试掩蔽矩形方案，因 bbox 随文本变宽在掩框边缘露差（Δ=249 实证）而否弃，留痕防重蹈。
+   - **回放时长赌注**：demo 回放逐事件 180ms 人造延时 ×N vs 30s 等待上限，负载下可越线（4-worker 实证）。修法＝residue 谱经 `addInitScript` 预设延时归零（`main.tsx` 与其余测试钩子同 DEV+E2E 双门，生产/Tauri composition 永不读取）；事件仍全量逐序发布、终点仍由条件等待把守，消除的只是人造延时。
+   - **歧义定位符（潜伏）**：裸 `/批量确认/` 同时命中动作钮与风险行 next-step 文案「可批量确认」（`Panels.tsx:262`）——分步回放的中间帧恰只有 1 个匹配故十余单未爆；零延时一帧落齐立即 strict violation。修法＝锚定 `^批量确认 \d+ 项$`（收紧非削弱）。
+3. **触碰面**：全程 `apps/desktop` 的 src/tests/scripts/SPEC.md（后两者经架构豁免）。floor `275 → 276`（+墙钟自证）。禁用手段自查：零超时放大、零 skip、零断言削弱（归一化/锚定均为收紧或语义化）。终局验证：连续两轮完整 `test:e2e` 与 residue 三轮见完工报告与提交信息。
 
 权威：[实现就绪图 `WORK-HOST-1` 行](../../docs/architecture/implementation-readiness.md)（测量单阈值软 4 MiB / 硬 16 MiB / 每屏障 ~10ms；退出证据：cargo 崩溃注入 kill -9 原子性、跨重启复现步骤补记 WORK-LIVE SPEC、swap 后 work-live 全链 e2e 仍绿）+ [ADR-010 决定二](../../docs/decisions/ADR-010-work-live-boundaries.md)（whole-envelope CAS、opaque blob host port、原子替换三段「同目录临时文件落盘 + rename + 目录项落盘」、macOS `F_FULLFSYNC` 真机证据要求、宿主只强制 scope/id 形状/大小上限/穿越隔离/原子替换）。基线 `main @ f0ceae7`（8dcb68d 之后新尖端，含 WORK-LIVE-1 与 LAYOUT-CONVERGE-1）。分支 `impl/work-host-1`，worktree 施工，未推送、未改 `docs/status/current.md`。
 

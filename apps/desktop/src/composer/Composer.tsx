@@ -10,6 +10,7 @@ import { useDismissOnOutside } from '../hooks/useDismissOnOutside';
 import { shouldBlockPaste } from '../chat/PasteBlock';
 import { AttachmentChip } from './AttachmentChip';
 import { createAttachmentShell, resolveAttachmentUpload, withResolvedStatus, type ConvertFn } from './process-upload';
+import { FILE_READ_FAILURE_COPY, UNEXPECTED_PROCESSING_FAILURE_COPY } from './outcome-copy';
 import {
   CONTAINERIZE_COPY,
   DEMO_CASE_OPTIONS,
@@ -105,6 +106,8 @@ export function Composer({
   const [pasteBlocks, setPasteBlocks] = useState<string[]>([]);
   const [containerizeFor, setContainerizeFor] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  /** PILOT-LIVE-1 C1：入口收窄引导态（文件夹 / 多文件 / 已有附件再添）；下次成功附件/发送/再次拖放时清除。 */
+  const [entryGuidance, setEntryGuidance] = useState(false);
   const composingRef = useRef(false);
   const dragDepth = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -156,19 +159,44 @@ export function Composer({
 
       const shells: ComposerAttachment[] = [];
       for (const file of list) {
-        const bytes = await readFileBytes(file);
-        // 文件夹选择时 webkitRelativePath 含路径，chip 只显示文件名
-        const displayName = file.name;
-        shells.push(createAttachmentShell(displayName, bytes, nextAttachmentId(), uploadClock()));
+        const id = nextAttachmentId();
+        try {
+          const bytes = await readFileBytes(file);
+          // 文件夹选择时 webkitRelativePath 含路径，chip 只显示文件名
+          const displayName = file.name;
+          shells.push(createAttachmentShell(displayName, bytes, id, uploadClock()));
+        } catch {
+          // PILOT-LIVE-1 A2：文件读取失败（真机 WKWebView 已知边界）不得让整批附件静默消失——产出一枚
+          // 显式 failed chip，与 reading-view 转换失败共用同一视觉族（核心不变量四）。retryable=false：
+          // 架构上不留原始 File 引用，"重试"只能重跑转换而非重读磁盘，对此类失败无意义。
+          const shell = createAttachmentShell(file.name, new Uint8Array(0), id, uploadClock());
+          shells.push({
+            ...shell,
+            status: { kind: 'failed', reason: 'error', message: FILE_READ_FAILURE_COPY, retryable: false },
+          });
+        }
       }
       setAttachments((prev) => [...prev, ...shells]);
 
       for (const shell of shells) {
-        void resolveAttachmentUpload(shell, convert).then((resolved) => {
-          setAttachments((prev) =>
-            prev.map((item) => (item.id === shell.id ? withResolvedStatus(item, resolved) : item)),
-          );
-        });
+        if (shell.status.kind !== 'uploading') continue; // 读取已失败的 shell 是终态，不再进转换
+        void resolveAttachmentUpload(shell, convert)
+          .then((resolved) => {
+            setAttachments((prev) =>
+              prev.map((item) => (item.id === shell.id ? withResolvedStatus(item, resolved) : item)),
+            );
+          })
+          .catch(() => {
+            // PILOT-LIVE-1 A2：转换调用本身意外抛错（非 reading-view 建模内的失败态）同样落为显式
+            // failed，绝不让 chip 卡死在 uploading（核心不变量四）。
+            setAttachments((prev) =>
+              prev.map((item) =>
+                item.id === shell.id
+                  ? withResolvedStatus(item, { kind: 'failed', reason: 'error', message: UNEXPECTED_PROCESSING_FAILURE_COPY, retryable: true })
+                  : item,
+              ),
+            );
+          });
       }
     },
     [convert, uploadClock],
@@ -184,15 +212,44 @@ export function Composer({
           status: { kind: 'uploading', startedAt: uploadClock() },
           readingMarkdown: undefined,
         };
-        void resolveAttachmentUpload(shell, convert).then((resolved) => {
-          setAttachments((current) =>
-            current.map((item) => (item.id === id ? withResolvedStatus(item, resolved) : item)),
-          );
-        });
+        void resolveAttachmentUpload(shell, convert)
+          .then((resolved) => {
+            setAttachments((current) =>
+              current.map((item) => (item.id === id ? withResolvedStatus(item, resolved) : item)),
+            );
+          })
+          .catch(() => {
+            setAttachments((current) =>
+              current.map((item) =>
+                item.id === id
+                  ? withResolvedStatus(item, { kind: 'failed', reason: 'error', message: UNEXPECTED_PROCESSING_FAILURE_COPY, retryable: true })
+                  : item,
+              ),
+            );
+          });
         return prev.map((item) => (item.id === id ? shell : item));
       });
     },
     [convert, uploadClock],
+  );
+
+  /**
+   * PILOT-LIVE-1 C1：唯一入口准入点，先于 ingestFiles 收窄——目录与多文件一律清空 + 置引导态，不误当
+   * 单文件静默处理（核心不变量四）。目录检测优先取 drop 携带的 DataTransferItem.webkitGetAsEntry；
+   * 落地兜底：批内任一 File 呈 type===''&&size===0（拖放目录时的已知信号）同样判定为疑似目录
+   * （WKWebView 支持度待真机复验）。已有附件（任意状态）时再添也一律拦下，不静默吞掉。
+   */
+  const admitEntry = useCallback(
+    (files: File[], items?: DataTransferItemList | null) => {
+      const hasDirectoryEntry = items
+        ? Array.from(items).some((item) => item.webkitGetAsEntry?.()?.isDirectory)
+        : false;
+      const hasSuspectedDirectory = files.some((file) => file.type === '' && file.size === 0);
+      const admitted = !hasDirectoryEntry && !hasSuspectedDirectory && attachments.length === 0 && files.length === 1;
+      setEntryGuidance(!admitted);
+      return admitted;
+    },
+    [attachments.length],
   );
 
   const handleSend = useCallback(() => {
@@ -204,6 +261,7 @@ export function Composer({
     setText('');
     setAttachments([]);
     setPasteBlocks([]);
+    setEntryGuidance(false); // PILOT-LIVE-1 C1：发送即清除入口引导态
     textareaRef.current?.focus();
   }, [attachments, busy, canSend, caseId, onSend, pasteBlocks, text]);
 
@@ -249,7 +307,9 @@ export function Composer({
       event.preventDefault();
       dragDepth.current = 0;
       setDragging(false);
-      void ingestFiles(event.dataTransfer.files);
+      const files = Array.from(event.dataTransfer.files);
+      if (!admitEntry(files, event.dataTransfer.items)) return;
+      void ingestFiles(files);
     };
     window.addEventListener('dragenter', onDragEnter);
     window.addEventListener('dragleave', onDragLeave);
@@ -261,7 +321,7 @@ export function Composer({
       window.removeEventListener('dragover', onDragOver);
       window.removeEventListener('drop', onDrop);
     };
-  }, [ingestFiles]);
+  }, [admitEntry, ingestFiles]);
 
   const onPaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = event.clipboardData?.items;
@@ -275,7 +335,7 @@ export function Composer({
     }
     if (files.length) {
       event.preventDefault();
-      void ingestFiles(files);
+      if (admitEntry(files)) void ingestFiles(files);
       return;
     }
     // RP-2.12 ②：多行/长文粘贴 → 折叠 mono 块（不塞进行内输入）
@@ -318,6 +378,12 @@ export function Composer({
             </div>
           ))}
         </div>
+      )}
+      {/* PILOT-LIVE-1 C1：入口收窄引导（文件夹 / 多文件 / 已有附件再添）——行内提示，无 overlay/portal。 */}
+      {entryGuidance && (
+        <p className="composer-entry-guidance" data-testid="composer-entry-guidance" role="status">
+          一次只能带一份文件 · 已有附件请先移除，需要整份文件夹请改用「+」菜单添加
+        </p>
       )}
       {attachments.length > 0 && (
         <ul className="attachment-list" aria-label="Pending attachments" id={listId}>
@@ -501,12 +567,13 @@ export function Composer({
           <input
             ref={fileInputRef}
             type="file"
-            multiple
             hidden
             data-testid="composer-file-input"
             onChange={(event) => {
-              if (event.target.files?.length) void ingestFiles(event.target.files);
+              const files = event.target.files ? Array.from(event.target.files) : [];
               event.target.value = '';
+              // PILOT-LIVE-1 C1：单文件律——一次多选一律清空置引导态，不静默截断为首个文件。
+              if (files.length && admitEntry(files)) void ingestFiles(files);
             }}
           />
 

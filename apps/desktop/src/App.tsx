@@ -543,6 +543,14 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       }]);
       return;
     }
+    // PILOT-LIVE-1 A：welcome（无案）与非 demo 案不再纯回显——work 段 composer 发送即走真实请求链
+    // （与 chat 段同一组装/提交核心），随即切 chat 面承接回复（路由律：对象在哪面，点击即切面）。
+    // 非 demo 在此早退：其后 demo 回显块保持 CHAT-MATERIAL-1 原字节（物理隔离，PILOT-LIVE-1-FIX #1）。
+    if (!(selectedCaseId && isDemoCase)) {
+      const accepted = handleChatSend(payload);
+      if (accepted !== false) switchSegment('chat');
+      return accepted;
+    }
     // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
     // 回显路径与请求路径同源：气泡只显示用户原文，附件/粘贴块由 chip 与 PasteBlock 呈现，
     // 不再使用旧附件占位文案（该占位逻辑正是 CHAT-MATERIAL-1 的断点之一）。
@@ -1361,6 +1369,17 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     return newId;
   };
 
+  /**
+   * PILOT-LIVE-1 C2：建案携 grantId 时随即就地入库该文件夹（原 NewCaseDialog 建案只绑 grant、
+   * 用户还需再点一次「Add folder」才见材料的死端）。createCase 内部已 setSelectedCaseId(newId)，
+   * 此处显式传 newId 给 ingestAuthorizedFolder，不依赖 setState 后立即读值。demo/无 grant 建案不入库。
+   */
+  const createCaseWithFolder = (input: { title: string; grantId?: string; label?: string }) => {
+    const newId = createCase({ title: input.title, grantId: input.grantId, label: input.label });
+    if (input.grantId) void ingestAuthorizedFolder(newId, input.grantId, input.label ?? '');
+    return newId;
+  };
+
   /** docs/design/principles.md：composer-first 容器化仪式 → 创建案件/项目并选中 */
   const handleContainerize = (request: ContainerizeRequest) => {
     const title =
@@ -1593,7 +1612,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       }
       const targetCaseId = selectedCaseId;
       if (!targetCaseId || isDemoCaseId(targetCaseId)) {
-        showSystemFeedback(`已授权文件夹〔${result.grant.label}〕`, true);
+        // PILOT-LIVE-1 C2：welcome/demo 态授权不再只 toast 留悬空 grant——建新案承接该文件夹并即刻入库
+        // （案名取 grant label；诚实入库计数 toast 由 ingestAuthorizedFolder 内统一给出）。
+        createCaseWithFolder({ title: result.grant.label, grantId: result.grant.grantId, label: result.grant.label });
         return;
       }
       // 未绑定案：把此 grant 记为案件根（label 供展示）；已绑定案保留原案根，材料仍带自身来源 grant。
@@ -1671,8 +1692,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     // 切案即作废任何在途 replay（防 demo 的 paced 回调污染新案——generation 守卫补齐:
     //  非 demo 案 replay effect 不跑,此处必须主动递增,否则旧回调仍匹配 myGeneration）
     replayGeneration.current += 1;
-    // 十四章：demo 案有 artifact 进浏览器态;非 demo 空案停四模块列（大纲引导）
-    setPreviewOpen(isDemoCaseId(selectedCaseId));
+    // 本函数全部调用点都是用户显式导航（scene-strip/更多/⌘K/面板内 tab/大纲行），点击即开面；
+    // 十四章「demo 进浏览器态、非 demo 空案停大纲」只作用于切案时刻，由切案 effect 独立承载（PILOT-LIVE-1 B）。
+    setPreviewOpen(true);
     setReaderDoc(null);
     previewDismissedContext.current = null;
   };
@@ -1932,8 +1954,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   ];
 
   const effectiveLeftCollapsed = leftCollapsed || narrowRailRequired;
-  const compactLayout = effectiveLeftCollapsed && !moduleOpen.progress && !moduleOpen['working-folders'] && !moduleOpen.context
+  // PILOT-LIVE-1 D：previewOpen 开原件/结构化视图时不得继续用 rails-compact 窄轨压 Preview
+  // （左收 + 全折 + Preview 开的组合此前会把 Preview 面板压进 280~320px 窄轨——错态）。
+  const compactLayout = effectiveLeftCollapsed && !previewOpen && !moduleOpen.progress && !moduleOpen['working-folders'] && !moduleOpen.context
     && !moduleOpen.timeline && !moduleOpen.graph && !moduleOpen.matrix && !moduleOpen.revision && !moduleOpen.draft;
+  // PILOT-LIVE-1 D：右栏默认窄态——Preview 未开时右栏只需容纳 Progress/Working folders/Context
+  // 摘要，不应常驻与主内容同级宽度（旧缺陷：DEFAULT_MODULE_OPEN.progress=true 致 compactLayout
+  // 事实上恒不触发，右栏恒宽）。排除 welcome/comparing/focus-mode/right-collapsed——那些态右栏
+  // 或不存在、或另有专属网格，不应叠加窄态类。
+  const rightNarrow = viewSegment === 'work' && !isWelcome && !rightCollapsed && !focusMode && !comparing && !previewOpen;
 
   const utilityItems = [
     {
@@ -2034,7 +2063,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         onSearch={() => setPaletteOpen(true)}
       />}
       <div
-        className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''}`}
+        className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''} ${rightNarrow ? 'right-narrow' : ''}`}
         data-view-segment={viewSegment}
         data-testid="workspace"
         data-comparing={comparing ? 'true' : 'false'}
@@ -2043,6 +2072,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         data-auto-left-collapsed={narrowRailRequired ? 'true' : 'false'}
         data-right-collapsed={rightCollapsed ? 'true' : 'false'}
         data-compact={compactLayout ? 'true' : 'false'}
+        data-right-narrow={rightNarrow ? 'true' : 'false'}
       >
         {/* chatbot 形态：收敛即撤卡（不留窄条），展开钮驻 chrome 同位——与红绿灯零冲突 */}
         {!focusMode && !effectiveLeftCollapsed && (
@@ -2397,7 +2427,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
               previewDismissedContext.current = null;
               manualPreviewSelected.current = true;
               choosePrimaryView(viewId as WorkbenchView);
-              setPreviewOpen(true);
             }}
             readerEntries={[
               { name: '设备采购合同', onOpen: () => { previewDismissedContext.current = null; manualPreviewSelected.current = true; setReaderDoc({ name: '设备采购合同', markdown: contractSourceMd }); setPreviewOpen(true); } },
@@ -2530,7 +2559,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       <NewCaseDialog
         open={newCaseOpen}
         onClose={() => setNewCaseOpen(false)}
-        onCreate={createCase}
+        onCreate={createCaseWithFolder}
         onAuthorizeFolder={() => hostAuth.authorizeFolder()}
       />
       <CommandPalette open={paletteOpen} commands={paletteCommands} onClose={() => setPaletteOpen(false)} />
