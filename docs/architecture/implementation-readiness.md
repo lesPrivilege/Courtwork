@@ -95,7 +95,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 | Work store | whole-envelope benchmark、CAS 延迟/写放大、kill/crash 与恢复实验 |
 | macOS 文件授权 | 完整签名/升级/移动/撤权/TCC 重授权真机矩阵已后置到正式签名发布阶段；`HOST-AUTH-LITE` 只要求失败态可见的最小证据 |
 | docx 兼容 | 精确版本的 Word/WPS 打开—轻改—保存—回读及 OOXML part/rel diff |
-| DeepSeek usage | 含 cache hit/miss、reasoning 与字段缺失的原始响应 fixture |
+| DeepSeek usage | 含 cache hit/miss、reasoning 与字段缺失的原始响应 fixture；同批核实前缀缓存是否需显式 breakpoint（Manus 手法，harness-landscape 调研 2026-07-17） |
 | 法律扫描件 | 经授权且脱敏的真实锚点；许可、用途与不入仓证据齐备 |
 
 继续收集通用文章不能替代这些实验。若外部环境或合法样本尚不可得，工单应明确阻塞，不得用合成材料宣称 external-validated。
