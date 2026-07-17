@@ -131,14 +131,14 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .evidence-step[data-stage="conclusion"] blockquote, .evidence-step[data-stage="conclusion"] p { color: var(--ink); }
 .evidence-step small { display: block; margin-top: 18px; color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
 
-.work-ledger { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 112px 0 72px; }
-.work-ledger > .section-heading { padding-bottom: 48px; }
-.work-row { display: grid; grid-template-columns: minmax(240px, 4fr) minmax(0, 8fr); gap: 48px; align-items: center; padding: 48px 0; border-top: 1px solid var(--border-hairline); }
+.work-ledger { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 72px 0 40px; }
+.work-ledger > .section-heading { padding-bottom: 28px; }
+.work-row { display: grid; grid-template-columns: minmax(240px, 4fr) minmax(0, 8fr); gap: 32px; align-items: center; padding: 28px 0; border-top: 1px solid var(--border-hairline); }
 .work-copy span { color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; }
 .work-copy h3 { margin-top: 10px; }
 .work-copy p { max-width: 30rem; margin: 16px 0 0; color: var(--text-secondary); font-size: 16px; }
 .work-crop { margin: 0; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }
-.work-crop img { width: 100%; aspect-ratio: 16 / 10; object-fit: contain; }
+.work-crop img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: contain; }
 .work-crop figcaption { padding: 8px 12px; border-top: 1px solid var(--border-hairline); color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
 
 /* Ghosty reveal：案例截图经羽化遮罩纵向扫过显影，IntersectionObserver 滚动触发（main.js）。
