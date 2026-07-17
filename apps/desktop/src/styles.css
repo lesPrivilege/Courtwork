@@ -1184,9 +1184,12 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 }
 .risk-list { border-right: 1px solid var(--border); }
 .risk-grid { display: grid; grid-template-columns: minmax(0, 1fr) 50px 52px 52px 68px; }
-.risk-grid > span:not(.signature-line):first-of-type { padding-left: 12px; }
-.risk-grid > span:not(.signature-line):first-of-type .domain-badge { margin-right: 7px; }
-.risk-summary { display: flex; align-items: center; }
+/* 徽章-正文间距直接落在 risk-summary 上（同 .nonapplied-head 的 gap 写法），不再靠
+   :not(.signature-line):first-of-type 猜同层第一个 span——SignatureLine 一旦渲染出真实节点
+   （待处置高危行的红色法理之线），risk-summary 就不再是第一个 span，旧选择器整条失配，
+   徽章与描述文字贴死零间距。左内距仍由 .dense-row > span:not(.signature-line) 的通用
+   padding:5px 8px 提供（优先级更高，位置无关，本来就稳）。 */
+.risk-summary { display: flex; align-items: center; gap: 7px; }
 .risk-summary > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .severity, .gate-state, .verification-state { justify-self: start; padding: 2px 3px !important; border-radius: 4px; font-size: var(--type-dense-meta-size); }
 .severity-high { color: var(--red-fg); background: var(--red-bg); }
