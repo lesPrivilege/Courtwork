@@ -81,7 +81,9 @@ export function RightRailModules({
         )}
       </section>
 
-      {renderModule(workingFolders, (
+      {/* READER-ISOLATION-1：零入口即整块缺席（不留悬空「原件阅读」标头）——demo 语料入口只随
+          demo 案供给，真实案的原件预览归 FILE-PREVIEW-1。 */}
+      {renderModule(workingFolders, readerEntries.length === 0 ? undefined : (
         <div className="rail-reader-entries" data-testid="reader-entries">
           <p className="rail-label">原件阅读 · 同一 Preview</p>
           {readerEntries.map((entry) => (

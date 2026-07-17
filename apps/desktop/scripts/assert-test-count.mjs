@@ -21,7 +21,8 @@ const count = match ? Number(match[1]) : 0;
 // 窄轨/宽轨往返 + compactLayout×previewOpen 互斥）+ chat 段/welcome 回归锁 + 窄态零溢出目检
 // ×2（新增 pilot-layout.spec.ts 九例）+9 → 275。
 // PILOT-LIVE-1-FIX：墙钟自证（相对时间戳 A→B 窗口内翻字不破 A≡B，先红后绿）+1 → 276。
-const minimum = 276;
+// READER-ISOLATION-1：非 demo 案零 demo 语料入口（隔离红证）+ demo 案对照锁 +2 → 278。
+const minimum = 278;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

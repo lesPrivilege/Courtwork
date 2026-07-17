@@ -2,6 +2,20 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## READER-ISOLATION-1 · demo 语料阅读入口只属 demo 案（不变量 7 UI 面）（实现完成，待独立验收）
+
+权威：[实现就绪图登记](../../docs/architecture/implementation-readiness.md)（`0db350c` 采纳 PILOT-LIVE-1 提案区 #1）。工单基线 `main @ 8535b84`（含 PILOT-LIVE-1 合并与清账）。分支 `impl/reader-isolation-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。desktop 内闭合，零契约/包改动。
+
+**根因**：`App.tsx` 向 `RightRailModules` 无条件传入硬编码演示语料 `readerEntries`（`设备采购合同`→点击注入 demo `contractSourceMd` 进 Preview；另两条 disabled）——grant/unbound 案右栏「原件阅读」出现演示入口，demo 与真实双向隔离（核心不变量 7）在 UI 面破口。**修复**：入口按 `isDemoCase` 供给（非 demo 恒 `[]`）；`RightRailModules` 零入口即整块缺席（不留悬空「原件阅读」标头——诚实缺席非空壳）；真实案的原件预览归已登记的 `FILE-PREVIEW-1`（真实材料 + reading-view 派生），本单不代建。
+
+**TDD（先红后绿，实证）**：新增 `reader-isolation.spec.ts` 红绿对照一对——非 demo 案注入反例（`reader-entry` 计数 0 + 右栏不含`设备采购合同` + `reader-entries` 块缺席；修复前红：3 入口在场）/ demo 案对照锁（三入口在场、点击进入只读阅读；全程绿证行为不回退）。`workbench.spec` 原件阅读态（demo 点击全流程）与 `pilot-layout` 窄态零溢出（demo `rail-reader-entries` 目检）均未回退。floor `276 → 278`。
+
+**顺带清账（同提案区，逐条处置）**：
+1. `data-preview-open="true"` 死字面量（提案区 #2）——经 grep 复核 src/tests/scripts 零消费者，本单删除。
+2. `rails-compact` 冗余子集（提案区 #3）——**登记不动（门锁退役候选，待架构确认）**：`right-narrow` 落地后其触发面（左收+全折+preview 关）被 `right-narrow.left-collapsed` 完全覆盖且轨值相同（`minmax(420px,1fr) minmax(280px,320px)`），已成子集冗余；但其 class 与 CSS 块受 `assert-layout-converge.mjs` 字面锁定（存在性+首列非 48px），退役须同步修改该门禁脚本＝验收标准变更。**退役方案**（供架构拍板）：① App.tsx 删 `compactLayout` 派生与 class 拼接及 `data-compact` 标记；② styles.css 删 `.workspace.rails-compact` 规则；③ `assert-layout-converge.mjs` 的 rails-compact 存在性锁改为「零出现」反向锁（幽灵列历史反例由 `layout-converge.spec.ts` 的 rails-compact 用例转 `right-narrow.left-collapsed` 同断言承接）；④ e2e 中 `data-compact` 消费点（pilot-layout compact×preview 互斥例）改断 `right-narrow`。确认前一字不动。
+
+**门禁**：tsc/eslint 净；desktop Vitest 55 files / 332 tests；`reader-isolation`+`workbench`+`d1-case-scope`+`pilot-layout` 49/49；完整 `test:e2e` 链与 residue 终值见提交信息。**禁止扩张（遵守）**：未建 FILE-PREVIEW-1 的真实预览；未动 demo 审阅/输出链与 `contractSourceMd` 其余消费点；未动 rails-compact 及其门禁；未改 `docs/status/current.md`。
+
 ## PILOT-LIVE-1 · 真机试点首轮四缺陷闭合（P0 伞单）（实现完成，待独立验收）
 
 权威：[试点台账 `pilot-2026-07-17.md`](../../docs/status/pilot-2026-07-17.md)（本单事实源）+ [实现就绪图 `PILOT-LIVE-1` 行](../../docs/architecture/implementation-readiness.md)。工单基线 `main @ 1d287a6`；实际起点 `f6f0da5`（`1d287a6..f6f0da5` 经核仅 docs+site，含 643176f 的 D 项右栏窄态补充台账，与本单代码零重叠）。分支 `impl/pilot-live-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`/`ACCEPTANCE.md`。**不改 harness/schema/wire 语义**——四项全为真机 live 装配与产品面路由缺口；desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动。分批提交，每批独立可验：B=`04a19e2`、A+C=`08148a7`、D=`84edc8b`。
