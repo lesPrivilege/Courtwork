@@ -2,7 +2,33 @@
 
 状态：既有 TURN/INTERACTION、`CONFIRM-CAS-1`、`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行
 
-## HARNESS-KERNEL-1 · 现有 Turn runtime facade（已实现，待独立验收）
+## PROJECTION-RESUME-1 · 续行投影「未产出/待执行」三态子节（实现完成，待独立验收）
+
+权威：[实现就绪图 `PROJECTION-RESUME-1` 行](../../docs/architecture/implementation-readiness.md) + 来源调研 [`archive/research-2026-07-15-round-3/session-handoff-survey.md`](../../archive/research-2026-07-15-round-3/session-handoff-survey.md)（集成方案节：不新增段，投影段内部新增纯编译子节；调研原稿不具约束力，本 SPEC 是实现权威）。工单基线 `main @ 0db350c`。分支 `impl/projection-resume-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。**core 内闭合：零新事件类型、零 envelope schema 变更、零 ADR-009 port 触碰、禁 LLM 参与；desktop 零触碰（e2e 不需重跑，floor 275 不动）。**
+
+### 为何非加不可（复杂度节制条）
+
+调研核心判定：外部通行 handoff/compact 方案全线是「LLM 把历史压成散文」，我方续行投影从权威态确定性组装已在立场上胜出；**该吸收的唯一缺字段族是「曾失败待重试」与「从未开始」的显式区分**——未落格=默认未完成是隐含语义，续行会话分不清上次是失败中断还是没开始（投影最大诚实性缺口）。底层数据已全在（`step_failed` 携 reason/retryable、interrupted 相态、`replaySession` 重建两类 failed steps），只是投影没编译它。本单只补这一条编译规则。
+
+### 设计（零新概念——纯编译规则扩展 + 既有事实的确定性归并）
+
+- **`ProjectionInput.pending?: ProjectionPendingInput`（`assembly/segments.ts`）**：可选槽位，携 `failedModelSteps`（每步最新一条，携 stepId/artifactType/attempt/reason/retryable；散文 message 留账本不入投影）、`failedToolSteps`（每 toolId 最新一条）、`interruptedSteps`、`awaitingConfirmation?`。**缺省＝子节整体缺席，既有输出逐字节不变**（CHAT-MEMORY-1 可选参先例；`assemble.test` 既有字节 golden 未重铸即为证）。
+- **编译规则（`buildProjectionSegment` 内，紧跟 `pendingGateLabels` 行之后）**：按场景声明步序遍历 artifact 步——停门步标`等待确认`（已产出仍在场，它未完成）；已落格未停门步不列（上方投影行已呈现）；中断步标`曾失败待重试——上次执行中断未见终态（第 N 次尝试、需以新尝试身份重新发起）`（ADR-010 措辞，中断为更晚事实胜出同步失败）；失败步标`曾失败待重试——{reason}（第 N 次尝试[、不可自动重试]）`；其余标`从未开始`。工具失败以独立行殿后。全部行由输入确定性编译，任何模型散文/总结的偷换在字节 golden 上即红。
+- **`derivePendingProjection(events)`（`scenario-executor/pending-projection.ts`，新文件）**：从既有 `step_failed` 事件归并槽位输入的纯函数。**真源边界（判例）**：interrupted 恒回空——仅凭会话事件把「无 artifact_produced 的 turn_linked」推定为中断，会在引语修复窗口（attempt-1 已完成、attempt-2 组装中）误判；其真源是 Turn journal 终态（`work-state-store.interruptedTurns()`），由持有终态的调用方经槽位供给。`awaitingConfirmation` 同理（生成时刻无停门）。
+- **接线（`scenario-executor/executor.ts` generateOnce，触发点复用既有组装位、不新增）**：`pending: derivePendingProjection(deps.eventLog.list())`——工具级失败即刻生产可见；模型级失败在账本携带其事件的续行/水合路径生效。**诚实登记**：`interruptedSteps`/`awaitingConfirmation` 走槽位数据、生产供给面当前为窄（与 `pendingGateLabels` 生产恒 `[]` 同先例）——中断会话按 ADR-010 须以新 start 身份重发故不复入同一组装位，停门时刻无模型调用；二者的编译规则与 golden 先行齐备，供跨窗注入/续行装配等后续消费面按既有触发点喂入，不造假生产宣称。
+- **明确不在本单**：模型提案类字段（工作假设/策略建议）唯一通道是 ask_user→RevisionEvent（另行拍板）；「用户中途改目标」需新事件类型（另行拍板）；ADR-013 决定四不动（Work 不复用 chat memory 蒸馏语义）；handoff 文件/链式引用/staleness 状态机（拒绝族）。
+
+### TDD（先红后绿，红证三层实录）
+
+- **类型层红**：`pnpm -r build` 于 core `tsc` 红（`pending` 槽位与 `pending-projection.js` 不存在）。
+- **断言层红（槽位+空实现桩上实跑）**：`segments/assemble/pending-projection` 三文件 **8 failed / 21 passed**——三态字节 golden 缺子节、稳定前缀测试的子节在场断言红、模型/工具归并规则红；executor 接线测另跑红（captured systemPrompt 不含 `■ 未产出/待执行`）。
+- **转绿**：四文件 **77/77**。反例齐备：**丢 reason**（字节 golden 逐字锁 `provider_http`）、**态混淆**（失败步不得标从未开始/从未开始步不得标失败/已落格未停门步整行缺席）、**偷换为模型总结**（子节整块字节 golden + 同输入两次编译字节等同）、**丢 retryable 语义**（`不可自动重试` 逐字断言）、**中断胜出**（同步早先 timeout 失败不叠印）、**稳定前缀**（携/不携 pending 前三段逐字节相同，子节只进第四段）。
+
+### 触面与门禁
+
+- **触面（全 `packages/core`）**：`src/assembly/segments.ts`（`ProjectionPendingInput` + 编译规则）、`src/scenario-executor/pending-projection.ts`（新，+`pending-projection.test.ts` 4 例）、`src/scenario-executor/executor.ts`（组装位一处接线 + import）、`src/assembly/segments.test.ts`（+7 例）、`src/assembly/assemble.test.ts`（+1 稳定前缀）、`src/scenario-executor/executor.test.ts`（+1 接线）。
+- **门禁**：`pnpm -r build`、`pnpm lint`、root `pnpm test` 全绿（终值见提交信息）；`assemble` 既有字节 golden `assembled-request.golden.txt` **未重铸**（缺省字节等同的机器证明）；desktop 零触碰，e2e/floor 不涉。
+- **禁止扩张（遵守）**：零新事件类型、零 envelope schema 变更、零 port/wire 改动、零新依赖/持久面/状态机；未动 demo-runtime/desktop；验收放行前不更新 `docs/status/current.md`。
 
 权威：`docs/decisions/ADR-011-minimal-harness-kernel.md`。本单不是新 agent loop，必须等待
 `WORK-BROWSER-1` 清账后，纯机械收口现有 `createTurnRunner`、interaction coordinator 与 Turn replay：

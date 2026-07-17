@@ -83,6 +83,30 @@ describe('六段组装器（byte-stable golden + 变异敏感）', () => {
     expect(renderWire(baseInput())).toBe(renderWire(baseInput()));
   });
 
+  it('PROJECTION-RESUME-1 稳定前缀：投影段携 pending 与否，前三段（契约/声明/租户）逐字节不变', () => {
+    const withoutPending = assembleScenarioRequest(baseInput());
+    const withPending = assembleScenarioRequest({
+      ...baseInput(),
+      projection: {
+        ledgerSeq: 2,
+        artifacts: {},
+        pendingGateLabels: [],
+        pending: {
+          failedModelSteps: [{ stepId: 'produce-test.Risk', artifactType: 'test.Risk', attempt: 1, reason: 'timeout', retryable: true }],
+          failedToolSteps: [],
+          interruptedSteps: [],
+        },
+      },
+    });
+    for (const index of [0, 1, 2]) {
+      expect(withPending.segments[index].body).toBe(withoutPending.segments[index].body);
+      expect(withPending.segments[index].id).toBe(withoutPending.segments[index].id);
+    }
+    // 子节确实进了第四段（投影段）而非渗入前缀——变更只失效投影段及其后的缓存。
+    expect(withPending.segments[3].body).toContain('■ 未产出/待执行');
+    expect(withoutPending.segments[3].body).not.toContain('■ 未产出/待执行');
+  });
+
   it('golden 对照（COURTWORK_UPDATE_GOLDEN=1 重铸；DIFF 即红）', () => {
     const rendered = renderWire(baseInput());
     if (process.env.COURTWORK_UPDATE_GOLDEN === '1') {

@@ -1561,3 +1561,30 @@ describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier
     ).toBe(true);
   });
 });
+
+describe('PROJECTION-RESUME-1 · 未产出/待执行子节接线（触发点复用既有组装位）', () => {
+  it('账本中既有工具级失败进入下一次生成请求的投影段；当前目标步如实标从未开始', async () => {
+    let captured: string | undefined;
+    const deps = {
+      ...buildDeps([]),
+      turnRunner: responseTurnRunner((request: GenerationRequest) => {
+        captured = request.systemPrompt;
+        return { content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) };
+      }),
+    };
+    // 模拟续行水合后的账本既有失败（与 rehydrated envelope 事件同形）——生成时投影必须编译它，
+    // 续行会话才分得清「曾失败」与「没开始」（session-handoff 调研的最大诚实性缺口）。
+    deps.eventLog.append({ type: 'step_failed', scope: 'tool', toolId: 'party-verify', reason: 'unavailable', message: '适配器未配置' });
+
+    await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+
+    expect(captured).toBeDefined();
+    expect(captured).toContain('■ 未产出/待执行');
+    expect(captured).toContain('  - 工具步曾失败：party-verify——unavailable');
+    expect(captured).toContain('  - [produce-test.Risk] 产出 test.Risk：从未开始');
+  });
+});
