@@ -1,3 +1,9 @@
+# PROVIDER-STREAM-1 · desktop 显示边界验收
+
+- **✅ 放行（2026-07-17）**：桌面 failure 显示已对纯英文技术栈、含单个中文的技术残文与正常中文归一报文完成三探针核验；原单中文字可穿透的洞已按「技术 marker 优先」收紧，含模型片段的 `InvalidResponse` 不会进入 UI 或 provider evidence。voice / work-live / parity 门、完整 E2E **287/287** 与 residue **22/22 × 3** 均在最终 rebase 树通过。详见 `packages/provider/ACCEPTANCE.md` 的 PROVIDER-STREAM-1 报告。
+
+---
+
 # ACCEPTANCE: WORK-TURN-1
 
 日期：2026-07-17
