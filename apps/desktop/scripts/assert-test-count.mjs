@@ -13,7 +13,8 @@ const count = match ? Number(match[1]) : 0;
 // WORK-LIVE-1：grant 案合同审查全链（run→gate→docx）+ 运行中取消 +2 → 254。
 // LAYOUT-CONVERGE-1：rails-compact 幽灵列反例 +1 → 255（chrome-in-card 双侧收拢改断测宽为原地升级，不计数；合并解冲突由架构师定值）。
 // WORK-LIVE-1-FIX：未装配 → rejected/not_configured 中性反馈 e2e +1 → 256。
-const minimum = 256;
+// WORK-LIVE-REPLAY-1：跨切案恢复→水合→续行 docx + 恢复失效诚实 +2 → 258（答复 WORK-HOST-1 驳回阻断二）。
+const minimum = 258;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

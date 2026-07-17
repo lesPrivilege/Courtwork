@@ -177,6 +177,82 @@ test('grant 案运行中取消：canceled 终态，无 docx 落盘', async ({ pa
   await expect(page.getByTestId('work-cancel')).toHaveCount(0);
 });
 
+/** 切到演示案再切回目标 grant 案：清空 workSessionId（React 态），持久指针（localStorage）与会话内宿主信封存活。 */
+async function switchAwayAndBack(page: Page, grantCaseId: string) {
+  await page.getByTestId('case-card-demo-linjiang').locator('button.case-card-main').click();
+  await page.getByTestId(`case-card-${grantCaseId}`).locator('button.case-card-main').click();
+  // 重新打开审查工作面（切案后 grant 案 preview 关闭）——恢复入口据持久指针在此重现。
+  await page.getByTestId('scene-work-review').click();
+}
+
+test('grant 案跨切案恢复：暂停态切走再回 → 恢复审查 → 水合投影等价 → 续行 resolve → docx（把跨重启试点变自动化用例）', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await setSuccessTurnStub(page, QUOTE);
+  await createGrantCase(page);
+  await ingestContract(page);
+  const grantCaseId = await page.evaluate(() => localStorage.getItem('courtwork.selected-case-id'));
+  expect(grantCaseId).toBeTruthy();
+
+  // 运行到暂停门禁（run→gate 中途）——run 启动即持久化恢复指针。
+  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('s3-run').click();
+  const panel = page.getByTestId('revision-panel');
+  await expect(panel).toContainText('付款期限较长');
+
+  // 切走再回（workSessionId 清空；信封仍在会话内宿主，镜像真机 Tauri 跨重启耐久）。
+  await switchAwayAndBack(page, grantCaseId as string);
+
+  // 恢复入口据持久指针重现（此前「全 App 对 workCommand.replay 零消费点」是 WORK-HOST-1 驳回根因）。
+  const recover = page.getByTestId('work-recover');
+  await expect(recover).toBeVisible();
+  await page.getByTestId('work-recover-run').click();
+
+  // 水合后审阅面重现（与重启前等价：同一风险条目）+ 恢复入口消失（riskList 已水合）。
+  await expect(panel).toContainText('付款期限较长');
+  await expect(recover).toHaveCount(0);
+
+  // 续行 resolve → docx 终链落盘（与不切案路径等价）。
+  await panel.locator('[data-risk-id="risk-1"]').click();
+  await panel.getByRole('button', { name: /查看引语/ }).click();
+  await panel.getByRole('button', { name: '确认此项', exact: true }).click();
+  const output = page.getByTestId('work-output-docx');
+  await expect(output).toBeVisible({ timeout: 15000 });
+  await expect(output).toContainText('已写入本案「产出」目录');
+});
+
+test('grant 案恢复失效诚实：信封已不存在 → 中性失效反馈 + 清残 ref，零静默、零 docx', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await setSuccessTurnStub(page, QUOTE);
+  await createGrantCase(page);
+  await ingestContract(page);
+  const grantCaseId = await page.evaluate(() => localStorage.getItem('courtwork.selected-case-id'));
+
+  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('s3-run').click();
+  await expect(page.getByTestId('revision-panel')).toContainText('付款期限较长');
+
+  // 模拟信封跨重启丢失：重置内存参考宿主（持久指针 localStorage 仍在，模拟 ref 存活而信封缺失）。
+  await page.evaluate(() => (window as unknown as { __courtworkWorkHooks: { reset(): void } }).__courtworkWorkHooks.reset());
+
+  await switchAwayAndBack(page, grantCaseId as string);
+
+  const recover = page.getByTestId('work-recover');
+  await expect(recover).toBeVisible();
+  await page.getByTestId('work-recover-run').click();
+
+  // 显式失效（info 中性态，非错误红条）+ 恢复入口消失（残 ref 已清）+ 零 docx。
+  const feedback = page.getByTestId('system-open-feedback');
+  await expect(feedback).toContainText('未找到可继续的合同审查进度');
+  await expect(feedback).toHaveClass(/\binfo\b/);
+  await expect(feedback).not.toHaveClass(/\berror\b/);
+  await expect(recover).toHaveCount(0);
+  await expect(page.getByTestId('work-output-docx')).toHaveCount(0);
+});
+
 test('grant 案未装配（无 transport 且无 stub）：start → rejected/not_configured 中性反馈，非错误红条', async ({ page }) => {
   await openWorkbench(page);
   await resetHooks(page);

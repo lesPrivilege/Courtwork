@@ -74,6 +74,9 @@ requireMatch(command, /resumeScenario/, 'resume 必须经真实 core executor re
 requireMatch(app, /workCommand\.startWithPreflight\(/, 'grant 案 run 必须经 workCommand.startWithPreflight（显式主体 preflight）');
 requireMatch(app, /workCommand\.resolveReview\(/, 'grant 案 resume 必须经 workCommand.resolveReview（逐条 revision）');
 requireMatch(app, /workCommand\.cancel\(/, 'grant 案 cancel 必须经 workCommand.cancel');
+// WORK-LIVE-REPLAY-1（答复 WORK-HOST-1 驳回阻断二）：跨切案/重启的恢复入口必须真实消费 workCommand.replay
+// 水合投影（此前「全 App 对 workCommand.replay 零消费点」是驳回根因）。
+requireMatch(app, /workCommand\.replay\(/, 'grant 案 恢复入口必须经 workCommand.replay（水合投影续行，答复 WORK-HOST-1 驳回阻断二）');
 requireMatch(app, /projectRiskListGate\(riskList/, 'grant 案 live gate 必须经 projectRiskListGate（真实 RiskList）');
 requireMatch(app, /bindDocxSourceMarkdown\(resolved\.material\)/, 'grant 案 docx 源文必须经 bindDocxSourceMarkdown（会话材料，非 demo 原文）');
 
