@@ -1,3 +1,55 @@
+# ACCEPTANCE: WORK-TURN-1
+
+日期：2026-07-17
+
+角色：獨立驗收會話
+
+對象：`impl/work-turn-1`（原基線 `main @ 7d7e55c`；原 G=`961398d`、H=`28e0a12`），於新 worktree `/Users/lesprivilege/Projects/Courtwork-accept-work-turn-1` 建 `accept/work-turn-1`；最終乾淨 rebase 至 `main @ 4370200` 後，G=`c4d12da`、H=`97d38ee`。驗收修復 `a014a16`。
+
+## 裁決
+
+**✅ 放行 WORK-TURN-1（含三項 fix-by-acceptance 實現級小修）。**
+
+G 的 UUID 鑄號、Rust `safe_token` parity、存量非安全 id 原位容忍、grant/title 保全與產品語言引導成立；H 的可選尾段、缺省字節不變、四態純編譯、Work/chat 雙向供給、journal 不分家與重試已知邊界成立。驗收不採信實現自述，親跑脏 id、雙側 parity 漂移、未知宿主報文、絕對路徑材料、core/client/module/E2E mutation。
+
+驗收發現並修正三個實現級缺口：① 原實作只有人工 parity mirror，沒有機器級同步防線；新增 `assert-work-safe-case-id-parity.mjs`，逐字鎖 TS 正則與 Rust 謂詞並接入 `test:e2e`；② 未知 Rust 技術報文原樣上拋，改在 TS 顯示邊界統一收斂為「發生了什麼＋下一步」產品語言；③ `workContextSegmentFor` 對畸形 path-shaped label/fileName 會裸送絕對路徑，改為只投影末級展示名。三項均不改 schema/wire、包公開出口、持久格式、依賴或 Rust 實作。
+
+共享樹未 checkout；未更新 `docs/status/current.md`，未 push、未 prune。E2E 全程 `reuseExistingServer=false`，使用獨立埠 `17831–17873`。
+
+## G · caseId 去標題化與存量容忍
+
+- **鑄號與 Rust parity**：`mintCaseId()` 產出 `case-${randomUUID()}`，定向單測與 E2E 持久記錄均過安全語法。人工逐字符比對兩側：空／`.`／`..`／任意 `..` 子串／>128 bytes 均拒；唯一字符集皆為 ASCII alnum + `-_.`。原 H tip 與最終合併樹對 `apps/desktop/src-tauri` 均為 **0 行 diff**，`safe_token` 未放寬。
+- **同步防線紅證**：先確認原樹無機器門；補門後分別把 Rust 放寬 `+`、把 TS 字符集放寬 `+`，兩次 `lint:work-safe-case-id` 均 exit 1，精確報相應側漂移；還原後 PASS。此門已進完整 `test:e2e`，不是只存在於驗收命令。
+- **舊式脏 id**：`case-1752736000000-合成卷宗案` 單測判不安全；E2E 從持久 case-list 載入後，標題仍顯示、grant 仍可入庫，點場景得到 info 引導「新建案件並重新入庫材料」，零 revision panel、零「引用/token/InvalidRef/id」技術措辭。ASCII 舊 id 保持可運行。
+- **顯示邊界**：已知 `Work 状态引用非法` 仍映射 `LEGACY_CASE_SCENARIO_COPY`；另注入未知 `WorkStateError::Io(/Users/alice/... generation=7)`，修前裸透紅，修後只見「案件進度暫時無法讀取或保存，請重新開始合同審查」，路徑／錯誤名／generation 均不出界。voice 門 PASS。
+- **中文標題全鏈**：新建「合成卷宗案」→ grant 入庫 → 跑 S3 樁 turn → revision panel 顯示風險，定向 E2E **3/3 × 3 輪**；標題只作展示欄，持久 id 不含標題。
+
+## H · workContextSegment 純組裝與供給邊界
+
+- **core golden**：無段、只有 memory 的既有字節均逐字不變；有段時順序固定為 base → memory → work，memory-only 是 with-work 嚴格前綴，易變段靠尾。core mutation 忽略 work 段時精確 **2 failed / 8 passed**，還原後 10/10。
+- **純編譯**：案根、材料清單／產品狀態與四態 `not_started/running/paused_review/recoverable` 各自恰一，互斥測試齊；同輸入兩次 byte-equal，零模型呼叫。注入 macOS `/Users/alice/...` 與 Windows `C:\\...` 材料／label 時修前 **1 failed** 且完整路徑出段，修後只留 `設備採購合同.md`／`公章頁.png`。
+- **供給與 journal**：Work grant 面 request body 含案名與材料；切入 chat 面後第二次 request body 無案語境。驗收加固為 captured request 數先恰 1、後恰 2，避免讀上一 body 假綠。client mutation 丟第二參時精確 **1 failed / 6 passed**；Turn journal 原始持久字串斷言不含 `workContextSegment`，仍是同一 Chat Turn。
+- **已知邊界核對**：`retryChatTurn` 只取配對 user 的已存 `content`，以三參 `submitChatContent(content,text,historyBase)` 重發，確實不重編 work 段；與 SPEC「失敗輪次重試復用已存 content、回 chat 缺省語義」一致，未宣稱重試具有活案語境。
+
+## stash 紅證、計數與全量門
+
+驗收先 stash 自身未提交修補，於 clean 實作 tip 逐項注入再完整恢復：core 忽略 work 段 **2 紅**；client 丟傳導 **1 紅**；刪 `case-id.ts`／`work-context.ts` 得 **2 failed suites**；E2E 三線抽 G 鑄號與 H 供給，兩條均紅在預期斷言。恢復後 core 10/10、desktop 定向 22/22、WORK-TURN E2E 3/3 各連跑三輪。
+
+floor 留痕核對：合併樹原 floor 284；G +2 → 286；H +1 → **287**。`assert-test-count.mjs` 在正確 desktop cwd 親數 287，未降 floor。
+
+| 門禁 | 隔離實跑結果 |
+|---|---:|
+| root Vitest | **143 files / 1239 tests passed** |
+| `pnpm lint` | PASS |
+| `pnpm -r build` | PASS（13/14 workspace；僅既有 Vite chunk warning） |
+| 完整 `test:e2e` | rebase 前首輪 **286/287**（既有 `goal1 #39` onboarding click 30s timeout；本單 3/3、residue 22/22 均綠），換埠即完整重跑 **287/287**；rebase 至 `main @ 4370200` 後再完整實跑 **287/287 passed**（3.0m） |
+| residue 專跑，單 worker、三獨立埠 | post-rebase **22/22 × 3**（44.0s / 44.3s / 44.0s；埠 17871/17872/17873） |
+| work-live / voice / parity | 均 PASS；voice node tests **5/5** |
+
+> **最終判定：放行 WORK-TURN-1。** 成立範圍嚴格為 G caseId 去標題化／存量原位容忍與 H L0 純組裝注入；不擴張至 L1 工具、L2 loop/steering、存量跨層改號或真機產品負責人復驗。
+
+---
+
 # ACCEPTANCE: PILOT-LIVE-2
 
 日期：2026-07-17

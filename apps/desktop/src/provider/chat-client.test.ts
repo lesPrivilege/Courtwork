@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { sendChatTurn } from './chat-client';
 import { DEFAULT_MODEL_CONFIG, type ModelConfig } from './model-config';
-import { TurnProtocolClient, createLocalStorageTurnJournalBackend } from './turn-protocol-client';
+import { TURN_JOURNAL_STORAGE_KEY, TurnProtocolClient, createLocalStorageTurnJournalBackend } from './turn-protocol-client';
 
 class MemoryStorage implements Storage {
   private readonly values = new Map<string, string>();
@@ -114,5 +114,32 @@ describe('chat 面 memory 注入', () => {
     expect(withMemory).toContain('简短回答');
     // 基身份是 with-memory 的严格前缀——账本推进/注入 memory 都不动前缀字节。
     expect(withMemory.startsWith(withoutMemory)).toBe(true);
+  });
+
+  it('WORK-TURN-1 H：workContextSegment 排 memory 之后进系统提示；缺省字节等同（稳定前缀律）', async () => {
+    const captured: string[] = [];
+    const fetchImpl: typeof fetch = async (_i, init) => {
+      captured.push(systemContent(JSON.parse(String(init?.body)) as Record<string, unknown>));
+      return sseResponse(['data: {"choices":[{"delta":{"content":"ok"}}]}', 'data: [DONE]']);
+    };
+    const memorySegment = '[长期记忆]\n- 偏好：简短回答';
+    const workContextSegment = '[案件语境]\n案根：《合成卷宗案》\n卷宗材料（2 件）';
+    const storage = new MemoryStorage();
+    const client = new TurnProtocolClient(createLocalStorageTurnJournalBackend(storage));
+    await sendChatTurn(client, DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'a' }], { fetchImpl, memorySegment });
+    await sendChatTurn(client, DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'b' }], {
+      fetchImpl,
+      memorySegment,
+      workContextSegment,
+    });
+    const [memoryOnly, withWork] = captured;
+    expect(withWork).toContain('[案件语境]');
+    expect(withWork).toContain('卷宗材料（2 件）');
+    // 案语境段排 memory 之后：memory-only 系统提示是 with-work 的严格前缀（更易变段靠尾）。
+    expect(withWork.startsWith(memoryOnly)).toBe(true);
+    // 缺省不传 = 与 memory-only 逐字节相同（第一轮已证），无悬垂差异。
+    expect(memoryOnly).not.toContain('[案件语境]');
+    // journal 不分家且不把请求时活语境另存为账本内容；只持久同一 Chat Turn 的结果投影。
+    expect(storage.getItem(TURN_JOURNAL_STORAGE_KEY)).not.toContain(workContextSegment);
   });
 });

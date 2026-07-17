@@ -79,6 +79,8 @@ import { CaseRail } from './rail/CaseRail';
 import type { UnfiledSession } from './rail/types';
 import { SettingsPage, type SettingsSection } from './settings';
 import { hostAuthReasonCopy, type HostAuthPort } from './host/host-auth-port';
+import { LEGACY_CASE_SCENARIO_COPY, isWorkSafeCaseId, mintCaseId } from './case/case-id';
+import { workContextSegmentFor } from './work/work-context';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { systemOpenClient } from './system/system-open-client';
 import { WorkDraftPanel } from './system/WorkDraftPanel';
@@ -558,7 +560,23 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       if (caseBinding.kind === 'grant' && selectedCaseId && payload.attachments.length > 0) {
         void ingestComposerUploads(selectedCaseId, caseBinding.grantId, payload.attachments);
       }
-      const accepted = handleChatSend(payload);
+      // WORK-TURN-1 H：case 绑定语境的自由输入携案语境段（案根/材料清单/场景状态，确定性编译）；
+      // 无案/未绑定案不供给。段只随本次请求，不入 journal（仍是 Chat Turn，聊天不是 promotion）。
+      const workContextSegment = caseBinding.kind === 'grant' && selectedCase
+        ? workContextSegmentFor({
+            caseTitle: selectedCase.title,
+            ...(selectedCase.label ? { bindingLabel: selectedCase.label } : {}),
+            materials: caseMaterials,
+            scenarioState: workRunning
+              ? 'running'
+              : session.confirmation
+                ? 'paused_review'
+                : recoverableSession
+                  ? 'recoverable'
+                  : 'not_started',
+          })
+        : undefined;
+      const accepted = handleChatSend(payload, workContextSegment);
       if (accepted !== false) switchSegment('chat');
       return accepted;
     }
@@ -584,7 +602,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
    * `onProjection` 按 turnId find-or-append 落位对新发送与重试都成立：重试时旧失败态已从存活视图裁掉，
    * 新 turnId 必然落在配对用户消息之后，等价于「原位替换」。
    */
-  const submitChatContent = (content: string, userTextForMemory: string, historyBase: ChatMessage[]) => {
+  const submitChatContent = (content: string, userTextForMemory: string, historyBase: ChatMessage[], workContextSegment?: string) => {
     chatFlightRef.current = true;
     // CHAT-SESSION-1（ADR-013 §1）：续行历史只取当前连续性会话——距最近一次请求 ≤ 1 小时才延续。
     // 超窗即新 session，续行为空：不回灌历史全文（memory 注入属 CHAT-MEMORY-1，不在本单）。
@@ -604,6 +622,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     void sendChatTurn(turnClient, modelConfig, [...history, { role: 'user' as const, content }], {
       ...(providerTransport ? { transport: providerTransport } : {}),
       ...(memorySegment ? { memorySegment } : {}),
+      // WORK-TURN-1 H：Work 面案语境段（缺省不供给＝字节等同既有；排 memory 之后守稳定前缀律）。
+      ...(workContextSegment ? { workContextSegment } : {}),
       signal: controller.signal,
       onProjection: (projection) => {
         setChatMessages((current) => {
@@ -650,7 +670,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       });
   };
 
-  const handleChatSend = (payload: ComposerSendPayload) => {
+  const handleChatSend = (payload: ComposerSendPayload, workContextSegment?: string) => {
     if (chatFlightRef.current) return false; // 未受理：composer 保留草稿（批次七 #3）
     if (credentialStatus.connection.phase !== 'ready') {
       probeCredentials();
@@ -676,7 +696,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         createdAt: Date.now(),
       },
     ]);
-    submitChatContent(requestContent, payload.text, historyBase);
+    submitChatContent(requestContent, payload.text, historyBase, workContextSegment);
     return true;
   };
 
@@ -1239,6 +1259,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // 正文/模型猜测）；材料经 resolveForProvider 复验才入 provider；事件机械发布进同一 session 投影（零 recording）。
   const startWorkRun = () => {
     if (caseBinding.kind !== 'grant' || !selectedCaseId || workRunning) return;
+    // WORK-TURN-1 G 存量守卫：旧版铸号（标题拼入 id）在 work_state 安全 token 外——原位容忍，
+    // 场景运行前显式引导（发生了什么+下一步），不让 Rust 侧技术红条兜底。
+    if (!isWorkSafeCaseId(selectedCaseId)) {
+      showSystemFeedback(LEGACY_CASE_SCENARIO_COPY, false, 'info');
+      return;
+    }
     const partyName = workSubject.trim();
     if (!partyName) return;
     const ready = caseMaterials.filter((material) => material.status === 'ready');
@@ -1365,7 +1391,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     grantId?: string;
     label?: string;
   }) => {
-    const newId = `case-${Date.now()}-${title}`;
+    // WORK-TURN-1 G：铸号去标题化——标题只作展示字段；id 恒过 work_state 安全 token（真机红条根因）。
+    const newId = mintCaseId();
     setCases((current) => [
       ...current,
       {

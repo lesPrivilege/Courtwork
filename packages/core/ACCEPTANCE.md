@@ -1,3 +1,9 @@
+## WORK-TURN-1 · core 組裝縫（2026-07-17）
+
+- **✅ 放行**：`assembleGenericChatSystemPrompt(memorySegment?, workContextSegment?)` 缺省逐字不變、順序 base→memory→work、穩定前綴與同輸入同字節均成立；忽略 work 段 mutation 精確 2 紅，還原後 10/10 × 3，並隨 root Vitest **1239/1239** 與完整 E2E **287/287** 通過。core 不解釋案語義、不另立 journal；desktop 供給與已知重試邊界見 `apps/desktop/ACCEPTANCE.md`。
+
+---
+
 # W6 packages/core 验收报告
 
 验收日期：2026-07-10  
