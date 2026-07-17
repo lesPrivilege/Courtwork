@@ -22,7 +22,9 @@ const count = match ? Number(match[1]) : 0;
 // ×2（新增 pilot-layout.spec.ts 九例）+9 → 275。
 // PILOT-LIVE-1-FIX：墙钟自证（相对时间戳 A→B 窗口内翻字不破 A≡B，先红后绿）+1 → 276。
 // READER-ISOLATION-1：非 demo 案零 demo 语料入口（隔离红证）+ demo 案对照锁 +2 → 278。
-const minimum = 278;
+// PILOT-LIVE-2 F：grant 语境上传入库主红证 + 同名同容幂等 + 同名异容显式拒绝 +3 → 279
+// READER 与 F 为并发只升点；合并树取用例并集：276 + 2 + 3 → 281。
+const minimum = 281;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

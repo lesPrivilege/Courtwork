@@ -81,7 +81,15 @@ export function createBrowserHostAuth(): HostAuthPort {
     async readFile() {
       return script.read;
     },
-    async writeFile() {
+    async writeFile(input) {
+      // PILOT-LIVE-2 F：写放行时镜像进材料宿主樁——真宿主 write_in_grant 与材料读同盘天然一致，
+      // 樁世界须同构，否则「写入项目文件夹→按 grant 路径入库」在 E2E 不可组合。仅 DEV+E2E 樁文件。
+      if (script.write.status === 'wrote') {
+        (window as {
+          __courtworkMaterialHost?: { setFile(grantId: string, relativePath: string, bytes: Uint8Array): void };
+        }).__courtworkMaterialHost?.setFile(input.grantId, input.relativePath, input.bytes);
+        return { status: 'wrote', byteLength: input.bytes.byteLength };
+      }
       return script.write;
     },
   };
