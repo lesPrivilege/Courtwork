@@ -15,7 +15,7 @@ await page.mouse.move(0, 0);
 await page.getByTestId('enter-compact-layout').click();
 await page.waitForTimeout(150);
 await page.screenshot({ path: resolve(outputDir, '22-rp1-compact-layout-1440.png'), animations: 'disabled' });
-await page.getByTestId('expand-left-rail').click();
+await page.getByTestId('collapse-left-rail').click();
 await page.getByTestId('module-progress-toggle').click();
 await page.screenshot({ path: resolve(outputDir, '23-rp1-full-layout-1440.png'), animations: 'disabled' });
 await browser.close();

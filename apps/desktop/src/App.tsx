@@ -384,7 +384,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   /** RP-2.11 chat|work 二段（docs/decisions/ADR-005-data-security.md 修正二）：work=容器工作台 / chat=内存态轻画布（重启即逝，持久化归 HARNESS-1）。 */
   const [viewSegment, setViewSegment] = useState<'chat' | 'work'>('work');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  /** chat 面在途请求（真 API）；期间 ▏字符指示（RP-2.11 推理字符版）。 */
+  /** chat 面在途请求（真 API）；运行态经 ProcessTrace 渲染 BrandThinking（与 work thought process 同源动画）。 */
   const [chatPending, setChatPending] = useState(false);
   /** state commit 前即生效的单飞行锁，防双击/Enter 在同一渲染帧发出两请求。 */
   const chatFlightRef = useRef(false);
@@ -1929,7 +1929,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             containerizeUnfiledId={containerizeUnfiledId}
             viewSegment={viewSegment}
             onSegmentChange={switchSegment}
-            leftCollapsed={effectiveLeftCollapsed}
             onSelectCase={(id) => {
               setSelectedCaseId(id);
               // 案件行：选中即展开（含已选中但被收起的情况 → 强制 expandedCaseId=id）
@@ -1947,7 +1946,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             onRequestContainerizeUnfiled={setContainerizeUnfiledId}
             onConfirmContainerizeUnfiled={confirmContainerizeUnfiled}
             onCancelContainerizeUnfiled={() => setContainerizeUnfiledId(null)}
-            onExpandLeft={exitCompactLeft}
             onCollapseLeft={() => setLeftCollapsed(true)}
             onSearch={() => setPaletteOpen(true)}
             onOpenSettings={() => openSettings('model')} // 五裁③：默认落 Model（最高频入口）
