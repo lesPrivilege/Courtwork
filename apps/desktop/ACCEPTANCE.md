@@ -2701,4 +2701,58 @@ e2e 契约：
 > 合并 tip `f0ceae7` 上，合并组合全量门（含 WORK-LIVE 与 layout-converge 双新门、floor 255、Playwright 255/255、residue 3×21/21）全绿；生产源码死支零命中且静态门接受注入反例；work 双侧收拢正文列收至 760 居中、rails-compact 无幽灵列、welcome 560 token 单源、comparing 48px chrome 零回归。准则 1–3 由条件/部分通过 **改判通过**；准则 4 维持通过。  
 > 成立范围：审计四准则 + 就绪图 `LAYOUT-CONVERGE-1` 退出证据。本会话未改实现、未更新 `docs/status/current.md`、不推送。
 
+# ACCEPTANCE: WORK-LIVE-1-ACCEPT
+
+日期：2026-07-17
+
+角色：独立验收会话
+
+对象：`impl/work-live-1 @ 80c378d`（基线 `0dae3bc`，12 文件，均在 `apps/desktop`）；合入 `main @ f5ba9ef`。验收在独立 clean worktree `/private/tmp/courtwork-work-live-1-accept-86fd85c` 的当前 `main @ 86fd85c` 完成；此尖端额外包含待验 `WORK-HOST-1`，故只把它作为组合事实，不误算入本单的 12 文件范围。共享树未 checkout/stash；未更新 `docs/status/current.md`、未推送、未执行 prune。
+
+## 裁决
+
+**❌ 不放行 WORK-LIVE-1。**
+
+唯一阻断项是 ADR-010 决定一已经固定的 `rejected/not_configured` 语义没有生产实现，而不是测试数字或 demo 隔离问题：
+
+- `src/protocol/client.ts:92-96` 的 `WorkCommandOutcome` 虽列出四个 `rejected` reason；
+- `src/main.tsx:46-51` 在未取得 `providerTransport` 时仍构造 production `workCommand`；
+- `src/work/work-runtime.ts:120-124` 对该未装配情况返回普通 `Error('…缺 provider transport')`；
+- `src/work/work-command.ts:268-271` 因此将其映射为 `failed/internal`，而非 ADR-010 决定一规定的 `rejected/not_configured`。全文件 grep 亦证实 `not_configured` 仅出现在类型/注释，实际返回路径为零。
+
+ADR 原文要求：production composition 未装配时必须返回闭集中的 `not_configured`，不得裸 Promise rejection 或降回 demo。当前实现已避免裸 rejection，但错误地给出 `failed/internal`；静态门只锁了类型闭集，14 个 command 单测也未覆盖此变体，故全绿不能替代该语义。
+
+建议由实现会话以最小范围补上该既定 ADR 语义及反例测试；这不是验收会话可自行拍板的契约变更。修复后须由新的独立验收复跑本单全量门和这条反例。
+
+## 已成立的组合证据（不抵消阻断项）
+
+| 门禁 | 本次独立实跑 |
+|---|---:|
+| `pnpm install --frozen-lockfile` | PASS（1047 packages，lockfile 一致） |
+| `pnpm -r build` | PASS（仅既有 chunk advisory） |
+| `pnpm lint` | PASS |
+| root Vitest | **142 files / 1222 tests** PASS（含 `no-demo-in-harness`） |
+| desktop Vitest | **52 files / 298 tests** PASS |
+| 完整静态链 + 隔离端口 `18634` Playwright | **255/255** PASS（floor 255） |
+| residue 独立三轮，端口 `18635` / `18636` / `18637` | 各 **21/21** PASS |
+| `demo:s3` | 7/7 考点、golden PASS，redline 39651 bytes |
+| `demo:legal` | golden PASS，8 risks / 11 anchors |
+
+生产链零 demo 已另行核验：`work-command.ts`、`work-runtime.ts`、`legal-s3-binding.ts` 的可执行路径对 `recording`、`fixture`、`contractSourceMd` 无命中（仅注释说明边界）；`assert-work-live-contracts` clean PASS。验收实际向 `work-command.ts` 注入 `const __acceptanceDemoDependency = 'recording'`，门立即报一条 violation 并 exit 1；精确撤除后恢复 clean，worktree 无产品源码残留改动。
+
+全链 E2E 的两例都在 255/255 内实跑：grant 授权→就地 ingest→显式主体→真实 executor 风格的 E2E turn stub→逐项 gate confirm/reject→`resolveReview`→OUTPUT-CONFIRM 的逐项确认→docx 经 grant 授权写入；运行中 cancel 则收敛为 canceled、取消控件消失、零 docx 落盘。`work-command.test.ts` 聚焦复跑 **14/14**：start/pause/resume/ArtifactEnvelope、跨端口 replay/resume、cancel、first-wins、`command_conflict`、`case_busy`、`invalid_scope`、材料阻断及 interrupted 均通过；未覆盖的正是 `not_configured`。
+
+## ADR、边界与复杂度核对
+
+- 决定一其余逐字语义成立：UI 不构造 run/tool 输入；actor 由 runtime 注入；first-wins、单 case active、cancel 无 active 不伪报成功、interrupted 不自动重放均有代码与上述反例；但 `not_configured` 缺口使决定一整体不成立。
+- W5 语义判断成立：`queuedMessages.map(...)` 内每条消息的 W5 是聊天队列消息控件，并非 Work cancel；保留 `data-state="unwired"` 合理。真正 Work 取消是 grant 工作面的 `work-cancel`，已由 E2E 实跑。SPEC 对旧 W5「Work 执行器未接通」的归因张力已诚实留痕，需架构裁定是否改 marker，验收不擅改。
+- 成熟度表述可接受：WORK-LIVE-1 在其实现尖端仅内存参考 host，真机跨重启诚实后置给 `WORK-HOST-1`；当前组合尖端已注入 Rust opaque-blob host，但真机 key/Tauri/`F_FULLFSYNC` 手工试点仍未跑。因此只能称 **package-ready**，不得称 product-live 或 external-validated。
+- 四项需架构裁定与就绪图一致：真机跨重启耐久/手工试点（已拆 `WORK-HOST-1`）、generic `StartWorkCommand` 的垂类 preflight wire、authenticated principal/actor、以及 W5 marker 的语义归属。没有把它们静默改写为已解决事实。
+- 复杂度声明可核：恰一新概念为 `createLegalS3WorkCommand` 的 production `WorkCommandPort` 实现；`rejected` 是 ADR-010 已有闭集的缺项补全，runtime 组合缝、DEV/E2E stub 与 App 接线均非新抽象。零新依赖、持久格式及状态机，12 文件范围成立。
+
+## 后续放行条件
+
+补齐 production composition 未装配时的 `rejected/not_configured` 真实返回路径，并增加能触红的反例；新的独立验收须确认该路径不再成为 `failed/internal`，再复跑 build/lint/root+desktop Vitest、静态链、隔离端口完整 E2E、demo golden 与 no-demo-in-harness。`current.md` 仍只由架构角色按成熟度处理。
+
+---
 
