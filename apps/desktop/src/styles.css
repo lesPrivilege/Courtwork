@@ -1127,6 +1127,9 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .s3-subject-field input { min-height: var(--control-height-sm); padding: 4px 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-surface); color: var(--text-primary); font-size: var(--control-font-sm); }
 .s3-launcher .primary-button { align-self: flex-start; }
 .s3-session-note { margin: 0; font-size: var(--type-dense-meta-size); color: var(--text-tertiary); }
+.work-recover { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-surface); }
+.work-recover > p { margin: 0; font-size: var(--type-dense-meta-size); line-height: 1.5; color: var(--text-secondary); }
+.work-recover .primary-button { align-self: flex-start; }
 .work-output-result { margin: 12px 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }
 .work-output-result strong { font-size: var(--type-dense-body-size); color: var(--text-primary); }
 .work-output-result span { font-size: var(--type-dense-meta-size); color: var(--text-secondary); }

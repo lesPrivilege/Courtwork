@@ -163,6 +163,30 @@ E2E 樁宿主已在隔离端口自动化走完整链（`work-live.spec.ts`）。
 
 **精确触面**：`src/work/work-command.ts`（`isConfigured` dep + `NOT_CONFIGURED_MESSAGE` + `beginStart` 闸门）、`src/work/work-runtime.ts`（注入 `isConfigured`）、`src/protocol/client.ts`（rejected 变体触发面登记注释）、`src/App.tsx`（`systemFeedback.tone` + `startWorkRun` rejected/failed 分离）、`src/styles.css`（`.system-feedback.info`）、`src/work/work-command.test.ts`（+3）、`tests/e2e/work-live.spec.ts`（+1 未装配中性反馈）、`scripts/assert-test-count.mjs`（floor 256）。**禁止扩张（遵守）**：未动 `work-state-store`/`legal-s3-binding`/`material-store`/`src-tauri`（含 WORK-HOST-1 交付面）；未改 UI 布局；未改 provider/schema/Turn 契约；未改 `docs/status/current.md`。
 
+### WORK-LIVE-REPLAY-1 · session-ref 恢复入口（WORK-HOST-1 驳回阻断二的修复，薄）（实现完成，待独立复验）
+
+权威：`apps/desktop/ACCEPTANCE.md` 的 `WORK-HOST-1-ACCEPT ❌ 不放行` 阻断二（`workSessionId` 只在 React state，重启/切案即清空，全 App 对 `workCommand.replay` 零消费点，grant session-ref 未成为可恢复 UI 状态）+ [ADR-010 决定一/二](../../docs/decisions/ADR-010-work-live-boundaries.md)。基线 `main @ 7e9a905`。分支 `impl/work-live-replay-1`，worktree 施工，未推送、未改 `docs/status/current.md`。**薄修复**：不动 `work-command.ts` 语义（`replay` 既有，本单只消费不改）、不动 Rust（`src-tauri`）、不碰 rejected 路径（WORK-LIVE-1-FIX 已收）。
+
+**驳回根因（精确反例）**：`App.tsx:328` 的 `workSessionId` 仅存 React state，`:778-782` 切案/重启即清空；全 App 对 `workCommand.replay` 零消费点——「Rust 能按已知 ref 读 blob」不等于「用户能在重启后重新发现该 ref 并续行」。durable 信封（WORK-HOST-1 的 Tauri 宿主）已就位，缺的是「让 session-ref 成为可恢复 UI 状态」的持久载体与恢复入口。
+
+**新增概念留痕（复杂度节制条）——本单唯一新增 1 概念，非新持久格式**：
+
+1. **`work-session-store.ts`（per-case 最近可恢复会话指针的持久层）**——非加不可：驳回明令补「session-ref 未成为可恢复 UI 状态」。沿 [[chat-memory]] 的**版本化单键 localStorage 先例**（`courtwork.work-session.v1` + schema version + fail-closed 读入），非另造文件格式；记录是**最小恢复指针** `{ sessionId, contractMaterialId }`（sessionId 供 `replay(ref)`/`resolveReview`，contractMaterialId 供恢复后 docx 终链，不从材料集重算以避漂移/异步竞态）。案件根/授权持久归 CASE-ROOT-1，材料字节归 MaterialStore，会话信封耐久归 WORK-HOST-1——本层只存「指向哪一个会话」，不碰上述任一持久面。
+
+**非新概念（装配缝/UI 编排，不引入新抽象）**：`App.startWorkRun` run 启动即 `persistWorkSession`（终态拒绝/失败/取消清指针，暂停保留，docx 终链清）；`App.recoverWorkRun` 消费既有 `workCommand.replay` 水合投影（`dispatch` 机械回放事件 → 复用既有 gate/RevisionPanel/resolveReview/docx 链续行）；恢复入口 `work-recover` 是 s3-launcher 内一枚控件，无新组件范式。
+
+**恢复语义（三态诚实）**：`replay` 回 `paused` 且有事件 → 水合续行；信封缺失（空事件）/ 读入失败 / 非暂停终态（残缺·已办结·已失败）→ **显式失效反馈（`tone:'info'` 中性态，非错误红条）+ 清除残 ref**，零静默降级（核心不变量四）。恢复是用户显式动作（留人确认，不自动重放）。
+
+**e2e 触发机制裁定（诚实留痕，非偷工）**：驳回列「重启/切案即清空」为同源触发。自动化用 **切案**（切走再回，清空 `workSessionId` 这一被点名的 React 态）而非 `page.reload()`——因为本构建**案件列表未跨重载持久**（`App.tsx` `cases` 初始恒 `[DEMO_CASE]`，reload 后 grant 案不在侧栏、`caseBinding` 退 `unbound`，恢复入口无从呈现），且 DEV/E2E 的内存参考宿主（`createInMemoryWorkStateHost`）本就不跨 reload 存活。切案保留：案列表（堆）、材料宿主（堆）、信封宿主（堆，**镜像真机 Tauri 跨重启耐久**）、持久指针（localStorage），只清 `workSessionId`（React），恰好隔离出「workSessionId 清空 → 据 ref 重新发现 → replay 续行」这条被驳回的消费路径。**真机全链跨进程重启**的 UI 恢复另需「案件列表侧栏持久」（CASE-ROOT 线，本单范围外）+ WORK-HOST-1 的 Tauri 信封耐久；本单只补 session-ref 恢复环，如实标注其余依赖。失效诚实一例用**重置内存参考宿主**模拟「ref 存活而信封跨重启丢失」。
+
+**TDD（先红后绿，实证）**：`work-session-store.test.ts` +10（往返 / **重载后 ref 存活**（新 backend 实例读同一底层）/ 版本化信封 / 多案隔离 / **fail-closed**：未知版本·坏 JSON·畸形记录 → null / 既有不可读上干净重写）——先红（模块缺失 `ERR`）→ 补模块转绿。`assert-work-live-contracts.mjs` 加 `requireMatch(app, /workCommand\.replay\(/)`——先红（「全 App 零消费点」是驳回根因）→ 接入恢复入口转绿。`work-live.spec.ts` +2：**跨切案恢复→水合→续行 resolve→docx 全链**（把 SPEC 跨重启试点步骤 5 变自动化核心用例）+ **恢复失效诚实**（信封缺失 → info 失效 + 清残 ref + 零 docx）；两例只差「信封是否存在」却得续行 vs 失效相反终局，坐实失效分支非空转。
+
+**精确触面**：`src/work/work-session-store.ts`（新）+ `src/work/work-session-store.test.ts`（新，+10）、`src/App.tsx`（import + `recoverableSession` 态 + 复读 effect + `startWorkRun` persist/清 + `recoverWorkRun` 消费 replay + docx 终链清 + s3-launcher 内 `work-recover` 控件）、`src/styles.css`（`.work-recover`，复用既有 token 零新影/渐变/裸色）、`scripts/assert-work-live-contracts.mjs`（+`workCommand.replay` 消费断言）、`tests/e2e/work-live.spec.ts`（+2 + `switchAwayAndBack` 助手）、`scripts/assert-test-count.mjs`（floor `256 → 258`）、本 `SPEC.md`。**禁止扩张（遵守）**：未改 `work-command.ts`/`work-runtime.ts`/`work-state-store`/`legal-s3-binding`/`material-store`/`src-tauri`（含 WORK-HOST-1 交付面）任何契约或实现；未改 provider/schema/Turn 契约；未改 UI 布局（仅 s3-launcher 内增控件）；未碰 rejected 路径；未改 `docs/status/current.md`、未推送。
+
+**已知边界（诚实留痕）**：① 真机全链跨进程重启的 UI 恢复另需案件列表侧栏持久（CASE-ROOT 线）+ WORK-HOST-1 Tauri 信封耐久，本单只补 session-ref 恢复环，e2e 以切案自动化该环、跨重启信封耐久由 WORK-HOST-1 cargo 崩溃注入 + 手工试点承载；② 恢复指针含 `contractMaterialId`（超出纯 `{caseId,sessionId}` ref）以保恢复后 docx 精确取原件，登记为最小必要字段；③ s3-launcher 的 `此次审查结果在本次会话内有效；跨重启保留即将开通` 说明句未改（真机跨重启耐久 + 侧栏持久齐备前不宣称，避免过早声称）。
+
+**门禁（本会话隔离端口 `:1494`，最终以独立复验为准）**：`pnpm -r build`（全 workspace）、`pnpm lint`（root eslint）全绿；root Vitest **142 files / 1222 tests**（不变，纯 desktop 改动）；desktop Vitest **53 files / 311 tests**（+`work-session-store` 10）；完整 `test:e2e` 静态链（含新 `workCommand.replay` 消费断言 + `lint:voice` 112 文件净 + `假绿防护 258`）+ 隔离端口 Playwright **258/258 passed**（floor `256 → 258`，app+residue）；residue project 三轮各 **21/21**。
+
 ## DESIGN-MD-1 · tokens.json + principles.md 编译为机器可读 courtwork-design.md 与 drift 门（实现完成，待独立验收）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `DESIGN-MD-1` 行（退出证据：编译脚本 + drift 门；编译件非权威，`tokens.json` 仍是唯一真值；不新增手写第二份 token）、[docs/design/principles.md](../../docs/design/principles.md)、[docs/design/tokens.json](../../docs/design/tokens.json)。分发形态参照 Geist `design.md`（YAML frontmatter 承载 token 值、正文承载用法语义）。工单基线 `main @ 2ad8eda`（独立契约线，无前置依赖）。

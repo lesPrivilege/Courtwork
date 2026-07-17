@@ -24,6 +24,7 @@ import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
 import { replayWorkProjection } from './protocol/work-replay';
 import { bindDocxSourceMarkdown, projectRiskListGate } from './work/legal-s3-binding';
 import type { LegalS3WorkCommand } from './work/work-command';
+import { clearWorkSession, persistWorkSession, readWorkSession, type WorkSessionRecord } from './work/work-session-store';
 import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
 import type { ProviderTransport } from '@courtwork/provider/types';
@@ -327,6 +328,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // WORK-LIVE-1：非 demo（grant）案的 production Work 会话态。demo 案走 fixture，二者物理隔离。
   const [workSessionId, setWorkSessionId] = useState<string | null>(null);
   const [workRunning, setWorkRunning] = useState(false);
+  // WORK-LIVE-REPLAY-1：本案是否有持久的可恢复 Work 会话指针（切案/重启后 workSessionId 清空，据此重现恢复入口）。
+  const [recoverableSession, setRecoverableSession] = useState<WorkSessionRecord | null>(null);
   const [workSubject, setWorkSubject] = useState('');
   const [workContractMaterialId, setWorkContractMaterialId] = useState<string | null>(null);
   const [selectedRiskId, setSelectedRiskId] = useState('risk-03');
@@ -934,6 +937,16 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     };
   }, [caseBinding.kind, selectedCaseId, materialStore]);
 
+  // WORK-LIVE-REPLAY-1：切案/重载后从持久层复读本案的可恢复会话指针（fail-closed：不可读即当作无）。
+  // 恢复入口据此在 workSessionId 清空后重现——答复 WORK-HOST-1 驳回阻断二「session ref 未成为可恢复 UI 状态」。
+  useEffect(() => {
+    if (caseBinding.kind !== 'grant' || !selectedCaseId) {
+      setRecoverableSession(null);
+      return;
+    }
+    setRecoverableSession(readWorkSession(selectedCaseId));
+  }, [caseBinding.kind, selectedCaseId]);
+
   const fixtureRef = isDemoCase ? activeFixtureRef : undefined;
   // fixture fallback 只属于显式 demo ref；非 demo 分支不会询问 fixture adapter。
   const riskList = (
@@ -1079,6 +1092,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setConfirmedNonAppliedIds([]);
     setContractOutputExists(true);
     showSystemFeedback(`已写入本案「产出」目录：${CONTRACT_OUTPUT_FILE}`, true);
+    // WORK-LIVE-REPLAY-1：grant 案 docx 终链完成即清除恢复指针（会话已办结，无可续行门禁）。
+    if (caseBinding.kind === 'grant' && selectedCaseId) {
+      clearWorkSession(selectedCaseId);
+      setRecoverableSession(null);
+    }
   };
 
   const confirmNonApplied = (instructionId: string) => {
@@ -1148,7 +1166,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setNonAppliedPending([]);
     setConfirmedNonAppliedIds([]);
     resolvedRequest.current = undefined;
-    setWorkContractMaterialId(ready[0].materialId);
+    const contractMaterialId = ready[0].materialId;
+    setWorkContractMaterialId(contractMaterialId);
     setWorkRunning(true);
     const caseId = selectedCaseId;
     const { sessionId, done } = workCommand.startWithPreflight(
@@ -1162,6 +1181,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       dispatch,
     );
     setWorkSessionId(sessionId);
+    // WORK-LIVE-REPLAY-1：run 启动成功即持久化最小恢复指针——切案/重启后 workSessionId 清空，恢复入口据此重现。
+    persistWorkSession(caseId, { sessionId, contractMaterialId });
     void done.then((outcome) => {
       setWorkRunning(false);
       // WORK-LIVE-1-FIX：rejected（未就绪/冲突，ADR-010 决定一闭集）是明确的产品语言中性反馈，
@@ -1173,12 +1194,47 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       } else if (outcome.status === 'canceled') {
         showSystemFeedback('已停止合同审查', true);
       }
+      // WORK-LIVE-REPLAY-1：非暂停终态（拒绝/失败/取消）无可恢复会话——清除指针，不留悬空恢复入口。
+      // paused 保留指针（可恢复）；completed 由 docx 终链清除。
+      if (outcome.status === 'rejected' || outcome.status === 'failed' || outcome.status === 'canceled') {
+        clearWorkSession(caseId);
+        setRecoverableSession(null);
+      }
     });
   };
 
   const cancelWorkRun = () => {
     if (caseBinding.kind !== 'grant' || !selectedCaseId || !workSessionId || !workRunning) return;
     void workCommand.cancel({ caseId: selectedCaseId, sessionId: workSessionId, commandId: `cancel-${Date.now()}` });
+  };
+
+  // WORK-LIVE-REPLAY-1（答复 WORK-HOST-1 驳回阻断二）：恢复入口——从持久指针调 workCommand.replay 水合投影续行。
+  // 切案/重启后 workSessionId 清空，用户经此重新发现并恢复 ref：replay 从宿主读回信封 → 机械回放事件重建
+  // riskList/门禁/证据台账 → 停在暂停门禁续行（逐条处置 → resolveReview → docx，与不重启路径等价）。
+  const recoverWorkRun = async () => {
+    if (caseBinding.kind !== 'grant' || !selectedCaseId || workRunning) return;
+    const record = readWorkSession(selectedCaseId);
+    if (!record) { setRecoverableSession(null); return; }
+    const caseId = selectedCaseId;
+    const replay = await workCommand.replay({ caseId, sessionId: record.sessionId }).catch(() => null);
+    // 失效诚实：读入失败 / 信封已不存在（空事件）/ 非暂停态（残缺·已办结·已失败）→ 无可续行门禁，
+    // 显式失效反馈（info 中性态）+ 清除残 ref，零静默降级。
+    if (!replay || replay.phase !== 'paused' || replay.events.length === 0) {
+      clearWorkSession(caseId);
+      setRecoverableSession(null);
+      const message = replay?.phase === 'completed'
+        ? '上次的合同审查已办结，如需重做请重新开始审查'
+        : '未找到可继续的合同审查进度，请重新开始审查';
+      showSystemFeedback(message, false, 'info');
+      return;
+    }
+    // 水合：从干净基态机械回放信封事件（riskList/门禁/证据台账），恢复会话态与冻结的合同原件。
+    dispatch({ type: '__clear__' });
+    for (const event of replay.events) dispatch(event);
+    setWorkSessionId(record.sessionId);
+    setWorkContractMaterialId(record.contractMaterialId);
+    setWorkPhase(replay.phase);
+    resolvedRequest.current = undefined;
   };
 
   // WORK-LIVE-1：grant 案的 live gate 由真实 RiskList + 证据台账派生（projectRiskListGate，绝不复用样板案门禁投影）。
@@ -1657,6 +1713,14 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           <div className="s3-launcher" data-testid="s3-launcher">
             <h3>合同审查</h3>
             <p>对已入库的合同做逐条风险审查。审查前请填写对方主体名称（用于工商核验），系统不从文件名或正文推断。</p>
+            {recoverableSession && (
+              <div className="work-recover" data-testid="work-recover">
+                <p>本案有一次未完成的合同审查。可继续上次进度，或在下方重新开始。</p>
+                <button type="button" className="primary-button" data-testid="work-recover-run" onClick={() => void recoverWorkRun()}>
+                  恢复审查
+                </button>
+              </div>
+            )}
             <label className="s3-subject-field">
               <span>对方主体名称</span>
               <input
