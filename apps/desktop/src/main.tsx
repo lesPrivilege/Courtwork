@@ -14,6 +14,7 @@ import { createTauriMaterialHost } from './material/tauri-material-host';
 import { createDesktopPackageRuntime } from './composition/package-runtime';
 import { createDemoWorkFixture } from './demo/client';
 import { createDesktopWorkCommand, installWorkTestHooks } from './work/work-runtime';
+import { createTauriWorkStateHost } from './work/tauri-work-state-host';
 import { loadModelConfig } from './provider/model-config';
 import './styles.css';
 
@@ -26,6 +27,9 @@ const hostAuth = isTauriHostRuntime() ? createTauriHostAuth() : createBrowserHos
 // MATERIAL-INGRESS-1：产品运行时经 src-tauri 命令持久；DEV/E2E 用内存宿主（绝不进正式 Tauri composition）。
 const materialHost = isTauriHostRuntime() ? createTauriMaterialHost() : createBrowserMaterialHost();
 const materialStore = new MaterialStore(materialHost);
+// WORK-HOST-1：产品运行时注入 Tauri WorkState opaque-blob 宿主（跨重启耐久持久，ADR-010 决定二）；
+// DEV/E2E 留空 → work-runtime 缺省内存参考实现（跨 store 实例存活，供樁宿主 replay/resume 反例，不跨真机重启）。
+const workHost = isTauriHostRuntime() ? createTauriWorkStateHost() : undefined;
 
 if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') {
   installChatTestHooks();
@@ -36,13 +40,15 @@ if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') {
 
 const packageRuntime = createDesktopPackageRuntime();
 const demoWorkFixture = createDemoWorkFixture();
-// WORK-LIVE-1：production Work 命令端口（进程内 callback）。host=内存参考实现（跨真机重启持久待 Tauri host，
-// 见 work-runtime `[需架构拍板]`）；provider 走注入 transport（生产 DeepSeek）/DEV+E2E 走 Work turn 樁。
+// WORK-LIVE-1：production Work 命令端口（进程内 callback）。生产 host=Tauri WorkState 宿主（WORK-HOST-1，
+// 跨真机重启耐久）；DEV/E2E host=work-runtime 缺省内存参考实现。provider 走注入 transport（生产 DeepSeek）/
+// DEV+E2E 走 Work turn 樁。
 const workCommand = createDesktopWorkCommand({
   registries: packageRuntime.packageRegistries,
   materialResolver: materialStore,
   providerConfig: () => loadModelConfig(),
   ...(providerTransport ? { transport: providerTransport } : {}),
+  ...(workHost ? { host: workHost } : {}),
 });
 
 createRoot(document.getElementById('root')!).render(

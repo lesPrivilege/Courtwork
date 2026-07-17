@@ -12,6 +12,7 @@ use std::sync::{Mutex, Once, OnceLock, RwLock};
 
 mod host_auth;
 mod material_store;
+mod work_state;
 
 /// 发行包 service；dev（debug_assertions）加 `.dev` 后缀，避免污染发行 ACL（F6）。
 #[cfg(debug_assertions)]
@@ -1630,6 +1631,81 @@ fn material_read_original(
     ))
 }
 
+// ── WORK-HOST-1：WorkState opaque-blob 宿主命令（ADR-010 决定二）──────────────
+// 宿主只存/取 case-scoped 不透明字节，绝不解析 Work 事件或法律 schema（信封校验/CAS 重试全在 TS runtime）。
+// 落盘走 work_state.rs 的原子替换 + F_FULLFSYNC + 目录项落盘；大小上限与路径穿越隔离在宿主 fail-closed。
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct WorkStateReadInput {
+    case_id: String,
+    session_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct WorkStateCommitInput {
+    case_id: String,
+    session_id: String,
+    /// 期望的宿主 generation（`null` = 期望当前无 blob，起新会话）。
+    expected_version: Option<String>,
+    /// 不透明信封字节（宿主不解析）。
+    bytes: Vec<u8>,
+}
+
+/// Work 状态信封目录（app-data 内，扁平存放 `<caseId>__<sessionId>.env`；绝不落用户案件目录）。
+fn work_state_dir_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    use tauri::Manager;
+    let dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|_| "无法定位应用数据目录".to_string())?;
+    Ok(dir.join("work-state"))
+}
+
+/// 读取 case-scoped opaque blob（跨重启会话续行的读侧）。缺失 → `{found:false}`；帧损坏 → 显式错误（fail-closed）。
+#[tauri::command]
+fn work_state_read(
+    app: tauri::AppHandle,
+    input: WorkStateReadInput,
+) -> Result<work_state::ReadReply, String> {
+    let dir = work_state_dir_path(&app)?;
+    work_state::read_blob(&dir, &input.case_id, &input.session_id).map_err(|error| error.message())
+}
+
+/// whole-envelope CAS 提交（durable 屏障）。硬上限逾越 fail-closed 拒写（旧版本不动）；软上限逾越发宿主
+/// 告警但落盘；CAS 败者返回结构化 `{applied:false, version:<当前 generation>}`，绝不覆盖赢者。
+#[tauri::command]
+fn work_state_commit(
+    app: tauri::AppHandle,
+    input: WorkStateCommitInput,
+) -> Result<work_state::CommitReply, String> {
+    let dir = work_state_dir_path(&app)?;
+    match work_state::commit_blob(
+        &dir,
+        &input.case_id,
+        &input.session_id,
+        input.expected_version.as_deref(),
+        &input.bytes,
+    ) {
+        Ok(work_state::CommitOutcome::Applied { version, soft_limit_warning }) => {
+            if soft_limit_warning {
+                // 宿主侧显式告警（非静默降级）；用户可见的软上限告警由 TS store 的 onSoftLimitWarning 承载。
+                eprintln!(
+                    "[work-state] 信封 {} 字节越过软上限 {} 字节——已落盘并告警",
+                    input.bytes.len(),
+                    work_state::SOFT_LIMIT_BYTES
+                );
+            }
+            Ok(work_state::CommitReply { applied: true, version })
+        }
+        Ok(work_state::CommitOutcome::Rejected { current_version }) => {
+            Ok(work_state::CommitReply { applied: false, version: current_version })
+        }
+        Err(error) => Err(error.message()),
+    }
+}
+
 #[tauri::command]
 async fn provider_chat_request(
     input: ProviderChatInput,
@@ -1878,6 +1954,8 @@ pub fn run() {
             material_get,
             material_list,
             material_read_original,
+            work_state_read,
+            work_state_commit,
             sync_macos_window_controls,
         ])
         .run(tauri::generate_context!())

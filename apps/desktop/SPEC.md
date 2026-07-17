@@ -2,13 +2,62 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## WORK-HOST-1 · Tauri/Rust WorkState opaque-blob 宿主（实现完成，待独立验收）
+
+权威：[实现就绪图 `WORK-HOST-1` 行](../../docs/architecture/implementation-readiness.md)（测量单阈值软 4 MiB / 硬 16 MiB / 每屏障 ~10ms；退出证据：cargo 崩溃注入 kill -9 原子性、跨重启复现步骤补记 WORK-LIVE SPEC、swap 后 work-live 全链 e2e 仍绿）+ [ADR-010 决定二](../../docs/decisions/ADR-010-work-live-boundaries.md)（whole-envelope CAS、opaque blob host port、原子替换三段「同目录临时文件落盘 + rename + 目录项落盘」、macOS `F_FULLFSYNC` 真机证据要求、宿主只强制 scope/id 形状/大小上限/穿越隔离/原子替换）。基线 `main @ f0ceae7`（8dcb68d 之后新尖端，含 WORK-LIVE-1 与 LAYOUT-CONVERGE-1）。分支 `impl/work-host-1`，worktree 施工，未推送、未改 `docs/status/current.md`。
+
+WORK-LIVE-1 走「精简装配」时把 `WorkCommandPort` 接内存参考 host，并明列真机跨重启待此单。本单落地 ADR-010 决定二的**生产宿主**——`WorkStateHostPort` 的 Tauri/Rust 实现，组合根换一行注入（in-memory→durable），WORK-LIVE-1 全链就此跨真机重启耐久。
+
+### 精确触面与禁止扩张
+
+- **触面**：`src-tauri/src/work_state.rs`（新，纯逻辑 + cargo 测试，含 kill -9 崩溃注入）、`src-tauri/src/lib.rs`（`mod work_state` + `work_state_read`/`work_state_commit` 两命令 + `work_state_dir_path` 助手 + handler 注册）、`src/work/tauri-work-state-host.ts`（新 adapter，+`.test.ts`）、`src/main.tsx`（生产注入 `createTauriWorkStateHost`，DEV/E2E 留空回落内存参考）、`src/work/work-runtime.ts`（host 边界注释更新，逻辑零改）。
+- **禁止扩张（遵守）**：零新 crate（`Cargo.toml` 未改）；未改 `work-command.ts`/core/schemas/registry/legal/reading-view/output/host_auth/material_store 任何契约或实现；未碰 WORK-LIVE-1 的 `WorkCommandOutcome`/gate/docx 链与其静态门断言；未动 scheduled/多写者/跨案（就绪图拒绝项）；验收放行前不更新 `docs/status/current.md`。
+
+### 新增概念留痕（复杂度节制条）
+
+**本单零新增概念**：`WorkStateHostPort` 是既有 port（ADR-010 决定二 / WORK-STORE-1 已定），`WorkStateEnvelopeV1` 落盘格式既有，Tauri 命令体例沿 `material_store.rs`/`host_auth.rs` 扁平先例，字节 wire 沿 `tauri-material-host.ts`（`Vec<u8>`↔`number[]`）。新增的只是同一 port 的**宿主侧实现**（就绪图明言「宿主实现不算新概念，port 既有」）。**零新 crate**：`File::sync_all`（macOS 上 Rust std 内部经 `fcntl(F_FULLFSYNC)`，见 `library/std/src/sys/pal/unix/fs.rs` `os_fsync`）替代引 `libc`，`SystemTime` 铸临时文件 nonce，均 std。
+
+### 落盘与耐久语义
+
+- 扁平存放 `<app-data>/work-state/<caseId>__<sessionId>.env`（沿 material_store 扁平先例，绝不落用户案件目录）；帧格式 `<generation>\n<opaque-bytes>` 与 Node 参考实现 `work-state-host-file.ts` 逐字节同构（同一信封换宿主可互读）。
+- 原子替换三段：同目录临时文件 → 写全 + `File::sync_all` → `rename` 原子切换 → 目录项 `sync_all`。`rename` 全有全无 → 任何时刻 target 都是某个完整版本，恢复窗口 = 至多 1 次在途 CAS，无 WAL。
+- `generation` 宿主铸造、单调递增、随文件持久、跨进程重启仍单调，只做等值比较（调用方不得用 mtime/hash/revision 冒充）。
+- **opaque 纪律**：Rust 只管 blob（`Vec<u8>`），绝不解析信封内容；信封校验/事件状态机/未知版本 fail-closed 全在 TS runtime（`readWorkStateEnvelope` 的 `UnknownEnvelopeVersionError`）。
+- 大小上限防御纵深（primary 闸在 TS store）：硬 16 MiB 逾越 fail-closed 拒写、旧版本原地不动（结构化 `TooLarge`）；软 4 MiB 逾越发宿主 `eprintln` 告警但落盘（用户可见告警由 TS store `onSoftLimitWarning` 承载）。
+- 路径穿越隔离：caseId/sessionId 防御性 `safe_token`，穿越形 → `commit` `InvalidRef`、`read` `found:false`，目录内外零越权文件。
+
+### 退出证据（本会话已跑）
+
+- **cargo 崩溃注入（kill -9 原子性，≥20 次真实 SIGKILL）**：`crash_injection_atomic_replace_never_tears_across_real_sigkills` 复用 WORK-STORE-MEASURE 度量三手法——`current_exe` 子进程（`crash_writer_child`，环境变量触发）猛写 CAS，父进程等其越过播种版本（generation≥2，证明已在写已有文件的原子替换）后随机 1–12ms `kill -9`，**24 轮**读回 target 恒为完整版本（version 可解析 + bytes == 该版本 payload），零撕裂；真实 SIGKILL 投递 ≥1、writer 推进 ≥1。反例守卫：`inspector_detects_a_deliberately_torn_frame` 坐实撕裂判定非空转；并把原子替换手工改成非原子直写（`COURTWORK_WORK_STATE_MUTATE`）→ 崩溃测试当场红（`帧撕裂——原子替换被破坏`，exit 101）→ 已复原。
+- **CAS 竞争败者拒绝**：`stale_expected_version_is_rejected_without_clobbering_the_winner`（陈旧 expectedVersion → `applied:false`，不覆盖赢者）+ `fresh_expected_null_against_existing_blob_is_rejected`（对已有 blob 误起新 → 拒绝）。
+- **超硬限拒写**：`hard_limit_crossing_is_fail_closed_and_leaves_old_version_intact`（17 MiB → `TooLarge`，旧版本 bytes 原地不动）。
+- **帧损坏 fail-closed**：`corrupt_frame_missing_separator_is_fail_closed_on_read_and_commit`（缺分隔符 → `Err`，读侧绝不当作 fresh 覆盖）。
+- 软上限告警但落盘、generation 单调/opaque ASCII、穿越隔离、往返读回原样 bytes 均有测。cargo `--lib` 全量 **64 passed / 0 failed**（work_state 贡献 12），零新 warning。
+- **adapter wire 契约**：`tauri-work-state-host.test.ts` 4 例（mock invoke）锁命令名、input 形状、`Uint8Array`↔`number[]` 互转、CAS 败者与 `{found:false}` 透传。
+
+### 已知边界（诚实留痕）
+
+- **真机 `F_FULLFSYNC` 实际发生 + 跨重启持久**：`File::sync_all` 在 macOS 上映射 `fcntl(F_FULLFSYNC)`，但 ADR-010 决定二要求真机证明其实际发生、库名不替代证据；本会话环境无 macOS Tauri 壳与真实 key，故真机 `fs_usage`/`dtrace` 采样与跨重启试点为**手工可复现步骤**（见 WORK-LIVE-1 SPEC 试点步骤 5，本单已从「未验证」更新为可复现）。成熟度诚实为 **package-ready**（宿主实现 + cargo 全测成立，真机 external-validated 待手工试点）。
+- **E2E 樁宿主不接 Tauri host**：Playwright/浏览器无 Tauri 运行时，`isTauriHostRuntime()=false` → 仍走内存参考 host（既有 `work-live.spec.ts` 不变）。Tauri host 的自动化证据是 cargo 测试 + adapter 单测；真机链是手工试点，非 e2e。
+- **Windows/Linux 耐久调用**：`sync_all` 在非 macOS 平台映射平台 fsync；当前只支持 macOS，其它平台耐久证据待支持该平台时另证（ADR-010 决定二）。
+- **软上限告警不入 wire**：`compareAndSwap` 返回固定 `{applied,version}`（既有 port，本单不改契约）；软上限告警走宿主 `eprintln` + 核心函数返回位（已测），用户可见告警由既有 TS store 承载。
+
+### 完工门（本会话已跑，隔离端口 :1489/:1490）
+
+- `cargo test --lib`（src-tauri）**64 passed / 0 failed**，exit 0，零新 warning（6 条 pre-existing objc2 unsafe 均 lib.rs picker 段，非本单）；work_state 贡献 12 例，含 kill -9 崩溃注入 24 轮真实 SIGKILL。
+- `pnpm -r build` exit 0（tsc -b + vite，无 TS 错误）；`pnpm lint`（eslint）exit 0。
+- 根 vitest `pnpm test` **1222 passed**（packages+eval，本单未触碰，零回退）；desktop vitest **298 passed**（294 + adapter 4 例）。
+- 全静态门链过（含 `WORK-LIVE-1 boundary checks passed` 未回退、文案门、`Playwright 假绿防护 255 条（下限 255）`）。
+- 隔离端口 Playwright（`COURTWORK_E2E_PORT`）**255 passed**（app + residue 全绿），exit 0；residue project 三轮确定性（round 2/3 各 21/21）。
+- 逐文件暂存、核 `git diff --cached`，未推送、未改 `docs/status/current.md`。
+
 ## WORK-LIVE-1 · production run/replay/resume/cancel 全链（实现完成，待独立验收）
 
 权威：[ADR-010](../../docs/decisions/ADR-010-work-live-boundaries.md)（全文，尤其决定一 `WorkCommandPort`、决定二 durable store、决定三 ArtifactEnvelope、决定五 S3 binding）+ [ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)（`WorkCommandPort` 是进程内 callback，非 IPC/HTTP）+ [实现就绪图 `WORK-LIVE-1` 行](../../docs/architecture/implementation-readiness.md)（主线最后一环，Stage 0 退出证据本体）。基线 `main @ 0dae3bc`（`fa820c5` 之后代新尖端，含 UI-RESIDUE-1 批一）。分支 `impl/work-live-1`，worktree 施工，未推送、未改 `docs/status/current.md`。**只装配已验收前置**（LEGAL-S3 装配件、WorkStateStore、`resolveForProvider`、host_auth/grant、OUTPUT-CONFIRM 确认流），非 demo case recording 消费为零。
 
 ### 架构口径裁定（开工前经产品负责人确认）：WorkState host 精简装配
 
-ADR-010 决定二的 opaque blob host 在就绪图曾挂 `WORK-STORE-1`，但 `WORK-STORE-1` 实际只交付 Node 参考实现（`work-state-host-file.ts`，其头注明「生产宿主由 Tauri/Rust 实现同一 port」），**Tauri WorkState host 命令不存在**（`src-tauri` 仅 host_auth + material_store）。经确认走**精简装配**：`WorkCommandPort` 接注入的 `WorkStateHostPort`，host 用 browser-safe 内存参考实现（`createInMemoryWorkStateHost`）——它跨 store 实例存活（故 store-driven 的 replay/resume/crash-inject 反例在单测与 E2E 樁宿主成立），但**不跨真机重启持久**。真机跨重启需下一环的 Rust WorkState opaque blob host（`[需架构拍板]`，见下「已知边界」），届时只换 `work-runtime.ts` 一处 host 注入、零改 `work-command.ts`。产品运行时如实标注「会话内有效·跨重启保留即将开通」（显式降级，非静默假 live）。
+ADR-010 决定二的 opaque blob host 在就绪图曾挂 `WORK-STORE-1`，但 `WORK-STORE-1` 实际只交付 Node 参考实现（`work-state-host-file.ts`，其头注明「生产宿主由 Tauri/Rust 实现同一 port」），**Tauri WorkState host 命令不存在**（`src-tauri` 仅 host_auth + material_store）。经确认走**精简装配**：`WorkCommandPort` 接注入的 `WorkStateHostPort`，host 用 browser-safe 内存参考实现（`createInMemoryWorkStateHost`）——它跨 store 实例存活（故 store-driven 的 replay/resume/crash-inject 反例在单测与 E2E 樁宿主成立），但**不跨真机重启持久**。真机跨重启需下一环的 Rust WorkState opaque blob host（`[需架构拍板]`，见下「已知边界」），届时只换 `work-runtime.ts` 一处 host 注入、零改 `work-command.ts`。产品运行时如实标注「会话内有效·跨重启保留即将开通」（显式降级，非静默假 live）。**（本节为 WORK-LIVE-1 开工时口径；WORK-HOST-1 已后续落地该 Rust WorkState opaque blob 宿主并在生产注入，跨重启现由 WORK-HOST-1 承载——见本文件 WORK-HOST-1 节与下「已知边界」。）**
 
 ### 落点裁定与新增概念留痕（复杂度节制条）
 
@@ -59,14 +108,14 @@ ADR-010 决定二的 opaque blob host 在就绪图曾挂 `WORK-STORE-1`，但 `W
 
 ### 已知边界（诚实留痕，部分待架构拍板）
 
-- **真机跨重启持久 `[需架构拍板]`**：无 Tauri WorkState opaque blob host 命令，`WorkCommandPort` 接内存参考实现——store-driven 架构使 replay/resume/crash-inject 反例在单测与 E2E 樁宿主成立，但真机重启不保留会话。真机跨重启是 Stage 0 退出证据的一环，需下一环 Rust WorkState host（ADR-010 决定二：opaque blob CAS + 原子替换 + F_FULLFSYNC；就绪图曾挂 WORK-STORE-1 未交付）；届时只换 `work-runtime.ts` host 注入。成熟度诚实为 **package-ready**（生产装配 + 全测成立，真机 live 待 durable host）。
+- **真机跨重启持久（WORK-HOST-1 已落地）**：本单开工时无 Tauri WorkState host 命令，`WorkCommandPort` 接内存参考实现——store-driven 架构使 replay/resume/crash-inject 反例在单测与 E2E 樁宿主成立，但真机重启不保留会话。**WORK-HOST-1（同批后续单）已落地 Rust WorkState opaque blob 宿主（ADR-010 决定二：CAS + 原子替换 + F_FULLFSYNC + 目录项落盘 + 大小上限；cargo kill -9 崩溃注入全绿）并在组合根生产注入**，届时仅换 `work-runtime.ts`/`main.tsx` 一处 host、零改 `work-command.ts`。真机跨重启现为手工可复现试点（见下试点步骤 5），本会话环境无 macOS Tauri 壳未跑。成熟度诚实为 **package-ready**（生产装配 + 全测 + durable host 成立，真机 external-validated 待手工试点）。
 - **generic `StartWorkCommand` 无垂类 preflight slot `[需架构拍板]`**：ADR-010 决定五要求主体来自显式结构化 preflight，但决定一的 generic `StartWorkCommand` 无 subject 字段（generic wire 不应含 legal 语义）。本单以垂类入口 `startWithPreflight` 承载主体（进程内，不改 generic wire）；generic `start` 无 subject → 诚实 `rejected/invalid_scope`。未来 gateway 的可序列化 command wire 若要携垂类 preflight，须另立 ADR。
 - **actor 由 desktop 写死 `desktop/local-user`**：真实 identity dependency 未装配（current.md 已登记同一边界，interaction actor 亦如此）；`[需架构拍板]` 归后续 authenticated principal ADR。React 不自报 actor（由 `work-runtime` 注入、`resolveReview`/`resume` 内 re-assert）。
 - **UI-SURFACE W5「停止当前」未触碰（诚实上报差异）**：W5 的 `data-state="unwired"`「停止当前」按钮渲染于 `queuedMessages.map(...)`——**每条排队聊天消息一枚**，是聊天排队级控件而非单一 Work-run 取消。本单 Work run/cancel 以**新控件** `scene-work-review`/`s3-run`/`work-cancel` 交付（真实接线）；W5 保持原状（不摘 marker），以免为语义不符的控件削弱已验收 UI-SURFACE-1 静态门（`assert-ui-surface-contracts` app 计数=1、MINIMUM=7）与其 e2e。SPEC W5 条「Work 场景执行器未接通」归因与其 per-message 放置存在张力，按 AGENTS.md「以可验证仓库状态为准并显式上报差异」留痕，摘除与否交独立验收/架构裁定。
 - **grant docx 无「打开/在访达显示」**：`openOutputDocx`/`revealOutputDocx` 依赖 demo 虚拟根绝对路径，grant 侧无宿主 reveal 命令（同 W8 材料侧边界）；`work-output-docx` 为纯状态结果卡，不伪装可打开。
 - **grant Work 事件流不入聊天面**：production 事件发布进 `session` 投影驱动 `RevisionPanel`（右侧工作面），但 demo 专属的聊天 event-stream 卡未对 grant 开放（`isDemoCase` 门）；grant 的运行进度可视化属轻量后续，本单以 RevisionPanel + 结果卡为可观测出口。
 
-### 手工可复现（真机试点，Stage 0 退出证据；非自动化门，跨重启部分待 durable host）
+### 手工可复现（真机试点，Stage 0 退出证据；非自动化门，跨重启部分 WORK-HOST-1 已提供 durable host）
 
 E2E 樁宿主已在隔离端口自动化走完整链（`work-live.spec.ts`）。真机真实材料链的人工试点按下列可复现步骤（需 macOS Tauri 壳 + 真实 DeepSeek key + 真实合同文件；本会话环境无 key，未跑）：
 
@@ -74,9 +123,9 @@ E2E 樁宿主已在隔离端口自动化走完整链（`work-live.spec.ts`）。
 2. Composer「+」→「Add folder」就地入库合同原件（MATERIAL-INGRESS-1，原件原地只读），确认材料区状态为「ready」。
 3. scene-strip「审查合同」→ S3 启动器填对方主体名称 →「开始合同审查」；真实 DeepSeek 经注入 transport 产出 RiskListDraft，resolver 铸锚成 RiskList 落审阅面（非 recording）。
 4. 逐条 confirm/reject（含展开引语）→ 满则续行编译，未落点项经 OUTPUT-CONFIRM 逐条确认后 docx 写入本案「产出」目录（grant 授权命令），`work-output-docx` 结果卡出现。
-5. **跨重启部分**：内存参考 host 下重启不保留会话——此步待 Rust WorkState opaque blob host 落地后复跑（`[需架构拍板]`）。届时 kill 应用后重启，同一 grant 案应能 replay 至暂停态并 resume 续行到 docx。
+5. **跨重启部分（WORK-HOST-1 已落地 durable host，可复现）**：生产已注入 Tauri WorkState opaque-blob 宿主，会话信封持久在 `<app-data>/work-state/<caseId>__<sessionId>.env`。复现：在暂停态（步 4 逐条确认前）`kill` 应用进程 → 重启 → 同一 grant 案 `workCommand.replay(ref)` 应回到 `phase='paused'` → `resolveReview` 续行编译到 docx，产出与不重启路径等价。真机 `F_FULLFSYNC` 采样：提交并发时 `sudo fs_usage -w -f filesys <pid> | grep -i fullfsync` 应见临时文件与目录两次 F_FULLFSYNC（ADR-010 决定二要求库名不替代真机证据）。
 
-试点应如实记录：真实 key/模型、真实合同 sha、产出 docx 的 `unzip` 批注核验；跨重启一步在 durable host 前**明确标注未验证**，不冒充完成。
+试点应如实记录：真实 key/模型、真实合同 sha、产出 docx 的 `unzip` 批注核验；跨重启一步的 durable host 已由 WORK-HOST-1 落地并全 cargo 测（含 kill -9 崩溃注入），真机采样在本会话环境（无 macOS Tauri 壳/无 key）**未跑**，按上列步骤可复现，如实标注待手工试点，不冒充完成。
 
 ## DESIGN-MD-1 · tokens.json + principles.md 编译为机器可读 courtwork-design.md 与 drift 门（实现完成，待独立验收）
 
