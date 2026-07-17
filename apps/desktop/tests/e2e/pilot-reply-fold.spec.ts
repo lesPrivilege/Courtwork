@@ -66,13 +66,14 @@ test('历史回复折叠可展开回看，且折叠裁线不得截半表格（�
   const intact = await collapsed.evaluate((root) => {
     const body = root.querySelector('.collapsible-body');
     const block = [...root.querySelectorAll('.chat-markdown > *')].find((el) => el.textContent?.includes('条目 1'));
-    if (!body || !block) return { hasBlock: false, intact: false };
+    if (!body || !block) return { hasBlock: false, intact: false, peekPx: 0 };
     const clip = body.getBoundingClientRect();
     const rect = block.getBoundingClientRect();
-    return { hasBlock: true, intact: rect.bottom <= clip.bottom + 1 };
+    return { hasBlock: true, intact: rect.bottom <= clip.bottom + 1, peekPx: clip.bottom - rect.bottom };
   });
   expect(intact.hasBlock).toBe(true);
   expect(intact.intact).toBe(true);
+  expect(intact.peekPx).toBeGreaterThanOrEqual(48);
 
   // 显式展开态：Show more → 全文（结尾锚段可见）→ Show less 收回。
   const toggle = history.getByTestId('collapse-toggle');

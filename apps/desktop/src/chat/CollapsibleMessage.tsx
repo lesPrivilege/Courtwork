@@ -26,7 +26,7 @@ export function CollapsibleMessage({ lines, children }: CollapsibleMessageProps)
       let clamp = threshold;
       let hasMore = el.scrollHeight > threshold;
       // PILOT-LIVE-2 E 块界对齐（裁定：表格/结构块不得截半）：裁线落在 markdown 顶层块中段时，
-      // 下探到该块底部（整块不透明可见）+ 一行「窥视行」承接渐隐遮罩示意有更多；整块即末尾则不钳。
+      // 下探到该块底部（整块不透明可见）+ 固定 48px「窥视带」完整承接渐隐遮罩；整块即末尾则不钳。
       // 纯文本子树（无块元素，如 user 短文本）保持行数阈值。位置量取自布局矩形，collapsed/expanded 等值。
       const blocks = el.querySelector('.chat-markdown')?.children;
       if (hasMore && blocks && blocks.length > 0) {
@@ -34,8 +34,9 @@ export function CollapsibleMessage({ lines, children }: CollapsibleMessageProps)
         for (const block of Array.from(blocks)) {
           const bottom = Math.ceil(block.getBoundingClientRect().bottom - clipTop) + 1;
           if (bottom >= threshold) {
-            hasMore = el.scrollHeight > bottom + 4;
-            clamp = hasMore ? bottom + Math.ceil(lineHeight) : el.scrollHeight;
+            const fadeBand = 48;
+            hasMore = el.scrollHeight > bottom + fadeBand;
+            clamp = hasMore ? bottom + fadeBand : el.scrollHeight;
             break;
           }
         }
