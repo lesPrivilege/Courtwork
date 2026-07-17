@@ -2904,3 +2904,38 @@ pnpm --filter @courtwork/demo-runtime demo:legal
 ```
 
 放行只覆蓋自動化與 desktop 裝配修復，不把尚未執行的產品負責人真機清單冒充成立：真 Tauri+DeepSeek 附件正文、grant 案實際工作面、WKWebView 點選/拖放文件夾、雙顯示器/系統縮放下布局仍待真機復驗。本會話不更新 `docs/status/current.md`，不推送、不 prune。
+
+---
+
+# ACCEPTANCE: READER-ISOLATION-1
+
+日期：2026-07-17；原實作：`impl/reader-isolation-1 @ 04cf728`（基線 `8535b84`，單提交）；獨立驗收樹 `/private/tmp/courtwork-reader-isolation-accept`，重放至委託基線 `main @ 6d6c364` 後產品尖端 `87f332c`。驗收開始時共享倉本地 `main` 實為後續 docs-only `3da7894`，與委託座標不一致；本次嚴格採 `6d6c364`，未混入後續提交。
+
+**裁決：✅ 放行 READER-ISOLATION-1。** 非 demo 的 grant/unbound 案右欄不再可達硬編碼 demo 語料，「原件閱讀」連標頭整塊缺席，非空殼或 disabled 偽裝；demo 案三入口與點擊進只讀閱讀維持成立。FILE-PREVIEW-1 未被代建，rails-compact 四步退役一字未動，`data-preview-open` 刪除前零消費者聲稱經獨立 grep 坐實。觸碰面嚴格為 `apps/desktop/{src,tests,scripts,SPEC.md}`；零 package、契約、`src-tauri`、`docs/status/current.md` 改動。
+
+## 1. 紅證與誠實缺席
+
+- 先暫時把 `App.tsx` 的 `readerEntries={isDemoCase ? [...] : []}` 恢復為無條件供給，端口 `19121` 跑 `reader-isolation.spec.ts`：demo 對照 **1 passed**；非 demo 例在 `reader-entry` 計數斷言確定性紅，`Expected 0 / Received 3`。反例到達目標斷言，非啟動或環境假紅。
+- 精確還原後，端口 `19122/19123/19124` 各跑同一兩例，三輪均 **2/2**：非 demo 案 `reader-entry=0`、右欄無「設備採購合同」、`reader-entries=0`；因此「原件閱讀」內容與標頭同時不在 DOM，不是空殼或 disabled 偽裝。demo 案每輪均三入口在場，首入口可點進 `preview-host` 並顯示「設備採購合同」。
+- `workbench.spec.ts` 的既有「原件閱讀態：只讀元信息、無工作面 tab 選中、行內強調不漏星號」聚焦復跑 **1/1**；完整 278 鏈再次通過同例。S3 golden PASS（39,651 bytes、7/7 考點）；Legal golden PASS（11/11 anchors、4,606 bytes）。
+
+## 2. 不越界覈真
+
+- `6d6c364...87f332c` 僅 5 檔：`App.tsx`、`RightRailModules.tsx`、`reader-isolation.spec.ts`、`assert-test-count.mjs`、`SPEC.md`。產品碼只做 demo 入口供給條件、零入口不渲染模塊，以及刪死 attribute；沒有真實材料讀取、reading-view 派生、文件點擊預覽或格式處理，故 FILE-PREVIEW-1 未被代建。
+- 相對 `6d6c364`，`styles.css`、`assert-layout-converge.mjs`、`layout-converge.spec.ts`、`pilot-layout.spec.ts` 四個 rails-compact 執行面 `git diff --quiet` 為 0；`App.tsx` 的 `compactLayout` 派生、`rails-compact` class、`data-compact` 標記亦未改。SPEC 僅保留退役提案留痕；`6d6c364` 就緒圖已把四步執行歸 FILE-PREVIEW-1。
+- 對刪除前 `6d6c364` 親跑 `git grep -n 'data-preview-open' -- apps/desktop/src apps/desktop/tests apps/desktop/scripts`：唯一命中是 `App.tsx` 自身 `data-preview-open="true"`，tests/scripts/CSS 消費者為 0；刪除後同範圍零命中。
+
+## 3. 合併樹全量門
+
+| 門 | 獨立實跑結果 |
+|---|---|
+| `pnpm -r build` | PASS；13/14 workspace，desktop production Vite 3574 modules；僅既有 chunk advisory |
+| `pnpm lint` | PASS |
+| desktop Vitest | **55 files / 332 tests** |
+| 完整 `test:e2e`，端口 `19132` | 全靜態鏈通過；floor 明報 **278（下限 278）**；Playwright **278/278**（4.8m） |
+| residue 單 worker 三輪，端口 `19133/19134/19135` | 各 **22/22**（1.2m / 50.6s / 47.8s） |
+| demo golden | S3 / Legal 均 PASS |
+
+首輪完整鏈端口 `19130` 曾為 **276 passed / 2 failed**：既有 `goal1` 與 `goal2` 均在 helper 的 click/wait 卡滿 30 秒，未到本單斷言；同碼在新端口、單 worker 聚焦立即 **2/2**，其後完整 278 鏈 **278/278**。未改 timeout、helper、斷言或產品碼，故如實記為首輪既有啟動時序失敗，不以其替代終局全綠門。
+
+所有暫時 mutation 均已還原；提交前工作樹除本驗收記錄外乾淨。本會話不更新 `docs/status/current.md`，不推送、不 prune。
