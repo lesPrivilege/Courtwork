@@ -56,51 +56,6 @@
 
 ---
 
-# ACCEPTANCE: WORK-HOST-1-ACCEPT
-
-日期：2026-07-17
-
-角色：独立验收会话
-
-对象：`impl/work-host-1 @ 1670e8e`，基线 `f0ceae7`，验收基准 `main @ 86fd85c`。本节在同一验收链中紧接 `WORK-LIVE-1-ACCEPT`；worktree 为独立 clean `/private/tmp/courtwork-work-host-1-accept-86fd85c`。未更新 `docs/status/current.md`、未推送、未执行 prune。
-
-## 裁决
-
-**❌ 不放行 WORK-HOST-1。** Rust/adapter 的常规功能证据成立，但两项明确退出证据未成立：
-
-1. **原子替换 mutation 红证假绿。** 验收将 `work_state.rs` 的 `fs::rename(&tmp, target)` 精确替换为 `fs::write(target, &framed)`（直接覆盖 target），然后独立运行 `cargo test --lib work_state::tests::crash_injection_atomic_replace_never_tears_across_real_sigkills -- --exact`。该测试内含 **24** 轮真实 SIGKILL，却仍 **PASS**，没有 exit 101/撕裂失败。此 mutation 已精确还原，随后 `cargo test --lib` 最终 clean 通过。实现自述的「直写必红」不能由这次重放复现；当前 64 KiB payload 与随机 1–12ms kill 窗口不足以可靠咬住直接覆盖，故测试不能证明原子替换被破坏时必红。
-2. **WORK-LIVE SPEC 的跨重启试点步骤不可由现有产品完成。** 步骤 5 声称重启后以同一 ref 调 `workCommand.replay(ref)` 并 `resolveReview`。但 `App.tsx:328` 的 `workSessionId` 只在 React state，重启/切案即清空（`:778-782`），全 App 对 `workCommand.replay` 零消费点；grant case/session ref 亦未成为可恢复 UI 状态。Rust 能按已知 ref 读 blob，不等于用户能在真机重启后重新发现该 ref 并续行。因此「从跨重启未验证晋升为可复现试点」的 SPEC 声明过早；不得以 host blob 存在冒充 desktop resume 能力。
-
-两项均不涉及新 schema 语义；前者需把 mutation 设计成确定性触发 direct-write 撕裂或等价可观测破坏，后者需由架构/实现厘清并实现 session-ref 恢复入口后，再由独立验收复跑。前单的 `rejected/not_configured` 阻断仍独立存在，未被本节覆盖。
-
-## 已成立证据（不抵消阻断项）
-
-| 核验 | 独立实得 |
-|---|---:|
-| `git diff f0ceae7..1670e8e` | 恰 **7** 文件；`Cargo.toml`、`Cargo.lock`、`current.md` 均零 diff |
-| `cargo test --lib` | **64 passed / 0 failed**；`work_state` 12 例；仅 5 条既有 `lib.rs` unnecessary-unsafe warnings |
-| CAS 败者 | `stale_expected_version…` 与 `fresh_expected_null…` 均 PASS，`applied:false` 不覆盖赢家 |
-| 大小边界 | 4 MiB 软告警仍落盘；16 MiB 硬限 fail-closed 且旧 bytes 保留；均 PASS |
-| 损坏/穿越 | 缺分隔帧 read/commit 均 fail-closed；非法 ref 拒写/读 not-found，均 PASS |
-| opaque | `work_state.rs` 运行代码无 `serde_json`、envelope/schema/event/legal 解析；仅测试 payload 含 `storageVersion` 字样。版本/信封判定仍留 TS codec |
-| TS adapter | `tauri-work-state-host.test.ts` **4/4**：命令名、input、`number[] ↔ Uint8Array`、CAS 败者/缺失透传均 PASS |
-| swap/边界 | `main.tsx` 以同一 `isTauriHostRuntime()` 门控：Tauri 注入 `createTauriWorkStateHost`，DEV/E2E 缺省内存 host；`assert-work-live-contracts` PASS |
-| 合并 E2E/residue | 同一 `86fd85c` 组合基准此前隔离端口实跑 **255/255**，residue 三轮各 **21/21**；本次 adapter/static 复核未回退 |
-
-`work_state.rs` 的 host 内部仍保持正确的扁平 opaque frame、CAS、临时文件→`sync_all`→rename→目录 `sync_all` 结构；但是必须以会红的反例证明该结构不可被直写退化，不能只凭源码阅读或偶然绿的 SIGKILL 采样放行。
-
-## 真机与成熟度边界
-
-`File::sync_all` 在 macOS 的实际 `F_FULLFSYNC`、真实 key/Tauri 的跨重启和 docx 验证均未在本会话运行；这些本应是人工试点，不能宣称 external-validated。由于上列 ref 恢复入口缺失，现行步骤也不能称为完整可复现试点。`package-ready` 只能描述 Rust host/adapter 局部实现与自动化；不得据此升级为 product-live。
-
-## 后续放行条件
-
-1. 在不依赖运气的前提下，使 direct-write mutation 稳定触发崩溃完整性测试失败，并保留 clean 原子实现绿色证据。
-2. 补齐或经架构改写跨重启 session-ref 的恢复路径；若仍要承诺 UI 续行，必须有从重启后发现 ref、replay paused、resolveReview 至 docx 的可执行产品步骤与独立证据。
-3. 新的独立验收复跑 cargo 全库、两类 mutation/恢复证据、adapter、静态门、隔离 E2E 与 residue；不更新 `current.md` 直到架构按成熟度裁定。
-
----
-
 # ACCEPTANCE: UI-SURFACE-1-FIX-FOCUSED-REACCEPT
 
 日期：2026-07-16
@@ -2798,5 +2753,50 @@ ADR 原文要求：production composition 未装配时必须返回闭集中的 `
 ## 后续放行条件
 
 补齐 production composition 未装配时的 `rejected/not_configured` 真实返回路径，并增加能触红的反例；新的独立验收须确认该路径不再成为 `failed/internal`，再复跑 build/lint/root+desktop Vitest、静态链、隔离端口完整 E2E、demo golden 与 no-demo-in-harness。`current.md` 仍只由架构角色按成熟度处理。
+
+---
+
+# ACCEPTANCE: WORK-HOST-1-ACCEPT
+
+日期：2026-07-17
+
+角色：独立验收会话
+
+对象：`impl/work-host-1 @ 1670e8e`，基线 `f0ceae7`，验收基准 `main @ 86fd85c`。本节在同一验收链中紧接 `WORK-LIVE-1-ACCEPT`；worktree 为独立 clean `/private/tmp/courtwork-work-host-1-accept-86fd85c`。未更新 `docs/status/current.md`、未推送、未执行 prune。
+
+## 裁决
+
+**❌ 不放行 WORK-HOST-1。** Rust/adapter 的常规功能证据成立，但两项明确退出证据未成立：
+
+1. **原子替换 mutation 红证假绿。** 验收将 `work_state.rs` 的 `fs::rename(&tmp, target)` 精确替换为 `fs::write(target, &framed)`（直接覆盖 target），然后独立运行 `cargo test --lib work_state::tests::crash_injection_atomic_replace_never_tears_across_real_sigkills -- --exact`。该测试内含 **24** 轮真实 SIGKILL，却仍 **PASS**，没有 exit 101/撕裂失败。此 mutation 已精确还原，随后 `cargo test --lib` 最终 clean 通过。实现自述的「直写必红」不能由这次重放复现；当前 64 KiB payload 与随机 1–12ms kill 窗口不足以可靠咬住直接覆盖，故测试不能证明原子替换被破坏时必红。
+2. **WORK-LIVE SPEC 的跨重启试点步骤不可由现有产品完成。** 步骤 5 声称重启后以同一 ref 调 `workCommand.replay(ref)` 并 `resolveReview`。但 `App.tsx:328` 的 `workSessionId` 只在 React state，重启/切案即清空（`:778-782`），全 App 对 `workCommand.replay` 零消费点；grant case/session ref 亦未成为可恢复 UI 状态。Rust 能按已知 ref 读 blob，不等于用户能在真机重启后重新发现该 ref 并续行。因此「从跨重启未验证晋升为可复现试点」的 SPEC 声明过早；不得以 host blob 存在冒充 desktop resume 能力。
+
+两项均不涉及新 schema 语义；前者需把 mutation 设计成确定性触发 direct-write 撕裂或等价可观测破坏，后者需由架构/实现厘清并实现 session-ref 恢复入口后，再由独立验收复跑。前单的 `rejected/not_configured` 阻断仍独立存在，未被本节覆盖。
+
+## 已成立证据（不抵消阻断项）
+
+| 核验 | 独立实得 |
+|---|---:|
+| `git diff f0ceae7..1670e8e` | 恰 **7** 文件；`Cargo.toml`、`Cargo.lock`、`current.md` 均零 diff |
+| `cargo test --lib` | **64 passed / 0 failed**；`work_state` 12 例；仅 5 条既有 `lib.rs` unnecessary-unsafe warnings |
+| CAS 败者 | `stale_expected_version…` 与 `fresh_expected_null…` 均 PASS，`applied:false` 不覆盖赢家 |
+| 大小边界 | 4 MiB 软告警仍落盘；16 MiB 硬限 fail-closed 且旧 bytes 保留；均 PASS |
+| 损坏/穿越 | 缺分隔帧 read/commit 均 fail-closed；非法 ref 拒写/读 not-found，均 PASS |
+| opaque | `work_state.rs` 运行代码无 `serde_json`、envelope/schema/event/legal 解析；仅测试 payload 含 `storageVersion` 字样。版本/信封判定仍留 TS codec |
+| TS adapter | `tauri-work-state-host.test.ts` **4/4**：命令名、input、`number[] ↔ Uint8Array`、CAS 败者/缺失透传均 PASS |
+| swap/边界 | `main.tsx` 以同一 `isTauriHostRuntime()` 门控：Tauri 注入 `createTauriWorkStateHost`，DEV/E2E 缺省内存 host；`assert-work-live-contracts` PASS |
+| 合并 E2E/residue | 同一 `86fd85c` 组合基准此前隔离端口实跑 **255/255**，residue 三轮各 **21/21**；本次 adapter/static 复核未回退 |
+
+`work_state.rs` 的 host 内部仍保持正确的扁平 opaque frame、CAS、临时文件→`sync_all`→rename→目录 `sync_all` 结构；但是必须以会红的反例证明该结构不可被直写退化，不能只凭源码阅读或偶然绿的 SIGKILL 采样放行。
+
+## 真机与成熟度边界
+
+`File::sync_all` 在 macOS 的实际 `F_FULLFSYNC`、真实 key/Tauri 的跨重启和 docx 验证均未在本会话运行；这些本应是人工试点，不能宣称 external-validated。由于上列 ref 恢复入口缺失，现行步骤也不能称为完整可复现试点。`package-ready` 只能描述 Rust host/adapter 局部实现与自动化；不得据此升级为 product-live。
+
+## 后续放行条件
+
+1. 在不依赖运气的前提下，使 direct-write mutation 稳定触发崩溃完整性测试失败，并保留 clean 原子实现绿色证据。
+2. 补齐或经架构改写跨重启 session-ref 的恢复路径；若仍要承诺 UI 续行，必须有从重启后发现 ref、replay paused、resolveReview 至 docx 的可执行产品步骤与独立证据。
+3. 新的独立验收复跑 cargo 全库、两类 mutation/恢复证据、adapter、静态门、隔离 E2E 与 residue；不更新 `current.md` 直到架构按成熟度裁定。
 
 ---
