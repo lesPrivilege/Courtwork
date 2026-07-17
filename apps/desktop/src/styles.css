@@ -277,7 +277,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .rail-nav-item:hover:not(.is-disabled-feature) { background: var(--control-hover); color: var(--text-primary); }
 .rail-nav-item.is-disabled-feature { color: var(--text-disabled); cursor: not-allowed; }
 .rail-row-main {
-  display: flex; align-items: flex-start; gap: 2px;
+  display: flex; align-items: center; gap: 2px;
   padding: 4px 28px 4px 2px; /* 右侧留给绝对定位归档钮，避免挡 chevron */
   min-width: 0;
 }
