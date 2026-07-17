@@ -10,6 +10,7 @@ import type { ConfirmationStore, PendingConfirmation } from '../session/confirma
 import type { RevisionEventStore } from '../revision/revision-store.js';
 import { applyJsonPointer } from '../revision/json-pointer.js';
 import { deriveTodoSnapshot } from './todo-snapshot.js';
+import { derivePendingProjection } from './pending-projection.js';
 import { createRuntimeGuard, RuntimeLimitExceededError, type RuntimeGuard, type RuntimeLimits } from './runtime-limits.js';
 import { estimateCostUsd } from '@courtwork/provider/pricing';
 import type { GenerationNotice, ProviderUsage } from '@courtwork/provider/types';
@@ -344,6 +345,9 @@ async function generateArtifact(
         ledgerSeq: deps.eventLog.list().length,
         artifacts: context.producedSoFar,
         pendingGateLabels: [],
+        // PROJECTION-RESUME-1：账本既有失败经确定性归并入「未产出/待执行」子节——续行会话
+        // 由此分清「曾失败」与「没开始」（interrupted/停门态归 Turn journal/停门持有方供给）。
+        pending: derivePendingProjection(deps.eventLog.list()),
       },
       materials: context.materials,
       taskInstruction: JSON.stringify(task),

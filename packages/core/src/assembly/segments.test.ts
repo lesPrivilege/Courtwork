@@ -116,6 +116,163 @@ describe('续行投影段', () => {
   });
 });
 
+describe('续行投影段 · 未产出/待执行三态子节（PROJECTION-RESUME-1）', () => {
+  const RESUME_SCENARIO: ScenarioRuntime = {
+    ...SCENARIO,
+    id: 'test.Resume',
+    outputArtifacts: ['test.Risk', 'test.Memo', 'test.Table'],
+    steps: [
+      { id: 'check-things', title: '核验' },
+      { id: 'produce-test.Risk', title: '产出清单', artifact: 'test.Risk' },
+      { id: 'produce-test.Memo', title: '起草备忘', artifact: 'test.Memo' },
+      { id: 'produce-test.Table', title: '编制对照表', artifact: 'test.Table' },
+    ],
+  };
+
+  it('缺省（不传 pending）字节等同：子节整体缺席，既有输出一字不变', () => {
+    const input = { ledgerSeq: 5, artifacts: {}, pendingGateLabels: ['确认清单'] };
+    const seg = buildProjectionSegment(RESUME_SCENARIO, input, PROJECTIONS, ARTIFACTS);
+    expect(seg.body).not.toContain('未产出/待执行');
+    expect(seg.body).toBe('[续行投影 v5]\n■ 未决确认：确认清单');
+  });
+
+  it('三态同框字节 golden：等待确认（已落格停门仍列）/ 曾失败待重试携 reason·attempt / 从未开始 / 工具步失败行', () => {
+    const seg = buildProjectionSegment(
+      RESUME_SCENARIO,
+      {
+        ledgerSeq: 9,
+        artifacts: { 'test.Risk': { caseId: 'c1', items: [1] } },
+        pendingGateLabels: ['确认清单'],
+        pending: {
+          failedModelSteps: [
+            { stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 2, reason: 'provider_http', retryable: true },
+          ],
+          failedToolSteps: [{ toolId: 'party-verify', reason: 'unavailable' }],
+          interruptedSteps: [],
+          awaitingConfirmation: 'test.Risk',
+        },
+      },
+      PROJECTIONS,
+      ARTIFACTS,
+    );
+    // 字节 golden：子节整块逐字锁定——任何模型散文/总结的偷换、丢 reason、丢 attempt 都在此红。
+    expect(seg.body).toContain(
+      [
+        '■ 未产出/待执行',
+        '  - [produce-test.Risk] 产出清单：等待确认',
+        '  - [produce-test.Memo] 起草备忘：曾失败待重试——provider_http（第 2 次尝试）',
+        '  - [produce-test.Table] 编制对照表：从未开始',
+        '  - 工具步曾失败：party-verify——unavailable',
+      ].join('\n'),
+    );
+    // 已落格投影与未决确认行不受子节影响（子节紧跟其后）。
+    expect(seg.body.indexOf('■ 未决确认：确认清单')).toBeLessThan(seg.body.indexOf('■ 未产出/待执行'));
+  });
+
+  it('态不混淆：曾失败步不得标从未开始，从未开始步不得标失败，已落格未停门步整行缺席', () => {
+    const seg = buildProjectionSegment(
+      RESUME_SCENARIO,
+      {
+        ledgerSeq: 4,
+        artifacts: { 'test.Risk': { caseId: 'c1', items: [] } },
+        pendingGateLabels: [],
+        pending: {
+          failedModelSteps: [{ stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 1, reason: 'timeout', retryable: true }],
+          failedToolSteps: [],
+          interruptedSteps: [],
+        },
+      },
+      PROJECTIONS,
+      ARTIFACTS,
+    );
+    expect(seg.body).not.toMatch(/起草备忘：从未开始/);
+    expect(seg.body).not.toMatch(/编制对照表：曾失败/);
+    expect(seg.body).toMatch(/编制对照表：从未开始/);
+    // 已落格且未停门（test.Risk）不入「未产出/待执行」——它已在上方以投影行呈现。
+    expect(seg.body).not.toMatch(/产出清单：(从未开始|曾失败|等待确认)/);
+  });
+
+  it('retryable=false 显式携带「不可自动重试」；丢 retryable 语义必红', () => {
+    const seg = buildProjectionSegment(
+      RESUME_SCENARIO,
+      {
+        ledgerSeq: 6,
+        artifacts: {},
+        pendingGateLabels: [],
+        pending: {
+          failedModelSteps: [{ stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 1, reason: 'invalid_response', retryable: false }],
+          failedToolSteps: [],
+          interruptedSteps: [],
+        },
+      },
+      PROJECTIONS,
+      ARTIFACTS,
+    );
+    expect(seg.body).toContain('  - [produce-test.Memo] 起草备忘：曾失败待重试——invalid_response（第 1 次尝试、不可自动重试）');
+  });
+
+  it('interrupted 相态归入失败待重试族：同步既有失败时中断胜出（更晚事实），且措辞明示需新尝试身份', () => {
+    const seg = buildProjectionSegment(
+      RESUME_SCENARIO,
+      {
+        ledgerSeq: 8,
+        artifacts: {},
+        pendingGateLabels: [],
+        pending: {
+          failedModelSteps: [{ stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 1, reason: 'timeout', retryable: true }],
+          failedToolSteps: [],
+          interruptedSteps: [{ stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 2 }],
+        },
+      },
+      PROJECTIONS,
+      ARTIFACTS,
+    );
+    expect(seg.body).toContain(
+      '  - [produce-test.Memo] 起草备忘：曾失败待重试——上次执行中断未见终态（第 2 次尝试、需以新尝试身份重新发起）',
+    );
+    // 中断胜出：同一步不再叠印早先的 timeout 失败行。
+    expect(seg.body).not.toContain('timeout');
+  });
+
+  it('pending 显式供给但零失败零停门：全部未落格步如实标从未开始（供给≠必有失败）', () => {
+    const seg = buildProjectionSegment(
+      RESUME_SCENARIO,
+      {
+        ledgerSeq: 2,
+        artifacts: {},
+        pendingGateLabels: [],
+        pending: { failedModelSteps: [], failedToolSteps: [], interruptedSteps: [] },
+      },
+      PROJECTIONS,
+      ARTIFACTS,
+    );
+    expect(seg.body).toContain(
+      [
+        '■ 未产出/待执行',
+        '  - [produce-test.Risk] 产出清单：从未开始',
+        '  - [produce-test.Memo] 起草备忘：从未开始',
+        '  - [produce-test.Table] 编制对照表：从未开始',
+      ].join('\n'),
+    );
+  });
+
+  it('携 pending 同输入字节稳定（确定性编译，禁 LLM 参与的机器形态）', () => {
+    const input = {
+      ledgerSeq: 3,
+      artifacts: {},
+      pendingGateLabels: [],
+      pending: {
+        failedModelSteps: [{ stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 1, reason: 'timeout', retryable: true }],
+        failedToolSteps: [{ toolId: 'party-verify', reason: 'unavailable' }],
+        interruptedSteps: [],
+      },
+    };
+    const a = buildProjectionSegment(RESUME_SCENARIO, input, PROJECTIONS, ARTIFACTS);
+    const b = buildProjectionSegment(RESUME_SCENARIO, input, PROJECTIONS, ARTIFACTS);
+    expect(a.body).toBe(b.body);
+  });
+});
+
 describe('会话与语料段（材料数据边界）', () => {
   it('材料全文置于显式边界符内，任务指令在边界外', () => {
     const seg = buildSessionCorpusSegment(

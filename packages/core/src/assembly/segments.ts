@@ -55,6 +55,23 @@ export function buildTenantSegment(): PromptSegment {
   return { id: 'tenant', body: '[租户段]\n（本期无租户约束）' };
 }
 
+/**
+ * 「未产出/待执行」子节输入（PROJECTION-RESUME-1）：全部取自既有账本事实的确定性归并——
+ * step_failed 事件（模型级携 reason/retryable/attempt，工具级携 toolId/reason）与 interrupted
+ * 相态（turn_linked 无 Turn terminal，真源是 Turn journal 终态，见 derivePendingProjection 边界注）。
+ * 槽位缺省＝子节整体缺席，既有输出逐字节不变（CHAT-MEMORY-1 可选参先例）。
+ */
+export interface ProjectionPendingInput {
+  /** 模型级失败（每步最新一条；只携 reason 语义字段，散文 message 留账本不入投影）。 */
+  failedModelSteps: Array<{ stepId: string; artifactType: string; attempt: number; reason: string; retryable: boolean }>;
+  /** 工具级失败（每 toolId 最新一条）。 */
+  failedToolSteps: Array<{ toolId: string; reason: string }>;
+  /** 中断 attempt（turn_linked 已持久而 Turn terminal 缺席；须以新尝试身份重发，ADR-010）。 */
+  interruptedSteps: Array<{ stepId: string; artifactType: string; attempt: number }>;
+  /** 当前停门 artifact（等待确认态；与 pendingGateLabels 同源供给）。 */
+  awaitingConfirmation?: string;
+}
+
 export interface ProjectionInput {
   /** 账本序号：投影段按账本序号版本化——读多写少期字节不变，命中跨 turn。 */
   ledgerSeq: number;
@@ -62,6 +79,8 @@ export interface ProjectionInput {
   artifacts: Partial<Record<string, unknown>>;
   /** 未决门禁标签（易变项挤尾部）。 */
   pendingGateLabels: string[];
+  /** 未产出/待执行三态子节输入；缺省即子节缺席（字节向后等同）。 */
+  pending?: ProjectionPendingInput;
 }
 
 /**
@@ -92,6 +111,48 @@ export function buildProjectionSegment(
     lines.push(`■ 未决确认：${input.pendingGateLabels.join('；')}`);
   }
   if (lines.length === 1) lines.push('（尚无已落格产出）');
+  // PROJECTION-RESUME-1：「未产出/待执行」三态子节——从既有 step_failed 事实与 interrupted 相态
+  // 确定性区分「从未开始 / 曾失败待重试（携 reason）/ 等待确认」，续行会话不再把失败当没开始。
+  // 槽位缺省即子节缺席（上方输出逐字节不变）；本子节禁 LLM 参与，全部行由输入确定性编译。
+  if (input.pending !== undefined) {
+    const pending = input.pending;
+    const key = (stepId: string, artifactType: string) => `${stepId}\u0000${artifactType}`;
+    const interruptedByStep = new Map(pending.interruptedSteps.map((s) => [key(s.stepId, s.artifactType), s]));
+    const failedByStep = new Map(pending.failedModelSteps.map((s) => [key(s.stepId, s.artifactType), s]));
+    const rows: string[] = [];
+    for (const step of scenario.steps) {
+      if (step.artifact === undefined) continue;
+      // 等待确认：已产出但停在门禁的步仍须在场（它未完成）；其余已落格步已在上方投影行呈现，不重复列。
+      if (pending.awaitingConfirmation !== undefined && pending.awaitingConfirmation === step.artifact) {
+        rows.push(`  - [${step.id}] ${step.title}：等待确认`);
+        continue;
+      }
+      if (input.artifacts[step.artifact] !== undefined) continue;
+      const interrupted = interruptedByStep.get(key(step.id, step.artifact));
+      if (interrupted !== undefined) {
+        // 中断是更晚事实，胜出同步既有失败；措辞遵 ADR-010——不自动重放，须以新尝试身份重发。
+        rows.push(
+          `  - [${step.id}] ${step.title}：曾失败待重试——上次执行中断未见终态（第 ${interrupted.attempt} 次尝试、需以新尝试身份重新发起）`,
+        );
+        continue;
+      }
+      const failed = failedByStep.get(key(step.id, step.artifact));
+      if (failed !== undefined) {
+        rows.push(
+          `  - [${step.id}] ${step.title}：曾失败待重试——${failed.reason}（第 ${failed.attempt} 次尝试${failed.retryable ? '' : '、不可自动重试'}）`,
+        );
+        continue;
+      }
+      rows.push(`  - [${step.id}] ${step.title}：从未开始`);
+    }
+    for (const tool of pending.failedToolSteps) {
+      rows.push(`  - 工具步曾失败：${tool.toolId}——${tool.reason}`);
+    }
+    if (rows.length > 0) {
+      lines.push('■ 未产出/待执行');
+      lines.push(...rows);
+    }
+  }
   return { id: 'projection', body: lines.join('\n') };
 }
 
