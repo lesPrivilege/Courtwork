@@ -1090,8 +1090,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const progressCount = progressHeadCount(progressDone, progressTotal);
   const attachmentSources = localMessages.flatMap((message) => message.files);
   // PILOT-LIVE-2 E：最新助手回复豁免折叠（裁定：最新默认全文展开；折叠仅限历史轮次）。
-  // 取最后一条助手消息而非末位消息：发送在途窗口内（末位为 user）上一条回复仍是「最新」，不得瞬时坍缩。
-  const lastAssistantIndex = chatMessages.reduce((last, item, i) => (item.role === 'assistant' ? i : last), -1);
+  // 取最后一条已结束的助手消息而非末位消息：发送在途窗口内新投影会先插入 running assistant，
+  // 它尚未成为可阅读回复，不得抢走 latest 席位令上一条完整回复瞬时坍缩；terminal 后再正常交棒。
+  const lastAssistantIndex = chatMessages.reduce(
+    (last, item, i) => (item.role === 'assistant' && item.turn.status !== 'running' ? i : last),
+    -1,
+  );
   const usageDetail = isDemoCase
     ? {
         dossier: flow === 'S1' ? '14%' : '62%',

@@ -25,7 +25,8 @@ const count = match ? Number(match[1]) : 0;
 // PILOT-LIVE-2 F：grant 语境上传入库主红证 + 同名同容幂等 + 同名异容显式拒绝 +3 → 279
 // PILOT-LIVE-2 E：最新回复不折叠红证 + 历史折叠展开回看与块界对齐 +2 → 281。
 // READER 与 PILOT-LIVE-2 为并发只升点；合并树取用例并集：276 + 2 + 3 + 2 → 283。
-const minimum = 283;
+// PILOT-LIVE-2 验收修复：发送在途窗口 running assistant 不抢 latest 席位 +1 → 284。
+const minimum = 284;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
