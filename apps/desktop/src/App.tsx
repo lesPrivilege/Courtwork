@@ -2412,7 +2412,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
         {/* RP-2.5：通用能力栏与 Preview 双宿主；renderer 按声明挂载（work 面独有）。
             右栏收拢时整卡退出网格，展开动作由 app-shell 边缘锚点承接。 */}
-        {viewSegment === 'work' && !isWelcome && !rightCollapsed && <section className="right-workbench" data-testid="right-module-stack" data-preview-open="true" data-artifact-revision={artifactRevision}>
+        {viewSegment === 'work' && !isWelcome && !rightCollapsed && <section className="right-workbench" data-testid="right-module-stack" data-artifact-revision={artifactRevision}>
           {/* 批次七 #4：Focus 态藏收敛钮——布局位移后残留半角仍可点中,收起即主区全空白 */}
           {!focusMode && <button type="button" className="rail-seam-toggle" data-testid="collapse-right-rail" aria-label="Collapse inspector" title="Collapse inspector" onClick={() => setRightCollapsed(true)}><Icon name="panel-right" /></button>}
           {/* 十四章（2026-07-12 拍板）：四模块序 Progress→Preview→Working folders→Context;
@@ -2428,11 +2428,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
               manualPreviewSelected.current = true;
               choosePrimaryView(viewId as WorkbenchView);
             }}
-            readerEntries={[
+            // READER-ISOLATION-1（不变量 7 UI 面）：演示语料阅读入口只属 demo 案——真实案的
+            // 原件预览归 FILE-PREVIEW-1（真实材料 + reading-view 派生），此处诚实缺席不留空壳。
+            readerEntries={isDemoCase ? [
               { name: '设备采购合同', onOpen: () => { previewDismissedContext.current = null; manualPreviewSelected.current = true; setReaderDoc({ name: '设备采购合同', markdown: contractSourceMd }); setPreviewOpen(true); } },
               { name: '催告函', disabled: true },
               { name: '验收记录扫描件', disabled: true },
-            ]}
+            ] : []}
           />}
           {previewOpen && <WorkbenchPreviewRenderer
             onBack={() => { previewDismissedContext.current = `${selectedCaseId}:${flow ?? 'none'}`; setPreviewOpen(false); setReaderDoc(null); }}
