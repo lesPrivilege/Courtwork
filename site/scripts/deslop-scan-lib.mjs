@@ -134,6 +134,7 @@ const exactRadiusConsumers = new Map([
   ['apps/desktop/src/styles.css|.user-message|border-radius', '8px'],
   ['apps/desktop/src/styles.css|.composer-shell|border-radius', '12px'],
   ['apps/desktop/src/styles.css|.settings-recovery|border-radius', '8px'],
+  ['apps/desktop/src/styles.css|.s3-launcher|border-radius', '8px'],
   ['site/styles.css|.mac-window|border-radius', '12px'],
 ]);
 
