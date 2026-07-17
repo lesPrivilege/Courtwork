@@ -2839,3 +2839,68 @@ ADR 原文要求：production composition 未装配时必须返回闭集中的 `
 **✅ 放行 CASE-PERSIST-1。** 关键证据：rebase 无冲突；三层 reload 重建 e2e 3/3（真 `page.reload()`：grant 案回侧栏、caseBinding 重建、恢复入口可达）；hydration neuter 连跑三轮均 2/2 稳定变红、复原转绿（确定性红证）；demo 持久化突变 1/1 变红（恒挂语义非空洞）；失效 grant 显式警示可见、「移除此案」可用，移除后持久层精确清为 `{"version":1,"cases":[]}`（建/清对称）；`pnpm -r build`、`pnpm lint`、voice/host-auth/work-live/neutral/elevation 静态门通过；全量 e2e **261/261**（floor 258→261）；residue 连跑三轮各 **21/21**。真机 Tauri/key/F_FULLFSYNC 试点仍待产品负责人执行；s3-launcher「跨重启保留即将开通」注释未动（真机半边不提前宣称）。验收会话未触碰 `current.md`、未推送、未 prune。
 
 ---
+
+## PILOT-LIVE-1-FIX 聚焦複驗（2026-07-17）
+
+**裁決：PILOT-LIVE-1（含 FIX）放行 ✅。** 前輪 `f8f41b` 報告的三項阻斷已逐條關閉：架構已明確豁免 `apps/desktop/src|tests|scripts|SPEC.md` 為授權面；demo 回顯塊已恢復為基線上的純插入；合併樹完整 E2E 連續兩輪均為 276/276。A/B/C/D 前輪已通過的專項維持成立，本輪未發現新阻塞。
+
+- **實現證據**：原分支 `impl/pilot-live-1 @ 8d530094cc243b87ca2ff9a68c9ab8aca8ee3a20`（B=`d496324`、A+C=`f253e7f`、D=`887133e`、SPEC=`7b242e4`、糾偏=`6b1aa08`、追平=`8d53009`）。
+- **隔離與合併樹**：新 worktree `/Users/lesprivilege/Projects/Courtwork-pilot-live-1-fix-accept`、分支 `accept/pilot-live-1-fix`。驗收開始時共享 `main` 已由交接的 `0db350c` 前進到 `81938020574dac984784f45ceb3d96d22662b582`（新增 PROJECTION-RESUME-1 core 清帳）；乾淨 rebase 無衝突，合併樹產品尖端 `7c882f94ec54fec47b93746cbc591d3508557bd6`。
+- **觸碰面**：`main..7c882f9` 恰 13 檔，全部位於架構豁免的 `apps/desktop/src`、`tests`、`scripts`、`SPEC.md`；`packages/**`、`src-tauri/**`、`docs/status/current.md` 與試點台賬均零差異。
+
+### 1. demo 字節復原
+
+以含 CHAT-MATERIAL-1 已驗收碼的 `f6f0da5` 對原實現尖端 `8d53009` 做 `App.tsx` 函數級 diff，`handleComposerSend` 實得 **8 additions / 0 deletions**。新增內容只有非 demo 路由早退；其後既有 demo 排隊與本地回顯區塊沒有 `-` 或改寫行。SPEC A 行已如實改寫為「純插入」，不再沿用前輪被駁回的錯誤字節宣稱。
+
+行為抽驗：`pilot-entry.spec.ts` + `chat-material.spec.ts` 合跑 **6/6**，同時覆蓋非 demo request body 的附件正文、空內容阻斷與第二輪 history 同源；`Composer.dom.test.ts` **4/4**，含讀取失敗顯式 failed chip 與 C 的目錄/多檔/再添引導。`demo:s3` golden PASS（39,651 bytes、7/7 考點、9 事件），`demo:legal` golden PASS（8 risks、11/11 anchors、4,606 bytes）。
+
+### 2. E2E 追平三根因
+
+#### 2.1 墻鐘自證與歸一化非削弱
+
+驗收暫時只刪除 `suppressFocusRing` 的 `[data-testid="message-relative-time"] { visibility:hidden }`，保留全部斷言及閾值。墻鐘自證確定性變紅：**1 failed**，超閾像素 262，樣本 `(429,674) Δ=52`、`(427,675) Δ=135`、`(428,675) Δ=136`，與前輪收割的 y≈674 簽名一致。恢復後同例綠。
+
+A≡B 閾值在 FIX 前後逐字相同：`maxChannelDelta=2`、`maxDiffPixels=800`，沒有放寬。另臨時加入機器探針，在真頁面套用歸一化後斷言 computed `visibility === hidden` 且 timestamp 的 bbox 寬、高均 `>0`；探針與墻鐘例共同通過，證明消除繪製但保留盒佔位。臨時探針已還原，產品/測試提交內容未改。
+
+#### 2.2 延時歸零鉤子的生產隔離
+
+`main.tsx` 只在 `import.meta.env.DEV && VITE_COURTWORK_E2E==='1'` 的雙門真分支讀取 `window.__courtworkDemoReplayDelayMs`，source 近鄰檢查成立。合併樹 production Vite build 後，`apps/desktop/dist` 對 `__courtworkDemoReplayDelayMs` 與 `VITE_COURTWORK_E2E` 均零命中；production composition 仍以既有預設 `replayDelayMs=180` 建 demo fixture，沒有讀取測試 override。上述兩條 demo golden 同時全綠，延時歸零沒有改 demo 業務語義或事件骨架。
+
+#### 2.3 鎖定收緊
+
+把現行 `^批量确认 \d+ 项$` 暫退為舊 `/批量确认/` 後，residue 真 DOM 立即 strict-mode 失敗：locator 實得 **5 個匹配**——動作鈕 `批量确认 4 项` 加四個 next-step 含 `可批量确认` 的風險行。`Panels.tsx` 的第二命中字面仍在（`riskNextStep(..., 'batch') → 可批量确认`）。因此精確錨定是由 5→1 的收緊，不是斷言削弱；突變已還原。
+
+### 3. 禁用手段與 floor
+
+對 FIX 前父提交 `7b242e4..8d53009` 的全文 diff 掃描：timeout/`waitForTimeout` 字面零增刪，沒有放大既有 timeout；沒有新增 `test.skip`、`describe.skip`、`fixme` 或 `only`。測試斷言的唯一既有行替換是上述 locator 從寬 regex 收緊為全字串 regex；A≡B 閾值不變。floor 注記由 **275→276**，唯一增量是墻鐘自證例；完整靜態鏈兩輪均報「276 條（下限 276）」。
+
+### 4. 合併樹終局門
+
+| 門 | 獨立實跑結果 |
+|---|---|
+| `pnpm -r build` | PASS；13/14 workspace，desktop production Vite 3574 modules；僅既有 chunk advisory |
+| `pnpm lint` | PASS |
+| root Vitest | **143 files / 1235 tests** |
+| desktop Vitest | **55 files / 332 tests** |
+| 完整 `test:e2e` 第 1 輪，端口 19075 | 靜態鏈全綠；Playwright **276/276**（2.8m） |
+| 完整 `test:e2e` 第 2 輪，端口 19076 | 靜態鏈全綠；Playwright **276/276**（4.3m） |
+| residue 單 worker 三輪，端口 19077/19078/19079 | 各 **22/22**（44.5s / 44.5s / 44.4s） |
+| demo golden | S3 / Legal 均 PASS |
+
+完整兩輪均包含 B 的 grant 開面/切 tab、D 的九例、A/C pilot-entry 與墻鐘自證；本輪另對 A/C 做上述聚焦抽驗。所有暫時 mutation 均精確還原，驗收記錄寫入前工作樹只有本文件變更。
+
+### 5. 復跑入口與真機邊界
+
+```text
+pnpm install --frozen-lockfile
+pnpm -r build
+pnpm lint
+COURTWORK_E2E_PORT=<獨立端口> pnpm --filter @courtwork/desktop test:e2e
+COURTWORK_E2E_PORT=<獨立端口> pnpm --filter @courtwork/desktop exec playwright test --project=residue --workers=1
+pnpm test
+pnpm --filter @courtwork/desktop test
+pnpm --filter @courtwork/demo-runtime demo:s3
+pnpm --filter @courtwork/demo-runtime demo:legal
+```
+
+放行只覆蓋自動化與 desktop 裝配修復，不把尚未執行的產品負責人真機清單冒充成立：真 Tauri+DeepSeek 附件正文、grant 案實際工作面、WKWebView 點選/拖放文件夾、雙顯示器/系統縮放下布局仍待真機復驗。本會話不更新 `docs/status/current.md`，不推送、不 prune。
