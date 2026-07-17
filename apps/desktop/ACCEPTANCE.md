@@ -2800,3 +2800,10 @@ ADR 原文要求：production composition 未装配时必须返回闭集中的 `
 3. 新的独立验收复跑 cargo 全库、两类 mutation/恢复证据、adapter、静态门、隔离 E2E 与 residue；不更新 `current.md` 直到架构按成熟度裁定。
 
 ---
+## UI-RESIDUE-1-BATCH1-ACCEPT · 终局裁决（2026-07-17）
+
+初轮独立验收已在 clean worktree 对 `main @ 0dae3bc` 完成全部技术证据：全仓 build/lint、root Vitest **1222/1222**、desktop Vitest **280/280**、全静态门与独立端口完整 Playwright **252/252**；residue project 连跑三轮分别 **21/21**（43.7s / 43.5s / 43.4s）。摘除 `useDismissOnOutside` click 吞噬器后 user-menu→new-case 穿透红、恢复绿；portal/focus/无限动画注入均令残留门确定性 rejects；关闭后注入无 role 真残留令像素门红（**17600** 个通道差 `>2/255` 的像素，样本 Δ=244），撤除后绿。
+
+本轮在新的 clean worktree 核对 `main @ 3c7be96`：`apps/desktop/SPEC.md:341` 已记录 rail 死线索「登记保留，不删不复活」，归 Chat→Work 晋升桥评估或 polish 清扫；`:342` 已记录 focus-restore 归 `UI-RESIDUE-1` 批二；两处 `[需架构拍板]` 悬置标记均已撤销。记录与架构裁定一致，初轮唯一阻断消除。
+
+> **最终判定：UI-RESIDUE-1 批一放行 ✅。** 成立范围严格为已枚举 17 行疊层状态图内无已知残留／焦点丢失／状态串线／不可逆跳变，不作绝对零 bug 宣称；批二的三区状态代数、竞态与 focus-management 仍未验收。本终局裁决不更新 `docs/status/current.md`，不推送。
