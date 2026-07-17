@@ -17,6 +17,8 @@
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   --motion-press: 120ms;
   --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --page-max: 1440px;
+  --page-gutter: 32px;
 }
 
 * { box-sizing: border-box; }
@@ -38,7 +40,7 @@ a { -webkit-tap-highlight-color: transparent; }
 .skip-link { position: fixed; left: 16px; top: -48px; z-index: 20; padding: 8px 12px; border-radius: 4px; color: var(--bg-app); background: var(--ink); }
 .skip-link:focus { top: 16px; }
 .site-header {
-  width: min(1120px, calc(100% - 48px));
+  width: min(var(--page-max), calc(100% - 2 * var(--page-gutter)));
   min-height: 72px;
   margin: 0 auto;
   display: flex;
@@ -53,7 +55,7 @@ nav a { color: var(--text-secondary); font-size: 13px; text-decoration: none; tr
 nav a:focus-visible, nav a:hover { color: var(--ink); }
 
 main { overflow: clip; }
-.hero { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 112px 0 104px; }
+.hero { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 112px 0 104px; }
 .hero-copy { max-width: 760px; }
 .eyebrow { margin: 0; color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; }
 h1, h2, h3 { margin: 0; font-weight: 510; letter-spacing: -.02em; text-wrap: balance; }
@@ -103,12 +105,19 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .traffic i:nth-child(3) { background: var(--mac-zoom); }
 .mac-window img { width: 100%; height: auto; background: var(--bg-app); }
 
-.section-heading { max-width: 1120px; margin: 0 auto; }
+@media (min-width: 1100px) {
+  .hero { min-height: min(820px, calc(100vh - 72px)); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(48px, 5vw, 96px); align-items: center; }
+  .hero-copy { max-width: none; }
+  .hero h1 { font-size: clamp(48px, 5vw, 80px); }
+  .hero-window { margin: 0; }
+}
+
+.section-heading { max-width: var(--page-max); margin: 0 auto; }
 .section-heading h2 { margin-top: 10px; }
 .section-heading > p:last-child:not(.eyebrow) { max-width: 620px; margin: 20px 0 0; color: var(--text-secondary); font-size: 16px; }
 
-.evidence { padding: 112px max(24px, calc((100% - 1120px) / 2)) 128px; border-block: 1px solid var(--border-hairline); background: var(--bg-raised); }
-.evidence-chain { max-width: 1120px; margin: 56px auto 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; border-top: 2px solid var(--border-strong); }
+.evidence { padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)) 128px; border-block: 1px solid var(--border-hairline); background: var(--bg-raised); }
+.evidence-chain { max-width: var(--page-max); margin: 56px auto 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; border-top: 2px solid var(--border-strong); }
 .evidence-step { position: relative; min-width: 0; padding: 32px 24px 0; border-right: 1px solid var(--border-hairline); transition: background-color 160ms var(--ease-out); }
 .evidence-step:last-child { border-right: 0; }
 .evidence-step::before { content: ""; position: absolute; top: -7px; left: 24px; width: 12px; height: 12px; border: 2px solid var(--bg-raised); border-radius: 50%; background: var(--border-strong); }
@@ -122,14 +131,14 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .evidence-step[data-stage="conclusion"] blockquote, .evidence-step[data-stage="conclusion"] p { color: var(--ink); }
 .evidence-step small { display: block; margin-top: 18px; color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
 
-.work-ledger { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 112px 0 72px; }
+.work-ledger { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 112px 0 72px; }
 .work-ledger > .section-heading { padding-bottom: 48px; }
 .work-row { display: grid; grid-template-columns: minmax(240px, 4fr) minmax(0, 8fr); gap: 48px; align-items: center; padding: 48px 0; border-top: 1px solid var(--border-hairline); }
 .work-copy span { color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; }
 .work-copy h3 { margin-top: 10px; }
 .work-copy p { max-width: 30rem; margin: 16px 0 0; color: var(--text-secondary); font-size: 16px; }
 .work-crop { margin: 0; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }
-.work-crop img { width: 100%; aspect-ratio: 16 / 8.1; object-fit: cover; object-position: 50% 38%; }
+.work-crop img { width: 100%; aspect-ratio: 16 / 10; object-fit: contain; }
 .work-crop figcaption { padding: 8px 12px; border-top: 1px solid var(--border-hairline); color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
 
 /* Ghosty reveal：案例截图经羽化遮罩纵向扫过显影，IntersectionObserver 滚动触发（main.js）。
@@ -166,8 +175,8 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
   }
 }
 
-.scenario-ledger { padding: 112px max(24px, calc((100% - 1120px) / 2)) 96px; border-block: 1px solid var(--border-hairline); background: var(--bg-raised); }
-.scenario-rows { max-width: 1120px; margin: 48px auto 0; }
+.scenario-ledger { padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)) 96px; border-block: 1px solid var(--border-hairline); background: var(--bg-raised); }
+.scenario-rows { max-width: var(--page-max); margin: 48px auto 0; }
 .scenario-row { display: grid; grid-template-columns: minmax(220px, 3fr) minmax(0, 9fr); gap: 48px; align-items: center; padding: 44px 0; border-top: 1px solid var(--border-strong); }
 .scenario-row:last-child { border-bottom: 1px solid var(--border-strong); }
 .scenario-kicker { color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; }
@@ -184,17 +193,17 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .scenario-proof-stats strong { display: block; font-size: clamp(28px, 3vw, 38px); font-weight: 510; line-height: 1.1; }
 .scenario-proof-stats span { display: block; margin-top: 8px; color: var(--text-secondary); font-size: 13px; }
 
-.promise { margin-top: 40px; padding: 112px max(24px, calc((100% - 1120px) / 2)); border-block: 1px solid var(--border-hairline); background: var(--bg-surface); }
-.promise-ledger { max-width: 1120px; margin: 44px auto 0; border-top: 1px solid var(--border-strong); }
+.promise { margin-top: 40px; padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)); border-block: 1px solid var(--border-hairline); background: var(--bg-surface); }
+.promise-ledger { max-width: var(--page-max); margin: 44px auto 0; border-top: 1px solid var(--border-strong); }
 .promise-ledger > div { display: grid; grid-template-columns: minmax(180px, 3fr) minmax(0, 7fr); gap: 32px; padding: 22px 0; border-bottom: 1px solid var(--border-strong); }
 .promise-ledger dt { font-size: 18px; font-weight: 510; }
 .promise-ledger dd { margin: 0; color: var(--text-secondary); }
 
-.closing { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 120px 0; display: flex; align-items: end; justify-content: space-between; gap: 48px; }
+.closing { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 120px 0; display: flex; align-items: end; justify-content: space-between; gap: 48px; }
 .closing h2 { margin-top: 10px; }
 .closing-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; }
 .release-pending { color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; }
-footer { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 24px 0 48px; border-top: 1px solid var(--border-hairline); display: flex; justify-content: space-between; gap: 24px; color: var(--text-tertiary); font-size: 12px; }
+footer { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 24px 0 48px; border-top: 1px solid var(--border-hairline); display: flex; justify-content: space-between; gap: 24px; color: var(--text-tertiary); font-size: 12px; }
 footer p { margin: 0; }
 .mono { font-family: var(--mono); }
 
@@ -210,6 +219,7 @@ footer p { margin: 0; }
 }
 
 @media (max-width: 760px) {
+  :root { --page-gutter: 24px; }
   .site-header { min-height: 64px; }
   nav { gap: 14px; }
   nav a:nth-child(2) { display: none; }
