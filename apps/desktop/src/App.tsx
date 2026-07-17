@@ -1671,8 +1671,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     // 切案即作废任何在途 replay（防 demo 的 paced 回调污染新案——generation 守卫补齐:
     //  非 demo 案 replay effect 不跑,此处必须主动递增,否则旧回调仍匹配 myGeneration）
     replayGeneration.current += 1;
-    // 十四章：demo 案有 artifact 进浏览器态;非 demo 空案停四模块列（大纲引导）
-    setPreviewOpen(isDemoCaseId(selectedCaseId));
+    // 本函数全部调用点都是用户显式导航（scene-strip/更多/⌘K/面板内 tab/大纲行），点击即开面；
+    // 十四章「demo 进浏览器态、非 demo 空案停大纲」只作用于切案时刻，由切案 effect 独立承载（PILOT-LIVE-1 B）。
+    setPreviewOpen(true);
     setReaderDoc(null);
     previewDismissedContext.current = null;
   };
@@ -2397,7 +2398,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
               previewDismissedContext.current = null;
               manualPreviewSelected.current = true;
               choosePrimaryView(viewId as WorkbenchView);
-              setPreviewOpen(true);
             }}
             readerEntries={[
               { name: '设备采购合同', onOpen: () => { previewDismissedContext.current = null; manualPreviewSelected.current = true; setReaderDoc({ name: '设备采购合同', markdown: contractSourceMd }); setPreviewOpen(true); } },
