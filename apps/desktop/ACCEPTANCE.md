@@ -2807,3 +2807,27 @@ ADR 原文要求：production composition 未装配时必须返回闭集中的 `
 本轮在新的 clean worktree 核对 `main @ 3c7be96`：`apps/desktop/SPEC.md:341` 已记录 rail 死线索「登记保留，不删不复活」，归 Chat→Work 晋升桥评估或 polish 清扫；`:342` 已记录 focus-restore 归 `UI-RESIDUE-1` 批二；两处 `[需架构拍板]` 悬置标记均已撤销。记录与架构裁定一致，初轮唯一阻断消除。
 
 > **最终判定：UI-RESIDUE-1 批一放行 ✅。** 成立范围严格为已枚举 17 行疊层状态图内无已知残留／焦点丢失／状态串线／不可逆跳变，不作绝对零 bug 宣称；批二的三区状态代数、竞态与 focus-management 仍未验收。本终局裁决不更新 `docs/status/current.md`，不推送。
+
+---
+
+# ACCEPTANCE: WORK-LIVE-1-COMBINED-FOCUSED-REACCEPT
+
+日期：2026-07-17；对象：`main @ e0a256a`（`5a3bacb` / `31d068d` / `26dbf05`），独立 clean worktree `/private/tmp/courtwork-live-host-combined-accept-e0a256a`。
+
+**✅ 放行 WORK-LIVE-1。** 未注入 transport/stub 的两种 start 均实得 `rejected/not_configured`、零 header/artifact；`isConfigured`→`false` mutation 使二例分别红为 `paused` / `invalid_scope`，还原绿。四 reason 中 `not_configured`、`case_busy`、`invalid_scope` 均有真实 port 路径；`command_conflict` 有 first-wins 单测但单写者 App 无诚实 UI 触发面，已如实登记。rejected 渲染为 `tone:'info'`，不是 error 红条。
+
+`workCommand.replay` 现被 App 消费；摘除接线令静态门立即红。切案→水合 paused gate→resolve→docx、以及信封缺失→中性失效+清残 ref 两 e2e 均通过。切案不是规避 reload：案列表未持久与 DEV/E2E 内存 host 不跨 reload 的边界已由 `CASE-PERSIST-1` 承接。
+
+组合门：build/lint PASS；root **142/1222**；desktop **53/311**；隔离 `18644` 完整 Playwright **258/258**（floor 258）；residue 三轮各 **21/21**；`demo:s3` 7/7、39651-byte redline，`demo:legal` PASS。真机 Tauri/key/F_FULLFSYNC 试点仍未执行，不扩大为 external-validated/product-live。未更新 current、不推送、不 prune。
+
+---
+
+# ACCEPTANCE: WORK-HOST-1-COMBINED-FOCUSED-REACCEPT
+
+日期：2026-07-17；对象：`main @ e0a256a`。
+
+**✅ 放行 WORK-HOST-1。** 相对 `86fd85c`，`work_state.rs` production 行 **1–245 零改动**，只从测试模块 line 248 加强检测。将 `rename` 直写突变后崩溃测试 **5/5 必红**（每次 19–23 次子完整帧观察、6–10 次损坏恢复）；还原原子实现后 **5/5 恒绿**。每次含 24 SIGKILL、2 MiB 确定性指纹和并发采样。
+
+最终 `cargo test --lib` **64/64**，CAS、4/16 MiB、帧损坏、穿越、opaque 纪律与 adapter 四例均通过；Tauri/DEV-E2E host swap 与 Work-Live 静态/E2E 未回退。replay 消费点关闭旧 UI ref 发现阻断，完整跨重启案列表前提仍诚实由 `CASE-PERSIST-1` 承接。真机 F_FULLFSYNC/key/Tauri 试点仍待执行；不宣称 external-validated。未更新 current、不推送、不 prune。
+
+---
