@@ -2831,3 +2831,11 @@ ADR 原文要求：production composition 未装配时必须返回闭集中的 `
 最终 `cargo test --lib` **64/64**，CAS、4/16 MiB、帧损坏、穿越、opaque 纪律与 adapter 四例均通过；Tauri/DEV-E2E host swap 与 Work-Live 静态/E2E 未回退。replay 消费点关闭旧 UI ref 发现阻断，完整跨重启案列表前提仍诚实由 `CASE-PERSIST-1` 承接。真机 F_FULLFSYNC/key/Tauri 试点仍待执行；不宣称 external-validated。未更新 current、不推送、不 prune。
 
 ---
+
+# ACCEPTANCE: CASE-PERSIST-1
+
+日期：2026-07-17；对象：`impl/case-persist-1 @ 9a2c909` rebase 至 `main @ 99b69e7` 后验收尖端 `6ccbd90`，独立 clean worktree `/private/tmp/courtwork-accept-case-persist`。本条为架构师对验收会话裁决的转录（原始记录在验收 worktree 未提交，随该 worktree 清理消亡；证据要点如下，验收会话回报全文为准源）。
+
+**✅ 放行 CASE-PERSIST-1。** 关键证据：rebase 无冲突；三层 reload 重建 e2e 3/3（真 `page.reload()`：grant 案回侧栏、caseBinding 重建、恢复入口可达）；hydration neuter 连跑三轮均 2/2 稳定变红、复原转绿（确定性红证）；demo 持久化突变 1/1 变红（恒挂语义非空洞）；失效 grant 显式警示可见、「移除此案」可用，移除后持久层精确清为 `{"version":1,"cases":[]}`（建/清对称）；`pnpm -r build`、`pnpm lint`、voice/host-auth/work-live/neutral/elevation 静态门通过；全量 e2e **261/261**（floor 258→261）；residue 连跑三轮各 **21/21**。真机 Tauri/key/F_FULLFSYNC 试点仍待产品负责人执行；s3-launcher「跨重启保留即将开通」注释未动（真机半边不提前宣称）。验收会话未触碰 `current.md`、未推送、未 prune。
+
+---
