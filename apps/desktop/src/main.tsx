@@ -39,7 +39,16 @@ if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') {
 }
 
 const packageRuntime = createDesktopPackageRuntime();
-const demoWorkFixture = createDemoWorkFixture();
+// PILOT-LIVE-1-FIX #2：demo 回放逐事件延时可被 E2E 经 addInitScript 预设归零（residue 谱消除
+// 「负载下回放时长 < 等待上限」的时序赌注；事件仍全量逐序发布，终点由条件等待把守）。
+// 与其余测试钩子同双门，正式 Tauri composition 与生产构建永不读取。
+const demoReplayDelayOverride =
+  import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1'
+    ? (window as { __courtworkDemoReplayDelayMs?: number }).__courtworkDemoReplayDelayMs
+    : undefined;
+const demoWorkFixture = createDemoWorkFixture(
+  typeof demoReplayDelayOverride === 'number' ? { replayDelayMs: demoReplayDelayOverride } : {},
+);
 // WORK-LIVE-1：production Work 命令端口（进程内 callback）。生产 host=Tauri WorkState 宿主（WORK-HOST-1，
 // 跨真机重启耐久）；DEV/E2E host=work-runtime 缺省内存参考实现。provider 走注入 transport（生产 DeepSeek）/
 // DEV+E2E 走 Work turn 樁。

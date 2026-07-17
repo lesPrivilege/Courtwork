@@ -183,7 +183,13 @@ export async function suppressFocusRing(page: Page): Promise<void> {
   await page.addStyleTag({
     content:
       '*:focus, *:focus-visible, *:focus-within { outline: none !important; }\n' +
-      '.reader-focus-anchor:focus { outline: none !important; }',
+      '.reader-focus-anchor:focus { outline: none !important; }\n' +
+      // PILOT-LIVE-1-FIX #2 墙钟归一：相对时间戳按设计随墙钟翻字（just now→1m ago→…，且等宽字体下
+      // 文本变宽会牵动自身 bbox），跨分钟界落在 A→B 窗口内即破像素等同（收割实证 274/275 于
+      // model-config 例，「墙钟自证」用例确定性重演；掩蔽矩形方案因 bbox 随文本变宽已证不可行）。
+      // visibility:hidden 保留盒占位、消除全部绘制——与焦点轮廓归一同族：时间「语义」不属像素域，
+      // 时间元素的存在/位置仍受 DOM 层残留门与全域比对约束。
+      '[data-testid="message-relative-time"] { visibility: hidden !important; }',
   });
 }
 

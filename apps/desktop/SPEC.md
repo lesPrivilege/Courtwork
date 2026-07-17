@@ -45,6 +45,15 @@
 
 侦察四腿（链路/装配/入口/布局）→ 根因逐一在代码行级核实 → 分批 TDD 施工。B 的红证经 stash 隔离复跑坐实（未修复码上 `preview-host` 不可见）；A 的红证以「请求零发出」为断言点（非 UI 断言）；C 的爆平红证直接复现旧摊平行为；D 红证带像素级偏差记录。全链 e2e 终值：完整 `test:e2e`（静态门链 + Playwright app 254 + residue 21 = 275）于合并树隔离端口实跑，见对应提交与完工报告。
 
+### PILOT-LIVE-1-FIX · 驳回答复（2026-07-17，三条逐一）
+
+1. **宣称纠偏 + demo 字节复原**：首轮把 demo 回显块条件包裹重构却宣称「字节不动」，宣称与实测不符。现改为非 demo 早退置前**纯插入**（`git diff` 基线该函数仅 + 行，demo 排队与回显块逐字节复原），SPEC A 行措辞同步对齐（见上表）。
+2. **合并树 e2e 追平**：rebase 至 `main @ 0db350c`（`f6f0da5..0db350c` 纯 docs，desktop 零漂移无冲突）。失败例收割：14 轮全量（workers 5/6 + 外置 CPU 榨压）复现验收同款 **274/275 于 `model-config-popover` A≡B**（另有 4-worker 轮 `批量确认` 等待超时前科）。三根因全部定性为**既有谱自身不确定性，非本单四修改动诱发**（机制均先于本单存在），逐条修稳：
+   - **墙钟翻字破 A≡B**（主根因）：`MessageActions` 相对时间戳恒可见且按 30s interval 随墙钟翻字（`just now→1m ago→…`），跨分钟界落在 A→B 窗口内即破像素等同——慢机窗口更长故验收更频。修法＝**墙钟归一化**：`suppressFocusRing` 注入面加 `[data-testid="message-relative-time"]{visibility:hidden}`（盒占位保留、与焦点轮廓归一同族；时间语义不属像素域，元素存在/位置仍受 DOM 残留门约束）。新增「墙钟自证」用例把翻字确定性注入窗口内：**先红**（Δ=52-136 @ y≈674，与收割实况同签名）**后绿**；中途曾试掩蔽矩形方案，因 bbox 随文本变宽在掩框边缘露差（Δ=249 实证）而否弃，留痕防重蹈。
+   - **回放时长赌注**：demo 回放逐事件 180ms 人造延时 ×N vs 30s 等待上限，负载下可越线（4-worker 实证）。修法＝residue 谱经 `addInitScript` 预设延时归零（`main.tsx` 与其余测试钩子同 DEV+E2E 双门，生产/Tauri composition 永不读取）；事件仍全量逐序发布、终点仍由条件等待把守，消除的只是人造延时。
+   - **歧义定位符（潜伏）**：裸 `/批量确认/` 同时命中动作钮与风险行 next-step 文案「可批量确认」（`Panels.tsx:262`）——分步回放的中间帧恰只有 1 个匹配故十余单未爆；零延时一帧落齐立即 strict violation。修法＝锚定 `^批量确认 \d+ 项$`（收紧非削弱）。
+3. **触碰面**：全程 `apps/desktop` 的 src/tests/scripts/SPEC.md（后两者经架构豁免）。floor `275 → 276`（+墙钟自证）。禁用手段自查：零超时放大、零 skip、零断言削弱（归一化/锚定均为收紧或语义化）。终局验证：连续两轮完整 `test:e2e` 与 residue 三轮见完工报告与提交信息。
+
 权威：[实现就绪图 `WORK-HOST-1` 行](../../docs/architecture/implementation-readiness.md)（测量单阈值软 4 MiB / 硬 16 MiB / 每屏障 ~10ms；退出证据：cargo 崩溃注入 kill -9 原子性、跨重启复现步骤补记 WORK-LIVE SPEC、swap 后 work-live 全链 e2e 仍绿）+ [ADR-010 决定二](../../docs/decisions/ADR-010-work-live-boundaries.md)（whole-envelope CAS、opaque blob host port、原子替换三段「同目录临时文件落盘 + rename + 目录项落盘」、macOS `F_FULLFSYNC` 真机证据要求、宿主只强制 scope/id 形状/大小上限/穿越隔离/原子替换）。基线 `main @ f0ceae7`（8dcb68d 之后新尖端，含 WORK-LIVE-1 与 LAYOUT-CONVERGE-1）。分支 `impl/work-host-1`，worktree 施工，未推送、未改 `docs/status/current.md`。
 
 WORK-LIVE-1 走「精简装配」时把 `WorkCommandPort` 接内存参考 host，并明列真机跨重启待此单。本单落地 ADR-010 决定二的**生产宿主**——`WorkStateHostPort` 的 Tauri/Rust 实现，组合根换一行注入（in-memory→durable），WORK-LIVE-1 全链就此跨真机重启耐久。
