@@ -187,6 +187,36 @@ E2E 樁宿主已在隔离端口自动化走完整链（`work-live.spec.ts`）。
 
 **门禁（本会话隔离端口 `:1494`，最终以独立复验为准）**：`pnpm -r build`（全 workspace）、`pnpm lint`（root eslint）全绿；root Vitest **142 files / 1222 tests**（不变，纯 desktop 改动）；desktop Vitest **53 files / 311 tests**（+`work-session-store` 10）；完整 `test:e2e` 静态链（含新 `workCommand.replay` 消费断言 + `lint:voice` 112 文件净 + `假绿防护 258`）+ 隔离端口 Playwright **258/258 passed**（floor `256 → 258`，app+residue）；residue project 三轮各 **21/21**。
 
+### CASE-PERSIST-1 · 案件列表跨重启持久（真机试点前置，WORK-LIVE-REPLAY-1 诚实留痕指出）（实现完成，待独立验收）
+
+权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `CASE-PERSIST-1` 行（退出证据：重载后案列表/绑定/恢复入口三层重建 e2e、失效 grant 显式态、fail-closed 读入、残留门不回退）+ 上文 `WORK-LIVE-REPLAY-1` **已知边界①**（真机全链跨进程重启的 UI 恢复另需案件列表侧栏持久，本单补齐这一层）+ [CASE-ROOT-1](#case-root-1-·-案件根-opaque-引用与宿主原生文件夹授权实现完成待独立验收) 的 `CaseBinding`/`grantId` 形制。工单基线 `main @ bca43c3`（≥ `e0a256a`）。分支 `impl/case-persist-1`，worktree 施工，未推送、未改 `docs/status/current.md`。**薄补**：不动 grant 本体持久（host_auth 宿主侧已有 `host-grants.json`）、不动 Rust、不做案件内容持久（只列表元数据）。
+
+**动因（精确反例）**：`WORK-LIVE-REPLAY-1` 明令留痕——本构建**案件列表未跨重载持久**（`App.tsx` `cases` 初始恒 `[DEMO_CASE]`，reload 后 grant 案不在侧栏、`caseBinding` 退 `unbound`、恢复入口无从呈现），故 REPLAY-1 的 e2e 只能用「切案」而非 `page.reload()`。本单补上「案件列表元数据」的持久载体，使真 `page.reload()` 的三层重建成为自动化用例。
+
+**新增概念留痕（复杂度节制条）——本单声明零新增概念（第三次复用既有存储先例）**：
+
+1. **`case/case-store.ts`（案件列表元数据的持久层）**——非新概念：沿 [[work-session-store]]（本身沿 [[chat-memory]]）的**版本化单键 localStorage 先例**（`courtwork.case-list.v1` + schema version + fail-closed 读入），非另造文件格式。记录是**列表元数据** `{ id, title, grantId?, label?, kind }`。与 work-session-store 的**唯一差异是基数**：案件列表是有序列表（非 caseId→记录映射），App 持有全量列表，故写入是**整表替换** `writeCaseList(list)`（非 per-entry persist/clear）——同一先例的列表版本，不引新抽象。「创建写入 / 归档清除」的对称由纯投影 `projectPersistableCases`（剔除 demo 与 archived）达成，不散落命令式 persist/clear。
+2. **字段取舍留痕**：就绪图列 `{id,title,grantId,label}` 为核心四字段；本单另持 **`kind`**（既有 `CaseSummary` 字段，非新字段）——不持久会令工作区（workspace）重载后静默漂成案件（case），违核心不变量四「静默降级零容忍」，故随持久。**刻意不持久**：`fileCount`（MaterialStore 派生，选中案时 `listForCase` 复算；持久副本会成第二真源漂移）、`archived`（归档即从投影剔除，与创建写入对称，故无需该字段）、`caseNumber`/`isDemo`（非 demo 案无 caseNumber；demo 恒挂不入持久，isDemo 恒 false）。fail-closed 校验含枚举漂移（未知 `kind`）、空 `grantId`（畸形 opaque 引用）逐一判不可读。
+3. **失效 grant 检测是派生态，非新持久**——跨重载后以既有 `hostAuth.listGrants()`（host_auth 跨重启耐久记录）交叉核对持久案件的 `grantId`；宿主查无者进 `invalidGrantIds`（`useMemo` 派生，`null` 未核对完成前不误判以免闪烁）。开案时也复核（`selectedCaseId` 变即重查），保「打开即最新」fail-closed 新鲜度。**无新持久面、无新状态机**。
+
+**目标与形制**：
+- **持久**：`cases` 初始 `[DEMO_CASE, ...hydratePersistedCases()]`（demo 恒挂固定注入在前，其后水合非 demo 案）；单 effect `writeCaseList(projectPersistableCases(cases))` 于 `cases` 变化时整表重写（创建/授权/改名 → 写入；归档/移除 → 剔除即清出）。
+- **三层重建**：重载后 ① grant 案回侧栏（列表持久）；② `caseBinding` 重建（水合的 `grantId` → `resolveCaseBinding` 归 `grant`）；③ 恢复入口可达（`recoverableSession` 从存活的 `work-session.v1` 复读，s3-launcher 内 `work-recover` 呈现）。
+- **失效显式态**：持久案件的绑定 grant 若宿主查无，`CaseRail` 渲染显式失效块（发生了什么 + 下一步：`此案绑定的文件夹授权已失效，可能已被移动、删除或所在磁盘未挂载。` + `移除此案` 按钮，复用语义 warn 色，不新增色/影/渐变、inline 无 overlay 故残留门不涉），**绝不静默从侧栏消失**（核心不变量四）。移除 = 从 `cases` 删除即经持久 effect 清出，若正选中则退欢迎态；只清列表元数据，不碰 host_auth 授权本体/MaterialStore/会话信封。
+- **demo 双向隔离**：demo 恒挂案永不入持久（`projectPersistableCases` 剔除 `isDemo`），重载后仍由 App 固定注入 DEMO_CASE 呈现（非来自持久层）。
+
+**TDD（先红后绿，实证）**：`case/case-store.test.ts` +17（往返/**重载后列表存活**（新 backend 实例读同一底层）/版本化信封/整表替换/未绑定案不落 grantId/**fail-closed**：未知版本·坏 JSON·cases 非数组·缺 id·未知 kind·空 grantId → 空列表；`projectPersistableCases`：demo 剔除·归档剔除·只投影五字段·kind 缺省 case·未绑定案保留）——先红（模块缺失 `ERR`）→ 补模块转绿。e2e `case-persist.spec.ts` +3：**真 `page.reload()` 三层重建**（run 到暂停门禁持久指针 → 重载 → 重播种 grant + 重入库 → 案回侧栏 → 绑定非失效 → 恢复入口可达）+ **失效 grant 显式态可移除**（重载不重播种 → `data-grant-invalid=true` + 失效块 → 移除后侧栏消失且持久层清空）+ **demo 恒挂/归档清除对称**（归档案重载后不回侧栏、demo 恒在、持久层不含 demo）。**非空证**：临时 neuter `hydratePersistedCases`→`[]`，三层重建与失效两例即红（案不回侧栏），复原转绿——坐实两例真依赖持久水合，非假绿。
+
+**门禁（本会话隔离端口 `:18745`，最终以独立复验为准）**：`pnpm -r build`（全 workspace）、`pnpm lint`（root eslint）全绿；root Vitest **142 files / 1222 tests**（不变，纯 desktop 改动）；desktop Vitest **54 files / 328 tests**（+`case-store` 17）；`lint:voice` **113 文件净**（失效文案/移除钮无裸确认·成功自评·工程词泄漏）、`lint:host-auth`/`lint:work-live`/`lint:neutral`（169 文件色值 ∈ tokens）/`lint:elevation` 全绿；完整 `test:e2e` 静态链（含 `假绿防护 261`）+ 隔离端口 Playwright **261/261 passed**（floor `258 → 261`，app **240**[+3] / residue **21**[不回退]）。手工浏览器复核（隔离端口 dev + preview）：种一枚宿主查无 grant 的持久案 → 重载后案回 Recent + 琥珀失效块呈现 + `移除此案` → 案消失、demo 恒在、持久层清为 `{version:1,cases:[]}`。
+
+**精确触面**：`src/case/case-store.ts`（新）+ `src/case/case-store.test.ts`（新，+17）、`src/App.tsx`（import + `hydratePersistedCases` + `cases` 初始水合 + `knownGrantIds` 态 + 列表持久 effect + listGrants 交叉核对 effect + `invalidGrantIds` memo + `removeCase` + CaseRail 两 prop）、`src/rail/CaseRail.tsx`（`invalidGrantIds`/`onRemoveCase` prop + `grantInvalid` 派生 + `data-grant-invalid` + 失效块）、`src/styles.css`（`.case-grant-invalid`/`.case-remove-button`，复用语义 warn token）、`tests/e2e/case-persist.spec.ts`（新，+3）、`scripts/assert-test-count.mjs`（floor `258 → 261`）、本 `SPEC.md`。**禁止扩张（遵守）**：未改 `host_auth`/`src-tauri`（不动 grant 本体持久）；未做案件内容持久（只列表元数据）；未改 provider/schema/Turn/Work 契约；未改 UI 布局（仅 CaseRail 内增失效块）；未碰 `work-command`/`work-session-store`/`material-store` 契约；未改 `docs/status/current.md`、未推送。
+
+**已知边界（诚实留痕）**：① 真机全链跨进程重启的 UI 恢复现已具备**侧栏持久（本单）+ WORK-HOST-1 Tauri 信封耐久**两半，但真机耐久仍待正式签名发布阶段的人工试点复现（本单是其**前置**，非试点本身）；故 REPLAY-1 已知边界③ 的 s3-launcher `此次审查结果在本次会话内有效；跨重启保留即将开通` 说明句**仍未改**——两半在真机联合验证前不宣称，避免过早声称。② 浏览器 E2E 的 host_auth/MaterialStore/Work 樁宿主重载即清空（镜像真机耐久宿主的对立面）——三层重建 e2e 重载后须**重播种 grant + 重入库**模拟真机仍在的 `host-grants.json` 与 MaterialStore app-data，localStorage（案件列表/会话指针）是唯一天然跨重载存活面；此为 browser 樁固有边界，非本单缺陷。③ 未绑定文件夹的案（`grantId` 空）同样持久，重载后归 `unbound`，永不进失效判定（无 grant 可失效）。④ 重载后未选中的持久 grant 案 `fileCount` 显示为 0（派生态，选中即由 `listForCase` 复算），属「只持久列表元数据、不持久内容」的自然结果，非静默降级。
+
+**复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权删）**：
+- **`courtwork.case-title.${id}` 与 `courtwork.case-list.v1` 双持久轻重叠**——CASE-ROOT-1 时代既有 `courtwork.case-title.${id}`（改名时单键持久标题、选中时回灌，`App.tsx:1354/1368`）。本单的 `case-list.v1` 亦持 `title`，二者对同一 title 有轻度重叠：改名 effect 会先由 title 单键回灌、再由列表持久整表写。当前无冲突（列表持久读的是 `cases` 活动态，回灌后即一致），但两处 title 真源可择一收敛。**登记不改**（收敛属 CASE-ROOT 线既有面，非本单引入；改动会触碰改名回灌链）。`[需架构拍板]`
+- 触碰范围内未见其他可删死配置、无消费导出或多余抽象。
+
 ## DESIGN-MD-1 · tokens.json + principles.md 编译为机器可读 courtwork-design.md 与 drift 门（实现完成，待独立验收）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `DESIGN-MD-1` 行（退出证据：编译脚本 + drift 门；编译件非权威，`tokens.json` 仍是唯一真值；不新增手写第二份 token）、[docs/design/principles.md](../../docs/design/principles.md)、[docs/design/tokens.json](../../docs/design/tokens.json)。分发形态参照 Geist `design.md`（YAML frontmatter 承载 token 值、正文承载用法语义）。工单基线 `main @ 2ad8eda`（独立契约线，无前置依赖）。

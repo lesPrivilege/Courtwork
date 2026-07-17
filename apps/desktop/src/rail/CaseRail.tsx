@@ -38,6 +38,10 @@ interface CaseRailProps {
   /** 核验一件材料（provider 前重验：漂移/删除/需 OCR/跨 case 显式呈现）。 */
   onVerifyMaterial: (materialId: string) => void;
   archiveConfirmCaseId: string | null;
+  /** CASE-PERSIST-1：跨重启后宿主查无授权的 grantId 集——持之案渲染显式失效态供移除，非静默消失。 */
+  invalidGrantIds: ReadonlySet<string>;
+  /** CASE-PERSIST-1：移除一枚失效案件列表项（只清列表元数据）。 */
+  onRemoveCase: (id: string) => void;
   /** F-1.1：未归档「存入」锚定的容器化仪式行 id */
   containerizeUnfiledId: string | null;
   /** RP-2.11 chat|work 二段（段控落左栏顶 Cowork 位） */
@@ -85,6 +89,8 @@ export function CaseRail({
   onArchiveTrigger,
   onArchiveConfirm,
   onArchiveCancel,
+  invalidGrantIds,
+  onRemoveCase,
   onRequestContainerizeUnfiled,
   onConfirmContainerizeUnfiled,
   onCancelContainerizeUnfiled,
@@ -107,6 +113,8 @@ export function CaseRail({
     const selected = item ? item.id === selectedCaseId : false;
     const expanded = isCase && expandedCaseId === row.id;
     const demo = item ? Boolean(item.isDemo) || isDemoCaseId(item.id) : false;
+    // CASE-PERSIST-1：持久案件的绑定 grant 若宿主查无 → 显式失效态（供移除，非静默消失）。
+    const grantInvalid = Boolean(item?.grantId && invalidGrantIds.has(item.grantId));
 
     // 仅容器行用 case-card（既有 e2e 以 .case-card 计数案件）；未归档用 rail-row
     const rowClass = item
@@ -121,6 +129,7 @@ export function CaseRail({
         data-demo={demo ? 'true' : 'false'}
         data-row-kind={row.kind}
         data-pinned={row.pinned ? 'true' : 'false'}
+        data-grant-invalid={grantInvalid ? 'true' : 'false'}
       >
         <div className="rail-row-main">
           {/* 主选择按钮须为 card 内第一个 button：既有 e2e 用 getByRole('button').first() */}
@@ -199,6 +208,20 @@ export function CaseRail({
             </button>
           )}
         </div>
+        {/* CASE-PERSIST-1：绑定文件夹授权已失效——显式告知发生了什么 + 下一步（移除），绝不静默从侧栏消失。 */}
+        {item && grantInvalid && (
+          <div className="case-grant-invalid" data-testid={`case-grant-invalid-${item.id}`}>
+            <p>此案绑定的文件夹授权已失效，可能已被移动、删除或所在磁盘未挂载。</p>
+            <button
+              type="button"
+              className="quiet-button case-remove-button"
+              data-testid={`case-remove-${item.id}`}
+              onClick={() => onRemoveCase(item.id)}
+            >
+              移除此案
+            </button>
+          </div>
+        )}
         {/* F-1.1：与 composer-first 同一容器化仪式（工作区/案件二选，用户选名词） */}
         {row.kind === 'unfiled' && containerizeUnfiledId === row.id && (
           <div

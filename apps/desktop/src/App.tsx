@@ -25,6 +25,7 @@ import { replayWorkProjection } from './protocol/work-replay';
 import { bindDocxSourceMarkdown, projectRiskListGate } from './work/legal-s3-binding';
 import type { LegalS3WorkCommand } from './work/work-command';
 import { clearWorkSession, persistWorkSession, readWorkSession, type WorkSessionRecord } from './work/work-session-store';
+import { projectPersistableCases, readCaseList, writeCaseList } from './case/case-store';
 import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
 import type { ProviderTransport } from '@courtwork/provider/types';
@@ -265,6 +266,23 @@ function ChatAssistantMessage({ message, index, onStop, onRetry }: {
 
 const DEMO_CASE = createDemoCaseSummary();
 
+/**
+ * CASE-PERSIST-1：从持久层水合非 demo 案件列表（fail-closed：不可读 → 空列表）。demo 恒挂案由 App 固定注入
+ * DEMO_CASE，永不入持久。fileCount 是 MaterialStore 派生（选中案时 listForCase 复算），不入持久以免第二真源漂移。
+ */
+function hydratePersistedCases(): CaseSummary[] {
+  return readCaseList().map((record) => ({
+    id: record.id,
+    title: record.title,
+    grantId: record.grantId,
+    label: record.label,
+    kind: record.kind,
+    fileCount: 0,
+    archived: false,
+    isDemo: false,
+  }));
+}
+
 function storedCaseId(): string | null {
   // RP-2.9：启动永不继承上次卷宗作用域；继续区提供显式回到容器的入口。
   return null;
@@ -330,6 +348,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [workRunning, setWorkRunning] = useState(false);
   // WORK-LIVE-REPLAY-1：本案是否有持久的可恢复 Work 会话指针（切案/重启后 workSessionId 清空，据此重现恢复入口）。
   const [recoverableSession, setRecoverableSession] = useState<WorkSessionRecord | null>(null);
+  // CASE-PERSIST-1：宿主实际持有的授权集（跨重启后交叉核对持久案件的 grantId 是否仍有效）；null=尚未核对完成。
+  const [knownGrantIds, setKnownGrantIds] = useState<ReadonlySet<string> | null>(null);
   const [workSubject, setWorkSubject] = useState('');
   const [workContractMaterialId, setWorkContractMaterialId] = useState<string | null>(null);
   const [selectedRiskId, setSelectedRiskId] = useState('risk-03');
@@ -351,7 +371,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [sampleTourOpen, setSampleTourOpen] = useState(false);
   const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[]; pasteBlocks: string[]; createdAt: number }>>([]);
   const [queuedMessages, setQueuedMessages] = useState<Array<{ id: string; caseId: string; text: string; createdAt: number }>>([]);
-  const [cases, setCases] = useState<CaseSummary[]>([DEMO_CASE]);
+  // CASE-PERSIST-1：demo 恒挂案固定注入，其后水合持久的非 demo 案件列表（重载后 grant 案回侧栏）。
+  const [cases, setCases] = useState<CaseSummary[]>(() => [DEMO_CASE, ...hydratePersistedCases()]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(initialCaseId.current);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
   const [archiveConfirmCaseId, setArchiveConfirmCaseId] = useState<string | null>(null);
@@ -736,6 +757,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     else window.localStorage.removeItem('courtwork.selected-case-id');
   }, [selectedCaseId]);
 
+  // CASE-PERSIST-1：案件列表元数据跨重启持久——每次列表变化以可持久投影整表重写。
+  // 创建/授权/改名 → 写入；归档/移除 → 从投影剔除即清出（创建写入与归档清除对称）。
+  // demo 恒挂案与已归档案由 projectPersistableCases 剔除；案件内容/密钥不入（只 id/title/grantId/label/kind）。
+  useEffect(() => {
+    writeCaseList(projectPersistableCases(cases));
+  }, [cases]);
+
   useEffect(() => {
     if (!wideSplitAvailable && splitDirection === 'columns') setSplitDirection('rows');
   }, [splitDirection, wideSplitAvailable]);
@@ -946,6 +974,35 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     }
     setRecoverableSession(readWorkSession(selectedCaseId));
   }, [caseBinding.kind, selectedCaseId]);
+
+  // CASE-PERSIST-1：跨重启后交叉核对宿主实际持有的授权（host_auth 的 grant 记录跨重启耐久）。持久案件持的
+  // grantId 若宿主查无（文件夹被移动/删除、卷卸载或撤权），标记显式失效态供用户移除——绝不静默从侧栏消失
+  // （核心不变量四）。开案时也复核（selectedCaseId 变即重查），保证「打开即最新」的 fail-closed 新鲜度。
+  const grantSignature = cases.map((item) => item.grantId ?? '').join('|');
+  useEffect(() => {
+    let cancelled = false;
+    void hostAuth
+      .listGrants()
+      .then((grants) => {
+        if (!cancelled) setKnownGrantIds(new Set(grants.map((grant) => grant.grantId)));
+      })
+      .catch(() => {
+        if (!cancelled) setKnownGrantIds(new Set());
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [hostAuth, grantSignature, selectedCaseId]);
+
+  // 尚未核对完成（null）前不误判任何案失效（避免冷启动瞬时闪烁）；核对完成后，持 grantId 但宿主查无者即失效。
+  const invalidGrantIds = useMemo(() => {
+    const invalid = new Set<string>();
+    if (knownGrantIds === null) return invalid;
+    for (const item of cases) {
+      if (item.grantId && !item.isDemo && !knownGrantIds.has(item.grantId)) invalid.add(item.grantId);
+    }
+    return invalid;
+  }, [cases, knownGrantIds]);
 
   const fixtureRef = isDemoCase ? activeFixtureRef : undefined;
   // fixture fallback 只属于显式 demo ref；非 demo 分支不会询问 fixture adapter。
@@ -1426,6 +1483,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const toggleArchive = (caseId: string) => {
     setCases((current) => current.map((item) => (item.id === caseId ? { ...item, archived: !item.archived } : item)));
     setArchiveConfirmCaseId(null);
+  };
+
+  // CASE-PERSIST-1：移除一枚失效案件列表项（宿主查无其 grantId）。从活动列表删除即经持久 effect 清出持久层；
+  // 若正选中则退回欢迎态。只清列表元数据——不触碰 host_auth 授权本体/MaterialStore/会话信封。
+  const removeCase = (caseId: string) => {
+    setCases((current) => current.filter((item) => item.id !== caseId));
+    if (selectedCaseId === caseId) setSelectedCaseId(null);
   };
 
   // CASE-ROOT-1：在访达显示/打开只对样板案（虚拟根、浏览器 mock）走原生 reveal；真实案的绝对路径
@@ -1995,6 +2059,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             materials={caseMaterials}
             onVerifyMaterial={verifyMaterial}
             archiveConfirmCaseId={archiveConfirmCaseId}
+            invalidGrantIds={invalidGrantIds}
+            onRemoveCase={removeCase}
             containerizeUnfiledId={containerizeUnfiledId}
             viewSegment={viewSegment}
             onSegmentChange={switchSegment}
