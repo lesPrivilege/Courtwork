@@ -1,10 +1,67 @@
-import type { GenerationRequest, GenerationResponse, Provider, ProviderAuth, ProviderBilling, ProviderStreamEvent, ProviderStreamOptions, ProviderTransport } from './types.js';
+import type { GenerationRequest, GenerationResponse, Provider, ProviderAuth, ProviderBilling, ProviderFailureKind, ProviderStreamEvent, ProviderStreamOptions, ProviderTransport } from './types.js';
 import type { ProviderQuirkProfile } from './quirk-profile.js';
 import { DEEPSEEK_QUIRK_PROFILE } from './quirk-profile.js';
 import { generateStructured } from './structured-output.js';
-import { ProviderNotConfiguredError, ProviderNotImplementedError } from './errors.js';
+import {
+  ProviderAuthError,
+  ProviderHttpError,
+  ProviderInvalidResponseError,
+  ProviderNotConfiguredError,
+  ProviderNotImplementedError,
+  ProviderResponseFormatUnsupportedError,
+  ProviderTimeoutError,
+} from './errors.js';
 import { applyReasoningRoute } from './quirk-profile.js';
 import { streamChatCompletion } from './http-client.js';
+import { failureKindForStatus } from './provider-stream.js';
+import { recordStreamEvidence } from './stream-evidence.js';
+
+interface StructuredFailure {
+  kind: ProviderFailureKind;
+  message: string;
+  retryable: boolean;
+  status?: number;
+  attempts?: number;
+}
+
+/**
+ * PROVIDER-STREAM-1：结构化分支的闭合失败分类——既有错误族逐一映射 kind/retryable，
+ * 报文一律产品语且**不携任何模型/响应正文**（ProviderInvalidResponseError.message 内嵌
+ * 模型输出片段，真机上即案件内容，显示层绝不透传原文）。未知异常兜底 network（守卫保留，
+ * 但 provider 能分类的一律在此收编——协议外触发即 bug）。
+ */
+function classifyStructuredFailure(error: unknown, signal?: AbortSignal): StructuredFailure {
+  if (signal?.aborted || (error instanceof Error && error.name === 'AbortError')) {
+    return { kind: 'canceled', message: '请求已取消', retryable: false };
+  }
+  if (error instanceof ProviderAuthError) {
+    return { kind: 'auth', message: '服务商鉴权失败', retryable: false };
+  }
+  if (error instanceof ProviderTimeoutError) {
+    return { kind: 'timeout', message: '服务商在超时前未完成响应', retryable: true };
+  }
+  if (error instanceof ProviderHttpError) {
+    const classified = failureKindForStatus(error.status);
+    return {
+      kind: classified.kind,
+      message: `服务商请求失败（HTTP ${error.status}）`,
+      retryable: classified.retryable,
+      status: error.status,
+    };
+  }
+  if (error instanceof ProviderResponseFormatUnsupportedError) {
+    return { kind: 'model', message: '该服务商与模型组合不支持结构化输出约束', retryable: false };
+  }
+  if (error instanceof ProviderInvalidResponseError) {
+    return {
+      kind: 'invalid_response',
+      message: `服务商响应未通过结构化校验（${error.attempts} 次尝试）`,
+      retryable: false,
+      attempts: error.attempts,
+    };
+  }
+  return { kind: 'network', message: '服务商流读取失败', retryable: false };
+}
 
 export interface OpenAICompatibleProviderConfig {
   auth: ProviderAuth;
@@ -67,19 +124,41 @@ export function createOpenAICompatibleProvider(profile: ProviderQuirkProfile, co
     modelId: config.modelId,
     async *stream(request: GenerationRequest, options: ProviderStreamOptions = {}): AsyncIterable<ProviderStreamEvent> {
       if (request.responseSchema) {
-        const result = await generateStructured({
-          profile,
-          model: config.modelId,
-          systemPrompt: request.systemPrompt,
-          messages: request.messages,
-          responseSchema: request.responseSchema,
-          maxValidationRetries,
-          reasoningLevel: config.reasoningLevel,
-          httpConfig,
-        });
+        // PROVIDER-STREAM-1（真机第四轮 I）：结构化分支此前对 generateStructured 的任何异常零收编，
+        // 抛穿异步生成器直达 core 协议外守卫（守卫保留，触发即 bug）。现恒以闭合失败协议收尾：
+        // started 前置（生命周期与流式分支一致），异常按既有错误族映射 kind/retryable，
+        // 错误信封级元数据入留证（脱敏，供真机复现回填 fixture），signal 贯通（此前整体无视取消）。
         const requestId = options.requestId ?? `provider-${Date.now()}`;
         let seq = 0;
         yield { type: 'started', requestId, seq: seq++, providerId: profile.providerId, modelId: config.modelId };
+        let result;
+        try {
+          result = await generateStructured({
+            profile,
+            model: config.modelId,
+            systemPrompt: request.systemPrompt,
+            messages: request.messages,
+            responseSchema: request.responseSchema,
+            maxValidationRetries,
+            reasoningLevel: config.reasoningLevel,
+            httpConfig,
+            ...(options.signal ? { signal: options.signal } : {}),
+          });
+        } catch (error) {
+          const failure = classifyStructuredFailure(error, options.signal);
+          recordStreamEvidence({
+            phase: 'structured',
+            providerId: profile.providerId,
+            modelId: config.modelId,
+            errorName: error instanceof Error ? error.constructor.name : typeof error,
+            kind: failure.kind,
+            retryable: failure.retryable,
+            ...(failure.status !== undefined ? { status: failure.status } : {}),
+            ...(failure.attempts !== undefined ? { attempts: failure.attempts } : {}),
+          });
+          yield { type: 'failed', requestId, seq, kind: failure.kind, message: failure.message, retryable: failure.retryable };
+          return;
+        }
         for (const notice of result.notices ?? []) {
           yield { type: 'notice', requestId, seq: seq++, notice };
         }

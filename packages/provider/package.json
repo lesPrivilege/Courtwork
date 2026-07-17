@@ -18,6 +18,10 @@
       "types": "./dist/quirk-profile.d.ts",
       "default": "./dist/quirk-profile.js"
     },
+    "./evidence": {
+      "types": "./dist/stream-evidence.d.ts",
+      "default": "./dist/stream-evidence.js"
+    },
     "./registry": {
       "types": "./dist/registry.d.ts",
       "default": "./dist/registry.js"

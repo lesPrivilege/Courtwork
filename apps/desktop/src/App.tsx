@@ -81,6 +81,8 @@ import { SettingsPage, type SettingsSection } from './settings';
 import { hostAuthReasonCopy, type HostAuthPort } from './host/host-auth-port';
 import { LEGACY_CASE_SCENARIO_COPY, isWorkSafeCaseId, mintCaseId } from './case/case-id';
 import { workContextSegmentFor } from './work/work-context';
+import { workFailureDisplayCopy } from './work/work-failure-copy';
+import { readStreamEvidence } from '@courtwork/provider/evidence';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { systemOpenClient } from './system/system-open-client';
 import { WorkDraftPanel } from './system/WorkDraftPanel';
@@ -1299,7 +1301,17 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       if (outcome.status === 'rejected') {
         showSystemFeedback(outcome.message, false, 'info');
       } else if (outcome.status === 'failed') {
-        showSystemFeedback(outcome.message ?? '合同审查未能完成', false);
+        // PROVIDER-STREAM-1 ③：失败报文过产品语守门（协议外守卫/英文技术残文零裸透）；
+        // 同时把 provider 侧脱敏留证持久到本地（versioned 单键），供真机复现回填 fixture。
+        showSystemFeedback(workFailureDisplayCopy(outcome.message), false);
+        try {
+          const evidence = readStreamEvidence();
+          if (evidence.length > 0) {
+            window.localStorage.setItem('courtwork.provider-evidence.v1', JSON.stringify({ version: 1, entries: evidence }));
+          }
+        } catch {
+          /* 留证是尽力而为的诊断缓存：失败不影响主反馈 */
+        }
       } else if (outcome.status === 'canceled') {
         showSystemFeedback('已停止合同审查', true);
       }

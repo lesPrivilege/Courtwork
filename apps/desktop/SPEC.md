@@ -2,6 +2,31 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## PROVIDER-STREAM-1 · 场景模型步流异常闭合收编 + 留证 + 显示守门（真机第四轮 I，P0）（实现完成，待独立验收）
+
+权威：[台账第四轮节](../../docs/status/pilot-2026-07-17.md) I 项 + [实现就绪图 `PROVIDER-STREAM-1` 行](../../docs/architecture/implementation-readiness.md)。工单基线 `main @ 9421ad5`。分支 `impl/provider-stream-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。触碰面 `packages/provider` + desktop 显示边界；**零 wire/schema 改动**（provider 包内签名/导出面加法：`sendChatCompletion`/`generateStructured` 可选 `signal`、`./evidence` 子路径）。
+
+### 分叉根因（偵察结论 + 假设清单）
+
+**结构性根因（确定）**：chat 走 `streamChatCompletion` 真流归一（异常全收编为 `failed` 事件）；场景（携 `responseSchema`）走 `generateStructured` **聚合**路径——`stream()` 的结构化分支对其 `await` **零 try/catch**，聚合层把底层 `failed` 事件经 `errorFromFailure` 还原为**抛出**（ProviderAuthError/HttpError/TimeoutError/InvalidResponseError/ResponseFormatUnsupportedError），全部抛穿异步生成器直达 core turn-runner 协议外守卫→UI 裸透。stub 链永不踩此分支（work 桩绕 provider、chat 无 schema）——工程面恒绿的结构原因。**红证实录**：五反例注入（HTTP 400/校验耗尽/已中止信号/未知异常/留证脱敏）全部先红（原样抛出 ProviderHttpError 等），闭合后 5/5 绿。
+
+**真机具体触发的假设清单（下轮真机以留证回填定谳，按可能性排序）**：① 长结构化输出超时（`ProviderTimeoutError`——RiskList 生成长、chat 短回复不触）；② `json_object`×thinking/长输出组合致 DeepSeek HTTP 4xx（`ProviderHttpError`）；③ 模型无视 `response_format` 回自由文本、校验重试耗尽（`ProviderInvalidResponseError`）；④ 结构化分支整体无视取消信号（用户中断→AbortError 抛穿）；⑤ SSE 帧级怪癖（usage 空 choices 终帧/keep-alive 注释/流中 error 帧——经查归一器已逐一处理，列为低概率）。①-④ 均已被本单闭合收编，无论何者为真，真机不再裸透。
+
+### 三件事（实现）
+
+1. **闭合收编（`openai-compatible-provider.ts` 结构化分支）**：`started` 前置（生命周期与流式分支一致）；`classifyStructuredFailure` 按既有错误族映射 kind/retryable（auth/timeout/HTTP→`failureKindForStatus` 复用/model/invalid_response/canceled，未知兜底 network）；报文一律产品语中文且**不携模型/响应正文**（`ProviderInvalidResponseError.message` 内嵌模型输出片段——真机即案件内容，显示零透传）；`signal` 贯通 `generateStructured→sendChatCompletion→streamChatCompletion`（结构化分支此前整体无视取消）。**协议外守卫保留，触发即 bug**。
+2. **脱敏留证（`stream-evidence.ts` 新，`./evidence` 子路径导出）**：内存环形（容量 5），只记错误信封级元数据（errorName/kind/retryable/status/attempts），**结构性不记任何自由文本**——案件内容与密钥不可达。desktop 失败显示边界读取并持久 `courtwork.provider-evidence.v1`（versioned 单键先例）；**债务清偿路径**：下轮真机复现→读该键→按 `deepseek-usage-fixture` 先例回填 `packages/provider` fixture 定谳具体怪癖（SPEC 即流程留痕）。
+3. **显示守门（`work-failure-copy.ts` 新）**：判据「零中文即技术残文」——provider 归一后的产品语（含 HTTP 状态短词）透传，协议外守卫/任何英文异常文本一律改写为兜底产品语（发生了什么+下一步，过 voice 门）。`App.startWorkRun` failed 分支接线。
+
+### 复杂度节制留痕
+
+**零新概念**：闭合分类是既有错误族→既有 FailureKind 的映射函数；留证是环形数组+读写清三函数（零持久面——持久走 desktop 既有 versioned 单键先例）；显示守门是单谓词函数。零新依赖/状态机；stub 链行为逐字节不回退（provider 全套 109/109 未改一例即证）。**floor 287 不动**（收编面在 provider 单元层完整覆盖；e2e stub 链结构性不经过结构化真流分支，添 e2e 是假覆盖——诚实登记）。
+
+### 门禁与真机复验清单
+
+tsc/eslint 净；voice/work-live 门不回退；desktop Vitest 348、provider 109；完整链终值见提交信息。**真机复验（产品负责人）**：重跑 legal.S3——预期不再裸透协议外守卫，失败（若仍有）呈产品语反馈；随后导出 `courtwork.provider-evidence.v1` 回传，据以回填 fixture 定谳具体怪癖（假设清单①-④择一坐实）。
+
+
 ## WORK-TURN-1 · caseId 去标题化 + Work 面案语境注入（真机第三轮 G+H，P0）（实现完成，待独立验收）
 
 权威：[实现就绪图 `WORK-TURN-1` 行](../../docs/architecture/implementation-readiness.md) + [pi harness 对照调研](../../archive/research-2026-07-15-round-3/pi-harness-comparison.md)（判定 3/4 落地；调研原稿不具约束力）+ [台账第三轮节](../../docs/status/pilot-2026-07-17.md)。工单基线 `main @ 7d7e55c`。分支 `impl/work-turn-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。分批提交：G=`961398d`、H=本批。**L1 受控只读工具已批另立单；L2 循环/steering 入 ADR 议题池——本单明确不做。**
