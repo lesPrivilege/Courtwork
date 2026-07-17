@@ -22,7 +22,27 @@ export function CollapsibleMessage({ lines, children }: CollapsibleMessageProps)
     // 自然内容高度 vs N 行阈值——与展开态无关（scrollHeight 恒为未裁高度），避免展开后钮消失。
     const measure = () => {
       const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 20;
-      setOverflowing(el.scrollHeight > lineHeight * lines + 4);
+      const threshold = lineHeight * lines + 4;
+      let clamp = threshold;
+      let hasMore = el.scrollHeight > threshold;
+      // PILOT-LIVE-2 E 块界对齐（裁定：表格/结构块不得截半）：裁线落在 markdown 顶层块中段时，
+      // 下探到该块底部（整块不透明可见）+ 固定 48px「窥视带」完整承接渐隐遮罩；整块即末尾则不钳。
+      // 纯文本子树（无块元素，如 user 短文本）保持行数阈值。位置量取自布局矩形，collapsed/expanded 等值。
+      const blocks = el.querySelector('.chat-markdown')?.children;
+      if (hasMore && blocks && blocks.length > 0) {
+        const clipTop = el.getBoundingClientRect().top;
+        for (const block of Array.from(blocks)) {
+          const bottom = Math.ceil(block.getBoundingClientRect().bottom - clipTop) + 1;
+          if (bottom >= threshold) {
+            const fadeBand = 48;
+            hasMore = el.scrollHeight > bottom + fadeBand;
+            clamp = hasMore ? bottom + fadeBand : el.scrollHeight;
+            break;
+          }
+        }
+      }
+      el.style.setProperty('--collapse-max', `${Math.ceil(clamp)}px`);
+      setOverflowing(hasMore);
     };
     measure();
     const observer = new ResizeObserver(measure);

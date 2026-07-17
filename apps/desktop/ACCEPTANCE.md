@@ -1,3 +1,61 @@
+# ACCEPTANCE: PILOT-LIVE-2
+
+日期：2026-07-17
+
+角色：獨立驗收會話
+
+對象：`impl/pilot-live-2`（基線 `main @ 3da7894`；原 F=`308fba1`、E=`3fa617b`），於隔離 worktree rebase 到 `main @ b616578` 後為 F=`80b34bc`、E=`a900764`；驗收修復 `ab85768`、`b69069c`。
+
+## 裁決
+
+**✅ 放行 PILOT-LIVE-2（含三項 fix-by-acceptance 實現級小修）。**
+
+F 的 grant scope 寫入、material-ingress 原班入庫、DOM 即時可見、hash/provenance 復驗、同名雙徑與 A 正文必達均成立；E 的最新／歷史／在途三態及段落塊界成立，管道表格渲染未越權代建。驗收不採信實現自述，親自做寫失敗哨兵、越 scope 反例、兩項折疊 mutation 及 48px 視覺幾何反例。
+
+驗收發現三個實現級缺陷並在本 worktree 前進式修正：① `running` assistant 原會搶走 latest 席位，使上一條完整回覆瞬時坍縮；② browser host stub 在 Node Vitest 無條件引用 `window`；③ 所謂固定 48px 遮罩實際只在完整段落後留 `23.9375px`，漸層仍壓到段落尾。修後新增在途專項用例，並把裁窗改為完整塊底後另留 48px fade band；不改契約、包、後端或持久語義。
+
+隔離 worktree：`/private/tmp/courtwork-pilot-live-2-accept`，分支 `accept/pilot-live-2`；服務使用獨立埠 `19200–19214`。共享樹未 checkout；未更新 `docs/status/current.md`，未 push、未 prune。
+
+## F · effect 紀律
+
+- **寫只限 grant scope**：產品鏈仍為 `hostAuth.writeFile → host_write_file → write_in_grant`；`src-tauri` 零 diff。驗收臨時 Rust 反例以 `../outside` 呼叫 `write_in_grant`，實得 `OutOfScope` 且外部目標不存在，**1/1 passed**。另以 browser host 注入越 scope 寫，DOM 顯示「超出已授權文件夾範圍」，`material-item=0`。
+- **無案／未綁定零寫入**：把 browser `writeFile` 預設改成必拋哨兵後，`chat-material` 3 例與 A 主例仍綠；純 chat 附件正文行為不變。相同哨兵下 F 同名同內容與同名異內容兩例亦綠，證明兩徑在寫入前由 `readSource` 主動判定，不是碰巧寫失敗。
+- **賬可對**：F 主例親斷 DOM：上傳後卷宗材料行即時出現，且請求正文逐字含附件 marker。實作只新增一次 `materialStore.ingest(caseId, { grantId, relativePath, fileName })` 編排呼叫；store 仍走既有 material-ingress hash/provenance 與 provider 前漂移復驗。`material-ingress` 原班漂移／刪除案例隨 31/31 回歸及全量鏈通過；無新 ingest 類別、後端命令或落盤實作。
+- **永不覆寫**：同名異內容例實跑得到顯式拒絕、零寫入、零入庫；同名同內容在「寫路徑默認失敗」哨兵下仍就地入庫。兩者均不是覆寫後再補賬。
+- **A 與顯式反饋**：指定回歸集合 **31/31 passed**；A 主紅證逐字 marker 綠。`system-open-feedback` 在 work/chat 兩段各一處、由 segment 互斥渲染；拒絕例實斷 chat 段回饋，活 DOM testid 唯一。
+
+## E · 回覆摺疊紀律
+
+| 驗收反例 | 修前／mutation 實得 | 還原／修後 |
+|---|---:|---:|
+| 移除 latest 裸渲染、令最新長回覆走折疊 | `collapse-toggle` 期望 0、實得 **1**，紅 | 最新全文、尾 marker 可見 |
+| 移除塊界下探 | 跨裁線段落 `intact` 期望 true、實得 **false**，紅 | 歷史塊完整，Show more/less 往返綠 |
+| 在第二輪 running 期間檢查上一條 | 前一條出現折疊容器，紅 | `lastAssistantIndex` 排除 running；新增專項綠 |
+| 固定 48px 遮罩幾何 | 完整塊後空間僅 **23.9375px**，`>=48` 斷言紅 | 完整塊底 + 48px fade band，E **3/3** 綠 |
+
+目前 latest 是裸 `ChatMarkdown`；只有歷史已完成回覆進 `CollapsibleMessage`。48px 斷言量取活 DOM 的 `clip.bottom - block.bottom`，不是只查 CSS 字面。`ChatMarkdown` 本單零 diff、沒有 `<table>` 渲染；管道文字仍以段落為結構單元。`CHAT-MD-TABLE-1` 僅在 `implementation-readiness.md` 已批准項留痕，未被本單越權實現。
+
+## 計數、全量門與範圍
+
+派單所述 `281` 是 PILOT 分支自身 `276→279→281` 的只升點；rebase 合入 READER 的 +2 後真實並集為 **283**。驗收為實際缺陷補一條在途用例後，`playwright test --list` 親數為 **284 tests / 51 files**，`assert-test-count.mjs` floor 精確為 284；若仍鎖 281 會低報真實並集，故不能以 281 作終局數字。
+
+| 門禁 | 隔離實跑結果 |
+|---|---:|
+| 完整 `test:e2e`（含全靜態鏈） | **284/284 passed**（4.2m） |
+| residue，單 worker、三獨立埠 | **22/22 × 3** |
+| 指定 F/A/material 回歸掃 | **31/31** |
+| desktop Vitest | **55 files / 332 tests** |
+| root Vitest | **143 files / 1235 tests** |
+| `pnpm -r build` | PASS（13/14 workspace；僅既有 Vite chunk warning） |
+| `pnpm lint` | PASS |
+| material / host-auth / work-live / voice | 均在完整鏈親跑 PASS；voice node tests **5/5** |
+
+實作與驗收修復（本報告提交前）共 9 個文件，全部嚴格位於 `apps/desktop/{src,tests,scripts,SPEC.md}`；本報告只再增加 `apps/desktop/ACCEPTANCE.md`。零 `packages/**`、零 `src-tauri/**`、零 schema/wire/依賴／lockfile 改動。`App.tsx` 的 READER 合併語義保持 `readerEntries={isDemoCase ? [...] : []}`。`docs/status/current.md` 零觸碰。
+
+> **最終判定：放行 PILOT-LIVE-2。** 以實際合併樹 floor **284** 為準；三項驗收小修及本報告均已／應在驗收分支獨立提交，本會話不推送。
+
+---
+
 # ACCEPTANCE: DESIGN-MD-1-ACCEPT
 
 日期：2026-07-16

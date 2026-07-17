@@ -15,7 +15,35 @@
 2. `rails-compact` 冗余子集（提案区 #3）——**登记不动（门锁退役候选，待架构确认）**：`right-narrow` 落地后其触发面（左收+全折+preview 关）被 `right-narrow.left-collapsed` 完全覆盖且轨值相同（`minmax(420px,1fr) minmax(280px,320px)`），已成子集冗余；但其 class 与 CSS 块受 `assert-layout-converge.mjs` 字面锁定（存在性+首列非 48px），退役须同步修改该门禁脚本＝验收标准变更。**退役方案**（供架构拍板）：① App.tsx 删 `compactLayout` 派生与 class 拼接及 `data-compact` 标记；② styles.css 删 `.workspace.rails-compact` 规则；③ `assert-layout-converge.mjs` 的 rails-compact 存在性锁改为「零出现」反向锁（幽灵列历史反例由 `layout-converge.spec.ts` 的 rails-compact 用例转 `right-narrow.left-collapsed` 同断言承接）；④ e2e 中 `data-compact` 消费点（pilot-layout compact×preview 互斥例）改断 `right-narrow`。确认前一字不动。
 
 **门禁**：tsc/eslint 净；desktop Vitest 55 files / 332 tests；`reader-isolation`+`workbench`+`d1-case-scope`+`pilot-layout` 49/49；完整 `test:e2e` 链与 residue 终值见提交信息。**禁止扩张（遵守）**：未建 FILE-PREVIEW-1 的真实预览；未动 demo 审阅/输出链与 `contractSourceMd` 其余消费点；未动 rails-compact 及其门禁；未改 `docs/status/current.md`。
+## PILOT-LIVE-2 · 真机第二轮两项（F case 语境入库路由 P0 / E 回复折叠纪律 P1）（实现完成，待独立验收）
 
+权威：[试点台账第二轮节](../../docs/status/pilot-2026-07-17.md) + [实现就绪图 `PILOT-LIVE-2` 行](../../docs/architecture/implementation-readiness.md)。工单基线 `main @ 3da7894`。分支 `impl/pilot-live-2`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。desktop 内闭合；与验收中 `impl/reader-isolation-1`（App.tsx readerEntries 区）零区域重叠，合并序归架构。分批提交：F=`308fba1`、E=本批。
+
+### F · case 语境上传入库路由（P0）
+
+**根因**：PILOT-LIVE-1 A 的「非 demo 发送切 chat 承接」把 Work/case 面上传一并带进纯 chat 附件流，未入该案材料库/项目目录。**修复路由律**：grant 绑定语境下，composer 附件经**既有 grant 写授权**落入已授权项目文件夹（`hostAuth.writeFile → host_write_file → write_in_grant`），再按 grant+relativePath 走 **material-ingress 原班 `ingest`**——provenance 与 hash 复验天然成立，入卷宗列表、场景可消费；即时提问经既有正文链引用该材料（附件 readingMarkdown 同源组装入请求，**A 的正文必达模型零回退**，主红证含逐字 marker 断言）。无案/未绑定案保持纯 chat 附件（轻量语境）。**零新入库语义**：写授权、ingest、计数反馈、fail-closed 显式态全部复用既有链。
+
+- **同名处置**：同名同内容＝跳过写入、就地入库（不重复上传；幂等例以写路径默认失败态证明跳过）；同名异内容＝显式拒绝不覆写（原件只读红线，「发生了什么+下一步」文案过 voice 门）。碰撞探针走 `MaterialStore.readSource` 薄委托（`listDir` 同款先例）——与 ingest 同读面，樁/真机两世界一致。
+- **连带修（真缺陷，被 F 拒绝例显影）**：`system-open-feedback` 原只挂 work 段——A 路由切 chat 后一切系统反馈（上传回执/拒绝/写失败）静默丢失（不变量 4）。chat 画布同位补挂（两段互斥渲染，testid 运行时唯一）。
+- **樁同构**：浏览器 hostAuth 樁写放行时镜像材料宿主（真宿主 `write_in_grant` 与材料读同盘一致；仅 DEV+E2E 樁文件）。
+- **红证**：`pilot-case-upload.spec.ts` 三例先红（卷宗零记录/幂等/拒绝反馈缺席）；回归扫 31/31（含 pilot-entry A 断言）。
+
+### E · 回复折叠纪律（P1）
+
+**机制出处**：RP-2.11 ⑧ `CollapsibleMessage`（行数阈值 clamp + 渐隐遮罩 + Show more），App 对全部助手回复（含最新）静态 `lines={12}` 包裹——最新回复正文中段被自动折叠置灰，管道表格被腰斩。**按裁定修**：
+
+- **最新豁免**：`lastAssistantIndex`（取最后一条已结束的助手消息；发送在途窗口新插入的 `running` assistant 不抢 latest 席位，上一条回复不得瞬时坍缩）→ 最新回复裸 `ChatMarkdown` 全文渲染；折叠仅限历史轮次且显式展开态（既有 Show more/less 机制不变）。推理轨迹折叠不随此豁免（辅助信息，留痕）。
+- **块界对齐（表格/结构块不得截半）**：折叠钳高从纯行数改为「裁线所在 markdown 顶层块下探到块底 + 固定 48px 窥视带承接渐隐」；整块即末尾或不足一整条底带则不钳。渐隐遮罩从 62% 比例改**固定 48px 底带**——块界对齐后钳高随内容伸缩，比例渐隐会把整块尾部大面积淡出（视觉仍似截半），固定底带全落在完整结构块之后。纯文本子树（无块元素）保持行数阈值。
+- **红证（stash 隔离复跑坐实）**：最新长回复出现 collapse-toggle（红）→ 豁免后零折叠且结尾锚段可见；历史折叠态跨裁线段落块被截半 `intact:false`（红）→ 块界对齐后整块在裁窗内 + 展开/收回往返。
+- **发现留痕（提案区）**：真机所见「表格」实为管道文本段落——`ChatMarkdown` 刻意不渲染表格（「宁缺毋滥，需要时随拍板扩」条款）；真机 DeepSeek 回复高频出现管道表格，建议拍板扩表格渲染形态（本单按现渲染器以段落为结构单元治折叠，不越权扩渲染）。
+
+### 复杂度节制留痕
+
+**零新概念**：F=既有写授权+既有 ingest 的组合路由（`ingestComposerUploads` 平铺编排函数）+ 两处薄委托/樁镜像；E=既有组件的条件豁免与钳高测量规则（无新组件/状态机/持久面/依赖）。原分支 floor `276 → 279（F+3）→ 281（E+2）`；与 READER-ISOLATION-1 合并后真实并集为 283，验收补在途窗口红证 +1 后为 284。
+
+### 门禁与边界
+
+tsc/eslint 净；material/host-auth/work-live/voice/motion/neutral/layout-converge 门不回退；residue 22/22；E 连带 chat-material/chat-session 回归绿。完整 `test:e2e` 链与 root 三件套终值见提交信息与完工报告。**禁止扩张（遵守）**：未扩 ChatMarkdown 渲染形态（拍板保留）；未动 reasoning 折叠、user 消息折叠；未碰 reader-isolation 触面；未改 harness/schema/wire；未改 `docs/status/current.md`。真机复验（产品负责人）：F 上传→卷宗可见→场景可消费 + 同名双径；E 长回复（含表格）最新全文/历史展开。
 ## PILOT-LIVE-1 · 真机试点首轮四缺陷闭合（P0 伞单）（实现完成，待独立验收）
 
 权威：[试点台账 `pilot-2026-07-17.md`](../../docs/status/pilot-2026-07-17.md)（本单事实源）+ [实现就绪图 `PILOT-LIVE-1` 行](../../docs/architecture/implementation-readiness.md)。工单基线 `main @ 1d287a6`；实际起点 `f6f0da5`（`1d287a6..f6f0da5` 经核仅 docs+site，含 643176f 的 D 项右栏窄态补充台账，与本单代码零重叠）。分支 `impl/pilot-live-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`/`ACCEPTANCE.md`。**不改 harness/schema/wire 语义**——四项全为真机 live 装配与产品面路由缺口；desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动。分批提交，每批独立可验：B=`04a19e2`、A+C=`08148a7`、D=`84edc8b`。

@@ -174,6 +174,11 @@ export class MaterialStore {
     return this.host.listDir(grantId, relativeDir);
   }
 
+  /** 授权域内按路径读原件字节（PILOT-LIVE-2 F：上传碰撞探针与 ingest 同读面——两世界宿主一致）。 */
+  readSource(grantId: string, relativePath: string): Promise<HostReadResult> {
+    return this.host.readSource(grantId, relativePath);
+  }
+
   /**
    * 就地入库一个原件：读字节 → sha256 → reading-view 派生 → 持久 source-neutral 元数据。
    * demo 案拒绝（双向隔离）；读原件失败结构化上报，不静默。

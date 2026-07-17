@@ -45,6 +45,7 @@ import {
 } from './case/case-scope';
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import type { MaterialStore } from './material/material-store';
+import { sha256Hex } from './material/sha256';
 import { MATERIAL_BLOCK_REASON_COPY, type StoredMaterial } from './material/material-ref';
 import { CHROME_COPY } from './chrome/copy';
 import { WindowChrome } from './chrome/WindowChrome';
@@ -211,9 +212,11 @@ function renderReaderInline(text: string, focusQuote?: string, focusRef?: RefObj
   });
 }
 
-function ChatAssistantMessage({ message, index, onStop, onRetry }: {
+function ChatAssistantMessage({ message, index, latest, onStop, onRetry }: {
   message: Extract<ChatMessage, { role: 'assistant' }>;
   index: number;
+  /** PILOT-LIVE-2 E：最新回复默认全文展开（折叠仅限历史轮次）；推理轨迹折叠不随此豁免（辅助信息）。 */
+  latest?: boolean;
   onStop?: () => void;
   onRetry?: () => void;
 }) {
@@ -237,6 +240,8 @@ function ChatAssistantMessage({ message, index, onStop, onRetry }: {
       />
       {turn.assistantMessage && (turn.status === 'running' ? (
         <div className="chat-stream-content" data-testid="chat-stream-content">{turn.assistantMessage}</div>
+      ) : latest ? (
+        <ChatMarkdown text={turn.assistantMessage} />
       ) : (
         <CollapsibleMessage lines={12}><ChatMarkdown text={turn.assistantMessage} /></CollapsibleMessage>
       ))}
@@ -547,6 +552,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     // （与 chat 段同一组装/提交核心），随即切 chat 面承接回复（路由律：对象在哪面，点击即切面）。
     // 非 demo 在此早退：其后 demo 回显块保持 CHAT-MATERIAL-1 原字节（物理隔离，PILOT-LIVE-1-FIX #1）。
     if (!(selectedCaseId && isDemoCase)) {
+      // PILOT-LIVE-2 F：grant 语境上传优先入库——附件经既有 grant 写授权落入项目文件夹并按
+      // material-ingress 原班入库（卷宗可见、场景可消费）；正文仍经下方既有链必达模型（A 零回退），
+      // 即时提问即「经既有正文链引用该材料」。无案/未绑定案保持纯 chat 附件（轻量语境）。
+      if (caseBinding.kind === 'grant' && selectedCaseId && payload.attachments.length > 0) {
+        void ingestComposerUploads(selectedCaseId, caseBinding.grantId, payload.attachments);
+      }
       const accepted = handleChatSend(payload);
       if (accepted !== false) switchSegment('chat');
       return accepted;
@@ -1078,6 +1089,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const progressTotal = !isDemoCase ? 6 : flow === 'S1' ? 20 : 6;
   const progressCount = progressHeadCount(progressDone, progressTotal);
   const attachmentSources = localMessages.flatMap((message) => message.files);
+  // PILOT-LIVE-2 E：最新助手回复豁免折叠（裁定：最新默认全文展开；折叠仅限历史轮次）。
+  // 取最后一条已结束的助手消息而非末位消息：发送在途窗口内新投影会先插入 running assistant，
+  // 它尚未成为可阅读回复，不得抢走 latest 席位令上一条完整回复瞬时坍缩；terminal 后再正常交棒。
+  const lastAssistantIndex = chatMessages.reduce(
+    (last, item, i) => (item.role === 'assistant' && item.turn.status !== 'running' ? i : last),
+    -1,
+  );
   const usageDetail = isDemoCase
     ? {
         dossier: flow === 'S1' ? '14%' : '62%',
@@ -1599,6 +1617,55 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     if (rejected > 0) parts.push(`${rejected} 件无法转为可引用的阅读视图`);
     if (failed > 0) parts.push(`${failed} 件读取失败`);
     showSystemFeedback(parts.join('；'), failed === 0);
+  };
+
+  /**
+   * PILOT-LIVE-2 F：case 语境上传入库路由——composer 附件经既有 grant 写授权落入已授权项目
+   * 文件夹（host_write_file），再按 grant+relativePath 走 material-ingress 原班 ingest（provenance
+   * 与 hash 复验天然成立）。同名同内容＝跳过写入、就地入库（不重复上传）；同名异内容＝显式
+   * 拒绝不覆写（原件只读红线）。零新入库语义：写授权、ingest、计数反馈全部复用既有链。
+   */
+  const ingestComposerUploads = async (
+    caseId: string,
+    grantId: string,
+    attachments: ComposerSendPayload['attachments'],
+  ) => {
+    let ingested = 0;
+    const refused: string[] = [];
+    const failed: string[] = [];
+    for (const attachment of attachments) {
+      const fileName = attachment.fileName;
+      const existing = await materialStore.readSource(grantId, fileName);
+      if (existing.status === 'read') {
+        const [existingSha, uploadSha] = await Promise.all([sha256Hex(existing.bytes), sha256Hex(attachment.bytes)]);
+        if (existingSha !== uploadSha) {
+          refused.push(fileName);
+          continue;
+        }
+        // 同名同内容：原件已在项目文件夹，跳过写入直接就地入库。
+      } else {
+        const wrote = await hostAuth.writeFile({ grantId, relativePath: fileName, bytes: attachment.bytes });
+        if (wrote.status !== 'wrote') {
+          failed.push(`${fileName}（${hostAuthReasonCopy(wrote.reason)}）`);
+          continue;
+        }
+      }
+      const result = await materialStore.ingest(caseId, { grantId, relativePath: fileName, fileName });
+      if (result.status === 'failed') failed.push(`${fileName}（${hostAuthReasonCopy(result.reason)}）`);
+      else ingested += 1;
+    }
+    const materials = await materialStore.listForCase(caseId);
+    setCaseMaterials(materials);
+    setCases((current) =>
+      current.map((item) => (item.id === caseId ? { ...item, fileCount: materials.length } : item)),
+    );
+    const parts: string[] = [];
+    if (ingested > 0) parts.push(`已入库 ${ingested} 件到本案卷宗`);
+    if (refused.length > 0) {
+      parts.push(`同名文件已在项目文件夹且内容不同，未覆写：${refused.join('、')} · 请改名后重试，或经「+」菜单整夹入库`);
+    }
+    if (failed.length > 0) parts.push(`未能入库：${failed.join('、')}`);
+    if (parts.length > 0) showSystemFeedback(parts.join('；'), refused.length === 0 && failed.length === 0);
   };
 
   // CASE-ROOT-1 授权 + MATERIAL-INGRESS-1 入库：composer「Add folder」经宿主原生 picker 取文件夹授权。
@@ -2360,6 +2427,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                 </div>
               )}
             </header>
+            {/* PILOT-LIVE-2 F 连带修：系统反馈原只挂 work 段——A 路由切 chat 后（上传入库回执/
+                同名拒绝/写失败）反馈静默丢失（不变量 4）。两段互斥渲染，testid 运行时唯一。 */}
+            {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.tone ?? (systemFeedback.ok ? 'ok' : 'error')}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
             {chatSessionsOpen ? (
               <SessionHistory
                 sessions={sessionHistory}
@@ -2386,6 +2456,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                   <ChatAssistantMessage
                     message={message}
                     index={index}
+                    latest={index === lastAssistantIndex}
                     onStop={chatPending && message.turn.status === 'running' ? stopChatTurn : undefined}
                     onRetry={!chatPending && index === chatMessages.length - 1 ? retryChatTurn : undefined}
                     key={`chat-${index}`}

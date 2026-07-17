@@ -512,10 +512,12 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 /* RP-2.11 ⑧ 长消息收敛：N 行 + 底部渐隐遮罩虚化（过渡而非硬切凡例）+ Show more/less */
 .collapsible-message { position: relative; }
 .collapsible-body { line-height: 1.55; overflow: hidden; }
-.collapsible-message:not(.is-expanded) .collapsible-body { max-height: calc(var(--collapse-lines) * 1.55em); }
+.collapsible-message:not(.is-expanded) .collapsible-body { max-height: var(--collapse-max, calc(var(--collapse-lines) * 1.55em)); }
+/* PILOT-LIVE-2 E：渐隐改固定底带（48px）——块界对齐后钳高随内容伸缩，比例渐隐会把整块尾部
+   大面积淡出（视觉仍似截半）；固定底带只淡「窥视行」区，结构块保持全不透明。 */
 .collapsible-message.is-overflowing:not(.is-expanded) .collapsible-body {
-  -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) 62%, transparent);
-  mask-image: linear-gradient(to bottom, var(--text-primary) 62%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) calc(100% - 48px), transparent);
+  mask-image: linear-gradient(to bottom, var(--text-primary) calc(100% - 48px), transparent);
 }
 .collapse-toggle { margin-top: 2px; padding: 1px 4px; border: 0; border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); }
 .collapse-toggle:hover { background: var(--control-hover); color: var(--text-primary); }
