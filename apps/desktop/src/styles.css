@@ -1544,7 +1544,8 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 
 
 /* ─── 收敛/展开钮驻缝（2026-07-12 拍板落地）：chat|right 过渡带顶部，两态同位 ── */
-.rail-seam-toggle { position: absolute; z-index: 31; top: 2px; left: -22px; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; }
+/* top:10px 使 20px 高的按钮中心落在 chat-titlebar 40px 标题带的垂直中线（8px 顶部基准 + 20px 半带高）。 */
+.rail-seam-toggle { position: absolute; z-index: 31; top: 10px; left: -22px; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; }
 .rail-seam-toggle:hover { background: var(--control-hover); color: var(--text-primary); }
 .rail-seam-toggle .line-icon { width: 14px; height: 14px; }
 /* 左栏收敛：chat-case-head 吸附内容测宽中线，随视口重排，避免固定避让值在不同屏宽漂移。
