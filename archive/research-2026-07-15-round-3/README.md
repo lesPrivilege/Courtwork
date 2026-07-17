@@ -21,5 +21,6 @@
 | `upstream-positioning.md` | 上游投递定位（范式证明非防御资产）+ schema 普查候选 | 内部定位笔记不入公开叙事；技能库一网打尽编译扫描 = 第四次架构验收，发版后择机派 |
 | `chinese-display-font.md` | 中文显示字体选型（已拍板：朱雀仿宋 OFL） | SITE-CRAFT-2/polish 实施：剂量纪律+锁版+按文案子集化；层级靠字号字距 |
 | `invest-daily-brief-testbed.md` | 投资讯息日更轻量包实验田 | 前段（显式触发简报）发版后可做；后段（日更自动化）= scheduled invocation ADR 的最佳拉动用例，不绕 Stage 3 门槛 |
+| `skill-refinery-feasibility.md` | skill→场景包炼化管线可行性 | 命题成立：准入门即编译器（创作侧验证闭环）；CLI 形态非 meta-skill；试点序 react-rules→docx 类；发版后立 SKILL-REFINERY-1 |
 | `invest-daily-digest-field.md` | 投资讯息每日更新实验田（invest 垂类首场景） | 发版后候选；scheduled invocation 最小 ADR 的解锁钥匙（纯读取零 effect）；「提示词分发 vs 契约编译」活演示 |
 | （外部）`~/Downloads/anti-ai-slop-kit/` | 反 AI slop 设计参考包（产品负责人维护的权威副本，2026-07-16 定稿；入口 00-发凡起例.md） | polish 阶段第一读物：05/12 AGENTS 片段过滤后入 polish 会话系统提示、05/09 检测清单入上线审计、03/06 冷调八站拆解与 04/08 法律工作台场景直接对口；其反制流水线与本仓已行机制同构（tokens 先于页面=tokens.json 真值、确定性检测=deslop-scan、人工 taste 门禁=独立视觉验收） |
