@@ -2640,3 +2640,65 @@ e2e 契约：
 > **最终判定：FRONTEND-FOUR-CRITERIA 不放行 ❌。**  
 > 准则 4（work thought = chat only 动画）**通过**；准则 1–3 主路径大体正确，但 **左栏撤卡后源码/网格仍有残余**，且 **work 双侧收拢时对话流未按测宽收到中间**，与「两侧收敛不留残余 + chat 流相应收缩到中间」不一致。  
 > 修完 P1 三项（及 P2 卫生项）后，由独立会话复验方可改判放行。本报告为并行只读审计落盘真源；不更新 `docs/status/current.md`，不把 `LAYOUT-CONVERGE-1` 登记虚报为已交付。
+
+## LAYOUT-CONVERGE-1 复验 · FRONTEND-FOUR-CRITERIA 改判（2026-07-17）— ✅ 放行
+
+**标注**：独立复验会话（Grok 验收角色）；复验基准 = 上节 `FRONTEND-FOUR-CRITERIA-AUDIT` 的六条建议 + 就绪图 `LAYOUT-CONVERGE-1` 退出证据单行。不采信实现自述；证据来自 clean detached worktree 实跑。未更新 `docs/status/current.md`、不推送、不 prune。
+
+**对象**：`impl/layout-converge-1` @ `fbc7209`（基线 `6cbf75e`，10 文件），经解冲突合入 `main` @ **`f0ceae7`**（floor 255；与 `WORK-LIVE-1` 疊加——合并组合全量门为本单一部分）。
+
+**隔离**：`/private/tmp/courtwork-layout-converge-reverify` detached @ `f0ceae7`；`pnpm install --frozen-lockfile`；Playwright `reuseExistingServer: false` + 隔离端口 `:1491`（全量）/ `:1493–1495`（residue×3）/ `:1505`（几何探針）。
+
+### 1. 合并组合全量门（WORK-LIVE + LAYOUT-CONVERGE 双新门并存）
+
+| 门 | 结果 |
+|---|---|
+| `pnpm -r build` | exit 0（既有 chunk-size 提示，非本单） |
+| `pnpm lint`（根 eslint） | exit 0 |
+| root Vitest | **142 files / 1222 tests** 全绿 |
+| desktop Vitest | **51 files / 294 tests** 全绿 |
+| `lint:work-live` + `lint:layout-converge` | 双门各绿；`test:e2e` 链内两节点并存 |
+| 全静态门链（motion→…→work-live→voice→layout-converge→assert-test-count） | 全绿；floor **255**（下限 255） |
+| 隔离端口 Playwright `:1491` | **255 passed / 255 total**（app + residue） |
+| residue project 连跑 3 轮 | 各 **21/21**（:1493/:1494/:1495） |
+
+### 2. 死支零命中 + 静态门红证重放
+
+- `rg "expand-left-rail|case-rail.is-collapsed|collapsed-case-icons" apps/desktop/src` → **0 命中**
+- `apps/desktop/scripts`（排除门自身）同上 **0 命中**
+- 红证：注入 `expand-left-rail` 入 `CaseRail.tsx` → `assert-layout-converge` **exit 1**；还原 → exit 0
+- 红证：注入 `case-rail.is-collapsed` 入 `styles.css` → **exit 1**；还原 → exit 0
+
+### 3–5. 几何实測（getBoundingClientRect / computed style，视口 1440×900）
+
+| 场景 | 断言 | 实測 |
+|---|---|---|
+| 双侧收拢 work | case-rail=0、right-module-stack=0 | 通过 |
+| 双侧收拢 grid | 无 48px 首列 | `firstTrack=1440px`（单列） |
+| work 正文列测宽 | `.conversation-scroll` 内容列 / `.composer-stack` / `.scene-strip` ≈ `--content-measure`(760) 且同 x | contentW=composerW=sceneW=**760**，x=**340**，中心 720=视口中线；居中偏差 0 |
+| rails-compact（左收+模块全折） | 无 48px 幽灵列；正文列不被挤压 | `data-compact=true`；`first=1076px`；conv x=8 / w=1076 |
+| welcome | 消费 `--home-welcome-measure`；720 硬编码零残留 | token=`560px`；`.welcome-home` 宽 **560**；styles 内 720 仅注释述史 + `animation-delay:720ms`（非测宽） |
+| comparing | 48px chrome 条照旧；icons 死支不复活 | `.workspace.comparing { grid-template-columns: 48px … }` 仍在；`.case-expanded{display:none}` 强制 class 实測生效；`.collapsed-case-icons` 零 DOM |
+
+既有 e2e 锁定：`chrome-in-card` 双侧收拢测宽断言、`layout-converge` rails-compact 幽灵列反例（均在 255 全绿内）。
+
+### 6. 准则一至三复判（准则四不重验）
+
+对照审计原表逐项改判：
+
+| 准则 | 审计原判 | 复判 | 依据（对应 P1/P2） |
+|---|---|---|---|
+| 1. 同类控件同源 | 条件通过 | **通过** | R1/R3 死支删除 + P2-4 welcome token 单源 + P2-5 注释述实；主路径 Composer/segment/ProcessTrace 同源未回退 |
+| 2. 两侧收敛无残余 | 条件通过 | **通过** | R2 CSS 族清除 + R4 rails-compact 去 48px 首列；双侧收拢与 compact 几何零空列；comparing 功能 48px 通道保留 |
+| 3. chat 流收缩到中间 | 部分通过 | **通过** | P1-3 work 单列套 `--content-measure`；正文/composer/scene-strip 三者 760 对齐；伪断言（仅中心点）已退役 |
+| 4. work thought 同动画 | 通过 | **不重验（维持通过）** | 审计已闭合；静态门 `assert-process-trace` 本会话仍绿 |
+
+审计阻塞项 P1×3 + P2×2 **全部闭合**。Copy 控件并行（P3）仍为已知边界、不阻塞。
+
+### 7. 最终裁决
+
+> **最终判定：LAYOUT-CONVERGE-1 / FRONTEND-FOUR-CRITERIA 放行 ✅。**  
+> 合并 tip `f0ceae7` 上，合并组合全量门（含 WORK-LIVE 与 layout-converge 双新门、floor 255、Playwright 255/255、residue 3×21/21）全绿；生产源码死支零命中且静态门接受注入反例；work 双侧收拢正文列收至 760 居中、rails-compact 无幽灵列、welcome 560 token 单源、comparing 48px chrome 零回归。准则 1–3 由条件/部分通过 **改判通过**；准则 4 维持通过。  
+> 成立范围：审计四准则 + 就绪图 `LAYOUT-CONVERGE-1` 退出证据。本会话未改实现、未更新 `docs/status/current.md`、不推送。
+
+
