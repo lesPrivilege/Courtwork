@@ -43,7 +43,6 @@ interface CaseRailProps {
   /** RP-2.11 chat|work 二段（段控落左栏顶 Cowork 位） */
   viewSegment: 'chat' | 'work';
   onSegmentChange: (next: 'chat' | 'work') => void;
-  leftCollapsed: boolean;
   onSelectCase: (id: string) => void;
   onToggleExpand: (id: string) => void;
   onNewCase: () => void;
@@ -56,7 +55,6 @@ interface CaseRailProps {
   onRequestContainerizeUnfiled: (id: string) => void;
   onConfirmContainerizeUnfiled: (kind: ContainerKind) => void;
   onCancelContainerizeUnfiled: () => void;
-  onExpandLeft: () => void;
   onCollapseLeft: () => void;
   onSearch: () => void;
   onOpenSettings: () => void;
@@ -79,7 +77,6 @@ export function CaseRail({
   containerizeUnfiledId,
   viewSegment,
   onSegmentChange,
-  leftCollapsed,
   onSelectCase,
   onToggleExpand,
   onNewCase,
@@ -91,7 +88,6 @@ export function CaseRail({
   onRequestContainerizeUnfiled,
   onConfirmContainerizeUnfiled,
   onCancelContainerizeUnfiled,
-  onExpandLeft,
   onCollapseLeft,
   onSearch,
   onOpenSettings,
@@ -104,38 +100,6 @@ export function CaseRail({
   const rows = buildMixedRailRows(cases, unfiled, pinnedIds);
   const pinnedRows = rows.filter((r) => r.pinned);
   const restRows = rows.filter((r) => !r.pinned);
-
-  if (leftCollapsed) {
-    return (
-      <aside className="case-rail surface-float is-collapsed" data-testid="case-rail" data-collapsed="true">
-        <button
-          type="button"
-          className="rail-expand-button"
-          data-testid="expand-left-rail"
-          title={CHROME_COPY.navigation.expandLeft}
-          aria-label={CHROME_COPY.navigation.expandLeft}
-          onClick={onExpandLeft}
-        >
-          <Icon name="panel-left" />
-        </button>
-        <nav className="collapsed-case-icons" aria-label="Collapsed case sidebar">
-          {cases.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              aria-label={item.title}
-              title={item.title}
-              onClick={() => onSelectCase(item.id)}
-            >
-              <span data-testid={(item.isDemo || isDemoCaseId(item.id)) ? 'demo-package-icon' : undefined}>
-                <Icon name={(item.isDemo || isDemoCaseId(item.id)) ? 'package' : item.kind === 'workspace' ? 'folder-open' : 'briefcase-business'} />
-              </span>
-            </button>
-          ))}
-        </nav>
-      </aside>
-    );
-  }
 
   const renderRow = (row: (typeof rows)[number]) => {
     const item = row.caseSummary;

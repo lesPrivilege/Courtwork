@@ -192,8 +192,18 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .workspace.welcome-mode { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr); }
 .workspace.welcome-mode.left-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr); }
 .workspace.right-collapsed { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr); }
-.workspace.rails-compact { grid-template-columns: 48px minmax(0, 1fr) minmax(280px, 320px); }
+/* LAYOUT-CONVERGE-1 R4：左收即撤卡——首列不再为 48px 幽灵轨道（CaseRail 已卸载，
+   自动排布否则把正文列挤进那条 48px），与撤卡策略对齐为「正文 + 窄右栏」两列。 */
+.workspace.rails-compact { grid-template-columns: minmax(0, 1fr) minmax(280px, 320px); }
 .workspace.left-collapsed.right-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr); gap: 0; padding-inline: 0; }
+/* LAYOUT-CONVERGE-1 P1-3（架构裁定：跨模式阅读宽度一致）：work 单列态（双侧收拢）正文列
+   套用与 chat-segment 同一 --content-measure，正文不再随视口全宽漂移。 */
+.workspace.left-collapsed.right-collapsed .conversation-scroll { padding-inline: max(16px, calc((100% - var(--content-measure)) / 2)); }
+/* scene-strip（场景快捷行）与 composer 同为正文列页脚，一并收至测宽——否则 composer 居中而
+   快捷行满宽会在双侧收拢态错位（P1-3 收缩正文列的连带对齐）。width:100% 定宽后 max-width
+   才封得住，flex 行的 auto margin 才不塌成 min-content。 */
+.workspace.left-collapsed.right-collapsed .scene-strip,
+.workspace.left-collapsed.right-collapsed .composer-stack { width: 100%; max-width: var(--content-measure); margin-inline: auto; }
 .case-rail, .conversation, .right-workbench { min-width: 0; min-height: 0; display: flex; flex-direction: column; border-right: 0; }
 .case-rail, .right-workbench { margin-block: var(--elevation-float-inset); }
 .workspace.focus-mode .right-workbench { margin-block: 0; }
@@ -234,18 +244,10 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .composer-icon-button.is-active-mode { color: var(--text-primary); }
 .collapse-right-button:hover { background: var(--control-hover); color: var(--text-primary); }
 .case-rail { --home-row-height: 36px; position: relative; background: var(--elevation-rail); overflow: hidden; }
-.case-rail.is-collapsed { align-items: center; padding: 6px 0; }
 .case-expanded { min-height: 0; flex: 1; display: flex; flex-direction: column; }
-.collapsed-case-icons { display: none; }
-.case-rail.is-collapsed .collapsed-case-icons {
-  height: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px;
-}
+/* 对照态左栏收为 48px 通道，仅驻 window-chrome 展开/搜索钮；case-expanded 隐藏。
+   收拢图标条（is-collapsed 死支 CSS 族）已随 LAYOUT-CONVERGE-1 清除，勿复活。 */
 .workspace.comparing .case-expanded { display: none; }
-.workspace.comparing .collapsed-case-icons { height: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px; }
-.rail-expand-button {
-  width: 34px; height: 34px; display: grid; place-items: center; margin: 4px auto;
-  border: 0; border-radius: 4px; background: transparent; cursor: pointer;
-}
 /* RP-2.11：左栏除 owner 外全扁平，零框线（照搬 Cowork） */
 .rail-nav-skeleton {
   display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; border-bottom: 0;
@@ -294,8 +296,6 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 .rail-row.unfiled-row + .rail-row, .case-card + .rail-row, .rail-row + .case-card { margin-top: 6px; }
 .case-card-select { flex: 1; min-width: 0; padding: 4px 4px 4px 0; }
-.collapsed-case-icons button { position: relative; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid transparent; border-radius: 4px; background: transparent; cursor: pointer; }
-.collapsed-case-icons button:hover { border-color: var(--border-strong); background: var(--control-hover); }
 .panel-head { height: 40px; flex: none; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-bottom: 1px solid var(--border); }
 .panel-head h2 { margin: 0; font-size: var(--type-dense-body-size); font-weight: 510; }
 .panel-head > span, .panel-head small { color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; }
@@ -445,7 +445,9 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .welcome-head-label { min-width: 0; padding: 0 4px; font-size: var(--control-font-sm); font-weight: var(--control-weight-emphasized); }
 /* RP-2.12 待机主屏（Cowork 复刻）：品牌 icon + slogan（非卡）→ 居中 composer → 建议行 */
 .welcome-home {
-  width: min(720px, calc(100% - 48px)); margin: auto; padding: 0 0 48px;
+  /* LAYOUT-CONVERGE-1 P2-4：测宽单源——收敛到 --home-welcome-measure（原硬编码 720px 退役，
+     与 --content-measure:760 成梯度，见 tokens.json home.welcomeMeasure）。 */
+  width: min(var(--home-welcome-measure), calc(100% - 48px)); margin: auto; padding: 0 0 48px;
   display: grid; justify-items: stretch; gap: var(--home-section-gap); color: var(--text-secondary);
 }
 /* RP-2.12⑨ 磁吸位：待正式扁平品牌图标到位再落 slogan 侧；当前只 slogan 居中（不放占位简笔图标） */

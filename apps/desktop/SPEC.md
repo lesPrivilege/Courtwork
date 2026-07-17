@@ -1988,3 +1988,39 @@ Playwright 逐一切换五工作面并核对对应内容可见，同时抽查工
   - `pnpm -r test`（Vitest）全绿：packages/core 307、tools 204、provider 104、legal 79（`VPKG-LAYOUT-1` golden 未漂移——`需 OCR` 已回滚）、pm 44、demo-runtime 29、demo-data 23、eval 64；desktop 49 files / 265 tests；
   - desktop `test:e2e`：全静态门链通过（含四设计门、`lint:ui-surface`、新 `node --test assert-voice-copy.test.mjs` 5/5 反例、新 `assert-voice-copy.mjs` 扫 107 文件、`assert-test-count` floor 231 未变），隔离端口完整 Playwright **231 passed / 231 total**（约 2.6 分钟），零失败零 skip，含 `确认此项` 定位符的 `workbench.spec.ts` 处置用例全绿；
   - floor 不涉（未增 Playwright 用例，只增 `node --test` 反例门）；Rust/`src-tauri` 零改动。
+
+## LAYOUT-CONVERGE-1 · Grok 四准则审计 P1×3 + P2×2 修复（实现完成，待独立验收）
+
+权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `LAYOUT-CONVERGE-1` 行、验收基准 [ACCEPTANCE.md](ACCEPTANCE.md) `FRONTEND-FOUR-CRITERIA-AUDIT`（file:line 级证据）。工单基线 `main @ 6cbf75e`（含审计落盘，`apps/desktop/src` 相对审计读码 tip `3c7be96` 零 diff）。隔离 worktree `impl/layout-converge-1`。**本单净删除为主**：删死支与死 CSS，把三处漂移的测宽收敛到既有 token/pattern。
+
+### 五项修复（先红后绿）
+
+| 审计项 | 修复 | 触面 |
+|---|---|---|
+| R1（P1）左栏窄条死支 | 删 `CaseRail` `is-collapsed` 分支（挂载点恒 `!effectiveLeftCollapsed`，运行时不可达）+ 退役 `leftCollapsed`/`onExpandLeft` props（interface/解构/两调用点）；单一展开控件恒为 chrome `collapse-left-rail`（toggle，aria 随态翻转，testid 稳定） | `rail/CaseRail.tsx`、`App.tsx` |
+| R2（P2）窄条 CSS 族 | 删 `.case-rail.is-collapsed`/`.collapsed-case-icons`（含 `.workspace.comparing` 对 icons 的引用）/`.rail-expand-button`；**保留** `.workspace.comparing .case-expanded{display:none}`（对照态左栏收 48px 通道的功能规则，非 icons 引用——实测该态仅驻 window-chrome，icons 早不渲染） | `styles.css` |
+| R3（P1）脚本残留 | `capture-rp1-compact.mjs` 的 `expand-left-rail` → `collapse-left-rail`（dev 视觉采集脚本，非门链） | `scripts/capture-rp1-compact.mjs` |
+| R4（P1）`rails-compact` 幽灵列 | `.workspace.rails-compact` 首列去 `48px`（撤卡后 CaseRail 卸载，自动排布把正文列挤进那条 48px——实测 `conversation` 宽塌成 48px；改 `minmax(0,1fr) minmax(280px,320px)` 后正文 x=8/w=916） | `styles.css` |
+| P1-3 work 单列态测宽 | 架构裁定「跨模式阅读宽度一致」：`.workspace.left-collapsed.right-collapsed` 的 `.conversation-scroll`/`.composer-stack` 套用与 chat-segment 同一 `--content-measure`（实测双侧收拢正文列收至 760、居中偏差 0）；`chrome-in-card.spec` 双侧收拢断言由「composer 中心≈视口中线」（全宽恒真伪断言）升级为「正文列宽≈content-measure + 无 48px 首列」 | `styles.css`、`tests/e2e/chrome-in-card.spec.ts` |
+| P2-4 测宽 token 单源 | `.welcome-home` 硬编码 `min(720px,…)` → `min(var(--home-welcome-measure),…)`（token 值 560 不变→**不动 `tokens.json`、不触 design-drift 门**；与 `--content-measure:760` 成梯度，见 `styles.css:98` 注释） | `styles.css` |
+| P2-5 过期注释 | `App.tsx` `chatPending` 注释「▏字符指示（RP-2.11 推理字符版）」→ 述实为 `ProcessTrace` 渲染 `BrandThinking`（与 work thought process 同源，准则 4） | `App.tsx` |
+
+### 视觉连带（用户显式要求「调整平衡/对齐/留白/对齐 frontier」）
+
+P1-3 把 work 双侧收拢的 `composer-stack` 收至 760 居中后，同区页脚的 `.scene-strip`（场景快捷行）仍满宽 → 错位（快捷行贴左缘、composer 居中）。**本单自身改动的连带对齐**：`.scene-strip` 一并收至 `--content-measure`（`width:100%` 定宽后 `max-width`+`margin auto` 才封得住 flex 行、不塌 min-content）。实测 scene-strip 与 composer 同 x=340/w=760，正文/快捷行/composer 三者对齐同一阅读列。welcome 由 720→560 亦更聚焦居中。**不动三栏默认布局语义、不动 ProcessTrace/BrandThinking、不做批二状态代数。**
+
+### 新增概念留痕（复杂度节制条）
+
+- **`scripts/assert-layout-converge.mjs`**（唯一新增文件，静态门）——非加不可：工单退出证据要求「`rg "expand-left-rail|case-rail.is-collapsed"` 生产源码零命中（可入静态门）」。沿本仓 `assert-*.mjs` 门链惯例，无新范式；递归扫 `src/`+`scripts/` 禁用字面量 + 正向锁（rails-compact 无 48px 首列、work 单列套 content-measure、welcome 消费 token）。
+- **`tests/e2e/layout-converge.spec.ts`**（+1 Playwright 用例，rails-compact 幽灵列反例）——非加不可：R4 退出证据要求 getBoundingClientRect 实测无空列；样板案 revision 场景自动展开且无 outline 折叠入口，故走新建非演示案（`moduleOpen` 停 DEFAULT，折 progress 即全关触发 compactLayout）。floor `252→253`（chrome-in-card 双侧收拢为原地断言升级，不计数）。
+- **明确未新增**：无新 token（复用 `--content-measure`/`--home-welcome-measure`）、无新持久化格式、无新状态机、无新抽象、无新依赖、无 Turn/Work/schema 语义改动。CSS 为纯删除 + 三条既有 pattern 的作用域扩展。
+
+### TDD 与门禁（隔离 worktree `impl/layout-converge-1`、隔离端口）
+
+- **先红（实证）**：`assert-layout-converge.mjs` 落地即 `exit 1`，命中真实残留（`expand-left-rail`×2、`case-rail.is-collapsed`/`collapsed-case-icons`/`rail-expand-button` 于 `CaseRail.tsx`+`styles.css`、rails-compact 48px、welcome 720、work 未套测宽）；`layout-converge.spec.ts` 到达 `data-compact=true` 后于 48px 断言处红（正文列实测被挤压）；`chrome-in-card` 双侧收拢新测宽断言红（旧实现 composer 满宽）。
+- **转绿 + 完工门**：`pnpm -r build` 全 workspace 通过（仅既有 chunk-size 提示）；`pnpm lint`（根 `eslint .`）exit 0；`pnpm test`（Vitest）142 files / 1222 tests 全绿；desktop `test:e2e` 全静态门链通过（含新 `assert-layout-converge.mjs`、`assert-test-count` floor 253）+ 隔离端口完整 Playwright **253 passed / 253 total**（app + residue 两 project）；**residue project 连跑 3 轮各 21/21 通过**（布局 CSS 改动未扰动 A≡B 基线）。Rust/`src-tauri` 零改动。
+- **已知合并考量（非本单缺陷）**：本单与 `LEGAL-S3-BINDING-1` 均在 `apps/desktop/package.json` `test:e2e` 链尾追加节点；合并时该行两节点并存（非二选一），归验收/合并角色定值。`assert-test-count` floor 亦为并发只升点，合并按最大值取。逐文件暂存、不推送、不动 `docs/status/current.md`。
+
+### 复杂度扫描登记（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权）
+
+- **`capture-rp1-compact.mjs:15` 的 `enter-compact-layout` testid 已不存在于 `src`**——该 dev 视觉采集脚本（非门链、需手启 dev server）在此前重构后即失效（进入收缩态已无单一按钮，改由「左收 + 模块全折」组合触发）。本单按 R3 只收敛 `expand-left-rail`→`collapse-left-rail`；`enter-compact-layout` 属正交的既有失效，未在审计四准则内，**登记不擅改**。若确认保留该脚本，建议后续便利单改为「折全部模块 + `collapse-left-rail`」重建收缩态入口。
