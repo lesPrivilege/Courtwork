@@ -18,8 +18,15 @@ export const GENERIC_CHAT_SYSTEM_PROMPT = [
  * 有段时追加于基身份之后、messages 之前：基身份恒为稳定前缀，memory 变更只失效其后缓存。
  * 段内容是数据不是指令（宿主已在段头标注「作参考不作裁决依据」），底座不解释其语义。
  */
-export function assembleGenericChatSystemPrompt(memorySegment?: string): string {
-  const segment = memorySegment?.trim();
-  if (!segment) return GENERIC_CHAT_SYSTEM_PROMPT;
-  return `${GENERIC_CHAT_SYSTEM_PROMPT}\n\n${segment}`;
+export function assembleGenericChatSystemPrompt(memorySegment?: string, workContextSegment?: string): string {
+  // WORK-TURN-1 H（L0）加法式第二缝：可选 `workContextSegment` 是宿主从既有账本/store 确定性
+  // 编译的案语境段（案根/材料清单/场景状态），排 memory 之后——变更频率 memory 低、案语境高，
+  // 易变段靠尾守稳定前缀律（基身份与 memory 前缀字节不因案语境而漂移）。缺省逐字节退回既有行为；
+  // 段内容同为数据不是指令，底座不解释其语义。仍是 Chat Turn：journal 不分家，聊天不是 promotion。
+  const memory = memorySegment?.trim();
+  const workContext = workContextSegment?.trim();
+  const parts = [GENERIC_CHAT_SYSTEM_PROMPT];
+  if (memory) parts.push(memory);
+  if (workContext) parts.push(workContext);
+  return parts.join('\n\n');
 }

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { connectProvider, openWorkbench } from './helpers';
 
 /**
  * WORK-TURN-1（真机第三轮 G+H）：
@@ -175,4 +175,48 @@ test('G 存量守卫：旧版中文 id 案运行场景 → 显式引导（原位
   await expect(feedback).toHaveClass(/\binfo\b/);
   await expect(feedback).not.toContainText('引用');
   await expect(page.getByTestId('revision-panel')).toHaveCount(0);
+});
+
+test('H 案语境注入：Work 面自由输入携案根与材料清单；chat 面缺省不携（红证双向）', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await connectProvider(page);
+  await page.evaluate(() => {
+    type Message = { role: string; content: string };
+    type Ctx = { request: { systemPrompt?: string; messages: Message[] }; requestId: string; providerId: string; modelId: string };
+    const hooks = (window as typeof window & {
+      __courtworkChatHooks?: { setStreamFactory(factory: ((context: Ctx) => AsyncIterable<unknown>) | null): void };
+    }).__courtworkChatHooks;
+    if (!hooks) throw new Error('chat hooks missing');
+    const store = (window as typeof window & { __capturedSystemPrompts?: string[] });
+    store.__capturedSystemPrompts = [];
+    hooks.setStreamFactory(async function* ({ request, requestId, providerId, modelId }) {
+      store.__capturedSystemPrompts!.push(request.systemPrompt ?? '');
+      yield { type: 'started', requestId, seq: 0, providerId, modelId };
+      yield { type: 'content_delta', requestId, seq: 1, delta: '卷宗内现有材料如清单所列。' };
+      yield { type: 'completed', requestId, seq: 2, finishReason: 'stop' };
+    });
+  });
+  await createGrantCaseNamed(page, '合成卷宗案');
+  await ingestViaAddFolder(page, '合成卷宗案');
+
+  // Work 面（case 绑定语境）自由输入：段在场——案根 + 材料清单投影（断 request body，不断模型智能）。
+  await page.getByTestId('composer-input').fill('卷宗里有哪些文件？');
+  await page.getByTestId('composer-send').click();
+  await expect(page.getByTestId('chat-assistant-message')).toBeVisible();
+  const workPrompt = await page.evaluate(
+    () => (window as typeof window & { __capturedSystemPrompts?: string[] }).__capturedSystemPrompts?.at(-1) ?? '',
+  );
+  expect(workPrompt).toContain('案件语境');
+  expect(workPrompt).toContain('合成卷宗案');
+  expect(workPrompt).toContain('设备采购合同.md');
+
+  // chat 面直接发送：缺省不供给（chat 面/无案语境零段）。
+  await page.getByTestId('composer-input').fill('随便聊聊。');
+  await page.getByTestId('composer-send').click();
+  await expect(page.getByTestId('chat-assistant-message').nth(1)).toBeVisible();
+  const chatPrompt = await page.evaluate(
+    () => (window as typeof window & { __capturedSystemPrompts?: string[] }).__capturedSystemPrompts?.at(-1) ?? '',
+  );
+  expect(chatPrompt).not.toContain('案件语境');
 });

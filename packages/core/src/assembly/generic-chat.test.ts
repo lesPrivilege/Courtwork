@@ -17,6 +17,33 @@ describe('generic-chat 组装（无 memory：向后兼容）', () => {
   });
 });
 
+describe('generic-chat 组装（workContextSegment 案语境段，WORK-TURN-1 L0）', () => {
+  const MEMORY = '[长期记忆]\n- 记住：项目代号 Courtwork';
+  const WORK = '[案件语境]\n案根：《合成卷宗》\n卷宗材料（2 件）';
+
+  it('缺省逐字节不变：只传 memory 与旧签名字节等同（既有消费面零影响）', () => {
+    expect(assembleGenericChatSystemPrompt(MEMORY)).toBe(`${GENERIC_CHAT_SYSTEM_PROMPT}\n\n${MEMORY}`);
+    expect(assembleGenericChatSystemPrompt()).toBe(GENERIC_CHAT_SYSTEM_PROMPT);
+    expect(assembleGenericChatSystemPrompt(undefined, '')).toBe(GENERIC_CHAT_SYSTEM_PROMPT);
+    expect(assembleGenericChatSystemPrompt(undefined, '  \n ')).toBe(GENERIC_CHAT_SYSTEM_PROMPT);
+  });
+
+  it('案语境段排 memory 之后（更易变段靠尾，稳定前缀律：memory 前缀字节不因 work 段而漂移）', () => {
+    const both = assembleGenericChatSystemPrompt(MEMORY, WORK);
+    expect(both).toBe(`${GENERIC_CHAT_SYSTEM_PROMPT}\n\n${MEMORY}\n\n${WORK}`);
+    const memoryOnlyPrefix = assembleGenericChatSystemPrompt(MEMORY);
+    expect(both.startsWith(memoryOnlyPrefix)).toBe(true);
+  });
+
+  it('无 memory 有案语境：段直接落基身份之后（不落悬垂分隔符）', () => {
+    expect(assembleGenericChatSystemPrompt(undefined, WORK)).toBe(`${GENERIC_CHAT_SYSTEM_PROMPT}\n\n${WORK}`);
+  });
+
+  it('同输入同字节（确定性组装，禁模型参与的机器形态）', () => {
+    expect(assembleGenericChatSystemPrompt(MEMORY, WORK)).toBe(assembleGenericChatSystemPrompt(MEMORY, WORK));
+  });
+});
+
 describe('generic-chat 组装（memory 低频前缀段）', () => {
   const MEMORY = '[长期记忆]\n- 记住：项目代号 Courtwork';
 

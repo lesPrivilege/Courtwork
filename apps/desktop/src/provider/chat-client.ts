@@ -94,6 +94,11 @@ export interface SendChatTurnOptions {
    * 由 core 组装缝置于基身份之后、messages 之前；缺省即退回纯基身份（前缀不漂移）。
    */
   memorySegment?: string;
+  /**
+   * WORK-TURN-1 H（L0）：Work 面（case 绑定语境）自由输入的案语境段（workContextSegmentFor 编译）。
+   * 排 memorySegment 之后（易变段靠尾守稳定前缀律）；chat 面/无案语境缺省不供给，字节等同既有。
+   */
+  workContextSegment?: string;
 }
 
 export interface ChatTurnRun {
@@ -128,7 +133,7 @@ export async function sendChatTurn(
     turnId: identity.turnId,
     providerRequestId: identity.providerRequestId,
     provider,
-    request: { systemPrompt: assembleChatSystemPrompt(options.memorySegment), messages },
+    request: { systemPrompt: assembleChatSystemPrompt(options.memorySegment, options.workContextSegment), messages },
     store: client.store,
     ...(options.signal ? { signal: options.signal } : {}),
     onEvent(event) {

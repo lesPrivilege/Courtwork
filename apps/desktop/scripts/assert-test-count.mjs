@@ -27,7 +27,8 @@ const count = match ? Number(match[1]) : 0;
 // READER 与 PILOT-LIVE-2 为并发只升点；合并树取用例并集：276 + 2 + 3 + 2 → 283。
 // PILOT-LIVE-2 验收修复：发送在途窗口 running assistant 不抢 latest 席位 +1 → 284。
 // WORK-TURN-1 G：中文标题案铸号安全语法红证 + 存量旧 id 守卫显式引导 +2 → 286。
-const minimum = 286;
+// WORK-TURN-1 H：Work 面案语境注入双向红证（Work 面在场/chat 面缺席）+1 → 287。
+const minimum = 287;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

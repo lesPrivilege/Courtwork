@@ -2,6 +2,33 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## WORK-TURN-1 · caseId 去标题化 + Work 面案语境注入（真机第三轮 G+H，P0）（实现完成，待独立验收）
+
+权威：[实现就绪图 `WORK-TURN-1` 行](../../docs/architecture/implementation-readiness.md) + [pi harness 对照调研](../../archive/research-2026-07-15-round-3/pi-harness-comparison.md)（判定 3/4 落地；调研原稿不具约束力）+ [台账第三轮节](../../docs/status/pilot-2026-07-17.md)。工单基线 `main @ 7d7e55c`。分支 `impl/work-turn-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。分批提交：G=`961398d`、H=本批。**L1 受控只读工具已批另立单；L2 循环/steering 入 ADR 议题池——本单明确不做。**
+
+### G · caseId 铸号去标题化（P0）
+
+**根因复核（三层坐实）**：`App.tsx` 旧铸号 `case-${Date.now()}-${title}` 把中文标题拼进 caseId → `work_state.rs safe_token` 只认 ASCII 字母数字与 `-_.`（路径穿越红线，本单零触碰 src-tauri、不放宽）→ `path_for→None→InvalidRef`——中文标题案首次 work_state commit 即「Work 状态引用非法」红条；读路径静默 `found:false` 与写路径抛错并存，与「场景打开时报红」吻合。**樁宿主不执行该校验**（形状强制在 Rust）——自动化红证走两条：持久 id 语法断言（红证实录 `case-1784292600077-合成卷宗案`）+ 存量守卫反馈断言；中文标题案场景全链（樁 turn）修复后可跑落审阅面。
+
+- **修法**：`mintCaseId()=case-UUID`；标题只作展示字段（持久 `title` 由 CASE-PERSIST-1 承载）；`WORK_SAFE_CASE_ID_RE` 为 Rust `safe_token` **只读镜像**（parity mirror，两处如漂移以 Rust 为准）。
+- **迁移评估（工单授权实现拍板，理据留痕）**＝**原位容忍**：材料记录/宿主授权/恢复指针跨层按 caseId 键控（部分在 src-tauri 侧），重写号需跨层迁移且本单零触碰 Rust——收益（存量中文案可跑场景）不抵风险；旧 ASCII 标题 id 天然过安全语法，零迁移成本继续可跑。存量非安全 id 案：grant 绑定与标题原样保留（列表/材料/对话均照常），仅场景运行前显式引导（`LEGACY_CASE_SCENARIO_COPY`，voice「发生了什么+下一步」零技术措辞）；Rust 技术报文另在 TS 显示边界（`tauri-work-state-host` belt）映射为同款产品语言，兜恢复读取等非 UI 路径。
+
+### H · workContextSegment 注入（L0，纯组装零新概念）
+
+比照 CHAT-MEMORY-1 `memorySegment` 先例：`packages/core` `assembleGenericChatSystemPrompt(memorySegment?, workContextSegment?)` 加法式第二可选段，**排 memory 之后**（变更频率 memory 低、案语境高——易变段靠尾守稳定前缀律：基身份与 memory 前缀字节不因案语境漂移，golden 断言）。**缺省逐字节不变**（既有快照与旧签名调用零影响）。desktop：`workContextSegmentFor`（`src/work/work-context.ts` 纯编译器）从既有 store/态确定性编译——案根标识（标题+授权文件夹展示名，零绝对路径）/材料清单投影（fileName+状态产品语）/场景状态（尚未开始/运行中/暂停待逐项确认/可继续，从 workRunning/session.confirmation/recoverableSession 互斥推导）；Work 面（grant 绑定语境）自由输入经 `handleComposerSend→handleChatSend→submitChatContent→sendChatTurn` 供给；chat 面/无案语境缺省不供给。**journal 不分家**：仍是 Chat Turn，段只随请求不入账本，聊天不是 promotion，决策仍走 Work 显式操作。
+
+- **断言**：注入后系统提示含案根+材料清单（断 request body 逐字）；e2e 双向红证（Work 面「卷宗里有哪些文件」段在场 / chat 面缺席——stub 断段在场，不断模型智能）；core golden（缺省字节等同/排序/确定性）+ client 传导 + 编译器单测。
+- **已知边界（留痕）**：失败轮次重试（UI-SURFACE 重试路径）复用已存 content 重发，不重建案语境段——段是发送时刻的活语境非消息属性；重试场景为 chat 面动作，缺段即回到 chat 面缺省语义，非静默降级。
+
+### 复杂度节制留痕
+
+**零新概念**：G=铸号纯函数+镜像常量+引导文案（无新抽象）；H=既有缝的第二可选参（CHAT-MEMORY-1 同款加法式）+纯编译器函数。零新依赖/持久面/状态机；src-tauri 零触碰。floor `284 → 286（G+2）→ 287（H+1）`。
+
+### 门禁与真机复验清单
+
+tsc/eslint 净；work-live/voice 门不回退；desktop Vitest 与 core 单测、隔离端口完整链终值见提交信息与完工报告。**真机复验（产品负责人）**：G＝中文标题新建案跑「审查合同」全链无红条 + 存量旧中文案显式引导；H＝Work 面问「卷宗里有哪些文件」模型按清单作答、chat 面不携案语境。
+
+
 ## READER-ISOLATION-1 · demo 语料阅读入口只属 demo 案（不变量 7 UI 面）（实现完成，待独立验收）
 
 权威：[实现就绪图登记](../../docs/architecture/implementation-readiness.md)（`0db350c` 采纳 PILOT-LIVE-1 提案区 #1）。工单基线 `main @ 8535b84`（含 PILOT-LIVE-1 合并与清账）。分支 `impl/reader-isolation-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。desktop 内闭合，零契约/包改动。
