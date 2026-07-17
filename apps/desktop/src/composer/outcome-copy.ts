@@ -5,6 +5,16 @@ import type { AttachmentBlockReason } from './types.js';
 export const EMPTY_CONTENT_COPY = '这份文件没有可读取的文字内容 · 请改用含文字的 Word/PDF 或直接粘贴内容';
 
 /**
+ * PILOT-LIVE-1 A2：读取阶段失败（如宿主拒绝访问，真机 WKWebView 已知边界）——与下方 reading-view
+ * 转换阶段失败语义不同源，但同归 error 族 chip；retryable=false，因架构上不留原始 File 引用，
+ * "重试"只能重跑转换而非重读磁盘，对此类失败无意义（引导用户移除后重新选择）。
+ */
+export const FILE_READ_FAILURE_COPY = '这份文件读取失败 · 请移除后重新选择该文件';
+
+/** resolveAttachmentUpload 返回的 Promise 意外拒绝（非 reading-view 建模内的失败态）兜底文案。 */
+export const UNEXPECTED_PROCESSING_FAILURE_COPY = '处理失败 · 请稍后重试';
+
+/**
  * 把 reading-view 结果映射为 chip 失败态办案语言（docs/architecture/system.md 三态 + 零技术概念）。
  * 返回值携带类型级 `reason`（CHAT-MATERIAL-1）：needs_ocr 与其它失败靠 reason 区分，而非文案。
  * 成功路径（ok）返回 null——空内容与就绪判定由 process-upload 根据 markdown 内容裁决。

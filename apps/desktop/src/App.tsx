@@ -543,18 +543,26 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       }]);
       return;
     }
-    // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
-    // 回显路径与请求路径同源：气泡只显示用户原文，附件/粘贴块由 chip 与 PasteBlock 呈现，
-    // 不再使用旧附件占位文案（该占位逻辑正是 CHAT-MATERIAL-1 的断点之一）。
-    setLocalMessages((prev) => [
-      ...prev,
-      {
-        text: payload.text,
-        files: payload.attachments.map((item) => item.fileName),
-        pasteBlocks: payload.pasteBlocks,
-        createdAt,
-      },
-    ]);
+    if (selectedCaseId && isDemoCase) {
+      // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
+      // 回显路径与请求路径同源：气泡只显示用户原文，附件/粘贴块由 chip 与 PasteBlock 呈现，
+      // 不再使用旧附件占位文案（该占位逻辑正是 CHAT-MATERIAL-1 的断点之一）。
+      setLocalMessages((prev) => [
+        ...prev,
+        {
+          text: payload.text,
+          files: payload.attachments.map((item) => item.fileName),
+          pasteBlocks: payload.pasteBlocks,
+          createdAt,
+        },
+      ]);
+      return;
+    }
+    // PILOT-LIVE-1 A：welcome（无案）与非 demo 案不再纯回显——work 段 composer 发送即走真实请求链
+    // （与 chat 段同一组装/提交核心），随即切 chat 面承接回复（路由律：对象在哪面，点击即切面）。
+    const accepted = handleChatSend(payload);
+    if (accepted !== false) switchSegment('chat');
+    return accepted;
   };
 
   /** Chat transcript remains memory-only; lifecycle truth is streamed and terminalized by core Turn. */
@@ -1361,6 +1369,17 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     return newId;
   };
 
+  /**
+   * PILOT-LIVE-1 C2：建案携 grantId 时随即就地入库该文件夹（原 NewCaseDialog 建案只绑 grant、
+   * 用户还需再点一次「Add folder」才见材料的死端）。createCase 内部已 setSelectedCaseId(newId)，
+   * 此处显式传 newId 给 ingestAuthorizedFolder，不依赖 setState 后立即读值。demo/无 grant 建案不入库。
+   */
+  const createCaseWithFolder = (input: { title: string; grantId?: string; label?: string }) => {
+    const newId = createCase({ title: input.title, grantId: input.grantId, label: input.label });
+    if (input.grantId) void ingestAuthorizedFolder(newId, input.grantId, input.label ?? '');
+    return newId;
+  };
+
   /** docs/design/principles.md：composer-first 容器化仪式 → 创建案件/项目并选中 */
   const handleContainerize = (request: ContainerizeRequest) => {
     const title =
@@ -1593,7 +1612,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       }
       const targetCaseId = selectedCaseId;
       if (!targetCaseId || isDemoCaseId(targetCaseId)) {
-        showSystemFeedback(`已授权文件夹〔${result.grant.label}〕`, true);
+        // PILOT-LIVE-1 C2：welcome/demo 态授权不再只 toast 留悬空 grant——建新案承接该文件夹并即刻入库
+        // （案名取 grant label；诚实入库计数 toast 由 ingestAuthorizedFolder 内统一给出）。
+        createCaseWithFolder({ title: result.grant.label, grantId: result.grant.grantId, label: result.grant.label });
         return;
       }
       // 未绑定案：把此 grant 记为案件根（label 供展示）；已绑定案保留原案根，材料仍带自身来源 grant。
@@ -2530,7 +2551,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       <NewCaseDialog
         open={newCaseOpen}
         onClose={() => setNewCaseOpen(false)}
-        onCreate={createCase}
+        onCreate={createCaseWithFolder}
         onAuthorizeFolder={() => hostAuth.authorizeFolder()}
       />
       <CommandPalette open={paletteOpen} commands={paletteCommands} onClose={() => setPaletteOpen(false)} />

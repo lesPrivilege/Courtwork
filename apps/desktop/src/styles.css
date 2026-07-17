@@ -1592,6 +1592,8 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .composer-paste-chip small { flex: none; color: var(--text-tertiary); font: var(--type-dense-meta-size)/1 var(--mono); }
 .composer-paste-chip button { flex: none; display: grid; place-items: center; width: 18px; height: 18px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; }
 .composer-paste-chip button:hover { background: var(--control-hover); color: var(--text-primary); }
+/* PILOT-LIVE-1 C1：入口收窄引导——行内提示，零新色/影/渐变，复用既有 border/bg-app/text-secondary token。 */
+.composer-entry-guidance { margin: 0 0 6px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-app); color: var(--text-secondary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
 
 /* DESLOP-GATE-2：按压只属于主操作、图标与 popover trigger；键盘触发不进入 :active。 */
 :is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger) {
