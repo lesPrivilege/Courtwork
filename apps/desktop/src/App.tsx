@@ -2197,7 +2197,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                 onChange={(event) => setCaseTitleDraft(event.target.value)}
                 onBlur={commitCaseTitle}
                 onKeyDown={(event) => { if (event.key === 'Enter') commitCaseTitle(); if (event.key === 'Escape') setEditingCaseTitle(false); }}
-              /> : <span data-testid="titlebar-case-title"><button type="button" className="chat-case-title" data-testid="chat-case-title" title="双击编辑案件名称" onDoubleClick={() => { setCaseTitleDraft(selectedCase.title); setEditingCaseTitle(true); }}>
+              /> : <span data-testid="titlebar-case-title"><button type="button" className="chat-case-title" data-testid="chat-case-title" title={`${selectedCase.title} · 双击编辑案件名称`} onDoubleClick={() => { setCaseTitleDraft(selectedCase.title); setEditingCaseTitle(true); }}>
                 {selectedCase.title}
               </button></span>)}
               {isDemoCase && <span className="demo-badge" data-testid="demo-case-badge">{containerOriginLabel(true)}</span>}

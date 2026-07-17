@@ -234,8 +234,8 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
    overflow hidden + 标题可截断：防长标题+chip 超中栏触发全局横向溢出（rp23）。 */
 .chat-titlebar { position: absolute; z-index: 5; top: var(--elevation-float-inset); left: 0; right: 0; height: 40px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 0 14px; overflow: hidden; -webkit-app-region: drag; }
 .chat-titlebar:has(.welcome-head-label) { justify-content: center; }
-.chat-titlebar [data-testid="titlebar-case-title"] { min-width: 0; }
-.chat-titlebar .chat-case-title { min-width: 0; max-width: 60%; padding: 2px 6px; border: 0; background: transparent; color: var(--text-primary); cursor: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-dense-body-size); font-weight: 510; -webkit-app-region: no-drag; }
+.chat-titlebar [data-testid="titlebar-case-title"] { min-width: 0; flex: 1 1 auto; }
+.chat-titlebar .chat-case-title { width: auto; min-width: 0; max-width: 60%; padding: 2px 6px; border: 0; background: transparent; color: var(--text-primary); cursor: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-dense-body-size); font-weight: 510; -webkit-app-region: no-drag; }
 .chat-titlebar input { min-width: 200px; padding: 3px 6px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); -webkit-app-region: no-drag; }
 .chat-titlebar .stage-chip { flex: none; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-titlebar-label { color: var(--text-secondary); font-size: var(--type-dense-body-size); font-weight: 510; }
@@ -1546,20 +1546,29 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .rail-seam-toggle { position: absolute; z-index: 31; top: 2px; left: -22px; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-tertiary); cursor: pointer; }
 .rail-seam-toggle:hover { background: var(--control-hover); color: var(--text-primary); }
 .rail-seam-toggle .line-icon { width: 14px; height: 14px; }
-/* 左栏收敛：案件标题吸附内容测宽中线，随视口重排，避免固定避让值在不同屏宽漂移。
-   （chat 段+左收共用同一 .chat-titlebar/.chat-case-head 类名，此规则一并覆盖，保留不动。） */
-.workspace.left-collapsed .conversation .chat-case-head,
-.workspace.left-collapsed .chat-titlebar {
+/* 左栏收敛：chat-case-head 吸附内容测宽中线，随视口重排，避免固定避让值在不同屏宽漂移。
+   （chat 段与 work 段共用同一 .chat-case-head 类名，此规则一并覆盖，保留不动。）
+   2026-07-17 产品拍板：案件标题 .chat-titlebar 改左对齐 composer 左边界，不再随本规则居中，
+   拆到下方独立规则（仍复用同一 padding-inline 公式，故左边界与 composer-stack 对齐）。 */
+.workspace.left-collapsed .conversation .chat-case-head {
   justify-content: center;
   padding-inline: max(14px, calc((100% - var(--content-measure)) / 2));
 }
-/* PILOT-LIVE-1 D：work 段正文测宽覆盖扩展到全部收拢组合后，标题带须跟随同一基准——不再只
-   在左收态居中（都开/仅右收下正文已居中而标题仍贴左会错位）。用 data-testid 精确限定 work
-   段画布（conversation.canvas-layer 与 chat 段共用同一复合类名，不能靠 class 区分），不影响
-   上方 chat 段+左收的既有规则。 */
-[data-testid="conversation-canvas"] .chat-case-head,
-[data-testid="conversation-canvas"] .chat-titlebar {
+.workspace.left-collapsed .chat-titlebar:not(:has(.welcome-head-label)) {
+  justify-content: flex-start;
+  padding-inline: max(14px, calc((100% - var(--content-measure)) / 2));
+}
+/* PILOT-LIVE-1 D：work 段正文测宽覆盖扩展到全部收拢组合后，chat-case-head 须跟随同一基准——
+   不再只在左收态居中（都开/仅右收下正文已居中而标题仍贴左会错位）。用 data-testid 精确限定
+   work 段画布（conversation.canvas-layer 与 chat 段共用同一复合类名，不能靠 class 区分），
+   不影响上方 chat 段+左收的既有规则。案件标题 .chat-titlebar 左对齐同上，:not(:has(...)) 排除
+   welcome 态（欢迎屏标题另由 .chat-titlebar:has(.welcome-head-label) 居中，保留不动）。 */
+[data-testid="conversation-canvas"] .chat-case-head {
   justify-content: center;
+  padding-inline: max(14px, calc((100% - var(--content-measure)) / 2));
+}
+[data-testid="conversation-canvas"] .chat-titlebar:not(:has(.welcome-head-label)) {
+  justify-content: flex-start;
   padding-inline: max(14px, calc((100% - var(--content-measure)) / 2));
 }
 
