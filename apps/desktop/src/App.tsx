@@ -22,6 +22,8 @@ import {
 } from './protocol/client';
 import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
 import { replayWorkProjection } from './protocol/work-replay';
+import { bindDocxSourceMarkdown, projectRiskListGate } from './work/legal-s3-binding';
+import type { LegalS3WorkCommand } from './work/work-command';
 import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
 import type { ProviderTransport } from '@courtwork/provider/types';
@@ -304,11 +306,13 @@ export interface AppProps {
   hostRenderers: HostRendererRegistry;
   workProjection: WorkProjectionPort;
   workFixture: DemoWorkFixtureAdapter;
+  /** WORK-LIVE-1：production Work 命令端口（进程内 callback）。非 demo（grant）案的 run/resume/cancel/replay 走此。 */
+  workCommand: LegalS3WorkCommand;
   hostAuth: HostAuthPort;
   materialStore: MaterialStore;
 }
 
-export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture, hostAuth, materialStore }: AppProps) {
+export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture, workCommand, hostAuth, materialStore }: AppProps) {
   const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
@@ -320,6 +324,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [splitDirection, setSplitDirection] = useState<SplitDirection>('rows');
   const [splitRatio, setSplitRatio] = useState(50);
   const [gate, setGate] = useState<ReviewGateProjection>();
+  // WORK-LIVE-1：非 demo（grant）案的 production Work 会话态。demo 案走 fixture，二者物理隔离。
+  const [workSessionId, setWorkSessionId] = useState<string | null>(null);
+  const [workRunning, setWorkRunning] = useState(false);
+  const [workSubject, setWorkSubject] = useState('');
+  const [workContractMaterialId, setWorkContractMaterialId] = useState<string | null>(null);
   const [selectedRiskId, setSelectedRiskId] = useState('risk-03');
   const [expandedEvidence, setExpandedEvidence] = useState<Record<string, boolean>>({});
   const [dispositions, setDispositions] = useState<Record<string, ReviewDispositionState>>({});
@@ -768,6 +777,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     lastReplayedFlow.current = undefined;
     dispatch({ type: '__clear__' });
     setWorkPhase(undefined);
+    // WORK-LIVE-1：切案清空 production Work 会话态（切走即弃，不跨案串料）。
+    setWorkSessionId(null);
+    setWorkRunning(false);
+    setWorkSubject('');
+    setWorkContractMaterialId(null);
+    setReviewSubmitted(false);
+    setGate(undefined);
+    setNonAppliedPending([]);
+    setConfirmedNonAppliedIds([]);
 
     if (isDemoCaseId(selectedCaseId)) {
       setFlow('S3');
@@ -1029,11 +1047,22 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const recompileGuard = useRef(false);
   const produceContractDocx = async (confirmedNonApplied?: string[]) => {
     if (caseBinding.kind === 'unbound' || !riskList) throw new Error('本案尚未绑定可写入的案件目录');
+    // WORK-LIVE-1 / ADR-010 决定五：grant（真实）案的 docx 源文只从本 session 冻结、resolveForProvider
+    // 刚复验的会话材料取（bindDocxSourceMarkdown），绝不消费 demo `contractSourceMd`；漂移即在此显式阻断。
+    let sourceMarkdown = contractSourceMd;
+    let targetFileName = '04-设备采购合同.docx';
+    if (caseBinding.kind === 'grant') {
+      if (!selectedCaseId || !workContractMaterialId) throw new Error('尚未选定可编译的合同原件');
+      const resolved = await materialStore.resolveForProvider(selectedCaseId, workContractMaterialId);
+      if (resolved.status !== 'ready') throw new Error('合同原件复验未通过，未能编译文书');
+      sourceMarkdown = bindDocxSourceMarkdown(resolved.material);
+      targetFileName = resolved.material.fileName;
+    }
     const result = compileConfirmedReviewToDocx({
       riskList,
       dispositions,
-      sourceMarkdown: contractSourceMd,
-      targetFileName: '04-设备采购合同.docx',
+      sourceMarkdown,
+      targetFileName,
       evidenceGrades: session.evidenceGrades,
       confirmedNonApplied,
     });
@@ -1103,6 +1132,80 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       }
     })();
   }, [caseBinding, dispositions, flow, gate, riskList, selectedCaseId, session.confirmation, session.evidenceGrades, workFixture]);
+
+  // WORK-LIVE-1：grant（真实）案的 production S3 运行触发。显式主体来自受控 preflight（不从案名/文件名/
+  // 正文/模型猜测）；材料经 resolveForProvider 复验才入 provider；事件机械发布进同一 session 投影（零 recording）。
+  const startWorkRun = () => {
+    if (caseBinding.kind !== 'grant' || !selectedCaseId || workRunning) return;
+    const partyName = workSubject.trim();
+    if (!partyName) return;
+    const ready = caseMaterials.filter((material) => material.status === 'ready');
+    if (ready.length === 0) return;
+    dispatch({ type: '__clear__' });
+    setGate(undefined);
+    setReviewSubmitted(false);
+    setNonAppliedPending([]);
+    setConfirmedNonAppliedIds([]);
+    resolvedRequest.current = undefined;
+    setWorkContractMaterialId(ready[0].materialId);
+    setWorkRunning(true);
+    const caseId = selectedCaseId;
+    const { sessionId, done } = workCommand.startWithPreflight(
+      {
+        commandId: `s3-${caseId}-${Date.now()}`,
+        caseId,
+        materialRefs: ready.map((material) => material.materialId),
+        modelRoute: { providerId: modelConfig.providerId, modelId: modelConfig.modelId, reasoning: modelConfig.reasoning },
+        subject: { partyName },
+      },
+      dispatch,
+    );
+    setWorkSessionId(sessionId);
+    void done.then((outcome) => {
+      setWorkRunning(false);
+      if (outcome.status === 'failed' || outcome.status === 'rejected') {
+        showSystemFeedback(outcome.message ?? '合同审查未能完成', false);
+      } else if (outcome.status === 'canceled') {
+        showSystemFeedback('已停止合同审查', true);
+      }
+    });
+  };
+
+  const cancelWorkRun = () => {
+    if (caseBinding.kind !== 'grant' || !selectedCaseId || !workSessionId || !workRunning) return;
+    void workCommand.cancel({ caseId: selectedCaseId, sessionId: workSessionId, commandId: `cancel-${Date.now()}` });
+  };
+
+  // WORK-LIVE-1：grant 案的 live gate 由真实 RiskList + 证据台账派生（projectRiskListGate，绝不复用样板案门禁投影）。
+  useEffect(() => {
+    const requestId = session.confirmation?.requestId;
+    if (!requestId || caseBinding.kind !== 'grant' || !riskList) return;
+    setGate(projectRiskListGate(riskList, requestId, session.evidenceGrades));
+  }, [caseBinding.kind, riskList, session.confirmation, session.evidenceGrades]);
+
+  // WORK-LIVE-1：grant 案逐条处置满 → resolveReview（内部 mapReviewResolutionToResume 逐条 revision）→ resume → docx。
+  useEffect(() => {
+    const requestId = session.confirmation?.requestId;
+    if (!requestId || caseBinding.kind !== 'grant' || !workSessionId || !selectedCaseId) return;
+    if (!gate || resolvedRequest.current === requestId) return;
+    if (gate.items.length > 0 && !gate.items.every((item) => dispositions[item.itemRef])) return;
+    const dwellMs = gate.items.reduce((total, item) => total + Math.max(0, Date.now() - (openedAt.current[item.itemRef] ?? Date.now())), 0);
+    const expandedEvidenceKeys = gate.items.flatMap((item) => item.evidenceKeys).filter((key, index, all) => all.indexOf(key) === index);
+    const resolution = buildReviewResolution(gate.items, dispositions, { dwellMs, expandedEvidenceKeys });
+    const caseId = selectedCaseId;
+    const sessionId = workSessionId;
+    resolvedRequest.current = requestId;
+    void (async () => {
+      try {
+        await workCommand.resolveReview({ caseId, sessionId, commandId: `resume-${requestId}`, requestId, resolution }, dispatch);
+        setReviewSubmitted(true);
+        await produceContractDocx();
+      } catch (error) {
+        setContractOutputExists(false);
+        showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
+      }
+    })();
+  }, [caseBinding.kind, dispositions, gate, selectedCaseId, session.confirmation, workSessionId]);
 
   const createCase = ({
     title,
@@ -1449,6 +1552,17 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     previewDismissedContext.current = null;
   };
 
+  // WORK-LIVE-1：grant（真实）案打开合同审查工作面（S3 启动器 / 风险清单审阅）。
+  const openWorkReview = () => {
+    manualPreviewSelected.current = true;
+    setWorkDraftMode(false);
+    setFileOpsMode(false);
+    setActiveView('revision');
+    setPreviewOpen(true);
+    setReaderDoc(null);
+    previewDismissedContext.current = null;
+  };
+
   const openWorkDrafts = () => {
     manualPreviewSelected.current = true;
     setWorkDraftMode(true);
@@ -1524,7 +1638,40 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       return <FileOpsPlanPanel caseId={selectedCase.id} onFeedback={showSystemFeedback} />;
     }
     if (!isDemoCase) {
-      return emptyWorkbench(`${selectedCase.title} 刚建立，尚无卷宗内容 · 从对话或场景开始整理`);
+      if (caseBinding.kind !== 'grant') {
+        return emptyWorkbench(`${selectedCase.title} 刚建立，尚无卷宗内容 · 从对话或场景开始整理`);
+      }
+      // WORK-LIVE-1：grant（真实）案的 production S3 合同审查——仅「修订」与「结构化产出」两个工作面适用。
+      if (view === 'revision' && !riskList) {
+        const readyMaterials = caseMaterials.filter((material) => material.status === 'ready');
+        if (readyMaterials.length === 0) {
+          return emptyWorkbench(`${selectedCase.title} · 入库合同材料后即可开始合同审查`);
+        }
+        if (workRunning) return emptyWorkbench('合同审查进行中…');
+        return (
+          <div className="s3-launcher" data-testid="s3-launcher">
+            <h3>合同审查</h3>
+            <p>对已入库的合同做逐条风险审查。审查前请填写对方主体名称（用于工商核验），系统不从文件名或正文推断。</p>
+            <label className="s3-subject-field">
+              <span>对方主体名称</span>
+              <input
+                data-testid="s3-subject"
+                value={workSubject}
+                onChange={(event) => setWorkSubject(event.target.value)}
+                placeholder="例如：临江精铸科技有限公司"
+              />
+            </label>
+            <button type="button" className="primary-button" data-testid="s3-run" disabled={!workSubject.trim()} onClick={startWorkRun}>
+              开始合同审查
+            </button>
+            <p className="s3-session-note">此次审查结果在本次会话内有效；跨重启保留即将开通。</p>
+          </div>
+        );
+      }
+      if (view !== 'revision' && view !== 'artifact') {
+        return emptyWorkbench('该工作面暂不适用于合同审查');
+      }
+      // riskList 已产出（revision）或 artifact 面：落到下方与 demo 共享的分支。
     }
     if (view === 'timeline') {
       if (!timeline) return emptyWorkbench('时间线尚未生成');
@@ -1853,9 +2000,18 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                 </section>
               )}
               {!isWelcome && !isDemoCase && selectedCase && (
-                <div className="empty-state" role="status" data-testid="conversation-empty">
-                  {selectedCase.title} 刚建立，尚无对话记录 · 从场景按钮开始
-                </div>
+                caseBinding.kind === 'grant' && contractOutputExists ? (
+                  // WORK-LIVE-1：grant 案合同审查 docx 终链的持久结果卡（写入走 grant 授权命令）。
+                  // 「打开/在访达显示」在 grant 侧尚无宿主 reveal 命令（同 W8 材料侧边界），故为纯状态卡。
+                  <div className="work-output-result" role="status" data-testid="work-output-docx">
+                    <strong>{CONTRACT_OUTPUT_FILE}</strong>
+                    <span>已写入本案「产出」目录</span>
+                  </div>
+                ) : (
+                  <div className="empty-state" role="status" data-testid="conversation-empty">
+                    {selectedCase.title} 刚建立，尚无对话记录 · 从场景按钮开始
+                  </div>
+                )
               )}
               {isDemoCase && (
                 <>
@@ -1974,6 +2130,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                   <button type="button" className="scene-primary" onClick={() => selectFlow('S3')}>审查合同</button>
                   <button type="button" className="scene-wide-only" data-testid="scene-file-ops" onClick={openFileOps}>卷宗整理</button>
                 </>
+              )}
+              {/* WORK-LIVE-1：grant（真实）案的合同审查入口 + 运行中取消控件（只取消当前活跃 Turn，ADR-010 决定一）。 */}
+              {caseBinding.kind === 'grant' && !workRunning && (
+                <button type="button" className="scene-primary" data-testid="scene-work-review" onClick={openWorkReview}>审查合同</button>
+              )}
+              {caseBinding.kind === 'grant' && workRunning && (
+                <button type="button" className="scene-primary" data-testid="work-cancel" onClick={cancelWorkRun}>停止审查</button>
               )}
               <button className="scene-draft-wide"
                 type="button"

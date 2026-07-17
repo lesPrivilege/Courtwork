@@ -2,6 +2,82 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## WORK-LIVE-1 · production run/replay/resume/cancel 全链（实现完成，待独立验收）
+
+权威：[ADR-010](../../docs/decisions/ADR-010-work-live-boundaries.md)（全文，尤其决定一 `WorkCommandPort`、决定二 durable store、决定三 ArtifactEnvelope、决定五 S3 binding）+ [ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)（`WorkCommandPort` 是进程内 callback，非 IPC/HTTP）+ [实现就绪图 `WORK-LIVE-1` 行](../../docs/architecture/implementation-readiness.md)（主线最后一环，Stage 0 退出证据本体）。基线 `main @ 0dae3bc`（`fa820c5` 之后代新尖端，含 UI-RESIDUE-1 批一）。分支 `impl/work-live-1`，worktree 施工，未推送、未改 `docs/status/current.md`。**只装配已验收前置**（LEGAL-S3 装配件、WorkStateStore、`resolveForProvider`、host_auth/grant、OUTPUT-CONFIRM 确认流），非 demo case recording 消费为零。
+
+### 架构口径裁定（开工前经产品负责人确认）：WorkState host 精简装配
+
+ADR-010 决定二的 opaque blob host 在就绪图曾挂 `WORK-STORE-1`，但 `WORK-STORE-1` 实际只交付 Node 参考实现（`work-state-host-file.ts`，其头注明「生产宿主由 Tauri/Rust 实现同一 port」），**Tauri WorkState host 命令不存在**（`src-tauri` 仅 host_auth + material_store）。经确认走**精简装配**：`WorkCommandPort` 接注入的 `WorkStateHostPort`，host 用 browser-safe 内存参考实现（`createInMemoryWorkStateHost`）——它跨 store 实例存活（故 store-driven 的 replay/resume/crash-inject 反例在单测与 E2E 樁宿主成立），但**不跨真机重启持久**。真机跨重启需下一环的 Rust WorkState opaque blob host（`[需架构拍板]`，见下「已知边界」），届时只换 `work-runtime.ts` 一处 host 注入、零改 `work-command.ts`。产品运行时如实标注「会话内有效·跨重启保留即将开通」（显式降级，非静默假 live）。
+
+### 落点裁定与新增概念留痕（复杂度节制条）
+
+生产命令端口驻 `apps/desktop/src/work/work-command.ts`（desktop host 边界是 ADR-010/根 CLAUDE.md 允许的可执行跨域组合点）。**本单新增一个概念**，逐一说明为何非加不可；**依赖：零新 crate/持久格式/状态机/第三方**：
+
+1. **`WorkCommandPort` 生产实现 `createLegalS3WorkCommand`（browser-safe）**——非加不可：本单明令「替换 WORK-PORT-1『仅类型声明』现状」。store-driven：每笔命令都从注入 host 读回信封重建投影再续行（跨重启 resume 由此自然成立，你消费不重造）。实现 ADR-010 决定一的 `start`/`resume`/`cancel` + 垂类入口 `startWithPreflight`（携显式主体 preflight）/`resolveReview`（审阅处置→逐条 revision→resume）/`replay`（WorkProjectionPort）；commandId first-wins、每案一活跃 command（case_busy）、typed `WorkCommandOutcome`、AbortController 取消；crash mid-turn（turn_linked 无 terminal）→ `interruptedTurns` 识别，不自动重放同一 provider 调用。
+
+**非新概念、如实说明**（均为装配缝/测试桩/契约补全，不引入新抽象）：
+- `work-runtime.ts` 的 `createDesktopWorkCommand`——组合根装配缝（host + Turn 引擎工厂 + codec + actor），生产 Turn 引擎 = `createTurnRunner(provider, turnStore)`（provider 走注入 transport），DEV/E2E 走 `installWorkTestHooks` 的 Work turn 桩（与既有 material/chat 桩同族，仅 DEV+E2E 装配）。
+- `WorkCommandOutcome` 补 `rejected` 闭集——**完成 WorkCommandPort 的一部分**：ADR-010 决定一逐字定义了 `rejected`（command_conflict/case_busy/invalid_scope/not_configured），WORK-PORT-1 的 contract-only 声明遗漏了它；不补则无法按 ADR-010 第 112 行返回 typed 拒绝而非裸 Promise rejection。纯增量并集成员，零既有消费方（WorkCommandPort 此前从未装配）。
+- App grant（真实）案接线复用既有 `session` reducer / `RevisionPanel` / gate / `produceContractDocx`——production 事件机械发布进同一投影，只按 caseBinding 路由数据源（demo fixture vs 生产命令），零新组件范式。
+
+### 五装配面（ADR-010）
+
+1. **`WorkCommandPort` 生产实现 + 组合根注入**：`work-command.ts` + `work-runtime.ts`，`main.tsx` 注入 `workCommand`。
+2. **运行控制接线**：grant 案 scene-strip「审查合同」入口（`scene-work-review`）→ S3 启动器（`s3-launcher`，显式主体 `s3-subject` + `s3-run`）；运行中「停止审查」取消控件（`work-cancel`，接 `workCommand.cancel`）。**W5 说明见「已知边界」**。
+3. **跨重启 resume**：store-driven——`workCommand.replay(ref)` 从 host 读回信封→hydrate（ArtifactEnvelope 读侧迁移）→`WorkProjectionPhase`；`resolveReview` reload store→续行。durable-before-effect 顺序由 store 保证，本单消费不重造。
+4. **gate 确认**：`session.confirmation` 出现 → `projectRiskListGate(真实 RiskList, requestId, evidenceGrades)`（不复用样板案门禁表）→ `RevisionPanel` 逐条 confirm/reject/revise → `mapReviewResolutionToResume`（`resolveReview` 内部，注入 desktop actor）→ resume。
+5. **docx 终链**：确认后 `produceContractDocx` 经 OUTPUT-CONFIRM 流（`compileConfirmedReviewToDocx`，non-applied 逐条确认）产出；**grant 源文只从 `resolveForProvider` 复验后的会话材料 `bindDocxSourceMarkdown` 取**（绝不消费 demo `contractSourceMd`），写入走 `caseOutputClient.writeDocx(grant)` 授权命令；持久结果卡 `work-output-docx`。
+
+### TDD 反例映射（先红后绿；`work-command.test.ts` 14 例 + `work-live.spec.ts` 2 例）
+
+- **run→pause@gate→resume→complete**：真实 executor 跑通，事件机械发布（非 recording），artifact 持久为 ArtifactEnvelope（payload 单点）。
+- **跨重启 resume（crash-inject 手法）**：kill 后同一 host 全新命令端口 `replay`（phase=paused）+ `resolveReview` 完整续行到 completed；replay ≡ 原始执行投影（事件类型序列等价）。
+- **cancel → canceled 终态无残留 pending**：无活跃 Turn 时 cancel 不伪报成功（`not_running`）；运行中 cancel → canceled，pending 零残留；e2e 取消后零 docx 落盘。
+- **commandId first-wins / case_busy**：同 id+同 payload 复用；同 id+异 payload → `command_conflict`；活跃中新 command → `case_busy`。
+- **gate 未全覆盖不得 resume**：处置引用不存在项 → typed `rejected/invalid_scope`（非裸抛）；`mapReviewResolutionToResume` 的 revise 非终态/IncompleteReview 由 binding 单测锁。
+- **材料 provider 前阻断**：未知/跨案/删除 material ref → `rejected/invalid_scope`，零 artifact 落盘（不入 provider）。
+- **缺显式主体 → 显式阻断**：generic `start`（无 preflight subject）→ `rejected/invalid_scope`（不默认补全）。
+- **crash mid-turn → interrupted**：turn_linked 已落盘而 terminal 缺席 → reload 投影为 `interrupted`，resume 显式拒绝（须全新 start 身份重发）。
+- **非 demo case 零 recording**：静态门 `assert-work-live-contracts.mjs` 注入 demo 依赖 → exit 1（实证，见下）。
+
+### 静态门（`scripts/assert-work-live-contracts.mjs`，纳入 `test:e2e` 链 + `lint:work-live`）
+
+守 `work-command.ts`/`work-runtime.ts`（剥注释后扫代码）：零 demo 依赖（demo-data/demo-runtime/`../demo/`/recording/DEMO_ARTIFACTS/GATES/contractSourceMd/?raw）；browser-safe（零 `node:*`、`@courtwork/core` 根 barrel 仅 `import type`、runtime 走 work-protocol/turn-protocol 子路径）；store-driven（`loadWorkStateStore`/`interruptedTurns`）+ 消费 LEGAL-S3 装配件；真实 executor（`runScenario`/`resumeScenario`）；`client.ts` 的 `WorkCommandOutcome` 携 rejected 闭集；App grant 接线（`workCommand.startWithPreflight`/`resolveReview`/`cancel`、`projectRiskListGate(riskList`、`bindDocxSourceMarkdown(resolved.material)`）；host 精简装配 + Turn 桩仅 DEV/E2E。**红证（实证）**：注入 `const __x = DEMO_ARTIFACTS;` → 门 exit 1（1 violation），撤除→passed。
+
+### 门禁实跑（本会话隔离端口 `:1487`，最终以独立验收为准）
+
+- `pnpm -r build`（全 workspace，仅既有 chunk-size advisory）、`pnpm lint`（eslint）exit 0 全绿。
+- `pnpm test`（root）**142 files / 1222 tests**（无非 desktop 包改动，未变）；desktop Vitest **51 files / 294 tests**（新 `work-command.test.ts` 14 例）；`tsc -b` 通过。
+- desktop `test:e2e`：全静态门（含新 `assert-work-live-contracts` + 既有 work-port/legal-s3/ui-surface/material/host-auth/voice 等）通过 + `假绿防护 254（下限 254）` + **隔离端口完整 Playwright `254/254 passed`（floor `252 → 254`，新 `work-live.spec.ts` 2 例）**。
+- demo golden `demo:s3`（7/7 考点，redline 39651 bytes）/`demo:legal`（黄金对照 PASS，8 风险/11 锚点）与 no-demo-in-harness 审计未破坏。**未触 `src-tauri`（零 Rust 改动），不需 `cargo test`**。
+
+### 精确触面与禁止扩张
+
+- **触面（全 `apps/desktop`）**：`src/work/{work-command,work-runtime}.ts`（新，+`work-command.test.ts`）、`src/protocol/client.ts`（`WorkCommandOutcome` 补 rejected 闭集）、`src/main.tsx`（注入 `workCommand` + `installWorkTestHooks`）、`src/App.tsx`（grant 案 run/cancel/gate/resolve/docx 接线 + 结果卡）、`src/styles.css`（`s3-launcher`/`work-output-result`，复用既有 token 零新影/渐变/裸色）、`scripts/assert-work-live-contracts.mjs`（新）、`scripts/assert-test-count.mjs`（floor 254）、`package.json`（`test:e2e` 链 + `lint:work-live`）、`tests/e2e/work-live.spec.ts`（新）。
+- **禁止扩张（遵守）**：未改 binding/store/material/output/host_auth 任何契约（全部只消费）；未建 Tauri/宿主命令（WorkState host 走内存参考实现，真机 host `[需架构拍板]`）；未碰 scheduled/多写者/跨案（就绪图拒绝项）；未动 `workbench/Panels.tsx`/`GraphPanel.tsx`（Legal 专用面产权归 `PANEL-BLUEPRINT-1`）；未改 Turn/Work 协议、schema、Legal 语义；验收放行前不更新 `docs/status/current.md`。
+
+### 已知边界（诚实留痕，部分待架构拍板）
+
+- **真机跨重启持久 `[需架构拍板]`**：无 Tauri WorkState opaque blob host 命令，`WorkCommandPort` 接内存参考实现——store-driven 架构使 replay/resume/crash-inject 反例在单测与 E2E 樁宿主成立，但真机重启不保留会话。真机跨重启是 Stage 0 退出证据的一环，需下一环 Rust WorkState host（ADR-010 决定二：opaque blob CAS + 原子替换 + F_FULLFSYNC；就绪图曾挂 WORK-STORE-1 未交付）；届时只换 `work-runtime.ts` host 注入。成熟度诚实为 **package-ready**（生产装配 + 全测成立，真机 live 待 durable host）。
+- **generic `StartWorkCommand` 无垂类 preflight slot `[需架构拍板]`**：ADR-010 决定五要求主体来自显式结构化 preflight，但决定一的 generic `StartWorkCommand` 无 subject 字段（generic wire 不应含 legal 语义）。本单以垂类入口 `startWithPreflight` 承载主体（进程内，不改 generic wire）；generic `start` 无 subject → 诚实 `rejected/invalid_scope`。未来 gateway 的可序列化 command wire 若要携垂类 preflight，须另立 ADR。
+- **actor 由 desktop 写死 `desktop/local-user`**：真实 identity dependency 未装配（current.md 已登记同一边界，interaction actor 亦如此）；`[需架构拍板]` 归后续 authenticated principal ADR。React 不自报 actor（由 `work-runtime` 注入、`resolveReview`/`resume` 内 re-assert）。
+- **UI-SURFACE W5「停止当前」未触碰（诚实上报差异）**：W5 的 `data-state="unwired"`「停止当前」按钮渲染于 `queuedMessages.map(...)`——**每条排队聊天消息一枚**，是聊天排队级控件而非单一 Work-run 取消。本单 Work run/cancel 以**新控件** `scene-work-review`/`s3-run`/`work-cancel` 交付（真实接线）；W5 保持原状（不摘 marker），以免为语义不符的控件削弱已验收 UI-SURFACE-1 静态门（`assert-ui-surface-contracts` app 计数=1、MINIMUM=7）与其 e2e。SPEC W5 条「Work 场景执行器未接通」归因与其 per-message 放置存在张力，按 AGENTS.md「以可验证仓库状态为准并显式上报差异」留痕，摘除与否交独立验收/架构裁定。
+- **grant docx 无「打开/在访达显示」**：`openOutputDocx`/`revealOutputDocx` 依赖 demo 虚拟根绝对路径，grant 侧无宿主 reveal 命令（同 W8 材料侧边界）；`work-output-docx` 为纯状态结果卡，不伪装可打开。
+- **grant Work 事件流不入聊天面**：production 事件发布进 `session` 投影驱动 `RevisionPanel`（右侧工作面），但 demo 专属的聊天 event-stream 卡未对 grant 开放（`isDemoCase` 门）；grant 的运行进度可视化属轻量后续，本单以 RevisionPanel + 结果卡为可观测出口。
+
+### 手工可复现（真机试点，Stage 0 退出证据；非自动化门，跨重启部分待 durable host）
+
+E2E 樁宿主已在隔离端口自动化走完整链（`work-live.spec.ts`）。真机真实材料链的人工试点按下列可复现步骤（需 macOS Tauri 壳 + 真实 DeepSeek key + 真实合同文件；本会话环境无 key，未跑）：
+
+1. `pnpm --dir apps/desktop tauri dev`，跳过导览进入工作台；新建案件时经原生 `NSOpenPanel` 授权一个含合同的文件夹（CASE-ROOT-1 grant）。
+2. Composer「+」→「Add folder」就地入库合同原件（MATERIAL-INGRESS-1，原件原地只读），确认材料区状态为「ready」。
+3. scene-strip「审查合同」→ S3 启动器填对方主体名称 →「开始合同审查」；真实 DeepSeek 经注入 transport 产出 RiskListDraft，resolver 铸锚成 RiskList 落审阅面（非 recording）。
+4. 逐条 confirm/reject（含展开引语）→ 满则续行编译，未落点项经 OUTPUT-CONFIRM 逐条确认后 docx 写入本案「产出」目录（grant 授权命令），`work-output-docx` 结果卡出现。
+5. **跨重启部分**：内存参考 host 下重启不保留会话——此步待 Rust WorkState opaque blob host 落地后复跑（`[需架构拍板]`）。届时 kill 应用后重启，同一 grant 案应能 replay 至暂停态并 resume 续行到 docx。
+
+试点应如实记录：真实 key/模型、真实合同 sha、产出 docx 的 `unzip` 批注核验；跨重启一步在 durable host 前**明确标注未验证**，不冒充完成。
+
 ## DESIGN-MD-1 · tokens.json + principles.md 编译为机器可读 courtwork-design.md 与 drift 门（实现完成，待独立验收）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `DESIGN-MD-1` 行（退出证据：编译脚本 + drift 门；编译件非权威，`tokens.json` 仍是唯一真值；不新增手写第二份 token）、[docs/design/principles.md](../../docs/design/principles.md)、[docs/design/tokens.json](../../docs/design/tokens.json)。分发形态参照 Geist `design.md`（YAML frontmatter 承载 token 值、正文承载用法语义）。工单基线 `main @ 2ad8eda`（独立契约线，无前置依赖）。
