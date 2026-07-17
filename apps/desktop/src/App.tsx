@@ -363,7 +363,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [workDraftMode, setWorkDraftMode] = useState(false);
   /** S6 卷宗整理：右栏展示 FileOpsPlan 面板 */
   const [fileOpsMode, setFileOpsMode] = useState(false);
-  const [systemFeedback, setSystemFeedback] = useState<{ message: string; ok: boolean } | null>(null);
+  // tone='info'：中性「未就绪/冲突」反馈（rejected 命令，非错误红条，voice.md §6）；缺省由 ok 映射 ok/error。
+  const [systemFeedback, setSystemFeedback] = useState<{ message: string; ok: boolean; tone?: 'info' } | null>(null);
   /** RP-1：未归档对话混排 + 置顶 + 案件展开 + 栏收缩 + 模块栈 */
   const [unfiledSessions, setUnfiledSessions] = useState<UnfiledSession[]>([
     { id: 'unfiled-seed-1', title: '先聊后建的对话', updatedAt: Date.now() },
@@ -445,8 +446,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [originalsFocusTick, setOriginalsFocusTick] = useState(0);
   const assistantCreatedAt = useRef(Date.now());
 
-  const showSystemFeedback = (message: string, ok: boolean) => {
-    setSystemFeedback({ message, ok });
+  const showSystemFeedback = (message: string, ok: boolean, tone?: 'info') => {
+    setSystemFeedback({ message, ok, ...(tone ? { tone } : {}) });
     clearTimeout(feedbackTimer.current);
     feedbackTimer.current = setTimeout(() => setSystemFeedback(null), 3200);
   };
@@ -1163,7 +1164,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setWorkSessionId(sessionId);
     void done.then((outcome) => {
       setWorkRunning(false);
-      if (outcome.status === 'failed' || outcome.status === 'rejected') {
+      // WORK-LIVE-1-FIX：rejected（未就绪/冲突，ADR-010 决定一闭集）是明确的产品语言中性反馈，
+      // 不是错误红条；failed（provider/内部）才是错误。二者视觉与语义分离。
+      if (outcome.status === 'rejected') {
+        showSystemFeedback(outcome.message, false, 'info');
+      } else if (outcome.status === 'failed') {
         showSystemFeedback(outcome.message ?? '合同审查未能完成', false);
       } else if (outcome.status === 'canceled') {
         showSystemFeedback('已停止合同审查', true);
@@ -1975,7 +1980,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             <header className="chat-case-head" data-testid="chat-case-head">
               <span className="spacer" />
             </header>
-            {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.ok ? 'ok' : 'error'}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
+            {systemFeedback && <span className={`system-feedback chat-feedback ${systemFeedback.tone ?? (systemFeedback.ok ? 'ok' : 'error')}`} role="status" data-testid="system-open-feedback">{systemFeedback.message}</span>}
             <div className="conversation-scroll" ref={workFollow.ref} onScroll={workFollow.onScroll}>
               {/* RP-2.12 待机主屏（Cowork 复刻）：品牌 icon + slogan（非卡）→ 居中 composer → 建议行 */}
               {isWelcome && (

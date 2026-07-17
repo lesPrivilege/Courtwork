@@ -129,5 +129,8 @@ export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalS
     actor: DESKTOP_WORK_ACTOR,
     materialResolver: input.materialResolver,
     makeTurnRunner,
+    // ADR-010 决定一：未注入 provider transport 且无 DEV/E2E stub 即「production composition 未装配」——
+    // start 返回 rejected/not_configured（动态求值：E2E stub 在 runtime 安装，故不能构造期定死）。
+    isConfigured: () => Boolean(workTurnStub) || Boolean(input.transport),
   });
 }

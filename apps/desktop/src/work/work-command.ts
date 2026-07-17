@@ -86,7 +86,16 @@ export interface LegalS3WorkCommandDeps {
   now?: () => string;
   mintSessionId?: () => string;
   onSoftLimitWarning?: (warning: SoftLimitWarning) => void;
+  /**
+   * production composition 是否已装配可运行 Turn 引擎（transport/provider 或 DEV/E2E stub）。
+   * 缺省视为已装配。未装配时 `start` 返回 ADR-010 决定一闭集中的 `rejected/not_configured`，
+   * 不得落 `failed/internal`、抛裸 Promise rejection 或回退 demo。
+   */
+  isConfigured?: () => boolean;
 }
+
+/** 未装配反馈（voice.md §9 产品语言，零技术概念暴露；工程细节不进用户可见文案）。 */
+const NOT_CONFIGURED_MESSAGE = '合同审查暂未就绪，请在桌面应用内重试';
 
 /** 显式结构化 preflight（S3 主体输入）+ 冻结 model route + 材料引用——ADR-010 决定五。 */
 export interface LegalS3StartInput {
@@ -334,6 +343,11 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
   }
 
   function beginStart(commandId: string, payload: StartPayload, publish: (event: SessionEvent) => void): { sessionId: string; done: Promise<WorkCommandOutcome> } {
+    // ADR-010 决定一：production composition 未装配时返回闭集中的 not_configured（先于任何 case/命令闸门与 run）。
+    // 不入 provider、不落 header/artifact，绝非 failed/internal。
+    if (deps.isConfigured && !deps.isConfigured()) {
+      return { sessionId: mintSessionId(), done: Promise.resolve({ status: 'rejected', reason: 'not_configured', message: NOT_CONFIGURED_MESSAGE }) };
+    }
     const guard = guardStart(commandId, payload);
     if ('record' in guard && guard.record.sessionId) {
       return { sessionId: guard.record.sessionId, done: guard.record.done };

@@ -176,3 +176,24 @@ test('grant 案运行中取消：canceled 终态，无 docx 落盘', async ({ pa
   await expect(page.getByTestId('work-output-docx')).toHaveCount(0);
   await expect(page.getByTestId('work-cancel')).toHaveCount(0);
 });
+
+test('grant 案未装配（无 transport 且无 stub）：start → rejected/not_configured 中性反馈，非错误红条', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  // 刻意不 setTurnStub：浏览器 E2E 无 provider transport，isConfigured=false → production composition 未装配。
+  await createGrantCase(page);
+  await ingestContract(page);
+
+  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('s3-run').click();
+
+  // ADR-010 决定一：未装配 → rejected/not_configured 的中性「未就绪」产品语言反馈（不是 failed/internal 错误红条）。
+  const feedback = page.getByTestId('system-open-feedback');
+  await expect(feedback).toContainText('合同审查暂未就绪');
+  await expect(feedback).toHaveClass(/\binfo\b/);
+  await expect(feedback).not.toHaveClass(/\berror\b/);
+  // 未装配即拒绝：零 docx 落盘、启动器仍在（未进入审阅面）。
+  await expect(page.getByTestId('work-output-docx')).toHaveCount(0);
+  await expect(page.getByTestId('s3-launcher')).toBeVisible();
+});

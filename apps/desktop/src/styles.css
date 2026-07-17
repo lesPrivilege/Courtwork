@@ -1236,6 +1236,8 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .system-feedback { max-width: 280px; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
 .system-feedback.ok { color: var(--green-fg); }
 .system-feedback.error { color: var(--red-fg); }
+/* WORK-LIVE-1-FIX：rejected 命令的中性「未就绪/冲突」反馈——非错误红条，走次级中性色。 */
+.system-feedback.info { color: var(--text-secondary); }
 
 .output-file-card .output-file-actions { display: flex; gap: 7px; margin-top: 8px; }
 
