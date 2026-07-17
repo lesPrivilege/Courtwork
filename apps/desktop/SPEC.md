@@ -127,6 +127,32 @@ E2E 樁宿主已在隔离端口自动化走完整链（`work-live.spec.ts`）。
 
 试点应如实记录：真实 key/模型、真实合同 sha、产出 docx 的 `unzip` 批注核验；跨重启一步的 durable host 已由 WORK-HOST-1 落地并全 cargo 测（含 kill -9 崩溃注入），真机采样在本会话环境（无 macOS Tauri 壳/无 key）**未跑**，按上列步骤可复现，如实标注待手工试点，不冒充完成。
 
+### WORK-LIVE-1-FIX · `rejected` 变体从「仅类型」变「真实回传路径」（实现完成，待独立复验）
+
+权威：`apps/desktop/ACCEPTANCE.md` 的 `WORK-LIVE-1-ACCEPT ❌ 不放行`（唯一阻断项）+ [ADR-010 决定一](../../docs/decisions/ADR-010-work-live-boundaries.md)（第 112 行 rejected 闭集 `case_busy`/`command_conflict`/`invalid_scope`/`not_configured`）。基线 `main @ 24b8ae9`（实现落 `d990746`，`24b8ae9..d990746` 仅 `ACCEPTANCE.md` +44 的 WORK-HOST-1 驳回记录，非本单目标文件）。分支 `impl/work-live-1-fix`，worktree 施工，未推送、未改 `docs/status/current.md`。**纯修驳回项，非新功能**：不动 store/binding/host、不改 UI 布局、不碰 WORK-HOST 交付面。
+
+**驳回根因（精确反例）**：`rejected/not_configured` 只在类型/注释出现，无真实回传路径——`main.tsx` 在未取得 `providerTransport` 时仍构造 production `workCommand`，`work-runtime.ts` 对该未装配情况返回普通 `Error('…缺 provider transport')`，`work-command.ts` 将其映射为 `failed/internal`，而非 ADR-010 决定一规定的 `rejected/not_configured`。
+
+**修复（最小范围）**：
+
+1. **`not_configured` 真实路径**：`LegalS3WorkCommandDeps` 新增 `isConfigured?: () => boolean`（缺省视为已装配，happy path 零改）。`beginStart` **先于**任何 case/命令闸门与 run 检查它：未装配即返回 `{status:'rejected', reason:'not_configured', message}`（`NOT_CONFIGURED_MESSAGE`='合同审查暂未就绪，请在桌面应用内重试'，voice.md §9 产品语言，不入 provider、不落 header/artifact）。`work-runtime.ts` 注入 `isConfigured: () => Boolean(workTurnStub) || Boolean(transport)`（**动态求值**：E2E stub 在 runtime 安装，构造期定死会误判）。
+2. **UI 反馈 rejected ≠ 错误红条**：`systemFeedback` 增 `tone?: 'info'` 中性态（`.system-feedback.info` 走 `--text-secondary`，非 `--red-fg`）；`startWorkRun` 把 `rejected`（未就绪/冲突）与 `failed`（provider/内部错误）分离——rejected 走 `tone:'info'` 的中性产品语言反馈，failed 才是错误红条。
+
+**四个 reason 触发面逐一处置（诚实登记，见 `client.ts` 类型注释）**：
+
+| reason | 触发面 | 处置 |
+|---|---|---|
+| `not_configured` | production composition 未装配（无 transport/stub） | **本单接上**：`isConfigured` 闸门，红→绿单测 + E2E 中性反馈断言 |
+| `case_busy` | 同 case 已有活跃 command 时再 start | 已接（`guardStart` port 级并发闸门），单测覆盖；UI 走共享 rejected→info 路径（App `workRunning` 守卫使其非 UI 可触发，属 port 契约保障） |
+| `invalid_scope` | scope 非法（缺显式主体 / 材料 provider 前阻断 / 审阅项失真） | 已接（`mapError`），三条单测覆盖；UI 走共享 rejected→info 路径 |
+| `command_conflict` | 同 commandId + 异 payload 的 first-wins 幂等冲突 | port 契约级**可达且单测覆盖**，但单写者单机架构下**无生产触发面**（App 每次 run 铸新 commandId，不复用幂等键）；真实触发面属后续多写者/gateway 幂等阶段。**不造假 UI 路径**，`client.ts` 类型注释登记 |
+
+**TDD（先红后绿，实证）**：`work-command.test.ts` +3 例——未装配 startWithPreflight → `rejected/not_configured` 且零 header 落盘（先红：现行落 `paused`）；未装配 generic start → `not_configured`（先红：现行落 `invalid_scope`，因 not_configured 须先于缺主体检查）；装配到位（`isConfigured:()=>true`）→ 照常 `paused`（不误伤 happy path）。红证：修复前二例分别得 `paused` / `invalid_scope`，`isConfigured` 闸门落地后转绿。
+
+**门禁（本会话隔离端口 `:18641`，最终以独立复验为准）**：`pnpm -r build`、`pnpm lint`（含 `lint:voice`：111 文件无裸确认/成功自评/工程词泄漏）全绿；root Vitest **142 files / 1222 tests**（不变，纯 desktop 改动）；desktop Vitest **52 files / 301 tests**（+3）；完整静态链（含 `assert-work-live-contracts`）+ 隔离端口 Playwright **256/256 passed**（floor `255 → 256`，新增未装配中性反馈 e2e 1 例）；`demo:s3`（7/7 考点、redline 39651 bytes）/`demo:legal`（golden PASS，11 锚点）与 no-demo-in-harness 未破坏。驳回报告中已通过的证据项（build/lint/root+desktop Vitest/静态链/E2E/demo golden/零 demo）未回退。
+
+**精确触面**：`src/work/work-command.ts`（`isConfigured` dep + `NOT_CONFIGURED_MESSAGE` + `beginStart` 闸门）、`src/work/work-runtime.ts`（注入 `isConfigured`）、`src/protocol/client.ts`（rejected 变体触发面登记注释）、`src/App.tsx`（`systemFeedback.tone` + `startWorkRun` rejected/failed 分离）、`src/styles.css`（`.system-feedback.info`）、`src/work/work-command.test.ts`（+3）、`tests/e2e/work-live.spec.ts`（+1 未装配中性反馈）、`scripts/assert-test-count.mjs`（floor 256）。**禁止扩张（遵守）**：未动 `work-state-store`/`legal-s3-binding`/`material-store`/`src-tauri`（含 WORK-HOST-1 交付面）；未改 UI 布局；未改 provider/schema/Turn 契约；未改 `docs/status/current.md`。
+
 ## DESIGN-MD-1 · tokens.json + principles.md 编译为机器可读 courtwork-design.md 与 drift 门（实现完成，待独立验收）
 
 权威：[实现就绪图](../../docs/architecture/implementation-readiness.md) `DESIGN-MD-1` 行（退出证据：编译脚本 + drift 门；编译件非权威，`tokens.json` 仍是唯一真值；不新增手写第二份 token）、[docs/design/principles.md](../../docs/design/principles.md)、[docs/design/tokens.json](../../docs/design/tokens.json)。分发形态参照 Geist `design.md`（YAML frontmatter 承载 token 值、正文承载用法语义）。工单基线 `main @ 2ad8eda`（独立契约线，无前置依赖）。
