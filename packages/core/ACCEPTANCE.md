@@ -852,3 +852,90 @@ SessionEvent 的旧 `type:'error'` 生产/消费正则在现行 `packages/core/s
 ### 5. 复验裁决
 
 **WORK-STORE-1 放行 ✅。** B1 的 terminal durable barrier 已在 artifact 解析前成立，且迁移没有增加暂停 leg 的 CAS 次数；B2 的两个 desktop `scenario_failed` 消费点已补齐，全仓 grep 未发现第三处同类遗漏；指定的 turn-link/CAS/kill-9/browser 抽样均保持前轮结论。放行仅覆盖 `2be3e72` 中 WORK-STORE-1-FIX 的实现与本节证据，不升级 `docs/status/current.md` 的能力成熟度，不扩张 envelope schema、store 接口、阈值或 Work live 装配边界。
+
+## PROJECTION-RESUME-1 獨立驗收（2026-07-17）
+
+- **驗收角色**：未參與實現的獨立驗收會話；不採信實現自述，本節全部數字均來自隔離樹親手復跑。
+- **驗收座標**：隔離 worktree `/Users/lesprivilege/Projects/Courtwork-projection-resume-1-accept`，驗收分支 `accept/projection-resume-1`；實現證據 SHA `2f6b43c3e9f55bf2e1221e39e26212fd31f1da9a`，基線及當前 `main` 均為 `0db350c0accbd2514bec407bd7c4d15312a813e0`。`git rebase main` 回報 up to date。
+- **裁決：PROJECTION-RESUME-1 放行 ✅。** 純 core 編譯規則、缺省字節相容、三態語義、歸併與窄接線均成立；未發現實現級或契約級阻塞，驗收期間未修改產品實現。
+
+### 1. 觸碰面、文字完整性與複雜度
+
+`git diff --stat 0db350c..2f6b43c` 為 **8 files / 406 insertions / 1 deletion**，逐檔只有：
+
+1. `packages/core/SPEC.md`
+2. `packages/core/src/assembly/assemble.test.ts`
+3. `packages/core/src/assembly/segments.test.ts`
+4. `packages/core/src/assembly/segments.ts`
+5. `packages/core/src/scenario-executor/executor.test.ts`
+6. `packages/core/src/scenario-executor/executor.ts`
+7. `packages/core/src/scenario-executor/pending-projection.test.ts`
+8. `packages/core/src/scenario-executor/pending-projection.ts`
+
+`packages/schemas`、`packages/provider`、`apps/desktop`、事件類型與 work envelope 均零差異；沒有 package manifest、lockfile、ADR port 或 `docs/status/current.md` 變更。`--numstat` 八行均為文字數字，`git diff --binary` 無 binary patch；逐檔 NUL 掃描零命中，`file` 均判為 UTF-8 text，未重現實現過程曾混入裸 NUL 的事故。
+
+SPEC 的「為何非加不可」與來源調研一致：唯一誠實性缺口是續行投影不能區分「曾失敗待重試」與「從未開始」。新增物限於 core 內可選輸入載體、既有事件的純歸併及確定性編譯規則；無新事件、schema、envelope、wire 或 LLM 摘要概念。`interruptedSteps`/`awaitingConfirmation` 的生產供給仍明記為窄，沒有宣稱已全接線。
+
+### 2. 缺省字節相容與穩定前綴
+
+- 既有 `assembled-request.golden.txt` 在提交 diff 中零觸碰；基線與尖端 SHA-256 同為 `43fda441828a5b76871c98a6f07451a1eea002a3c480af7c8a209210b3831759`。
+- `segments.test.ts` 的缺省例證明不傳 `pending` 時輸出仍逐字為 `[續行投影 v5]\n■ 未決確認：確認清單`，子節整體缺席；既有 golden 未重鑄且全量綠，構成機器字節證明。
+- `assemble.test.ts` 親跑證明攜/不攜 pending 的前三段 `id/body` 逐字相同，且新子節只出現在第四段 projection；剝離編譯實現後此例在第四段標頭斷言變紅。
+
+### 3. 獨立紅證與穩定性
+
+以具名 stash 隔離驗收用剝離差異：保留新增測試及最小型別/空 derivation 骨架，移除三態編譯、失敗歸併與 executor 注入，使紅色落在行為斷言而非缺符號編譯錯。實測：
+
+| 分層紅證 | 剝離實現後結果 |
+|---|---|
+| 三態字節、態不混淆、retryable、中斷勝出、空失敗三態 | **5 failed / 11 skipped** |
+| 穩定前綴且子節只進第四段 | **1 failed / 8 skipped** |
+| model/tool 最新失敗歸併 | **2 failed / 2 skipped** |
+| executor 下一次 `systemPrompt` 攜子節 | **1 failed / 47 skipped** |
+
+恢復實現並刪除該 stash 後，四個相關檔合跑 **77/77**；另在剝離前連跑三次均為 **77/77**，無偶發。
+
+### 4. 反例與語義咬合
+
+- 三態 exact block 同時鎖定等待確認、失敗的 `reason/attempt`、從未開始及工具失敗行；同輸入兩次輸出深等/字節相同，禁模型摘要偷換。
+- 態混淆測試雙向鎖定：失敗步不得寫成從未開始，從未開始步不得寫成失敗；已落格且未停門的步不得重列。
+- `retryable=false` 明示「不可自動重試」；驗收手動刪除此字節後，定向 **1 failed / 15 skipped**。
+- 中斷是較晚事實，必須壓過同步的早先失敗且明示新 attempt 身份；驗收手動令 interrupted lookup 失效後，輸出錯退為早先 `timeout`，定向 **1 failed / 15 skipped**。
+- model/tool 歸併按 `(stepId, artifactType)` / `toolId` 取最新一條；reason、retryable、attempt 均在斷言中，散文 message 不入投影。
+
+### 5. 誠實登記與生產接線
+
+`derivePendingProjection` 只從既有 `step_failed` 歸併模型級與工具級失敗，`interruptedSteps` 恒回空；中斷真源仍是持有 Turn journal 終態的調用方經可選槽位供給。驗收另以只有 `turn_linked`、沒有 `artifact_produced` 的引語修復窗口事件手工呼叫，結果為：
+
+```json
+{"failedModelSteps":[],"failedToolSteps":[],"interruptedSteps":[]}
+```
+
+因此不會把 attempt-2 組裝窗口誤判成中斷。executor 接線只在既有 `generateOnce` 組裝位傳入 `derivePendingProjection(deps.eventLog.list())`：工具級失敗可在下一次同流程生成即刻進 prompt；模型級失敗在其事件已隨續行/水合賬本帶入時生效。兩條分別由 executor 定向測試與 model 歸併測試實跑覆蓋；SPEC 沒有把 interrupted/awaiting 的後續跨窗供給冒充成已完成。
+
+### 6. 合併樹全量門與 desktop 豁免
+
+在 `main @ 0db350c` 的合併樹實跑：
+
+- `pnpm -r build`：**13/14 workspace projects** 全綠；desktop Vite **3574 modules transformed**，只有既有 chunk-size advisory。
+- `pnpm lint`：exit 0。
+- `pnpm test -- --reporter=dot`：**143 files / 1235 tests passed**。
+- 提交 diff 新增 `it(...)` 恰為 **13**，與基線 **1222 + 13 = 1235** 完全相合。
+- `git diff main..HEAD -- apps/desktop` 為空；`apps/desktop/scripts/assert-test-count.mjs` 與 main 逐字相同，desktop floor **275** 未動，符合零 desktop 觸碰的 e2e 豁免條款。
+
+### 7. 復跑命令
+
+```text
+git diff --stat 0db350c..2f6b43c
+git diff --numstat 0db350c..2f6b43c
+git diff --binary 0db350c..2f6b43c
+git diff --check 0db350c..2f6b43c
+pnpm install --frozen-lockfile
+pnpm exec vitest run --root . packages/core/src/assembly/assemble.test.ts packages/core/src/assembly/segments.test.ts packages/core/src/scenario-executor/pending-projection.test.ts packages/core/src/scenario-executor/executor.test.ts --reporter=dot
+git rebase main
+pnpm -r build
+pnpm lint
+pnpm test -- --reporter=dot
+```
+
+本驗收未更新 `docs/status/current.md`，未推送、未 prune；實現 worktree 與 PILOT-LIVE-1 worktree 全程未觸碰。
