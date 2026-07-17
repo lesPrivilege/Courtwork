@@ -250,6 +250,18 @@ function dispositionLabel(disposition?: ReviewDispositionState) {
   return '待确认';
 }
 
+/**
+ * CONFIRM-GRANULARITY-1（版本收尾拍板 f28ad41，2026-07-17）：批量确认 UI 收起，
+ * 逐条确认（确认此项/驳回/修正）为唯一可见路径。实现与配套单测保留不删——
+ * 回归条件=试点真实反馈证明逐条成本过高，经架构拍板再放出（翻此常量即可）。
+ */
+const BATCH_CONFIRM_VISIBLE = false;
+
+/** feature-off 下批量 mode 不进入 riskNextStep 的 batch 分支，复用既有「等待门禁」兜底文案——不新造用户可见字符串。 */
+function nextStepMode(mode: ReviewGateProjection['items'][number]['mode'] | undefined) {
+  return !BATCH_CONFIRM_VISIBLE && mode === 'batch' ? undefined : mode;
+}
+
 export function riskNextStep(
   disposition: ReviewDispositionState | undefined,
   mode: ReviewGateProjection['items'][number]['mode'] | undefined,
@@ -268,15 +280,17 @@ export function RevisionPanel(props: RevisionPanelProps) {
   const selectedDisposition = props.dispositions[props.selectedRisk.id];
   const selectedSettled = selectedDisposition === 'confirmed' || selectedDisposition === 'rejected' ? selectedDisposition : undefined;
   const selectedUnverified = props.unverifiedRiskIds.includes(props.selectedRisk.id);
-  const selectedNextStep = riskNextStep(selectedDisposition, selectedGate?.mode, reviewedCount === props.selectedRisk.basis.length);
+  const selectedNextStep = riskNextStep(selectedDisposition, nextStepMode(selectedGate?.mode), reviewedCount === props.selectedRisk.basis.length);
   const excludedCount = props.gate?.items.filter((item) => item.mode === 'individual').length ?? 0;
   return <StaticViewport testId="revision-static-viewport">
     <div className="revision-layout" data-testid="revision-panel">
-      <div className="batch-bar" data-testid="batch-scope">
-        <span>本次范围 {props.batchRefs.length} 项 · 待确认且中/低危、依据已核验</span>
-        <button onClick={props.onBatchConfirm} disabled={!props.batchRefs.length}>批量确认 {props.batchRefs.length} 项</button>
-        <small>排除 {excludedCount} 项 · 高危或未核验仅逐条处理</small>
-      </div>
+      {BATCH_CONFIRM_VISIBLE && (
+        <div className="batch-bar" data-testid="batch-scope">
+          <span>本次范围 {props.batchRefs.length} 项 · 待确认且中/低危、依据已核验</span>
+          <button onClick={props.onBatchConfirm} disabled={!props.batchRefs.length}>批量确认 {props.batchRefs.length} 项</button>
+          <small>排除 {excludedCount} 项 · 高危或未核验仅逐条处理</small>
+        </div>
+      )}
       {props.submitted && <div className="submission-note" role="status">{props.gate?.items.length ?? 0} 项处置已逐条提交</div>}
       {props.nonAppliedPending.length > 0 && (
         <section className="nonapplied-confirm" data-testid="nonapplied-confirm" aria-label="未能落到文书上的修订">
@@ -325,7 +339,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
           const settled = disposition === 'confirmed' || disposition === 'rejected' ? disposition : undefined;
           const unverified = props.unverifiedRiskIds.includes(risk.id);
           const evidenceReady = risk.basis.every((_, index) => props.expandedEvidence[`${risk.id}:${index}`]);
-          const nextStep = riskNextStep(disposition, gateItem?.mode, evidenceReady);
+          const nextStep = riskNextStep(disposition, nextStepMode(gateItem?.mode), evidenceReady);
           return <button className={`dense-row risk-grid ${props.selectedRiskId === risk.id ? 'selected' : ''}`} data-risk-id={risk.id} title={risk.description} key={risk.id} onClick={() => props.onSelectRisk(risk.id)}>
             <SignatureLine tone={riskLineTone(risk.level, disposition, unverified)} />
             <SettlementFlash kind={settled} itemRef={risk.id} testable />

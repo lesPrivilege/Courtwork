@@ -33,9 +33,12 @@ async function enterSettledDemo(page: Page): Promise<void> {
     (window as { __courtworkDemoReplayDelayMs?: number }).__courtworkDemoReplayDelayMs = 0;
   });
   await openWorkbench(page);
-  // 锚定精确名（批量确认 N 项动作钮）：裸 /批量确认/ 是潜伏歧义定位符——风险行 next-step 文案
-  // 「可批量确认」同样命中，分步回放的中间帧曾掩住它，零延时一帧落齐后即 strict violation。
-  await page.getByRole('button', { name: /^批量确认 \d+ 项$/ }).waitFor();
+  // CONFIRM-GRANULARITY-1：批量确认按钮 feature-off 后不再可用作落定哨兵，改锚定
+  // `.individual-note`——默认选中风险 risk-03（unverified）仅在门禁投影到位
+  // （selectedGate.reason 有值，即回放最后一步 confirmation_requested → getGateProjection
+  // 落地）后才渲染这条说明，与旧哨兵语义等价（同为「门禁已落定」的确定性终点），
+  // 且为单一 class 定位符、不与任何行级文案共享匹配面，不重演旧哨兵的歧义顾虑。
+  await page.locator('.individual-note').waitFor();
   await page.waitForTimeout(400);
 }
 

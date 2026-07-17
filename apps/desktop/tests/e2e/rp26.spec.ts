@@ -44,17 +44,20 @@ test('preview owns one read-only scroll progress interface', async ({ page }) =>
   await expect(progress.locator('[data-testid="preview-progress-track"]')).toHaveCSS('width', '2px');
 });
 
-test('schema 语义区与 batch-bar/文档预览左对齐贯通（⑫用户拍板，撤 master-detail gutter）', async ({ page }) => {
+test('schema 语义区与面板本体左对齐贯通（⑫用户拍板，撤 master-detail gutter）', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('welcome-demo-start').click();
   await page.getByTestId('provider-skip').click();
 
-  const batchBar = await page.locator('.batch-bar').boundingBox();
+  // CONFIRM-GRANULARITY-1：批量确认入口 feature-off 后 .batch-bar 不再渲染，锚点改为
+  // 面板本体（revision-layout 零 padding，risk-master-detail 无左 margin，语义仍等价：
+  // 验证语义区无额外左缩进/gutter，不依赖已收起的批量状态栏存在）。
+  const panel = await page.getByTestId('revision-panel').boundingBox();
   const semantic = await page.locator('.risk-master-detail').boundingBox();
-  expect(batchBar).not.toBeNull();
+  expect(panel).not.toBeNull();
   expect(semantic).not.toBeNull();
   // 迁移注记：原「≥12 tokenized gutter」→ 贯通对齐（法理之线在 row 内左边缘，不依赖外部 gutter）
-  expect(Math.abs((semantic?.x ?? 0) - (batchBar?.x ?? 0))).toBeLessThanOrEqual(1);
+  expect(Math.abs((semantic?.x ?? 0) - (panel?.x ?? 0))).toBeLessThanOrEqual(1);
 });
 
 test('right workbench keeps the 44/40/36 hierarchy and tab endpoints', async ({ page }) => {

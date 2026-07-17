@@ -23,10 +23,20 @@ export async function openWorkbench(page: Page) {
   await page.mouse.move(0, 0);
 }
 
-/** 走完 S3 六项风险处置（批量 4 + risk-03 + risk-01 逐条确认），停在编译前。 */
+/**
+ * 走完 S3 六项风险处置，停在编译前。
+ * CONFIRM-GRANULARITY-1：批量确认入口 feature-off，原「批量 4 项」一键流程改为
+ * risk-02/04/05/06 逐条确认——这四项 mode='batch'，App.tsx individualReady 对非
+ * individual mode 短路为 true，无需先展开依据即可直接「确认此项」（既有行为，
+ * 与 workbench.spec.ts 既存「法理之线」用例同构）；risk-03/risk-01 仍为 individual
+ * mode，须先展开依据。
+ */
 export async function disposeAllDemoRisks(page: Page) {
   const panel = page.getByTestId('revision-panel');
-  await panel.getByRole('button', { name: '批量确认 4 项' }).click();
+  for (const riskId of ['risk-02', 'risk-04', 'risk-05', 'risk-06']) {
+    await panel.locator(`[data-risk-id="${riskId}"]`).click();
+    await panel.getByRole('button', { name: '确认此项', exact: true }).click();
+  }
   await panel.locator('[data-risk-id="risk-03"]').click();
   await panel.getByRole('button', { name: /查看引语/ }).click();
   await panel.getByRole('button', { name: '确认此项', exact: true }).click();

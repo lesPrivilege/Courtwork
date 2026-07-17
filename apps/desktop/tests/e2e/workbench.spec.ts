@@ -163,12 +163,36 @@ test('S3 高危或未核验条目展开依据前不可确认', async ({ page }) 
   await expect(panel.locator('[data-risk-id="risk-03"] .gate-state')).toHaveText('已确认');
 });
 
-test('S3 批量范围明确排除逐条条目', async ({ page }) => {
+// CONFIRM-GRANULARITY-1（版本收尾拍板 f28ad41）：批量确认入口 feature-off，
+// 原「批量确认 N 项」一键流程改为逐条确认；原批量范围（risk-02/04/05/06）与
+// 明确排除的逐条条目（risk-01/03，高危/未核验）门槛差异仍需成立。
+test('批量范围条目逐条确认可达，逐条条目门槛不变（批量入口收起）', async ({ page }) => {
   await openWorkbench(page);
   const panel = page.getByTestId('revision-panel');
-  await expect(panel.getByTestId('batch-scope')).toContainText('排除 2 项');
-  await panel.getByRole('button', { name: '批量确认 4 项' }).click();
-  await expect(panel.getByText('已确认', { exact: true })).toHaveCount(4);
+  await expect(panel.getByTestId('batch-scope')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^批量确认 \d+ 项$/ })).toHaveCount(0);
+  for (const riskId of ['risk-02', 'risk-04', 'risk-05', 'risk-06']) {
+    await panel.locator(`[data-risk-id="${riskId}"]`).click();
+    await panel.getByRole('button', { name: '确认此项', exact: true }).click();
+    // 逐行断言（而非面板级文案计数）：选中态会把同一「已确认」文案额外投影进详情面
+    // risk-status-ledger，逐条循环下最终选中行会造成面板级计数虚高，行级定位符规避此耦合。
+    await expect(panel.locator(`[data-risk-id="${riskId}"] .gate-state`)).toHaveText('已确认');
+  }
+  await expect(panel.locator('[data-risk-id="risk-01"] .gate-state')).not.toHaveText('已确认');
+  await expect(panel.locator('[data-risk-id="risk-03"] .gate-state')).not.toHaveText('已确认');
+});
+
+// CONFIRM-GRANULARITY-1：批量入口不可见断言 + 逐条路径可用的显式回归锁。
+test('批量确认入口不可见，逐条确认路径可用', async ({ page }) => {
+  await openWorkbench(page);
+  const panel = page.getByTestId('revision-panel');
+  await expect(panel.getByTestId('batch-scope')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^批量确认 \d+ 项$/ })).toHaveCount(0);
+  await panel.locator('[data-risk-id="risk-02"]').click();
+  const confirm = panel.getByRole('button', { name: '确认此项', exact: true });
+  await expect(confirm).toBeEnabled();
+  await confirm.click();
+  await expect(panel.locator('[data-risk-id="risk-02"] .gate-state')).toHaveText('已确认');
 });
 
 test('法理之线只表达处置状态：R5 无线、确认转绿、驳回转灰', async ({ page }) => {
@@ -213,7 +237,11 @@ test('混合处置完成后确认响应按条目上报', async ({ page }) => {
   await openWorkbench(page);
   const panel = page.getByTestId('revision-panel');
   await panel.getByRole('button', { name: '驳回' }).click();
-  await panel.getByRole('button', { name: '批量确认 4 项' }).click();
+  // CONFIRM-GRANULARITY-1：批量入口 feature-off，原批量范围（risk-02/04/05/06）改逐条确认。
+  for (const riskId of ['risk-02', 'risk-04', 'risk-05', 'risk-06']) {
+    await panel.locator(`[data-risk-id="${riskId}"]`).click();
+    await panel.getByRole('button', { name: '确认此项', exact: true }).click();
+  }
   await panel.locator('[data-risk-id="risk-01"]').click();
   await panel.getByRole('button', { name: /查看引语/ }).click();
   await panel.getByRole('button', { name: '修正' }).click();
@@ -468,13 +496,18 @@ test('原件阅读态：只读元信息、无工作面 tab 选中、行内强调
   await expect(page.getByTestId('utility-rail')).toBeVisible();
 });
 
-test('批量池随处置递减：驳回的批内条目不被批量覆写，批后池归零禁钮', async ({ page }) => {
+// CONFIRM-GRANULARITY-1：批量入口 feature-off——原「批量永不覆写既有处置」不变量
+// 改为逐条路径下的等价断言（各条目独立处置、互不覆写）；批量入口全程不可见（非仅按钮禁用）。
+test('驳回条目不受同批逐条确认覆写（批量入口收起）', async ({ page }) => {
   await openWorkbench(page);
   const panel = page.getByTestId('revision-panel');
+  await expect(panel.getByTestId('batch-scope')).toHaveCount(0);
   await panel.locator('[data-risk-id="risk-02"]').click();
   await panel.getByRole('button', { name: '驳回', exact: true }).click();
-  await panel.getByRole('button', { name: '批量确认 3 项' }).click();
+  for (const riskId of ['risk-04', 'risk-05', 'risk-06']) {
+    await panel.locator(`[data-risk-id="${riskId}"]`).click();
+    await panel.getByRole('button', { name: '确认此项', exact: true }).click();
+  }
   await expect(panel.locator('[data-risk-id="risk-02"] .signature-line')).toHaveAttribute('data-tone', 'neutral');
-  const spent = panel.getByRole('button', { name: '批量确认 0 项' });
-  await expect(spent).toBeDisabled();
+  await expect(page.getByRole('button', { name: /^批量确认 \d+ 项$/ })).toHaveCount(0);
 });

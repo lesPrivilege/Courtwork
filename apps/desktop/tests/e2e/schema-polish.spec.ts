@@ -88,8 +88,8 @@ test('risk rows and detail state severity, verification, disposition, and next s
   await openWorkbench(page);
   const panel = page.getByTestId('revision-panel');
 
-  await expect(panel.getByTestId('batch-scope')).toContainText('本次范围 4 项');
-  await expect(panel.getByTestId('batch-scope')).toContainText('排除 2 项');
+  // CONFIRM-GRANULARITY-1：批量确认入口 feature-off，批量范围状态栏整体不渲染。
+  await expect(panel.getByTestId('batch-scope')).toHaveCount(0);
 
   const highRisk = panel.locator('[data-risk-id="risk-01"]');
   await expect(highRisk).toContainText('高危');
