@@ -132,3 +132,29 @@
 
 - **`[需架构拍板]` principles.md 破例入册**：Pages 展示站已就地破例 §5 动效属性白名单（Typer 动 `color`、Ghosty 动 `mask-position`）与「数据区绝对静止」之外的媒体显影。`principles.md` 不在 `site/` 范围，本会话未改；建议架构在 `principles.md` 或 `site-evidence-line.md` 增设「Pages 展示站动效例外」条款，明确产品壳仍受四属性白名单约束、例外只限展示站媒体层，以消除实现与写面契约的分歧。
 - **偶然复杂度（SITE-CRAFT-1-ACCEPT 已清理）**：`.text-link { color: var(--text-secondary); font-size: 13px; }` 经确认无任何 HTML/JS 消费点；架构批准后由独立验收以 `fix-by-acceptance` 删除。
+
+## MILESTONE-SHOTS-1 · 真机冒烟版里程碑定格（实现完成，待独立验收）
+
+### 权威范围与边界
+
+- 依据：`docs/design/site-evidence-line.md` 的「真实局部裁片」规范、`docs/status/pilot-2026-07-17.md` 第五轮真机冒烟与版本收口记录；基线为 `main@3909c4d`（`CONFIRM-GRANULARITY-1` 已合入）。
+- 本单主要改 `site/index.html`、Pages WebP 裁片、`site/craft-evidence/MILESTONE-SHOTS-1/` 前后对照证据和本 SPEC；为让既有 guard 与当前真源一致，另做两处门禁卫生修正：`site/scripts/deslop-scan-lib.mjs` 精确登记 desktop 当前 48px 渐隐值，`apps/desktop/SPEC.md` 移除现行文档对 archive 调研原稿的直接链接。两处均不改产品运行逻辑、协议/schema、`CONFIRM-GRANULARITY-1` 实现或 `site/ACCEPTANCE.md`。
+- 首屏只保留一张完整工作台；三张站内局部依次证明卷宗侧栏失败闭环、RiskList 高危逐条确认/查看引语回跳、修订 redline。聊天案语境/关系图谱与未落格「确认知悉」作为同批真应用证据留在 craft-evidence，不新增第二个 Mac window。
+
+### 视觉与文案契约
+
+- 六张终版帧均为独立 Vite `127.0.0.1:18882` 上的真实 desktop UI，`1440×900`、藏青主题、批量收起后、无弹层残留；数据来自合成卷宗「合成卷宗 · 晨曦印务设备纠纷」。
+- RiskList 只展示单项确认路径；高危与未核验条目不得被文案写成可批量确认。侧栏保留 12 件材料的可读、需文字识别与不可用状态，失败必须可见而不被抹平。
+- 文案把「真实模型场景全链」限定为「合成数据试点」且明确不等同于产品已全面上线；隐私与原件只读降为进入门槛，差异化落在锚点、分级确认与可回放台账。不得新增台账之外的 live、性能或规模宣称。
+- Evidence Line 保持 `原件 → 引语 → 结论 → 人工确认`；引语文案必须明确可回到原件，未落格修订必须停在逐条确认边界。
+
+### 复杂度与实现证据
+
+- 本单无新概念、新依赖、新状态机或跨层接口；只替换 4 个站内消费位置的媒体与对应 alt/叙事，另保留 6 张 1440/720 WebP 资产供证据与响应式消费。门禁卫生修正只改 exact allowlist/现行文档引用，不改变 desktop 行为。
+- `before/` 保存上一版站内代表性工作台、批量确认、聊天与确认帧；`after/` 保存本单六类终版帧：`01-risklist-granular-quote`、`02-revision-redline`、`03-non-applied-acknowledgement`、`04-chat-context-party-graph`、`05-dossier-12-fail-closed`、`06-workbench-first-screen`。
+- craft-evidence 的测试注入只用于稳定复现合成卷宗的授权材料与画面；它不是 product-live 证据。真实模型全链跑通与「合成数据试点」限定来自 `pilot-2026-07-17.md` 的台账事实。
+
+### 出口门与验收分离
+
+- 本会话退出门：`pnpm site:build`、`pnpm site:guard`、`pnpm lint`、`pnpm -r build`、`pnpm test` 均需实跑留证；提交前再执行 `git diff --check`，逐文件暂存并检查 cached names。
+- 独立验收会话必须在 clean worktree、独立端口复核六类真应用帧、响应式/键盘/对比度、文案 voice 与前后对照，并实际注入批量入口反例确认门禁变红；本实现会话不标记放行。

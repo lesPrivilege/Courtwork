@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Courtwork · 模型只生成，不裁决</title>
-  <meta name="description" content="把卷宗装进案件，把每条结论钉回原文，把最后一个确认留给人。">
+  <meta name="description" content="合成数据试点里，把卷宗装进案件，把每条结论钉回原文，把最后一个确认留给人。">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Courtwork · 模型只生成，不裁决">
-  <meta property="og:description" content="原件、引语、结论、人工确认——每一步都能回去。">
+  <meta property="og:description" content="原件、引语、分级确认、修订台账——每一步都能回到依据。">
   <meta property="og:image" content="https://lesprivilege.github.io/Courtwork/assets/og.png">
   <meta property="og:url" content="https://lesprivilege.github.io/Courtwork/">
   <meta name="twitter:card" content="summary_large_image">
@@ -35,8 +35,8 @@
         <p class="release-fact"><span>v0.1.2 · Apple Silicon</span><span>开发构建 · ad-hoc 签名 · 未公证</span><code data-release-sha>f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d</code></p>
       </div>
       <figure class="mac-window hero-window">
-        <figcaption class="mac-bar"><span class="traffic" aria-hidden="true"><i></i><i></i><i></i></span><span>案件工作台 · 1280 × 720 · 已验收主树</span><span aria-hidden="true"></span></figcaption>
-        <img src="assets/screenshots/09-non-applied-confirmation-1440.webp" srcset="assets/screenshots/09-non-applied-confirmation-720.webp 720w, assets/screenshots/09-non-applied-confirmation-1440.webp 1440w" sizes="(max-width: 820px) calc(100vw - 48px), 1440px" width="1440" height="900" alt="Courtwork 虚构样板案工作台：已确认的风险逐项提交后，未能落到文书的修订仍逐条等待人工确认。" fetchpriority="high">
+        <figcaption class="mac-bar"><span class="traffic" aria-hidden="true"><i></i><i></i><i></i></span><span>案件工作台 · 1440 × 900 · 合成数据试点</span><span aria-hidden="true"></span></figcaption>
+        <img src="assets/screenshots/10-milestone-workbench-1440.webp" srcset="assets/screenshots/10-milestone-workbench-720.webp 720w, assets/screenshots/10-milestone-workbench-1440.webp 1440w" sizes="(max-width: 820px) calc(100vw - 48px), 1440px" width="1440" height="900" alt="Courtwork 合成数据试点的真实工作台：高危条目逐条确认、引语可回跳，修订 redline 留在确认台账中。" fetchpriority="high">
       </figure>
     </section>
 
@@ -44,7 +44,7 @@
       <header class="section-heading">
         <p class="eyebrow">一条结论如何产生</p>
         <h2>从原件到确认，<br>每一步都能回去。</h2>
-        <p>以下四步来自同一份虚构样板案材料，不是页面文案拼出来的示意数据。</p>
+        <p>以下四步来自同一份合成卷宗的真实应用链；链路已在试点中跑通，但不等同于产品已全面上线。</p>
       </header>
       <ol class="evidence-chain" aria-label="原件到人工确认的证据链">
         <li class="evidence-step" data-stage="original">
@@ -57,7 +57,7 @@
           <span class="stage-label">引语</span>
           <h3>逐字回到材料</h3>
           <blockquote>“每逾期一日应按未付金额的1%向甲方支付违约金”</blockquote>
-          <small>页码与文本区间由系统解析</small>
+          <small>页码与文本区间由系统解析 · 查看引语可回到原件</small>
         </li>
         <li class="evidence-step" data-stage="conclusion">
           <span class="stage-label">结论</span>
@@ -68,7 +68,7 @@
         <li class="evidence-step" data-stage="confirmation">
           <span class="stage-label">人工确认</span>
           <h3>最后一笔留给人</h3>
-          <p>模型不能替你落格。确认、驳回或修正都会留下可回放记录。</p>
+          <p>模型不能替你落格。确认、驳回或修正都会留下可回放记录；未落格修订逐条确认后才生成产物。</p>
           <small>待确认 · 不自动送出</small>
         </li>
       </ol>
@@ -80,16 +80,16 @@
         <h2 id="work-title">不是三个功能，<br>是一条连续台账。</h2>
       </header>
       <article class="work-row">
-        <div class="work-copy"><span>卷宗</span><h3>从散材料到案件</h3><p>文件先进入案件范围，再由整理计划决定去向；原件始终只读，执行前必须确认。</p></div>
-        <figure class="work-crop" data-reveal><img src="assets/screenshots/02-timeline-1440.webp" srcset="assets/screenshots/02-timeline-720.webp 720w, assets/screenshots/02-timeline-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 虚构样板案的时间线工作面，47 件事件按日期、编号、来源可核对地排列。"><figcaption>事件先回到来源，再进入判断。</figcaption></figure>
+        <div class="work-copy"><span>卷宗</span><h3>从散材料到案件</h3><p>文件先进入案件范围；可读、需文字识别与不可用状态都留在卷宗侧栏，原件始终只读。</p></div>
+        <figure class="work-crop" data-reveal><img src="assets/screenshots/11-milestone-dossier-1440.webp" srcset="assets/screenshots/11-milestone-dossier-720.webp 720w, assets/screenshots/11-milestone-dossier-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 合成卷宗的真实侧栏下段：12 件材料中，需文字识别和不可转为可引用阅读视图的文件都明确标出。"><figcaption>材料入卷，失败也留在账上。</figcaption></figure>
       </article>
       <article class="work-row">
-        <div class="work-copy"><span>坐标</span><h3>从句子到来源</h3><p>证据不是一个“引用”标签，而是文件、页码、逐字引语和可回到原文的系统坐标。</p></div>
-        <figure class="work-crop" data-reveal><img src="assets/screenshots/03-party-graph-1440.webp" srcset="assets/screenshots/03-party-graph-720.webp 720w, assets/screenshots/03-party-graph-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 虚构样板案的主体关系图谱，14 个主体与 15 条关系保留关系依据和矛盾标记。"><figcaption>关系与依据保持同屏可核。</figcaption></figure>
+        <div class="work-copy"><span>确认</span><h3>从风险到逐条处置</h3><p>风险等级、依据核验、处置与下一步同屏；高危和未核验条目只能逐条确认，查看引语可回到原件。</p></div>
+        <figure class="work-crop" data-reveal><img src="assets/screenshots/12-milestone-risklist-1440.webp" srcset="assets/screenshots/12-milestone-risklist-720.webp 720w, assets/screenshots/12-milestone-risklist-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 合成数据试点的 RiskList：高危风险逐条确认，查看引语回跳到《中华人民共和国民法典》第六百二十一条。"><figcaption>分级确认与引语回跳同时可见。</figcaption></figure>
       </article>
       <article class="work-row">
-        <div class="work-copy"><span>确认</span><h3>从建议到决定</h3><p>风险、依据核验与处置状态同时出现；高危和未核验条目不能混进批量确认。</p></div>
-        <figure class="work-crop" data-reveal><img src="assets/screenshots/04-review-matrix-1440.webp" srcset="assets/screenshots/04-review-matrix-720.webp 720w, assets/screenshots/04-review-matrix-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 虚构样板案的审查矩阵，以十份文书和五个可查看引语的问题维度进行对照。"><figcaption>建议前，先把差异摊到同一张表上。</figcaption></figure>
+        <div class="work-copy"><span>修订</span><h3>从建议到可审阅改动</h3><p>修订只写受控副本；redline、非落点说明与确认台账连在一起，未落格不能静默生成产物。</p></div>
+        <figure class="work-crop" data-reveal><img src="assets/screenshots/13-milestone-redline-1440.webp" srcset="assets/screenshots/13-milestone-redline-720.webp 720w, assets/screenshots/13-milestone-redline-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 合成数据试点的修订预览：删除与插入以 redline 对照，未落格修订仍等待确认。"><figcaption>修订先对照，再进入确认。</figcaption></figure>
       </article>
     </section>
 
@@ -97,14 +97,14 @@
       <header class="section-heading">
         <p class="eyebrow">垂类泛化</p>
         <h2 id="scenarios-title">同一底座，<br>换的是判断。</h2>
-        <p>证据、状态和人工确认仍由同一套宿主原语承载；垂类 schema 只注入要判断的内容。</p>
+        <p>隐私与原件只读是进入门槛；这里把差异放在锚点、分级确认与可回放台账。证据、状态和人工确认仍由同一套宿主原语承载。</p>
       </header>
       <div class="scenario-rows">
         <article class="scenario-row" data-runtime-state="accepted">
           <div class="scenario-copy">
-            <span class="scenario-kicker">合同审查 · <b>已验收工作链</b></span>
+            <span class="scenario-kicker">合同审查 · <b>合成数据试点 · 已验收工作链</b></span>
             <h3>判断条款风险</h3>
-            <p>原句、风险、修订与人工处置来自同一条证据链，修订不会绕过确认直接写回。</p>
+            <p>真实模型场景已在合成数据试点中跑通原句→风险→修订→人工确认全链；这不是产品已全面上线的承诺。</p>
           </div>
           <ol class="scenario-proof" aria-label="合同审查从原句到人工确认">
             <li><small>原句</small><p>逐字锚定</p></li>

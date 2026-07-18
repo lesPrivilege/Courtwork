@@ -27,7 +27,7 @@
 
 ## WORK-TURN-1 · caseId 去标题化 + Work 面案语境注入（真机第三轮 G+H，P0）（实现完成，待独立验收）
 
-权威：[实现就绪图 `WORK-TURN-1` 行](../../docs/architecture/implementation-readiness.md) + [pi harness 对照调研](../../archive/research-2026-07-15-round-3/pi-harness-comparison.md)（判定 3/4 落地；调研原稿不具约束力）+ [台账第三轮节](../../docs/status/pilot-2026-07-17.md)。工单基线 `main @ 7d7e55c`。分支 `impl/work-turn-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。分批提交：G=`961398d`、H=本批。**L1 受控只读工具已批另立单；L2 循环/steering 入 ADR 议题池——本单明确不做。**
+权威：[实现就绪图 `WORK-TURN-1` 行](../../docs/architecture/implementation-readiness.md) + 台账第三轮节（调研原稿只作证据，不在现行 SPEC 建立约束）。工单基线 `main @ 7d7e55c`。分支 `impl/work-turn-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。分批提交：G=`961398d`、H=本批。**L1 受控只读工具已批另立单；L2 循环/steering 入 ADR 议题池——本单明确不做。**
 
 ### G · caseId 铸号去标题化（P0）
 
