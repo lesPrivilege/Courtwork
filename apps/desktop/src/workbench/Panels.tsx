@@ -250,6 +250,38 @@ function dispositionLabel(disposition?: ReviewDispositionState) {
   return '待确认';
 }
 
+/**
+ * CONFIRM-GRANULARITY-1（版本收尾拍板 f28ad41，2026-07-17）：批量确认 UI 收起，
+ * 逐条确认（确认此项/驳回/修正）为唯一可见路径。实现与配套单测保留不删——
+ * 回归条件=试点真实反馈证明逐条成本过高，经架构拍板再放出（翻此常量即可）。
+ */
+const BATCH_CONFIRM_VISIBLE = false;
+
+/**
+ * 补丁（架构裁定，清零 off 态可见「批量」字样）：三处措辞按 BATCH_CONFIRM_VISIBLE 双态——
+ * on 态原文逐字节保留（翻常量即回归），off 态改分级语义（等级 + 下一步，零「批量」子串）。
+ * riskNextStep 本体与其单测零动；纯函数导出供双态单测。
+ */
+export function individualNoteCopy(reason: 'high_risk' | 'unverified', batchVisible: boolean): string {
+  if (batchVisible) return reason === 'high_risk' ? '高危条目不进入批量范围' : '含未核验依据，不进入批量范围';
+  return reason === 'high_risk' ? '高危 · 需逐条处置' : '含未核验依据 · 展开核验后可确认此项';
+}
+
+export function scopeFooterCopy(batchVisible: boolean): string {
+  return batchVisible ? '可在批量范围内确认' : '中/低危 · 已核验，可确认此项';
+}
+
+export function displayNextStep(
+  disposition: ReviewDispositionState | undefined,
+  mode: ReviewGateProjection['items'][number]['mode'] | undefined,
+  evidenceReady: boolean,
+  batchVisible: boolean,
+): string {
+  const label = riskNextStep(disposition, mode, evidenceReady);
+  if (!batchVisible && label === '可批量确认') return '可确认此项';
+  return label;
+}
+
 export function riskNextStep(
   disposition: ReviewDispositionState | undefined,
   mode: ReviewGateProjection['items'][number]['mode'] | undefined,
@@ -268,15 +300,17 @@ export function RevisionPanel(props: RevisionPanelProps) {
   const selectedDisposition = props.dispositions[props.selectedRisk.id];
   const selectedSettled = selectedDisposition === 'confirmed' || selectedDisposition === 'rejected' ? selectedDisposition : undefined;
   const selectedUnverified = props.unverifiedRiskIds.includes(props.selectedRisk.id);
-  const selectedNextStep = riskNextStep(selectedDisposition, selectedGate?.mode, reviewedCount === props.selectedRisk.basis.length);
+  const selectedNextStep = displayNextStep(selectedDisposition, selectedGate?.mode, reviewedCount === props.selectedRisk.basis.length, BATCH_CONFIRM_VISIBLE);
   const excludedCount = props.gate?.items.filter((item) => item.mode === 'individual').length ?? 0;
   return <StaticViewport testId="revision-static-viewport">
     <div className="revision-layout" data-testid="revision-panel">
-      <div className="batch-bar" data-testid="batch-scope">
-        <span>本次范围 {props.batchRefs.length} 项 · 待确认且中/低危、依据已核验</span>
-        <button onClick={props.onBatchConfirm} disabled={!props.batchRefs.length}>批量确认 {props.batchRefs.length} 项</button>
-        <small>排除 {excludedCount} 项 · 高危或未核验仅逐条处理</small>
-      </div>
+      {BATCH_CONFIRM_VISIBLE && (
+        <div className="batch-bar" data-testid="batch-scope">
+          <span>本次范围 {props.batchRefs.length} 项 · 待确认且中/低危、依据已核验</span>
+          <button onClick={props.onBatchConfirm} disabled={!props.batchRefs.length}>批量确认 {props.batchRefs.length} 项</button>
+          <small>排除 {excludedCount} 项 · 高危或未核验仅逐条处理</small>
+        </div>
+      )}
       {props.submitted && <div className="submission-note" role="status">{props.gate?.items.length ?? 0} 项处置已逐条提交</div>}
       {props.nonAppliedPending.length > 0 && (
         <section className="nonapplied-confirm" data-testid="nonapplied-confirm" aria-label="未能落到文书上的修订">
@@ -325,7 +359,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
           const settled = disposition === 'confirmed' || disposition === 'rejected' ? disposition : undefined;
           const unverified = props.unverifiedRiskIds.includes(risk.id);
           const evidenceReady = risk.basis.every((_, index) => props.expandedEvidence[`${risk.id}:${index}`]);
-          const nextStep = riskNextStep(disposition, gateItem?.mode, evidenceReady);
+          const nextStep = displayNextStep(disposition, gateItem?.mode, evidenceReady, BATCH_CONFIRM_VISIBLE);
           return <button className={`dense-row risk-grid ${props.selectedRiskId === risk.id ? 'selected' : ''}`} data-risk-id={risk.id} title={risk.description} key={risk.id} onClick={() => props.onSelectRisk(risk.id)}>
             <SignatureLine tone={riskLineTone(risk.level, disposition, unverified)} />
             <SettlementFlash kind={settled} itemRef={risk.id} testable />
@@ -341,7 +375,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
           <SignatureLine tone={riskLineTone(props.selectedRisk.level, selectedDisposition, selectedUnverified)} />
           <SettlementFlash kind={selectedSettled} itemRef={props.selectedRisk.id} />
           <header><span className="domain-badge">{props.selectedRisk.id.replace('risk-', 'R')}</span><strong>{selectedGate?.mode === 'individual' ? '逐条确认' : '常规审阅'}</strong><span>{reviewedCount}/{props.selectedRisk.basis.length} 依据已展开</span></header>
-          {selectedGate?.reason && <div className="individual-note">{selectedGate.reason === 'high_risk' ? '高危条目不进入批量范围' : '含未核验依据，不进入批量范围'}</div>}
+          {selectedGate?.reason && <div className="individual-note">{individualNoteCopy(selectedGate.reason === 'high_risk' ? 'high_risk' : 'unverified', BATCH_CONFIRM_VISIBLE)}</div>}
           <p>{props.selectedRisk.description}</p>
           <dl className="risk-status-ledger" data-testid="risk-detail-status">
             <div><dt>严重度</dt><dd>{severityLabel(props.selectedRisk.level)}</dd></div>
@@ -375,7 +409,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
               </div>
             </section>;
           })}</div>
-          <footer><span>{selectedGate?.mode === 'individual' ? `逐条确认 · ${reviewedCount}/${props.selectedRisk.basis.length} 依据已展开` : '可在批量范围内确认'}</span><i /><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'rejected')}>驳回</button><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'revision')}>修正</button><button className="primary-button" disabled={!props.individualReady} onClick={() => props.onDispose(props.selectedRisk.id, 'confirmed')}>确认此项</button></footer>
+          <footer><span>{selectedGate?.mode === 'individual' ? `逐条确认 · ${reviewedCount}/${props.selectedRisk.basis.length} 依据已展开` : scopeFooterCopy(BATCH_CONFIRM_VISIBLE)}</span><i /><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'rejected')}>驳回</button><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'revision')}>修正</button><button className="primary-button" disabled={!props.individualReady} onClick={() => props.onDispose(props.selectedRisk.id, 'confirmed')}>确认此项</button></footer>
         </article>
       </div>
       <div className="document-preview"><header><strong title="精密铸造生产线设备采购合同">精密铸造生产线设备采购合同</strong><span>修订 4 处</span></header><p>乙方应于本合同签订后 7 日内支付预付款。逾期付款的，<del>每逾期一日按未付金额的 1%</del><ins>违约金以实际损失为基础，并依法定标准调整</ins>。</p><p>设备到货后，买方应在 <ins>7 个工作日内书面提出验收异议</ins>；逾期未提出不当然视为验收合格。</p></div>

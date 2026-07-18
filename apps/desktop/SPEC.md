@@ -2,6 +2,29 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## CONFIRM-GRANULARITY-1 · 批量确认 UI 收起（版本收尾拍板，薄单）（实现完成，待独立验收）
+
+权威：[版本收尾拍板四条 · 第 1 条「批量确认收起」](../../docs/status/pilot-2026-07-17.md) + [实现就绪图 `CONFIRM-GRANULARITY-1` 行](../../docs/architecture/implementation-readiness.md)。工单基线 `main @ f28ad41`。分支 `impl/confirm-granularity-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`/`ACCEPTANCE.md`、零 `packages/**` 改动、零测试删除。
+
+**收尾拍板出处**：真机版 UI 收起批量确认（逐条确认为唯一路径），实现与测试保留不删；回归条件=试点真实反馈证明逐条成本过高再放出。理由：试点期逐条确认的审计价值与信任构建优先于效率，「未能落格→逐条确认知悉→取消不生成产物」的兜底流真机已验，逐条是它的自然粒度。
+
+**feature-off 形态**：`Panels.tsx` 新增模块级常量 `BATCH_CONFIRM_VISIBLE = false`——`.batch-bar`（按钮 + 本次范围/排除计数状态栏）整块不渲染（不可见，非 disabled，非仅样式隐藏）；行级/详情级「下一步」经新增 `nextStepMode()` 包装：feature-off 下 batch mode 不进入 `riskNextStep` 的 batch 分支，复用既有「等待门禁」兜底文案（不新造用户可见字符串，voice 门零新增扫描面）。`riskNextStep` 函数本体与 `Panels.test.ts` 既有 batch 例（`riskNextStep(undefined, 'batch', false) === '可批量确认'`）**逐字节保留不删**——纯函数契约不变，只有 `RevisionPanel` 渲染层的两处调用点改传参。逐条确认（确认此项/驳回/修正）路径未动；批量数据机制（`App.tsx` 的 `batchRefs`/`batchConfirm`/`onBatchConfirm` 接线）**保留不删**，回归只需翻此常量。
+
+**哨兵替换**：`ui-residue.spec.ts` 的 `enterSettledDemo` 落定哨兵原锚定「批量确认 N 项」按钮出现，按钮隐藏后全部 residue 用例会话卡死。改锚定 `.individual-note`——默认选中风险 risk-03（unverified）的这条说明仅在门禁投影到位（`selectedGate.reason` 有值，即回放最后一步 `confirmation_requested → getGateProjection` 落地）后才渲染，与旧哨兵语义等价（同为「门禁已落定」的确定性终点），且为单一 class 定位符、不与任何行级文案共享匹配面（规避旧哨兵注释记载的歧义顾虑）。`helpers.ts` 的 `disposeAllDemoRisks` 原一键批量流程改 risk-02/04/05/06 逐条确认循环——这四项 mode='batch'，`App.tsx` 的 `individualReady` 对非 individual mode 短路为 true，无需先展开依据即可直接「确认此项」（既有行为，与 `workbench.spec.ts`「法理之线」既存用例同构印证，非本单新增能力）。
+
+**e2e 改语义清单**（不删测试、改断言语义为 feature-off 态；中英文「批量/batch」全量 grep 摸清五个消费文件，其中 `schema-polish.spec.ts`/`rp26.spec.ts` 为任务已知清单外发现）：
+- `workbench.spec.ts`：原「S3 批量范围明确排除逐条条目」改「批量范围条目逐条确认可达，逐条条目门槛不变」；原「混合处置完成后确认响应按条目上报」保留原名（批量步骤改逐条循环，其余断言不变）；原「批量池随处置递减：驳回的批内条目不被批量覆写，批后池归零禁钮」改「驳回条目不受同批逐条确认覆写（批量入口收起）」；**新增**「批量确认入口不可见，逐条确认路径可用」显式回归锁（+1 例，满足第 6 条新断言要求）。
+- `schema-polish.spec.ts`：`batch-scope` 两条内容断言（「本次范围 4 项」「排除 2 项」）合并改一条 `toHaveCount(0)`。
+- `rp26.spec.ts`：原 `.batch-bar` 左对齐断言锚点在 feature-off 后不存在（`boundingBox()` 30s 超时实证），改锚定面板本体 `revision-panel`（`.revision-layout` 零 padding、`.risk-master-detail` 无左 margin，语义等价：验证语义区无额外左缩进/gutter，不依赖已收起的批量状态栏）。
+
+**TDD 红证**：「批量入口不可见」`toHaveCount(0)` 断言组在改动 `BATCH_CONFIRM_VISIBLE` 前对旧代码跑，锁定 4 处红（均为 `Expected: 0, Received: 1`）、同批改写的其余 33 处已绿（证明逐条路径改写在旧代码上独立成立，不依赖 feature-off）；翻常量后 4 处转绿，另修正一处行级断言与选中态详情面重复计数的耦合（改面板级文案计数为逐行定位符）。
+
+**floor**：287 → 288（+1，本单 `CONFIRM-GRANULARITY-1` 新增显式回归锁）。
+
+### 门禁与真机复验清单
+
+`tsc -b` / `eslint`（触及文件）净；`assert-voice-copy` / `assert-ui-surface-contracts` / `assert-work-live-contracts` 不回退；desktop `vitest run` 344/344（57 files）；完整 `test:e2e` 全链（全部静态门禁脚本 + playwright 两 project）288/288；`--project=residue` 三轮 22/22/22 全绿；根级 `pnpm -r build` / `pnpm lint` / `pnpm test`（143 files / 1239 tests）净。**真机复验（产品负责人）**：批量入口在真机 UI 上不可见；逐条确认（含原批量范围条目）走通到 docx 产出，与试点已验证的「未能落格→逐条确认知悉→取消不生成产物」兜底流一致。
+
 ## WORK-TURN-1 · caseId 去标题化 + Work 面案语境注入（真机第三轮 G+H，P0）（实现完成，待独立验收）
 
 权威：[实现就绪图 `WORK-TURN-1` 行](../../docs/architecture/implementation-readiness.md) + [pi harness 对照调研](../../archive/research-2026-07-15-round-3/pi-harness-comparison.md)（判定 3/4 落地；调研原稿不具约束力）+ [台账第三轮节](../../docs/status/pilot-2026-07-17.md)。工单基线 `main @ 7d7e55c`。分支 `impl/work-turn-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。分批提交：G=`961398d`、H=本批。**L1 受控只读工具已批另立单；L2 循环/steering 入 ADR 议题池——本单明确不做。**

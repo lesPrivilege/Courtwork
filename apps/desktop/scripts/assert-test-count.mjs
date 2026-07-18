@@ -28,7 +28,8 @@ const count = match ? Number(match[1]) : 0;
 // PILOT-LIVE-2 验收修复：发送在途窗口 running assistant 不抢 latest 席位 +1 → 284。
 // WORK-TURN-1 G：中文标题案铸号安全语法红证 + 存量旧 id 守卫显式引导 +2 → 286。
 // WORK-TURN-1 H：Work 面案语境注入双向红证（Work 面在场/chat 面缺席）+1 → 287。
-const minimum = 287;
+// CONFIRM-GRANULARITY-1：批量确认入口 feature-off 显式回归锁（入口不可见 + 逐条路径可用）+1 → 288。
+const minimum = 288;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
