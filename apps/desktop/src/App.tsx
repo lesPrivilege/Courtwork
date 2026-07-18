@@ -105,6 +105,7 @@ import { sendChatTurn } from './provider/chat-client';
 import {
   TurnProtocolClient,
   createLocalStorageTurnJournalBackend,
+  workTurnJournalStorageKey,
   type TurnProjection,
 } from './provider/turn-protocol-client';
 import { ProcessTrace } from './chat/ProcessTrace';
@@ -216,20 +217,21 @@ function renderReaderInline(text: string, focusQuote?: string, focusRef?: RefObj
   });
 }
 
-function ChatAssistantMessage({ message, index, latest, onStop, onRetry }: {
+function ChatAssistantMessage({ message, index, latest, onStop, onRetry, testIdPrefix = 'chat' }: {
   message: Extract<ChatMessage, { role: 'assistant' }>;
   index: number;
   /** PILOT-LIVE-2 E：最新回复默认全文展开（折叠仅限历史轮次）；推理轨迹折叠不随此豁免（辅助信息）。 */
   latest?: boolean;
   onStop?: () => void;
   onRetry?: () => void;
+  testIdPrefix?: 'chat' | 'work-chat';
 }) {
   const { turn } = message;
   const terminal = turn.status === 'completed' || turn.status === 'failed';
   return (
     <div
       className={`assistant-message${turn.status === 'failed' ? ' is-failed' : ''}`}
-      data-testid={turn.status === 'failed' ? 'chat-assistant-failed' : 'chat-assistant-message'}
+      data-testid={turn.status === 'failed' ? `${testIdPrefix}-assistant-failed` : `${testIdPrefix}-assistant-message`}
       data-turn-id={turn.turnId}
       data-status={turn.status}
     >
@@ -267,7 +269,7 @@ function ChatAssistantMessage({ message, index, latest, onStop, onRetry }: {
         </p>
       )}
       {turn.status === 'completed' && (
-        <MessageActions messageId={`chat-${index}`} text={turn.assistantMessage} createdAt={message.createdAt} />
+        <MessageActions messageId={`${testIdPrefix}-${index}`} text={turn.assistantMessage} createdAt={message.createdAt} />
       )}
     </div>
   );
@@ -379,7 +381,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [providerSetupOpen, setProviderSetupOpen] = useState(false);
   const [sampleTourOpen, setSampleTourOpen] = useState(false);
   const [localMessages, setLocalMessages] = useState<Array<{ text: string; files: string[]; pasteBlocks: string[]; createdAt: number }>>([]);
-  const [queuedMessages, setQueuedMessages] = useState<Array<{ id: string; caseId: string; text: string; createdAt: number }>>([]);
   // CASE-PERSIST-1：demo 恒挂案固定注入，其后水合持久的非 demo 案件列表（重载后 grant 案回侧栏）。
   const [cases, setCases] = useState<CaseSummary[]>(() => [DEMO_CASE, ...hydratePersistedCases()]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(initialCaseId.current);
@@ -423,11 +424,21 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   /** state commit 前即生效的单飞行锁，防双击/Enter 在同一渲染帧发出两请求。 */
   const chatFlightRef = useRef(false);
   const chatAbortRef = useRef<AbortController | null>(null);
+  /** WORK-TURN-2：Work 对话不复用 Chat transcript/state；按 case 仅保留当前 UI 投影。 */
+  const [workChatMessagesByCase, setWorkChatMessagesByCase] = useState<Record<string, ChatMessage[]>>({});
+  const [workChatPending, setWorkChatPending] = useState(false);
+  const [workChatRecoveryError, setWorkChatRecoveryError] = useState<string>();
+  const workChatFlightRef = useRef(false);
   const turnClientRef = useRef<TurnProtocolClient | null>(null);
   if (turnClientRef.current === null) {
     turnClientRef.current = new TurnProtocolClient(createLocalStorageTurnJournalBackend(window.localStorage));
   }
   const turnClient = turnClientRef.current;
+  /** ADR-009：同一 Turn Engine，Work/Chat 各自 journal；对话不写 WorkStateEnvelope。 */
+  const workTurnClient = useMemo(() => selectedCaseId
+    ? new TurnProtocolClient(createLocalStorageTurnJournalBackend(window.localStorage, workTurnJournalStorageKey(selectedCaseId)))
+    : null, [selectedCaseId]);
+  const workChatMessages = selectedCaseId ? workChatMessagesByCase[selectedCaseId] ?? [] : [];
   const [interactionReplay, setInteractionReplay] = useState<TurnReplay>();
   const [turnRecoveryError, setTurnRecoveryError] = useState<string>();
   const [chatRecoveryError, setChatRecoveryError] = useState<string>();
@@ -535,65 +546,75 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     }
   };
 
+  const workScenarioRunning = workRunning || (selectedCaseId === DEMO_CASE_ID && session.progress.length > 0 && !session.completed);
+
   const handleComposerSend = (payload: ComposerSendPayload) => {
     if (credentialStatus.connection.phase !== 'ready') {
       probeCredentials();
       openCredentialSurface();
-      return;
+      return false;
     }
+    if (workScenarioRunning) return false;
+    if (!selectedCaseId || !workTurnClient) {
+      showSystemFeedback('尚未选择案件；先创建或选择案件，再在工作面发起对话。', false, 'info');
+      return false;
+    }
+    const workCaseId = selectedCaseId;
+    if (workChatFlightRef.current) return false;
+    if (caseBinding.kind === 'grant' && payload.attachments.length > 0) {
+      void ingestComposerUploads(selectedCaseId, caseBinding.grantId, payload.attachments);
+    }
+    const requestContent = assembleRequestContent({
+      text: payload.text,
+      attachments: payload.attachments,
+      pasteBlocks: payload.pasteBlocks,
+    });
+    const workContextSegment = caseBinding.kind === 'grant' && selectedCase
+      ? workContextSegmentFor({
+          caseTitle: selectedCase.title,
+          ...(selectedCase.label ? { bindingLabel: selectedCase.label } : {}),
+          materials: caseMaterials,
+          scenarioState: session.confirmation
+            ? 'paused_review'
+            : recoverableSession
+              ? 'recoverable'
+              : 'not_started',
+        })
+      : undefined;
+    const historyBase = workChatMessages;
     const createdAt = Date.now();
-    // RP-2.9 #11：confirmation_requested 是在途请求进入留人门禁，不是请求完成。
-    if (selectedCaseId && isDemoCase && session.progress.length > 0 && !session.completed) {
-      setQueuedMessages((current) => [...current, {
-        id: `queued-${createdAt}`,
-        caseId: selectedCaseId,
-        text: payload.text,
-        createdAt,
-      }]);
-      return;
-    }
-    // PILOT-LIVE-1 A：welcome（无案）与非 demo 案不再纯回显——work 段 composer 发送即走真实请求链
-    // （与 chat 段同一组装/提交核心），随即切 chat 面承接回复（路由律：对象在哪面，点击即切面）。
-    // 非 demo 在此早退：其后 demo 回显块保持 CHAT-MATERIAL-1 原字节（物理隔离，PILOT-LIVE-1-FIX #1）。
-    if (!(selectedCaseId && isDemoCase)) {
-      // PILOT-LIVE-2 F：grant 语境上传优先入库——附件经既有 grant 写授权落入项目文件夹并按
-      // material-ingress 原班入库（卷宗可见、场景可消费）；正文仍经下方既有链必达模型（A 零回退），
-      // 即时提问即「经既有正文链引用该材料」。无案/未绑定案保持纯 chat 附件（轻量语境）。
-      if (caseBinding.kind === 'grant' && selectedCaseId && payload.attachments.length > 0) {
-        void ingestComposerUploads(selectedCaseId, caseBinding.grantId, payload.attachments);
-      }
-      // WORK-TURN-1 H：case 绑定语境的自由输入携案语境段（案根/材料清单/场景状态，确定性编译）；
-      // 无案/未绑定案不供给。段只随本次请求，不入 journal（仍是 Chat Turn，聊天不是 promotion）。
-      const workContextSegment = caseBinding.kind === 'grant' && selectedCase
-        ? workContextSegmentFor({
-            caseTitle: selectedCase.title,
-            ...(selectedCase.label ? { bindingLabel: selectedCase.label } : {}),
-            materials: caseMaterials,
-            scenarioState: workRunning
-              ? 'running'
-              : session.confirmation
-                ? 'paused_review'
-                : recoverableSession
-                  ? 'recoverable'
-                  : 'not_started',
-          })
-        : undefined;
-      const accepted = handleChatSend(payload, workContextSegment);
-      if (accepted !== false) switchSegment('chat');
-      return accepted;
-    }
-    // 壳层只呈现用户输入与附件状态；不新增业务编排进协议客户端。
-    // 回显路径与请求路径同源：气泡只显示用户原文，附件/粘贴块由 chip 与 PasteBlock 呈现，
-    // 不再使用旧附件占位文案（该占位逻辑正是 CHAT-MATERIAL-1 的断点之一）。
-    setLocalMessages((prev) => [
-      ...prev,
-      {
-        text: payload.text,
-        files: payload.attachments.map((item) => item.fileName),
-        pasteBlocks: payload.pasteBlocks,
-        createdAt,
-      },
-    ]);
+    setWorkChatMessagesByCase((current) => ({
+      ...current,
+      [workCaseId]: [...(current[workCaseId] ?? []), {
+        role: 'user', text: payload.text, content: requestContent,
+        files: payload.attachments.map((item) => item.fileName), pasteBlocks: payload.pasteBlocks, createdAt,
+      }],
+    }));
+    workChatFlightRef.current = true;
+    setWorkChatRecoveryError(undefined);
+    setWorkChatPending(true);
+    const assistantAt = Date.now();
+    const history = continuationHistory(historyBase, Date.now()).reduce<Array<{ role: 'user' | 'assistant'; content: string }>>((messages, message) => {
+      if (message.role === 'user') messages.push({ role: 'user', content: message.content });
+      else if (message.turn.status === 'completed') messages.push({ role: 'assistant', content: message.turn.assistantMessage });
+      return messages;
+    }, []);
+    void sendChatTurn(workTurnClient, modelConfig, [...history, { role: 'user', content: requestContent }], {
+      ...(providerTransport ? { transport: providerTransport } : {}),
+      ...(workContextSegment ? { workContextSegment } : {}),
+      onProjection: (projection) => setWorkChatMessagesByCase((current) => {
+        const messages = current[workCaseId] ?? [];
+        const index = messages.findIndex((message) => message.role === 'assistant' && message.turn.turnId === projection.turnId);
+        const next: ChatMessage = { role: 'assistant', text: projection.assistantMessage, files: [], createdAt: assistantAt, turn: projection };
+        return { ...current, [workCaseId]: index === -1 ? [...messages, next] : messages.map((message, messageIndex) => messageIndex === index ? next : message) };
+      }),
+    })
+      .catch((error: unknown) => setWorkChatRecoveryError(readableError(error, 'Unable to recover this work turn')))
+      .finally(() => {
+        workChatFlightRef.current = false;
+        setWorkChatPending(false);
+      });
+    return true;
   };
 
   /** Chat transcript remains memory-only; lifecycle truth is streamed and terminalized by core Turn. */
@@ -1115,6 +1136,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // 取最后一条已结束的助手消息而非末位消息：发送在途窗口内新投影会先插入 running assistant，
   // 它尚未成为可阅读回复，不得抢走 latest 席位令上一条完整回复瞬时坍缩；terminal 后再正常交棒。
   const lastAssistantIndex = chatMessages.reduce(
+    (last, item, i) => (item.role === 'assistant' && item.turn.status !== 'running' ? i : last),
+    -1,
+  );
+  const lastWorkAssistantIndex = workChatMessages.reduce(
     (last, item, i) => (item.role === 'assistant' && item.turn.status !== 'running' ? i : last),
     -1,
   );
@@ -2123,7 +2148,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   ];
 
   /** composer 浮卡（chat/work 共用；onSend 与 workmode=viewSegment 同源由调用方注入）。 */
-  const renderComposer = (onSend: (payload: ComposerSendPayload) => void, requestPending = false) => (
+  const renderComposer = (onSend: (payload: ComposerSendPayload) => boolean | void, requestPending = false, disabledReason?: string) => (
     <div className="composer-stack">
       {/* 2026-07-12 修：外卡退役（双层框收一层），框只在 shell 整卡 */}
       <div className="composer-float">
@@ -2148,6 +2173,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           onModelConfigChange={updateModelConfig}
           onCloseModelConfig={() => setModelConfigOpen(false)}
           requestPending={requestPending}
+          disabledReason={disabledReason}
         />
       </div>
       <p className="composer-disclaimer" data-testid="composer-disclaimer">
@@ -2385,11 +2411,29 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                   <MessageActions messageId={`local-${index}`} text={message.text} createdAt={message.createdAt} />
                 </div>
               ))}
-              {queuedMessages.filter((message) => message.caseId === selectedCaseId).map((message) => <div className="queued-message" data-testid="queued-message" key={message.id}>
-                <span className="queued-chip">Queued</span><span>{message.text}</span>
-                <button type="button" onClick={() => setQueuedMessages((current) => current.filter((item) => item.caseId !== selectedCaseId || item.id !== message.id))}>撤回</button>
-                <button type="button" disabled data-state="unwired" title="停止当前运行即将开通">停止当前</button>
-              </div>)}
+              {workChatMessages.map((message, index) => message.role === 'user' ? (
+                <div className="user-message" key={`work-chat-${index}`} data-testid="work-chat-user-message">
+                  {message.text && <CollapsibleMessage lines={6}>{message.text}</CollapsibleMessage>}
+                  {message.pasteBlocks?.map((block, blockIndex) => <PasteBlock key={blockIndex} text={block} />)}
+                  {message.files.length > 0 && (
+                    <div className="user-message-attachments">
+                      {message.files.map((name) => <span key={name} title={name}>{name}</span>)}
+                    </div>
+                  )}
+                  <MessageActions messageId={`work-chat-user-${index}`} text={message.text} createdAt={message.createdAt} />
+                </div>
+              ) : (
+                <ChatAssistantMessage
+                  message={message}
+                  index={index}
+                  latest={index === lastWorkAssistantIndex}
+                  testIdPrefix="work-chat"
+                  key={`work-chat-${index}`}
+                />
+              ))}
+              {workChatRecoveryError && (
+                <p className="chat-recovery-error" role="alert" data-testid="work-chat-recovery-error">{workChatRecoveryError}</p>
+              )}
               <ScrollToLatest follow={workFollow} />
             </div>
             {!isWelcome && <div className="scene-strip" data-testid="scene-strip">
@@ -2426,7 +2470,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
               </div>
             </div>}
             {/* L1：composer 浮卡（welcome 态 composer 已居中于 welcome-home,不重复渲染） */}
-            {!isWelcome && renderComposer(handleComposerSend)}
+            {!isWelcome && renderComposer(
+              handleComposerSend,
+              workChatPending || workScenarioRunning,
+              workScenarioRunning ? '合同审查正在运行；等待当前步骤完成后再继续提问。' : undefined,
+            )}
           </section>
         )}
 

@@ -104,9 +104,9 @@ export const CASE_SCOPE_AUDIT = [
     note: '已改为 activeCase 投影注入；随 selectedCaseId 重置；非 demo 禁止粘滞临江案名',
   },
   {
-    symbol: 'queuedMessages / queued-message',
+    symbol: 'workChatMessagesByCase / work-chat-message',
     kind: '应派生' as const,
-    note: '每条绑定 caseId，只投影当前 selectedCaseId；切案零继承，切回原案恢复原队列',
+    note: '每条绑定 caseId，只投影当前 selectedCaseId；切案零继承，切回原案恢复本案 Work 对话',
   },
   {
     symbol: 'rail-footer lead attorney · 林律师',

@@ -64,34 +64,16 @@ test('附件 chip 生命周期：上传成功、作用域确认单向落定', as
   await expect(scope).toBeDisabled();
 });
 
-test('Enter 发送、Shift+Enter 换行；发送后进入对话流', async ({ page }) => {
+test('Work 场景运行中 composer 禁用并说明下一步，不排队', async ({ page }) => {
   await openWorkbench(page);
   await connectProvider(page);
-  // 回放进度到达后发送才进入 queued 分支；全量并行下不能只等静态 event-stream 壳。
+  // 回放进度到达即代表 Work 场景运行中；不再接受自由输入，更不把它伪装为排队消息。
   await page.getByTestId('turn-event-progress-0').waitFor();
   const input = page.getByTestId('composer-input');
-  await input.fill('请核对验收条款');
-  await expect(page.getByTestId('composer-send')).toBeEnabled();
-
-  await input.press('Shift+Enter');
-  await input.type('第二行说明');
-  await expect(input).toHaveValue(/请核对验收条款[\s\S]*第二行说明/);
-
-  await input.press('Enter');
-  await expect(page.getByTestId('queued-message')).toContainText('请核对验收条款');
-  await expect(page.getByTestId('queued-message')).toContainText('Queued');
-  await expect(input).toHaveValue('');
-
-  // UI-SURFACE-1：排队消息的「停止当前」诚实未开通（不伪装可用）；文案走 §9 产品语言，无工程词。
-  const stopQueued = page.getByTestId('queued-message').getByRole('button', { name: '停止当前' });
-  await expect(stopQueued).toBeDisabled();
-  await expect(stopQueued).toHaveAttribute('title', '停止当前运行即将开通');
-  await expect(stopQueued).toHaveAttribute('data-state', 'unwired');
-  const queuedBefore = await page.getByTestId('queued-message').innerText();
-  const dialogsBefore = await page.getByRole('dialog').count();
-  await stopQueued.click({ force: true });
-  expect(await page.getByTestId('queued-message').innerText()).toBe(queuedBefore);
-  await expect(page.getByRole('dialog')).toHaveCount(dialogsBefore);
+  await expect(input).toBeDisabled();
+  await expect(page.getByTestId('composer-send')).toBeDisabled();
+  await expect(page.getByTestId('composer-disabled-reason')).toHaveText('合同审查正在运行；等待当前步骤完成后再继续提问。');
+  await expect(page.getByTestId('queued-message')).toHaveCount(0);
 });
 
 test('拖放全窗 overlay 与粘贴文件可形成 chip', async ({ page }) => {
