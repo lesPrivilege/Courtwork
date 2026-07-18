@@ -19,6 +19,7 @@ const LABEL = '合同案卷夹';
 const CONTRACT = '# 设备采购合同\n\n第一条 付款：买方应于验收后三十日内付清全部款项。';
 const QUOTE = '买方应于验收后三十日内付清全部款项。';
 const CASE_LIST_KEY = 'courtwork.case-list.v1';
+const LEGACY_TITLE_PREFIX = 'courtwork.case-title.';
 
 type HostAuthHooks = { reset(): void; setGrants(grants: Array<{ grantId: string; label: string }>): void; setNextAuthorize(result: unknown): void };
 type MaterialHooks = { reset(): void; setFile(grantId: string, relativePath: string, bytes: Uint8Array): void };
@@ -118,6 +119,61 @@ async function settleAfterReload(page: Page) {
   await page.getByTestId('case-rail').waitFor();
   await page.mouse.move(0, 0);
 }
+
+test('CASE-TITLE-CONVERGE-1：旧键存量标题一次性迁入 case-list，启动即不丢标题', async ({ page }) => {
+  const caseId = 'case-legacy-title';
+  const listTitle = '列表中的旧标题';
+  const legacyTitle = '退出前最后改名';
+  await page.addInitScript(({ key, prefix, caseId: id, listTitle: storedTitle, legacyTitle: latestTitle }) => {
+    localStorage.setItem(key, JSON.stringify({
+      version: 1,
+      cases: [{ id, title: storedTitle, kind: 'case' }],
+    }));
+    localStorage.setItem(`${prefix}${id}`, latestTitle);
+  }, { key: CASE_LIST_KEY, prefix: LEGACY_TITLE_PREFIX, caseId, listTitle, legacyTitle });
+
+  await openWorkbench(page);
+
+  // 迁移发生在启动水合边界，尚未选中案件时侧栏已是存量最后标题，不依赖 selected-case 回灌。
+  const card = page.getByTestId(`case-card-${caseId}`);
+  await expect(card).toContainText(legacyTitle);
+  const persisted = await page.evaluate(({ key, legacyKey }) => ({
+    list: JSON.parse(localStorage.getItem(key) ?? '{}') as { cases?: Array<{ id: string; title: string }> },
+    legacy: localStorage.getItem(legacyKey),
+  }), { key: CASE_LIST_KEY, legacyKey: `${LEGACY_TITLE_PREFIX}${caseId}` });
+  expect(persisted.list.cases?.find((item) => item.id === caseId)?.title).toBe(legacyTitle);
+  expect(persisted.legacy).toBeNull();
+
+  // 迁移完成后的改名只沿 cases → case-list.v1 整表 effect 持久，旧键不得复活。
+  await card.locator('button.case-card-main').click();
+  await page.getByTestId('chat-case-title').dblclick();
+  await page.getByTestId('chat-case-title-input').fill('列表单真源改名');
+  await page.getByTestId('chat-case-title-input').press('Enter');
+  await expect(page.getByTestId('chat-case-title')).toHaveText('列表单真源改名');
+  await expect.poll(() => page.evaluate(({ key, id }) => {
+    const envelope = JSON.parse(localStorage.getItem(key) ?? '{}') as { cases?: Array<{ id: string; title: string }> };
+    return envelope.cases?.find((item) => item.id === id)?.title;
+  }, { key: CASE_LIST_KEY, id: caseId })).toBe('列表单真源改名');
+  expect(await page.evaluate((key) => localStorage.getItem(key), `${LEGACY_TITLE_PREFIX}${caseId}`)).toBeNull();
+});
+
+test('CASE-TITLE-CONVERGE-1 fail-closed：case-list 不可读时旧键不得回退复活案件', async ({ page }) => {
+  const caseId = 'case-corrupt-list';
+  const legacyTitle = '不得复活的旧标题';
+  await page.addInitScript(({ key, prefix, caseId: id, title }) => {
+    localStorage.setItem(key, JSON.stringify({
+      version: 999,
+      cases: [{ id, title: '未知版本列表标题', kind: 'case' }],
+    }));
+    localStorage.setItem(`${prefix}${id}`, title);
+  }, { key: CASE_LIST_KEY, prefix: LEGACY_TITLE_PREFIX, caseId, title: legacyTitle });
+
+  await openWorkbench(page);
+
+  await expect(page.getByTestId(`case-card-${caseId}`)).toHaveCount(0);
+  // 未建立可信 id 集时连旧键都不消费/清除，避免把 legacy 误当 fallback 或破坏取证字节。
+  expect(await page.evaluate((key) => localStorage.getItem(key), `${LEGACY_TITLE_PREFIX}${caseId}`)).toBe(legacyTitle);
+});
 
 test('三层重建：重载后 grant 案回侧栏 → 绑定重建 → 恢复入口可达', async ({ page }) => {
   await openWorkbench(page);

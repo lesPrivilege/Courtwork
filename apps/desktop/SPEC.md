@@ -2,6 +2,37 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## CASE-TITLE-CONVERGE-1 · 案件标题单真源收敛（实现完成，待独立验收）
+
+权威：[实现就绪图 `CASE-TITLE-CONVERGE-1` 行](../../docs/architecture/implementation-readiness.md) + 本 SPEC 的 [CASE-PERSIST-1 复杂度提案](#case-persist-1--案件列表跨重启持久真机试点前置work-live-replay-1-诚实留痕指出实现完成待独立验收)。基线 `main @ af46ef3`，分支 `impl/case-title-converge-1`；desktop 内部薄收敛，不改 schema/core/provider/Rust，不改 `docs/status/current.md`，不推送，独立验收另派。
+
+### 偵察结论（先证后改）
+
+- **旧键生产消费面精确为一读一写，均在 `App.tsx`**：选中案变化时的 `useEffect` 读取 `courtwork.case-title.${selectedCaseId}` 并回灌 `cases`；`commitCaseTitle` 改名后写同一旧键。生产源码、脚本与 e2e 除这两处外无旧键消费；既有测试也未直接播种或断言旧键。
+- **`case-list.v1` 已具完整标题真源链**：启动 `hydratePersistedCases()` 经 `readCaseList()` 水合 `title`；`cases` 每次变化均由既有 effect 经 `projectPersistableCases()` 整表写回 `courtwork.case-list.v1`。因此删旧写路径后，改名只需更新 `cases`，既有整表 effect 即完成唯一持久写入，无需新 store、事件或状态机。
+- **双写的唯一存量风险是崩溃窗口**：旧实现先更新 React state、同步写旧键，`case-list.v1` 再由 effect 异步整表写；若进程停在两者之间，旧键可能比列表中的 title 新。故不能直接删旧读，须在可信 `case-list.v1` 读入后把同 id 的非空旧标题一次性并入列表，再删除旧键。
+
+### TDD、迁移与 fail-closed 形制
+
+- 先红 e2e：预置一枚有效 `case-list.v1` 案件及同 id 的旧 title 键（旧键标题更新），reload 后侧栏/标题栏必须保留旧键存量标题；迁移后 `case-list.v1` 已吸收该标题且旧键删除。另加 fail-closed 反例：`case-list.v1` 为未知版本/坏信封时，即使旧键存在也不得复活案件或改写/删除旧键。
+- 一次性迁移只住既有 `case-store.ts` 读入边界：先完整验证 `case-list.v1`；仅 `status:'ok'` 时逐案读取旧键，合法非空值覆盖同案 title，整表写入成功后删除命中的旧键。列表不可读时直接返回空列表，**不读取、不采用、不清除旧键**，禁止 legacy-only fallback。
+- App 删除选中案旧键回灌 effect；`commitCaseTitle` 只更新 `cases`，唯一持久写仍是既有 `writeCaseList(projectPersistableCases(cases))` effect。扩展 CASE-ROOT 静态门：生产源码旧键写入零命中，并锁旧键只允许在 `case-store.ts` 的一次性迁移读取/删除边界出现。
+- e2e floor 只升 `292 → 294`（迁移保全 + fail-closed 反例）；不降低、不替换既有用例。
+
+### 复杂度与禁止扩张
+
+- **新增概念：零。** 只消费 `CASE-PERSIST-1` 已有版本化单键、整表替换与 fail-closed 读入；旧键迁移是删除双真源所需的一次性兼容分支。零新依赖、持久格式、schema version、状态机、通用抽象或 UI。
+- 触碰范围复杂度扫描只发现本票目标本身：`App.tsx` 的选中案回灌 effect 与同步旧键写是 `case-list.v1` 成立后可删的偶然复杂度；未发现其他需另案拍板的死配置、无消费导出或多余抽象。
+- 禁止扩张：不改变 `PersistedCase` 字段/语义，不迁移 demo 案（demo 本就不入 `case-list.v1`），不从畸形/未知版本列表回退旧键，不碰案件内容、grant、MaterialStore、Work journal、Rust 或 `current.md`。
+- 全量门发现既有 `rp2` 把 demo 案改名也要求跨 reload 持久；这与 CASE-PERSIST-1「demo 恒挂且永不入 `case-list.v1`」及本票唯一持久层拍板冲突。测试收敛为：demo 当前生命周期仍可编辑，reload 后回固定样板标题且旧键不存在；真实持久案的改名跨启动由本票新增 e2e 承担。未为 demo 新开第二持久例外。
+
+### 实现与证据（2026-07-18）
+
+- `case-store.ts` 在 `loadCaseList()` 完整验证成功后，才按可信记录 id 读取旧 title；非空旧值覆盖同案标题，先经既有 `writeCaseList()` 整表写回，再逐键 `removeItem()`。未知版本/坏信封直接返回空列表，旧键既不读取、也不删除，更不复活 legacy-only 案件。
+- `App.tsx` 删除选中案旧键回灌 effect 与 `commitCaseTitle` 的旧键同步写；改名仅更新 `cases`，由既有 `cases → projectPersistableCases → case-list.v1` effect 唯一持久。生产源码 `case-title.` 只剩 `case-store.ts` 一处迁移前缀，旧键 `setItem` grep 零命中。
+- TDD 红证：case-store 新迁移例在实现前精确得到列表旧标题（19 项中 1 红、其余 18 绿）；workspace dist 生成后，迁移 e2e 精确得到侧栏「列表中的旧标题」而非「退出前最后改名」。最小实现后 case-store **19/19**、case-persist **5/5**。静态门注入 `App.tsx` 旧键 `setItem` 后精确报迁移边界外命中，撤除恢复绿。
+- 全量首跑 **293/294** 的唯一红为上述 demo 旧期望；按既有 CASE-PERSIST-1 边界收敛测试后，隔离端口 `19931` 最终完整静态前链 + Playwright **294/294 passed（6.4m，single worker）**，floor **292 → 294**。`site:guard` **39/39**、`pnpm -r build`、`pnpm lint` 通过；根 Vitest **148 files / 1261 tests**。紧接 6.4m E2E 的一次根测受机器负载影响有 3 个互不相关的 5s timeout，三文件逐一复跑全绿，随后不改代码完整根测 **1261/1261** 转绿；不把 timeout 隐写成实现回归。最终独立验收须在 clean worktree 复跑并自行注入迁移/静态门反例。
+
 ## KEY-PERSIST-1 · API key 跨启动持久（P1，真机 M 项）（实现完成，待独立验收）
 
 权威：[实现就绪图 `KEY-PERSIST-1` 行](../../docs/architecture/implementation-readiness.md) + [真机台账 M 项](../../docs/status/pilot-2026-07-17.md) + [ADR-005 §2](../../docs/decisions/ADR-005-data-security.md) + [ADR-007 决定一](../../docs/decisions/ADR-007-provider-turn-protocol.md)。基线 `main @ bded9ac`，分支 `impl/key-persist-1`；不改 `docs/status/current.md`，真机复验留给产品负责人，独立验收另派。
