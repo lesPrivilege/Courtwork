@@ -1,7 +1,33 @@
-# 归档说明
+# 归档索引
 
-`archive/docs-legacy-2026-07-13/` 保存 2026-07-13 文档重整时退出权威链的旧 `docs/` 材料，包括调研、工单、验收、会话记忆、设计探索、发布证据与旧编号体系。继续生效的 token、图标和设计规则被清理后迁入现行 `docs/design/`，不在此重复保存。
+历史材料唯一存放处。本索引是归档的**唯一入口**：续行会话按此定位历史证据，不逐文件回读原文。
 
-`archive/research-2026-07-14/` 与 `archive/research-2026-07-15-round-2/` 分别保存两轮架构摄入后的原始调研/审阅报告；每批的摄入校正与现行承载位置见其目录 README。后续开工不得直接从这些报告恢复字段、状态或验收标准。
+## 使用纪律
 
-归档材料不是现行规范，不参与实现或验收，也不得被现行文档、源码或脚本引用。它只用于历史考证；裁决源流以 Git commit SHA 为首要依据。
+归档材料是历史证据链，不是现行规范。`archive/` 全部内容不参与实现或验收，不得被现行文档、源码、脚本或 SPEC 直接引用（唯一例外见 `docs/README.md`「史料引用例外」：ADR 来源段与就绪图工单行可引路径作历史线索）。归档结论——即便文内标有「架构定调」——只有经现行 ADR、SPEC 或就绪图工单逐条吸收后才具约束力；升格动作须经架构拍板并在现行文档留痕。归档报告中的行号、计数、版本号与外部事实是当时工作树的历史坐标，会漂移；当前验收只认 `docs/status/current.md` 与现行 SPEC/ACCEPTANCE，不得从归档恢复字段、状态或验收标准。reconnect 时架构层文档（`docs/README.md` 起）自足开工，仅在追查现行规则历史成因或核实调研结论是否被推翻时按本索引定位。
+
+## docs-legacy-2026-07-13/
+
+2026-07-13 文档重整时退出权威链的第一代 `docs/` 全量快照（基线 `f03e742`，143 文件，原编号 00–94 + superpowers/plans）。MANIFEST.md 逐段标注归档原因（已省并/已由 ADR 重述/已被后续契约替代/证据快照）。整体视为已升格或已过时的历史底稿；只在追查某条现行规则历史成因时按原编号定位。
+
+## research/（workbuddy-interaction-bench-2026-07-16）
+
+- `BEHAVIOR-MATRIX.md` — WorkBuddy 只读行为语料枚举（六段体例）。定调：行为语料源非正确性真源。已升格：`WORKBUDDY-INTERACTION-BENCH` 工单。
+
+## research-2026-07-14/（A–F 批，全部已升格）
+
+`durable-work-state`→ADR-010/WORK-STORE-1；`host-file-authorization`→ADR-004/005 + CASE-ROOT/HOST-AUTH-LITE；`legal-scan-corpus`→ingest SPEC；`package-machine-gates`→registry/tools SPEC；`wps-compat`→output SPEC；`deepseek-usage-billing`→provider SPEC + USAGE-LEDGER-1；`INTAKE-RAW` 为过程性文件（已过时）。
+
+## research-2026-07-15-round-2/（R1–R6，须按目录 README「阅读校正」读取）
+
+R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadmap 前置；R3 材料链真实度→current.md/就绪图实测清单。**已过时**：R4 output 真实度（「真实产品可达」判断被校正推翻）、R5 触发/门禁推演（未被采纳部分）、R6 claimed-vs-real（v0.1.1 口径过期）。
+
+## research-2026-07-15-round-3/（现行最新批，无被推翻项）
+
+**已升格为工单/ADR**：`interaction-visual-regression`→UI-RESIDUE-1；`oss-gui-source-patterns`→UI-RESIDUE/CHAT-SESSION 等工单供料；`geist-design-md`→VOICE-SPEC-1/DESIGN-MD-1；`vault-site-craft`→SITE-CRAFT-1（三修终局）；`grok-build-patterns`→OUTPUT-CONFIRM-UI-1/CHAT-MEMORY-1；`pi-harness-comparison`→WORK-TURN-1（含真机 G/H 根因）；`session-handoff-survey`→PROJECTION-RESUME-1；`chinese-display-font`→SITE-CRAFT-2（已拍板：朱雀仿宋，SIL OFL）。
+
+**方向已定、工单待立（发版后队列）**：`skill-refinery-feasibility`（炼化管线成立，SKILL-REFINERY-1 待立；补记：Build schema 定位内部 dogfood）；`invest-daily-brief-testbed` + `invest-daily-digest-field`（invest 实验田，后段挂 scheduled ADR 门槛）。
+
+**定调型（监控/口径资产，无需进一步升格动作）**：`anysearch-retrieval-tier`（检索类 plugin 三原则：具名/fail-closed/外部检索恒为未锚定线索级）；`generic-connectors-tier`（通用连接器层位）；`frontier-vertical-scan-2026h1`（LAB 供弹格局 + Economic Index 量化 + 判定层监控线；追踪 LAB leaderboard 与可靠性平台期论文）；`harness-landscape-2026h1`（口径弹药五条 + 三档过滤；Manus breakpoint 已入实测表）；`kimi-k3-capability-audit`（法律库传言证伪，不立 provider 单）；`newmax-competitive-teardown`（生成式 HTML 瓶颈在裁决；本地优先降格为门槛）。
+
+**论证素材/词表（仍有效，按需取用）**：`provider-switch-mechanisms`（第二 provider 时立 ADR）；`fortune-invest-schema-stress-test`（schema 可表达性双域证据）；`coding-agent-strategies-subtraction`（减法纪律；两候选挂起）；`chat-as-dossier-thesis`（容器同构论，待立项升 ADR）；`emil-skills-polish-input`（polish R2 工具）；`cognitive-debt-mapping`（可执行业务说明书命名已采）；`namethatui-vocabulary`（UI 正名词典）；`trae-work-landscape`（技能 vs 场景包分野）；`upstream-positioning`（内部定位，不入公开叙事）。

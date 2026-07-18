@@ -308,6 +308,8 @@ WORK-PORT-1
 │     └─ WORK-STORE-1
 │        └─ async/CAS WorkState、ArtifactEnvelope、终局、迁移、累计预算与 Tauri opaque blob host
 └─ HOST-AUTH-TRUTH
+
+> 旁注（2026-07-18）：`HOST-AUTH-TRUTH` 经 Round 3 拍板由 `HOST-AUTH-LITE` 替代（完整签名/TCC 真机矩阵后置到正式签名发布阶段），本图保留为历史决定文本。
    └─ 签名/TCC/重授权真机事实
       └─ CASE-ROOT-1
          └─ 宿主目录授权与 opaque case ref

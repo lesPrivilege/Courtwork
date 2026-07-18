@@ -19,6 +19,13 @@
 
 设计实现另读 [设计系统](design/README.md) 与 [Schema 可视化组件库](design/visualization-kit.md)。各包的职责、公开 API 与验收记录仍以包内 `SPEC.md` / `ACCEPTANCE.md` 为准。
 
+**续行速查**（reconnect 高频问题 → 唯一去处）：
+
+- 当前能力成立到哪一步 → [当前基线](status/current.md)；试点现场证据与在途缺陷 → `status/` 下现行台账（如 `pilot-2026-07-17.md`）。
+- 下一张该派什么票 → [实现就绪图](architecture/implementation-readiness.md)开放工单表（已清账工单只余一行指针）。
+- 设计改动怎么走 → [设计系统](design/README.md)；发版怎么走 → [发布手册](engineering/release.md)。
+- 某条现行规则的历史成因 → [归档索引](../archive/README.md) 定位原始调研/裁定，不直接引用原文。
+
 ## 权威层级
 
 出现冲突时按下列顺序裁定：
@@ -39,7 +46,8 @@
 - 当前状态只写在 `status/current.md`，不在多处复制数字和阶段。
 - 已完成工单的过程记录进入提交史；不再维护追加式“总工单册”。
 - 调研结论只有被 ADR 吸收后才具约束力。
-- 过时文档直接移入 `archive/`；现行文档与源码不得引用归档路径。
+- 过时文档直接移入 `archive/`；现行文档与源码不得引用归档路径。**史料引用例外（2026-07-18 拍板）**：ADR 的「来源」段与就绪图工单行可引 `archive/` 具体路径作为**历史证据线索**（只说明结论从何而来，不构成现行依据）；此例外不扩大到其他现行文档、SPEC、源码与脚本。
+- 事件性台账（如 `status/pilot-*.md`）属现行文档，随事件闭合由架构角色移入 `archive/` 并在 `current.md` 留一行去处；闭合前不得归档。
 
 ## 维护动作
 
