@@ -24,7 +24,7 @@
 - 当前能力成立到哪一步 → [当前基线](status/current.md)；试点现场证据与在途缺陷 → `status/` 下现行台账（如 `pilot-2026-07-17.md`）。
 - 下一张该派什么票 → [实现就绪图](architecture/implementation-readiness.md)开放工单表（已清账工单只余一行指针）。
 - 设计改动怎么走 → [设计系统](design/README.md)；发版怎么走 → [发布手册](engineering/release.md)。
-- 某条现行规则的历史成因 → [归档索引](../archive/README.md) 定位原始调研/裁定，不直接引用原文。
+- 某条现行规则的历史成因 → 先查 Git 提交记录；需要考古时再从仓库根目录的归档索引定位原始调研/裁定，不把归档材料当作现行引用。
 
 ## 权威层级
 
