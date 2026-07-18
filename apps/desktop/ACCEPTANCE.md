@@ -1,3 +1,9 @@
+# AUDIT-SEAL-1 · desktop 覆盖保护下沉验收
+
+- **✅ 放行（2026-07-18）**：`scoped_write`/`write_case_output_docx_impl` 新增显式 `overwrite: bool`，既存文件默认拒绝（no-replace `hard_link` 提交）、`overwrite=true` 时对 symlink/目录仍 fail closed（验收亲写探针 3×2 确认，交付测试集本身缺此分支回归覆盖，已记录为非阻断跟进项）；三个显式写入 consumer（附件入库/授权探针/case_output）、`host-auth-port.ts`/`tauri-host-auth.ts`/`assert-host-auth-contracts.mjs` 均已随契约更新。App 层 sha256 二道核实仍在写入前生效；`pilot-case-upload.spec.ts` F 系列幂等/拒绝覆写断言隔离端口亲跑 3/3 不回退。desktop Vitest **352/352**、cargo **67/67**（含验收亲写反例复核）、完整 `test:e2e` 独立三轮 **290/290** 均在验收 worktree 内亲手复跑绿；floor 290 不动。详见 `packages/core/ACCEPTANCE.md` 的 AUDIT-SEAL-1 完整报告（含三层独立红证与放行闭集覈真）。
+
+---
+
 # ACCEPTANCE: WORK-TURN-2
 
 日期：2026-07-18

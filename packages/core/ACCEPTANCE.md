@@ -1,3 +1,138 @@
+## AUDIT-SEAL-1 独立验收（2026-07-18）
+
+- **验收角色**：未参与实现的独立验收会话；不采信实现自述，本节全部数字均来自隔离 worktree 亲手复跑。
+- **验收坐标**：worktree `/Users/lesprivilege/Projects/Courtwork-audit-seal-1`（既有隔离 worktree，独立于主仓 `/Users/lesprivilege/Projects/Courtwork`），验收即在 `impl/audit-seal-1` tip `ac6e512` 上进行；基线与验收开始时 `main` 尖端均为 `bcafc5e`，`git merge-base impl/audit-seal-1 main` 确认零需 rebase。
+- **裁决：AUDIT-SEAL-1 放行 ✅。** 解耦审计（`archive/research-2026-07-15-round-3/decoupling-audit-2026-07-18.md`）裁定的两处 P0 结构性口子——① `runTools()` sideEffect 门此前只在 `confirmationPolicy.mode==='none'` 生效、② `scoped_write` 无 target-exists 保护——均已在 core/legal/desktop 三处密封；legal `S6` 悬空 `file-ops-executor` 声明（口子①在场景层的具体病灶）已清理。三层独立红证均亲手复现×3 轮；触碰面精确、零新依赖；全量门在验收 worktree 内独立实跑绿。验收期间发现两项非阻断观察（见第 5、6 节），均未构成驳回理由，验收期间未修改产品实现。
+
+### 1. 触碰面、审计溯源与复杂度
+
+`git diff --stat bcafc5e..ac6e512` 为 **18 files / 275 insertions / 44 deletions**，逐档只落在三处：
+
+- `apps/desktop`：`SPEC.md`、`scripts/assert-host-auth-contracts.mjs`、`src-tauri/src/{host_auth,lib}.rs`、`src/{App.tsx,host/HostAccessPanel.tsx,host/host-auth-port.ts,host/host-auth.test.ts,host/tauri-host-auth.ts,output/case-output-client.ts}`。
+- `packages/core`：`SPEC.md`、`src/scenario-executor/{executor.ts,citation-repair.test.ts}`、`src/tools/tool-registry.ts`。
+- `packages/legal`：`SPEC.md`、`src/scenarios/index.ts`、`src/package/{manifest.test.ts,layout-golden.test.ts}`。
+
+`package.json`、`Cargo.toml`、`Cargo.lock`、`pnpm-lock.yaml` 全仓零 diff（现场逐一核对，零新依赖）。`packages/registry`、`packages/schemas`、`packages/tools`、`packages/output`、`packages/reading-view`、`packages/pm`、`packages/demo-data`、`packages/demo-runtime`、`services/ingest`、`docs/status/current.md`、`eval/` 均零触碰。
+
+溯源 `decoupling-audit-2026-07-18.md`：本单精确对应审计裁定的两处 P0（引文：「`runTools()` 的 sideEffect 门只在 `confirmationPolicy.mode==='none'` 生效……`scoped_write`（`host_auth.rs`）底层无 target-exists 保护」），legal S6 的 `file-ops-executor` 悬空声明是口子①在场景层的具体病灶而非独立第三项，与三份 SPEC.md 的自述叙述一致。
+
+复杂度审视：三层改动均为既有分级/既有判据的平铺或收窄（`toolPermittedBeforeConfirmation` 复用既有 `SideEffectClass`；`atomic_write` 新增 `overwrite: bool` 参数复用既有 `HostAuthReason` 闭集），零新事件类型、零新持久格式、零新状态机、零新外部依赖。legal/SPEC.md「精确触面」清单遗漏 `layout-golden.test.ts`（该文件的 hash 变更已在同节前文逐字说明「该有意 descriptor 声明收窄使既有整面 golden……重算为……」，非隐瞒，只是清单未列该文件）——记录供 SPEC 维护参考，不构成驳回理由。
+
+### 2. Core 层独立红证（stash 隔离复现，×3）
+
+`packages/core/src/scenario-executor/citation-repair.test.ts` 修复后固定状态先跑通基线：**9/9 passed**。
+
+以 `git checkout bcafc5e -- packages/core/src/scenario-executor/executor.ts packages/core/src/tools/tool-registry.ts` 隔离撤回实现（保留新测试文件不动），连跑 3 次：
+
+```
+Test Files  1 failed (1)
+     Tests  2 failed | 7 passed (9)
+```
+
+三次结果逐字节一致。关键失败精确复现审计病灶：
+
+```
+gates 场景在门禁前绑定非纯读、非无损工具即拒跑
+AssertionError: promise resolved "{ status: 'paused', … }" instead of rejecting
+```
+
+即修复前 `gates` 模式场景绑定非法工具会静默执行并落至 `paused`，而非在门禁前拒绝——与 SPEC 自述「修复前实际执行并返回 paused」逐字吻合。`git checkout HEAD -- <两文件>` 归位后连跑 3 次，**9/9 passed** 逐字节一致。
+
+### 3. Legal 层独立红证（stash 隔离复现，×3）
+
+`manifest.test.ts` + `layout-golden.test.ts` 修复后固定状态基线：**15/15 passed**。
+
+以 `git checkout bcafc5e -- packages/legal/src/scenarios/index.ts` 隔离撤回（保留两份新/改测试不动），连跑 3 次：
+
+```
+Test Files  2 failed (2)
+     Tests  2 failed | 13 passed (15)
+```
+
+三次结果逐字节一致，关键失败：
+
+```
+expected [ 'copy-file', 'mkdir', …(1) ] to deeply equal [ 'copy-file', 'mkdir' ]
++ "file-ops-executor"
+```
+
+精确复现 S6 悬空声明。`git checkout HEAD -- <文件>` 归位后连跑 3 次，**15/15 passed** 逐字节一致。
+
+### 4. Rust 层独立红证（cargo 反例亲跑，×3）
+
+Rust 测试与实现同文件，修复引入的函数签名变化（`scoped_write` 由 3 参增至 4 参）使新测试无法对旧签名编译，不能沿用「revert 实现、保留新测试」的隔离手法。验收会话改为：`git checkout bcafc5e -- apps/desktop/src-tauri/src/{host_auth,lib}.rs` 整体撤回（含旧测试），亲写反例探针 `audit_seal_1_counter_example_scoped_write_silently_clobbers_existing_file`（验收会话自製，非实现自带）：对已存在 `original.txt` 用旧 3 参 `scoped_write` 写入新字节，断言旧代码会覆盖成功。`cargo test --lib` 定向连跑 3 次：
+
+```
+test host_auth::tests::audit_seal_1_counter_example_scoped_write_silently_clobbers_existing_file ... ok
+test result: ok. 1 passed; 0 failed
+```
+
+三次一致——探针验证的是「旧代码会覆盖」这一断言为真，即漏洞在修复前确实存在。`git checkout HEAD -- <两文件>`（连同验收探针一并丢弃）归位后 `cargo test --lib` 连跑 3 次，**67/67 passed** 逐次一致（`existing_file_is_refused_instead_of_overwritten_by_default`、`existing_regular_file_can_be_overwritten_only_when_explicit`、`overwrite_flags_are_fail_closed_and_explicit_on_host_wires` 均在场）。
+
+### 5. 放行闭集覈真（含伪装反例注入）
+
+`toolPermittedBeforeConfirmation(toolId, sideEffect)` 判据为具名闭集而非字符串巧合：`SideEffectClass` 是 5 值闭合 union（`pure_read | file_write | external_send | mcp_side_effect | authoritative_mutation`，`packages/schemas/src/artifact-descriptor.ts`）；`copy-file`/`mkdir` 的「无损级」身份独立见于 `packages/tools/src/file-ops-lossless.ts`（本单零触碰）的既有实现——两工具本身即对已存在目标显式 `throw new Error('目标已存在，已拒绝覆盖。')`，与 ADR-004「无损动作可直接执行……删除、覆盖等销毁级动词不进入 agent 能力面」逐字吻合，构成独立佐证而非命名巧合。仓库唯三处 `createToolRegistry()`/`.register()` 生产调用点（`demo-runtime/src/composition/demo-assembly.ts`、`demo-runtime/src/acceptance/run-s3-real.ts`、`apps/desktop/src/work/legal-s3-binding.ts`）均为受信组合根，与 CLAUDE.md「可执行跨域绑定只允许出现在受信组合根」一致。
+
+验收会话亲写伪装反例：注册一个实际执行副作用、但 `sideEffect` 谎报为 `'pure_read'` 的工具（`disguised-writer`），在 `gates` 场景下运行——**该工具确实执行了**（`executed === true`，门禁未拦截，TypeScript 亦未在类型层拒绝该注册）。此为**遗留信任边界，非本单引入**：修复前的 `none`-only 门对同一伪装同样会放行（新旧代码在此点行为一致），且 SPEC 明确自陈本单范围「只把既有 sideEffect……平铺到姊妹模式」，未承诺验证声明真实性。鉴于 `.register()` 仅三处受信装配点可达，此信任边界有界、非任意包/场景可利用，记录为**非阻断观察**，不构成驳回理由；探针测试验收后已丢弃（`git checkout HEAD` 归位），未进入交付分支。
+
+### 6. Rust overwrite 闭集边界（symlink/目录 fail-closed，验收亲写探针）
+
+SPEC 自陈「`true` 只替换安全实体文件，符号链接/非文件仍 fail closed」，但交付测试集里没有任何用例针对 `overwrite=true` 撞见既存符号链接或目录的分支（`grep symlink` 命中的既有测试均为 `resolve_target` 的路径逃逸门，不是 `atomic_write` 提交阶段的目标类型判定）。验收会话亲写两条探针（`audit_seal_1_probe_overwrite_true_still_fails_closed_on_symlink_target`、`_on_directory_target`），针对固定（已修复）实现连跑 3 次：
+
+```
+test ... _on_symlink_target ... ok
+test ... _on_directory_target ... ok
+test result: ok. 2 passed; 0 failed
+```
+
+三次一致，行为如实：symlink 目标不被写穿到宿主外文件、目录目标不被替换。**这是覆盖率缺口，不是缺陷**——`fs::symlink_metadata` 判据本身正确，只是交付测试集未固化该分支的回归保护。验收探针已丢弃，未提交进交付分支；建议后续补一条正式回归测试（已用 `spawn_task` 登记为独立跟进项，见会话结尾）。
+
+### 7. 覆盖语义三道核
+
+- **case_output 覆盖语义不回退**：`case_output_write_is_bounded_to_case_output_directory` 新增断言——`overwrite=false` 撞见既存 `答辩意见.docx` 时 `is_err()` 且原字节不变；`overwrite=true` 显式替换后新字节在场；`overwrite_flags_are_fail_closed_and_explicit_on_host_wires` 断言 `CaseOutputWriteInGrantInput` 省略 `overwrite` 时 `serde` 反序列化直接失败（不静默默认，呼应仓库不变量「静默降级零容忍」）。三例均在第 4 节 67/67 全量内确认通过。
+- **App 层 sha256 第二道仍在**：现场读码 `apps/desktop/src/App.tsx` 的 `ingestComposerUploads`——`sha256Hex(existing.bytes)` vs `sha256Hex(attachment.bytes)` 比对仍在写入之前执行；同名异内容分支 `refused.push(fileName); continue`，从不到达 `hostAuth.writeFile`；未命中既存文件分支才调用 `writeFile(..., overwrite: false)`，与宿主层新增的默认拒绝构成纵深防御（App 层判断失误或被绕过时，宿主层仍独立拒绝），非单点依赖。
+- **PILOT-LIVE-2 附件断言不回退**：验收会话在隔离端口 `18744` 亲跑 `pilot-case-upload.spec.ts` 全部 3 例：
+
+  ```
+  ✓ F 主红证：grant 案 work 面上传 → 落入项目文件夹并入库（卷宗可见）+ 正文仍必达模型
+  ✓ F 幂等：同名同内容已在项目文件夹 → 跳过写入、就地入库（不重复上传）
+  ✓ F 拒绝覆写：同名异内容 → 显式拒绝反馈，零写入零入库（原件只读红线）
+  3 passed (5.0s)
+  ```
+
+### 8. 全量门（合并树；`main` 尖端即基线，零需 rebase）
+
+| 门 | 结果 |
+|---|---|
+| `pnpm -r build` | PASS（13/14 workspace projects；desktop Vite 3578 modules，仅既有 chunk-size 提示） |
+| `pnpm lint` | PASS，零 error |
+| root Vitest | **144 files / 1247 tests passed** |
+| desktop Vitest | **58 files / 352 tests passed** |
+| `cargo test --lib`（`apps/desktop/src-tauri`） | **67/67 passed**（第 4 节复跑口径） |
+| `demo:s3` golden | PASS（7/7 考点，9 事件） |
+| `demo:legal` golden | PASS（骨架/考点/锚点复算/六段标记/修订命中全符） |
+| 完整 `test:e2e`（隔离端口 `18744`/`18745`/`18746`，独立三轮） | 三轮均 **290/290 passed**（2.7m / 2.8m / 3.2m），含全部 `[residue]` 疊层清单与 mutation 自证例 |
+
+floor **290** 不动的理据：本单新增覆盖全部落在 vitest（core 2 例、legal 1 例）与 cargo（rust 新增 `existing_file_is_refused_instead_of_overwritten_by_default`/`existing_regular_file_can_be_overwritten_only_when_explicit`/`overwrite_flags_are_fail_closed_and_explicit_on_host_wires` 共 3 例，另在既有 `case_output_write_is_bounded_to_case_output_directory` 内追加断言）层，交付范围内没有新增可达的用户可见 E2E 场景——legal S6 尚未装配执行入口（`[需架构拍板]` 留痕在案），`gates` 模式非法工具在当前唯一生产场景集（legal 五场景）中不存在可触发实例，`scoped_write` 的覆盖保护是既有三条写入调用点（附件入库/授权探针/case_output）的既有语义显式化而非新增用户旅程。既有 290 项 E2E 中与本单相关的用例（`pilot-case-upload.spec.ts` F 系列、`assert-host-auth-contracts.mjs` 静态门）均在第 7、8 节确认不回退。
+
+### 9. 复跑命令
+
+```text
+git merge-base impl/audit-seal-1 main && git rev-parse main
+pnpm -r build && pnpm lint
+pnpm test
+(cd apps/desktop && pnpm test)
+(cd apps/desktop/src-tauri && cargo test --lib)
+(cd packages/demo-runtime && pnpm demo:s3 && pnpm demo:legal)
+(cd apps/desktop && COURTWORK_E2E_PORT=<free-port> pnpm test:e2e)
+```
+
+> **最终判定：放行 AUDIT-SEAL-1。** 三处结构性口子（core 全模式 sideEffect 门、legal S6 声明清理、rust 覆盖保护下沉）均成立，三层独立红证与全量门均在验收 worktree 内亲手复跑绿。第 5、6 节两项观察（工具伪装声明的遗留信任边界、rust fail-closed 分支覆盖率缺口）均非本单引入、均非阻断，已如实记录并各自登记后续跟进方式。desktop/legal 侧简述见对应 `ACCEPTANCE.md`。
+
+未更新 `docs/status/current.md`；未推送；未 prune 任何 worktree/分支。
+
+---
+
 ## WORK-TURN-1 · core 組裝縫（2026-07-17）
 
 - **✅ 放行**：`assembleGenericChatSystemPrompt(memorySegment?, workContextSegment?)` 缺省逐字不變、順序 base→memory→work、穩定前綴與同輸入同字節均成立；忽略 work 段 mutation 精確 2 紅，還原後 10/10 × 3，並隨 root Vitest **1239/1239** 與完整 E2E **287/287** 通過。core 不解釋案語義、不另立 journal；desktop 供給與已知重試邊界見 `apps/desktop/ACCEPTANCE.md`。
