@@ -7,9 +7,9 @@ export interface GradedToolBinding {
   tool: ToolDefinition<any, any>;
   grade: EvidenceGrade;
   /**
-   * 副作用分级（ABI 拍板③运行时门）：confirmationPolicy none 的场景在执行期核对
-   * 所绑定工具全为 pure_read，否则拒跑。缺省 pure_read——装配点为副作用工具
-   * （文件执行器/外发/MCP）显式声明，core 强制、包无权放宽。
+   * 副作用分级（AUDIT-SEAL-1 运行时门）：toolIds 不论 confirmationPolicy 模式都在
+   * gate 前核对；只允许 pure_read 与 ADR-004 无损级 copy/mkdir。缺省 pure_read——
+   * 装配点为文件执行器/外发/MCP 等副作用工具显式声明，core 强制、包无权放宽。
    */
   sideEffect?: SideEffectClass;
 }

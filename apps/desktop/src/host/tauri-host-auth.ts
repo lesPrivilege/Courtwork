@@ -51,6 +51,7 @@ export function createTauriHostAuth(): HostAuthPort {
           grantId: input.grantId,
           relativePath: input.relativePath,
           bytes: Array.from(input.bytes),
+          overwrite: input.overwrite,
         },
       });
     },

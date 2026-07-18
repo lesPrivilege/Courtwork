@@ -2,6 +2,18 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## AUDIT-SEAL-1 · `scoped_write` 覆盖保护下沉（实现完成，待独立验收）
+
+权威：[实现就绪图 `AUDIT-SEAL-1` 行](../../docs/architecture/implementation-readiness.md) + [ADR-004](../../docs/decisions/ADR-004-documents-and-files.md) + [ADR-010](../../docs/decisions/ADR-010-work-live-boundaries.md)。基线 `main @ bcafc5e`，分支 `impl/audit-seal-1`；未推送、未改 `docs/status/current.md`。
+
+- **宿主默认拒覆盖**：`scoped_write` / `write_in_grant` 收显式 `overwrite: bool`。`false` 路径继续使用同目录已同步临时文件，但以 no-replace `hard_link` 提交，即使目标在检查后竞态出现也不覆盖；`true` 只替换安全实体文件，符号链接/非文件仍 fail closed。
+- **界面明示**：`HostAuthPort.writeFile` 必填 `overwrite`；附件入库在 App SHA-256 同名比对后仍显式传 `false`（应用层第二道不删），宿主授权自有探针传 `true`。`case_output` 已确认后自产报告保留合规覆盖，TS→Rust 界面显式传 `overwrite: true`；未明示时宿主 wire 以 `serde(default)` 收敛为 `false`。
+- **TDD 红证**：在已有 `original.txt` 注入 `scoped_write`，修复前 `WriteOutcome::Wrote` 覆盖原字节，新测试精确红于「预期 Failed」；修复后默认拒绝与内容不变通过，case_output 另锁 `false` 拒绝、`true` 覆盖后新字节在场。desktop host/output Vitest **12/12** 通过。
+- **复杂度/开源审视**：零新概念——`overwrite` 只把已存在的默认拒绝与 case_output 覆盖语义显式化；零新 crate/npm 依赖、持久格式、状态机、通用抽象。实现问题优先评估标准库可用的同目录 `hard_link` no-replace 原语，已足够且无许可/依赖成本，故不提引入第三方依赖。
+- **复杂度扫描提案区**：`host_auth` 与 `case_output` 保留两个既有的原子写入实现，因前者返回授权失败闭集、后者还承担 docx/产出目录校验，本单不为去重造新抽象。**[需架构拍板]**：若未来 UI 需精确呈现竞态的「目标已存在」，需决定是否为 write 新增专用失败类；本单不越权扩张四值 `HostAuthReason`。
+- **实现侧终值**：Rust `cargo test` **67/67**；desktop Vitest **58 files / 352 tests**；root Vitest **144 files / 1247 tests**；`pnpm -r build`、`pnpm lint` 与 host-auth 静态门均通过。隔离端口 `18731` 完整 `test:e2e` 静态前链全绿，floor **290**，Playwright **290/290 passed（2.7m）**。
+- **精确触面**：`src-tauri/src/{host_auth,lib}.rs`、host port/Tauri adapter 及三个显式写入 consumer（附件入库、授权探针、case_output）、对应单测、`assert-host-auth-contracts.mjs` 与本 SPEC；不改 MaterialRef/schema、哈希算法、floor 或 `current.md`。
+
 ## WORK-TURN-2 · Chat / Work 真隔离（P1）（实现完成，待独立验收）
 
 权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)「一套 Turn Engine，两种上层 Harness」+ [实现就绪图 `WORK-TURN-2` 行](../../docs/architecture/implementation-readiness.md)。基线 `main @ 7a289c3`；分支 `impl/work-turn-2`；仅触及 `apps/desktop/{src,tests,scripts,SPEC.md}`，零 `packages/**`、零 schema/wire/六段 assembly 契约改动、零 `docs/status/current.md` 改动。

@@ -38,8 +38,13 @@ export interface HostAuthPort {
   authorizeFolder(): Promise<AuthorizeResult>;
   /** 授权域内读；越权/撤权/卷卸载/路径失效各自结构化失败。 */
   readFile(input: { grantId: string; relativePath: string }): Promise<ReadResult>;
-  /** 授权域内原子写；失败分类同上。 */
-  writeFile(input: { grantId: string; relativePath: string; bytes: Uint8Array }): Promise<WriteResult>;
+  /** 授权域内原子写；已存在目标缺省拒绝，只有显式 overwrite 才覆盖。 */
+  writeFile(input: {
+    grantId: string;
+    relativePath: string;
+    bytes: Uint8Array;
+    overwrite: boolean;
+  }): Promise<WriteResult>;
 }
 
 /** 失败闭集（顺序稳定，供门禁与 UI 遍历）。 */

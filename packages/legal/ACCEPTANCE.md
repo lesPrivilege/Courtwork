@@ -1,5 +1,11 @@
 # ACCEPTANCE: packages/legal
 
+## AUDIT-SEAL-1 · legal S6 声明清理验收（2026-07-18）
+
+- **✅ 放行**：`legal.S6` 的 `toolIds` 由 `['copy-file', 'mkdir', 'file-ops-executor']` 收窄为 ADR-004 无损级 `['copy-file', 'mkdir']`，与 prompt「不执行任何操作，执行发生在用户确认之后」对齐；`file-ops-executor` 是审计裁定 P0 口子①（`runTools()` sideEffect 门模式不对称）在场景层的具体病灶，非独立问题。验收会话以 `git checkout bcafc5e -- src/scenarios/index.ts` 隔离撤回复现红证，连跑 3 次均 **2 failed / 13 passed**（精确命中新增 manifest 断言与联动 golden hash），归位后连跑 3 次 **15/15 passed**。`[需架构拍板]` 留痕在案（S6 未来进入 live 前的 `file-ops-executor` 触发/持久授权/事务日志另议，本单不越权实现执行时序）。全仓 Vitest **1247/1247**、`demo:legal` golden PASS 均在验收 worktree 内独立复跑绿。完整三层报告（含 core sideEffect 门与 desktop 覆盖保护）见 `packages/core/ACCEPTANCE.md` 的 AUDIT-SEAL-1 报告。
+
+---
+
 ## VPKG-META-1 独立验收（2026-07-14）
 
 - 验收角色：未参与实现的独立验收会话。

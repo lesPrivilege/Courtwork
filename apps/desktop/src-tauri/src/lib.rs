@@ -1282,6 +1282,7 @@ struct CaseOutputWriteInGrantInput {
     grant_id: String,
     file_name: String,
     bytes: Vec<u8>,
+    overwrite: bool,
 }
 
 /// 宿主内部产出记录（含绝对路径，供 impl 自用，**永不返回 renderer**）。
@@ -1343,6 +1344,7 @@ fn write_case_output_docx_impl(
     case_root: &Path,
     file_name: &str,
     bytes: &[u8],
+    overwrite: bool,
 ) -> Result<CaseOutputArtifact, String> {
     validate_output_file_name(file_name)?;
     if !bytes.starts_with(b"PK") {
@@ -1352,6 +1354,9 @@ fn write_case_output_docx_impl(
         secure_output_dir(case_root, true)?.ok_or_else(|| "无法创建案件产出目录".to_string())?;
     let target = output_dir.join(file_name);
     if target.exists() {
+        if !overwrite {
+            return Err("已存在同名 Word 产物，未显式允许覆盖".to_string());
+        }
         let metadata =
             fs::symlink_metadata(&target).map_err(|_| "无法检查既有 Word 产物".to_string())?;
         if metadata.file_type().is_symlink() || !metadata.is_file() {
@@ -1411,7 +1416,12 @@ fn case_output_write_in_grant(
     let store = host_grant_store_path(&app)?;
     let root = host_auth::grant_root(&store, &input.grant_id)
         .ok_or_else(|| "此前的访问授权已失效，请重新绑定案件文件夹".to_string())?;
-    let artifact = write_case_output_docx_impl(&root, &input.file_name, &input.bytes)?;
+    let artifact = write_case_output_docx_impl(
+        &root,
+        &input.file_name,
+        &input.bytes,
+        input.overwrite,
+    )?;
     Ok(CaseOutputWriteAck {
         byte_length: artifact.byte_length,
     })
@@ -1497,6 +1507,8 @@ struct HostWriteInput {
     grant_id: String,
     relative_path: String,
     bytes: Vec<u8>,
+    #[serde(default)]
+    overwrite: bool,
 }
 
 #[tauri::command]
@@ -1542,6 +1554,7 @@ fn host_write_file(
         &input.grant_id,
         &input.relative_path,
         &input.bytes,
+        input.overwrite,
     ))
 }
 
@@ -2541,8 +2554,8 @@ mod tests {
         ));
         fs::create_dir_all(&root).expect("create case root");
 
-        let artifact =
-            write_case_output_docx_impl(&root, "答辩意见.docx", docx).expect("write output");
+        let artifact = write_case_output_docx_impl(&root, "答辩意见.docx", docx, true)
+            .expect("write output");
         let expected = root
             .canonicalize()
             .expect("canonical case root")
@@ -2550,7 +2563,14 @@ mod tests {
             .join("答辩意见.docx");
         assert_eq!(artifact.byte_length, docx.len());
         assert!(case_output_docx_exists_impl(&root, "答辩意见.docx").expect("exists"));
-        assert_eq!(fs::read(expected).expect("read output"), docx);
+        assert_eq!(fs::read(&expected).expect("read output"), docx);
+
+        // case_output 是已确认后的自产报告覆盖面：接口必须显式声明。
+        assert!(write_case_output_docx_impl(&root, "答辩意见.docx", b"PK-protected", false).is_err());
+        assert_eq!(fs::read(&expected).expect("protected output"), docx);
+        write_case_output_docx_impl(&root, "答辩意见.docx", b"PK-recompiled", true)
+            .expect("explicitly overwrite self-owned output");
+        assert_eq!(fs::read(&expected).expect("recompiled output"), b"PK-recompiled");
 
         fs::remove_file(root.join("产出").join("答辩意见.docx")).expect("delete output");
         assert!(!case_output_docx_exists_impl(&root, "答辩意见.docx").expect("deleted"));
@@ -2559,12 +2579,35 @@ mod tests {
     }
 
     #[test]
+    fn overwrite_flags_are_fail_closed_and_explicit_on_host_wires() {
+        let host_default: HostWriteInput = serde_json::from_value(serde_json::json!({
+            "grantId": "grant-a",
+            "relativePath": "original.txt",
+            "bytes": [1, 2, 3]
+        }))
+        .expect("legacy host write wire");
+        assert!(!host_default.overwrite, "缺省 overwrite 必须收敛为 false");
+
+        let case_output_without_flag = serde_json::from_value::<CaseOutputWriteInGrantInput>(
+            serde_json::json!({
+                "grantId": "grant-a",
+                "fileName": "审查报告.docx",
+                "bytes": [80, 75]
+            }),
+        );
+        assert!(
+            case_output_without_flag.is_err(),
+            "case_output 自产报告覆盖面不得省略 overwrite 声明"
+        );
+    }
+
+    #[test]
     fn case_output_write_rejects_traversal_and_non_docx_names() {
         let root = std::env::temp_dir();
-        assert!(write_case_output_docx_impl(&root, "../escape.docx", b"PK").is_err());
-        assert!(write_case_output_docx_impl(&root, "nested/a.docx", b"PK").is_err());
-        assert!(write_case_output_docx_impl(&root, "/tmp/escape.docx", b"PK").is_err());
-        assert!(write_case_output_docx_impl(&root, "report.pdf", b"PK").is_err());
+        assert!(write_case_output_docx_impl(&root, "../escape.docx", b"PK", true).is_err());
+        assert!(write_case_output_docx_impl(&root, "nested/a.docx", b"PK", true).is_err());
+        assert!(write_case_output_docx_impl(&root, "/tmp/escape.docx", b"PK", true).is_err());
+        assert!(write_case_output_docx_impl(&root, "report.pdf", b"PK", true).is_err());
     }
 
     #[test]
@@ -2597,8 +2640,13 @@ mod tests {
 
         // 命令体等价逻辑：grant_root(A) → 写入 → 只落在 A/产出，B 内绝无该文件。
         let root_from_grant = host_auth::grant_root(&store, &grant_a.grant_id).expect("root a");
-        let artifact =
-            write_case_output_docx_impl(&root_from_grant, "合同审查报告.docx", docx).expect("write");
+        let artifact = write_case_output_docx_impl(
+            &root_from_grant,
+            "合同审查报告.docx",
+            docx,
+            true,
+        )
+        .expect("write");
         assert_eq!(artifact.byte_length, docx.len());
         assert!(root_a.join("产出").join("合同审查报告.docx").exists());
         assert!(!root_b.join("产出").join("合同审查报告.docx").exists());

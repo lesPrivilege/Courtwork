@@ -2,6 +2,16 @@
 
 状态：既有 TURN/INTERACTION、`CONFIRM-CAS-1`、`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行
 
+## AUDIT-SEAL-1 · `runTools()` sideEffect 全模式密封（实现完成，待独立验收）
+
+权威：[实现就绪图 `AUDIT-SEAL-1` 行](../../docs/architecture/implementation-readiness.md) + [ADR-004](../../docs/decisions/ADR-004-documents-and-files.md) + ADR-009/010 effect 授权红线。基线 `main @ bcafc5e`，分支 `impl/audit-seal-1`；未推送、未改 `docs/status/current.md`。
+
+- **规则铺满**：`toolIds` 不论 `confirmationPolicy.mode` 为 `none` 或 `gates`，都在执行前以既有 `sideEffect` 分级核对。只放行 `pure_read`，以及绑定如实声明 `file_write` 的 ADR-004 无损级 `copy-file` / `mkdir`；其他一律在 `toolExecutor.execute()` 前抛 `ConfirmationPolicyViolationError`，事后 gate 不得追认。
+- **TDD 红证**：`gates + writer-tool(file_write)` 修复前实际执行并返回 `paused`，新反例精确红于「本应 reject 却 resolve」；同档 ADR-004 copy/mkdir 放行反例与既有 none/pure_read 用例不回退。最小修复后 core+legal 聚焦 **21/21** 转绿。
+- **复杂度审视**：本层零新概念、零新依赖/导出/事件/状态机；只把既有 `sideEffect`、既有工具 id 与 ADR-004 判据平铺到姊妹模式。扫描 `runTools` 及 `ToolRegistry` 触面未发现可删的死分支或无消费导出，无新 `[\u9700架构拍板]` 项。
+- **实现侧终值**：`pnpm -r build` 、`pnpm lint` 通过；root Vitest **144 files / 1247 tests**；`demo:s3` golden PASS（**7/7** 考点、**9** 事件），`demo:legal` golden PASS。仍待异会话 clean worktree 独立验收与 mutation 复验。
+- **精确触面**：`scenario-executor/{executor,citation-repair.test}.ts`、`tools/tool-registry.ts` 与本 SPEC；不改 schema/ABI、确认账本、执行时序或 desktop 投影。
+
 ## PROJECTION-RESUME-1 · 续行投影「未产出/待执行」三态子节（实现完成，待独立验收）
 
 权威：[实现就绪图 `PROJECTION-RESUME-1` 行](../../docs/architecture/implementation-readiness.md) + 2026-07-15 第三轮 session-handoff 来源调研（集成方案节：不新增段，投影段内部新增纯编译子节；调研原稿不具约束力，本 SPEC 是实现权威）。工单基线 `main @ 0db350c`。分支 `impl/projection-resume-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。**core 内闭合：零新事件类型、零 envelope schema 变更、零 ADR-009 port 触碰、禁 LLM 参与；desktop 零触碰（e2e 不需重跑，floor 275 不动）。**

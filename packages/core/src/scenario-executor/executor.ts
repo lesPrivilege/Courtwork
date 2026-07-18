@@ -109,10 +109,15 @@ export class UnknownArtifactTypeError extends Error {
 export class ConfirmationPolicyViolationError extends Error {
   constructor(scenarioId: string, toolId: string, sideEffect: string) {
     super(
-      `场景 ${scenarioId} 声明 confirmationPolicy: none，但绑定工具 "${toolId}" 的副作用类为 ${sideEffect}——none 仅限纯读取，core 强制、包无权放宽`,
+      `场景 ${scenarioId} 绑定工具 "${toolId}" 的副作用类为 ${sideEffect}——确认前工具只允许纯读取或 ADR-004 无损级 copy/mkdir，core 强制、包无权放宽`,
     );
     this.name = 'ConfirmationPolicyViolationError';
   }
+}
+
+function toolPermittedBeforeConfirmation(toolId: string, sideEffect: string): boolean {
+  if (sideEffect === 'pure_read') return true;
+  return sideEffect === 'file_write' && (toolId === 'copy-file' || toolId === 'mkdir');
 }
 
 export class GenerationValidationError extends Error {
@@ -158,13 +163,12 @@ async function runTools(
     guard.checkToolCall();
     const binding = deps.tools.get(toolId);
     if (!binding) throw new UnknownToolError(scenario.id, toolId);
-    // ABI 拍板③运行时门：none 策略场景的工具必须全为 pure_read（准入层只能核 artifact
-    // 副作用，工具在装配点才绑定——双门的第二道在此）。
-    if (scenario.confirmationPolicy.mode === 'none') {
-      const sideEffect = binding.sideEffect ?? 'pure_read';
-      if (sideEffect !== 'pure_read') {
-        throw new ConfirmationPolicyViolationError(scenario.id, toolId, sideEffect);
-      }
+    // AUDIT-SEAL-1：toolIds 在任何 confirmationPolicy 模式下都会于门禁前执行，
+    // 因此一律先过 sideEffect 门。只放行纯读取与 ADR-004 无损级 copy/mkdir；
+    // 其他 effect 不能由事后 gate 追认。
+    const sideEffect = binding.sideEffect ?? 'pure_read';
+    if (!toolPermittedBeforeConfirmation(toolId, sideEffect)) {
+      throw new ConfirmationPolicyViolationError(scenario.id, toolId, sideEffect);
     }
     const envelope = await deps.toolExecutor.execute(binding.tool, toolInputs[toolId]);
     guard.checkTime();

@@ -1710,7 +1710,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         }
         // 同名同内容：原件已在项目文件夹，跳过写入直接就地入库。
       } else {
-        const wrote = await hostAuth.writeFile({ grantId, relativePath: fileName, bytes: attachment.bytes });
+        const wrote = await hostAuth.writeFile({
+          grantId,
+          relativePath: fileName,
+          bytes: attachment.bytes,
+          overwrite: false,
+        });
         if (wrote.status !== 'wrote') {
           failed.push(`${fileName}（${hostAuthReasonCopy(wrote.reason)}）`);
           continue;

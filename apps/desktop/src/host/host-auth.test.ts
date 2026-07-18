@@ -49,7 +49,9 @@ describe('browser host-auth adapter (DEV/E2E 樁)', () => {
       hooks.setNextRead({ status: 'failed', reason });
       expect(await host.readFile({ grantId: 'g', relativePath: 'x.txt' })).toEqual({ status: 'failed', reason });
       hooks.setNextWrite({ status: 'failed', reason });
-      expect(await host.writeFile({ grantId: 'g', relativePath: 'x.txt', bytes: new Uint8Array() })).toEqual({
+      expect(
+        await host.writeFile({ grantId: 'g', relativePath: 'x.txt', bytes: new Uint8Array(), overwrite: false }),
+      ).toEqual({
         status: 'failed',
         reason,
       });
@@ -65,7 +67,14 @@ describe('browser host-auth adapter (DEV/E2E 樁)', () => {
     expect(await host.listGrants()).toEqual([grant]);
 
     hooks.setNextWrite({ status: 'wrote', byteLength: 2 });
-    expect(await host.writeFile({ grantId: 'grant-1', relativePath: 'check.txt', bytes: Uint8Array.from([1, 2]) })).toEqual({
+    expect(
+      await host.writeFile({
+        grantId: 'grant-1',
+        relativePath: 'check.txt',
+        bytes: Uint8Array.from([1, 2]),
+        overwrite: false,
+      }),
+    ).toEqual({
       status: 'wrote',
       byteLength: 2,
     });

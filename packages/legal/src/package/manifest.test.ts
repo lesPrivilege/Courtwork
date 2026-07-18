@@ -64,6 +64,13 @@ describe('LEGAL_PACKAGE（法律包准入自证：迁包后包必须过自己要
     expect(s3?.steps.map((step) => step.id)).toEqual(['verify-parties', 'produce-risk-list']);
   });
 
+  it('S6 只在门禁前声明 ADR-004 无损级工具，移形执行器留待确认后动作', () => {
+    const s6 = registries.scenarios.get('legal.S6');
+    expect(s6?.toolIds).toEqual(['copy-file', 'mkdir']);
+    expect(s6?.toolIds).not.toContain('file-ops-executor');
+    expect(s6?.promptBody).toContain('执行发生在用户确认之后');
+  });
+
   it('七 artifact descriptor 全部可查且投影就绪', () => {
     for (const typeId of [
       'legal.CaseFile',

@@ -10,6 +10,7 @@ interface WriteInGrantInput {
   grantId: string;
   fileName: string;
   bytes: number[];
+  overwrite: boolean;
 }
 
 function isTauriRuntime() {
@@ -55,7 +56,12 @@ export const caseOutputClient = {
     if (binding.kind === 'unbound') throw new Error('本案尚未绑定案件文件夹');
     preflightDocx(bytes);
     if (binding.kind === 'grant' && isTauriRuntime()) {
-      return writeInGrantViaTauri({ grantId: binding.grantId, fileName, bytes: Array.from(bytes) });
+      return writeInGrantViaTauri({
+        grantId: binding.grantId,
+        fileName,
+        bytes: Array.from(bytes),
+        overwrite: true,
+      });
     }
     browserFiles.set(browserKey(binding, fileName), bytes.slice());
     return { byteLength: bytes.byteLength };
