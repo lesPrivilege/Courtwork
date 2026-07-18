@@ -3181,3 +3181,83 @@ pnpm --filter @courtwork/demo-runtime demo:legal
 首輪完整鏈端口 `19130` 曾為 **276 passed / 2 failed**：既有 `goal1` 與 `goal2` 均在 helper 的 click/wait 卡滿 30 秒，未到本單斷言；同碼在新端口、單 worker 聚焦立即 **2/2**，其後完整 278 鏈 **278/278**。未改 timeout、helper、斷言或產品碼，故如實記為首輪既有啟動時序失敗，不以其替代終局全綠門。
 
 所有暫時 mutation 均已還原；提交前工作樹除本驗收記錄外乾淨。本會話不更新 `docs/status/current.md`，不推送、不 prune。
+
+---
+
+# ACCEPTANCE: KEY-PERSIST-1
+
+日期：2026-07-18；對象：`impl/key-persist-1 @ 8621c75`（單提交，基線 `main @ bded9ac`）；獨立 clean worktree（`EnterWorktree` 建立，`reset --hard` 至委託 SHA，未在共享樹 checkout/stash；`pnpm install` 全新裝）。驗收開始時 `git fetch origin main` 核對本地/遠端 `main` 均仍為 `bded9ac`，與委託基線一致——`impl/key-persist-1` 恰為其後一枚提交，故「rebase 至 main 尖端」對本單是零操作，工作樹內容與 rebase 後結果逐位元組等同。
+
+**裁決：✅ 放行 KEY-PERSIST-1。** 六項委託動作逐一亲手覈真，全部通過；發現一項 SPEC 真機清單的登記缺口（見第 6 節），屬待補登記而非代碼缺陷，不阻塞本單放行。全程僅對已提交程式碼做**臨時**注入-觀察-撤除的反例覈真，未產生任何遺留修改；`git status`/`git diff --stat` 在每次撤除後即核對回空，最終提交前工作樹只新增本節記錄。
+
+## 1. 紅證復刻：啟動驗證接線缺席 → 紅，恢復 → 三輪綠
+
+- 用 `git show 8621c75~1:apps/desktop/src/App.tsx > apps/desktop/src/App.tsx` 把 `App.tsx` 精準退回父提交版本（唯一改動檔，`git diff --stat` 顯示 `2 insertions(+), 10 deletions(-)`，與委託 diff 逐行對稱），端口 `19821` 跑 `key-persist.spec.ts`：**1 failed / 1 passed**——「stored Keychain readiness restores after reload」確定性紅在 `data-credential-probed` 斷言（`Expected "true"／Received "false"`），另一條清除用例因不依賴啟動接線而保持綠，反例精準命中目標斷言而非環境假紅。
+- `git stash push -- apps/desktop/src/App.tsx` 收起退回版、工作樹核對回 HEAD 逐位元組一致後，於埠 `19821/19822/19823` 三輪重跑同一 spec：**均 2/2 passed**（3.9s/3.8s/3.8s）。`git stash drop` 清理暫存，`git status` 確認乾淨。
+
+## 2. Probe 語義：真實失敗必須顯式，非靜默 ready、非靜默清除
+
+- 臨時新增探針 `tests/e2e/zz-kp1-probe-failure.spec.ts`（非委託測試集一部分，驗證後已刪除，`git status` 復核零殘留）：`addInitScript` 用屬性攔截確保 `installProviderConnectionTestHooks()` 一裝好即注入一筆 `connection.phase:'failed'（failKind:'auth'）` 的 probe 結果，避免與啟動 effect 的非同步時序賽跑。
+  - **關鍵方法論修正（如實記錄）**：首版探針在 `openSettings()` 之後才讀狀態，結果對兩項後續注入的 mutation 均「假綠」——根源是 `openSettings()` 自身呼叫 `probeCredentials()`，會用一次獨立、未被 mutate 的 probe 覆蓋掉啟動接線自己的（被 mutate 的）輸出，等於用第二條合法路徑掩蓋了第一條路徑的缺陷。改為在**打開 Settings 之前**先讀主 chrome 常駐的 `composer-provider`（`data-phase`/文字），確認才進 Settings 覆核 storage/connection 雙徽標與復原指引，兩條觀測互補、不互相污染。
+  - 未 mutate 時：**1/1 passed**——`composer-provider` 顯示 `failed`／`Connection failed`；Settings 內 `settings-credential-storage` 仍 `data-phase="stored"`／`Saved in Keychain`（非靜默清除），`settings-credential-phase` 顯式 `failed`／`Connection failed` 並展開 `settings-credential-recovery` + 精確失敗文案；`settings-clear-credential` 入口仍在場。
+  - 反例 A（`App.tsx` 靜默優化為 ready）：`setCredentialStatus(restored)` 改為 `setCredentialStatus({ ...restored, connection: { phase: 'ready' } })`，重跑：**1 failed**（`composer-provider` 實得 `ready`，非預期 `failed`）。撤銷後複核 **1/1 passed**。
+  - 反例 B（`connection-client.ts` 靜默清除為 absent）：`validate()` 的瀏覽器 override 分支改為「凡 `failed` 一律折成 `{credential:{phase:'absent'}, connection:{phase:'unverified'}}`」，重跑：**1 failed**（`composer-provider` 實得 `unverified`／`Connect`，非預期 `failed`）。撤銷後複核：探針 + 委託 `key-persist.spec.ts` 合跑 **3/3 passed**。
+  - 兩處 mutation 撤銷後 `git diff --stat` 均核對回空；探針檔案事後 `rm` 刪除，非委託交付物。
+- 文案覈實：探針復用既有 `FAIL_KIND_MESSAGES.auth`（既有字串，非本單新文案）。本單新增之英文文案（`Saved in Keychain`／`Not saved`／`Clear saved credential`／`Clearing…`／`Couldn't clear the saved credential. Try again.`／`Saved credential cleared from Keychain`）親自複核 `lint:voice`（`node scripts/assert-voice-copy.mjs`）：**通過（116 個源檔）**。但如實記錄一項掃描面邊界：讀 `voice-copy-lib.mjs` 可知該門的字串字面量分支只收錄含 CJK 者，JSX 文本分支排除含 `{expr}` 的混排——上述新文案全部是包在 `{三元表達式}` 內的純 ASCII 字面量，兩個分支都不命中，故**machine gate 對這批新文案實際零掃描**，「通過」是「掃描面之外」而非「逐條判定合規」。這與同一元件族既有先例一致（`CredentialForm.tsx` 已有的 "Couldn't complete verification. Try again." 等亦是同構的英文-`{}`-ASCII 組合，長期在掃描面外）；人工覆核新文案的語氣、`Couldn't X. Try again.` 句式與既有錯誤/清除文案一致，未發現偏離。此為誠實記錄的邊界，非本單引入的新缺口，不構成缺陷。
+
+## 3. 清除徹底性：Rust 親跑 + mutation
+
+- `cd src-tauri && cargo test`：**71 passed; 0 failed**（含本單新增 `clear_deletes_current_and_all_legacy_keychain_entries`、`clear_stops_on_keychain_failure_instead_of_reporting_success` 兩例，均 `ok`）。刪除目標精確為 `CREDENTIAL_ACCOUNT="credential"`（現行）+ `LEGACY_SOURCE_ACCOUNT="active-source"` + `LEGACY_SECRET_ACCOUNT="provider-secret"`（兩個 legacy）。
+- Mutation C（漏刪兩個 legacy，迴圈只留 `CREDENTIAL_ACCOUNT`）：`cargo test clear_` → **2 failed**（`remaining.is_empty()` 斷言失敗；`deleted` 集合不含 legacy 兩項）。撤銷後複核 **71/71**。
+- Mutation D（吞錯繼續刪，恆回 `Ok`——`let _ = delete(account);` 取代 `delete(account)?;`）：`cargo test clear_` → **1 passed / 1 failed**：「全刪」例仍綠（三帳號確實都被訪問），但「失敗須停且不得偽報成功」例確定性紅（`matches!(result, Err(AuthFailed))` 失敗）——精確證明兩例分別鎖住「刪全」與「錯即停、不偽報」兩條獨立語義，缺一不可。撤銷後複核 **71/71**，`git diff --stat -- src-tauri/src/lib.rs` 核對回空。
+- 「清除後啟動回未配置態」交叉覈實（非只信 stub）：`clear_provider_credential` 成功路徑呼叫 `set_verified_provider(None)`（撤銷行程內 verified 快取）後回傳 `unverified_readiness(&pending())`；`pending()` 之 `phase:"pending"` 經 `credential_readiness()`／`unverified_readiness()` 精確映射為 `{credential:{phase:"absent"}, connection:{phase:"unverified"}}`——非幽靈 `ready`，源碼層面即成立，非僅 e2e stub 巧合。委託 `key-persist.spec.ts` 第二例（清除 e2e）本輪亦在第 1/5 節的完整鏈與 residue 前多次獨立重跑中持續綠。
+- 邊界複核（如實記錄，非缺陷）：`grep LEGACY_*_ACCOUNT src-tauri/src/lib.rs` 確認兩個 legacy 帳號**只作為刪除目標出現，全程序零讀取／零消費**（無任何 `get_password`/等價讀路徑引用它們）；且既有（非本單）`save_provider_credential` 尾段本就對兩個 legacy 帳號做「靜默盡力刪除、失敗只 trace 不阻塞」的補償清理（註解：「殘留舊條目由下次 save/clear 再清」）。因此 `clear_all_credential_accounts` 「錯即停」在極端交錯失敗下即便某 legacy 條目一次未清乾淨，也不構成幽靈可用憑證（該條目從未被任何讀路徑消費），且下次 save 會再嘗試一次——確認此為合理設計而非需求 5 條件下的「小缺陷」。
+
+## 4. 不變量 8 核真（靜態門六類反例逐一覈真）
+
+於 `assert-credential-contracts.mjs`（baseline 先確認 `exit 0`）逐一注入、觀察紅、撤除、複核綠，`git diff --stat` 每次撤除後歸零：
+
+| # | 注入反例 | 觸發訊息 | 結果 |
+|---|---|---|---|
+| 1 | `credentials/client.ts` `status()` 內加 `window.localStorage.setItem(...)` | `前端凭证链禁止 localStorage` | exit 1 → 撤銷後 exit 0 |
+| 2 | `connection-client.ts` `validate()` 內加 `console.log('probe readiness', readiness)` | `前端凭证链禁止 console.log` | exit 1 → 撤銷後 exit 0 |
+| 3 | `credentials/client.ts` `setStatus` 的 `CustomEvent` 加 `{ detail: status }` | `凭证事件不得携带 detail/secret` | exit 1 → 撤銷後 exit 0 |
+| 4 | `status()` 復原歷史洩漏模式：直接讀 `window.__CW_FORCE_CREDENTIAL__` | `生产 credential status 不得直读 E2E window seed` + `credential E2E seed 属性读取必须恰好一个` | 同時觸發兩條 exit 1 → 撤銷後 exit 0 |
+| 5 | `credentialClient` 新增 `readSecretForDebug()` 呼叫 `invoke('read_credential_secret')` | `WebView 不得新增凭证明文读取命令` | exit 1 → 撤銷後 exit 0 |
+| 6 | `App.tsx` 啟動接線內加一行文字上符合 `credential.phase === 'stored'` 後 160 字元內接 `connection:{phase:'ready'}` 的樂觀提升 | `启动恢复不得把 stored 直接乐观提升为 ready` | exit 1 → 撤銷後 exit 0 |
+
+反例 4 精確復現本單 SPEC 偵察結論所述的歷史洩漏形狀（`readForcedProbe()` 直讀模式），證明本單新增的兩條門（生產路徑零直讀 + 讀取點恰好一次）確實鎖住了它修復的那個具體漏洞，非空文檢查。六項全數撤除後，`node scripts/assert-credential-contracts.mjs` 複核 `exit 0`，訊息「AUDIT-SEAL-2 + KEY-PERSIST-1 credential persistence/security boundaries passed」。
+
+**bundle 零明文覈真**：`pnpm --filter @courtwork/desktop build` 全新產出後，對 `dist/**` grep `__CW_FORCE_CREDENTIAL__`／`__courtworkCredentials`／`__courtworkProviderConnection`／測試假鑰 `cw-valid-secret-key`／`VITE_COURTWORK_E2E`／`installCredentialTestHooks`／`installProviderConnectionTestHooks`：**全部零命中**（Vite 對 `import.meta.env.DEV` 常量分支死碼消除生效，測試樁鏈路徑不可達 production bundle）。額外防禦性 grep `sk-[A-Za-z0-9]{8,}`／`Bearer` 命中僅為 `risk-`／`mask-image` 等業務詞彙的規則巧合（非金鑰），以及一段既有的**脫敏規則陣列**（`fB=[/sk-.../,/Bearer.../,...]`，用於日誌/診斷淨化，屬保護機制本身而非洩漏）——均非缺陷。
+
+**SEAL-2 雙門不回退覈真**：`git diff 8621c75^ 8621c75 -- apps/desktop/scripts/assert-credential-contracts.mjs` 顯示本單對既有「credential/providerConnection 兩 hook 雙門」檢查區塊（`hookNames`/`guardBody` 一段，line 16–49）**零改動**，唯一變動是把兩個 `readFile` 合併為 `Promise.all`（純機械等價，同名變數同值）；本輪完整鏈與本節六反例均在同一次腳本執行內驗證，雙門邏輯與本單新增邏輯共存互不削弱。
+
+## 5. 全量門（合併樹）
+
+`main` 於驗收全程停留 `bded9ac`（`git fetch` 二次核對），故下表即「rebase 至 main 尖端」後的結果：
+
+| 門 | 獨立實跑結果 |
+|---|---|
+| `pnpm -r build` | PASS；13/14 workspace（`services/ingest` 為 Python，非 pnpm 專案，符合既有基線）；desktop production Vite 3578 modules，僅既有 chunk-size advisory |
+| `pnpm lint` | PASS（`eslint .` 零輸出） |
+| 根 Vitest | `pnpm test` → **148 files / 1261 tests passed**（10.00s） |
+| cargo | `cargo test`（`src-tauri`）→ **71 passed; 0 failed**（含本單兩新例） |
+| 完整 `test:e2e`，埠 `19831` | 26 道靜態/設計/邊界門全綠（含 `assert-credential-contracts.mjs` 與 `assert-rp29-contracts.mjs` 的條件式冷啟動檢查）；`文案门通过：扫描 116 个 UI 源文件`；`Playwright 假绿防护通过：292 条用例（下限 292）`；Playwright **292/292 passed**（2.7m） |
+| residue 單 worker 三輪，埠 `19835/19836/19837` | 各 **22/22**（43.7s / 43.5s / 43.8s），含門禁自證三例（不清 portal／不還 focus／不停動畫均必紅） |
+| demo golden | `demo:s3`：**PASS**，`redline.docx` 39,651 bytes、7/7 考點命中、golden 骨架比對一致；`demo:legal`：**PASS**，`redline.docx` 4,606 bytes、11/11 錨點、六段標記與修訂命中全符 |
+
+floor 註記核對：`assert-test-count.mjs` 註解鏈precisely 記錄 `290 → 292`（本單 `+2` 對應委託之新增兩條 e2e：跨 reload 自動恢復 ready + Settings 顯式清除/零前端殘留），與腳本內 `const minimum = 292;` 及實跑「下限 292」訊息一致，無漂移。
+
+## 6. 真機復驗清單（SPEC 覈實，歸產品負責人；本單不執行）
+
+`apps/desktop/SPEC.md` 的 `KEY-PERSIST-1` 節「產品負責人真機復驗清單」現有四項：①真實 DeepSeek 驗證＋完全退出重啟免重輸；②保留 key、斷網重啟＋恢復網路重試；③`Clear saved credential`＋完全退出重啟仍不得幽靈 ready，並用「鑰匙串訪問」核對現行與兩個 legacy 條目均不存在；④WebView console／`credential-probe.log`（僅顯式開 trace 時）／診斷匯出零金鑰明文。
+
+**發現一項登記缺口**：委託動作第 6 點明確點名「重啟免重輸／清除後重輸／**鎖屏喚醒**」三徑，但親自覈對 SPEC 全文（`grep -n "锁屏\|唤醒\|睡眠\|sleep" apps/desktop/SPEC.md` 零命中）確認**鎖屏喚醒路徑未被登記**於上述四項真機清單中。此路徑與①③已覆蓋的「完全退出＋冷啟動」在系統行為上不同——macOS 鑰匙串的解鎖狀態與螢幕鎖定/喚醒週期、登入鑰匙串的閒置自動鎖定策略相關，冷啟動測試無法覆蓋「進程不重啟、僅螢幕鎖定再喚醒後首次 probe/送出」這一路徑是否會被瞬時誤判為 `failed`（進而依第 2 節已驗證的語義正確顯示失敗態，但若使用者頻繁鎖屏喚醒可能造成不必要的重複驗證觀感）。
+
+此為**登記缺口，非代碼缺陷**——本單自動化與本報告第 1–5 節的紅證/mutation 覆蓋範圍不涉及螢幕鎖定/喚醒系統事件，無法也不應由自動化 e2e 代為斷言；不阻塞本單放行，但建議產品負責人在執行真機清單前，將「鎖屏喚醒後首次 probe 行為」補為清單第五項（或經架構明確裁定「歸入①③範圍，不需獨立項」並留痕），避免真機試點台賬遺漏此徑。
+
+## 7. 不越界覈真
+
+`git diff bded9ac 8621c75 --stat`：恰 11 個檔案，全部落在 `apps/desktop/{SPEC.md,scripts/assert-credential-contracts.mjs,scripts/assert-rp29-contracts.mjs,scripts/assert-test-count.mjs,src-tauri/src/lib.rs,src/App.tsx,src/credentials/client.ts,src/provider/connection-client.ts,src/provider/connection-client.test.ts,src/settings/SettingsPage.tsx,tests/e2e/key-persist.spec.ts}`；零 `packages/**`、零 `docs/status/current.md`、零其他 app/服務改動。`src-tauri/src/lib.rs` 改動精確為新增一個可測試核心函式 `clear_all_credential_accounts` 並讓既有 `clear_provider_credential` 消費它（零新 crate、零 `Cargo.lock` 變動、零持久格式變更）；`assert-rp29-contracts.mjs` 改動把「冷啟動零 probe」的斷言從無條件改為「非 stored 時仍零 probe」，未放寬既有 RP-2.9 語義。
+
+**最終判定：KEY-PERSIST-1 放行 ✅。** 六項委託驗收動作（紅證復刻、probe 語義、清除徹底性、不變量 8、全量門、真機清單覈實）逐一亲手覈真，均通過或如實登記邊界；第 6 節發現的「鎖屏喚醒」登記缺口留待產品負責人在真機試點前定奪，不影響本單工程面放行。本會話未修改任何委託實現代碼（僅臨時 mutation 並全部撤除復核），未更新 `docs/status/current.md`，未推送，未 prune。

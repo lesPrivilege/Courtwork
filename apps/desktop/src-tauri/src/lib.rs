@@ -644,6 +644,19 @@ fn delete_credential_ignore_missing(account: &str) -> Result<(), KeychainFailKin
     }
 }
 
+fn clear_all_credential_accounts(
+    mut delete: impl FnMut(&str) -> Result<(), KeychainFailKind>,
+) -> Result<(), KeychainFailKind> {
+    for account in [
+        CREDENTIAL_ACCOUNT,
+        LEGACY_SOURCE_ACCOUNT,
+        LEGACY_SECRET_ACCOUNT,
+    ] {
+        delete(account)?;
+    }
+    Ok(())
+}
+
 /// F2：delete（忽略 NoEntry）→ set，强制当前身份新建 ACL。
 fn rewrite_password(account: &str, value: &str) -> Result<(), KeychainFailKind> {
     delete_credential_ignore_missing(account)?;
@@ -1927,16 +1940,10 @@ fn save_provider_credential(
 fn clear_provider_credential() -> Result<ProviderReadiness, String> {
     trace_startup_once();
     set_verified_provider(None);
-    for account in [
-        CREDENTIAL_ACCOUNT,
-        LEGACY_SOURCE_ACCOUNT,
-        LEGACY_SECRET_ACCOUNT,
-    ] {
-        if let Err(kind) = delete_credential_ignore_missing(account) {
-            let status = failed_keychain(None, kind);
-            trace_status_exit("clear_provider_credential", &status, Some("delete"));
-            return Ok(unverified_readiness(&status));
-        }
+    if let Err(kind) = clear_all_credential_accounts(delete_credential_ignore_missing) {
+        let status = failed_keychain(None, kind);
+        trace_status_exit("clear_provider_credential", &status, Some("delete"));
+        return Ok(unverified_readiness(&status));
     }
     let status = pending();
     trace_status_exit("clear_provider_credential", &status, None);
@@ -2539,6 +2546,49 @@ mod tests {
         assert_ne!(CREDENTIAL_ACCOUNT, LEGACY_SECRET_ACCOUNT);
         assert_eq!(LEGACY_SOURCE_ACCOUNT, "active-source");
         assert_eq!(LEGACY_SECRET_ACCOUNT, "provider-secret");
+    }
+
+    #[test]
+    fn clear_deletes_current_and_all_legacy_keychain_entries() {
+        let mut remaining = std::collections::BTreeSet::from([
+            CREDENTIAL_ACCOUNT,
+            LEGACY_SOURCE_ACCOUNT,
+            LEGACY_SECRET_ACCOUNT,
+        ]);
+        let mut deleted = Vec::new();
+
+        clear_all_credential_accounts(|account| {
+            deleted.push(account.to_owned());
+            remaining.remove(account);
+            Ok(())
+        })
+        .expect("clear all credential accounts");
+
+        assert!(remaining.is_empty());
+        assert_eq!(
+            deleted,
+            [
+                CREDENTIAL_ACCOUNT,
+                LEGACY_SOURCE_ACCOUNT,
+                LEGACY_SECRET_ACCOUNT,
+            ]
+        );
+    }
+
+    #[test]
+    fn clear_stops_on_keychain_failure_instead_of_reporting_success() {
+        let mut deleted = Vec::new();
+        let result = clear_all_credential_accounts(|account| {
+            deleted.push(account.to_owned());
+            if account == LEGACY_SOURCE_ACCOUNT {
+                Err(KeychainFailKind::AuthFailed)
+            } else {
+                Ok(())
+            }
+        });
+
+        assert!(matches!(result, Err(KeychainFailKind::AuthFailed)));
+        assert_eq!(deleted, [CREDENTIAL_ACCOUNT, LEGACY_SOURCE_ACCOUNT]);
     }
 
     #[test]

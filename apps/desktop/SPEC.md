@@ -2,6 +2,39 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## KEY-PERSIST-1 · API key 跨启动持久（P1，真机 M 项）（实现完成，待独立验收）
+
+权威：[实现就绪图 `KEY-PERSIST-1` 行](../../docs/architecture/implementation-readiness.md) + [真机台账 M 项](../../docs/status/pilot-2026-07-17.md) + [ADR-005 §2](../../docs/decisions/ADR-005-data-security.md) + [ADR-007 决定一](../../docs/decisions/ADR-007-provider-turn-protocol.md)。基线 `main @ bded9ac`，分支 `impl/key-persist-1`；不改 `docs/status/current.md`，真机复验留给产品负责人，独立验收另派。
+
+### 偵察结论（先证后改）
+
+- **key 已经持久落钥匙串，不是内存态漏写**：Rust 已使用既有 `keyring 4.1.4`，发行服务 `cn.courtwork.desktop.provider`（开发构建 `.dev`）的单一 `credential` 条目保存 `StoredCredential`；粘贴 key 只在 Rust `save_provider_credential` 内序列化并写入。WebView 只有 status/save/clear/validate 与窄 transport，零 secret 读回命令。故本单不引 crate、不改持久格式。
+- **根因是启动加载链止于 `stored + unverified`**：`App` 冷启动只调用 `credentialClient.status()`，Rust `provider_credential_status` 正确把可读条目投影为 `credential.stored + connection.unverified`，但没有接续 `validate_provider_connection`。随后 Chat/Work 发送守卫只接受 `ready`，会并行触发 probe 并立即打开空白凭证面，用户遂被迫重输。最小修复是：启动读到 stored 后自动走现有真实 probe；仍坚持“钥匙串可读 ≠ 已连接”，只有 probe 成功才 ready。
+- **清除宿主能力已存在但产品入口与删除证据不足**：Rust `clear_provider_credential` 已依次删除现行 `credential` 与 legacy `active-source` / `provider-secret`，并清空进程内 verified binding；Settings 只有“Manage credentials”，没有显式“已保存/清除”。本单补 storage/connection 正交展示、清除动作，并用可注入删除函数的 Rust 单测证明三条目全部删除、任一删除失败不伪报成功。
+- **测试 hook 边界沿用双门**：`installCredentialTestHooks()` 与 `installProviderConnectionTestHooks()` 的唯一生产调用点已在 `main.tsx` 的 `DEV && VITE_COURTWORK_E2E==='1'` 双门内。本单只让安装函数消费同门内的无 secret readiness 樁，扩展 `assert-credential-contracts.mjs` 锁启动恢复、清除目标、测试全局不可从生产状态读取路径直达；不把 key 写入 DOM、localStorage/sessionStorage、日志、事件或遥测。
+
+### TDD、范围与复杂度
+
+- 先红：桩层 reload 后，钥匙串状态虽为 stored，Settings 仍停在 unverified；补跨启动 e2e 锁定自动 probe 成功后 ready、无需展开或重填凭证表单。Settings 清除 e2e 先红于入口缺席；Rust 删除集合测试先红于无可注入清除核心。
+- 精确触面：`App.tsx` 启动 readiness 接线、Settings 凭证行、credential 测试 hook/静态门、对应 Vitest/Playwright/Rust tests 与本 SPEC。禁止修改 provider/catalog/schema/Turn/Work 契约、请求 wire、钥匙串 service/account 形制、`current.md` 或 e2e floor 下调。
+- 新增概念仅为“启动恢复既有 provider readiness”与“Settings 已保存/清除投影”，均是本票退出证据的直接产品面；Rust 删除函数只是把既有三次 delete 提取为可测试核心。零新依赖、持久格式、状态机、通用抽象。触碰面暂未发现需另案拍板的偶然复杂度。
+
+### 实现与证据（2026-07-18）
+
+- 启动链先读既有无敏感 `ProviderReadiness`；仅当 `credential.phase === 'stored'` 时显示 verifying 并调用既有真 probe，成功才 ready。刚读到的 readiness 作为可选参数交给 connection client，避免启动重复读取 Keychain status；无 key 冷启动仍不发 provider 网络请求、不弹凭证面。
+- Settings 将 storage 与 connection 正交展示：`Saved in Keychain / Not saved` 与 `Connected / Verifying / Connection failed / Connect` 分列；stored 时提供 `Clear saved credential`。清除成功关闭凭证编辑面并回到 absent+unverified；失败保留失败态与行动指引，不伪报已清除。
+- Rust 清除命令复用 `clear_all_credential_accounts`，依次删除 `credential`、`active-source`、`provider-secret` 后才返回 absent；任一删除失败即 failed，verified provider binding 在删除前已撤销。两条 Rust 单测用内存集合证明三目标全删与中途失败停止，零真实 key 入测。
+- 测试 hook 的 `__CW_FORCE_CREDENTIAL__` 预置只由 `installCredentialTestHooks()` 消费；该安装函数继续只有 `main.tsx` 的 `DEV && VITE_COURTWORK_E2E==='1'` 唯一调用点。生产 `credentialClient.status()` 不再直接读取 window 测试全局。静态门同时拒绝 credential 前端链中的 local/session storage、console、CustomEvent detail 与 read/get secret command，并锁启动 stored→verifying→probe、Settings clear、Rust 三条目清除核心。
+- TDD 红证：应用成功载入后的新增 e2e 精确红于跨 reload `data-credential-probed` 实得 `false`（预期 `true`）及 `settings-credential-storage` 缺席；Rust 精确编译红于缺 `clear_all_credential_accounts`；connection 单测精确红于启动已知 stored readiness 被忽略并回到 absent+unverified。最小实现后定向 **2 e2e / 2 passed**、credential/connection Vitest **2 files / 12 tests**、Rust clear **2/2**。
+- 实现侧终值：`pnpm -r build` 13 workspace projects 通过；`pnpm lint` 通过；根 Vitest **148 files / 1261 tests**；Rust **71/71**；隔离端口 `18743` 完整静态前链 + Playwright **292/292 passed（4.9m，single worker）**，floor **290 → 292**。production bundle 对 `__CW_FORCE_CREDENTIAL__` / `__courtworkCredentials` / 测试假 key 精确字面零命中。
+
+### 产品负责人真机复验清单（自动化绿不替代）
+
+1. 在开发或发行构建完成一次真实 DeepSeek 验证，确认 Settings 同时显示 `Saved in Keychain` 与 `Connected`；完全退出 Courtwork（非只关窗）再启动，凭证表单不自动展开、不重输即可发送一轮 Chat，并观察真实回复与 usage。
+2. 保留 key、断网后重启：应显示 saved + connection failed 与可执行重试文案，不得要求重输或误报 connected；恢复网络后从 provider 入口重试应回 ready。
+3. 在 Settings 点击 `Clear saved credential`：应回 `Not saved + Connect`；完全退出再启动仍不得自动 ready，首次发送应进入凭证引导。用「钥匙串访问」核对对应 service 下 `credential` 不存在；若存量机曾有 legacy `active-source` / `provider-secret`，二者也应不存在。
+4. 复验期间检查 WebView console、`~/Library/Logs/cn.courtwork.desktop/credential-probe.log`（仅在显式开 trace 时）与诊断导出：不得出现 key、Bearer、env 名值或可逆凭证内容。回填构建类型、service 名（发行或 `.dev`）、macOS 版本与结果，未回填前不提升 external-validated/product-live 口径。
+
 ## AUDIT-SEAL-2 · desktop 防线补齐（实现完成，待独立验收）
 
 权威：[实现就绪图 `AUDIT-SEAL-2` 行](../../docs/architecture/implementation-readiness.md) + ADR-001/004；基线 `main @ 92d1fd4`，分支 `impl/audit-seal-2-3`。本票不改 `docs/status/current.md`。

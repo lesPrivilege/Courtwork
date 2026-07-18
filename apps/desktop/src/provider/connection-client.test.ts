@@ -27,6 +27,21 @@ describe('provider connection smoke probe', () => {
     });
   });
 
+  it('reuses a just-read stored readiness during startup instead of reading Keychain status twice', async () => {
+    installCredentialTestHooks().clearOverride();
+    installProviderConnectionTestHooks().setResult({
+      credential: { phase: 'stored', source: 'pasted' },
+      connection: { phase: 'ready' },
+    });
+
+    await expect(providerConnectionClient.validate(DEFAULT_MODEL_CONFIG, {
+      credential: { phase: 'stored', source: 'pasted' },
+      connection: { phase: 'unverified' },
+    })).resolves.toMatchObject({
+      credential: { phase: 'stored' }, connection: { phase: 'ready' },
+    });
+  });
+
   it('maps a typed endpoint failure to user copy', async () => {
     installProviderConnectionTestHooks().setResult({
       credential: { phase: 'stored', source: 'pasted' }, connection: { phase: 'failed', failKind: 'endpoint' },

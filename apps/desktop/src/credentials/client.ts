@@ -89,6 +89,13 @@ export type CredentialTestHooks = {
 };
 
 export function installCredentialTestHooks(): CredentialTestHooks {
+  if (typeof window !== 'undefined') {
+    const seeded = (window as unknown as { __CW_FORCE_CREDENTIAL__?: ProviderReadiness }).__CW_FORCE_CREDENTIAL__;
+    if (seeded) {
+      testOverride = seeded;
+      browserStatus = seeded;
+    }
+  }
   const hooks: CredentialTestHooks = {
     setStatus(status) {
       testOverride = status;
@@ -108,11 +115,6 @@ export function installCredentialTestHooks(): CredentialTestHooks {
   return hooks;
 }
 
-function readForcedProbe(): ProviderReadiness | null {
-  if (typeof window === 'undefined') return null;
-  return (window as unknown as { __CW_FORCE_CREDENTIAL__?: ProviderReadiness }).__CW_FORCE_CREDENTIAL__ ?? testOverride;
-}
-
 function normalizeStatus(raw: ProviderReadiness): ProviderReadiness {
   if (raw.connection.phase !== 'failed' || raw.connection.failureMessage || !raw.connection.failKind) return raw;
   return { ...raw, connection: { ...raw.connection, failureMessage: messageForFailKind(raw.connection.failKind) } };
@@ -127,8 +129,7 @@ function localFailure(source: CredentialSource, message: string, failKind?: Cred
 
 export const credentialClient = {
   async status(): Promise<ProviderReadiness> {
-    const forced = readForcedProbe();
-    if (forced) return normalizeStatus(forced);
+    if (testOverride) return normalizeStatus(testOverride);
     if (!isTauriRuntime()) return normalizeStatus(browserStatus);
     try {
       return normalizeStatus(await invoke<ProviderReadiness>('provider_credential_status'));

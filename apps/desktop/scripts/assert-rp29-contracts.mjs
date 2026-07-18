@@ -21,7 +21,9 @@ if (serifConsumers.length !== 1 || !css.includes('.welcome-slogan')) failures.pu
 // RP-2.12：welcome 从卡片改居中 home 布局,surfaceRadius 低密度大面消费退役（零消费合法,token 留待未来大面）
 if ((css.match(/var\(--home-surface-radius\)/g) ?? []).length > 1) failures.push('home.surfaceRadius 消费漂移（至多一处低密度大面）');
 if (!tauri.includes('"titleBarStyle": "Overlay"') || !tauri.includes('"hiddenTitle": true')) failures.push('macOS title bar must use native Overlay with hidden title');
-if (/probeCredentials\(\);\s*const onProbe/.test(app)) failures.push('cold start must not probe credentials');
+// KEY-PERSIST-1 后：无 stored credential 的冷启动仍不跑 provider probe；stored 启动则必须自动恢复。
+if (/probeCredentials\(\);\s*const onProbe/.test(app)) failures.push('cold start must not unconditionally probe credentials');
+if (!app.includes("status.credential.phase !== 'stored'")) failures.push('startup provider restore must stay conditional on stored credential');
 if (!app.includes('data-credential-probed')) failures.push('credential probe timing must stay observable');
 if (!messageActions.includes('courtwork.message-feedback-ledger') || !messageActions.includes('createdAt')) failures.push('message feedback and timestamps must remain ledger-backed');
 
