@@ -191,6 +191,12 @@ test('批量确认入口不可见，逐条确认路径可用', async ({ page }) 
   await panel.locator('[data-risk-id="risk-02"]').click();
   const confirm = panel.getByRole('button', { name: '确认此项', exact: true });
   await expect(confirm).toBeEnabled();
+  // 补丁（架构裁定）：off 态面板全文零「批量」子串——含详情面 footer 与 individual-note 措辞。
+  expect(await panel.innerText()).not.toContain('批量');
+  await panel.locator('[data-risk-id="risk-03"]').click();
+  await expect(panel.locator('.individual-note')).toBeVisible();
+  expect(await panel.innerText()).not.toContain('批量');
+  await panel.locator('[data-risk-id="risk-02"]').click();
   await confirm.click();
   await expect(panel.locator('[data-risk-id="risk-02"] .gate-state')).toHaveText('已确认');
 });
