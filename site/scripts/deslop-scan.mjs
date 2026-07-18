@@ -88,8 +88,12 @@ for (const failure of checkDemoMotion(css)) {
   failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
 }
 
+// `.claude` 与 .git/node_modules 同类：工具目录，非仓内容。不排除时根遍历会扫到
+// 陈旧 worktree 副本（如 .claude/worktrees/*/site/styles.css），其路径不在
+// cssColorAllowlist 的 file|selector|property 键内，逐条误报为「非 tokens 精确消费者」
+// ——本机既存 109 项红全部源于此，live tree 零失败（2026-07-19 拍板排除）。
 const excludedDirectories = new Set([
-  '.git', 'archive', 'coverage', 'dist', 'node_modules', 'playwright-report',
+  '.claude', '.git', 'archive', 'coverage', 'dist', 'node_modules', 'playwright-report',
   'site-dist', 'target', 'test-results',
 ]);
 const activeExtensions = new Set(['.cjs', '.css', '.html', '.js', '.jsx', '.md', '.mjs', '.svg', '.ts', '.tsx']);
