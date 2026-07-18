@@ -1,3 +1,7 @@
+## AUDIT-SEAL-3 · core 装配点静态锁验收（2026-07-18）
+
+- **✅ 放行**：新 `tools/tool-registration-boundary.test.ts` 硬编码全仓恰三处 `tools.register()`/`createToolRegistry()` 受信装配点，逐点锁 `toolToken→toolId→factory→sideEffect` 四元组。验收亲写区分探针——保持注册计数不变（仍 1 处），只把 `demo-assembly.ts` 的 `sideEffect` 由 `pure_read` 改 `file_write`，主生产扫描测试独立触红且**零计数类违规**，确认锁的是配对本身而非仅统计次数；既有伪装反例（「expected exactly one … got 2」）复核不变。零新 runtime 分支、依赖、导出、事件或 registry 契约。root Vitest **1261/1261**、`pnpm -r build`/`pnpm lint` 均在验收 worktree 内亲手复跑绿。完整报告见 `packages/tools/ACCEPTANCE.md` 的 AUDIT-SEAL-3 报告。
+
 ## AUDIT-SEAL-1 独立验收（2026-07-18）
 
 - **验收角色**：未参与实现的独立验收会话；不采信实现自述，本节全部数字均来自隔离 worktree 亲手复跑。

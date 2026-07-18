@@ -1,3 +1,9 @@
+## AUDIT-SEAL-3 · 包域律守卫铺满验收（2026-07-18）
+
+- **✅ 放行**：新 `package-boundary.test.ts` 复制 core 的 `FORBIDDEN_LITERALS` 同表（逐项核对完全相同）+ `FORBIDDEN_PACKAGES` 按本包实际依赖面裁剪，锁生产源零 vertical/demo 渗漏。验收亲自向 `src/index.ts` 追加含「风险清单」的字面量，测试独立触红（1 failed/2 passed）；撤除后复绿（3/3）。零运行代码、依赖、格式、状态机或公共抽象变化，既有 OOXML/output 行为、golden 与兼容范围不变。完整报告见 `packages/tools/ACCEPTANCE.md` 的 AUDIT-SEAL-3 报告。
+
+---
+
 # W4 验收报告：packages/output
 
 验收日期：2026-07-09  

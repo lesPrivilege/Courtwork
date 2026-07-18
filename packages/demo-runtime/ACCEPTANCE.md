@@ -1,5 +1,9 @@
 # ACCEPTANCE: packages/demo-runtime
 
+## AUDIT-SEAL-3 · Legal 绑定投影同步验收（2026-07-18）
+
+- **✅ 放行**：`demo-assembly.ts::projectPartyRecord` 把富语料 `litigationSummary` 投影为 tools 中性 `relatedRecords[{reference,summary}]`；Legal 专属案号格式只存在于本受信绑定层，未泄漏回 tools。验收核实 `rg citationType===.statute. packages/legal apps/desktop` 全仓零命中生产代码——cite-check 当前确无生产 legal 消费面，SPEC 对此如实自陈，非夸大。`demo-assembly.test.ts` **2/2 passed**；`demo:legal`/`demo:s3` golden 在合并树亲跑均 PASS。零新依赖、状态、抽象或执行步骤。完整报告见 `packages/tools/ACCEPTANCE.md` 的 AUDIT-SEAL-3 报告。
+
 ## CORE-BOUNDARY-1 独立验收（2026-07-14）
 
 **结论：放行。** 本包从原 core 机械承接 demo composition、acceptance runner、三条 CLI 与 golden，未改变 fixture、场景、事件、引用、确认、修订或 output 语义。
