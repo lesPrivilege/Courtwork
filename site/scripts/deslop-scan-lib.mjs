@@ -141,8 +141,8 @@ const exactRadiusConsumers = new Map([
 const exactGradients = new Map([
   ['apps/desktop/src/icons/icon-audit.css|.icon-audit figure > span|background-image', 'linear-gradient(var(--audit-border) 1px, transparent 1px), linear-gradient(90deg, var(--audit-border) 1px, transparent 1px)'],
   ['apps/desktop/src/styles.css|.case-scroll|mask-image', 'linear-gradient(to bottom, transparent 0, var(--text-primary) 10px, var(--text-primary) calc(100% - 10px), transparent 100%)'],
-  ['apps/desktop/src/styles.css|.collapsible-message.is-overflowing:not(.is-expanded) .collapsible-body|-webkit-mask-image', 'linear-gradient(to bottom, var(--text-primary) 62%, transparent)'],
-  ['apps/desktop/src/styles.css|.collapsible-message.is-overflowing:not(.is-expanded) .collapsible-body|mask-image', 'linear-gradient(to bottom, var(--text-primary) 62%, transparent)'],
+  ['apps/desktop/src/styles.css|.collapsible-message.is-overflowing:not(.is-expanded) .collapsible-body|-webkit-mask-image', 'linear-gradient(to bottom, var(--text-primary) calc(100% - 48px), transparent)'],
+  ['apps/desktop/src/styles.css|.collapsible-message.is-overflowing:not(.is-expanded) .collapsible-body|mask-image', 'linear-gradient(to bottom, var(--text-primary) calc(100% - 48px), transparent)'],
   ['apps/desktop/src/styles.css|.signature-line::after|background', 'linear-gradient(to bottom, currentColor 0%, color-mix(in srgb, var(--bg-raised) 58%, transparent) 50%, currentColor 100%)'],
   ['apps/desktop/src/styles.css|.usage-ring|background', 'conic-gradient(var(--slate-graphic) var(--usage), var(--border) 0)'],
   ['apps/desktop/src/styles.css|.usage-ring|mask', 'radial-gradient(circle, transparent 45%, var(--text-primary) 48%)'],
