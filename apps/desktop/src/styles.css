@@ -95,7 +95,7 @@
   --home-control-radius: 8px;
   --home-surface-radius: 16px;
   --home-welcome-measure: 560px;
-  --content-measure: 760px; /* 五裁①(2026-07-12)：chat 内容列统一测宽,与 welcome 560 成梯度 */
+  --content-measure: 640px; /* COMPOSER-FLOW-COMPACT-1：chat 内容列与 composer 收至窄阅读测宽，welcome 560 保持梯度 */
 }
 
 * { box-sizing: border-box; box-shadow: none; scrollbar-width: thin; scrollbar-color: transparent transparent; }
@@ -470,7 +470,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 /* RP-2.12 待机主屏（Cowork 复刻）：品牌 icon + slogan（非卡）→ 居中 composer → 建议行 */
 .welcome-home {
   /* LAYOUT-CONVERGE-1 P2-4：测宽单源——收敛到 --home-welcome-measure（原硬编码 720px 退役，
-     与 --content-measure:760 成梯度，见 tokens.json home.welcomeMeasure）。 */
+     与 --content-measure:640 成梯度，见 tokens.json home.welcomeMeasure）。 */
   width: min(var(--home-welcome-measure), calc(100% - 48px)); margin: auto; padding: 0 0 48px;
   display: grid; justify-items: stretch; gap: var(--home-section-gap); color: var(--text-secondary);
 }

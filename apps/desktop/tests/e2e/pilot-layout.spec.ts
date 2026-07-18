@@ -15,10 +15,10 @@ import { createNamedCase, openModuleList, openWorkbench } from './helpers';
  *
  * mainArea 语义：work 段用 conversation-canvas 的 boundingBox（任意收拢组合下都是主区真值，
  * 即 grid 子项本身，非视口）；chat 段用 chat-canvas；welcome 内容寄居 work 段 conversation-canvas
- * 之内，同样以其为参照系。measure 固定用 --content-measure（当前 token 值 760）。
+ * 之内，同样以其为参照系。measure 固定用 --content-measure（当前 token 值 640）。
  */
 
-const MEASURE = 760;
+const MEASURE = 640;
 const WIDE_VIEWPORT = { width: 2400, height: 1000 };
 
 interface Box { x: number; y: number; width: number; height: number }

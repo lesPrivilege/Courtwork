@@ -158,3 +158,12 @@
 
 - 本会话退出门：`pnpm site:build`、`pnpm site:guard`、`pnpm lint`、`pnpm -r build`、`pnpm test` 均需实跑留证；提交前再执行 `git diff --check`，逐文件暂存并检查 cached names。
 - 独立验收会话必须在 clean worktree、独立端口复核六类真应用帧、响应式/键盘/对比度、文案 voice 与前后对照，并实际注入批量入口反例确认门禁变红；本实现会话不标记放行。
+
+## COMPOSER-FLOW-COMPACT-1 · 首页 composer/chat 流收窄（实现完成，待独立验收）
+
+本次首页视觉收尾的后续实现项。根因在 desktop 真源：`--content-measure: 760px` 同时约束 chat 正文列与 composer；宽主栏裁片中两者均显得过宽。现收至 **640px**，welcome `560px` 与站点布局契约保持不变。
+
+- 真应用先红/转绿证据：`pilot-layout.spec.ts` 旧 CSS 实测 5 项 `760 vs 640`；改 CSS 后独立端口真应用 e2e **9/9**。
+- 替换：`assets/screenshots/11-milestone-dossier-{1440,720}.webp`；原始 1440×900 PNG 与前后对照在 `craft-evidence/COMPOSER-FLOW-COMPACT-1/`。
+- 站点语义不变：本裁片仍是虚构合成卷宗的真实 UI，不新增 product-live、隐私、性能或规模宣称；其他 RiskList/redline/未落格/关系图谱/工作台资产不因本次测宽改动而虚构重拍。
+- 本节为实现留痕；放行结论需由独立验收会话写入 `site/ACCEPTANCE.md`，本实现会话不自验。
