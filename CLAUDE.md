@@ -20,7 +20,7 @@ packages/reading-view                 文档安全预检、阅读视图与锚点
 packages/schemas                      领域无关 wire 契约
 packages/demo-data                    虚构导览、测试与验收语料
 packages/demo-runtime                 demo/acceptance 唯一装配点与 CLI；只由开发/验收消费
-eval                                  中性评测底座
+eval                                  中性评测底座（例外：可生产依赖 demo-data——评测标准答案与导览语料同源，属有意设计；此豁免不扩大到任何其他包）
 services/ingest                        Python OCR/分类/实体对齐
 ```
 
