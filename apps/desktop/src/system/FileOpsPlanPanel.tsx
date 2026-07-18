@@ -37,7 +37,7 @@ function displayCaseRelativePath(path: string, caseRoot: string): string {
  */
 export function FileOpsPlanPanel({ caseId, onFeedback }: FileOpsPlanPanelProps) {
   const [plan, setPlan] = useState<FileOpsPlan>(() => {
-    resetFileOpsDemo();
+    resetFileOpsDemo(caseId);
     return createDemoFileOpsPlan(caseId);
   });
   const [report, setReport] = useState<FileOpsExecuteReport | null>(null);
@@ -86,7 +86,7 @@ export function FileOpsPlanPanel({ caseId, onFeedback }: FileOpsPlanPanelProps) 
     setBusy(true);
     setUndoConfirm(false);
     try {
-      await undoDemoPlan(plan.id);
+      await undoDemoPlan(caseId, plan.id);
       setUndone(true);
       onFeedback?.('已撤销整理操作，文件状态已恢复。', true);
     } catch (error) {

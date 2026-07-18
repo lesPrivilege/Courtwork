@@ -2,6 +2,17 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## AUDIT-SEAL-2 · desktop 防线补齐（实现完成，待独立验收）
+
+权威：[实现就绪图 `AUDIT-SEAL-2` 行](../../docs/architecture/implementation-readiness.md) + ADR-001/004；基线 `main @ 92d1fd4`，分支 `impl/audit-seal-2-3`。本票不改 `docs/status/current.md`。
+
+- **credential hooks 双门**：`installCredentialTestHooks()` 与 `installProviderConnectionTestHooks()` 从无条件组合根调用迁入既有 `DEV && VITE_COURTWORK_E2E==='1'` 门。新增 `assert-credential-contracts.mjs` 锁两 hook 的唯一生产调用点、双门包裹和 `handleChatSend` 死参数零残留，并进入 `test:e2e`/`lint:credential`；因此生产构建没有安装测试全局的可达调用路径。
+- **demo caseId 双门**：`file-ops-demo.ts` 的计划构造/执行/撤销/重置/快照与 `legal-interaction.ts` 的交互建立/原文路由均在读取 demo fixture 前校验 `isDemoCaseId`；UI 层既有 `isDemoCase` 门之外再有模块运行时门。非 demo `case-real` 注入在两模块修复前均未抛错，修复后同步拒绝。
+- **死参数清理**：Chat 与 Work 已有独立发送路径；`handleChatSend`/`submitChatContent` 的 `workContextSegment` 从未有调用方供给，故删除该形参及死透传，不动 Work 的 `handleComposerSend → sendChatTurn(workContextSegment)` 真链。
+- **overwrite 回归锁**：不改 SEAL-1 行为；新增 `overwrite=true` 对 symlink/目录必须 `OutOfScope` 的 Rust 测试，并验证链接外目标/目录保持不变。mutation 将实体类型门改为放行后，两例分别出现「symlink 覆盖成功」与「directory 收敛成 Unavailable」，测试 2/2 变红；恢复后 2/2 绿。
+- **复杂度与开源审视**：零新依赖、持久格式、状态机、schema/registry 契约或通用抽象；仅沿用现有 hook 双门、`isDemoCaseId` 与 Rust 实体类型门。触碰面扫描未发现需另案拍板的偶然复杂度；Playwright 用例/floor 不变，新增的均为静态门、Vitest 与 cargo 锁。
+- **实现侧终值**：生产 desktop bundle 对 `__courtworkCredentials` / `__courtworkProviderConnection` 零命中；desktop Vitest **59 files / 354 tests**、Rust **69/69**、`pnpm build` 与根 `pnpm lint` 通过；隔离端口 `18732` 完整静态门 + Playwright **290/290**（floor 290）通过。
+
 ## AUDIT-SEAL-1 · `scoped_write` 覆盖保护下沉（实现完成，待独立验收）
 
 权威：[实现就绪图 `AUDIT-SEAL-1` 行](../../docs/architecture/implementation-readiness.md) + [ADR-004](../../docs/decisions/ADR-004-documents-and-files.md) + [ADR-010](../../docs/decisions/ADR-010-work-live-boundaries.md)。基线 `main @ bcafc5e`，分支 `impl/audit-seal-1`；未推送、未改 `docs/status/current.md`。

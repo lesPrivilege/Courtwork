@@ -535,7 +535,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   const openInteractionSource = async (anchor: Parameters<typeof resolveLegalDemoSource>[0]) => {
     try {
-      const route = resolveLegalDemoSource(anchor);
+      const route = resolveLegalDemoSource(anchor, selectedCaseId);
       previewDismissedContext.current = null;
       manualPreviewSelected.current = true;
       setReaderDoc(route);
@@ -627,7 +627,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
    * `onProjection` 按 turnId find-or-append 落位对新发送与重试都成立：重试时旧失败态已从存活视图裁掉，
    * 新 turnId 必然落在配对用户消息之后，等价于「原位替换」。
    */
-  const submitChatContent = (content: string, userTextForMemory: string, historyBase: ChatMessage[], workContextSegment?: string) => {
+  const submitChatContent = (content: string, userTextForMemory: string, historyBase: ChatMessage[]) => {
     chatFlightRef.current = true;
     // CHAT-SESSION-1（ADR-013 §1）：续行历史只取当前连续性会话——距最近一次请求 ≤ 1 小时才延续。
     // 超窗即新 session，续行为空：不回灌历史全文（memory 注入属 CHAT-MEMORY-1，不在本单）。
@@ -647,8 +647,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     void sendChatTurn(turnClient, modelConfig, [...history, { role: 'user' as const, content }], {
       ...(providerTransport ? { transport: providerTransport } : {}),
       ...(memorySegment ? { memorySegment } : {}),
-      // WORK-TURN-1 H：Work 面案语境段（缺省不供给＝字节等同既有；排 memory 之后守稳定前缀律）。
-      ...(workContextSegment ? { workContextSegment } : {}),
       signal: controller.signal,
       onProjection: (projection) => {
         setChatMessages((current) => {
@@ -695,7 +693,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       });
   };
 
-  const handleChatSend = (payload: ComposerSendPayload, workContextSegment?: string) => {
+  const handleChatSend = (payload: ComposerSendPayload) => {
     if (chatFlightRef.current) return false; // 未受理：composer 保留草稿（批次七 #3）
     if (credentialStatus.connection.phase !== 'ready') {
       probeCredentials();
@@ -721,7 +719,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         createdAt: Date.now(),
       },
     ]);
-    submitChatContent(requestContent, payload.text, historyBase, workContextSegment);
+    submitChatContent(requestContent, payload.text, historyBase);
     return true;
   };
 
@@ -995,12 +993,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   useEffect(() => {
     if (!isDemoCase || flow !== 'S3' || !session.confirmation) return;
     try {
-      setInteractionReplay(ensureLegalDemoInteraction(turnClient));
+      setInteractionReplay(ensureLegalDemoInteraction(turnClient, selectedCaseId));
       setTurnRecoveryError(undefined);
     } catch (error) {
       setTurnRecoveryError(readableError(error, 'Unable to recover interaction history'));
     }
-  }, [flow, isDemoCase, session.confirmation, turnClient]);
+  }, [flow, isDemoCase, selectedCaseId, session.confirmation, turnClient]);
 
   // CASE-ROOT-1：案件根改为 opaque 绑定。真实案件根绝对路径只在宿主侧按 grantId 解析，
   // renderer 只见 binding（demo|grant|unbound）。`demoCaseRoot` 是样板案的虚拟根，仅供 demo

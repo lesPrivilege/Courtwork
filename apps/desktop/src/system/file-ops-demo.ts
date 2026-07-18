@@ -5,6 +5,7 @@ import {
   type FileOpsUndoReport,
 } from '@courtwork/tools/file-ops-executor';
 import { createMemoryFileOpsHost } from '@courtwork/tools/file-ops-host';
+import { isDemoCaseId } from '../case/case-scope';
 import { DEMO_CASE_ROOT } from './demo-case-layout';
 
 const encoder = new TextEncoder();
@@ -25,13 +26,19 @@ function buildDemoHost() {
 let host = buildDemoHost();
 let executor = createFileOpsExecutor(host);
 
-export function resetFileOpsDemo() {
+function assertDemoCaseId(caseId: string): void {
+  if (!isDemoCaseId(caseId)) throw new Error('Demo file operations reject non-demo case refs');
+}
+
+export function resetFileOpsDemo(caseId: string) {
+  assertDemoCaseId(caseId);
   host = buildDemoHost();
   executor = createFileOpsExecutor(host);
 }
 
 /** 演示整理计划（S6 产出） */
 export function createDemoFileOpsPlan(caseId: string): FileOpsPlan {
+  assertDemoCaseId(caseId);
   return {
     id: `plan-${caseId}-demo`,
     caseId,
@@ -78,13 +85,16 @@ export function createDemoFileOpsPlan(caseId: string): FileOpsPlan {
 }
 
 export async function executeDemoPlan(plan: FileOpsPlan): Promise<FileOpsExecuteReport> {
+  assertDemoCaseId(plan.caseId);
   return executor.execute(plan);
 }
 
-export async function undoDemoPlan(planId: string): Promise<FileOpsUndoReport> {
+export async function undoDemoPlan(caseId: string, planId: string): Promise<FileOpsUndoReport> {
+  assertDemoCaseId(caseId);
   return executor.undo(planId);
 }
 
-export function getDemoHostSnapshot() {
+export function getDemoHostSnapshot(caseId: string) {
+  assertDemoCaseId(caseId);
   return host.snapshot();
 }
