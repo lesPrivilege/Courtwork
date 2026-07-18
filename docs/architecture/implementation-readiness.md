@@ -49,11 +49,23 @@ Chat 线（ADR-013）
 
 **Round 3 收尾序（2026-07-15 拍板；polish 分轮 2026-07-17 修订）**：主线收敛（MATERIAL-INGRESS → LEGAL-S3-BINDING → WORK-LIVE）→ 终局 UI polish 分两轮：**R1 定向修缮**（产品负责人 + Sonnet 手动定向修小问题/对齐；小修批以「全量门绿 + 架构逐 diff 复核」清账，不派独立验收——残留门/设计门/floor 为质量底座，任一回退即退回工单制）→ **R2 巧思视效**（Fable 主导，消费归档调研与素材包，批次独立验收 + Sol 视觉全量扫终审，先例红线见设计 README 与 SITE-CRAFT 判例史）——**R2 供料包已齐（2026-07-18）**：Claude Design 四面设计稿（RiskReviewSurface variant×domain / TimelineGraphSurface / RevisionSurface / WorkCanvasSurface）+ SchemaParts 17 族元素库（token 路径+reduced-motion 内建），设计件非权威、落地逐件过门；变体选型经产品拍板后出批次票→ **一次小发版**：实现 legal 宣言、奠定 UI/UX 基调。其后其他垂类（PM scenario、roleplay 等）与角色面板/pets 类可召唤 preview 均为轻量包级小增量，不触 core。
 
-## Round 4 开工序（2026-07-18 拍板）
+## Round 4 对齐计划（2026-07-18 拍板，取代简单开工序）
 
-**先解耦、再 harness 真实化、后 polish**——防止在未密封的底座上叠加法。序：① `AUDIT-SEAL-1/2/3`（密封审计口子，Sol 执行）→ ② harness 全量真实化线（`TOOL-READ-1` L1 受控只读工具 + `GENERIC-PACK-1` + `PACK-INTERACT-1` + `SCENARIO-LIVE-2`，与 GUI 呼应：R2 各面消费真实 harness 投影而非样板态）→ ③ polish R2 批次（B1 已派 Fable，**在 ①落地前暂缓开工**）。纪律：已跑过的调研与开源 agent 项目按需取形不重复造轮子，遇问题优先成熟开源方案（License 合规前提，pandoc GPL 拒例在案）。
+**总纲：coding 暂缓一拍，对齐先行**——五项结构性忧虑（产品负责人提出）逐条对策化；对齐动作完成前，harness 真实化与 polish R2 不放行。
 
-**Rust 重构裁定（2026-07-18）**：节点未到。Rust 边界维持「受控宿主能力」（CAS/授权/密钥/文件），**按需逐点下沉**是现行正确形态（`scoped_write` 覆盖保护下沉即本轮实例）；全量 Rust 化 core/harness 触碰 ADR-011「不引入第二 agent runtime」且复杂度预算不该花在这。重启判据三条（满足其一再议）：性能实测瓶颈（当前无）、第二宿主真实需求（Stage 4）、TS 层出现门禁封不住的安全面。
+**忧一 · 代码先于架构 → 追认与清偿线**。已知「实现先行」债清单（从审计与试点累积）：Legal 四 panel 硬编码（`PANEL-BLUEPRINT-1`，最大一笔）；S6 执行时序（已裁 desktop 装配点模式，待实现）；chat 附件「存入卷宗」容器化仪式（current.md 已登记非真入库）；interaction actor 写死 `desktop/local-user`；workContextSegment 死参数（SEAL-2③ 在途）。对策：**ARCH-DEBT 裁定会**——架构出全量清单逐笔裁「ADR 追认为正解 / 重构票入队 / 显式容忍留痕」，三选一不悬置。纪律重申为硬门：实现会话引入新跨层面必须先指认 SPEC/ADR 锚点，无锚即 `[需架构拍板]`，验收查锚。
+
+**忧二 · 减法未足 → OSS 减法评估线**。立一次性盘点票 `OSS-SUBTRACT-1`：对全部自研面（md 渲染、diff、图渲染、OOXML、状态管理、E2E 工装等）逐项问「有无 License 合规（MIT/Apache）的成熟件可换」，输出换/不换理由表——**不换的理由同样是资产**（自研加固清单的验证）；换的逐项立票。此后每张 harness 真实化票自带「OSS 候选评估」节（已入纪律）。
+
+**忧三 · 绿≠功能≠架构 → 版级仪式两件**。成熟度枚举与 current.md 唯一口径不变；新增版级收尾仪式：(a) **真机全链回归清单**——试点台账模板化为脚本化 checklist，每版收尾必跑（工程绿只是入场券）；(b) **解耦审计仪式化**——本轮三腿审计（包边界/路由双轨/effect 授权）定为每版收尾动作，新抓口子按 SEAL 模式入票。「机制不对称」教训固化：立门以族为单位铺满。
+
+**忧四 · 调研未充分利用 → 消费率清账**。归档索引已有时效三态；追加**消费状态 pass**：全部「可借形/仍有效」项逐条裁「入票 / 显式不采纳留痕」，不许悬置——已知未消费清单：oss-gui-source-patterns 采收 8 项、emil polish 规则包、namethatui 词典正式并入、SkillsBench 归因协议（SKILL-REFINERY 验收设计）、OWASP Memory Guard 四态（memory 演进 ADR 素材）。pass 结果写回归档索引。
+
+**忧五 · 前端克制被轻视 → 凡例权威化 + 克制审计**。SCHEMA-EXEMPLAR-1 凡例文档尽快进 `docs/design/`（权威层）；R2 每批验收附**克制审计条款**：新增视觉元素必须指认业务语义（风险色阶/落定感/双值锚类），纯装饰默认拒绝；「减法八条」与设计原则是正面资产不是欠账，上游口径同表述。
+
+**执行序**：① SEAL-2/3（在途）→ ② ARCH-DEBT 裁定会 + 调研消费 pass（架构执行）→ ③ OSS-SUBTRACT-1（Sonnet 盘点+架构裁）→ ④ 凡例文档权威化 → ⑤ 放行 harness 真实化线（TOOL-READ-1 → GENERIC-PACK-1/PACK-INTERACT-1/SCENARIO-LIVE-2）与 polish R2。开源纪律与 License 红线（pandoc GPL 拒例）全程适用。
+
+**Rust 重构裁定（2026-07-18）**：节点未到。Rust 边界维持「受控宿主能力」，按需逐点下沉（`scoped_write` 下沉即实例）；全量 Rust 化触 ADR-011 第二 runtime 红线。重启判据：性能实测瓶颈 / 第二宿主真实需求 / TS 层门禁封不住的安全面——满足其一再议。
 
 ## 工单边界与退出证据
 
