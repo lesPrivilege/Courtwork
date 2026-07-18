@@ -1517,12 +1517,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     }
   };
 
-  useEffect(() => {
-    if (!selectedCaseId) return;
-    const saved = window.localStorage.getItem(`courtwork.case-title.${selectedCaseId}`);
-    if (saved) setCases((current) => current.map((item) => item.id === selectedCaseId ? { ...item, title: saved } : item));
-  }, [selectedCaseId]);
-
   const commitCaseTitle = () => {
     if (!selectedCaseId) {
       setEditingCaseTitle(false);
@@ -1531,7 +1525,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     const title = caseTitleDraft.trim();
     if (title) {
       setCases((current) => current.map((item) => item.id === selectedCaseId ? { ...item, title } : item));
-      window.localStorage.setItem(`courtwork.case-title.${selectedCaseId}`, title);
     }
     setEditingCaseTitle(false);
   };

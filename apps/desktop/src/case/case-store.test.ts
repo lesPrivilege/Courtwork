@@ -19,6 +19,7 @@ function makeBackend(seed?: string): CaseListBackend & { map: Map<string, string
     map,
     getItem: (key) => map.get(key) ?? null,
     setItem: (key, value) => void map.set(key, value),
+    removeItem: (key) => void map.delete(key),
   };
 }
 
@@ -27,6 +28,7 @@ function reopen(backend: { map: Map<string, string> }): CaseListBackend {
   return {
     getItem: (key) => backend.map.get(key) ?? null,
     setItem: (key, value) => void backend.map.set(key, value),
+    removeItem: (key) => void backend.map.delete(key),
   };
 }
 
@@ -50,6 +52,32 @@ describe('case-store：案件列表版本化单键持久（work-session 先例�
     writeCaseList([GRANT_CASE], backend);
     // 模拟重启/重载：丢弃旧实例，用新实例读同一底层字节。
     expect(readCaseList(reopen(backend))).toEqual([GRANT_CASE]);
+  });
+
+  it('CASE-TITLE-CONVERGE-1：一次性吸收同案旧键标题，写回列表后删除旧键', () => {
+    const backend = makeBackend(JSON.stringify({ version: CASE_LIST_SCHEMA_VERSION, cases: [GRANT_CASE] }));
+    const legacyKey = `courtwork.case-title.${GRANT_CASE.id}`;
+    backend.map.set(legacyKey, '合同审查案 · 最后改名');
+
+    expect(readCaseList(backend)).toEqual([{ ...GRANT_CASE, title: '合同审查案 · 最后改名' }]);
+    expect(JSON.parse(backend.map.get(CASE_LIST_STORAGE_KEY) as string).cases[0].title).toBe('合同审查案 · 最后改名');
+    expect(backend.map.has(legacyKey)).toBe(false);
+  });
+
+  it('CASE-TITLE-CONVERGE-1 fail-closed：列表不可读时不读取、不采用、不清除旧键', () => {
+    const backend = makeBackend(JSON.stringify({ version: 999, cases: [GRANT_CASE] }));
+    const legacyKey = `courtwork.case-title.${GRANT_CASE.id}`;
+    backend.map.set(legacyKey, '不得复活的旧标题');
+    const reads: string[] = [];
+    const originalGet = backend.getItem;
+    backend.getItem = (key) => {
+      reads.push(key);
+      return originalGet(key);
+    };
+
+    expect(readCaseList(backend)).toEqual([]);
+    expect(reads).toEqual([CASE_LIST_STORAGE_KEY]);
+    expect(backend.map.get(legacyKey)).toBe('不得复活的旧标题');
   });
 
   it('写入的信封携当前 schema 版本（不另造格式）', () => {

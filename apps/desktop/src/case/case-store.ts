@@ -24,6 +24,7 @@ import type { ContainerKind } from './container-copy';
 
 export const CASE_LIST_STORAGE_KEY = 'courtwork.case-list.v1';
 export const CASE_LIST_SCHEMA_VERSION = 1 as const;
+const LEGACY_CASE_TITLE_PREFIX = 'courtwork.case-title.';
 
 const CONTAINER_KINDS: readonly ContainerKind[] = ['case', 'workspace'];
 
@@ -42,6 +43,7 @@ export interface PersistedCase {
 export interface CaseListBackend {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
+  removeItem(key: string): void;
 }
 
 interface CaseListEnvelope {
@@ -75,6 +77,17 @@ const defaultBackend: CaseListBackend = {
       }
     }
     memoryFallback.set(key, value);
+  },
+  removeItem: (key) => {
+    if (typeof localStorage !== 'undefined' && typeof localStorage.removeItem === 'function') {
+      try {
+        localStorage.removeItem(key);
+        return;
+      } catch {
+        /* fall through */
+      }
+    }
+    memoryFallback.delete(key);
   },
 };
 
@@ -120,10 +133,31 @@ export function loadCaseList(backend: CaseListBackend = defaultBackend): CaseLis
   return { status: 'ok', cases: cases as PersistedCase[] };
 }
 
-/** fail-closed 取用：不可读 → 空列表（当作无持久案件，不静默误用畸形字节）。 */
+/**
+ * fail-closed 取用 + CASE-TITLE-CONVERGE-1 一次性迁移：
+ * 先确证 case-list 信封可读，才按其中可信 id 集吸收旧 title 键。legacy-only 永不成为案件 fallback；
+ * 吸收后的整表先写回唯一真源，再删除旧键，后续启动只读 case-list.v1。
+ */
 export function readCaseList(backend: CaseListBackend = defaultBackend): PersistedCase[] {
   const read = loadCaseList(backend);
-  return read.status === 'ok' ? read.cases : [];
+  if (read.status !== 'ok') return [];
+
+  let changed = false;
+  const legacyKeys: string[] = [];
+  const cases = read.cases.map((record) => {
+    const legacyKey = `${LEGACY_CASE_TITLE_PREFIX}${record.id}`;
+    const legacyTitle = backend.getItem(legacyKey);
+    if (legacyTitle === null) return record;
+    legacyKeys.push(legacyKey);
+    const title = legacyTitle.trim();
+    if (title.length === 0 || title === record.title) return record;
+    changed = true;
+    return { ...record, title };
+  });
+
+  if (changed) writeCaseList(cases, backend);
+  for (const legacyKey of legacyKeys) backend.removeItem(legacyKey);
+  return cases;
 }
 
 /**
