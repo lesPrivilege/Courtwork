@@ -8,7 +8,8 @@ import {
   type ToolDefinition,
 } from './contract.js';
 
-export const CitationTypeEnum = z.enum(['statute', 'case']);
+/** Open discriminator: each vertical owns its citation taxonomy and validation. */
+export const CitationTypeEnum = z.string().trim().min(1).max(64);
 export type CitationType = z.infer<typeof CitationTypeEnum>;
 
 export const CiteCheckInputSchema = z.object({
@@ -21,7 +22,7 @@ export const CiteCheckDataSchema = z.object({
   citationType: CitationTypeEnum,
   normalizedCitation: z.string().min(1),
   exists: z.boolean(),
-  /** 判例本身不存在通用意义上的"现行有效性"，此时用 null 表示"不适用/无法判定"，而非伪造一个布尔值。 */
+  /** null means the selected citation taxonomy does not define a validity state. */
   currentlyValid: z.boolean().nullable(),
   notes: z.string().optional(),
 });
@@ -31,7 +32,7 @@ export type CiteCheckAdapter = ToolAdapter<CiteCheckInput, CiteCheckData>;
 
 const CITE_CHECK_TOOL_ID = 'cite-check';
 const CITE_CHECK_TIMEOUT_MS = 8_000;
-/** 法条修订/判例存在性的变化频率远低于工商登记状态，24 小时是 MVP 阶段的折中值。 */
+/** Verified citation records use a bounded cache; adapters remain free to fail closed. */
 const CITE_CHECK_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 export function createCiteCheckTool(adapter: CiteCheckAdapter): ToolDefinition<CiteCheckInput, CiteCheckData> {
@@ -56,7 +57,7 @@ export function createMockCiteCheckAdapter(): CiteCheckAdapter {
         citationType: input.citationType,
         normalizedCitation: input.citationText,
         exists: true,
-        currentlyValid: input.citationType === 'statute' ? true : null,
+        currentlyValid: null,
       };
     },
   };
@@ -95,9 +96,8 @@ export interface PublicLawDbAdapterConfig {
 }
 
 /**
- * 真实引用校验适配器骨架（先接现有公开法规/判例库，官方接口位预留，见 SPEC）。
- * 尚未接入真实查询与响应映射：候选数据源（如国家法律法规数据库公开检索、中国裁判文书网）
- * 尚未选定，也没有可依据的接口约定，为避免编造查询路径与响应字段、用假数据冒充"已对接"，
+ * 真实引用校验适配器骨架。具体数据源与 citationType 规则由受信装配点选择，
+ * 不进入本机器层。尚未接入真实查询与响应映射，也没有可依据的接口约定；为避免编造查询路径与响应字段，
  * 此处在配置齐备后仍明确抛出"未实现"而不是尝试拼一个看起来合理的请求。
  * 补全时：查询方式按选定数据源的实际约定实现；成功分支的 source 固定为 'public-law-db'
  * （与 mock 的 'mock' 明确区分，不得复用）；响应映射的产出必须能通过 CiteCheckDataSchema
@@ -110,12 +110,12 @@ export function createPublicLawDbCiteCheckAdapter(config: PublicLawDbAdapterConf
       if (!config?.baseUrl) {
         throw new ToolNotConfiguredError(
           CITE_CHECK_TOOL_ID,
-          '引用校验适配器缺少 baseUrl 配置（公开法规/判例库查询地址）：地址与可能的凭证通过配置注入，不进代码库；未配置时不得静默改用 mock，只能降级为 not_configured。',
+          '引用校验适配器缺少 baseUrl 配置：地址与可能的凭证通过配置注入，不进代码库；未配置时不得静默改用 mock，只能降级为 not_configured。',
         );
       }
       throw new ToolNotImplementedError(
         CITE_CHECK_TOOL_ID,
-        '公开法规/判例库的真实查询与响应映射尚未接入，当前仅为适配器骨架：需要选定具体数据源并确认其查询约定后补全。',
+        '引用数据源的真实查询与响应映射尚未接入，当前仅为适配器骨架：需要受信装配点选定数据源并确认其查询约定后补全。',
       );
     },
   };

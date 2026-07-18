@@ -5,6 +5,7 @@ import type { ResolvedSourceAnchor } from '@courtwork/schemas';
 
 import contractSourceMd from '../../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
 import type { TurnProtocolClient } from '../provider/turn-protocol-client';
+import { isDemoCaseId } from '../case/case-scope';
 import { DEMO_ARTIFACTS } from './recordings';
 
 export const LEGAL_DEMO_INTERACTION_TURN_ID = 'demo-legal-risk-evidence-turn';
@@ -37,6 +38,10 @@ if (admission.rejected.length > 0 || admission.admitted.length !== 1) {
 }
 const registries = buildPackageRegistries(admission.admitted);
 
+function assertDemoCaseId(caseId: string | null | undefined): void {
+  if (!isDemoCaseId(caseId)) throw new Error('Legal demo interaction rejects non-demo case refs');
+}
+
 function riskQuoteClaim() {
   const source = DEMO_ARTIFACTS.riskList.risks[0]?.basis[0]?.sourceAnchors[0];
   if (!source || source.fileId !== CONTRACT_FILE_ID || typeof source.quote !== 'string' || source.quote.length === 0) {
@@ -46,7 +51,8 @@ function riskQuoteClaim() {
 }
 
 /** Vertical adapter: domain text/template/anchor enter the generic protocol only here. */
-export function ensureLegalDemoInteraction(client: TurnProtocolClient): TurnReplay {
+export function ensureLegalDemoInteraction(client: TurnProtocolClient, caseId: string | null | undefined): TurnReplay {
+  assertDemoCaseId(caseId);
   const replay = client.replayTurn(LEGAL_DEMO_INTERACTION_TURN_ID);
   if (replay.state !== 'idle') return replay;
   requestInteraction({
@@ -70,7 +76,11 @@ export interface LegalDemoSourceRoute {
 }
 
 /** Host routing fails closed on file identity, text-layer drift and quote mismatch. */
-export function resolveLegalDemoSource(anchor: ResolvedSourceAnchor): LegalDemoSourceRoute {
+export function resolveLegalDemoSource(
+  anchor: ResolvedSourceAnchor,
+  caseId: string | null | undefined,
+): LegalDemoSourceRoute {
+  assertDemoCaseId(caseId);
   if (anchor.fileId !== CONTRACT_FILE_ID) throw new Error(`未知原件：${anchor.fileId}`);
   if (anchor.textLayerVersion !== CONTRACT_TEXT_LAYER_VERSION) throw new Error('原件文本层版本已变化，无法打开旧锚点');
   if (!anchor.textRange) throw new Error('原件锚点缺少文本区间');

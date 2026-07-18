@@ -18,9 +18,6 @@ import { createTauriWorkStateHost } from './work/tauri-work-state-host';
 import { loadModelConfig } from './provider/model-config';
 import './styles.css';
 
-// Playwright 探针注入点（非 demo 装配）
-installCredentialTestHooks();
-installProviderConnectionTestHooks();
 const providerTransport = isTauriHostRuntime() ? createTauriProviderTransport() : undefined;
 // HOST-AUTH-LITE：产品运行时用 Tauri 适配器；DEV/E2E 无原生 picker 时用 browser 樁（诚实失败，非 demo 回落）。
 const hostAuth = isTauriHostRuntime() ? createTauriHostAuth() : createBrowserHostAuth();
@@ -32,6 +29,8 @@ const materialStore = new MaterialStore(materialHost);
 const workHost = isTauriHostRuntime() ? createTauriWorkStateHost() : undefined;
 
 if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') {
+  installCredentialTestHooks();
+  installProviderConnectionTestHooks();
   installChatTestHooks();
   installHostAuthTestHooks();
   installMaterialHostTestHooks();

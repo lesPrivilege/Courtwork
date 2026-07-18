@@ -1,3 +1,52 @@
+## AUDIT-SEAL-3 独立验收（2026-07-18）
+
+- **验收角色**：未参与实现的独立验收会话；不采信实现自述，本节全部数字均来自隔离 worktree 亲手复跑。
+- **验收坐标**：worktree `/Users/lesprivilege/Projects/Courtwork-audit-seal-2-3`，验收即在 `impl/audit-seal-2-3` 分支进行；实现 SHA `2ba0d31`（rebase 后 `8b9a64d`），基线 `main @ 92d1fd4`（此前 SEAL-2 `7c960f0`/`4842feb` 同分支先行）。`git rebase main`（尖端 `146003a`，纯 docs 差 1 commit）干净重放、零冲突。
+- **裁决：AUDIT-SEAL-3 放行 ✅。** tools 去法律化（citation 开放 discriminator、`relatedRecords` 中性化）、三包 boundary 守卫铺满、受信装配点静态锁三线均独立复核成立；`packages/registry` 契约逐 diff 确认零变更。验收期间未修改产品实现。
+
+### 1. citation 开放 discriminator 语义核
+
+- `CitationTypeEnum` 由 `z.enum(['statute', 'case'])` 改为 `z.string().trim().min(1).max(64)`；`cite-check.test.ts` 新增例「accepts an open, domain-owned citationType instead of imposing a legal enum」用完全非法律的 `'project_standard'` 值实测通过，「still rejects an empty citationType」确认非无限开放；`createMockCiteCheckAdapter` 的 `currentlyValid: input.citationType === 'statute' ? true : null` 改为恒 `null`，机器层不再按字面自作垂类判断；中国法律数据源候选注释（原「国家法律法规数据库公开检索、中国裁判文书网」）已从 `createPublicLawDbCiteCheckAdapter` 的错误文案与注释移除。`packages/tools/src/cite-check.test.ts`：**22/22 passed**。
+- **诚实范围澄清（非缺陷）**：`rg "citationType\s*===\s*'statute'"` 全仓扫描（含 `packages/legal/src`、`apps/desktop/src`）零命中生产代码——`cite-check` 当前确无任何 production Legal 消费面，`demo-runtime/SPEC.md` 对此如实自陈「cite-check 当前无 production Legal 注册消费面」。因此「垂类闭集规则在绑定层生效、legal 消费面注入非法 kind 仍被拒」这条判据对 cite-check **尚不可执行**（没有绑定层可测）；SPEC 未夸大此点，只是诚实占位，验收对此不作阻断，仅记录澄清供后续 cite-check 真正装配时对照。
+
+### 2. `relatedRecords` 迁移 + legal demo golden 不回退
+
+- `PartyVerifyDataSchema.litigationSummary[{caseNumber,summary}]` → `relatedRecords[{reference,summary}]`；唯一受信绑定点 `packages/demo-runtime/src/composition/demo-assembly.ts::projectPartyRecord` 把富语料 `litigationSummary` 投影为该中性形状，Legal 专属案号格式（`(2025)云章03民初472号`）只存在于这一绑定层，未泄漏回 tools。`party-verify.test.ts` + `demo-assembly.test.ts`：**22/22 passed**。
+- `demo:legal` golden 在 rebase 后合并树亲跑：**PASS**（骨架/考点/锚点复算/六段标记/修订命中全符，redline.docx 4606 bytes）；`demo:s3` **PASS**（7/7 考点）。
+
+### 3. 三包 boundary 守卫红证（tools / reading-view / output）
+
+- 三份 `package-boundary.test.ts` 逐字节比对：除 `describe()` 标签外完全一致；`FORBIDDEN_LITERALS` 与 `packages/core/src/package-boundary.test.ts` 的既有表逐项核对**完全相同**（`'legal.`、`"legal.`、`'RiskList'`、`'CaseFile'`、风险清单、卷宗）；`FORBIDDEN_PACKAGES` 按各包实际依赖面合理裁剪（不要求相同，只要求字面量表相同）。
+- 亲自逐包植入反例：向三包各自 `src/index.ts` 追加一行含「风险清单」的注释，独立运行三份测试——**三包均 1 failed / 2 passed**；`git checkout HEAD` 撤除后**三包均 3/3 passed** 复原。
+- `case-path.ts`/`party-verify.ts` 的「卷宗」「具名 demo 包」等违规字面量已中性化（先红后清）：`assertWorkDraftWritable` 的拒绝文案由「卷宗原件不可修改」改「原件不可修改」，`case-path.test.ts` 断言同步更新，未留旧字符串残留（`rg 卷宗 packages/tools/src` 零命中生产文件）。
+
+### 4. 受信装配点静态锁红证
+
+- `packages/core/src/tools/tool-registration-boundary.test.ts`：`TRUSTED_REGISTRATIONS` 硬编码全仓恰三处 `tools.register()`/`createToolRegistry()` 生产调用点（`apps/desktop/src/work/legal-s3-binding.ts`、`packages/demo-runtime/src/composition/demo-assembly.ts`、`packages/demo-runtime/src/acceptance/run-s3-real.ts`），逐点锁 `toolToken → toolId → factory → sideEffect` 四元组，非仅计数。基线 **3/3 passed**（含既有反例「rejects a writer disguised as pure_read even inside a trusted file」精确红于「expected exactly one … got 2」）。
+- 验收亲写区分探针：**保持注册计数不变（仍 1 处）**，只把 `demo-assembly.ts` 真实注册的 `sideEffect: 'pure_read'` 改为 `sideEffect: 'file_write'`——主生产扫描测试独立触红：`"packages/demo-runtime/src/composition/demo-assembly.ts: party-verify must declare sideEffect pure_read"`，**零计数类违规**。这确认守卫锁的是装配点清单 + id/factory/sideEffect 配对本身，而非仅统计调用次数；同一 mutation 下伪装反例测试因文件内容已变而级联多报一条，两者共同印证判据独立生效。`git checkout HEAD` 撤除后 **3/3 passed** 复原。
+
+### 5. registry 契约零变更核实
+
+`git diff 92d1fd4..2ba0d31 -- packages/registry` 输出为空（`wc -l` = 0）；`ToolRegistry` 接口（`register`/`get`）本身未改一字，只在其消费方（core 的 `tool-registration-boundary.test.ts`、demo-runtime 的绑定投影）新增静态测试与迁移字段。
+
+### 6. 全量门（合并树，rebase 后）
+
+| 门 | 结果 |
+|---|---|
+| `pnpm -r build` | PASS（13/14 workspace） |
+| `pnpm lint` | PASS |
+| root Vitest | **148 files / 1261 tests passed** |
+| desktop Vitest | **59 files / 354 tests passed** |
+| `cargo test --lib` | **69/69 passed** |
+| `demo:s3` / `demo:legal` golden | 均 PASS |
+| 完整 `test:e2e`（隔离端口，独立三轮） | **290/290 passed** × 3（首轮一处与本单零交集的 hover 用例抖动，隔离重跑与全量重跑均绿，非回归——详见 `apps/desktop/ACCEPTANCE.md` AUDIT-SEAL-2 报告） |
+
+> **最终判定：放行 AUDIT-SEAL-3。** tools 去法律化、三包守卫铺满、受信装配点静态锁三线均成立，`packages/registry` 零变更；唯一诚实澄清（cite-check 无生产 legal 绑定，闭集判据暂不可测）已如实记录，不构成驳回。SEAL-2 报告见 `apps/desktop/ACCEPTANCE.md`；`packages/core`/`packages/reading-view`/`packages/output`/`packages/demo-runtime` 各侧一条指回本报告。
+
+未更新 `docs/status/current.md`；未推送；未 prune。
+
+---
+
 # W5 / W5.1 验收报告：packages/tools + packages/demo-data
 
 验收时间：2026-07-09

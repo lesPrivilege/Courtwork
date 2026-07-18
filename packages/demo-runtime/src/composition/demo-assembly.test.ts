@@ -14,7 +14,7 @@ describe('buildDemoS3Runtime', () => {
     if (!result.verified) throw new Error('unreachable');
     expect(result.source).toBe('demo-fixture');
     expect(result.data.businessStatus).toBe('存续');
-    expect(result.data.litigationSummary.length).toBeGreaterThan(0);
+    expect(result.data.relatedRecords.length).toBeGreaterThan(0);
   });
 
   it('composes the scripted provider and TurnStore behind one TurnRunnerPort', async () => {

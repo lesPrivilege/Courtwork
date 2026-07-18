@@ -4,7 +4,7 @@
  */
 
 export const CASE_ZONE_DIRS = {
-  /** 上传的卷宗原件：内容只读（可 reveal/open；不可经工作稿轨写入） */
+  /** 上传的案件原件：内容只读（可 reveal/open；不可经工作稿轨写入） */
   original: '原件',
   /** 产品内创建的工作稿：md/txt 可新建/编辑 + 自动保存 */
   workDraft: '工作稿',
@@ -147,7 +147,7 @@ export function assertWorkDraftWritable(caseRoot: string, targetPath: string): C
     return {
       ok: false,
       code: 'original_write_forbidden',
-      message: '卷宗原件不可修改，已拒绝写入。',
+      message: '原件不可修改，已拒绝写入。',
     };
   }
 

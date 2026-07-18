@@ -40,16 +40,26 @@ describe('PartyVerifyDataSchema', () => {
         matchedName: '某某有限公司',
         unifiedSocialCreditCode: '91310000MA1FL0XXXX',
         businessStatus: '存续',
-        litigationSummary: [{ caseNumber: '(2024)沪01民终1234号', summary: '合同纠纷，原告胜诉' }],
+        relatedRecords: [{ reference: 'registry-record-1234', summary: '存在一条关联记录' }],
       }).success,
     ).toBe(true);
+  });
+
+  it('keeps domain-specific litigationSummary out of the neutral tool result', () => {
+    expect(
+      PartyVerifyDataSchema.safeParse({
+        matchedName: '某某有限公司',
+        businessStatus: '存续',
+        litigationSummary: [],
+      }).success,
+    ).toBe(false);
   });
 
   it('rejects a result missing businessStatus', () => {
     expect(
       PartyVerifyDataSchema.safeParse({
         matchedName: '某某有限公司',
-        litigationSummary: [],
+        relatedRecords: [],
       }).success,
     ).toBe(false);
   });
@@ -73,7 +83,7 @@ describe('createMockPartyVerifyAdapter — self-identification', () => {
     );
     expect(data.matchedName).toBe('某某有限公司');
     expect(data.unifiedSocialCreditCode).toBe('91310000MA1FL0XXXX');
-    expect(data.litigationSummary).toEqual([]);
+    expect(data.relatedRecords).toEqual([]);
   });
 });
 
@@ -91,7 +101,7 @@ describe('mock service integration — full pipeline through the executor', () =
         matchedName: '张三',
         unifiedSocialCreditCode: undefined,
         businessStatus: '存续',
-        litigationSummary: [],
+        relatedRecords: [],
       },
       checkedAt: expect.any(String),
     });
@@ -140,7 +150,7 @@ describe('createDemoFixturePartyVerifyAdapter — injected lookup, no demo-data 
   const found: PartyVerifyData = {
     matchedName: '上海案示科技有限公司',
     businessStatus: '存续',
-    litigationSummary: [],
+    relatedRecords: [],
   };
   const lookup = (input: { name: string }) => (input.name === found.matchedName ? found : undefined);
 
@@ -183,7 +193,7 @@ describe('the three party-verify adapters never impersonate each other', () => {
       name: '张三',
     });
     const demoResult = await executor.execute(
-      createPartyVerifyTool(createDemoFixturePartyVerifyAdapter((input) => (input.name === '张三' ? { matchedName: '张三', businessStatus: '存续', litigationSummary: [] } : undefined))),
+      createPartyVerifyTool(createDemoFixturePartyVerifyAdapter((input) => (input.name === '张三' ? { matchedName: '张三', businessStatus: '存续', relatedRecords: [] } : undefined))),
       { name: '张三' },
     );
 
@@ -218,10 +228,10 @@ describe('wired against the real demo-data corpus (integration smoke test)', () 
       matchedName: record.entityName,
       unifiedSocialCreditCode: record.unifiedSocialCreditCode,
       businessStatus: record.registrationStatus,
-      litigationSummary:
+      relatedRecords:
         record.litigationSummary === '无公开涉诉记录'
           ? []
-          : [{ caseNumber: '(2025)云章03民初472号', summary: record.litigationSummary }],
+          : [{ reference: '(2025)云章03民初472号', summary: record.litigationSummary }],
     };
   }
 

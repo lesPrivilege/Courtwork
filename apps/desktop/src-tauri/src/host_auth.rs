@@ -542,6 +542,39 @@ mod tests {
         fs::remove_dir_all(&root).ok();
     }
 
+    #[cfg(unix)]
+    #[test]
+    fn explicit_overwrite_refuses_a_symlink_and_preserves_its_target() {
+        use std::os::unix::fs::symlink;
+        let root = temp_root("overwrite-symlink");
+        let outside = root.parent().unwrap().join(format!(
+            "courtwork-overwrite-target-{}.txt",
+            std::process::id()
+        ));
+        fs::write(&outside, b"outside-bytes").expect("seed outside target");
+        symlink(&outside, root.join("self-owned.txt")).expect("seed symlink");
+
+        let outcome = scoped_write(&root, "self-owned.txt", b"replacement", true);
+
+        assert_eq!(reason_of_write(outcome), Some(HostAuthReason::OutOfScope));
+        assert_eq!(fs::read(&outside).expect("read outside target"), b"outside-bytes");
+        fs::remove_file(&outside).ok();
+        fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
+    fn explicit_overwrite_refuses_a_directory_and_preserves_it() {
+        let root = temp_root("overwrite-directory");
+        let target = root.join("self-owned.txt");
+        fs::create_dir_all(&target).expect("seed directory target");
+
+        let outcome = scoped_write(&root, "self-owned.txt", b"replacement", true);
+
+        assert_eq!(reason_of_write(outcome), Some(HostAuthReason::OutOfScope));
+        assert!(target.is_dir());
+        fs::remove_dir_all(&root).ok();
+    }
+
     #[test]
     fn write_into_missing_subdir_is_unavailable_not_created() {
         // 设计边界：write 不创建中间目录；父目录缺失显式 unavailable，绝不静默建树。

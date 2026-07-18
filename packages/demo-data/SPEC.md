@@ -72,7 +72,7 @@ data/pm/
 ## TODO（跨层放入区）
 
 - [挂账，非本层处置] `data/manifest.md`"五、已知边界"已声明：`cite-check.json` 的 67 条法条文本依据训练知识整理，未逐条对照全国人大官网/国家法律法规数据库原文核验（沙箱环境当时无法稳定抓取其 JS 动态渲染页面）。本层用 WebSearch 交叉核对过其中 2 条（民法典第一百四十三条、第五百七十七条，见 `packages/tools/SPEC.md` W5 原始验收记录），不解决全量核验问题。访问器已预留 `officialTextVerified: boolean` 标记位（当前统一 `false`）：未来逐条核验销账时，只需要一个"哪些 id 已核验"的判定源（可以是另一份小 JSON，或未来接入官方接口的结果缓存），改 `withOfficialTextVerified` 这一处，不需要改任何调用方代码。
-- [留给 W6] 真正的生产级装配点落地时，需要把 `findPartyRecord`/`findStatuteCitation`/`findCaseCitation` 的查找结果投影成 `PartyVerifyData`/`CiteCheckData`，参考 `packages/tools/src/party-verify.test.ts`/`cite-check.test.ts` 里的示例投影函数（那两个函数明确标注是"提前演示装配点长什么样"，不是生产代码，不能直接复用，需要在装配点重新以生产代码的标准写一遍，尤其是 `litigationSummary` 从语料的自由文本投影成 `{caseNumber,summary}[]` 结构化数组这一段——示例里用的是"本语料所有涉诉记录都指向同一个案号"这个仅对当前样板案成立的简化，不是通用解析逻辑）。
+- [已落地于 demo 绑定层] `packages/demo-runtime/src/composition/demo-assembly.ts` 把 `findPartyRecord` 的富语料投影成 tools 中性 `PartyVerifyData`；`litigationSummary` 自由文本只在该 Legal/demo 装配点转成 `{reference,summary}[]`。真实生产适配器仍须按其正式数据源映射；不得把样板案「全部关联记录共用一个案号」的简化搬入 tools。
 - [观察，非缺陷] `party-verify.json` 有 `outOfCoverage` 显式名单，`cite-check.json` 没有对应字段——语料结构上的不对称，如果未来 cite-check 也需要"故意排除以演示覆盖缺口"的引用清单，需要在语料侧（subagent 那一层）新增字段，不是本层能补的。
 
 ## 验收记录

@@ -2,6 +2,10 @@
 
 状态：已完成
 
+## AUDIT-SEAL-3 · 包域律守卫铺满（实现完成，待独立验收）
+
+复制 core `FORBIDDEN_LITERALS` 同表，新增 `package-boundary.test.ts`，锁 production source 与 package dependencies 零 vertical/demo import/mention 与垂类字面量；向 `src/index.ts` 植入「风险清单」时守卫确定性变红。零运行代码、依赖、格式、状态机或公共抽象变化；现有 reading-view 行为与 golden 不变。
+
 ## 背景
 
 本包不属于 `当时的架构工单册` 原始工单编号序列，是 当时的架构工单册 缺口盘点期间新立的 MVP 补强工单（同批的还有 fetch 工具最小实现、provider 首批适配，三张工单可并行）。定位：office 生态原生文件（docx/md/txt/含文本层 PDF）→ md 阅读视图（模型阅读的"母语"）+ 段落级 `SourceAnchor` 映射（UI 溯源与 core 生成节点共用的一等产物）。OCR（扫描件/无文本层）不在范围内，是 W3/W8 ingest v1 的职责；本包对这类输入只负责准确声明"需要 OCR"，不吐半坏的 md，不静默出空文。

@@ -1,3 +1,49 @@
+# AUDIT-SEAL-2 独立验收（2026-07-18）
+
+- **验收角色**：未参与实现的独立验收会话；不采信实现自述，本节全部数字均来自隔离 worktree 亲手复跑。
+- **验收坐标**：worktree `/Users/lesprivilege/Projects/Courtwork-audit-seal-2-3`，验收即在 `impl/audit-seal-2-3` 分支进行；实现 SHA `7c960f0`（rebase 后 `4842feb`），基线 `main @ 92d1fd4`。验收期间 main 前进一条纯 docs 提交（`146003a`，只动 `implementation-readiness.md`），`git rebase main` 干净重放、零冲突。
+- **裁决：AUDIT-SEAL-2 放行 ✅。** 审计单门残余四项（credential/providerConnection 双门、两 demo 模块 caseId 双门、`workContextSegment` 死参数清理、rust overwrite fail-closed 回归覆盖）均独立复核成立，未发现实现级或契约级问题，验收期间未修改产品实现。
+
+### 1. credential/providerConnection 两 hook 双门
+
+- 生产构建亲自验证：`pnpm --filter @courtwork/desktop build` 后对 `dist/**` 全量 grep `installCredentialTestHooks`/`installProviderConnectionTestHooks` 两函数名与其暴露的 `__courtworkCredentials`/`__courtworkProviderConnection` 两个 window 全局名，**四项均零命中**（Vite 对 `import.meta.env.DEV` 常量分支的死码消除生效）。
+- `assert-credential-contracts.mjs` 反例覈真：`git checkout <基线> -- apps/desktop/src/main.tsx` 撤回为修复前的无条件调用，脚本立即报两条违规（`必须只在 DEV+E2E 双门内安装`）、`exit 1`；`git checkout HEAD` 归位后重跑 `exit 0`，文案「AUDIT-SEAL-2 credential hooks and dead-parameter boundaries passed」。
+
+### 2. 两 demo 模块 case-real 红证
+
+- `file-ops-demo.ts`（`createDemoFileOpsPlan`/`executeDemoPlan`/`undoDemoPlan`/`getDemoHostSnapshot`/`resetFileOpsDemo`）与 `legal-interaction.ts`（`ensureLegalDemoInteraction`/`resolveLegalDemoSource`）新增 `assertDemoCaseId`，复用既有 `isDemoCaseId`/`DEMO_CASE_ID`（`case/case-scope.ts`，CASE-ROOT-1 既有原语，零新概念）。所有调用点（`FileOpsPlanPanel.tsx`、`App.tsx`）同步改传 `caseId`，现场读码确认无遗漏。
+- stash 隔离复现：`git checkout <基线> -- 两文件` 撤回（保留新测试 `file-ops-demo.test.ts`——新文件、`legal-interaction.test.ts` 新增例不变），跑 `vitest run`：**2 failed / 3 passed**，失败均为「expected [Function] to throw an error」——即修复前 `'case-real'` 被静默接受、从不拒绝，精确复现审计病灶。`git checkout HEAD` 归位后 **5/5 passed**。
+
+### 3. `workContextSegment` 死参数清零 + Work 真链不回退
+
+- `rg workContextSegment apps/desktop/src` 排除测试后仅剩三处：`App.tsx` 的 `handleComposerSend`（真实 Work 链，`selectedCase`/`caseBinding.kind==='grant'` 时构造并透传给 `sendChatTurn`）、`chat-client.ts` 的 `SendChatTurnOptions.workContextSegment`（六段组装契约，WORK-TURN-1 既有字段）、`work-context.ts` 的 `workContextSegmentFor` 本体——均是真链，非残留。`handleChatSend`/`submitChatContent` 的死参数与死透传已完全移除，`assert-credential-contracts.mjs` 静态锁二者签名。
+- e2e 亲跑 `work-turn.spec.ts`：**3/3 passed**，含「H 案语境注入：Work 面自由输入携案根与材料清单；chat 面缺省不携（红证双向）」——真链两侧行为均未回归。
+
+### 4. Rust `overwrite=true` 对 symlink/目录 fail-closed 回归覆盖
+
+- 新增 `explicit_overwrite_refuses_a_symlink_and_preserves_its_target`/`explicit_overwrite_refuses_a_directory_and_preserves_it`，基线 `cargo test --lib explicit_overwrite`：**2/2 passed**。
+- 亲跑 mutation：把 `atomic_write` 的 `overwrite=true` 分支实体类型判据从「必须是非符号链接的普通文件」放宽为「只要存在即放行」，重跑同两例：**2/2 failed**——symlink 例显示写入实际成功（覆盖穿透，`left: None` 即 `Wrote`）、目录例显示虽仍失败但退化为语义错误的 `Unavailable`（而非有意的 `OutOfScope`，因 OS 级 `rename` 到既存目录本身报错，但推理链已不是设计意图）。撤销 mutation 后 **2/2 passed** 复原，`git status` 归零。
+
+### 5. 全量门（合并树，rebase 后）
+
+| 门 | 结果 |
+|---|---|
+| `pnpm -r build` | PASS（13/14 workspace；仅既有 chunk-size 提示） |
+| `pnpm lint` | PASS |
+| root Vitest | **148 files / 1261 tests passed** |
+| desktop Vitest | **59 files / 354 tests passed** |
+| `cargo test --lib` | **69/69 passed** |
+| `demo:s3` / `demo:legal` golden | 均 PASS |
+| 完整 `test:e2e`（隔离端口，独立三轮） | 首轮曾有 1 例超时/悬停无关 flake（`global-verbs.spec.ts` 复制按钮 hover 用例，与本单零 diff 重叠；隔离单跑 3/3 与全量重跑均绿，判定为无关抖动非回归）；三轮完整链最终均 **290/290 passed**（2.7m/3.1m/2.9m） |
+
+registry 契约零变更（`git diff <基线>..<实现尖端> -- packages/registry` 空）；本单不改 `docs/status/current.md`。
+
+> **最终判定：放行 AUDIT-SEAL-2。** 四项审计单门残余均已补齐且不回退；SEAL-1 遗留的 rust fail-closed 覆盖率缺口（本轮④）已转正为固定回归测试。SEAL-3 报告见 `packages/tools/ACCEPTANCE.md`。
+
+未更新 `docs/status/current.md`；未推送；未 prune。
+
+---
+
 # AUDIT-SEAL-1 · desktop 覆盖保护下沉验收
 
 - **✅ 放行（2026-07-18）**：`scoped_write`/`write_case_output_docx_impl` 新增显式 `overwrite: bool`，既存文件默认拒绝（no-replace `hard_link` 提交）、`overwrite=true` 时对 symlink/目录仍 fail closed（验收亲写探针 3×2 确认，交付测试集本身缺此分支回归覆盖，已记录为非阻断跟进项）；三个显式写入 consumer（附件入库/授权探针/case_output）、`host-auth-port.ts`/`tauri-host-auth.ts`/`assert-host-auth-contracts.mjs` 均已随契约更新。App 层 sha256 二道核实仍在写入前生效；`pilot-case-upload.spec.ts` F 系列幂等/拒绝覆写断言隔离端口亲跑 3/3 不回退。desktop Vitest **352/352**、cargo **67/67**（含验收亲写反例复核）、完整 `test:e2e` 独立三轮 **290/290** 均在验收 worktree 内亲手复跑绿；floor 290 不动。详见 `packages/core/ACCEPTANCE.md` 的 AUDIT-SEAL-1 完整报告（含三层独立红证与放行闭集覈真）。
