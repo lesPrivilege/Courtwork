@@ -167,3 +167,41 @@
 - 替换：`assets/screenshots/11-milestone-dossier-{1440,720}.webp`；原始 1440×900 PNG 与前后对照在 `craft-evidence/COMPOSER-FLOW-COMPACT-1/`。
 - 站点语义不变：本裁片仍是虚构合成卷宗的真实 UI，不新增 product-live、隐私、性能或规模宣称；其他 RiskList/redline/未落格/关系图谱/工作台资产不因本次测宽改动而虚构重拍。
 - 本节为实现留痕；放行结论需由独立验收会话写入 `site/ACCEPTANCE.md`，本实现会话不自验。
+
+## SITE-CRAFT-2 · Pages 视效升级（实现进行中，分批交付）
+
+权威范围：就绪图 `SITE-CRAFT-2` 行（hero 微演示 / 朱雀仿宋 / 冷色五杠杆 / 前卫实验田条款）。
+硬边界不变：仅 `site/`（含其构建配套 `site/scripts/*`），产品壳字体与素材不随动；site 源码不引用归档路径。
+分批交付、每批独立可验；逐帧证据与许可快照在 [`craft-evidence/SITE-CRAFT-2/`](craft-evidence/SITE-CRAFT-2/)。
+
+### B1 · 朱雀仿宋 + 藏青阶深地基（杠杆①②⑤，实现完成）
+
+- **朱雀仿宋（TrionesType/zhuque v0.212，SIL OFL 1.1，beta 锁版）**：按选型拍板以子集入站——
+  hero 母题、承诺四则、收尾判词共 37 字（12KB woff2，preload + `font-display: swap`）。剂量纪律：
+  仅上述品牌时刻，其余标题层保持系统 sans；单字重 + `font-synthesis: none`，层级靠字号与留白。
+  上游版权行未宣告 Reserved Font Name；许可全文、制品 SHA 链与再生成命令见
+  `craft-evidence/SITE-CRAFT-2/zhuque/SOURCE.md`。
+- **子集化实现口径**：拍板文写「cn-font-split 挂 CI」；本单按复杂度节制落为「离线精确子集 +
+  fail-closed 覆盖门」——不新增构建依赖，改由 deslop `display-font` 门三向绑定（页面 `zh-display`
+  用字 ⊆ `site/assets/fonts/zhuque-subset.json` 清单文本；清单 `woff2Sha256` 锚定实际字节；CSS 必须
+  真实接线 @font-face 与 `var(--display)`）。任一脱钩 = 缺字静默回退，构建直接失败（静默降级零容忍）。
+  若架构仍要求 CI 内自动子集管线，标 `[需架构拍板]` 另立。
+- **藏青阶做深（杠杆①）**：`--ink-deep / --plate-line / --plate-text / --plate-text-dim` 全部由既有
+  token 经 `color-mix` 派生，零新 hex、零 allowlist 扩项。承诺段升级为全站唯一暗色石版：版面
+  （`--ink`）+ 凹刻井（`--ink-deep`）两级暗部 + bg-app 派生刻线，不用阴影/渐变表达深度；
+  页面因此获得亮纸—暗版的节奏，不再均匀平铺。副项：`.button-secondary` 按压底色加深
+  （Inset 式材质响应，纯 background-color，press 门不涉）；卷宗计数 20/47/14/8 切 mono
+  （核验数字与叙事文字字形分轨，纯静态属性）。
+- **语义色稀缺性宣告 + 机器门叙事（杠杆②⑤）**：暗版底部 `design-boundary` 井两行 mono 小注，
+  宣告「色彩只承载语义」（红/琥珀=风险，绿=落定，蓝=修订与焦点，其余交给藏青深浅与留白）并
+  声明克制由机器门强制，链接 GitHub 上的 `site/craft-evidence` 目录。宣称与门禁实况逐字核对：
+  颜色/渐变/阴影/动效四类确实各有触红门。
+- **本单新增概念（复杂度台账）**：1 个字体资产 + 1 份子集清单 + 1 条 `display-font` 门 +
+  4 个派生色变量。为何非加不可：字体是票面定向；清单与门是「静默降级零容忍」对 webfont 缺字
+  这一静默降级面的封口；派生变量是杠杆①的最小载体。无新依赖、无新状态机、无新持久化格式。
+- **门禁扩展**：`deslop-scan-lib.mjs` 新增 `checkDisplayFont`（纯函数）；`deslop-scan.mjs` 以真实
+  清单与字节接线；`deslop-scan.test.mjs` 好例带清单外尾随文案（锁「门只约束 zh-display 消费者，
+  不吞整页」），反例五向（越清单用字 / 字节脱钩 / 零消费者 / 未接 @font-face / 未消费 --display）。
+  `build.mjs` 拷贝清单加入 fonts 目录。其余门面零改动：无新 gradient/shadow/radius/raw-color 项。
+- 实现期缺陷判例（供验收注入参考）：消费者截取器首版把 `matchAll` 下恒为 0 的 `openTag.lastIndex`
+  当切片起点，整页吞进覆盖检查——测试好例因消费者后无尾随内容而假绿；已按 TDD 补强好例并修复。

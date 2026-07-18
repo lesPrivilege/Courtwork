@@ -1,3 +1,13 @@
+/* SITE-CRAFT-2 · 朱雀仿宋 v0.212（beta 锁版，SIL OFL 1.1）：仅站面品牌时刻用字——hero 母题、
+   承诺四则、收尾判词，不铺满标题层（剂量纪律）。子集按文案精确取字（37 字 / 12KB），
+   清单与字节由 deslop display-font 门三向绑定，缺字静默回退必触红。
+   许可与来源快照见 craft-evidence/SITE-CRAFT-2/。 */
+@font-face {
+  font-family: "Zhuque Fangsong";
+  src: url(assets/fonts/zhuque-fangsong-subset.woff2) format("woff2");
+  font-display: swap;
+}
+
 :root {
   --bg-app: #F6F9FC;
   --bg-surface: #EAEFF4;
@@ -15,6 +25,13 @@
   --mac-zoom: #28C840;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "MiSans", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --display: "Zhuque Fangsong", "STFangsong", "FangSong", "Noto Serif SC", serif;
+  /* SITE-CRAFT-2 · 藏青阶做深：暗部与刻线全部由既有 token 经 color-mix 派生，无新 hex。
+     亮面为纸、暗面为版，层次靠深浅与刻线表达，不靠阴影与渐变。 */
+  --ink-deep: color-mix(in srgb, var(--ink) 86%, black);
+  --plate-line: color-mix(in srgb, var(--bg-app) 20%, transparent);
+  --plate-text: color-mix(in srgb, var(--bg-app) 88%, transparent);
+  --plate-text-dim: color-mix(in srgb, var(--bg-app) 60%, transparent);
   --motion-press: 120ms;
   --ease-out: cubic-bezier(.23, 1, .32, 1);
   --page-max: 1440px;
@@ -59,6 +76,8 @@ main { overflow: clip; }
 .hero-copy { max-width: 760px; }
 .eyebrow { margin: 0; color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; }
 h1, h2, h3 { margin: 0; font-weight: 510; letter-spacing: -.02em; text-wrap: balance; }
+/* 朱雀仿宋消费者：单字重，层级靠字号与留白；font-synthesis 关死伪粗防中文糊重。 */
+.zh-display { font-family: var(--display); font-weight: 400; font-synthesis: none; letter-spacing: .02em; }
 h1 { margin-top: 12px; max-width: 760px; font-size: clamp(48px, 7vw, 88px); line-height: 1.04; }
 h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.14; }
 h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
@@ -90,6 +109,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .button-primary:hover { border-color: var(--text-secondary); background: var(--text-secondary); }
 .button-secondary { background: var(--bg-raised); }
 .button-secondary:hover { background: var(--bg-hover); }
+.button-secondary:active:not(:focus-visible) { background: color-mix(in srgb, var(--bg-hover) 90%, var(--ink)); }
 .button-primary:active:not(:focus-visible) { transform: scale(.98); transition-duration: var(--motion-press); }
 .button:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 .release-fact { display: flex; flex-wrap: wrap; gap: 0; margin: 20px 0 0; color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; }
@@ -190,14 +210,21 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .scenario-proof small { color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
 .scenario-proof p, .scenario-proof blockquote { margin: 9px 0 0; color: var(--ink); font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
 .scenario-proof blockquote { padding-left: 10px; border-left: 2px solid var(--border-strong); }
-.scenario-proof-stats strong { display: block; font-size: clamp(28px, 3vw, 38px); font-weight: 510; line-height: 1.1; }
+.scenario-proof-stats strong { display: block; font-family: var(--mono); font-size: clamp(28px, 3vw, 38px); font-weight: 510; line-height: 1.1; }
 .scenario-proof-stats span { display: block; margin-top: 8px; color: var(--text-secondary); font-size: 13px; }
 
-.promise { margin-top: 40px; padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)); border-block: 1px solid var(--border-hairline); background: var(--bg-surface); }
-.promise-ledger { max-width: var(--page-max); margin: 44px auto 0; border-top: 1px solid var(--border-strong); }
-.promise-ledger > div { display: grid; grid-template-columns: minmax(180px, 3fr) minmax(0, 7fr); gap: 32px; padding: 22px 0; border-bottom: 1px solid var(--border-strong); }
-.promise-ledger dt { font-size: 18px; font-weight: 510; }
-.promise-ledger dd { margin: 0; color: var(--text-secondary); }
+/* SITE-CRAFT-2 · 承诺四则落在全站唯一的暗色石版上：产品边界（不做之事）以藏青暗部承载，
+   拒绝均匀平铺——版面（--ink）与凹刻井（--ink-deep）两级暗部，刻线用 bg-app 派生透明白。 */
+.promise { margin-top: 40px; padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)); border-block: 1px solid var(--ink-deep); background: var(--ink); color: var(--plate-text); }
+.promise .eyebrow { color: var(--plate-text-dim); }
+.promise h2 { color: var(--bg-app); }
+.promise-ledger { max-width: var(--page-max); margin: 44px auto 0; border-top: 1px solid var(--plate-line); }
+.promise-ledger > div { display: grid; grid-template-columns: minmax(180px, 3fr) minmax(0, 7fr); gap: 32px; padding: 22px 0; border-bottom: 1px solid var(--plate-line); }
+.promise-ledger dt { font-size: 21px; color: var(--bg-app); }
+.promise-ledger dd { margin: 0; color: var(--plate-text-dim); }
+.design-boundary { max-width: var(--page-max); margin: 48px auto 0; padding: 20px 24px; border: 1px solid var(--plate-line); background: var(--ink-deep); color: var(--plate-text-dim); font-family: var(--mono); font-size: 12px; line-height: 1.9; }
+.design-boundary p { margin: 0; }
+.design-boundary a { color: var(--plate-text); }
 
 .closing { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 120px 0; display: flex; align-items: end; justify-content: space-between; gap: 48px; }
 .closing h2 { margin-top: 10px; }

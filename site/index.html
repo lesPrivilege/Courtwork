@@ -12,6 +12,7 @@
   <meta property="og:url" content="https://lesprivilege.github.io/Courtwork/">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/zhuque-fangsong-subset.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
   <script src="main.js" defer></script>
 </head>
@@ -26,7 +27,7 @@
     <section class="hero" id="top">
       <div class="hero-copy">
         <p class="eyebrow">案件级 AI 工作台</p>
-        <h1 aria-label="模型只生成，不裁决。"><span class="typer" aria-hidden="true"><span class="tc" style="--i:0">模</span><span class="tc" style="--i:1">型</span><span class="tc" style="--i:2">只</span><span class="tc" style="--i:3">生</span><span class="tc" style="--i:4">成</span><span class="tc" style="--i:5">，</span><br><span class="tc" style="--i:6">不</span><span class="tc" style="--i:7">裁</span><span class="tc" style="--i:8">决</span><span class="tc" style="--i:9">。</span></span></h1>
+        <h1 class="zh-display" aria-label="模型只生成，不裁决。"><span class="typer" aria-hidden="true"><span class="tc" style="--i:0">模</span><span class="tc" style="--i:1">型</span><span class="tc" style="--i:2">只</span><span class="tc" style="--i:3">生</span><span class="tc" style="--i:4">成</span><span class="tc" style="--i:5">，</span><br><span class="tc" style="--i:6">不</span><span class="tc" style="--i:7">裁</span><span class="tc" style="--i:8">决</span><span class="tc" style="--i:9">。</span></span></h1>
         <p class="hero-lead">把卷宗装进案件，把每条结论钉回原文，把最后一个确认留给人。</p>
         <div class="hero-actions">
           <a class="button button-primary" href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a>
@@ -146,14 +147,18 @@
     <section class="promise" id="promise">
       <header class="section-heading"><p class="eyebrow">产品边界</p><h2>有些事，Courtwork 不做。</h2></header>
       <dl class="promise-ledger">
-        <div><dt>不改原件</dt><dd>卷宗原件只读，整理与修订落在受控副本和事件记录。</dd></div>
-        <div><dt>不自动送出</dt><dd>不可逆动作不会因模型输出而发生。</dd></div>
-        <div><dt>不把无锚引语落格</dt><dd>找不到原文坐标，就明确留在覆盖范围之外。</dd></div>
-        <div><dt>不替你确认</dt><dd>确认、驳回和修正必须来自可识别的人类操作者。</dd></div>
+        <div><dt class="zh-display">不改原件</dt><dd>卷宗原件只读，整理与修订落在受控副本和事件记录。</dd></div>
+        <div><dt class="zh-display">不自动送出</dt><dd>不可逆动作不会因模型输出而发生。</dd></div>
+        <div><dt class="zh-display">不把无锚引语落格</dt><dd>找不到原文坐标，就明确留在覆盖范围之外。</dd></div>
+        <div><dt class="zh-display">不替你确认</dt><dd>确认、驳回和修正必须来自可识别的人类操作者。</dd></div>
       </dl>
+      <aside class="design-boundary" aria-label="设计边界">
+        <p>色彩从不做装饰与层级：红只属于风险与删除，琥珀只属于中危与待确认，绿只属于落定与权威源，蓝只属于新增与焦点；除此之外，深浅都是藏青。</p>
+        <p>这份克制不靠自觉，由机器门强制——词表之外的颜色、未经登记的渐变与阴影、越界的动效，任何一项都会让构建失败。<a href="https://github.com/lesPrivilege/Courtwork/tree/main/site/craft-evidence">设计门禁与证据</a></p>
+      </aside>
     </section>
 
-    <section class="closing"><div><p class="eyebrow">Courtwork</p><h2>签字之前，<br>一切可回溯。</h2></div><div class="closing-actions"><a class="button button-primary" href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a><span class="release-pending">Apple Silicon 开发构建 · 未公证</span></div></section>
+    <section class="closing"><div><p class="eyebrow">Courtwork</p><h2 class="zh-display">签字之前，<br>一切可回溯。</h2></div><div class="closing-actions"><a class="button button-primary" href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a><span class="release-pending">Apple Silicon 开发构建 · 未公证</span></div></section>
   </main>
 
   <footer><p>Courtwork 会犯错，请核对原文与结果。</p><p><a href="https://github.com/lesPrivilege/Courtwork/issues">提交反馈</a> · <span class="mono">本地运行 · 人工确认</span></p></footer>

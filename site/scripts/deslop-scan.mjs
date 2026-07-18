@@ -1,7 +1,8 @@
+import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { scanSources } from './deslop-scan-lib.mjs';
+import { checkDisplayFont, scanSources } from './deslop-scan-lib.mjs';
 import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
@@ -70,6 +71,14 @@ if (!html.includes(sourceAnchor.quote) || !html.includes('04-设备采购合同 
 if (firstRisk?.level !== 'high' || firstRisk?.dispositionStatus !== 'pending' || !html.includes('高风险 · 依据已核验') || !html.includes('待确认 · 不自动送出')) failures.push('site/index.html: conclusion and confirmation states drift from the fixture');
 for (const failure of validateFixtureClaims(html, loadFixtureClaimInputs(resolve('.')))) {
   failures.push(`site: fixture claim ${failure}`);
+}
+for (const failure of checkDisplayFont({
+  html,
+  css,
+  manifest: JSON.parse(readFileSync(resolve('site/assets/fonts/zhuque-subset.json'), 'utf8')),
+  woff2Sha256: createHash('sha256').update(readFileSync(resolve('site/assets/fonts/zhuque-fangsong-subset.woff2'))).digest('hex'),
+})) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
 }
 
 const excludedDirectories = new Set([
