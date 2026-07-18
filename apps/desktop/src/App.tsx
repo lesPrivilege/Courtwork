@@ -426,9 +426,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const chatAbortRef = useRef<AbortController | null>(null);
   /** WORK-TURN-2：Work 对话不复用 Chat transcript/state；按 case 仅保留当前 UI 投影。 */
   const [workChatMessagesByCase, setWorkChatMessagesByCase] = useState<Record<string, ChatMessage[]>>({});
-  const [workChatPending, setWorkChatPending] = useState(false);
+  /** fix-by-acceptance：在途态必须按 case 隔离——否则案 A 在途会静默锁死案 B 的 composer（零提示、零可测信号）。 */
+  const [workChatPendingByCase, setWorkChatPendingByCase] = useState<Record<string, boolean>>({});
   const [workChatRecoveryError, setWorkChatRecoveryError] = useState<string>();
-  const workChatFlightRef = useRef(false);
+  const workChatFlightRef = useRef<Record<string, boolean>>({});
   const turnClientRef = useRef<TurnProtocolClient | null>(null);
   if (turnClientRef.current === null) {
     turnClientRef.current = new TurnProtocolClient(createLocalStorageTurnJournalBackend(window.localStorage));
@@ -439,6 +440,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     ? new TurnProtocolClient(createLocalStorageTurnJournalBackend(window.localStorage, workTurnJournalStorageKey(selectedCaseId)))
     : null, [selectedCaseId]);
   const workChatMessages = selectedCaseId ? workChatMessagesByCase[selectedCaseId] ?? [] : [];
+  const workChatPending = selectedCaseId ? workChatPendingByCase[selectedCaseId] ?? false : false;
   const [interactionReplay, setInteractionReplay] = useState<TurnReplay>();
   const [turnRecoveryError, setTurnRecoveryError] = useState<string>();
   const [chatRecoveryError, setChatRecoveryError] = useState<string>();
@@ -560,7 +562,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       return false;
     }
     const workCaseId = selectedCaseId;
-    if (workChatFlightRef.current) return false;
+    if (workChatFlightRef.current[workCaseId]) return false;
     if (caseBinding.kind === 'grant' && payload.attachments.length > 0) {
       void ingestComposerUploads(selectedCaseId, caseBinding.grantId, payload.attachments);
     }
@@ -590,9 +592,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         files: payload.attachments.map((item) => item.fileName), pasteBlocks: payload.pasteBlocks, createdAt,
       }],
     }));
-    workChatFlightRef.current = true;
+    workChatFlightRef.current[workCaseId] = true;
     setWorkChatRecoveryError(undefined);
-    setWorkChatPending(true);
+    setWorkChatPendingByCase((current) => ({ ...current, [workCaseId]: true }));
     const assistantAt = Date.now();
     const history = continuationHistory(historyBase, Date.now()).reduce<Array<{ role: 'user' | 'assistant'; content: string }>>((messages, message) => {
       if (message.role === 'user') messages.push({ role: 'user', content: message.content });
@@ -611,8 +613,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     })
       .catch((error: unknown) => setWorkChatRecoveryError(readableError(error, 'Unable to recover this work turn')))
       .finally(() => {
-        workChatFlightRef.current = false;
-        setWorkChatPending(false);
+        workChatFlightRef.current[workCaseId] = false;
+        setWorkChatPendingByCase((current) => ({ ...current, [workCaseId]: false }));
       });
     return true;
   };

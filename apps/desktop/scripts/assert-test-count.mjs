@@ -30,7 +30,9 @@ const count = match ? Number(match[1]) : 0;
 // WORK-TURN-1 H：Work 面案语境注入双向红证（Work 面在场/chat 面缺席）+1 → 287。
 // CONFIRM-GRANULARITY-1：批量确认入口 feature-off 显式回归锁（入口不可见 + 逐条路径可用）+1 → 288。
 // WORK-TURN-2：Work 面不切 Chat、case-keyed journal 分账与 chat 反向无案语境 +1 → 289。
-const minimum = 289;
+// WORK-TURN-2 验收修复：workChatPending/workChatFlightRef 补按 caseId 隔离（原实现为全局单飞行锁/
+// 单 pending 位，案 A 在途会静默锁死案 B composer）+1 → 290。
+const minimum = 290;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
