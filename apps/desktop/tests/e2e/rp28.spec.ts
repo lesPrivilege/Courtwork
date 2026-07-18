@@ -63,5 +63,7 @@ test('interaction turn card exposes manifest options without local skip or block
   await expect(page.getByTestId('preview-host')).toBeVisible();
 
   await expect(question).toHaveAttribute('data-answer', 'unanswered');
-  await expect(page.getByTestId('composer-input')).toBeEnabled();
+  // WORK-TURN-2：场景运行中不接收自由输入，也不造排队/steering 假控件。
+  await expect(page.getByTestId('composer-input')).toBeDisabled();
+  await expect(page.getByTestId('composer-disabled-reason')).toContainText('等待当前步骤完成后再继续提问');
 });

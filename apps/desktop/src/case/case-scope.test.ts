@@ -63,7 +63,7 @@ describe('case-scope derivation', () => {
   it('audit table has no unclassified rows（CASE-ROOT-1 收口后死路由行已删）', () => {
     expect(CASE_SCOPE_AUDIT.length).toBeGreaterThanOrEqual(10);
     expect(CASE_SCOPE_AUDIT.some((row) => row.symbol.includes('Composer'))).toBe(true);
-    expect(CASE_SCOPE_AUDIT.some((row) => row.symbol.includes('queuedMessages'))).toBe(true);
+    expect(CASE_SCOPE_AUDIT.some((row) => row.symbol.includes('workChatMessagesByCase'))).toBe(true);
     expect(CASE_SCOPE_AUDIT.some((row) => row.symbol.includes('lead attorney'))).toBe(true);
     // 绝对 caseRoot/folderPath 回落死路由不得复活
     expect(CASE_SCOPE_AUDIT.some((row) => row.symbol.includes('DEMO_CASE_ROOT'))).toBe(false);

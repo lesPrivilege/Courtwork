@@ -64,7 +64,10 @@ requireHonestUnwired('messageActions', 'data-state="unwired"', 2, 'MessageAction
 requireHonestUnwired('composer', 'data-state="unwired"', 2, 'Composer 未开通态标记（camera / voice）');
 requireHonestUnwired('railModules', "data-state={entry.disabled ? 'unwired' : undefined}", 1, 'RightRailModules reader-entry 未开通态标记');
 requireHonestUnwired('materialsZone', 'data-state="unwired"', 1, 'MaterialsZone 在访达中显示未开通态标记');
-requireHonestUnwired('app', 'data-state="unwired"', 1, 'App.tsx 排队消息「停止当前」未开通态标记');
+// WORK-TURN-2：场景运行中 Work composer 整体禁用，不再造排队/steering 的假控件；App 不得回流 queue 标记或状态。
+if (/queuedMessages|queued-message|queued-chip/.test(files.app)) {
+  failures.push('App.tsx 不得回流 Work 对话排队/steering 残留');
+}
 
 // 反例覆盖：Retry 是本单接线的真实控件，不得携带未开通标记。
 if (/data-testid="chat-retry"[^>]*data-state="unwired"/.test(files.app)) {
@@ -77,9 +80,9 @@ const unwiredOccurrences = [files.messageActions, files.composer, files.railModu
   // RightRailModules 用条件表达式而非字面量，单独计入
   + (files.railModules.includes("data-state={entry.disabled ? 'unwired' : undefined}") ? 1 : 0);
 
-const MINIMUM_UNWIRED_MARKERS = 7;
-if (unwiredOccurrences < MINIMUM_UNWIRED_MARKERS) {
-  failures.push(`未开通态标记数不足：发现 ${unwiredOccurrences}，至少需要 ${MINIMUM_UNWIRED_MARKERS}（对标清单留痕的最小可核验数）`);
+const EXPECTED_UNWIRED_MARKERS = 6;
+if (unwiredOccurrences !== EXPECTED_UNWIRED_MARKERS) {
+  failures.push(`未开通态标记漂移：发现 ${unwiredOccurrences}，应为 ${EXPECTED_UNWIRED_MARKERS}（Work 排队 W5 已退役）`);
 }
 
 for (const [fileKey, text] of Object.entries(files)) {

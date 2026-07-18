@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { connectProvider, createNamedCase, openModuleList, openWorkbench } from './helpers';
+import { createNamedCase, openModuleList, openWorkbench } from './helpers';
 
 type ForcedReadinessWindow = typeof window & {
   __CW_FORCE_CREDENTIAL__: {
@@ -121,13 +121,11 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     await expect(page.getByTestId('toolbar-stage')).toContainText('合同审查');
     await expect(page.getByText('发现 6 项合同风险')).toBeVisible();
 
-    // QF-2：在 A 的在途请求中追加一条排队消息，队列必须跟随容器作用域。
-    await connectProvider(page);
+    // WORK-TURN-2：场景运行中不接收自由输入、也不引入排队机制。
     await page.getByRole('button', { name: '审查合同', exact: true }).click();
     await page.getByTestId('turn-event-progress-0').waitFor();
-    await page.getByTestId('composer-input').fill('案件 A 的排队消息');
-    await page.getByTestId('composer-input').press('Enter');
-    await expect(page.getByTestId('queued-message')).toContainText('案件 A 的排队消息');
+    await expect(page.getByTestId('composer-input')).toBeDisabled();
+    await expect(page.getByTestId('composer-disabled-reason')).toContainText('等待当前步骤完成后再继续提问');
 
     await createNamedCase(page, '案件乙·长名称用于溢出审计');
     await expect(page.getByTestId('titlebar-case-title')).toHaveText('案件乙·长名称用于溢出审计');
@@ -149,7 +147,7 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     await expect(page.getByTestId('demo-case-badge')).toBeVisible();
     await expect(page.getByTestId('toolbar-stage')).toContainText('合同审查');
     await expect(page.getByText('发现 6 项合同风险')).toBeVisible();
-    await expect(page.getByTestId('queued-message')).toContainText('案件 A 的排队消息');
+    await expect(page.getByTestId('queued-message')).toHaveCount(0);
 
     // 再进 B
     const bCard = page.locator('.case-card').filter({ hasText: '案件乙' });

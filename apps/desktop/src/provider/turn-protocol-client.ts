@@ -14,6 +14,15 @@ import type { GenerationNotice, ProviderUsage } from '@courtwork/provider/types'
 
 export const TURN_JOURNAL_STORAGE_KEY = 'courtwork.turn-journal.v1';
 
+/**
+ * WORK-TURN-2：Work 对话和 Chat 对话共享 Turn Engine，却各自持有 journal。
+ * 对话不是场景事件，故只按 case 写独立的版本化 Turn journal，不混入
+ * ADR-010 的 WorkStateEnvelope。
+ */
+export function workTurnJournalStorageKey(caseId: string): string {
+  return `courtwork.work-chat.${caseId}.v1`;
+}
+
 export interface TurnProjection {
   turnId: string;
   providerRequestId?: string;

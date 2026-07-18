@@ -1,3 +1,77 @@
+# ACCEPTANCE: WORK-TURN-2
+
+日期：2026-07-18
+
+角色：独立验收会话
+
+对象：`impl/work-turn-2` tip `7e02229`（基线 `main @ 7a289c3`；验收开始时 `main` 尖端即为 `7a289c3`，`merge-base` 确认零需 rebase）。新 worktree `/Users/lesprivilege/Projects/Courtwork-accept-work-turn-2` 建 `accept/work-turn-2`。验收修复 `4faaad4`。
+
+## 裁决
+
+**✅ 放行 WORK-TURN-2（含一项 fix-by-acceptance 实现级小修）。**
+
+面隔离、账本隔离（journal key 格式/fail-closed/逐案隔离/chat 零污染/chat 零案语境/demo 脚本化回放零回归）、组装分道（`packages/**` 零 diff、六段契约零触碰）、运行中语义（禁用+显式提示+不排队）、布局与残留门均成立。验收不采信实现自述：亲跑 stash 红证复现旧代码 pane 仍切至 `chat`；发现并修正一处实现级缺口（见下）；全量门在验收 worktree 内独立实跑绿。
+
+## 缺陷发现与修复（fix-by-acceptance，经架构复核前置留痕）
+
+**缺陷**：`workChatPending`/`workChatFlightRef`（Work 对话在途标记/单飞行锁）实现为组件级全局 `useState`/`useRef`，未按 caseId 分区——与本单同批新增、正确按 case 分区的 `workChatMessagesByCase`/`workTurnJournalStorageKey` 不一致。案 A 的 Work Turn 在途时切至案 B，案 B 的 composer 发送钮被跨案静默禁用（零 `disabledReason`、零可见理由，文本填入后仍 disabled），实质阻断案 B 发送。违反账本隔离验收项②「逐案隔离」与仓库不变量 4「静默降级零容忍」。定位：`App.tsx` 三处状态声明 + `handleComposerSend` 内五处读写，共 7 个站点。
+
+**红证**：新增 `work-turn-2.spec.ts` 测例「案 A 的在途 Work Turn 不得阻塞案 B 的 composer」，用可控 stall 流（`started` 后挂起直到测试显式 release）令案 A 在途。首次断言顺序有误（`composer-send` 断言先于 `fill()`，任何 case 在空文本下都会 disabled，与缺陷无关）；改正为先填正文使 `canSend` 前提成立、再单独断言在途态后，`git stash` 两次隔离复核：
+1. stash 至 `impl/work-turn-2` 未修复态：新例精确红于填正文后 `composer-send` 仍 `disabled`（非空文本假阳）。
+2. 另将 `App.tsx` 单文件 checkout 回 `main`（本工单未落地前）复跑主隔离例：精确红于 `workspace[data-view-segment]` 实得 `chat`（期望 `work`），逐字印证 SPEC 根因叙述（`switchSegment('chat')`）。
+两次 stash 均完整 `pop` 归位，其间 `git status`/内容逐次核对。
+
+**修复**：`workChatPendingByCase: Record<caseId, boolean>` + `workChatFlightRef.current: Record<caseId, boolean>`，`handleComposerSend` 全部读写点改按 `workCaseId` 索引；渲染处新增派生 `workChatPending = workChatPendingByCase[selectedCaseId] ?? false`。零新概念——复用本单已确立的 by-case Record 范式；Chat 侧对等实现（`chatFlightRef`/`chatPending`）本就案无关，未受影响也未改动。`assert-test-count.mjs` floor 289→290；`SPEC.md` 留痕缺陷/红证/修复三段（`apps/desktop/SPEC.md` WORK-TURN-2 节新增「验收修复」小节）。
+
+## 1. 面隔离
+
+- e2e 亲跑：`work-turn-2.spec.ts` 主例断言 Work 发送后 `workspace[data-view-segment]` 恒 `work`、`work-chat-assistant-message` 可见；`pilot-entry.spec.ts`（A）、`pilot-case-upload.spec.ts`（F）、`work-turn.spec.ts`（H）均已改断言为留在 Work 面，随全量门通过。
+- stash 红证：见上，复现旧代码 `data-view-segment` 精确红于 `chat`。
+- 现场读码：`ChatAssistantMessage` 新增 `testIdPrefix` 区分 `chat`/`work-chat`；Work 对话气泡（`workChatMessages.map`）与 demo 场景 `ProcessTrace`/`TurnCard` 事件流插入同一 `conversation-scroll`（`App.tsx:2276-2437`，非自述、现场行号核实）。
+
+## 2. 账本隔离（双向逐验）
+
+- **①版本化单键 + fail-closed**：`workTurnJournalStorageKey(caseId)` 返回 `courtwork.work-chat.<caseId>.v1`，与 chat 共用同一 `createLocalStorageTurnJournalBackend(storage, key)`；`parseEnvelope`（含 invalid JSON / 未知字段 / 版本不符 / turnId 索引漂移等全部 `corrupt()` 分支）本单零改动、key 完全参数化，无 key 条件分支——现存「corrupt journal fails closed」等既有反例覆盖同一函数，按构造对新 key 同等成立。
+- **②逐案隔离**：`workChatMessagesByCase`（消息投影）与 `workTurnClient`（`useMemo` 随 `selectedCaseId` 重建的独立 `TurnProtocolClient`）按构造隔离；`workChatPending`/`workChatFlightRef` 原未隔离（详见上节缺陷），验收修复后新增专项红证覆盖。
+- **③chat 零 work 污染 + chat 零案语境**：`work-turn-2.spec.ts` 主例双向断言——work journal 写入 completed Turn 时，chat journal（`courtwork.turn-journal.v1`）逐字节等于发送前快照；切入 chat 发送后 `systemPrompt` 不含"案件语境"。`handleChatSend`（`App.tsx:698`）与本单零 diff，独立确认其未读取 case/work 状态。
+- **④demo 案语义不回退**：demo 脚本化回放全链（`session.progress`/`TurnCard`/`ProcessTrace`/`workFixture.sessionRefFor`）与本单零 diff；`demo:s3`、`demo:legal` golden 均在验收 worktree PASS（39,651 / 4,606 bytes，7/7、11/11 考点，与历史记录同值）。**留痕（非缺陷，如实登记供产品侧知悉）**：demo 案 Work composer 在场景**未运行**时（开局前/完成后）的自由输入，已从旧「纯本地回显」（`setLocalMessages`）改为与非 demo 案同源的真实 `sendChatTurn` 请求——`handleComposerSend` 现无 `isDemoCase` 分支；`setLocalMessages` 调用点现场 grep 只余 chat-handoff（`routing-law.spec.ts` 覆盖）与 demo replay 重置两处，均与 composer 发送无关。核验 Chat 面对 demo 案历来无此守卫（`handleChatSend` 零 `isDemoCase` 判断，一贯对任意 case 真实发送），故本变化是 Work 面与 Chat 面能力对齐的自然结果；未发现被测试或文档锁定的反向承诺，不作为放行阻断。
+
+## 3. 组装分道
+
+`main..7e02229` 全部 16 个改动文件均在 `apps/desktop/{src,tests,scripts,SPEC.md}`（验收自身 fix-by-acceptance 提交同样只触及其中 4 个既有文件，文件集合不扩大）；`packages/**`、`src-tauri/**`、`docs/status/current.md` 零 diff（`git diff --stat` 现场核实）。`chat-client.ts`（六段 assembly 契约实现）与本单零 diff；`SendChatTurnOptions.workContextSegment` 为 WORK-TURN-1 H 既有字段，本单仅复用既有缝，未改契约签名。
+
+## 4. 运行中语义
+
+- `composer.spec.ts`「Work 场景运行中 composer 禁用并说明下一步，不排队」、`d1-case-scope.spec.ts`「案件 A 有 demo 状态 → 案件 B 零继承 → 回到 A 恢复 demo」运行中断言、`rp28.spec.ts` 均已从旧排队断言改为禁用 + `composer-disabled-reason`（"合同审查正在运行；等待当前步骤完成后再继续提问。"）断言，随全量门通过。
+- `assert-ui-surface-contracts.mjs` 由 W5 queue marker 改为反向守卫（`queuedMessages`/`queued-message`/`queued-chip` 零出现），未开通态标记精确 6 项（原 ≥7），随门禁通过确认。
+- 现场 grep 坐实 `handleComposerSend` 无任何 `setQueuedMessages`/队列相关代码路径残留。
+
+## 5. 布局与残留门
+
+- `pilot-layout.spec.ts` 全部既有断言（都开/仅左收/仅右收/双收/chat 段与 welcome 回归锁/右栏窄态目检）零 diff、随全量门通过——`conversation-canvas`/`chat-canvas` 与 `composer-stack`/`scene-strip` 居中基准未回归。
+- residue 独立三轮亲跑：**22/22 × 3**（本单未新增 residue 谱；Work 画布对话区为纯内联插入、无新 overlay/portal，既有 17 行疊层清单枚举不变，故沿用既有门禁）。
+
+## 6. 全量门（验收 worktree 内独立实跑）
+
+| 门 | 结果 |
+|---|---|
+| `pnpm -r build` | PASS（13/14 workspace；仅既有 chunk-size 提示） |
+| `pnpm lint` | PASS |
+| root Vitest | **144 files / 1244 tests passed** |
+| desktop Vitest | **58 files / 352 tests passed** |
+| 完整 `test:e2e`，端口 `14207` | 全静态门链 PASS（含四设计门 neutral/elevation/signature/motion、voice 5/5 + 116 文件扫描、layout-converge、work-safe-case-id parity 等）；floor **290**；Playwright **290/290**（~2.4–2.8m，两轮） |
+| residue 单独三轮，端口 `14207` | 各 **22/22**（43–44s/轮） |
+| `demo:s3` golden | PASS（39,651 bytes，7/7 考点） |
+| `demo:legal` golden | PASS（4,606 bytes，11/11 anchors） |
+
+先在implementation worktree（`Courtwork-work-turn-2`，`impl/work-turn-2` 原树）完成上述发现、修复与首轮全量门实跑，随后按工程纪律要求的「clean worktree」补正——`git stash` 移出全部驗收改动、于新 `accept/work-turn-2` 分支+worktree 重新 `pnpm install` 并完整重跑同一套门禁（build/lint/root+desktop Vitest/完整 `test:e2e`/residue 三轮/两条 demo golden），两处worktree结果逐项一致；implementation worktree 已复原至 `impl/work-turn-2` 干净尖端，无遗留改动。
+
+> **最终判定：放行 WORK-TURN-2。** 成立范围严格为 apps/desktop 内 Chat/Work 面隔离、journal 分账、组装复用既有缝、运行中禁用语义与布局/残留门不回退，含验收发现并修复的跨案在途状态隔离缺口。真机复验（Work 气泡与场景 trace 共存视觉、case-keyed localStorage 跨刷新、demo 案新真实请求路径的产品侧确认）仍待产品负责人执行，不据此宣称 external-validated。fix-by-acceptance 提交 `4faaad4` 待架构逐 diff 复核。
+
+未更新 `docs/status/current.md`；未推送；未 prune 任何 worktree/分支。
+
+---
+
 # PROVIDER-STREAM-1 · desktop 显示边界验收
 
 - **✅ 放行（2026-07-17）**：桌面 failure 显示已对纯英文技术栈、含单个中文的技术残文与正常中文归一报文完成三探针核验；原单中文字可穿透的洞已按「技术 marker 优先」收紧，含模型片段的 `InvalidResponse` 不会进入 UI 或 provider evidence。voice / work-live / parity 门、完整 E2E **287/287** 与 residue **22/22 × 3** 均在最终 rebase 树通过。详见 `packages/provider/ACCEPTANCE.md` 的 PROVIDER-STREAM-1 报告。

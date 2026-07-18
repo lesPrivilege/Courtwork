@@ -521,11 +521,6 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 .collapse-toggle { margin-top: 2px; padding: 1px 4px; border: 0; border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size); }
 .collapse-toggle:hover { background: var(--control-hover); color: var(--text-primary); }
-.queued-message { margin: 4px 8px; display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); color: var(--text-secondary); font-size: var(--type-dense-body-size); }
-.queued-message > span:nth-child(2) { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.queued-chip { padding: 1px 5px; border: 1px solid var(--border-strong); border-radius: 4px; font: 11px/1.5 var(--mono); }
-.queued-message button { border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; }
-.queued-message button:disabled { color: var(--text-disabled); cursor: not-allowed; }
 .data-card, .detail-card, .generated-callout { position: relative; }
 .data-card, .detail-card { width: 100%; padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); overflow: hidden; }
 .signature-line { position: absolute; inset: 0 auto 0 0; width: 2px; transition: none; }
@@ -1621,6 +1616,8 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .composer-paste-chip button:hover { background: var(--control-hover); color: var(--text-primary); }
 /* PILOT-LIVE-1 C1：入口收窄引导——行内提示，零新色/影/渐变，复用既有 border/bg-app/text-secondary token。 */
 .composer-entry-guidance { margin: 0 0 6px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-app); color: var(--text-secondary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
+/* WORK-TURN-2：运行中不收件、不排队；说明留在 composer 相邻位置，避免误认静默失效。 */
+.composer-disabled-reason { margin: 0 0 6px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-app); color: var(--text-secondary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
 
 /* DESLOP-GATE-2：按压只属于主操作、图标与 popover trigger；键盘触发不进入 :active。 */
 :is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger) {

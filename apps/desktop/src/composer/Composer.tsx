@@ -56,6 +56,8 @@ export interface ComposerProps {
   onCloseModelConfig?: () => void;
   /** 外层生成请求在途：禁止按钮与 Enter 再次触发，保证每 turn 单飞行。 */
   requestPending?: boolean;
+  /** Work 场景运行时的显式禁用说明；发生了什么 + 下一步均由宿主给出。 */
+  disabledReason?: string;
   /** RP-2.11 ⑤：composer 底排 workmode 钮 = chat|work 同源（与顶部段控同一状态源）。 */
   viewSegment?: 'chat' | 'work';
   onSegmentChange?: (next: 'chat' | 'work') => void;
@@ -91,6 +93,7 @@ export function Composer({
   onModelConfigChange,
   onCloseModelConfig,
   requestPending = false,
+  disabledReason,
   viewSegment,
   onSegmentChange,
   onAddFolder,
@@ -385,6 +388,11 @@ export function Composer({
           一次只能带一份文件 · 已有附件请先移除，需要整份文件夹请改用「+」菜单添加
         </p>
       )}
+      {disabledReason && (
+        <p className="composer-disabled-reason" data-testid="composer-disabled-reason" role="status">
+          {disabledReason}
+        </p>
+      )}
       {attachments.length > 0 && (
         <ul className="attachment-list" aria-label="Pending attachments" id={listId}>
           {attachments.map((attachment) => (
@@ -645,6 +653,7 @@ export function Composer({
           value={text}
           aria-label={CHROME_COPY.composer.inputLabel}
           aria-controls={attachments.length ? listId : undefined}
+          disabled={Boolean(disabledReason)}
           onChange={(event) => setText(event.target.value)}
           onKeyDown={onKeyDown}
           onPaste={onPaste}

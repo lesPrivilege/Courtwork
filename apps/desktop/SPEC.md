@@ -2,6 +2,34 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## WORK-TURN-2 · Chat / Work 真隔离（P1）（实现完成，待独立验收）
+
+权威：[ADR-009](../../docs/decisions/ADR-009-runtime-ports-and-harness.md)「一套 Turn Engine，两种上层 Harness」+ [实现就绪图 `WORK-TURN-2` 行](../../docs/architecture/implementation-readiness.md)。基线 `main @ 7a289c3`；分支 `impl/work-turn-2`；仅触及 `apps/desktop/{src,tests,scripts,SPEC.md}`，零 `packages/**`、零 schema/wire/六段 assembly 契约改动、零 `docs/status/current.md` 改动。
+
+### 偵察结论与实现
+
+- **根因**：Work composer 的 grant 路径原经 `handleComposerSend → handleChatSend`，成功后 `switchSegment('chat')`；Turn 写唯一 `courtwork.turn-journal.v1`。结果是 Work 的对话既跳面又污染 Chat journal，违反 ADR-009「共用 Turn Engine、分 journal 分账」。
+- **面隔离**：Work 对话的 user/assistant 气泡直接插入现有 `conversation-scroll`，与 demo 场景 event trace 同一垂直流；不新建画布、不卡回居中/残留门基准。Chat 面保持既有轻量 canvas 与「Save to a case」升格通道，零 Work message/context。
+- **账本隔离**：新增 `workTurnJournalStorageKey(caseId)`，Work 每案写 `courtwork.work-chat.<caseId>.v1` 的既有 v1 Turn journal envelope；Chat 仍只写 `courtwork.turn-journal.v1`。两者都经同一 `TurnProtocolClient`/`sendChatTurn`/Turn Engine。Work 对话不是场景步骤，不写 ADR-010 `WorkStateEnvelope`，也不伪装为 `SessionEvent`。
+- **组装分道**：Work 仅在已有 grant 案语境成立时调用既有 `workContextSegmentFor`，并沿 `SendChatTurnOptions.workContextSegment → generic-chat` 既有缝送入；未改六段契约。Work 不注入 chat memory、不蒸馏长期记忆；Chat 路径不读取 case/work 状态，反向保持无案轻量语境。
+- **运行中语义**：场景运行时 Work composer textarea 与发送按钮一并禁用，紧邻说明「合同审查正在运行；等待当前步骤完成后再继续提问。」（发生了什么 + 下一步）；删除旧 `queuedMessages`/撤回/禁用 Stop 假控件，不做 steering 或排队。
+
+### TDD、复杂度与门禁
+
+- **先红**：新 `work-turn-2.spec.ts` 在旧代码精确红于 Work 发送后 workspace `data-view-segment` 实得 `chat`（期望 `work`）；随后同例断言 Work journal 有 completed Turn、Chat journal 仍为空、Work request 含案件语境，切入 Chat 后 request 不含案件语境。
+- **运行态断言**：既有 `composer.spec.ts` 与 `d1-case-scope.spec.ts` 将旧排队断言改为 Work 场景运行中的禁用/说明/零 queue 断言；`assert-ui-surface-contracts.mjs` 由 W5 queue marker 改为反向守卫（`queuedMessages`/`queued-message`/`queued-chip` 零出现），其余六个真实未开通态标记精确枚举。
+- **复杂度留痕**：新增概念仅为 case-keyed Work Turn journal key 与 Work UI projection map，二者非加不可：ADR-009 已要求分 journal，而 UI 必须按 case 不串线。复用现有 envelope、Turn client、generic-chat 和 message components；零新依赖、零新状态机、零新 Work event/payload。触面扫描发现旧 queue 假控件与当前「不做排队」裁定冲突，已在本单删除；无其余待架构拍板项。
+- **floor**：288 → 289（+1，Work/Chat 面、journal、组装双向隔离 e2e）→ 验收修复后 290（见下）。实现侧门禁与独立验收终值另记 `ACCEPTANCE.md`；真机仍需复验 Work 气泡与场景 trace 共存、case-keyed localStorage 跨刷新、运行中禁用文案与 Chat 反向无案语境。
+
+### 验收修复（fix-by-acceptance，经架构复核）
+
+- **缺陷**：`workChatPending`/`workChatFlightRef` 实现为组件级全局 `useState`/`useRef`（非按 caseId 分区），与同批新增、正确按 case 分区的 `workChatMessagesByCase`/`workTurnJournalStorageKey` 不一致。案 A 的 Work Turn 在途时，案 B 的 composer 发送钮被静默禁用（`disabledReason` 不显式、零可见理由），实质阻断案 B 发送——违反账本隔离验收项②「逐案隔离」与不变量 4「静默降级零容忍」。定位：`App.tsx` 三处声明 + `handleComposerSend` 内五处读写。
+- **红证**：`work-turn-2.spec.ts` 新增「案 A 在途不得阻塞案 B composer」——stash 隔离复跑坐实旧代码精确红于案 B 填正文后发送钮仍 `disabled`；`git stash` 定位修复前后对照复核。
+- **修复**：`workChatPendingByCase: Record<caseId, boolean>` + `workChatFlightRef.current: Record<caseId, boolean>`，读写点全部改按 `workCaseId`/`selectedCaseId` 索引，渲染处派生 `workChatPending = workChatPendingByCase[selectedCaseId] ?? false`；零新概念（复用本单已确立的 by-case Record 范式）。
+- **floor**：289 → 290（+1）。
+
+---
+
 ## CONFIRM-GRANULARITY-1 · 批量确认 UI 收起（版本收尾拍板，薄单）（实现完成，待独立验收）
 
 权威：[版本收尾拍板四条 · 第 1 条「批量确认收起」](../../docs/status/pilot-2026-07-17.md) + [实现就绪图 `CONFIRM-GRANULARITY-1` 行](../../docs/architecture/implementation-readiness.md)。工单基线 `main @ f28ad41`。分支 `impl/confirm-granularity-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`/`ACCEPTANCE.md`、零 `packages/**` 改动、零测试删除。
