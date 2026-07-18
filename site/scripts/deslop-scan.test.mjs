@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { scanSources } from './deslop-scan-lib.mjs';
+import { checkDemoMotion, checkDisplayFont, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -206,6 +206,62 @@ test('Pages deploy executes the complete root guard instead of the scanner alone
   const workflow = readFileSync(new URL('../../.github/workflows/pages.yml', import.meta.url), 'utf8');
   assert.match(workflow, /run:\s*pnpm site:guard/);
   assert.doesNotMatch(workflow, /run:\s*node site\/scripts\/deslop-scan\.mjs/);
+});
+
+const GOOD_DISPLAY_MANIFEST = {
+  family: 'Zhuque Fangsong (technical preview)',
+  upstreamVersion: '0.212',
+  license: 'SIL OFL 1.1',
+  text: '模型只生成，不裁决。',
+  woff2Sha256: 'a'.repeat(64),
+};
+// 好例刻意在消费者之后放清单外文案：门只约束 zh-display 消费者，不得把整页吞进覆盖检查。
+const GOOD_DISPLAY_HTML = '<h1 class="zh-display"><span class="tc">模</span>型只生成，<br>不裁决。</h1><p>页面其余文案与清单无关，含漂移二字也不触红。</p>';
+const GOOD_DISPLAY_CSS = [
+  '@font-face { font-family: "Zhuque Fangsong"; src: url(assets/fonts/zhuque-fangsong-subset.woff2) format("woff2"); font-display: swap; }',
+  ':root { --display: "Zhuque Fangsong", "STFangsong", "FangSong", "Noto Serif SC", serif; }',
+  '.zh-display { font-family: var(--display); font-weight: 400; font-synthesis: none; }',
+].join('\n');
+const displayRules = (overrides = {}) => checkDisplayFont({
+  html: GOOD_DISPLAY_HTML,
+  css: GOOD_DISPLAY_CSS,
+  manifest: GOOD_DISPLAY_MANIFEST,
+  woff2Sha256: GOOD_DISPLAY_MANIFEST.woff2Sha256,
+  ...overrides,
+}).map((failure) => failure.rule);
+
+test('SITE-CRAFT-2 display font subset binds manifest text, bytes, and consumers fail-closed', () => {
+  assert.deepEqual(displayRules(), []);
+  // 文案新增字未进子集清单 → 缺字静默回退必须触红。
+  assert.ok(displayRules({ html: GOOD_DISPLAY_HTML.replace('不裁决。', '不裁决与漂移。') }).includes('display-font'));
+  // 清单与 woff2 字节脱钩（改清单不重子集）→ 触红。
+  assert.ok(displayRules({ woff2Sha256: 'b'.repeat(64) }).includes('display-font'));
+  // 字体资产零消费者 → 死资产触红。
+  assert.ok(displayRules({ html: '<h1>模型只生成，不裁决。</h1>' }).includes('display-font'));
+  // CSS 未接 @font-face 或 .zh-display 未消费 --display → 消费者静默回退系统字 → 触红。
+  assert.ok(displayRules({ css: '.zh-display { font-weight: 400; }' }).includes('display-font'));
+  assert.ok(displayRules({ css: GOOD_DISPLAY_CSS.replace('font-family: var(--display);', '') }).includes('display-font'));
+});
+
+const GOOD_DEMO_CSS = String.raw`
+.schema-demo mark { border-bottom: 1px solid color-mix(in srgb, var(--focus) 45%, transparent); }
+@keyframes demo-attn-a { 0%, 4% { background-color: transparent; border-color: var(--border-hairline); } 6%, 30% { background-color: color-mix(in srgb, var(--ink) 6%, transparent); border-color: var(--ink); } 32%, 100% { background-color: transparent; border-color: var(--border-hairline); } }
+@keyframes demo-anchor-a { 0%, 4% { background-color: transparent; } 6%, 30% { background-color: color-mix(in srgb, var(--focus) 15%, transparent); } 32%, 100% { background-color: transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  .schema-demo * { animation: none; }
+}
+`;
+
+test('SITE-CRAFT-2 hero demo keyframes stay inside the attention property whitelist', () => {
+  assert.deepEqual(checkDemoMotion(GOOD_DEMO_CSS).map((failure) => failure.rule), []);
+  // 演示 keyframe 混入位移/变形/遮罩 → 数据区静止承诺破口，必须触红。
+  assert.ok(checkDemoMotion(GOOD_DEMO_CSS.replace('background-color: color-mix(in srgb, var(--ink) 6%, transparent);', 'transform: translateY(-2px);'))
+    .map((failure) => failure.rule).includes('demo-motion'));
+  assert.ok(checkDemoMotion(GOOD_DEMO_CSS.replace('background-color: color-mix(in srgb, var(--focus) 15%, transparent);', 'mask-position: 0 0;'))
+    .map((failure) => failure.rule).includes('demo-motion'));
+  // reduced-motion 全灭分支被删 → 触红。
+  assert.ok(checkDemoMotion(GOOD_DEMO_CSS.replace('.schema-demo * { animation: none; }', ''))
+    .map((failure) => failure.rule).includes('demo-motion'));
 });
 
 test('SITE-GEN fixture claims accept the authoritative Legal and PM snapshot', () => {

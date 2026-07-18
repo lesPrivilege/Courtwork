@@ -1,0 +1,4394 @@
+{
+ "frames": 26,
+ "intervalMs": 500,
+ "dataStatic": true,
+ "zonesCycled": true,
+ "runningCounts": [
+  7
+ ],
+ "runningNames": [
+  "demo-anchor-a",
+  "demo-attn-a",
+  "demo-attn-b",
+  "demo-attn-c"
+ ],
+ "perZoneDistinctBg": {
+  ".demo-anchor": 3,
+  ".demo-basis": 3,
+  ".demo-gate": 3,
+  ".demo-compare": 3,
+  ".demo-phase-a": 3,
+  ".demo-phase-b": 3,
+  ".demo-phase-c": 3
+ },
+ "samples": [
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "oklab(0.54613 -0.0266538 -0.213537 / 0.15)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "oklab(0.54613 -0.0266538 -0.213537 / 0.15)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "oklab(0.54613 -0.0266538 -0.213537 / 0.0259437)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.0103775)",
+     "borderTop": "rgb(189, 199, 209)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.0103775)",
+     "borderTop": "rgb(189, 199, 209)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.0590725)",
+     "borderTop": "rgb(13, 40, 67)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.0590725)",
+     "borderTop": "rgb(13, 40, 67)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.0583442)",
+     "borderTop": "rgb(16, 42, 69)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.0583442)",
+     "borderTop": "rgb(16, 42, 69)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "oklab(0.54613 -0.0266538 -0.213537 / 0.15)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "oklab(0.54613 -0.0266538 -0.213537 / 0.15)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "oklab(0.54613 -0.0266538 -0.213537 / 0.15)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "oklab(0.54613 -0.0266538 -0.213537 / 0.15)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "oklab(0.54613 -0.0266538 -0.213537 / 0.15)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  },
+  {
+   "data": [
+    {
+     "selector": ".demo-meta",
+     "x": 674.33,
+     "y": 373.52,
+     "w": 364.25,
+     "h": 17.59,
+     "text": "原件 · 04-设备采购合同 · 第 1 页 · 只读"
+    },
+    {
+     "selector": ".demo-clause",
+     "x": 674.33,
+     "y": 391.11,
+     "w": 364.25,
+     "h": 88.17,
+     "text": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。"
+    },
+    {
+     "selector": ".demo-anchor",
+     "x": 674.33,
+     "y": 397.11,
+     "w": 364.27,
+     "h": 47.39,
+     "text": "每逾期一日应按未付金额的1%向甲方支付违约金"
+    },
+    {
+     "selector": ".demo-entry-head strong",
+     "x": 1134.58,
+     "y": 373.52,
+     "w": 120,
+     "h": 24,
+     "text": "违约金单向且畸高"
+    },
+    {
+     "selector": ".demo-level",
+     "x": 1091.58,
+     "y": 379.52,
+     "w": 33,
+     "h": 17.59,
+     "text": "高风险"
+    },
+    {
+     "selector": ".demo-basis",
+     "x": 1091.58,
+     "y": 409.52,
+     "w": 289.39,
+     "h": 35.59,
+     "text": "依据 · 04-设备采购合同 · 第 1 页 · 已核验"
+    },
+    {
+     "selector": ".demo-gate .demo-meta",
+     "x": 1102.58,
+     "y": 468.11,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "待确认 · 不自动送出"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(1)",
+     "x": 1102.58,
+     "y": 485.7,
+     "w": 70,
+     "h": 27.19,
+     "text": "确认此项"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(2)",
+     "x": 1180.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "驳回"
+    },
+    {
+     "selector": ".demo-actions span:nth-child(3)",
+     "x": 1234.58,
+     "y": 485.7,
+     "w": 46,
+     "h": 27.19,
+     "text": "修正"
+    },
+    {
+     "selector": ".demo-compare .demo-meta",
+     "x": 1102.58,
+     "y": 546.89,
+     "w": 267.39,
+     "h": 17.59,
+     "text": "修订建议 · 未落格，逐条确认后才生成产物"
+    },
+    {
+     "selector": ".demo-suggestion",
+     "x": 1102.58,
+     "y": 564.48,
+     "w": 267.39,
+     "h": 22.39,
+     "text": "改为双向、封顶并与实际损失挂钩。"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "x": 674.33,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "锚点跳转"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "x": 915.88,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "逐条确认"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "x": 1157.42,
+     "y": 623.88,
+     "w": 223.55,
+     "h": 40.59,
+     "text": "修订对照"
+    }
+   ],
+   "zoneStyles": [
+    {
+     "selector": ".demo-anchor",
+     "bg": "oklab(0.54613 -0.0266538 -0.213537 / 0.15)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-basis",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-gate",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-compare",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-a",
+     "bg": "oklab(0.259929 -0.0193288 -0.057198 / 0.06)",
+     "borderTop": "rgb(10, 37, 64)"
+    },
+    {
+     "selector": ".demo-phase-b",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    },
+    {
+     "selector": ".demo-phase-c",
+     "bg": "rgba(0, 0, 0, 0)",
+     "borderTop": "rgb(227, 233, 239)"
+    }
+   ],
+   "running": 7,
+   "runningNames": [
+    "demo-anchor-a",
+    "demo-attn-a",
+    "demo-attn-b",
+    "demo-attn-c"
+   ]
+  }
+ ]
+}

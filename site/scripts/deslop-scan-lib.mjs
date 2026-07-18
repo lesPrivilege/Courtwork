@@ -593,6 +593,77 @@ function scanSvg(file, content, failures) {
   }
 }
 
+// SITE-CRAFT-2：朱雀仿宋子集三向绑定——HTML 消费者用字 ⊆ 清单文本、清单与 woff2 字节同锚、
+// CSS 真实接线（@font-face + .zh-display 消费 --display）。任何一向脱钩都意味着缺字静默回退，必须触红。
+export function checkDisplayFont({ html, css, manifest, woff2Sha256 }) {
+  const failures = [];
+  const fail = (message) => push(failures, 'display-font', 'site/assets/fonts/zhuque-subset.json', 1, message);
+  if (!manifest || typeof manifest.text !== 'string' || !/^[0-9a-f]{64}$/.test(manifest.woff2Sha256 ?? '')) {
+    fail('subset manifest must declare text and a 64-hex woff2Sha256');
+    return failures;
+  }
+  if (woff2Sha256 !== manifest.woff2Sha256) {
+    fail('subset woff2 bytes drifted from the manifest anchor; re-subset and update woff2Sha256');
+  }
+  const consumers = [];
+  const openTag = /<([a-z][a-z0-9]*)\b[^>]*\bclass="[^"]*\bzh-display\b[^"]*"[^>]*>/g;
+  for (const match of html.matchAll(openTag)) {
+    const tag = match[1];
+    const start = (match.index ?? 0) + match[0].length;
+    const step = new RegExp(`<${tag}\\b[^>]*>|</${tag}>`, 'g');
+    step.lastIndex = start;
+    let depth = 1;
+    let end = html.length;
+    for (let hit = step.exec(html); hit; hit = step.exec(html)) {
+      depth += hit[0].startsWith('</') ? -1 : 1;
+      if (depth === 0) { end = hit.index; break; }
+    }
+    consumers.push(html.slice(start, end).replace(/<[^>]*>/g, ''));
+  }
+  if (!consumers.length) fail('display font asset has no zh-display consumer in the page');
+  const allowed = new Set(manifest.text);
+  for (const text of consumers) {
+    const missing = [...new Set([...text.replace(/\s/g, '')].filter((char) => !allowed.has(char)))];
+    if (missing.length) fail(`zh-display consumer uses characters outside the subset manifest: ${missing.join('')}`);
+  }
+  if (!css.includes('assets/fonts/zhuque-fangsong-subset.woff2') || !/@font-face\s*\{[^}]*"Zhuque Fangsong"/.test(css)) {
+    fail('styles.css must load the subset via @font-face "Zhuque Fangsong"');
+  }
+  if (!/\.zh-display\s*\{[^}]*font-family:\s*var\(--display\)/.test(css) || !/--display:\s*"Zhuque Fangsong"/.test(css)) {
+    fail('.zh-display must consume var(--display) anchored to "Zhuque Fangsong"');
+  }
+  return failures;
+}
+
+// SITE-CRAFT-2：hero 微演示动效契约——demo-* keyframe 只许注意力层属性
+// （background-color/border-color/border-top-color/opacity），数据字形零位移零变形；
+// 存在演示时 reduced-motion 必须整体全灭。越界属性即「数据区绝对静止」破口，触红。
+export function checkDemoMotion(css) {
+  const failures = [];
+  const fail = (message) => push(failures, 'demo-motion', 'site/styles.css', 1, message);
+  const allowed = new Set(['background-color', 'border-color', 'border-top-color', 'opacity']);
+  const source = withoutComments(css);
+  let hasDemo = false;
+  for (const match of source.matchAll(/@keyframes\s+(demo-[a-z0-9-]+)\s*\{/g)) {
+    hasDemo = true;
+    const open = source.indexOf('{', match.index);
+    const close = matchingBrace(source, open, source.length);
+    for (const declaration of source.slice(open + 1, close).matchAll(/([a-z-]+)\s*:/g)) {
+      if (!allowed.has(declaration[1])) fail(`${match[1]} animates ${declaration[1]} outside the attention whitelist`);
+    }
+  }
+  if (hasDemo) {
+    let blanket = false;
+    for (const media of source.matchAll(/@media \(prefers-reduced-motion: reduce\)\s*\{/g)) {
+      const open = source.indexOf('{', media.index);
+      const close = matchingBrace(source, open, source.length);
+      if (source.slice(open + 1, close).includes('.schema-demo * { animation: none; }')) blanket = true;
+    }
+    if (!blanket) fail('hero demo needs the exact `.schema-demo * { animation: none; }` reduced-motion branch');
+  }
+  return failures;
+}
+
 export function scanSources(sources, options = {}) {
   const repository = options.repository ?? false;
   const failures = [];

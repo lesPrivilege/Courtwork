@@ -167,3 +167,91 @@
 - 替换：`assets/screenshots/11-milestone-dossier-{1440,720}.webp`；原始 1440×900 PNG 与前后对照在 `craft-evidence/COMPOSER-FLOW-COMPACT-1/`。
 - 站点语义不变：本裁片仍是虚构合成卷宗的真实 UI，不新增 product-live、隐私、性能或规模宣称；其他 RiskList/redline/未落格/关系图谱/工作台资产不因本次测宽改动而虚构重拍。
 - 本节为实现留痕；放行结论需由独立验收会话写入 `site/ACCEPTANCE.md`，本实现会话不自验。
+
+## SITE-CRAFT-2 · Pages 视效升级（实现进行中，分批交付）
+
+权威范围：就绪图 `SITE-CRAFT-2` 行（hero 微演示 / 朱雀仿宋 / 冷色五杠杆 / 前卫实验田条款）。
+硬边界不变：仅 `site/`（含其构建配套 `site/scripts/*`），产品壳字体与素材不随动；site 源码不引用归档路径。
+分批交付、每批独立可验；逐帧证据与许可快照在 [`craft-evidence/SITE-CRAFT-2/`](craft-evidence/SITE-CRAFT-2/)。
+
+### B1 · 朱雀仿宋 + 藏青阶深地基（杠杆①②⑤，实现完成）
+
+- **朱雀仿宋（TrionesType/zhuque v0.212，SIL OFL 1.1，beta 锁版）**：按选型拍板以子集入站——
+  hero 母题、承诺四则、收尾判词共 37 字（12KB woff2，preload + `font-display: swap`）。剂量纪律：
+  仅上述品牌时刻，其余标题层保持系统 sans；单字重 + `font-synthesis: none`，层级靠字号与留白。
+  上游版权行未宣告 Reserved Font Name；许可全文、制品 SHA 链与再生成命令见
+  `craft-evidence/SITE-CRAFT-2/zhuque/SOURCE.md`。
+- **子集化实现口径**：拍板文写「cn-font-split 挂 CI」；本单按复杂度节制落为「离线精确子集 +
+  fail-closed 覆盖门」——不新增构建依赖，改由 deslop `display-font` 门三向绑定（页面 `zh-display`
+  用字 ⊆ `site/assets/fonts/zhuque-subset.json` 清单文本；清单 `woff2Sha256` 锚定实际字节；CSS 必须
+  真实接线 @font-face 与 `var(--display)`）。任一脱钩 = 缺字静默回退，构建直接失败（静默降级零容忍）。
+  若架构仍要求 CI 内自动子集管线，标 `[需架构拍板]` 另立。
+- **藏青阶做深（杠杆①）**：`--ink-deep / --plate-line / --plate-text / --plate-text-dim` 全部由既有
+  token 经 `color-mix` 派生，零新 hex、零 allowlist 扩项。承诺段升级为全站唯一暗色石版：版面
+  （`--ink`）+ 凹刻井（`--ink-deep`）两级暗部 + bg-app 派生刻线，不用阴影/渐变表达深度；
+  页面因此获得亮纸—暗版的节奏，不再均匀平铺。副项：`.button-secondary` 按压底色加深
+  （Inset 式材质响应，纯 background-color，press 门不涉）；卷宗计数 20/47/14/8 切 mono
+  （核验数字与叙事文字字形分轨，纯静态属性）。
+- **语义色稀缺性宣告 + 机器门叙事（杠杆②⑤）**：暗版底部 `design-boundary` 井两行 mono 小注，
+  宣告「色彩只承载语义」（红/琥珀=风险，绿=落定，蓝=修订与焦点，其余交给藏青深浅与留白）并
+  声明克制由机器门强制，链接 GitHub 上的 `site/craft-evidence` 目录。宣称与门禁实况逐字核对：
+  颜色/渐变/阴影/动效四类确实各有触红门。
+- **本单新增概念（复杂度台账）**：1 个字体资产 + 1 份子集清单 + 1 条 `display-font` 门 +
+  4 个派生色变量。为何非加不可：字体是票面定向；清单与门是「静默降级零容忍」对 webfont 缺字
+  这一静默降级面的封口；派生变量是杠杆①的最小载体。无新依赖、无新状态机、无新持久化格式。
+- **门禁扩展**：`deslop-scan-lib.mjs` 新增 `checkDisplayFont`（纯函数）；`deslop-scan.mjs` 以真实
+  清单与字节接线；`deslop-scan.test.mjs` 好例带清单外尾随文案（锁「门只约束 zh-display 消费者，
+  不吞整页」），反例五向（越清单用字 / 字节脱钩 / 零消费者 / 未接 @font-face / 未消费 --display）。
+  `build.mjs` 拷贝清单加入 fonts 目录。其余门面零改动：无新 gradient/shadow/radius/raw-color 项。
+- 实现期缺陷判例（供验收注入参考）：消费者截取器首版把 `matchAll` 下恒为 0 的 `openTag.lastIndex`
+  当切片起点，整页吞进覆盖检查——测试好例因消费者后无尾随内容而假绿；已按 TDD 补强好例并修复。
+
+### B2 · hero 微演示：活的 schema 工作面（杠杆④，实现完成）
+
+- **形态**：hero 唯一 Mac 窗从静态真机截图升级为 schema 工作面的诚实重建——左「原件」纸面
+  （两端对齐 + 严格中文换行的文书阅读面），右「判断与处置」（风险条目/依据坐标/确认门/修订建议），
+  底部三幕图例。纯 CSS 三幕循环回放（12s）：锚点跳转 → 逐条确认 → 修订对照；回放只移动注意力
+  （底纹与刻线），数据字形绝对静止。`site/main.js` 一字未动，站点动效 AST 锁零扩展。
+- **真实材料纪律**：演示文本全部取自页面既有已验字串——risk-01 锚点引语与坐标
+  （04-设备采购合同 · 第 1 页）、高风险/已核验/待确认/不自动送出、结论标题与修订建议、
+  处置动词（确认此项/驳回/修正，voice §1 合规）。不消费垂类 `/testing` 修订草稿（沿用 SITE-GEN
+  既有裁定），故修订幕呈现「建议对照」而非杜撰 redline 文本对。mac-bar 标注「微演示重建」，
+  不冒充截图；处置动作为静态描绘（无 tabindex/role/指针），不构成假控件。
+- **动效契约**（`docs/design/site-evidence-line.md` 已留痕）：demo-* keyframe 只动
+  `background-color` / `border-color` / `opacity`，在 principles.md §5 白名单之内——留痕为契约
+  而非破例；reduced-motion 以 `.schema-demo * { animation: none; }` 整体全灭为定格全景；
+  JS 关闭不受影响。首屏条款同步修订（完整真机帧退居 craft-evidence 与发布证据）。
+- **门禁扩展**：`checkDemoMotion`（deslop `demo-motion` 门）——demo-* keyframe 属性 ⊆
+  {background-color, border-color, border-top-color, opacity}，越界（transform/mask/位移类）触红；
+  存在演示而缺 reduced 全灭精确分支亦触红。反例三向入 `deslop-scan.test.mjs`。
+- **本单新增概念（复杂度台账）**：1 个演示区块 + 4 枚 keyframe + 1 条 `demo-motion` 门。
+  为何非加不可：hero 微演示是票面主定向（杠杆④「秩序件当主角」）；门是「数据区绝对静止」
+  从书面承诺升格为机器事实的最小载体。无新依赖、无 JS、无状态机。
+- **同批清理**：`10-milestone-workbench-{1440,720}.webp` 因 hero 换装成为零引用死资产，已删
+  （真机原始帧保留于 `craft-evidence/MILESTONE-SHOTS-1/`）。
+- **登记（不越单）**：`07-og-source-clean-workbench-{1440,720}.webp` 经全站引用核对为前置死资产
+  （og.html 不消费任何截图），先于本单存在——留给独立验收按 fix-by-acceptance 处置或架构另裁。
+- 逐帧采样、三态证据与原始数据见 [`craft-evidence/SITE-CRAFT-2/`](craft-evidence/SITE-CRAFT-2/) B2 节。
+
+### B3 · 前卫版式探索：文书文化抽象引用（杠杆③ + SVG 件库起步，实现完成）
+
+三件均为抽象引用（无法槌/天平/具象纹样），全部静态零动效；SchemaParts「原生 SVG」约定在站面
+起步为两枚内联件（骑缝齿、落定章），与 Design 稿共用的件库化留待稿面材料到位后续批。
+
+- **卷宗编号体例**：五段 eyebrow 前缀「卷一…卷四 / 卷尾」，hero 保持封面无号——整页读作一册
+  卷宗的分卷目录。纯文案，沿用 mono eyebrow 字面（12px 小字号不上仿宋，遵守选型拍板的
+  断笔风险边界）；不触碰 `>0X<` 编号脚手架禁区。
+- **骑缝式分隔**：卷二（真机证据台账）与卷三（catalog 投影）之间的接缝以半划齿痕 SVG 标记——
+  「同一册连续台账跨缝完整」的完整性隐喻，恰置于真跑与投影的分界。currentColor 刻线，
+  无新色；`scenario-ledger` 的 border-top 由骑缝行接替。
+- **印记式落定章**：承诺暗版右上 88px 方印，阳文白线（`--plate-text`），印文与首则承诺同文
+  「不改原件」（2×2 朱雀仿宋 28px，>20px 安全字号；四字已在子集清单内，零再生成）。
+  拒印泥红——红的语义预算只属于风险与删除；静态 -2° 微倾，`aria-hidden` 装饰层。
+  deslop 新增印章 tether：印文 ≠「不改原件」或首则 dt 漂移，任一即触红（双向反例已实测）。
+- **本单新增概念（复杂度台账）**：2 枚内联 SVG 件 + 1 条印章 tether + 编号体例（纯文案）。
+  为何非加不可：三件是杠杆③的票面定向；tether 是印章与盟约「同文」这一宣称的机器封口。
+  无新资产文件（内联）、无动效、无依赖。
+- **实现期判例**：在未提交工作面上验证 tether 反例后，误用 `git checkout -- site/index.html`
+  还原——把整份未提交的 B3 HTML 冲回上一提交态（CSS 幸存）。已重施并以探针断言全件在场；
+  规程修正为：未提交面上的反例注入只能用反向补丁还原（`checkout` 只适用于已提交基线上的
+  验收注入）。供后续会话引以为戒。
