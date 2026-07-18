@@ -169,6 +169,7 @@ export async function sendChatCompletion(
   profile: ProviderQuirkProfile,
   body: ChatCompletionRequestBody,
   config: HttpClientConfig,
+  options: { signal?: AbortSignal } = {},
 ): Promise<ChatCompletionResult> {
   let lastError: unknown;
   for (let attempt = 0; attempt <= config.maxTransportRetries; attempt += 1) {
@@ -177,7 +178,7 @@ export async function sendChatCompletion(
     let reasoningContent = '';
     let usage: ChatCompletionResult['usage'];
     let failure: Extract<ProviderStreamEvent, { type: 'failed' }> | undefined;
-    for await (const event of streamChatCompletion(profile, body, config)) {
+    for await (const event of streamChatCompletion(profile, body, config, options)) {
       if (event.type === 'content_delta') content += event.delta;
       else if (event.type === 'reasoning_delta') reasoningContent += event.delta;
       else if (event.type === 'usage') usage = event.usage;

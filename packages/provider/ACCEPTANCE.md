@@ -1,3 +1,37 @@
+# PROVIDER-STREAM-1 独立验收报告
+
+验收日期：2026-07-17
+
+验收角色：独立验收会话
+
+对象：原实现 `impl/provider-stream-1@1faa167`（基线 `main@9421ad5`）。隔离 worktree 上最终 rebase 至 `main@183a95b`；重放后的实现为 `b4a1bfe`，验收修复为当前 `HEAD`。
+
+## 结论
+
+**带验收修复放行。** 原实现的流式结构化分支确实能让已知 provider 异常直接抛穿；另有 evidence 可被运行时额外自由文本污染、未知异常名可进入 evidence，以及「含一个中文字」可让技术残文穿过桌面显示门的实现级缺口。验收修复将三者闭合，未改变 schema、wire、密钥边界或公开契约。
+
+## 独立核验
+
+- **结构根因与五红：** 在父树亲读确认 `generateStructured()` 的 `await` 位于 `stream()` 分支、无 `try/catch`，而 `errorFromFailure()` 会重新抛出 `ProviderAuthError`、`ProviderHttpError` 与 `ProviderTimeoutError`。stash 隔离下临时恢复抛穿，Auth、Http、Timeout、InvalidResponse、ResponseFormatUnsupported 五个反例均红（**5 failed / 5 skipped**）；恢复后同一五例连续三轮 **5/5** 绿。每例均断言 `started` 先于 `failed`，取消 signal 贯通三层并归为 `canceled`。
+- **案件内容信封：** 含 `CASE-FRAGMENT-INVALID-9X` 的 `InvalidResponse` 只生成封闭的 `courtwork.provider-evidence.v1` 单键记录；片段不在 UI failure、也不在 evidence。evidence 现以运行时白名单重建并冻结，注入 `message` 自由字段会拒绝；未知异常被归一为 `UnknownError`，不会记录构造器名或模型返回内容。evidence 只接收失败种类、受限错误名、profile/model 标识与时间，不存在密钥输入或可达路径。
+- **显示守门裁定：** 原「零中文才技术」启发式下，纯英文技术栈会兜底，但 `TypeError: 读 ...` 和带中文的 InvalidResponse 片段会裸透。此洞在案件内容零裸透要求下**不可接受**；验收修复改为技术 marker 优先（错误/协议/schema/stack/path 等），再保留正常中文归一报文透传。三类探针均按裁定通过，兜底文案通过 voice 门。
+- **stub 与 floor：** provider 原有 109 例未回退，新增实现测试文件仍为 **5** 例；完整 provider 为 **14 files / 109 tests**。E2E 的 stub 链结构上不经过真实 `generateStructured()` 流分支，故 287 floor 不动的 SPEC 理据成立；五反例已在 Vitest 层逐一覆盖，不以此漏测。
+
+## 合并树门禁
+
+| 门禁 | 最终 rebase 树结果 |
+| --- | --- |
+| `pnpm -r build` / `pnpm lint` | PASS / PASS |
+| root `pnpm test` | **144 files / 1244 tests passed** |
+| provider / desktop 定向 | **14 / 109**；**58 / 350** |
+| demo golden | **8 / 29** |
+| 完整 `test:e2e`（独立端口 17910） | guards、work-live、voice、parity 全过；**287/287** |
+| residue（单 worker、端口 17911–17913） | **22/22 × 3** |
+
+未更新 `docs/status/current.md`，未 push、未 prune。最终判定：**PROVIDER-STREAM-1 放行，可与本验收修复及本报告一并合入。**
+
+---
+
 # PROVIDER-1 独立验收报告
 
 验收日期：2026-07-13

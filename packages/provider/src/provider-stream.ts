@@ -71,7 +71,7 @@ class IncrementalSseParser {
   }
 }
 
-function failureKindForStatus(status: number): { kind: ProviderFailureKind; retryable: boolean } {
+export function failureKindForStatus(status: number): { kind: ProviderFailureKind; retryable: boolean } {
   if (status === 401 || status === 403) return { kind: 'auth', retryable: false };
   if (status === 429) return { kind: 'rate_limit', retryable: true };
   if (status === 400 || status === 422) return { kind: 'model', retryable: false };

@@ -32,6 +32,8 @@ export interface GenerateStructuredParams {
   maxValidationRetries: number;
   httpConfig: HttpClientConfig;
   reasoningLevel?: 'standard' | 'deep';
+  /** PROVIDER-STREAM-1：瞬态运行控制贯通（结构化分支此前整体无视 signal）。 */
+  signal?: AbortSignal;
 }
 
 export interface GenerateStructuredResult {
@@ -93,6 +95,7 @@ export async function generateStructured(params: GenerateStructuredParams): Prom
         ...routed.extraBody,
       },
       params.httpConfig,
+      params.signal ? { signal: params.signal } : {},
     );
 
     if (!responseSchema) {
