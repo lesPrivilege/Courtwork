@@ -5,6 +5,7 @@
 ## KEY-PERSIST-1 · API key 跨启动持久（P1，真机 M 项）（实现完成，待独立验收）
 
 权威：[实现就绪图 `KEY-PERSIST-1` 行](../../docs/architecture/implementation-readiness.md) + [真机台账 M 项](../../docs/status/pilot-2026-07-17.md) + [ADR-005 §2](../../docs/decisions/ADR-005-data-security.md) + [ADR-007 决定一](../../docs/decisions/ADR-007-provider-turn-protocol.md)。基线 `main @ bded9ac`，分支 `impl/key-persist-1`；不改 `docs/status/current.md`，真机复验留给产品负责人，独立验收另派。
+5. 锁屏唤醒路径（架构补登记 2026-07-18，验收缺口指认）：锁屏→唤醒后 provider 仍 ready 或显式重验，不静默失联、不弹空白凭证面。
 
 ### 偵察结论（先证后改）
 
