@@ -29,3 +29,31 @@
 
 机器门：`node --test`（23 文件级测试含 display-font 五反例）、`pnpm site:guard`、`pnpm site:build` 全绿；
 完整门禁数字见 `site/SPEC.md` 的 SITE-CRAFT-2 节。
+
+## B2 · hero 微演示：活的 schema 工作面（杠杆④）
+
+变更面：`site/index.html`（hero 窗内容截图→重建）、`site/styles.css`（演示版式 + 4 枚 demo-* keyframe +
+reduced 全灭）、`site/scripts/{deslop-scan,deslop-scan-lib,deslop-scan.test}.mjs`（`demo-motion` 门）、
+`docs/design/site-evidence-line.md`（首屏条款修订 + 微演示动效契约留痕，本单票面授权）；
+`site/main.js` 与其 AST 锁零触碰。同批清理：被替换的 `10-milestone-workbench-{1440,720}.webp`
+成为死资产，已删除（原始真机帧仍在 `MILESTONE-SHOTS-1/`）。
+
+- **三幕回放**：锚点跳转（原文引语蓝纹 + 依据行同亮）→ 逐条确认（确认门与处置动作）→
+  修订对照（建议与未落格边界）。回放只移动注意力（background-color/border-color/opacity），
+  数据字形绝对静止；三幕图例底部常驻，当前幕以刻线与底纹标示。
+- **诚实重建**：mac-bar 标注「schema 工作面 · 微演示重建 · 合成数据试点」；演示全部文本取自
+  页面既有已验字串（risk-01 引语/等级/状态、评语与建议、处置动词），零新造数据；
+  处置动作为静态描绘，无 tabindex、无 role、无指针光标，不构成假控件。
+- **逐帧采样**（`frame-samples.json`）：26 帧 × 500ms 覆盖 12s 循环——`dataStatic: true`
+  （15 个数据节点 rect+text 全帧比特一致）；7 个注意力元素恒有且仅有 4 个契约 keyframe
+  （demo-attn-a/b/c + demo-anchor-a）在跑；每区 bg 至少两个取值（循环真实发生）。
+  reduced-motion：运行动画 0、注意力层全透明（`reduced-static.png`）；JS 关闭：无 `.js` 旗标、
+  条款与三幕文本完整（`js-off-hero.png`）。
+
+| 帧 | 说明 |
+|---|---|
+| `B2/demo-phase-{a,b,c}.png` | 三幕各自激活时的整页 1440 帧 |
+| `B2/sample-final-frame.png` | 采样末帧的 hero 窗特写 |
+| `B2/reduced-static.png` | reduced-motion 定格全景（零动画） |
+| `B2/js-off-hero.png` | JS 关闭整页帧 |
+| `B2/frame-samples.json` | 26 帧采样原始数据与判定 |

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkDisplayFont, scanSources } from './deslop-scan-lib.mjs';
+import { checkDemoMotion, checkDisplayFont, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -241,6 +241,27 @@ test('SITE-CRAFT-2 display font subset binds manifest text, bytes, and consumers
   // CSS 未接 @font-face 或 .zh-display 未消费 --display → 消费者静默回退系统字 → 触红。
   assert.ok(displayRules({ css: '.zh-display { font-weight: 400; }' }).includes('display-font'));
   assert.ok(displayRules({ css: GOOD_DISPLAY_CSS.replace('font-family: var(--display);', '') }).includes('display-font'));
+});
+
+const GOOD_DEMO_CSS = String.raw`
+.schema-demo mark { border-bottom: 1px solid color-mix(in srgb, var(--focus) 45%, transparent); }
+@keyframes demo-attn-a { 0%, 4% { background-color: transparent; border-color: var(--border-hairline); } 6%, 30% { background-color: color-mix(in srgb, var(--ink) 6%, transparent); border-color: var(--ink); } 32%, 100% { background-color: transparent; border-color: var(--border-hairline); } }
+@keyframes demo-anchor-a { 0%, 4% { background-color: transparent; } 6%, 30% { background-color: color-mix(in srgb, var(--focus) 15%, transparent); } 32%, 100% { background-color: transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  .schema-demo * { animation: none; }
+}
+`;
+
+test('SITE-CRAFT-2 hero demo keyframes stay inside the attention property whitelist', () => {
+  assert.deepEqual(checkDemoMotion(GOOD_DEMO_CSS).map((failure) => failure.rule), []);
+  // 演示 keyframe 混入位移/变形/遮罩 → 数据区静止承诺破口，必须触红。
+  assert.ok(checkDemoMotion(GOOD_DEMO_CSS.replace('background-color: color-mix(in srgb, var(--ink) 6%, transparent);', 'transform: translateY(-2px);'))
+    .map((failure) => failure.rule).includes('demo-motion'));
+  assert.ok(checkDemoMotion(GOOD_DEMO_CSS.replace('background-color: color-mix(in srgb, var(--focus) 15%, transparent);', 'mask-position: 0 0;'))
+    .map((failure) => failure.rule).includes('demo-motion'));
+  // reduced-motion 全灭分支被删 → 触红。
+  assert.ok(checkDemoMotion(GOOD_DEMO_CSS.replace('.schema-demo * { animation: none; }', ''))
+    .map((failure) => failure.rule).includes('demo-motion'));
 });
 
 test('SITE-GEN fixture claims accept the authoritative Legal and PM snapshot', () => {

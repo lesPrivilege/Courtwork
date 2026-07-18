@@ -635,6 +635,35 @@ export function checkDisplayFont({ html, css, manifest, woff2Sha256 }) {
   return failures;
 }
 
+// SITE-CRAFT-2：hero 微演示动效契约——demo-* keyframe 只许注意力层属性
+// （background-color/border-color/border-top-color/opacity），数据字形零位移零变形；
+// 存在演示时 reduced-motion 必须整体全灭。越界属性即「数据区绝对静止」破口，触红。
+export function checkDemoMotion(css) {
+  const failures = [];
+  const fail = (message) => push(failures, 'demo-motion', 'site/styles.css', 1, message);
+  const allowed = new Set(['background-color', 'border-color', 'border-top-color', 'opacity']);
+  const source = withoutComments(css);
+  let hasDemo = false;
+  for (const match of source.matchAll(/@keyframes\s+(demo-[a-z0-9-]+)\s*\{/g)) {
+    hasDemo = true;
+    const open = source.indexOf('{', match.index);
+    const close = matchingBrace(source, open, source.length);
+    for (const declaration of source.slice(open + 1, close).matchAll(/([a-z-]+)\s*:/g)) {
+      if (!allowed.has(declaration[1])) fail(`${match[1]} animates ${declaration[1]} outside the attention whitelist`);
+    }
+  }
+  if (hasDemo) {
+    let blanket = false;
+    for (const media of source.matchAll(/@media \(prefers-reduced-motion: reduce\)\s*\{/g)) {
+      const open = source.indexOf('{', media.index);
+      const close = matchingBrace(source, open, source.length);
+      if (source.slice(open + 1, close).includes('.schema-demo * { animation: none; }')) blanket = true;
+    }
+    if (!blanket) fail('hero demo needs the exact `.schema-demo * { animation: none; }` reduced-motion branch');
+  }
+  return failures;
+}
+
 export function scanSources(sources, options = {}) {
   const repository = options.repository ?? false;
   const failures = [];

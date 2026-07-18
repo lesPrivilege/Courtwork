@@ -205,3 +205,30 @@
   `build.mjs` 拷贝清单加入 fonts 目录。其余门面零改动：无新 gradient/shadow/radius/raw-color 项。
 - 实现期缺陷判例（供验收注入参考）：消费者截取器首版把 `matchAll` 下恒为 0 的 `openTag.lastIndex`
   当切片起点，整页吞进覆盖检查——测试好例因消费者后无尾随内容而假绿；已按 TDD 补强好例并修复。
+
+### B2 · hero 微演示：活的 schema 工作面（杠杆④，实现完成）
+
+- **形态**：hero 唯一 Mac 窗从静态真机截图升级为 schema 工作面的诚实重建——左「原件」纸面
+  （两端对齐 + 严格中文换行的文书阅读面），右「判断与处置」（风险条目/依据坐标/确认门/修订建议），
+  底部三幕图例。纯 CSS 三幕循环回放（12s）：锚点跳转 → 逐条确认 → 修订对照；回放只移动注意力
+  （底纹与刻线），数据字形绝对静止。`site/main.js` 一字未动，站点动效 AST 锁零扩展。
+- **真实材料纪律**：演示文本全部取自页面既有已验字串——risk-01 锚点引语与坐标
+  （04-设备采购合同 · 第 1 页）、高风险/已核验/待确认/不自动送出、结论标题与修订建议、
+  处置动词（确认此项/驳回/修正，voice §1 合规）。不消费垂类 `/testing` 修订草稿（沿用 SITE-GEN
+  既有裁定），故修订幕呈现「建议对照」而非杜撰 redline 文本对。mac-bar 标注「微演示重建」，
+  不冒充截图；处置动作为静态描绘（无 tabindex/role/指针），不构成假控件。
+- **动效契约**（`docs/design/site-evidence-line.md` 已留痕）：demo-* keyframe 只动
+  `background-color` / `border-color` / `opacity`，在 principles.md §5 白名单之内——留痕为契约
+  而非破例；reduced-motion 以 `.schema-demo * { animation: none; }` 整体全灭为定格全景；
+  JS 关闭不受影响。首屏条款同步修订（完整真机帧退居 craft-evidence 与发布证据）。
+- **门禁扩展**：`checkDemoMotion`（deslop `demo-motion` 门）——demo-* keyframe 属性 ⊆
+  {background-color, border-color, border-top-color, opacity}，越界（transform/mask/位移类）触红；
+  存在演示而缺 reduced 全灭精确分支亦触红。反例三向入 `deslop-scan.test.mjs`。
+- **本单新增概念（复杂度台账）**：1 个演示区块 + 4 枚 keyframe + 1 条 `demo-motion` 门。
+  为何非加不可：hero 微演示是票面主定向（杠杆④「秩序件当主角」）；门是「数据区绝对静止」
+  从书面承诺升格为机器事实的最小载体。无新依赖、无 JS、无状态机。
+- **同批清理**：`10-milestone-workbench-{1440,720}.webp` 因 hero 换装成为零引用死资产，已删
+  （真机原始帧保留于 `craft-evidence/MILESTONE-SHOTS-1/`）。
+- **登记（不越单）**：`07-og-source-clean-workbench-{1440,720}.webp` 经全站引用核对为前置死资产
+  （og.html 不消费任何截图），先于本单存在——留给独立验收按 fix-by-acceptance 处置或架构另裁。
+- 逐帧采样、三态证据与原始数据见 [`craft-evidence/SITE-CRAFT-2/`](craft-evidence/SITE-CRAFT-2/) B2 节。

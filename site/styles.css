@@ -132,6 +132,53 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
   .hero-window { margin: 0; }
 }
 
+/* SITE-CRAFT-2 B2 · hero 微演示：活的 schema 工作面（锚点跳转/逐条确认/修订对照三幕回放）。
+   诚实重建，不冒充截图（mac-bar 标注「微演示重建」）；全部文本取自页面既有已验字串。
+   动效契约（deslop demo-motion 门锁定）：demo-* keyframe 只动 background-color/border-color/opacity
+   ——注意力底纹与刻线循环，数据字形绝对静止、零位移零变形；reduced-motion 整体全灭为定格全景；
+   JS 关闭不受影响（纯 CSS，main.js 零触碰）。 */
+.schema-demo { display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); background: var(--bg-raised); }
+.schema-demo p { margin: 0; }
+.demo-meta { color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
+.demo-doc { padding: 24px 26px 26px; border-right: 1px solid var(--border-hairline); background: var(--bg-app); }
+.demo-clause { margin-top: 14px; color: var(--ink); font-size: 14px; line-height: 2.1; text-align: justify; line-break: strict; }
+.demo-anchor { background-color: transparent; border-bottom: 1px solid color-mix(in srgb, var(--focus) 45%, transparent); color: inherit; animation: demo-anchor-a 12s linear infinite; }
+.demo-judgment { padding: 24px 26px 26px; display: flex; flex-direction: column; gap: 12px; }
+.demo-entry-head { display: flex; align-items: baseline; gap: 10px; font-size: 15px; }
+.demo-entry-head strong { font-weight: 510; }
+.demo-level { color: var(--danger); font-family: var(--mono); font-size: 11px; }
+.demo-basis { padding: 8px 10px; border: 1px solid var(--border-hairline); border-radius: 4px; color: var(--text-secondary); font-family: var(--mono); font-size: 11px; animation: demo-attn-a 12s linear infinite; }
+.demo-gate { padding: 10px; border: 1px solid var(--border-hairline); border-radius: 4px; animation: demo-attn-b 12s linear infinite; }
+.demo-actions { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+.demo-actions span { padding: 3px 10px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--ink); font-size: 12px; }
+.demo-compare { padding: 10px; border: 1px solid var(--border-hairline); border-radius: 4px; animation: demo-attn-c 12s linear infinite; }
+.demo-suggestion { margin-top: 6px; color: var(--ink); font-size: 14px; }
+.demo-phases { grid-column: 1 / -1; margin: 0; padding: 0 26px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; list-style: none; }
+.demo-phases li { padding: 10px 0 12px; border-top: 1px solid var(--border-hairline); color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
+.demo-phase-a { animation: demo-attn-a 12s linear infinite; }
+.demo-phase-b { animation: demo-attn-b 12s linear infinite; }
+.demo-phase-c { animation: demo-attn-c 12s linear infinite; }
+@keyframes demo-attn-a {
+  0%, 2% { background-color: transparent; border-color: var(--border-hairline); }
+  5%, 27% { background-color: color-mix(in srgb, var(--ink) 6%, transparent); border-color: var(--ink); }
+  30%, 100% { background-color: transparent; border-color: var(--border-hairline); }
+}
+@keyframes demo-attn-b {
+  0%, 35% { background-color: transparent; border-color: var(--border-hairline); }
+  38%, 60% { background-color: color-mix(in srgb, var(--ink) 6%, transparent); border-color: var(--ink); }
+  63%, 100% { background-color: transparent; border-color: var(--border-hairline); }
+}
+@keyframes demo-attn-c {
+  0%, 68% { background-color: transparent; border-color: var(--border-hairline); }
+  71%, 93% { background-color: color-mix(in srgb, var(--ink) 6%, transparent); border-color: var(--ink); }
+  96%, 100% { background-color: transparent; border-color: var(--border-hairline); }
+}
+@keyframes demo-anchor-a {
+  0%, 2% { background-color: transparent; }
+  5%, 27% { background-color: color-mix(in srgb, var(--focus) 15%, transparent); }
+  30%, 100% { background-color: transparent; }
+}
+
 .section-heading { max-width: var(--page-max); margin: 0 auto; }
 .section-heading h2 { margin-top: 10px; }
 .section-heading > p:last-child:not(.eyebrow) { max-width: 620px; margin: 20px 0 0; color: var(--text-secondary); font-size: 16px; }
@@ -251,6 +298,8 @@ footer p { margin: 0; }
   nav { gap: 14px; }
   nav a:nth-child(2) { display: none; }
   .hero { padding-top: 72px; }
+  .schema-demo { grid-template-columns: 1fr; }
+  .demo-doc { border-right: 0; border-bottom: 1px solid var(--border-hairline); }
   .work-row { grid-template-columns: 1fr; gap: 24px; }
   .work-crop img { aspect-ratio: 16 / 9; }
   .promise-ledger > div { grid-template-columns: 1fr; gap: 6px; }
@@ -275,4 +324,6 @@ footer p { margin: 0; }
   .evidence-step { background: var(--bg-app); }
   .evidence-step::before { background: var(--ink); }
   .evidence-step[data-stage="conclusion"]::before { background: var(--danger); }
+  /* 微演示定格全景：注意力循环整体全灭，信息因数据恒静而完整。 */
+  .schema-demo * { animation: none; }
 }
