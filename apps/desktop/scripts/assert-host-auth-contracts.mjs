@@ -27,7 +27,7 @@ function collectProductionSources(dir) {
   return out;
 }
 
-const [port, browser, tauri, panel, app, main, rust, lib, caseTypes, caseScope, newCaseDialog, caseOutput] =
+const [port, browser, tauri, panel, app, main, rust, lib, caseTypes, caseScope, caseStore, newCaseDialog, caseOutput] =
   await Promise.all([
     read('src/host/host-auth-port.ts'),
     read('src/host/browser-host-auth.ts'),
@@ -39,6 +39,7 @@ const [port, browser, tauri, panel, app, main, rust, lib, caseTypes, caseScope, 
     read('src-tauri/src/lib.rs'),
     read('src/case/types.ts'),
     read('src/case/case-scope.ts'),
+    read('src/case/case-store.ts'),
     read('src/case/NewCaseDialog.tsx'),
     read('src/output/case-output-client.ts'),
   ]);
@@ -158,6 +159,23 @@ requireMatch(caseOutput, /CaseBinding/, 'case-output-client 必须按 opaque Cas
 // 新建案件经注入的宿主授权取文件夹，不自造浏览器 file/目录控件。
 forbidMatch(newCaseDialog, /type="file"|webkitdirectory/, 'NewCaseDialog 不得用浏览器 file/目录控件（须经 hostAuth picker）');
 requireMatch(newCaseDialog, /onAuthorizeFolder/, 'NewCaseDialog 必须经注入的 onAuthorizeFolder（hostAuth）取授权');
+
+// ── CASE-TITLE-CONVERGE-1：case-list.v1 是唯一 title 持久层 ──────────────
+requireMatch(caseStore, /const LEGACY_CASE_TITLE_PREFIX = 'courtwork\.case-title\.'/,
+  '旧 title 键只允许在 case-store 一次性迁移边界声明');
+requireMatch(caseStore, /backend\.getItem\(legacyKey\)/,
+  'case-store 必须从可信 case-list id 集一次性读取旧 title');
+requireMatch(caseStore, /writeCaseList\(cases, backend\)[\s\S]*backend\.removeItem\(legacyKey\)/,
+  '旧 title 必须先写回 case-list.v1 再删除旧键');
+forbidMatch(caseStore, /setItem\([^)]*(?:LEGACY_CASE_TITLE_PREFIX|case-title\.)/,
+  'case-store 不得恢复旧 title 键写入');
+for (const file of collectProductionSources(path.join(root, 'src'))) {
+  const relative = path.relative(root, file);
+  const source = readFileSync(file, 'utf8');
+  if (source.includes('courtwork.case-title.') && relative !== 'src/case/case-store.ts') {
+    failures.push(`旧 title 键不得在迁移边界外被生产源码读取或写入（命中 ${relative}）`);
+  }
+}
 
 // ── webkitdirectory 生产入口退役防回归：扫描 src/ 生产源码零出现 ───────────
 for (const file of collectProductionSources(path.join(root, 'src'))) {

@@ -12,7 +12,7 @@ test('provider 唯一声明位在 composer，三态无假模型名', async ({ pa
   await expect(page.getByTestId('credential-status-button')).toHaveCount(0);
 });
 
-test('wordmark 唯一，案件头位于 chat 并可编辑持久化', async ({ page }) => {
+test('wordmark 唯一，案件头位于 chat 并可编辑；demo 改名不越过 case-list 持久边界', async ({ page }) => {
   await expect(page.getByText('Courtwork', { exact: true })).toHaveCount(1);
   const title = page.getByTestId('chat-case-title');
   await title.dblclick();
@@ -20,9 +20,10 @@ test('wordmark 唯一，案件头位于 chat 并可编辑持久化', async ({ pa
   await input.fill('临江案 · 第二版');
   await input.press('Enter');
   await expect(title).toHaveText('临江案 · 第二版');
+  expect(await page.evaluate(() => localStorage.getItem('courtwork.case-title.demo-linjiang'))).toBeNull();
   await page.reload();
   await page.getByTestId('welcome-continuations').locator('button').nth(1).click();
-  await expect(page.getByTestId('chat-case-title')).toHaveText('临江案 · 第二版');
+  await expect(page.getByTestId('chat-case-title')).toHaveText('临江精铸 诉 起云智能 设备采购合同纠纷');
 });
 
 test('双侧折叠保留原位展开 bar', async ({ page }) => {

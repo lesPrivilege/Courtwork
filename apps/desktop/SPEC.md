@@ -2,6 +2,110 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## CHAT-MD-TABLE-1 · ChatMarkdown 扩审慎 GFM 子集：管道表格 + `---` hr（实现完成，待独立验收）
+
+权威：[实现就绪图 `CHAT-MD-TABLE-1` 行](../../docs/architecture/implementation-readiness.md) + [试点台账「版本收尾拍板」节第 3 条](../../docs/status/pilot-2026-07-17.md)。基线 `main @ cc90bf0`。分支 `impl/chat-md-table-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动。
+
+### 范围与背景
+
+PILOT-LIVE-2 E（回复折叠纪律）真机复核时发现：DeepSeek 高频输出管道表格，但 `ChatMarkdown` 刻意不识别表格语法（原「宁缺毋滥」条款），管道表格文本落为一个多行段落块——该单当时只按现渲染器把段落当结构单元治折叠，不越权扩渲染，把表格渲染留作提案区条目（`apps/desktop/SPEC.md` PILOT-LIVE-2 E 节原文可查）。版本收尾拍板第 3 条采纳该提案，扩围为：①管道表格 ②`---` hr 分隔线 ③现渲染缺口清点（只清点，逐项交架构拍板，本单不整批放开）。「宁缺毋滥」边界收窄不废除——本单只给两种合法语法开新路径，其余语法仍一律降级回段落。
+
+### 设计：合法语法 vs 畸形语法（零猜测补全）
+
+- **表格起手式**：候选表头行（含 `|`）+ 下一行是列数相符的合法分隔行（每格匹配 `:?-+:?`）——两者皆真才判定为表格；任一不满足，整体退回既有段落解析（无特殊处理，逐字节等同扩围前行为，这正是「不猜测补全」的实现方式：不合法就不进入表格分支，而不是进入后再打补丁）。
+- **数据行止步而非猜测**：表格体逐行消费，直到遇到其它块起始行（空行/围栏/标题/列表/hr/新表头）或列数与表头不符——列数不符时表格在该行前止步，该行连同其后内容交还主循环重新判定（通常落回段落），不填充/截断以强凑列数。
+- **对齐**：分隔行 `:---`/`---:`/`:---:` 解析为 left/right/center，作用于表头与数据格 `text-align`；纯 `---` 为 `null`（不覆盖默认左对齐）。首尾竖线可选（`甲 | 乙` 与 `| 甲 | 乙 |` 同等合法，GFM 原生语法）。
+- **hr**：trim 后纯 `-{3,}` 独占一行。不识别 Setext 标题下划线语义（`文字\n---` 不升格 `<h2>`——本渲染器从未支持 Setext，`---` 恒读作 hr，不猜测作者意图，见「已知边界」①）。
+- 新增 `isBlockBoundary` 收纳 hr/表格起手式判定，与段落止步条件、表格体止步条件共用同一份逻辑（避免两处重复维护条件表，既有 fence/heading/list 判定不变、不重构）。
+
+### TDD（先红后绿，双层验证）
+
+- **解析器单测**（`chat-markdown.test.ts`，+14 例达 19 例）：合法表格三态（基础/对齐/免首尾竖线）、表格不吞尾段、hr 两态、块界优先级共 7 例在实现前精确先红；畸形/歧义降级例（分隔行缺失、列数不符、单元格非法语法、数据行列数歧义止步）与围栏内伪表格/伪 hr 回归例在实现前即已通过——扩围前渲染器本就把含 `|`/`-` 的一切内容当段落处理，天然是安全默认；实现只是给「合法子集」开新路径，未改变「其余一律段落」的既有兜底行为。
+- **e2e 双证**（`chat-markdown.spec.ts` +3 例、`pilot-reply-fold.spec.ts` 既有例加固）：`git stash` 仅隔离 `ChatMarkdown.tsx`/`styles.css`（测试文件不隔离）后于隔离端口 `14203` 定向复跑 `playwright test chat-markdown.spec.ts pilot-reply-fold.spec.ts`——3 例精确先红（合法表格渲染、hr 渲染、块界断言新增的 `isTableBlock`），畸形降级 e2e 例同单测层一样先绿（既有兜底覆盖，非本单引入）；`stash pop` 复原后定向 7/7 转绿。
+- **块界联动（收尾拍板要求「E 项块界断言对新结构块生效」）**：`CollapsibleMessage` 的裁窗算法（PILOT-LIVE-2 E 已落地）本通用于 `.chat-markdown` 任意直接子节点（按 `getBoundingClientRect` 取块底，不认标签名），零改动即天然覆盖新增的 `<table>`/`<hr>` 结构块。但 `pilot-reply-fold.spec.ts` 原断言只用「元素含指定文字」泛匹配，扩围前从未验证过命中的确实是表格标签（因为扩围前压根不存在 `<table>`）——本单补 `isTableBlock`（`block.querySelector('table') !== null`）断言，实证覆盖确实生效而非泛匹配巧合通过；该断言在 stash 隔离下先红，实证其并非平凡断言。
+
+### 复杂度节制留痕
+
+**零新概念**：`MarkdownBlock` 判别式并集加两个成员（`hr`/`table`），与既有四成员同构；解析新增的 `isHrLine`/`splitTableRow`/`parseDelimiterRow`/`isTableStart`/`isBlockBoundary` 均为纯函数（无状态/无副作用/无新依赖）；渲染复用既有 `renderInline`（表格单元格内联加重/code 与段落同规则，零新解析路径）；表格 CSS 密度与色值完全对齐既有 `.artifact-table`/`.matrix-wrap table` 凡例（「同类控件同源」，零新色值，`assert-neutral-source.mjs` 通过）。零新依赖、零新持久化格式、零新状态机、零跨包改动。
+
+### 触面
+
+`apps/desktop/src/chat/ChatMarkdown.tsx`（解析器+渲染，核心改动）、`apps/desktop/src/styles.css`（`.md-table-wrap`/`.md-table`/`.md-hr`，+9 行，全 token）、`apps/desktop/src/chat/chat-markdown.test.ts`（+14 单测）、`apps/desktop/tests/e2e/chat-markdown.spec.ts`（+3 e2e）、`apps/desktop/tests/e2e/pilot-reply-fold.spec.ts`（既有块界例注释纠偏 + `isTableBlock` 断言加固，零新增 test 块，不计入 floor）、`apps/desktop/scripts/assert-test-count.mjs`（floor `292 → 295`）、本 SPEC。
+
+### 门禁（本会话隔离端口 `14203` 实跑）
+
+- `pnpm -r build`（13 workspace projects，含 desktop `tsc -b && vite build`）：exit 0。
+- 根 `pnpm lint`（eslint .）：exit 0，零告警。
+- 根 `pnpm test`：**148 files / 1261 tests passed**（packages+eval，本单未触碰，逐字节零回退）。
+- desktop `pnpm test`（vitest）：**59 files / 369 tests passed**（355 既有 + 14 新增）。
+- desktop `pnpm test:e2e` 全链（30 道静态门 + Playwright）：全部通过，含中性色单源律（新 CSS 零新 hex 命中）、文案门（扫描 116 UI 源文件零裸确认词/成功自评/工程词泄漏）、layout-converge、motion、elevation、G6 主题、法理之线等设计/契约门逐一 `OK`/`通过`；`Playwright 假绿防护通过：295 条用例（下限 295）`；Playwright 实跑 **295 passed（6.1m，4 workers，0 flake）**。
+
+### 已知边界（诚实留痕，供缺口清点参照）
+
+1. **不支持 Setext 标题**（`文字\n---` 恒解析为「段落+hr」，不升格 `<h2>`）——本渲染器从未支持过 Setext 语法，`---` 语义收窄为唯一解读，非本单引入新歧义，是既有「只做 ATX `#` 标题」边界的自然延伸。
+2. **表格单元格内 `\|` 无法转义为字面竖线**——会被判作分隔符，真机含代码/路径的表格单元格若含裸 `|` 会拆错列；真机高频场景（金额/条款文字）预期较少触及此边界，本单未观测到真实回归。
+3. **有序列表起始数字不保留**（既有限制，非本单引入或修复）——`<ol>` 原生渲染仍从 1 起算，与本单无关，缺口清点内一并如实登记供整体参照。
+4. **只支持 `---`，未扩 `***`/`___`**——收尾拍板第 3 条明确只要求 `---`；GFM 另两种 hr 写法留待真机实际出现频率再议，非遗漏。
+
+### 现渲染缺口清点（提案区，只清点不实现——交架构逐项拍板后再定扩围范围）
+
+现渲染器（含本单扩围后）仍是零依赖单层解析器。以下均以本单在当前实现上实测的输入→输出为证，非推测；「只清点不整批放开」——本单不实现以下任何一项：
+
+**A. 结构嵌套缺失**（架构性根因，是 1/2/3 三项的共同根子——列表/引用/代码块/表格彼此不能嵌套，解析器纯扁平单层）
+
+1. 嵌套列表拍平：输入 `- 甲\n  - 甲子\n  - 甲丑\n- 乙` 实测得单层 4 项列表 `['甲','甲子','甲丑','乙']`，子项与父项同级、缩进层级丢失。
+2. 列表项内嵌代码块断裂（教程体「步骤：\n\`\`\`\n代码\n\`\`\`」高频形态）：输入 `1. 步骤一：\n   \`\`\`\n   code\n   \`\`\`\n2. 步骤二` 实测得三个割裂顶层块——有序列表 `[步骤一：]` → 代码块 → 又一个有序列表 `[步骤二]`（浏览器原生编号从 1 重新起算，「步骤二」丢失其应为第 2 项的语义，与已知边界③复合）。
+3. 列表项内嵌表格/引用块同理无法保持从属关系（未单独实测，机制与 1/2 同源）。
+
+**B. 未识别语法**（原样落回段落文字，标记字符对用户可见泄漏）
+
+4. 引用块 `>`：输入 `> 引用文字` 实测得段落 `['> 引用文字']`，`>` 字面字符可见。
+5. 链接 `[text](url)`：实测得段落原文，方括号/圆括号/URL 全部可见，不可点击。
+6. 自动链接 `<https://...>` / 裸 URL：同上，不可点击、不识别。
+7. 单星号斜体 `*text*` / `_text_`：输入 `这是*斜体*文字` 实测得段落原文，星号可见——现有加重解析只认 `**双星号**`，单星号不触发任何规则。真机高频形态中最易被用户感知为「渲染没生效」的一类（视觉上是明显的标点泄漏，不像其余条目是「就当普通文字」），建议清单内优先级最高。
+8. 删除线 `~~text~~`：不识别，波浪线字面可见。
+9. 任务清单 `- [ ] foo` / `- [x] bar`：输入实测得普通列表项，文本为 `['[ ] 待办','[x] 已办']`——方括号可见，非真复选框控件。
+10. 转义字符（`\*`、`` \` ``、`\|`、`\#` 等）：无处理，反斜杠与被转义字符原样一并可见。
+
+**C. 已识别但主动收窄的既知边界**（设计已定，非「缺口」，索引自上节，供统一参照）：11. `---` 恒读作 hr 不识别 Setext（边界①）；12. 表格单元格 `\|` 不可转义（边界②）；13. 有序列表起始数字不保留（边界③，pre-existing）；14. 原始 HTML 片段不解析执行——非缺口，是有意的安全边界（防止模型输出的任意 HTML 被当作可信标签渲染），不建议开放。
+
+A/B 两类共 10 项按任务裁定「只清点不整批放开」处置，架构后续可按真机 DeepSeek 输出实际出现频率排序；初步观察，单星号斜体（7）、列表嵌套（1）、列表内嵌代码块（2）三项在长回复/教程体回复中出现概率相对更高，供优先审阅参考——但此判断未经真机频率统计，仅供参考不作结论。
+
+### 与既有边界的一致性
+
+不改 `docs/status/current.md`（成熟度变化留待独立验收后按统一口径更新）；不改 harness/schema/wire；不碰 `packages/**`、`src-tauri`；未动 reasoning 折叠、user 消息折叠、reader-isolation 触面（沿用 PILOT-LIVE-2 E「禁止扩张」清单，本单是该清单明确保留项的落地，非新开口子）。
+
+## CASE-TITLE-CONVERGE-1 · 案件标题单真源收敛（实现完成，待独立验收）
+
+权威：[实现就绪图 `CASE-TITLE-CONVERGE-1` 行](../../docs/architecture/implementation-readiness.md) + 本 SPEC 的 [CASE-PERSIST-1 复杂度提案](#case-persist-1--案件列表跨重启持久真机试点前置work-live-replay-1-诚实留痕指出实现完成待独立验收)。基线 `main @ af46ef3`，分支 `impl/case-title-converge-1`；desktop 内部薄收敛，不改 schema/core/provider/Rust，不改 `docs/status/current.md`，不推送，独立验收另派。
+
+### 偵察结论（先证后改）
+
+- **旧键生产消费面精确为一读一写，均在 `App.tsx`**：选中案变化时的 `useEffect` 读取 `courtwork.case-title.${selectedCaseId}` 并回灌 `cases`；`commitCaseTitle` 改名后写同一旧键。生产源码、脚本与 e2e 除这两处外无旧键消费；既有测试也未直接播种或断言旧键。
+- **`case-list.v1` 已具完整标题真源链**：启动 `hydratePersistedCases()` 经 `readCaseList()` 水合 `title`；`cases` 每次变化均由既有 effect 经 `projectPersistableCases()` 整表写回 `courtwork.case-list.v1`。因此删旧写路径后，改名只需更新 `cases`，既有整表 effect 即完成唯一持久写入，无需新 store、事件或状态机。
+- **双写的唯一存量风险是崩溃窗口**：旧实现先更新 React state、同步写旧键，`case-list.v1` 再由 effect 异步整表写；若进程停在两者之间，旧键可能比列表中的 title 新。故不能直接删旧读，须在可信 `case-list.v1` 读入后把同 id 的非空旧标题一次性并入列表，再删除旧键。
+
+### TDD、迁移与 fail-closed 形制
+
+- 先红 e2e：预置一枚有效 `case-list.v1` 案件及同 id 的旧 title 键（旧键标题更新），reload 后侧栏/标题栏必须保留旧键存量标题；迁移后 `case-list.v1` 已吸收该标题且旧键删除。另加 fail-closed 反例：`case-list.v1` 为未知版本/坏信封时，即使旧键存在也不得复活案件或改写/删除旧键。
+- 一次性迁移只住既有 `case-store.ts` 读入边界：先完整验证 `case-list.v1`；仅 `status:'ok'` 时逐案读取旧键，合法非空值覆盖同案 title，整表写入成功后删除命中的旧键。列表不可读时直接返回空列表，**不读取、不采用、不清除旧键**，禁止 legacy-only fallback。
+- App 删除选中案旧键回灌 effect；`commitCaseTitle` 只更新 `cases`，唯一持久写仍是既有 `writeCaseList(projectPersistableCases(cases))` effect。扩展 CASE-ROOT 静态门：生产源码旧键写入零命中，并锁旧键只允许在 `case-store.ts` 的一次性迁移读取/删除边界出现。
+- e2e floor 只升 `292 → 294`（迁移保全 + fail-closed 反例）；不降低、不替换既有用例。
+
+### 复杂度与禁止扩张
+
+- **新增概念：零。** 只消费 `CASE-PERSIST-1` 已有版本化单键、整表替换与 fail-closed 读入；旧键迁移是删除双真源所需的一次性兼容分支。零新依赖、持久格式、schema version、状态机、通用抽象或 UI。
+- 触碰范围复杂度扫描只发现本票目标本身：`App.tsx` 的选中案回灌 effect 与同步旧键写是 `case-list.v1` 成立后可删的偶然复杂度；未发现其他需另案拍板的死配置、无消费导出或多余抽象。
+- 禁止扩张：不改变 `PersistedCase` 字段/语义，不迁移 demo 案（demo 本就不入 `case-list.v1`），不从畸形/未知版本列表回退旧键，不碰案件内容、grant、MaterialStore、Work journal、Rust 或 `current.md`。
+- 全量门发现既有 `rp2` 把 demo 案改名也要求跨 reload 持久；这与 CASE-PERSIST-1「demo 恒挂且永不入 `case-list.v1`」及本票唯一持久层拍板冲突。测试收敛为：demo 当前生命周期仍可编辑，reload 后回固定样板标题且旧键不存在；真实持久案的改名跨启动由本票新增 e2e 承担。未为 demo 新开第二持久例外。
+
+### 实现与证据（2026-07-18）
+
+- `case-store.ts` 在 `loadCaseList()` 完整验证成功后，才按可信记录 id 读取旧 title；非空旧值覆盖同案标题，先经既有 `writeCaseList()` 整表写回，再逐键 `removeItem()`。未知版本/坏信封直接返回空列表，旧键既不读取、也不删除，更不复活 legacy-only 案件。
+- `App.tsx` 删除选中案旧键回灌 effect 与 `commitCaseTitle` 的旧键同步写；改名仅更新 `cases`，由既有 `cases → projectPersistableCases → case-list.v1` effect 唯一持久。生产源码 `case-title.` 只剩 `case-store.ts` 一处迁移前缀，旧键 `setItem` grep 零命中。
+- TDD 红证：case-store 新迁移例在实现前精确得到列表旧标题（19 项中 1 红、其余 18 绿）；workspace dist 生成后，迁移 e2e 精确得到侧栏「列表中的旧标题」而非「退出前最后改名」。最小实现后 case-store **19/19**、case-persist **5/5**。静态门注入 `App.tsx` 旧键 `setItem` 后精确报迁移边界外命中，撤除恢复绿。
+- 全量首跑 **293/294** 的唯一红为上述 demo 旧期望；按既有 CASE-PERSIST-1 边界收敛测试后，隔离端口 `19931` 最终完整静态前链 + Playwright **294/294 passed（6.4m，single worker）**，floor **292 → 294**。`site:guard` **39/39**、`pnpm -r build`、`pnpm lint` 通过；根 Vitest **148 files / 1261 tests**。紧接 6.4m E2E 的一次根测受机器负载影响有 3 个互不相关的 5s timeout，三文件逐一复跑全绿，随后不改代码完整根测 **1261/1261** 转绿；不把 timeout 隐写成实现回归。最终独立验收须在 clean worktree 复跑并自行注入迁移/静态门反例。
+
 ## KEY-PERSIST-1 · API key 跨启动持久（P1，真机 M 项）（实现完成，待独立验收）
 
 权威：[实现就绪图 `KEY-PERSIST-1` 行](../../docs/architecture/implementation-readiness.md) + [真机台账 M 项](../../docs/status/pilot-2026-07-17.md) + [ADR-005 §2](../../docs/decisions/ADR-005-data-security.md) + [ADR-007 决定一](../../docs/decisions/ADR-007-provider-turn-protocol.md)。基线 `main @ bded9ac`，分支 `impl/key-persist-1`；不改 `docs/status/current.md`，真机复验留给产品负责人，独立验收另派。
