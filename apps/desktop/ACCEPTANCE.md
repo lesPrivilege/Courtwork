@@ -3261,3 +3261,108 @@ floor 註記核對：`assert-test-count.mjs` 註解鏈precisely 記錄 `290 → 
 `git diff bded9ac 8621c75 --stat`：恰 11 個檔案，全部落在 `apps/desktop/{SPEC.md,scripts/assert-credential-contracts.mjs,scripts/assert-rp29-contracts.mjs,scripts/assert-test-count.mjs,src-tauri/src/lib.rs,src/App.tsx,src/credentials/client.ts,src/provider/connection-client.ts,src/provider/connection-client.test.ts,src/settings/SettingsPage.tsx,tests/e2e/key-persist.spec.ts}`；零 `packages/**`、零 `docs/status/current.md`、零其他 app/服務改動。`src-tauri/src/lib.rs` 改動精確為新增一個可測試核心函式 `clear_all_credential_accounts` 並讓既有 `clear_provider_credential` 消費它（零新 crate、零 `Cargo.lock` 變動、零持久格式變更）；`assert-rp29-contracts.mjs` 改動把「冷啟動零 probe」的斷言從無條件改為「非 stored 時仍零 probe」，未放寬既有 RP-2.9 語義。
 
 **最終判定：KEY-PERSIST-1 放行 ✅。** 六項委託驗收動作（紅證復刻、probe 語義、清除徹底性、不變量 8、全量門、真機清單覈實）逐一亲手覈真，均通過或如實登記邊界；第 6 節發現的「鎖屏喚醒」登記缺口留待產品負責人在真機試點前定奪，不影響本單工程面放行。本會話未修改任何委託實現代碼（僅臨時 mutation 並全部撤除復核），未更新 `docs/status/current.md`，未推送，未 prune。
+
+---
+
+# ACCEPTANCE: CHAT-MD-TABLE-1
+
+日期：2026-07-18；對象：`impl/chat-md-table-1 @ 4ee17b3`（單提交，基線 `main @ cc90bf0`）。獨立 clean worktree（`git worktree add .claude/worktrees/accept-chat-md-table-1`，未在共享樹 checkout/stash）；`git rebase main` 後 tip `6d0d128`。驗收啟動時 `main` 已由 `6ec7067`（工單委託時的「現尖端」）前進一枚並發文檔提交至 `fe7687a`（`docs: SITE-CRAFT-2 字體策略修訂`，僅動 `docs/design/*`，與本單零重疊）；rebase 落點即 `fe7687a`，如實記錄此漂移非本單引入。另建合併驗收樹 `.claude/worktrees/accept-chat-table-case-title-1`（見全量門一節）與 `CASE-TITLE-CONVERGE-1` 並票驗收。
+
+**裁決：✅ 放行 CHAT-MD-TABLE-1。**
+
+## 1. 紅證復刻（stash 隔離雙層）
+
+- Unit 層：`git checkout HEAD~1 -- src/chat/ChatMarkdown.tsx src/styles.css`（僅退兩個實現檔，測試檔不動），跑 `vitest run src/chat/chat-markdown.test.ts`：**7 failed / 12 passed（19 例）**，精確命中：合法表格三態（基礎/對齊/免首尾豎線）、表格不吞尾段、歧義數據行止步、hr 兩態（獨占行/緊鄰段落）共 7 例；其餘畸形降級例（分隔行缺失/列數不符/非法語法）與圍欄回歸例確定性維持綠——證實「其餘一律降級回段落」是既有安全默認，非本單引入。`git checkout HEAD -- <同兩檔>` 復原後 **19/19 passed**。
+  - 誠實記錄一項 SPEC 敘述小瑕疵：SPEC.md 把「數據行列數歧義止步」歸入「實現前即已通過」一類，但親自追蹤代碼與實跑均證實該例屬 7 紅之一（無表格邏輯時整段合併為單段落，形狀與「表格+段落」雙塊期望不符）。計數（7）與覆蓋面本身無誤，僅分類敘述不精確，不構成缺陷，附此存證。
+- E2E 層：同樣退回兩實現檔，隔離埠 `14301` 跑 `playwright test chat-markdown.spec.ts pilot-reply-fold.spec.ts --project=app`：**3 failed / 4 passed**，精確命中「合法管道表格渲染」「--- 渲染為 hr」「歷史折疊塊界對齊」——第三例確定性紅在新增的 `isTableBlock` 斷言（`expect(intact.isTableBlock).toBe(true)` 失敗），實證該斷言依賴本單新結構塊，非泛匹配巧合通過的空斷言。畸形表格降級 e2e 例維持綠（既有兜底）。復原兩檔後 **7/7 passed**。
+  - 過程瑕疵如實記錄：本節第二次退回（e2e 復刻）後，驗收會話一度遺漏及時復原，被後續「畸形降級反例親跑」子任務的非預期全紅意外測出（詳見第 2 節）；隨即以 `git checkout HEAD -- <兩檔>` 補正，`git status`/`git diff --stat` 復核歸零，未污染任何裁決依據。
+
+## 2. 畸形降級反例親跑（自擬 ragged 輸入，非既有測試集）
+
+在 `src/chat/` 下臨時新增驗收自寫用例（驗證後即 `rm`，`git status` 復核零殘留），覆蓋既有 14 例未觸及的角度：
+
+| 反例 | 輸入特徵 | 斷言 | 結果 |
+|---|---|---|---|
+| 數據行列數「多於」表頭 | 3 格行插入 2 列表格中段 | 表格止步收 1 行，超列行連同其後內容逐字節回段落，零截斷 | PASS |
+| 連續 ragged（3列/1列/4列交替） | 表格後接三種不同錯列行 | 表格只收合法首行，其後三行原樣進同一段落 | PASS |
+| 分隔行部分格合法部分格非法 | `\| --- \| 不合法 \| :---: \|` | 一格非法即整行判非法分隔行，不做部分採用 | PASS |
+| 單列表格（基數邊界） | 表頭/分隔/數據行均 1 列 | 仍正確識別為合法表格，不因列數=1 特殊化 | PASS |
+| 表格止步後列數「巧合」再次相符 | 止步後再現 2 列行 | 不被誤重啟為原表延續（止步永久，非逐行重判入原表） | PASS |
+
+5/5 全通過，經驗證「零猜測補全」（不填不裁）在自擬輸入下同樣成立，非僅覆蓋實現者自選的既有例。
+
+## 3. hr / Setext 邊界
+
+`isHrLine` 僅識別獨占一行的 `-{3,}`，不識別 Setext 標題下劃線語義；既有測試「緊跟段落無空行：--- 仍獨立成 hr 塊（不支持 Setext 標題語法，不猜測意圖）」在第 1 節紅證中確認為 7 紅之一（真實依賴實現，非平凡斷言）。獨立複核代碼路徑：`isBlockBoundary` 對 hr 行的判定與段落止步條件共用同一分支，無特殊路徑把 hr 前一行升格標題，邏輯與斷言一致。
+
+## 4. CSS 中性色門 + 缺口清點範圍核真
+
+- `node scripts/assert-neutral-source.mjs` 獨立實跑（非管道吞退出碼，顯式 `echo $?`）：**exit 0**，`tokens 中性組 24 值冷調同源；src 177 文件全部色值 ∈ tokens 聲明集；廢除族零回流`。CSS diff（`.md-table-wrap`/`.md-table`/`.md-hr`）逐行核對，僅 `var(--*)` 引用，零字面 hex/rgb。
+- 缺口清點越權掃描：`grep -nE "blockquote|'>'|\[.*\]\(.*\)|~~|task.?list|\\\\\\*|strikethrough"` 對 `ChatMarkdown.tsx` 僅命中既有 `**加重**` 正則本身，10 項清點條目（嵌套列表/列表內代碼/引用塊/鏈接/自動鏈接/單星號斜體/刪除線/任務清單/轉義字符）均零代碼痕跡——確證「只清點不實現」。
+- SPEC 缺口清點三項敘述性 claim 抽核（自擬 vitest 用例，驗證後即刪）：嵌套列表拍平（`- 甲\n  - 甲子\n  - 甲丑\n- 乙` → 單層 4 項）、單星號斜體不識別（星號原樣可見）、引用塊不識別（`>` 原樣可見）——**3/3 與 SPEC 敘述一致**，確證缺口清點是實測而非臆測。
+
+## 5. 全量門（合併樹）
+
+見文末共享章節「CHAT-MD-TABLE-1 + CASE-TITLE-CONVERGE-1 合併全量門」。
+
+## 6. 不越界核真
+
+`git diff HEAD~1 HEAD --stat`（rebase 後）與委託前原始 `git show --stat 4ee17b3` 逐行相同（7 檔，363 insertions/12 deletions）：`SPEC.md`/`assert-test-count.mjs`/`ChatMarkdown.tsx`/`chat-markdown.test.ts`/`styles.css`/`chat-markdown.spec.ts`/`pilot-reply-fold.spec.ts`。零 `packages/**`、零 `src-tauri`、零 `docs/status/current.md` 改動，rebase 未引入內容漂移。
+
+**最終判定：CHAT-MD-TABLE-1 放行 ✅。** 五項委託驗收動作（雙層紅證復刻、畸形反例親跑、hr/Setext 邊界、CSS 中性色門+缺口清點範圍、全量門+不越界）逐一親手覈真，全部通過；第 1 節記錄一項 SPEC 敘述分類小瑕疵（不影響計數與覆蓋面判定），第 1 節另記錄驗收自身操作一次遺漏復原並已補正，均不構成駁回理由。
+
+---
+
+# ACCEPTANCE: CASE-TITLE-CONVERGE-1
+
+日期：2026-07-18；對象：`impl/case-title-converge-1 @ b72d174`（單提交，基線 `main @ af46ef3`）。獨立 clean worktree（`git worktree add .claude/worktrees/accept-case-title-converge-1`）；`git rebase main` 後 tip `5b5750c`，落點同上 `fe7687a`（並發只升點，見 CHAT-MD-TABLE-1 條目開篇說明）。另建合併驗收樹與 `CHAT-MD-TABLE-1` 並票驗收。
+
+**裁決：✅ 放行 CASE-TITLE-CONVERGE-1。**
+
+## 1. 遷移紅證 + 寫新層先於刪舊鍵順序核真
+
+- Unit 層：`git checkout HEAD~1 -- src/case/case-store.ts` 退實現檔，跑 `vitest run src/case/case-store.test.ts`：**1 failed / 18 passed（19 例）**，精確命中新增的正向遷移例（`readCaseList` 未吸收舊鍵，title 停留列表原值）；fail-closed 例（未知版本列表）確定性維持綠（舊代碼本就不觸碰舊鍵，天然安全）。復原後 **19/19 passed**。
+- E2E 層：同時退 `case-store.ts` + `App.tsx`，隔離埠 `14302` 跑 `case-persist.spec.ts` 全檔（含既有 CASE-PERSIST-1 三例）：**1 failed / 4 passed**，唯一紅為新增遷移正向例（`case-card` 停留列表舊標題「列表中的旧标题」而非舊鍵最新值「退出前最后改名」）；既有三例（三層重建/失效 grant/demo 恒挂歸檔對稱）**全綠**——初步證實既有斷言不回退。復原後 **5/5 passed**。
+- 順序靜態門逆向注入（`assert-host-auth-contracts.mjs` 對 `writeCaseList(...)` 早於 `removeItem(...)` 的文本序斷言）：手術交換 `readCaseList` 內兩條語句順序（先刪後寫），`node scripts/assert-host-auth-contracts.mjs`（顯式 `echo $?`，不經管道吞退出碼）：**exit 1**，`旧 title 必须先写回 case-list.v1 再删除旧键`；撤銷交換後複核 **exit 0**，`git diff --stat` 歸零。確證該門並非空文本掃描，確實鎖住「先寫後刪」這一崩潰安全序，能攔住把序反轉的迴歸。
+  - 如實記錄門的機制邊界：此為原始碼文本序正則斷言（非運行期故障注入的行為級證明），對本單「兩條件語句無條件順序執行」的簡單形狀是恰當且足夠的鎖定手段（house style 既有先例，如 `webkitdirectory` 退役門同構）；但它不覆蓋「`writeCaseList` 內部半寫崩潰」等更細粒度的故障窗口——該層由 `localStorage.setItem` 平台原子性承接，非本單引入的新假設，不在本單覈真範圍內另行擴大。
+
+## 2. fail-closed 反例親跑 + 零寫入靜態門獨立覈真
+
+- `case-store.test.ts` 內建 fail-closed 例（`case-list.v1` 為未知 version 999）親跑：`readCaseList` 返回 `[]`；`getItem` 呼叫序透過 spy 確認**僅** `[CASE_LIST_STORAGE_KEY]`（舊鍵從未被讀取）；`backend.map.get(legacyKey)` 停留原值「不得复活的旧标题」（未被消費也未被刪除）。此例在第 1 節單元紅證中確認屬「實現前即已通過」的 18 例之一（舊代碼本就不觸碰舊鍵，語義上是「巧合安全」而非本單新斷言目標）——如實記錄：本例的價值是**鎖定新代碼不得引入舊鍵讀取的迴歸**，而非證明本單新增了 fail-closed 行為（該行為在 `loadCaseList` 層本就既有）。
+- 生產源碼零寫入命中：手術於 `App.tsx` 插入含字面量 `courtwork.case-title.` 的臨時探針行，`node scripts/assert-host-auth-contracts.mjs`：**exit 1**，`旧 title 键不得在迁移边界外被生产源码读取或写入（命中 src/App.tsx）`；撤除後複核 **exit 0**。
+- 獨立 `rg` 交叉核（不依賴腳本內部邏輯，另起爐灶驗證同一結論）：`rg -n "case-title\." apps/desktop/src --glob '!*.test.ts' --glob '!tests/**'` **僅一處命中**：`case-store.ts:27`（遷移前綴常量宣告本身，即遷移邊界）。零其他生產源碼命中。
+
+## 3. CASE-PERSIST 既有斷言不回退 + demo 標題行為變更的裁定
+
+- 第 1 節 e2e 復刻已證：`case-persist.spec.ts` 既有三例（三層重建/失效 grant 顯式態/demo 恆掛歸檔對稱）在实现復原前後均為綠，非本單觸碰面。
+- `rp2.spec.ts` 一例斷言文字被本單修改：舊斷言「案件頭…可編輯持久化」期望 demo 案改名後 reload 仍顯示新標題；本單改為「demo 改名不越過 case-list 持久邊界」，reload 後回固定樣板標題。**裁定：此非既有斷言回退，而是修正一項與 `CASE-PERSIST-1` 自身 SPEC 明文矛盾的舊斷言**——`CASE-PERSIST-1 SPEC.md`（`apps/desktop/SPEC.md:460`）明文「demo 雙向隔離：demo 恆掛案永不入持久（`projectPersistableCases` 剔除 `isDemo`），重載後仍由 App 固定注入 DEMO_CASE 呈現（非來自持久層）」。舊實現能讓 demo 標題「看似持久」，根源是舊版 `courtwork.case-title.${id}` 单键旁路寫入不分辨 `isDemo`，繞過了 `case-list.v1` 的 demo 剔除投影——`CASE-PERSIST-1` 自身 SPEC 複雜度掃描提案區（`apps/desktop/SPEC.md:471`）已明確登記此「雙持久輕重疊」為已知偶然複雜度並標註 `[需架構拍板]`，本單正是該登記項的後續收斂，非新引入的行為變更。獨立親跑 `rp2.spec.ts` 全檔：**6/6 passed**（含被改動的該例）。
+
+## 4. 全量門（合併樹）
+
+見文末共享章節「CHAT-MD-TABLE-1 + CASE-TITLE-CONVERGE-1 合併全量門」。
+
+## 5. 不越界核真
+
+`git diff HEAD~1 HEAD --stat`（rebase 後）與委託前原始 `git show --stat b72d174` 逐行相同（8 檔，175 insertions/13 deletions）：`SPEC.md`/`assert-host-auth-contracts.mjs`/`assert-test-count.mjs`/`App.tsx`/`case-store.test.ts`/`case-store.ts`/`case-persist.spec.ts`/`rp2.spec.ts`。零 `packages/**`、零 `src-tauri`、零 `docs/status/current.md`、零 schema/core/provider 改動，rebase 未引入內容漂移。`PersistedCase` 字段/語義未變，未碰 grant/MaterialStore/Work journal。
+
+**最終判定：CASE-TITLE-CONVERGE-1 放行 ✅。** 四項委託驗收動作（遷移紅證+順序核真、fail-closed 反例+零寫入靜態門、CASE-PERSIST 既有斷言不回退、全量門+不越界）逐一親手覈真，全部通過；第 3 節就 `rp2.spec.ts` 一例斷言變更給出明確裁定（修正矛盾舊斷言，非回退），有 `CASE-PERSIST-1` SPEC 原文與其自身登記的複雜度提案區為證，不構成駁回理由。
+
+---
+
+# 共享章節：CHAT-MD-TABLE-1 + CASE-TITLE-CONVERGE-1 合併全量門
+
+兩單為並發只升點分支（分別基線 `cc90bf0`/`af46ef3`，均已 rebase 至 main 尖端 `fe7687a`），依委託要求另建合併驗收樹 `.claude/worktrees/accept-chat-table-case-title-1`（`git worktree add ... main` → `git merge --no-ff accept/chat-md-table-1` → `git merge --no-ff accept/case-title-converge-1`）取真實並集驗證。合併衝突僅兩處：`SPEC.md`（兩節順序拼接，零內容丟失）、`assert-test-count.mjs`（floor 手術取並集 `292+3+2=297`，並以 `playwright test --list` 親數核實 **`Total: 297 tests in 54 files`**，與算術並集精確相符，非假設）。`assert-host-auth-contracts.mjs` 無衝突自動合併。合併提交 `b2a1210`。
+
+| 門 | 結果 |
+|---|---|
+| `pnpm -r build` | PASS（14 workspace projects，含 desktop `tsc -b && vite build`） |
+| `pnpm lint`（eslint） | PASS，零告警 |
+| 根 `pnpm test` | **148 files / 1261 tests passed**（packages+eval，兩單均未觸碰，逐字節零回退） |
+| desktop `pnpm test`（vitest） | **59 files / 371 tests passed**（355 既有基線 + 14 CHAT-MD-TABLE-1 + 2 CASE-TITLE-CONVERGE-1，精確並集） |
+| demo golden | `demo:legal`：PASS（骨架/考點/錨點復算/六段標記/修訂命中全符，`redline.docx` 4,606 bytes）；`demo:s3`：PASS（golden 骨架比對一致，7/7 考點命中，`redline.docx` 39,651 bytes） |
+| 完整 `test:e2e`，埠 `14303` | 30 道靜態/設計/邊界門全數 `OK`/`通过`/`passed`（含中性色單源律「24 值冷調同源；177 文件全數 ∈ tokens 聲明集」、文案門「掃描 116 個 UI 源文件，無裸確認詞/成功自評/工程詞洩漏」、`AUDIT-SEAL-2+KEY-PERSIST-1`/`VIEW-ABI`(12/12)/`WORK-PORT-1`/`VISUAL-KIT`/`HOST-AUTH-LITE`/`MATERIAL-INGRESS-1`/`LEGAL-S3-BINDING-1`/`UI-SURFACE-1`/`WORK-LIVE-1`/`LAYOUT-CONVERGE-1`/RP-2.6~2.11 等全部邊界檢查通過）；`Playwright 假绿防护通过：297 条用例（下限 297）`；Playwright 實跑 **297/297 passed（2.7m，1 worker，0 flake）**，`app`(275)/`residue`(22) 兩 project 全含 |
+| residue 額外兩輪覆核，埠 `14304`/`14305` | 各 **22/22 passed**（43.9s / 45.1s），含門禁自證三例（不清 portal／不還 focus／不停動畫均必紅）——連同第一輪合計三輪 22/22/22，零 flake |
+
+floor 註記核對：`assert-test-count.mjs` 注釋鏈為兩單並發只升點的合併寫法（跟隨既有 `READER 與 PILOT-LIVE-2 並發只升點` 先例句式），`const minimum = 297;` 與實跑 `--list` 總數逐位元組相符，無漂移。
+
+**合併樹本身的驗收範圍聲明**：本合併樹僅用於取得兩單真實並集下的全量門結果，其產生的合併提交 `b2a1210` 不代表任何新工單的實現，不單獨放行/駁回；兩單的裁決分別見上方各自條目。
