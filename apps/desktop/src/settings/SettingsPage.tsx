@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react';
 import {
+  credentialClient,
   KEYCHAIN_RECOVERY_GUIDE,
   type CredentialStatus,
 } from '../credentials/client';
@@ -91,6 +92,7 @@ export function SettingsPage({
   const [maxUsdDraft, setMaxUsdDraft] = useState(String(settings.runtimeGuard.maxUsd ?? ''));
   const [optInConfirmOpen, setOptInConfirmOpen] = useState(false);
   const [credentialFormOpen, setCredentialFormOpen] = useState(false);
+  const [credentialClearing, setCredentialClearing] = useState(false);
   const titleId = useId();
 
   useEffect(() => {
@@ -166,6 +168,22 @@ export function SettingsPage({
     onFeedback('De-identified product analytics enabled', true);
   };
 
+  const clearSavedCredential = async () => {
+    setCredentialClearing(true);
+    try {
+      const status = await credentialClient.clear();
+      onCredentialStatusChange(status);
+      if (status.credential.phase === 'absent' && status.connection.phase === 'unverified') {
+        setCredentialFormOpen(false);
+        onFeedback('Saved credential cleared from Keychain', true);
+      } else {
+        onFeedback(status.connection.failureMessage ?? 'Couldn\u2019t clear the saved credential. Try again.', false);
+      }
+    } finally {
+      setCredentialClearing(false);
+    }
+  };
+
   const toggleOptInOff = () => {
     const next = setBehaviorDataOptIn(settings, false);
     setSettings(next);
@@ -215,6 +233,13 @@ export function SettingsPage({
                 <div className="settings-row-actions">
                   <span
                     className="settings-status-chip"
+                    data-testid="settings-credential-storage"
+                    data-phase={credentialStatus.credential.phase}
+                  >
+                    {credentialStatus.credential.phase === 'stored' ? 'Saved in Keychain' : 'Not saved'}
+                  </span>
+                  <span
+                    className="settings-status-chip"
                     data-testid="settings-credential-phase"
                     data-phase={credentialStatus.connection.phase}
                     data-fail-kind={credentialStatus.connection.failKind ?? undefined}
@@ -231,6 +256,17 @@ export function SettingsPage({
                   >
                     Manage credentials
                   </button>
+                  {credentialStatus.credential.phase === 'stored' && (
+                    <button
+                      type="button"
+                      className="quiet-button"
+                      data-testid="settings-clear-credential"
+                      onClick={() => void clearSavedCredential()}
+                      disabled={credentialClearing}
+                    >
+                      {credentialClearing ? 'Clearing\u2026' : 'Clear saved credential'}
+                    </button>
+                  )}
                 </div>
               </div>
 

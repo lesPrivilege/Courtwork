@@ -802,8 +802,16 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   useEffect(() => {
     let active = true;
-    void credentialClient.status().then((status) => {
-      if (active) setCredentialStatus(status);
+    void credentialClient.status().then(async (status) => {
+      if (!active) return;
+      setCredentialStatus(status);
+      // KEY-PERSIST-1：钥匙串可读仍只是 stored；启动只在既有条目存在时接续同一真实 probe，
+      // 成功才 ready。缺条目保持 RP-2.9 的安静冷启动，不弹凭证面、不发网络请求。
+      if (status.credential.phase !== 'stored') return;
+      setCredentialProbed(true);
+      setCredentialStatus({ ...status, connection: { phase: 'verifying' } });
+      const restored = await providerConnectionClient.validate(modelConfig, status);
+      if (active) setCredentialStatus(restored);
     });
     return () => { active = false; };
   }, []);

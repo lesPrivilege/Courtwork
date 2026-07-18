@@ -38,8 +38,8 @@ function normalize(result: ProviderConnectionResult): ProviderConnectionResult {
 }
 
 export const providerConnectionClient = {
-  async validate(config: ModelConfig): Promise<ProviderConnectionResult> {
-    const readiness = await credentialClient.status();
+  async validate(config: ModelConfig, knownReadiness?: ProviderReadiness): Promise<ProviderConnectionResult> {
+    const readiness = knownReadiness ?? await credentialClient.status();
     if (readiness.credential.phase !== 'stored') return readiness;
     if (!config.modelId.trim()) {
       return { ...readiness, connection: { phase: 'failed', failureMessage: '请选择模型', failKind: 'model' } };

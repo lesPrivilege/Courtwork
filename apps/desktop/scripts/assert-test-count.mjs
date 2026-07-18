@@ -32,7 +32,8 @@ const count = match ? Number(match[1]) : 0;
 // WORK-TURN-2：Work 面不切 Chat、case-keyed journal 分账与 chat 反向无案语境 +1 → 289。
 // WORK-TURN-2 验收修复：workChatPending/workChatFlightRef 补按 caseId 隔离（原实现为全局单飞行锁/
 // 单 pending 位，案 A 在途会静默锁死案 B composer）+1 → 290。
-const minimum = 290;
+// KEY-PERSIST-1：stored Keychain 跨 reload 自动恢复 ready + Settings 显式清除/零前端残留 +2 → 292。
+const minimum = 292;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
