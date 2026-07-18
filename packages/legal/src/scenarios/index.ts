@@ -124,7 +124,7 @@ export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
         classifierTags: [],
       },
       inputArtifacts: ['legal.CaseFile'],
-      toolIds: ['copy-file', 'mkdir', 'file-ops-executor'],
+      toolIds: ['copy-file', 'mkdir'],
       outputArtifacts: ['legal.FileOpsPlan'],
       uiTemplateId: 'file-ops-plan-panel',
       confirmationPolicy: {

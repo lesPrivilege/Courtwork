@@ -2,6 +2,18 @@
 
 状态：PACKAGE-ABI 已成立；ABI-2A 双平面迁移已独立验收放行；VPKG-LAYOUT-1 已实现待独立验收
 
+## AUDIT-SEAL-1 · legal.S6 确认前工具声明清理（实现完成，待独立验收）
+
+权威：[实现就绪图 `AUDIT-SEAL-1` 行](../../docs/architecture/implementation-readiness.md) + [ADR-004](../../docs/decisions/ADR-004-documents-and-files.md)。基线 `main @ bcafc5e`，分支 `impl/audit-seal-1`。
+
+- S6 `toolIds` 由 `['copy-file', 'mkdir', 'file-ops-executor']` 收窄为 ADR-004 无损级 `['copy-file', 'mkdir']`；与 prompt 「不执行任何操作，执行发生在用户确认之后」对齐。不改 prompt 字节、artifact/schema、gate label 或 steps。
+- 该有意 descriptor 声明收窄使既有整面 golden `sha256(LEGAL_PACKAGE_DESCRIPTOR)` 由 `d9c789baf973786e8022c5545b56391b65eadf7dbbe273cf31cef882a60c882b` 重算为 `6d0b6ea2a1144acc7307dac890314612d675968be0a4266b3b00a2f312efb7bf`；`promptBlob()` hash 不变，不冒充静默 drift。
+- **TDD 红证**：新 manifest 反例修复前实得 S6 多出 `file-ops-executor`，**1 failed / 11 passed**；删除悬空声明后与 core 聚焦合计 **21/21** 转绿。
+- **复杂度审视**：零新概念、零新依赖/导出/持久化；本层是纯删减一枚与 prompt 矛盾的声明。扫描 S6 声明与现行 consumer 后，未发现已装配的 S6 live 运行入口。
+- **[需架构拍板]**：S6 未来进入 live 前，须另行定义 `FileOpsPlan` gate resolve 后如何以已确认输入触发 `file-ops-executor`、如何持久授权与事务日志；本单不自行新增执行步类或改 gate 契约。
+- **实现侧终值**：`pnpm -r build`、`pnpm lint` 通过；root Vitest **144 files / 1247 tests**；S3/Legal 两条 demo golden 均 PASS。独立验收未由本会话执行。
+- **精确触面**：`src/scenarios/index.ts`、`src/package/manifest.test.ts` 与本 SPEC；不触 core 外的任何垂类契约。
+
 ## VPKG 体例迁移（进行中）
 
 权威：`docs/decisions/ADR-012-vertical-package-kit-and-visual-blueprints.md` 与

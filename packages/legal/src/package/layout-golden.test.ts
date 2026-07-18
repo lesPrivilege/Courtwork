@@ -21,7 +21,7 @@ function promptBlob(): string {
 describe('VPKG-LAYOUT-1 Legal content golden', () => {
   it('descriptor 保持纯 JSON 深等价、整面 hash 与 prompt blob 字节不漂移', () => {
     expect(structuredClone(LEGAL_PACKAGE_DESCRIPTOR)).toStrictEqual(LEGAL_PACKAGE_DESCRIPTOR);
-    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('d9c789baf973786e8022c5545b56391b65eadf7dbbe273cf31cef882a60c882b');
+    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('6d0b6ea2a1144acc7307dac890314612d675968be0a4266b3b00a2f312efb7bf');
     expect(sha256(promptBlob())).toBe('41b8073be2f7d5b6e20a0d940ba300ce476046f642e21fecb2d14ad0de43618a');
   });
 

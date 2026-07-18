@@ -132,6 +132,18 @@ for (const command of ['host_authorize_folder', 'host_list_grants', 'host_read_f
   requireMatch(lib, new RegExp(`${command},`), `lib.rs invoke_handler 必须注册 ${command}`);
 }
 
+// ── AUDIT-SEAL-1：覆盖语义必须在 renderer→宿主界面逐点明示 ────────────
+requireMatch(port, /overwrite: boolean;/, 'HostAuthPort.writeFile 必须显式携 overwrite 标志');
+requireMatch(tauri, /overwrite: input\.overwrite/, 'Tauri host adapter 必须透传 overwrite');
+requireMatch(app, /hostAuth\.writeFile\([\s\S]*?overwrite: false,[\s\S]*?\}\);/, '附件入库写必须显式拒绝覆盖');
+requireMatch(panel, /overwrite: true,/, '宿主授权自有探针覆盖必须显式声明');
+requireMatch(caseOutput, /overwrite: true,/, 'case_output 自产报告覆盖必须显式声明');
+requireMatch(
+  rust,
+  /pub fn scoped_write\([^)]*overwrite: bool\)[\s\S]*?fs::hard_link\(&temporary, target\)/,
+  'Rust scoped_write 必须收显式 overwrite 并以 no-replace 提交保护缺省路径',
+);
+
 // ── CASE-ROOT-1：案件根是 opaque grantId 引用，renderer/wire 零绝对路径 ─────
 // CaseSummary 退役 folderPath 字段，改持 opaque grantId；注入 folderPath/绝对路径字段即红。
 forbidMatch(caseTypes, /folderPath\s*[?:]/, 'CaseSummary 不得携带 folderPath（绝对路径字段已退役）');

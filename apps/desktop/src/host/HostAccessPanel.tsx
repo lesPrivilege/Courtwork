@@ -69,6 +69,7 @@ export function HostAccessPanel({ hostAuth }: HostAccessPanelProps) {
         grantId: grant.grantId,
         relativePath: ACCESS_CHECK_FILE,
         bytes: accessCheckBytes(),
+        overwrite: true,
       });
       if (wrote.status !== 'wrote') {
         setState({ kind: 'failed', reason: wrote.reason });

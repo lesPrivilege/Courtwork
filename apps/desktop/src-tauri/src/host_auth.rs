@@ -144,13 +144,14 @@ pub fn scoped_read(root: &Path, relative: &str) -> ReadOutcome {
     }
 }
 
-/// 授权目录内原子写入（root 注入，纯函数）。同目录临时文件落盘后 rename。
-pub fn scoped_write(root: &Path, relative: &str, bytes: &[u8]) -> WriteOutcome {
+/// 授权目录内原子写入（root 注入，纯函数）。已存在目标缺省拒绝；
+/// 只有调用界面显式声明 `overwrite` 才可替换安全实体文件。
+pub fn scoped_write(root: &Path, relative: &str, bytes: &[u8], overwrite: bool) -> WriteOutcome {
     let target = match resolve_target(root, relative, RequireExisting::No) {
         Ok(target) => target,
         Err(reason) => return WriteOutcome::Failed { reason },
     };
-    match atomic_write(&target, bytes) {
+    match atomic_write(&target, bytes, overwrite) {
         Ok(()) => WriteOutcome::Wrote {
             byte_length: bytes.len(),
         },
@@ -158,7 +159,7 @@ pub fn scoped_write(root: &Path, relative: &str, bytes: &[u8]) -> WriteOutcome {
     }
 }
 
-fn atomic_write(target: &Path, bytes: &[u8]) -> Result<(), HostAuthReason> {
+fn atomic_write(target: &Path, bytes: &[u8], overwrite: bool) -> Result<(), HostAuthReason> {
     let parent = target.parent().ok_or(HostAuthReason::OutOfScope)?;
     let nonce = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -174,7 +175,20 @@ fn atomic_write(target: &Path, bytes: &[u8]) -> Result<(), HostAuthReason> {
         file.write_all(bytes)
             .map_err(|error| classify_io(&error))?;
         file.sync_all().map_err(|error| classify_io(&error))?;
-        fs::rename(&temporary, target).map_err(|error| classify_io(&error))?;
+        if overwrite {
+            match fs::symlink_metadata(target) {
+                Ok(metadata) if metadata.is_file() && !metadata.file_type().is_symlink() => {}
+                Ok(_) => return Err(HostAuthReason::OutOfScope),
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(error) => return Err(classify_io(&error)),
+            }
+            fs::rename(&temporary, target).map_err(|error| classify_io(&error))?;
+        } else {
+            // 同目录临时文件已同步；hard_link 的目标名必须不存在，因而在竞态下
+            // 也不会像 rename 一样覆盖后到的文件。成功后移除临时链接名即完成提交。
+            fs::hard_link(&temporary, target).map_err(|error| classify_io(&error))?;
+            let _ = fs::remove_file(&temporary);
+        }
         Ok(())
     })();
     if result.is_err() {
@@ -315,9 +329,10 @@ pub fn write_in_grant(
     grant_id: &str,
     relative: &str,
     bytes: &[u8],
+    overwrite: bool,
 ) -> WriteOutcome {
     match resolve_root(store_path, grant_id) {
-        Some(root) => scoped_write(&root, relative, bytes),
+        Some(root) => scoped_write(&root, relative, bytes, overwrite),
         None => WriteOutcome::Failed {
             reason: HostAuthReason::Revoked,
         },
@@ -484,7 +499,7 @@ mod tests {
     fn happy_path_write_then_read_round_trips_within_grant() {
         let root = temp_root("happy");
         // root 层直接写读往返
-        let wrote = scoped_write(&root, "access-check.txt", b"host-auth-lite");
+        let wrote = scoped_write(&root, "access-check.txt", b"host-auth-lite", false);
         assert!(matches!(wrote, WriteOutcome::Wrote { byte_length } if byte_length == 14));
         match scoped_read(&root, "access-check.txt") {
             ReadOutcome::Read { bytes } => assert_eq!(bytes, b"host-auth-lite"),
@@ -492,7 +507,7 @@ mod tests {
         }
         // 已存在子目录内写读往返
         fs::create_dir_all(root.join("材料")).expect("subdir");
-        let wrote = scoped_write(&root, "材料/notice.txt", b"host-auth-lite");
+        let wrote = scoped_write(&root, "材料/notice.txt", b"host-auth-lite", false);
         assert!(matches!(wrote, WriteOutcome::Wrote { byte_length } if byte_length == 14));
         match scoped_read(&root, "材料/notice.txt") {
             ReadOutcome::Read { bytes } => assert_eq!(bytes, b"host-auth-lite"),
@@ -502,11 +517,37 @@ mod tests {
     }
 
     #[test]
+    fn existing_file_is_refused_instead_of_overwritten_by_default() {
+        let root = temp_root("no-overwrite");
+        let target = root.join("original.txt");
+        fs::write(&target, b"original-bytes").expect("seed original");
+
+        let outcome = scoped_write(&root, "original.txt", b"replacement-bytes", false);
+
+        assert!(matches!(outcome, WriteOutcome::Failed { .. }));
+        assert_eq!(fs::read(&target).expect("read original"), b"original-bytes");
+        fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
+    fn existing_regular_file_can_be_overwritten_only_when_explicit() {
+        let root = temp_root("explicit-overwrite");
+        let target = root.join("self-owned.txt");
+        fs::write(&target, b"old-bytes").expect("seed self-owned output");
+
+        let outcome = scoped_write(&root, "self-owned.txt", b"new-bytes", true);
+
+        assert!(matches!(outcome, WriteOutcome::Wrote { byte_length } if byte_length == 9));
+        assert_eq!(fs::read(&target).expect("read replaced output"), b"new-bytes");
+        fs::remove_dir_all(&root).ok();
+    }
+
+    #[test]
     fn write_into_missing_subdir_is_unavailable_not_created() {
         // 设计边界：write 不创建中间目录；父目录缺失显式 unavailable，绝不静默建树。
         let root = temp_root("no-mkdir");
         assert_eq!(
-            reason_of_write(scoped_write(&root, "缺失子目录/notice.txt", b"x")),
+            reason_of_write(scoped_write(&root, "缺失子目录/notice.txt", b"x", false)),
             Some(HostAuthReason::Unavailable)
         );
         assert!(!root.join("缺失子目录").exists());
@@ -532,7 +573,7 @@ mod tests {
             Some(HostAuthReason::Unavailable)
         );
         assert_eq!(
-            reason_of_write(scoped_write(&missing_root, "any.txt", b"x")),
+            reason_of_write(scoped_write(&missing_root, "any.txt", b"x", false)),
             Some(HostAuthReason::Unavailable)
         );
         fs::remove_dir_all(&root).ok();
@@ -691,7 +732,7 @@ mod tests {
             Some(HostAuthReason::Revoked)
         );
         assert_eq!(
-            reason_of_write(write_in_grant(&store, "grant-nope", "x.txt", b"x")),
+            reason_of_write(write_in_grant(&store, "grant-nope", "x.txt", b"x", false)),
             Some(HostAuthReason::Revoked)
         );
         fs::remove_dir_all(store.parent().unwrap()).ok();
@@ -800,7 +841,13 @@ mod tests {
         };
         assert_eq!(grant_again.grant_id, grant.grant_id);
 
-        let wrote = write_in_grant(&store, &grant.grant_id, "access-check.txt", b"ok");
+        let wrote = write_in_grant(
+            &store,
+            &grant.grant_id,
+            "access-check.txt",
+            b"ok",
+            false,
+        );
         assert!(matches!(wrote, WriteOutcome::Wrote { .. }));
         let read = read_in_grant(&store, &grant.grant_id, "access-check.txt");
         assert!(matches!(read, ReadOutcome::Read { bytes } if bytes == b"ok"));

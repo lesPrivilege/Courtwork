@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import * as z from 'zod';
 import type { ArtifactSchemaRegistry, ScenarioRuntime } from '@courtwork/registry';
 import { OutOfCoverageEntrySchema, QuoteClaimSchema, SourceAnchorSchema, type ArtifactDescriptor } from '@courtwork/schemas';
-import { createToolExecutor } from '@courtwork/tools';
+import { createToolExecutor, defineTool } from '@courtwork/tools';
 import { createEventLog } from '../events/event-log.js';
 import { createEvidenceLedger } from '../evidence/grade.js';
 import { createInMemoryConfirmationStore } from '../session/confirmation-store.js';
@@ -83,6 +83,19 @@ function draftContent(quote: string, note = '条目一'): string {
   });
 }
 
+function observableTool(id: string, onRun: () => void) {
+  return defineTool(
+    { id, inputSchema: z.unknown(), dataSchema: z.object({}), timeoutMs: 1_000 },
+    {
+      sourceId: 'audit-seal-test',
+      async run() {
+        onRun();
+        return {};
+      },
+    },
+  );
+}
+
 function buildDeps(responses: string[], capture?: string[]): ScenarioExecutorDeps {
   let call = 0;
   const turnRunner: TurnRunnerPort = {
@@ -122,7 +135,7 @@ function producedArtifact(deps: ScenarioExecutorDeps) {
   return event;
 }
 
-describe('confirmationPolicy none × 副作用工具（ABI 拍板③运行时双门第二道）', () => {
+describe('runTools sideEffect 全模式门（AUDIT-SEAL-1）', () => {
   it('none 场景绑定 file_write 工具即拒跑——core 强制，包无权放宽', async () => {
     const deps = buildDeps([draftContent('真实存在的原文句子')]);
     deps.tools.register('writer-tool', {
@@ -138,7 +151,7 @@ describe('confirmationPolicy none × 副作用工具（ABI 拍板③运行时双
     };
     await expect(
       runScenario(noneScenario, { inputArtifacts: {}, toolInputs: {}, materials: [MATERIAL] }, deps),
-    ).rejects.toThrow(/none 仅限纯读取/);
+    ).rejects.toThrow(/确认前工具只允许纯读取/);
   });
 
   it('none 场景 + 纯读工具照常运行（none 本身不是禁令，是判据）', async () => {
@@ -146,6 +159,45 @@ describe('confirmationPolicy none × 副作用工具（ABI 拍板③运行时双
     const noneScenario: ScenarioRuntime = { ...SCENARIO, confirmationPolicy: { mode: 'none' } };
     const result = await runScenario(noneScenario, { inputArtifacts: {}, toolInputs: {}, materials: [MATERIAL] }, deps);
     expect(result.status).toBe('completed');
+  });
+
+  it('gates 场景在门禁前绑定非纯读、非无损工具即拒跑', async () => {
+    const deps = buildDeps([draftContent('真实存在的原文句子')]);
+    let executed = false;
+    deps.tools.register('writer-tool', {
+      tool: observableTool('writer-tool', () => {
+        executed = true;
+      }),
+      grade: 'A',
+      sideEffect: 'file_write',
+    });
+    const gatedScenario: ScenarioRuntime = { ...SCENARIO, toolIds: ['writer-tool'] };
+
+    await expect(
+      runScenario(gatedScenario, { inputArtifacts: {}, toolInputs: {}, materials: [MATERIAL] }, deps),
+    ).rejects.toMatchObject({ name: 'ConfirmationPolicyViolationError' });
+    expect(executed).toBe(false);
+  });
+
+  it('gates 场景放行 ADR-004 无损级 copy/mkdir（绑定仍如实声明 file_write）', async () => {
+    const deps = buildDeps([draftContent('真实存在的原文句子')]);
+    const executed: string[] = [];
+    for (const toolId of ['copy-file', 'mkdir']) {
+      deps.tools.register(toolId, {
+        tool: observableTool(toolId, () => executed.push(toolId)),
+        grade: 'A',
+        sideEffect: 'file_write',
+      });
+    }
+    const gatedScenario: ScenarioRuntime = { ...SCENARIO, toolIds: ['copy-file', 'mkdir'] };
+
+    const result = await runScenario(
+      gatedScenario,
+      { inputArtifacts: {}, toolInputs: {}, materials: [MATERIAL] },
+      deps,
+    );
+    expect(result.status).toBe('paused');
+    expect(executed).toEqual(['copy-file', 'mkdir']);
   });
 });
 
