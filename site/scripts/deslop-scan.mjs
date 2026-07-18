@@ -57,6 +57,10 @@ if (releaseHref) {
   if (releaseSha || /releases\/(?:download|tag)\//i.test(html)) failures.push('site/index.html: unpublished macOS state must not expose an artifact SHA or release link');
 }
 if (!html.includes('原件') || !html.includes('引语') || !html.includes('人工确认')) failures.push('site/index.html: Evidence Line semantics are incomplete');
+const settleSeal = html.match(/<svg class="settle-seal[\s\S]*?<\/svg>/)?.[0];
+if (settleSeal && (settleSeal.replace(/<[^>]*>/g, '').replace(/\s/g, '') !== '不改原件' || !html.includes('<dt class="zh-display">不改原件</dt>'))) {
+  failures.push('site/index.html: settle seal must mirror the first covenant 不改原件');
+}
 if (!/viewBox="0 0 24 24"/.test(icon) || /<(?:rect|circle|ellipse|polygon)\b/.test(icon)) failures.push('site/assets/icon.svg: wordmark mark must be core path geometry without a base');
 if ((icon.match(/<path\b/g) ?? []).length !== 4) failures.push('site/assets/icon.svg: core brand geometry must contain four paths');
 const brandPaths = [...icon.matchAll(/<path d="([^"]+)"\/>/g)].map((match) => match[1]);

@@ -242,7 +242,13 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
   }
 }
 
-.scenario-ledger { padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)) 96px; border-block: 1px solid var(--border-hairline); background: var(--bg-raised); }
+/* SITE-CRAFT-2 B3 · 骑缝式分隔（文书文化抽象引用，原生 SVG 件）：连续台账跨越「真跑真机证据
+   （卷二）↔ catalog 投影（卷三）」这道缝时，以半划齿痕标记接缝完整——同一册卷宗，无一页被抽换。
+   纯静态刻线，零动效。 */
+.seam-divider { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; display: flex; align-items: center; gap: 16px; color: var(--border-strong); }
+.seam-divider i { flex: 1; border-top: 1px solid var(--border-hairline); }
+.seam-divider svg { flex: none; display: block; }
+.scenario-ledger { padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)) 96px; border-bottom: 1px solid var(--border-hairline); background: var(--bg-raised); }
 .scenario-rows { max-width: var(--page-max); margin: 48px auto 0; }
 .scenario-row { display: grid; grid-template-columns: minmax(220px, 3fr) minmax(0, 9fr); gap: 48px; align-items: center; padding: 44px 0; border-top: 1px solid var(--border-strong); }
 .scenario-row:last-child { border-bottom: 1px solid var(--border-strong); }
@@ -269,6 +275,12 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .promise-ledger > div { display: grid; grid-template-columns: minmax(180px, 3fr) minmax(0, 7fr); gap: 32px; padding: 22px 0; border-bottom: 1px solid var(--plate-line); }
 .promise-ledger dt { font-size: 21px; color: var(--bg-app); }
 .promise-ledger dd { margin: 0; color: var(--plate-text-dim); }
+/* SITE-CRAFT-2 B3 · 印记式落定章（文书文化抽象引用，原生 SVG 件）：与首则承诺同文的方印落在
+   暗色石版右上——阳文白线，拒印泥红（红只属于风险与删除的语义预算）；deslop 印章与 dt 同文
+   tether 守住不漂移。静态微倾，零动效。 */
+.promise-heading { position: relative; }
+.settle-seal { position: absolute; right: 0; top: 4px; width: 88px; height: 88px; color: var(--plate-text); transform: rotate(-2deg); }
+.settle-seal text { fill: currentColor; font-size: 28px; text-anchor: middle; }
 .design-boundary { max-width: var(--page-max); margin: 48px auto 0; padding: 20px 24px; border: 1px solid var(--plate-line); background: var(--ink-deep); color: var(--plate-text-dim); font-family: var(--mono); font-size: 12px; line-height: 1.9; }
 .design-boundary p { margin: 0; }
 .design-boundary a { color: var(--plate-text); }
@@ -300,6 +312,7 @@ footer p { margin: 0; }
   .hero { padding-top: 72px; }
   .schema-demo { grid-template-columns: 1fr; }
   .demo-doc { border-right: 0; border-bottom: 1px solid var(--border-hairline); }
+  .settle-seal { position: static; margin-top: 20px; }
   .work-row { grid-template-columns: 1fr; gap: 24px; }
   .work-crop img { aspect-ratio: 16 / 9; }
   .promise-ledger > div { grid-template-columns: 1fr; gap: 6px; }

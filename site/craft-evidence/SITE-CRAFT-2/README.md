@@ -57,3 +57,21 @@ reduced 全灭）、`site/scripts/{deslop-scan,deslop-scan-lib,deslop-scan.test}
 | `B2/reduced-static.png` | reduced-motion 定格全景（零动画） |
 | `B2/js-off-hero.png` | JS 关闭整页帧 |
 | `B2/frame-samples.json` | 26 帧采样原始数据与判定 |
+
+## B3 · 前卫版式：文书文化抽象引用（杠杆③ + SVG 件库起步）
+
+变更面：`site/index.html`（卷号体例 ×5 / 骑缝分隔 / 落定章）、`site/styles.css`（三件版式）、
+`site/scripts/deslop-scan.mjs`（印章 tether）。全部静态零动效，零新资产文件（SVG 内联）。
+
+- **卷宗编号体例**：卷一（证据链）→ 卷二（真实工作面）→ 卷三（垂类泛化）→ 卷四（产品边界）
+  → 卷尾（Courtwork），hero 为封面不编号。
+- **骑缝式分隔**：半划齿痕落在卷二｜卷三之缝——真机证据与 catalog 投影的分界上，连续台账
+  跨缝完整的完整性隐喻。
+- **印记式落定章**：暗版右上与首则承诺同文的方印（不改/原件，朱雀仿宋阳文白线，-2° 微倾）；
+  拒印泥红守语义预算。tether 双向反例实测：印文改字触红、首则 dt 漂移触红。
+
+| 帧 | 说明 |
+|---|---|
+| `B3/seam-context-1440.png` | 骑缝分隔在卷二｜卷三缝上的语境帧 |
+| `B3/promise-seal-1440.png` | 承诺暗版 + 卷四编号 + 落定章终态 |
+| `B3/closing-tail-1440.png` | 卷尾编号与收尾判词 |
