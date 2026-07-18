@@ -10,7 +10,7 @@ courtwork_design_md:
     "docs/design/tokens.json":
       sha256: "17b63a2ff442b6e4b1b1995c74ddfc3a6162e626346d2acd5526f9b5b013ac23"
     "docs/design/principles.md":
-      sha256: "cbab3412945749b98da12c7e5a5ad49b8d8347c96c93ec3e9cb407b87c7c8cfe"
+      sha256: "f44168081cc11359ba4b8c34973387380fc2e7d4bea12411dc3e05c412a8324a"
   tokenSet:
     name: "courtwork-design-tokens"
     version: "1.2.0"
@@ -444,6 +444,10 @@ tokens:
 ### 10. 命名与宿主边界
 
 通用组件和 token 使用领域无关名称。法律或 PM 词表、字段解释与 renderer 住垂类包；desktop 只提供通用宿主机制。
+
+### 激进度梯度（2026-07-18 拍板）
+
+设计激进度与裁决距离成反比，三层定档：**Pages 最前卫**（先锋实验田，探边界后经门回迁）；**schema 表最保守**（版式来自编排的穷举与凡例，承载裁决与信任，零冒险——数据区静止、语义色稀缺、单锚点纪律均由此派生）；**agent 本体居间**（壳的导航/chrome/过渡有作者性但不抢 schema 的庄重，以免产品被轻视）。任何视觉决策先问「离裁决多远」，再定敢用多少新意。
 
 ## 三、token 用法语义（tokens.json 描述派生）
 
