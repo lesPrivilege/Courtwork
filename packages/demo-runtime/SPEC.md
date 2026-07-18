@@ -2,6 +2,10 @@
 
 状态：`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行。
 
+## AUDIT-SEAL-3 · Legal 绑定投影同步（实现完成，待独立验收）
+
+`demo-assembly.ts` 继续是受信 Legal/demo 组合根：富语料的 `litigationSummary` 在此投影为 tools 中性 `relatedRecords[{reference,summary}]`，Legal 样板案号仅存在于绑定层；工具 verified/source/grade 与 S3 流程不回退。cite-check 当前无 production Legal 注册消费面；其 demo corpus lookup 仍在绑定测试先判 `citationType==='statute'`，证明开放 tools discriminator 没有取消垂类自己的闭集规则。零新依赖、状态、抽象或执行步骤。
+
 ## 职责
 
 本包是 Courtwork 唯一 demo/acceptance composition root，负责把 `core` 通用执行机与 legal、demo-data、output、reading-view、provider/registry/tools 组装为脚本化演示、真跑入口和端到端 golden。它只由开发/验收消费；`packages/core` 与 `apps/desktop` 不得反向依赖。

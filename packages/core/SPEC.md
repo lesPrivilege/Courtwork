@@ -2,6 +2,15 @@
 
 状态：既有 TURN/INTERACTION、`CONFIRM-CAS-1`、`CORE-BOUNDARY-1` 与 `TURN-WORK-1` 均已独立验收放行
 
+## AUDIT-SEAL-3 · ToolRegistry 自声明信任边界（实现完成，待独立验收）
+
+权威：[实现就绪图 `AUDIT-SEAL-3` 行](../../docs/architecture/implementation-readiness.md) + ADR-001/004；基线 `main @ 92d1fd4`。不改变 `ToolRegistry` 接口与运行契约。
+
+- 新 `tool-registration-boundary.test.ts` 枚举三处现有生产/验收组合根，锁 `createToolRegistry()`/`tools.register()` 只在受信文件出现，并逐点锁 tool token → tool id → factory → sideEffect 配对；未来新增装配点必须显式进表评审，不能靠 `sideEffect?:` 缺省冒充 `pure_read`。
+- 伪装探针把第二个 `writer-tool` 以 `pure_read` 植入已受信 demo 装配点，守卫红于「预期恰一处，实际两处」；同样阻断任意未受信文件的注册。现有三处 `party-verify → createPartyVerifyTool → pure_read` 抽查保持一致。
+- **复杂度审视**：零新 runtime 分支、依赖、导出、事件、schema 或 registry 契约；静态测试平铺三处已存在装配点。若未来需要允许运行时动态工具装载，必须另立契约/供应链票，本单不预造。
+- **实现侧终值**：伪装 `pure_read` mutation 与未受信文件注入均红；恢复后 SEAL-3 定向 **56/56**、全仓 **1261/1261**，构建/lint 与两条 golden 全绿。仍待异会话独立验收。
+
 ## AUDIT-SEAL-1 · `runTools()` sideEffect 全模式密封（实现完成，待独立验收）
 
 权威：[实现就绪图 `AUDIT-SEAL-1` 行](../../docs/architecture/implementation-readiness.md) + [ADR-004](../../docs/decisions/ADR-004-documents-and-files.md) + ADR-009/010 effect 授权红线。基线 `main @ bcafc5e`，分支 `impl/audit-seal-1`；未推送、未改 `docs/status/current.md`。

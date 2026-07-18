@@ -34,10 +34,10 @@ function projectPartyRecord(record: PartyCorpusRecord): PartyVerifyData {
     matchedName: record.entityName,
     unifiedSocialCreditCode: record.unifiedSocialCreditCode,
     businessStatus: record.registrationStatus,
-    litigationSummary:
+    relatedRecords:
       record.litigationSummary === '无公开涉诉记录'
         ? []
-        : [{ caseNumber: '(2025)云章03民初472号', summary: record.litigationSummary }],
+        : [{ reference: '(2025)云章03民初472号', summary: record.litigationSummary }],
   };
 }
 

@@ -30,10 +30,14 @@ describe('CiteCheckInputSchema', () => {
     expect(CiteCheckInputSchema.safeParse({ citationText: '', citationType: 'statute' }).success).toBe(false);
   });
 
-  it('rejects an unknown citationType', () => {
+  it('accepts an open, domain-owned citationType instead of imposing a legal enum', () => {
     expect(
-      CiteCheckInputSchema.safeParse({ citationText: '某某条', citationType: 'regulation' }).success,
-    ).toBe(false);
+      CiteCheckInputSchema.safeParse({ citationText: '控制标准 CS-42', citationType: 'project_standard' }).success,
+    ).toBe(true);
+  });
+
+  it('still rejects an empty citationType', () => {
+    expect(CiteCheckInputSchema.safeParse({ citationText: '控制标准 CS-42', citationType: '' }).success).toBe(false);
   });
 });
 
@@ -153,7 +157,7 @@ describe('createDemoFixtureCiteCheckAdapter — injected lookup, no demo-data im
     currentlyValid: true,
     notes: '演示：民事法律行为有效要件',
   };
-  const lookup = (input: { citationText: string; citationType: 'statute' | 'case' }) =>
+  const lookup = (input: CiteCheckInput) =>
     input.citationText === found.normalizedCitation && input.citationType === found.citationType ? found : undefined;
 
   it('declares its identity as exactly "demo-fixture" and returns the looked-up record verbatim', async () => {

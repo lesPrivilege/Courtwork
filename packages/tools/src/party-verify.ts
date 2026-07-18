@@ -14,8 +14,8 @@ export const PartyVerifyInputSchema = z.object({
 });
 export type PartyVerifyInput = z.infer<typeof PartyVerifyInputSchema>;
 
-const LitigationRecordSchema = z.object({
-  caseNumber: z.string().min(1),
+const RelatedRecordSchema = z.object({
+  reference: z.string().min(1),
   summary: z.string().min(1),
 });
 
@@ -23,7 +23,7 @@ export const PartyVerifyDataSchema = z.object({
   matchedName: z.string().min(1),
   unifiedSocialCreditCode: z.string().min(1).optional(),
   businessStatus: z.string().min(1),
-  litigationSummary: z.array(LitigationRecordSchema),
+  relatedRecords: z.array(RelatedRecordSchema),
 });
 export type PartyVerifyData = z.infer<typeof PartyVerifyDataSchema>;
 
@@ -56,7 +56,7 @@ export function createMockPartyVerifyAdapter(): PartyVerifyAdapter {
         matchedName: input.name,
         unifiedSocialCreditCode: input.unifiedSocialCreditCode,
         businessStatus: '存续',
-        litigationSummary: [],
+        relatedRecords: [],
       };
     },
   };
@@ -64,8 +64,7 @@ export function createMockPartyVerifyAdapter(): PartyVerifyAdapter {
 
 /**
  * demo-fixture 查找函数：调用方（未来的装配点）负责实现，本文件不 import 任何具体的
- * fixture 数据包（@courtwork/demo-data 之类）——"src 只认接口，不认数据"，见
- * docs/decisions/ADR-001-package-abi.md。返回 undefined 表示"演示库未收录该主体"，
+ * fixture 数据包——"src 只认接口，不认数据"。返回 undefined 表示"演示库未收录该主体"，
  * 适配器会把它翻译成 ToolOutOfCoverageError，不是"该主体不存在"的结论。
  */
 export interface PartyFixtureLookup {

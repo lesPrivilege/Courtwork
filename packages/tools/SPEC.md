@@ -2,6 +2,16 @@
 
 状态：已完成
 
+## AUDIT-SEAL-3 · 工具契约去垂类语义（实现完成，待独立验收）
+
+权威：[实现就绪图 `AUDIT-SEAL-3` 行](../../docs/architecture/implementation-readiness.md) + [ADR-001](../../docs/decisions/ADR-001-package-abi.md)；基线 `main @ 92d1fd4`，分支 `impl/audit-seal-2-3`。
+
+- `CitationTypeEnum` 保留兼容导出名，但由法律闭枚举改为 trim 后 1–64 字符的开放 discriminator；具体垂类允许值由绑定层/lookup 校验。`currentlyValid:null` 表达该 taxonomy 不定义有效态，mock 不再按 `statute` 字面自作垂类判断；中国法律数据源候选注释从机器层移除。
+- `PartyVerifyDataSchema.litigationSummary[{caseNumber,summary}]` 改为中性 `relatedRecords[{reference,summary}]`。`packages/demo-runtime` 受信装配点把 Legal demo corpus 的 `litigationSummary` 投影成该形状；语料本身与 Legal 展示语义不改。
+- 新 `package-boundary.test.ts` 复用 core 的 `FORBIDDEN_LITERALS` 同表并锁生产源/依赖零 vertical/demo 渗漏；现存 `case-path.ts` 的「卷宗」与 `party-verify.ts` 的具名 demo 包注释先红后中性化。守卫 mutation 向 `src/index.ts` 植入「风险清单」即确定性变红。
+- **复杂度/开源审视**：零新依赖、持久格式、状态机、适配器或公共抽象；只放宽既有 discriminator、改一个既有结果槽位并复制成熟守卫。未遇需引入开源依赖的问题；触碰范围无额外偶然复杂度提案。
+- **实现侧终值**：SEAL-3 定向 **7 files / 56 tests**；全仓 Vitest **148 files / 1261 tests**，`pnpm -r build`、`pnpm lint`、S3 与 legal golden 全绿。仍待异会话独立验收。
+
 ## 子路径导出增量（2026-07-16，LEGAL-S3-BINDING-1 拉动，实现角色留痕）
 
 - 新增 browser-safe 子路径导出 `./party-verify`（`packages/tools/package.json`，纯加法）。`party-verify.ts` 仅依赖 `./contract`（已是 browser-safe 子路径先例）+ zod，传递闭包零 `node:*`。
@@ -18,8 +28,8 @@
 
 ## MVP 工具
 
-- `party-verify` 主体核验：名称/统一社会信用代码 → 工商状态、涉诉概要（企查查/天眼查，先 mock 后接真；接口凭证走配置）
-- `cite-check` 引用校验：法条/判例引用 → 存在性与现行有效性（先接现有公开库，官方接口位预留）
+- `party-verify` 主体核验：名称/可选外部标识 → 登记状态与中性关联记录；垂类展示由绑定层投影
+- `cite-check` 引用校验：开放 citation taxonomy 的引用 → 存在性与可选有效态；具体来源与类型规则由绑定层选择
 - `web-fetch` 网页抓取：URL → 正文（C 级信源，spotlighting 消毒后返回，结构上永远是 `verified:false, reason:'web_reference'`，携带抓取内容与元数据）；SSRF 拦截 + 证书校验红线 + 内容大小/类型限制。详见下方"web-fetch/web-search 的特殊契约"（T-fetch 增量）
 - `web-search` 网页搜索：query → 结果列表（同样永远是 `reason:'web_reference'`，`kind:'search_results'`）；真实适配器（serper.dev）当前为诚实骨架（`not_configured`/`not_implemented`），无凭证不做假搜索
 - `reveal-in-folder` / `open-file` 受限系统动词（F-3，docs/decisions/ADR-004-documents-and-files.md 无损级）：案件文件夹路径白名单校验后调用宿主（Tauri opener / mock），**永无任意命令执行**；越界路径降级 `adapter_error`（可见报错，不静默）；成功反馈文案固定为「已在访达中显示」/「已为您打开〔文件名〕」。副作用动词不缓存。路径分区基建见 `case-path.ts`（`原件`/`工作稿`/`产出`）；工作稿写入白名单 `assertWorkDraftWritable` 结构性排除原件（docs/decisions/ADR-004-documents-and-files.md 红线）。

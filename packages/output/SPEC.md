@@ -2,6 +2,10 @@
 
 状态：包级核心与自动化成立；完成过一次 macOS WPS 基础视觉抽核；`OUTPUT-CORRECTNESS-1` 收口清单第 1–6 条及第 7 条自动化部分（真实 Vite browser consumer、OOXML part/rel diff 留证）已实现并自测通过，**等待独立验收**；Word/WPS 双端 P0 真机 roundtrip 仍未完成（架构另行安排，不在本工单）
 
+## AUDIT-SEAL-3 · 包域律守卫铺满（实现完成，待独立验收）
+
+复制 core `FORBIDDEN_LITERALS` 同表，新增 `package-boundary.test.ts`，锁 production source 与 package dependencies 零 vertical/demo import/mention 与垂类字面量；向 `src/index.ts` 植入「风险清单」时守卫确定性变红。零运行代码、依赖、格式、状态机或公共抽象变化；既有 OOXML/output 行为、golden 与兼容范围不变。
+
 ## 现行能力边界
 
 - `applyRevisionInstructionSet` 与 `compileDraftToDocx` 是 Courtwork 内唯一权威修订/文书著录器；desktop、插件和垂类包不得复制 OOXML 生成逻辑。

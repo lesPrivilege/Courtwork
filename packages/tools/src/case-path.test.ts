@@ -86,7 +86,7 @@ describe('assertWorkDraftWritable — 原件只读红线', () => {
     expect(result).toEqual({
       ok: false,
       code: 'original_write_forbidden',
-      message: '卷宗原件不可修改，已拒绝写入。',
+      message: '原件不可修改，已拒绝写入。',
     });
   });
 
