@@ -49,6 +49,12 @@ Chat 线（ADR-013）
 
 **Round 3 收尾序（2026-07-15 拍板；polish 分轮 2026-07-17 修订）**：主线收敛（MATERIAL-INGRESS → LEGAL-S3-BINDING → WORK-LIVE）→ 终局 UI polish 分两轮：**R1 定向修缮**（产品负责人 + Sonnet 手动定向修小问题/对齐；小修批以「全量门绿 + 架构逐 diff 复核」清账，不派独立验收——残留门/设计门/floor 为质量底座，任一回退即退回工单制）→ **R2 巧思视效**（Fable 主导，消费归档调研与素材包，批次独立验收 + Sol 视觉全量扫终审，先例红线见设计 README 与 SITE-CRAFT 判例史）——**R2 供料包已齐（2026-07-18）**：Claude Design 四面设计稿（RiskReviewSurface variant×domain / TimelineGraphSurface / RevisionSurface / WorkCanvasSurface）+ SchemaParts 17 族元素库（token 路径+reduced-motion 内建），设计件非权威、落地逐件过门；变体选型经产品拍板后出批次票→ **一次小发版**：实现 legal 宣言、奠定 UI/UX 基调。其后其他垂类（PM scenario、roleplay 等）与角色面板/pets 类可召唤 preview 均为轻量包级小增量，不触 core。
 
+## Round 4 开工序（2026-07-18 拍板）
+
+**先解耦、再 harness 真实化、后 polish**——防止在未密封的底座上叠加法。序：① `AUDIT-SEAL-1/2/3`（密封审计口子，Sol 执行）→ ② harness 全量真实化线（`TOOL-READ-1` L1 受控只读工具 + `GENERIC-PACK-1` + `PACK-INTERACT-1` + `SCENARIO-LIVE-2`，与 GUI 呼应：R2 各面消费真实 harness 投影而非样板态）→ ③ polish R2 批次（B1 已派 Fable，**在 ①落地前暂缓开工**）。纪律：已跑过的调研与开源 agent 项目按需取形不重复造轮子，遇问题优先成熟开源方案（License 合规前提，pandoc GPL 拒例在案）。
+
+**Rust 重构裁定（2026-07-18）**：节点未到。Rust 边界维持「受控宿主能力」（CAS/授权/密钥/文件），**按需逐点下沉**是现行正确形态（`scoped_write` 覆盖保护下沉即本轮实例）；全量 Rust 化 core/harness 触碰 ADR-011「不引入第二 agent runtime」且复杂度预算不该花在这。重启判据三条（满足其一再议）：性能实测瓶颈（当前无）、第二宿主真实需求（Stage 4）、TS 层出现门禁封不住的安全面。
+
 ## 工单边界与退出证据
 
 Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度节制条）：实现会话在 SPEC 留痕「本单新增了什么概念、为何非加不可」；并对触碰范围内既有代码做一次复杂度扫描，发现可删的偶然复杂度（死配置、无消费导出、多余抽象）列入该层 SPEC 提案区交架构拍板，不越权顺手删。数单之后全仓即完成一轮复杂度过筛。
@@ -69,6 +75,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 | `AUDIT-SEAL-3` | P1（tools 去法律化 + 守卫铺满）：①`cite-check` `CitationTypeEnum` 改中性开放形状、法律数据源注释移出（校验规则外置垂类包）；`party-verify` `litigationSummary` 中性化（`relatedRecords` 类，语义由装配点投影）；②core 的 package-boundary 机器守卫复制到 tools/reading-view/output 三包（FORBIDDEN_LITERALS 同表） | 三包边界守卫注入法律词触红；legal 消费面迁移后功能不回退；ADR-001 语义恢复 |
 | `GENERIC-PACK-1` | 下一版候选（通用底座补齐线首单，roadmap Stage 1 节 + archive/research-2026-07-15-round-3/generic-base-inventory.md）：通用场景包首批三场景——通用起草→docx（复用 output 流水线，中性 descriptor）/ md↔docx 可编辑往返（自研 OOXML 路径补齐，**pandoc GPL 已拒**）/ 多文件批处理（descriptor 层 fan-out，系统编排非模型自主）。定调：**通用底座即第一个包**——同一插槽/同一 admitPackages 准入/同一凡例表，零绕过 schema 契约的后门；验收律=「只装通用包时产品是合格 work agent」。零新 core 机制预期 | 三场景过既有准入门与凡例表渲染；卸垂类包冒烟（仅通用包）e2e；批处理逐项报告与失败显式；xlsx/pptx/定时/通道均不夹带 |
 | `PACK-INTERACT-1` | 下一版候选（包装载真实交互一级，2026-07-18 拍板；与 GENERIC-PACK-1 配对）：①Settings 包管理面——随发行版内置包的启用/停用（状态持久沿版本化单键先例）；②建案时选包——case 级垂类绑定从组合根写死改为建案交互供给（S3 绑定语义不变，绑定来源改用户选择）；③插槽显式空态——未启用垂类包时 Work 面诚实显示「未安装垂类包·通用能力可用」，零伪装零降级。**边界**：包仍随应用发行、构建期 admitPackages 准入不变——本单零动态装载；外部包文件导入（zip→运行时准入→签名/供应链）属二级，ADR-015「包的装载与生命周期」议题入池、需求到来才立 | 启用/停用→Work 面能力集与 tab 集随包切换 e2e；建案选包→绑定正确且跨包命名空间隔离；空态显式（voice 门）；停用不丢已有案件账本 |
+| `TOOL-READ-1` | harness 真实化线（L1 受控只读工具，2026-07-17 已批方向、本轮激活；pi 对照调研借形）：Work 对话 turn 可请求**声明式白名单**内的只读工具（首批：读某材料正文/列卷宗清单——复用 resolveForProvider 与 MaterialStore 既有链）；工具白名单静态声明（比照 ScenarioRuntime.toolIds），仅 `pure_read`，零 effect；工具结果进 journal 的形状（toolResult 角色 vs 折叠文本）实现偵察后交拍板再动手；模型不可发现/调用白名单外任何工具；GUI 呼应——工具调用在 Work 画布 trace 区显式呈现（账本条目族） | 白名单外调用拒绝反例触红；pure_read 分级校验（AUDIT-SEAL-1 的全模式门为前置）；工具结果可溯源；stub 链不回退 |
 | `KEY-PERSIST-1` | P1（真机 M 项）：API key 跨启动持久——落宿主安全存储（macOS Keychain 经 Rust 侧或既有本地安全形制，实现评估后拍板具体通道）；不变量 8 红线不动（密钥零进前端明文/日志/事件流/遥测）；显式「已保存/清除」管理入口（Settings），清除即彻底 | key 跨重启免重输 e2e（桩层）+ 真机复验；前端明文零出现（静态门/grep 断言）；清除彻底有测 |
 | `ARCHIVE-MANAGE-1` | P1（真机 J 项，设计拍板见台账）：归档案不入侧栏默认视图；Settings「数据管理」面——案件归档区（查看/恢复/删除）+ 会话存档区（查看/删除）；删除留人确认、只删应用侧记录永不触原件、demo 案不可删；**不做旧 session 续行入口**（ADR-013 语义不变） | 归档案侧栏缺席+Settings 可达；删除确认流 + 原件零触碰断言；demo 不可删反例；残留门适用 |
 | `CHAT-MD-TABLE-1` | PILOT-LIVE-2 提案区采纳（2026-07-17 拍板；收尾拍板扩围）：`ChatMarkdown` 扩展审慎 GFM 子集——管道表格（DeepSeek 高频输出）+ `---` hr 分隔线 + 现渲染缺口清点（清点后逐项拍板，不整批放开）。「宁缺毋滥」边界收窄不废除：仅合法语法进对应渲染，畸形/歧义降级回段落且不猜测补全；折叠块界规则同步识别表格/hr 为结构块 | 合法渲染 + 畸形降级反例触红；E 项块界断言对新结构块生效；设计门适用 |
