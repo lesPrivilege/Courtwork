@@ -76,9 +76,10 @@ test.describe('PILOT-LIVE-1 D · work 段全收拢组合正文测宽收敛', () 
     expectMeasured(composer, mainArea, MEASURE);
     expectMeasured(scene, mainArea, MEASURE);
 
-    // 正文已居中收敛，标题带须跟随同一基准，不再贴左（flex-start 的错位态）。
+    // 2026-07-17 产品拍板：案件标题改左对齐 composer 左边界（不再居中），
+    // padding-inline 仍跟随同一 --content-measure 基准，故左边界与 composer-stack 对齐。
     const titlebar = page.getByTestId('conversation-canvas').locator('.chat-titlebar');
-    await expect(titlebar).toHaveCSS('justify-content', 'center');
+    await expect(titlebar).toHaveCSS('justify-content', 'flex-start');
   });
 
   test('仅右收：composer-stack/scene-strip 双证', async ({ page }) => {
@@ -95,8 +96,9 @@ test.describe('PILOT-LIVE-1 D · work 段全收拢组合正文测宽收敛', () 
     expectMeasured(composer, mainArea, MEASURE);
     expectMeasured(scene, mainArea, MEASURE);
 
+    // 2026-07-17 产品拍板：案件标题改左对齐 composer 左边界，见「仅左收」用例注释。
     const titlebar = page.getByTestId('conversation-canvas').locator('.chat-titlebar');
-    await expect(titlebar).toHaveCSS('justify-content', 'center');
+    await expect(titlebar).toHaveCSS('justify-content', 'flex-start');
   });
 
   test('双收：composer-stack/scene-strip 双证（回归锁，既有 LAYOUT-CONVERGE-1 P1-3 升级为双证）', async ({ page }) => {
