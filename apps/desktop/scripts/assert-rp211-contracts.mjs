@@ -45,7 +45,10 @@ need(/--elevation-shell-gap:\s*28px/.test(css) && /--elevation-float-inset:\s*8p
 // —— ⑥ message 按钮缩档 ——
 need(/\.message-actions button\s*\{[^}]*width:\s*20px/.test(css), '⑥ message 按钮须缩至 20px');
 // —— ⑦ hover 深色块 token（hover 与 selected 分离） ——
-need(/--control-hover:\s*#dae3ec/.test(css), '⑦ --control-hover 须为 #dae3ec');
+// B1 色阶批：刻本印页宗置换，--control-hover 由 #dae3ec 换为 #dde0e4
+// （出处 color-mix(in srgb, text.primary 10%, bg.surface)）。「hover 与 selected 两语义两色」
+// 的约束不变，只换值——两者可辨性实测 B−R：selected 29 / hover 6。
+need(/--control-hover:\s*#dde0e4/.test(css), '⑦ --control-hover 须为 #dde0e4');
 need(!/var\(--bg-hover\)/.test(css), '⑦ 扁平按钮 hover 须全迁 --control-hover（无残留 --bg-hover）');
 
 // —— ⑧ 长消息收敛：渐隐遮罩 + Show more/less（过渡而非硬切；纯呈现层） ——

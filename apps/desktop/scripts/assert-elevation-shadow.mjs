@@ -4,7 +4,9 @@ import path from 'node:path';
 const srcRoot = path.resolve(import.meta.dirname, '..', 'src');
 const styles = await readFile(path.join(srcRoot, 'styles.css'), 'utf8');
 const tokens = JSON.parse(await readFile(path.resolve(import.meta.dirname, '..', '..', '..', 'docs', 'design', 'tokens.json'), 'utf8'));
-const approvedShadow = '0 1px 2px rgba(10,37,64,0.045), 0 4px 12px rgba(10,37,64,0.035)';
+// B1 色阶批：ink 由 #0A2540 迁为 #232B38(rgb 35,43,56)，阴影随 ink 重算。
+// 单点供给与「CSS == token == 本字面量」三重锁不变，只换值。
+const approvedShadow = '0 1px 2px rgba(35,43,56,0.045), 0 4px 12px rgba(35,43,56,0.035)';
 
 async function sourceFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true });

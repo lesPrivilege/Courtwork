@@ -58,8 +58,23 @@ test('⑤ composer workmode 钮 = chat|work 同源（与顶部段控同步）', 
 test('⑥⑦ message 按钮缩档 20px；扁平按钮 hover 深色块 token', async ({ page }) => {
   await openWorkbench(page);
   await expect(page.getByTestId('message-actions-assistant-demo').locator('button').first()).toHaveCSS('width', '20px');
-  const control = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--control-hover').trim());
-  expect(control).toBe('#dae3ec');
+  // ⑦ 断的是「两语义两色」的分离关系，不是某一版皮层的字面值：
+  // control-hover（扁平按钮按下感）必须与 bg-hover（行悬停）、bg-selected（选中）三者互异，
+  // 且 control-hover 比 bg-hover 更深——皮层换色后关系不变，断言才不会误红。
+  const tone = await page.evaluate(() => {
+    const read = (name: string) => {
+      const probe = document.createElement('span');
+      probe.style.color = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      document.body.append(probe);
+      const rgb = getComputedStyle(probe).color.match(/\d+/g)!.map(Number);
+      probe.remove();
+      return { rgb, luma: 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2] };
+    };
+    return { control: read('--control-hover'), hover: read('--bg-hover'), selected: read('--bg-selected') };
+  });
+  const key = (t: { rgb: number[] }) => t.rgb.join(',');
+  expect(new Set([key(tone.control), key(tone.hover), key(tone.selected)]).size).toBe(3);
+  expect(tone.control.luma).toBeLessThan(tone.hover.luma);
 });
 
 test('⑧ 长消息收敛：超阈值渐隐 + Show more/less（纯呈现层）', async ({ page }) => {

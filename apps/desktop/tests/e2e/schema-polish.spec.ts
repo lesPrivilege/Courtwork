@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { openWorkbench, tokenColor } from './helpers';
 
 async function openUtilityModule(page: Parameters<typeof openWorkbench>[0], id: 'progress' | 'context') {
   const back = page.getByTestId('preview-back');
@@ -36,7 +36,16 @@ test('schema rejection feedback keeps the neutral disposition tone', async ({ pa
 
   const flash = risk.getByTestId('settle-flash-risk-04');
   await expect(flash).toHaveAttribute('data-kind', 'rejected');
-  await expect.poll(async () => flash.evaluate((element) => getComputedStyle(element).getPropertyValue('--settle-color').trim())).toBe('#64748b');
+  // 断的是绑定关系：rejected 处置取中性板岩（驳回是处置不是错误），非某一版皮层的字面值。
+  await expect
+    .poll(async () =>
+      flash.evaluate((element) => {
+        const settle = getComputedStyle(element).getPropertyValue('--settle-color').trim();
+        const slate = getComputedStyle(document.documentElement).getPropertyValue('--slate-graphic').trim();
+        return settle.toLowerCase() === slate.toLowerCase();
+      }),
+    )
+    .toBe(true);
 });
 
 test('continuation belongs to Context usage and uses ink instead of risk red', async ({ page }) => {
@@ -48,7 +57,7 @@ test('continuation belongs to Context usage and uses ink instead of risk red', a
   const context = await openUtilityModule(page, 'context');
   const continuation = context.getByTestId('continuation-button');
   await expect(continuation).toHaveText('Continue this case');
-  await expect(continuation).toHaveCSS('background-color', 'rgb(10, 37, 64)');
+  await expect(continuation).toHaveCSS('background-color', await tokenColor(page, '--text-primary'));
   await continuation.click();
   await expect(continuation).toBeDisabled();
   await expect(continuation).toHaveText('Next phase opened');

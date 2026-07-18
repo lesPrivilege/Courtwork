@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openModuleList, openWorkbench } from './helpers';
+import { openModuleList, openWorkbench, tokenColor } from './helpers';
 
 test('完整工作台帧与三栏在 1440 视口可见', async ({ page }) => {
   await openWorkbench(page);
@@ -233,7 +233,7 @@ test('法理之线使用域只限右栏且图标保持品牌单色', async ({ pa
   expect(lineAudit.every(({ tone }) => ['danger', 'attention', 'revision', 'authority', 'neutral'].includes(tone ?? ''))).toBe(true);
 
   const iconColors = await page.locator('.line-icon').evaluateAll((icons) => [...new Set(icons.map((icon) => getComputedStyle(icon).color))]);
-  expect(iconColors).toEqual(['rgb(100, 116, 139)']);
+  expect(iconColors).toEqual([await tokenColor(page, '--slate-graphic')]);
   const assistantTurn = page.getByTestId('assistant-turn-demo');
   await expect(assistantTurn.locator('.line-icon')).toHaveCount(0);
   expect(await assistantTurn.locator('.turn-icon').count()).toBeGreaterThan(0);
@@ -319,7 +319,7 @@ test('按压态 120ms 且数据卡零位移零缩放', async ({ page }) => {
   await action.hover();
   await page.mouse.down();
   await expect(action).toHaveCSS('transition-duration', '0.12s');
-  await expect(action).toHaveCSS('background-color', 'rgb(221, 231, 242)');
+  await expect(action).toHaveCSS('background-color', await tokenColor(page, '--bg-selected'));
   await expect(action).toHaveCSS('transform', 'matrix(0.98, 0, 0, 0.98, 0, 0)');
   await expect(dataCard).toHaveCSS('transform', 'none');
   await page.mouse.up();
