@@ -1,0 +1,44 @@
+{
+  "acceptanceTarget": "f8d10b59eb3167fd36e0d65985ca638924953b85",
+  "capturedAt": "2026-07-20T02:24:00+08:00",
+  "system": {
+    "product": "macOS",
+    "version": "26.5.2",
+    "build": "25F84",
+    "darwin": "25.5.0",
+    "appearance": "Dark"
+  },
+  "authority": {
+    "runtime": "Tauri WKWebView",
+    "tauriCli": "2.11.4",
+    "configuredContentCssPx": "1600x900",
+    "devicePixelRatio": 2,
+    "configSha256": "bf5a0826b3f607c15b3dc5e6afe18dfdb8c6af76eb9621e8675bb41ee0421c1c"
+  },
+  "frames": {
+    "tauri-dark-welcome.png": {
+      "capturedPx": "3424x2024",
+      "sha256": "2fbdaf2d50f4412f96ad9408fb9f147501f6ff7e61d8bba8834d8bd2f8cbee22"
+    },
+    "tauri-dark-settings.png": {
+      "capturedPx": "3424x2024",
+      "sha256": "4da29f197fdb785bb1d250a82e1f1acbb3b5544ce1ea635f4d4b9dc2e84c55da"
+    }
+  },
+  "darkSlots": {
+    "hairline": { "value": "#2A3A52", "contrastOnApp": 1.5762, "contrastOnRaised": 1.1541 },
+    "strong": { "value": "#3E5270", "contrastOnApp": 2.2844, "contrastOnRaised": 1.6726 },
+    "focus": { "value": "#6A94F1", "contrastOnApp": 6.1467, "contrastOnRaised": 4.5006 },
+    "disabled": { "value": "#4C5A70", "contrastOnApp": 2.5935, "contrastOnRaised": 1.899 }
+  },
+  "observations": {
+    "systemModeSelected": true,
+    "darkSurfaceVisible": true,
+    "focusRingVisible": true,
+    "hairlineAndStrongDistinct": true,
+    "disabledRemainsRecognizable": true,
+    "localComponentRecolorObserved": false
+  },
+  "decision": "dark-slot-consumption-reproduced; overall P4 release withheld for machine-guard gaps",
+  "limitations": "Values and contrast ratios were independently recalculated from the target tokens. The true-shell frames verify actual consumption and visual separation; WKWebView accessibility does not expose computed CSS colors numerically."
+}
