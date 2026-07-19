@@ -1,4 +1,4 @@
-:root { --audit-border: #d5dae3; font-family: -apple-system, "Segoe UI", "PingFang SC", "Noto Sans SC", sans-serif; color: #232b38; background: #f7f8fa; }
+:root { --audit-border: #d5dae3; font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'MiSans', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif; color: #232b38; background: #f7f8fa; }
 * { box-sizing: border-box; }
 html, body, #icon-audit-root { width: 100%; min-height: 100%; margin: 0; }
 body { background: #f7f8fa; }

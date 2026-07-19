@@ -1,5 +1,30 @@
+/* —— @font-face 别名契约（subset-manifest.json 立契，排印门逐件校验）——————————————
+   上游内嵌名与 CSS 别名**不同名**，这是两个现成的静默穿透陷阱：
+     · 思源 CN 包内名为 `Source Han Serif CN`，非字栈所写的 `Source Han Serif SC`；
+     · 其 SemiBold **自成一族**（`Source Han Serif CN SemiBold`），不是同族的另一字重。
+   若只写 font-family 而漏此处的别名挂接，字栈会静默穿透到系统衬线——静默降级零容忍。
+   字体随包内嵌不走网络，故不设 font-display（凡例度量律：font-display 属站面义务）。 */
+@font-face {
+  font-family: 'Zhuque Fangsong';
+  src: url('./assets/fonts/zhuque-fangsong-gbk.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Source Han Serif SC';
+  src: url('./assets/fonts/source-han-serif-sc-400-gb2312.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Source Han Serif SC';
+  src: url('./assets/fonts/source-han-serif-sc-600-gb2312.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+}
+
 :root {
-  font-family: -apple-system, "Segoe UI", "PingFang SC", "MiSans", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-ui);
   color: #232b38;
   background: #f7f8fa;
   font-synthesis: none;
@@ -39,12 +64,22 @@
   /* 朱＝印记色非状态色（2026-07-19 拍板）：绿保持全部既有语义位，朱只出现在人工裁决留下印记之处。
      绿答「它处于什么态」，朱答「谁把它按下去的」。法理之线封闭集由此五扩六 */
   --zhu-graphic: #be4b2f;
+  /* —— 三轨字栈（docs/design/typography-density.md 发凡一；值单源于 tokens.json，排印门逐字锁）——
+     标题轨＝思源宋 SC 双字重 / 文书轨＝朱雀仿宋 GBK / 功能轨＝系统栈（工具字，显式声明非默认继承）。
+     两条衬线轨首位是拉丁配衬字：栈序即配衬序，拉丁命中前位，中文穿透到 CJK 子集。 */
+  --font-title: 'Times New Roman', Charter, Times, 'Source Han Serif SC', 'Noto Serif CJK SC', 'Songti SC', serif;
+  --font-body: 'Times New Roman', Charter, Times, 'Zhuque Fangsong', 'Source Han Serif SC', 'Songti SC', serif;
+  --font-ui: -apple-system, 'Segoe UI', 'PingFang SC', 'MiSans', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Courier New", monospace;
   --type-dense-body-size: 13px;
   --type-body-size: 14px;
   --type-dense-meta-size: 12px;
   --type-dense-line-height: 1.5;
   --type-dense-mono: var(--mono);
+  /* 文书轨墨量补偿（tokens track.document）：仿宋墨量比 0.752、字面积比 0.971——差在墨不在面，
+     故字号只升一档、主要靠行高给细笔画留白。reading 档 15/1.6 是功能轨长阅读面基准，两者并存。 */
+  --type-document-size: 16px;
+  --type-document-line-height: 1.75;
   --type-reading-size: 15px;
   --type-reading-line-height: 1.6;
   --control-height-sm: 28px;
@@ -479,7 +514,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 /* RP-2.12⑨ 磁吸位：待正式扁平品牌图标到位再落 slogan 侧；当前只 slogan 居中（不放占位简笔图标） */
 .welcome-brand { display: flex; justify-content: center; margin-bottom: 4px; }
-.welcome-slogan { margin: 0; color: var(--text-primary); font-family: "Songti SC", STSong, "Noto Serif CJK SC", serif; font-size: 26px; line-height: 1.3; font-weight: var(--control-weight-emphasized); letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
+.welcome-slogan { margin: 0; color: var(--text-primary); font-family: var(--font-title); font-weight: 600; font-size: 26px; line-height: 1.3; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
 /* welcome 态 composer 居中浮卡（沿用 shell 单框） */
 .welcome-home .composer-shell { margin: 0; }
 .welcome-ideas { display: grid; gap: 2px; }
@@ -1225,7 +1260,7 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .risk-detail > footer { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .risk-detail > footer > span:first-child { flex-basis: 100%; }
 .risk-detail > footer i { flex: 1; }
-.document-preview { padding: 14px 24px; background: var(--bg-raised); font-size: var(--type-reading-size); line-height: var(--type-reading-line-height); text-align: justify; }
+.document-preview { padding: 14px 24px; background: var(--bg-raised); font-family: var(--font-body); font-size: var(--type-document-size); line-height: var(--type-document-line-height); text-align: justify; }
 .document-preview header { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 .document-preview header strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .document-preview header span { color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; }
@@ -1255,10 +1290,10 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .draft-panel > header strong { font-weight: 510; }
 .draft-panel > header span { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .draft-panel > header button { margin-left: auto; }
-.draft-editor, .draft-reading { width: 100%; min-height: 520px; margin: 0; padding: 28px 40px; border: 1px solid var(--border); border-radius: 0; background: var(--bg-raised); color: var(--text-primary); font-size: var(--type-reading-size); line-height: var(--type-reading-line-height); }
+.draft-editor, .draft-reading { width: 100%; min-height: 520px; margin: 0; padding: 28px 40px; border: 1px solid var(--border); border-radius: 0; background: var(--bg-raised); color: var(--text-primary); font-family: var(--font-body); font-size: var(--type-document-size); line-height: var(--type-document-line-height); }
 .draft-editor { cursor: text; }
 .draft-panel.frozen .draft-reading { background: var(--bg-surface); }
-.draft-editor h2, .draft-reading h2 { margin: 0 0 14px; font-size: 16px; font-weight: 510; letter-spacing: -.01em; }
+.draft-editor h2, .draft-reading h2 { margin: 0 0 14px; font-family: var(--font-title); font-size: 16px; font-weight: 400; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
 .draft-editor p, .draft-reading p { margin: 0 0 12px; }
 
 .statusbar { position: relative; border-top: 1px solid var(--border); border-bottom: 0; background: var(--bg-surface); color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
@@ -1602,11 +1637,30 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .icon-button:hover { background: var(--control-hover); color: var(--text-primary); }
 .preview-back { flex: none; margin-right: 2px; }
 /* 浏览器态阅读面：视图汇流——文书 15px reading 档（docs/design/typography-density.md） */
-.reader-pane { height: 100%; overflow: auto; padding: 18px 22px; background: var(--bg-raised); font-size: var(--type-reading-size); line-height: var(--type-reading-line-height); }
-.reader-pane h3 { margin: 14px 0 6px; font-size: var(--titleSm, 16px); font-weight: var(--control-weight-emphasized); }
+.reader-pane { height: 100%; overflow: auto; padding: 18px 22px; background: var(--bg-raised); font-family: var(--font-body); font-size: var(--type-document-size); line-height: var(--type-document-line-height); }
+.reader-pane h3 { margin: 14px 0 6px; font-family: var(--font-title); font-size: 16px; font-weight: 400; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
 .reader-pane p { margin: 0 0 10px; }
 .reader-focus-anchor { background: var(--verified); color: inherit; border-bottom: 1px solid var(--blue-graphic); scroll-margin-block: 40%; }
 .reader-focus-anchor:focus { outline: 2px solid var(--blue-graphic); outline-offset: 2px; }
+
+/* —— 排印光学（B2 票面①·奖级工艺 #1，逐项过克制审计）——————————————————————
+   只装能证明其确有效力的：
+   · `text-autospace: normal` —— 仿宋**视觉字距**（中西文混排间隙）。实测该串 +4px，
+     且阴性对照（伪值）与 base 逐位相等，故测量本身有区分力、效力非错觉。它调的是
+     「中西文之间的间隙」而非字距本身，凡例「正文不调字距」不破。
+   · `hanging-punctuation: allow-end` —— 中文标点悬挂。产品壳是 WebKit（Tauri/macOS）支持；
+     **e2e 引擎 Chromium 不支持（CSS.supports 实测 false）**，故本项运行时效力**未经本仓验证**，
+     已挂真机清单。声明照落（production 引擎会用），但不谎称已验。
+   · `text-spacing-trim` —— **实测拒收**：trim-start / trim-both / space-all 三值与 base、
+     与阴性对照全部同宽（288px），即测试引擎里它什么也没做。装一个证不出效力的属性是装饰，
+     克制审计挡下。若日后引擎跟上，另行带测据补。 */
+.document-preview,
+.draft-editor,
+.draft-reading,
+.reader-pane {
+  text-autospace: normal;
+  hanging-punctuation: allow-end;
+}
 
 /* ─── RP-2.12 ②：粘贴文本块（user message 内容形态,mono 折叠）───────────────── */
 .paste-block { margin: 4px 0; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-app); overflow: hidden; }
