@@ -48,6 +48,24 @@ function SettlementFlash({ kind, itemRef, testable = false }: { kind?: 'confirme
   />;
 }
 
+/**
+ * 落定章（SKIN-B4 记号消费面）。朱是**印记色**不是状态色：绿答「它处于什么态」，
+ * 朱答「谁把它按下去的」。故本件只认 `confirmed`——`rejected` 同为人工裁决但不是「落定」，
+ * 驳回留的是退场记录不是钤印；`revision` 尚未终局。
+ *
+ * 只落在详情卡（一次至多一枚），不落列表行：行高 28px 钤不下印，且逐行铺开会把仪式变装饰。
+ * 动效由 `.settle-seal` 的 `--motion-seal` 承载——全站唯一仪式预算处，门锁其唯一性与 reduce 停摆。
+ */
+function SettleSeal({ disposition, itemRef }: { disposition?: ReviewDispositionState; itemRef: string }) {
+  if (disposition !== 'confirmed') return null;
+  return <svg
+    className="settle-seal"
+    data-testid={`settle-seal-${itemRef}`}
+    viewBox="0 0 96 96"
+    aria-hidden="true"
+  ><use href="#mark-seal-frame" /></svg>;
+}
+
 export function StaticViewport({ children, testId }: { children: ReactNode; testId: string }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -376,6 +394,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
         <article className="risk-detail">
           <SignatureLine tone={riskLineTone(props.selectedRisk.level, selectedDisposition, selectedUnverified)} />
           <SettlementFlash kind={selectedSettled} itemRef={props.selectedRisk.id} />
+          <SettleSeal disposition={selectedDisposition} itemRef={props.selectedRisk.id} />
           <header><span className="domain-badge">{props.selectedRisk.id.replace('risk-', 'R')}</span><strong>{selectedGate?.mode === 'individual' ? '逐条确认' : '常规审阅'}</strong><span>{reviewedCount}/{props.selectedRisk.basis.length} 依据已展开</span></header>
           {selectedGate?.reason && <div className="individual-note">{individualNoteCopy(selectedGate.reason === 'high_risk' ? 'high_risk' : 'unverified', BATCH_CONFIRM_VISIBLE)}</div>}
           <p>{props.selectedRisk.description}</p>

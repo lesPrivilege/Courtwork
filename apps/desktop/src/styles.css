@@ -114,6 +114,10 @@
   --motion-overlay: 120ms;
   --motion-reasoning-line: 360ms;
   --motion-overlay-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* 仪式预算（SKIN-B4 奖级 #3）：全站唯一一处比常规交互慢的动效，只供落定章钤下那一帧。
+     它单独立槽而不复用 --motion-settle，是为了让「唯一仪式处」这句话可被机器断言
+     （assert-schema-parts 锁：恰声明一次、恰一处消费、消费者恰为 .settle-seal）。 */
+  --motion-seal: 320ms;
   /* RP-2.5 elevation：SurfaceCard 唯一轻影接口；数据卡仍零投影 */
   --elevation-canvas: var(--bg-app);
   /* 单源律台阶二：竖栏容器（左栏/右栏收敛条）略深于底纸 */
@@ -1269,6 +1273,10 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .risk-status-ledger dt { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .risk-status-ledger dd { margin: 2px 0 0; overflow: hidden; color: var(--text-primary); font-size: var(--type-dense-meta-size); text-overflow: ellipsis; white-space: nowrap; }
 .risk-detail:hover > .signature-line::after { opacity: 1; }
+/* 落定章（SKIN-B4）：人把处置按下去之后留下的印记，钤在详情卡右上。倾角拟手钤（原型自述
+   ±3–5°），是**静态**姿态不是动效——动的只有 opacity 与 scale 两支，四属性白名单内。 */
+.settle-seal { position: absolute; z-index: 1; top: 10px; right: 12px; width: 46px; height: 46px; color: var(--zhu-graphic); opacity: .48; pointer-events: none; animation: seal-press var(--motion-seal) var(--motion-overlay-ease) both; }
+@keyframes seal-press { from { opacity: 0; transform: rotate(-4deg) scale(1.16); } to { opacity: .48; transform: rotate(-4deg) scale(1); } }
 .settle-flash { position: absolute; z-index: 2; inset: 1px; border: 1px solid transparent; border-radius: 4px; pointer-events: none; }
 .settle-flash[data-kind="confirmed"] { --settle-color: var(--green-graphic); }
 .settle-flash[data-kind="rejected"] { --settle-color: var(--slate-graphic); }
@@ -1659,6 +1667,9 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 /* 浏览器态阅读面：视图汇流——文书 15px reading 档（docs/design/typography-density.md） */
 .reader-pane { height: 100%; overflow: auto; padding: 18px 22px; background: var(--bg-raised); font-family: var(--font-body); font-size: var(--type-document-size); line-height: var(--type-document-line-height); }
 .reader-pane h3 { margin: 14px 0 6px; font-family: var(--font-title); font-size: 16px; font-weight: 400; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
+/* SKIN-B4 记号消费面。件库几何一律 currentColor，故色在此给、随宗走——记号不择纸温（C-4）。 */
+.mark { flex: none; display: inline-block; }
+.reader-pane h3 .mark-fishtail { width: 14px; height: 7px; margin-right: 7px; color: var(--text-tertiary); }
 .reader-pane p { margin: 0 0 10px; }
 .reader-focus-anchor { background: var(--verified); color: inherit; border-bottom: 1px solid var(--blue-graphic); scroll-margin-block: 40%; }
 .reader-focus-anchor:focus { outline: 2px solid var(--blue-graphic); outline-offset: 2px; }
@@ -1740,6 +1751,11 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 @media (prefers-reduced-motion: reduce) {
   :is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: none; }
   .case-card .archive-popover { animation: none; transform: none; }
+  /* 仪式可以被完全关掉——全局 .01ms 兜底只是把它压快，显式停摆才是真的不演。
+     印仍在（它是处置留痕，不是动效产物），只是不再钤下来。 */
+  .settle-seal { animation: none; }
+  /* 仪式可以被完全关掉——全局 .01ms 兜底只是把它压快，显式停摆才是真的不演。
+     印仍在（它是处置留痕，不是动效产物），只是不再钤下来。 */
   .file-ops-undo-popover { animation: none; transform: none; }
   .rail-containerize-popover { animation: none; transform: none; }
   .store-chat-popover { animation: none; transform: none; }

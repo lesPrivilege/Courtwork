@@ -99,11 +99,85 @@ for (const file of walk(srcRoot)) {
   }
 }
 
+// ── ④ 消费登记（克制审计的机器形态）────────────────────────────────────────
+// B4 消费半的裁决口径是「指认业务语义，答不出不上」。**不上也要登记**——沉默的未消费件
+// 与沉默的裸线同病（B3「答不出即不换」判例）：不登记就无从复核当初为何不上。
+// 故每枚记号必须**恰占其一**：要么在 src 有 <use href="#id"> 消费点，要么在下表带理由登记。
+// 双向锁：登记为不上的件一旦有人接线 → 红（逼着改登记并过审计）；新件既无消费又未登记 → 红。
+const UNCONSUMED = {
+  'mark-rule': '结构分隔在壳侧已由 B3 的 CSS 文武线全额承担（主界 8 / 次界 105）；'
+    + 'SVG 界行在壳内无独有辖区。唯二 CSS 画不到的面（.view-tabs / .settings-nav 两个滚动容器，'
+    + 'B3 已具名退次界）需加包裹元素，属版式改动，越出记号批。**记号管携语义的标记点，线级管结构分隔**',
+  'mark-emphasis': '壳内「强调」无独立数据信号：可强调之处（高危 / 未核验 / 未落点 / 逐条确认）'
+    + '已分别由语义色与徽章编码，圈点落上去只是同一事实的第二遍编码；'
+    + '而「用户自行圈点」（收藏、标记要处）产品未建模，无数据即无形。**答不出即不上**',
+  'mark-seam': '壳内无文书接缝语义面。唯一同名件 `.rail-seam-toggle` 是右栏折叠控件，'
+    + '非「骑缝以证接缝未被掉包」之义，借形即误用',
+};
+const consumers = new Map([...shellMarks.keys()].map((id) => [id, []]));
+for (const file of walk(srcRoot)) {
+  const text = readFileSync(file, 'utf8');
+  for (const id of shellMarks.keys()) {
+    if (new RegExp(`href=[{"'\`][^"'\`}]*#${id}\\b`).test(text)) consumers.get(id).push(path.relative(root, file));
+  }
+}
+for (const [id, files] of consumers) {
+  const registered = id in UNCONSUMED;
+  if (files.length === 0 && !registered) {
+    failures.push(`记号未消费亦未登记：${id} 既无 <use href="#${id}"> 消费点，也不在未消费登记表内`
+      + '——克制审计的结论无论是上还是不上，都必须留痕');
+  }
+  if (files.length > 0 && registered) {
+    failures.push(`未消费登记已失效：${id} 已被 ${files.join('/')} 消费，请从 UNCONSUMED 移除并补克制审计留痕`);
+  }
+}
+
+// ── ⑤ 朱印前向守卫（同 assert-signature-line 的落定数据律，覆盖记号路径）──────
+// 朱是印记色不是装饰：`line.settled` 那条守卫管色，本条管形。凡消费落定章框廓之处，
+// 其所在文件必须携落定处置数据；且字面 + 计算两条路径同守（承首段判例：字面扫描只是子集）。
+for (const file of consumers.get('mark-seal-frame') ?? []) {
+  const text = readFileSync(path.join(root, file), 'utf8');
+  if (!/confirmed|disposition|settled[A-Z]|resolution/i.test(text)) {
+    failures.push(`落定章未绑落定处置数据：${file} 消费了 mark-seal-frame 却不含任何落定数据态`);
+  }
+}
+
+// ── ⑥ 仪式预算唯一处（奖级 #3 的机器形态）──────────────────────────────────
+// 「全站唯一仪式」若只写在文档里就是无声的乐观。`--motion-seal` 存在的唯一理由是让这句话
+// 可断言：恰声明一次、恰一处消费、消费者恰为落定章，且 reduce 下显式停。
+const cssPath = path.join(root, 'src/styles.css');
+const shellCss = readFileSync(cssPath, 'utf8');
+if (consumers.get('mark-seal-frame')?.length) {
+  const declared = [...shellCss.matchAll(/--motion-seal\s*:/g)].length;
+  if (declared !== 1) failures.push(`仪式预算 --motion-seal 被声明 ${declared} 次（须恰一次）`);
+  const users = [...shellCss.matchAll(/([^{}]+)\{([^}]*var\(--motion-seal\)[^}]*)\}/g)].map((m) => m[1].trim().split('\n').pop().trim());
+  if (users.length !== 1 || !users[0].startsWith('.settle-seal')) {
+    failures.push(`仪式预算非唯一处：var(--motion-seal) 的消费者为 [${users.join(' | ')}]，须恰一条且为 .settle-seal`);
+  }
+  // 花括号配平取 reduce 块（正则截段会把单行块与多行块混读，进而误判「已停摆」）。
+  const reduceScopes = [];
+  for (const open of shellCss.matchAll(/@media\s*\([^)]*prefers-reduced-motion:\s*reduce[^)]*\)\s*\{/g)) {
+    let depth = 1;
+    let cursor = open.index + open[0].length;
+    while (depth > 0 && cursor < shellCss.length) {
+      if (shellCss[cursor] === '{') depth += 1;
+      if (shellCss[cursor] === '}') depth -= 1;
+      cursor += 1;
+    }
+    reduceScopes.push(shellCss.slice(open.index, cursor));
+  }
+  if (!reduceScopes.some((scope) => /\.settle-seal\s*\{[^}]*animation:\s*none/.test(scope))) {
+    failures.push('落定章未在 prefers-reduced-motion 下显式停摆（全局 .01ms 兜底不算——仪式必须可完全关掉）');
+  }
+}
+
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
 }
+const consumed = [...consumers].filter(([, files]) => files.length).map(([id]) => id);
 console.log(
   `SchemaParts 单源门通过：壳侧 ${shellMarks.size} 枚与站面件库逐字相等 · 零字面色（全 currentColor）· 零内联复制`
+  + ` · 消费 ${consumed.length} 枚（${consumed.join('/')}）· 未消费登记 ${Object.keys(UNCONSUMED).length} 枚`
   + (notMigrated.length ? ` · 站面另有未回迁件 ${notMigrated.join('/')}（登记非缺陷）` : ''),
 );

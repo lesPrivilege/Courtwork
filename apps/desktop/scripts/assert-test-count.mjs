@@ -43,7 +43,10 @@ const count = match ? Number(match[1]) : 0;
 // SKIN-B3（线级批，第三轮 rebase 收口）：主界文武线两线俱在且粗于次界 + 线重不入 transition 兜底 +2
 // （rp210 轻卡 border 字面值断言改关系式为原地升级，不计新用例）。B3 立批时基线 297→299；
 // 现基线已为 B2 全批之后的 305，故并发只升点在此合流为 305 + 2 = 307。数字由 --list 实跑核。
-const minimum = 307;
+// SKIN-B4（记号批）：C-4 可验半（记号色随宗 + 阴性对照）/ C-4 前向红卫（themes.dark 未上身）/
+// 落定章双向锁（未处置·驳回无印，确认才钤）/ 仪式 reduce 计算态停摆 +4 → 311。
+// 批删三死选择器同批清掉的两条 `.statusbar` 否定断言是 expect 行而非用例，故不抵扣。
+const minimum = 311;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
