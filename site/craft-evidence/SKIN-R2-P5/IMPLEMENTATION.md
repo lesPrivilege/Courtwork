@@ -64,3 +64,20 @@
 新增概念仅两枚平铺门 `p5-font-coverage` / `p5-data-static` 与一枚按需 runtime 断言脚本；零新 npm
 依赖、零状态机、零持久化格式、零通用字体抽象。新资产只有一枚 6,872-byte 子集、其 manifest 与
 许可证证据。触碰面未发现可安全退役的既有抽象；F06–F08 已依签署正式退场，不以顺手清理复活。
+
+## 独立验收拒绝后的 P5-F10 定点修复
+
+独立验收 `26b42eb` 证明首版闭集只守直接 `font-family`：把写本 family 塞入 `:root --sans`
+即可经 `body { font-family:var(--sans) }` 复活已退 P5-F06，而 deslop 错误放过。修复仍在获签
+`P5-F10` 范围内，不增新档位行、不改消费值。
+
+- 红测先加入 `--sans`、任意自定义字槽与 OG 自定义字槽三种间接传播，旧门 **0/1** 精确失败。
+- 最小修复只扩既有平铺遍历：除 `@font-face` 外，任何声明值出现写本 family 时，只有四个获签
+  选择器的直接 `font-family` 合法；family 藏入自定义属性即定点红。没有递归变量解析器、状态机
+  或通用字体治理抽象。
+- 实仓把 family 前插 `--sans` 后，完整 deslop 精确报
+  `site/styles.css has the manuscript face in an indirect font slot: :root --sans`；反向补丁复原后
+  product CSS 字节无 diff。定点三用例与完整 deslop 随即复绿。
+- 修复 tip 自检：`site:guard` **68/68**、根 Vitest **148 files / 1261 tests**、`pnpm lint`、
+  `pnpm -r build`（13/14 workspace）与 `site:build` 全绿。
+- 本节只构成实现修复证据；原拒绝报告保留，新 clean clone 须重新放行 P5。

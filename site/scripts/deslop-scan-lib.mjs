@@ -715,8 +715,12 @@ export function checkP5FontCoverage({ html, css, ogHtml, manifest, sourceRecord,
   const auditConsumers = (source, file, approved) => {
     const seen = new Set();
     for (const declaration of parseCss(source)) {
-      if (declaration.property !== 'font-family' || !declaration.value.includes(family)) continue;
       if (declaration.selector === '@font-face') continue;
+      if (!normalizeCssValue(declaration.value).includes(family.toLowerCase())) continue;
+      if (declaration.property !== 'font-family') {
+        fail(`${file} has the manuscript face in an indirect font slot: ${declaration.selector} ${declaration.property}`);
+        continue;
+      }
       for (const selector of declaration.selector.split(',').map(normalizeSelector)) {
         if (!approved.has(selector)) fail(`${file} has an unapproved manuscript consumer: ${selector}`);
         else seen.add(selector);

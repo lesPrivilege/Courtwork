@@ -534,3 +534,11 @@ craft-evidence B7 节与 `noto/` `zhuque/` `juzhen-rejected/` 三个快照目录
 本单新增两枚平铺机器门与一枚按需 runtime 断言；零新依赖、状态机、持久化、通用字体抽象或
 跨层接口。字体资产仅增一枚精确子集及其 manifest/许可证据。实现者不自验收，后续只接受独立
 clean clone 的验收报告；本批不 push、不部署。
+
+### P5-F10 独立验收拒绝与修复
+
+首轮独立验收在 `9a1281b` 复活退场行 P5-F06：写本 family 经 `:root --sans` 间接扩散到 body，
+旧 `p5-font-coverage` 仍绿，故报告 `26b42eb` 正确拒绝 P5。修复先加入三种自定义字槽传播红测，
+再把既有闭集扫描补到声明值层：除 `@font-face` 外，写本 family 只准作为四个获签选择器的直接
+`font-family`；出现在 `--sans`、任意自定义属性或 OG 字槽均定点红。实仓 `--sans` mutation 已
+由完整 deslop 捕获并复原。零消费值、字体资产、HTML、账行或新抽象变化；等待新的独立验收。

@@ -607,6 +607,18 @@ test('SKIN-R2-P5 font coverage binds source, bytes, cmap, glyphs, and only four 
   assert.ok(p5FontRules({ ogHtml: GOOD_P5_OG.replace('.wordmark { font-family', '.wordmark { color: inherit; } .other { font-family') }).includes('p5-font-coverage'));
 });
 
+test('SKIN-R2-P5 rejects manuscript family propagation through custom font slots', () => {
+  assert.ok(p5FontRules({
+    css: `:root { --sans: "Courtwork Manuscript Latin", sans-serif; }\n${GOOD_P5_CSS}`,
+  }).includes('p5-font-coverage'));
+  assert.ok(p5FontRules({
+    css: `:root { --brand-face: "Courtwork Manuscript Latin"; }\nbody { font-family: var(--brand-face); }\n${GOOD_P5_CSS}`,
+  }).includes('p5-font-coverage'));
+  assert.ok(p5FontRules({
+    ogHtml: GOOD_P5_OG.replace('<style>', '<style>:root { --og-body: "Courtwork Manuscript Latin"; } body { font-family: var(--og-body); }'),
+  }).includes('p5-font-coverage'));
+});
+
 test('SKIN-R2-P5 data-static rejects character, mono, and motion drift', () => {
   const html = String.raw`<strong class="mono" data-fixture-count="dossier-materials">20</strong><article data-pm-finding-id="prd-finding-05"><span data-pm-defect-label>冲突需求</span><span data-pm-disposition>待确认</span></article>`;
   const css = ':root { --mono: ui-monospace, "SF Mono", Menlo, monospace; }';
