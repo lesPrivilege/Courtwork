@@ -1,6 +1,6 @@
 # SKIN-R2-OVERFLOW-1 · 首行与 composer 溢出证据
 
-状态：实现侧后帧；待独立验收。
+状态：两轮独立几何复核成立；随 VERSIONAL-LANG-1 二轮复验放行。
 
 权威签署投影：`../SKIN-R2-P2/OVERFLOW-SIGNATURE.md`
 
@@ -28,5 +28,18 @@
 
 ## 边界
 
-产品壳按中间档修正。零新色、字体、字重、阴影、圆角、状态、持久化或交互；Pages 截图不在本小批
-提前替换，待 VERSIONAL-LANG-1 与两轮独立验收全部结束后重摄，避免把过渡帧写成发布真值。
+产品壳按中间档修正。零新色、字体、字重、阴影、圆角、状态、持久化或交互；Pages 截图没有在本
+小批提前替换，而是在 VERSIONAL-LANG-1 二轮复验放行后由 `SITE-SHOTS-VERSIONAL-1` 重摄。
+
+## 独立复核与终态
+
+`VERSIONAL-LANG-1` 的两个 fresh clone 都从包含本修正的 `01e7458` 之后建树，并完整运行
+P2-L19/L20、1180/1280/1440/1600/2400、比较／收栏与 composer 矩阵。首轮整体因另一项
+focus 守卫假绿而拒绝，但本两条几何未复现；第二轮在 `b93796a` 上以 321/321 desktop e2e、
+真实 Tauri/WKWebView 与 native AX focus 放行。报告分别为
+`../VERSIONAL-LANG-1/acceptance-45fb395/README.md` 与
+`../VERSIONAL-LANG-1/reacceptance-b93796a/README.md`。
+
+最终 `main@f5a2af9` 又在独立端口 `19821` 定向实跑 `p2-layout.spec.ts + rp25.spec.ts`：
+**14/14**。其中 P2-L19 精确要求 `titleLeft ≥ chromeRight + 8`；P2-L20 精确要求 disclaimer
+左右界均留在 composer/conversation 内且 `scrollWidth ≤ clientWidth + 1`。这次复核不改消费值。
