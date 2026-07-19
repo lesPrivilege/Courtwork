@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Courtwork">
-  <g fill="none" stroke="#E4E9F1" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M8 5v14"/>
-    <path d="M11.5 8H18"/>
-    <path d="M11.5 12H18"/>
-    <path d="M11.5 16h4"/>
+  <g fill="#E4E9F1">
+    <rect x="5.5" y="5" width="3" height="14" rx="1.5"/>
+    <rect x="11" y="6" width="7.5" height="2.5" rx="1.25"/>
+    <rect x="11" y="10.75" width="7.5" height="2.5" rx="1.25"/>
+    <rect x="11" y="15.5" width="5" height="2.5" rx="1.25"/>
   </g>
 </svg>

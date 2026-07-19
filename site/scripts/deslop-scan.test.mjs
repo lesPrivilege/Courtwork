@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkColorGrammar, checkDemoMotion, checkDisplayFont, checkSchemaParts, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkSchemaParts, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -251,6 +251,70 @@ const GOOD_DEMO_CSS = String.raw`
   .schema-demo * { animation: none; }
 }
 `;
+
+// P0 驳回判例：**分支在场 ≠ 分支胜出**。旧门只查 reduce 分支字面串在不在，
+// 而更高特异性的消费点会把它压掉——覆盖类断言必须解析层叠，不能查字面。
+const REDUCE_DEMO_CSS = String.raw`
+.demo-basis { animation: demo-attn-a 12s linear infinite; }
+.demo-actions span { animation: demo-zhu-b 12s linear infinite; }
+@keyframes demo-attn-a { 5% { background-color: transparent; } }
+@keyframes demo-zhu-b { 38% { border-color: transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  .schema-demo *, .schema-demo *::before, .schema-demo *::after { animation: none !important; }
+}
+`;
+const demoRules = (css) => checkDemoMotion(css).map((failure) => failure.rule);
+
+test('SITE-CRAFT-2 reduced-motion assertion resolves the cascade, not literal presence', () => {
+  assert.deepEqual(demoRules(REDUCE_DEMO_CSS), []);
+  // 分支在场但特异性输给 `.demo-actions span`(0,1,1) → 旧门全绿、新门触红（这正是 P0 缺陷本体）。
+  const outranked = REDUCE_DEMO_CSS.replace(
+    '.schema-demo *, .schema-demo *::before, .schema-demo *::after { animation: none !important; }',
+    '.schema-demo * { animation: none; }');
+  assert.ok(/\.schema-demo \* \{ animation: none; \}/.test(outranked), '反例里 reduce 分支确实字面在场');
+  assert.ok(demoRules(outranked).includes('demo-motion'));
+  // 同特异性时后写者胜，`.demo-basis`(0,1,0) 不应被误报——门要精确，不能一律喊红。
+  assert.ok(!checkDemoMotion(outranked).some((f) => f.message.includes('.demo-basis')));
+  // reduce 分支整块缺席 → 触红。
+  assert.ok(demoRules(REDUCE_DEMO_CSS.replace(/@media \(prefers-reduced-motion: reduce\)[\s\S]*$/, '')).includes('demo-motion'));
+});
+
+// P1 驳回判例：manifest 有「清单↔字节」双锚而出处记录裸奔＝族内漏铺；立门要以族为单位铺满。
+test('SITE-CRAFT-2 font provenance keeps SOURCE.md anchored to the built bytes', () => {
+  const record = (source) => [{ sourcePath: 'zhuque/SOURCE.md', source,
+    artifacts: [{ file: 'a.woff2', sha256: 'a'.repeat(64) }, { file: 'b.woff2', sha256: 'b'.repeat(64) }] }];
+  const provRules = (source) => checkFontProvenance(record(source)).map((failure) => failure.rule);
+  assert.deepEqual(provRules(`a.woff2 ${'a'.repeat(64)} b.woff2 ${'b'.repeat(64)}`), []);
+  // 子集扩容而 SOURCE.md 未随动（P1 缺陷本体）→ 触红。
+  assert.ok(provRules(`a.woff2 ${'c'.repeat(64)} b.woff2 ${'b'.repeat(64)}`).includes('font-provenance'));
+  // 新制品根本没进出处记录 → 触红。
+  assert.ok(provRules(`a.woff2 ${'a'.repeat(64)}`).includes('font-provenance'));
+  // 出处记录整块缺席 → 触红。
+  assert.ok(provRules('').includes('font-provenance'));
+});
+
+// P1 驳回判例：「一致性闭合」的口径是几何 + 单源，只换描边色不算闭合；
+// 且门不能锁死字面几何——那只是把硬编码换个位置，须从 master 现算比例。
+const MASTER_SVG = String.raw`<svg viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="116"/>
+  <rect x="148" y="124" width="56" height="264" rx="10"/>
+  <rect x="252" y="140" width="140" height="48" rx="14"/>
+  <rect x="252" y="232" width="140" height="48" rx="14"/>
+  <rect x="252" y="324" width="96" height="48" rx="14"/>
+</svg>`;
+const lineageRules = (variant, master = MASTER_SVG) =>
+  checkBrandLineage({ master, variant }).map((failure) => failure.rule);
+
+test('SITE-CRAFT-2 site brand mark is a registered variant re-derived from the master', () => {
+  const variant = readFileSync(new URL('site/assets/icon.svg', repoRoot), 'utf8');
+  assert.deepEqual(lineageRules(variant), []);
+  // 旧线标重上色（P1③ 缺陷本体）：零 rect，不是 5/6-rect 体系的变体 → 触红。
+  assert.ok(lineageRules('<svg viewBox="0 0 24 24"><g stroke="#E4E9F1"><path d="M8 5v14"/></g></svg>').includes('brand-lineage'));
+  // 比例脱钩：文书行三拉成等宽，长/长/短母题丢失 → 触红。
+  assert.ok(lineageRules(variant.replace('width="5" height="2.5"', 'width="7.5" height="2.5"')).includes('brand-lineage'));
+  // 单源真绑定：master 改了而变体不跟 → 触红（证明不是又一处硬编码）。
+  assert.ok(lineageRules(variant, MASTER_SVG.replace('width="96"', 'width="140"')).includes('brand-lineage'));
+});
 
 test('SITE-CRAFT-2 hero demo keyframes stay inside the attention property whitelist', () => {
   assert.deepEqual(checkDemoMotion(GOOD_DEMO_CSS).map((failure) => failure.rule), []);

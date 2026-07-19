@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { checkColorGrammar, checkDemoMotion, checkDisplayFont, checkSchemaParts, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkSchemaParts, scanSources } from './deslop-scan-lib.mjs';
 import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
@@ -61,10 +61,22 @@ const settleSeal = html.match(/<svg class="settle-seal[\s\S]*?<\/svg>/)?.[0];
 if (settleSeal && (settleSeal.replace(/<[^>]*>/g, '').replace(/\s/g, '') !== '不改原件' || !html.includes('<dt class="zh-display">不改原件</dt>'))) {
   failures.push('site/index.html: settle seal must mirror the first covenant 不改原件');
 }
-if (!/viewBox="0 0 24 24"/.test(icon) || /<(?:rect|circle|ellipse|polygon)\b/.test(icon)) failures.push('site/assets/icon.svg: wordmark mark must be core path geometry without a base');
-if ((icon.match(/<path\b/g) ?? []).length !== 4) failures.push('site/assets/icon.svg: core brand geometry must contain four paths');
-const brandPaths = [...icon.matchAll(/<path d="([^"]+)"\/>/g)].map((match) => match[1]);
-if (JSON.stringify(brandPaths) !== JSON.stringify(['M8 5v14', 'M11.5 8H18', 'M11.5 12H18', 'M11.5 16h4'])) failures.push('site/assets/icon.svg: core brand geometry drifted from the line + long/long/short document motif');
+// 品牌记号谱系（P1 回炉）：site 小记号是壳侧 512 master 的登记变体，几何比例从 master 现算，
+// 不再锁死字面路径——锁字面只是把硬编码换个位置，master 一改变体照样能悄悄脱钩。
+if (!/viewBox="0 0 24 24"/.test(icon)) failures.push('site/assets/icon.svg: wordmark variant must stay on the 24 grid');
+if (/<rect[^>]*\brx="1[0-9][0-9]"/.test(icon) || /<(?:circle|ellipse|polygon)\b/.test(icon)) {
+  failures.push('site/assets/icon.svg: wordmark takes the core geometry only — no plate, no new primitives');
+}
+for (const failure of checkBrandLineage({
+  master: readFileSync(resolve('docs/design/icon-dark.svg'), 'utf8'),
+  variant: icon,
+})) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+}
+// og 卡的记号必须是同一枚 SVG 的单源消费，不得手写 CSS 复刻（复刻＝第二份几何真源）。
+if (!/<img[^>]*src="assets\/icon\.svg"[^>]*class="mark-art"|<img[^>]*class="mark-art"[^>]*src="assets\/icon\.svg"/.test(sources['site/og.html'])) {
+  failures.push('site/og.html: brand mark must consume assets/icon.svg as a single source, not a hand-drawn CSS replica');
+}
 
 const firstRisk = riskFixture.risks?.[0];
 const sourceAnchor = firstRisk?.basis?.[0]?.sourceAnchors?.[0];
@@ -110,6 +122,23 @@ for (const track of fontTracks) {
 // 标题轨 Bold 字节单独锚定（清单 weights.700），否则换了 Bold 子集不会被发现。
 if (sha256('site/assets/fonts/noto-serif-sc-bold-subset.woff2') !== notoManifest.weights['700'].woff2Sha256) {
   failures.push('[display-font] site/assets/fonts/noto-subset.json:1 bold subset bytes drifted from weights.700 anchor');
+}
+// 出处链：每一枚入库子集的实测字节都必须在其 SOURCE.md 里逐字登记（按族铺满，不留裸奔的一侧）。
+const provenanceOf = (path) => { try { return readFileSync(resolve(path), 'utf8'); } catch { return ''; } };
+const artifact = (file) => ({ file, sha256: sha256(`site/assets/fonts/${file}`) });
+for (const failure of checkFontProvenance([
+  {
+    sourcePath: 'site/craft-evidence/SITE-CRAFT-2/zhuque/SOURCE.md',
+    source: provenanceOf('site/craft-evidence/SITE-CRAFT-2/zhuque/SOURCE.md'),
+    artifacts: [artifact('zhuque-fangsong-subset.woff2'), artifact('doc-latin-subset.woff2')],
+  },
+  {
+    sourcePath: 'site/craft-evidence/SITE-CRAFT-2/noto/SOURCE.md',
+    source: provenanceOf('site/craft-evidence/SITE-CRAFT-2/noto/SOURCE.md'),
+    artifacts: [artifact('noto-serif-sc-regular-subset.woff2'), artifact('noto-serif-sc-bold-subset.woff2')],
+  },
+])) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
 }
 for (const failure of checkDemoMotion(css)) {
   failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);

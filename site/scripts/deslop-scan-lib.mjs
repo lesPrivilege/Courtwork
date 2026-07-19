@@ -584,7 +584,7 @@ function scanSvg(file, content, failures) {
     // site 品牌标（B1 分治裁定③ 的品牌一致性挂账，本批闭合）：几何四路径一字不动，
     // 只把描边从迁移前旧板（210° 锚）换到磁青宗的墨色阶——站面是深底，标记随之取
     // themes.dark 的正文墨。壳侧 docs/design/icon-*.svg 各自绑本宗，三件同锚同源。
-    ['site/assets/icon.svg|g|1|stroke', tokenAt('themes.dark.text.primary.value')],
+    ['site/assets/icon.svg|g|1|fill', tokenAt('themes.dark.text.primary.value')],
     ['docs/design/icon-dark.svg|rect|1|fill', tokenAt('color.text.primary.value')],
     ['docs/design/icon-dark.svg|rect|2|fill', tokenAt('color.bg.app.value')],
     ['docs/design/icon-dark.svg|rect|3|fill', tokenAt('color.text.tertiary.value')],
@@ -680,13 +680,135 @@ export function checkDemoMotion(css) {
     }
   }
   if (hasDemo) {
-    let blanket = false;
-    for (const media of source.matchAll(/@media \(prefers-reduced-motion: reduce\)\s*\{/g)) {
-      const open = source.indexOf('{', media.index);
-      const close = matchingBrace(source, open, source.length);
-      if (source.slice(open + 1, close).includes('.schema-demo * { animation: none; }')) blanket = true;
+    // 判例（P0 驳回）：**分支在场 ≠ 分支胜出**。旧实现只查 reduce 分支的字面串在不在，
+    // 而 `.demo-actions span`(0,1,1) 特异性高于 blanket `.schema-demo *`(0,1,0)，
+    // 于是 reduce 下朱照常走完幕二，字面锁却全绿。字面存在自此降格为线索，
+    // 真断言改为**层叠解析**：blanket 必须真的赢过每一个演示内的 animation 消费点。
+    const declarations = parseCss(source);
+    const isReduce = (entry) => entry.context.some((c) => c.includes('prefers-reduced-motion: reduce'));
+    const blankets = declarations.filter((entry) => isReduce(entry)
+      && entry.property === 'animation'
+      && /^none\b/.test(normalizeCssValue(entry.value))
+      && /\.schema-demo\s+\*/.test(entry.selector));
+    if (!blankets.length) {
+      fail('hero demo needs a `.schema-demo *` animation:none branch inside prefers-reduced-motion: reduce');
     }
-    if (!blanket) fail('hero demo needs the exact `.schema-demo * { animation: none; }` reduced-motion branch');
+    const consumers = declarations.filter((entry) => !isReduce(entry)
+      && (entry.property === 'animation' || entry.property === 'animation-name')
+      && !/^none\b/.test(normalizeCssValue(entry.value))
+      && /demo-/.test(entry.value));
+    for (const consumer of consumers) {
+      const beaten = blankets.some((blanket) => {
+        const blanketImportant = /!important/.test(blanket.value);
+        const consumerImportant = /!important/.test(consumer.value);
+        if (blanketImportant !== consumerImportant) return blanketImportant;
+        const rank = specificity(blanket.selector);
+        const other = specificity(consumer.selector);
+        if (rank[0] !== other[0]) return rank[0] > other[0];
+        if (rank[1] !== other[1]) return rank[1] > other[1];
+        if (rank[2] !== other[2]) return rank[2] > other[2];
+        return blanket.line > consumer.line; // 同特异性时后写者胜
+      });
+      if (!beaten) {
+        fail(`reduced-motion blanket loses to \`${consumer.selector}\` (${consumer.value.trim()}); the branch is present but does not win`);
+      }
+    }
+  }
+  return failures;
+}
+
+// CSS 特异性 (a,b,c)：a=ID，b=类/属性/伪类，c=类型/伪元素；`*` 计 0。
+// 只用于判断 reduce blanket 与消费点谁胜，故按最坏分支（逗号组里最高的一支）取值。
+function specificity(selector) {
+  let best = [0, 0, 0];
+  for (const branch of selector.split(',')) {
+    const clean = branch.replace(/::?[a-z-]+\([^)]*\)/gi, (m) => m.replace(/[^,]/g, 'x'));
+    const a = (clean.match(/#[\w-]+/g) ?? []).length;
+    const b = (clean.match(/\.[\w-]+|\[[^\]]*\]|:(?!:)[\w-]+/g) ?? []).length;
+    const c = (clean.match(/(?:^|[\s>+~])(?![.#:[*])[a-z][\w-]*|::[\w-]+/gi) ?? []).length;
+    if (a > best[0] || (a === best[0] && (b > best[1] || (b === best[1] && c > best[2])))) best = [a, b, c];
+  }
+  return best;
+}
+
+// SITE-CRAFT-2 · 品牌记号谱系单源门（P1 驳回回炉）。
+// 裁定：壳侧 512 源稿为 master，site 小记号必须是 master 设计语言的**登记变体**——
+// 从 5/6-rect 体系重推导，而非旧线标重上色。「一致性闭合」的宣称必须与裁定口径同粒度
+// （几何 + 单源，非仅色）。故本门不锁死字面几何（那只是把另一个硬编码换个位置），
+// 而是**从 master 现算比例**再核变体：master 改了，变体不跟就红，这才叫单源。
+const rectPattern = /<rect\b[^>]*>/g;
+const attr = (tag, name) => {
+  const hit = tag.match(new RegExp(`\\b${name}="([^"]*)"`));
+  return hit ? Number.parseFloat(hit[1]) : Number.NaN;
+};
+
+function contentRects(svg) {
+  const rects = [...svg.matchAll(rectPattern)].map((m) => ({
+    x: attr(m[0], 'x') || 0, y: attr(m[0], 'y') || 0,
+    w: attr(m[0], 'width'), h: attr(m[0], 'height'),
+  })).filter((r) => Number.isFinite(r.w) && Number.isFinite(r.h));
+  const viewBox = svg.match(/viewBox="([^"]+)"/)?.[1]?.trim().split(/\s+/).map(Number) ?? [0, 0, 0, 0];
+  // 剔除满幅底盘（应用图标保留方形底盘，wordmark 不要——icon.md 既有规则）
+  return rects.filter((r) => !(r.w >= viewBox[2] * 0.98 && r.h >= viewBox[3] * 0.98));
+}
+
+function normalise(rects) {
+  const x0 = Math.min(...rects.map((r) => r.x));
+  const y0 = Math.min(...rects.map((r) => r.y));
+  const x1 = Math.max(...rects.map((r) => r.x + r.w));
+  const y1 = Math.max(...rects.map((r) => r.y + r.h));
+  const w = x1 - x0;
+  const h = y1 - y0;
+  return rects.map((r) => [(r.x - x0) / w, (r.y - y0) / h, r.w / w, r.h / h]);
+}
+
+export function checkBrandLineage({ master, variant, tolerance = 0.03 }) {
+  const failures = [];
+  const fail = (message) => push(failures, 'brand-lineage', 'site/assets/icon.svg', 1, message);
+  const masterRects = contentRects(master);
+  const variantRects = contentRects(variant);
+  if (masterRects.length !== 4) {
+    fail(`master content geometry should be the 4-rect 线+文 motif, found ${masterRects.length}`);
+    return failures;
+  }
+  if (variantRects.length !== masterRects.length) {
+    fail(`site mark must re-derive the master's ${masterRects.length}-rect system, found ${variantRects.length} rect(s)`
+      + ' — a recoloured line mark is not a registered variant');
+    return failures;
+  }
+  const a = normalise(masterRects);
+  const b = normalise(variantRects);
+  const label = ['竖线', '文书行一', '文书行二', '文书行三'];
+  for (let i = 0; i < a.length; i += 1) {
+    for (let k = 0; k < 4; k += 1) {
+      const delta = Math.abs(a[i][k] - b[i][k]);
+      if (delta > tolerance) {
+        fail(`${label[i]} drifted from the master proportions (${['x', 'y', 'w', 'h'][k]}: `
+          + `${a[i][k].toFixed(3)} vs ${b[i][k].toFixed(3)}, Δ${delta.toFixed(3)} > ${tolerance})`);
+      }
+    }
+  }
+  return failures;
+}
+
+// SITE-CRAFT-2 · 出处链闭合门（P1 驳回回炉）。
+// manifest 侧早有「清单 ↔ 字节」双锚，出处记录（craft-evidence 的 SOURCE.md）侧却裸奔——
+// 于是 37 字子集扩容到 104 字时 SOURCE.md 未随动，快照—来源—制品链断了一环而无人察觉。
+// 教训是「机制不对称」：**立门以族为单位铺满**，不是哪里出事补哪里。故本门按族铺满：
+// 每一枚入库 woff2 的实测 SHA，都必须在其出处记录里逐字登记；出处漂移即红。
+export function checkFontProvenance(records) {
+  const failures = [];
+  for (const record of records) {
+    const fail = (message) => push(failures, 'font-provenance', record.sourcePath, 1, message);
+    if (!record.source) { fail('provenance record is missing'); continue; }
+    for (const artifact of record.artifacts) {
+      const mentioned = record.source.includes(artifact.file);
+      const anchored = record.source.includes(artifact.sha256);
+      if (!mentioned) fail(`artifact is absent from the provenance record: ${artifact.file}`);
+      else if (!anchored) {
+        fail(`provenance SHA drifted for ${artifact.file}; record does not carry the built bytes (${artifact.sha256.slice(0, 16)}…)`);
+      }
+    }
   }
   return failures;
 }

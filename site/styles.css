@@ -452,5 +452,8 @@ footer p { margin: 0; }
   .evidence-step::before { background: var(--text-primary); }
   .evidence-step[data-stage="conclusion"]::before { background: var(--red-fg); }
   /* 微演示定格全景：注意力循环整体全灭，信息因数据恒静而完整。 */
-  .schema-demo * { animation: none; }
+  /* 归零必须**赢过**任何更高特异性的消费点，否则只是「分支在场」而非「分支胜出」：
+     `.demo-actions span`(0,1,1) 曾压过本行的 `.schema-demo *`(0,1,0)，令朱在 reduce 下照常
+     走完幕二而无人察觉。blanket 归零用 !important 才是真归零。 */
+  .schema-demo *, .schema-demo *::before, .schema-demo *::after { animation: none !important; }
 }
