@@ -3366,3 +3366,44 @@ floor 註記核對：`assert-test-count.mjs` 註解鏈precisely 記錄 `290 → 
 floor 註記核對：`assert-test-count.mjs` 注釋鏈為兩單並發只升點的合併寫法（跟隨既有 `READER 與 PILOT-LIVE-2 並發只升點` 先例句式），`const minimum = 297;` 與實跑 `--list` 總數逐位元組相符，無漂移。
 
 **合併樹本身的驗收範圍聲明**：本合併樹僅用於取得兩單真實並集下的全量門結果，其產生的合併提交 `b2a1210` 不代表任何新工單的實現，不單獨放行/駁回；兩單的裁決分別見上方各自條目。
+
+---
+
+# ACCEPTANCE: SKIN-B2-1 · 排印置換批
+
+日期：2026-07-19；對象：`impl/skin-b2-1 @ 88aba1a30323cf47449b31d3432b60be98309f02`（`d59e9dd → 9196a07 → 88aba1a`），原基線 `2401e47`。本會話以 `git clone --local` 建立獨立乾淨驗收樹，未在共享樹 checkout、未改實作、未推送。另以 `main @ 15049cd0a410d56a4624c10a92ed35b617529a60` 進行 trial merge：`git merge-tree --write-tree` 為 exit 0，合併樹 `b6ad28acb565cb44e9bcf555af7b467a03e5ad60`，衝突數 **0**；再以獨立暫存 clone 落地 `--no-commit --no-ff` 合併態實跑。
+
+**裁決：✅ 放行 SKIN-B2-1。**
+
+## 1. 置換清單與別名契約（紅證親手重放）
+
+- 原基線在清空 `PENDING_MIGRATION` 的只讀記憶體探針下，精確轉紅兩條：`src/styles.css` 的 Songti 原型棧與 `src/icons/icon-audit.css` 的 UI 基棧；將兩條舊清單帶回即綠。候選 `88aba1a` 的空清單下全域掃描為 **0**，完成「清單即進度條」閉合。
+- 三件 `@font-face` 與 `subset-manifest.json` 逐件對上（朱雀 400、思源 SC 400、思源 SC 600，且每件 `src` 指向正確 woff2）。把 400 的 CSS 別名改回內名 `Source Han Serif CN`，門報缺 SC/400；刪除 SemiBold 的獨立 600 face，門報缺 SC/600。兩個靜默系統衬線穿透陷阱均確實轉紅。
+
+## 2. 真渲、光學與改寫斷言
+
+獨立埠 `15478` 跑 `typography-consume`、`typography`、`rp23-responsive`：**12/12 passed**。另以瀏覽器計算態探針重放：文書為 **16px / 28px (=1.75)**、章節題 **400**、welcome **600**；三 face 的 `document.fonts.check` 全 true；整個文書字棧十數字均為 10px，朱雀單體陰性對照為 7.08–10.66px，確證 Times 配衬確實接手。
+
+- `text-autospace: normal`：232.91px → **236.91px（+4px）**；偽值陰性對照仍為 232.91px。
+- `text-spacing-trim`：base / `trim-start` / `trim-both` / `space-all` 皆為 **232.91px**，拒裝依據成立。
+- `CSS.supports('hanging-punctuation','allow-end') === false`；SPEC/證據已將 WebKit 真機效果列為待真機清單，未把引擎限制冒充已驗。
+- RP-2.9：候選為零裸衬線 consumer；記憶體注入 `font-family: Georgia, "Songti SC", serif` 後 raw 與 stray 各命中 1，確實轉紅。RP-2.3 1440px 關係斷言實跑（文書 computed 值關聯 :root 的 document track，非硬編碼空轉）通過；`typography.spec.ts` 亦確認預熱只將真實 `var(--font-*)` 元素放入渲染樹，零 `new FontFace` 手工注入。
+
+## 3. 紅線與原基線全量門
+
+`2401e47..88aba1a` 核對：`docs/design/tokens.json`、`docs/status/current.md`、所有 `apps/desktop/src/**/*.tsx` 均為零 diff；`styles.css` 零新增/刪除 raw hex/rgb/hsl 色值。前後四張文書證據圖人工比對，確認朱雀正文、思源章題與 Times 拉丁數字均上身，深宗只讀探針沒有改變字軌。
+
+| 門 | 結果 |
+|---|---|
+| `pnpm -r build` | PASS |
+| `pnpm lint` | PASS |
+| 根 `pnpm test` | **148 files / 1261 tests passed** |
+| `assert-typography` / RP-2.9 / test floor | PASS；floor **305** |
+| `site:guard` | **52/52** PASS |
+| 完整 `pnpm test:e2e`（獨立埠 15480） | 靜態鏈全綠，**305/305 passed（3.7m）** |
+
+## 4. main 合併態實跑
+
+在 trial merge 暫存 clone（未提交）中：`pnpm install --offline --frozen-lockfile`、`pnpm -r build`、`pnpm site:guard` 全通過；site 靜態測試 **52/52**。合併態 `assert-typography` 和 305-floor 均綠；獨立埠 `15481` 跑真渲四軌譜 **4/4 passed**（文書 16/1.75、三件別名、數字齊寬、光學與 hanging 掛賬）。故 `main @ 15049cd` 與本批不存在可觀測的合併態回退。
+
+本會話僅追加此驗收紀錄；未部署，亦未將視覺終審或 Pages 驗收冒充為本單已完成。
