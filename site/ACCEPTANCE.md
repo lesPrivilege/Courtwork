@@ -749,3 +749,24 @@ glyph/cmap/SOURCE/OFL 漂移、数据字、`--mono`、数据 motion、reduced-mo
 
 本放行只关闭 P5 写本拉丁表达轨及 `P5-F10` 两轮拒绝项；不扩大为系统 UI 字体全量覆盖，不撤回
 F06–F08 退场，不替代后续 Pages 部署授权。未 push、未部署、未更新能力状态真源。
+
+---
+
+## VERSIONAL-LANG-1-ACCEPT-1 · 独立验收（2026-07-20）— ❌ 拒绝
+
+- **对象与隔离**：`45fb39510902b7b7a99eb0792024328bc27672df`；fresh clone
+  `/tmp/courtwork-vl1-acceptance.gxZovW/repo`，独立端口 `19521–19522`、`19623`、`19536`；未改
+  实现、契约或机器门，未 push。
+- **阻断**：把活动 `.composer-shell:focus-within` 的 `border-color` 改为 `transparent` 后，完整
+  `site:guard` 仍 76/76，VERSIONAL-LANG e2e 仍 4/4。签署 `VL-L05` 的 focus 反馈因此没有可
+  执行的前向守卫，不能以当前样本全绿代替契约成立。
+- **其余红证**：20 行 VL 账缺行／错档／双绑定、11 routine 与旧 P1 分类复活、composer／preview／
+  ledger／Settings 强界删除、schema 新装饰、Pages proof 竖线／刊记 anchor／四边眉批、字体与 raw
+  color 逃逸均真实注入并红；精确复位后实现树零 diff。
+- **全门与实机**：lint、148 files / 1261 root tests、13 workspace build、site guard 76/76、site
+  build、独立端口 desktop e2e 321/321 均绿；真实 Tauri/WKWebView 新摄 1600×900 暗宗首行、侧栏
+  与 composer 帧，当前消费无可见横向溢出。
+
+完整报告与截图：
+[`craft-evidence/VERSIONAL-LANG-1/acceptance-45fb395/README.md`](craft-evidence/VERSIONAL-LANG-1/acceptance-45fb395/README.md)。
+补上 focus 非透明 token 静态门及聚焦前后 computed 差异断言后，须由新的独立会话复验修复 SHA。
