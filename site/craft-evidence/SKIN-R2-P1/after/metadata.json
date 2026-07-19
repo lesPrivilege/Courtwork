@@ -1,0 +1,90 @@
+{
+  "capturedAt": "2026-07-19T22:58:33+08:00",
+  "head": "f6f294857827524bd203f8dd11ab007f72c05f96",
+  "worktreeState": "uncommitted P1 CSS consumption implementation",
+  "sourceFingerprints": {
+    "apps/desktop/src/styles.css": "1099f76889dc13a364da5ef6b3e12830f6d766dc32e5a0166c7ac7c82bf51f14",
+    "apps/desktop/scripts/assert-rule-grammar.mjs": "17085c02ef7da2fa82ff4d2df3e089638dee2a9e3e77475cdd93996e87590fb2"
+  },
+  "browser": {
+    "name": "Safari",
+    "version": "26.5.2",
+    "os": "macOS 26.5.2 (25F84)",
+    "devicePixelRatio": 2
+  },
+  "innerOrigin": "http://127.0.0.1:18835/",
+  "frames": [
+    {
+      "id": "risklist-1280",
+      "viewport": { "width": 1280, "height": 720 },
+      "method": "top-level Safari AXWebArea, native and unscaled",
+      "scale": 1,
+      "state": "sample case / phase 2 contract review / revision preview / R03 evidence expanded",
+      "raw": { "file": "risklist-1280x720.raw.png", "width": 2560, "height": 1440 },
+      "delivery": { "file": "risklist-1280x720.png", "width": 1280, "height": 720 },
+      "clipped": false,
+      "nativeAA": true
+    },
+    {
+      "id": "risklist-2400",
+      "viewport": { "width": 2400, "height": 1000 },
+      "method": "exact Safari WebKit iframe, complete frame scaled to fit display",
+      "scale": 0.58,
+      "state": "sample case / phase 2 contract review / revision preview / R03 evidence expanded",
+      "raw": { "file": "risklist-2400x1000-scaled.raw.png", "width": 2784, "height": 1160 },
+      "delivery": { "file": "risklist-2400x1000.png", "width": 2400, "height": 1000 },
+      "clipped": false,
+      "nativeAA": false
+    },
+    {
+      "id": "settings-1440",
+      "viewport": { "width": 1440, "height": 900 },
+      "method": "exact Safari WebKit iframe, complete frame scaled to fit display",
+      "scale": 0.8,
+      "state": "Settings / Model",
+      "proposalEvidence": "M05 full total header retained",
+      "raw": { "file": "settings-1440x900-scaled.raw.png", "width": 2304, "height": 1440 },
+      "delivery": { "file": "settings-1440x900.png", "width": 1440, "height": 900 },
+      "clipped": false,
+      "nativeAA": false
+    },
+    {
+      "id": "gallery-1440",
+      "viewport": { "width": 1440, "height": 900 },
+      "route": "http://127.0.0.1:18835/visual-gallery.html",
+      "method": "exact Safari WebKit iframe, complete viewport scaled to fit display",
+      "scale": 0.8,
+      "state": "Schema Visualization Kit gallery",
+      "proposalEvidence": "M06 full total header retained; gallery minor boundaries reduced",
+      "raw": { "file": "gallery-1440x900-scaled.raw.png", "width": 2304, "height": 1440 },
+      "delivery": { "file": "gallery-1440x900.png", "width": 1440, "height": 900 },
+      "clipped": false,
+      "nativeAA": false,
+      "note": "Document height exceeds the viewport; this is a viewport capture, not a scroll stitch."
+    },
+    {
+      "id": "session-history-1440",
+      "viewport": { "width": 1440, "height": 900 },
+      "method": "exact Safari WebKit iframe, complete frame scaled to fit display",
+      "scale": 0.8,
+      "state": "Chat / 历史会话 empty state",
+      "proposalEvidence": "M04 single minor rule",
+      "raw": { "file": "session-history-1440x900-scaled.raw.png", "width": 2304, "height": 1440 },
+      "delivery": { "file": "session-history-1440x900.png", "width": 1440, "height": 900 },
+      "clipped": false,
+      "nativeAA": false
+    },
+    {
+      "id": "compare-1600",
+      "viewport": { "width": 1600, "height": 900 },
+      "method": "exact Safari WebKit iframe, complete frame scaled to fit display",
+      "scale": 0.8,
+      "state": "sample case / revision preview / Compare / draft pane",
+      "proposalEvidence": "M02 pane head single minor rule",
+      "raw": { "file": "compare-1600x900-scaled.raw.png", "width": 2560, "height": 1440 },
+      "delivery": { "file": "compare-1600x900.png", "width": 1600, "height": 900 },
+      "clipped": false,
+      "nativeAA": false
+    }
+  ]
+}

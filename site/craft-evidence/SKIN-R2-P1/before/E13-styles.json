@@ -1,0 +1,279 @@
+[
+  {
+    "after": {
+      "borderBottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "borderTop": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "bottom": "2px",
+      "content": "\"\"",
+      "height": "auto",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "auto",
+      "width": "auto"
+    },
+    "border": {
+      "bottom": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "selector": ".panel-head",
+    "visible": false
+  },
+  {
+    "after": {
+      "borderBottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "borderTop": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "bottom": "2px",
+      "content": "\"\"",
+      "height": "0px",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "25px",
+      "width": "1166px"
+    },
+    "border": {
+      "bottom": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 30,
+      "width": 1166,
+      "x": 413,
+      "y": 85
+    },
+    "selector": ".pane-head",
+    "visible": true
+  },
+  {
+    "after": {
+      "borderBottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "borderTop": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "bottom": "2px",
+      "content": "\"\"",
+      "height": "0px",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "35px",
+      "width": "1178px"
+    },
+    "border": {
+      "bottom": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 40,
+      "width": 1178,
+      "x": 413,
+      "y": 9
+    },
+    "selector": ".preview-host-head",
+    "visible": true
+  },
+  {
+    "present": false,
+    "selector": ".session-history-head"
+  },
+  {
+    "present": false,
+    "selector": ".settings-header"
+  },
+  {
+    "present": false,
+    "selector": ".gallery-header"
+  },
+  {
+    "after": {
+      "borderBottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "borderTop": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "bottom": "37px",
+      "content": "\"\"",
+      "height": "0px",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "2px",
+      "width": "300px"
+    },
+    "border": {
+      "bottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 42,
+      "width": 300,
+      "x": 84,
+      "y": 705.6015625
+    },
+    "selector": ".scene-strip",
+    "visible": true
+  },
+  {
+    "after": {
+      "borderBottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "borderTop": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "bottom": "auto",
+      "content": "\"\"",
+      "height": "auto",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "2px",
+      "width": "auto"
+    },
+    "border": {
+      "bottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 0,
+      "width": 0,
+      "x": 0,
+      "y": 0
+    },
+    "selector": ".rail-user-wrap",
+    "visible": false
+  }
+]

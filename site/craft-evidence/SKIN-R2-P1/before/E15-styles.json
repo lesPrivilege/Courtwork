@@ -1,0 +1,181 @@
+[
+  {
+    "after": {
+      "borderBottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "borderTop": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "bottom": "2px",
+      "content": "\"\"",
+      "height": "0px",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "35px",
+      "width": "247px"
+    },
+    "border": {
+      "bottom": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 40,
+      "width": 247,
+      "x": 9,
+      "y": 41
+    },
+    "selector": ".panel-head",
+    "visible": true
+  },
+  {
+    "present": false,
+    "selector": ".pane-head"
+  },
+  {
+    "present": false,
+    "selector": ".preview-host-head"
+  },
+  {
+    "after": {
+      "borderBottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "borderTop": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "bottom": "2px",
+      "content": "\"\"",
+      "height": "0px",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "35px",
+      "width": "1116px"
+    },
+    "border": {
+      "bottom": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 40,
+      "width": 1116,
+      "x": 300,
+      "y": 88
+    },
+    "selector": ".session-history-head",
+    "visible": true
+  },
+  {
+    "present": false,
+    "selector": ".settings-header"
+  },
+  {
+    "present": false,
+    "selector": ".gallery-header"
+  },
+  {
+    "present": false,
+    "selector": ".scene-strip"
+  },
+  {
+    "after": {
+      "borderBottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "borderTop": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "bottom": "39px",
+      "content": "\"\"",
+      "height": "0px",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "2px",
+      "width": "247px"
+    },
+    "border": {
+      "bottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 44,
+      "width": 247,
+      "x": 9,
+      "y": 847
+    },
+    "selector": ".rail-user-wrap",
+    "visible": true
+  }
+]

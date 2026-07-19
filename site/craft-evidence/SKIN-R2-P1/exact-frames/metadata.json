@@ -1,0 +1,44 @@
+{
+  "capturedAt": "2026-07-19T22:25:32+08:00",
+  "baseline": "27990dd498fb13a4f6c913284fc81039e70ab0e0",
+  "browser": {
+    "name": "Safari",
+    "version": "26.5.2",
+    "os": "macOS 26.5.2 (25F84)",
+    "devicePixelRatio": 2,
+    "dprEvidence": "Safari fixture title probe and Retina screencapture pixels divided by AX logical points"
+  },
+  "route": "http://127.0.0.1:18832/",
+  "state": {
+    "case": "临江精铸 诉 起云智能 设备采购合同纠纷",
+    "phase": "阶段二 · 合同审查",
+    "surface": "修订预览",
+    "selection": "R03",
+    "evidenceExpanded": true
+  },
+  "frames": [
+    {
+      "viewport": { "width": 1280, "height": 720 },
+      "method": "top-level Safari AXWebArea, unscaled",
+      "axPosition": { "x": 0, "y": 146 },
+      "axSize": { "width": 1280, "height": 720 },
+      "rawFile": "1280x720.raw.png",
+      "rawPixels": { "width": 2560, "height": 1440 },
+      "deliveryFile": "1280x720.png",
+      "deliveryPixels": { "width": 1280, "height": 720 },
+      "clipped": false
+    },
+    {
+      "viewport": { "width": 2400, "height": 1000 },
+      "method": "real Safari WebKit iframe at exact layout size, complete frame scaled 0.58 to fit display",
+      "axSize": { "width": 2400, "height": 1000 },
+      "visualScale": 0.58,
+      "rawFile": "2400x1000-scaled.raw.png",
+      "rawPixels": { "width": 2784, "height": 1160 },
+      "deliveryFile": "2400x1000.png",
+      "deliveryPixels": { "width": 2400, "height": 1000 },
+      "clipped": false,
+      "nativeScale": false
+    }
+  ]
+}

@@ -51,7 +51,7 @@ Chat 线（ADR-013）
 
 **梯度律已升格（2026-07-19 夜）**：规则全文与档位定义只认 [`docs/design/principles.md`](../design/principles.md)；本图只登记 R2 依赖、批次状态和验收出口。
 
-**P1 线级复调状态**：8 主界与 105 次界提案已签；消费值实现仍锁精确 1280×720、2400×1000 全帧。签署表与前证见 `site/craft-evidence/SKIN-R2-P1/`，线级法只认设计原则与既有机器门。
+**P1 线级复调状态**：8 主界与 105 次界提案已签；精确 1280×720、2400×1000 WebKit 完整帧前置已补齐，消费值已进入实现自检，尚未获独立验收放行。签署表、前后帧与迁移账见 `site/craft-evidence/SKIN-R2-P1/`，线级法只认设计原则与既有机器门。
 
 **SKIN-R2 v2 执行状态（2026-07-19 夜）**：P0/P1 已逐行签署，顺序仍为 P0 → P1 → P2 → P3 → P4；P5 在 P0 放行后可独立并行。P0 权威落点是 [`schema-exemplar.md`](../design/schema-exemplar.md)；P2 C/D 裁量与字体退役律只认 [`typography-density.md`](../design/typography-density.md)；P4 `themeMode` 接口已预签。各批须独立 clone 验收，终局 `pm.PrdReview` one-shot 只在 P0–P5 全部放行后启动。
 

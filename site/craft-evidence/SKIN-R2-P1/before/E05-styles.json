@@ -1,0 +1,230 @@
+[
+  {
+    "after": {
+      "borderBottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "borderTop": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "bottom": "2px",
+      "content": "\"\"",
+      "height": "0px",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "35px",
+      "width": "247px"
+    },
+    "border": {
+      "bottom": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 40,
+      "width": 247,
+      "x": 9,
+      "y": 41
+    },
+    "selector": ".panel-head",
+    "visible": true
+  },
+  {
+    "present": false,
+    "selector": ".pane-head"
+  },
+  {
+    "after": {
+      "borderBottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "borderTop": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "bottom": "2px",
+      "content": "\"\"",
+      "height": "0px",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "35px",
+      "width": "1207.3px"
+    },
+    "border": {
+      "bottom": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 40,
+      "width": 1207.296875,
+      "x": 1183.6953125,
+      "y": 9
+    },
+    "selector": ".preview-host-head",
+    "visible": true
+  },
+  {
+    "present": false,
+    "selector": ".session-history-head"
+  },
+  {
+    "present": false,
+    "selector": ".settings-header"
+  },
+  {
+    "present": false,
+    "selector": ".gallery-header"
+  },
+  {
+    "after": {
+      "borderBottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "borderTop": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "bottom": "37px",
+      "content": "\"\"",
+      "height": "0px",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "2px",
+      "width": "640px"
+    },
+    "border": {
+      "bottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 42,
+      "width": 640,
+      "x": 399.34375,
+      "y": 805.6015625
+    },
+    "selector": ".scene-strip",
+    "visible": true
+  },
+  {
+    "after": {
+      "borderBottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "borderTop": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "bottom": "39px",
+      "content": "\"\"",
+      "height": "0px",
+      "left": "0px",
+      "position": "absolute",
+      "right": "0px",
+      "top": "2px",
+      "width": "247px"
+    },
+    "border": {
+      "bottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "present": true,
+    "rect": {
+      "height": 44,
+      "width": 247,
+      "x": 9,
+      "y": 947
+    },
+    "selector": ".rail-user-wrap",
+    "visible": true
+  }
+]

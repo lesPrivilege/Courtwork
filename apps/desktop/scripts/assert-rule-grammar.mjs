@@ -18,6 +18,7 @@ import { collectBorderSites, findRuleBody, siteKey } from './rule-grammar-lib.mj
 const root = process.cwd();
 const css = readFileSync(path.join(root, 'src/styles.css'), 'utf8');
 const tokens = JSON.parse(readFileSync(path.resolve(root, '..', '..', 'docs', 'design', 'tokens.json'), 'utf8'));
+const tierLedger = JSON.parse(readFileSync(path.resolve(root, '..', '..', 'docs', 'design', 'r2-tier-ledger.json'), 'utf8'));
 
 // ── 主界：文武线（粗细双线错落）────────────────────────────────────────────
 // 收口判据三条，缺一即不入：
@@ -28,13 +29,9 @@ const tokens = JSON.parse(readFileSync(path.resolve(root, '..', '..', 'docs', 'd
 //       与 `.settings-nav`（overflow-y）因此退次界：加包裹元素才能画，而那要动 TSX，越出本单范围。
 const MAJOR = {
   '.panel-head|bottom': '面板标题带 ↔ 面板内容',
-  '.pane-head|bottom': '工作面窗格头 ↔ 窗格内容',
   '.preview-host-head|bottom': '阅读宿主头 ↔ 文档内容',
-  '.session-history-head|bottom': '会话台账头 ↔ 台账列表',
   '.settings-header|bottom': '设置页头 ↔ 设置体',
   '.gallery-header|bottom': '件库页头 ↔ 件库网格',
-  '.scene-strip|top': '正文列 ↔ 页脚场景带',
-  '.rail-user-wrap|top': '左栏案件列表 ↔ 栏脚 owner 区',
 };
 
 // ── 次界：乌丝细线 ────────────────────────────────────────────────────────
@@ -43,6 +40,7 @@ const MAJOR = {
 // 不动一格版面，故 e2e 的 1px 断言不因本批改判。
 const MINOR = {
   // 行分隔
+  '.session-history-head|bottom': 'P1-M04：会话台账空态退场，回单线',
   '.session-entry|bottom': '行分隔',
   '.session-transcript-turn|bottom': '行分隔',
   '.dense-row|bottom': '行分隔',
@@ -110,6 +108,8 @@ const MINOR = {
   '.gallery-chain li|all': '内层容器',
   '.gallery-specimen .visual-decision|all': '内层容器',
   // 段内分隔
+  '.scene-strip|top': 'P1-M07：高频 composer 上界回单线',
+  '.rail-user-wrap|top': 'P1-M08：栏脚 owner 区回单线',
   '.visual-decision-actions|top': '段内分隔',
   '.visual-partial|top': '段内分隔',
   '.visual-partial ul|top': '段内分隔',
@@ -142,6 +142,7 @@ const MINOR = {
   '.gallery-specimen > footer|top': '段内分隔',
   '.gallery-ledger|top': '段内分隔',
   // 面内分栏
+  '.pane-head|bottom': 'P1-M02：compare 窗格头回单线',
   '.rail-case-expand|left': '面内分栏（树形缩进轨）',
   '.utility-dock-item|right': '面内分栏',
   '.preview-scroll-progress|left': '面内分栏',
@@ -240,6 +241,59 @@ const EXEMPT = {
 
 const failures = [];
 
+// ── P1 签署账：113 行逐界提案必须完整、唯一并与三分类账逐项同构 ──────────────
+// 这里仍是已批准的平铺映射：不引入新分类或状态机，只把 M01–M08 / N001–N105
+// 与唯一消费点、档位、判词及批准后的精确消费值绑定。
+const P1_TARGET_PREFIX = 'apps/desktop/src/styles.css#';
+const p1Rows = (tierLedger.entries ?? []).filter((row) => /^P1-[MN]\d+$/.test(row.approvedProposalLine ?? ''));
+const ledgerByKey = new Map();
+const proposalLines = new Set();
+const decisionCounts = { '留': 0, '减薄': 0, '回单线': 0 };
+const classCounts = { major: 0, minor: 0 };
+for (const row of p1Rows) {
+  const line = row.approvedProposalLine;
+  if (proposalLines.has(line)) failures.push(`P1 档位账提案行重复：${line}`);
+  proposalLines.add(line);
+  if (row.tier !== 'agent-interface') failures.push(`P1 档位账 ${line} 档位漂移：${row.tier ?? '(缺)'}`);
+  if (typeof row.target !== 'string' || !row.target.startsWith(P1_TARGET_PREFIX)) {
+    failures.push(`P1 档位账 ${line} target 非 styles.css 逐界键：${row.target ?? '(缺)'}`);
+    continue;
+  }
+  const key = row.target.slice(P1_TARGET_PREFIX.length);
+  if (ledgerByKey.has(key)) failures.push(`P1 档位账消费点重复：${key}`);
+  ledgerByKey.set(key, row);
+  if (!(row.decision in decisionCounts)) failures.push(`P1 档位账 ${line} 判词非法：${row.decision ?? '(缺)'}`);
+  else decisionCounts[row.decision] += 1;
+  if (!(row.ruleClass in classCounts)) failures.push(`P1 档位账 ${line} 线级非法：${row.ruleClass ?? '(缺)'}`);
+  else classCounts[row.ruleClass] += 1;
+  const expectedClass = key in MAJOR ? 'major' : key in MINOR ? 'minor' : undefined;
+  if (row.ruleClass !== expectedClass) failures.push(`P1 档位账 ${line} 与三分类账不一致：${key} = ${row.ruleClass ?? '(缺)'}/${expectedClass ?? '(未分类)'}`);
+  const expectedWidth = expectedClass === 'major' ? 'var(--rule-major)' : 'var(--rule-minor)';
+  if (row.expectedWidth !== expectedWidth) failures.push(`P1 档位账 ${line} 宽度漂移：${row.expectedWidth ?? '(缺)'} / ${expectedWidth}`);
+  if (!['var(--rule-ink)', 'var(--border)', 'var(--border-strong)'].includes(row.expectedColor)) {
+    failures.push(`P1 档位账 ${line} 色槽非法：${row.expectedColor ?? '(缺)'}`);
+  }
+  if (row.hairline !== (expectedClass === 'major')) failures.push(`P1 档位账 ${line} 文武线伴生标记错误`);
+}
+for (let index = 1; index <= 8; index += 1) {
+  const line = `P1-M${String(index).padStart(2, '0')}`;
+  if (!proposalLines.has(line)) failures.push(`P1 档位账缺提案行：${line}`);
+}
+for (let index = 1; index <= 105; index += 1) {
+  const line = `P1-N${String(index).padStart(3, '0')}`;
+  if (!proposalLines.has(line)) failures.push(`P1 档位账缺提案行：${line}`);
+}
+if (p1Rows.length !== 113) failures.push(`P1 档位账行数漂移：${p1Rows.length} / 113`);
+if (classCounts.major !== 4 || classCounts.minor !== 109) {
+  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/109`);
+}
+if (decisionCounts['留'] !== 97 || decisionCounts['减薄'] !== 12 || decisionCounts['回单线'] !== 4) {
+  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/97 · 减薄 ${decisionCounts['减薄']}/12 · 回单线 ${decisionCounts['回单线']}/4`);
+}
+for (const key of [...Object.keys(MAJOR), ...Object.keys(MINOR)]) {
+  if (!ledgerByKey.has(key)) failures.push(`P1 档位账漏消费点：${key}`);
+}
+
 // ── ① 单源与层级 ──────────────────────────────────────────────────────────
 const rootBlock = css.match(/:root\s*\{([\s\S]*?)\n\}/)?.[1] ?? '';
 const cssVar = (name) => rootBlock.match(new RegExp(`--rule-${name}\\s*:\\s*([^;]+);`))?.[1]?.trim();
@@ -287,7 +341,11 @@ for (const site of sites) {
     failures.push(`styles.css:${site.line} 线消费点未归一分类（主/次/不换须且只须占其一）：${key}`);
     continue;
   }
-  if (inMajor && (site.width !== 'var(--rule-major)' || site.color !== 'var(--rule-ink)')) {
+  const signed = ledgerByKey.get(key);
+  if ((inMajor || inMinor) && signed && site.color !== signed.expectedColor) {
+    failures.push(`styles.css:${site.line} P1 签署色槽漂移：${key} = ${site.color} / ${signed.expectedColor}`);
+  }
+  if (inMajor && site.width !== 'var(--rule-major)') {
     failures.push(`styles.css:${site.line} 主界未落文武线粗线：${key} = ${site.width} solid ${site.color}`);
   }
   if (inMinor && site.width !== 'var(--rule-minor)') {
@@ -308,12 +366,13 @@ for (const [scope, table] of [['主界', MAJOR], ['次界', MINOR], ['不换', E
 for (const key of Object.keys(MAJOR)) {
   const [selector, side] = key.split('|');
   const body = findRuleBody(css, `${selector}::after`);
+  const expectedInk = ledgerByKey.get(key)?.expectedColor;
   if (body === undefined) {
     failures.push(`文武线缺细线：${selector}::after 未定义（主界必须粗细双线错落）`);
     continue;
   }
-  if (!body.includes(`border-${side}: var(--rule-minor) solid var(--rule-ink)`)) {
-    failures.push(`文武线细线走偏：${selector}::after 未在 ${side} 侧落 --rule-minor/--rule-ink`);
+  if (!expectedInk || !body.includes(`border-${side}: var(--rule-minor) solid ${expectedInk}`)) {
+    failures.push(`文武线细线走偏：${selector}::after 未在 ${side} 侧落 --rule-minor/${expectedInk ?? '(缺签署色)'}`);
   }
   if (!body.includes('var(--rule-gap)')) {
     failures.push(`文武线缺错落间距：${selector}::after 未消费 --rule-gap`);
@@ -328,5 +387,5 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(
-  `线级语法门通过：主界 ${Object.keys(MAJOR).length} 条文武线 · 次界 ${Object.keys(MINOR).length} 条乌丝细线 · 具名不换 ${Object.keys(EXEMPT).length} 条 · 共 ${sites.length} 处`,
+  `线级语法门通过：主界 ${Object.keys(MAJOR).length} 条文武线 · 次界 ${Object.keys(MINOR).length} 条乌丝细线 · 具名不换 ${Object.keys(EXEMPT).length} 条 · 共 ${sites.length} 处 · P1 留 ${decisionCounts['留']}/减薄 ${decisionCounts['减薄']}/回单线 ${decisionCounts['回单线']}`,
 );

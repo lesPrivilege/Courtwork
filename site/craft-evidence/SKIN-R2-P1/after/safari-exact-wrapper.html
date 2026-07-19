@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Courtwork Safari exact viewport fixture</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: transparent;
+      }
+
+      iframe {
+        display: block;
+        border: 0;
+        transform-origin: 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const width = Number(params.get('w'));
+      const height = Number(params.get('h'));
+      const scale = Number(params.get('s'));
+      const src = params.get('src');
+
+      if (![width, height, scale].every(Number.isFinite) || !src) {
+        throw new Error('w, h, s and src are required');
+      }
+
+      const frame = document.createElement('iframe');
+      frame.id = 'courtwork-frame';
+      frame.title = `Courtwork ${width} by ${height} exact viewport`;
+      frame.src = src;
+      frame.width = String(width);
+      frame.height = String(height);
+      frame.style.width = `${width}px`;
+      frame.style.height = `${height}px`;
+      frame.style.transform = `scale(${scale})`;
+      document.body.style.width = `${width * scale}px`;
+      document.body.style.height = `${height * scale}px`;
+      document.body.append(frame);
+
+      document.title = [
+        'Courtwork Safari exact viewport fixture',
+        `frame=${frame.clientWidth}x${frame.clientHeight}`,
+        `scale=${scale}`,
+        `outer=${innerWidth}x${innerHeight}`,
+        `dpr=${devicePixelRatio}`,
+      ].join(' | ');
+    </script>
+  </body>
+</html>

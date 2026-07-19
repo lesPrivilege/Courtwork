@@ -40,6 +40,1136 @@
       "target": "docs/design/schema-exemplar.md#新表派生入口",
       "tier": "schema-workface",
       "approvedProposalLine": "P0-A20"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.panel-head|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-M01",
+      "decision": "减薄",
+      "ruleClass": "major",
+      "expectedWidth": "var(--rule-major)",
+      "expectedColor": "var(--border)",
+      "hairline": true
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.pane-head|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-M02",
+      "decision": "回单线",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.preview-host-head|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-M03",
+      "decision": "减薄",
+      "ruleClass": "major",
+      "expectedWidth": "var(--rule-major)",
+      "expectedColor": "var(--border)",
+      "hairline": true
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.session-history-head|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-M04",
+      "decision": "回单线",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.settings-header|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-M05",
+      "decision": "留",
+      "ruleClass": "major",
+      "expectedWidth": "var(--rule-major)",
+      "expectedColor": "var(--rule-ink)",
+      "hairline": true
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-header|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-M06",
+      "decision": "留",
+      "ruleClass": "major",
+      "expectedWidth": "var(--rule-major)",
+      "expectedColor": "var(--rule-ink)",
+      "hairline": true
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.scene-strip|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-M07",
+      "decision": "回单线",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.rail-user-wrap|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-M08",
+      "decision": "回单线",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.session-entry|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N001",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.session-transcript-turn|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N002",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.dense-row|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N003",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.nonapplied-item|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N004",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.originals-list li|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N005",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.settings-row|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N006",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-ledger li|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N007",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-timeline li|left",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N008",
+      "decision": "减薄",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.visual-decision-actions .question-option|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N009",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.interaction-anchor|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N010",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.relation-list button|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N011",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.file-ops-table th, .file-ops-table td|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N012",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.table-head|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N013",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.artifact-table th, .artifact-table td|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N014",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.artifact-table th, .artifact-table td|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N015",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.matrix-wrap th|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N016",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.matrix-wrap th|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N017",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.matrix-wrap td|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N018",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.matrix-wrap td|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N019",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.md-table th, .md-table td|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N020",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.md-table th, .md-table td|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N021",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.risk-status-ledger > div|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N022",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-grid|left",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N023",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-specimen|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N024",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-specimen|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N025",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-specimen th, .gallery-specimen td|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N026",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-coverage|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N027",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-coverage|left",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N028",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-coverage div|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N029",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-coverage div|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N030",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-graph|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N031",
+      "decision": "减薄",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-graph|left",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N032",
+      "decision": "减薄",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-graph span|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N033",
+      "decision": "减薄",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-graph span|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N034",
+      "decision": "减薄",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.file-ops-toolbar|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N035",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.file-ops-table|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N036",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.file-ops-report|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N037",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.progress-card|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N038",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.progress-card|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N039",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.interaction-turn-card|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N040",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.generated-callout|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N041",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.model-config-reasoning|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N042",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.sample-tour|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N043",
+      "decision": "减薄",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.data-card, .detail-card|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N044",
+      "decision": "减薄",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.turn-card-gate|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N045",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border-strong)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.graph-canvas|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N046",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border-strong)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.s3-launcher|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N047",
+      "decision": "减薄",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.work-recover|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N048",
+      "decision": "减薄",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.work-output-result|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N049",
+      "decision": "减薄",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.nonapplied-confirm|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N050",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border-strong)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.draft-panel > header|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N051",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.draft-editor, .draft-reading|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N052",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.work-draft-toolbar|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N053",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.work-draft-body|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N054",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.settings-memory-item|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N055",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.settings-fields fieldset|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N056",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.settings-path|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N057",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.settings-credential-embed|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N058",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.paste-block|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N059",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.md-table-wrap|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N060",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.composer-entry-guidance|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N061",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.composer-disabled-reason|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N062",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-chain li|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N063",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-specimen .visual-decision|all",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N064",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.visual-decision-actions|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N065",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.visual-partial|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N066",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.visual-partial ul|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N067",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.interaction-anchor-ledger|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N068",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.interaction-submit-error, .turn-recovery-error|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N069",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.interaction-recorded|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N070",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.stack-module|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N071",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.context-next-step|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N072",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.utility-dock-popover > header|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N073",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.artifact-table-view > h3|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N074",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.verified-block|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N075",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.verified-block|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N076",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.relation-list h3|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N077",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.submission-note|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N078",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.nonapplied-confirm > header|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N079",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.nonapplied-confirm > footer|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N080",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.risk-master-detail|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N081",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.risk-status-ledger|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N082",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.risk-status-ledger|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N083",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.evidence-stack .verified-block:last-child|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N084",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.document-preview header|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N085",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.provider-dialog header|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N086",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.provider-dialog footer|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N087",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.credential-modes|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N088",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.settings-developer|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N089",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.settings-promise-section|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N090",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.palette-input|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N091",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.paste-block .collapse-toggle|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N092",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-specimen > header|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N093",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-specimen > footer|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N094",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.gallery-ledger|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N095",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.rail-case-expand|left",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N096",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.utility-dock-item|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N097",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.preview-scroll-progress|left",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N098",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.relation-list|left",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N099",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.relation-list|top",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N100",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.risk-list|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N101",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.risk-list|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N102",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.work-draft-list|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N103",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.settings-nav|right",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N104",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.view-tabs|bottom",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P1-N105",
+      "decision": "留",
+      "ruleClass": "minor",
+      "expectedWidth": "var(--rule-minor)",
+      "expectedColor": "var(--border)",
+      "hairline": false
     }
   ]
 }

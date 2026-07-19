@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Courtwork Safari exact viewport fixture</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-width: 1392px;
+        min-height: 580px;
+        overflow: hidden;
+        background: transparent;
+      }
+
+      iframe {
+        display: block;
+        width: 2400px;
+        height: 1000px;
+        border: 0;
+        transform: scale(0.58);
+        transform-origin: 0 0;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe
+      id="courtwork-frame"
+      title="Courtwork 2400 by 1000 exact viewport"
+      src="http://127.0.0.1:18832/"
+      width="2400"
+      height="1000"
+    ></iframe>
+    <script>
+      const frame = document.getElementById('courtwork-frame');
+      document.title = [
+        'Courtwork Safari exact viewport fixture',
+        `frame=${frame.clientWidth}x${frame.clientHeight}`,
+        `outer=${innerWidth}x${innerHeight}`,
+        `dpr=${devicePixelRatio}`,
+      ].join(' | ');
+    </script>
+  </body>
+</html>

@@ -1,0 +1,994 @@
+[
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ]
+    },
+    "className": "case-rail surface-float",
+    "rect": {
+      "h": 704,
+      "w": 196,
+      "x": 8,
+      "y": 8
+    },
+    "tag": "ASIDE"
+  },
+  {
+    "border": {
+      "bottom": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "className": "panel-head rail-head",
+    "rect": {
+      "h": 40,
+      "w": 195,
+      "x": 9,
+      "y": 41
+    },
+    "tag": "HEADER"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "className": "container-origin-label",
+    "rect": {
+      "h": 21,
+      "w": 48,
+      "x": 68,
+      "y": 300
+    },
+    "tag": "SPAN"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(85, 97, 122)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(85, 97, 122)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(85, 97, 122)"
+      ]
+    },
+    "className": "case-file-count",
+    "rect": {
+      "h": 18,
+      "w": 58,
+      "x": 58,
+      "y": 323
+    },
+    "tag": "SPAN"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ]
+    },
+    "className": "case-archive-button",
+    "rect": {
+      "h": 20,
+      "w": 20,
+      "x": 170,
+      "y": 310
+    },
+    "tag": "BUTTON"
+  },
+  {
+    "border": {
+      "bottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "className": "rail-case-expand",
+    "rect": {
+      "h": 254,
+      "w": 161,
+      "x": 35,
+      "y": 350
+    },
+    "tag": "DIV"
+  },
+  {
+    "border": {
+      "bottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "className": "rail-user-wrap",
+    "rect": {
+      "h": 44,
+      "w": 195,
+      "x": 9,
+      "y": 667
+    },
+    "tag": "DIV"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "className": "demo-badge",
+    "rect": {
+      "h": 19,
+      "w": 47,
+      "x": 445,
+      "y": 19
+    },
+    "tag": "SPAN"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "className": "sample-tour",
+    "rect": {
+      "h": 59,
+      "w": 332,
+      "x": 256,
+      "y": -151
+    },
+    "tag": "DIV"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "className": "turn-card turn-card-gate ",
+    "rect": {
+      "h": 52,
+      "w": 348,
+      "x": 248,
+      "y": 167
+    },
+    "tag": "SECTION"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ]
+    },
+    "className": "interaction-turn-card",
+    "rect": {
+      "h": 187,
+      "w": 348,
+      "x": 248,
+      "y": 241
+    },
+    "tag": "SECTION"
+  },
+  {
+    "border": {
+      "bottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ]
+    },
+    "className": "visual-decision-actions",
+    "rect": {
+      "h": 69,
+      "w": 346,
+      "x": 249,
+      "y": 358
+    },
+    "tag": "DIV"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "className": "question-option",
+    "rect": {
+      "h": 34,
+      "w": 346,
+      "x": 249,
+      "y": 359
+    },
+    "tag": "BUTTON"
+  },
+  {
+    "border": {
+      "bottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "className": "scene-strip",
+    "rect": {
+      "h": 42,
+      "w": 380,
+      "x": 232,
+      "y": 508
+    },
+    "tag": "DIV"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "className": "composer-shell",
+    "rect": {
+      "h": 125,
+      "w": 336,
+      "x": 254,
+      "y": 554
+    },
+    "tag": "DIV"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ]
+    },
+    "className": "composer-disabled-reason",
+    "rect": {
+      "h": 32,
+      "w": 314,
+      "x": 265,
+      "y": 563
+    },
+    "tag": "P"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ]
+    },
+    "className": "composer-send",
+    "rect": {
+      "h": 28,
+      "w": 28,
+      "x": 551,
+      "y": 642
+    },
+    "tag": "BUTTON"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ]
+    },
+    "className": "surface-card surface-card-raised preview-host",
+    "rect": {
+      "h": 704,
+      "w": 633,
+      "x": 640,
+      "y": 8
+    },
+    "tag": "SECTION"
+  },
+  {
+    "border": {
+      "bottom": [
+        "2px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "className": "panel-head preview-host-head",
+    "rect": {
+      "h": 40,
+      "w": 631,
+      "x": 641,
+      "y": 9
+    },
+    "tag": "HEADER"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "className": "view-tabs",
+    "rect": {
+      "h": 36,
+      "w": 631,
+      "x": 641,
+      "y": 49
+    },
+    "tag": "DIV"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgba(0, 0, 0, 0)"
+      ]
+    },
+    "className": "active",
+    "rect": {
+      "h": 28,
+      "w": 70,
+      "x": 855,
+      "y": 53
+    },
+    "tag": "BUTTON"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(195, 202, 214)"
+      ]
+    },
+    "className": "view-action",
+    "rect": {
+      "h": 28,
+      "w": 94,
+      "x": 1093,
+      "y": 53
+    },
+    "tag": "BUTTON"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "className": "risk-master-detail",
+    "rect": {
+      "h": 519,
+      "w": 619,
+      "x": 641,
+      "y": 85
+    },
+    "tag": "DIV"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "className": "risk-list",
+    "rect": {
+      "h": 224,
+      "w": 619,
+      "x": 641,
+      "y": 85
+    },
+    "tag": "DIV"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(99, 112, 131)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(99, 112, 131)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(99, 112, 131)"
+      ]
+    },
+    "className": "table-head risk-grid",
+    "rect": {
+      "h": 28,
+      "w": 619,
+      "x": 641,
+      "y": 85
+    },
+    "tag": "DIV"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "className": "dense-row risk-grid ",
+    "rect": {
+      "h": 33,
+      "w": 619,
+      "x": 641,
+      "y": 113
+    },
+    "tag": "BUTTON"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "className": "dense-row risk-grid selected",
+    "rect": {
+      "h": 33,
+      "w": 619,
+      "x": 641,
+      "y": 178
+    },
+    "tag": "BUTTON"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ]
+    },
+    "className": "risk-status-ledger",
+    "rect": {
+      "h": 49,
+      "w": 595,
+      "x": 653,
+      "y": 444
+    },
+    "tag": "DL"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ]
+    },
+    "className": "verified-block",
+    "rect": {
+      "h": 31,
+      "w": 595,
+      "x": 653,
+      "y": 501
+    },
+    "tag": "SECTION"
+  },
+  {
+    "border": {
+      "bottom": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "right": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "top": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ]
+    },
+    "className": "primary-button",
+    "rect": {
+      "h": 29,
+      "w": 74,
+      "x": 1173,
+      "y": 564
+    },
+    "tag": "BUTTON"
+  },
+  {
+    "border": {
+      "bottom": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "left": [
+        "1px",
+        "solid",
+        "rgb(213, 218, 227)"
+      ],
+      "right": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ],
+      "top": [
+        "0px",
+        "none",
+        "rgb(35, 43, 56)"
+      ]
+    },
+    "className": "preview-scroll-progress",
+    "rect": {
+      "h": 626,
+      "w": 12,
+      "x": 1259,
+      "y": 85
+    },
+    "tag": "ASIDE"
+  }
+]

@@ -46,7 +46,8 @@ const count = match ? Number(match[1]) : 0;
 // SKIN-B4（记号批）：C-4 可验半（记号色随宗 + 阴性对照）/ C-4 前向红卫（themes.dark 未上身）/
 // 落定章双向锁（未处置·驳回无印，确认才钤）/ 仪式 reduce 计算态停摆 +4 → 311。
 // 批删三死选择器同批清掉的两条 `.statusbar` 否定断言是 expect 行而非用例，故不抵扣。
-const minimum = 311;
+// SKIN-R2 P1（线级复调）：签署消费值运行时锁（减薄 exact color + 回单线撤伴生线）+1 → 312。
+const minimum = 312;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
