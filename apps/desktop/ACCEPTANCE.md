@@ -3458,3 +3458,53 @@ before=`main@b6c6bb1`、after=`7390d32`，同為 B2-1 字體條件（`:root` 字
 | 完整 `pnpm test:e2e`（獨立埠 15489） | 靜態鏈全綠，**307/307 passed（2.8m）** |
 
 本會話只追加此驗收紀錄；未部署，未將後續記號、深色或視覺終審擴入本單。
+
+---
+
+# ACCEPTANCE: SKIN-R2 P0 · DESIGN-CANON-1
+
+日期：2026-07-19；验收对象：`main @ 72787d78c1260c5b0482a6f606918c115cd0c131`（`feat(design): establish SKIN-R2 schema exemplar canon`）。本验收会话从共享仓库以 `git clone --no-local --no-hardlinks` 建立全新独立 clone，detach 检出目标 SHA：`/private/tmp/courtwork-skin-r2-p0-acceptance.IukUet`；未复用共享 Playwright/Vite 服务，未修改实现、契约或门禁，未 push。签署基线 `27990dd` 是目标提交祖先（`merge-base --is-ancestor` exit 0）。
+
+**裁决：✅ 放行 SKIN-R2 P0。**
+
+## 1. 签署投影、裁量例外与收拢边界
+
+- 两份已签提案的封存摘要逐位匹配：P0 proposal SHA-256 为 `5efbb65649198ddc9c9d22b4d40d46e067012360193e15df4afc0a89dc29e5b9`，P1 proposal 为 `ef84049d1cfbd20b8c7ddbcdc8700760b7c58350cbb398a9a398640b57b72423`；P0/P1 两处 `ARCHITECTURE-SIGNATURE.md` 同为 `018b071374fbe38279f7e1097120235329ab6335e9d44b13da102e15c1a7640d`。签署全文、两表及实现证据均已落在 `site/craft-evidence/SKIN-R2-P0/`，不依赖聊天口述。
+- `P0-A05` 例外实物核对：完整三档梯度在 `docs/design/principles.md` 首条；`CLAUDE.md` 仅在「工程纪律」有一条设计凡例指针，核心九不变量零增项。平铺 `r2-tier-ledger.json` 每项一档、一个已批提案行，零状态机/通用抽象。
+- `P0-A08` 已按产品复裁而非旧文案执行：`typography-density.md` 只保留 C（现行三轨）对 D（全量陌生化），同分取 C；文书朱雀仿宋与拒系统黑体正文仍写为产品定讞、盲测不构成自动授权。
+- `docs/design/README.md` 的旧模型派工、具体模型名、已清账入场叙述均已移除；入口只指向 readiness 与新的 `schema-exemplar.md`。`principles.md` 保留 signature-line 指针而不复制白名单；`visualization-kit.md` 与 exemplar 双向分工，未合成第二真源。
+- `P0-S08` 迁移有明确且受签 `P0-A11` 约束的解释：签署前 `2ad1f393…12024a50`，现行 `30cf868d…e9970234`，差异仅为 exemplar 互链与 1px 收窄到次界/数据格；primitive、ViewModel、blueprint 语义未变。其余 `P0-S01`–`S07`、`S09` 保持签署值，现行 manifest 对真实来源逐位锁定。
+- P0 新增 canon、manifest、ledger、gate 及 P0 SPEC 段落不存在 `archive/` 反向输入；新 `consolidation-survey` 已迁出设计权威目录。`apps/desktop/SPEC.md` 内其他历史工单既有 archive 证据行不属于本批新增内容，也没有被 exemplar/manifest/gate 消费。
+
+## 2. 对真实仓库件的反例注入
+
+每项均在独立 clone 的真实文件上手术、执行 `pnpm --filter @courtwork/desktop lint:schema-exemplar` 观察 exit 1 和定点报错，再原样撤销。最终 `git diff --check`、`git diff --exit-code` 均为 0，门回绿。
+
+| 注入位置 | 实际红证 |
+|---|---|
+| manifest 移除 `P0-S09` | `正式来源缺项：P0-S09` |
+| `P0-S01` SHA 改为全零 | `来源哈希漂移 P0-S01` |
+| `P0-S09` 路径改为 `P0-S08` 路径 | `同一路径重复登记权威角色` |
+| `P0-S09` 路径改为 `archive/historical-signature-line.md` | `archive 历史材料禁止输入`（并同时报来源缺失） |
+| exemplar 追加 JSON schema code fence | `schema exemplar 不得复制 JSON/TypeScript schema` |
+| ledger 的 Pages 行清空 tier | `档位账 …#总纲-pages 缺唯一档位` |
+| ledger 的同一行清空批准提案 | `档位账 …#总纲-pages 缺已批提案行` |
+| derivation 加入 `DecorativeCard` | `未登记 primitive：DecorativeCard` |
+| exemplar 声称 `Panels.tsx 当前五列是跨域字段契约` | `Panels 当前列不得成为字段契约` |
+
+这九项覆盖缺来源、错哈希、重复权威、archive/历史输入、复制 JSON/TS schema、漏档位、漏批准提案行、未登记 primitive 与把当前 Panels 列反冻为跨域契约；均不是只跑实现者自带单测。
+
+## 3. 独立全量门
+
+独立 clone 先以 `pnpm install --frozen-lockfile` 安装锁定依赖。首次根 `pnpm test` 在全新 clone 尚未生成 workspace `dist` 时按预期因 package export 不可解析失败；这是构建产物前置缺失，不是测试断言失败。随后完整 `pnpm -r build` 生成各 workspace 产物，重跑测试如下，所有结果均在同一独立 clone 得到：
+
+| 门 | 结果 |
+|---|---|
+| `pnpm site:guard` | PASS；58/58 Node tests，`deslop` 扫描 846 个现行文本文件，schema-exemplar 5/5 正反例通过 |
+| `pnpm lint` | PASS |
+| `pnpm -r build` | PASS；13 个具 build 脚本的 workspace 全部完成，desktop `tsc -b && vite build` 通过 |
+| 根 `pnpm test`（构建后复跑） | PASS；148 files / 1261 tests |
+| `pnpm --filter @courtwork/desktop test` | PASS；59 files / 371 tests |
+| `COURTWORK_E2E_PORT=19325 pnpm --filter @courtwork/desktop test:e2e` | PASS；独立端口静态前链（含 schema-exemplar、线级、排印、SchemaParts）全绿，Playwright **311/311** |
+
+P0 零组件、token、布局、schema、scenario、wire 与行为变更，故本批不将浏览器视觉终审冒充为已完成的 P1/P2 证据；其交付是经可注入机器门保护的单一设计谱系与新表衍生入口。后续 P1 消费值仍受精确 1280×720、2400×1000 全帧前置约束，不因本 P0 放行而解除。
