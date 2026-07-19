@@ -231,10 +231,11 @@ const EXEMPT = {
   '.credential-modes button|bottom': '占位透明边（选中态显影）',
   // 第三方渲染面
   '.courtwork-minimap|all': 'G6 内联样式覆写（第三方渲染面，非壳结构线）',
-  // 无消费选择器：不换亦不删——死配置清理属复杂度提案，见 SPEC 提案区
-  '.titlebar, .toolbar, .statusbar|bottom': '无 TSX 消费（.toolbar/.statusbar 已无渲染面）',
-  '.statusbar|top': '无 TSX 消费',
-  '.work-surface-head|top': '无 TSX 消费',
+  // 无消费选择器。B3 登记的三死选择器（.toolbar/.statusbar/.work-surface-*）已由 B4 批删，
+  // 故其三条登记随之销号。**本批新发现第四死件**：`.titlebar`（裸类，非 .chat-titlebar/
+  // .titlebar-credential-warn）全仓 .tsx 亦零消费——不在 B4 票面之内，照 B3 定式**登记不擅删**，
+  // 清理与否另裁。
+  '.titlebar|bottom': '无 TSX 消费（本批新发现，票面外，登记待裁）',
 };
 
 const failures = [];

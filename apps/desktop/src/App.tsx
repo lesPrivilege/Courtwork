@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState, type RefObject } from 'react';
+import { SchemaParts } from './icons/schema-parts';
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
@@ -2194,6 +2195,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   return (
     <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'} data-compact={compactLayout ? 'true' : 'false'}>
+      {/* 记号件库单次挂载：<use href="#mark-*"> 的 symbol 来源。零视觉、零布局（display:none）。 */}
+      <SchemaParts />
       {(focusMode || effectiveLeftCollapsed) && <WindowChrome
         detached
         leftCollapsed={effectiveLeftCollapsed}
@@ -2668,7 +2671,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                     {readerDoc.markdown.split('\n').map((line, index) => {
                       const trimmed = line.trim();
                       if (!trimmed) return null;
-                      if (trimmed.startsWith('#')) return <h3 key={index}>{trimmed.replace(/^#+\s*/, '')}</h3>;
+                      {/* 鱼尾＝节标（SKIN-B4）：原件正文段落众多而节标稀少，记号是节起首的位置线索。
+                          色不写死，由 .reader-pane h3 的 color 给——记号不择纸温。 */}
+                      if (trimmed.startsWith('#')) return <h3 key={index}>
+                        <svg className="mark mark-fishtail" data-testid="mark-fishtail" aria-hidden="true"><use href="#mark-fishtail" /></svg>
+                        {trimmed.replace(/^#+\s*/, '')}
+                      </h3>;
                       // 语料 md 行内语法仅 **强调** 一种；focus mark 住在同一 renderer 内，星号不会漏出。
                       return (
                         <p key={index} data-focus-source={readerDoc.focusAnchor?.quote && trimmed.includes(readerDoc.focusAnchor.quote) ? 'true' : undefined}>

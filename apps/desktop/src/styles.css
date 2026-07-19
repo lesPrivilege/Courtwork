@@ -114,6 +114,10 @@
   --motion-overlay: 120ms;
   --motion-reasoning-line: 360ms;
   --motion-overlay-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* 仪式预算（SKIN-B4 奖级 #3）：全站唯一一处比常规交互慢的动效，只供落定章钤下那一帧。
+     它单独立槽而不复用 --motion-settle，是为了让「唯一仪式处」这句话可被机器断言
+     （assert-schema-parts 锁：恰声明一次、恰一处消费、消费者恰为 .settle-seal）。 */
+  --motion-seal: 320ms;
   /* RP-2.5 elevation：SurfaceCard 唯一轻影接口；数据卡仍零投影 */
   --elevation-canvas: var(--bg-app);
   /* 单源律台阶二：竖栏容器（左栏/右栏收敛条）略深于底纸 */
@@ -185,7 +189,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .mac-window-controls-anchor { width: var(--mac-window-controls-group-width); height: 100%; flex: none; pointer-events: none !important; }
 .window-chrome-button { width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; -webkit-app-region: no-drag; }
 .window-chrome-button:hover { background: var(--control-hover); color: var(--text-primary); }
-.titlebar, .toolbar, .statusbar { display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.titlebar { display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
 /* C：标题栏透明融入 chrome；只留 wordmark + 全局动作 */
 .titlebar { background: var(--elevation-titlebar); font-size: var(--type-dense-body-size); border-bottom-color: transparent; }
 .titlebar strong { min-width: 0; font-weight: 510; }
@@ -219,8 +223,6 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .shortcut-trigger { border: 0; background: transparent; cursor: pointer; font: inherit; color: inherit; padding: 0; }
 .spacer, .tab-spacer { flex: 1; }
 .truncate { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.toolbar { background: var(--bg-surface); font-size: var(--type-dense-body-size); }
-.toolbar strong { font-weight: 510; }
 .crumb-sep { color: var(--text-disabled); }
 .quiet-button, .primary-button, .scene-strip button, .batch-bar button, .continuation-button { min-height: var(--control-height-sm); padding: 4px 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); cursor: pointer; font-size: var(--control-font-sm); font-weight: var(--control-weight-regular); }
 .quiet-button, .scene-strip button { border: 0; background: transparent; }
@@ -431,7 +433,6 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .archive-popover footer .primary-button { max-width: 120px; }
 .demo-badge { flex: none; padding: 1px 6px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--text-tertiary); font-size: 11px; white-space: nowrap; }
 .credential-button { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.toolbar strong { min-width: 0; max-width: 280px; }
 .titlebar .case-number { max-width: 160px; }
 .user-message-attachments span { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
 .attachment-chip, .composer-chip { max-width: 200px; }
@@ -959,8 +960,8 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .composer-disclaimer { width: calc(100% - 24px); margin: 0 auto; padding: 0 2px 2px; box-sizing: border-box; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); line-height: 1.45; text-align: center; white-space: normal; }
 .composer-disclaimer a { display: inline-block; color: var(--text-secondary); white-space: nowrap; }
 @media (min-width: 1600px) { .composer-disclaimer { white-space: nowrap; } }
-.panel-head, .work-surface-head, .rail-head, .pane-head { min-width: 0; overflow: hidden; }
-.panel-head h2, .panel-head strong, .work-surface-head h2, .pane-head strong, .rail-wordmark,
+.panel-head, .rail-head, .pane-head { min-width: 0; overflow: hidden; }
+.panel-head h2, .panel-head strong, .pane-head strong, .rail-wordmark,
 .card-heading strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .progress-pulse, .event-row.active .event-dot { animation: none; } }
 
@@ -1029,8 +1030,6 @@ button.interaction-anchor:hover { background: var(--control-hover); }
   height: 28px; padding: 0 8px; border: 1px solid var(--border-strong); border-radius: 4px;
   background: var(--bg-raised); color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-meta-size);
 }
-.work-surface-stack { min-height: 0; flex: 1; display: flex; flex-direction: column; }
-.work-surface-head { border-top: 1px solid var(--border); }
 
 .view-tabs { height: var(--preview-toolbar-height); flex: none; display: flex; gap: 3px; align-items: center; padding: 0 8px; border-bottom: var(--rule-minor) solid var(--border); overflow-x: auto; }
 .view-tabs button { position: relative; height: var(--control-height-sm); padding: 0 8px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: var(--control-font-sm); font-weight: var(--control-weight-regular); white-space: nowrap; }
@@ -1274,6 +1273,14 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .risk-status-ledger dt { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .risk-status-ledger dd { margin: 2px 0 0; overflow: hidden; color: var(--text-primary); font-size: var(--type-dense-meta-size); text-overflow: ellipsis; white-space: nowrap; }
 .risk-detail:hover > .signature-line::after { opacity: 1; }
+/* 落定章（SKIN-B4）：人把处置按下去之后留下的印记，钤在详情卡右上。倾角拟手钤（原型自述
+   ±3–5°），是**静态**姿态不是动效——动的只有 opacity 与 scale 两支，四属性白名单内。 */
+.settle-seal { position: absolute; z-index: 1; top: 44px; right: 14px; width: 52px; height: 52px; color: var(--zhu-graphic); opacity: .5; pointer-events: none; animation: seal-press var(--motion-seal) var(--motion-overlay-ease) both; }
+/* 印框的线重是**界面线重**，不是被缩放的画稿线重：件库几何 stroke-width 2 住在 96 的 viewBox 里，
+   缩到 52px 会掉到约 1.08px——一枚糊成发丝的印比没有印更糟。non-scaling-stroke 让线重脱离缩放，
+   几何一笔未动（单源不破），改的只是消费点怎么落笔。 */
+.settle-seal use { vector-effect: non-scaling-stroke; }
+@keyframes seal-press { from { opacity: 0; transform: rotate(-4deg) scale(1.16); } to { opacity: .5; transform: rotate(-4deg) scale(1); } }
 .settle-flash { position: absolute; z-index: 2; inset: 1px; border: 1px solid transparent; border-radius: 4px; pointer-events: none; }
 .settle-flash[data-kind="confirmed"] { --settle-color: var(--green-graphic); }
 .settle-flash[data-kind="rejected"] { --settle-color: var(--slate-graphic); }
@@ -1323,8 +1330,6 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .draft-editor h2, .draft-reading h2 { margin: 0 0 14px; font-family: var(--font-title); font-size: 16px; font-weight: 400; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
 .draft-editor p, .draft-reading p { margin: 0 0 12px; }
 
-.statusbar { position: relative; border-top: 1px solid var(--border); border-bottom: 0; background: var(--bg-surface); color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
-.statusbar b { color: var(--text-secondary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; font-weight: 400; }
 .status-open-folder { min-height: 24px; padding: 2px 8px; font-size: var(--type-dense-meta-size); }
 .system-feedback { max-width: 280px; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
 .system-feedback.ok { color: var(--green-fg); }
@@ -1666,6 +1671,9 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 /* 浏览器态阅读面：视图汇流——文书 15px reading 档（docs/design/typography-density.md） */
 .reader-pane { height: 100%; overflow: auto; padding: 18px 22px; background: var(--bg-raised); font-family: var(--font-body); font-size: var(--type-document-size); line-height: var(--type-document-line-height); }
 .reader-pane h3 { margin: 14px 0 6px; font-family: var(--font-title); font-size: 16px; font-weight: 400; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
+/* SKIN-B4 记号消费面。件库几何一律 currentColor，故色在此给、随宗走——记号不择纸温（C-4）。 */
+.mark { flex: none; display: inline-block; }
+.reader-pane h3 .mark-fishtail { width: 14px; height: 7px; margin-right: 7px; color: var(--text-tertiary); }
 .reader-pane p { margin: 0 0 10px; }
 .reader-focus-anchor { background: var(--verified); color: inherit; border-bottom: 1px solid var(--blue-graphic); scroll-margin-block: 40%; }
 .reader-focus-anchor:focus { outline: 2px solid var(--blue-graphic); outline-offset: 2px; }
@@ -1747,6 +1755,11 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 @media (prefers-reduced-motion: reduce) {
   :is(.primary-button, .scene-primary, .continuation-button, .question-option, .composer-send, .composer-icon-button, .icon-button, .copy-button, .case-archive-button, .window-chrome-button, .collapse-right-button, .rail-seam-toggle, .workspace-edge-control, .model-config-trigger, .shortcut-trigger):active:not(:focus-visible):not(:disabled):not(.is-disabled-feature) { transform: none; }
   .case-card .archive-popover { animation: none; transform: none; }
+  /* 仪式可以被完全关掉——全局 .01ms 兜底只是把它压快，显式停摆才是真的不演。
+     印仍在（它是处置留痕，不是动效产物），只是不再钤下来。 */
+  .settle-seal { animation: none; }
+  /* 仪式可以被完全关掉——全局 .01ms 兜底只是把它压快，显式停摆才是真的不演。
+     印仍在（它是处置留痕，不是动效产物），只是不再钤下来。 */
   .file-ops-undo-popover { animation: none; transform: none; }
   .rail-containerize-popover { animation: none; transform: none; }
   .store-chat-popover { animation: none; transform: none; }

@@ -3,7 +3,7 @@ import type { ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import type { ReviewDispositionState, ReviewGateProjection } from '../protocol/client';
 import type { NonAppliedReason, PendingRevisionConfirmation } from '../output/compile-review-output';
 
-export type LineTone = 'danger' | 'attention' | 'revision' | 'authority' | 'neutral';
+export type LineTone = 'danger' | 'attention' | 'revision' | 'authority' | 'neutral' | 'settled';
 
 export function TierBadge({ grade }: { grade?: 'A' | 'B' | 'C' }) {
   if (!grade) return null;
@@ -46,6 +46,24 @@ function SettlementFlash({ kind, itemRef, testable = false }: { kind?: 'confirme
     data-duration="150"
     aria-hidden="true"
   />;
+}
+
+/**
+ * 落定章（SKIN-B4 记号消费面）。朱是**印记色**不是状态色：绿答「它处于什么态」，
+ * 朱答「谁把它按下去的」。故本件只认 `confirmed`——`rejected` 同为人工裁决但不是「落定」，
+ * 驳回留的是退场记录不是钤印；`revision` 尚未终局。
+ *
+ * 只落在详情卡（一次至多一枚），不落列表行：行高 28px 钤不下印，且逐行铺开会把仪式变装饰。
+ * 动效由 `.settle-seal` 的 `--motion-seal` 承载——全站唯一仪式预算处，门锁其唯一性与 reduce 停摆。
+ */
+function SettleSeal({ disposition, itemRef }: { disposition?: ReviewDispositionState; itemRef: string }) {
+  if (disposition !== 'confirmed') return null;
+  return <svg
+    className="settle-seal"
+    data-testid={`settle-seal-${itemRef}`}
+    viewBox="0 0 96 96"
+    aria-hidden="true"
+  ><use href="#mark-seal-frame" /></svg>;
 }
 
 export function StaticViewport({ children, testId }: { children: ReactNode; testId: string }) {
@@ -235,7 +253,9 @@ function riskLineTone(level: RiskList['risks'][number]['level'], disposition?: R
   if (!disposition && level === 'high') return 'danger';
   if (unverified) return 'attention';
   if (disposition === 'revision') return 'revision';
-  if (disposition === 'confirmed') return 'authority';
+  // 朱＝印记色非状态色（2026-07-19 拍板）：逐条确认是**人**把它按下去的，故落定取朱不取绿；
+  // 绿保持系统/权威确认的既有语义位（tier.a / gate.confirmed 不动）。
+  if (disposition === 'confirmed') return 'settled';
   return undefined;
 }
 
@@ -329,7 +349,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
                   data-confirmed={confirmed}
                   key={item.instructionId}
                 >
-                  <SignatureLine tone={confirmed ? 'authority' : 'attention'} />
+                  <SignatureLine tone={confirmed ? 'settled' : 'attention'} />
                   <div className="nonapplied-body">
                     <span className="nonapplied-head"><b className="domain-badge">{item.riskId.replace('risk-', 'R')}</b><span className="nonapplied-summary">{item.summary}</span></span>
                     <span className="nonapplied-reason">{nonAppliedReasonLabel(item.reason)}</span>
@@ -374,6 +394,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
         <article className="risk-detail">
           <SignatureLine tone={riskLineTone(props.selectedRisk.level, selectedDisposition, selectedUnverified)} />
           <SettlementFlash kind={selectedSettled} itemRef={props.selectedRisk.id} />
+          <SettleSeal disposition={selectedDisposition} itemRef={props.selectedRisk.id} />
           <header><span className="domain-badge">{props.selectedRisk.id.replace('risk-', 'R')}</span><strong>{selectedGate?.mode === 'individual' ? '逐条确认' : '常规审阅'}</strong><span>{reviewedCount}/{props.selectedRisk.basis.length} 依据已展开</span></header>
           {selectedGate?.reason && <div className="individual-note">{individualNoteCopy(selectedGate.reason === 'high_risk' ? 'high_risk' : 'unverified', BATCH_CONFIRM_VISIBLE)}</div>}
           <p>{props.selectedRisk.description}</p>

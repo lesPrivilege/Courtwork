@@ -180,7 +180,6 @@ test.describe('RP-1 最终重排', () => {
     await page.mouse.move(0, 0);
 
     await expect(page.getByTestId('context-model-chip')).toHaveCount(0);
-    await expect(page.locator('.statusbar [data-testid="model-config-trigger"]')).toHaveCount(0);
     await page.getByTestId('model-config-trigger').click();
     await expect(page.getByTestId('model-config-popover')).toHaveCount(1);
     await page.getByTestId('model-config-model').fill('deepseek-v4-pro');
