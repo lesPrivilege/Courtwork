@@ -674,9 +674,12 @@ test('SKIN-R2-P3 pins WKWebView semantics, fixture bytes, measurements, and fram
 
 test('SKIN-R2-P4 keeps dark switching at the root token map with zero component/layout branch', () => {
   const run = (css) => checkThemeBoundary(css).map((failure) => failure.rule);
-  const rootMap = String.raw`:root[data-theme='dark'] { color:#fff; --bg-app:#000; }`;
+  const rootMap = readFileSync(new URL('../../apps/desktop/src/styles.css', import.meta.url), 'utf8');
   assert.deepEqual(run(rootMap), []);
   assert.ok(run(`${rootMap}\n[data-theme='dark'] .risk-detail { color: inherit; }`).includes('theme-boundary'));
   assert.ok(run(`${rootMap}\n:root[data-theme='dark'] { grid-template-columns: 1fr; }`).includes('theme-boundary'));
   assert.ok(run(`${rootMap}\n@media (prefers-color-scheme: dark) { :root { --bg-app:#000; } }`).includes('theme-boundary'));
+  assert.ok(run(rootMap.replace('--bg-app: #0f1622;', '--bg-app: var(--text-primary);')).includes('theme-boundary'));
+  assert.ok(run(rootMap.replace('  --bg-app: #0f1622;\n', '')).includes('theme-boundary'));
+  assert.ok(run(rootMap.replace('  --bg-app: #0f1622;', '  --bg-app: #0f1622;\n  --rogue-paper: var(--bg-app);')).includes('theme-boundary'));
 });

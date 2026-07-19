@@ -112,6 +112,20 @@ const desktopDarkColors = {
   '--zhu-graphic': 'themes.dark.semantic.zhu.graphic',
 };
 
+const desktopDarkDeclarations = new Map([
+  ...Object.entries(desktopDarkColors).map(([property, path]) => [property, tokenAt(path)]),
+  ['--bg-hover', 'color-mix(in srgb, var(--bg-raised) 78%, var(--text-secondary))'],
+  ['--control-hover', 'color-mix(in srgb, var(--bg-raised) 70%, var(--text-secondary))'],
+  ['--bg-selected', 'color-mix(in srgb, var(--blue-graphic) 18%, var(--bg-raised))'],
+  ['--action-primary-hover', 'color-mix(in srgb, var(--text-primary) 82%, var(--bg-raised))'],
+  ['--verified', 'color-mix(in srgb, var(--blue-graphic) 10%, var(--bg-raised))'],
+  ['--red-bg', 'color-mix(in srgb, var(--red-graphic) 14%, var(--bg-raised))'],
+  ['--amber-bg', 'color-mix(in srgb, var(--amber-graphic) 14%, var(--bg-raised))'],
+  ['--blue-bg', 'color-mix(in srgb, var(--blue-graphic) 14%, var(--bg-raised))'],
+  ['--green-bg', 'color-mix(in srgb, var(--green-graphic) 14%, var(--bg-raised))'],
+  ['--slate-bg', 'color-mix(in srgb, var(--slate-graphic) 14%, var(--bg-raised))'],
+]);
+
 // —— site 侧色板：磁青宗 · 按 token 名绑定（SITE-CRAFT-2 磁青宗批，2026-07-19 解冻）——
 // B1 分治裁定②立的 `siteFrozenColors` 按值冻结表，到期条件是「SITE 磁青宗批置换 site 色板」。
 // 该条件已成立，本表整体删除，改为下表按**名**绑定 `themes.dark`：站与壳 dark 同宗、同源，
@@ -150,17 +164,7 @@ const siteOgColors = {
 
 const cssColorAllowlist = new Map([
   ...Object.entries(desktopRootColors).map(([property, path]) => colorEntry('apps/desktop/src/styles.css', ':root', property, tokenAt(path))),
-  ...Object.entries(desktopDarkColors).map(([property, path]) => colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", property, tokenAt(path))),
-  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--bg-hover', 'color-mix(in srgb, var(--bg-raised) 78%, var(--text-secondary))'),
-  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--control-hover', 'color-mix(in srgb, var(--bg-raised) 70%, var(--text-secondary))'),
-  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--bg-selected', 'color-mix(in srgb, var(--blue-graphic) 18%, var(--bg-raised))'),
-  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--action-primary-hover', 'color-mix(in srgb, var(--text-primary) 82%, var(--bg-raised))'),
-  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--verified', 'color-mix(in srgb, var(--blue-graphic) 10%, var(--bg-raised))'),
-  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--red-bg', 'color-mix(in srgb, var(--red-graphic) 14%, var(--bg-raised))'),
-  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--amber-bg', 'color-mix(in srgb, var(--amber-graphic) 14%, var(--bg-raised))'),
-  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--blue-bg', 'color-mix(in srgb, var(--blue-graphic) 14%, var(--bg-raised))'),
-  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--green-bg', 'color-mix(in srgb, var(--green-graphic) 14%, var(--bg-raised))'),
-  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--slate-bg', 'color-mix(in srgb, var(--slate-graphic) 14%, var(--bg-raised))'),
+  ...[...desktopDarkDeclarations].map(([property, value]) => colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", property, value)),
   colorEntry('apps/desktop/src/styles.css', ':root', '--elevation-shadow', tokenAt('elevation.shadow.value')),
   ...Object.entries(siteDarkColors).map(([property, path]) => colorEntry('site/styles.css', ':root', property, tokenAt(path))),
   ...Object.entries(siteOgColors).map(([property, path]) => colorEntry('site/og.html', ':root', property, tokenAt(path))),
@@ -783,7 +787,7 @@ export function checkP3Evidence({ measurements, ink, digests }) {
 export function checkThemeBoundary(css) {
   const failures = [];
   const fail = (line, message) => push(failures, 'theme-boundary', 'apps/desktop/src/styles.css', line, message);
-  let rootDeclarations = 0;
+  const rootDeclarations = new Map();
   for (const declaration of parseCss(css)) {
     if (declaration.context.some((context) => /prefers-color-scheme\s*:\s*dark/i.test(context))) {
       fail(declaration.line, 'CSS prefers-color-scheme branch bypasses resolved data-theme');
@@ -793,12 +797,29 @@ export function checkThemeBoundary(css) {
       fail(declaration.line, `theme branch escaped the root token map: ${declaration.selector}`);
       continue;
     }
-    rootDeclarations += 1;
+    if (rootDeclarations.has(declaration.property)) {
+      fail(declaration.line, `dark root map duplicates ${declaration.property}`);
+    }
+    rootDeclarations.set(declaration.property, declaration);
     if (!declaration.property.startsWith('--') && declaration.property !== 'color' && declaration.property !== 'background') {
       fail(declaration.line, `dark root map changed geometry or behavior via ${declaration.property}`);
     }
   }
-  if (!rootDeclarations) fail(1, 'missing resolved dark root token map');
+  for (const [property, expected] of desktopDarkDeclarations) {
+    const declaration = rootDeclarations.get(property);
+    if (!declaration) {
+      fail(1, `dark root token map is missing ${property}`);
+      continue;
+    }
+    if (normalizeCssValue(declaration.value) !== normalizeCssValue(expected)) {
+      fail(declaration.line, `dark root token map drifted ${property}`);
+    }
+  }
+  for (const [property, declaration] of rootDeclarations) {
+    if (!desktopDarkDeclarations.has(property)) {
+      fail(declaration.line, `dark root token map added unapproved ${property}`);
+    }
+  }
   return failures;
 }
 
