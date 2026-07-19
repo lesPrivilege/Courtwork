@@ -40,7 +40,8 @@ requireText('legal', 'requestInteraction({', 'Legal demo must inject through the
 requireText('legal', 'contractSourceMd.slice(start, end) !== anchor.quote', 'Source routing must validate the exact resolved quote slice');
 
 const interactionCss = files.css.slice(files.css.indexOf('.interaction-turn-card'), files.css.indexOf('.progress-pulse'));
-if (!/border:\s*1px solid var\(--border\)/.test(interactionCss)) failures.push('Interaction card must use a hairline border');
+// SKIN-B3：断关系不断值——hairline 由 `1px` 字面量改断「走次界档（--rule-minor）」。
+if (!/border:\s*var\(--rule-minor\) solid var\(--border\)/.test(interactionCss)) failures.push('Interaction card must use a hairline border');
 if (!/background:\s*color-mix\(in srgb, var\(--generated\) 94%, var\(--bg-raised\) 6%\)/.test(interactionCss)) failures.push('Interaction card must use the approved subtle generated surface');
 if (/box-shadow|gradient|glow/i.test(interactionCss)) failures.push('Interaction card may not add shadow, gradient or glow');
 requireText('app', 'processTraceFromTurn(turn)', 'Chat reasoning must consume the shared ProcessTrace adapter');

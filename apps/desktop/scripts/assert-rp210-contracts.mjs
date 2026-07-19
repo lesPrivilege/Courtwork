@@ -26,8 +26,10 @@ has(/\.conversation-scroll\s*\{[^}]*padding:\s*12px 16px/, '留空即结构：ch
 
 // —— Item 3：chat 内卡片清算 ——
 // interaction 使用 generated 微差底色；门禁仍为既有白色轻卡
-has(/\.interaction-turn-card\s*\{[^}]*border:\s*1px solid var\(--border\);\s*border-radius:\s*6px;\s*background:\s*color-mix\(in srgb, var\(--generated\) 94%, var\(--bg-raised\) 6%\)/, 'interaction 须为 hairline + 6px + generated 微差底色');
-has(/\.turn-card-gate\s*\{[^}]*border:\s*1px solid var\(--border-strong\);\s*border-radius:\s*6px;\s*background:\s*var\(--bg-raised\)/, '门禁须保留既有白色轻卡');
+// SKIN-B3：断关系不断值——线宽由 `1px` 字面量改断「走次界档（--rule-minor）」。
+// 两卡都是内层容器，本就该在乌丝细线那一档；档位值日后调整时，此断言不必跟着改。
+has(/\.interaction-turn-card\s*\{[^}]*border:\s*var\(--rule-minor\) solid var\(--border\);\s*border-radius:\s*6px;\s*background:\s*color-mix\(in srgb, var\(--generated\) 94%, var\(--bg-raised\) 6%\)/, 'interaction 须为 hairline + 6px + generated 微差底色');
+has(/\.turn-card-gate\s*\{[^}]*border:\s*var\(--rule-minor\) solid var\(--border-strong\);\s*border-radius:\s*6px;\s*background:\s*var\(--bg-raised\)/, '门禁须保留既有白色轻卡');
 // turn-card 基座保持扁平 message 行（event/artifact/file）
 has(/\.turn-card\s*\{[^}]*border-radius:\s*0;\s*background:\s*transparent/, 'turn-card 基座须保持扁平 message 行');
 // 动作进行时文本惯例式闪烁（灰阶 opacity breathe）

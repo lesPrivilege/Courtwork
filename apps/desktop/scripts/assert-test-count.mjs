@@ -40,7 +40,10 @@ const count = match ? Number(match[1]) : 0;
 // SKIN-B2-0（排印定值批）：门④ AA 四元联测四例（字体真加载 / 槽位表逐槽 AA / 仿宋补偿实测 /
 // 标题轨定阶与配衬字）+4 → 301。与 SKIN-B3 同为并发只升点，合并取最大值。
 // SKIN-B2-1（排印置换批）：三轨上身 / @font-face 别名生效 / 数字对齐律 / 排印光学与引擎限制 +4 → 305。
-const minimum = 305;
+// SKIN-B3（线级批，第三轮 rebase 收口）：主界文武线两线俱在且粗于次界 + 线重不入 transition 兜底 +2
+// （rp210 轻卡 border 字面值断言改关系式为原地升级，不计新用例）。B3 立批时基线 297→299；
+// 现基线已为 B2 全批之后的 305，故并发只升点在此合流为 305 + 2 = 307。数字由 --list 实跑核。
+const minimum = 307;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

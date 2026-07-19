@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { confirmDemoReview, openWorkbench, tokenColor } from './helpers';
+import { confirmDemoReview, openWorkbench, ruleScale, tokenColor } from './helpers';
 
 // —— RP-2.10 三卡一纸 + 同源过程动画（docs/decisions/ADR-011-minimal-harness-kernel.md） ——
 
@@ -54,7 +54,11 @@ test('chat 内 interaction/门禁为轻卡，event/artifact/file 降扁平 messa
   const question = page.getByTestId('turn-card-question');
   await expect(question).toHaveCSS('border-radius', '6px');
   await expect(question).not.toHaveCSS('background-color', await tokenColor(page, '--bg-raised'));
-  await expect(question).toHaveCSS('border-top-width', '1px');
+  // SKIN-B3：断关系不断值——轻卡是内层容器，走次界档（乌丝细线），严格细于主界的文武线粗线。
+  const rule = await ruleScale(page);
+  const questionRule = await question.evaluate((element) => Number.parseFloat(getComputedStyle(element).borderTopWidth));
+  expect(questionRule).toBe(rule.minor);
+  expect(questionRule).toBeLessThan(rule.major);
   // gate：轻卡
   const gate = page.getByTestId('turn-card-gate');
   await expect(gate).not.toHaveCSS('border-radius', '0px');
