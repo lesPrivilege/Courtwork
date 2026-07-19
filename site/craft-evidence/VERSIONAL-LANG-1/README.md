@@ -47,3 +47,12 @@ DPR 2。`screencapture -l` 保存整扇原生窗口（文件 3424×2024，含系
 
 实现侧截图与自检不是独立放行；clean clone 的 mutation、全尺寸矩阵与真实 Tauri WKWebView 仍须
 由异会话完成并回写 ACCEPTANCE。
+
+## 首轮独立验收拒绝后的守卫修补
+
+首轮报告 `acceptance-45fb395/README.md` 真实注入
+`.composer-shell:focus-within { border-color: transparent; }`，发现原 `site:guard` 与四条 VL e2e
+同时假绿。消费 CSS 本身正确，本修补不改视觉值；只把 VL-L05 升为双锁：Pages/VL 静态契约精确
+要求既定 `var(--text-tertiary)` focus 色槽并带透明 mutation，运行时 e2e 切到可输入的 Chat composer，
+真实聚焦 textarea 后核 computed 外壳边色。静态 mutation 先红后绿，定点 e2e 4/4 绿；等待不同
+会话在 clean clone 复验，本文不把实现自证写成放行。

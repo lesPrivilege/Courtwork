@@ -24,6 +24,24 @@ test('VERSIONAL-LANG · Agent routine 线退场但 composer 与交互外框仍�
     composerFrame: 1,
     previewFrame: 1,
   });
+
+  await page.getByTestId('segment-chat').click();
+  const composer = page.locator('.composer-shell');
+  await expect(page.getByTestId('composer-input')).toBeEnabled();
+  await page.getByTestId('composer-input').focus();
+  const [focusColor, expectedFocusColor] = await Promise.all([
+    composer.evaluate((node) => getComputedStyle(node).borderTopColor),
+    page.evaluate(() => {
+      const probe = document.createElement('span');
+      probe.style.color = 'var(--text-tertiary)';
+      document.body.append(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return color;
+    }),
+  ]);
+  expect(focusColor).toBe(expectedFocusColor);
+  expect(focusColor).not.toBe('rgba(0, 0, 0, 0)');
 });
 
 test('VERSIONAL-LANG · schema 逐行线与四格竖线退场，主从界和整组界保留', async ({ page }) => {

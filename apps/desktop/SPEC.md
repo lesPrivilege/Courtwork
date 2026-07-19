@@ -3278,3 +3278,8 @@ schema 分别按 Agent 中间档、schema 最克制档执行；零改 DOM、sche
   双绑与 routine 复活均有定点门；完整门与真壳数字以最终独立报告为准。
 
 实现证据在 `site/craft-evidence/VERSIONAL-LANG-1/README.md`。实现会话不写放行结论。
+
+首轮独立验收在目标 `45fb395` 注入 composer focus 透明值，发现静态门与 VL e2e 均漏绿，故正确
+拒绝。实现回炉保持 `.composer-shell:focus-within` 现行消费值不动，只补两类前向守卫：`site:guard`
+的静态契约以透明 mutation 锁 `var(--text-tertiary)`；运行时 e2e 切入可输入 Chat composer，真实
+focus 后核 computed 外壳边色。修补仍待异会话二轮 clean-clone 放行。

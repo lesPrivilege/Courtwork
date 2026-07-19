@@ -3,7 +3,7 @@ const ruleBody = (css, selector) => {
   return css.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`, 's'))?.[1] ?? '';
 };
 
-export function validateVersionalSite({ html, css }) {
+export function validateVersionalSite({ html, css, desktopCss }) {
   const failures = [];
   const proof = ruleBody(css, '.scenario-proof');
   const proofItem = ruleBody(css, '.scenario-proof li');
@@ -31,6 +31,9 @@ export function validateVersionalSite({ html, css }) {
   }
   if (!/class="design-boundary site-marginalia"/.test(html)) failures.push('VL-P04 站面眉批未绑定唯一消费点');
   if (/writing-mode\s*:/.test(css)) failures.push('退项竖排签条不得复活');
+  if (!/\.composer-shell:focus-within\s*\{\s*border-color:\s*var\(--text-tertiary\);\s*\}/.test(desktopCss ?? '')) {
+    failures.push('VL-L05 composer focus 强边界退场或色槽漂移');
+  }
 
   return failures;
 }
