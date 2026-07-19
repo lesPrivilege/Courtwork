@@ -1,0 +1,252 @@
+{
+  "round": "round-1",
+  "base": "https://lesprivilege.github.io/Courtwork/",
+  "desktop": {
+    "name": "desktop-1280x860",
+    "status": 200,
+    "errors": [],
+    "abortedRequests": [],
+    "title": "Courtwork · 模型只生成，不裁决",
+    "viewport": [
+      1280,
+      860
+    ],
+    "scroll": [
+      1280,
+      6301
+    ],
+    "noHorizontalOverflow": true,
+    "h1": "模型只生成，不裁决。",
+    "h1Aria": "模型只生成，不裁决。",
+    "release": "刊记 · v0.1.2 · Apple Silicon开发构建 · ad-hoc 签名 · 未公证f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d",
+    "brokenImages": [],
+    "imageCount": 4,
+    "workImages": [
+      {
+        "src": "assets/screenshots/11-milestone-dossier-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/11-milestone-dossier-1440.webp",
+        "naturalWidth": 960,
+        "naturalHeight": 600
+      },
+      {
+        "src": "assets/screenshots/12-milestone-risklist-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/12-milestone-risklist-1440.webp",
+        "naturalWidth": 960,
+        "naturalHeight": 600
+      },
+      {
+        "src": "assets/screenshots/13-milestone-redline-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/13-milestone-redline-1440.webp",
+        "naturalWidth": 960,
+        "naturalHeight": 600
+      }
+    ],
+    "versionalRules": {
+      "proofInline": [
+        "0px",
+        "0px"
+      ],
+      "ledgerInternal": [
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "ledgerLast": "1px",
+      "marginalia": [
+        "1px",
+        "0px",
+        "1px",
+        "0px"
+      ]
+    },
+    "activeAnimations": 23,
+    "htmlClass": "js"
+  },
+  "narrow": {
+    "name": "narrow-375x900",
+    "status": 200,
+    "errors": [],
+    "abortedRequests": [],
+    "title": "Courtwork · 模型只生成，不裁决",
+    "viewport": [
+      375,
+      900
+    ],
+    "scroll": [
+      375,
+      8673
+    ],
+    "noHorizontalOverflow": true,
+    "h1": "模型只生成，不裁决。",
+    "h1Aria": "模型只生成，不裁决。",
+    "release": "刊记 · v0.1.2 · Apple Silicon开发构建 · ad-hoc 签名 · 未公证f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d",
+    "brokenImages": [],
+    "imageCount": 4,
+    "workImages": [
+      {
+        "src": "assets/screenshots/11-milestone-dossier-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/11-milestone-dossier-720.webp",
+        "naturalWidth": 327,
+        "naturalHeight": 204
+      },
+      {
+        "src": "assets/screenshots/12-milestone-risklist-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/12-milestone-risklist-720.webp",
+        "naturalWidth": 327,
+        "naturalHeight": 204
+      },
+      {
+        "src": "assets/screenshots/13-milestone-redline-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/13-milestone-redline-720.webp",
+        "naturalWidth": 327,
+        "naturalHeight": 204
+      }
+    ],
+    "versionalRules": {
+      "proofInline": [
+        "0px",
+        "0px"
+      ],
+      "ledgerInternal": [
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "ledgerLast": "1px",
+      "marginalia": [
+        "1px",
+        "0px",
+        "1px",
+        "0px"
+      ]
+    },
+    "activeAnimations": 23,
+    "htmlClass": "js"
+  },
+  "reduced": {
+    "name": "reduced-1280x860",
+    "status": 200,
+    "errors": [],
+    "abortedRequests": [
+      "request:net::ERR_ABORTED:https://lesprivilege.github.io/Courtwork/assets/screenshots/11-milestone-dossier-720.webp",
+      "request:net::ERR_ABORTED:https://lesprivilege.github.io/Courtwork/assets/screenshots/12-milestone-risklist-720.webp",
+      "request:net::ERR_ABORTED:https://lesprivilege.github.io/Courtwork/assets/screenshots/13-milestone-redline-720.webp"
+    ],
+    "title": "Courtwork · 模型只生成，不裁决",
+    "viewport": [
+      1280,
+      860
+    ],
+    "scroll": [
+      1280,
+      6301
+    ],
+    "noHorizontalOverflow": true,
+    "h1": "模型只生成，不裁决。",
+    "h1Aria": "模型只生成，不裁决。",
+    "release": "刊记 · v0.1.2 · Apple Silicon开发构建 · ad-hoc 签名 · 未公证f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d",
+    "brokenImages": [],
+    "imageCount": 4,
+    "workImages": [
+      {
+        "src": "assets/screenshots/11-milestone-dossier-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/11-milestone-dossier-1440.webp",
+        "naturalWidth": 960,
+        "naturalHeight": 600
+      },
+      {
+        "src": "assets/screenshots/12-milestone-risklist-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/12-milestone-risklist-1440.webp",
+        "naturalWidth": 960,
+        "naturalHeight": 600
+      },
+      {
+        "src": "assets/screenshots/13-milestone-redline-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/13-milestone-redline-1440.webp",
+        "naturalWidth": 960,
+        "naturalHeight": 600
+      }
+    ],
+    "versionalRules": {
+      "proofInline": [
+        "0px",
+        "0px"
+      ],
+      "ledgerInternal": [
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "ledgerLast": "1px",
+      "marginalia": [
+        "1px",
+        "0px",
+        "1px",
+        "0px"
+      ]
+    },
+    "activeAnimations": 3,
+    "htmlClass": "js"
+  },
+  "jsOff": {
+    "name": "js-off-375x900",
+    "status": 200,
+    "errors": [],
+    "abortedRequests": [],
+    "title": "Courtwork · 模型只生成，不裁决",
+    "viewport": [
+      375,
+      900
+    ],
+    "scroll": [
+      375,
+      8673
+    ],
+    "noHorizontalOverflow": true,
+    "h1": "模型只生成，不裁决。",
+    "h1Aria": "模型只生成，不裁决。",
+    "release": "刊记 · v0.1.2 · Apple Silicon开发构建 · ad-hoc 签名 · 未公证f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d",
+    "brokenImages": [],
+    "imageCount": 4,
+    "workImages": [
+      {
+        "src": "assets/screenshots/11-milestone-dossier-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/11-milestone-dossier-720.webp",
+        "naturalWidth": 327,
+        "naturalHeight": 204
+      },
+      {
+        "src": "assets/screenshots/12-milestone-risklist-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/12-milestone-risklist-720.webp",
+        "naturalWidth": 327,
+        "naturalHeight": 204
+      },
+      {
+        "src": "assets/screenshots/13-milestone-redline-1440.webp",
+        "currentSrc": "https://lesprivilege.github.io/Courtwork/assets/screenshots/13-milestone-redline-720.webp",
+        "naturalWidth": 327,
+        "naturalHeight": 204
+      }
+    ],
+    "versionalRules": {
+      "proofInline": [
+        "0px",
+        "0px"
+      ],
+      "ledgerInternal": [
+        "0px",
+        "0px",
+        "0px"
+      ],
+      "ledgerLast": "1px",
+      "marginalia": [
+        "1px",
+        "0px",
+        "1px",
+        "0px"
+      ]
+    },
+    "activeAnimations": 20,
+    "htmlClass": ""
+  }
+}

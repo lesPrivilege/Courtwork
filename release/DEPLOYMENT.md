@@ -161,3 +161,23 @@ SHA-256 仍为 `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d
 > **本次 Pages 两轮上线复核放行。** 没有发现需要站面修复的首轮缺陷；因此未建立修复提交，
 > 也没有夹带 SKIN-R2。现行新皮层真实界面源帧已在 `fc5d791` 落入
 > `site/craft-evidence/SITE-SHOTS-SKIN-REFRESH-3/` 并由本次部署公开消费。
+
+---
+
+## VERSIONAL-LANG-1 · Pages 版本学皮层上线复核（2026-07-20）
+
+本次仍不是 `v0.1.2` 重发；只发布已经独立验收放行的版本学皮层与三幅当前产品图。
+
+### 第一轮 — ✅ 放行
+
+- Pages run [`29702923819`](https://github.com/lesPrivilege/Courtwork/actions/runs/29702923819) /
+  job [`88234949698`](https://github.com/lesPrivilege/Courtwork/actions/runs/29702923819/job/88234949698)
+  对精确产品 head `2e2a570e3ef53bc5dd286433571c89f17ad5b119` 成功；guard、build 与 deploy 全绿。
+- 公开 HTML/CSS/JS 及六枚新响应式 WebP 与该提交逐字节相等。1280 与 375 实看均无横向溢出、
+  破图、遮挡或旧皮层回流；JS-off 与 reduced-motion 内容完整。
+- proof 内竖线、promise routine 行线与眉批四周卡框均未复活；刊记、组末界和眉批上下界仍在。
+  `v0.1.2`、64 位 SHA、ad-hoc／未公证边界和 DMG HTTP 200 保持。
+
+完整机器结果、全页帧、SHA 与 `srcset` 取消说明见
+[`release/evidence/versional-pages-2026-07-20/README.md`](evidence/versional-pages-2026-07-20/README.md)。
+第二轮将在本记录提交触发的新部署上执行，结果不预写。
