@@ -1,3 +1,14 @@
+# SKIN-B4 · 记号批独立验收（2026-07-19）
+
+- **裁决：放行。**对象 `impl/skin-b4 @ 758553a`，基线 `4dde0f0`；验收在独立 clean worktree 完成。`758553a` 非 main 祖先，已对 `main @ b879d84` 做无冲突 trial merge（tree `989606538e3a00aecb5d87324dbcb5e1e4e52ea9`），合并树 build/lint/list 与记号、线级关键门通过。
+- **两上三不上逐件复核**：鱼尾落在 `.reader-pane h3`，落定章仅 `disposition === 'confirmed'` 的风险详情卡；界行/圈点/骑缝各在 `UNCONSUMED` 有理由登记。`assert-schema-parts` 实测为 5 枚单源、2 消费、3 登记；逐一接线登记件、无数据移章、无数据线型均 `exit 1`。
+- **视觉与动效**：亲摄鱼尾与位移后的落定章；章在 52px、正文右上可见，`use` 计算态 `vector-effect: non-scaling-stroke`。`--motion-seal` 的声明/消费/消费者三事实唯一；常态 `seal-press`，reduce 计算态 `none`。删除显式停摆及放宽驳回钤印均使对应 e2e 变红，复位复绿。
+- **C-4 / 欠账**：ⓐ token mutation 使消费记号跟随，阴性 token 不动；ⓑ 壳内当前无第二宗，前向红卫在场并登记 B5 的「替换为真双主题几何断言、不得放宽」出口。`PartyEdge.factTier` 注入准确点名图谱欠账、复位恢复绿；`TimelineEvent.actor` 同样触发。该项不把 B5 未实施误报为 B4 缺陷。
+- **回归与清账**：线级普查实得 **71→69 / 186→184**；首段 kebab 属性、icon 门豁免收窄及 workbench 朱/绿断言已在全链中通过。图标重导出可复现且重跑零 diff；128px 旧退役像素清零，32px 仅余一枚 alpha=14 的边缘混色（非旧源色）；应用图标源稿与重导出结果一致。
+- **反例与全门**：12 条票面反例逐条均红后复绿（包括仪式二消费者、reduce、三件未消费、落定数据、actor/factTier、无数据线型、失参照、件库纯度、JSX kebab、TSX 内联 SVG、驳回钤印）。`pnpm -r build`、`pnpm lint`、root Vitest **148 files / 1261 tests**、静态链、`test:e2e:list` **311** 与隔离端口完整 Playwright **311** 均实跑通过。
+
+---
+
 # AUDIT-SEAL-2 独立验收（2026-07-18）
 
 - **验收角色**：未参与实现的独立验收会话；不采信实现自述，本节全部数字均来自隔离 worktree 亲手复跑。
