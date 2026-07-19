@@ -120,3 +120,44 @@ GitHub Release 公开资产：
 上轮不放行证据见本文件前一节「[`SITE-CRAFT-1 · Pages 站面更新复核（2026-07-16）— ❌ 不放行`](#site-craft-1--pages-站面更新复核2026-07-16--不放行)」：当时记录了 `6` 条幽灵 `CSSTransition`，并持续至 `t=886.5ms`。本轮以含 `47c693c` 独立验收的 `d1f6563` 部署重新逐帧确认该项归零，且其余正常态、JS 关闭、卷宗数字和 DMG 真值均通过。
 
 > **SITE-CRAFT-1-FADE Pages 上线第二轮复核放行。** 本节只记录部署验收事实；未更新 `docs/status/current.md`，未推送。
+
+---
+
+## SITE-CRAFT-2 / SKIN 前置收尾 · Pages 两轮上线复核（2026-07-19）— ✅ 放行
+
+本次只部署已批准的 `main@19242d273f12b53f4d41086ff2ba18405404ad21`，不是新版本发布；
+`v0.1.2` 的 tag、Release、DMG 与签名/公证边界均未变化。
+
+### Workflow 与远端同源
+
+- Pages workflow run [`29688703720`](https://github.com/lesPrivilege/Courtwork/actions/runs/29688703720) /
+  job [`88197486288`](https://github.com/lesPrivilege/Courtwork/actions/runs/29688703720/job/88197486288)
+  对精确 head `19242d2` 运行成功；`release-truth: PASS`、
+  `deslop: PASS (837 active text files; archive excluded from scan roots)`，部署日志为
+  `Created deployment for 19242d2...` 与 `Reported success!`。
+- 公开首页、CSS、JS、icon 与 OG 均 HTTP 200，并与该提交工作树逐字节相等；远端 CSS/JS
+  SHA-256 分别为 `c8ef7d604e3bfe273a1ec157f3a6cb14849f0eaa658e7f01c9c545440d52290e`
+  与 `f0f036e78e463bc8710f1ce9bbdf32b2777277f0151fc5742b8a8e28bbba9620`。
+
+### 第一轮：宽窗全链
+
+macOS `26.5.2` / Safari `26.5.2` 原生窗口实看，100% 首屏确认 Courtwork wordmark、
+“模型只生成，不裁决。”、四节点微演示、`v0.1.2`、64 位 SHA 与两枚真实 CTA；缩小四档后
+确认 Legal 合同、卷宗 `20 / 47 / 14 / 8`、PM `Schema catalog preview / 尚未接通运行链`、
+四项产品边界及收尾 CTA。未见破图、遮挡、横向溢出或 live 边界冒进。
+
+### 第二轮：窄窗回归
+
+同一公开 URL 将 Safari 逻辑窗宽收至 `430`、恢复 100% 缩放并重新加载。导航、标题、两枚 CTA、
+64 位 SHA 与 schema 微演示按单列重排，未见横向滚动、文字截断或控件碰撞。两轮原始 PNG、
+像素尺寸和 SHA 见 [`release/evidence/pages-2026-07-19/README.md`](evidence/pages-2026-07-19/README.md)。
+
+### 下载真值与裁决
+
+公开 DMG HEAD 返回成功；重新下载 `Courtwork_0.1.2_aarch64.dmg` 为 `4,679,277` bytes，
+SHA-256 仍为 `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d`，
+并通过随附 `.sha256` 文件校验。
+
+> **本次 Pages 两轮上线复核放行。** 没有发现需要站面修复的首轮缺陷；因此未建立修复提交，
+> 也没有夹带 SKIN-R2。现行新皮层真实界面源帧已在 `fc5d791` 落入
+> `site/craft-evidence/SITE-SHOTS-SKIN-REFRESH-3/` 并由本次部署公开消费。
