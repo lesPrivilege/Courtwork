@@ -3508,3 +3508,49 @@ before=`main@b6c6bb1`、after=`7390d32`，同為 B2-1 字體條件（`:root` 字
 | `COURTWORK_E2E_PORT=19325 pnpm --filter @courtwork/desktop test:e2e` | PASS；独立端口静态前链（含 schema-exemplar、线级、排印、SchemaParts）全绿，Playwright **311/311** |
 
 P0 零组件、token、布局、schema、scenario、wire 与行为变更，故本批不将浏览器视觉终审冒充为已完成的 P1/P2 证据；其交付是经可注入机器门保护的单一设计谱系与新表衍生入口。后续 P1 消费值仍受精确 1280×720、2400×1000 全帧前置约束，不因本 P0 放行而解除。
+
+---
+
+# ACCEPTANCE: SKIN-R2 P1 · 线级复调
+
+日期：2026-07-19；验收对象：`main @ 434c7fce776145b709d8b5f7c7257901fc8b81af`（`feat(design): retune SKIN-R2 P1 line hierarchy`）。本验收会话从共享仓库以 `git clone --no-local` 建立全新独立 clone，detach 检出目标 SHA：`/private/tmp/courtwork-skin-r2-p1-acceptance.kt8eh9`；未 checkout/stash 共享树，未复用共享 Playwright/Vite 服务，未修改实现文件，未 push。
+
+**裁决：✅ 放行 SKIN-R2 P1。**
+
+## 1. 签署账、迁移值与真实前后帧
+
+- 逐界签署表 SHA-256 实测为 `ef84049d1cfbd20b8c7ddbcdc8700760b7c58350cbb398a9a398640b57b72423`，签署投影 SHA-256 为 `018b071374fbe38279f7e1097120235329ab6335e9d44b13da102e15c1a7640d`；113 条平铺账实算为 target 113 唯一、提案行 113 唯一，判词 **留 97／减薄 12／回单线 4**，分类 **主 4／次 109**。
+- 亲读 CSS diff 与机器账：`M05` Settings、`M06` Gallery 保留 `--rule-major` + `::after --rule-minor` 全形文武线；`M01/M03` 保留粗细几何并同退至 `--border`；`M02/M04/M07/M08` 均为 `--rule-minor solid var(--border)`，旧伴生 `::after` 已撤。十条 N 项仅由 `--border-strong` 退至 `--border`。`tokens.json`、`rule-grammar-lib.mjs`、EXEMPT 账与 DOM/TSX 均未改。
+- BEFORE/AFTER 图逐张人工核对：E01 是 welcome 画面，保持没有指定主界消费证据，不补造；AFTER 的 Settings/Gallery 总界仍有层级，Session history 与 Compare pane 为单线，RiskList 的 panel/preview 层级仍在而 scene/owner 高频分隔退场。画面使用真实样板案与真实 fixture，不是空白骨架。
+- 精确帧哈希与登记一致：1280×720 `c17cb8f9…d4398955` 是 Safari 顶层 `AXWebArea` 原生、无缩放、无裁切；2400×1000 `b2be98d…22d3303` 是真实 Safari WebKit 精确 layout iframe 的完整帧，经 0.58 缩放后归一。后者只证明布局、状态与线级关系，**不作为 native-scale AA 证据**；README/metadata 对物理屏幕限制、DPR、缩放与 `nativeAA:false` 均如实披露。AFTER 源指纹 `styles.css=1099f768…bf51f14`、`assert-rule-grammar.mjs=17085c02…90fb2` 与目标提交实物逐位一致。
+
+## 2. 五类真实 mutation 定点翻红
+
+每项均在独立 clone 的真实文件上单独注入、执行 `pnpm --filter @courtwork/desktop lint:rule-grammar` 观察 exit 1，再用精确反向补丁复位；最终 `git diff --exit-code` 为 0、线级门与 schema-exemplar 门复绿。
+
+| 注入 | 实际红证 |
+|---|---|
+| `--rule-major: 2px → 1px`，制造均一 1px | 同时报 `线级 token 漂移 --rule-major` 与 `线重层级倒置：major=1 未大于 minor=1` |
+| 删除 `P1-M02` 档位账行 | 定点报缺 `P1-M02`、112/113、次界 108/109、回单线 3/4 与漏 `.pane-head|bottom` |
+| 复活 `.scene-strip::after` 双线 | 定点报 `styles.css:180 线消费点未归一分类：.scene-strip::after|top` |
+| `.sample-tour` 的签署薄色退回 `--border-strong` | 定点报 `P1 签署色槽漂移：.sample-tour|all = var(--border-strong) / var(--border)` |
+| 把 `P1-M02` target 复制为 `P1-M01` 的 `.panel-head|bottom` | 同时报消费点重复、minor/major 不一致、宽度漂移、伴生标记错误与漏原 `.pane-head|bottom` |
+
+这些反例同时证明均一 1px、漏账界线、未登记双线、签署色槽回退与重复/遗漏提案映射都不能静默穿门。
+
+## 3. 独立全量门
+
+独立 clone 先以 `pnpm install --frozen-lockfile` 从锁定 store 安装依赖。首次 `pnpm lint` 在安装前因 `eslint` 不存在而环境失败；安装后原命令重跑通过。首次根 `pnpm test` 在 workspace `dist` 尚未构建时因 package exports 无法解析而失败（62 suites + 3 tests；均是入口缺失/0-test 形状），随后完整 `pnpm -r build` 生成各包产物，再重跑根测试全绿。两次前置环境红均未冒充代码门通过。
+
+| 门 | 结果 |
+|---|---|
+| `pnpm site:guard` | PASS；58/58 Node tests；fresh clone 的 deslop 为 851 个现行文本文件，全部设计门（含 schema-exemplar）通过 |
+| `pnpm lint`（安装后） | PASS |
+| `pnpm -r build` | PASS；13 个具 build 脚本的 workspace 全部完成，desktop `tsc -b && vite build` 通过 |
+| 根 `pnpm test`（构建后复跑） | PASS；148 files / 1261 tests |
+| `pnpm --filter @courtwork/desktop test` | PASS；59 files / 371 tests |
+| `COURTWORK_E2E_PORT=19341 pnpm --filter @courtwork/desktop test:e2e` | PASS；独立端口静态前链全绿，Playwright **312/312 passed（2.9m）** |
+
+实现证据所记 deslop 863 与 fresh clone 的 851 是工作树当时额外现行文本库存差异；同一提交的守卫规则与全部 58 测试在独立 clone 通过，故不把扫描文件计数当作稳定契约或回退数字。
+
+P1 只改线级消费值、签署账、门与证据；未改 schema、payload、scenario、wire、token 值、字体、主题、记号、Rust、数据或交互骨架。以上实物、反例与全门均成立，故放行本批；本结论不扩大到 P2 排印/版式、P3 巧思、P4 深色或 P5 Pages。
