@@ -1,0 +1,48 @@
+{
+  "acceptanceTarget": "962c51338dafa315447beeb8da2956ae5a3a4e0b",
+  "capturedAt": "2026-07-20T02:45:00+08:00",
+  "system": {
+    "product": "macOS",
+    "version": "26.5.2",
+    "build": "25F84",
+    "appearance": "Dark"
+  },
+  "authority": {
+    "runtime": "Tauri WKWebView",
+    "isolatedVitePort": 19512,
+    "windowCssPx": "1600x900",
+    "devicePixelRatio": 2
+  },
+  "liveAccessibility": {
+    "windowTitle": "SKIN-R2 P4 reacceptance · 962c513",
+    "settingsVisible": true,
+    "appearanceSectionVisible": true,
+    "themeModeControlVisible": true,
+    "themeModeVisibleValue": "System"
+  },
+  "rootResolution": {
+    "browserAssertion": "data-theme=dark; data-theme-mode absent",
+    "trueShellObservation": "System selected while the live WKWebView consumes the dark palette",
+    "reason": "macOS appearance was Dark and the only approved dark consumer is the resolved root data-theme map"
+  },
+  "frame": {
+    "file": "tauri-dark-settings.png",
+    "capturedPx": "3424x2024",
+    "sha256": "4da29f197fdb785bb1d250a82e1f1acbb3b5544ce1ea635f4d4b9dc2e84c55da",
+    "matchesFirstIndependentAcceptance": true
+  },
+  "consumptionDiff": {
+    "base": "f8d10b59eb3167fd36e0d65985ca638924953b85",
+    "paths": [
+      "packages/design-tokens/tokens.json",
+      "apps/desktop/src/styles.css",
+      "apps/desktop/src/settings"
+    ],
+    "changed": false
+  },
+  "cleanup": {
+    "tauriStopped": true,
+    "viteStopped": true,
+    "portReleased": true
+  }
+}
