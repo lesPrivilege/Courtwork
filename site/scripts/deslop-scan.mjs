@@ -68,7 +68,7 @@ if (/<rect[^>]*\brx="1[0-9][0-9]"/.test(icon) || /<(?:circle|ellipse|polygon)\b/
   failures.push('site/assets/icon.svg: wordmark takes the core geometry only — no plate, no new primitives');
 }
 for (const failure of checkBrandLineage({
-  master: readFileSync(resolve('docs/design/icon-dark.svg'), 'utf8'),
+  master: readFileSync(resolve('docs/design/icon-light.svg'), 'utf8'),
   variant: icon,
 })) {
   failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);

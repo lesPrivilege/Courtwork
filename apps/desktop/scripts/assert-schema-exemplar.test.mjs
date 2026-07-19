@@ -68,6 +68,17 @@ test('档位账接受已签 P2/P3/P4/P5 行但拒绝未登记批次语法', () =
   assert.match(validateSchemaExemplarContract(signed).join('\n'), /future 缺已批提案行/);
 });
 
+test('档位账接受 VERSIONAL-LANG-2 的颜色、排印与线级签署行', () => {
+  const signed = fixture();
+  signed.tierLedger.push(
+    { target: 'site/styles.css#reference-light-palette', tier: 'pages-experimental', approvedProposalLine: 'VL2-C01' },
+    { target: 'site/styles.css#h1.zh-title|weight', tier: 'pages-experimental', approvedProposalLine: 'VL2-T01' },
+    { target: 'site/styles.css#versional-routine-lines-r2', tier: 'pages-experimental', approvedProposalLine: 'VL2-L01' },
+    { target: 'apps/desktop/src/styles.css#document-routine-lines-r2', tier: 'agent-interface', approvedProposalLine: 'VL2-L02' },
+  );
+  assert.deepEqual(validateSchemaExemplarContract(signed), []);
+});
+
 test('定点拒绝缺来源与哈希漂移', () => {
   const missing = fixture();
   missing.sourceTexts.delete(missing.manifest.sources[0].path);

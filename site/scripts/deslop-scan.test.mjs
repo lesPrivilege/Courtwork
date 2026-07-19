@@ -397,24 +397,23 @@ test('SITE-CRAFT-2 朱 stays inside the adjudication frame instead of becoming a
   assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n@keyframes seal-pulse { to { border-color: var(--zhu-graphic); } }`).includes('color-grammar'));
 });
 
-test('SITE-CRAFT-2 site palette is bound to themes.dark by name, not by a frozen copy', () => {
-  // 解冻后 site 的 :root 只有一份真源（tokens.json）。逐项反例：任一槽位漂离 themes.dark 即触红——
+test('VERSIONAL-LANG-2 site palette is bound to the reference light tokens by name', () => {
+  // site 的 :root 只有一份真源（tokens.json）。逐项反例：任一槽位漂离 color.* 即触红——
   // 这同时证明「按名绑定」是真绑定，不是碰巧值相等。
   const board = readFileSync(new URL('site/styles.css', repoRoot), 'utf8');
   assert.deepEqual(rules([source('site/styles.css', board)]), []);
   for (const [property, drifted] of [
-    ['--bg-app', hex('0F1623')],
-    ['--text-primary', hex('E4E9F0')],
-    ['--border-focus', hex('6A94F0')],
-    ['--zhu-graphic', hex('D75A3D')],
-    ['--gold', hex('D9AE6B')],
+    ['--bg-app', hex('F7F8FB')],
+    ['--text-primary', hex('232B39')],
+    ['--border-focus', hex('2563EA')],
+    ['--zhu-graphic', hex('BE4B2E')],
+    ['--gold', hex('8F6421')],
   ]) {
     const mutated = board.replace(new RegExp(`(${property}: )#[0-9A-Fa-f]{6};`), `$1${drifted};`);
     assert.notEqual(mutated, board, `mutation probe failed to bite ${property}`);
     assert.ok(rules([source('site/styles.css', mutated)]).includes('raw-color'), `${property} drift went unnoticed`);
   }
-  // 冻结表的到期指针已兑现。此处不复述退役值（SKIN-B1 判例三：退役值只可述比值不可复述色值）——
-  // 上面的逐项 deepEqual 已是更强的证明：允许面只认 themes.dark，旧板任一枚值都无处落脚。
+  // 上面的逐项 deepEqual 是强证明：允许面只认 reference light token，字面复制无法蒙混。
 });
 
 // SITE-CRAFT-2 磁青宗批：SchemaParts 三条解耦预留的反例集（回迁 R2 零重绘的机器可验形态）。

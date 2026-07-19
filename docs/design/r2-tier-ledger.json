@@ -1556,6 +1556,26 @@
       "target": "site/styles.css#.site-marginalia",
       "tier": "pages-experimental",
       "approvedProposalLine": "VL-P04"
+    },
+    {
+      "target": "site/styles.css#reference-light-palette",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "VL2-C01"
+    },
+    {
+      "target": "site/styles.css#h1.zh-title|weight",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "VL2-T01"
+    },
+    {
+      "target": "site/styles.css#versional-routine-lines-r2",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "VL2-L01"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#document-routine-lines-r2",
+      "tier": "agent-interface",
+      "approvedProposalLine": "VL2-L02"
     }
   ]
 }

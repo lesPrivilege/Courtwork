@@ -50,25 +50,23 @@
   unicode-range: U+0043, U+006B, U+006F, U+0072, U+0074, U+0075, U+0077;
 }
 
-/* SITE-CRAFT-2 磁青宗批 · 色彩语法四位：磁青为底、墨为记、朱仅裁决、泥金 hero 唯一强调。
-   底色一律 themes.dark（站与壳 dark 同宗，deslop 按 token 名逐项锚定，站面零第二真源）；
-   记号层全走中性墨阶不携语义；朱只许出现在人做决定处；泥金在 hero 出现一次，别处零消费。
-   朱与泥金的稀缺性由 deslop `color-grammar` 门强制——越界即触红，不靠自觉。 */
+/* VERSIONAL-LANG-2 · 参考稿浅宗。色值逐项绑定 docs/design/tokens.json 的 color.*，不复制出
+   第二套色源；冷白三级台阶负责空间，朱只服务人工裁决，琥珀只在 hero 母题稀缺出现。 */
 :root {
-  --bg-app: #0F1622;
-  --bg-surface: #16202F;
-  --bg-raised: #223047;
-  --text-primary: #E4E9F1;
-  --text-secondary: #A9B4C6;
-  --text-tertiary: #6E7C92;
-  --text-inverse: #0F1622;
-  --border-hairline: #2A3A52;
-  --border-strong: #3E5270;
-  --border-focus: #6A94F1;
-  --red-fg: #DE8881;
-  --zhu-graphic: #D75A3C;
-  --zhu-fg: #E2857A;
-  --gold: #D9AE6A;
+  --bg-app: #F7F8FA;
+  --bg-surface: #F2F4F7;
+  --bg-raised: #FFFFFF;
+  --text-primary: #232B38;
+  --text-secondary: #55617A;
+  --text-tertiary: #637083;
+  --text-inverse: #F7F8FA;
+  --border-hairline: #D5DAE3;
+  --border-strong: #C3CAD6;
+  --border-focus: #2563EB;
+  --red-fg: #A83226;
+  --zhu-graphic: #BE4B2F;
+  --zhu-fg: #BE4B2F;
+  --gold: #8F6420;
   --mac-close: #FF5F57;
   --mac-minimize: #FEBC2E;
   --mac-zoom: #28C840;
@@ -81,20 +79,14 @@
      经 unicode-range 钉死——**不依赖宿主装没装西文体**，原「三兜底全缺则数字落仿宋」的残留至此闭合
      （红证见 craft-evidence B8）。Charter 一组留在其后只服务分段外的西文字母；CJK 落朱雀。 */
   --font-doc: "Courtwork Doc Numerals", Charter, "Bitstream Charter", Georgia, "Times New Roman", "Zhuque Fangsong", "STFangsong", "FangSong", serif;
-  /* themes.dark 未设 bg.hover 槽位（B0 定值只到三级台阶）：站面按台阶自派生，不自造 hex。 */
-  --bg-hover: color-mix(in srgb, var(--bg-raised) 88%, var(--text-primary));
+  --bg-hover: #E6E8EC;
   --motion-press: 120ms;
   --ease-out: cubic-bezier(.23, 1, .32, 1);
   --page-max: 1440px;
   --page-gutter: 32px;
-  /* 元信息按底色分档（本批实测闭合，见 SPEC 提案区）：底纸上用 tertiary，浮起面上升一档到
-     secondary。深宗把中性阶与浮起面的明度差压窄了——同一枚 --text-tertiary 在底纸上 4.28:1，
-     落到 bg-raised 只剩 3.14:1。分档是**消费侧**闭合：零新色值、不动 tokens.json、不碰产品壳，
-     故不预支 B2 票面②对共用 token 的取值裁定。 */
+  /* 浅宗 tertiary 已按最严 raised 面闭合 AA；元信息不再按容器另立一套消费阶。 */
   --meta: var(--text-tertiary);
 }
-.mac-window, .evidence, .scenario-ledger, .promise, .work-crop { --meta: var(--text-secondary); }
-.demo-doc { --meta: var(--text-tertiary); } /* 窗内的「原件」纸面是底纸，分档随之回落 */
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -154,8 +146,8 @@ main { overflow: clip; }
 .hero { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 112px 0 104px; }
 .hero-copy { max-width: 760px; }
 .eyebrow { margin: 0; color: var(--meta); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; }
-/* 标题轨消费面：h1/h2/h3 一律用通行宋体；大字号取 400（宋体大字重
-   本就厚，加粗即糊），小字号取 700 补足视觉重量。字重携层级语义，非装饰（与线级语法同构）。
+/* 标题轨消费面：h1/h2/h3 一律用通行宋体；hero 依产品指令与四栏标题同取 700，
+   h2 保持 400，字重携层级语义，非装饰（与线级语法同构）。
    .zh-display 只留给落定章与承诺账的品牌记号，不再承载标题。 */
 h1, h2, h3 { margin: 0; font-weight: 510; letter-spacing: -.02em; text-wrap: balance; }
 .zh-title { font-family: var(--font-title); font-synthesis: none; }
@@ -179,7 +171,7 @@ h1, h2, h3 { margin: 0; font-weight: 510; letter-spacing: -.02em; text-wrap: bal
 }
 h2.zh-title { font-weight: 400; }
 h3.zh-title { font-weight: 700; }
-h1.zh-title { font-weight: 400; }
+h1.zh-title { font-weight: 700; }
 /* 朱雀仿宋消费者：单字重（零粗体律——仿宋无原生粗体，伪粗体一律禁），
    层级靠字号与留白；强调走记号系（圈点/侧点）不走加粗。 */
 .zh-display { font-family: var(--display); font-weight: 400; font-synthesis: none; letter-spacing: .02em; }
@@ -328,7 +320,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 
 .evidence { padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)) 128px; border-block: 1px solid var(--border-hairline); background: var(--bg-raised); }
 .evidence-chain { max-width: var(--page-max); margin: 56px auto 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; border-top: 2px solid var(--border-strong); }
-.evidence-step { position: relative; min-width: 0; padding: 32px 24px 0; border-right: 1px solid var(--border-hairline); transition: background-color 160ms var(--ease-out); }
+.evidence-step { position: relative; min-width: 0; padding: 32px 24px 0; border-right: 0; transition: background-color 160ms var(--ease-out); }
 .evidence-step:last-child { border-right: 0; }
 .evidence-step::before { content: ""; position: absolute; top: -7px; left: 24px; width: 12px; height: 12px; border: 2px solid var(--bg-raised); border-radius: 50%; background: var(--border-strong); }
 .evidence-step.is-visible { background: var(--bg-app); }
@@ -344,7 +336,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 
 .work-ledger { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 72px 0 40px; }
 .work-ledger > .section-heading { padding-bottom: 28px; }
-.work-row { display: grid; grid-template-columns: minmax(240px, 4fr) minmax(0, 8fr); gap: 32px; align-items: center; padding: 28px 0; border-top: 1px solid var(--border-hairline); }
+.work-row { display: grid; grid-template-columns: minmax(240px, 4fr) minmax(0, 8fr); gap: 32px; align-items: center; padding: 28px 0; border-top: 0; }
 .work-copy span { color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .work-copy h3 { margin-top: 10px; }
 .work-copy p { max-width: 30rem; margin: 16px 0 0; color: var(--text-secondary); font-size: 16px; }
@@ -394,8 +386,8 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .mark-seam { width: 72px; height: 24px; display: block; color: inherit; }
 .scenario-ledger { padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)) 96px; border-bottom: 1px solid var(--border-hairline); background: var(--bg-raised); }
 .scenario-rows { max-width: var(--page-max); margin: 48px auto 0; }
-.scenario-row { display: grid; grid-template-columns: minmax(220px, 3fr) minmax(0, 9fr); gap: 48px; align-items: center; padding: 44px 0; border-top: 1px solid var(--border-strong); }
-.scenario-row:last-child { border-bottom: 1px solid var(--border-strong); }
+.scenario-row { display: grid; grid-template-columns: minmax(220px, 3fr) minmax(0, 9fr); gap: 48px; align-items: center; padding: 44px 0; border-top: 0; }
+.scenario-row:last-child { border-bottom: 0; }
 .scenario-kicker { color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .scenario-kicker b { color: var(--text-secondary); font-weight: 510; }
 .scenario-copy h3 { margin-top: 10px; }
@@ -433,7 +425,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
    token，不是放宽红的预算：红（--red-fg）与朱（--zhu-*）在门内是两族，各有专属消费面。 */
 .settle-seal { position: absolute; right: 0; top: 4px; width: 88px; height: 88px; color: var(--zhu-graphic); transform: rotate(-2deg); }
 .settle-seal text { fill: currentColor; font-size: 28px; text-anchor: middle; }
-.design-boundary { max-width: var(--page-max); margin: 48px auto 0; padding: 20px 4px; border: 0; border-block: 1px solid var(--border-hairline); background: transparent; color: var(--text-secondary); font-family: var(--mono); font-size: 12px; line-height: 1.9; }
+.design-boundary { max-width: var(--page-max); margin: 48px auto 0; padding: 20px 4px; border: 0; border-block: 0; background: transparent; color: var(--text-secondary); font-family: var(--mono); font-size: 12px; line-height: 1.9; }
 .design-boundary p { margin: 0; }
 .design-boundary a { color: var(--text-primary); }
 

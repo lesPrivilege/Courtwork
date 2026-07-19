@@ -2,6 +2,13 @@
 
 状态：SITE-2 Evidence Line 与 SITE-GEN-1 多场景台账已经独立验收；`v0.1.2` Release、Pages、远端资产校验与 macOS/Safari 真机复核均已完成。
 
+## VERSIONAL-LANG-2 · 参考浅宗与二次减线（实现待独立验收）
+
+- Pages 颜色逐槽接回两版产品参考稿共用的冷白浅宗；机器门仍按名绑定 `docs/design/tokens.json color.*`，不复制第二色源。desktop 既有浅宗本来已逐值相同，故不做无效换值；深宗 opt-in 契约原样保留。
+- Hero“模型只生成，不裁决”继续用既有 Noto Serif SC，升到与下一节四栏标题同一 700 重端；字体资产、子集、许可链零变动。
+- 二次减线只退 routine 边界：Pages 连续叙事四栏/行界/眉批框，以及 Agent 文书标题、起草纸、进度条与粘贴展开内线。焦点、输入、Mac 外框、schema 数据界与确认/失败边界保留。
+- 提案行、参考哈希、提交考古和复杂度说明见 [`craft-evidence/VERSIONAL-LANG-2/PROPOSAL.md`](craft-evidence/VERSIONAL-LANG-2/PROPOSAL.md)。本实现会话只自检，不写放行结论。
+
 ## SITE-GEN-1 · 多场景泛化台账（已独立验收并上线）
 
 保留 Evidence Line Hero，不改成场景卡片目录。在既有连续台账后增加“同一底座，换的是判断”三段：

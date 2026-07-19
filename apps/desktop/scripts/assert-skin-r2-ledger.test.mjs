@@ -64,3 +64,8 @@ test('注入八：焦点态 Preview 的窗口安全区不得漏账', () => {
   const fixture = validFixture().filter((entry) => entry.approvedProposalLine !== 'P2-L21');
   assert.match(validateSignedR2Ledger(fixture).join('\n'), /已签提案行缺失：P2-L21/);
 });
+
+test('注入九：版本学二次减法与浅宗色阶不得漏账', () => {
+  const fixture = validFixture().filter((entry) => entry.approvedProposalLine !== 'VL2-C01');
+  assert.match(validateSignedR2Ledger(fixture).join('\n'), /已签提案行缺失：VL2-C01/);
+});

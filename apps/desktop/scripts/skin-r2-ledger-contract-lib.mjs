@@ -74,6 +74,10 @@ export const signedR2LedgerRows = Object.freeze([
   ['VL-P02', 'site/styles.css#.scenario-proof|grouped-ledger', 'pages-experimental'],
   ['VL-P03', 'site/index.html#.publication-colophon', 'pages-experimental'],
   ['VL-P04', 'site/styles.css#.site-marginalia', 'pages-experimental'],
+  ['VL2-C01', 'site/styles.css#reference-light-palette', 'pages-experimental'],
+  ['VL2-T01', 'site/styles.css#h1.zh-title|weight', 'pages-experimental'],
+  ['VL2-L01', 'site/styles.css#versional-routine-lines-r2', 'pages-experimental'],
+  ['VL2-L02', 'apps/desktop/src/styles.css#document-routine-lines-r2', 'agent-interface'],
 ]);
 
 export const retiredP5ProposalLines = Object.freeze(['P5-F06', 'P5-F07', 'P5-F08']);

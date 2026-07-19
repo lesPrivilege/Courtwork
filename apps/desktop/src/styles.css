@@ -637,7 +637,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .card-heading strong { font-weight: 510; }
 .data-card p { margin: 2px 0 0; color: var(--text-secondary); font-size: var(--type-dense-body-size); line-height: 1.55; }
 .domain-badge { color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.progress-card { width: 100%; display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-top: var(--rule-minor) solid var(--border); border-bottom: var(--rule-minor) solid var(--border); background: transparent; color: var(--text-secondary); font-size: var(--type-dense-body-size); }
+.progress-card { width: 100%; display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-top: 0; border-bottom: 0; background: transparent; color: var(--text-secondary); font-size: var(--type-dense-body-size); }
 .event-stream { width: 100%; display: grid; }
 .event-row { min-height: 28px; display: grid; grid-template-columns: 42px 8px 1fr; align-items: center; gap: 8px; padding: 3px 8px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .event-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--slate-graphic); }
@@ -1336,7 +1336,7 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .risk-detail > footer > span:first-child { flex-basis: 100%; }
 .risk-detail > footer i { flex: 1; }
 .document-preview { padding: 14px 24px; background: var(--bg-raised); font-family: var(--font-body); font-size: var(--type-document-size); line-height: var(--type-document-line-height); text-align: justify; }
-.document-preview header { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: var(--rule-minor) solid var(--border); }
+.document-preview header { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 0; }
 .document-preview header strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .document-preview header span { color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--mono); font-variant-numeric: tabular-nums; }
 .document-preview del { color: var(--red-fg); background: var(--red-bg); }
@@ -1365,7 +1365,7 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .draft-panel > header strong { font-weight: 510; }
 .draft-panel > header span { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .draft-panel > header button { margin-left: auto; }
-.draft-editor, .draft-reading { width: 100%; min-height: 520px; margin: 0; padding: 28px 40px; border: var(--rule-minor) solid var(--border); border-radius: 0; background: var(--bg-raised); color: var(--text-primary); font-family: var(--font-body); font-size: var(--type-document-size); line-height: var(--type-document-line-height); }
+.draft-editor, .draft-reading { width: 100%; min-height: 520px; margin: 0; padding: 28px 40px; border: 0; border-radius: 0; background: var(--bg-raised); color: var(--text-primary); font-family: var(--font-body); font-size: var(--type-document-size); line-height: var(--type-document-line-height); }
 .draft-editor { cursor: text; }
 .draft-panel.frozen .draft-reading { background: var(--bg-surface); }
 .draft-editor h2, .draft-reading h2 { margin: 0 0 14px; font-family: var(--font-title); font-size: 16px; font-weight: 400; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
@@ -1771,7 +1771,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .md-table th { background: var(--bg-surface); color: var(--text-tertiary); font-weight: 510; white-space: nowrap; }
 .md-hr { margin: 0; border: 0; height: 1px; background: var(--border); }
 .paste-block.is-overflowing:not(.is-expanded) .paste-block-body { -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) 62%, transparent); mask-image: linear-gradient(to bottom, var(--text-primary) 62%, transparent); }
-.paste-block .collapse-toggle { width: 100%; padding: 3px 10px; border: 0; border-top: var(--rule-minor) solid var(--border); background: transparent; color: var(--text-tertiary); cursor: pointer; text-align: left; font-size: var(--type-dense-meta-size); }
+.paste-block .collapse-toggle { width: 100%; padding: 3px 10px; border: 0; border-top: 0; background: transparent; color: var(--text-tertiary); cursor: pointer; text-align: left; font-size: var(--type-dense-meta-size); }
 .paste-block .collapse-toggle:hover { background: var(--control-hover); color: var(--text-primary); }
 /* composer 内粘贴块预览 chip */
 .composer-paste-list { display: flex; flex-direction: column; gap: 4px; margin: 0 0 6px; }
