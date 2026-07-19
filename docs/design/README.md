@@ -8,7 +8,7 @@
 | `principles.md` | 组件与交互原则 |
 | `voice.md` | 文案与用语规范（动作命名、错误/完成/进行/空态体例、零技术概念暴露），可机器断言条款由 `lint:voice` 守 |
 | `signature-line.md` | “法理之线”状态语义与白名单 |
-| `typography-density.md` | 排版与密度 |
+| `typography-density.md` | 排版与密度 + **排印凡例**（三轨字体制/字重即层级/墨色律/度量律/槽位表与机器门清单；值表随 B2-0 定值批落 tokens.json） |
 | `svg-standards.md` | SVG 工程规则 |
 | `icon.md` | 品牌图标规则 |
 | `site-evidence-line.md` | Pages 首页的证据链叙事、真实材料与发布验收规则 |
