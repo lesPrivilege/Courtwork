@@ -51,4 +51,4 @@ const iconRule = css.match(/\.line-icon\s*\{([^}]*)\}/)?.[1] ?? '';
 if (!iconRule.includes('color: var(--slate-graphic)')) violations.push('图标未锁定品牌中性色');
 
 if (violations.length) throw new Error(`法理之线使用域审计失败：\n${violations.join('\n')}`);
-globalThis.process.stdout.write('法理之线审计通过：右栏白名单 + 五色封闭集 + icon 品牌单色\n');
+globalThis.process.stdout.write('法理之线审计通过：右栏白名单 + 六色封闭集 + icon 品牌单色\n');
