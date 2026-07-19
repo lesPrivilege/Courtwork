@@ -26,14 +26,20 @@ async function installFonts(page: import('@playwright/test').Page) {
   // 必须走 openWorkbench 而非裸 goto：Vite dev 由 JS 注入样式表，页面 load 事件早于 :root
   // 自定义属性可读之时——裸 goto 下 getPropertyValue 全取空串，对比度会算成 1:1 的假数据。
   await openWorkbench(page);
-  await page.evaluate(async (fonts) => {
-    for (const spec of Object.values(fonts)) {
-      const face = new FontFace(spec.family, `url(/src/assets/fonts/${spec.file})`, { weight: String(spec.weight) });
-      await face.load();
-      document.fonts.add(face);
-    }
+  // SKIN-B2-1 起壳内自带 @font-face，字体由**产品自己**供给，不再由本谱手工注入 FontFace。
+  // 这既去掉了重复 face（重复项会让 document.fonts.check 因其中一份懒加载而返回 false），
+  // 也让本谱从「模拟装字」升级为「验产品真的装了字」——测的是出厂机制，不是测试脚手架。
+  await page.evaluate(async () => {
+    const host = document.createElement('div');
+    host.id = 'b20-warm';
+    host.style.cssText = 'position:fixed;left:-9999px';
+    host.innerHTML = '<span style="font:400 16px var(--font-body)">合同甲乙</span>'
+      + '<span style="font:400 20px var(--font-title)">合同甲乙</span>'
+      + '<span style="font:600 20px var(--font-title)">合同甲乙</span>';
+    document.body.append(host);
     await document.fonts.ready;
-  }, FONTS);
+    host.remove();
+  });
 }
 
 /** 在离屏 canvas 上渲染同一串，回报墨量（着墨像素占比）与横向字面宽——仿宋实际度量的取法。 */
@@ -53,6 +59,19 @@ const INK_PROBE = `(font, size, text, weight) => {
 
 test('门④-1 字体真加载：三件子集就位，度量不是回退字的度量', async ({ page }) => {
   await installFonts(page);
+  // SKIN-B2-1 起壳内自带 @font-face：document.fonts.check() 会把**所有**同名 face 计入，
+  // 其中 CSS 声明的那一份是懒加载的，没人用就永远 unloaded，check 便返回 false。
+  // 故须先让三件真的被用上——这不是放宽断言，是让它问对问题（字真的能上身吗）。
+  await page.evaluate(async () => {
+    const host = document.createElement('div');
+    host.style.cssText = 'position:fixed;left:-9999px';
+    host.innerHTML = '<span style="font:400 16px var(--font-body)">合同</span>'
+      + '<span style="font:400 20px var(--font-title)">合同</span>'
+      + '<span style="font:600 20px var(--font-title)">合同</span>';
+    document.body.append(host);
+    await document.fonts.ready;
+    host.remove();
+  });
   const loaded = await page.evaluate((fonts) => ({
     body: document.fonts.check(`400 16px "${fonts.body.family}"`),
     title400: document.fonts.check(`400 20px "${fonts.title400.family}"`),

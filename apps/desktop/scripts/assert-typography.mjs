@@ -17,6 +17,10 @@ const root = process.cwd();
 const tokens = JSON.parse(readFileSync(path.resolve(root, '..', '..', 'docs', 'design', 'tokens.json'), 'utf8'));
 const typo = tokens.typography ?? {};
 const failures = [];
+const css = readFileSync(path.join(root, 'src/styles.css'), 'utf8');
+const manifestPath = path.join(root, 'src/assets/fonts/subset-manifest.json');
+const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+
 
 const sourceFiles = (dir, out = []) => {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -31,10 +35,8 @@ const sourceFiles = (dir, out = []) => {
 // B2-1 迁移清单：尚未接线的裸字栈逐条具名登记。清单即 B2-1 的工单范围——
 // 迁一条删一条，删空即消费面置换完成。任何**未登记**的新裸字栈立即触红。
 const PENDING_MIGRATION = {
-  'src/styles.css|"Songti SC", STSong, "Noto Serif CJK SC", serif':
-    '.welcome-slogan 的原型标题栈——B2-1 迁 var(--font-title)（思源宋 SC）',
-  'src/icons/icon-audit.css|-apple-system, "Segoe UI", "PingFang SC", "Noto Sans SC", sans-serif':
-    'dev 图标审计页基栈——**已与 typography.family.ui 漂移**（缺 MiSans/雅黑/Helvetica Neue/Arial）。该文件的 tertiary 硬编码已随 B2-0 收口同步（由 site 侧 deslop raw-color 逐声明 allowlist 抓出），此处只余字栈待迁',
+  // B2-1：清单即进度条。迁一条删一条，删空即消费面置换完成——现已删空。
+  // 空清单不是空门：任何新增的裸字栈仍会因未登记而红（见 mutation）。
 };
 
 const normalizeStack = (raw) => raw.replace(/\s+/g, ' ').trim().replace(/;$/, '');
@@ -45,7 +47,9 @@ const tokenStacks = new Set(Object.values(typo.family ?? {})
 const seenPending = new Set();
 for (const file of sourceFiles(path.join(root, 'src'))) {
   const rel = path.relative(root, file);
-  const text = readFileSync(file, 'utf8');
+  // @font-face 体内的 font-family 是**别名定义**不是字栈消费——它宣告一个名字，不选用任何字。
+  // 其正确性另由上方「@font-face 别名契约」按清单逐件校验，故此处剔除，不是开口子。
+  const text = readFileSync(file, 'utf8').replace(/@font-face\s*\{[^}]*\}/g, '');
   for (const match of text.matchAll(/font-family\s*:\s*([^;}\n]+)/g)) {
     const stack = normalizeStack(match[1]);
     if (/^var\(--[\w-]+\)$/.test(stack) || stack === 'inherit') continue; // 已按名消费
@@ -59,8 +63,37 @@ for (const key of Object.keys(PENDING_MIGRATION)) {
   if (!seenPending.has(key)) failures.push(`门①字栈单源：B2-1 迁移清单有陈项，src 已无此字栈 —— ${key}`);
 }
 
+// ── 门①附 · CSS 字栈变量单源 + @font-face 别名契约（B2-1 消费面置换随附）────────
+// 变量若与 token 漂移，按名消费就成了按名撒谎；@font-face 若漏挂别名，字栈会静默穿透
+// 到系统衬线（B2-0 已立契：思源 CN 包内名与 SemiBold 独立族名是两个现成陷阱）。
+// 轨 → CSS 变量名走**显式登记**而非按名推导（承 B2-0 判例：line.settled 在壳里叫 --zhu-graphic，
+// 推名必推错）。mono 沿用既有 `--mono`：改名要动 40 余个数据区消费点，凡例未要求，不为整齐而动。
+const FAMILY_VARS = { title: '--font-title', body: '--font-body', ui: '--font-ui', mono: '--mono' };
+const rootBlock = css.match(/:root\s*\{([\s\S]*?)\n\}/)?.[1] ?? '';
+for (const [slot, varName] of Object.entries(FAMILY_VARS)) {
+  const declared = rootBlock.match(new RegExp(`${varName}\\s*:\\s*([^;]+);`))?.[1]?.trim();
+  const token = typo.family?.[slot]?.value;
+  if (!declared) { failures.push(`字栈变量缺位：${varName} 未在 :root 声明（${slot} 轨）`); continue; }
+  if (normalizeStack(declared).replace(/'/g, '"') !== normalizeStack(token ?? '').replace(/'/g, '"')) {
+    failures.push(`字栈变量漂移 ${varName}：\n  css   = ${declared}\n  token = ${token ?? '(缺)'}`);
+  }
+}
+
+const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1]);
+const faceOf = (family, weight) => faces.find((body) =>
+  new RegExp(`font-family:\\s*'${family}'`).test(body) && new RegExp(`font-weight:\\s*${weight}\\b`).test(body));
+for (const entry of manifest.fonts ?? []) {
+  const body = faceOf(entry.cssFamily, entry.weight);
+  if (!body) {
+    failures.push(`@font-face 别名契约破裂：清单件 ${entry.file}（${entry.cssFamily} ${entry.weight}）无对应 @font-face——漏别名即静默穿透系统衬线`);
+    continue;
+  }
+  if (!body.includes(entry.file)) {
+    failures.push(`@font-face 指向错件：${entry.cssFamily} ${entry.weight} 未引用 ${entry.file}`);
+  }
+}
+
 // ── 门② 伪粗体 ──────────────────────────────────────────────────────────────
-const css = readFileSync(path.join(root, 'src/styles.css'), 'utf8');
 if (!/font-synthesis\s*:\s*none/.test(css)) {
   failures.push('门②伪粗体：styles.css 丢失 font-synthesis: none 存在锁——中文伪粗会立刻回潮');
 }
@@ -100,8 +133,6 @@ for (const file of sourceFiles(path.join(root, 'src'))) {
 }
 
 // ── 子集清单锚（字体入仓的字节锁）────────────────────────────────────────────
-const manifestPath = path.join(root, 'src/assets/fonts/subset-manifest.json');
-const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const { createHash } = await import('node:crypto');
 for (const entry of manifest.fonts ?? []) {
   const file = path.join(root, 'src/assets/fonts', entry.file);
