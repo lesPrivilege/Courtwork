@@ -59,6 +59,19 @@ body {
   line-height: 1.6;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
+  /* SITE-CRAFT-2 磁青宗批 · 排印光学（站面先行，中文排印的三处视觉修正）：
+     ① 视觉字距 `text-autospace: normal`——中西文混排自动补 1/4em 间隙。Chromium 的初值是
+        `no-autospace`，故这行是真开关不是复述默认（实测 +4px/probe，见 craft-evidence）；
+        中文里「共 12 件 PDF 材料」这类混排从此不靠手插空格。
+     ② 句读收边 `text-spacing-trim: trim-start`——收掉开合括号与句读的多余半角
+        （实测 250.14px vs 初值 normal 258.14px vs space-all 274.14px）。
+     ③ 标点悬挂 `hanging-punctuation: allow-end`——行末句读挂出版心，右边界回到视觉边而非几何边。
+        **诚实边界**：本属性当前仅 Safari 实现，Chromium 148 `CSS.supports` 为 false，
+        故逐帧证据里的效果只覆盖①②；③按渐进增强声明，未在本批采样浏览器上取得实测。
+     三者都是渐进增强：不支持的浏览器回落到当前排印，内容与布局零影响。 */
+  text-autospace: normal;
+  text-spacing-trim: trim-start;
+  hanging-punctuation: allow-end;
 }
 a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 img { display: block; max-width: 100%; }

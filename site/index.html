@@ -34,6 +34,14 @@
     <symbol id="mark-seal-frame" viewBox="0 0 96 96"><rect x="3" y="3" width="90" height="90" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
     <!-- 骑缝齿痕（接缝完整）：B3 originally inline，本批并入件库以守单源 -->
     <symbol id="mark-seam" viewBox="0 0 72 24"><path d="M6 4v16M18 7v10M30 2v20M42 7v10M54 4v16M66 9v6" fill="none" stroke="currentColor" stroke-width="1"/></symbol>
+    <!-- 墨迹洇染（压线·单点实验）：刻本刷印时墨顺纸纤维洇开，线的边缘因此不是几何直边。
+         以 feTurbulence 生成纸纤维噪声、feDisplacementMap 位移线的边缘——纯几何扰动，
+         零色值、零渐变、零阴影、零动效。奖级工艺裁定「单点，不铺开」由 deslop
+         `schema-parts` 门强制：本滤镜全站消费点必须恰为 1，第二处即触红。 -->
+    <filter id="ink-bleed" x="-60%" y="-4%" width="220%" height="108%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.62 0.14" numOctaves="3" seed="7" result="fibre"/>
+      <feDisplacementMap in="SourceGraphic" in2="fibre" scale="1.7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
   </svg>
   <a class="skip-link" href="#main">跳到正文</a>
   <header class="site-header">
@@ -97,7 +105,7 @@
         <li class="evidence-step" data-stage="quote">
           <span class="stage-label">引语</span>
           <h3>逐字回到材料</h3>
-          <div class="ruled"><svg class="mark mark-rule" aria-hidden="true"><use href="#mark-rule"/></svg><blockquote>“每逾期一日应按未付金额的1%向甲方支付违约金”</blockquote></div>
+          <div class="ruled"><svg class="mark mark-rule" filter="url(#ink-bleed)" aria-hidden="true"><use href="#mark-rule"/></svg><blockquote>“每逾期一日应按未付金额的1%向甲方支付违约金”</blockquote></div>
           <small>页码与文本区间由系统解析 · 查看引语可回到原件</small>
         </li>
         <li class="evidence-step" data-stage="conclusion">

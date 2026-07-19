@@ -334,6 +334,24 @@ test('SITE-CRAFT-2 SchemaParts keeps the three decoupling reservations machine-c
   assert.ok(partsRules('<p>卷一</p>').includes('schema-parts'));
 });
 
+// 奖级工艺裁定「单点，不铺开」：裁定若只写在文档里就会被下一次顺手铺开，故写成门。
+const GOOD_INK_HTML = String.raw`
+<svg class="schema-parts" hidden>
+  <symbol id="mark-rule" viewBox="0 0 5 24"><rect width="2" height="24" fill="currentColor"/></symbol>
+  <filter id="ink-bleed"><feTurbulence baseFrequency="0.6"/><feDisplacementMap in="SourceGraphic" scale="1.7"/></filter>
+</svg>
+<svg class="mark mark-rule" filter="url(#ink-bleed)"><use href="#mark-rule"/></svg>
+<svg class="mark mark-rule"><use href="#mark-rule"/></svg>
+`;
+
+test('SITE-CRAFT-2 ink-bleed stays a single-point experiment', () => {
+  assert.deepEqual(partsRules(GOOD_INK_HTML), []);
+  // 铺到第二处 → 裁定要拦的正是这一步，触红。
+  assert.ok(partsRules(GOOD_INK_HTML.replace('<svg class="mark mark-rule"><use', '<svg class="mark mark-rule" filter="url(#ink-bleed)"><use')).includes('schema-parts'));
+  // 零消费 → 死滤镜，触红。
+  assert.ok(partsRules(GOOD_INK_HTML.replace(' filter="url(#ink-bleed)"', '')).includes('schema-parts'));
+});
+
 test('SITE-GEN fixture claims accept the authoritative Legal and PM snapshot', () => {
   assert.deepEqual(fixtureFailures(), []);
 });

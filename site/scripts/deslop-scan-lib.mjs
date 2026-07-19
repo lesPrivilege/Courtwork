@@ -777,6 +777,16 @@ export function checkSchemaParts(html) {
   for (const use of outside.matchAll(/<use\b[^>]*href="#([^"]+)"/g)) {
     if (!declared.includes(use[1])) fail(`<use> points at an undeclared part: #${use[1]}`);
   }
+
+  // 奖级工艺裁定「单点，不铺开」的机器形态：件库里声明的每一枚 filter，全站消费点恰为 1。
+  // 零消费＝死滤镜；两处及以上＝铺开，正是裁定要拦的那一步。
+  for (const declaredFilter of libraryBody.matchAll(/<filter\b[^>]*\bid="([^"]+)"/g)) {
+    const id = declaredFilter[1];
+    const uses = [...outside.matchAll(new RegExp(`url\\(#${id}\\)`, 'g'))].length;
+    if (uses !== 1) {
+      fail(`craft filter #${id} has ${uses} consumers; the single-point ruling allows exactly 1`);
+    }
+  }
   return failures;
 }
 

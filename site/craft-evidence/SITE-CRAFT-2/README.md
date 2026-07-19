@@ -202,3 +202,50 @@ await page.screenshot({ path: 'site/assets/og.png', type: 'png' });
 
 响应式实测：375 / 768 / 1180 / 1600 四档横向溢出均为 0px；reduced-motion 运行动画仍仅 3 条
 `ghosty-reduced-fade`（记号系全静态，未引入任何新动效）。
+
+## B6 · 排印光学 + 墨迹洇染压线单点实验（票面④的零下载部分）
+
+变更面：`site/styles.css`（body 三条排印光学）、`site/index.html`（`#ink-bleed` 滤镜 + 单点消费）、
+`site/scripts/{deslop-scan-lib,deslop-scan.test}.mjs`（单点裁定入 `schema-parts` 门）。
+**票面④的字体轨（刻本标题类候选 / 朱雀正文轨）不在本批**——需联网取字与逐一核许可，
+经产品负责人 2026-07-19 拍板「先做零下载的④」，字体轨另开一批。
+
+### 排印光学：逐条实测适用面（不宣称未测得的效果）
+
+| 属性 | Chromium 148 支持 | 站面实测 |
+|---|---|---|
+| `text-autospace: normal` | ✔ | **有效但面窄**：整页聚合 **+7px**（26907.1 → 26914.1）。Chromium 初值是 `no-autospace`，故这行是真开关而非复述默认 |
+| `text-spacing-trim: trim-start` | ✔ | **当前零作用面**：渲染文本里开合括号计数为 **0**（源码里的 11 处全在 HTML 注释内）。合成探针上可测（250.14px vs 初值 258.14px vs `space-all` 274.14px） |
+| `hanging-punctuation: allow-end` | ✘（Safari only） | **未实测**：`CSS.supports` 为 false，本批采样浏览器上取不到证据；按渐进增强声明 |
+
+`text-autospace` 的增量集中在**三处 fixture 逐字引语**（唯一的未加空格中西混排 `的1`）：
+证据链原件引语 +3.5px、微演示原件正文 +1.1px；而结论正文 / PM 原句 / hero 副题 / 设计边界小注
+四处实测 **0**——它们是人工撰写的文案，本就手加了空格。
+
+这正是该属性在本站的立身处：**人写的文案可以手加空格，fixture 逐字引语不能动**
+（「无锚不落格」的另一面是引语一字不改）。`text-autospace` 是让这些不可编辑的字串
+拿到正确视觉字距的唯一机制，不是装饰。
+
+### 墨迹洇染：压线单点
+
+刻本刷印时墨顺纸纤维洇开，线的边缘因此不是几何直边。`feTurbulence`（纸纤维噪声）+
+`feDisplacementMap`（边缘位移，scale 1.7）——纯几何扰动，零色值、零渐变、零阴影、零动效。
+
+落点唯一：**证据链「引语」节点的那条界行**——全页最该被逐字信任的一句，也是唯一一处
+「墨真正压到纸上」的位置。
+
+**奖级工艺裁定「单点，不铺开」已写成门**：`schema-parts` 门要求件库声明的每枚 filter
+全站消费点恰为 1。裁定若只写在文档里，下一次就会被顺手铺开；写成门之后铺不开。
+实测反例——把洇染加到第二条界行：
+
+```
+[schema-parts] site/index.html:1 craft filter #ink-bleed has 2 consumers; the single-point ruling allows exactly 1
+```
+
+| 帧 | 说明 |
+|---|---|
+| `B6/11-ink-bleed-on.png` / `B6/12-ink-bleed-off.png` | 同一条界行，仅滤镜开关（3× 放大，看边缘纤维） |
+| `B6/13-ink-bleed-on-1x.png` / `B6/14-ink-bleed-off-1x.png` | 同对照的 1× 实尺——克制刻度：近看有、远看无，不喧宾夺主 |
+
+**数据区静止复核**：7 个数据节点（卷宗计数 + 三处引语 + 微演示正文）在 1.2s 间隔前后
+包围盒逐位一致（`identical: true`）；洇染是静态滤镜，运行动画数不因它增加。
