@@ -62,6 +62,19 @@ const banned = new Set([
   '#fafaf9', '#f5f5f4', '#e7e5e4', '#d6d3d1', '#a8a29e', // Tailwind stone(暖灰)
   '#f4f4f5', '#e4e4e7', '#d4d4d8', '#a1a1aa', // Tailwind zinc
   '#f5f5f5', '#e5e5e5', '#d4d4d4', '#a3a3a3', // Tailwind neutral
+  // —— B1 色阶批退役族（2026-07-19，锚 #0A2540/H=210° → #232B38/H≈217°）——
+  // 验收缺陷二：本门原只验「消费值 ∈ 当前声明集」，故 tokens 自身可把旧锚重新声明为合法，
+  // 「原子性」不成立。退役值入黑名单后，回注任一旧值即红（含 tokens 声明侧与 src 消费侧）。
+  // 作用域说明：本门只扫 tokens.json 非 $ 块与 apps/desktop/src；site/、packages/ 与
+  // scripts/ 不在扫描面——site 按裁定仍持旧色板（「仅同步 token 命名」），不受本表约束。
+  '#f6f9fc', '#eaeff4', '#e2e9f0', '#dae3ec', '#dde7f2', // 旧三级台阶与交互底
+  '#0a2540', '#425466', '#6e8098', '#98a9ba', // 旧锚与文字四级
+  '#e3e9ef', '#cdd8e3', '#1a3a5c', '#eef4fa', // 旧线、主操作 hover、核验底纹
+  '#dc2626', '#b91c1c', '#fef2f2', // 旧红族
+  '#d97706', '#b45309', '#fcf6e8', // 旧琥珀族
+  '#64748b', '#475569', '#f1f5f9', // 旧板岩族
+  // 绿族（#16a34a/#15803d/#f0fdf4）与蓝族（#2563eb/#1d4ed8/#eff6ff）未退役，不入表：
+  // 裁定③「绿的全部既有槽零触碰」＋「记号色古、交互语义色今」蓝绿沿现行。
 ]);
 for (const hex of declared) {
   if (banned.has(hex)) violations.push(`tokens 声明集含废除值 ${hex}(黑名单回流)`);

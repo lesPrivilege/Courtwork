@@ -320,6 +320,10 @@ test.describe('开合闭合门 · 疊层清单', () => {
     });
   });
 
+  // 贴阈观察例（2026-07-19 拍板条件③）：本例是 16 例 A≡B 中唯一非逐字节相等且贴线者——
+  // B1 阈值重校前实测 max=2（恰在旧阈上），重校为 3 后有一个通道单位头寸。其余 15 例中
+  // 11 例逐字节相等、4 例 max=1。B5 深色批换底后须复测本例，若再度贴阈则说明嵌套模态的
+  // 重栅格化面天然偏大，届时按「舍入带计数上限」而非再放宽阈值处理（3/255 为亚感知律上界）。
   test('settings-optin-confirm · Modal-over-modal（sheet 模态·嵌套）', async ({ page }) => {
     await enterSettledDemo(page);
     await page.getByTestId('user-menu-trigger').click();

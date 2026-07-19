@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { confirmDemoReview, openWorkbench } from './helpers';
+import { confirmDemoReview, openWorkbench, tokenColor } from './helpers';
 
 // —— RP-2.10 三卡一纸 + 同源过程动画（docs/decisions/ADR-011-minimal-harness-kernel.md） ——
 
@@ -17,7 +17,7 @@ test('Work progress 锚 = settled 字符竖线 / running 品牌三横，居 turn
   await expect(cursor).toHaveCount(1);
   await expect(stream.locator('svg')).toHaveCount(0);
   // 竖线用藏青（灰阶 shimmer 唯一例外）
-  await expect(cursor).toHaveCSS('color', 'rgb(10, 37, 64)');
+  await expect(cursor).toHaveCSS('color', await tokenColor(page, '--text-primary'));
 
   // 位形：turn 尾、message 按钮排之下（位形不变）
   const actions = turn.getByTestId('message-actions-assistant-demo');
@@ -53,12 +53,12 @@ test('chat 内 interaction/门禁为轻卡，event/artifact/file 降扁平 messa
   // interaction：轻卡——hairline + 6px + generated 微差底色（非白卡套白卡）
   const question = page.getByTestId('turn-card-question');
   await expect(question).toHaveCSS('border-radius', '6px');
-  await expect(question).not.toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(question).not.toHaveCSS('background-color', await tokenColor(page, '--bg-raised'));
   await expect(question).toHaveCSS('border-top-width', '1px');
   // gate：轻卡
   const gate = page.getByTestId('turn-card-gate');
   await expect(gate).not.toHaveCSS('border-radius', '0px');
-  await expect(gate).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(gate).toHaveCSS('background-color', await tokenColor(page, '--bg-raised'));
 });
 
 // —— Item 1：三卡一纸 ——
@@ -87,5 +87,5 @@ test('缝钮两态同位；模块列态四模块白卡顶置（十四章）', as
   const modules = page.getByTestId('utility-rail');
   const [dBox, rBox] = await Promise.all([modules.boundingBox(), right.boundingBox()]);
   expect(Math.abs((dBox?.y ?? 0) - (rBox?.y ?? 0))).toBeLessThanOrEqual(2);
-  await expect(modules.locator('.rail-module').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(modules.locator('.rail-module').first()).toHaveCSS('background-color', await tokenColor(page, '--bg-raised'));
 });

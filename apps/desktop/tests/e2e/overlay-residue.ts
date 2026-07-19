@@ -221,18 +221,38 @@ export async function expectClosureShotsMatch(
   page: Page,
   shotA: Buffer,
   shotB: Buffer,
-  opts: { maxChannelDelta?: number; maxDiffPixels?: number; label?: string } = {},
+  opts: {
+    maxChannelDelta?: number;
+    roundingBand?: number;
+    maxRoundingPixels?: number;
+    maxDiffPixels?: number;
+    label?: string;
+  } = {},
 ): Promise<void> {
   const tag = opts.label ? `[${opts.label}] ` : '';
   if (shotB.equals(shotA)) return; // 逐字节相等：快路径
-  const maxChannelDelta = opts.maxChannelDelta ?? 2;
+  // —— 阈值校准史（2026-07-19 拍板，B1 色阶批）——
+  // 定性：**亚感知容差是设计法，阈值是校准值**。阈值不是天律，是对当期阴影墨的校准；
+  // 换墨即重校，不重议定性。
+  //   Δ≤2  ：旧藏青阴影墨 rgba(10,37,64,·) 的校准（B1 前）
+  //   Δ≤3  ：磁青系阴影墨 rgba(35,43,56,·) 的校准（B1 起）——低透明渐变在浮卡底缘的
+  //           重栅格化舍入天然多一个通道单位；Δ=3/255≈1.2%，在亚感知定义之内。
+  // 亚感知律上界：**3/255 是本律的上界，不得再放宽**；超过即不再是「人眼不可辨」，
+  // 须按真实回归处理。
+  //
+  // 放宽必带补偿（同批拍板，不许裸放）：Δ∈(roundingBand, maxChannelDelta] 的像素
+  // 逐个计数并设上限——真残留的形态是成片像素或大 Δ，舍入的形态是零星单像素；
+  // 计数上限保住检出力。Δ>maxChannelDelta 维持零容忍。
+  const maxChannelDelta = opts.maxChannelDelta ?? 3;
+  const roundingBand = opts.roundingBand ?? 2;
+  const maxRoundingPixels = opts.maxRoundingPixels ?? 4;
   const maxDiffPixels = opts.maxDiffPixels ?? 800;
 
   // 用一张空白页做 PNG 解码/比对，规避应用页 CSP 对 data: 图源的限制。
   const scratch = await page.context().newPage();
   try {
     const diff = await scratch.evaluate(
-      async ({ a, b, delta }) => {
+      async ({ a, b, delta, band }) => {
         const load = (d: string): Promise<HTMLImageElement> =>
           new Promise((res, rej) => {
             const img = new Image();
@@ -257,7 +277,9 @@ export async function expectClosureShotsMatch(
         const db = xb.getImageData(0, 0, w, h).data;
         let total = 0;
         let significant = 0;
+        let banded = 0;
         const sample: string[] = [];
+        const bandSample: string[] = [];
         for (let i = 0; i < da.length; i += 4) {
           const md = Math.max(
             Math.abs(da[i] - db[i]),
@@ -267,18 +289,24 @@ export async function expectClosureShotsMatch(
           );
           if (md > 0) {
             total++;
+            const px = (i / 4) | 0;
             if (md > delta) {
               significant++;
-              if (sample.length < 6) {
-                const px = (i / 4) | 0;
-                sample.push(`(${px % w},${(px / w) | 0}) Δ=${md}`);
-              }
+              if (sample.length < 6) sample.push(`(${px % w},${(px / w) | 0}) Δ=${md}`);
+            } else if (md > band) {
+              banded++;
+              if (bandSample.length < 6) bandSample.push(`(${px % w},${(px / w) | 0}) Δ=${md}`);
             }
           }
         }
-        return { dimsMismatch: false, total, significant, sample };
+        return { dimsMismatch: false, total, significant, sample, banded, bandSample };
       },
-      { a: shotA.toString('base64'), b: shotB.toString('base64'), delta: maxChannelDelta },
+      {
+        a: shotA.toString('base64'),
+        b: shotB.toString('base64'),
+        delta: maxChannelDelta,
+        band: roundingBand,
+      },
     );
 
     expect(diff.dimsMismatch, `${tag}A≡B 截图尺寸不一致（疑似布局残留）`).toBeFalsy();
@@ -286,6 +314,10 @@ export async function expectClosureShotsMatch(
       diff.significant,
       `${tag}A≡B 存在超阈像素差（通道差 > ${maxChannelDelta}/255，疑似真实残留）：${JSON.stringify(diff.sample)}`,
     ).toBe(0);
+    expect(
+      diff.banded,
+      `${tag}A≡B 舍入带（Δ∈(${roundingBand},${maxChannelDelta}]）像素数超限——舍入应为零星单像素，成片即疑真实残留：${JSON.stringify(diff.bandSample)}`,
+    ).toBeLessThanOrEqual(maxRoundingPixels);
     expect(diff.total, `${tag}A≡B 亚感知像素差过多（疑似大面积偏移）：${diff.total}`).toBeLessThanOrEqual(
       maxDiffPixels,
     );

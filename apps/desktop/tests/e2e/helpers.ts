@@ -135,3 +135,26 @@ export async function openWorkingFolders(page: Page) {
   await page.getByTestId('module-working-folders-toggle').click();
   await tree.waitFor();
 }
+
+/**
+ * 读 :root 设计 token 并归一为 computed color 形态（`rgb(r, g, b)`），供颜色断言消费。
+ *
+ * 皮层迁移纪律（B1 色阶批）：颜色断言一律走 token 相对读取，不写字面值——字面值把断言
+ * 钉死在某一版皮层上，换色即全线误红，掩盖真实回归。判例同 chrome-in-card.spec.ts:48 与
+ * pilot-layout.spec.ts:185 的 measure token 读取。
+ *
+ * 归一走临时探针元素而非手工解析：token 值可能是 hex、rgb() 或 color-mix()，只有交给
+ * 浏览器求值才能与 toHaveCSS 返回的 computed 形态精确对齐。
+ */
+export async function tokenColor(page: Page, name: string): Promise<string> {
+  return page.evaluate((token) => {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+    if (!raw) throw new Error(`设计 token ${token} 未定义`);
+    const probe = document.createElement('span');
+    probe.style.color = raw;
+    document.body.append(probe);
+    const resolved = getComputedStyle(probe).color;
+    probe.remove();
+    return resolved;
+  }, name);
+}

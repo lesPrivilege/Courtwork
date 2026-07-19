@@ -59,7 +59,7 @@ if (reduceMotion || !('IntersectionObserver' in window)) {
 
 test('raw colors are tied to an exact token consumer, including icon audit', () => {
   assert.deepEqual(rules([source('apps/desktop/src/icons/icon-audit.css',
-    ':root { color: #0a2540; background: #f6f9fc; }\n.icon-audit-card { background: #fff; }')]), []);
+    ':root { color: #232b38; background: #f7f8fa; }\n.icon-audit-card { background: #fff; }')]), []);
   assert.ok(rules([source('apps/desktop/src/icons/icon-audit.css',
     '.icon-audit-card { color: #ff00ff; }')]).includes('raw-color'));
   assert.ok(rules([source('site/rogue.css', ':root { --rogue-neon: #ff00ff; }')]).includes('raw-color'));
@@ -69,7 +69,7 @@ test('raw colors are tied to an exact token consumer, including icon audit', () 
 
 test('graph theme literals are exact token consumers, not a whole-file escape', () => {
   assert.deepEqual(rules([source('apps/desktop/src/workbench/graph-theme.ts',
-    `export const graphTokens = { background: '${hex('FFFFFF')}', amber: '${hex('D97706')}' } as const;`)]), []);
+    `export const graphTokens = { background: '${hex('FFFFFF')}', amber: '${hex('8F6420')}' } as const;`)]), []);
   assert.ok(rules([source('apps/desktop/src/workbench/graph-theme.ts',
     `export const graphTokens = { background: '${hex('ff00ff')}' } as const;`)]).includes('raw-color'));
 });
