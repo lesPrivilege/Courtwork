@@ -53,7 +53,7 @@ Chat 线（ADR-013）
 
 **P1 线级复调状态**：8 主界与 105 次界提案已签并完成消费值迁移；精确 1280×720、2400×1000 WebKit 完整帧、五类 mutation 与独立端口 312/312 e2e 均已核，验收由 `5b74588` 放行。签署表、前后帧与迁移账见 `site/craft-evidence/SKIN-R2-P1/`，线级法只认设计原则与既有机器门。
 
-**SKIN-R2 v2 执行状态（2026-07-19 夜）**：P0/P1 已逐行签署，顺序仍为 P0 → P1 → P2 → P3 → P4；P5 在 P0 放行后可独立并行。P0 权威落点是 [`schema-exemplar.md`](../design/schema-exemplar.md)；P2 C/D 裁量与字体退役律只认 [`typography-density.md`](../design/typography-density.md)；P4 `themeMode` 接口已预签。各批须独立 clone 验收，终局 `pm.PrdReview` one-shot 只在 P0–P5 全部放行后启动。
+**SKIN-R2 v2 执行状态（2026-07-19 夜；2026-07-20 P2/P5 签署更新）**：P0/P1 已逐行签署并独立放行；**P2 已签**——排印 T01…T14 保 C（盲测 C 86.5/D 87.8 落预锁同分区【+916KB、无 WKWebView 权威 AA】，产品追认；复议门见排印凡例 R2 裁量节）、版式 L01…L16 全签（零消费 diff+全量验证）；**P5 已签**——F01-F05/F09-F12 签、F06-F08 退：`27990dd` 的「站面 UI/正文残面全量覆盖」要求**正式收回**（同分区结论跨面适用，站/壳 UI 轨同源不分叉），全量陌生化收敛为表达轨写本拉丁（Junicode 2.226），F10 门范围随收窄；前帧补摄为 P5 消费值前置。顺序 P2 TDD/验收 → P3 → P4，P5 并行。P0 权威落点是 [`schema-exemplar.md`](../design/schema-exemplar.md)；P2 C/D 裁量与字体退役律只认 [`typography-density.md`](../design/typography-density.md)；P4 `themeMode` 接口已预签。各批须独立 clone 验收，终局 `pm.PrdReview` one-shot 只在 P0–P5 全部放行后启动。
 
 → **一次小发版**：实现 legal 宣言、奠定 UI/UX 基调。其后其他垂类（PM scenario、roleplay 等）与角色面板/pets 类可召唤 preview 均为轻量包级小增量，不触 core。
 
