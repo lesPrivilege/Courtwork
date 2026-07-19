@@ -1687,6 +1687,11 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .app-shell:has(> .window-chrome.is-detached) .chat-titlebar:not(:has(.welcome-head-label)) {
   padding-left: max(14px, calc((100% - var(--content-measure)) / 2), var(--window-chrome-detached-title-safe-inline));
 }
+/* P2-L21：Focus 把 Preview 提升到窗口首行时，返回钮／标题／计数也须避让同一 detached chrome。
+   安全区继续由 AppKit 实测锚宽 + 现有应用按钮推导；只换消费面，不复制或写死屏幕坐标。 */
+.workspace.focus-mode .preview-host-head {
+  padding-left: var(--window-chrome-detached-title-safe-inline);
+}
 
 /* 右栏退场后的无卡展开动作：吸附 app-shell 右上边缘，不占工作区网格。 */
 .workspace-edge-control { position: absolute; z-index: 31; top: var(--elevation-float-inset); width: var(--window-chrome-row-height); height: var(--window-chrome-row-height); display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--text-tertiary); cursor: pointer; -webkit-app-region: no-drag; }

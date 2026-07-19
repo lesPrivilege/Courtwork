@@ -59,3 +59,8 @@ test('注入七：版本学三档不得把 schema 行绑到 Agent 档', () => {
   fixture.find((entry) => entry.approvedProposalLine === 'VL-S03').tier = 'agent-interface';
   assert.match(validateSignedR2Ledger(fixture).join('\n'), /VL-S03 档位漂移/);
 });
+
+test('注入八：焦点态 Preview 的窗口安全区不得漏账', () => {
+  const fixture = validFixture().filter((entry) => entry.approvedProposalLine !== 'P2-L21');
+  assert.match(validateSignedR2Ledger(fixture).join('\n'), /已签提案行缺失：P2-L21/);
+});

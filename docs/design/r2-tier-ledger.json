@@ -1353,6 +1353,11 @@
       "approvedProposalLine": "P2-L20"
     },
     {
+      "target": "apps/desktop/src/styles.css#.workspace.focus-mode .preview-host-head|title-safe-inline",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L21"
+    },
+    {
       "target": "apps/desktop/src/styles.css#@keyframes seal-press",
       "tier": "agent-interface",
       "approvedProposalLine": "P3-S01"

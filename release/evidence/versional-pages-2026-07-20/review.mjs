@@ -1,3 +1,5 @@
+/* global URL, console, document, getComputedStyle, process, window */
+
 import { createRequire } from "node:module";
 import { mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
