@@ -72,33 +72,42 @@ const desktopRootColors = {
   '--slate-bg': 'color.semantic.severity.low.bg',
 };
 
-const siteRootColors = {
-  '--bg-app': 'color.bg.app.value',
-  '--bg-surface': 'color.bg.surface.value',
-  '--bg-raised': 'color.bg.raised.value',
-  '--bg-hover': 'color.bg.hover.value',
-  '--ink': 'color.text.primary.value',
-  '--text-secondary': 'color.text.secondary.value',
-  '--text-tertiary': 'color.text.tertiary.value',
-  '--border-hairline': 'color.border.hairline.value',
-  '--border-strong': 'color.border.strong.value',
-  '--focus': 'color.border.focus.value',
-  '--danger': 'color.semantic.severity.high.graphic',
+// —— site 侧色板：迁移前旧板 · 按值冻结（2026-07-19 拍板，B1 分治裁定②）——
+// 原绑定为 tokenAt('color.*.value')，即「按值」跟随产品壳 token。B1 色阶批把 color.*
+// 迁为刻本印页宗后，site 的 :root 立刻与之失配 16 项——但 site 按双宗设计归**磁青宗（深）**，
+// 跟着换成刻本浅宗是反向位移，且 Pages 视觉变更未经 SITE 批，故不换色。
+//
+// 这不是第二 token 源，是**带到期指针的显式冻结**（不变量④：冻结必须显式留痕，
+// 不许只是碰巧全绿）。到期条件：SITE 磁青宗批置换 site 色板时，本表整体删除、
+// 回绑 token 名（届时 site 与 themes.dark 同源，按名而非按值）。
+// 在此之前 site 零像素变更；本表任一值被改动仍会触红，冻结不等于放开。
+const siteFrozenColors = {
+  '--bg-app': '#F6F9FC',
+  '--bg-surface': '#EAEFF4',
+  '--bg-raised': '#FFFFFF',
+  '--bg-hover': '#E2E9F0',
+  '--ink': '#0A2540',
+  '--text-secondary': '#425466',
+  '--text-tertiary': '#6E8098',
+  '--border-hairline': '#E3E9EF',
+  '--border-strong': '#CDD8E3',
+  '--focus': '#2563EB',
+  '--danger': '#DC2626',
 };
 
 const cssColorAllowlist = new Map([
   ...Object.entries(desktopRootColors).map(([property, path]) => colorEntry('apps/desktop/src/styles.css', ':root', property, tokenAt(path))),
   colorEntry('apps/desktop/src/styles.css', ':root', '--elevation-shadow', tokenAt('elevation.shadow.value')),
-  ...Object.entries(siteRootColors).map(([property, path]) => colorEntry('site/styles.css', ':root', property, tokenAt(path))),
+  ...Object.entries(siteFrozenColors).map(([property, value]) => colorEntry('site/styles.css', ':root', property, value)),
   colorEntry('site/styles.css', ':root', '--mac-close', '#FF5F57'),
   colorEntry('site/styles.css', ':root', '--mac-minimize', '#FEBC2E'),
   colorEntry('site/styles.css', ':root', '--mac-zoom', '#28C840'),
-  colorEntry('site/og.html', ':root', '--bg', tokenAt('color.bg.app.value')),
-  colorEntry('site/og.html', ':root', '--surface', tokenAt('color.bg.surface.value')),
-  colorEntry('site/og.html', ':root', '--ink', tokenAt('color.text.primary.value')),
-  colorEntry('site/og.html', ':root', '--secondary', tokenAt('color.text.secondary.value')),
-  colorEntry('site/og.html', ':root', '--tertiary', tokenAt('color.text.tertiary.value')),
-  colorEntry('site/og.html', ':root', '--hairline', tokenAt('color.border.hairline.value')),
+  colorEntry('site/og.html', ':root', '--bg', '#F6F9FC'), // 冻结·同 siteFrozenColors
+  colorEntry('site/og.html', ':root', '--surface', '#EAEFF4'), // 冻结·同 siteFrozenColors
+  colorEntry('site/og.html', ':root', '--ink', '#0A2540'), // 冻结·同 siteFrozenColors
+  colorEntry('site/og.html', ':root', '--secondary', '#425466'), // 冻结·同 siteFrozenColors
+  colorEntry('site/og.html', ':root', '--tertiary', '#6E8098'), // 冻结·同 siteFrozenColors
+  colorEntry('site/og.html', ':root', '--hairline', '#E3E9EF'), // 冻结·同 siteFrozenColors
   colorEntry('apps/desktop/src/icons/icon-audit.css', ':root', 'color', tokenAt('color.text.primary.value')),
   colorEntry('apps/desktop/src/icons/icon-audit.css', ':root', 'background', tokenAt('color.bg.app.value')),
   colorEntry('apps/desktop/src/icons/icon-audit.css', ':root', '--audit-border', tokenAt('color.border.hairline.value')),
@@ -564,7 +573,9 @@ function scanCopy(file, content, failures) {
 
 function scanSvg(file, content, failures) {
   const allowlist = new Map([
-    ['site/assets/icon.svg|g|1|stroke', tokenAt('color.text.primary.value')],
+    // site 品牌标同族冻结（B1 分治裁定②/③）：壳侧 docs/design/icon-*.svg 已随锚迁 217°，
+    // 本件仍旧板，品牌不一致已显式挂 SITE-CRAFT-2 票面（磁青宗批一并置换 + 品牌一致性核）。
+    ['site/assets/icon.svg|g|1|stroke', '#0A2540'],
     ['docs/design/icon-dark.svg|rect|1|fill', tokenAt('color.text.primary.value')],
     ['docs/design/icon-dark.svg|rect|2|fill', tokenAt('color.bg.app.value')],
     ['docs/design/icon-dark.svg|rect|3|fill', tokenAt('color.text.tertiary.value')],

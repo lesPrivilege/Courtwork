@@ -8,7 +8,7 @@ courtwork_design_md:
     version: 1
   sources:
     "docs/design/tokens.json":
-      sha256: "f7fab81d61299175f98a8926de693f8d04a3f0ec8f3ad5e517bb1e646a82e43c"
+      sha256: "8a571a54b277c537b669e004d16c77e32e2fdc8daebce617317fc8680478694b"
     "docs/design/principles.md":
       sha256: "5a8afdf8e33316e58aa647d52b01c1ae485902e3ef8cef86d6bd317717f41f67"
   tokenSet:
@@ -550,7 +550,7 @@ tokens:
 - `color.bg.selected` = `#D9E3F6` — 选中项底：蓝感强于 hover 族（B−R=29，hover 为 6），不占语义色预算。出处 color-mix(in srgb, semantic.blue.graphic 12%, bg.surface)
 - `color.text.primary` = `#232B38` — 正文与标题。刻本墨色，拒纯黑与暖灰（docs/design/principles.md 采纳）
 - `color.text.secondary` = `#55617A` — 次级说明、标签。对 bg.raised #FFFFFF 6.22:1 / 对 bg.surface #F2F4F7 5.64:1，最严面达 AA 正文档
-- `color.text.tertiary` = `#6E7C92` — 元信息、占位符。对比度按所在底面配对声明（三面均有落点）：对 bg.raised #FFFFFF 4.23:1 / 对 bg.app #F7F8FA 3.98:1 / 对 bg.surface #F2F4F7 3.84:1。**取最严面 3.84:1 为准**——元信息属 AA-large 档（非正文），三面均达该档；若将来有正文级消费点须另取值。B0 自拟调整留痕：原型该位取 disabled 档的 #8A94A8（对白卡 3.05:1），低于迁移前 tertiary 的 4.04:1 属可读性回退，故上提一档；#8A94A8 降为 disabled。退役旧值不在此复述（黑名单守之）
+- `color.text.tertiary` = `#6E7C92` — 元信息、占位符（辅助文字）。对比度按所在底面配对声明：对 bg.raised #FFFFFF 4.23:1 / 对 bg.app #F7F8FA 3.98:1 / 对 bg.surface #F2F4F7 3.84:1，**取最严面 3.84:1 为准**。**不主张 AA-large 档**——实测 131 个消费点字号 10–13px、字重上限 510，无一达 WCAG large 门槛（≥18.66px regular 或 ≥14px bold）；故三面在 12px 下均低于 AA 正文 4.5:1，属既存可读性缺口。B1 三面对位均略升（迁移前同序为 4.04 / 3.82 / 3.49；退役值本身不复述，黑名单守之），未引入回退亦未闭合缺口，闭合方案（提深值或加大元信息字号）挂后续批次。B0 自拟调整留痕：原型该位取 disabled 档的 #8A94A8（对白卡 3.05:1）属回退，故上提一档；退役旧值不在此复述（黑名单守之）
 - `color.text.disabled` = `#8A94A8` — 禁用态文字。H≈217° 同源
 - `color.text.inverse` = `#F7F8FA` — 深底（主按钮）上的文字：冷白（=bg.app）
 - `color.border.hairline` = `#D5DAE3` — 全站默认描边与网格线：1px 单色无影（docs/design/principles.md 采纳），H≈217° 同源
