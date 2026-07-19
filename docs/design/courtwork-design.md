@@ -8,7 +8,7 @@ courtwork_design_md:
     version: 1
   sources:
     "docs/design/tokens.json":
-      sha256: "88e85fdc26f8919ef9a9d18e824f069c3c607e9b5566c1a62697476e09e84724"
+      sha256: "c2a7c6ab29f2c699985b9d5d73b04003ca0f49bb664730828465288ca91e60c3"
     "docs/design/principles.md":
       sha256: "5a8afdf8e33316e58aa647d52b01c1ae485902e3ef8cef86d6bd317717f41f67"
   tokenSet:
@@ -535,7 +535,7 @@ tokens:
 - **status**：现行设计 token 唯一机器真值。color.* = 刻本印页宗（浅，B1 已置换并接线消费面）；themes.dark = 磁青宗（深，B5 目标值，零消费面）
 - **naming**：领域无关（docs/decisions/ADR-001-package-abi.md 纪律）：tier / severity / revision / gate / usage 均无法律语义，法律语义只存在于消费方的数据与文案中
 - **sources**：锚色 #232B38（B1 由 #0A2540 迁入，缘由见 themes.$anchor）；中性阶由锚色派生；字重按轨分档（B2-0 三轨制）：功能轨 400/510、标题轨 400/600、文书轨单 400（零粗体律）；语义线与文字使用图形/前景双轨
-- **neutralSource**：整条中性阶由锚色 #232B38（H≈217°）降饱和升明度派生，双宗值实测收敛于 216–220°。禁无色相灰（白卡豁免）与暖调中性（B≥R）。机器门：assert-neutral-source.mjs
+- **neutralSource**：整条中性阶由锚色 #232B38（H≈217°）降饱和升明度派生，双宗冷调中性 33 值实测落 214.3°–222.9°（两端为 bg.controlHover 与 semantic.provenance.verifiedBg）。禁无色相灰（白卡豁免）与暖调中性（B≥R）。机器门：assert-neutral-source.mjs——**门只验无色相灰与暖调两条，不含色相带约束**：本行的带宽是实测记述而非准入条件，勿当门读。**订正注记（2026-07-19 B2-0 期逐值复算）**：原自述「收敛于 216–220°」与实测不符，两端值均 B1 前既有、非任何后续批次引入；本次只更正记述以合实测，不新增带约束（加带即新概念，复杂度节制条挡；后批若要收带，另立议题并带测据）
 - **theme**：双主题（2026-07-19 拍板：深色模式随皮层迁移顺带交付）。color.* 即刻本印页宗（浅），B1 已置换；themes.dark（磁青宗）为 B5 目标值，届时由 [data-theme] 在 token 层置换。原「浅色唯一·深色不进 MVP（principles.md 硬性）」自述已废止——principles.md 从未载有该硬性条款，属陈旧引用（迁移 Plan C-2 定谳）
 
 ## 二、交互与视觉原则（principles.md 要点）
