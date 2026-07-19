@@ -509,3 +509,32 @@ Codex in-app Browser 运行时已按技能说明连接，但 `agent.browsers.lis
 > **SITE-CRAFT-1-FADE 放行 ✅。** reduced-motion 现在是三条真实渲染的 420ms opacity keyframe，遮罩、位移与 CSSTransition 均为零；正常态三态、JS 关闭、卷宗数字静止、`main.js` AST/blob 锁、契约反例与全量门禁均通过。
 
 本次只写入本验收记录；未更新 `docs/status/current.md`，未推送。
+
+---
+
+## SITE-CRAFT-2-FONT-PROVENANCE-REACCEPT · 单点复验（2026-07-19）— ✅ 放行
+
+- **验收对象**：`impl/site-cizing@7ed04e324914ea08f6337a33e8b9c4577e9a5597`；前轮 `300127a` 的唯一 P1（出处数字仅由 SHA 间接担保）复验。
+- **隔离与纪律**：以 `git clone --local` 建立独立验收树与本地分支，未使用共仓 worktree；未改实现、未推送。
+
+### 1. 制品实测与 SOURCE.md 对表
+
+零依赖 `measureWoff2`（WOFF2 Brotli/目录、`maxp.numGlyphs`、cmap 映射）与 fontTools 交叉一致；两份 `SOURCE.md` 每件的字数 / glyph / 字节 / SHA 均逐项相等：
+
+| 制品 | 字数 | glyph | 字节 |
+|---|---:|---:|---:|
+| `zhuque-fangsong-subset.woff2` | 104 | 128 | 33,036 |
+| `doc-latin-subset.woff2` | 25 | 94 | 8,488 |
+| `noto-serif-sc-regular-subset.woff2` | 87 | 107 | 25,632 |
+| `noto-serif-sc-bold-subset.woff2` | 87 | 107 | 25,856 |
+
+### 2. 六向红证与格式容忍
+
+真实朱雀记录基线为绿；SHA 改一位、字节 `+1/-1`、glyph `+1/-1`、字数 `+1/-1`、删除全部数字均由同一 `checkFontProvenance` 触红。带逗号与不带逗号的千分位两种合法写法均保持绿。故数字现在是可解析的实测契约，而非 SHA 旁的叙述性抄写。
+
+### 3. 门禁与裁决
+
+- `node --test site/scripts/deslop-scan.test.mjs`：**35/35**，exit 0。
+- `pnpm site:guard`：exit 0；guard 组合实跑 **52/52**、release-truth 与 deslop 均通过。
+
+> **放行。** 本结论仅关闭 SITE-CRAFT-2 的 font-provenance 单点；不替代此前 P0 reduced-motion、品牌谱系或后续 Sol 视觉终审。
