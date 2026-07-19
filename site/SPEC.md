@@ -168,6 +168,13 @@
 - 站点语义不变：本裁片仍是虚构合成卷宗的真实 UI，不新增 product-live、隐私、性能或规模宣称；其他 RiskList/redline/未落格/关系图谱/工作台资产不因本次测宽改动而虚构重拍。
 - 本节为实现留痕；放行结论需由独立验收会话写入 `site/ACCEPTANCE.md`，本实现会话不自验。
 
+## SITE-SHOTS-SKIN-REFRESH-3 · 新皮层真实界面重摄（实现完成，待独立验收）
+
+- 来源是本分支提交 `5a2dfa3` 的独立 Vite `127.0.0.1:18883`（`VITE_COURTWORK_E2E=1`）；以 computer use 在 `1440×900` 实际界面逐帧采集，而非用站面微演示或设计稿代替。
+- 已先枚举站面绑定面，且只替换三组现行消费者：`11-milestone-dossier-{1440,720}.webp`、`12-milestone-risklist-{1440,720}.webp`、`13-milestone-redline-{1440,720}.webp`，对应 `site/index.html` 的三幅 `work-crop`。三组均保留 `1440×900 / 720×450` 响应式对。
+- 原始工作台、设置、聚焦文书、落定章 before / press / middle / after 与特写保存在 `craft-evidence/SITE-SHOTS-SKIN-REFRESH-3/frames/`；设置和印章是实机证据，不挪作 Pages 的产品截图。R04 的确认帧以像素特写复核朱色框廓与非缩放描边可见；壳侧章按既定件库只呈框廓、无印文。
+- 本轮浏览器工作台不等同于原生安装包窗口，故没有把左侧品牌记号写成「装机图标真机外观」；该项仍须在原生安装包启动后另行取证。`current.md` 不因尚未完成的发布验收而改写。
+
 ## SITE-CRAFT-2 · Pages 视效升级（实现进行中，分批交付）
 
 权威范围：就绪图 `SITE-CRAFT-2` 行（hero 微演示 / 朱雀仿宋 / 冷色五杠杆 / 前卫实验田条款）。
