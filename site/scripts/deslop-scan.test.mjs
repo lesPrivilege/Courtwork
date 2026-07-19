@@ -334,6 +334,40 @@ test('SITE-CRAFT-2 SchemaParts keeps the three decoupling reservations machine-c
   assert.ok(partsRules('<p>卷一</p>').includes('schema-parts'));
 });
 
+// 三轨字体制（字体策略二次修订）：一套 display-font 门守三枚子集，逐轨可配消费类与清单。
+const GOOD_TITLE_HTML = String.raw`<h2 class="zh-title">判断条款风险</h2><h3 class="zh-title">逐字回到材料</h3>`;
+const GOOD_TITLE_CSS = String.raw`
+@font-face { font-family: "Noto Serif SC"; src: url(assets/fonts/noto-serif-sc-regular-subset.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Noto Serif SC"; src: url(assets/fonts/noto-serif-sc-bold-subset.woff2) format("woff2"); font-weight: 700; font-display: swap; }
+:root { --font-title: "Noto Serif SC", "Songti SC", serif; }
+.zh-title { font-family: var(--font-title); font-synthesis: none; }
+`;
+const TITLE_TRACK = {
+  manifest: { text: '判断条款风险逐字回到材料', woff2Sha256: 'c'.repeat(64) },
+  woff2Sha256: 'c'.repeat(64),
+  consumerClasses: ['zh-title'],
+  manifestPath: 'site/assets/fonts/noto-subset.json',
+  faceFamily: 'Noto Serif SC',
+  faceFiles: ['assets/fonts/noto-serif-sc-regular-subset.woff2', 'assets/fonts/noto-serif-sc-bold-subset.woff2'],
+  tokenRule: { selector: '\\.zh-title', token: '--font-title' },
+};
+const titleRules = (over = {}) => checkDisplayFont({ html: GOOD_TITLE_HTML, css: GOOD_TITLE_CSS, ...TITLE_TRACK, ...over })
+  .map((failure) => failure.rule);
+
+test('SITE-CRAFT-2 display-font gate guards the title track as well as the document track', () => {
+  assert.deepEqual(titleRules(), []);
+  // 标题文案新增字未进清单 → 缺字静默回退，触红。
+  assert.ok(titleRules({ html: GOOD_TITLE_HTML.replace('判断条款风险', '判断条款风险鑫') }).includes('display-font'));
+  // 双字重之一未接线（只加载了 Regular）→ 700 消费点静默回退，触红。
+  assert.ok(titleRules({ css: GOOD_TITLE_CSS.replace(/^.*noto-serif-sc-bold-subset.*$/m, '') }).includes('display-font'));
+  // 消费类未真的消费 --font-title → 整轨回退系统字，触红。
+  assert.ok(titleRules({ css: GOOD_TITLE_CSS.replace('font-family: var(--font-title); ', '') }).includes('display-font'));
+  // 清单与字节脱钩 → 触红。
+  assert.ok(titleRules({ woff2Sha256: 'd'.repeat(64) }).includes('display-font'));
+  // 页面零标题轨消费者 → 死资产，触红。
+  assert.ok(titleRules({ html: '<h2>判断条款风险</h2>' }).includes('display-font'));
+});
+
 // 奖级工艺裁定「单点，不铺开」：裁定若只写在文档里就会被下一次顺手铺开，故写成门。
 const GOOD_INK_HTML = String.raw`
 <svg class="schema-parts" hidden>

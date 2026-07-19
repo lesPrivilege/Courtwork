@@ -68,7 +68,9 @@ if (JSON.stringify(brandPaths) !== JSON.stringify(['M8 5v14', 'M11.5 8H18', 'M11
 
 const firstRisk = riskFixture.risks?.[0];
 const sourceAnchor = firstRisk?.basis?.[0]?.sourceAnchors?.[0];
-const displayedQuote = html.match(/data-stage="quote"[\s\S]*?<blockquote>“?([^<”]+)”?<\/blockquote>/)?.[1];
+// 定位器容许 blockquote 带属性（文书轨 zh-doc 上身后必然带类）——放宽的只是**定位**，
+// 逐字核验仍在下一行：捕获串必须是 fixture 锚点引语的逐字切片，断言强度未变。
+const displayedQuote = html.match(/data-stage="quote"[\s\S]*?<blockquote[^>]*>“?([^<”]+)”?<\/blockquote>/)?.[1];
 if (sourceAnchor?.fileId !== '04-设备采购合同.md' || !contractFixture.includes(sourceAnchor?.quote ?? '')) failures.push('site: Evidence Line source anchor is not backed by the dossier fixture');
 if (!displayedQuote || !sourceAnchor.quote.includes(displayedQuote)) failures.push('site/index.html: displayed quote is not a verbatim slice of the fixture anchor');
 if (!html.includes(sourceAnchor.quote) || !html.includes('04-设备采购合同 · 第 1 页')) failures.push('site/index.html: original node does not identify the fixture source and quote');
@@ -76,13 +78,38 @@ if (firstRisk?.level !== 'high' || firstRisk?.dispositionStatus !== 'pending' ||
 for (const failure of validateFixtureClaims(html, loadFixtureClaimInputs(resolve('.')))) {
   failures.push(`site: fixture claim ${failure}`);
 }
-for (const failure of checkDisplayFont({
-  html,
-  css,
-  manifest: JSON.parse(readFileSync(resolve('site/assets/fonts/zhuque-subset.json'), 'utf8')),
-  woff2Sha256: createHash('sha256').update(readFileSync(resolve('site/assets/fonts/zhuque-fangsong-subset.woff2'))).digest('hex'),
-})) {
-  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+const sha256 = (path) => createHash('sha256').update(readFileSync(resolve(path))).digest('hex');
+const notoManifest = JSON.parse(readFileSync(resolve('site/assets/fonts/noto-subset.json'), 'utf8'));
+// 三轨字体制：文书轨（朱雀，zh-display + zh-doc）与标题轨（Noto 双字重，h2/h3）各自三向绑定。
+const fontTracks = [
+  {
+    manifest: JSON.parse(readFileSync(resolve('site/assets/fonts/zhuque-subset.json'), 'utf8')),
+    woff2Sha256: sha256('site/assets/fonts/zhuque-fangsong-subset.woff2'),
+    consumerClasses: ['zh-display', 'zh-doc'],
+    manifestPath: 'site/assets/fonts/zhuque-subset.json',
+    faceFamily: 'Zhuque Fangsong',
+    faceFiles: ['assets/fonts/zhuque-fangsong-subset.woff2'],
+    tokenRule: { selector: '\\.zh-display', token: '--display' },
+  },
+  // 标题轨双字重共用一份清单与一枚 family；两枚字节各自锚定（下方逐权重复核）。
+  {
+    manifest: { ...notoManifest, woff2Sha256: notoManifest.weights['400'].woff2Sha256 },
+    woff2Sha256: sha256('site/assets/fonts/noto-serif-sc-regular-subset.woff2'),
+    consumerClasses: ['zh-title'],
+    manifestPath: 'site/assets/fonts/noto-subset.json',
+    faceFamily: 'Noto Serif SC',
+    faceFiles: ['assets/fonts/noto-serif-sc-regular-subset.woff2', 'assets/fonts/noto-serif-sc-bold-subset.woff2'],
+    tokenRule: { selector: '\\.zh-title', token: '--font-title' },
+  },
+];
+for (const track of fontTracks) {
+  for (const failure of checkDisplayFont({ html, css, ...track })) {
+    failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+  }
+}
+// 标题轨 Bold 字节单独锚定（清单 weights.700），否则换了 Bold 子集不会被发现。
+if (sha256('site/assets/fonts/noto-serif-sc-bold-subset.woff2') !== notoManifest.weights['700'].woff2Sha256) {
+  failures.push('[display-font] site/assets/fonts/noto-subset.json:1 bold subset bytes drifted from weights.700 anchor');
 }
 for (const failure of checkDemoMotion(css)) {
   failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);

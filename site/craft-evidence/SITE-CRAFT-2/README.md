@@ -249,3 +249,75 @@ await page.screenshot({ path: 'site/assets/og.png', type: 'png' });
 
 **数据区静止复核**：7 个数据节点（卷宗计数 + 三处引语 + 微演示正文）在 1.2s 间隔前后
 包围盒逐位一致（`identical: true`）；洇染是静态滤镜，运行动画数不因它增加。
+
+## B7 · 三轨字体制落地（④修订 · 字体编排）
+
+变更面：`site/styles.css`（三轨字栈 + 双字重梯度 + 补偿）、`site/index.html`（`zh-title`/`zh-doc`
+消费类 + preload）、`site/assets/fonts/`（新增 Noto 双字重子集与清单，朱雀子集扩容）、
+`site/scripts/{build,deslop-scan,deslop-scan-lib,deslop-scan.test}.mjs`。
+许可快照：[`noto/`](noto/)、[`zhuque/`](zhuque/)、[`juzhen-rejected/`](juzhen-rejected/)。
+
+### 正文轨：首选未核清 → 落朱雀仿宋（拒收留痕）
+
+方正聚珍新仿两张授权逐张核实结果见 [`juzhen-rejected/DECISION.md`](juzhen-rejected/DECISION.md)：
+个人非商业授权用途枚举无网页一项且需购买（**未核清**）；授权条款明文禁止「格式转换后以嵌入方式
+应用到网站」，嵌入式应用属独立收费类目（**明确不可用**）。按拍板落朱雀仿宋。
+**未下载任何方正字体文件**——核实先于取字。
+
+### 标题轨：Noto Serif SC 双字重
+
+选 Noto 版而非 Adobe `source-han-serif`：前者版权行**未宣告 Reserved Font Name**（name 表实读
+`© 2017-2024 Adobe`，其后无保留名），子集可保留原名；后者保留 `Source`，子集须改名。
+
+| 轨 | 字体 | 消费面 | 字重 |
+|---|---|---|---|
+| 标题轨 | Noto Serif SC 2.003 | `zh-title`（h2 ×4 / h3 ×10） | h2 **400** / h3 **700** |
+| 文书轨 | 朱雀仿宋 0.212 | `zh-doc`（原件正文/三处引语/修订建议）+ `zh-display`（品牌时刻） | 单字重（零粗体律） |
+| 功能轨 | 系统栈 | eyebrow / meta / 按钮 / 说明文字 | 既有 |
+
+**双字重梯度取向**：大字号取 400、小字号取 700——宋体大字重本就厚，48px 加粗即糊；20px 反需
+补足视觉重量。字重携层级语义而非装饰。
+
+### 真上身核验（对照实验，非「加载成功」即算数）
+
+`document.fonts` 报 loaded 只证明字节到位，不证明字形真上身；而 **CJK 字形普遍是 1em 等宽，
+量文本宽度对是否换字体零区分力**（首版探针即栽在此：h3 宽度在 webfont 与系统栈下同为 117.6px）。
+改用 canvas 像素指纹，且把对照设为「同一段文字指向一个**确不存在**的族名」，两侧只差
+「该 webfont 是否真被解析」一件事：
+
+| 用例 | 墨点数（实验 / 对照） | 判定 |
+|---|---|---|
+| 标题轨 Noto Serif SC 真上身 | 3622 / 3600 | **有差异** ✔ |
+| 文书轨 朱雀仿宋 真上身 | 1647 / 1876 | **有差异** ✔ |
+| 阴性对照：确不存在的族 | 3600 / 3600 | **无差异** ✔（证明该法有区分力） |
+| 标题轨 400 vs 700 | 2565 / 3232 | **有差异**（+26% 墨量，梯度真成立） |
+
+阴性对照落在零差异上，是这组实验有区分力的凭据——否则「有差异」可能只是方法噪声。
+
+### 四条编排义务逐条落位
+
+| 义务 | 落法 | 实测 |
+|---|---|---|
+| ① 仿宋字号/行高补偿 | 文书面较同级 sans 由 14px→**15px**，行高各 +.12（clause 2.2 / quote 1.9 / PM 1.8 / suggestion 1.85） | 计算值实读一致 |
+| ② 拉丁与数字配衬字显式指定 | `--font-doc` 把 Charter/Bitstream Charter/Georgia/Times 排在 CJK **之前**，按字回退：拉丁数字走衬线西文，CJK 才落朱雀 | `.zh-doc` 计算首选族实读 `Charter`；「1%」不再落到仿宋弱拉丁 |
+| ③ 子集化 + `font-display` 显式 | 三枚子集按用字精确取字，各 `font-display: swap`；清单与字节由 `display-font` 门绑定 | 51KB（标题双字重）+ 33KB（文书轨，由 12KB 扩容） |
+| ④ 排印光学与新字体同批调校 | B6 的三属性未各自为政——本批换字后同批复量，`--font-doc` 的西文配衬与 autospace 协同（数字两侧间隙由 autospace 给、字形由 Charter 给） | 见下 |
+
+**残留边界如实登记**（②）：若 Charter/Georgia/Times 在宿主上全缺，数字仍会落到朱雀——
+CSS 的 generic family 只能收尾，无法在 CJK 之前钉死「西文到此为止」。已在 `--font-doc` 注释处留痕。
+
+### 门禁扩展
+
+`checkDisplayFont` 由「只守朱雀一轨」泛化为**逐轨可配**（消费类 / 清单 / face family / 接线 token），
+一套门守三枚子集；标题轨 Bold 字节另行锚定 `weights.700`，否则换了 Bold 子集不会被发现。
+四向反例实测触红：标题轨越清单用字 / 文书轨越清单用字 / Bold 字节脱钩 / 标题轨未接 `--font-title`。
+
+| 帧 | 说明 |
+|---|---|
+| `B7/04-evidence-chain.png` | 三轨同屏：h2 Noto 400、h3 Noto 700、引语朱雀 + Charter 数字、说明文字系统栈 |
+| `B7/01-full-1440.png` / `B7/02-hero-1440.png` | 整页 / hero 终态 |
+| `B7/03-promise-seal.png` / `B7/05-scenario-ledger.png` / `B7/06-design-boundary.png` | 承诺 / 垂类泛化 / 设计边界 |
+| `B7/07-reduced-hero.png` · `B7/08-nojs-hero.png` · `B7/10-mobile-375.png` | reduced-motion / JS 关闭 / 375 窄屏 |
+
+响应式实测：375 / 768 / 1180 / 1600 四档横向溢出均为 0px；reduced-motion 运行动画仍仅 3 条
+`ghosty-reduced-fade`（字体批未引入任何动效）。

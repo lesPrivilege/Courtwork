@@ -614,11 +614,13 @@ function scanSvg(file, content, failures) {
   }
 }
 
-// SITE-CRAFT-2：朱雀仿宋子集三向绑定——HTML 消费者用字 ⊆ 清单文本、清单与 woff2 字节同锚、
-// CSS 真实接线（@font-face + .zh-display 消费 --display）。任何一向脱钩都意味着缺字静默回退，必须触红。
-export function checkDisplayFont({ html, css, manifest, woff2Sha256 }) {
+// SITE-CRAFT-2：字体子集三向绑定——HTML 消费者用字 ⊆ 清单文本、清单与 woff2 字节同锚、
+// CSS 真实接线（@font-face + 消费类真的消费对应 token）。任一向脱钩即缺字静默回退，必须触红。
+// 三轨字体制落地后（字体策略二次修订）：文书轨 zh-display/zh-doc 共用朱雀清单，标题轨 h2/h3
+// 共用 Noto 双字重清单，故消费类与清单均由调用方传入，一套门守三枚子集。
+export function checkDisplayFont({ html, css, manifest, woff2Sha256, consumerClasses = ['zh-display'], manifestPath = 'site/assets/fonts/zhuque-subset.json', faceFamily = 'Zhuque Fangsong', faceFiles = ['assets/fonts/zhuque-fangsong-subset.woff2'], tokenRule = { selector: '\\.zh-display', token: '--display' } }) {
   const failures = [];
-  const fail = (message) => push(failures, 'display-font', 'site/assets/fonts/zhuque-subset.json', 1, message);
+  const fail = (message) => push(failures, 'display-font', manifestPath, 1, message);
   if (!manifest || typeof manifest.text !== 'string' || !/^[0-9a-f]{64}$/.test(manifest.woff2Sha256 ?? '')) {
     fail('subset manifest must declare text and a 64-hex woff2Sha256');
     return failures;
@@ -627,7 +629,7 @@ export function checkDisplayFont({ html, css, manifest, woff2Sha256 }) {
     fail('subset woff2 bytes drifted from the manifest anchor; re-subset and update woff2Sha256');
   }
   const consumers = [];
-  const openTag = /<([a-z][a-z0-9]*)\b[^>]*\bclass="[^"]*\bzh-display\b[^"]*"[^>]*>/g;
+  const openTag = new RegExp(`<([a-z][a-z0-9]*)\\b[^>]*\\bclass="[^"]*\\b(?:${consumerClasses.join('|')})\\b[^"]*"[^>]*>`, 'g');
   for (const match of html.matchAll(openTag)) {
     const tag = match[1];
     const start = (match.index ?? 0) + match[0].length;
@@ -641,17 +643,21 @@ export function checkDisplayFont({ html, css, manifest, woff2Sha256 }) {
     }
     consumers.push(html.slice(start, end).replace(/<[^>]*>/g, ''));
   }
-  if (!consumers.length) fail('display font asset has no zh-display consumer in the page');
+  if (!consumers.length) fail(`display font asset has no ${consumerClasses.join('/')} consumer in the page`);
   const allowed = new Set(manifest.text);
   for (const text of consumers) {
     const missing = [...new Set([...text.replace(/\s/g, '')].filter((char) => !allowed.has(char)))];
-    if (missing.length) fail(`zh-display consumer uses characters outside the subset manifest: ${missing.join('')}`);
+    if (missing.length) fail(`${consumerClasses.join('/')} consumer uses characters outside the subset manifest: ${missing.join('')}`);
   }
-  if (!css.includes('assets/fonts/zhuque-fangsong-subset.woff2') || !/@font-face\s*\{[^}]*"Zhuque Fangsong"/.test(css)) {
-    fail('styles.css must load the subset via @font-face "Zhuque Fangsong"');
+  for (const file of faceFiles) {
+    if (!css.includes(file)) fail(`styles.css must load ${file}`);
   }
-  if (!/\.zh-display\s*\{[^}]*font-family:\s*var\(--display\)/.test(css) || !/--display:\s*"Zhuque Fangsong"/.test(css)) {
-    fail('.zh-display must consume var(--display) anchored to "Zhuque Fangsong"');
+  if (!new RegExp(`@font-face\\s*\\{[^}]*"${faceFamily}"`).test(css)) {
+    fail(`styles.css must declare @font-face "${faceFamily}"`);
+  }
+  if (!new RegExp(`${tokenRule.selector}[^{]*\\{[^}]*font-family:\\s*var\\(${tokenRule.token}\\)`).test(css)
+    || !new RegExp(`${tokenRule.token}:[^;]*"${faceFamily}"`).test(css)) {
+    fail(`${tokenRule.selector} must consume var(${tokenRule.token}) anchored to "${faceFamily}"`);
   }
   return failures;
 }
