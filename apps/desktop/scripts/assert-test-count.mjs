@@ -39,7 +39,8 @@ const count = match ? Number(match[1]) : 0;
 // CHAT-MD-TABLE-1 与 CASE-TITLE-CONVERGE-1 为并发只升点；合并树取用例并集：292 + 3 + 2 → 297（验收亲数 --list 核实，合并解冲突由验收角色定值）。
 // SKIN-B2-0（排印定值批）：门④ AA 四元联测四例（字体真加载 / 槽位表逐槽 AA / 仿宋补偿实测 /
 // 标题轨定阶与配衬字）+4 → 301。与 SKIN-B3 同为并发只升点，合并取最大值。
-const minimum = 301;
+// SKIN-B2-1（排印置换批）：三轨上身 / @font-face 别名生效 / 数字对齐律 / 排印光学与引擎限制 +4 → 305。
+const minimum = 305;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

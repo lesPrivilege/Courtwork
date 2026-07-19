@@ -23,9 +23,21 @@ for (const width of [1180, 1280, 1440, 1600]) {
 
     if (width === 1440) {
       // 文书阅读面在浏览器态（大纲→修订预览）
+      // SKIN-B2-1：文书轨带墨量补偿（16px/1.75），字号不再等于功能轨 reading 档。
+      // 承 SKIN-B1 判例改断关系不断值——断言它走的是文书轨档位，档位值改了这里不必跟着改。
       await page.getByTestId('outline-revision').click();
-      await expect(page.locator('.document-preview')).toHaveCSS('font-size', '15px');
-      await expect(page.locator('.document-preview')).toHaveCSS('line-height', '24px');
+      const doc = page.locator('.document-preview');
+      const track = await page.evaluate(() => {
+        const s = getComputedStyle(document.documentElement);
+        return {
+          size: s.getPropertyValue('--type-document-size').trim(),
+          ratio: Number.parseFloat(s.getPropertyValue('--type-document-line-height')),
+        };
+      });
+      await expect(doc).toHaveCSS('font-size', track.size);
+      const lh = await doc.evaluate((el) => Number.parseFloat(getComputedStyle(el).lineHeight));
+      const fs = await doc.evaluate((el) => Number.parseFloat(getComputedStyle(el).fontSize));
+      expect(lh / fs).toBeCloseTo(track.ratio, 2);
     }
   });
 }

@@ -16,8 +16,26 @@ const expected = { inset: 16, sectionGap: 20, itemGap: 12, rowHeight: 36, iconSi
 for (const [key, value] of Object.entries(expected)) {
   if (parsed.home?.[key]?.value !== value) failures.push(`home.${key} must remain ${value}`);
 }
-const serifConsumers = [...css.matchAll(/font-family:[^;]*(?:Songti|STSong|Noto Serif)/gi)];
-if (serifConsumers.length !== 1 || !css.includes('.welcome-slogan')) failures.push('Serif must have exactly one welcome-slogan consumer');
+// RP-2.9 的克制律「衬线只许一处」随 B2-1 三轨制改写形态，**约束反而更紧**：
+// 旧法＝盘一条字面 serif 栈挂在 .welcome-slogan；新法＝衬线只能经两条轨 token 进入产品，
+// 任何地方都不许再直呼 Songti/STSong/Noto Serif。故断言由「字面栈恰一处」改为：
+//   ① 裸 font-family 里零个 serif 家族名（全部按名消费）；
+//   ② serif 家族名只出现在 --font-title / --font-body 两条轨声明里，别处一个不许有。
+const rawSerifConsumers = [...css.matchAll(/font-family:\s*[^;]*(?:Songti|STSong|Noto Serif)/gi)];
+if (rawSerifConsumers.length !== 0) {
+  failures.push(`Serif must be consumed by track token only; found ${rawSerifConsumers.length} raw font-family consumer(s)`);
+}
+// 逐处判其归属，不数个数——「衬线家族名只许住在两条轨声明里」这条规则本身可以直接断言，
+// 用计数去逼近它就得背一个「标题轨恰好写了两个衬线回退」的巧合常数，改天多写一个回退就误红。
+const SERIF_NAME = /(?:Songti|STSong|Noto Serif)/i;
+const straySerifLines = css.split('\n')
+  .map((line, index) => ({ line: line.trim(), no: index + 1 }))
+  .filter(({ line }) => SERIF_NAME.test(line))
+  .filter(({ line }) => !/^--font-(?:title|body):/.test(line));
+if (straySerifLines.length > 0) {
+  failures.push(`Serif family names must live only in --font-title/--font-body; stray at line(s) ${straySerifLines.map((x) => x.no).join(', ')}`);
+}
+if (!css.includes('.welcome-slogan')) failures.push('welcome-slogan consumer missing');
 // RP-2.12：welcome 从卡片改居中 home 布局,surfaceRadius 低密度大面消费退役（零消费合法,token 留待未来大面）
 if ((css.match(/var\(--home-surface-radius\)/g) ?? []).length > 1) failures.push('home.surfaceRadius 消费漂移（至多一处低密度大面）');
 if (!tauri.includes('"titleBarStyle": "Overlay"') || !tauri.includes('"hiddenTitle": true')) failures.push('macOS title bar must use native Overlay with hidden title');
