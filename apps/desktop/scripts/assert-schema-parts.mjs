@@ -204,6 +204,10 @@ if (consumers.get('mark-seal-frame')?.length) {
 //         该族当前为空，故任何逐元素形状/线型变化一律红。
 //   反向——**前向红卫**：schema 一旦长出该字段，本条即红，逼着把欠下的视觉投影补上。
 //         不留无声的乐观（同「登记不是豁免」）。
+//
+// 字段名以架构 2026-07-19 裁定一为准：`TimelineEvent.executor` / `PartyEdge.factTier`
+// （沿 ADR-003 词汇），补字段走独立契约单 **LEGAL-FIELD-1**，两件视觉投影挂该单后置。
+// 词表另留同族别名，防的是换个名绕过守卫——**红卫认的是语义不是那一个字符串**。
 const SEMANTIC_FIELDS = [
   {
     what: '时间轴节点形状＝执行者',
@@ -217,7 +221,7 @@ const SEMANTIC_FIELDS = [
     what: '图谱边样式＝事实等级（ADR-003 事实等级的视觉投影）',
     schema: 'packages/legal/src/schemas/party-graph.ts',
     block: /const PartyEdgeSchema = z\.object\(\{([\s\S]*?)\n\}\);/,
-    field: /^(tier|grade|evidenceTier|evidenceGrade|factLevel|strength)$/i,
+    field: /^(factTier|tier|grade|evidenceTier|evidenceGrade|factLevel|strength)$/i,
     surfaces: ['src/workbench/GraphPanel.tsx', 'src/workbench/graph-theme.ts'],
     vocabulary: /\blineDash\b|\bedgeShape\b/,
   },
