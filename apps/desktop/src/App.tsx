@@ -2091,7 +2091,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     },
   ];
 
-  const effectiveLeftCollapsed = leftCollapsed || narrowRailRequired;
+  // SKIN-R2 P2-L18：对照态已经让右工作面升为主声部，左案卷随之走既有「真撤卡」路径；
+  // 不能只藏 case-expanded 后留下 48px 无宿主轨。resetComparison 后 comparing=false，
+  // 用户原有的 leftCollapsed 选择仍原样恢复，未另写持久状态。
+  const effectiveLeftCollapsed = leftCollapsed || narrowRailRequired || comparing;
   // PILOT-LIVE-1 D：previewOpen 开原件/结构化视图时不得继续用 rails-compact 窄轨压 Preview
   // （左收 + 全折 + Preview 开的组合此前会把 Preview 面板压进 280~320px 窄轨——错态）。
   const compactLayout = effectiveLeftCollapsed && !previewOpen && !moduleOpen.progress && !moduleOpen['working-folders'] && !moduleOpen.context

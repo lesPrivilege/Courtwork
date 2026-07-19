@@ -27,6 +27,7 @@ const production = [
 ].filter(([file]) => file !== selfFile); // 门自身持有禁用字面量，排除自证
 const css = await readFile(path.join(root, 'src/styles.css'), 'utf8');
 const rail = await readFile(path.join(root, 'src/rail/CaseRail.tsx'), 'utf8');
+const app = await readFile(path.join(root, 'src/App.tsx'), 'utf8');
 
 const failures = [];
 const need = (cond, msg) => { if (!cond) failures.push(msg); };
@@ -47,6 +48,16 @@ const railsCompact = css.match(/\.workspace\.rails-compact\s*\{([^}]*)\}/);
 need(railsCompact !== null, 'R4：.workspace.rails-compact 规则须存在');
 need(railsCompact !== null && !/grid-template-columns:\s*48px/.test(railsCompact[1]),
   'R4：rails-compact 不得以 48px 首列打头（撤卡后该列无宿主，实测挤压正文列）');
+
+// —— SKIN-R2 P2-L17/L18：比较态沿同一撤卡语义，不能另留 48px 无宿主轨 ——
+need(/const effectiveLeftCollapsed = leftCollapsed \|\| narrowRailRequired \|\| comparing;/.test(app),
+  'P2-L18：comparing 必须进入 effectiveLeftCollapsed，CaseRail 才会真撤挂而非只藏内容');
+const comparingCollapsed = css.match(/\.workspace\.comparing\.left-collapsed\s*\{([^}]*)\}/);
+need(comparingCollapsed !== null, 'P2-L17/L18：须有 comparing.left-collapsed 两轨显式规则以压过窄面媒体规则');
+need(comparingCollapsed !== null && !/grid-template-columns:\s*48px/.test(comparingCollapsed[1]),
+  'P2-L18：comparing.left-collapsed 不得再申请 48px 幽灵轨');
+need(!/\.workspace\.comparing\s+\.case-expanded\s*\{/.test(css),
+  'P2-L18：不得以隐藏 case-expanded 冒充撤卡；CaseRail 必须由 App 真卸载');
 
 // —— ③/P1-3：work 单列态（双侧收拢）正文列套用 --content-measure（跨模式阅读宽度一致） ——
 need(/\.workspace\.left-collapsed\.right-collapsed\s+\.composer-stack\s*\{[^}]*max-width:\s*var\(--content-measure\)/.test(css),

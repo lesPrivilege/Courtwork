@@ -27,7 +27,7 @@ SchemaParts、结构化预览与 schema 工作面为**最克制档**。不存在
 | `P2-L14` | `apps/desktop/src/App.tsx#output-placement` | 中间档 | **拒迁**“产出先入卷”新路径 | 现有确认账本与写入路径是成熟行为资产；未建立卷容器契约前不得改写产出落点 | 零；LEGAL-FIELD-1 亦不夹带 |
 | `P2-L15` | `apps/desktop/src/styles.css#decorative-quote-frame` | 中间档 | **拒迁**引语卡乌丝栏装饰框 | 引语已有来源、字体与证据语义；新增框廓无独有辖区，且会与已签线级争声部 | 零 |
 | `P2-L16` | `apps/desktop/src/styles.css#product-shell-gold-mark` | 中间档 | **拒迁**泥金记号到产品壳 | 泥金是 Pages hero 的激进档预算，壳侧没有等价 hero 语义；跨档许可不得继承 | 零 |
-| `P2-L17` | `apps/desktop/src/styles.css#.composer-stack|block-end` | 中间档 | **修正** composer／免责声明不得越过对话工作面底界 | Safari exact 1600×900 真幀中 composer 下缘被 viewport 截断；这是既有输入行为的几何完整性，不是新装饰 | 只改既有皮层几何；行为、数据与 DOM 不变 |
+| `P2-L17` | `apps/desktop/src/styles.css#.composer-stack|inline-end` | 中间档 | **修正** composer 不得越过对话工作面右界 | Safari exact 1600×900 真幀中 composer 横跨右工作面；这是既有输入行为的几何完整性，不是新装饰 | 只改既有皮层几何；行为、数据与 DOM 不变 |
 | `P2-L18` | `apps/desktop/src/styles.css#.workspace.comparing.left-collapsed|grid` | 中间档 | **修正**比较态收左栏后不得保留 48px 幽灵轨 | 同一真幀左缘仍有空白窄轨，而 `CaseRail` 已撤挂；空轨没有语义辖区且挤压主工作面 | 比较态由三轨收为对话＋工作面两轨；其余状态不动 |
 
 ## 签署后验证形状

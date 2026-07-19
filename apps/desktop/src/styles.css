@@ -248,10 +248,13 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .conversation.canvas-layer { background: var(--elevation-canvas); }
 .rail-wordmark { display: flex; align-items: center; gap: 7px; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
 .rail-brand-mark { width: 17px; height: 17px; flex: none; display: block; color: var(--text-primary); background: transparent; border: 0; border-radius: 0; box-shadow: none; }
-.workspace.comparing { grid-template-columns: 48px 300px minmax(0, 1fr); }
+.workspace.comparing { grid-template-columns: var(--chat-min) minmax(var(--schema-min), 1fr); }
 .workspace.focus-mode { grid-template-columns: minmax(0, 1fr); padding: var(--elevation-float-inset); }
 /* chatbot 形态（2026-07-12）：收敛不留左窄卡——与 mac 红绿灯零冲突，展开钮驻 chrome 同位 */
 .workspace.left-collapsed { grid-template-columns: minmax(var(--chat-min), .9fr) minmax(var(--schema-min), 1.25fr); }
+/* SKIN-R2 P2-L17/L18：对照态的案卷栏由 App 真卸载；显式两轨规则以更高特异度压过
+   max-width:1280 的旧 comparing 媒体值。对话列不再被 300px 定轨夹住，composer 遂完整留在本列。 */
+.workspace.comparing.left-collapsed { grid-template-columns: var(--chat-min) minmax(var(--schema-min), 1fr); }
 .workspace.welcome-mode { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr); }
 .workspace.welcome-mode.left-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr); }
 .workspace.right-collapsed { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr); }
@@ -323,9 +326,6 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .collapse-right-button:hover { background: var(--control-hover); color: var(--text-primary); }
 .case-rail { --home-row-height: 36px; position: relative; background: var(--elevation-rail); overflow: hidden; }
 .case-expanded { min-height: 0; flex: 1; display: flex; flex-direction: column; }
-/* 对照态左栏收为 48px 通道，仅驻 window-chrome 展开/搜索钮；case-expanded 隐藏。
-   收拢图标条（is-collapsed 死支 CSS 族）已随 LAYOUT-CONVERGE-1 清除，勿复活。 */
-.workspace.comparing .case-expanded { display: none; }
 /* RP-2.11：左栏除 owner 外全扁平，零框线（照搬 Cowork） */
 .rail-nav-skeleton {
   display: flex; flex-direction: column; gap: 2px; padding: 6px 8px; border-bottom: 0;
@@ -560,7 +560,9 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
   padding: 4px 22px 0;
   flex: none;
 }
-.composer-stack { position: relative; z-index: 10; width: 100%; max-width: 100%; min-width: 0; flex: none; display: grid; gap: 4px; container-type: inline-size; }
+/* P2-L17：显式 minmax(0,1fr) 关闭 grid 隐式 auto track 的 min-content 撑宽；否则 420px
+   比较列里 composer 工具排会把整条隐式轨撑到约 553px，壳跨进右工作面。 */
+.composer-stack { position: relative; z-index: 10; width: 100%; max-width: 100%; min-width: 0; flex: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; container-type: inline-size; }
 .composer-float .composer-shell { width: 100%; max-width: 100%; min-width: 0; margin: 0; }
 /* ch12 #4：user message 扁平略深底（藏青微加深），编辑态才描边（fork 语义，Stage 1） */
 .user-message { align-self: flex-end; max-width: 78%; padding: 7px 10px; border: 0; border-radius: 8px; background: color-mix(in srgb, var(--bg-selected) 55%, var(--bg-raised) 45%); line-height: 1.55; }
@@ -1412,7 +1414,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 
 @media (max-width: 1280px) {
   .workspace { grid-template-columns: 196px minmax(330px, .75fr) minmax(520px, 1.25fr); }
-  .workspace.comparing { grid-template-columns: 48px 280px minmax(0, 1fr); }
+  .workspace.comparing { grid-template-columns: var(--chat-min) minmax(var(--schema-min), 1fr); }
   .titlebar .case-number { display: none; }
   .graph-layout { grid-template-columns: 1fr; }
   .relation-list { display: none; }

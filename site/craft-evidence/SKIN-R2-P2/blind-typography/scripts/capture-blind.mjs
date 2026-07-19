@@ -1,3 +1,5 @@
+/* global HTMLElement, document, getComputedStyle, innerHeight, innerWidth, localStorage, navigator, performance, requestAnimationFrame, window */
+
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -118,7 +120,7 @@ async function setupState(page, state) {
       const editor = document.querySelector('[aria-label="文书起草画布"]');
       if (!(editor instanceof HTMLElement)) return;
       const paragraph = '甲方应于本协议签署之日起十个工作日内交付技术图纸、验收记录与付款凭证。The Supplier shall deliver the acceptance package before 2026-07-19，逾期责任依第12.3条处理。';
-      editor.innerHTML = `<h2>答辩意见与履约事实核验</h2>${Array.from({ length: 12 }, (_, index) => `<p>第${index + 1}段　${paragraph}</p>`).join('')}`;
+      editor.innerHTML = `<h2>答辩意见与履约事实核验</h2>${Array.from({ length: 12 }, (_, index) => `<p>第${index + 1}段\u3000${paragraph}</p>`).join('')}`;
     });
   }
 }

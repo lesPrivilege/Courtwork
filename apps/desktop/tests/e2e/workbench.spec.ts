@@ -299,9 +299,9 @@ test('Split-Tab Grid 默认上下对切并让宽 200px 以上', async ({ page })
   const split = page.getByTestId('split-grid');
   await expect(split).toHaveAttribute('data-direction', 'rows');
   await expect(page.getByTestId('workspace')).toHaveAttribute('data-comparing', 'true');
-  const rail = await page.locator('.case-rail').boundingBox();
+  await expect(page.getByTestId('workspace')).toHaveAttribute('data-left-collapsed', 'true');
+  await expect(page.locator('.case-rail')).toHaveCount(0);
   const after = await right.boundingBox();
-  expect(rail?.width).toBeLessThanOrEqual(50);
   expect((after?.width ?? 0) - (before?.width ?? 0)).toBeGreaterThanOrEqual(200);
   await page.getByTestId('split-reset').click();
   await expect(page.getByTestId('workspace')).toHaveAttribute('data-comparing', 'false');

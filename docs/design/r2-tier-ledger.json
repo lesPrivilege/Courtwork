@@ -1322,7 +1322,7 @@
       "approvedProposalLine": "P2-L16"
     },
     {
-      "target": "apps/desktop/src/styles.css#.composer-stack|block-end",
+      "target": "apps/desktop/src/styles.css#.composer-stack|inline-end",
       "tier": "agent-interface",
       "approvedProposalLine": "P2-L17"
     },

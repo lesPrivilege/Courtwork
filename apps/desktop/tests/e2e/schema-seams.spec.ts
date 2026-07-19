@@ -13,13 +13,12 @@ test('schema hard-cut keeps the chat canvas opaque at the work-surface seam', as
   await expect(page.locator('.view-content')).toHaveCSS('transition-duration', '0s');
 });
 
-test('comparison keeps a readable middle lane beside the collapsed rail', async ({ page }) => {
+test('comparison keeps a readable middle lane after the left rail fully exits', async ({ page }) => {
   await openWorkbench(page);
 
   await page.getByTestId('split-start').click();
-  const rail = await page.locator('.case-rail').boundingBox();
+  await expect(page.locator('.case-rail')).toHaveCount(0);
   const conversation = await page.locator('.conversation.canvas-layer').boundingBox();
 
-  expect(rail?.width ?? 0).toBeLessThanOrEqual(50);
-  expect(conversation?.width ?? 0).toBeGreaterThanOrEqual(280);
+  expect(conversation?.width ?? 0).toBeGreaterThanOrEqual(420);
 });

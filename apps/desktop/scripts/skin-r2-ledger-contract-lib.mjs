@@ -29,7 +29,7 @@ export const signedR2LedgerRows = Object.freeze([
   ['P2-L14', 'apps/desktop/src/App.tsx#output-placement', 'agent-interface'],
   ['P2-L15', 'apps/desktop/src/styles.css#decorative-quote-frame', 'agent-interface'],
   ['P2-L16', 'apps/desktop/src/styles.css#product-shell-gold-mark', 'agent-interface'],
-  ['P2-L17', 'apps/desktop/src/styles.css#.composer-stack|block-end', 'agent-interface'],
+  ['P2-L17', 'apps/desktop/src/styles.css#.composer-stack|inline-end', 'agent-interface'],
   ['P2-L18', 'apps/desktop/src/styles.css#.workspace.comparing.left-collapsed|grid', 'agent-interface'],
   ['P5-F01', 'site/styles.css#@font-face(Courtwork-Manuscript-Latin)', 'pages-experimental'],
   ['P5-F02', 'site/styles.css#.wordmark > span', 'pages-experimental'],
