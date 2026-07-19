@@ -180,4 +180,16 @@ SHA-256 仍为 `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d
 
 完整机器结果、全页帧、SHA 与 `srcset` 取消说明见
 [`release/evidence/versional-pages-2026-07-20/README.md`](evidence/versional-pages-2026-07-20/README.md)。
-第二轮将在本记录提交触发的新部署上执行，结果不预写。
+
+### 第二轮 — ✅ 放行
+
+- 首轮记录提交触发 Pages run
+  [`29703178460`](https://github.com/lesPrivilege/Courtwork/actions/runs/29703178460) / job
+  [`88235631001`](https://github.com/lesPrivilege/Courtwork/actions/runs/29703178460/job/88235631001)，
+  精确 head `71299a6c9f449ab402f657c14f60bfe998837f82`，guard、build 与 deploy 全绿。
+- 新四上下文再次确认 1280／375、reduced-motion、JS-off 均 HTTP 200、零破图与零实际错误；
+  六枚响应式图、HTML/CSS/JS 再次与本地逐字节相等，版本学计算线级逐项未漂移。
+- 第二轮桌面／窄屏全页帧逐张实看无旧皮层、遮挡、裁切或 routine 线回流；发布真值不变。
+
+> **VERSIONAL-LANG-1 Pages 两轮上线复核放行。** 本次只改变前端皮层和展示截图，不重发
+> `v0.1.2`，也不改写能力状态真源。

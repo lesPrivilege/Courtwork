@@ -35,4 +35,25 @@ reduced-motion 与 JS-off 四个独立上下文。完整机器结果见 `round-1
 四张全页帧逐张目视：抬头、刊记、版本学 proof、三幅新产品图、scenario 台账、承诺组界、眉批与
 卷尾均没有遮挡、破图或旧皮层回流。窄屏为单列，不发生裁切。
 
-第二轮以本首轮记录提交触发的全新 Pages workflow 为对象；结果在实际部署后回写，不提前放行。
+## 第二轮 · 记录提交 `71299a6`
+
+Pages workflow [`29703178460`](https://github.com/lesPrivilege/Courtwork/actions/runs/29703178460) /
+job [`88235631001`](https://github.com/lesPrivilege/Courtwork/actions/runs/29703178460/job/88235631001)
+对精确 head `71299a6c9f449ab402f657c14f60bfe998837f82` 成功；guard、build、artifact 与 deploy
+全为 success，运行时间 `2026-07-19T20:47:46Z` 至 `20:48:08Z`。
+
+使用全新的四个浏览器上下文重跑同一协议，`round-2.json` 与第一轮的结构性结果逐项相等：
+四上下文 HTTP 200、零 console/page error、零破图；桌面／窄屏无横向溢出；响应式候选分别为
+1440／720；proof、promise 与眉批计算线级仍为 `0/0`、`0/0/0 + 1` 与 `1/0/1/0`。
+公开 HTML/CSS/JS 和六枚 WebP 再次与本地逐字节相等。两张主帧逐张目视也未见遮挡、破图、旧皮层
+或例行分隔线回流。
+
+| 文件 | 像素尺寸 | SHA-256 |
+|---|---:|---|
+| `round-2-desktop-1280x860.png` | 1280×6301 | `c0272a6faa977adee681ec4dbd8cd96d18c3b5de7bc658eaf99ecfe253c439d5` |
+| `round-2-narrow-375x900.png` | 375×8673 | `4d246577d361b145a26d84b48d93589d353b83424515df7cc60df55991fe49dc` |
+| `round-2-reduced-1280x860.png` | 1280×6301 | `924fda6093c0946f9f2dcd41db9db2443158bf02cea9d93369f1dc64b1da5552` |
+| `round-2-js-off-375x900.png` | 375×8673 | `e8ac9ed50db7243399d3cbae93d02e775155c217376d9cbc750cf5e2686a4a28` |
+
+> **两轮公开页复核放行。** 第一轮产品提交与第二轮记录提交都由精确 head 的 Pages workflow
+> 成功部署；版本学编排、新产品图、响应式／JS-off／reduced-motion 和既有发布真值均成立。
