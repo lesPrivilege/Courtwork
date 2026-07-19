@@ -1,0 +1,92 @@
+[
+  {
+    "file": "SarasaUiSC-Regular.ttf",
+    "bytes": 24049996,
+    "sha256": "c27311eb179c8b3f43644e82c8876b2dc2bca9c11cf6c70eebf3e61a27e5bf6b",
+    "glyphCount": 48756,
+    "unicodeCount": 46272,
+    "cjkUnifiedCount": 20992,
+    "unitsPerEm": 1000,
+    "names": {
+      "1": "Sarasa UI SC",
+      "2": "Regular",
+      "4": "Sarasa UI SC",
+      "6": "Sarasa-UI-SC-Regular"
+    }
+  },
+  {
+    "file": "SarasaUiSC-SemiBold.ttf",
+    "bytes": 23978372,
+    "sha256": "b6a5443ca8af448658bf0a04722c06a41459708002ff58da0228894866ac9e48",
+    "glyphCount": 48756,
+    "unicodeCount": 46272,
+    "cjkUnifiedCount": 20992,
+    "unitsPerEm": 1000,
+    "names": {
+      "1": "Sarasa UI SC SemiBold",
+      "2": "Regular",
+      "4": "Sarasa UI SC SemiBold",
+      "6": "Sarasa-UI-SC-SemiBold"
+    }
+  },
+  {
+    "file": "SarasaMonoSC-Regular.ttf",
+    "bytes": 25539360,
+    "sha256": "5abab4b83d0c21cbd371162f00f8bcdfc8c1a4003c1a2153580b5db45e64934a",
+    "glyphCount": 56872,
+    "unicodeCount": 51072,
+    "cjkUnifiedCount": 20992,
+    "unitsPerEm": 1000,
+    "names": {
+      "1": "Sarasa Mono SC",
+      "2": "Regular",
+      "4": "Sarasa Mono SC",
+      "6": "Sarasa-Mono-SC-Regular"
+    }
+  },
+  {
+    "file": "SarasaUiSC-Regular-blind.woff2",
+    "bytes": 303580,
+    "sha256": "2ce5e02328a8f1cd031f11593ae51d6ec2ebf5ee89c553a97f50f01fa1e94015",
+    "glyphCount": 1800,
+    "unicodeCount": 1484,
+    "cjkUnifiedCount": 1329,
+    "unitsPerEm": 1000,
+    "names": {
+      "1": "Sarasa UI SC",
+      "2": "Regular",
+      "4": "Sarasa UI SC",
+      "6": "Sarasa-UI-SC-Regular"
+    }
+  },
+  {
+    "file": "SarasaUiSC-SemiBold-blind.woff2",
+    "bytes": 306316,
+    "sha256": "4f61c753b02531b34dd1724c5ff8165c573b0146418ad81d95d55188f7385cb4",
+    "glyphCount": 1800,
+    "unicodeCount": 1484,
+    "cjkUnifiedCount": 1329,
+    "unitsPerEm": 1000,
+    "names": {
+      "1": "Sarasa UI SC SemiBold",
+      "2": "Regular",
+      "4": "Sarasa UI SC SemiBold",
+      "6": "Sarasa-UI-SC-SemiBold"
+    }
+  },
+  {
+    "file": "SarasaMonoSC-Regular-blind.woff2",
+    "bytes": 306420,
+    "sha256": "d06afd9cdd70db2e95583626918b9e3149458e90acbbe5893530e2a1d512049a",
+    "glyphCount": 1969,
+    "unicodeCount": 1485,
+    "cjkUnifiedCount": 1329,
+    "unitsPerEm": 1000,
+    "names": {
+      "1": "Sarasa Mono SC",
+      "2": "Regular",
+      "4": "Sarasa Mono SC",
+      "6": "Sarasa-Mono-SC-Regular"
+    }
+  }
+]

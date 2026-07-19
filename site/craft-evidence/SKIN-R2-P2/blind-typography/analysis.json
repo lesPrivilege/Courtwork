@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "baselineHead": "967694e740de62e991fe7e6b1f4f0f8abbe55f13",
+  "decisionAuthority": "evidence-only",
+  "samples": {
+    "sample-17": "C",
+    "sample-42": "D"
+  },
+  "matrix": {
+    "frameCount": 16,
+    "viewports": [
+      "1180x720",
+      "1280x720",
+      "1440x900",
+      "1600x900",
+      "2400x1000"
+    ],
+    "states": [
+      "welcome",
+      "RiskList",
+      "Settings",
+      "Compare",
+      "empty-case",
+      "long-document"
+    ],
+    "engines": [
+      "HeadlessChrome/149.0.7827.55",
+      "iab computer-use (type recorded; user agent not captured)"
+    ]
+  },
+  "hardGates": {
+    "twelvePixelNewOverflow": 0,
+    "thirteenPixelOverflowCountParity": true,
+    "allSlotOverflowCountParityAcrossFrames": true,
+    "titleTrackUnchanged": true,
+    "documentTrackUnchanged": true,
+    "documentGeometryUnchanged": true,
+    "visibleRuntimeCodepoints": 491,
+    "visibleRuntimeCodepointsCoveredByCandidate": 491,
+    "candidateFontsLoaded": true,
+    "webkitAuthoritativeAA": false
+  },
+  "measurements": {
+    "ui12CjkWidthPx": { "C": 72.0, "D": 72.0 },
+    "ui12LatinWidthPx": { "C": 116.628, "D": 116.796 },
+    "ui13MixedWidthPx": { "C": 115.661, "D": 120.978 },
+    "mono12CjkWidthPx": { "C": 48.0, "D": 48.0 },
+    "mono12LatinWidthPx": { "C": 93.92, "D": 78.0 },
+    "document16MixedWidthPx": { "C": 154.219, "D": 154.219 },
+    "title20MixedWidthPx": { "C": 180.547, "D": 180.547 },
+    "candidateSubsetBytes": 916316,
+    "currentEmbeddedTypographyBytes": 8332196,
+    "incrementPercent": 10.998
+  },
+  "organizerScore": {
+    "C": 86.5,
+    "D": 87.8,
+    "lead": 1.3,
+    "clearWinThreshold": 3.0,
+    "dClearlyWins": false
+  },
+  "recommendation": "retain-C",
+  "blockingEvidenceForD": [
+    "No completed model-outside blind score sheet",
+    "No authoritative WKWebView/Safari AA capture in this evidence session",
+    "D advantage is inside the predefined tie corridor",
+    "Full candidate still requires governed symbol/emoji fallback"
+  ]
+}

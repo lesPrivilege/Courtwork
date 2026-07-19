@@ -1,0 +1,198 @@
+{
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+  "devicePixelRatio": 1,
+  "viewport": [
+    1440,
+    900
+  ],
+  "fontLoad": {
+    "fontReadyMs": 104.7,
+    "uiLoaded": true,
+    "uiEmphasisLoaded": true,
+    "monoLoaded": true,
+    "wallMs": 114.87
+  },
+  "family": {
+    "title": "'Times New Roman', Charter, Times, 'Source Han Serif SC', 'Noto Serif CJK SC', 'Songti SC', serif",
+    "document": "'Times New Roman', Charter, Times, 'Zhuque Fangsong', 'Source Han Serif SC', 'Songti SC', serif",
+    "ui": "-apple-system, 'Segoe UI', 'PingFang SC', 'MiSans', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif",
+    "mono": "ui-monospace, \"SF Mono\", \"JetBrains Mono\", Menlo, Consolas, \"Courier New\", monospace"
+  },
+  "slots": [
+    {
+      "size": 12,
+      "visibleCount": 24,
+      "overflowCount": 0,
+      "overflowExamples": []
+    },
+    {
+      "size": 13,
+      "visibleCount": 25,
+      "overflowCount": 1,
+      "overflowExamples": [
+        {
+          "tag": "button",
+          "testid": "chat-case-title",
+          "text": "临江精铸 诉 起云智能 设备采购合同纠纷",
+          "client": [
+            168,
+            22
+          ],
+          "scroll": [
+            246,
+            22
+          ]
+        }
+      ]
+    },
+    {
+      "size": 14,
+      "visibleCount": 55,
+      "overflowCount": 1,
+      "overflowExamples": [
+        {
+          "tag": "span",
+          "testid": "composer-scope-copy",
+          "text": "存入卷宗/已存入卷宗/存入卷宗后，本文件将出现在《临江精铸 诉 起云智能 设备采购合同纠纷》的卷宗清单中，可被后续对话与场景引用。此操作不可从输入区撤销。",
+          "client": [
+            1,
+            1
+          ],
+          "scroll": [
+            1036,
+            20
+          ]
+        }
+      ]
+    },
+    {
+      "size": 16,
+      "visibleCount": 2,
+      "overflowCount": 0,
+      "overflowExamples": []
+    }
+  ],
+  "baselines": {
+    "ui12Cjk": {
+      "width": 72,
+      "ascent": 9.912,
+      "descent": 1.236
+    },
+    "ui12Latin": {
+      "width": 116.628,
+      "ascent": 8.736,
+      "descent": 2.544
+    },
+    "ui13Mixed": {
+      "width": 115.661,
+      "ascent": 10.764,
+      "descent": 1.313
+    },
+    "mono12Cjk": {
+      "width": 48,
+      "ascent": 9.864,
+      "descent": 1.212
+    },
+    "mono12Latin": {
+      "width": 93.92,
+      "ascent": 8.906,
+      "descent": 0.17
+    },
+    "document16Mixed": {
+      "width": 154.219,
+      "ascent": 13.152,
+      "descent": 3.422
+    },
+    "title20Mixed": {
+      "width": 180.547,
+      "ascent": 15.98,
+      "descent": 3.5
+    }
+  },
+  "wrap": {
+    "width": 320,
+    "height": 39,
+    "lineHeight": 19.5,
+    "lineCount": 2
+  },
+  "contrastPairs": [
+    {
+      "foreground": "--text-primary",
+      "value": "#232b38",
+      "backgrounds": [
+        {
+          "background": "--bg-app",
+          "value": "#f7f8fa"
+        },
+        {
+          "background": "--bg-surface",
+          "value": "#f2f4f7"
+        },
+        {
+          "background": "--bg-raised",
+          "value": "#fff"
+        }
+      ]
+    },
+    {
+      "foreground": "--text-secondary",
+      "value": "#55617a",
+      "backgrounds": [
+        {
+          "background": "--bg-app",
+          "value": "#f7f8fa"
+        },
+        {
+          "background": "--bg-surface",
+          "value": "#f2f4f7"
+        },
+        {
+          "background": "--bg-raised",
+          "value": "#fff"
+        }
+      ]
+    },
+    {
+      "foreground": "--text-tertiary",
+      "value": "#637083",
+      "backgrounds": [
+        {
+          "background": "--bg-app",
+          "value": "#f7f8fa"
+        },
+        {
+          "background": "--bg-surface",
+          "value": "#f2f4f7"
+        },
+        {
+          "background": "--bg-raised",
+          "value": "#fff"
+        }
+      ]
+    },
+    {
+      "foreground": "--text-disabled",
+      "value": "#8a94a8",
+      "backgrounds": [
+        {
+          "background": "--bg-app",
+          "value": "#f7f8fa"
+        },
+        {
+          "background": "--bg-surface",
+          "value": "#f2f4f7"
+        },
+        {
+          "background": "--bg-raised",
+          "value": "#fff"
+        }
+      ]
+    }
+  ],
+  "titleDocumentControl": {
+    "title": "'Times New Roman', Charter, Times, 'Source Han Serif SC', 'Noto Serif CJK SC', 'Songti SC', serif",
+    "document": "'Times New Roman', Charter, Times, 'Zhuque Fangsong', 'Source Han Serif SC', 'Songti SC', serif",
+    "documentSize": "16px",
+    "documentLineHeight": "1.75"
+  }
+}

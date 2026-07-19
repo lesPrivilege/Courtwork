@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "method": "fixed opaque labels chosen before capture; score-sheet contains no mapping",
+  "mapping": {
+    "sample-17": "C",
+    "sample-42": "D"
+  },
+  "mappingCommitment": "96b5e535012471273df4c25ed42bcd270cabd7f2be643aae60a1f2df57adf6f8"
+}
