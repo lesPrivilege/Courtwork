@@ -67,6 +67,7 @@ const desktopRootColors = {
   '--green-fg': 'color.semantic.gate.confirmed.fg',
   '--green-bg': 'color.semantic.gate.confirmed.bg',
   '--slate-graphic': 'color.semantic.severity.low.graphic',
+  '--zhu-graphic': 'color.line.settled.value',
   '--slate-fg': 'color.semantic.severity.low.fg',
   '--slate-bg': 'color.semantic.severity.low.bg',
 };
