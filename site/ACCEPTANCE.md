@@ -690,3 +690,62 @@ glyph/cmap/SOURCE/OFL 漂移、数据字、`--mono`、数据 motion、reduced-mo
 
 实现需先补 CSS 等价 family spelling 的红测，再在既有 P5 局部规范化 CSS escape；无需变量解析
 状态机，也不得扩大 F06–F08。修复后由另一新 clean clone 重做本报告；本轮拒绝不得沿用为放行。
+
+---
+
+## SKIN-R2-P5-ACCEPT-3 · CSS escape 修复独立复验（2026-07-20）— ✅ 放行
+
+### 1. 对象与隔离
+
+- **验收对象**：`a6cb5e3fcaffa7a4f0ee49223648962e76427ad1`；核验为复验时主线
+  `76bf95155b9b1f16be9cddbaf501adceaf899099` 的祖先，本轮精确隔离 P5 提交而不借后续主线。
+- **独立环境**：全新 clone `/tmp/courtwork-p5-third-acceptance.PCoFkA/repo`，独立源码端口
+  `127.0.0.1:18987`；未复用前两轮 clone、端口、报告结论或服务。
+- **范围**：`71b7fa3..a6cb5e3` 仅改 deslop library/test 两文件；本验收不改实现或契约，只写报告。
+
+> **SKIN-R2 P5 放行 ✅。** 前轮真实绕过
+> `"Courtwork\20 Manuscript\20 Latin"` 经自定义属性 → body/data 继承，现在由
+> `p5-font-coverage` 精确报 `indirect font slot`；短／长 hex、普通字符转义与 OG 间接槽同样红。
+> 修复只在 P5 局部还原 CSS escape，没有引入变量解析、级联状态机或新字体系统；四个签署 consumer
+> 真渲、八数据节点静止，F06–F08 没有复活。
+
+### 2. 转义与闭集反例
+
+真实活动文件逐项注入并复原：
+
+| 反例 | 结果 |
+|---|---|
+| `"Courtwork\20 Manuscript\20 Latin"` 自定义槽 + body `var(...)` | `p5-font-coverage` 定点红 |
+| `\000020` 六位空格、`\43 ` 短 hex 字符 | 均定点红 |
+| `Court\work` 普通字符转义 | 定点红 |
+| OG 转义字槽 + OG body `var(...)` | `site/og.html` 定点红 |
+| 既有 literal `--sans`、任意变量槽 | 均定点红 |
+| 字面／转义第五 consumer | 均报 unapproved consumer |
+| 已签 selector 改名 | unapproved + missing signed consumer 双红 |
+
+正向反例也成立：签署 `@font-face` 或已签 consumer 使用语义等价转义时完整 deslop 保持绿，证明
+门在 CSSOM 同义层判断，而不是以误杀合法 consumer 换取封口。复原后 deslop 基线全绿。
+
+### 3. 真渲与全门
+
+独立 runtime 实测站面三处 + OG 一处 computed family 全为写本 face，资源只加载一次；八数据节点
+字符、bbox、字体、animation、transform 与签署 baseline 相等。reduced runtime 亦通过：三条名册
+动画、演示层八点归零、四相位零朱。
+
+| 门 | 实跑结果 |
+|---|---|
+| P5 定点 Node | **39/39** |
+| `pnpm site:guard` | **68/68**；报告 tip deslop **883 active files** |
+| `pnpm lint` | exit 0 |
+| `pnpm -r build` | 13/14 workspace；desktop 3,579 modules，exit 0 |
+| `pnpm site:build` | exit 0 |
+| `pnpm test` 最终完整重跑 | **148 files / 1,261 tests**，exit 0 |
+
+完整测试首轮仅 `s3-flow.integration` 遭 5 秒 timeout（147/148）；同一用例随后单跑 1/1、tests
+694ms，负载平息后全量 148/148 复绿。两轮事实均保留。详细 mutation 与命令记录见
+[`craft-evidence/SKIN-R2-P5/third-acceptance-a6cb5e3/README.md`](craft-evidence/SKIN-R2-P5/third-acceptance-a6cb5e3/README.md)。
+
+### 4. 裁决边界
+
+本放行只关闭 P5 写本拉丁表达轨及 `P5-F10` 两轮拒绝项；不扩大为系统 UI 字体全量覆盖，不撤回
+F06–F08 退场，不替代后续 Pages 部署授权。未 push、未部署、未更新能力状态真源。
