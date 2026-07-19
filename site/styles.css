@@ -137,13 +137,14 @@ main { overflow: clip; }
 .hero { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 112px 0 104px; }
 .hero-copy { max-width: 760px; }
 .eyebrow { margin: 0; color: var(--meta); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; }
-/* 标题轨消费面：h2/h3 由系统 sans 换通行宋体，**双字重梯度**——大字号取 400（宋体大字重
+/* 标题轨消费面：h1/h2/h3 一律用通行宋体；大字号取 400（宋体大字重
    本就厚，加粗即糊），小字号取 700 补足视觉重量。字重携层级语义，非装饰（与线级语法同构）。
-   h1 与 .zh-display 是既有品牌时刻，仍归文书轨（朱雀），不入标题轨。 */
+   .zh-display 只留给落定章与承诺账的品牌记号，不再承载标题。 */
 h1, h2, h3 { margin: 0; font-weight: 510; letter-spacing: -.02em; text-wrap: balance; }
 .zh-title { font-family: var(--font-title); font-synthesis: none; }
 h2.zh-title { font-weight: 400; }
 h3.zh-title { font-weight: 700; }
+h1.zh-title { font-weight: 400; }
 /* 朱雀仿宋消费者：单字重（零粗体律——仿宋无原生粗体，伪粗体一律禁），
    层级靠字号与留白；强调走记号系（圈点/侧点）不走加粗。 */
 .zh-display { font-family: var(--display); font-weight: 400; font-synthesis: none; letter-spacing: .02em; }

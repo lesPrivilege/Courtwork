@@ -621,7 +621,7 @@ function scanSvg(file, content, failures) {
 
 // SITE-CRAFT-2：字体子集三向绑定——HTML 消费者用字 ⊆ 清单文本、清单与 woff2 字节同锚、
 // CSS 真实接线（@font-face + 消费类真的消费对应 token）。任一向脱钩即缺字静默回退，必须触红。
-// 三轨字体制落地后（字体策略二次修订）：文书轨 zh-display/zh-doc 共用朱雀清单，标题轨 h2/h3
+// 三轨字体制落地后（字体策略二次修订）：文书轨 zh-display/zh-doc 共用朱雀清单，标题轨 h1/h2/h3
 // 共用 Noto 双字重清单，故消费类与清单均由调用方传入，一套门守三枚子集。
 export function checkDisplayFont({ html, css, manifest, woff2Sha256, consumerClasses = ['zh-display'], manifestPath = 'site/assets/fonts/zhuque-subset.json', faceFamily = 'Zhuque Fangsong', faceFiles = ['assets/fonts/zhuque-fangsong-subset.woff2'], tokenRule = { selector: '\\.zh-display', token: '--display' } }) {
   const failures = [];

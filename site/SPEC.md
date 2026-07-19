@@ -371,7 +371,7 @@ craft-evidence B7 节与 `noto/` `zhuque/` `juzhen-rejected/` 三个快照目录
   「格式转换后以嵌入方式应用到网站」，嵌入式应用属独立收费类目（明确不可用）。按拍板
   「任一未核清即以朱雀仿宋为落地值，不悬置不静默替换」落朱雀，拒收理由三处同时记名
   （CSS 注释 / 本节 / `juzhen-rejected/DECISION.md`）。**未下载任何方正字体文件**——核实先于取字。
-- **标题轨：Noto Serif SC 2.003 双字重**（h2 400 / h3 700）。选 Noto 版而非 Adobe
+- **标题轨：Noto Serif SC 2.003 双字重**（h1/h2 400 / h3 700）。选 Noto 版而非 Adobe
   `source-han-serif`：前者版权行未宣告 Reserved Font Name（name 表实读），子集可保留原名；
   后者保留 `Source`，子集须改名。梯度取向＝大字号 400、小字号 700（宋体大字重本就厚，
   48px 加粗即糊；20px 反需补重量），字重携层级语义。刻本类候选按修订降为实验田探索项，本批不入主轨。

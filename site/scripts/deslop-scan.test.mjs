@@ -293,7 +293,7 @@ test('SITE-CRAFT-2 font provenance keeps SOURCE.md anchored to the built bytes',
   assert.ok(provRules('').includes('font-provenance'));
 });
 
-// 二轮驳回判例：**SHA 只锚内容，不锚声称**。制品换一字节 SHA 必变，但「128 glyphs / 33,036 bytes」
+// 二轮驳回判例：**SHA 只锚内容，不锚声称**。制品换一字节 SHA 必变，但制品链中的 glyph/byte 声称
 // 这类人读数字可以在 SHA 全对的前提下静默撒谎（同族于 B2-0 的 SPEC 记 6,205KB 而实物 8,137KB）。
 // 故权威记录里的**可解析数字都要有各自的机器对应**——三个数字全部从制品自身量出。
 test('SITE-CRAFT-2 woff2 measurement reads bytes, glyphs and codepoints from the artifact', () => {
@@ -301,8 +301,8 @@ test('SITE-CRAFT-2 woff2 measurement reads bytes, glyphs and codepoints from the
   const measured = measureWoff2(buffer);
   assert.equal(measured.bytes, buffer.length);
   // 与 fontTools 独立实现互校过的定值（文书轨子集）。
-  assert.equal(measured.glyphs, 128);
-  assert.equal(measured.chars, 104);
+  assert.equal(measured.glyphs, 439);
+  assert.equal(measured.chars, 348);
   assert.throws(() => measureWoff2(Buffer.from('not a font at all!!')), /not a woff2/);
 });
 
@@ -473,6 +473,21 @@ test('SITE-CRAFT-2 display-font gate guards the title track as well as the docum
   assert.ok(titleRules({ woff2Sha256: 'd'.repeat(64) }).includes('display-font'));
   // 页面零标题轨消费者 → 死资产，触红。
   assert.ok(titleRules({ html: '<h2>判断条款风险</h2>' }).includes('display-font'));
+});
+
+test('SITE-CRAFT-2 keeps titles in the Song track and editorial body copy in the Fangsong track', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  // 标题轨不能把 hero 或卷尾标题留在品牌仿宋例外；标题的字号再大也仍是标题。
+  assert.match(html, /<h1 class="zh-title"/);
+  assert.match(html, /<h2 class="zh-title">签字之前/);
+  assert.doesNotMatch(html, /<h1 class="zh-display"/);
+  // 站面叙事正文是文书轨，工具位（导航、按钮、元信息）仍由 --sans 承担。
+  for (const selector of ['hero-lead', 'section-body', 'evidence-body', 'work-body', 'scenario-body', 'boundary-body', 'footer-body']) {
+    assert.match(html, new RegExp(`class="[^"]*${selector}[^"]*zh-doc|class="[^"]*zh-doc[^"]*${selector}`));
+  }
+  assert.match(css, /\.zh-title \{ font-family: var\(--font-title\); font-synthesis: none; \}/);
+  assert.match(css, /\.zh-doc \{ font-family: var\(--font-doc\); font-weight: 400; font-synthesis: none;/);
 });
 
 // 奖级工艺裁定「单点，不铺开」：裁定若只写在文档里就会被下一次顺手铺开，故写成门。

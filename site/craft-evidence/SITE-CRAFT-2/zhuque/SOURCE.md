@@ -12,7 +12,7 @@
 |---|---|---|
 | `ZhuqueFangsong-v0.212.zip`（release 资产） | 5,743,932 bytes | `bb8b661a7643d2296a72d9d10530a00949419c4e527fb61783f73c2ba1a8c062` |
 | `ZhuqueFangsong-Regular.ttf`（zip 内唯一文件） | 13,805 glyphs | `558c62730844fe54ba220146ed62f859d4e2880188d92d985f8921c6e3743bc4` |
-| `site/assets/fonts/zhuque-fangsong-subset.woff2`（入库子集·文书轨） | 104 字 / 128 glyphs / 33,036 bytes | `8577a034b5632b59fc641344bc61169ce2a2b9fee1a74e1726b6dd5563b06f22` |
+| `site/assets/fonts/zhuque-fangsong-subset.woff2`（入库子集·文书轨） | 348 字 / 439 glyphs / 110,968 bytes | `a087683855a0431dc32cdbd511a096ece3c33b76abb16880ba26fe9ba7f9158b` |
 | `site/assets/fonts/doc-latin-subset.woff2`（入库子集·文书轨拉丁分段） | 25 字 / 94 glyphs / 8,488 bytes | `f3a6ce7a521a03f83943018aeb915ad2e9091efb56f4f3986d3687e895263f48` |
 
 拉丁分段取自 **Noto Serif SC 2.003 Regular**（SIL OFL 1.1，来源与 RFN 核定见 `../noto/SOURCE.md`），
@@ -33,8 +33,8 @@
 
 ## 子集再生成
 
-子集按站面文案精确取字。**取字面自三轨字体制落地起为**：`zh-display`（品牌时刻：hero 母题、
-承诺四则、收尾判词）∪ `zh-doc`（文书轨：微演示原件正文、三处引语、修订建议）＝ 104 字。
+子集按站面文案精确取字。**取字面为**：`zh-display`（承诺账与落定章）∪ `zh-doc`（文书轨：
+微演示原件正文、引语、修订建议与站面叙事正文）＝ 348 字。
 字符集与字节锚记录在 `site/assets/fonts/zhuque-subset.json`；deslop `display-font` 门校验
 「页面 zh-display/zh-doc 用字 ⊆ 清单文本」与「清单 woff2Sha256 = 实际字节」，
 `font-provenance` 门另校验「本文件登记 SHA = 实际字节」，任一脱钩即构建失败。

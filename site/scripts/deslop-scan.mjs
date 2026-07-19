@@ -92,7 +92,7 @@ for (const failure of validateFixtureClaims(html, loadFixtureClaimInputs(resolve
 }
 const sha256 = (path) => createHash('sha256').update(readFileSync(resolve(path))).digest('hex');
 const notoManifest = JSON.parse(readFileSync(resolve('site/assets/fonts/noto-subset.json'), 'utf8'));
-// 三轨字体制：文书轨（朱雀，zh-display + zh-doc）与标题轨（Noto 双字重，h2/h3）各自三向绑定。
+// 三轨字体制：文书轨（朱雀，zh-display + zh-doc）与标题轨（Noto 双字重，h1/h2/h3）各自三向绑定。
 const fontTracks = [
   {
     manifest: JSON.parse(readFileSync(resolve('site/assets/fonts/zhuque-subset.json'), 'utf8')),
