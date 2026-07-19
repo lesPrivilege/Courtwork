@@ -132,6 +132,9 @@
   --mac-window-controls-group-width: 54px;
   --mac-window-control-size: 14px;
   --window-chrome-row-height: 32px;
+  /* detached chrome 次序照 macOS/Codex：交通灯 → sidebar/search → 内容；80px = 2×28px
+     应用按钮 + 2×8px 组内 gap + 8px 内容净距。标题从该安全区之后起排。 */
+  --window-chrome-detached-title-safe-inline: calc(max(0px, calc(var(--elevation-float-radius) - var(--mac-window-control-size) / 2)) + var(--mac-window-controls-group-width) + 80px);
   --elevation-shadow: 0 1px 2px rgba(35,43,56,0.045), 0 4px 12px rgba(35,43,56,0.035);
   --elevation-titlebar: transparent;
   --elevation-warn-bg: var(--amber-bg);
@@ -991,7 +994,9 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .composer-kbd-sep { margin: 0 2px; color: var(--text-disabled); }
 .composer-disclaimer { width: calc(100% - 24px); margin: 0 auto; padding: 0 2px 2px; box-sizing: border-box; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); line-height: 1.45; text-align: center; white-space: normal; }
 .composer-disclaimer a { display: inline-block; color: var(--text-secondary); white-space: nowrap; }
-@media (min-width: 1600px) { .composer-disclaimer { white-space: nowrap; } }
+/* P2-L20：是否单行只看 composer 自身，不看视口。576px 容器扣 24px 后仍容得下真实文案；
+   窄比较列自然折行，反馈链接保持完整，绝不跨入右工作面。 */
+@container (min-width: 576px) { .composer-disclaimer { white-space: nowrap; } }
 .panel-head, .rail-head, .pane-head { min-width: 0; overflow: hidden; }
 .panel-head h2, .panel-head strong, .pane-head strong, .rail-wordmark,
 .card-heading strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1676,6 +1681,11 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 [data-testid="conversation-canvas"] .chat-titlebar:not(:has(.welcome-head-label)) {
   justify-content: flex-start;
   padding-inline: max(14px, calc((100% - var(--content-measure)) / 2));
+}
+/* P2-L19：CaseRail 真撤挂后，WindowChrome 变 detached；标题与 chrome 同处窗口首行，须像
+   Codex 一样从系统交通灯 + 应用按钮组之后起排。只改左内距，标题仍可省略，右侧 chips 不动。 */
+.app-shell:has(> .window-chrome.is-detached) .chat-titlebar:not(:has(.welcome-head-label)) {
+  padding-left: max(14px, calc((100% - var(--content-measure)) / 2), var(--window-chrome-detached-title-safe-inline));
 }
 
 /* 右栏退场后的无卡展开动作：吸附 app-shell 右上边缘，不占工作区网格。 */

@@ -13,6 +13,8 @@ for (const width of [1180, 1240, 1440, 1600]) {
       const chat = document.querySelector<HTMLElement>('[data-testid="conversation-canvas"]')!;
       const right = document.querySelector<HTMLElement>('[data-testid="right-module-stack"]')!;
       const composer = document.querySelector<HTMLElement>('[data-testid="composer"]')!;
+      const composerStack = document.querySelector<HTMLElement>('.composer-stack')!;
+      const disclaimer = document.querySelector<HTMLElement>('[data-testid="composer-disclaimer"]')!;
       const send = document.querySelector<HTMLElement>('[data-testid="composer-send"]')!;
       const provider = document.querySelector<HTMLElement>('[data-testid="model-config-trigger"]')!;
       const edge = (node: HTMLElement) => node.getBoundingClientRect().right;
@@ -22,6 +24,10 @@ for (const width of [1180, 1240, 1440, 1600]) {
         gap: right.getBoundingClientRect().left - chat.getBoundingClientRect().right,
         chatRight: chat.getBoundingClientRect().right,
         composerRight: edge(composer),
+        composerStackRight: edge(composerStack),
+        disclaimerRight: edge(disclaimer),
+        disclaimerScrollWidth: disclaimer.scrollWidth,
+        disclaimerClientWidth: disclaimer.clientWidth,
         sendRight: edge(send),
         providerRight: edge(provider),
       };
@@ -30,9 +36,11 @@ for (const width of [1180, 1240, 1440, 1600]) {
     expect(metrics.body[0]).toBeLessThanOrEqual(metrics.body[1]);
     expect(metrics.gap).toBeCloseTo(28, 1); // 2026-07-12 三拍 12→16→20→24（终值）
     expect(metrics.composerRight).toBeLessThanOrEqual(metrics.chatRight);
+    expect(metrics.disclaimerRight).toBeLessThanOrEqual(metrics.composerStackRight + 1);
+    expect(metrics.disclaimerRight).toBeLessThanOrEqual(metrics.chatRight);
+    expect(metrics.disclaimerScrollWidth).toBeLessThanOrEqual(metrics.disclaimerClientWidth + 1);
     expect(metrics.sendRight).toBeLessThanOrEqual(metrics.chatRight);
     expect(metrics.providerRight).toBeLessThanOrEqual(metrics.chatRight);
-    if (width === 1600) await expect(page.getByTestId('composer-disclaimer')).toHaveCSS('white-space', 'nowrap');
   });
 }
 

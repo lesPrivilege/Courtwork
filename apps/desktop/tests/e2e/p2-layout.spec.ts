@@ -58,3 +58,55 @@ test('P2-L17：1600×900 比较态 composer 不越过对话列右界', async ({ 
   expect(geometry.composerFloatRight).toBeLessThanOrEqual(geometry.conversationRight + 1);
   expect(geometry.rootScrollWidth).toBeLessThanOrEqual(geometry.rootClientWidth);
 });
+
+test('P2-L19：detached chrome 为交通灯与应用按钮留出标题安全区', async ({ page }) => {
+  await openComparison(page, 1600);
+
+  const geometry = await page.evaluate(() => {
+    const chrome = document.querySelector<HTMLElement>('.window-chrome.is-detached')!;
+    const actions = [...chrome.querySelectorAll<HTMLElement>('.window-chrome-button')];
+    const title = document.querySelector<HTMLElement>('[data-testid="chat-case-title"]')!;
+    const chromeRight = Math.max(...actions.map((action) => action.getBoundingClientRect().right));
+    return {
+      chromeRight,
+      titleLeft: title.getBoundingClientRect().left,
+      titleRight: title.getBoundingClientRect().right,
+      titleScrollWidth: title.scrollWidth,
+      titleClientWidth: title.clientWidth,
+    };
+  });
+
+  expect(geometry.titleLeft).toBeGreaterThanOrEqual(geometry.chromeRight + 8);
+  expect(geometry.titleRight).toBeGreaterThan(geometry.titleLeft);
+  expect(geometry.titleScrollWidth).toBeGreaterThanOrEqual(geometry.titleClientWidth);
+});
+
+test('P2-L20：窄对话列免责声明按自身容器换行且不跨入右工作面', async ({ page }) => {
+  await openComparison(page, 1600);
+
+  const geometry = await page.evaluate(() => {
+    const conversation = document.querySelector<HTMLElement>('[data-testid="conversation-canvas"]')!.getBoundingClientRect();
+    const stack = document.querySelector<HTMLElement>('.composer-stack')!.getBoundingClientRect();
+    const disclaimer = document.querySelector<HTMLElement>('.composer-disclaimer')!;
+    const disclaimerRect = disclaimer.getBoundingClientRect();
+    const right = document.querySelector<HTMLElement>('[data-testid="right-module-stack"]')!.getBoundingClientRect();
+    return {
+      conversationRight: conversation.right,
+      stackLeft: stack.left,
+      stackRight: stack.right,
+      disclaimerLeft: disclaimerRect.left,
+      disclaimerRight: disclaimerRect.right,
+      disclaimerScrollWidth: disclaimer.scrollWidth,
+      disclaimerClientWidth: disclaimer.clientWidth,
+      rightLeft: right.left,
+      whiteSpace: getComputedStyle(disclaimer).whiteSpace,
+    };
+  });
+
+  expect(geometry.disclaimerLeft).toBeGreaterThanOrEqual(geometry.stackLeft);
+  expect(geometry.disclaimerRight).toBeLessThanOrEqual(geometry.stackRight + 1);
+  expect(geometry.disclaimerRight).toBeLessThanOrEqual(geometry.conversationRight + 1);
+  expect(geometry.disclaimerRight).toBeLessThanOrEqual(geometry.rightLeft);
+  expect(geometry.disclaimerScrollWidth).toBeLessThanOrEqual(geometry.disclaimerClientWidth + 1);
+  expect(geometry.whiteSpace).toBe('normal');
+});

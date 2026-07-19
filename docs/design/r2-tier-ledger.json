@@ -1332,6 +1332,16 @@
       "approvedProposalLine": "P2-L18"
     },
     {
+      "target": "apps/desktop/src/styles.css#.window-chrome.is-detached|title-safe-inline",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L19"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.composer-disclaimer|container-wrap",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L20"
+    },
+    {
       "target": "apps/desktop/src/styles.css#@keyframes seal-press",
       "tier": "agent-interface",
       "approvedProposalLine": "P3-S01"

@@ -3236,3 +3236,25 @@ schema-marks 独立端口 `19457` **10/10**。实现 tip 完整自检为：`pnpm
 首次独立 mutation 另发现，单靠 raw-color 门不能拒绝“合法 `var()`、错误槽位”的 token 漂移，且根 dark
 map 曾可混入自定义布局变量。前向守卫因此补成**批准属性和值逐项闭集**：缺槽、错值、重复槽及未批准
 custom property 均定点红；消费 CSS 与已核定 token 值没有随修补改变。
+
+---
+
+## SKIN-R2 P2-L19/L20 · 窗口首行与 composer 溢出纠偏（实现完成，待独立验收）
+
+来源是产品真帧 `image-1.png` 与 Codex 原生窗口参考 `image-2.png`；两者哈希、档位与指令全文投影见
+`site/craft-evidence/SKIN-R2-P2/OVERFLOW-SIGNATURE.md`。两行均为 Agent 通用界面**中间档**，只改既有
+布局消费值；不改 UX、DOM、数据、schema、token 色值、主题、字体或动效。
+
+- **P2-L19**：CaseRail 真撤后 `.window-chrome.is-detached` 与 case title 共占首行。标题起点从系统
+  交通灯锚宽、两枚 28px 应用按钮、组内间距和 8px 内容净距推导，不写屏幕绝对坐标。红证为
+  `titleLeft=22 < chromeRight+8=147`；实现后 `titleLeft=147`，与应用按钮右缘恰留 8px。
+- **P2-L20**：免责声明是否单行改由 `.composer-stack` 的 inline-size container 决定，撤掉
+  `viewport>=1600` 即强制 `nowrap` 的错误近似。红证为 1600×900 比较态
+  `scrollWidth=551 > clientWidth=396`；实现后两值同为 396，窄列自然折行且反馈链接不拆字。
+
+TDD 新增两个真实 e2e，floor `315→317`；实现前两条分别定点红，最小 CSS 实现后连同 P2-L17/L18
+四条同跑转绿。完整 317 条首跑另使旧 RP-2.5 的“1600 视口必为 nowrap”断言定点红；该断言即
+本缺陷的错误近似，现升级为四档视口均验证 disclaimer 不越 composer/chat 且自身零横滚，不按
+视口猜容器。新概念：**0**；只复用既有 detached chrome、container query、布局 token 与平铺档位账。
+实现侧真帧与测量见 `site/craft-evidence/SKIN-R2-OVERFLOW-1/README.md`；独立 clean-clone mutation、
+全尺寸矩阵及 Tauri 复核仍由异会话完成，本文不作放行声明。
