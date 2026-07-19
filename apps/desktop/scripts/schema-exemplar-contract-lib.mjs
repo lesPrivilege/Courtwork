@@ -30,7 +30,7 @@ const REQUIRED_HEADINGS = [
 const digest = (value) => createHash('sha256').update(value).digest('hex');
 // 平铺提案行只接受已出现并由架构签署的批次语法；不放一个宽泛 P\d-* 口子让未来行免签穿透。
 const isProposalLine = (value) => typeof value === 'string'
-  && /^(?:P0-A\d{2}|P1-(?:M\d{2}|N\d{3})|P2-[TL]\d{2}|P3-[SHIA]\d{2}|P5-F\d{2})$/.test(value);
+  && /^(?:P0-A\d{2}|P1-(?:M\d{2}|N\d{3})|P2-[TL]\d{2}|P3-[SHIA]\d{2}|P4-D\d{2}|P5-F\d{2})$/.test(value);
 
 export function validateSchemaExemplarContract({ exemplar, manifest, tierLedger, sourceTexts }) {
   const failures = [];

@@ -16,7 +16,10 @@ import { createDemoWorkFixture } from './demo/client';
 import { createDesktopWorkCommand, installWorkTestHooks } from './work/work-runtime';
 import { createTauriWorkStateHost } from './work/tauri-work-state-host';
 import { loadModelConfig } from './provider/model-config';
+import { installDesktopThemeController } from './settings/theme-controller';
 import './styles.css';
+
+installDesktopThemeController();
 
 const providerTransport = isTauriHostRuntime() ? createTauriProviderTransport() : undefined;
 // HOST-AUTH-LITE：产品运行时用 Tauri 适配器；DEV/E2E 无原生 picker 时用 browser 樁（诚实失败，非 demo 回落）。

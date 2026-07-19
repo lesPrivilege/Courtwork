@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "courtwork.skin-r2-p4.theme-evidence.v1",
+  "capturedAt": "2026-07-20T02:05:00+08:00",
+  "system": {
+    "product": "macOS",
+    "version": "26.5.2",
+    "build": "25F84",
+    "appearance": "Dark",
+    "display": "Built-in Liquid Retina Display",
+    "displayResolutionPx": "2560x1664"
+  },
+  "browserMatrix": {
+    "engine": "Chromium 149.0.7827.55",
+    "viewportCssPx": "1600x900",
+    "lightFrameSha256": "2b037a0681ce516e11770a1a7cac2d1de21cee6a905f1c7a2af6bdc372cf14d1",
+    "darkFrameSha256": "05e648f68f9bc083dbef40bcb549cb6af4640befa77a4cd93b8248edcb2f18db"
+  },
+  "tauriAuthority": {
+    "runtime": "Tauri WKWebView",
+    "windowCssPx": "1600x900",
+    "capturedPx": "3200x1800",
+    "devicePixelRatio": 2,
+    "configSha256": "bf5a0826b3f607c15b3dc5e6afe18dfdb8c6af76eb9621e8675bb41ee0421c1c",
+    "systemFrameSha256": "0cd11c2d7f235c4d5cac72113b4e7c654869c426bd019ed5a1835c668dbb1748",
+    "settingsFrameSha256": "35382df43c45e483d307977952b4261c41556d93d00e442e9aef158e12aba695",
+    "focusFrameSha256": "a298b00fcbd9cd16a21e53ec86924665ac5641efc968ed78a2758eb644759756"
+  },
+  "darkSlots": {
+    "hairline": { "value": "#2A3A52", "contrastOnApp": 1.5762, "contrastOnRaised": 1.1541 },
+    "strong": { "value": "#3E5270", "contrastOnApp": 2.2844, "contrastOnRaised": 1.6726 },
+    "focus": { "value": "#6A94F1", "contrastOnApp": 6.1467, "contrastOnRaised": 4.5006 },
+    "disabled": { "value": "#4C5A70", "contrastOnApp": 2.5935, "contrastOnRaised": 1.899 }
+  },
+  "geometryAssertion": "schema-marks.spec.ts compares light/dark mark, surface and data rectangles to 0.001 CSS px; all equal",
+  "decision": "accept-current-dark-token-values"
+}

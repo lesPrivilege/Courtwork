@@ -3187,3 +3187,48 @@ SchemaParts 几何、`line.settled`、交互、字体值、主题、线级 token
 `pnpm lint`、根 Vitest **148 files / 1261 tests**、`pnpm -r build`、`site:guard` **67 tests**、
 `site:build` 与独立端口 `19357` 的完整 desktop e2e **314/314** 均通过。上述只构成实现自检；
 Tauri fixture、关键帧、reduced-motion 与拒迁残留仍须由不同会话在 clean clone 独立复验。
+
+---
+
+## SKIN-R2 P4 · B5 深色（实现完成，待独立验收）
+
+权威：`site/craft-evidence/SKIN-R2-P4/ARCHITECTURE-SIGNATURE.md` 与批准版 P4 原文。P4-D01…D06
+已投影进平铺档位账；除 C-4 数据面断言归 schema 最克制档，其余均为 Agent 中间档。
+
+### themeMode 与根宗解析
+
+- `SettingsSnapshot` 在既有 `courtwork.settings.v1` 内增加 `appearance.themeMode`，闭集
+  `system | light | dark`；旧 snapshot、缺值、解析失败与畸形值均回退 `system`，没有第二存储键。
+- `installDesktopThemeController` 只把解析结果写到 `documentElement.dataset.theme`。system 读取
+  `prefers-color-scheme: dark` 并监听 OS；显式 light/dark 在 OS 变化时保持原宗。设置写入通过单一
+  `courtwork:settings-changed` 事件即时重算，不把 mode 暴露到 DOM。
+- Settings 新增 Appearance 分组与真实三值 select；无假开关，持久化与反馈都走既有设置路径。
+
+### token 映射与 C-4
+
+`:root[data-theme='dark']` 只把 `themes.dark` 直值／同槽派生式映到现有 CSS 变量。组件、G6、布局
+零 `[data-theme]` 分支、零 CSS `prefers-color-scheme` 分支、零局部字面色；`checkThemeBoundary`
+以三类注入定点拒绝。浅宗新增 `--border-focus` 只是把既有 focus 值命名接线，深宗取
+`themes.dark.border.focus`。
+
+`schema-marks.spec.ts:69` 的占位守卫已改为 C-4 真断言：同一 DOM 在 light/dark 下逐位比对 mark、
+文书 surface 与数据文字矩形（0.001 CSS px 精度）及 viewBox，几何完全相等；mark、surface、数据字
+与正文色均分别变化。desktop e2e floor `314→315`，新增的是 themeMode 真实路径而非重复断言。
+
+### 真壳四槽与清场
+
+macOS 26.5.2 深色系统、真实 Tauri WKWebView、1600×900 CSS、DPR 2 下实摄欢迎、Settings 与键盘
+focus 三帧。focus `#6A94F1` 在 raised 上 4.5006:1；hairline/strong 保持低对比结构线梯度；disabled
+1.8990:1 只用于可识别的禁用重复信息，不承正文或唯一语义。四槽均满足各自既定职能，未局部补色，
+无需回架构改 token。数值、系统、截图与哈希见 `theme-measurements.json`。
+
+裸 `.titlebar`、其 nested 死规则与 rule-grammar 死账删除；`.chat-titlebar`、
+`.titlebar-credential-warn`、`.titlebar-settings` 均保持。schema、wire、G6 几何、数据、写入路径、
+动效与 reduced-motion 不变。
+
+### 实现侧自检
+
+定点 unit：settings/theme controller **10/10**；P4 deslop/root-boundary 红卫转绿；Settings +
+schema-marks 独立端口 `19457` **10/10**。实现 tip 完整自检为：`pnpm lint` 绿、Vitest
+**148 files / 1261 tests**、`pnpm -r build` 绿、site guard **71/71**、site build 绿，以及独立端口
+`19459` desktop e2e **315/315**。这些只构成实现侧自证；实现会话不写独立放行。

@@ -29,6 +29,37 @@ test.describe('SET-1 设置页', () => {
     await expect(page.getByTestId('settings-page')).toBeVisible();
   });
 
+  test('themeMode 同键持久化：system 随 OS，显式宗不随，根只暴露解析后的 data-theme', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await openWorkbench(page);
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(page.locator('html')).not.toHaveAttribute('data-theme-mode');
+
+    await openSettings(page);
+    await page.getByTestId('settings-nav-appearance').click();
+    const mode = page.getByTestId('settings-theme-mode');
+    await expect(mode).toHaveValue('system');
+    await mode.selectOption('light');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+
+    const keys = await page.evaluate(() => Object.keys(localStorage).filter((key) => key.startsWith('courtwork.settings')));
+    expect(keys).toEqual(['courtwork.settings.v1']);
+    await openSettings(page);
+    await page.getByTestId('settings-nav-appearance').click();
+    await page.getByTestId('settings-theme-mode').selectOption('system');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+
+    await page.evaluate(() => localStorage.setItem('courtwork.settings.v1', JSON.stringify({ appearance: { themeMode: 'sepia' } })));
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  });
+
   test('分组切换 0ms 且真实路由组行为可用', async ({ page }) => {
     await openWorkbench(page);
     await openSettings(page);

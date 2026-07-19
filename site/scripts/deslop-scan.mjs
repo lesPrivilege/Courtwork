@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkThemeBoundary, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
 import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
@@ -91,6 +91,9 @@ for (const failure of validateFixtureClaims(html, loadFixtureClaimInputs(resolve
   failures.push(`site: fixture claim ${failure}`);
 }
 const sha256 = (path) => createHash('sha256').update(readFileSync(resolve(path))).digest('hex');
+for (const failure of checkThemeBoundary(readFileSync(resolve('apps/desktop/src/styles.css'), 'utf8'))) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+}
 const p3Directory = 'site/craft-evidence/SKIN-R2-P3';
 for (const failure of checkP3Evidence({
   measurements: JSON.parse(readFileSync(resolve(p3Directory, 'hanging-measurements.json'), 'utf8')),

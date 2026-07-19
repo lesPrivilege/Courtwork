@@ -20,9 +20,16 @@ export interface PrivacySettings {
   behaviorDataConsentedAt?: string;
 }
 
+export type ThemeMode = 'system' | 'light' | 'dark';
+
+export interface AppearanceSettings {
+  themeMode: ThemeMode;
+}
+
 export interface SettingsSnapshot {
   runtimeGuard: RuntimeGuardSettings;
   privacy: PrivacySettings;
+  appearance: AppearanceSettings;
 }
 
 export const DEFAULT_SETTINGS: SettingsSnapshot = {
@@ -31,9 +38,11 @@ export const DEFAULT_SETTINGS: SettingsSnapshot = {
     telemetryEnabled: true,
     behaviorDataOptIn: false,
   },
+  appearance: { themeMode: 'system' },
 };
 
 const STORAGE_KEY = 'courtwork.settings.v1';
+export const SETTINGS_CHANGED_EVENT = 'courtwork:settings-changed';
 
 export type SettingsStoreBackend = {
   getItem(key: string): string | null;
@@ -83,6 +92,10 @@ function clampMaxUsd(value: unknown): number | undefined {
   return Math.round(n * 100) / 100;
 }
 
+function normalizeThemeMode(value: unknown): ThemeMode {
+  return value === 'light' || value === 'dark' || value === 'system' ? value : 'system';
+}
+
 export function loadSettings(): SettingsSnapshot {
   try {
     const raw = backend.getItem(STORAGE_KEY);
@@ -99,6 +112,9 @@ export function loadSettings(): SettingsSnapshot {
             ? parsed.privacy.behaviorDataConsentedAt
             : undefined,
       },
+      appearance: {
+        themeMode: normalizeThemeMode(parsed.appearance?.themeMode),
+      },
     };
   } catch {
     return structuredClone(DEFAULT_SETTINGS);
@@ -107,6 +123,7 @@ export function loadSettings(): SettingsSnapshot {
 
 export function saveSettings(snapshot: SettingsSnapshot): void {
   backend.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(SETTINGS_CHANGED_EVENT));
 }
 
 export function updateRuntimeGuard(
@@ -148,6 +165,15 @@ export function setTelemetryEnabled(current: SettingsSnapshot, enabled: boolean)
   return next;
 }
 
+export function setThemeMode(current: SettingsSnapshot, themeMode: ThemeMode): SettingsSnapshot {
+  const next: SettingsSnapshot = {
+    ...current,
+    appearance: { themeMode: normalizeThemeMode(themeMode) },
+  };
+  saveSettings(next);
+  return next;
+}
+
 /** 诊断导出：无密钥、无案件实质内容。F4 增 credentialFailKind 枚举字段。 */
 export function buildDiagnosticPayload(
   snapshot: SettingsSnapshot,
@@ -166,6 +192,7 @@ export function buildDiagnosticPayload(
     credentialFailKind: extras.credentialFailKind ?? null,
     modelConfig: extras.modelConfig,
     runtimeGuard: snapshot.runtimeGuard,
+    appearance: snapshot.appearance,
     privacy: {
       telemetryEnabled: snapshot.privacy.telemetryEnabled,
       behaviorDataOptIn: snapshot.privacy.behaviorDataOptIn,

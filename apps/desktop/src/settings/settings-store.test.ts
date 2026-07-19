@@ -6,6 +6,7 @@ import {
   loadSettings,
   setBehaviorDataOptIn,
   setTelemetryEnabled,
+  setThemeMode,
   updateRuntimeGuard,
 } from './settings-store';
 
@@ -18,6 +19,7 @@ describe('settings-store', () => {
     expect(loadSettings().runtimeGuard.maxUsd).toBe(DEFAULT_SETTINGS.runtimeGuard.maxUsd);
     expect(loadSettings().privacy.telemetryEnabled).toBe(true);
     expect(loadSettings().privacy.behaviorDataOptIn).toBe(false);
+    expect(loadSettings().appearance.themeMode).toBe('system');
   });
 
   it('persists maxUsd as RuntimeGuard config', () => {
@@ -39,6 +41,25 @@ describe('settings-store', () => {
     const next = setTelemetryEnabled(loadSettings(), false);
     expect(loadSettings().privacy.telemetryEnabled).toBe(false);
     expect(next.privacy.telemetryEnabled).toBe(false);
+  });
+
+  it('persists themeMode inside the versioned settings key and falls malformed values back to system', () => {
+    const writes: Array<[string, string]> = [];
+    let stored = JSON.stringify({ appearance: { themeMode: 'sepia' } });
+    __setSettingsStoreForTests({
+      getItem: () => stored,
+      setItem: (key, value) => {
+        writes.push([key, value]);
+        stored = value;
+      },
+    });
+
+    expect(loadSettings().appearance.themeMode).toBe('system');
+    const next = setThemeMode(loadSettings(), 'dark');
+    expect(next.appearance.themeMode).toBe('dark');
+    expect(loadSettings().appearance.themeMode).toBe('dark');
+    expect(writes).toHaveLength(1);
+    expect(writes[0]?.[0]).toBe('courtwork.settings.v1');
   });
 
   it('settings snapshot has no retired output config', () => {

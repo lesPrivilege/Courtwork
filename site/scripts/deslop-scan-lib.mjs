@@ -61,6 +61,7 @@ const desktopRootColors = {
   '--text-disabled': 'color.text.disabled.value',
   '--border': 'color.border.hairline.value',
   '--border-strong': 'color.border.strong.value',
+  '--border-focus': 'color.border.focus.value',
   '--action-primary-hover': 'color.action.primaryHoverBg.value',
   '--generated': 'color.semantic.provenance.generatedBg.value',
   '--verified': 'color.semantic.provenance.verifiedBg.value',
@@ -81,6 +82,34 @@ const desktopRootColors = {
   '--zhu-graphic': 'color.line.settled.value',
   '--slate-fg': 'color.semantic.severity.low.fg',
   '--slate-bg': 'color.semantic.severity.low.bg',
+};
+
+const desktopDarkColors = {
+  color: 'themes.dark.text.primary.value',
+  background: 'themes.dark.bg.app.value',
+  '--bg-app': 'themes.dark.bg.app.value',
+  '--bg-surface': 'themes.dark.bg.surface.value',
+  '--bg-raised': 'themes.dark.bg.raised.value',
+  '--text-primary': 'themes.dark.text.primary.value',
+  '--text-secondary': 'themes.dark.text.secondary.value',
+  '--text-tertiary': 'themes.dark.text.tertiary.value',
+  '--text-disabled': 'themes.dark.text.disabled.value',
+  '--text-inverse': 'themes.dark.text.inverse.value',
+  '--border': 'themes.dark.border.hairline.value',
+  '--border-strong': 'themes.dark.border.strong.value',
+  '--border-focus': 'themes.dark.border.focus.value',
+  '--generated': 'themes.dark.provenance.generatedBg.value',
+  '--red-graphic': 'themes.dark.semantic.red.graphic',
+  '--red-fg': 'themes.dark.semantic.red.fg',
+  '--amber-graphic': 'themes.dark.semantic.amber.graphic',
+  '--amber-fg': 'themes.dark.semantic.amber.fg',
+  '--blue-graphic': 'themes.dark.semantic.blue.graphic',
+  '--blue-fg': 'themes.dark.semantic.blue.fg',
+  '--green-graphic': 'themes.dark.semantic.green.graphic',
+  '--green-fg': 'themes.dark.semantic.green.fg',
+  '--slate-graphic': 'themes.dark.semantic.slate.graphic',
+  '--slate-fg': 'themes.dark.semantic.slate.fg',
+  '--zhu-graphic': 'themes.dark.semantic.zhu.graphic',
 };
 
 // —— site 侧色板：磁青宗 · 按 token 名绑定（SITE-CRAFT-2 磁青宗批，2026-07-19 解冻）——
@@ -121,6 +150,17 @@ const siteOgColors = {
 
 const cssColorAllowlist = new Map([
   ...Object.entries(desktopRootColors).map(([property, path]) => colorEntry('apps/desktop/src/styles.css', ':root', property, tokenAt(path))),
+  ...Object.entries(desktopDarkColors).map(([property, path]) => colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", property, tokenAt(path))),
+  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--bg-hover', 'color-mix(in srgb, var(--bg-raised) 78%, var(--text-secondary))'),
+  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--control-hover', 'color-mix(in srgb, var(--bg-raised) 70%, var(--text-secondary))'),
+  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--bg-selected', 'color-mix(in srgb, var(--blue-graphic) 18%, var(--bg-raised))'),
+  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--action-primary-hover', 'color-mix(in srgb, var(--text-primary) 82%, var(--bg-raised))'),
+  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--verified', 'color-mix(in srgb, var(--blue-graphic) 10%, var(--bg-raised))'),
+  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--red-bg', 'color-mix(in srgb, var(--red-graphic) 14%, var(--bg-raised))'),
+  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--amber-bg', 'color-mix(in srgb, var(--amber-graphic) 14%, var(--bg-raised))'),
+  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--blue-bg', 'color-mix(in srgb, var(--blue-graphic) 14%, var(--bg-raised))'),
+  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--green-bg', 'color-mix(in srgb, var(--green-graphic) 14%, var(--bg-raised))'),
+  colorEntry('apps/desktop/src/styles.css', ":root[data-theme='dark']", '--slate-bg', 'color-mix(in srgb, var(--slate-graphic) 14%, var(--bg-raised))'),
   colorEntry('apps/desktop/src/styles.css', ':root', '--elevation-shadow', tokenAt('elevation.shadow.value')),
   ...Object.entries(siteDarkColors).map(([property, path]) => colorEntry('site/styles.css', ':root', property, tokenAt(path))),
   ...Object.entries(siteOgColors).map(([property, path]) => colorEntry('site/og.html', ':root', property, tokenAt(path))),
@@ -736,6 +776,29 @@ export function checkP3Evidence({ measurements, ink, digests }) {
     || ink?.decision !== 'reject-migration') {
     fail('ink A/B evidence no longer proves a clean rejected migration');
   }
+  return failures;
+}
+
+// SKIN-R2-P4：宗切换只许发生在根 token 映射；组件、布局与 G6 不得长主题分支。
+export function checkThemeBoundary(css) {
+  const failures = [];
+  const fail = (line, message) => push(failures, 'theme-boundary', 'apps/desktop/src/styles.css', line, message);
+  let rootDeclarations = 0;
+  for (const declaration of parseCss(css)) {
+    if (declaration.context.some((context) => /prefers-color-scheme\s*:\s*dark/i.test(context))) {
+      fail(declaration.line, 'CSS prefers-color-scheme branch bypasses resolved data-theme');
+    }
+    if (!declaration.selector.includes('data-theme')) continue;
+    if (declaration.selector !== ":root[data-theme='dark']") {
+      fail(declaration.line, `theme branch escaped the root token map: ${declaration.selector}`);
+      continue;
+    }
+    rootDeclarations += 1;
+    if (!declaration.property.startsWith('--') && declaration.property !== 'color' && declaration.property !== 'background') {
+      fail(declaration.line, `dark root map changed geometry or behavior via ${declaration.property}`);
+    }
+  }
+  if (!rootDeclarations) fail(1, 'missing resolved dark root token map');
   return failures;
 }
 

@@ -48,7 +48,8 @@ const count = match ? Number(match[1]) : 0;
 // 批删三死选择器同批清掉的两条 `.statusbar` 否定断言是 expect 行而非用例，故不抵扣。
 // SKIN-R2 P1（线级复调）：签署消费值运行时锁（减薄 exact color + 回单线撤伴生线）+1 → 312。
 // SKIN-R2 P2（版式补遗）：比较态收栏零幽灵轨 + composer 不越对话列 +2 → 314。
-const minimum = 314;
+// SKIN-R2 P4：themeMode system/explicit 持久化与双宗切换真路径 +1 → 315。
+const minimum = 315;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

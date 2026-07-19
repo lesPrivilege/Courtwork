@@ -1357,6 +1357,36 @@
       "approvedProposalLine": "P3-A01"
     },
     {
+      "target": "apps/desktop/src/settings/settings-store.ts#appearance.themeMode",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P4-D01"
+    },
+    {
+      "target": "apps/desktop/src/settings/theme-controller.ts#resolved-data-theme",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P4-D02"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root[data-theme='dark']",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P4-D03"
+    },
+    {
+      "target": "apps/desktop/tests/e2e/schema-marks.spec.ts#C-4-double-theme",
+      "tier": "schema-workface",
+      "approvedProposalLine": "P4-D04"
+    },
+    {
+      "target": "apps/desktop/scripts/assert-rule-grammar.mjs#retired-naked-titlebar",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P4-D05"
+    },
+    {
+      "target": "site/craft-evidence/SKIN-R2-P4#four-dark-slots",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P4-D06"
+    },
+    {
       "target": "site/styles.css#@font-face(Courtwork-Manuscript-Latin)",
       "tier": "pages-experimental",
       "approvedProposalLine": "P5-F01"

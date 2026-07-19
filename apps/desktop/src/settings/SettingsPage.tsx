@@ -18,7 +18,9 @@ import {
   loadSettings,
   setBehaviorDataOptIn,
   setTelemetryEnabled,
+  setThemeMode,
   type SettingsSnapshot,
+  type ThemeMode,
   updateRuntimeGuard,
 } from './settings-store';
 import { SurfaceCard } from '../surface/SurfaceCard';
@@ -28,6 +30,7 @@ import { ChatMemoryPanel } from '../chat/ChatMemoryPanel';
 
 export type SettingsSection =
   | 'model'
+  | 'appearance'
   | 'output'
   | 'channels'
   | 'privacy'
@@ -36,6 +39,7 @@ export type SettingsSection =
 
 const NAV: ReadonlyArray<{ id: SettingsSection; label: string }> = [
   { id: 'model', label: 'Model' },
+  { id: 'appearance', label: 'Appearance' },
   { id: 'output', label: 'Output & files' },
   { id: 'channels', label: 'Channels' },
   { id: 'privacy', label: 'Data & privacy' },
@@ -190,6 +194,15 @@ export function SettingsPage({
     onFeedback('De-identified product analytics disabled', true);
   };
 
+  const changeThemeMode = (themeMode: ThemeMode) => {
+    const next = setThemeMode(settings, themeMode);
+    setSettings(next);
+    onFeedback(
+      themeMode === 'system' ? 'Appearance follows the system' : `${themeMode === 'dark' ? 'Dark' : 'Light'} appearance selected`,
+      true,
+    );
+  };
+
   return (
     <div className="settings-backdrop" role="presentation">
     <SurfaceCard className="settings-layer" data-testid="settings-page" role="dialog" aria-modal="true" aria-labelledby={titleId}>
@@ -220,6 +233,32 @@ export function SettingsPage({
         </nav>
 
         <div className="settings-content" data-testid={`settings-section-${section}`} data-section={section}>
+          {section === 'appearance' && (
+            <section className="settings-panel">
+              <h2>Appearance</h2>
+              <p className="settings-lead">Choose a theme or follow the system. Layout and information density stay unchanged.</p>
+              <div className="settings-row" data-testid="settings-theme-row">
+                <div>
+                  <strong>Theme</strong>
+                  <p>System updates with macOS; explicit Light or Dark stays fixed.</p>
+                </div>
+                <div className="settings-fields">
+                  <label>
+                    Theme mode
+                    <select
+                      data-testid="settings-theme-mode"
+                      value={settings.appearance.themeMode}
+                      onChange={(event) => changeThemeMode(event.target.value as ThemeMode)}
+                    >
+                      <option value="system">System</option>
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </section>
+          )}
           {section === 'model' && (
             <section className="settings-panel">
               <h2>Model</h2>

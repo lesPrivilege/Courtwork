@@ -42,6 +42,7 @@
   --text-disabled: #8a94a8;
   --border: #d5dae3;
   --border-strong: #c3cad6;
+  --border-focus: #2563eb;
   /* 线级语法（docs/design/tokens.json rule.*）：线重即层级语义，替换均一 1px 单线。
      主界＝文武线（major 粗线在外 + gap + minor 细线在内），次界＝乌丝细线（minor）。
      三档宽度不随宗改写——线级不择纸温；随宗切换的只有 ink。 */
@@ -147,6 +148,44 @@
   --content-measure: 640px; /* COMPOSER-FLOW-COMPACT-1：chat 内容列与 composer 收至窄阅读测宽，welcome 560 保持梯度 */
 }
 
+:root[data-theme='dark'] {
+  color: #e4e9f1;
+  background: #0f1622;
+  --bg-app: #0f1622;
+  --bg-surface: #16202f;
+  --bg-raised: #223047;
+  --bg-hover: color-mix(in srgb, var(--bg-raised) 78%, var(--text-secondary));
+  --control-hover: color-mix(in srgb, var(--bg-raised) 70%, var(--text-secondary));
+  --bg-selected: color-mix(in srgb, var(--blue-graphic) 18%, var(--bg-raised));
+  --text-primary: #e4e9f1;
+  --text-secondary: #a9b4c6;
+  --text-tertiary: #6e7c92;
+  --text-disabled: #4c5a70;
+  --text-inverse: #0f1622;
+  --border: #2a3a52;
+  --border-strong: #3e5270;
+  --border-focus: #6a94f1;
+  --action-primary-hover: color-mix(in srgb, var(--text-primary) 82%, var(--bg-raised));
+  --generated: #0f1622;
+  --verified: color-mix(in srgb, var(--blue-graphic) 10%, var(--bg-raised));
+  --red-graphic: #b5382f;
+  --red-fg: #de8881;
+  --red-bg: color-mix(in srgb, var(--red-graphic) 14%, var(--bg-raised));
+  --amber-graphic: #c89042;
+  --amber-fg: #d9ae6a;
+  --amber-bg: color-mix(in srgb, var(--amber-graphic) 14%, var(--bg-raised));
+  --blue-graphic: #2563eb;
+  --blue-fg: #779ef3;
+  --blue-bg: color-mix(in srgb, var(--blue-graphic) 14%, var(--bg-raised));
+  --green-graphic: #16a34a;
+  --green-fg: #19b753;
+  --green-bg: color-mix(in srgb, var(--green-graphic) 14%, var(--bg-raised));
+  --slate-graphic: #6e7c92;
+  --slate-fg: #a9b4c6;
+  --slate-bg: color-mix(in srgb, var(--slate-graphic) 14%, var(--bg-raised));
+  --zhu-graphic: #d75a3c;
+}
+
 * { box-sizing: border-box; box-shadow: none; scrollbar-width: thin; scrollbar-color: transparent transparent; }
 *:hover { scrollbar-color: var(--border-strong) transparent; }
 *::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -157,7 +196,7 @@ html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; }
 button, input, select, textarea { font: inherit; font-variant-numeric: inherit; }
 button, select { color: inherit; }
 button { transition: background-color var(--motion-hover) ease-out, border-color var(--motion-hover) ease-out; }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [contenteditable]:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--blue-graphic); outline-offset: 2px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [contenteditable]:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 4px; background: var(--bg-raised); color: var(--text-secondary); font: 11px/1 var(--mono); font-variant-numeric: tabular-nums; text-align: center; }
 
 /* —— 文武线（docs/design/courtwork-design.md §10 · 主界）—————————————————————
@@ -185,10 +224,6 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .mac-window-controls-anchor { width: var(--mac-window-controls-group-width); height: 100%; flex: none; pointer-events: none !important; }
 .window-chrome-button { width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; -webkit-app-region: no-drag; }
 .window-chrome-button:hover { background: var(--control-hover); color: var(--text-primary); }
-.titlebar { display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-/* C：标题栏透明融入 chrome；只留 wordmark + 全局动作 */
-.titlebar { background: var(--elevation-titlebar); font-size: var(--type-dense-body-size); border-bottom-color: transparent; }
-.titlebar strong { min-width: 0; font-weight: 510; }
 .titlebar-credential-warn {
   max-width: 240px; min-height: 28px; padding: 4px 10px;
   border: 1px solid var(--elevation-warn-border); border-radius: 4px;
@@ -429,7 +464,6 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .archive-popover footer .primary-button { max-width: 120px; }
 .demo-badge { flex: none; padding: 1px 6px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--text-tertiary); font-size: 11px; white-space: nowrap; }
 .credential-button { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.titlebar .case-number { max-width: 160px; }
 .user-message-attachments span { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
 .attachment-chip, .composer-chip { max-width: 200px; }
 @keyframes overlay-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
@@ -1419,7 +1453,6 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 @media (max-width: 1280px) {
   .workspace { grid-template-columns: 196px minmax(330px, .75fr) minmax(520px, 1.25fr); }
   .workspace.comparing { grid-template-columns: var(--chat-min) minmax(var(--schema-min), 1fr); }
-  .titlebar .case-number { display: none; }
   .graph-layout { grid-template-columns: 1fr; }
   .relation-list { display: none; }
 }

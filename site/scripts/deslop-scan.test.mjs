@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkThemeBoundary, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -670,4 +670,13 @@ test('SKIN-R2-P3 pins WKWebView semantics, fixture bytes, measurements, and fram
   assert.ok(run({ digests: { ...digests, fixtureCss: '0'.repeat(64) } }).includes('p3-evidence'));
   assert.ok(run({ digests: { ...digests, comparisonFrame: '0'.repeat(64) } }).includes('p3-evidence'));
   assert.ok(run({ ink: { ...ink, decision: 'accept-migration' } }).includes('p3-evidence'));
+});
+
+test('SKIN-R2-P4 keeps dark switching at the root token map with zero component/layout branch', () => {
+  const run = (css) => checkThemeBoundary(css).map((failure) => failure.rule);
+  const rootMap = String.raw`:root[data-theme='dark'] { color:#fff; --bg-app:#000; }`;
+  assert.deepEqual(run(rootMap), []);
+  assert.ok(run(`${rootMap}\n[data-theme='dark'] .risk-detail { color: inherit; }`).includes('theme-boundary'));
+  assert.ok(run(`${rootMap}\n:root[data-theme='dark'] { grid-template-columns: 1fr; }`).includes('theme-boundary'));
+  assert.ok(run(`${rootMap}\n@media (prefers-color-scheme: dark) { :root { --bg-app:#000; } }`).includes('theme-boundary'));
 });
