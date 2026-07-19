@@ -125,9 +125,25 @@ const iconSource = readFileSync(resolve('src/workbench/Icon.tsx'), 'utf8');
 if (iconSource.includes('const paths')) violations.push('存量 Icon.tsx 仍含手写通用 SVG 路径表');
 if (!/from 'lucide-react'/.test(iconSource)) violations.push('Icon.tsx 未从 Lucide 静态导入通用图标');
 if (/tabler/i.test(readFileSync(resolve('package.json'), 'utf8'))) violations.push('本批未触发 Tabler 缺口，不应引入 Tabler');
+/**
+ * 记号系豁免（SKIN-B4）。B0 速裁「线级组不经 icon 门」，但**不经 icon 门不等于无门**——
+ * `assert-schema-parts.mjs` 才是记号系的门（站/壳单源逐字相等、件内零字面色、零内联复制、
+ * 消费登记双向锁）。故本条禁令按其**本意**收窄而非放宽：禁的是**几何**进 TSX，
+ * 不是禁 `<svg` 这四个字符。
+ *
+ * 两种形态剥出禁令之外：① `<use href="#mark-*">` 引用——零几何，它是指针不是图形；
+ * ② 件库 `src/icons/schema-parts.tsx`——记号几何的唯一住所，其纯度（除 symbol 外零几何）
+ * 由 schema-parts 门第 ⑧ 条锁。剥完仍有 `<svg` 即照旧红。
+ * 同款剥法在 `assert-rp211-contracts.mjs` 另有一份：两处若漂移，严的那一份先红，方向安全。
+ */
+const MARK_LIBRARY = resolve('src/icons/schema-parts.tsx');
+const stripMarkRefs = (source) => source.replace(
+  /<svg\b[^>]*>\s*<use\s+href="#mark-[a-z-]+"\s*\/>\s*<\/svg>/g,
+  '',
+);
 for (const file of sourceFiles(resolve('src'))) {
   const source = readFileSync(file, 'utf8');
-  if (/<svg\b/.test(source)) violations.push(`${file.replace(`${resolve('.')}/`, '')}: 禁止 TSX 内联 SVG；改用 Lucide 或登记的 SVG-as-code 源稿`);
+  if (file !== MARK_LIBRARY && /<svg\b/.test(stripMarkRefs(source))) violations.push(`${file.replace(`${resolve('.')}/`, '')}: 禁止 TSX 内联 SVG；改用 Lucide 或登记的 SVG-as-code 源稿`);
   if (/lucide-react/.test(source) && /import\s+\*|DynamicIcon|lucide-react\/dynamic|\bicons\s*(?:,|})/.test(source)) {
     violations.push(`${file.replace(`${resolve('.')}/`, '')}: Lucide 必须静态具名导入，禁止全量表或 DynamicIcon`);
   }

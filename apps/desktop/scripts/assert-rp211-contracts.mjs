@@ -59,8 +59,10 @@ need(/\.collapse-toggle:hover\s*\{[^}]*var\(--control-hover\)/.test(css), '⑧ S
 // —— ⑨ 附件 chip：hairline 卡 + 阴影白名单 +1 ——
 need(css.includes('.attachment-chip { box-shadow: var(--elevation-shadow)'), '⑨ composer 附件 chip 须入阴影白名单');
 
-// 无 TSX 内联 svg
-if (/<svg\b/.test(app) || /<svg\b/.test(rail)) failures.push('禁 TSX 内联 SVG');
+// 无 TSX 内联 svg。记号系豁免同 verify-icons.mjs：禁的是**几何**进 TSX，而 `<use href="#mark-*">`
+// 零几何（引用不是图形），记号几何的唯一住所是件库且由 assert-schema-parts 逐条锁。剥完仍有即红。
+const stripMarkRefs = (source) => source.replace(/<svg\b[^>]*>\s*<use\s+href="#mark-[a-z-]+"\s*\/>\s*<\/svg>/g, '');
+if (/<svg\b/.test(stripMarkRefs(app)) || /<svg\b/.test(stripMarkRefs(rail))) failures.push('禁 TSX 内联 SVG');
 
 if (failures.length) {
   console.error(failures.join('\n'));

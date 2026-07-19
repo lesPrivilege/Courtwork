@@ -99,6 +99,17 @@ for (const file of walk(srcRoot)) {
   }
 }
 
+// ── ⑧ 件库纯度：几何只许住在 symbol 里 ─────────────────────────────────────
+// icon 门的内联禁令为记号系剥出了两个口子（`<use>` 引用与本件库文件）。件库那个口子若不封，
+// 「不经 icon 门」就成了「随便画」。故此处补上：件库内除 <symbol> 外零几何元素——
+// 剥掉所有 symbol 之后，剩下的只该是 <svg> 壳与注释。
+const GEOMETRY = /<(path|rect|circle|ellipse|polygon|polyline|line|image|text)\b/;
+const shellOutsideSymbols = shell.replace(/<symbol[\s\S]*?<\/symbol>/g, '');
+if (GEOMETRY.test(shellOutsideSymbols)) {
+  failures.push('件库不纯：src/icons/schema-parts.tsx 的 symbol 之外出现几何元素——'
+    + '记号几何只许住在 symbol 里（icon 门为件库开的口子以此封住）');
+}
+
 // ── ④ 消费登记（克制审计的机器形态）────────────────────────────────────────
 // B4 消费半的裁决口径是「指认业务语义，答不出不上」。**不上也要登记**——沉默的未消费件
 // 与沉默的裸线同病（B3「答不出即不换」判例）：不登记就无从复核当初为何不上。
