@@ -1,60 +1,122 @@
-/* SITE-CRAFT-2 · 朱雀仿宋 v0.212（beta 锁版，SIL OFL 1.1）：仅站面品牌时刻用字——hero 母题、
-   承诺四则、收尾判词，不铺满标题层（剂量纪律）。子集按文案精确取字（37 字 / 12KB），
-   清单与字节由 deslop display-font 门三向绑定，缺字静默回退必触红。
-   许可与来源快照见 craft-evidence/SITE-CRAFT-2/。 */
+/* SITE-CRAFT-2 · 三轨字体制（字体策略二次修订 90ce965，站面落地）。
+   许可与来源快照见 craft-evidence/SITE-CRAFT-2/{zhuque,noto}/。
+
+   标题轨 · Noto Serif SC v2.003（SIL OFL 1.1）——通行宋体，双字重梯度（400/700）。
+     取 Noto 版而非 Adobe source-han-serif：前者版权行未宣告 Reserved Font Name，
+     子集可保留原始字体名，无改名义务（后者保留「Source」）。
+   文书轨 · 朱雀仿宋 v0.212（beta 锁版，SIL OFL 1.1）——正文/引语/修订预览 + 品牌时刻。
+     方正聚珍新仿两张授权（个人非商业 / 嵌入式应用）均未核清且均需购买，其条款明文禁止
+     「格式转换后以嵌入方式应用到网站」——子集成 woff2 上 Pages 正是该条所禁，故拒收，
+     按拍板以朱雀仿宋为落地值（显式拒收留痕见 SPEC，不悬置不静默替换）。
+   功能轨 · 系统栈（--sans / --mono）——工具位显式声明工具字身份，不参与表达性内容。
+
+   编排义务③：三枚子集均按页面用字精确取字 + font-display 显式；清单与字节由 deslop
+   display-font 门绑定，缺字静默回退必触红。 */
 @font-face {
   font-family: "Zhuque Fangsong";
   src: url(assets/fonts/zhuque-fangsong-subset.woff2) format("woff2");
   font-display: swap;
 }
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url(assets/fonts/noto-serif-sc-regular-subset.woff2) format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url(assets/fonts/noto-serif-sc-bold-subset.woff2) format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+/* 文书轨拉丁分段（编排义务②收口，架构准）：把西文段用 unicode-range **钉死**在自带子集上，
+   而不是靠宿主装没装 Charter/Georgia/Times——本地字体缺席时数字会落进仿宋弱拉丁，那正是
+   分段要封的残留。文件覆盖面与 unicode-range 逐位相等（25 枚：数字/百分号/数字相邻标点），
+   不相等就等于换个位置复现同一残留。
+   刻意**不含** U+2000-206F：「」等中文引号属 CJK 排印，须留在朱雀，绑到拉丁面会变半角。 */
+@font-face {
+  font-family: "Courtwork Doc Numerals";
+  src: url(assets/fonts/doc-latin-subset.woff2) format("woff2");
+  font-display: swap;
+  unicode-range: U+0024-0025, U+0028-0029, U+002B-003E, U+007E;
+}
 
+/* SITE-CRAFT-2 磁青宗批 · 色彩语法四位：磁青为底、墨为记、朱仅裁决、泥金 hero 唯一强调。
+   底色一律 themes.dark（站与壳 dark 同宗，deslop 按 token 名逐项锚定，站面零第二真源）；
+   记号层全走中性墨阶不携语义；朱只许出现在人做决定处；泥金在 hero 出现一次，别处零消费。
+   朱与泥金的稀缺性由 deslop `color-grammar` 门强制——越界即触红，不靠自觉。 */
 :root {
-  --bg-app: #F6F9FC;
-  --bg-surface: #EAEFF4;
-  --bg-raised: #FFFFFF;
-  --bg-hover: #E2E9F0;
-  --ink: #0A2540;
-  --text-secondary: #425466;
-  --text-tertiary: #6E8098;
-  --border-hairline: #E3E9EF;
-  --border-strong: #CDD8E3;
-  --focus: #2563EB;
-  --danger: #DC2626;
+  --bg-app: #0F1622;
+  --bg-surface: #16202F;
+  --bg-raised: #223047;
+  --text-primary: #E4E9F1;
+  --text-secondary: #A9B4C6;
+  --text-tertiary: #6E7C92;
+  --text-inverse: #0F1622;
+  --border-hairline: #2A3A52;
+  --border-strong: #3E5270;
+  --border-focus: #6A94F1;
+  --red-fg: #DE8881;
+  --zhu-graphic: #D75A3C;
+  --zhu-fg: #E2857A;
+  --gold: #D9AE6A;
   --mac-close: #FF5F57;
   --mac-minimize: #FEBC2E;
   --mac-zoom: #28C840;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "MiSans", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   --display: "Zhuque Fangsong", "STFangsong", "FangSong", "Noto Serif SC", serif;
-  /* SITE-CRAFT-2 · 藏青阶做深：暗部与刻线全部由既有 token 经 color-mix 派生，无新 hex。
-     亮面为纸、暗面为版，层次靠深浅与刻线表达，不靠阴影与渐变。 */
-  --ink-deep: color-mix(in srgb, var(--ink) 86%, black);
-  --plate-line: color-mix(in srgb, var(--bg-app) 20%, transparent);
-  --plate-text: color-mix(in srgb, var(--bg-app) 88%, transparent);
-  --plate-text-dim: color-mix(in srgb, var(--bg-app) 60%, transparent);
+  /* 标题轨：通行宋体。西文由 Noto Serif SC 自带拉丁承担（同族同源，不混投）。 */
+  --font-title: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  /* 文书轨（编排义务②·拉丁配衬字显式指定，收口后）：数字段由自带子集 Courtwork Doc Numerals
+     经 unicode-range 钉死——**不依赖宿主装没装西文体**，原「三兜底全缺则数字落仿宋」的残留至此闭合
+     （红证见 craft-evidence B8）。Charter 一组留在其后只服务分段外的西文字母；CJK 落朱雀。 */
+  --font-doc: "Courtwork Doc Numerals", Charter, "Bitstream Charter", Georgia, "Times New Roman", "Zhuque Fangsong", "STFangsong", "FangSong", serif;
+  /* themes.dark 未设 bg.hover 槽位（B0 定值只到三级台阶）：站面按台阶自派生，不自造 hex。 */
+  --bg-hover: color-mix(in srgb, var(--bg-raised) 88%, var(--text-primary));
   --motion-press: 120ms;
   --ease-out: cubic-bezier(.23, 1, .32, 1);
   --page-max: 1440px;
   --page-gutter: 32px;
+  /* 元信息按底色分档（本批实测闭合，见 SPEC 提案区）：底纸上用 tertiary，浮起面上升一档到
+     secondary。深宗把中性阶与浮起面的明度差压窄了——同一枚 --text-tertiary 在底纸上 4.28:1，
+     落到 bg-raised 只剩 3.14:1。分档是**消费侧**闭合：零新色值、不动 tokens.json、不碰产品壳，
+     故不预支 B2 票面②对共用 token 的取值裁定。 */
+  --meta: var(--text-tertiary);
 }
+.mac-window, .evidence, .scenario-ledger, .promise, .work-crop { --meta: var(--text-secondary); }
+.demo-doc { --meta: var(--text-tertiary); } /* 窗内的「原件」纸面是底纸，分档随之回落 */
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  color: var(--ink);
+  color: var(--text-primary);
   background: var(--bg-app);
   font-family: var(--sans);
   font-size: 15px;
   line-height: 1.6;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
+  /* SITE-CRAFT-2 磁青宗批 · 排印光学（站面先行，中文排印的三处视觉修正）：
+     ① 视觉字距 `text-autospace: normal`——中西文混排自动补 1/4em 间隙。Chromium 的初值是
+        `no-autospace`，故这行是真开关不是复述默认（实测 +4px/probe，见 craft-evidence）；
+        中文里「共 12 件 PDF 材料」这类混排从此不靠手插空格。
+     ② 句读收边 `text-spacing-trim: trim-start`——收掉开合括号与句读的多余半角
+        （实测 250.14px vs 初值 normal 258.14px vs space-all 274.14px）。
+     ③ 标点悬挂 `hanging-punctuation: allow-end`——行末句读挂出版心，右边界回到视觉边而非几何边。
+        **诚实边界**：本属性当前仅 Safari 实现，Chromium 148 `CSS.supports` 为 false，
+        故逐帧证据里的效果只覆盖①②；③按渐进增强声明，未在本批采样浏览器上取得实测。
+     三者都是渐进增强：不支持的浏览器回落到当前排印，内容与布局零影响。 */
+  text-autospace: normal;
+  text-spacing-trim: trim-start;
+  hanging-punctuation: allow-end;
 }
 a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 img { display: block; max-width: 100%; }
 a { -webkit-tap-highlight-color: transparent; }
 
-.skip-link { position: fixed; left: 16px; top: -48px; z-index: 20; padding: 8px 12px; border-radius: 4px; color: var(--bg-app); background: var(--ink); }
+.skip-link { position: fixed; left: 16px; top: -48px; z-index: 20; padding: 8px 12px; border-radius: 4px; color: var(--text-inverse); background: var(--text-primary); }
 .skip-link:focus { top: 16px; }
 .site-header {
   width: min(var(--page-max), calc(100% - 2 * var(--page-gutter)));
@@ -69,55 +131,73 @@ a { -webkit-tap-highlight-color: transparent; }
 .wordmark img { width: 18px; height: 18px; flex: none; }
 nav { display: flex; gap: 24px; }
 nav a { color: var(--text-secondary); font-size: 13px; text-decoration: none; transition: color 120ms var(--ease-out); }
-nav a:focus-visible, nav a:hover { color: var(--ink); }
+nav a:focus-visible, nav a:hover { color: var(--text-primary); }
 
 main { overflow: clip; }
 .hero { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 112px 0 104px; }
 .hero-copy { max-width: 760px; }
-.eyebrow { margin: 0; color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; }
+.eyebrow { margin: 0; color: var(--meta); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; }
+/* 标题轨消费面：h2/h3 由系统 sans 换通行宋体，**双字重梯度**——大字号取 400（宋体大字重
+   本就厚，加粗即糊），小字号取 700 补足视觉重量。字重携层级语义，非装饰（与线级语法同构）。
+   h1 与 .zh-display 是既有品牌时刻，仍归文书轨（朱雀），不入标题轨。 */
 h1, h2, h3 { margin: 0; font-weight: 510; letter-spacing: -.02em; text-wrap: balance; }
-/* 朱雀仿宋消费者：单字重，层级靠字号与留白；font-synthesis 关死伪粗防中文糊重。 */
+.zh-title { font-family: var(--font-title); font-synthesis: none; }
+h2.zh-title { font-weight: 400; }
+h3.zh-title { font-weight: 700; }
+/* 朱雀仿宋消费者：单字重（零粗体律——仿宋无原生粗体，伪粗体一律禁），
+   层级靠字号与留白；强调走记号系（圈点/侧点）不走加粗。 */
 .zh-display { font-family: var(--display); font-weight: 400; font-synthesis: none; letter-spacing: .02em; }
+/* 文书轨消费面（编排义务①·仿宋字号/行高补偿）：仿宋视觉偏小偏窄，故较同级 sans
+   升 1px 字号并放宽行高与字距，令文书面与说明文字在视觉上等重而非等号。 */
+.zh-doc { font-family: var(--font-doc); font-weight: 400; font-synthesis: none; letter-spacing: .01em; }
+.demo-clause.zh-doc { font-size: 15px; line-height: 2.2; }
+.demo-suggestion.zh-doc { font-size: 15px; line-height: 1.85; }
+.evidence-step blockquote.zh-doc { font-size: 15px; line-height: 1.9; }
+.scenario-proof blockquote.zh-doc { font-size: 15px; line-height: 1.8; }
 h1 { margin-top: 12px; max-width: 760px; font-size: clamp(48px, 7vw, 88px); line-height: 1.04; }
 h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.14; }
 h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .hero-lead { max-width: 640px; margin: 28px 0 0; color: var(--text-secondary); font-size: 18px; line-height: 1.7; text-wrap: pretty; }
 
-/* Typer 逐字显影：字符在 pill/反色/outline 态闪烁后定格，藏青派生色阶，纯 CSS。
+/* Typer 逐字显影：字符在 pill/反色/outline 态闪烁后定格，纯 CSS。
+   SITE-CRAFT-2 磁青宗批换色——hero 母题即**泥金唯一强调**：磁青纸上以泥金写经，
+   是本宗的出处本身，故整条 Typer 走泥金阶，别处零泥金（deslop color-grammar 门守）。
    动画仅在 no-preference 下挂载；reduced-motion 与 JS 关闭都直接呈现定格标题。
    SITE-CRAFT-1（Pages 就地破例 principles.md §5，见 site/SPEC.md）。 */
 .typer { display: inline; }
-.tc { display: inline-block; border-radius: 6px; color: var(--ink); outline: 1px solid transparent; outline-offset: -2px; }
+.tc { display: inline-block; border-radius: 6px; color: var(--gold); outline: 1px solid transparent; outline-offset: -2px; }
 @media (prefers-reduced-motion: no-preference) {
   .tc { animation: typer-develop 560ms var(--ease-out) both; animation-delay: calc(var(--i) * 58ms); }
 }
 @keyframes typer-develop {
-  0%   { opacity: 0; background-color: transparent; color: var(--ink); outline-color: transparent; }
-  10%  { opacity: 1; background-color: color-mix(in srgb, var(--ink) 14%, transparent); color: var(--ink); outline-color: transparent; }
-  40%  { opacity: 1; background-color: var(--ink); color: var(--bg-app); outline-color: transparent; }
-  70%  { opacity: 1; background-color: transparent; color: var(--ink); outline-color: color-mix(in srgb, var(--ink) 42%, transparent); }
-  100% { opacity: 1; background-color: transparent; color: var(--ink); outline-color: transparent; }
+  0%   { opacity: 0; background-color: transparent; color: var(--gold); outline-color: transparent; }
+  10%  { opacity: 1; background-color: color-mix(in srgb, var(--gold) 14%, transparent); color: var(--gold); outline-color: transparent; }
+  40%  { opacity: 1; background-color: var(--gold); color: var(--text-inverse); outline-color: transparent; }
+  70%  { opacity: 1; background-color: transparent; color: var(--gold); outline-color: color-mix(in srgb, var(--gold) 42%, transparent); }
+  100% { opacity: 1; background-color: transparent; color: var(--gold); outline-color: transparent; }
 }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
 .button { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; padding: 0 18px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 14px; font-weight: 510; text-decoration: none; transition: background-color 120ms var(--ease-out), border-color 120ms var(--ease-out); }
-.button-primary { position: relative; overflow: hidden; isolation: isolate; border-color: var(--ink); color: var(--bg-app); background: var(--ink); transition: transform var(--motion-press) ease-out, background-color 120ms var(--ease-out), border-color 120ms var(--ease-out); }
-/* Satin 材质：伪元素高光叠层——上部微光带 + 顶缘高光细线，色彩全落藏青派生阶（bg-app 低透明度）。
-   z-index:-1 让材质压在填充色之上、文字之下；纯静态、无渐变、无阴影；reduced-motion 不受影响。
+.button-primary { position: relative; overflow: hidden; isolation: isolate; border-color: var(--text-primary); color: var(--text-inverse); background: var(--text-primary); transition: transform var(--motion-press) ease-out, background-color 120ms var(--ease-out), border-color 120ms var(--ease-out); }
+/* Satin 材质：伪元素高光叠层——上部微光带 + 顶缘高光细线。磁青宗批换极性：主 CTA 在深底上
+   是**浅填充**，高光因此改用 white 关键字（原先叠 bg-app 是深底时代的浅色阶，浅填充上会翻成
+   暗带，材质方向反了）。仍是纯静态、无渐变、无阴影、无新 hex；reduced-motion 不受影响。
    SITE-CRAFT-1（尊重 principles.md §1 零投影，只取三子技法中的“伪元素高光”）。 */
-.button-primary::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 52%; z-index: -1; background: color-mix(in srgb, var(--bg-app) 12%, transparent); pointer-events: none; }
-.button-primary::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; border-top: 1px solid color-mix(in srgb, var(--bg-app) 55%, transparent); pointer-events: none; }
+.button-primary::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 52%; z-index: -1; background: color-mix(in srgb, white 34%, transparent); pointer-events: none; }
+.button-primary::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; border-top: 1px solid color-mix(in srgb, white 62%, transparent); pointer-events: none; }
 .button-primary:hover { border-color: var(--text-secondary); background: var(--text-secondary); }
 .button-secondary { background: var(--bg-raised); }
 .button-secondary:hover { background: var(--bg-hover); }
-.button-secondary:active:not(:focus-visible) { background: color-mix(in srgb, var(--bg-hover) 90%, var(--ink)); }
+/* Inset 式材质响应：按压向底纸方向压深（深底宗的「加深」是朝 bg-app 走，非朝墨走）。 */
+.button-secondary:active:not(:focus-visible) { background: color-mix(in srgb, var(--bg-hover) 88%, var(--bg-app)); }
 .button-primary:active:not(:focus-visible) { transform: scale(.98); transition-duration: var(--motion-press); }
-.button:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
-.release-fact { display: flex; flex-wrap: wrap; gap: 0; margin: 20px 0 0; color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; }
+.button:focus-visible, a:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 3px; }
+.release-fact { display: flex; flex-wrap: wrap; gap: 0; margin: 20px 0 0; color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .release-fact span + span::before { content: "·"; padding: 0 10px; }
 .release-fact code { overflow-wrap: anywhere; color: var(--text-secondary); font: inherit; }
 
 .mac-window { margin: 52px 0 0; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-raised); }
-.mac-bar { height: 42px; display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; margin: 0; padding: 0 14px; border-bottom: 1px solid var(--border-hairline); color: var(--text-tertiary); background: var(--bg-surface); font-family: var(--mono); font-size: 12px; text-align: center; }
+.mac-bar { height: 42px; display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; margin: 0; padding: 0 14px; border-bottom: 1px solid var(--border-hairline); color: var(--meta); background: var(--bg-surface); font-family: var(--mono); font-size: 12px; text-align: center; }
 .traffic { display: flex; gap: 7px; }
 .traffic i { width: 10px; height: 10px; border-radius: 50%; }
 .traffic i:nth-child(1) { background: var(--mac-close); }
@@ -139,45 +219,71 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
    JS 关闭不受影响（纯 CSS，main.js 零触碰）。 */
 .schema-demo { display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); background: var(--bg-raised); }
 .schema-demo p { margin: 0; }
-.demo-meta { color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
+.demo-meta { color: var(--meta); font-family: var(--mono); font-size: 11px; }
 .demo-doc { padding: 24px 26px 26px; border-right: 1px solid var(--border-hairline); background: var(--bg-app); }
-.demo-clause { margin-top: 14px; color: var(--ink); font-size: 14px; line-height: 2.1; text-align: justify; line-break: strict; }
-.demo-anchor { background-color: transparent; border-bottom: 1px solid color-mix(in srgb, var(--focus) 45%, transparent); color: inherit; animation: demo-anchor-a 12s linear infinite; }
+.demo-clause { margin-top: 14px; color: var(--text-primary); font-size: 14px; line-height: 2.1; text-align: justify; line-break: strict; }
+.demo-anchor { background-color: transparent; border-bottom: 1px solid color-mix(in srgb, var(--border-focus) 45%, transparent); color: inherit; animation: demo-anchor-a 12s linear infinite; }
 .demo-judgment { padding: 24px 26px 26px; display: flex; flex-direction: column; gap: 12px; }
 .demo-entry-head { display: flex; align-items: baseline; gap: 10px; font-size: 15px; }
 .demo-entry-head strong { font-weight: 510; }
-.demo-level { color: var(--danger); font-family: var(--mono); font-size: 11px; }
+.demo-level { color: var(--red-fg); font-family: var(--mono); font-size: 11px; }
 .demo-basis { padding: 8px 10px; border: 1px solid var(--border-hairline); border-radius: 4px; color: var(--text-secondary); font-family: var(--mono); font-size: 11px; animation: demo-attn-a 12s linear infinite; }
 .demo-gate { padding: 10px; border: 1px solid var(--border-hairline); border-radius: 4px; animation: demo-attn-b 12s linear infinite; }
 .demo-actions { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
-.demo-actions span { padding: 3px 10px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--ink); font-size: 12px; }
+/* 朱＝人工裁决之痕（架构定谳：朱印/朱批皆属），落在微演示里唯一由人落定的一格。
+   **朱不作环境色**（与 line.settled 前向守卫同语义）：描边只在幕二「逐条确认」那一段现形，
+   幕外回中性墨——朱的出现即「此刻有人在裁决」，恒亮就退化成装饰色了。
+   字色恒中性：朱只走描边不铺到文字层，既守「痕」的语义，也把动的属性限在
+   demo-motion 白名单内的 border-color。刻意不做朱填充——填充会把静态描绘读成可点控件。
+   reduced-motion 下 `.schema-demo * { animation: none }` 使描边定格在中性基态，朱不残留。 */
+.demo-actions span { padding: 3px 10px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--text-primary); font-size: 12px; animation: demo-zhu-b 12s linear infinite; }
+@keyframes demo-zhu-b {
+  0%, 35% { border-color: var(--border-strong); }
+  38%, 60% { border-color: var(--zhu-graphic); }
+  63%, 100% { border-color: var(--border-strong); }
+}
 .demo-compare { padding: 10px; border: 1px solid var(--border-hairline); border-radius: 4px; animation: demo-attn-c 12s linear infinite; }
-.demo-suggestion { margin-top: 6px; color: var(--ink); font-size: 14px; }
+.demo-suggestion { margin-top: 6px; color: var(--text-primary); font-size: 14px; }
 .demo-phases { grid-column: 1 / -1; margin: 0; padding: 0 26px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; list-style: none; }
-.demo-phases li { padding: 10px 0 12px; border-top: 1px solid var(--border-hairline); color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
+.demo-phases li { padding: 10px 0 12px; border-top: 1px solid var(--border-hairline); color: var(--meta); font-family: var(--mono); font-size: 11px; }
 .demo-phase-a { animation: demo-attn-a 12s linear infinite; }
 .demo-phase-b { animation: demo-attn-b 12s linear infinite; }
 .demo-phase-c { animation: demo-attn-c 12s linear infinite; }
 @keyframes demo-attn-a {
   0%, 2% { background-color: transparent; border-color: var(--border-hairline); }
-  5%, 27% { background-color: color-mix(in srgb, var(--ink) 6%, transparent); border-color: var(--ink); }
+  5%, 27% { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent); border-color: var(--text-primary); }
   30%, 100% { background-color: transparent; border-color: var(--border-hairline); }
 }
 @keyframes demo-attn-b {
   0%, 35% { background-color: transparent; border-color: var(--border-hairline); }
-  38%, 60% { background-color: color-mix(in srgb, var(--ink) 6%, transparent); border-color: var(--ink); }
+  38%, 60% { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent); border-color: var(--text-primary); }
   63%, 100% { background-color: transparent; border-color: var(--border-hairline); }
 }
 @keyframes demo-attn-c {
   0%, 68% { background-color: transparent; border-color: var(--border-hairline); }
-  71%, 93% { background-color: color-mix(in srgb, var(--ink) 6%, transparent); border-color: var(--ink); }
+  71%, 93% { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent); border-color: var(--text-primary); }
   96%, 100% { background-color: transparent; border-color: var(--border-hairline); }
 }
 @keyframes demo-anchor-a {
   0%, 2% { background-color: transparent; }
-  5%, 27% { background-color: color-mix(in srgb, var(--focus) 15%, transparent); }
+  5%, 27% { background-color: color-mix(in srgb, var(--border-focus) 15%, transparent); }
   30%, 100% { background-color: transparent; }
 }
+
+/* SITE-CRAFT-2 磁青宗批 · 文书记号系（SchemaParts 件库消费面）。件本身零色值（一律 currentColor），
+   配色只由此处的 color 决定——这既是「按 token 名消费不带值」，也是 C-4「记号不择纸温」的成因：
+   同一份几何在 light/dark 两宗下渲染一致，宗由 theme 承载。全部静态零动效。
+   件库定义在 index.html 顶部的 <svg class="schema-parts" hidden>，页面里每处记号都是 <use>。 */
+.schema-parts { display: none; }
+.mark { flex: none; color: var(--meta); }
+/* 鱼尾（节标）：刻本版心折叠标记，落在卷次前 */
+.mark-fishtail { width: 12px; height: 6px; margin-right: 8px; vertical-align: .1em; }
+/* 文武线（界行）：粗细双线错落——线重即层级语义，替换退役的通用彩色竖条。
+   宽 5px = rule.major 2 + rule.gap 2 + rule.minor 1（tokens.json rule.* 规格）。 */
+.ruled { position: relative; }
+.mark-rule { position: absolute; left: 0; top: 0; width: 5px; height: 100%; color: var(--border-strong); }
+/* 侧点圈点（强调）：评点传统里标记要处的圈，落在被判定的那一句上 */
+.mark-emphasis { width: 9px; height: 9px; margin-right: 9px; vertical-align: .04em; color: var(--text-tertiary); }
 
 .section-heading { max-width: var(--page-max); margin: 0 auto; }
 .section-heading h2 { margin-top: 10px; }
@@ -189,24 +295,25 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .evidence-step:last-child { border-right: 0; }
 .evidence-step::before { content: ""; position: absolute; top: -7px; left: 24px; width: 12px; height: 12px; border: 2px solid var(--bg-raised); border-radius: 50%; background: var(--border-strong); }
 .evidence-step.is-visible { background: var(--bg-app); }
-.evidence-step.is-visible::before { background: var(--ink); }
-.evidence-step[data-stage="conclusion"].is-visible::before { background: var(--danger); }
-.stage-label { color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; }
+.evidence-step.is-visible::before { background: var(--text-primary); }
+.evidence-step[data-stage="conclusion"].is-visible::before { background: var(--red-fg); }
+.stage-label { color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .evidence-step h3 { margin-top: 10px; font-size: 20px; }
 .evidence-step p, .evidence-step blockquote { margin: 18px 0 0; color: var(--text-secondary); font-size: 14px; line-height: 1.75; }
-.evidence-step blockquote { padding-left: 14px; border-left: 2px solid var(--border-strong); }
-.evidence-step[data-stage="conclusion"] blockquote, .evidence-step[data-stage="conclusion"] p { color: var(--ink); }
-.evidence-step small { display: block; margin-top: 18px; color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
+.evidence-step .ruled blockquote { margin-top: 0; padding-left: 14px; }
+.evidence-step .ruled { margin-top: 18px; }
+.evidence-step[data-stage="conclusion"] blockquote, .evidence-step[data-stage="conclusion"] p { color: var(--text-primary); }
+.evidence-step small { display: block; margin-top: 18px; color: var(--meta); font-family: var(--mono); font-size: 11px; }
 
 .work-ledger { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 72px 0 40px; }
 .work-ledger > .section-heading { padding-bottom: 28px; }
 .work-row { display: grid; grid-template-columns: minmax(240px, 4fr) minmax(0, 8fr); gap: 32px; align-items: center; padding: 28px 0; border-top: 1px solid var(--border-hairline); }
-.work-copy span { color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; }
+.work-copy span { color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .work-copy h3 { margin-top: 10px; }
 .work-copy p { max-width: 30rem; margin: 16px 0 0; color: var(--text-secondary); font-size: 16px; }
 .work-crop { margin: 0; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }
 .work-crop img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: contain; }
-.work-crop figcaption { padding: 8px 12px; border-top: 1px solid var(--border-hairline); color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
+.work-crop figcaption { padding: 8px 12px; border-top: 1px solid var(--border-hairline); color: var(--meta); font-family: var(--mono); font-size: 11px; }
 
 /* Ghosty reveal：案例截图经羽化遮罩纵向扫过显影，IntersectionObserver 滚动触发（main.js）。
    隐藏预态仅在 JS 就绪（.js）时武装，故 JS 关闭时截图完整可见；卷宗数字属数据区，保持绝对静止不参与。
@@ -247,49 +354,56 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
    纯静态刻线，零动效。 */
 .seam-divider { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; display: flex; align-items: center; gap: 16px; color: var(--border-strong); }
 .seam-divider i { flex: 1; border-top: 1px solid var(--border-hairline); }
-.seam-divider svg { flex: none; display: block; }
+.mark-seam { width: 72px; height: 24px; display: block; color: inherit; }
 .scenario-ledger { padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)) 96px; border-bottom: 1px solid var(--border-hairline); background: var(--bg-raised); }
 .scenario-rows { max-width: var(--page-max); margin: 48px auto 0; }
 .scenario-row { display: grid; grid-template-columns: minmax(220px, 3fr) minmax(0, 9fr); gap: 48px; align-items: center; padding: 44px 0; border-top: 1px solid var(--border-strong); }
 .scenario-row:last-child { border-bottom: 1px solid var(--border-strong); }
-.scenario-kicker { color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; }
+.scenario-kicker { color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .scenario-kicker b { color: var(--text-secondary); font-weight: 510; }
 .scenario-copy h3 { margin-top: 10px; }
 .scenario-copy p { max-width: 30rem; margin: 14px 0 0; color: var(--text-secondary); }
-.scenario-boundary { display: block; margin-top: 18px; color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; overflow-wrap: anywhere; }
+.scenario-boundary { display: block; margin-top: 18px; color: var(--meta); font-family: var(--mono); font-size: 11px; overflow-wrap: anywhere; }
 .scenario-proof { min-width: 0; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; border-block: 1px solid var(--border-hairline); }
 .scenario-proof li { min-width: 0; padding: 18px; border-right: 1px solid var(--border-hairline); }
 .scenario-proof li:last-child { border-right: 0; }
-.scenario-proof small { color: var(--text-tertiary); font-family: var(--mono); font-size: 11px; }
-.scenario-proof p, .scenario-proof blockquote { margin: 9px 0 0; color: var(--ink); font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
-.scenario-proof blockquote { padding-left: 10px; border-left: 2px solid var(--border-strong); }
+.scenario-proof small { color: var(--meta); font-family: var(--mono); font-size: 11px; }
+.scenario-proof p, .scenario-proof blockquote { margin: 9px 0 0; color: var(--text-primary); font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+.scenario-proof .ruled { margin-top: 9px; }
+.scenario-proof .ruled blockquote { margin-top: 0; padding-left: 12px; }
 .scenario-proof-stats strong { display: block; font-family: var(--mono); font-size: clamp(28px, 3vw, 38px); font-weight: 510; line-height: 1.1; }
 .scenario-proof-stats span { display: block; margin-top: 8px; color: var(--text-secondary); font-size: 13px; }
 
-/* SITE-CRAFT-2 · 承诺四则落在全站唯一的暗色石版上：产品边界（不做之事）以藏青暗部承载，
-   拒绝均匀平铺——版面（--ink）与凹刻井（--ink-deep）两级暗部，刻线用 bg-app 派生透明白。 */
-.promise { margin-top: 40px; padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)); border-block: 1px solid var(--ink-deep); background: var(--ink); color: var(--plate-text); }
-.promise .eyebrow { color: var(--plate-text-dim); }
-.promise h2 { color: var(--bg-app); }
-.promise-ledger { max-width: var(--page-max); margin: 44px auto 0; border-top: 1px solid var(--plate-line); }
-.promise-ledger > div { display: grid; grid-template-columns: minmax(180px, 3fr) minmax(0, 7fr); gap: 32px; padding: 22px 0; border-bottom: 1px solid var(--plate-line); }
-.promise-ledger dt { font-size: 21px; color: var(--bg-app); }
-.promise-ledger dd { margin: 0; color: var(--plate-text-dim); }
+/* SITE-CRAFT-2 磁青宗批 · 承诺四则落在全站唯一的**浮起版面**上：产品边界（不做之事）由
+   台阶三（bg-raised）承载，其内的设计边界井回落底纸（bg-app）——两级台阶的节奏保住了，
+   方向随宗翻转（深色宗的「浮起」是提亮，不是压深）。
+   B1 的 --ink-deep / --plate-line / --plate-text / --plate-text-dim 四枚派生变量本批整体退役：
+   它们只是「亮站上唯一暗版」这一浅宗装置的脚手架，全站入磁青后，版面直接用本宗三级台阶与
+   墨阶表达，四枚派生阶再无消费面（复杂度扫描：净删 4 个概念，零新增替代）。 */
+.promise { margin-top: 40px; padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)); border-block: 1px solid var(--border-strong); background: var(--bg-raised); }
+.promise-ledger { max-width: var(--page-max); margin: 44px auto 0; border-top: 1px solid var(--border-hairline); }
+.promise-ledger > div { display: grid; grid-template-columns: minmax(180px, 3fr) minmax(0, 7fr); gap: 32px; padding: 22px 0; border-bottom: 1px solid var(--border-hairline); }
+.promise-ledger dt { font-size: 21px; }
+.promise-ledger dd { margin: 0; color: var(--text-secondary); }
 /* SITE-CRAFT-2 B3 · 印记式落定章（文书文化抽象引用，原生 SVG 件）：与首则承诺同文的方印落在
    暗色石版右上——阳文白线，拒印泥红（红只属于风险与删除的语义预算）；deslop 印章与 dt 同文
    tether 守住不漂移。静态微倾，零动效。 */
 .promise-heading { position: relative; }
-.settle-seal { position: absolute; right: 0; top: 4px; width: 88px; height: 88px; color: var(--plate-text); transform: rotate(-2deg); }
+/* 落定章转朱（磁青宗批）：B3 落章时「朱」尚未入 token，红的语义预算全属风险与删除，
+   故当时拒印泥红、以白线阳文替代。B0 定值批准后 `semantic.zhu` 成为独立语义族
+   （朱＝人工落定/裁决），落定章正是该语义的原型件，于是归位为朱印——这是补上当时缺的
+   token，不是放宽红的预算：红（--red-fg）与朱（--zhu-*）在门内是两族，各有专属消费面。 */
+.settle-seal { position: absolute; right: 0; top: 4px; width: 88px; height: 88px; color: var(--zhu-graphic); transform: rotate(-2deg); }
 .settle-seal text { fill: currentColor; font-size: 28px; text-anchor: middle; }
-.design-boundary { max-width: var(--page-max); margin: 48px auto 0; padding: 20px 24px; border: 1px solid var(--plate-line); background: var(--ink-deep); color: var(--plate-text-dim); font-family: var(--mono); font-size: 12px; line-height: 1.9; }
+.design-boundary { max-width: var(--page-max); margin: 48px auto 0; padding: 20px 24px; border: 1px solid var(--border-hairline); background: var(--bg-app); color: var(--text-secondary); font-family: var(--mono); font-size: 12px; line-height: 1.9; }
 .design-boundary p { margin: 0; }
-.design-boundary a { color: var(--plate-text); }
+.design-boundary a { color: var(--text-primary); }
 
 .closing { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 120px 0; display: flex; align-items: end; justify-content: space-between; gap: 48px; }
 .closing h2 { margin-top: 10px; }
 .closing-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 18px; }
-.release-pending { color: var(--text-tertiary); font-family: var(--mono); font-size: 12px; }
-footer { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 24px 0 48px; border-top: 1px solid var(--border-hairline); display: flex; justify-content: space-between; gap: 24px; color: var(--text-tertiary); font-size: 12px; }
+.release-pending { color: var(--meta); font-family: var(--mono); font-size: 12px; }
+footer { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; padding: 24px 0 48px; border-top: 1px solid var(--border-hairline); display: flex; justify-content: space-between; gap: 24px; color: var(--meta); font-size: 12px; }
 footer p { margin: 0; }
 .mono { font-family: var(--mono); }
 
@@ -335,8 +449,11 @@ footer p { margin: 0; }
   .button, .evidence-step, nav a { transition: none; }
   .button-primary:active:not(:focus-visible) { transform: none; }
   .evidence-step { background: var(--bg-app); }
-  .evidence-step::before { background: var(--ink); }
-  .evidence-step[data-stage="conclusion"]::before { background: var(--danger); }
+  .evidence-step::before { background: var(--text-primary); }
+  .evidence-step[data-stage="conclusion"]::before { background: var(--red-fg); }
   /* 微演示定格全景：注意力循环整体全灭，信息因数据恒静而完整。 */
-  .schema-demo * { animation: none; }
+  /* 归零必须**赢过**任何更高特异性的消费点，否则只是「分支在场」而非「分支胜出」：
+     `.demo-actions span`(0,1,1) 曾压过本行的 `.schema-demo *`(0,1,0)，令朱在 reduce 下照常
+     走完幕二而无人察觉。blanket 归零用 !important 才是真归零。 */
+  .schema-demo *, .schema-demo *::before, .schema-demo *::after { animation: none !important; }
 }

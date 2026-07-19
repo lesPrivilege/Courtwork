@@ -75,3 +75,455 @@ reduced 全灭）、`site/scripts/{deslop-scan,deslop-scan-lib,deslop-scan.test}
 | `B3/seam-context-1440.png` | 骑缝分隔在卷二｜卷三缝上的语境帧 |
 | `B3/promise-seal-1440.png` | 承诺暗版 + 卷四编号 + 落定章终态 |
 | `B3/closing-tail-1440.png` | 卷尾编号与收尾判词 |
+
+## B4 · 磁青宗解冻置换 + 色彩语法四位落账（票面①③）
+
+变更面：`site/styles.css`（色板 + 全量消费面）、`site/og.html`、`site/assets/icon.svg`、
+`site/assets/og.png`（重渲）、`site/index.html`（设计边界小注）、
+`site/scripts/{deslop-scan,deslop-scan-lib,deslop-scan.test}.mjs`（解冻 + `color-grammar` 门）、
+`docs/design/site-evidence-line.md`（SITE-CRAFT-1 例外条款的退役色宗表述随宗修订，本单票面授权）。
+
+### ① 解冻置换：冻结表到期，回绑 token 名
+
+B1 分治裁定②立的 `siteFrozenColors` 按值冻结表（带到期指针）**整体删除**，改为按**名**绑定
+`themes.dark`——站与壳 dark 同宗、同源，站面色值从此零第二真源。同批把 site 私名归位到 token 路径末段：
+`--ink→--text-primary`、`--focus→--border-focus`、`--danger→--red-fg`，`og.html` 六枚变量同规改名。
+
+**按名绑定的对照实验**（判例一：对照实验须在复现条件下做）——只动 `docs/design/tokens.json` 的
+`themes.dark.bg.app` 一枚值、站面源码一字不动：
+
+| | tokens.json | 站面源码 | `deslop-scan` |
+|---|---|---|---|
+| 对照 | 原值 | 未动 | exit 0 · PASS |
+| 实验 | 单点漂移 | 未动 | **exit 1**，`site/styles.css` 与 `site/og.html` 的 `--bg-app` 双双触红 |
+
+按值冻结表在同一实验下会保持全绿，故此实验对「按名 vs 按值」有真实区分力。
+
+**品牌一致性闭合**（B1 分治裁定③挂账）：`site/assets/icon.svg` 四路径几何一字不动，仅描边从迁移前旧板
+换到 `themes.dark.text.primary`；`og.html` 同批换宗并重渲 `og.png`（1200×630）。三件（站标 / 壳
+`icon-light` / 壳 `icon-dark`）此后各绑本宗、同锚同源。退役值按判例三只述关系不复述色值。
+
+### ③ 色彩语法四位 + 稀缺性宣告 + 机器门叙事
+
+`design-boundary` 井由两行扩为三行：四位语法（磁青为底 / 墨为记 / 朱仅裁决 / 泥金 hero 唯一强调）、
+语义色配额宣告、克制由机器门强制并链接本证据目录。**宣称逐条与门实测对齐**：
+
+| 页面宣称 | 对应门 | 反例实测 |
+|---|---|---|
+| 词表之外的颜色 | `raw-color` | tokens 单点漂移 → 触红（上表） |
+| 越界的朱与泥金 | `color-grammar`（本批新增） | 朱出裁决面 / 泥金出 hero / keyframe 夹带 / 白名单零消费，四向触红 |
+| 未经登记的渐变与阴影 | `gradient`、`shadow` + `bannedVisual` 行禁 | 既有反例集 |
+| 越界的动效 | `site-motion`、`demo-motion`、`press-feedback` | 既有反例集 |
+
+`color-grammar` 门自身受变异检验：把门体空转 → `node --test` 由 26/26 转 **25 passed / 1 failed**（3 处断言红），
+复原后回 26/26。门不是空转的。
+
+**朱的归位**：B3 落章时 `semantic.zhu` 尚未入 token，红的语义预算全属风险与删除，故当时拒印泥红、
+以白线阳文替代。B0 定值批准后朱成为独立语义族（朱＝人工落定/裁决），落定章正是该族的原型件，
+本批归位为朱印；同族第二消费面为微演示的处置动作（确认此项/驳回/修正）——描边式朱批，
+不做填充以免静态描绘被读成可点控件。红与朱在门内是两族，各有专属消费面。
+
+### 元信息按底色分档（对比度闭合，产品负责人 2026-07-19 拍板：站面消费侧升档）
+
+深宗把中性阶与浮起面的明度差压窄了：同一枚 `--text-tertiary`，在底纸上 4.28:1，落到 `bg-raised`
+只剩 3.14:1。本批以**消费侧**闭合——新增 `--meta`（底纸 tertiary / 浮起面 secondary），零新色值、
+不动 `tokens.json`、不碰产品壳，故不预支 B2 票面②对共用 token 的取值裁定。
+
+实测（1440×900，装饰层 `aria-hidden` 不入正文口径；「回放峰值」＝注意力循环底纹最亮帧）：
+
+| 态 | 低于 AA 4.5:1 元素 | 最低比值 |
+|---|---|---|
+| 基线（迁移前旧板，`main@74b82b1`） | 45 | 3.49:1 |
+| 磁青置换后 · 未分档 | 50（回放峰值 53） | 3.14:1（峰值 2.67:1） |
+| 磁青 + `--meta` 分档（**本批交付态**） | **14** | **4.28:1** |
+
+交付态的 14 枚残余全部是 tertiary 落在底纸上、比值恰为 4.28:1——即 `themes.dark.text.tertiary`
+自身在 tokens.json 中已登记的值（"对底纸 4.28:1"）。站面不再叠加任何本地劣化，残余等同壳侧
+B2 票面②所辖的共用 token 缺口；分档法作为第三条闭合杠杆写入 SPEC 提案区交 B2 参考。
+
+| 帧 | 说明 |
+|---|---|
+| `B4/01-full-1440.png` | 整页终态（磁青底 + 泥金母题 + 朱印） |
+| `B4/02-hero-1440.png` | hero：泥金写经母题定格 |
+| `B4/03-promise-seal.png` | 承诺浮起版面 + 朱印落定章 + 设计边界井 |
+| `B4/04-evidence-chain.png` / `B4/05-scenario-ledger.png` | 卷一证据链 / 卷三垂类泛化 |
+| `B4/06-design-boundary.png` | 四位语法三行小注特写 |
+| `B4/07-reduced-hero.png` | reduced-motion 定格（运行动画仅 3 条 `ghosty-reduced-fade`，与 SITE-CRAFT-1-FADE 契约一致） |
+| `B4/08-nojs-hero.png` / `B4/09-nojs-full.png` | JS 关闭：母题与全文完整 |
+| `B4/10-mobile-375.png` | 375 窄屏 |
+
+响应式实测：375 / 768 / 1180 / 1600 四档横向溢出均为 **0px**。
+
+`og.png` 重渲命令（不入仓脚本，沿 `zhuque/SOURCE.md` 记录命令的先例；playwright 自 `apps/desktop`
+依赖树解析，站面本身仍零构建依赖）：
+
+```js
+// viewport 1200×630, deviceScaleFactor 1
+await page.goto(pathToFileURL('site/og.html'));
+await page.screenshot({ path: 'site/assets/og.png', type: 'png' });
+```
+
+## B5 · 文书记号系原生 SVG 首场 + SchemaParts 件库（票面②）
+
+变更面：`site/index.html`（件库 + 记号消费面）、`site/styles.css`（记号版式，退役 blockquote
+`border-left`）、`site/scripts/{deslop-scan,deslop-scan-lib,deslop-scan.test}.mjs`（`schema-parts` 门）。
+零新资产文件（件库内联）、零动效。
+
+四记号各司一职：鱼尾＝节标（5 处卷次）、文武线＝结构分隔无彩（3 处引语，**退役通用彩色竖条**）、
+侧点圈点＝强调（1 处判定句）、朱印落定章＝裁决落定（框廓入件库，印文留消费点）。
+另并入 B3 原为内联的骑缝齿痕，以守单源。
+
+**渲染实测**（`<use>` 引用失败会静默为零尺寸，故逐件量框）：
+
+| 件 | 消费点 | 实测框 |
+|---|---|---|
+| `#mark-fishtail` | 5 | 12×6 |
+| `#mark-rule` | 3 | 5×98（随 blockquote 高度拉伸） |
+| `#mark-emphasis` | 1 | 9×9 |
+| `#mark-seal-frame` | 1 | 91×91（印文 `不改原件` 未变，B3 tether 仍绿） |
+| `#mark-seam` | 1 | 72×24 |
+
+零尺寸件 **0**。件库 `display:none`，件库外几何 **0** 处。
+
+**三条解耦预留的反例集**（`schema-parts` 门，五向）：几何抄成第二份 / 件里写死色值 /
+件零消费者 / `<use>` 指向未声明件 / 件库整块缺席——逐条触红。门体空转变异 27/27 → 26 passed /
+1 failed，复原回 27/27，证门非空转。
+
+**单源门的当场收获**：B3 骑缝齿痕的内联几何是被门的单源检查扫出来的（不是人工回看）——
+这正是「预留写成门」而非「预留写进文档」的价值。
+
+| 帧 | 说明 |
+|---|---|
+| `B5/04-evidence-chain.png` | 卷一：鱼尾节标 + 两处文武线界行 + 圈点落在判定句 |
+| `B5/05-scenario-ledger.png` | 卷三：PM 原句的文武线界行；卷宗计数 20/47/14/8 静止 |
+| `B5/03-promise-seal.png` | 朱印落定章（框廓已转 `<use>`，印文与首则承诺同文） |
+| `B5/01-full-1440.png` / `B5/02-hero-1440.png` | 整页 / hero 终态 |
+| `B5/07-reduced-hero.png` · `B5/08-nojs-hero.png` · `B5/10-mobile-375.png` | reduced-motion / JS 关闭 / 375 窄屏 |
+
+响应式实测：375 / 768 / 1180 / 1600 四档横向溢出均为 0px；reduced-motion 运行动画仍仅 3 条
+`ghosty-reduced-fade`（记号系全静态，未引入任何新动效）。
+
+## B6 · 排印光学 + 墨迹洇染压线单点实验（票面④的零下载部分）
+
+变更面：`site/styles.css`（body 三条排印光学）、`site/index.html`（`#ink-bleed` 滤镜 + 单点消费）、
+`site/scripts/{deslop-scan-lib,deslop-scan.test}.mjs`（单点裁定入 `schema-parts` 门）。
+**票面④的字体轨（刻本标题类候选 / 朱雀正文轨）不在本批**——需联网取字与逐一核许可，
+经产品负责人 2026-07-19 拍板「先做零下载的④」，字体轨另开一批。
+
+### 排印光学：逐条实测适用面（不宣称未测得的效果）
+
+| 属性 | Chromium 148 支持 | 站面实测 |
+|---|---|---|
+| `text-autospace: normal` | ✔ | **有效但面窄**：整页聚合 **+7px**（26907.1 → 26914.1）。Chromium 初值是 `no-autospace`，故这行是真开关而非复述默认 |
+| `text-spacing-trim: trim-start` | ✔ | **当前零作用面**：渲染文本里开合括号计数为 **0**（源码里的 11 处全在 HTML 注释内）。合成探针上可测（250.14px vs 初值 258.14px vs `space-all` 274.14px） |
+| `hanging-punctuation: allow-end` | ✘（Safari only） | **未实测**：`CSS.supports` 为 false，本批采样浏览器上取不到证据；按渐进增强声明 |
+
+`text-autospace` 的增量集中在**三处 fixture 逐字引语**（唯一的未加空格中西混排 `的1`）：
+证据链原件引语 +3.5px、微演示原件正文 +1.1px；而结论正文 / PM 原句 / hero 副题 / 设计边界小注
+四处实测 **0**——它们是人工撰写的文案，本就手加了空格。
+
+这正是该属性在本站的立身处：**人写的文案可以手加空格，fixture 逐字引语不能动**
+（「无锚不落格」的另一面是引语一字不改）。`text-autospace` 是让这些不可编辑的字串
+拿到正确视觉字距的唯一机制，不是装饰。
+
+### 墨迹洇染：压线单点
+
+刻本刷印时墨顺纸纤维洇开，线的边缘因此不是几何直边。`feTurbulence`（纸纤维噪声）+
+`feDisplacementMap`（边缘位移，scale 1.7）——纯几何扰动，零色值、零渐变、零阴影、零动效。
+
+落点唯一：**证据链「引语」节点的那条界行**——全页最该被逐字信任的一句，也是唯一一处
+「墨真正压到纸上」的位置。
+
+**奖级工艺裁定「单点，不铺开」已写成门**：`schema-parts` 门要求件库声明的每枚 filter
+全站消费点恰为 1。裁定若只写在文档里，下一次就会被顺手铺开；写成门之后铺不开。
+实测反例——把洇染加到第二条界行：
+
+```
+[schema-parts] site/index.html:1 craft filter #ink-bleed has 2 consumers; the single-point ruling allows exactly 1
+```
+
+| 帧 | 说明 |
+|---|---|
+| `B6/11-ink-bleed-on.png` / `B6/12-ink-bleed-off.png` | 同一条界行，仅滤镜开关（3× 放大，看边缘纤维） |
+| `B6/13-ink-bleed-on-1x.png` / `B6/14-ink-bleed-off-1x.png` | 同对照的 1× 实尺——克制刻度：近看有、远看无，不喧宾夺主 |
+
+**数据区静止复核**：7 个数据节点（卷宗计数 + 三处引语 + 微演示正文）在 1.2s 间隔前后
+包围盒逐位一致（`identical: true`）；洇染是静态滤镜，运行动画数不因它增加。
+
+## B7 · 三轨字体制落地（④修订 · 字体编排）
+
+变更面：`site/styles.css`（三轨字栈 + 双字重梯度 + 补偿）、`site/index.html`（`zh-title`/`zh-doc`
+消费类 + preload）、`site/assets/fonts/`（新增 Noto 双字重子集与清单，朱雀子集扩容）、
+`site/scripts/{build,deslop-scan,deslop-scan-lib,deslop-scan.test}.mjs`。
+许可快照：[`noto/`](noto/)、[`zhuque/`](zhuque/)、[`juzhen-rejected/`](juzhen-rejected/)。
+
+### 正文轨：首选未核清 → 落朱雀仿宋（拒收留痕）
+
+方正聚珍新仿两张授权逐张核实结果见 [`juzhen-rejected/DECISION.md`](juzhen-rejected/DECISION.md)：
+个人非商业授权用途枚举无网页一项且需购买（**未核清**）；授权条款明文禁止「格式转换后以嵌入方式
+应用到网站」，嵌入式应用属独立收费类目（**明确不可用**）。按拍板落朱雀仿宋。
+**未下载任何方正字体文件**——核实先于取字。
+
+### 标题轨：Noto Serif SC 双字重
+
+选 Noto 版而非 Adobe `source-han-serif`：前者版权行**未宣告 Reserved Font Name**（name 表实读
+`© 2017-2024 Adobe`，其后无保留名），子集可保留原名；后者保留 `Source`，子集须改名。
+
+| 轨 | 字体 | 消费面 | 字重 |
+|---|---|---|---|
+| 标题轨 | Noto Serif SC 2.003 | `zh-title`（h2 ×4 / h3 ×10） | h2 **400** / h3 **700** |
+| 文书轨 | 朱雀仿宋 0.212 | `zh-doc`（原件正文/三处引语/修订建议）+ `zh-display`（品牌时刻） | 单字重（零粗体律） |
+| 功能轨 | 系统栈 | eyebrow / meta / 按钮 / 说明文字 | 既有 |
+
+**双字重梯度取向**：大字号取 400、小字号取 700——宋体大字重本就厚，48px 加粗即糊；20px 反需
+补足视觉重量。字重携层级语义而非装饰。
+
+### 真上身核验（对照实验，非「加载成功」即算数）
+
+`document.fonts` 报 loaded 只证明字节到位，不证明字形真上身；而 **CJK 字形普遍是 1em 等宽，
+量文本宽度对是否换字体零区分力**（首版探针即栽在此：h3 宽度在 webfont 与系统栈下同为 117.6px）。
+改用 canvas 像素指纹，且把对照设为「同一段文字指向一个**确不存在**的族名」，两侧只差
+「该 webfont 是否真被解析」一件事：
+
+| 用例 | 墨点数（实验 / 对照） | 判定 |
+|---|---|---|
+| 标题轨 Noto Serif SC 真上身 | 3622 / 3600 | **有差异** ✔ |
+| 文书轨 朱雀仿宋 真上身 | 1647 / 1876 | **有差异** ✔ |
+| 阴性对照：确不存在的族 | 3600 / 3600 | **无差异** ✔（证明该法有区分力） |
+| 标题轨 400 vs 700 | 2565 / 3232 | **有差异**（+26% 墨量，梯度真成立） |
+
+阴性对照落在零差异上，是这组实验有区分力的凭据——否则「有差异」可能只是方法噪声。
+
+### 四条编排义务逐条落位
+
+| 义务 | 落法 | 实测 |
+|---|---|---|
+| ① 仿宋字号/行高补偿 | 文书面较同级 sans 由 14px→**15px**，行高各 +.12（clause 2.2 / quote 1.9 / PM 1.8 / suggestion 1.85） | 计算值实读一致 |
+| ② 拉丁与数字配衬字显式指定 | `--font-doc` 把 Charter/Bitstream Charter/Georgia/Times 排在 CJK **之前**，按字回退：拉丁数字走衬线西文，CJK 才落朱雀 | `.zh-doc` 计算首选族实读 `Charter`；「1%」不再落到仿宋弱拉丁 |
+| ③ 子集化 + `font-display` 显式 | 三枚子集按用字精确取字，各 `font-display: swap`；清单与字节由 `display-font` 门绑定 | 51KB（标题双字重）+ 33KB（文书轨，由 12KB 扩容） |
+| ④ 排印光学与新字体同批调校 | B6 的三属性未各自为政——本批换字后同批复量，`--font-doc` 的西文配衬与 autospace 协同（数字两侧间隙由 autospace 给、字形由 Charter 给） | 见下 |
+
+**残留边界如实登记**（②）：若 Charter/Georgia/Times 在宿主上全缺，数字仍会落到朱雀——
+CSS 的 generic family 只能收尾，无法在 CJK 之前钉死「西文到此为止」。已在 `--font-doc` 注释处留痕。
+
+### 门禁扩展
+
+`checkDisplayFont` 由「只守朱雀一轨」泛化为**逐轨可配**（消费类 / 清单 / face family / 接线 token），
+一套门守三枚子集；标题轨 Bold 字节另行锚定 `weights.700`，否则换了 Bold 子集不会被发现。
+四向反例实测触红：标题轨越清单用字 / 文书轨越清单用字 / Bold 字节脱钩 / 标题轨未接 `--font-title`。
+
+| 帧 | 说明 |
+|---|---|
+| `B7/04-evidence-chain.png` | 三轨同屏：h2 Noto 400、h3 Noto 700、引语朱雀 + Charter 数字、说明文字系统栈 |
+| `B7/01-full-1440.png` / `B7/02-hero-1440.png` | 整页 / hero 终态 |
+| `B7/03-promise-seal.png` / `B7/05-scenario-ledger.png` / `B7/06-design-boundary.png` | 承诺 / 垂类泛化 / 设计边界 |
+| `B7/07-reduced-hero.png` · `B7/08-nojs-hero.png` · `B7/10-mobile-375.png` | reduced-motion / JS 关闭 / 375 窄屏 |
+
+响应式实测：375 / 768 / 1180 / 1600 四档横向溢出均为 0px；reduced-motion 运行动画仍仅 3 条
+`ghosty-reduced-fade`（字体批未引入任何动效）。
+
+## B8 · 三裁定收口（朱帧边界 + 拉丁分段）
+
+架构三裁定回执的收口批。变更面：`site/styles.css`、`site/index.html`（preload）、
+`site/assets/fonts/doc-latin-subset.woff2` + 清单 `latinSegment` 节、
+`site/scripts/{build,deslop-scan-lib,deslop-scan.test}.mjs`。
+
+### 裁定① 朱帧边界：朱是痕，不是环境色
+
+定谳「朱＝人工裁决之痕，朱印/朱批皆属」，第二处消费面保留，唯一条件是**描边只出现在人工处置
+步那一帧**（与 `line.settled` 前向守卫同语义）。落法：基态中性墨，随幕二「逐条确认」窗口
+（38%–60%）转朱，幕外回中性；**字色恒中性**——朱只走描边不铺到文字层，既守「痕」的语义，
+也把动的属性限在 `demo-motion` 白名单内的 `border-color`。`color-grammar` 的**选择器白名单未动**。
+
+逐相位实测（12s 循环，以 `animation-delay` 定格相位而非靠等）：
+
+| 相位 | 取样点 | `border-top-color` | 判定 |
+|---|---|---|---|
+| 幕一 锚点跳转 | 15% | `rgb(62,82,112)` = `--border-strong` | 非朱 ✔ |
+| **幕二 逐条确认** | 48% | `rgb(215,90,60)` = `--zhu-graphic` | **朱** ✔ |
+| 幕三 修订对照 | 80% | `rgb(62,82,112)` | 非朱 ✔ |
+| reduced-motion（动画全灭） | — | `rgb(62,82,112)` | 非朱 ✔（不残留为环境色） |
+
+**帧边界写成门**（双向守，反例实测触红）：
+
+```
+朱回基态恒亮 → 朱 is ambient on .demo-actions span; @keyframes demo-zhu-b exists to keep it inside the adjudication frame
+帧声明未运行 → @keyframes demo-zhu-b is declared but never run; .demo-actions span would lose its 朱 entirely
+朱漫出裁决面 → 朱 left its adjudication surface: .hero-lead color
+```
+
+| 帧 | 说明 |
+|---|---|
+| `B8/15-zhu-frame-outside-a.png` / `B8/17-zhu-frame-outside-c.png` | 幕一 / 幕三：处置格中性墨 |
+| `B8/16-zhu-frame-inside-b.png` | 幕二：处置格转朱（人在裁决的那一刻） |
+| `B8/18-zhu-reduced-neutral.png` | reduced-motion 基态：中性，朱零残留 |
+
+### 裁定② 拉丁分段：数字不再落仿宋
+
+原残留是「`--font-doc` 的西文靠宿主本地字体兜底，三枚全缺则数字落进仿宋弱拉丁」。
+收口落法：自带一枚**数字段**子集，用 `unicode-range` 钉死西文数字段，不依赖宿主装了什么。
+
+- 文件：`doc-latin-subset.woff2`（Noto Serif SC 2.003 Regular 子集，25 枚：数字/百分号/数字相邻标点），
+  **8,488 B**。
+- `unicode-range: U+0024-0025, U+0028-0029, U+002B-003E, U+007E` ——**与文件覆盖面逐位相等**；
+  不相等就等于换个位置复现同一残留。
+- 刻意**不含** `U+2000-206F`：「」等中文引号属 CJK 排印，须留在朱雀，绑到拉丁面会变半角。
+- 取值取舍留痕：整段 ASCII 面 52,748 B、并入标题轨双字重 +97KB，均被否；数字段 8,488 B
+  覆盖真实用字（文书面非 CJK 字符实测仅 `% 1 “ ”` 四枚，后二属 CJK 引号不入分段）。
+
+**红/绿证**（canvas 像素指纹，同一条件下对照——三枚本地西文体全缺）：
+
+| 用例 | 墨点 / 指纹 | 与「数字落仿宋」基准相同？ |
+|---|---|---|
+| 基准：数字直接用朱雀渲染 | 576 / `58290068` | —（基准本身） |
+| **红证** 收口前：三兜底全缺 | 576 / `58290068` | **是** ← 残留复现 |
+| **绿证** 收口后：三兜底全缺 | 623 / `3083695619` | **否** ← 残留闭合 |
+
+站面实测字栈首选 `"Courtwork Doc Numerals"`，该 face `status: loaded`。
+
+### 裁定③ 聚珍拒收升格
+
+拒收记录经架构升格为全线定谳（嵌入条款明文覆盖计算机程序与电子产品，桌面内嵌同禁），
+并被排印凡例引为现行依据。本批无代码变更，记录见
+[`juzhen-rejected/DECISION.md`](juzhen-rejected/DECISION.md)。
+
+## B9 · 驳回回炉（三缺陷，三个失效族）
+
+验收以**运行实测**压过实现侧**字面自证**抓出 P0——这一节先记该判例，再记三件回炉。
+
+### P0 · reduced-motion：分支在场 ≠ 分支胜出
+
+**根因实测**（回炉前，reduce 上下文）：
+
+| 观测 | 值 |
+|---|---|
+| reduce 下仍在跑的动画 | `demo-zhu-b` ×3（`state: running`），另 3 条 `ghosty-reduced-fade`（`finished`） |
+| `.demo-actions span` computed `animation-name` | **`demo-zhu-b`**（未归零） |
+| `.demo-basis` / `.demo-gate` / `.demo-compare` / `.demo-phase-*` / `.demo-anchor` | 均 `none`（正确归零） |
+| reduce 四相位处置格描边 | 15% 中性 / **48% `rgb(215,90,60)` 朱** / 80% 中性 / 97% 中性 |
+
+原因是层叠而非笔误：`.demo-actions span` 特异性 (0,1,1) **高于** blanket `.schema-demo *` (0,1,0)，
+故 blanket 输掉；而既有各消费点都是 (0,1,0)，与 blanket 同级、blanket 后写故胜——
+**只有新加的这一条越级**，恰好绕开了所有既有验证。
+
+我方前批的 reduce 取样之所以报绿，是取样点落在 ~800ms ≈ 6.7%，正在 keyframe 的中性区间
+（0–35%）——**单点取样对周期性缺陷零区分力**，纯属侥幸。
+
+**回炉①**：blanket 改 `animation: none !important` 并覆盖伪元素，使其无条件胜出。
+**回炉②**：门升级——`checkDemoMotion` 的 reduce 断言由「字面存在」改为**层叠解析**
+（逐个演示层 animation 消费点，按 `!important` → 特异性 → 源序算 blanket 是否真的赢）。
+字面存在自此只作线索。同一份缺陷 CSS 下：
+
+```
+旧字面锁 → []                                   ← 假绿
+新层叠门 → reduced-motion blanket loses to `.demo-actions span` (demo-zhu-b 12s linear infinite);
+           the branch is present but does not win
+```
+
+门的精确性同时验证：同特异性的 `.demo-basis` 等**不被误报**（后写者胜，解析正确）。
+
+**回炉③ 白名单逐条审**：残留 3 条经核**全部是** `ghosty-reduced-fade`、`state: finished`、
+target `img`——即 SITE-CRAFT-1-FADE 契约里 reduce **专用**的 opacity 淡入，不是常规态动画漏出，
+故白名单本身合法，未在合法化缺陷。但**表述形态有病**：「允许 3 条」是**计数**不是白名单，
+少跑一条就能把新混进来的一条吃掉。已改为**按名登记**（`ALLOWED_UNDER_REDUCE = {ghosty-reduced-fade}`）
+外加条数打印。
+
+**回炉后计算态实测**（`site/scripts/assert-reduced-motion.mjs`，可重跑）：
+
+```
+reduce 运行动画： 3 条，全部 ghosty-reduced-fade
+演示层 computed animation-name： 8 个消费点全部 "none"
+四相位处置格描边： 幕一 15% / 幕二 48% / 幕三 80% / 循环末 97% —— 全部 rgb(62,82,112) 中性
+reduced-motion: PASS
+```
+
+该脚本**不挂 site:guard**（site 构建面保持零依赖零浏览器），按验收清单单独运行：
+
+```bash
+(cd site && python3 -m http.server 18902 --bind 127.0.0.1) &
+node site/scripts/assert-reduced-motion.mjs http://127.0.0.1:18902/ apps/desktop
+```
+
+### P1 · 制品链断裂：族内漏铺
+
+104 字合并子集换入时 `zhuque/SOURCE.md` 未随动——manifest 侧早有「清单 ↔ 字节」双锚，
+出处记录侧却裸奔。**机制不对称：立门以族为单位铺满，不是哪里出事补哪里。**
+
+- SOURCE.md 制品链表更新为实测值：`zhuque-fangsong-subset.woff2` 104 字 / 128 glyphs /
+  33,036 B / `8577a034…`（原载 `84a1e19b…` 为 41 glyphs / 12,316 B 的旧值）；
+  并补入 `doc-latin-subset.woff2` 25 字 / 94 glyphs / 8,488 B / `f3a6ce7a…`；再生成指令同步为双子集版。
+- 新增 `font-provenance` 门，**按族铺满**：`zhuque/` 与 `noto/` 两份出处记录、四枚入库 woff2，
+  逐枚要求「出处登记 SHA = 实测字节」。反例实测触红：
+
+```
+SHA 未随动     → provenance SHA drifted for zhuque-fangsong-subset.woff2; record does not carry the built bytes (8577a034…)
+新制品未登记   → artifact is absent from the provenance record: doc-latin-subset.woff2
+出处记录缺席   → provenance record is missing
+```
+
+### P1 · 品牌记号：谱系单源制
+
+「只换描边色」不是一致性闭合——闭合的口径必须与裁定同粒度（**几何 + 单源**，非仅色）。
+但直接把 512 源稿缩到 24 也错（小尺寸需简化变体）。故按**品牌记号谱系单源制**重做：
+
+- `site/assets/icon.svg` 由旧 4-path 线标改为**从 master 5/6-rect 体系重推导**的 4-rect 登记变体
+  （去底盘 / 单色 / 圆角按比例收并对齐 24 网格 / 文书行三宽度取整 .686→.667）。
+  比例保真：竖线宽占比 .2295→.2308、文书行宽占比 .5738→.5769、行三 .3934→.3846，最大偏差 .011。
+- `og.html` 的记号由 `i + 3×span` **手写 CSS 复刻**改为直接消费同一枚 `assets/icon.svg`
+  ——复刻即第二份几何真源，master 一改就悄悄脱钩。`og.png` 随之重渲。
+- 变体谱系记谱入 `docs/design/icon.md`（本回炉单授权；只动记谱不动壳码）。
+- 新增 `brand-lineage` 门：**不锁字面几何**（那只是把硬编码换个位置），而是从 master **现算**
+  四枚 rect 的归一化比例再核变体，容差 .03。四向反例实测触红：
+
+```
+旧线标重上色     → site mark must re-derive the master's 4-rect system, found 0 rect(s)
+比例脱钩(行三等宽) → 文书行三 drifted from the master proportions (w: 0.393 vs 0.577, Δ0.183 > 0.03)
+master 改而变体不跟 → 文书行三 drifted from the master proportions (w: 0.574 vs 0.385, Δ0.189 > 0.03)
+og 手写复刻      → site/og.html: brand mark must consume assets/icon.svg as a single source
+```
+
+第三条是关键：**master 改了变体不跟也红**，证明这是真单源绑定而非又一处硬编码。
+
+## B10 · 二轮回炉：SHA 只锚内容，不锚声称（单件）
+
+一轮补的 `font-provenance` 只锚 SHA。**制品换一个字节 SHA 必变，但 SOURCE.md 里
+「33,036 bytes / 128 glyphs」这类人读数字，可以在 SHA 全对的前提下静默撒谎**——
+与 B2-0 被驳同族（SPEC 记 6,205KB 而实物 8,137KB），差别只在那次是漏同步、这次是门没把叙述纳入契约。
+
+### 落法：三个数字全部从制品自身量出
+
+不走「生成时写入 manifest 再比对」的抄写链——**取自清单只是把抄写链拉长一环**：
+改清单而不重切子集时，SHA 照样对、数字照样自洽，谎仍能过门。故直接读制品：
+
+| 数字 | 机器对应 | 实现 |
+|---|---|---|
+| 字节数 | 文件长度 | `buffer.length` |
+| glyph 数 | `maxp.numGlyphs` | 零依赖解 woff2：Node 内建 brotli 解压 + 走表目录 |
+| 字数 | cmap 映射码位数 | 同上，format 4 逐段走，只计映射到非 0 字形的码位 |
+| SHA | 文件内容 | 既有 |
+
+**解析器与 fontTools 逐枚互校**（独立实现交叉验证，四枚制品全中）：
+
+| 制品 | 本门实测 | fontTools |
+|---|---|---|
+| `zhuque-fangsong-subset.woff2` | 104 字 / 128 glyphs / 33,036 B | 104 / 128 / 33,036 |
+| `doc-latin-subset.woff2` | 25 字 / 94 glyphs / 8,488 B | 25 / 94 / 8,488 |
+| `noto-serif-sc-regular-subset.woff2` | 87 字 / 107 glyphs / 25,632 B | 87 / 107 / 25,632 |
+| `noto-serif-sc-bold-subset.woff2` | 87 字 / 107 glyphs / 25,856 B | 87 / 107 / 25,856 |
+
+零新依赖（`node:zlib` 内建）；`noto/SOURCE.md` 的行体例同步为可解析形式。
+
+### 红证（门亲跑，逐向重放）
+
+```
+① 基线                    → []
+② SHA 改一位              → provenance SHA drifted for zhuque-fangsong-subset.woff2 …
+③ 记录字节 33,036→33,037  → provenance claims 33037 bytes but the artifact measures 33036
+④ 记录 glyph 128→127      → provenance claims 127 glyphs but the artifact measures 128
+⑤ 记录字数 104→105        → provenance claims 105 chars but the artifact measures 104
+⑥ 数字整个删掉            → provenance row states no bytes/glyphs/chars count;
+                             the number must exist to be checkable
+```
+
+⑥ 是自加的一向，堵的是最省事的逃逸口：**把数字删掉而不是改对**——没有数字不等于没有谎，
+否则这门会教人删记录。千分位与无千分位两种写法均须解析（格式差异不得成为绕过口）。

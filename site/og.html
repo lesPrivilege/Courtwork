@@ -5,26 +5,26 @@
   <meta name="viewport" content="width=1200, initial-scale=1">
   <title>Courtwork OG</title>
   <style>
-    :root { --bg: #F6F9FC; --surface: #EAEFF4; --ink: #0A2540; --secondary: #425466; --tertiary: #6E8098; --hairline: #E3E9EF; }
+    /* SITE-CRAFT-2 磁青宗批：OG 卡与站面同宗同源，变量名同规按 token 名绑定（deslop 逐项锚定）。 */
+    :root { --bg-app: #0F1622; --bg-surface: #16202F; --text-primary: #E4E9F1; --text-secondary: #A9B4C6; --text-tertiary: #6E7C92; --border-hairline: #2A3A52; }
     * { box-sizing: border-box; }
     html, body { width: 1200px; height: 630px; margin: 0; overflow: hidden; }
-    body { display: grid; grid-template-columns: 410px 1fr; color: var(--ink); background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; font-variant-numeric: tabular-nums; }
-    .mark { position: relative; border-right: 1px solid var(--hairline); background: var(--surface); }
-    .mark i { position: absolute; left: 126px; top: 130px; width: 34px; height: 370px; border-radius: 6px; background: var(--ink); }
-    .mark span { position: absolute; left: 194px; height: 24px; border-radius: 4px; background: var(--tertiary); }
-    .mark span:nth-of-type(1) { top: 186px; width: 130px; }
-    .mark span:nth-of-type(2) { top: 246px; width: 130px; }
-    .mark span:nth-of-type(3) { top: 306px; width: 92px; }
+    body { display: grid; grid-template-columns: 410px 1fr; color: var(--text-primary); background: var(--bg-app); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; font-variant-numeric: tabular-nums; }
+    /* 品牌记号单源消费（P1 回炉）：原先此处用 i + 3×span 手写 CSS 复刻母题，
+       等于在 og 卡里另立一份几何真源——master 一改就悄悄脱钩。改为直接消费同一枚
+       assets/icon.svg，几何只此一份。 */
+    .mark { display: grid; place-items: center; border-right: 1px solid var(--border-hairline); background: var(--bg-surface); }
+    .mark-art { width: 232px; height: 232px; }
     .copy { display: flex; flex-direction: column; justify-content: center; padding: 0 82px; }
     .wordmark { display: flex; align-items: center; gap: 13px; font-size: 27px; font-weight: 510; }
     .wordmark img { width: 28px; height: 28px; }
     h1 { margin: 36px 0 0; font-size: 58px; line-height: 1.18; font-weight: 510; letter-spacing: -.02em; }
-    p { margin: 22px 0 0; color: var(--secondary); font-size: 21px; }
-    small { margin-top: 42px; color: var(--tertiary); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 15px; }
+    p { margin: 22px 0 0; color: var(--text-secondary); font-size: 21px; }
+    small { margin-top: 42px; color: var(--text-tertiary); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 15px; }
   </style>
 </head>
 <body>
-  <div class="mark" aria-hidden="true"><i></i><span></span><span></span><span></span></div>
+  <div class="mark" aria-hidden="true"><img class="mark-art" src="assets/icon.svg" alt=""></div>
   <div class="copy"><div class="wordmark"><img src="assets/icon.svg" alt="">Courtwork</div><h1>模型只生成，<br>不裁决。</h1><p>律所与法务团队的案件级 AI 协作工作台</p><small>macOS · 原件只读 · 案件内容永不训练</small></div>
 </body>
 </html>

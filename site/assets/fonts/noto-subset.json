@@ -1,0 +1,18 @@
+{
+  "family": "Noto Serif SC",
+  "upstreamVersion": "2.003",
+  "license": "SIL OFL 1.1",
+  "reservedFontName": null,
+  "track": "标题轨（通行宋体，双字重梯度）",
+  "text": "Ckortuw。一三不且个事些人从件做关判到功动单原去可台合同后向回处备字实审底座建换改散料断是最有材条案款步每求留畸的确笔系约给续缺置能认议设账购违连逐都采金阅险陷需风高，",
+  "weights": {
+    "400": {
+      "file": "noto-serif-sc-regular-subset.woff2",
+      "woff2Sha256": "0d999937afb73e134236ef0cab2e0ba051a74aa2d314d52dd7b06bb45b4abdc1"
+    },
+    "700": {
+      "file": "noto-serif-sc-bold-subset.woff2",
+      "woff2Sha256": "906d006023b007eee2b1683b65412514c4f4fab8c26f15714b289eb205961347"
+    }
+  }
+}

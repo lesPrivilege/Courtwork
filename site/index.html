@@ -13,10 +13,39 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/zhuque-fangsong-subset.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/noto-serif-sc-regular-subset.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/noto-serif-sc-bold-subset.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/doc-latin-subset.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
   <script src="main.js" defer></script>
 </head>
 <body>
+  <!-- SchemaParts 件库 · 文书记号系（SITE-CRAFT-2 磁青宗批）——站/稿/壳共用单源。
+       三条解耦预留（deslop `schema-parts` 门逐条守）：
+       ① 单源：页面里每一处记号都是 <use>，几何只此一份，无第二份路径数据；
+       ② 按 token 名消费不带值：件内零色值，一律 currentColor，配色由消费点的 color 决定；
+       ③ C-4 双主题渲染一致：件既然不携色值，light/dark 两宗下的渲染就是同一份几何——
+          宗由 theme 承载，记号不择纸温。此三条即「回迁 R2 时零重绘」的机器可验形态。 -->
+  <svg class="schema-parts" aria-hidden="true" hidden>
+    <!-- 鱼尾（节标）：刻本版心的折叠标记，抽象为对称折带，用于卷次 -->
+    <symbol id="mark-fishtail" viewBox="0 0 16 8"><path d="M0 0 L8 4 L16 0 L16 2.4 L8 6.4 L0 2.4 Z" fill="currentColor"/></symbol>
+    <!-- 文武线（界行）：粗细双线错落，线重即层级语义；粗 2 / 空 2 / 细 1，取 tokens.json rule.* 规格 -->
+    <symbol id="mark-rule" viewBox="0 0 5 24" preserveAspectRatio="none"><rect x="0" y="0" width="2" height="24" fill="currentColor"/><rect x="4" y="0" width="1" height="24" fill="currentColor"/></symbol>
+    <!-- 侧点圈点（强调）：评点传统里读者标记要处的圈，抽象为空心环 -->
+    <symbol id="mark-emphasis" viewBox="0 0 8 8"><circle cx="4" cy="4" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
+    <!-- 落定章框廓（朱）：方印外框，印文由消费点提供，故只入框廓不入文字 -->
+    <symbol id="mark-seal-frame" viewBox="0 0 96 96"><rect x="3" y="3" width="90" height="90" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <!-- 骑缝齿痕（接缝完整）：B3 originally inline，本批并入件库以守单源 -->
+    <symbol id="mark-seam" viewBox="0 0 72 24"><path d="M6 4v16M18 7v10M30 2v20M42 7v10M54 4v16M66 9v6" fill="none" stroke="currentColor" stroke-width="1"/></symbol>
+    <!-- 墨迹洇染（压线·单点实验）：刻本刷印时墨顺纸纤维洇开，线的边缘因此不是几何直边。
+         以 feTurbulence 生成纸纤维噪声、feDisplacementMap 位移线的边缘——纯几何扰动，
+         零色值、零渐变、零阴影、零动效。奖级工艺裁定「单点，不铺开」由 deslop
+         `schema-parts` 门强制：本滤镜全站消费点必须恰为 1，第二处即触红。 -->
+    <filter id="ink-bleed" x="-60%" y="-4%" width="220%" height="108%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.62 0.14" numOctaves="3" seed="7" result="fibre"/>
+      <feDisplacementMap in="SourceGraphic" in2="fibre" scale="1.7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
   <a class="skip-link" href="#main">跳到正文</a>
   <header class="site-header">
     <a class="wordmark" href="#top" aria-label="Courtwork 首页"><img src="assets/icon.svg" width="18" height="18" alt=""><span>Courtwork</span></a>
@@ -40,7 +69,7 @@
         <div class="schema-demo" aria-label="schema 工作面微演示：锚点跳转、逐条确认、修订对照三幕循环回放。内容是合成卷宗的固定文本，回放只移动注意力，不改动任何数据。">
           <section class="demo-doc" aria-label="原件视图">
             <p class="demo-meta">原件 · 04-设备采购合同 · 第 1 页 · 只读</p>
-            <p class="demo-clause">乙方逾期支付任何一期款项的，<mark class="demo-anchor">每逾期一日应按未付金额的1%向甲方支付违约金</mark>。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。</p>
+            <p class="demo-clause zh-doc">乙方逾期支付任何一期款项的，<mark class="demo-anchor">每逾期一日应按未付金额的1%向甲方支付违约金</mark>。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。</p>
           </section>
           <section class="demo-judgment" aria-label="判断与处置">
             <p class="demo-entry-head"><span class="demo-level">高风险</span><strong>违约金单向且畸高</strong></p>
@@ -51,7 +80,7 @@
             </div>
             <div class="demo-compare">
               <p class="demo-meta">修订建议 · 未落格，逐条确认后才生成产物</p>
-              <p class="demo-suggestion">改为双向、封顶并与实际损失挂钩。</p>
+              <p class="demo-suggestion zh-doc">改为双向、封顶并与实际损失挂钩。</p>
             </div>
           </section>
           <ol class="demo-phases" aria-label="回放三幕">
@@ -65,32 +94,32 @@
 
     <section class="evidence" id="evidence">
       <header class="section-heading">
-        <p class="eyebrow">卷一 · 一条结论如何产生</p>
-        <h2>从原件到确认，<br>每一步都能回去。</h2>
+        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷一 · 一条结论如何产生</p>
+        <h2 class="zh-title">从原件到确认，<br>每一步都能回去。</h2>
         <p>以下四步来自同一份合成卷宗的真实应用链；链路已在试点中跑通，但不等同于产品已全面上线。</p>
       </header>
       <ol class="evidence-chain" aria-label="原件到人工确认的证据链">
         <li class="evidence-step" data-stage="original">
           <span class="stage-label">原件</span>
-          <h3>设备采购合同</h3>
-          <blockquote>乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。</blockquote>
+          <h3 class="zh-title">设备采购合同</h3>
+          <div class="ruled"><svg class="mark mark-rule" aria-hidden="true"><use href="#mark-rule"/></svg><blockquote class="zh-doc">乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。</blockquote></div>
           <small>04-设备采购合同 · 第 1 页</small>
         </li>
         <li class="evidence-step" data-stage="quote">
           <span class="stage-label">引语</span>
-          <h3>逐字回到材料</h3>
-          <blockquote>“每逾期一日应按未付金额的1%向甲方支付违约金”</blockquote>
+          <h3 class="zh-title">逐字回到材料</h3>
+          <div class="ruled"><svg class="mark mark-rule" filter="url(#ink-bleed)" aria-hidden="true"><use href="#mark-rule"/></svg><blockquote class="zh-doc">“每逾期一日应按未付金额的1%向甲方支付违约金”</blockquote></div>
           <small>页码与文本区间由系统解析 · 查看引语可回到原件</small>
         </li>
         <li class="evidence-step" data-stage="conclusion">
           <span class="stage-label">结论</span>
-          <h3>违约金单向且畸高</h3>
+          <h3 class="zh-title"><svg class="mark mark-emphasis" aria-hidden="true"><use href="#mark-emphasis"/></svg>违约金单向且畸高</h3>
           <p>每日 1% 且只约束买方，权利义务显著失衡；建议改为双向、封顶并与实际损失挂钩。</p>
           <small>高风险 · 依据已核验</small>
         </li>
         <li class="evidence-step" data-stage="confirmation">
           <span class="stage-label">人工确认</span>
-          <h3>最后一笔留给人</h3>
+          <h3 class="zh-title">最后一笔留给人</h3>
           <p>模型不能替你落格。确认、驳回或修正都会留下可回放记录；未落格修订逐条确认后才生成产物。</p>
           <small>待确认 · 不自动送出</small>
         </li>
@@ -99,36 +128,36 @@
 
     <section class="work-ledger" aria-labelledby="work-title">
       <header class="section-heading">
-        <p class="eyebrow">卷二 · 真实工作面</p>
-        <h2 id="work-title">不是三个功能，<br>是一条连续台账。</h2>
+        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷二 · 真实工作面</p>
+        <h2 id="work-title" class="zh-title">不是三个功能，<br>是一条连续台账。</h2>
       </header>
       <article class="work-row">
-        <div class="work-copy"><span>卷宗</span><h3>从散材料到案件</h3><p>文件先进入案件范围；可读、需文字识别与不可用状态都留在卷宗侧栏，原件始终只读。</p></div>
+        <div class="work-copy"><span>卷宗</span><h3 class="zh-title">从散材料到案件</h3><p>文件先进入案件范围；可读、需文字识别与不可用状态都留在卷宗侧栏，原件始终只读。</p></div>
         <figure class="work-crop" data-reveal><img src="assets/screenshots/11-milestone-dossier-1440.webp" srcset="assets/screenshots/11-milestone-dossier-720.webp 720w, assets/screenshots/11-milestone-dossier-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 合成卷宗的真实侧栏下段：12 件材料中，需文字识别和不可转为可引用阅读视图的文件都明确标出。"><figcaption>材料入卷，失败也留在账上。</figcaption></figure>
       </article>
       <article class="work-row">
-        <div class="work-copy"><span>确认</span><h3>从风险到逐条处置</h3><p>风险等级、依据核验、处置与下一步同屏；高危和未核验条目只能逐条确认，查看引语可回到原件。</p></div>
+        <div class="work-copy"><span>确认</span><h3 class="zh-title">从风险到逐条处置</h3><p>风险等级、依据核验、处置与下一步同屏；高危和未核验条目只能逐条确认，查看引语可回到原件。</p></div>
         <figure class="work-crop" data-reveal><img src="assets/screenshots/12-milestone-risklist-1440.webp" srcset="assets/screenshots/12-milestone-risklist-720.webp 720w, assets/screenshots/12-milestone-risklist-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 合成数据试点的 RiskList：高危风险逐条确认，查看引语回跳到《中华人民共和国民法典》第六百二十一条。"><figcaption>分级确认与引语回跳同时可见。</figcaption></figure>
       </article>
       <article class="work-row">
-        <div class="work-copy"><span>修订</span><h3>从建议到可审阅改动</h3><p>修订只写受控副本；redline、非落点说明与确认台账连在一起，未落格不能静默生成产物。</p></div>
+        <div class="work-copy"><span>修订</span><h3 class="zh-title">从建议到可审阅改动</h3><p>修订只写受控副本；redline、非落点说明与确认台账连在一起，未落格不能静默生成产物。</p></div>
         <figure class="work-crop" data-reveal><img src="assets/screenshots/13-milestone-redline-1440.webp" srcset="assets/screenshots/13-milestone-redline-720.webp 720w, assets/screenshots/13-milestone-redline-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 合成数据试点的修订预览：删除与插入以 redline 对照，未落格修订仍等待确认。"><figcaption>修订先对照，再进入确认。</figcaption></figure>
       </article>
     </section>
 
-    <div class="seam-divider" aria-hidden="true"><i></i><svg width="72" height="24" viewBox="0 0 72 24"><path d="M6 4v16M18 7v10M30 2v20M42 7v10M54 4v16M66 9v6" fill="none" stroke="currentColor" stroke-width="1"/></svg><i></i></div>
+    <div class="seam-divider" aria-hidden="true"><i></i><svg class="mark mark-seam"><use href="#mark-seam"/></svg><i></i></div>
 
     <section class="scenario-ledger" id="scenarios" data-site-generalization aria-labelledby="scenarios-title">
       <header class="section-heading">
-        <p class="eyebrow">卷三 · 垂类泛化</p>
-        <h2 id="scenarios-title">同一底座，<br>换的是判断。</h2>
+        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷三 · 垂类泛化</p>
+        <h2 id="scenarios-title" class="zh-title">同一底座，<br>换的是判断。</h2>
         <p>隐私与原件只读是进入门槛；这里把差异放在锚点、分级确认与可回放台账。证据、状态和人工确认仍由同一套宿主原语承载。</p>
       </header>
       <div class="scenario-rows">
         <article class="scenario-row" data-runtime-state="accepted">
           <div class="scenario-copy">
             <span class="scenario-kicker">合同审查 · <b>合成数据试点 · 已验收工作链</b></span>
-            <h3>判断条款风险</h3>
+            <h3 class="zh-title">判断条款风险</h3>
             <p>真实模型场景已在合成数据试点中跑通原句→风险→修订→人工确认全链；这不是产品已全面上线的承诺。</p>
           </div>
           <ol class="scenario-proof" aria-label="合同审查从原句到人工确认">
@@ -141,7 +170,7 @@
         <article class="scenario-row">
           <div class="scenario-copy">
             <span class="scenario-kicker">卷宗阅卷 · <b>Legal fixture 投影</b></span>
-            <h3>判断事实关系</h3>
+            <h3 class="zh-title">判断事实关系</h3>
             <p>材料数量、事件、主体与矛盾标记都从同一份虚构卷宗计算，不用营销数字补齐场面。</p>
           </div>
           <ol class="scenario-proof scenario-proof-stats" aria-label="卷宗阅卷权威统计">
@@ -154,12 +183,12 @@
         <article class="scenario-row" data-pm-finding-id="prd-finding-05" data-pm-defect-type="conflicting-requirement" data-pm-status="pending" data-runtime-state="catalog">
           <div class="scenario-copy">
             <span class="scenario-kicker">PM 决策</span>
-            <h3>判断需求缺陷</h3>
+            <h3 class="zh-title">判断需求缺陷</h3>
             <p>同一个宿主读取 PM 的字段、词表和来源锚；当前只证明 schema 投影，不冒充已运行场景。</p>
             <small class="scenario-boundary">Schema catalog preview / 尚未接通运行链</small>
           </div>
           <ol class="scenario-proof" aria-label="PM 需求评审从原句到人工处置">
-            <li><small>PRD 原句</small><blockquote data-pm-clause>所有成员都能编辑路线图，但路线图只有负责人可以修改。</blockquote></li>
+            <li><small>PRD 原句</small><div class="ruled"><svg class="mark mark-rule" aria-hidden="true"><use href="#mark-rule"/></svg><blockquote class="zh-doc" data-pm-clause>所有成员都能编辑路线图，但路线图只有负责人可以修改。</blockquote></div></li>
             <li><small>缺陷维度</small><p><span data-pm-defect-label>冲突需求</span></p></li>
             <li><small>修改建议</small><p data-pm-suggestion>区分评论、提议和正式修改，并给出唯一权限矩阵。</p></li>
             <li><small>人工处置</small><p><span data-pm-disposition>待确认</span></p></li>
@@ -169,7 +198,7 @@
     </section>
 
     <section class="promise" id="promise">
-      <header class="section-heading promise-heading"><p class="eyebrow">卷四 · 产品边界</p><h2>有些事，Courtwork 不做。</h2><svg class="settle-seal zh-display" viewBox="0 0 96 96" aria-hidden="true"><rect x="3" y="3" width="90" height="90" fill="none" stroke="currentColor" stroke-width="2"/><text x="27" y="40">不</text><text x="69" y="40">改</text><text x="27" y="82">原</text><text x="69" y="82">件</text></svg></header>
+      <header class="section-heading promise-heading"><p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷四 · 产品边界</p><h2 class="zh-title">有些事，Courtwork 不做。</h2><svg class="settle-seal zh-display" viewBox="0 0 96 96" aria-hidden="true"><use href="#mark-seal-frame"/><text x="27" y="40">不</text><text x="69" y="40">改</text><text x="27" y="82">原</text><text x="69" y="82">件</text></svg></header>
       <dl class="promise-ledger">
         <div><dt class="zh-display">不改原件</dt><dd>卷宗原件只读，整理与修订落在受控副本和事件记录。</dd></div>
         <div><dt class="zh-display">不自动送出</dt><dd>不可逆动作不会因模型输出而发生。</dd></div>
@@ -177,12 +206,13 @@
         <div><dt class="zh-display">不替你确认</dt><dd>确认、驳回和修正必须来自可识别的人类操作者。</dd></div>
       </dl>
       <aside class="design-boundary" aria-label="设计边界">
-        <p>色彩从不做装饰与层级：红只属于风险与删除，琥珀只属于中危与待确认，绿只属于落定与权威源，蓝只属于新增与焦点；除此之外，深浅都是藏青。</p>
-        <p>这份克制不靠自觉，由机器门强制——词表之外的颜色、未经登记的渐变与阴影、越界的动效，任何一项都会让构建失败。<a href="https://github.com/lesPrivilege/Courtwork/tree/main/site/craft-evidence">设计门禁与证据</a></p>
+        <p>这一页只有四个颜色的位置：磁青是底，墨是记号，朱只落在人做决定的地方，泥金只在开篇出现一次。颜色不承担装饰，也不承担层级——层级交给线重、字号与留白。</p>
+        <p>产品里的语义色同样是配额：红属于风险与删除，琥珀属于中危与待确认，绿属于落定与权威源，蓝属于新增与焦点；配额之外，深浅都是中性墨阶。</p>
+        <p>这份克制不靠自觉，由机器门强制——词表之外的颜色、越界的朱与泥金、未经登记的渐变与阴影、越界的动效，任何一项都会让构建失败。<a href="https://github.com/lesPrivilege/Courtwork/tree/main/site/craft-evidence">设计门禁与证据</a></p>
       </aside>
     </section>
 
-    <section class="closing"><div><p class="eyebrow">卷尾 · Courtwork</p><h2 class="zh-display">签字之前，<br>一切可回溯。</h2></div><div class="closing-actions"><a class="button button-primary" href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a><span class="release-pending">Apple Silicon 开发构建 · 未公证</span></div></section>
+    <section class="closing"><div><p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷尾 · Courtwork</p><h2 class="zh-display">签字之前，<br>一切可回溯。</h2></div><div class="closing-actions"><a class="button button-primary" href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a><span class="release-pending">Apple Silicon 开发构建 · 未公证</span></div></section>
   </main>
 
   <footer><p>Courtwork 会犯错，请核对原文与结果。</p><p><a href="https://github.com/lesPrivilege/Courtwork/issues">提交反馈</a> · <span class="mono">本地运行 · 人工确认</span></p></footer>
