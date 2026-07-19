@@ -616,3 +616,77 @@ Codex in-app Browser 运行时已按技能说明连接，但 `agent.browsers.lis
 携写本 family 时定点失败，同时保留四个已签直接 consumer 与 `P5-F09` mono 原值。修复不得复活
 F06–F08，不得把扫描面扩成通用字体状态机。修复后由新的独立 clean clone 重做本节全部 mutation、
 Safari 复摄与全量门；本报告不能被沿用为放行依据。
+
+---
+
+## SKIN-R2-P5-REACCEPT · `P5-F10` 修复后独立复验（2026-07-20）— ❌ 不放行
+
+### 1. 对象、隔离与结论
+
+- **被验目标**：`15975d678e88ff99ce751bf659ef7a8c0b895151`，包含实现 `9a1281b`、首轮拒绝报告
+  `26b42eb` 与本轮 `P5-F10` 修复。
+- **验收角色**：新的独立验收会话，未参与实现，也不是首轮拒绝会话；全新 clone 为
+  `/tmp/courtwork-p5-reacceptance.cPI86u/repo`。
+- **实现／契约改动**：无。本轮只写报告与独立 Safari 帧。
+
+> **SKIN-R2 P5 仍不放行 ❌。** `15975d6` 已正确咬住字面
+> `"Courtwork Manuscript Latin"` 经 `--sans`、任意自定义属性及 OG 字槽传播；但门只做小写／空白
+> 规范化，没有把 CSS escape 还原为同一 family。实仓以
+> `"Courtwork\20 Manuscript\20 Latin"` 写进自定义字槽、由 body `var(...)` 消费后，完整 deslop
+> 仍 exit 0，而浏览器 computed body 继承面已真变成写本 face。故 F06/F07 仍可语义复活，
+> “间接外溢由 `p5-font-coverage` 定点红”尚未成立。
+
+### 2. 修复核心与新反例
+
+字面反例已闭合：在真实 `site/styles.css` 给 `--sans` 前插 family，完整 deslop 精确报
+`site/styles.css has the manuscript face in an indirect font slot: :root --sans`。任意自定义槽 +
+`body var(...)` 及 OG 自定义槽也分别由同一规则定点红。
+
+新的语义等价反例为：
+
+```css
+:root { --acceptance-probe-face: "Courtwork\20 Manuscript\20 Latin"; }
+body { font-family: var(--acceptance-probe-face); }
+```
+
+- 静态门：`node site/scripts/deslop-scan.mjs` **错误放过**，exit 0，880 active text files。
+- 真渲门：`assert-p5-font-runtime` exit 1；`[data-pm-defect-label]`、`[data-pm-suggestion]`、
+  `[data-pm-disposition]` 的 computed family 变为 `"Courtwork Manuscript Latin"`，八个数据节点
+  字槽／bbox 漂移。
+
+浏览器已将 `\20 ` 解析为空格，因此这是实际消费扩散，不是叙事拼写差异。runtime 能从结果面
+发现漂移，不等于 `site:guard` 内的 P5 静态门成立：按需 runtime 不在 site:guard，且签署明确要求
+间接字槽由 `p5-font-coverage` 定点失败。
+
+### 3. 全量 mutation 与真渲
+
+除上述新漏网项外，下列真实活动文件反例均定点红并逐件复原：直接第五 consumer、缺签 consumer、
+glyph/cmap/SOURCE/OFL 漂移、数据字、`--mono`、数据 motion、reduced-motion blanket 漂移。退场范围
+对应关系亦实证：字面 `--sans`（F06）、body 间接消费（F07）、OG 字槽（F08）都红；档位账的
+`P5-F06…F08` 复活反例随 site:guard 通过。
+
+复原后的 baseline runtime 通过：站面三处 + OG 一处均真渲 Junicode，资源只加载一次；八个数据
+节点字符、bbox、font、animation、transform 与签署基线逐位相等。全部命令、报错与反例表见
+[`craft-evidence/SKIN-R2-P5/reacceptance-15975d6/README.md`](craft-evidence/SKIN-R2-P5/reacceptance-15975d6/README.md)。
+
+### 4. Safari 与完整门
+
+独立原生 Safari 26.5.2 已复摄：exact iframe `1600×900 @ scale .8` 与顶层 `375×800` 均显示
+写本 wordmark／hero，未见新增换行或横向溢出。截图 SHA 与尺寸见上述 evidence。系统拒绝验收
+进程写 `com.apple.universalaccess.reduceMotion`，故没有伪造独立 reduced Safari 帧；计算态门
+实跑并把删除 `!important` 的反例精确咬红。
+
+| 门 | 本 clone 实跑 |
+|---|---|
+| `pnpm install --frozen-lockfile` | 14 projects / 1,047 packages，exit 0 |
+| `pnpm lint` | exit 0 |
+| `pnpm test` | **148 files / 1,261 tests**，exit 0 |
+| `pnpm -r build` | 13/14 workspace；desktop 3,579 modules，exit 0 |
+| `pnpm site:guard` | **68/68**；deslop 881 active files，exit 0 |
+| `pnpm site:build` | exit 0 |
+| P5 runtime | baseline 绿；转义字槽 mutation 定点证明真扩散并红 |
+
+### 5. 再复验入口
+
+实现需先补 CSS 等价 family spelling 的红测，再在既有 P5 局部规范化 CSS escape；无需变量解析
+状态机，也不得扩大 F06–F08。修复后由另一新 clean clone 重做本报告；本轮拒绝不得沿用为放行。
