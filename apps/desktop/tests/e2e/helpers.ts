@@ -158,3 +158,22 @@ export async function tokenColor(page: Page, name: string): Promise<string> {
     return resolved;
   }, name);
 }
+
+/**
+ * 线级语法（docs/design/courtwork-design.md §10）的两档线宽。
+ *
+ * SKIN-B3 判例（承 SKIN-B1）：断关系不断值——e2e 不再钉 `1px` 之类的字面量，
+ * 改为在页内取回线级档位，让断言表达「此界走哪一档、与另一档孰粗孰细」。
+ * 档位值日后随宗或随批调整时，关系断言不必跟着改，语义却仍然锁住。
+ */
+export async function ruleScale(page: Page): Promise<{ major: number; minor: number; gap: number }> {
+  return page.evaluate(() => {
+    const style = getComputedStyle(document.documentElement);
+    const read = (token: string) => {
+      const raw = style.getPropertyValue(token).trim();
+      if (!raw) throw new Error(`设计 token ${token} 未定义`);
+      return Number.parseFloat(raw);
+    };
+    return { major: read('--rule-major'), minor: read('--rule-minor'), gap: read('--rule-gap') };
+  });
+}
