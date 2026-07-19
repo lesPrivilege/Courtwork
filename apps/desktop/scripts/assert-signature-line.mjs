@@ -43,6 +43,16 @@ for (const [full, before, after] of settledUsers) {
     violations.push(`line.settled 未绑定落定处置数据态（朱不得作装饰）：${full.trim()}`);
   }
 }
+// B4 接线时补的盲区：上面只扫 JSX 里的**字面** tone={…'settled'…}，而 tone 值也可以由函数算出
+// （`riskLineTone` 即是），那条路径原先完全绕过本守卫——守卫看不见的绑定等于没守。
+// 故凡返回 'settled' 的函数，其函数体同样必须携落定处置数据。
+for (const fn of panels.matchAll(/function\s+(\w+)\s*\([^)]*\)[^{]*\{([\s\S]*?)\n\}/g)) {
+  const [, name, body] = fn;
+  if (!/return\s+'settled'/.test(body)) continue;
+  if (!/confirmed|disposition|settled[A-Z]|resolution/i.test(body)) {
+    violations.push(`line.settled 由 ${name}() 算出却未绑定落定处置数据态（朱不得作装饰）`);
+  }
+}
 
 if (app.includes('<SignatureLine') || app.includes('SignatureLine,')) {
   violations.push('中栏 App 通用层仍在消费 SignatureLine');

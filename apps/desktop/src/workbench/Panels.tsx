@@ -3,7 +3,7 @@ import type { ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import type { ReviewDispositionState, ReviewGateProjection } from '../protocol/client';
 import type { NonAppliedReason, PendingRevisionConfirmation } from '../output/compile-review-output';
 
-export type LineTone = 'danger' | 'attention' | 'revision' | 'authority' | 'neutral';
+export type LineTone = 'danger' | 'attention' | 'revision' | 'authority' | 'neutral' | 'settled';
 
 export function TierBadge({ grade }: { grade?: 'A' | 'B' | 'C' }) {
   if (!grade) return null;
@@ -235,7 +235,9 @@ function riskLineTone(level: RiskList['risks'][number]['level'], disposition?: R
   if (!disposition && level === 'high') return 'danger';
   if (unverified) return 'attention';
   if (disposition === 'revision') return 'revision';
-  if (disposition === 'confirmed') return 'authority';
+  // 朱＝印记色非状态色（2026-07-19 拍板）：逐条确认是**人**把它按下去的，故落定取朱不取绿；
+  // 绿保持系统/权威确认的既有语义位（tier.a / gate.confirmed 不动）。
+  if (disposition === 'confirmed') return 'settled';
   return undefined;
 }
 
@@ -329,7 +331,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
                   data-confirmed={confirmed}
                   key={item.instructionId}
                 >
-                  <SignatureLine tone={confirmed ? 'authority' : 'attention'} />
+                  <SignatureLine tone={confirmed ? 'settled' : 'attention'} />
                   <div className="nonapplied-body">
                     <span className="nonapplied-head"><b className="domain-badge">{item.riskId.replace('risk-', 'R')}</b><span className="nonapplied-summary">{item.summary}</span></span>
                     <span className="nonapplied-reason">{nonAppliedReasonLabel(item.reason)}</span>
