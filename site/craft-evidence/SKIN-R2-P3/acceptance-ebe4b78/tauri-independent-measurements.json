@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "courtwork.skin-r2-p3.acceptance.hanging-evidence.v1",
+  "targetSha": "ebe4b78505da4c9d2b1cfb94360f3ad029e23702",
+  "capturedAt": "2026-07-20T01:16:53+08:00",
+  "authority": "independent Tauri WKWebView",
+  "system": {
+    "product": "macOS",
+    "version": "26.5.2",
+    "build": "25F84",
+    "kernel": "Darwin 25.5.0"
+  },
+  "runtime": {
+    "tauriCli": "2.11.4",
+    "webkit": "605.1.15",
+    "viewport": "1280x720",
+    "devicePixelRatio": 2,
+    "fixtureWidthCssPx": 385,
+    "font": "Zhuque Fangsong, Songti SC, serif"
+  },
+  "observedFromWkWebViewAccessibilityTree": {
+    "supportsAllowEnd": true,
+    "positiveOverhangCssPx": 23,
+    "negativeLineShiftCssPx": 39,
+    "effectObserved": true,
+    "positiveLabel": "正 · allow-end",
+    "negativeLabel": "负 · none"
+  },
+  "files": {
+    "fixtureHtmlSha256": "be384d47463b4afe68dedb129d216f05cce464b47295231ce7c5bdb5e855a6c5",
+    "fixtureCssSha256": "9a63215102d2542011e5bc9812f928768351b2b880807d769ab73cb58b1da049",
+    "fixtureJsSha256": "0b12d2e967c2af2c2f0e298db3abf3be39f8feaca5d4f0ed2edb2d79a26b999e",
+    "tauriConfigSha256": "80994600bf0475fd901d9ecf619f87b62d201da935cf46b4c880f2dfe6f24a86",
+    "independentFrameSha256": "049a4c674d0c309df033b73f1130b3d57facb5ba108fe817e8f97a74fe9b6714",
+    "independentFramePixels": "2696x1576"
+  },
+  "result": "effect independently reproduced",
+  "releaseDecision": "rejected because the repository guard does not bind this fixture or its evidence hashes"
+}

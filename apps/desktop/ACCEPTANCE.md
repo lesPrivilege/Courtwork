@@ -3606,3 +3606,98 @@ WebDriver 的系统拒绝原文为 `Could not create a session: You must enable 
 | `COURTWORK_E2E_PORT=19329 pnpm --filter @courtwork/desktop test:e2e` | PASS；完整静态前链全绿，floor 314，Playwright **314/314 passed（3.1m）** |
 
 本验收提交只追加独立 Safari 证据与本报告，不修改实现、SPEC、门或产品契约。放行范围止于 SKIN-R2 P2；P3 巧思、P4 深色、P5 Pages 与终局 one-shot 仍须各自按既定门序独立验收。
+
+---
+
+# ACCEPTANCE: SKIN-R2 P3 · 巧思回迁
+
+日期：2026-07-20；验收对象：`ebe4b78505da4c9d2b1cfb94360f3ad029e23702`
+（`feat(desktop): complete SKIN-R2 P3 craft return`）。本验收会话以 `git clone --no-hardlinks`
+建立全新独立 clone `/tmp/courtwork-p3-acceptance.nRHbBv/repo`，detach 精确检出目标 SHA；依赖以
+`pnpm install --offline --frozen-lockfile` 装入，Playwright 使用独立端口 `19437/19438`，Tauri
+fixture 使用工单固定端口 `19354`。未复用共享 Vite／Playwright 服务，未改实现或契约，未 push。
+
+**裁决：❌ 拒绝 SKIN-R2 P3。** 真 Tauri WKWebView 的 23px 悬出／39px 行移独立复现，朱印
+三段关键帧、reduce 停摆与墨迹拒迁本身也成立；但 P3-H01 的固定 fixture、测量与截图哈希没有
+进入仓内机器门。验收把正负声明改成同一值、把测量改为 24px 并把截图哈希改成全零时，完整
+`pnpm site:guard` 仍 67/67 全绿。证据可以静默失真，未满足本线「实机证据是验证主轴」和
+drift/guard 必须实际拦反例的退出条件。
+
+## 1. 真 Tauri WKWebView 独立复跑
+
+验收直接以仓内 `tauri-evidence.conf.json` 启动真实 `courtwork-desktop` 二进制；HTTP 只供固定
+页面，渲染与测量发生在 WKWebView。macOS Accessibility 树独立读到正例 `正 · allow-end`、
+负例 `负 · none` 及壳内测量 JSON；不是采信实现截图或 Chromium 结果。
+
+| 项 | 独立实测 |
+|---|---|
+| 系统 | macOS 26.5.2 (25F84)，Darwin 25.5.0 |
+| 壳／引擎 | Tauri CLI 2.11.4；AppleWebKit 605.1.15 |
+| 视口 | 1280×720；DPR 2；fixture width 385 CSS px |
+| 正例 | `CSS.supports=true`；逗号留前行并悬出 **23 CSS px** |
+| 负例 | `hanging-punctuation:none`；同一逗号下移 **39 CSS px** |
+| 独立帧 | `acceptance-ebe4b78/tauri-wkwebview-independent-1280x720.png`；SHA-256 `049a4c67…b6714` |
+
+独立重摄在相同机器、字节和窗口几何下得到与实现帧相同的哈希；这是确定性复现，不是复制实现
+截图。结构化系统、源哈希与 AX 结果见同目录 `tauri-independent-measurements.json`。故 P3-H01
+所述 WebKit 效力事实成立；拒绝原因只在其证据链未被仓门保护。
+
+## 2. 真实 mutation 与门缺口
+
+每项都在独立 clone 的真实文件上单独注入；成立的门观察 exit 1 后精确反向补丁复位。P3-H01
+三项则特意保留「仓门误绿」事实：独立验收探针会诊断失败，但该探针不在产品门内，不能冒称
+仓门已经成立。
+
+| 注入 | 实际结果 |
+|---|---|
+| 删除 `P3-H01` 档位账行 | `lint:skin-r2-ledger` 红：`已签提案行缺失：P3-H01` |
+| `P3-S01` 改为 `schema-workface` | 红：`P3-S01 档位漂移` |
+| `P3-A01` 与 `P3-I01` 绑同一 target | 红：重复 owner、target 漂移与原 target 无 owner 三项同报 |
+| 删除 `58%` keyframe | 独立埠聚焦 e2e 红，diff 精确显示缺 `.62 / scale(.96)` 中段 |
+| 在 58% 新增 `filter:blur(1px)` | `lint:motion` 红：`CSS keyframes: filter` |
+| reduce 下把 `animation:none` 换成 `.01ms` | `lint:schema-parts` 红：`落定章未…显式停摆` |
+| 在壳侧 `mark-seal-frame` 留 `filter/feTurbulence/feDisplacementMap` | `lint:schema-parts` 红：单源漂移 + `记号越界画法…filter` |
+| 正负 fixture 均改为 `allow-end`（同时造成 CSS 源哈希漂移） | **仓内 `site:guard` 仍 67/67 PASS**；独立探针才红 `control collapsed` |
+| `overhangCssPx:23→24` 且截图哈希改为 64 个零 | **仓内 `site:guard` 仍 67/67 PASS** |
+
+这不是「测试可再多一条」的便利缺口：P3-H01 明定 WKWebView 是唯一放行权威，若 fixture 的阴性
+对照、测量或帧可在门外漂移，权威结论便退回不可验证叙事。因此本轮不得放行。
+
+## 3. 朱印、墨迹拒迁与零残留复核
+
+- CSSOM e2e 独立读得三段 `0% 0/1.16 → 58% .62/.96 → 100% .5/1`，三段
+  `rotate(-4deg)` 相等；`--motion-seal` 仍为 320ms 唯一消费，reduce 计算态为 `none` 且印本体
+  保留。实现所交 `seal-before-058/000/058/100.png` 的 SHA-256 与 README 登记逐位相等；人工查看
+  58% 帧，章在详情右上保持可读、无额外滤镜。
+- `ink-a-clean.png` / `ink-b-bleed.png` 哈希分别为 `721c61e…b4ee` / `00f322a…e84c`；
+  `ink-ab-measurements.json` 的同 bbox、三采样静止、cleanup=0 与 `decision=reject-migration` 自洽。
+  目标树 `apps/desktop/src` 与 `src-tauri` 实扫零 `feTurbulence`、`feDisplacementMap`、
+  `p3-ink-bleed`、`ink-bleed`、`filter=url(...)` 及 inline filter 消费。墨迹正式拒迁、零半实现成立。
+
+## 4. 独立全量门
+
+| 门 | 结果 |
+|---|---|
+| `pnpm lint` | PASS |
+| 根 `pnpm test` | PASS；**148 files / 1261 tests** |
+| `pnpm -r build` | PASS；13 个具 build 脚本的 workspace 完成；desktop 只有既有 chunk-size 提示 |
+| `pnpm site:guard`（报告与独立证据加入后复跑） | PASS；**67/67** Node tests；deslop 880 个现行文本文件 |
+| `pnpm site:build` | PASS |
+| 首轮 `COURTWORK_E2E_PORT=19437 … test:e2e` | 312/314；两个旧谱均在共享 `openWorkbench` 首启点击／等待处 30s 超时，P3 schema-marks 谱通过 |
+| 第二轮完整 `COURTWORK_E2E_PORT=19438 … test:e2e` | PASS；静态前链全绿；Playwright **314/314 passed（4.6m）** |
+
+首轮两红没有被隐藏：新端口完整重跑后两项各在约 1–2s 通过，且 P3 定点谱两轮均绿，故登记为
+首启偶发而不把它冒充 P3 缺陷。本轮拒绝仍只由可稳定复现的 P3-H01 门缺口触发。
+
+## 5. 最小复验要求
+
+只补仓内漂移门与其真实 mutation，不重做已成立的视觉消费值：
+
+1. 正／负 `hanging-punctuation` 同值必须由仓门定点红；
+2. HTML、CSS、JS、Tauri config 任一字节变化或其登记 hash 漂移必须定点红；
+3. 截图实际字节与登记截图 hash 不一致必须定点红；
+4. 测量记录的 23px／39px、源 hash、截图 hash 任一漂移必须独立定点红；
+5. 复位后再跑真实 Tauri WKWebView、`site:guard` 与独立端口完整 e2e，由新的验收会话复验。
+
+本验收提交只追加拒绝报告与独立真机证据，不修改实现、SPEC、门或契约。P3 未放行，故 P4 与
+终局 one-shot 不得据本报告越过队列；P5 并行线仍按其自身验收结论处理。
