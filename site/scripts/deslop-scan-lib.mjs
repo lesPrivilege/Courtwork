@@ -72,42 +72,50 @@ const desktopRootColors = {
   '--slate-bg': 'color.semantic.severity.low.bg',
 };
 
-// —— site 侧色板：迁移前旧板 · 按值冻结（2026-07-19 拍板，B1 分治裁定②）——
-// 原绑定为 tokenAt('color.*.value')，即「按值」跟随产品壳 token。B1 色阶批把 color.*
-// 迁为刻本印页宗后，site 的 :root 立刻与之失配 16 项——但 site 按双宗设计归**磁青宗（深）**，
-// 跟着换成刻本浅宗是反向位移，且 Pages 视觉变更未经 SITE 批，故不换色。
+// —— site 侧色板：磁青宗 · 按 token 名绑定（SITE-CRAFT-2 磁青宗批，2026-07-19 解冻）——
+// B1 分治裁定②立的 `siteFrozenColors` 按值冻结表，到期条件是「SITE 磁青宗批置换 site 色板」。
+// 该条件已成立，本表整体删除，改为下表按**名**绑定 `themes.dark`：站与壳 dark 同宗、同源，
+// 色值只剩 tokens.json 一份真源，站面门禁随 token 改动即刻传导，不再存在第二份色值清单。
 //
-// 这不是第二 token 源，是**带到期指针的显式冻结**（不变量④：冻结必须显式留痕，
-// 不许只是碰巧全绿）。到期条件：SITE 磁青宗批置换 site 色板时，本表整体删除、
-// 回绑 token 名（届时 site 与 themes.dark 同源，按名而非按值）。
-// 在此之前 site 零像素变更；本表任一值被改动仍会触红，冻结不等于放开。
-const siteFrozenColors = {
-  '--bg-app': '#F6F9FC',
-  '--bg-surface': '#EAEFF4',
-  '--bg-raised': '#FFFFFF',
-  '--bg-hover': '#E2E9F0',
-  '--ink': '#0A2540',
-  '--text-secondary': '#425466',
-  '--text-tertiary': '#6E8098',
-  '--border-hairline': '#E3E9EF',
-  '--border-strong': '#CDD8E3',
-  '--focus': '#2563EB',
-  '--danger': '#DC2626',
+// 命名同步（速裁「site 仅同步 token 命名」的终局形态）：site 变量名一律取 token 路径末段，
+// 退役 `--ink`/`--focus`/`--danger` 三个站面私名（分别归位 --text-primary/--border-focus/--red-fg）。
+// `--gold`（泥金）绑到 `semantic.amber.fg`：Q7 裁定泥金在壳侧降格为琥珀 dark-fg 轨、
+// 「hero 语义只留站面」——同一个值，站读作泥金、壳读作琥珀，真源仍只有一处。
+const siteDarkColors = {
+  '--bg-app': 'themes.dark.bg.app.value',
+  '--bg-surface': 'themes.dark.bg.surface.value',
+  '--bg-raised': 'themes.dark.bg.raised.value',
+  '--text-primary': 'themes.dark.text.primary.value',
+  '--text-secondary': 'themes.dark.text.secondary.value',
+  '--text-tertiary': 'themes.dark.text.tertiary.value',
+  '--text-inverse': 'themes.dark.text.inverse.value',
+  '--border-hairline': 'themes.dark.border.hairline.value',
+  '--border-strong': 'themes.dark.border.strong.value',
+  '--border-focus': 'themes.dark.border.focus.value',
+  '--red-fg': 'themes.dark.semantic.red.fg',
+  '--zhu-graphic': 'themes.dark.semantic.zhu.graphic',
+  '--zhu-fg': 'themes.dark.semantic.zhu.fg',
+  '--gold': 'themes.dark.semantic.amber.fg',
+};
+
+// og.html 是 og.png 的渲染源，同批换宗；变量名与 site/styles.css 同规，同样按名绑定。
+const siteOgColors = {
+  '--bg-app': 'themes.dark.bg.app.value',
+  '--bg-surface': 'themes.dark.bg.surface.value',
+  '--text-primary': 'themes.dark.text.primary.value',
+  '--text-secondary': 'themes.dark.text.secondary.value',
+  '--text-tertiary': 'themes.dark.text.tertiary.value',
+  '--border-hairline': 'themes.dark.border.hairline.value',
 };
 
 const cssColorAllowlist = new Map([
   ...Object.entries(desktopRootColors).map(([property, path]) => colorEntry('apps/desktop/src/styles.css', ':root', property, tokenAt(path))),
   colorEntry('apps/desktop/src/styles.css', ':root', '--elevation-shadow', tokenAt('elevation.shadow.value')),
-  ...Object.entries(siteFrozenColors).map(([property, value]) => colorEntry('site/styles.css', ':root', property, value)),
+  ...Object.entries(siteDarkColors).map(([property, path]) => colorEntry('site/styles.css', ':root', property, tokenAt(path))),
+  ...Object.entries(siteOgColors).map(([property, path]) => colorEntry('site/og.html', ':root', property, tokenAt(path))),
   colorEntry('site/styles.css', ':root', '--mac-close', '#FF5F57'),
   colorEntry('site/styles.css', ':root', '--mac-minimize', '#FEBC2E'),
   colorEntry('site/styles.css', ':root', '--mac-zoom', '#28C840'),
-  colorEntry('site/og.html', ':root', '--bg', '#F6F9FC'), // 冻结·同 siteFrozenColors
-  colorEntry('site/og.html', ':root', '--surface', '#EAEFF4'), // 冻结·同 siteFrozenColors
-  colorEntry('site/og.html', ':root', '--ink', '#0A2540'), // 冻结·同 siteFrozenColors
-  colorEntry('site/og.html', ':root', '--secondary', '#425466'), // 冻结·同 siteFrozenColors
-  colorEntry('site/og.html', ':root', '--tertiary', '#6E8098'), // 冻结·同 siteFrozenColors
-  colorEntry('site/og.html', ':root', '--hairline', '#E3E9EF'), // 冻结·同 siteFrozenColors
   colorEntry('apps/desktop/src/icons/icon-audit.css', ':root', 'color', tokenAt('color.text.primary.value')),
   colorEntry('apps/desktop/src/icons/icon-audit.css', ':root', 'background', tokenAt('color.bg.app.value')),
   colorEntry('apps/desktop/src/icons/icon-audit.css', ':root', '--audit-border', tokenAt('color.border.hairline.value')),
@@ -573,9 +581,10 @@ function scanCopy(file, content, failures) {
 
 function scanSvg(file, content, failures) {
   const allowlist = new Map([
-    // site 品牌标同族冻结（B1 分治裁定②/③）：壳侧 docs/design/icon-*.svg 已随锚迁 217°，
-    // 本件仍旧板，品牌不一致已显式挂 SITE-CRAFT-2 票面（磁青宗批一并置换 + 品牌一致性核）。
-    ['site/assets/icon.svg|g|1|stroke', '#0A2540'],
+    // site 品牌标（B1 分治裁定③ 的品牌一致性挂账，本批闭合）：几何四路径一字不动，
+    // 只把描边从迁移前旧板（210° 锚）换到磁青宗的墨色阶——站面是深底，标记随之取
+    // themes.dark 的正文墨。壳侧 docs/design/icon-*.svg 各自绑本宗，三件同锚同源。
+    ['site/assets/icon.svg|g|1|stroke', tokenAt('themes.dark.text.primary.value')],
     ['docs/design/icon-dark.svg|rect|1|fill', tokenAt('color.text.primary.value')],
     ['docs/design/icon-dark.svg|rect|2|fill', tokenAt('color.bg.app.value')],
     ['docs/design/icon-dark.svg|rect|3|fill', tokenAt('color.text.tertiary.value')],
@@ -673,6 +682,51 @@ export function checkDemoMotion(css) {
     }
     if (!blanket) fail('hero demo needs the exact `.schema-demo * { animation: none; }` reduced-motion branch');
   }
+  return failures;
+}
+
+// SITE-CRAFT-2 磁青宗批 · 色彩语法四位的机器封口。
+// 「磁青为底 / 墨为记」是默认（除下列两族外全站只有中性阶）；「朱仅裁决 / 泥金 hero 唯一强调」
+// 是**稀缺性宣告**——而被宣告的克制若没有门，就只是文案。故此门双向锁：
+//   ① 朱（--zhu-*）只许落在人做决定处，泥金（--gold）只许落在 hero 母题；越界即触红。
+//   ② 白名单条目必须真有消费面；登记了却没人用＝允许面虚增，同样触红（防白名单烂掉）。
+const zhuConsumers = new Set([
+  '.settle-seal', // 落定章：人工落定的印记
+  '.demo-actions span', // 处置动作：确认此项 / 驳回 / 修正
+]);
+const goldConsumers = new Set(['.tc']); // hero 母题逐字：磁青纸上以泥金写经
+const goldKeyframes = new Set(['typer-develop']); // 同一枚 hero 母题的显影过程
+
+export function checkColorGrammar(css) {
+  const failures = [];
+  const fail = (message) => push(failures, 'color-grammar', 'site/styles.css', 1, message);
+  const source = withoutComments(css);
+  const zhuPattern = /var\(--zhu-[a-z]+\)/;
+  const goldPattern = /var\(--gold\)/;
+  const seenZhu = new Set();
+  const seenGold = new Set();
+
+  for (const declaration of parseCss(source)) {
+    if (zhuPattern.test(declaration.value)) {
+      if (zhuConsumers.has(declaration.selector)) seenZhu.add(declaration.selector);
+      else fail(`朱 left its adjudication surface: ${declaration.selector} ${declaration.property}`);
+    }
+    if (goldPattern.test(declaration.value)) {
+      if (goldConsumers.has(declaration.selector)) seenGold.add(declaration.selector);
+      else fail(`泥金 left the hero: ${declaration.selector} ${declaration.property}`);
+    }
+  }
+
+  // @keyframes 不进 parseCss（越过声明层），单独扫——否则动效层就是这两族的逃逸通道。
+  for (const match of source.matchAll(/@keyframes\s+([a-z0-9-]+)\s*\{/gi)) {
+    const open = source.indexOf('{', match.index);
+    const body = source.slice(open + 1, matchingBrace(source, open, source.length));
+    if (zhuPattern.test(body)) fail(`朱 left its adjudication surface: @keyframes ${match[1]}`);
+    if (goldPattern.test(body) && !goldKeyframes.has(match[1])) fail(`泥金 left the hero: @keyframes ${match[1]}`);
+  }
+
+  for (const selector of zhuConsumers) if (!seenZhu.has(selector)) fail(`朱 allowlist entry has no consumer: ${selector}`);
+  for (const selector of goldConsumers) if (!seenGold.has(selector)) fail(`泥金 allowlist entry has no consumer: ${selector}`);
   return failures;
 }
 

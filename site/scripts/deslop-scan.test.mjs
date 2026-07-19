@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkDemoMotion, checkDisplayFont, scanSources } from './deslop-scan-lib.mjs';
+import { checkColorGrammar, checkDemoMotion, checkDisplayFont, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -262,6 +262,51 @@ test('SITE-CRAFT-2 hero demo keyframes stay inside the attention property whitel
   // reduced-motion 全灭分支被删 → 触红。
   assert.ok(checkDemoMotion(GOOD_DEMO_CSS.replace('.schema-demo * { animation: none; }', ''))
     .map((failure) => failure.rule).includes('demo-motion'));
+});
+
+// SITE-CRAFT-2 磁青宗批：色彩语法四位的反例集。好例即站面真形状——朱两处、泥金一处 + 其显影 keyframe。
+const GOOD_GRAMMAR_CSS = String.raw`
+:root { --zhu-graphic: #D75A3C; --gold: #D9AE6A; }
+.tc { color: var(--gold); }
+.settle-seal { color: var(--zhu-graphic); }
+.demo-actions span { border: 1px solid var(--zhu-graphic); color: var(--zhu-fg); }
+@keyframes typer-develop { 40% { background-color: var(--gold); } }
+@keyframes demo-attn-a { 5% { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent); } }
+`;
+const grammarRules = (css) => checkColorGrammar(css).map((failure) => failure.rule);
+
+test('SITE-CRAFT-2 colour grammar keeps 朱 on adjudication and 泥金 in the hero', () => {
+  assert.deepEqual(grammarRules(GOOD_GRAMMAR_CSS), []);
+  // 朱漫出裁决面（当成普通强调色用）→ 「彩色只在人做决定处出现」破口，触红。
+  assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n.hero-lead { color: var(--zhu-fg); }`).includes('color-grammar'));
+  // 泥金离开 hero（当成第二强调色铺开）→ 「唯一强调」破口，触红。
+  assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n.promise-ledger dt { color: var(--gold); }`).includes('color-grammar'));
+  // 动效层是声明层之外的逃逸通道：keyframe 里夹带同样触红。
+  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('background-color: color-mix(in srgb, var(--text-primary) 6%, transparent);', 'background-color: var(--gold);')).includes('color-grammar'));
+  assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n@keyframes seal-pulse { to { color: var(--zhu-graphic); } }`).includes('color-grammar'));
+  // 白名单不许烂掉：登记了却零消费＝允许面虚增，同样触红。
+  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('.settle-seal { color: var(--zhu-graphic); }', '')).includes('color-grammar'));
+  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('.tc { color: var(--gold); }', '')).includes('color-grammar'));
+});
+
+test('SITE-CRAFT-2 site palette is bound to themes.dark by name, not by a frozen copy', () => {
+  // 解冻后 site 的 :root 只有一份真源（tokens.json）。逐项反例：任一槽位漂离 themes.dark 即触红——
+  // 这同时证明「按名绑定」是真绑定，不是碰巧值相等。
+  const board = readFileSync(new URL('site/styles.css', repoRoot), 'utf8');
+  assert.deepEqual(rules([source('site/styles.css', board)]), []);
+  for (const [property, drifted] of [
+    ['--bg-app', hex('0F1623')],
+    ['--text-primary', hex('E4E9F0')],
+    ['--border-focus', hex('6A94F0')],
+    ['--zhu-graphic', hex('D75A3D')],
+    ['--gold', hex('D9AE6B')],
+  ]) {
+    const mutated = board.replace(new RegExp(`(${property}: )#[0-9A-Fa-f]{6};`), `$1${drifted};`);
+    assert.notEqual(mutated, board, `mutation probe failed to bite ${property}`);
+    assert.ok(rules([source('site/styles.css', mutated)]).includes('raw-color'), `${property} drift went unnoticed`);
+  }
+  // 冻结表的到期指针已兑现。此处不复述退役值（SKIN-B1 判例三：退役值只可述比值不可复述色值）——
+  // 上面的逐项 deepEqual 已是更强的证明：允许面只认 themes.dark，旧板任一枚值都无处落脚。
 });
 
 test('SITE-GEN fixture claims accept the authoritative Legal and PM snapshot', () => {

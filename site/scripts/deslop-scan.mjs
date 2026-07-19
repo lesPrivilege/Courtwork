@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { checkDemoMotion, checkDisplayFont, scanSources } from './deslop-scan-lib.mjs';
+import { checkColorGrammar, checkDemoMotion, checkDisplayFont, scanSources } from './deslop-scan-lib.mjs';
 import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
@@ -85,6 +85,9 @@ for (const failure of checkDisplayFont({
   failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
 }
 for (const failure of checkDemoMotion(css)) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+}
+for (const failure of checkColorGrammar(css)) {
   failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
 }
 
