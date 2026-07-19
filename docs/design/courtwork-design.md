@@ -8,7 +8,7 @@ courtwork_design_md:
     version: 1
   sources:
     "docs/design/tokens.json":
-      sha256: "305204dc9bca322e7f65cab8507b87012bbd1a4979136a18855c23f22af45aba"
+      sha256: "88e85fdc26f8919ef9a9d18e824f069c3c607e9b5566c1a62697476e09e84724"
     "docs/design/principles.md":
       sha256: "5a8afdf8e33316e58aa647d52b01c1ae485902e3ef8cef86d6bd317717f41f67"
   tokenSet:
@@ -36,7 +36,7 @@ tokens:
       secondary:
         value: "#55617A"
       tertiary:
-        value: "#6E7C92"
+        value: "#637083"
       disabled:
         value: "#8A94A8"
       inverse:
@@ -218,9 +218,9 @@ tokens:
   typography:
     family:
       title:
-        value: "'Times New Roman', Times, 'Source Han Serif SC', 'Noto Serif CJK SC', 'Songti SC', serif"
+        value: "'Times New Roman', Charter, Times, 'Source Han Serif SC', 'Noto Serif CJK SC', 'Songti SC', serif"
       body:
-        value: "'Times New Roman', Times, 'Zhuque Fangsong', 'Source Han Serif SC', 'Songti SC', serif"
+        value: "'Times New Roman', Charter, Times, 'Zhuque Fangsong', 'Source Han Serif SC', 'Songti SC', serif"
       ui:
         value: "-apple-system, 'Segoe UI', 'PingFang SC', 'MiSans', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif"
       mono:
@@ -296,7 +296,6 @@ tokens:
         weight: 400
         color: "text.tertiary"
         aaTarget: 4.5
-        aaStatus: "gap"
       control:
         track: "ui"
         scale: "body"
@@ -632,7 +631,7 @@ tokens:
 - `color.bg.selected` = `#D9E3F6` — 选中项底：蓝感强于 hover 族（B−R=29，hover 为 6），不占语义色预算。出处 color-mix(in srgb, semantic.blue.graphic 12%, bg.surface)
 - `color.text.primary` = `#232B38` — 正文与标题。刻本墨色，拒纯黑与暖灰（docs/design/principles.md 采纳）
 - `color.text.secondary` = `#55617A` — 次级说明、标签。对 bg.raised #FFFFFF 6.22:1 / 对 bg.surface #F2F4F7 5.64:1，最严面达 AA 正文档
-- `color.text.tertiary` = `#6E7C92` — 元信息、占位符（辅助文字）。对比度按所在底面配对声明：对 bg.raised #FFFFFF 4.23:1 / 对 bg.app #F7F8FA 3.98:1 / 对 bg.surface #F2F4F7 3.84:1，**取最严面 3.84:1 为准**。**不主张 AA-large 档**——实测 131 个消费点字号 10–13px、字重上限 510，无一达 WCAG large 门槛（≥18.66px regular 或 ≥14px bold）；故三面在 12px 下均低于 AA 正文 4.5:1，属既存可读性缺口。B1 三面对位均略升（迁移前同序为 4.04 / 3.82 / 3.49；退役值本身不复述，黑名单守之），未引入回退亦未闭合缺口，闭合方案（提深值或加大元信息字号）挂后续批次。B0 自拟调整留痕：原型该位取 disabled 档的 #8A94A8（对白卡 3.05:1）属回退，故上提一档；退役旧值不在此复述（黑名单守之）
+- `color.text.tertiary` = `#637083` — 元信息、占位符（辅助文字）。AA 缺口已闭合（2026-07-19 定谳·值面复审）：三面 5.0288 / 4.7324 / 4.5640（raised / app / surface），**最严面 4.5640 过 AA 正文 4.5**。取值法＝沿中性阶既有色相等比压暗，H 与锚色同源、B≥R 冷调律不破。闭合前该位三面均低于 4.5（最严面约为现值的 0.84 倍），字号升档与轨位调整两条路已实测排除：前者要把 meta 抬到 WCAG large 门槛（≥18.66px）等于废掉 meta 档本身，后者抹平中性阶第三声部。代价如实登记——与 secondary 的明度间距由约 9.6 个 L 点收窄至约 4.5 个，中性阶第三、四档自此贴近；**退役值不在此复述**（判例：只述比值）。**深宗不随动**：themes.dark.text.tertiary 保持其原值（活值，不入退役黑名单），双宗共用中性就此拆分
 - `color.text.disabled` = `#8A94A8` — 禁用态文字。H≈217° 同源
 - `color.text.inverse` = `#F7F8FA` — 深底（主按钮）上的文字：冷白（=bg.app）
 - `color.border.hairline` = `#D5DAE3` — 全站默认描边与网格线：1px 单色无影（docs/design/principles.md 采纳），H≈217° 同源
@@ -673,7 +672,7 @@ tokens:
 - `themes.dark.bg.raised` = `#223047` — 浮卡，台阶三。语义 fg 复算以本值为最严基准
 - `themes.dark.text.primary` = `#E4E9F1` — 正文与标题。对底纸 14.87:1
 - `themes.dark.text.secondary` = `#A9B4C6` — 次级。对底纸 8.66:1
-- `themes.dark.text.tertiary` = `#6E7C92` — 元信息。对底纸 4.28:1；与 light.text.tertiary 同值（双宗共用中性）
+- `themes.dark.text.tertiary` = `#6E7C92` — 元信息。对底纸 4.28:1。**双宗此位已拆分**（2026-07-19 定谳）：浅宗随 AA 闭合压暗，深宗保持本值——深底上本值对比充裕，无缺口可闭，故不随动；本值为活值，不入退役黑名单
 - `themes.dark.text.disabled` = `#4C5A70` — B0 自拟：禁用态，取自本宗中性阶
 - `themes.dark.text.inverse` = `#0F1622` — 浅底（主按钮）上的文字
 - `themes.dark.border.hairline` = `#2A3A52` — B0 自拟：默认描边。原型该值用于强边界，此处上移一档以避免与 bg.raised (#223047) 同值碰撞；对 raised ΔL≈3.7，属深色主题常规区间，层级由线重（rule.major）而非对比度承担
@@ -693,8 +692,8 @@ tokens:
 - `rule.gap` = `2` — 文武线粗细两线间距
 - `rule.ink` = `{themes.<theme>.border.strong}` — 线色随宗切换
 - `typography.family` — 三轨字体制（docs/design/typography-density.md 发凡一）的字栈定值。B2-0 落值，消费面置换随 B2-1。栈内首位即配衬字：CJK 字体的拉丁/数字由该栈自身承担，不得裸回退到系统衬线
-- `typography.family.title` = `'Times New Roman', Times, 'Source Han Serif SC', 'Noto Serif CJK SC', 'Songti SC', serif` — 标题轨：思源宋体 SC（Adobe/Google，SIL OFL 1.1，锁版 2.003R）承中文，视图标题/章节题/hero 级。**拉丁配衬字前置 Times New Roman**（编排义务四条之三）——B2-0 真渲实测：思源 CN 子集的拉丁是宽体（M=0.975em、A=0.718em），裸用会把 PDF/OCR 一类缩写撑成半角方块；Times 跨 macOS/Windows 常驻、数字等宽（0=1=0.500em），且是中文公文的惯例配衬。栈序即配衬序：拉丁命中前位，中文穿透到思源
-- `typography.family.body` = `'Times New Roman', Times, 'Zhuque Fangsong', 'Source Han Serif SC', 'Songti SC', serif` — 文书轨：朱雀仿宋（SIL OFL 1.1，锁版 v0.212 technical preview）承中文，阅读视图正文/引语/修订预览。**拉丁配衬字同前置 Times New Roman**——凡例明载「仿宋拉丁字形弱，不得裸回退」，实测朱雀拉丁 M=0.847em 且数字比例参差（真渲 7.08–10.66px @20px），长文里混排会跳。朱雀自带 tnum 可用（十数字齐归 0.450em），但数据字仍归 data 轨守单源。缺字回退思源宋而非系统黑体，保衬线族内一致
+- `typography.family.title` = `'Times New Roman', Charter, Times, 'Source Han Serif SC', 'Noto Serif CJK SC', 'Songti SC', serif` — 标题轨：思源宋体 SC（Adobe/Google，SIL OFL 1.1，锁版 2.003R）承中文，视图标题/章节题/hero 级。**拉丁配衬字前置 Times New Roman**（编排义务四条之三）——B2-0 真渲实测：思源 CN 子集的拉丁是宽体（M=0.975em、A=0.718em），裸用会把 PDF/OCR 一类缩写撑成半角方块；Times 跨 macOS/Windows 常驻、数字等宽（0=1=0.500em），且中文公文惯例配衬属**领域语义非审美偏好**（凡例定谳 2026-07-19）；Charter 次位补屏渲（macOS 常驻，M=0.866em、数字等宽 0.556em，屏幕字形优于 Times，Times 缺席时接手而不落到通用衬线）。栈序即配衬序：拉丁命中前位，中文穿透到思源
+- `typography.family.body` = `'Times New Roman', Charter, Times, 'Zhuque Fangsong', 'Source Han Serif SC', 'Songti SC', serif` — 文书轨：朱雀仿宋（SIL OFL 1.1，锁版 v0.212 technical preview）承中文，阅读视图正文/引语/修订预览。**拉丁配衬字同前置 Times New Roman**——凡例明载「仿宋拉丁字形弱，不得裸回退」，实测朱雀拉丁 M=0.847em 且数字比例参差（真渲 7.08–10.66px @20px），长文里混排会跳。Charter 同居次位补屏渲。朱雀自带 tnum 可用（十数字齐归 0.450em），但数据字仍归 data 轨守单源。缺字回退思源宋而非系统黑体，保衬线族内一致
 - `typography.family.ui` = `-apple-system, 'Segoe UI', 'PingFang SC', 'MiSans', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif` — 功能轨：系统 sans 栈**续任**（2026-07-19 争点一·甲案）。显式定性为「工具字」——按钮/标签/输入/导航/设置，不承载气质预算，气质由标题轨与文书轨承载；拒苹方条款只及表达性内容，不及工具位。12px 控件可读性优先。B2-0 前名 `sans`，随三轨制更名
 - `typography.family.mono` = `ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, 'Courier New', monospace` — 编号、日期、金额、KBD、徽章、citation 批注专用
 - `typography.track` — 三轨字体制的轨位定值（docs/design/typography-density.md 发凡一/二/四）。轨＝承载体裁，非字体别名：同一密度档在不同轨上可有不同光学取值（见 document.reading 的仿宋补偿）
@@ -710,7 +709,7 @@ tokens:
 - `typography.slot.documentQuote` — 文书引语：同补偿，色降一阶
 - `typography.slot.tableText` — 表体文字：功能轨既有法
 - `typography.slot.tableNumber` — 表体数字：等宽 + 数据区静止
-- `typography.slot.meta` — 元信息 / citation：**缺口未闭合**。最严面（bg.surface）实算 3.8416:1，低于 AA 正文 4.5。B2-0 复算三面 4.2329 / 3.9834 / 3.8416，与 B1 记录逐位一致。闭合三杠杆的实测结论见 $metaGapClosure；本槽 aaStatus 为 gap 是**登记而非豁免**，门④ 断言它确实未达标，闭合之日须同步改断言、改本字段与改 color.text.tertiary 描述，三处齐动才算合上
+- `typography.slot.meta` — 元信息 / citation：**缺口已闭合**（2026-07-19 定谳·值面复审）。最严面（bg.surface）实算 4.5640 过 AA 正文 4.5，三面 5.0288 / 4.7324 / 4.5640。此前本槽带 aaStatus=gap 且门④ 断言其「确实未达标」；闭合之日该断言按设计翻红，逼着 aaStatus、断言与 color.text.tertiary 描述三处齐动——机制已如期生效，此为其落痕
 - `typography.slot.control` — 按钮 / 输入：功能轨既有法
 - `typography.slot.sealNote` — 批注 / 落定章旁文：朱仅印记，消费面随 B4 记号批
 - `typography.scale.meta` — 元信息、角标、徽章。全站最小字号，12px 以下禁用（docs/design/principles.md 规避 Raycast 极限字阶）
