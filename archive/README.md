@@ -22,6 +22,19 @@
 
 R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadmap 前置；R3 材料链真实度→current.md/就绪图实测清单。**已过时**：R4 output 真实度（「真实产品可达」判断被校正推翻）、R5 触发/门禁推演（未被采纳部分）、R6 claimed-vs-real（v0.1.1 口径过期）。
 
+## research-2026-07-19-work-agent-landscape/（WORK-AGENT-LANDSCAPE-1，只读，不进权威链）
+
+市场流通 work agent 架构全景（WorkBuddy / TRAE Work / QoderWork / Kimi Work + frontier 旁节）。八问对照：工具集·授权·容器·工作流·记忆·知识包·toolResult·降级。不重做 WORKBUDDY-INTERACTION-BENCH / session-recall-survey。
+
+| 文件 | 主题 | 时效三态 | 消费状态 | 消费去向（吸收前无约束力） |
+|---|---|---|---|---|
+| `landscape.md` | 逐家八问表 + 横表 + 三桶（可借形/反面教材/中性事实） | **有效**（2026-07-19 一手抓取） | **已消费**（消费 pass 2026-07-19，逐条裁定见下） | 见消费 pass 记录 |
+| `README.md` | 批次入口与范围 | 有效 | 已消费（随批） | — |
+
+**消费 pass 记录（2026-07-19 架构逐条裁定，零悬置）**：可借形六条全采——①TRAE 命令三态+白名单+高风险弹窗、②Qoder `evaluated_permission` 事件（授权决定持久化先于 effect 的同行实现）→ **bash 受控 ADR 素材袋**（②兼入 TOOL-READ-1 票面参照）；③WorkBuddy 先批后执行 vs Full Access 双面 → **effect 授权语义材料**；④Qoder 回收站/tool 默认展开/Task Monitor/定时 missed 显式 → 分三处：回收站佐证 ARCHIVE-MANAGE-1 既采防呆、tool 展开形态入 TOOL-READ-1 journal 侦察、missed 显式入未来 scheduled ADR 素材；⑤Qoder Dreams COW+无 bash consolidation → **ADR-013 memory 演进正对照**（与 Mimo 静默压缩反例、OWASP 四态同袋）；⑥Expert Kit/指令+RAG 为垂类知识包最近流通物而契约/锚点/事实等级为空白带 → **产品定位佐证**（vision 一行：schema ABI 是行业空位非行业常识）。反面教材五条**显式留档不入票**（各条已点名不变量③④⑥与 Stage3 时序，作反例语料；公开链分享一条另挂后续 ADR 队列第 3 项 shared state/ACL 素材）。中性两条留档。
+
+**时效用法**：有效=可作线索；监控=竞品大版本后复扫；过时=被更新调研或 ADR 吸收声明替代。消费：未消费→部分消费（若干条入 ADR 草稿）→已吸收（就绪图/ADR 留痕）。
+
 ## research-2026-07-15-round-3/（现行最新批，无被推翻项）
 
 **已升格为工单/ADR**：`interaction-visual-regression`→UI-RESIDUE-1；`oss-gui-source-patterns`→UI-RESIDUE/CHAT-SESSION 等工单供料；`geist-design-md`→VOICE-SPEC-1/DESIGN-MD-1；`vault-site-craft`→SITE-CRAFT-1（三修终局）；`grok-build-patterns`→OUTPUT-CONFIRM-UI-1/CHAT-MEMORY-1；`pi-harness-comparison`→WORK-TURN-1（含真机 G/H 根因）；`session-handoff-survey`→PROJECTION-RESUME-1；`chinese-display-font`→SITE-CRAFT-2（已拍板：朱雀仿宋，SIL OFL）。
