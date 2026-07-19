@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkSchemaParts, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -291,6 +291,34 @@ test('SITE-CRAFT-2 font provenance keeps SOURCE.md anchored to the built bytes',
   assert.ok(provRules(`a.woff2 ${'a'.repeat(64)}`).includes('font-provenance'));
   // 出处记录整块缺席 → 触红。
   assert.ok(provRules('').includes('font-provenance'));
+});
+
+// 二轮驳回判例：**SHA 只锚内容，不锚声称**。制品换一字节 SHA 必变，但「128 glyphs / 33,036 bytes」
+// 这类人读数字可以在 SHA 全对的前提下静默撒谎（同族于 B2-0 的 SPEC 记 6,205KB 而实物 8,137KB）。
+// 故权威记录里的**可解析数字都要有各自的机器对应**——三个数字全部从制品自身量出。
+test('SITE-CRAFT-2 woff2 measurement reads bytes, glyphs and codepoints from the artifact', () => {
+  const buffer = readFileSync(new URL('site/assets/fonts/zhuque-fangsong-subset.woff2', repoRoot));
+  const measured = measureWoff2(buffer);
+  assert.equal(measured.bytes, buffer.length);
+  // 与 fontTools 独立实现互校过的定值（文书轨子集）。
+  assert.equal(measured.glyphs, 128);
+  assert.equal(measured.chars, 104);
+  assert.throws(() => measureWoff2(Buffer.from('not a font at all!!')), /not a woff2/);
+});
+
+test('SITE-CRAFT-2 provenance numbers are measured contracts, not narrative', () => {
+  const measured = { file: 'a.woff2', sha256: 'a'.repeat(64), bytes: 33036, glyphs: 128, chars: 104 };
+  const row = (text) => [{ sourcePath: 'zhuque/SOURCE.md', source: `| a.woff2 | ${text} | \`${'a'.repeat(64)}\` |`, artifacts: [measured] }];
+  const provRules = (text) => checkFontProvenance(row(text)).map((failure) => failure.rule);
+  assert.deepEqual(provRules('104 字 / 128 glyphs / 33,036 bytes'), []);
+  // 三向：任一人读数字与实测不符即红——SHA 全对也拦不住的那一类谎。
+  assert.ok(provRules('104 字 / 128 glyphs / 33,037 bytes').includes('font-provenance'));
+  assert.ok(provRules('104 字 / 127 glyphs / 33,036 bytes').includes('font-provenance'));
+  assert.ok(provRules('105 字 / 128 glyphs / 33,036 bytes').includes('font-provenance'));
+  // 千分位写法必须照样解析，否则门会被格式差异绕过。
+  assert.deepEqual(provRules('104 字 / 128 glyphs / 33036 bytes'), []);
+  // 逃逸口：把数字整个删掉而不是改对——「没有数字」不等于「没有谎」，同样触红。
+  assert.ok(provRules('入库子集').includes('font-provenance'));
 });
 
 // P1 驳回判例：「一致性闭合」的口径是几何 + 单源，只换描边色不算闭合；

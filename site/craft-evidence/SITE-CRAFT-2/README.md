@@ -483,3 +483,47 @@ og 手写复刻      → site/og.html: brand mark must consume assets/icon.svg a
 ```
 
 第三条是关键：**master 改了变体不跟也红**，证明这是真单源绑定而非又一处硬编码。
+
+## B10 · 二轮回炉：SHA 只锚内容，不锚声称（单件）
+
+一轮补的 `font-provenance` 只锚 SHA。**制品换一个字节 SHA 必变，但 SOURCE.md 里
+「33,036 bytes / 128 glyphs」这类人读数字，可以在 SHA 全对的前提下静默撒谎**——
+与 B2-0 被驳同族（SPEC 记 6,205KB 而实物 8,137KB），差别只在那次是漏同步、这次是门没把叙述纳入契约。
+
+### 落法：三个数字全部从制品自身量出
+
+不走「生成时写入 manifest 再比对」的抄写链——**取自清单只是把抄写链拉长一环**：
+改清单而不重切子集时，SHA 照样对、数字照样自洽，谎仍能过门。故直接读制品：
+
+| 数字 | 机器对应 | 实现 |
+|---|---|---|
+| 字节数 | 文件长度 | `buffer.length` |
+| glyph 数 | `maxp.numGlyphs` | 零依赖解 woff2：Node 内建 brotli 解压 + 走表目录 |
+| 字数 | cmap 映射码位数 | 同上，format 4 逐段走，只计映射到非 0 字形的码位 |
+| SHA | 文件内容 | 既有 |
+
+**解析器与 fontTools 逐枚互校**（独立实现交叉验证，四枚制品全中）：
+
+| 制品 | 本门实测 | fontTools |
+|---|---|---|
+| `zhuque-fangsong-subset.woff2` | 104 字 / 128 glyphs / 33,036 B | 104 / 128 / 33,036 |
+| `doc-latin-subset.woff2` | 25 字 / 94 glyphs / 8,488 B | 25 / 94 / 8,488 |
+| `noto-serif-sc-regular-subset.woff2` | 87 字 / 107 glyphs / 25,632 B | 87 / 107 / 25,632 |
+| `noto-serif-sc-bold-subset.woff2` | 87 字 / 107 glyphs / 25,856 B | 87 / 107 / 25,856 |
+
+零新依赖（`node:zlib` 内建）；`noto/SOURCE.md` 的行体例同步为可解析形式。
+
+### 红证（门亲跑，逐向重放）
+
+```
+① 基线                    → []
+② SHA 改一位              → provenance SHA drifted for zhuque-fangsong-subset.woff2 …
+③ 记录字节 33,036→33,037  → provenance claims 33037 bytes but the artifact measures 33036
+④ 记录 glyph 128→127      → provenance claims 127 glyphs but the artifact measures 128
+⑤ 记录字数 104→105        → provenance claims 105 chars but the artifact measures 104
+⑥ 数字整个删掉            → provenance row states no bytes/glyphs/chars count;
+                             the number must exist to be checkable
+```
+
+⑥ 是自加的一向，堵的是最省事的逃逸口：**把数字删掉而不是改对**——没有数字不等于没有谎，
+否则这门会教人删记录。千分位与无千分位两种写法均须解析（格式差异不得成为绕过口）。

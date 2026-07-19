@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkSchemaParts, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
 import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
@@ -124,8 +124,16 @@ if (sha256('site/assets/fonts/noto-serif-sc-bold-subset.woff2') !== notoManifest
   failures.push('[display-font] site/assets/fonts/noto-subset.json:1 bold subset bytes drifted from weights.700 anchor');
 }
 // 出处链：每一枚入库子集的实测字节都必须在其 SOURCE.md 里逐字登记（按族铺满，不留裸奔的一侧）。
+// SHA 只锚内容不锚声称，故字节/glyph/字数三个人读数字各自对实测（glyph 由 woff2 直读，
+// 字数对清单 text 长度）——权威记录里的可解析数字都要有机器对应。
 const provenanceOf = (path) => { try { return readFileSync(resolve(path), 'utf8'); } catch { return ''; } };
-const artifact = (file) => ({ file, sha256: sha256(`site/assets/fonts/${file}`) });
+// 三个数字全部从**制品自身**量出（字节=文件长度 / glyph=maxp / 字数=cmap 映射码位），
+// 不取自清单——取自清单只是把抄写链拉长一环，谎照样过门。
+const artifact = (file) => ({
+  file,
+  sha256: sha256(`site/assets/fonts/${file}`),
+  ...measureWoff2(readFileSync(resolve(`site/assets/fonts/${file}`))),
+});
 for (const failure of checkFontProvenance([
   {
     sourcePath: 'site/craft-evidence/SITE-CRAFT-2/zhuque/SOURCE.md',

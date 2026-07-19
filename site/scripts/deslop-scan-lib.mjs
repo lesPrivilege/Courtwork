@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { brotliDecompressSync } from 'node:zlib';
 
 const repoRoot = new URL('../../', import.meta.url);
 const tokenDocument = JSON.parse(readFileSync(new URL('docs/design/tokens.json', repoRoot), 'utf8'));
@@ -796,17 +797,125 @@ export function checkBrandLineage({ master, variant, tolerance = 0.03 }) {
 // 于是 37 字子集扩容到 104 字时 SOURCE.md 未随动，快照—来源—制品链断了一环而无人察觉。
 // 教训是「机制不对称」：**立门以族为单位铺满**，不是哪里出事补哪里。故本门按族铺满：
 // 每一枚入库 woff2 的实测 SHA，都必须在其出处记录里逐字登记；出处漂移即红。
+// woff2 实测（零依赖）：Node 内建 brotli 解压 + 走表目录取 maxp.numGlyphs。
+// 为什么要自己读而不是信生成时记下的数：**SHA 只锚内容，不锚声称**——制品换一个字节 SHA 必变，
+// 但记录里的「128 glyphs / 33,036 bytes」这类人读数字，可以在 SHA 全对的前提下静默撒谎。
+// 故这些数字必须有各自的机器对应，而不是被交叉抄写。实现已与 fontTools 在四枚制品上逐一互校。
+const WOFF2_KNOWN_TAGS = ['cmap', 'head', 'hhea', 'hmtx', 'maxp', 'name', 'OS/2', 'post', 'cvt ', 'fpgm',
+  'glyf', 'loca', 'prep', 'CFF ', 'VORG', 'EBDT', 'EBLC', 'gasp', 'hdmx', 'kern', 'LTSH', 'PCLT', 'VDMX',
+  'vhea', 'vmtx', 'BASE', 'GDEF', 'GPOS', 'GSUB', 'EBSC', 'JSTF', 'MATH', 'CBDT', 'CBLC', 'COLR', 'CPAL',
+  'SVG ', 'sbix', 'acnt', 'avar', 'bdat', 'bloc', 'bsln', 'cvar', 'fdsc', 'feat', 'fmtx', 'fvar', 'gvar',
+  'hsty', 'just', 'lcar', 'mort', 'morx', 'opbd', 'prop', 'trak', 'Zapf', 'Silf', 'Glat', 'Gloc', 'Feat', 'Sill'];
+
+export function measureWoff2(buffer) {
+  if (buffer.toString('ascii', 0, 4) !== 'wOF2') throw new Error('not a woff2 artifact');
+  let cursor = 48; // 固定头长度
+  const base128 = () => {
+    let value = 0;
+    for (let i = 0; i < 5; i += 1) {
+      const byte = buffer[cursor];
+      cursor += 1;
+      value = ((value << 7) | (byte & 0x7f)) >>> 0;
+      if (!(byte & 0x80)) return value;
+    }
+    throw new Error('malformed UIntBase128');
+  };
+  const directory = [];
+  for (let i = 0; i < buffer.readUInt16BE(12); i += 1) {
+    const flags = buffer[cursor];
+    cursor += 1;
+    const index = flags & 0x3f;
+    let tag;
+    if (index === 0x3f) { tag = buffer.toString('ascii', cursor, cursor + 4); cursor += 4; } else tag = WOFF2_KNOWN_TAGS[index];
+    const version = (flags >> 6) & 0x3;
+    const origLength = base128();
+    // glyf/loca 的 version 0 才是「有变换」；其余表反之。变换后长度决定它在解压流里的实际占位。
+    const transformed = (tag === 'glyf' || tag === 'loca') ? version === 0 : version !== 0;
+    directory.push({ tag, length: transformed ? base128() : origLength });
+  }
+  const data = brotliDecompressSync(buffer.subarray(cursor, cursor + buffer.readUInt32BE(20)));
+  const at = {};
+  let offset = 0;
+  for (const table of directory) { at[table.tag] = offset; offset += table.length; }
+  if (at.maxp === undefined) throw new Error('woff2 has no maxp table');
+  if (at.cmap === undefined) throw new Error('woff2 has no cmap table');
+  return {
+    bytes: buffer.length,
+    glyphs: data.readUInt16BE(at.maxp + 4),
+    chars: countMappedCodepoints(data, at.cmap),
+  };
+}
+
+// cmap format 4 逐段走：把真正映射到非 0 字形的码位计入。
+// 字数若只取自清单（manifest.text.length），就还是**交叉抄写**——改清单不重切子集时，
+// SHA 照样对、字数照样自洽，谎仍能过门。故字数也从制品自身量。已与 fontTools 逐枚互校。
+function countMappedCodepoints(data, base) {
+  const mapped = new Set();
+  const subtables = data.readUInt16BE(base + 2);
+  for (let i = 0; i < subtables; i += 1) {
+    const record = base + 4 + i * 8;
+    const sub = base + data.readUInt32BE(record + 4);
+    if (data.readUInt16BE(sub) !== 4) continue;
+    const segX2 = data.readUInt16BE(sub + 6);
+    const endAt = sub + 14;
+    const startAt = sub + 16 + segX2;
+    const deltaAt = sub + 16 + 2 * segX2;
+    const rangeAt = sub + 16 + 3 * segX2;
+    for (let s = 0; s < segX2 / 2; s += 1) {
+      const end = data.readUInt16BE(endAt + 2 * s);
+      const start = data.readUInt16BE(startAt + 2 * s);
+      if (start === 0xffff) continue; // 尾哨兵段
+      const delta = data.readInt16BE(deltaAt + 2 * s);
+      const rangeOffset = data.readUInt16BE(rangeAt + 2 * s);
+      for (let code = start; code <= end; code += 1) {
+        let glyph;
+        if (rangeOffset === 0) glyph = (code + delta) & 0xffff;
+        else {
+          const address = rangeAt + 2 * s + rangeOffset + 2 * (code - start);
+          if (address + 1 >= data.length) continue;
+          glyph = data.readUInt16BE(address);
+          if (glyph !== 0) glyph = (glyph + delta) & 0xffff;
+        }
+        if (glyph !== 0) mapped.add(code);
+      }
+    }
+  }
+  return mapped.size;
+}
+
+// 从出处记录里取该制品那一行的可解析数字。行内写法允许有出入（两份 SOURCE.md 体例略不同），
+// 但「N glyphs」「N bytes」「N 字」三类数字必须在场且可解析——数字不在场就等于没有契约。
+const rowFor = (source, file) => source.split('\n').find((line) => line.includes(file)) ?? '';
+const numberIn = (row, pattern) => {
+  const hit = row.match(pattern);
+  return hit ? Number.parseInt(hit[1].replace(/,/g, ''), 10) : Number.NaN;
+};
+
 export function checkFontProvenance(records) {
   const failures = [];
   for (const record of records) {
     const fail = (message) => push(failures, 'font-provenance', record.sourcePath, 1, message);
     if (!record.source) { fail('provenance record is missing'); continue; }
     for (const artifact of record.artifacts) {
-      const mentioned = record.source.includes(artifact.file);
-      const anchored = record.source.includes(artifact.sha256);
-      if (!mentioned) fail(`artifact is absent from the provenance record: ${artifact.file}`);
-      else if (!anchored) {
+      if (!record.source.includes(artifact.file)) {
+        fail(`artifact is absent from the provenance record: ${artifact.file}`);
+        continue;
+      }
+      if (!record.source.includes(artifact.sha256)) {
         fail(`provenance SHA drifted for ${artifact.file}; record does not carry the built bytes (${artifact.sha256.slice(0, 16)}…)`);
+      }
+      // 叙述侧三个数字各自对实测——SHA 对而数字错，正是本门此前的盲区。
+      const row = rowFor(record.source, artifact.file);
+      const claims = [
+        ['bytes', numberIn(row, /([\d,]+)\s*(?:bytes|B)\b/), artifact.bytes],
+        ['glyphs', numberIn(row, /([\d,]+)\s*glyphs\b/), artifact.glyphs],
+        // 「字」是非 word 字元，其后不能用 \b（\b 要求相邻处有 word 字元），否则永不匹配。
+        ['chars', numberIn(row, /([\d,]+)\s*字(?!符)/), artifact.chars],
+      ];
+      for (const [label, claimed, measured] of claims) {
+        if (measured === undefined) continue;
+        if (Number.isNaN(claimed)) fail(`${artifact.file}: provenance row states no ${label} count; the number must exist to be checkable`);
+        else if (claimed !== measured) fail(`${artifact.file}: provenance claims ${claimed} ${label} but the artifact measures ${measured}`);
       }
     }
   }
