@@ -1,0 +1,22 @@
+{
+  "build": {
+    "beforeDevCommand": "true",
+    "devUrl": "http://127.0.0.1:19845"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "SKIN-R2 P2-L21 · acceptance WKWebView",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1180,
+        "minHeight": 720,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "resizable": false,
+        "fullscreen": false
+      }
+    ]
+  }
+}

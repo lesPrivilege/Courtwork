@@ -3993,3 +3993,25 @@ native AX 明确聚焦 `AXTextArea / Message`，新摄 1600×900 Chat composer f
 
 `45fb395..b93796a` 对 desktop/site 消费 CSS 零 diff；本复验只解除首轮守卫拒绝，不重裁消费值，
 也不替终局 one-shot 放行。
+
+---
+
+# ACCEPTANCE: SKIN-R2 P2-L21 · 焦点态 Preview 首行安全区
+
+日期：2026-07-20；对象：`b9c1bf140caba475baf028476d6fd72f32835aa0`。独立会话以 fresh clone
+`/tmp/courtwork-p2-l21-acceptance.J4uM7P/repo`、独立端口 `19842–19845` 验收；未参与实现，未
+复用实现进程或结论，未改消费值，未 push。
+
+**裁决：✅ 放行 P2-L21。** 撤掉 `.workspace.focus-mode .preview-host-head` 的动态安全内距后，
+1440×900 几何门 **0/1 红**，`backLeft=19 < chromeRight+8=147`；复原后 **1/1**。删除档位账
+P2-L21 行精确报 `已签提案行缺失：P2-L21`，复原 PASS。P2/RP-2.5 当前定向谱实际为
+**15/15（12.9s）**，不是旧 14 项数字。
+
+浏览器后帧实测 chrome→back 9px、back→title 10px、title→meta 8px，root 1440=1440；fresh clone
+另从空 cargo target 编译真实 Tauri/WKWebView，通过 native AX 进入 Focus（`Exit focus Esc`
+value=1）并新摄 1440×900 暗宗原生窗口。肉眼复核交通灯、应用按钮、back、标题与计数零叠压。
+
+全仓 lint、148 files / 1261 tests、13 workspace build（desktop 3580 modules）均绿。完整命令、
+mutation、几何、系统、hash 与两帧见
+`site/craft-evidence/SKIN-R2-OVERFLOW-2/acceptance-b9c1bf1/README.md`。本放行只覆盖获批 P2-L21
+Focus 消费面，不扩大到其他状态或终局 one-shot。
