@@ -1,0 +1,64 @@
+{
+  "$description": "B2-0 字体子集清单。**cssFamily 是 B2-1 必须用 @font-face 定义的别名**——上游内嵌名与之不同（思源 SubsetOTF 的 CN 包内名为 Source Han Serif CN，且 SemiBold 自成一族），若 B2-1 只写 font-family 而漏 @font-face，字栈会静默穿透到系统衬线：静默降级零容忍，故此处显式立契。字符集由脚本确定性生成（逐字节对解码），非按文案取字——产品壳标题与文书承载用户内容，无法穷举。",
+  "coverage": {
+    "document": {
+      "charset": "GBK ∩ 朱雀实有 glyph 集",
+      "gbkHanzi": 20902,
+      "fontHas": 11006,
+      "companion": 169,
+      "note": "文书轨定谳取 GBK（2026-07-19）：法律文书是生僻人名主场。朱雀 v0.212 覆盖 GB2312 全 6,763 字，覆盖 GBK 汉字 11006/20902（52.66%）——缺集集中在生僻/历史用字（丂丆丒丠 类），非人名主场；18 个常见生僻人名字实查 17 中（仅 頔 U+9814 缺）"
+    },
+    "title": {
+      "charset": "GB2312",
+      "hanzi": 6763,
+      "companion": 169,
+      "note": "标题轨维持 GB2312 当期（2026-07-19 定谳）；升档判据＝真机案题缺字实录，挂发行门复议"
+    },
+    "fallback": "**回退口径如实登记**：字栈＝拉丁配衬 → CJK 子集 → 系统衬线。文书轨缺字（朱雀无 glyph，如 頔）落到系统 Songti SC 渲染——**中间那档思源子集对文书轨永不命中**：朱雀已覆盖 GB2312 全集，而思源子集只到 GB2312，两者缺集不互补，故文书轨真实回退是「朱雀 → 系统衬线」两级。系统 Songti 为 GB18030 级覆盖，字必能出，但字形可见地换宗（仿宋→宋体）。若要消除该跳变，须把思源也升 GBK（+约 4 MB）或换覆盖更全的文书轨字体——属发行门复议项，本批不自决",
+    "regen": "再生成命令见 site/craft-evidence/SKIN-B2-0/SOURCE.md"
+  },
+  "fonts": [
+    {
+      "file": "zhuque-fangsong-gbk.woff2",
+      "cssFamily": "Zhuque Fangsong",
+      "weight": 400,
+      "charset": "GBK ∩ 字体实有 glyph 集",
+      "upstreamFamily": "Zhuque Fangsong (technical preview)",
+      "upstreamVersion": "0.212",
+      "license": "SIL OFL 1.1",
+      "gbkCovered": 11006,
+      "gb2312Covered": 6763,
+      "bytes": 4539072,
+      "woff2Sha256": "54c7ad9b0106acbab052e8dcce3cc3bd64d94aa09bd1d21292ece7f5970facf6",
+      "sourceSha256": "558c62730844fe54ba220146ed62f859d4e2880188d92d985f8921c6e3743bc4"
+    },
+    {
+      "file": "source-han-serif-sc-400-gb2312.woff2",
+      "cssFamily": "Source Han Serif SC",
+      "weight": 400,
+      "charset": "GB2312",
+      "upstreamFamily": "Source Han Serif CN",
+      "upstreamVersion": "2.003R",
+      "license": "SIL OFL 1.1",
+      "gbkCovered": 6763,
+      "gb2312Covered": 6763,
+      "bytes": 1877436,
+      "woff2Sha256": "0716704f5e3193b5f02a743d8ae04f7d5f1605c1c23a2f77f62cbc87a5820d02",
+      "sourceSha256": "3754ea669c530e2473354f8f6d9f79680a44d7e26ec7d00eeabee4a7e0753c5d"
+    },
+    {
+      "file": "source-han-serif-sc-600-gb2312.woff2",
+      "cssFamily": "Source Han Serif SC",
+      "weight": 600,
+      "charset": "GB2312",
+      "upstreamFamily": "Source Han Serif CN SemiBold",
+      "upstreamVersion": "2.003R",
+      "license": "SIL OFL 1.1",
+      "gbkCovered": 6763,
+      "gb2312Covered": 6763,
+      "bytes": 1915688,
+      "woff2Sha256": "5ce0ac726cdd2e359fbb396e62a40d171b0262bea28fd2a232442f972c631803",
+      "sourceSha256": "50d3f12201ce2dd840650b6bfa47ebb8572ecf767eec0e5ccb20a247b5bfa805"
+    }
+  ]
+}

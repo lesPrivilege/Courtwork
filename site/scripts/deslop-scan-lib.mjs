@@ -578,9 +578,13 @@ function scanSvg(file, content, failures) {
     ['site/assets/icon.svg|g|1|stroke', '#0A2540'],
     ['docs/design/icon-dark.svg|rect|1|fill', tokenAt('color.text.primary.value')],
     ['docs/design/icon-dark.svg|rect|2|fill', tokenAt('color.bg.app.value')],
-    ['docs/design/icon-dark.svg|rect|3|fill', tokenAt('color.text.tertiary.value')],
-    ['docs/design/icon-dark.svg|rect|4|fill', tokenAt('color.text.tertiary.value')],
-    ['docs/design/icon-dark.svg|rect|5|fill', tokenAt('color.text.tertiary.value')],
+    // B2-0 收口重绑（2026-07-19）：浅宗 tertiary 随 AA 闭合压暗，深宗此位定谳不随动——
+    // 双宗共用中性就此拆分。深底品牌标的次要色条本就该跟深宗：若跟着浅宗压暗，
+    // 对 #232B38 深底的对比会由 3.3655 掉到 2.8328（-15.8%），品牌标反而更糊。
+    // 故此三处改绑 themes.dark.text.tertiary；SVG 字节一字未动。
+    ['docs/design/icon-dark.svg|rect|3|fill', tokenAt('themes.dark.text.tertiary.value')],
+    ['docs/design/icon-dark.svg|rect|4|fill', tokenAt('themes.dark.text.tertiary.value')],
+    ['docs/design/icon-dark.svg|rect|5|fill', tokenAt('themes.dark.text.tertiary.value')],
     ['docs/design/icon-light.svg|rect|1|fill', tokenAt('color.bg.app.value')],
     ['docs/design/icon-light.svg|rect|2|stroke', tokenAt('color.border.hairline.value')],
     ['docs/design/icon-light.svg|rect|3|fill', tokenAt('color.text.primary.value')],
