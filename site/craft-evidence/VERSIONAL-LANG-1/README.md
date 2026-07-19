@@ -56,3 +56,11 @@ DPR 2。`screencapture -l` 保存整扇原生窗口（文件 3424×2024，含系
 要求既定 `var(--text-tertiary)` focus 色槽并带透明 mutation，运行时 e2e 切到可输入的 Chat composer，
 真实聚焦 textarea 后核 computed 外壳边色。静态 mutation 先红后绿，定点 e2e 4/4 绿；等待不同
 会话在 clean clone 复验，本文不把实现自证写成放行。
+
+## 独立放行与 Pages 产品图
+
+首轮独立验收在 `45fb395` 拒绝；修补提交 `b93796a` 随后由全新 clean clone 复验放行。完整裁决、
+mutation、321 条 desktop e2e 与真实 Tauri/WKWebView 证据分别在
+`acceptance-45fb395/README.md` 与 `reacceptance-b93796a/README.md`。最终 Pages 三幅产品图在
+两轮独立验收后从 `main@16928c1` 重摄，来源哈希、状态和响应式映射见
+`../SITE-SHOTS-VERSIONAL-1/README.md`；它们替换旧皮层图，不改站面文案或产品能力声称。
