@@ -55,15 +55,16 @@ test('接受完整的指针式凡例契约', () => {
   assert.deepEqual(validateSchemaExemplarContract(fixture()), []);
 });
 
-test('档位账接受已签 P2/P5 行但拒绝未登记批次语法', () => {
+test('档位账接受已签 P2/P3/P5 行但拒绝未登记批次语法', () => {
   const signed = fixture();
   signed.tierLedger.push(
     { target: 'apps/desktop/src/styles.css#.workspace', tier: 'agent-interface', approvedProposalLine: 'P2-L01' },
+    { target: 'apps/desktop/src/styles.css#@keyframes seal-press', tier: 'agent-interface', approvedProposalLine: 'P3-S01' },
     { target: 'site/styles.css#.wordmark > span', tier: 'pages-experimental', approvedProposalLine: 'P5-F02' },
   );
   assert.deepEqual(validateSchemaExemplarContract(signed), []);
 
-  signed.tierLedger.push({ target: 'future', tier: 'agent-interface', approvedProposalLine: 'P3-X01' });
+  signed.tierLedger.push({ target: 'future', tier: 'agent-interface', approvedProposalLine: 'P4-X01' });
   assert.match(validateSchemaExemplarContract(signed).join('\n'), /future 缺已批提案行/);
 });
 

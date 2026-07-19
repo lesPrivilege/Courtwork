@@ -1,0 +1,22 @@
+{
+  "build": {
+    "beforeDevCommand": "ruby -run -e httpd ../.. -p 19354",
+    "devUrl": "http://127.0.0.1:19354/site/craft-evidence/SKIN-R2-P3/hanging-fixture.html"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "SKIN-R2 P3 · WKWebView authority fixture",
+        "width": 1280,
+        "height": 720,
+        "minWidth": 1180,
+        "minHeight": 720,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": false,
+        "resizable": false,
+        "fullscreen": false
+      }
+    ]
+  }
+}

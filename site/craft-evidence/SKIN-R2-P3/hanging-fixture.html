@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SKIN-R2 P3 · Tauri WKWebView hanging punctuation</title>
+  <link rel="stylesheet" href="/apps/desktop/src/styles.css">
+  <link rel="stylesheet" href="/site/craft-evidence/SKIN-R2-P3/hanging-fixture.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">SKIN-R2 · P3-H01 · AUTHORITY FIXTURE</p>
+      <h1>Tauri WKWebView · 行末标点正负对照</h1>
+      <p>唯一变量：<code>hanging-punctuation: allow-end</code> / <code>none</code></p>
+    </header>
+    <section class="comparison" aria-label="同一文书 fixture 正负对照">
+      <article>
+        <h2>正 · allow-end</h2>
+        <p id="positive" class="fixture positive"></p>
+      </article>
+      <article>
+        <h2>负 · none</h2>
+        <p id="negative" class="fixture negative"></p>
+      </article>
+    </section>
+    <pre id="measurements" aria-live="polite">measuring…</pre>
+    <p id="verdict" class="verdict">等待 WebKit 排印结果</p>
+  </main>
+  <script src="/site/craft-evidence/SKIN-R2-P3/hanging-fixture.js"></script>
+</body>
+</html>

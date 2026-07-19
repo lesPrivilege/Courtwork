@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "courtwork.skin-r2-p3.ink-ab.v1",
+  "engine": "Chromium 149.0.7827.55",
+  "viewport": "1440x900",
+  "devicePixelRatio": 2,
+  "consumer": "settle-seal-risk-04",
+  "variantA": {
+    "filter": "none",
+    "rect": [1351.25, 351.25, 55.5, 55.5],
+    "color": "rgb(190, 75, 47)",
+    "opacity": 0.5,
+    "frameSha256": "721c61e78024a6cd2d8cdbb15cfa4226169826d1086a45f9dca87f2931cab4ee"
+  },
+  "variantB": {
+    "filter": "feTurbulence + feDisplacementMap(scale 1.7)",
+    "rect": [1351.25, 351.25, 55.5, 55.5],
+    "color": "rgb(190, 75, 47)",
+    "opacity": 0.5,
+    "frameSha256": "00f322a4e78b96f8c5d8ab2173114bde03ed1db5ae4edc1c88fe042608a2e84c"
+  },
+  "geometryStable": true,
+  "animationCountStable": true,
+  "cleanup": {
+    "fixtureCount": 0,
+    "inlineFilter": "",
+    "computedFilter": "none"
+  },
+  "contrastAudit": {
+    "sealCompositeOnWhite": "rgb(222.5, 165, 151)",
+    "ratio": 2.1104,
+    "note": "朱印为 aria-hidden 的重复性裁决痕，不承担唯一信息；但 P3-I01 明定墨迹须同时守住 AA，不以豁免替代准入。"
+  },
+  "decision": "reject-migration"
+}

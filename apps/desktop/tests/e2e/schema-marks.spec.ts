@@ -137,6 +137,25 @@ test('仪式在 reduce 下完全停摆（计算态实测，非「媒体查询在
 
   // 常态：仪式在跑。这一条是下一条的对照——没有它，reduce 下的 none 可能只是它从来没跑过。
   expect(await seal.evaluate((node) => getComputedStyle(node).animationName)).toBe('seal-press');
+  const keyframes = await page.evaluate(() => {
+    for (const sheet of [...document.styleSheets]) {
+      for (const rule of [...sheet.cssRules]) {
+        if (rule instanceof CSSKeyframesRule && rule.name === 'seal-press') {
+          return [...rule.cssRules].map((frame) => ({
+            key: frame.keyText,
+            opacity: frame.style.opacity,
+            transform: frame.style.transform,
+          }));
+        }
+      }
+    }
+    return [];
+  });
+  expect(keyframes, 'P3-S01：朱印仪式须含获签的 58% 回弹段，且只改 opacity/transform').toEqual([
+    { key: '0%', opacity: '0', transform: 'rotate(-4deg) scale(1.16)' },
+    { key: '58%', opacity: '0.62', transform: 'rotate(-4deg) scale(0.96)' },
+    { key: '100%', opacity: '0.5', transform: 'rotate(-4deg) scale(1)' },
+  ]);
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   // 全局兜底把动效压到 .01ms，那是「演得极快」不是「不演」。仪式必须是后者，

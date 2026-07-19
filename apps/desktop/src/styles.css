@@ -1278,7 +1278,11 @@ button.interaction-anchor:hover { background: var(--control-hover); }
    缩到 52px 会掉到约 1.08px——一枚糊成发丝的印比没有印更糟。non-scaling-stroke 让线重脱离缩放，
    几何一笔未动（单源不破），改的只是消费点怎么落笔。 */
 .settle-seal use { vector-effect: non-scaling-stroke; }
-@keyframes seal-press { from { opacity: 0; transform: rotate(-4deg) scale(1.16); } to { opacity: .5; transform: rotate(-4deg) scale(1); } }
+@keyframes seal-press {
+  0% { opacity: 0; transform: rotate(-4deg) scale(1.16); }
+  58% { opacity: .62; transform: rotate(-4deg) scale(.96); }
+  100% { opacity: .5; transform: rotate(-4deg) scale(1); }
+}
 .settle-flash { position: absolute; z-index: 2; inset: 1px; border: 1px solid transparent; border-radius: 4px; pointer-events: none; }
 .settle-flash[data-kind="confirmed"] { --settle-color: var(--green-graphic); }
 .settle-flash[data-kind="rejected"] { --settle-color: var(--slate-graphic); }
@@ -1681,9 +1685,11 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
    · `text-autospace: normal` —— 仿宋**视觉字距**（中西文混排间隙）。实测该串 +4px，
      且阴性对照（伪值）与 base 逐位相等，故测量本身有区分力、效力非错觉。它调的是
      「中西文之间的间隙」而非字距本身，凡例「正文不调字距」不破。
-   · `hanging-punctuation: allow-end` —— 中文标点悬挂。产品壳是 WebKit（Tauri/macOS）支持；
-     **e2e 引擎 Chromium 不支持（CSS.supports 实测 false）**，故本项运行时效力**未经本仓验证**，
-     已挂真机清单。声明照落（production 引擎会用），但不谎称已验。
+   · `hanging-punctuation: allow-end` —— 中文标点悬挂。P3-H01 已在真实 Tauri WKWebView
+     以同一朱雀 fixture 做 allow-end / none 正负对照：前者让逗号留在前行并悬出 23 CSS px，
+     后者把逗号下移 39 CSS px（macOS 26.5.2 / AppleWebKit 605.1.15 / 1280×720 / DPR 2）。
+     **e2e 引擎 Chromium 仍不支持（CSS.supports 实测 false）**，只作跨引擎阴性守卫，
+     不取得排印放行权。权威帧与固定 fixture 见 `site/craft-evidence/SKIN-R2-P3/`。
    · `text-spacing-trim` —— **实测拒收**：trim-start / trim-both / space-all 三值与 base、
      与阴性对照全部同宽（288px），即测试引擎里它什么也没做。装一个证不出效力的属性是装饰，
      克制审计挡下。若日后引擎跟上，另行带测据补。 */

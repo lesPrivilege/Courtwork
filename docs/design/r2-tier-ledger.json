@@ -1332,6 +1332,31 @@
       "approvedProposalLine": "P2-L18"
     },
     {
+      "target": "apps/desktop/src/styles.css#@keyframes seal-press",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P3-S01"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#@media(prefers-reduced-motion)|.settle-seal",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P3-S02"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#document-track|hanging-punctuation",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P3-H01"
+    },
+    {
+      "target": "site/craft-evidence/SKIN-R2-P3#ink-bleed-ab",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P3-I01"
+    },
+    {
+      "target": "site/craft-evidence/SKIN-R2-P3#restraint-audit",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P3-A01"
+    },
+    {
       "target": "site/styles.css#@font-face(Courtwork-Manuscript-Latin)",
       "tier": "pages-experimental",
       "approvedProposalLine": "P5-F01"

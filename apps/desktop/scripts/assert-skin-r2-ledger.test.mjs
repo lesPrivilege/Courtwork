@@ -13,7 +13,7 @@ const validFixture = () => signedR2LedgerRows.map(([approvedProposalLine, target
   tier,
 }));
 
-test('签署后的 P2/P5 平铺账完整通过', () => {
+test('签署后的 P2/P3/P5 平铺账完整通过', () => {
   assert.deepEqual(validateSignedR2Ledger(validFixture()), []);
 });
 
@@ -42,4 +42,9 @@ test('注入四：退场的 P5 UI 覆盖行不得复活', () => {
   const fixture = validFixture();
   fixture.push({ approvedProposalLine: retiredP5ProposalLines[0], target: 'site/styles.css#:root|--sans', tier: 'pages-experimental' });
   assert.match(validateSignedR2Ledger(fixture).join('\n'), /退场提案行不得进入活档位账：P5-F06/);
+});
+
+test('注入五：P3 每件巧思必须各占唯一签署行', () => {
+  const fixture = validFixture().filter((entry) => entry.approvedProposalLine !== 'P3-H01');
+  assert.match(validateSignedR2Ledger(fixture).join('\n'), /已签提案行缺失：P3-H01/);
 });
