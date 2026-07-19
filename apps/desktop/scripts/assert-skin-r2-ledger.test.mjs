@@ -13,7 +13,7 @@ const validFixture = () => signedR2LedgerRows.map(([approvedProposalLine, target
   tier,
 }));
 
-test('签署后的 P2/P3/P4/P5 平铺账完整通过', () => {
+test('签署后的 P2/P3/P4/P5/VERSIONAL-LANG 平铺账完整通过', () => {
   assert.deepEqual(validateSignedR2Ledger(validFixture()), []);
 });
 
@@ -52,4 +52,10 @@ test('注入五：P3 每件巧思必须各占唯一签署行', () => {
 test('注入六：P4 根宗映射与 schema 双宗断言不得漏账', () => {
   const fixture = validFixture().filter((entry) => entry.approvedProposalLine !== 'P4-D04');
   assert.match(validateSignedR2Ledger(fixture).join('\n'), /已签提案行缺失：P4-D04/);
+});
+
+test('注入七：版本学三档不得把 schema 行绑到 Agent 档', () => {
+  const fixture = validFixture();
+  fixture.find((entry) => entry.approvedProposalLine === 'VL-S03').tier = 'agent-interface';
+  assert.match(validateSignedR2Ledger(fixture).join('\n'), /VL-S03 档位漂移/);
 });

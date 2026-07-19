@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "baseline": "01e74589285eab8c3db8564e41430f5a0bbe945c",
+  "classification": "routine",
+  "summary": {
+    "reviewed": 11,
+    "retired": 11,
+    "retiredPercent": 100,
+    "signedMinimumPercent": 40
+  },
+  "entries": [
+    { "target": ".pane-head|bottom", "oldProposalLine": "P1-M02", "newProposalLine": "VL-L02", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "窗格标题与内容已由排印和位置分层，例行底线不再承担结构。" },
+    { "target": ".scene-strip|top", "oldProposalLine": "P1-M07", "newProposalLine": "VL-L02", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "场景动作属于 composer 内同组工具，外壳已提供强功能边界。" },
+    { "target": ".dense-row|bottom", "oldProposalLine": "P1-N003", "newProposalLine": "VL-S02", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "同类 schema 记录依靠列对齐、密度与选中态扫读，逐行线退场。" },
+    { "target": ".settings-row|bottom", "oldProposalLine": "P1-N006", "newProposalLine": "VL-L06", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "设置项以分组标题与垂直节奏区分，输入控件自身边界保留。" },
+    { "target": ".visual-decision-actions .question-option|bottom", "oldProposalLine": "P1-N009", "newProposalLine": "VL-L02", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "同组裁决项由间距、hover 与 focus 表达，不逐项切格。" },
+    { "target": ".risk-status-ledger > div|right", "oldProposalLine": "P1-N022", "newProposalLine": "VL-S03", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "四字段保持固定顺序与对齐，整组上下语义界足以承载层级。" },
+    { "target": ".generated-callout|all", "oldProposalLine": "P1-N041", "newProposalLine": "VL-L04", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "生成说明回到横向眉批带，底色与文字角色仍可区分来源。" },
+    { "target": ".data-card, .detail-card|all", "oldProposalLine": "P1-N044", "newProposalLine": "VL-L03", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "普通数据与详情并入平直台账；gate、error、route 等语义例外不受影响。" },
+    { "target": ".settings-memory-item|all", "oldProposalLine": "P1-N055", "newProposalLine": "VL-L06", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "记忆条目是同组只读信息，靠节奏和字轨分层，不再独立成卡。" },
+    { "target": ".composer-disabled-reason|all", "oldProposalLine": "P1-N062", "newProposalLine": "VL-L05", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "禁用理由位于 composer 强外壳内，文字与 disabled 状态已给出语义。" },
+    { "target": ".visual-decision-actions|top", "oldProposalLine": "P1-N065", "newProposalLine": "VL-L02", "oldValue": "var(--rule-minor) solid var(--border)", "newValue": "0", "reason": "裁决动作与问题正文连续，留白替代无语义段线。" }
+  ]
+}

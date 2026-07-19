@@ -535,6 +535,23 @@ craft-evidence B7 节与 `noto/` `zhuque/` `juzhen-rejected/` 三个快照目录
 跨层接口。字体资产仅增一枚精确子集及其 manifest/许可证据。实现者不自验收，后续只接受独立
 clean clone 的验收报告；本批不 push、不部署。
 
+---
+
+## VERSIONAL-LANG-1 · Pages 版本学编排（实现完成，待两轮独立验收）
+
+Pages 是三档中的激进档，但本批只把版本学转译为既有内容内的编排：抬头／平阙、组界、眉批与
+平框刊记；不新增颜色、字体、字重、动效、fixture、CTA 或 schema。
+
+- hero release truth 归入 `#release-colophon.publication-colophon` 平框刊记；版本、架构、签名与
+  SHA 仍只读既有真实值。P5 写本拉丁四消费点与其闭集门原样保留。
+- `.scenario-proof` 撤内部竖格线，只留外部版框；`.promise-ledger` 撤逐行线，只留组界与末界；
+  `.site-marginalia` 以横向上下界替代四周卡框。移动端同样不复活例行分隔。
+- 新 Pages 契约接入 `site:guard`，锁刊记锚、平框、proof/ledger 组界与眉批；竖线复活、锚丢失、
+  四周框复活三类 mutation 均定点红。HTML 语义、JS、数据节点、reduced-motion 与 JS-off 边界不动。
+
+来源哈希、逐项 Before/After/Why、真帧与实现自检见
+`site/craft-evidence/VERSIONAL-LANG-1/README.md`；本文不作独立放行声明。
+
 ### P5-F10 独立验收拒绝与修复
 
 首轮独立验收在 `9a1281b` 复活退场行 P5-F06：写本 family 经 `:root --sans` 间接扩散到 body，

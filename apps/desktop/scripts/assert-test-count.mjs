@@ -50,7 +50,8 @@ const count = match ? Number(match[1]) : 0;
 // SKIN-R2 P2（版式补遗）：比较态收栏零幽灵轨 + composer 不越对话列 +2 → 314。
 // SKIN-R2 P4：themeMode system/explicit 持久化与双宗切换真路径 +1 → 315。
 // SKIN-R2 P2 溢出纠偏：detached chrome 标题安全区 + composer disclaimer 容器换行 +2 → 317。
-const minimum = 317;
+// VERSIONAL-LANG-1：Agent/Schema 线减法、题轨与 Settings 强边界四条 +4 → 321。
+const minimum = 321;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

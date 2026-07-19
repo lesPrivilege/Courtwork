@@ -231,6 +231,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .release-fact { display: flex; flex-wrap: wrap; gap: 0; margin: 20px 0 0; color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .release-fact span + span::before { content: "·"; padding: 0 10px; }
 .release-fact code { overflow-wrap: anywhere; color: var(--text-secondary); font: inherit; }
+.publication-colophon { width: fit-content; max-width: 100%; padding: 10px 12px; border: 1px solid var(--border-strong); background: transparent; }
 
 .mac-window { margin: 52px 0 0; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-raised); }
 .mac-bar { height: 42px; display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; margin: 0; padding: 0 14px; border-bottom: 1px solid var(--border-hairline); color: var(--meta); background: var(--bg-surface); font-family: var(--mono); font-size: 12px; text-align: center; }
@@ -322,7 +323,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .mark-emphasis { width: 9px; height: 9px; margin-right: 9px; vertical-align: .04em; color: var(--text-tertiary); }
 
 .section-heading { max-width: var(--page-max); margin: 0 auto; }
-.section-heading h2 { margin-top: 10px; }
+.section-heading h2 { margin-top: 14px; }
 .section-heading > p:last-child:not(.eyebrow) { max-width: 620px; margin: 20px 0 0; color: var(--text-secondary); font-size: 16px; }
 
 .evidence { padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)) 128px; border-block: 1px solid var(--border-hairline); background: var(--bg-raised); }
@@ -400,8 +401,8 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .scenario-copy h3 { margin-top: 10px; }
 .scenario-copy p { max-width: 30rem; margin: 14px 0 0; color: var(--text-secondary); }
 .scenario-boundary { display: block; margin-top: 18px; color: var(--meta); font-family: var(--mono); font-size: 11px; overflow-wrap: anywhere; }
-.scenario-proof { min-width: 0; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; border-block: 1px solid var(--border-hairline); }
-.scenario-proof li { min-width: 0; padding: 18px; border-right: 1px solid var(--border-hairline); }
+.scenario-proof { min-width: 0; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: clamp(14px, 2vw, 28px); list-style: none; border-block: 1px solid var(--border-hairline); }
+.scenario-proof li { min-width: 0; padding: 18px 4px; border-right: 0; }
 .scenario-proof li:last-child { border-right: 0; }
 .scenario-proof small { color: var(--meta); font-family: var(--mono); font-size: 11px; }
 .scenario-proof p, .scenario-proof blockquote { margin: 9px 0 0; color: var(--text-primary); font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
@@ -418,7 +419,8 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
    墨阶表达，四枚派生阶再无消费面（复杂度扫描：净删 4 个概念，零新增替代）。 */
 .promise { margin-top: 40px; padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)); border-block: 1px solid var(--border-strong); background: var(--bg-raised); }
 .promise-ledger { max-width: var(--page-max); margin: 44px auto 0; border-top: 1px solid var(--border-hairline); }
-.promise-ledger > div { display: grid; grid-template-columns: minmax(180px, 3fr) minmax(0, 7fr); gap: 32px; padding: 22px 0; border-bottom: 1px solid var(--border-hairline); }
+.promise-ledger > div { display: grid; grid-template-columns: minmax(180px, 3fr) minmax(0, 7fr); gap: 32px; padding: 24px 0; border-bottom: 0; }
+.promise-ledger > div:last-child { border-bottom: 1px solid var(--border-hairline); }
 .promise-ledger dt { font-size: 21px; }
 .promise-ledger dd { margin: 0; color: var(--text-secondary); }
 /* SITE-CRAFT-2 B3 · 印记式落定章（文书文化抽象引用，原生 SVG 件）：与首则承诺同文的方印落在
@@ -431,7 +433,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
    token，不是放宽红的预算：红（--red-fg）与朱（--zhu-*）在门内是两族，各有专属消费面。 */
 .settle-seal { position: absolute; right: 0; top: 4px; width: 88px; height: 88px; color: var(--zhu-graphic); transform: rotate(-2deg); }
 .settle-seal text { fill: currentColor; font-size: 28px; text-anchor: middle; }
-.design-boundary { max-width: var(--page-max); margin: 48px auto 0; padding: 20px 24px; border: 1px solid var(--border-hairline); background: var(--bg-app); color: var(--text-secondary); font-family: var(--mono); font-size: 12px; line-height: 1.9; }
+.design-boundary { max-width: var(--page-max); margin: 48px auto 0; padding: 20px 4px; border: 0; border-block: 1px solid var(--border-hairline); background: transparent; color: var(--text-secondary); font-family: var(--mono); font-size: 12px; line-height: 1.9; }
 .design-boundary p { margin: 0; }
 .design-boundary a { color: var(--text-primary); }
 
@@ -451,7 +453,7 @@ footer p { margin: 0; }
   .scenario-row { grid-template-columns: 1fr; gap: 28px; }
   .scenario-proof { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .scenario-proof li:nth-child(2) { border-right: 0; }
-  .scenario-proof li:nth-child(n + 3) { border-top: 1px solid var(--border-hairline); }
+  .scenario-proof li:nth-child(n + 3) { border-top: 0; }
 }
 
 @media (max-width: 760px) {
@@ -476,8 +478,7 @@ footer p { margin: 0; }
   .release-fact { display: grid; }
   .release-fact span + span::before { content: none; }
   .scenario-proof { grid-template-columns: 1fr; }
-  .scenario-proof li { border-right: 0; border-top: 1px solid var(--border-hairline); }
-  .scenario-proof li:first-child { border-top: 0; }
+  .scenario-proof li { border-right: 0; border-top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

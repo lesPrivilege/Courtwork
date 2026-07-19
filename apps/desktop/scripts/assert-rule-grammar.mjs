@@ -43,13 +43,10 @@ const MINOR = {
   '.session-history-head|bottom': 'P1-M04：会话台账空态退场，回单线',
   '.session-entry|bottom': '行分隔',
   '.session-transcript-turn|bottom': '行分隔',
-  '.dense-row|bottom': '行分隔',
   '.nonapplied-item|bottom': '行分隔',
   '.originals-list li|bottom': '行分隔',
-  '.settings-row|bottom': '行分隔',
   '.gallery-ledger li|bottom': '行分隔',
   '.gallery-timeline li|left': '行分隔（时间轴轨）',
-  '.visual-decision-actions .question-option|bottom': '行分隔',
   '.interaction-anchor|bottom': '行分隔',
   '.relation-list button|bottom': '行分隔',
   '.file-ops-table th, .file-ops-table td|bottom': '单元格网格',
@@ -63,7 +60,6 @@ const MINOR = {
   '.matrix-wrap td|bottom': '单元格网格',
   '.md-table th, .md-table td|right': '单元格网格',
   '.md-table th, .md-table td|bottom': '单元格网格',
-  '.risk-status-ledger > div|right': '单元格网格',
   '.gallery-grid|left': '单元格网格',
   '.gallery-specimen|right': '单元格网格',
   '.gallery-specimen|bottom': '单元格网格',
@@ -83,10 +79,8 @@ const MINOR = {
   '.progress-card|top': '内层容器',
   '.progress-card|bottom': '内层容器',
   '.interaction-turn-card|all': '内层容器（轻卡）',
-  '.generated-callout|all': '内层容器',
   '.model-config-reasoning|all': '内层容器',
   '.sample-tour|all': '内层容器',
-  '.data-card, .detail-card|all': '内层容器',
   '.turn-card-gate|all': '内层容器（轻卡）',
   '.graph-canvas|all': '内层容器（图谱画布）',
   '.s3-launcher|all': '内层容器',
@@ -97,20 +91,16 @@ const MINOR = {
   '.draft-editor, .draft-reading|all': '内层容器（文书纸面）',
   '.work-draft-toolbar|all': '内层容器',
   '.work-draft-body|all': '内层容器（工作稿面）',
-  '.settings-memory-item|all': '内层容器',
   '.settings-fields fieldset|all': '内层容器',
   '.settings-path|all': '内层容器',
   '.settings-credential-embed|all': '内层容器',
   '.paste-block|all': '内层容器',
   '.md-table-wrap|all': '内层容器（表框）',
   '.composer-entry-guidance|all': '内层容器',
-  '.composer-disabled-reason|all': '内层容器',
   '.gallery-chain li|all': '内层容器',
   '.gallery-specimen .visual-decision|all': '内层容器',
   // 段内分隔
-  '.scene-strip|top': 'P1-M07：高频 composer 上界回单线',
   '.rail-user-wrap|top': 'P1-M08：栏脚 owner 区回单线',
-  '.visual-decision-actions|top': '段内分隔',
   '.visual-partial|top': '段内分隔',
   '.visual-partial ul|top': '段内分隔',
   '.interaction-anchor-ledger|top': '段内分隔',
@@ -142,7 +132,6 @@ const MINOR = {
   '.gallery-specimen > footer|top': '段内分隔',
   '.gallery-ledger|top': '段内分隔',
   // 面内分栏
-  '.pane-head|bottom': 'P1-M02：compare 窗格头回单线',
   '.rail-case-expand|left': '面内分栏（树形缩进轨）',
   '.utility-dock-item|right': '面内分栏',
   '.preview-scroll-progress|left': '面内分栏',
@@ -155,6 +144,22 @@ const MINOR = {
   '.view-tabs|bottom': '段内分隔（判据 c：overflow-x 滚动容器，细线会随 tab 卷走）',
 };
 
+// VERSIONAL-LANG-1：签署范围里的 routine 线从活分类退场。旧 P1 行仍在账中，但以
+// `decision=退 + supersededBy=VL-*` 前向记账；这里是唯一退役消费点闭集，复活任一声明即红。
+const RETIRED = {
+  '.pane-head|bottom': 'VL-L02',
+  '.scene-strip|top': 'VL-L02',
+  '.dense-row|bottom': 'VL-S02',
+  '.settings-row|bottom': 'VL-L06',
+  '.visual-decision-actions .question-option|bottom': 'VL-L02',
+  '.risk-status-ledger > div|right': 'VL-S03',
+  '.generated-callout|all': 'VL-L04',
+  '.data-card, .detail-card|all': 'VL-L03',
+  '.settings-memory-item|all': 'VL-L06',
+  '.composer-disabled-reason|all': 'VL-L05',
+  '.visual-decision-actions|top': 'VL-L02',
+};
+
 // ── 不换：答不出「此界为何是主/次」的线 ────────────────────────────────────
 // 控件边、浮面描边、语义色标线与占位透明边都不承载层级信息——它们不是层级语法的一部分，
 // 强行归档只会让线重重新变回装饰。逐条具名登记即「答不出即不换」的可机验形态。
@@ -164,8 +169,6 @@ const EXEMPT = {
   'kbd|width-only': '控件边（按键拟形底沿）',
   '.quiet-button, .primary-button, .scene-strip button, .batch-bar button, .continuation-button|all': '控件边',
   '.chat-titlebar input|all': '控件边',
-  '.container-origin-label|all': '控件边（标签）',
-  '.demo-badge|all': '控件边（徽章）',
   '.chat-case-head input|all': '控件边',
   '.scroll-latest-button|all': '控件边（浮标）',
   '.attachment-chip|all': '控件边（chip）',
@@ -181,7 +184,6 @@ const EXEMPT = {
   '.welcome-idea-icon|all': '控件边（图标槽）',
   '.user-message-attachments span|all': '控件边（chip）',
   '.visual-status|all': '控件边（状态徽章）',
-  '.settings-memory-kind|all': '控件边（徽章）',
   '.composer-paste-chip|all': '控件边（chip）',
   '.chat-markdown code|all': '排印元素（行内代码底纹）',
   '.gallery-specimen em|all': '控件边（徽章）',
@@ -244,8 +246,8 @@ const P1_TARGET_PREFIX = 'apps/desktop/src/styles.css#';
 const p1Rows = (tierLedger.entries ?? []).filter((row) => /^P1-[MN]\d+$/.test(row.approvedProposalLine ?? ''));
 const ledgerByKey = new Map();
 const proposalLines = new Set();
-const decisionCounts = { '留': 0, '减薄': 0, '回单线': 0 };
-const classCounts = { major: 0, minor: 0 };
+const decisionCounts = { '留': 0, '减薄': 0, '回单线': 0, '退': 0 };
+const classCounts = { major: 0, minor: 0, none: 0 };
 for (const row of p1Rows) {
   const line = row.approvedProposalLine;
   if (proposalLines.has(line)) failures.push(`P1 档位账提案行重复：${line}`);
@@ -262,14 +264,18 @@ for (const row of p1Rows) {
   else decisionCounts[row.decision] += 1;
   if (!(row.ruleClass in classCounts)) failures.push(`P1 档位账 ${line} 线级非法：${row.ruleClass ?? '(缺)'}`);
   else classCounts[row.ruleClass] += 1;
-  const expectedClass = key in MAJOR ? 'major' : key in MINOR ? 'minor' : undefined;
+  const expectedClass = key in MAJOR ? 'major' : key in MINOR ? 'minor' : key in RETIRED ? 'none' : undefined;
   if (row.ruleClass !== expectedClass) failures.push(`P1 档位账 ${line} 与三分类账不一致：${key} = ${row.ruleClass ?? '(缺)'}/${expectedClass ?? '(未分类)'}`);
-  const expectedWidth = expectedClass === 'major' ? 'var(--rule-major)' : 'var(--rule-minor)';
+  const expectedWidth = expectedClass === 'major' ? 'var(--rule-major)' : expectedClass === 'minor' ? 'var(--rule-minor)' : '0';
   if (row.expectedWidth !== expectedWidth) failures.push(`P1 档位账 ${line} 宽度漂移：${row.expectedWidth ?? '(缺)'} / ${expectedWidth}`);
-  if (!['var(--rule-ink)', 'var(--border)', 'var(--border-strong)'].includes(row.expectedColor)) {
+  const allowedColors = expectedClass === 'none' ? ['transparent'] : ['var(--rule-ink)', 'var(--border)', 'var(--border-strong)'];
+  if (!allowedColors.includes(row.expectedColor)) {
     failures.push(`P1 档位账 ${line} 色槽非法：${row.expectedColor ?? '(缺)'}`);
   }
   if (row.hairline !== (expectedClass === 'major')) failures.push(`P1 档位账 ${line} 文武线伴生标记错误`);
+  if (expectedClass === 'none' && row.supersededBy !== RETIRED[key]) {
+    failures.push(`P1 档位账 ${line} 退役去向漂移：${row.supersededBy ?? '(缺)'} / ${RETIRED[key]}`);
+  }
 }
 for (let index = 1; index <= 8; index += 1) {
   const line = `P1-M${String(index).padStart(2, '0')}`;
@@ -280,13 +286,13 @@ for (let index = 1; index <= 105; index += 1) {
   if (!proposalLines.has(line)) failures.push(`P1 档位账缺提案行：${line}`);
 }
 if (p1Rows.length !== 113) failures.push(`P1 档位账行数漂移：${p1Rows.length} / 113`);
-if (classCounts.major !== 4 || classCounts.minor !== 109) {
-  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/109`);
+if (classCounts.major !== 4 || classCounts.minor !== 98 || classCounts.none !== 11) {
+  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/98 · 退 ${classCounts.none}/11`);
 }
-if (decisionCounts['留'] !== 97 || decisionCounts['减薄'] !== 12 || decisionCounts['回单线'] !== 4) {
-  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/97 · 减薄 ${decisionCounts['减薄']}/12 · 回单线 ${decisionCounts['回单线']}/4`);
+if (decisionCounts['留'] !== 89 || decisionCounts['减薄'] !== 11 || decisionCounts['回单线'] !== 2 || decisionCounts['退'] !== 11) {
+  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/89 · 减薄 ${decisionCounts['减薄']}/11 · 回单线 ${decisionCounts['回单线']}/2 · 退 ${decisionCounts['退']}/11`);
 }
-for (const key of [...Object.keys(MAJOR), ...Object.keys(MINOR)]) {
+for (const key of [...Object.keys(MAJOR), ...Object.keys(MINOR), ...Object.keys(RETIRED)]) {
   if (!ledgerByKey.has(key)) failures.push(`P1 档位账漏消费点：${key}`);
 }
 
@@ -357,6 +363,9 @@ for (const [scope, table] of [['主界', MAJOR], ['次界', MINOR], ['不换', E
     if (!present.has(key)) failures.push(`${scope}清单有陈项，styles.css 已无此消费点：${key}`);
   }
 }
+for (const key of Object.keys(RETIRED)) {
+  if (present.has(key)) failures.push(`VERSIONAL-LANG routine 线复活：${key}（${RETIRED[key]}）`);
+}
 
 // 文武线＝两线俱在。粗线由上方逐点校验，细线在这里核对 ::after 伴生规则。
 for (const key of Object.keys(MAJOR)) {
@@ -383,5 +392,5 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(
-  `线级语法门通过：主界 ${Object.keys(MAJOR).length} 条文武线 · 次界 ${Object.keys(MINOR).length} 条乌丝细线 · 具名不换 ${Object.keys(EXEMPT).length} 条 · 共 ${sites.length} 处 · P1 留 ${decisionCounts['留']}/减薄 ${decisionCounts['减薄']}/回单线 ${decisionCounts['回单线']}`,
+  `线级语法门通过：主界 ${Object.keys(MAJOR).length} 条文武线 · 次界 ${Object.keys(MINOR).length} 条乌丝细线 · routine 退 ${Object.keys(RETIRED).length} 条 · 具名不换 ${Object.keys(EXEMPT).length} 条 · 共 ${sites.length} 处 · P1 留 ${decisionCounts['留']}/减薄 ${decisionCounts['减薄']}/回单线 ${decisionCounts['回单线']}/退 ${decisionCounts['退']}`,
 );
