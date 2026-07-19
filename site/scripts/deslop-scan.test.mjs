@@ -269,7 +269,8 @@ const GOOD_GRAMMAR_CSS = String.raw`
 :root { --zhu-graphic: #D75A3C; --gold: #D9AE6A; }
 .tc { color: var(--gold); }
 .settle-seal { color: var(--zhu-graphic); }
-.demo-actions span { border: 1px solid var(--zhu-graphic); color: var(--zhu-fg); }
+.demo-actions span { border: 1px solid var(--border-strong); color: var(--text-primary); animation: demo-zhu-b 12s linear infinite; }
+@keyframes demo-zhu-b { 0%, 35% { border-color: var(--border-strong); } 38%, 60% { border-color: var(--zhu-graphic); } 63%, 100% { border-color: var(--border-strong); } }
 @keyframes typer-develop { 40% { background-color: var(--gold); } }
 @keyframes demo-attn-a { 5% { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent); } }
 `;
@@ -287,6 +288,20 @@ test('SITE-CRAFT-2 colour grammar keeps 朱 on adjudication and 泥金 in the he
   // 白名单不许烂掉：登记了却零消费＝允许面虚增，同样触红。
   assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('.settle-seal { color: var(--zhu-graphic); }', '')).includes('color-grammar'));
   assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('.tc { color: var(--gold); }', '')).includes('color-grammar'));
+});
+
+// 架构定谳：朱＝人工裁决之痕，**不作环境色**——描边只在人工处置那一幕现形（与 line.settled
+// 前向守卫同语义）。裁定若只写在文档里，下一次顺手把朱写回基态就恒亮了，故写成门。
+test('SITE-CRAFT-2 朱 stays inside the adjudication frame instead of becoming ambient', () => {
+  assert.deepEqual(grammarRules(GOOD_GRAMMAR_CSS), []);
+  // 朱写回基态声明 → 恒亮＝环境色，帧边界落空，触红。
+  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace(
+    '.demo-actions span { border: 1px solid var(--border-strong);',
+    '.demo-actions span { border: 1px solid var(--zhu-graphic);')).includes('color-grammar'));
+  // 帧 keyframe 声明了却没人跑 → 该面的朱整个消失，同样触红（双向守）。
+  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('animation: demo-zhu-b 12s linear infinite; ', '')).includes('color-grammar'));
+  // 朱借未登记的 keyframe 逃逸 → 触红。
+  assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n@keyframes seal-pulse { to { border-color: var(--zhu-graphic); } }`).includes('color-grammar'));
 });
 
 test('SITE-CRAFT-2 site palette is bound to themes.dark by name, not by a frozen copy', () => {

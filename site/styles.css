@@ -29,6 +29,17 @@
   font-weight: 700;
   font-display: swap;
 }
+/* 文书轨拉丁分段（编排义务②收口，架构准）：把西文段用 unicode-range **钉死**在自带子集上，
+   而不是靠宿主装没装 Charter/Georgia/Times——本地字体缺席时数字会落进仿宋弱拉丁，那正是
+   分段要封的残留。文件覆盖面与 unicode-range 逐位相等（25 枚：数字/百分号/数字相邻标点），
+   不相等就等于换个位置复现同一残留。
+   刻意**不含** U+2000-206F：「」等中文引号属 CJK 排印，须留在朱雀，绑到拉丁面会变半角。 */
+@font-face {
+  font-family: "Courtwork Doc Numerals";
+  src: url(assets/fonts/doc-latin-subset.woff2) format("woff2");
+  font-display: swap;
+  unicode-range: U+0024-0025, U+0028-0029, U+002B-003E, U+007E;
+}
 
 /* SITE-CRAFT-2 磁青宗批 · 色彩语法四位：磁青为底、墨为记、朱仅裁决、泥金 hero 唯一强调。
    底色一律 themes.dark（站与壳 dark 同宗，deslop 按 token 名逐项锚定，站面零第二真源）；
@@ -57,10 +68,10 @@
   --display: "Zhuque Fangsong", "STFangsong", "FangSong", "Noto Serif SC", serif;
   /* 标题轨：通行宋体。西文由 Noto Serif SC 自带拉丁承担（同族同源，不混投）。 */
   --font-title: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
-  /* 文书轨（编排义务②·拉丁配衬字显式指定）：仿宋拉丁字形弱，故把真衬线西文体排在 CJK 之前——
-     字形按字回退，拉丁与数字走 Charter/Georgia/Times，CJK 才落到朱雀，杜绝西文裸回退到仿宋。
-     残留边界如实登记：若三枚西文体在宿主上全缺，数字仍会落到朱雀（generic 只能收尾）。 */
-  --font-doc: Charter, "Bitstream Charter", Georgia, "Times New Roman", "Zhuque Fangsong", "STFangsong", "FangSong", serif;
+  /* 文书轨（编排义务②·拉丁配衬字显式指定，收口后）：数字段由自带子集 Courtwork Doc Numerals
+     经 unicode-range 钉死——**不依赖宿主装没装西文体**，原「三兜底全缺则数字落仿宋」的残留至此闭合
+     （红证见 craft-evidence B8）。Charter 一组留在其后只服务分段外的西文字母；CJK 落朱雀。 */
+  --font-doc: "Courtwork Doc Numerals", Charter, "Bitstream Charter", Georgia, "Times New Roman", "Zhuque Fangsong", "STFangsong", "FangSong", serif;
   /* themes.dark 未设 bg.hover 槽位（B0 定值只到三级台阶）：站面按台阶自派生，不自造 hex。 */
   --bg-hover: color-mix(in srgb, var(--bg-raised) 88%, var(--text-primary));
   --motion-press: 120ms;
@@ -219,9 +230,18 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .demo-basis { padding: 8px 10px; border: 1px solid var(--border-hairline); border-radius: 4px; color: var(--text-secondary); font-family: var(--mono); font-size: 11px; animation: demo-attn-a 12s linear infinite; }
 .demo-gate { padding: 10px; border: 1px solid var(--border-hairline); border-radius: 4px; animation: demo-attn-b 12s linear infinite; }
 .demo-actions { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
-/* 朱只在人做决定处：确认此项/驳回/修正是微演示里唯一由人落定的一格，故取朱批的描边与字色。
-   刻意不做朱填充——填充会把静态描绘读成可点控件（B2 已定「不构成假控件」），朱批批注不会。 */
-.demo-actions span { padding: 3px 10px; border: 1px solid var(--zhu-graphic); border-radius: 4px; color: var(--zhu-fg); font-size: 12px; }
+/* 朱＝人工裁决之痕（架构定谳：朱印/朱批皆属），落在微演示里唯一由人落定的一格。
+   **朱不作环境色**（与 line.settled 前向守卫同语义）：描边只在幕二「逐条确认」那一段现形，
+   幕外回中性墨——朱的出现即「此刻有人在裁决」，恒亮就退化成装饰色了。
+   字色恒中性：朱只走描边不铺到文字层，既守「痕」的语义，也把动的属性限在
+   demo-motion 白名单内的 border-color。刻意不做朱填充——填充会把静态描绘读成可点控件。
+   reduced-motion 下 `.schema-demo * { animation: none }` 使描边定格在中性基态，朱不残留。 */
+.demo-actions span { padding: 3px 10px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--text-primary); font-size: 12px; animation: demo-zhu-b 12s linear infinite; }
+@keyframes demo-zhu-b {
+  0%, 35% { border-color: var(--border-strong); }
+  38%, 60% { border-color: var(--zhu-graphic); }
+  63%, 100% { border-color: var(--border-strong); }
+}
 .demo-compare { padding: 10px; border: 1px solid var(--border-hairline); border-radius: 4px; animation: demo-attn-c 12s linear infinite; }
 .demo-suggestion { margin-top: 6px; color: var(--text-primary); font-size: 14px; }
 .demo-phases { grid-column: 1 / -1; margin: 0; padding: 0 26px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; list-style: none; }

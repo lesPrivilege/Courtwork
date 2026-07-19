@@ -700,6 +700,9 @@ const zhuConsumers = new Set([
   '.settle-seal', // 落定章：人工落定的印记
   '.demo-actions span', // 处置动作：确认此项 / 驳回 / 修正
 ]);
+// 朱的帧边界（架构定谳「不作环境色」）：处置动作的朱只许活在这枚幕二 keyframe 里，
+// 基态是中性墨。故白名单条目的「有消费面」既可由声明满足，也可由其所属 keyframe 满足。
+const zhuKeyframes = new Map([['demo-zhu-b', '.demo-actions span']]);
 const goldConsumers = new Set(['.tc']); // hero 母题逐字：磁青纸上以泥金写经
 const goldKeyframes = new Set(['typer-develop']); // 同一枚 hero 母题的显影过程
 
@@ -727,8 +730,22 @@ export function checkColorGrammar(css) {
   for (const match of source.matchAll(/@keyframes\s+([a-z0-9-]+)\s*\{/gi)) {
     const open = source.indexOf('{', match.index);
     const body = source.slice(open + 1, matchingBrace(source, open, source.length));
-    if (zhuPattern.test(body)) fail(`朱 left its adjudication surface: @keyframes ${match[1]}`);
+    if (zhuPattern.test(body)) {
+      const owner = zhuKeyframes.get(match[1]);
+      if (owner) seenZhu.add(owner); // 帧边界内的朱：算作该白名单条目的消费面
+      else fail(`朱 left its adjudication surface: @keyframes ${match[1]}`);
+    }
     if (goldPattern.test(body) && !goldKeyframes.has(match[1])) fail(`泥金 left the hero: @keyframes ${match[1]}`);
+  }
+
+  // 帧边界反向守卫：登记了帧边界的条目，其基态**不得**恒为朱——否则「只在那一帧现形」落空，
+  // 朱退化成环境色。基态由 parseCss 的声明层给出，故此处要求它没有直接的朱声明。
+  for (const [keyframe, owner] of zhuKeyframes) {
+    const ambient = parseCss(source).some((entry) => entry.selector === owner && zhuPattern.test(entry.value));
+    if (ambient) fail(`朱 is ambient on ${owner}; @keyframes ${keyframe} exists to keep it inside the adjudication frame`);
+    if (!new RegExp(`animation:[^;]*\\b${keyframe}\\b`).test(source)) {
+      fail(`@keyframes ${keyframe} is declared but never run; ${owner} would lose its 朱 entirely`);
+    }
   }
 
   for (const selector of zhuConsumers) if (!seenZhu.has(selector)) fail(`朱 allowlist entry has no consumer: ${selector}`);

@@ -4,5 +4,13 @@
   "license": "SIL OFL 1.1",
   "text": "%1“”、。一不与为之乙交人付以件任但何你修决准出切前动原双只可合同向员回图型失字定实对封并应引成或所把挂按损支改方无日替有期未本标格模款每溯瑕生甲疵的相确签约线编能自落裁认语负责路辑违送逾都金钩锚际顶项额，",
   "woff2Sha256": "8577a034b5632b59fc641344bc61169ce2a2b9fee1a74e1726b6dd5563b06f22",
-  "track": "文书轨（正文/引语/修订预览 + 品牌时刻）"
+  "track": "文书轨（正文/引语/修订预览 + 品牌时刻）",
+  "latinSegment": {
+    "file": "doc-latin-subset.woff2",
+    "family": "Courtwork Doc Numerals",
+    "source": "Noto Serif SC 2.003 Regular（SIL OFL 1.1）子集",
+    "woff2Sha256": "f3a6ce7a521a03f83943018aeb915ad2e9091efb56f4f3986d3687e895263f48",
+    "text": "0123456789%.,:;-/()+=<>~$",
+    "unicodeRange": "U+0024-0025, U+0028-0029, U+002B-003E, U+007E"
+  }
 }
