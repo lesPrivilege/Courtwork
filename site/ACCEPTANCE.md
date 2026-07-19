@@ -538,3 +538,81 @@ Codex in-app Browser 运行时已按技能说明连接，但 `agent.browsers.lis
 - `pnpm site:guard`：exit 0；guard 组合实跑 **52/52**、release-truth 与 deslop 均通过。
 
 > **放行。** 本结论仅关闭 SITE-CRAFT-2 的 font-provenance 单点；不替代此前 P0 reduced-motion、品牌谱系或后续 Sol 视觉终审。
+
+---
+
+## SKIN-R2-P5-ACCEPT · Pages 写本拉丁独立验收（2026-07-20）— ❌ 不放行
+
+### 1. 对象、隔离与结论
+
+- **验收角色**：独立验收会话，未参与 P5 实现；实现者为 `p5_pages_implementation`，本会话不采信其自述。
+- **被验实现**：`9a1281beb27f5daec2c780ff99614f8542062afb`，实现父提交
+  `f6a04d2f1f74242caf8e1b34209d47e4659e2251`。
+- **隔离环境**：全新 local clone `/tmp/courtwork-p5-acceptance.14x4pl/repo`，分支
+  `codex/p5-independent-acceptance`；静态产物与源码模板分别只由独立端口 `127.0.0.1:18973`
+  / `:18974` 提供，未复用共享服务。
+- **实现级修复**：无。本轮只写验收报告与独立 Safari 证据，不改产品、契约或门禁实现。
+
+> **SKIN-R2 P5 不放行 ❌。** `P5-F10` 的“四处批准选择器闭集”只检查直接
+> `font-family: "Courtwork Manuscript Latin"` 声明，未检查 `--sans` 等自定义属性的间接传播。
+> 验收把写本 family 加到 `:root --sans`（即正式退场的 `P5-F06` 复活），整站 `body`
+> 会经 `font-family: var(--sans)` 消费，但完整 `node site/scripts/deslop-scan.mjs` 仍以
+> `deslop: PASS (872 active text files)`、exit 0 通过。故“第五消费点即红”与 F06–F08
+> 退场门当前不成立；基础门全绿不能覆盖这个可实际绕过的签署边界。
+
+### 2. 实仓 mutation
+
+全部反例都在本独立 clone 的真实活动文件中以精确补丁注入，观察后逐项反向恢复；没有 mutation
+残留。除特别注明外，判定命令为完整 `node site/scripts/deslop-scan.mjs`。
+
+| 反例 | 实测结果 |
+|---|---|
+| `.wordmark > span` 改为未签 `.wordmark > strong` | **红**：同时报未批准 consumer 与缺签 consumer |
+| `:root --sans` 前插 `"Courtwork Manuscript Latin"`（复活退场 `P5-F06`） | **错误放过**：deslop exit 0；本轮拒绝根因 |
+| manifest `glyphs: 8 → 9` | **红**：`subset cmap/glyph metrics drifted` |
+| `[data-pm-defect-label]` 直接消费写本 family | **红**：`unapproved manuscript consumer` |
+| `[data-fixture-count]` 注入 `animation: count-up 1s` | **红**：`p5-data-static data node gained motion` |
+| reduced blanket 删除 `!important` | 静态 deslop 仍绿，但 `assert-reduced-motion.mjs` **定点红**：三条 `demo-zhu-b` 泄漏、幕二朱残留；复原后 runtime 门绿 |
+| SOURCE 发布包 SHA 改为 `missing` | **红**：`SOURCE record is missing releaseArchiveSha256` |
+| OFL 快照改变一字 | **红**：`OFL bytes drifted from manifest oflSha256` |
+
+档位账自身的退场行反例也在 `site:guard` 实跑中通过：`注入四：退场的 P5 UI 覆盖行不得复活`。
+但该账门只守映射表，不守消费值经 CSS 变量间接扩散；两层不能互相代替。
+
+### 3. 字体、数据与前后帧复核
+
+- 入库 WOFF2 实测 SHA `a9107ca58cf646f2c36713734402da9d728987d8587cd405b26b75fa88cb27e6`；
+  OFL 快照 SHA `6078ed582d53a416f761fd2fdeb384320b69191bf316234c21aabe71e2416822`，均与 manifest / SOURCE 对上。
+- `assert-p5-font-runtime.mjs` 在源码模板服务 `:18974` 实跑通过：站面三处与 OG 一处均真渲
+  `Courtwork Manuscript Latin`，资源只加载一次；八个数据节点字符、bbox、字槽、animation 与
+  transform 逐位等于签署基线。`site-dist` 不部署构建模板 `og.html`，故该脚本若误指 `site-dist`
+  会诚实失败 OG selector；本报告只采用符合脚本用途的源码模板服务结果。
+- `assert-reduced-motion.mjs` 复原后通过：运行动画仅三条既有 `ghosty-reduced-fade`，演示层八点归零，
+  四相位零朱。
+- 实现前后 Safari 十帧逐张目检，manifest 里的十个 SHA 均与仓内字节一致；1440 / 1600 / 375、
+  reduced-motion 与 JS-off 未见新增换行、横滚、内容缺失或冷色面回退。
+- 独立复摄帧见 [`craft-evidence/SKIN-R2-P5/acceptance/`](craft-evidence/SKIN-R2-P5/acceptance/)：
+  Safari `26.5.2` 的 1600 宽窗与 375 窄窗均无溢出。内置 browser runtime 无可控浏览器；验收进程
+  又无权限切换系统 Reduce Motion，因此没有复制实现帧冒充独立 reduced 实机。该证据边界如实留痕，
+  但本轮即使补得独立 reduced 帧，也不能消除 F06 可绕过这一拒绝项。
+
+### 4. 完整门禁
+
+| 门 | 本 clone 实跑结果 |
+|---|---|
+| `pnpm install --frozen-lockfile` | 14 workspace projects，1047 packages，exit 0 |
+| `pnpm -r build` | 13/14 workspace，desktop 3579 modules，exit 0；仅既有 dynamic-import / chunk-size warning |
+| `pnpm lint` | exit 0 |
+| `pnpm test` | **148 files / 1261 tests passed** |
+| `pnpm site:guard` | Node **66/66**；deslop **873 active text files**；release-truth 与 desktop/design 门全绿 |
+| `pnpm site:build` | exit 0；新子集进入 `site-dist/assets/fonts/` |
+
+`main.js` 不在 `f6a04d2..9a1281b` diff 中；desktop/package/schema 均零渗入。工作树在报告与独立帧之外
+无变化，`git diff --check` 通过。
+
+### 5. 复验入口
+
+实现会话需以 TDD 加固 `P5-F10`：至少令 `--sans`、`body`、OG body 或任意自定义属性／间接字槽
+携写本 family 时定点失败，同时保留四个已签直接 consumer 与 `P5-F09` mono 原值。修复不得复活
+F06–F08，不得把扫描面扩成通用字体状态机。修复后由新的独立 clean clone 重做本节全部 mutation、
+Safari 复摄与全量门；本报告不能被沿用为放行依据。
