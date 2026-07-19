@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "courtwork.r2-tier-ledger.v1",
+  "entries": [
+    {
+      "target": "docs/design/principles.md#总纲-pages",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "P0-A05"
+    },
+    {
+      "target": "docs/design/principles.md#总纲-agent",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P0-A05"
+    },
+    {
+      "target": "docs/design/principles.md#总纲-schema",
+      "tier": "schema-workface",
+      "approvedProposalLine": "P0-A05"
+    },
+    {
+      "target": "docs/design/principles.md#素净中性条款",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P0-A06"
+    },
+    {
+      "target": "docs/design/typography-density.md#R2排印裁量边界",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P0-A08"
+    },
+    {
+      "target": "docs/design/typography-density.md#字体退役律",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P0-A09"
+    },
+    {
+      "target": "docs/design/visualization-kit.md#主次界线级边界",
+      "tier": "schema-workface",
+      "approvedProposalLine": "P0-A11"
+    },
+    {
+      "target": "docs/design/schema-exemplar.md#新表派生入口",
+      "tier": "schema-workface",
+      "approvedProposalLine": "P0-A20"
+    }
+  ]
+}

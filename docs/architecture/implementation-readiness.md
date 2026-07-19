@@ -47,7 +47,15 @@ Chat 线（ADR-013）
 
 主线中的箭头是开工依赖，不是建议顺序；前置未独立验收时，后项不得用临时 adapter 越过。Chat 线与 Work 主线互不依赖，可并行施工，但 `CHAT-MEMORY-1` 不得先于 `CHAT-SESSION-1` 的窗口/transcript 语义落地。
 
-**Round 3 收尾序（2026-07-15 拍板；polish 分轮 2026-07-17 修订）**：主线收敛（MATERIAL-INGRESS → LEGAL-S3-BINDING → WORK-LIVE）→ 终局 UI polish 分两轮：**R1 定向修缮**（产品负责人 + Sonnet 手动定向修小问题/对齐；小修批以「全量门绿 + 架构逐 diff 复核」清账，不派独立验收——残留门/设计门/floor 为质量底座，任一回退即退回工单制）→ **R2 巧思视效**（Fable 主导，消费归档调研与素材包，批次独立验收 + Sol 视觉全量扫终审，先例红线见设计 README 与 SITE-CRAFT 判例史）——**R2 供料口径修正（2026-07-19 摸底核实）**：原「四面设计稿+17 族已齐」为仓外悬空承诺（仓内零实物，触成熟度不混写条）；现行供料真身=**定版原型**（`archive/design-prototype-2026-07-19-r2/`，封版五件含 2b 元素集双底）+ SchemaParts 5 枚仓内实物 + 奖级工艺八裁 + craft-evidence 六批；设计件非权威、落地逐件过门；**改序拍板（2026-07-19）**：R2/版式全量线放行、凡例权威化并入其首件；⑤余三项（ARCH-DEBT/消费 pass 余量/OSS-SUBTRACT-1）仍锁 harness 真实化，两线解绑。**梯度律拍板（2026-07-19 夜，升格总律入典）**：激进度三档——Pages=激进端（前卫实验田）、Agent 通用界面=中间档（自足完备产品感，考究不喧宾）、Schema 工作面=最克制端（零装饰，只从凡例自然长出）；隔断类元素按档放开（中间档逐处过克制审计、schema 档不放）；**B3 界行复调**（消费值复调非机骨回退：实机审视→逐界提案留/减薄/回单线→架构裁→改消费值，rule token/三分类账/线级门全程保持）；执行=Sol 主导逐批实现（computer use 实机审视回路）。**SKIN-R2 v2 plan 已批（2026-07-19 夜，附修订三条）**：P0 凡例省并（exemplar=指针文档非第二真源）→P1 线级复调（逐界提案表先签后改）→P2 版式+排印重选（**矩阵改判 2026-07-19 夜·产品复裁**：A 案废除——「拒苹方」扩展到全部轨，全量陌生化；盲测改 C 现行三轨 vs D 全量陌生化，D 功能轨候选真实 12–13px 控件实测+可读性不回退门槛，数字/拉丁同批杀路径依赖【功能位 Times 定谳不变，mono 数据轨候选同测】；改值则 B2 机骨走退役账不走删）→P3 巧思回迁（朱印 320ms 谱/悬挂标点 WKWebView 实测权威/墨迹可拒）→P4 深色（themeMode 入 settings.v1 已签署：默认 system/畸形回退/不新建键）→P5 Pages 激进并行（**增项 2026-07-19 夜**：站面字体全量陌生化——正文与 UI 残面清除苹方/系统栈，静态内容切实际用字精确子集【逐位相等判例】；拉丁双轨照发凡五：功能位 Times/表达位写本手）。新增 R2 档位账门（每变更绑唯一档位+已批提案行）过复杂度节制。终局=甜点档模型对 pm.PrdReview 隐 presentation 一次生成过门（哈希封存 oracle，失败回指 P0 不许人工补丁）。P0 省并表与 P1 逐界表先回架构签署。→ **一次小发版**：实现 legal 宣言、奠定 UI/UX 基调。其后其他垂类（PM scenario、roleplay 等）与角色面板/pets 类可召唤 preview 均为轻量包级小增量，不触 core。
+**Round 3 收尾序（2026-07-15 拍板；polish 分轮 2026-07-17 修订）**：主线收敛（MATERIAL-INGRESS → LEGAL-S3-BINDING → WORK-LIVE）→ 终局 UI polish 分两轮：**R1 定向修缮**（产品负责人 + Sonnet 手动定向修小问题/对齐；小修批以「全量门绿 + 架构逐 diff 复核」清账，不派独立验收——残留门/设计门/floor 为质量底座，任一回退即退回工单制）→ **R2 巧思视效**（Fable 主导，消费归档调研与素材包，批次独立验收 + Sol 视觉全量扫终审，先例红线见设计 README 与 SITE-CRAFT 判例史）——**R2 供料口径修正（2026-07-19 摸底核实）**：原「四面设计稿+17 族已齐」为仓外悬空承诺（仓内零实物，触成熟度不混写条）；现行供料真身=**定版原型**（`archive/design-prototype-2026-07-19-r2/`，封版五件含 2b 元素集双底）+ SchemaParts 5 枚仓内实物 + 奖级工艺八裁 + craft-evidence 六批；设计件非权威、落地逐件过门；**改序拍板（2026-07-19）**：R2/版式全量线放行、凡例权威化并入其首件；⑤余三项（ARCH-DEBT/消费 pass 余量/OSS-SUBTRACT-1）仍锁 harness 真实化，两线解绑。
+
+**梯度律已升格（2026-07-19 夜）**：规则全文与档位定义只认 [`docs/design/principles.md`](../design/principles.md)；本图只登记 R2 依赖、批次状态和验收出口。
+
+**P1 线级复调状态**：8 主界与 105 次界提案已签；消费值实现仍锁精确 1280×720、2400×1000 全帧。签署表与前证见 `site/craft-evidence/SKIN-R2-P1/`，线级法只认设计原则与既有机器门。
+
+**SKIN-R2 v2 执行状态（2026-07-19 夜）**：P0/P1 已逐行签署，顺序仍为 P0 → P1 → P2 → P3 → P4；P5 在 P0 放行后可独立并行。P0 权威落点是 [`schema-exemplar.md`](../design/schema-exemplar.md)；P2 C/D 裁量与字体退役律只认 [`typography-density.md`](../design/typography-density.md)；P4 `themeMode` 接口已预签。各批须独立 clone 验收，终局 `pm.PrdReview` one-shot 只在 P0–P5 全部放行后启动。
+
+→ **一次小发版**：实现 legal 宣言、奠定 UI/UX 基调。其后其他垂类（PM scenario、roleplay 等）与角色面板/pets 类可召唤 preview 均为轻量包级小增量，不触 core。
 
 ## Round 4 对齐计划（2026-07-18 拍板，取代简单开工序）
 

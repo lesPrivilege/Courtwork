@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "courtwork.schema-exemplar.sources.v1",
+  "sources": [
+    {
+      "id": "P0-S01",
+      "path": "packages/legal/src/schemas/risk-list.ts",
+      "sha256": "8ad718d629ef2cb58f1d948521cb42e98fe27a1cfefa9319ce13f7f0bfc1d9a1",
+      "role": "payload-contract",
+      "symbols": ["RiskList", "RiskListDraft"]
+    },
+    {
+      "id": "P0-S02",
+      "path": "packages/legal/src/presentation/index.ts",
+      "sha256": "0b864614ae6841397bb18d3d93f65bd77b4b0902e05494ca0f952f3903e12572",
+      "role": "presentation-contract",
+      "symbols": ["LEGAL_PRESENTATION"]
+    },
+    {
+      "id": "P0-S03",
+      "path": "packages/legal/src/domain/compile-risk-list-to-revisions.ts",
+      "sha256": "818e060e5942c3bd7b746da34b267d9d89f77c2724f92f815b4436fff462b866",
+      "role": "deterministic-domain-compiler",
+      "symbols": ["compileConfirmedRiskListToRevisionInstructions"]
+    },
+    {
+      "id": "P0-S04a",
+      "path": "packages/legal/src/testing/s3-risk-list-response.ts",
+      "sha256": "956ecbc10dd9c600623824cdc910e8ff4f4b9538a27776c0063360a86026bbc4",
+      "role": "accepted-fixture",
+      "symbols": ["S3_RISK_LIST_RESPONSE"]
+    },
+    {
+      "id": "P0-S04b",
+      "path": "packages/legal/src/testing/s3-risk-list-draft.ts",
+      "sha256": "77c0df939264b8edfe05b8ea120cf3203d8a170aa2ad5c98a6bd324315ca9851",
+      "role": "draft-fixture",
+      "symbols": ["S3_RISK_LIST_DRAFT"]
+    },
+    {
+      "id": "P0-S05",
+      "path": "docs/decisions/ADR-012-vertical-package-kit-and-visual-blueprints.md",
+      "sha256": "e39731f75f7fd7330625a2f3deb10e5d81da6a0c3a5ee383b9fee5ce9150add9",
+      "role": "blueprint-authority",
+      "symbols": ["projection-to-primitive", "whole-surface-fail-closed"]
+    },
+    {
+      "id": "P0-S06",
+      "path": "docs/decisions/ADR-014-preview-tabs-and-package-tiers.md",
+      "sha256": "aea1089d9fcf34a14adc07fa05df7055519b4ae22ca2d18e514e9a5146606d38",
+      "role": "artifact-tab-authority",
+      "symbols": ["tab-is-artifact", "multi-artifact"]
+    },
+    {
+      "id": "P0-S07",
+      "path": "docs/decisions/ADR-003-evidence-and-anchors.md",
+      "sha256": "32d061d5a4bd35b374f68590a2dd4bb0482647aa410a5996fefb81e4f658ed0c",
+      "role": "evidence-anchor-authority",
+      "symbols": ["model-quotes-system-anchors", "evidence-grades"]
+    },
+    {
+      "id": "P0-S08",
+      "path": "docs/design/visualization-kit.md",
+      "sha256": "30cf868db4dc86b62df0ad390442e17c0e135fe3432ff90893d7e703e9970234",
+      "role": "primitive-composition-authority",
+      "symbols": ["Field", "Anchor", "Status", "Evidence", "Decision", "Estimate", "Partial"]
+    },
+    {
+      "id": "P0-S09",
+      "path": "docs/design/signature-line.md",
+      "sha256": "39484165c2af4be17da73200ac8e7e7d7d3f5629bed790e180e5f30bff95cbb1",
+      "role": "disposition-visual-authority",
+      "symbols": ["signature-line-whitelist"]
+    }
+  ],
+  "derivation": {
+    "tier": "schema-workface",
+    "approvedProposalLine": "P0-A20",
+    "allowedPrimitives": ["Field", "Anchor", "Status", "Evidence", "Decision", "Estimate", "Partial"],
+    "allowedBlueprints": ["courtwork.artifact-table.v1"],
+    "evidence": ["golden", "narrow-wide", "keyboard", "focus", "reduced-motion", "dual-theme", "independent-acceptance"]
+  }
+}

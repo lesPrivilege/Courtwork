@@ -23,4 +23,6 @@
 
 提交前运行图标优化与静态校验。机器门必须覆盖 viewBox、描边、标签/属性白名单、颜色、精度、manifest 完整性、SVGO 稳定性、TSX 内联 SVG 禁令与 Lucide 静态导入。
 
+SchemaParts 不属于产品图标白名单：其几何唯一源、`<symbol>/<use>` 纯度、React 属性写法与双主题语义由 `pnpm --filter @courtwork/desktop lint:schema-parts` 专门门约束。图标门的内联 SVG 禁令不得拿来绕过 SchemaParts 门；SchemaParts 的具名豁免也不得扩大到任意内联 SVG。
+
 每批新图标还要生成 16px/24px 审计板。16px 看主体轮廓，24px 看细节与光学重量；机器绿不能替代人审。

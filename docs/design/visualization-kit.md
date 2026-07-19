@@ -1,6 +1,6 @@
 # Schema 可视化组件库
 
-状态：现行设计索引。图片是选型素材，不是协议真源；renderer 契约以 descriptor、presentation schema、host registry 与测试为准。
+状态：现行元素集。本文不是 schema 全链凡例；新表派生须从 [`schema-exemplar.md`](schema-exemplar.md) 进入。图片是选型素材，不是协议真源；renderer 契约以 descriptor、presentation schema、host registry 与测试为准。
 
 ## 一、目标
 
@@ -103,7 +103,7 @@ blueprint 只使用：
 
 当前视觉母版：[`assets/schema-visualization-kit-v1.png`](assets/schema-visualization-kit-v1.png)。它只使用抽象字段、占位线和状态词展示十二种结构，明确标记“非业务数据”；其中排版、图标与组合仅供原生实现取舍，不能作为字段、计数、公式或 fixture 权威。
 
-生产实现遵守：浅色、冷调中性层级、数据区静止、tabular numbers、1px hairline、圆角不超过登记 token、零 glow/gradient、证据可换行、状态只消费封闭语义色。新场景应先在原生 gallery 中用真实 fixture 全量绘制，再选择是否升级为生产 blueprint。
+生产实现遵守：冷调中性层级、数据区静止、tabular numbers、圆角不超过登记 token、零 glow/gradient、证据可换行、状态只消费封闭语义色。`rule.minor` hairline 只用于次界与数据格；主界线级必须遵守 [`principles.md`](principles.md) 的文武线语法，不得以 1px 统一主次界。新场景应先在原生 gallery 中用真实 fixture 全量绘制，再选择是否升级为生产 blueprint。
 
 gallery 是宿主验收面，不是第三套数据源：Legal/PM fixture 由测试或 demo composition 投影为递归冻结的
 ViewModel 后注入；gallery 源码不得 import Node-only demo-data 根出口，不得把 fixture 复制进生产 bundle。
