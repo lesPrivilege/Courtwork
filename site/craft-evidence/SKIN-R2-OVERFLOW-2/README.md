@@ -1,6 +1,7 @@
 # SKIN-R2-OVERFLOW-2 · 焦点态窗口首行安全区
 
-状态：实现侧 TDD 与浏览器后帧成立；独立 clean clone 验收前不写放行结论。
+状态：独立 clean clone 与真实 Tauri/WKWebView 已放行；验收报告见
+`acceptance-b9c1bf1/README.md`。
 
 权威签署投影：`../SKIN-R2-P2/OVERFLOW-SIGNATURE.md` 的 `P2-L21`。
 
