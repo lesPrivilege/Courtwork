@@ -8,7 +8,6 @@ test('provider 唯一声明位在 composer，三态无假模型名', async ({ pa
   await expect(page.getByTestId('composer-provider')).toBeVisible();
   const phase = await page.getByTestId('composer-provider').getAttribute('data-phase');
   if (phase !== 'connected') await expect(page.getByTestId('composer-provider')).not.toContainText(/DeepSeek/);
-  await expect(page.locator('.statusbar [data-testid="model-config-trigger"]')).toHaveCount(0);
   await expect(page.getByTestId('credential-status-button')).toHaveCount(0);
 });
 
