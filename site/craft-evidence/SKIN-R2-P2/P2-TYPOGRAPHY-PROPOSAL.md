@@ -1,6 +1,8 @@
-# SKIN-R2 P2 · 排印 C/D 逐靶提案（待架构逐行签署）
+# SKIN-R2 P2 · 排印 C/D 逐靶提案（已签署）
 
-状态：**提案态；未获消费值实现授权**。证据基线 `967694e`，证据回灌提交 `d9d1a63`。
+状态：**`P2-T01…T14` 已于 `main@ee0f288` 全签，保 C；产品追认在案。** 证据基线
+`967694e`，证据回灌提交 `d9d1a63`；签署原文见
+[`ARCHITECTURE-SIGNATURE.md`](./ARCHITECTURE-SIGNATURE.md)。
 全量帧、度量、来源与揭盲见 `blind-typography/`。
 
 盲测结论：C `86.5`，D `87.8`，D 只领先 `1.3/100`，处于预先锁定的同分区；D 虽通过
@@ -22,8 +24,8 @@
 | `P2-T09` | `apps/desktop/src/assets/fonts/subset-manifest.json#fonts` | 中间档 | **留**现行机骨全件 | 本轮没有活字栈退役；`@font-face`、子集、manifest、SOURCE/许可链与真渲门均不删不改 | 零 |
 | `P2-T10` | `apps/desktop/scripts/assert-typography.mjs#retired-font-values` | 中间档 | **不新增退役值**，并守 D 不得进入活消费 | 退役账只记录曾经生效后撤出的值；Sarasa 在本批只是实验候选，伪造退役史会污染机骨 | 增前向守卫，不改字体值 |
 | `P2-T11` | `site/craft-evidence/SKIN-R2-P2/blind-typography#Sarasa-v1.0.40` | 中间档 | **留作挑战证据，不升可用配方** | 来源、SHA、覆盖、缺字/fallback 与有效/无效帧均已封存；叙事层只述度量与效力，精确技术标识留证据账 | 零 |
-| `P2-T12` | `docs/design/typography-density.md#R2排印裁量边界` | 中间档 | **记录本轮保 C 结论与复议门** | 未来重开须有模型外盲评与 Tauri WKWebView 12–13px 同 fixture，并净胜同分区；不能拿本轮 D 方向性优势当自动授权 | 文档/门禁 |
-| `P2-T13` | `docs/design/typography-density.md#四档密度` | 中间档 | **留** reading/body/dense/meta | 16 帧逐态统计证明四档真实消费；不以字号统一化抹平语义 | 零 |
+| `P2-T12` | `docs/design/typography-density.md#P2本轮复议门` | 中间档 | **记录本轮保 C 结论与复议门** | 未来重开须有模型外盲评与 Tauri WKWebView 12–13px 同 fixture，并净胜同分区；不能拿本轮 D 方向性优势当自动授权 | 文档/门禁 |
+| `P2-T13` | `docs/design/typography-density.md#四档密度-排印语义` | 中间档 | **留** reading/body/dense/meta | 16 帧逐态统计证明四档真实消费；不以字号统一化抹平语义 | 零 |
 | `P2-T14` | `apps/desktop/SPEC.md#SKIN-R2-P2` | 中间档 | 记录盲测、版式留/拒迁、红绿门与零消费结论 | P2 仍须以 mutation、前后同哈希、全仓门和独立 clone 验收闭环 | 文档/门禁 |
 
 ## 签署后 TDD 与实现边界

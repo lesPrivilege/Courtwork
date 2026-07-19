@@ -1,7 +1,8 @@
-# SKIN-R2 P2 · 版式编排逐靶提案（待架构逐行签署）
+# SKIN-R2 P2 · 版式编排逐靶提案（已签署）
 
-状态：**提案态；未获消费值实现授权**。编制基线 `main@967694e`。字体 C/D 盲测另表，
-待真实工作面数据回齐后与本表一并送签；本表不替代排印裁决。
+状态：**`P2-L01…L16` 已于 `main@ee0f288` 全签；`P2-L17…L18` 由 2026-07-19
+23:30 Safari 实机缺陷幀追加签署。** 编制基线 `main@967694e`；签署原文及证据哈希见
+[`ARCHITECTURE-SIGNATURE.md`](./ARCHITECTURE-SIGNATURE.md)。
 
 本批只审现有 DOM、数据与行为内的皮层。三档逐处回答如下：Agent 通用壳为**中间档**；
 SchemaParts、结构化预览与 schema 工作面为**最克制档**。不存在把 Pages 激进档许可倒灌壳侧的行。
@@ -16,7 +17,7 @@ SchemaParts、结构化预览与 schema 工作面为**最克制档**。不存在
 | `P2-L04` | `apps/desktop/src/styles.css#.risk-grid` | 最克制档 | **留**紧凑列表/表格，不改卡片阵列 | RiskList 是同构数据；原则已明定同构数据不堆卡片，真帧行级比较效率高于卡片化 | 零 |
 | `P2-L05` | `apps/desktop/src/styles.css#.risk-master-detail` | 最克制档 | **留**主从详情分栏；窄面仍沿既有单列媒体规则 | 结构化选择与证据详情有明确语义边界；不增加框廓、背景层或装饰容器 | 零 |
 | `P2-L06` | `apps/desktop/src/chat/ProcessTrace.tsx#ProcessTrace` | 中间档 | **留**三态工序轨，拒 spinner 替换 | 摸底与原型审计均判“工序显示替代 spinner”已覆盖；再造 hero 工序容器会重复编码 | 零 |
-| `P2-L07` | `docs/design/typography-density.md#四档密度` | 中间档 | **留** reading/body/dense/meta 四档及九槽用法 | 原型在此维空跑；现行壳有真实文书、普通正文、表格和元信息消费点，不以字号整齐化抹平语义 | 零 |
+| `P2-L07` | `docs/design/typography-density.md#四档密度-版式实用法` | 中间档 | **留** reading/body/dense/meta 四档及九槽用法 | 原型在此维空跑；现行壳有真实文书、普通正文、表格和元信息消费点，不以字号整齐化抹平语义 | 零 |
 | `P2-L08` | `apps/desktop/src/styles.css#.interaction-card` | 中间档 | **留**仅交互决策使用的卡形；不得外扩为数据卡系统 | 卡形承载需要人回应的边界，不与同构数据列表争声部；属于行为语义而非装饰预算 | 零 |
 | `P2-L09` | `apps/desktop/src/styles.css#.settings-body` | 中间档 | **留**设置页导航/内容二栏与现行断点 | 1440×900 真帧显示信息层级清楚，未出现无意义卡片化；该面不是 schema 工作面 | 零 |
 | `P2-L10` | `apps/desktop/src/styles.css#.artifact-table-view` | 最克制档 | **留**零新装饰；只消费 P1 已签线级 | schema 表须从结构自然长出；P2 不加边框、底纹、卷容器、hero 或新的视觉 primitive | 零 |
@@ -26,12 +27,14 @@ SchemaParts、结构化预览与 schema 工作面为**最克制档**。不存在
 | `P2-L14` | `apps/desktop/src/App.tsx#output-placement` | 中间档 | **拒迁**“产出先入卷”新路径 | 现有确认账本与写入路径是成熟行为资产；未建立卷容器契约前不得改写产出落点 | 零；LEGAL-FIELD-1 亦不夹带 |
 | `P2-L15` | `apps/desktop/src/styles.css#decorative-quote-frame` | 中间档 | **拒迁**引语卡乌丝栏装饰框 | 引语已有来源、字体与证据语义；新增框廓无独有辖区，且会与已签线级争声部 | 零 |
 | `P2-L16` | `apps/desktop/src/styles.css#product-shell-gold-mark` | 中间档 | **拒迁**泥金记号到产品壳 | 泥金是 Pages hero 的激进档预算，壳侧没有等价 hero 语义；跨档许可不得继承 | 零 |
+| `P2-L17` | `apps/desktop/src/styles.css#.composer-stack|block-end` | 中间档 | **修正** composer／免责声明不得越过对话工作面底界 | Safari exact 1600×900 真幀中 composer 下缘被 viewport 截断；这是既有输入行为的几何完整性，不是新装饰 | 只改既有皮层几何；行为、数据与 DOM 不变 |
+| `P2-L18` | `apps/desktop/src/styles.css#.workspace.comparing.left-collapsed|grid` | 中间档 | **修正**比较态收左栏后不得保留 48px 幽灵轨 | 同一真幀左缘仍有空白窄轨，而 `CaseRail` 已撤挂；空轨没有语义辖区且挤压主工作面 | 比较态由三轨收为对话＋工作面两轨；其余状态不动 |
 
 ## 签署后验证形状
 
 本表若按“留/拒迁”签署，版式侧的正确实现是**零消费 diff**，但不是零验证：
 
-1. 档位账逐行登记 `P2-L01…P2-L16`，每一 target 只绑一行；机器门验证引用与漂移。
+1. 档位账逐行登记 `P2-L01…P2-L18`，每一 target 只绑一行；机器门验证引用与漂移。
 2. 1180×720、1280×720、1440×900、1600×900、2400×1000 覆盖 welcome、RiskList、
    Settings、Compare、折叠/窄栏/聚焦/预览和四档密度；前后帧若代码零改，可用同哈希证明“审计后不动”。
 3. 注入四卷容器、同构数据卡片化、schema 新装饰、P1 隔断漂移与未登记 target，均须定点翻红。

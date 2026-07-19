@@ -10,7 +10,7 @@
     "test": "vitest run",
     "lint": "eslint .",
     "build": "pnpm -r run build",
-    "site:guard": "node --test site/scripts/deslop-scan.test.mjs release/scripts/release-truth.test.mjs apps/desktop/scripts/compile-design-md.test.mjs apps/desktop/scripts/assert-schema-exemplar.test.mjs && node release/scripts/assert-release-truth.mjs && node site/scripts/deslop-scan.mjs && pnpm --filter @courtwork/desktop lint:neutral && pnpm --filter @courtwork/desktop lint:elevation && pnpm --filter @courtwork/desktop lint:signature && pnpm --filter @courtwork/desktop lint:motion && pnpm --filter @courtwork/desktop lint:design-md && pnpm --filter @courtwork/desktop lint:schema-exemplar",
+    "site:guard": "node --test site/scripts/deslop-scan.test.mjs release/scripts/release-truth.test.mjs apps/desktop/scripts/compile-design-md.test.mjs apps/desktop/scripts/assert-schema-exemplar.test.mjs apps/desktop/scripts/assert-skin-r2-ledger.test.mjs && node release/scripts/assert-release-truth.mjs && node site/scripts/deslop-scan.mjs && pnpm --filter @courtwork/desktop lint:neutral && pnpm --filter @courtwork/desktop lint:elevation && pnpm --filter @courtwork/desktop lint:signature && pnpm --filter @courtwork/desktop lint:motion && pnpm --filter @courtwork/desktop lint:design-md && pnpm --filter @courtwork/desktop lint:schema-exemplar && pnpm --filter @courtwork/desktop lint:skin-r2-ledger",
     "release:guard": "node --test release/scripts/release-truth.test.mjs && node release/scripts/assert-release-truth.mjs",
     "site:build": "node site/scripts/build.mjs"
   },

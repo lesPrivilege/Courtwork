@@ -1170,6 +1170,211 @@
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
       "hairline": false
+    },
+    {
+      "target": "docs/design/tokens.json#typography.family.ui",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T01"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root|--font-ui",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T02"
+    },
+    {
+      "target": "docs/design/tokens.json#typography.family.mono",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T03"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root|--mono",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T04"
+    },
+    {
+      "target": "docs/design/tokens.json#typography.family.title",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T05"
+    },
+    {
+      "target": "docs/design/tokens.json#typography.track.title",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T06"
+    },
+    {
+      "target": "docs/design/tokens.json#typography.family.body",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T07"
+    },
+    {
+      "target": "docs/design/tokens.json#typography.track.document",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T08"
+    },
+    {
+      "target": "apps/desktop/src/assets/fonts/subset-manifest.json#fonts",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T09"
+    },
+    {
+      "target": "apps/desktop/scripts/assert-typography.mjs#retired-font-values",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T10"
+    },
+    {
+      "target": "site/craft-evidence/SKIN-R2-P2/blind-typography#Sarasa-v1.0.40",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T11"
+    },
+    {
+      "target": "docs/design/typography-density.md#P2本轮复议门",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T12"
+    },
+    {
+      "target": "docs/design/typography-density.md#四档密度-排印语义",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T13"
+    },
+    {
+      "target": "apps/desktop/SPEC.md#SKIN-R2-P2",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-T14"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.workspace",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L01"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.workspace.right-narrow",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L02"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.workspace.left-collapsed.right-collapsed",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L03"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.risk-grid",
+      "tier": "schema-workface",
+      "approvedProposalLine": "P2-L04"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.risk-master-detail",
+      "tier": "schema-workface",
+      "approvedProposalLine": "P2-L05"
+    },
+    {
+      "target": "apps/desktop/src/chat/ProcessTrace.tsx#ProcessTrace",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L06"
+    },
+    {
+      "target": "docs/design/typography-density.md#四档密度-版式实用法",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L07"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.interaction-card",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L08"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.settings-body",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L09"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.artifact-table-view",
+      "tier": "schema-workface",
+      "approvedProposalLine": "P2-L10"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.workspace.welcome-mode",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L11"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#P1-line-consumers",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L12"
+    },
+    {
+      "target": "apps/desktop/src/App.tsx#case-rail-information-architecture",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L13"
+    },
+    {
+      "target": "apps/desktop/src/App.tsx#output-placement",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L14"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#decorative-quote-frame",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L15"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#product-shell-gold-mark",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L16"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.composer-stack|block-end",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L17"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#.workspace.comparing.left-collapsed|grid",
+      "tier": "agent-interface",
+      "approvedProposalLine": "P2-L18"
+    },
+    {
+      "target": "site/styles.css#@font-face(Courtwork-Manuscript-Latin)",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "P5-F01"
+    },
+    {
+      "target": "site/styles.css#.wordmark > span",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "P5-F02"
+    },
+    {
+      "target": "site/styles.css#.promise-heading h2 .latin-manuscript",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "P5-F03"
+    },
+    {
+      "target": "site/styles.css#.closing .eyebrow .latin-manuscript",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "P5-F04"
+    },
+    {
+      "target": "site/og.html#.wordmark",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "P5-F05"
+    },
+    {
+      "target": "site/styles.css#:root|--mono",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "P5-F09"
+    },
+    {
+      "target": "site/scripts/deslop-scan-lib.mjs#p5-font-coverage",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "P5-F10"
+    },
+    {
+      "target": "site/scripts/deslop-scan-lib.mjs#p5-data-static",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "P5-F11"
+    },
+    {
+      "target": "site/SPEC.md#SKIN-R2-P5",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "P5-F12"
     }
   ]
 }
