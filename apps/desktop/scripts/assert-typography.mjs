@@ -34,7 +34,7 @@ const PENDING_MIGRATION = {
   'src/styles.css|"Songti SC", STSong, "Noto Serif CJK SC", serif':
     '.welcome-slogan 的原型标题栈——B2-1 迁 var(--font-title)（思源宋 SC）',
   'src/icons/icon-audit.css|-apple-system, "Segoe UI", "PingFang SC", "Noto Sans SC", sans-serif':
-    'dev 图标审计页基栈——**已与 typography.family.ui 漂移**（缺 MiSans/雅黑/Helvetica Neue/Arial），B2-1 一并收敛',
+    'dev 图标审计页基栈——**已与 typography.family.ui 漂移**（缺 MiSans/雅黑/Helvetica Neue/Arial）。该文件的 tertiary 硬编码已随 B2-0 收口同步（由 site 侧 deslop raw-color 逐声明 allowlist 抓出），此处只余字栈待迁',
 };
 
 const normalizeStack = (raw) => raw.replace(/\s+/g, ' ').trim().replace(/;$/, '');
