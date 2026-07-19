@@ -44,3 +44,12 @@ R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadm
 **定调型（监控/口径资产，无需进一步升格动作）**：`anysearch-retrieval-tier`（检索类 plugin 三原则：具名/fail-closed/外部检索恒为未锚定线索级）；`generic-connectors-tier`（通用连接器层位）；`frontier-vertical-scan-2026h1`（LAB 供弹格局 + Economic Index 量化 + 判定层监控线；追踪 LAB leaderboard 与可靠性平台期论文）；`harness-landscape-2026h1`（口径弹药五条 + 三档过滤；Manus breakpoint 已入实测表）；`kimi-k3-capability-audit`（法律库传言证伪，不立 provider 单）；`newmax-competitive-teardown`（生成式 HTML 瓶颈在裁决；本地优先降格为门槛）。
 
 **论证素材/词表（仍有效，按需取用）**：`provider-switch-mechanisms`（第二 provider 时立 ADR）；`fortune-invest-schema-stress-test`（schema 可表达性双域证据）；`coding-agent-strategies-subtraction`（减法纪律；两候选挂起）；`chat-as-dossier-thesis`（容器同构论，待立项升 ADR）；`emil-skills-polish-input`（polish R2 工具）；`cognitive-debt-mapping`（可执行业务说明书命名已采）；`namethatui-vocabulary`（UI 正名词典）；`trae-work-landscape`（技能 vs 场景包分野）；`upstream-positioning`（内部定位，不入公开叙事）。
+
+## research-2026-07-19-agent-pedagogy/（AGENT-PEDAGOGY-SURVEY，只读，不进权威链）
+
+两教材仓摸底：microsoft/ai-agents-for-beginners（官方入门课，多为通识）+ bojieli/ai-agent-book（工程细节密度高）。
+
+| 文件 | 时效三态 | 消费状态 | 消费 pass 记录（2026-07-19 架构逐条，零悬置） |
+|---|---|---|---|
+| `survey.md` | 有效 | **已消费** | 可借形六条全采：bojieli 三簇——①proposer-reviewer+Sidecar 执行安全、②幂等/先检后确认 → **bash 受控 ADR 素材袋**（与 TRAE 三态/Qoder 授权事件同袋）；③结构化输出实践 → **统一填格协议 ADR**；④toolResult 工程细节 → **TOOL-READ-1**；⑤自底向上因子发现+聚类的司法案例分析管线 → **法律垂类评测集**（自研加固点，最高价值一条）；⑥（bash 簇计三）。反面三条留档：MS L08 与 bojieli ch10 多 agent 编排（ADR-011 拒项佐证）、双方 memory 分类学（ADR-013 刻意窄设计的对照）。中性四条留档。**警示一条独立记**：MS `18-securing-ai-agents` 含疑似注入/营销内容（伪引用+三方包推装 nobulex/protect-mcp 等），已隔离不采不装——公开教材仓属不可信输入面，引用前逐条核真，判例「一手来源」适用于仓外一切材料 |
+| `README.md` | 有效 | 已消费（随批） | — |
