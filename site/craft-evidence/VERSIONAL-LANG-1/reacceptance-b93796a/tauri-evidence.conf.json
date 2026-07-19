@@ -1,0 +1,22 @@
+{
+  "build": {
+    "beforeDevCommand": "true",
+    "devUrl": "http://127.0.0.1:19741"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "VERSIONAL-LANG-1 · reacceptance WKWebView",
+        "width": 1600,
+        "height": 900,
+        "minWidth": 1180,
+        "minHeight": 720,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "resizable": false,
+        "fullscreen": false
+      }
+    ]
+  }
+}

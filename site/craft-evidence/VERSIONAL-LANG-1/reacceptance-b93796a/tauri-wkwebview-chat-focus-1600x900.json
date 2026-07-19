@@ -1,0 +1,44 @@
+{
+  "targetSha": "b93796aca5110c4f349d9c0398710a38207741ea",
+  "platform": {
+    "product": "macOS",
+    "version": "26.5.2",
+    "build": "25F84",
+    "kernel": "Darwin 25.5.0",
+    "architecture": "arm64"
+  },
+  "runtime": {
+    "binary": "apps/desktop/src-tauri/target/debug/courtwork-desktop",
+    "tauriCli": "2.11.4",
+    "engine": "WKWebView",
+    "vitePort": 19741,
+    "freshCargoBuild": true
+  },
+  "window": {
+    "owner": "courtwork-desktop",
+    "title": "VERSIONAL-LANG-1 · reacceptance WKWebView",
+    "liveCgWindowId": 50132,
+    "cssBounds": {
+      "x": 0,
+      "y": 33,
+      "width": 1600,
+      "height": 900
+    },
+    "capturedPhysicalPixels": {
+      "width": 3424,
+      "height": 2024,
+      "includesSystemShadow": true
+    }
+  },
+  "state": {
+    "surface": "Chat",
+    "focusedAxRole": "AXTextArea",
+    "focusedAxDescription": "Message",
+    "focusedValue": "",
+    "composerCaretVisible": true
+  },
+  "screenshot": {
+    "file": "tauri-wkwebview-chat-focus-1600x900.png",
+    "sha256": "bc5ac6f0f9c758f237732814fd7397f1a34ea4012d36f0a96fca813926b27c0d"
+  }
+}
