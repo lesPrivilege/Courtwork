@@ -171,6 +171,61 @@ if (consumers.get('mark-seal-frame')?.length) {
   }
 }
 
+// ── ⑦ 新语义两件的数据绑定前向守卫（B4 票面③，两件本批不落地）──────────────
+// 「时间轴节点形状＝执行者」「图谱边样式＝事实等级」是原型盘点采纳的两件新语义。本批探明
+// **不落地的原因不在画法在数据**：G6 逐元素 style 覆写是现用法（`nodes[].style.labelText`），
+// 边线型分档零新扩展即可画；但 `TimelineEvent` 无执行者字段（只有 `partyIds` 当事人关联，
+// 当事人≠执行者），`PartyEdge` 无事实等级字段（`grade` 是面板级 prop 不是逐边属性）。
+// 从 `partyIds[0]` 推执行者、从 `relationType` 文案猜等级，正是这两处 schema 注释各自点名
+// 禁止的「UI 零推断」。
+//
+// 故守卫两向：
+//   正向——**无数据之形即违例**：这两处逐元素的形状/线型变化只许绑各自的语义字段族；
+//         该族当前为空，故任何逐元素形状/线型变化一律红。
+//   反向——**前向红卫**：schema 一旦长出该字段，本条即红，逼着把欠下的视觉投影补上。
+//         不留无声的乐观（同「登记不是豁免」）。
+const SEMANTIC_FIELDS = [
+  {
+    what: '时间轴节点形状＝执行者',
+    schema: 'packages/legal/src/schemas/timeline.ts',
+    block: /const TimelineEventSchema = z\.object\(\{([\s\S]*?)\n\}\);/,
+    field: /^(actor|executor|performer|operator|actorIds?|executedBy)$/i,
+    surfaces: ['src/workbench/Panels.tsx'],
+    vocabulary: /\bdata-shape=|\bnodeShape\b|\bmarkerShape\b/,
+  },
+  {
+    what: '图谱边样式＝事实等级（ADR-003 事实等级的视觉投影）',
+    schema: 'packages/legal/src/schemas/party-graph.ts',
+    block: /const PartyEdgeSchema = z\.object\(\{([\s\S]*?)\n\}\);/,
+    field: /^(tier|grade|evidenceTier|evidenceGrade|factLevel|strength)$/i,
+    surfaces: ['src/workbench/GraphPanel.tsx', 'src/workbench/graph-theme.ts'],
+    vocabulary: /\blineDash\b|\bedgeShape\b/,
+  },
+];
+for (const rule of SEMANTIC_FIELDS) {
+  const source = readFileSync(path.join(repo, rule.schema), 'utf8');
+  const body = source.match(rule.block)?.[1];
+  if (body === undefined) {
+    failures.push(`前向守卫失参照：${rule.schema} 未解析出目标 schema 块——守卫不得在读不到 schema 时静默放行`);
+    continue;
+  }
+  const declared = [...body.matchAll(/^\s{2}(?:\/\*\*[\s\S]*?\*\/\s*)?([A-Za-z][\w]*)\s*:/gm)].map((m) => m[1]);
+  const semantic = declared.filter((name) => rule.field.test(name));
+  if (semantic.length) {
+    failures.push(`前向红卫触发：${rule.schema} 已长出语义字段 ${semantic.join('/')}，`
+      + `「${rule.what}」的视觉投影是 B4 记下的欠账，请补上并撤除本条`);
+  }
+  for (const surface of rule.surfaces) {
+    const text = readFileSync(path.join(root, surface), 'utf8');
+    for (const line of text.split('\n')) {
+      if (!rule.vocabulary.test(line)) continue;
+      if (semantic.some((name) => new RegExp(`\\b${name}\\b`).test(line))) continue;
+      failures.push(`无数据之形：${surface} 出现逐元素形状/线型变化却未绑语义字段——`
+        + `「${rule.what}」的数据源在 schema 上尚不存在，从既有字段推形即 UI 推断\n  ${line.trim()}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join('\n'));
   process.exit(1);
