@@ -1,0 +1,43 @@
+{
+  "acceptanceTarget": "e4fec988d145dbd97dfde8a5475071fbcd756357",
+  "capturedAt": "2026-07-20T01:47:00+08:00",
+  "authority": "tauri-wkwebview",
+  "system": {
+    "product": "macOS",
+    "version": "26.5.2",
+    "build": "25F84",
+    "darwin": "25.5.0"
+  },
+  "shell": {
+    "tauriCli": "2.11.4",
+    "webkit": "605.1.15",
+    "viewportCssPx": "1280x720",
+    "devicePixelRatio": 2,
+    "fixtureWidthCssPx": 385
+  },
+  "positive": {
+    "declaration": "hanging-punctuation: allow-end",
+    "supports": true,
+    "overhangCssPx": 23
+  },
+  "negative": {
+    "declaration": "hanging-punctuation: none",
+    "lineShiftCssPx": 39
+  },
+  "effectObserved": true,
+  "sourceSha256": {
+    "hanging-fixture.html": "be384d47463b4afe68dedb129d216f05cce464b47295231ce7c5bdb5e855a6c5",
+    "hanging-fixture.css": "9a63215102d2542011e5bc9812f928768351b2b880807d769ab73cb58b1da049",
+    "hanging-fixture.js": "0b12d2e967c2af2c2f0e298db3abf3be39f8feaca5d4f0ed2edb2d79a26b999e",
+    "tauri-evidence.conf.json": "80994600bf0475fd901d9ecf619f87b62d201da935cf46b4c880f2dfe6f24a86",
+    "hanging-measurements.json": "7eafd023e10516778a06c93cc3fa011d619e1701b7089139fd4dd7668e6502ec"
+  },
+  "frame": {
+    "path": "tauri-wkwebview-authority.png",
+    "pixelWidth": 2784,
+    "pixelHeight": 1664,
+    "sha256": "e25317bfbd361aee132e00165f018ec88a0e25141083949f1983a0fad4aed932"
+  },
+  "captureMethod": "Fresh independent clone; Tauri dev launched with the repository evidence config, values read from the macOS Accessibility tree, and the live application window captured by CGWindow id.",
+  "limitations": "The PNG includes the native Tauri window chrome. The numeric verdict is read from the live WKWebView fixture and is not inferred from screenshot pixels."
+}

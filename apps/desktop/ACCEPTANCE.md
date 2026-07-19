@@ -3701,3 +3701,75 @@ drift/guard 必须实际拦反例的退出条件。
 
 本验收提交只追加拒绝报告与独立真机证据，不修改实现、SPEC、门或契约。P3 未放行，故 P4 与
 终局 one-shot 不得据本报告越过队列；P5 并行线仍按其自身验收结论处理。
+
+---
+
+# ACCEPTANCE: SKIN-R2 P3 · 证据门复验
+
+日期：2026-07-20；复验对象：`e4fec988d145dbd97dfde8a5475071fbcd756357`
+（`fix(site): pin SKIN-R2 P3 evidence bytes`）。本复验会话从该 SHA 建立全新独立 clone
+`/tmp/courtwork-p3-reacceptance.7BGK6W/repo` 并 detached 精确检出；依赖以
+`pnpm install --offline --frozen-lockfile` 装入，Playwright 使用独立端口 `19448`，Tauri
+fixture 使用工单固定端口 `19354`。未复用共享服务，未修改产品实现或契约，未 push。
+
+**裁决：✅ 放行 SKIN-R2 P3。** 上轮拒绝的唯一缺口已经关闭：仓内守卫现同时钉住正负语义、
+fixture／壳配置字节、23px／39px 测量、两张权威帧、测量记录及墨迹拒迁记录。五类要求的真实
+mutation 均令完整 `pnpm site:guard` exit 1，精确复位后 69/69 Node tests 全绿；真实 Tauri
+WKWebView 亦再次独立复现同一排印效力。朱印消费、墨迹拒迁与此前已成立的实现结论不重做消费值。
+
+## 1. 证据门实物与五类必红反例
+
+`checkP3Evidence` 由根 `deslop-scan` 实际调用，不是孤立测试 helper。固定摘要覆盖
+`hanging-fixture.html/css/js`、`tauri-evidence.conf.json`、两张权威帧、
+`hanging-measurements.json`、墨迹 A/B 帧与 `ink-ab-measurements.json`；结构门另验
+Tauri authority、WebKit、viewport、DPR、正负声明、23/39 数值、记录哈希到实际字节的互绑，
+以及墨迹 `reject-migration`、cleanup=0／none、几何与动画不变。
+
+每项均在 fresh clone 的真实文件上单独注入，运行**完整** `pnpm site:guard` 观察 exit 1，再以
+精确反向补丁复位；五轮均只有 `SKIN-R2-P3 pins WKWebView semantics, fixture bytes,
+measurements, and frames` 定点测试失败，复位后 `git diff --exit-code` 恢复干净。
+
+| 注入 | 实际红证 |
+|---|---|
+| 负例 `hanging-punctuation:none → allow-end`，使正负声明相同 | `p3-evidence` 同时报 fixture CSS 字节漂移与正负语义／23px／39px 锚漂移 |
+| 在 `hanging-fixture.css` 加无效注释，只改变 fixture 字节 | `fixtureCss bytes drifted from the independently reviewed P3 anchor` |
+| `positive.overhangCssPx:23→24` 且 `lineShiftCssPx:39→40` | `measurementsRecord bytes drifted` 与 WKWebView 23px／39px 语义锚同时翻红 |
+| 将 `comparisonFrameSha256` 记录改为 64 个零，权威 PNG 字节不动 | `comparisonFrameSha256 does not bind the recorded file bytes` |
+| 墨迹 decision 改为 accept、cleanup 0→1 且 filter none→url(...) | `inkRecord bytes drifted` 与 `ink A/B evidence no longer proves a clean rejected migration` 同时翻红 |
+
+因此「正负对照坍缩、fixture 漂移、测量漂移、截图记录脱绑、墨迹拒迁／清场失真」均不能再像
+上轮那样静默穿过仓门；门也未扩大为内容生成器，证据重摄仍须显式更新锚并重新独立验收。
+
+## 2. 真 Tauri WKWebView 独立复跑
+
+复验直接以目标树的 `tauri-evidence.conf.json` 启动真实 `courtwork-desktop`。macOS
+Accessibility 树独立读到正例、负例、运行时和测量 JSON；随后按 live CGWindow id 新摄壳窗，
+未复用实现帧或上轮验收帧。停止壳与证据服务器后，进程复核为零残留。
+
+| 项 | 独立实测 |
+|---|---|
+| 系统 | macOS 26.5.2 (25F84)，Darwin 25.5.0 |
+| 壳／引擎 | Tauri CLI 2.11.4；AppleWebKit 605.1.15 |
+| 视口 | 1280×720；DPR 2；fixture width 385 CSS px |
+| 正例 | `CSS.supports=true`；`allow-end` 令逗号留前行并悬出 **23 CSS px** |
+| 负例 | `none` 令同一逗号下移 **39 CSS px** |
+| 新摄帧 | `reacceptance-e4fec98/tauri-wkwebview-authority.png`，2784×1664 physical px，SHA-256 `e25317bf…aed932` |
+
+系统、源摘要、完整帧摘要、采集方法与限制见同目录
+`tauri-wkwebview-authority.json` / `README.md`。数值来自 live WKWebView 测量与 Accessibility，
+不是从截图像素推算；Chromium 不承担该项放行权。
+
+## 3. 独立全量门
+
+| 门 | 结果 |
+|---|---|
+| `pnpm site:guard`（五类注入复位后） | PASS；**69/69** Node tests；设计、发布与 P3 evidence 门全绿 |
+| `pnpm lint` | PASS |
+| 根 `pnpm test` | PASS；**148 files / 1261 tests** |
+| `pnpm -r build` | PASS；13 个具 build 脚本的 workspace 完成；desktop 只有既有 dynamic-import／chunk-size 提示 |
+| `pnpm site:build` | PASS |
+| `COURTWORK_E2E_PORT=19448 pnpm --filter @courtwork/desktop test:e2e` | PASS；完整静态前链全绿，Playwright **314/314 passed（4.1m）** |
+
+本复验提交只追加新的独立真壳证据与本报告，不修改实现、SPEC、门或产品契约。上轮拒绝报告作为
+历史红证原样保留；本节以目标 `e4fec98` 的真实反例和全门结果解除该拒绝，放行范围止于
+SKIN-R2 P3，不替 P4 深色、P5 Pages 或终局 one-shot 作任何放行。
