@@ -99,6 +99,15 @@ for (const file of walk(srcRoot)) {
   }
 }
 
+// ── ⑨ JSX 属性式：件库住 TSX，属性必须是 React 认的驼峰式 ────────────────────
+// 单源比对靠归一化跨过了站（HTML kebab）与壳（JSX camel）的写法差异，代价是它**看不见**
+// 壳侧误用 kebab——而 React 会当场拒收并 console.error，只有 ux1 的运行时错误守卫会偶然逮到。
+// 这里把它变成必然：站面照旧 kebab（那是 HTML），壳侧一律 camel。
+for (const kebab of shell.match(/\b(?:stroke|fill|clip|font|text|marker|stop)-[a-z-]+=/g) ?? []) {
+  failures.push(`件库属性式错：src/icons/schema-parts.tsx 用了 HTML 式 ${kebab.slice(0, -1)}——`
+    + 'JSX 须用驼峰式，否则 React 拒收该属性并报 Invalid DOM property');
+}
+
 // ── ⑧ 件库纯度：几何只许住在 symbol 里 ─────────────────────────────────────
 // icon 门的内联禁令为记号系剥出了两个口子（`<use>` 引用与本件库文件）。件库那个口子若不封，
 // 「不经 icon 门」就成了「随便画」。故此处补上：件库内除 <symbol> 外零几何元素——

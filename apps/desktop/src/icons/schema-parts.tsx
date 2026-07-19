@@ -17,11 +17,11 @@ export function SchemaParts() {
       {/* 文武线界行（结构分隔·无彩）：粗 2 / 空 2 / 细 1，与 tokens.json rule.* 同规格 */}
       <symbol id="mark-rule" viewBox="0 0 5 24" preserveAspectRatio="none"><rect x="0" y="0" width="2" height="24" fill="currentColor"/><rect x="4" y="0" width="1" height="24" fill="currentColor"/></symbol>
       {/* 侧点圈点（强调）：评点传统标记要处的圈，抽象为空心环。**取墨系不取琥珀**——琥珀已被「仅风险」宣告占用 */}
-      <symbol id="mark-emphasis" viewBox="0 0 8 8"><circle cx="4" cy="4" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
+      <symbol id="mark-emphasis" viewBox="0 0 8 8"><circle cx="4" cy="4" r="2.6" fill="none" stroke="currentColor" strokeWidth="1.2"/></symbol>
       {/* 落定章框廓（朱）：方印外框。**纯几何无字**（裁定：UI 尺寸下印文即墨污；印文字形入品牌资产会带来许可与谱系两重纠缠） */}
-      <symbol id="mark-seal-frame" viewBox="0 0 96 96"><rect x="3" y="3" width="90" height="90" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="mark-seal-frame" viewBox="0 0 96 96"><rect x="3" y="3" width="90" height="90" fill="none" stroke="currentColor" strokeWidth="2"/></symbol>
       {/* 骑缝齿痕（接缝完整） */}
-      <symbol id="mark-seam" viewBox="0 0 72 24"><path d="M6 4v16M18 7v10M30 2v20M42 7v10M54 4v16M66 9v6" fill="none" stroke="currentColor" stroke-width="1"/></symbol>
+      <symbol id="mark-seam" viewBox="0 0 72 24"><path d="M6 4v16M18 7v10M30 2v20M42 7v10M54 4v16M66 9v6" fill="none" stroke="currentColor" strokeWidth="1"/></symbol>
     </svg>
   );
 }
