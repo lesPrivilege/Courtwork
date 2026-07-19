@@ -730,6 +730,56 @@ export function checkColorGrammar(css) {
   return failures;
 }
 
+// SITE-CRAFT-2 磁青宗批 · SchemaParts 件库的三条解耦预留（就绪图「SVG 记号解耦预留」随两线同装）。
+// 这三条就是「回迁 R2 时零重绘」的机器可验形态——件若带了值、或几何被抄成第二份、
+// 或某件根本没人用，回迁时就必须重画，预留即告失效。故逐条设门：
+//   ① 单源：页面里每一处记号都是 <use>，几何只此一份——件库外零 path/rect/circle/polygon；
+//   ② 按 token 名消费不带值：件内零色值字面量，一律 currentColor（配色由消费点的 color 决定）；
+//   ③ C-4 双主题渲染一致：②成立即②推出③——不携色值的几何在两宗下渲染同一份，
+//      故此门把「零色值」实现为③的充分条件，并要求每件都真有消费者（死件回迁即白重画）。
+export function checkSchemaParts(html) {
+  const failures = [];
+  const fail = (message) => push(failures, 'schema-parts', 'site/index.html', 1, message);
+  const library = html.match(/<svg class="schema-parts"[^>]*>([\s\S]*?)<\/svg>/);
+  if (!library) {
+    fail('SchemaParts library block is missing; marks must come from one shared source');
+    return failures;
+  }
+  const [libraryBlock, libraryBody] = library;
+  const outside = html.replace(libraryBlock, '');
+
+  // ① 单源
+  for (const stray of outside.matchAll(/<(path|rect|circle|ellipse|polygon|polyline)\b/g)) {
+    fail(`geometry outside the parts library: <${stray[1]}> — marks must be <use> instances`);
+  }
+
+  // ② 按 token 名消费不带值
+  for (const attribute of libraryBody.matchAll(/\b(fill|stroke|stop-color|color)=["']([^"']+)["']/g)) {
+    const value = attribute[2].trim().toLowerCase();
+    if (value !== 'currentcolor' && value !== 'none' && !value.startsWith('var(')) {
+      fail(`part carries a colour value (${attribute[1]}="${attribute[2]}"); parts consume token names, not values`);
+    }
+  }
+  if (colorPattern.test(libraryBody)) {
+    colorPattern.lastIndex = 0;
+    fail('parts library contains a raw colour literal; C-4 dual-theme parity requires value-free geometry');
+  }
+  colorPattern.lastIndex = 0;
+
+  // ③ 每件都有消费者
+  const declared = [...libraryBody.matchAll(/<symbol\b[^>]*\bid="([^"]+)"/g)].map((match) => match[1]);
+  if (!declared.length) fail('parts library declares no <symbol>');
+  for (const id of declared) {
+    if (!new RegExp(`<use\\b[^>]*href="#${id}"`).test(outside)) {
+      fail(`part has no consumer: #${id} — a dead part is a redraw waiting to happen`);
+    }
+  }
+  for (const use of outside.matchAll(/<use\b[^>]*href="#([^"]+)"/g)) {
+    if (!declared.includes(use[1])) fail(`<use> points at an undeclared part: #${use[1]}`);
+  }
+  return failures;
+}
+
 export function scanSources(sources, options = {}) {
   const repository = options.repository ?? false;
   const failures = [];

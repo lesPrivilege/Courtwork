@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkColorGrammar, checkDemoMotion, checkDisplayFont, scanSources } from './deslop-scan-lib.mjs';
+import { checkColorGrammar, checkDemoMotion, checkDisplayFont, checkSchemaParts, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -307,6 +307,31 @@ test('SITE-CRAFT-2 site palette is bound to themes.dark by name, not by a frozen
   }
   // 冻结表的到期指针已兑现。此处不复述退役值（SKIN-B1 判例三：退役值只可述比值不可复述色值）——
   // 上面的逐项 deepEqual 已是更强的证明：允许面只认 themes.dark，旧板任一枚值都无处落脚。
+});
+
+// SITE-CRAFT-2 磁青宗批：SchemaParts 三条解耦预留的反例集（回迁 R2 零重绘的机器可验形态）。
+const GOOD_PARTS_HTML = String.raw`
+<svg class="schema-parts" aria-hidden="true" hidden>
+  <symbol id="mark-fishtail" viewBox="0 0 16 8"><path d="M0 0 L8 4 L16 0 Z" fill="currentColor"/></symbol>
+  <symbol id="mark-rule" viewBox="0 0 5 24"><rect x="0" y="0" width="2" height="24" fill="currentColor"/></symbol>
+</svg>
+<p class="eyebrow"><svg class="mark mark-fishtail"><use href="#mark-fishtail"/></svg>卷一</p>
+<div class="ruled"><svg class="mark mark-rule"><use href="#mark-rule"/></svg><blockquote>原句</blockquote></div>
+`;
+const partsRules = (html) => checkSchemaParts(html).map((failure) => failure.rule);
+
+test('SITE-CRAFT-2 SchemaParts keeps the three decoupling reservations machine-checkable', () => {
+  assert.deepEqual(partsRules(GOOD_PARTS_HTML), []);
+  // 预留①单源：几何被抄成第二份（内联而非 <use>）→ 回迁必重画，触红。
+  assert.ok(partsRules(`${GOOD_PARTS_HTML}\n<svg class="seam"><path d="M6 4v16"/></svg>`).includes('schema-parts'));
+  // 预留②不带值：件里写死色值 → 件从此择纸温，触红。
+  assert.ok(partsRules(GOOD_PARTS_HTML.replace('fill="currentColor"/></symbol>\n  <symbol id="mark-rule"', 'fill="#D75A3C"/></symbol>\n  <symbol id="mark-rule"')).includes('schema-parts'));
+  // 预留③：件零消费者＝死件，回迁时白重画，触红。
+  assert.ok(partsRules(GOOD_PARTS_HTML.replace('<svg class="mark mark-rule"><use href="#mark-rule"/></svg>', '')).includes('schema-parts'));
+  // <use> 指向未声明的件 → 渲染静默为空，触红。
+  assert.ok(partsRules(GOOD_PARTS_HTML.replace('href="#mark-rule"', 'href="#mark-ghost"')).includes('schema-parts'));
+  // 件库整块缺席 → 记号无单源，触红。
+  assert.ok(partsRules('<p>卷一</p>').includes('schema-parts'));
 });
 
 test('SITE-GEN fixture claims accept the authoritative Legal and PM snapshot', () => {

@@ -195,6 +195,21 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
   30%, 100% { background-color: transparent; }
 }
 
+/* SITE-CRAFT-2 磁青宗批 · 文书记号系（SchemaParts 件库消费面）。件本身零色值（一律 currentColor），
+   配色只由此处的 color 决定——这既是「按 token 名消费不带值」，也是 C-4「记号不择纸温」的成因：
+   同一份几何在 light/dark 两宗下渲染一致，宗由 theme 承载。全部静态零动效。
+   件库定义在 index.html 顶部的 <svg class="schema-parts" hidden>，页面里每处记号都是 <use>。 */
+.schema-parts { display: none; }
+.mark { flex: none; color: var(--meta); }
+/* 鱼尾（节标）：刻本版心折叠标记，落在卷次前 */
+.mark-fishtail { width: 12px; height: 6px; margin-right: 8px; vertical-align: .1em; }
+/* 文武线（界行）：粗细双线错落——线重即层级语义，替换退役的通用彩色竖条。
+   宽 5px = rule.major 2 + rule.gap 2 + rule.minor 1（tokens.json rule.* 规格）。 */
+.ruled { position: relative; }
+.mark-rule { position: absolute; left: 0; top: 0; width: 5px; height: 100%; color: var(--border-strong); }
+/* 侧点圈点（强调）：评点传统里标记要处的圈，落在被判定的那一句上 */
+.mark-emphasis { width: 9px; height: 9px; margin-right: 9px; vertical-align: .04em; color: var(--text-tertiary); }
+
 .section-heading { max-width: var(--page-max); margin: 0 auto; }
 .section-heading h2 { margin-top: 10px; }
 .section-heading > p:last-child:not(.eyebrow) { max-width: 620px; margin: 20px 0 0; color: var(--text-secondary); font-size: 16px; }
@@ -210,7 +225,8 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .stage-label { color: var(--meta); font-family: var(--mono); font-size: 12px; }
 .evidence-step h3 { margin-top: 10px; font-size: 20px; }
 .evidence-step p, .evidence-step blockquote { margin: 18px 0 0; color: var(--text-secondary); font-size: 14px; line-height: 1.75; }
-.evidence-step blockquote { padding-left: 14px; border-left: 2px solid var(--border-strong); }
+.evidence-step .ruled blockquote { margin-top: 0; padding-left: 14px; }
+.evidence-step .ruled { margin-top: 18px; }
 .evidence-step[data-stage="conclusion"] blockquote, .evidence-step[data-stage="conclusion"] p { color: var(--text-primary); }
 .evidence-step small { display: block; margin-top: 18px; color: var(--meta); font-family: var(--mono); font-size: 11px; }
 
@@ -263,7 +279,7 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
    纯静态刻线，零动效。 */
 .seam-divider { width: min(var(--page-max), calc(100% - 2 * var(--page-gutter))); margin: 0 auto; display: flex; align-items: center; gap: 16px; color: var(--border-strong); }
 .seam-divider i { flex: 1; border-top: 1px solid var(--border-hairline); }
-.seam-divider svg { flex: none; display: block; }
+.mark-seam { width: 72px; height: 24px; display: block; color: inherit; }
 .scenario-ledger { padding: 112px max(var(--page-gutter), calc((100% - var(--page-max)) / 2)) 96px; border-bottom: 1px solid var(--border-hairline); background: var(--bg-raised); }
 .scenario-rows { max-width: var(--page-max); margin: 48px auto 0; }
 .scenario-row { display: grid; grid-template-columns: minmax(220px, 3fr) minmax(0, 9fr); gap: 48px; align-items: center; padding: 44px 0; border-top: 1px solid var(--border-strong); }
@@ -278,7 +294,8 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .scenario-proof li:last-child { border-right: 0; }
 .scenario-proof small { color: var(--meta); font-family: var(--mono); font-size: 11px; }
 .scenario-proof p, .scenario-proof blockquote { margin: 9px 0 0; color: var(--text-primary); font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
-.scenario-proof blockquote { padding-left: 10px; border-left: 2px solid var(--border-strong); }
+.scenario-proof .ruled { margin-top: 9px; }
+.scenario-proof .ruled blockquote { margin-top: 0; padding-left: 12px; }
 .scenario-proof-stats strong { display: block; font-family: var(--mono); font-size: clamp(28px, 3vw, 38px); font-weight: 510; line-height: 1.1; }
 .scenario-proof-stats span { display: block; margin-top: 8px; color: var(--text-secondary); font-size: 13px; }
 

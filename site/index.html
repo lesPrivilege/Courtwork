@@ -17,6 +17,24 @@
   <script src="main.js" defer></script>
 </head>
 <body>
+  <!-- SchemaParts 件库 · 文书记号系（SITE-CRAFT-2 磁青宗批）——站/稿/壳共用单源。
+       三条解耦预留（deslop `schema-parts` 门逐条守）：
+       ① 单源：页面里每一处记号都是 <use>，几何只此一份，无第二份路径数据；
+       ② 按 token 名消费不带值：件内零色值，一律 currentColor，配色由消费点的 color 决定；
+       ③ C-4 双主题渲染一致：件既然不携色值，light/dark 两宗下的渲染就是同一份几何——
+          宗由 theme 承载，记号不择纸温。此三条即「回迁 R2 时零重绘」的机器可验形态。 -->
+  <svg class="schema-parts" aria-hidden="true" hidden>
+    <!-- 鱼尾（节标）：刻本版心的折叠标记，抽象为对称折带，用于卷次 -->
+    <symbol id="mark-fishtail" viewBox="0 0 16 8"><path d="M0 0 L8 4 L16 0 L16 2.4 L8 6.4 L0 2.4 Z" fill="currentColor"/></symbol>
+    <!-- 文武线（界行）：粗细双线错落，线重即层级语义；粗 2 / 空 2 / 细 1，取 tokens.json rule.* 规格 -->
+    <symbol id="mark-rule" viewBox="0 0 5 24" preserveAspectRatio="none"><rect x="0" y="0" width="2" height="24" fill="currentColor"/><rect x="4" y="0" width="1" height="24" fill="currentColor"/></symbol>
+    <!-- 侧点圈点（强调）：评点传统里读者标记要处的圈，抽象为空心环 -->
+    <symbol id="mark-emphasis" viewBox="0 0 8 8"><circle cx="4" cy="4" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
+    <!-- 落定章框廓（朱）：方印外框，印文由消费点提供，故只入框廓不入文字 -->
+    <symbol id="mark-seal-frame" viewBox="0 0 96 96"><rect x="3" y="3" width="90" height="90" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <!-- 骑缝齿痕（接缝完整）：B3 originally inline，本批并入件库以守单源 -->
+    <symbol id="mark-seam" viewBox="0 0 72 24"><path d="M6 4v16M18 7v10M30 2v20M42 7v10M54 4v16M66 9v6" fill="none" stroke="currentColor" stroke-width="1"/></symbol>
+  </svg>
   <a class="skip-link" href="#main">跳到正文</a>
   <header class="site-header">
     <a class="wordmark" href="#top" aria-label="Courtwork 首页"><img src="assets/icon.svg" width="18" height="18" alt=""><span>Courtwork</span></a>
@@ -65,7 +83,7 @@
 
     <section class="evidence" id="evidence">
       <header class="section-heading">
-        <p class="eyebrow">卷一 · 一条结论如何产生</p>
+        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷一 · 一条结论如何产生</p>
         <h2>从原件到确认，<br>每一步都能回去。</h2>
         <p>以下四步来自同一份合成卷宗的真实应用链；链路已在试点中跑通，但不等同于产品已全面上线。</p>
       </header>
@@ -73,18 +91,18 @@
         <li class="evidence-step" data-stage="original">
           <span class="stage-label">原件</span>
           <h3>设备采购合同</h3>
-          <blockquote>乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。</blockquote>
+          <div class="ruled"><svg class="mark mark-rule" aria-hidden="true"><use href="#mark-rule"/></svg><blockquote>乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金。本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准。</blockquote></div>
           <small>04-设备采购合同 · 第 1 页</small>
         </li>
         <li class="evidence-step" data-stage="quote">
           <span class="stage-label">引语</span>
           <h3>逐字回到材料</h3>
-          <blockquote>“每逾期一日应按未付金额的1%向甲方支付违约金”</blockquote>
+          <div class="ruled"><svg class="mark mark-rule" aria-hidden="true"><use href="#mark-rule"/></svg><blockquote>“每逾期一日应按未付金额的1%向甲方支付违约金”</blockquote></div>
           <small>页码与文本区间由系统解析 · 查看引语可回到原件</small>
         </li>
         <li class="evidence-step" data-stage="conclusion">
           <span class="stage-label">结论</span>
-          <h3>违约金单向且畸高</h3>
+          <h3><svg class="mark mark-emphasis" aria-hidden="true"><use href="#mark-emphasis"/></svg>违约金单向且畸高</h3>
           <p>每日 1% 且只约束买方，权利义务显著失衡；建议改为双向、封顶并与实际损失挂钩。</p>
           <small>高风险 · 依据已核验</small>
         </li>
@@ -99,7 +117,7 @@
 
     <section class="work-ledger" aria-labelledby="work-title">
       <header class="section-heading">
-        <p class="eyebrow">卷二 · 真实工作面</p>
+        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷二 · 真实工作面</p>
         <h2 id="work-title">不是三个功能，<br>是一条连续台账。</h2>
       </header>
       <article class="work-row">
@@ -116,11 +134,11 @@
       </article>
     </section>
 
-    <div class="seam-divider" aria-hidden="true"><i></i><svg width="72" height="24" viewBox="0 0 72 24"><path d="M6 4v16M18 7v10M30 2v20M42 7v10M54 4v16M66 9v6" fill="none" stroke="currentColor" stroke-width="1"/></svg><i></i></div>
+    <div class="seam-divider" aria-hidden="true"><i></i><svg class="mark mark-seam"><use href="#mark-seam"/></svg><i></i></div>
 
     <section class="scenario-ledger" id="scenarios" data-site-generalization aria-labelledby="scenarios-title">
       <header class="section-heading">
-        <p class="eyebrow">卷三 · 垂类泛化</p>
+        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷三 · 垂类泛化</p>
         <h2 id="scenarios-title">同一底座，<br>换的是判断。</h2>
         <p>隐私与原件只读是进入门槛；这里把差异放在锚点、分级确认与可回放台账。证据、状态和人工确认仍由同一套宿主原语承载。</p>
       </header>
@@ -159,7 +177,7 @@
             <small class="scenario-boundary">Schema catalog preview / 尚未接通运行链</small>
           </div>
           <ol class="scenario-proof" aria-label="PM 需求评审从原句到人工处置">
-            <li><small>PRD 原句</small><blockquote data-pm-clause>所有成员都能编辑路线图，但路线图只有负责人可以修改。</blockquote></li>
+            <li><small>PRD 原句</small><div class="ruled"><svg class="mark mark-rule" aria-hidden="true"><use href="#mark-rule"/></svg><blockquote data-pm-clause>所有成员都能编辑路线图，但路线图只有负责人可以修改。</blockquote></div></li>
             <li><small>缺陷维度</small><p><span data-pm-defect-label>冲突需求</span></p></li>
             <li><small>修改建议</small><p data-pm-suggestion>区分评论、提议和正式修改，并给出唯一权限矩阵。</p></li>
             <li><small>人工处置</small><p><span data-pm-disposition>待确认</span></p></li>
@@ -169,7 +187,7 @@
     </section>
 
     <section class="promise" id="promise">
-      <header class="section-heading promise-heading"><p class="eyebrow">卷四 · 产品边界</p><h2>有些事，Courtwork 不做。</h2><svg class="settle-seal zh-display" viewBox="0 0 96 96" aria-hidden="true"><rect x="3" y="3" width="90" height="90" fill="none" stroke="currentColor" stroke-width="2"/><text x="27" y="40">不</text><text x="69" y="40">改</text><text x="27" y="82">原</text><text x="69" y="82">件</text></svg></header>
+      <header class="section-heading promise-heading"><p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷四 · 产品边界</p><h2>有些事，Courtwork 不做。</h2><svg class="settle-seal zh-display" viewBox="0 0 96 96" aria-hidden="true"><use href="#mark-seal-frame"/><text x="27" y="40">不</text><text x="69" y="40">改</text><text x="27" y="82">原</text><text x="69" y="82">件</text></svg></header>
       <dl class="promise-ledger">
         <div><dt class="zh-display">不改原件</dt><dd>卷宗原件只读，整理与修订落在受控副本和事件记录。</dd></div>
         <div><dt class="zh-display">不自动送出</dt><dd>不可逆动作不会因模型输出而发生。</dd></div>
@@ -183,7 +201,7 @@
       </aside>
     </section>
 
-    <section class="closing"><div><p class="eyebrow">卷尾 · Courtwork</p><h2 class="zh-display">签字之前，<br>一切可回溯。</h2></div><div class="closing-actions"><a class="button button-primary" href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a><span class="release-pending">Apple Silicon 开发构建 · 未公证</span></div></section>
+    <section class="closing"><div><p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷尾 · Courtwork</p><h2 class="zh-display">签字之前，<br>一切可回溯。</h2></div><div class="closing-actions"><a class="button button-primary" href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a><span class="release-pending">Apple Silicon 开发构建 · 未公证</span></div></section>
   </main>
 
   <footer><p>Courtwork 会犯错，请核对原文与结果。</p><p><a href="https://github.com/lesPrivilege/Courtwork/issues">提交反馈</a> · <span class="mono">本地运行 · 人工确认</span></p></footer>
