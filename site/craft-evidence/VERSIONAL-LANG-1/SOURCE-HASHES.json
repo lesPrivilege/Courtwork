@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "courtwork.versional-language.sources.v1",
+  "status": "reference-only-unapproved",
+  "visualConsumerBase": "71b7fa3",
+  "sources": [
+    {
+      "name": "设计语言三档评估板.dc.html",
+      "sha256": "0648262d0894dd7b79ad8603e4441d21f6115cac422052b397e20350b67008f0",
+      "role": "three-tier assessment reference",
+      "authority": false
+    },
+    {
+      "name": "巧思生长谱-版本学与写本.dc.html",
+      "sha256": "dcba23b955d623bb55c258ba0e351858c4e187f6262f926dd85dec76e96bd870",
+      "role": "versional and manuscript vocabulary reference",
+      "authority": false
+    }
+  ]
+}
