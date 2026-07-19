@@ -8,7 +8,7 @@ courtwork_design_md:
     version: 1
   sources:
     "docs/design/tokens.json":
-      sha256: "8a571a54b277c537b669e004d16c77e32e2fdc8daebce617317fc8680478694b"
+      sha256: "305204dc9bca322e7f65cab8507b87012bbd1a4979136a18855c23f22af45aba"
     "docs/design/principles.md":
       sha256: "5a8afdf8e33316e58aa647d52b01c1ae485902e3ef8cef86d6bd317717f41f67"
   tokenSet:
@@ -120,7 +120,7 @@ tokens:
           fg: "#A83226"
       provenance:
         generatedFont:
-          value: "sans"
+          value: "ui"
         generatedBg:
           value: "#F7F8FA"
         verifiedBg:
@@ -217,10 +217,31 @@ tokens:
       value: "{themes.<theme>.border.strong}"
   typography:
     family:
-      sans:
+      title:
+        value: "'Times New Roman', Times, 'Source Han Serif SC', 'Noto Serif CJK SC', 'Songti SC', serif"
+      body:
+        value: "'Times New Roman', Times, 'Zhuque Fangsong', 'Source Han Serif SC', 'Songti SC', serif"
+      ui:
         value: "-apple-system, 'Segoe UI', 'PingFang SC', 'MiSans', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif"
       mono:
         value: "ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, 'Courier New', monospace"
+    track:
+      title:
+        family: "{typography.family.title}"
+        weightRegular: 400
+        weightEmphasis: 600
+      document:
+        family: "{typography.family.body}"
+        weight: 400
+        readingSize: 16
+        readingLineHeight: 1.75
+      ui:
+        family: "{typography.family.ui}"
+        weightRegular: 400
+        weightEmphasis: 510
+      data:
+        family: "{typography.family.mono}"
+        numeric: "tabular-nums"
     weight:
       regular:
         value: 400
@@ -228,6 +249,67 @@ tokens:
         value: 510
       mediumFallback:
         value: 500
+    slot:
+      viewTitle:
+        track: "title"
+        scale: "display"
+        weight: 600
+        color: "text.primary"
+        aaTarget: 4.5
+      sectionTitle:
+        track: "title"
+        scale: "titleSm"
+        weight: 400
+        color: "text.primary"
+        aaTarget: 4.5
+      documentBody:
+        track: "document"
+        scale: "reading"
+        weight: 400
+        color: "text.primary"
+        aaTarget: 4.5
+        size: 16
+        lineHeight: 1.75
+      documentQuote:
+        track: "document"
+        scale: "reading"
+        weight: 400
+        color: "text.secondary"
+        aaTarget: 4.5
+        size: 16
+        lineHeight: 1.75
+      tableText:
+        track: "ui"
+        scale: "dense"
+        weight: 400
+        color: "text.primary"
+        aaTarget: 4.5
+      tableNumber:
+        track: "data"
+        scale: "dense"
+        weight: 400
+        color: "text.primary"
+        aaTarget: 4.5
+      meta:
+        track: "ui"
+        scale: "meta"
+        weight: 400
+        color: "text.tertiary"
+        aaTarget: 4.5
+        aaStatus: "gap"
+      control:
+        track: "ui"
+        scale: "body"
+        weight: 400
+        color: "text.primary"
+        aaTarget: 4.5
+      sealNote:
+        track: "document"
+        scale: "meta"
+        weight: 400
+        color: "line.settled"
+        aaTarget: 4.5
+        consumer: "B4"
     scale:
       meta:
         size: 12
@@ -453,7 +535,7 @@ tokens:
 - **date**：2026-07-18
 - **status**：现行设计 token 唯一机器真值。color.* = 刻本印页宗（浅，B1 已置换并接线消费面）；themes.dark = 磁青宗（深，B5 目标值，零消费面）
 - **naming**：领域无关（docs/decisions/ADR-001-package-abi.md 纪律）：tier / severity / revision / gate / usage 均无法律语义，法律语义只存在于消费方的数据与文案中
-- **sources**：锚色 #232B38（B1 由 #0A2540 迁入，缘由见 themes.$anchor）；中性阶由锚色派生；字重只用 400/510；语义线与文字使用图形/前景双轨
+- **sources**：锚色 #232B38（B1 由 #0A2540 迁入，缘由见 themes.$anchor）；中性阶由锚色派生；字重按轨分档（B2-0 三轨制）：功能轨 400/510、标题轨 400/600、文书轨单 400（零粗体律）；语义线与文字使用图形/前景双轨
 - **neutralSource**：整条中性阶由锚色 #232B38（H≈217°）降饱和升明度派生，双宗值实测收敛于 216–220°。禁无色相灰（白卡豁免）与暖调中性（B≥R）。机器门：assert-neutral-source.mjs
 - **theme**：双主题（2026-07-19 拍板：深色模式随皮层迁移顺带交付）。color.* 即刻本印页宗（浅），B1 已置换；themes.dark（磁青宗）为 B5 目标值，届时由 [data-theme] 在 token 层置换。原「浅色唯一·深色不进 MVP（principles.md 硬性）」自述已废止——principles.md 从未载有该硬性条款，属陈旧引用（迁移 Plan C-2 定谳）
 
@@ -577,10 +659,10 @@ tokens:
 - `color.semantic.usage` — 状态条用量圆盘三态（docs/design/principles.md）
 - `color.semantic.usage.critical` = `graphic #A83226 · fg #A83226` — 红色态直接接一键续行按钮，文案用办案阶段心智
 - `color.semantic.provenance` — 生成与确定的视觉区隔（docs/design/principles.md）：AI 生成的解释性文字 = sans 字族 + generated 冷灰底；工具核验结果/原文引语/结构化引用 = mono 字族 + verified 冷灰蓝底。两条通道的样式恒定，不得混用，不得用彩色表达（彩色预算属于语义状态）
-- `color.semantic.provenance.generatedFont` = `sans` — AI 解释文字：sans + text.secondary，搭配 generatedBg
+- `color.semantic.provenance.generatedFont` = `ui` — AI 解释文字：功能轨（工具字）+ text.secondary，搭配 generatedBg。B2-0 前称 sans
 - `color.semantic.provenance.generatedBg` = `#F7F8FA` — AI callout 无线底纹：复用 bg.app 底纸值（白卡上的微差底），不占语义色预算
 - `color.semantic.provenance.verifiedBg` = `#F0F4FE` — 核验内容底纹：冷灰蓝（蓝感强于 generatedBg，双轨可辨），叠于 bg.raised 之上，radius.sm
-- `color.semantic.provenance.verifiedFont` = `mono` — 核验内容（引语、编号、核验结果值）用 mono；伴随的文件名链接保持 sans
+- `color.semantic.provenance.verifiedFont` = `mono` — 核验内容（引语、编号、核验结果值）用 mono；伴随的文件名链接保持功能轨
 - `color.line` — 签名动作「法理之线」专用图形色（完整规格见 signature-line.md）。文字不得消费本组值，须消费 semantic.*.fg。封闭集六色（2026-07-19 拍板由五扩六）——封闭是设计法，基数不是：封闭集保护的是「每色有语义」，不是「恰好五个」；经拍板的语义扩容是封闭集的正常演化，无语义的加色才是它要挡的。机器门：assert-signature-line.mjs
 - `color.line.attention` = `#8F6420` — 补全态：待人处理/未核验
 - `color.line.neutral` = `#55617A` — 处置态：已驳回 = 退出工作集；低危待处理无线，严重度由等级徽章表达
@@ -610,9 +692,27 @@ tokens:
 - `rule.minor` = `1` — 次界：行分隔、单元格网格、内层容器（乌丝细线）
 - `rule.gap` = `2` — 文武线粗细两线间距
 - `rule.ink` = `{themes.<theme>.border.strong}` — 线色随宗切换
-- `typography.family.sans` = `-apple-system, 'Segoe UI', 'PingFang SC', 'MiSans', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif` — 拉丁取系统 UI 字，中文落 苹方/MiSans/雅黑。无衬线硬性（docs/design/principles.md）
+- `typography.family` — 三轨字体制（docs/design/typography-density.md 发凡一）的字栈定值。B2-0 落值，消费面置换随 B2-1。栈内首位即配衬字：CJK 字体的拉丁/数字由该栈自身承担，不得裸回退到系统衬线
+- `typography.family.title` = `'Times New Roman', Times, 'Source Han Serif SC', 'Noto Serif CJK SC', 'Songti SC', serif` — 标题轨：思源宋体 SC（Adobe/Google，SIL OFL 1.1，锁版 2.003R）承中文，视图标题/章节题/hero 级。**拉丁配衬字前置 Times New Roman**（编排义务四条之三）——B2-0 真渲实测：思源 CN 子集的拉丁是宽体（M=0.975em、A=0.718em），裸用会把 PDF/OCR 一类缩写撑成半角方块；Times 跨 macOS/Windows 常驻、数字等宽（0=1=0.500em），且是中文公文的惯例配衬。栈序即配衬序：拉丁命中前位，中文穿透到思源
+- `typography.family.body` = `'Times New Roman', Times, 'Zhuque Fangsong', 'Source Han Serif SC', 'Songti SC', serif` — 文书轨：朱雀仿宋（SIL OFL 1.1，锁版 v0.212 technical preview）承中文，阅读视图正文/引语/修订预览。**拉丁配衬字同前置 Times New Roman**——凡例明载「仿宋拉丁字形弱，不得裸回退」，实测朱雀拉丁 M=0.847em 且数字比例参差（真渲 7.08–10.66px @20px），长文里混排会跳。朱雀自带 tnum 可用（十数字齐归 0.450em），但数据字仍归 data 轨守单源。缺字回退思源宋而非系统黑体，保衬线族内一致
+- `typography.family.ui` = `-apple-system, 'Segoe UI', 'PingFang SC', 'MiSans', 'Microsoft YaHei', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif` — 功能轨：系统 sans 栈**续任**（2026-07-19 争点一·甲案）。显式定性为「工具字」——按钮/标签/输入/导航/设置，不承载气质预算，气质由标题轨与文书轨承载；拒苹方条款只及表达性内容，不及工具位。12px 控件可读性优先。B2-0 前名 `sans`，随三轨制更名
 - `typography.family.mono` = `ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, 'Courier New', monospace` — 编号、日期、金额、KBD、徽章、citation 批注专用
+- `typography.track` — 三轨字体制的轨位定值（docs/design/typography-density.md 发凡一/二/四）。轨＝承载体裁，非字体别名：同一密度档在不同轨上可有不同光学取值（见 document.reading 的仿宋补偿）
+- `typography.track.title` — 双字重梯度定阶（B2-0 实测提值）：400→600。取 600 而非 700——真渲实测 700 在 16–18px 中文下笔画粘连（糊重），600 在 20px 有权威感、16px 仍清晰；400→500 梯度一眼难辨，300 起点在屏上过弱。墨量比（对朱雀 Regular）400=1.15 / 600=1.49。注意思源 CN 为七个静态字族（SemiBold 自成一族名 Source Han Serif CN SemiBold），@font-face 须逐重挂到同一 cssFamily 别名下，见子集清单
+- `typography.track.document` — 零粗体律：单字重 400，仿宋无原生粗体，伪粗一律禁（font-synthesis: none 静态门锁）。强调走记号系/字号/墨色，不走加粗。**补偿定值 16px/1.75**（reading 档 sans 基准为 15px/1.6）——B2-0 实测纠正凡例前提：朱雀对系统 CJK sans 的字面积比 0.971（差 2.9%，非「偏窄」），墨量比 0.752（少 24.8%），差在墨不在面，故补偿只升一档字号（+6.7%，字面仅超基准 4%）、主要靠行高（+0.15）给细笔画留白；大幅升字号会让字面超出基准而显臃肿
+- `typography.track.ui` — 现行两档法不变（510 见 weight.medium 的变量字体技巧）
+- `typography.track.data` — 编号/日期/金额/表格数字。**硬边界：数据字不得走标题/文书轨**——对齐律要单源：两条衬线轨的数字宽度依「拉丁配衬字是否命中」而变（思源 CN 无 tnum 表、朱雀有 tnum 但默认比例参差、前置的 Times 又自带等宽），三种来源混在一起就没有一个可断言的等宽事实。B2-0 真渲实测已证此路不可靠，故数字一律回 mono 轨
 - `typography.weight.medium` = `510` — Linear 实测变量字体技巧：避开 600/700 的粗鄙感；非变量字体环境回退 500
+- `typography.slot` — 凡例槽位表（docs/design/typography-density.md 起例）B2-0 填值。每槽＝轨 × 密度档 × 字重 × 色槽，四元俱全才可断言 AA；门④ 按本表逐槽实算，故本表即测点清单，加一槽即多一个测点
+- `typography.slot.viewTitle` — 视图标题：标题轨重字重一端
+- `typography.slot.sectionTitle` — 章节题 / 表头：标题轨轻字重一端，与 viewTitle 构成双字重梯度
+- `typography.slot.documentBody` — 文书正文：带仿宋补偿的独立取值（reading 档 sans 基准为 15/1.6），依据见 track.document
+- `typography.slot.documentQuote` — 文书引语：同补偿，色降一阶
+- `typography.slot.tableText` — 表体文字：功能轨既有法
+- `typography.slot.tableNumber` — 表体数字：等宽 + 数据区静止
+- `typography.slot.meta` — 元信息 / citation：**缺口未闭合**。最严面（bg.surface）实算 3.8416:1，低于 AA 正文 4.5。B2-0 复算三面 4.2329 / 3.9834 / 3.8416，与 B1 记录逐位一致。闭合三杠杆的实测结论见 $metaGapClosure；本槽 aaStatus 为 gap 是**登记而非豁免**，门④ 断言它确实未达标，闭合之日须同步改断言、改本字段与改 color.text.tertiary 描述，三处齐动才算合上
+- `typography.slot.control` — 按钮 / 输入：功能轨既有法
+- `typography.slot.sealNote` — 批注 / 落定章旁文：朱仅印记，消费面随 B4 记号批
 - `typography.scale.meta` — 元信息、角标、徽章。全站最小字号，12px 以下禁用（docs/design/principles.md 规避 Raycast 极限字阶）
 - `typography.scale.dense` — 高密度列表、表格单元格
 - `typography.scale.body` — UI 正文默认
