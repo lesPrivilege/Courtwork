@@ -23,6 +23,16 @@ const normalizeCssValue = (value) => value
   .trim()
   .toLowerCase();
 
+// CSSOM 会在消费前还原转义；P5 的闭集 family 门也必须观察同一语义值，不能只扫源码字面。
+// 保持局部：这里只解码 CSS escape，不解析 var()、级联或选择器状态。
+const normalizeP5CssValue = (value) => normalizeCssValue(value
+  .replace(/\\([0-9a-f]{1,6})(?:\r\n|[\t\n\r\f ])?/gi, (_, hex) => {
+    const codepoint = Number.parseInt(hex, 16);
+    return codepoint === 0 || codepoint > 0x10ffff ? '\uFFFD' : String.fromCodePoint(codepoint);
+  })
+  .replace(/\\(?:\r\n|[\n\r\f])/g, '')
+  .replace(/\\([^0-9a-f\n\r\f])/gi, '$1'));
+
 function tokenAt(path) {
   let value = tokenDocument;
   for (const segment of path.split('.')) value = value?.[segment];
@@ -699,9 +709,9 @@ export function checkP5FontCoverage({ html, css, ogHtml, manifest, sourceRecord,
   const normalizedUnicodeRange = codepoints.join(',').toLowerCase();
   const auditFace = (source, file) => {
     const face = parseCss(source).filter((entry) => entry.selector === '@font-face');
-    const familyDecl = face.find((entry) => entry.property === 'font-family' && normalizeCssValue(entry.value) === `"${family.toLowerCase()}"`);
+    const familyDecl = face.find((entry) => entry.property === 'font-family' && normalizeP5CssValue(entry.value) === `"${family.toLowerCase()}"`);
     if (!familyDecl) fail(`${file} must declare @font-face "${family}"`);
-    const values = new Map(face.map((entry) => [entry.property, normalizeCssValue(entry.value)]));
+    const values = new Map(face.map((entry) => [entry.property, normalizeP5CssValue(entry.value)]));
     if (!values.get('src')?.includes('assets/fonts/manuscript-latin-subset.woff2')) fail(`${file} must load the signed subset`);
     if (values.get('font-display') !== 'swap') fail(`${file} must declare font-display: swap`);
     if (values.get('font-weight') !== '400') fail(`${file} must pin the approved default wght axis`);
@@ -716,7 +726,7 @@ export function checkP5FontCoverage({ html, css, ogHtml, manifest, sourceRecord,
     const seen = new Set();
     for (const declaration of parseCss(source)) {
       if (declaration.selector === '@font-face') continue;
-      if (!normalizeCssValue(declaration.value).includes(family.toLowerCase())) continue;
+      if (!normalizeP5CssValue(declaration.value).includes(family.toLowerCase())) continue;
       if (declaration.property !== 'font-family') {
         fail(`${file} has the manuscript face in an indirect font slot: ${declaration.selector} ${declaration.property}`);
         continue;

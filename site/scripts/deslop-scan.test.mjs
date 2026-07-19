@@ -617,6 +617,11 @@ test('SKIN-R2-P5 rejects manuscript family propagation through custom font slots
   assert.ok(p5FontRules({
     ogHtml: GOOD_P5_OG.replace('<style>', '<style>:root { --og-body: "Courtwork Manuscript Latin"; } body { font-family: var(--og-body); }'),
   }).includes('p5-font-coverage'));
+  assert.ok(p5FontRules({
+    css: String.raw`:root { --escaped-face: "Courtwork\20 Manuscript\20 Latin"; }
+body { font-family: var(--escaped-face); }
+${GOOD_P5_CSS}`,
+  }).includes('p5-font-coverage'));
 });
 
 test('SKIN-R2-P5 data-static rejects character, mono, and motion drift', () => {
