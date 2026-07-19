@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -555,4 +555,70 @@ test('SITE-GEN rejects a PriorityScore fixture or score claim', () => {
   }).some((failure) => failure.includes('PriorityScore')));
   assert.ok(fixtureFailures(GOOD_FIXTURE_CLAIMS.replace('</section>', '<p>PriorityScore · RICE 排序</p></section>'))
     .some((failure) => failure.includes('PriorityScore')));
+});
+
+const GOOD_P5_MANIFEST = {
+  schemaVersion: 'courtwork.font-subset.v1',
+  family: 'Courtwork Manuscript Latin',
+  upstream: 'Junicode',
+  upstreamVersion: '2.226',
+  license: 'SIL OFL 1.1',
+  text: 'Courtwork',
+  codepoints: ['U+0043', 'U+006B', 'U+006F', 'U+0072', 'U+0074', 'U+0075', 'U+0077'],
+  glyphs: 8,
+  woff2Sha256: 'a'.repeat(64),
+  sourceWoff2Sha256: 'b'.repeat(64),
+  releaseArchiveSha256: 'c'.repeat(64),
+  oflSha256: 'd'.repeat(64),
+};
+const GOOD_P5_HTML = String.raw`
+<a class="wordmark"><span>Courtwork</span></a>
+<section class="promise-heading"><h2>有些事，<span class="latin-manuscript">Courtwork</span> 不做。</h2></section>
+<section class="closing"><p class="eyebrow">卷尾 · <span class="latin-manuscript">Courtwork</span></p></section>
+<blockquote class="zh-doc">原句不消费写本类。</blockquote>
+<strong class="mono" data-fixture-count="dossier-materials">20</strong>`;
+const GOOD_P5_CSS = String.raw`
+@font-face { font-family: "Courtwork Manuscript Latin"; src: url(assets/fonts/manuscript-latin-subset.woff2) format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0043,U+006B,U+006F,U+0072,U+0074,U+0075,U+0077; }
+.wordmark > span, .promise-heading h2 .latin-manuscript, .closing .eyebrow .latin-manuscript { font-family: "Courtwork Manuscript Latin"; font-synthesis: none; }
+`;
+const GOOD_P5_OG = String.raw`
+<style>@font-face { font-family: "Courtwork Manuscript Latin"; src: url(assets/fonts/manuscript-latin-subset.woff2) format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0043,U+006B,U+006F,U+0072,U+0074,U+0075,U+0077; } .wordmark { font-family: "Courtwork Manuscript Latin"; font-synthesis: none; }</style>
+<div class="wordmark">Courtwork</div>`;
+const GOOD_P5_SOURCE = 'Junicode 2.226\nrelease archive SHA-256: ' + 'c'.repeat(64)
+  + '\nsource WOFF2 SHA-256: ' + 'b'.repeat(64) + '\nOFL SHA-256: ' + 'd'.repeat(64);
+const p5FontRules = (overrides = {}) => checkP5FontCoverage({
+  html: GOOD_P5_HTML,
+  css: GOOD_P5_CSS,
+  ogHtml: GOOD_P5_OG,
+  manifest: GOOD_P5_MANIFEST,
+  sourceRecord: GOOD_P5_SOURCE,
+  licenseSha256: 'd'.repeat(64),
+  woff2Sha256: 'a'.repeat(64),
+  woff2Metrics: { cmapCodepoints: 7, glyphs: 8 },
+  ...overrides,
+}).map((failure) => failure.rule);
+
+test('SKIN-R2-P5 font coverage binds source, bytes, cmap, glyphs, and only four signed consumers', () => {
+  assert.deepEqual(p5FontRules(), []);
+  assert.ok(p5FontRules({ woff2Sha256: 'e'.repeat(64) }).includes('p5-font-coverage'));
+  assert.ok(p5FontRules({ woff2Metrics: { cmapCodepoints: 6, glyphs: 8 } }).includes('p5-font-coverage'));
+  assert.ok(p5FontRules({ css: `${GOOD_P5_CSS}\n.zh-doc { font-family: "Courtwork Manuscript Latin"; }` }).includes('p5-font-coverage'));
+  assert.ok(p5FontRules({ html: GOOD_P5_HTML.replace('<span>Courtwork</span>', '<span>Casework</span>') }).includes('p5-font-coverage'));
+  assert.ok(p5FontRules({ ogHtml: GOOD_P5_OG.replace('.wordmark { font-family', '.wordmark { color: inherit; } .other { font-family') }).includes('p5-font-coverage'));
+});
+
+test('SKIN-R2-P5 data-static rejects character, mono, and motion drift', () => {
+  const html = String.raw`<strong class="mono" data-fixture-count="dossier-materials">20</strong><article data-pm-finding-id="prd-finding-05"><span data-pm-defect-label>冲突需求</span><span data-pm-disposition>待确认</span></article>`;
+  const css = ':root { --mono: ui-monospace, "SF Mono", Menlo, monospace; }';
+  const expected = {
+    'data-fixture-count:dossier-materials': '20',
+    'data-pm-defect-label': '冲突需求',
+    'data-pm-disposition': '待确认',
+  };
+  const run = (overrides = {}) => checkP5DataStatic({ html, css, expected, expectedMono: 'ui-monospace, "SF Mono", Menlo, monospace', ...overrides })
+    .map((failure) => failure.rule);
+  assert.deepEqual(run(), []);
+  assert.ok(run({ html: html.replace('>20<', '>21<') }).includes('p5-data-static'));
+  assert.ok(run({ css: css.replace('ui-monospace', 'Courtwork Manuscript Latin') }).includes('p5-data-static'));
+  assert.ok(run({ css: `${css}\n[data-fixture-count] { animation: count-up 1s; }` }).includes('p5-data-static'));
 });

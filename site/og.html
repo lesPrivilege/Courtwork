@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=1200, initial-scale=1">
   <title>Courtwork OG</title>
   <style>
+    @font-face { font-family: "Courtwork Manuscript Latin"; src: url(assets/fonts/manuscript-latin-subset.woff2) format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0043, U+006B, U+006F, U+0072, U+0074, U+0075, U+0077; }
     /* SITE-CRAFT-2 磁青宗批：OG 卡与站面同宗同源，变量名同规按 token 名绑定（deslop 逐项锚定）。 */
     :root { --bg-app: #0F1622; --bg-surface: #16202F; --text-primary: #E4E9F1; --text-secondary: #A9B4C6; --text-tertiary: #6E7C92; --border-hairline: #2A3A52; }
     * { box-sizing: border-box; }
@@ -16,7 +17,7 @@
     .mark { display: grid; place-items: center; border-right: 1px solid var(--border-hairline); background: var(--bg-surface); }
     .mark-art { width: 232px; height: 232px; }
     .copy { display: flex; flex-direction: column; justify-content: center; padding: 0 82px; }
-    .wordmark { display: flex; align-items: center; gap: 13px; font-size: 27px; font-weight: 510; }
+    .wordmark { display: flex; align-items: center; gap: 13px; font-family: "Courtwork Manuscript Latin"; font-size: 29px; font-weight: 400; font-variation-settings: "wght" 400, "wdth" 100, "ENLA" 0; font-synthesis: none; letter-spacing: .025em; }
     .wordmark img { width: 28px; height: 28px; }
     h1 { margin: 36px 0 0; font-size: 58px; line-height: 1.18; font-weight: 510; letter-spacing: -.02em; }
     p { margin: 22px 0 0; color: var(--text-secondary); font-size: 21px; }

@@ -40,6 +40,15 @@
   font-display: swap;
   unicode-range: U+0024-0025, U+0028-0029, U+002B-003E, U+007E;
 }
+/* SKIN-R2-P5 · 写本拉丁表达轨。Junicode 2.226 只取 Courtwork 七个码位；
+   四处获准消费由 p5-font-coverage 门封口，绝不扩成正文、UI 或数据字槽。 */
+@font-face {
+  font-family: "Courtwork Manuscript Latin";
+  src: url(assets/fonts/manuscript-latin-subset.woff2) format("woff2");
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0043, U+006B, U+006F, U+0072, U+0074, U+0075, U+0077;
+}
 
 /* SITE-CRAFT-2 磁青宗批 · 色彩语法四位：磁青为底、墨为记、朱仅裁决、泥金 hero 唯一强调。
    底色一律 themes.dark（站与壳 dark 同宗，deslop 按 token 名逐项锚定，站面零第二真源）；
@@ -128,6 +137,14 @@ a { -webkit-tap-highlight-color: transparent; }
   border-bottom: 1px solid var(--border-hairline);
 }
 .wordmark { display: inline-flex; align-items: center; gap: 7px; font-size: 16px; font-weight: 510; text-decoration: none; }
+.wordmark > span {
+  font-family: "Courtwork Manuscript Latin";
+  font-weight: 400;
+  font-variation-settings: "wght" 400, "wdth" 100, "ENLA" 0;
+  font-synthesis: none;
+  line-height: 1;
+  letter-spacing: .025em;
+}
 .wordmark img { width: 18px; height: 18px; flex: none; }
 nav { display: flex; gap: 24px; }
 nav a { color: var(--text-secondary); font-size: 13px; text-decoration: none; transition: color 120ms var(--ease-out); }
@@ -142,6 +159,24 @@ main { overflow: clip; }
    .zh-display 只留给落定章与承诺账的品牌记号，不再承载标题。 */
 h1, h2, h3 { margin: 0; font-weight: 510; letter-spacing: -.02em; text-wrap: balance; }
 .zh-title { font-family: var(--font-title); font-synthesis: none; }
+.promise-heading h2 .latin-manuscript {
+  font-family: "Courtwork Manuscript Latin";
+  font-size: .94em;
+  font-weight: 400;
+  font-variation-settings: "wght" 400, "wdth" 100, "ENLA" 0;
+  font-synthesis: none;
+  letter-spacing: .01em;
+  vertical-align: .035em;
+}
+.closing .eyebrow .latin-manuscript {
+  font-family: "Courtwork Manuscript Latin";
+  font-size: 1.18em;
+  font-weight: 400;
+  font-variation-settings: "wght" 400, "wdth" 100, "ENLA" 0;
+  font-synthesis: none;
+  letter-spacing: .03em;
+  vertical-align: -.04em;
+}
 h2.zh-title { font-weight: 400; }
 h3.zh-title { font-weight: 700; }
 h1.zh-title { font-weight: 400; }

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "courtwork.skin-r2-p5-postframes.v1",
+  "capturedAt": "2026-07-20T00:35:00+08:00",
+  "implementationBase": "52c61588233f5ed4f5fcf1d6e12fcfd201c6ba14",
+  "engine": "Safari WebKit 26.5.2 on macOS 26.5.2 (25F84)",
+  "frames": {
+    "after-1440.png": { "physicalPixels": "3104x1942", "sha256": "667acbf5923323430c6d2cb0a966c294f4e30cc25e7188c97c5a4d36356c5458" },
+    "after-1600.png": { "physicalPixels": "3424x1942", "sha256": "b838710004131ace8a0597e478a64d4b1d3db65d6cfb8423aa4bb35f1ceaf2c2", "note": "height constrained by the 2560x1664 Retina display" },
+    "after-375.png": { "physicalPixels": "974x1824", "sha256": "5fe61d646a535937fa9f5b8dcab001c75171b0c80f4c6004c7ca357d7469fa4a" },
+    "after-reduced-motion.png": { "physicalPixels": "3104x1942", "sha256": "714e57da52913d729544ab7171143f45f03997cc9e6d313f1ee99622c2825b8d", "condition": "macOS Reduce motion toggled 0→1 before navigation, then restored 1→0" },
+    "after-js-off.png": { "physicalPixels": "3104x1942", "sha256": "667acbf5923323430c6d2cb0a966c294f4e30cc25e7188c97c5a4d36356c5458", "condition": "Content-Security-Policy: script-src 'none'" }
+  },
+  "sourceSha256": {
+    "site/index.html": "b0e2d5a4667825d802eab646ba1e21109fc5c4a18c3561b3c08bf02eecc56d51",
+    "site/styles.css": "c016f86ee6c0fc4ad7697570fb8ef43cd0fa94a22b2984d457f175b3360f9acd",
+    "site/og.html": "479d83541eed6eadb8ecd1075826490922ca85403d545039f5fd3c03bc2e63cf",
+    "site/main.js": "f0f036e78e463bc8710f1ce9bbdf32b2777277f0151fc5742b8a8e28bbba9620",
+    "site/assets/og.png": "21eed725b99e675ebdece45e935b5656ecfbcc1d1914d288bdf22b9e196e277c"
+  },
+  "review": "No new wrap, overflow, horizontal scroll, broken progressive enhancement, or cold-surface regression observed. The lower two signed consumers are additionally asserted by the runtime computed-font gate."
+}

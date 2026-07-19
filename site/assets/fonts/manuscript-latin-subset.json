@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "courtwork.font-subset.v1",
+  "family": "Courtwork Manuscript Latin",
+  "upstream": "Junicode",
+  "upstreamVersion": "2.226",
+  "license": "SIL OFL 1.1",
+  "text": "Courtwork",
+  "codepoints": [
+    "U+0043",
+    "U+006B",
+    "U+006F",
+    "U+0072",
+    "U+0074",
+    "U+0075",
+    "U+0077"
+  ],
+  "glyphNames": [
+    ".notdef",
+    "C",
+    "k",
+    "o",
+    "r",
+    "t",
+    "u",
+    "w"
+  ],
+  "glyphs": 8,
+  "bytes": 6872,
+  "woff2Sha256": "a9107ca58cf646f2c36713734402da9d728987d8587cd405b26b75fa88cb27e6",
+  "sourceWoff2Sha256": "1731c456638bc75cd84f8b080505a56a7e137997e2a598cef7fe6e1ab02fcf4d",
+  "releaseArchiveSha256": "dae8ebc04a8592445c1878db8451838dd2f49d7c9912b3d4f3cab84c1516c5fe",
+  "oflSha256": "6078ed582d53a416f761fd2fdeb384320b69191bf316234c21aabe71e2416822",
+  "axes": {
+    "wght": 400,
+    "wdth": 100,
+    "ENLA": 0
+  },
+  "layoutFeatures": [
+    "kern",
+    "liga",
+    "clig"
+  ]
+}

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
 import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
@@ -91,6 +91,37 @@ for (const failure of validateFixtureClaims(html, loadFixtureClaimInputs(resolve
   failures.push(`site: fixture claim ${failure}`);
 }
 const sha256 = (path) => createHash('sha256').update(readFileSync(resolve(path))).digest('hex');
+const p5Manifest = JSON.parse(readFileSync(resolve('site/assets/fonts/manuscript-latin-subset.json'), 'utf8'));
+const p5Metrics = measureWoff2(readFileSync(resolve('site/assets/fonts/manuscript-latin-subset.woff2')));
+for (const failure of checkP5FontCoverage({
+  html,
+  css,
+  ogHtml: sources['site/og.html'],
+  manifest: p5Manifest,
+  sourceRecord: readFileSync(resolve('site/craft-evidence/SKIN-R2-P5/junicode/SOURCE.md'), 'utf8'),
+  licenseSha256: sha256('site/craft-evidence/SKIN-R2-P5/junicode/LICENSE.txt'),
+  woff2Sha256: sha256('site/assets/fonts/manuscript-latin-subset.woff2'),
+  woff2Metrics: { bytes: p5Metrics.bytes, cmapCodepoints: p5Metrics.chars, glyphs: p5Metrics.glyphs },
+})) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+}
+for (const failure of checkP5DataStatic({
+  html,
+  css,
+  expectedMono: 'ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace',
+  expected: {
+    'data-fixture-count:dossier-materials': '20',
+    'data-fixture-count:timeline-events': '47',
+    'data-fixture-count:party-nodes': '14',
+    'data-fixture-count:contradiction-events': '8',
+    'data-pm-clause': '所有成员都能编辑路线图，但路线图只有负责人可以修改。',
+    'data-pm-defect-label': '冲突需求',
+    'data-pm-suggestion': '区分评论、提议和正式修改，并给出唯一权限矩阵。',
+    'data-pm-disposition': '待确认',
+  },
+})) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+}
 const notoManifest = JSON.parse(readFileSync(resolve('site/assets/fonts/noto-subset.json'), 'utf8'));
 // 三轨字体制：文书轨（朱雀，zh-display + zh-doc）与标题轨（Noto 双字重，h1/h2/h3）各自三向绑定。
 const fontTracks = [

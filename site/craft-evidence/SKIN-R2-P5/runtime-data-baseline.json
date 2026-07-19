@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "courtwork.skin-r2-p5-data-render.v1",
+  "baseline": "52c61588233f5ed4f5fcf1d6e12fcfd201c6ba14",
+  "engine": "Chromium 1440x900; Safari frames remain the visual authority",
+  "selectors": {
+    "[data-fixture-count=\"dossier-materials\"]": { "text": "20", "x": 430, "y": 4609.546875, "width": 212, "height": 41.796875, "fontFamily": "ui-monospace, \"SF Mono\", \"JetBrains Mono\", Menlo, Consolas, monospace", "animationName": "none", "transform": "none" },
+    "[data-fixture-count=\"timeline-events\"]": { "text": "47", "x": 679, "y": 4609.546875, "width": 212, "height": 41.796875, "fontFamily": "ui-monospace, \"SF Mono\", \"JetBrains Mono\", Menlo, Consolas, monospace", "animationName": "none", "transform": "none" },
+    "[data-fixture-count=\"party-nodes\"]": { "text": "14", "x": 928, "y": 4609.546875, "width": 212, "height": 41.796875, "fontFamily": "ui-monospace, \"SF Mono\", \"JetBrains Mono\", Menlo, Consolas, monospace", "animationName": "none", "transform": "none" },
+    "[data-fixture-count=\"contradiction-events\"]": { "text": "8", "x": 1177, "y": 4609.546875, "width": 213, "height": 41.796875, "fontFamily": "ui-monospace, \"SF Mono\", \"JetBrains Mono\", Menlo, Consolas, monospace", "animationName": "none", "transform": "none" },
+    "[data-pm-clause]": { "text": "所有成员都能编辑路线图，但路线图只有负责人可以修改。", "x": 430, "y": 4872.328125, "width": 212, "height": 54, "fontFamily": "\"Courtwork Doc Numerals\", Charter, \"Bitstream Charter\", Georgia, \"Times New Roman\", \"Zhuque Fangsong\", STFangsong, FangSong, serif", "animationName": "none", "transform": "none" },
+    "[data-pm-defect-label]": { "text": "冲突需求", "x": 679, "y": 4875.328125, "width": 56, "height": 17, "fontFamily": "-apple-system, \"system-ui\", \"Segoe UI\", \"PingFang SC\", MiSans, \"Microsoft YaHei\", \"Noto Sans SC\", \"Helvetica Neue\", Arial, sans-serif", "animationName": "none", "transform": "none" },
+    "[data-pm-suggestion]": { "text": "区分评论、提议和正式修改，并给出唯一权限矩阵。", "x": 928, "y": 4872.328125, "width": 212, "height": 46.1875, "fontFamily": "-apple-system, \"system-ui\", \"Segoe UI\", \"PingFang SC\", MiSans, \"Microsoft YaHei\", \"Noto Sans SC\", \"Helvetica Neue\", Arial, sans-serif", "animationName": "none", "transform": "none" },
+    "[data-pm-disposition]": { "text": "待确认", "x": 1177, "y": 4875.328125, "width": 42, "height": 17, "fontFamily": "-apple-system, \"system-ui\", \"Segoe UI\", \"PingFang SC\", MiSans, \"Microsoft YaHei\", \"Noto Sans SC\", \"Helvetica Neue\", Arial, sans-serif", "animationName": "none", "transform": "none" }
+  }
+}

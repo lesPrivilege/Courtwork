@@ -496,3 +496,41 @@ craft-evidence B7 节与 `noto/` `zhuque/` `juzhen-rejected/` 三个快照目录
   「朱＝人工裁决之痕，朱印/朱批皆属」，本单两处消费面均合规保留；发凡三的「仅印记」是简写
   而非收窄。附加条件「描边只出现在人工处置步那一帧、不作环境色」已由 B8 落地并写成门
   （逐相位实测 + 三向反例），`color-grammar` 选择器白名单未动。
+
+---
+
+## SKIN-R2-P5 · Pages 写本拉丁表达轨（实现完成，待独立验收）
+
+实现基线：`main@52c61588233f5ed4f5fcf1d6e12fcfd201c6ba14`。唯一档位为 Pages 激进档；唯一签署
+为 `site/craft-evidence/SKIN-R2-P5/ARCHITECTURE-SIGNATURE.md`。签署结果：`P5-F01…F05`、
+`P5-F09…F12` 生效，`P5-F06…F08` 退场；实现未修改 `docs/design/r2-tier-ledger.json`。
+
+### F06–F08 退场理由（全文）
+
+> “全量陌生化”已经走完证据回路：壳侧 UI 换字与站面残面覆盖，两处都被自己立的举证线挡下，
+> 收敛为写本拉丁表达轨一件实活。指令没有输给惰性，是输给了 `+1.3`／同分区的实测；
+> 盲测不构成自动授权，同分取现行。站面与壳侧 UI 轨同源，不为 Pages 另造一张系统正文脸。
+
+因此 `P5-F06` 不替换 `--sans`、`P5-F07` 不替换 `body` 字槽、`P5-F08` 不建立 OG body 字体
+覆盖包；三行不是活档位账项，也不得以“顺手清理”复活。本批不宣称“站面字体全量覆盖完成”。
+
+### 实现与证据
+
+- Junicode 2.226 写本拉丁只在 hero/header `Courtwork`、promise 标题内 `Courtwork`、卷尾
+  `Courtwork` 与 OG 既有 wordmark 四处消费。中文标题、文书、功能 UI、数据/mono 与 fixture
+  引语均未替换。
+- 精确子集只含 7 个码位、8 glyphs、6,872 bytes；固定轴值 `400/100/0`，来源、OFL、发布包/
+  源 WOFF2/子集 SHA、cmap 与 glyph manifest 见 `craft-evidence/SKIN-R2-P5/junicode/`。
+- 消费值前已完成 Safari 1440/1600/375/reduced-motion/JS-off 五帧；实现后同矩阵复拍。前后 SHA、
+  系统开关与 CSP 方法见 `craft-evidence/SKIN-R2-P5/{before,after}/manifest.json`。
+- `p5-font-coverage` 逐位守来源、许可、SHA、cmap/glyph、四消费者与禁入面；`p5-data-static`
+  守既有数据字符、`--mono` 与动效 AST。runtime 门确认四处真渲，并令八个数据节点字符、bbox、
+  字槽、animation 与 transform 对签署基线零漂移。
+- 红绿、仓级 mutation、四律克制审计与 OG 重渲证据见
+  `craft-evidence/SKIN-R2-P5/IMPLEMENTATION.md`。`main.js` 字节未动；未更新 `current.md`。
+
+### 复杂度结论
+
+本单新增两枚平铺机器门与一枚按需 runtime 断言；零新依赖、状态机、持久化、通用字体抽象或
+跨层接口。字体资产仅增一枚精确子集及其 manifest/许可证据。实现者不自验收，后续只接受独立
+clean clone 的验收报告；本批不 push、不部署。

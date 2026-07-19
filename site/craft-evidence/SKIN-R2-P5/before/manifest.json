@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "courtwork.skin-r2-p5-preframes.v1",
+  "capturedAt": "2026-07-19T23:50:00+08:00",
+  "signedBaseline": "52c61588233f5ed4f5fcf1d6e12fcfd201c6ba14",
+  "tier": "pages-experimental",
+  "approvedProposalLines": [
+    "P5-F01",
+    "P5-F02",
+    "P5-F03",
+    "P5-F04",
+    "P5-F05",
+    "P5-F09",
+    "P5-F10",
+    "P5-F11",
+    "P5-F12"
+  ],
+  "captureAuthority": {
+    "engine": "Safari WebKit",
+    "browserVersion": "26.5.2",
+    "os": "macOS 26.5.2 (25F84)",
+    "method": "native Safari window captured by macOS screencapture",
+    "screen": "2560x1664 Retina"
+  },
+  "sourceSha256": {
+    "site/index.html": "41dcfaaf1173a20c8579f739e907084464f7dbca24535d99ea030a98f660f2d6",
+    "site/styles.css": "c8ef7d604e3bfe273a1ec157f3a6cb14849f0eaa658e7f01c9c545440d52290e",
+    "site/og.html": "2d40b8bf0aa01173d2243c6e60e7c59065c056decce514fdf9424ffb4b408148",
+    "site/main.js": "f0f036e78e463bc8710f1ce9bbdf32b2777277f0151fc5742b8a8e28bbba9620"
+  },
+  "sourceDiffAtCapture": "none",
+  "frames": [
+    {
+      "file": "baseline-1440.png",
+      "requestedOuterBounds": "0,0,1440,900",
+      "physicalPixels": "3104x1942",
+      "sha256": "6ed580f27aef93ee534678de197c1df6f8d4f43dc5042b2ada42ebc45560e4de"
+    },
+    {
+      "file": "baseline-1600.png",
+      "requestedOuterBounds": "0,0,1600,1000",
+      "actualOuterBounds": "0,33,1600,892 (display-constrained)",
+      "physicalPixels": "3424x1942",
+      "sha256": "2f129dbcf74de584ada3d5814470d09646db0a796341ab7d55bb54ceb57adddd"
+    },
+    {
+      "file": "baseline-375.png",
+      "requestedOuterBounds": "0,0,375,800",
+      "actualOuterBounds": "0,33,375,833",
+      "physicalPixels": "974x1824",
+      "sha256": "b7ff771e2bf8f245fb6db08b33064068fb9d8520c226f7a09b409ceb63a2329f"
+    },
+    {
+      "file": "baseline-reduced-motion.png",
+      "requestedOuterBounds": "0,0,1440,900",
+      "physicalPixels": "3104x1942",
+      "sha256": "aa291bc306435180f2f8fd922f36d610ad3ddb95fe87fdd3ca27788f097b9be5",
+      "condition": "macOS Accessibility > Motion > Reduce motion enabled before navigation; restored from 1 to 0 immediately after capture"
+    },
+    {
+      "file": "baseline-js-off.png",
+      "requestedOuterBounds": "0,0,1440,900",
+      "physicalPixels": "3104x1942",
+      "sha256": "e7b035229c2f2aa98e7fd0a73156e6a857ca9ec9ba54616545691feabcda1a35",
+      "condition": "same site bytes served with Content-Security-Policy: script-src 'none'; Safari rejected site/main.js"
+    }
+  ],
+  "notes": [
+    "The browser plugin reported no available controlled browser, so the approved native Safari fallback was used.",
+    "No Playwright screenshot is represented as computer-use evidence.",
+    "The empty welcome evidence row remains empty; no evidence was fabricated."
+  ]
+}

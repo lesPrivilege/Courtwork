@@ -667,6 +667,111 @@ export function checkDisplayFont({ html, css, manifest, woff2Sha256, consumerCla
   return failures;
 }
 
+// SKIN-R2-P5：写本拉丁只是一条表达轨，不是第四套正文／UI 字体系统。门保持平铺：
+// 一份固定来源、一枚精确子集、三处站面与一处 OG 消费。任何第五个消费点都算越权复活。
+export function checkP5FontCoverage({ html, css, ogHtml, manifest, sourceRecord, licenseSha256, woff2Sha256, woff2Metrics }) {
+  const failures = [];
+  const fail = (message) => push(failures, 'p5-font-coverage', 'site/assets/fonts/manuscript-latin-subset.json', 1, message);
+  const family = 'Courtwork Manuscript Latin';
+  const text = 'Courtwork';
+  const codepoints = ['U+0043', 'U+006B', 'U+006F', 'U+0072', 'U+0074', 'U+0075', 'U+0077'];
+  const shaFields = ['woff2Sha256', 'sourceWoff2Sha256', 'releaseArchiveSha256', 'oflSha256'];
+  if (!manifest || manifest.family !== family || manifest.upstream !== 'Junicode'
+    || manifest.upstreamVersion !== '2.226' || manifest.license !== 'SIL OFL 1.1'
+    || manifest.text !== text || JSON.stringify(manifest.codepoints) !== JSON.stringify(codepoints)) {
+    fail('manifest must bind Junicode 2.226 / SIL OFL 1.1 to the exact Courtwork cmap');
+    return failures;
+  }
+  for (const field of shaFields) {
+    if (!/^[0-9a-f]{64}$/.test(manifest[field] ?? '')) fail(`manifest ${field} must be a fixed SHA-256`);
+  }
+  if (manifest.woff2Sha256 !== woff2Sha256) fail('subset bytes drifted from manifest woff2Sha256');
+  if (manifest.oflSha256 !== licenseSha256) fail('OFL bytes drifted from manifest oflSha256');
+  if (manifest.glyphs !== woff2Metrics?.glyphs || codepoints.length !== woff2Metrics?.cmapCodepoints) {
+    fail('subset cmap/glyph metrics drifted from the manifest and exact approved text');
+  }
+  if (Number.isInteger(manifest.bytes) && manifest.bytes !== woff2Metrics?.bytes) fail('subset byte count drifted from the manifest');
+  if (!sourceRecord?.includes('Junicode 2.226')) fail('SOURCE record must name Junicode 2.226');
+  for (const field of ['releaseArchiveSha256', 'sourceWoff2Sha256', 'oflSha256']) {
+    if (!sourceRecord?.includes(manifest[field])) fail(`SOURCE record is missing ${field}`);
+  }
+
+  const normalizedUnicodeRange = codepoints.join(',').toLowerCase();
+  const auditFace = (source, file) => {
+    const face = parseCss(source).filter((entry) => entry.selector === '@font-face');
+    const familyDecl = face.find((entry) => entry.property === 'font-family' && normalizeCssValue(entry.value) === `"${family.toLowerCase()}"`);
+    if (!familyDecl) fail(`${file} must declare @font-face "${family}"`);
+    const values = new Map(face.map((entry) => [entry.property, normalizeCssValue(entry.value)]));
+    if (!values.get('src')?.includes('assets/fonts/manuscript-latin-subset.woff2')) fail(`${file} must load the signed subset`);
+    if (values.get('font-display') !== 'swap') fail(`${file} must declare font-display: swap`);
+    if (values.get('font-weight') !== '400') fail(`${file} must pin the approved default wght axis`);
+    if ((values.get('unicode-range') ?? '').replace(/\s/g, '') !== normalizedUnicodeRange) fail(`${file} unicode-range drifted from the exact cmap`);
+  };
+  const ogCss = [...ogHtml.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map((match) => match[1]).join('\n');
+  auditFace(css, 'site/styles.css');
+  auditFace(ogCss, 'site/og.html');
+
+  const siteSelectors = new Set(['.wordmark > span', '.promise-heading h2 .latin-manuscript', '.closing .eyebrow .latin-manuscript']);
+  const auditConsumers = (source, file, approved) => {
+    const seen = new Set();
+    for (const declaration of parseCss(source)) {
+      if (declaration.property !== 'font-family' || !declaration.value.includes(family)) continue;
+      if (declaration.selector === '@font-face') continue;
+      for (const selector of declaration.selector.split(',').map(normalizeSelector)) {
+        if (!approved.has(selector)) fail(`${file} has an unapproved manuscript consumer: ${selector}`);
+        else seen.add(selector);
+      }
+    }
+    for (const selector of approved) if (!seen.has(selector)) fail(`${file} is missing signed manuscript consumer ${selector}`);
+  };
+  auditConsumers(css, 'site/styles.css', siteSelectors);
+  auditConsumers(ogCss, 'site/og.html', new Set(['.wordmark']));
+
+  const textOf = (value) => value.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  const signedTexts = [
+    html.match(/<a\b[^>]*class="[^"]*\bwordmark\b[^"]*"[^>]*>[\s\S]*?<span[^>]*>([\s\S]*?)<\/span>/)?.[1],
+    html.match(/<[^>]*class="[^"]*\bpromise-heading\b[^"]*"[^>]*>[\s\S]*?<h2[^>]*>[\s\S]*?<span\b[^>]*class="[^"]*\blatin-manuscript\b[^"]*"[^>]*>([\s\S]*?)<\/span>/)?.[1],
+    html.match(/<[^>]*class="[^"]*\bclosing\b[^"]*"[^>]*>[\s\S]*?<[^>]*class="[^"]*\beyebrow\b[^"]*"[^>]*>[\s\S]*?<span\b[^>]*class="[^"]*\blatin-manuscript\b[^"]*"[^>]*>([\s\S]*?)<\/span>/)?.[1],
+    ogHtml.match(/<[^>]*class="[^"]*\bwordmark\b[^"]*"[^>]*>([\s\S]*?)<\/[^>]+>/)?.[1],
+  ].map((value) => textOf(value ?? ''));
+  if (signedTexts.some((value) => value !== text)) fail('the four signed consumers must render exactly Courtwork');
+  if ((html.match(/class="[^"]*\blatin-manuscript\b[^"]*"/g) ?? []).length !== 2) fail('site must have exactly two latin-manuscript spans');
+  const forbiddenConsumers = [
+    ...html.matchAll(/<(blockquote|code|pre)\b[^>]*>[\s\S]*?<\/\1>/gi),
+    ...html.matchAll(/<([a-z][a-z0-9]*)\b[^>]*(?:\bdata-[a-z-]+(?:="[^"]*")?|\bclass="[^"]*\b(?:zh-doc|mono)\b[^"]*")[^>]*>[\s\S]*?<\/\1>/gi),
+  ];
+  if (forbiddenConsumers.some((match) => /latin-manuscript/.test(match[0]))) {
+    fail('document, mono, fixture quote, and data nodes must not consume the manuscript face');
+  }
+  return failures;
+}
+
+// P5-F11：字体批只许改变四个品牌字样。数据字符、mono 字槽与数据动效选择器保持静止。
+// 包围盒由同批真渲脚本记录；此静态半门堵住源码层最便宜的漂移路径。
+export function checkP5DataStatic({ html, css, expected, expectedMono }) {
+  const failures = [];
+  const fail = (message) => push(failures, 'p5-data-static', 'site/index.html', 1, message);
+  const plain = (value) => value.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  for (const [key, expectedText] of Object.entries(expected ?? {})) {
+    const separator = key.indexOf(':');
+    const attribute = separator < 0 ? key : key.slice(0, separator);
+    const value = separator < 0 ? null : key.slice(separator + 1);
+    const valuePattern = value === null ? '(?:="[^"]*")?' : `="${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`;
+    const match = html.match(new RegExp(`<([a-z][a-z0-9]*)\\b[^>]*\\b${attribute}${valuePattern}[^>]*>([\\s\\S]*?)<\\/\\1>`, 'i'));
+    if (!match || plain(match[2]) !== expectedText) fail(`${key} character content drifted`);
+  }
+  const mono = parseCss(css).find((entry) => entry.selector === ':root' && entry.property === '--mono');
+  if (normalizeCssValue(mono?.value ?? '') !== normalizeCssValue(expectedMono ?? '')) fail('--mono drifted during the P5 expression-track batch');
+  const dataMotionSelector = /(?:\[data-(?:fixture-count|pm-[^\]]+)\]|\.scenario-proof-stats|\.mono)/i;
+  for (const declaration of parseCss(css)) {
+    if (dataMotionSelector.test(declaration.selector) && /^(?:animation|animation-name|transform|translate|scale|rotate|transition)$/.test(declaration.property)
+      && !/^(?:none|none !important)$/.test(normalizeCssValue(declaration.value))) {
+      fail(`data node gained motion: ${declaration.selector} ${declaration.property}`);
+    }
+  }
+  return failures;
+}
+
 // SITE-CRAFT-2：hero 微演示动效契约——demo-* keyframe 只许注意力层属性
 // （background-color/border-color/border-top-color/opacity），数据字形零位移零变形；
 // 存在演示时 reduced-motion 必须整体全灭。越界属性即「数据区绝对静止」破口，触红。
