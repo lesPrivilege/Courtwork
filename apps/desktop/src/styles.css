@@ -1275,8 +1275,12 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .risk-detail:hover > .signature-line::after { opacity: 1; }
 /* 落定章（SKIN-B4）：人把处置按下去之后留下的印记，钤在详情卡右上。倾角拟手钤（原型自述
    ±3–5°），是**静态**姿态不是动效——动的只有 opacity 与 scale 两支，四属性白名单内。 */
-.settle-seal { position: absolute; z-index: 1; top: 10px; right: 12px; width: 46px; height: 46px; color: var(--zhu-graphic); opacity: .48; pointer-events: none; animation: seal-press var(--motion-seal) var(--motion-overlay-ease) both; }
-@keyframes seal-press { from { opacity: 0; transform: rotate(-4deg) scale(1.16); } to { opacity: .48; transform: rotate(-4deg) scale(1); } }
+.settle-seal { position: absolute; z-index: 1; top: 44px; right: 14px; width: 52px; height: 52px; color: var(--zhu-graphic); opacity: .5; pointer-events: none; animation: seal-press var(--motion-seal) var(--motion-overlay-ease) both; }
+/* 印框的线重是**界面线重**，不是被缩放的画稿线重：件库几何 stroke-width 2 住在 96 的 viewBox 里，
+   缩到 52px 会掉到约 1.08px——一枚糊成发丝的印比没有印更糟。non-scaling-stroke 让线重脱离缩放，
+   几何一笔未动（单源不破），改的只是消费点怎么落笔。 */
+.settle-seal use { vector-effect: non-scaling-stroke; }
+@keyframes seal-press { from { opacity: 0; transform: rotate(-4deg) scale(1.16); } to { opacity: .5; transform: rotate(-4deg) scale(1); } }
 .settle-flash { position: absolute; z-index: 2; inset: 1px; border: 1px solid transparent; border-radius: 4px; pointer-events: none; }
 .settle-flash[data-kind="confirmed"] { --settle-color: var(--green-graphic); }
 .settle-flash[data-kind="rejected"] { --settle-color: var(--slate-graphic); }
