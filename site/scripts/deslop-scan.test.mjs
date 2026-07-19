@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -638,4 +639,35 @@ test('SKIN-R2-P5 data-static rejects character, mono, and motion drift', () => {
   assert.ok(run({ html: html.replace('>20<', '>21<') }).includes('p5-data-static'));
   assert.ok(run({ css: css.replace('ui-monospace', 'Courtwork Manuscript Latin') }).includes('p5-data-static'));
   assert.ok(run({ css: `${css}\n[data-fixture-count] { animation: count-up 1s; }` }).includes('p5-data-static'));
+});
+
+test('SKIN-R2-P3 pins WKWebView semantics, fixture bytes, measurements, and frames', () => {
+  const directory = new URL('../craft-evidence/SKIN-R2-P3/', import.meta.url);
+  const read = (file) => readFileSync(new URL(file, directory));
+  const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
+  const measurements = JSON.parse(read('hanging-measurements.json'));
+  const ink = JSON.parse(read('ink-ab-measurements.json'));
+  const digests = Object.fromEntries([
+    ['fixtureHtml', 'hanging-fixture.html'],
+    ['fixtureCss', 'hanging-fixture.css'],
+    ['fixtureJs', 'hanging-fixture.js'],
+    ['tauriConfig', 'tauri-evidence.conf.json'],
+    ['comparisonFrame', 'tauri-wkwebview-hanging-1280x720.png'],
+    ['measurementsFrame', 'tauri-wkwebview-hanging-measurements-1280x720.png'],
+    ['measurementsRecord', 'hanging-measurements.json'],
+    ['inkAFrame', 'ink-a-clean.png'],
+    ['inkBFrame', 'ink-b-bleed.png'],
+    ['inkRecord', 'ink-ab-measurements.json'],
+  ].map(([key, file]) => [key, sha256(read(file))]));
+  const run = (overrides = {}) => checkP3Evidence({ measurements, ink, digests, ...overrides })
+    .map((failure) => failure.rule);
+
+  assert.deepEqual(run(), []);
+  const sameDeclaration = JSON.parse(JSON.stringify(measurements));
+  sameDeclaration.fixture.negative.declaration = 'hanging-punctuation: allow-end';
+  assert.ok(run({ measurements: sameDeclaration }).includes('p3-evidence'));
+  assert.ok(run({ measurements: { ...measurements, fixture: { ...measurements.fixture, lineShiftCssPx: 40 } } }).includes('p3-evidence'));
+  assert.ok(run({ digests: { ...digests, fixtureCss: '0'.repeat(64) } }).includes('p3-evidence'));
+  assert.ok(run({ digests: { ...digests, comparisonFrame: '0'.repeat(64) } }).includes('p3-evidence'));
+  assert.ok(run({ ink: { ...ink, decision: 'accept-migration' } }).includes('p3-evidence'));
 });

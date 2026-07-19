@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
 import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
@@ -91,6 +91,25 @@ for (const failure of validateFixtureClaims(html, loadFixtureClaimInputs(resolve
   failures.push(`site: fixture claim ${failure}`);
 }
 const sha256 = (path) => createHash('sha256').update(readFileSync(resolve(path))).digest('hex');
+const p3Directory = 'site/craft-evidence/SKIN-R2-P3';
+for (const failure of checkP3Evidence({
+  measurements: JSON.parse(readFileSync(resolve(p3Directory, 'hanging-measurements.json'), 'utf8')),
+  ink: JSON.parse(readFileSync(resolve(p3Directory, 'ink-ab-measurements.json'), 'utf8')),
+  digests: Object.fromEntries([
+    ['fixtureHtml', 'hanging-fixture.html'],
+    ['fixtureCss', 'hanging-fixture.css'],
+    ['fixtureJs', 'hanging-fixture.js'],
+    ['tauriConfig', 'tauri-evidence.conf.json'],
+    ['comparisonFrame', 'tauri-wkwebview-hanging-1280x720.png'],
+    ['measurementsFrame', 'tauri-wkwebview-hanging-measurements-1280x720.png'],
+    ['measurementsRecord', 'hanging-measurements.json'],
+    ['inkAFrame', 'ink-a-clean.png'],
+    ['inkBFrame', 'ink-b-bleed.png'],
+    ['inkRecord', 'ink-ab-measurements.json'],
+  ].map(([key, file]) => [key, sha256(`${p3Directory}/${file}`)])),
+})) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+}
 const p5Manifest = JSON.parse(readFileSync(resolve('site/assets/fonts/manuscript-latin-subset.json'), 'utf8'));
 const p5Metrics = measureWoff2(readFileSync(resolve('site/assets/fonts/manuscript-latin-subset.woff2')));
 for (const failure of checkP5FontCoverage({

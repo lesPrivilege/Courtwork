@@ -677,6 +677,68 @@ export function checkDisplayFont({ html, css, manifest, woff2Sha256, consumerCla
   return failures;
 }
 
+// SKIN-R2-P3：真机证据本身是门的一部分。固定锚同时覆盖 fixture、壳配置、两张权威帧、
+// 测量记录和墨迹拒迁记录；证据若要重摄，必须显式修改本门并重新走独立验收，不能只改叙事。
+export function checkP3Evidence({ measurements, ink, digests }) {
+  const failures = [];
+  const fail = (message) => push(failures, 'p3-evidence', 'site/craft-evidence/SKIN-R2-P3', 1, message);
+  const expectedDigests = {
+    fixtureHtml: 'be384d47463b4afe68dedb129d216f05cce464b47295231ce7c5bdb5e855a6c5',
+    fixtureCss: '9a63215102d2542011e5bc9812f928768351b2b880807d769ab73cb58b1da049',
+    fixtureJs: '0b12d2e967c2af2c2f0e298db3abf3be39f8feaca5d4f0ed2edb2d79a26b999e',
+    tauriConfig: '80994600bf0475fd901d9ecf619f87b62d201da935cf46b4c880f2dfe6f24a86',
+    comparisonFrame: '049a4c674d0c309df033b73f1130b3d57facb5ba108fe817e8f97a74fe9b6714',
+    measurementsFrame: '049a4c674d0c309df033b73f1130b3d57facb5ba108fe817e8f97a74fe9b6714',
+    measurementsRecord: '7eafd023e10516778a06c93cc3fa011d619e1701b7089139fd4dd7668e6502ec',
+    inkAFrame: '721c61e78024a6cd2d8cdbb15cfa4226169826d1086a45f9dca87f2931cab4ee',
+    inkBFrame: '00f322a4e78b96f8c5d8ab2173114bde03ed1db5ae4edc1c88fe042608a2e84c',
+    inkRecord: 'aa06baefd57b30cd80ac25ce59d9dd8afde254a975abb7bd829af268f6f94427',
+  };
+  for (const [key, expected] of Object.entries(expectedDigests)) {
+    if (digests?.[key] !== expected) fail(`${key} bytes drifted from the independently reviewed P3 anchor`);
+  }
+
+  const fixture = measurements?.fixture;
+  if (measurements?.schemaVersion !== 'courtwork.skin-r2-p3.hanging-evidence.v1'
+    || measurements?.authority !== 'Tauri WKWebView'
+    || measurements?.runtime?.webkit !== '605.1.15'
+    || measurements?.runtime?.viewport !== '1280x720'
+    || measurements?.runtime?.devicePixelRatio !== 2
+    || fixture?.supportsAllowEnd !== true
+    || fixture?.positive?.declaration !== 'hanging-punctuation: allow-end'
+    || fixture?.negative?.declaration !== 'hanging-punctuation: none'
+    || fixture?.positive?.overhangCssPx !== 23
+    || fixture?.lineShiftCssPx !== 39
+    || fixture?.effectObserved !== true) {
+    fail('WKWebView positive/negative semantics or the reviewed 23px/39px measurement drifted');
+  }
+  const recordedFiles = measurements?.files ?? {};
+  const measurementLinks = {
+    fixtureHtmlSha256: 'fixtureHtml',
+    fixtureCssSha256: 'fixtureCss',
+    fixtureJsSha256: 'fixtureJs',
+    tauriConfigSha256: 'tauriConfig',
+    comparisonFrameSha256: 'comparisonFrame',
+    measurementsFrameSha256: 'measurementsFrame',
+  };
+  for (const [recordKey, digestKey] of Object.entries(measurementLinks)) {
+    if (recordedFiles[recordKey] !== digests?.[digestKey]) fail(`${recordKey} does not bind the recorded file bytes`);
+  }
+
+  if (ink?.schemaVersion !== 'courtwork.skin-r2-p3.ink-ab.v1'
+    || ink?.variantA?.filter !== 'none'
+    || ink?.variantA?.frameSha256 !== digests?.inkAFrame
+    || ink?.variantB?.frameSha256 !== digests?.inkBFrame
+    || ink?.geometryStable !== true
+    || ink?.animationCountStable !== true
+    || ink?.cleanup?.fixtureCount !== 0
+    || ink?.cleanup?.computedFilter !== 'none'
+    || ink?.decision !== 'reject-migration') {
+    fail('ink A/B evidence no longer proves a clean rejected migration');
+  }
+  return failures;
+}
+
 // SKIN-R2-P5：写本拉丁只是一条表达轨，不是第四套正文／UI 字体系统。门保持平铺：
 // 一份固定来源、一枚精确子集、三处站面与一处 OG 消费。任何第五个消费点都算越权复活。
 export function checkP5FontCoverage({ html, css, ogHtml, manifest, sourceRecord, licenseSha256, woff2Sha256, woff2Metrics }) {
