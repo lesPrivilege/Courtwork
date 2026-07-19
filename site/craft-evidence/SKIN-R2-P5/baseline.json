@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "courtwork.skin-r2-p5-baseline.v1",
+  "capturedAt": "2026-07-19T23:15:01+08:00",
+  "implementationBase": "434c7fce776145b709d8b5f7c7257901fc8b81af",
+  "tier": "pages-experimental",
+  "authorization": {
+    "p5LedgerEntries": 0,
+    "implementationAllowed": false,
+    "reason": "docs/design/r2-tier-ledger.json contains no approvedProposalLine beginning with P5-"
+  },
+  "browser": {
+    "skill": "browser:control-in-app-browser",
+    "runtimeDiscovery": [],
+    "newFramesCaptured": false,
+    "reason": "The prescribed browser runtime and troubleshooting flow reported no available browser. Existing SITE-CRAFT-2 frames are indexed as historical baseline only."
+  },
+  "siteSources": {
+    "site/index.html": "41dcfaaf1173a20c8579f739e907084464f7dbca24535d99ea030a98f660f2d6",
+    "site/styles.css": "c8ef7d604e3bfe273a1ec157f3a6cb14849f0eaa658e7f01c9c545440d52290e",
+    "site/main.js": "f0f036e78e463bc8710f1ce9bbdf32b2777277f0151fc5742b8a8e28bbba9620",
+    "site/og.html": "2d40b8bf0aa01173d2243c6e60e7c59065c056decce514fdf9424ffb4b408148"
+  },
+  "existingFontArtifacts": {
+    "zhuque-fangsong-subset.woff2": "a087683855a0431dc32cdbd511a096ece3c33b76abb16880ba26fe9ba7f9158b",
+    "noto-serif-sc-regular-subset.woff2": "3d41a6d8a83c0e0a6eabeac5dd856f2760c13f1793eeba174f49241caf9dcfa2",
+    "noto-serif-sc-bold-subset.woff2": "b156601450cb573d6deefd0e86bb54732992f0d5eb512b38e90811d5e8a654c6",
+    "doc-latin-subset.woff2": "f3a6ce7a521a03f83943018aeb915ad2e9091efb56f4f3986d3687e895263f48"
+  },
+  "candidate": {
+    "role": "manuscript-latin-expression",
+    "project": "Junicode",
+    "release": "v2.226",
+    "tagCommit": "949db3c15ca6f4eaf4553fff30a085bae3c7e79e",
+    "releaseArchive": "Junicode_2.226.zip",
+    "releaseArchiveSha256": "dae8ebc04a8592445c1878db8451838dd2f49d7c9912b3d4f3cab84c1516c5fe",
+    "sourceWoff2Sha256": "1731c456638bc75cd84f8b080505a56a7e137997e2a598cef7fe6e1ab02fcf4d",
+    "oflSha256": "6078ed582d53a416f761fd2fdeb384320b69191bf316234c21aabe71e2416822",
+    "nameVersion": "Version 2.226",
+    "cmapCodepoints": 3483,
+    "glyphs": 5980,
+    "axes": {
+      "wght": [300, 400, 700],
+      "wdth": [75, 100, 125],
+      "ENLA": [0, 0, 100]
+    },
+    "probeSubset": {
+      "status": "proposal-only; not a repository artifact",
+      "text": "Courtwork",
+      "codepoints": ["U+0043", "U+006B", "U+006F", "U+0072", "U+0074", "U+0075", "U+0077"],
+      "glyphs": 8,
+      "bytes": 5904,
+      "sha256": "736e20dea5fcac813f3c7d9646ec92a015719663e4b08e25dc1ee8ca7d37813a"
+    }
+  }
+}
