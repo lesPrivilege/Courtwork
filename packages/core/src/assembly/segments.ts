@@ -68,7 +68,12 @@ export interface ProjectionPendingInput {
   failedToolSteps: Array<{ toolId: string; reason: string }>;
   /** 中断 attempt（turn_linked 已持久而 Turn terminal 缺席；须以新尝试身份重发，ADR-010）。 */
   interruptedSteps: Array<{ stepId: string; artifactType: string; attempt: number }>;
-  /** 当前停门 artifact（等待确认态；与 pendingGateLabels 同源供给）。 */
+  /**
+   * 当前停门 artifact（等待确认态）。**生产供给面当前为空**——见 `pending-projection.ts` 的
+   * 生成/停门互斥论证与 `packages/core/SPEC.md`「生成时刻与停门态互斥」节。槽位保留是因为
+   * 它由持有停门态的调用方供给（非 executor 内可得），与已退役的 `pendingGateLabels` 不同：
+   * 后者由 executor 自己传入，恒空且结构上不可能非空，故按死码退役。
+   */
   awaitingConfirmation?: string;
 }
 
@@ -77,16 +82,19 @@ export interface ProjectionInput {
   ledgerSeq: number;
   /** 已落格 artifact（typeId → 数据），投影按场景声明序输出。 */
   artifacts: Partial<Record<string, unknown>>;
-  /** 未决门禁标签（易变项挤尾部）。 */
-  pendingGateLabels: string[];
   /** 未产出/待执行三态子节输入；缺省即子节缺席（字节向后等同）。 */
   pending?: ProjectionPendingInput;
 }
 
 /**
  * 续行投影段：从权威态确定性组装，禁 LLM 压缩（docs/decisions/ADR-005-data-security.md 七节）。
- * 输出序 = 场景声明的 outputArtifacts 序 → inputArtifacts 序（字段序固定），
- * 未决门禁挤尾部。找不到投影声明的类型如实跳过（准入闭合下不可达，防御性）。
+ * 输出序 = 场景声明的 outputArtifacts 序 → inputArtifacts 序（字段序固定）。
+ * 找不到投影声明的类型如实跳过（准入闭合下不可达，防御性）。
+ *
+ * DEBT-GATE-LABEL-1（2026-07-20 改判）：原有的「未决门禁」行与其 `pendingGateLabels` 入参已按
+ * 死码退役——executor 是其唯一供给方且恒传空数组，而生成时刻与停门态在 executor 里结构性互斥
+ * （`pauseAt` 落 pending 后即返回，`resumeScenario` 先 consume 再续 produceSequence），故该行
+ * 结构上不可能被渲染。论证与探针证据见 `packages/core/SPEC.md`。
  */
 export function buildProjectionSegment(
   scenario: ScenarioRuntime,
@@ -106,9 +114,6 @@ export function buildProjectionSegment(
     for (const row of projectArtifact(artifact, projection)) {
       lines.push(`  ${row}`);
     }
-  }
-  if (input.pendingGateLabels.length > 0) {
-    lines.push(`■ 未决确认：${input.pendingGateLabels.join('；')}`);
   }
   if (lines.length === 1) lines.push('（尚无已落格产出）');
   // PROJECTION-RESUME-1：「未产出/待执行」三态子节——从既有 step_failed 事实与 interrupted 相态

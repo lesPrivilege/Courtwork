@@ -90,7 +90,6 @@ describe('续行投影段', () => {
       {
         ledgerSeq: 7,
         artifacts: { 'test.Risk': { caseId: 'c1', items: [1, 2] }, 'test.Doc': { caseId: 'c1', items: [] } },
-        pendingGateLabels: ['确认清单'],
       },
       PROJECTIONS,
       ARTIFACTS,
@@ -100,16 +99,15 @@ describe('续行投影段', () => {
     expect(seg.body.indexOf('test.Risk 面板')).toBeLessThan(seg.body.indexOf('test.Doc 面板'));
     expect(seg.body).toContain('容器: c1');
     expect(seg.body).toContain('条目: 2');
-    expect(seg.body).toContain('■ 未决确认：确认清单');
   });
 
   it('零产出时诚实声明而非空段', () => {
-    const seg = buildProjectionSegment(SCENARIO, { ledgerSeq: 0, artifacts: {}, pendingGateLabels: [] }, PROJECTIONS, ARTIFACTS);
+    const seg = buildProjectionSegment(SCENARIO, { ledgerSeq: 0, artifacts: {} }, PROJECTIONS, ARTIFACTS);
     expect(seg.body).toContain('（尚无已落格产出）');
   });
 
   it('同输入字节稳定', () => {
-    const input = { ledgerSeq: 3, artifacts: { 'test.Risk': { caseId: 'c1', items: [] } }, pendingGateLabels: [] };
+    const input = { ledgerSeq: 3, artifacts: { 'test.Risk': { caseId: 'c1', items: [] } } };
     const a = buildProjectionSegment(SCENARIO, input, PROJECTIONS, ARTIFACTS);
     const b = buildProjectionSegment(SCENARIO, input, PROJECTIONS, ARTIFACTS);
     expect(a.body).toBe(b.body);
@@ -130,10 +128,10 @@ describe('续行投影段 · 未产出/待执行三态子节（PROJECTION-RESUME
   };
 
   it('缺省（不传 pending）字节等同：子节整体缺席，既有输出一字不变', () => {
-    const input = { ledgerSeq: 5, artifacts: {}, pendingGateLabels: ['确认清单'] };
+    const input = { ledgerSeq: 5, artifacts: {} };
     const seg = buildProjectionSegment(RESUME_SCENARIO, input, PROJECTIONS, ARTIFACTS);
     expect(seg.body).not.toContain('未产出/待执行');
-    expect(seg.body).toBe('[续行投影 v5]\n■ 未决确认：确认清单');
+    expect(seg.body).toBe('[续行投影 v5]\n（尚无已落格产出）');
   });
 
   it('三态同框字节 golden：等待确认（已落格停门仍列）/ 曾失败待重试携 reason·attempt / 从未开始 / 工具步失败行', () => {
@@ -142,7 +140,6 @@ describe('续行投影段 · 未产出/待执行三态子节（PROJECTION-RESUME
       {
         ledgerSeq: 9,
         artifacts: { 'test.Risk': { caseId: 'c1', items: [1] } },
-        pendingGateLabels: ['确认清单'],
         pending: {
           failedModelSteps: [
             { stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 2, reason: 'provider_http', retryable: true },
@@ -165,8 +162,8 @@ describe('续行投影段 · 未产出/待执行三态子节（PROJECTION-RESUME
         '  - 工具步曾失败：party-verify——unavailable',
       ].join('\n'),
     );
-    // 已落格投影与未决确认行不受子节影响（子节紧跟其后）。
-    expect(seg.body.indexOf('■ 未决确认：确认清单')).toBeLessThan(seg.body.indexOf('■ 未产出/待执行'));
+    // 已落格投影行不受子节影响（子节紧跟其后）。
+    expect(seg.body.indexOf('■ test.Risk 面板')).toBeLessThan(seg.body.indexOf('■ 未产出/待执行'));
   });
 
   it('态不混淆：曾失败步不得标从未开始，从未开始步不得标失败，已落格未停门步整行缺席', () => {
@@ -175,7 +172,6 @@ describe('续行投影段 · 未产出/待执行三态子节（PROJECTION-RESUME
       {
         ledgerSeq: 4,
         artifacts: { 'test.Risk': { caseId: 'c1', items: [] } },
-        pendingGateLabels: [],
         pending: {
           failedModelSteps: [{ stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 1, reason: 'timeout', retryable: true }],
           failedToolSteps: [],
@@ -198,7 +194,6 @@ describe('续行投影段 · 未产出/待执行三态子节（PROJECTION-RESUME
       {
         ledgerSeq: 6,
         artifacts: {},
-        pendingGateLabels: [],
         pending: {
           failedModelSteps: [{ stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 1, reason: 'invalid_response', retryable: false }],
           failedToolSteps: [],
@@ -217,7 +212,6 @@ describe('续行投影段 · 未产出/待执行三态子节（PROJECTION-RESUME
       {
         ledgerSeq: 8,
         artifacts: {},
-        pendingGateLabels: [],
         pending: {
           failedModelSteps: [{ stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 1, reason: 'timeout', retryable: true }],
           failedToolSteps: [],
@@ -240,7 +234,6 @@ describe('续行投影段 · 未产出/待执行三态子节（PROJECTION-RESUME
       {
         ledgerSeq: 2,
         artifacts: {},
-        pendingGateLabels: [],
         pending: { failedModelSteps: [], failedToolSteps: [], interruptedSteps: [] },
       },
       PROJECTIONS,
@@ -260,7 +253,6 @@ describe('续行投影段 · 未产出/待执行三态子节（PROJECTION-RESUME
     const input = {
       ledgerSeq: 3,
       artifacts: {},
-      pendingGateLabels: [],
       pending: {
         failedModelSteps: [{ stepId: 'produce-test.Memo', artifactType: 'test.Memo', attempt: 1, reason: 'timeout', retryable: true }],
         failedToolSteps: [{ toolId: 'party-verify', reason: 'unavailable' }],

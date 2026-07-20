@@ -525,3 +525,55 @@ worktree 内：`pnpm -r build`、`pnpm lint` 全绿；core 定向 **31 files / 3
 
 - **单版本 v1 无迁移阶梯**：`decode` 对任何 `schemaVersion` 不等于当前登记版本一律隔离 `unknown_version`；真实迁移函数阶梯待第二个 schemaVersion 出现时按 ADR 拉动（不预造空迁移器）。
 - **`StoredSessionEvent = SessionEvent` 别名保留**：本单以 store 序列化/读取缝的运行时编解码兑现决定三"持久只存信封"，未把 `artifact_produced` 拆成两个 TS 类型——`artifact: unknown` 容纳信封、持久 payload 单点、读侧强制迁移已满足决定三语义与 fail-closed；若架构要求类型层显式区分 Stored/UI 形，可另拆 `WORK-STORE-2` `[需架构拍板]`（本单体量未失控，未触发拆单）。
+
+## DEBT-CLEAR-1 + DEBT-GATE-LABEL-1 · 死码退役与生成/停门互斥结论（2026-07-20，实现留痕，待独立验收）
+
+裁决坐标：`A/R-12`ⓑ删、`A/R-13`ⓑ删、`C/R-15`①、`A/R-26`（DEBT-CLEAR-1）；`A/R-14` 改判（DEBT-GATE-LABEL-1，原「接线」范围经实测推翻后重写为「死支退役」）。
+
+### 结构性结论：生成时刻与停门态互斥（本节是本单的主要资产）
+
+**结论**：在 `scenario-executor` 内，**模型生成时刻与「存在未消费 pending confirmation」的状态互斥**。因此任何「在生成的 prompt 里呈现当前停门信息」的设计都结构上不可达，除非先改变执行模型本身。
+
+**机制**：`pauseAt()` 保存 pending 后**立即返回** `status:'paused'` 并终止本 leg；`resumeScenario()` 先 `confirmationStore.consume()` 消费 pending，**之后**才调用 `produceSequence()` 续行生成。两者之间没有生成动作。
+
+**探针实测**（`MULTI_GATE_SCENARIO`：3 产出 / 2 门 / 2 次 resume，临时探针跑完即撤）：
+
+```
+终态 = completed · 生成次数 = 3 · 停门次数 = 2
+gen[0] 生成时刻未消费 pending 数 = 0
+gen[1] 生成时刻未消费 pending 数 = 0
+--- pause #0 后 resume（此刻未消费 pending 数 = 1）---
+gen[2] 生成时刻未消费 pending 数 = 0
+--- pause #1 后 resume（此刻未消费 pending 数 = 1）---
+```
+
+未消费 pending 数为 1 的区间恰是**没有任何生成**的区间；三次生成时刻该数恒为 0。
+
+**证据坐标**：`executor.ts` 的 `pauseAt`（保存后即 return）、`produceSequence`（命中 gate 即 return `pauseAt(...)`）、`resumeScenario`（`consume` 先于 `produceSequence`）。
+
+**为何写进 SPEC 而不留在代码注释**：`pending-projection.ts` 的注释本已写对这一点（「生成时刻无停门」），但它没能拦住 `A/R-14` 立票——立票会话没读到，裁决会话照单批准。**结构性结论必须住 SPEC，才拦得住下一张「只差接线」的票。**
+
+### 退役项与判据
+
+四项共用同一判据：**零供给方 + 结构性不可达**。
+
+| 项 | 退役形态 | 判据实证 |
+|---|---|---|
+| `ConfirmationStore.take()` | 接口成员 + 三处实现 + 一处 dev 脚本转发全删 | 生产调用点为零；既有三处调用均为接口一致性转发或对 `take` 自身的测试 |
+| `ScenarioExecutorDeps.onTurnEvent` | 声明与转发全删 | 全仓零供给方（含测试）；连带清失效的 `TurnEvent` 具名 import |
+| `ProjectionInput.pendingGateLabels` | 字段与「未决确认」投影行全删 | executor 是唯一供给方且恒传 `[]`；由上文互斥结论，结构上不可能非空 |
+| 死代码四项（2 导出 / 9 脚本 / 1 死配置 / `newLine`） | 直删 | 逐个按名全仓扫，外部引用数为零 |
+
+**`pendingGateLabels` 的删除形态定性**：该字段经 `index.ts` 的 `export *` 属 core 公开 TS 出口，但**不是版本化 wire 契约**——不在任何 JSON Schema（ADR-009 决定三定义的 IPC/跨语言 wire）、不被任何事件/信封/store 持久化、零跨包消费方。故按内部类型直删，不走加法式弃用。
+
+**保留项（同族但判据不同）**：`ProjectionPendingInput.awaitingConfirmation` 槽位**保留**。它与 `pendingGateLabels` 同样当前无生产供给，但真源在**持有停门态的调用方**而非 executor 自身，不属「结构上不可能非空」，故不适用本单判据。**如实登记：该槽位当前生产供给面为空。**
+
+### 逐字节等同的证明形态
+
+**不重铸 golden 即是证明**：生产路径恒传空数组，删除「恒空分支」后输出不变，故 `packages/core/src/assembly/__golden__/assembled-request.golden.txt` 与 `packages/demo-runtime/src/acceptance/__golden__/s3-assembly.golden.txt` **两份 golden 数据文件零改动而全链绿**。
+
+诚实边界：`segments.test.ts` 中三处**合成输入**（测试自行传入非空 `pendingGateLabels`）的断言随字段删除而移除或改写——那是对一项已不存在能力的测试，不是生产字节变化。生产从未产生过非空值。
+
+### 门禁
+
+`pnpm -r build` / `pnpm lint` / `pnpm test` 全绿（**148 files / 1261 tests**，与本单基线同数）；desktop 36 道静态门整链 exit 0；e2e floor 323 未动。`lint:trace`/`lint:thinking` 去重后门链不缺项——`test:e2e` 直接调 `assert-process-trace.mjs`，不经任何别名。

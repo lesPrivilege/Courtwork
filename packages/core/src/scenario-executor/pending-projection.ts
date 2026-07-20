@@ -9,8 +9,13 @@ import type { ProjectionPendingInput } from '../assembly/segments.js';
  * Map 插入序保持首见顺序）。interrupted 相态的真源是 Turn journal 终态
  * （work-state-store.interruptedTurns()）：仅凭会话事件把「无 artifact_produced 的 turn_linked」
  * 推定为中断，会在引语修复窗口（attempt-1 已完成、attempt-2 组装中）误判，故 interruptedSteps
- * 由持有 Turn 终态的调用方供给，本函数恒回空；awaitingConfirmation 同理（生成时刻无停门，
- * 与 pendingGateLabels 生产供给同源同窄）。散文 message 留账本，不入投影。
+ * 由持有 Turn 终态的调用方供给，本函数恒回空；awaitingConfirmation 同理——**生成时刻无停门**。
+ * 散文 message 留账本，不入投影。
+ *
+ * DEBT-GATE-LABEL-1（2026-07-20）：上句「生成时刻无停门」已由探针实测坐实并升格进
+ * `packages/core/SPEC.md`（生成与未决 pending 结构性互斥）。同批按死码退役的
+ * `pendingGateLabels` 即因该互斥而恒空；本函数的 `awaitingConfirmation` 槽位保留，
+ * 因其真源在调用方而非 executor。
  */
 export function derivePendingProjection(events: readonly SessionEvent[]): ProjectionPendingInput {
   const model = new Map<string, ProjectionPendingInput['failedModelSteps'][number]>();

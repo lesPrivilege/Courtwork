@@ -43,7 +43,7 @@ function baseInput(): AssembleScenarioRequestInput {
     stepId: 'produce-test.Risk',
     artifactType: 'test.Risk',
     modelSchema: RISK_SCHEMA,
-    projection: { ledgerSeq: 2, artifacts: {}, pendingGateLabels: [] },
+    projection: { ledgerSeq: 2, artifacts: {} },
     materials: [{ fileId: 'contract.pdf', sha256: 'cafebabe', readingMarkdown: '第一条 材料正文。' }],
     taskInstruction: '{"task":"fill"}',
     todo: [{ stepId: 'produce-test.Risk', artifactType: 'test.Risk', label: '产出清单', status: 'pending' }],
@@ -90,7 +90,6 @@ describe('六段组装器（byte-stable golden + 变异敏感）', () => {
       projection: {
         ledgerSeq: 2,
         artifacts: {},
-        pendingGateLabels: [],
         pending: {
           failedModelSteps: [{ stepId: 'produce-test.Risk', artifactType: 'test.Risk', attempt: 1, reason: 'timeout', retryable: true }],
           failedToolSteps: [],
@@ -145,7 +144,7 @@ describe('六段组装器（byte-stable golden + 变异敏感）', () => {
     const base = assembleScenarioRequest(baseInput());
     const advanced = assembleScenarioRequest({
       ...baseInput(),
-      projection: { ledgerSeq: 9, artifacts: { 'test.Risk': { caseId: 'c1' } }, pendingGateLabels: [] },
+      projection: { ledgerSeq: 9, artifacts: { 'test.Risk': { caseId: 'c1' } } },
     });
     for (const id of ['contract', 'declaration', 'tenant'] as const) {
       const a = base.segments.find((s) => s.id === id)!.body;

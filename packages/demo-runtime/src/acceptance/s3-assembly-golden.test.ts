@@ -31,7 +31,7 @@ function renderS3Wire(): string {
     stepId: 'produce-risk-list',
     artifactType: 'legal.RiskList',
     modelSchema: entry.descriptor.draftSchema ?? entry.descriptor.schema,
-    projection: { ledgerSeq: 0, artifacts: {}, pendingGateLabels: [] },
+    projection: { ledgerSeq: 0, artifacts: {} },
     materials: [FIXTURE_MATERIAL],
     taskInstruction: JSON.stringify({ artifactType: 'legal.RiskList', inputArtifacts: {}, toolResults: {} }),
     todo: deriveTodoSnapshot(scenario, {}),
