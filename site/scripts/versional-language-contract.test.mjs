@@ -105,10 +105,15 @@ test('VL3-T01 图谱总题真实入口安装同一主题控制器', () => {
 test('R-13 og 卡与 manifest 逐字节绑定，且承载当期成熟度口径', () => {
   const manifest = JSON.parse(readFileSync(new URL('../assets/og-manifest.json', import.meta.url), 'utf8'));
   const bytes = readFileSync(new URL('../assets/og.png', import.meta.url));
-  assert.equal(manifest.schemaVersion, 'courtwork.og-card.v1');
+  const ogSource = readFileSync(new URL('../og.html', import.meta.url));
+  assert.equal(manifest.schemaVersion, 'courtwork.og-card.v2');
   assert.equal(manifest.source, 'site/og.html');
-  assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.sha256, 'og.png 字节与 manifest 脱钩——改了源却没重渲？跑 node site/scripts/render-og.mjs');
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.sha256, 'og.png 字节被动过——manifest 与产物脱钩');
   assert.equal(bytes.byteLength, manifest.bytes);
+  // 源哈希：唯一守得住「改了源没重渲」的判据。独立验收实测 v1 只锁产物 SHA 时，
+  // 改 og.html 标语不重渲可全链绿——绑定锁了产物却漏了它要代表的东西。
+  assert.equal(createHash('sha256').update(ogSource).digest('hex'), manifest.sourceSha256,
+    'og.html 已改而 og.png 未重渲——跑 node site/scripts/render-og.mjs');
 
   // 字节漂移反例必须触红（否则绑定形同虚设）。
   const mutated = createHash('sha256').update(Buffer.concat([bytes, Buffer.from([0])])).digest('hex');

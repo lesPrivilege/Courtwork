@@ -59,6 +59,9 @@ const outputPath = resolve('site/assets/og.png');
 const manifestPath = resolve('site/assets/og-manifest.json');
 writeFileSync(outputPath, rendered);
 const sha256 = createHash('sha256').update(rendered).digest('hex');
+// 源哈希是「改了源没重渲」唯一守得住的判据。只锁产物 SHA 只能发现「产物被人动过」，
+// 发现不了「源变了而产物没跟上」——独立验收实测：改标语不重渲，全链绿。
+const sourceSha256 = createHash('sha256').update(readFileSync(resolve('site/og.html'))).digest('hex');
 const previous = (() => {
   try {
     return JSON.parse(readFileSync(manifestPath, 'utf8'));
@@ -67,9 +70,10 @@ const previous = (() => {
   }
 })();
 writeFileSync(manifestPath, `${JSON.stringify({
-  schemaVersion: 'courtwork.og-card.v1',
-  note: 'og.html 从不发布，读者只经本 png 看到这张卡。改 og.html 文案后必须跑 site/scripts/render-og.mjs 重渲，否则改动对外零效力。字节绑定由 versional-language-contract.test.mjs 守。',
+  schemaVersion: 'courtwork.og-card.v2',
+  note: 'og.html 从不发布，读者只经本 png 看到这张卡。改 og.html 文案后必须跑 site/scripts/render-og.mjs 重渲，否则改动对外零效力。绑定由 versional-language-contract.test.mjs 守，锁两头：sourceSha256 锁「源变了产物没跟上」，sha256 锁「产物被人动过」——只锁后者时改标语不重渲可全链绿（v1 的实测缺口，独立验收坐实）。',
   source: 'site/og.html',
+  sourceSha256,
   renderer: 'site/scripts/render-og.mjs',
   viewport: { width: 1200, height: 630, deviceScaleFactor: 1 },
   asset: 'site/assets/og.png',

@@ -1238,6 +1238,20 @@ const goldKeyframes = new Set(['typer-develop']); // 同一枚 hero 母题的显
 //   ② **逐位**：实算 SHA-256 必须与表内值逐位相等（表是声称，文件是事实，事实为准）；
 //   ③ **交叉**：该 SHA 必须在 crossReferences 的**每一处**引用文件里都出现——四处引用
 //      若有一处漂了，就出现了「两个版本的同一份参考件」，而这正是当初要用 SHA 锚住的事。
+// 角色分面的判据本体（N-2 回炉：原先这段住在 deslop-scan.mjs 的接线里，单测只吃 lib
+// 纯函数，故「豁免由哈希绑定赚取」这条核心性质**零机器守卫**——改成按目录前缀豁免不会
+// 有任何门变红。独立验收以手工探针才坐实其当时正确。提到 lib 里就为了让它可被断言。）
+//
+// 唯一入口：证据实物面 = SOURCE-HASHES.json 里 **path 已登记且刚被逐位核过**的那些。
+// 目录不产生豁免，登记才产生豁免。
+export function partitionByRole(paths, manifest) {
+  const evidenceArtifacts = new Set((manifest?.sources ?? []).map((entry) => entry.path).filter(Boolean));
+  return {
+    productSurface: paths.filter((path) => !evidenceArtifacts.has(path)),
+    evidenceArtifacts: paths.filter((path) => evidenceArtifacts.has(path)),
+  };
+}
+
 export function checkSourceHashes({ manifest, manifestPath, artifactSha256, crossReferenceContents }) {
   const failures = [];
   const fail = (message) => push(failures, 'source-hashes', manifestPath, 1, message);
@@ -1273,6 +1287,19 @@ export function checkSourceHashes({ manifest, manifestPath, artifactSha256, cros
       }
     }
   }
+  // 外部备份（N-4 回炉）：这些条目登记的是「因为别处有逐字节同源备份，所以本机副本不
+  // 重复入仓」。备份一旦消失，那个移除决定就不再成立、四处 SHA 引用重新悬空——正是本
+  // 门要修的形状。故它必须有消费者。**这不与「归档件不参与现行校验链」相冲突**：此处
+  // 不把归档内容当权威依据，只核我方的移除决定是否仍然站得住。
+  for (const backup of manifest.externalBackups ?? []) {
+    if (!backup.backupPath) {
+      fail(`${backup.name}: externalBackups 条目缺 backupPath——只记 SHA 不记备份位置，等于没有备份`);
+      continue;
+    }
+    const actual = artifactSha256(backup.backupPath);
+    if (actual === undefined) fail(`${backup.name}: 备份缺席 ${backup.backupPath}——本机副本已按「另有同源备份」移除，备份没了则该移除不可恢复`);
+    else if (actual !== backup.sha256) fail(`${backup.name}: 备份字节漂移 ${backup.backupPath}——实算 ${actual} ≠ 表内 ${backup.sha256}`);
+  }
   return failures;
 }
 
@@ -1284,35 +1311,58 @@ export function checkSourceHashes({ manifest, manifestPath, artifactSha256, cros
 // 出现「合成数据试点」7 次，og 卡 0 次）。成熟度枚举是本仓的硬纪律（不变量 9），
 // 对外面却只靠人眼守——本门把它补成机器事实。
 //
-// **判据必须区分「断言」与「否定断言」**：站面现有三处对冲恰恰把「已全面上线」写在
-// 否定句里（「不等同于产品已全面上线」「这不是产品已全面上线的承诺」）。一刀切的
-// 子串禁令会红掉我们最想要的那三句话，等于逼着作者删对冲——门的方向就反了。
-// 故：命中词先回看**同句**前文，句内有否定词即放行；跨句不放行（避免上一句的
-// 「不」漏进来给下一句背书）。句界取 。！？；\n 与闭合标签。
+// **判据形态（首版否定句启发式已废，改白名单——独立验收驳回后回炉）**：
+// 难点是站面现有对冲恰恰把「已全面上线」正写在否定句里，一刀切子串禁令会红掉我们最想
+// 要的那三句话。首版据此写了「回看同句前文，句内有否定词即放行」，被验收实证击穿两层：
+//   ① 实现与自述相反——剥离标签而非以标签为句界，于是 `</p><p>` 与 `<br>` 两侧被接成
+//      一句，上一段的「不」给下一段的断言背书；
+//   ② **更根本的**：即便句界修对，`不做自动送出，已全面上线` 仍放行——否定词确在同句，
+//      但它否定的是别的东西。判断否定词管到哪属自然语言理解，不属静态门能力。
+// 启发式在此类判据上没有可收敛的正确版本，故换形态：**成熟度词只许出现在已签对冲措辞
+// 之内**。合法对冲是有限、可枚举、且已被 fixture-claims 逐字锁住的资产，登记它们比猜
+// 「这句是不是否定」可靠得多——按构造零假阴，代价是新写法须先登记。这与本仓「锁既有
+// 措辞」体例同构，也与记号系「不上也要登记」同构。
+// **双向锁**：登记了却全站无消费的对冲即死登记，同样触红——白名单不许养僵尸条目。
 const MATURITY_CLAIMS = ['已上线', '全面上线', '全面可用', '生产可用', '生产就绪', '正式上线', '已商用', 'production-ready'];
-const MATURITY_NEGATORS = ['不', '非', '未', '尚', '并未', '而不是'];
+const SIGNED_MATURITY_HEDGES = [
+  '不等同于产品已全面上线',
+  '这不是产品已全面上线的承诺',
+];
 
-export function checkMaturityClaims(sources) {
+export function checkMaturityClaims(sources, { hedges = SIGNED_MATURITY_HEDGES } = {}) {
   const failures = [];
+  const hedgeSeen = new Set();
   for (const [file, content] of Object.entries(sources)) {
     const lines = content.split('\n');
     lines.forEach((rawLine, index) => {
       const line = rawLine.toLowerCase();
+      // 本行所有已签对冲的覆盖区间——成熟度词必须整体落进其中之一。
+      const covered = [];
+      for (const hedge of hedges) {
+        const needle = hedge.toLowerCase();
+        for (let at = line.indexOf(needle); at !== -1; at = line.indexOf(needle, at + 1)) {
+          covered.push([at, at + needle.length]);
+          hedgeSeen.add(hedge);
+        }
+      }
       for (const claim of MATURITY_CLAIMS) {
-        let from = 0;
-        for (;;) {
-          const at = line.indexOf(claim.toLowerCase(), from);
-          if (at === -1) break;
-          from = at + claim.length;
-          // 同句前文 = 本行该命中点之前、最近一个句界之后的片段（标签不算内容）。
-          const before = rawLine.slice(0, at).replace(/<[^>]*>/g, '');
-          const sentence = before.split(/[。！？；]/).pop() ?? '';
-          if (MATURITY_NEGATORS.some((negator) => sentence.includes(negator))) continue;
+        const needle = claim.toLowerCase();
+        for (let at = line.indexOf(needle); at !== -1; at = line.indexOf(needle, at + 1)) {
+          const end = at + needle.length;
+          if (covered.some(([from, to]) => at >= from && end <= to)) continue;
           push(failures, 'maturity-claim', file, index + 1,
-            `unhedged maturity assertion "${claim}" — 成熟度枚举只认 current.md；对外面须写成否定或带限定（如「不等同于产品已全面上线」）`);
+            `unhedged maturity assertion "${claim}" — 成熟度枚举只认 current.md；成熟度词只许出现在已签对冲措辞内（如「不等同于产品已全面上线」），新写法须先登记进 SIGNED_MATURITY_HEDGES`);
         }
       }
     });
+  }
+  // 双向锁：登记了却全站无消费的对冲＝死登记。没有这条，白名单会随时间攒下一堆
+  // 「曾经用过」的措辞，而每一条都是一个永久豁免口。
+  for (const hedge of hedges) {
+    if (!hedgeSeen.has(hedge)) {
+      push(failures, 'maturity-claim', 'site/scripts/deslop-scan-lib.mjs', 1,
+        `已签对冲措辞无消费面：「${hedge}」——白名单不许养僵尸条目，措辞退场时同批删登记`);
+    }
   }
   return failures;
 }

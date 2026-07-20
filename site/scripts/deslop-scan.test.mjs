@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -684,14 +684,20 @@ test('SKIN-R2-P4 keeps dark switching at the root token map with zero component/
   assert.ok(run(rootMap.replace('  --bg-app: #0f1622;', '  --bg-app: #0f1622;\n  --rogue-paper: var(--bg-app);')).includes('theme-boundary'));
 });
 
-// R-12（ARCH-SCOPE-2026-07-20）：成熟度断言黑名单。本门的难点不是禁词，是**区分断言与
-// 否定断言**——站面现有三处对冲把「已全面上线」正写在否定句里，粗暴子串禁令会红掉对冲
-// 本身，等于逼作者删掉我们最想要的话。故正反两向都必须有例。
-test('R-12 maturity blacklist reds unhedged claims and leaves existing hedges alone', () => {
+// R-12（ARCH-SCOPE-2026-07-20，独立验收驳回后回炉）：成熟度断言白名单门。
+// 首版用「同句有否定词即放行」的启发式，被验收实证击穿两层：实现剥离标签而非以标签
+// 为句界（跨段落/`<br>` 背书），以及更根本的——否定词管到哪属自然语言理解，不属静态
+// 门能力（`不做自动送出，已全面上线` 无解）。现形态：成熟度词只许落在**已签对冲措辞**
+// 之内。验收找到的六类假阴在此逐条落为回归例，不许再犯。
+test('R-12 maturity gate: signed hedges pass, everything else reds', () => {
   const run = (content, file = 'site/index.html') =>
-    checkMaturityClaims({ [file]: content }).map((failure) => failure.rule);
+    checkMaturityClaims({
+      [file]: content,
+      // 陪跑件：喂满两条已签对冲，避免双向锁在单例测试里误报死登记。
+      'site/index.html#hedge-fixture': '不等同于产品已全面上线／这不是产品已全面上线的承诺',
+    }).filter((failure) => failure.file === file).map((failure) => failure.rule);
 
-  // 阴性对照必须落零：现行四份对外件在真实字节下零违例（否则本门一上线就误伤）。
+  // 阴性对照落零：现行四份对外件 + README 在真实字节下零违例。
   const live = {
     'site/index.html': readFileSync(new URL('../index.html', import.meta.url), 'utf8'),
     'site/og.html': readFileSync(new URL('../og.html', import.meta.url), 'utf8'),
@@ -701,7 +707,7 @@ test('R-12 maturity blacklist reds unhedged claims and leaves existing hedges al
   };
   assert.deepEqual(checkMaturityClaims(live), []);
 
-  // 三条真实对冲逐句放行——它们是本门要保护的对象，不是要抓的对象。
+  // 三处真对冲必须绿——它们是本门要保护的对象，不是要抓的对象。
   assert.deepEqual(run('<p>链路已在试点中跑通，但不等同于产品已全面上线。</p>'), []);
   assert.deepEqual(run('<p>这不是产品已全面上线的承诺。</p>'), []);
   assert.deepEqual(run('<p>本卷证据来自同一份合成卷宗；链路已在试点中跑通，但不等同于产品已全面上线。</p>'), []);
@@ -712,14 +718,27 @@ test('R-12 maturity blacklist reds unhedged claims and leaves existing hedges al
   }
   assert.ok(run('<p>Courtwork is production-ready today.</p>').includes('maturity-claim'));
 
-  // og 卡必须在扫描面内——本轮越界正出自此处，漏了它等于门白立。
+  // og 卡必须在扫描面内——本轮越界正出自此处。
   assert.ok(run('<small>macOS · 生产可用</small>', 'site/og.html').includes('maturity-claim'));
 
-  // 跨句不背书：上一句的「不」不得给下一句的断言开脱。
-  assert.ok(run('<p>本产品不做自动送出。产品已全面上线。</p>').includes('maturity-claim'));
+  // ── 独立验收找到的六类假阴，逐条回归 ────────────────────────────────
+  // A：否定词在同句，但否定的是别的东西（启发式无解的那一类）。
+  assert.ok(run('<small>macOS · 原件只读，不做自动送出，已全面上线</small>', 'site/og.html').includes('maturity-claim'));
+  // B：跨段落标签——首版剥离标签后两段接成一句，上段的「不」给下段背书。
+  assert.ok(run('<p>……不等同于试点</p><p>产品已全面上线。</p>').includes('maturity-claim'));
+  // C：`<br>` 同理。
+  assert.ok(run('<p>……不等同于试点<br>产品已全面上线。</p>').includes('maturity-claim'));
+  // D：逗号不分句。
+  assert.ok(run('<p>……不等同于试点，产品已全面上线。</p>').includes('maturity-claim'));
+  // E：半角句读不在首版句界集内。
+  assert.ok(run('<p>OCR 未实现. 核心工作台已全面上线。</p>').includes('maturity-claim'));
+  // F：否定字落在复合名词里（「非」结构化）。
+  assert.ok(run('<p>非结构化材料亦可导入，产品已全面上线。</p>').includes('maturity-claim'));
 
-  // 标签不算内容：否定词若只出现在属性里，不构成同句否定。
-  assert.ok(run('<p data-note="不">产品已全面上线</p>').includes('maturity-claim'));
+  // 双向锁：登记了却全站无消费的对冲＝死登记，同样触红。
+  const zombie = checkMaturityClaims({ 'site/index.html': '<p>无成熟度词。</p>' },
+    { hedges: ['这条对冲没有人用'] });
+  assert.ok(zombie.some((failure) => /无消费面/.test(failure.message)), '死登记必须触红');
 });
 
 // R-14（ARCH-SCOPE-2026-07-20）：参考件落仓校验。原缺口是「有 SHA 无实物、无消费者」——
@@ -763,10 +782,66 @@ test('R-14 source-hashes binds manifest, landed bytes, and every cross-reference
 test('R-14 role faceting is load-bearing: evidence artifacts would flood the product-surface rules', () => {
   const manifest = JSON.parse(readFileSync(
     new URL('../craft-evidence/VERSIONAL-LANG-1/SOURCE-HASHES.json', import.meta.url), 'utf8'));
+  // N-3：没有这行，sources 变空时本条 for 循环空转、assert 从不执行——空绿。
+  assert.ok(manifest.sources.length > 0, 'sources 为空则本条自证空转，等于没有断言');
   for (const entry of manifest.sources) {
     const content = readFileSync(new URL(`../../${entry.path}`, import.meta.url), 'utf8');
     const asProductSurface = scanSources([source(entry.path, content)], { repository: true });
     assert.ok(asProductSurface.length > 0,
       `${entry.path}：按产品面规则扫竟零违例——分面的前提不成立，须复核该件是否仍是外部冻结件`);
   }
+});
+
+// N-2（独立验收）：角色分面的核心性质此前只有实现正确、**零机器守卫**——判据住在
+// deslop-scan.mjs 的接线里，而单测只吃 lib 纯函数，改成按目录前缀豁免不会有门变红。
+// 提到 partitionByRole 后在此逐条锁死：豁免由登记赚取，目录不产生豁免。
+test('N-2 role partition: exemption is earned by registration, never by directory', () => {
+  const manifest = JSON.parse(readFileSync(
+    new URL('../craft-evidence/VERSIONAL-LANG-1/SOURCE-HASHES.json', import.meta.url), 'utf8'));
+  const registered = manifest.sources[0].path;
+  const sameDirectoryButUnregistered = `${registered.slice(0, registered.lastIndexOf('/'))}/unregistered-probe.html`;
+
+  const { productSurface, evidenceArtifacts } = partitionByRole(
+    [registered, sameDirectoryButUnregistered, 'site/index.html'], manifest);
+
+  // 已登记者进证据面。
+  assert.deepEqual(evidenceArtifacts, [registered]);
+  // **同目录但未登记者仍在产品面**——这条是分面不是口子的全部理由。
+  assert.ok(productSurface.includes(sameDirectoryButUnregistered),
+    '同目录未登记件被豁免＝分面退化为目录黑名单，R-14 的拍板即被架空');
+  assert.ok(productSurface.includes('site/index.html'));
+
+  // 清单为空时零豁免（不得因读不到清单而放行一切）。
+  assert.deepEqual(partitionByRole([registered], { sources: [] }).evidenceArtifacts, []);
+  assert.deepEqual(partitionByRole([registered], {}).evidenceArtifacts, []);
+  // 缺 path 的条目不产生豁免。
+  assert.deepEqual(partitionByRole([registered], { sources: [{ name: 'x', sha256: 'y' }] }).evidenceArtifacts, []);
+});
+
+// N-4（独立验收）：externalBackups 原本「有 SHA、无消费者」——正是本单立门要修的形状。
+// 它登记的是「因为别处有逐字节同源备份，所以本机副本不重复入仓」；备份没了，那个移除
+// 决定就不再成立、四处 SHA 引用重新悬空。
+test('N-4 external backups must stay verifiable, or the removal decision is void', () => {
+  const manifestPath = 'site/craft-evidence/VERSIONAL-LANG-1/SOURCE-HASHES.json';
+  const manifest = JSON.parse(readFileSync(new URL(`../../${manifestPath}`, import.meta.url), 'utf8'));
+  const sha = (file) => {
+    try {
+      return createHash('sha256').update(readFileSync(new URL(`../../${file}`, import.meta.url))).digest('hex');
+    } catch { return undefined; }
+  };
+  const crossReferenceContents = Object.fromEntries(manifest.crossReferences.map((reference) =>
+    [reference, readFileSync(new URL(`../../${reference}`, import.meta.url), 'utf8')]));
+  const run = (overrides = {}) => checkSourceHashes({
+    manifest, manifestPath, artifactSha256: sha, crossReferenceContents, ...overrides,
+  }).map((failure) => failure.rule);
+
+  assert.ok(manifest.externalBackups.length > 0);
+  assert.deepEqual(run(), []);
+  // 备份缺席 / 字节漂移 / 缺 backupPath 三向。
+  assert.ok(run({ artifactSha256: (file) => (file === manifest.externalBackups[0].backupPath ? undefined : sha(file)) })
+    .includes('source-hashes'));
+  assert.ok(run({ artifactSha256: (file) => (file === manifest.externalBackups[0].backupPath ? '0'.repeat(64) : sha(file)) })
+    .includes('source-hashes'));
+  assert.ok(run({ manifest: { ...manifest, externalBackups: [{ name: 'x', sha256: '0'.repeat(64) }] } })
+    .includes('source-hashes'));
 });

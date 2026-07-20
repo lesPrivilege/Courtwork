@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
 import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
@@ -282,11 +282,11 @@ function collectActiveText(directory) {
 // 换言之——想进证据面，先接受哈希绑定；往 sources/ 里丢个文件不产生豁免，只产生一条红。
 // 这样分面不是给扫描器开口子，是把「谁在管这个文件」讲清楚：产品面归内容规则管，
 // 证据面归字节规则管，没有第三类「谁都不管」。
-const evidenceArtifacts = new Set((sourceHashes.sources ?? []).map((entry) => entry.path));
-const activeSources = collectActiveText(resolve('.'))
-  .map((file) => relative(resolve('.'), file))
-  .filter((path) => !evidenceArtifacts.has(path))
-  .map((path) => ({ path, content: readFileSync(resolve(path), 'utf8') }));
+const { productSurface } = partitionByRole(
+  collectActiveText(resolve('.')).map((file) => relative(resolve('.'), file)),
+  sourceHashes,
+);
+const activeSources = productSurface.map((path) => ({ path, content: readFileSync(resolve(path), 'utf8') }));
 for (const failure of scanSources(activeSources, { repository: true })) {
   failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
 }
