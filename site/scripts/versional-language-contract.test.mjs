@@ -12,6 +12,8 @@ const galleryMain = readFileSync(new URL('../../apps/desktop/src/preview/gallery
 const screenshotManifest = JSON.parse(readFileSync(new URL('../craft-evidence/VERSIONAL-LANG-3/screenshot-manifest.json', import.meta.url), 'utf8'));
 const screenshotSha = (name, source = readFileSync(new URL(`../assets/screenshots/${name}`, import.meta.url))) =>
   createHash('sha256').update(source).digest('hex');
+const sourceFrameSha = (name, source = readFileSync(new URL(`../craft-evidence/VERSIONAL-LANG-3/frames/${name}`, import.meta.url))) =>
+  createHash('sha256').update(source).digest('hex');
 
 test('版本学 Pages 平框、组界与眉批契约全绿', () => {
   assert.deepEqual(validateVersionalSite({ html, css, desktopCss }), []);
@@ -74,20 +76,29 @@ test('注入泥金进入正文时定点失败', () => {
   assert.match(validateVersionalSite({ html, css: mutated, desktopCss }).join('\n'), /VL3-T02 泥金越界/);
 });
 
-test('VL3-S01 六枚 Pages 截图逐字节绑定重摄 manifest', () => {
+test('VL3-S01 三源帧与六枚 Pages 截图逐字节双绑重摄 manifest', () => {
   assert.equal(screenshotManifest.schemaVersion, 'courtwork.versional-screenshot-manifest.v1');
+  assert.deepEqual(Object.keys(screenshotManifest.sourceFrames).sort(), [
+    '01-chat-markdown-dark-1440x900.png',
+    '02-risklist-settled-dark-1440x900.png',
+    '03-revision-focus-dark-1440x900.png',
+  ]);
+  for (const [name, expected] of Object.entries(screenshotManifest.sourceFrames)) assert.equal(sourceFrameSha(name), expected, name);
   assert.deepEqual(Object.keys(screenshotManifest.pagesAssets).sort(), [
-    '11-milestone-dossier-1440.webp',
-    '11-milestone-dossier-720.webp',
+    '11-milestone-markdown-1440.webp',
+    '11-milestone-markdown-720.webp',
     '12-milestone-risklist-1440.webp',
     '12-milestone-risklist-720.webp',
     '13-milestone-redline-1440.webp',
     '13-milestone-redline-720.webp',
   ]);
   for (const [name, expected] of Object.entries(screenshotManifest.pagesAssets)) assert.equal(screenshotSha(name), expected, name);
-  const [first] = Object.keys(screenshotManifest.pagesAssets);
-  const mutated = Buffer.concat([readFileSync(new URL(`../assets/screenshots/${first}`, import.meta.url)), Buffer.from([0])]);
-  assert.notEqual(screenshotSha(first, mutated), screenshotManifest.pagesAssets[first], '截图字节漂移反例必须触红');
+  const [firstSource] = Object.keys(screenshotManifest.sourceFrames);
+  const mutatedSource = Buffer.concat([readFileSync(new URL(`../craft-evidence/VERSIONAL-LANG-3/frames/${firstSource}`, import.meta.url)), Buffer.from([0])]);
+  assert.notEqual(sourceFrameSha(firstSource, mutatedSource), screenshotManifest.sourceFrames[firstSource], '源帧字节漂移反例必须触红');
+  const [firstPage] = Object.keys(screenshotManifest.pagesAssets);
+  const mutatedPage = Buffer.concat([readFileSync(new URL(`../assets/screenshots/${firstPage}`, import.meta.url)), Buffer.from([0])]);
+  assert.notEqual(screenshotSha(firstPage, mutatedPage), screenshotManifest.pagesAssets[firstPage], 'Pages 截图字节漂移反例必须触红');
 });
 
 test('VL3-T01 图谱总题真实入口安装同一主题控制器', () => {

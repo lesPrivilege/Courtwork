@@ -43,8 +43,67 @@ async function capture(name, prepare) {
   await context.close();
 }
 
-await capture('01-workbench-dark-1440x900.png', async (page) => {
-  await page.getByTestId('revision-panel').waitFor();
+await capture('01-chat-markdown-dark-1440x900.png', async (page) => {
+  const assistantMessage = [
+    '# 合并态审查结论',
+    '',
+    '依据 [可复制法条](https://example.com/article) 与 *补充约定*：',
+    '',
+    '> 引文保持独立缩进，不与正文混排。',
+    '',
+    '- [x] 已核验付款条款',
+    '- [ ] 待核验验收条款',
+    '',
+    '~~原第八条~~ 已废止。',
+    '',
+    '- 第一层',
+    '  - 第二层',
+    '    - 第三层：`零裸标记`',
+    '',
+    '- 列表内代码',
+    '',
+    '  ```ts',
+    '  const safe = true;',
+    '  ```',
+    '',
+    '- 列表内表格',
+    '',
+    '  | 风险项 | 等级 |',
+    '  | --- | --- |',
+    '  | 违约金 | 高 |',
+    '',
+    '危险 URL [脚本](javascript:alert(1)) 与 [数据](data:text/html,boom) 均不得导航。',
+    '',
+    '<em>原始 HTML 仍是纯文本</em>',
+  ].join('\n');
+  await page.evaluate((content) => {
+    const completed = {
+      status: 'completed',
+      turnId: 'release-verify-markdown',
+      providerRequestId: 'release-verify-provider',
+      providerId: 'deepseek',
+      modelId: 'deepseek-v4-flash',
+      reasoning: { status: 'absent' },
+      assistantMessage: content,
+      finishReason: 'stop',
+      completedAt: '2026-07-20T12:00:00.000Z',
+    };
+    localStorage.setItem('courtwork.turn-journal.v1', JSON.stringify({
+      version: 1,
+      revision: 1,
+      entries: [completed],
+      turnIds: [completed.turnId],
+    }));
+  }, assistantMessage);
+  await page.reload();
+  await page.getByTestId('segment-chat').click();
+  await page.getByTestId('chat-history-toggle').click();
+  await page.getByTestId('session-entry').click();
+  const markdown = page.getByTestId('chat-markdown');
+  await markdown.waitFor();
+  if (await markdown.locator('a').count() !== 0) throw new Error('markdown links gained navigation');
+  if (await markdown.locator('li li li').count() !== 1) throw new Error('three-level nesting did not render');
+  if (await markdown.locator('table').count() !== 1) throw new Error('nested table did not render');
 });
 
 await capture('02-risklist-settled-dark-1440x900.png', async (page) => {

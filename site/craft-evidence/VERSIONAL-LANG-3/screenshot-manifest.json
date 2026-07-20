@@ -1,15 +1,15 @@
 {
   "schemaVersion": "courtwork.versional-screenshot-manifest.v1",
   "sourceFrames": {
-    "01-workbench-dark-1440x900.png": "de660fe0dfbd39bbb9debaa57b86ce477480b227874284859bd240beeed0d73f",
-    "02-risklist-settled-dark-1440x900.png": "689e816e9c3078a0de3da4a01fd4356ffdb4a0e2cafe3ac868c2d025fb2249c3",
+    "01-chat-markdown-dark-1440x900.png": "ff910fe11cf6344610ca8024b2719542e617ea8196b35c9dfe555f93399a7178",
+    "02-risklist-settled-dark-1440x900.png": "00dfbce9b5eadb49c4175be90aa1a7835c704c82970fbeb4cfa9b1f31407d711",
     "03-revision-focus-dark-1440x900.png": "22b26eca1907432667aff12856fc62a084a20ee3b2a47cad08f4cd96c93d03f8"
   },
   "pagesAssets": {
-    "11-milestone-dossier-1440.webp": "4a5977fb9fc87a3624efe62ec6bd47c745429d2d1303611e6343adbaf4f13460",
-    "11-milestone-dossier-720.webp": "253ede4ad467b9b6472663314c6c6b00dcb02701324b4560ef6bf80870c173a2",
-    "12-milestone-risklist-1440.webp": "49c01137331d4f31b06279a5a85670543b10e7c36d5a4fc124d100141cd21afe",
-    "12-milestone-risklist-720.webp": "3cf9838856c090f4eed0c115a815632181ae0c4f8e242ddd6cfc1ab7569d512b",
+    "11-milestone-markdown-1440.webp": "490a61d83675223d6c104deac03f82e2d5fdadd5772bfa01e47fd0994ff0aa9d",
+    "11-milestone-markdown-720.webp": "eb9f078813b8dee0edce015abac395ac0aef01789deb1dbd3944aa56860ce11e",
+    "12-milestone-risklist-1440.webp": "998fdead2c8c588e015f88f4e03fa4ee654d25e48a9914abaf0d1367fd8cbaf8",
+    "12-milestone-risklist-720.webp": "311d95ec9ac48f90ecdec96dcf12a429dab632aa7b3cd14be657bc13f436e6a1",
     "13-milestone-redline-1440.webp": "4e32c70791fd6d8ce8fdcbde7a3cfcbed131d0df8d0a9c9eb2d4e010be81c407",
     "13-milestone-redline-720.webp": "3d6746af4cf5ceb35403b06b32c0be149613907588693a2d4aabf4e9d5e73f42"
   }
