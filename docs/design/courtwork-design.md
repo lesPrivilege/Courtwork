@@ -8,7 +8,7 @@ courtwork_design_md:
     version: 1
   sources:
     "docs/design/tokens.json":
-      sha256: "49f0558bfdfbc11254a8e0e0d805bf79635fef2841c4191b851b89c6d5160001"
+      sha256: "4a62b3ac1db8dc581101fc750aa86bfc3af20f4f22bd1c4738e9976e35878ce2"
     "docs/design/principles.md":
       sha256: "0a1418ebabbedacacd6e8ce8d25c87e90995ab316f5f54e7d0036e87345f0871"
   tokenSet:
@@ -532,11 +532,11 @@ tokens:
 - **name**：courtwork-design-tokens
 - **version**：1.3.0
 - **date**：2026-07-18
-- **status**：现行设计 token 唯一机器真值。color.* = 刻本印页宗（浅，B1 已置换并接线消费面）；themes.dark = 磁青宗（深，B5 目标值，零消费面）
+- **status**：现行设计 token 唯一机器真值。color.* = 刻本印页宗（浅，B1 已置换并接线消费面）；themes.dark = 磁青宗（深，已由 SKIN-R2 P4 上身接线，见 theme 条）
 - **naming**：领域无关（docs/decisions/ADR-001-package-abi.md 纪律）：tier / severity / revision / gate / usage 均无法律语义，法律语义只存在于消费方的数据与文案中
 - **sources**：锚色 #232B38（B1 由 #0A2540 迁入，缘由见 themes.$anchor）；中性阶由锚色派生；字重按轨分档（B2-0 三轨制）：功能轨 400/510、标题轨 400/600、文书轨单 400（零粗体律）；语义线与文字使用图形/前景双轨
 - **neutralSource**：整条中性阶由锚色 #232B38（H≈217°）降饱和升明度派生，双宗冷调中性 33 值实测落 214.3°–222.9°（两端为 bg.controlHover 与 semantic.provenance.verifiedBg）。禁无色相灰（白卡豁免）与暖调中性（B≥R）。机器门：assert-neutral-source.mjs——**门只验无色相灰与暖调两条，不含色相带约束**：本行的带宽是实测记述而非准入条件，勿当门读。**订正注记（2026-07-19 B2-0 期逐值复算）**：原自述「收敛于 216–220°」与实测不符，两端值均 B1 前既有、非任何后续批次引入；本次只更正记述以合实测，不新增带约束（加带即新概念，复杂度节制条挡；后批若要收带，另立议题并带测据）
-- **theme**：双主题（2026-07-19 拍板：深色模式随皮层迁移顺带交付）。color.* 即刻本印页宗（浅），B1 已置换；themes.dark（磁青宗）为 B5 目标值，届时由 [data-theme] 在 token 层置换。原「浅色唯一·深色不进 MVP（principles.md 硬性）」自述已废止——principles.md 从未载有该硬性条款，属陈旧引用（迁移 Plan C-2 定谳）
+- **theme**：双主题（2026-07-19 拍板：深色模式随皮层迁移顺带交付）。color.* 即刻本印页宗（浅），B1 已置换；themes.dark（磁青宗）已由 SKIN-R2 P4 上身——置换发生在单个 :root[data-theme='dark'] 块内，纯 token 换值、零组件分支、零几何声明，边界由 deslop 的 theme-boundary 门锁三类逃逸（组件级 [data-theme] selector / prefers-color-scheme / 暗宗根内布局声明）。原「浅色唯一·深色不进 MVP（principles.md 硬性）」自述已废止——principles.md 从未载有该硬性条款，属陈旧引用（迁移 Plan C-2 定谳）。D-2 更正 2026-07-20：本条与 $meta.status 原写「B5 目标值·零消费面·届时置换」，在 P4 落地后即失效，此次改为现状表述
 
 ## 二、交互与视觉原则（principles.md 要点）
 
