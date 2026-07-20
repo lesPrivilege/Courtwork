@@ -735,6 +735,21 @@ test('R-12 maturity gate: signed hedges pass, everything else reds', () => {
   // F：否定字落在复合名词里（「非」结构化）。
   assert.ok(run('<p>非结构化材料亦可导入，产品已全面上线。</p>').includes('maturity-claim'));
 
+  // ── 第二轮验收找到的三类假阴（投影匹配封闭）────────────────────────
+  // 门看的面必须对齐读者看到的面（innerText）：实体会被解码、标签不可见、全角同形。
+  // ①行内标签切断——站面 hero typer 与 og 卡都现用逐字包裹写法，非理论角落。
+  assert.ok(run('<p>Courtwork 现已全<b>面上线</b>。</p>').includes('maturity-claim'));
+  assert.ok(run('<small>macOS · 生产<b>可用</b></small>', 'site/og.html').includes('maturity-claim'));
+  assert.ok(run('<p><span>产</span><span>品</span><span>已</span><span>全</span><span>面</span><span>上</span><span>线</span></p>')
+    .includes('maturity-claim'), '逐字包裹排版不得逃逸');
+  // ②全角拉丁变体。
+  assert.ok(run('<p>Courtwork is ｐｒｏｄｕｃｔｉｏｎ－ｒｅａｄｙ.</p>').includes('maturity-claim'));
+  // ③HTML 实体（十进制与十六进制）。
+  assert.ok(run('<p>&#20135;&#21697;&#24050;&#20840;&#38754;&#19978;&#32447;</p>').includes('maturity-claim'));
+  assert.ok(run('<p>&#x4EA7;&#x54C1;&#x5DF2;&#x5168;&#x9762;&#x4E0A;&#x7EBF;</p>').includes('maturity-claim'));
+  // 区间判定仍按位置——同行先写完整对冲、再另写裸断言，后者照抓（不整行豁免）。
+  assert.ok(run('<p>不等同于产品已全面上线。另：产品已全面上线。</p>').includes('maturity-claim'));
+
   // 双向锁：登记了却全站无消费的对冲＝死登记，同样触红。
   const zombie = checkMaturityClaims({ 'site/index.html': '<p>无成熟度词。</p>' },
     { hedges: ['这条对冲没有人用'] });

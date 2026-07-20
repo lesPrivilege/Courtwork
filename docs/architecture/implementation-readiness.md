@@ -132,29 +132,37 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 
 裁决坐标写在每行首格：`A/R-n` 指 Stage A 架构裁决第 n 项，`C/R-n` 指 Stage C 第 n 项；两份材料随本批归档，按归档索引条目定位。
 
-**串行约束（Stage C 批次修订，硬）**：**`App.tsx` 是串行面——触碰它的票不并行**。下表 `波次` 列即据此排：同波次内文件面互不相交可并行，跨波次须前一波落 main 后再开。此约束优先于价值序。
+**排期模型（第二轮验收驳回后重制）**。初版把「依赖」与「`App.tsx` 互斥」压进一个「波次」列，结果是表**自己违反了自己声明的硬约束**——波三两行都标着触 `App.tsx`，波二另有两张未声明的触碰者。根因不是数错：**波次号是一个依赖未来改动面的结论，而改动面在开工前不可精确知**，把结论写死在纸上必然漂。故拆成两个各自可判定的量：
 
-| 工单 | 裁决坐标 | 最小范围 | 波次 | 退出证据 |
-|---|---|---|---|---|
-| `DEBT-CLEAR-1` | `A/R-12`ⓑ删、`A/R-13`ⓑ删、`A/R-15`①、`A/R-26` | 删 D7（`ConfirmationStore.take()`）、D8（`onTurnEvent` 缝）、D10（2 导出 / 9 脚本 / 1 死配置 / `newLine` 死字符串） | **一**（`core/session`+`core/scenario-executor`，不触 App.tsx） | 删后全链绿；跨包接口面消费方为零须实证；`lint:trace`/`lint:thinking` 去重后门链不缺项 |
-| `DEBT-DOSSIER-1` | `A/R-26` 裁**接判据** | ARCH-DEBT 第 3 笔：令按钮语义与实际入库判据一致。**硬约束**：复用 `App.tsx:567` 既有链，**不得产生第二条入库路径**；实测不可行则暂停回报，不得自行改裁 | **一**（`composer`+`material`；触 App.tsx 单点，与同波其余票文件面不交） | 按钮态与 `listForCase` 实况一致；单一入库路径静态可验；文案与实际行为一致（voice 门）；demo 隔离不破 |
-| `DEBT-GATE-LABEL-1` | `A/R-14`ⓑ小票接线 | D9：`pauseAt` 时把 gate label 供给投影，令「未决确认」行生产可达 | **一**（`core/assembly`） | 停门场景投影段出现该行；缺省仍逐字节等同；`PROJECTION-RESUME-1` golden 不破 |
-| `MD-CONVERGE-1+` | `A/R-18` + `C/R-6` **合票** | S2：chat 面 `ChatMarkdown.tsx` 改用已在生产依赖的 remark、删手写解析器；**同票扩围**链接/单星号斜体/引用/删除线/任务清单（图片、公式除外）——remark 化后多数语法免费获得，**不再扩自研解析器**。链接**渲染**先做，链接**打开**挂 `EXPLORE-RAIL-1` 权限位（capability 白名单缺 `opener:allow-open-url`） | **一**（`chat`） | `CHAT-MD-TABLE-1` 双层红证重放全绿；扩围语法逐项渲染对照；e2e floor 不降；新依赖须先答 `OSS-SUBTRACT-1` 的换/不换问题 |
-| `PERSIST-BACKEND-1` | `A/R-17` 采 + ADR-019 决定一 | S1：五处逐字同构 `defaultBackend` 归并为一份工厂 + 4 处裸 `localStorage` 收编；分区维随 ADR-019 决定一**就地补 container 维**。**归并止于 backend 工厂，不越 ADR-019 明确拒绝的通用 KV 线** | **二**（依赖 ADR-019，且触持久层广面） | 五处归并后行为逐字节等同（既有版本化单键 golden 为证）；裸 `localStorage` 零出现（静态门）；通用 KV 未被顺手造出 |
-| `TOOL-READ-1` | `A/R-25` 方向裁定 + ADR-016 决定二、ADR-017 决定八 | L1 受控只读工具。**模型请求通道**：走「知交互」封闭动词集显式扩集——新增 `request_tool` 动词，`toolId` 以注入白名单 `z.literal` 闭集锁定，白名单外即普通不可信文本在校验层拒收；执行仍落 `deterministic_tool` 步，**步骤闭集不扩**。toolResult 采 `content`/`details` 二分。此扩集属跨层契约变更，以 **ADR-011 修订**形式落痕（动词集扩集条件 + 红证要求 + 四知文本 golden 同步） | **二**（ADR-011 修订须先落） | 白名单外调用在校验层拒收（反例触红）；`pure_read` 分级校验前置门已在；工具结果可溯源；stub 链不回退；四知文本 golden 同步 |
-| `S6-EXEC-1` | ADR-017 决定四（effect 授权面）+ ADR-004 | D2：`FileOpsPlan` gate resolve 后的执行触发、授权持久与事务日志。现状是一条与 scenario 无关的 demo 直连管线（renderer `passive`、宿主内存 FS、plan 来自 demo 构造器） | **二** | 授权决定持久**先于** effect（事后弹窗不追认）；事务日志可回放；非 demo 案不再返回空态；销毁级动词零出现 |
-| `GATE-INVENTORY-1` | `A/R-23` 准 | A2.4：8019 行自研门的一次归并/降频/失效清点。**先清点再定动作，不预设结论** | **三**（清点期只读，不改门） | 清点表逐门列「仍有效/已失效/可归并/可降频」+ 依据；动作另立票，本票不执行归并 |
-| `C3-1 · 生成控制与错误恢复` | `C/R-2`（不变量 4 违例）、`C/R-7`、`C/R-9` | work-chat 补 Stop/Retry（透传 `signal` + `onStop`/`onRetry`）；失败文案按 kind 接现成 `FAIL_KIND_MESSAGES` + 补 402；超时文案两路径归一去毫秒；Chat 失败路径纳入 `workFailureDisplayCopy` 同源守卫；截断（`finishReason:'length'`）显式提示；evidence 出口并入 Settings→About 既有 Diagnostics 导出席位 | **二**（触 App.tsx，与 C3-2/C3-3/C3-4 互斥） | 静默降级零残留（不变量 4 反例触红）；失败文案与 kind 一一对应；取消零残留；`lint:voice` 全绿 |
-| `C3-2 · 会话可检索` | `C/R-1` 三件全、`C/R-14`ⓑ、`C/R-15`② | 接线 `searchTranscripts` 到 UI；会话自动标题（首条消息派生、**用户不可编辑**，守 ADR-013）；会话内查找。归档仍可搜、删除同步出索引 | **三**（触 App.tsx） | 检索命中可回跳；标题派生确定性；删除后索引同步（反例：删后仍搜得到即红）；ADR-013 语义不破 |
-| `C3-3 · 输入面效率` | `C/R-3` 口径、§3.5 顺带裁 | textarea 自增高（补齐已有 max-height）；草稿跨视图/跨历史面板保持（状态提升出 Composer）；↑ 键召回上一条；粘贴阈值校准——**去除「含换行即转块」判据**，字符阈值 500–1000 区间实测定，补 Shift+粘贴旁路。**不做任何斜杠触发**（见 roadmap「已裁不做」） | **三**（触 App.tsx） | 草稿跨面保持有断言；阈值实测留证；Shift 旁路可验；零 `/command` 入口（静态门） |
-| `C3-4 · 可观测性四件` | `C/R-8` 四件全（markdown 扩围**已移出**并入 `MD-CONVERGE-1+`） | 会话累计用量；成本估算出口 + 价目表补 `deepseek-v4-flash`；memory 注入逐轮可见；上下文占用可见（`contextWindow` 槽位为协议层**版本化加法扩展**）。上下文占用以**我方自身判断**立论，不以行业基线立论 | **四**（触 App.tsx） | usage 与既有 ledger 同源不另立；`contextWindow` 缺省时逐字节等同；memory 可见面不泄案件内容跨案 |
-| `C3-5 · 无障碍与未开通态归一` | `C/R-11`、`C/R-12`ⓑ、`C/R-13` | 焦点陷阱（FocusScope，归档留档正式消费）；`aria-live` 流式播报；`.palette-input` focus 反馈；未开通态措辞与机制归一（英文 chrome 统一 Coming soon 族）+ 门扩围至 Settings 域与 CaseRail；**响应 OS 级无障碍字号**（rem/em 基线化）——产品内不提供调节 ≠ 拒绝响应 OS 设置，两者非同一件事 | **四**（**硬约束**：rem/em 等比换算须**零视觉 diff**，既有皮层门作证；须与票丙「标题轨整备」同批或紧随，避免两次动字号面） | 焦点陷阱反例（Tab 逃逸即红）；未开通态门扩围后 Settings/CaseRail 纳入；等比换算零视觉 diff 有帧证 |
+- **依赖层**：什么必须先落。这是稳定的、开工前即可知的。
+- **`App.tsx` 互斥**：该票是否触碰全仓最大串行文件。逐票显式声明，**不留空**。
+
+**派单规则**（取代波次号）：取任一「依赖层已满足」的票；**若该票 `App.tsx` 列为「是」，须确认当前无第二张 `App.tsx=是` 的票在途**。互斥是运行时的锁，不是纸上的分组。
+
+**由此得到的结构性事实（本轮实测，值得单独看）**：13 张票中 **9 张触 `App.tsx`**（下表逐行可数），仅 4 张不触。也就是说——**在 `App.tsx` 拆分（D1／`PANEL-BLUEPRINT-1`）落地之前，Stage B/C 这条线实质上是串行的**，并行度上限约等于 1。这不是排期技巧能绕开的，是 `App.tsx` 体量债的直接代价，`A/R-22` 已裁「`App.tsx` 体量债走 D1 拆分线，不由换库解决」。**是否把 D1 提前到本线之首，需架构裁定**（本表不代裁，只如实登记代价）。
+
+| 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
+|---|---|---|---|---|---|
+| `DEBT-CLEAR-1` | `A/R-12`ⓑ删、`A/R-13`ⓑ删、`C/R-15`①、`A/R-26` | 删 D7（`ConfirmationStore.take()`）、D8（`onTurnEvent` 缝）、D10（2 导出 / 9 脚本 / 1 死配置 / `newLine` 死字符串） | 无 | 否 | 删后全链绿；跨包接口面消费方为零须实证；`lint:trace`/`lint:thinking` 去重后门链不缺项 |
+| `DEBT-DOSSIER-1` | `A/R-26` 裁**接判据** | ARCH-DEBT 第 3 笔：令按钮语义与实际入库判据一致。**硬约束**：复用 `App.tsx` 内 `ingestComposerUploads` 既有链（判据为 `caseBinding.kind === 'grant'`），**不得产生第二条入库路径**；实测不可行则暂停回报，不得自行改裁 | 无 | **是** | 按钮态与 `listForCase` 实况一致；单一入库路径静态可验；文案与实际行为一致（voice 门）；demo 隔离不破 |
+| `DEBT-GATE-LABEL-1` | `A/R-14`ⓑ小票接线 | D9：`pauseAt` 时把 gate label 供给投影，令「未决确认」行生产可达 | 无 | 否 | 停门场景投影段出现该行；缺省仍逐字节等同；`PROJECTION-RESUME-1` golden 不破 |
+| `MD-CONVERGE-1+` | `A/R-18` + `C/R-6` **合票** | S2：chat 面 `ChatMarkdown.tsx` 改用已在生产依赖的 remark、删手写解析器；**同票扩围**链接/单星号斜体/引用/删除线/任务清单（图片、公式除外）——remark 化后多数语法免费获得，**不再扩自研解析器**。链接**渲染**先做，链接**打开**挂 `EXPLORE-RAIL-1` 权限位（capability 白名单缺 `opener:allow-open-url`） | 无 | 否（App.tsx 内 4 处仅为调用点，`text` prop 不变） | `CHAT-MD-TABLE-1` 双层红证重放全绿；扩围语法逐项渲染对照；e2e floor 不降；新依赖须先答 `OSS-SUBTRACT-1` 的换/不换问题 |
+| `PERSIST-BACKEND-1` | `A/R-17` 采 + ADR-019 决定一 | S1：五处逐字同构 `defaultBackend` 归并为一份工厂 + 4 处裸 `localStorage` 收编（裸调用**全在 `App.tsx`** 与 `chat/MessageActions.tsx`）；分区维随 ADR-019 决定一**就地补 container 维**。**归并止于 backend 工厂，不越 ADR-019 明确拒绝的通用 KV 线** | ADR-019 | **是** | 五处归并后行为逐字节等同（既有版本化单键 golden 为证）；裸 `localStorage` 零出现（静态门）；通用 KV 未被顺手造出 |
+| `TOOL-READ-1` | `A/R-25` 方向裁定 + ADR-016 决定二、ADR-017 决定八 | L1 受控只读工具。**模型请求通道**：走「知交互」封闭动词集显式扩集——新增 `request_tool` 动词，`toolId` 以注入白名单 `z.literal` 闭集锁定，白名单外即普通不可信文本在校验层拒收；执行仍落 `deterministic_tool` 步，**步骤闭集不扩**。toolResult 采 `content`/`details` 二分。此扩集属跨层契约变更，以 **ADR-011 修订**形式落痕 | ADR-011 修订须先落 | **是**（trace 区工具行现只有 demo 路径，生产路径须新开） | 白名单外调用在校验层拒收（反例触红）；`pure_read` 分级校验前置门已在；工具结果可溯源；stub 链不回退；四知文本 golden 同步 |
+| `S6-EXEC-1` | ADR-017 决定四（effect 授权面）+ ADR-004 | D2：`FileOpsPlan` gate resolve 后的执行触发、授权持久与事务日志。现状是一条与 scenario 无关的 demo 直连管线（renderer `passive`、宿主内存 FS、plan 来自 demo 构造器；唯一入口是 `App.tsx` 的 `fileOpsMode` 本地 state） | ADR-017 + ADR-004 | **是** | 授权决定持久**先于** effect（事后弹窗不追认）；事务日志可回放；非 demo 案不再返回空态；销毁级动词零出现 |
+| `GATE-INVENTORY-1` | `A/R-23` 准 | A2.4：8019 行自研门的一次归并/降频/失效清点。**先清点再定动作，不预设结论** | 无（清点期只读） | 否 | 清点表逐门列「仍有效/已失效/可归并/可降频」+ 依据；动作另立票，本票不执行归并 |
+| `C3-1 · 生成控制与错误恢复` | `C/R-2`（不变量 4 违例）、`C/R-7`、`C/R-9` | work-chat 补 Stop/Retry（透传 `signal` + `onStop`/`onRetry`）；失败文案按 kind 接现成 `FAIL_KIND_MESSAGES` + 补 402；超时文案两路径归一去毫秒；Chat 失败路径纳入 `workFailureDisplayCopy` 同源守卫；截断（`finishReason:'length'`）显式提示；evidence 出口并入 Settings→About 既有 Diagnostics 导出席位 | 无 | **是** | 静默降级零残留（不变量 4 反例触红）；失败文案与 kind 一一对应；取消零残留；`lint:voice` 全绿 |
+| `C3-2 · 会话可检索` | `C/R-1` 三件全、`C/R-14`ⓑ、`C/R-15`② | 接线 `searchTranscripts` 到 UI；会话自动标题（首条消息派生、**用户不可编辑**，守 ADR-013）；会话内查找。归档仍可搜、删除同步出索引 | 无 | **是**（`sessionHistory` 状态与入口住 `App.tsx`） | 检索命中可回跳；标题派生确定性；删除后索引同步（反例：删后仍搜得到即红）；ADR-013 语义不破 |
+| `C3-3 · 输入面效率` | `C/R-3` 口径、§3.5 顺带裁 | textarea 自增高（补齐已有 max-height）；草稿跨视图/跨历史面板保持（**状态提升出 Composer** 即落 `App.tsx`）；↑ 键召回上一条；粘贴阈值校准——**去除「含换行即转块」判据**，字符阈值 500–1000 区间实测定，补 Shift+粘贴旁路。**不做任何斜杠触发**（见 roadmap「已裁不做」） | 无 | **是** | 草稿跨面保持有断言；阈值实测留证；Shift 旁路可验；零 `/command` 入口（静态门） |
+| `C3-4 · 可观测性四件` | `C/R-8` 四件全（markdown 扩围**已移出**并入 `MD-CONVERGE-1+`） | 会话累计用量；成本估算出口 + 价目表补 `deepseek-v4-flash`；memory 注入逐轮可见；上下文占用可见（`contextWindow` 槽位为协议层**版本化加法扩展**）。上下文占用以**我方自身判断**立论，不以行业基线立论 | 无 | **是** | usage 与既有 ledger 同源不另立；`contextWindow` 缺省时逐字节等同；memory 可见面不泄案件内容跨案 |
+| `C3-5 · 无障碍与未开通态归一` | `C/R-11`、`C/R-12`ⓑ、`C/R-13` | 焦点陷阱（FocusScope，归档留档正式消费；现行 `useDismissOnOutside` 消费点在 `App.tsx`）；`aria-live` 流式播报；`.palette-input` focus 反馈；未开通态措辞与机制归一（英文 chrome 统一 Coming soon 族）+ 门扩围至 Settings 域与 CaseRail；**响应 OS 级无障碍字号**（rem/em 基线化）——产品内不提供调节 ≠ 拒绝响应 OS 设置 | 宜紧随票丙（标题轨整备） | **是** | 焦点陷阱反例（Tab 逃逸即红）；未开通态门扩围后 Settings/CaseRail 纳入；**rem/em 等比换算须零视觉 diff**（既有皮层门作证，帧证留档） |
 
 **不进 Stage B**（`A/R-7` 决定零、ADR-018 不排期）：沙箱实现；bash 实现；`ADR-016` 的 UI 触发入口（归 UI 单，须 ADR 先拍板）。
 
 **`R-4`ⓑ 通则（`C/R-4`，跨票适用）**：用户会主动寻找的「刻意不做」功能，须有**用户可见的一句说明**；纯工程内部项文档留痕即可。措辞必须与「即将开通」可区分——**「设计上不做」是承诺，不是欠账**。本轮升级两项（会话导出、memory 编辑/单条删除），落点 Settings 既有 Data & privacy / Data promise 席位，与 `C3-5` 的措辞归一联动。
 
 **`R-16`ⓑ 挂账（`C/R-16`）**：「工作稿轨可撤销性在 UI 真实成立」不现在实现、不悬置——登记为 **ADR-019 决定三实施票的验收条款**（须有反例：不可撤销即红）。
+
 
 ## 需要实测，不再泛化调研
 

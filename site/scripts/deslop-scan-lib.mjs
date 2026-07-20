@@ -1319,15 +1319,51 @@ export function checkSourceHashes({ manifest, manifestPath, artifactSha256, cros
 //   ② **更根本的**：即便句界修对，`不做自动送出，已全面上线` 仍放行——否定词确在同句，
 //      但它否定的是别的东西。判断否定词管到哪属自然语言理解，不属静态门能力。
 // 启发式在此类判据上没有可收敛的正确版本，故换形态：**成熟度词只许出现在已签对冲措辞
-// 之内**。合法对冲是有限、可枚举、且已被 fixture-claims 逐字锁住的资产，登记它们比猜
-// 「这句是不是否定」可靠得多——按构造零假阴，代价是新写法须先登记。这与本仓「锁既有
-// 措辞」体例同构，也与记号系「不上也要登记」同构。
-// **双向锁**：登记了却全站无消费的对冲即死登记，同样触红——白名单不许养僵尸条目。
+// 之内**。合法对冲是有限且可枚举的，登记它们比猜「这句是不是否定」可靠得多——按构造零
+// 假阴，代价是新写法须先登记。这与本仓「锁既有措辞」体例同构，也与记号系「不上也要登记」
+// 同构。**对冲的「不许无声消失」由下方双向锁承担**（登记却全站无消费即死登记，触红）——
+// 早期注释曾写「已被 fixture-claims 逐字锁住」，实测该文件对这两条对冲**零命中**（它逐字
+// 锁的是 `已验收工作链` 与 `Schema catalog preview / 尚未接通运行链`），属自述失实，已订正：
+// 这正是 B-1 被驳回的同一失效模式（自述 ≠ 实现），同一批里不该再犯第二次。
+//
+// **匹配在投影文本上做，不在原始行上做**（第二轮验收发现的假阴）：先剥标签、再折全角。
+//   ① 剥标签——`生产<b>可用</b>`、`已全<strong>面上线</strong>` 在原始行里被标签切断，
+//      逐字匹配扫不到，而浏览器 `innerText` 把它们拼回完整断言，读者看到的是越界原文。
+//      站面 hero typer 与 og 卡都现用逐字包裹写法，这不是理论角落。
+//   ② 折全角——`ｐｒｏｄｕｃｔｉｏｎ－ｒｅａｄｙ` 与半角同形不同码位。
+// 投影保留 → 原始行的偏移映射，故对冲覆盖区间与断言位置仍在同一坐标系比较。
 const MATURITY_CLAIMS = ['已上线', '全面上线', '全面可用', '生产可用', '生产就绪', '正式上线', '已商用', 'production-ready'];
 const SIGNED_MATURITY_HEDGES = [
   '不等同于产品已全面上线',
   '这不是产品已全面上线的承诺',
 ];
+
+// 全角 ASCII（U+FF01–U+FF5E）折回半角，全角空格折回空格。只折这一段，不做通用归一化——
+// 归一化面越宽越可能改到不该改的字（如全角括号在中文正文里是正字，不是变体）。
+const foldWidth = (ch) => {
+  const code = ch.codePointAt(0);
+  if (code >= 0xff01 && code <= 0xff5e) return String.fromCodePoint(code - 0xfee0);
+  return code === 0x3000 ? ' ' : ch;
+};
+
+// 投影：解实体 → 剥标签 → 折全角。三步都是为了把门看的面对齐**读者看到的面**
+// （浏览器 innerText）：实体会被解码、标签不可见、全角与半角同形。
+// 实体先解——`&#20135;` 一类数字实体在解码前是纯 ASCII，剥标签与折全角都碰不到它。
+const decodeEntities = (value) => value
+  .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(Number.parseInt(hex, 16)))
+  .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)));
+
+const projectLine = (rawLine) => {
+  let text = '';
+  let inTag = false;
+  for (const ch of decodeEntities(rawLine)) {
+    if (ch === '<') { inTag = true; continue; }
+    if (ch === '>') { inTag = false; continue; }
+    if (inTag) continue;
+    text += foldWidth(ch);
+  }
+  return text.toLowerCase();
+};
 
 export function checkMaturityClaims(sources, { hedges = SIGNED_MATURITY_HEDGES } = {}) {
   const failures = [];
@@ -1335,18 +1371,19 @@ export function checkMaturityClaims(sources, { hedges = SIGNED_MATURITY_HEDGES }
   for (const [file, content] of Object.entries(sources)) {
     const lines = content.split('\n');
     lines.forEach((rawLine, index) => {
-      const line = rawLine.toLowerCase();
-      // 本行所有已签对冲的覆盖区间——成熟度词必须整体落进其中之一。
+      const line = projectLine(rawLine);
+      // 本行所有已签对冲的覆盖区间——成熟度词必须整体落进其中之一。区间与断言位置同在
+      // 投影坐标系，故「同行先对冲后裸断言」不会被整行豁免（第一轮验收已实证该点正确）。
       const covered = [];
       for (const hedge of hedges) {
-        const needle = hedge.toLowerCase();
+        const needle = projectLine(hedge);
         for (let at = line.indexOf(needle); at !== -1; at = line.indexOf(needle, at + 1)) {
           covered.push([at, at + needle.length]);
           hedgeSeen.add(hedge);
         }
       }
       for (const claim of MATURITY_CLAIMS) {
-        const needle = claim.toLowerCase();
+        const needle = projectLine(claim);
         for (let at = line.indexOf(needle); at !== -1; at = line.indexOf(needle, at + 1)) {
           const end = at + needle.length;
           if (covered.some(([from, to]) => at >= from && end <= to)) continue;
