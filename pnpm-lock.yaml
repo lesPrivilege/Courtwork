@@ -74,6 +74,15 @@ importers:
       react-dom:
         specifier: ^19.1.1
         version: 19.2.7(react@19.2.7)
+      remark-gfm:
+        specifier: ^4.0.0
+        version: 4.0.1
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
     devDependencies:
       '@courtwork/demo-data':
         specifier: workspace:*
@@ -84,6 +93,9 @@ importers:
       '@tauri-apps/cli':
         specifier: ^2.8.4
         version: 2.11.4
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/react':
         specifier: ^19.1.12
         version: 19.2.17

@@ -1770,6 +1770,10 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .md-table tr:last-child td { border-bottom: 0; }
 .md-table th { background: var(--bg-surface); color: var(--text-tertiary); font-weight: 510; white-space: nowrap; }
 .md-hr { margin: 0; border: 0; height: 1px; background: var(--border); }
+.chat-markdown .md-quote { margin: 0; padding-left: 12px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px; }
+.chat-markdown .md-link { text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--border-strong); }
+.chat-markdown .md-task { list-style: none; display: flex; gap: 6px; }
+.chat-markdown .md-task-mark { color: var(--text-tertiary); }
 .paste-block.is-overflowing:not(.is-expanded) .paste-block-body { -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) 62%, transparent); mask-image: linear-gradient(to bottom, var(--text-primary) 62%, transparent); }
 .paste-block .collapse-toggle { width: 100%; padding: 3px 10px; border: 0; border-top: 0; background: transparent; color: var(--text-tertiary); cursor: pointer; text-align: left; font-size: var(--type-dense-meta-size); }
 .paste-block .collapse-toggle:hover { background: var(--control-hover); color: var(--text-primary); }

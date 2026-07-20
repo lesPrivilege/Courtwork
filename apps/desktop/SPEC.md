@@ -2,6 +2,55 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## MD-CONVERGE-1+ · ChatMarkdown 改用 remark 并扩围五项（实现完成，待独立验收）
+
+权威：[实现就绪图 `MD-CONVERGE-1+` 行](../../docs/architecture/implementation-readiness.md)（合票 `A/R-18` + `C/R-6`）。基线 `main @ a49db9c`。分支 `impl/md-converge-1`，隔离 worktree 施工（主工作树有票甲未提交面，不共仓）。desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动，**未触 `App.tsx`**（就绪图该行 App.tsx 列标「否」的成立前提）。
+
+### 本单新增了什么概念、为何非加不可（复杂度审视义务）
+
+**新增概念：一个** —— `legacy 语义兼容层`（`ChatMarkdown.tsx` 内具名节，两函数）。
+
+为何非加不可：remark 的标准语义在两处与退役解析器不同（见下「行为分歧」）。本票范围是「换实现 + 扩五项」，**不含改既有语义**；而验收要点写死「既有语法渲染逐项回归对照」。两者相合即要求：换掉实现，但用户可见行为零变更。兼容层是该约束的唯一落点，且写成具名节 + 独立测试节 + 提案区条目三者对齐，使其成为**可审计的临时件**而非埋进实现的怪癖——提案获批即整节删除，不牵动其余渲染路径。
+
+**行数与净减法（实测）**：退役实现 228 行 → 新实现 246 行（+18）。行数不降但**解析逻辑归零**：`splitTableRow`/`parseDelimiterRow`/`isTableStart`/`isHrLine`/`BLOCK_START` 五个手写解析件全数删除（实测新文件 0 命中），余下皆为 mdast→React 的渲染映射与两件兼容层。增出的 18 行换来的是扩围五项 + 嵌套结构 + 未来语法的兜底透出，且解析正确性从自研转为上游担保——**减的是维护面与架构天花板，不是字符数**，如实登记不作「净减 X 行」的夸大宣称。
+
+### OSS-SUBTRACT-1 换/不换答复（新依赖必答项）
+
+**换。** 三件（`unified@11.0.5` / `remark-parse@11.0.0` / `remark-gfm@4.0.1`）**已是 `packages/reading-view` 的生产依赖**，本单只在 `apps/desktop/package.json` 登记同 specifier，pnpm 解析到同一 store 条目——**零新第三方包、零新许可面、零新供应链面**。已实测三件在 desktop 与 reading-view 下解析版本逐位相同。
+
+不换的代价是继续按语法逐个扩自研解析器：`CHAT-MD-TABLE-1` 的提案区已列出 10 项缺口，其中 A 组三项（嵌套列表、列表内嵌代码块、列表内嵌表格/引用）自陈根因为「解析器纯扁平单层」——这是自研路线的**架构性天花板**，不是可以再补几个分支解决的。故本项属「自研加固清单的反面」：md 解析不是我方的必须自研加固点（不涉锚点、事实等级、fail-closed 边界、docx 兼容），换成熟件是正解。
+
+### 行为分歧与处置（两处，均保留旧行为）
+
+| 输入 | 退役解析器 | remark 标准 | 本单处置 |
+|---|---|---|---|
+| `结论文字\n---` | 段落 + hr | `h2`（Setext 标题） | **保留旧行为**（`unwrapSetext`） |
+| 表格数据行列数与表头不符 | 表格止步，残行回段落 | 残行留在表格内（缺格行） | **保留旧行为**（`truncateRaggedTable`） |
+
+两处均有专属测试锁定（`chat-markdown.test.ts` 『legacy 语义兼容层』节），且经突变自证：短路兼容层后**恰好这两条翻红**（2 failed / 28 passed），还原后复绿——证明兼容层是承重件而非死代码，那两条断言即提案的精确红证。
+
+### 提案区（只登记不实施，交架构拍板）
+
+1. **是否改采 remark 标准语义**（撤兼容层）。赞成理由：标准语义是换解析器的全部意义，保留偏离等于把怪癖搬进新实现；`结论文字\n---` 在 CommonMark 里本就是 Setext h2。反对理由：模型输出「结论句 + `---` 作分隔」是真机可见形态，升格为大标题是可感知的视觉回退；旧注释「不猜测意图」是刻意的产品决定。**本单不自行裁定**——批准即删兼容层 + 改那两条断言，工作量 < 半单。
+2. `CHAT-MD-TABLE-1` 提案区 B 组第 6 项（自动链接 `<https://…>` / 裸 URL）本单**未纳入**：票面扩围五项不含此项，且其自然归宿是 `EXPLORE-RAIL-1` 的链接抽取面，两处各做一份识别逻辑会产生第二真源。建议随 `EXPLORE-RAIL-1` 一并处置。
+
+### 缺口清点的闭合情况（对照 `CHAT-MD-TABLE-1` 提案区十项）
+
+- **已闭合七项**：A 组 1/2/3（嵌套列表、列表内嵌代码块、列表内嵌表格/引用——真解析器天然带嵌套；**注意此三项非票面扩围范围，但不闭合即构成回归**：remark 给真嵌套，若按行内处理会落进「未支持→原文切片」使 `- ` 标记裸露，比拍平更差，故有专属回归测试）；B 组 4/5/7/8/9（引用、链接、单星号斜体、删除线、任务清单）。
+- **未闭合三项**：B 组 6（自动链接，见提案区 2）；B 组 10（转义字符——remark 已正确处理转义，但本单未加断言锁定，如实登记未验）；C 组 11/12/13 属既有主动收窄边界，其中 11（Setext）见上「行为分歧」。
+
+### 渲染边界（本件只渲染，不导航、不多模态）
+
+- **链接只渲染不导航**：落 `span.md-link`（`title` 携 URL 可见可复制），**零 `<a href>`**，e2e 断言 `a` 计数为 0。打开能力挂 `EXPLORE-RAIL-1` 的 `opener:allow-open-url` 权限位，本件不接。
+- **图片、公式不落真实元素**：图片无多模态管线（渲染即造能力幻觉，`current.md` 明载附件仅文本正文进请求）；公式垂类无需。二者与一切未支持节点统一走 `renderUnsupported` → **原文切片原样透出**，不静默吞——该兜底是规则而非枚举，新语法出现时默认可见。
+- **原始 HTML 仍按纯文本渲染**：不引 `rehype-raw` 一类，SPEC.md `CHAT-MD-TABLE-1` 节安全边界语义不变；e2e 断言 `b`/`script` 元素计数为 0 而字面量可见。
+
+### 契约与门
+
+- `ChatMarkdown` props 契约不变（`{ text: string }`）；`App.tsx` 4 处调用点与 `SessionHistory.tsx` 1 处零改动。退役的 `parseMarkdownBlocks` / `renderInline` / `MarkdownBlock` / `TableAlign` 四个导出**零生产消费点**（仅原单测消费），随解析器一并删除。核实留痕：全仓 grep `renderInline` 另在 `packages/demo-data/scripts/generate-contract-pdf.mjs:22` 有命中，经查为该脚本内**同名但无关的本地函数声明**（非 import 本模块导出），不构成消费点。
+- 断言层级从「解析器 AST 形状」下沉到「渲染出的 DOM」：AST 是实现细节（随解析器换代而变），DOM 才是与 App/SessionHistory/e2e/styles 的真实契约。旧单测 19 条行为用例在新测逐条有对应，无净覆盖损失。
+- 样式**零新线**：引文块以缩进 + 既有 `--text-secondary` 区分，不引入新 border。曾试挂 `--rule-minor` 左界，被线级门咬住——MINOR 条目须同时有 P1 档位账已签提案行（`CLAUDE.md` 工程纪律「视觉变更须绑定唯一激进度档位与已批提案行」），而设计体例复议归第一单，解析器置换票不得夹带。改零新线后线级账逐项与基线相同（主界 4 · 次界 93 · 不换 65 · 共 164）。
+
 ## CHAT-MD-TABLE-1 · ChatMarkdown 扩审慎 GFM 子集：管道表格 + `---` hr（实现完成，待独立验收）
 
 权威：[实现就绪图 `CHAT-MD-TABLE-1` 行](../../docs/architecture/implementation-readiness.md) + [试点台账「版本收尾拍板」节第 3 条](../../docs/status/pilot-2026-07-17.md)。基线 `main @ cc90bf0`。分支 `impl/chat-md-table-1`，隔离 worktree 施工，未推送、未改 `docs/status/current.md`。desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动。

@@ -1,228 +1,246 @@
 import { Fragment, type CSSProperties, type ReactNode } from 'react';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import type { Nodes, Parents, PhrasingContent, RootContent, Table, TableRow } from 'mdast';
 import { PasteBlock } from './PasteBlock';
 
 /**
- * 批次七②：chat 回复的 md 富渲染。零依赖手写小解析器，覆盖对话高频子集：
- * 段落/换行、# 标题、- 与 1. 列表、```围栏代码块（paste 块同凡例复用 PasteBlock）、
- * 行内 **加重** 与 `code`。CHAT-MD-TABLE-1 扩审慎 GFM 子集：管道表格 + `---` hr 分隔线。
- * 其余形态（斜体/链接/嵌套列表等）仍刻意不做——宁缺毋滥边界收窄不废除，需要时随拍板扩
- * （现渲染缺口清点见 SPEC.md CHAT-MD-TABLE-1 条目）。
+ * MD-CONVERGE-1+（A/R-18 + C/R-6 合票）：chat 回复的 md 富渲染。
+ *
+ * 解析改用 workspace 既有的 remark（`packages/reading-view` 同版生产依赖，零新第三方包），
+ * 退役原 228 行手写解析器——扩围语法由标准解析器免费获得，不再逐个扩自研分支。
+ *
+ * 渲染边界（本件只做渲染，不做导航、不做多模态）：
+ * - **链接只渲染不导航**：落 `span.md-link`，零 `<a href>`；打开能力挂 EXPLORE-RAIL-1 的
+ *   `opener:allow-open-url` 权限位，本件不接。
+ * - **图片、公式、原始 HTML 不落真实元素**：图片无多模态管线（渲染即造能力幻觉）、公式垂类无需、
+ *   原始 HTML 是既有安全边界（SPEC.md:70，不引 rehype-raw 一类）。
+ * - **未支持节点一律回落原文切片**：`renderUnsupported` 是兜底而非枚举，新语法出现时默认原样
+ *   透出而非静默吞——「不静默降级」对尚未支持的语法同样成立。
  */
 
-export type TableAlign = 'left' | 'right' | 'center' | null;
+type Align = 'left' | 'right' | 'center' | null;
 
-export type MarkdownBlock =
-  | { kind: 'heading'; level: number; text: string }
-  | { kind: 'paragraph'; lines: string[] }
-  | { kind: 'list'; ordered: boolean; items: string[] }
-  | { kind: 'code'; text: string }
-  | { kind: 'hr' }
-  | { kind: 'table'; align: TableAlign[]; header: string[]; rows: string[][] };
+const processor = unified().use(remarkParse).use(remarkGfm);
 
-const BLOCK_START = {
-  fence: (t: string) => t.startsWith('```'),
-  heading: (t: string) => /^(#{1,6})\s+/.test(t),
-  list: (t: string) => /^[-*]\s+/.test(t) || /^\d+[.)]\s+/.test(t),
-};
+/* ── legacy 语义兼容层 ───────────────────────────────────────────────────────
+ * remark 的标准语义在两处与退役解析器不同。本票范围是「换实现 + 扩五项」，不含改既有语义，
+ * 故在此显式保留旧行为；两处均有测试锁定（chat-markdown.test.ts『legacy 语义兼容层』节）。
+ * 「是否改采 remark 标准语义」已作提案登记（apps/desktop/SPEC.md MD-CONVERGE-1+ 提案区），
+ * 若获批，删除本节 + 改那两条断言即可，不牵动其余渲染路径。
+ * ────────────────────────────────────────────────────────────────────────── */
 
-/** 独占一行的 3+ 短横线（trim 后纯 `-`）。不识别 Setext 标题下划线语义——不猜测意图，恒读作 hr。 */
-function isHrLine(trimmed: string): boolean {
-  return /^-{3,}$/.test(trimmed);
+/** Setext 标题（`文字` + `---`/`===` 下划线）判定：源码起点不是 `#` 即为 Setext 形态。 */
+function isSetextHeading(node: Nodes, source: string): boolean {
+  if (node.type !== 'heading' || !node.position) return false;
+  return source.charAt(node.position.start.offset ?? 0) !== '#';
 }
 
-/** 管道行拆单元格：首尾竖线可选剥离，按 `|` 切分后逐格 trim；纯空行（无格内容）判非表格行。 */
-function splitTableRow(line: string): string[] | null {
-  const trimmed = line.trim();
-  if (!trimmed.includes('|')) return null;
-  let inner = trimmed;
-  if (inner.startsWith('|')) inner = inner.slice(1);
-  if (inner.endsWith('|')) inner = inner.slice(0, -1);
-  if (!inner.trim()) return null;
-  return inner.split('|').map((cell) => cell.trim());
+/**
+ * 旧解析器不实现 Setext 语义，`结论文字\n---` 恒读作「段落 + hr」（原注释：不猜测意图）。
+ * 还原：depth 2（`---` 下划线）拆回段落 + thematicBreak；depth 1（`===`）整体回落原文切片。
+ */
+function unwrapSetext(node: Nodes, source: string): RootContent[] {
+  if (node.type !== 'heading') return [node as RootContent];
+  const paragraph: RootContent = { type: 'paragraph', children: node.children, position: node.position };
+  if (node.depth === 2) return [paragraph, { type: 'thematicBreak' }];
+  return [{ type: 'paragraph', children: [{ type: 'text', value: sliceOf(node, source) }] }];
 }
 
-const TABLE_DELIM_CELL = /^:?-+:?$/;
-
-/** 分隔行合法性：每格须匹配 `:?-+:?`；不合法（含列数为 0）一律返回 null——上层据此判定非表格,不猜测补全。 */
-function parseDelimiterRow(line: string): TableAlign[] | null {
-  const cells = splitTableRow(line);
-  if (!cells) return null;
-  const align: TableAlign[] = [];
-  for (const cell of cells) {
-    if (!TABLE_DELIM_CELL.test(cell)) return null;
-    const left = cell.startsWith(':');
-    const right = cell.endsWith(':');
-    align.push(left && right ? 'center' : right ? 'right' : left ? 'left' : null);
-  }
-  return align;
+/**
+ * 旧解析器在「数据行列数与表头不符」处让表格止步，残行回落段落（原注释：不猜测补全/截断该行）。
+ * remark-gfm 则把缺格行留在表格内。还原：从首个不符行起截断，其后原文切片转段落。
+ */
+function truncateRaggedTable(table: Table, source: string): RootContent[] {
+  const [header, ...body] = table.children;
+  if (!header) return [table];
+  const width = header.children.length;
+  const bad = body.findIndex((row) => row.children.length !== width);
+  if (bad < 0) return [table];
+  const kept: TableRow[] = [header, ...body.slice(0, bad)];
+  const residueStart = body[bad]?.position?.start.offset;
+  const residueEnd = table.position?.end.offset;
+  const head: RootContent = { ...table, children: kept };
+  if (residueStart === undefined || residueEnd === undefined) return [head];
+  const residue = source.slice(residueStart, residueEnd);
+  return [head, { type: 'paragraph', children: [{ type: 'text', value: residue }] }];
 }
 
-/** 表格起手式：当前行是候选表头且下一行是列数相符的合法分隔行——两者皆真才算合法语法。 */
-function isTableStart(lines: string[], index: number): boolean {
-  if (index + 1 >= lines.length) return false;
-  const header = splitTableRow(lines[index]);
-  if (!header) return false;
-  const align = parseDelimiterRow(lines[index + 1]);
-  return align !== null && align.length === header.length;
+/* ── 渲染 ──────────────────────────────────────────────────────────────── */
+
+/** 节点对应的原文切片；位置缺失时回落空串（不猜测、不编造）。 */
+function sliceOf(node: Nodes, source: string): string {
+  const start = node.position?.start.offset;
+  const end = node.position?.end.offset;
+  if (start === undefined || end === undefined) return '';
+  return source.slice(start, end);
 }
 
-/** 段落只在遇到其它块起始行时止步；hr/table 判定与既有 fence/heading/list 同列。 */
-function isBlockBoundary(lines: string[], index: number): boolean {
-  const trimmed = lines[index].trim();
-  if (!trimmed) return true;
-  if (BLOCK_START.fence(trimmed) || BLOCK_START.heading(trimmed) || BLOCK_START.list(trimmed)) return true;
-  if (isHrLine(trimmed)) return true;
-  if (isTableStart(lines, index)) return true;
-  return false;
+/** 软换行还原为 <br>：mdast 把段内单换行留在 text 值里，逐行切分后交替插入。 */
+function renderText(value: string, key: string): ReactNode[] {
+  const lines = value.split('\n');
+  return lines.map((line, index) => (
+    <Fragment key={`${key}-${index}`}>
+      {index > 0 && <br />}
+      {line}
+    </Fragment>
+  ));
 }
 
-export function parseMarkdownBlocks(source: string): MarkdownBlock[] {
-  const blocks: MarkdownBlock[] = [];
-  const lines = source.replace(/\r\n/g, '\n').split('\n');
-  let index = 0;
-  while (index < lines.length) {
-    const line = lines[index];
-    const trimmed = line.trim();
-    if (!trimmed) { index += 1; continue; }
-    if (trimmed.startsWith('```')) {
-      const fence: string[] = [];
-      index += 1;
-      while (index < lines.length && !lines[index].trim().startsWith('```')) {
-        fence.push(lines[index]);
-        index += 1;
-      }
-      index += 1; // 吃掉闭栏（缺闭栏时到文末，容错不吞行）
-      blocks.push({ kind: 'code', text: fence.join('\n') });
-      continue;
-    }
-    const heading = /^(#{1,6})\s+(.*)$/.exec(trimmed);
-    if (heading) {
-      blocks.push({ kind: 'heading', level: heading[1].length, text: heading[2] });
-      index += 1;
-      continue;
-    }
-    const unordered = /^[-*]\s+/.test(trimmed);
-    const ordered = /^\d+[.)]\s+/.test(trimmed);
-    if (unordered || ordered) {
-      const items: string[] = [];
-      while (index < lines.length) {
-        const item = lines[index].trim();
-        if (unordered && /^[-*]\s+/.test(item)) items.push(item.replace(/^[-*]\s+/, ''));
-        else if (ordered && /^\d+[.)]\s+/.test(item)) items.push(item.replace(/^\d+[.)]\s+/, ''));
-        else break;
-        index += 1;
-      }
-      blocks.push({ kind: 'list', ordered, items });
-      continue;
-    }
-    if (isHrLine(trimmed)) {
-      blocks.push({ kind: 'hr' });
-      index += 1;
-      continue;
-    }
-    if (isTableStart(lines, index)) {
-      const header = splitTableRow(lines[index])!;
-      const align = parseDelimiterRow(lines[index + 1])!;
-      index += 2;
-      const rows: string[][] = [];
-      while (index < lines.length) {
-        if (isBlockBoundary(lines, index)) break;
-        const cells = splitTableRow(lines[index]);
-        // 列数与表头不符＝歧义：表格在此止步，不猜测补全/截断该行——该行回到主循环重新判定归属。
-        if (!cells || cells.length !== header.length) break;
-        rows.push(cells);
-        index += 1;
-      }
-      blocks.push({ kind: 'table', align, header, rows });
-      continue;
-    }
-    const paragraph: string[] = [];
-    while (index < lines.length) {
-      if (isBlockBoundary(lines, index)) break;
-      paragraph.push(lines[index].trim());
-      index += 1;
-    }
-    blocks.push({ kind: 'paragraph', lines: paragraph });
-  }
-  return blocks;
+/** 未支持/明确除外的节点：原样透出原文切片，绝不静默吞。 */
+function renderUnsupported(node: Nodes, source: string, key: string): ReactNode {
+  return <Fragment key={key}>{sliceOf(node, source)}</Fragment>;
 }
 
-/** 行内两种：**加重** 与 `code`。先切代码段（内部不再解析），再在文本段里切加重。 */
-export function renderInline(text: string, keyBase: string): ReactNode[] {
-  const nodes: ReactNode[] = [];
-  const codeSplit = text.split(/`([^`]+)`/g);
-  codeSplit.forEach((segment, codeIndex) => {
-    if (codeIndex % 2 === 1) {
-      nodes.push(<code key={`${keyBase}-c${codeIndex}`}>{segment}</code>);
-      return;
+function renderPhrasing(nodes: PhrasingContent[], source: string, keyBase: string): ReactNode[] {
+  return nodes.map((node, index) => {
+    const key = `${keyBase}-${index}`;
+    switch (node.type) {
+      case 'text':
+        return <Fragment key={key}>{renderText(node.value, key)}</Fragment>;
+      case 'strong':
+        return <strong key={key}>{renderPhrasing(node.children, source, key)}</strong>;
+      case 'emphasis':
+        return <em key={key}>{renderPhrasing(node.children, source, key)}</em>;
+      case 'delete':
+        return <del key={key}>{renderPhrasing(node.children, source, key)}</del>;
+      case 'inlineCode':
+        return <code key={key}>{node.value}</code>;
+      case 'break':
+        return <br key={key} />;
+      case 'link':
+        // 非导航形态：零 <a href>，URL 经 title 可见可复制；打开挂 EXPLORE-RAIL-1 权限位。
+        return (
+          <span key={key} className="md-link" title={node.url}>
+            {renderPhrasing(node.children, source, key)}
+          </span>
+        );
+      default:
+        // image / html / footnoteReference / 未来新语法：原样透出
+        return renderUnsupported(node, source, key);
     }
-    const boldSplit = segment.split(/\*\*([^*]+)\*\*/g);
-    boldSplit.forEach((piece, boldIndex) => {
-      if (!piece) return;
-      if (boldIndex % 2 === 1) nodes.push(<strong key={`${keyBase}-b${codeIndex}-${boldIndex}`}>{piece}</strong>);
-      else nodes.push(<Fragment key={`${keyBase}-t${codeIndex}-${boldIndex}`}>{piece}</Fragment>);
-    });
   });
-  return nodes;
 }
 
-const TABLE_ALIGN_STYLE: Record<Exclude<TableAlign, null>, CSSProperties> = {
+const ALIGN_STYLE: Record<Exclude<Align, null>, CSSProperties> = {
   left: { textAlign: 'left' },
   right: { textAlign: 'right' },
   center: { textAlign: 'center' },
 };
 
-function tableCellStyle(align: TableAlign): CSSProperties | undefined {
-  return align ? TABLE_ALIGN_STYLE[align] : undefined;
+function alignStyle(align: Align): CSSProperties | undefined {
+  return align ? ALIGN_STYLE[align] : undefined;
+}
+
+function renderTable(node: Table, source: string, key: string): ReactNode {
+  const [header, ...body] = node.children;
+  const align = (node.align ?? []) as Align[];
+  return (
+    <div key={key} className="md-table-wrap">
+      <table className="md-table" data-testid="chat-markdown-table">
+        <thead>
+          <tr>
+            {(header?.children ?? []).map((cell, c) => (
+              <th key={c} style={alignStyle(align[c] ?? null)}>
+                {renderPhrasing(cell.children, source, `${key}-h${c}`)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {body.map((row, r) => (
+            <tr key={r}>
+              {row.children.map((cell, c) => (
+                <td key={c} style={alignStyle(align[c] ?? null)}>
+                  {renderPhrasing(cell.children, source, `${key}-r${r}-${c}`)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/**
+ * 列表项内容：紧凑列表的项内容是 paragraph，须内联渲染（包 <p> 会平白多出段距）；
+ * 而嵌套列表/代码块/引用等真块级子节点必须走块级递归——退役解析器是扁平单层，嵌套项被拍平
+ * 成同级；remark 给的是真嵌套，若在此按行内处理会落进「未支持→原文切片」，把 `- ` 标记
+ * 裸露给用户（比旧行为更差）。此分派即嵌套结构的落点。
+ */
+function renderItemContent(item: Parents, source: string, keyBase: string): ReactNode[] {
+  return item.children.map((child, index) => {
+    const key = `${keyBase}-${index}`;
+    if (child.type === 'paragraph') {
+      return <Fragment key={key}>{renderPhrasing(child.children, source, key)}</Fragment>;
+    }
+    return renderBlock(child, source, key);
+  });
+}
+
+function renderBlock(node: RootContent, source: string, key: string): ReactNode {
+  switch (node.type) {
+    case 'code':
+      return <PasteBlock key={key} text={node.value} />;
+    case 'thematicBreak':
+      return <hr key={key} className="md-hr" />;
+    case 'heading':
+      return (
+        <h4 key={key} className={`md-h md-h-${Math.min(node.depth, 3)}`}>
+          {renderPhrasing(node.children, source, key)}
+        </h4>
+      );
+    case 'blockquote':
+      return (
+        <blockquote key={key} className="md-quote">
+          {node.children.map((child, index) => renderBlock(child, source, `${key}-${index}`))}
+        </blockquote>
+      );
+    case 'list': {
+      const items = node.children.map((item, index) => {
+        const checked = item.checked ?? null;
+        const content = renderItemContent(item, source, `${key}-${index}`);
+        if (checked === null) return <li key={index}>{content}</li>;
+        // 助手回复是只读内容：勾选态是「读得出」不是「点得动」，故不渲染表单控件。
+        return (
+          <li key={index} className="md-task" data-checked={checked ? 'true' : 'false'}>
+            <span className="md-task-mark" role="img" aria-label={checked ? '已办' : '未办'}>
+              {checked ? '✓' : '○'}
+            </span>
+            {content}
+          </li>
+        );
+      });
+      return node.ordered ? <ol key={key}>{items}</ol> : <ul key={key}>{items}</ul>;
+    }
+    case 'table':
+      return renderTable(node, source, key);
+    case 'paragraph':
+      return <p key={key}>{renderPhrasing(node.children, source, key)}</p>;
+    default:
+      return <p key={key}>{renderUnsupported(node, source, key)}</p>;
+  }
+}
+
+/** 顶层块序列：先过 legacy 兼容层，再逐块渲染。 */
+function toBlocks(source: string): RootContent[] {
+  const tree = processor.parse(source);
+  const out: RootContent[] = [];
+  for (const node of tree.children) {
+    if (isSetextHeading(node, source)) out.push(...unwrapSetext(node, source));
+    else if (node.type === 'table') out.push(...truncateRaggedTable(node, source));
+    else out.push(node);
+  }
+  return out;
 }
 
 export function ChatMarkdown({ text }: { text: string }) {
-  const blocks = parseMarkdownBlocks(text);
+  const blocks = toBlocks(text);
   return (
     <div className="chat-markdown" data-testid="chat-markdown">
-      {blocks.map((block, index) => {
-        if (block.kind === 'code') return <PasteBlock key={index} text={block.text} />;
-        if (block.kind === 'hr') return <hr key={index} className="md-hr" />;
-        if (block.kind === 'heading') return <h4 key={index} className={`md-h md-h-${Math.min(block.level, 3)}`}>{renderInline(block.text, `h${index}`)}</h4>;
-        if (block.kind === 'list') {
-          const items = block.items.map((item, itemIndex) => <li key={itemIndex}>{renderInline(item, `l${index}-${itemIndex}`)}</li>);
-          return block.ordered ? <ol key={index}>{items}</ol> : <ul key={index}>{items}</ul>;
-        }
-        if (block.kind === 'table') {
-          return (
-            <div key={index} className="md-table-wrap">
-              <table className="md-table" data-testid="chat-markdown-table">
-                <thead>
-                  <tr>
-                    {block.header.map((cell, c) => (
-                      <th key={c} style={tableCellStyle(block.align[c])}>{renderInline(cell, `t${index}-h${c}`)}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {block.rows.map((row, r) => (
-                    <tr key={r}>
-                      {row.map((cell, c) => (
-                        <td key={c} style={tableCellStyle(block.align[c])}>{renderInline(cell, `t${index}-r${r}-${c}`)}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          );
-        }
-        return (
-          <p key={index}>
-            {block.lines.map((row, rowIndex) => (
-              <Fragment key={rowIndex}>
-                {rowIndex > 0 && <br />}
-                {renderInline(row, `p${index}-${rowIndex}`)}
-              </Fragment>
-            ))}
-          </p>
-        );
-      })}
+      {blocks.map((block, index) => renderBlock(block, text, `b${index}`))}
     </div>
   );
 }
