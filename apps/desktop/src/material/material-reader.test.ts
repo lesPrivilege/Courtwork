@@ -42,14 +42,19 @@ describe('openMaterialReader', () => {
     expect(outcome).toEqual({ kind: 'blocked', reason, message: MATERIAL_BLOCK_REASON_COPY[reason] });
   });
 
-  it('闭集完整性：阻断去向覆盖 resolveForProvider 的全部 reason，无遗漏', async () => {
-    // 这条是防「新增 reason 却忘了给去向」——那会让新阻断态静默落进兜底文案。
-    for (const reason of reasons) {
-      const outcome = await openMaterialReader(storeWith({ status: 'blocked', reason }), 'case-1', 'mat-1');
-      expect(outcome.kind).toBe('blocked');
-      if (outcome.kind === 'blocked') expect(outcome.message).toBeTruthy();
-    }
-    expect(reasons.length).toBeGreaterThanOrEqual(8);
+  // 闭集**冻结**：期望集合写成字面量，不从 COPY 表反向派生。
+  //
+  // 首版这条从 `Object.keys(COPY)` 取集合再断言「每个都有去向」——**它永远看不见「新增」**：
+  // 独立验收三探针实证，往闭集里加 reason（补不补 copy 都算）一律绿，连把判别器掏空到只
+  // 认一个 reason 时它也绿。那版的宣称「新增 reason 而忘记给去向时先红」不成立，是装饰。
+  //
+  // 现形态：任何人改动 reason 闭集，这里先红，逼他回来想「新 reason 的显示去向是什么」。
+  // 真正逐条验去向的是上面的 `it.each`（判别器被掏空时它红 7 例）——两条分工，不重复。
+  it('闭集冻结：reason 集合变动时先红，逼人回来想新态的显示去向', () => {
+    expect(new Set(reasons)).toEqual(new Set([
+      'content_drift', 'reading_drift', 'unavailable', 'revoked',
+      'out_of_scope', 'needs_ocr', 'rejected', 'not_found',
+    ]));
   });
 
   it('demo 案不经本路径：调用方须先分流，此处仅以 out_of_scope 兜底不静默通过', async () => {

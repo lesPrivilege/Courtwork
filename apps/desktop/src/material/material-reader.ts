@@ -1,4 +1,5 @@
 import { MATERIAL_BLOCK_REASON_COPY, type MaterialBlockReason } from './material-ref';
+import type { ResolveResult } from './material-store';
 
 /**
  * FILE-PREVIEW-1 · 非 demo 案原件阅读的判别层。
@@ -25,9 +26,16 @@ export type MaterialReaderOutcome =
   | { kind: 'reader'; doc: MaterialReaderDoc }
   | { kind: 'blocked'; reason: MaterialBlockReason; message: string };
 
-/** 只取本模块需要的最小面——不绑定 MaterialStore 具体类，便于注入与测试（沿 legal-s3-binding 先例）。 */
-interface MaterialResolver {
-  resolveForProvider(caseId: string, materialId: string): Promise<unknown>;
+/**
+ * 只取本模块需要的最小面——不绑定 MaterialStore 具体类，便于注入与测试（沿
+ * `work/legal-s3-binding.ts` 的 `MaterialResolver` 先例）。
+ *
+ * **返回类型必须是已定型的 `ResolveResult`，不是 `unknown`**（验收 B 项）：首版写成
+ * `Promise<unknown>` 再 `as` 强转，等于在本模块唯一存在理由（把阻断闭集逐条落到显式去向）
+ * 上把编译器关掉；而注释还称「沿 legal-s3-binding 先例」——那条先例做的恰好相反。
+ */
+export interface MaterialResolver {
+  resolveForProvider(caseId: string, materialId: string): Promise<ResolveResult>;
 }
 
 const blocked = (reason: MaterialBlockReason): MaterialReaderOutcome =>
@@ -38,25 +46,22 @@ export async function openMaterialReader(
   caseId: string,
   materialId: string,
 ): Promise<MaterialReaderOutcome> {
-  let result: unknown;
+  let outcome: ResolveResult;
   try {
-    result = await resolver.resolveForProvider(caseId, materialId);
+    outcome = await resolver.resolveForProvider(caseId, materialId);
   } catch {
     // 宿主异常不静默吞：落到 unavailable（原件读不到是它最准确的语义），
     // 绝不返回空阅读面——空白页会被读成「这份文件没内容」，那是另一种假事实。
     return blocked('unavailable');
   }
 
-  const outcome = result as
-    | { status: 'ready'; material: { fileName: string; readingMarkdown: string } }
-    | { status: 'blocked'; reason: MaterialBlockReason };
-
-  if (outcome?.status === 'ready') {
+  if (outcome.status === 'ready') {
     return { kind: 'reader', doc: { name: outcome.material.fileName, markdown: outcome.material.readingMarkdown } };
   }
-  if (outcome?.status === 'blocked' && outcome.reason in MATERIAL_BLOCK_REASON_COPY) {
-    return blocked(outcome.reason);
-  }
-  // 既非 ready 又非已知 reason：仍显式阻断，不当作可读。新增 reason 时上面的单测会先红。
+  if (outcome.reason in MATERIAL_BLOCK_REASON_COPY) return blocked(outcome.reason);
+  // 到这里说明 store 给出了文案表里没有的 reason。**编译期本不该发生**（两者同源于
+  // `MaterialBlockReason`，`tsc` 会先红）；运行期兜底仍显式阻断、不当作可读，但如实登记
+  // 已知边界：此时用户看到的是 `rejected` 的文案，**显式但归因错误**。不为此新造 reason
+  // ——「零新错误形态」是票面硬约束，宁可留一条有记录的窄边界。
   return blocked('rejected');
 }

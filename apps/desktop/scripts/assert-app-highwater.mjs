@@ -27,7 +27,7 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 
 // 高水位＝立门当日实测行数。**此常量只许下调**：任何上调都是在把裁定改掉，
 // 须经架构拍板并在此处留痕（同 floor 只升不降的先例，方向相反）。
-const HIGH_WATER_LINES = 2747;
+const HIGH_WATER_LINES = 2746;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

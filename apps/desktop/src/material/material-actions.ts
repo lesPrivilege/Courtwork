@@ -1,5 +1,6 @@
 import { MATERIAL_BLOCK_REASON_COPY } from './material-ref';
-import { openMaterialReader, type MaterialReaderDoc } from './material-reader';
+import type { ResolveResult } from './material-store';
+import { openMaterialReader, type MaterialReaderDoc, type MaterialResolver } from './material-reader';
 
 /**
  * 卷宗原件区的两个动作（核验 / 阅读）——**「过手即拆」纪律的产物**。
@@ -11,10 +12,6 @@ import { openMaterialReader, type MaterialReaderDoc } from './material-reader';
  *
  * 本模块只做**纯编排**：不持有状态、不碰 React。副作用经参数注入，故可直接单测。
  */
-
-interface MaterialResolver {
-  resolveForProvider(caseId: string, materialId: string): Promise<unknown>;
-}
 
 export interface MaterialActionSink {
   /** 显式态通道（既有 systemFeedback）。ok=false 即用户可见的阻断陈述。 */
@@ -30,9 +27,15 @@ export async function verifyMaterialAction(
   materialId: string,
   sink: Pick<MaterialActionSink, 'feedback'>,
 ): Promise<void> {
-  const resolved = (await resolver.resolveForProvider(caseId, materialId)) as
-    | { status: 'ready'; material: { fileName: string } }
-    | { status: 'blocked'; reason: keyof typeof MATERIAL_BLOCK_REASON_COPY };
+  // 宿主异常同样显式（验收 F 项）：首版无 catch，宿主抛错时用户零反馈，而本函数注释
+  // 却称「结果一律显式」——与不变量 4 相抵。兄弟函数 openMaterialReader 早有此保护。
+  let resolved: ResolveResult;
+  try {
+    resolved = await resolver.resolveForProvider(caseId, materialId);
+  } catch {
+    sink.feedback(MATERIAL_BLOCK_REASON_COPY.unavailable, false);
+    return;
+  }
   if (resolved.status === 'ready') {
     sink.feedback(`原件校验通过：${resolved.material.fileName} 可用于生成`, true);
     return;

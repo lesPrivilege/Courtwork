@@ -199,7 +199,6 @@ function readableError(error: unknown, fallback: string): string {
   return error instanceof Error && error.message.trim().length > 0 ? error.message : fallback;
 }
 
-
 function ChatAssistantMessage({ message, index, latest, onStop, onRetry, testIdPrefix = 'chat' }: {
   message: Extract<ChatMessage, { role: 'assistant' }>;
   index: number;
@@ -2192,7 +2191,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const workStopped = workTraceView.state === 'failed';
 
   return (
-    <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'} data-right-narrow={rightNarrow ? 'true' : 'false'}>
+    <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'}>
       {/* 记号件库单次挂载：<use href="#mark-*"> 的 symbol 来源。零视觉、零布局（display:none）。 */}
       <SchemaParts />
       {(focusMode || effectiveLeftCollapsed) && <WindowChrome

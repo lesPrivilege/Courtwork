@@ -11,14 +11,14 @@ const match = output.match(/Total:\s+(\d+)\s+tests?/);
 const count = match ? Number(match[1]) : 0;
 // GOAL-1：+goal1 用例；floor 只升（禁降史 …→146→152→160→167→169→171→172→173→176→181→182→183→185，……chrome 装卡内 +1、三栏对齐+打字机 +2、双侧收拢磁吸 +1；CHAT-MATERIAL-1 附件正文入请求 + 空内容阻断 +2 → 211；验收补第二轮 history 同源 +1 → 212；HOST-AUTH-LITE 空态/denied/happy/读写三类失败 +4 → 216；CHAT-SESSION-1 跨窗新开/窗口内延续/只读导航 +3 → 219；CASE-ROOT-1 新建案 denied/授权建案/重授权 +3 → 222；CHAT-MEMORY-1 蒸馏→注入→查看→一键清除全链 +1 → 223；OUTPUT-CONFIRM-UI-1 未落点逐条确认落盘 + 取消零产出 +2 → 225；MATERIAL-INGRESS-1 就地入库/核验漂移与删除阻断 +2 → 227；UI-SURFACE-1 失败轮次重试（可重试+末位限定）+2、RightRailModules 未开通态可测标记 +1、MaterialsZone 在访达中显示未开通态 +1 → 231，合并解冲突由架构师定值；UI-RESIDUE-1（批一）residue project 新增 21 例 → 252）。
 // WORK-LIVE-1：grant 案合同审查全链（run→gate→docx）+ 运行中取消 +2 → 254。
-// LAYOUT-CONVERGE-1：rails-compact 幽灵列反例 +1 → 255（chrome-in-card 双侧收拢改断测宽为原地升级，不计数；合并解冲突由架构师定值）。
+// LAYOUT-CONVERGE-1：旧窄轨类幽灵列反例 +1 → 255（chrome-in-card 双侧收拢改断测宽为原地升级，不计数；合并解冲突由架构师定值）。
 // WORK-LIVE-1-FIX：未装配 → rejected/not_configured 中性反馈 e2e +1 → 256。
 // WORK-LIVE-REPLAY-1：跨切案恢复→水合→续行 docx + 恢复失效诚实 +2 → 258（答复 WORK-HOST-1 驳回阻断二）。
 // CASE-PERSIST-1：真跨重载三层重建 + 失效 grant 显式态可移除 + demo 恒挂/归档清除对称 +3 → 261。
 // PILOT-LIVE-1 B：grant 案显式导航开面（起草答辩状非零反应）+ 面板内切 tab 不闪回 +2 → 263。
 // PILOT-LIVE-1 A/C：非 demo 案 work 段 composer 发送走真实请求链 + 建案/欢迎态授权自动入库（新增 pilot-entry.spec.ts 三例）+3 → 266。
 // PILOT-LIVE-1 D：双侧收敛居中（都开/仅左收/仅右收 + 双收回归锁升级双证）+ 右栏默认窄态（非 demo
-// 窄轨/宽轨往返 + compactLayout×previewOpen 互斥）+ chat 段/welcome 回归锁 + 窄态零溢出目检
+// 窄轨/宽轨往返 + 旧窄轨派生×previewOpen 互斥）+ chat 段/welcome 回归锁 + 窄态零溢出目检
 // ×2（新增 pilot-layout.spec.ts 九例）+9 → 275。
 // PILOT-LIVE-1-FIX：墙钟自证（相对时间戳 A→B 窗口内翻字不破 A≡B，先红后绿）+1 → 276。
 // READER-ISOLATION-1：非 demo 案零 demo 语料入口（隔离红证）+ demo 案对照锁 +2 → 278。
@@ -56,7 +56,7 @@ const count = match ? Number(match[1]) : 0;
 // SKIN-R2 P2-L21：Focus Preview 首行避让 detached chrome 动态安全区 +1 → 322。
 // VERSIONAL-LANG-3 复验修复：visual-gallery 独立入口自然解析深宗 +1 → 323。
 // FILE-PREVIEW-1：非 demo 案原件阅读三例（可读真渲 / 需文字识别显式不渲染 / 漂移 fail-closed）
-// 323 → 326。rails-compact 四步退役未增减用例（属性改名，断言意图不变）。
+// 323 → 326。旧窄轨类四步退役未增减用例（属性改名，断言意图不变）。
 const minimum = 326;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
