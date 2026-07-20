@@ -4,42 +4,55 @@
     {
       "target": "docs/design/principles.md#总纲-pages",
       "tier": "pages-experimental",
-      "approvedProposalLine": "P0-A05"
+      "approvedProposalLine": "P0-A05",
+      "fragmentKind": "pointer",
+      "fragmentSection": "总纲 · 激进度梯度"
     },
     {
       "target": "docs/design/principles.md#总纲-agent",
       "tier": "agent-interface",
-      "approvedProposalLine": "P0-A05"
+      "approvedProposalLine": "P0-A05",
+      "fragmentKind": "pointer",
+      "fragmentSection": "总纲 · 激进度梯度"
     },
     {
       "target": "docs/design/principles.md#总纲-schema",
       "tier": "schema-workface",
-      "approvedProposalLine": "P0-A05"
+      "approvedProposalLine": "P0-A05",
+      "fragmentKind": "pointer",
+      "fragmentSection": "总纲 · 激进度梯度"
     },
     {
       "target": "docs/design/principles.md#素净中性条款",
       "tier": "agent-interface",
-      "approvedProposalLine": "P0-A06"
+      "approvedProposalLine": "P0-A06",
+      "fragmentKind": "pointer",
+      "fragmentSection": "总纲 · 激进度梯度"
     },
     {
       "target": "docs/design/typography-density.md#R2排印裁量边界",
       "tier": "agent-interface",
-      "approvedProposalLine": "P0-A08"
+      "approvedProposalLine": "P0-A08",
+      "fragmentKind": "heading"
     },
     {
       "target": "docs/design/typography-density.md#字体退役律",
       "tier": "agent-interface",
-      "approvedProposalLine": "P0-A09"
+      "approvedProposalLine": "P0-A09",
+      "fragmentKind": "heading"
     },
     {
       "target": "docs/design/visualization-kit.md#主次界线级边界",
       "tier": "schema-workface",
-      "approvedProposalLine": "P0-A11"
+      "approvedProposalLine": "P0-A11",
+      "fragmentKind": "pointer",
+      "fragmentSection": "七、样板资产规则"
     },
     {
       "target": "docs/design/schema-exemplar.md#新表派生入口",
       "tier": "schema-workface",
-      "approvedProposalLine": "P0-A20"
+      "approvedProposalLine": "P0-A20",
+      "fragmentKind": "heading"
     },
     {
       "target": "apps/desktop/src/styles.css#.panel-head|bottom",
@@ -49,7 +62,8 @@
       "ruleClass": "major",
       "expectedWidth": "var(--rule-major)",
       "expectedColor": "var(--border)",
-      "hairline": true
+      "hairline": true,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.pane-head|bottom",
@@ -60,7 +74,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-L02",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.preview-host-head|bottom",
@@ -70,7 +85,8 @@
       "ruleClass": "major",
       "expectedWidth": "var(--rule-major)",
       "expectedColor": "var(--border)",
-      "hairline": true
+      "hairline": true,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.session-history-head|bottom",
@@ -80,7 +96,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-header|bottom",
@@ -90,7 +107,8 @@
       "ruleClass": "major",
       "expectedWidth": "var(--rule-major)",
       "expectedColor": "var(--rule-ink)",
-      "hairline": true
+      "hairline": true,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-header|bottom",
@@ -100,7 +118,8 @@
       "ruleClass": "major",
       "expectedWidth": "var(--rule-major)",
       "expectedColor": "var(--rule-ink)",
-      "hairline": true
+      "hairline": true,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.scene-strip|top",
@@ -111,7 +130,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-L02",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.rail-user-wrap|top",
@@ -121,7 +141,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.session-entry|bottom",
@@ -131,7 +152,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.session-transcript-turn|bottom",
@@ -141,7 +163,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.dense-row|bottom",
@@ -152,7 +175,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-S02",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.nonapplied-item|bottom",
@@ -162,7 +186,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.originals-list li|bottom",
@@ -172,7 +197,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-row|bottom",
@@ -183,7 +209,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-L06",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-ledger li|bottom",
@@ -193,7 +220,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-timeline li|left",
@@ -203,7 +231,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.visual-decision-actions .question-option|bottom",
@@ -214,7 +243,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-L02",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.interaction-anchor|bottom",
@@ -224,7 +254,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.relation-list button|bottom",
@@ -234,7 +265,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.file-ops-table th, .file-ops-table td|bottom",
@@ -244,7 +276,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.table-head|bottom",
@@ -254,7 +287,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.artifact-table th, .artifact-table td|right",
@@ -264,7 +298,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.artifact-table th, .artifact-table td|bottom",
@@ -274,7 +309,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.matrix-wrap th|right",
@@ -284,7 +320,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.matrix-wrap th|bottom",
@@ -294,7 +331,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.matrix-wrap td|right",
@@ -304,7 +342,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.matrix-wrap td|bottom",
@@ -314,7 +353,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.md-table th, .md-table td|right",
@@ -324,7 +364,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.md-table th, .md-table td|bottom",
@@ -334,7 +375,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-status-ledger > div|right",
@@ -345,7 +387,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-S03",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-grid|left",
@@ -355,7 +398,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-specimen|right",
@@ -365,7 +409,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-specimen|bottom",
@@ -375,7 +420,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-specimen th, .gallery-specimen td|all",
@@ -385,7 +431,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-coverage|top",
@@ -395,7 +442,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-coverage|left",
@@ -405,7 +453,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-coverage div|right",
@@ -415,7 +464,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-coverage div|bottom",
@@ -425,7 +475,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-graph|top",
@@ -435,7 +486,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-graph|left",
@@ -445,7 +497,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-graph span|right",
@@ -455,7 +508,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-graph span|bottom",
@@ -465,7 +519,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.file-ops-toolbar|all",
@@ -475,7 +530,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.file-ops-table|all",
@@ -485,7 +541,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.file-ops-report|all",
@@ -495,7 +552,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.progress-card|top",
@@ -506,7 +564,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL2-L02",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.progress-card|bottom",
@@ -517,7 +576,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL2-L02",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.interaction-turn-card|all",
@@ -527,7 +587,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.generated-callout|all",
@@ -538,7 +599,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-L04",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.model-config-reasoning|all",
@@ -548,7 +610,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.sample-tour|all",
@@ -558,7 +621,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.data-card, .detail-card|all",
@@ -569,7 +633,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-L03",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.turn-card-gate|all",
@@ -579,7 +644,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border-strong)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.graph-canvas|all",
@@ -589,7 +655,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border-strong)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.s3-launcher|all",
@@ -599,7 +666,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.work-recover|all",
@@ -609,7 +677,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.work-output-result|all",
@@ -619,7 +688,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.nonapplied-confirm|all",
@@ -629,7 +699,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border-strong)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.draft-panel > header|all",
@@ -639,7 +710,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.draft-editor, .draft-reading|all",
@@ -650,7 +722,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL2-L02",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.work-draft-toolbar|all",
@@ -660,7 +733,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.work-draft-body|all",
@@ -670,7 +744,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-memory-item|all",
@@ -681,7 +756,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-L06",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-fields fieldset|all",
@@ -691,7 +767,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-path|all",
@@ -701,7 +778,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-credential-embed|all",
@@ -711,7 +789,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.paste-block|all",
@@ -721,7 +800,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.md-table-wrap|all",
@@ -731,7 +811,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.composer-entry-guidance|all",
@@ -741,7 +822,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.composer-disabled-reason|all",
@@ -752,7 +834,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-L05",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-chain li|all",
@@ -762,7 +845,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-specimen .visual-decision|all",
@@ -772,7 +856,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.visual-decision-actions|top",
@@ -783,7 +868,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL-L02",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.visual-partial|top",
@@ -793,7 +879,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.visual-partial ul|top",
@@ -803,7 +890,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.interaction-anchor-ledger|top",
@@ -813,7 +901,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.interaction-submit-error, .turn-recovery-error|top",
@@ -823,7 +912,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.interaction-recorded|top",
@@ -833,7 +923,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.stack-module|bottom",
@@ -843,7 +934,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.context-next-step|top",
@@ -853,7 +945,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.utility-dock-popover > header|bottom",
@@ -863,7 +956,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.artifact-table-view > h3|bottom",
@@ -873,7 +967,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.verified-block|top",
@@ -883,7 +978,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.verified-block|bottom",
@@ -893,7 +989,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.relation-list h3|bottom",
@@ -903,7 +1000,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.submission-note|bottom",
@@ -913,7 +1011,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.nonapplied-confirm > header|bottom",
@@ -923,7 +1022,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.nonapplied-confirm > footer|top",
@@ -933,7 +1033,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-master-detail|bottom",
@@ -943,7 +1044,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-status-ledger|top",
@@ -953,7 +1055,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-status-ledger|bottom",
@@ -963,7 +1066,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.evidence-stack .verified-block:last-child|bottom",
@@ -973,7 +1077,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.document-preview header|bottom",
@@ -984,7 +1089,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL2-L02",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.provider-dialog header|bottom",
@@ -994,7 +1100,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.provider-dialog footer|top",
@@ -1004,7 +1111,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.credential-modes|bottom",
@@ -1014,7 +1122,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-developer|top",
@@ -1024,7 +1133,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-promise-section|bottom",
@@ -1034,7 +1144,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.palette-input|bottom",
@@ -1044,7 +1155,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.paste-block .collapse-toggle|top",
@@ -1055,7 +1167,8 @@
       "expectedWidth": "0",
       "expectedColor": "transparent",
       "supersededBy": "VL2-L02",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-specimen > header|bottom",
@@ -1065,7 +1178,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-specimen > footer|top",
@@ -1075,7 +1189,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.gallery-ledger|top",
@@ -1085,7 +1200,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.rail-case-expand|left",
@@ -1095,7 +1211,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.utility-dock-item|right",
@@ -1105,7 +1222,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.preview-scroll-progress|left",
@@ -1115,7 +1233,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.relation-list|left",
@@ -1125,7 +1244,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.relation-list|top",
@@ -1135,7 +1255,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-list|right",
@@ -1145,7 +1266,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-list|bottom",
@@ -1155,7 +1277,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.work-draft-list|right",
@@ -1165,7 +1288,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-nav|right",
@@ -1175,7 +1299,8 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.view-tabs|bottom",
@@ -1185,432 +1310,520 @@
       "ruleClass": "minor",
       "expectedWidth": "var(--rule-minor)",
       "expectedColor": "var(--border)",
-      "hairline": false
+      "hairline": false,
+      "fragmentKind": "selector"
     },
     {
       "target": "docs/design/tokens.json#typography.family.ui",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T01"
+      "approvedProposalLine": "P2-T01",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#:root|--font-ui",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T02"
+      "approvedProposalLine": "P2-T02",
+      "fragmentKind": "selector"
     },
     {
       "target": "docs/design/tokens.json#typography.family.mono",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T03"
+      "approvedProposalLine": "P2-T03",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#:root|--mono",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T04"
+      "approvedProposalLine": "P2-T04",
+      "fragmentKind": "selector"
     },
     {
       "target": "docs/design/tokens.json#typography.family.title",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T05"
+      "approvedProposalLine": "P2-T05",
+      "fragmentKind": "selector"
     },
     {
       "target": "docs/design/tokens.json#typography.track.title",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T06"
+      "approvedProposalLine": "P2-T06",
+      "fragmentKind": "pointer"
     },
     {
       "target": "docs/design/tokens.json#typography.family.body",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T07"
+      "approvedProposalLine": "P2-T07",
+      "fragmentKind": "selector"
     },
     {
       "target": "docs/design/tokens.json#typography.track.document",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T08"
+      "approvedProposalLine": "P2-T08",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/assets/fonts/subset-manifest.json#fonts",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T09"
+      "approvedProposalLine": "P2-T09",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/scripts/assert-typography.mjs#retired-font-values",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T10"
+      "approvedProposalLine": "P2-T10",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/craft-evidence/SKIN-R2-P2/blind-typography#Sarasa-v1.0.40",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T11"
+      "approvedProposalLine": "P2-T11",
+      "fragmentKind": "directory"
     },
     {
       "target": "docs/design/typography-density.md#P2本轮复议门",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T12"
+      "approvedProposalLine": "P2-T12",
+      "fragmentKind": "heading"
     },
     {
       "target": "docs/design/typography-density.md#四档密度-排印语义",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T13"
+      "approvedProposalLine": "P2-T13",
+      "fragmentKind": "pointer",
+      "fragmentSection": "四档密度"
     },
     {
       "target": "apps/desktop/SPEC.md#SKIN-R2-P2",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-T14"
+      "approvedProposalLine": "P2-T14",
+      "fragmentKind": "heading"
     },
     {
       "target": "apps/desktop/src/styles.css#.workspace",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L01"
+      "approvedProposalLine": "P2-L01",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.workspace.right-narrow",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L02"
+      "approvedProposalLine": "P2-L02",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.workspace.left-collapsed.right-collapsed",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L03"
+      "approvedProposalLine": "P2-L03",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-grid",
       "tier": "schema-workface",
-      "approvedProposalLine": "P2-L04"
+      "approvedProposalLine": "P2-L04",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-master-detail",
       "tier": "schema-workface",
-      "approvedProposalLine": "P2-L05"
+      "approvedProposalLine": "P2-L05",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/chat/ProcessTrace.tsx#ProcessTrace",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L06"
+      "approvedProposalLine": "P2-L06",
+      "fragmentKind": "selector"
     },
     {
       "target": "docs/design/typography-density.md#四档密度-版式实用法",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L07"
+      "approvedProposalLine": "P2-L07",
+      "fragmentKind": "pointer",
+      "fragmentSection": "四档密度"
     },
     {
       "target": "apps/desktop/src/styles.css#.interaction-card",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L08"
+      "approvedProposalLine": "P2-L08",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-body",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L09"
+      "approvedProposalLine": "P2-L09",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.artifact-table-view",
       "tier": "schema-workface",
-      "approvedProposalLine": "P2-L10"
+      "approvedProposalLine": "P2-L10",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.workspace.welcome-mode",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L11"
+      "approvedProposalLine": "P2-L11",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#P1-line-consumers",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L12"
+      "approvedProposalLine": "P2-L12",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/App.tsx#case-rail-information-architecture",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L13"
+      "approvedProposalLine": "P2-L13",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/App.tsx#output-placement",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L14"
+      "approvedProposalLine": "P2-L14",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#decorative-quote-frame",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L15"
+      "approvedProposalLine": "P2-L15",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#product-shell-gold-mark",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L16"
+      "approvedProposalLine": "P2-L16",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#.composer-stack|inline-end",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L17"
+      "approvedProposalLine": "P2-L17",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.workspace.comparing.left-collapsed|grid",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L18"
+      "approvedProposalLine": "P2-L18",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.window-chrome.is-detached|title-safe-inline",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L19"
+      "approvedProposalLine": "P2-L19",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.composer-disclaimer|container-wrap",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L20"
+      "approvedProposalLine": "P2-L20",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.workspace.focus-mode .preview-host-head|title-safe-inline",
       "tier": "agent-interface",
-      "approvedProposalLine": "P2-L21"
+      "approvedProposalLine": "P2-L21",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#@keyframes seal-press",
       "tier": "agent-interface",
-      "approvedProposalLine": "P3-S01"
+      "approvedProposalLine": "P3-S01",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#@media(prefers-reduced-motion)|.settle-seal",
       "tier": "agent-interface",
-      "approvedProposalLine": "P3-S02"
+      "approvedProposalLine": "P3-S02",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#document-track|hanging-punctuation",
       "tier": "agent-interface",
-      "approvedProposalLine": "P3-H01"
+      "approvedProposalLine": "P3-H01",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/craft-evidence/SKIN-R2-P3#ink-bleed-ab",
       "tier": "agent-interface",
-      "approvedProposalLine": "P3-I01"
+      "approvedProposalLine": "P3-I01",
+      "fragmentKind": "directory"
     },
     {
       "target": "site/craft-evidence/SKIN-R2-P3#restraint-audit",
       "tier": "agent-interface",
-      "approvedProposalLine": "P3-A01"
+      "approvedProposalLine": "P3-A01",
+      "fragmentKind": "directory"
     },
     {
       "target": "apps/desktop/src/settings/settings-store.ts#appearance.themeMode",
       "tier": "agent-interface",
-      "approvedProposalLine": "P4-D01"
+      "approvedProposalLine": "P4-D01",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/settings/theme-controller.ts#resolved-data-theme",
       "tier": "agent-interface",
-      "approvedProposalLine": "P4-D02"
+      "approvedProposalLine": "P4-D02",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#:root[data-theme='dark']",
       "tier": "agent-interface",
-      "approvedProposalLine": "P4-D03"
+      "approvedProposalLine": "P4-D03",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/tests/e2e/schema-marks.spec.ts#C-4-double-theme",
       "tier": "schema-workface",
-      "approvedProposalLine": "P4-D04"
+      "approvedProposalLine": "P4-D04",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/scripts/assert-rule-grammar.mjs#retired-naked-titlebar",
       "tier": "agent-interface",
-      "approvedProposalLine": "P4-D05"
+      "approvedProposalLine": "P4-D05",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/craft-evidence/SKIN-R2-P4#four-dark-slots",
       "tier": "agent-interface",
-      "approvedProposalLine": "P4-D06"
+      "approvedProposalLine": "P4-D06",
+      "fragmentKind": "directory"
     },
     {
       "target": "site/styles.css#@font-face(Courtwork-Manuscript-Latin)",
       "tier": "pages-experimental",
-      "approvedProposalLine": "P5-F01"
+      "approvedProposalLine": "P5-F01",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/styles.css#.wordmark > span",
       "tier": "pages-experimental",
-      "approvedProposalLine": "P5-F02"
+      "approvedProposalLine": "P5-F02",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/styles.css#.promise-heading h2 .latin-manuscript",
       "tier": "pages-experimental",
-      "approvedProposalLine": "P5-F03"
+      "approvedProposalLine": "P5-F03",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/styles.css#.closing .eyebrow .latin-manuscript",
       "tier": "pages-experimental",
-      "approvedProposalLine": "P5-F04"
+      "approvedProposalLine": "P5-F04",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/og.html#.wordmark",
       "tier": "pages-experimental",
-      "approvedProposalLine": "P5-F05"
+      "approvedProposalLine": "P5-F05",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/styles.css#:root|--mono",
       "tier": "pages-experimental",
-      "approvedProposalLine": "P5-F09"
+      "approvedProposalLine": "P5-F09",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/scripts/deslop-scan-lib.mjs#p5-font-coverage",
       "tier": "pages-experimental",
-      "approvedProposalLine": "P5-F10"
+      "approvedProposalLine": "P5-F10",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/scripts/deslop-scan-lib.mjs#p5-data-static",
       "tier": "pages-experimental",
-      "approvedProposalLine": "P5-F11"
+      "approvedProposalLine": "P5-F11",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/SPEC.md#SKIN-R2-P5",
       "tier": "pages-experimental",
-      "approvedProposalLine": "P5-F12"
+      "approvedProposalLine": "P5-F12",
+      "fragmentKind": "heading"
     },
     {
       "target": "apps/desktop/src/styles.css#versional-typography-roles",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL-A01"
+      "approvedProposalLine": "VL-A01",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#versional-schema-typography",
       "tier": "schema-workface",
-      "approvedProposalLine": "VL-A02"
+      "approvedProposalLine": "VL-A02",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/styles.css#versional-typography-roles",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL-A03"
+      "approvedProposalLine": "VL-A03",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#versional-theme-token-only",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL-C01"
+      "approvedProposalLine": "VL-C01",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#versional-major-boundaries",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL-L01"
+      "approvedProposalLine": "VL-L01",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#versional-routine-ledger-lines",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL-L02"
+      "approvedProposalLine": "VL-L02",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#versional-card-boundaries",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL-L03"
+      "approvedProposalLine": "VL-L03",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#.generated-callout|marginalia",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL-L04"
+      "approvedProposalLine": "VL-L04",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.composer-shell|versional-boundary",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL-L05"
+      "approvedProposalLine": "VL-L05",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.settings-row|versional-groups",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL-L06"
+      "approvedProposalLine": "VL-L06",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.demo-badge|neutral-meta",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL-L07"
+      "approvedProposalLine": "VL-L07",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.chat-case-title|raised-title",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL-L08"
+      "approvedProposalLine": "VL-L08",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-master-detail|single-frame",
       "tier": "schema-workface",
-      "approvedProposalLine": "VL-S01"
+      "approvedProposalLine": "VL-S01",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.dense-row|routine-lines",
       "tier": "schema-workface",
-      "approvedProposalLine": "VL-S02"
+      "approvedProposalLine": "VL-S02",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-status-ledger|aligned-meta",
       "tier": "schema-workface",
-      "approvedProposalLine": "VL-S03"
+      "approvedProposalLine": "VL-S03",
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/styles.css#.risk-detail|semantic-boundaries",
       "tier": "schema-workface",
-      "approvedProposalLine": "VL-S04"
+      "approvedProposalLine": "VL-S04",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/styles.css#.section-heading|raised-title",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL-P01"
+      "approvedProposalLine": "VL-P01",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/styles.css#.scenario-proof|grouped-ledger",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL-P02"
+      "approvedProposalLine": "VL-P02",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/index.html#.publication-colophon",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL-P03"
+      "approvedProposalLine": "VL-P03",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/styles.css#.site-marginalia",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL-P04"
+      "approvedProposalLine": "VL-P04",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/styles.css#reference-light-palette",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL2-C01"
+      "approvedProposalLine": "VL2-C01",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/styles.css#h1.zh-title|weight",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL2-T01"
+      "approvedProposalLine": "VL2-T01",
+      "fragmentKind": "selector"
     },
     {
       "target": "site/styles.css#versional-routine-lines-r2",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL2-L01"
+      "approvedProposalLine": "VL2-L01",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#document-routine-lines-r2",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL2-L02"
+      "approvedProposalLine": "VL2-L02",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/styles.css#shared-dual-theme-palette",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL3-C01"
+      "approvedProposalLine": "VL3-C01",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#versional-important-title-token",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL3-C02"
+      "approvedProposalLine": "VL3-C02",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/styles.css#versional-important-title-consumers",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL3-T01"
+      "approvedProposalLine": "VL3-T01",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/styles.css#versional-important-title-consumers",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL3-T02"
+      "approvedProposalLine": "VL3-T02",
+      "fragmentKind": "pointer"
     },
     {
       "target": "apps/desktop/src/preview/gallery/main.tsx#resolved-data-theme",
       "tier": "agent-interface",
-      "approvedProposalLine": "VL3-T03"
+      "approvedProposalLine": "VL3-T03",
+      "fragmentKind": "pointer"
     },
     {
       "target": "site/assets/screenshots#versional-dual-theme-refresh",
       "tier": "pages-experimental",
-      "approvedProposalLine": "VL3-S01"
+      "approvedProposalLine": "VL3-S01",
+      "fragmentKind": "directory"
     }
   ]
 }

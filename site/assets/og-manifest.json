@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "courtwork.og-card.v1",
+  "note": "og.html 从不发布，读者只经本 png 看到这张卡。改 og.html 文案后必须跑 site/scripts/render-og.mjs 重渲，否则改动对外零效力。字节绑定由 versional-language-contract.test.mjs 守。",
+  "source": "site/og.html",
+  "renderer": "site/scripts/render-og.mjs",
+  "viewport": {
+    "width": 1200,
+    "height": 630,
+    "deviceScaleFactor": 1
+  },
+  "asset": "site/assets/og.png",
+  "bytes": 39920,
+  "sha256": "82d3bd62aa3f8cfe1716e394b5cb1357f713c99cbc6700004332594f8db0254d"
+}
