@@ -1084,3 +1084,87 @@ pnpm test -- --reporter=dot
 ```
 
 本驗收未更新 `docs/status/current.md`，未推送、未 prune；實現 worktree 與 PILOT-LIVE-1 worktree 全程未觸碰。
+
+## RELEASE-VERIFY-1 · DEBT-CLEAR-1 + DEBT-GATE-LABEL-1 独立验收驳回（2026-07-20）
+
+- **验收角色**：未参与两票实现的独立验收会话；只在独立 clone 读码与实跑，未修改产品实现。
+- **精确坐标**：受验 SHA `5f8fa7b40d7d5afe93d5a1e2e714e3191560a562`；独立 clone `/tmp/courtwork-accept-debt.ZfiZk2/repo`。交付称“三枝均基于 `86b2282`”，但 Git 实证本枝的直接父链为 `a49db9c → 6e95928 → 5f8fa7b`，`git merge-base 86b2282 5f8fa7b` 亦为 `a49db9c097a75ead5d7344c996c44e8de26220e8`，不是 `86b2282`；本报告按实际提交图验收并登记该坐标差异。
+- **裁决：驳回 ❌。** 阻塞项是本票新增 SPEC 的现行宣称与实现不一致，违反 `docs/engineering/workflow.md` 验收固定项「自述与实现逐条对照」。未进入合并、部署或全链收束。
+
+### 1. 阻塞项与最小复现
+
+**B1 · 本票 SPEC 把四种不同删除判据误写成同一组判据。** `packages/core/SPEC.md:556-565` 的本票现行节先宣称四项“共用同一判据：零供给方 + 结构性不可达”，但其紧随表格与源码实际分别是：
+
+- `ConfirmationStore.take()`：零生产调用方；
+- `ScenarioExecutorDeps.onTurnEvent`：零供给方；
+- `pendingGateLabels`：executor 唯一供给且恒空，并由生成/未消费 pending 互斥证明结构不可达；
+- 2 个导出、9 个采集脚本、死配置和 `newLine`：零消费方或零外部引用。
+
+只有 `pendingGateLabels` 同时具有“结构性不可达”的执行模型证明；`take()`、普通死导出/脚本/字符串并没有该判据，且不需要伪造该判据才能安全删除。复现：
+
+```text
+nl -ba packages/core/SPEC.md | sed -n '556,565p'
+git grep -n -E '\.take\(|take\(requestId|take:|onTurnEvent|pendingGateLabels' a49db9c -- ':!*.md' ':!archive/**'
+git grep -n -E '\.take\(|take\(requestId|take:|onTurnEvent|pendingGateLabels' 5f8fa7b -- ':!*.md' ':!archive/**'
+```
+
+基线命中显示 `take` 为接口 + 三处实现 + dev 转发/自身测试，`onTurnEvent` 为声明与转发，只有 `pendingGateLabels` 由 executor 恒传 `[]`；tip 产品码中前三者均零命中（`pendingGateLabels` 只余解释性注释）。该总括不是措辞偏好，而是本票“主要资产”的前提叙述失真。
+
+**B2 · 同一现行 SPEC 的 PROJECTION-RESUME 设计节仍以已删除结构作现在时坐标。** `packages/core/SPEC.md:35` 仍称三态子节“紧跟 `pendingGateLabels` 行之后”，`:37` 仍称“与 `pendingGateLabels` 生产恒 `[]` 同先例”；实际 `buildProjectionSegment` 已无该字段与该行。后文新节虽然说明退役，但没有改写这两条现行设计声明，导致同一权威文件内部互斥。复现：
+
+```text
+nl -ba packages/core/SPEC.md | sed -n '32,38p;529,579p'
+rg -n 'pendingGateLabels' packages/core/src packages/core/SPEC.md
+```
+
+修复边界只应是文档回炉：按逐项真实判据改写总括，并把旧设计坐标改成删除后的现行结构；不得借机改契约或产品实现。回炉后须由另一独立验收会话复核。
+
+### 2. 已坐实且不构成驳回的实现面
+
+- `take()` 接口成员、in-memory/file/work-state 三实现及 measure dev 转发同步删除；墓碑用例只把 destructive `take` 改为 `peek + consume`，仍逐字断言 tombstone 不含 `TOP-SECRET-ARTIFACT`/`secret-file`、键仅 `requestId/version`，并模拟 marker 已提交而旧 pending 文件尚在的崩溃窗口。
+- `onTurnEvent` 声明、转发与失效 `TurnEvent` import 同步删除；基线无任何供给方。
+- `SectionComposition` 删除后 `.visual-composition-section` 同批清理；`isImplementedVisualBlueprint`、`newLine` 与 9 个 `capture-*-audit.mjs` 在基线均无生产消费或外部脚本引用。
+- `apps/desktop/package.json` 只保留 `lint:thinking → assert-process-trace.mjs`，而 `test:e2e` 仍直接调用 `node scripts/assert-process-trace.mjs`，没有经被删别名间接调用。
+- 两份 golden 数据在实际父基线 `a49db9c` 与受验 tip 的 SHA-256 分别恒为 `43fda441828a5b76871c98a6f07451a1eea002a3c480af7c8a209210b3831759`、`0047e71264f6ddb6aa25cf5ceb10aca7b4a0bd7aee913b9630bb8cafb79bcd07`；`git diff --exit-code a49db9c..5f8fa7b -- <golden>` 两档均 exit 0。
+- 生成/停门互斥读码成立：`pauseAt` 保存 pending 后返回 paused；`produceSequence` 命中 gate 即返回；`resumeScenario` 在续 `produceSequence` 前先 `consume`。`awaitingConfirmation` 则仍可由 `ProjectionPendingInput` 调用方提供，`segments.test.ts` 的三态合成输入实际渲染“等待确认”，因此“可达性是保留判据、真源位置解释生产供给为何为空”的实现事实成立。
+
+### 3. 独立实跑、突变红证与恢复
+
+```text
+pnpm install --frozen-lockfile
+# exit 0；14 workspace，1047 packages
+
+pnpm -r build
+# exit 0；13/14 workspace projects，desktop 3580 modules transformed
+
+pnpm exec vitest run --root . \
+  packages/core/src/session/confirmation-store.test.ts \
+  packages/core/src/assembly/segments.test.ts \
+  packages/core/src/assembly/assemble.test.ts \
+  packages/core/src/scenario-executor/pending-projection.test.ts \
+  packages/core/src/scenario-executor/executor.test.ts \
+  packages/demo-runtime/src/acceptance/s3-assembly-golden.test.ts --reporter=dot
+# exit 0；6 files / 90 tests passed
+```
+
+两项临时反例均只用于验收，随后逐字还原：
+
+1. 去掉 file confirmation `peek()` 的两处 tombstone 遮蔽检查：墓碑崩溃窗口用例 **1 failed / 9 skipped，exit 1**，旧秘密载荷错误复现；还原后通过。
+2. 令 `awaitingConfirmation` 分支不可达：三态 golden **1 failed / 15 skipped，exit 1**，精确缺失“产出清单：等待确认”；还原后通过。
+
+最终恢复核验：
+
+```text
+git diff -- packages/core/src/session/confirmation-store-file.ts packages/core/src/assembly/segments.ts
+# exit 0，零差异
+pnpm exec vitest run --root . packages/core/src/session/confirmation-store.test.ts \
+  packages/core/src/assembly/segments.test.ts \
+  -t 'writes a payload-free tombstone|三态同框字节 golden' --reporter=dot
+# exit 0；2 passed / 24 skipped
+```
+
+fresh clone 首次在 build 前直接运行六文件 Vitest 曾因 workspace `dist` 尚不存在出现 4 个 package-entry resolve suite error（另 2 files / 14 tests passed）；这是验收命令前置顺序错误，不是产品断言红，随后先 `pnpm -r build` 并原样重跑得到上述 90/90。为避免把错误调用隐去，本报告显式登记。
+
+### 4. 停止点
+
+发现 B1/B2 后按 fail-closed 停止，没有继续运行 `pnpm lint`、root `pnpm test`、完整 desktop 静态门或 Playwright；因此不采信实现提交自述中的“148 files / 1261 tests、36 道门、floor 323”为验收数字。已知 `material-actions` 零单测与 hover 负载 flaky 均未用于本次裁决，也未代修。验收只追加本报告，未改 `SPEC.md`、源码、测试、`current.md`、归档或门常量；未合并、未 push、未部署。
