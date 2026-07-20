@@ -32,9 +32,9 @@
 ### 设计（零新概念——纯编译规则扩展 + 既有事实的确定性归并）
 
 - **`ProjectionInput.pending?: ProjectionPendingInput`（`assembly/segments.ts`）**：可选槽位，携 `failedModelSteps`（每步最新一条，携 stepId/artifactType/attempt/reason/retryable；散文 message 留账本不入投影）、`failedToolSteps`（每 toolId 最新一条）、`interruptedSteps`、`awaitingConfirmation?`。**缺省＝子节整体缺席，既有输出逐字节不变**（CHAT-MEMORY-1 可选参先例；`assemble.test` 既有字节 golden 未重铸即为证）。
-- **编译规则（`buildProjectionSegment` 内，紧跟 `pendingGateLabels` 行之后）**：按场景声明步序遍历 artifact 步——停门步标`等待确认`（已产出仍在场，它未完成）；已落格未停门步不列（上方投影行已呈现）；中断步标`曾失败待重试——上次执行中断未见终态（第 N 次尝试、需以新尝试身份重新发起）`（ADR-010 措辞，中断为更晚事实胜出同步失败）；失败步标`曾失败待重试——{reason}（第 N 次尝试[、不可自动重试]）`；其余标`从未开始`。工具失败以独立行殿后。全部行由输入确定性编译，任何模型散文/总结的偷换在字节 golden 上即红。
+- **编译规则（`buildProjectionSegment` 内，接在既有投影行之后）**：按场景声明步序遍历 artifact 步——`awaitingConfirmation` 非空时标`等待确认`（已产出仍在场，它未完成）；已落格且不在该集合内的步不列（上方投影行已呈现）；中断步标`曾失败待重试——上次执行中断未见终态（第 N 次尝试、需以新尝试身份重新发起）`（ADR-010 措辞，中断为更晚事实胜出同步失败）；失败步标`曾失败待重试——{reason}（第 N 次尝试[、不可自动重试]）`；其余标`从未开始`。工具失败以独立行殿后。全部行由输入确定性编译，任何模型散文/总结的偷换在字节 golden 上即红。旧 `pendingGateLabels` 投影行已由 DEBT-GATE-LABEL-1 退役，不再作为现行结构坐标。
 - **`derivePendingProjection(events)`（`scenario-executor/pending-projection.ts`，新文件）**：从既有 `step_failed` 事件归并槽位输入的纯函数。**真源边界（判例）**：interrupted 恒回空——仅凭会话事件把「无 artifact_produced 的 turn_linked」推定为中断，会在引语修复窗口（attempt-1 已完成、attempt-2 组装中）误判；其真源是 Turn journal 终态（`work-state-store.interruptedTurns()`），由持有终态的调用方经槽位供给。`awaitingConfirmation` 同理（生成时刻无停门）。
-- **接线（`scenario-executor/executor.ts` generateOnce，触发点复用既有组装位、不新增）**：`pending: derivePendingProjection(deps.eventLog.list())`——工具级失败即刻生产可见；模型级失败在账本携带其事件的续行/水合路径生效。**诚实登记**：`interruptedSteps`/`awaitingConfirmation` 走槽位数据、生产供给面当前为窄（与 `pendingGateLabels` 生产恒 `[]` 同先例）——中断会话按 ADR-010 须以新 start 身份重发故不复入同一组装位，停门时刻无模型调用；二者的编译规则与 golden 先行齐备，供跨窗注入/续行装配等后续消费面按既有触发点喂入，不造假生产宣称。
+- **接线（`scenario-executor/executor.ts` generateOnce，触发点复用既有组装位、不新增）**：`pending: derivePendingProjection(deps.eventLog.list())`——工具级失败即刻生产可见；模型级失败在账本携带其事件的续行/水合路径生效。**诚实登记**：`interruptedSteps`/`awaitingConfirmation` 走槽位数据，生产供给面当前为窄——中断会话按 ADR-010 须以新 start 身份重发故不复入同一组装位，停门时刻无模型调用；二者的编译规则与 golden 先行齐备，供跨窗注入/续行装配等后续消费面按既有触发点喂入，不造假生产宣称。`awaitingConfirmation` 的保留判据是**可达性**：`pauseAt` 返回后到 `resumeScenario` 消费 pending 前的停门窗口真实存在，持有该状态的调用方可供给槽位；真源不在 executor 只解释当前为何未接生产供给，不构成删除判据。
 - **明确不在本单**：模型提案类字段（工作假设/策略建议）唯一通道是 ask_user→RevisionEvent（另行拍板）；「用户中途改目标」需新事件类型（另行拍板）；ADR-013 决定四不动（Work 不复用 chat memory 蒸馏语义）；handoff 文件/链式引用/staleness 状态机（拒绝族）。
 
 ### TDD（先红后绿，红证三层实录）
@@ -555,18 +555,18 @@ gen[2] 生成时刻未消费 pending 数 = 0
 
 ### 退役项与判据
 
-四项共用同一判据：**零供给方 + 结构性不可达**。
+四类退役项**不共用一个概括性判据**；逐项只采用能够由源码与探针证明的最窄判据：
 
 | 项 | 退役形态 | 判据实证 |
 |---|---|---|
-| `ConfirmationStore.take()` | 接口成员 + 三处实现 + 一处 dev 脚本转发全删 | 生产调用点为零；既有三处调用均为接口一致性转发或对 `take` 自身的测试 |
-| `ScenarioExecutorDeps.onTurnEvent` | 声明与转发全删 | 全仓零供给方（含测试）；连带清失效的 `TurnEvent` 具名 import |
-| `ProjectionInput.pendingGateLabels` | 字段与「未决确认」投影行全删 | executor 是唯一供给方且恒传 `[]`；由上文互斥结论，结构上不可能非空 |
-| 死代码四项（2 导出 / 9 脚本 / 1 死配置 / `newLine`） | 直删 | 逐个按名全仓扫，外部引用数为零 |
+| `ConfirmationStore.take()`（D7） | 接口成员 + 三处实现 + 一处 dev 脚本转发全删 | **零生产消费方**；既有实现与 dev 转发只为接口一致性冗余，自身测试不构成生产消费 |
+| `ScenarioExecutorDeps.onTurnEvent`（D8） | 声明与转发全删 | **零供给方的预留缝**；当前没有调用方注入，未来出现真实消费者时可按契约重新引入；连带清失效的 `TurnEvent` 具名 import |
+| `ProjectionInput.pendingGateLabels`（D9） | 字段与「未决确认」投影行全删 | **结构性不可达**；executor 唯一供给恒为 `[]`，上文探针证明模型生成与未消费 pending 互斥 |
+| 死代码四项（D10：2 导出 / 9 脚本 / 1 死配置 / `newLine`） | 直删 | **死代码**；逐个按名全仓扫，生产消费与外部引用均为零 |
 
 **`pendingGateLabels` 的删除形态定性**：该字段经 `index.ts` 的 `export *` 属 core 公开 TS 出口，但**不是版本化 wire 契约**——不在任何 JSON Schema（ADR-009 决定三定义的 IPC/跨语言 wire）、不被任何事件/信封/store 持久化、零跨包消费方。故按内部类型直删，不走加法式弃用。
 
-**保留项（同族但判据不同）**：`ProjectionPendingInput.awaitingConfirmation` 槽位**保留**。它与 `pendingGateLabels` 同样当前无生产供给，但真源在**持有停门态的调用方**而非 executor 自身，不属「结构上不可能非空」，故不适用本单判据。**如实登记：该槽位当前生产供给面为空。**
+**删除后的现状**：`pendingGateLabels` 已退役，对应的「未决确认」投影行不复存在。`ProjectionPendingInput.awaitingConfirmation` 槽位**保留**，判据是**可达性**：`pauseAt` 返回后到 `resumeScenario` 消费 pending 前的停门窗口真实存在，持有停门态的调用方可以供给该槽位；其真源位置只解释当前生产供给面为何为空，不是删除成因。故它不适用 D9 的结构性不可达判据。**如实登记：该槽位当前生产供给面为空。**
 
 ### 逐字节等同的证明形态
 
