@@ -35,6 +35,17 @@ R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadm
 
 **时效用法**：有效=可作线索；监控=竞品大版本后复扫；过时=被更新调研或 ADR 吸收声明替代。消费：未消费→部分消费（若干条入 ADR 草稿）→已吸收（就绪图/ADR 留痕）。
 
+## research-2026-07-20-pi-first-source/（PI-FIRST-SOURCE，只读，不进权威链）
+
+`HARNESS-CORE-1` Stage A 立的一手源核实批。因 `pi-harness-comparison.md`（round-3）全文 17 行、未展开工具接口，而就绪图 Round 5 方向②以「四项基础工具采 pi 成熟范式」立论，故回一手源 `~/Projects/pi`（v0.75.4，MIT）核实。
+
+| 文件 | 主题 | 时效三态 | 消费状态 |
+|---|---|---|---|
+| `pi-tools-first-source.md` | read/edit/write/bash 精确接口、bash 权限模型、toolResult 形态与回灌、agent loop 控制结构 | **有效**（2026-07-20 一手） | 已消费（ADR-017 决定零/八、ADR-018、TOOL-READ-1 票面） |
+| `README.md` | 批次入口、核实边界 | 有效 | 已消费（随批） |
+
+**关键结论**：pi 的 bash 范式**就是不做权限模型**（无白名单/黑名单/确认/授权持久化），安全性整体外包给容器；沙箱只是示例扩展非运行时依赖。故「采 pi 范式」与就绪图「沙盒后期」互相排斥。read/edit 的接口与截断纪律可借形，write 的无确认覆盖写与 ADR-004 冲突不采纳。**核实边界**：本机快照无 `.git`，提交日期与 issue/PR 响应时延无法从本地判定。
+
 ## research-2026-07-15-round-3/（现行最新批，无被推翻项）
 
 **已升格为工单/ADR**：`interaction-visual-regression`→UI-RESIDUE-1；`oss-gui-source-patterns`→UI-RESIDUE/CHAT-SESSION 等工单供料；`geist-design-md`→VOICE-SPEC-1/DESIGN-MD-1；`vault-site-craft`→SITE-CRAFT-1（三修终局）；`grok-build-patterns`→OUTPUT-CONFIRM-UI-1/CHAT-MEMORY-1；`pi-harness-comparison`→WORK-TURN-1（含真机 G/H 根因）；`session-handoff-survey`→PROJECTION-RESUME-1；`chinese-display-font`→SITE-CRAFT-2（已拍板：朱雀仿宋，SIL OFL）。

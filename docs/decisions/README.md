@@ -18,6 +18,13 @@
 | [ADR-012](ADR-012-vertical-package-kit-and-visual-blueprints.md) | 垂类包体例、企业编排与可视化 Blueprint | Accepted |
 | [ADR-013](ADR-013-chat-session-and-memory.md) | Chat 会话生命周期与自动记忆 | Accepted |
 | [ADR-014](ADR-014-preview-tabs-and-package-tiers.md) | Preview 分页宿主与三层包体系 | Accepted |
+| ADR-015 | （预留：包的装载与生命周期，需求到来才立） | — |
+| [ADR-016](ADR-016-uniform-slot-filling-protocol.md) | 统一填格协议 | **Proposed** |
+| [ADR-017](ADR-017-controlled-command-execution.md) | 受控命令执行（bash 入界） | **Proposed** |
+| [ADR-018](ADR-018-execution-isolation-and-sandbox.md) | 执行隔离与沙箱边界 | **Proposed** |
+| [ADR-019](ADR-019-dossier-container-and-local-cache.md) | 卷宗容器与本地缓存分区 | **Proposed** |
+
+`Proposed` 四份由 `HARNESS-CORE-1` Stage A 提出，裁决材料见 [`docs/status/harness-core-1-stage-a.md`](../status/harness-core-1-stage-a.md)。未转 `Accepted` 前不具约束力，实现不得先于其拍板。
 
 ## 变更规则
 
