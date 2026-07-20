@@ -300,15 +300,12 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .workspace.welcome-mode { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr); }
 .workspace.welcome-mode.left-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr); }
 .workspace.right-collapsed { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr); }
-/* LAYOUT-CONVERGE-1 R4：左收即撤卡——首列不再为 48px 幽灵轨道（CaseRail 已卸载，
-   自动排布否则把正文列挤进那条 48px），与撤卡策略对齐为「正文 + 窄右栏」两列。 */
-.workspace.rails-compact { grid-template-columns: minmax(0, 1fr) minmax(280px, 320px); }
 .workspace.left-collapsed.right-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr); gap: 0; padding-inline: 0; }
 /* PILOT-LIVE-1 D：右栏默认窄态——Preview 未开时右栏只需容纳摘要模块，不常驻与主内容同级
-   宽度（旧缺陷：DEFAULT_MODULE_OPEN.progress=true 致 rails-compact 事实上恒不触发，右栏
+   宽度（旧缺陷：DEFAULT_MODULE_OPEN.progress=true 致旧窄轨类事实上恒不触发，右栏
    恒宽 560~1.25fr）。previewOpen 开原件/结构化视图时 App 层不加此类，回退复用上方既有宽轨。
-   .right-narrow.left-collapsed 三类复合选择器特异度高于 .rails-compact / .left-collapsed
-   （二者皆两类），左收+全折+右栏窄三态并存时窄轨组合规则正确胜出，见 SPEC §5 自查。 */
+   FILE-PREVIEW-1 顺带条款：旧的那条窄轨规则已退役（恒不触发的幽灵形态，退役名不复述），
+   窄轨语义自此由本组 `.right-narrow` 独家承担；特异度比较对象随之只剩 `.left-collapsed`。 */
 .workspace.right-narrow { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr) minmax(280px, 320px); }
 .workspace.right-narrow.left-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr) minmax(280px, 320px); }
 /* LAYOUT-CONVERGE-1 P1-3（架构裁定：跨模式阅读宽度一致）：work 单列态（双侧收拢）正文列

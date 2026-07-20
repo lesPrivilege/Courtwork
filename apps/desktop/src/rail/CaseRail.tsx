@@ -37,6 +37,7 @@ interface CaseRailProps {
   materials: StoredMaterial[];
   /** 核验一件材料（provider 前重验：漂移/删除/需 OCR/跨 case 显式呈现）。 */
   onVerifyMaterial: (materialId: string) => void;
+  onReadMaterial: (materialId: string) => void;
   archiveConfirmCaseId: string | null;
   /** CASE-PERSIST-1：跨重启后宿主查无授权的 grantId 集——持之案渲染显式失效态供移除，非静默消失。 */
   invalidGrantIds: ReadonlySet<string>;
@@ -77,6 +78,7 @@ export function CaseRail({
   caseRoot,
   materials,
   onVerifyMaterial,
+  onReadMaterial,
   archiveConfirmCaseId,
   containerizeUnfiledId,
   viewSegment,
@@ -293,7 +295,7 @@ export function CaseRail({
             {caseRoot && demo && <OriginalsZone caseRoot={caseRoot} onFeedback={onFeedback} />}
             {/* MATERIAL-INGRESS-1：真实案的已入库材料（只读 + 核验）；仅选中案有已加载清单。 */}
             {!demo && item.id === selectedCaseId && materials.length > 0 && (
-              <MaterialsZone materials={materials} onVerify={onVerifyMaterial} />
+              <MaterialsZone materials={materials} onVerify={onVerifyMaterial} onRead={onReadMaterial} />
             )}
             {!demo && !(item.id === selectedCaseId && materials.length > 0) && (
               <p className="wf-empty rail-pad">尚无卷宗原件</p>

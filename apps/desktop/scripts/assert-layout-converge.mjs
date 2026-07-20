@@ -43,11 +43,15 @@ for (const forbidden of ['expand-left-rail', 'case-rail.is-collapsed', 'collapse
 need(!/\bonExpandLeft\b/.test(rail), 'R1：CaseRail 须退役 onExpandLeft（收拢窄条死支的唯一消费者）');
 need(!/if \(leftCollapsed\)/.test(rail), 'R1：CaseRail 须删除 is-collapsed 窄条分支（leftCollapsed 守卫）');
 
-// —— ②/R4：rails-compact 幽灵列——左栏已撤卡时不得再申请 48px 首列 ——
-const railsCompact = css.match(/\.workspace\.rails-compact\s*\{([^}]*)\}/);
-need(railsCompact !== null, 'R4：.workspace.rails-compact 规则须存在');
-need(railsCompact !== null && !/grid-template-columns:\s*48px/.test(railsCompact[1]),
-  'R4：rails-compact 不得以 48px 首列打头（撤卡后该列无宿主，实测挤压正文列）');
+// —— ②/R4：旧窄轨类已整套退役（FILE-PREVIEW-1 顺带条款，四步执行完毕）——
+// 存在锁转**零出现反向锁**：LAYOUT-CONVERGE-1 已实测坐实它恒不触发，留着就是一条幽灵
+// 规则——读者以为存在一种窄轨形态，实际永远走不到。窄轨语义由 `.right-narrow` 独家承担。
+// 三面同锁（CSS 规则 / 类名拼装 / App 派生），防的是「删了 CSS 却留着派生」这类半退役。
+// 退役名只在本门内以正则出现一次，属立门必需；产品源码与注释一律不复述（判例：
+// 描述禁形不得复现禁形本身）。
+const RETIRED_COMPACT = /rails-compact|compactLayout/;
+need(!RETIRED_COMPACT.test(css), 'R4：旧窄轨类已退役，styles.css 内不得再出现（含注释复述）');
+need(!RETIRED_COMPACT.test(app), 'R4：旧窄轨类与其派生已退役，App.tsx 内不得再出现（含类名拼装与注释复述）');
 
 // —— SKIN-R2 P2-L17/L18：比较态沿同一撤卡语义，不能另留 48px 无宿主轨 ——
 need(/const effectiveLeftCollapsed = leftCollapsed \|\| narrowRailRequired \|\| comparing;/.test(app),

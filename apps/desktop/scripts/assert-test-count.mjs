@@ -55,7 +55,9 @@ const count = match ? Number(match[1]) : 0;
 // VERSIONAL-LANG-1：Agent/Schema 线减法、题轨与 Settings 强边界四条 +4 → 321。
 // SKIN-R2 P2-L21：Focus Preview 首行避让 detached chrome 动态安全区 +1 → 322。
 // VERSIONAL-LANG-3 复验修复：visual-gallery 独立入口自然解析深宗 +1 → 323。
-const minimum = 323;
+// FILE-PREVIEW-1：非 demo 案原件阅读三例（可读真渲 / 需文字识别显式不渲染 / 漂移 fail-closed）
+// 323 → 326。rails-compact 四步退役未增减用例（属性改名，断言意图不变）。
+const minimum = 326;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

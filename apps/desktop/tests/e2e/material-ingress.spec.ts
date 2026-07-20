@@ -146,3 +146,61 @@ test('核验＝provider 前重验：原件漂移与删除显式阻断', async ({
   await ready.getByTestId('material-verify').click();
   await expect(feedback).toContainText('找不到原件');
 });
+
+/**
+ * FILE-PREVIEW-1：非 demo 案原件阅读。
+ *
+ * READER-ISOLATION-1 曾把非 demo 案的右栏「原件阅读」整块诚实缺席——用户入卷 20 份材料
+ * 一份也打不开。本组证明该缺口已闭，且三态诚实：可读渲染 / 需文字识别显式不渲染 /
+ * 漂移与失效 fail-closed，全部复用既有阻断闭集与产品语言，零新错误形态。
+ */
+test('FILE-PREVIEW-1：真实案原件在应用内可读，内容来自入库时派生的阅读视图', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await createGrantCase(page);
+  await setFile(page, '设备采购合同.md', '# 设备采购合同\n\n第一条 付款：买方验收后 30 日内付清。');
+  await addFolderIngest(page);
+
+  // 阅读入口在真实案材料区（demo 案走 OriginalsZone，两条入口不共用）
+  const item = page.getByTestId('material-item').filter({ hasText: '设备采购合同.md' });
+  await item.getByTestId('material-read').click();
+
+  const reader = page.getByTestId('reader-pane');
+  await expect(reader).toBeVisible();
+  // 断言依赖「应用真把阅读视图渲染出来」——不是只看面板开了（真渲判例）
+  await expect(reader).toContainText('第一条 付款：买方验收后 30 日内付清。');
+  // 节标走鱼尾记号（与 demo 阅读面同一渲染器，本单未分叉）
+  await expect(reader.getByTestId('mark-fishtail').first()).toBeVisible();
+  // 原件只读：阅读面零编辑入口
+  await expect(reader.locator('[contenteditable="true"]')).toHaveCount(0);
+  await expect(reader.getByRole('button', { name: /保存|编辑/ })).toHaveCount(0);
+});
+
+test('FILE-PREVIEW-1：需文字识别的原件显式不渲染，不开空白阅读面', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await createGrantCase(page);
+  await setFile(page, '公章页.png', 'PNG-BYTES-NO-TEXT-LAYER');
+  await addFolderIngest(page);
+
+  await page.getByTestId('material-item').filter({ hasText: '公章页.png' }).getByTestId('material-read').click();
+
+  // 显式陈述 + 绝不开空白面：空白页会被读成「这份文件没内容」，那是另一种假事实
+  await expect(page.getByTestId('system-open-feedback')).toContainText('需要文字识别');
+  await expect(page.getByTestId('reader-pane')).toHaveCount(0);
+});
+
+test('FILE-PREVIEW-1：原件漂移后阅读 fail-closed，复用既有阻断文案', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await createGrantCase(page);
+  await setFile(page, '设备采购合同.md', '# 设备采购合同\n\n第一条 付款：买方验收后 30 日内付清。');
+  await addFolderIngest(page);
+
+  // 入库后原件字节被改（用户在访达里编辑了原件）→ 读取须阻断，不得渲染旧视图
+  await setFile(page, '设备采购合同.md', '# 设备采购合同\n\n第一条 付款：买方验收后 7 日内付清。');
+  await page.getByTestId('material-item').filter({ hasText: '设备采购合同.md' }).getByTestId('material-read').click();
+
+  await expect(page.getByTestId('system-open-feedback')).toContainText('已改动');
+  await expect(page.getByTestId('reader-pane')).toHaveCount(0);
+});

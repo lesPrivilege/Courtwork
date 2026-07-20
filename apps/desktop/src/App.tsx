@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState, type RefObject } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { SchemaParts } from './icons/schema-parts';
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import { ProviderSetup } from './credentials/ProviderSetup';
@@ -47,7 +47,9 @@ import {
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import type { MaterialStore } from './material/material-store';
 import { sha256Hex } from './material/sha256';
-import { MATERIAL_BLOCK_REASON_COPY, type StoredMaterial } from './material/material-ref';
+import { readMaterialAction, verifyMaterialAction } from './material/material-actions';
+import { ReaderPane } from './system/ReaderPane';
+import type { StoredMaterial } from './material/material-ref';
 import { CHROME_COPY } from './chrome/copy';
 import { WindowChrome } from './chrome/WindowChrome';
 import { InteractionTurnCard, ToolCallRow, TurnCard, interactionViewFromReplay } from './chat/TurnCard';
@@ -197,26 +199,6 @@ function readableError(error: unknown, fallback: string): string {
   return error instanceof Error && error.message.trim().length > 0 ? error.message : fallback;
 }
 
-function renderReaderInline(text: string, focusQuote?: string, focusRef?: RefObject<HTMLElement | null>) {
-  return text.split(/\*\*([^*]+)\*\*/g).map((part, index) => {
-    const quoteAt = focusQuote ? part.indexOf(focusQuote) : -1;
-    const content = quoteAt >= 0 && focusQuote ? (
-      <>
-        {part.slice(0, quoteAt)}
-        <mark
-          ref={focusRef}
-          tabIndex={-1}
-          className="reader-focus-anchor"
-          data-testid="reader-focus-anchor"
-        >
-          {focusQuote}
-        </mark>
-        {part.slice(quoteAt + focusQuote.length)}
-      </>
-    ) : part;
-    return index % 2 === 1 ? <strong key={index}>{content}</strong> : <span key={index}>{content}</span>;
-  });
-}
 
 function ChatAssistantMessage({ message, index, latest, onStop, onRetry, testIdPrefix = 'chat' }: {
   message: Extract<ChatMessage, { role: 'assistant' }>;
@@ -1777,15 +1759,23 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   // MATERIAL-INGRESS-1：核验即 provider 前重验（再读原件、比对 content/ReadingView 哈希、status/跨 case 门）。
   // 漂移、删除、需 OCR、跨 case 全部显式呈现闭集原因；通过则报可用于生成。
+  // 卷宗原件区两动作（核验/阅读）：编排住 `material/material-actions.ts`（「过手即拆」），
+  // 此处只喂 caseId 与副作用出口。demo 案不经此路径——CaseRail 按 demo 分流到 OriginalsZone。
+  const materialSink = {
+    feedback: showSystemFeedback,
+    openReader: (doc: { name: string; markdown: string }) => {
+      previewDismissedContext.current = null;
+      manualPreviewSelected.current = true;
+      setReaderDoc(doc);
+      setPreviewOpen(true);
+      setRightCollapsed(false);
+    },
+  };
   const verifyMaterial = (materialId: string) => {
-    if (!selectedCaseId) return;
-    void materialStore.resolveForProvider(selectedCaseId, materialId).then((resolved) => {
-      if (resolved.status === 'ready') {
-        showSystemFeedback(`原件校验通过：${resolved.material.fileName} 可用于生成`, true);
-      } else {
-        showSystemFeedback(MATERIAL_BLOCK_REASON_COPY[resolved.reason], false);
-      }
-    });
+    if (selectedCaseId) void verifyMaterialAction(materialStore, selectedCaseId, materialId, materialSink);
+  };
+  const readMaterial = (materialId: string) => {
+    if (selectedCaseId) void readMaterialAction(materialStore, selectedCaseId, materialId, materialSink);
   };
 
   const confirmDraftCompile = () => {
@@ -2103,14 +2093,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // 不能只藏 case-expanded 后留下 48px 无宿主轨。resetComparison 后 comparing=false，
   // 用户原有的 leftCollapsed 选择仍原样恢复，未另写持久状态。
   const effectiveLeftCollapsed = leftCollapsed || narrowRailRequired || comparing;
-  // PILOT-LIVE-1 D：previewOpen 开原件/结构化视图时不得继续用 rails-compact 窄轨压 Preview
-  // （左收 + 全折 + Preview 开的组合此前会把 Preview 面板压进 280~320px 窄轨——错态）。
-  const compactLayout = effectiveLeftCollapsed && !previewOpen && !moduleOpen.progress && !moduleOpen['working-folders'] && !moduleOpen.context
-    && !moduleOpen.timeline && !moduleOpen.graph && !moduleOpen.matrix && !moduleOpen.revision && !moduleOpen.draft;
   // PILOT-LIVE-1 D：右栏默认窄态——Preview 未开时右栏只需容纳 Progress/Working folders/Context
-  // 摘要，不应常驻与主内容同级宽度（旧缺陷：DEFAULT_MODULE_OPEN.progress=true 致 compactLayout
-  // 事实上恒不触发，右栏恒宽）。排除 welcome/comparing/focus-mode/right-collapsed——那些态右栏
-  // 或不存在、或另有专属网格，不应叠加窄态类。
+  // 摘要，不应常驻与主内容同级宽度。旧窄轨派生已整套退役（FILE-PREVIEW-1 顺带条款；
+  // 退役名不复述，`assert-layout-converge` 锁其零出现），窄轨语义自此由本派生独家承担。
+  // 排除 welcome/comparing/focus-mode/right-collapsed——那些态右栏或不存在、或另有
+  // 专属网格，不应叠加窄态类。
   const rightNarrow = viewSegment === 'work' && !isWelcome && !rightCollapsed && !focusMode && !comparing && !previewOpen;
 
   const utilityItems = [
@@ -2205,7 +2192,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const workStopped = workTraceView.state === 'failed';
 
   return (
-    <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'} data-compact={compactLayout ? 'true' : 'false'}>
+    <main className="app-shell" data-testid="workbench" data-credential-probed={credentialProbed ? 'true' : 'false'} data-right-narrow={rightNarrow ? 'true' : 'false'}>
       {/* 记号件库单次挂载：<use href="#mark-*"> 的 symbol 来源。零视觉、零布局（display:none）。 */}
       <SchemaParts />
       {(focusMode || effectiveLeftCollapsed) && <WindowChrome
@@ -2215,7 +2202,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         onSearch={() => setPaletteOpen(true)}
       />}
       <div
-        className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${compactLayout ? 'rails-compact' : ''} ${rightNarrow ? 'right-narrow' : ''}`}
+        className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${rightNarrow ? 'right-narrow' : ''}`}
         data-view-segment={viewSegment}
         data-testid="workspace"
         data-comparing={comparing ? 'true' : 'false'}
@@ -2223,7 +2210,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         data-left-collapsed={effectiveLeftCollapsed ? 'true' : 'false'}
         data-auto-left-collapsed={narrowRailRequired ? 'true' : 'false'}
         data-right-collapsed={rightCollapsed ? 'true' : 'false'}
-        data-compact={compactLayout ? 'true' : 'false'}
         data-right-narrow={rightNarrow ? 'true' : 'false'}
       >
         {/* chatbot 形态：收敛即撤卡（不留窄条），展开钮驻 chrome 同位——与红绿灯零冲突 */}
@@ -2240,6 +2226,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             caseRoot={demoCaseRoot}
             materials={caseMaterials}
             onVerifyMaterial={verifyMaterial}
+            onReadMaterial={readMaterial}
             archiveConfirmCaseId={archiveConfirmCaseId}
             invalidGrantIds={invalidGrantIds}
             onRemoveCase={removeCase}
@@ -2678,24 +2665,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           >
               <div className="view-content">
                 {readerDoc ? (
-                  <div className="reader-pane" data-testid="reader-pane">
-                    {readerDoc.markdown.split('\n').map((line, index) => {
-                      const trimmed = line.trim();
-                      if (!trimmed) return null;
-                      {/* 鱼尾＝节标（SKIN-B4）：原件正文段落众多而节标稀少，记号是节起首的位置线索。
-                          色不写死，由 .reader-pane h3 的 color 给——记号不择纸温。 */}
-                      if (trimmed.startsWith('#')) return <h3 key={index}>
-                        <svg className="mark mark-fishtail" data-testid="mark-fishtail" aria-hidden="true"><use href="#mark-fishtail" /></svg>
-                        {trimmed.replace(/^#+\s*/, '')}
-                      </h3>;
-                      // 语料 md 行内语法仅 **强调** 一种；focus mark 住在同一 renderer 内，星号不会漏出。
-                      return (
-                        <p key={index} data-focus-source={readerDoc.focusAnchor?.quote && trimmed.includes(readerDoc.focusAnchor.quote) ? 'true' : undefined}>
-                          {renderReaderInline(trimmed, readerDoc.focusAnchor?.quote, readerFocusRef)}
-                        </p>
-                      );
-                    })}
-                  </div>
+                  <ReaderPane doc={readerDoc} focusRef={readerFocusRef} />
                 ) : secondaryView ? (
                   <SplitView
                     direction={splitDirection}

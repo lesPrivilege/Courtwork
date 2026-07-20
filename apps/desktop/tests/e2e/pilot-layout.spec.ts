@@ -10,7 +10,7 @@ import { createNamedCase, openModuleList, openWorkbench } from './helpers';
  *    随列宽 flex-stretch 铺满，未收敛到统一测宽基准，chat-titlebar/chat-case-head 的居中规则
  *    也只认 left-collapsed，与新收敛的正文列错位。
  * 2) 右栏默认恒宽（schema-min 560~1.25fr）——DEFAULT_MODULE_OPEN.progress=true 致
- *    compactLayout（rails-compact 窄轨）事实上恒不触发；即使触发也仅限左收+全折组合，
+ *    旧窄轨派生事实上恒不触发（已随 FILE-PREVIEW-1 退役）；即使触发也仅限左收+全折组合，
  *    不覆盖「都开/仅左收/仅右收」下 Preview 未展开的常态。
  *
  * mainArea 语义：work 段用 conversation-canvas 的 boundingBox（任意收拢组合下都是主区真值，
@@ -141,22 +141,22 @@ test.describe('PILOT-LIVE-1 D · 右栏默认窄态', () => {
     expect(renarrowedBox.width).toBeLessThanOrEqual(340);
   });
 
-  test('compactLayout 不得与 previewOpen 同时生效（左收+全折+Preview 开时不得压窄轨）', async ({ page }) => {
+  test('窄轨不得与 previewOpen 同时生效（左收+全折+Preview 开时不得压窄轨）', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await freshNonDemoCase(page, 'PILOT-D compact 与 preview 互斥');
+    await freshNonDemoCase(page, 'PILOT-D 窄轨与 preview 互斥');
 
     await page.getByTestId('collapse-left-rail').click();
     await page.getByTestId('module-progress-toggle').click(); // 默认仅 progress 开，折掉即全折
 
-    await expect(page.getByTestId('workspace')).toHaveAttribute('data-compact', 'true');
+    await expect(page.getByTestId('workspace')).toHaveAttribute('data-right-narrow', 'true');
 
-    // Preview 手风琴默认展开（outlineOpen 初值 true）；compactLayout 只管其余 8 个 moduleOpen，
-    // 不影响 Preview 自身可点，直接进入浏览器态。
+    // Preview 手风琴默认展开（outlineOpen 初值 true）；窄轨派生不影响 Preview 自身可点，
+    // 直接进入浏览器态。
     await page.getByTestId('outline-timeline').click();
     await expect(page.getByTestId('preview-host')).toBeVisible();
 
-    // previewOpen=true 时 compactLayout 必须让位（不得继续用 rails-compact 窄轨压 Preview）。
-    await expect(page.getByTestId('workspace')).toHaveAttribute('data-compact', 'false');
+    // previewOpen=true 时窄轨必须让位（不得用窄轨压 Preview）。
+    await expect(page.getByTestId('workspace')).toHaveAttribute('data-right-narrow', 'false');
     const rail = page.getByTestId('right-module-stack');
     const box = (await rail.boundingBox())!;
     expect(box.width).toBeGreaterThan(480);
