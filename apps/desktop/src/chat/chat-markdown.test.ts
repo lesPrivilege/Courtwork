@@ -184,8 +184,8 @@ describe('--- hr（CHAT-MD-TABLE-1 ②）逐条不回退', () => {
 
 /**
  * 兼容层锁定：remark 的标准语义在下列两处与退役解析器不同。本票范围是「换实现 + 扩五项」，
- * 不含改既有语义，故显式保留旧行为；「是否改采 remark 标准」另立提案交拍板（见 SPEC 提案区）。
- * 这两条测试同时是提案的红证——一旦架构裁定改采标准语义，此处即为唯一需改的断言。
+ * 不含改既有语义，故显式保留旧行为；架构已裁维持旧行为，兼容层转为常设。
+ * 这两条测试是常设兼容行为的红证；未来若有新裁决改变语义，再同步修改断言。
  */
 describe('legacy 语义兼容层（票面外行为零变更）', () => {
   it('紧跟段落的 --- 仍读作 hr，不升格为 Setext 标题', () => {
@@ -319,7 +319,7 @@ describe('松散列表段界与有序起始序号（验收 D2 / D3）', () => {
     expect(host.querySelector('ol')?.getAttribute('start')).toBe('3');
   });
 
-  it('起始为 1 时不写冗余 start', () => {
+  it('起始为 1 时显式保留 start="1"', () => {
     const host = render('1. 甲\n2. 乙');
     expect(host.querySelector('ol')?.getAttribute('start')).toBe('1');
   });
@@ -337,7 +337,7 @@ describe('明确除外与安全边界', () => {
     expect(visibleText(host)).toContain('$E=mc^2$');
   });
 
-  it('原始 HTML 按纯文本渲染，不落真实元素（SPEC.md:70 安全边界不变）', () => {
+  it('原始 HTML 按纯文本渲染，不落真实元素（SPEC「渲染边界」安全语义不变）', () => {
     const host = render('<b>粗</b> 与 <script>alert(1)</script>');
     expect(host.querySelectorAll('b')).toHaveLength(0);
     expect(host.querySelectorAll('script')).toHaveLength(0);
