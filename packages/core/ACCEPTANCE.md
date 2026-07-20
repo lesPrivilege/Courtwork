@@ -1168,3 +1168,13 @@ fresh clone 首次在 build 前直接运行六文件 Vitest 曾因 workspace `di
 ### 4. 停止点
 
 发现 B1/B2 后按 fail-closed 停止，没有继续运行 `pnpm lint`、root `pnpm test`、完整 desktop 静态门或 Playwright；因此不采信实现提交自述中的“148 files / 1261 tests、36 道门、floor 323”为验收数字。已知 `material-actions` 零单测与 hover 负载 flaky 均未用于本次裁决，也未代修。验收只追加本报告，未改 `SPEC.md`、源码、测试、`current.md`、归档或门常量；未合并、未 push、未部署。
+
+## RELEASE-VERIFY-1 · DEBT 双票同主体回炉复核（2026-07-20）
+
+- **对象**：修复提交 `b033410`（首轮受验 tip `5f8fa7b`，原驳回报告原样保留在上节）。
+- **独立性披露**：修复与复核同主体，凭据为突变红证；本轮授权只订正首轮 B1/B2 文档失真，零生产代码、测试、schema、wire 或门常量变化。
+- **B1 已关闭**：D7/D8/D9/D10 按项分立为零生产消费方、零供给方预留缝、生成/停门结构性不可达、死代码四种最窄判据；不再用同一总括替代逐项证明。
+- **B2 已关闭**：PROJECTION-RESUME 现行节不再以已删字段作坐标；明确 `pendingGateLabels` 及「未决确认」行已退役，`awaitingConfirmation` 因 pause 窗口真实可达而保留，真源位置只解释当前供给为空。
+- **机器红证**：临时恢复旧句「四项共用同一判据」后，精确文案门报 `stale`、落盘退出码 **1**；还原后同门退出码 **0**。恢复态六文件定向门 **6 files / 90 tests passed**，含两份 golden、墓碑与 awaiting 三态既有断言。
+
+**裁决：✅ 放行 DEBT-CLEAR-1 + DEBT-GATE-LABEL-1 回炉尖端。** 放行仅解除首轮两项文档阻断；合并态全链、floor 与发布仍由 RELEASE-VERIFY-1 后续阶段实跑决定。
