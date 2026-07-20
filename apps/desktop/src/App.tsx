@@ -72,9 +72,7 @@ import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRe
 import { ArtifactHostView, resolveHostArtifact } from './preview/ArtifactHostView';
 import type { HostRendererRegistry } from './preview/HostRendererRegistry';
 import {
-  loadModelConfig,
   modelDisplayName,
-  saveModelConfig,
   type ModelConfig,
 } from './provider/model-config';
 import { providerConnectionClient } from './provider/connection-client';
@@ -84,6 +82,7 @@ import { SettingsPage, type SettingsSection } from './settings';
 import { hostAuthReasonCopy, type HostAuthPort } from './host/host-auth-port';
 import { LEGACY_CASE_SCENARIO_COPY, isWorkSafeCaseId, mintCaseId } from './case/case-id';
 import { workContextSegmentFor } from './work/work-context';
+import { useModelConfig } from './provider/use-model-config';
 import { workFailureDisplayCopy } from './work/work-failure-copy';
 import { readStreamEvidence } from '@courtwork/provider/evidence';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
@@ -370,8 +369,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [archiveConfirmCaseId, setArchiveConfirmCaseId] = useState<string | null>(null);
   const [focusMode, setFocusMode] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
-  const [modelConfig, setModelConfig] = useState<ModelConfig>(() => loadModelConfig());
-  const [modelConfigOpen, setModelConfigOpen] = useState(false);
+  const {
+    config: modelConfig, update: updateModelConfig,
+    open: modelConfigOpen, setOpen: setModelConfigOpen,
+  } = useModelConfig({
+    onConnectionInvalidated: () => setCredentialStatus((current) => ({ ...current, connection: { phase: 'unverified' } })),
+    notify: (message) => showSystemFeedback(message, false, 'info'),
+  });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsAutoCredential, setSettingsAutoCredential] = useState(false);
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('model');
@@ -1495,17 +1499,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   };
 
   const exitCompactLeft = () => setLeftCollapsed(false);
-
-  const updateModelConfig = (next: ModelConfig) => {
-    const connectionChanged = next.providerId !== modelConfig.providerId
-      || next.modelId !== modelConfig.modelId
-      || next.reasoning !== modelConfig.reasoning;
-    setModelConfig(next);
-    saveModelConfig(next);
-    if (connectionChanged) {
-      setCredentialStatus((current) => ({ ...current, connection: { phase: 'unverified' } }));
-    }
-  };
 
   const commitCaseTitle = () => {
     if (!selectedCaseId) {

@@ -27,7 +27,14 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 
 // 高水位＝立门当日实测行数。**此常量只许下调**：任何上调都是在把裁定改掉，
 // 须经架构拍板并在此处留痕（同 floor 只升不降的先例，方向相反）。
-const HIGH_WATER_LINES = 2746;
+// FILE-PREVIEW-1 验收收口（2026-07-20）：2747 → 2746；删除零消费的
+// `data-right-narrow` 死属性，净减亦同步收紧棘轮。
+// MODEL-CONFIG-EXPLICIT-1（2026-07-20）：2747 → 2740。外提物＝模型配置状态面
+// （`modelConfig`/`modelConfigOpen` 两个 state + `updateModelConfig` 本体 + 本票新增的
+// 降级一次性提示）去向 `src/provider/use-model-config.ts`；App.tsx 侧只余一次 hook 调用。
+// RELEASE-VERIFY-1 合并态（2026-07-20）：两侧正交净减叠加后以 `wc -l` 实测为 2739，
+// 不取任一侧旧常量；两侧沿革均保留在上方。
+const HIGH_WATER_LINES = 2739;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。
