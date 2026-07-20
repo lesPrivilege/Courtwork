@@ -20,13 +20,13 @@
 | [ADR-014](ADR-014-preview-tabs-and-package-tiers.md) | Preview 分页宿主与三层包体系 | Accepted |
 | ADR-015 | （预留：包的装载与生命周期，需求到来才立） | — |
 | [ADR-016](ADR-016-uniform-slot-filling-protocol.md) | 统一填格协议 | Accepted |
-| [ADR-017](ADR-017-controlled-command-execution.md) | 受控命令执行（bash 入界） | Accepted（**决定一至八封存**） |
+| [ADR-017](ADR-017-controlled-command-execution.md) | 受控命令执行（bash 入界） | Accepted（**决定一至七封存**） |
 | [ADR-018](ADR-018-execution-isolation-and-sandbox.md) | 执行隔离与沙箱边界 | Accepted |
 | [ADR-019](ADR-019-dossier-container-and-local-cache.md) | 卷宗容器与本地缓存分区 | Accepted |
 
 四份由 `HARNESS-CORE-1` Stage A 提出，2026-07-20 逐项裁决（材料见 [`docs/status/harness-core-1-stage-a.md`](../status/harness-core-1-stage-a.md)）。
 
-**`ADR-017` 的特殊状态**：其决定零成立——**bash 当期不入界**；决定一至八为「若入界」的既定形态，随 ADR 一并 `Accepted` 但**封存不生效**。重启须携新证据提修订，不得重新辩论已封存形态。唯决定八（reading/edits/writing 走既有工具契约）不在封存范围。`ADR-011` 的两处修订记录随之落在该 ADR 末节。
+**`ADR-017` 的特殊状态**：其决定零成立——**bash 当期不入界**；决定**一至七**为「若入界」的既定受控形态，随 ADR 一并 `Accepted` 但**封存不生效**，重启须携新的必要性证据提修订、不得从零辩论已封存形态。**决定八生效**（reading/edits/writing 走既有工具契约，其中 edits/writing 属 effect 面另票）。`ADR-011` 的两处修订记录落在该 ADR 末节。
 
 ## 变更规则
 
