@@ -1,3 +1,32 @@
+# MD-CONVERGE-1+ 独立验收（2026-07-20，首轮驳回）
+
+- **裁决：驳回，不放行 `impl/md-converge-1 @ 32d2688`。** 实现基线 `bd9a550`；验收在独立 clone `/tmp/courtwork-md-accept.piYVXm`、分支 `accept/md-converge-1-32d2688` 完成，未在共享主仓 checkout/stash，突变探针均已逐项还原且未留下产品实现改动。固定项「自述与实现逐条对照」发现现行 SPEC 与测试自述仍和实现/实测冲突；按 RELEASE-VERIFY-1 fail-closed，本票不得合并，视觉实测、完整 E2E 与部署链未继续。
+- **架构已裁补记：** legacy 语义兼容层维持旧行为并转为常设；`32d2688` 的 SPEC 提案区仍写「开放/临时件」属于提交时点如实状态，本验收按既定裁决执行，不重裁语义。兼容层本身读码与突变成立：现值 **44/44 passed**；旁路 `unwrapSetext` 与 `truncateRaggedTable` 后精确 **2 failed / 42 passed**，只有「Setext 仍拆段落+hr」和「不齐表格止步、残行回段落」两例翻红；还原后 **44/44 passed**。
+
+## 阻断项与复现坐标
+
+1. **[阻断] `CHAT-MD-TABLE-1` 的现行缺口表仍在陈述退役实现，D3“已知边界③删除”未真正收口。** `apps/desktop/SPEC.md` 的 MD-CONVERGE 节已写 `<ol start>` 落地、边界③删除，旧边界清单第 3 项也有删除线记账；但同文件「现渲染缺口清点」仍以现在时声称「现渲染器仍是零依赖单层解析器」，逐项声称嵌套、引用、链接、斜体、删除线、任务清单不支持，并在 C 总表继续列 `13. 有序列表起始数字不保留（边界③，pre-existing）`。实现 `ChatMarkdown.tsx` 的 `renderBlock` 明确输出 `<ol start={node.start}>`，定向用例对 `3.` 实测 `start="3"`。复现：`nl -ba apps/desktop/SPEC.md | sed -n '143,172p'` 对照 `nl -ba apps/desktop/src/chat/ChatMarkdown.tsx | sed -n '251,269p'`。这不是历史沿革措辞，而是被标题定义为“现渲染”的 active 事实表，违反本单指定的 D3 与三条文档失真复核。
+2. **[阻断] 测试名称与其断言逐字相反。** `chat-markdown.test.ts` 用例名为「起始为 1 时不写冗余 start」，下一行却断言 `getAttribute('start') === '1'`；实现也无省略 1 的分支。复现：`nl -ba apps/desktop/src/chat/chat-markdown.test.ts | sed -n '317,325p'`。测试虽绿，但只能证明属性在场，不能证明标题所宣称的“不写”；命中工作流固定项“门/测试自述也是宣称”。
+3. **[阻断] 渲染预算门的突变自述与当前真实失败机制不符。** SPEC 声称短路守卫后组件例在 5131ms 由 `<2000ms` 时间断言咬住；测试内注释仍称会同步冻结 `>20s`。本 clone 短路 `plainFallbackReason` 后确为预期总数 **7 failed / 37 passed**，但组件例运行 **4938ms** 后先在递归 `renderPhrasing` 抛 `RangeError: Maximum call stack size exceeded`，时间断言未执行。复现：临时在 `plainFallbackReason` 首行 `return null`，运行 `pnpm --filter @courtwork/desktop exec vitest run src/chat/chat-markdown.test.ts --reporter=verbose`；撤除临时改动后 44/44 复绿。守卫有效与“7 条会红”的结论成立，但失败机制自述不成立，必须按实测纠正，不能把未到达的时间断言记为红证。
+4. **[阻断] 行号引用失真仍残留。** 同一测试文件原始 HTML 用例仍写 `SPEC.md:70`，而本单 SPEC 明称相关引用已“由行号改为节名”、工作流又明确现行文档引码用符号/节锚而不用行号。复现：`nl -ba apps/desktop/src/chat/chat-markdown.test.ts | sed -n '328,345p'`；当前 `SPEC.md:70` 已是渲染预算诚实边界，并非 HTML 安全边界。
+
+## 已完成证据（驳回前止步）
+
+| 项目 | 独立实跑结果 |
+|---|---|
+| 安装 | `pnpm install --frozen-lockfile --offline`：1047 packages，exit 0 |
+| 定向现值 | `vitest run src/chat/chat-markdown.test.ts`：**1 file / 44 tests passed** |
+| 兼容层可红性 | 旁路两兼容函数：**2 failed / 42 passed**；还原 44/44 |
+| 两层预算门可红性 | 短路 `plainFallbackReason`：**7 failed / 37 passed**；还原 44/44 |
+| 解析器稳健性/边界输入 | 子进程 + `alarm`：`n=8000` 在 1s 内未返回，alarm 终止 `exit 142`；`n=16000` 在 15s 限额内抛 `RangeError`，探针 `exit 91`；管道退出码由 zsh `pipestatus[1]` 取原命令，未吞码 |
+| 阈值两侧 | 32,768 字符（交替文本）放行、32,769 返回 `length`；连续 256 放行、257 返回 `run`；`_`、`[` 的 257 游程同返 `run`；降级态 `data-plain-fallback`、显式说明和全文逐字包含均成立 |
+| 上限内残余 | 32 KiB、最大游程 256 的边界输入本机 parse **125.0ms**、组件静态渲染 **152.1ms**；只记“已测量、有界残余”，不宣称已解决，也不要求与实现者约 553ms 的不同机器测值逐毫秒相等 |
+| 构建与 floor | clean clone 首次 `--list` 因 workspace `dist` 尚未构建而报模块缺失（前置不足，非产品结果）；随后 `pnpm -r build` **13/14 workspace PASS**，再跑 `assert-test-count.mjs` 得 **327 tests / floor 327 PASS** |
+
+读码已确认五项扩围映射、链接落 `span.md-link` 而非 `<a>`、原始 HTML/未支持节点走原文切片，以及松散/紧凑列表与 `<ol start>` 的实现落点；但因上述固定项阻断，未把读码替代为剩余真渲判例，也未继续完整 Playwright。回炉要求仅为纠正这些宣称/现行表并保留现有行为与红证；验收会话不代修。
+
+---
+
 # SKIN-B4 · 记号批独立验收（2026-07-19）
 
 - **裁决：放行。**对象 `impl/skin-b4 @ 758553a`，基线 `4dde0f0`；验收在独立 clean worktree 完成。`758553a` 非 main 祖先，已对 `main @ b879d84` 做无冲突 trial merge（tree `989606538e3a00aecb5d87324dbcb5e1e4e52ea9`），合并树 build/lint/list 与记号、线级关键门通过。
