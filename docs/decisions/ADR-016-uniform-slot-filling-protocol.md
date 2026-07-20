@@ -1,9 +1,9 @@
 # ADR-016：统一填格协议
 
-- 状态：Proposed
+- 状态：**Accepted（2026-07-20）**
 - 日期：2026-07-20
 - 关系：泛化 ADR-009 决定二的 Work 寻址信封；受 ADR-011 决定一/三约束；不改 ADR-013 的 Chat/Work 双轨
-- 提出单：`HARNESS-CORE-1` Stage A
+- 提出单：`HARNESS-CORE-1` Stage A；裁决：R-6 准（2026-07-20）
 
 ## 背景
 
@@ -67,6 +67,10 @@ Round 5 方向①要求把「schema 约束输出 → 校验入格」泛化为 ch
 
 该序与 Work 六段的「低频→高频」律同构（`segments.ts:5` 的组装序注释）。归档 `harness-landscape-2026h1.md` 记录了该律的产业实证（缓存/非缓存约 10 倍价差）。
 
+## 与 `request_tool` 的关系（2026-07-20，R-25 裁，落痕不在本 ADR）
+
+`TOOL-READ-1` 的模型请求通道采用同一判据——`z.literal` 锁定系统注入的闭集，闭集外即普通不可信文本在校验层拒收。但该扩集是**「知交互」动词集的跨层契约变更**，按 R-25 裁定以 [ADR-011](ADR-011-minimal-harness-kernel.md) **修订记录**形式落痕，**不在本 ADR 重述**，避免同一契约出现第二处真源。本 ADR 只提供其判据来源（决定二的地址闭集机制）。
+
 ## 门禁
 
 - Chat 侧存在第二份信封 schema 构造器必须触红。
@@ -82,11 +86,11 @@ Round 5 方向①要求把「schema 约束输出 → 校验入格」泛化为 ch
 - 校验失败静默降级为自由文本、或由系统替模型补字段；
 - 借本 ADR 把 Chat 产物升格为 artifact，或合并两本账。
 
-## 未决（须架构拍板）
+## 未决项的处置（2026-07-20 裁决后）
 
-1. 冻结填格模板的注册位置：随垂类包 descriptor 声明，还是宿主侧 registry？前者复用 ABI 准入门，后者对通用底座更自然。
-2. Chat 填格产物的持久形态与版本策略（决定四末条）。
-3. 触发入口的产品形态（composer 动作 / preview tab / 其他）——归 UI 单，但需在本 ADR 拍板后才能立票。
+1. ~~冻结填格模板的注册位置~~ → **已裁：随垂类包 descriptor 声明、registry 冻结**，沿 ADR-011 决定四 `InteractionTemplate` 同一形态（复用 ABI 准入门，不另开宿主侧 registry）。
+2. ~~Chat 填格产物的持久形态与版本策略~~ → **已裁：以带版本字段的 Turn journal 条目持久，不上 `ArtifactEnvelope`**——信封留给 artifact，Chat 填格产物不是 artifact（决定四）。跨版本问题实际出现再议，不预造迁移机制。
+3. ~~触发入口的产品形态~~ → **已裁：另票**，本 ADR 落 `Accepted` 后即可立。
 
 ## 来源
 
