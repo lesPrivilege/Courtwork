@@ -94,6 +94,13 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 
 架构评估单 `ARCH-SCOPE-2026-07-20`（候选盘点／对外叙事口径／设计体例实况，R-1…R-17 裁决）已随票乙落痕闭合并归档——去处按归档索引的 `arch-scope-2026-07-20.md` 条目定位（索引是归档的唯一入口，故此处不直书归档路径）。其结论已分别进入实现就绪图、`docs/design/` 与 `maturity-claim`／`source-hashes`／ledger target 三道新门；归档件只作历史线索，能力状态仍只认本文件。
 
+`HARNESS-CORE-1` 两份决策材料（Stage A 口径核实与四份 ADR 草案、Stage C 九域功能对照）已随三线收敛落痕闭合并归档——去处按归档索引的 `harness-core-1-stage-a.md` 与 `harness-core-1-stage-c.md` 两条条目定位。四项事实如下：
+
+- **ADR-016（统一填格协议）、ADR-017（受控命令执行）、ADR-018（执行隔离与沙箱）、ADR-019（卷宗容器与本地缓存）四份状态均为 `Accepted`**；ADR-011 同批修订两处（决定二措辞改「不引入自由 shell 与后台执行」、动词集扩集条款）。
+- **bash 当期不入界**（ADR-017 决定零）。理由是 pi 范式的安全性外包给容器，取形弃容器等于承接其明确拒绝的风险；work agent 已知场景无一必须任意命令。决定一至七封存为「若入界」的既定受控形态——重启议题须携新必要性证据对该 ADR 提修订，不得从零辩论。
+- **执行隔离等级显式停在 `none`**（ADR-018，R-24 裁不实测）。依据是等级—能力绑定：bash 不入界、`TOOL-READ-1` 为 `pure_read`，当前没有任何票需要超出 `none` 的能力面。Seatbelt 实测挂「首个需要超出 `none` 能力面的票」为强制前置——需求拉动，不预研。**这是显式停留，不是未评估。**
+- **Stage B 与 Stage C 各票已入实现就绪图**（`DEBT-CLEAR-1`／`DEBT-DOSSIER-1`／`DEBT-GATE-LABEL-1`／`MD-CONVERGE-1+`／`PERSIST-BACKEND-1`／`TOOL-READ-1`／`S6-EXEC-1`／`GATE-INVENTORY-1`／`C3-1`…`C3-5`），各行带裁决坐标、`App.tsx` 串行约束与波次。入图不等于已实现——成熟度仍逐票按本文件四节读取。
+
 ## 分支与清账纪律
 
 `main` 是唯一长期与发布真源。临时 `codex/*` 分支和 clean worktree 只有在目标 SHA 成为 `main` 祖先、对应 SPEC/ACCEPTANCE 留痕且实现与独立验收都完成后才可删除；未提交工作树不由其他会话代为合入。

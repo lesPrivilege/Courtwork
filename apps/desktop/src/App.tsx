@@ -417,7 +417,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const readerFocusRef = useRef<HTMLElement>(null);
   /** Preview 模块大纲目录展开态（默认展开——样板案导览指向此处） */
   const [outlineOpen, setOutlineOpen] = useState(true);
-  /** RP-2.11 chat|work 二段（docs/decisions/ADR-005-data-security.md 修正二）：work=容器工作台 / chat=内存态轻画布（重启即逝，持久化归 HARNESS-1）。 */
+  /**
+   * RP-2.11 chat|work 二段（docs/decisions/ADR-005-data-security.md 修正二）：
+   * work=容器工作台 / chat=内存态轻画布（重启即逝）。
+   *
+   * **内存态是既定设计，不是欠账**（HARNESS-CORE-1 Stage C R-14 裁 ⓑ）：Chat 定位为轻画布
+   * ——无文件夹权限、context 手动上传、memory 走本地缓存；同行亦有同向先例。会话的**检索与
+   * 自动标题**归 `C3-2`，那是「让已有的会话可被找回」，与「把画布本身持久化」是两件事。
+   * 册内**没有** chat 画布持久化工单；未来要做须另立票，不得据本行推定已在计划内。
+   */
   const [viewSegment, setViewSegment] = useState<'chat' | 'work'>('work');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   /** chat 面在途请求（真 API）；运行态经 ProcessTrace 渲染 BrandThinking（与 work thought process 同源动画）。 */

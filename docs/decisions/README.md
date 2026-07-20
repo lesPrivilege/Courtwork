@@ -24,7 +24,7 @@
 | [ADR-018](ADR-018-execution-isolation-and-sandbox.md) | 执行隔离与沙箱边界 | Accepted |
 | [ADR-019](ADR-019-dossier-container-and-local-cache.md) | 卷宗容器与本地缓存分区 | Accepted |
 
-四份由 `HARNESS-CORE-1` Stage A 提出，2026-07-20 逐项裁决（材料见 [`docs/status/harness-core-1-stage-a.md`](../status/harness-core-1-stage-a.md)）。
+四份由 `HARNESS-CORE-1` Stage A 提出，2026-07-20 逐项裁决；决定与理由已全文落入各 ADR 本体，无须回读材料。原始材料 `harness-core-1-stage-a.md` 随裁决闭合归档，按归档索引条目定位（史料线索，非现行依据）。
 
 **`ADR-017` 的特殊状态**：其决定零成立——**bash 当期不入界**；决定**一至七**为「若入界」的既定受控形态，随 ADR 一并 `Accepted` 但**封存不生效**，重启须携新的必要性证据提修订、不得从零辩论已封存形态。**决定八生效**（reading/edits/writing 走既有工具契约，其中 edits/writing 属 effect 面另票）。`ADR-011` 的两处修订记录落在该 ADR 末节。
 
