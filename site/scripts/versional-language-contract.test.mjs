@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { validateVersionalSite } from './versional-language-contract-lib.mjs';
@@ -6,6 +7,9 @@ import { validateVersionalSite } from './versional-language-contract-lib.mjs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 const desktopCss = readFileSync(new URL('../../apps/desktop/src/styles.css', import.meta.url), 'utf8');
+const screenshotManifest = JSON.parse(readFileSync(new URL('../craft-evidence/VERSIONAL-LANG-3/screenshot-manifest.json', import.meta.url), 'utf8'));
+const screenshotSha = (name, source = readFileSync(new URL(`../assets/screenshots/${name}`, import.meta.url))) =>
+  createHash('sha256').update(source).digest('hex');
 
 test('版本学 Pages 平框、组界与眉批契约全绿', () => {
   assert.deepEqual(validateVersionalSite({ html, css, desktopCss }), []);
@@ -66,4 +70,20 @@ test('注入 Agent 重要标题 token 不同源时定点失败', () => {
 test('注入泥金进入正文时定点失败', () => {
   const mutated = css.replace('.hero-lead {', '.hero-lead { color: var(--important-title);');
   assert.match(validateVersionalSite({ html, css: mutated, desktopCss }).join('\n'), /VL3-T02 泥金越界/);
+});
+
+test('VL3-S01 六枚 Pages 截图逐字节绑定重摄 manifest', () => {
+  assert.equal(screenshotManifest.schemaVersion, 'courtwork.versional-screenshot-manifest.v1');
+  assert.deepEqual(Object.keys(screenshotManifest.pagesAssets).sort(), [
+    '11-milestone-dossier-1440.webp',
+    '11-milestone-dossier-720.webp',
+    '12-milestone-risklist-1440.webp',
+    '12-milestone-risklist-720.webp',
+    '13-milestone-redline-1440.webp',
+    '13-milestone-redline-720.webp',
+  ]);
+  for (const [name, expected] of Object.entries(screenshotManifest.pagesAssets)) assert.equal(screenshotSha(name), expected, name);
+  const [first] = Object.keys(screenshotManifest.pagesAssets);
+  const mutated = Buffer.concat([readFileSync(new URL(`../assets/screenshots/${first}`, import.meta.url)), Buffer.from([0])]);
+  assert.notEqual(screenshotSha(first, mutated), screenshotManifest.pagesAssets[first], '截图字节漂移反例必须触红');
 });

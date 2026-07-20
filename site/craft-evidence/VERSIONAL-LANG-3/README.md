@@ -21,6 +21,9 @@
 | `13-milestone-redline-1440.webp` | `4e32c70791fd6d8ce8fdcbde7a3cfcbed131d0df8d0a9c9eb2d4e010be81c407` |
 | `13-milestone-redline-720.webp` | `3d6746af4cf5ceb35403b06b32c0be149613907588693a2d4aabf4e9d5e73f42` |
 
+`screenshot-manifest.json` 把三张源 PNG 与六枚 Pages WebP 逐字节封存；`site:guard` 逐项复算，
+任一资产缺失、增删或改一个字节都会定点失败，截图替换不依赖本说明表的口述可信度。
+
 视觉读法：三层磁青负责空间，泥金只落案件重要标题；文书正文、风险数据、状态语义与人工朱印
 仍守各自色槽。Focus 帧左上标题完整、不碰窗口安全区；三态均无 composer 横向溢出。
 
