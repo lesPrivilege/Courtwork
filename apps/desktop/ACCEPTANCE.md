@@ -4038,3 +4038,26 @@ overflow=0、brokenImages=0，标题／正文分色。完整证据见
 
 复验前须让 gallery 入口自然消费 resolved dark theme 并加第四消费者 computed／静态门，或由产品
 与架构撤回该白名单项；验收会话不得自行改契约。
+
+---
+
+# ACCEPTANCE: VERSIONAL-LANG-3 · gallery 自然深宗独立复验
+
+日期：2026-07-20；对象：`39f1b1506cf3bb4b4d08778135c966f8e2d346f7`。新会话从目标 SHA 建立
+fresh clone `/tmp/courtwork-vl3-gallery-reacceptance.9cWljT/repo`，使用独立分支和端口
+`20041–20044`；未参与实现或首轮拒绝，未复用旧 clone、服务或进程，未 push。
+
+**裁决：✅ 放行 VERSIONAL-LANG-3。** 自然访问 `/visual-gallery.html`，只模拟 OS dark、不手写
+`data-theme`，根自动解析 `dark`；`.gallery-header h1` 为 `rgb(217, 174, 106)`，body 为
+`rgb(228, 233, 241)`，恢复态定向 e2e 两轮 **2/2**。真实移除／破坏 `color-scheme light dark`、
+theme controller import、安装调用时，VL3 合同各自 **13/14 红**并精确命中 `VL3-T01`；把泥金
+标题期望改成浅宗墨色时 e2e **1/2 红**，received 明确仍为泥金且正文冷白。逐项复位后消费文件
+零 diff。
+
+独立全门：site guard **90/90**（报告 tip 918 active files）、lint、site build、13 workspace build
+（desktop 3580 modules）、root tests **148 files / 1261 tests**、完整 desktop e2e
+**323/323（3.2m）** 全绿。完整反例与命令记录见
+`site/craft-evidence/VERSIONAL-LANG-3/reacceptance-39f1b15/README.md`。
+
+本轮只关闭首轮 `d32985f` 的 gallery 自然深宗和前向守卫缺口；不重裁其他批次，不替终局
+one-shot 放行，也不授权 push／部署。
