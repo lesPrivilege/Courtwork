@@ -76,9 +76,5 @@ export function createFileConfirmationStore(dir: string): ConfirmationStore {
     },
     peek,
     consume,
-    take(requestId) {
-      const snapshot = peek(requestId);
-      return snapshot ? consume(requestId, snapshot.version) : undefined;
-    },
   };
 }

@@ -149,7 +149,7 @@ describe('createFileConfirmationStore (durable, simulates cross-process resume)'
     }
   });
 
-  it('writes a payload-free tombstone, masks a crash-window pending file, and blocks deprecated take() resurrection', () => {
+  it('writes a payload-free tombstone and masks a crash-window pending file', () => {
     const dir = mkdtempSync(join(tmpdir(), 'courtwork-core-confirmstore-'));
     try {
       const store = createFileConfirmationStore(dir);
@@ -158,7 +158,9 @@ describe('createFileConfirmationStore (durable, simulates cross-process resume)'
         materials: [{ fileId: 'secret-file', sha256: 'secret-sha', readingMarkdown: 'TOP-SECRET-ARTIFACT' }],
       };
       store.save(pending);
-      expect(store.take('req-1')).toEqual(pending);
+      const snapshot = store.peek('req-1');
+      expect(snapshot).toBeDefined();
+      expect(store.consume('req-1', snapshot!.version)).toEqual(pending);
 
       const tombstonePath = join(dir, 'req-1.consumed');
       const tombstone = readFileSync(tombstonePath, 'utf-8');
@@ -171,7 +173,6 @@ describe('createFileConfirmationStore (durable, simulates cross-process resume)'
       writeFileSync(join(dir, 'req-1.json'), JSON.stringify(pending), 'utf-8');
       const afterCrash = createFileConfirmationStore(dir);
       expect(afterCrash.peek('req-1')).toBeUndefined();
-      expect(afterCrash.take('req-1')).toBeUndefined();
       expect(() => afterCrash.save(pending)).toThrow(/req-1/);
     } finally {
       rmSync(dir, { recursive: true, force: true });

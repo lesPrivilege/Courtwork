@@ -240,10 +240,6 @@ function createEnvelopePendingLedger(seed: readonly PendingConfirmation[]): {
       },
       peek,
       consume,
-      take(requestId) {
-        const snapshot = peek(requestId);
-        return snapshot ? consume(requestId, snapshot.version) : undefined;
-      },
     },
     snapshot: () => [...pending.values()].map((entry) => serializePending(entry.pending).pending),
   };

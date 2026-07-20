@@ -24,7 +24,7 @@ import {
 import type { CitationFailure } from '@courtwork/schemas';
 import type { CitationStats } from '../events/types.js';
 import type { TurnRunnerPort } from '../turn/turn-runner.js';
-import type { PersistedTurn, TurnEvent } from '../turn/types.js';
+import type { PersistedTurn } from '../turn/types.js';
 
 export interface WorkTurnIdentity {
   turnId: string;
@@ -47,7 +47,6 @@ export interface ScenarioExecutorDeps {
   turnRunner: TurnRunnerPort;
   createTurnIdentity?: WorkTurnIdentityFactory;
   signal?: AbortSignal;
-  onTurnEvent?: (event: TurnEvent) => void;
   eventLog: EventLog;
   confirmationStore: ConfirmationStore;
   revisionStore: RevisionEventStore;
@@ -277,7 +276,6 @@ async function runWorkTurn(
     ...identity,
     request,
     ...(deps.signal ? { signal: deps.signal } : {}),
-    ...(deps.onTurnEvent ? { onEvent: deps.onTurnEvent } : {}),
   });
   if (turn.turnId !== identity.turnId || turn.providerRequestId !== identity.providerRequestId) {
     throw new WorkTurnIdentityError('TurnRunnerPort 返回的终态身份与 Work 链接身份不一致');

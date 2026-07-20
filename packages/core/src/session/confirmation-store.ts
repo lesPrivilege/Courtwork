@@ -27,8 +27,6 @@ export interface ConfirmationStore {
   peek(requestId: string): PendingConfirmationSnapshot | undefined;
   /** 只有 requestId 与 expectedVersion 同时命中才消费；竞争者只有第一笔成功。 */
   consume(requestId: string, expectedVersion: string): PendingConfirmation | undefined;
-  /** @deprecated 兼容旧调用面；resumeScenario 不得用它跳过 validate-before-consume。 */
-  take(requestId: string): PendingConfirmation | undefined;
 }
 
 export interface PendingConfirmationSnapshot {
@@ -68,9 +66,5 @@ export function createInMemoryConfirmationStore(): ConfirmationStore {
     },
     peek,
     consume,
-    take(requestId) {
-      const snapshot = peek(requestId);
-      return snapshot ? consume(requestId, snapshot.version) : undefined;
-    },
   };
 }

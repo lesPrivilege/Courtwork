@@ -41,7 +41,6 @@ export const CHROME_COPY = {
     placeholder: 'Describe a task or ask anything…',
     inputLabel: 'Message',
     send: 'Send',
-    newLine: 'New line',
     connect: 'Connect',
     connectionFailed: 'Connection failed',
     standard: 'Standard',

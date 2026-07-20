@@ -220,7 +220,6 @@ async function main(): Promise<void> {
       record('pending:consume', 'resume_resolve');
       return consumed;
     },
-    take: (id) => realConfirmationStore.take(id),
   };
 
   const observingRevisionStore: RevisionEventStore = {

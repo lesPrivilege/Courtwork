@@ -734,7 +734,6 @@ button.visual-anchor:hover { background: var(--control-hover); }
 .visual-partial dt { color: var(--text-tertiary); }
 .visual-partial dd { margin: 0; font-family: var(--type-dense-mono); }
 .visual-partial ul { margin: 0; padding: 7px 10px 8px 36px; border-top: var(--rule-minor) solid var(--border); color: var(--red-fg); font-size: var(--type-dense-meta-size); line-height: 1.5; list-style: none; }
-.visual-composition-section { display: grid; gap: 8px; }
 .visual-composition-repeat { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .interaction-turn-card .visual-partial dl { display: none; }
 .interaction-turn-card .visual-partial ul { border-top: 0; }

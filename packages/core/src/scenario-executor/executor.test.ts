@@ -403,7 +403,6 @@ describe('resumeScenario', () => {
         consumeCalls += 1;
         return originalStore.consume(requestId, expectedVersion);
       },
-      take: (requestId) => originalStore.take(requestId),
     };
 
     await expect(

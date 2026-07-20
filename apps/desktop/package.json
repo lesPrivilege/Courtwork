@@ -18,7 +18,6 @@
     "lint:elevation": "node scripts/assert-elevation-shadow.mjs",
     "lint:rp26": "node scripts/assert-rp26-contracts.mjs",
     "lint:rp27": "node scripts/assert-rp27-contracts.mjs",
-    "lint:trace": "node scripts/assert-process-trace.mjs",
     "lint:thinking": "node scripts/assert-process-trace.mjs",
     "lint:chat-ui": "node scripts/assert-chat-ui-contracts.mjs",
     "lint:credential": "node scripts/assert-credential-contracts.mjs",
