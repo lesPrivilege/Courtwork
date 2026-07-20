@@ -193,3 +193,29 @@ SHA-256 仍为 `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d
 
 > **VERSIONAL-LANG-1 Pages 两轮上线复核放行。** 本次只改变前端皮层和展示截图，不重发
 > `v0.1.2`，也不改写能力状态真源。
+
+---
+
+## VERSIONAL-LANG-3 · 磁青／泥金双宗首轮上线复核（2026-07-20）— ✅ 放行
+
+本轮仍不是 `v0.1.2` 重发；只发布 Agent 与 Pages 同源的冷白／磁青色阶、泥金重要标题、
+Hero 宋体 700，以及六枚从现行 Agent 深宗重摄的响应式 WebP。
+
+- Pages run [`29711205146`](https://github.com/lesPrivilege/Courtwork/actions/runs/29711205146)／job
+  [`88255270285`](https://github.com/lesPrivilege/Courtwork/actions/runs/29711205146/job/88255270285)
+  对精确 head `4531f036012ea6cde04e6604f27a70cc23ed136d` 成功；guard、build、artifact 与
+  deploy 全绿，artifact ID `8448991288`。
+- 公开 HTML、CSS、JS 与六枚本轮 WebP 全部和该 head 逐字节相等；其中 CSS SHA-256 为
+  `1a2bb13c83e2f1b4f694ca06c601a6ec1285f0f3fbc82e32b7ad01f15f6a9259`。
+- 应用内真实浏览器 1280 宽实看无横溢出、破图或 console error；Hero 解析为宋体栈 700。
+  Chromium `149.0.7827.55` 强制 light／dark × 1280／375 四上下文再次确认零溢出、零破图，
+  浅宗 `#F7F8FA/#232B38`，深宗 `#0F1622/#D9AE6A`，深宗正文仍为冷白
+  `rgb(228,233,241)`。
+- `origin/accept/pilot-live-2` 与 `origin/codex/site-shots-refresh` 均在删除前复证为 main
+  祖先，随后逐枝删除；未做广域 prune。
+
+完整资源哈希、四张公开全页帧与逐项计算值见
+[`release/evidence/versional-lang-3-2026-07-20/README.md`](evidence/versional-lang-3-2026-07-20/README.md)。
+
+> **VERSIONAL-LANG-3 Pages 首轮上线复核放行。** 本轮只改变前端皮层与展示截图；tag、DMG、
+> Release、签名／公证边界与能力状态真源均未改变。本记录提交触发的 Pages run 另作第二轮同源复核。
