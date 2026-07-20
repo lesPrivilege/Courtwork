@@ -85,6 +85,17 @@ Maximum call stack size exceeded`**（递归爆栈，比慢更严重：渲染中
 - **文档三失真**：突变数字按实测更新；`renderInline` 同名命中补齐第二处；`ChatMarkdown.tsx` 对
   SPEC 的引用**由行号改为节名**——行号引用在自身反复编辑的文件里必漂，改节名从根上消除该类失真。
 
+### 已知抖动（如实登记，非放行条件）
+
+`tests/e2e/rp210.spec.ts:43`（chat 卡片形制 CSS，demo 路径）在合并态首轮全量跑中撞 1 分钟测试
+超时（`browserContext.close: Target page... has been closed`），326/327。归因证据链：
+①隔离复跑 **3/3 绿，各 3.2s**；②**同树同码**第二轮全量 **327/327 绿（4.4m）**，该例 3.8s 通过；
+③红的那轮全量耗时 7.6m vs 绿轮 4.4m，与负载压力一致。故判**间歇性抖动**，非本单引入。
+
+触面似真性另记：该例断言 `turn-card-*` 与 `output-docx-card` 的圆角/底色/线宽，零 markdown 触面；
+本单改动为 ChatMarkdown 渲染、四行纯色 CSS（均在 `.chat-markdown` 下）与测试。但**似真性不是
+证据**，故仍走了上述对照，不以「看起来无关」结案。
+
 ### 契约与门
 
 - `ChatMarkdown` props 契约不变（`{ text: string }`）；`App.tsx` 4 处调用点与 `SessionHistory.tsx` 1 处零改动。退役的 `parseMarkdownBlocks` / `renderInline` / `MarkdownBlock` / `TableAlign` 四个导出**零生产消费点**（仅原单测消费），随解析器一并删除。核实留痕：全仓 grep `renderInline` 另在 `packages/demo-data/scripts/generate-contract-pdf.mjs:22` 有命中，经查为该脚本内**同名但无关的本地函数声明**（非 import 本模块导出），不构成消费点；rebase 后另有 `apps/desktop/src/system/ReaderPane.tsx:20` 同名本地函数（随基线 `86b2282` 进入），同样无关。两处均已核，结论不变。
