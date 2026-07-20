@@ -92,6 +92,8 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 
 后置但仍真实存在的缺口：`services/ingest` 只有规格，OCR/分类/实体对齐与 HTTP/progress wire 均未实现；正式 macOS Developer ID、公证和升级授权矩阵未完成；企业 identity、ACL、伦理墙、MCP/私域 adapter、scheduled invocation、多写者与跨案图谱属于以后阶段，不得插入本轮 Work live。
 
+架构评估单 `ARCH-SCOPE-2026-07-20`（候选盘点／对外叙事口径／设计体例实况，R-1…R-17 裁决）已随票乙落痕闭合并归档——去处按归档索引的 `arch-scope-2026-07-20.md` 条目定位（索引是归档的唯一入口，故此处不直书归档路径）。其结论已分别进入实现就绪图、`docs/design/` 与 `maturity-claim`／`source-hashes`／ledger target 三道新门；归档件只作历史线索，能力状态仍只认本文件。
+
 ## 分支与清账纪律
 
 `main` 是唯一长期与发布真源。临时 `codex/*` 分支和 clean worktree 只有在目标 SHA 成为 `main` 祖先、对应 SPEC/ACCEPTANCE 留痕且实现与独立验收都完成后才可删除；未提交工作树不由其他会话代为合入。
