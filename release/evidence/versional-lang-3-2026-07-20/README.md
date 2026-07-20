@@ -59,5 +59,18 @@ macOS `26.5.2` 的应用内真实浏览器先在 `1280` 宽公开页实看：Her
 逐张实看确认：深宗保持深磁青语义，泥金只落 Hero／卷级主句；正文、数据和 Agent 截图内
 数据轨没有被金色污染。窄屏单列无裁切、叠压或水平滚动，三枚重摄 Agent 产品图均清晰可达。
 
-> **首轮线上复核放行。** 本记录提交只补部署证据，不改变站面消费值；它触发的下一次 Pages
-> run 作为第二轮线上同源复核对象。
+> **首轮线上复核放行。** 本记录提交只补部署证据，不改变站面消费值。
+
+## 第二轮同源复核
+
+首轮记录提交 `3f4bcb7ca0f9ed090b4892ea96965beda8ab983f` 触发 Pages run
+[`29711653306`](https://github.com/lesPrivilege/Courtwork/actions/runs/29711653306)／job
+[`88256365675`](https://github.com/lesPrivilege/Courtwork/actions/runs/29711653306/job/88256365675)，
+精确 head、guard、build、artifact 与 deploy 全部成功。
+
+部署后重新下载 HTML、CSS、JS 与六枚 WebP，十项 SHA 均与首轮表格和本地源文件相等；重新运行
+light／dark × 1280／375 四上下文，四组 token、Hero／正文字色、Hero 700、横溢出 0、破图 0
+再次成立。第二轮四张全页帧的 SHA 也分别与本目录同名首轮帧逐字节相等，而非只做肉眼近似。
+
+> **VERSIONAL-LANG-3 Pages 两轮上线复核放行。** 第二轮未发现首轮遗漏或远端漂移；
+> `v0.1.2` 下载真值与发布边界未变化。

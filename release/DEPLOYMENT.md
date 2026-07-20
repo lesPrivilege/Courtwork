@@ -196,7 +196,7 @@ SHA-256 仍为 `f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d
 
 ---
 
-## VERSIONAL-LANG-3 · 磁青／泥金双宗首轮上线复核（2026-07-20）— ✅ 放行
+## VERSIONAL-LANG-3 · 磁青／泥金双宗两轮上线复核（2026-07-20）— ✅ 放行
 
 本轮仍不是 `v0.1.2` 重发；只发布 Agent 与 Pages 同源的冷白／磁青色阶、泥金重要标题、
 Hero 宋体 700，以及六枚从现行 Agent 深宗重摄的响应式 WebP。
@@ -217,5 +217,15 @@ Hero 宋体 700，以及六枚从现行 Agent 深宗重摄的响应式 WebP。
 完整资源哈希、四张公开全页帧与逐项计算值见
 [`release/evidence/versional-lang-3-2026-07-20/README.md`](evidence/versional-lang-3-2026-07-20/README.md)。
 
-> **VERSIONAL-LANG-3 Pages 首轮上线复核放行。** 本轮只改变前端皮层与展示截图；tag、DMG、
-> Release、签名／公证边界与能力状态真源均未改变。本记录提交触发的 Pages run 另作第二轮同源复核。
+### 第二轮 — ✅ 放行
+
+- 首轮记录提交触发 Pages run
+  [`29711653306`](https://github.com/lesPrivilege/Courtwork/actions/runs/29711653306)／job
+  [`88256365675`](https://github.com/lesPrivilege/Courtwork/actions/runs/29711653306/job/88256365675)，
+  精确 head `3f4bcb7ca0f9ed090b4892ea96965beda8ab983f`；guard、build、artifact 与 deploy 全绿。
+- HTML、CSS、JS 与六枚 WebP 再次逐字节等于本地；light／dark × 1280／375 四上下文的
+  token、字色、Hero 700、横溢出 0 与破图 0 全部复现。
+- 第二轮四张公开全页帧与首轮同名帧逐字节相等，说明此次证据记录部署没有带来皮层漂移。
+
+> **VERSIONAL-LANG-3 Pages 两轮上线复核放行。** 本轮只改变前端皮层与展示截图；tag、DMG、
+> Release、签名／公证边界与能力状态真源均未改变。
