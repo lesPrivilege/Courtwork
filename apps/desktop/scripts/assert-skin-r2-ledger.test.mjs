@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   retiredP5ProposalLines,
   signedR2LedgerRows,
+  validateLedgerTargets,
   validateSignedR2Ledger,
 } from './skin-r2-ledger-contract-lib.mjs';
 
@@ -68,4 +69,75 @@ test('注入八：焦点态 Preview 的窗口安全区不得漏账', () => {
 test('注入九：版本学二次减法与浅宗色阶不得漏账', () => {
   const fixture = validFixture().filter((entry) => entry.approvedProposalLine !== 'VL2-C01');
   assert.match(validateSignedR2Ledger(fixture).join('\n'), /已签提案行缺失：VL2-C01/);
+});
+
+// R-15（ARCH-SCOPE-2026-07-20）：target 可解析性。原缺口是「只比字符串、只覆盖已签行」，
+// 且把从来不是锚的片段当锚读。本组反例逐条对应新校验的每一支。
+const targetIO = ({ files = {}, dirs = [] } = {}) => ({
+  exists: (file) => file in files || dirs.includes(file),
+  isDirectory: (file) => dirs.includes(file),
+  readText: (file) => files[file] ?? '',
+});
+
+test('R-15 target 校验覆盖全部条目的路径存在性，不再只看已签行', () => {
+  const io = targetIO({ files: { 'docs/a.md': '# 标题\n' } });
+  // 未签行同样受检：路径不存在即红（原实现对未签行零覆盖）。
+  const failures = validateLedgerTargets(
+    [{ approvedProposalLine: 'X-99', target: 'docs/missing.md#标题', fragmentKind: 'heading' }], io);
+  assert.match(failures.join('\n'), /X-99 target 路径不存在/);
+  assert.deepEqual(
+    validateLedgerTargets([{ approvedProposalLine: 'X-01', target: 'docs/a.md#标题', fragmentKind: 'heading' }], io), []);
+});
+
+test('R-15 fragmentKind 必须显式声明，缺失或非法即红', () => {
+  const io = targetIO({ files: { 'docs/a.md': '# 标题\n' } });
+  assert.match(validateLedgerTargets([{ approvedProposalLine: 'X-02', target: 'docs/a.md#标题' }], io).join('\n'),
+    /X-02 缺 fragmentKind/);
+  assert.match(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-03', target: 'docs/a.md#标题', fragmentKind: 'anchor' }], io).join('\n'),
+    /取值非法/);
+});
+
+test('R-15 heading 须解析到真标题，selector 须字面存在', () => {
+  const io = targetIO({ files: { 'docs/a.md': '# 标题\n', 'src/a.css': '.real { color: red; }' } });
+  assert.match(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-04', target: 'docs/a.md#不存在的标题', fragmentKind: 'heading', fragmentSection: '标题' }], io).join('\n'),
+    /heading 片段解析不到标题/);
+  assert.match(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-05', target: 'src/a.css#.ghost', fragmentKind: 'selector' }], io).join('\n'),
+    /selector 片段在目标文件内不作为字面量存在/);
+  assert.deepEqual(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-06', target: 'src/a.css#.real', fragmentKind: 'selector' }], io), []);
+});
+
+test('R-15 pointer 的豁免由声明赚取，且双向锁防止把可验的锚降格', () => {
+  const io = targetIO({ files: { 'docs/a.md': '# 一级\n## 某节\n正文里的具名内容\n', 'src/a.css': '.real { color: red; }' } });
+  // md pointer 必须报 fragmentSection，且该节须真实存在。
+  assert.match(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-07', target: 'docs/a.md#某节内部的具名内容', fragmentKind: 'pointer' }], io).join('\n'),
+    /缺 fragmentSection/);
+  assert.match(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-08', target: 'docs/a.md#某节内部的具名内容', fragmentKind: 'pointer', fragmentSection: '查无此节' }], io).join('\n'),
+    /fragmentSection 不是该文件的真实标题/);
+  assert.deepEqual(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-09', target: 'docs/a.md#某节内部的具名内容', fragmentKind: 'pointer', fragmentSection: '某节' }], io), []);
+  // 双向锁：真标题／真选择器不得降格为 pointer 来躲检查。
+  assert.match(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-10', target: 'docs/a.md#某节', fragmentKind: 'pointer', fragmentSection: '某节' }], io).join('\n'),
+    /不得降格为 pointer/);
+  assert.match(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-11', target: 'src/a.css#.real', fragmentKind: 'pointer' }], io).join('\n'),
+    /应声明为 selector 而非 pointer/);
+});
+
+test('R-15 目录目标与无片段目标各归其类', () => {
+  const io = targetIO({ files: { 'docs/a.md': '# 标题\n' }, dirs: ['site/evidence'] });
+  assert.deepEqual(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-12', target: 'site/evidence#some-batch', fragmentKind: 'directory' }], io), []);
+  assert.match(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-13', target: 'site/evidence#some-batch', fragmentKind: 'selector' }], io).join('\n'),
+    /target 是目录却声明为 selector/);
+  assert.match(validateLedgerTargets(
+    [{ approvedProposalLine: 'X-14', target: 'docs/a.md', fragmentKind: 'heading' }], io).join('\n'),
+    /无片段却声明为 heading/);
 });

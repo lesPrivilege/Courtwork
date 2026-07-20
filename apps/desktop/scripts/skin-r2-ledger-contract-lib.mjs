@@ -125,3 +125,103 @@ export function validateSignedR2Ledger(entries) {
 
   return failures;
 }
+
+// ── target 可解析性（R-15，ARCH-SCOPE-2026-07-20）──────────────────────────
+//
+// 原缺口两条：①上面的已签行校验只做**字符串逐字相等**，不验路径存在、不解析片段，且
+// `signedR2LedgerRows` 只有 85 行——另 121 条从不进入任何 target 检查；②片段被当成锚来
+// 读，但实测它们从来不是锚：`#总纲-pages`、`#versional-important-title-consumers` 一类
+// 指的是**某节内部的具名内容**，不是标题、也不是字面选择器。
+//
+// 处置不是「造几个标题让校验器过」——那是让工具反过来指挥文档结构。处置是**把片段的
+// 种类显式声明出来，再按种类各验各的**：
+//   `heading`   —— 必须解析到真实 markdown 标题；
+//   `selector`  —— 必须在目标文件里字面存在；
+//   `pointer`   —— 文档性指针，机器不解析。**但豁免由声明赚取**：md 指针必须另报
+//                  `fragmentSection` 且该节标题必须真实存在（指针至少锚到节一级）；
+//                  且**双向锁**——若该指针其实解析得了（是真标题／真选择器），即触红，
+//                  防止把可验的锚降格成 pointer 来躲检查。
+//   `directory` —— 目标是目录，验目录存在。
+// 路径存在性对**全部 206 条**生效，不再只覆盖已签行。
+export function validateLedgerTargets(entries, { exists, isDirectory, readText }) {
+  const failures = [];
+  const kinds = new Set(['heading', 'selector', 'pointer', 'directory', 'none']);
+  const normalize = (value) => value
+    .replace(/[`*_]/g, '')
+    .replace(/[·、，,。.：:（）()/]/g, '')
+    .replace(/[\s-]/g, '')
+    .toLowerCase();
+  const headingCache = new Map();
+  const headingsOf = (file) => {
+    if (!headingCache.has(file)) {
+      headingCache.set(file, [...readText(file).matchAll(/^#{1,6}\s+(.+)$/gm)].map((match) => match[1].trim()));
+    }
+    return headingCache.get(file);
+  };
+  const resolvesAsHeading = (file, fragment) =>
+    headingsOf(file).some((heading) => normalize(heading) === normalize(fragment)
+      || normalize(heading).startsWith(normalize(fragment)));
+
+  for (const entry of entries) {
+    const line = entry.approvedProposalLine ?? '(无提案行)';
+    const [file, fragment] = String(entry.target ?? '').split('#');
+    if (!file) {
+      failures.push(`${line} target 缺路径：${entry.target}`);
+      continue;
+    }
+    if (!exists(file)) {
+      failures.push(`${line} target 路径不存在：${file}——台账指向的实物已不在仓内`);
+      continue;
+    }
+    const kind = entry.fragmentKind;
+    if (!kinds.has(kind)) {
+      failures.push(`${line} 缺 fragmentKind（或取值非法：${kind}）——片段种类必须显式声明，不得让读者自己猜它是锚还是指针`);
+      continue;
+    }
+    if (isDirectory(file)) {
+      if (kind !== 'directory') failures.push(`${line} target 是目录却声明为 ${kind}`);
+      continue;
+    }
+    if (!fragment) {
+      if (kind !== 'none') failures.push(`${line} 无片段却声明为 ${kind}`);
+      continue;
+    }
+    if (kind === 'directory' || kind === 'none') {
+      failures.push(`${line} 有片段却声明为 ${kind}`);
+      continue;
+    }
+    const isMarkdown = file.endsWith('.md');
+    if (kind === 'heading') {
+      if (!isMarkdown) failures.push(`${line} heading 片段只适用于 markdown：${entry.target}`);
+      else if (!resolvesAsHeading(file, fragment)) failures.push(`${line} heading 片段解析不到标题：${entry.target}`);
+      continue;
+    }
+    if (kind === 'selector') {
+      const selector = fragment.split('|')[0];
+      if (!readText(file).includes(selector)) {
+        failures.push(`${line} selector 片段在目标文件内不作为字面量存在：${entry.target}`);
+      }
+      continue;
+    }
+    // kind === 'pointer'
+    if (isMarkdown) {
+      if (resolvesAsHeading(file, fragment)) {
+        failures.push(`${line} 该片段其实解析得到标题，不得降格为 pointer：${entry.target}`);
+        continue;
+      }
+      if (!entry.fragmentSection) {
+        failures.push(`${line} markdown pointer 缺 fragmentSection——指针至少要锚到节一级，否则读者无从定位：${entry.target}`);
+        continue;
+      }
+      if (!headingsOf(file).some((heading) => normalize(heading) === normalize(entry.fragmentSection))) {
+        failures.push(`${line} fragmentSection 不是该文件的真实标题：${entry.fragmentSection}（${file}）`);
+      }
+      continue;
+    }
+    const selector = fragment.split('|')[0];
+    if (readText(file).includes(selector)) {
+      failures.push(`${line} 该片段在文件内字面存在，应声明为 selector 而非 pointer：${entry.target}`);
+    }
+  }
+  return failures;
+}
