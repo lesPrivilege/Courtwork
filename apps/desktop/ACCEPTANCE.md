@@ -4186,3 +4186,24 @@ fresh clone 初次在 workspace build 前跑 desktop 定向测试曾因 `@courtw
 上游报告为通过。回炉要求：为五条用户可见降级逐条建立真正经过 `useModelConfig → notify → 真 UI` 的
 反例门，至少删除通知调用时必红；同时订正“未新写字节等同守卫”的失真自述。修复 SHA 必须由另一
 独立会话复验，本会话不验收自己的报告后续。
+
+---
+
+# ACCEPTANCE: MODEL-CONFIG-EXPLICIT-1 · 同主体回炉复核
+
+日期：2026-07-20；对象：修复提交 `64044d6`（首轮受验 tip `8af06f7`，上节驳回报告原样保留）。
+**修复与复核同主体，凭据为突变红证。** 本轮只补通知咬合测试与订正 SPEC 自述，不改变生产 UI、
+降级闭集、提示文案、持久格式、provider wire、App.tsx 或门常量。
+
+- 新增 `use-model-config.dom.test.ts`，直接观察 App 注入的 `showSystemFeedback` 回调缝：
+  `provider_invalid` / `model_invalid` / `reasoning_invalid` / `unreadable` / `storage_unavailable`
+  五条逐项断言通知一次且文案同源；`no_stored_value` 反向断言零通知。
+- 删除 hook 内唯一 `deps.notify(...)` 后，五条正例精确 **5 failed / 1 passed**，唯一通过项正是
+  `no_stored_value`；落盘退出码 **1**。还原后新门 **6/6**，与 model-config 原 16 例合跑 **22/22**。
+- SPEC 已如实改为「保留既有 round-trip，同时新增 Object.keys/degradation 守卫」；临时恢复
+  「本单不新写守卫测试」后文案门精确红（退出码 **1**），还原后 **0**。
+- 提交前恢复态：desktop build 通过（3584 modules）、root lint 通过、desktop 完整单测
+  **62 files / 402 tests passed**。
+
+**裁决：✅ 放行 MODEL-CONFIG-EXPLICIT-1 回炉尖端。** 首轮“静默可回归且门不红”与自述失真均已
+关闭；完整 Playwright、合并态高水位/floor、真渲和发布仍由 RELEASE-VERIFY-1 后续阶段实跑决定。
