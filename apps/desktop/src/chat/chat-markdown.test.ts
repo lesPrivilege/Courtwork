@@ -3,7 +3,7 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ChatMarkdown } from './ChatMarkdown';
+import { ChatMarkdown, plainFallbackReason } from './ChatMarkdown';
 
 /**
  * MD-CONVERGE-1+（A/R-18 + C/R-6 合票）：手写解析器退役，改用 workspace 既有 remark。
@@ -246,6 +246,82 @@ describe('扩围五项（C/R-6 批准范围）', () => {
     expect(host.querySelectorAll('input')).toHaveLength(0);
     expect(visibleText(host)).not.toContain('[ ]');
     expect(visibleText(host)).not.toContain('[x]');
+  });
+});
+
+describe('渲染预算门（验收阻断一：解析同步冻结的回归防线）', () => {
+  // 冻结输入：退役解析器 0ms，remark 空闲机实测 2568ms 同步阻塞。守卫必须在 parse 之前短路。
+  const FROZEN = `${'*'.repeat(8000)}x${'*'.repeat(8000)}`;
+  // 爆栈输入：n=16000 时解析器在 unist-util-visit-parents 上递归爆栈（RangeError），
+  // 比「慢」更严重——渲染中抛出会打断整条消息。两种失效模式须同守。
+  const STACK_BLOWER = `${'*'.repeat(16_000)}x${'*'.repeat(16_000)}`;
+
+  it('已证冻结输入被游程门拦下，不进解析器', () => {
+    expect(plainFallbackReason(FROZEN)).toBe('run');
+  });
+
+  it('已证爆栈输入同样被拦下（失效模式二：RangeError 而非变慢）', () => {
+    expect(plainFallbackReason(STACK_BLOWER)).not.toBeNull();
+  });
+
+  it.each([
+    ['下划线定界符', `${'_'.repeat(600)}x${'_'.repeat(600)}`],
+    ['方括号定界符', `${'['.repeat(600)}x${']'.repeat(600)}`],
+    ['混合定界符', `${'*'.repeat(400)}${'_'.repeat(400)}x`],
+  ])('变体（%s）同样被拦——守卫是通用游程约束，非定界符黑名单', (_label, source) => {
+    expect(plainFallbackReason(source)).toBe('run');
+  });
+
+  it('超长输入被长度门拦下', () => {
+    expect(plainFallbackReason('甲'.repeat(40_000))).toBe('length');
+  });
+
+  it('真实内容零误伤：长回复/长代码块/80 字符分隔线均放行', () => {
+    const longReply = '本条约定存在风险：\n\n| 风险 | 等级 |\n| --- | --- |\n| 违约金畸高 | 高 |\n\n'.repeat(120);
+    const codeHeavy = `\`\`\`\n${'const x = compute(a, b, c);\n'.repeat(800)}\`\`\`\n`;
+    const ruled = `章节\n\n${'-'.repeat(80)}\n\n正文。\n\n`.repeat(200);
+    expect(plainFallbackReason(longReply)).toBeNull();
+    expect(plainFallbackReason(codeHeavy)).toBeNull();
+    expect(plainFallbackReason(ruled)).toBeNull();
+  });
+
+  it('降级可见且内容完整：显式说明在场、原文一字不少、不进格式路径', () => {
+    const started = Date.now();
+    const host = render(FROZEN);
+    // 守卫若失效，此处会同步冻结 >20s——耗时本身即断言
+    expect(Date.now() - started).toBeLessThan(2_000);
+    expect(host.dataset.plainFallback).toBe('run');
+    expect(host.querySelector('.md-plain-notice')?.textContent).toContain('已按纯文本完整显示');
+    expect(host.querySelector('[data-testid="paste-block"]')?.textContent).toBe(FROZEN);
+    // 降级态不得残留格式路径产物
+    expect(host.querySelectorAll('strong,em,table,hr')).toHaveLength(0);
+  });
+});
+
+describe('松散列表段界与有序起始序号（验收 D2 / D3）', () => {
+  it('松散列表项内多段落保留段界，不拼成一句', () => {
+    const host = render('- 违约金为每日一百元\n\n  合计三十日共计三千元\n- 下一项');
+    const first = host.querySelectorAll('li')[0];
+    const paragraphs = first.querySelectorAll('p');
+    // 段界是结构事实，须逐段各自取文；textContent 跨元素拼接，天然看不出段界，不能用作判据。
+    expect(paragraphs).toHaveLength(2);
+    expect(paragraphs[0].textContent).toBe('违约金为每日一百元');
+    expect(paragraphs[1].textContent).toBe('合计三十日共计三千元');
+  });
+
+  it('紧凑列表项仍内联，不平白多出段落包裹', () => {
+    const host = render('- 甲\n- 乙');
+    expect(host.querySelectorAll('li p')).toHaveLength(0);
+  });
+
+  it('有序列表起始序号不丢（旧「已知边界③」随 remark 递上 start 而消解）', () => {
+    const host = render('3. 第三条\n4. 第四条');
+    expect(host.querySelector('ol')?.getAttribute('start')).toBe('3');
+  });
+
+  it('起始为 1 时不写冗余 start', () => {
+    const host = render('1. 甲\n2. 乙');
+    expect(host.querySelector('ol')?.getAttribute('start')).toBe('1');
   });
 });
 

@@ -1774,6 +1774,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .chat-markdown .md-link { text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--border-strong); }
 .chat-markdown .md-task { list-style: none; display: flex; gap: 6px; }
 .chat-markdown .md-task-mark { color: var(--text-tertiary); }
+.chat-markdown .md-plain-notice { color: var(--text-secondary); }
 .paste-block.is-overflowing:not(.is-expanded) .paste-block-body { -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) 62%, transparent); mask-image: linear-gradient(to bottom, var(--text-primary) 62%, transparent); }
 .paste-block .collapse-toggle { width: 100%; padding: 3px 10px; border: 0; border-top: 0; background: transparent; color: var(--text-tertiary); cursor: pointer; text-align: left; font-size: var(--type-dense-meta-size); }
 .paste-block .collapse-toggle:hover { background: var(--control-hover); color: var(--text-primary); }

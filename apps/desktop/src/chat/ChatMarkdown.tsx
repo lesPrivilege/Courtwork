@@ -15,7 +15,8 @@ import { PasteBlock } from './PasteBlock';
  * - **链接只渲染不导航**：落 `span.md-link`，零 `<a href>`；打开能力挂 EXPLORE-RAIL-1 的
  *   `opener:allow-open-url` 权限位，本件不接。
  * - **图片、公式、原始 HTML 不落真实元素**：图片无多模态管线（渲染即造能力幻觉）、公式垂类无需、
- *   原始 HTML 是既有安全边界（SPEC.md:70，不引 rehype-raw 一类）。
+ *   原始 HTML 是既有安全边界（见 SPEC.md `CHAT-MD-TABLE-1` 节「原始 HTML 片段不解析执行」条，
+ *   不引 rehype-raw 一类）。按节名引用而非行号——行号在反复编辑的同一文件里必漂。
  * - **未支持节点一律回落原文切片**：`renderUnsupported` 是兜底而非枚举，新语法出现时默认原样
  *   透出而非静默吞——「不静默降级」对尚未支持的语法同样成立。
  */
@@ -23,6 +24,52 @@ import { PasteBlock } from './PasteBlock';
 type Align = 'left' | 'right' | 'center' | null;
 
 const processor = unified().use(remarkParse).use(remarkGfm);
+
+/* ── 渲染预算门（验收阻断一：解析同步冻结）────────────────────────────────────
+ * CommonMark 的强调/链接定界符匹配在长游程下命中最坏复杂度。空闲机实测（`'*'×n + 'x' + '*'×n`）：
+ *   n=4000 → 511ms；n=8000 → 2568ms（主线程同步冻结）；
+ *   n=16000 → **`RangeError: Maximum call stack size exceeded`**（`unist-util-visit-parents`
+ *   在深层嵌套 strong 上递归爆栈——本件的递归渲染器同样会爆，只是解析先崩）。
+ * 退役的手写解析器同输入 0ms，故**两种失效模式都是换件引入的回归**，不是既有问题。
+ * 本件渲染模型输出（不可信输入），故 parse 前须有预算门。
+ *
+ * 测量纪律留痕：初次归因曾记为「n=8000 → >20s」，那是同机并发跑 Playwright 时的负载虚高值；
+ * 空闲复测得 2568ms。结论方向不变（超线性、无界），但量级以空闲实测为准——
+ * 负载相关缺陷须在复现条件下测，此处如实更正。
+ *
+ * 两层，缺一不可：
+ *   ① 长度门——聊天正文超过数十 KB 本身已是呈现问题；同时为聚合面（多段中等游程）设上界。
+ *   ② 游程门——**任意字符**的最大连续重复数。刻意不做定界符黑名单：黑名单的完备性不可证
+ *      （`_`/`[`/`]` 与未知组合同样命中），而「无单字符长游程」是通用结构性约束，覆盖未来语法。
+ *
+ * 阈值由实测校准（真实内容：典型法律长回复 8160 字符/最长游程 3；含长代码块 22408/3；
+ * 含 80 字符分隔线 18600/80）——对真实内容留 1.5–3.2 倍余量，零误伤。
+ * **诚实边界**：门把无界冻结压成有界代价，不是消除代价——上限内最坏输入实测仍需约 553ms
+ * （32 KiB 全塞 256 游程）。这是有意接受的残余，不作「已解决」宣称。
+ * ────────────────────────────────────────────────────────────────────────── */
+
+const MAX_SOURCE_LENGTH = 32_768;
+const MAX_RUN_LENGTH = 256;
+
+export type PlainFallbackReason = 'length' | 'run';
+
+/** 超预算返回原因，未超返回 null。单趟扫描，O(n) 且与解析器无关。 */
+export function plainFallbackReason(source: string): PlainFallbackReason | null {
+  if (source.length > MAX_SOURCE_LENGTH) return 'length';
+  let run = 1;
+  for (let index = 1; index < source.length; index += 1) {
+    if (source.charCodeAt(index) === source.charCodeAt(index - 1)) {
+      run += 1;
+      if (run > MAX_RUN_LENGTH) return 'run';
+    } else {
+      run = 1;
+    }
+  }
+  return null;
+}
+
+/** 降级必须可见（不变量 4）：说清发生了什么与为何，并申明内容完整未截断。 */
+const PLAIN_FALLBACK_COPY = '本条回复已按纯文本完整显示 · 内容过长或含大量连续重复符号时不做格式排版';
 
 /* ── legacy 语义兼容层 ───────────────────────────────────────────────────────
  * remark 的标准语义在两处与退役解析器不同。本票范围是「换实现 + 扩五项」，不含改既有语义，
@@ -171,9 +218,12 @@ function renderTable(node: Table, source: string, key: string): ReactNode {
  * 裸露给用户（比旧行为更差）。此分派即嵌套结构的落点。
  */
 function renderItemContent(item: Parents, source: string, keyBase: string): ReactNode[] {
+  // 紧凑项（单段落）内联以免多余段距；松散项（多段落）必须保留段界——否则两个独立事实被
+  // 拼成一句（验收 D2：「违约金为每日一百元」+「合计三十日共计三千元」曾被并成一行）。
+  const inlineSingleParagraph = item.children.filter((child) => child.type === 'paragraph').length <= 1;
   return item.children.map((child, index) => {
     const key = `${keyBase}-${index}`;
-    if (child.type === 'paragraph') {
+    if (child.type === 'paragraph' && inlineSingleParagraph) {
       return <Fragment key={key}>{renderPhrasing(child.children, source, key)}</Fragment>;
     }
     return renderBlock(child, source, key);
@@ -213,7 +263,9 @@ function renderBlock(node: RootContent, source: string, key: string): ReactNode 
           </li>
         );
       });
-      return node.ordered ? <ol key={key}>{items}</ol> : <ul key={key}>{items}</ul>;
+      // D3：起始序号不再丢弃——旧解析器无此字段属成本限制，remark 已递到手上。
+      if (!node.ordered) return <ul key={key}>{items}</ul>;
+      return <ol key={key} start={node.start ?? undefined}>{items}</ol>;
     }
     case 'table':
       return renderTable(node, source, key);
@@ -237,6 +289,15 @@ function toBlocks(source: string): RootContent[] {
 }
 
 export function ChatMarkdown({ text }: { text: string }) {
+  const fallback = plainFallbackReason(text);
+  if (fallback) {
+    return (
+      <div className="chat-markdown" data-testid="chat-markdown" data-plain-fallback={fallback}>
+        <p className="md-plain-notice">{PLAIN_FALLBACK_COPY}</p>
+        <PasteBlock text={text} />
+      </div>
+    );
+  }
   const blocks = toBlocks(text);
   return (
     <div className="chat-markdown" data-testid="chat-markdown">
