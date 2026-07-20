@@ -4110,3 +4110,79 @@ one-shot 放行，也不授权 push／部署。
 
 **裁决：✅ 放行 MD-CONVERGE-1+ 回炉尖端。** 本轮只解除首轮四项固定项阻断；完整 Playwright、
 合并态 floor、真渲与发布仍由 RELEASE-VERIFY-1 后续阶段实跑决定。
+# ACCEPTANCE: MODEL-CONFIG-EXPLICIT-1 · 独立验收
+
+日期：2026-07-20；对象：`8af06f7875e067275866d04c300da6a8b119c522`（实现
+`43b0f7f72c0e2c2e968f6805502bf7116e3b429b` + 架构裁决文档；基线 `86b2282`）。验收在
+fresh clone `/tmp/courtwork-model-accept.4oyyhH/repo`、独立端口 `19671` 完成；未参与实现，未改
+实现／SPEC／机器门，未 push。`packages/provider` 在受验 diff 中零改动，故本票只在 desktop
+`ACCEPTANCE.md` 留一份报告，不复制第二份 provider 报告。
+
+**裁决：❌ 驳回。** 现值行为在 Chromium 真渲下注入成立，但票面承诺的“任一路径静默即红”
+没有机器证明：把 `useModelConfig` 中唯一的 `deps.notify(MODEL_CONFIG_RESET_NOTICE)` 调用替换为
+无副作用语句后，`model-config.test.ts` 仍 **16/16**，desktop 完整单测仍 **61 files / 396 tests**
+全绿（两命令 exit 0）。也就是说，五条真实降级可在一次未来改动中全部重新静默，而现有门不会红；
+这直接违反实现就绪图验收项“五条降级路径逐条有可见痕迹（反例：任一路径静默即红）”及本单要求的
+mutation 红证。突变已撤，目标源码恢复零 diff；验收会话按 fail-closed 只记录，不代修。
+
+## 逐项实测
+
+- **六条返回值原因成立。** 目标态 `model-config.test.ts` **16/16**（exit 0）；浏览器分别注入
+  `provider_invalid`／`model_invalid`／`reasoning_invalid`／`unreadable`，返回值逐项只携对应原因；
+  模拟 `localStorage` 在场且读取目标键抛 `SecurityError` 时返回
+  `['storage_unavailable','no_stored_value']`；无值时返回 `['no_stored_value']`。
+- **五条 UI 现值可见成立。** 上述前四项与 `storage_unavailable` 分别使用全新 BrowserContext 启动
+  真应用，五次均在 `data-testid=system-open-feedback` 看到逐字
+  `模型配置已重置为默认`；五次 `isUserVisibleDegradation=true`。这只证明现值效力，不解除缺门。
+- **`no_stored_value` 裁决成立。** 单独无值时 700ms 内反馈节点计数 0，返回原因仍显式且
+  `isUserVisibleDegradation=false`。Node 中把 `globalThis.localStorage` 明确置为 `undefined` 后加载，
+  exit 0，返回只含 `no_stored_value`、零可见提示判据；`stripDegradation(loaded)` 与
+  `DEFAULT_MODEL_CONFIG` JSON 字节相同。
+- **reasoning 核心反例成立。** 损坏 `deep-ish` 真渲后 Settings 为 `Current: Standard`，返回
+  `reasoning='standard'`，wire 为 `{thinking:{type:'disabled'}}`，且可见降级判据为真；合法 deep
+  对照无反馈、Settings 为 `Current: Deep`、wire 为 `{thinking:{type:'enabled'}}`。
+- **两消费点同步。** `App.tsx` 只经 `useModelConfig` 取纯 `ModelConfig`；应用入口 `src/main.tsx`
+  的 `providerConfig` 经 `stripDegradation(loadModelConfig())`，降级标记不进 provider/work 链。
+  `src/preview/gallery/main.tsx` 对 model-config 零消费，SPEC 对 rider 坐标的订正与实现一致。
+- **旧正向断言已改。** `defaults and labels` 与 legacy custom/baseUrl 两例均改为先断显式原因、再断
+  默认值；原 round-trip `expect(loadModelConfig()).toEqual(next)` 保留且目标态通过。
+- **过手即拆／高水位成立。** `App.tsx` 基线 `2747` 行、目标 `2740` 行；
+  `lint:app-highwater` 输出 `2740 行（上限 2740）`（exit 0）。外提文件确实承接两个 state、update 与
+  一次性提示，App 只留一次 hook 调用。
+
+## Mutation 与自述逐条对照
+
+1. 把 `isUserVisibleDegradation` 恒改为 false，定向测试精确 **1 failed / 15 passed**（exit 1），命中
+   reasoning 核心反例；撤除后恢复 **16/16**。这证明返回值到“可提示判据”已有红证。
+2. 把唯一 UI 通知调用移除，定向 **16/16**、desktop 完整 **61 files / 396 tests** 仍绿（均 exit 0）。
+   `rg` 亦确认提示常量无任何测试消费。故“提示真的抵达 UI”没有红证，是本轮驳回坐标：
+   `apps/desktop/src/provider/use-model-config.ts` 的初次加载 effect 与缺失的对应测试／e2e。
+3. SPEC 与提交自述称“本单不新写守卫测试证明未降级路径字节等同，只保留既有 round-trip 作证”，
+   但实现 diff 实际新增了测试 `未降级路径逐字等同：返回值不得多出任何可枚举字段`，并新增
+   `Object.keys` 与 `degradation` 两条断言。结论（字节等同）成立，前提自述不实，违反固定项
+   “自述与实现逐条对照”；回炉须订正文档／提交可维护文案，提交历史本身不得改写。
+4. 其余自述与实现相符：六值闭集、五显一静的裁决、storage 收窄、standard wire=disabled、两消费点、
+   App 净减 7 行及 floor 未动，均由读码与实跑交叉确认。
+
+## 命令与门状态
+
+| 命令 | 结果 |
+| --- | --- |
+| `pnpm install --frozen-lockfile` | exit 0，1047 packages |
+| `pnpm -r build` | exit 0；13/14 scope 成功，desktop 3584 modules |
+| `pnpm exec vitest run packages/provider/src/quirk-profile.test.ts` | exit 0，1 file / 6 tests |
+| `pnpm --filter @courtwork/desktop exec vitest run src/provider/model-config.test.ts` | 目标态 exit 0，1 file / 16 tests |
+| `pnpm --filter @courtwork/desktop lint:app-highwater` | exit 0，2740/2740 |
+| 独立 `:19671` Chromium 七 Context（五降级 + no-value + valid-deep） | exit 0；结果见上 |
+| UI 通知移除突变后同一 model-config 定向测试 | **exit 0，16/16（不应绿）** |
+| UI 通知移除突变后 desktop 完整单测 | **exit 0，61 files / 396 tests（不应绿）** |
+| 撤突变后 model-config 定向复跑 | exit 0，16/16；实现文件 `git diff --exit-code`=0 |
+
+fresh clone 初次在 workspace build 前跑 desktop 定向测试曾因 `@courtwork/provider` dist 尚未生成而
+0-test exit 1；另一次从根 vitest 直接过滤 apps 路径因根 include 不含 apps 而 no-files exit 1。两者均为
+验收编排错误，按治理要求如实披露；先 build、改用 desktop workspace 后目标态稳定 16/16，不归责本票。
+
+发现缺门后按“任何红即停”没有继续跑 root lint/test、完整 Playwright 或合并态链；这些未跑项不得被
+上游报告为通过。回炉要求：为五条用户可见降级逐条建立真正经过 `useModelConfig → notify → 真 UI` 的
+反例门，至少删除通知调用时必红；同时订正“未新写字节等同守卫”的失真自述。修复 SHA 必须由另一
+独立会话复验，本会话不验收自己的报告后续。
