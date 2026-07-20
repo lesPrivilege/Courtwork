@@ -1326,12 +1326,19 @@ export function checkSourceHashes({ manifest, manifestPath, artifactSha256, cros
 // 锁的是 `已验收工作链` 与 `Schema catalog preview / 尚未接通运行链`），属自述失实，已订正：
 // 这正是 B-1 被驳回的同一失效模式（自述 ≠ 实现），同一批里不该再犯第二次。
 //
-// **匹配在投影文本上做，不在原始行上做**（第二轮验收发现的假阴）：先剥标签、再折全角。
-//   ① 剥标签——`生产<b>可用</b>`、`已全<strong>面上线</strong>` 在原始行里被标签切断，
-//      逐字匹配扫不到，而浏览器 `innerText` 把它们拼回完整断言，读者看到的是越界原文。
-//      站面 hero typer 与 og 卡都现用逐字包裹写法，这不是理论角落。
-//   ② 折全角——`ｐｒｏｄｕｃｔｉｏｎ－ｒｅａｄｙ` 与半角同形不同码位。
-// 投影保留 → 原始行的偏移映射，故对冲覆盖区间与断言位置仍在同一坐标系比较。
+// **匹配在投影段上做，不在原始行上做**。门看的面必须对齐**读者看到的面**，而读者看到的
+// 不止标签之间的文本：
+//   ① 剥标签——`生产<b>可用</b>` 在原始行被切断，逐字匹配扫不到，而 `innerText` 把它拼回
+//      完整断言。站面 hero typer 与 og 卡都现用逐字包裹写法，这不是理论角落。
+//   ② **属性值也是对外文案**（第三轮验收发现，最重的一类）——`<meta name="description">`
+//      与 `og:description` 的 `content` 正是搜索结果与社交卡的正文；`alt`/`title`/`aria-label`
+//      同理。本门立门缘由就是「og 卡从这个缺口越界」，只扫标签间文本等于把 og:description
+//      一路留着开。故属性值单独成段一起扫。
+//   ③ 折全角——`ｐｒｏｄｕｃｔｉｏｎ－ｒｅａｄｙ` 与半角同形不同码位。
+// **顺序**：先剥标签、后解实体。反过来会让 `&#60;` 解出的字面 `<` 被当成标签起始，吞掉本行
+// 其余文本（第三轮验收实证的假阴）——实体只该产生文本，不该产生结构。
+// 判定按**段内位置区间**：对冲覆盖区间与断言位置同段同坐标系，故「同段先对冲后裸断言」
+// 仍照抓；跨段不互相背书（属性里的对冲不为正文里的断言开脱）。
 const MATURITY_CLAIMS = ['已上线', '全面上线', '全面可用', '生产可用', '生产就绪', '正式上线', '已商用', 'production-ready'];
 const SIGNED_MATURITY_HEDGES = [
   '不等同于产品已全面上线',
@@ -1353,16 +1360,32 @@ const decodeEntities = (value) => value
   .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(Number.parseInt(hex, 16)))
   .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)));
 
-const projectLine = (rawLine) => {
+// 读者可见的属性：这些的值会被渲染或被抓取器当作正文。
+const READER_VISIBLE_ATTRS = /\b(?:content|alt|title|aria-label|placeholder)\s*=\s*"([^"]*)"/gi;
+const normalizeText = (value) => [...decodeEntities(value)].map(foldWidth).join('').toLowerCase();
+
+// 一行 → 若干「读者可见文本段」：标签之间的文本 1 段 + 每个可见属性值各 1 段。
+// `<` 只在后接 `/`、字母或 `!` 时才视为标签起始——正文里的裸 `<`（如 `a < b`）是文本不是结构，
+// 旧实现一律当标签，会吞掉本行其余内容（第三轮验收实证的假阴）。
+const projectSegments = (rawLine) => {
+  const segments = [];
   let text = '';
-  let inTag = false;
-  for (const ch of decodeEntities(rawLine)) {
-    if (ch === '<') { inTag = true; continue; }
-    if (ch === '>') { inTag = false; continue; }
-    if (inTag) continue;
-    text += foldWidth(ch);
+  let index = 0;
+  while (index < rawLine.length) {
+    const ch = rawLine[index];
+    if (ch === '<' && /[/a-zA-Z!]/.test(rawLine[index + 1] ?? '')) {
+      const close = rawLine.indexOf('>', index);
+      const tag = close === -1 ? rawLine.slice(index) : rawLine.slice(index, close + 1);
+      for (const attr of tag.matchAll(READER_VISIBLE_ATTRS)) segments.push(normalizeText(attr[1]));
+      if (close === -1) break;
+      index = close + 1;
+      continue;
+    }
+    text += ch;
+    index += 1;
   }
-  return text.toLowerCase();
+  segments.push(normalizeText(text));
+  return segments;
 };
 
 export function checkMaturityClaims(sources, { hedges = SIGNED_MATURITY_HEDGES } = {}) {
@@ -1371,24 +1394,25 @@ export function checkMaturityClaims(sources, { hedges = SIGNED_MATURITY_HEDGES }
   for (const [file, content] of Object.entries(sources)) {
     const lines = content.split('\n');
     lines.forEach((rawLine, index) => {
-      const line = projectLine(rawLine);
-      // 本行所有已签对冲的覆盖区间——成熟度词必须整体落进其中之一。区间与断言位置同在
-      // 投影坐标系，故「同行先对冲后裸断言」不会被整行豁免（第一轮验收已实证该点正确）。
-      const covered = [];
-      for (const hedge of hedges) {
-        const needle = projectLine(hedge);
-        for (let at = line.indexOf(needle); at !== -1; at = line.indexOf(needle, at + 1)) {
-          covered.push([at, at + needle.length]);
-          hedgeSeen.add(hedge);
+      for (const segment of projectSegments(rawLine)) {
+        // 段内所有已签对冲的覆盖区间——成熟度词必须整体落进其中之一。区间与断言位置同段
+        // 同坐标系，故「同段先对冲后裸断言」不会被整段豁免（第一轮验收已实证该点正确）。
+        const covered = [];
+        for (const hedge of hedges) {
+          const needle = normalizeText(hedge);
+          for (let at = segment.indexOf(needle); at !== -1; at = segment.indexOf(needle, at + 1)) {
+            covered.push([at, at + needle.length]);
+            hedgeSeen.add(hedge);
+          }
         }
-      }
-      for (const claim of MATURITY_CLAIMS) {
-        const needle = projectLine(claim);
-        for (let at = line.indexOf(needle); at !== -1; at = line.indexOf(needle, at + 1)) {
-          const end = at + needle.length;
-          if (covered.some(([from, to]) => at >= from && end <= to)) continue;
-          push(failures, 'maturity-claim', file, index + 1,
-            `unhedged maturity assertion "${claim}" — 成熟度枚举只认 current.md；成熟度词只许出现在已签对冲措辞内（如「不等同于产品已全面上线」），新写法须先登记进 SIGNED_MATURITY_HEDGES`);
+        for (const claim of MATURITY_CLAIMS) {
+          const needle = normalizeText(claim);
+          for (let at = segment.indexOf(needle); at !== -1; at = segment.indexOf(needle, at + 1)) {
+            const end = at + needle.length;
+            if (covered.some(([from, to]) => at >= from && end <= to)) continue;
+            push(failures, 'maturity-claim', file, index + 1,
+              `unhedged maturity assertion "${claim}" — 成熟度枚举只认 current.md；成熟度词只许出现在已签对冲措辞内（如「不等同于产品已全面上线」），新写法须先登记进 SIGNED_MATURITY_HEDGES`);
+          }
         }
       }
     });
