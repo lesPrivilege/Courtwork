@@ -7,6 +7,8 @@ import { validateVersionalSite } from './versional-language-contract-lib.mjs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 const desktopCss = readFileSync(new URL('../../apps/desktop/src/styles.css', import.meta.url), 'utf8');
+const galleryHtml = readFileSync(new URL('../../apps/desktop/visual-gallery.html', import.meta.url), 'utf8');
+const galleryMain = readFileSync(new URL('../../apps/desktop/src/preview/gallery/main.tsx', import.meta.url), 'utf8');
 const screenshotManifest = JSON.parse(readFileSync(new URL('../craft-evidence/VERSIONAL-LANG-3/screenshot-manifest.json', import.meta.url), 'utf8'));
 const screenshotSha = (name, source = readFileSync(new URL(`../assets/screenshots/${name}`, import.meta.url))) =>
   createHash('sha256').update(source).digest('hex');
@@ -86,4 +88,10 @@ test('VL3-S01 六枚 Pages 截图逐字节绑定重摄 manifest', () => {
   const [first] = Object.keys(screenshotManifest.pagesAssets);
   const mutated = Buffer.concat([readFileSync(new URL(`../assets/screenshots/${first}`, import.meta.url)), Buffer.from([0])]);
   assert.notEqual(screenshotSha(first, mutated), screenshotManifest.pagesAssets[first], '截图字节漂移反例必须触红');
+});
+
+test('VL3-T01 图谱总题真实入口安装同一主题控制器', () => {
+  assert.match(galleryHtml, /<meta name="color-scheme" content="light dark"/);
+  assert.match(galleryMain, /import \{ installDesktopThemeController \} from '\.\.\/\.\.\/settings\/theme-controller';/);
+  assert.match(galleryMain, /installDesktopThemeController\(\);/);
 });

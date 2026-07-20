@@ -82,6 +82,7 @@ export const signedR2LedgerRows = Object.freeze([
   ['VL3-C02', 'apps/desktop/src/styles.css#versional-important-title-token', 'agent-interface'],
   ['VL3-T01', 'apps/desktop/src/styles.css#versional-important-title-consumers', 'agent-interface'],
   ['VL3-T02', 'site/styles.css#versional-important-title-consumers', 'pages-experimental'],
+  ['VL3-T03', 'apps/desktop/src/preview/gallery/main.tsx#resolved-data-theme', 'agent-interface'],
   ['VL3-S01', 'site/assets/screenshots#versional-dual-theme-refresh', 'pages-experimental'],
 ]);
 

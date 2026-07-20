@@ -1603,6 +1603,11 @@
       "approvedProposalLine": "VL3-T02"
     },
     {
+      "target": "apps/desktop/src/preview/gallery/main.tsx#resolved-data-theme",
+      "tier": "agent-interface",
+      "approvedProposalLine": "VL3-T03"
+    },
+    {
       "target": "site/assets/screenshots#versional-dual-theme-refresh",
       "tier": "pages-experimental",
       "approvedProposalLine": "VL3-S01"

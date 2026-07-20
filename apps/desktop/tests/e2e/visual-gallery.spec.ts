@@ -19,3 +19,14 @@ test('VISUAL-KIT gallery 在四档视口原生绘制十二族并保留真实 fix
     await page.screenshot({ path: testInfo.outputPath(`visual-gallery-${width}.png`), fullPage: true });
   }
 });
+
+test('VERSIONAL-LANG-3 gallery 自然解析深宗，图谱总题泥金而正文保持冷白', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/visual-gallery.html');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const colors = await page.evaluate(() => ({
+    title: getComputedStyle(document.querySelector<HTMLElement>('.gallery-header h1')!).color,
+    body: getComputedStyle(document.body).color,
+  }));
+  expect(colors).toEqual({ title: 'rgb(217, 174, 106)', body: 'rgb(228, 233, 241)' });
+});

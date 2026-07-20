@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../../styles.css';
+import { installDesktopThemeController } from '../../settings/theme-controller';
 import { freezeViewModel } from '../projection/view-model.js';
 import {
   GALLERY_SPECIMEN_KINDS,
@@ -13,6 +14,8 @@ declare global {
     __COURTWORK_VISUAL_GALLERY__?: VisualizationGalleryView;
   }
 }
+
+installDesktopThemeController();
 
 const abstractLines = ['字段 A', '字段 B', '状态', '来源'];
 const fallback: VisualizationGalleryView = {

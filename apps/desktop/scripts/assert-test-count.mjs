@@ -52,7 +52,8 @@ const count = match ? Number(match[1]) : 0;
 // SKIN-R2 P2 溢出纠偏：detached chrome 标题安全区 + composer disclaimer 容器换行 +2 → 317。
 // VERSIONAL-LANG-1：Agent/Schema 线减法、题轨与 Settings 强边界四条 +4 → 321。
 // SKIN-R2 P2-L21：Focus Preview 首行避让 detached chrome 动态安全区 +1 → 322。
-const minimum = 322;
+// VERSIONAL-LANG-3 复验修复：visual-gallery 独立入口自然解析深宗 +1 → 323。
+const minimum = 323;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
