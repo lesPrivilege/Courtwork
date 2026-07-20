@@ -1227,6 +1227,96 @@ const goldConsumers = new Set([
 ]);
 const goldKeyframes = new Set(['typer-develop']); // 同一枚 hero 母题的显影过程
 
+// ── 参考件落仓校验（R-14，ARCH-SCOPE-2026-07-20）────────────────────────────
+//
+// 立门缘由：`SOURCE-HASHES.json` 原本无任何脚本消费——四处 PROPOSAL/SIGNATURE 引用的 SHA
+// 指向的字节只存在于本机未跟踪文件，换机即锚空。声称有出处而出处不可复现，与没有出处
+// 是同一件事（「SHA 只锚内容不锚声称」判例的反面）。
+//
+// 三条校验，缺一不可：
+//   ① **落仓**：每条 source 的 path 必须真实存在（否则锚仍是空的，只是换了个地方空）；
+//   ② **逐位**：实算 SHA-256 必须与表内值逐位相等（表是声称，文件是事实，事实为准）；
+//   ③ **交叉**：该 SHA 必须在 crossReferences 的**每一处**引用文件里都出现——四处引用
+//      若有一处漂了，就出现了「两个版本的同一份参考件」，而这正是当初要用 SHA 锚住的事。
+export function checkSourceHashes({ manifest, manifestPath, artifactSha256, crossReferenceContents }) {
+  const failures = [];
+  const fail = (message) => push(failures, 'source-hashes', manifestPath, 1, message);
+  const sources = manifest?.sources;
+  if (!Array.isArray(sources) || sources.length === 0) {
+    fail('sources 为空——参考件清单必须逐件列出，空清单等于没有出处');
+    return failures;
+  }
+  const crossRefs = manifest.crossReferences ?? [];
+  if (crossRefs.length === 0) fail('crossReferences 为空——无引用面可交叉，SHA 漂移将无从发现');
+  for (const entry of sources) {
+    if (!entry.path) {
+      fail(`${entry.name}: 缺 path——只记 SHA 不记落仓位置，锚不到实物`);
+      continue;
+    }
+    const actual = artifactSha256(entry.path);
+    if (actual === undefined) {
+      fail(`${entry.name}: 落仓件缺席 ${entry.path}——被 ${crossRefs.length} 处引用的字节不在仓内`);
+      continue;
+    }
+    if (actual !== entry.sha256) {
+      fail(`${entry.name}: 字节漂移 ${entry.path}——实算 ${actual} ≠ 表内 ${entry.sha256}`);
+      continue;
+    }
+    for (const reference of crossRefs) {
+      const content = crossReferenceContents[reference];
+      if (content === undefined) {
+        fail(`crossReference 缺席：${reference}`);
+        continue;
+      }
+      if (!content.includes(entry.sha256)) {
+        fail(`${entry.name}: ${reference} 未引用该 SHA——引用面与清单脱钩`);
+      }
+    }
+  }
+  return failures;
+}
+
+// ── 成熟度断言黑名单（R-12，ARCH-SCOPE-2026-07-20）──────────────────────────
+//
+// 立门缘由：审查发现站面**没有任何门管成熟度口径**——既无规则要求对冲词出现，也无规则
+// 禁止「已上线」类断言；`已验收工作链` 与 `Schema catalog preview / 尚未接通运行链` 两条
+// 是**锁既有措辞不被删**，不是**禁新增越界措辞**。og 卡正是从这个缺口越的界（index.html
+// 出现「合成数据试点」7 次，og 卡 0 次）。成熟度枚举是本仓的硬纪律（不变量 9），
+// 对外面却只靠人眼守——本门把它补成机器事实。
+//
+// **判据必须区分「断言」与「否定断言」**：站面现有三处对冲恰恰把「已全面上线」写在
+// 否定句里（「不等同于产品已全面上线」「这不是产品已全面上线的承诺」）。一刀切的
+// 子串禁令会红掉我们最想要的那三句话，等于逼着作者删对冲——门的方向就反了。
+// 故：命中词先回看**同句**前文，句内有否定词即放行；跨句不放行（避免上一句的
+// 「不」漏进来给下一句背书）。句界取 。！？；\n 与闭合标签。
+const MATURITY_CLAIMS = ['已上线', '全面上线', '全面可用', '生产可用', '生产就绪', '正式上线', '已商用', 'production-ready'];
+const MATURITY_NEGATORS = ['不', '非', '未', '尚', '并未', '而不是'];
+
+export function checkMaturityClaims(sources) {
+  const failures = [];
+  for (const [file, content] of Object.entries(sources)) {
+    const lines = content.split('\n');
+    lines.forEach((rawLine, index) => {
+      const line = rawLine.toLowerCase();
+      for (const claim of MATURITY_CLAIMS) {
+        let from = 0;
+        for (;;) {
+          const at = line.indexOf(claim.toLowerCase(), from);
+          if (at === -1) break;
+          from = at + claim.length;
+          // 同句前文 = 本行该命中点之前、最近一个句界之后的片段（标签不算内容）。
+          const before = rawLine.slice(0, at).replace(/<[^>]*>/g, '');
+          const sentence = before.split(/[。！？；]/).pop() ?? '';
+          if (MATURITY_NEGATORS.some((negator) => sentence.includes(negator))) continue;
+          push(failures, 'maturity-claim', file, index + 1,
+            `unhedged maturity assertion "${claim}" — 成熟度枚举只认 current.md；对外面须写成否定或带限定（如「不等同于产品已全面上线」）`);
+        }
+      }
+    });
+  }
+  return failures;
+}
+
 export function checkColorGrammar(css) {
   const failures = [];
   const fail = (message) => push(failures, 'color-grammar', 'site/styles.css', 1, message);

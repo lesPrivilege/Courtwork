@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="design_doc_mode" content="canvas">
+<style>
+  :root{
+    --bg-app:#F7F8FA; --bg-surface:#F2F4F7; --bg-raised:#FFFFFF; --bg-hover:#E6E8EC;
+    --control-hover:#DDE0E4; --bg-selected:#D9E3F6;
+    --text-primary:#232B38; --text-secondary:#55617A; --text-tertiary:#637083;
+    --text-disabled:#8A94A8; --text-inverse:#F7F8FA;
+    --border:#D5DAE3; --border-strong:#C3CAD6; --border-focus:#2563EB;
+    --rule-major:2px; --rule-minor:1px; --rule-gap:2px; --rule-ink:var(--border-strong);
+    --action:#232B38; --action-hover:#3A4658;
+    --red-g:#A83226; --red-fg:#A83226; --red-bg:#FBEBE9;
+    --amber-g:#8F6420; --amber-fg:#8F6420; --amber-bg:#FAF3E6;
+    --blue-g:#2563EB; --blue-fg:#1D4ED8; --blue-bg:#EFF6FF;
+    --green-g:#16A34A; --green-fg:#15803D; --green-bg:#F0FDF4;
+    --slate-g:#55617A; --slate-fg:#55617A; --slate-bg:#F2F4F7;
+    --zhu:#BE4B2F;
+    --generated:#F7F8FA; --verified:#F0F4FE;
+    --shadow:0 1px 2px rgba(35,43,56,0.045), 0 4px 12px rgba(35,43,56,0.035);
+    --font-title:"Songti SC","Source Han Serif SC","Noto Serif CJK SC","STSong",serif;
+    --font-body:"Songti SC","Source Han Serif SC","Noto Serif CJK SC","STSong",serif;
+    --ui:-apple-system,"Segoe UI","PingFang SC","MiSans","Microsoft YaHei","Noto Sans SC","Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,"Courier New",monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg-app);color:var(--text-primary);font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;}
+  a{color:var(--blue-fg);text-underline-offset:3px;text-decoration-thickness:1px;}
+  a:hover{color:var(--action);}
+</style>
+</helmet>
+<div style="width:2440px;padding:40px;display:flex;flex-direction:column;gap:28px;background:var(--bg-app);">
+
+  <!-- ══ MASTHEAD ══ -->
+  <header style="position:relative;padding:26px 30px 22px;background:var(--bg-raised);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:var(--rule-major) solid var(--rule-ink);padding-bottom:16px;position:relative;" style-after="content:'';position:absolute;left:0;right:0;bottom:calc(-1 * var(--rule-gap));border-bottom:var(--rule-minor) solid var(--border);pointer-events:none;">
+      <div style="display:flex;flex-direction:column;gap:9px;max-width:1520px;">
+        <div style="display:flex;align-items:center;gap:10px;color:var(--text-tertiary);font-family:var(--mono);font-size:12px;letter-spacing:.02em;">
+          <svg width="15" height="8" viewBox="0 0 16 8" style="color:var(--text-secondary);"><path d="M0 0 L8 4 L16 0 L16 2.4 L8 6.4 L0 2.4 Z" fill="currentColor"/></svg>
+          目录版本学 × 写本经书 · 设计语言生长
+        </div>
+        <h1 style="margin:0;font-family:var(--font-title);font-size:34px;font-weight:600;letter-spacing:-.01em;line-height:1.2;">巧思生长谱 · 从文本载体传统替换路径依赖</h1>
+        <p style="margin:0;font-size:16px;color:var(--text-secondary);line-height:1.55;">要用版刻与写本传统替换 Claude Design 的常见套路（左侧彩色衬线条、01/02/03、玻璃卡、uppercase kicker、渐变 CTA），关键不是「换一套皮肤」，而是<b style="color:var(--text-primary);">一台可复用的生长引擎</b>：<b style="color:var(--zhu);">陌生化的本体是编排的多样性，不是字体的猎奇。</b>记号走版本学（界行 / 鱼尾 / 版框），字形走写本正脉（书手谱系）；表达位取写本源、功能位取刊本源；色墨守配额（朱仅裁决 · 泥金唯一强调）。</p>
+      </div>
+      <div style="flex:none;text-align:right;font-family:var(--mono);font-size:12px;color:var(--text-tertiary);line-height:1.8;">
+        基线 · 刻本印页宗（浅）<br>
+        每条新记号 = <b style="color:var(--text-secondary);">档位 + 机器门 + 所替 slop</b><br>
+        候选须过 R2 克制审计门方可回迁<br>
+        tokens v1.3.0 · 记号色古 · 交互色今
+      </div>
+    </div>
+    <p style="margin:14px 0 0;font-size:13px;color:var(--text-tertiary);line-height:1.6;">读法：先看<b style="color:var(--text-secondary);">生长法则</b>（怎么合法地长出一条新巧思）→ 再看 <b style="color:var(--text-secondary);">slop → 巧思对照</b>（逐条替换路径依赖）→ 末看<b style="color:var(--text-secondary);">巧思谱</b>（八个候选带实样）与<b style="color:var(--text-secondary);">根系</b>（它们从既有记号系生长而来，不是凭空发明）。</p>
+  </header>
+
+  <!-- ══ 首批落地建议（供 GPT 参考） ══ -->
+  <section style="padding:22px 26px 24px;background:var(--bg-raised);border:2px solid var(--action);border-radius:12px;box-shadow:var(--shadow);">
+    <div style="display:flex;align-items:baseline;gap:12px;border-bottom:var(--rule-major) solid var(--rule-ink);padding-bottom:12px;margin-bottom:16px;position:relative;" style-after="content:'';position:absolute;left:0;right:0;bottom:calc(-1 * var(--rule-gap));border-bottom:var(--rule-minor) solid var(--border);pointer-events:none;">
+      <span style="font-family:var(--mono);font-size:11px;color:var(--action);background:var(--bg-selected);padding:2px 8px;border-radius:4px;">结论先行 · 供 GPT 参考</span>
+      <h2 style="margin:0;font-family:var(--font-title);font-size:22px;font-weight:600;">首批落地 · 四样最宜实现、最不违和</h2>
+      <span style="font-size:13px;color:var(--text-tertiary);">判准 = 建在<b style="color:var(--text-secondary);">已上线机制</b>上 × 零新色/零裁决预算触碰 × 直杀一个具名 slop × 低可读性风险。</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">
+
+      <!-- ① 抬头·平阙 -->
+      <div style="border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:11px 13px;border-bottom:var(--rule-minor) solid var(--border);display:flex;align-items:baseline;gap:8px;">
+          <span style="font-family:var(--mono);font-size:15px;color:var(--action);">①</span>
+          <h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">抬头 · 平阙</h3>
+          <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-tertiary);">中/激</span>
+        </div>
+        <div style="padding:11px 13px;flex:1;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:8px;font-size:11px;"><span style="color:var(--green-fg);font-family:var(--mono);">✓ 最宜实现</span><span style="color:var(--green-fg);font-family:var(--mono);">✓ 最不违和</span></div>
+          <p style="margin:0;font-size:12px;color:var(--text-secondary);line-height:1.55;">纯 CSS：关键主体<b style="color:var(--text-primary);">新起一行 + 出格到版框缘 + 前置敬空</b>；层级靠位置与留白，零放大零彩色。已是「背景色块最后手段」原则的直接兑现，几乎零风险。</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;font-family:var(--mono);font-size:10px;">
+            <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;">space.* · text-indent</span>
+            <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--action);">assert-typography</span>
+          </div>
+          <p style="margin:auto 0 0;font-size:11px;color:var(--text-tertiary);line-height:1.5;">scope · 仅文书阅读面与 pages 表达位；数据行左对齐不用。</p>
+        </div>
+        <div style="padding:8px 13px;background:var(--bg-surface);font-size:11px;color:var(--red-fg);">替 · uppercase kicker / 渐变大标题</div>
+      </div>
+
+      <!-- ② 版框等第 -->
+      <div style="border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:11px 13px;border-bottom:var(--rule-minor) solid var(--border);display:flex;align-items:baseline;gap:8px;">
+          <span style="font-family:var(--mono);font-size:15px;color:var(--action);">②</span>
+          <h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">版框等第</h3>
+          <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-tertiary);">中/克</span>
+        </div>
+        <div style="padding:11px 13px;flex:1;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:8px;font-size:11px;"><span style="color:var(--green-fg);font-family:var(--mono);">✓ 最宜实现</span><span style="color:var(--green-fg);font-family:var(--mono);">✓ 最不违和</span></div>
+          <p style="margin:0;font-size:12px;color:var(--text-secondary);line-height:1.55;">直接<b style="color:var(--text-primary);">扩展已上线的 <span style="font-family:var(--mono);font-size:10.5px;">.panel-head::after</span> 文武线</b>为三等第：四周双边 &gt; 左右双边 &gt; 乌丝；容器层级由框型表达，不叠卡与影。机制已在跑，只补收口判据。</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;font-family:var(--mono);font-size:10px;">
+            <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;">rule.major/minor/gap</span>
+            <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--action);">assert-rule-grammar</span>
+            <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--action);">assert-elevation-shadow</span>
+          </div>
+          <p style="margin:auto 0 0;font-size:11px;color:var(--text-tertiary);line-height:1.5;">scope · 主界四周双边、次界乌丝；勿 1px 统一主次。</p>
+        </div>
+        <div style="padding:8px 13px;background:var(--bg-surface);font-size:11px;color:var(--red-fg);">替 · 卡中卡 + 边框叠软阴影</div>
+      </div>
+
+      <!-- ③ 夹注·眉批 -->
+      <div style="border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:11px 13px;border-bottom:var(--rule-minor) solid var(--border);display:flex;align-items:baseline;gap:8px;">
+          <span style="font-family:var(--mono);font-size:15px;color:var(--action);">③</span>
+          <h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">夹注 · 眉批</h3>
+          <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-tertiary);">克/中</span>
+        </div>
+        <div style="padding:11px 13px;flex:1;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:8px;font-size:11px;"><span style="color:var(--green-fg);font-family:var(--mono);">✓ 最宜实现</span><span style="color:var(--green-fg);font-family:var(--mono);">✓ 最不违和</span></div>
+          <p style="margin:0;font-size:12px;color:var(--text-secondary);line-height:1.55;">AI 解释从浮卡改为<b style="color:var(--text-primary);">眉批（天头小字带）或双行夹注</b>，直接复用<b style="color:var(--text-primary);">既有 generated / verified 双通道</b>，零新样式。正解你最初点名的「callout 卡 + 左彩条」。</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;font-family:var(--mono);font-size:10px;">
+            <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;">provenance.generated/verified</span>
+            <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--action);">assert-preview-boundaries</span>
+          </div>
+          <p style="margin:auto 0 0;font-size:11px;color:var(--text-tertiary);line-height:1.5;">scope · 仅解释性(generated)入夹注；溯源仍挂引用上。</p>
+        </div>
+        <div style="padding:8px 13px;background:var(--bg-surface);font-size:11px;color:var(--red-fg);">替 · AI callout 卡 + 左侧彩条</div>
+      </div>
+
+      <!-- ④ 牌记·刊记（仅平框） -->
+      <div style="border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="padding:11px 13px;border-bottom:var(--rule-minor) solid var(--border);display:flex;align-items:baseline;gap:8px;">
+          <span style="font-family:var(--mono);font-size:15px;color:var(--action);">④</span>
+          <h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">牌记 · 刊记</h3>
+          <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-tertiary);">激 · 仅平框</span>
+        </div>
+        <div style="padding:11px 13px;flex:1;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:8px;font-size:11px;"><span style="color:var(--green-fg);font-family:var(--mono);">✓ 最宜实现</span><span style="color:var(--amber-fg);font-family:var(--mono);">△ 限平框</span></div>
+          <p style="margin:0;font-size:12px;color:var(--text-secondary);line-height:1.55;">发布/版本/构建事实入一个 <b style="color:var(--text-primary);">文武线平框 + mono</b> 的刊记块，真实版本与 SHA。<b style="color:var(--text-primary);">只做平框</b>——钟/鼎/亚形框型属存目「疑」，本批不碰。</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;font-family:var(--mono);font-size:10px;">
+            <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;">rule.* 框 · mono</span>
+            <span style="background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--action);">site deslop-scan</span>
+          </div>
+          <p style="margin:auto 0 0;font-size:11px;color:var(--text-tertiary);line-height:1.5;">scope · 几何单源；无制品不出伪下载。</p>
+        </div>
+        <div style="padding:8px 13px;background:var(--bg-surface);font-size:11px;color:var(--red-fg);">替 · 渐变 CTA / 伪下载 / SaaS footer</div>
+      </div>
+    </div>
+
+    <!-- 暂缓 -->
+    <div style="margin-top:16px;padding:13px 15px;border:1px solid var(--amber-g);border-radius:8px;background:var(--amber-bg);">
+      <p style="margin:0 0 8px;font-family:var(--font-title);font-size:14px;font-weight:600;color:var(--amber-fg);">暂缓（勿误选为首批 · 附因）</p>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px 24px;font-size:12px;color:var(--text-primary);line-height:1.55;">
+        <div>· <b>校勘记</b> — 需 <span style="font-family:var(--mono);font-size:10.5px;">courtwork.compare.vN</span> 版本化 + apparatus projection，是整块 blueprint，非小改。</div>
+        <div>· <b>钩乙 · 抹</b> — 转置语义须动 <span style="font-family:var(--mono);font-size:10.5px;">RevisionInstructionSet</span>（schema 变更），先过 ADR；记号可先离线试。</div>
+        <div>· <b>签条（竖排）</b> — <span style="font-family:var(--mono);font-size:10.5px;">writing-mode</span> 竖排易滑向装饰/违和；先只用横式题签。</div>
+        <div>· <b>象鼻 · 白口</b> — 折缝载态过隐晦，对 35–55 岁用户可读性存疑（存目已标「疑」）。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 生长法则 ══ -->
+  <section style="padding:22px 26px;background:var(--bg-raised);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);">
+    <div style="display:flex;align-items:baseline;gap:12px;border-bottom:var(--rule-major) solid var(--rule-ink);padding-bottom:12px;margin-bottom:18px;position:relative;" style-after="content:'';position:absolute;left:0;right:0;bottom:calc(-1 * var(--rule-gap));border-bottom:var(--rule-minor) solid var(--border);pointer-events:none;">
+      <h2 style="margin:0;font-family:var(--font-title);font-size:22px;font-weight:600;">生长法则 · 一条新巧思的准入五问</h2>
+      <span style="font-size:13px;color:var(--text-tertiary);">答不出任一问即不长出——这是把「有品味 = 禁止清单」升级为「有出处 + 有职能 + 有门禁」。</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:18px;">
+      <div style="border-left:2px solid var(--rule-ink);padding-left:14px;">
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text-tertiary);margin-bottom:6px;">一</div>
+        <h3 style="margin:0 0 6px;font-family:var(--font-title);font-size:16px;font-weight:600;">有出处</h3>
+        <p style="margin:0;font-size:12.5px;color:var(--text-secondary);line-height:1.6;">源自文本载体传统——版本学（版框/界行/鱼尾/象鼻/牌记/校勘）、写本经书（书手/朱笔/抬头/题记）、装帧（经折/卷轴/线装）。<b style="color:var(--text-primary);">不是</b>视觉猎奇（仿哥特、Papyrus、novelty 展示字）。</p>
+      </div>
+      <div style="border-left:2px solid var(--rule-ink);padding-left:14px;">
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text-tertiary);margin-bottom:6px;">二</div>
+        <h3 style="margin:0 0 6px;font-family:var(--font-title);font-size:16px;font-weight:600;">有职能</h3>
+        <p style="margin:0;font-size:12.5px;color:var(--text-secondary);line-height:1.6;">编码一项<b style="color:var(--text-primary);">真实语义功能</b>，并指名它替代的<b style="color:var(--text-primary);">一个具体 slop trope</b>。无对应职能的记号即违例——「掐边花纹一律拒」的推广。</p>
+      </div>
+      <div style="border-left:2px solid var(--rule-ink);padding-left:14px;">
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text-tertiary);margin-bottom:6px;">三</div>
+        <h3 style="margin:0 0 6px;font-family:var(--font-title);font-size:16px;font-weight:600;">从 token 构造</h3>
+        <p style="margin:0;font-size:12.5px;color:var(--text-secondary);line-height:1.6;">零新色值、零新阴影、零新圆角。记号只用 <span style="font-family:var(--mono);font-size:11px;">currentColor</span> + 既有线级（<span style="font-family:var(--mono);font-size:11px;">rule.major/minor</span>）与间距阶。几何单源（一份 <span style="font-family:var(--mono);font-size:11px;">&lt;symbol&gt;</span>，处处 <span style="font-family:var(--mono);font-size:11px;">&lt;use&gt;</span>）。</p>
+      </div>
+      <div style="border-left:2px solid var(--rule-ink);padding-left:14px;">
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text-tertiary);margin-bottom:6px;">四</div>
+        <h3 style="margin:0 0 6px;font-family:var(--font-title);font-size:16px;font-weight:600;">绑档位与门</h3>
+        <p style="margin:0;font-size:12.5px;color:var(--text-secondary);line-height:1.6;">绑定唯一激进度档（激进 / 中间 / 克制）+ 一条机器门；许可<b style="color:var(--text-primary);">不跨档继承</b>。激进档探得的成熟项须过中间档克制审计才回迁工作面。</p>
+      </div>
+      <div style="border-left:2px solid var(--zhu);padding-left:14px;">
+        <div style="font-family:var(--mono);font-size:12px;color:var(--text-tertiary);margin-bottom:6px;">五</div>
+        <h3 style="margin:0 0 6px;font-family:var(--font-title);font-size:16px;font-weight:600;">守分轨</h3>
+        <p style="margin:0;font-size:12.5px;color:var(--text-secondary);line-height:1.6;"><b style="color:var(--text-primary);">记号色古</b>（朱/红/琥珀承文书传统）、<b style="color:var(--text-primary);">交互色今</b>（蓝绿）；<b style="color:var(--text-primary);">表达位写本、功能位刊本</b>；数据区静止，朱只落在人做决定处。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ slop → 巧思 对照 ══ -->
+  <section style="padding:22px 26px;background:var(--bg-raised);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);">
+    <div style="display:flex;align-items:baseline;gap:12px;border-bottom:var(--rule-major) solid var(--rule-ink);padding-bottom:12px;margin-bottom:0;position:relative;" style-after="content:'';position:absolute;left:0;right:0;bottom:calc(-1 * var(--rule-gap));border-bottom:var(--rule-minor) solid var(--border);pointer-events:none;">
+      <h2 style="margin:0;font-family:var(--font-title);font-size:22px;font-weight:600;">slop → 巧思 · 逐条替换路径依赖</h2>
+      <span style="font-size:13px;color:var(--text-tertiary);">左列即 Claude Design 常见套路（含你点名的「左侧彩色衬线条」）；右列是版本学/写本的等义替换。</span>
+    </div>
+    <div style="font-family:var(--ui);">
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:11px;color:var(--text-tertiary);padding:9px 4px;border-bottom:1px solid var(--border);"><span>路径依赖（slop）</span><span>版本学 / 写本 替换</span><span>机制 · token / 门</span><span>档</span></div>
+      <!-- rows -->
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:12.5px;padding:9px 4px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="color:var(--text-secondary);">每卡左侧<b style="color:var(--red-fg);">彩色衬线条</b></span><span><b>文武线</b>（结构）+ <b>法理之线</b>（仅处置态，2px 稀缺）</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-tertiary);">rule.* · line.* 五色 · assert-signature-line</span><span style="font-family:var(--mono);font-size:10px;">中/克</span></div>
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:12.5px;padding:9px 4px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="color:var(--text-secondary);">01 / 02 / 03 编号脚手架</span><span><b>卷次 · 鱼尾节标</b>（卷一…卷尾）</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-tertiary);">#mark-fishtail · deslop schema-parts</span><span style="font-family:var(--mono);font-size:10px;">激/中</span></div>
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:12.5px;padding:9px 4px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="color:var(--text-secondary);">Hero + 三等分 icon 卡</span><span><b>版框</b>（四周双边）承单叙事 + <b>夹注</b>承说明</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-tertiary);">rule.major 四边 · generatedBg</span><span style="font-family:var(--mono);font-size:10px;">激</span></div>
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:12.5px;padding:9px 4px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="color:var(--text-secondary);">glass / 卡中卡嵌套地狱</span><span><b>版框等第</b>：四周双边 &gt; 左右双边 &gt; 乌丝</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-tertiary);">rule.major/minor · assert-rule-grammar</span><span style="font-family:var(--mono);font-size:10px;">中/克</span></div>
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:12.5px;padding:9px 4px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="color:var(--text-secondary);">uppercase kicker（FEATURES）</span><span><b>抬头 · 平阙</b>（位置与留白表层级）</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-tertiary);">space.* 换行/敬空 · 零色零大字</span><span style="font-family:var(--mono);font-size:10px;">激/中</span></div>
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:12.5px;padding:9px 4px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="color:var(--text-secondary);">渐变 CTA / 伪下载</span><span><b>牌记 · 刊记</b>（真实版本 SHA 著录）</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-tertiary);">文武线框 · mono · 真件</span><span style="font-family:var(--mono);font-size:10px;">激</span></div>
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:12.5px;padding:9px 4px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="color:var(--text-secondary);">pill 彩虹标签 / 项目卡 icon+三行</span><span><b>签条</b>（书衣题签 + 双鱼尾）</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-tertiary);">rule.minor 框 · #mark-fishtail</span><span style="font-family:var(--mono);font-size:10px;">中</span></div>
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:12.5px;padding:9px 4px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="color:var(--text-secondary);">通用 diff「Version A / B」</span><span><b>校勘记</b>（底本 / 校本 / 校语 + 圈点键）</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-tertiary);">courtwork.compare.vN · 待版本化</span><span style="font-family:var(--mono);font-size:10px;">克</span></div>
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:12.5px;padding:9px 4px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="color:var(--text-secondary);">红删蓝增无法表达「移动」</span><span><b>钩乙</b>（乙 转置）+ <b>抹</b>（删）记号</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-tertiary);">glyph 记号 · 非新色 · 记号色古</span><span style="font-family:var(--mono);font-size:10px;">克</span></div>
+      <div style="display:grid;grid-template-columns:1.15fr 1.25fr 1.35fr 80px;gap:0;font-size:12.5px;padding:9px 4px;align-items:baseline;"><span style="color:var(--text-secondary);">每卡「左彩条」定位/焦点态</span><span><b>象鼻 · 白口 / 细黑口</b>（版心折缝载态）</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-tertiary);">border 单源 · 色不外溢</span><span style="font-family:var(--mono);font-size:10px;">中</span></div>
+    </div>
+  </section>
+
+  <!-- ══ 巧思谱 ══ -->
+  <section style="padding:22px 26px 26px;background:var(--bg-raised);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);">
+    <div style="display:flex;align-items:baseline;gap:12px;border-bottom:var(--rule-major) solid var(--rule-ink);padding-bottom:12px;margin-bottom:18px;position:relative;" style-after="content:'';position:absolute;left:0;right:0;bottom:calc(-1 * var(--rule-gap));border-bottom:var(--rule-minor) solid var(--border);pointer-events:none;">
+      <h2 style="margin:0;font-family:var(--font-title);font-size:22px;font-weight:600;">巧思谱 · 八个候选（带实样）</h2>
+      <span style="font-size:13px;color:var(--text-tertiary);">每格：名 · 源 · 实样 · 杀死的 slop · 语义 · 机制。这些是探索件，回迁前须过克制审计。</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+
+      <!-- 卡1 夹注·眉批 -->
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;"><h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">夹注 · 眉批</h3><span style="font-family:var(--mono);font-size:10px;color:var(--green-fg);background:var(--green-bg);padding:1px 6px;border-radius:3px;">克/中</span></div>
+          <p style="margin:5px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--text-tertiary);">源 · 天头眉批 / 双行小字夹注</p>
+        </div>
+        <div style="padding:12px 14px;flex:1;">
+          <div style="background:var(--generated);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:4px 6px;font-family:var(--ui);font-size:10px;color:var(--text-tertiary);margin-bottom:8px;">眉批 · 释读：此条与第七条风险转移相抵</div>
+          <p style="margin:0;font-family:var(--font-body);font-size:13px;line-height:1.9;">乙方应于签订后七日内支付预付款<span style="font-size:9px;line-height:1.1;color:var(--text-tertiary);display:inline-flex;flex-direction:column;vertical-align:-2px;text-align:center;margin:0 2px;"><span>逾期</span><span>计息</span></span>，逾期未付按约处理。</p>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg-surface);font-size:11.5px;line-height:1.55;">
+          <p style="margin:0 0 4px;color:var(--red-fg);">杀死 · AI callout 卡 + 左侧彩条</p>
+          <p style="margin:0;color:var(--text-secondary);">解释性文字回到<b style="color:var(--text-primary);">页面本身</b>（夹注/眉批），不另起浮卡。生成走 <span style="font-family:var(--mono);font-size:10px;">generatedBg</span>，核验留正文。</p>
+        </div>
+      </div>
+
+      <!-- 卡2 校勘记 -->
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;"><h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">校勘记</h3><span style="font-family:var(--mono);font-size:10px;color:var(--green-fg);background:var(--green-bg);padding:1px 6px;border-radius:3px;">克制</span></div>
+          <p style="margin:5px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--text-tertiary);">源 · 底本 / 校本 / 校语 apparatus</p>
+        </div>
+        <div style="padding:12px 14px;flex:1;font-family:var(--font-body);">
+          <p style="margin:0 0 8px;font-size:12.5px;line-height:1.85;">设备交付即视为风险转移至乙方<sup style="font-family:var(--mono);font-size:9px;color:var(--zhu);">①</sup>，验收合格前所有权仍归甲方<sup style="font-family:var(--mono);font-size:9px;color:var(--zhu);">②</sup>。</p>
+          <div style="border-top:1px solid var(--border);padding-top:6px;font-family:var(--ui);font-size:10.5px;color:var(--text-secondary);line-height:1.6;">
+            <p style="margin:0;"><span style="font-family:var(--mono);color:var(--zhu);">①</span> 〔乙本〕作「交付经验收」</p>
+            <p style="margin:0;"><span style="font-family:var(--mono);color:var(--zhu);">②</span> 丙本此句脱</p>
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg-surface);font-size:11.5px;line-height:1.55;">
+          <p style="margin:0 0 4px;color:var(--red-fg);">杀死 · 通用「Version A / B」diff</p>
+          <p style="margin:0;color:var(--text-secondary);">版本差异＝<b style="color:var(--text-primary);">校勘</b>：底本承文、圈点作键、校语归脚。即 <span style="font-family:var(--mono);font-size:10px;">compare</span> 待版本化的设计。</p>
+        </div>
+      </div>
+
+      <!-- 卡3 钩乙·抹 -->
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;"><h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">钩乙 · 抹</h3><span style="font-family:var(--mono);font-size:10px;color:var(--green-fg);background:var(--green-bg);padding:1px 6px;border-radius:3px;">克制</span></div>
+          <p style="margin:5px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--text-tertiary);">源 · 校点乙转 / 抹删记号</p>
+        </div>
+        <div style="padding:14px;flex:1;font-family:var(--font-body);">
+          <p style="margin:0 0 12px;font-size:13px;line-height:1.9;">买方<span style="position:relative;display:inline-block;">应<svg width="10" height="16" viewBox="0 0 10 16" style="position:absolute;left:60%;top:-2px;color:var(--zhu);"><path d="M2 2 L2 10 L8 10" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></span>七日内提出异议。</p>
+          <p style="margin:0;font-size:13px;line-height:1.9;"><span style="border-bottom:2px dotted var(--red-fg);color:var(--text-secondary);">每逾期一日按1%</span> <span style="color:var(--text-tertiary);font-size:11px;font-family:var(--ui);">〔抹·删〕</span></p>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg-surface);font-size:11.5px;line-height:1.55;">
+          <p style="margin:0 0 4px;color:var(--red-fg);">杀死 · 红删蓝增表达不了「移动」</p>
+          <p style="margin:0;color:var(--text-secondary);"><b style="color:var(--text-primary);">乙</b>标转置、<b style="color:var(--text-primary);">抹</b>标删，是<b style="color:var(--text-primary);">记号</b>不是新色——内容改动仍红删蓝增。</p>
+        </div>
+      </div>
+
+      <!-- 卡4 抬头·平阙 -->
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;"><h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">抬头 · 平阙</h3><span style="font-family:var(--mono);font-size:10px;color:var(--amber-fg);background:var(--amber-bg);padding:1px 6px;border-radius:3px;">激/中</span></div>
+          <p style="margin:5px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--text-tertiary);">源 · 写本敬式抬头 / 空阙</p>
+        </div>
+        <div style="padding:14px;flex:1;font-family:var(--font-body);font-size:12.5px;line-height:1.9;">
+          <p style="margin:0 0 2px;color:var(--text-secondary);">本院审理认为，</p>
+          <p style="margin:0;text-indent:-10px;padding-left:10px;">　　<b style="color:var(--text-primary);">甲方 临江精铸集团</b> 之主张</p>
+          <p style="margin:0;color:var(--text-secondary);">于法有据，予以支持。</p>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg-surface);font-size:11.5px;line-height:1.55;">
+          <p style="margin:0 0 4px;color:var(--red-fg);">杀死 · uppercase kicker / 彩色大标题</p>
+          <p style="margin:0;color:var(--text-secondary);">层级靠<b style="color:var(--text-primary);">换行 + 敬空</b>抬出，零彩色零放大——正合「背景色块是最后手段」。</p>
+        </div>
+      </div>
+
+      <!-- 卡5 版框等第 -->
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;"><h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">版框等第</h3><span style="font-family:var(--mono);font-size:10px;color:var(--green-fg);background:var(--green-bg);padding:1px 6px;border-radius:3px;">中/克</span></div>
+          <p style="margin:5px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--text-tertiary);">源 · 四周双边 / 左右双边 / 单栏</p>
+        </div>
+        <div style="padding:14px;flex:1;display:flex;align-items:center;justify-content:center;">
+          <div style="width:100%;border:var(--rule-major) solid var(--rule-ink);position:relative;padding:10px;" style-after="content:'';position:absolute;inset:2px;border:var(--rule-minor) solid var(--border);pointer-events:none;">
+            <div style="font-family:var(--ui);font-size:9px;color:var(--text-tertiary);margin-bottom:6px;">四周双边 · 工作面</div>
+            <div style="border-left:2px solid var(--rule-ink);border-right:2px solid var(--rule-ink);padding:8px 8px;">
+              <div style="font-family:var(--ui);font-size:9px;color:var(--text-tertiary);margin-bottom:4px;">左右双边 · 内层</div>
+              <div style="border-bottom:1px solid var(--border);font-family:var(--ui);font-size:10px;padding:3px 0;">乌丝 · 行 01</div>
+              <div style="font-family:var(--ui);font-size:10px;padding:3px 0;">乌丝 · 行 02</div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg-surface);font-size:11.5px;line-height:1.55;">
+          <p style="margin:0 0 4px;color:var(--red-fg);">杀死 · 卡中卡 + 边框叠软阴影</p>
+          <p style="margin:0;color:var(--text-secondary);">容器层级<b style="color:var(--text-primary);">由框型而非卡与影</b>表达；线重即等第。</p>
+        </div>
+      </div>
+
+      <!-- 卡6 签条 -->
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;"><h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">签条</h3><span style="font-family:var(--mono);font-size:10px;color:var(--amber-fg);background:var(--amber-bg);padding:1px 6px;border-radius:3px;">中间</span></div>
+          <p style="margin:5px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--text-tertiary);">源 · 书衣题签 + 双鱼尾</p>
+        </div>
+        <div style="padding:16px 14px;flex:1;display:flex;gap:12px;align-items:flex-start;justify-content:center;">
+          <div style="border:1px solid var(--border-strong);border-radius:3px;padding:8px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--bg-raised);min-width:64px;">
+            <svg width="14" height="7" viewBox="0 0 16 8" style="color:var(--text-secondary);"><path d="M0 0 L8 4 L16 0 L16 2.4 L8 6.4 L0 2.4 Z" fill="currentColor"/></svg>
+            <span style="writing-mode:vertical-rl;font-family:var(--font-title);font-size:14px;line-height:1.5;letter-spacing:.05em;">临江精铸 · 卷二</span>
+            <span style="font-family:var(--mono);font-size:9px;color:var(--text-tertiary);">合同审查</span>
+          </div>
+          <div style="border:1px solid var(--border);border-radius:3px;padding:8px 10px;font-family:var(--ui);font-size:10.5px;color:var(--text-tertiary);align-self:center;">横式题签<br>设备采购合同.pdf</div>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg-surface);font-size:11.5px;line-height:1.55;">
+          <p style="margin:0 0 4px;color:var(--red-fg);">杀死 · pill 彩虹标签 / icon+三行卡</p>
+          <p style="margin:0;color:var(--text-secondary);">案件/阶段/文件标签＝<b style="color:var(--text-primary);">题签</b>，窄框 + 鱼尾头，承真实名而非营销 chip。</p>
+        </div>
+      </div>
+
+      <!-- 卡7 牌记·刊记 -->
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;"><h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">牌记 · 刊记</h3><span style="font-family:var(--mono);font-size:10px;color:var(--red-fg);background:var(--red-bg);padding:1px 6px;border-radius:3px;">激进</span></div>
+          <p style="margin:5px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--text-tertiary);">源 · 刊记牌记（版本著录）</p>
+        </div>
+        <div style="padding:16px 14px;flex:1;display:flex;align-items:center;justify-content:center;">
+          <div style="border:var(--rule-major) solid var(--rule-ink);position:relative;padding:12px 16px;text-align:center;" style-after="content:'';position:absolute;inset:2px;border:var(--rule-minor) solid var(--border);pointer-events:none;">
+            <div style="font-family:var(--font-title);font-size:15px;font-weight:600;letter-spacing:.04em;">Courtwork</div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--text-secondary);margin-top:5px;line-height:1.6;">v0.1.2 · Apple Silicon<br>f4af2a44… · 未公证</div>
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg-surface);font-size:11.5px;line-height:1.55;">
+          <p style="margin:0 0 4px;color:var(--red-fg);">杀死 · 渐变 CTA / 伪下载脚手架</p>
+          <p style="margin:0;color:var(--text-secondary);">发布事实＝<b style="color:var(--text-primary);">刊记</b>：真实版本与 SHA 著于框记，无制品即不出伪下载。</p>
+        </div>
+      </div>
+
+      <!-- 卡8 象鼻·白口 -->
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:12px 14px 10px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;"><h3 style="margin:0;font-family:var(--font-title);font-size:17px;font-weight:600;">象鼻 · 白口</h3><span style="font-family:var(--mono);font-size:10px;color:var(--amber-fg);background:var(--amber-bg);padding:1px 6px;border-radius:3px;">中间</span></div>
+          <p style="margin:5px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--text-tertiary);">源 · 版心象鼻 · 白口/黑口</p>
+        </div>
+        <div style="padding:14px;flex:1;display:flex;align-items:stretch;justify-content:center;gap:0;min-height:96px;">
+          <div style="flex:1;border:1px solid var(--border);border-right:0;padding:8px;font-family:var(--ui);font-size:9.5px;color:var(--text-tertiary);">左面 · 常态<br>白口（细）</div>
+          <div style="width:6px;background:var(--bg-surface);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;"><span style="width:2px;height:38%;background:var(--action);display:block;"></span></div>
+          <div style="flex:1;border:1px solid var(--border-strong);border-left:0;padding:8px;font-family:var(--ui);font-size:9.5px;color:var(--text-secondary);">右面 · 聚焦<br>细黑口（载态）</div>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg-surface);font-size:11.5px;line-height:1.55;">
+          <p style="margin:0 0 4px;color:var(--red-fg);">杀死 · 「每卡左彩条」定位焦点</p>
+          <p style="margin:0;color:var(--text-secondary);">焦点/态由<b style="color:var(--text-primary);">版心折缝</b>（象鼻宽窄、白口/黑口）承载，色彩不外溢到每张卡。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 根系 ══ -->
+  <section style="padding:22px 26px;background:var(--bg-raised);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);">
+    <div style="display:flex;align-items:baseline;gap:12px;border-bottom:var(--rule-major) solid var(--rule-ink);padding-bottom:12px;margin-bottom:18px;position:relative;" style-after="content:'';position:absolute;left:0;right:0;bottom:calc(-1 * var(--rule-gap));border-bottom:var(--rule-minor) solid var(--border);pointer-events:none;">
+      <h2 style="margin:0;font-family:var(--font-title);font-size:22px;font-weight:600;">根系 · 八候选从既有记号系生长而来</h2>
+      <span style="font-size:13px;color:var(--text-tertiary);">不是凭空发明：同一套版本学/写本语汇，已落地者为根，候选者为枝。</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;">
+      <div>
+        <p style="margin:0 0 10px;font-family:var(--mono);font-size:11px;color:var(--green-fg);">根 · 已落地（site/ 与壳）</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <span style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;"><svg width="15" height="8" viewBox="0 0 16 8" style="color:var(--text-secondary);"><path d="M0 0 L8 4 L16 0 L16 2.4 L8 6.4 L0 2.4 Z" fill="currentColor"/></svg>鱼尾（卷次）</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;"><svg width="6" height="16" viewBox="0 0 5 24" preserveAspectRatio="none" style="color:var(--text-secondary);"><rect x="0" width="2" height="24" fill="currentColor"/><rect x="4" width="1" height="24" fill="currentColor"/></svg>文武线（主界）</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;"><svg width="9" height="9" viewBox="0 0 8 8" style="color:var(--text-secondary);"><circle cx="4" cy="4" r="2.6" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>圈点（强调）</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--zhu);"><svg width="14" height="14" viewBox="0 0 96 96" style="color:var(--zhu);"><rect x="3" y="3" width="90" height="90" fill="none" stroke="currentColor" stroke-width="6"/></svg>落定章（朱·裁决）</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;"><svg width="18" height="8" viewBox="0 0 72 24" style="color:var(--text-secondary);"><path d="M6 4v16M18 7v10M30 2v20M42 7v10M54 4v16M66 9v6" fill="none" stroke="currentColor" stroke-width="2"/></svg>骑缝（接缝完整）</span>
+          <span style="border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text-secondary);">墨迹洇染 · ink-bleed（单点）</span>
+          <span style="border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;">写本拉丁 <i style="font-family:var(--font-title);font-style:italic;">Courtwork</i></span>
+          <span style="border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text-secondary);">磁青泥金（写经纸 · 深宗）</span>
+        </div>
+      </div>
+      <div>
+        <p style="margin:0 0 10px;font-family:var(--mono);font-size:11px;color:var(--amber-fg);">枝 · 本谱候选（待 R2 克制审计回迁）</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <span style="border:1px dashed var(--border-strong);border-radius:6px;padding:6px 10px;font-size:12px;">夹注·眉批</span>
+          <span style="border:1px dashed var(--border-strong);border-radius:6px;padding:6px 10px;font-size:12px;">校勘记</span>
+          <span style="border:1px dashed var(--border-strong);border-radius:6px;padding:6px 10px;font-size:12px;">钩乙·抹</span>
+          <span style="border:1px dashed var(--border-strong);border-radius:6px;padding:6px 10px;font-size:12px;">抬头·平阙</span>
+          <span style="border:1px dashed var(--border-strong);border-radius:6px;padding:6px 10px;font-size:12px;">版框等第</span>
+          <span style="border:1px dashed var(--border-strong);border-radius:6px;padding:6px 10px;font-size:12px;">签条</span>
+          <span style="border:1px dashed var(--border-strong);border-radius:6px;padding:6px 10px;font-size:12px;">牌记·刊记</span>
+          <span style="border:1px dashed var(--border-strong);border-radius:6px;padding:6px 10px;font-size:12px;">象鼻·白口</span>
+        </div>
+        <p style="margin:14px 0 0;font-size:12.5px;color:var(--text-secondary);line-height:1.65;">同法则可续推的方向不在此展开——记入下方<b style="color:var(--text-primary);">续推存目</b>供决策取用；凡续推者仍走准入五问。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 续推存目 ══ -->
+  <section style="padding:22px 26px 24px;background:var(--bg-raised);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);">
+    <div style="display:flex;align-items:baseline;gap:12px;border-bottom:var(--rule-major) solid var(--rule-ink);padding-bottom:12px;margin-bottom:14px;position:relative;" style-after="content:'';position:absolute;left:0;right:0;bottom:calc(-1 * var(--rule-gap));border-bottom:var(--rule-minor) solid var(--border);pointer-events:none;">
+      <h2 style="margin:0;font-family:var(--font-title);font-size:22px;font-weight:600;">续推存目 · 记其目而未收其书</h2>
+      <span style="font-size:13px;color:var(--text-tertiary);">取四库存目体例：以下方向已记录待决，<b style="color:var(--text-secondary);">尚未做成实样</b>。状态 <span style="font-family:var(--mono);color:var(--text-secondary);">存</span>(待验) · <span style="font-family:var(--mono);color:var(--amber-fg);">疑</span>(存疑) · <span style="font-family:var(--mono);color:var(--red-fg);">拒</span>(留痕)。</span>
+    </div>
+    <div style="font-family:var(--ui);">
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:11px;color:var(--text-tertiary);padding:8px 6px;border-bottom:1px solid var(--border);"><span>条</span><span>名</span><span>源</span><span>拟替 slop</span><span>拟档</span><span>状态</span><span>待验 · 否因</span></div>
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:12px;padding:9px 6px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="font-family:var(--mono);color:var(--text-tertiary);">一</span><span style="font-family:var(--font-body);font-weight:600;">经折装 · 卷轴装</span><span style="color:var(--text-secondary);">装帧形制</span><span style="color:var(--text-secondary);">无极缩放画布 & 手风琴折叠</span><span style="font-family:var(--mono);font-size:10px;">激→中</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-secondary);">存</span><span style="color:var(--text-secondary);">与 Tab + 分割条方案的认知成本对比（35–55 岁律师主场）</span></div>
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:12px;padding:9px 6px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="font-family:var(--mono);color:var(--text-tertiary);">二</span><span style="font-family:var(--font-body);font-weight:600;">题记 · 尾题 · 奥题</span><span style="color:var(--text-secondary);">写本尾题</span><span style="color:var(--text-secondary);">3D 插画空态 &「成功」toast</span><span style="font-family:var(--mono);font-size:10px;">中</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-secondary);">存</span><span style="color:var(--text-secondary);">与 voice「已+动词」体例合流；是否与朱印共现须定</span></div>
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:12px;padding:9px 6px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="font-family:var(--mono);color:var(--text-tertiary);">三</span><span style="font-family:var(--font-body);font-weight:600;">提要 · 解题</span><span style="color:var(--text-secondary);">目录卷端提要</span><span style="color:var(--text-secondary);">hero + 副标堆叠</span><span style="font-family:var(--mono);font-size:10px;">中</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-secondary);">存</span><span style="color:var(--text-secondary);">与既有 artifact 头摘要位合并，勿形成第二真源</span></div>
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:12px;padding:9px 6px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="font-family:var(--mono);color:var(--text-tertiary);">四</span><span style="font-family:var(--font-body);font-weight:600;">递修 · 补版 · 描润</span><span style="color:var(--text-secondary);">版刻补版</span><span style="color:var(--text-secondary);">「定稿后追改」无溯源</span><span style="font-family:var(--mono);font-size:10px;">克</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-secondary);">存</span><span style="color:var(--text-secondary);">只读呈现，接修订账本/事件流，不新增持久格式</span></div>
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:12px;padding:9px 6px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="font-family:var(--mono);color:var(--text-tertiary);">五</span><span style="font-family:var(--font-body);font-weight:600;">鱼尾分级（单/双/黑白）</span><span style="color:var(--text-secondary);">版心鱼尾</span><span style="color:var(--text-secondary);">等权无层级的标签堆</span><span style="font-family:var(--mono);font-size:10px;">中</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-secondary);">存</span><span style="color:var(--text-secondary);">鱼尾数 ↔ 层级（卷/册/文件）映射须可机器断言</span></div>
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:12px;padding:9px 6px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="font-family:var(--mono);color:var(--text-tertiary);">六</span><span style="font-family:var(--font-body);font-weight:600;">骑缝印 · 引首 · 压角</span><span style="color:var(--text-secondary);">藏书钤印位</span><span style="color:var(--text-secondary);">每卡左彩条冒充「归属」</span><span style="font-family:var(--mono);font-size:10px;">激→中</span><span style="font-family:var(--mono);font-size:11px;color:var(--amber-fg);">疑</span><span style="color:var(--text-secondary);">朱配额：每印位须绑已落定数据态，否则违「无落定数据的朱即违例」</span></div>
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:12px;padding:9px 6px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="font-family:var(--mono);color:var(--text-tertiary);">七</span><span style="font-family:var(--font-body);font-weight:600;">朱丝栏 · 乌丝栏</span><span style="color:var(--text-secondary);">写本界栏</span><span style="color:var(--text-secondary);">dots-grid / 极光渐变装饰背景</span><span style="font-family:var(--mono);font-size:10px;">克</span><span style="font-family:var(--mono);font-size:11px;color:var(--amber-fg);">疑</span><span style="color:var(--text-secondary);">朱丝栏与「朱仅裁决」冲突，须降为乌丝或纯网格不载状态</span></div>
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:12px;padding:9px 6px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="font-family:var(--mono);color:var(--text-tertiary);">八</span><span style="font-family:var(--font-body);font-weight:600;">牌记框型（钟/鼎/亚形）</span><span style="color:var(--text-secondary);">刊记牌记</span><span style="color:var(--text-secondary);">多样式装饰 footer</span><span style="font-family:var(--mono);font-size:10px;">激</span><span style="font-family:var(--mono);font-size:11px;color:var(--amber-fg);">疑</span><span style="color:var(--text-secondary);">与文武线框型是否重复；几何须单源，勿滑向具象 kitsch</span></div>
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:12px;padding:9px 6px;border-bottom:1px solid var(--border);align-items:baseline;"><span style="font-family:var(--mono);color:var(--text-tertiary);">九</span><span style="font-family:var(--font-body);font-weight:600;">贝叶 · 梵夹装（穿绳孔）</span><span style="color:var(--text-secondary);">多文种装帧</span><span style="color:var(--text-tertiary);">—（叙事巧思）</span><span style="font-family:var(--mono);font-size:10px;">激·仅站</span><span style="font-family:var(--mono);font-size:11px;color:var(--text-secondary);">存</span><span style="color:var(--text-secondary);">只作站面叙事，不入壳；守站面动效例外边界</span></div>
+      <div style="display:grid;grid-template-columns:44px 164px 148px 1.05fr 66px 60px 1.5fr;gap:0;font-size:12px;padding:9px 6px;align-items:baseline;"><span style="font-family:var(--mono);color:var(--text-tertiary);">十</span><span style="font-family:var(--font-body);font-weight:600;color:var(--text-tertiary);">避讳 · 缺笔</span><span style="color:var(--text-tertiary);">写本避讳</span><span style="color:var(--text-tertiary);">—</span><span style="font-family:var(--mono);font-size:10px;color:var(--text-tertiary);">—</span><span style="font-family:var(--mono);font-size:11px;color:var(--red-fg);">拒</span><span style="color:var(--text-secondary);">有出处但无 UI 职能（准入②不过）——留痕示范「有源无职即拒」</span></div>
+    </div>
+    <p style="margin:14px 0 0;font-size:12px;color:var(--text-tertiary);line-height:1.6;">存目非承诺清单：任一条「存/疑」转候选前，须补齐准入五问（尤其②有职能与④机器门）并做实样；「拒」条保留于目，供后来者不重复其路。</p>
+  </section>
+
+  <!-- ══ FOOTER 护栏 ══ -->
+  <footer style="display:flex;justify-content:space-between;align-items:flex-start;gap:30px;padding:18px 26px;background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;">
+    <div style="flex:1;">
+      <p style="margin:0 0 8px;font-family:var(--font-title);font-size:14px;font-weight:600;">回迁护栏（效果图是探索件，不是权威）</p>
+      <ul style="margin:0;padding-left:16px;font-size:12.5px;color:var(--text-secondary);line-height:1.7;">
+        <li>效果图只探组合与布局；被采纳须翻译为 <b style="color:var(--text-primary);">token / 组件 / blueprint</b> 才生效。</li>
+        <li>回迁唯一通货是既有 token 与设计语言——三层表面、动效四属性白名单、零投影密度对候选同样有裁决权；新色/新阴影/弹簧动效一律回迁时剔除或先修 token。</li>
+        <li>外部参考（含本 kit 的冷调站）经<b style="color:var(--text-primary);">源码级调研入档</b>才可作依据，视觉皮肤不随机制迁入。</li>
+      </ul>
+    </div>
+    <div style="flex:none;max-width:560px;">
+      <p style="margin:0 0 6px;font-family:var(--font-title);font-size:13px;font-weight:600;">一句话</p>
+      <p style="margin:0;font-size:12.5px;line-height:1.65;color:var(--text-secondary);">替换路径依赖不靠「换字体」，靠<b style="color:var(--text-primary);">一台生长引擎</b>：从文本载体传统取记号、为每条记号绑定真实职能与机器门、只用既有 token 构造、守记号色古/交互色今与档位不跨继承。本谱自身即刻本印页浅宗、文武线主界、数据区零动效、mono 承数字与门名。</p>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

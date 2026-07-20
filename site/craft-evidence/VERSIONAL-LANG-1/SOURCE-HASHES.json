@@ -1,19 +1,35 @@
 {
-  "schemaVersion": "courtwork.versional-language.sources.v1",
+  "schemaVersion": "courtwork.versional-language.sources.v2",
   "status": "reference-only-unapproved",
   "visualConsumerBase": "71b7fa3",
+  "note": "R-14（ARCH-SCOPE-2026-07-20）：本表原只记 name+sha256 而无落仓路径，且无任何脚本消费——被四处引用的字节只存在于本机未跟踪文件，换机即锚空。本版补 path 并立校验消费者 checkSourceHashes：逐条核文件存在、实算 SHA 与本表逐位相等、且该 SHA 在 crossReferences 列出的每一处引用文件里都出现。authority 仍为 false——落仓解决的是证据链可复现，不改变「参考件非权威」的定性。",
+  "crossReferences": [
+    "site/craft-evidence/VERSIONAL-LANG-1/ARCHITECTURE-SIGNATURE.md",
+    "site/craft-evidence/VERSIONAL-LANG-2/PROPOSAL.md",
+    "site/craft-evidence/VERSIONAL-LANG-3/PROPOSAL.md"
+  ],
   "sources": [
     {
       "name": "设计语言三档评估板.dc.html",
+      "path": "site/craft-evidence/VERSIONAL-LANG-1/sources/设计语言三档评估板.dc.html",
       "sha256": "0648262d0894dd7b79ad8603e4441d21f6115cac422052b397e20350b67008f0",
       "role": "three-tier assessment reference",
       "authority": false
     },
     {
       "name": "巧思生长谱-版本学与写本.dc.html",
+      "path": "site/craft-evidence/VERSIONAL-LANG-1/sources/巧思生长谱-版本学与写本.dc.html",
       "sha256": "dcba23b955d623bb55c258ba0e351858c4e187f6262f926dd85dec76e96bd870",
       "role": "versional and manuscript vocabulary reference",
       "authority": false
+    }
+  ],
+  "externalBackups": [
+    {
+      "name": "Work Agent 原型.dc.html",
+      "sha256": "60233b1a3f8b607c7776a1bc662ff3520ed2e4aa7e29f1c11961176a5a535d25",
+      "backupPath": "archive/design-prototype-2026-07-19-r2/work-agent-prototype-r2.html",
+      "note": "已有逐字节同源的归档备份（同 148735 bytes、同 SHA），故本机工作树副本不重复入仓，已于 R-14 移除。此条只作出处记录，不进 checkSourceHashes 的落仓校验——归档件不参与现行校验链。"
     }
   ]
 }

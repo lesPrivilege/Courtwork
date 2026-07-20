@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkThemeBoundary, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -682,4 +682,91 @@ test('SKIN-R2-P4 keeps dark switching at the root token map with zero component/
   assert.ok(run(rootMap.replace('--bg-app: #0f1622;', '--bg-app: var(--text-primary);')).includes('theme-boundary'));
   assert.ok(run(rootMap.replace('  --bg-app: #0f1622;\n', '')).includes('theme-boundary'));
   assert.ok(run(rootMap.replace('  --bg-app: #0f1622;', '  --bg-app: #0f1622;\n  --rogue-paper: var(--bg-app);')).includes('theme-boundary'));
+});
+
+// R-12（ARCH-SCOPE-2026-07-20）：成熟度断言黑名单。本门的难点不是禁词，是**区分断言与
+// 否定断言**——站面现有三处对冲把「已全面上线」正写在否定句里，粗暴子串禁令会红掉对冲
+// 本身，等于逼作者删掉我们最想要的话。故正反两向都必须有例。
+test('R-12 maturity blacklist reds unhedged claims and leaves existing hedges alone', () => {
+  const run = (content, file = 'site/index.html') =>
+    checkMaturityClaims({ [file]: content }).map((failure) => failure.rule);
+
+  // 阴性对照必须落零：现行四份对外件在真实字节下零违例（否则本门一上线就误伤）。
+  const live = {
+    'site/index.html': readFileSync(new URL('../index.html', import.meta.url), 'utf8'),
+    'site/og.html': readFileSync(new URL('../og.html', import.meta.url), 'utf8'),
+    'site/styles.css': readFileSync(new URL('../styles.css', import.meta.url), 'utf8'),
+    'site/main.js': readFileSync(new URL('../main.js', import.meta.url), 'utf8'),
+    'README.md': readFileSync(new URL('../../README.md', import.meta.url), 'utf8'),
+  };
+  assert.deepEqual(checkMaturityClaims(live), []);
+
+  // 三条真实对冲逐句放行——它们是本门要保护的对象，不是要抓的对象。
+  assert.deepEqual(run('<p>链路已在试点中跑通，但不等同于产品已全面上线。</p>'), []);
+  assert.deepEqual(run('<p>这不是产品已全面上线的承诺。</p>'), []);
+  assert.deepEqual(run('<p>本卷证据来自同一份合成卷宗；链路已在试点中跑通，但不等同于产品已全面上线。</p>'), []);
+
+  // 裸断言逐词触红。
+  for (const claim of ['已上线', '全面上线', '全面可用', '生产可用', '生产就绪', '正式上线', '已商用']) {
+    assert.ok(run(`<p>Courtwork 现已${claim}。</p>`).includes('maturity-claim'), `裸断言未触红：${claim}`);
+  }
+  assert.ok(run('<p>Courtwork is production-ready today.</p>').includes('maturity-claim'));
+
+  // og 卡必须在扫描面内——本轮越界正出自此处，漏了它等于门白立。
+  assert.ok(run('<small>macOS · 生产可用</small>', 'site/og.html').includes('maturity-claim'));
+
+  // 跨句不背书：上一句的「不」不得给下一句的断言开脱。
+  assert.ok(run('<p>本产品不做自动送出。产品已全面上线。</p>').includes('maturity-claim'));
+
+  // 标签不算内容：否定词若只出现在属性里，不构成同句否定。
+  assert.ok(run('<p data-note="不">产品已全面上线</p>').includes('maturity-claim'));
+});
+
+// R-14（ARCH-SCOPE-2026-07-20）：参考件落仓校验。原缺口是「有 SHA 无实物、无消费者」——
+// 声称有出处而出处不可复现，与没有出处等价。三条校验各有反例。
+test('R-14 source-hashes binds manifest, landed bytes, and every cross-reference', () => {
+  const manifestPath = 'site/craft-evidence/VERSIONAL-LANG-1/SOURCE-HASHES.json';
+  const manifest = JSON.parse(readFileSync(new URL(`../../${manifestPath}`, import.meta.url), 'utf8'));
+  const sha = (file) => {
+    try {
+      return createHash('sha256').update(readFileSync(new URL(`../../${file}`, import.meta.url))).digest('hex');
+    } catch { return undefined; }
+  };
+  const crossReferenceContents = Object.fromEntries(manifest.crossReferences.map((reference) =>
+    [reference, readFileSync(new URL(`../../${reference}`, import.meta.url), 'utf8')]));
+  const run = (overrides = {}) => checkSourceHashes({
+    manifest, manifestPath, artifactSha256: sha, crossReferenceContents, ...overrides,
+  }).map((failure) => failure.rule);
+
+  // 阴性对照落零：真实清单 + 真实落仓件 + 真实引用面。
+  assert.deepEqual(run(), []);
+  assert.ok(manifest.sources.length > 0 && manifest.sources.every((entry) => entry.path));
+
+  // ① 落仓缺席 → 红（原缺口的形态：SHA 在册、字节不在仓）。
+  assert.ok(run({ artifactSha256: () => undefined }).includes('source-hashes'));
+  // ② 字节漂移 → 红（表是声称、文件是事实，事实为准）。
+  assert.ok(run({ artifactSha256: () => '0'.repeat(64) }).includes('source-hashes'));
+  // ③ 引用面脱钩 → 红（四处引用漂一处，就有了两个版本的同一份参考件）。
+  assert.ok(run({ crossReferenceContents: { ...crossReferenceContents, [manifest.crossReferences[0]]: '（引用已删）' } })
+    .includes('source-hashes'));
+  // ③' 引用面整份缺席 → 红。
+  assert.ok(run({ crossReferenceContents: {} }).includes('source-hashes'));
+  // 只记 SHA 不记 path → 红（本轮修的正是这个形态）。
+  assert.ok(run({ manifest: { ...manifest, sources: [{ name: 'x', sha256: '0'.repeat(64) }] } }).includes('source-hashes'));
+  // 空清单 / 无交叉引用面 → 红。
+  assert.ok(run({ manifest: { ...manifest, sources: [] } }).includes('source-hashes'));
+  assert.ok(run({ manifest: { ...manifest, crossReferences: [] } }).includes('source-hashes'));
+});
+
+// 按角色分面的自证：证据实物**若按产品面规则扫，必然一片红**——这正是分面存在的理由。
+// 若哪天这条断言变绿，说明要么实物被人改成了 token 合规（证据已毁），要么分面失效。
+test('R-14 role faceting is load-bearing: evidence artifacts would flood the product-surface rules', () => {
+  const manifest = JSON.parse(readFileSync(
+    new URL('../craft-evidence/VERSIONAL-LANG-1/SOURCE-HASHES.json', import.meta.url), 'utf8'));
+  for (const entry of manifest.sources) {
+    const content = readFileSync(new URL(`../../${entry.path}`, import.meta.url), 'utf8');
+    const asProductSurface = scanSources([source(entry.path, content)], { repository: true });
+    assert.ok(asProductSurface.length > 0,
+      `${entry.path}：按产品面规则扫竟零违例——分面的前提不成立，须复核该件是否仍是外部冻结件`);
+  }
 });

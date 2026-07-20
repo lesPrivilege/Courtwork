@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkThemeBoundary, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, scanSources } from './deslop-scan-lib.mjs';
 import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
@@ -210,6 +210,41 @@ for (const failure of checkColorGrammar(css)) {
 for (const failure of checkSchemaParts(html)) {
   failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
 }
+// 成熟度断言黑名单（R-12）：扫全部对外文件——四份站面件 + 仓库门面 README。
+// og.html 必须在内：它是本轮唯一越界面，且从不发布（只经 og.png 抵达读者），
+// 无门看着就没有第二双眼睛。
+const outwardFacing = { ...sources, 'README.md': readFileSync(resolve('README.md'), 'utf8') };
+for (const failure of checkMaturityClaims(outwardFacing)) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+}
+
+// 参考件落仓校验（R-14）。同时产出「证据实物面」清单，供下方按角色分面使用。
+const sourceHashesPath = 'site/craft-evidence/VERSIONAL-LANG-1/SOURCE-HASHES.json';
+const sourceHashes = JSON.parse(readFileSync(resolve(sourceHashesPath), 'utf8'));
+const sha256Of = (file) => {
+  try {
+    return createHash('sha256').update(readFileSync(resolve(file))).digest('hex');
+  } catch {
+    return undefined;
+  }
+};
+const crossReferenceContents = Object.fromEntries(
+  (sourceHashes.crossReferences ?? []).flatMap((reference) => {
+    try {
+      return [[reference, readFileSync(resolve(reference), 'utf8')]];
+    } catch {
+      return [];
+    }
+  }),
+);
+for (const failure of checkSourceHashes({
+  manifest: sourceHashes,
+  manifestPath: sourceHashesPath,
+  artifactSha256: sha256Of,
+  crossReferenceContents,
+})) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+}
 
 // `.claude` 与 .git/node_modules 同类：工具目录，非仓内容。不排除时根遍历会扫到
 // 陈旧 worktree 副本（如 .claude/worktrees/*/site/styles.css），其路径不在
@@ -233,10 +268,25 @@ function collectActiveText(directory) {
   return collected;
 }
 
-const activeSources = collectActiveText(resolve('.')).map((file) => ({
-  path: relative(resolve('.'), file),
-  content: readFileSync(file, 'utf8'),
-}));
+// ── 按角色分面（R-14 拍板：不再加目录黑名单）────────────────────────────────
+//
+// 两类文件的正确性条件不同，用同一套规则是范畴错误：
+//   **产品面**（站面、壳、包、文档）——我们著作、我们发布，故受全规则约束：色值必须是
+//     tokens 精确消费者、禁营销腔、禁裸 hex……
+//   **证据实物面**（外部原型、采集帧一类冻结件）——不是我们著作的，且**按定义不可编辑**：
+//     它的正确性条件是「字节与登记的哈希相等」，不是「内容符合我们的设计法」。这两条
+//     互斥——真把它改成 token 合规了，证据本身就毁了。
+//
+// 关键：**豁免由「已被哈希绑定」赚取，不由「住在某个目录」赚取**。清单来自
+// SOURCE-HASHES.json 的 path 字段，而那些 path 刚被上面的 checkSourceHashes 逐位核过。
+// 换言之——想进证据面，先接受哈希绑定；往 sources/ 里丢个文件不产生豁免，只产生一条红。
+// 这样分面不是给扫描器开口子，是把「谁在管这个文件」讲清楚：产品面归内容规则管，
+// 证据面归字节规则管，没有第三类「谁都不管」。
+const evidenceArtifacts = new Set((sourceHashes.sources ?? []).map((entry) => entry.path));
+const activeSources = collectActiveText(resolve('.'))
+  .map((file) => relative(resolve('.'), file))
+  .filter((path) => !evidenceArtifacts.has(path))
+  .map((path) => ({ path, content: readFileSync(resolve(path), 'utf8') }));
 for (const failure of scanSources(activeSources, { repository: true })) {
   failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
 }
