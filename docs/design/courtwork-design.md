@@ -8,7 +8,7 @@ courtwork_design_md:
     version: 1
   sources:
     "docs/design/tokens.json":
-      sha256: "c2a7c6ab29f2c699985b9d5d73b04003ca0f49bb664730828465288ca91e60c3"
+      sha256: "49f0558bfdfbc11254a8e0e0d805bf79635fef2841c4191b851b89c6d5160001"
     "docs/design/principles.md":
       sha256: "0a1418ebabbedacacd6e8ce8d25c87e90995ab316f5f54e7d0036e87345f0871"
   tokenSet:
@@ -686,7 +686,7 @@ tokens:
 - `themes.dark.border.focus` = `#6A94F1` — B0 自拟：焦点环。现行 #2563EB 在浮卡上仅 2.57:1 不可用，取蓝族 fg 轨。技法仍锁 outline
 - `themes.dark.semantic.zhu` = `graphic #D75A3C · fg #E2857A` — 朱＝人工落定/裁决。fg 为原型自带值，对浮卡 4.98:1
 - `themes.dark.semantic.red` = `graphic #B5382F · fg #DE8881` — 风险。graphic 在浮卡仅 2.26:1 不可承文，fg 为 B0 自拟派生（保持色相饱和、升明度），对浮卡 5.02:1
-- `themes.dark.semantic.amber` = `graphic #C89042 · fg #D9AE6A` — 风险次级。fg 即原型的泥金值——Q7 裁定泥金降格为琥珀 dark-fg 轨，与 AA 复算结果独立吻合（对浮卡 6.46:1）；hero 语义只留站面
+- `themes.dark.semantic.amber` = `graphic #C89042 · fg #D9AE6A` — 风险次级。fg 即原型的泥金值——Q7 裁定泥金降格为琥珀 dark-fg 轨，与 AA 复算结果独立吻合（对浮卡 6.46:1）。VERSIONAL-LANG-3 产品覆议后，同一值另作为双宗语义别名的深宗 important-title：Agent 只给欢迎题、案件题、设置总题与图谱总题，Pages 只给 hero 与卷级大标题；正文、功能标签、schema 与数据区禁入
 - `themes.dark.semantic.blue` = `graphic #2563EB · fg #779EF3` — 修订新增/链接。fg 为 B0 自拟派生，对浮卡 5.04:1
 - `themes.dark.semantic.green` = `graphic #16A34A · fg #19B753` — 已确认/权威源。fg 为 B0 自拟派生，对浮卡 5.02:1
 - `themes.dark.semantic.slate` = `graphic #6E7C92 · fg #A9B4C6` — B0 自拟：中性语义，取自本宗中性阶

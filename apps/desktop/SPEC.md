@@ -3306,3 +3306,8 @@ schema 分别按 Agent 中间档、schema 最克制档执行；零改 DOM、sche
 focus 后核 computed 外壳边色。第二个 fresh clone 在 `b93796a` 复验 mutation、321/321 desktop
 e2e、148/1261 root tests 与真实 Tauri/WKWebView 后放行。Pages 三幅真实产品帧随后重摄并经两轮
 公开部署复核放行；完整终态见 `release/evidence/versional-pages-2026-07-20/README.md`。
+# VERSIONAL-LANG-3 · 重要标题双宗预算（2026-07-20）
+
+产品覆议 P2-L16：壳侧现在允许泥金，但只作为 `--important-title` 的深宗值。消费白名单固定为
+欢迎题、案件题、设置总题与图谱总题；浅宗同槽仍解析为冷墨。四类均走标题轨 600，正文、功能
+标签、schema、数据与通用工作面标题不得消费。旧拒迁裁决保留在原提案中，本节不改写历史。

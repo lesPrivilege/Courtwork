@@ -76,8 +76,6 @@ const MINOR = {
   '.file-ops-toolbar|all': '内层容器',
   '.file-ops-table|all': '内层容器（表框）',
   '.file-ops-report|all': '内层容器',
-  '.progress-card|top': '内层容器',
-  '.progress-card|bottom': '内层容器',
   '.interaction-turn-card|all': '内层容器（轻卡）',
   '.model-config-reasoning|all': '内层容器',
   '.sample-tour|all': '内层容器',
@@ -88,7 +86,6 @@ const MINOR = {
   '.work-output-result|all': '内层容器',
   '.nonapplied-confirm|all': '内层容器',
   '.draft-panel > header|all': '内层容器（文书工作面·头）',
-  '.draft-editor, .draft-reading|all': '内层容器（文书纸面）',
   '.work-draft-toolbar|all': '内层容器',
   '.work-draft-body|all': '内层容器（工作稿面）',
   '.settings-fields fieldset|all': '内层容器',
@@ -120,14 +117,12 @@ const MINOR = {
   '.risk-status-ledger|top': '段内分隔',
   '.risk-status-ledger|bottom': '段内分隔',
   '.evidence-stack .verified-block:last-child|bottom': '段内分隔',
-  '.document-preview header|bottom': '段内分隔',
   '.provider-dialog header|bottom': '段内分隔（浮层内头）',
   '.provider-dialog footer|top': '段内分隔（浮层内脚）',
   '.credential-modes|bottom': '段内分隔',
   '.settings-developer|top': '段内分隔',
   '.settings-promise-section|bottom': '段内分隔',
   '.palette-input|bottom': '段内分隔（浮层内头）',
-  '.paste-block .collapse-toggle|top': '段内分隔',
   '.gallery-specimen > header|bottom': '段内分隔',
   '.gallery-specimen > footer|top': '段内分隔',
   '.gallery-ledger|top': '段内分隔',
@@ -158,6 +153,11 @@ const RETIRED = {
   '.settings-memory-item|all': 'VL-L06',
   '.composer-disabled-reason|all': 'VL-L05',
   '.visual-decision-actions|top': 'VL-L02',
+  '.progress-card|top': 'VL2-L02',
+  '.progress-card|bottom': 'VL2-L02',
+  '.draft-editor, .draft-reading|all': 'VL2-L02',
+  '.document-preview header|bottom': 'VL2-L02',
+  '.paste-block .collapse-toggle|top': 'VL2-L02',
 };
 
 // ── 不换：答不出「此界为何是主/次」的线 ────────────────────────────────────
@@ -286,11 +286,13 @@ for (let index = 1; index <= 105; index += 1) {
   if (!proposalLines.has(line)) failures.push(`P1 档位账缺提案行：${line}`);
 }
 if (p1Rows.length !== 113) failures.push(`P1 档位账行数漂移：${p1Rows.length} / 113`);
-if (classCounts.major !== 4 || classCounts.minor !== 98 || classCounts.none !== 11) {
-  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/98 · 退 ${classCounts.none}/11`);
+// VERSIONAL-LANG-2 的五条 routine 线经覆议从 P1「留/minor」迁为「退/none」；
+// 行数仍是 113，统计随逐行旧账迁移更新，不靠删除旧 P1 行掩盖历史。
+if (classCounts.major !== 4 || classCounts.minor !== 93 || classCounts.none !== 16) {
+  failures.push(`P1 三分类裁决数漂移：主 ${classCounts.major}/4 · 次 ${classCounts.minor}/93 · 退 ${classCounts.none}/16`);
 }
-if (decisionCounts['留'] !== 89 || decisionCounts['减薄'] !== 11 || decisionCounts['回单线'] !== 2 || decisionCounts['退'] !== 11) {
-  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/89 · 减薄 ${decisionCounts['减薄']}/11 · 回单线 ${decisionCounts['回单线']}/2 · 退 ${decisionCounts['退']}/11`);
+if (decisionCounts['留'] !== 84 || decisionCounts['减薄'] !== 11 || decisionCounts['回单线'] !== 2 || decisionCounts['退'] !== 16) {
+  failures.push(`P1 判词数漂移：留 ${decisionCounts['留']}/84 · 减薄 ${decisionCounts['减薄']}/11 · 回单线 ${decisionCounts['回单线']}/2 · 退 ${decisionCounts['退']}/16`);
 }
 for (const key of [...Object.keys(MAJOR), ...Object.keys(MINOR), ...Object.keys(RETIRED)]) {
   if (!ledgerByKey.has(key)) failures.push(`P1 档位账漏消费点：${key}`);

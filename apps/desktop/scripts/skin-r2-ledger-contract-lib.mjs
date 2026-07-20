@@ -78,6 +78,11 @@ export const signedR2LedgerRows = Object.freeze([
   ['VL2-T01', 'site/styles.css#h1.zh-title|weight', 'pages-experimental'],
   ['VL2-L01', 'site/styles.css#versional-routine-lines-r2', 'pages-experimental'],
   ['VL2-L02', 'apps/desktop/src/styles.css#document-routine-lines-r2', 'agent-interface'],
+  ['VL3-C01', 'site/styles.css#shared-dual-theme-palette', 'pages-experimental'],
+  ['VL3-C02', 'apps/desktop/src/styles.css#versional-important-title-token', 'agent-interface'],
+  ['VL3-T01', 'apps/desktop/src/styles.css#versional-important-title-consumers', 'agent-interface'],
+  ['VL3-T02', 'site/styles.css#versional-important-title-consumers', 'pages-experimental'],
+  ['VL3-S01', 'site/assets/screenshots#versional-dual-theme-refresh', 'pages-experimental'],
 ]);
 
 export const retiredP5ProposalLines = Object.freeze(['P5-F06', 'P5-F07', 'P5-F08']);

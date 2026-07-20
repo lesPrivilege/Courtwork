@@ -71,6 +71,7 @@ const desktopRootColors = {
   '--amber-graphic': 'color.semantic.severity.medium.graphic',
   '--amber-fg': 'color.semantic.severity.medium.fg',
   '--amber-bg': 'color.semantic.severity.medium.bg',
+  '--important-title': 'color.text.primary.value',
   '--text-inverse': 'color.text.inverse.value',
   '--blue-graphic': 'color.semantic.revision.insert.graphic',
   '--blue-fg': 'color.semantic.revision.insert.fg',
@@ -103,6 +104,7 @@ const desktopDarkColors = {
   '--red-fg': 'themes.dark.semantic.red.fg',
   '--amber-graphic': 'themes.dark.semantic.amber.graphic',
   '--amber-fg': 'themes.dark.semantic.amber.fg',
+  '--important-title': 'themes.dark.semantic.amber.fg',
   '--blue-graphic': 'themes.dark.semantic.blue.graphic',
   '--blue-fg': 'themes.dark.semantic.blue.fg',
   '--green-graphic': 'themes.dark.semantic.green.graphic',
@@ -126,9 +128,7 @@ const desktopDarkDeclarations = new Map([
   ['--slate-bg', 'color-mix(in srgb, var(--slate-graphic) 14%, var(--bg-raised))'],
 ]);
 
-// —— site 侧色板：参考稿浅宗 · 按 token 名绑定（VERSIONAL-LANG-2）——
-// 站面变量逐槽回绑 color.*；用户给定的两版参考稿与该真源逐值相同。Pages 仍是激进档，
-// 激进度落在编排与表达，不靠另造色板。深宗保留为产品壳 opt-in，不受本表影响。
+// —— site 侧色板：Agent／Pages 同源双宗（VERSIONAL-LANG-3）——
 const siteLightColors = {
   '--bg-app': 'color.bg.app.value',
   '--bg-surface': 'color.bg.surface.value',
@@ -143,9 +143,31 @@ const siteLightColors = {
   '--red-fg': 'color.semantic.severity.high.fg',
   '--zhu-graphic': 'color.line.settled.value',
   '--zhu-fg': 'color.line.settled.value',
-  '--gold': 'color.semantic.gate.pending.fg',
+  '--important-title': 'color.text.primary.value',
   '--bg-hover': 'color.bg.hover.value',
 };
+
+const siteDarkColors = {
+  '--bg-app': 'themes.dark.bg.app.value',
+  '--bg-surface': 'themes.dark.bg.surface.value',
+  '--bg-raised': 'themes.dark.bg.raised.value',
+  '--text-primary': 'themes.dark.text.primary.value',
+  '--text-secondary': 'themes.dark.text.secondary.value',
+  '--text-tertiary': 'themes.dark.text.tertiary.value',
+  '--text-inverse': 'themes.dark.text.inverse.value',
+  '--border-hairline': 'themes.dark.border.hairline.value',
+  '--border-strong': 'themes.dark.border.strong.value',
+  '--border-focus': 'themes.dark.border.focus.value',
+  '--red-fg': 'themes.dark.semantic.red.fg',
+  '--zhu-graphic': 'themes.dark.semantic.zhu.graphic',
+  '--zhu-fg': 'themes.dark.semantic.zhu.fg',
+  '--important-title': 'themes.dark.semantic.amber.fg',
+};
+
+const siteDarkDeclarations = new Map([
+  ...Object.entries(siteDarkColors).map(([property, path]) => [property, tokenAt(path)]),
+  ['--bg-hover', 'color-mix(in srgb, var(--bg-raised) 78%, var(--text-secondary))'],
+]);
 
 const siteOgColors = {
   '--bg-app': 'color.bg.app.value',
@@ -361,7 +383,11 @@ function scanCss(file, content, failures, { repository }) {
     const normalizedValue = normalizeCssValue(declaration.value);
     const rawColors = declaration.value.match(colorPattern) ?? [];
     if (rawColors.length) {
-      const approved = cssColorAllowlist.get(key);
+      const approved = file === 'site/styles.css'
+        && declaration.selector === ':root'
+        && declaration.context.includes('@media (prefers-color-scheme: dark)')
+        ? normalizeCssValue(siteDarkDeclarations.get(declaration.property) ?? '')
+        : cssColorAllowlist.get(key);
       if (approved !== normalizedValue) {
         push(failures, 'raw-color', file, declaration.line, `${declaration.selector} ${declaration.property} is not an exact docs/design/tokens.json consumer`);
       }
@@ -1184,9 +1210,9 @@ export function checkFontProvenance(records) {
 }
 
 // SITE-CRAFT-2 磁青宗批 · 色彩语法四位的机器封口。
-// 「磁青为底 / 墨为记」是默认（除下列两族外全站只有中性阶）；「朱仅裁决 / 泥金 hero 唯一强调」
+// 「磁青为底 / 墨为记」是默认（除下列两族外全站只有中性阶）；「朱仅裁决 / 泥金只进重要标题」
 // 是**稀缺性宣告**——而被宣告的克制若没有门，就只是文案。故此门双向锁：
-//   ① 朱（--zhu-*）只许落在人做决定处，泥金（--gold）只许落在 hero 母题；越界即触红。
+//   ① 朱（--zhu-*）只许落在人做决定处，泥金（--important-title）只许落在 hero 与卷级大标题；越界即触红。
 //   ② 白名单条目必须真有消费面；登记了却没人用＝允许面虚增，同样触红（防白名单烂掉）。
 const zhuConsumers = new Set([
   '.settle-seal', // 落定章：人工落定的印记
@@ -1195,7 +1221,10 @@ const zhuConsumers = new Set([
 // 朱的帧边界（架构定谳「不作环境色」）：处置动作的朱只许活在这枚幕二 keyframe 里，
 // 基态是中性墨。故白名单条目的「有消费面」既可由声明满足，也可由其所属 keyframe 满足。
 const zhuKeyframes = new Map([['demo-zhu-b', '.demo-actions span']]);
-const goldConsumers = new Set(['.tc']); // hero 母题逐字：磁青纸上以泥金写经
+const goldConsumers = new Set([
+  '.tc',
+  'h1.zh-title, .section-heading h2.zh-title, .closing h2.zh-title',
+]);
 const goldKeyframes = new Set(['typer-develop']); // 同一枚 hero 母题的显影过程
 
 export function checkColorGrammar(css) {
@@ -1203,7 +1232,7 @@ export function checkColorGrammar(css) {
   const fail = (message) => push(failures, 'color-grammar', 'site/styles.css', 1, message);
   const source = withoutComments(css);
   const zhuPattern = /var\(--zhu-[a-z]+\)/;
-  const goldPattern = /var\(--gold\)/;
+  const goldPattern = /var\(--important-title\)/;
   const seenZhu = new Set();
   const seenGold = new Set();
 

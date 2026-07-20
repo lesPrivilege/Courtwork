@@ -357,30 +357,31 @@ test('SITE-CRAFT-2 hero demo keyframes stay inside the attention property whitel
     .map((failure) => failure.rule).includes('demo-motion'));
 });
 
-// SITE-CRAFT-2 磁青宗批：色彩语法四位的反例集。好例即站面真形状——朱两处、泥金一处 + 其显影 keyframe。
+// VERSIONAL-LANG-3：朱两处、泥金两级标题 + hero 显影 keyframe。
 const GOOD_GRAMMAR_CSS = String.raw`
-:root { --zhu-graphic: #D75A3C; --gold: #D9AE6A; }
-.tc { color: var(--gold); }
+:root { --zhu-graphic: #D75A3C; --important-title: #D9AE6A; }
+.tc { color: var(--important-title); }
+h1.zh-title, .section-heading h2.zh-title, .closing h2.zh-title { color: var(--important-title); }
 .settle-seal { color: var(--zhu-graphic); }
 .demo-actions span { border: 1px solid var(--border-strong); color: var(--text-primary); animation: demo-zhu-b 12s linear infinite; }
 @keyframes demo-zhu-b { 0%, 35% { border-color: var(--border-strong); } 38%, 60% { border-color: var(--zhu-graphic); } 63%, 100% { border-color: var(--border-strong); } }
-@keyframes typer-develop { 40% { background-color: var(--gold); } }
+@keyframes typer-develop { 40% { background-color: var(--important-title); } }
 @keyframes demo-attn-a { 5% { background-color: color-mix(in srgb, var(--text-primary) 6%, transparent); } }
 `;
 const grammarRules = (css) => checkColorGrammar(css).map((failure) => failure.rule);
 
-test('SITE-CRAFT-2 colour grammar keeps 朱 on adjudication and 泥金 in the hero', () => {
+test('VERSIONAL-LANG-3 colour grammar keeps 朱 on adjudication and 泥金 in important titles', () => {
   assert.deepEqual(grammarRules(GOOD_GRAMMAR_CSS), []);
   // 朱漫出裁决面（当成普通强调色用）→ 「彩色只在人做决定处出现」破口，触红。
   assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n.hero-lead { color: var(--zhu-fg); }`).includes('color-grammar'));
   // 泥金离开 hero（当成第二强调色铺开）→ 「唯一强调」破口，触红。
-  assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n.promise-ledger dt { color: var(--gold); }`).includes('color-grammar'));
+  assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n.promise-ledger dt { color: var(--important-title); }`).includes('color-grammar'));
   // 动效层是声明层之外的逃逸通道：keyframe 里夹带同样触红。
-  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('background-color: color-mix(in srgb, var(--text-primary) 6%, transparent);', 'background-color: var(--gold);')).includes('color-grammar'));
+  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('background-color: color-mix(in srgb, var(--text-primary) 6%, transparent);', 'background-color: var(--important-title);')).includes('color-grammar'));
   assert.ok(grammarRules(`${GOOD_GRAMMAR_CSS}\n@keyframes seal-pulse { to { color: var(--zhu-graphic); } }`).includes('color-grammar'));
   // 白名单不许烂掉：登记了却零消费＝允许面虚增，同样触红。
   assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('.settle-seal { color: var(--zhu-graphic); }', '')).includes('color-grammar'));
-  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('.tc { color: var(--gold); }', '')).includes('color-grammar'));
+  assert.ok(grammarRules(GOOD_GRAMMAR_CSS.replace('.tc { color: var(--important-title); }', '')).includes('color-grammar'));
 });
 
 // 架构定谳：朱＝人工裁决之痕，**不作环境色**——描边只在人工处置那一幕现形（与 line.settled
@@ -407,7 +408,7 @@ test('VERSIONAL-LANG-2 site palette is bound to the reference light tokens by na
     ['--text-primary', hex('232B39')],
     ['--border-focus', hex('2563EA')],
     ['--zhu-graphic', hex('BE4B2E')],
-    ['--gold', hex('8F6421')],
+    ['--important-title', hex('232B39')],
   ]) {
     const mutated = board.replace(new RegExp(`(${property}: )#[0-9A-Fa-f]{6};`), `$1${drifted};`);
     assert.notEqual(mutated, board, `mutation probe failed to bite ${property}`);

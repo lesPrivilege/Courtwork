@@ -79,6 +79,16 @@ test('档位账接受 VERSIONAL-LANG-2 的颜色、排印与线级签署行', ()
   assert.deepEqual(validateSchemaExemplarContract(signed), []);
 });
 
+test('档位账接受 VERSIONAL-LANG-3 的共享双宗与重要标题预算', () => {
+  const signed = fixture();
+  signed.tierLedger.push(
+    { target: 'site/styles.css#shared-dual-theme-palette', tier: 'pages-experimental', approvedProposalLine: 'VL3-C01' },
+    { target: 'apps/desktop/src/styles.css#versional-important-title-token', tier: 'agent-interface', approvedProposalLine: 'VL3-C02' },
+    { target: 'apps/desktop/src/styles.css#versional-important-title-consumers', tier: 'agent-interface', approvedProposalLine: 'VL3-T01' },
+  );
+  assert.deepEqual(validateSchemaExemplarContract(signed), []);
+});
+
 test('定点拒绝缺来源与哈希漂移', () => {
   const missing = fixture();
   missing.sourceTexts.delete(missing.manifest.sources[0].path);

@@ -50,8 +50,8 @@
   unicode-range: U+0043, U+006B, U+006F, U+0072, U+0074, U+0075, U+0077;
 }
 
-/* VERSIONAL-LANG-2 · 参考稿浅宗。色值逐项绑定 docs/design/tokens.json 的 color.*，不复制出
-   第二套色源；冷白三级台阶负责空间，朱只服务人工裁决，琥珀只在 hero 母题稀缺出现。 */
+/* VERSIONAL-LANG-3 · Agent／Pages 同源双宗。浅宗是参考稿冷白三级台阶；深宗是磁青纸阶。
+   --important-title 浅宗仍取冷墨，深宗才换泥金；正文与数据永不消费该别名。 */
 :root {
   --bg-app: #F7F8FA;
   --bg-surface: #F2F4F7;
@@ -66,7 +66,7 @@
   --red-fg: #A83226;
   --zhu-graphic: #BE4B2F;
   --zhu-fg: #BE4B2F;
-  --gold: #8F6420;
+  --important-title: #232B38;
   --mac-close: #FF5F57;
   --mac-minimize: #FEBC2E;
   --mac-zoom: #28C840;
@@ -86,6 +86,26 @@
   --page-gutter: 32px;
   /* 浅宗 tertiary 已按最严 raised 面闭合 AA；元信息不再按容器另立一套消费阶。 */
   --meta: var(--text-tertiary);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-app: #0F1622;
+    --bg-surface: #16202F;
+    --bg-raised: #223047;
+    --text-primary: #E4E9F1;
+    --text-secondary: #A9B4C6;
+    --text-tertiary: #6E7C92;
+    --text-inverse: #0F1622;
+    --border-hairline: #2A3A52;
+    --border-strong: #3E5270;
+    --border-focus: #6A94F1;
+    --red-fg: #DE8881;
+    --zhu-graphic: #D75A3C;
+    --zhu-fg: #E2857A;
+    --important-title: #D9AE6A;
+    --bg-hover: color-mix(in srgb, var(--bg-raised) 78%, var(--text-secondary));
+  }
 }
 
 * { box-sizing: border-box; }
@@ -172,6 +192,7 @@ h1, h2, h3 { margin: 0; font-weight: 510; letter-spacing: -.02em; text-wrap: bal
 h2.zh-title { font-weight: 400; }
 h3.zh-title { font-weight: 700; }
 h1.zh-title { font-weight: 700; }
+h1.zh-title, .section-heading h2.zh-title, .closing h2.zh-title { color: var(--important-title); }
 /* 朱雀仿宋消费者：单字重（零粗体律——仿宋无原生粗体，伪粗体一律禁），
    层级靠字号与留白；强调走记号系（圈点/侧点）不走加粗。 */
 .zh-display { font-family: var(--display); font-weight: 400; font-synthesis: none; letter-spacing: .02em; }
@@ -188,21 +209,21 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .hero-lead { max-width: 640px; margin: 28px 0 0; color: var(--text-secondary); font-size: 18px; line-height: 1.7; text-wrap: pretty; }
 
 /* Typer 逐字显影：字符在 pill/反色/outline 态闪烁后定格，纯 CSS。
-   SITE-CRAFT-2 磁青宗批换色——hero 母题即**泥金唯一强调**：磁青纸上以泥金写经，
-   是本宗的出处本身，故整条 Typer 走泥金阶，别处零泥金（deslop color-grammar 门守）。
+   VERSIONAL-LANG-3——hero 与卷级大标题共用重要标题预算：磁青纸上以泥金写经；
+   正文、功能标签与数据零泥金（deslop color-grammar 门守）。
    动画仅在 no-preference 下挂载；reduced-motion 与 JS 关闭都直接呈现定格标题。
    SITE-CRAFT-1（Pages 就地破例 principles.md §5，见 site/SPEC.md）。 */
 .typer { display: inline; }
-.tc { display: inline-block; border-radius: 6px; color: var(--gold); outline: 1px solid transparent; outline-offset: -2px; }
+.tc { display: inline-block; border-radius: 6px; color: var(--important-title); outline: 1px solid transparent; outline-offset: -2px; }
 @media (prefers-reduced-motion: no-preference) {
   .tc { animation: typer-develop 560ms var(--ease-out) both; animation-delay: calc(var(--i) * 58ms); }
 }
 @keyframes typer-develop {
-  0%   { opacity: 0; background-color: transparent; color: var(--gold); outline-color: transparent; }
-  10%  { opacity: 1; background-color: color-mix(in srgb, var(--gold) 14%, transparent); color: var(--gold); outline-color: transparent; }
-  40%  { opacity: 1; background-color: var(--gold); color: var(--text-inverse); outline-color: transparent; }
-  70%  { opacity: 1; background-color: transparent; color: var(--gold); outline-color: color-mix(in srgb, var(--gold) 42%, transparent); }
-  100% { opacity: 1; background-color: transparent; color: var(--gold); outline-color: transparent; }
+  0%   { opacity: 0; background-color: transparent; color: var(--important-title); outline-color: transparent; }
+  10%  { opacity: 1; background-color: color-mix(in srgb, var(--important-title) 14%, transparent); color: var(--important-title); outline-color: transparent; }
+  40%  { opacity: 1; background-color: var(--important-title); color: var(--text-inverse); outline-color: transparent; }
+  70%  { opacity: 1; background-color: transparent; color: var(--important-title); outline-color: color-mix(in srgb, var(--important-title) 42%, transparent); }
+  100% { opacity: 1; background-color: transparent; color: var(--important-title); outline-color: transparent; }
 }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
 .button { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; padding: 0 18px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 14px; font-weight: 510; text-decoration: none; transition: background-color 120ms var(--ease-out), border-color 120ms var(--ease-out); }

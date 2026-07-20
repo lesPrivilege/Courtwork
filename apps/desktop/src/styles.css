@@ -59,6 +59,9 @@
   --amber-graphic: #8f6420;
   --amber-fg: #8f6420;
   --amber-bg: #faf3e6;
+  /* VERSIONAL-LANG-3：重要标题的双宗语义别名。浅宗仍是冷墨；泥金只在深宗进入
+     欢迎题、案件题、设置总题与图谱总题，不进入正文、功能标签、schema 或数据。 */
+  --important-title: #232b38;
   --text-inverse: #f7f8fa;
   --blue-graphic: #2563eb;
   --blue-fg: #1d4ed8;
@@ -177,6 +180,7 @@
   --amber-graphic: #c89042;
   --amber-fg: #d9ae6a;
   --amber-bg: color-mix(in srgb, var(--amber-graphic) 14%, var(--bg-raised));
+  --important-title: #d9ae6a;
   --blue-graphic: #2563eb;
   --blue-fg: #779ef3;
   --blue-bg: color-mix(in srgb, var(--blue-graphic) 14%, var(--bg-raised));
@@ -339,7 +343,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .chat-titlebar { position: absolute; z-index: 5; top: var(--elevation-float-inset); left: 0; right: 0; height: 40px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 0 14px; overflow: hidden; -webkit-app-region: drag; }
 .chat-titlebar:has(.welcome-head-label) { justify-content: center; }
 .chat-titlebar [data-testid="titlebar-case-title"] { min-width: 0; flex: 1 1 auto; }
-.chat-titlebar .chat-case-title { width: auto; min-width: 0; max-width: 60%; padding: 2px 6px; border: 0; background: transparent; color: var(--text-primary); cursor: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-title); font-size: var(--type-dense-body-size); font-weight: 600; font-synthesis: none; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); -webkit-app-region: no-drag; }
+.chat-titlebar .chat-case-title { width: auto; min-width: 0; max-width: 60%; padding: 2px 6px; border: 0; background: transparent; color: var(--important-title); cursor: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-title); font-size: var(--type-dense-body-size); font-weight: 600; font-synthesis: none; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); -webkit-app-region: no-drag; }
 .chat-titlebar input { min-width: 200px; padding: 3px 6px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); -webkit-app-region: no-drag; }
 .chat-titlebar .stage-chip { flex: none; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-titlebar-label { color: var(--text-secondary); font-size: var(--type-dense-body-size); font-weight: 510; }
@@ -536,7 +540,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 .chat-case-head { min-width: 0; min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 5px 8px; overflow: hidden; }
 .chat-case-head > [data-testid="titlebar-case-title"] { min-width: 0; flex: 1 1 auto; overflow: hidden; }
-.chat-case-title { width: 100%; min-width: 0; padding: 2px 4px; border: 0; background: transparent; color: var(--text-primary); cursor: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-title); font-size: 16px; font-weight: 600; font-synthesis: none; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); text-align: left; }
+.chat-case-title { width: 100%; min-width: 0; padding: 2px 4px; border: 0; background: transparent; color: var(--important-title); cursor: text; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-title); font-size: 16px; font-weight: 600; font-synthesis: none; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); text-align: left; }
 .chat-case-head input { min-width: 240px; padding: 4px 6px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); }
 .stage-chip { min-width: 0; max-width: 34%; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .chat-global-action { width: 28px; min-height: 28px; padding: 0; display: grid; place-items: center; }
@@ -575,7 +579,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 }
 /* RP-2.12⑨ 磁吸位：待正式扁平品牌图标到位再落 slogan 侧；当前只 slogan 居中（不放占位简笔图标） */
 .welcome-brand { display: flex; justify-content: center; margin-bottom: 4px; }
-.welcome-slogan { margin: 0; color: var(--text-primary); font-family: var(--font-title); font-weight: 600; font-size: 26px; line-height: 1.3; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
+.welcome-slogan { margin: 0; color: var(--important-title); font-family: var(--font-title); font-weight: 600; font-size: 26px; line-height: 1.3; letter-spacing: var(--letter-spacing-cjk-title, -0.01em); }
 /* welcome 态 composer 居中浮卡（沿用 shell 单框） */
 .welcome-home .composer-shell { margin: 0; }
 .welcome-ideas { display: grid; gap: 2px; }
@@ -1478,7 +1482,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
   position: relative; height: 48px; flex: none; display: flex; align-items: center; gap: 12px;
   padding: 0 16px; border-bottom: var(--rule-major) solid var(--rule-ink); background: var(--bg-surface);
 }
-.settings-header h1 { margin: 0; font-size: 16px; font-weight: 510; letter-spacing: -.01em; }
+.settings-header h1 { margin: 0; color: var(--important-title); font-family: var(--font-title); font-size: 16px; font-weight: 600; font-synthesis: none; letter-spacing: -.01em; }
 .settings-header-note { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .settings-header kbd { margin-left: 6px; }
 .settings-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
@@ -1829,7 +1833,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .visualization-gallery { width: min(1440px, 100%); min-height: 100%; margin: 0 auto; padding: 28px 32px 48px; }
 .gallery-header { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 24px; align-items: end; padding: 0 0 18px; border-bottom: var(--rule-major) solid var(--rule-ink); }
 .gallery-header p { grid-column: 1 / -1; margin: 0; color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--type-dense-mono); letter-spacing: .08em; }
-.gallery-header h1 { margin: 0; font-size: 24px; line-height: 1.25; font-weight: var(--control-weight-emphasized); }
+.gallery-header h1 { margin: 0; color: var(--important-title); font-family: var(--font-title); font-size: 24px; line-height: 1.25; font-weight: 600; font-synthesis: none; }
 .gallery-header small { color: var(--text-tertiary); font: var(--type-dense-meta-size)/1.5 var(--type-dense-mono); }
 .gallery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-left: var(--rule-minor) solid var(--border); }
 .gallery-specimen { min-width: 0; min-height: 250px; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; border-right: var(--rule-minor) solid var(--border); border-bottom: var(--rule-minor) solid var(--border); background: color-mix(in srgb, var(--bg-raised) 94%, var(--bg-app) 6%); }

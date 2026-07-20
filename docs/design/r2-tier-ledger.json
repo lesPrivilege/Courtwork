@@ -501,20 +501,22 @@
       "target": "apps/desktop/src/styles.css#.progress-card|top",
       "tier": "agent-interface",
       "approvedProposalLine": "P1-N038",
-      "decision": "留",
-      "ruleClass": "minor",
-      "expectedWidth": "var(--rule-minor)",
-      "expectedColor": "var(--border)",
+      "decision": "退",
+      "ruleClass": "none",
+      "expectedWidth": "0",
+      "expectedColor": "transparent",
+      "supersededBy": "VL2-L02",
       "hairline": false
     },
     {
       "target": "apps/desktop/src/styles.css#.progress-card|bottom",
       "tier": "agent-interface",
       "approvedProposalLine": "P1-N039",
-      "decision": "留",
-      "ruleClass": "minor",
-      "expectedWidth": "var(--rule-minor)",
-      "expectedColor": "var(--border)",
+      "decision": "退",
+      "ruleClass": "none",
+      "expectedWidth": "0",
+      "expectedColor": "transparent",
+      "supersededBy": "VL2-L02",
       "hairline": false
     },
     {
@@ -643,10 +645,11 @@
       "target": "apps/desktop/src/styles.css#.draft-editor, .draft-reading|all",
       "tier": "agent-interface",
       "approvedProposalLine": "P1-N052",
-      "decision": "留",
-      "ruleClass": "minor",
-      "expectedWidth": "var(--rule-minor)",
-      "expectedColor": "var(--border)",
+      "decision": "退",
+      "ruleClass": "none",
+      "expectedWidth": "0",
+      "expectedColor": "transparent",
+      "supersededBy": "VL2-L02",
       "hairline": false
     },
     {
@@ -976,10 +979,11 @@
       "target": "apps/desktop/src/styles.css#.document-preview header|bottom",
       "tier": "agent-interface",
       "approvedProposalLine": "P1-N085",
-      "decision": "留",
-      "ruleClass": "minor",
-      "expectedWidth": "var(--rule-minor)",
-      "expectedColor": "var(--border)",
+      "decision": "退",
+      "ruleClass": "none",
+      "expectedWidth": "0",
+      "expectedColor": "transparent",
+      "supersededBy": "VL2-L02",
       "hairline": false
     },
     {
@@ -1046,10 +1050,11 @@
       "target": "apps/desktop/src/styles.css#.paste-block .collapse-toggle|top",
       "tier": "agent-interface",
       "approvedProposalLine": "P1-N092",
-      "decision": "留",
-      "ruleClass": "minor",
-      "expectedWidth": "var(--rule-minor)",
-      "expectedColor": "var(--border)",
+      "decision": "退",
+      "ruleClass": "none",
+      "expectedWidth": "0",
+      "expectedColor": "transparent",
+      "supersededBy": "VL2-L02",
       "hairline": false
     },
     {
@@ -1576,6 +1581,31 @@
       "target": "apps/desktop/src/styles.css#document-routine-lines-r2",
       "tier": "agent-interface",
       "approvedProposalLine": "VL2-L02"
+    },
+    {
+      "target": "site/styles.css#shared-dual-theme-palette",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "VL3-C01"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#versional-important-title-token",
+      "tier": "agent-interface",
+      "approvedProposalLine": "VL3-C02"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#versional-important-title-consumers",
+      "tier": "agent-interface",
+      "approvedProposalLine": "VL3-T01"
+    },
+    {
+      "target": "site/styles.css#versional-important-title-consumers",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "VL3-T02"
+    },
+    {
+      "target": "site/assets/screenshots#versional-dual-theme-refresh",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "VL3-S01"
     }
   ]
 }

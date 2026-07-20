@@ -70,6 +70,8 @@ test('VERSIONAL-LANG · 低频案件题走标题轨，中性标签退为 mono �
     return {
       titleFamily: title.fontFamily,
       titleWeight: title.fontWeight,
+      titleColor: title.color,
+      importantTitle: getComputedStyle(document.documentElement).getPropertyValue('--important-title').trim(),
       badgeFamily: badge.fontFamily,
       badgeBorder: Number.parseFloat(badge.borderTopWidth),
       badgeBackground: badge.backgroundColor,
@@ -78,9 +80,23 @@ test('VERSIONAL-LANG · 低频案件题走标题轨，中性标签退为 mono �
 
   expect(values.titleFamily).toContain('Source Han Serif SC');
   expect(values.titleWeight).toBe('600');
+  expect(values.titleColor).toBe('rgb(35, 43, 56)');
+  expect(values.importantTitle).toBe('#232b38');
   expect(values.badgeFamily).toContain('SF Mono');
   expect(values.badgeBorder).toBe(0);
   expect(values.badgeBackground).toBe('rgba(0, 0, 0, 0)');
+
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const dark = await page.evaluate(() => {
+    const title = getComputedStyle(document.querySelector<HTMLElement>('.chat-case-title')!);
+    return {
+      titleColor: title.color,
+      bodyColor: getComputedStyle(document.body).color,
+      importantTitle: getComputedStyle(document.documentElement).getPropertyValue('--important-title').trim(),
+    };
+  });
+  expect(dark).toEqual({ titleColor: 'rgb(217, 174, 106)', bodyColor: 'rgb(228, 233, 241)', importantTitle: '#d9ae6a' });
 });
 
 test('VERSIONAL-LANG · Settings 靠组距分段，真实输入边界不退', async ({ page }) => {
@@ -95,10 +111,14 @@ test('VERSIONAL-LANG · Settings 靠组距分段，真实输入边界不退', as
       rowBottom: Number.parseFloat(row.borderBottomWidth),
       rowPaddingTop: Number.parseFloat(row.paddingTop),
       inputBorder: Number.parseFloat(input.borderTopWidth),
+      headingFamily: getComputedStyle(document.querySelector<HTMLElement>('.settings-header h1')!).fontFamily,
+      headingWeight: getComputedStyle(document.querySelector<HTMLElement>('.settings-header h1')!).fontWeight,
     };
   });
 
   expect(values.rowBottom).toBe(0);
   expect(values.rowPaddingTop).toBeGreaterThanOrEqual(14);
   expect(values.inputBorder).toBe(1);
+  expect(values.headingFamily).toContain('Source Han Serif SC');
+  expect(values.headingWeight).toBe('600');
 });

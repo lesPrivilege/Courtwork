@@ -52,3 +52,18 @@ test('注入 composer focus 强边界透明时定点失败', () => {
   );
   assert.match(validateVersionalSite({ html, css, desktopCss: mutated }).join('\n'), /composer focus 强边界退场/);
 });
+
+test('注入 Pages 磁青宗 token 漂移时定点失败', () => {
+  const mutated = css.replace('--bg-app: #0F1622;', '--bg-app: #101722;');
+  assert.match(validateVersionalSite({ html, css: mutated, desktopCss }).join('\n'), /VL3-C01 Pages 磁青宗色阶漂移/);
+});
+
+test('注入 Agent 重要标题 token 不同源时定点失败', () => {
+  const mutated = desktopCss.replace('--important-title: #d9ae6a;', '--important-title: #d8ae6a;');
+  assert.match(validateVersionalSite({ html, css, desktopCss: mutated }).join('\n'), /VL3-C02 Agent／Pages/);
+});
+
+test('注入泥金进入正文时定点失败', () => {
+  const mutated = css.replace('.hero-lead {', '.hero-lead { color: var(--important-title);');
+  assert.match(validateVersionalSite({ html, css: mutated, desktopCss }).join('\n'), /VL3-T02 泥金越界/);
+});

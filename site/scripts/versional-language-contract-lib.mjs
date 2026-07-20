@@ -20,6 +20,9 @@ export function validateVersionalSite({ html, css, desktopCss }) {
   const draftSurface = ruleBody(desktopCss ?? '', '.draft-editor, .draft-reading');
   const progressCard = ruleBody(desktopCss ?? '', '.progress-card');
   const pasteToggle = ruleBody(desktopCss ?? '', '.paste-block .collapse-toggle');
+  const siteDark = css.match(/@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:root\s*\{([^}]*)\}/s)?.[1] ?? '';
+  const desktopLightRoot = ruleBody(desktopCss ?? '', ':root');
+  const desktopDarkRoot = ruleBody(desktopCss ?? '', ":root[data-theme='dark']");
 
   for (const [property, value] of [
     ['--bg-app', '#F7F8FA'],
@@ -35,6 +38,39 @@ export function validateVersionalSite({ html, css, desktopCss }) {
     if (!new RegExp(`${property}:\\s*${value}`, 'i').test(root)) failures.push(`VL2-C01 Pages 浅宗色阶漂移：${property}`);
   }
   if (!/font-weight:\s*700/.test(heroTitle)) failures.push('VL2-T01 hero 标题未与四栏标题同用宋体 700 重端');
+  for (const [property, value] of [
+    ['--bg-app', '#0F1622'],
+    ['--bg-surface', '#16202F'],
+    ['--bg-raised', '#223047'],
+    ['--text-primary', '#E4E9F1'],
+    ['--text-secondary', '#A9B4C6'],
+    ['--text-tertiary', '#6E7C92'],
+    ['--border-hairline', '#2A3A52'],
+    ['--border-strong', '#3E5270'],
+    ['--border-focus', '#6A94F1'],
+    ['--important-title', '#D9AE6A'],
+  ]) {
+    if (!new RegExp(`${property}:\\s*${value}`, 'i').test(siteDark)) failures.push(`VL3-C01 Pages 磁青宗色阶漂移：${property}`);
+  }
+  if (!/--important-title:\s*#232B38/i.test(root)
+      || !/--important-title:\s*#232b38/i.test(desktopLightRoot)
+      || !/--important-title:\s*#d9ae6a/i.test(desktopDarkRoot)) {
+    failures.push('VL3-C02 Agent／Pages 重要标题双宗 token 未同源');
+  }
+  const siteImportant = ruleBody(css, 'h1.zh-title, .section-heading h2.zh-title, .closing h2.zh-title');
+  if (!/color:\s*var\(--important-title\)/.test(siteImportant)
+      || !/color:\s*var\(--important-title\)/.test(ruleBody(desktopCss ?? '', '.chat-titlebar .chat-case-title'))
+      || !/color:\s*var\(--important-title\)/.test(ruleBody(desktopCss ?? '', '.welcome-slogan'))
+      || !/font-family:\s*var\(--font-title\)/.test(ruleBody(desktopCss ?? '', '.settings-header h1'))
+      || !/font-weight:\s*600/.test(ruleBody(desktopCss ?? '', '.settings-header h1'))
+      || !/color:\s*var\(--important-title\)/.test(ruleBody(desktopCss ?? '', '.settings-header h1'))) {
+    failures.push('VL3-T01 重要标题字轨／字重／泥金预算漂移');
+  }
+  for (const selector of ['body', '.hero-lead', '.zh-doc', '.settings-lead', '.risk-detail', '.dense-row']) {
+    if (/var\(--important-title\)/.test(ruleBody(css, selector)) || /var\(--important-title\)/.test(ruleBody(desktopCss ?? '', selector))) {
+      failures.push(`VL3-T02 泥金越界进入正文或数据：${selector}`);
+    }
+  }
   if (!/border-right:\s*0/.test(evidenceStep)
       || !/border-top:\s*0/.test(workRow)
       || !/border-top:\s*0/.test(scenarioRow)
