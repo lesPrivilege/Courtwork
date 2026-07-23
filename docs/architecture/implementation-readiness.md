@@ -1,6 +1,6 @@
 # 实现就绪图
 
-状态：Round 3 现行开工图（2026-07-15）
+状态：Round 3 现行开工图（2026-07-24）
 
 本文是 Round 3 的**唯一开工图**：只规定成熟度用语、依赖顺序、验收证据和禁止越界项，不复制完成状态。能力当前是否成立、发布到了哪一枚制品，只认[当前基线](../status/current.md)。跨层字段与语义仍只由 Accepted ADR 拍板。
 
@@ -46,6 +46,27 @@ Chat 线（ADR-013）
 ```
 
 主线中的箭头是开工依赖，不是建议顺序；前置未独立验收时，后项不得用临时 adapter 越过。Chat 线与 Work 主线互不依赖，可并行施工，但 `CHAT-MEMORY-1` 不得先于 `CHAT-SESSION-1` 的窗口/transcript 语义落地。
+
+**P0 契约纠偏链（2026-07-24，架构裁定）**：源码复核发现 production Work 仍按每次
+`runScenario` / `resumeScenario` 新建 `RuntimeGuard`，持久 `runtimeBudget.consumed` 不推进，
+Settings 的 `maxUsd` 亦未装配。该行为直接违反 Accepted
+[ADR-010](../decisions/ADR-010-work-live-boundaries.md) 的 session 累计、冻结成本基线与
+unknown/partial fail-closed 条款；较低层 WORK-STORE 旧文中的“按 leg 重置后置”没有修订 ADR，
+故无权形成例外。现行依赖为：
+
+```text
+CORE-BUDGET-1（core/provider；不触 App.tsx）
+        │ 独立验收放行
+        ▼
+WORK-BUDGET-1（desktop production 装配；触 App.tsx）
+```
+
+`FILE-PREVIEW-1` 的实现与修复已在 `main`，但尚缺不同会话对当前 `main` 的独立验收留痕；
+先验收、不重复实现。`CORE-BUDGET-1` 可与该验收并行；`WORK-BUDGET-1` 必须同时等待
+CORE 放行与 FILE 验收释放 `App.tsx` 槽位。两票契约分别只认
+[`packages/provider/SPEC.md`](../../packages/provider/SPEC.md)、
+[`packages/core/SPEC.md`](../../packages/core/SPEC.md) 与
+[`apps/desktop/SPEC.md`](../../apps/desktop/SPEC.md) 的同名章节。
 
 **Round 3 收尾序（2026-07-15 拍板；polish 分轮 2026-07-17 修订）**：主线收敛（MATERIAL-INGRESS → LEGAL-S3-BINDING → WORK-LIVE）→ 终局 UI polish 分两轮：**R1 定向修缮**（产品负责人 + Sonnet 手动定向修小问题/对齐；小修批以「全量门绿 + 架构逐 diff 复核」清账，不派独立验收——残留门/设计门/floor 为质量底座，任一回退即退回工单制）→ **R2 巧思视效**（Fable 主导，消费归档调研与素材包，批次独立验收 + Sol 视觉全量扫终审，先例红线见设计 README 与 SITE-CRAFT 判例史）——**R2 供料口径修正（2026-07-19 摸底核实）**：原「四面设计稿+17 族已齐」为仓外悬空承诺（仓内零实物，触成熟度不混写条）；现行供料真身=**定版原型**（`archive/design-prototype-2026-07-19-r2/`，封版五件含 2b 元素集双底）+ SchemaParts 5 枚仓内实物 + 奖级工艺八裁 + craft-evidence 六批；设计件非权威、落地逐件过门；**改序拍板（2026-07-19）**：R2/版式全量线放行、凡例权威化并入其首件；⑤余三项（ARCH-DEBT/消费 pass 余量/OSS-SUBTRACT-1）仍锁 harness 真实化，两线解绑。
 
@@ -116,7 +137,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 |---|---|---|
 | `PM-SCHEMA-1` | 令 OOC score 与确定性计算同义，并版本化 payload/schema/migration；**顺带（2026-07-18 登记）**：凡例 OOC/Estimate 显式件（score=null 出格态/点值/区间三态）设计缺口随本单一并拍板 | OOC、drift、旧版本迁移与 catalog-only 边界触红；不夹带 PM scenario |
 | `SITE-CRAFT-2` | Pages 视效升级（对标 trae.ai 级门面，避免被归入普通 repo）。架构定向：不拼通用工艺（渐变/3D 与克制纪律相悖且拼不过预算），高级感由**产品本体的 schema 可视化承担**——hero 升级为活的 schema 工作面微演示（锚点跳转/逐条确认/修订对照的录制回放或轻交互重建，feldar 台账的活化版）；新增动效逐个走 site-evidence-line 例外条款 + AST 锁扩展 + 逐帧采样。供料：Sol 视觉扫 trae.ai 一类站点（computer use）+ Codex image 穷举存货。**范围扩展（2026-07-17 拍板）**：site/ 为个人非商业 Pages，许可口径放宽——归档调研批次的参考技法、小巧思、素材包（vault 余量、emil、feldar、namethatui 等）与**中文陌生化字体**均可经本单升格使用——**字体策略修订（2026-07-18 夜；2026-07-19 二次修订·产品拍板）**：字体编排定位反转——**标题取通行宋体**（成熟、全字重衬线，首选思源宋体类 OFL 大字重轨；「标题用考究的通行衬线」路线，权威感由成熟字形承担；刻本类字形【齐伋体/汇文明朝体/京华老宋体】降为前卫实验田探索项，不入主轨）；**正文取仿宋陌生化轨**——首选方正聚珍新仿（商业字库：个人非商业授权与 web 嵌入授权**分别**核实留快照，任一未核清即以朱雀仿宋 SIL OFL 为落地值，不悬置不静默替换）；**显式拒苹方/系统黑体做正文**（昔日品味符号、今日 slop 分布中心——陌生化正文即 kill-slop 的字体面）；编排义务四条随裁定：仿宋正文字号/行高补偿（仿宋视觉偏小偏窄，AA 联测以实际度量为准）、标题至少双字重梯度、拉丁与数字配衬字显式指定（仿宋拉丁字形弱，不得裸回退）、中文 webfont 子集化+font-display 显式声明；每项字体/素材落 `site/craft-evidence/` 留许可来源快照。**冷色起疑对治五杠杆（2026-07-18 追加定向）**：①阶的作者性——色相收窄、藏青阶做深（暗部层次+纸感+Inset 材质响应），拒绝均匀平铺；②语义色稀缺性**宣告**——红/琥珀仅风险、绿仅落定，站面一行小注明示「色彩仅承载语义」（被宣告的克制才是作者性）；③文书文化抽象引用——卷宗编号体例/骑缝式分隔/印记式落定章；**左侧彩色竖条退役候选（2026-07-18 夜）**：通用色条换文书系记号——鱼尾（节标）、乌丝栏细界行（结构分隔，无彩）、侧点圈点（强调）、朱色专属裁决落定（朱批/朱印语义，彩色只在人做决定处出现），站面先行验证后经 R2 门评估回迁（**抽象引用，法槌天平类具象 kitsch 一律拒**）。**边框语汇裁定（2026-07-19）**：掐边花纹（回纹/云纹/缠枝类）拒——纯装饰且与数据区静止相冲；「边框感」一律走刻本框廓的结构性语汇：**文武线**（粗细双线）与四周双边，几何抽象零具象，站面前卫端先行、产品壳经克制审计再议。**线级语法（2026-07-19 扩展）**：全面替换「均一 1px 单线」的 AI 工具脸——线重即层级语义：主界=文武线（粗细双线错落），次界=乌丝细线，层级不同线重不同（与色阶「阶的作者性」同构，线的粗细携结构信息非装饰）；落 token 化（--rule-major/--rule-minor 类），皮层迁移的版式置换项之一。常见 AI 衬线同理由刻本/仿宋双轨替换（字体策略既有）。**冷暖调和裁定（2026-07-18 夜）**：陌生化统一溯源**版本目录之学**（市面罕见），冷色适配走**磁青纸宗**——写经传统的深靛蓝纸即冷色古典脉，藏青底天然承接；鱼尾/界行/圈点为墨系记号不择纸温；暖色纸感（米黄+衬线=slop 分布中心）明确拒绝；色彩语法四位：磁青为底、墨为记、朱仅裁决、泥金候选 hero 唯一强调（均核实色值入 token 流程）；④秩序件当主角（hero 微演示既有定向）；⑤克制的机器门叙事——「设计克制是 CI 强制的」一句话连 craft-evidence，把克制从美学主张升格为工程事实。**前卫实验田条款（2026-07-18 夜追加）**：site 定位为前端先锋技法实验田——比产品壳更前卫的版式/交互先上站验证，成熟后经 R2 门回迁（Design 四面已证「从现行语言自然生长+版式可穷举」，站面负责探边界）；SchemaParts 件库以**原生 SVG** 绘制（与 Design 稿约定一致），站/稿共用；调研站点全集（vault/emil/feldar/trae/namethatui/geist/oss-gui 等归档批次）全量供料按需取形。**品牌一致性挂账（2026-07-19，B1 分治裁定③）**：B1 已将壳侧权威源稿 `docs/design/icon-light/dark.svg` 随锚迁 217° 换值，`site/assets/icon.svg` 仍持迁移前旧板——品牌两侧暂不一致，随本单磁青宗批一并置换并做品牌一致性核；site 侧色板现由 `deslop-scan-lib.mjs` 的 `siteFrozenColors` 按值冻结（带到期指针，届时整体删除、回绑 token 名）。**硬边界：仅 site/，产品壳字体与素材不随动**（商用授权另案拍板），归档升格以本单票面为准、site 源码仍不得直接引用 archive/ 路径 | 微演示可视对照与逐帧证据；例外条款留痕；site:guard 全绿；数据区绝对静止不破；字体/素材许可快照齐备，产品壳零渗入（静态门可验） |
-| `FILE-PREVIEW-1` | **顺带条款（2026-07-17 拍板）**：执行 READER-ISOLATION-1 SPEC 提案区已批准的 rails-compact 四步退役（删 App 派生与 class → 删 CSS → `assert-layout-converge.mjs` 存在锁转「零出现」反向锁 → `data-compact` 消费点转 `right-narrow`）；主体范围如下。md 文档 preview 入口落 working folders：点击文件直接进入只读预览（frontier 同型交互），内容经 reading-view 派生（复用既有 convertToReadingView，原件只读不变）；先 md/txt，docx/文本层 PDF 视 reading-view 既有覆盖顺带 | 点击→预览打开→关闭回基线（残留门约束）；原件零写入；不支持格式显式态非静默 |
+| `FILE-PREVIEW-1` | **实现已在 `main`，不得重复施工；现仅待独立验收。** 顺带条款（2026-07-17 拍板）：执行 READER-ISOLATION-1 SPEC 提案区已批准的 rails-compact 四步退役（删 App 派生与 class → 删 CSS → `assert-layout-converge.mjs` 存在锁转「零出现」反向锁 → `data-compact` 消费点转 `right-narrow`）；主体范围如下。md 文档 preview 入口落 working folders：点击文件直接进入只读预览（frontier 同型交互），内容经 reading-view 派生（复用既有 convertToReadingView，原件只读不变）；先 md/txt，docx/文本层 PDF 视 reading-view 既有覆盖顺带 | 当前 `main` 的不同会话 clean-worktree 验收：点击→预览打开→关闭回基线（残留门约束）；原件零写入；不支持格式显式态非静默；报告进入 desktop ACCEPTANCE 后方可清账 |
 | `EXPLORE-RAIL-1` | 右栏新模块 Explore（与 Preview 并列，**不是浏览器**）：从既有 Turn journal 助手回复正文抽取显式 `http(s)` 链接（跳过代码块/provider 地址/用户粘贴内容），展示域名/原始 URL/出现 turn 时间，提供复制、回看该回复与**经受控宿主 openExternal 打开系统浏览器**（2026-07-17 产品定调修订：开链接是既定路线；应用内仍零 `<a>` 直渲、零 `window.open`、零网页加载/DOM/截图/摘要回流，「不是浏览器」边界不变）；零新 core/harness/provider/material 接口（纯 transcript 派生只读索引）。措辞纪律：「agent 提及的链接」，不得表述为已建立连接；不复用 Preview 的 artifact tab 语义；rail 顺序 Progress→Preview→Explore→…；UI 标签过 voice 词表（Explore 为工程名，产品文案中文定名随 voice 规范） | 抽取规则反例（代码块/provider 地址/粘贴内容不入索引）触红；零网络请求（静态门锁 fetch/window.open/href）；回看跳转正确；残留门约束适用 |
 | `PREVIEW-TAB-1` | ADR-014 决定一/二：tab 集合按会话 artifact 动态生成（tab=一张 schema 表）、多 artifact 并列、`containerPackBinding` 数组席位（恒 1）；与 Legal panel 迁移解耦，共存语义按 ADR-014 | 多 artifact 动态开 tab、切换不销毁状态（残留门约束）、单 artifact 回退、混包命名空间隔离反例触红 |
 | `PANEL-BLUEPRINT-1` | ADR-012 迁移债：Legal 四个 route panel（timeline/graph/matrix/revision）逐个迁为版本化 component blueprint，保留历史 snapshot 回放与 compatibility alias；可分批 | 每迁一个：descriptor→projection 全链、drift/fail-closed 反例、视觉对照记录；App.tsx 对应硬编码分支删除 |
@@ -139,9 +160,21 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 
 **派单规则**（取代波次号）：取任一「依赖层已满足」的票；**若该票 `App.tsx` 列为「是」，须确认当前无第二张 `App.tsx=是` 的票在途**。互斥是运行时的锁，不是纸上的分组。
 
-**`App.tsx` 队列序（架构裁定 2026-07-20）**：`FILE-PREVIEW-1`（票甲）→ `DEBT-DOSSIER-1` → `C3-1` → `C3-2` → `C3-3`。票甲先占槽（rails-compact 四步退役就在 `App.tsx` 里）。其余 `App.tsx=是` 的票（`PERSIST-BACKEND-1`／`TOOL-READ-1`／`S6-EXEC-1`／`C3-4`／`C3-5`／`MODEL-CONFIG-EXPLICIT-1`／`MATERIAL-READER-MERGE-1`）依赖就绪后按此队列尾随入队。**「即刻并行派发」一类旧措辞已被互斥模型取代**——「即派」指依赖就绪即可**入队**，不指同时**在途**。
+**`App.tsx` 队列序（2026-07-24 P0 插队裁定）**：`FILE-PREVIEW-1` 当前 `main` 独立验收 →
+`WORK-BUDGET-1`（还须 `CORE-BUDGET-1` 已放行）→ `DEBT-DOSSIER-1` → `C3-1` →
+`C3-2` → `C3-3`。FILE 已实现，当前只占验收槽，不授权重复修改 App；WORK-BUDGET 因
+Accepted ADR 违约按 P0 插队。其余 `App.tsx=是` 的票（`PERSIST-BACKEND-1`／
+`TOOL-READ-1`／`S6-EXEC-1`／`C3-4`／`C3-5`／`MODEL-CONFIG-EXPLICIT-1`／
+`MATERIAL-READER-MERGE-1`）依赖就绪后按此队列尾随入队。**「即刻并行派发」一类旧措辞已被
+互斥模型取代**——「即派」指依赖就绪即可**入队**，不指同时**在途**。
 
-**由此得到的结构性事实（本轮实测，值得单独看）**：下表 **17 行中 11 行触 `App.tsx`**（逐行可数），仅 6 行不触。也就是说——**在 `App.tsx` 拆分（D1／`PANEL-BLUEPRINT-1`）落地之前，Stage B/C 这条线实质上是串行的**，并行度上限约等于 1。这不是排期技巧能绕开的，是 `App.tsx` 体量债的直接代价，`A/R-22` 已裁「`App.tsx` 体量债走 D1 拆分线，不由换库解决」。**D1 裁定（2026-07-20）：不提前。** 大爆炸重构换并行度是坏交易——D1 自己就是最大的 `App.tsx` 票，提前它等于把串行变成停摆。`D1`／`PANEL-BLUEPRINT-1` 维持第三梯队分批（首枚 `matrix`，78 行、prop 面最窄）。代之以两件配套：
+**由此得到的结构性事实（2026-07-24 重算）**：下表 **19 行中 12 行触 `App.tsx`**
+（逐行可数），仅 7 行不触。也就是说——**在 `App.tsx` 拆分（D1／
+`PANEL-BLUEPRINT-1`）落地之前，Stage B/C 这条线实质上是串行的**，并行度上限约等于 1。
+这不是排期技巧能绕开的，是 `App.tsx` 体量债的直接代价，`A/R-22` 已裁
+「`App.tsx` 体量债走 D1 拆分线，不由换库解决」。**D1 裁定（2026-07-20）：不提前。**
+大爆炸重构换并行度是坏交易——D1 自己就是最大的 `App.tsx` 票，提前它等于把串行变成停摆。
+`D1`／`PANEL-BLUEPRINT-1` 维持第三梯队分批（首枚 `matrix`，78 行、prop 面最窄）。代之以两件配套：
 
 - **①「过手即拆」纪律**：凡触 `App.tsx` 的票，其所触**状态/JSX 面优先外提为独立模组**，票内 SPEC 留痕（外提了什么、去了哪个模组）。验收查此项。
 - **② `App.tsx` 高水位门**（`lint:app-highwater`，已随本批立）：立门当日行数即上限，**只降不升**；票内净增须由等量外提抵消。外提生效后须同批**下调**上限——不收紧则腾出的空间会被下一张票悄悄吃掉，「只降不升」退化为一次性宽限，故门对**净减**同样触红。
@@ -150,6 +183,8 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 
 | 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
 |---|---|---|---|---|---|
+| `CORE-BUDGET-1` | ADR-010；2026-07-24 P0 漂移裁定 | provider 版本化静态价目补 `deepseek-v4-flash`；core 以信封既有 `runtimeBudget` 为唯一真源，令四项消费跨 start/resume 单调、暂停墙钟不计时、paid Turn usage/unknown coverage 入账、金额上限 fail-closed，并与事件/终态同收敛链 CAS；不改 envelope v1 形状与 storageVersion | 无 | 否 | 同名 provider/core SPEC 的 seed、暂停、failed paid Turn、unknown/版本漂移、CAS 失败 mutation 全红证；完整 build/lint/test；不同会话 clean-worktree 验收放行 |
+| `WORK-BUDGET-1` | ADR-010；2026-07-24 P0 漂移裁定 | Settings 预算与 model route 只在 start 冻结入信封，resume 不重读；按冻结 route/价目构造 provider 与 costBasis；store budget port + expected route 注入 production executor；runtime_limit/configuration 失败从持久投影在 Progress 可见，reload 不消失；触 App 时外提 Progress 正文并下调 highwater | `CORE-BUDGET-1` 独立验收 + `FILE-PREVIEW-1` 独立验收 | **是** | Settings/模型改后 resume 均不变；terminal route 漂移 fail-closed；多 leg 四量单调且等待不计；已知超限与 coverage blocker 均持久可重放；provider 调用计数证明 blocker 前零多发；独立端口 Playwright 与 Progress mutation |
 | `DEBT-CLEAR-1` | `A/R-12`ⓑ删、`A/R-13`ⓑ删、`C/R-15`①、`A/R-26` | 删 D7（`ConfirmationStore.take()`）、D8（`onTurnEvent` 缝）、D10（2 导出 / 9 脚本 / 1 死配置 / `newLine` 死字符串） | 无 | 否 | 删后全链绿；跨包接口面消费方为零须实证；`lint:trace`/`lint:thinking` 去重后门链不缺项 |
 | `DEBT-DOSSIER-1` | `A/R-26` 裁**接判据** | ARCH-DEBT 第 3 笔：令按钮语义与实际入库判据一致。**硬约束**：复用 `App.tsx` 内 `ingestComposerUploads` 既有链（判据为 `caseBinding.kind === 'grant'`），**不得产生第二条入库路径**；实测不可行则暂停回报，不得自行改裁 | 无 | **是** | 按钮态与 `listForCase` 实况一致；单一入库路径静态可验；文案与实际行为一致（voice 门）；demo 隔离不破 |
 | `DEBT-GATE-LABEL-1` | `A/R-14` **改判（2026-07-20）：ⓑ接线 → 死支退役** | D9 范围重写。原票面「`pauseAt` 时把 gate label 供给投影令『未决确认』行生产可达」经探针实测**推翻**：`scenario-executor` 内**生成时刻与未消费 pending 互斥**（`pauseAt` 落 pending 即 return，`resumeScenario` 先 consume 再续 `produceSequence`），该行结构上不可渲染。前瞻语义读法**明确拒绝**——为无需求拉动的推测性收益改字段语义、破 golden、脱钩同源注释，三项代价换零实证价值；真要来属 ADR 级变更，届时随 ADR 重新引入槽位。新范围：①`pendingGateLabels` 字段与「未决确认」投影行按死码退役（判据同 D8/D10：零供给方 + 结构性不可达；**定性为内部类型故直删**——非版本化 wire，不在 JSON Schema、不持久化、零跨包消费）；②互斥论证升格进 `packages/core/SPEC.md`，带探针结论与证据坐标 | 无 | 否 | 投影输出逐字节等同**以既有 golden 未重铸作证**（恒空分支删除后输出不变，两份 golden 数据零改动而全链绿即证明）；SPEC 升格落痕在场；`awaitingConfirmation` 保留并如实登记「生产供给面为空」（真源在调用方，不适用本单判据） |
@@ -161,7 +196,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 | `C3-1 · 生成控制与错误恢复` | `C/R-2`（不变量 4 违例）、`C/R-7`、`C/R-9` | work-chat 补 Stop/Retry（透传 `signal` + `onStop`/`onRetry`）；失败文案按 kind 接现成 `FAIL_KIND_MESSAGES` + 补 402；超时文案两路径归一去毫秒；Chat 失败路径纳入 `workFailureDisplayCopy` 同源守卫；截断（`finishReason:'length'`）显式提示；evidence 出口并入 Settings→About 既有 Diagnostics 导出席位 | 无 | **是** | 静默降级零残留（不变量 4 反例触红）；失败文案与 kind 一一对应；取消零残留；`lint:voice` 全绿 |
 | `C3-2 · 会话可检索` | `C/R-1` 三件全、`C/R-14`ⓑ、`C/R-15`② | 接线 `searchTranscripts` 到 UI；会话自动标题（首条消息派生、**用户不可编辑**，守 ADR-013）；会话内查找。归档仍可搜、删除同步出索引 | 无 | **是**（`sessionHistory` 状态与入口住 `App.tsx`） | 检索命中可回跳；标题派生确定性；删除后索引同步（反例：删后仍搜得到即红）；ADR-013 语义不破 |
 | `C3-3 · 输入面效率` | `C/R-3` 口径、§3.5 顺带裁 | textarea 自增高（补齐已有 max-height）；草稿跨视图/跨历史面板保持（**状态提升出 Composer** 即落 `App.tsx`）；↑ 键召回上一条；粘贴阈值校准——**去除「含换行即转块」判据**，字符阈值 500–1000 区间实测定，补 Shift+粘贴旁路。**不做任何斜杠触发**（见 roadmap「已裁不做」） | 无 | **是** | 草稿跨面保持有断言；阈值实测留证；Shift 旁路可验；零 `/command` 入口（静态门） |
-| `C3-4 · 可观测性四件` | `C/R-8` 四件全（markdown 扩围**已移出**并入 `MD-CONVERGE-1+`） | 会话累计用量；成本估算出口 + 价目表补 `deepseek-v4-flash`；memory 注入逐轮可见；上下文占用可见（`contextWindow` 槽位为协议层**版本化加法扩展**）。上下文占用以**我方自身判断**立论，不以行业基线立论 | 无 | **是** | usage 与既有 ledger 同源不另立；`contextWindow` 缺省时逐字节等同；memory 可见面不泄案件内容跨案 |
+| `C3-4 · 可观测性四件` | `C/R-8` 四件全（markdown 扩围**已移出**并入 `MD-CONVERGE-1+`；预算执法与 flash 价目**前移** `CORE/WORK-BUDGET-1`） | 会话累计用量与成本估算的用户可见出口只读消费既有 ledger/runtimeBudget，不另造账、不改变执法；memory 注入逐轮可见；上下文占用可见（`contextWindow` 槽位为协议层**版本化加法扩展**）。上下文占用以**我方自身判断**立论，不以行业基线立论 | `WORK-BUDGET-1` | **是** | usage/cost 与既有 ledger/runtimeBudget 同源不另立；`contextWindow` 缺省时逐字节等同；memory 可见面不泄案件内容跨案 |
 | `MODEL-CONFIG-EXPLICIT-1`（票丁） | `ARCH-SCOPE` R-11 准（全案） | **model-config 静默降级显式化**，范围五条：①`loadModelConfig` 现有**五条降级路径全部静默**——无值 / `providerId` 非法 / `modelId` 损坏 / `reasoning` 非法 / 裸 `catch {}`（无绑定变量、异常直接丢弃）；另有第二个裸 catch：`localStorage` 抛异常时静默回落 `memoryStore`，配置跨会话蒸发同样无痕。②**降级必须出现在 UI**——一次性提示「模型配置已重置为默认」。③`loadModelConfig` 返回值须携**降级标记**（现签名 `(): ModelConfig` 与正常路径类型层同构，调用方无从区分）。④`model-config.test.ts` 对「静默落默认」的**正向断言改写为反例**（该测试契约变更已由 R-11 明文授权）。⑤**UI 落点优先 Settings 域**（既有 `model` 分区），非 `App.tsx` 面；若确须触 `App.tsx`，按队列序尾随入队，**不抢槽**。最隐蔽的是路径④：用户曾选 `deep`，降级后静默变 `standard` 且随每次请求发出，账单与延迟特征随之改变，界面始终显示「标准」 | 无 | **是**（范围①要求返回值携降级标记，而 `loadModelConfig` 生产消费点之一即 `App.tsx`；**硬约束**：提示 UI 仍优先落 Settings 域，App.tsx 侧改动收敛到取值处，按队列序尾随入队不抢槽） | 五条降级路径逐条有可见痕迹（反例：任一路径静默即红）；降级标记在类型层可判别；`model-config.test.ts` 旧正向断言已成反例；不变量 4「降档必须显式」在此闭合 |
 | `C3-5 · 无障碍与未开通态归一` | `C/R-11`、`C/R-12`ⓑ、`C/R-13` | 焦点陷阱（FocusScope，归档留档正式消费；现行 `useDismissOnOutside` 消费点在 `App.tsx`）；`aria-live` 流式播报；`.palette-input` focus 反馈；未开通态措辞与机制归一（英文 chrome 统一 Coming soon 族）+ 门扩围至 Settings 域与 CaseRail；**响应 OS 级无障碍字号**（rem/em 基线化）——产品内不提供调节 ≠ 拒绝响应 OS 设置 | 宜紧随票丙（标题轨整备） | **是** | 焦点陷阱反例（Tab 逃逸即红）；未开通态门扩围后 Settings/CaseRail 纳入；**rem/em 等比换算须零视觉 diff**（既有皮层门作证，帧证留档） |
 | `ANCHOR-SWEEP-1` | 第二次复验顺带发现 + 判例「文档引码用符号锚不用行号」 | 小票，两条：①**六处漂移行号改符号锚**——`packages/core/SPEC.md`（`executor.ts:49/261` 实为 50/280；`events/types.ts:116` 指涉已删；`:192` 的 `sumUsage` 实为 208）、`packages/output/SPEC.md:50`（`App.tsx:920` 不可定位）、`apps/desktop/SPEC.md:914`（`App.tsx:1771` 实为 2233；`:359-361` 实为 404-406）。②`workflow.md` 验收固定项已增「自述与实现逐条对照」（本票只需核其被执行，不重复立条）。③**顺带（验收 J 项）**：`assert-layout-converge` 的退役名反向锁已由 2 文件加宽至整个生产源码集，SPEC 与本图中「零出现反向锁」的表述随之收紧为实际覆盖面，不留「读起来像全仓级」的模糊。**判例维持劝告级、不立门**——「现行语境 vs 历史语境」机器不可判（验收报告、craft-evidence 里的行号是当时树的证据，正当且不该被扫红），按判例「判据不可判定不造启发式」，宁可靠人核 | 无 | 否 | 六处逐一改为符号锚且符号在源码内真实存在；改后全仓现行规范文档零硬编码源码行号（一次性核，不留门）；`workflow.md` 固定项在本票验收中被实际执行一次 |

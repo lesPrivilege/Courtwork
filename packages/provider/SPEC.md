@@ -187,3 +187,34 @@ type ProviderReadiness = {
 - readiness 已迁移为 credential/connection 正交状态：保存只到 `stored + unverified`，probe 期间 `verifying`，成功才 `ready`；换 key/model/reasoning、clear 与进程重启均撤销 ready。JS 仍无 secret 读回路径。
 - 本节只记录实现证据，不构成放行；Rust、provider、desktop 与全仓门禁由本实现会话实跑，最终仍须不同会话在 clean worktree 独立验收并写入对应 `ACCEPTANCE.md`。
 - 2026-07-14 阻塞修复：`normalizeProviderTransport` 在读取 transport 前发布唯一 lifecycle `started`；HTTP/transport 失败不再因缺失首事件被 core 重分型为 `invalid_response`。401/network 反例锁定 `started(seq 0) → failed(seq 1)`，公开 union 与字段未改。
+
+## CORE-BUDGET-1 · DeepSeek 价目快照与冻结成本基线（2026-07-24，架构票）
+
+权威：[ADR-010「session 累计 runtime budget」](../../docs/decisions/ADR-010-work-live-boundaries.md)。
+外部事实只取 DeepSeek 官方[模型与价格页](https://api-docs.deepseek.com/zh-cn/quick_start/pricing/)；
+网页是价目事实来源，不替代本仓版本化快照与机器门。
+
+### 契约
+
+- `PRICE_TABLE.version` 固定为 `2026-07-24-deepseek-pricing`；
+  `effectiveAt` 固定为 `2026-07-24T00:00:00+08:00`，其语义是**仓库核验日期标记**，不冒充
+  DeepSeek 调价生效日。实现会话不得自行换名或取运行时 `Date.now()`。
+- 收录当期两个正式模型的完整双价：`deepseek-v4-flash` 为缓存未命中输入
+  `¥1 / 1M tokens`、输出 `¥2 / 1M tokens`；`deepseek-v4-pro` 为输入 `¥3 / 1M tokens`、
+  输出 `¥6 / 1M tokens`。缓存命中价继续不参与估算：现有 usage 尚不足以对所有输入逐项按
+  hit/miss 可靠拆价，故统一按未命中价估算，保持“估高不估低”。
+- 价目表仍是构建期静态数据；运行时零网络取价、零静默刷新。`CostEstimate` 继续携
+  `priceTableVersion`、`effectiveAt` 与 `assumptions`，历史 estimate 不用新表回算。
+- `rmbToUsdRate` 本票维持既有 `1 / 7.1` 近似值；该汇率连同“输入统一按缓存未命中价”
+  都必须逐字进入 assumptions。金额护栏比较的是这份冻结估算，不得在 resume 时改用即时汇率。
+- 旧价目快照从未进入 production Work 的有效累计预算（该链在本票前没有消费
+  `runtimeBudget.costBasis/consumed`），因此本票不造空迁移器或多版本价目注册表。自本票起，
+  Work session 冻结表版本；未来换价时必须保留可解析的旧版本或对旧 session 显式
+  标为 coverage `partial`，不得拿新表重算旧 session；该 session 配置 `maxUsd` 时，在下一次
+  paid Turn 前 `configuration` fail-closed。
+
+### 反例与禁止范围
+
+- 改任一模型的输入/输出价、漏版本/核验时点、把缓存命中价混入当前估算，均须使定向测试变红。
+- 未收录模型或 usage 任一必需槽位缺失继续返回 unknown，不得折叠为 `0`。
+- 本票不扩 provider 清单、不增加峰谷价/动态抓价/汇率服务，不改原始 usage 真源。

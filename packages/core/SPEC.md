@@ -577,3 +577,101 @@ gen[2] 生成时刻未消费 pending 数 = 0
 ### 门禁
 
 `pnpm -r build` / `pnpm lint` / `pnpm test` 全绿（**148 files / 1261 tests**，与本单基线同数）；desktop 36 道静态门整链 exit 0；e2e floor 323 未动。`lint:trace`/`lint:thinking` 去重后门链不缺项——`test:e2e` 直接调 `assert-process-trace.mjs`，不经任何别名。
+
+## CORE-BUDGET-1 · ADR-010 累计预算契约纠偏（2026-07-24，架构票）
+
+### 漂移裁定
+
+Accepted ADR-010 已明确：同一 Work session 的 `steps/toolCalls/executionMs/estimatedUsd`
+跨 start/resume 单调累计、与事件/终态同 CAS；未知 usage/价目令
+`costCoverage='partial'`，配置 `maxUsd` 时须在下一次 paid Turn 前形成持久
+`scenario_failed(configuration)`。
+
+现实现把 `RuntimeGuard` 每 leg 新建，`WorkStateEnvelopeV1.runtimeBudget.consumed` 恒由组合根填
+零值；本文件 WORK-STORE-1 旧节把该项写成“复杂度拍板后置”。该后置只落在低于 ADR 的
+readiness/SPEC，未修订 ADR，且现行 readiness 已明确拒绝按 resume leg 重置。**裁定：旧后置无效，
+实现必须服从 ADR-010；不修订 ADR，不改变字段语义。**
+
+### 唯一状态与接口
+
+不新增第二预算账本。现有 `WorkRuntimeBudget` 是唯一持久真源，字段形状与
+`storageVersion: 1` 均不变。通用执行层使用下列窄接口（命名可随本层既有体例微调，形状不得扩张）：
+
+```ts
+interface RuntimeBudgetPort {
+  snapshot(): WorkRuntimeBudget;
+  stageConsumed(next: WorkRuntimeBudget['consumed']): void;
+}
+```
+
+- `WorkStateStore` 拥有并以 `runtimeBudget` 属性暴露该 port；`stageConsumed` 只更新
+  **待提交快照**，不得自己写 host 或另开 CAS。它必须校验数值有限、非负、四个累计量
+  不回退，`costCoverage` 只允许 `complete → partial`，不得反向“恢复完整”。
+- store 在 load/start 时防御性复制 `runtimeBudget`，port 的 `snapshot()` 也返回副本；调用方持有的
+  header 或 snapshot 后续被改写，均不得绕过 `stageConsumed` 改动 store 真值。
+- `WorkStateStore.commit()` 把待提交预算与同批 events/turnEntries/pending/revisions 装进同一
+  whole-envelope CAS；成功才把待提交值晋为 durable baseline。序列化、大小闸或 CAS 失败时，
+  `runtimeBudget.snapshot()` 必须回到最后一次成功 commit 的值，不能留下“内存已花、磁盘未花”
+  的半真值。发生 CAS 冲突后整枚 store 仍按既有规则废弃，不在本票造自动 merge/retry。
+- production `ScenarioExecutorDeps` 注入该 port；原 `limits` 仅保留给不持久的纯逻辑测试/demo，
+  由 executor 在本次调用开始以当前静态 `PRICE_TABLE` 的 version/effectiveAt/assumptions 构造
+  一次性 in-memory budget，再走**同一 guard 算法**，不得保留第二套计数分支。已知价模型继续可测
+  `maxUsd`；usage 缺失/模型未收录则本次 terminal 后转 partial，并在同一调用的下一 paid Turn 前
+  阻断。该适配只服务纯测试/demo，不能作为 production 初始 model coverage 的证据；production
+  必须使用 store port。两个预算来源同时注入属于装配错误，必须显式拒绝，不得任选其一。
+- production 还须向 executor 注入信封冻结的 expected model route（至少 providerId/modelId）；
+  terminal 身份与它不符时，不得拿另一模型的价目继续估算。该 route 来自同一 store snapshot，
+  不是 UI、Settings 或每 leg provider factory 的二次读取。
+- `RuntimeGuard` 从 port 快照 seed，而非从零起步。每个 leg 的 `executionMs` 只加该 leg 实际执行
+  增量；人工暂停等待的墙钟不计。每次 step/tool/时间/估价更新都同步回 port，下一次
+  `persistBarrier` 把它与同批事件、Turn terminal 或失败终态一起 CAS。
+- steps/toolCalls 采用 prospective check：先判断 `consumed + 1` 是否越限；越限则在相关
+  step/tool effect 前阻断，**被拒绝且未发生的那一次不计入 consumed**。获准后才 stage `+1`；
+  provider step 须随 `turn_linked` 的 durable-before-effect 屏障落下，工具调用最迟在下一次
+  effect 前落下。不得靠“先执行、后发现额度不足”通过门。
+
+### paid Turn 与终态顺序
+
+1. paid Turn 前检查：若 `maxUsd` 已配置，且冻结成本基线缺版本/生效时点、既有
+   `costCoverage='partial'`，或当前进程没有一份 `version + effectiveAt` 与冻结基线**精确匹配**
+   的可用价目快照，均在 `turn_linked`/provider effect 前抛结构化预算配置错误。不得先用当前
+   新表多打一笔请求、事后才把旧 session 标成 partial。
+2. Turn 返回后、既有 terminal durable barrier 前，根据**冻结价目版本**处理 usage：
+   - usage 与价目齐全且版本一致：累加 `estimatedUsd`；
+   - 任一缺失或版本不一致：保留已知估算、把 coverage 单向置 `partial`，绝不记零。
+   completed 或 failed Turn 一视同仁；只要 provider effect 已发生且 terminal 携 usage，就必须计入。
+3. 当前 paid Turn 已经发生后才发现 unknown，允许保存其 terminal；**下一次** paid Turn
+   fail-closed。若同一 artifact 进入第二次受限修复调用，该调用也算“下一次”。
+4. 正常 paid Turn 的 terminal 与该 Turn 引起的最新累计量必须同一次 whole-envelope CAS；
+   failed Turn 还须把 `step_failed` 同批落下。已知成本越过 `maxUsd` 时，本次 Turn terminal、
+   最新累计量与 `scenario_failed(runtime_limit)` 必须**同一次 CAS**，随后才返回 typed `failed`，
+   不允许先持久 terminal、后补预算/失败。
+5. coverage 阻断：持久 `scenario_failed(configuration)` 并返回 typed `failed`；message
+   必须含已知估算、覆盖不完整、冻结假设与可执行下一步，供 desktop 重放，不得只抛异常或 toast。
+
+实现顺序不得留给两条分支各自发挥：`runWorkTurn` 对 completed/failed terminal 都先核身份，再按
+terminal usage 与冻结表 stage estimate/coverage；failed 分支追加 `step_failed`；若已知超金额则
+同批追加 `scenario_failed`；随后恰好一次 `persistBarrier`。该屏障成功后，completed 才返回，
+failed 才抛既有 typed Turn failure，金额超限才映射 runtime-limit failed outcome。configuration
+preflight 则在 `turn_linked` 之前单独追加失败并持久，不得创建 Turn 身份或触达 provider。
+
+失败优先级固定为：① terminal 的 providerId/modelId 与冻结 route 不同 → coverage 转 partial，
+terminal（及原 provider failed 时的 `step_failed`）与 `scenario_failed(configuration)` 同一 CAS，
+configuration outcome 优先；② route 相同且已知金额越限 → 同批 runtime_limit，优先于原 provider
+failure；③其余 failed terminal 按既有 Turn failure 传播。不得因分支顺序让同一输入随机表现为
+provider/runtime/configuration 三者之一。
+
+### 兼容、反例与禁止范围
+
+- 旧 v1 信封继续可读；其冻结 `limits:{}` 就是不设限，不从当前 Settings 追写。resume 只认信封，
+  修改 Settings 后不得改变既有 session 的 limits/costBasis。
+- `readWorkStateEnvelope` 必须深校验本票会消费的 runtimeBudget：`steps/toolCalls` 及对应
+  limits 必须是非负安全整数；`executionMs/estimatedUsd/maxSeconds/maxUsd` 必须有限且非负；
+  currency 只能是 USD；version/effectiveAt 必须成对出现且非空；assumptions 必须是字符串数组；
+  coverage 只许 complete/partial，且 complete 必须伴随版本/时点。纯逻辑入口收到负数或非有限
+  limit 也须在 effect 前显式拒绝。任一信封失败均 `CorruptEnvelopeError`，不得把脏值送进比较或算术。
+- 必测反例：pause 后 resume 不得重置四量；暂停墙钟不得计入；删掉 seed/单调门必须红；
+  usage/价格 unknown 当零必须红；价目版本漂移必须转 configuration；成本越限与 coverage
+  阻断均须持久终态；CAS 失败不得推进本地累计真值。
+- 不改 `WorkStateEnvelopeV1` 字段、不升 storageVersion、不新增事件类型、不造 WAL/第二 journal，
+  不夹带 scheduled/multi-writer/identity/沙箱议题。
