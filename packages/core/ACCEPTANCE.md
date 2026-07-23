@@ -1178,3 +1178,118 @@ fresh clone 首次在 build 前直接运行六文件 Vitest 曾因 workspace `di
 - **机器红证**：临时恢复旧句「四项共用同一判据」后，精确文案门报 `stale`、落盘退出码 **1**；还原后同门退出码 **0**。恢复态六文件定向门 **6 files / 90 tests passed**，含两份 golden、墓碑与 awaiting 三态既有断言。
 
 **裁决：✅ 放行 DEBT-CLEAR-1 + DEBT-GATE-LABEL-1 回炉尖端。** 放行仅解除首轮两项文档阻断；合并态全链、floor 与发布仍由 RELEASE-VERIFY-1 后续阶段实跑决定。
+
+## CORE-BUDGET-1 独立验收（2026-07-24，目标 `7808426`）
+
+- **验收对象**：当前 `main @ 78084265aabb66b95fccd322d1fa046b088c1a02`；实现者为 solar，
+  本验收会话未参与实现，也不采信实现留痕中的测试数字。
+- **隔离方式**：独立 detached clean worktree
+  `/private/tmp/courtwork-core-budget-accept.wsDneN`；未 checkout、stash 或修改共享树，未带入共享树
+  对 `capture.mjs` 的未提交一行修复。
+- **裁决：❌ 当前 SHA 不放行。** 价目快照、跨 resume 累计、人工等待剔除、unknown
+  fail-closed、failed paid Turn、路由/版本漂移、同 CAS、回滚、防御性复制、深校验与 legacy
+  单算法主体均成立，但 paid preflight 前错误消费了尚未发生的 step；此外目标 SHA 的 root
+  `pnpm lint` 仍有一项票外既有红灯。二者任一都足以阻止清账。
+
+### 1. 范围与契约审计
+
+实现提交精确为 **13 files / 1289 insertions / 131 deletions**：provider 价目表与测试、core
+executor/runtime guard/envelope/store 及其测试、两层 SPEC 留痕。未触及 desktop、schemas、
+Tauri host、command wire、事件联合、`storageVersion: 1`、lockfile 或第三方依赖；没有第二预算
+journal、WAL 或动态在线取价。新增概念只有架构票已批准的 `RuntimeBudgetPort`，store 仍以既有
+whole-envelope CAS 为唯一持久动作。
+
+官方价目页与票面、源码三者一致：`deepseek-v4-flash` 为缓存未命中输入/输出
+`¥1/¥2 per 1M tokens`，`deepseek-v4-pro` 为 `¥3/¥6`；静态快照锁为
+`2026-07-24-deepseek-pricing @ 2026-07-24T00:00:00+08:00`，汇率与缓存未命中估高假设随
+estimate 冻结。运行时没有网络取价或旧 estimate 回算。
+
+### 2. A–M 行为矩阵
+
+| 项 | 独立实跑结果 |
+| --- | --- |
+| A · price snapshot | 两模型双价、version/effectiveAt、`1/7.1`、assumptions 与 unknown 槽位均通过；价目 mutation 精确触红 |
+| B · 多 gate / fresh resume | 临时两产出两门探针经两次销毁并 fresh load，steps `1→2→2`、provider calls `2`，最终完成 |
+| C · 人工等待 | 两段实际执行 `1000ms + 500ms`，中间各推进一小时墙钟，最终 `executionMs=1500` |
+| D · prospective step/tool | 纯 guard 的 maxSteps/maxToolCalls 拒绝后计数不增，executor 的 `maxSteps=0`/`maxToolCalls=0` effect 调用均为 0；但见 B1 的 paid preflight 次序缺陷 |
+| E · unknown / 下一 paid Turn | 首笔缺 usage 后 coverage `complete→partial`、估算保留，下一 provider/link 为 0，configuration 持久；但被拒 step 被多计 1 |
+| F · failed paid Turn | completed/failed terminal 同走核身份与计价；普通失败先落 usage 再抛，超金额由 runtime_limit 优先 |
+| G · route mismatch | terminal route 漂移令 coverage partial，不按另一模型估价；configuration 优先于原 provider failure |
+| H · version/effectiveAt drift | 两字段分别单独漂移时 identity/link/provider 均为 0，configuration 持久；但首次被拒 step 由 0 错记为 1 |
+| I · same CAS | 临时 host 逐次解码 CAS bytes；failed overflow 的 terminal、最新预算、`step_failed` 与 `scenario_failed` 首次只在同一枚 CAS 出现 |
+| J · CAS rollback | CAS 败者的 staged budget 回到 durable baseline，宿主胜者不被覆盖 |
+| K · defensive copy | fresh header、port snapshot、嵌套 assumptions/limits/consumed 均不能旁路改写 store |
+| L · deep validation | 13 类 limits/cost/coverage/metadata/currency 脏值均 `CorruptEnvelopeError`；legacy `limits:{}` 与 partial 无价目仍可读 |
+| M · legacy 单算法 / browser | legacy limits 先归一到同一 guard；与 durable port 双注入 effect 前 configuration；browser 出口定向保持全绿 |
+
+临时验收探针合计实跑 **2 files / 63 tests：60 passed / 3 failed**。四项新增正向探针
+（两 gate+等待、同 CAS、step effect=0、tool effect=0）均通过；三项失败全部指向同一 B1：
+unknown 后下一 paid Turn、仅 version 漂移、仅 effectiveAt 漂移。
+
+### 3. B1 · configuration preflight 前错误计入未发生 step（实现阻塞）
+
+`produceSequence` 在 `executor.ts:635` 先调用 `guard.checkStep()`，而 paid 配置门直到
+`runWorkTurn` 的 `executor.ts:351` 才调用 `assertPaidTurnPreflight()`。因此 coverage partial 或
+冻结价目漂移时，系统虽然正确做到 **turn identity=0、turn_linked=0、provider=0**，却已把该次
+未发生的 step stage 并随 `scenario_failed(configuration)` 持久。
+
+独立探针原始观测：
+
+1. 第一 paid Turn 缺 usage 后，第二 paid Turn 被 configuration 阻断；provider 总调用为 1，
+   但 `consumed.steps` 实得 **2**，契约期望 **1**。
+2. 只改 frozen version：identity/link/provider 均 0，但 `consumed.steps` 实得 **1**，期望 0。
+3. 只改 frozen effectiveAt：同样实得 **1**，期望 0。
+
+这不是验收标准空白。CORE-BUDGET-1 SPEC 已明确「被拒绝且未发生的那一次不计入 consumed」，
+并要求 paid preflight 早于 `turn_linked/provider effect`。修复须令 preflight blocker 不推进 step，
+同时不得破坏合法 step 与 `turn_linked` 同屏障、terminal/budget/failure 同 CAS、跨 resume seed
+和失败优先级；验收角色不代改实现。
+
+### 4. Mutation 红证
+
+每项均在隔离树单独注入，看到目标红灯后用反向 patch 精确还原：
+
+| Mutation | 实跑红证 |
+| --- | --- |
+| flash 输出价 `2→2.01` | pricing **1 failed / 13 skipped** |
+| step seed 写死为 `1` | runtime guard **1 failed / 11 skipped** |
+| unknown estimate 改记 `0` | executor **1 failed / 7 skipped**，错误完成并多发第二 provider |
+| 删除 terminal/budget/failure 屏障 | executor **1 failed / 7 skipped**，revision 仅 2 而非 3 |
+| 删除 CAS 失败后的 staged rollback | store **1 failed / 14 skipped**，败者仍留 steps=1/executionMs=10 |
+| port snapshot 返回内部引用 | store **1 failed / 14 skipped**，limits/assumptions/steps 被外部改写 |
+| 删除 `readWorkStateEnvelope` 的 runtimeBudget 深校验 | envelope **13 failed / 8 skipped** |
+| 关闭 terminal route mismatch 判定 | executor **1 failed / 7 skipped**，错误回退为 `WorkTurnFailedError` |
+| 关闭 durable port + legacy limits 双源拒绝 | executor **1 failed / 7 skipped**，错误完成且调用 provider |
+| 超 step 前先 stage | runtime guard **1 failed / 11 skipped**，被拒 steps 从 2 错进 3 |
+| 超 tool 前先 stage | runtime guard **1 failed / 11 skipped**，被拒 toolCalls 从 1 错进 2 |
+
+全部 mutation 与临时探针撤除后，`git diff --exit-code` 为 0；恢复态七文件定向
+**7 files / 123 tests passed**。
+
+### 5. 固定门与票外红灯
+
+| 命令 | 当前目标 SHA 实跑 |
+| --- | --- |
+| `pnpm install --frozen-lockfile --offline` | 缓存缺 `@eslint/js@10.0.1` tarball，诚实失败；随后同一 lockfile 联网安装 **14 workspace / 1047 packages** |
+| `pnpm -r build` | exit 0，**13/14 workspace**；desktop **3584 modules transformed** |
+| provider 全量 | **14 files / 110 tests passed** |
+| core 全量 | **34 files / 369 tests passed** |
+| root `pnpm test` | **149 files / 1290 tests passed** |
+| provider/core 定向 eslint | exit 0 |
+| `pnpm lint` | **exit 1；1 error / 0 warnings**：`site/craft-evidence/VERSIONAL-LANG-3/capture.mjs:91:5 localStorage no-undef` |
+| 排除上述单文件后的 root eslint | exit 0 |
+
+`capture.mjs` 不在实现差异中；clean 目标 SHA 的首行只声明 `process`，共享树未提交的
+`localStorage` global 修复没有进入本验收。故该红灯明确是票外基线，但固定门仍是固定门，不能用
+共享 dirty tree 或排除命令冒充全绿。CORE 票没有 desktop 行为变化，未运行 Playwright。
+
+### 6. 裁决
+
+**❌ 驳回 `78084265aabb66b95fccd322d1fa046b088c1a02`。** 复验至少须：
+
+1. 不计入 coverage/version/configuration preflight 拒绝的未发生 step，并以 unknown 后第二调用、
+   version-only、effectiveAt-only 三例锁定；
+2. 重跑本报告全部 budget 定向、关键 mutation、全仓 build/test/lint；
+3. 全仓 lint 红灯须由其所属票独立清除，不能混入 CORE 修复或借共享未提交改动遮绿。
+
+本验收只追加报告，未修改 provider/core 实现、SPEC、current/readiness、schema、门常量或票外文件。
