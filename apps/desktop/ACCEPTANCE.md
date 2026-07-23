@@ -4292,3 +4292,75 @@ fresh clone 初次在 workspace build 前跑 desktop 定向测试曾因 `@courtw
 worktree 在 workspace build 前跑 material-store 曾因 reading-view dist 尚不存在而 import 失败，
 拓扑 build 后稳定复绿；第一次 Playwright 因 sandbox 禁止监听端口报 `EPERM`，获准后在独立端口
 成功。这三项是验收编排／环境前置，不归责产品，但均未从数字中省略。
+
+---
+
+# ACCEPTANCE: MD-CONVERGE-1+ · 当前 main 治理复验
+
+日期：2026-07-24；验收对象：`4998ab3bbbd98997976f0a0f423b080e300a71de`
+（验收开始及报告前均为 `HEAD == main`）。本会话未参与实现或同主体回炉，在独立 detached clean
+worktree `/private/tmp/courtwork-md-reaccept.fUAfUU` 完成；Playwright 自起端口 `19432`
+（MD 定向）、`19433`（完整）与 `19434`（完整轮红例隔离复现），三轮均
+`reuseExistingServer=false`，未复用共享服务。验收只追加本报告，未修改产品实现、SPEC 或全局状态文档。
+
+**工单范围裁决：✅ 逻辑通过。治理裁决：❌ 当前 SHA 不放行清账。** remark/GFM 汇流、两条
+legacy 兼容行为、32 KiB/256 游程预算、链接只渲染不导航、扩围五项与旧手写 parser 退役均由
+读码、DOM 真渲和 mutation 红证成立；但 current-main 固定门仍有两类票外红：
+
+1. `pnpm lint` 在 clean target 为 **1 error / 0 warnings**，唯一命中
+   `site/craft-evidence/VERSIONAL-LANG-3/capture.mjs:91` 的 `localStorage no-undef`；排除该唯一文件
+   后同一 target 的其余 ESLint 扫描 exit 0。该文件不在 MD 工单改动面，验收角色不得越界代修。
+2. 独立端口完整 Playwright 静态链与 327 floor 全绿，但行为轮为 **324/327**：已登记
+   `E2E-FLAKY-HOVER-1` 的 `global-verbs.spec.ts:7` 悬停透明度抖动一条，另有
+   `goal2.spec.ts:54` 与 `host-auth.spec.ts:41` 两条在全量负载下卡于共用 `openWorkbench` 首屏等待。
+   三条在新端口隔离复跑 **3/3** 绿，证明与 MD 触面无关，但按“一次绿不构成对 flaky 的反驳”，
+   完整轮红仍必须如实保留，不能改写成全量通过。
+
+因此本报告只证明 `MD-CONVERGE-1+` 的 current-main **范围逻辑成立**；在全仓 lint 红清零并由后续
+current-main 验收取得固定门全绿前，不得把本结论列入已清账清单。
+
+## 实现、依赖与边界对照
+
+- `ChatMarkdown` 的解析入口为
+  `unified().use(remarkParse).use(remarkGfm)`；desktop 与 reading-view 对
+  `unified`/`remark-parse`/`remark-gfm` 的声明逐项同为 `^11.0.5`/`^11.0.0`/`^4.0.0`，
+  实际解析版本逐项同为 `11.0.5`/`11.0.0`/`4.0.1`，没有第二套解析版本。
+- 生产源码对 `parseMarkdownBlocks`、`splitTableRow`、`parseDelimiterRow`、`isTableStart`、
+  `isHrLine`、`BLOCK_START`、旧 `MarkdownBlock`/`TableAlign` 导出的双工具检索均为零；
+  `ReaderPane.renderInline` 是独立 reader 本地函数，不是退役 parser 消费点。
+- 工单提交范围未触 `App.tsx` 或 `SessionHistory.tsx`；两处仍只按 `{ text: string }` 消费
+  `ChatMarkdown`。链接落 `span.md-link[title]`，DOM 与 e2e 均锁定零 `<a>`；图片、公式、原始 HTML
+  和未支持节点保留原文可见，不造导航、多模态或 HTML 执行能力。
+- 32 KiB/256 精确边界探针实得：
+  `32768 → null`、`32769 → length`、`256 连续字符 → null`、`257 → run`。
+  超预算分支先于 `processor.parse` 返回完整纯文本与显式说明，未截断原文。
+
+## Mutation 红证
+
+| 反例 | 实际红证 | 恢复 |
+| --- | --- | --- |
+| 绕过 `unwrapSetext` 与 `truncateRaggedTable` 两件兼容层 | **2 failed / 42 passed**，精确红 Setext 与不齐表格两例 | 44/44 |
+| 移除 `.use(remarkGfm)` | 定向 **3 failed / 41 skipped**，精确红 table / delete / task-list | 44/44 |
+| 旁路长度门 | 定向 **1 failed / 43 skipped**，`length` 实得 `run` | 44/44 |
+| 旁路通用游程门 | 下划线 600 游程定向 **1 failed / 43 skipped**，`run` 实得 `null` | 44/44 |
+| 把 `span.md-link` 改成 `<a href>` | 定向 **1 failed / 43 skipped**，零导航断言实得一枚 anchor | 44/44 |
+
+五项均以 `apply_patch` 注入并逐项撤回；恢复后 `git diff --check` 通过，报告前工作树产品源码零 diff。
+
+## 门禁原始数字
+
+| 命令 | 结果 |
+| --- | --- |
+| `pnpm --filter @courtwork/desktop exec vitest run src/chat/chat-markdown.test.ts` | **1 file / 44 tests passed** |
+| MD + 历史折叠定向 Playwright，独立 `:19432` | **8/8 passed**（7.4s） |
+| `pnpm test` | **149 files / 1291 tests passed** |
+| `pnpm -r build` | exit 0；13/14 workspace scope 的 13 个 build 脚本全过；desktop 3584 modules |
+| `pnpm --filter @courtwork/desktop test:e2e`，独立 `:19433` | 静态链全绿；floor 327；完整 **324 passed / 3 failed**（3.9m） |
+| 完整轮三红隔离复跑，独立 `:19434` | **3/3 passed**（3.4s），只作归因，不抹除完整轮红 |
+| `pnpm lint`（目标原样） | **exit 1；1 error / 0 warnings**，`capture.mjs:91 no-undef` |
+| `eslint . --ignore-pattern .../capture.mjs`（票外归因） | exit 0 |
+
+冻结依赖首次 `--offline` 因 store 缺 tarball 失败，按同一 lockfile 获准安装后成功；第一次定向
+Playwright 在 workspace build 前因各包 `dist` 尚未生成而无法解析入口，立即中止，完成拓扑 build
+后稳定 8/8；sandbox 首次禁止本地监听报 `EPERM`，获准后全部使用上述独立端口。这些是验收编排/
+环境前置，不记作产品失败，也未从实录中省略。
