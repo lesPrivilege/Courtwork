@@ -26,25 +26,21 @@ export interface PriceTable {
 }
 
 /**
- * 当期价目表快照。价格数值来源 docs/architecture/system.md（2026-07 调研快照），只收录该报告
- * 给出完整 input+output 双价的型号——未给全价的型号（如 DeepSeek V4-Flash 只公开缓存命中价）
- * 不编造数字，直接不收录；estimateCostUsd 对未收录组合诚实返回 undefined。
- *
- * 本工单只为既有价格附版本/生效元数据，不新增、不更新任何价格数值，也不引入峰谷时段或别名
- * 日期。生产使用前应对照各家官网价格页刷新此表并升 version，此处数字有过期风险。
+ * 当期 DeepSeek 官方价目静态快照（2026-07-24 核验）。effectiveAt 是仓库核验时点，不冒充
+ * provider 调价生效日；运行时不联网刷新。缓存命中价不参与本版估算，因为现有 usage 尚不足以
+ * 对全部 input token 可靠拆分 hit/miss，故统一采用缓存未命中价，保持 maxUsd 护栏估高不估低。
  */
 export const PRICE_TABLE: PriceTable = {
-  version: '2026-07-research-snapshot',
-  // 溯源标记：既有价格取自 2026-07 调研快照，此处以该月为粗粒度生效标记，非 DeepSeek 调价日。
-  effectiveAt: '2026-07-01T00:00:00Z',
+  version: '2026-07-24-deepseek-pricing',
+  effectiveAt: '2026-07-24T00:00:00+08:00',
   rmbToUsdRate: 1 / 7.1,
   assumptions: [
-    '价格数值来源 docs/architecture/system.md 2026-07 调研快照，生产前须对照官网价格页刷新并升版本',
-    '不区分缓存命中/未命中，统一按未命中价估算总 input token（估高不估低，对 maxUsd 护栏更安全）',
+    '全部 input token 统一按缓存未命中价估算（估高不估低；当前 usage 不足以可靠拆分全部缓存命中/未命中输入）',
     'RMB→USD 按 1/7.1 近似汇率换算（DeepSeek 官网原始单位为人民币）',
   ],
   prices: {
     deepseek: {
+      'deepseek-v4-flash': { inputPerMillionRmb: 1, outputPerMillionRmb: 2 },
       'deepseek-v4-pro': { inputPerMillionRmb: 3, outputPerMillionRmb: 6 },
     },
   },

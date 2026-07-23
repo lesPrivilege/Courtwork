@@ -5,6 +5,28 @@ const usd = (providerId: string, modelId: string, usage: Parameters<typeof estim
   estimateCostUsd(providerId, modelId, usage, table)?.usd;
 
 describe('estimateCostUsd', () => {
+  it('pins the official 2026-07-24 DeepSeek snapshot and prices both production models', () => {
+    expect(PRICE_TABLE).toMatchObject({
+      version: '2026-07-24-deepseek-pricing',
+      effectiveAt: '2026-07-24T00:00:00+08:00',
+      rmbToUsdRate: 1 / 7.1,
+      prices: {
+        deepseek: {
+          'deepseek-v4-flash': { inputPerMillionRmb: 1, outputPerMillionRmb: 2 },
+          'deepseek-v4-pro': { inputPerMillionRmb: 3, outputPerMillionRmb: 6 },
+        },
+      },
+    });
+    expect(PRICE_TABLE.assumptions).toEqual([
+      '全部 input token 统一按缓存未命中价估算（估高不估低；当前 usage 不足以可靠拆分全部缓存命中/未命中输入）',
+      'RMB→USD 按 1/7.1 近似汇率换算（DeepSeek 官网原始单位为人民币）',
+    ]);
+    expect(usd('deepseek', 'deepseek-v4-flash', {
+      inputTokens: 1_000_000,
+      outputTokens: 1_000_000,
+    })).toBeCloseTo(3 / 7.1, 10);
+  });
+
   it('returns a versioned estimate discriminant, not a bare number', () => {
     const estimate = estimateCostUsd('deepseek', 'deepseek-v4-pro', { inputTokens: 1, outputTokens: 1 });
     expect(estimate).toBeDefined();
@@ -19,7 +41,7 @@ describe('estimateCostUsd', () => {
   });
 
   it('computes USD cost for a known (providerId, modelId) pair from RMB per-million-token rates', () => {
-    // deepseek-v4-pro: 输入 ¥3/M、输出 ¥6/M（docs/architecture/system.md 2026-07 快照）
+    // deepseek-v4-pro：2026-07-24 官方页核验的缓存未命中输入 ¥3/M、输出 ¥6/M。
     const cost = usd('deepseek', 'deepseek-v4-pro', { inputTokens: 1_000_000, outputTokens: 1_000_000 });
     expect(cost).toBeDefined();
     // (3 + 6) 元 / 7.1 汇率 ≈ 1.267 美元，允许浮点误差

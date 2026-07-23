@@ -12,12 +12,16 @@ import { assertPersistableRevisionEvent } from '../revision/revision-store-share
 import type { RevisionEvent } from '@courtwork/schemas';
 import type { PersistedTurn, TurnJournalEntry } from '../turn/types.js';
 import {
+  assertWorkRuntimeBudget,
+  CorruptEnvelopeError,
   HARD_ENVELOPE_LIMIT_BYTES,
   SOFT_ENVELOPE_LIMIT_BYTES,
   readWorkStateEnvelope,
   serializeWorkStateEnvelope,
+  type WorkRuntimeBudget,
   type WorkStateEnvelopeV1,
 } from './envelope.js';
+import type { RuntimeBudgetPort } from '../scenario-executor/runtime-limits.js';
 import {
   encodeStoredEvents,
   hydrateStoredEvents,
@@ -80,6 +84,8 @@ export interface WorkStateStore {
   readonly eventLog: EventLog;
   readonly confirmationStore: ConfirmationStore;
   readonly revisionStore: RevisionEventStore;
+  /** session 累计预算的唯一 staged/durable 端口；随下一次 commit 与同批账本 whole-envelope CAS。 */
+  readonly runtimeBudget: RuntimeBudgetPort;
   /** durable 屏障：装配当前信封 → 大小闸 → 序列化 → whole-envelope CAS。落盘成功前不返回。 */
   commit(): Promise<WorkStateCommitResult>;
   /** 当前工作信封快照（含最后一次成功 commit 的 revision）。 */
@@ -257,6 +263,31 @@ function assertRefMatchesHeader(ref: WorkSessionRef, caseId: string, sessionId: 
   }
 }
 
+function cloneRuntimeBudget(budget: WorkRuntimeBudget): WorkRuntimeBudget {
+  return {
+    limits: { ...budget.limits },
+    costBasis: {
+      ...budget.costBasis,
+      assumptions: [...budget.costBasis.assumptions],
+    },
+    consumed: { ...budget.consumed },
+  };
+}
+
+function assertMonotonicConsumption(
+  previous: WorkRuntimeBudget['consumed'],
+  next: WorkRuntimeBudget['consumed'],
+): void {
+  for (const key of ['steps', 'toolCalls', 'executionMs', 'estimatedUsd'] as const) {
+    if (next[key] < previous[key]) {
+      throw new CorruptEnvelopeError(`runtimeBudget.consumed.${key} 不得从 ${previous[key]} 回退到 ${next[key]}`);
+    }
+  }
+  if (previous.costCoverage === 'partial' && next.costCoverage === 'complete') {
+    throw new CorruptEnvelopeError('runtimeBudget.costCoverage 不得从 partial 恢复为 complete');
+  }
+}
+
 /**
  * 单一入口：读取 host。已有 blob → 校验并回读（未知版本 fail-closed），种入四段账本续行；
  * 无 blob → 用 options.header 起新会话，首个 commit 以 expectedVersion=null 落 header。
@@ -289,7 +320,7 @@ export async function loadWorkStateStore(options: LoadWorkStateStoreOptions): Pr
       modelRoute: envelope.modelRoute,
       materialRefs: envelope.materialRefs,
       createdAt: envelope.createdAt,
-      runtimeBudget: envelope.runtimeBudget,
+      runtimeBudget: cloneRuntimeBudget(envelope.runtimeBudget),
     };
     revision = envelope.revision;
     cachedVersion = existing.version;
@@ -305,7 +336,13 @@ export async function loadWorkStateStore(options: LoadWorkStateStoreOptions): Pr
     pendingSeed = envelope.pendingConfirmations;
   } else {
     assertRefMatchesHeader(ref, options.header.caseId, options.header.sessionId);
-    header = options.header;
+    assertWorkRuntimeBudget(options.header.runtimeBudget);
+    header = {
+      ...options.header,
+      modelRoute: { ...options.header.modelRoute },
+      materialRefs: [...options.header.materialRefs],
+      runtimeBudget: cloneRuntimeBudget(options.header.runtimeBudget),
+    };
     revision = 0;
     cachedVersion = null;
   }
@@ -313,11 +350,26 @@ export async function loadWorkStateStore(options: LoadWorkStateStoreOptions): Pr
   const eventLog = createEnvelopeEventLog(header.sessionId, events, now);
   const revisionStore = createEnvelopeRevisionStore(revisionEvents);
   const pendingLedger = createEnvelopePendingLedger(pendingSeed);
+  let durableBudget = cloneRuntimeBudget(header.runtimeBudget);
+  let stagedBudget = cloneRuntimeBudget(durableBudget);
+  const runtimeBudget: RuntimeBudgetPort = {
+    snapshot: () => cloneRuntimeBudget(stagedBudget),
+    stageConsumed(next) {
+      const candidate: WorkRuntimeBudget = {
+        ...cloneRuntimeBudget(stagedBudget),
+        consumed: { ...next },
+      };
+      assertWorkRuntimeBudget(candidate);
+      assertMonotonicConsumption(stagedBudget.consumed, candidate.consumed);
+      stagedBudget = candidate;
+    },
+  };
 
   const buildEnvelope = (rev: number): WorkStateEnvelopeV1 => ({
     storageVersion: 1,
     revision: rev,
     ...header,
+    runtimeBudget: cloneRuntimeBudget(stagedBudget),
     // 写侧封版本信封（ADR-010 决定三）：注入 codec 即生产装配；缺省保持 WORK-STORE-1 直存。
     events: options.artifactCodec ? encodeStoredEvents(eventLog.list(), options.artifactCodec) : eventLog.list(),
     turnEntries: [...(readTurnEntries?.() ?? [])],
@@ -330,23 +382,30 @@ export async function loadWorkStateStore(options: LoadWorkStateStoreOptions): Pr
     eventLog,
     confirmationStore: pendingLedger.store,
     revisionStore,
+    runtimeBudget,
     async commit() {
-      const nextRevision = revision + 1;
-      const bytes = serializeWorkStateEnvelope(buildEnvelope(nextRevision));
-      if (bytes.length > HARD_ENVELOPE_LIMIT_BYTES) {
-        throw new WorkStateTooLargeError(bytes.length, ref);
+      try {
+        const nextRevision = revision + 1;
+        const bytes = serializeWorkStateEnvelope(buildEnvelope(nextRevision));
+        if (bytes.length > HARD_ENVELOPE_LIMIT_BYTES) {
+          throw new WorkStateTooLargeError(bytes.length, ref);
+        }
+        const softLimitWarning = bytes.length > SOFT_ENVELOPE_LIMIT_BYTES;
+        if (softLimitWarning) {
+          onSoftLimitWarning?.({ ref, bytes: bytes.length, softLimitBytes: SOFT_ENVELOPE_LIMIT_BYTES });
+        }
+        const outcome = await host.compareAndSwap({ ref, expectedVersion: cachedVersion, bytes });
+        if (!outcome.applied) {
+          throw new WorkStateConflictError(ref, cachedVersion, outcome.version);
+        }
+        cachedVersion = outcome.version;
+        revision = nextRevision;
+        durableBudget = cloneRuntimeBudget(stagedBudget);
+        return { version: cachedVersion, revision, bytes: bytes.length, softLimitWarning };
+      } catch (error) {
+        stagedBudget = cloneRuntimeBudget(durableBudget);
+        throw error;
       }
-      const softLimitWarning = bytes.length > SOFT_ENVELOPE_LIMIT_BYTES;
-      if (softLimitWarning) {
-        onSoftLimitWarning?.({ ref, bytes: bytes.length, softLimitBytes: SOFT_ENVELOPE_LIMIT_BYTES });
-      }
-      const outcome = await host.compareAndSwap({ ref, expectedVersion: cachedVersion, bytes });
-      if (!outcome.applied) {
-        throw new WorkStateConflictError(ref, cachedVersion, outcome.version);
-      }
-      cachedVersion = outcome.version;
-      revision = nextRevision;
-      return { version: cachedVersion, revision, bytes: bytes.length, softLimitWarning };
     },
     snapshot() {
       return buildEnvelope(revision);

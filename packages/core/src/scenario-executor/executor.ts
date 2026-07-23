@@ -11,8 +11,15 @@ import type { RevisionEventStore } from '../revision/revision-store.js';
 import { applyJsonPointer } from '../revision/json-pointer.js';
 import { deriveTodoSnapshot } from './todo-snapshot.js';
 import { derivePendingProjection } from './pending-projection.js';
-import { createRuntimeGuard, RuntimeLimitExceededError, type RuntimeGuard, type RuntimeLimits } from './runtime-limits.js';
-import { estimateCostUsd } from '@courtwork/provider/pricing';
+import {
+  createRuntimeGuard,
+  RuntimeBudgetConfigurationError,
+  RuntimeLimitExceededError,
+  type RuntimeBudgetPort,
+  type RuntimeGuard,
+  type RuntimeLimits,
+} from './runtime-limits.js';
+import { estimateCostUsd, PRICE_TABLE } from '@courtwork/provider/pricing';
 import type { GenerationNotice, ProviderUsage } from '@courtwork/provider/types';
 import { assembleScenarioRequest } from '../assembly/assemble.js';
 import type { MaterialInput } from '../assembly/segments.js';
@@ -25,6 +32,7 @@ import type { CitationFailure } from '@courtwork/schemas';
 import type { CitationStats } from '../events/types.js';
 import type { TurnRunnerPort } from '../turn/turn-runner.js';
 import type { PersistedTurn } from '../turn/types.js';
+import type { WorkModelRoute, WorkRuntimeBudget } from '../work-state/envelope.js';
 
 export interface WorkTurnIdentity {
   turnId: string;
@@ -60,12 +68,12 @@ export interface ScenarioExecutorDeps {
   /** 投影 registry（六段组装的续行投影段数据源）。 */
   projections: ProjectionRegistry;
   now?: () => string;
-  /**
-   * 运行时保护四件套（docs/architecture/system.md 长任务协议③），按次 runScenario/resumeScenario 调用
-   * 单独计额——不跨暂停边界累计（每次续行是新的一段执行，不是同一预算的延续）。
-   * 缺省不限制，MVP 默认行为不变。
-   */
+  /** 无持久 store 的纯逻辑测试/demo 兼容入口；与 runtimeBudget 同时注入会显式拒绝。 */
   limits?: RuntimeLimits;
+  /** production 唯一预算真源；由 WorkStateStore.runtimeBudget 注入。 */
+  runtimeBudget?: RuntimeBudgetPort;
+  /** production 从同一信封冻结路由注入；不得从 UI/Settings 在 resume 时重读。 */
+  expectedModelRoute?: Pick<WorkModelRoute, 'providerId' | 'modelId'>;
   nowMs?: () => number;
   /**
    * durable 屏障（WORK-STORE-1 / ADR-010 决定二）：在每个 durable-before-effect 顺序点，把当前
@@ -143,6 +151,13 @@ export class WorkTurnFailedError extends Error {
   }
 }
 
+class ScenarioTerminalizedError extends Error {
+  constructor(readonly result: Extract<ScenarioRunResult, { status: 'failed' }>) {
+    super(result.message);
+    this.name = 'ScenarioTerminalizedError';
+  }
+}
+
 export class UnknownConfirmationRequestError extends Error {
   constructor(requestId: string) {
     super(`未找到确认请求 "${requestId}"：可能已被处理或已过期`);
@@ -159,7 +174,6 @@ async function runTools(
 ): Promise<Record<string, unknown>> {
   const results: Record<string, unknown> = {};
   for (const toolId of scenario.toolIds) {
-    guard.checkToolCall();
     const binding = deps.tools.get(toolId);
     if (!binding) throw new UnknownToolError(scenario.id, toolId);
     // AUDIT-SEAL-1：toolIds 在任何 confirmationPolicy 模式下都会于门禁前执行，
@@ -169,6 +183,9 @@ async function runTools(
     if (!toolPermittedBeforeConfirmation(toolId, sideEffect)) {
       throw new ConfirmationPolicyViolationError(scenario.id, toolId, sideEffect);
     }
+    guard.checkToolCall();
+    // prospective tool call 已获准并 stage 后，须先随 whole-envelope CAS 落账，才可发生工具 effect。
+    await deps.persistBarrier?.();
     const envelope = await deps.toolExecutor.execute(binding.tool, toolInputs[toolId]);
     guard.checkTime();
     results[toolId] = envelope;
@@ -254,11 +271,84 @@ function assertFreshTurnIdentity(identity: unknown, deps: ScenarioExecutorDeps):
   }
 }
 
+function currentPriceBasis(): WorkRuntimeBudget['costBasis'] {
+  return {
+    currency: 'USD',
+    priceTableVersion: PRICE_TABLE.version,
+    priceTableEffectiveAt: PRICE_TABLE.effectiveAt,
+    assumptions: [...PRICE_TABLE.assumptions],
+  };
+}
+
+function priceTableMatches(budget: WorkRuntimeBudget): boolean {
+  return budget.costBasis.priceTableVersion === PRICE_TABLE.version
+    && budget.costBasis.priceTableEffectiveAt === PRICE_TABLE.effectiveAt;
+}
+
+function costConfigurationMessage(budget: WorkRuntimeBudget, detail: string): string {
+  const assumptions = budget.costBasis.assumptions.length > 0
+    ? budget.costBasis.assumptions.join('；')
+    : '未提供';
+  return [
+    `成本预算配置阻断：${detail}`,
+    `当前已知估算 $${budget.consumed.estimatedUsd.toFixed(6)}`,
+    `覆盖状态 ${budget.consumed.costCoverage}`,
+    `冻结假设：${assumptions}`,
+    '下一步：核对该会话冻结的模型与价目版本；如成本覆盖无法补全，请新建会话并重新确认预算配置',
+  ].join('；');
+}
+
+function failedResult(
+  deps: ScenarioExecutorDeps,
+  reason: 'runtime_limit' | 'configuration',
+  message: string,
+): Extract<ScenarioRunResult, { status: 'failed' }> {
+  return {
+    status: 'failed',
+    sessionId: deps.eventLog.sessionId,
+    reason,
+    message,
+    retryable: false,
+  };
+}
+
+function appendScenarioFailure(
+  deps: ScenarioExecutorDeps,
+  reason: 'runtime_limit' | 'configuration',
+  message: string,
+): void {
+  deps.eventLog.append({
+    type: 'scenario_failed',
+    scope: 'scenario',
+    reason,
+    message,
+    retryable: false,
+  });
+}
+
+function assertPaidTurnPreflight(guard: RuntimeGuard): void {
+  const budget = guard.snapshot();
+  if (budget.limits.maxUsd === undefined) return;
+  if (budget.consumed.costCoverage === 'partial') {
+    throw new RuntimeBudgetConfigurationError('既有 paid Turn 成本覆盖不完整');
+  }
+  if (
+    !budget.costBasis.priceTableVersion
+    || !budget.costBasis.priceTableEffectiveAt
+    || !priceTableMatches(budget)
+  ) {
+    throw new RuntimeBudgetConfigurationError('冻结价目版本/核验时点在当前进程中不可用或不匹配');
+  }
+}
+
 async function runWorkTurn(
   context: WorkTurnIdentityContext,
   request: Parameters<TurnRunnerPort['run']>[0]['request'],
   deps: ScenarioExecutorDeps,
+  guard: RuntimeGuard,
 ): Promise<Extract<PersistedTurn, { status: 'completed' }>> {
+  // paid effect 的配置门必须早于 turn identity/link/provider；unknown 不能被当作零再多打一笔。
+  assertPaidTurnPreflight(guard);
   const identity = (deps.createTurnIdentity ?? defaultTurnIdentity)(context);
   assertFreshTurnIdentity(identity, deps);
   deps.eventLog.append({
@@ -280,6 +370,13 @@ async function runWorkTurn(
   if (turn.turnId !== identity.turnId || turn.providerRequestId !== identity.providerRequestId) {
     throw new WorkTurnIdentityError('TurnRunnerPort 返回的终态身份与 Work 链接身份不一致');
   }
+
+  const routeMismatch = deps.expectedModelRoute !== undefined
+    && (
+      turn.providerId !== deps.expectedModelRoute.providerId
+      || turn.modelId !== deps.expectedModelRoute.modelId
+    );
+
   if (turn.status === 'failed') {
     deps.eventLog.append({
       type: 'step_failed',
@@ -293,8 +390,53 @@ async function runWorkTurn(
       message: turn.failure.message,
       retryable: turn.failure.retryable,
     });
-    throw new WorkTurnFailedError(turn, context);
   }
+
+  let runtimeLimit: RuntimeLimitExceededError | undefined;
+  if (routeMismatch) {
+    guard.markCostCoveragePartial();
+  } else {
+    const frozen = guard.snapshot();
+    const estimate = priceTableMatches(frozen)
+      ? estimateCostUsd(turn.providerId, turn.modelId, turn.usage)
+      : undefined;
+    if (estimate === undefined) {
+      guard.markCostCoveragePartial();
+    } else {
+      try {
+        guard.checkUsd(estimate.usd);
+      } catch (error) {
+        if (error instanceof RuntimeLimitExceededError) runtimeLimit = error;
+        else throw error;
+      }
+    }
+  }
+  try {
+    guard.checkTime();
+  } catch (error) {
+    if (error instanceof RuntimeLimitExceededError) runtimeLimit ??= error;
+    else throw error;
+  }
+
+  let terminalized: Extract<ScenarioRunResult, { status: 'failed' }> | undefined;
+  if (routeMismatch) {
+    const budget = guard.snapshot();
+    const message = costConfigurationMessage(
+      budget,
+      `Turn terminal 路由 ${turn.providerId}/${turn.modelId} 与冻结路由 ${deps.expectedModelRoute!.providerId}/${deps.expectedModelRoute!.modelId} 不匹配`,
+    );
+    appendScenarioFailure(deps, 'configuration', message);
+    terminalized = failedResult(deps, 'configuration', message);
+  } else if (runtimeLimit) {
+    appendScenarioFailure(deps, 'runtime_limit', runtimeLimit.message);
+    terminalized = failedResult(deps, 'runtime_limit', runtimeLimit.message);
+  }
+
+  // terminal、最新预算、step_failed（如有）与 scenario_failed（如有）恰好一次 whole-envelope CAS。
+  await deps.persistBarrier?.();
+
+  if (terminalized) throw new ScenarioTerminalizedError(terminalized);
+  if (turn.status === 'failed') throw new WorkTurnFailedError(turn, context);
   return turn;
 }
 
@@ -361,15 +503,9 @@ async function generateArtifact(
       stepId,
       artifactType,
       attempt,
-    }, assembled.request, deps);
-    // 屏障③（ADR-010 决定二第 3 条）：Turn terminal 成功持久后才能解析并发布 artifact。必须先于
-    // JSON/schema/citation 解析——即使解析中途抛出或崩溃，已完成（可能已计费）的 provider 调用
-    // 仍有落盘证据，不依赖"等 artifact 也解析完再补一次合并落盘"侥幸兜底。
-    await deps.persistBarrier?.();
+    }, assembled.request, deps, guard);
+    // runWorkTurn 已把 terminal 与最新预算（及可能的失败事件）同一次屏障持久；返回后才可解析。
     guard.checkTime();
-    // 派生估价与原始计量分开：只取版本化 estimate 的美元数交给护栏，不改写 turn.usage 计量真源。
-    const estimate = estimateCostUsd(turn.providerId, turn.modelId, turn.usage);
-    if (estimate !== undefined) guard.checkUsd(estimate.usd);
     let parsed: unknown;
     try {
       parsed = JSON.parse(turn.assistantMessage);
@@ -538,35 +674,64 @@ async function produceSequence(
   return { status: 'completed', sessionId: state.sessionId, artifacts: state.producedSoFar };
 }
 
-/** 每次 runScenario/resumeScenario 调用各建一份新的运行时预算——不跨暂停边界累计。 */
 function createGuardForCall(deps: ScenarioExecutorDeps): RuntimeGuard {
   const nowMs = deps.nowMs ?? Date.now;
   const startedAtMs = nowMs();
-  return createRuntimeGuard(deps.limits ?? {}, () => (nowMs() - startedAtMs) / 1000);
+  if (deps.runtimeBudget && deps.limits !== undefined) {
+    throw new RuntimeBudgetConfigurationError('runtimeBudget 与 legacy limits 不得同时注入');
+  }
+  if (deps.runtimeBudget) {
+    if (
+      !deps.expectedModelRoute
+      || deps.expectedModelRoute.providerId.trim().length === 0
+      || deps.expectedModelRoute.modelId.trim().length === 0
+    ) {
+      throw new RuntimeBudgetConfigurationError('production runtimeBudget 必须同时注入冻结 expectedModelRoute');
+    }
+    return createRuntimeGuard(deps.runtimeBudget, () => (nowMs() - startedAtMs) / 1000);
+  }
+  return createRuntimeGuard(
+    deps.limits ?? {},
+    () => (nowMs() - startedAtMs) / 1000,
+    currentPriceBasis(),
+  );
 }
 
 /**
- * runtime limit 触线 → 持久化 `scenario_failed(runtime_limit)` 终态并映射为 typed failed 结果，
- * 不留裸 Promise rejection、不留 running（ADR-010 第 225 行）。其余错误（生成校验失败、Turn 失败、
- * CAS 冲突/超大等 store blocker）按原语义继续上抛，由调用方/WORK-PORT 处置。
+ * runtime/configuration 触线 → 持久终态并映射 typed failed。已在 runWorkTurn 与 paid terminal
+ * 同批落账的 ScenarioTerminalizedError 直接复用结果，不重复追加或多开屏障。
  */
-async function terminalizeRuntimeLimit(error: unknown, deps: ScenarioExecutorDeps): Promise<ScenarioRunResult> {
+async function terminalizeRuntimeFailure(error: unknown, deps: ScenarioExecutorDeps): Promise<ScenarioRunResult> {
+  if (error instanceof ScenarioTerminalizedError) return error.result;
   if (error instanceof RuntimeLimitExceededError) {
-    deps.eventLog.append({
-      type: 'scenario_failed',
-      scope: 'scenario',
-      reason: 'runtime_limit',
-      message: error.message,
-      retryable: false,
-    });
+    appendScenarioFailure(deps, 'runtime_limit', error.message);
     await deps.persistBarrier?.();
-    return {
-      status: 'failed',
-      sessionId: deps.eventLog.sessionId,
-      reason: 'runtime_limit',
-      message: error.message,
-      retryable: false,
+    return failedResult(deps, 'runtime_limit', error.message);
+  }
+  if (error instanceof RuntimeBudgetConfigurationError) {
+    const fallback: WorkRuntimeBudget = {
+      limits: { ...(deps.limits ?? {}) },
+      costBasis: currentPriceBasis(),
+      consumed: {
+        steps: 0,
+        toolCalls: 0,
+        executionMs: 0,
+        estimatedUsd: 0,
+        costCoverage: 'complete',
+      },
     };
+    let budget = fallback;
+    if (deps.runtimeBudget) {
+      try {
+        budget = deps.runtimeBudget.snapshot();
+      } catch {
+        // 装配损坏本身仍须形成可见 configuration 终态；不以二次 snapshot 异常吞掉原始 blocker。
+      }
+    }
+    const message = costConfigurationMessage(budget, error.message);
+    appendScenarioFailure(deps, 'configuration', message);
+    await deps.persistBarrier?.();
+    return failedResult(deps, 'configuration', message);
   }
   throw error;
 }
@@ -576,8 +741,8 @@ export async function runScenario(
   input: ScenarioRunInput,
   deps: ScenarioExecutorDeps,
 ): Promise<ScenarioRunResult> {
-  const guard = createGuardForCall(deps);
   try {
+    const guard = createGuardForCall(deps);
     // 屏障①（ADR-010 决定二第 1 条）：session header 成功持久后才能执行工具或调用 provider。
     await deps.persistBarrier?.();
     const toolResults = await runTools(scenario, input.toolInputs, deps, guard);
@@ -596,7 +761,7 @@ export async function runScenario(
       guard,
     );
   } catch (error) {
-    return await terminalizeRuntimeLimit(error, deps);
+    return await terminalizeRuntimeFailure(error, deps);
   }
 }
 
@@ -748,8 +913,8 @@ export async function resumeScenario(
     instrumentation: response.instrumentation,
   });
 
-  const guard = createGuardForCall(deps);
   try {
+    const guard = createGuardForCall(deps);
     if (response.decision === 'reject') {
       deps.eventLog.append({ type: 'scenario_completed' });
       // 屏障⑤（ADR-010 决定二第 5 条）：条件消费与 confirmation_resolved（含 reject 终态）同一次 CAS 落盘。
@@ -790,6 +955,6 @@ export async function resumeScenario(
       guard,
     );
   } catch (error) {
-    return await terminalizeRuntimeLimit(error, deps);
+    return await terminalizeRuntimeFailure(error, deps);
   }
 }

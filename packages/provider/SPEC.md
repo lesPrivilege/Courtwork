@@ -218,3 +218,13 @@ type ProviderReadiness = {
 - 改任一模型的输入/输出价、漏版本/核验时点、把缓存命中价混入当前估算，均须使定向测试变红。
 - 未收录模型或 usage 任一必需槽位缺失继续返回 unknown，不得折叠为 `0`。
 - 本票不扩 provider 清单、不增加峰谷价/动态抓价/汇率服务，不改原始 usage 真源。
+
+### 实现留痕（CORE-BUDGET-1，2026-07-24）
+
+- `pricing-table.ts` 已把唯一静态快照固定为
+  `2026-07-24-deepseek-pricing @ 2026-07-24T00:00:00+08:00`，同时收录
+  `deepseek-v4-flash` 的 `¥1/¥2` 与 `deepseek-v4-pro` 的 `¥3/¥6` 双价；缓存输入统一按
+  未命中价和 `1/7.1` 汇率两条假设逐字随 estimate 冻结。
+- 新增定向回归同时锁版本、核验时点、两模型双价、完整 assumptions 与 flash 实算；原有
+  unknown usage/未收录 provider/model 反例继续保留，未新增动态抓价、旧表注册表或运行时网络。
+- 本节是实现会话自证，不构成放行；仍须不同会话在 clean worktree 独立注入价目漂移反例验收。

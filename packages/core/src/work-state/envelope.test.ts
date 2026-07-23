@@ -87,6 +87,31 @@ describe('corruption fail-closed', () => {
     const bytes = new TextEncoder().encode(JSON.stringify(broken));
     expect(() => readWorkStateEnvelope(bytes)).toThrow(CorruptEnvelopeError);
   });
+
+  it.each([
+    ['negative maxSteps', { limits: { maxSteps: -1 } }],
+    ['fractional maxToolCalls', { limits: { maxToolCalls: 1.5 } }],
+    ['non-finite maxSeconds', { limits: { maxSeconds: null } }],
+    ['negative maxUsd', { limits: { maxUsd: -0.01 } }],
+    ['unsafe consumed steps', { consumed: { steps: Number.MAX_SAFE_INTEGER + 1 } }],
+    ['negative executionMs', { consumed: { executionMs: -1 } }],
+    ['non-finite estimatedUsd', { consumed: { estimatedUsd: null } }],
+    ['unsupported currency', { costBasis: { currency: 'RMB' } }],
+    ['unpaired price metadata', { costBasis: { priceTableVersion: 'v1' } }],
+    ['blank price metadata', { costBasis: { priceTableVersion: ' ', priceTableEffectiveAt: 'now' } }],
+    ['non-string assumptions', { costBasis: { assumptions: ['ok', 1] } }],
+    ['unknown coverage', { consumed: { costCoverage: 'unknown' } }],
+    ['complete coverage without price metadata', { consumed: { costCoverage: 'complete' } }],
+  ])('deep-validates runtimeBudget: %s', (_label, patch) => {
+    const original = baseEnvelope().runtimeBudget;
+    const runtimeBudget = {
+      limits: { ...original.limits, ...('limits' in patch ? patch.limits : {}) },
+      costBasis: { ...original.costBasis, ...('costBasis' in patch ? patch.costBasis : {}) },
+      consumed: { ...original.consumed, ...('consumed' in patch ? patch.consumed : {}) },
+    };
+    const bytes = new TextEncoder().encode(JSON.stringify({ ...baseEnvelope(), runtimeBudget }));
+    expect(() => readWorkStateEnvelope(bytes)).toThrow(CorruptEnvelopeError);
+  });
 });
 
 describe('size limit constants (ADR-010 measurement thresholds)', () => {

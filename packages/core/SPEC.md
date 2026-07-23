@@ -675,3 +675,40 @@ provider/runtime/configuration 三者之一。
   阻断均须持久终态；CAS 失败不得推进本地累计真值。
 - 不改 `WorkStateEnvelopeV1` 字段、不升 storageVersion、不新增事件类型、不造 WAL/第二 journal，
   不夹带 scheduled/multi-writer/identity/沙箱议题。
+
+### 实现留痕（CORE-BUDGET-1，2026-07-24）
+
+- 本票只新增一项必要概念：browser-safe `RuntimeBudgetPort`。它不是第二账本，只把既有
+  `WorkRuntimeBudget` 分成 staged/durable 两个内存时相；`WorkStateStore.commit()` 仍以同一
+  v1 whole-envelope CAS 为唯一落盘动作。成功才推进 durable baseline，序列化/大小闸/host
+  异常/CAS 败者均回滚 staged budget；header、port snapshot 与 assumptions 均防御性复制。
+- `RuntimeGuard` 已统一 durable port 与 legacy limits 两种入口：后者先归一为一次性内存 port，
+  再走同一 seed/prospective/time/cost 算法。生产同时注入两种来源，或有 store budget 却缺冻结
+  expected route，均在 provider effect 前形成持久 `configuration` 终态。
+- `runWorkTurn` 的 terminal 收敛顺序已统一：completed/failed 都先核冻结 route、累计 known
+  estimate 或把 unknown 单向降为 partial，再把 failed `step_failed`、预算终态
+  `scenario_failed` 与 Turn terminal **恰好一次**交给既有 `persistBarrier`。优先级固定为
+  route mismatch/configuration → known cost/time overflow/runtime_limit → 原 provider failure。
+  coverage/旧价 blocker 在下一 paid Turn 的 `turn_linked` 之前落账，provider 调用计数为零。
+- tool budget 的耐久成本被限制为：每个已经通过 registry/side-effect 校验、且 prospective
+  计额获准的 tool call，在 effect 前新增**恰好一次** CAS；tool 返回后不补第二次，后续
+  `step_failed`/artifact/终态搭乘既有屏障。单工具、单产出、paused 路径由原 4 次变为固定 5 次
+  （header → tool budget → turn_linked+step → terminal+budget → pending+artifact）；测试锁死
+  `commitCount===5`，防止以预算名义演变成前后双写或屏障爆炸。这一枚 CAS 是 ADR-010
+  “已发生消费必须先于 effect 耐久、被拒调用不计数”的必要成本。
+- `readWorkStateEnvelope` 与 fresh header 共用深校验：steps/toolCalls/对应 limits 为非负安全
+  整数，时间/金额为有限非负数，USD/metadata 成对/assumptions/coverage 全部闭合；
+  `complete` 无版本元数据直接损坏拒读。字段形状、`storageVersion:1`、`SessionEvent` 联合与
+  host wire 均未改。
+- TDD 红证分两批：底层 4 files / 62 tests 曾有 21 failed；executor 原子顺序 1 file /
+  7 tests 曾 7 failed。实现后已分别转为 62/62 与 7/7，随后扩为 executor 8 条并纳入 core
+  全量。放行仍须异会话 clean-worktree 复跑及 mutation 验收，本实现会话不自验收。
+- 实现会话另逐项注入并还原五枚回退：①把 step prospective seed 写死为 1；②把 unknown estimate
+  改记 `0`；③删除 terminal whole-envelope 屏障；④删除 CAS 失败后的 staged rollback；
+  ⑤关闭 route mismatch 判定。五项对应定向用例均实跑为 **1 failed**（其余分别跳过），还原后
+  3 files / 35 tests 全绿。此记录只证明测试可证伪，不替代独立验收会话重复 mutation。
+- 最终自证：provider **14 files / 110 tests**、core **34 files / 369 tests**、root
+  **149 files / 1290 tests** 全绿；`pnpm -r build` 全仓成功，provider/core 定向 lint 与
+  排除既有 `site/craft-evidence/VERSIONAL-LANG-3/capture.mjs` 后的全仓 eslint 均为零错误。
+  裸 `pnpm lint` 仍只报基线文件 `capture.mjs:91:5 localStorage is not defined (no-undef)`；
+  本票不触 site 且未代修，故如实登记为父提交既有外部红。

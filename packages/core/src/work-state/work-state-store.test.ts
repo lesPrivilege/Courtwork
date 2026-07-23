@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  CorruptEnvelopeError,
   HARD_ENVELOPE_LIMIT_BYTES,
   SOFT_ENVELOPE_LIMIT_BYTES,
   UnknownEnvelopeVersionError,
@@ -117,6 +118,103 @@ describe('WorkStateStore whole-envelope CAS', () => {
     const result = await revived.commit();
     expect(result.revision).toBe(2);
   });
+
+  it('stages runtime consumption into the same envelope and restores it after reload', async () => {
+    const host = createInMemoryWorkStateHost();
+    const store = await freshStore(host);
+    store.runtimeBudget.stageConsumed({
+      steps: 2,
+      toolCalls: 1,
+      executionMs: 1250,
+      estimatedUsd: 0.25,
+      costCoverage: 'partial',
+    });
+    await store.commit();
+    const revived = await loadWorkStateStore({ host, ref: REF, header: header() });
+    expect(revived.runtimeBudget.snapshot().consumed).toEqual({
+      steps: 2,
+      toolCalls: 1,
+      executionMs: 1250,
+      estimatedUsd: 0.25,
+      costCoverage: 'partial',
+    });
+  });
+
+  it('defensively copies header and returned budget snapshots', async () => {
+    const host = createInMemoryWorkStateHost();
+    const mutableHeader = header({
+      runtimeBudget: {
+        limits: { maxSteps: 3 },
+        costBasis: {
+          currency: 'USD',
+          priceTableVersion: 'v1',
+          priceTableEffectiveAt: '2026-07-24T00:00:00Z',
+          assumptions: ['frozen'],
+        },
+        consumed: {
+          steps: 0,
+          toolCalls: 0,
+          executionMs: 0,
+          estimatedUsd: 0,
+          costCoverage: 'complete',
+        },
+      },
+    });
+    const store = await loadWorkStateStore({ host, ref: REF, header: mutableHeader });
+    mutableHeader.runtimeBudget.limits.maxSteps = 99;
+    mutableHeader.runtimeBudget.costBasis.assumptions.push('mutated');
+    mutableHeader.runtimeBudget.consumed.steps = 99;
+    const leaked = store.runtimeBudget.snapshot();
+    leaked.limits.maxSteps = 88;
+    leaked.costBasis.assumptions.push('leaked');
+    leaked.consumed.steps = 88;
+    expect(store.runtimeBudget.snapshot()).toEqual({
+      limits: { maxSteps: 3 },
+      costBasis: {
+        currency: 'USD',
+        priceTableVersion: 'v1',
+        priceTableEffectiveAt: '2026-07-24T00:00:00Z',
+        assumptions: ['frozen'],
+      },
+      consumed: {
+        steps: 0,
+        toolCalls: 0,
+        executionMs: 0,
+        estimatedUsd: 0,
+        costCoverage: 'complete',
+      },
+    });
+  });
+
+  it('rejects regression, partial-to-complete recovery, and invalid numbers before CAS', async () => {
+    const host = createInMemoryWorkStateHost();
+    const store = await freshStore(host);
+    expect(() => store.runtimeBudget.stageConsumed({
+      ...store.runtimeBudget.snapshot().consumed,
+      steps: -1,
+    })).toThrow(CorruptEnvelopeError);
+    store.runtimeBudget.stageConsumed({
+      steps: 1,
+      toolCalls: 0,
+      executionMs: 1,
+      estimatedUsd: 0,
+      costCoverage: 'partial',
+    });
+    expect(() => store.runtimeBudget.stageConsumed({
+      steps: 0,
+      toolCalls: 0,
+      executionMs: 1,
+      estimatedUsd: 0,
+      costCoverage: 'partial',
+    })).toThrow(CorruptEnvelopeError);
+    expect(() => store.runtimeBudget.stageConsumed({
+      steps: 1,
+      toolCalls: 0,
+      executionMs: 1,
+      estimatedUsd: 0,
+      costCoverage: 'complete',
+    })).toThrow(CorruptEnvelopeError);
+  });
 });
 
 describe('concurrent CAS — loser fails explicitly, no silent overwrite', () => {
@@ -151,6 +249,24 @@ describe('concurrent CAS — loser fails explicitly, no silent overwrite', () =>
     b.eventLog.append({ type: 'progress', message: 'B' });
     await a.commit();
     await expect(b.commit()).rejects.toBeInstanceOf(WorkStateConflictError);
+  });
+
+  it('rolls staged consumption back to the last durable baseline when CAS loses', async () => {
+    const host = createInMemoryWorkStateHost();
+    const seed = await freshStore(host);
+    await seed.commit();
+    const winner = await loadWorkStateStore({ host, ref: REF, header: header() });
+    const loser = await loadWorkStateStore({ host, ref: REF, header: header() });
+    loser.runtimeBudget.stageConsumed({
+      steps: 1,
+      toolCalls: 0,
+      executionMs: 10,
+      estimatedUsd: 0,
+      costCoverage: 'partial',
+    });
+    await winner.commit();
+    await expect(loser.commit()).rejects.toBeInstanceOf(WorkStateConflictError);
+    expect(loser.runtimeBudget.snapshot().consumed).toEqual(header().runtimeBudget.consumed);
   });
 });
 

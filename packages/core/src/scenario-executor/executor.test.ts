@@ -1091,21 +1091,25 @@ describe('T-provider: RuntimeGuard.checkUsd wired into produceSequence via respo
     expect(deps.eventLog.list().some((e) => e.type === 'scenario_failed')).toBe(true);
   });
 
-  it('does not throw when usage is absent (ScriptedProvider case) even with a negative maxUsd — proves cost tracking is genuinely skipped, not computed-as-zero-then-compared', async () => {
+  it('rejects a negative maxUsd as configuration before provider effect instead of using it as an unknown-as-zero probe', async () => {
     const deps = buildDeps([{ content: envelope('produce-test.Risk', 'test.Risk', VALID_RISK_LIST) }]);
-    // maxUsd 设为负数是关键：如果实现有 bug、把缺失的 usage 悄悄当成 0 计价再调用
-    // checkUsd(0)，0 > -1 为真会立刻抛错——用极小正数 maxUsd 时"跳过计价"与"算出 0
-    // 然后侥幸没超预算"两种情况观测结果完全相同，测不出差异，这是 code review 抓到
-    // 的真实测试强度缺口。负数预算下二者行为可观测地不同：真正跳过则安然无恙，
-    // 静默按 0 计价则会撞上这个必然超限的负数预算而抛错。
+    let calls = 0;
+    const original = deps.turnRunner;
+    deps.turnRunner = {
+      async run(input) {
+        calls += 1;
+        return original.run(input);
+      },
+    };
     deps.limits = { maxUsd: -1 };
-    await expect(
-      runScenario(
-        SINGLE_GATE_SCENARIO,
-        { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
-        deps,
-      ),
-    ).resolves.toMatchObject({ status: 'paused' });
+    const result = await runScenario(
+      SINGLE_GATE_SCENARIO,
+      { inputArtifacts: { 'test.Doc': { caseId: 'c1', files: [] } }, toolInputs: { 'party-verify': { name: '张三' } } },
+      deps,
+    );
+    expect(result).toMatchObject({ status: 'failed', reason: 'configuration' });
+    expect(calls).toBe(0);
+    expect(deps.eventLog.list().at(-1)).toMatchObject({ type: 'scenario_failed', reason: 'configuration' });
   });
 });
 
@@ -1366,7 +1370,14 @@ describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier
   const STORE_REF: WorkSessionRef = { caseId: 'case-1', sessionId: 'session-1' };
   const FIXED_NOW = () => '2026-07-15T00:00:00.000Z';
 
-  function storeHeader(): WorkStateHeader {
+  function storeHeader(
+    limits: WorkStateHeader['runtimeBudget']['limits'] = {},
+    route: WorkStateHeader['modelRoute'] = {
+      providerId: 'test-provider',
+      modelId: 'fake-v1',
+      reasoning: 'standard',
+    },
+  ): WorkStateHeader {
     return {
       caseId: 'case-1',
       sessionId: 'session-1',
@@ -1376,11 +1387,11 @@ describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier
       packageVersion: '0.1.0',
       schemaVersion: 1,
       scenarioFingerprint: 'test.Single@1+' + '0'.repeat(64),
-      modelRoute: { providerId: 'p', modelId: 'm', reasoning: 'standard' },
+      modelRoute: route,
       materialRefs: [],
       createdAt: '2026-07-15T00:00:00.000Z',
       runtimeBudget: {
-        limits: {},
+        limits,
         costBasis: { currency: 'USD', assumptions: [] },
         consumed: { steps: 0, toolCalls: 0, executionMs: 0, estimatedUsd: 0, costCoverage: 'partial' },
       },
@@ -1391,8 +1402,14 @@ describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier
     host: WorkStateHostPort,
     turnRunner: TurnRunnerPort,
     limits?: ScenarioExecutorDeps['limits'],
+    route?: WorkStateHeader['modelRoute'],
   ): Promise<{ deps: ScenarioExecutorDeps }> {
-    const store = await loadWorkStateStore({ host, ref: STORE_REF, header: storeHeader(), now: FIXED_NOW });
+    const store = await loadWorkStateStore({
+      host,
+      ref: STORE_REF,
+      header: storeHeader(limits, route),
+      now: FIXED_NOW,
+    });
     const tools = createToolRegistry();
     tools.register('party-verify', { tool: createPartyVerifyTool(createMockPartyVerifyAdapter()), grade: 'A' });
     return {
@@ -1406,11 +1423,15 @@ describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier
         ledger: createEvidenceLedger(),
         artifacts: TEST_ARTIFACTS,
         projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
+        runtimeBudget: store.runtimeBudget,
+        expectedModelRoute: {
+          providerId: (route ?? storeHeader().modelRoute).providerId,
+          modelId: (route ?? storeHeader().modelRoute).modelId,
+        },
         persistBarrier: async () => {
           await store.commit();
         },
         now: FIXED_NOW,
-        ...(limits ? { limits } : {}),
       },
     };
   }
@@ -1445,7 +1466,12 @@ describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier
         };
       },
     };
-    const { deps } = await storeBackedDeps(host, turnRunner);
+    const { deps } = await storeBackedDeps(
+      host,
+      turnRunner,
+      undefined,
+      { providerId: 'p', modelId: 'm', reasoning: 'standard' },
+    );
     const result = await runScenario(SINGLE_GATE_SCENARIO, START_INPUT, deps);
     expect(result.status).toBe('paused');
     // 反例守卫：移除 runWorkTurn 中 provider 前的 persistBarrier，本断言即变 false（effect 先于落盘）。
@@ -1484,6 +1510,8 @@ describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier
       ledger: createEvidenceLedger(),
       artifacts,
       projections: { get: (typeId: string) => artifacts.get(typeId)?.descriptor.rehydrationProjection },
+      runtimeBudget: store.runtimeBudget,
+      expectedModelRoute: { providerId: 'test-provider', modelId: 'fake-v1' },
       persistBarrier: async () => {
         await store.commit();
         commitCount += 1;
@@ -1493,11 +1521,13 @@ describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier
     const result = await runScenario(SINGLE_GATE_SCENARIO, START_INPUT, deps);
     expect(result.status).toBe('paused');
     expect(barrierCountsAtParse.length).toBeGreaterThan(0);
-    expect(barrierCountsAtParse[0]).toBeGreaterThanOrEqual(3);
+    // header=1、tool budget=2、turn_linked=3、terminal+budget=4，解析只能发生在第 4 次之后。
+    expect(barrierCountsAtParse[0]).toBeGreaterThanOrEqual(4);
     // 归并目标回归锁：拆分出的 terminal-only 屏障不得让总落盘次数偏离原有归并预算——
-    // header/turn_linked/terminal 三次之后，artifact 免费搭乘 pauseAt 的 pending 屏障，
-    // 到 paused 为止仍是 4 次（与修复前 header/turn_linked/terminal+artifact合并/pending 的 4 次相同）。
-    expect(commitCount).toBe(4);
+    // CORE-BUDGET-1 新增一次 tool-call 预算 durable-before-effect 屏障；其余 terminal/artifact 归并不变。
+    expect(commitCount).toBe(5);
+    const durable = await host.read(STORE_REF);
+    expect(durable.found && readWorkStateEnvelope(durable.bytes).runtimeBudget.consumed.toolCalls).toBe(1);
   });
 
   it('resumes a durably paused session to completion from a fresh store on the same host (restart recovery)', async () => {
@@ -1523,6 +1553,8 @@ describe('WORK-STORE-1: durable-before-effect through the WorkStateStore barrier
       ledger: createEvidenceLedger(),
       artifacts: TEST_ARTIFACTS,
       projections: { get: (typeId: string) => TEST_ARTIFACTS.get(typeId)?.descriptor.rehydrationProjection },
+      runtimeBudget: store2.runtimeBudget,
+      expectedModelRoute: { providerId: 'test-provider', modelId: 'fake-v1' },
       persistBarrier: async () => {
         await store2.commit();
       },
