@@ -4207,3 +4207,88 @@ fresh clone 初次在 workspace build 前跑 desktop 定向测试曾因 `@courtw
 
 **裁决：✅ 放行 MODEL-CONFIG-EXPLICIT-1 回炉尖端。** 首轮“静默可回归且门不红”与自述失真均已
 关闭；完整 Playwright、合并态高水位/floor、真渲和发布仍由 RELEASE-VERIFY-1 后续阶段实跑决定。
+
+---
+
+# ACCEPTANCE: FILE-PREVIEW-1 · 当前 main 独立验收
+
+日期：2026-07-24；验收对象：`b0f667b2fd65abf60750036113286b7cf447251a`
+（当时 `HEAD == main`）。验收会话未参与实现或回炉，在独立 detached clean worktree
+`/private/tmp/courtwork-file-preview-accept.GaNJkC` 完成；Playwright 自起端口 `14871`（定向）
+与 `14872`（完整），`reuseExistingServer=false`，未复用共享服务。未修改产品实现、SPEC、
+`current.md` 或 implementation-readiness。
+
+**裁决：❌ 当前 SHA 不放行清账。** FILE-PREVIEW-1 自身的功能链与架构边界通过：真实材料从唯一
+「阅读」动作经 `resolveForProvider` 重验后才进入共用 `ReaderPane`，八项阻断闭集、demo/跨案隔离、
+原件零写和旧窄轨退役反向锁均有读码、真渲与 mutation 红证。但目标 SHA 的全仓固定门
+`pnpm lint` 为 **1 error / 0 warnings**：`site/craft-evidence/VERSIONAL-LANG-3/capture.mjs:91`
+直接使用未声明全局 `localStorage`，触发 `no-undef`。该行由目标 HEAD 自身 `b0f667b` 引入，
+不属于 FILE-PREVIEW 改动面；临时改为 `globalThis.localStorage` 后全仓 lint exit 0，撤回后目标树
+恢复 clean。验收角色不得借 FILE-PREVIEW 越界提交站点修复，因此在该全量红灯清除并由独立会话
+复跑前，不能把「范围内通过」写成「当前 main 可清账」。
+
+## 真链、fail-closed 与原件零写
+
+- `rg` 与 `git grep` 交叉得到：生产源码只有一个 `data-testid="material-read"`，唯一生产调用为
+  `App.readMaterial → readMaterialAction → openMaterialReader → MaterialResolver.resolveForProvider`；
+  ready 后唯一落点是 `materialSink.openReader → setReaderDoc/setPreviewOpen → <ReaderPane>`。
+  Work 的另一处 `resolveForProvider` 消费属于 LEGAL-S3 binding，不是第二条 UI 阅读旁路。
+- ready 真渲、needs_ocr 不开空面、content drift 不渲旧视图由独立端口定向 Playwright **6/6**
+  覆盖；MaterialStore 单测另覆盖删除、reading drift、跨案、demo、not_found 与重启重验，
+  reader 闭集映射逐项覆盖 rejected/revoked/out_of_scope 等其余 reason。八项 reason 由独立字面量
+  冻结，不能靠被测 COPY 表给自己出考卷。
+- 原件读取链为 `resolveForProvider → readOriginal → material_read_original → read_original →
+  host_auth::read_in_grant → scoped_read → fs::read`。TS ready 探针断言 `readOriginal` 恰一次、
+  `put` 与 `readSource` 零次（**1/1**）；Rust material 定向 **7/7** 覆盖 source-neutral roundtrip、
+  跨案、删除与再读。该材料链的写入只发生在入库时的 app-data 记录，不在阅读动作，也不回写 grant root。
+- 退役名的 `rg` 与 `git grep` 交叉结果均只命中门自身；`data-compact` 在生产源码零命中，
+  `data-right-narrow` 的活消费只在 `workspace`。反向锁递归覆盖 `src/**/*.ts|tsx|css` 与
+  `scripts/**/*.mjs` 并排除门自身，不再只是两文件存在锁。
+
+## A–K 回炉条件逐项对照
+
+| 项 | 当前实现对照 | 判定 |
+| --- | --- | --- |
+| A | 闭集期望为独立八值字面量；新增 `quarantined`（含 COPY）后 **1 failed / 12 passed**，撤回后复绿 | 通过 |
+| B | `MaterialResolver` 返回 `Promise<ResolveResult>`；actions 复用同一声明，生产代码无 `Promise<unknown>`/结果强转 | 通过 |
+| C | 历史基线 `2777` 行、回炉 tip `2746` 行；`git diff --numstat` 为 `+28/-59`，净减 31，与订正账一致；合并态门为当前 `2739/2739` | 通过 |
+| D | 禁形锁覆盖整个生产源码集；向 `MaterialsZone.tsx` 注入退役名后静态门 exit 1 并精确报命中文件 | 通过 |
+| E | demo 应用内阅读真入口是 `readerEntries`，`OriginalsZone` 是系统打开；承重隔离为非 grant 清空 `caseMaterials`、provider gate 的 demo 拒绝及 `readerEntries` 的 `isDemoCase` 三向，不把 CaseRail `!demo` 当安全边界 | 通过 |
+| F | `verifyMaterialAction` 捕获宿主拒绝并映射 `unavailable`；验收动作探针含本例在内 **3/3** | 通过 |
+| G | 两模块仍未合并，且 actions 无常驻单测；这与架构已登记的后续票 `MATERIAL-READER-MERGE-1` 一致。本轮探针证实现值，不擅自代建后续票 | 非本票阻断，债保留 |
+| H | `app-shell` 的死 `data-right-narrow` 已删除；三处 E2E 均读取 `workspace`，活属性未误删 | 通过 |
+| I | 回炉遗留连续空行已收口，当前 App 高水位与历史净减账均吻合 | 通过 |
+| J | 「零出现反向锁」现准确指整个生产源码集；两种检索工具交叉只见门自身 | 通过 |
+| K | 本轮完整 Playwright **327/327**，历史两轮 `325/326` 与父提交 `321/323` 红证不因此作废；`E2E-FLAKY-HOVER-1` 继续独立挂账，本报告不以一次绿替其销号 | 非本票阻断，债保留 |
+
+## Mutation 红证
+
+1. 阻断闭集新增 `quarantined` 并补 COPY：reader 定向 **1 failed / 12 passed**，只红闭集冻结例。
+2. 删除 `resolveForProvider` 的 demo 首行守卫：行为例 **1 failed / 13 passed**（应为
+   `out_of_scope`、实得 `not_found`），`lint:material` 同时精确红「必须拒绝 demo 案」。
+3. 同时移除 browser host `get/readOriginal` 两层 caseId 比对：跨案例 **1 failed / 13 passed**，
+   实际收到案 A 的 ready 正文而非 blocked，证明反例咬的是内容泄漏而非文案差异。
+4. 向生产 `MaterialsZone.tsx` 注入旧窄轨标识：`lint:layout-converge` exit 1，命中文件准确。
+
+四项均用 `apply_patch` 撤除；恢复态 `git diff --exit-code=0`，material 定向 **2 files / 26 tests**、
+`lint:material` 与 `lint:layout-converge` 全部复绿。另行只读动作探针 **3/3**、ready 零写探针
+**1/1** 均在运行后删除，未混入报告提交。
+
+## 门禁原始数字
+
+| 命令 | 结果 |
+| --- | --- |
+| `pnpm -r build` | exit 0；13/14 workspace scope，desktop 3584 modules |
+| desktop material 定向 | 2 files / **26 tests passed** |
+| `cargo test ... material_store` | **7 passed / 0 failed / 64 filtered** |
+| FILE-PREVIEW 定向 Playwright `:14871` | **6/6 passed**（9.2s） |
+| `pnpm --filter @courtwork/desktop test` | **62 files / 427 tests passed** |
+| `pnpm test` | **148 files / 1261 tests passed** |
+| `pnpm --filter @courtwork/desktop test:e2e`，独立 `:14872` | 静态链全绿；floor 327；完整 **327/327 passed**（3.3m） |
+| `pnpm lint`（目标原样） | **exit 1；1 error / 0 warnings**，`capture.mjs:91 no-undef` |
+| lint 单点归因探针（`globalThis.localStorage`，随后撤回） | **exit 0** |
+
+冻结依赖第一次以 `--offline` 执行因 store 缺 tarball 失败，授权后同一 lockfile 安装成功；clean
+worktree 在 workspace build 前跑 material-store 曾因 reading-view dist 尚不存在而 import 失败，
+拓扑 build 后稳定复绿；第一次 Playwright 因 sandbox 禁止监听端口报 `EPERM`，获准后在独立端口
+成功。这三项是验收编排／环境前置，不归责产品，但均未从数字中省略。
