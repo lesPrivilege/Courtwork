@@ -9,6 +9,10 @@ type ForcedReadinessWindow = typeof window & {
   };
 };
 
+const MODEL_CONFIG_KEY = 'courtwork.model-config.v1';
+const MODEL_CONFIG_RESET_NOTICE = '模型配置已重置为默认';
+const MODEL_CONFIG_SAVE_NOTICE = '模型配置未能保存；本次会话仍使用当前选择，重新打开应用后可能恢复为先前配置';
+
 async function openSettings(page: Page) {
   await page.getByRole('button', { name: 'Search' }).click();
   await page.getByRole('option', { name: 'Settings' }).click();
@@ -21,12 +25,90 @@ test.describe('SET-1 设置页', () => {
     await openSettings(page);
     await expect(page.getByTestId('settings-page')).toBeVisible();
     await expect(page.getByTestId('settings-section-model')).toBeVisible();
+    await expect(page.getByTestId('settings-model-config-notice')).toHaveCount(0);
     await page.getByTestId('settings-close').click();
     await expect(page.getByTestId('settings-page')).toHaveCount(0);
 
     await page.keyboard.press('Meta+K');
     await page.getByRole('option', { name: 'Settings', exact: true }).click();
     await expect(page.getByTestId('settings-page')).toBeVisible();
+  });
+
+  test('model config 真实读取回落：超过旧 3.2 秒后 Settings → Model 仍持续显示 reset notice', async ({ page }) => {
+    await page.addInitScript((key) => {
+      const nativeGetItem = Storage.prototype.getItem;
+      Object.defineProperty(Storage.prototype, 'getItem', {
+        configurable: true,
+        writable: true,
+        value(this: Storage, candidate: string) {
+          if (this === window.localStorage && candidate === key) {
+            throw new DOMException('model config read blocked', 'SecurityError');
+          }
+          return nativeGetItem.call(this, candidate);
+        },
+      });
+    }, MODEL_CONFIG_KEY);
+
+    await openWorkbench(page);
+    await expect(page.getByTestId('system-open-feedback').filter({ hasText: MODEL_CONFIG_RESET_NOTICE })).toHaveCount(0);
+    await page.waitForTimeout(3400);
+    await openSettings(page);
+    const notice = page.getByTestId('settings-section-model').getByTestId('settings-model-config-notice');
+    await expect(notice).toHaveAttribute('role', 'status');
+    await expect(notice).toHaveText(MODEL_CONFIG_RESET_NOTICE);
+
+    await page.getByTestId('settings-nav-appearance').click();
+    await page.getByTestId('settings-nav-model').click();
+    await expect(notice).toHaveText(MODEL_CONFIG_RESET_NOTICE);
+    await page.getByTestId('settings-close').click();
+    await openSettings(page);
+    await expect(notice).toHaveText(MODEL_CONFIG_RESET_NOTICE);
+  });
+
+  test('model config 真实写入回落：当前会话持续告知，reload 后旧 Deep 恢复且不伪造 notice', async ({ page }) => {
+    await page.addInitScript(({ key, deep }) => {
+      const nativeGetItem = Storage.prototype.getItem;
+      const nativeSetItem = Storage.prototype.setItem;
+      if (nativeGetItem.call(window.localStorage, key) === null) {
+        nativeSetItem.call(window.localStorage, key, JSON.stringify(deep));
+      }
+      Object.defineProperty(Storage.prototype, 'setItem', {
+        configurable: true,
+        writable: true,
+        value(this: Storage, candidate: string, value: string) {
+          if (this === window.localStorage && candidate === key) {
+            throw new DOMException('model config quota', 'QuotaExceededError');
+          }
+          return nativeSetItem.call(this, candidate, value);
+        },
+      });
+    }, {
+      key: MODEL_CONFIG_KEY,
+      deep: { providerId: 'deepseek', modelId: 'deepseek-v4-flash', reasoning: 'deep' },
+    });
+
+    await openWorkbench(page);
+    await openSettings(page);
+    await expect(page.getByRole('radio', { name: 'Deep', exact: true })).toBeChecked();
+    await page.getByRole('radio', { name: 'Standard', exact: true }).check();
+    await expect(page.getByTestId('settings-model-summary')).toHaveText('Current: Standard');
+    const notice = page.getByTestId('settings-section-model').getByTestId('settings-model-config-notice');
+    await expect(notice).toHaveAttribute('role', 'status');
+    await expect(notice).toHaveText(MODEL_CONFIG_SAVE_NOTICE);
+    await page.waitForTimeout(3400);
+    await expect(notice).toHaveText(MODEL_CONFIG_SAVE_NOTICE);
+
+    await page.getByTestId('settings-nav-appearance').click();
+    await page.getByTestId('settings-nav-model').click();
+    await expect(notice).toHaveText(MODEL_CONFIG_SAVE_NOTICE);
+    expect(await page.evaluate((key) => JSON.parse(window.localStorage.getItem(key)!).reasoning, MODEL_CONFIG_KEY)).toBe('deep');
+
+    await page.reload();
+    await expect(page.getByTestId('workbench')).toBeVisible();
+    await openSettings(page);
+    await expect(page.getByRole('radio', { name: 'Deep', exact: true })).toBeChecked();
+    await expect(page.getByTestId('settings-model-summary')).toHaveText('Current: Deep');
+    await expect(page.getByTestId('settings-model-config-notice')).toHaveCount(0);
   });
 
   test('themeMode 同键持久化：system 随 OS，显式宗不随，根只暴露解析后的 data-theme', async ({ page }) => {

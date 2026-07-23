@@ -30,7 +30,7 @@ describe('model-config', () => {
 
   it('persists DeepSeek model/reasoning and discovered models round-trip', () => {
     const next = { ...DEFAULT_MODEL_CONFIG, modelId: 'deepseek-v4-pro', reasoning: 'deep' as const, discoveredModels: ['deepseek-v4-pro'] };
-    saveModelConfig(next);
+    expect(saveModelConfig(next)).toEqual({ persisted: true });
     expect(loadModelConfig()).toEqual(next);
   });
 
@@ -108,12 +108,36 @@ describe('model-config 降级显式化（MODEL-CONFIG-EXPLICIT-1）', () => {
     expect(loadModelConfig().degradation?.reasons).toContain('unreadable');
   });
 
+  it.each([
+    ['null', null],
+    ['array', []],
+    ['string', '配置'],
+    ['number', 7],
+    ['boolean', false],
+  ])('路径⑤%s 不是普通对象：typed 为 unreadable 且不崩溃', (_label, payload) => {
+    __setModelConfigStoreForTests(storeOf(JSON.stringify(payload)));
+    const loaded = loadModelConfig();
+    expect(loaded.degradation?.reasons).toEqual(['unreadable']);
+    expect(stripDegradation(loaded)).toEqual({ ...DEFAULT_MODEL_CONFIG, discoveredModels: undefined });
+  });
+
   it('路径⑥存储不可用：显式携 storage_unavailable（配置跨会话蒸发不再无痕）', () => {
     __setModelConfigStoreForTests({
       getItem: () => { throw new Error('storage blocked'); },
       setItem: () => { throw new Error('storage blocked'); },
     });
     expect(loadModelConfig().degradation?.reasons).toContain('storage_unavailable');
+  });
+
+  it('写入 store 抛错：saveModelConfig 返回精确失败联合，不把回落冒充持久化', () => {
+    __setModelConfigStoreForTests({
+      getItem: () => null,
+      setItem: () => { throw new Error('storage blocked'); },
+    });
+    expect(saveModelConfig(DEFAULT_MODEL_CONFIG)).toEqual({
+      persisted: false,
+      reason: 'storage_unavailable',
+    });
   });
 
   it('核心反例：deep 档因 reasoning 损坏静默降为 standard 的路径，降级对消费者可见', () => {

@@ -59,7 +59,8 @@ const count = match ? Number(match[1]) : 0;
 // 323 → 326。旧窄轨类四步退役未增减用例（属性改名，断言意图不变）。
 // MD-CONVERGE-1+：扩围五项真机渲染对照（链接/斜体/引用/删除线/任务清单 + 除外项原样透出）+1。
 // 二者为并发只升点（各自基线均为 323）；合并树取用例并集：326 + 1 → 327，数字由 --list 实跑核。
-const minimum = 327;
+// MODEL-CONFIG-EXPLICIT-1R：真实 defaultStore getter/setter 两条生产路径分立常设 +2 → 329。
+const minimum = 329;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

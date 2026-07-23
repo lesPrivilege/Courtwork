@@ -12,6 +12,7 @@ import {
   type ModelConfig,
   type ReasoningLevel,
 } from '../provider/model-config';
+import type { ModelConfigNotice } from '../provider/use-model-config';
 import { DATA_PROMISE_SECTIONS, DATA_PROMISE_TITLE, RESERVED_COPY } from './data-promise-copy';
 import {
   buildDiagnosticPayload,
@@ -68,6 +69,7 @@ export interface SettingsPageProps {
   onAutoOpenConsumed?: () => void;
   modelConfig: ModelConfig;
   onModelConfigChange: (next: ModelConfig) => void;
+  modelConfigNotice: ModelConfigNotice | null;
   onFeedback: (message: string, ok: boolean) => void;
   /** HOST-AUTH-LITE：注入的宿主授权端口（失败可见面消费）。 */
   hostAuth: HostAuthPort;
@@ -89,6 +91,7 @@ export function SettingsPage({
   onAutoOpenConsumed,
   modelConfig,
   onModelConfigChange,
+  modelConfigNotice,
   onFeedback,
   hostAuth,
 }: SettingsPageProps) {
@@ -263,6 +266,11 @@ export function SettingsPage({
             <section className="settings-panel">
               <h2>Model</h2>
               <p className="settings-lead">Credentials stay in the local keychain. Connection state is probe-driven.</p>
+              {modelConfigNotice && (
+                <p className="settings-recovery" data-testid="settings-model-config-notice" role="status">
+                  {modelConfigNotice.message}
+                </p>
+              )}
 
               <div className="settings-row" data-testid="settings-key-row">
                 <div>

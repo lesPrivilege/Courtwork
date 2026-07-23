@@ -56,6 +56,10 @@ export interface LoadedModelConfig extends ModelConfig {
   readonly degradation?: ModelConfigDegradation;
 }
 
+export type ModelConfigSaveResult =
+  | { persisted: true }
+  | { persisted: false; reason: 'storage_unavailable' };
+
 /**
  * 是否值得向用户提示。`no_stored_value` 单独出现时**不提示**——它同时覆盖「首次运行」
  * 与「配置已丢失」，二者在本函数视角不可区分，对首次运行提示「配置已重置」是假警报。
@@ -109,6 +113,21 @@ const memoryStore = new Map<string, string>();
  */
 let storageFellBackToMemory = false;
 
+function writeDefaultStoreItem(key: string, value: string): boolean {
+  if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function') {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch {
+      storageFellBackToMemory = true;
+      memoryStore.set(key, value);
+      return false;
+    }
+  }
+  memoryStore.set(key, value);
+  return true;
+}
+
 const defaultStore: ConfigStore = {
   getItem: (key) => {
     if (typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') {
@@ -120,17 +139,7 @@ const defaultStore: ConfigStore = {
     }
     return memoryStore.get(key) ?? null;
   },
-  setItem: (key, value) => {
-    if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function') {
-      try {
-        localStorage.setItem(key, value);
-        return;
-      } catch {
-        storageFellBackToMemory = true;
-      }
-    }
-    memoryStore.set(key, value);
-  },
+  setItem: (key, value) => { void writeDefaultStoreItem(key, value); },
   removeItem: (key) => {
     if (typeof localStorage !== 'undefined' && typeof localStorage.removeItem === 'function') {
       try {
@@ -211,34 +220,40 @@ export function loadModelConfig(): LoadedModelConfig {
     return withDegradation({ ...DEFAULT_MODEL_CONFIG }, reasons);
   }
 
-  let parsed: Partial<ModelConfig>;
+  let parsed: unknown;
   try {
-    parsed = JSON.parse(raw) as Partial<ModelConfig>;
+    parsed = JSON.parse(raw) as unknown;
   } catch {
     reasons.push('unreadable');
     return withDegradation({ ...DEFAULT_MODEL_CONFIG }, reasons);
   }
 
-  if (typeof parsed.providerId !== 'string' || !isProviderId(parsed.providerId)) {
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    reasons.push('unreadable');
+    return withDegradation({ ...DEFAULT_MODEL_CONFIG }, reasons);
+  }
+  const candidate = parsed as Partial<ModelConfig>;
+
+  if (typeof candidate.providerId !== 'string' || !isProviderId(candidate.providerId)) {
     reasons.push('provider_invalid');
     return withDegradation({ ...DEFAULT_MODEL_CONFIG }, reasons);
   }
-  const provider = PROVIDER_OPTIONS.find((item) => item.id === parsed.providerId)!;
-  const discoveredModels = Array.isArray(parsed.discoveredModels)
-    ? parsed.discoveredModels.filter((item): item is string => typeof item === 'string' && item.length > 0)
+  const provider = PROVIDER_OPTIONS.find((item) => item.id === candidate.providerId)!;
+  const discoveredModels = Array.isArray(candidate.discoveredModels)
+    ? candidate.discoveredModels.filter((item): item is string => typeof item === 'string' && item.length > 0)
     : undefined;
 
   let modelId: string;
-  if (typeof parsed.modelId === 'string' && parsed.modelId.length > 0) {
-    modelId = parsed.modelId;
+  if (typeof candidate.modelId === 'string' && candidate.modelId.length > 0) {
+    modelId = candidate.modelId;
   } else {
     modelId = provider.models[0]!.id;
     reasons.push('model_invalid');
   }
 
   let reasoning: ReasoningLevel;
-  if (parsed.reasoning === 'deep' || parsed.reasoning === 'standard') {
-    reasoning = parsed.reasoning;
+  if (candidate.reasoning === 'deep' || candidate.reasoning === 'standard') {
+    reasoning = candidate.reasoning;
   } else {
     // 本票核心路径：用户曾选 deep，此处静默降为 standard 且随每次请求发出。
     reasoning = 'standard';
@@ -252,7 +267,18 @@ export function loadModelConfig(): LoadedModelConfig {
  * 降级标记只属本次加载，**永不写回存储**——否则它会被下次读取当成配置内容，
  * 且违反「降级不携配置内容外流」。此处显式剔除而非依赖调用方自觉。
  */
-export function saveModelConfig(config: ModelConfig | LoadedModelConfig): void {
+export function saveModelConfig(config: ModelConfig | LoadedModelConfig): ModelConfigSaveResult {
   const { providerId, modelId, reasoning, discoveredModels } = config;
-  activeStore.setItem(STORAGE_KEY, JSON.stringify({ providerId, modelId, reasoning, discoveredModels }));
+  const serialized = JSON.stringify({ providerId, modelId, reasoning, discoveredModels });
+  try {
+    if (activeStore === defaultStore) {
+      return writeDefaultStoreItem(STORAGE_KEY, serialized)
+        ? { persisted: true }
+        : { persisted: false, reason: 'storage_unavailable' };
+    }
+    activeStore.setItem(STORAGE_KEY, serialized);
+    return { persisted: true };
+  } catch {
+    return { persisted: false, reason: 'storage_unavailable' };
+  }
 }

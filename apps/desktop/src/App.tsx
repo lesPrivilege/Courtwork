@@ -370,11 +370,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [focusMode, setFocusMode] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const {
-    config: modelConfig, update: updateModelConfig,
+    config: modelConfig, update: updateModelConfig, notice: modelConfigNotice,
     open: modelConfigOpen, setOpen: setModelConfigOpen,
   } = useModelConfig({
     onConnectionInvalidated: () => setCredentialStatus((current) => ({ ...current, connection: { phase: 'unverified' } })),
-    notify: (message) => showSystemFeedback(message, false, 'info'),
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsAutoCredential, setSettingsAutoCredential] = useState(false);
@@ -2721,6 +2720,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         onAutoOpenConsumed={() => setSettingsAutoCredential(false)}
         modelConfig={modelConfig}
         onModelConfigChange={updateModelConfig}
+        modelConfigNotice={modelConfigNotice}
         onFeedback={showSystemFeedback}
         hostAuth={hostAuth}
       />
