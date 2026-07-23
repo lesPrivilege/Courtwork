@@ -80,10 +80,26 @@ type WorkCommandOutcome =
       message: string;
     };
 
+type WorkReplayResult =
+  | {
+      found: false;
+      ref: WorkSessionRef;
+      phase: 'interrupted';
+      events: SessionEvent[];
+    }
+  | {
+      found: true;
+      ref: WorkSessionRef;
+      phase: WorkProjectionPhase;
+      events: SessionEvent[];
+      materialRefs: string[];
+      sessionCreatedAt: string;
+    };
+
 interface WorkProjectionPort {
   replay(
     query: WorkSessionRef & { afterSeq?: number },
-  ): Promise<{ ref: WorkSessionRef; phase: WorkProjectionPhase; events: SessionEvent[] }>;
+  ): Promise<WorkReplayResult>;
 }
 
 interface WorkCommandPort {
@@ -296,6 +312,97 @@ RiskListDraft → quote resolver，但 `LEGAL-S3-BINDING-1` 必须先完成：
   case 的静态或动态消费都必须触红。
 
 新增 executable runtime binding 仍由 host composition 拥有；package descriptor 不注入函数/React/CSS。
+
+### 2026-07-24 修订：Legal S3 单品收束的主合同、修正与文书语义
+
+源码复核证明，原决定五仍留下三处可以“全门绿但产品说谎”的空隙：材料数组没有主合同语义，
+desktop 可把 ReadingView Markdown 重建为新 docx 后冒充原稿修订；`revise` 虽在 binding 层被拒为
+非终态，App 仍可忽略 command outcome 继续产出。为收束下一枚 Legal 合同审查单品，追加决定如下：
+
+- `legal.S3` 开始前必须由用户从本案 ready 材料中**显式选择一份 DOCX 主合同**。PDF、Markdown、
+  TXT 可作支持材料，但不得成为本版 Word 批注稿的目标。没有可复验 DOCX 时场景不起跑并说明下一步，
+  不取 `ready[0]`、文件名、入库顺序或模型判断作默认。
+- 不新增 envelope 字段或 storageVersion：S3 的 `materialRefs` 保持有序，用户选定的主合同稳定放在
+  index `0`，其余支持材料去重后顺序稳定；同一输入同时派生 `legal.CaseFile`，以
+  `documentType='contract.primary'` / `'supporting'` 显式告知垂类场景。该顺序语义只属于
+  `legal.S3` host binding，不扩成 core 对所有场景的领域解释；resume 继续读冻结数组，不重算。
+- ReadingView 只用于模型语料、锚点与只读阅读。Word 产出必须经同一 materialId 重读**原始 DOCX
+  bytes**、复验 content/ReadingView hash，再把原 bytes 直接交给
+  `applyRevisionInstructionSet`。生产路径不得调用 `compileDraftToDocx` 重建原稿；表格、图片、
+  样式、页眉页脚、关系、既有批注等保真能力由 output 既有 OOXML 门承接。保真口径明确为：
+  未触 ZIP parts 的解压内容 bytes 相等；受触的 `document.xml`、`comments.xml`、
+  `document.xml.rels`、`[Content_Types].xml` 只承诺既有节点、comment id/range、relationship 与
+  override 的语义保全/幂等，允许必要增补与规范化重序列化；不承诺受触 part、整个 ZIP 或 SHA
+  byte-identical。
+- output 读取必须以**一次** host `readOriginal` 得到的同一份 bytes 完成 mediaType/content hash/
+  ReadingView hash 复验并返回，复验后才作防御性复制；禁止先 `resolveForProvider`、再第二读原件，
+  让两次读取之间的文件变化形成 TOCTOU 窗口。
+- OPC 数字签名不是可“保全”的普通 part：对副本新增批注也会使其密码学签名失效。共享 DOCX
+  预检若发现规范化、大小写无关的 `_xmlsignatures/` part，任一 `.rels` 中 OPC 标准
+  origin/signature/certificate relationship，或 Content Types 中对应三种标准 MIME 签名事实，必须在
+  output 写入前 typed 阻断并说明“请先另存未签名副本”，不得交付带失效签名的批注稿，也不得删除
+  签名后冒充保真。探针只认规范闭集，不用字面包含搜索；普通嵌入图片/可视印章不按数字签名误杀。
+- 当前 Legal 编译器只生成 `commentOnly`，没有经 schema 承载的替换文本。因此本版产物的唯一诚实
+  名称与承诺是**合同审查批注稿**：原合同的副本 + 已确认风险批注；不得称“保真 redline”“修订
+  四处”或“合同审查报告”。真实条文替换须先扩 RevisionInstruction 生产语义并另立契约。
+- production 产物不得复用固定文件名并 `overwrite:true`。以 envelope 已持久 `createdAt` 的 UTC
+  与完整 `sha256(sessionId)` 组成确定性文件名
+  `合同审查批注稿-YYYYMMDD-HHmmss-SSS-<64 lowercase hex>.docx`；同毫秒的不同 session 仍不同名，
+  同 session 重试得到同名，不在 localStorage 另存。`createdAt` 与下述授权时间必须是可
+  `toISOString()` 逐字往返的 UTC ISO 值；非法/缺失只允许查看账本并 typed 阻断产物。
+  写入一律 `overwrite:false`：目标已存在时，宿主 stat 的 SHA-256 与本次编译 bytes 相同才按幂等
+  已交付处理；不同则 typed 冲突、零覆盖。旧报告与其他 session 批注稿均保留。写成后再次 stat 并
+  核 byteLength/SHA-256，不能只凭 `exists=true` 宣称成功。
+- 同 session 的重编译 bytes 必须确定：批注/修订元数据时间取本次 S3 gate 对应、已持久的
+  `confirmation_resolved.emittedAt`，`saveDocx`/`zipSync` 的每个 entry mtime 也显式取同一时刻，
+  禁止任何 production output 路径回退 `new Date()`/`Date.now()`。跨秒、重启重编译的 SHA-256
+  必须相同；这才允许上条按 hash 判幂等。
+- UI 的“修正”只表示**修正风险结论文本**，不表示自动改写合同条款。修正必须输入非空的新结论，
+  以 `/risks/<index>/description` RevisionEvent 与该项 `dispositionStatus='confirmed'` 同次
+  resume 持久；取消编辑仍为 pending。逐条填满只令最终按钮可用，**不得自动 resume**；S3
+  package 的 gate label 与 production 最终按钮必须逐字锁为
+  “提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿”。用户点击后，其
+  `confirmation_resolved` 与 RevisionEvents 先经 whole-envelope CAS 持久，才构成同一 label
+  所述 effect 的授权。App 只有收到
+  `WorkCommandOutcome.status='completed'` 后，才能从持久事件重放出的 post-revision RiskList 编译
+  文书；rejected/failed/canceled/paused 均为零 docx 写入，不能用 React 闭包里的旧 RiskList 或
+  本地 disposition 拼终稿。
+- output 授权只认一对相互匹配的账本事件：S3
+  `confirmation_requested` 的 exact gateLabel + 同 `requestId`、`decision='confirm'` 的
+  `confirmation_resolved`。缺失、重复矛盾、requestId/label/decision 漂移均 typed 阻断，不能拿
+  replay 中任意或最新一枚 resolved 代替；其 `emittedAt` 才是确定性 output 时间。现行 actor 仍是
+  desktop 注入的本机操作人标识，故本版只可称“本机操作人确认账本”，不得称认证身份、电子签名或
+  签署人。这里沿用 ADR-010 既有 gate/CAS，不引入 ADR-017 的 proposal-hash 新协议。
+- 任一 `outOfCoverage` 未闭合、零风险或全部风险均为 `rejected` 时仍可经上述显式动作完成审阅，
+  但这是**零 DOCX 的正常终态**。outOfCoverage 是整份批注稿 blocker，即使同时有 confirmed 风险
+  也不得部分生成；completed 结果与重开面须始终并列全部待索证项，并说明补充材料后新开审查。
+  零风险且 `outOfCoverage=[]` 只可说“本次审查未形成可提交的风险项”；若 `outOfCoverage` 非空，
+  必须逐项展示未覆盖/待索证并提示补充材料后重新审查，绝不能概括成“未发现风险”；全部驳回说明
+  “风险均已驳回”。三者都不构造空的 `RevisionInstructionSet`，也不把 schema 的
+  `instructions.min(1)` 放宽。只有至少一项 `confirmed` 且 `outOfCoverage=[]` 时才进入批注稿编译
+  与写入。
+- production Legal S3 对 non-applied instruction 采取**整份阻断**：任一已确认风险未能唯一落到
+  主合同，均列出原因但零 docx；不得用只存在 React 内存的“确认知悉”授权部分交付。既有
+  OUTPUT-CONFIRM-UI-1 的 `confirmedNonApplied` 能力只可留在显式 demo/其他已声明消费者，不再是
+  本单品 production 路径。completed 账本仍保留；重开时从持久 RiskList + 当次复验原件确定性重算
+  阻断清单，材料修正后须新开审查，不新增 delivery ledger、事件成员或 envelope 字段。
+- SourceAnchor 的 `fileId` 必须接到同案 MaterialStore 阅读入口；Legal S3 的 resolver 锚必须以
+  `textRange + textLayerVersion`（分页件同时核 `page`）作权威定位，并终验
+  `quote === 当前文本层.slice(start,end)` 后按坐标高亮。`quote` 只作显示与等式校验，不得退化为
+  全文搜索定位；重复 quote 必须仍只落到坐标指定处。bbox-only 锚在现行 FILE reader 没有页面坐标
+  overlay 时显式“当前阅读面暂不支持该定位”，不得 quote fallback。版本漂移、越界、切片不等、
+  跨案、删除或授权失效继续 fail closed。生产 RiskList 面不得渲染 demo 固定合同、固定“4 处”或
+  固定 redline。
+- Legal 编译器不得固定取 `basis[0].sourceAnchors[0]`：应按 basis/anchor 原顺序遍历，以
+  `fileId === primaryMaterialId` 选择稳定首枚主合同锚作 locator；支持材料锚仍可进入 citation，
+  但绝不能成为主合同文本定位。支持锚排在前、主合同锚排在后的 fixture 必须仍落到主合同。
+- completed session 仍是审计账本，不因 docx 已存在而删除其轻量指针。重启或切案后可只读重放
+  最新一枚 `artifact_produced(legal.RiskList)` 所带的 post-revision RiskList、引证与人工处置；
+  `revision_recorded` 只有 id，当前 projection **不得声称能重建 RevisionEvent payload**。paused
+  才显示“继续”，completed 显示“查看上次审查”。completed
+  若因崩溃尚未写文件，可由用户在同一已持久授权上显式重试“生成批注稿”；这只重读、重编译与写
+  派生产物，不修改风险账本。新 start 显式覆盖为本案最新 session。原件、产物与 non-applied
+  临时清单均不进入该轻量指针。
 
 ## 实施工单与依赖
 

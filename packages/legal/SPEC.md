@@ -113,3 +113,47 @@
 ## 状态更新（2026-07-17，VOICE-SPEC-1 §9 词表统一，架构拍板的内容契约变更）
 
 - 词表统一（产品负责人 2026-07-17 拍板，随 LEGAL-S3-BINDING-1 载体落地）：`presentation` 的 `enumLabels.ingestStatus.needs_ocr` 由 `'需 OCR'` 改 `'需文字识别'`，与 desktop 全局「文字识别」用语统一（OCR 系工程缩写，`docs/design/principles.md` §9 直接适用）。**这是有意的内容契约变更，非 golden 漂移**：`VPKG-LAYOUT-1` 描述符 golden `sha256(LEGAL_PACKAGE_DESCRIPTOR)` 随之重算为 `d9c789baf973786e8022c5545b56391b65eadf7dbbe273cf31cef882a60c882b`（`layout-golden.test.ts`）；`promptBlob()` hash 不受影响（enumLabel 不在 promptSegments，期望值不变）。VOICE-SPEC-1 侧 `lint:voice` 只扫 `apps/desktop/src`，普查发现此不一致后回滚其改动并登记提案，由正在 legal 领地施工的本单承载，不越权跨包改 golden。
+
+## Legal S3 单品收束契约（2026-07-24，架构拍板）
+
+权威：ADR-010 决定五的 2026-07-24 修订。目标是把既有 RiskList 真链收束成诚实的合同审查
+单品，不扩 RiskList schema，也不把本包变成 DOCX 引擎。
+
+- host binding 必须为 production S3 提供确定性 `legal.CaseFile` 输入，不能继续以空
+  `inputArtifacts` 运行一个声明了 CaseFile 前置的场景。文件列表由同 session 冻结 materials
+  派生：显式主合同 `documentType='contract.primary'`，其余为 `'supporting'`，ready 对应
+  `ingestStatus='done'`，并携 contentHash；不在 legal 内读取路径或猜文书类型。
+- S3 prompt 在不改变输出 schema 的前提下明确：主合同 fileId 是批注目标；支持材料只供核验背景；
+  每项拟批注风险至少给出一枚主合同逐字引语，材料不足进入现有 out-of-coverage 纪律，不把支持材料
+  的引语冒充主合同定位。prompt blob hash 变化是本票有意内容契约变更，须同步 golden。
+- S3 package descriptor 的 gate label 改为且只可为
+  “提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿”。desktop production 最终按钮逐字消费该
+  label，不另写一份近义文案；descriptor、confirmation_requested 事件、录制与 golden 必须同源。
+  该条件式 label 同时覆盖零风险/全部驳回/outOfCoverage 未闭合的零文书正常终态，以及至少一项
+  confirmed 且无待索证项时的批注稿 effect，使持久 `confirmation_resolved` 能证明用户授权的是
+  同一件事。
+- “修正并确认”与 ReviewItemResolution→RevisionInput 映射属于 desktop host binding，不在本包
+  新增 UI/command/core 类型。本包只要求收到的 post-revision RiskList 继续满足 schema，模型不得
+  参与用户修正文案。
+- `compileConfirmedRiskListToRevisionInstructions` 继续只产 `commentOnly`，不得借 UI 的
+  “修正”生成模型替换条款。编译只消费 post-revision RiskList 中
+  `dispositionStatus==='confirmed'` 的项；任一 pending 以 typed incomplete error 阻断，零 confirmed
+  以 typed no-confirmed error 阻断，任一 `outOfCoverage` 以 typed unresolved-coverage error 整份
+  阻断，即使同时有 confirmed 也不得部分编译；绝不返回违反
+  `RevisionInstructionSet.instructions.min(1)` 的空集合。正常产品在调用本函数前已把这些分支
+  分流为 completed + 零文书。targetDocument
+  精确指向显式主合同 materialId，不是文件名。每项风险须按 basis/anchor 原顺序遍历，选择稳定首枚
+  `anchor.fileId === primaryMaterialId` 的主合同锚作 locator；支持材料锚仍保留在 citation，
+  但不能成为主合同定位。可把该主合同锚已经由 resolver 公证的 quote 降格翻译为 output 自身的候选
+  TextLocator，但这不改变 SourceAnchor 只认坐标的权威语义；output 必须对
+  not_found/ambiguous/text_changed fail closed。若没有主合同锚点，必须进入显式未落点/阻断清单，
+  不能拿支持材料 quote 在主合同里碰运气。
+- 本版对外产物语义是“合同审查批注稿”，不是审查报告或条文 redline。若未来要产生替换文本，
+  必须先为结构化建议、人工编辑与 RevisionInstruction 映射另立 schema/ADR；不得从 description
+  自由文本直接推导删除/插入。
+
+验收至少包括：CaseFile primary/supporting 与 materialRefs 顺序同源；prompt 主合同纪律与精确
+gate label golden；post-revision description 被 comment 编译器逐字消费；支持锚排首、主合同锚
+排后时仍取主合同；仅支持材料 anchor 时 typed 阻断；rejected 风险零 instruction；pending/
+零 confirmed/OOC-only/OOC+confirmed 均不产无效或部分 instruction set；commentOnly 闭集不扩。
+任一实现不得新增 legal→core 依赖。

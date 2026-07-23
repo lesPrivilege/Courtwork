@@ -3637,3 +3637,264 @@ core 已定语义，不另造 UI 预算状态。
 
 不顺带做会话累计 usage 面板、C3-4 `contextWindow`、新 Settings 状态机、动态在线取价、第二通知系统、
 DEBT-DOSSIER 或其他 `App.tsx` 队列票。
+
+## CONTRACT-REVIEW-SAFETY-1 · 人工修正与落盘终态同源（2026-07-24，架构票）
+
+权威：ADR-010 决定五的 2026-07-24 修订。本票先闭合“命令拒绝但 App 仍可能写文书”的安全缺口，
+不改 Legal RiskList schema、core SessionEvent 联合或 output OOXML 实现。
+
+### 人工修正语义
+
+- `revision` 只是一项风险的**编辑中 UI 态**，不是终态 disposition。点击“修正”须展开受控编辑，
+  预填当前 `risk.description`；只有提交非空、trim 后与原文不同的新结论，才形成
+  `ReviewItemResolution { disposition:'revise', correctedDescription }`。取消编辑回到 pending，
+  不得令全表“已处置”判据成立。
+- `mapReviewResolutionToResume` 对合法 revise 同时生成两枚同项 RevisionInput：
+  `/risks/<index>/description = correctedDescription` 在前，
+  `/risks/<index>/dispositionStatus = 'confirmed'` 在后。两者与 confirmation resolve 同一
+  whole-envelope CAS；空值、同值、未知 item、缺任一处置继续 typed reject，零事件、零产物。
+- confirm/reject 语义不变；只有每项均为 confirm、reject 或“修正并确认”才可整体
+  `decision='confirm'`。`packages/legal/src/scenarios/index.ts` 的 S3 gate label 与 production
+  最终按钮必须逐字锁为“提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿”；逐条填满只启用
+  该按钮，不得由 effect 自动调用 `resolveReview`。用户点击后才铸最终 resolution。该显式动作对应 core
+  `confirmation_resolved`，与 RevisionEvents 先持久再允许 file write。UI 的已提交提示只在
+  command outcome 为 `completed` 后出现。
+- production output 授权只认 exact S3 gate label 的 `confirmation_requested` 与同 requestId、
+  `decision='confirm'` 的 `confirmation_resolved`；缺失、重复矛盾、label/requestId/decision 漂移
+  都 typed 阻断，不能取 replay 中任意/最新 resolved。其 actor 只展示为“本机操作人”，不得升级为
+  认证律师/签署人；本票不引入 ADR-017 proposal-hash。
+
+### 文书真源
+
+- `workCommand.resolveReview(...)` 的返回值不得忽略。`rejected`、`failed`、`canceled`、`paused`
+  任何一类都不得调用 `produceContractDocx`、不得清会话指针、不得把既有产物存在状态改写为成功。
+- completed 后重新调用 replay，从持久事件机械投影出 post-revision `legal.RiskList`；Word 编译只
+  消费该投影中 `dispositionStatus='confirmed'` 的风险。`compileConfirmedReviewToDocx` 不再接受
+  React 本地 `dispositions` 作为第二真源，亦不得使用 resolve 前闭包里的旧 description。
+- post-revision RiskList 任一 `outOfCoverage` 未闭合、零风险或全部为 `rejected` 时，completed
+  是正常终态但 docx 写调用为 0。outOfCoverage 是整份 blocker，即使同时存在 confirmed 风险也
+  不得部分生成；completed 结果与重开面始终并列全部待索证项，并说明补充材料后新开审查。
+  零风险且 `outOfCoverage=[]` 时显示“本次审查未形成可提交的风险项；未生成批注稿”；若
+  `outOfCoverage` 非空，则必须逐项显示未覆盖/待索证原因并说明“需补充材料后重新审查”，不得把它
+  说成未发现风险；全部驳回显示“风险均已驳回；未生成批注稿”。三者均不得调用要求
+  `RevisionInstructionSet.instructions.min(1)` 的编译器，也不得把空 instructions 合法化。至少一项
+  confirmed 且 `outOfCoverage=[]` 才进入编译。
+- 同一条 corrected description 必须同时出现在 replay 后 RiskList、RevisionEvent 与最终 Word
+  comment；任一处不同即失败。
+- 同票退役 production Legal S3 的 transient non-applied waiver：编译返回未落点清单时只呈现
+  blocker、整份零写；不渲染“确认知悉”按钮，不持 `confirmedNonAppliedIds`，不把 React state 当
+  effect 授权。显式 demo 可继续验证 output 包既有 confirm policy，但必须物理分流。
+
+### 验收
+
+- “一项确认 + 一项修正但未提交”实跑必须令 resume 未发生、docx 写调用为 0；把旧
+  `if (dispositions[itemRef])` truthy 判据恢复必须触红。
+- 全部逐条处置填满但未点击最终按钮时仍为 paused、零 command/CAS/docx；恢复“最后一项一填即
+  自动 resume”的 effect 必须触红。点击两次以 commandId/disabled guard 收敛为一份 resolution。
+- 故意令 `resolveReview` 返回 `rejected`、`failed`、`canceled`、`paused`，四类均为 docx
+  零写；删除 outcome 分支、恢复“await 后无条件产出”必须触红。
+- 缺 matching requested、错 requestId、decision=reject、exact gate label 漂移、两枚相互矛盾
+  resolved 各自 typed 阻断且 write=0；恢复“取最后一枚 resolved”必须触红。UI/结果卡不得出现
+  “已认证”“已签署”一类身份升级文案。
+- 提交合法修正后重载 store：description 与 confirmed status 同在、顺序稳定；删任一 RevisionInput、
+  交换为 status 先落、或让编译消费旧 RiskList，定向 mutation 必须触红。
+- 完整 App e2e 证明编辑取消仍 pending、空/同值不可提交、修正后确认与驳回并存时只输出已确认
+  （含修正确认）项。
+- 零风险（分别覆盖 `outOfCoverage` 空/非空）、confirmed 与 outOfCoverage 混合、全部驳回各走完显式提交、持久
+  `confirmation_resolved`、completed，只读重放后仍为零 docx 正常结果；未覆盖项必须留在结果面，
+  误报“未发现”、误把空 instruction set 送入 output、为凑 `min(1)` 造虚假批注或把它们判 failed
+  的 mutation 必须触红。S3 descriptor/golden/录制契约与按钮 label 任一字漂移必须触红。
+- non-applied production fixture 显示逐项 blocker 且 write=0；恢复确认按钮/waiver state 或把
+  `confirmedNonApplied` 传回编译器的 mutation 必须触红。
+
+### 禁止扩张
+
+不在本票自动生成合同替换条款，不把“修正结论”包装成 redline，不改 RiskList 字段，不顺带做
+主合同选择、原 DOCX bytes、SourceAnchor 跳转、completed 重开或 dossier。
+
+## CONTRACT-OUTPUT-TRUTH-1 · 主合同与原 DOCX 批注稿（2026-07-24，架构票）
+
+权威：ADR-004 原件只读、ADR-010 决定四/五及其 2026-07-24 修订、output 包
+`applyRevisionInstructionSet(originalDocx, instructions)` 契约。
+
+### 主合同 preflight
+
+- production `legal.S3` 启动面新增一枚必填“主合同”选择，只列 `status='ready'` 且 mediaType
+  精确为 DOCX 的本案材料；默认不选。PDF/MD/TXT 等 ready 材料列为支持材料并继续送入模型，
+  但不能成为 Word 目标。没有可选 DOCX 时按钮禁用并说明“先入库一份 Word 主合同”。
+- start 时 `materialRefs[0]` 必须是用户所选主合同；其余 ready refs 去重并保持当前材料清单顺序。
+  `work-session-store` 继续持该 `contractMaterialId`，resume/replay 不从新材料、文件名或 list 排序
+  重算。任一“取 `ready[0]`”生产消费点与注释清零并由静态门锁定。
+- `WorkProjectionPort.replay` 依 ADR-010 改为 discriminated result：host 不存在时
+  `{found:false, phase:'interrupted', events:[]}`；读到合法 envelope 时
+  `{found:true, ref, phase, events, materialRefs:[...], sessionCreatedAt}`。后两项只是把 envelope
+  既有值作防御性复制，不新增持久字段；found=true 不得漏值。恢复时必须验证本地 pointer 的
+  `contractMaterialId === replay.materialRefs[0]`，旧 session 首项非 DOCX、二者不等或 metadata
+  缺失/非法只可查看既有账本，不得继续产文书。
+- 同一输入机械派生 `legal.CaseFile`：主合同 `documentType='contract.primary'`，其余
+  `documentType='supporting'`，ready 对应 `ingestStatus='done'`，并携 fileName/contentHash；
+  `buildS3RunInput` 不再给声明了 `legal.CaseFile` input 的 S3 传空 artifacts。
+
+### 原件 bytes 与产物承诺
+
+- MaterialStore 提供 source-neutral 的 output 读取编排：输入 `caseId + materialId`，以**一次**
+  host `readOriginal` 返回的同一份 Uint8Array 完成 mediaType、content hash、ReadingView hash
+  与授权复验，再返回防御性复制的 DOCX bytes；不得先走 `resolveForProvider` 后第二次读取。
+  失败沿既有材料阻断闭集显式呈现，不暴露路径/grantId。
+- 原 bytes 在写前继续走共享 DOCX 预检。若存在 OPC 数字签名 parts、relationship 或 content type，
+  消费 output 的 typed 阻断并显示“主合同带有数字签名，生成批注稿会使签名失效；请先另存为未签名
+  副本后再审查”，写调用为 0。不得剥除签名继续、不得把数字签名失效说成结构保全；普通嵌入图片/
+  可视印章仍按未触 part bytes 保留，不误判成数字签名。探针必须消费 output SPEC 的规范闭集：
+  规范化后大小写无关的 `_xmlsignatures/` part、所有 `.rels` 中 origin/signature/certificate
+  标准 relationship URI、Content Types 中三种标准 MIME；不得只扫 root rels 或模糊搜字样。
+- production `compileConfirmedReviewToDocx` 直接接收上述 `originalDocx`。禁止先
+  `readingMarkdown → markdownToDocument → compileDraftToDocx`；demo 若仍需 Markdown 合成，只能
+  在显式 demo adapter 内完成并把 bytes 传入同一编译入口。
+- production 产物以 replay 的 persisted `sessionCreatedAt` UTC 与完整
+  `sha256(replay.ref.sessionId)` 组成纯函数名
+  `合同审查批注稿-YYYYMMDD-HHmmss-SSS-<64 lowercase hex>.docx`；同毫秒两 session 不撞名，
+  同 session 跨重启稳定，不把文件名塞进 `work-session-store`。`sessionCreatedAt` 与对应
+  `confirmation_resolved.emittedAt` 均须通过 UTC ISO 严格往返校验；非法时账本仍可看、output
+  typed 阻断。内容承诺只到“原合同副本 + 已确认风险 commentOnly 批注”；所有
+  production 文案、结果卡与 tab 不得称“合同审查报告”“保真 redline”“修订 4 处”。
+- production 编译把该 S3 gate 已持久的 `confirmation_resolved.emittedAt` 同时作为
+  `applyRevisionInstructionSet(..., {now})` 的批注时间与 `saveDocx`/fflate ZIP entry 的显式
+  mtime；禁止回退 `new Date()`/`Date.now()`。同一 session 跨秒或重启重编译必须 byte-identical、
+  SHA-256 相等，方可执行下述幂等判定。
+- 输出桥新增窄 `statDocx`（browser/Tauri 同形）返回 `{byteLength, sha256}`，production 审查写入
+  固定 `overwrite:false`。写前若目标存在：hash 与本次编译 bytes 相等则作为同 session 幂等恢复，
+  不再写；不同则显式“同名批注稿已存在且内容不同”，零覆盖。新写后 stat 必须与 expected
+  byteLength/SHA-256 同时一致才显示成功；原件、旧报告与其他 session 产物始终零写。
+- production Legal S3 不接受 `confirmedNonApplied`：任一 instruction 为 not found、ambiguous、
+  text changed 或 unsupported 时，呈现对应风险/原因并整份零写。既有逐条“确认知悉后跳过”控件
+  只可留在显式 demo/其他既有消费者，不能出现在 production 合同审查。completed 重开时从 replay
+  后 RiskList 与重新复验的原 bytes 重算同一 blocker；不把 pending/waiver 存 localStorage，也不
+  新增 output delivery ledger。若材料需更换/修复，用户新开审查。
+- post-revision RiskList 只要 `outOfCoverage.length > 0`，无论同时有多少 confirmed 风险，都在
+  instruction 编译前整份零写；结果卡与 completed 重开须逐项保留缺口，不能称“完整审查”或仅为
+  confirmed 风险交付部分批注稿。
+- 对选中原 DOCX 的 OOXML part/rel 做前后差分：**未触及的 ZIP parts 内容 bytes 必须相等**，
+  包括图片、样式、页眉页脚与字体；`document.xml`、`comments.xml`、
+  `document.xml.rels`、`[Content_Types].xml` 等受触 parts 可因必要节点增补而规范化重序列化，
+  不承诺整 part 或整 ZIP byte-identical，但必须结构性保留既有表格/段落/run、批注、关系、
+  content type 与 ID，并证明没有无关删除或重复关系。任一 non-applied 一律零产物。
+- `compileConfirmedRiskListToRevisionInstructions` 必须遍历每项风险的全部 basis/anchors，按原顺序
+  取稳定首枚 `fileId === primaryMaterialId` 的锚作 text locator；不得硬取
+  `basis[0].sourceAnchors[0]`。支持材料锚仍保留在 citation，但没有主合同锚时进入 typed 阻断，
+  不能拿支持材料 quote 去主合同全文碰运气。
+
+### 验收
+
+- 至少三件 ready 材料中，铸号/枚举第一件故意不是 DOCX；用户选择第三件后，provider corpus
+  含全体材料，但 CaseFile primary、`materialRefs[0]`、session pointer、output 原始 bytes 必须
+  四者同指第三件。恢复 `ready[0]` 必须触红。
+- 篡改 local pointer 与 replay 首项不等、旧 paused/completed session 首项非 DOCX，均只读可见、
+  output write=0；恢复时从当前 caseMaterials 重算首项的 mutation 必须触红。
+- 原 DOCX fixture 必含表格、图片、样式、页眉页脚、既有批注/关系；production composition
+  编译后跑 output preflight 与 part/rel diff：未触 part 做内容 byte equality，受触 part 做既有
+  节点/ID/关系保留与新增唯一性断言。把 source 换回 ReadingView 重建，或删一项既有结构，必须
+  使断言变红；不得拿 ZIP SHA 或受触 XML 的序列化差异冒充数据丢失。
+- 至少一项主合同 locator 故意不唯一，production 须显示 blocker 且 write=0；注入
+  `confirmedNonApplied`、恢复 React 内存确认后部分交付或隐去 blocker 均必须触红。完成后重载
+  应能重算同一 blocker，原件漂移则改为漂移阻断而非沿用旧清单。
+- `outOfCoverage` only 与 `outOfCoverage + confirmed` 两个 fixture 均 completed、缺口可见且
+  write=0；删除 coverage blocker、隐藏缺口或把部分批注稿称为完整结果的 mutation 必须触红。
+- PDF/TXT 被强塞为 primary、原件 hash 漂移、跨案 materialId、授权撤回、宏/XXE/zip bomb 与 OPC
+  数字签名均在 output 写前阻断，写调用为 0；用单信号 fixture 覆盖 signature part 的大小写/
+  规范化变体、三种 relationship（含非 root `.rels`）与三种 content type，每个都须阻断；
+  逐探针禁用的 mutation 只让对应 fixture 变红，普通图片/可视印章和仅名称含 signature 的阴性件
+  不得误杀。
+- 静态门只锁 **Legal S3 production review-output 编排/编译路径**不出现
+  `compileDraftToDocx`/`markdownToDocument`/`confirmedNonApplied`，允许通用 draft 编译器与显式
+  demo adapter 合法消费；同门锁旧产物名与 `ready[0]` 在该生产路径零出现。完整独立端口
+  Playwright 覆盖选择、恢复、阻断与结果卡。
+- 即使两个 session 的 `createdAt` 同一毫秒，session hash 也必须令其产生两个文件且前一文件 bytes
+  不变；同 session 模拟“宿主已写成、UI 未收回执”后重试，hash 相同则零二写并恢复成功；同名预放
+  不同 bytes 时 typed 冲突且原文件不变。同一 session 两次编译故意跨秒，产物 bytes/SHA 仍须相等；
+  删除持久 confirmation 时间、恢复 ZIP 默认 mtime、截掉 session hash、把 `overwrite` 改回 true、
+  只查 exists 或省略写后 hash 任一 mutation 必须触红。
+- output 读取 fixture 在“复验后、返回前”尝试替换 host bytes；host read 计数必须仍为 1，返回的
+  防御性复制与被复验 bytes 同源。恢复 provider resolve + 第二 read 必须被计数/变异反例抓红。
+- 锚 fixture 故意令支持材料锚位于 `basis[0].sourceAnchors[0]`、主合同锚位于后项；最终 locator
+  必须选择主合同锚。恢复固定首锚必须触红。
+- 文件名迁移不删除、重命名或覆盖既有 `合同审查报告.docx`；新会话只把自己的版本化批注稿算作
+  成功态，旧文件可并存但不反推当前 session 完成。
+
+### 禁止扩张
+
+不新增真正替换文本、不生成第二份审查报告、不支持 PDF→Word 伪 redline、不改 envelope 字段/
+storageVersion、不引入第三方 DOCX 引擎、不触用户原件；不借本票把所有 draft 写入改成
+no-overwrite，窄改只限合同审查批注稿。
+
+## CONTRACT-TRACE-1 · 真实锚点与完成账本可重开（2026-07-24，架构票）
+
+权威：ADR-010 决定五修订；直接依赖 `FILE-PREVIEW-1`、`CONTRACT-REVIEW-SAFETY-1` 与
+`CONTRACT-OUTPUT-TRUTH-1` 独立放行。
+
+### 生产工作面
+
+- production RiskList 的“回到原件”消费 resolver 铸造的真实 SourceAnchor：以 `fileId` 作为当前
+  case 的 materialId，经 FILE reader 同一重验路径打开只读阅读面；重算当前文本层并验证
+  `textLayerVersion`，再以 `textRange`（分页件连同 `page`）作为权威
+  focusAnchor。`quote` 必须与当前坐标切片逐字相等，但只供显示/校验，禁止用 `indexOf(quote)`
+  或全文搜索决定焦点。缺坐标/版本/quote、越界、切片不等、文件漂移/跨案/删除/授权失效时不开
+  阅读面且显式说明；bbox-only 锚在当前 reader 不具页面坐标 overlay 时显式未支持，不得退回
+  quote 搜索或 demo resolver。
+- `RevisionPanel` 的固定“精密铸造生产线设备采购合同”、固定 `修订 4 处` 与静态 del/ins 仅可住
+  显式 demo adapter。production 面标题为“风险审查”，呈现真实主合同名、风险、引证、处置与
+  “待生成/已生成批注稿”事实；没有 schema 替换文本时不画伪 redline。
+- 生产的 tab/count/空态从真实投影派生；`viewCount(!isDemo) => '尚无'` 一类覆盖真实 artifact 的
+  shortcut 退役。
+
+### completed 重放
+
+- `work-session-store` 的同版 `{sessionId, contractMaterialId}` 解释收紧为“本案最新 Work session
+  指针”，字段和 storage version 不变。paused 显示“继续上次审查”；completed 显示“查看上次
+  审查”；failed/canceled/损坏才清除。新 start 成功取得 sessionId 后覆盖为本案最新 session。
+- 查看 completed 时以 `workCommand.replay` 中最后一枚
+  `artifact_produced(legal.RiskList)` 重建 post-revision RiskList、SourceAnchor 与其中已持久的
+  disposition，风险工作面只读，处置按钮不可再写。`revision_recorded` 只有 id，当前 port 不返回
+  `revisionEvents` payload，UI 不得声称重建或展示其字段。docx 存在卡可并列，但不得取代审阅账本。
+  若 completed 后在 file write 前崩溃，可显示“生成批注稿”重试按钮；它只消费已经持久的
+  `confirmation_resolved` + post-revision RiskList，重新复验原件并走严格 non-applied 门，不追加
+  RevisionEvent/confirmation/CAS。
+- 重启、切案再切回、产物被 Finder 删除三种情形均不丢审阅账本；产物存在状态继续独立向宿主
+  复验，不能反推会话完成。
+
+### 验收与 mutation
+
+- 本票吸收 `material-reader.ts` / `material-actions.ts` 的同调用链合并义务，只保留一份 reader
+  action/port 声明；不得在 `App.tsx`、`ReaderPane` 另造第二套定位。坐标算法固定为：按 fileId
+  同案重验 → 以 `textLayerVersion`（分页件连 page）选文本层 → 用全局 `textRange` 与 block 的
+  `rangeBase` 包含关系唯一选 block → 转为 block-local start/end → 终验
+  `block.text.slice(localStart, localEnd) === quote` → 以 `blockId + local offsets` 渲染焦点。
+  ReadingView markdown 不是该坐标系，绝不可把原文本层 offset 直接套到 markdown。
+- SourceAnchor 指向第二份支持材料时必须打开第二份而非主合同，并按坐标高亮逐字切片。fixture 在
+  同一文本层放两处相同 quote，锚点指向第二处时只能高亮第二处；改按数组首件、改用
+  `indexOf(quote)`、把 global offsets 套 ReadingView、丢 `rangeBase`/blocks、忽略
+  `textLayerVersion`、只展开内联引语或去掉 focus 必须触红。合并后第二份 reader action/port
+  声明或旧调用路径零出现。
+- production DOM/源码零 demo 合同文本、静态 4 处与 disabled source action；demo golden 不因生产
+  分流被暗改。
+- 完成→重载→查看、切案往返→查看、删除产物→仍可查看三条 e2e 均从 host replay 取数；恢复
+  `clearWorkSession` on completed 或只显示 output card 必须触红。
+- completed production 面不呈现处置、编辑或“批注知悉”控件，风险区只读且零事件、零 CAS；
+  paused 仍可按原协议继续。
+- completed 且产物缺失时点击“生成批注稿”：全落点则写一份；任一未落点则 blocker 可见且零写；
+  两者均零新增账本事件。不得复活 production“批注知悉后部分交付”。
+
+### 禁止扩张
+
+不实现全文检索、跨案索引、会话命名/归档、动态 tab、第二阅读器、真正合同条文替换或视觉大改。
+
+## DEBT-DOSSIER-1 · 入卷语义与材料计数同源（2026-07-24，架构补票）
+
+- grant 案发送附件时，只把 `scope==='dossier'` 且 ready 的附件交给既有
+  `ingestComposerUploads`；message-only 附件仍逐字进入本轮请求，但不得写授权目录或 MaterialStore。
+  继续只允许这一条入库路径，禁止为 scope 另造旁路。
+- `fileCount` 仍不持久。持久案件水合时计数先为“未解析”而非伪造 `0`，再从每案
+  `MaterialStore.listForCase` 派生；CaseRail、Working folders badge 与原件列表同源更新。
+  selected case 的工作面不得硬编码 `'0'`。demo 固定计数与 production 派生物理分流。
+- 验收须覆盖 message-only/dossier 双附件同发、重启后多案计数、切案竞态、入库失败与 demo 隔离；
+  任何 badge 数与 `listForCase` 数不等、或 message-only 出现在 store，均失败。删除 scope filter、
+  恢复初值 0 或 hardcoded utility count 的 mutation 必须触红。
