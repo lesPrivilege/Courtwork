@@ -28,7 +28,7 @@
 | Chat 附件 | ready 附件的 `readingMarkdown`、粘贴块与用户文本经同源组装逐字进入真实请求；needs_ocr 与空内容以类型级 reason 显式阻断发送；grant 案的 ready 上传还会复用 `admitEntry` → 宿主 hash → `MaterialStore` 入库链 | Composer 的“存入卷宗/资料”`scope` 目前只供 badge，**不参与入库判据**；grant 案会把所有 ready 上传入库，无论用户是否点该按钮。该语义债归 `DEBT-DOSSIER-1`；OCR 与图片多模态仍未接入 |
 | Provider 设置 | key 与 provider 配置分离，凭证经宿主钥匙串边界；custom/base URL 猜测入口已退役 | — |
 | Provider usage 计量 | 原始 usage（rawUsage 真源）与 cache/reasoning 归一化槽位、unknown 传染、版本化 CostEstimate 经 provider→core Turn 持久→desktop 全链成立并独立验收（`ce37d53`+`91afa57`，报告见 provider ACCEPTANCE） | DeepSeek 真实响应捕获仍阻塞于带 key 环境，fixture 为构造件，不得宣称 external-validated |
-| Work 法律场景窄链 | 非 demo grant 案的 production run/replay/resume/cancel、耐久 store、材料绑定与 docx 落盘链已接通；第六轮真机试点完成 RiskList→引语→redline→本案产出目录 | 这只证明 Legal S3 窄链可达。Accepted ADR-010 的跨 resume 累计预算与 Settings 金额上限尚未实现，当前按 P0 纠偏；FILE-PREVIEW 独立验收、试点质量打分与其余复验仍未闭合，不宣称 Work 全面 product-live / external-validated |
+| Work 法律场景窄链 | 非 demo grant 案的 production run/replay/resume/cancel、耐久 store、材料绑定与 docx 落盘链已接通；第六轮真机试点完成 RiskList→引语→redline→本案产出目录 | 这只证明 Legal S3 窄链可达。Accepted ADR-010 的跨 resume 累计预算与 Settings 金额上限尚未实现，当前按 P0 纠偏；FILE-PREVIEW 范围验收虽过但被主线外部 lint 固定门驳回，试点质量打分与其余复验亦未闭合，不宣称 Work 全面 product-live / external-validated |
 
 Composer 的“存入卷宗/资料”不是第二条入库能力；现行缺口恰是 UI scope 与既有唯一入库判据脱节，
 不得再把它描述成“MaterialStore 尚未接入”，也不得在 `DEBT-DOSSIER-1` 前宣称按钮语义成立。
@@ -97,9 +97,10 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 
 严格按[实现就绪图](../architecture/implementation-readiness.md)派发：
 
-1. `FILE-PREVIEW-1`：实现 `86b2282` 与修复 `9f5c165` 已在 `main`，但
-   `apps/desktop/ACCEPTANCE.md` 尚无本票独立验收。当前动作是不同会话在 clean worktree
-   验收当前 `main`，不重复实现；报告放行后才清账。
+1. `FILE-PREVIEW-1`：实现 `86b2282` 与修复 `9f5c165` 已在 `main`；独立报告 `79ddd16`
+   已证明本票 A–K、原件零写、定向与完整 327/327 均通过，但受验 `b0f667b` 的
+   `site/craft-evidence/VERSIONAL-LANG-3/capture.mjs` 触发全仓 lint `no-undef`，故固定门驳回。
+   不重复实现；该外部红由其所有者独立修复并进入 `main` 后，再由新会话聚焦复验方可清账。
 2. `CORE-BUDGET-1`（P0，可与上项并行、不触 `App.tsx`）：实现 ADR-010 的 session 累计预算、
    冻结成本基线、paid Turn usage/coverage 入账与 unknown/partial fail-closed；随后必须由
    不同会话独立验收。
