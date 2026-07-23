@@ -191,6 +191,7 @@ async function storeHarness(input: {
   terminalSpecs: TerminalSpec[];
   nowMs?: () => number;
   onCall?: () => void;
+  onIdentity?: () => void;
 }): Promise<{
   host: WorkStateHostPort;
   store: WorkStateStore;
@@ -221,6 +222,15 @@ async function storeHarness(input: {
     persistBarrier: async () => {
       await store.commit();
     },
+    ...(input.onIdentity ? {
+      createTurnIdentity: (context) => {
+        input.onIdentity?.();
+        return {
+          turnId: `turn-${context.stepId}-${context.attempt}`,
+          providerRequestId: `provider-${context.stepId}-${context.attempt}`,
+        };
+      },
+    } : {}),
     ...(input.nowMs ? { nowMs: input.nowMs } : {}),
   };
   return { host, store, turnStore, deps };
@@ -289,6 +299,7 @@ describe('CORE-BUDGET-1 executor/store integration', () => {
 
   it('persists an unknown paid terminal as partial, then blocks the next paid Turn before linking/calling it', async () => {
     let calls = 0;
+    let identities = 0;
     const harness = await storeHarness({
       runtimeBudget: budget({ maxUsd: 5 }),
       terminalSpecs: [
@@ -298,12 +309,17 @@ describe('CORE-BUDGET-1 executor/store integration', () => {
       onCall: () => {
         calls += 1;
       },
+      onIdentity: () => {
+        identities += 1;
+      },
     });
     const result = await runScenario(scenario([...TYPES]), { inputArtifacts: {}, toolInputs: {} }, harness.deps);
     expect(result).toMatchObject({ status: 'failed', reason: 'configuration', retryable: false });
     expect(calls).toBe(1);
+    expect(identities).toBe(1);
     const final = await persisted(harness.host);
     expect(final.runtimeBudget.consumed).toMatchObject({
+      steps: 1,
       estimatedUsd: 0,
       costCoverage: 'partial',
     });
@@ -315,14 +331,49 @@ describe('CORE-BUDGET-1 executor/store integration', () => {
     );
   });
 
-  it('blocks a frozen price-table mismatch before turn_linked/provider when maxUsd is configured', async () => {
+  it('blocks a frozen price-table version-only mismatch before step/identity/turn_linked/provider', async () => {
     let calls = 0;
+    let identities = 0;
     const stale = budget(
       { maxUsd: 5 },
       {
         costBasis: {
           currency: 'USD',
           priceTableVersion: 'older-price-table',
+          priceTableEffectiveAt: PRICE_TABLE.effectiveAt,
+          assumptions: ['old'],
+        },
+      },
+    );
+    const harness = await storeHarness({
+      runtimeBudget: stale,
+      terminalSpecs: [{ status: 'completed' }],
+      onCall: () => {
+        calls += 1;
+      },
+      onIdentity: () => {
+        identities += 1;
+      },
+    });
+    const result = await runScenario(scenario(['test.One']), { inputArtifacts: {}, toolInputs: {} }, harness.deps);
+    expect(result).toMatchObject({ status: 'failed', reason: 'configuration' });
+    expect(calls).toBe(0);
+    expect(identities).toBe(0);
+    const final = await persisted(harness.host);
+    expect(final.runtimeBudget.consumed.steps).toBe(0);
+    expect(final.turnEntries).toEqual([]);
+    expect(final.events.some((event) => event.type === 'turn_linked')).toBe(false);
+  });
+
+  it('blocks a frozen price-table effectiveAt-only mismatch before step/identity/turn_linked/provider', async () => {
+    let calls = 0;
+    let identities = 0;
+    const stale = budget(
+      { maxUsd: 5 },
+      {
+        costBasis: {
+          currency: 'USD',
+          priceTableVersion: PRICE_TABLE.version,
           priceTableEffectiveAt: '2026-01-01T00:00:00Z',
           assumptions: ['old'],
         },
@@ -334,11 +385,16 @@ describe('CORE-BUDGET-1 executor/store integration', () => {
       onCall: () => {
         calls += 1;
       },
+      onIdentity: () => {
+        identities += 1;
+      },
     });
     const result = await runScenario(scenario(['test.One']), { inputArtifacts: {}, toolInputs: {} }, harness.deps);
     expect(result).toMatchObject({ status: 'failed', reason: 'configuration' });
     expect(calls).toBe(0);
+    expect(identities).toBe(0);
     const final = await persisted(harness.host);
+    expect(final.runtimeBudget.consumed.steps).toBe(0);
     expect(final.turnEntries).toEqual([]);
     expect(final.events.some((event) => event.type === 'turn_linked')).toBe(false);
   });

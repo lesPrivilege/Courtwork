@@ -632,6 +632,9 @@ async function produceSequence(
   const now = deps.now ?? (() => new Date().toISOString());
 
   for (let i = 0; i < remainingArtifactTypes.length; i += 1) {
+    // 每个 artifact 产出都将进入 paid Turn：价格覆盖/冻结价目漂移必须先拒绝，
+    // 再把这一 prospective step 计入累计预算。工具与其他无 paid effect 的位置不走此门。
+    assertPaidTurnPreflight(guard);
     guard.checkStep();
     const artifactType = remainingArtifactTypes[i];
     const { artifact, notices, citationStats } = await generateArtifact(
