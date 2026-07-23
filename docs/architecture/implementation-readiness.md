@@ -205,6 +205,53 @@ root lint 等待治理清账，不再占 App 实现锁；FILE 也已实现，外
 `C3-4`／`C3-5`）依赖就绪后按此队列尾随入队。**「即刻并行派发」一类旧措辞已被
 互斥模型取代**——「即派」指依赖就绪即可**入队**，不指同时**在途**。
 
+#### `GOVERNANCE-CLEAR-1` · 票外 lint 修复后的单批清账（验收票，不计入下表）
+
+本票不实现功能、不占 `App.tsx` 锁，只把已经分别取得“范围逻辑通过、固定门驳回”的
+`FILE-PREVIEW-1`、`CORE-BUDGET-1`、`DEBT-CLEAR-1` + `DEBT-GATE-LABEL-1`、
+`MD-CONVERGE-1+` 与 `MODEL-CONFIG-EXPLICIT-1R` 桥接到同一个 current-main SHA。
+
+**触发条件**：
+
+1. `site/craft-evidence/VERSIONAL-LANG-3/capture.mjs` 的所有者明确授权，并以只含
+   `/* global localStorage, process */` 声明的独立提交进入 `main`；不得把共享 dirty tree 当目标。
+2. 新目标是 `main` 祖先；上述五组票的实现与既有独立报告也都是其祖先。
+3. 验收先做 target→current 的路径差异审计：CORE/provider、DEBT、Markdown 与 Model-config
+   已受验生产面必须无后续行为漂移；FILE 的 `App.tsx` 后续差异只允许已由 1R 独立验收的
+   model-config notice 正交接线。任一额外生产漂移先退回架构角色，不得在清账票内顺手解释。
+
+**角色与文件范围**：任命一名未实现上述任一票的新验收会话，在 detached clean worktree、
+独立端口且 `reuseExistingServer=false` 下执行。允许同一精确 target 共享一次全仓固定门，但须按票
+分别给出 focused 与 mutation 结论；报告只追加
+`apps/desktop/ACCEPTANCE.md`（FILE / MD / MODEL）和
+`packages/core/ACCEPTANCE.md`（CORE / DEBT）。禁止改产品、SPEC、`current.md`、readiness、
+门常量或其他票外文件；清账后的 `current.md` 由架构角色另行更新。
+
+**共享固定门（恢复态只跑一轮，任一红即整批驳回）**：
+
+- `pnpm -r build`、`pnpm lint`、root `pnpm test -- --reporter=dot`；
+- desktop 包级单测；
+- 独立端口完整 desktop Playwright，floor 与实跑均不得低于当前 329。完整轮任何红都必须保留，
+  不得用单例隔离绿抹除。
+
+**逐票 focused 与当前-target 可红性（不能用共享全量数字替代）**：
+
+- FILE：material reader/store TS、Rust material-store、FILE 定向 6 条 Playwright；至少把阻断闭集
+  加入未知值及旁路跨案校验各注入一次，分别观察 closed-set/跨案门红。
+- CORE：provider pricing + core budget 7 文件（现行基线 124）；删除 paid preflight，必须由
+  unknown/version/effectiveAt 三例同时变红，且被拒 step 不再可假绿。
+- DEBT：confirmation / assembly / pending projection / executor / store / S3 golden 7 文件
+  （现行基线 105）；临时引用已删 `take` / `onTurnEvent` / `pendingGateLabels`，build 必须精确红。
+- MD：chat-markdown 44 与定向 8 条 Playwright；移除 `remarkGfm` 后 table/delete/task-list 必须红。
+- MODEL：model-config + hook 29 与 Settings 定向 8 条 Playwright；把真实 write fallback 伪报
+  `persisted:true` 后 setter 真链必须红。
+- lint 修复自身：临时撤掉 `localStorage` global 声明，root lint 必须只恢复
+  `capture.mjs` 的 `no-undef`；还原后 root lint 零错。该反例是新提交的承重证，不替代上面逐票反例。
+
+所有 mutation 须逐项 `apply_patch` 注入、观察红灯、反向 patch 还原；报告提交前目标树除两份
+ACCEPTANCE 外必须 clean。两份报告进入 `main` 且逐票均放行后，架构角色才可把五组票移入
+`current.md` 已清账清单并派发 `WORK-BUDGET-1`。
+
 **由此得到的结构性事实（2026-07-24 单品收束票加入并吸收 reader 重复票后重算）**：下表
 **22 行中 15 行触 `App.tsx`**
 （逐行可数），仅 7 行不触。也就是说——**在 `App.tsx` 拆分（D1／

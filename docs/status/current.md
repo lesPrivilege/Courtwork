@@ -105,15 +105,16 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 1. `FILE-PREVIEW-1`：实现 `86b2282` 与修复 `9f5c165` 已在 `main`；独立报告 `79ddd16`
    已证明本票 A–K、原件零写、定向与完整 327/327 均通过，但受验 `b0f667b` 的
    `site/craft-evidence/VERSIONAL-LANG-3/capture.mjs` 触发全仓 lint `no-undef`，故固定门驳回。
-   不重复实现；该外部红由其所有者独立修复并进入 `main` 后，再由新会话聚焦复验方可清账。
+   不重复实现；该外部红由其所有者独立修复并进入 `main` 后，进入下述
+   `GOVERNANCE-CLEAR-1` current-main 单批复验。
 2. `CORE-BUDGET-1`（P0，不触 `App.tsx`）：实现 `7808426`、修复 `07ecca5` 与两轮独立报告
    `d6ed1c6`/`8130b39` 均已进入 `main`。聚焦复验证明原 B1 已闭合，范围逻辑通过；但当前 clean
    SHA 的根 lint 与 FILE 票同被 `capture.mjs` 的票外 `localStorage no-undef` 阻断，故尚未治理
-   清账。该外部修复进入 `main` 后，由新验收会话在 current-main 重跑 root lint 与必要全门；
-   清零前不放行下游。
+   清账。该外部修复进入 `main` 后，与 FILE 等票共用 `GOVERNANCE-CLEAR-1` 的 current-main
+   clean-worktree 固定门；清零前不放行下游。
 3. `MODEL-CONFIG-EXPLICIT-1R`（P0，触 `App.tsx`）：实现与异会话功能逻辑验收均已闭合；
-   不重复实现或重跑完整 329。待票外 lint 修复进入 `main` 后，由新会话对 current-main 聚焦
-   root lint 与必要固定门，才可治理清账。
+   不重复实现。待票外 lint 修复进入 `main` 后，由 `GOVERNANCE-CLEAR-1` 新会话在一次完整
+   329 中桥接到 current-main，才可治理清账。
 4. `WORK-BUDGET-1`（P0，触 `App.tsx`）：只在 FILE 与 CORE 两项均独立放行后开工；
    把 Settings 上限与冻结价目真实装入 production Work，并令 runtime/configuration 失败持久可见。
 5. `WORK-BUDGET-1` 放行后，按 `CONTRACT-REVIEW-SAFETY-1 →
@@ -124,9 +125,10 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 6. `DEBT-DOSSIER-1` 在 CONTRACT-TRACE 后取得 App 槽，闭合 scope 入库判据与真实卷宗计数；
    再依次进入 `C3-1 → C3-2 → C3-3`。C3-4 的预算执法与 flash 价目已前移到预算票，本身只做
    同源可观测出口。
-7. `DEBT-CLEAR/GATE-LABEL`、`MD-CONVERGE` 与 `MODEL-CONFIG-EXPLICIT-1R` 均不重复实现；
-   待票外固定门清零后做 current-main 聚焦清账。MODEL 的 1R 独立报告已经替代旧 22/22，
-   但在 clean root lint 绿之前仍不进入已清账清单。
+7. `GOVERNANCE-CLEAR-1` 已在 implementation-readiness 冻结：由一名未实现五组票的新验收会话
+   对同一 clean current-main 共享一次 build/lint/root test/完整 329，同时逐票跑 focused 与
+   mutation，并分别写 desktop/core ACCEPTANCE。MODEL 的 1R 报告已替代旧 22/22，但整批
+   放行前五组票仍不进入已清账清单。
 8. 真机事实只按 [`pilot-2026-07-17.md`](pilot-2026-07-17.md) 读取：第六轮只证明
    Legal S3→docx 文件写入可达，源码回溯已下调其“引语回跳 / redline / 报告”解释；chat 全链、
    案件持久、材料 fail-closed 仍有实证。六处埋点正式打分、Office roundtrip、签名/公证及本版
