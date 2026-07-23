@@ -1293,3 +1293,72 @@ unknown 后下一 paid Turn、仅 version 漂移、仅 effectiveAt 漂移。
 3. 全仓 lint 红灯须由其所属票独立清除，不能混入 CORE 修复或借共享未提交改动遮绿。
 
 本验收只追加报告，未修改 provider/core 实现、SPEC、current/readiness、schema、门常量或票外文件。
+
+## CORE-BUDGET-1 聚焦复验（2026-07-24，修复 `07ecca5`）
+
+- **对象**：`07ecca56d1b4268c818dbef5d0d98ccc950e7a6f`；当前报告落点
+  `d6ed1c6` 与该对象相比只新增上节首轮验收报告，产品源码逐字相同。
+- **独立性**：仍由未参与实现的同一验收会话，在独立 detached clean worktree
+  `/private/tmp/courtwork-core-budget-reaccept.yiUxOz` 实跑；未带入共享树任何未提交文件。
+- **裁决：范围通过、当前 SHA 驳回。** 首轮 B1 已闭合，CORE-BUDGET-1 的 provider/core
+  功能与架构契约可放行；但 clean 目标的 root `pnpm lint` 仍有同一项票外基线红，故当前 SHA
+  仍不满足仓库清账条件，不得更新 `current.md` 或启动依赖其“独立验收已放行”的下游票。
+
+### 1. 修复范围与 B1 重放
+
+修复精确为 **2 files / 60 insertions / 1 deletion**：`executor.ts` 在每个 artifact 的 paid
+preflight 成功后才执行 `guard.checkStep()`；`runtime-budget-executor.test.ts` 把首轮三项反例固化。
+未触碰价目、guard 算法、store、envelope、事件、schema、wire、desktop 或票外 lint 文件。
+
+独立重放结果：
+
+1. 第一 paid Turn 缺 usage 后，下一 paid Turn 阻断；provider calls=1、identity=1、
+   `consumed.steps=1`，不再错误变为 2。
+2. frozen version-only 漂移：step=0、identity=0、turn_linked=0、provider=0。
+3. frozen effectiveAt-only 漂移：step=0、identity=0、turn_linked=0、provider=0。
+
+源码顺序也与运行证据一致：`executor.ts:637` 先 `assertPaidTurnPreflight(guard)`，
+`executor.ts:638` 后 `guard.checkStep()`；`runWorkTurn` 内 `executor.ts:351` 保留第二道
+effect-local 防御，不用“外层已检查”替代 provider 前闭口。
+
+### 2. 正向探针与 mutation
+
+- 临时恢复首轮两项强化探针：两产出两门经两次 fresh resume，跨两段一小时人工等待后
+  steps `1→2→2`、executionMs `1000→1500→1500`、provider calls=2；failed overflow 的
+  terminal、latest budget、`step_failed` 与 `scenario_failed` 仍首次同一枚 CAS 出现。
+  与修复后的九条正式 executor 预算用例合跑为 **1 file / 11 tests passed**。
+- 删除新增的外层 preflight：**3 failed / 8 passed**，精确重现首轮 unknown、version-only、
+  effectiveAt-only 三项计数回退；还原后全绿。
+- unknown estimate 改记 `0`：**1 failed / 10 skipped**，错误完成并多发下一 provider。
+- 删除 terminal/budget/failure 屏障：**1 failed / 10 skipped**，revision 2 ≠ 3。
+- 关闭 route mismatch：**1 failed / 10 skipped**，错误回退为 `WorkTurnFailedError`。
+- 关闭 durable port + legacy limits 双源拒绝：**1 failed / 10 skipped**，错误完成并调用 provider。
+
+上述 mutation 与临时探针均用反向 patch 还原；恢复态 `git diff --exit-code` 为 0，七文件定向
+**7 files / 124 tests passed**。首轮已实跑且本次修复未触碰的 price/seed/prospective
+step+tool/CAS rollback/defensive copy/deep validation mutation 结论继续成立；对应正式测试均包含在
+本次 124/124 与包级全量中，未以实现自述替代复跑。
+
+### 3. 全量门
+
+| 命令 | 聚焦复验实跑 |
+| --- | --- |
+| `pnpm install --frozen-lockfile --offline` | 仍因本机 pnpm store 缺 tarball 失败；随后同一 lockfile 联网安装 **14 workspace / 1047 packages** |
+| `pnpm -r build` | exit 0，**13/14 workspace**；desktop **3584 modules transformed** |
+| provider 全量 | **14 files / 110 tests passed** |
+| core 全量 | **34 files / 370 tests passed** |
+| root `pnpm test` | **149 files / 1291 tests passed** |
+| provider/core 定向 eslint | exit 0 |
+| `pnpm lint` | **exit 1；1 error / 0 warnings**：`site/craft-evidence/VERSIONAL-LANG-3/capture.mjs:91:5 localStorage no-undef` |
+| 排除该单文件后的 root eslint | exit 0 |
+
+root lint 红点与首轮完全相同，且不在 `7808426..07ecca5` 修复差异内；共享树把
+`localStorage` 加进 global 注释的未提交改动仍未进入 clean 复验。故可判 CORE 范围已通过，
+但不能把当前 SHA 写成全门放行。CORE 票不含 desktop 行为变化，本轮不跑 Playwright。
+
+### 4. 停止点
+
+**CORE-BUDGET-1 范围放行 `07ecca56d1b4268c818dbef5d0d98ccc950e7a6f`；当前仓库 SHA 因固定
+lint 门驳回。** 后续只需由票外文件所属会话独立提交修复，并在新的 clean current-main 上重跑
+root lint 与必要全门确认；在此之前不得把本范围放行等同为治理清账。本报告不修改实现、SPEC、
+current/readiness、门常量或票外文件。
