@@ -3861,7 +3861,7 @@ core 已定语义，不另造 UI 预算状态。
   command 集成测试用同一 host + 全新 command 证明，真 App 重启留给版本级 Tauri 候选验收。
   新增 Playwright 后以 `--list` 实数只升 floor；App 实际净减后把 highwater 从当前 2739 下调到实测值。
 
-### 实现留痕（WORK-BUDGET-1，2026-07-24，待独立验收）
+### 实现留痕（WORK-BUDGET-1，2026-07-24，已独立验收）
 
 - production 已把 Settings 的 fresh-session limits、冻结 model route 与 DeepSeek 静态价目快照装入
   既有 v1 `runtimeBudget`；resume 只消费信封。预算 factory 位于 fresh 闸门后且每 session 一次，
@@ -3888,7 +3888,10 @@ core 已定语义，不另造 UI 预算状态。
   **2738/2738**。4-worker 全量曾两次各命中同一 legacy `global-verbs` 的不同 hover timing
   抖动，两个失败用例随后分别单独 **1/1** 通过；未放宽产品 CSS 或断言。
 - 全量回归揭示旧 `d1-case-scope` 仍锁英文 `New case`；经架构角色明确补充测试白名单后，只机械
-  更新为冻结中文空态，未改选择器、步骤或 production。以上均为实现侧自证，不构成独立验收放行。
+  更新为冻结中文空态，未改选择器、步骤或 production。异会话在实现父 `a82f51d` 独立注入六类
+  production mutation，逐项观察红灯并恢复；随后在最终目标 `0ff83f7` 实跑 build/lint、
+  desktop 465、root 1294 与 Playwright 333/333 全绿。验收报告提交 `4e301b5` 已成为 `main`
+  祖先并明确放行；详细原始数字只认 `ACCEPTANCE.md`。
 
 ### 禁止扩张
 
@@ -4046,6 +4049,11 @@ OOXML 预检/变换与确定性 bytes，不另立重复的 MaterialStore 或 hos
   目标不存在，不是异常；`corrupt` 只指已知版本无法通过结构/完整性校验，artifact isolation 不算
   corrupt。TRACE 对 unavailable、可能由应用降级造成的 unsupported_version 与任何未分类 rejection
   都必须保留 pointer 并给出可重试反馈，禁止 `.catch(() => null)` 后当 missing 清除。
+  映射只住 desktop work-command/replay adapter：宿主读取拒绝或未分类异常 →
+  `unavailable`，`UnknownEnvelopeVersionError` → `unsupported_version`，
+  `CorruptEnvelopeError` → `corrupt`；读取 envelope 成功后再显式比较 query ref 与 header ref，
+  只有该不等才是 `ref_mismatch`。不得为此扩 host wire、core schema 或 envelope；artifact
+  isolation 继续作为账本外层隔离事实处理，不伪装 corrupt。
 - demo projection 同样返回 found=true：S3 固定 `materialRefs=['04-设备采购合同.md']`，S1 固定
   `materialRefs=[]`，两者 `sessionCreatedAt='2026-07-10T09:00:00.000Z'`；这些只是 fixture metadata，
   不得被 production output 消费。合法 envelope 含未终结 turn 时 found=true 但 phase 必须
@@ -4122,6 +4130,11 @@ OOXML 预检/变换与确定性 bytes，不另立重复的 MaterialStore 或 hos
   no-follow open/stat/hash 以及发布/清理都只能对已验证 output dirfd 使用单段文件名和
   `openat/fstat/linkat/unlinkat/fsync`，不得再解析绝对/相对路径；目标 hash 与长度来自同一打开句柄。
   browser bridge 必须镜像同一结果语义，并以目录替换/两案换 grant 的注入反例证明不是按路径猜测。
+- 上述 production Rust 强实现只在 `#[cfg(target_os = "macos")]` 编译，并使用
+  `O_NOFOLLOW_ANY`；唯一安全实现模块为 `src-tauri/src/case_output_fs.rs`，`lib.rs` 只保留
+  command/wiring。非 macOS target 必须继续编译，但 case-output stat/write 固定返回 typed
+  `failed/unavailable`，不得以 canonicalize、path reopen、rename 或较弱 no-follow 另造 fallback。
+  browser bridge 独立实现同形结果联合，不把浏览器参考实现冒充非 macOS 宿主安全实现。
 - `writeDocxNoReplace` 必须是原子 no-replace：在 output dirfd 下用 exclusive temp 完整写入并
   `fsync` 后，以 `linkat(outputDirFd,temp,outputDirFd,target)` 发布，EEXIST 返回 `exists`；其他
   link error（含卷不支持 hard link）返回 `failed/unavailable`，绝不 fallback rename。发布后
@@ -4176,7 +4189,10 @@ OOXML 预检/变换与确定性 bytes，不另立重复的 MaterialStore 或 hos
   `InvalidZipTimestampError` → `invalid_session`；matching confirmation ledger 漂移 →
   `authorization_invalid`；RiskList 缺失/畸形/pending 或纯编译契约失真 → `ledger_unavailable`；
   `readMaterial` blocked → `material_blocked`；`SignedDocumentUnsupportedError` → `signed_docx`；
-  `NonAppliedInstructionsError` → `non_applied` 且 items 必非空；目标同名异内容 →
+  `NonAppliedInstructionsError` → `non_applied` 且 items 必非空；Legal 导出的
+  `MissingPrimaryMaterialAnchorError` 也机械映为 `non_applied`，每个 item 的 reason 固定复用
+  `'not_located'`，summary/quote 逐项透传，零 instruction、零 waiver、零 output 调用；
+  `MissingLocatorQuoteError` → `ledger_unavailable`，不得与缺主合同锚混并；目标同名异内容 →
   `output_conflict`；非 grant binding、任一 case-output failed、写后 missing/无法复验或其他
   未分类 output 异常 → `output_unavailable`。所有分支 fail closed、零裸 throw。
 - inspect 完成 eligible 分支的材料/编译/stat 复验但 file write=0；只有“至少一项
@@ -4274,12 +4290,31 @@ OOXML 预检/变换与确定性 bytes，不另立重复的 MaterialStore 或 hos
 `work/{work-command,legal-s3-binding,work-session-store}.ts`、`material/material-store.ts`、
 `output/{compile-review-output,case-output-client,contract-review-delivery}.ts`、
 `demo/client.ts`、`apps/desktop/src-tauri/{Cargo.toml,Cargo.lock}` 与 `src-tauri/src/lib.rs`；
+另只可新建唯一 Rust 安全模块 `apps/desktop/src-tauri/src/case_output_fs.rs`；`lib.rs` 不承载
+dirfd/stat/write 算法，
 跨包只可触
 `packages/legal/src/domain/compile-risk-list-to-revisions.ts` 及
 `packages/output/src/{apply-revision-instruction-set,docx-zip,index}.ts` 的本票直接消费点。测试白名单
 为上述同名测试、`demo/client.test.ts`、`protocol/work-port.test.ts`、Rust command 测试、output
-结构/确定性与跨 TZ 测试、一枚职责单一的 production contract output e2e，以及 floor/highwater/
-静态门；同层 SPEC/ACCEPTANCE 只作留痕。扩白先退回架构。
+结构/确定性与跨 TZ 测试、一枚职责单一的 production contract output e2e；既有
+`apps/desktop/tests/e2e/work-live.spec.ts`、`apps/desktop/tests/e2e/case-persist.spec.ts`、
+`apps/desktop/tests/e2e/work-turn.spec.ts`、`apps/desktop/tests/e2e/work-budget.spec.ts` 只允许
+机械迁移为真实 DOCX fixture、显式 primary 选择、SAFETY 最终提交与版本化产物名，不新增职责。
+获准同步的静态门仅为
+`scripts/assert-work-live-contracts.mjs`、`scripts/assert-legal-s3-contracts.mjs`、
+`scripts/assert-work-port-contracts.mjs`、`scripts/assert-material-contracts.mjs`、
+`scripts/assert-host-auth-contracts.mjs`、`scripts/assert-app-highwater.mjs` 与
+`scripts/assert-test-count.mjs`：前两项须退役对
+`bindDocxSourceMarkdown` 的正向要求，其余只锁本票同名边界。`output-confirm.spec.ts` 仍是显式
+demo waiver 隔离面，不改。App 收口只复用既有样式和模块；若必须触 `styles.css`、`Panels.tsx`
+或新 React 模块，先退回架构逐文件扩白。同层 SPEC/ACCEPTANCE 只作留痕，其他扩白同样先退回架构。
+
+实现不得合成一枚 mega-commit，按依赖形成可独立绿的八个子阶段：O1 output 叶层 runtime
+schema/signature/deterministic ZIP；O2 Legal confirmed-only 与主合同锚；O3 replay 联合与 demo
+metadata；O4 CaseFile/materialRefs/pointer 同源；O5 MaterialStore exactly-one snapshot；O6
+browser/Rust output bridge；O7 compile adapter + 唯一 coordinator；O8 App/E2E 收口。每阶段先取得
+真实红证，提交 tip 通过所触 focused 门与 `pnpm -r build`；O8 前须在 accepted SAFETY tip 重 grep
+全部消费者，不能沿用 readiness 地图冒充最终白名单。
 
 ### 禁止扩张
 

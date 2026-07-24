@@ -148,12 +148,25 @@
   TextLocator，但这不改变 SourceAnchor 只认坐标的权威语义；output 必须对
   not_found/ambiguous/text_changed fail closed。若没有主合同锚点，必须进入显式未落点/阻断清单，
   不能拿支持材料 quote 在主合同里碰运气。
+- 缺主合同锚由本模块导出的 `MissingPrimaryMaterialAnchorError` 表达，稳定
+  `code:'missing_primary_material_anchor'`。`MissingPrimaryMaterialAnchorItem` 精确为
+  `{riskId:string; summary:string; quote:string}`，错误携
+  `readonly items: readonly [MissingPrimaryMaterialAnchorItem,
+  ...MissingPrimaryMaterialAnchorItem[]]`。编译任何 instruction 前，先扫描全部
+  confirmed 风险：每项仍按 basis/anchor 原顺序找首枚 `fileId===primaryMaterialId`；把所有找不到
+  的风险一次收齐后再抛。`summary` 逐字取 post-revision `risk.description`；`quote` 只取该风险
+  全部 anchors 中首个 trim 后非空的原 quote（可以来自支持材料），无则 `''`，且永远只作 blocker
+  展示，不能降格成主合同 locator。desktop 只可把 items 机械映为
+  `blocked/non_applied` + 既有 `reason:'not_located'`；不得扩 `NonAppliedReason`、伪造
+  instruction/waiver 或触发 output。已有主合同锚但其 quote 缺失继续使用既有
+  `MissingLocatorQuoteError`，由 desktop 映为 `ledger_unavailable`，不得混并两类错误。
 - 本版对外产物语义是“合同审查批注稿”，不是审查报告或条文 redline。若未来要产生替换文本，
   必须先为结构化建议、人工编辑与 RevisionInstruction 映射另立 schema/ADR；不得从 description
   自由文本直接推导删除/插入。
 
 验收至少包括：CaseFile primary/supporting 与 materialRefs 顺序同源；prompt 主合同纪律与精确
 gate label golden；post-revision description 被 comment 编译器逐字消费；支持锚排首、主合同锚
-排后时仍取主合同；仅支持材料 anchor 时 typed 阻断；rejected 风险零 instruction；pending/
+排后时仍取主合同；仅支持材料 anchor 时一次 typed 阻断并收齐全部缺锚 confirmed 风险；
+summary/quote 只作 blocker 展示且零 instruction；rejected 风险零 instruction；pending/
 零 confirmed/OOC-only/OOC+confirmed 均不产无效或部分 instruction set；commentOnly 闭集不扩。
 任一实现不得新增 legal→core 依赖。
