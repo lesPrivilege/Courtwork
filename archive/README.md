@@ -82,3 +82,20 @@ R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadm
 |---|---|---|---|
 | `survey.md` | 有效 | **已消费** | 可借形六条全采：bojieli 三簇——①proposer-reviewer+Sidecar 执行安全、②幂等/先检后确认 → **bash 受控 ADR 素材袋**（与 TRAE 三态/Qoder 授权事件同袋）；③结构化输出实践 → **统一填格协议 ADR**；④toolResult 工程细节 → **TOOL-READ-1**；⑤自底向上因子发现+聚类的司法案例分析管线 → **法律垂类评测集**（自研加固点，最高价值一条）；⑥（bash 簇计三）。反面三条留档：MS L08 与 bojieli ch10 多 agent 编排（ADR-011 拒项佐证）、双方 memory 分类学（ADR-013 刻意窄设计的对照）。中性四条留档。**警示一条独立记**：MS `18-securing-ai-agents` 含疑似注入/营销内容（伪引用+三方包推装 nobulex/protect-mcp 等），已隔离不采不装——公开教材仓属不可信输入面，引用前逐条核真，判例「一手来源」适用于仓外一切材料 |
 | `README.md` | 有效 | 已消费（随批） | — |
+
+## OPENWORKER-SURVEY-1（只读，不进权威链，报告存于仓外）
+
+调研对象 andrewyng/openworker（MIT，Tauri 2 + React 18 壳 / Python FastAPI 本地服务 / aisuite 模型层）。核心问题：其实现方式与 `schema-engineering.md` 是否相似。结论——相似仅在最浅一层，双方都用 JSON Schema 约束模型工具调用；`schema-engineering.md` 真正花复杂度预算的层（双后端编译、descriptor 闭合、字段职权三分、来源锚点、包化 ABI）在 OpenWorker 逐条缺席或退化为中央硬编码 / 自由文本 / 人工约定同步。报告全文与 file:line 证据见 `~/Projects/openworker-survey/survey/openworker-{structure,vs-schema-engineering}.md`。
+
+| 位置 | 主题 | 时效三态 | 消费状态 | 消费去向（吸收前无约束力） |
+|---|---|---|---|---|
+| `~/Projects/openworker-survey/survey/openworker-structure.md` | 目录/依赖/四机制（风险分级审批引擎、工具连接器声明、交付物产出链、unattended 收件箱）/测试实态，全部带 file:line | **有效**（2026-07-24 一手，锚定 commit `4766e59c`） | **已消费**（消费 pass 2026-07-24，逐条裁定见下） | 见消费 pass 记录 |
+| `~/Projects/openworker-survey/survey/openworker-vs-schema-engineering.md` | 对 `docs/architecture/schema-engineering.md` 八问逐条对照 | 有效（同上） | 已消费（随批，见下） | 见消费 pass 记录 |
+
+**消费 pass 记录（2026-07-24 架构逐条裁定，零悬置）**：
+
+- **桶一（已验证，佐证既有裁定，不新增动作）**：OpenWorker 只有模型后端，人类后端是硬编码 React 组件按工具名分支、与 schema 无编译关系（`ApprovalCard.tsx` 对 `replace_in_file`/`apply_patch` 只读 `args.path`、不呈现 diff 载荷）。此为「干线运力型通用 agent 不自发长出最后一公里」的外部实证，佐证 `schema-engineering.md` 一之二命题——双后端编译是护城河所在。另佐证 ADR-017：其 path-scope 是纯 Python `resolve()`+`relative_to`、与 agent 进程同权限、非 OS 沙箱，`run_shell` 按设计不限定路径，安全全押权限门——即「取形弃容器 = 承接其明确拒绝的风险」的实例。对外叙事可引此对照，措辞落「结构性差异」，过 maturity-claim 门。
+- **桶二（可借形，入素材袋，当期零实现）**：排程自动化的 `_scheduled_approver` 旁路（`manager.py:2320-2350`）——cron 触发的 run 对四个本地写盘工具（`write_file`/`replace_in_file`/`apply_patch`/`apply_unified_diff`）无条件 auto-approve，不查 `is_unattended`、无需既往授权、首次运行即成立，且因写盘工具无 `target_arg` 而从不出现在自动化的同意卡片上；README「unattended 只入箱不自行动作」对此写盘路径为假。登记为未来 scheduled/webhook ADR 的负面判例（见 `implementation-readiness.md`「后续 ADR 队列」）。
+- **桶三（不采纳，留痕）**：第一方连接器中央硬编码枚举（改一个连接器手改三处中心文件）与第三方 MCP 整体信任远端 schema，两极端均非版本化可移除包，正是 ADR-008 / 唯一 ABI 明令反对的形态；工具层零运行时 schema 校验（声明而不校验）同不采纳。
+
+**时效**：随对象仓库演进折旧，结论锚定上述 commit，上游日更不追。
