@@ -1,4 +1,4 @@
-/* global process */
+/* global localStorage, process */
 
 import { mkdir } from 'node:fs/promises';
 import { createRequire } from 'node:module';
