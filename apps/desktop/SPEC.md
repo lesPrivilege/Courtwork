@@ -4013,7 +4013,9 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
 跨包只可触 `packages/legal/src/scenarios/index.ts`、该包 prompt/golden 直接消费点，以及
 `apps/desktop/src/demo/recordings.ts` 的 exact label 同源更新。测试白名单为上述模块同名测试、
 `packages/demo-runtime/src/acceptance` 的 S3 golden/fixture、`apps/desktop/tests/e2e/work-live.spec.ts`
-或一枚职责单一的新 contract-review e2e，以及既有 floor/highwater/静态门。App 触碰须把 live
+或一枚职责单一的新 contract-review e2e，以及既有 floor/highwater/静态门；另精确批准
+`packages/registry/src/package-manifest.test.ts` 只把 `VALID_SCENARIO` 的旧 S3 gate label
+机械同步为本票冻结字面值，不改 schema 断言、fixture 形状或 registry production。App 触碰须把 live
 review 状态与提交编排外提，净减后下调 highwater；扩白先退回架构。
 
 ### 禁止扩张
