@@ -3716,6 +3716,13 @@ core 已定语义，不另造 UI 预算状态。
 
 - `scenario_failed(runtime_limit|configuration)` 除现有一次性反馈外，必须在 Work 的 Progress
   模块中从 `SessionProjection.scenarioFailure` 持久呈现；reload/replay 后仍可见。
+- `ProgressModuleBody` 只接收完整 `SessionProjection`，不接 `isDemoCase`、运行时配置或第二份
+  failure 状态。现有 demo／真实案双空态统一为
+  `尚无任务进展 · 开始一项工作后在此查看`；这是 Progress 英文 chrome 下的案件内容面，按
+  voice §5 指向第一动作，不以展示分支继续传播 demo 身份。
+- `failed` 是可回看的持久终态：App 不得清除该 session 的恢复指针；重开入口允许 replay
+  `phase==='failed'` 并只读呈现 Progress 失败，不提供 resume／retry 控件。只有宿主确证信封
+  不存在或损坏时才清除悬空指针。
 - configuration 文案用产品语言同时说明：已知估算、覆盖不完整、冻结价目假设，以及“关闭金额上限
   或选择已有完整价目的模型后重新开始”的下一步。不得裸露内部类型、堆栈或 provider 原始响应。
 - 触碰 `App.tsx` 时执行“过手即拆”：把 Progress 模块正文外提为独立组件，App 只传投影数据；
@@ -3733,6 +3740,8 @@ core 已定语义，不另造 UI 预算状态。
   blocker 前没有多发请求。
 - 删除 Progress 失败行、把 message-only toast 当唯一出口、或令 reload 后失败消失，均须使
   Playwright/投影测试变红。完整 desktop Playwright 使用独立端口。
+- demo 与真实案在空投影下必须逐字显示同一统一空态；向新组件补回 demo prop、让 failed 清指针，
+  或把 failed replay 当可 resume 的 mutation 都必须触红。
 
 ### 禁止扩张
 
