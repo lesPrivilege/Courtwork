@@ -3720,9 +3720,11 @@ core 已定语义，不另造 UI 预算状态。
   failure 状态。现有 demo／真实案双空态统一为
   `尚无任务进展 · 开始一项工作后在此查看`；这是 Progress 英文 chrome 下的案件内容面，按
   voice §5 指向第一动作，不以展示分支继续传播 demo 身份。
-- `failed` 是可回看的持久终态：App 不得清除该 session 的恢复指针；重开入口允许 replay
-  `phase==='failed'` 并只读呈现 Progress 失败，不提供 resume／retry 控件。只有宿主确证信封
-  不存在或损坏时才清除悬空指针。
+- 本票只保证已持久 `scenario_failed(runtime_limit|configuration)` 经成功 replay 得到
+  `phase==='failed'` 时可回看：App 只读呈现 Progress 失败，不提供 resume／retry 控件。
+  `outcome.status==='failed'` 本身不是持久性证明，不能单凭它决定指针。最新会话指针的完整矩阵由
+  `CONTRACT-TRACE-1` 唯一拥有；仅宿主确证不存在或已知版本确证 corrupt/ref mismatch 时按该矩阵
+  清除，unavailable/unknown version 不在本票抢判。
 - configuration 文案用产品语言同时说明：已知估算、覆盖不完整、冻结价目假设，以及“关闭金额上限
   或选择已有完整价目的模型后重新开始”的下一步。不得裸露内部类型、堆栈或 provider 原始响应。
 - 触碰 `App.tsx` 时执行“过手即拆”：把 Progress 模块正文外提为独立组件，App 只传投影数据；
@@ -3757,7 +3759,10 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
 
 - `revision` 只是一项风险的**编辑中 UI 态**，不是终态 disposition。点击“修正”须展开受控编辑，
   预填当前 `risk.description`；只有提交非空、trim 后与原文不同的新结论，才形成
-  `ReviewItemResolution { disposition:'revise', correctedDescription }`。取消编辑回到 pending，
+  `ReviewItemResolution`。该类型逐字改为
+  `{itemRef:string; disposition:'confirm'|'reject'} |
+  {itemRef:string; disposition:'revise'; correctedDescription:string}`；前一分支类型上不得携
+  correctedDescription，后一分支须在边界 trim 后非空且异于原 description。取消编辑回到 pending，
   不得令全表“已处置”判据成立。
 - `mapReviewResolutionToResume` 对合法 revise 同时生成两枚同项 RevisionInput：
   `/risks/<index>/description = correctedDescription` 在前，
@@ -3769,6 +3774,26 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
   该按钮，不得由 effect 自动调用 `resolveReview`。用户点击后才铸最终 resolution。该显式动作对应 core
   `confirmation_resolved`，与 RevisionEvents 先持久再允许 file write。UI 的已提交提示只在
   command outcome 为 `completed` 后出现。
+- `resolveReview` 与 `start` 共用同一 process-local `commandId` first-wins 命名空间；规范化 payload
+  是判别联合：S3 `start/startWithPreflight` 为
+  `{kind:'start',caseId,scenarioId:S3_SCENARIO_ID,materialRefs,modelRoute,subject:null|ContractPartySubject}`，
+  `resolveReview` 为 `{kind:'resolve_review',caseId,sessionId,requestId,resolution}`。同 id + 同
+  payload 复用同一枚 in-flight/settled Promise，同 id + 异 payload（含跨 kind）返回既有
+  `rejected/command_conflict`，零第二次 CAS。
+  UI 在一次最终提交动作的同一同步帧内铸一枚 submission commandId，并在任何 await 或 dwellMs
+  重采样前冻结 resolution；双击/重入复用。typed rejected 后若 durable replay 仍为 paused 且用户
+  继续编辑形成新 resolution，下一次显式提交铸新 id，不得把 requestId 永久当 commandId。
+- 进程重启不新增幂等 ledger：已消费 request 的顺序重提因 durable pending 不存在而返回闭集内
+  `rejected/invalid_scope`，零新 CAS、零 RevisionEvent、零产物；同 generation 的真并发写者仍按
+  既有 `WorkStateConflictError` 映射 `failed/internal` 显式失败，不得改称 command_conflict，
+  不得 reread/merge/retry 或借此宣称 multi-writer。
+- `publish(event)` 是 durable observer，不是本地 eventLog observer：只有包含该 event 的
+  whole-envelope CAS 明确 applied 后才可调用。work command 每次 CAS applied 后推进 committed seq
+  high-water；失败 CAS 之后只可补发尚未发布且 `seq<=committedHighWater` 的既有 durable events，
+  `seq>committedHighWater` 的本失败批次 staged events callback=0。对本命令尚无任何 applied CAS
+  的真 CAS loser/fresh-start 首 CAS failure，新增 callback 总数才为 0。不得靠 catch 中
+  `publishFrom(localStore, ...)` 把未落盘 confirmation/revision/progress 泄给 UI；这一顺序同时是
+  TRACE fresh-start candidate 建立信号的前置契约。
 - production output 授权只认 exact S3 gate label 的 `confirmation_requested` 与同 requestId、
   `decision='confirm'` 的 `confirmation_resolved`；缺失、重复矛盾、label/requestId/decision 漂移
   都 typed 阻断，不能取 replay 中任意/最新 resolved。其 actor 只展示为“本机操作人”，不得升级为
@@ -3777,7 +3802,9 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
 ### 文书真源
 
 - `workCommand.resolveReview(...)` 的返回值不得忽略。`rejected`、`failed`、`canceled`、`paused`
-  任何一类都不得调用 `produceContractDocx`、不得清会话指针、不得把既有产物存在状态改写为成功。
+  任何一类都不得调用 `produceContractDocx`、不得把既有产物存在状态改写为成功。output 协调器对
+  会话指针零写，只把 outcome 交还外层生命周期；指针保留/清除唯一按 `CONTRACT-TRACE-1`
+  的矩阵判定。
 - completed 后重新调用 replay，从持久事件机械投影出 post-revision `legal.RiskList`；Word 编译只
   消费该投影中 `dispositionStatus='confirmed'` 的风险。`compileConfirmedReviewToDocx` 不再接受
   React 本地 `dispositions` 作为第二真源，亦不得使用 resolve 前闭包里的旧 description。
@@ -3800,7 +3827,20 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
 - “一项确认 + 一项修正但未提交”实跑必须令 resume 未发生、docx 写调用为 0；把旧
   `if (dispositions[itemRef])` truthy 判据恢复必须触红。
 - 全部逐条处置填满但未点击最终按钮时仍为 paused、零 command/CAS/docx；恢复“最后一项一填即
-  自动 resume”的 effect 必须触红。点击两次以 commandId/disabled guard 收敛为一份 resolution。
+  自动 resume”的 effect 必须触红。点击两次以 commandId/disabled guard 收敛为一份 resolution；
+  同 commandId + 同 payload 必须复用同一结果，异 payload 必须 `command_conflict` 且零第二次 CAS。
+  删除 `resolveReview` 幂等记录、只给 start 做 first-wins、让 start/resolve 各用一张 map、在 await
+  后重采样 dwellMs/resolution，或令重启后已 resolved request 再追加 RevisionEvent，任一 mutation
+  必须触红；start 与 resolve 故意复用同一 commandId 还必须 command_conflict。
+- 重启后顺序重提已 resolved request 必须 `rejected/invalid_scope`、CAS=0；同 generation 的
+  **两个独立 process-local command 实例**共享同一 host，使用不同 commandId 真并发 resume，仍只
+  一笔成功，败者保持 `failed/internal` 的显式冲突 outcome，且 loser publish callback 收到 0 枚
+  新事件。不得用同一实例、同一 commandId 的 first-wins Promise 复用冒充 CAS 竞态；把两类败者都
+  映成 command_conflict、为真 CAS 败者 reread/merge/retry，或在 catch 发布其 staged event 的
+  mutation 必须触红。
+- 多屏障命令故意令前一 CAS applied、后一 CAS failed：前一批 durable events 对 callback 恰好一次，
+  后一失败批 staged events 为 0；把 committed prefix 一并吞掉、重复发布 prefix 或发布 staged
+  suffix 的 mutation 分别触红。
 - 故意令 `resolveReview` 返回 `rejected`、`failed`、`canceled`、`paused`，四类均为 docx
   零写；删除 outcome 分支、恢复“await 后无条件产出”必须触红。
 - 缺 matching requested、错 requestId、decision=reject、exact gate label 漂移、两枚相互矛盾
@@ -3817,6 +3857,17 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
 - non-applied production fixture 显示逐项 blocker 且 write=0；恢复确认按钮/waiver state 或把
   `confirmedNonApplied` 传回编译器的 mutation 必须触红。
 
+### 实现边界
+
+生产白名单限 `apps/desktop/src/App.tsx`、`protocol/{client,review-resolution}.ts`、
+`work/{legal-s3-binding,work-command}.ts`、可新建的 `work/contract-review-flow.ts`、
+`output/compile-review-output.ts`、`workbench/Panels.tsx` 与必要的 `styles.css`；
+跨包只可触 `packages/legal/src/scenarios/index.ts`、该包 prompt/golden 直接消费点，以及
+`apps/desktop/src/demo/recordings.ts` 的 exact label 同源更新。测试白名单为上述模块同名测试、
+`packages/demo-runtime/src/acceptance` 的 S3 golden/fixture、`apps/desktop/tests/e2e/work-live.spec.ts`
+或一枚职责单一的新 contract-review e2e，以及既有 floor/highwater/静态门。App 触碰须把 live
+review 状态与提交编排外提，净减后下调 highwater；扩白先退回架构。
+
 ### 禁止扩张
 
 不在本票自动生成合同替换条款，不把“修正结论”包装成 redline，不改 RiskList 字段，不顺带做
@@ -3825,7 +3876,9 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
 ## CONTRACT-OUTPUT-TRUTH-1 · 主合同与原 DOCX 批注稿（2026-07-24，架构票）
 
 权威：ADR-004 原件只读、ADR-010 决定四/五及其 2026-07-24 修订、output 包
-`applyRevisionInstructionSet(originalDocx, instructions)` 契约。
+`applyRevisionInstructionSet(originalDocx, instructions)` 契约。source-neutral 的材料 output
+read、desktop/browser/Tauri 写入桥与恢复编排以本节为唯一权威；`packages/output/SPEC.md` 只拥有
+OOXML 预检/变换与确定性 bytes，不另立重复的 MaterialStore 或 host stat 语义。
 
 ### 主合同 preflight
 
@@ -3835,12 +3888,23 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
 - start 时 `materialRefs[0]` 必须是用户所选主合同；其余 ready refs 去重并保持当前材料清单顺序。
   `work-session-store` 继续持该 `contractMaterialId`，resume/replay 不从新材料、文件名或 list 排序
   重算。任一“取 `ready[0]`”生产消费点与注释清零并由静态门锁定。
-- `WorkProjectionPort.replay` 依 ADR-010 改为 discriminated result：host 不存在时
-  `{found:false, phase:'interrupted', events:[]}`；读到合法 envelope 时
-  `{found:true, ref, phase, events, materialRefs:[...], sessionCreatedAt}`。后两项只是把 envelope
-  既有值作防御性复制，不新增持久字段；found=true 不得漏值。恢复时必须验证本地 pointer 的
+- `WorkProjectionPort.replay` 依 ADR-010 改为逐字判别联合：
+  `WorkReplayResult = {found:false, ref:WorkSessionRef, phase:'interrupted', events:SessionEvent[]} |
+  {found:true, ref:WorkSessionRef, phase:WorkProjectionPhase, events:SessionEvent[],
+  materialRefs:string[], sessionCreatedAt:string}`。后两项只是把 envelope 既有值作防御性复制，
+  不新增持久字段；两分支都不得漏 `ref`，found=true 不得漏 metadata。恢复时必须验证本地 pointer 的
   `contractMaterialId === replay.materialRefs[0]`，旧 session 首项非 DOCX、二者不等或 metadata
   缺失/非法只可查看既有账本，不得继续产文书。
+- `replay()` 只 resolve 上述联合；可预期读取失败以导出的
+  `WorkReplayError` 表达，稳定 `code:'work_replay_failed'`，`reason` 闭集为
+  `'unavailable'|'corrupt'|'unsupported_version'|'ref_mismatch'`。`found:false` 是宿主明确确认
+  目标不存在，不是异常；`corrupt` 只指已知版本无法通过结构/完整性校验，artifact isolation 不算
+  corrupt。TRACE 对 unavailable、可能由应用降级造成的 unsupported_version 与任何未分类 rejection
+  都必须保留 pointer 并给出可重试反馈，禁止 `.catch(() => null)` 后当 missing 清除。
+- demo projection 同样返回 found=true：S3 固定 `materialRefs=['04-设备采购合同.md']`，S1 固定
+  `materialRefs=[]`，两者 `sessionCreatedAt='2026-07-10T09:00:00.000Z'`；这些只是 fixture metadata，
+  不得被 production output 消费。合法 envelope 含未终结 turn 时 found=true 但 phase 必须
+  `interrupted`，不得因“读到了文件”误报 running。
 - 同一输入机械派生 `legal.CaseFile`：主合同 `documentType='contract.primary'`，其余
   `documentType='supporting'`，ready 对应 `ingestStatus='done'`，并携 fileName/contentHash；
   `buildS3RunInput` 不再给声明了 `legal.CaseFile` input 的 S3 传空 artifacts。
@@ -3850,7 +3914,19 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
 - MaterialStore 提供 source-neutral 的 output 读取编排：输入 `caseId + materialId`，以**一次**
   host `readOriginal` 返回的同一份 Uint8Array 完成 mediaType、content hash、ReadingView hash
   与授权复验，再返回防御性复制的 DOCX bytes；不得先走 `resolveForProvider` 后第二次读取。
-  失败沿既有材料阻断闭集显式呈现，不暴露路径/grantId。
+  对外方法精确为
+  `readForOutput(caseId:string, materialId:string): Promise<OutputMaterialReadResult>`；其
+  desktop-local 返回型固定为
+  `OutputMaterialReadResult = {status:'ready'; fileName:string; bytes:Uint8Array;
+  contentSha256:string} | {status:'blocked'; reason:MaterialBlockReason|'not_docx'}`。
+  次序固定为：先按 case/get/status fail closed，再要求 mediaType 精确等于 DOCX；只有该候选才调用
+  exactly-one `readOriginal` 并立即 snapshot，同一 snapshot 依次做 content hash、ReadingView
+  重派生/hash 与共享 DOCX 安全预检，最后才 `slice()` 返回。`bytes` 是该已复验 snapshot 的副本，
+  `contentSha256` 是同 snapshot 重算且与持久值相等的 64 位小写 hex。
+- `not_docx` 只处理旧指针/损坏 metadata，不扩 `MaterialBlockReason` 或持久 schema，产品文案逐字为
+  “主合同不是 Word 文档 · 请重新选择一份 DOCX 主合同”。共享 DOCX 预检或 converter 的 expected
+  disabled/corrupt/malicious failure 映射既有 `rejected`，needs-OCR 映射 `needs_ocr`，host/漂移
+  仍沿既有材料阻断闭集；不得抛裸异常，不暴露路径/grantId。
 - 原 bytes 在写前继续走共享 DOCX 预检。若存在 OPC 数字签名 parts、relationship 或 content type，
   消费 output 的 typed 阻断并显示“主合同带有数字签名，生成批注稿会使签名失效；请先另存为未签名
   副本后再审查”，写调用为 0。不得剥除签名继续、不得把数字签名失效说成结构保全；普通嵌入图片/
@@ -3869,12 +3945,107 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
   production 文案、结果卡与 tab 不得称“合同审查报告”“保真 redline”“修订 4 处”。
 - production 编译把该 S3 gate 已持久的 `confirmation_resolved.emittedAt` 同时作为
   `applyRevisionInstructionSet(..., {now})` 的批注时间与 `saveDocx`/fflate ZIP entry 的显式
-  mtime；禁止回退 `new Date()`/`Date.now()`。同一 session 跨秒或重启重编译必须 byte-identical、
-  SHA-256 相等，方可执行下述幂等判定。
-- 输出桥新增窄 `statDocx`（browser/Tauri 同形）返回 `{byteLength, sha256}`，production 审查写入
-  固定 `overwrite:false`。写前若目标存在：hash 与本次编译 bytes 相等则作为同 session 幂等恢复，
-  不再写；不同则显式“同名批注稿已存在且内容不同”，零覆盖。新写后 stat 必须与 expected
-  byteLength/SHA-256 同时一致才显示成功；原件、旧报告与其他 session 产物始终零写。
+  mtime；禁止回退 `new Date()`/`Date.now()`。批注 XML 使用严格解析后的原 UTC instant；ZIP 边界
+  不得把该 Date 直接交给 fflate 0.8.3，也不得靠构造“本地 Date”绕时区（DST gap 仍会漂移）。
+  `docx-zip.ts` 须以固定、区间内 placeholder 调 fflate，再由纯函数把 UTC 年/月/日/时/分/秒编码为
+  packed DOS date/time，同时覆写每个 local header 与 central-directory header；毫秒归零、秒向下
+  归一到 2 秒刻度。可表示范围冻结为
+  `[1980-01-01T00:00:00.000Z, 2100-01-01T00:00:00.000Z)`；越界 typed 阻断、零写。
+  同一 session 跨秒、跨 `TZ=UTC` / `TZ=Asia/Singapore` / `TZ=America/New_York`（含 DST gap）
+  或重启重编译必须 byte-identical、SHA-256 相等，方可执行下述幂等判定。
+- 输出桥新增 browser/Tauri 同形的窄判别契约：
+  `CaseOutputFailureReason = HostAuthReason | 'unbound' | 'invalid_input'`；
+  `CaseOutputStatResult = {status:'missing'} |
+  {status:'found'; byteLength:number; sha256:string} |
+  {status:'failed'; reason:CaseOutputFailureReason}`；
+  `CaseOutputWriteResult = {status:'written'; byteLength:number} | {status:'exists'} |
+  {status:'failed'; reason:CaseOutputFailureReason}`。`byteLength` 必须是非负安全整数，`sha256` 必须是
+  64 位小写 hex。production 只调用
+  `statDocx(binding,fileName)` 与 `writeDocxNoReplace(binding,fileName,bytes)`，不得把 missing、
+  unbound、撤权或 IO 失败折成 boolean/throw 后猜测成功。
+- renderer/Tauri 两端映射固定为：系统/TCC 或用户拒绝 → `denied`；非法文件名/非 DOCX input →
+  `invalid_input`；路径逃逸、产出目录/目标为 symlink 或非实体文件 → `out_of_scope`；grant 失效 →
+  `revoked`；卷不可达与普通
+  IO/hash/link/sync 失败 → `unavailable`；stat 的 NotFound → `missing`；publish 的 EEXIST →
+  `exists`。这些 expected 结果不得再以 invoke rejection、裸 `String` 或 exception 传递；unexpected
+  bridge failure 也只能收敛为 `unavailable`。
+- 宿主先以 macOS `O_DIRECTORY | O_NOFOLLOW_ANY` 把 grant 对应的 case root 锚成 dirfd；产出
+  目录只能相对该 fd 以同一 no-follow directory flags 打开并锚成第二个 dirfd。inspect/stat 遇
+  产出目录不存在直接返回
+  `missing`，**不得 mkdir**；deliver 才可经 case-root dirfd 的 `mkdirat` 创建单层 `产出`，EEXIST
+  后仍须按 no-follow 规则重新打开。目录为 symlink/非目录一律 `out_of_scope`。目标、temp 的
+  no-follow open/stat/hash 以及发布/清理都只能对已验证 output dirfd 使用单段文件名和
+  `openat/fstat/linkat/unlinkat/fsync`，不得再解析绝对/相对路径；目标 hash 与长度来自同一打开句柄。
+  browser bridge 必须镜像同一结果语义，并以目录替换/两案换 grant 的注入反例证明不是按路径猜测。
+- `writeDocxNoReplace` 必须是原子 no-replace：在 output dirfd 下用 exclusive temp 完整写入并
+  `fsync` 后，以 `linkat(outputDirFd,temp,outputDirFd,target)` 发布，EEXIST 返回 `exists`；其他
+  link error（含卷不支持 hard link）返回 `failed/unavailable`，绝不 fallback rename。发布后
+  `unlinkat(temp)` 或 output dirfd `fsync` 失败同样返回 `failed/unavailable`，因为 target 可能已经
+  存在，属于 effect-unknown；禁止 `exists → rename` 的 TOCTOU，也禁止底层偷偷 overwrite。
+- 写前 stat 若 found：hash/byteLength 与本次编译 bytes 同时相等则作为同 session 幂等恢复、
+  零二写；不同则显式“同名批注稿已存在且内容不同”、零覆盖。deliver 调用在
+  `written/exists/failed` **任何** write outcome 后都重新 stat：missing 后若 publish 竞态返回 exists，
+  或 effect-unknown 后 target 已在，均按同/异内容重新分流；只有 post-stat 与 expected
+  byteLength/SHA-256 同时一致才显示成功，stat failed 不能伪装 missing。
+- `statDocx` 以 output dirfd 相对打开目标，从**同一打开句柄**核验 regular file、读取 byteLength
+  并流式计算 SHA-256；禁止 `symlink_metadata → 按路径另读` 的 TOCTOU。允许
+  `apps/desktop/src-tauri/Cargo.toml` 直接声明 lock 中既有的 `sha2 = "0.10.9"`，以及只供本票
+  output stat/write 的 dirfd/no-follow/`*at` 调用使用 `libc = "0.2.186"`；二者不得扩成通用路径
+  读取 API。原件、旧报告与其他 session 产物始终零写。
+- 新建唯一 production 编排 `output/contract-review-delivery.ts`，导出
+  `coordinateContractReviewOutput({mode:'inspect'|'deliver', replay,
+  scope:{caseId,binding,pointer}}, deps)` 与 `ContractReviewOutputResult`。scope 必须在一次同步
+  active-case snapshot 内捕获；`replay` 必须是完整 found=true `WorkReplayResult`，pointer 是该
+  snapshot 的 `{sessionId,contractMaterialId}`，binding 是该案同一 snapshot 当刻的
+  `CaseBinding`。协调器先验证
+  `scope.caseId === replay.ref.caseId`、pointer 的 session/material 分别等于 replay ref 与
+  `materialRefs[0]`；不得在 await 后重读 active case、重算 scope、读取 React 处置态或把 A 案
+  replay/bytes 写进 B 案 grant。为不遮蔽正常 not_applicable，binding 只在 eligible 分支才要求
+  `kind:'grant'`，不合格即 `blocked/output_unavailable`、零 stat/write。
+  deps 逐字冻结为
+  `type OutputMaterialReader = (caseId:string, materialId:string) =>
+  Promise<OutputMaterialReadResult>` 与
+  `interface ContractReviewOutputDeps { readMaterial:OutputMaterialReader;
+  statDocx:(binding:CaseBinding,fileName:string)=>Promise<CaseOutputStatResult>;
+  writeDocxNoReplace:(binding:CaseBinding,fileName:string,bytes:Uint8Array)=>
+  Promise<CaseOutputWriteResult> }`；编译器、UTC/文件名与 SHA-256 纯函数直接 import，不得伪装成
+  可替换依赖。其结果联合 `ContractReviewOutputResult` 固定为：
+  `{status:'ready_to_deliver'; fileName:string}`、
+  `{status:'delivered'|'already_present'; fileName:string; byteLength:number; sha256:string}`、
+  `{status:'not_applicable'; reason:'no_risks'|'all_rejected'|'out_of_coverage'}`，或
+  `{status:'blocked'; reason:'non_applied'; message:string;
+  items:readonly [NonAppliedBlocker,...NonAppliedBlocker[]]}`，或
+  `{status:'blocked'; reason:'invalid_session'|'ledger_unavailable'|'authorization_invalid'|
+  'material_blocked'|'signed_docx'|'output_conflict'|'output_unavailable',
+  message:string; items?:never}`；`NonAppliedBlocker` 精确为
+  `{riskId:string; summary:string; reason:NonAppliedReason; quote:string}`，不承载 waiver id；
+  所有文件名/string、长度/hash 字段沿上文精确类型。
+- 编排优先级固定：先校验 scope/replay/ref/pointer 与 exact requested/resolved ledger 授权；再
+  schema-parse replay 中最后一枚 post-revision RiskList。缺失、畸形或仍含 pending/revision 项 →
+  `blocked/ledger_unavailable`；其后依次为 `outOfCoverage.length>0` →
+  `not_applicable/out_of_coverage`、`risks.length===0` → `not_applicable/no_risks`、零 confirmed
+  且全部 rejected → `not_applicable/all_rejected`。三种正常不产文书结果都必须在
+  readMaterial/preflight/compile/stat **之前**返回，不能被 unbound、撤权或材料失败遮蔽。只有至少
+  一项 confirmed 且无 coverage 缺口才接触材料和文件系统。
+- 阻断映射固定：scope/ref/pointer/replay metadata 或严格时间非法，以及 output 导出的
+  `InvalidZipTimestampError` → `invalid_session`；matching confirmation ledger 漂移 →
+  `authorization_invalid`；RiskList 缺失/畸形/pending 或纯编译契约失真 → `ledger_unavailable`；
+  `readMaterial` blocked → `material_blocked`；`SignedDocumentUnsupportedError` → `signed_docx`；
+  `NonAppliedInstructionsError` → `non_applied` 且 items 必非空；目标同名异内容 →
+  `output_conflict`；非 grant binding、任一 case-output failed、写后 missing/无法复验或其他
+  未分类 output 异常 → `output_unavailable`。所有分支 fail closed、零裸 throw。
+- inspect 完成 eligible 分支的材料/编译/stat 复验但 file write=0；只有“至少一项
+  confirmed、无 outOfCoverage、全部 instruction 落点、目标 missing”才返回 ready_to_deliver。
+  deliver 走同一代码路径并只在该分支调用一次 `writeDocxNoReplace`。零风险、全 rejected 与任一
+  outOfCoverage 是正常 not_applicable；stat failed/conflict、账本隔离后缺 RiskList 或 non-applied
+  均 blocked，绝不伪装 ready/missing。delivered/already_present 才是产物成功态。两种 mode 都
+  零 Work event、零 confirmation/CAS；SAFETY completed 后用 deliver，TRACE 重开先用 inspect，
+  仅由用户点击 ready_to_deliver 的按钮后再用 deliver。
+- 文件结果映射逐字冻结：pre-stat found 且 length/hash 同值 → `already_present`、异值 →
+  `output_conflict`，两者都零 write；pre-stat missing 后，只有 write=`written` 且 post-stat 同值
+  才是 `delivered`。write=`exists` 或 `failed`（effect unknown）后 post-stat 同值一律
+  `already_present`；任一 post-stat found 异值均 `output_conflict`，post-stat missing/failed 均
+  `output_unavailable`。不得仅凭 write 回执宣称 delivered。
 - production Legal S3 不接受 `confirmedNonApplied`：任一 instruction 为 not found、ambiguous、
   text changed 或 unsupported 时，呈现对应风险/原因并整份零写。既有逐条“确认知悉后跳过”控件
   只可留在显式 demo/其他既有消费者，不能出现在 production 合同审查。completed 重开时从 replay
@@ -3900,6 +4071,9 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
   四者同指第三件。恢复 `ready[0]` 必须触红。
 - 篡改 local pointer 与 replay 首项不等、旧 paused/completed session 首项非 DOCX，均只读可见、
   output write=0；恢复时从当前 caseMaterials 重算首项的 mutation 必须触红。
+- host missing replay 必须带原 query ref；合法残缺 envelope 必须 found=true/phase=interrupted 且
+  metadata 仍在。demo S1/S3 的 found/metadata 固定值与 production type 同形；漏 ref、漏 metadata、
+  把残缺 found=true 误报 running，或只修 production 未修 demo/mock 的 mutation 必须 build/测试红。
 - 原 DOCX fixture 必含表格、图片、样式、页眉页脚、既有批注/关系；production composition
   编译后跑 output preflight 与 part/rel diff：未触 part 做内容 byte equality，受触 part 做既有
   节点/ID/关系保留与新增唯一性断言。把 source 换回 ReadingView 重建，或删一项既有结构，必须
@@ -3914,6 +4088,9 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
   规范化变体、三种 relationship（含非 root `.rels`）与三种 content type，每个都须阻断；
   逐探针禁用的 mutation 只让对应 fixture 变红，普通图片/可视印章和仅名称含 signature 的阴性件
   不得误杀。
+- 协调器 await 材料/编译期间把 active snapshot 从 A 案切到 B 案 grant，仍只能使用调用时冻结的
+  A 案 scope；把实现改成 await 后重读 selection/binding 时，必须被“写入 B 案”为失败条件抓红。
+  scope 的 caseId/ref/pointer 任一错配须 typed 阻断且两案 write 均为 0。
 - 静态门只锁 **Legal S3 production review-output 编排/编译路径**不出现
   `compileDraftToDocx`/`markdownToDocument`/`confirmedNonApplied`，允许通用 draft 编译器与显式
   demo adapter 合法消费；同门锁旧产物名与 `ready[0]` 在该生产路径零出现。完整独立端口
@@ -3922,13 +4099,42 @@ DEBT-DOSSIER 或其他 `App.tsx` 队列票。
   不变；同 session 模拟“宿主已写成、UI 未收回执”后重试，hash 相同则零二写并恢复成功；同名预放
   不同 bytes 时 typed 冲突且原文件不变。同一 session 两次编译故意跨秒，产物 bytes/SHA 仍须相等；
   删除持久 confirmation 时间、恢复 ZIP 默认 mtime、截掉 session hash、把 `overwrite` 改回 true、
-  只查 exists 或省略写后 hash 任一 mutation 必须触红。
+  只查 exists、省略写后 hash，或把原子 no-replace 退回 `exists → rename` 任一 mutation 必须触红。
+- 同一 confirmation 时间分别在 `TZ=UTC`、`TZ=Asia/Singapore` 与纽约 DST gap 编译，DOCX
+  bytes/SHA 必须相等；local/central 两组 header 的 packed 时间逐项相等，奇数秒按同一 2 秒刻度
+  归一。1979-12-31 与 2100-01-01 两个时间必须 typed 阻断、write=0；直接把 UTC Date 交给
+  fflate、构造本地 Date、只改一组 header 或静默 clamp 年份的 mutation 必须触红。
+- Rust/browser 写桥分别注入 EEXIST、不支持 hard link、link 后 temp 删除失败、父目录 sync 失败、
+  静态 symlink、产出目录在校验/发布间换 symlink 与目标 open 竞态：所有访问仍须锁在原 dirfd；
+  inspect 遇目录缺失返回 missing 且 mkdir 计数为 0，deliver 才可 mkdirat。任何 write outcome 都须
+  post-stat；`written+同 hash` 才 delivered，pre-existing/exists/effect-unknown + 同 hash 只能
+  already_present，异 hash 冲突，missing/无法核实 unavailable，原目标始终不变。fallback rename、
+  重新按路径打开目录、以两次路径读取拼 length/hash、把 invoke rejection 当 missing 任一 mutation
+  必须触红。
 - output 读取 fixture 在“复验后、返回前”尝试替换 host bytes；host read 计数必须仍为 1，返回的
-  防御性复制与被复验 bytes 同源。恢复 provider resolve + 第二 read 必须被计数/变异反例抓红。
+  防御性复制与被复验 bytes 同源。恢复 provider resolve + 第二 read 必须被计数/变异反例抓红；
+  非 DOCX 旧指针必须命中 exact `not_docx` 文案且 write=0，禁止挪用 `rejected` 假报材料内容失败。
+- delivery coordinator 对零风险、全 rejected、OOC-only、OOC+confirmed 分别返回 not_applicable，
+  inspect 全程 write=0；只有 eligible+missing 返回 ready_to_deliver，deliver 才可一写。stat failed、
+  ledger RiskList 被隔离、授权漂移、non-applied 与异 hash 冲突均 blocked，且 completed 重开时不
+  出现“重试生成”按钮；把任一类当 missing/ready 或追加 Work event/CAS 必须触红。
 - 锚 fixture 故意令支持材料锚位于 `basis[0].sourceAnchors[0]`、主合同锚位于后项；最终 locator
   必须选择主合同锚。恢复固定首锚必须触红。
 - 文件名迁移不删除、重命名或覆盖既有 `合同审查报告.docx`；新会话只把自己的版本化批注稿算作
   成功态，旧文件可并存但不反推当前 session 完成。
+
+### 实现边界
+
+生产白名单限 `apps/desktop/src/App.tsx`、`protocol/client.ts`、
+`work/{work-command,legal-s3-binding,work-session-store}.ts`、`material/material-store.ts`、
+`output/{compile-review-output,case-output-client,contract-review-delivery}.ts`、
+`demo/client.ts`、`apps/desktop/src-tauri/{Cargo.toml,Cargo.lock}` 与 `src-tauri/src/lib.rs`；
+跨包只可触
+`packages/legal/src/domain/compile-risk-list-to-revisions.ts` 及
+`packages/output/src/{apply-revision-instruction-set,docx-zip,index}.ts` 的本票直接消费点。测试白名单
+为上述同名测试、`demo/client.test.ts`、`protocol/work-port.test.ts`、Rust command 测试、output
+结构/确定性与跨 TZ 测试、一枚职责单一的 production contract output e2e，以及 floor/highwater/
+静态门；同层 SPEC/ACCEPTANCE 只作留痕。扩白先退回架构。
 
 ### 禁止扩张
 
@@ -3947,12 +4153,56 @@ no-overwrite，窄改只限合同审查批注稿。
   case 的 materialId，经 FILE reader 同一重验路径打开只读阅读面；重算当前文本层并验证
   `textLayerVersion`，再以 `textRange`（分页件连同 `page`）作为权威
   focusAnchor。`quote` 必须与当前坐标切片逐字相等，但只供显示/校验，禁止用 `indexOf(quote)`
-  或全文搜索决定焦点。缺坐标/版本/quote、越界、切片不等、文件漂移/跨案/删除/授权失效时不开
-  阅读面且显式说明；bbox-only 锚在当前 reader 不具页面坐标 overlay 时显式未支持，不得退回
-  quote 搜索或 demo resolver。
+  或全文搜索决定焦点。textRange 锚缺版本/quote、越界、切片不等，或文件漂移/跨案/删除/授权
+  失效时不开阅读面且显式说明；bbox-only 锚无论是否携 quote，在当前 reader 不具页面坐标 overlay
+  时都显式未支持，不得退回 quote 搜索或 demo resolver；只有 quote 实际存在时才另行展示它。
+- `material-actions.ts` 是唯一存活的 reader action/port 模块：把
+  `MaterialReaderDoc`、`MaterialReaderOutcome`、`MaterialResolver` 与 `openMaterialReader`
+  从 `material-reader.ts` 吸收后删除后者并迁移其测试。`MaterialReaderDoc` 精确携
+  `{name, markdown, blocks, focus?}`，其中 blocks 是重验后 `MaterialBlock[]` 的防御性复制，
+  `focus = {blockId, page?, localStart, localEnd}` 只能由上一条坐标算法成功后产生。
+  `MaterialReaderOutcome` 的 reader-local 阻断闭集为
+  `MaterialReaderBlockReason = MaterialBlockReason | 'anchor_invalid' | 'anchor_unsupported'`：
+  判定优先级固定——schema-合法的 bbox-only
+  （`textRange===undefined` 且 bbox/page 均合法）不论 quote 有无都为 `anchor_unsupported`，逐字
+  文案“当前阅读面暂不支持该定位”；bbox/textRange 均缺、bbox/page 畸形，或任一
+  textRange 锚缺 version、缺/空 quote、分页件 page 不匹配、越界、非唯一 block、版本或 slice 不等
+  均为 `anchor_invalid`，逐字文案
+  “这处引证已无法与当前原件逐字对齐 · 请重新运行合同审查”。合法 bbox-only 不得先被“缺
+  textRange”分支吞成 invalid。
+  `readMaterialAction(..., sourceAnchor?)` 是 App/Panel 唯一入口；普通阅读可继续渲染 markdown，
+  有 focus 时 ReaderPane 必须渲染原 blocks 坐标流、用 matching blockId + local offsets 标记，
+  不得再让 ReaderPane 自行 resolve、全文搜索或把原 offsets 套到 markdown。ReaderPane 直接消费
+  canonical `MaterialReaderDoc`，删除 `ReaderPaneDoc`/App `ReaderDocument` 第二 shape；demo route
+  只在 App adapter 转成一枚原文 block + local focus，不保留 quote-search。
 - `RevisionPanel` 的固定“精密铸造生产线设备采购合同”、固定 `修订 4 处` 与静态 del/ins 仅可住
   显式 demo adapter。production 面标题为“风险审查”，呈现真实主合同名、风险、引证、处置与
-  “待生成/已生成批注稿”事实；没有 schema 替换文本时不画伪 redline。
+  “待生成/已生成批注稿”事实；没有 schema 替换文本时不画伪 redline。其 props 必须成为
+  `mode:'interactive' | 'read_only'` 判别联合。common 字段固定为 `riskList`、真实
+  `primaryFileName`、`selectedRiskId/onSelectRisk`、`selectedGrades`、
+  `expandedEvidence/onToggleEvidence` 与 `onOpenSource(anchor)`；**不含** output result 或
+  disposition。存在可验证坐标的真实 anchor 即可用，失败走既有显式 feedback，不得用 disabled
+  假装接线。
+- SAFETY 同票须在 `Panels.tsx` 导出
+  `type ReviewItemUiState = {status:'pending'} |
+  {status:'editing';draft:string} |
+  {status:'confirmed';correctedDescription?:string} |
+  {status:'rejected'}` 与
+  `interface InteractiveReviewControls { gate:ReviewGateProjection;
+  itemStates:Readonly<Record<string,ReviewItemUiState>>;
+  submitState:'idle'|'submitting'|'submitted';
+  onBeginRevision(itemRef:string):void; onChangeRevision(itemRef:string,value:string):void;
+  onCancelRevision(itemRef:string):void; onCommitRevision(itemRef:string):void;
+  onConfirm(itemRef:string):void; onReject(itemRef:string):void; onSubmit():void }`。
+  interactive 分支精确携 `controls:InteractiveReviewControls`、`outputResult?:never`、
+  `onRetryOutput?:never`，并由 mode 固定显示“待生成”；submitted 只可来自 completed outcome。
+  read_only 类型上 `controls?:never`，不得拥有处置/编辑/waiver 或本地 disposition 第二真源，只从
+  replay 后 RiskList 读处置。
+- read_only 分成两个类型分支：`outputResult` 为
+  `Extract<ContractReviewOutputResult,{status:'ready_to_deliver'}>` 时
+  `onRetryOutput:()=>void` 必填；其余以
+  `Exclude<ContractReviewOutputResult,{status:'ready_to_deliver'}>` 表达且
+  `onRetryOutput?:never`。不得用一个 common optional callback 在运行时猜测写权限。
 - 生产的 tab/count/空态从真实投影派生；`viewCount(!isDemo) => '尚无'` 一类覆盖真实 artifact 的
   shortcut 退役。
 
@@ -3960,14 +4210,38 @@ no-overwrite，窄改只限合同审查批注稿。
 
 - `work-session-store` 的同版 `{sessionId, contractMaterialId}` 解释收紧为“本案最新 Work session
   指针”，字段和 storage version 不变。paused 显示“继续上次审查”；completed 显示“查看上次
-  审查”；failed/canceled/损坏才清除。新 start 成功取得 sessionId 后覆盖为本案最新 session。
+  审查”；failed 显示只读失败进度。调用 fresh start 前先捕获旧 pointer；`start()` 同步返回的
+  sessionId 只是 candidate，**取得 candidate 本身不是建立成功**，不得立即持久化或覆盖旧记录。
+  start 的 publish callback 只可在同 candidate 的事件已先完成 whole-envelope CAS 后收到事件；
+  第一枚这样的 durable event 是“session 已建立”的首个可观察时点，此时才持久化
+  `{candidateSessionId, selectedContractMaterialId}`。若 done 已为 paused/completed 而本进程未观察
+  到事件，须先 replay candidate，只有 found=true 才可补持久化。start 返回 rejected 时旧记录必须
+  byte-identical；无旧记录仍为空，临时 candidate 零持久。resume/resolve 返回 rejected 时不得因
+  rejected 本身清指针，而须 replay 既有 ref。
+- 指针处理必须 compare-and-set/compare-and-clear，永不 blanket clear 一个不同 session 的记录。
+  start canceled outcome 只清“当前存储值恰为 candidate”的 pointer；若 candidate 从未建立，旧
+  pointer 保持原样。start failed 无论是否观察过事件都 replay candidate：found=true 再按 phase
+  决定建立/保留/清除，found=false 或 typed corrupt/ref_mismatch 只清 matching candidate，不删除
+  尚存的旧 pointer。resume/resolve 返回 canceled 时同样以 outcome.ref compare-and-clear：只在当前
+  pointer 仍指向该 ref 时清除，若已换成另一 session 则不动。不得把瞬时 outcome 当持久事实。
+- replay 矩阵固定：resolve found=true 后 paused/failed/completed 保留，且仅 paused 可 resume，
+  failed/completed 只读；phase canceled/interrupted 清 matching pointer。running 仅在同进程确有
+  active command 且 ref 一致时保留，恢复入口遇到无 active owner 的 running 按 interrupted 清除。
+  found=false、`WorkReplayError` 的 corrupt/ref_mismatch 清 matching pointer；unavailable、
+  unsupported_version 与任何未分类 rejection 一律保留 pointer，显示可重试反馈。未知
+  work-session storage version 同样保留原 storage bytes，不得以“无法读取”为由删除。artifact
+  isolation 也不清 pointer。禁止 `.catch(() => null)`、禁止“非 paused”总分支。
 - 查看 completed 时以 `workCommand.replay` 中最后一枚
   `artifact_produced(legal.RiskList)` 重建 post-revision RiskList、SourceAnchor 与其中已持久的
   disposition，风险工作面只读，处置按钮不可再写。`revision_recorded` 只有 id，当前 port 不返回
   `revisionEvents` payload，UI 不得声称重建或展示其字段。docx 存在卡可并列，但不得取代审阅账本。
-  若 completed 后在 file write 前崩溃，可显示“生成批注稿”重试按钮；它只消费已经持久的
+  若 completed 后在 file write 前崩溃，只有 OUTPUT coordinator inspect 返回
+  `ready_to_deliver` 才显示“生成批注稿”重试按钮；它只消费已经持久的
   `confirmation_resolved` + post-revision RiskList，重新复验原件并走严格 non-applied 门，不追加
-  RevisionEvent/confirmation/CAS。
+  RevisionEvent/confirmation/CAS。not_applicable/blocked/already_present 均不得显示该按钮。
+- found=true/completed 但 artifact isolation 令合法 `legal.RiskList` 不可投影时，指针与其余合法
+  账本仍保留，显式显示“审查账本存在，但风险清单无法安全读取 · 未生成批注稿”；output result 为
+  `blocked/ledger_unavailable`，零 retry、零 file write。不得把它伪装成 envelope 损坏后清指针。
 - 重启、切案再切回、产物被 Finder 删除三种情形均不丢审阅账本；产物存在状态继续独立向宿主
   复验，不能反推会话完成。
 
@@ -3975,23 +4249,62 @@ no-overwrite，窄改只限合同审查批注稿。
 
 - 本票吸收 `material-reader.ts` / `material-actions.ts` 的同调用链合并义务，只保留一份 reader
   action/port 声明；不得在 `App.tsx`、`ReaderPane` 另造第二套定位。坐标算法固定为：按 fileId
-  同案重验 → 以 `textLayerVersion`（分页件连 page）选文本层 → 用全局 `textRange` 与 block 的
-  `rangeBase` 包含关系唯一选 block → 转为 block-local start/end → 终验
+  同案重验 → 以 `textLayerVersion` 选文本层；分页件再先以 `page` 选页，`textRange` 按该页文本层
+  解释，非分页件按全文文本层解释 → 用该层内 `textRange` 与 block 的 `rangeBase` 包含关系唯一选
+  block → 转为 block-local start/end → 终验非空
   `block.text.slice(localStart, localEnd) === quote` → 以 `blockId + local offsets` 渲染焦点。
   ReadingView markdown 不是该坐标系，绝不可把原文本层 offset 直接套到 markdown。
 - SourceAnchor 指向第二份支持材料时必须打开第二份而非主合同，并按坐标高亮逐字切片。fixture 在
   同一文本层放两处相同 quote，锚点指向第二处时只能高亮第二处；改按数组首件、改用
-  `indexOf(quote)`、把 global offsets 套 ReadingView、丢 `rangeBase`/blocks、忽略
+  `indexOf(quote)`、把原文本层 offsets 套 ReadingView、丢 `rangeBase`/blocks、忽略
   `textLayerVersion`、只展开内联引语或去掉 focus 必须触红。合并后第二份 reader action/port
   声明或旧调用路径零出现。
+- bbox-only 分别带非空 quote、缺 quote 的两个合法件都必须命中同一
+  anchor_unsupported/copy，只有前者显示 inline quote；both-absent、畸形 bbox/page 与
+  textRange 的 missing version/quote、空 quote、越界、非唯一 block、版本/slice 漂移逐项
+  fixture 必须命中 anchor_invalid，且都不开阅读面；普通材料阻断仍保留原
+  MaterialBlockReason 文案。恢复借用 `rejected/reading_drift`、自造字符串、保留 ReaderPaneDoc
+  或 demo quote-search，或让“缺 textRange”优先吞掉 bbox-only 任一 mutation 必须触红。
 - production DOM/源码零 demo 合同文本、静态 4 处与 disabled source action；demo golden 不因生产
   分流被暗改。
 - 完成→重载→查看、切案往返→查看、删除产物→仍可查看三条 e2e 均从 host replay 取数；恢复
   `clearWorkSession` on completed 或只显示 output card 必须触红。
+- 分别以“有旧 paused/failed/completed pointer”与“无旧 pointer”调用 fresh start，再令四种
+  rejected reason 返回：前者旧记录逐字不变，后者仍为空，临时 candidate 均零持久。删除首枚
+  post-CAS event establishment、在 candidate 返回时抢先覆盖，或 rejected 时先写后删的 mutation
+  必须触红。
+- 令 fresh start 的首枚本地 event CAS 返回 conflict/failed：publish callback 必须为 0，candidate
+  零持久且旧 pointer/storage bytes byte-identical；恢复 work-command catch 发布 staged event 的
+  mutation 必须触红。
+- start/resume/resolve canceled outcome 与 replay phase canceled/interrupted 都只清 matching
+  candidate/ref；故意让 store 同时已换成另一 session 时不得误删。failed outcome + found:false 或
+  typed corrupt/ref_mismatch 清 matching pointer，durable failed replay 保留；resume rejected 后对
+  paused/completed/failed/interrupted 逐相位按矩阵分流；无 owner running 清、有同 ref active owner
+  才留。host unavailable、unsupported/unknown envelope version 与 unclassified rejection 均保留
+  pointer 并显式可重试，confirmed corrupt 才清；另以未知 work-session **storage** version seed
+  recovery，原 localStorage raw bytes 必须逐字不变，persist/clear 调用均为 0。任何 outcome-only、
+  `.catch(() => null)`、“不可读即覆盖为空”或“非 paused 全清”mutation 必须触红。
+- completed found=true 但 RiskList 被 artifact isolation 丢弃时，pointer/合法账本保留、exact
+  ledger_unavailable 文案可见、output/retry 零；把它当 corrupt 清除必须触红。
 - completed production 面不呈现处置、编辑或“批注知悉”控件，风险区只读且零事件、零 CAS；
   paused 仍可按原协议继续。
-- completed 且产物缺失时点击“生成批注稿”：全落点则写一份；任一未落点则 blocker 可见且零写；
-  两者均零新增账本事件。不得复活 production“批注知悉后部分交付”。
+- completed 且 coordinator inspect=ready_to_deliver 时点击“生成批注稿”：全落点则写一份；
+  任一未落点则 blocker 可见且零写；两者均零新增账本事件。no_risks/all_rejected/out_of_coverage、
+  stat failed/conflict、ledger_unavailable 均不得显示重试。不得复活 production“批注知悉后部分交付”。
+
+### 实现边界
+
+生产白名单限 `apps/desktop/src/App.tsx`、可新建的纯编排
+`work/work-session-lifecycle.ts`、`material/material-actions.ts`（并删除
+`material/material-reader.ts`）、`system/ReaderPane.tsx`、`workbench/Panels.tsx` 与必要的
+`styles.css`；测试白名单为 `work/work-session-lifecycle.test.ts`、合并后
+`material-actions.test.ts`、Panels/ReaderPane 定向测试、既有 `tests/e2e/work-live.spec.ts` 或一枚
+职责单一的 pointer-lifecycle/completed/anchor e2e，以及 floor/highwater/静态门，并删除旧
+`material-reader.test.ts`。lifecycle 模块只编排既有 store API、candidate/ref 与上游 replay
+结果，不新增持久字段/版本或第二 store；同层 SPEC/ACCEPTANCE 只作留痕。本票只消费已经由
+`CONTRACT-OUTPUT-TRUTH-1` 交付的 `WorkProjectionPort.replay` 判别联合与 output retry 入口；
+不得扩白修改 `protocol/client.ts`、`work-command.ts`、MaterialStore、Rust/Tauri、legal/output 包。
+若上游未交付这些消费契约，本票保持 blocked，不得以跨票补实现。
 
 ### 禁止扩张
 
