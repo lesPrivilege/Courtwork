@@ -1559,7 +1559,7 @@
       "target": "apps/desktop/src/settings/settings-store.ts#appearance.themeMode",
       "tier": "agent-interface",
       "approvedProposalLine": "P4-D01",
-      "fragmentKind": "pointer"
+      "fragmentKind": "selector"
     },
     {
       "target": "apps/desktop/src/settings/theme-controller.ts#resolved-data-theme",
