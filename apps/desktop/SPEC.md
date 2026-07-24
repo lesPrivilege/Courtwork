@@ -3838,6 +3838,8 @@ core 已定语义，不另造 UI 预算状态。
   `scripts/assert-test-count.mjs`、core `runtime-budget-executor.test.ts`。Playwright 新建职责单一的
   `tests/e2e/work-budget.spec.ts`；`work-live.spec.ts`、`work-turn.spec.ts`、
   `case-persist.spec.ts` 只允许机械迁移正常 stub 的 route identity + known usage，不扩行为。
+  全量回归若命中 `tests/e2e/d1-case-scope.spec.ts` 的旧英文 Progress 空态断言，架构角色批准仅把该
+  断言机械同步为本票冻结的统一中文空态；不得借此修改选择器、场景步骤或 production 行为。
 - 首批红测必须先锁：clear limit→reload 仍为 undefined；顶层／runtimeGuard／maxUsd 损坏回默认且
   `runtimeGuard.maxUsd:null` 仍不限额、局部损坏不抹合法兄弟分区，巨大有限值归一后不溢出；预算
   factory 只在 fresh start 一次，
