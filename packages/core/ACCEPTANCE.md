@@ -1478,3 +1478,65 @@ pnpm exec vitest run packages/provider/src/pricing-table.test.ts packages/core/s
 confirmation / assembly / pending projection / executor / store / S3 golden：**7 files / 105 tests passed**。临时仅类型 probe 同时引用已删的 `ConfirmationStore.take`、`ScenarioExecutorDeps.onTurnEvent`、`ProjectionPendingInput.pendingGateLabels`，core build 精确报三项 `TS2339`；删除 probe 后恢复。因此三项是导出/类型面的真实退役，不是死分支假象。
 
 所有 mutation 使用 `apply_patch` 注入并反向恢复。报告前除本文件和 desktop 对应报告外 worktree clean；同一 target 的 build、lint、root/desktop test 与完整独立 Playwright 均通过（完整数字见 desktop GOVERNANCE-CLEAR-1 报告）。
+
+---
+
+# WORK-BUDGET-1 · core copy-only 下游收口独立验收（2026-07-24）
+
+- **最终对象**：`0ff83f73b3983ae08048870434ccdf43d143ab72`；production 实现父提交
+  `a82f51d8eeaa3fd142756d0d91cb531c42161ba4`；架构白名单基线
+  `3fa668b007980917eb01124b2fb1c5cff61d3882`。
+- **独立性**：本会话未参与实现，在
+  `/private/tmp/courtwork-work-budget-accept-a82f51d` 独立 worktree 验收。最终目标相对实现父只新增
+  desktop SPEC 与 R2 ledger 的架构分类修正，core production/test 零漂移。
+- **裁决：✅ 放行 WORK-BUDGET-1 对 core 的显式跨层白名单。** `executor.ts` 只收口
+  configuration/runtime-limit 的产品 copy；既有 budget 算法、结构化 error、export、wire 与 envelope
+  形状均未扩张。
+
+## 源码与持久语义
+
+- `costConfigurationMessage` 只从持久 budget snapshot 生成六位已知估算、complete/partial 覆盖说明与
+  assumptions；原始 `detail` 已退出产品面。complete 与 partial 的下一步分别映射，不把所有
+  configuration 错误伪报成覆盖不完整。
+- `RuntimeLimitExceededError.limit/value` 仍是内部结构化事实；持久 `scenario_failed` 前映射为金额、
+  步骤、工具调用、运行时长四类产品语。`maxUsd` 使用两位金额，其余三类带对应单位，不泄漏内部枚举。
+- route mismatch 先把 coverage 标为 partial，再把 paid terminal、预算与
+  `scenario_failed(configuration)` 同一次 whole-envelope CAS；known maxUsd overflow 同样优先于原
+  provider failure。未知 usage/price 在下一 paid Turn 的 identity、`turn_linked` 与 provider 之前
+  configuration 阻断，不把未知成本当零。
+- production binding 注入 `store.runtimeBudget` 同一 port 与防御复制的 expected route，未注入 legacy
+  limits；同时注入两种来源或只有 budget 没有 expected route 的既有 fail-closed 分支仍由聚焦测试锁住。
+
+## 聚焦、真链与 Mutation
+
+最终目标运行
+
+```sh
+pnpm exec vitest run packages/core/src/scenario-executor/runtime-budget-executor.test.ts --reporter=dot
+```
+
+得到 **1 file / 12 tests passed**。覆盖跨 pause/resume 四量累计与人工等待不计、unknown paid
+terminal 后下一次调用前阻断、冻结 version/effectiveAt 两类漂移、route mismatch、known maxUsd、
+三类非金额上限产品 copy、普通 provider failure 的 usage 落账，以及 durable/legacy 与缺 expected
+route 两类装配冲突。
+
+production E2E 的 route-mismatch 真链另从 host bytes 实测：provider **calls=1**，
+`revision=4`，terminal 保留实际 wrong provider/model，coverage=`partial`，末事件为
+`scenario_failed/configuration`；这证明 terminal+budget+failure 是同批持久，而非 UI 瞬时拼接。
+缺 usage 的 citation repair 真链严格 **calls=1**，第二 paid attempt 在 provider 前阻断；正常 repair
+则 **calls=2** 并进入 RiskList gate。
+
+两项 core/装配反例均单项注入、观察红灯后恢复：
+
+| 反例 | 红证 |
+| --- | --- |
+| binding 删除 `runtimeBudget: input.store.runtimeBudget` | desktop binding 定向 **1 failed / 14 skipped**；实得 `undefined`，同源 port 断裂 |
+| `maxToolCalls` 映射恢复内部枚举 | core 定向 **1 failed / 11 skipped**；持久文案出现 `maxToolCalls上限`，精确断言要求 `工具调用上限` |
+
+恢复后 core 再次 **12/12**。最终目标的共同门为：`pnpm -r build` PASS（13/14 workspace，
+desktop 3584 modules）、`pnpm lint` PASS、root **149 files / 1294 tests**、desktop
+**63 files / 465 tests**；完整静态链、App 2738/2738、Playwright floor/list 333/61 与独立端口
+full **333/333**（workers=2、retries=0）均通过。完整数字、其余四项 production mutation 与端口证据
+见 desktop 同名 WORK-BUDGET-1 报告。
+
+**最终结论：core copy-only 白名单没有演变为第二套预算算法或第二份失败状态，WORK-BUDGET-1 可放行。**

@@ -4569,3 +4569,116 @@ workspace build 前首次定向测试因 `@courtwork/provider` dist 尚未生成
 每项均以 `apply_patch` 注入并反向恢复。共享固定门在同一 target 上只运行一次：`pnpm -r build` PASS（13/14 scope，desktop 3584 modules）、`pnpm lint` PASS、root Vitest **149 files / 1291 tests**、desktop Vitest **62 files / 434 tests**；完整 desktop Playwright 在独立端口 `14673`、`reuseExistingServer=false` 下 floor **329**、实跑 **329/329 passed**。
 
 lint 承重反例：临时把 `capture.mjs` 退回 `/* global process */` 后，root lint **仅**报 `site/craft-evidence/VERSIONAL-LANG-3/capture.mjs:91:5 no-undef`；恢复 `localStorage` 声明后重回零错。报告前所有 mutation、临时探针与测试产物均已清除。
+
+---
+
+# WORK-BUDGET-1 · production 累计预算独立验收（2026-07-24）
+
+- **最终验收对象**：`0ff83f73b3983ae08048870434ccdf43d143ab72`；其父为实现提交
+  `a82f51d8eeaa3fd142756d0d91cb531c42161ba4`，架构白名单基线为
+  `3fa668b007980917eb01124b2fb1c5cff61d3882`。
+- **独立性**：本会话未参与 WORK-BUDGET-1 实现；在独立分支
+  `codex/work-budget-1-accept`、独立 worktree
+  `/private/tmp/courtwork-work-budget-accept-a82f51d` 验收，没有在共享树运行门禁或
+  checkout/stash 共享工作。Playwright 配置实核 `reuseExistingServer:false`，定向真链使用独立
+  `:15124`，最终全量使用独立 `:15126`。
+- **裁决：✅ 放行 WORK-BUDGET-1。** fresh-session limits、冻结 route、价目 basis、持久 budget
+  port、typed 失败文案与 Progress replay 已形成同一条 production 链；构建、静态门、全量单测和
+  333 条浏览器回归均在最终目标上通过。仅追加 desktop/core 两份验收报告，不改
+  `current.md`、implementation-readiness、生产源码、SPEC、门常量或测试。
+
+## 谱系、白名单与治理修正
+
+`0ff83f7` 是 `a82f51d` 的直接子提交，后者又以 `3fa668b` 为唯一父提交。实现提交相对架构基线为
+**26 files / 816 insertions / 99 deletions**，全部落在 WORK-BUDGET-1 冻结的 production、
+测试、静态门与两层 SPEC 白名单；最终目标因架构批准的台账修正增为
+**27 files / 820 insertions / 100 deletions**。新增差异只含：
+
+1. `apps/desktop/SPEC.md` 显式批准 P4-D01 真实字面锚的分类修正；
+2. `docs/design/r2-tier-ledger.json` 只把同一 target/tier/签署行的
+   `fragmentKind: pointer` 升为 `selector`。
+
+首次在实现父提交运行完整静态链时，`assert-skin-r2-ledger` 精确发现
+`settings-store.ts#appearance.themeMode` 已成为真实字面锚、却仍登记为 pointer。验收立即上报并
+停止在 Playwright 全量之前；架构角色以 `0ff83f7` 拍板上述两文件修正，没有采用括号访问绕门。
+最终目标上 ledger gate 与其 **15/15** 自测、完整静态前置链均通过。提交树中没有
+`_to_delete`、`.tgz`、`.tmp`、`.orig` 或 `.rej`；`work-command.test.ts` 的 binary 判定来自
+基线既有的两个 NUL 分隔 sentinel，父/目标均精确 **2 个**，本票没有新增或扩散。
+
+## 源码与架构结论
+
+- Settings 读取以 own-key 三分法区分“缺整分区”“用户显式不限额”“分区损坏”：仅缺自有
+  `runtimeGuard` 时回默认 `$5`；自有 `{}` 或 `maxUsd:null` 保持不限额；非法顶层、非法分区、
+  非有限或负数金额 fail-safe。局部损坏不抹合法 privacy/appearance，巨大有限值归一后仍有限。
+- `loadRuntimeLimits()` 只由 fresh start 的预算 factory 消费。factory 位于
+  `not_configured`、幂等/冲突与 case-busy 闸门之后；`invalid_scope` 的 async preflight 允许铸一次，
+  但零 header CAS、零 provider effect。拒绝路径和 `runLeg.finally` 都清理同一 controller，
+  定向用例还锁住拒绝后再次 cancel 为 `not_running`，无 cancelRequested 残留。
+- payload identity、factory route、持久 header、runner route 与 expected-route 分别复制。
+  start/resume 的 runner 均读取信封冻结 route；production provider 由该入参构造，不再读取当前
+  Settings/model config。DeepSeek 价目只有在版本、时点、assumptions 与汇率有效时入信封；
+  已收录双价为 complete，未收录为 partial；非 DeepSeek 与坏快照均不冒充已有价目。
+- `createLegalS3ScenarioDeps` 注入的正是 `store.runtimeBudget` 同一 port，并防御复制
+  expected route；没有 legacy `limits`。route mismatch 把 terminal、partial budget 与
+  `scenario_failed(configuration)` 同批 CAS；引用修复的下一 paid Turn 仍走同一 budget preflight。
+- core 的 configuration/runtime-limit 显示映射不拼原始 detail、不暴露 `maxUsd` 等枚举。
+  `ProgressModuleBody` 只收完整 `SessionProjection`，机械显示已持久 failure；App 不因瞬时 failed
+  outcome 清 pointer，failed replay 水合后只读、无 resume/retry。replay throw 保留 pointer；
+  fresh invalid-scope 旧指针矩阵仍留给 CONTRACT-TRACE-1，没有越界吸收。
+
+## production 真链与持久回放
+
+`work-budget.spec.ts` 在独立 `:15124` 定向 **4/4 passed**，并在最终 333 全量中再次通过：
+
+| 真链 | 独立实证 |
+| --- | --- |
+| 已知价首 Turn 超金额 | provider **calls=1**；持久 `runtime_limit`；同页切案再切回后从 host replay 到 Progress，失败行无按钮，恢复入口消失但 pointer 仍在 |
+| 首 Turn route mismatch | provider **calls=1**；信封 `revision=4`；terminal 保留 wrong provider/model，coverage=`partial`，末事件为 `scenario_failed/configuration`，证明 terminal+budget+failure 同批；切案回放与 pointer 保留同样成立 |
+| 首 Turn 引用不可解析且 usage 缺失 | provider **calls=1**；repair attempt 2 在 `turn_linked`/provider 前被 configuration blocker 截住，零 RiskList gate；持久回放显示覆盖不完整且 pointer 保留 |
+| 正常 citation repair | 首次坏引语、第二次正确引语且两次均有 usage，provider **calls=2**，到达真实 RiskList gate，零 Progress failure |
+
+三类失败都经同页切案而非伪称浏览器 reload；DEV 内存 host 不跨真 App 重启的边界保持诚实。跨命令
+实例 resume、Settings/model 修改后仍使用旧 route，则由同一提交的 command/runtime 集成测试锁住。
+
+## Mutation 红证
+
+以下反例均在 production 实现父提交 `a82f51d` 的独立 worktree 中以 `apply_patch` 单项注入，
+观察红灯后逐项反向恢复；`0ff83f7` 只增加 SPEC/ledger 分类，不改变这些 production 事实：
+
+| 反例 | 实际红证 |
+| --- | --- |
+| 把 budget factory 移到 `not_configured` 闸门前 | command 定向 **1 failed / 22 skipped**：期望 factory 0 次，实得 1 次 |
+| 把自有空 `runtimeGuard` 重新解释为默认 `$5` | Settings 定向 **1 failed / 22 skipped**：clear→reload 期望 `undefined`，实得 `5` |
+| production runner 忽略冻结副本、改读可变 route 入参 | runtime 定向 **1 failed / 4 skipped**：调用方改写后错误读取 `caller-mutated` provider |
+| binding 丢弃 `store.runtimeBudget` | binding 定向 **1 failed / 14 skipped**：`deps.runtimeBudget` 实得 `undefined`，不再与 store port 同源 |
+| core 把 `maxToolCalls` 枚举裸露进产品文案 | core 定向 **1 failed / 11 skipped**：实得 `maxToolCalls上限`，未得 `工具调用上限` |
+| Progress 删除持久 failure 行 | module 定向 **1 failed / 6 skipped**：既有进度仍在，但安全失败文案完全缺席 |
+
+全部 mutation 撤回后 desktop focused 再次 **6 files / 82 tests passed**、core 再次
+**1 file / 12 tests passed**，`git diff --check` 与产品树状态均 clean。
+
+## 最终门禁原始数字
+
+| 命令 / 门 | 最终目标 `0ff83f7` 独立实跑 |
+| --- | --- |
+| 冻结安装 | `--offline` 因本机 store 缺 `@eslint/js@10.0.1` tarball 诚实失败；随后同一 lockfile 安装成功，14 workspace / 1047 packages |
+| `pnpm -r build` | exit 0；**13/14 workspace**；desktop **3584 modules transformed** |
+| `pnpm lint` | exit 0 |
+| desktop focused | **6 files / 82 tests passed** |
+| core copy/integration | **1 file / 12 tests passed** |
+| `pnpm --filter @courtwork/desktop test` | **63 files / 465 tests passed** |
+| `pnpm test` | **149 files / 1294 tests passed** |
+| WORK-LIVE 静态门 | PASS；完整 `test:e2e` 的其余静态链亦全部 PASS |
+| R2 ledger | gate PASS；对应 node tests **15/15 passed** |
+| App 高水位 | **2738/2738** |
+| Playwright floor / `--list` | **333/333**；**333 tests / 61 files** |
+| WORK-BUDGET 定向 Playwright | 独立 `:15124`，**4/4 passed**（8.5s） |
+| 完整 Playwright | 独立 `:15126`，`workers=2`、`retries=0`，**333/333 passed**（4.6m） |
+
+首次从根 Vitest 配置直接指定 desktop 文件得到 0-test/exit 1，是根配置 include 不覆盖 desktop 的
+命令路由错误；改从 desktop workspace 后稳定得到 82/82，未把 0-test 当产品红灯或通过数字。
+完整 333 结束后又在精确最终目标上重跑 build、lint、两组 focused 与两组全量单测，以上数字均非
+沿用实现者自述。
+
+**最终结论：WORK-BUDGET-1 的契约、功能逻辑、production 装配与架构设计均已实现并可放行。**
+清账仍须由架构角色确认本验收提交成为 `main` 祖先并更新相应状态真源；本报告本身不越权改状态文档。
