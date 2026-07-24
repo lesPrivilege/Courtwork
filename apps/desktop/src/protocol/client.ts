@@ -22,10 +22,9 @@ export interface ReviewGateProjection {
   items: ReviewGateItemProjection[];
 }
 
-export interface ReviewItemResolution {
-  itemRef: string;
-  disposition: ReviewDisposition;
-}
+export type ReviewItemResolution =
+  | { itemRef: string; disposition: 'confirm' | 'reject' }
+  | { itemRef: string; disposition: 'revise'; correctedDescription: string };
 
 export interface ReviewResolution {
   items: ReviewItemResolution[];

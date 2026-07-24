@@ -18,7 +18,7 @@ const VALID_SCENARIO = {
   uiTemplateId: 'risk-review-panel',
   confirmationPolicy: {
     mode: 'gates',
-    gates: [{ artifact: 'legal.RiskList', label: '确认风险清单后再生成修订与批注文书' }],
+    gates: [{ artifact: 'legal.RiskList', label: '提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿' }],
   },
   promptSegmentRef: 'contract-review',
   steps: [

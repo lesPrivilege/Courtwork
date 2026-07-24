@@ -18,6 +18,7 @@ import {
   readWorkStateEnvelope,
   resumeScenario,
   runScenario,
+  UnknownConfirmationRequestError,
 } from '@courtwork/core/work-protocol';
 import { createMemoryTurnStore } from '@courtwork/core/turn-protocol';
 import { LEGAL_PACKAGE } from '@courtwork/legal/package';
@@ -54,11 +55,12 @@ import type {
 import type { StoredMaterial } from '../material/material-ref';
 import {
   IncompleteReviewError,
+  InvalidReviewCorrectionError,
+  DuplicateReviewItemError,
   LEGAL_S3_SCHEMA_VERSION,
   MaterialResolutionBlockedError,
   MissingContractPartyError,
   MissingToolInputError,
-  ReviseNotTerminalError,
   S3_RISK_LIST_TYPE,
   S3_SCENARIO_ID,
   UnknownReviewItemError,
@@ -130,7 +132,24 @@ export interface LegalS3WorkCommand extends WorkCommandPort, WorkProjectionPort 
   ): Promise<WorkCommandOutcome>;
 }
 
-type StartPayload = { caseId: string; materialRefs: string[]; modelRoute: WorkModelRoute; subject?: ContractPartySubject };
+type StartPayload = {
+  kind: 'start';
+  caseId: string;
+  scenarioId: string;
+  materialRefs: string[];
+  modelRoute: WorkModelRoute;
+  subject: ContractPartySubject | null;
+};
+
+type ResolveReviewPayload = {
+  kind: 'resolve_review';
+  caseId: string;
+  sessionId: string;
+  requestId: string;
+  resolution: ReviewResolution;
+};
+
+type CommandPayload = StartPayload | ResolveReviewPayload;
 
 interface CommandRecord {
   sessionId: string;
@@ -140,12 +159,78 @@ interface CommandRecord {
 
 const CANCELED_SENTINEL = Symbol('work-live-canceled');
 
-function stableKey(payload: StartPayload): string {
-  return JSON.stringify({
+/**
+ * `resolve_review` 的 first-wins 键与实际 resume 共用这一份冻结值。
+ * revise 文本的边界语义是 trim；不在键与执行之间保留空格差异。
+ */
+function normalizeReviewResolution(resolution: ReviewResolution): ReviewResolution {
+  return {
+    items: resolution.items.map((item) => (
+      item.disposition === 'revise'
+        ? {
+            itemRef: item.itemRef,
+            disposition: item.disposition,
+            correctedDescription: item.correctedDescription.trim(),
+          }
+        : { itemRef: item.itemRef, disposition: item.disposition }
+    )),
+    ...(resolution.instrumentation
+      ? { instrumentation: structuredClone(resolution.instrumentation) }
+      : {}),
+  };
+}
+
+function normalizeStartPayload(payload: StartPayload): StartPayload {
+  return {
+    kind: 'start',
     caseId: payload.caseId,
+    scenarioId: payload.scenarioId,
     materialRefs: [...payload.materialRefs],
-    modelRoute: payload.modelRoute,
-    subject: payload.subject ?? null,
+    modelRoute: { ...payload.modelRoute },
+    subject: payload.subject
+      ? {
+          ...payload.subject,
+          partyName: payload.subject.partyName.trim(),
+        }
+      : null,
+  };
+}
+
+function stableKey(payload: CommandPayload): string {
+  if (payload.kind === 'start') {
+    return JSON.stringify({
+      kind: payload.kind,
+      caseId: payload.caseId,
+      scenarioId: payload.scenarioId,
+      materialRefs: [...payload.materialRefs],
+      modelRoute: { ...payload.modelRoute },
+      subject: payload.subject ? { ...payload.subject } : null,
+    });
+  }
+  return JSON.stringify({
+    kind: payload.kind,
+    caseId: payload.caseId,
+    sessionId: payload.sessionId,
+    requestId: payload.requestId,
+    resolution: {
+      items: payload.resolution.items.map((item) => (
+        item.disposition === 'revise'
+          ? { itemRef: item.itemRef, disposition: item.disposition, correctedDescription: item.correctedDescription }
+          : { itemRef: item.itemRef, disposition: item.disposition }
+      )),
+      ...(payload.resolution.instrumentation
+        ? {
+            instrumentation: {
+              ...(payload.resolution.instrumentation.dwellMs !== undefined
+                ? { dwellMs: payload.resolution.instrumentation.dwellMs }
+                : {}),
+              ...(payload.resolution.instrumentation.expandedEvidenceKeys
+                ? { expandedEvidenceKeys: [...payload.resolution.instrumentation.expandedEvidenceKeys] }
+                : {}),
+            },
+          }
+        : {}),
+    },
   });
 }
 
@@ -228,7 +313,9 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
     if (error instanceof MaterialResolutionBlockedError) return { status: 'rejected', reason: 'invalid_scope', message: '合同原件复验未通过，未能开始审查' };
     if (error instanceof IncompleteReviewError) return { status: 'rejected', reason: 'invalid_scope', message: '尚有风险条目未处置，无法继续' };
     if (error instanceof UnknownReviewItemError) return { status: 'rejected', reason: 'invalid_scope', message: '审阅清单与风险清单不一致，请重新开始审查' };
-    if (error instanceof ReviseNotTerminalError) return { status: 'rejected', reason: 'invalid_scope', message: '尚有条目待修改，无法继续' };
+    if (error instanceof DuplicateReviewItemError) return { status: 'rejected', reason: 'invalid_scope', message: '同一风险不能重复提交处置，请重新核对' };
+    if (error instanceof InvalidReviewCorrectionError) return { status: 'rejected', reason: 'invalid_scope', message: '修正结论无效，请重新编辑后提交' };
+    if (error instanceof UnknownConfirmationRequestError) return { status: 'rejected', reason: 'invalid_scope', message: '这次审阅已提交或已过期，请重新打开当前进度' };
     const message = error instanceof Error ? error.message : String(error);
     return { status: 'failed', ref, reason: 'internal', message, retryable: false };
   }
@@ -248,11 +335,9 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
   ): Promise<WorkCommandOutcome> {
     const controller = existingController ?? new AbortController();
     if (!existingController) controllers.set(ref.sessionId, controller);
-    let store: WorkStateStore | undefined;
     let baseline = 0;
     try {
       const loaded = await loadStore(ref, header);
-      store = loaded.store;
       baseline = loaded.store.eventLog.list().length;
       const result = await leg({
         store: loaded.store,
@@ -260,18 +345,15 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
         signal: controller.signal,
         publishNew: () => { baseline = publishFrom(loaded.store, publish, baseline); },
       });
-      publishFrom(loaded.store, publish, baseline);
       const outcome = mapResult(result, ref);
       releaseActive(ref.caseId, ref.sessionId, outcome);
       return outcome;
     } catch (error) {
       if (controller.signal.aborted || error === CANCELED_SENTINEL) {
-        if (store) publishFrom(store, publish, baseline);
         const outcome: WorkCommandOutcome = { status: 'canceled', ref };
         releaseActive(ref.caseId, ref.sessionId, outcome);
         return outcome;
       }
-      if (store) publishFrom(store, publish, baseline);
       const outcome = mapError(error, ref);
       releaseActive(ref.caseId, ref.sessionId, outcome);
       return outcome;
@@ -296,14 +378,14 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
       const materials: StoredMaterial[] = await resolveSessionMaterials(deps.materialResolver, input.caseId, input.materialRefs);
       scenario = getS3Scenario(deps.registries);
       const materialInputs: MaterialInput[] = toMaterialInputs(materials);
-      runInput = buildS3RunInput({ scenario, subject: input.subject, materials: materialInputs });
+      runInput = buildS3RunInput({ scenario, subject: input.subject ?? undefined, materials: materialInputs });
     } catch (error) {
       controllers.delete(ref.sessionId);
       const outcome = mapError(error, ref);
       releaseActive(ref.caseId, ref.sessionId, outcome);
       return outcome;
     }
-    return runLeg(ref, publish, async ({ store, turnStore, signal }) => {
+    return runLeg(ref, publish, async ({ store, turnStore, signal, publishNew }) => {
       const route = { ...store.snapshot().modelRoute };
       const scenarioDeps = createLegalS3ScenarioDeps({
         store,
@@ -313,6 +395,7 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
         ledger: createEvidenceLedger(),
         registries: deps.registries,
         signal,
+        afterCommit: publishNew,
       });
       return runScenario(scenario, runInput, scenarioDeps);
     }, header, controller);
@@ -325,11 +408,18 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
     publish: (event: SessionEvent) => void,
   ): Promise<WorkCommandOutcome> {
     const header = buildHeader(
-      { caseId: ref.caseId, materialRefs: [], modelRoute: { providerId: '', modelId: '', reasoning: 'standard' } },
+      {
+        kind: 'start',
+        caseId: ref.caseId,
+        scenarioId: S3_SCENARIO_ID,
+        materialRefs: [],
+        modelRoute: { providerId: '', modelId: '', reasoning: 'standard' },
+        subject: null,
+      },
       ref.sessionId,
       { limits: {}, costBasis: { currency: 'USD', assumptions: [] }, consumed: { steps: 0, toolCalls: 0, executionMs: 0, estimatedUsd: 0, costCoverage: 'partial' } },
     );
-    return runLeg(ref, publish, async ({ store, turnStore, signal }) => {
+    return runLeg(ref, publish, async ({ store, turnStore, signal, publishNew }) => {
       // 残缺会话（turn_linked 无 terminal）不得当 paused 续行：显式拒绝，须以全新 start 身份重发（ADR-010）。
       if (store.interruptedTurns().length > 0) {
         throw new UnknownReviewItemError('__interrupted__');
@@ -345,6 +435,7 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
         ledger: createEvidenceLedger(),
         registries: deps.registries,
         signal,
+        afterCommit: publishNew,
       });
       return resumeScenario(requestId, resumeInput, scenario, scenarioDeps);
     }, header);
@@ -359,43 +450,58 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
     return list;
   }
 
-  /** commandId first-wins 闸门：命中既有 → 复用；异 payload → command_conflict；case 忙 → case_busy。 */
-  function guardStart(commandId: string, payload: StartPayload): { record: CommandRecord } | { reject: WorkCommandOutcome; sessionId: string } {
-    const payloadKey = stableKey(payload);
-    const existing = commands.get(commandId);
-    if (existing) {
-      if (existing.payloadKey === payloadKey) return { record: existing };
-      return { reject: { status: 'rejected', reason: 'command_conflict', message: '此次审查请求正在处理，请勿重复发起' }, sessionId: existing.sessionId };
-    }
-    const busy = activeByCase.get(payload.caseId);
-    if (busy) {
-      return { reject: { status: 'rejected', reason: 'case_busy', message: '本案已有进行中的合同审查，请先等待或停止当前审查' }, sessionId: mintSessionId() };
-    }
-    return { record: { sessionId: '', payloadKey, done: Promise.resolve({ status: 'canceled', ref: { caseId: payload.caseId, sessionId: '' } }) } };
+  function conflictOutcome(): WorkCommandOutcome {
+    return { status: 'rejected', reason: 'command_conflict', message: '此次审查请求正在处理，请勿重复发起' };
   }
 
-  function beginStart(commandId: string, payload: StartPayload, publish: (event: SessionEvent) => void): { sessionId: string; done: Promise<WorkCommandOutcome> } {
-    // ADR-010 决定一：production composition 未装配时返回闭集中的 not_configured（先于任何 case/命令闸门与 run）。
-    // 不入 provider、不落 header/artifact，绝非 failed/internal。
-    if (deps.isConfigured && !deps.isConfigured()) {
-      return { sessionId: mintSessionId(), done: Promise.resolve({ status: 'rejected', reason: 'not_configured', message: NOT_CONFIGURED_MESSAGE }) };
-    }
-    const guard = guardStart(commandId, payload);
-    if ('record' in guard && guard.record.sessionId) {
-      return { sessionId: guard.record.sessionId, done: guard.record.done };
-    }
-    if ('reject' in guard) {
-      return { sessionId: guard.sessionId, done: Promise.resolve(guard.reject) };
-    }
-    const sessionId = mintSessionId();
+  /** commandId first-wins 闸门：命中既有 → 复用；异 payload（含跨 kind）→ command_conflict。 */
+  function existingCommand(
+    commandId: string,
+    payload: CommandPayload,
+  ): { record: CommandRecord } | { reject: WorkCommandOutcome; sessionId: string } | undefined {
     const payloadKey = stableKey(payload);
+    const existing = commands.get(commandId);
+    if (!existing) return undefined;
+    if (existing.payloadKey === payloadKey) return { record: existing };
+    return { reject: conflictOutcome(), sessionId: existing.sessionId };
+  }
+
+  function beginStart(commandId: string, rawPayload: StartPayload, publish: (event: SessionEvent) => void): { sessionId: string; done: Promise<WorkCommandOutcome> } {
+    const payload = normalizeStartPayload(rawPayload);
+    const prior = existingCommand(commandId, payload);
+    if (prior) {
+      if ('record' in prior) return { sessionId: prior.record.sessionId, done: prior.record.done };
+      return { sessionId: prior.sessionId, done: Promise.resolve(prior.reject) };
+    }
+    const payloadKey = stableKey(payload);
+    const sessionId = mintSessionId();
+    if (payload.scenarioId !== S3_SCENARIO_ID) {
+      const done = Promise.resolve<WorkCommandOutcome>({
+        status: 'rejected',
+        reason: 'invalid_scope',
+        message: '当前命令端口只接受合同审查场景',
+      });
+      commands.set(commandId, { sessionId, payloadKey, done });
+      return { sessionId, done };
+    }
+    // ADR-010 决定一：production composition 未装配时返回闭集中的 not_configured。
+    // 拒绝结果仍进入 process-local first-wins 表，同 id 不得在配置变化后变成第二个命令。
+    if (deps.isConfigured && !deps.isConfigured()) {
+      const done = Promise.resolve<WorkCommandOutcome>({ status: 'rejected', reason: 'not_configured', message: NOT_CONFIGURED_MESSAGE });
+      commands.set(commandId, { sessionId, payloadKey, done });
+      return { sessionId, done };
+    }
+    if (activeByCase.has(payload.caseId)) {
+      const done = Promise.resolve<WorkCommandOutcome>({
+        status: 'rejected',
+        reason: 'case_busy',
+        message: '本案已有进行中的合同审查，请先等待或停止当前审查',
+      });
+      commands.set(commandId, { sessionId, payloadKey, done });
+      return { sessionId, done };
+    }
     const frozenRoute = { ...payload.modelRoute };
-    const frozenPayload: StartPayload = {
-      caseId: payload.caseId,
-      materialRefs: [...payload.materialRefs],
-      modelRoute: { ...frozenRoute },
-      ...(payload.subject ? { subject: { ...payload.subject } } : {}),
-    };
+    const frozenPayload: StartPayload = { ...payload, modelRoute: frozenRoute };
     const runtimeBudget = deps.createRuntimeBudget({ ...frozenRoute });
     activeByCase.set(payload.caseId, sessionId);
     const done = runStart({ ...frozenPayload, commandId }, sessionId, structuredClone(runtimeBudget), publish);
@@ -406,21 +512,50 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
 
   return {
     startWithPreflight(input, publish) {
-      return beginStart(input.commandId, { caseId: input.caseId, materialRefs: input.materialRefs, modelRoute: input.modelRoute, subject: input.subject }, publish);
+      return beginStart(input.commandId, {
+        kind: 'start',
+        caseId: input.caseId,
+        scenarioId: S3_SCENARIO_ID,
+        materialRefs: input.materialRefs,
+        modelRoute: input.modelRoute,
+        subject: input.subject,
+      }, publish);
     },
 
     start(command: StartWorkCommand, publish) {
       // 通用 wire 无 preflight slot：S3 缺显式主体 → buildS3RunInput 抛 → rejected/invalid_scope（不默认补全）。
-      return beginStart(command.commandId, { caseId: command.caseId, materialRefs: command.materialRefs, modelRoute: command.modelRoute }, publish);
+      return beginStart(command.commandId, {
+        kind: 'start',
+        caseId: command.caseId,
+        scenarioId: command.scenarioId,
+        materialRefs: command.materialRefs,
+        modelRoute: command.modelRoute,
+        subject: null,
+      }, publish);
     },
 
-    async resolveReview(input, publish) {
-      return runResume(
-        { caseId: input.caseId, sessionId: input.sessionId },
-        input.requestId,
-        (store) => mapReviewResolutionToResume(input.resolution, latestRiskList(store), deps.actor),
-        publish,
-      );
+    resolveReview(input, publish) {
+      const payload: ResolveReviewPayload = {
+        kind: 'resolve_review',
+        caseId: input.caseId,
+        sessionId: input.sessionId,
+        requestId: input.requestId,
+        resolution: normalizeReviewResolution(input.resolution),
+      };
+      const prior = existingCommand(input.commandId, payload);
+      if (prior) return 'record' in prior ? prior.record.done : Promise.resolve(prior.reject);
+      const done = runResume(
+          { caseId: payload.caseId, sessionId: payload.sessionId },
+          payload.requestId,
+          (store) => mapReviewResolutionToResume(payload.resolution, latestRiskList(store), deps.actor),
+          publish,
+        );
+      commands.set(input.commandId, {
+        sessionId: payload.sessionId,
+        payloadKey: stableKey(payload),
+        done,
+      });
+      return done;
     },
 
     async resume(command: ResumeWorkCommand, publish) {

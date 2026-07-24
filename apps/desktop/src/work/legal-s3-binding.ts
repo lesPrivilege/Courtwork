@@ -71,11 +71,11 @@ export class MaterialResolutionBlockedError extends Error {
   }
 }
 
-/** revise 保持 pending 进入编辑，不得当终态 resume（存在待编辑项即不可续行）。 */
-export class ReviseNotTerminalError extends Error {
-  constructor(readonly itemRefs: readonly string[]) {
-    super(`存在待编辑（revise）审阅项 ${itemRefs.join('、')}——revise 保持 pending 进入编辑，不得当终态 resume`);
-    this.name = 'ReviseNotTerminalError';
+/** 修正结论缺失、空白或未发生变化：不得形成 RevisionEvent。 */
+export class InvalidReviewCorrectionError extends Error {
+  constructor(readonly itemRef: string, message: string) {
+    super(`审阅项 ${itemRef} ${message}`);
+    this.name = 'InvalidReviewCorrectionError';
   }
 }
 
@@ -92,6 +92,14 @@ export class UnknownReviewItemError extends Error {
   constructor(readonly itemRef: string) {
     super(`处置引用了不存在的审阅项 "${itemRef}"——确认清单与 RiskList 失真`);
     this.name = 'UnknownReviewItemError';
+  }
+}
+
+/** 同一 itemRef 不得重复形成多枚 RevisionInput。 */
+export class DuplicateReviewItemError extends Error {
+  constructor(readonly itemRef: string) {
+    super(`审阅项 ${itemRef} 被重复处置——同一风险只能提交一项终态决定`);
+    this.name = 'DuplicateReviewItemError';
   }
 }
 
@@ -243,9 +251,9 @@ export function projectRiskListGate(
 // ─── 逐条 revision mapping（ADR-010 决定五）─────────────────────────────────
 
 /**
- * 逐条处置 → core gate resume：confirm→`confirmed` / reject→`rejected`，各映射为
- * `/risks/<index>/dispositionStatus` 的 RevisionInput；revise 保持 pending 抛 `ReviseNotTerminalError`（非终态）。
- * 只有全部条目 confirm/reject 才以 `decision='confirm'` 续行（core 整体 `reject` 只表达终止整个场景，
+ * 逐条处置 → core gate resume：confirm→`confirmed` / reject→`rejected`；合法 revise 先写
+ * `/risks/<index>/description`，再于同批写 `dispositionStatus='confirmed'`。
+ * 只有全部条目形成终态处置才以 `decision='confirm'` 续行（core 整体 `reject` 只表达终止整个场景，
  * 不承载单项驳回，故本映射永远产出 `confirm`）。
  */
 export function mapReviewResolutionToResume(
@@ -253,19 +261,21 @@ export function mapReviewResolutionToResume(
   riskList: RiskList,
   actor: ConfirmationActor,
 ): ScenarioResumeInput {
-  const revising = resolution.items.filter((item) => item.disposition === 'revise').map((item) => item.itemRef);
-  if (revising.length > 0) throw new ReviseNotTerminalError(revising);
-
+  const seen = new Set<string>();
+  for (const item of resolution.items) {
+    if (seen.has(item.itemRef)) throw new DuplicateReviewItemError(item.itemRef);
+    seen.add(item.itemRef);
+  }
   const covered = new Set(resolution.items.map((item) => item.itemRef));
   const uncovered = riskList.risks.filter((risk) => !covered.has(risk.id)).map((risk) => risk.id);
   if (uncovered.length > 0) throw new IncompleteReviewError(uncovered);
 
   const indexById = new Map(riskList.risks.map((risk, index) => [risk.id, index] as const));
-  const revisions: RevisionInput[] = resolution.items.map((item) => {
+  const revisions: RevisionInput[] = resolution.items.flatMap((item): RevisionInput[] => {
     const index = indexById.get(item.itemRef);
     if (index === undefined) throw new UnknownReviewItemError(item.itemRef);
     const risk = riskList.risks[index];
-    return {
+    const dispositionRevision: RevisionInput = {
       artifactType: S3_RISK_LIST_TYPE,
       artifactId: riskList.caseId,
       fieldPath: `/risks/${index}/dispositionStatus`,
@@ -273,6 +283,25 @@ export function mapReviewResolutionToResume(
       newValue: item.disposition === 'reject' ? 'rejected' : 'confirmed',
       caseId: riskList.caseId,
     };
+    if (item.disposition !== 'revise') return [dispositionRevision];
+    const correctedDescription = item.correctedDescription?.trim();
+    if (!correctedDescription) {
+      throw new InvalidReviewCorrectionError(item.itemRef, '修正结论不能为空');
+    }
+    if (correctedDescription === risk.description.trim()) {
+      throw new InvalidReviewCorrectionError(item.itemRef, '修正结论必须不同于原结论');
+    }
+    return [
+      {
+        artifactType: S3_RISK_LIST_TYPE,
+        artifactId: riskList.caseId,
+        fieldPath: `/risks/${index}/description`,
+        previousValue: risk.description,
+        newValue: correctedDescription,
+        caseId: riskList.caseId,
+      },
+      dispositionRevision,
+    ];
   });
 
   return {
@@ -341,6 +370,7 @@ export function createLegalS3ScenarioDeps(input: {
   registries: PackageRegistries;
   expectedModelRoute: Readonly<{ providerId: string; modelId: string }>;
   signal?: AbortSignal;
+  afterCommit?: () => void;
 }): ScenarioExecutorDeps {
   return {
     tools: input.tools,
@@ -356,6 +386,7 @@ export function createLegalS3ScenarioDeps(input: {
     expectedModelRoute: { ...input.expectedModelRoute },
     persistBarrier: async () => {
       await input.store.commit();
+      input.afterCommit?.();
     },
     ...(input.signal ? { signal: input.signal } : {}),
   };

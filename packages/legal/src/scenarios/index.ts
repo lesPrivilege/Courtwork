@@ -31,6 +31,8 @@ const S6_FILE_OPS_PROMPT = [
   '计划是待确认清单：不执行任何操作，执行发生在用户确认之后、由确定性执行器完成。目标路径一律相对案件文件夹根。',
 ].join('\n');
 
+export const S3_REVIEW_GATE_LABEL = '提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿';
+
 export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
     {
       id: 'legal.S1',
@@ -87,7 +89,7 @@ export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
       uiTemplateId: 'risk-review-panel',
       confirmationPolicy: {
         mode: 'gates',
-        gates: [{ artifact: 'legal.RiskList', label: '确认风险清单后再生成修订与批注文书' }],
+        gates: [{ artifact: 'legal.RiskList', label: S3_REVIEW_GATE_LABEL }],
       },
       promptSegmentRef: 'contract-review',
       steps: [

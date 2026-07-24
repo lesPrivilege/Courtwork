@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { RiskList } from '@courtwork/legal';
 import { preflightDocx } from '@courtwork/reading-view/docx-security';
-import { compileConfirmedReviewToDocx } from './compile-review-output';
+import {
+  compileConfirmedReviewToDocx,
+  compileDemoConfirmedReviewToDocx,
+} from './compile-review-output';
 
 const decode = new TextDecoder();
 
@@ -38,8 +41,10 @@ const NON_APPLIED_RISK: RiskList['risks'][number] = {
 describe('compileConfirmedReviewToDocx', () => {
   it('全部落点：直接编译产物，无需确认步（排除驳回项）', () => {
     const result = compileConfirmedReviewToDocx({
-      riskList: riskListWith([APPLIED_RISK, { ...NON_APPLIED_RISK, id: 'risk-rejected' }]),
-      dispositions: { 'risk-applied': 'confirmed', 'risk-rejected': 'rejected' },
+      riskList: riskListWith([
+        { ...APPLIED_RISK, dispositionStatus: 'confirmed' },
+        { ...NON_APPLIED_RISK, id: 'risk-rejected', dispositionStatus: 'rejected' },
+      ]),
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
       evidenceGrades: [],
@@ -57,8 +62,10 @@ describe('compileConfirmedReviewToDocx', () => {
 
   it('部分未落点：返回 needs_confirmation，逐条待确认项与实际未落点 outcome 一一对应', () => {
     const result = compileConfirmedReviewToDocx({
-      riskList: riskListWith([APPLIED_RISK, NON_APPLIED_RISK]),
-      dispositions: { 'risk-applied': 'confirmed', 'risk-strayed': 'confirmed' },
+      riskList: riskListWith([
+        { ...APPLIED_RISK, dispositionStatus: 'confirmed' },
+        { ...NON_APPLIED_RISK, dispositionStatus: 'confirmed' },
+      ]),
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
       evidenceGrades: [],
@@ -78,7 +85,7 @@ describe('compileConfirmedReviewToDocx', () => {
     });
   });
 
-  it('逐项确认后落盘：确认全部未落点项即产出 docx，未落点项在 outcomes 中如实保留', () => {
+  it('显式 demo 仍可验证旧逐项 waiver；production API 不消费该本地授权', () => {
     const base = {
       riskList: riskListWith([APPLIED_RISK, NON_APPLIED_RISK]),
       dispositions: { 'risk-applied': 'confirmed', 'risk-strayed': 'confirmed' } as const,
@@ -87,11 +94,11 @@ describe('compileConfirmedReviewToDocx', () => {
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
     };
-    const probe = compileConfirmedReviewToDocx(base);
+    const probe = compileDemoConfirmedReviewToDocx(base);
     if (probe.status !== 'needs_confirmation') throw new Error('预期先撞确认门');
     const ids = probe.pending.map((p) => p.instructionId);
 
-    const landed = compileConfirmedReviewToDocx({ ...base, confirmedNonApplied: ids });
+    const landed = compileDemoConfirmedReviewToDocx({ ...base, confirmedNonApplied: ids });
     expect(landed.status).toBe('compiled');
     if (landed.status !== 'compiled') throw new Error('unreachable');
     // 未落点项照实回报（不静默丢弃），只是不再阻断
@@ -110,7 +117,7 @@ describe('compileConfirmedReviewToDocx', () => {
       now: new Date('2026-07-16T00:00:00.000Z'),
     };
     // 确认了一个并不在未落点集合里的错 id：真正未落点项仍未获确认，门禁必须继续阻断。
-    const mismatched = compileConfirmedReviewToDocx({ ...base, confirmedNonApplied: ['instr-risk-does-not-exist'] });
+    const mismatched = compileDemoConfirmedReviewToDocx({ ...base, confirmedNonApplied: ['instr-risk-does-not-exist'] });
     expect(mismatched.status).toBe('needs_confirmation');
     if (mismatched.status !== 'needs_confirmation') throw new Error('unreachable');
     expect(mismatched.pending.map((p) => p.instructionId)).toEqual(['instr-risk-strayed']);
@@ -118,8 +125,10 @@ describe('compileConfirmedReviewToDocx', () => {
 
   it('取消即零落盘：needs_confirmation 分支不携 docx', () => {
     const result = compileConfirmedReviewToDocx({
-      riskList: riskListWith([APPLIED_RISK, NON_APPLIED_RISK]),
-      dispositions: { 'risk-applied': 'confirmed', 'risk-strayed': 'confirmed' },
+      riskList: riskListWith([
+        { ...APPLIED_RISK, dispositionStatus: 'confirmed' },
+        { ...NON_APPLIED_RISK, dispositionStatus: 'confirmed' },
+      ]),
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
       evidenceGrades: [],
@@ -127,5 +136,41 @@ describe('compileConfirmedReviewToDocx', () => {
     });
     expect(result.status).toBe('needs_confirmation');
     expect(result).not.toHaveProperty('docx');
+  });
+
+  it('持久 post-revision description 是 Word comment 唯一文本源', () => {
+    const result = compileConfirmedReviewToDocx({
+      riskList: riskListWith([{
+        ...APPLIED_RISK,
+        description: '持久修正后的唯一结论',
+        dispositionStatus: 'confirmed',
+      }]),
+      sourceMarkdown: SOURCE_MD,
+      targetFileName: '设备采购合同.docx',
+      evidenceGrades: [],
+      now: new Date('2026-07-16T00:00:00.000Z'),
+    });
+    expect(result.status).toBe('compiled');
+    if (result.status !== 'compiled') throw new Error('unreachable');
+    expect(decode.decode(preflightDocx(result.docx).files['word/comments.xml'])).toContain('持久修正后的唯一结论');
+  });
+
+  it('outOfCoverage 是 production 整份 blocker，即使同时有 confirmed 风险', () => {
+    expect(() => compileConfirmedReviewToDocx({
+      riskList: {
+        ...riskListWith([{ ...APPLIED_RISK, dispositionStatus: 'confirmed' }]),
+        outOfCoverage: [{
+          summary: '缺少验收附件',
+          reason: 'citation_unresolved',
+          failures: [{
+            claim: { fileId: 'contract.docx', exactQuote: '缺失引语' },
+            reason: 'not_found',
+          }],
+        }],
+      },
+      sourceMarkdown: SOURCE_MD,
+      targetFileName: '设备采购合同.docx',
+      evidenceGrades: [],
+    })).toThrow('仍有待索证项，未生成批注稿');
   });
 });

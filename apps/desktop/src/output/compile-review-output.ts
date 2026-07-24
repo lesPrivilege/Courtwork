@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   compileConfirmedRiskListToRevisionInstructions,
   type RiskList,
@@ -10,6 +11,10 @@ import {
   type InstructionOutcome,
 } from '@courtwork/output';
 import type { ReviewDispositionState } from '../protocol/client';
+import type { CaseBinding } from '../case/case-scope';
+import type { MaterialStore } from '../material/material-store';
+import { bindDocxSourceMarkdown } from '../work/legal-s3-binding';
+import { caseOutputClient } from './case-output-client';
 
 interface EvidenceGradeRecord {
   key: string;
@@ -46,13 +51,20 @@ export type CompileConfirmedReviewOutcome =
   | ({ status: 'compiled' } & ApplyRevisionInstructionSetResult)
   | { status: 'needs_confirmation'; pending: PendingRevisionConfirmation[] };
 
-export interface CompileConfirmedReviewInput {
+interface CompileReviewBaseInput {
   riskList: RiskList;
-  dispositions: Readonly<Record<string, ReviewDispositionState>>;
   sourceMarkdown: string;
   targetFileName: string;
   evidenceGrades: readonly EvidenceGradeRecord[];
   now?: Date;
+}
+
+/** Production Legal S3：只消费 completed 后从持久账本 replay 的 post-revision RiskList。 */
+export type CompileConfirmedReviewInput = CompileReviewBaseInput;
+
+/** 显式 demo 的旧确认策略；不得用于 production grant 案。 */
+export interface CompileDemoConfirmedReviewInput extends CompileReviewBaseInput {
+  dispositions: Readonly<Record<string, ReviewDispositionState>>;
   /**
    * 用户已逐条确认、允许在缺此落点的情况下继续交付的未应用修订 id。
    * 交给 output 的针对性确认门禁（onNonApplied:'confirm'）：仍需覆盖每一条未落点项，
@@ -109,19 +121,11 @@ function describeNonApplied(
  * 返回 `needs_confirmation` 逐条交用户处置；用户逐条确认后经 `confirmedNonApplied` 重编译落盘，
  * 取消则本层从不产出 docx。不做「报错并跳过后照常交付」。
  */
-export function compileConfirmedReviewToDocx(
-  input: CompileConfirmedReviewInput,
+function compileRiskListToDocx(
+  input: CompileReviewBaseInput,
+  confirmedRiskList: RiskList,
+  confirmedNonApplied?: readonly string[],
 ): CompileConfirmedReviewOutcome {
-  const confirmedRiskList: RiskList = {
-    ...input.riskList,
-    risks: input.riskList.risks
-      .filter((risk) => input.dispositions[risk.id] === 'confirmed')
-      .map((risk) => ({ ...risk, dispositionStatus: 'confirmed' as const })),
-  };
-  if (confirmedRiskList.risks.length === 0) {
-    throw new Error('没有已确认的风险项，未生成 Word 产物');
-  }
-
   const evidenceByKey = new Map(input.evidenceGrades.map((entry) => [entry.key, entry]));
   const gatekeeper = {
     issueKey: (citation: string) => (evidenceByKey.has(citation) ? citation : undefined),
@@ -143,8 +147,8 @@ export function compileConfirmedReviewToDocx(
   try {
     const result = applyRevisionInstructionSet(originalDocx, revisionSet, {
       now: input.now,
-      onNonApplied: input.confirmedNonApplied ? 'confirm' : 'block',
-      confirmNonApplied: input.confirmedNonApplied,
+      onNonApplied: confirmedNonApplied ? 'confirm' : 'block',
+      confirmNonApplied: confirmedNonApplied,
     });
     return { status: 'compiled', docx: result.docx, outcomes: result.outcomes };
   } catch (error) {
@@ -154,4 +158,127 @@ export function compileConfirmedReviewToDocx(
       pending: error.nonApplied.map((outcome) => describeNonApplied(outcome, confirmedRiskList)),
     };
   }
+}
+
+export function compileConfirmedReviewToDocx(
+  input: CompileConfirmedReviewInput,
+): CompileConfirmedReviewOutcome {
+  if (input.riskList.outOfCoverage.length > 0) {
+    throw new Error('仍有待索证项，未生成批注稿');
+  }
+  const confirmedRiskList: RiskList = {
+    ...input.riskList,
+    risks: input.riskList.risks.filter((risk) => risk.dispositionStatus === 'confirmed'),
+  };
+  if (confirmedRiskList.risks.length === 0) {
+    throw new Error('没有已确认的风险项，未生成批注稿');
+  }
+  return compileRiskListToDocx(input, confirmedRiskList);
+}
+
+export function compileDemoConfirmedReviewToDocx(
+  input: CompileDemoConfirmedReviewInput,
+): CompileConfirmedReviewOutcome {
+  const confirmedRiskList: RiskList = {
+    ...input.riskList,
+    risks: input.riskList.risks
+      .filter((risk) => input.dispositions[risk.id] === 'confirmed')
+      .map((risk) => ({ ...risk, dispositionStatus: 'confirmed' as const })),
+  };
+  if (confirmedRiskList.risks.length === 0) {
+    throw new Error('没有已确认的风险项，未生成 Word 产物');
+  }
+  return compileRiskListToDocx(input, confirmedRiskList, input.confirmedNonApplied);
+}
+
+interface ContractReviewOutputOptions {
+  caseBinding: CaseBinding;
+  caseId: string | null;
+  contractMaterialId: string | null;
+  materialStore: MaterialStore;
+  evidenceGrades: readonly EvidenceGradeRecord[];
+  demoSourceMarkdown: string;
+  demoRiskList?: RiskList;
+  demoDispositions: Readonly<Record<string, ReviewDispositionState>>;
+  outputFileName: string;
+  onWritten: () => void;
+  onBlocked: (message: string) => void;
+  onError: (error: unknown) => void;
+}
+
+/**
+ * Desktop output coordinator：production 只收 replay 后清单并永不消费 waiver；
+ * demo 的未落点确认状态与自动重编译物理留在 demo 分支。
+ */
+export function useContractReviewOutput(options: ContractReviewOutputOptions) {
+  const [pending, setPending] = useState<PendingRevisionConfirmation[]>([]);
+  const [confirmedIds, setConfirmedIds] = useState<string[]>([]);
+  const recompileGuard = useRef(false);
+  const produce = useCallback(async (riskList: RiskList, demoConfirmedIds?: readonly string[]) => {
+    const {
+      caseBinding,
+      caseId,
+      contractMaterialId,
+      materialStore,
+      evidenceGrades,
+      demoSourceMarkdown,
+      demoDispositions,
+      outputFileName,
+    } = options;
+    if (caseBinding.kind === 'unbound') throw new Error('本案尚未绑定可写入的案件目录');
+    let sourceMarkdown = demoSourceMarkdown;
+    let targetFileName = '04-设备采购合同.docx';
+    if (caseBinding.kind === 'grant') {
+      if (!caseId || !contractMaterialId) throw new Error('尚未选定可编译的合同原件');
+      const resolved = await materialStore.resolveForProvider(caseId, contractMaterialId);
+      if (resolved.status !== 'ready') throw new Error('合同原件复验未通过，未能编译文书');
+      sourceMarkdown = bindDocxSourceMarkdown(resolved.material);
+      targetFileName = resolved.material.fileName;
+    }
+    const shared = { riskList, sourceMarkdown, targetFileName, evidenceGrades };
+    const result = caseBinding.kind === 'demo'
+      ? compileDemoConfirmedReviewToDocx({
+          ...shared,
+          dispositions: demoDispositions,
+          confirmedNonApplied: demoConfirmedIds,
+        })
+      : compileConfirmedReviewToDocx(shared);
+    if (result.status === 'needs_confirmation') {
+      recompileGuard.current = false;
+      setPending(result.pending);
+      if (caseBinding.kind === 'grant') {
+        options.onBlocked('已确认风险中有条目未能唯一落到主合同；整份批注稿未生成');
+      }
+      return result;
+    }
+    await caseOutputClient.writeDocx(caseBinding, outputFileName, result.docx);
+    if (!await caseOutputClient.exists(caseBinding, outputFileName)) {
+      throw new Error('Word 产物写入后未能在案件产出目录确认');
+    }
+    setPending([]);
+    setConfirmedIds([]);
+    options.onWritten();
+    return result;
+  }, [options]);
+  const reset = useCallback(() => {
+    recompileGuard.current = false;
+    setPending([]);
+    setConfirmedIds([]);
+  }, []);
+  const cancel = reset;
+  const confirm = useCallback((instructionId: string) => {
+    setConfirmedIds((current) => current.includes(instructionId) ? current : [...current, instructionId]);
+  }, []);
+
+  useEffect(() => {
+    if (options.caseBinding.kind !== 'demo' || !options.demoRiskList || pending.length === 0) return;
+    if (!pending.every((item) => confirmedIds.includes(item.instructionId)) || recompileGuard.current) return;
+    recompileGuard.current = true;
+    void produce(options.demoRiskList, confirmedIds).catch((error: unknown) => {
+      recompileGuard.current = false;
+      options.onError(error);
+    });
+  }, [confirmedIds, options, pending, produce]);
+
+  return { pending, confirmedIds, confirm, cancel, reset, produce };
 }

@@ -34,13 +34,13 @@ export const S3_RECORDING: SessionEvent[] = [
       { stepId: 'verify-parties', label: '核验合同主体', status: 'done' },
       {
         stepId: 'produce-risk-list', artifactType: 'legal.RiskList',
-        label: '确认风险清单后再生成修订与批注文书', status: 'awaiting_confirmation',
+        label: '提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿', status: 'awaiting_confirmation',
       },
     ],
   },
   {
     type: 'confirmation_requested', sessionId: 'demo-s3', seq: 4, emittedAt: at(4), requestId: 'demo-s3-risk-gate',
-    gateLabel: '确认风险清单后再生成修订与批注文书', artifactType: 'legal.RiskList',
+    gateLabel: '提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿', artifactType: 'legal.RiskList',
   },
 ];
 

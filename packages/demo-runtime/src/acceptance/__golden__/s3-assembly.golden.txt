@@ -47,7 +47,7 @@
 artifact JSON 落 Schema 面条目；补充说明落正文；系统通知不由你产生。
 [todo 复述]
   - [verify-parties] 核验合同主体：pending
-  - [produce-risk-list] 确认风险清单后再生成修订与批注文书：pending
+  - [produce-risk-list] 提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿：pending
 === WIRE systemPrompt ===
 [Courtwork 握手契约]
 身份：你是 Courtwork 场景执行器中的推理节点。你在给定 schema 边界内填写结构化产出；裁决与确认属于用户。
@@ -97,4 +97,4 @@ artifact JSON 落 Schema 面条目；补充说明落正文；系统通知不由�
 artifact JSON 落 Schema 面条目；补充说明落正文；系统通知不由你产生。
 [todo 复述]
   - [verify-parties] 核验合同主体：pending
-  - [produce-risk-list] 确认风险清单后再生成修订与批注文书：pending
+  - [produce-risk-list] 提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿：pending

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { SchemaParts } from './icons/schema-parts';
 import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import { ProviderSetup } from './credentials/ProviderSetup';
@@ -14,7 +14,6 @@ import {
 import {
   EMPTY_SESSION,
   projectSession,
-  type ReviewDispositionState,
   type ReviewGateProjection,
   type ScenarioFlow,
   type SessionProjection,
@@ -31,7 +30,6 @@ import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
 import type { ProviderTransport } from '@courtwork/provider/types';
 import type { PackageRegistries } from '@courtwork/registry';
-import { buildReviewResolution } from './protocol/review-resolution';
 import { Composer, CONTAINERIZE_COPY, type ComposerSendPayload, type ContainerizeRequest } from './composer';
 import { assembleRequestContent } from './composer/process-upload';
 import {
@@ -126,7 +124,19 @@ import { useDismissOnOutside } from './hooks/useDismissOnOutside';
 import { createReviewTelemetryEmitter } from './telemetry/review-telemetry';
 import { compileDraftToDocx } from '@courtwork/output';
 import { caseOutputClient } from './output/case-output-client';
-import { compileConfirmedReviewToDocx, type PendingRevisionConfirmation } from './output/compile-review-output';
+import {
+  compileConfirmedReviewToDocx,
+  compileDemoConfirmedReviewToDocx,
+  type PendingRevisionConfirmation,
+} from './output/compile-review-output';
+import {
+  S3_REVIEW_GATE_LABEL,
+  buildSubmittedReviewResolution,
+  createContractReviewSubmitter,
+  isReviewSubmissionReady,
+  projectDemoReviewRiskList,
+  useContractReviewState,
+} from './work/contract-review-flow';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
@@ -346,8 +356,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [workContractMaterialId, setWorkContractMaterialId] = useState<string | null>(null);
   const [selectedRiskId, setSelectedRiskId] = useState('risk-03');
   const [expandedEvidence, setExpandedEvidence] = useState<Record<string, boolean>>({});
-  const [dispositions, setDispositions] = useState<Record<string, ReviewDispositionState>>({});
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewResult, setReviewResult] = useState<string>();
+  const review = useContractReviewState(reviewSubmitted || reviewSubmitting);
   const [continued, setContinued] = useState(false);
   const [compileOpen, setCompileOpen] = useState(false);
   const [compilePending, setCompilePending] = useState(false);
@@ -475,7 +487,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const previewDismissedContext = useRef<string | null>(null);
   /** 当前场景内用户显式选中的工作面优先于仍在回放中的 artifact 自动路由。 */
   const manualPreviewSelected = useRef(false);
-  const resolvedRequest = useRef<string | undefined>(undefined);
   const prevCaseId = useRef(selectedCaseId);
   // 五裁②：chat 内建案=隐式存入——当前话题随建案带入新容器 work 面（切案 effect 定向注入,不破 D-1 隔离）
   const chatHandoff = useRef<{ caseId: string; messages: Array<{ text: string; files: string[]; pasteBlocks: string[]; createdAt: number }> } | null>(null);
@@ -485,11 +496,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [originalsFocusTick, setOriginalsFocusTick] = useState(0);
   const assistantCreatedAt = useRef(Date.now());
 
-  const showSystemFeedback = (message: string, ok: boolean, tone?: 'info') => {
+  const showSystemFeedback = useCallback((message: string, ok: boolean, tone?: 'info') => {
     setSystemFeedback({ message, ok, ...(tone ? { tone } : {}) });
     clearTimeout(feedbackTimer.current);
     feedbackTimer.current = setTimeout(() => setSystemFeedback(null), 3200);
-  };
+  }, []);
 
   useEffect(() => {
     try {
@@ -614,8 +625,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   /** Chat transcript remains memory-only; lifecycle truth is streamed and terminalized by core Turn. */
   /**
-   * UI-SURFACE-1：新发送与失败轮次重试共用的提交核心（先例：OUTPUT-CONFIRM-UI-1 的
-   * `produceContractDocx(confirmedNonApplied?)` 统一首编与重编，同一手法）。`historyBase` 是
+   * UI-SURFACE-1：新发送与失败轮次重试共用的提交核心。`historyBase` 是
    * 「本次提交内容」之前的存活消息（新发送=当前 chatMessages；重试=裁掉失败态与其配对用户消息后的余下部分），
    * `onProjection` 按 turnId find-or-append 落位对新发送与重试都成立：重试时旧失败态已从存活视图裁掉，
    * 新 turnId 必然落在配对用户消息之后，等价于「原位替换」。
@@ -838,8 +848,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
     setGate(undefined);
     setExpandedEvidence({});
-    setDispositions({});
+    review.reset();
     setReviewSubmitted(false);
+    setReviewSubmitting(false);
+    setReviewResult(undefined);
     setContinued(false);
     // 五裁②：仅当 handoff 定向到本案时带入 chat 话题，其余一律清空（D-1 隔离不破）
     if (chatHandoff.current?.caseId === selectedCaseId) {
@@ -867,7 +879,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setSecondaryView(undefined);
     setActiveView('revision');
     setActiveArtifactType(undefined);
-    resolvedRequest.current = undefined;
     openedAt.current = {};
     lastReplayedFlow.current = undefined;
     dispatch({ type: '__clear__' });
@@ -877,8 +888,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setWorkRunning(false);
     setWorkSubject('');
     setWorkContractMaterialId(null);
-    setReviewSubmitted(false);
-    setGate(undefined);
     setNonAppliedPending([]);
     setConfirmedNonAppliedIds([]);
 
@@ -1124,12 +1133,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     : false;
   const individualReady = selectedGate?.mode !== 'individual' || allEvidenceOpened;
   // 已处置条目退出批量池：批后计数归零禁钮，且批量永不覆写既有逐条处置（用户修正最高优先级）
-  const batchRefs = gate?.items.filter((item) => item.mode === 'batch' && !dispositions[item.itemRef]).map((item) => item.itemRef) ?? [];
+  const batchRefs = gate?.items.filter((item) => item.mode === 'batch' && !review.dispositions[item.itemRef]).map((item) => item.itemRef) ?? [];
   const draftFrozen = draftOutputExists;
   const comparing = secondaryView !== undefined;
   const usage = isDemoCase ? (flow === 'S3' ? 91 : 18) : 0;
   const progressDone =
-    !isDemoCase ? 0 : flow === 'S1' ? Math.min(16, 20) : Object.keys(dispositions).length;
+    !isDemoCase ? 0 : flow === 'S1' ? Math.min(16, 20) : review.decisionCount;
   const progressTotal = !isDemoCase ? 6 : flow === 'S1' ? 20 : 6;
   const progressCount = progressHeadCount(progressDone, progressTotal);
   const attachmentSources = localMessages.flatMap((message) => message.files);
@@ -1185,15 +1194,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     };
   }, [caseBinding]);
 
-  // OUTPUT-CONFIRM-UI-1：审阅确认后编译合同产物。落盘门禁语义（OUTPUT-CORRECTNESS #6）由
-  // @courtwork/output 决定，本处只做产品侧编排：未能落到文书上的修订不静默跳过——首次编译遇
-  // 未落点项挂起逐条待确认（不产出任何 docx），用户逐条确认后带 confirmedNonApplied 重编译落盘，
-  // 取消则从不产出。
+  // Production 只接受 completed 后 replay 的 post-revision RiskList；demo 旧 waiver 物理分流。
   const recompileGuard = useRef(false);
-  const produceContractDocx = async (confirmedNonApplied?: string[]) => {
-    if (caseBinding.kind === 'unbound' || !riskList) throw new Error('本案尚未绑定可写入的案件目录');
-    // WORK-LIVE-1 / ADR-010 决定五：grant（真实）案的 docx 源文只从本 session 冻结、resolveForProvider
-    // 刚复验的会话材料取（bindDocxSourceMarkdown），绝不消费 demo `contractSourceMd`；漂移即在此显式阻断。
+  const produceContractDocx = useCallback(async (
+    persistedRiskList: RiskList,
+    confirmedNonApplied?: string[],
+  ) => {
+    if (caseBinding.kind === 'unbound') throw new Error('本案尚未绑定可写入的案件目录');
     let sourceMarkdown = contractSourceMd;
     let targetFileName = '04-设备采购合同.docx';
     if (caseBinding.kind === 'grant') {
@@ -1203,17 +1210,21 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       sourceMarkdown = bindDocxSourceMarkdown(resolved.material);
       targetFileName = resolved.material.fileName;
     }
-    const result = compileConfirmedReviewToDocx({
-      riskList,
-      dispositions,
+    const shared = {
+      riskList: persistedRiskList,
       sourceMarkdown,
       targetFileName,
       evidenceGrades: session.evidenceGrades,
-      confirmedNonApplied,
-    });
+    };
+    const result = caseBinding.kind === 'demo'
+      ? compileDemoConfirmedReviewToDocx({ ...shared, dispositions: review.dispositions, confirmedNonApplied })
+      : compileConfirmedReviewToDocx(shared);
     if (result.status === 'needs_confirmation') {
       recompileGuard.current = false;
       setNonAppliedPending(result.pending);
+      if (caseBinding.kind === 'grant') {
+        setReviewResult('已确认风险中有条目未能唯一落到主合同；整份批注稿未生成');
+      }
       return;
     }
     await caseOutputClient.writeDocx(caseBinding, CONTRACT_OUTPUT_FILE, result.docx);
@@ -1223,12 +1234,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setConfirmedNonAppliedIds([]);
     setContractOutputExists(true);
     showSystemFeedback(`已写入本案「产出」目录：${CONTRACT_OUTPUT_FILE}`, true);
-    // WORK-LIVE-REPLAY-1：grant 案 docx 终链完成即清除恢复指针（会话已办结，无可续行门禁）。
-    if (caseBinding.kind === 'grant' && selectedCaseId) {
-      clearWorkSession(selectedCaseId);
-      setRecoverableSession(null);
-    }
-  };
+  }, [
+    caseBinding,
+    materialStore,
+    review.dispositions,
+    selectedCaseId,
+    session.evidenceGrades,
+    showSystemFeedback,
+    workContractMaterialId,
+  ]);
 
   const confirmNonApplied = (instructionId: string) => {
     setConfirmedNonAppliedIds((prev) => (prev.includes(instructionId) ? prev : [...prev, instructionId]));
@@ -1241,6 +1255,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   // 逐条确认满即重编译落盘（针对性确认，非笼统放行；覆盖不全由 output 门禁继续阻断）。
   useEffect(() => {
+    if (!isDemoCase || !riskList) return;
     if (nonAppliedPending.length === 0) {
       recompileGuard.current = false;
       return;
@@ -1250,38 +1265,93 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     recompileGuard.current = true;
     void (async () => {
       try {
-        await produceContractDocx(confirmedNonAppliedIds);
+        await produceContractDocx(
+          projectDemoReviewRiskList(riskList, review.state),
+          confirmedNonAppliedIds,
+        );
       } catch (error) {
         recompileGuard.current = false;
         setContractOutputExists(false);
         showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
       }
     })();
-  }, [nonAppliedPending, confirmedNonAppliedIds]);
+  }, [confirmedNonAppliedIds, isDemoCase, nonAppliedPending, produceContractDocx, review.state, riskList, showSystemFeedback]);
 
-  useEffect(() => {
+  const liveReviewSubmitter = useMemo(() => createContractReviewSubmitter({
+    command: workCommand,
+    mintCommandId: () => `resolve-${globalThis.crypto.randomUUID()}`,
+    compile: (persistedRiskList) => produceContractDocx(persistedRiskList),
+  }), [produceContractDocx, workCommand]);
+
+  const submitReview = () => {
     const requestId = session.confirmation?.requestId;
-    if (!requestId || !selectedCaseId || !flow || !isDemoCaseId(selectedCaseId)) return;
-    if (!gate?.items.length || resolvedRequest.current === requestId) return;
-    if (!gate.items.every((item) => dispositions[item.itemRef])) return;
-
-    const dwellMs = gate.items.reduce((total, item) => total + Math.max(0, Date.now() - (openedAt.current[item.itemRef] ?? Date.now())), 0);
-    const expandedEvidenceKeys = gate.items.flatMap((item) => item.evidenceKeys).filter((key, index, all) => all.indexOf(key) === index);
-    const resolution = buildReviewResolution(gate.items, dispositions, { dwellMs, expandedEvidenceKeys });
-    resolvedRequest.current = requestId;
-    void (async () => {
-      try {
-        const ref = workFixture.sessionRefFor(selectedCaseId, flow);
-        await workFixture.review.resolve({ ...ref, requestId, resolution });
-        setReviewSubmitted(true);
-        // 首次编译：全落点直接落盘；有未落点项则挂起逐条待确认，本次不产出任何 docx。
-        await produceContractDocx();
-      } catch (error) {
-        setContractOutputExists(false);
-        showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
+    if (
+      !requestId
+      || !selectedCaseId
+      || !gate
+      || !riskList
+      || reviewSubmitting
+      || !isReviewSubmissionReady(gate.items, review.state)
+    ) return;
+    const dwellMs = gate.items.reduce(
+      (total, item) => total + Math.max(0, Date.now() - (openedAt.current[item.itemRef] ?? Date.now())),
+      0,
+    );
+    const expandedEvidenceKeys = gate.items
+      .flatMap((item) => item.evidenceKeys)
+      .filter((key, index, all) => all.indexOf(key) === index);
+    const resolution = buildSubmittedReviewResolution(
+      gate.items,
+      review.state,
+      { dwellMs, expandedEvidenceKeys },
+    );
+    setReviewSubmitting(true);
+    setReviewResult(undefined);
+    if (isDemoCaseId(selectedCaseId) && flow) {
+      const ref = workFixture.sessionRefFor(selectedCaseId, flow);
+      void workFixture.review.resolve({ ...ref, requestId, resolution })
+        .then(async () => {
+          setReviewSubmitted(true);
+          await produceContractDocx(projectDemoReviewRiskList(riskList, review.state));
+        })
+        .catch((error: unknown) => {
+          setContractOutputExists(false);
+          showSystemFeedback(readableError(error, 'Word 产物生成失败'), false);
+        })
+        .finally(() => setReviewSubmitting(false));
+      return;
+    }
+    if (caseBinding.kind !== 'grant' || !workSessionId) {
+      setReviewSubmitting(false);
+      return;
+    }
+    const caseId = selectedCaseId;
+    void liveReviewSubmitter.submit({
+      caseId,
+      sessionId: workSessionId,
+      requestId,
+      resolution,
+      publish: dispatch,
+    }).then((result) => {
+      if (result.status === 'not_completed') {
+        const { outcome } = result;
+        if (outcome.status === 'rejected') showSystemFeedback(outcome.message, false, 'info');
+        else if (outcome.status === 'failed') showSystemFeedback(workFailureDisplayCopy(outcome.message), false);
+        else if (outcome.status === 'canceled') showSystemFeedback('已停止合同审查', true);
+        else showSystemFeedback('审阅仍在等待进一步处置，未生成批注稿', false, 'info');
+        return;
       }
-    })();
-  }, [caseBinding, dispositions, flow, gate, riskList, selectedCaseId, session.confirmation, session.evidenceGrades, workFixture]);
+      setReviewSubmitted(true);
+      setWorkPhase('completed');
+      if (result.review.kind !== 'compile') {
+        setReviewResult(result.review.message);
+        showSystemFeedback(result.review.message, true);
+      }
+    }).catch((error: unknown) => {
+      setContractOutputExists(false);
+      showSystemFeedback(readableError(error, '合同审查提交失败，未生成批注稿'), false);
+    }).finally(() => setReviewSubmitting(false));
+  };
 
   // WORK-LIVE-1：grant（真实）案的 production S3 运行触发。显式主体来自受控 preflight（不从案名/文件名/
   // 正文/模型猜测）；材料经 resolveForProvider 复验才入 provider；事件机械发布进同一 session 投影（零 recording）。
@@ -1299,10 +1369,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     if (ready.length === 0) return;
     dispatch({ type: '__clear__' });
     setGate(undefined);
+    review.reset();
     setReviewSubmitted(false);
+    setReviewSubmitting(false);
+    setReviewResult(undefined);
     setNonAppliedPending([]);
     setConfirmedNonAppliedIds([]);
-    resolvedRequest.current = undefined;
     const contractMaterialId = ready[0].materialId;
     setWorkContractMaterialId(contractMaterialId);
     setWorkRunning(true);
@@ -1368,7 +1440,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       dispatch({ type: '__clear__' });
       for (const event of replay.events) dispatch(event);
       setWorkSessionId(record.sessionId); setWorkContractMaterialId(record.contractMaterialId);
-      setWorkPhase('failed'); setWorkRunning(false); setPreviewOpen(false); setRecoverableSession(null); resolvedRequest.current = undefined; return;
+      setWorkPhase('failed'); setWorkRunning(false); setPreviewOpen(false); setRecoverableSession(null); return;
     }
     if (replay.phase !== 'paused' || replay.events.length === 0) {
       clearWorkSession(caseId);
@@ -1385,7 +1457,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setWorkSessionId(record.sessionId);
     setWorkContractMaterialId(record.contractMaterialId);
     setWorkPhase(replay.phase);
-    resolvedRequest.current = undefined;
   };
 
   // WORK-LIVE-1：grant 案的 live gate 由真实 RiskList + 证据台账派生（projectRiskListGate，绝不复用样板案门禁投影）。
@@ -1394,30 +1465,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     if (!requestId || caseBinding.kind !== 'grant' || !riskList) return;
     setGate(projectRiskListGate(riskList, requestId, session.evidenceGrades));
   }, [caseBinding.kind, riskList, session.confirmation, session.evidenceGrades]);
-
-  // WORK-LIVE-1：grant 案逐条处置满 → resolveReview（内部 mapReviewResolutionToResume 逐条 revision）→ resume → docx。
-  useEffect(() => {
-    const requestId = session.confirmation?.requestId;
-    if (!requestId || caseBinding.kind !== 'grant' || !workSessionId || !selectedCaseId) return;
-    if (!gate || resolvedRequest.current === requestId) return;
-    if (gate.items.length > 0 && !gate.items.every((item) => dispositions[item.itemRef])) return;
-    const dwellMs = gate.items.reduce((total, item) => total + Math.max(0, Date.now() - (openedAt.current[item.itemRef] ?? Date.now())), 0);
-    const expandedEvidenceKeys = gate.items.flatMap((item) => item.evidenceKeys).filter((key, index, all) => all.indexOf(key) === index);
-    const resolution = buildReviewResolution(gate.items, dispositions, { dwellMs, expandedEvidenceKeys });
-    const caseId = selectedCaseId;
-    const sessionId = workSessionId;
-    resolvedRequest.current = requestId;
-    void (async () => {
-      try {
-        await workCommand.resolveReview({ caseId, sessionId, commandId: `resume-${requestId}`, requestId, resolution }, dispatch);
-        setReviewSubmitted(true);
-        await produceContractDocx();
-      } catch (error) {
-        setContractOutputExists(false);
-        showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
-      }
-    })();
-  }, [caseBinding.kind, dispositions, gate, selectedCaseId, session.confirmation, workSessionId]);
 
   const createCase = ({
     title,
@@ -1806,12 +1853,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setFileOpsMode(false);
     setGate(undefined);
     setExpandedEvidence({});
-    setDispositions({});
+    review.reset();
     setReviewSubmitted(false);
+    setReviewSubmitting(false);
+    setReviewResult(undefined);
     setContinued(false);
     dispatch({ type: '__clear__' });
     setWorkPhase(undefined);
-    resolvedRequest.current = undefined;
   };
 
   const choosePrimaryView = (view: WorkbenchView) => {
@@ -1891,16 +1939,30 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     }
   };
 
-  const dispose = (itemRef: string, disposition: ReviewDispositionState) => {
-    setDispositions((current) => ({ ...current, [itemRef]: disposition }));
-    const protocolDisposition = disposition === 'confirmed' ? 'confirm' : disposition === 'rejected' ? 'reject' : 'revise';
+  const dispose = (itemRef: string, disposition: 'confirmed' | 'rejected') => {
+    const protocolDisposition = disposition === 'confirmed' ? 'confirm' : 'reject';
+    if (!review.decide(itemRef, protocolDisposition)) return;
+    setReviewResult(undefined);
     if (fixtureRef) {
       emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: fixtureRef.sessionId, itemRef, disposition: protocolDisposition, emittedAt: new Date().toISOString() });
     }
   };
 
-  const batchConfirm = () => {
-    setDispositions((current) => Object.fromEntries([...Object.entries(current), ...batchRefs.map((ref) => [ref, 'confirmed' as const])]));
+  const beginCorrection = (itemRef: string, originalDescription: string) => {
+    review.beginCorrection(itemRef, originalDescription);
+    setReviewResult(undefined);
+  };
+
+  const commitCorrection = () => {
+    try {
+      const decision = review.commitCorrection();
+      if (!decision) return;
+      if (fixtureRef) {
+        emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: fixtureRef.sessionId, itemRef: decision.itemRef, disposition: 'revise', emittedAt: new Date().toISOString() });
+      }
+    } catch (error) {
+      showSystemFeedback(readableError(error, '修正结论未能提交'), false, 'info');
+    }
   };
 
   const emptyWorkbench = (hint: string) => (
@@ -2004,7 +2066,25 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         />
       );
     }
-    if (!riskList || !selectedRisk) return emptyWorkbench('修订预览尚未生成');
+    if (!riskList) return emptyWorkbench('修订预览尚未生成');
+    if (!selectedRisk) {
+      return <section className="empty-review-result" data-testid="revision-panel">
+        <h3>合同审查处置</h3>
+        <p>{reviewResult ?? '本次风险清单没有待逐条处置的风险项。请显式提交，完成本次审查。'}</p>
+        {riskList.outOfCoverage.length > 0 && (
+          <ul data-testid="review-out-of-coverage">
+            {riskList.outOfCoverage.map((entry) => <li key={entry.summary}>{entry.summary}</li>)}
+          </ul>
+        )}
+        <button
+          type="button"
+          className="primary-button"
+          data-testid="submit-contract-review"
+          disabled={!gate || reviewSubmitting || reviewSubmitted || !isReviewSubmissionReady(gate.items, review.state)}
+          onClick={submitReview}
+        >{reviewSubmitting ? '正在提交处置…' : S3_REVIEW_GATE_LABEL}</button>
+      </section>;
+    }
     return <RevisionPanel
       riskList={riskList}
       selectedRisk={selectedRisk}
@@ -2015,16 +2095,28 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       unverifiedRiskIds={unverifiedRiskIds}
       expandedEvidence={expandedEvidence}
       onExpandBasis={expandBasis}
-      dispositions={dispositions}
+      dispositions={review.dispositions}
+      correctedDescriptions={review.correctedDescriptions}
       onDispose={dispose}
+      editingCorrection={review.state.editing}
+      onBeginCorrection={beginCorrection}
+      onChangeCorrection={review.changeCorrection}
+      onSubmitCorrection={commitCorrection}
+      onCancelCorrection={review.cancelCorrection}
       individualReady={individualReady}
       batchRefs={batchRefs}
-      onBatchConfirm={batchConfirm}
+      onBatchConfirm={() => review.batchConfirm(batchRefs)}
       submitted={reviewSubmitted}
       nonAppliedPending={nonAppliedPending}
       confirmedNonAppliedIds={confirmedNonAppliedIds}
       onConfirmNonApplied={confirmNonApplied}
       onCancelNonApplied={cancelNonApplied}
+      allowNonAppliedConfirmation={isDemoCase}
+      submitLabel={S3_REVIEW_GATE_LABEL}
+      submitEnabled={Boolean(gate && isReviewSubmissionReady(gate.items, review.state))}
+      submitting={reviewSubmitting}
+      onSubmitReview={submitReview}
+      resultMessage={reviewResult}
     />;
   };
 
@@ -2212,7 +2304,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             expandedCaseId={expandedCaseId}
             isDemoCase={isDemoCase}
             flow={flow}
-            dispositionsCount={Object.keys(dispositions).length}
+            dispositionsCount={review.decisionCount}
             caseRoot={demoCaseRoot}
             materials={caseMaterials}
             onVerifyMaterial={verifyMaterial}

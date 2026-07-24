@@ -228,7 +228,13 @@ export interface RevisionPanelProps {
   expandedEvidence: Record<string, boolean>;
   onExpandBasis: (riskId: string, index: number, evidenceRef: string) => void;
   dispositions: Record<string, ReviewDispositionState>;
-  onDispose: (riskId: string, disposition: ReviewDispositionState) => void;
+  correctedDescriptions: Readonly<Record<string, string>>;
+  onDispose: (riskId: string, disposition: 'confirmed' | 'rejected') => void;
+  editingCorrection?: { itemRef: string; draft: string };
+  onBeginCorrection: (riskId: string, originalDescription: string) => void;
+  onChangeCorrection: (value: string) => void;
+  onSubmitCorrection: () => void;
+  onCancelCorrection: () => void;
   individualReady: boolean;
   batchRefs: string[];
   onBatchConfirm: () => void;
@@ -238,6 +244,12 @@ export interface RevisionPanelProps {
   confirmedNonAppliedIds: string[];
   onConfirmNonApplied: (instructionId: string) => void;
   onCancelNonApplied: () => void;
+  allowNonAppliedConfirmation: boolean;
+  submitLabel: string;
+  submitEnabled: boolean;
+  submitting: boolean;
+  onSubmitReview: () => void;
+  resultMessage?: string;
 }
 
 /** 未落点原因的产品文案：只讲「发生了什么」，不出现工程词。 */
@@ -318,6 +330,8 @@ export function RevisionPanel(props: RevisionPanelProps) {
   const selectedGate = props.gate?.items.find((item) => item.itemRef === props.selectedRisk.id);
   const reviewedCount = props.selectedRisk.basis.filter((_, index) => props.expandedEvidence[`${props.selectedRisk.id}:${index}`]).length;
   const selectedDisposition = props.dispositions[props.selectedRisk.id];
+  const selectedDescription = props.correctedDescriptions[props.selectedRisk.id] ?? props.selectedRisk.description;
+  const editingSelected = props.editingCorrection?.itemRef === props.selectedRisk.id;
   const selectedSettled = selectedDisposition === 'confirmed' || selectedDisposition === 'rejected' ? selectedDisposition : undefined;
   const selectedUnverified = props.unverifiedRiskIds.includes(props.selectedRisk.id);
   const selectedNextStep = displayNextStep(selectedDisposition, selectedGate?.mode, reviewedCount === props.selectedRisk.basis.length, BATCH_CONFIRM_VISIBLE);
@@ -332,11 +346,29 @@ export function RevisionPanel(props: RevisionPanelProps) {
         </div>
       )}
       {props.submitted && <div className="submission-note" role="status">{props.gate?.items.length ?? 0} 项处置已逐条提交</div>}
+      {props.resultMessage && <div className="submission-note" role="status" data-testid="review-result">{props.resultMessage}</div>}
+      {props.riskList.outOfCoverage.length > 0 && (
+        <section className="nonapplied-confirm" data-testid="review-out-of-coverage">
+          <header><strong>仍有 {props.riskList.outOfCoverage.length} 项待索证</strong><span>需补充材料后重新审查</span></header>
+          <ul>{props.riskList.outOfCoverage.map((entry) => <li key={entry.summary}>{entry.summary}</li>)}</ul>
+        </section>
+      )}
+      <div className="review-submit-bar">
+        <button
+          type="button"
+          className="primary-button"
+          data-testid="submit-contract-review"
+          disabled={!props.submitEnabled || props.submitting || props.submitted}
+          onClick={props.onSubmitReview}
+        >{props.submitting ? '正在提交处置…' : props.submitLabel}</button>
+      </div>
       {props.nonAppliedPending.length > 0 && (
         <section className="nonapplied-confirm" data-testid="nonapplied-confirm" aria-label="未能落到文书上的修订">
           <header>
             <strong>有 {props.nonAppliedPending.length} 处修订未能落到文书上</strong>
-            <span>请逐条核对；确认后将照常生成文书，这几处不会自动标注。取消则不生成产物。</span>
+            <span>{props.allowNonAppliedConfirmation
+              ? '请逐条核对；确认后将照常生成文书，这几处不会自动标注。取消则不生成产物。'
+              : '这些风险未能唯一落到主合同，整份批注稿未生成。请修正材料后新开审查。'}</span>
           </header>
           <ul className="nonapplied-list">
             {props.nonAppliedPending.map((item) => {
@@ -355,20 +387,22 @@ export function RevisionPanel(props: RevisionPanelProps) {
                     <span className="nonapplied-reason">{nonAppliedReasonLabel(item.reason)}</span>
                     {item.quote && <q className="nonapplied-quote">{item.quote}</q>}
                   </div>
-                  <button
+                  {props.allowNonAppliedConfirmation && <button
                     type="button"
                     className="primary-button"
                     data-testid="confirm-nonapplied"
                     disabled={confirmed}
                     onClick={() => props.onConfirmNonApplied(item.instructionId)}
-                  >{confirmed ? '已确认' : '确认知悉'}</button>
+                  >{confirmed ? '已确认' : '确认知悉'}</button>}
                 </li>
               );
             })}
           </ul>
           <footer>
-            <button type="button" className="quiet-button" data-testid="cancel-nonapplied" onClick={props.onCancelNonApplied}>取消，不生成产物</button>
-            <span className="nonapplied-progress">已确认 {props.confirmedNonAppliedIds.length}/{props.nonAppliedPending.length}</span>
+            {props.allowNonAppliedConfirmation && <button type="button" className="quiet-button" data-testid="cancel-nonapplied" onClick={props.onCancelNonApplied}>取消，不生成产物</button>}
+            <span className="nonapplied-progress">{props.allowNonAppliedConfirmation
+              ? `已确认 ${props.confirmedNonAppliedIds.length}/${props.nonAppliedPending.length}`
+              : '整份阻断 · 未写入文书'}</span>
           </footer>
         </section>
       )}
@@ -380,11 +414,12 @@ export function RevisionPanel(props: RevisionPanelProps) {
           const unverified = props.unverifiedRiskIds.includes(risk.id);
           const evidenceReady = risk.basis.every((_, index) => props.expandedEvidence[`${risk.id}:${index}`]);
           const nextStep = displayNextStep(disposition, gateItem?.mode, evidenceReady, BATCH_CONFIRM_VISIBLE);
-          return <button className={`dense-row risk-grid ${props.selectedRiskId === risk.id ? 'selected' : ''}`} data-risk-id={risk.id} title={risk.description} key={risk.id} onClick={() => props.onSelectRisk(risk.id)}>
+          const description = props.correctedDescriptions[risk.id] ?? risk.description;
+          return <button className={`dense-row risk-grid ${props.selectedRiskId === risk.id ? 'selected' : ''}`} data-risk-id={risk.id} title={description} key={risk.id} onClick={() => props.onSelectRisk(risk.id)}>
             <SignatureLine tone={riskLineTone(risk.level, disposition, unverified)} />
             <SettlementFlash kind={settled} itemRef={risk.id} testable />
             {/* 编号单源：与详情头同一 id 变换（R03），杜绝 index 序号与 id 双轨漂移 */}
-            <span className="risk-summary"><b className="domain-badge">{risk.id.replace('risk-', 'R')}</b><span>{risk.description}</span></span>
+            <span className="risk-summary"><b className="domain-badge">{risk.id.replace('risk-', 'R')}</b><span>{description}</span></span>
             <span className={`severity severity-${risk.level}`}>{severityLabel(risk.level)}</span>
             <span className={`verification-state ${unverified ? 'unverified' : 'verified'}`}>{unverified ? '未核验' : '已核验'}</span>
             <span className={`gate-state ${disposition ?? 'pending'}`}>{dispositionLabel(disposition)}</span>
@@ -397,7 +432,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
           <SettleSeal disposition={selectedDisposition} itemRef={props.selectedRisk.id} />
           <header><span className="domain-badge">{props.selectedRisk.id.replace('risk-', 'R')}</span><strong>{selectedGate?.mode === 'individual' ? '逐条确认' : '常规审阅'}</strong><span>{reviewedCount}/{props.selectedRisk.basis.length} 依据已展开</span></header>
           {selectedGate?.reason && <div className="individual-note">{individualNoteCopy(selectedGate.reason === 'high_risk' ? 'high_risk' : 'unverified', BATCH_CONFIRM_VISIBLE)}</div>}
-          <p>{props.selectedRisk.description}</p>
+          <p>{selectedDescription}</p>
           <dl className="risk-status-ledger" data-testid="risk-detail-status">
             <div><dt>严重度</dt><dd>{severityLabel(props.selectedRisk.level)}</dd></div>
             <div><dt>核验</dt><dd>{selectedUnverified ? '未核验' : '已核验'}</dd></div>
@@ -430,7 +465,31 @@ export function RevisionPanel(props: RevisionPanelProps) {
               </div>
             </section>;
           })}</div>
-          <footer><span>{selectedGate?.mode === 'individual' ? `逐条确认 · ${reviewedCount}/${props.selectedRisk.basis.length} 依据已展开` : scopeFooterCopy(BATCH_CONFIRM_VISIBLE)}</span><i /><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'rejected')}>驳回</button><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'revision')}>修正</button><button className="primary-button" disabled={!props.individualReady} onClick={() => props.onDispose(props.selectedRisk.id, 'confirmed')}>确认此项</button></footer>
+          {editingSelected ? (
+            <div className="review-correction-editor" data-testid="review-correction-editor">
+              <label htmlFor={`review-correction-${props.selectedRisk.id}`}>修正风险结论</label>
+              <textarea
+                id={`review-correction-${props.selectedRisk.id}`}
+                value={props.editingCorrection?.draft ?? ''}
+                onChange={(event) => props.onChangeCorrection(event.target.value)}
+              />
+              <div>
+                <button type="button" className="quiet-button" data-testid="cancel-review-correction" onClick={props.onCancelCorrection}>取消</button>
+                <button
+                  type="button"
+                  className="primary-button"
+                  data-testid="submit-review-correction"
+                  disabled={
+                    !(props.editingCorrection?.draft.trim())
+                    || props.editingCorrection?.draft.trim() === props.selectedRisk.description.trim()
+                  }
+                  onClick={props.onSubmitCorrection}
+                >提交修正并确认</button>
+              </div>
+            </div>
+          ) : (
+            <footer><span>{selectedGate?.mode === 'individual' ? `逐条确认 · ${reviewedCount}/${props.selectedRisk.basis.length} 依据已展开` : scopeFooterCopy(BATCH_CONFIRM_VISIBLE)}</span><i /><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'rejected')}>驳回</button><button className="quiet-button" data-testid="begin-review-correction" onClick={() => props.onBeginCorrection(props.selectedRisk.id, props.selectedRisk.description)}>修正</button><button className="primary-button" disabled={!props.individualReady} onClick={() => props.onDispose(props.selectedRisk.id, 'confirmed')}>确认此项</button></footer>
+          )}
         </article>
       </div>
       <div className="document-preview"><header><strong title="精密铸造生产线设备采购合同">精密铸造生产线设备采购合同</strong><span>修订 4 处</span></header><p>乙方应于本合同签订后 7 日内支付预付款。逾期付款的，<del>每逾期一日按未付金额的 1%</del><ins>违约金以实际损失为基础，并依法定标准调整</ins>。</p><p>设备到货后，买方应在 <ins>7 个工作日内书面提出验收异议</ins>；逾期未提出不当然视为验收合格。</p></div>

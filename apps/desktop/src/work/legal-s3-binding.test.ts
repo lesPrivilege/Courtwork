@@ -16,12 +16,12 @@ import type { ResolveResult } from '../material/material-store';
 import type { StoredMaterial } from '../material/material-ref';
 import {
   IncompleteReviewError,
+  DuplicateReviewItemError,
   LEGAL_S3_SCHEMA_VERSION,
   MaterialResolutionBlockedError,
   MissingContractPartyError,
   MissingToolInputError,
   PARTY_VERIFY_TOOL_ID,
-  ReviseNotTerminalError,
   S3_RISK_LIST_TYPE,
   S3_SCENARIO_ID,
   UnknownReviewItemError,
@@ -212,18 +212,37 @@ describe('LEGAL-S3-BINDING · 逐条 revision mapping（ADR-010 决定五）', (
     expect(rejected?.fieldPath).toBe('/risks/1/dispositionStatus');
   });
 
-  it('任一 revise → ReviseNotTerminalError（保持 pending 进入编辑，不当终态 resume）', () => {
-    expect(() =>
-      mapReviewResolutionToResume(
-        { items: [
-          { itemRef: 'risk-01', disposition: 'confirm' },
-          { itemRef: 'risk-02', disposition: 'revise' },
-          { itemRef: 'risk-03', disposition: 'confirm' },
-        ] },
-        list,
-        ACTOR,
-      ),
-    ).toThrow(ReviseNotTerminalError);
+  it('合法 revise → description 在前、confirmed status 在后，两枚 RevisionInput 同次 resume', () => {
+    const resume = mapReviewResolutionToResume(
+      { items: [
+        { itemRef: 'risk-01', disposition: 'confirm' },
+        { itemRef: 'risk-02', disposition: 'revise', correctedDescription: '  修正后的风险结论  ' },
+        { itemRef: 'risk-03', disposition: 'reject' },
+      ] },
+      list,
+      ACTOR,
+    );
+    expect(resume.revisions).toEqual([
+      { artifactType: S3_RISK_LIST_TYPE, artifactId: 'case-x', fieldPath: '/risks/0/dispositionStatus', previousValue: 'pending', newValue: 'confirmed', caseId: 'case-x' },
+      { artifactType: S3_RISK_LIST_TYPE, artifactId: 'case-x', fieldPath: '/risks/1/description', previousValue: 'risk-02 描述', newValue: '修正后的风险结论', caseId: 'case-x' },
+      { artifactType: S3_RISK_LIST_TYPE, artifactId: 'case-x', fieldPath: '/risks/1/dispositionStatus', previousValue: 'pending', newValue: 'confirmed', caseId: 'case-x' },
+      { artifactType: S3_RISK_LIST_TYPE, artifactId: 'case-x', fieldPath: '/risks/2/dispositionStatus', previousValue: 'pending', newValue: 'rejected', caseId: 'case-x' },
+    ]);
+  });
+
+  it.each([
+    ['空白', '   ', '修正结论不能为空'],
+    ['同值', '  risk-02 描述  ', '修正结论必须不同于原结论'],
+  ])('%s revise → typed reject，零合法 revisions', (_label, correctedDescription, message) => {
+    expect(() => mapReviewResolutionToResume(
+      { items: [
+        { itemRef: 'risk-01', disposition: 'confirm' },
+        { itemRef: 'risk-02', disposition: 'revise', correctedDescription },
+        { itemRef: 'risk-03', disposition: 'reject' },
+      ] },
+      list,
+      ACTOR,
+    )).toThrow(message);
   });
 
   it('未覆盖全部条目 → IncompleteReviewError（不足以形成合法 revisions）', () => {
@@ -245,6 +264,21 @@ describe('LEGAL-S3-BINDING · 逐条 revision mapping（ADR-010 决定五）', (
         ACTOR,
       ),
     ).toThrow(UnknownReviewItemError);
+  });
+
+  it('重复 itemRef → DuplicateReviewItemError，零重复 RevisionInput', () => {
+    expect(() =>
+      mapReviewResolutionToResume(
+        { items: [
+          { itemRef: 'risk-01', disposition: 'confirm' },
+          { itemRef: 'risk-01', disposition: 'reject' },
+          { itemRef: 'risk-02', disposition: 'confirm' },
+          { itemRef: 'risk-03', disposition: 'confirm' },
+        ] },
+        list,
+        ACTOR,
+      ),
+    ).toThrow(DuplicateReviewItemError);
   });
 });
 
