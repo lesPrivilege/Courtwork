@@ -339,6 +339,7 @@ export function createLegalS3ScenarioDeps(input: {
   turnRunner: TurnRunnerPort;
   ledger: EvidenceLedger;
   registries: PackageRegistries;
+  expectedModelRoute: Readonly<{ providerId: string; modelId: string }>;
   signal?: AbortSignal;
 }): ScenarioExecutorDeps {
   return {
@@ -351,6 +352,8 @@ export function createLegalS3ScenarioDeps(input: {
     ledger: input.ledger,
     artifacts: input.registries.artifactSchemas,
     projections: input.registries.projections,
+    runtimeBudget: input.store.runtimeBudget,
+    expectedModelRoute: { ...input.expectedModelRoute },
     persistBarrier: async () => {
       await input.store.commit();
     },

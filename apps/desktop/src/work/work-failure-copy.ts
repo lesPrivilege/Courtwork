@@ -21,3 +21,20 @@ export function workFailureDisplayCopy(message: string | undefined): string {
   if (!HAS_CJK.test(trimmed)) return WORK_MODEL_FAILURE_FALLBACK_COPY;
   return trimmed;
 }
+
+const BUDGET_TECHNICAL_MARKER =
+  /(?:\b(?:maxUsd|maxSteps|maxToolCalls|maxSeconds|paid Turn|Turn terminal|providerId|modelId)\b|价目表版本)/i;
+
+export function workScenarioFailureDisplayCopy(failure: {
+  reason: 'invalid_output' | 'runtime_limit' | 'configuration' | 'internal';
+  message: string;
+}): string {
+  if (!BUDGET_TECHNICAL_MARKER.test(failure.message)) return failure.message;
+  if (failure.reason === 'configuration') {
+    return '预算配置无法继续本次审查 · 已知估算与冻结价目假设仍保留。请重新开始；如仍无法继续，请保留当前案件状态并检查金额上限与模型设置。';
+  }
+  if (failure.reason === 'runtime_limit') {
+    return '本次审查已达到运行上限，已停止继续执行 · 请调整相应运行上限后重新开始。';
+  }
+  return workFailureDisplayCopy(failure.message);
+}

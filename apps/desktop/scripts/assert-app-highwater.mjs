@@ -34,7 +34,7 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // 降级一次性提示）去向 `src/provider/use-model-config.ts`；App.tsx 侧只余一次 hook 调用。
 // RELEASE-VERIFY-1 合并态（2026-07-20）：两侧正交净减叠加后以 `wc -l` 实测为 2739，
 // 不取任一侧旧常量；两侧沿革均保留在上方。
-const HIGH_WATER_LINES = 2739;
+const HIGH_WATER_LINES = 2738;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

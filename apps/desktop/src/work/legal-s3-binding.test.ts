@@ -286,7 +286,19 @@ describe('LEGAL-S3-BINDING · 生产装配闭合（start→gate→resume→compl
     const turnRunner = fakeTurnRunner(
       JSON.stringify({ target: { stepId: 'produce-risk-list', artifactType: 'legal.RiskList' }, artifact: { caseId: 'case-x', risks: [] } }),
     );
-    const deps = createLegalS3ScenarioDeps({ store, tools, turnRunner, ledger, registries });
+    const expectedModelRoute = { providerId: 'test-provider', modelId: 'test-model' };
+    const deps = createLegalS3ScenarioDeps({
+      store,
+      tools,
+      turnRunner,
+      ledger,
+      registries,
+      expectedModelRoute,
+    });
+    expect(deps.runtimeBudget).toBe(store.runtimeBudget);
+    expect('limits' in deps).toBe(false);
+    expectedModelRoute.providerId = 'mutated-after-binding';
+    expect(deps.expectedModelRoute).toEqual({ providerId: 'test-provider', modelId: 'test-model' });
 
     const first = await runScenario(scenario, runInput, deps);
     expect(first.status).toBe('paused');

@@ -89,7 +89,18 @@ function clampMaxUsd(value: unknown): number | undefined {
   if (value === undefined || value === null || value === '') return undefined;
   const n = typeof value === 'number' ? value : Number(value);
   if (!Number.isFinite(n) || n < 0) return undefined;
-  return Math.round(n * 100) / 100;
+  const rounded = Number(n.toFixed(2));
+  return Number.isFinite(rounded) ? rounded : undefined;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (value === null || typeof value !== 'object') return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+function hasOwn(value: object, key: PropertyKey): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
 }
 
 function normalizeThemeMode(value: unknown): ThemeMode {
@@ -100,20 +111,33 @@ export function loadSettings(): SettingsSnapshot {
   try {
     const raw = backend.getItem(STORAGE_KEY);
     if (!raw) return structuredClone(DEFAULT_SETTINGS);
-    const parsed = JSON.parse(raw) as Partial<SettingsSnapshot>;
-    const maxUsd = clampMaxUsd(parsed.runtimeGuard?.maxUsd ?? DEFAULT_SETTINGS.runtimeGuard.maxUsd);
+    const parsed: unknown = JSON.parse(raw);
+    if (!isPlainObject(parsed)) return structuredClone(DEFAULT_SETTINGS);
+    let runtimeGuard: RuntimeGuardSettings;
+    if (!hasOwn(parsed, 'runtimeGuard') || !isPlainObject(parsed.runtimeGuard)) {
+      runtimeGuard = structuredClone(DEFAULT_SETTINGS.runtimeGuard);
+    } else if (!hasOwn(parsed.runtimeGuard, 'maxUsd') || parsed.runtimeGuard.maxUsd === null) {
+      runtimeGuard = {};
+    } else {
+      const value = parsed.runtimeGuard.maxUsd;
+      runtimeGuard = typeof value === 'number' && Number.isFinite(value) && value >= 0
+        ? { maxUsd: clampMaxUsd(value) }
+        : structuredClone(DEFAULT_SETTINGS.runtimeGuard);
+    }
+    const privacy = isPlainObject(parsed.privacy) ? parsed.privacy : {};
+    const appearance = isPlainObject(parsed.appearance) ? parsed.appearance : {};
     return {
-      runtimeGuard: { maxUsd },
+      runtimeGuard,
       privacy: {
-        telemetryEnabled: parsed.privacy?.telemetryEnabled !== false,
-        behaviorDataOptIn: Boolean(parsed.privacy?.behaviorDataOptIn),
+        telemetryEnabled: privacy.telemetryEnabled !== false,
+        behaviorDataOptIn: Boolean(privacy.behaviorDataOptIn),
         behaviorDataConsentedAt:
-          typeof parsed.privacy?.behaviorDataConsentedAt === 'string'
-            ? parsed.privacy.behaviorDataConsentedAt
+          typeof privacy.behaviorDataConsentedAt === 'string'
+            ? privacy.behaviorDataConsentedAt
             : undefined,
       },
       appearance: {
-        themeMode: normalizeThemeMode(parsed.appearance?.themeMode),
+        themeMode: normalizeThemeMode(appearance.themeMode),
       },
     };
   } catch {

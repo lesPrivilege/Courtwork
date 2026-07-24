@@ -326,9 +326,11 @@ describe('CORE-BUDGET-1 executor/store integration', () => {
     expect(final.events.filter((event) => event.type === 'turn_linked')).toHaveLength(1);
     const failure = final.events.find((event) => event.type === 'scenario_failed');
     expect(failure).toMatchObject({ type: 'scenario_failed', reason: 'configuration' });
-    expect(failure && 'message' in failure ? failure.message : '').toMatch(
-      /已知估算.*覆盖.*partial.*冻结假设.*下一步/s,
+    const message = failure && 'message' in failure ? failure.message : '';
+    expect(message).toBe(
+      `预算配置无法继续本次审查 · 当前已知估算 $0.000000 · 当前成本覆盖不完整 · 本次冻结价目假设：${PRICE_TABLE.assumptions.join('；')} · 请关闭金额上限，或选择已有完整价目的模型后重新开始`,
     );
+    expect(message).not.toMatch(/paid Turn|Turn terminal|providerId|modelId|maxUsd|价目表版本/);
   });
 
   it('blocks a frozen price-table version-only mismatch before step/identity/turn_linked/provider', async () => {
@@ -363,6 +365,9 @@ describe('CORE-BUDGET-1 executor/store integration', () => {
     expect(final.runtimeBudget.consumed.steps).toBe(0);
     expect(final.turnEntries).toEqual([]);
     expect(final.events.some((event) => event.type === 'turn_linked')).toBe(false);
+    expect((final.events.at(-1) as { message: string }).message).toBe(
+      `预算配置无法继续本次审查 · 当前已知估算 $0.000000 · 当前成本覆盖记录完整 · 本次冻结价目假设：old · 请重新开始审查；如仍无法继续，请保留当前案件状态并检查金额上限与模型设置`,
+    );
   });
 
   it('blocks a frozen price-table effectiveAt-only mismatch before step/identity/turn_linked/provider', async () => {
@@ -437,6 +442,55 @@ describe('CORE-BUDGET-1 executor/store integration', () => {
     expect(final.runtimeBudget.consumed.estimatedUsd).toBeCloseTo(9 / 7.1, 10);
     expect(final.events.slice(-2).map((event) => event.type)).toEqual(['step_failed', 'scenario_failed']);
     expect(final.events.at(-1)).toMatchObject({ type: 'scenario_failed', reason: 'runtime_limit' });
+    const message = (final.events.at(-1) as { message: string }).message;
+    expect(message).toBe(
+      '本次审查已达到金额上限 $0.01，已停止继续执行 · 请在设置中调整或关闭金额上限后重新开始',
+    );
+    expect(message).not.toMatch(/maxUsd|paid Turn|Turn terminal/);
+  });
+
+  it.each([
+    ['maxSteps', { maxSteps: 0 }, '本次任务已达到步骤上限 0 步，已停止继续执行 · 请调整运行上限后重新开始'],
+    ['maxSeconds', { maxSeconds: 0 }, '本次任务已达到运行时长上限 0 秒，已停止继续执行 · 请调整运行上限后重新开始'],
+  ] as const)('%s 使用精确产品语言且不暴露内部枚举', async (internalLimit, limits, expectedMessage) => {
+    let nowMs = 0;
+    const harness = await storeHarness({
+      runtimeBudget: budget(limits),
+      terminalSpecs: [{ status: 'completed', usage: { inputTokens: 1, outputTokens: 1 } }],
+      nowMs: () => {
+        nowMs += 1;
+        return nowMs;
+      },
+    });
+    const result = await runScenario(scenario(['test.One']), { inputArtifacts: {}, toolInputs: {} }, harness.deps);
+    expect(result).toMatchObject({ status: 'failed', reason: 'runtime_limit' });
+    const message = ((await persisted(harness.host)).events.at(-1) as { message: string }).message;
+    expect(message).toBe(expectedMessage);
+    expect(message).not.toContain(internalLimit);
+  });
+
+  it('maxToolCalls 使用精确产品语言且不暴露内部枚举', async () => {
+    const harness = await storeHarness({
+      runtimeBudget: budget({ maxToolCalls: 0 }),
+      terminalSpecs: [{ status: 'completed', usage: { inputTokens: 1, outputTokens: 1 } }],
+    });
+    harness.deps.tools.register('budget-reader', {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      tool: { id: 'budget-reader', run: async () => ({ verified: true, source: 'test', data: {} }) } as any,
+      grade: 'A',
+      sideEffect: 'pure_read',
+    });
+    const result = await runScenario(
+      { ...scenario(['test.One']), toolIds: ['budget-reader'] },
+      { inputArtifacts: {}, toolInputs: { 'budget-reader': {} } },
+      harness.deps,
+    );
+    expect(result).toMatchObject({ status: 'failed', reason: 'runtime_limit' });
+    const message = ((await persisted(harness.host)).events.at(-1) as { message: string }).message;
+    expect(message).toBe(
+      '本次任务已达到工具调用上限 0 次，已停止继续执行 · 请调整运行上限后重新开始',
+    );
+    expect(message).not.toContain('maxToolCalls');
   });
 
   it('persists known usage for an ordinary failed paid terminal before propagating provider failure', async () => {

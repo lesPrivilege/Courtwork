@@ -48,7 +48,7 @@ async function setFile(page: Page, relativePath: string, text: string) {
 async function setSuccessTurnStub(page: Page, quote: string) {
   await page.evaluate((exactQuote) => {
     const hooks = (window as unknown as { __courtworkWorkHooks: WorkHooks }).__courtworkWorkHooks;
-    hooks.setTurnStub((input: { turnId: string; providerRequestId: string; request: unknown }) => {
+    hooks.setTurnStub((input: { turnId: string; providerRequestId: string; request: unknown; modelRoute: { providerId: string; modelId: string } }) => {
       const text = JSON.stringify(input.request);
       const match = text.match(/材料:开始 fileId=([\w-]+)/);
       const fileId = match ? match[1] : 'unknown';
@@ -68,8 +68,9 @@ async function setSuccessTurnStub(page: Page, quote: string) {
         status: 'completed',
         turnId: input.turnId,
         providerRequestId: input.providerRequestId,
-        providerId: 'e2e-stub',
-        modelId: 'e2e-stub',
+        providerId: input.modelRoute.providerId,
+        modelId: input.modelRoute.modelId,
+        usage: { inputTokens: 1, outputTokens: 1 },
         reasoning: { status: 'absent' },
         assistantMessage: JSON.stringify({ target: { stepId: 'produce-risk-list', artifactType: 'legal.RiskList' }, artifact }),
         finishReason: 'stop',
@@ -83,14 +84,14 @@ async function setSuccessTurnStub(page: Page, quote: string) {
 async function setHangingTurnStub(page: Page) {
   await page.evaluate(() => {
     const hooks = (window as unknown as { __courtworkWorkHooks: WorkHooks }).__courtworkWorkHooks;
-    hooks.setTurnStub((input: { turnId: string; providerRequestId: string; signal?: AbortSignal }) =>
+    hooks.setTurnStub((input: { turnId: string; providerRequestId: string; signal?: AbortSignal; modelRoute: { providerId: string; modelId: string } }) =>
       new Promise((resolve) => {
         const onAbort = () => resolve({
           status: 'failed',
           turnId: input.turnId,
           providerRequestId: input.providerRequestId,
-          providerId: 'e2e-stub',
-          modelId: 'e2e-stub',
+          providerId: input.modelRoute.providerId,
+          modelId: input.modelRoute.modelId,
           reasoning: { status: 'absent' },
           failure: { kind: 'canceled', message: '已取消', retryable: false },
           failedAt: '2026-07-17T00:00:00.000Z',

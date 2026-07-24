@@ -3858,6 +3858,35 @@ core 已定语义，不另造 UI 预算状态。
   command 集成测试用同一 host + 全新 command 证明，真 App 重启留给版本级 Tauri 候选验收。
   新增 Playwright 后以 `--list` 实数只升 floor；App 实际净减后把 highwater 从当前 2739 下调到实测值。
 
+### 实现留痕（WORK-BUDGET-1，2026-07-24，待独立验收）
+
+- production 已把 Settings 的 fresh-session limits、冻结 model route 与 DeepSeek 静态价目快照装入
+  既有 v1 `runtimeBudget`；resume 只消费信封。预算 factory 位于 fresh 闸门后且每 session 一次，
+  binding 注入 `store.runtimeBudget` 同一对象、expected route 防御副本并移除 legacy limits。
+  provider 直接消费冻结 route；command 的 payload/factory/header/runner/expected route 互不共享
+  可变对象。未新增 ledger、wire、事件或持久字段。
+- Settings 已锁 own-key 三分法：顶层缺自有 runtimeGuard 才回默认 $5；自有 `{}` 或
+  `maxUsd:null` 保持不限额；非普通顶层回完整默认、局部分区损坏只回预算默认。价目 assembly
+  对已收录／未收录 DeepSeek、无效元数据与非 DeepSeek 均 fail-closed，并深拷贝 assumptions。
+- Progress 正文已外提为只接完整投影的 `ProgressModuleBody`，demo/real 空态统一；持久
+  runtime/configuration failure 经显示 guard 回放。failed outcome 不凭瞬时结果清 pointer；
+  durable failed replay 水合为只读 Progress、清 React recoverable 状态但保留 localStorage pointer，
+  跨工作面往返仍无 resume/retry。`invalid_scope` 对旧 pointer 的完整矩阵明确不在本票扩张，留给
+  `CONTRACT-TRACE-1`。异步 preflight 期间的同步取消复用同一 AbortController；拒绝后 controller
+  清理，同 session 再 cancel 为 `not_running`，未新增 queued-cancel 概念。
+- 实现过程首次误在红测前落 production；发现后把全部 production 恢复到基线 `285df8f`，保留测试并
+  重新取得真实红证，再从红实现：desktop focused 当时 **6 files / 75 tests，56 passed /
+  19 failed**；静态门 **13** 项预期违反；新 E2E **4/4 failed** 于目标行为。此流程偏差与纠正如实
+  留痕，不把后补测试冒充先红。
+- 最终实现证据：desktop focused 扩为 **6 files / 82 tests** 全绿，core copy/integration
+  **1 file / 12 tests** 全绿，WORK-LIVE 静态门与新 E2E **4/4** 全绿；root Vitest
+  **149 files / 1294 tests**、`pnpm lint`、`pnpm -r build` 均通过。Playwright `--list` 为
+  **333 tests / 61 files**，`--workers=2` 无 retry 最终 **333/333**（6.6m）；App 高水位
+  **2738/2738**。4-worker 全量曾两次各命中同一 legacy `global-verbs` 的不同 hover timing
+  抖动，两个失败用例随后分别单独 **1/1** 通过；未放宽产品 CSS 或断言。
+- 全量回归揭示旧 `d1-case-scope` 仍锁英文 `New case`；经架构角色明确补充测试白名单后，只机械
+  更新为冻结中文空态，未改选择器、步骤或 production。以上均为实现侧自证，不构成独立验收放行。
+
 ### 禁止扩张
 
 不顺带做会话累计 usage 面板、C3-4 `contextWindow`、新 Settings 状态机、动态在线取价、第二通知系统、

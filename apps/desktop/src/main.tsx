@@ -15,7 +15,7 @@ import { createDesktopPackageRuntime } from './composition/package-runtime';
 import { createDemoWorkFixture } from './demo/client';
 import { createDesktopWorkCommand, installWorkTestHooks } from './work/work-runtime';
 import { createTauriWorkStateHost } from './work/tauri-work-state-host';
-import { loadModelConfig, stripDegradation } from './provider/model-config';
+import { loadSettings } from './settings/settings-store';
 import { installDesktopThemeController } from './settings/theme-controller';
 import './styles.css';
 
@@ -57,9 +57,7 @@ const demoWorkFixture = createDemoWorkFixture(
 const workCommand = createDesktopWorkCommand({
   registries: packageRuntime.packageRegistries,
   materialResolver: materialStore,
-  // MODEL-CONFIG-EXPLICIT-1：降级标记只属本次加载、只在本地 UI 与返回值显式（票面 #5），
-  // 不随配置流入 provider/work 链——此处显式剔除，与 App.tsx 侧同步适配。
-  providerConfig: () => stripDegradation(loadModelConfig()),
+  loadRuntimeLimits: () => loadSettings().runtimeGuard,
   ...(providerTransport ? { transport: providerTransport } : {}),
   ...(workHost ? { host: workHost } : {}),
 });

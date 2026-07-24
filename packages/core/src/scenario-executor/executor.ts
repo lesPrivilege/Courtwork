@@ -285,17 +285,33 @@ function priceTableMatches(budget: WorkRuntimeBudget): boolean {
     && budget.costBasis.priceTableEffectiveAt === PRICE_TABLE.effectiveAt;
 }
 
-function costConfigurationMessage(budget: WorkRuntimeBudget, detail: string): string {
+function costConfigurationMessage(budget: WorkRuntimeBudget): string {
   const assumptions = budget.costBasis.assumptions.length > 0
     ? budget.costBasis.assumptions.join('；')
     : '未提供';
+  const partial = budget.consumed.costCoverage === 'partial';
   return [
-    `成本预算配置阻断：${detail}`,
+    '预算配置无法继续本次审查',
     `当前已知估算 $${budget.consumed.estimatedUsd.toFixed(6)}`,
-    `覆盖状态 ${budget.consumed.costCoverage}`,
-    `冻结假设：${assumptions}`,
-    '下一步：核对该会话冻结的模型与价目版本；如成本覆盖无法补全，请新建会话并重新确认预算配置',
-  ].join('；');
+    partial ? '当前成本覆盖不完整' : '当前成本覆盖记录完整',
+    `本次冻结价目假设：${assumptions}`,
+    partial
+      ? '请关闭金额上限，或选择已有完整价目的模型后重新开始'
+      : '请重新开始审查；如仍无法继续，请保留当前案件状态并检查金额上限与模型设置',
+  ].join(' · ');
+}
+
+function runtimeLimitMessage(error: RuntimeLimitExceededError): string {
+  if (error.limit === 'maxUsd') {
+    return `本次审查已达到金额上限 $${error.value.toFixed(2)}，已停止继续执行 · 请在设置中调整或关闭金额上限后重新开始`;
+  }
+  const labels = {
+    maxSteps: ['步骤', '步'],
+    maxToolCalls: ['工具调用', '次'],
+    maxSeconds: ['运行时长', '秒'],
+  } as const;
+  const [label, unit] = labels[error.limit];
+  return `本次任务已达到${label}上限 ${error.value} ${unit}，已停止继续执行 · 请调整运行上限后重新开始`;
 }
 
 function failedResult(
@@ -421,15 +437,13 @@ async function runWorkTurn(
   let terminalized: Extract<ScenarioRunResult, { status: 'failed' }> | undefined;
   if (routeMismatch) {
     const budget = guard.snapshot();
-    const message = costConfigurationMessage(
-      budget,
-      `Turn terminal 路由 ${turn.providerId}/${turn.modelId} 与冻结路由 ${deps.expectedModelRoute!.providerId}/${deps.expectedModelRoute!.modelId} 不匹配`,
-    );
+    const message = costConfigurationMessage(budget);
     appendScenarioFailure(deps, 'configuration', message);
     terminalized = failedResult(deps, 'configuration', message);
   } else if (runtimeLimit) {
-    appendScenarioFailure(deps, 'runtime_limit', runtimeLimit.message);
-    terminalized = failedResult(deps, 'runtime_limit', runtimeLimit.message);
+    const message = runtimeLimitMessage(runtimeLimit);
+    appendScenarioFailure(deps, 'runtime_limit', message);
+    terminalized = failedResult(deps, 'runtime_limit', message);
   }
 
   // terminal、最新预算、step_failed（如有）与 scenario_failed（如有）恰好一次 whole-envelope CAS。
@@ -707,9 +721,10 @@ function createGuardForCall(deps: ScenarioExecutorDeps): RuntimeGuard {
 async function terminalizeRuntimeFailure(error: unknown, deps: ScenarioExecutorDeps): Promise<ScenarioRunResult> {
   if (error instanceof ScenarioTerminalizedError) return error.result;
   if (error instanceof RuntimeLimitExceededError) {
-    appendScenarioFailure(deps, 'runtime_limit', error.message);
+    const message = runtimeLimitMessage(error);
+    appendScenarioFailure(deps, 'runtime_limit', message);
     await deps.persistBarrier?.();
-    return failedResult(deps, 'runtime_limit', error.message);
+    return failedResult(deps, 'runtime_limit', message);
   }
   if (error instanceof RuntimeBudgetConfigurationError) {
     const fallback: WorkRuntimeBudget = {
@@ -731,7 +746,7 @@ async function terminalizeRuntimeFailure(error: unknown, deps: ScenarioExecutorD
         // 装配损坏本身仍须形成可见 configuration 终态；不以二次 snapshot 异常吞掉原始 blocker。
       }
     }
-    const message = costConfigurationMessage(budget, error.message);
+    const message = costConfigurationMessage(budget);
     appendScenarioFailure(deps, 'configuration', message);
     await deps.persistBarrier?.();
     return failedResult(deps, 'configuration', message);

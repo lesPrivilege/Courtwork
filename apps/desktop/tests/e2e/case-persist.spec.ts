@@ -57,7 +57,7 @@ async function setContractFile(page: Page) {
 async function setSuccessTurnStub(page: Page) {
   await page.evaluate((exactQuote) => {
     const hooks = (window as unknown as { __courtworkWorkHooks: WorkHooks }).__courtworkWorkHooks;
-    hooks.setTurnStub((input: { turnId: string; providerRequestId: string; request: unknown }) => {
+    hooks.setTurnStub((input: { turnId: string; providerRequestId: string; request: unknown; modelRoute: { providerId: string; modelId: string } }) => {
       const text = JSON.stringify(input.request);
       const match = text.match(/材料:开始 fileId=([\w-]+)/);
       const fileId = match ? match[1] : 'unknown';
@@ -77,8 +77,9 @@ async function setSuccessTurnStub(page: Page) {
         status: 'completed',
         turnId: input.turnId,
         providerRequestId: input.providerRequestId,
-        providerId: 'e2e-stub',
-        modelId: 'e2e-stub',
+        providerId: input.modelRoute.providerId,
+        modelId: input.modelRoute.modelId,
+        usage: { inputTokens: 1, outputTokens: 1 },
         reasoning: { status: 'absent' },
         assistantMessage: JSON.stringify({ target: { stepId: 'produce-risk-list', artifactType: 'legal.RiskList' }, artifact }),
         finishReason: 'stop',

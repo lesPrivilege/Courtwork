@@ -67,7 +67,7 @@ import {
   type ModuleOpenMap,
   type UserModuleOverride,
 } from './modules/module-stack';
-import { ContextModuleBody, WorkingFoldersTree } from './modules/ModuleStack';
+import { ContextModuleBody, ProgressModuleBody, WorkingFoldersTree } from './modules/ModuleStack';
 import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRenderer';
 import { ArtifactHostView, resolveHostArtifact } from './preview/ArtifactHostView';
 import type { HostRendererRegistry } from './preview/HostRendererRegistry';
@@ -1341,9 +1341,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       } else if (outcome.status === 'canceled') {
         showSystemFeedback('已停止合同审查', true);
       }
-      // WORK-LIVE-REPLAY-1：非暂停终态（拒绝/失败/取消）无可恢复会话——清除指针，不留悬空恢复入口。
-      // paused 保留指针（可恢复）；completed 由 docx 终链清除。
-      if (outcome.status === 'rejected' || outcome.status === 'failed' || outcome.status === 'canceled') {
+      // 持久 failed 仍须从 Progress 只读回放；瞬时 outcome 本身不证明是否落账。
+      if (outcome.status === 'rejected' || outcome.status === 'canceled') {
         clearWorkSession(caseId);
         setRecoverableSession(null);
       }
@@ -1364,9 +1363,14 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     if (!record) { setRecoverableSession(null); return; }
     const caseId = selectedCaseId;
     const replay = await workCommand.replay({ caseId, sessionId: record.sessionId }).catch(() => null);
-    // 失效诚实：读入失败 / 信封已不存在（空事件）/ 非暂停态（残缺·已办结·已失败）→ 无可续行门禁，
-    // 显式失效反馈（info 中性态）+ 清除残 ref，零静默降级。
-    if (!replay || replay.phase !== 'paused' || replay.events.length === 0) {
+    if (!replay) { showSystemFeedback('暂时无法读取上次审查进度，请稍后重试', false, 'info'); return; }
+    if (replay.phase === 'failed' && replay.events.length > 0) {
+      dispatch({ type: '__clear__' });
+      for (const event of replay.events) dispatch(event);
+      setWorkSessionId(record.sessionId); setWorkContractMaterialId(record.contractMaterialId);
+      setWorkPhase('failed'); setWorkRunning(false); setPreviewOpen(false); setRecoverableSession(null); resolvedRequest.current = undefined; return;
+    }
+    if (replay.phase !== 'paused' || replay.events.length === 0) {
       clearWorkSession(caseId);
       setRecoverableSession(null);
       const message = replay?.phase === 'completed'
@@ -2099,12 +2103,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       status: (isDemoCase ? (progressDone >= progressTotal ? 'done' : 'active') : 'idle') as 'done' | 'active' | 'idle',
       open: moduleOpen.progress,
       onToggle: () => toggleModule('progress'),
-      body: <>
-        <ul className="progress-module-list" data-testid="progress-module-body-list">
-          {session.progress.length === 0 && <li className="wf-empty">{isDemoCase ? 'Waiting for task events…' : 'New case · waiting for a task'}</li>}
-          {session.progress.map((message, index) => <li key={`${message}-${index}`}>{message}</li>)}
-        </ul>
-      </>,
+      body: <ProgressModuleBody projection={session} />,
     },
     {
       id: 'working-folders' as const,

@@ -139,7 +139,7 @@ test.describe('D-1 容器切换矩阵（防状态继承）', () => {
     const bProgress = page.getByTestId('module-progress');
     if ((await bProgress.getAttribute('data-open')) !== 'true') await page.getByTestId('module-progress-toggle').click();
     await expect(bProgress).toHaveAttribute('data-open', 'true');
-    await expect(page.getByTestId('progress-module-body-list')).toContainText('New case');
+    await expect(page.getByTestId('progress-module-body-list')).toContainText('尚无任务进展 · 开始一项工作后在此查看');
 
     // 回到 demo（等浏览器态 preview 落定确认切回）
     await page.getByTestId('case-card-demo-linjiang').getByRole('button').first().click();

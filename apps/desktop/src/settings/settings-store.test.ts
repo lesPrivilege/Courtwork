@@ -28,6 +28,82 @@ describe('settings-store', () => {
     expect(loadSettings().runtimeGuard.maxUsd).toBe(12.5);
   });
 
+  it('keeps an explicitly cleared runtime budget unlimited across reload', () => {
+    const next = updateRuntimeGuard(loadSettings(), {});
+    expect(next.runtimeGuard.maxUsd).toBeUndefined();
+    expect(loadSettings().runtimeGuard.maxUsd).toBeUndefined();
+  });
+
+  it('defaults a readable top-level object that lacks its own runtimeGuard key', () => {
+    __setSettingsStoreForTests({
+      getItem: () => JSON.stringify({ privacy: { telemetryEnabled: false } }),
+      setItem: () => undefined,
+    });
+    expect(loadSettings().runtimeGuard.maxUsd).toBe(5);
+  });
+
+  it.each([
+    ['own empty runtimeGuard', { runtimeGuard: {} }],
+    ['own null maxUsd', { runtimeGuard: { maxUsd: null } }],
+  ])('keeps %s explicitly unlimited', (_label, value) => {
+    __setSettingsStoreForTests({
+      getItem: () => JSON.stringify(value),
+      setItem: () => undefined,
+    });
+    expect(loadSettings().runtimeGuard.maxUsd).toBeUndefined();
+  });
+
+  it.each([null, [], 'settings', 7])('falls a non-plain top-level value %j back to complete defaults', (value) => {
+    __setSettingsStoreForTests({
+      getItem: () => JSON.stringify(value),
+      setItem: () => undefined,
+    });
+    expect(loadSettings()).toEqual(DEFAULT_SETTINGS);
+  });
+
+  it.each([
+    ['null runtimeGuard', { runtimeGuard: null }],
+    ['array runtimeGuard', { runtimeGuard: [] }],
+    ['string maxUsd', { runtimeGuard: { maxUsd: '5' } }],
+    ['negative maxUsd', { runtimeGuard: { maxUsd: -1 } }],
+  ])('fails damaged budget partition safe for %s', (_label, value) => {
+    __setSettingsStoreForTests({
+      getItem: () => JSON.stringify(value),
+      setItem: () => undefined,
+    });
+    expect(loadSettings().runtimeGuard.maxUsd).toBe(5);
+  });
+
+  it('fails a JSON numeric overflow safe instead of treating it as unlimited', () => {
+    __setSettingsStoreForTests({
+      getItem: () => '{"runtimeGuard":{"maxUsd":1e400}}',
+      setItem: () => undefined,
+    });
+    expect(loadSettings().runtimeGuard.maxUsd).toBe(5);
+  });
+
+  it('preserves valid sibling partitions when only runtimeGuard is damaged', () => {
+    __setSettingsStoreForTests({
+      getItem: () => JSON.stringify({
+        runtimeGuard: [],
+        privacy: { telemetryEnabled: false, behaviorDataOptIn: true },
+        appearance: { themeMode: 'dark' },
+      }),
+      setItem: () => undefined,
+    });
+    expect(loadSettings()).toMatchObject({
+      runtimeGuard: { maxUsd: 5 },
+      privacy: { telemetryEnabled: false, behaviorDataOptIn: true },
+      appearance: { themeMode: 'dark' },
+    });
+  });
+
+  it('normalizes Number.MAX_VALUE without overflowing to unlimited', () => {
+    const next = updateRuntimeGuard(loadSettings(), { maxUsd: Number.MAX_VALUE });
+    expect(next.runtimeGuard.maxUsd).toBe(Number.MAX_VALUE);
+    expect(loadSettings().runtimeGuard.maxUsd).toBe(Number.MAX_VALUE);
+  });
+
   it('opt-in records consent timestamp; opt-out clears it', () => {
     const on = setBehaviorDataOptIn(loadSettings(), true, () => new Date('2026-07-11T08:00:00.000Z'));
     expect(on.privacy.behaviorDataOptIn).toBe(true);

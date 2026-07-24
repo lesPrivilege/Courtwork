@@ -1,5 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { Icon } from '../workbench/Icon';
+import type { SessionProjection } from '../protocol/client';
+import { workScenarioFailureDisplayCopy } from '../work/work-failure-copy';
 import type { ModuleId, ModuleOpenMap } from './module-stack';
 
 interface StackModuleProps {
@@ -215,6 +217,22 @@ export function ContextModuleBody({
         </button>
       )}
     </div>
+  );
+}
+
+export function ProgressModuleBody({ projection }: { projection: SessionProjection }) {
+  return (
+    <ul className="progress-module-list" data-testid="progress-module-body-list">
+      {projection.scenarioFailure && (
+        <li role="alert" data-testid="progress-scenario-failure">
+          {workScenarioFailureDisplayCopy(projection.scenarioFailure)}
+        </li>
+      )}
+      {projection.progress.length === 0 && (
+        <li className="wf-empty">尚无任务进展 · 开始一项工作后在此查看</li>
+      )}
+      {projection.progress.map((message, index) => <li key={`${message}-${index}`}>{message}</li>)}
+    </ul>
   );
 }
 

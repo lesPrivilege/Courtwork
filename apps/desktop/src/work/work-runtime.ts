@@ -15,11 +15,12 @@ import { createInMemoryWorkStateHost, createArtifactEnvelopeCodec } from '@court
 import { createTurnRunner } from '@courtwork/core/turn-protocol';
 import { createOpenAICompatibleProvider } from '@courtwork/provider/openai';
 import { getProviderDescriptor } from '@courtwork/provider/registry';
+import { PRICE_TABLE } from '@courtwork/provider/pricing';
 import type { Provider, ProviderTransport } from '@courtwork/provider/types';
 import type { TurnStore } from '@courtwork/core/turn-protocol';
-import type { ConfirmationActor, PersistedTurn, TurnRunnerPort, WorkStateHostPort } from '@courtwork/core';
+import type { ConfirmationActor, PersistedTurn, TurnRunnerPort, WorkRuntimeBudget, WorkStateHostPort } from '@courtwork/core';
 import type { PackageRegistries } from '@courtwork/registry';
-import type { ModelConfig } from '../provider/model-config';
+import type { WorkModelRoute, WorkSessionRef } from '../protocol/client';
 import { buildArtifactVersioningSource, LEGAL_S3_SCHEMA_VERSION } from './legal-s3-binding';
 import { createLegalS3WorkCommand, type LegalS3WorkCommand } from './work-command';
 import type { MaterialResolver } from './legal-s3-binding';
@@ -37,14 +38,20 @@ export type WorkTurnStub = (input: {
   turnId: string;
   providerRequestId: string;
   request: unknown;
+  modelRoute: Readonly<WorkModelRoute>;
   signal?: AbortSignal;
 }) => PersistedTurn | Promise<PersistedTurn>;
 
 let workTurnStub: WorkTurnStub | null = null;
 let resetHost: (() => void) | null = null;
+let readHost: ((ref: WorkSessionRef) => ReturnType<WorkStateHostPort['read']>) | null = null;
 
 /** Playwright/DEV 探针注入点（非 demo 装配；仅 main.tsx 在 DEV+E2E mode 安装）。 */
-export function installWorkTestHooks(): { setTurnStub(stub: WorkTurnStub | null): void; reset(): void } {
+export function installWorkTestHooks(): {
+  setTurnStub(stub: WorkTurnStub | null): void;
+  reset(): void;
+  readState(ref: WorkSessionRef): ReturnType<WorkStateHostPort['read']>;
+} {
   const hooks = {
     setTurnStub(stub: WorkTurnStub | null) {
       workTurnStub = stub;
@@ -53,17 +60,20 @@ export function installWorkTestHooks(): { setTurnStub(stub: WorkTurnStub | null)
       workTurnStub = null;
       resetHost?.();
     },
+    readState(ref: WorkSessionRef) {
+      return readHost ? readHost(ref) : Promise.resolve({ found: false as const });
+    },
   };
   (window as typeof window & { __courtworkWorkHooks?: typeof hooks }).__courtworkWorkHooks = hooks;
   return hooks;
 }
 
-function workProvider(config: ModelConfig, transport: ProviderTransport): Provider {
-  return createOpenAICompatibleProvider(getProviderDescriptor(config.providerId), {
+function workProvider(route: Readonly<WorkModelRoute>, transport: ProviderTransport): Provider {
+  return createOpenAICompatibleProvider(getProviderDescriptor(route.providerId), {
     auth: { kind: 'api_key', apiKey: KEYCHAIN_PLACEHOLDER },
     billing: { kind: 'metered' },
-    modelId: config.modelId,
-    reasoningLevel: config.reasoning,
+    modelId: route.modelId,
+    reasoningLevel: route.reasoning,
     transport,
   });
 }
@@ -71,8 +81,7 @@ function workProvider(config: ModelConfig, transport: ProviderTransport): Provid
 export interface DesktopWorkRuntimeInput {
   registries: PackageRegistries;
   materialResolver: MaterialResolver;
-  /** 冻结 model route 的真源：Work run 的 provider 由当前 ModelConfig 构造（生产走 transport）。 */
-  providerConfig: () => ModelConfig;
+  loadRuntimeLimits: () => WorkRuntimeBudget['limits'];
   transport?: ProviderTransport;
   host?: WorkStateHostPort;
 }
@@ -91,12 +100,14 @@ export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalS
       compareAndSwap: (cas) => inner.compareAndSwap(cas),
     };
   }
+  readHost = (ref) => host!.read(ref);
 
   const codec = createArtifactEnvelopeCodec(
     buildArtifactVersioningSource(input.registries, { legal: LEGAL_S3_SCHEMA_VERSION }),
   );
 
-  const makeTurnRunner = (turnStore: TurnStore): TurnRunnerPort => {
+  const makeTurnRunner = (turnStore: TurnStore, modelRoute: Readonly<WorkModelRoute>): TurnRunnerPort => {
+    const frozenRoute = { ...modelRoute };
     if (workTurnStub) {
       const stub = workTurnStub;
       return {
@@ -105,6 +116,7 @@ export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalS
             turnId: runInput.turnId,
             providerRequestId: runInput.providerRequestId,
             request: runInput.request,
+            modelRoute: { ...frozenRoute },
             ...(runInput.signal ? { signal: runInput.signal } : {}),
           });
           turnStore.save(turn);
@@ -112,14 +124,43 @@ export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalS
         },
       };
     }
-    if (!input.transport) {
-      return {
-        run() {
+    return {
+      run(runInput) {
+        if (!input.transport) {
           return Promise.reject(new Error('合同审查仅在桌面应用内可用（缺 provider transport）'));
-        },
-      };
-    }
-    return createTurnRunner(workProvider(input.providerConfig(), input.transport), turnStore);
+        }
+        return createTurnRunner(workProvider(frozenRoute, input.transport), turnStore).run(runInput);
+      },
+    };
+  };
+
+  const createRuntimeBudget = (route: Readonly<WorkModelRoute>): WorkRuntimeBudget => {
+    const base: WorkRuntimeBudget = {
+      limits: { ...input.loadRuntimeLimits() },
+      costBasis: { currency: 'USD', assumptions: [] },
+      consumed: { steps: 0, toolCalls: 0, executionMs: 0, estimatedUsd: 0, costCoverage: 'partial' },
+    };
+    if (route.providerId !== 'deepseek') return base;
+    const metadataValid = typeof PRICE_TABLE.version === 'string' && PRICE_TABLE.version.length > 0
+      && typeof PRICE_TABLE.effectiveAt === 'string' && PRICE_TABLE.effectiveAt.length > 0
+      && Array.isArray(PRICE_TABLE.assumptions)
+      && PRICE_TABLE.assumptions.every((item) => typeof item === 'string')
+      && Number.isFinite(PRICE_TABLE.rmbToUsdRate) && PRICE_TABLE.rmbToUsdRate > 0;
+    if (!metadataValid) return base;
+    const price = PRICE_TABLE.prices.deepseek?.[route.modelId];
+    const complete = price !== undefined
+      && Number.isFinite(price.inputPerMillionRmb) && price.inputPerMillionRmb >= 0
+      && Number.isFinite(price.outputPerMillionRmb) && price.outputPerMillionRmb >= 0;
+    return {
+      ...base,
+      costBasis: {
+        currency: 'USD',
+        priceTableVersion: PRICE_TABLE.version,
+        priceTableEffectiveAt: PRICE_TABLE.effectiveAt,
+        assumptions: [...PRICE_TABLE.assumptions],
+      },
+      consumed: { ...base.consumed, costCoverage: complete ? 'complete' : 'partial' },
+    };
   };
 
   return createLegalS3WorkCommand({
@@ -129,6 +170,7 @@ export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalS
     actor: DESKTOP_WORK_ACTOR,
     materialResolver: input.materialResolver,
     makeTurnRunner,
+    createRuntimeBudget,
     // ADR-010 决定一：未注入 provider transport 且无 DEV/E2E stub 即「production composition 未装配」——
     // start 返回 rejected/not_configured（动态求值：E2E stub 在 runtime 安装，故不能构造期定死）。
     isConfigured: () => Boolean(workTurnStub) || Boolean(input.transport),

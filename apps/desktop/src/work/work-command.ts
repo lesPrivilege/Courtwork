@@ -35,6 +35,7 @@ import type {
   WorkStateHeader,
   WorkStateHostPort,
   WorkStateStore,
+  WorkRuntimeBudget,
 } from '@courtwork/core';
 import type { PackageRegistries } from '@courtwork/registry';
 import type { RiskList } from '@courtwork/legal';
@@ -81,7 +82,8 @@ export interface LegalS3WorkCommandDeps {
   actor: ConfirmationActor;
   materialResolver: MaterialResolver;
   /** provider 无关的 Turn 引擎装配缝：生产 = createTurnRunner(provider, turnStore)；E2E = 樁。 */
-  makeTurnRunner: (turnStore: TurnStore) => TurnRunnerPort;
+  makeTurnRunner: (turnStore: TurnStore, modelRoute: Readonly<WorkModelRoute>) => TurnRunnerPort;
+  createRuntimeBudget: (modelRoute: Readonly<WorkModelRoute>) => WorkRuntimeBudget;
   tools?: ToolRegistry;
   now?: () => string;
   mintSessionId?: () => string;
@@ -169,7 +171,7 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
   /** 活跃 leg 的 AbortController（cancel 只取消当前活跃 Turn；无 leg 即无 controller）。 */
   const controllers = new Map<string, AbortController>();
 
-  function buildHeader(input: StartPayload, sessionId: string): WorkStateHeader {
+  function buildHeader(input: StartPayload, sessionId: string, runtimeBudget: WorkRuntimeBudget): WorkStateHeader {
     return {
       caseId: input.caseId,
       sessionId,
@@ -179,14 +181,10 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
       packageVersion: LEGAL_PACKAGE.identity.version,
       schemaVersion: LEGAL_S3_SCHEMA_VERSION,
       scenarioFingerprint: scenarioFingerprint(),
-      modelRoute: input.modelRoute,
+      modelRoute: { ...input.modelRoute },
       materialRefs: [...input.materialRefs],
       createdAt: now(),
-      runtimeBudget: {
-        limits: {},
-        costBasis: { currency: 'USD', assumptions: [] },
-        consumed: { steps: 0, toolCalls: 0, executionMs: 0, estimatedUsd: 0, costCoverage: 'partial' },
-      },
+      runtimeBudget: structuredClone(runtimeBudget),
     };
   }
 
@@ -246,9 +244,10 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
     publish: (event: SessionEvent) => void,
     leg: (context: { store: WorkStateStore; turnStore: TurnStore; signal: AbortSignal; publishNew: () => void }) => Promise<ScenarioRunResult>,
     header: WorkStateHeader,
+    existingController?: AbortController,
   ): Promise<WorkCommandOutcome> {
-    const controller = new AbortController();
-    controllers.set(ref.sessionId, controller);
+    const controller = existingController ?? new AbortController();
+    if (!existingController) controllers.set(ref.sessionId, controller);
     let store: WorkStateStore | undefined;
     let baseline = 0;
     try {
@@ -284,19 +283,39 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
   async function runStart(
     input: StartPayload & { commandId: string },
     sessionId: string,
+    runtimeBudget: WorkRuntimeBudget,
     publish: (event: SessionEvent) => void,
   ): Promise<WorkCommandOutcome> {
     const ref = { caseId: input.caseId, sessionId };
-    const header = buildHeader(input, sessionId);
-    return runLeg(ref, publish, async ({ store, turnStore, signal }) => {
-      // 材料 provider 前逐件核验（漂移/删除/需 OCR/跨案已由 MATERIAL-INGRESS 闭合，本处消费不重造）。
+    const header = buildHeader(input, sessionId, runtimeBudget);
+    const controller = new AbortController();
+    controllers.set(ref.sessionId, controller);
+    let scenario: ReturnType<typeof getS3Scenario>;
+    let runInput: ReturnType<typeof buildS3RunInput>;
+    try {
       const materials: StoredMaterial[] = await resolveSessionMaterials(deps.materialResolver, input.caseId, input.materialRefs);
-      const scenario = getS3Scenario(deps.registries);
+      scenario = getS3Scenario(deps.registries);
       const materialInputs: MaterialInput[] = toMaterialInputs(materials);
-      const runInput = buildS3RunInput({ scenario, subject: input.subject, materials: materialInputs });
-      const scenarioDeps = createLegalS3ScenarioDeps({ store, tools, turnRunner: deps.makeTurnRunner(turnStore), ledger: createEvidenceLedger(), registries: deps.registries, signal });
+      runInput = buildS3RunInput({ scenario, subject: input.subject, materials: materialInputs });
+    } catch (error) {
+      controllers.delete(ref.sessionId);
+      const outcome = mapError(error, ref);
+      releaseActive(ref.caseId, ref.sessionId, outcome);
+      return outcome;
+    }
+    return runLeg(ref, publish, async ({ store, turnStore, signal }) => {
+      const route = { ...store.snapshot().modelRoute };
+      const scenarioDeps = createLegalS3ScenarioDeps({
+        store,
+        tools,
+        turnRunner: deps.makeTurnRunner(turnStore, { ...route }),
+        expectedModelRoute: { ...route },
+        ledger: createEvidenceLedger(),
+        registries: deps.registries,
+        signal,
+      });
       return runScenario(scenario, runInput, scenarioDeps);
-    }, header);
+    }, header, controller);
   }
 
   async function runResume(
@@ -305,7 +324,11 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
     build: (store: WorkStateStore) => ScenarioResumeInput,
     publish: (event: SessionEvent) => void,
   ): Promise<WorkCommandOutcome> {
-    const header = buildHeader({ caseId: ref.caseId, materialRefs: [], modelRoute: { providerId: '', modelId: '', reasoning: 'standard' } }, ref.sessionId);
+    const header = buildHeader(
+      { caseId: ref.caseId, materialRefs: [], modelRoute: { providerId: '', modelId: '', reasoning: 'standard' } },
+      ref.sessionId,
+      { limits: {}, costBasis: { currency: 'USD', assumptions: [] }, consumed: { steps: 0, toolCalls: 0, executionMs: 0, estimatedUsd: 0, costCoverage: 'partial' } },
+    );
     return runLeg(ref, publish, async ({ store, turnStore, signal }) => {
       // 残缺会话（turn_linked 无 terminal）不得当 paused 续行：显式拒绝，须以全新 start 身份重发（ADR-010）。
       if (store.interruptedTurns().length > 0) {
@@ -313,7 +336,16 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
       }
       const resumeInput = build(store);
       const scenario = getS3Scenario(deps.registries);
-      const scenarioDeps = createLegalS3ScenarioDeps({ store, tools, turnRunner: deps.makeTurnRunner(turnStore), ledger: createEvidenceLedger(), registries: deps.registries, signal });
+      const route = { ...store.snapshot().modelRoute };
+      const scenarioDeps = createLegalS3ScenarioDeps({
+        store,
+        tools,
+        turnRunner: deps.makeTurnRunner(turnStore, { ...route }),
+        expectedModelRoute: { ...route },
+        ledger: createEvidenceLedger(),
+        registries: deps.registries,
+        signal,
+      });
       return resumeScenario(requestId, resumeInput, scenario, scenarioDeps);
     }, header);
   }
@@ -356,9 +388,18 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
       return { sessionId: guard.sessionId, done: Promise.resolve(guard.reject) };
     }
     const sessionId = mintSessionId();
+    const payloadKey = stableKey(payload);
+    const frozenRoute = { ...payload.modelRoute };
+    const frozenPayload: StartPayload = {
+      caseId: payload.caseId,
+      materialRefs: [...payload.materialRefs],
+      modelRoute: { ...frozenRoute },
+      ...(payload.subject ? { subject: { ...payload.subject } } : {}),
+    };
+    const runtimeBudget = deps.createRuntimeBudget({ ...frozenRoute });
     activeByCase.set(payload.caseId, sessionId);
-    const done = runStart({ ...payload, commandId }, sessionId, publish);
-    const record: CommandRecord = { sessionId, payloadKey: stableKey(payload), done };
+    const done = runStart({ ...frozenPayload, commandId }, sessionId, structuredClone(runtimeBudget), publish);
+    const record: CommandRecord = { sessionId, payloadKey, done };
     commands.set(commandId, record);
     return { sessionId, done };
   }
@@ -394,7 +435,9 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
 
     async cancel(command: CancelWorkCommand) {
       const controller = controllers.get(command.sessionId);
-      if (!controller) return { accepted: false, reason: 'not_running' };
+      if (!controller) {
+        return { accepted: false, reason: 'not_running' };
+      }
       if (controller.signal.aborted) return { accepted: false, reason: 'already_requested' };
       controller.abort();
       return { accepted: true };

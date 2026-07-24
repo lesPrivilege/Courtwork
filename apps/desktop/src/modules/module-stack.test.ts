@@ -1,4 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { createElement } from 'react';
+import { EMPTY_SESSION } from '../protocol/client';
+import { ProgressModuleBody } from './ModuleStack';
 import {
   applyModuleAutoExpand,
   collapseAllModules,
@@ -48,5 +52,26 @@ describe('module stack (docs/decisions/ADR-006-ui-host.md ch.3)', () => {
     );
     const collapsed = collapseAllModules(allOpen);
     expect(Object.values(collapsed).every((v) => v === false)).toBe(true);
+  });
+
+  it('完整 projection 在双容器共享同一空态', () => {
+    const html = renderToStaticMarkup(createElement(ProgressModuleBody, { projection: EMPTY_SESSION }));
+    expect(html).toContain('尚无任务进展 · 开始一项工作后在此查看');
+    expect(html).not.toMatch(/Waiting for task events|New case/);
+  });
+
+  it('持久失败与既有进度并存，技术旧文先过显示守门', () => {
+    const html = renderToStaticMarkup(
+      createElement(ProgressModuleBody, {
+        projection: {
+          ...EMPTY_SESSION,
+          progress: ['已完成材料复验'],
+          scenarioFailure: { reason: 'runtime_limit', message: 'Turn terminal exceeded maxSeconds' },
+        },
+      }),
+    );
+    expect(html).toContain('已完成材料复验');
+    expect(html).toContain('本次审查已达到运行上限');
+    expect(html).not.toMatch(/Turn terminal|maxSeconds/);
   });
 });

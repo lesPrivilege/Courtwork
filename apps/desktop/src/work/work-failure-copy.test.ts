@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { WORK_MODEL_FAILURE_FALLBACK_COPY, workFailureDisplayCopy } from './work-failure-copy';
+import {
+  WORK_MODEL_FAILURE_FALLBACK_COPY,
+  workFailureDisplayCopy,
+  workScenarioFailureDisplayCopy,
+} from './work-failure-copy';
 
 /**
  * PROVIDER-STREAM-1 ③：UI 守卫文本过 voice——协议外守卫与英文技术报文零裸透（发生了什么+下一步），
@@ -43,5 +47,21 @@ describe('workFailureDisplayCopy', () => {
   it('缺省报文兜底；兜底文案含下一步指引', () => {
     expect(workFailureDisplayCopy(undefined)).toBe(WORK_MODEL_FAILURE_FALLBACK_COPY);
     expect(WORK_MODEL_FAILURE_FALLBACK_COPY).toContain('重试');
+  });
+});
+
+describe('workScenarioFailureDisplayCopy', () => {
+  it('passes safe durable budget copy through unchanged', () => {
+    const message = '预算配置无法继续本次审查 · 当前已知估算 $0.100000 · 当前成本覆盖不完整';
+    expect(workScenarioFailureDisplayCopy({ reason: 'configuration', message })).toBe(message);
+  });
+
+  it.each([
+    ['configuration' as const, 'paid Turn providerId=deepseek maxUsd'],
+    ['runtime_limit' as const, 'Turn terminal exceeded maxSeconds'],
+  ])('replaces legacy technical %s copy without inventing details', (reason, message) => {
+    const displayed = workScenarioFailureDisplayCopy({ reason, message });
+    expect(displayed).not.toMatch(/paid Turn|Turn terminal|providerId|maxUsd|maxSeconds/);
+    expect(displayed).not.toMatch(/\$\d|complete|partial/);
   });
 });

@@ -23,6 +23,9 @@ const command = stripComments(await read('src/work/work-command.ts'));
 const runtime = stripComments(await read('src/work/work-runtime.ts'));
 const client = stripComments(await read('src/protocol/client.ts'));
 const app = stripComments(await read('src/App.tsx'));
+const main = stripComments(await read('src/main.tsx'));
+const binding = stripComments(await read('src/work/legal-s3-binding.ts'));
+const modules = stripComments(await read('src/modules/ModuleStack.tsx'));
 
 const failures = [];
 const requireMatch = (source, pattern, message) => {
@@ -84,6 +87,21 @@ requireMatch(app, /bindDocxSourceMarkdown\(resolved\.material\)/, 'grant 案 doc
 requireMatch(runtime, /createInMemoryWorkStateHost/, 'WorkState host = 内存参考实现（真机跨重启待 Tauri host [需架构拍板]）');
 requireMatch(runtime, /installWorkTestHooks/, 'E2E Work turn 樁经 installWorkTestHooks（仅 DEV+E2E 装配）');
 requireMatch(runtime, /createTurnRunner\(workProvider\(/, '生产 Turn 引擎 = createTurnRunner(provider, turnStore)（provider 走注入 transport）');
+forbidMatch(main, /providerConfig|loadModelConfig/, 'production Work 不得动态读取 providerConfig/loadModelConfig');
+forbidMatch(runtime, /providerConfig/, 'work-runtime 不得保留动态 providerConfig 接缝');
+requireMatch(main, /loadRuntimeLimits:\s*\(\)\s*=>\s*loadSettings\(\)\.runtimeGuard/, 'main 必须只注入 Settings runtimeGuard');
+requireMatch(command, /makeTurnRunner:\s*\(turnStore:\s*TurnStore,\s*modelRoute:/, 'runner 必须接收冻结 route');
+requireMatch(command, /createRuntimeBudget:\s*\(modelRoute:/, 'fresh start 必须经 createRuntimeBudget 铸预算');
+requireMatch(binding, /runtimeBudget:\s*input\.store\.runtimeBudget/, 'production executor 必须消费 store.runtimeBudget');
+requireMatch(binding, /expectedModelRoute:\s*\{\s*\.\.\.input\.expectedModelRoute\s*\}/, 'expected route 必须同源防御复制');
+forbidMatch(binding, /\blimits\s*:/, 'production binding 不得注入 legacy limits');
+forbidMatch(app, /outcome\.status === 'failed'[\s\S]{0,180}clearWorkSession/, 'failed outcome 不得清除恢复指针');
+requireMatch(runtime, /readState\(ref:\s*WorkSessionRef\)[\s\S]*?readHost\s*\?\s*readHost\(ref\)/, 'E2E hook 必须只读暴露 readState(ref)');
+forbidMatch(runtime, /(?:write|mutate|tamper|compareAndSwap)State\s*\(/i, 'E2E hook 禁止暴露 WorkState 写入/篡改能力');
+requireMatch(modules, /function ProgressModuleBody\(\{\s*projection\s*\}[\s\S]*?SessionProjection/, 'ProgressModuleBody 必须只接完整 SessionProjection');
+requireMatch(modules, /尚无任务进展 · 开始一项工作后在此查看/, 'Progress 必须使用 demo/real 统一空态');
+requireMatch(modules, /scenarioFailure[\s\S]*?workScenarioFailureDisplayCopy/, 'Progress 持久失败必须经过 display guard');
+forbidMatch(app, /Waiting for task events|New case · waiting for a task/, 'App 不得保留 demo/real 分叉 Progress 空态');
 
 if (failures.length > 0) {
   console.error(`WORK-LIVE-1 boundary violations (${failures.length}):`);
