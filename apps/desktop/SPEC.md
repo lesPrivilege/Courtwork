@@ -3696,20 +3696,62 @@ core 已定语义，不另造 UI 预算状态。
 
 ### production 装配
 
-- `main.tsx → createDesktopWorkCommand` 新增动态读取 `loadSettings().runtimeGuard` 的预算配置缝；
-  值只在 `start` 时读取一次并写入 `WorkStateEnvelopeV1.runtimeBudget.limits`。resume 忽略当前
-  Settings 与调用方伪造 header，沿已持久信封继续。
-- `work-runtime.ts` 依据冻结 `modelRoute` 与 provider 版本化价目快照构造
-  `costBasis`。模型有完整价目时初始 coverage 为 `complete`；模型无价、版本/时点缺失时为
-  `partial`。`work-command.ts` 不自行复制价目表。
-- `LegalS3WorkCommandDeps.makeTurnRunner` 必须接收本 leg 的冻结 `WorkModelRoute`：start 使用
-  新建 header 的 route，resume 使用 `store.snapshot().modelRoute`；production provider 必须按它
-  构造，resume 禁止再次读取 `providerConfig()`。若该 callback 因此零消费，随票删除而不保留假缝。
+- `main.tsx → createDesktopWorkCommand` 的预算配置缝逐字为
+  `DesktopWorkRuntimeInput.loadRuntimeLimits: () => WorkRuntimeBudget['limits']`，实现传入
+  `() => loadSettings().runtimeGuard`。`LegalS3WorkCommandDeps` 的预算铸造缝逐字为
+  `createRuntimeBudget: (modelRoute: Readonly<WorkModelRoute>) => WorkRuntimeBudget`；它只可在
+  `beginStart` 的未配置／幂等／冲突／case-busy 闸门全部通过后，为一枚 fresh session 调用一次。
+  resume、同 commandId 同 payload 复用以及 `not_configured/command_conflict/case_busy` 均不得读取
+  当前 Settings 或重铸预算。`invalid_scope` 属 fresh command 进入 `runStart` 后的材料／主体
+  async preflight 结果，允许本次 factory 已调用一次，但仍须零 header 持久、零 provider effect。
+  fresh start 的值写入 `WorkStateEnvelopeV1.runtimeBudget.limits`；resume 忽略当前 Settings 与
+  调用方伪造 header，沿已持久信封继续。
+- fresh 闸门通过后须先固定该次 `payloadKey` 与 `frozenRoute`；交给 `createRuntimeBudget`、写入
+  header、交给 runner 与 expected-route 的对象各自独立复制。不得在 callback 之后重新从可能已被
+  cast 改写的 payload 计算 command identity；预算 factory 或 runner callback 即使越过 `Readonly`
+  恶意改写入参，也不得污染幂等键、持久 header 或 mismatch 比较基线。
+- “关闭金额上限”必须是真路径：Settings 保存空值后，序列化所得 `runtimeGuard:{}` 在再次
+  `loadSettings()` 时仍解释为 `maxUsd:undefined`，不得因 `?? DEFAULT_SETTINGS.runtimeGuard.maxUsd`
+  悄悄恢复为 `$5`。只有无整份存储，或已解析对象**没有自有 `runtimeGuard` 键**时采用默认 `$5`；
+  自有 `runtimeGuard` 为普通对象且没有自有 `maxUsd` 键，或 `maxUsd:null`，都表示用户已显式不限额。
+  顶层 JSON 不是普通对象，或 `runtimeGuard` 为 `null`／primitive／数组，或自有 `maxUsd` 不是有限
+  非负 number，均视为损坏并 fail-safe 回默认 `$5`，不得把损坏静默解释成不限额；整份 JSON 不可读
+  或顶层非普通对象才走完整默认快照。顶层对象可读但仅 `runtimeGuard` 损坏时，只把该预算分区回退
+  `$5`，合法的 privacy/appearance 兄弟分区仍走既有归一，不能一并抹掉。正常 UI 的空值须先归一为
+  省略 `maxUsd`，不把空字符串写进持久格式；有限值沿既有 SET-1 语义归一到两位小数，但归一结果
+  仍必须有限，`Number.MAX_VALUE` 不得因乘 100 溢出而变成 `Infinity` 或“不限额”。
+- `work-runtime.ts` 依据冻结 `modelRoute` 与 provider 版本化静态价目快照构造 `costBasis`：
+  当期 `PRICE_TABLE` 是 **DeepSeek 专属**静态快照。仅当
+  `modelRoute.providerId==='deepseek'` 且 `version/effectiveAt` 为成对非空字符串、assumptions 为
+  字符串数组、`rmbToUsdRate` 为有限正数时，才把版本、时点与 assumptions 防御性复制进信封；在此
+  条件下无论 DeepSeek 型号有无价，都留下“查的是哪一版表”的证据。只有该 DeepSeek 型号同时存在
+  有限非负 input/output 双价时初始 coverage 才为 `complete`；型号未收录或快照元数据／换算率残缺
+  一律为 `partial`，不编造价格。快照无效时
+  version/effectiveAt 成对省略且 assumptions 置空，以保持 v1 合法。非 DeepSeek route 初始固定为
+  `costBasis:{currency:'USD',assumptions:[]}` + `partial`，不得冻结 DeepSeek 的版本或 assumptions。
+  未来增加其他 provider 时须另交付并显式选择对应价目快照，不得靠当前通用 `Record` 形状冒充已有价目。
+  `work-command.ts` 不 import/复制价目表，也不在线取价。
+- `LegalS3WorkCommandDeps.makeTurnRunner` 签名逐字为
+  `(turnStore: TurnStore, modelRoute: Readonly<WorkModelRoute>) => TurnRunnerPort`，保留既有首参并新增本
+  leg 的冻结 route：start 使用新建 header 的 route，resume 使用
+  `store.snapshot().modelRoute`；production
+  provider 必须按该入参构造，resume 禁止再次读取 `providerConfig()`。现有
+  `DesktopWorkRuntimeInput.providerConfig` 因而删除，不保留零消费假缝。
+  `workProvider`（或等价 production helper）直接消费 `Readonly<WorkModelRoute>`，不得为复用旧签名
+  把冻结 route 回填成带 UI／discovery 状态的 `ModelConfig`。
   Turn terminal 的 providerId/modelId 若与冻结 route 不同，须把 coverage 转 partial，并与 terminal
   同批持久为 `configuration` 失败，不得按另一模型价目继续估算。
+- 现有 `store.snapshot().modelRoute` 对象不得直接泄给 callback/stub：`work-command.ts` 取值后立即
+  复制，runner 与 expected route 各持独立副本；callback 即使恶意改写入参也不得污染 store header，
+  更不得把 mismatch 的比较基线一起改掉。此票不为该局部消费问题扩改 core store API。
 - `createLegalS3ScenarioDeps` 把 `WorkStateStore.runtimeBudget` 的唯一 port 注入 executor；
   同时把同一 snapshot 的 modelRoute 注入 expected route；不允许另传一份 leg-local limits 或
   Settings route 覆盖它。
+- DEV+E2E 的 `WorkTurnStub` 入参新增
+  `readonly modelRoute: Readonly<WorkModelRoute>`；普通成功／失败 stub 的
+  terminal `providerId/modelId` 必须回报该 route，只有职责单一的 route-mismatch 反例可故意不同。
+  不得把 route 的 `reasoning` 档位与 terminal 的 `TurnReasoning` 状态／正文混为一谈。既有 E2E
+  hook 可新增 `readState(ref)` 只读读取 host bytes，禁止增加改写／篡改 WorkState 的钩子。
 - 本票不改 command wire、SessionEvent union、envelope v1 形状、Legal schema 或 Tauri Rust host。
 
 ### 用户可见面
@@ -3723,10 +3765,30 @@ core 已定语义，不另造 UI 预算状态。
 - 本票只保证已持久 `scenario_failed(runtime_limit|configuration)` 经成功 replay 得到
   `phase==='failed'` 时可回看：App 只读呈现 Progress 失败，不提供 resume／retry 控件。
   `outcome.status==='failed'` 本身不是持久性证明，不能单凭它决定指针。最新会话指针的完整矩阵由
-  `CONTRACT-TRACE-1` 唯一拥有；仅宿主确证不存在或已知版本确证 corrupt/ref mismatch 时按该矩阵
-  清除，unavailable/unknown version 不在本票抢判。
-- configuration 文案用产品语言同时说明：已知估算、覆盖不完整、冻结价目假设，以及“关闭金额上限
-  或选择已有完整价目的模型后重新开始”的下一步。不得裸露内部类型、堆栈或 provider 原始响应。
+  `CONTRACT-TRACE-1` 唯一拥有；当前 replay port 尚无 typed corrupt/ref-mismatch/unavailable
+  判别，本票对任一 replay throw 都保留 pointer 并给可重试反馈，不猜错误种类。TRACE 交付判别联合后
+  才按其矩阵令 confirmed corrupt/ref-mismatch 清除、unavailable/unknown version 保留。
+- configuration 的持久 message 由 core `costConfigurationMessage` 直接铸成产品语，共同前段固定为
+  “预算配置无法继续本次审查 · 当前已知估算 $<六位小数> ·
+  <当前成本覆盖不完整 | 当前成本覆盖记录完整> · 本次冻结价目假设：<assumptions 或 未提供>”。
+  `costCoverage==='partial'` 时下一步逐字为
+  “请关闭金额上限，或选择已有完整价目的模型后重新开始”；`complete` 时逐字为
+  “请重新开始审查；如仍无法继续，请保留当前案件状态并检查金额上限与模型设置”。它不得拼入原始
+  `detail`，故 `paid Turn`、`Turn terminal`、provider/model id、价目内部版本、堆栈与原始响应均不得
+  进入用户面，也不得把任一配置错误都伪报为“覆盖不完整”。Progress 只显示该持久
+  `scenarioFailure.message`，不从当前 Settings 重算、不解析字符串另造金额，也不维护第二份失败态。
+- production desktop 当前只注入 `maxUsd`；core executor 把内部
+  `RuntimeLimitExceededError.limit/value` 映射为持久产品语
+  “本次审查已达到金额上限 $<两位小数>，已停止继续执行 · 请在设置中调整或关闭金额上限后重新开始”，
+  Progress 仍只显示持久 message，不另映射。不得裸露 `maxUsd` 等内部字段名；其余三种 core limit
+  也须用对应“步骤／工具调用／运行时长上限”产品名，不暴露枚举。结构化累计量面板仍属于 `C3-4`，
+  不得借本票扩 wire。
+- `workScenarioFailureDisplayCopy(failure)` 只作最后一道显示安全门：新消息通过时原样返回；若重放到
+  含上述内部 marker 的旧／异常 message，则按 `failure.reason` 返回无金额／coverage 断言的通用
+  fallback：
+  configuration＝“预算配置无法继续本次审查 · 已知估算与冻结价目假设仍保留。请重新开始；如仍无法继续，请保留当前案件状态并检查金额上限与模型设置。”；
+  runtime_limit＝“本次审查已达到运行上限，已停止继续执行 · 请调整相应运行上限后重新开始。”
+  它不解析金额、价目或 assumptions，也不是第二份持久失败状态。
 - 触碰 `App.tsx` 时执行“过手即拆”：把 Progress 模块正文外提为独立组件，App 只传投影数据；
   `lint:app-highwater` 随净减下调，不得靠删注释或调高上限过门。
 
@@ -3734,16 +3796,65 @@ core 已定语义，不另造 UI 预算状态。
 
 - 新 session：Settings `maxUsd` 与价目版本真实冻结进 host bytes；暂停后改 Settings，再 resume，
   信封 limits/costBasis 不变。
-- 暂停后修改模型配置再 resume：真实 provider factory 收到的仍是信封旧 route，terminal 身份亦
-  必须一致；故意令 terminal 回报另一 provider/model 时同一轮转持久 configuration，不能假绿为估价。
-- 两 leg 的 steps/toolCalls/executionMs/estimatedUsd 单调；人工等待不计 executionMs。
-- 已知价超限 → `runtime_limit`；在 `maxUsd` 已配置时，usage 缺失、未收录模型、冻结价目版本漂移 →
-  下一 paid Turn 前 `configuration`；两类都持久、投影、重放可见，且 provider 调用次数证明
-  blocker 前没有多发请求。
+- 暂停后修改模型配置再 resume：command 集成测试必须观察
+  `makeTurnRunner(turnStore, store.snapshot().modelRoute)` 收到的仍是信封旧 route；独立
+  work-runtime 测试还须证明 production provider factory 的 provider/model/reasoning 真由该入参
+  构造，删除动态 `providerConfig()` 后没有第二读取源。现行 S3 gate 后通常没有 provider effect，
+  故 Playwright 只诚实证明 resume 后 header 不变且 provider 调用数不增加，不伪造一枚 terminal
+  冒充“resume 使用了旧 route”。
+- `legal.RiskList` 虽是单 paid artifact，但 citation binding 在首轮引用解析失败时会走真实
+  `generateOnce(2, failures)` 修复 Turn；这就是 production S3 的“下一 paid Turn”红证。首个 terminal
+  故意缺 usage 并返回不可解析引用后，第二次调用必须在 `turn_linked`／provider 前被
+  configuration 阻断，provider call count 仍为 1。冻结价目 version/effectiveAt 漂移、两 paid
+  Turn 累计与人工等待不计 executionMs 继续由 production binding 装配测试 + CORE-BUDGET
+  executor 集成反例证明；不得修改 Legal S3、增加第二 artifact 或把 stub 称作真实 provider。
+- 已知价首个 terminal 超限 → `runtime_limit`；未收录模型 + `maxUsd` → 首次 provider 前
+  `configuration`；首 leg terminal route mismatch → terminal/budget/configuration 同 CAS。
+  两类失败都须持久、投影、重放可见，调用次数分别证明 blocker 前零多发。
 - 删除 Progress 失败行、把 message-only toast 当唯一出口、或令 reload 后失败消失，均须使
   Playwright/投影测试变红。完整 desktop Playwright 使用独立端口。
 - demo 与真实案在空投影下必须逐字显示同一统一空态；向新组件补回 demo prop、让 failed 清指针，
   或把 failed replay 当可 resume 的 mutation 都必须触红。
+
+### 实现白名单与首批红测
+
+- desktop 生产白名单只限 `src/main.tsx`、`src/settings/settings-store.ts`、
+  `src/work/work-runtime.ts`、`src/work/work-command.ts`、`src/work/legal-s3-binding.ts`、
+  `src/work/work-failure-copy.ts`、`src/modules/ModuleStack.tsx`、`src/App.tsx` 与
+  `scripts/assert-app-highwater.mjs`。core 跨层白名单只限
+  `packages/core/src/scenario-executor/executor.ts` 的 configuration/runtime-limit **copy-only**
+  映射；算法、结构化 error 字段、export 与其他 core 文件不动。这是架构角色在本票中显式批准的跨层
+  白名单，不借“语义等价”的实现级例外；实现提交须同批跑 core 相关门并在
+  `packages/core/SPEC.md` 留痕，验收由独立会话覆盖该跨层面。
+- App 只把 inline Progress 正文换成 `<ProgressModuleBody projection={session} />`，该组件唯一 prop
+  为完整 `SessionProjection`。App 对 durable failed replay 机械水合、只读显示且不提供
+  resume/retry；failed outcome 不再凭瞬时 outcome 清指针，replay 异常也保留。fresh-start 候选建立
+  时机、completed/canceled/interrupted、typed replay error 与 compare-and-clear 的完整矩阵留给
+  `CONTRACT-TRACE-1`，不得顺手吸收。
+- 单测／静态门白名单只限新建 `src/work/work-runtime.test.ts`，以及既有
+  `src/settings/settings-store.test.ts`、`src/work/work-command.test.ts`、
+  `src/work/legal-s3-binding.test.ts`、`src/work/work-failure-copy.test.ts`、
+  `src/modules/module-stack.test.ts`、`scripts/assert-work-live-contracts.mjs`、
+  `scripts/assert-test-count.mjs`、core `runtime-budget-executor.test.ts`。Playwright 新建职责单一的
+  `tests/e2e/work-budget.spec.ts`；`work-live.spec.ts`、`work-turn.spec.ts`、
+  `case-persist.spec.ts` 只允许机械迁移正常 stub 的 route identity + known usage，不扩行为。
+- 首批红测必须先锁：clear limit→reload 仍为 undefined；顶层／runtimeGuard／maxUsd 损坏回默认且
+  `runtimeGuard.maxUsd:null` 仍不限额、局部损坏不抹合法兄弟分区，巨大有限值归一后不溢出；预算
+  factory 只在 fresh start 一次，
+  resume／幂等复用／`not_configured/command_conflict/case_busy` 为零次，`invalid_scope` 为一次但
+  host CAS/header 持久与 provider effect 仍为零（允许 preflight 前既有 host read 一次）；DeepSeek
+  已收录／未收录、DeepSeek 元数据或汇率残缺与非 DeepSeek route 四种 costBasis/coverage；costBasis
+  assumptions 深拷贝；production provider 真消费传入 route；预算 factory／runner callback 分别
+  改写 route 副本均不污染 payloadKey/header，且 mismatch 比较基线仍红；binding 同源注入
+  budget+expected route 且无 legacy limits；两类持久
+  failure copy 与技术残文阴性；双容器统一空态。
+- production E2E 至少锁三条真实可达路径：已知价首 Turn 超限；首 Turn route mismatch；首 Turn
+  citation 不可解析且 usage 缺失，第二 repair Turn 在 provider 前 configuration、调用数严格为 1。
+  三条均须在同页切案再切回后由 replay 仍在 Progress 可见、指针仍在且 Progress 内零
+  resume/retry；另以正常 citation repair 证明 stub 可真实进入 attempt 2，不得只测“永远一次”。
+  DEV Playwright 的内存 host 不跨 `page.reload()`，不得把切案假称真重启：跨命令实例恢复由
+  command 集成测试用同一 host + 全新 command 证明，真 App 重启留给版本级 Tauri 候选验收。
+  新增 Playwright 后以 `--list` 实数只升 floor；App 实际净减后把 highwater 从当前 2739 下调到实测值。
 
 ### 禁止扩张
 

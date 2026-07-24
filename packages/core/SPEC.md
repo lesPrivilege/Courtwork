@@ -646,8 +646,10 @@ interface RuntimeBudgetPort {
    failed Turn 还须把 `step_failed` 同批落下。已知成本越过 `maxUsd` 时，本次 Turn terminal、
    最新累计量与 `scenario_failed(runtime_limit)` 必须**同一次 CAS**，随后才返回 typed `failed`，
    不允许先持久 terminal、后补预算/失败。
-5. coverage 阻断：持久 `scenario_failed(configuration)` 并返回 typed `failed`；message
-   必须含已知估算、覆盖不完整、冻结假设与可执行下一步，供 desktop 重放，不得只抛异常或 toast。
+5. configuration 阻断：持久 `scenario_failed(configuration)` 并返回 typed `failed`；message
+   必须含已知估算、**信封实际 coverage 状态**、冻结假设与可执行下一步，供 desktop 重放，不得只抛
+   异常或 toast。coverage 为 partial 时下一步须明确关闭金额上限或改选有完整价目的模型；其他
+   RuntimeBudgetConfigurationError 不得伪报“不完整”，须走通用配置恢复文案。
 
 实现顺序不得留给两条分支各自发挥：`runWorkTurn` 对 completed/failed terminal 都先核身份，再按
 terminal usage 与冻结表 stage estimate/coverage；failed 分支追加 `step_failed`；若已知超金额则
@@ -675,6 +677,31 @@ provider/runtime/configuration 三者之一。
   阻断均须持久终态；CAS 失败不得推进本地累计真值。
 - 不改 `WorkStateEnvelopeV1` 字段、不升 storageVersion、不新增事件类型、不造 WAL/第二 journal，
   不夹带 scheduled/multi-writer/identity/沙箱议题。
+
+### WORK-BUDGET-1 下游显示收口（架构补充，2026-07-24）
+
+desktop 的 `SessionProjection.scenarioFailure` 只有 `{reason,message}`，已知估算与冻结 assumptions
+也只存在该持久 message；下游不得解析散文另造第二契约。为使 production Progress 能机械重放而不泄
+内部术语，架构角色在 `WORK-BUDGET-1` 中显式批准 `executor.ts` 的一项跨层 copy-only 映射修正
+（不援引实现角色的“语义等价”例外）：
+
+- `costConfigurationMessage` 不再拼入原始 `detail`，持久文案按
+  `budget.consumed.costCoverage` 判别：共同前段为
+  “预算配置无法继续本次审查 · 当前已知估算 $<六位小数> ·
+  <当前成本覆盖不完整 | 当前成本覆盖记录完整> · 本次冻结价目假设：<assumptions 或 未提供>”；
+  partial 的下一步逐字为“请关闭金额上限，或选择已有完整价目的模型后重新开始”，complete 的下一步
+  逐字为“请重新开始审查；如仍无法继续，请保留当前案件状态并检查金额上限与模型设置”。不得因任一
+  `RuntimeBudgetConfigurationError` 都走同一 catch 就把 complete 伪报成 incomplete。
+- `RuntimeLimitExceededError` 的 `limit/value` 与抛错语义不变；executor 在写
+  `scenario_failed(runtime_limit)` 时按结构化 limit 映射产品名。`maxUsd` 固定为
+  “本次审查已达到金额上限 $<两位小数>，已停止继续执行 · 请在设置中调整或关闭金额上限后重新开始”；
+  `maxSteps`＝“本次任务已达到步骤上限 <value> 步，已停止继续执行 · 请调整运行上限后重新开始”；
+  `maxToolCalls`＝“本次任务已达到工具调用上限 <value> 次，已停止继续执行 · 请调整运行上限后重新开始”；
+  `maxSeconds`＝“本次任务已达到运行时长上限 <value> 秒，已停止继续执行 · 请调整运行上限后重新开始”。
+  不得把四个内部枚举写入持久用户文案。
+- 该补充不改预算算法、失败优先级、事件联合、envelope、error 结构字段或 export。测试须把
+  `paid Turn`、`Turn terminal`、provider/model id、内部价目版本与四个 limit 枚举逐项注入为阴性，
+  并证明持久 message 仍含动态已知金额、冻结 assumptions 与可执行下一步。
 
 ### 实现留痕（CORE-BUDGET-1，2026-07-24）
 
