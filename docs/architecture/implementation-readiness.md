@@ -319,3 +319,5 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 3. shared state、多写者、ACL、伦理墙与跨案治理容器。
 
 scheduled invocation 必须等待第 1–2 项明确身份、触发来源、预算和执行前授权；当前 trigger-blind executor 不能作为支持证据。
+
+**负面判例登记（OPENWORKER-SURVEY-1，2026-07-24）**：OpenWorker 排程自动化的 `_scheduled_approver`（`manager.py:2320-2350`，commit `4766e59`）对四个本地写盘工具无条件 auto-approve，首次运行即成立、无需既往授权，且因写盘工具无 `target_arg` 而不出现在自动化的同意卡片上——其 README「unattended 只入箱不自行动作」对写盘路径为假。此例作第 1–2 项 ADR 立项时的负面对照：无人值守若不把 effect 授权做成**执行前持久、且在同意面可见**，「无人值守不升自主权」会退化为「某类风险从未被放上台面」的静默旁路。与本图「Effect 与授权」节及不变量 3（授权持久先于 effect）同轴——scheduled invocation 立项须以此为最低门槛，trigger-blind 自动批准不得作为支持证据。
