@@ -153,14 +153,31 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 ```text
 (FILE-PREVIEW-1 + CORE-BUDGET-1) → WORK-BUDGET-1（均已清账）
 CONTRACT-REVIEW-SAFETY-1 → CONTRACT-OUTPUT-TRUTH-1
-(已清账 FILE + OUTPUT) → CONTRACT-TRACE-1 → DEBT-DOSSIER-1
-TRACE → 全量门 / DMG 候选 / 真机回归
+(已清账 FILE + OUTPUT) → CONTRACT-TRACE-1 → DEBT-DOSSIER-1（产品链出口；不直接授权候选）
 ```
 
 `CONTRACT-OUTPUT-TRUTH-1` 直接消费 Safety 票建立的 post-revision replay、零 confirmed 分流和
 退役后的本地 dispositions/non-applied waiver，因此依赖关系是严格
 `SAFETY → OUTPUT → TRACE`，不得并行改同一 App/compile path。发布候选须明确区分
 “自动化/本机成立”与上述外部证据，不以版本号抬高成熟度。
+
+**`v0.2.0` 发行许可链（2026-07-24，ADR-020）**：产品 App 队列之外另有一条不触
+`App.tsx` 的发行前置链：
+
+```text
+SAFETY → OUTPUT → TRACE → DOSSIER → VERSION-PREP ─┐
+RELEASE-FONT-LICENSE-1 ───────────────────────────┴→ SOFTWARE-AUDIT → SOFTWARE-NOTICES
+                                                                         │
+                                                                         ▼
+                                                                    SMOKE-TRUTH
+                                                                         │
+                                                                         └──► 全量门 / 唯一候选 DMG / 独立候选验收
+```
+
+字段、文件白名单与 mutation 只认 [`release/SPEC.md`](../../release/SPEC.md)。FONT 可与产品链
+并行；VERSION-PREP 等产品链，AUDIT 同时等 FONT 与 VERSION 后再冻结最终图与逐件许可裁定，
+NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 notice 不等于软件 notices；两账、
+图审计与候选直接启动任一未放行，`v0.2.0` 均不可公开。
 
 ### CONTRACT-OUTPUT-TRUTH-1 开工补充裁决（2026-07-24）
 

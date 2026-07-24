@@ -23,6 +23,7 @@
 | [ADR-017](ADR-017-controlled-command-execution.md) | 受控命令执行（bash 入界） | Accepted（**决定一至七封存**） |
 | [ADR-018](ADR-018-execution-isolation-and-sandbox.md) | 执行隔离与沙箱边界 | Accepted |
 | [ADR-019](ADR-019-dossier-container-and-local-cache.md) | 卷宗容器与本地缓存分区 | Accepted |
+| [ADR-020](ADR-020-release-distribution-truth.md) | 发行许可、候选制品与公开真值 | Accepted |
 
 四份由 `HARNESS-CORE-1` Stage A 提出，2026-07-20 逐项裁决；决定与理由已全文落入各 ADR 本体，无须回读材料。原始材料 `harness-core-1-stage-a.md` 随裁决闭合归档，按归档索引条目定位（史料线索，非现行依据）。
 
