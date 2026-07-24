@@ -4551,3 +4551,21 @@ workspace build 前首次定向测试因 `@courtwork/provider` dist 尚未生成
 冻结依赖首次 `--offline` 因 pnpm store 缺 `@eslint/js` tarball 失败，获准后按同一 lockfile 安装
 成功；第一次定向 Playwright 因 sandbox 禁止监听 `:15001` 报 `EPERM`，获准后所有浏览器轮均使用
 上述独立端口成功。这两项是环境前置，不归责产品，也未从实录中省略。
+
+---
+
+# GOVERNANCE-CLEAR-1 · FILE / MD / MODEL current-main 独立清账验收（2026-07-24）
+
+- **对象与独立性**：`main @ 94f83abbdc7b7ee51347af98ce70c274febc7656`；本会话未实现 FILE、MD 或 MODEL-1R，在 detached clean worktree `/private/tmp/courtwork-governance-clear-1-94f83ab` 完成，未 checkout/stash 共享树。
+- **祖先与漂移**：目标即验收开始时的 `main`，`94f83ab..main` 无路径差异；五组实现和既有独立报告均为祖先，FILE / Markdown / Model-config 受验 production 面无票外行为漂移。
+- **裁决：放行。** 仅追加验收事实，不改产品、SPEC、`current.md`、readiness 或门常量。
+
+| 项 | 恢复态实跑 | mutation 红证 |
+| --- | --- | --- |
+| FILE | reader/store **2 files / 26**；Rust `cargo test material_store` **7/7**；端口 `14675`、`reuseExistingServer=false` focused Playwright **6/6** | 新增 `quarantined` 闭集值 **1 failed / 12 passed**；移除两层 caseId 校验，跨案 **1 failed / 13 passed** 且读到案 A 内容 |
+| MD | `chat-markdown` **44/44**；端口 `14676`、同样自起服务的 Markdown + history Playwright **8/8** | 移除 `remarkGfm` 后 **8 failed / 36 passed**，table/delete/task-list 均红 |
+| MODEL-1R | model-config + hook **29/29**；端口 `14677`、同样自起服务的 Settings Playwright **8/8** | setter fallback 伪报 `persisted:true` 后端口 `14674` 真链 **1/1 failed**，Settings inline status notice 缺失 |
+
+每项均以 `apply_patch` 注入并反向恢复。共享固定门在同一 target 上只运行一次：`pnpm -r build` PASS（13/14 scope，desktop 3584 modules）、`pnpm lint` PASS、root Vitest **149 files / 1291 tests**、desktop Vitest **62 files / 434 tests**；完整 desktop Playwright 在独立端口 `14673`、`reuseExistingServer=false` 下 floor **329**、实跑 **329/329 passed**。
+
+lint 承重反例：临时把 `capture.mjs` 退回 `/* global process */` 后，root lint **仅**报 `site/craft-evidence/VERSIONAL-LANG-3/capture.mjs:91:5 no-undef`；恢复 `localStorage` 声明后重回零错。报告前所有 mutation、临时探针与测试产物均已清除。
