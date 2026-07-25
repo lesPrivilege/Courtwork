@@ -64,11 +64,25 @@ requireMatch(
   'session 原文绑定：docx 源文必须从复验后的会话材料 readingMarkdown 取（非 demo 原文）',
 );
 
-// ── live gate 由真实 RiskList 派生；逐条 revision + revise 非终态 ──────────
+// ── live gate 由真实 RiskList 派生；逐条 revision + 受控修正 ──────────────
 requireMatch(binding, /export function projectRiskListGate\([\s\S]*?riskList\.risks\.map\(/, 'live gate 必须由真实 riskList.risks 逐条派生');
 requireMatch(binding, /\/risks\/\$\{index\}\/dispositionStatus/, '逐条 revision 必须映射 /risks/<index>/dispositionStatus');
 requireMatch(binding, /disposition === 'reject' \? 'rejected' : 'confirmed'/, 'confirm→confirmed / reject→rejected 映射必须显式');
-requireMatch(binding, /ReviseNotTerminalError/, 'revise 必须保持 pending 非终态（ReviseNotTerminalError）');
+
+// CONTRACT-REVIEW-SAFETY-1（ADR-010 决定五 2026-07-24 修订）：`revise` 由「保持 pending 的
+// 非终态阻断」改为「受控编辑：非空且异于原文的新结论 + 同批 confirmed」。旧门断言的
+// `ReviseNotTerminalError` 随该裁定退役——此处不是删断言留空档，而是换成新语义的三条守卫：
+// 空值/同值必须 typed 拒收，且 description 修订必须**先于** dispositionStatus 落批。
+requireMatch(binding, /class InvalidReviewCorrectionError/, '修正非法必须类型化阻断（InvalidReviewCorrectionError）');
+requireMatch(binding, /修正结论不能为空/, '空修正结论必须显式拒收');
+requireMatch(binding, /修正结论必须不同于原结论/, '同值修正必须显式拒收');
+// 顺序即语义：整个 return 数组必须逐字是「description 修订对象 → dispositionRevision」两项。
+// 锚到数组的开闭括号，故交换两项、插入第三项或把 dispositionRevision 提前都会脱锚触红。
+requireMatch(
+  binding,
+  /return \[\s*\{\s*artifactType: S3_RISK_LIST_TYPE,[^{}]*?fieldPath: `\/risks\/\$\{index\}\/description`,[^{}]*?\},\s*dispositionRevision,\s*\];/,
+  'revise 的 description 修订必须先于 dispositionStatus 落同一批（顺序即语义）',
+);
 
 // ── 显式主体/工具阻断闭集（零静默降级）────────────────────────────────
 for (const err of ['MissingContractPartyError', 'MissingToolInputError', 'IncompleteReviewError', 'UnknownReviewItemError']) {

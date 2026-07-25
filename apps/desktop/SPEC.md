@@ -4023,6 +4023,52 @@ review 状态与提交编排外提，净减后下调 highwater；扩白先退回
 不在本票自动生成合同替换条款，不把“修正结论”包装成 redline，不改 RiskList 字段，不顺带做
 主合同选择、原 DOCX bytes、SourceAnchor 跳转、completed 重开或 dossier。
 
+### 本单新增了什么概念、为何非加不可（复杂度审视义务）
+
+**新增概念：零。新增依赖：零。新增持久格式：零。** 唯一新增文件
+`work/use-contract-review-submission.ts` 是「过手即拆」的产物——它把原先内联在 `App.tsx` 的提交
+编排、产物落盘与 demo waiver 效应整体平移出来，并顺带带走五枚原本就住在 App 的 state
+（`submitted`/`submitting`/`resultMessage`/`nonAppliedPending`/`confirmedNonAppliedIds`）与
+review 编辑态。判别联合、demo/production 编译器分流、gate 判据全部原样沿用，没有新状态机。
+
+review 编辑态一并纳管是**必须**而非顺手：锁定判据是「已提交或提交中」，而提交态住新模块、
+编辑态若留在 App 就形成 `locked ↔ reviewState` 的循环依赖。同住一处后循环消失。
+
+`contractOutputExists` **未**外提：它另有三处与提交无关的渲染消费，留在 App 由回调驱动，
+避免为了搬而搬。
+
+### 实现期架构裁定（2026-07-25，本会话留痕）
+
+1. **白名单扩三处**，均为本票改动的机械连带，非范围扩张：
+   ⓐ `work/use-contract-review-submission.ts`（新建，理由见上——原白名单只批了
+   `contract-review-flow.ts` 一枚新文件，但该文件是纯逻辑与状态 hook，把带
+   `caseOutputClient`/`MaterialStore` 副作用的编排塞进去会混两种关注点）；
+   ⓑ `packages/legal/src/package/layout-golden.test.ts` descriptor hash 重铸——**先逐行 diff
+   证明整份 descriptor 只有 S3 gate label 一行变化、promptBlob hash 逐字节未动**，才改；
+   ⓒ `demo/legal-interaction.test.ts` 两处 `as { quote: string }` 改
+   `{ quote: string | undefined }`——录制改走 schema parse 后 `quote` 恢复其 schema 上的可选性，
+   属类型面机械跟随，零断言变更。
+2. **demo 录制改经 schema parse**（`demo/recordings.ts`）。原白名单只批该文件「exact label 同源
+   更新」，此项超出该措辞，故在此留痕。理由：本票新增的 out-of-coverage 渲染面解引用
+   `riskList.outOfCoverage`，而 demo 夹具是直接 import 的裸 JSON，`.default([])` 从未执行，
+   demo 工作台白屏、全部 `openWorkbench` e2e 30s 超时。**不改夹具**——`risk-list.ts` 明写该
+   default 的存在正是为了「存量最终形夹具零迁移」，补键会违背该设计意图；错在 `recordings.ts`
+   为未经 parse 的值声称已 parse 的类型。判例见 `docs/engineering/workflow.md`
+   「类型在场 ≠ 运行时在场」。配套门写成族级断言（录制携带的 artifact 必须等于其注册 schema 的
+   parse 结果），一次覆盖全部 artifact 类型与全部现在及将来的 `.default()`。
+3. **两道既有静态门随本票新真源迁移，均带变异自证，非删断言留空档**：
+   ⓐ `assert-legal-s3-contracts.mjs` 的 `ReviseNotTerminalError` 断言随 ADR-010 决定五
+   2026-07-24 修订退役，换为三条新语义守卫（空修正拒收 / 同值修正拒收 / description 修订必须
+   先于 dispositionStatus 落同一批）。交换两项顺序、删同值拒收各触红后复绿。
+   ⓑ `assert-work-live-contracts.mjs` 的 `workCommand.resolveReview` 与
+   `bindDocxSourceMarkdown` 两条断言原钉 `App.tsx`，外提后断链。**不弱化为并集扫描**，拆成
+   「App 侧必须把生产 `workCommand` 交给提交编排」+「模块侧必须真调 `resolveReview`」两段，
+   比原单条更严。三类变异（hook 内换 stub / App 不传 workCommand / docx 源退回 demo 原文）
+   逐一触红后复绿。
+4. **`inFlight` 首胜闸门从 `useMemo` 改挂 `useRef`**。原写法的 memo 依赖含
+   `produceContractDocx`，而后者依赖 `review.dispositions`——用户每改一次处置即重建 submitter，
+   SPEC 要求的「双击/重入复用同一 Promise」随之失守。这是实现缺陷修复，不是契约变更。
+
 ## CONTRACT-OUTPUT-TRUTH-1 · 主合同与原 DOCX 批注稿（2026-07-24，架构票）
 
 权威：ADR-004 原件只读、ADR-010 决定四/五及其 2026-07-24 修订、output 包

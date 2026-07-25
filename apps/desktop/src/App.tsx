@@ -22,7 +22,7 @@ import {
 } from './protocol/client';
 import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
 import { replayWorkProjection } from './protocol/work-replay';
-import { bindDocxSourceMarkdown, projectRiskListGate } from './work/legal-s3-binding';
+import { projectRiskListGate } from './work/legal-s3-binding';
 import type { LegalS3WorkCommand } from './work/work-command';
 import { clearWorkSession, persistWorkSession, readWorkSession, type WorkSessionRecord } from './work/work-session-store';
 import { projectPersistableCases, readCaseList, writeCaseList } from './case/case-store';
@@ -124,19 +124,8 @@ import { useDismissOnOutside } from './hooks/useDismissOnOutside';
 import { createReviewTelemetryEmitter } from './telemetry/review-telemetry';
 import { compileDraftToDocx } from '@courtwork/output';
 import { caseOutputClient } from './output/case-output-client';
-import {
-  compileConfirmedReviewToDocx,
-  compileDemoConfirmedReviewToDocx,
-  type PendingRevisionConfirmation,
-} from './output/compile-review-output';
-import {
-  S3_REVIEW_GATE_LABEL,
-  buildSubmittedReviewResolution,
-  createContractReviewSubmitter,
-  isReviewSubmissionReady,
-  projectDemoReviewRiskList,
-  useContractReviewState,
-} from './work/contract-review-flow';
+import { S3_REVIEW_GATE_LABEL } from './work/contract-review-flow';
+import { useContractReviewSubmission } from './work/use-contract-review-submission';
 
 const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
@@ -356,18 +345,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [workContractMaterialId, setWorkContractMaterialId] = useState<string | null>(null);
   const [selectedRiskId, setSelectedRiskId] = useState('risk-03');
   const [expandedEvidence, setExpandedEvidence] = useState<Record<string, boolean>>({});
-  const [reviewSubmitted, setReviewSubmitted] = useState(false);
-  const [reviewSubmitting, setReviewSubmitting] = useState(false);
-  const [reviewResult, setReviewResult] = useState<string>();
-  const review = useContractReviewState(reviewSubmitted || reviewSubmitting);
   const [continued, setContinued] = useState(false);
   const [compileOpen, setCompileOpen] = useState(false);
   const [compilePending, setCompilePending] = useState(false);
   const [draftOutputExists, setDraftOutputExists] = useState(false);
   const [contractOutputExists, setContractOutputExists] = useState(false);
   // OUTPUT-CONFIRM-UI-1：未能落到文书上的修订，逐条待用户确认后才落盘。
-  const [nonAppliedPending, setNonAppliedPending] = useState<PendingRevisionConfirmation[]>([]);
-  const [confirmedNonAppliedIds, setConfirmedNonAppliedIds] = useState<string[]>([]);
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ credential: { phase: 'absent' }, connection: { phase: 'unverified' } });
   const [credentialProbed, setCredentialProbed] = useState(false);
@@ -848,10 +831,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
     setGate(undefined);
     setExpandedEvidence({});
-    review.reset();
-    setReviewSubmitted(false);
-    setReviewSubmitting(false);
-    setReviewResult(undefined);
+    submission.reset();
     setContinued(false);
     // 五裁②：仅当 handoff 定向到本案时带入 chat 话题，其余一律清空（D-1 隔离不破）
     if (chatHandoff.current?.caseId === selectedCaseId) {
@@ -888,8 +868,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setWorkRunning(false);
     setWorkSubject('');
     setWorkContractMaterialId(null);
-    setNonAppliedPending([]);
-    setConfirmedNonAppliedIds([]);
 
     if (isDemoCaseId(selectedCaseId)) {
       setFlow('S3');
@@ -1132,13 +1110,38 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     ? selectedRisk.basis.every((_, index) => expandedEvidence[`${selectedRisk.id}:${index}`])
     : false;
   const individualReady = selectedGate?.mode !== 'individual' || allEvidenceOpened;
+  // CONTRACT-REVIEW-SAFETY-1「过手即拆」：提交编排与产物落盘整体外提到
+  // `work/use-contract-review-submission.ts`，App 只留相位与产物存在性两个跨面消费。
+  const submission = useContractReviewSubmission({
+    caseBinding,
+    selectedCaseId,
+    isDemoCase,
+    flow,
+    riskList,
+    gate,
+    confirmationRequestId: session.confirmation?.requestId,
+    evidenceGrades: session.evidenceGrades,
+    workSessionId,
+    workContractMaterialId,
+    materialStore,
+    workCommand,
+    workFixture,
+    dispatch,
+    openedAt,
+    demoSourceMarkdown: contractSourceMd,
+    outputFileName: CONTRACT_OUTPUT_FILE,
+    showSystemFeedback,
+    onOutputExists: setContractOutputExists,
+    onCompleted: () => setWorkPhase('completed'),
+  });
+
   // 已处置条目退出批量池：批后计数归零禁钮，且批量永不覆写既有逐条处置（用户修正最高优先级）
-  const batchRefs = gate?.items.filter((item) => item.mode === 'batch' && !review.dispositions[item.itemRef]).map((item) => item.itemRef) ?? [];
+  const batchRefs = gate?.items.filter((item) => item.mode === 'batch' && !submission.review.dispositions[item.itemRef]).map((item) => item.itemRef) ?? [];
   const draftFrozen = draftOutputExists;
   const comparing = secondaryView !== undefined;
   const usage = isDemoCase ? (flow === 'S3' ? 91 : 18) : 0;
   const progressDone =
-    !isDemoCase ? 0 : flow === 'S1' ? Math.min(16, 20) : review.decisionCount;
+    !isDemoCase ? 0 : flow === 'S1' ? Math.min(16, 20) : submission.review.decisionCount;
   const progressTotal = !isDemoCase ? 6 : flow === 'S1' ? 20 : 6;
   const progressCount = progressHeadCount(progressDone, progressTotal);
   const attachmentSources = localMessages.flatMap((message) => message.files);
@@ -1194,164 +1197,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     };
   }, [caseBinding]);
 
-  // Production 只接受 completed 后 replay 的 post-revision RiskList；demo 旧 waiver 物理分流。
-  const recompileGuard = useRef(false);
-  const produceContractDocx = useCallback(async (
-    persistedRiskList: RiskList,
-    confirmedNonApplied?: string[],
-  ) => {
-    if (caseBinding.kind === 'unbound') throw new Error('本案尚未绑定可写入的案件目录');
-    let sourceMarkdown = contractSourceMd;
-    let targetFileName = '04-设备采购合同.docx';
-    if (caseBinding.kind === 'grant') {
-      if (!selectedCaseId || !workContractMaterialId) throw new Error('尚未选定可编译的合同原件');
-      const resolved = await materialStore.resolveForProvider(selectedCaseId, workContractMaterialId);
-      if (resolved.status !== 'ready') throw new Error('合同原件复验未通过，未能编译文书');
-      sourceMarkdown = bindDocxSourceMarkdown(resolved.material);
-      targetFileName = resolved.material.fileName;
-    }
-    const shared = {
-      riskList: persistedRiskList,
-      sourceMarkdown,
-      targetFileName,
-      evidenceGrades: session.evidenceGrades,
-    };
-    const result = caseBinding.kind === 'demo'
-      ? compileDemoConfirmedReviewToDocx({ ...shared, dispositions: review.dispositions, confirmedNonApplied })
-      : compileConfirmedReviewToDocx(shared);
-    if (result.status === 'needs_confirmation') {
-      recompileGuard.current = false;
-      setNonAppliedPending(result.pending);
-      if (caseBinding.kind === 'grant') {
-        setReviewResult('已确认风险中有条目未能唯一落到主合同；整份批注稿未生成');
-      }
-      return;
-    }
-    await caseOutputClient.writeDocx(caseBinding, CONTRACT_OUTPUT_FILE, result.docx);
-    const exists = await caseOutputClient.exists(caseBinding, CONTRACT_OUTPUT_FILE);
-    if (!exists) throw new Error('Word 产物写入后未能在案件产出目录确认');
-    setNonAppliedPending([]);
-    setConfirmedNonAppliedIds([]);
-    setContractOutputExists(true);
-    showSystemFeedback(`已写入本案「产出」目录：${CONTRACT_OUTPUT_FILE}`, true);
-  }, [
-    caseBinding,
-    materialStore,
-    review.dispositions,
-    selectedCaseId,
-    session.evidenceGrades,
-    showSystemFeedback,
-    workContractMaterialId,
-  ]);
-
-  const confirmNonApplied = (instructionId: string) => {
-    setConfirmedNonAppliedIds((prev) => (prev.includes(instructionId) ? prev : [...prev, instructionId]));
-  };
-  const cancelNonApplied = () => {
-    recompileGuard.current = false;
-    setNonAppliedPending([]);
-    setConfirmedNonAppliedIds([]);
-  };
-
-  // 逐条确认满即重编译落盘（针对性确认，非笼统放行；覆盖不全由 output 门禁继续阻断）。
-  useEffect(() => {
-    if (!isDemoCase || !riskList) return;
-    if (nonAppliedPending.length === 0) {
-      recompileGuard.current = false;
-      return;
-    }
-    const allConfirmed = nonAppliedPending.every((item) => confirmedNonAppliedIds.includes(item.instructionId));
-    if (!allConfirmed || recompileGuard.current) return;
-    recompileGuard.current = true;
-    void (async () => {
-      try {
-        await produceContractDocx(
-          projectDemoReviewRiskList(riskList, review.state),
-          confirmedNonAppliedIds,
-        );
-      } catch (error) {
-        recompileGuard.current = false;
-        setContractOutputExists(false);
-        showSystemFeedback(error instanceof Error ? error.message : 'Word 产物生成失败', false);
-      }
-    })();
-  }, [confirmedNonAppliedIds, isDemoCase, nonAppliedPending, produceContractDocx, review.state, riskList, showSystemFeedback]);
-
-  const liveReviewSubmitter = useMemo(() => createContractReviewSubmitter({
-    command: workCommand,
-    mintCommandId: () => `resolve-${globalThis.crypto.randomUUID()}`,
-    compile: (persistedRiskList) => produceContractDocx(persistedRiskList),
-  }), [produceContractDocx, workCommand]);
-
-  const submitReview = () => {
-    const requestId = session.confirmation?.requestId;
-    if (
-      !requestId
-      || !selectedCaseId
-      || !gate
-      || !riskList
-      || reviewSubmitting
-      || !isReviewSubmissionReady(gate.items, review.state)
-    ) return;
-    const dwellMs = gate.items.reduce(
-      (total, item) => total + Math.max(0, Date.now() - (openedAt.current[item.itemRef] ?? Date.now())),
-      0,
-    );
-    const expandedEvidenceKeys = gate.items
-      .flatMap((item) => item.evidenceKeys)
-      .filter((key, index, all) => all.indexOf(key) === index);
-    const resolution = buildSubmittedReviewResolution(
-      gate.items,
-      review.state,
-      { dwellMs, expandedEvidenceKeys },
-    );
-    setReviewSubmitting(true);
-    setReviewResult(undefined);
-    if (isDemoCaseId(selectedCaseId) && flow) {
-      const ref = workFixture.sessionRefFor(selectedCaseId, flow);
-      void workFixture.review.resolve({ ...ref, requestId, resolution })
-        .then(async () => {
-          setReviewSubmitted(true);
-          await produceContractDocx(projectDemoReviewRiskList(riskList, review.state));
-        })
-        .catch((error: unknown) => {
-          setContractOutputExists(false);
-          showSystemFeedback(readableError(error, 'Word 产物生成失败'), false);
-        })
-        .finally(() => setReviewSubmitting(false));
-      return;
-    }
-    if (caseBinding.kind !== 'grant' || !workSessionId) {
-      setReviewSubmitting(false);
-      return;
-    }
-    const caseId = selectedCaseId;
-    void liveReviewSubmitter.submit({
-      caseId,
-      sessionId: workSessionId,
-      requestId,
-      resolution,
-      publish: dispatch,
-    }).then((result) => {
-      if (result.status === 'not_completed') {
-        const { outcome } = result;
-        if (outcome.status === 'rejected') showSystemFeedback(outcome.message, false, 'info');
-        else if (outcome.status === 'failed') showSystemFeedback(workFailureDisplayCopy(outcome.message), false);
-        else if (outcome.status === 'canceled') showSystemFeedback('已停止合同审查', true);
-        else showSystemFeedback('审阅仍在等待进一步处置，未生成批注稿', false, 'info');
-        return;
-      }
-      setReviewSubmitted(true);
-      setWorkPhase('completed');
-      if (result.review.kind !== 'compile') {
-        setReviewResult(result.review.message);
-        showSystemFeedback(result.review.message, true);
-      }
-    }).catch((error: unknown) => {
-      setContractOutputExists(false);
-      showSystemFeedback(readableError(error, '合同审查提交失败，未生成批注稿'), false);
-    }).finally(() => setReviewSubmitting(false));
-  };
 
   // WORK-LIVE-1：grant（真实）案的 production S3 运行触发。显式主体来自受控 preflight（不从案名/文件名/
   // 正文/模型猜测）；材料经 resolveForProvider 复验才入 provider；事件机械发布进同一 session 投影（零 recording）。
@@ -1369,12 +1214,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     if (ready.length === 0) return;
     dispatch({ type: '__clear__' });
     setGate(undefined);
-    review.reset();
-    setReviewSubmitted(false);
-    setReviewSubmitting(false);
-    setReviewResult(undefined);
-    setNonAppliedPending([]);
-    setConfirmedNonAppliedIds([]);
+    submission.reset();
     const contractMaterialId = ready[0].materialId;
     setWorkContractMaterialId(contractMaterialId);
     setWorkRunning(true);
@@ -1853,10 +1693,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setFileOpsMode(false);
     setGate(undefined);
     setExpandedEvidence({});
-    review.reset();
-    setReviewSubmitted(false);
-    setReviewSubmitting(false);
-    setReviewResult(undefined);
+    submission.reset();
     setContinued(false);
     dispatch({ type: '__clear__' });
     setWorkPhase(undefined);
@@ -1941,21 +1778,21 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   const dispose = (itemRef: string, disposition: 'confirmed' | 'rejected') => {
     const protocolDisposition = disposition === 'confirmed' ? 'confirm' : 'reject';
-    if (!review.decide(itemRef, protocolDisposition)) return;
-    setReviewResult(undefined);
+    if (!submission.review.decide(itemRef, protocolDisposition)) return;
+    
     if (fixtureRef) {
       emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: fixtureRef.sessionId, itemRef, disposition: protocolDisposition, emittedAt: new Date().toISOString() });
     }
   };
 
   const beginCorrection = (itemRef: string, originalDescription: string) => {
-    review.beginCorrection(itemRef, originalDescription);
-    setReviewResult(undefined);
+    submission.review.beginCorrection(itemRef, originalDescription);
+    
   };
 
   const commitCorrection = () => {
     try {
-      const decision = review.commitCorrection();
+      const decision = submission.review.commitCorrection();
       if (!decision) return;
       if (fixtureRef) {
         emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: fixtureRef.sessionId, itemRef: decision.itemRef, disposition: 'revise', emittedAt: new Date().toISOString() });
@@ -2070,7 +1907,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     if (!selectedRisk) {
       return <section className="empty-review-result" data-testid="revision-panel">
         <h3>合同审查处置</h3>
-        <p>{reviewResult ?? '本次风险清单没有待逐条处置的风险项。请显式提交，完成本次审查。'}</p>
+        <p>{submission.resultMessage ?? '本次风险清单没有待逐条处置的风险项。请显式提交，完成本次审查。'}</p>
         {riskList.outOfCoverage.length > 0 && (
           <ul data-testid="review-out-of-coverage">
             {riskList.outOfCoverage.map((entry) => <li key={entry.summary}>{entry.summary}</li>)}
@@ -2080,9 +1917,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           type="button"
           className="primary-button"
           data-testid="submit-contract-review"
-          disabled={!gate || reviewSubmitting || reviewSubmitted || !isReviewSubmissionReady(gate.items, review.state)}
-          onClick={submitReview}
-        >{reviewSubmitting ? '正在提交处置…' : S3_REVIEW_GATE_LABEL}</button>
+          disabled={submission.submitting || submission.submitted || !submission.canSubmit}
+          onClick={submission.submit}
+        >{submission.submitting ? '正在提交处置…' : S3_REVIEW_GATE_LABEL}</button>
       </section>;
     }
     return <RevisionPanel
@@ -2095,28 +1932,28 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       unverifiedRiskIds={unverifiedRiskIds}
       expandedEvidence={expandedEvidence}
       onExpandBasis={expandBasis}
-      dispositions={review.dispositions}
-      correctedDescriptions={review.correctedDescriptions}
+      dispositions={submission.review.dispositions}
+      correctedDescriptions={submission.review.correctedDescriptions}
       onDispose={dispose}
-      editingCorrection={review.state.editing}
+      editingCorrection={submission.review.state.editing}
       onBeginCorrection={beginCorrection}
-      onChangeCorrection={review.changeCorrection}
+      onChangeCorrection={submission.review.changeCorrection}
       onSubmitCorrection={commitCorrection}
-      onCancelCorrection={review.cancelCorrection}
+      onCancelCorrection={submission.review.cancelCorrection}
       individualReady={individualReady}
       batchRefs={batchRefs}
-      onBatchConfirm={() => review.batchConfirm(batchRefs)}
-      submitted={reviewSubmitted}
-      nonAppliedPending={nonAppliedPending}
-      confirmedNonAppliedIds={confirmedNonAppliedIds}
-      onConfirmNonApplied={confirmNonApplied}
-      onCancelNonApplied={cancelNonApplied}
+      onBatchConfirm={() => submission.review.batchConfirm(batchRefs)}
+      submitted={submission.submitted}
+      nonAppliedPending={submission.nonAppliedPending}
+      confirmedNonAppliedIds={submission.confirmedNonAppliedIds}
+      onConfirmNonApplied={submission.confirmNonApplied}
+      onCancelNonApplied={submission.cancelNonApplied}
       allowNonAppliedConfirmation={isDemoCase}
       submitLabel={S3_REVIEW_GATE_LABEL}
-      submitEnabled={Boolean(gate && isReviewSubmissionReady(gate.items, review.state))}
-      submitting={reviewSubmitting}
-      onSubmitReview={submitReview}
-      resultMessage={reviewResult}
+      submitEnabled={submission.canSubmit}
+      submitting={submission.submitting}
+      onSubmitReview={submission.submit}
+      resultMessage={submission.resultMessage}
     />;
   };
 
@@ -2304,7 +2141,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             expandedCaseId={expandedCaseId}
             isDemoCase={isDemoCase}
             flow={flow}
-            dispositionsCount={review.decisionCount}
+            dispositionsCount={submission.review.decisionCount}
             caseRoot={demoCaseRoot}
             materials={caseMaterials}
             onVerifyMaterial={verifyMaterial}

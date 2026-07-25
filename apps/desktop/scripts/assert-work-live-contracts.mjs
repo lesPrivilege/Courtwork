@@ -26,6 +26,9 @@ const app = stripComments(await read('src/App.tsx'));
 const main = stripComments(await read('src/main.tsx'));
 const binding = stripComments(await read('src/work/legal-s3-binding.ts'));
 const modules = stripComments(await read('src/modules/ModuleStack.tsx'));
+// CONTRACT-REVIEW-SAFETY-1「过手即拆」：提交编排与产物落盘已从 App.tsx 外提到本模块。
+// 门跟着码走——扫描面迁移，断言不弱化（见下方 resume/docx 源两处拆成「接线」+「调用」两段）。
+const submission = stripComments(await read('src/work/use-contract-review-submission.ts'));
 
 const failures = [];
 const requireMatch = (source, pattern, message) => {
@@ -75,13 +78,14 @@ requireMatch(command, /resumeScenario/, 'resume 必须经真实 core executor re
 
 // ── grant（真实）案接线（App.tsx）：run/gate/resume/cancel/docx 源全走生产链 ──────
 requireMatch(app, /workCommand\.startWithPreflight\(/, 'grant 案 run 必须经 workCommand.startWithPreflight（显式主体 preflight）');
-requireMatch(app, /workCommand\.resolveReview\(/, 'grant 案 resume 必须经 workCommand.resolveReview（逐条 revision）');
+requireMatch(app, /useContractReviewSubmission\(\{[\s\S]*?\n    workCommand,/, 'grant 案 resume 必须把生产 workCommand 交给提交编排（App 侧接线）');
+requireMatch(submission, /commandRef\.current\.resolveReview\(/, 'grant 案 resume 必须经 workCommand.resolveReview（逐条 revision）');
 requireMatch(app, /workCommand\.cancel\(/, 'grant 案 cancel 必须经 workCommand.cancel');
 // WORK-LIVE-REPLAY-1（答复 WORK-HOST-1 驳回阻断二）：跨切案/重启的恢复入口必须真实消费 workCommand.replay
 // 水合投影（此前「全 App 对 workCommand.replay 零消费点」是驳回根因）。
 requireMatch(app, /workCommand\.replay\(/, 'grant 案 恢复入口必须经 workCommand.replay（水合投影续行，答复 WORK-HOST-1 驳回阻断二）');
 requireMatch(app, /projectRiskListGate\(riskList/, 'grant 案 live gate 必须经 projectRiskListGate（真实 RiskList）');
-requireMatch(app, /bindDocxSourceMarkdown\(resolved\.material\)/, 'grant 案 docx 源文必须经 bindDocxSourceMarkdown（会话材料，非 demo 原文）');
+requireMatch(submission, /bindDocxSourceMarkdown\(resolved\.material\)/, 'grant 案 docx 源文必须经 bindDocxSourceMarkdown（会话材料，非 demo 原文）');
 
 // ── WorkState host 精简装配 + Turn 樁仅 DEV/E2E ─────────────────────────────
 requireMatch(runtime, /createInMemoryWorkStateHost/, 'WorkState host = 内存参考实现（真机跨重启待 Tauri host [需架构拍板]）');
