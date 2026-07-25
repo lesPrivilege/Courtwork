@@ -87,6 +87,7 @@ Composer 的“存入卷宗/资料”不是第二条入库能力；现行缺口�
 | Round 3 | `WORK-STORE-MEASURE`（放行，独立复跑证实尺寸无关与原子替换 0 撕裂）、`HOST-AUTH-LITE`（放行，四类失败 fail-closed 反例触红，真弹窗/真卷卸载为可复现记录非自动化门）、`CHAT-SESSION-1`（架构放行：自身范围全绿，两条红 e2e 经根因复核属 OUTPUT-CONFIRM-UI-1 缺口）、`WORK-STORE-1`（驳回一轮后聚焦复验放行，屏障次序与 scenario_failed 消费点均补齐）、`CASE-ROOT-1`（放行，opaque ref 与 webkitdirectory 退役，含死配置清理）、`SITE-CRAFT-1`（全链闭环：实现→驳回→复验→部署驳回→FADE→验收→两轮上线复核放行）、`CHAT-MEMORY-1`（放行，ADR-013 全部落地，Chat 线闭环）、`OUTPUT-CONFIRM-UI-1`（放行含合并组合，e2e 225/225 历史两红根治）、`MATERIAL-INGRESS-1`（放行，227/227，两项中场裁定经架构追认：就地入库 + MaterialRef desktop-local）、`UI-SURFACE-1`（两轮驳回后终局放行：31+11 对标清单双锚闭合、失败轮次重试接线、七处显式未开通态 + §9 黑名单静态门、疊层清单纠偏为 UI-RESIDUE-1 输入；floor 231）、`DESIGN-MD-1`（放行含产物守卫加固：tokens+principles 编译 courtwork-design.md，drift 门入 site:guard，效果图管线前置约束就位）、`VOICE-SPEC-1`（放行含验收修复：voice.md 成册 + lint:voice 三规则门 + 唯一违例修复；验收中 design-md drift 门咬住 principles 指针漂移并重生成——新门首次真实生效）、`LEGAL-S3-BINDING-1`（放行：S3 生产装配点闭合 + ArtifactEnvelope + 词表统一，ADR-010 七反例重放，package-ready 不扩大宣称）、`LAYOUT-CONVERGE-1`（Grok 四准则审计驳回后修复放行：死支/幽灵列清除、work 单列 760 测宽收缩、welcome 落 560 token，几何实测闭合，floor 255）、`UI-RESIDUE-1 批一`（文档条件驳回补落痕后终局放行：expectNoOverlayResidue + 17 行开合闭合门 + 点击穿透缺陷修复 + 门禁自证 mutation；成立范围严格为已枚举状态图，批二另单）、`WORK-LIVE-1`+`WORK-HOST-1`（各一轮驳回后合并复验放行：rejected 真实路径/确定性崩溃红证/replay 恢复环，主线工程面闭环） |
 | 2026-07-24 current-main 治理清账 | `FILE-PREVIEW-1`、`CORE-BUDGET-1`、`DEBT-CLEAR-1`、`DEBT-GATE-LABEL-1`、`MD-CONVERGE-1+`、`MODEL-CONFIG-EXPLICIT-1R`；报告门 `GOVERNANCE-CLEAR-1` 提交 `9df31d1`，同一 `94f83ab` 上 build/lint、root 1291、desktop 434、Playwright 329/329 与逐票 mutation 全绿；报告分别见 desktop/core `ACCEPTANCE.md` |
 | 2026-07-24 production Work 预算 | `WORK-BUDGET-1`：实现 `a82f51d`，台账契约修正 `0ff83f7`，异会话验收 `4e301b5`；最终 desktop 465、root 1294、Playwright 333/333，六类 production mutation 均红后恢复。只放行累计预算/冻结 route/价目/持久失败回放，不扩大为整条合同审查闭环 |
+| 2026-07-25 门禁清点 | `GATE-INVENTORY-1`：清点表 `docs/engineering/gate-inventory-1.md`（65 门 / 8557 行，现读现跑非静态推断；旧计数 `8019` 订正为出处保留）。清点期只读边界被遵守，动作按就绪图另立 `GATE-P5-RESCOPE-1` 与 `CI-TOPOLOGY-1` 两票。副产品捕获两项现行问题并经异会话独立复跑坐实：`assert-p5-font-runtime` 判红（exit 1，八条数据位置断言全漂）且未接任何门链、`capture-rp1-compact` 死支（实跑 30s 超时崩溃）。报告内「跨越十余枚提交」一处计数在任一口径下均不成立，已由复测三口径（全仓 69 / `site/` 7 / `site/index.html` 1）订正 |
 
 ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第二 agent runtime；企业 SDK 编排只进真实垂类 runtime；新 production blueprint 只能由真实 fixture 与 fail-closed projection 拉动。
 
@@ -126,3 +127,13 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 ## 分支与清账纪律
 
 `main` 是唯一长期与发布真源。临时 `codex/*` 分支和 clean worktree 只有在目标 SHA 成为 `main` 祖先、对应 SPEC/ACCEPTANCE 留痕且实现与独立验收都完成后才可删除；未提交工作树不由其他会话代为合入。
+
+**在途分支（2026-07-25 清点）**：`codex/contract-review-safety-1` tip `3301286`，是
+`CONTRACT-REVIEW-SAFETY-1` 的 **WIP 快照，非可验收单元**。原 commit message 自称
+`CONTRACT-OUTPUT-TRUTH-1`，经逐文件比对白名单坐实为误标（17/17 落 SAFETY 白名单内，OUTPUT
+专属面零命中），已在 `3301286` 改正——就绪图钉死 SAFETY→OUTPUT 严格串行，误标会在治理记录里
+留下「抢跑」假证据。该 tip 与 `main` merge-tree 干净零冲突，但门禁四红一缺：lint 红一条、
+root 单测红一条（冻结 gate label 改动未同步 `packages/legal` descriptor golden）、
+`lint:app-highwater` 红（2830 > 上限 2738，净增 92）、Playwright 全线红，且无 contract-review
+e2e。Playwright 全红的根因是 `RevisionPanel` 解引用 demo fixture 不存在的
+`riskList.outOfCoverage` 致白屏，判例见 `docs/engineering/workflow.md`「类型在场 ≠ 运行时在场」。

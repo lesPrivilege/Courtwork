@@ -157,6 +157,18 @@ expect(每个 reason 都有去向)                                 // 于是永�
 
 判据：**「查无此物」是否定性结论，不得由单一工具的空输出得出**。换一种读法交叉（另一工具、另一入口、或找一个已知存在的锚点验证该工具此刻可用）后再下结论。同理适用于「grep 不到消费者故可删」「未找到证据故不存在」这类判断——本仓验收体例里「未找到证据」正是为此保留的措辞，它说的是我没找到，不是它不存在。
 
+### 类型在场 ≠ 运行时在场：`.default()` 是绕过 parse 就消失的字段（2026-07-25 立，源 CONTRACT-REVIEW-SAFETY-1 WIP 白屏实测）
+
+`RiskListSchema` 写着 `outOfCoverage: z.array(...).default([])`，故 zod 的**输出类型**里该字段是必填，TypeScript 全程认定它在场。但 `packages/demo-data/data/artifacts/risk-list.json` 的顶层键只有 `{caseId, risks}`，它被 `demo/recordings.ts` 直接 `import` 成 JSON 当 `RiskList` 用，**从不经 `RiskListSchema.parse()`**——`.default([])` 因此永远没机会执行。一处无保护的 `props.riskList.outOfCoverage.length` 就抛 `TypeError`，React 树整棵卸载，demo 工作台白屏，所有调 `openWorkbench()` 的 e2e 全线 30s 超时。
+
+这一缺陷穿过了 `tsc -b`（类型上字段在场）与 64 文件 / 499 条 desktop 单测（无一条用 demo fixture 渲染该面板），**只有真跑起来的 e2e 抓得到**。
+
+判据三条：
+
+- **`.default()` / `.catch()` / `.optional()` 后带兜底的字段，其「在场」只对 parse 过的值成立。** 直接 import 的 JSON fixture、手写字面量、`as T` 断言出来的对象，全是绕过 parse 的运行时空洞；对这类字段的访问必须带保护，或让该值真的走一次 parse。
+- **单点修补不够，须以族为单位铺满**（承「开口子就得同时封口子」）。本仓现存同族三处：`risk-list.outOfCoverage`、`party-graph.aliases`、`timeline.partyIds`，而五份 demo artifact JSON 无一经 parse。修任一处时须同批处置全族，并留下机器形态——「每份 demo artifact JSON 含其 schema 全部 `.default()` 键」是可静态断言的。
+- **「build 绿 + 单测绿」对这一族零区分力**，不得作为该族的通过证据。承「一次绿不构成对 flaky 的反驳」的同源纪律：绿灯的说服力只及于它实际执行到的路径。
+
 
 ## Git 纪律
 
