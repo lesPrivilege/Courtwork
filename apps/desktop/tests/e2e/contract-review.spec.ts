@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { openWorkbench } from './helpers';
+import { openWorkbench, waitForDemoReviewGate } from './helpers';
 
 /**
  * CONTRACT-REVIEW-SAFETY-1 验收第 8 条：完整 App e2e 证明「编辑取消仍 pending」「空/同值不可提交」
@@ -17,9 +17,15 @@ function panelOf(page: Page) {
   return page.getByTestId('revision-panel');
 }
 
-/** 选中一项；高危/未核验条目须先展开依据才可确认，故按钮禁用时先展开。 */
+/**
+ * 选中一项；高危/未核验条目须先展开依据才可确认，故按钮禁用时先展开。
+ * 先等门禁落面：最终提交按钮的启用判据挂在 gate.items 上，回放迟到时**处置不丢**
+ * 但按钮直到门禁到达才启用（探针实测：门禁到达前 disabled、到达后处置格仍「已确认」且转 enabled），
+ * 所以这里必须等条件而不是赌回放时长。
+ */
 async function select(page: Page, riskId: string) {
   const panel = panelOf(page);
+  await waitForDemoReviewGate(page);
   await panel.locator(`[data-risk-id="${riskId}"]`).click();
   return panel;
 }
@@ -75,7 +81,6 @@ test('修正编辑取消后该项回到未处置：不得令全表「已处置�
 test('空修正与同值修正都不可提交；改出异值才放行', async ({ page }) => {
   await openWorkbench(page);
   const panel = await select(page, 'risk-02');
-  const original = (await panel.locator('[data-risk-id="risk-02"]').innerText()).trim();
 
   await panel.getByTestId('begin-review-correction').click();
   const editor = panel.getByTestId('review-correction-editor');
@@ -84,6 +89,11 @@ test('空修正与同值修正都不可提交；改出异值才放行', async ({
 
   // 预填当前结论 → 同值，不可提交。
   await expect(commit).toBeDisabled();
+
+  // 原结论只能取预填值本身：风险行的 innerText 还含编号/等级/核验/处置/下一步五列，
+  // 拿它当 description 会让下面的「首尾空白不算异值」断言失去意义（那是本谱首轮自伤）。
+  const original = (await textarea.inputValue()).trim();
+  expect(original.length).toBeGreaterThan(0);
 
   await textarea.fill('');
   await expect(commit).toBeDisabled();

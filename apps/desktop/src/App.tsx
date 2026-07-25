@@ -1779,7 +1779,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const dispose = (itemRef: string, disposition: 'confirmed' | 'rejected') => {
     const protocolDisposition = disposition === 'confirmed' ? 'confirm' : 'reject';
     if (!submission.review.decide(itemRef, protocolDisposition)) return;
-    
     if (fixtureRef) {
       emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: fixtureRef.sessionId, itemRef, disposition: protocolDisposition, emittedAt: new Date().toISOString() });
     }
@@ -1787,7 +1786,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   const beginCorrection = (itemRef: string, originalDescription: string) => {
     submission.review.beginCorrection(itemRef, originalDescription);
-    
   };
 
   const commitCorrection = () => {

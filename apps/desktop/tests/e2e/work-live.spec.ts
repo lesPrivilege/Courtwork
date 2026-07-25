@@ -121,6 +121,16 @@ async function ingestContract(page: Page) {
   await expect(page.getByTestId('material-item').filter({ hasText: '设备采购合同.md' })).toHaveAttribute('data-status', 'ready');
 }
 
+/**
+ * CONTRACT-REVIEW-SAFETY-1：显式最终提交。grant 案的 gate 由真实 RiskList 同步派生
+ * （App.tsx projectRiskListGate），无 demo 回放延时，故只等按钮启用判据本身。
+ */
+async function submitLiveReview(page: Page) {
+  const submit = page.getByTestId('submit-contract-review');
+  await expect(submit).toBeEnabled();
+  await submit.click();
+}
+
 test('grant 案合同审查全链：真实材料 → 门禁审阅 → docx 落盘（零 recording）', async ({ page }) => {
   await openWorkbench(page);
   await resetHooks(page);
@@ -146,6 +156,9 @@ test('grant 案合同审查全链：真实材料 → 门禁审阅 → docx 落�
   await panel.locator('[data-risk-id="risk-1"]').click();
   await panel.getByRole('button', { name: /查看引语/ }).click();
   await panel.getByRole('button', { name: '确认此项', exact: true }).click();
+
+  // CONTRACT-REVIEW-SAFETY-1：填满只启用最终按钮，resolveReview 由显式用户动作触发。
+  await submitLiveReview(page);
 
   // resume → docx 终链落盘（写入走 grant 授权命令）
   const output = page.getByTestId('work-output-docx');
@@ -218,6 +231,7 @@ test('grant 案跨切案恢复：暂停态切走再回 → 恢复审查 → 水�
   await panel.locator('[data-risk-id="risk-1"]').click();
   await panel.getByRole('button', { name: /查看引语/ }).click();
   await panel.getByRole('button', { name: '确认此项', exact: true }).click();
+  await submitLiveReview(page);
   const output = page.getByTestId('work-output-docx');
   await expect(output).toBeVisible({ timeout: 15000 });
   await expect(output).toContainText('已写入本案「产出」目录');

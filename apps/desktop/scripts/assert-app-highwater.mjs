@@ -34,12 +34,13 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // 降级一次性提示）去向 `src/provider/use-model-config.ts`；App.tsx 侧只余一次 hook 调用。
 // RELEASE-VERIFY-1 合并态（2026-07-20）：两侧正交净减叠加后以 `wc -l` 实测为 2739，
 // 不取任一侧旧常量；两侧沿革均保留在上方。
-// CONTRACT-REVIEW-SAFETY-1（2026-07-25）：2738 → 2667。本票净增的提交编排全部外提，
+// CONTRACT-REVIEW-SAFETY-1（2026-07-25）：2738 → 2665。本票净增的提交编排全部外提，
 // 且顺带带走了原先就住在 App 的五枚 state：外提物＝`work/use-contract-review-submission.ts`
 // （review 编辑态 + submitted/submitting/resultMessage/nonAppliedPending/confirmedNonAppliedIds
 // 五枚 state + `produceContractDocx` + demo waiver 效应 + 提交编排），App.tsx 侧只余一次 hook
 // 调用与四个消费点。`contractOutputExists` 有三处与提交无关的渲染消费，留在 App 由回调驱动。
-const HIGH_WATER_LINES = 2667;
+// 同票收尾再 −2：清掉外提 auto-resume effect 后遗留在 `dispose`/`beginCorrection` 里的两行空白。
+const HIGH_WATER_LINES = 2665;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

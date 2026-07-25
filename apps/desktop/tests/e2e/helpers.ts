@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 /**
  * 打开工作台并移开光标。
@@ -24,6 +24,30 @@ export async function openWorkbench(page: Page) {
 }
 
 /**
+ * 等门禁投影落面。demo 回放逐事件延时 180ms，`confirmation_requested` 在 seq 4 才到，
+ * 而逐条处置与最终提交按钮的启用判据都挂在门禁上。故一律等**门禁派生的可见信号**
+ * （risk-03 的「未核验」只由 gate.reason='unverified' 产生），不赌回放时长——
+ * 与 main.tsx PILOT-LIVE-1-FIX #2 同一条纪律：终点由条件等待把守。
+ */
+export async function waitForDemoReviewGate(page: Page) {
+  await page
+    .getByTestId('revision-panel')
+    .locator('[data-risk-id="risk-03"] .verification-state.unverified')
+    .waitFor();
+}
+
+/**
+ * CONTRACT-REVIEW-SAFETY-1：逐条填满只**启用**最终按钮，不再自动 resume。
+ * 提交自此是显式用户动作，凡走审阅→产物全链的用例都须显式点这一下。
+ */
+export async function submitDemoReview(page: Page) {
+  await waitForDemoReviewGate(page);
+  const submit = page.getByTestId('submit-contract-review');
+  await expect(submit).toBeEnabled();
+  await submit.click();
+}
+
+/**
  * 走完 S3 六项风险处置，停在编译前。
  * CONFIRM-GRANULARITY-1：批量确认入口 feature-off，原「批量 4 项」一键流程改为
  * risk-02/04/05/06 逐条确认——这四项 mode='batch'，App.tsx individualReady 对非
@@ -33,6 +57,7 @@ export async function openWorkbench(page: Page) {
  */
 export async function disposeAllDemoRisks(page: Page) {
   const panel = page.getByTestId('revision-panel');
+  await waitForDemoReviewGate(page);
   for (const riskId of ['risk-02', 'risk-04', 'risk-05', 'risk-06']) {
     await panel.locator(`[data-risk-id="${riskId}"]`).click();
     await panel.getByRole('button', { name: '确认此项', exact: true }).click();
@@ -62,6 +87,7 @@ export async function confirmNonAppliedRevisions(page: Page) {
 /** LAUNCH-FIX：走完 S3 六项门禁，逐条确认未落点修订，等待真实 output 写入桥回报产物存在。 */
 export async function confirmDemoReview(page: Page) {
   await disposeAllDemoRisks(page);
+  await submitDemoReview(page);
   await confirmNonAppliedRevisions(page);
   await page.getByTestId('output-docx-card').waitFor();
 }

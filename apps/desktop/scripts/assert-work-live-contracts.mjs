@@ -78,7 +78,7 @@ requireMatch(command, /resumeScenario/, 'resume 必须经真实 core executor re
 
 // ── grant（真实）案接线（App.tsx）：run/gate/resume/cancel/docx 源全走生产链 ──────
 requireMatch(app, /workCommand\.startWithPreflight\(/, 'grant 案 run 必须经 workCommand.startWithPreflight（显式主体 preflight）');
-requireMatch(app, /useContractReviewSubmission\(\{[\s\S]*?\n    workCommand,/, 'grant 案 resume 必须把生产 workCommand 交给提交编排（App 侧接线）');
+requireMatch(app, /useContractReviewSubmission\(\{[\s\S]*?\n {4}workCommand,/, 'grant 案 resume 必须把生产 workCommand 交给提交编排（App 侧接线）');
 requireMatch(submission, /commandRef\.current\.resolveReview\(/, 'grant 案 resume 必须经 workCommand.resolveReview（逐条 revision）');
 requireMatch(app, /workCommand\.cancel\(/, 'grant 案 cancel 必须经 workCommand.cancel');
 // WORK-LIVE-REPLAY-1（答复 WORK-HOST-1 驳回阻断二）：跨切案/重启的恢复入口必须真实消费 workCommand.replay

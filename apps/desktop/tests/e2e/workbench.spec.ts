@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openModuleList, openWorkbench, tokenColor } from './helpers';
+import { openModuleList, openWorkbench, submitDemoReview, tokenColor, waitForDemoReviewGate } from './helpers';
 
 test('完整工作台帧与三栏在 1440 视口可见', async ({ page }) => {
   await openWorkbench(page);
@@ -248,6 +248,7 @@ test('法理之线使用域只限右栏且图标保持品牌单色', async ({ pa
 test('混合处置完成后确认响应按条目上报', async ({ page }) => {
   await openWorkbench(page);
   const panel = page.getByTestId('revision-panel');
+  await waitForDemoReviewGate(page);
   await panel.getByRole('button', { name: '驳回' }).click();
   // CONFIRM-GRANULARITY-1：批量入口 feature-off，原批量范围（risk-02/04/05/06）改逐条确认。
   for (const riskId of ['risk-02', 'risk-04', 'risk-05', 'risk-06']) {
@@ -257,6 +258,12 @@ test('混合处置完成后确认响应按条目上报', async ({ page }) => {
   await panel.locator('[data-risk-id="risk-01"]').click();
   await panel.getByRole('button', { name: /查看引语/ }).click();
   await panel.getByRole('button', { name: '修正' }).click();
+  // CONTRACT-REVIEW-SAFETY-1：「修正」自此只是编辑中 UI 态，不是终态处置——须提交非空异值
+  // 结论才形成第 6 项处置；随后由显式最终动作提交，不再由「最后一项一填」自动 resume。
+  await panel.getByTestId('review-correction-editor').locator('textarea')
+    .fill('付款期限经复核后收敛为 30 日，并约定逾期利息不超过法定上限');
+  await panel.getByTestId('submit-review-correction').click();
+  await submitDemoReview(page);
   await expect(panel.getByRole('status')).toHaveText('6 项处置已逐条提交');
 });
 

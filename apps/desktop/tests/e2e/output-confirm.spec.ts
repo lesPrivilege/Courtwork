@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { disposeAllDemoRisks, openWorkbench } from './helpers';
+import { disposeAllDemoRisks, openWorkbench, submitDemoReview } from './helpers';
 
 // —— OUTPUT-CONFIRM-UI-1：审阅→docx 的产品侧确认（OUTPUT-CORRECTNESS #6） ——
 // 合成合同里 risk-02/risk-06 的法条依据未能定位到正文，落盘门禁不再是一句可见报错：
@@ -12,6 +12,8 @@ test('未落点修订逐条显式确认后才生成产物（含原因，零技�
   await expect(page.getByTestId('output-docx-card')).toHaveCount(0);
 
   await disposeAllDemoRisks(page);
+  // CONTRACT-REVIEW-SAFETY-1：填满不再自动 resume，编译由这一次显式提交触发。
+  await submitDemoReview(page);
 
   // 确认全部风险后，未落点项逐条挂出——不静默阻断、也不静默交付
   const nonApplied = page.getByTestId('nonapplied-confirm');
@@ -47,6 +49,7 @@ test('取消未落点确认则不生成产物（留人确认：不可逆动作�
   await page.getByTestId('revision-panel').waitFor();
 
   await disposeAllDemoRisks(page);
+  await submitDemoReview(page);
 
   const nonApplied = page.getByTestId('nonapplied-confirm');
   await nonApplied.waitFor();

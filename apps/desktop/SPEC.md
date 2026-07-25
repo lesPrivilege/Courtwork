@@ -4068,6 +4068,29 @@ review 编辑态一并纳管是**必须**而非顺手：锁定判据是「已提
 4. **`inFlight` 首胜闸门从 `useMemo` 改挂 `useRef`**。原写法的 memo 依赖含
    `produceContractDocx`，而后者依赖 `review.dispositions`——用户每改一次处置即重建 submitter，
    SPEC 要求的「双击/重入复用同一 Promise」随之失守。这是实现缺陷修复，不是契约变更。
+5. **测试白名单扩至四枚既有 e2e 与 `tests/e2e/helpers.ts`**，理由是「自动 resume 退役」这一
+   本票契约变更的机械连带：凡驱动被退役行为的既有用例，都必须同批迁移到新契约，否则它们锁的
+   是已经不存在的语义。原白名单只点名 `work-live.spec.ts` 与新建 contract-review 谱，未预见
+   demo 侧同样有四条用例走审阅→产物全链。迁移动作**一律是补上新契约要求的显式用户动作，不是
+   放宽断言**：
+   ⓐ `helpers.ts` 新增 `submitDemoReview`（等门禁 → 断言按钮已启用 → 点击），并接进
+   `confirmDemoReview`；ⓑ `output-confirm.spec.ts` 两条在 `disposeAllDemoRisks` 后补一次显式提交；
+   ⓒ `rp210.spec.ts` / `system-open.spec.ts` 经 `confirmDemoReview` 自动跟随，零改动；
+   ⓓ `workbench.spec.ts`「混合处置完成后确认响应按条目上报」改动最实——原用例点一下「修正」
+   就算第 6 项处置，而本票把「修正」降为编辑中 UI 态，故补齐「填入异值结论 → 提交修正并确认」
+   两步后再显式提交；ⓔ `work-live.spec.ts` 两条 grant 全链在确认后补 `submitLiveReview`。
+6. **`assert-app-highwater` 常量再降 2（2667 → 2665）**：外提 auto-resume effect 后，`dispose`
+   与 `beginCorrection` 各遗留一行空白，属本票自身残渣，同批清掉并按双向门跟降。
+7. **新 e2e 首轮两条自伤，根因各不相同，均已坐实后修**：
+   ⓐ「空/同值修正不可提交」谱把「原结论」取自风险**行**的 `innerText`，而该行还含编号、等级、
+   核验、处置、下一步五列——于是「原文加尾随空格仍算同值」这条断言实际喂进去的根本不是
+   description，断言失去意义。改取编辑器预填值本身（它按契约就是 `risk.description`）。
+   ⓑ「逐条填满后才启用最终提交」谱在全链一轮红、单跑却四条全绿。**隔离绿不构成对全链红的
+   反驳**，故用探针把 demo 回放延时 180ms→3000ms 放大同一时序做对照：门禁到达前处置照常记下
+   但按钮 `disabled`，门禁到达后处置格仍为「已确认」且按钮转 `enabled`。根因是测试对异步前置
+   赌了时长（`toBeEnabled()` 默认 5s），不是产品缺陷。修法是等**门禁派生的可见信号**
+   （risk-03 的「未核验」只可能由 `gate.reason='unverified'` 产生），不是调大超时。判例入
+   `docs/engineering/workflow.md`「隔离绿对全链红零区分力」。
 
 ## CONTRACT-OUTPUT-TRUTH-1 · 主合同与原 DOCX 批注稿（2026-07-24，架构票）
 
