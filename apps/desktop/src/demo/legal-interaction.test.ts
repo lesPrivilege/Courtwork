@@ -50,7 +50,7 @@ describe('legal demo interaction adapter', () => {
       expect(replay.pendingInteraction).toEqual(original);
       expect(replay.pendingInteraction?.sourceAnchors[0]?.quote).toBe(originalQuote);
     } finally {
-      (anchor as { quote: string }).quote = originalQuote;
+      (anchor as { quote: string | undefined }).quote = originalQuote;
     }
   });
 

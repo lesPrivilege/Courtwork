@@ -1,9 +1,33 @@
 import type { SessionEvent } from '@courtwork/core';
-import caseFile from '../../../../packages/demo-data/data/artifacts/case-file.json';
-import partyGraph from '../../../../packages/demo-data/data/artifacts/party-graph.json';
-import reviewMatrix from '../../../../packages/demo-data/data/artifacts/review-matrix.json';
-import riskList from '../../../../packages/demo-data/data/artifacts/risk-list.json';
-import timeline from '../../../../packages/demo-data/data/artifacts/timeline.json';
+import {
+  CaseFileSchema,
+  PartyGraphSchema,
+  ReviewMatrixSchema,
+  RiskListSchema,
+  TimelineSchema,
+} from '@courtwork/legal';
+import rawCaseFile from '../../../../packages/demo-data/data/artifacts/case-file.json';
+import rawPartyGraph from '../../../../packages/demo-data/data/artifacts/party-graph.json';
+import rawReviewMatrix from '../../../../packages/demo-data/data/artifacts/review-matrix.json';
+import rawRiskList from '../../../../packages/demo-data/data/artifacts/risk-list.json';
+import rawTimeline from '../../../../packages/demo-data/data/artifacts/timeline.json';
+
+/**
+ * 判例「类型在场 ≠ 运行时在场」（CONTRACT-REVIEW-SAFETY-1）：夹具是直接 import 的裸 JSON，
+ * 从不经 parse，故 schema 的 `.default()`（如 `RiskList.outOfCoverage`）不会生效——消费方
+ * 按 zod 输出类型认定该字段在场，运行时却是 undefined，解引用即整棵 React 树卸载。
+ *
+ * 这里统一过一次 schema：`.default()` 得以履职，夹具本身不必迁移（`risk-list.ts` 的
+ * 「存量最终形夹具零迁移」设计意图因此成立而非被绕过），且此后任何新增缺省字段自动生效。
+ * 用具名 schema 而非 registry 查表，是为保住解析后的具体类型；「录制值必须等于其注册
+ * schema 的 parse 结果」由 `protocol/session-event.contract.test.ts` 的族级断言机器守护，
+ * 无须在此重复一次运行时查表。
+ */
+const caseFile = CaseFileSchema.parse(rawCaseFile);
+const partyGraph = PartyGraphSchema.parse(rawPartyGraph);
+const reviewMatrix = ReviewMatrixSchema.parse(rawReviewMatrix);
+const riskList = RiskListSchema.parse(rawRiskList);
+const timeline = TimelineSchema.parse(rawTimeline);
 
 const at = (second: number) => `2026-07-10T09:00:${String(second).padStart(2, '0')}.000Z`;
 

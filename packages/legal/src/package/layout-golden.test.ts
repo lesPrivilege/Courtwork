@@ -21,7 +21,10 @@ function promptBlob(): string {
 describe('VPKG-LAYOUT-1 Legal content golden', () => {
   it('descriptor 保持纯 JSON 深等价、整面 hash 与 prompt blob 字节不漂移', () => {
     expect(structuredClone(LEGAL_PACKAGE_DESCRIPTOR)).toStrictEqual(LEGAL_PACKAGE_DESCRIPTOR);
-    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('6d0b6ea2a1144acc7307dac890314612d675968be0a4266b3b00a2f312efb7bf');
+    // CONTRACT-REVIEW-SAFETY-1 重铸：整份 descriptor 与 main 逐行 diff 后**只有一行不同**——
+    // legal.S3 的 RiskList gate label 换成本票冻结值。promptBlob hash 同批实测未变，故此处
+    // 只同步 descriptor 一枚，不动第二枚。
+    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('58da8226d5cdafe02bed0c2a2a5bb24c9a1aa426ab95d22578fb05b76876631d');
     expect(sha256(promptBlob())).toBe('41b8073be2f7d5b6e20a0d940ba300ce476046f642e21fecb2d14ad0de43618a');
   });
 

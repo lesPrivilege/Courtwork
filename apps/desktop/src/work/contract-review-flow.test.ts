@@ -132,7 +132,8 @@ describe('CONTRACT-REVIEW-SAFETY-1 · 显式提交与 outcome/replay 真源', ()
     const resolved = new Promise<WorkCommandOutcome>((resolve) => { release = resolve; });
     const latest = list([risk('risk-01', 'confirmed', '持久修正后的结论')]);
     const compile = vi.fn(async () => {});
-    const resolveReview = vi.fn((..._args: Parameters<LegalS3WorkCommand['resolveReview']>) => resolved);
+    // 泛型形态保住 mock 的参数类型（下方断言 `.mock.calls[0][0]` 依赖它），且不留未使用绑定。
+    const resolveReview = vi.fn<LegalS3WorkCommand['resolveReview']>(() => resolved);
     const replay = vi.fn(async () => ({ ref: REF, phase: 'completed' as const, events: authorizationEvents(latest) }));
     const mintCommandId = vi.fn(() => 'submission-1');
     const submitter = createContractReviewSubmitter({

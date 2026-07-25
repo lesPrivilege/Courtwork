@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { SessionEvent } from '@courtwork/core';
-import { LEGAL_PACKAGE, type RiskList } from '@courtwork/legal';
+import { LEGAL_PACKAGE, LEGAL_PACKAGE_BINDINGS, type RiskList } from '@courtwork/legal';
 import { S1_RECORDING, S3_RECORDING } from '../demo/recordings';
 import { EMPTY_SESSION, projectSession } from './client';
 
@@ -68,6 +68,25 @@ describe('core 事件录制回放契约', () => {
       sessionId: 'demo-s3', seq: 5, emittedAt: '2026-07-13T00:00:05.000Z',
     };
     expect(projectSession(projected, reEmit).citationStats).toEqual(projected.citationStats);
+  });
+
+  /**
+   * CONTRACT-REVIEW-SAFETY-1（判例「类型在场 ≠ 运行时在场」）：录制携带的 artifact 必须
+   * 已经是其注册 schema 的 parse 结果。demo fixture 是直接 import 的裸 JSON，schema 的
+   * `.default()`（如 `RiskList.outOfCoverage`）在未 parse 时不会生效——消费方按类型认定该
+   * 字段在场，运行时却是 undefined，解引用即整棵 React 树卸载。族级断言一次覆盖全部
+   * artifact 类型与全部 `.default()`，新增缺省字段无需再补第二处守卫。
+   */
+  it('录制携带的 artifact 逐个等于其注册 schema 的 parse 结果（缺省字段已落实，非仅类型上在场）', () => {
+    const schemas = LEGAL_PACKAGE_BINDINGS.schemas;
+    const produced = [...S3_RECORDING, ...S1_RECORDING].filter((event) => event.type === 'artifact_produced');
+    expect(produced.length).toBeGreaterThan(0);
+    for (const event of produced) {
+      if (event.type !== 'artifact_produced') continue;
+      const schema = schemas.get(event.artifactType);
+      expect(schema, `缺少 ${event.artifactType} 的注册 schema`).toBeDefined();
+      expect(event.artifact, `${event.artifactType} 录制值与 parse 结果不等`).toEqual(schema!.parse(event.artifact));
+    }
   });
 
   it('S1 录制包含摄取进度、todo 快照与两个结构化产出', () => {
