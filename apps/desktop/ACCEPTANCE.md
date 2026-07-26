@@ -4949,3 +4949,5 @@ E2E 使用独立端口 `15932`，静态链与 floor=343 通过；已登记 hover
 ### 结论
 
 **放行 `CONTRACT-OUTPUT-TRUTH-1` R1。** 放行仅覆盖本票 OUTPUT 范围：显式主合同、原 DOCX bytes 保真、版本化 no-replace 落盘、非常态零写；不宣称 TRACE、Word/WPS external-validated 或 v0.2.0 可发布。
+
+清账：验收报告提交 `78655bd` 已快进合入 `main`；`current.md` 事实提交为 `89926ca`；后续独立 ESLint 微修缮提交为 `c7897d8`。

@@ -152,3 +152,5 @@
 - root 1323/1323、desktop 591/591、build/lint、Rust 83/83 均通过；Playwright floor=343 通过。全量唯一 1 红为在册 `E2E-FLAKY-HOVER-1`，342 passed，不影响本票放行裁决。
 
 **结论：放行 `CONTRACT-OUTPUT-TRUTH-1` R1（仅 OUTPUT 票面，不宣称 TRACE、Word/WPS external-validated 或 v0.2.0）。**
+
+清账合入 SHA：`78655bd`；`main` 后续状态事实提交：`89926ca`；独立 ESLint 微修缮：`c7897d8`。
