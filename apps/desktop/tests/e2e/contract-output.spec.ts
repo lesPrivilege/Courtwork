@@ -232,3 +232,28 @@ test('生产审阅面不渲染样板案的固定 redline（数据面退役）', 
   expect(await panel.locator('del').count()).toBe(0);
   expect(await panel.locator('ins').count()).toBe(0);
 });
+
+test('产出目录残留旧固定名文件：账本无版本化记录时不得宣称"已有产物"', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await createCaseWithMaterials(page, [[PRIMARY_FILE, PRIMARY_DOCX()]]);
+
+  // 旧版本应用（或用户手工）在本案产出目录留下一份固定名 `合同审查报告.docx`。
+  // 本次会话的账本里**没有任何**版本化产物记录——产物名只能由完整 replay 的持久 metadata 铸出。
+  await page.evaluate(async (grantId) => {
+    const importClient = new Function('return import("/src/output/case-output-client.ts")') as () => Promise<{
+      caseOutputClient: {
+        seedBrowserFile(binding: { kind: 'grant'; grantId: string }, fileName: string, bytes: Uint8Array): void;
+      };
+    }>;
+    const { caseOutputClient } = await importClient();
+    caseOutputClient.seedBrowserFile({ kind: 'grant', grantId }, '合同审查报告.docx', new Uint8Array([0x50, 0x4b, 3, 4]));
+  }, GRANT_ID);
+
+  // 回到应用即重新询问宿主产物存在性（访达删改后不缓存裸 true 的既有机制）。
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+
+  // 旧名文件在场**不构成**本次会话已有产物：账本读不到持久名 → 诚实空态，绝不回退猜名。
+  await expect(page.getByTestId('work-output-docx')).toHaveCount(0);
+  await expect(page.getByTestId('conversation-empty')).toBeVisible();
+});

@@ -66,7 +66,8 @@ const count = match ? Number(match[1]) : 0;
 // CONTRACT-OUTPUT-TRUTH-1：专用 OUTPUT e2e（未选主合同不得起跑与无 DOCX 显式下一步 / 候选只列
 // DOCX / 版本化产物名落盘 / 只有支持材料锚整份阻断且原因可区分 / 生产审阅面零 demo redline）+5 → 342。
 // 既有四枚 spec 只作机械迁移（真实 DOCX + 显式主合同选择 + 版本化名），零新增用例。
-const minimum = 342;
+// CONTRACT-OUTPUT-TRUTH-1 R1（驳回修复轮）：旧固定产物名残留时不得宣称「已有产物」+1 → 343。
+const minimum = 343;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

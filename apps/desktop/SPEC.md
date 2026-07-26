@@ -4479,6 +4479,26 @@ no-overwrite，窄改只限合同审查批注稿。
 面移除固定 demo 合同/4 处/del-ins」仍由 TRACE 收完（含把该块整体退役与来源回跳接线），本票不动
 `styles.css`、不新建 React 模块、不碰 `viewCount`。
 
+**扩白三件（驳回修复轮 R1 派单件 2026-07-26 追认）**：下列三枚生产模块在实现期新增并被生产路径
+导入，内容在票面语义内，问题只在册未随实补——R1 派单件即批准坐标。逐枚列明「何时产生、承载票面
+哪一职责」，其同名测试一并入测试白名单：
+
+- `src/work/work-recovery.ts` —— **O3 产生**。承载「恢复入口的判定」：把 `recoverWorkRun` 的
+  replay 判别联合 → 恢复动作分支矩阵从 `App.tsx` 外提为纯函数（`planWorkRecovery` /
+  `readWorkRecovery`），是架构「过手即拆」纪律责成的外提，不是新能力。**批准坐标＝R1 派单件项一**。
+- `src/work/primary-contract.ts` —— **O4 产生**。承载票面「用户显式选一份 ready DOCX 主合同」与
+  「`materialRefs[0]`/CaseFile primary 同源」：`selectPrimaryContractCandidates`（精确 mediaType
+  判据）、`orderS3MaterialRefs`（主合同稳定在 index 0）、`deriveS3CaseFile`（primary/supporting）。
+  **批准坐标＝R1 派单件项一**。
+- `src/output/contract-review-file-name.ts` —— **O7 产生**。承载票面「产物按 persisted createdAt +
+  session SHA-256 版本化命名」：`formatUtcStamp` 与 `contractReviewOutputFileName` 两枚纯函数，
+  零状态、不进 `work-session-store`。**批准坐标＝R1 派单件项一**。
+
+R1 已按派单件要求逐枚自查三模块 diff 与上述职责的对应性：`work-recovery.ts` 只含四分支恢复判定并
+在模块注释显式声明**不含** pointer compare-and-clear（属 TRACE）；`primary-contract.ts` 只含候选筛
+选/排序/CaseFile 派生；`contract-review-file-name.ts` 只含 UTC 格式化与命名。三者均无票面外夹带、
+无新持久格式、无 IO（除注入的 replay 回调），故无须上报。
+
 #### 复杂度审视：本单新增了什么概念、为何非加不可
 
 1. **`contract-review-delivery.ts` 唯一 coordinator**（新概念，SPEC 逐字冻结）。非加不可的理由是
@@ -4573,6 +4593,43 @@ floor 337 → 342。
 **顺带的门指针重铸**：`docs/design/schema-exemplar.sources.json` 的 `P0-S03` 来源哈希随 O2 对
 `compile-risk-list-to-revisions.ts` 的改动漂移，`assert-schema-exemplar` 如期咬住并重铸指针
 （同 VOICE-SPEC-1 的 design-md drift 先例：门抓住漂移 → 重生成，不是绕过）。
+
+### R1 驳回修复留痕（2026-07-26，两项阻断）
+
+**项一 · 白名单补录**：见上文「扩白三件」，含逐枚职责、产生阶段、批准坐标与自查结论。
+
+**项二 · 退役 App.tsx 固定旧产物名消费**（代码缺陷）。驳回报告指出两处：
+`refreshOutputExistence` 用固定 `合同审查报告.docx` 对 grant 与 demo 共用地探询存在性；生产结果卡
+保留 `outputDisplayName ?? CONTRACT_OUTPUT_FILE` 回退。前者会把产出目录里**上一版留下的旧文件**
+误报成「本次会话已有产物」，后者在无持久名时显示一个本次并未产出的名字——两者都是猜测，与
+「零猜测、零静默降级」同轴。
+
+修复形态（只认持久事实）：
+
+- 常量改名为 `DEMO_CONTRACT_OUTPUT_FILE`，**名字本身声明边界**；字面量在 `App.tsx` 内收敛为单源
+  （仅常量定义处一处），demo 卡片标题改引常量。样板案确实写这个固定名（`produceDemoDocx` 的
+  `outputFileName`、demo reveal/open），故 demo 面属**显式豁免**，理由随常量注释在册。
+- 存在性探询：固定名只对 `caseBinding.kind === 'demo'` 提问；grant 分支恒 `false`——production 产物名
+  是版本化的，读不到持久名就是没有产物。
+- 生产结果卡：在场判据与显示名都只认 `submission.outputDisplayName`（由唯一 coordinator 从**完整
+  replay** 的持久 metadata `sessionCreatedAt` + `sha256(sessionId)` 铸出），**零回退**。无持久名即
+  诚实空态。跨重启的只读重开仍属 `CONTRACT-TRACE-1`，本轮不建。
+
+**红证（TDD，先红后绿）**：新增 e2e「产出目录残留旧固定名文件：账本无版本化记录时不得宣称
+"已有产物"」——在 grant 案产出目录预放一份旧名文件并触发 focus 刷新。修复前
+`work-output-docx` **Expected 0 / Received 1**（卡片出现并显示旧名）；修复后 0，`conversation-empty`
+在场。floor 342 → 343。
+
+**如实登记的残留（本轮不改，交架构/TRACE 裁）**：`contractOutputExists` 现只被样板案渲染面读取，
+但 SAFETY 外提件 `use-contract-review-submission.ts` 的 `onOutputExists` 回调在 production 交付
+成功/失败时仍会写它。该回调属已放行语义，本修复轮不回改；写入对 grant 渲染无效果（grant 卡只认
+`outputDisplayName`，且切案时 effect 重置为 false），故无正确性影响，只是一处「production 写、
+demo 读」的命名残留。若 TRACE 建 completed 只读重开，宜顺带把该状态收敛为 demo-only 命名。
+
+**回归锁（四条，逐条自证）**：落 `assert-work-live-contracts.mjs`，并逐条把码面改回驳回原状验证触红、
+撤除复绿——① 结果卡恢复 `?? ` 回退 → 红；② 存在性探询去掉 demo 同行守卫 → 红；③ 字面量重新散落
+（实测 2 处）→ 红；④ 常量去掉 `DEMO_` 前缀 → 红。其中守卫方向一处**本轮踩过**：首版用负向前瞻断言
+「调用后不得无 demo 判据」，而守卫实际写在调用**之前**同一行，给出假红；已改为逐行判定并在门内注明。
 
 #### 退出证据（对照就绪图 OUTPUT 行逐条）
 

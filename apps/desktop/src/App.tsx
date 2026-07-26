@@ -159,7 +159,8 @@ type ChatMessage =
       turn: TurnProjection;
     };
 
-const CONTRACT_OUTPUT_FILE = '合同审查报告.docx';
+// R1：固定名只属样板案；production 产物名版本化，由 coordinator 从完整 replay 铸出（详见 SPEC）。
+const DEMO_CONTRACT_OUTPUT_FILE = '合同审查报告.docx';
 const DRAFT_OUTPUT_FILE = '答辩意见.docx';
 
 const VIEW_LABELS: Record<WorkbenchView, string> = {
@@ -1134,7 +1135,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     dispatch,
     openedAt,
     demoSourceMarkdown: contractSourceMd,
-    outputFileName: CONTRACT_OUTPUT_FILE,
+    outputFileName: DEMO_CONTRACT_OUTPUT_FILE,
     showSystemFeedback,
     onOutputExists: setContractOutputExists,
     onCompleted: () => setWorkPhase('completed'),
@@ -1180,7 +1181,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       const currentRequest = ++requestVersion;
       void Promise.all([
         caseOutputClient.exists(caseBinding, DRAFT_OUTPUT_FILE),
-        caseOutputClient.exists(caseBinding, CONTRACT_OUTPUT_FILE),
+        caseBinding.kind === 'demo' ? caseOutputClient.exists(caseBinding, DEMO_CONTRACT_OUTPUT_FILE) : false, // 固定名只对样板案提问；grant 读不到持久名即无产物
       ]).then(([draftExists, contractExists]) => {
         if (cancelled || currentRequest !== requestVersion) return;
         setDraftOutputExists(draftExists);
@@ -1201,7 +1202,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       window.removeEventListener('focus', refreshOutputExistence);
     };
   }, [caseBinding]);
-
 
   // WORK-LIVE-1：grant（真实）案的 production S3 运行触发。显式主体来自受控 preflight（不从案名/文件名/
   // 正文/模型猜测）；材料经 resolveForProvider 复验才入 provider；事件机械发布进同一 session 投影（零 recording）。
@@ -1502,7 +1502,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       notifyRevealUnavailable();
       return;
     }
-    void systemOpenClient.revealInFolder(caseOutputDocx(demoCaseRoot, CONTRACT_OUTPUT_FILE), demoCaseRoot).then((feedback) => {
+    void systemOpenClient.revealInFolder(caseOutputDocx(demoCaseRoot, DEMO_CONTRACT_OUTPUT_FILE), demoCaseRoot).then((feedback) => {
       showSystemFeedback(feedback.message, feedback.ok);
     });
   };
@@ -1517,7 +1517,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     });
   };
 
-  const openOutputDocx = () => openCaseOutputDocx(CONTRACT_OUTPUT_FILE);
+  const openOutputDocx = () => openCaseOutputDocx(DEMO_CONTRACT_OUTPUT_FILE);
 
   // MATERIAL-INGRESS-1：就地入库一个授权文件夹的原件——枚举单层文件 → 逐件读原件、哈希、
   // reading-view 派生 → 持久 source-neutral MaterialRef。原件永远只读、原地不动（grant root 之下）。
@@ -2211,11 +2211,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                 </section>
               )}
               {!isWelcome && !isDemoCase && selectedCase && (
-                caseBinding.kind === 'grant' && contractOutputExists ? (
+                caseBinding.kind === 'grant' && submission.outputDisplayName ? ( // R1：只认持久名，无名即无卡
                   // WORK-LIVE-1：grant 案合同审查 docx 终链的持久结果卡（写入走 grant 授权命令）。
                   // 「打开/在访达显示」在 grant 侧尚无宿主 reveal 命令（同 W8 材料侧边界），故为纯状态卡。
                   <div className="work-output-result" role="status" data-testid="work-output-docx">
-                    <strong>{submission.outputDisplayName ?? CONTRACT_OUTPUT_FILE}</strong>
+                    <strong>{submission.outputDisplayName}</strong>
                     <span>已写入本案「产出」目录</span>
                   </div>
                 ) : (
@@ -2271,7 +2271,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                         kind="file"
                         icon="file-text"
                         eyebrow="W"
-                        title="合同审查报告.docx"
+                        title={DEMO_CONTRACT_OUTPUT_FILE}
                         summary="已写入本案「产出」目录"
                         testId="output-docx-card"
                         routeLabel="打开合同审查报告"

@@ -113,6 +113,37 @@ requireMatch(
 );
 requireMatch(app, /projectRiskListGate\(riskList/, 'grant 案 live gate 必须经 projectRiskListGate（真实 RiskList）');
 
+// ── CONTRACT-OUTPUT-TRUTH-1 R1：旧固定产物名不得进入生产路径（驳回项二回归锁）──────────
+// 生产产物名是版本化的，只能由唯一 coordinator 从完整 replay 的持久 metadata 铸出。
+// 旧写法按固定名 `合同审查报告.docx` 探询存在性，会把产出目录里上一版留下的文件误报成
+// 「本次会话已有产物」，并在结果卡回退显示旧名——本组锁死那两处。
+// 样板案的合法使用**显式豁免**：demo 确实写这个固定名（`produceDemoDocx` 的 outputFileName、
+// demo 卡片与 reveal/open），故字面量单源保留在 `DEMO_CONTRACT_OUTPUT_FILE` 常量上——
+// 名字前缀本身声明了边界，任何生产路径引用它都会在 review 与下方断言处暴露。
+const CONTRACT_OUTPUT_LITERAL_HITS = (app.match(/合同审查报告\.docx/g) ?? []).length;
+if (CONTRACT_OUTPUT_LITERAL_HITS !== 1) {
+  failures.push(
+    `App：固定产物名字面量必须单源（只许留在 DEMO_CONTRACT_OUTPUT_FILE 常量上），实测 ${CONTRACT_OUTPUT_LITERAL_HITS} 处`,
+  );
+}
+requireMatch(
+  app,
+  /const DEMO_CONTRACT_OUTPUT_FILE = '合同审查报告\.docx';/,
+  'App：固定产物名常量必须带 DEMO_ 前缀（名字即边界声明）',
+);
+forbidMatch(
+  app,
+  /\boutputDisplayName\s*\?\?/,
+  'App：生产结果卡不得对产物名做任何回退猜测（无持久名即诚实空态）',
+);
+// 逐行判定而非单条正则：守卫写在调用**之前**同一行，方向搞反的正则会给出假红（本轮已踩）。
+for (const line of app.split('\n')) {
+  if (!line.includes('caseOutputClient.exists(caseBinding, DEMO_CONTRACT_OUTPUT_FILE)')) continue;
+  if (!line.includes("kind === 'demo'")) {
+    failures.push('App：固定名存在性探询必须由 demo 判据同行守卫，grant 路径不得按名猜产物');
+  }
+}
+
 // ── CONTRACT-OUTPUT-TRUTH-1：主合同必须由用户显式选定，「取 ready[0] 猜」在生产路径零出现 ──
 // 旧实现让入库顺序决定「哪份是主合同」，用户从未表达过；本组锁的就是那处猜测不许复活。
 for (const [label, source] of [['App', app], ['work-command', command], ['primary-contract', primaryContract]]) {
