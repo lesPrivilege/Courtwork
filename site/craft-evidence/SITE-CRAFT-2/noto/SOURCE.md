@@ -36,19 +36,19 @@ OFL 义务对照：随站点分发保留版权声明与许可全文（本目录�
 | `14_NotoSerifSC.zip`（release 资产） | 68,960,596 B | `c58cd035ab2adb003510846db9ec80c35b1b97755d329486c3a1e88edfe6e98e` |
 | `SubsetOTF/SC/NotoSerifSC-Regular.otf`（zip 内，31,058 glyphs） | 11,625,800 B | `e8f396decc1f0963a016a989c3d8852e863d1350996f573860a80767c83a1cd3` |
 | `SubsetOTF/SC/NotoSerifSC-Bold.otf`（zip 内，31,058 glyphs） | 12,094,336 B | `24693d48bdb9152f0a06b02af625638a1097abd6de4010ebba027f6e82710527` |
-| `site/assets/fonts/noto-serif-sc-regular-subset.woff2`（入库子集·标题轨 400） | 99 字 / 119 glyphs / 29,172 bytes | `3d41a6d8a83c0e0a6eabeac5dd856f2760c13f1793eeba174f49241caf9dcfa2` |
-| `site/assets/fonts/noto-serif-sc-bold-subset.woff2`（入库子集·标题轨 700） | 99 字 / 119 glyphs / 29,352 bytes | `b156601450cb573d6deefd0e86bb54732992f0d5eb512b38e90811d5e8a654c6` |
+| `site/assets/fonts/noto-serif-sc-regular-subset.woff2`（入库子集·标题轨 400） | 170 字 / 202 glyphs / 46,140 bytes | `613cc4baed1542990ac401a449cf51c929d290b94ba0094474102ba9d86875a1` |
+| `site/assets/fonts/noto-serif-sc-bold-subset.woff2`（入库子集·标题轨 700） | 170 字 / 202 glyphs / 46,676 bytes | `de1efdcc66ad8192fa45b35e24ee503a248d7080e44fd1761c62fc30adc7326d` |
 
 > **本表数字全部是可解析实测契约**（`font-provenance` 门）：字数对清单 `text` 长度、glyph 数由
 > woff2 直读 `maxp.numGlyphs`、字节数对文件长度、SHA 对文件内容——四项逐一比对，任一不符即红。
 > **SHA 只锚内容，不锚声称**：制品换一个字节 SHA 必变，但人读数字可以在 SHA 全对的前提下静默撒谎，
 > 故每个数字都要有各自的机器对应，而不是被交叉抄写。
 
-原始 OTF **不入仓**，只入库两枚精确子集（合计 51KB）。
+原始 OTF **不入仓**，只入库两枚精确子集（合计 91KB；N1 叙事批随卷五/卷六行头与问句扩容）。
 
 ## 子集再生成
 
-字符集＝页面 `zh-title` 消费面（h1/h2/h3，99 字）；两枚字重共用同一字符集。清单与字节锚记录在
+字符集＝页面 `zh-title` 消费面（h1/h2/h3 与台账行头/问句 dt，页面精确取字，现 170 字——N1 扩容并剔除两枚已无消费面的旧字）；两枚字重共用同一字符集。清单与字节锚记录在
 `site/assets/fonts/noto-subset.json`，deslop `display-font` 门校验「页面 zh-title 用字 ⊆ 清单文本」、
 「清单 `weights.400/700.woff2Sha256` = 实际字节」与「`.zh-title` 真消费 `var(--font-title)`」，
 任一脱钩即构建失败。文案改动后的再生成命令（fontTools 4.63.0）：

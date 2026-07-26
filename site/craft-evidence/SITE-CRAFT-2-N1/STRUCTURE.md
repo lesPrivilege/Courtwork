@@ -48,7 +48,7 @@ N1 沿用 B2 形态不动。派单文本「优先录制回放、重建降级留�
 | F1 链 | → GitHub Release v0.1.2 | current.md:14 | — |
 | F2 | 部署实录 | 发布不是一句宣称，是一串留档记录：构建、回下载校验、Pages 部署与两轮线上逐帧复核，全程可查。 | current.md:15「发布后回下载校验通过」+ :19-20（两次站面更新各记两轮上线复核） | — |
 | F2 链 | → release/DEPLOYMENT.md（仓内实存，deslop 新增链接实存门核） | current.md:17 | — |
-| F3 | 真机证据 | 发布版的真机截图与运行核对清单按版本归档；本页工作面截图与这批真机帧同一来源链。 | current.md:17（`release/evidence/v0.1.2/README.md`）；截图源 `site/craft-evidence/MILESTONE-SHOTS-1/` 等 | — |
+| F3 | 真机证据 | 发布版的真机截图与运行核对清单按版本归档；本页的工作面截图同样只取真机帧，来源批次都在证据目录里留档。 | current.md:17（`release/evidence/v0.1.2/README.md`）；`site-evidence-line.md` 真实材料纪律；截图源 `site/craft-evidence/MILESTONE-SHOTS-1/` 等 | — |
 | F3 链 | → release/evidence/v0.1.2/README.md | current.md:17 | — |
 | F4 | 设计门禁 | 每次推送 main，部署前先跑设计与发布真值门禁：词表、色宗、动效、字体、数据与发布事实任何一项漂移，构建失败，页面不更新。克制不是审美自觉，是流水线里的一道闸。 | `.github/workflows/pages.yml:30-33`（guard 先于 build/deploy）；门实现 `site/scripts/`；与卷四设计边界井既有叙事同源（B1/B4 已验） | — |
 | F4 链 | → .github/workflows/pages.yml · site/scripts（tree 链接） | 仓内实存 | — |

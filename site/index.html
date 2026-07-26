@@ -214,6 +214,64 @@
       </aside>
     </section>
 
+    <section class="facts" id="facts" aria-labelledby="facts-title">
+      <header class="section-heading">
+        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷五 · 发布事实</p>
+        <h2 id="facts-title" class="zh-title">口说无凭，<br>立字为据。</h2>
+      </header>
+      <dl class="fact-ledger">
+        <div>
+          <dt class="zh-title">发布制品</dt>
+          <dd>当前发布是 v0.1.2：Apple Silicon 的 DMG，开发构建、ad-hoc 签名、未公证。制品 SHA-256 以卷首刊记为唯一在页真源，下载后可自行校验。<small><a href="https://github.com/lesPrivilege/Courtwork/releases/tag/v0.1.2">GitHub Release v0.1.2</a></small></dd>
+        </div>
+        <div>
+          <dt class="zh-title">部署实录</dt>
+          <dd>发布不是一句宣称，是一串留档记录：构建、回下载校验、Pages 部署与两轮线上逐帧复核，全程可查。<small><a href="https://github.com/lesPrivilege/Courtwork/blob/main/release/DEPLOYMENT.md">release/DEPLOYMENT.md</a></small></dd>
+        </div>
+        <div>
+          <dt class="zh-title">真机证据</dt>
+          <dd>发布版的真机截图与运行核对清单按版本归档；本页的工作面截图同样只取真机帧，来源批次都在证据目录里留档。<small><a href="https://github.com/lesPrivilege/Courtwork/blob/main/release/evidence/v0.1.2/README.md">release/evidence/v0.1.2</a></small></dd>
+        </div>
+        <div>
+          <dt class="zh-title">设计门禁</dt>
+          <dd>每次推送 main，部署前先跑设计与发布真值门禁：词表、色宗、动效、字体、数据与发布事实任何一项漂移，构建失败，页面不更新。克制不是审美自觉，是流水线里的一道闸。<small><a href="https://github.com/lesPrivilege/Courtwork/blob/main/.github/workflows/pages.yml">部署工作流</a> · <a href="https://github.com/lesPrivilege/Courtwork/tree/main/site/scripts">门禁实现</a></small></dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="faq" id="faq" aria-labelledby="faq-title">
+      <header class="section-heading">
+        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷六 · 有问有答</p>
+        <h2 id="faq-title" class="zh-title">常问六则，<br>照实作答。</h2>
+      </header>
+      <dl class="faq-ledger">
+        <div>
+          <dt class="zh-title">现在支持哪些模型？</dt>
+          <dd>当期只注册 DeepSeek 一家；任意填 URL 接入的入口已经退役。新的模型服务要以具名适配接入并通过验收，才会出现在这一页上。</dd>
+        </div>
+        <div>
+          <dt class="zh-title">合同审查这条链，现在走到哪一步？</dt>
+          <dd>在合成数据试点里，从原句锚定、风险分级、修订写入受控副本，到逐条人工确认、写出 Word 文件，这条链已经走通；主合同的显式选择、原稿字节保真、历史产物不被覆盖等收束项还在进行。链路已在试点中跑通，但不等同于产品已全面上线。</dd>
+        </div>
+        <div>
+          <dt class="zh-title">产出的 Word 文件，经过 Word/WPS 全矩阵验证了吗？</dt>
+          <dd>尚未。此前只在 macOS 的 WPS 做过一次基础打开与视觉抽核；Word 与 WPS 双端「打开—轻改—保存—回读」的完整矩阵还没有跑，跑完之前不作兼容性承诺。</dd>
+        </div>
+        <div>
+          <dt class="zh-title">扫描件和图片能直接读吗？</dt>
+          <dd>还不能。文字识别尚未接入；没有文字层的材料会被显式标记并阻断发送，不会静默混进对话。</dd>
+        </div>
+        <div>
+          <dt class="zh-title">下载的是公证过的正式版吗？</dt>
+          <dd>不是。v0.1.2 是 Apple Silicon 开发构建，ad-hoc 签名、未公证；DMG 的 SHA-256 印在卷首刊记，安装前可以自行校验。</dd>
+        </div>
+        <div>
+          <dt class="zh-title">页面上的数字和演示是真的吗？</dt>
+          <dd>是可核验的展示数据，不是客户数据。演示与引语来自同一份合成卷宗；卷宗计数在每次构建时对数据实算核对，对不上就构建失败。这一页不引用任何真实案件。</dd>
+        </div>
+      </dl>
+    </section>
+
     <section class="closing"><div><p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷尾 · <span class="latin-manuscript">Courtwork</span></p><h2 class="zh-title">签字之前，<br>一切可回溯。</h2></div><div class="closing-actions"><a class="button button-primary" href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a><span class="release-pending">Apple Silicon 开发构建 · 未公证</span></div></section>
   </main>
 
