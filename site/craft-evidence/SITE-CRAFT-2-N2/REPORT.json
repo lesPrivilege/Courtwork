@@ -1,0 +1,111 @@
+{
+  "frames": [
+    "n2-light-375.png",
+    "n2-light-1280.png",
+    "n2-hero-light-1280.png",
+    "n2-contract-light-1280.png",
+    "n2-promise-light-1280.png",
+    "n2-facts-light-1280.png",
+    "n2-faq-light-1280.png",
+    "n2-dark-375.png",
+    "n2-dark-1280.png",
+    "n2-hero-dark-1280.png",
+    "n2-contract-dark-1280.png",
+    "n2-promise-dark-1280.png",
+    "n2-facts-dark-1280.png",
+    "n2-faq-dark-1280.png",
+    "n2-nojs-dark-1280.png"
+  ],
+  "overflow": [
+    {
+      "colorScheme": "light",
+      "width": 375,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "light",
+      "width": 768,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "light",
+      "width": 1180,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "light",
+      "width": 1280,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "light",
+      "width": 1440,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "light",
+      "width": 1600,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 375,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 768,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 1180,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 1280,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 1440,
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "colorScheme": "dark",
+      "width": 1600,
+      "overflow": 0,
+      "brokenImages": 0
+    }
+  ],
+  "animations": {
+    "no-preference": [
+      "demo-anchor-a",
+      "demo-attn-a",
+      "demo-attn-b",
+      "demo-attn-c",
+      "demo-zhu-b",
+      "typer-develop"
+    ],
+    "reduce": [
+      "ghosty-reduced-fade"
+    ]
+  },
+  "dataStatic": {
+    "identical": true,
+    "nodes": 5
+  },
+  "failures": []
+}
