@@ -14,7 +14,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const evidenceRoot = dirname(fileURLToPath(import.meta.url));
-const repositoryRoot = resolve(evidenceRoot, '../../..');
+const repositoryRoot = resolve(evidenceRoot, '../../../..');
 const requireFromDesktop = createRequire(resolve(repositoryRoot, 'apps/desktop/package.json'));
 const { chromium } = requireFromDesktop('@playwright/test');
 const baseUrl = process.env.COURTWORK_SITE_URL ?? 'http://127.0.0.1:18924/';
@@ -56,13 +56,13 @@ for (const colorScheme of ['light', 'dark']) {
     if (probe.overflow !== 0) report.failures.push(`overflow ${colorScheme}@${width}: ${probe.overflow}px`);
     if (probe.brokenImages !== 0) report.failures.push(`broken images ${colorScheme}@${width}: ${probe.brokenImages}`);
     if (width === 1280 || width === 375) {
-      const frame = `n2-${colorScheme}-${width}.png`;
+      const frame = `live2-${colorScheme}-${width}.png`;
       await page.screenshot({ path: resolve(evidenceRoot, frame), fullPage: true, animations: 'disabled' });
       report.frames.push(frame);
     }
     if (width === 1280) {
       for (const [selector, name] of [['.hero-copy', 'hero'], ['.scenario-ledger', 'contract'], ['.promise', 'promise'], ['.facts', 'facts'], ['.faq', 'faq']]) {
-        const frame = `n2-${name}-${colorScheme}-1280.png`;
+        const frame = `live2-${name}-${colorScheme}-1280.png`;
         await page.locator(selector).screenshot({ path: resolve(evidenceRoot, frame), animations: 'disabled' });
         report.frames.push(frame);
       }
@@ -77,8 +77,8 @@ for (const colorScheme of ['light', 'dark']) {
   const page = await context.newPage();
   await page.goto(baseUrl);
   await page.waitForTimeout(400);
-  await page.screenshot({ path: resolve(evidenceRoot, 'n2-nojs-dark-1280.png'), fullPage: true, animations: 'disabled' });
-  report.frames.push('n2-nojs-dark-1280.png');
+  await page.screenshot({ path: resolve(evidenceRoot, 'live2-nojs-dark-1280.png'), fullPage: true, animations: 'disabled' });
+  report.frames.push('live2-nojs-dark-1280.png');
   await context.close();
 }
 
@@ -149,4 +149,4 @@ await browser.close();
 await writeFile(resolve(evidenceRoot, 'REPORT.json'), `${JSON.stringify(report, null, 2)}\n`);
 console.log(JSON.stringify({ failures: report.failures, overflowChecked: report.overflow.length, animations: report.animations, dataStatic: report.dataStatic }, null, 2));
 if (report.failures.length) process.exit(1);
-console.log('N2 capture: PASS');
+console.log('线上复核 round-2: PASS');

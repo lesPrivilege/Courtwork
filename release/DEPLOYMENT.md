@@ -229,3 +229,58 @@ Hero 宋体 700，以及六枚从现行 Agent 深宗重摄的响应式 WebP。
 
 > **VERSIONAL-LANG-3 Pages 两轮上线复核放行。** 本轮只改变前端皮层与展示截图；tag、DMG、
 > Release、签名／公证边界与能力状态真源均未改变。
+
+---
+
+## SITE-CRAFT-2 N1+N2 · Pages 叙事与文案两批上线两轮复核（2026-07-26）— ✅ 放行
+
+两批一次合入、一次推送、一次部署，两轮复核对同一线上态执行。完整判定表、资源哈希、
+十五帧×两轮与逐项计算值见
+[`release/evidence/site-craft-2-n1-n2-2026-07-26/README.md`](evidence/site-craft-2-n1-n2-2026-07-26/README.md)。
+
+### 合入与 Workflow
+
+- `codex/site-craft-2-n1`（5 提交）与 `codex/site-craft-2-n2`（6 提交，含 hero 换岗修订与
+  去工程词 rider）依序 rebase 到当时 `main`（`139fc53`，OUTPUT 批已在其中）后线性快进，
+  合并态在 main 检出上实跑 `pnpm site:guard`（`node --test` 102/102、deslop 964 件、
+  release-truth、八 lint 全过）与 `site/scripts/build.mjs` 全绿，随后单次推送
+  `139fc53..64d48b4`。
+- Pages run [`30201940322`](https://github.com/lesPrivilege/Courtwork/actions/runs/30201940322)，
+  精确 head `64d48b4698b81383302d2f7ce4a31bfa63a88237`，conclusion `success`。
+
+### 两轮逐帧复核（同值）
+
+- 双宗 × `375/768/1180/1280/1440/1600` 共 12 组：横向溢出全 0、破图 0。
+- 新 H1「本地运行的／案件工作台。」在双宗 × 1280/375 均实测 2 行且不溢出 `hero-copy`。
+- 运行动效名集合仍为既有 6 名（零新增）；reduced-motion 仅 `ghosty-reduced-fade`；
+  数据区（卷宗计数四格 + 微演示原件正文）1.3s 双采样逐位一致。
+- 线上 `index.html`／`styles.css`／`main.js`／`icon.svg`／`og.png`／`ghosty-mask.svg`／
+  五枚 woff2 子集／三枚裁片六个变体全部与仓内逐字节相等（两轮各核一次）。og 卡三方相等：
+  线上回取件、仓内制品与 `og-manifest.json` 登记值同为
+  `7902465559dd8fb15223326b1e209b3de3b33246aaaedc421a8183602f83c5e6`。
+- 两轮同名帧八对逐字节相等，第二轮复核未引入皮层漂移。
+
+### 第二轮抓出的一处：探针竞态，非页面缺陷
+
+第二轮首跑报四条 `broken images`（1180/1280/1600 各 1/2/3），第一轮同口径为 0。按读失败模式
+再归因：六枚懒加载裁片变体线上均 `200` 且同源、两轮帧逐字节相等、计数随视口变宽递增——
+系采集器在图片仍在网络传输时读 `img.complete`。修法为显式等待全部图片落定（上限 30s，
+超时仍破图照旧报红），并同批落回仓内采集器而非只改复核副本；修正后两轮重跑
+`failures: []`、12 组破图全 0。
+
+### 一处时点差如实登记
+
+卷六 Q2 的「收束项还在进行」保持原文：`CONTRACT-OUTPUT-TRUTH-1` 实现已合入并清账，
+但 `docs/status/current.md` 的产品 live 表与「当前下一序」仍记该四项未成立，且该文件明载能力
+口径另单落痕。站面宣称上限只认 `current.md`，故本轮为**低报而非高报**，待能力行刷新后由后续
+文案批同步。
+
+### v0.1.2 下载真值回归
+
+`release-truth` 门在合并态与推送前后均通过：站面唯一可见版本行仍为 `v0.1.2 · Apple Silicon`、
+两处 DMG 入口同址、在页 SHA-256 仍为
+`f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d`，与
+`release/Courtwork_0.1.2_aarch64.dmg.sha256` 一致。本轮只动站面，tag、DMG、Release、
+签名／公证边界与能力状态真源均未改变。
+
+> **SITE-CRAFT-2 N1+N2 Pages 上线两轮复核放行。**
