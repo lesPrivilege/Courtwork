@@ -69,7 +69,7 @@ function buildDocx(options: {
         .join('')}</w:comments>`,
     );
   }
-  return saveDocx(files);
+  return saveDocx(files, new Date('2026-01-01T00:00:00.000Z'));
 }
 
 function parse(xml: string) {

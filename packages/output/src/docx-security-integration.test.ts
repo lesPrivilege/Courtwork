@@ -4,11 +4,23 @@ import type { RevisionInstructionSet } from '@courtwork/schemas';
 import { DocxSecurityError } from '@courtwork/reading-view/docx-security';
 import { applyRevisionInstructionSet } from './apply-revision-instruction-set.js';
 
-const EMPTY_SET: RevisionInstructionSet = {
+/**
+ * 用最小**合法** instruction set，不用空集合：空 instructions 是契约旁路
+ * （`RevisionInstructionSetSchema.instructions.min(1)`），拿它冒充安全 fixture 会让本组测试
+ * 在运行时校验落地后失去证明力——本组要证的是 DOCX 预检本身。
+ */
+const MINIMAL_SET: RevisionInstructionSet = {
   id: 'safe-preflight-test',
   caseId: 'case-test',
   targetDocument: { fileId: 'input.docx' },
-  instructions: [],
+  instructions: [
+    {
+      id: 'instr-preflight-01',
+      kind: 'commentOnly',
+      locator: { strategy: 'text', quote: '正文' },
+      annotation: { text: '预检探针用批注。', citations: [] },
+    },
+  ],
 };
 
 const DOCUMENT_XML =
@@ -24,7 +36,7 @@ function docx(entries: Record<string, Uint8Array> = {}) {
 
 function expectSecurityReason(bytes: Uint8Array, reason: DocxSecurityError['reason']) {
   try {
-    applyRevisionInstructionSet(bytes, EMPTY_SET);
+    applyRevisionInstructionSet(bytes, MINIMAL_SET);
     throw new Error('预期安全预检拒绝输入');
   } catch (error) {
     expect(error).toBeInstanceOf(DocxSecurityError);

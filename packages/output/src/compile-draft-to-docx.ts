@@ -66,5 +66,7 @@ export function compileDraftToDocx(input: DraftDocxInput): Buffer {
     ),
   };
 
-  return saveDocx(files);
+  // 通用 draft 编译器仍取真实当前时间：确定性 ZIP 只是 Legal S3 production 的强制项
+  // （由 desktop 传入已持久的确认时刻），不借本票扩成全仓约束。
+  return saveDocx(files, new Date());
 }

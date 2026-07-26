@@ -149,3 +149,41 @@ Golden files 与安全反例；真实 Vite browser consumer；Word + WPS 双端�
   删 ZIP mtime 透传、恢复 `Date.now()`、构造本地 Date、只改一组 header、直接传原 Date 或把
   typed error 改回裸 RangeError 的 mutation 分别触红。该确定性只承诺
   “同原 bytes + 同合法 instruction set + 同 now”的输出，不把任意不同输入宣称为同 SHA。
+
+### O1 实现留痕（2026-07-26，实现会话）
+
+**落点**（文件面严格限于本包既有 `apply-revision-instruction-set.ts` / `docx-zip.ts` /
+`index.ts` 三枚，零新建 production 模块）：
+
+- `apply-revision-instruction-set.ts`：入口先 `RevisionInstructionSetSchema.safeParse`，失败即
+  `InvalidRevisionInstructionSetError`（`code:'invalid_revision_instruction_set'`，携逐条 issue）；
+  parse 通过后才 `loadDocx`，随即 `assertNotSignedDocx(files)`，再进解析/改写。签名探针与
+  `SignedDocumentUnsupportedError` 同住本文件（`code:'signed_document_unsupported'`，携
+  `signal:'part'|'relationship'|'contentType'` 供诊断）。
+- `docx-zip.ts`：`packedDosDateTime(now)` 纯函数（只读 UTC 字段）、`InvalidZipTimestampError`
+  （`code:'invalid_zip_timestamp'`，携 `instant?`）、`saveDocx(files, now)` **必填 now**。实现为
+  「固定 placeholder mtime 调 fflate → 结构化遍历中央目录 → 覆写每个 central 与其对应 local
+  header 的 packed 时间」。**走中央目录而非全盘扫签名**：压缩流里可能出现同样的四字节，按签名瞎扫
+  会改坏数据。
+- `index.ts`：出 `InvalidZipTimestampError` 与 `packedDosDateTime`（前者供 desktop coordinator 映
+  `blocked/invalid_session`）。
+
+**本单在本包新增了什么概念、为何非加不可**：概念零。三件都是既有函数的输入闭口与时间闭口——
+schema 早已存在（此前只在类型层生效）、签名是 OPC 既有事实、DOS 时间是 ZIP 格式既有精度。
+`saveDocx` 的 `now` 由可选改必填是**收紧**，不是新概念：通用 draft 编译器显式传当前时间，
+production 传已持久确认时刻，二者物理分流。
+
+**净减**：`docx-security-integration.test.ts` 的 `EMPTY_SET` 契约旁路退役，改最小合法 instruction
+——原写法拿 `instructions: []` 冒充安全 fixture，运行时校验落地后它证明不了 DOCX 预检。
+
+**红证**（逐条实跑，见 ACCEPTANCE 同名节）：schema/签名/确定性三组共 6 项行为先取红；随后六类
+mutation 各自只让对应组翻红——禁 part / 禁 relationship / 禁 contentType 三枚证明探针独立；
+三枚把闭集换成 `includes('signature')` 的 mutation 由**三条阴性对照**抓红（part 名含 signature 但
+不在 `_xmlsignatures/` 下、relationship Type 含 signature 但非 OPC 三种、ContentType 含 signature
+但非 OPC 三种）。首轮阴性对照不足以区分闭集与模糊搜，模糊 mutation 逃逸——已补对照后复测抓红。
+另有本地时间字段、把 Date 直接交 fflate、只改一组 header、越界静默 clamp 四枚 mutation 各自触红。
+
+**fixture**：唯一复合原件 `test/fixtures/contract-review-complex.docx`（39562 bytes，SHA-256
+`546065be238664130b459c9b9f0e236e8a5e9ec7fd1af8b03640cab8ed8b3028`），来源、派生步骤与结构清单见
+同目录 `README.md`；该字节数与 SHA 由 `contract-review-fidelity.test.ts` 断言，README 与实物漂移
+即翻红。所有阳性探针在测试内存中从该原件派生，零第二批 binary fixture。

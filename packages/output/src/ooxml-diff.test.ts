@@ -136,7 +136,7 @@ function docWithExistingComment(): Buffer {
       `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:comments xmlns:w="${W}"><w:comment w:id="4" w:author="原承办律师" w:date="2026-01-01T00:00:00Z"><w:p><w:r><w:t>既有批注正文</w:t></w:r></w:p></w:comment></w:comments>`,
     ),
   };
-  return saveDocx(files);
+  return saveDocx(files, new Date('2026-01-01T00:00:00.000Z'));
 }
 
 describe('OOXML 保存前后 part/rel diff 留证（OUTPUT-CORRECTNESS-1 #7）', () => {
