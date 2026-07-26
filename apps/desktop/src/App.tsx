@@ -146,8 +146,7 @@ type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft' | 'a
  * 已验真的 `textRange`，**不保留 quote-search**。坐标齐备与否由调用方分流，此处不静默兜底。
  */
 function demoReaderDoc(route: LegalDemoSourceRoute): MaterialReaderDoc | null {
-  const range = route.focusAnchor.textRange;
-  const textLayerVersion = route.focusAnchor.textLayerVersion;
+  const { textRange: range, textLayerVersion } = route.focusAnchor;
   if (!range || !textLayerVersion) return null;
   return {
     name: route.name,
