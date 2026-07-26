@@ -36,19 +36,19 @@ OFL 义务对照：随站点分发保留版权声明与许可全文（本目录�
 | `14_NotoSerifSC.zip`（release 资产） | 68,960,596 B | `c58cd035ab2adb003510846db9ec80c35b1b97755d329486c3a1e88edfe6e98e` |
 | `SubsetOTF/SC/NotoSerifSC-Regular.otf`（zip 内，31,058 glyphs） | 11,625,800 B | `e8f396decc1f0963a016a989c3d8852e863d1350996f573860a80767c83a1cd3` |
 | `SubsetOTF/SC/NotoSerifSC-Bold.otf`（zip 内，31,058 glyphs） | 12,094,336 B | `24693d48bdb9152f0a06b02af625638a1097abd6de4010ebba027f6e82710527` |
-| `site/assets/fonts/noto-serif-sc-regular-subset.woff2`（入库子集·标题轨 400） | 171 字 / 193 glyphs / 45,092 bytes | `5875598c52d17222cf6d6908dcaa36a1b3277b2436dd8267102bce3ee9012c3d` |
-| `site/assets/fonts/noto-serif-sc-bold-subset.woff2`（入库子集·标题轨 700） | 171 字 / 193 glyphs / 45,740 bytes | `ae412d3f0591e98cfda65603178709d9c637288c13e37557112132b32c23d0e2` |
+| `site/assets/fonts/noto-serif-sc-regular-subset.woff2`（入库子集·标题轨 400） | 173 字 / 195 glyphs / 45,188 bytes | `8e4d8981dce04a7c81ad5674d34d8172bf61718e754ce9d7c0806dcf14379037` |
+| `site/assets/fonts/noto-serif-sc-bold-subset.woff2`（入库子集·标题轨 700） | 173 字 / 195 glyphs / 45,828 bytes | `1dfa8c10a34ed59f09db83c6911909bda8992635745c210613111334619b0e71` |
 
 > **本表数字全部是可解析实测契约**（`font-provenance` 门）：字数对清单 `text` 长度、glyph 数由
 > woff2 直读 `maxp.numGlyphs`、字节数对文件长度、SHA 对文件内容——四项逐一比对，任一不符即红。
 > **SHA 只锚内容，不锚声称**：制品换一个字节 SHA 必变，但人读数字可以在 SHA 全对的前提下静默撒谎，
 > 故每个数字都要有各自的机器对应，而不是被交叉抄写。
 
-原始 OTF **不入仓**，只入库两枚精确子集（合计 89KB；N1 叙事批随卷五/卷六行头与问句扩容，N2 文案批随各卷主句重排换字）。
+原始 OTF **不入仓**，只入库两枚精确子集（合计 89KB；N1 叙事批随卷五/卷六行头与问句扩容，N2 文案批与其 hero 换岗修订两轮随主句重排换字）。
 
 ## 子集再生成
 
-字符集＝页面 `zh-title` 消费面（h1/h2/h3 与台账行头/问句 dt，页面精确取字，现 171 字——N2 随各卷主句重排换字：新入 25 枚、剔除 24 枚已无消费面的旧字，其中 `C/k/t/u/w` 随卷四主句退去品牌字样一并退出标题轨）；两枚字重共用同一字符集。清单与字节锚记录在
+字符集＝页面 `zh-title` 消费面（h1/h2/h3 与台账行头/问句 dt，页面精确取字，现 173 字）；两枚字重共用同一字符集。N2 两轮换字：文案批随各卷主句重排（`C/k/t/u/w` 随卷四主句退去品牌字样而退出标题轨）；hero 换岗修订随 H1 改「本地运行的案件工作台。」再入 `本地工作运案`、剔除 `生成裁决`——**旧 H1 的四枚字随不变量句降为眉部立场行（功能轨 mono）而退出标题轨**。清单与字节锚记录在
 `site/assets/fonts/noto-subset.json`，deslop `display-font` 门校验「页面 zh-title 用字 ⊆ 清单文本」、
 「清单 `weights.400/700.woff2Sha256` = 实际字节」与「`.zh-title` 真消费 `var(--font-title)`」，
 任一脱钩即构建失败。文案改动后的再生成命令（fontTools 4.63.0）：

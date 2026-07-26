@@ -107,5 +107,35 @@
     "identical": true,
     "nodes": 5
   },
-  "failures": []
+  "failures": [],
+  "heroWrap": [
+    {
+      "colorScheme": "light",
+      "width": 1280,
+      "lines": 2,
+      "overflowsCopy": false,
+      "text": "本地运行的案件工作台。"
+    },
+    {
+      "colorScheme": "dark",
+      "width": 1280,
+      "lines": 2,
+      "overflowsCopy": false,
+      "text": "本地运行的案件工作台。"
+    },
+    {
+      "colorScheme": "light",
+      "width": 375,
+      "lines": 2,
+      "overflowsCopy": false,
+      "text": "本地运行的案件工作台。"
+    },
+    {
+      "colorScheme": "dark",
+      "width": 375,
+      "lines": 2,
+      "overflowsCopy": false,
+      "text": "本地运行的案件工作台。"
+    }
+  ]
 }

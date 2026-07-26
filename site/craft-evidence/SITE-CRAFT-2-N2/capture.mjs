@@ -95,6 +95,29 @@ for (const [label, reducedMotion, allowed] of [
   await context.close();
 }
 
+// ④ hero H1 折行实测（换岗案第 4 条）：两行、行数不因宗或宽度而变、不溢出 hero-copy。
+for (const [colorScheme, width] of [['light', 1280], ['dark', 1280], ['light', 375], ['dark', 375]]) {
+  const context = await browser.newContext({ viewport: { width, height: 900 }, colorScheme, reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  await page.goto(baseUrl);
+  await page.waitForTimeout(200);
+  const probe = await page.evaluate(() => {
+    const h1 = document.querySelector('h1.zh-title');
+    const copy = document.querySelector('.hero-copy');
+    const lineHeight = Number.parseFloat(getComputedStyle(h1).lineHeight);
+    return {
+      lines: Math.round(h1.getBoundingClientRect().height / lineHeight),
+      overflowsCopy: h1.getBoundingClientRect().right > copy.getBoundingClientRect().right + 0.5,
+      text: h1.getAttribute('aria-label'),
+    };
+  });
+  report.heroWrap = report.heroWrap ?? [];
+  report.heroWrap.push({ colorScheme, width, ...probe });
+  if (probe.lines !== 2) report.failures.push(`hero H1 折行 ${colorScheme}@${width}: ${probe.lines} 行（应为 2）`);
+  if (probe.overflowsCopy) report.failures.push(`hero H1 溢出 hero-copy ${colorScheme}@${width}`);
+  await context.close();
+}
+
 // ③ 数据区静止（计数四格 + 微演示原件正文，1.3s 双采样逐位一致）
 {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: 'dark', reducedMotion: 'no-preference' });

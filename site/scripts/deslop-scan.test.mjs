@@ -302,10 +302,10 @@ test('SITE-CRAFT-2 woff2 measurement reads bytes, glyphs and codepoints from the
   const measured = measureWoff2(buffer);
   assert.equal(measured.bytes, buffer.length);
   // 与 fontTools 独立实现互校过的定值（文书轨子集）。N2 文案批重切后由 fontTools 重新独立复量：
-  // `TTFont` 读 maxp.numGlyphs 与 getBestCmap 映射码位，两侧同为 422 / 343，故换值不是把
+  // `TTFont` 读 maxp.numGlyphs 与 getBestCmap 映射码位，两侧同为 423 / 344，故换值不是把
   // 自家解析器的输出抄成断言——互校关系仍在，只是被测制品换了一版。
-  assert.equal(measured.glyphs, 422);
-  assert.equal(measured.chars, 343);
+  assert.equal(measured.glyphs, 423);
+  assert.equal(measured.chars, 344);
   assert.throws(() => measureWoff2(Buffer.from('not a font at all!!')), /not a woff2/);
 });
 
