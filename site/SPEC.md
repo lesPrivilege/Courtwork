@@ -741,4 +741,7 @@ reduce 下仅 `ghosty-reduced-fade`；数据区 1.3s 双采样逐位一致。十
 - `docs/design/site-evidence-line.md`「信息结构」第 1 条仍写「首屏标题固定以『模型只生成，
   不裁决。』为母题；副标题说明卷宗、原文锚点与人工确认」——与现状一致，无需改；但第 2–6 条
   未含 N1 的卷五／卷六与 N2 的底座契约口径，宜随两批合入一并补录，本批禁触 `docs/**`。
-- hero mac-bar 与演示 `aria-label` 的「schema 工作面」残留（见上），若要清场需授权动 hero 区域。
+- hero mac-bar 与演示 `aria-label` 的「schema 工作面」残留已由**合入指令的可选 rider 清场**
+  （2026-07-26）：两处换「结构化工作面」，`· 微演示重建 · 合成数据试点` 标注不动，`site:guard`
+  绿故按 rider 条件保留。用户句面「schema」自此归零；帧证随之重采（旧帧印的是旧字面）。
+  `og.html` 不含该字面，未受影响。

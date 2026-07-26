@@ -76,7 +76,7 @@
 |---|---|---|---|
 | A | 卷四主句去品牌字样，撞 `p5-font-coverage`：`deslop-scan-lib.mjs:888` 签三枚 site 选择器（含 `.promise-heading h2 .latin-manuscript`）、`:915` 要求四处逐字渲染 `Courtwork`、`:916` 要求页面恰两枚 span——改完三向红 | 退役该签名消费者 | HTML span 与 CSS 规则同批删；门内签名收为 site 两枚选择器、页面**恰一枚** span、三处签名消费者。P5 立门的风险模型是防扩散（「绝不扩成正文、UI 或数据字槽」），收缩不触及该风险面；品牌字样仍由页首 wordmark 与卷尾眉承载。**收缩不等于放开计数**：新增一枚未签 span 仍红、退役选择器在 CSS 复活（HTML 无对应 span）亦红，两向已入测试 |
 | B | 「落格」除卷四条目三外另存三处（hero 微演示 meta、卷一结论体两次、卷二修订行），票面未给逐字文案 | 按最小改写清场 | 三处语义不变：删「未落格，」／「替你定稿」／「未经确认」。实测页面「落格」计数归零 |
-| C | 「schema」在 PM 卡两处已清，但存于 hero 微演示窗 mac-bar 标题与演示 `aria-label`（后者属读者可见属性，在成熟度门投影面内）；票面又定 hero「仅一处：eyebrow」 | hero 不动，登记残留 | 两处原封保留。**如实登记**：「schema」在用户句面仍有这两处，本批不成立「全站零 schema」；该标注是 B2 微演示的既有诚实标注，已入 `site-evidence-line.md` 留痕，改动须另票授权（`og.html` 亦因此零触碰） |
+| C | 「schema」在 PM 卡两处已清，但存于 hero 微演示窗 mac-bar 标题与演示 `aria-label`（后者属读者可见属性，在成熟度门投影面内）；票面又定 hero「仅一处：eyebrow」 | 先裁 hero 不动、登记残留；**合入指令的可选 rider 追加授权清场** | 施工期两处原封保留并如实登记「本批不成立全站零 schema」；合入指令 rider ① 追加授权后两处换「结构化工作面」，`· 微演示重建 · 合成数据试点` 标注不动，`site:guard` 绿故按 rider 条件保留——用户句面「schema」自此归零，帧证同批重采。`og.html` 不含该字面 |
 
 「垂类泛化」「fixture」在用户句面均已归零（`data-fixture-count` 是 wire 属性，不在读者可见属性集内，非句面）。
 
