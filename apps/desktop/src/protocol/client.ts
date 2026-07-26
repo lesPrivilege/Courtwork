@@ -102,12 +102,71 @@ export type WorkCommandOutcome =
       message: string;
     };
 
+/**
+ * replay 的逐字判别联合（ADR-010 决定四/五 2026-07-24 修订）。
+ *
+ * `found:false` 是**宿主明确确认目标不存在**，不是异常；`found:true` 才携 metadata。
+ * `materialRefs` 与 `sessionCreatedAt` 只是把 envelope 既有值作防御性复制，不新增持久字段。
+ * 两分支都不得漏 `ref`——恢复时要靠它与本地 pointer 逐项比对。
+ */
+export type WorkReplayResult =
+  | {
+      found: false;
+      ref: WorkSessionRef;
+      phase: 'interrupted';
+      events: SessionEvent[];
+    }
+  | {
+      found: true;
+      ref: WorkSessionRef;
+      phase: WorkProjectionPhase;
+      events: SessionEvent[];
+      materialRefs: string[];
+      sessionCreatedAt: string;
+    };
+
+/** replay 可预期读取失败的闭集。artifact isolation **不算** corrupt。 */
+export type WorkReplayFailureReason = 'unavailable' | 'corrupt' | 'unsupported_version' | 'ref_mismatch';
+
+/**
+ * 可预期的 replay 读取失败。稳定 `code`，`reason` 为上述闭集。
+ *
+ * 消费方必须按 reason 分流：`unavailable` 与可能由应用降级造成的 `unsupported_version` 都要**保留
+ * pointer** 并给可重试反馈——`.catch(() => null)` 后当 missing 清除会把「暂时读不到」谎报成
+ * 「这次审查不存在」。
+ */
+export class WorkReplayError extends Error {
+  readonly code = 'work_replay_failed' as const;
+  readonly reason: WorkReplayFailureReason;
+  constructor(reason: WorkReplayFailureReason, message: string) {
+    super(message);
+    this.name = 'WorkReplayError';
+    this.reason = reason;
+  }
+}
+
+/**
+ * typed replay 失败的产品语文案。与 `WorkReplayFailureReason` 闭集同住一处，新增 reason 时
+ * 编译器会在此要求补文案——不留「新原因悄悄退回兜底句」的缝。四种都是**可重试**表述：
+ * 读不到进度不等于进度不存在，措辞不得暗示用户的审查已丢失。
+ */
+export function workReplayFailureCopy(error: unknown): string {
+  const reason = error instanceof WorkReplayError ? error.reason : undefined;
+  switch (reason) {
+    case 'unsupported_version':
+      return '上次的审查进度由更新版本的应用写入，当前版本暂时读不了 · 请更新后重试';
+    case 'corrupt':
+      return '上次的审查进度无法读取 · 本案账本仍在，可重新开始一次审查';
+    case 'ref_mismatch':
+      return '读到的进度不属于本案本次审查 · 请重新开始审查';
+    case 'unavailable':
+    default:
+      return '暂时无法读取上次审查进度，请稍后重试';
+  }
+}
+
 export interface WorkProjectionPort {
-  replay(query: WorkSessionRef & { afterSeq?: number }): Promise<{
-    ref: WorkSessionRef;
-    phase: WorkProjectionPhase;
-    events: SessionEvent[];
-  }>;
+  replay(query: WorkSessionRef & { afterSeq?: number }): Promise<WorkReplayResult>;
 }
 
 /**

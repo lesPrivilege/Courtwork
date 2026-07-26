@@ -18,7 +18,9 @@ import {
   readWorkStateEnvelope,
   resumeScenario,
   runScenario,
+  CorruptEnvelopeError,
   UnknownConfirmationRequestError,
+  UnknownEnvelopeVersionError,
 } from '@courtwork/core/work-protocol';
 import { createMemoryTurnStore } from '@courtwork/core/turn-protocol';
 import { LEGAL_PACKAGE } from '@courtwork/legal/package';
@@ -34,6 +36,7 @@ import type {
   TurnJournalEntry,
   TurnRunnerPort,
   WorkStateHeader,
+  WorkStateEnvelopeV1,
   WorkStateHostPort,
   WorkStateStore,
   WorkRuntimeBudget,
@@ -50,8 +53,10 @@ import type {
   WorkModelRoute,
   WorkProjectionPhase,
   WorkProjectionPort,
+  WorkReplayResult,
   WorkSessionRef,
 } from '../protocol/client';
+import { WorkReplayError } from '../protocol/client';
 import type { StoredMaterial } from '../material/material-ref';
 import {
   IncompleteReviewError,
@@ -578,18 +583,59 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
       return { accepted: true };
     },
 
-    async replay(query) {
+    async replay(query): Promise<WorkReplayResult> {
       const ref = { caseId: query.caseId, sessionId: query.sessionId };
-      const existing = await deps.host.read(ref);
-      if (!existing.found) {
-        return { ref, phase: 'interrupted' as WorkProjectionPhase, events: [] };
+
+      // 宿主读取拒绝或未分类异常 → unavailable。宿主明确说「没有」才是 found:false，那不是异常。
+      let existing: Awaited<ReturnType<WorkStateHostPort['read']>>;
+      try {
+        existing = await deps.host.read(ref);
+      } catch (error) {
+        throw new WorkReplayError('unavailable', readReplayMessage(error, '暂时无法读取上次审查进度'));
       }
-      const envelope = readWorkStateEnvelope(existing.bytes);
+      if (!existing.found) {
+        return { found: false, ref, phase: 'interrupted', events: [] };
+      }
+
+      let envelope: WorkStateEnvelopeV1;
+      try {
+        envelope = readWorkStateEnvelope(existing.bytes);
+      } catch (error) {
+        if (error instanceof UnknownEnvelopeVersionError) {
+          throw new WorkReplayError('unsupported_version', readReplayMessage(error, '上次审查进度由更新版本写入'));
+        }
+        if (error instanceof CorruptEnvelopeError) {
+          throw new WorkReplayError('corrupt', readReplayMessage(error, '上次审查进度已损坏'));
+        }
+        throw new WorkReplayError('unavailable', readReplayMessage(error, '暂时无法读取上次审查进度'));
+      }
+
+      // 读出 envelope 之后才显式比较 query ref 与 header ref；只有该不等才是 ref_mismatch。
+      if (envelope.caseId !== ref.caseId || envelope.sessionId !== ref.sessionId) {
+        throw new WorkReplayError(
+          'ref_mismatch',
+          `读到的审查进度不属于本次查询（信封 ${envelope.caseId}/${envelope.sessionId}）`,
+        );
+      }
+
+      // artifact isolation 是账本外层的隔离事实，不伪装 corrupt：hydrate 照常返回可用事件。
       const hydrated = hydrateStoredEvents(envelope.events, deps.codec);
       const events = hydrated.events.filter((event) => event.seq > (query.afterSeq ?? -1));
-      return { ref, phase: phaseFromEnvelope(hydrated.events, envelope.turnEntries), events };
+      return {
+        found: true,
+        ref,
+        phase: phaseFromEnvelope(hydrated.events, envelope.turnEntries),
+        events,
+        // 防御性复制：调用方拿到的数组/字符串不与信封解析结果共享引用。
+        materialRefs: [...envelope.materialRefs],
+        sessionCreatedAt: envelope.createdAt,
+      };
     },
   };
+}
+
+function readReplayMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message.trim().length > 0 ? error.message : fallback;
 }
 
 /** 场景终局 > 门禁 pending > 残缺（turn_linked 无 terminal）> running（ADR-010 决定二/一）。 */

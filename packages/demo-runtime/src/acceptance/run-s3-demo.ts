@@ -27,10 +27,36 @@ import { buildDemoS3Runtime, loadDemoS3Materials } from '../composition/demo-ass
 
 const ORIGINAL_DOCX_PATH = join(import.meta.dirname, '..', '..', '..', 'output', 'test', 'fixtures', 'original.docx');
 
+/**
+ * 逐条处置表：六项确认 + risk-07 驳回。真实 gate 不允许留 pending 续行，本表让脚本与产品同形
+ * （旧脚本只处置首项、其余留 pending，靠旧编译器「非 rejected 即编译」蒙混过关）。
+ * 索引对应 `S3_RISK_LIST_RESPONSE` 的 risks 顺序。
+ */
+const RISK_DISPOSITIONS: ReadonlyArray<{ index: number; disposition: 'confirmed' | 'rejected'; reason: string }> = [
+  { index: 0, disposition: 'confirmed', reason: '与主办律师电话确认，风险属实' },
+  { index: 1, disposition: 'confirmed', reason: '管辖条款确需调整' },
+  { index: 2, disposition: 'confirmed', reason: '质保期确需延长' },
+  { index: 3, disposition: 'confirmed', reason: '交付期限确需细化' },
+  { index: 4, disposition: 'confirmed', reason: '附表缺失确需补齐' },
+  { index: 5, disposition: 'confirmed', reason: '主体名称确需核对' },
+  // risk-07 的依据只有支持材料（企业信用查询单）锚，没有主合同锚。旧脚本让它带着支持材料的
+  // 引语去主合同碰运气、拿一个 `locator_not_found` 收场；新契约不允许这样冒充定位，故显式驳回。
+  { index: 6, disposition: 'rejected', reason: '仅有支持材料依据，无主合同定位，本次不作批注' },
+];
+
+/**
+ * demo 主合同件：**materials 语料、RiskList 锚、CaseFile 条目与编译目标共用这一个 fileId**。
+ *
+ * 旧脚本三处不同源——CaseFile 写 `04-设备采购合同.md`、materials 实际加载
+ * `sample-sale-contract-v1.docx`、锚也挂在后者上，编译目标却传 `04-设备采购合同.docx`。
+ * 谁都没发现，因为旧编译器不按 fileId 选锚。CONTRACT-OUTPUT-TRUTH-1 的同源判据把它暴露出来。
+ */
+const S3_DEMO_PRIMARY_FILE_ID = 'sample-sale-contract-v1.docx';
+
 const CASE_FILE: CaseFile = {
   caseId: 'case-linjiang-qiyun-2025',
   files: [
-    { fileId: '04-设备采购合同.md', fileName: '04-设备采购合同.md', documentType: '合同', ingestStatus: 'done', pageCount: 1 },
+    { fileId: S3_DEMO_PRIMARY_FILE_ID, fileName: S3_DEMO_PRIMARY_FILE_ID, documentType: '合同', ingestStatus: 'done', pageCount: 1 },
   ],
 };
 
@@ -165,17 +191,18 @@ export async function runS3Demo(
     {
       actor: { channelId: 'cli', actorId: 'demo-lawyer', role: '主办律师' },
       decision: 'confirm',
-      revisions: [
-        {
-          artifactType: 'legal.RiskList',
-          artifactId: CASE_FILE.caseId,
-          fieldPath: '/risks/0/dispositionStatus',
-          previousValue: 'pending',
-          newValue: 'confirmed',
-          reason: '与主办律师电话确认，风险属实',
-          caseId: CASE_FILE.caseId,
-        },
-      ],
+      // CONTRACT-OUTPUT-TRUTH-1：真实产品的 gate 要求**逐条**处置后才可续行，编译器亦以
+      // 任一 pending 为 typed blocker。旧脚本只处置首项、其余留 pending，是与产品流不一致的
+      // 简写；改为首项确认、其余驳回，与「逐条填满才提交」同形。
+      revisions: RISK_DISPOSITIONS.map(({ index, disposition, reason }) => ({
+        artifactType: 'legal.RiskList' as const,
+        artifactId: CASE_FILE.caseId,
+        fieldPath: `/risks/${index}/dispositionStatus`,
+        previousValue: 'pending',
+        newValue: disposition,
+        reason,
+        caseId: CASE_FILE.caseId,
+      })),
       instrumentation: { dwellMs: 4200, expandedEvidenceKeys: ['party-verify'] },
     },
     scenario,
@@ -191,7 +218,8 @@ export async function runS3Demo(
     issueKey: (citation: string) => secondDeps.ledger.issueKey(citation),
     assertAdmissible: (key: string) => assertEvidenceKeyAdmissible(secondDeps.ledger, key),
   };
-  const revisionSet = compileConfirmedRiskListToRevisionInstructions(riskList, '04-设备采购合同.docx', gatekeeper);
+  // CONTRACT-OUTPUT-TRUTH-1：与锚 fileId 同源（旧写法传 .docx，锚却挂在 .md 上）。
+  const revisionSet = compileConfirmedRiskListToRevisionInstructions(riskList, S3_DEMO_PRIMARY_FILE_ID, gatekeeper);
 
   const originalDocx = readFileSync(ORIGINAL_DOCX_PATH);
   const now = new Date('2026-07-10T09:00:00.000Z');

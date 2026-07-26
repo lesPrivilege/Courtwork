@@ -20,19 +20,22 @@ describe('S3 end-to-end acceptance flow', () => {
 
       // 脚本模拟的确认 + 一条真实 RevisionEvent 被记录且体现在最终产出里。
       expect(Object.keys(result.replay.confirmations)).toHaveLength(1);
-      expect(result.replay.revisionEventIds).toHaveLength(1);
+      // CONTRACT-OUTPUT-TRUTH-1：gate 要求逐条处置，故七条风险各落一枚 RevisionEvent
+      // （首项 confirmed、其余 rejected），不再是「只处置首项、其余留 pending」的旧简写。
+      expect(result.replay.revisionEventIds).toHaveLength(7);
       expect(riskList.risks[0].dispositionStatus).toBe('confirmed');
       expect(result.replay.completed).toBe(true);
 
-      // RevisionInstructionSet 编译出 7 条指令（6 条 clause 级 + 1 条 party-verify 级）。
-      expect(result.outcomes).toHaveLength(7);
+      // RevisionInstructionSet 编译出 6 条 clause 级指令。
+      // CONTRACT-OUTPUT-TRUTH-1：risk-07 的依据只有支持材料（企业信用查询单）锚，没有主合同锚，
+      // 已在处置阶段显式驳回，故**零指令**——旧脚本让它带支持材料引语去主合同碰运气、以
+      // `locator_not_found` 收场，那正是本票要退役的「拿支持材料冒充主合同定位」。
+      expect(result.outcomes).toHaveLength(6);
       const byId = Object.fromEntries(result.outcomes.map((o) => [o.id, o.status]));
       for (const riskId of ['risk-01', 'risk-02', 'risk-03', 'risk-04', 'risk-05', 'risk-06']) {
         expect(['applied', 'applied_fuzzy']).toContain(byId[`instr-${riskId}`]);
       }
-      // risk-07 的依据锚点在 demo-data 卷宗文件里，不在 output 的 stand-in docx 里——
-      // 报错并跳过是预期行为（SPEC："定位失败时报错并跳过，不错插"），不是缺陷。
-      expect(byId['instr-risk-07']).toBe('locator_not_found');
+      expect(byId['instr-risk-07']).toBeUndefined();
 
       // 产出的 docx 是真实非空的 Word 文档（zip 格式以 PK 开头）。
       expect(result.docx.length).toBeGreaterThan(0);
@@ -41,13 +44,14 @@ describe('S3 end-to-end acceptance flow', () => {
       // 全程事件流可回放：类型序列体现"产出→进度快照→确认请求→确认解决→修正记录→
       // 修正后重发产出→进度快照→完成"的完整生命周期（重发的 artifact_produced 是
       // replaySession 能重建出修正后状态的原因；todo_snapshot 是 docs/architecture/system.md 长任务协议①）。
+      // 七枚 revision_recorded＝逐条处置（六项确认 + risk-07 驳回），一处置一条，不合并。
       expect(result.eventTypes).toEqual([
         'turn_linked',
         'artifact_produced',
         'todo_snapshot',
         'confirmation_requested',
         'confirmation_resolved',
-        'revision_recorded',
+        ...Array.from({ length: 7 }, () => 'revision_recorded'),
         'artifact_produced',
         'todo_snapshot',
         'scenario_completed',
@@ -83,8 +87,12 @@ describe('S3 end-to-end acceptance flow', () => {
       // 复验入口①（ACCEPTANCE.md）：不经事件流旁证，直接读 revision store 本身，
       // 断言每条落盘记录自带可直接定位到会话的 sessionId。
       const revisionEvents = createFileRevisionEventStore(join(result.workDir, 'revision-events.jsonl')).list();
-      expect(revisionEvents).toHaveLength(1);
-      expect(revisionEvents[0].sessionId).toBe('demo-s3-session');
+      // 逐条处置＝逐条落盘：七条风险各一枚，且都能直接定位到会话。
+      expect(revisionEvents).toHaveLength(7);
+      for (const event of revisionEvents) expect(event.sessionId).toBe('demo-s3-session');
+      expect(revisionEvents.map((event) => event.newValue)).toEqual([
+        'confirmed', 'confirmed', 'confirmed', 'confirmed', 'confirmed', 'confirmed', 'rejected',
+      ]);
 
       // GOAL-2 接缝细则（docs/decisions/ADR-005-data-security.md 十二节：交互→RevisionEvent→artifact→投影）：
       // 留痕事件必须完整携带 actor/字段路径/新旧值/理由——"改了什么、为何改"可审计。

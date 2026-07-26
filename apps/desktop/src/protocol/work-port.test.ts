@@ -47,9 +47,12 @@ describe('WORK-PORT-1 fixture boundary', () => {
     }];
     const projection: WorkProjectionPort = {
       replay: vi.fn(async (query) => ({
+        found: true as const,
         ref: { caseId: query.caseId, sessionId: query.sessionId },
         phase: 'running' as const,
         events,
+        materialRefs: ['mat-1'],
+        sessionCreatedAt: '2026-07-14T00:00:00.000Z',
       })),
     };
     const publish = vi.fn<(event: SessionEvent) => void>();

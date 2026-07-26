@@ -13,9 +13,11 @@ import type { RiskListDraft } from '../schemas/risk-list.js';
  * 考点（golden 预埋引语）与剧本同住本 demo 包，不进机器层——防过拟合隔离审计
  * （assert-no-demo-in-harness）以此为断言对象之一。
  *
- * risk-08 的首个依据引语出自信用查询单（md 材料），刻意不出现在合同 docx 孪生里：
- * 编译进 RevisionInstructionSet 后 output 侧预期 locator_not_found——"定位失败时
- * 报错并跳过，不错插"纪律的保留展示位（沿 s3-risk-list-response.ts 的先例）。
+ * risk-08 是**支持材料锚排在前、主合同锚排在后**的展示位：首枚引语出自信用查询单（md 材料，
+ * 刻意不出现在合同里），次枚才是合同正文。CONTRACT-OUTPUT-TRUTH-1 之后，编译器按
+ * `fileId === primaryMaterialId` 遍历选锚，故此条稳定落到**次枚**主合同锚并 applied。
+ * 旧行为（硬取 basis[0].sourceAnchors[0] → locator_not_found）正是本票退役的
+ * 「拿支持材料引语去主合同碰运气」，不再是纪律展示位。
  * 其 blockId '7' 同时演示 md 材料的块寻址（本条引语虽全文唯一，仍按模型忠实
  * 形态声明块位——真模型被要求给出文件+页/块）。
  */

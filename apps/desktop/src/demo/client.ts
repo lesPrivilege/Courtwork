@@ -71,6 +71,17 @@ function assertDemoRequest(ref: WorkSessionRef, requestId: string): ReviewGatePr
   return gate;
 }
 
+/**
+ * demo replay 的固定 metadata（CONTRACT-OUTPUT-TRUTH-1）：S3 固定一件合同原文，S1 无材料。
+ * 这些是 fixture 值，只为让 demo 与 production 的 replay 判别联合**同形**；真实 output
+ * 永远从 grant 案信封读自己的值，绝不消费此处常量。
+ */
+const DEMO_MATERIAL_REFS = {
+  [DEMO_S3_SESSION_ID]: ['04-设备采购合同.md'],
+  [DEMO_S1_SESSION_ID]: [] as string[],
+} as const;
+const DEMO_SESSION_CREATED_AT = '2026-07-10T09:00:00.000Z';
+
 export interface DemoWorkFixture extends DemoWorkFixtureAdapter {
   projection: WorkProjectionPort;
 }
@@ -83,9 +94,15 @@ export function createDemoWorkFixture(options: { replayDelayMs?: number } = {}):
       const recording = assertDemoRef(query);
       const events = recording.filter((event) => event.seq > (query.afterSeq ?? 0));
       return {
+        // demo 录制永远是「找得到」的：found:false 表示宿主确认目标不存在，样板案不构造该态。
+        found: true,
         ref: { caseId: query.caseId, sessionId: query.sessionId },
         phase: phaseFor(recording),
         events,
+        // 固定 fixture metadata，与 production type 同形。**不得被 production output 消费**
+        // ——真实链只认 grant 案自己的信封值。
+        materialRefs: [...DEMO_MATERIAL_REFS[query.sessionId as keyof typeof DEMO_MATERIAL_REFS] ?? []],
+        sessionCreatedAt: DEMO_SESSION_CREATED_AT,
       };
     },
   };

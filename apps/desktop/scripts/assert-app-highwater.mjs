@@ -40,7 +40,11 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // 五枚 state + `produceContractDocx` + demo waiver 效应 + 提交编排），App.tsx 侧只余一次 hook
 // 调用与四个消费点。`contractOutputExists` 有三处与提交无关的渲染消费，留在 App 由回调驱动。
 // 同票收尾再 −2：清掉外提 auto-resume effect 后遗留在 `dispose`/`beginCorrection` 里的两行空白。
-const HIGH_WATER_LINES = 2665;
+// CONTRACT-OUTPUT-TRUTH-1 · O3（2026-07-26）：2665 → 2661。外提物＝`recoverWorkRun` 的**判定**
+// （replay 判别联合 → 恢复动作的分支矩阵，含 typed 失败按 reason 分流的可重试文案）去向
+// `src/work/work-recovery.ts` 的纯函数 `planWorkRecovery` / `readWorkRecovery`；App.tsx 侧只余
+// 「读 pointer → 取 plan → 应用 React 动作」。本票在 App 净增的 typed 失败分流由此抵消并再收紧 4。
+const HIGH_WATER_LINES = 2661;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

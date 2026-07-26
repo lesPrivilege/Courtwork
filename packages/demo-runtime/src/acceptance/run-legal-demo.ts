@@ -369,7 +369,10 @@ export async function runLegalDemo(options: RunLegalDemoOptions = {}): Promise<L
     issueKey: (citation: string) => finalDeps.ledger.issueKey(citation),
     assertAdmissible: (key: string) => assertEvidenceKeyAdmissible(finalDeps.ledger, key),
   };
-  const revisionSet = compileConfirmedRiskListToRevisionInstructions(riskList, '设备采购合同.docx', gatekeeper);
+  // CONTRACT-OUTPUT-TRUTH-1：targetDocument 必须与锚的 fileId **同源**——旧写法传
+  // '设备采购合同.docx'，而全部锚都挂在 S3_PDF_CONTRACT_FILE_ID 上，二者从来对不上。
+  // 新契约按 fileId 选主合同锚，该错配立即暴露；这里改为传真正的主合同件。
+  const revisionSet = compileConfirmedRiskListToRevisionInstructions(riskList, S3_PDF_CONTRACT_FILE_ID, gatekeeper);
   stations.push({
     station: 'compile_revisions',
     detail: {

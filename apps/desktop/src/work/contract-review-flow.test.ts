@@ -88,7 +88,7 @@ async function expectAuthorizationBlocked(events: SessionEvent[]): Promise<void>
   const submitter = createContractReviewSubmitter({
     command: {
       resolveReview: vi.fn(() => Promise.resolve({ status: 'completed' as const, ref: REF })),
-      replay: vi.fn(async () => ({ ref: REF, phase: 'completed' as const, events })),
+      replay: vi.fn(async () => ({ found: true as const, ref: REF, phase: 'completed' as const, events, materialRefs: ['mat-1'], sessionCreatedAt: '2026-07-24T00:00:00.000Z' })),
     },
     mintCommandId: () => 'submission-auth-blocked',
     compile,
@@ -134,7 +134,14 @@ describe('CONTRACT-REVIEW-SAFETY-1 · 显式提交与 outcome/replay 真源', ()
     const compile = vi.fn(async () => {});
     // 泛型形态保住 mock 的参数类型（下方断言 `.mock.calls[0][0]` 依赖它），且不留未使用绑定。
     const resolveReview = vi.fn<LegalS3WorkCommand['resolveReview']>(() => resolved);
-    const replay = vi.fn(async () => ({ ref: REF, phase: 'completed' as const, events: authorizationEvents(latest) }));
+    const replay = vi.fn(async () => ({
+      found: true as const,
+      ref: REF,
+      phase: 'completed' as const,
+      events: authorizationEvents(latest),
+      materialRefs: ['mat-1'],
+      sessionCreatedAt: '2026-07-24T00:00:00.000Z',
+    }));
     const mintCommandId = vi.fn(() => 'submission-1');
     const submitter = createContractReviewSubmitter({
       command: { resolveReview, replay },
@@ -247,9 +254,12 @@ describe('CONTRACT-REVIEW-SAFETY-1 · 显式提交与 outcome/replay 真源', ()
       command: {
         resolveReview: vi.fn(() => Promise.resolve({ status: 'completed' as const, ref: REF })),
         replay: vi.fn(async () => ({
+          found: true as const,
           ref: REF,
           phase: 'paused' as const,
           events: authorizationEvents(list([risk('risk-01', 'confirmed')])),
+          materialRefs: ['mat-1'],
+          sessionCreatedAt: '2026-07-24T00:00:00.000Z',
         })),
       },
       mintCommandId: () => 'submission-phase-drift',
@@ -270,9 +280,12 @@ describe('CONTRACT-REVIEW-SAFETY-1 · 显式提交与 outcome/replay 真源', ()
       command: {
         resolveReview: vi.fn(() => Promise.resolve({ status: 'completed' as const, ref: REF })),
         replay: vi.fn(async () => ({
+          found: true as const,
           ref: { ...REF, sessionId: 'session-other' },
           phase: 'completed' as const,
           events: authorizationEvents(list([risk('risk-01', 'confirmed')])),
+          materialRefs: ['mat-1'],
+          sessionCreatedAt: '2026-07-24T00:00:00.000Z',
         })),
       },
       mintCommandId: () => 'submission-ref-drift',

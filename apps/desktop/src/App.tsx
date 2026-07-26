@@ -23,6 +23,7 @@ import {
 import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
 import { replayWorkProjection } from './protocol/work-replay';
 import { projectRiskListGate } from './work/legal-s3-binding';
+import { planWorkRecovery, readWorkRecovery } from './work/work-recovery';
 import type { LegalS3WorkCommand } from './work/work-command';
 import { clearWorkSession, persistWorkSession, readWorkSession, type WorkSessionRecord } from './work/work-session-store';
 import { projectPersistableCases, readCaseList, writeCaseList } from './case/case-store';
@@ -1274,29 +1275,24 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     const record = readWorkSession(selectedCaseId);
     if (!record) { setRecoverableSession(null); return; }
     const caseId = selectedCaseId;
-    const replay = await workCommand.replay({ caseId, sessionId: record.sessionId }).catch(() => null);
-    if (!replay) { showSystemFeedback('暂时无法读取上次审查进度，请稍后重试', false, 'info'); return; }
-    if (replay.phase === 'failed' && replay.events.length > 0) {
+    const hydrate = (events: SessionEvent[]) => {
       dispatch({ type: '__clear__' });
-      for (const event of replay.events) dispatch(event);
-      setWorkSessionId(record.sessionId); setWorkContractMaterialId(record.contractMaterialId);
+      for (const event of events) dispatch(event);
+      setWorkSessionId(record.sessionId);
+      setWorkContractMaterialId(record.contractMaterialId);
+    };
+    // 判定整体外提到 work/work-recovery.ts；此处只做 React 侧应用动作。
+    const plan = planWorkRecovery(await readWorkRecovery(workCommand.replay, { caseId, sessionId: record.sessionId }));
+    if (plan.kind === 'retryable') { showSystemFeedback(plan.message, false, 'info'); return; }
+    if (plan.kind === 'clear') {
+      clearWorkSession(caseId); setRecoverableSession(null);
+      showSystemFeedback(plan.message, false, 'info'); return;
+    }
+    hydrate(plan.events);
+    if (plan.kind === 'hydrate_failed') {
       setWorkPhase('failed'); setWorkRunning(false); setPreviewOpen(false); setRecoverableSession(null); return;
     }
-    if (replay.phase !== 'paused' || replay.events.length === 0) {
-      clearWorkSession(caseId);
-      setRecoverableSession(null);
-      const message = replay?.phase === 'completed'
-        ? '上次的合同审查已办结，如需重做请重新开始审查'
-        : '未找到可继续的合同审查进度，请重新开始审查';
-      showSystemFeedback(message, false, 'info');
-      return;
-    }
-    // 水合：从干净基态机械回放信封事件（riskList/门禁/证据台账），恢复会话态与冻结的合同原件。
-    dispatch({ type: '__clear__' });
-    for (const event of replay.events) dispatch(event);
-    setWorkSessionId(record.sessionId);
-    setWorkContractMaterialId(record.contractMaterialId);
-    setWorkPhase(replay.phase);
+    setWorkPhase('paused');
   };
 
   // WORK-LIVE-1：grant 案的 live gate 由真实 RiskList + 证据台账派生（projectRiskListGate，绝不复用样板案门禁投影）。

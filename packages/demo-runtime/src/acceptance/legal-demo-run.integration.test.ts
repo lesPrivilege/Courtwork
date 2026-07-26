@@ -42,7 +42,9 @@ describe('LEGAL-DEMO 全链穿越（scripted 档）', () => {
       'risk-05',
     ]);
 
-    // 修订落笔：驳回项不编译；信用查询单引语在合同 docx 里定位失败即跳过（不错插）。
+    // 修订落笔：驳回项不编译。CONTRACT-OUTPUT-TRUTH-1：risk-08 的支持材料锚排在前、主合同锚
+    // 排在后，编译器按 fileId 选主合同锚，故稳定 applied——旧的 locator_not_found 是硬取
+    // basis[0].sourceAnchors[0] 造成的「拿支持材料引语去主合同碰运气」，已随本票退役。
     expect(result.outcomes.map((o) => [o.id, o.status])).toEqual([
       ['instr-risk-01', 'applied'],
       ['instr-risk-02', 'applied'],
@@ -50,7 +52,7 @@ describe('LEGAL-DEMO 全链穿越（scripted 档）', () => {
       ['instr-risk-04', 'applied'],
       ['instr-risk-06', 'applied'],
       ['instr-risk-07', 'applied'],
-      ['instr-risk-08', 'locator_not_found'],
+      ['instr-risk-08', 'applied'],
     ]);
     expect(result.docx.length).toBeGreaterThan(0);
     expect(result.replay.completed).toBe(true);
