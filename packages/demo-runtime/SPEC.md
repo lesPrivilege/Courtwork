@@ -67,3 +67,36 @@ demo/acceptance composition root。迁移后所有 scripted/real S3 与 legal de
 - `crash-inject.mjs`（node + 真实 SIGKILL）：kill -9 崩溃注入验证原子替换恢复窗口。无新依赖。
 
 结论：v1 whole-envelope CAS + 原子替换 + F_FULLFSYNC 足够正确，未触任何阈值，**不需要 snapshot+tail / 手写 WAL**（确认 ADR-010 决定二，非推翻）。对 `src/work/` 与 `src/scenario-executor/` 既有偶然复杂度的扫描提案已列入 `packages/core/SPEC.md` 的 TODO（跨层放入区），本工单只列不删。
+
+## CONTRACT-OUTPUT-TRUTH-1 跨包同步留痕（2026-07-26，架构追认）
+
+`packages/legal` 的 `compileConfirmedRiskListToRevisionInstructions` 在本票取得**主合同同源判据**
+（按 `anchor.fileId === primaryMaterialId` 逐 basis/anchor 选 locator）。契约变化必须同步全部消费者
+（根 `CLAUDE.md` 不变量 5），本包的两条 demo 链因此各改一处——**架构 2026-07-26 追认为不变量 5 的
+正常履行，非越界**。
+
+**为何改**：旧编译器硬取 `basis[0].sourceAnchors[0]`，`targetDocument` 传什么都不影响选锚，于是
+「编译目标」与「锚所在的件」长期对不上也没人发现。新判据一上线，三处不同源立刻暴露。
+
+**改了哪三处**：
+
+| 位置 | 旧状 | 现状 |
+|---|---|---|
+| `acceptance/run-s3-demo.ts` 的 `CASE_FILE` / 编译目标 | CaseFile 写 `04-设备采购合同.md`，materials 实际加载 `sample-sale-contract-v1.docx`，编译目标又传 `04-设备采购合同.docx`——**三者互不相同** | 统一为 `S3_DEMO_PRIMARY_FILE_ID = 'sample-sale-contract-v1.docx'`，materials / 锚 / CaseFile / 编译目标同源 |
+| `acceptance/run-s3-demo.ts` 的处置 | 只处置首项、其余留 `pending`，靠旧编译器「非 rejected 即编译」蒙混过关 | `RISK_DISPOSITIONS` 逐条处置（六项确认 + `risk-07` 驳回），与真实 gate「逐条填满才可续行」同形 |
+| `acceptance/run-legal-demo.ts` 的编译目标 | 传 `设备采购合同.docx`，而全部锚挂在 `S3_PDF_CONTRACT_FILE_ID`（`设备采购合同.pdf`）上 | 传 `S3_PDF_CONTRACT_FILE_ID`，与锚同源 |
+
+**判据坐标**：`docs/decisions/ADR-010-work-live-boundaries.md` 决定五 2026-07-24 修订倒数第二条
+（「Legal 编译器不得固定取 `basis[0].sourceAnchors[0]`……支持锚排在前、主合同锚排在后的 fixture
+必须仍落到主合同」）；`packages/legal/SPEC.md` 同名节。
+
+**由此产生的两处期望值变化**（都是**修真**，不是改题以迁就实现）：
+
+- `run-legal-demo` 的 `instr-risk-08` 由 `locator_not_found` 变为 `applied`。该风险的
+  `basis[0].sourceAnchors[0]` 是信用查询单（支持材料）锚、次枚才是合同锚；旧结果正是 ADR 明令退役的
+  「拿支持材料引语去主合同碰运气」。`packages/legal/src/testing/s3-pdf-dossier-draft.ts` 的文件头注释
+  同批订正——它原先把这个结果描述成「定位失败即跳过」的纪律展示位。
+- `run-s3-demo` 的 `risk-07` 只有支持材料锚，故在处置阶段显式驳回，编译出 6 条指令而非 7 条。
+
+**golden**：`__golden__/s3-assembly.golden.txt` 随 S3 prompt 的主合同纪律重烤；重烤后逐行核 diff，
+只含该两段 prompt 文本，无其他夹带（materials/CaseFile 段未出现在该 golden 的比对面内）。

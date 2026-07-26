@@ -33,7 +33,8 @@ const submission = stripComments(await read('src/work/use-contract-review-submis
 const recovery = stripComments(await read('src/work/work-recovery.ts'));
 // CONTRACT-OUTPUT-TRUTH-1：显式主合同选择/排序/CaseFile 派生的纯函数落点。
 const primaryContract = stripComments(await read('src/work/primary-contract.ts'));
-
+// CONTRACT-OUTPUT-TRUTH-1：唯一 production 交付编排。
+const delivery = stripComments(await read('src/output/contract-review-delivery.ts'));
 const failures = [];
 const requireMatch = (source, pattern, message) => {
   if (!pattern.test(source)) failures.push(message);
@@ -41,6 +42,16 @@ const requireMatch = (source, pattern, message) => {
 const forbidMatch = (source, pattern, message) => {
   if (pattern.test(source)) failures.push(message);
 };
+
+// 提交编排里 demo 与 production 物理分流：只扫 `deliverProductionDocx` **函数体**
+// （demo adapter 与 demo 状态名合法保留 draft 编译器与 waiver 词，扫全文会误伤）。
+const deliverStart = submission.indexOf('const deliverProductionDocx');
+const deliverEnd = submission.indexOf('const submitterRef', deliverStart);
+if (deliverStart < 0 || deliverEnd < 0) {
+  failures.push('use-contract-review-submission：未找到 deliverProductionDocx 函数体，production 扫描面失效');
+}
+const submissionProductionSlice =
+  deliverStart >= 0 && deliverEnd > deliverStart ? submission.slice(deliverStart, deliverEnd) : '';
 
 // ── 零 demo 依赖 / 零 demo 原文回落（work-command.ts + work-runtime.ts）─────────
 const DEMO_FORBIDDEN = [
@@ -119,7 +130,26 @@ requireMatch(
   /material\.mediaType === DOCX_MEDIA_TYPE/,
   '主合同候选判据必须是精确 mediaType（不得按文件名后缀猜）',
 );
-requireMatch(submission, /bindDocxSourceMarkdown\(resolved\.material\)/, 'grant 案 docx 源文必须经 bindDocxSourceMarkdown（会话材料，非 demo 原文）');
+// CONTRACT-OUTPUT-TRUTH-1：ReadingView 重建路径退役。grant 案的 docx 底稿不再是
+// `bindDocxSourceMarkdown` 派生的 Markdown，而是 MaterialStore 一次 snapshot 读回的**原始
+// DOCX bytes**，经唯一 coordinator 交付。本条正向要求随之替换（SPEC 明载「须退役」）。
+requireMatch(submission, /coordinateContractReviewOutput\(/, 'grant 案交付必须经唯一 coordinator');
+requireMatch(submission, /materialStore\.readForOutput\(/, 'grant 案 docx 底稿必须经 readForOutput（一次 snapshot 的原始 bytes）');
+requireMatch(delivery, /compileConfirmedReviewToDocx\(\{[\s\S]*?originalDocx: material\.bytes/, 'coordinator 必须把复验后的原 bytes 直接交编译器');
+
+// production 编排/编译路径零 ReadingView 重建、零 waiver、零旧产物名。
+// 允许通用 draft 编译器与显式 demo adapter 合法消费，故只扫这两个 production 文件。
+const S3_PRODUCTION_FORBIDDEN = [
+  [/compileDraftToDocx/, '不得用 draft 编译器重建原稿（原 bytes 才是底稿）'],
+  [/markdownToDocument/, '不得从 ReadingView Markdown 重建原稿'],
+  [/bindDocxSourceMarkdown/, '不得把 Markdown 当 docx 底稿'],
+  [/confirmedNonApplied/, 'production 不接受逐条 waiver——未落点即整份阻断'],
+  [/合同审查报告/, '旧固定产物名已退役（版本化命名 + no-replace）'],
+  [/overwrite/, 'production 合同审查批注稿一律 no-replace'],
+];
+for (const [label, source] of [['contract-review-delivery', delivery], ['use-contract-review-submission(production 段)', submissionProductionSlice]]) {
+  for (const [pattern, message] of S3_PRODUCTION_FORBIDDEN) forbidMatch(source, pattern, `${label}：${message}`);
+}
 
 // ── WorkState host 精简装配 + Turn 樁仅 DEV/E2E ─────────────────────────────
 requireMatch(runtime, /createInMemoryWorkStateHost/, 'WorkState host = 内存参考实现（真机跨重启待 Tauri host [需架构拍板]）');

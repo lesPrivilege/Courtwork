@@ -4499,7 +4499,57 @@ no-overwrite，窄改只限合同审查批注稿。
 
 #### 提案区 `[需架构拍板]`
 
-- 无。上节「扩白一件」按派单件原文执行，若架构认为 `Panels.tsx` 仍须退回，本条即为撤回坐标。
+- 无。上节「扩白一件」已由架构 2026-07-26 批准并**限定两个面**（`S3LauncherPanel` 外提落位、
+  O8 的生产预览 demo redline 数据面退役）；`goto-source` 的交互回跳一行不动，属 TRACE。
+
+### O7 实现留痕（2026-07-26）
+
+**零消费死支删除（顺带条款要求的 grep 证据）**。删除前在 `e22ddcd` 上重跑：
+
+```
+grep -rn 'useContractReviewOutput' apps packages docs site release \
+  --include='*.ts' --include='*.tsx' --include='*.md' --include='*.mjs'
+```
+
+命中四处，**全部是定义处或文档记述，零 import、零调用、零 re-export**：
+`src/output/compile-review-output.ts:219`（定义）、`apps/desktop/SPEC.md` 三处（本节 G 段与净减段
+的记述）、`docs/architecture/implementation-readiness.md:206`（顺带条款本身）、
+`apps/desktop/ACCEPTANCE.md:4814`（SAFETY 验收对该死支的记录）。删除后 `pnpm -r build` 与
+desktop 全量测试不变绿——「删除不改任何现行行为」由此成立。
+
+**ReadingView 重建路径退役**。`compileConfirmedReviewToDocx` 的输入由 `sourceMarkdown` 改为
+`originalDocx: Uint8Array`；`markdownToDocument` 迁入 `compileDemoConfirmedReviewToDocx` 内部，
+成为**显式 demo adapter** 的私有合成步（先合成 stand-in bytes，再进与 production 同一个编译入口）。
+`bindDocxSourceMarkdown` 在提交编排中的消费点随之清零。
+
+**唯一 coordinator**：`output/contract-review-delivery.ts`。优先级逐条落地为
+scope/replay/pointer 同源 → 严格 UTC → 授权账本一对匹配 → post-revision RiskList →
+**三种正常终态（先于材料与宿主）** → grant binding → 版本化产物名 → exactly-one 材料读 →
+编译 → pre-stat → inspect 到此为止 / deliver 一写 → **任何 write outcome 之后都 post-stat**。
+
+**产物名**：`output/contract-review-file-name.ts` 的纯函数——`persisted createdAt` 的 UTC 字段
++ 完整 `sha256(sessionId)`。零新持久状态，不进 `work-session-store`。
+
+**静态门同步**（`assert-work-live-contracts.mjs`，SPEC 授权面内）：
+- 退役对 `bindDocxSourceMarkdown` 的正向要求，改为「交付必须经 coordinator」+「底稿必须经
+  `readForOutput`」+「coordinator 必须把 `material.bytes` 直接交编译器」三条；
+- 新增 production 禁词组（`compileDraftToDocx` / `markdownToDocument` / `bindDocxSourceMarkdown` /
+  `confirmedNonApplied` / `合同审查报告` / `overwrite`），扫描面为 coordinator 全文与
+  `deliverProductionDocx` **函数体切片**——扫全文会误伤 demo adapter 与 demo 状态名，那是假红。
+
+**本单在 O7 新增了什么概念、为何非加不可**：一个——`coordinateContractReviewOutput`。理由是
+scope 冻结：inspect/deliver 必须在一次同步 snapshot 内捕获 caseId/binding/pointer，而旧编排散在
+React 回调里、`await` 后可重读 selection，这正是「A 案 replay 写进 B 案 grant」的结构性口子。
+它是纯函数式的判别联合返回值，不持状态、不碰 React、不发事件。产物名与 UTC 编码是纯函数，不计概念。
+
+**净减**：`useContractReviewOutput`（91 行死支）、`markdownToDocument` 的 production 消费、
+`compileDraftToDocx` 的 production 消费、`bindDocxSourceMarkdown` 的提交编排消费、固定产物名
+`合同审查报告.docx` 的 production 消费、`overwrite:true` 的合同审查消费。
+
+**红证**：coordinator 六类 mutation 各自触红并复绿——grant 门前移遮蔽正常终态、省略 post-stat
+只凭回执宣称 delivered、pointer 不再与 `materialRefs[0]` 比对、授权不核 label/decision、批注时间
+回退 `new Date()`、inspect 也去写。两枚新静态门另以「塞回 `compileDraftToDocx`」与「塞回旧产物名」
+自证。
 
 ## CONTRACT-TRACE-1 · 真实锚点与完成账本可重开（2026-07-24，架构票）
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { RiskList } from '@courtwork/legal';
 import { preflightDocx } from '@courtwork/reading-view/docx-security';
+import { compileDraftToDocx } from '@courtwork/output';
 import {
   compileConfirmedReviewToDocx,
   compileDemoConfirmedReviewToDocx,
@@ -12,6 +13,18 @@ const PRIMARY_MATERIAL_ID = 'material-primary-contract';
 
 const SOURCE_MD =
   '# 设备采购合同\n\n第四条 验收标准以卖方提供的技术参数为准。\n\n第六条 乙方逾期付款按日计违约金。';
+
+/**
+ * production 编译器现在**直收原始 DOCX bytes**。本测试用 draft 编译器铸一份 stand-in 原件，
+ * 内容与 SOURCE_MD 同源，从而保持既有断言（落点/未落点）的语义不变。
+ * 真实原件保真由 output 包的 `contract-review-fidelity.test.ts` 对复合 fixture 覆盖。
+ */
+const ORIGINAL_DOCX = new Uint8Array(
+  compileDraftToDocx({
+    title: '设备采购合同',
+    paragraphs: ['第四条 验收标准以卖方提供的技术参数为准。', '第六条 乙方逾期付款按日计违约金。'],
+  }),
+);
 
 function riskListWith(risks: RiskList['risks']): RiskList {
   return { caseId: 'case-demo', outOfCoverage: [], risks };
@@ -47,8 +60,7 @@ describe('compileConfirmedReviewToDocx', () => {
         { ...APPLIED_RISK, dispositionStatus: 'confirmed' },
         { ...NON_APPLIED_RISK, id: 'risk-rejected', dispositionStatus: 'rejected' },
       ]),
-      sourceMarkdown: SOURCE_MD,
-      targetFileName: '设备采购合同.docx',
+      originalDocx: ORIGINAL_DOCX,
       primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
@@ -69,8 +81,7 @@ describe('compileConfirmedReviewToDocx', () => {
         { ...APPLIED_RISK, dispositionStatus: 'confirmed' },
         { ...NON_APPLIED_RISK, dispositionStatus: 'confirmed' },
       ]),
-      sourceMarkdown: SOURCE_MD,
-      targetFileName: '设备采购合同.docx',
+      originalDocx: ORIGINAL_DOCX,
       primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
@@ -95,8 +106,7 @@ describe('compileConfirmedReviewToDocx', () => {
         { ...APPLIED_RISK, dispositionStatus: 'confirmed' as const },
         { ...NON_APPLIED_RISK, dispositionStatus: 'confirmed' as const },
       ]),
-      sourceMarkdown: SOURCE_MD,
-      targetFileName: '设备采购合同.docx',
+      originalDocx: ORIGINAL_DOCX,
       primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
@@ -116,8 +126,7 @@ describe('compileConfirmedReviewToDocx', () => {
     const base = {
       riskList: riskListWith([APPLIED_RISK, NON_APPLIED_RISK]),
       dispositions: { 'risk-applied': 'confirmed', 'risk-strayed': 'confirmed' } as const,
-      sourceMarkdown: SOURCE_MD,
-      targetFileName: '设备采购合同.docx',
+      demoSourceMarkdown: SOURCE_MD,
       primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
@@ -139,8 +148,7 @@ describe('compileConfirmedReviewToDocx', () => {
     const base = {
       riskList: riskListWith([APPLIED_RISK, NON_APPLIED_RISK]),
       dispositions: { 'risk-applied': 'confirmed', 'risk-strayed': 'confirmed' } as const,
-      sourceMarkdown: SOURCE_MD,
-      targetFileName: '设备采购合同.docx',
+      demoSourceMarkdown: SOURCE_MD,
       primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
@@ -158,8 +166,7 @@ describe('compileConfirmedReviewToDocx', () => {
         { ...APPLIED_RISK, dispositionStatus: 'confirmed' },
         { ...NON_APPLIED_RISK, dispositionStatus: 'confirmed' },
       ]),
-      sourceMarkdown: SOURCE_MD,
-      targetFileName: '设备采购合同.docx',
+      originalDocx: ORIGINAL_DOCX,
       primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
@@ -175,8 +182,7 @@ describe('compileConfirmedReviewToDocx', () => {
         description: '持久修正后的唯一结论',
         dispositionStatus: 'confirmed',
       }]),
-      sourceMarkdown: SOURCE_MD,
-      targetFileName: '设备采购合同.docx',
+      originalDocx: ORIGINAL_DOCX,
       primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
@@ -199,8 +205,7 @@ describe('compileConfirmedReviewToDocx', () => {
           }],
         }],
       },
-      sourceMarkdown: SOURCE_MD,
-      targetFileName: '设备采购合同.docx',
+      originalDocx: ORIGINAL_DOCX,
       primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
     })).toThrow('仍有待索证项，未生成批注稿');

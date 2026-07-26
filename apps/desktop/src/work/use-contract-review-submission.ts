@@ -6,11 +6,14 @@ import type { CaseBinding } from '../case/case-scope';
 import type { MaterialStore } from '../material/material-store';
 import { caseOutputClient } from '../output/case-output-client';
 import {
-  compileConfirmedReviewToDocx,
   compileDemoConfirmedReviewToDocx,
   type PendingRevisionConfirmation,
 } from '../output/compile-review-output';
-import type { ReviewGateProjection, ScenarioFlow } from '../protocol/client';
+import {
+  coordinateContractReviewOutput,
+  type ContractReviewOutputResult,
+} from '../output/contract-review-delivery';
+import type { ReviewGateProjection, ScenarioFlow, WorkReplayResult } from '../protocol/client';
 import {
   buildSubmittedReviewResolution,
   createContractReviewSubmitter,
@@ -19,7 +22,6 @@ import {
   projectReviewDispositionStates,
   useContractReviewState,
 } from './contract-review-flow';
-import { bindDocxSourceMarkdown } from './legal-s3-binding';
 import type { LegalS3WorkCommand } from './work-command';
 import { workFailureDisplayCopy } from './work-failure-copy';
 
@@ -29,6 +31,13 @@ function readableError(error: unknown, fallback: string): string {
 
 /** demo 卷宗合同原件的固定 fileId：demo 锚全部挂在它上面（与 `demo/legal-interaction.ts` 同源）。 */
 const DEMO_CONTRACT_FILE_ID = '04-设备采购合同.md';
+
+/** 三种**正常**零文书终态的产品语；措辞不得暗示出错，也不得概括成「未发现风险」。 */
+const NOT_APPLICABLE_COPY = {
+  no_risks: '本次审查未形成可提交的风险项',
+  all_rejected: '本次审查的风险均已驳回，未生成批注稿',
+  out_of_coverage: '仍有待索证项，补充材料后可重新开始一次审查',
+} as const;
 
 /** demo fixture 的确认适配面；production 走 `LegalS3WorkCommand`，两条路径物理分流。 */
 export interface ContractReviewFixturePort {
@@ -44,7 +53,7 @@ export interface ContractReviewSubmissionDeps {
   riskList: RiskList | undefined;
   gate: ReviewGateProjection | undefined;
   confirmationRequestId: string | undefined;
-  evidenceGrades: Parameters<typeof compileConfirmedReviewToDocx>[0]['evidenceGrades'];
+  evidenceGrades: Parameters<typeof compileDemoConfirmedReviewToDocx>[0]['evidenceGrades'];
   workSessionId: string | null;
   workContractMaterialId: string | null;
   materialStore: MaterialStore;
@@ -68,6 +77,8 @@ export interface ContractReviewSubmission {
   resultMessage: string | undefined;
   nonAppliedPending: PendingRevisionConfirmation[];
   confirmedNonAppliedIds: string[];
+  /** production 唯一 coordinator 的最近一次结果；未发起过交付时为 undefined。 */
+  deliveryOutcome: ContractReviewOutputResult | undefined;
   canSubmit: boolean;
   submit(): void;
   confirmNonApplied(instructionId: string): void;
@@ -89,6 +100,8 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
   const [resultMessage, setResultMessage] = useState<string>();
   const [nonAppliedPending, setNonAppliedPending] = useState<PendingRevisionConfirmation[]>([]);
   const [confirmedNonAppliedIds, setConfirmedNonAppliedIds] = useState<string[]>([]);
+  /** production 最近一次交付编排的结果；供结果卡与产物名展示，本身不驱动任何 effect。 */
+  const [deliveryOutcome, setDeliveryOutcome] = useState<ContractReviewOutputResult>();
   const recompileGuard = useRef(false);
   const review = useContractReviewState(submitted || submitting);
   const reviewState = review.state;
@@ -107,36 +120,30 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
     setResultMessage(undefined);
     setNonAppliedPending([]);
     setConfirmedNonAppliedIds([]);
+    setDeliveryOutcome(undefined);
     recompileGuard.current = false;
   }, []);
 
-  const produceContractDocx = useCallback(async (
+  /**
+   * demo 分支：仍走 Markdown 合成 + 固定产物名 + 覆盖写。**production 已完全离开这条路**——
+   * 见下方 `deliverProductionDocx`，它把 replay 交给唯一 coordinator。
+   */
+  const produceDemoDocx = useCallback(async (
     persistedRiskList: RiskList,
     confirmedNonApplied?: string[],
   ) => {
-    if (caseBinding.kind === 'unbound') throw new Error('本案尚未绑定可写入的案件目录');
-    let sourceMarkdown = demoSourceMarkdown;
-    let targetFileName = '04-设备采购合同.docx';
-    // demo 卷宗的锚一律挂在这枚固定 fileId 上；grant 案取会话冻结的显式主合同 materialId。
-    let primaryMaterialId = DEMO_CONTRACT_FILE_ID;
-    if (caseBinding.kind === 'grant') {
-      if (!selectedCaseId || !workContractMaterialId) throw new Error('尚未选定可编译的合同原件');
-      const resolved = await materialStore.resolveForProvider(selectedCaseId, workContractMaterialId);
-      if (resolved.status !== 'ready') throw new Error('合同原件复验未通过，未能编译文书');
-      sourceMarkdown = bindDocxSourceMarkdown(resolved.material);
-      targetFileName = resolved.material.fileName;
-      primaryMaterialId = resolved.material.materialId;
-    }
-    const shared = { riskList: persistedRiskList, sourceMarkdown, targetFileName, primaryMaterialId, evidenceGrades };
-    const result = caseBinding.kind === 'demo'
-      ? compileDemoConfirmedReviewToDocx({ ...shared, dispositions: projectReviewDispositionStates(reviewState), confirmedNonApplied })
-      : compileConfirmedReviewToDocx(shared);
+    if (caseBinding.kind !== 'demo') throw new Error('本案尚未绑定可写入的案件目录');
+    const result = compileDemoConfirmedReviewToDocx({
+      riskList: persistedRiskList,
+      demoSourceMarkdown,
+      primaryMaterialId: DEMO_CONTRACT_FILE_ID,
+      evidenceGrades,
+      dispositions: projectReviewDispositionStates(reviewState),
+      confirmedNonApplied,
+    });
     if (result.status === 'needs_confirmation') {
       recompileGuard.current = false;
       setNonAppliedPending(result.pending);
-      if (caseBinding.kind === 'grant') {
-        setResultMessage('已确认风险中有条目未能唯一落到主合同；整份批注稿未生成');
-      }
       return;
     }
     await caseOutputClient.writeDocx(caseBinding, outputFileName, result.docx);
@@ -147,8 +154,53 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
     onOutputExists(true);
     showSystemFeedback(`已写入本案「产出」目录：${outputFileName}`, true);
   }, [
-    caseBinding, demoSourceMarkdown, evidenceGrades, materialStore, onOutputExists,
-    outputFileName, reviewState, selectedCaseId, showSystemFeedback, workContractMaterialId,
+    caseBinding, demoSourceMarkdown, evidenceGrades, onOutputExists,
+    outputFileName, reviewState, showSystemFeedback,
+  ]);
+
+  /**
+   * production 交付：scope 在**调用时刻**同步冻结，交给唯一 coordinator。
+   * await 之后不再重读 selection/binding——那正是「A 案 replay 写进 B 案 grant」的口子。
+   */
+  const deliverProductionDocx = useCallback(async (replay: Extract<WorkReplayResult, { found: true }>) => {
+    if (caseBinding.kind !== 'grant' || !selectedCaseId || !workSessionId || !workContractMaterialId) {
+      setResultMessage('本次审查缺少可交付的主合同，未生成批注稿');
+      return;
+    }
+    const scope = {
+      caseId: selectedCaseId,
+      binding: caseBinding,
+      pointer: { sessionId: workSessionId, contractMaterialId: workContractMaterialId },
+    };
+    const outcome = await coordinateContractReviewOutput(
+      { mode: 'deliver', replay, scope },
+      {
+        readMaterial: (caseId, materialId) => materialStore.readForOutput(caseId, materialId),
+        statDocx: (binding, fileName) => caseOutputClient.statDocx(binding, fileName),
+        writeDocxNoReplace: (binding, fileName, bytes) =>
+          caseOutputClient.writeDocxNoReplace(binding, fileName, bytes),
+      },
+    );
+    setDeliveryOutcome(outcome);
+    if (outcome.status === 'delivered' || outcome.status === 'already_present') {
+      setNonAppliedPending([]);
+      onOutputExists(true);
+      showSystemFeedback(`已写入本案「产出」目录：${outcome.fileName}`, true);
+      return;
+    }
+    onOutputExists(false);
+    if (outcome.status === 'blocked') {
+      // production 不接受逐条 waiver：未落点即整份阻断，只呈现清单，不给「确认知悉后跳过」。
+      setNonAppliedPending([]);
+      setResultMessage(outcome.message);
+      return;
+    }
+    if (outcome.status === 'not_applicable') {
+      setResultMessage(NOT_APPLICABLE_COPY[outcome.reason]);
+    }
+  }, [
+    caseBinding, materialStore, onOutputExists, selectedCaseId, showSystemFeedback,
+    workContractMaterialId, workSessionId,
   ]);
 
   /**
@@ -157,8 +209,8 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
    * 故住 `useRef`，只在首次渲染铸一次；per-submit 的可变量全部由 `submit()` 现取。
    */
   const submitterRef = useRef<ReturnType<typeof createContractReviewSubmitter> | undefined>(undefined);
-  const produceRef = useRef(produceContractDocx);
-  produceRef.current = produceContractDocx;
+  const deliverRef = useRef(deliverProductionDocx);
+  deliverRef.current = deliverProductionDocx;
   const commandRef = useRef(workCommand);
   commandRef.current = workCommand;
   if (!submitterRef.current) {
@@ -168,7 +220,10 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
         replay: (ref) => commandRef.current.replay(ref),
       },
       mintCommandId: () => `resolve-${globalThis.crypto.randomUUID()}`,
-      compile: (persistedRiskList) => produceRef.current(persistedRiskList),
+      // CONTRACT-OUTPUT-TRUTH-1：production 的产物交付整体移交唯一 coordinator，
+      // 由本 hook 在 completed 之后以冻结 scope 发起。SAFETY 的分流判据（review.kind）原样保留，
+      // 只是不再由这个回调直接落盘——回调此处不做任何 effect。
+      compile: () => {},
     });
   }
 
@@ -184,7 +239,7 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
     recompileGuard.current = true;
     void (async () => {
       try {
-        await produceContractDocx(projectDemoReviewRiskList(riskList, reviewState), confirmedNonAppliedIds);
+        await produceDemoDocx(projectDemoReviewRiskList(riskList, reviewState), confirmedNonAppliedIds);
       } catch (error) {
         recompileGuard.current = false;
         onOutputExists(false);
@@ -193,7 +248,7 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
     })();
   }, [
     confirmedNonAppliedIds, isDemoCase, nonAppliedPending, onOutputExists,
-    produceContractDocx, reviewState, riskList, showSystemFeedback,
+    produceDemoDocx, reviewState, riskList, showSystemFeedback,
   ]);
 
   const canSubmit = Boolean(gate && isReviewSubmissionReady(gate.items, reviewState));
@@ -215,7 +270,7 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
       void workFixture.review.resolve({ ...ref, requestId: confirmationRequestId, resolution })
         .then(async () => {
           setSubmitted(true);
-          await produceContractDocx(projectDemoReviewRiskList(riskList, reviewState));
+          await produceDemoDocx(projectDemoReviewRiskList(riskList, reviewState));
         })
         .catch((error: unknown) => {
           onOutputExists(false);
@@ -248,7 +303,17 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
       if (result.review.kind !== 'compile') {
         setResultMessage(result.review.message);
         showSystemFeedback(result.review.message, true);
+        return;
       }
+      // completed 且账本判定可编译：以**当前**冻结 scope 重读 replay 交 coordinator。
+      // 重读的是持久账本（不是材料），coordinator 会把 ref/pointer/授权全部再验一遍。
+      return commandRef.current.replay(result.outcome.ref).then((replay) => {
+        if (!replay.found) {
+          setResultMessage('未能从本案账本读出本次审查记录，未生成批注稿');
+          return;
+        }
+        return deliverRef.current(replay);
+      });
     }).catch((error: unknown) => {
       onOutputExists(false);
       showSystemFeedback(readableError(error, '合同审查提交失败，未生成批注稿'), false);
@@ -262,6 +327,7 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
     resultMessage,
     nonAppliedPending,
     confirmedNonAppliedIds,
+    deliveryOutcome,
     canSubmit,
     submit,
     confirmNonApplied: (instructionId: string) =>

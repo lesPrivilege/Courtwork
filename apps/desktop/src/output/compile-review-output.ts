@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   compileConfirmedRiskListToRevisionInstructions,
   type RiskList,
@@ -11,10 +10,6 @@ import {
   type InstructionOutcome,
 } from '@courtwork/output';
 import type { ReviewDispositionState } from '../protocol/client';
-import type { CaseBinding } from '../case/case-scope';
-import type { MaterialStore } from '../material/material-store';
-import { bindDocxSourceMarkdown } from '../work/legal-s3-binding';
-import { caseOutputClient } from './case-output-client';
 
 interface EvidenceGradeRecord {
   key: string;
@@ -53,12 +48,15 @@ export type CompileConfirmedReviewOutcome =
 
 interface CompileReviewBaseInput {
   riskList: RiskList;
-  sourceMarkdown: string;
-  targetFileName: string;
+  /**
+   * **原始 DOCX bytes**。CONTRACT-OUTPUT-TRUTH-1：批注稿以原件为底稿，不是从 ReadingView
+   * Markdown 重建的新文档——重建会丢掉表格、图片、样式、页眉页脚与既有批注，却看起来像
+   * 「保真修订」。demo 若仍需 Markdown 合成，只能在显式 demo adapter 内先合成 bytes 再进本入口。
+   */
+  originalDocx: Uint8Array;
   /**
    * 显式主合同 materialId。既是 `targetDocument.fileId`，也是选择 locator 锚的唯一判据——
    * 支持材料锚仍进 citation，但绝不能成为主合同文本定位（ADR-010 决定五 2026-07-24 修订）。
-   * 与 `targetFileName` 分开：文件名是展示，materialId 才是同源判据。
    */
   primaryMaterialId: string;
   evidenceGrades: readonly EvidenceGradeRecord[];
@@ -69,7 +67,10 @@ interface CompileReviewBaseInput {
 export type CompileConfirmedReviewInput = CompileReviewBaseInput;
 
 /** 显式 demo 的旧确认策略；不得用于 production grant 案。 */
-export interface CompileDemoConfirmedReviewInput extends CompileReviewBaseInput {
+export interface CompileDemoConfirmedReviewInput
+  extends Omit<CompileReviewBaseInput, 'originalDocx'> {
+  /** demo 专属：从 Markdown 合成一份 stand-in 原件。production 结构上没有这个字段。 */
+  demoSourceMarkdown: string;
   dispositions: Readonly<Record<string, ReviewDispositionState>>;
   /**
    * 用户已逐条确认、允许在缺此落点的情况下继续交付的未应用修订 id。
@@ -85,16 +86,6 @@ const REASON_BY_STATUS: Partial<Record<InstructionOutcome['status'], NonAppliedR
   locator_text_mismatch: 'text_changed',
   unsupported_locator: 'unsupported',
 };
-
-function markdownToDocument(sourceMarkdown: string) {
-  const lines = sourceMarkdown
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => line.replace(/^#{1,6}\s*/, '').replace(/\*\*/g, ''));
-  const [title = '合同', ...paragraphs] = lines;
-  return { title, paragraphs };
-}
 
 /**
  * 把一条未落点 outcome 翻译为面向用户的待确认项。已确认风险清单是唯一事实源：
@@ -120,8 +111,8 @@ function describeNonApplied(
 }
 
 /**
- * desktop 的 S3 装配点：与 LEGAL-DEMO-RUN 共用
- * RiskList → RevisionInstructionSet → output.applyRevisionInstructionSet。
+ * desktop 的 S3 装配点：RiskList → RevisionInstructionSet → output.applyRevisionInstructionSet，
+ * 底稿是传入的**原始 DOCX bytes**。
  *
  * 落盘门禁（OUTPUT-CORRECTNESS #6）产品侧：未落点修订不再只是一句可见报错。首次编译遇未落点项
  * 返回 `needs_confirmation` 逐条交用户处置；用户逐条确认后经 `confirmedNonApplied` 重编译落盘，
@@ -143,7 +134,6 @@ function compileRiskListToDocx(
     },
   };
 
-  const originalDocx = compileDraftToDocx(markdownToDocument(input.sourceMarkdown));
   const revisionSet = compileConfirmedRiskListToRevisionInstructions(
     confirmedRiskList,
     input.primaryMaterialId,
@@ -151,7 +141,7 @@ function compileRiskListToDocx(
   );
 
   try {
-    const result = applyRevisionInstructionSet(originalDocx, revisionSet, {
+    const result = applyRevisionInstructionSet(input.originalDocx, revisionSet, {
       now: input.now,
       onNonApplied: confirmedNonApplied ? 'confirm' : 'block',
       confirmNonApplied: confirmedNonApplied,
@@ -182,6 +172,20 @@ export function compileConfirmedReviewToDocx(
   return compileRiskListToDocx(input, confirmedRiskList);
 }
 
+/**
+ * 显式 demo adapter：Markdown → stand-in docx bytes，再进与 production **同一个**编译入口。
+ * 这里是 `compileDraftToDocx` 在合同审查语境下唯一合法的消费点；production 路径由静态门锁死。
+ */
+function demoOriginalDocx(sourceMarkdown: string): Uint8Array {
+  const lines = sourceMarkdown
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.replace(/^#{1,6}\s*/, '').replace(/\*\*/g, ''));
+  const [title = '合同', ...paragraphs] = lines;
+  return new Uint8Array(compileDraftToDocx({ title, paragraphs }));
+}
+
 export function compileDemoConfirmedReviewToDocx(
   input: CompileDemoConfirmedReviewInput,
 ): CompileConfirmedReviewOutcome {
@@ -194,99 +198,9 @@ export function compileDemoConfirmedReviewToDocx(
   if (confirmedRiskList.risks.length === 0) {
     throw new Error('没有已确认的风险项，未生成 Word 产物');
   }
-  return compileRiskListToDocx(input, confirmedRiskList, input.confirmedNonApplied);
-}
-
-interface ContractReviewOutputOptions {
-  caseBinding: CaseBinding;
-  caseId: string | null;
-  contractMaterialId: string | null;
-  materialStore: MaterialStore;
-  evidenceGrades: readonly EvidenceGradeRecord[];
-  demoSourceMarkdown: string;
-  demoRiskList?: RiskList;
-  demoDispositions: Readonly<Record<string, ReviewDispositionState>>;
-  outputFileName: string;
-  onWritten: () => void;
-  onBlocked: (message: string) => void;
-  onError: (error: unknown) => void;
-}
-
-/**
- * Desktop output coordinator：production 只收 replay 后清单并永不消费 waiver；
- * demo 的未落点确认状态与自动重编译物理留在 demo 分支。
- */
-export function useContractReviewOutput(options: ContractReviewOutputOptions) {
-  const [pending, setPending] = useState<PendingRevisionConfirmation[]>([]);
-  const [confirmedIds, setConfirmedIds] = useState<string[]>([]);
-  const recompileGuard = useRef(false);
-  const produce = useCallback(async (riskList: RiskList, demoConfirmedIds?: readonly string[]) => {
-    const {
-      caseBinding,
-      caseId,
-      contractMaterialId,
-      materialStore,
-      evidenceGrades,
-      demoSourceMarkdown,
-      demoDispositions,
-      outputFileName,
-    } = options;
-    if (caseBinding.kind === 'unbound') throw new Error('本案尚未绑定可写入的案件目录');
-    let sourceMarkdown = demoSourceMarkdown;
-    let targetFileName = '04-设备采购合同.docx';
-    let primaryMaterialId = '04-设备采购合同.md';
-    if (caseBinding.kind === 'grant') {
-      if (!caseId || !contractMaterialId) throw new Error('尚未选定可编译的合同原件');
-      const resolved = await materialStore.resolveForProvider(caseId, contractMaterialId);
-      if (resolved.status !== 'ready') throw new Error('合同原件复验未通过，未能编译文书');
-      sourceMarkdown = bindDocxSourceMarkdown(resolved.material);
-      targetFileName = resolved.material.fileName;
-      primaryMaterialId = resolved.material.materialId;
-    }
-    const shared = { riskList, sourceMarkdown, targetFileName, primaryMaterialId, evidenceGrades };
-    const result = caseBinding.kind === 'demo'
-      ? compileDemoConfirmedReviewToDocx({
-          ...shared,
-          dispositions: demoDispositions,
-          confirmedNonApplied: demoConfirmedIds,
-        })
-      : compileConfirmedReviewToDocx(shared);
-    if (result.status === 'needs_confirmation') {
-      recompileGuard.current = false;
-      setPending(result.pending);
-      if (caseBinding.kind === 'grant') {
-        options.onBlocked('已确认风险中有条目未能唯一落到主合同；整份批注稿未生成');
-      }
-      return result;
-    }
-    await caseOutputClient.writeDocx(caseBinding, outputFileName, result.docx);
-    if (!await caseOutputClient.exists(caseBinding, outputFileName)) {
-      throw new Error('Word 产物写入后未能在案件产出目录确认');
-    }
-    setPending([]);
-    setConfirmedIds([]);
-    options.onWritten();
-    return result;
-  }, [options]);
-  const reset = useCallback(() => {
-    recompileGuard.current = false;
-    setPending([]);
-    setConfirmedIds([]);
-  }, []);
-  const cancel = reset;
-  const confirm = useCallback((instructionId: string) => {
-    setConfirmedIds((current) => current.includes(instructionId) ? current : [...current, instructionId]);
-  }, []);
-
-  useEffect(() => {
-    if (options.caseBinding.kind !== 'demo' || !options.demoRiskList || pending.length === 0) return;
-    if (!pending.every((item) => confirmedIds.includes(item.instructionId)) || recompileGuard.current) return;
-    recompileGuard.current = true;
-    void produce(options.demoRiskList, confirmedIds).catch((error: unknown) => {
-      recompileGuard.current = false;
-      options.onError(error);
-    });
-  }, [confirmedIds, options, pending, produce]);
-
-  return { pending, confirmedIds, confirm, cancel, reset, produce };
+  return compileRiskListToDocx(
+    { ...input, originalDocx: demoOriginalDocx(input.demoSourceMarkdown) },
+    confirmedRiskList,
+    input.confirmedNonApplied,
+  );
 }
