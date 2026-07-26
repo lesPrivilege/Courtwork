@@ -4,7 +4,8 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const PM_FINDING_ID = 'prd-finding-05';
-const PM_CATALOG_LABEL = 'Schema catalog preview / 尚未接通运行链';
+// N2 文案批：英文工程标注退出用户句面，边界句改中文产品语言（逐字锁仍在，只是锁的字面随裁定更新）。
+const PM_CATALOG_LABEL = '结构投影 · 未接通运行链';
 const PM_FIXTURE_FILES = [
   'artifacts/feedback-digest.json',
   'artifacts/prd-review.json',

@@ -56,7 +56,7 @@
   <main id="main">
     <section class="hero" id="top">
       <div class="hero-copy">
-        <p class="eyebrow">案件级 AI 工作台</p>
+        <p class="eyebrow">案件工作台 · 本地运行</p>
         <h1 class="zh-title" aria-label="模型只生成，不裁决。"><span class="typer" aria-hidden="true"><span class="tc" style="--i:0">模</span><span class="tc" style="--i:1">型</span><span class="tc" style="--i:2">只</span><span class="tc" style="--i:3">生</span><span class="tc" style="--i:4">成</span><span class="tc" style="--i:5">，</span><br><span class="tc" style="--i:6">不</span><span class="tc" style="--i:7">裁</span><span class="tc" style="--i:8">决</span><span class="tc" style="--i:9">。</span></span></h1>
         <p class="hero-lead zh-doc">把卷宗装进案件，把每条结论钉回原文，把最后一个确认留给人。</p>
         <div class="hero-actions">
@@ -64,6 +64,7 @@
           <a class="button button-secondary" href="https://github.com/lesPrivilege/Courtwork">查看 GitHub 源码</a>
         </div>
         <p class="release-fact publication-colophon" id="release-colophon"><span>刊记 · v0.1.2 · Apple Silicon</span><span>开发构建 · ad-hoc 签名 · 未公证</span><code data-release-sha>f4af2a44248c7d7af970c8486ccaf7c8d72107565c4d824ce9cb8d69578de83d</code></p>
+        <p class="page-disclaimer">本页演示与数字来自同一份合成卷宗的试点运行；试点跑通不等于产品全面上线。</p>
       </div>
       <figure class="mac-window hero-window">
         <figcaption class="mac-bar"><span class="traffic" aria-hidden="true"><i></i><i></i><i></i></span><span>schema 工作面 · 微演示重建 · 合成数据试点</span><span aria-hidden="true"></span></figcaption>
@@ -80,7 +81,7 @@
               <p class="demo-actions"><span>确认此项</span><span>驳回</span><span>修正</span></p>
             </div>
             <div class="demo-compare">
-              <p class="demo-meta">修订建议 · 未落格，逐条确认后才生成产物</p>
+              <p class="demo-meta">修订建议 · 逐条确认后才生成产物</p>
               <p class="demo-suggestion zh-doc">改为双向、封顶并与实际损失挂钩。</p>
             </div>
           </section>
@@ -95,9 +96,9 @@
 
     <section class="evidence" id="evidence">
       <header class="section-heading">
-        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷一 · 一条结论如何产生</p>
-        <h2 class="zh-title">从原件到确认，<br>每一步都能回去。</h2>
-        <p class="section-body zh-doc">以下四步来自同一份合成卷宗的真实应用链；链路已在试点中跑通，但不等同于产品已全面上线。</p>
+        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷一 · 证据链</p>
+        <h2 class="zh-title">一条结论的来路：<br>原件、引语、风险、确认。</h2>
+        <p class="section-body zh-doc">以下四步来自同一份合成卷宗的试点运行。</p>
       </header>
       <ol class="evidence-chain" aria-label="原件到人工确认的证据链">
         <li class="evidence-step" data-stage="original">
@@ -121,7 +122,7 @@
         <li class="evidence-step" data-stage="confirmation">
           <span class="stage-label">人工确认</span>
           <h3 class="zh-title">最后一笔留给人</h3>
-          <p class="evidence-body zh-doc">模型不能替你落格。确认、驳回或修正都会留下可回放记录；未落格修订逐条确认后才生成产物。</p>
+          <p class="evidence-body zh-doc">模型不能替你定稿。确认、驳回或修正都会留下可回放记录；修订逐条确认后才生成产物。</p>
           <small>待确认 · 不自动送出</small>
         </li>
       </ol>
@@ -130,8 +131,8 @@
     <section class="work-ledger" aria-labelledby="work-title">
       <header class="section-heading">
         <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷二 · 真实工作面</p>
-        <h2 id="work-title" class="zh-title">不是三个功能，<br>是一条连续台账。</h2>
-        <p class="section-body zh-doc">本卷证据来自同一份合成卷宗；链路已在试点中跑通，但不等同于产品已全面上线。</p>
+        <h2 id="work-title" class="zh-title">对话、确认与修订，<br>记在同一份台账上。</h2>
+        <p class="section-body zh-doc">本卷证据与卷一同源。</p>
       </header>
       <article class="work-row">
         <div class="work-copy"><span>对话</span><h3 class="zh-title">从模型到条款</h3><p class="work-body zh-doc">条文、任务、引文、修订与结构在同一回中可读；危险项只为文本。</p></div>
@@ -142,7 +143,7 @@
         <figure class="work-crop" data-reveal><img src="assets/screenshots/12-milestone-risklist-1440.webp" srcset="assets/screenshots/12-milestone-risklist-720.webp 720w, assets/screenshots/12-milestone-risklist-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 合成数据试点的 RiskList：风险逐条确认后保留状态、依据和下一步。"><figcaption>分级确认与引语回跳同时可见。</figcaption></figure>
       </article>
       <article class="work-row">
-        <div class="work-copy"><span>修订</span><h3 class="zh-title">从建议到可审阅改动</h3><p class="work-body zh-doc">修订只写受控副本；redline、非落点说明与确认台账连在一起，未落格不能静默生成产物。</p></div>
+        <div class="work-copy"><span>修订</span><h3 class="zh-title">从建议到可审阅改动</h3><p class="work-body zh-doc">修订只写受控副本；redline、非落点说明与确认台账连在一起，未经确认不能静默生成产物。</p></div>
         <figure class="work-crop" data-reveal><img src="assets/screenshots/13-milestone-redline-1440.webp" srcset="assets/screenshots/13-milestone-redline-720.webp 720w, assets/screenshots/13-milestone-redline-1440.webp 1440w" sizes="(max-width: 760px) calc(100vw - 48px), 960px" width="1440" height="900" loading="lazy" alt="Courtwork 合成数据试点的修订预览：原文删改与新增建议同屏显示，仍保留逐项确认。"><figcaption>修订先对照，再进入确认。</figcaption></figure>
       </article>
     </section>
@@ -151,16 +152,16 @@
 
     <section class="scenario-ledger" id="scenarios" data-site-generalization aria-labelledby="scenarios-title">
       <header class="section-heading">
-        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷三 · 垂类泛化</p>
-        <h2 id="scenarios-title" class="zh-title">同一底座，<br>换的是判断。</h2>
-        <p class="section-body zh-doc">隐私与原件只读是进入门槛；这里把差异放在锚点、分级确认与可回放台账。证据、状态和人工确认仍由同一套宿主原语承载。</p>
+        <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷三 · 底座与契约</p>
+        <h2 id="scenarios-title" class="zh-title">底座只有机制，<br>行业装在契约包里。</h2>
+        <p class="section-body zh-doc">Courtwork 的核心引擎不含一行法律逻辑。锚点解析、逐条确认、修订台账、运行预算——引擎只提供机制；行业知识以契约包进入：一份包声明自己的字段、词表、场景与渲染，装进同一个宿主，不带来任何新的执行能力。这条边界不靠自觉：法律语义一旦出现在引擎层，构建直接失败。当期成形的行业包只有法律一份，项目管理包尚在结构投影，下表如实标注。</p>
       </header>
       <div class="scenario-rows">
         <article class="scenario-row" data-runtime-state="accepted">
           <div class="scenario-copy">
             <span class="scenario-kicker">合同审查 · <b>合成数据试点 · 已验收工作链</b></span>
             <h3 class="zh-title">判断条款风险</h3>
-            <p class="scenario-body zh-doc">真实模型场景已在合成数据试点中跑通原句→风险→修订→人工确认全链；这不是产品已全面上线的承诺。</p>
+            <p class="scenario-body zh-doc">原句、风险、修订到人工确认的全链，已在合成数据试点跑通。</p>
           </div>
           <ol class="scenario-proof" aria-label="合同审查从原句到人工确认">
             <li><small>原句</small><p>逐字锚定</p></li>
@@ -171,7 +172,7 @@
         </article>
         <article class="scenario-row">
           <div class="scenario-copy">
-            <span class="scenario-kicker">卷宗阅卷 · <b>Legal fixture 投影</b></span>
+            <span class="scenario-kicker">卷宗阅卷 · <b>合成卷宗投影</b></span>
             <h3 class="zh-title">判断事实关系</h3>
             <p class="scenario-body zh-doc">材料数量、事件、主体与矛盾标记都从同一份虚构卷宗计算，不用营销数字补齐场面。</p>
           </div>
@@ -186,8 +187,8 @@
           <div class="scenario-copy">
             <span class="scenario-kicker">PM 决策</span>
             <h3 class="zh-title">判断需求缺陷</h3>
-            <p class="scenario-body zh-doc">同一个宿主读取 PM 的字段、词表和来源锚；当前只证明 schema 投影，不冒充已运行场景。</p>
-            <small class="scenario-boundary">Schema catalog preview / 尚未接通运行链</small>
+            <p class="scenario-body zh-doc">同一个宿主读取 PM 的字段、词表和来源锚；当前只到结构投影，未接通运行链。</p>
+            <small class="scenario-boundary">结构投影 · 未接通运行链</small>
           </div>
           <ol class="scenario-proof" aria-label="PM 需求评审从原句到人工处置">
             <li><small>PRD 原句</small><div class="ruled"><svg class="mark mark-rule" aria-hidden="true"><use href="#mark-rule"/></svg><blockquote class="zh-doc" data-pm-clause>所有成员都能编辑路线图，但路线图只有负责人可以修改。</blockquote></div></li>
@@ -200,11 +201,11 @@
     </section>
 
     <section class="promise" id="promise">
-      <header class="section-heading promise-heading"><p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷四 · 产品边界</p><h2 class="zh-title">有些事，<span class="latin-manuscript">Courtwork</span> 不做。</h2><svg class="settle-seal zh-display" viewBox="0 0 96 96" aria-hidden="true"><use href="#mark-seal-frame"/><text x="27" y="40">不</text><text x="69" y="40">改</text><text x="27" y="82">原</text><text x="69" y="82">件</text></svg></header>
+      <header class="section-heading promise-heading"><p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷四 · 产品边界</p><h2 class="zh-title">设计上不做的四件事。</h2><svg class="settle-seal zh-display" viewBox="0 0 96 96" aria-hidden="true"><use href="#mark-seal-frame"/><text x="27" y="40">不</text><text x="69" y="40">改</text><text x="27" y="82">原</text><text x="69" y="82">件</text></svg></header>
       <dl class="promise-ledger">
         <div><dt class="zh-display">不改原件</dt><dd>卷宗原件只读，整理与修订落在受控副本和事件记录。</dd></div>
         <div><dt class="zh-display">不自动送出</dt><dd>不可逆动作不会因模型输出而发生。</dd></div>
-        <div><dt class="zh-display">不把无锚引语落格</dt><dd>找不到原文坐标，就明确留在覆盖范围之外。</dd></div>
+        <div><dt class="zh-display">无锚引语不进结论</dt><dd>找不到原文坐标，就明确留在覆盖范围之外。</dd></div>
         <div><dt class="zh-display">不替你确认</dt><dd>确认、驳回和修正必须来自可识别的人类操作者。</dd></div>
       </dl>
       <aside class="design-boundary site-marginalia" aria-label="设计边界">
@@ -217,7 +218,7 @@
     <section class="facts" id="facts" aria-labelledby="facts-title">
       <header class="section-heading">
         <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷五 · 发布事实</p>
-        <h2 id="facts-title" class="zh-title">口说无凭，<br>立字为据。</h2>
+        <h2 id="facts-title" class="zh-title">发布事实，逐项可核验。</h2>
       </header>
       <dl class="fact-ledger">
         <div>
@@ -242,7 +243,7 @@
     <section class="faq" id="faq" aria-labelledby="faq-title">
       <header class="section-heading">
         <p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷六 · 有问有答</p>
-        <h2 id="faq-title" class="zh-title">常问六则，<br>照实作答。</h2>
+        <h2 id="faq-title" class="zh-title">问得最多的六件事。</h2>
       </header>
       <dl class="faq-ledger">
         <div>
@@ -251,7 +252,7 @@
         </div>
         <div>
           <dt class="zh-title">合同审查这条链，现在走到哪一步？</dt>
-          <dd>在合成数据试点里，从原句锚定、风险分级、修订写入受控副本，到逐条人工确认、写出 Word 文件，这条链已经走通；主合同的显式选择、原稿字节保真、历史产物不被覆盖等收束项还在进行。链路已在试点中跑通，但不等同于产品已全面上线。</dd>
+          <dd>在合成数据试点里，从原句锚定、风险分级、修订写入受控副本，到逐条人工确认、写出 Word 文件，这条链已经走通；主合同的显式选择、原稿字节保真、历史产物不被覆盖等收束项还在进行。</dd>
         </div>
         <div>
           <dt class="zh-title">产出的 Word 文件，经过 Word/WPS 全矩阵验证了吗？</dt>
@@ -275,6 +276,6 @@
     <section class="closing"><div><p class="eyebrow"><svg class="mark mark-fishtail" aria-hidden="true"><use href="#mark-fishtail"/></svg>卷尾 · <span class="latin-manuscript">Courtwork</span></p><h2 class="zh-title">签字之前，<br>一切可回溯。</h2></div><div class="closing-actions"><a class="button button-primary" href="https://github.com/lesPrivilege/Courtwork/releases/download/v0.1.2/Courtwork_0.1.2_aarch64.dmg">下载 macOS 版</a><span class="release-pending">Apple Silicon 开发构建 · 未公证</span></div></section>
   </main>
 
-  <footer><p class="footer-body zh-doc">Courtwork 会犯错，请核对原文与结果。</p><p class="footer-body zh-doc"><a href="https://github.com/lesPrivilege/Courtwork/issues">提交反馈</a> · <span class="mono">本地运行 · 人工确认</span></p></footer>
+  <footer><p class="footer-body zh-doc">Courtwork 会犯错，请核对原文与结果。</p><p class="footer-body zh-doc"><a href="https://github.com/lesPrivilege/Courtwork/issues">提交反馈</a> · <span class="mono">人工确认 · 可回放台账</span></p></footer>
 </body>
 </html>

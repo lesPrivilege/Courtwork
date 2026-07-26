@@ -41,7 +41,9 @@
   unicode-range: U+0024-0025, U+0028-0029, U+002B-003E, U+007E;
 }
 /* SKIN-R2-P5 · 写本拉丁表达轨。Junicode 2.226 只取 Courtwork 七个码位；
-   四处获准消费由 p5-font-coverage 门封口，绝不扩成正文、UI 或数据字槽。 */
+   获准消费由 p5-font-coverage 门封口，绝不扩成正文、UI 或数据字槽。
+   N2 文案批：卷四主句去品牌字样后，`.promise-heading h2 .latin-manuscript` 一枚退役，
+   现为三处（页首 wordmark、卷尾眉、og 卡）。 */
 @font-face {
   font-family: "Courtwork Manuscript Latin";
   src: url(assets/fonts/manuscript-latin-subset.woff2) format("woff2");
@@ -171,15 +173,6 @@ main { overflow: clip; }
    .zh-display 只留给落定章与承诺账的品牌记号，不再承载标题。 */
 h1, h2, h3 { margin: 0; font-weight: 510; letter-spacing: -.02em; text-wrap: balance; }
 .zh-title { font-family: var(--font-title); font-synthesis: none; }
-.promise-heading h2 .latin-manuscript {
-  font-family: "Courtwork Manuscript Latin";
-  font-size: .94em;
-  font-weight: 400;
-  font-variation-settings: "wght" 400, "wdth" 100, "ENLA" 0;
-  font-synthesis: none;
-  letter-spacing: .01em;
-  vertical-align: .035em;
-}
 .closing .eyebrow .latin-manuscript {
   font-family: "Courtwork Manuscript Latin";
   font-size: 1.18em;
@@ -245,6 +238,9 @@ h3 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.25; }
 .release-fact span + span::before { content: "·"; padding: 0 10px; }
 .release-fact code { overflow-wrap: anywhere; color: var(--text-secondary); font: inherit; }
 .publication-colophon { width: fit-content; max-width: 100%; padding: 10px 12px; border: 1px solid var(--border-strong); background: transparent; }
+/* SITE-CRAFT-2 N2 · 页级总声明（恰一处，门内逐字签入）：逐卷复读的对冲整句退役后，
+   试点边界由这一行统一承载。小注体例沿 .release-pending，零动效零新色。 */
+.page-disclaimer { max-width: 46rem; margin: 14px 0 0; color: var(--meta); font-family: var(--mono); font-size: 12px; line-height: 1.7; }
 
 .mac-window { margin: 52px 0 0; overflow: hidden; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--bg-raised); }
 .mac-bar { height: 42px; display: grid; grid-template-columns: 80px 1fr 80px; align-items: center; margin: 0; padding: 0 14px; border-bottom: 1px solid var(--border-hairline); color: var(--meta); background: var(--bg-surface); font-family: var(--mono); font-size: 12px; text-align: center; }
