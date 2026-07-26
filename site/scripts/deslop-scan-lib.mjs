@@ -885,7 +885,11 @@ export function checkP5FontCoverage({ html, css, ogHtml, manifest, sourceRecord,
   auditFace(css, 'site/styles.css');
   auditFace(ogCss, 'site/og.html');
 
-  const siteSelectors = new Set(['.wordmark > span', '.promise-heading h2 .latin-manuscript', '.closing .eyebrow .latin-manuscript']);
+  // N2 文案批：卷四主句改「设计上不做的四件事。」后不再含品牌字样，`.promise-heading h2
+  // .latin-manuscript` 这一枚签名消费者随之退役（HTML span 与 CSS 规则同批删）。
+  // P5 立门的风险模型是**防扩散**（「绝不扩成正文、UI 或数据字槽」），故收缩不触及其风险面；
+  // 品牌字样仍由页首 wordmark 与卷尾眉两处承载，加 og 卡共三处签名消费者。
+  const siteSelectors = new Set(['.wordmark > span', '.closing .eyebrow .latin-manuscript']);
   const auditConsumers = (source, file, approved) => {
     const seen = new Set();
     for (const declaration of parseCss(source)) {
@@ -908,12 +912,11 @@ export function checkP5FontCoverage({ html, css, ogHtml, manifest, sourceRecord,
   const textOf = (value) => value.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
   const signedTexts = [
     html.match(/<a\b[^>]*class="[^"]*\bwordmark\b[^"]*"[^>]*>[\s\S]*?<span[^>]*>([\s\S]*?)<\/span>/)?.[1],
-    html.match(/<[^>]*class="[^"]*\bpromise-heading\b[^"]*"[^>]*>[\s\S]*?<h2[^>]*>[\s\S]*?<span\b[^>]*class="[^"]*\blatin-manuscript\b[^"]*"[^>]*>([\s\S]*?)<\/span>/)?.[1],
     html.match(/<[^>]*class="[^"]*\bclosing\b[^"]*"[^>]*>[\s\S]*?<[^>]*class="[^"]*\beyebrow\b[^"]*"[^>]*>[\s\S]*?<span\b[^>]*class="[^"]*\blatin-manuscript\b[^"]*"[^>]*>([\s\S]*?)<\/span>/)?.[1],
     ogHtml.match(/<[^>]*class="[^"]*\bwordmark\b[^"]*"[^>]*>([\s\S]*?)<\/[^>]+>/)?.[1],
   ].map((value) => textOf(value ?? ''));
-  if (signedTexts.some((value) => value !== text)) fail('the four signed consumers must render exactly Courtwork');
-  if ((html.match(/class="[^"]*\blatin-manuscript\b[^"]*"/g) ?? []).length !== 2) fail('site must have exactly two latin-manuscript spans');
+  if (signedTexts.some((value) => value !== text)) fail('the three signed consumers must render exactly Courtwork');
+  if ((html.match(/class="[^"]*\blatin-manuscript\b[^"]*"/g) ?? []).length !== 1) fail('site must have exactly one latin-manuscript span');
   const forbiddenConsumers = [
     ...html.matchAll(/<(blockquote|code|pre)\b[^>]*>[\s\S]*?<\/\1>/gi),
     ...html.matchAll(/<([a-z][a-z0-9]*)\b[^>]*(?:\bdata-[a-z-]+(?:="[^"]*")?|\bclass="[^"]*\b(?:zh-doc|mono)\b[^"]*")[^>]*>[\s\S]*?<\/\1>/gi),
@@ -1340,7 +1343,22 @@ export function checkSourceHashes({ manifest, manifestPath, artifactSha256, cros
 // 判定按**段内位置区间**：对冲覆盖区间与断言位置同段同坐标系，故「同段先对冲后裸断言」
 // 仍照抓；跨段不互相背书（属性里的对冲不为正文里的断言开脱）。
 const MATURITY_CLAIMS = ['已上线', '全面上线', '全面可用', '生产可用', '生产就绪', '正式上线', '已商用', 'production-ready'];
-const SIGNED_MATURITY_HEDGES = [
+// ── 对冲形态改造（N2 裁决二：页级总声明 + 局部收窄）─────────────────────────
+//
+// 旧形态是**逐处对冲**：每卷导语末尾复读一句「……但不等同于产品已全面上线」。三处复读把
+// 边界读成套话——读者跳过第二遍之后就不再读它，而门只要求「成熟度词落在对冲之内」，
+// 于是复读越多越安全，这个激励方向是错的。
+//
+// 新形态：**页级总声明恰一处**，逐字签入常量；成熟度词仍只许落在已签区间内，而已签区间
+// 现在只有这一处。改形态的关键不在于少写两句话，而在于两条互补的锁：
+//   ① 恰一处：缺失即红（边界不能悄悄消失），出现第二份即红（复读即回潮，形态白改）；
+//      且必须落在页面文件上——写进 og 卡或 README 不算，读者在页面上看不到。
+//   ② 退役句零出现：旧两句从签名表退出后必须真的消失。只把它们从白名单删掉是不够的——
+//      那样它们会变成「裸断言」而触红，看似同效，但**红的理由错了**（报「未对冲」而非
+//      「已退役」），下一次有人照旧文改写时读到的诊断是错的。故单立反向锁具名登记。
+const PAGE_LEVEL_DISCLAIMER = '本页演示与数字来自同一份合成卷宗的试点运行；试点跑通不等于产品全面上线。';
+const SIGNED_MATURITY_HEDGES = [PAGE_LEVEL_DISCLAIMER];
+const RETIRED_MATURITY_HEDGES = [
   '不等同于产品已全面上线',
   '这不是产品已全面上线的承诺',
 ];
@@ -1388,13 +1406,32 @@ const projectSegments = (rawLine) => {
   return segments;
 };
 
-export function checkMaturityClaims(sources, { hedges = SIGNED_MATURITY_HEDGES } = {}) {
+export function checkMaturityClaims(sources, {
+  hedges = SIGNED_MATURITY_HEDGES,
+  retired = RETIRED_MATURITY_HEDGES,
+  disclaimer = PAGE_LEVEL_DISCLAIMER,
+  pageFile = 'site/index.html',
+} = {}) {
   const failures = [];
   const hedgeSeen = new Set();
+  const disclaimerSites = [];
   for (const [file, content] of Object.entries(sources)) {
     const lines = content.split('\n');
     lines.forEach((rawLine, index) => {
       for (const segment of projectSegments(rawLine)) {
+        // 页级声明与退役句都在**投影段**上数，与成熟度词同一坐标系：逐字包裹、实体与
+        // 全角变体一律折平后再比，否则「排版一下就绕过」对这两条锁同样成立。
+        const declaration = normalizeText(disclaimer);
+        for (let at = segment.indexOf(declaration); at !== -1; at = segment.indexOf(declaration, at + 1)) {
+          disclaimerSites.push({ file, line: index + 1 });
+        }
+        for (const phrase of retired) {
+          const needle = normalizeText(phrase);
+          for (let at = segment.indexOf(needle); at !== -1; at = segment.indexOf(needle, at + 1)) {
+            push(failures, 'maturity-claim', file, index + 1,
+              `退役对冲措辞回潮：「${phrase}」——逐卷复读的对冲整句已退役，试点边界只由页级总声明承载`);
+          }
+        }
         // 段内所有已签对冲的覆盖区间——成熟度词必须整体落进其中之一。区间与断言位置同段
         // 同坐标系，故「同段先对冲后裸断言」不会被整段豁免（第一轮验收已实证该点正确）。
         const covered = [];
@@ -1416,6 +1453,19 @@ export function checkMaturityClaims(sources, { hedges = SIGNED_MATURITY_HEDGES }
         }
       }
     });
+  }
+  // 页级总声明恰一处，且必须落在页面文件上（N2 裁决二①）。
+  if (disclaimerSites.length === 0) {
+    push(failures, 'maturity-claim', pageFile, 1,
+      `页级总声明缺席：「${disclaimer}」——成熟度词的唯一已签区间就是它，声明一走，边界即无处承载`);
+  }
+  for (const site of disclaimerSites.slice(1)) {
+    push(failures, 'maturity-claim', site.file, site.line,
+      '页级总声明出现第二份——「恰一处」是本形态的立身处：复读一次就退回逐处对冲，改形态白改');
+  }
+  if (disclaimerSites.length === 1 && disclaimerSites[0].file !== pageFile) {
+    push(failures, 'maturity-claim', disclaimerSites[0].file, disclaimerSites[0].line,
+      `页级总声明落在 ${disclaimerSites[0].file}，不在 ${pageFile}——读者在页面上看不到的声明不承载边界`);
   }
   // 双向锁：登记了却全站无消费的对冲＝死登记。没有这条，白名单会随时间攒下一堆
   // 「曾经用过」的措辞，而每一条都是一个永久豁免口。

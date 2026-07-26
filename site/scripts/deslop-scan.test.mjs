@@ -28,7 +28,7 @@ const GOOD_FIXTURE_CLAIMS = String.raw`
     <span data-pm-defect-label>冲突需求</span>
     <p data-pm-suggestion>区分评论、提议和正式修改，并给出唯一权限矩阵。</p>
     <span data-pm-disposition>待确认</span>
-    <small>Schema catalog preview / 尚未接通运行链</small>
+    <small>结构投影 · 未接通运行链</small>
   </article>
 </section>
 `;
@@ -301,9 +301,11 @@ test('SITE-CRAFT-2 woff2 measurement reads bytes, glyphs and codepoints from the
   const buffer = readFileSync(new URL('site/assets/fonts/zhuque-fangsong-subset.woff2', repoRoot));
   const measured = measureWoff2(buffer);
   assert.equal(measured.bytes, buffer.length);
-  // 与 fontTools 独立实现互校过的定值（文书轨子集）。
-  assert.equal(measured.glyphs, 439);
-  assert.equal(measured.chars, 348);
+  // 与 fontTools 独立实现互校过的定值（文书轨子集）。N2 文案批重切后由 fontTools 重新独立复量：
+  // `TTFont` 读 maxp.numGlyphs 与 getBestCmap 映射码位，两侧同为 422 / 343，故换值不是把
+  // 自家解析器的输出抄成断言——互校关系仍在，只是被测制品换了一版。
+  assert.equal(measured.glyphs, 422);
+  assert.equal(measured.chars, 343);
   assert.throws(() => measureWoff2(Buffer.from('not a font at all!!')), /not a woff2/);
 });
 
@@ -546,7 +548,7 @@ test('SITE-GEN rejects a confirmed PM fixture presented as pending', () => {
 test('SITE-GEN rejects a live PM claim while the descriptor has no scenario', () => {
   const live = GOOD_FIXTURE_CLAIMS
     .replace('data-runtime-state="catalog"', 'data-runtime-state="live"')
-    .replace('Schema catalog preview / 尚未接通运行链', 'Live / 已接通运行链');
+    .replace('结构投影 · 未接通运行链', 'Live / 已接通运行链');
   assert.ok(fixtureFailures(live).some((failure) => failure.includes('catalog')));
 });
 
@@ -572,15 +574,17 @@ const GOOD_P5_MANIFEST = {
   releaseArchiveSha256: 'c'.repeat(64),
   oflSha256: 'd'.repeat(64),
 };
+// N2 文案批：卷四主句改「设计上不做的四件事。」后不含品牌字样，`.promise-heading h2
+// .latin-manuscript` 一枚签名消费者退役——好例随之收为「页面恰一枚 span、site 两枚选择器」。
 const GOOD_P5_HTML = String.raw`
 <a class="wordmark"><span>Courtwork</span></a>
-<section class="promise-heading"><h2>有些事，<span class="latin-manuscript">Courtwork</span> 不做。</h2></section>
+<section class="promise-heading"><h2>设计上不做的四件事。</h2></section>
 <section class="closing"><p class="eyebrow">卷尾 · <span class="latin-manuscript">Courtwork</span></p></section>
 <blockquote class="zh-doc">原句不消费写本类。</blockquote>
 <strong class="mono" data-fixture-count="dossier-materials">20</strong>`;
 const GOOD_P5_CSS = String.raw`
 @font-face { font-family: "Courtwork Manuscript Latin"; src: url(assets/fonts/manuscript-latin-subset.woff2) format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0043,U+006B,U+006F,U+0072,U+0074,U+0075,U+0077; }
-.wordmark > span, .promise-heading h2 .latin-manuscript, .closing .eyebrow .latin-manuscript { font-family: "Courtwork Manuscript Latin"; font-synthesis: none; }
+.wordmark > span, .closing .eyebrow .latin-manuscript { font-family: "Courtwork Manuscript Latin"; font-synthesis: none; }
 `;
 const GOOD_P5_OG = String.raw`
 <style>@font-face { font-family: "Courtwork Manuscript Latin"; src: url(assets/fonts/manuscript-latin-subset.woff2) format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0043,U+006B,U+006F,U+0072,U+0074,U+0075,U+0077; } .wordmark { font-family: "Courtwork Manuscript Latin"; font-synthesis: none; }</style>
@@ -599,13 +603,21 @@ const p5FontRules = (overrides = {}) => checkP5FontCoverage({
   ...overrides,
 }).map((failure) => failure.rule);
 
-test('SKIN-R2-P5 font coverage binds source, bytes, cmap, glyphs, and only four signed consumers', () => {
+test('SKIN-R2-P5 font coverage binds source, bytes, cmap, glyphs, and only three signed consumers', () => {
   assert.deepEqual(p5FontRules(), []);
   assert.ok(p5FontRules({ woff2Sha256: 'e'.repeat(64) }).includes('p5-font-coverage'));
   assert.ok(p5FontRules({ woff2Metrics: { cmapCodepoints: 6, glyphs: 8 } }).includes('p5-font-coverage'));
   assert.ok(p5FontRules({ css: `${GOOD_P5_CSS}\n.zh-doc { font-family: "Courtwork Manuscript Latin"; }` }).includes('p5-font-coverage'));
   assert.ok(p5FontRules({ html: GOOD_P5_HTML.replace('<span>Courtwork</span>', '<span>Casework</span>') }).includes('p5-font-coverage'));
   assert.ok(p5FontRules({ ogHtml: GOOD_P5_OG.replace('.wordmark { font-family', '.wordmark { color: inherit; } .other { font-family') }).includes('p5-font-coverage'));
+  // 收缩后**防扩散仍是本门的立身处**：签名之外多写一枚 span 即红——退役一枚不等于放开计数。
+  assert.ok(p5FontRules({
+    html: GOOD_P5_HTML.replace('<h2>设计上不做的四件事。</h2>', '<h2>设计上<span class="latin-manuscript">Courtwork</span>不做的四件事。</h2>'),
+  }).includes('p5-font-coverage'));
+  // 退役的那枚选择器若在 CSS 里复活（HTML 无对应 span），亦红——死登记同样不许留。
+  assert.ok(p5FontRules({
+    css: `${GOOD_P5_CSS}\n.promise-heading h2 .latin-manuscript { font-family: "Courtwork Manuscript Latin"; }`,
+  }).includes('p5-font-coverage'));
 });
 
 test('SKIN-R2-P5 rejects manuscript family propagation through custom font slots', () => {
@@ -689,13 +701,19 @@ test('SKIN-R2-P4 keeps dark switching at the root token map with zero component/
 // 为句界（跨段落/`<br>` 背书），以及更根本的——否定词管到哪属自然语言理解，不属静态
 // 门能力（`不做自动送出，已全面上线` 无解）。现形态：成熟度词只许落在**已签对冲措辞**
 // 之内。验收找到的六类假阴在此逐条落为回归例，不许再犯。
+// N2 裁决二把形态从「逐处对冲」换成「页级总声明 + 局部收窄」：签名表收敛为一句页级声明，
+// 旧两句转零出现反向锁。下列断言分三组——① 新形态的正例与两条锁；② 退役句回潮逐条触红；
+// ③ 旧形态时期六类＋三类假阴的回归例原样保留（判据换了形态，假阴不许复活）。
+const N2_PAGE_DISCLAIMER = '本页演示与数字来自同一份合成卷宗的试点运行；试点跑通不等于产品全面上线。';
 test('R-12 maturity gate: signed hedges pass, everything else reds', () => {
-  const run = (content, file = 'site/index.html') =>
-    checkMaturityClaims({
-      [file]: content,
-      // 陪跑件：喂满两条已签对冲，避免双向锁在单例测试里误报死登记。
-      'site/index.html#hedge-fixture': '不等同于产品已全面上线／这不是产品已全面上线的承诺',
-    }).filter((failure) => failure.file === file).map((failure) => failure.rule);
+  // 陪跑件：页级声明恰一处且须落在 site/index.html——故被测片段若不是页面文件，
+  // 声明单独喂进页面文件；若是页面文件，声明与片段同文件分行（分行才使区间判定各自独立）。
+  const run = (content, file = 'site/index.html') => {
+    const sources = file === 'site/index.html'
+      ? { 'site/index.html': `<p>${N2_PAGE_DISCLAIMER}</p>\n${content}` }
+      : { 'site/index.html': `<p>${N2_PAGE_DISCLAIMER}</p>`, [file]: content };
+    return checkMaturityClaims(sources).filter((failure) => failure.file === file).map((failure) => failure.rule);
+  };
 
   // 阴性对照落零：现行四份对外件 + README 在真实字节下零违例。
   const live = {
@@ -707,10 +725,27 @@ test('R-12 maturity gate: signed hedges pass, everything else reds', () => {
   };
   assert.deepEqual(checkMaturityClaims(live), []);
 
-  // 三处真对冲必须绿——它们是本门要保护的对象，不是要抓的对象。
-  assert.deepEqual(run('<p>链路已在试点中跑通，但不等同于产品已全面上线。</p>'), []);
-  assert.deepEqual(run('<p>这不是产品已全面上线的承诺。</p>'), []);
-  assert.deepEqual(run('<p>本卷证据来自同一份合成卷宗；链路已在试点中跑通，但不等同于产品已全面上线。</p>'), []);
+  // ① 页级总声明是唯一已签区间：它自身含「全面上线」而必须绿——它是本门要保护的对象。
+  assert.deepEqual(run('<p>另一段无成熟度词的正文。</p>'), []);
+  // 恰一处的两向：缺席即红，第二份即红。
+  const withoutDisclaimer = checkMaturityClaims({ 'site/index.html': '<p>无成熟度词。</p>' });
+  assert.ok(withoutDisclaimer.some((failure) => /页级总声明缺席/.test(failure.message)), '声明缺席必须触红');
+  const doubled = checkMaturityClaims({ 'site/index.html': `<p>${N2_PAGE_DISCLAIMER}</p>\n<p>${N2_PAGE_DISCLAIMER}</p>` });
+  assert.ok(doubled.some((failure) => /出现第二份/.test(failure.message)), '声明复读必须触红');
+  // 声明落错文件（写进 og 卡而页面没有）——读者在页面上看不到，同样不算。
+  const misplaced = checkMaturityClaims({ 'site/index.html': '<p>无成熟度词。</p>', 'site/og.html': `<small>${N2_PAGE_DISCLAIMER}</small>` });
+  assert.ok(misplaced.some((failure) => /不在 site\/index\.html/.test(failure.message)), '声明落错文件必须触红');
+  // 声明本身也走投影：逐字包裹的写法仍算同一处，不因排版而漏数（否则「恰一处」可被拆散绕过）。
+  const wrapped = N2_PAGE_DISCLAIMER.replace('试点跑通', '<b>试点</b>跑通');
+  assert.deepEqual(checkMaturityClaims({ 'site/index.html': `<p>${wrapped}</p>` }), []);
+
+  // ② 退役句零出现：旧两句回潮逐条触红，且红的理由是「已退役」而非「未对冲」。
+  for (const phrase of ['不等同于产品已全面上线', '这不是产品已全面上线的承诺']) {
+    const relapse = run(`<p>链路已在试点中跑通，但${phrase}。</p>`);
+    assert.ok(relapse.includes('maturity-claim'), `退役句未触红：${phrase}`);
+  }
+  assert.ok(checkMaturityClaims({ 'site/index.html': `<p>${N2_PAGE_DISCLAIMER}</p>\n<p>这不是产品已全面上线的承诺。</p>` })
+    .some((failure) => /退役对冲措辞回潮/.test(failure.message)), '退役诊断须具名，不得只报未对冲');
 
   // 裸断言逐词触红。
   for (const claim of ['已上线', '全面上线', '全面可用', '生产可用', '生产就绪', '正式上线', '已商用']) {
