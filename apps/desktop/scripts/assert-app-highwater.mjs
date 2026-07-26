@@ -50,7 +50,13 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // CONTRACT-OUTPUT-TRUTH-1 · O8（2026-07-26）：2658 → 2657。外提物＝production 产物**显示名**的
 // 派生（版本化命名由 coordinator 铸出）去向 `work/use-contract-review-submission.ts` 的
 // `outputDisplayName`；App 侧只余一次读取。同批清掉 `startWorkRun` 里多余的主合同别名行。
-const HIGH_WATER_LINES = 2657;
+// CONTRACT-TRACE-1（2026-07-26）：2657 → 2644。外提物三件——① run/cancel/recover/pointer/
+// completed-output 五处状态面整块去向新建的 `src/work/work-session-lifecycle.ts`（`useWorkRunLifecycle`
+// 及其 §1 纯判定：pointer compare-and-clear 矩阵、start 建立时点 tracker、replay 恢复分支表）；
+// ② 审阅界面状态投影 `projectReviewItemStates` 与批量池/逐条就绪等派生去向 `workbench/Panels.tsx`；
+// ③ 被吸收的 `work/work-recovery.ts` 整件退役。本票在 App 新增的 canonical reader 适配、回到原件
+// 路由与 read_only 分支由此抵消并再收紧 13。
+const HIGH_WATER_LINES = 2644;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

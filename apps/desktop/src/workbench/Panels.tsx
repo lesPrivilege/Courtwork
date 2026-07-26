@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
+import type { SourceAnchor } from '@courtwork/schemas';
 import type { ReviewDispositionState, ReviewGateProjection } from '../protocol/client';
 import type { NonAppliedReason, PendingRevisionConfirmation } from '../output/compile-review-output';
+import type { ContractReviewOutputResult } from '../output/contract-review-delivery';
+// 提交按钮的 label 逐字锁在 S3 package 上：面里不另抄一份字面量。
+import { S3_REVIEW_GATE_LABEL, type ContractReviewState } from '../work/contract-review-flow';
 
 export type LineTone = 'danger' | 'attention' | 'revision' | 'authority' | 'neutral' | 'settled';
 
@@ -217,45 +221,127 @@ export function MatrixPanel({ matrix }: { matrix: ReviewMatrix }) {
   </StaticViewport>;
 }
 
-export interface RevisionPanelProps {
+/**
+ * CONTRACT-TRACE-1：一个审阅条目在**界面上**的状态。与账本里的 `dispositionStatus` 不同——
+ * `editing` 是纯 UI 相位（编辑中尚未成为决定），故它只可能出现在 interactive 面。
+ */
+export type ReviewItemUiState =
+  | { status: 'pending' }
+  | { status: 'editing'; draft: string }
+  | { status: 'confirmed'; correctedDescription?: string }
+  | { status: 'rejected' };
+
+/**
+ * 可写审阅面的全部控制点。**read_only 面在类型上拿不到它**——写权限的隔离由判别联合执行，
+ * 不靠运行时判断（「一个 common optional callback 在运行时猜写权限」正是被退役的写法）。
+ */
+export interface InteractiveReviewControls {
+  gate: ReviewGateProjection;
+  itemStates: Readonly<Record<string, ReviewItemUiState>>;
+  submitState: 'idle' | 'submitting' | 'submitted';
+  onBeginRevision(itemRef: string): void;
+  onChangeRevision(itemRef: string, value: string): void;
+  onCancelRevision(itemRef: string): void;
+  onCommitRevision(itemRef: string): void;
+  onConfirm(itemRef: string): void;
+  onReject(itemRef: string): void;
+  onSubmit(): void;
+}
+
+/**
+ * 审阅编辑态 → 界面状态表。`editing` 优先于既有决定（正在编辑即尚未成为决定），
+ * 与既有 `projectReviewDispositionStates` 的 revision 优先同源，不新造第二套优先级。
+ */
+export function projectReviewItemStates(
+  state: ContractReviewState,
+  itemRefs: readonly string[],
+): Record<string, ReviewItemUiState> {
+  const projected: Record<string, ReviewItemUiState> = {};
+  for (const itemRef of itemRefs) {
+    if (state.editing?.itemRef === itemRef) {
+      projected[itemRef] = { status: 'editing', draft: state.editing.draft };
+      continue;
+    }
+    const decision = state.decisions[itemRef];
+    if (!decision) {
+      projected[itemRef] = { status: 'pending' };
+      continue;
+    }
+    if (decision.disposition === 'reject') {
+      projected[itemRef] = { status: 'rejected' };
+      continue;
+    }
+    projected[itemRef] = decision.disposition === 'revise'
+      ? { status: 'confirmed', correctedDescription: decision.correctedDescription }
+      : { status: 'confirmed' };
+  }
+  return projected;
+}
+
+/** 两面共有的**只读**输入。不含 output result，也不含处置——那两样各属一面。 */
+export interface RevisionPanelCommon {
   riskList: RiskList;
-  selectedRisk: RiskList['risks'][number];
+  /** 真实主合同名（production 取自本次会话冻结的材料；固定 demo 标题已退役）。 */
+  primaryFileName: string;
   selectedRiskId: string;
   onSelectRisk: (id: string) => void;
-  gate?: ReviewGateProjection;
   selectedGrades: ('A' | 'B' | 'C')[];
-  unverifiedRiskIds: string[];
   expandedEvidence: Record<string, boolean>;
-  onExpandBasis: (riskId: string, index: number, evidenceRef: string) => void;
-  dispositions: Record<string, ReviewDispositionState>;
-  correctedDescriptions: Readonly<Record<string, string>>;
-  onDispose: (riskId: string, disposition: 'confirmed' | 'rejected') => void;
-  editingCorrection?: { itemRef: string; draft: string };
-  onBeginCorrection: (riskId: string, originalDescription: string) => void;
-  onChangeCorrection: (value: string) => void;
-  onSubmitCorrection: () => void;
-  onCancelCorrection: () => void;
-  individualReady: boolean;
-  batchRefs: string[];
-  onBatchConfirm: () => void;
-  submitted: boolean;
-  // OUTPUT-CONFIRM-UI-1：未能落到文书上的修订，逐条交用户确认后才生成产物。
-  nonAppliedPending: PendingRevisionConfirmation[];
-  confirmedNonAppliedIds: string[];
-  onConfirmNonApplied: (instructionId: string) => void;
-  onCancelNonApplied: () => void;
-  allowNonAppliedConfirmation: boolean;
-  submitLabel: string;
+  onToggleEvidence: (riskId: string, index: number, evidenceRef: string) => void;
+  /** 回到原件：把真实 SourceAnchor 交给 canonical reader 单调用链，失败走显式反馈。 */
+  onOpenSource: (anchor: SourceAnchor) => void;
+}
+
+/**
+ * interactive 面在 SPEC 所列 `controls` 之外另收的四项输入 **[需架构拍板]**。
+ *
+ * 它们不进 `InteractiveReviewControls`，是为了让那份被 SPEC 逐字写定的接口保持字面一致、
+ * 可被机器门核对；偏离集中在这里，逐条带理由：
+ *  - `unverifiedRiskIds`：gate 的 `reason` 对 `high_risk` 优先，故「含 C 级依据」的集合无法从
+ *    gate 派生——照派生会让「高危且含 C 级依据」的条目在核验列显示为「已核验」；
+ *  - `submitEnabled`：判据是「每个 gate 条目都有决定」，而 `ReviewItemUiState` 的 `editing`
+ *    与「已有决定」互斥，从 itemStates 反推会把「已决定后又点开修正」误判为未填满；
+ *  - `nonApplied`：未落点清单的**逐条知悉**只属显式 demo 消费者（production 为整份阻断），
+ *    它既不是处置也不是 output result，SPEC 的两张表都没有它的位置；
+ *  - `resultMessage`：零文书正常终态的产品语，在 interactive 面提交后即刻呈现。
+ */
+export interface InteractiveReviewExtras {
+  unverifiedRiskIds: readonly string[];
   submitEnabled: boolean;
-  submitting: boolean;
-  /**
-   * 仅样板案为真：右侧那块固定的合同 redline 是 demo 展示件。
-   * production 渲染诚实空态——不拿一份与本案无关的假 redline 冒充「修订对照」。
-   */
-  showDemoDocumentPreview: boolean;
-  onSubmitReview: () => void;
+  nonApplied: {
+    items: readonly PendingRevisionConfirmation[];
+    confirmedIds: readonly string[];
+    /** production 恒 false（整份阻断，零 waiver）；只有显式 demo 消费者为 true。 */
+    allowWaiver: boolean;
+    onConfirm: (instructionId: string) => void;
+    onCancel: () => void;
+  };
   resultMessage?: string;
 }
+
+/** ready_to_deliver 是**唯一**允许出现重试入口的 output 结果。 */
+type DeliverableOutput = Extract<ContractReviewOutputResult, { status: 'ready_to_deliver' }>;
+type NonDeliverableOutput = Exclude<ContractReviewOutputResult, { status: 'ready_to_deliver' }>;
+
+export type RevisionPanelProps =
+  | (RevisionPanelCommon & InteractiveReviewExtras & {
+      mode: 'interactive';
+      controls: InteractiveReviewControls;
+      outputResult?: never;
+      onRetryOutput?: never;
+    })
+  | (RevisionPanelCommon & {
+      mode: 'read_only';
+      controls?: never;
+      outputResult: DeliverableOutput;
+      onRetryOutput: () => void;
+    })
+  | (RevisionPanelCommon & {
+      mode: 'read_only';
+      controls?: never;
+      outputResult: NonDeliverableOutput | undefined;
+      onRetryOutput?: never;
+    });
 
 /** 未落点原因的产品文案：只讲「发生了什么」，不出现工程词。 */
 function nonAppliedReasonLabel(reason: NonAppliedReason) {
@@ -406,53 +492,126 @@ export function S3LauncherPanel(props: S3LauncherPanelProps) {
   );
 }
 
+/** 界面状态 → 既有处置投影。`editing` 映 `revision`（正在编辑，尚未成为决定）。 */
+function dispositionFromUiState(state: ReviewItemUiState | undefined): ReviewDispositionState | undefined {
+  if (!state) return undefined;
+  if (state.status === 'confirmed') return 'confirmed';
+  if (state.status === 'rejected') return 'rejected';
+  if (state.status === 'editing') return 'revision';
+  return undefined;
+}
+
+/** 只读面的处置**只从 replay 后的 RiskList 读**——不得在此另立本地 disposition 第二真源。 */
+function dispositionFromLedger(risk: RiskList['risks'][number]): ReviewDispositionState | undefined {
+  if (risk.dispositionStatus === 'confirmed') return 'confirmed';
+  if (risk.dispositionStatus === 'rejected') return 'rejected';
+  return undefined;
+}
+
+/** 产物区文案：interactive 由 mode 固定为「待生成」，只读面才由 outputResult 决定。 */
+function outputPreviewCopy(props: RevisionPanelProps): { title: string; body: string; retry: boolean } {
+  if (props.mode === 'interactive') {
+    return { title: '合同批注预览', body: '本版产出是原合同副本加上已确认风险的批注 · 待生成', retry: false };
+  }
+  const result = props.outputResult;
+  if (!result) return { title: '合同批注预览', body: '正在核对本次审查是否可生成批注稿', retry: false };
+  switch (result.status) {
+    case 'ready_to_deliver':
+      return { title: '合同批注预览', body: '本次审查可生成批注稿 · 尚未写入本案「产出」目录', retry: true };
+    case 'delivered':
+    case 'already_present':
+      return { title: '合同批注预览', body: `已生成批注稿：${result.fileName} · 需在 Word 中打开查看`, retry: false };
+    case 'not_applicable':
+      return { title: '合同批注预览', body: NOT_APPLICABLE_PREVIEW_COPY[result.reason], retry: false };
+    default:
+      return { title: '合同批注预览', body: result.message, retry: false };
+  }
+}
+
+/** 三种**正常**零文书终态的预览语；措辞不得暗示出错，也不得概括成「未发现风险」。 */
+const NOT_APPLICABLE_PREVIEW_COPY = {
+  no_risks: '本次审查未形成可提交的风险项，未生成批注稿',
+  all_rejected: '本次审查的风险均已驳回，未生成批注稿',
+  out_of_coverage: '仍有待索证项，补充材料后可重新开始一次审查',
+} as const;
+
 export function RevisionPanel(props: RevisionPanelProps) {
-  const selectedGate = props.gate?.items.find((item) => item.itemRef === props.selectedRisk.id);
-  const reviewedCount = props.selectedRisk.basis.filter((_, index) => props.expandedEvidence[`${props.selectedRisk.id}:${index}`]).length;
-  const selectedDisposition = props.dispositions[props.selectedRisk.id];
-  const selectedDescription = props.correctedDescriptions[props.selectedRisk.id] ?? props.selectedRisk.description;
-  const editingSelected = props.editingCorrection?.itemRef === props.selectedRisk.id;
+  // 判别一次，之后全用这枚窄化引用——`controls && props.x` 那种写法不会让 TS 收窄 props 本身。
+  const interactive = props.mode === 'interactive' ? props : undefined;
+  const controls = interactive?.controls;
+  const selectedRisk = props.riskList.risks.find((risk) => risk.id === props.selectedRiskId)
+    ?? props.riskList.risks[0];
+  if (!selectedRisk) return <EmptyState noun="风险" shortcut="从场景按钮启动合同审查" />;
+
+  const dispositionOf = (risk: RiskList['risks'][number]) => (
+    controls ? dispositionFromUiState(controls.itemStates[risk.id]) : dispositionFromLedger(risk)
+  );
+  const descriptionOf = (risk: RiskList['risks'][number]) => {
+    const state = controls?.itemStates[risk.id];
+    return state?.status === 'confirmed' && state.correctedDescription ? state.correctedDescription : risk.description;
+  };
+  const unverifiedIds = interactive?.unverifiedRiskIds ?? [];
+  const selectedGate = controls?.gate.items.find((item) => item.itemRef === selectedRisk.id);
+  const reviewedCount = selectedRisk.basis.filter((_, index) => props.expandedEvidence[`${selectedRisk.id}:${index}`]).length;
+  const selectedDisposition = dispositionOf(selectedRisk);
+  const selectedDescription = descriptionOf(selectedRisk);
+  const selectedState = controls?.itemStates[selectedRisk.id];
+  const editingSelected = selectedState?.status === 'editing';
   const selectedSettled = selectedDisposition === 'confirmed' || selectedDisposition === 'rejected' ? selectedDisposition : undefined;
-  const selectedUnverified = props.unverifiedRiskIds.includes(props.selectedRisk.id);
-  const selectedNextStep = displayNextStep(selectedDisposition, selectedGate?.mode, reviewedCount === props.selectedRisk.basis.length, BATCH_CONFIRM_VISIBLE);
-  const excludedCount = props.gate?.items.filter((item) => item.mode === 'individual').length ?? 0;
+  const selectedUnverified = unverifiedIds.includes(selectedRisk.id);
+  const selectedNextStep = displayNextStep(selectedDisposition, selectedGate?.mode, reviewedCount === selectedRisk.basis.length, BATCH_CONFIRM_VISIBLE);
+  const individualReady = selectedGate?.mode !== 'individual' || reviewedCount === selectedRisk.basis.length;
+  const batchRefs = controls
+    ? controls.gate.items.filter((item) => item.mode === 'batch' && !dispositionFromUiState(controls.itemStates[item.itemRef])).map((item) => item.itemRef)
+    : [];
+  const excludedCount = controls?.gate.items.filter((item) => item.mode === 'individual').length ?? 0;
+  const nonApplied = interactive?.nonApplied;
+  const resultMessage = interactive?.resultMessage;
+  const preview = outputPreviewCopy(props);
   return <StaticViewport testId="revision-static-viewport">
-    <div className="revision-layout" data-testid="revision-panel">
-      {BATCH_CONFIRM_VISIBLE && (
+    <div className="revision-layout" data-testid="revision-panel" data-review-mode={props.mode}>
+      {/* 面头呈现真实主合同名。固定 demo 标题与固定「修订 4 处」随本票退役。 */}
+      <header className="review-head" data-testid="review-head">
+        <strong>风险审查</strong>
+        <span className="source-file-meta" title={props.primaryFileName}>{props.primaryFileName}</span>
+      </header>
+      {controls && BATCH_CONFIRM_VISIBLE && (
         <div className="batch-bar" data-testid="batch-scope">
-          <span>本次范围 {props.batchRefs.length} 项 · 待确认且中/低危、依据已核验</span>
-          <button onClick={props.onBatchConfirm} disabled={!props.batchRefs.length}>批量确认 {props.batchRefs.length} 项</button>
+          <span>本次范围 {batchRefs.length} 项 · 待确认且中/低危、依据已核验</span>
+          <button onClick={() => batchRefs.forEach((itemRef) => controls.onConfirm(itemRef))} disabled={!batchRefs.length}>批量确认 {batchRefs.length} 项</button>
           <small>排除 {excludedCount} 项 · 高危或未核验仅逐条处理</small>
         </div>
       )}
-      {props.submitted && <div className="submission-note" role="status">{props.gate?.items.length ?? 0} 项处置已逐条提交</div>}
-      {props.resultMessage && <div className="submission-note" role="status" data-testid="review-result">{props.resultMessage}</div>}
+      {controls?.submitState === 'submitted' && <div className="submission-note" role="status">{controls.gate.items.length} 项处置已逐条提交</div>}
+      {resultMessage && <div className="submission-note" role="status" data-testid="review-result">{resultMessage}</div>}
       {props.riskList.outOfCoverage.length > 0 && (
         <section className="nonapplied-confirm" data-testid="review-out-of-coverage">
           <header><strong>仍有 {props.riskList.outOfCoverage.length} 项待索证</strong><span>需补充材料后重新审查</span></header>
           <ul>{props.riskList.outOfCoverage.map((entry) => <li key={entry.summary}>{entry.summary}</li>)}</ul>
         </section>
       )}
-      <div className="review-submit-bar">
-        <button
-          type="button"
-          className="primary-button"
-          data-testid="submit-contract-review"
-          disabled={!props.submitEnabled || props.submitting || props.submitted}
-          onClick={props.onSubmitReview}
-        >{props.submitting ? '正在提交处置…' : props.submitLabel}</button>
-      </div>
-      {props.nonAppliedPending.length > 0 && (
+      {controls && (
+        <div className="review-submit-bar">
+          <button
+            type="button"
+            className="primary-button"
+            data-testid="submit-contract-review"
+            disabled={!interactive?.submitEnabled || controls.submitState !== 'idle'}
+            onClick={controls.onSubmit}
+          >{controls.submitState === 'submitting' ? '正在提交处置…' : S3_REVIEW_GATE_LABEL}</button>
+        </div>
+      )}
+      {nonApplied && nonApplied.items.length > 0 && (
         <section className="nonapplied-confirm" data-testid="nonapplied-confirm" aria-label="未能落到文书上的修订">
           <header>
-            <strong>有 {props.nonAppliedPending.length} 处修订未能落到文书上</strong>
-            <span>{props.allowNonAppliedConfirmation
+            <strong>有 {nonApplied.items.length} 处修订未能落到文书上</strong>
+            <span>{nonApplied.allowWaiver
               ? '请逐条核对；确认后将照常生成文书，这几处不会自动标注。取消则不生成产物。'
               : '这些风险未能唯一落到主合同，整份批注稿未生成。请修正材料后新开审查。'}</span>
           </header>
           <ul className="nonapplied-list">
-            {props.nonAppliedPending.map((item) => {
-              const confirmed = props.confirmedNonAppliedIds.includes(item.instructionId);
+            {nonApplied.items.map((item) => {
+              const confirmed = nonApplied.confirmedIds.includes(item.instructionId);
               return (
                 <li
                   className="nonapplied-item"
@@ -467,34 +626,34 @@ export function RevisionPanel(props: RevisionPanelProps) {
                     <span className="nonapplied-reason">{nonAppliedReasonLabel(item.reason)}</span>
                     {item.quote && <q className="nonapplied-quote">{item.quote}</q>}
                   </div>
-                  {props.allowNonAppliedConfirmation && <button
+                  {nonApplied.allowWaiver && <button
                     type="button"
                     className="primary-button"
                     data-testid="confirm-nonapplied"
                     disabled={confirmed}
-                    onClick={() => props.onConfirmNonApplied(item.instructionId)}
+                    onClick={() => nonApplied.onConfirm(item.instructionId)}
                   >{confirmed ? '已确认' : '确认知悉'}</button>}
                 </li>
               );
             })}
           </ul>
           <footer>
-            {props.allowNonAppliedConfirmation && <button type="button" className="quiet-button" data-testid="cancel-nonapplied" onClick={props.onCancelNonApplied}>取消，不生成产物</button>}
-            <span className="nonapplied-progress">{props.allowNonAppliedConfirmation
-              ? `已确认 ${props.confirmedNonAppliedIds.length}/${props.nonAppliedPending.length}`
+            {nonApplied.allowWaiver && <button type="button" className="quiet-button" data-testid="cancel-nonapplied" onClick={nonApplied.onCancel}>取消，不生成产物</button>}
+            <span className="nonapplied-progress">{nonApplied.allowWaiver
+              ? `已确认 ${nonApplied.confirmedIds.length}/${nonApplied.items.length}`
               : '整份阻断 · 未写入文书'}</span>
           </footer>
         </section>
       )}
       <div className="risk-master-detail">
         <div className="risk-list"><div className="table-head risk-grid"><span>风险</span><span>等级</span><span>核验</span><span>处置</span><span>下一步</span></div>{props.riskList.risks.map((risk) => {
-          const gateItem = props.gate?.items.find((item) => item.itemRef === risk.id);
-          const disposition = props.dispositions[risk.id];
+          const gateItem = controls?.gate.items.find((item) => item.itemRef === risk.id);
+          const disposition = dispositionOf(risk);
           const settled = disposition === 'confirmed' || disposition === 'rejected' ? disposition : undefined;
-          const unverified = props.unverifiedRiskIds.includes(risk.id);
+          const unverified = unverifiedIds.includes(risk.id);
           const evidenceReady = risk.basis.every((_, index) => props.expandedEvidence[`${risk.id}:${index}`]);
           const nextStep = displayNextStep(disposition, gateItem?.mode, evidenceReady, BATCH_CONFIRM_VISIBLE);
-          const description = props.correctedDescriptions[risk.id] ?? risk.description;
+          const description = descriptionOf(risk);
           return <button className={`dense-row risk-grid ${props.selectedRiskId === risk.id ? 'selected' : ''}`} data-risk-id={risk.id} title={description} key={risk.id} onClick={() => props.onSelectRisk(risk.id)}>
             <SignatureLine tone={riskLineTone(risk.level, disposition, unverified)} />
             <SettlementFlash kind={settled} itemRef={risk.id} testable />
@@ -507,21 +666,21 @@ export function RevisionPanel(props: RevisionPanelProps) {
           </button>;
         })}</div>
         <article className="risk-detail">
-          <SignatureLine tone={riskLineTone(props.selectedRisk.level, selectedDisposition, selectedUnverified)} />
-          <SettlementFlash kind={selectedSettled} itemRef={props.selectedRisk.id} />
-          <SettleSeal disposition={selectedDisposition} itemRef={props.selectedRisk.id} />
-          <header><span className="domain-badge">{props.selectedRisk.id.replace('risk-', 'R')}</span><strong>{selectedGate?.mode === 'individual' ? '逐条确认' : '常规审阅'}</strong><span>{reviewedCount}/{props.selectedRisk.basis.length} 依据已展开</span></header>
+          <SignatureLine tone={riskLineTone(selectedRisk.level, selectedDisposition, selectedUnverified)} />
+          <SettlementFlash kind={selectedSettled} itemRef={selectedRisk.id} />
+          <SettleSeal disposition={selectedDisposition} itemRef={selectedRisk.id} />
+          <header><span className="domain-badge">{selectedRisk.id.replace('risk-', 'R')}</span><strong>{selectedGate?.mode === 'individual' ? '逐条确认' : '常规审阅'}</strong><span>{reviewedCount}/{selectedRisk.basis.length} 依据已展开</span></header>
           {selectedGate?.reason && <div className="individual-note">{individualNoteCopy(selectedGate.reason === 'high_risk' ? 'high_risk' : 'unverified', BATCH_CONFIRM_VISIBLE)}</div>}
           <p>{selectedDescription}</p>
           <dl className="risk-status-ledger" data-testid="risk-detail-status">
-            <div><dt>严重度</dt><dd>{severityLabel(props.selectedRisk.level)}</dd></div>
+            <div><dt>严重度</dt><dd>{severityLabel(selectedRisk.level)}</dd></div>
             <div><dt>核验</dt><dd>{selectedUnverified ? '未核验' : '已核验'}</dd></div>
             <div><dt>处置</dt><dd>{dispositionLabel(selectedDisposition)}</dd></div>
             <div><dt>下一步</dt><dd>{selectedNextStep}</dd></div>
           </dl>
-          <div className="evidence-stack">{props.selectedRisk.basis.map((basis, index) => {
-            const open = props.expandedEvidence[`${props.selectedRisk.id}:${index}`];
-            const quoteId = `risk-quote-${props.selectedRisk.id}-${index}`;
+          <div className="evidence-stack">{selectedRisk.basis.map((basis, index) => {
+            const open = props.expandedEvidence[`${selectedRisk.id}:${index}`];
+            const quoteId = `risk-quote-${selectedRisk.id}-${index}`;
             const source = basis.sourceAnchors[0];
             return <section className="verified-block" key={`${basis.citation}-${index}`}>
               <span className="evidence-grade-slot"><TierBadge grade={props.selectedGrades[index] ?? props.selectedGrades[0]} /></span>
@@ -530,7 +689,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
                   type="button"
                   className="evidence-toggle"
                   title={basis.citation}
-                  onClick={() => props.onExpandBasis(props.selectedRisk.id, index, selectedGate?.evidenceKeys[index] ?? basis.citation)}
+                  onClick={() => props.onToggleEvidence(selectedRisk.id, index, selectedGate?.evidenceKeys[index] ?? basis.citation)}
                   aria-expanded={open}
                   aria-controls={quoteId}
                   aria-label={`${open ? '收起引语' : '查看引语'} · ${basis.citation}`}
@@ -539,49 +698,68 @@ export function RevisionPanel(props: RevisionPanelProps) {
                   <q id={quoteId} data-testid={quoteId}>{source?.quote || '暂无可引用原文'}</q>
                   <div className="evidence-source-actions">
                     <span className="source-file-meta" title={source?.fileId}>来源 · {sourceFileLabel(source?.fileId) || '待补'}</span>
-                    <button type="button" className="goto-source" disabled title="卷宗原件尚未接通">回到原件 · 尚未接通</button>
+                    {/* 无锚才禁用（没有可去之处）；有锚即可点，定位失败走显式反馈，不用 disabled 假装接线。 */}
+                    <button
+                      type="button"
+                      className="goto-source"
+                      data-testid="goto-source"
+                      disabled={!source}
+                      title={source ? '在只读阅读面打开这处引证' : '本条依据没有可回跳的原件坐标'}
+                      onClick={() => { if (source) props.onOpenSource(source); }}
+                    >回到原件</button>
                   </div>
                 </>}
               </div>
             </section>;
           })}</div>
-          {editingSelected ? (
+          {controls && editingSelected ? (
             <div className="review-correction-editor" data-testid="review-correction-editor">
-              <label htmlFor={`review-correction-${props.selectedRisk.id}`}>修正风险结论</label>
+              <label htmlFor={`review-correction-${selectedRisk.id}`}>修正风险结论</label>
               <textarea
-                id={`review-correction-${props.selectedRisk.id}`}
-                value={props.editingCorrection?.draft ?? ''}
-                onChange={(event) => props.onChangeCorrection(event.target.value)}
+                id={`review-correction-${selectedRisk.id}`}
+                value={selectedState?.status === 'editing' ? selectedState.draft : ''}
+                onChange={(event) => controls.onChangeRevision(selectedRisk.id, event.target.value)}
               />
               <div>
-                <button type="button" className="quiet-button" data-testid="cancel-review-correction" onClick={props.onCancelCorrection}>取消</button>
+                <button type="button" className="quiet-button" data-testid="cancel-review-correction" onClick={() => controls.onCancelRevision(selectedRisk.id)}>取消</button>
                 <button
                   type="button"
                   className="primary-button"
                   data-testid="submit-review-correction"
                   disabled={
-                    !(props.editingCorrection?.draft.trim())
-                    || props.editingCorrection?.draft.trim() === props.selectedRisk.description.trim()
+                    selectedState?.status !== 'editing'
+                    || !selectedState.draft.trim()
+                    || selectedState.draft.trim() === selectedRisk.description.trim()
                   }
-                  onClick={props.onSubmitCorrection}
+                  onClick={() => controls.onCommitRevision(selectedRisk.id)}
                 >提交修正并确认</button>
               </div>
             </div>
           ) : (
-            <footer><span>{selectedGate?.mode === 'individual' ? `逐条确认 · ${reviewedCount}/${props.selectedRisk.basis.length} 依据已展开` : scopeFooterCopy(BATCH_CONFIRM_VISIBLE)}</span><i /><button className="quiet-button" onClick={() => props.onDispose(props.selectedRisk.id, 'rejected')}>驳回</button><button className="quiet-button" data-testid="begin-review-correction" onClick={() => props.onBeginCorrection(props.selectedRisk.id, props.selectedRisk.description)}>修正</button><button className="primary-button" disabled={!props.individualReady} onClick={() => props.onDispose(props.selectedRisk.id, 'confirmed')}>确认此项</button></footer>
+            <footer>
+              <span>{selectedGate?.mode === 'individual' ? `逐条确认 · ${reviewedCount}/${selectedRisk.basis.length} 依据已展开` : scopeFooterCopy(BATCH_CONFIRM_VISIBLE)}</span><i />
+              {/* 只读面在类型上就拿不到 controls，故这三枚写入控件结构性不存在——不是运行时藏起来。 */}
+              {controls && <>
+                <button className="quiet-button" onClick={() => controls.onReject(selectedRisk.id)}>驳回</button>
+                <button className="quiet-button" data-testid="begin-review-correction" onClick={() => controls.onBeginRevision(selectedRisk.id)}>修正</button>
+                <button className="primary-button" disabled={!individualReady} onClick={() => controls.onConfirm(selectedRisk.id)}>确认此项</button>
+              </>}
+            </footer>
           )}
         </article>
       </div>
       {/*
-        CONTRACT-OUTPUT-TRUTH-1：**数据面**退役。这块固定的合同标题、「修订 4 处」与
-        `<del>`/`<ins>` 是样板案的展示件，此前对真实案件也照渲——用户看到的是一份与本案毫无关系的
-        假 redline。production 改为诚实空态：本版产物是「原合同副本 + 已确认风险批注」，
-        应用内没有真实 redline 可呈现，就不摆一个假的。
-        交互回跳（goto-source）与本块的最终退役属 CONTRACT-TRACE-1，本票一行不动。
+        CONTRACT-OUTPUT-TRUTH-1 数据面 + CONTRACT-TRACE-1 交互面：固定合同标题、固定「修订 4 处」
+        与 `<del>`/`<ins>` 整块**退役**。本版产物是「原合同副本 + 已确认风险批注」，应用内没有
+        真实 redline 可呈现，就不摆一个假的——demo 与 production 在此同一诚实空态，无第二形态。
       */}
-      {props.showDemoDocumentPreview
-        ? <div className="document-preview"><header><strong title="精密铸造生产线设备采购合同">精密铸造生产线设备采购合同</strong><span>修订 4 处</span></header><p>乙方应于本合同签订后 7 日内支付预付款。逾期付款的，<del>每逾期一日按未付金额的 1%</del><ins>违约金以实际损失为基础，并依法定标准调整</ins>。</p><p>设备到货后，买方应在 <ins>7 个工作日内书面提出验收异议</ins>；逾期未提出不当然视为验收合格。</p></div>
-        : <div className="document-preview" data-testid="revision-preview-empty"><header><strong>合同批注预览</strong></header><p>本版产出是原合同副本加上已确认风险的批注，需在 Word 中打开查看。</p></div>}
+      <div className="document-preview" data-testid="revision-preview-empty">
+        <header><strong>{preview.title}</strong></header>
+        <p>{preview.body}</p>
+        {props.mode === 'read_only' && props.outputResult?.status === 'ready_to_deliver' && (
+          <button type="button" className="primary-button" data-testid="retry-contract-output" onClick={props.onRetryOutput}>生成批注稿</button>
+        )}
+      </div>
     </div>
   </StaticViewport>;
 }

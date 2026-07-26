@@ -29,8 +29,10 @@ const modules = stripComments(await read('src/modules/ModuleStack.tsx'));
 // CONTRACT-REVIEW-SAFETY-1「过手即拆」：提交编排与产物落盘已从 App.tsx 外提到本模块。
 // 门跟着码走——扫描面迁移，断言不弱化（见下方 resume/docx 源两处拆成「接线」+「调用」两段）。
 const submission = stripComments(await read('src/work/use-contract-review-submission.ts'));
-// CONTRACT-OUTPUT-TRUTH-1「过手即拆」：恢复入口的判定外提到本模块，扫描面同批迁移。
-const recovery = stripComments(await read('src/work/work-recovery.ts'));
+// CONTRACT-OUTPUT-TRUTH-1「过手即拆」：恢复入口的判定外提到独立模块，扫描面同批迁移。
+// CONTRACT-TRACE-1：该模块被 `work/work-session-lifecycle.ts` 吸收（恢复判定与指针判定读同一份
+// replay 结果、同一张相位表，两个模块要把 phase switch 写两遍）。扫描面随之迁移。
+const lifecycle = stripComments(await read('src/work/work-session-lifecycle.ts'));
 // CONTRACT-OUTPUT-TRUTH-1：显式主合同选择/排序/CaseFile 派生的纯函数落点。
 const primaryContract = stripComments(await read('src/work/primary-contract.ts'));
 // CONTRACT-OUTPUT-TRUTH-1：唯一 production 交付编排。
@@ -92,24 +94,64 @@ requireMatch(command, /runScenario/, 'run 必须经真实 core executor runScena
 requireMatch(command, /resumeScenario/, 'resume 必须经真实 core executor resumeScenario（非 recording）');
 
 // ── grant（真实）案接线（App.tsx）：run/gate/resume/cancel/docx 源全走生产链 ──────
-requireMatch(app, /workCommand\.startWithPreflight\(/, 'grant 案 run 必须经 workCommand.startWithPreflight（显式主体 preflight）');
+// CONTRACT-TRACE-1「过手即拆」：run/cancel/recover 的编排外提到 work-session-lifecycle。
+// 门跟着码走，逐条拆「App 侧接线」＋「外提件里的调用」两段——两段都在才算真正接通。
+requireMatch(app, /useWorkRunLifecycle\(\{[\s\S]*?\n {4}workCommand,/, 'grant 案 run/cancel/recover 必须把生产 workCommand 交给会话生命周期编排（App 侧接线）');
+requireMatch(lifecycle, /workCommand\.startWithPreflight\(/, 'grant 案 run 必须经 workCommand.startWithPreflight（显式主体 preflight）');
 requireMatch(app, /useContractReviewSubmission\(\{[\s\S]*?\n {4}workCommand,/, 'grant 案 resume 必须把生产 workCommand 交给提交编排（App 侧接线）');
 requireMatch(submission, /commandRef\.current\.resolveReview\(/, 'grant 案 resume 必须经 workCommand.resolveReview（逐条 revision）');
-requireMatch(app, /workCommand\.cancel\(/, 'grant 案 cancel 必须经 workCommand.cancel');
+requireMatch(lifecycle, /workCommand\.cancel\(/, 'grant 案 cancel 必须经 workCommand.cancel');
 // WORK-LIVE-REPLAY-1（答复 WORK-HOST-1 驳回阻断二）：跨切案/重启的恢复入口必须真实消费 workCommand.replay
 // 水合投影（此前「全 App 对 workCommand.replay 零消费点」是驳回根因）。
-// CONTRACT-OUTPUT-TRUTH-1「过手即拆」：判定外提到 work/work-recovery.ts 后，App 侧是**把
-// workCommand.replay 交给** readWorkRecovery，调用点在外提件里。门跟着码走，拆成两段——
-// 断言不弱化：两段都在才算真正接通，任一段消失（App 不再交、或外提件不再调）仍触红。
+// CONTRACT-OUTPUT-TRUTH-1「过手即拆」：判定外提后，App 侧是**把 workCommand.replay 交给**外提件，
+// 调用点在外提件里。门跟着码走，拆成两段——断言不弱化：两段都在才算真正接通，任一段消失
+// （App 不再交、或外提件不再调）仍触红。
 requireMatch(
-  app,
-  /readWorkRecovery\(\s*workCommand\.replay/,
-  'grant 案 恢复入口必须把 workCommand.replay 交给恢复编排（App 侧接线）',
+  lifecycle,
+  /readWorkReplay\(\s*workCommand\.replay/,
+  'grant 案 恢复入口必须把 workCommand.replay 交给恢复编排',
 );
 requireMatch(
-  recovery,
+  lifecycle,
   /await replay\(query\)/,
   'grant 案 恢复编排必须真实调用注入的 replay（水合投影续行，答复 WORK-HOST-1 驳回阻断二）',
+);
+// 退役名反向锁（判例「红的理由」）：被吸收的模块名不得复活。若有人另起 work-recovery，
+// 上面两条仍可能各自绿（App 交给新名、新模块里也有 await replay），红必须报对理由。
+for (const [label, source] of [['App', app], ['work-session-lifecycle', lifecycle]]) {
+  forbidMatch(
+    source,
+    /work-recovery|readWorkRecovery/,
+    `${label}：\`work-recovery\` 已被 work-session-lifecycle 吸收，恢复判定不得再有第二处声明`,
+  );
+}
+
+// ── CONTRACT-TRACE-1：pointer 生命周期——compare-and-clear 是唯一清除形态 ──────────
+requireMatch(
+  lifecycle,
+  /const current = store\.read\(caseId\);[\s\S]*?current\?\.sessionId === action\.sessionId/,
+  'pointer 清除必须 compare-and-clear：先读当前值比对 sessionId，永不 blanket clear',
+);
+requireMatch(
+  lifecycle,
+  /const previous = readWorkSession\(caseId\);/,
+  'fresh start 必须在调用 start **之前**捕获旧 pointer（rejected 时它须逐字不变）',
+);
+requireMatch(
+  lifecycle,
+  /tracker\.observeDurableEvent\(\)/,
+  'pointer 建立时点必须是首枚 post-CAS event，不得在 candidate 返回时抢写',
+);
+// 旧写法：start 同步返回即 persist、rejected/canceled 一律 clear。两处都必须零出现。
+forbidMatch(
+  lifecycle,
+  /persistWorkSession\(caseId,\s*\{\s*sessionId/,
+  'App：不得在 candidate 返回时直接持久（取得 candidate 不是建立成功）',
+);
+forbidMatch(
+  lifecycle,
+  /status === 'rejected' \|\| outcome\.status === 'canceled'\)\s*\{\s*clearWorkSession/,
+  'App：rejected 不得清 pointer（旧记录须逐字不变）；canceled 只可 compare-and-clear',
 );
 requireMatch(app, /projectRiskListGate\(riskList/, 'grant 案 live gate 必须经 projectRiskListGate（真实 RiskList）');
 
@@ -154,7 +196,7 @@ for (const [label, source] of [['App', app], ['work-command', command], ['primar
   );
 }
 requireMatch(app, /selectPrimaryContractCandidates\(/, 'grant 案起跑面必须只列可作主合同的 DOCX 候选');
-requireMatch(app, /orderS3MaterialRefs\(/, 'grant 案 start 必须经 orderS3MaterialRefs（主合同稳定在 materialRefs[0]）');
+requireMatch(lifecycle, /orderS3MaterialRefs\(/, 'grant 案 start 必须经 orderS3MaterialRefs（主合同稳定在 materialRefs[0]）');
 requireMatch(command, /deriveS3CaseFile\(/, 'S3 start 必须从同一输入机械派生 legal.CaseFile（不再传空 artifacts）');
 requireMatch(
   primaryContract,
@@ -194,7 +236,7 @@ requireMatch(command, /createRuntimeBudget:\s*\(modelRoute:/, 'fresh start 必�
 requireMatch(binding, /runtimeBudget:\s*input\.store\.runtimeBudget/, 'production executor 必须消费 store.runtimeBudget');
 requireMatch(binding, /expectedModelRoute:\s*\{\s*\.\.\.input\.expectedModelRoute\s*\}/, 'expected route 必须同源防御复制');
 forbidMatch(binding, /\blimits\s*:/, 'production binding 不得注入 legacy limits');
-forbidMatch(app, /outcome\.status === 'failed'[\s\S]{0,180}clearWorkSession/, 'failed outcome 不得清除恢复指针');
+forbidMatch(lifecycle, /outcome\.status === 'failed'[\s\S]{0,180}clearWorkSession/, 'failed outcome 不得清除恢复指针');
 requireMatch(runtime, /readState\(ref:\s*WorkSessionRef\)[\s\S]*?readHost\s*\?\s*readHost\(ref\)/, 'E2E hook 必须只读暴露 readState(ref)');
 forbidMatch(runtime, /(?:write|mutate|tamper|compareAndSwap)State\s*\(/i, 'E2E hook 禁止暴露 WorkState 写入/篡改能力');
 requireMatch(modules, /function ProgressModuleBody\(\{\s*projection\s*\}[\s\S]*?SessionProjection/, 'ProgressModuleBody 必须只接完整 SessionProjection');

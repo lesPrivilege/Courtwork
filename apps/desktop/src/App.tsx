@@ -10,6 +10,7 @@ import {
   LEGAL_DEMO_INTERACTION_TURN_ID,
   ensureLegalDemoInteraction,
   resolveLegalDemoSource,
+  type LegalDemoSourceRoute,
 } from './demo/legal-interaction';
 import {
   EMPTY_SESSION,
@@ -23,10 +24,9 @@ import {
 import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
 import { replayWorkProjection } from './protocol/work-replay';
 import { projectRiskListGate } from './work/legal-s3-binding';
-import { planWorkRecovery, readWorkRecovery } from './work/work-recovery';
-import { orderS3MaterialRefs, selectPrimaryContractCandidates } from './work/primary-contract';
+import { useWorkRunLifecycle } from './work/work-session-lifecycle';
+import { selectPrimaryContractCandidates } from './work/primary-contract';
 import type { LegalS3WorkCommand } from './work/work-command';
-import { clearWorkSession, persistWorkSession, readWorkSession, type WorkSessionRecord } from './work/work-session-store';
 import { projectPersistableCases, readCaseList, writeCaseList } from './case/case-store';
 import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
@@ -47,7 +47,12 @@ import {
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import type { MaterialStore } from './material/material-store';
 import { sha256Hex } from './material/sha256';
-import { readMaterialAction, verifyMaterialAction } from './material/material-actions';
+import {
+  MATERIAL_READER_BLOCK_REASON_COPY,
+  readMaterialAction,
+  verifyMaterialAction,
+  type MaterialReaderDoc,
+} from './material/material-actions';
 import { ReaderPane } from './system/ReaderPane';
 import type { StoredMaterial } from './material/material-ref';
 import { CHROME_COPY } from './chrome/copy';
@@ -80,11 +85,9 @@ import { CaseRail } from './rail/CaseRail';
 import type { UnfiledSession } from './rail/types';
 import { SettingsPage, type SettingsSection } from './settings';
 import { hostAuthReasonCopy, type HostAuthPort } from './host/host-auth-port';
-import { LEGACY_CASE_SCENARIO_COPY, isWorkSafeCaseId, mintCaseId } from './case/case-id';
+import { mintCaseId } from './case/case-id';
 import { workContextSegmentFor } from './work/work-context';
 import { useModelConfig } from './provider/use-model-config';
-import { workFailureDisplayCopy } from './work/work-failure-copy';
-import { readStreamEvidence } from '@courtwork/provider/evidence';
 import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
 import { systemOpenClient } from './system/system-open-client';
 import { WorkDraftPanel } from './system/WorkDraftPanel';
@@ -100,6 +103,7 @@ import {
   RevisionPanel,
   S3LauncherPanel,
   TimelinePanel,
+  projectReviewItemStates,
   type DraftDocument,
 } from './workbench/Panels';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
@@ -127,6 +131,7 @@ import { useDismissOnOutside } from './hooks/useDismissOnOutside';
 import { createReviewTelemetryEmitter } from './telemetry/review-telemetry';
 import { compileDraftToDocx } from '@courtwork/output';
 import { caseOutputClient } from './output/case-output-client';
+import type { ResolvedSourceAnchor, SourceAnchor } from '@courtwork/schemas';
 import { S3_REVIEW_GATE_LABEL } from './work/contract-review-flow';
 import { useContractReviewSubmission } from './work/use-contract-review-submission';
 
@@ -134,10 +139,22 @@ const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
 type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft' | 'artifact';
 
-interface ReaderDocument {
-  name: string;
-  markdown: string;
-  focusAnchor?: ReturnType<typeof resolveLegalDemoSource>['focusAnchor'];
+/**
+ * CONTRACT-TRACE-1：demo route → canonical `MaterialReaderDoc` 的适配点。
+ *
+ * demo 语料没有 MaterialStore 重验链，故它的「文本层」只有一枚原文块；焦点直接取 resolver
+ * 已验真的 `textRange`，**不保留 quote-search**。坐标齐备与否由调用方分流，此处不静默兜底。
+ */
+function demoReaderDoc(route: LegalDemoSourceRoute): MaterialReaderDoc | null {
+  const range = route.focusAnchor.textRange;
+  const textLayerVersion = route.focusAnchor.textLayerVersion;
+  if (!range || !textLayerVersion) return null;
+  return {
+    name: route.name,
+    markdown: route.markdown,
+    blocks: [{ blockId: 'source', text: route.markdown, rangeBase: 0, textLayerVersion }],
+    focus: { blockId: 'source', localStart: range.start, localEnd: range.end },
+  };
 }
 
 type ChatMessage =
@@ -161,6 +178,8 @@ type ChatMessage =
 
 // R1：固定名只属样板案；production 产物名版本化，由 coordinator 从完整 replay 铸出（详见 SPEC）。
 const DEMO_CONTRACT_OUTPUT_FILE = '合同审查报告.docx';
+/** 样板案主合同的展示名（demo 原件；production 一律从冻结材料取真实文件名）。 */
+const DEMO_CONTRACT_SOURCE_NAME = '设备采购合同';
 const DRAFT_OUTPUT_FILE = '答辩意见.docx';
 
 const VIEW_LABELS: Record<WorkbenchView, string> = {
@@ -341,8 +360,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // WORK-LIVE-1：非 demo（grant）案的 production Work 会话态。demo 案走 fixture，二者物理隔离。
   const [workSessionId, setWorkSessionId] = useState<string | null>(null);
   const [workRunning, setWorkRunning] = useState(false);
-  // WORK-LIVE-REPLAY-1：本案是否有持久的可恢复 Work 会话指针（切案/重启后 workSessionId 清空，据此重现恢复入口）。
-  const [recoverableSession, setRecoverableSession] = useState<WorkSessionRecord | null>(null);
   // CASE-PERSIST-1：宿主实际持有的授权集（跨重启后交叉核对持久案件的 grantId 是否仍有效）；null=尚未核对完成。
   const [knownGrantIds, setKnownGrantIds] = useState<ReadonlySet<string> | null>(null);
   const [workSubject, setWorkSubject] = useState('');
@@ -355,7 +372,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [compileOpen, setCompileOpen] = useState(false);
   const [compilePending, setCompilePending] = useState(false);
   const [draftOutputExists, setDraftOutputExists] = useState(false);
-  const [contractOutputExists, setContractOutputExists] = useState(false);
+  /**
+   * CONTRACT-TRACE-1 顺带（架构裁定 2026-07-26）：命名残留清理。旧名 `contractOutputExists`
+   * 读起来像「本案批注稿是否存在」，实际**只有样板案渲染它**（固定产物名的存在性探询也只对
+   * demo 提问）；production 的产物事实一律走 coordinator 结果，不按名猜。名字即边界声明。
+   */
+  const [demoContractOutputExists, setDemoContractOutputExists] = useState(false);
   // OUTPUT-CONFIRM-UI-1：未能落到文书上的修订，逐条待用户确认后才落盘。
   const [draft, setDraft] = useState<DraftDocument>(INITIAL_DRAFT);
   const [credentialStatus, setCredentialStatus] = useState<CredentialStatus>({ credential: { phase: 'absent' }, connection: { phase: 'unverified' } });
@@ -398,7 +420,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   /** 十四章浏览器态开关：false=四模块列（大纲目录）,true=浏览器态（右列唯一 Preview） */
   const [previewOpen, setPreviewOpen] = useState(false);
   /** 视图汇流：原件阅读文档（浏览器态 body 替换为阅读面;切 tab 即离开） */
-  const [readerDoc, setReaderDoc] = useState<ReaderDocument | null>(null);
+  const [readerDoc, setReaderDoc] = useState<MaterialReaderDoc | null>(null);
   const readerFocusRef = useRef<HTMLElement>(null);
   /** Preview 模块大纲目录展开态（默认展开——样板案导览指向此处） */
   const [outlineOpen, setOutlineOpen] = useState(true);
@@ -505,7 +527,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   }, [turnClient]);
 
   useEffect(() => {
-    if (!previewOpen || !readerDoc?.focusAnchor) return;
+    if (!previewOpen || !readerDoc?.focus) return;
     const frame = window.requestAnimationFrame(() => {
       const target = readerFocusRef.current;
       if (!target) return;
@@ -528,10 +550,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   const openInteractionSource = async (anchor: Parameters<typeof resolveLegalDemoSource>[0]) => {
     try {
-      const route = resolveLegalDemoSource(anchor, selectedCaseId);
+      const doc = demoReaderDoc(resolveLegalDemoSource(anchor, selectedCaseId));
+      // 坐标不齐即不开面（demo 亦然）：空白阅读面会被读成「这份文件没内容」。
+      if (!doc) throw new Error(MATERIAL_READER_BLOCK_REASON_COPY.anchor_invalid);
       previewDismissedContext.current = null;
       manualPreviewSelected.current = true;
-      setReaderDoc(route);
+      setReaderDoc(doc);
       setPreviewOpen(true);
       setRightCollapsed(false);
       setTurnRecoveryError(undefined);
@@ -571,7 +595,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           materials: caseMaterials,
           scenarioState: session.confirmation
             ? 'paused_review'
-            : recoverableSession
+            : workRun.recoverableSession
               ? 'recoverable'
               : 'not_started',
         })
@@ -857,7 +881,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     previewDismissedContext.current = null;
     manualPreviewSelected.current = false;
     setDraftOutputExists(false);
-    setContractOutputExists(false);
+    setDemoContractOutputExists(false);
     setDraft(INITIAL_DRAFT);
     setCompileOpen(false);
     setCompilePending(false);
@@ -1021,16 +1045,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     };
   }, [caseBinding.kind, selectedCaseId, materialStore]);
 
-  // WORK-LIVE-REPLAY-1：切案/重载后从持久层复读本案的可恢复会话指针（fail-closed：不可读即当作无）。
-  // 恢复入口据此在 workSessionId 清空后重现——答复 WORK-HOST-1 驳回阻断二「session ref 未成为可恢复 UI 状态」。
-  useEffect(() => {
-    if (caseBinding.kind !== 'grant' || !selectedCaseId) {
-      setRecoverableSession(null);
-      return;
-    }
-    setRecoverableSession(readWorkSession(selectedCaseId));
-  }, [caseBinding.kind, selectedCaseId]);
-
   // CASE-PERSIST-1：跨重启后交叉核对宿主实际持有的授权（host_auth 的 grant 记录跨重启耐久）。持久案件持的
   // grantId 若宿主查无（文件夹被移动/删除、卷卸载或撤权），标记显式失效态供用户移除——绝不静默从侧栏消失
   // （核心不变量四）。开案时也复核（selectedCaseId 变即重查），保证「打开即最新」的 fail-closed 新鲜度。
@@ -1109,13 +1123,20 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const gradeByKey = useMemo(() => new Map(session.evidenceGrades.map((item) => [item.key, item.grade])), [session.evidenceGrades]);
   const selectedGate = selectedRisk ? gate?.items.find((item) => item.itemRef === selectedRisk.id) : undefined;
   const selectedGrades = selectedGate?.evidenceKeys.map((key) => gradeByKey.get(key)).filter((value): value is 'A' | 'B' | 'C' => Boolean(value)) ?? [];
+  // 「含 C 级依据」不可从 gate 的 reason 派生：`high_risk` 对 `unverified` 优先，照派生会让
+  // 高危且含 C 级依据的条目在核验列显示为「已核验」。故仍由证据台账现算并作为显式输入。
   const unverifiedRiskIds = gate?.items
     .filter((item) => item.evidenceKeys.some((key) => gradeByKey.get(key) === 'C'))
     .map((item) => item.itemRef) ?? [];
-  const allEvidenceOpened = selectedRisk
-    ? selectedRisk.basis.every((_, index) => expandedEvidence[`${selectedRisk.id}:${index}`])
-    : false;
-  const individualReady = selectedGate?.mode !== 'individual' || allEvidenceOpened;
+  /** completed 的 grant 案：审阅面转只读——写权限由判别联合隔离，不是运行时把控件藏起来。 */
+  const reviewReadOnly = caseBinding.kind === 'grant' && workPhase === 'completed';
+  /** coordinator 的宿主接缝；与提交编排同一组实现，不另造第二条落盘路径。 */
+  const contractOutputDeps = {
+    readMaterial: (caseId: string, materialId: string) => materialStore.readForOutput(caseId, materialId),
+    statDocx: (binding: CaseBinding, fileName: string) => caseOutputClient.statDocx(binding, fileName),
+    writeDocxNoReplace: (binding: CaseBinding, fileName: string, bytes: Uint8Array) =>
+      caseOutputClient.writeDocxNoReplace(binding, fileName, bytes),
+  };
   // CONTRACT-REVIEW-SAFETY-1「过手即拆」：提交编排与产物落盘整体外提到
   // `work/use-contract-review-submission.ts`，App 只留相位与产物存在性两个跨面消费。
   const submission = useContractReviewSubmission({
@@ -1137,12 +1158,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     demoSourceMarkdown: contractSourceMd,
     outputFileName: DEMO_CONTRACT_OUTPUT_FILE,
     showSystemFeedback,
-    onOutputExists: setContractOutputExists,
+    // 只有样板案的固定产物名有「存在性」这回事；production 的交付事实只认 coordinator 结果，
+    // 不再借这枚 demo 状态转述（旧接线让 production 写一个只有 demo 读的槽，是命名残留的成因）。
+    onOutputExists: (exists: boolean) => { if (isDemoCase) setDemoContractOutputExists(exists); },
     onCompleted: () => setWorkPhase('completed'),
   });
 
-  // 已处置条目退出批量池：批后计数归零禁钮，且批量永不覆写既有逐条处置（用户修正最高优先级）
-  const batchRefs = gate?.items.filter((item) => item.mode === 'batch' && !submission.review.dispositions[item.itemRef]).map((item) => item.itemRef) ?? [];
   const draftFrozen = draftOutputExists;
   const comparing = secondaryView !== undefined;
   const usage = isDemoCase ? (flow === 'S3' ? 91 : 18) : 0;
@@ -1174,7 +1195,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     let cancelled = false;
     let requestVersion = 0;
     setDraftOutputExists(false);
-    setContractOutputExists(false);
+    setDemoContractOutputExists(false);
     if (caseBinding.kind === 'unbound') return;
 
     const refreshOutputExistence = () => {
@@ -1185,11 +1206,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       ]).then(([draftExists, contractExists]) => {
         if (cancelled || currentRequest !== requestVersion) return;
         setDraftOutputExists(draftExists);
-        setContractOutputExists(contractExists);
+        setDemoContractOutputExists(contractExists);
       }).catch(() => {
         if (cancelled || currentRequest !== requestVersion) return;
         setDraftOutputExists(false);
-        setContractOutputExists(false);
+        setDemoContractOutputExists(false);
       });
     };
 
@@ -1203,108 +1224,34 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     };
   }, [caseBinding]);
 
-  // WORK-LIVE-1：grant（真实）案的 production S3 运行触发。显式主体来自受控 preflight（不从案名/文件名/
-  // 正文/模型猜测）；材料经 resolveForProvider 复验才入 provider；事件机械发布进同一 session 投影（零 recording）。
-  const startWorkRun = () => {
-    if (caseBinding.kind !== 'grant' || !selectedCaseId || workRunning) return;
-    // WORK-TURN-1 G 存量守卫：旧版铸号（标题拼入 id）在 work_state 安全 token 外——原位容忍，
-    // 场景运行前显式引导（发生了什么+下一步），不让 Rust 侧技术红条兜底。
-    if (!isWorkSafeCaseId(selectedCaseId)) {
-      showSystemFeedback(LEGACY_CASE_SCENARIO_COPY, false, 'info');
-      return;
-    }
-    const partyName = workSubject.trim();
-    if (!partyName) return;
-    // CONTRACT-OUTPUT-TRUTH-1：主合同由用户**显式选定**，不再按入库顺序猜。
-    // materialRefs[0] 恒为该选择，CaseFile 与 output 原始 bytes 由同一 id 派生。
-    if (!primaryContractId) return;
-    let materialRefs: string[];
-    try {
-      materialRefs = orderS3MaterialRefs(primaryContractId, caseMaterials);
-    } catch {
-      showSystemFeedback('所选主合同已不在本案可用材料中，请重新选择', false, 'info');
-      return;
-    }
-    dispatch({ type: '__clear__' });
-    setGate(undefined);
-    submission.reset();
-    setWorkContractMaterialId(primaryContractId);
-    setWorkRunning(true);
-    const caseId = selectedCaseId;
-    const { sessionId, done } = workCommand.startWithPreflight(
-      {
-        commandId: `s3-${caseId}-${Date.now()}`,
-        caseId,
-        materialRefs,
-        modelRoute: { providerId: modelConfig.providerId, modelId: modelConfig.modelId, reasoning: modelConfig.reasoning },
-        subject: { partyName },
-      },
-      dispatch,
-    );
-    setWorkSessionId(sessionId);
-    // WORK-LIVE-REPLAY-1：run 启动成功即持久化最小恢复指针——切案/重启后 workSessionId 清空，恢复入口据此重现。
-    persistWorkSession(caseId, { sessionId, contractMaterialId: primaryContractId });
-    void done.then((outcome) => {
-      setWorkRunning(false);
-      // WORK-LIVE-1-FIX：rejected（未就绪/冲突，ADR-010 决定一闭集）是明确的产品语言中性反馈，
-      // 不是错误红条；failed（provider/内部）才是错误。二者视觉与语义分离。
-      if (outcome.status === 'rejected') {
-        showSystemFeedback(outcome.message, false, 'info');
-      } else if (outcome.status === 'failed') {
-        // PROVIDER-STREAM-1 ③：失败报文过产品语守门（协议外守卫/英文技术残文零裸透）；
-        // 同时把 provider 侧脱敏留证持久到本地（versioned 单键），供真机复现回填 fixture。
-        showSystemFeedback(workFailureDisplayCopy(outcome.message), false);
-        try {
-          const evidence = readStreamEvidence();
-          if (evidence.length > 0) {
-            window.localStorage.setItem('courtwork.provider-evidence.v1', JSON.stringify({ version: 1, entries: evidence }));
-          }
-        } catch {
-          /* 留证是尽力而为的诊断缓存：失败不影响主反馈 */
-        }
-      } else if (outcome.status === 'canceled') {
-        showSystemFeedback('已停止合同审查', true);
-      }
-      // 持久 failed 仍须从 Progress 只读回放；瞬时 outcome 本身不证明是否落账。
-      if (outcome.status === 'rejected' || outcome.status === 'canceled') {
-        clearWorkSession(caseId);
-        setRecoverableSession(null);
-      }
-    });
-  };
+  /**
+   * CONTRACT-TRACE-1「过手即拆」：run/cancel/recover/pointer/completed-output 五处状态面整块
+   * 外提到 `work/work-session-lifecycle.ts`；App 侧只余依赖供给与四个消费点。
+   */
+  const workRun = useWorkRunLifecycle({
+    caseBinding,
+    selectedCaseId,
+    workRunning,
+    workSessionId,
+    workContractMaterialId,
+    workSubject,
+    primaryContractId,
+    caseMaterials,
+    modelRoute: { providerId: modelConfig.providerId, modelId: modelConfig.modelId, reasoning: modelConfig.reasoning },
+    workCommand,
+    reviewReadOnly,
+    outputDeps: contractOutputDeps,
+    dispatch,
+    resetReview: submission.reset,
+    clearGate: () => setGate(undefined),
+    setWorkRunning,
+    setWorkSessionId,
+    setWorkContractMaterialId,
+    setWorkPhase,
+    setPreviewOpen,
+    showSystemFeedback,
+  });
 
-  const cancelWorkRun = () => {
-    if (caseBinding.kind !== 'grant' || !selectedCaseId || !workSessionId || !workRunning) return;
-    void workCommand.cancel({ caseId: selectedCaseId, sessionId: workSessionId, commandId: `cancel-${Date.now()}` });
-  };
-
-  // WORK-LIVE-REPLAY-1（答复 WORK-HOST-1 驳回阻断二）：恢复入口——从持久指针调 workCommand.replay 水合投影续行。
-  // 切案/重启后 workSessionId 清空，用户经此重新发现并恢复 ref：replay 从宿主读回信封 → 机械回放事件重建
-  // riskList/门禁/证据台账 → 停在暂停门禁续行（逐条处置 → resolveReview → docx，与不重启路径等价）。
-  const recoverWorkRun = async () => {
-    if (caseBinding.kind !== 'grant' || !selectedCaseId || workRunning) return;
-    const record = readWorkSession(selectedCaseId);
-    if (!record) { setRecoverableSession(null); return; }
-    const caseId = selectedCaseId;
-    const hydrate = (events: SessionEvent[]) => {
-      dispatch({ type: '__clear__' });
-      for (const event of events) dispatch(event);
-      setWorkSessionId(record.sessionId);
-      setWorkContractMaterialId(record.contractMaterialId);
-    };
-    // 判定整体外提到 work/work-recovery.ts；此处只做 React 侧应用动作。
-    const plan = planWorkRecovery(await readWorkRecovery(workCommand.replay, { caseId, sessionId: record.sessionId }));
-    if (plan.kind === 'retryable') { showSystemFeedback(plan.message, false, 'info'); return; }
-    if (plan.kind === 'clear') {
-      clearWorkSession(caseId); setRecoverableSession(null);
-      showSystemFeedback(plan.message, false, 'info'); return;
-    }
-    hydrate(plan.events);
-    if (plan.kind === 'hydrate_failed') {
-      setWorkPhase('failed'); setWorkRunning(false); setPreviewOpen(false); setRecoverableSession(null); return;
-    }
-    setWorkPhase('paused');
-  };
 
   // WORK-LIVE-1：grant 案的 live gate 由真实 RiskList + 证据台账派生（projectRiskListGate，绝不复用样板案门禁投影）。
   useEffect(() => {
@@ -1652,7 +1599,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // 此处只喂 caseId 与副作用出口。demo 案不经此路径——CaseRail 按 demo 分流到 OriginalsZone。
   const materialSink = {
     feedback: showSystemFeedback,
-    openReader: (doc: { name: string; markdown: string }) => {
+    openReader: (doc: MaterialReaderDoc) => {
       previewDismissedContext.current = null;
       manualPreviewSelected.current = true;
       setReaderDoc(doc);
@@ -1665,6 +1612,30 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   };
   const readMaterial = (materialId: string) => {
     if (selectedCaseId) void readMaterialAction(materialStore, selectedCaseId, materialId, materialSink);
+  };
+
+  /**
+   * CONTRACT-TRACE-1「回到原件」：SourceAnchor 的 `fileId` 就是本案 materialId，交同一条
+   * canonical reader 调用链按坐标开面。定位失败走既有显式反馈，不退回 quote 全文搜索。
+   */
+  const openRiskSource = (anchor: SourceAnchor) => {
+    if (!selectedCaseId) return;
+    if (!isDemoCase) {
+      void readMaterialAction(materialStore, selectedCaseId, anchor.fileId, materialSink, anchor);
+      return;
+    }
+    // demo 语料没有 MaterialStore 重验链，故走 demo adapter；坐标不齐即显式阻断，不开空白面。
+    let doc: MaterialReaderDoc | null;
+    try {
+      doc = demoReaderDoc(resolveLegalDemoSource(anchor as ResolvedSourceAnchor, selectedCaseId));
+    } catch {
+      doc = null;
+    }
+    if (!doc) {
+      showSystemFeedback(MATERIAL_READER_BLOCK_REASON_COPY.anchor_invalid, false, 'info');
+      return;
+    }
+    materialSink.openReader(doc);
   };
 
   const confirmDraftCompile = () => {
@@ -1837,9 +1808,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             onSelectPrimaryContract={setPrimaryContractId}
             subject={workSubject}
             onChangeSubject={setWorkSubject}
-            recoverable={recoverableSession !== null}
-            onRecover={() => void recoverWorkRun()}
-            onStart={startWorkRun}
+            recoverable={workRun.recoverableSession !== null}
+            onRecover={() => void workRun.recover()}
+            onStart={workRun.start}
           />
         );
       }
@@ -1912,37 +1883,52 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         >{submission.submitting ? '正在提交处置…' : S3_REVIEW_GATE_LABEL}</button>
       </section>;
     }
+    const reviewCommon = {
+      riskList,
+      // 真实主合同名：production 取本次会话冻结的材料，demo 取样板案原件名。固定标题已退役。
+      primaryFileName: isDemoCase
+        ? DEMO_CONTRACT_SOURCE_NAME
+        : caseMaterials.find((item) => item.materialId === workContractMaterialId)?.fileName ?? '未选定主合同',
+      selectedRiskId,
+      onSelectRisk: setSelectedRiskId,
+      selectedGrades,
+      expandedEvidence,
+      onToggleEvidence: expandBasis,
+      onOpenSource: openRiskSource,
+    };
+    // CONTRACT-TRACE-1：completed 只读重开 —— 写权限由判别联合隔离，read_only 面在类型上就没有
+    // controls；处置只从 replay 后的 RiskList 读，风险区零事件、零 CAS。
+    if (reviewReadOnly) {
+      return workRun.contractOutputResult?.status === 'ready_to_deliver'
+        ? <RevisionPanel {...reviewCommon} mode="read_only" outputResult={workRun.contractOutputResult} onRetryOutput={workRun.retryOutput} />
+        : <RevisionPanel {...reviewCommon} mode="read_only" outputResult={workRun.contractOutputResult} />;
+    }
+    if (!gate) return emptyWorkbench('审阅门禁尚未送达');
     return <RevisionPanel
-      showDemoDocumentPreview={isDemoCase} riskList={riskList}
-      selectedRisk={selectedRisk}
-      selectedRiskId={selectedRiskId}
-      onSelectRisk={setSelectedRiskId}
-      gate={gate}
-      selectedGrades={selectedGrades}
+      {...reviewCommon}
+      mode="interactive"
+      controls={{
+        gate,
+        itemStates: projectReviewItemStates(submission.review.state, riskList.risks.map((risk) => risk.id)),
+        submitState: submission.submitting ? 'submitting' : submission.submitted ? 'submitted' : 'idle',
+        onBeginRevision: (itemRef) => beginCorrection(itemRef, riskList.risks.find((risk) => risk.id === itemRef)?.description ?? ''),
+        onChangeRevision: (_itemRef, value) => submission.review.changeCorrection(value),
+        onCancelRevision: submission.review.cancelCorrection,
+        onCommitRevision: commitCorrection,
+        onConfirm: (itemRef) => dispose(itemRef, 'confirmed'),
+        onReject: (itemRef) => dispose(itemRef, 'rejected'),
+        onSubmit: submission.submit,
+      }}
       unverifiedRiskIds={unverifiedRiskIds}
-      expandedEvidence={expandedEvidence}
-      onExpandBasis={expandBasis}
-      dispositions={submission.review.dispositions}
-      correctedDescriptions={submission.review.correctedDescriptions}
-      onDispose={dispose}
-      editingCorrection={submission.review.state.editing}
-      onBeginCorrection={beginCorrection}
-      onChangeCorrection={submission.review.changeCorrection}
-      onSubmitCorrection={commitCorrection}
-      onCancelCorrection={submission.review.cancelCorrection}
-      individualReady={individualReady}
-      batchRefs={batchRefs}
-      onBatchConfirm={() => submission.review.batchConfirm(batchRefs)}
-      submitted={submission.submitted}
-      nonAppliedPending={submission.nonAppliedPending}
-      confirmedNonAppliedIds={submission.confirmedNonAppliedIds}
-      onConfirmNonApplied={submission.confirmNonApplied}
-      onCancelNonApplied={submission.cancelNonApplied}
-      allowNonAppliedConfirmation={isDemoCase}
-      submitLabel={S3_REVIEW_GATE_LABEL}
       submitEnabled={submission.canSubmit}
-      submitting={submission.submitting}
-      onSubmitReview={submission.submit}
+      nonApplied={{
+        items: submission.nonAppliedPending,
+        confirmedIds: submission.confirmedNonAppliedIds,
+        // production 恒整份阻断（零 waiver）；逐条知悉只属显式 demo 消费者。
+        allowWaiver: isDemoCase,
+        onConfirm: submission.confirmNonApplied,
+        onCancel: submission.cancelNonApplied,
+      }}
       resultMessage={submission.resultMessage}
     />;
   };
@@ -2238,7 +2224,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                       tool={flow === 'S3' ? 'review-contract' : 'organize-dossier'}
                       args={flow === 'S3' ? 'case=demo-linjiang scope=payment,acceptance,breach' : 'case=demo-linjiang corpus=20'}
                       result={flow === 'S3'
-                        ? contractOutputExists
+                        ? demoContractOutputExists
                           ? 'risk-list=6 output=contract-review.docx'
                           : 'risk-list=6 gate=awaiting-review'
                         : 'timeline=47 parties=14 conflicts=4'}
@@ -2266,7 +2252,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                       }}
                       copyText={`${flow === 'S3' ? 'R' : 'E'}\n${demoArtifactCard.title}\n${demoArtifactCard.summary}`}
                     />
-                    {flow === 'S3' && contractOutputExists && (
+                    {flow === 'S3' && demoContractOutputExists && (
                       <TurnCard
                         kind="file"
                         icon="file-text"
@@ -2365,7 +2351,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                 <button type="button" className="scene-primary" data-testid="scene-work-review" onClick={openWorkReview}>审查合同</button>
               )}
               {caseBinding.kind === 'grant' && workRunning && (
-                <button type="button" className="scene-primary" data-testid="work-cancel" onClick={cancelWorkRun}>停止审查</button>
+                <button type="button" className="scene-primary" data-testid="work-cancel" onClick={workRun.cancel}>停止审查</button>
               )}
               <button className="scene-draft-wide"
                 type="button"
@@ -2505,7 +2491,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             // READER-ISOLATION-1（不变量 7 UI 面）：演示语料阅读入口只属 demo 案——真实案的
             // 原件预览归 FILE-PREVIEW-1（真实材料 + reading-view 派生），此处诚实缺席不留空壳。
             readerEntries={isDemoCase ? [
-              { name: '设备采购合同', onOpen: () => { previewDismissedContext.current = null; manualPreviewSelected.current = true; setReaderDoc({ name: '设备采购合同', markdown: contractSourceMd }); setPreviewOpen(true); } },
+              // 目录入口是无锚阅读：无坐标基底故 blocks 为空（不伪造文本层），只走 markdown 路径。
+              { name: '设备采购合同', onOpen: () => { previewDismissedContext.current = null; manualPreviewSelected.current = true; setReaderDoc({ name: '设备采购合同', markdown: contractSourceMd, blocks: [] }); setPreviewOpen(true); } },
               { name: '催告函', disabled: true },
               { name: '验收记录扫描件', disabled: true },
             ] : []}
