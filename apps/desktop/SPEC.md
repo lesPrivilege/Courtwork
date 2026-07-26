@@ -4880,6 +4880,10 @@ pointer 动作闭集里**没有 blanket clear 这一项**，清除只有 compare
    `textRange` 恒为 `{start:0,end:N}` 且无 `textLayerVersion`，故样板案点「回到原件」必然落
    `anchor_invalid` 的显式反馈。修复须改 demo-data 锚点，属本票白名单外。
 
+**只读面的诚实边界（收尾自查发现并同批修）**：核验分级来自 gate 投影与证据台账，持久
+RiskList 不携证据等级，故只读面（completed 与门禁未到达两种）的核验列渲染 `—` 并附说明，
+不渲染「已核验」——那是在断言一件本面无从知道的事。
+
 **复杂度扫描（触碰范围内的偶然复杂度）**：`ReaderPane` 的 `data-focus-source` 属性全仓零消费
 （它是 quote-search 时代的产物），随 quote-search 退役一并删除；`RevisionPanel` 的
 `showDemoDocumentPreview` 与固定 redline 整块按架构裁定退役，未留第二形态。

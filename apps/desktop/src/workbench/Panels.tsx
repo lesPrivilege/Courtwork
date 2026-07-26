@@ -510,6 +510,20 @@ function dispositionFromLedger(risk: RiskList['risks'][number]): ReviewDispositi
   return undefined;
 }
 
+/**
+ * 核验列的诚实边界：核验分级来自 gate 投影与证据台账，**只读面拿不到它们**——
+ * 持久 RiskList 不携证据等级。此时渲染「已核验」就是在断言一件本面无从知道的事。
+ */
+const VERIFICATION_UNKNOWN_HINT = '本面不呈现核验状态：核验分级随门禁投影，只读账本不携证据等级';
+function verificationLabel(hasGate: boolean, unverified: boolean): string {
+  if (!hasGate) return '—';
+  return unverified ? '未核验' : '已核验';
+}
+function verificationClass(hasGate: boolean, unverified: boolean): string {
+  if (!hasGate) return 'unknown';
+  return unverified ? 'unverified' : 'verified';
+}
+
 /** 只读面的结论说明：阻断与三种正常零文书终态都要说清楚，交付成功则由产物区承载。 */
 function readOnlyResultNote(props: RevisionPanelProps): string | undefined {
   if (props.mode !== 'read_only' || !props.outputResult) return undefined;
@@ -674,7 +688,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
             {/* 编号单源：与详情头同一 id 变换（R03），杜绝 index 序号与 id 双轨漂移 */}
             <span className="risk-summary"><b className="domain-badge">{risk.id.replace('risk-', 'R')}</b><span>{description}</span></span>
             <span className={`severity severity-${risk.level}`}>{severityLabel(risk.level)}</span>
-            <span className={`verification-state ${unverified ? 'unverified' : 'verified'}`}>{unverified ? '未核验' : '已核验'}</span>
+            <span className={`verification-state ${verificationClass(controls !== undefined, unverified)}`} title={controls ? undefined : VERIFICATION_UNKNOWN_HINT}>{verificationLabel(controls !== undefined, unverified)}</span>
             <span className={`gate-state ${disposition ?? 'pending'}`}>{dispositionLabel(disposition)}</span>
             <span className="risk-next-step" title={`下一步 · ${nextStep}`}>{nextStep}</span>
           </button>;
@@ -688,7 +702,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
           <p>{selectedDescription}</p>
           <dl className="risk-status-ledger" data-testid="risk-detail-status">
             <div><dt>严重度</dt><dd>{severityLabel(selectedRisk.level)}</dd></div>
-            <div><dt>核验</dt><dd>{selectedUnverified ? '未核验' : '已核验'}</dd></div>
+            <div><dt>核验</dt><dd title={controls ? undefined : VERIFICATION_UNKNOWN_HINT}>{verificationLabel(controls !== undefined, selectedUnverified)}</dd></div>
             <div><dt>处置</dt><dd>{dispositionLabel(selectedDisposition)}</dd></div>
             <div><dt>下一步</dt><dd>{selectedNextStep}</dd></div>
           </dl>
