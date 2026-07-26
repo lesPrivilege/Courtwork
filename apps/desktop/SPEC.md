@@ -4599,6 +4599,14 @@ floor 337 → 342。
 `cargo test --lib` **83/83**；`pnpm --filter @courtwork/desktop test:e2e`（含全部静态门链）
 **342/342**，独立端口全量 Playwright 另跑一轮同样 342/342。
 
+#### 复杂度扫描提案区 `[需架构拍板]`
+
+- `work/legal-s3-binding.ts` 的 `bindDocxSourceMarkdown` 在本票后成为**零 production 消费者的导出**
+  （唯一剩余引用是它自身定义与两条包内单测）。ReadingView 重建路径退役即其存在理由消失。
+  按复杂度审视义务「发现可删的偶然复杂度列入提案区交架构拍板，不越权顺手删」——本票只
+  **退役两枚静态门对它的正向要求**（SPEC 明载授权），函数体与其单测原样保留，删除与否请架构裁定。
+  本票已删的 `useContractReviewOutput` 是另一回事：那是就绪图顺带条明文授权的。
+
 #### 已知边界（不宣称）
 
 - 真机 Word/WPS 打开—轻改—保存—回读未执行；本票只到自动化与本机成立，不得据此宣称

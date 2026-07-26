@@ -58,10 +58,15 @@ requireMatch(
 // ── 材料经 resolveForProvider 核验；docx 源文只从会话材料取 ────────────────
 requireMatch(binding, /\.resolveForProvider\(/, '材料必须经 resolveForProvider 核验后才入 provider');
 requireMatch(binding, /MaterialResolutionBlockedError/, '材料核验失败必须显式阻断（MaterialResolutionBlockedError）');
-requireMatch(
+// CONTRACT-OUTPUT-TRUTH-1：对 `bindDocxSourceMarkdown` 的**正向要求已退役**（SPEC 明载）。
+// 批注稿的底稿不再是 ReadingView Markdown，而是 `MaterialStore.readForOutput` 一次 snapshot
+// 读回的原始 DOCX bytes；正向锁一个已无 production 消费者的函数，只会把旧路线固化成契约。
+// 真实判据迁到 assert-work-live-contracts：production 编排/编译面禁 `bindDocxSourceMarkdown`，
+// 并正向要求「经 coordinator + 经 readForOutput + 原 bytes 直交编译器」三条。
+forbidMatch(
   binding,
-  /export function bindDocxSourceMarkdown\(material: StoredMaterial\): string \{[\s\S]*?return material\.readingMarkdown;/,
-  'session 原文绑定：docx 源文必须从复验后的会话材料 readingMarkdown 取（非 demo 原文）',
+  /readingMarkdown\s*\)?\s*as\s+unknown/,
+  'docx 底稿不得再以 readingMarkdown 强转冒充原件 bytes',
 );
 
 // ── live gate 由真实 RiskList 派生；逐条 revision + 受控修正 ──────────────
