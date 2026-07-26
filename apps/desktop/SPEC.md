@@ -4841,6 +4841,49 @@ demo 读」的命名残留。若 TRACE 建 completed 只读重开，宜顺带把
 
 不实现全文检索、跨案索引、会话命名/归档、动态 tab、第二阅读器、真正合同条文替换或视觉大改。
 
+### 实现留痕（2026-07-26 实现会话）
+
+**本单新增了什么概念、为何非加不可**——只有一个：`work/work-session-lifecycle.ts` 的
+**start 指针建立时点 tracker**（全部状态是一个布尔量「是否已观察到首枚 post-CAS event」）。
+非加不可的理由是 `start()` 同步返回的 sessionId 只是 candidate，「取得 candidate」与「session
+已建立」之间隔着一次 whole-envelope CAS；不显式记录这一位，就只剩两种写法——抢先写（rejected
+时污染他人记录）或事后猜（把瞬时 outcome 当持久事实）。其余全部是既有判定的平移或收紧：
+pointer 动作闭集里**没有 blanket clear 这一项**，清除只有 compare-and-clear 一种形态；
+`MaterialReaderBlockReason` 的两个新成员是**一次定位的结果**，不进材料持久闭集。
+
+**外提与新模块（「过手即拆」，产生当刻即入册）**：
+
+| 件 | 去向 | 职责 |
+|---|---|---|
+| `work/work-session-lifecycle.ts`（新建） | 白名单已列 | §1 纯判定：pointer compare-and-clear 矩阵、start 建立时点 tracker、replay 恢复分支表；§2 `useWorkRunLifecycle`：run/cancel/recover/pointer/completed-output 五处状态面的 React 装配 |
+| `work/work-recovery.ts`（**吸收后删除**，白名单外，本节登记） | 并入上件 | 该模块自身注释已写明「pointer compare-and-clear 矩阵属 CONTRACT-TRACE-1」；恢复判定与指针判定读同一份 replay、同一张相位表，分两处就要把 phase switch 写两遍，而本票矩阵恰要求两轴各自分流（completed 保留指针但只读、running 依 owner 决定去留） |
+| `material/material-reader.ts`（吸收后删除） | 并入 `material/material-actions.ts` | 票面明列 |
+| `projectReviewItemStates` | `workbench/Panels.tsx` | 审阅编辑态 → 界面状态表；与既有 `projectReviewDispositionStates` 同一优先级来源 |
+
+`App.tsx` 高水位 2657 → **2644**，门内常量同批下调并留痕。
+
+**与 SPEC 逐字条款的偏离，逐条登记 `[需架构拍板]`**：
+
+1. `InteractiveReviewControls` 保持本 SPEC 逐字写定的 10 个成员不变；interactive 分支另收四项
+   输入（`InteractiveReviewExtras`）：`unverifiedRiskIds`（gate 的 `reason` 对 `high_risk` 优先，
+   照 gate 派生会让「高危且含 C 级依据」的条目在核验列显示为「已核验」）、`submitEnabled`
+   （判据是「每个 gate 条目都有决定」，而 `ReviewItemUiState` 的 `editing` 与「已有决定」互斥，
+   从 itemStates 反推会把「已决定后又点开修正」误判为未填满）、`nonApplied`（未落点清单的逐条
+   知悉只属显式 demo 消费者，两张表都没有它的位置）、`resultMessage`。
+2. **门禁未到达时渲染 `read_only`**：SPEC 的 `controls.gate` 非可选，而 demo/production 都存在
+   「riskList 已到、gate 未到」的窗口。此刻没有任何条目可处置，故按只读呈现风险台账；若按
+   interactive 渲染就要伪造一个空 gate。
+3. **恢复入口文案改为相位无关**：SPEC 要求 paused/completed/failed 三种文案，但相位只能由一次
+   replay 得到，而指针不持久相位（storage version 不变是硬约束）。本票改为对三态都成立的措辞
+   （「打开上次审查」），不预告「可继续」。要三态文案须先拍板是否为标签额外发起一次 replay。
+4. **demo RiskList 的锚点结构性不可验证**：`packages/demo-data` 的 `risk-list.json` 全部锚点
+   `textRange` 恒为 `{start:0,end:N}` 且无 `textLayerVersion`，故样板案点「回到原件」必然落
+   `anchor_invalid` 的显式反馈。修复须改 demo-data 锚点，属本票白名单外。
+
+**复杂度扫描（触碰范围内的偶然复杂度）**：`ReaderPane` 的 `data-focus-source` 属性全仓零消费
+（它是 quote-search 时代的产物），随 quote-search 退役一并删除；`RevisionPanel` 的
+`showDemoDocumentPreview` 与固定 redline 整块按架构裁定退役，未留第二形态。
+
 ## DEBT-DOSSIER-1 · 入卷语义与材料计数同源（2026-07-24，架构补票）
 
 - grant 案发送附件时，只把 `scope==='dossier'` 且 ready 的附件交给既有

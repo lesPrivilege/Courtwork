@@ -67,7 +67,10 @@ const count = match ? Number(match[1]) : 0;
 // DOCX / 版本化产物名落盘 / 只有支持材料锚整份阻断且原因可区分 / 生产审阅面零 demo redline）+5 → 342。
 // 既有四枚 spec 只作机械迁移（真实 DOCX + 显式主合同选择 + 版本化名），零新增用例。
 // CONTRACT-OUTPUT-TRUTH-1 R1（驳回修复轮）：旧固定产物名残留时不得宣称「已有产物」+1 → 343。
-const minimum = 343;
+// CONTRACT-TRACE-1：专用 TRACE e2e（锚点打开的确是支持材料那一份并按坐标高亮 / 生产审阅面零
+// demo 常量与真实主合同名 / completed 只读重开写入控件结构性缺席 / 已交付零重试入口）+4 → 347。
+// 坐标算法本身由 material-actions 单测穷举（重复 quote、分页件、八类 anchor_invalid），不重复上 e2e。
+const minimum = 347;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

@@ -138,10 +138,14 @@ async function replayFailureAfterCaseSwitch(page: Page, expected: RegExp) {
   const failure = page.getByTestId('progress-scenario-failure');
   await expect(failure).toContainText(expected);
   await expect(failure.getByRole('button')).toHaveCount(0);
+  // 恢复后工作面呈现失败进度、起跑面整体不在场，故恢复入口此刻结构性缺席（与指针无关）。
   await expect(page.getByTestId('work-recover')).toHaveCount(0);
   await page.getByRole('button', { name: '起草答辩状', exact: true }).click();
   await page.getByTestId('scene-work-review').click();
-  await expect(page.getByTestId('work-recover')).toHaveCount(0);
+  // CONTRACT-TRACE-1：durable failed **保留**指针（「读不到 ≠ 不存在」的对称面：失败的账本仍是
+  // 账本）。旧断言在这里写 0，编码的是「指针在、入口却不显示」——恢复入口不随指针刷新的陈旧 UI，
+  // 与下一行自己断言的「pointer 仍在」互相矛盾。按本意改写为二者一致。
+  await expect(page.getByTestId('work-recover')).toBeVisible();
   const pointer = await page.evaluate(() => localStorage.getItem('courtwork.work-session.v1'));
   expect(JSON.parse(pointer!).sessions[ref.caseId]).toBeTruthy();
   return ref;

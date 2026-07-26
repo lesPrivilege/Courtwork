@@ -122,7 +122,11 @@ test('risk rows and detail state severity, verification, disposition, and next s
   const quote = panel.getByTestId('risk-quote-risk-01-0');
   await expect(quote).toHaveText('乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金');
   await expect(quote).toHaveCSS('white-space', 'normal');
-  await expect(panel.getByRole('button', { name: '回到原件 · 尚未接通' })).toBeDisabled();
+  // CONTRACT-TRACE-1：「尚未接通」死态退役——有真实 anchor 即可点，定位失败走显式反馈，
+  // 不再用 disabled 假装接线。旧断言钉的是被本票取消的那个状态，按本意改写为「已接通」。
+  const gotoSource = panel.getByTestId('goto-source').first();
+  await expect(gotoSource).toBeEnabled();
+  await expect(gotoSource).toHaveText('回到原件');
 });
 
 test('schema evidence remains inside the 1180 viewport', async ({ page }) => {

@@ -1898,12 +1898,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     };
     // CONTRACT-TRACE-1：completed 只读重开 —— 写权限由判别联合隔离，read_only 面在类型上就没有
     // controls；处置只从 replay 后的 RiskList 读，风险区零事件、零 CAS。
-    if (reviewReadOnly) {
-      return workRun.contractOutputResult?.status === 'ready_to_deliver'
-        ? <RevisionPanel {...reviewCommon} mode="read_only" outputResult={workRun.contractOutputResult} onRetryOutput={workRun.retryOutput} />
-        : <RevisionPanel {...reviewCommon} mode="read_only" outputResult={workRun.contractOutputResult} />;
+    // 门禁未到达时同样只读：此刻还没有任何条目可以处置，给出写入控件才是假接线。
+    if (reviewReadOnly || !gate) {
+      const outputResult = reviewReadOnly ? workRun.contractOutputResult : undefined;
+      return outputResult?.status === 'ready_to_deliver'
+        ? <RevisionPanel {...reviewCommon} mode="read_only" outputResult={outputResult} onRetryOutput={workRun.retryOutput} />
+        : <RevisionPanel {...reviewCommon} mode="read_only" outputResult={outputResult} />;
     }
-    if (!gate) return emptyWorkbench('审阅门禁尚未送达');
     return <RevisionPanel
       {...reviewCommon}
       mode="interactive"

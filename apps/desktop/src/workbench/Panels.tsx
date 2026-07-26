@@ -444,9 +444,11 @@ export function S3LauncherPanel(props: S3LauncherPanelProps) {
       <p>对已入库的合同做逐条风险审查。审查前请指定主合同并填写对方主体名称（用于工商核验），系统不从文件名或正文推断。</p>
       {props.recoverable && (
         <div className="work-recover" data-testid="work-recover">
-          <p>本案有一次未完成的合同审查。可继续上次进度，或在下方重新开始。</p>
+          {/* CONTRACT-TRACE-1：指针不持久相位（storage version 不变是硬约束），相位只能由一次
+              replay 得到，故此处措辞对 paused / failed / completed 三态都成立，不预告「可继续」。 */}
+          <p>本案有一次此前的合同审查。打开后可查看进度；若停在待处置处可继续，也可在下方重新开始。</p>
           <button type="button" className="primary-button" data-testid="work-recover-run" onClick={props.onRecover}>
-            恢复审查
+            打开上次审查
           </button>
         </div>
       )}
@@ -508,13 +510,23 @@ function dispositionFromLedger(risk: RiskList['risks'][number]): ReviewDispositi
   return undefined;
 }
 
+/** 只读面的结论说明：阻断与三种正常零文书终态都要说清楚，交付成功则由产物区承载。 */
+function readOnlyResultNote(props: RevisionPanelProps): string | undefined {
+  if (props.mode !== 'read_only' || !props.outputResult) return undefined;
+  const result = props.outputResult;
+  if (result.status === 'blocked') return result.message;
+  if (result.status === 'not_applicable') return NOT_APPLICABLE_PREVIEW_COPY[result.reason];
+  return undefined;
+}
+
 /** 产物区文案：interactive 由 mode 固定为「待生成」，只读面才由 outputResult 决定。 */
 function outputPreviewCopy(props: RevisionPanelProps): { title: string; body: string; retry: boolean } {
   if (props.mode === 'interactive') {
     return { title: '合同批注预览', body: '本版产出是原合同副本加上已确认风险的批注 · 待生成', retry: false };
   }
   const result = props.outputResult;
-  if (!result) return { title: '合同批注预览', body: '正在核对本次审查是否可生成批注稿', retry: false };
+  // 尚无结果有两种情形（门禁未到、inspect 未回），二者共同的诚实陈述都是「还没有产物」。
+  if (!result) return { title: '合同批注预览', body: '本版产出是原合同副本加上已确认风险的批注 · 待生成', retry: false };
   switch (result.status) {
     case 'ready_to_deliver':
       return { title: '合同批注预览', body: '本次审查可生成批注稿 · 尚未写入本案「产出」目录', retry: true };
@@ -566,7 +578,7 @@ export function RevisionPanel(props: RevisionPanelProps) {
     : [];
   const excludedCount = controls?.gate.items.filter((item) => item.mode === 'individual').length ?? 0;
   const nonApplied = interactive?.nonApplied;
-  const resultMessage = interactive?.resultMessage;
+  const resultNote = interactive?.resultMessage ?? readOnlyResultNote(props);
   const preview = outputPreviewCopy(props);
   return <StaticViewport testId="revision-static-viewport">
     <div className="revision-layout" data-testid="revision-panel" data-review-mode={props.mode}>
@@ -583,7 +595,9 @@ export function RevisionPanel(props: RevisionPanelProps) {
         </div>
       )}
       {controls?.submitState === 'submitted' && <div className="submission-note" role="status">{controls.gate.items.length} 项处置已逐条提交</div>}
-      {resultMessage && <div className="submission-note" role="status" data-testid="review-result">{resultMessage}</div>}
+      {/* 结论说明一处出口：interactive 取提交结果，read_only 取 coordinator 的阻断/正常终态陈述。
+          缺了 read_only 这半，提交完成转只读的那一刻用户就会看着结论凭空消失。 */}
+      {resultNote && <div className="submission-note" role="status" data-testid="review-result">{resultNote}</div>}
       {props.riskList.outOfCoverage.length > 0 && (
         <section className="nonapplied-confirm" data-testid="review-out-of-coverage">
           <header><strong>仍有 {props.riskList.outOfCoverage.length} 项待索证</strong><span>需补充材料后重新审查</span></header>
