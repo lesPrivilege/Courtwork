@@ -4393,6 +4393,114 @@ browser/Rust output bridge；O7 compile adapter + 唯一 coordinator；O8 App/E2
 storageVersion、不引入第三方 DOCX 引擎、不触用户原件；不借本票把所有 draft 写入改成
 no-overwrite，窄改只限合同审查批注稿。
 
+### 开工前置：consumer 清点与白名单定稿（2026-07-26，实现会话）
+
+上文「实现边界」要求 O8 前在 accepted SAFETY tip 重 grep 全部消费者，不得沿用就绪图地图冒充最终
+白名单。本节是该次清点的落痕；基线 `05e0ade`（源码面与 `c180d9f` 逐字节相同，其后两枚提交只动
+`docs/`）。清点方法：`grep -rn` 全仓 `apps/`+`packages/`，逐条打开确认，不以窄 grep 推断。
+
+**A · `ready[0]` 猜主合同**（唯一生产消费点）
+
+- `src/App.tsx:1218` `const contractMaterialId = ready[0].materialId;`
+
+**B · `compileConfirmedReviewToDocx`（production 编译入口）**
+
+- 定义 `src/output/compile-review-output.ts:163`
+- 生产消费 `src/work/use-contract-review-submission.ts:9`（import）、`:44`（类型借用）、`:127`（调用）
+- 零消费死支 `src/output/compile-review-output.ts:245`（住 `useContractReviewOutput` 内，见 G）
+- 单测 `src/output/compile-review-output.test.ts`（7 处）
+
+**C · ReadingView 重建路径（`markdownToDocument` + `compileDraftToDocx`）**
+
+- `src/output/compile-review-output.ts:83` 定义、`:140` `compileDraftToDocx(markdownToDocument(...))`
+  ——本票要退役的唯一重建点。
+- `compileDraftToDocx` 另有**合法**通用消费，本票不动：`src/App.tsx:125,1668`（起草画布→
+  `答辩意见.docx`）、`packages/output/src/__vite__/index.ts`（真实 Vite consumer 门）、output 包自测。
+
+**D · `bindDocxSourceMarkdown`（Markdown 源文绑定）**
+
+- 定义 `src/work/legal-s3-binding.ts:195`
+- 生产消费 `src/work/use-contract-review-submission.ts:22,121`；零消费死支
+  `src/output/compile-review-output.ts:16,235`
+- **静态门正向要求**（本票须退役）：`scripts/assert-work-live-contracts.mjs:88`、
+  `scripts/assert-legal-s3-contracts.mjs:63`
+- 单测 `src/work/legal-s3-binding.test.ts:158,364`
+
+**E · `case-output-client` 与固定 `overwrite:true`**
+
+- `src/output/case-output-client.ts:13`（wire 入参含 `overwrite: boolean`）、`:53`（对象）、
+  `:63`（**固定 `overwrite: true`**）
+- 生产消费 `src/work/use-contract-review-submission.ts:7,136,137`；`src/App.tsx:126,1177,1178`
+  （产物存在性）与 `:1669,1670`（起草画布，不属本票）
+- 零消费死支 `src/output/compile-review-output.ts:17,254,255`
+- 同名词但**不属本票**的 `overwrite` 面：`src/host/host-auth-port.ts:41,46`、
+  `src/host/tauri-host-auth.ts:54`、`src/host/HostAccessPanel.tsx:72`、
+  `src-tauri/src/host_auth.rs`、`src-tauri/src/lib.rs`（通用 scoped_write）。
+
+**F · demo redline 常量与固定产物名**
+
+- `src/App.tsx:122` `contractSourceMd` import、`:1131` 喂 submission 的 `demoSourceMarkdown`、
+  `:2516` demo 卷宗 reader 入口；`src/demo/legal-interaction.ts:6,24,29,88,89,94`（显式 demo）
+- **生产预览固定 redline**：`src/workbench/Panels.tsx:495` 的 `document-preview` 块（固定合同标题、
+  「修订 4 处」、`<del>`/`<ins>` 假 redline）——现对 grant 案同样渲染。
+- tab 计数 `src/App.tsx:2663` `viewCount` 的 `'4 处'` 已由同函数 `:2659`
+  `if (!isDemo) return '尚无'` 前置分流，production 不显示；本票不动该函数。
+- 固定产物名 `src/App.tsx:159` `CONTRACT_OUTPUT_FILE = '合同审查报告.docx'`，消费
+  `:1132,1178,1498,1513,2226,2282,2285`；e2e 断言 `tests/e2e/work-live.spec.ts:166`、
+  `tests/e2e/system-open.spec.ts:22`。
+
+**G · 零消费遗留 hook（架构 2026-07-26 顺带条）**
+
+- `src/output/compile-review-output.ts:194–284` 的 `useContractReviewOutput` 与其独占接口
+  `ContractReviewOutputOptions`。全仓 grep（`apps/`、`packages/`、`docs/`、`site/`、`release/`，
+  含 `.ts/.tsx/.md/.mjs`）除定义处外只命中两处**文档记述**（`ACCEPTANCE.md:4814`、
+  `docs/architecture/implementation-readiness.md:206`），**零 import、零调用、零 re-export**。故删除
+  不改任何现行行为。
+
+#### 白名单定稿（在上文「实现边界」之内，逐文件收窄）
+
+生产文件面：`src/App.tsx`、`src/protocol/client.ts`、
+`src/work/{work-command,legal-s3-binding,work-session-store,use-contract-review-submission}.ts`、
+`src/material/material-store.ts`、
+`src/output/{compile-review-output,case-output-client,contract-review-delivery}.ts`、
+`src/demo/client.ts`、`src-tauri/{Cargo.toml,Cargo.lock}`、`src-tauri/src/lib.rs`，新建唯一
+`src-tauri/src/case_output_fs.rs`；跨包只触
+`packages/legal/src/domain/compile-risk-list-to-revisions.ts` 与
+`packages/output/src/{apply-revision-instruction-set,docx-zip,index}.ts` 的本票直接消费点。
+
+`use-contract-review-submission.ts` 是 SAFETY「过手即拆」外提件，上文实现边界成文于外提之前，
+故白名单里的 `App.tsx` 合同审查提交面在本票落到该文件；**只消费其 completed 分流，不回改 SAFETY
+已放行语义**。
+
+**扩白一件（架构派单件 2026-07-26 授权）**：`src/workbench/Panels.tsx` 仅限 `:495` 的
+`document-preview` 块。派单件裁「本票只退役 demo redline 混入生产预览的**数据面**（预览呈现真实
+产物或诚实空态），交互回跳留给 TRACE」。落地形态是给 `RevisionPanel` 加一枚布尔 prop，由 App 以
+既有 `isDemoCase` 供给：demo 原样渲染既有块，production 渲染诚实空态。TRACE 行的「生产 RiskList
+面移除固定 demo 合同/4 处/del-ins」仍由 TRACE 收完（含把该块整体退役与来源回跳接线），本票不动
+`styles.css`、不新建 React 模块、不碰 `viewCount`。
+
+#### 复杂度审视：本单新增了什么概念、为何非加不可
+
+1. **`contract-review-delivery.ts` 唯一 coordinator**（新概念，SPEC 逐字冻结）。非加不可的理由是
+   scope 冻结：inspect/deliver 必须在**一次同步 active-case snapshot** 内捕获 caseId/binding/pointer，
+   而现行编排散在 React 回调里、await 后可重读 selection——这正是「A 案 replay 写进 B 案 grant」的
+   结构性口子。它不是抽象层，是一个纯函数式的判别联合返回值。
+2. **`case_output_fs.rs` 唯一 Rust 安全模块**（新文件，非新概念）。dirfd/`*at`/no-replace 是既有
+   `scoped_write` 无法表达的语义（后者按路径解析、显式 `overwrite`），且 SPEC 明令不得以
+   canonicalize/rename 弱化。
+3. **`OutputMaterialReadResult` 与 `readForOutput`**（新方法，非新持久格式）。exactly-one
+   `readOriginal` 是 TOCTOU 的唯一封法；沿用现有 `MaterialBlockReason` 闭集，只加 `'not_docx'`
+   一枚**非持久**的返回态。
+4. **纯函数产物名与 DOS 时间编码**（新纯函数，零状态）。替代「固定名 + `overwrite:true`」，不引入
+   delivery ledger、不进 `work-session-store`。
+
+净减：删 `useContractReviewOutput`（约 91 行死支）、删 `markdownToDocument` 与 production 的
+`compileDraftToDocx` 重建路径、删 `ready[0]`、删固定 `overwrite:true`。
+
+#### 提案区 `[需架构拍板]`
+
+- 无。上节「扩白一件」按派单件原文执行，若架构认为 `Panels.tsx` 仍须退回，本条即为撤回坐标。
+
 ## CONTRACT-TRACE-1 · 真实锚点与完成账本可重开（2026-07-24，架构票）
 
 权威：ADR-010 决定五修订；直接依赖 `FILE-PREVIEW-1`、`CONTRACT-REVIEW-SAFETY-1` 与
