@@ -129,6 +129,7 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 
 `main` 是唯一长期与发布真源。临时 `codex/*` 分支和 clean worktree 只有在目标 SHA 成为 `main` 祖先、对应 SPEC/ACCEPTANCE 留痕且实现与独立验收都完成后才可删除；未提交工作树不由其他会话代为合入。
 
-**在途分支**：`CONTRACT-REVIEW-SAFETY-1` 已于 `e473fbb` 合入 `main` 并清账（独立验收报告见
-`apps/desktop/ACCEPTANCE.md` 对应节）；分支 `codex/contract-review-safety-1` 与验收 worktree
-均已删除，远端仅剩 `main`。能力口径（产品 live 表、当前下一序）的相应更新由架构角色另单落痕。
+**在途分支**：`CONTRACT-REVIEW-SAFETY-1` 已于 `e473fbb` 合入 `main` 并清账；
+`CONTRACT-OUTPUT-TRUTH-1` 已于 `78655bd` 合入 `main` 并清账（独立验收报告见
+`apps/desktop/ACCEPTANCE.md` 与 `packages/output/ACCEPTANCE.md` 对应节）；两票分支与验收
+worktree 均已删除，远端仅剩 `main`。能力口径（产品 live 表、当前下一序）的相应更新由架构角色另单落痕。
