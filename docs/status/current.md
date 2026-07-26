@@ -128,24 +128,6 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 
 `main` 是唯一长期与发布真源。临时 `codex/*` 分支和 clean worktree 只有在目标 SHA 成为 `main` 祖先、对应 SPEC/ACCEPTANCE 留痕且实现与独立验收都完成后才可删除；未提交工作树不由其他会话代为合入。
 
-**在途分支（2026-07-25 收口后重记）**：`codex/contract-review-safety-1` 承载
-`CONTRACT-REVIEW-SAFETY-1`，已由 WIP 快照推进为 **实现完成、待独立验收**。分支已 rebase 到
-`b393009`，与 `main` 零冲突。tip SHA 不在此钉死：本文件随该分支移动，自钉必然过期；验收会话
-以 `git log codex/contract-review-safety-1` 为准。
-
-该分支起点 `3301286` 是 WIP 快照，其 commit message 原自称 `CONTRACT-OUTPUT-TRUTH-1`，经逐文件
-比对白名单坐实为误标（17/17 落 SAFETY 白名单内，OUTPUT 专属面零命中），已在 `3301286` 改正——
-就绪图钉死 SAFETY→OUTPUT 严格串行，误标会在治理记录里留下「抢跑」假证据。
-
-**该快照当时的门禁四红一缺现已逐条闭合**：lint 红、root 单测红（冻结 gate label 未同步
-`packages/legal` descriptor golden）、`lint:app-highwater` 红（2830 > 上限 2738）、Playwright
-全线红，以及缺 contract-review e2e。Playwright 全红的根因是 `RevisionPanel` 解引用 demo fixture
-不存在的 `riskList.outOfCoverage` 致白屏，判例见 `docs/engineering/workflow.md`
-「类型在场 ≠ 运行时在场」；修法是让 demo 录制真走一次注册 schema，并配一条族级断言，不是给
-夹具补键（`risk-list.ts` 明写该 `.default([])` 存在正是为「存量最终形夹具零迁移」）。
-
-收口轮实测：`pnpm -r build` / `pnpm lint` / 静态门链各 exit 0，root 单测 1294/1294、desktop 单测
-500/500，`lint:app-highwater` 2665（自 `main` 的 2738 净减 73），Playwright 337 条。首轮 336 绿 /
-1 红，唯一红是 `global-verbs.spec.ts:7` 的 hover 淡入抖动（opacity 升到 0.408 后回落 0，悬停在过渡
-中途丢失），不在本票 diff 面内；单跑该谱 21/21 绿——按「一次绿不构成对 flaky 的反驳」，该红以
-复跑轮次为准登记，不以隔离绿注销。
+**在途分支**：`CONTRACT-REVIEW-SAFETY-1` 已于 `e473fbb` 合入 `main` 并清账（独立验收报告见
+`apps/desktop/ACCEPTANCE.md` 对应节）；分支 `codex/contract-review-safety-1` 与验收 worktree
+均已删除，远端仅剩 `main`。能力口径（产品 live 表、当前下一序）的相应更新由架构角色另单落痕。
