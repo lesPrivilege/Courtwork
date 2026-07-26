@@ -29,6 +29,10 @@ const modules = stripComments(await read('src/modules/ModuleStack.tsx'));
 // CONTRACT-REVIEW-SAFETY-1「过手即拆」：提交编排与产物落盘已从 App.tsx 外提到本模块。
 // 门跟着码走——扫描面迁移，断言不弱化（见下方 resume/docx 源两处拆成「接线」+「调用」两段）。
 const submission = stripComments(await read('src/work/use-contract-review-submission.ts'));
+// CONTRACT-OUTPUT-TRUTH-1「过手即拆」：恢复入口的判定外提到本模块，扫描面同批迁移。
+const recovery = stripComments(await read('src/work/work-recovery.ts'));
+// CONTRACT-OUTPUT-TRUTH-1：显式主合同选择/排序/CaseFile 派生的纯函数落点。
+const primaryContract = stripComments(await read('src/work/primary-contract.ts'));
 
 const failures = [];
 const requireMatch = (source, pattern, message) => {
@@ -83,8 +87,38 @@ requireMatch(submission, /commandRef\.current\.resolveReview\(/, 'grant 案 resu
 requireMatch(app, /workCommand\.cancel\(/, 'grant 案 cancel 必须经 workCommand.cancel');
 // WORK-LIVE-REPLAY-1（答复 WORK-HOST-1 驳回阻断二）：跨切案/重启的恢复入口必须真实消费 workCommand.replay
 // 水合投影（此前「全 App 对 workCommand.replay 零消费点」是驳回根因）。
-requireMatch(app, /workCommand\.replay\(/, 'grant 案 恢复入口必须经 workCommand.replay（水合投影续行，答复 WORK-HOST-1 驳回阻断二）');
+// CONTRACT-OUTPUT-TRUTH-1「过手即拆」：判定外提到 work/work-recovery.ts 后，App 侧是**把
+// workCommand.replay 交给** readWorkRecovery，调用点在外提件里。门跟着码走，拆成两段——
+// 断言不弱化：两段都在才算真正接通，任一段消失（App 不再交、或外提件不再调）仍触红。
+requireMatch(
+  app,
+  /readWorkRecovery\(\s*workCommand\.replay/,
+  'grant 案 恢复入口必须把 workCommand.replay 交给恢复编排（App 侧接线）',
+);
+requireMatch(
+  recovery,
+  /await replay\(query\)/,
+  'grant 案 恢复编排必须真实调用注入的 replay（水合投影续行，答复 WORK-HOST-1 驳回阻断二）',
+);
 requireMatch(app, /projectRiskListGate\(riskList/, 'grant 案 live gate 必须经 projectRiskListGate（真实 RiskList）');
+
+// ── CONTRACT-OUTPUT-TRUTH-1：主合同必须由用户显式选定，「取 ready[0] 猜」在生产路径零出现 ──
+// 旧实现让入库顺序决定「哪份是主合同」，用户从未表达过；本组锁的就是那处猜测不许复活。
+for (const [label, source] of [['App', app], ['work-command', command], ['primary-contract', primaryContract]]) {
+  forbidMatch(
+    source,
+    /\bready\s*\[\s*0\s*\]/,
+    `${label}：production Legal S3 路径不得以 ready[0] 猜主合同（须用户显式选定）`,
+  );
+}
+requireMatch(app, /selectPrimaryContractCandidates\(/, 'grant 案起跑面必须只列可作主合同的 DOCX 候选');
+requireMatch(app, /orderS3MaterialRefs\(/, 'grant 案 start 必须经 orderS3MaterialRefs（主合同稳定在 materialRefs[0]）');
+requireMatch(command, /deriveS3CaseFile\(/, 'S3 start 必须从同一输入机械派生 legal.CaseFile（不再传空 artifacts）');
+requireMatch(
+  primaryContract,
+  /material\.mediaType === DOCX_MEDIA_TYPE/,
+  '主合同候选判据必须是精确 mediaType（不得按文件名后缀猜）',
+);
 requireMatch(submission, /bindDocxSourceMarkdown\(resolved\.material\)/, 'grant 案 docx 源文必须经 bindDocxSourceMarkdown（会话材料，非 demo 原文）');
 
 // ── WorkState host 精简装配 + Turn 樁仅 DEV/E2E ─────────────────────────────

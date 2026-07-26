@@ -24,6 +24,7 @@ import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
 import { replayWorkProjection } from './protocol/work-replay';
 import { projectRiskListGate } from './work/legal-s3-binding';
 import { planWorkRecovery, readWorkRecovery } from './work/work-recovery';
+import { orderS3MaterialRefs, selectPrimaryContractCandidates } from './work/primary-contract';
 import type { LegalS3WorkCommand } from './work/work-command';
 import { clearWorkSession, persistWorkSession, readWorkSession, type WorkSessionRecord } from './work/work-session-store';
 import { projectPersistableCases, readCaseList, writeCaseList } from './case/case-store';
@@ -97,6 +98,7 @@ import {
   INITIAL_DRAFT,
   MatrixPanel,
   RevisionPanel,
+  S3LauncherPanel,
   TimelinePanel,
   type DraftDocument,
 } from './workbench/Panels';
@@ -343,6 +345,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // CASE-PERSIST-1：宿主实际持有的授权集（跨重启后交叉核对持久案件的 grantId 是否仍有效）；null=尚未核对完成。
   const [knownGrantIds, setKnownGrantIds] = useState<ReadonlySet<string> | null>(null);
   const [workSubject, setWorkSubject] = useState('');
+  /** 显式主合同选择（CONTRACT-OUTPUT-TRUTH-1）：默认不选，用户必须自己指定。 */
+  const [primaryContractId, setPrimaryContractId] = useState('');
   const [workContractMaterialId, setWorkContractMaterialId] = useState<string | null>(null);
   const [selectedRiskId, setSelectedRiskId] = useState('risk-03');
   const [expandedEvidence, setExpandedEvidence] = useState<Record<string, boolean>>({});
@@ -1211,12 +1215,20 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     }
     const partyName = workSubject.trim();
     if (!partyName) return;
-    const ready = caseMaterials.filter((material) => material.status === 'ready');
-    if (ready.length === 0) return;
+    // CONTRACT-OUTPUT-TRUTH-1：主合同由用户**显式选定**，不再按入库顺序猜。
+    // materialRefs[0] 恒为该选择，CaseFile 与 output 原始 bytes 由同一 id 派生。
+    const contractMaterialId = primaryContractId;
+    if (!contractMaterialId) return;
+    let materialRefs: string[];
+    try {
+      materialRefs = orderS3MaterialRefs(contractMaterialId, caseMaterials);
+    } catch {
+      showSystemFeedback('所选主合同已不在本案可用材料中，请重新选择', false, 'info');
+      return;
+    }
     dispatch({ type: '__clear__' });
     setGate(undefined);
     submission.reset();
-    const contractMaterialId = ready[0].materialId;
     setWorkContractMaterialId(contractMaterialId);
     setWorkRunning(true);
     const caseId = selectedCaseId;
@@ -1224,7 +1236,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       {
         commandId: `s3-${caseId}-${Date.now()}`,
         caseId,
-        materialRefs: ready.map((material) => material.materialId),
+        materialRefs,
         modelRoute: { providerId: modelConfig.providerId, modelId: modelConfig.modelId, reasoning: modelConfig.reasoning },
         subject: { partyName },
       },
@@ -1820,31 +1832,16 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         }
         if (workRunning) return emptyWorkbench('合同审查进行中…');
         return (
-          <div className="s3-launcher" data-testid="s3-launcher">
-            <h3>合同审查</h3>
-            <p>对已入库的合同做逐条风险审查。审查前请填写对方主体名称（用于工商核验），系统不从文件名或正文推断。</p>
-            {recoverableSession && (
-              <div className="work-recover" data-testid="work-recover">
-                <p>本案有一次未完成的合同审查。可继续上次进度，或在下方重新开始。</p>
-                <button type="button" className="primary-button" data-testid="work-recover-run" onClick={() => void recoverWorkRun()}>
-                  恢复审查
-                </button>
-              </div>
-            )}
-            <label className="s3-subject-field">
-              <span>对方主体名称</span>
-              <input
-                data-testid="s3-subject"
-                value={workSubject}
-                onChange={(event) => setWorkSubject(event.target.value)}
-                placeholder="例如：临江精铸科技有限公司"
-              />
-            </label>
-            <button type="button" className="primary-button" data-testid="s3-run" disabled={!workSubject.trim()} onClick={startWorkRun}>
-              开始合同审查
-            </button>
-            <p className="s3-session-note">此次审查结果在本次会话内有效；跨重启保留即将开通。</p>
-          </div>
+          <S3LauncherPanel
+            candidates={selectPrimaryContractCandidates(caseMaterials)}
+            primaryContractId={primaryContractId}
+            onSelectPrimaryContract={setPrimaryContractId}
+            subject={workSubject}
+            onChangeSubject={setWorkSubject}
+            recoverable={recoverableSession !== null}
+            onRecover={() => void recoverWorkRun()}
+            onStart={startWorkRun}
+          />
         );
       }
       if (view !== 'revision' && view !== 'artifact') {

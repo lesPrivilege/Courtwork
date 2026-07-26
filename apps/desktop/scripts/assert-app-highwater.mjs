@@ -44,7 +44,10 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // （replay 判别联合 → 恢复动作的分支矩阵，含 typed 失败按 reason 分流的可重试文案）去向
 // `src/work/work-recovery.ts` 的纯函数 `planWorkRecovery` / `readWorkRecovery`；App.tsx 侧只余
 // 「读 pointer → 取 plan → 应用 React 动作」。本票在 App 净增的 typed 失败分流由此抵消并再收紧 4。
-const HIGH_WATER_LINES = 2661;
+// CONTRACT-OUTPUT-TRUTH-1 · O4（2026-07-26）：2661 → 2658。外提物＝production S3 起跑面整块
+// JSX 去向既有 `workbench/Panels.tsx` 的 `S3LauncherPanel`（纯呈现件，零新 CSS、零新 React 模块），
+// App.tsx 侧只余一次组件调用与 props 供给；本票新增的必填主合同 `<select>` 净增由此抵消并再收紧 3。
+const HIGH_WATER_LINES = 2658;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

@@ -326,6 +326,81 @@ export function riskNextStep(
   return mode === 'batch' ? '可批量确认' : '等待门禁';
 }
 
+export interface S3LauncherPanelProps {
+  /** 可作主合同的候选（ready 且 mediaType 精确为 DOCX），由 App 用同源纯函数筛出。 */
+  candidates: readonly { materialId: string; fileName: string }[];
+  primaryContractId: string;
+  onSelectPrimaryContract: (materialId: string) => void;
+  subject: string;
+  onChangeSubject: (value: string) => void;
+  recoverable: boolean;
+  onRecover: () => void;
+  onStart: () => void;
+}
+
+/**
+ * CONTRACT-OUTPUT-TRUTH-1 · O4：production S3 起跑面。
+ *
+ * 「过手即拆」外提自 `App.tsx`——原为内联 JSX，本票要在其上加一枚必填主合同选择，
+ * 净增必须由外提抵消。纯呈现件：无状态、无副作用，判据与编排全在 App 与 `primary-contract.ts`。
+ * 只复用既有 `s3-launcher` / `s3-subject-field` / `s3-session-note` 样式，零新 CSS。
+ */
+export function S3LauncherPanel(props: S3LauncherPanelProps) {
+  const noPrimary = props.candidates.length === 0;
+  return (
+    <div className="s3-launcher" data-testid="s3-launcher">
+      <h3>合同审查</h3>
+      <p>对已入库的合同做逐条风险审查。审查前请指定主合同并填写对方主体名称（用于工商核验），系统不从文件名或正文推断。</p>
+      {props.recoverable && (
+        <div className="work-recover" data-testid="work-recover">
+          <p>本案有一次未完成的合同审查。可继续上次进度，或在下方重新开始。</p>
+          <button type="button" className="primary-button" data-testid="work-recover-run" onClick={props.onRecover}>
+            恢复审查
+          </button>
+        </div>
+      )}
+      <label className="s3-subject-field">
+        <span>主合同（批注目标）</span>
+        <select
+          data-testid="s3-primary-contract"
+          value={props.primaryContractId}
+          disabled={noPrimary}
+          onChange={(event) => props.onSelectPrimaryContract(event.target.value)}
+        >
+          <option value="">请选择一份 Word 主合同</option>
+          {props.candidates.map((material) => (
+            <option key={material.materialId} value={material.materialId}>{material.fileName}</option>
+          ))}
+        </select>
+      </label>
+      {noPrimary && (
+        <p className="s3-session-note" data-testid="s3-no-primary">
+          本案还没有可作主合同的 Word 文档 · 先入库一份 Word 主合同
+        </p>
+      )}
+      <label className="s3-subject-field">
+        <span>对方主体名称</span>
+        <input
+          data-testid="s3-subject"
+          value={props.subject}
+          onChange={(event) => props.onChangeSubject(event.target.value)}
+          placeholder="例如：临江精铸科技有限公司"
+        />
+      </label>
+      <button
+        type="button"
+        className="primary-button"
+        data-testid="s3-run"
+        disabled={!props.subject.trim() || !props.primaryContractId}
+        onClick={props.onStart}
+      >
+        开始合同审查
+      </button>
+      <p className="s3-session-note">其余已入库材料作为支持材料一并送审，但不作为批注目标。</p>
+    </div>
+  );
+}
+
 export function RevisionPanel(props: RevisionPanelProps) {
   const selectedGate = props.gate?.items.find((item) => item.itemRef === props.selectedRisk.id);
   const reviewedCount = props.selectedRisk.basis.filter((_, index) => props.expandedEvidence[`${props.selectedRisk.id}:${index}`]).length;

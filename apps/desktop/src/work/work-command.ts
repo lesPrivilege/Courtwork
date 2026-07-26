@@ -58,6 +58,7 @@ import type {
 } from '../protocol/client';
 import { WorkReplayError } from '../protocol/client';
 import type { StoredMaterial } from '../material/material-ref';
+import { deriveS3CaseFile, MissingPrimaryContractError, PrimaryContractNotInSessionError } from './primary-contract';
 import {
   IncompleteReviewError,
   InvalidReviewCorrectionError,
@@ -316,6 +317,8 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
     if (error instanceof MissingContractPartyError) return { status: 'rejected', reason: 'invalid_scope', message: '请先填写对方主体名称再开始审查' };
     if (error instanceof MissingToolInputError) return { status: 'rejected', reason: 'invalid_scope', message: '缺少开始审查所需的信息，请补全后重试' };
     if (error instanceof MaterialResolutionBlockedError) return { status: 'rejected', reason: 'invalid_scope', message: '合同原件复验未通过，未能开始审查' };
+    if (error instanceof MissingPrimaryContractError) return { status: 'rejected', reason: 'invalid_scope', message: '请先选定一份 Word 主合同再开始审查' };
+    if (error instanceof PrimaryContractNotInSessionError) return { status: 'rejected', reason: 'invalid_scope', message: '所选主合同已不在本案可用材料中，请重新选择' };
     if (error instanceof IncompleteReviewError) return { status: 'rejected', reason: 'invalid_scope', message: '尚有风险条目未处置，无法继续' };
     if (error instanceof UnknownReviewItemError) return { status: 'rejected', reason: 'invalid_scope', message: '审阅清单与风险清单不一致，请重新开始审查' };
     if (error instanceof DuplicateReviewItemError) return { status: 'rejected', reason: 'invalid_scope', message: '同一风险不能重复提交处置，请重新核对' };
@@ -383,7 +386,12 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
       const materials: StoredMaterial[] = await resolveSessionMaterials(deps.materialResolver, input.caseId, input.materialRefs);
       scenario = getS3Scenario(deps.registries);
       const materialInputs: MaterialInput[] = toMaterialInputs(materials);
-      runInput = buildS3RunInput({ scenario, subject: input.subject ?? undefined, materials: materialInputs });
+      // CONTRACT-OUTPUT-TRUTH-1：materialRefs[0] 就是用户显式选定的主合同，CaseFile 从同一
+      // 输入机械派生——S3 声明了 legal.CaseFile input，此前一直收到空 artifacts。
+      const primaryMaterialId = input.materialRefs[0];
+      if (primaryMaterialId === undefined) throw new MissingPrimaryContractError();
+      const caseFile = deriveS3CaseFile(input.caseId, primaryMaterialId, materials);
+      runInput = buildS3RunInput({ scenario, subject: input.subject ?? undefined, materials: materialInputs, caseFile });
     } catch (error) {
       controllers.delete(ref.sessionId);
       const outcome = mapError(error, ref);
