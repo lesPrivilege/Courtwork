@@ -21,6 +21,10 @@ keyring = "4.1.4"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
 futures-util = "0.3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time"] }
+# CONTRACT-OUTPUT-TRUTH-1：只供 case-output 的 stat/write。sha2 用于产物 SHA-256 流式核验；
+# libc 只用于 dirfd / no-follow / *at 系列调用。二者不得扩成通用路径读取 API。
+sha2 = "0.10.9"
+libc = "0.2.186"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2-app-kit = { version = "0.3.2", default-features = false, features = ["std", "NSButton", "NSControl", "NSResponder", "NSView", "NSWindow", "NSPanel", "NSSavePanel", "NSOpenPanel", "NSApplication"] }

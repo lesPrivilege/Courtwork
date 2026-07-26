@@ -10,6 +10,7 @@ use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 use std::sync::{Mutex, Once, OnceLock, RwLock};
 
+mod case_output_fs;
 mod host_auth;
 mod material_store;
 mod work_state;
@@ -1454,6 +1455,62 @@ fn case_output_exists_in_grant(
     case_output_docx_exists_impl(&root, &input.file_name)
 }
 
+// ─── CONTRACT-OUTPUT-TRUTH-1：合同审查批注稿的 stat / no-replace 写 ────────────
+// 本节只做 grant→root 解析与 wiring；dirfd/no-follow/stat/hash/no-replace 全住
+// `case_output_fs`。**expected 结果一律走 typed 联合**，不再以 invoke rejection 传递——
+// 把「读不到」和「不存在」压成同一个 Err，正是本票要根除的说谎面。
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CaseOutputStatInput {
+    grant_id: String,
+    file_name: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CaseOutputNoReplaceInput {
+    grant_id: String,
+    file_name: String,
+    bytes: Vec<u8>,
+}
+
+#[tauri::command]
+fn case_output_stat_docx(
+    app: tauri::AppHandle,
+    input: CaseOutputStatInput,
+) -> case_output_fs::CaseOutputStatResult {
+    let Ok(store) = host_grant_store_path(&app) else {
+        return case_output_fs::CaseOutputStatResult::Failed {
+            reason: case_output_fs::CaseOutputFailureReason::Unavailable,
+        };
+    };
+    let Some(root) = host_auth::grant_root(&store, &input.grant_id) else {
+        return case_output_fs::CaseOutputStatResult::Failed {
+            reason: case_output_fs::CaseOutputFailureReason::Revoked,
+        };
+    };
+    case_output_fs::stat_docx(&root, &input.file_name)
+}
+
+#[tauri::command]
+fn case_output_write_no_replace(
+    app: tauri::AppHandle,
+    input: CaseOutputNoReplaceInput,
+) -> case_output_fs::CaseOutputWriteResult {
+    let Ok(store) = host_grant_store_path(&app) else {
+        return case_output_fs::CaseOutputWriteResult::Failed {
+            reason: case_output_fs::CaseOutputFailureReason::Unavailable,
+        };
+    };
+    let Some(root) = host_auth::grant_root(&store, &input.grant_id) else {
+        return case_output_fs::CaseOutputWriteResult::Failed {
+            reason: case_output_fs::CaseOutputFailureReason::Revoked,
+        };
+    };
+    case_output_fs::write_docx_no_replace(&root, &input.file_name, &input.bytes)
+}
+
 // ─── HOST-AUTH-LITE：最小宿主文件授权（纯逻辑在 host_auth 模块）───────────────
 // 命令层只做 app-data 路径解析、系统 picker 调用与 grant id 递增；绝对路径与授权只住宿主，
 // renderer 只见 opaque grantId 与展示 label。失败一律走 host_auth 的闭集 reason，零静默降级。
@@ -1965,6 +2022,8 @@ pub fn run() {
             cancel_provider_request,
             case_output_write_in_grant,
             case_output_exists_in_grant,
+            case_output_stat_docx,
+            case_output_write_no_replace,
             host_authorize_folder,
             host_list_grants,
             host_read_file,
