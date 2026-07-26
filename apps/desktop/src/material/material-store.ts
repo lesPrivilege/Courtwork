@@ -1,4 +1,5 @@
 import { convertToReadingView, type ConvertInput, type ReadingViewOutcome } from '@courtwork/reading-view';
+import { preflightDocx } from '@courtwork/reading-view/docx-security';
 import { isDemoCaseId } from '../case/case-scope';
 import type { HostAuthReason } from '../host/host-auth-port';
 import { sha256Hex, sha256HexOfText } from './sha256';
@@ -69,6 +70,22 @@ export type IngestResult =
 export type ResolveResult =
   | { status: 'ready'; material: StoredMaterial }
   | { status: 'blocked'; reason: MaterialBlockReason };
+
+/**
+ * CONTRACT-OUTPUT-TRUTH-1：`readForOutput` 的 desktop-local 返回型。
+ *
+ * `not_docx` 只处理旧指针/损坏 metadata，**不**扩 `MaterialBlockReason` 或任何持久 schema——
+ * 它是一次读取的返回态，不是材料的持久状态。
+ */
+export type OutputMaterialReadResult =
+  | { status: 'ready'; fileName: string; bytes: Uint8Array; contentSha256: string }
+  | { status: 'blocked'; reason: MaterialBlockReason | 'not_docx' };
+
+/** `not_docx` 的产品文案，逐字冻结；不得挪用 `rejected` 假报「材料内容有问题」。 */
+export const NOT_DOCX_COPY = '主合同不是 Word 文档 · 请重新选择一份 DOCX 主合同';
+
+/** 主合同的精确 mediaType；按文件名后缀猜不算数。 */
+const DOCX_MEDIA_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 function mediaTypeForFile(fileName: string): string {
   const ext = fileName.toLowerCase().split('.').pop() ?? '';
@@ -244,6 +261,62 @@ export class MaterialStore {
     return {
       status: 'ready',
       material: { ...stored, readingMarkdown: derived.readingMarkdown, blocks: derived.blocks },
+    };
+  }
+
+  /**
+   * CONTRACT-OUTPUT-TRUTH-1：output 专用的 source-neutral 读取编排。
+   *
+   * 与 `resolveForProvider` 的关键差别是**次数**：本方法以 exactly-one `readOriginal` 得到的
+   * 同一份 bytes 完成 mediaType / content hash / ReadingView hash / DOCX 安全预检全部复验，
+   * 再返回该已复验 snapshot 的副本。先 `resolveForProvider`、再第二次读原件会在两次读取之间
+   * 留下 TOCTOU 窗口——「复验的那份」与「写进产物的那份」可能不是同一份文件。
+   *
+   * 次序固定：case/get/status fail closed → mediaType 精确等于 DOCX → 才调用唯一一次
+   * `readOriginal` 并立即 snapshot → 同一 snapshot 依次做 content hash、ReadingView 重派生/hash
+   * 与共享 DOCX 预检 → 最后才 `slice()` 返回。任一步 fail closed，绝不抛裸异常、不暴露路径或
+   * grantId。
+   */
+  async readForOutput(caseId: string, materialId: string): Promise<OutputMaterialReadResult> {
+    if (isDemoCaseId(caseId)) return { status: 'blocked', reason: 'out_of_scope' };
+
+    const stored = await this.host.get(caseId, materialId);
+    if (!stored) return { status: 'blocked', reason: 'not_found' }; // 含跨 case（宿主回 null）
+    if (stored.status === 'needs_ocr') return { status: 'blocked', reason: 'needs_ocr' };
+    if (stored.status === 'rejected') return { status: 'blocked', reason: 'rejected' };
+    // mediaType 门在 host read **之前**：不是 Word 文档就没有读它字节的理由。
+    if (stored.mediaType !== DOCX_MEDIA_TYPE) return { status: 'blocked', reason: 'not_docx' };
+
+    const read = await this.host.readOriginal(caseId, materialId);
+    if (read.status === 'failed') return { status: 'blocked', reason: mapReadReason(read.reason) };
+    // 立即 snapshot：此后所有复验与返回都只看这块内存，宿主再改它交出的 buffer 也不影响结论。
+    const snapshot = new Uint8Array(read.bytes);
+
+    const freshContent = await sha256Hex(snapshot);
+    if (freshContent !== stored.contentSha256) return { status: 'blocked', reason: 'content_drift' };
+
+    const outcome = await this.convert({ fileId: materialId, fileName: stored.fileName, data: snapshot });
+    const derived = await deriveReadingView(outcome);
+    if (derived.status !== 'ready') {
+      return { status: 'blocked', reason: derived.status === 'needs_ocr' ? 'needs_ocr' : 'rejected' };
+    }
+    if (derived.readingViewSha256 !== stored.readingViewSha256) {
+      return { status: 'blocked', reason: 'reading_drift' };
+    }
+
+    // 共享 DOCX 安全预检（宏/XXE/zip bomb/损坏）——与 reading-view、output 同一条防线，
+    // 不另造弱版。expected 失败收敛为 rejected，不外泄异常文本。
+    try {
+      preflightDocx(snapshot);
+    } catch {
+      return { status: 'blocked', reason: 'rejected' };
+    }
+
+    return {
+      status: 'ready',
+      fileName: stored.fileName,
+      bytes: snapshot.slice(),
+      contentSha256: freshContent,
     };
   }
 
