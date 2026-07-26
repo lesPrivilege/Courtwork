@@ -85,6 +85,28 @@ describe('compileConfirmedReviewToDocx', () => {
     });
   });
 
+  it('production API 对运行期夹带的 confirmedNonApplied 结构性免疫：即便强行注入也不落盘（fix-by-acceptance 回归锁）', () => {
+    const base = {
+      riskList: riskListWith([
+        { ...APPLIED_RISK, dispositionStatus: 'confirmed' as const },
+        { ...NON_APPLIED_RISK, dispositionStatus: 'confirmed' as const },
+      ]),
+      sourceMarkdown: SOURCE_MD,
+      targetFileName: '设备采购合同.docx',
+      evidenceGrades: [],
+      now: new Date('2026-07-16T00:00:00.000Z'),
+    };
+    const probe = compileConfirmedReviewToDocx(base);
+    if (probe.status !== 'needs_confirmation') throw new Error('预期先撞确认门');
+    const ids = probe.pending.map((p) => p.instructionId);
+    // production 输入类型本不携带 confirmedNonApplied；此处以运行期字面量夹带，模拟未来重构
+    // 误把该字段透传给 production 包装器的回归——production 编译器必须结构性不读它，仍整份阻断。
+    const smuggled = { ...base, confirmedNonApplied: ids } as typeof base;
+    const result = compileConfirmedReviewToDocx(smuggled);
+    expect(result.status).toBe('needs_confirmation');
+    expect(result).not.toHaveProperty('docx');
+  });
+
   it('显式 demo 仍可验证旧逐项 waiver；production API 不消费该本地授权', () => {
     const base = {
       riskList: riskListWith([APPLIED_RISK, NON_APPLIED_RISK]),
