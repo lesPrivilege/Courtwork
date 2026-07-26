@@ -4852,3 +4852,100 @@ confirmation/revision 与零文书正常终态均已实现并可放行。** 本�
 真实性与 completed 重开矩阵仍是这两张后续票的独立范围。清账序列（合入 `main`、`git push`、
 worktree/branch 清理、`current.md` 在途分支条款改写）按产品负责人 2026-07-26 指示在本报告之后
 执行。
+
+---
+
+## CONTRACT-OUTPUT-TRUTH-1 独立验收（2026-07-26，驳回）
+
+验收对象：`codex/contract-output-truth-1`，tip `3171c08`，基于 `c180d9f`；十枚提交序与派单一致，未在验收期间改写目标树历史。验收在独立 clean clone `/tmp/courtwork-contract-output-acceptance` 完成，Playwright 使用独立端口 `15427` 且 `reuseExistingServer:false`。
+
+### 全量门禁实跑
+
+| 门 | 实跑结果 |
+|---|---|
+| `pnpm -r build` | 通过 |
+| `pnpm lint` | 通过 |
+| root Vitest | 152 files / 1323 tests passed |
+| desktop Vitest | 71 files / 591 tests passed |
+| `cargo test --lib` | 83 passed / 0 failed（提升权限重跑，首次沙箱端口绑定受限的 3 例不作为结果） |
+| desktop Playwright 全量 | 342 passed，端口 `15427` |
+| app highwater | 2657 行，upper 2657，只降不升 |
+
+`global-verbs.spec.ts:7` 本轮通过；按在册 `E2E-FLAKY-HOVER-1` 规则登记为本轮未复现，不以隔离绿覆盖历史 flaky 记录。实现自报数字均以本轮实跑结果为准。
+
+### 独立 mutation 抽核
+
+六枚反例均在独立验收树中直接注入、观察 focused test 变红、精确撤除后复绿：
+
+| 反例 | 红证 | 复绿 |
+|---|---|---|
+| `readForOutput` 单读 TOCTOU | 2 failed / 11 passed | 13/13 |
+| no-replace 目标冲突 | 2 failed / 12 passed | 14/14 |
+| non-applied 整体阻断 | 2 failed / 8 passed | 10/10 |
+| 主合同锚选择 | 2 failed / 12 passed | 14/14 |
+| OOXML untouched part bytes 保真 | 1 failed / 5 passed | 6/6 |
+| replay demo metadata | 1 failed / 11 passed | 12/12 |
+
+防御性拷贝断言已核对：实现 SPEC 明确记录其无区分力、未纳入 mutation 证据；该留痕诚实，不将其冒充红证。
+
+### 结构与留痕核对
+
+- `packages/demo-runtime/SPEC.md` 已留痕架构追认的三处修正、判据坐标与 golden 重烤；demo metadata 分支实测通过。
+- Rust 新增生产安全模块只有 `apps/desktop/src-tauri/src/case_output_fs.rs`；`lib.rs` 仅保留 command/wiring。macOS 实现使用 `O_NOFOLLOW_ANY` 与 `*at`/dirfd；非 macOS 只返回 typed `failed/unavailable`，未发现 canonicalize/rename/no-follow fallback 的实际生产调用。browser bridge 与 Rust 结果联合一致。
+- fixture 新增仅 `packages/output/test/fixtures/contract-review-complex.docx` 及 README；探针由测试内存派生。
+- `useContractReviewOutput` 已删除；全仓 grep 仅存报告/就绪图留痕，零 import、调用或 re-export。SAFETY completed 分流语义未回改。
+
+### 阻断项
+
+1. **生产白名单未覆盖实际新增模块。** 最终定稿白名单未列出 `src/work/work-recovery.ts`、`src/work/primary-contract.ts`、`src/output/contract-review-file-name.ts` 及其对应测试；三者均为本票新增并被生产路径导入。SPEC 的退出证据虽引用其中两个模块，但没有相应白名单扩展。派单只明确批准了 `Panels.tsx` 两个面扩白；这是契约级范围不一致，验收角色不能代补白名单。
+2. **旧固定产物名仍进入生产 App 路径。** `src/App.tsx` 的 `refreshOutputExistence` 对 grant 与 demo 共用 `caseOutputClient.exists(caseBinding, CONTRACT_OUTPUT_FILE)`，其中 `CONTRACT_OUTPUT_FILE` 为固定 `合同审查报告.docx`；生产结果卡还保留 `{submission.outputDisplayName ?? CONTRACT_OUTPUT_FILE}`。因此“生产路径旧产物名零出现”的 grep 级要求不成立，且完成后焦点刷新可能用旧固定名覆盖版本化产物状态。现有静态门只切 coordinator/`deliverProductionDocx`，未覆盖该 App 消费点。
+
+两项均属票面契约/范围问题，不是可在验收阶段默默修正的实现小缺陷。
+
+### 结论
+
+**驳回 `CONTRACT-OUTPUT-TRUTH-1`。** 全量门禁与抽核证据通过，但上述契约级阻断项未满足；本会话不合入 `main`、不删除本地/远端分支、不执行 `git push`，也不修改 `docs/status/current.md`。
+
+---
+
+## CONTRACT-OUTPUT-TRUTH-1 R1 聚焦复验（2026-07-26，放行）
+
+对象：`codex/contract-output-truth-1` tip `b2ba999`（`3171c08` 上单枚 R1 修复提交）。本轮在独立 clean clone `/tmp/courtwork-contract-output-r1` 完成；既过的六项 mutation 未重做。
+
+### R1 范围复核
+
+- `work-recovery.ts`：四分支恢复判定；明确不含 pointer compare-and-clear，亦未外提 TRACE 语义。
+- `primary-contract.ts`：精确 DOCX 候选筛选、稳定排序、CaseFile 派生；无 IO。
+- `contract-review-file-name.ts`：纯 UTC 字段格式化与版本化命名；不读写文件、不引入持久格式。
+- 三模块及 delivery 定向测试：3 files / 45 tests passed。
+
+三模块已补入 desktop SPEC 白名单，且产生阶段、承载职责、批准坐标与同名测试均有留痕。
+
+### 项二反例与回归锁
+
+- 旧固定名文件预置于 grant 产出目录：修复前 focused E2E **1 failed**（`work-output-docx` Expected 0 / Received 1），恢复后 **1 passed**。
+- 结果卡恢复 `outputDisplayName ??`：静态门红，恢复后绿。
+- 存在性探询去掉 demo 同行守卫：静态门红，恢复后绿。
+- 固定产物名字面量散落至第二处：静态门红（实测 2 处），恢复后绿。
+- 常量去掉 `DEMO_` 前缀：静态门红，恢复后绿。
+
+grant 结果卡切片旧字面量命中 **0**；App 全文旧字面量仅保留在 `DEMO_CONTRACT_OUTPUT_FILE` 单一 demo 常量处。生产静态门通过。
+
+### R1 全量门禁
+
+| 门 | 实跑结果 |
+|---|---|
+| `pnpm -r build` | 通过 |
+| clean clone `pnpm lint` | 通过 |
+| root Vitest | 152 files / 1323 tests passed |
+| desktop Vitest | 71 files / 591 tests passed |
+| `cargo test --lib` | 83 passed / 0 failed |
+| Playwright floor | 343 条门禁通过 |
+| Playwright 全量 | 342 passed；`global-verbs.spec.ts:28` 1 红，为在册 `E2E-FLAKY-HOVER-1` |
+| app highwater | 2657 / 2657 |
+
+E2E 使用独立端口 `15932`，静态链与 floor=343 通过；已登记 hover flaky 的复合 transition CSS 值抖动本轮复现，按原派单裁决不据以驳回。
+
+### 结论
+
+**放行 `CONTRACT-OUTPUT-TRUTH-1` R1。** 放行仅覆盖本票 OUTPUT 范围：显式主合同、原 DOCX bytes 保真、版本化 no-replace 落盘、非常态零写；不宣称 TRACE、Word/WPS external-validated 或 v0.2.0 可发布。

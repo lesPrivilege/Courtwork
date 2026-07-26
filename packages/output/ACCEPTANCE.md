@@ -116,3 +116,39 @@
 
 - demo-runtime / core SPEC 中 `39,713 bytes` 与 core W6 的“报错并跳过”均是 2026-07-10/14 的历史验收叙述；本次当前实跑数字与现行落盘契约以上述结果为准。未修改超出工单范围的 core 历史记录。
 - 未更新 `docs/status/current.md`，未执行 Word/WPS 真机 roundtrip，未推送。
+
+---
+
+## CONTRACT-OUTPUT-TRUTH-1 独立验收（2026-07-26，output 范围，驳回）
+
+验收对象：`codex/contract-output-truth-1` tip `3171c08`，基线 `c180d9f`。本包证据在独立 clean clone `/tmp/courtwork-contract-output-acceptance` 取得；根门禁与 desktop 门禁结果统一记录于 `apps/desktop/ACCEPTANCE.md` 同名章节。
+
+### 本包证据
+
+- root Vitest 实跑 **152 files / 1323 tests passed**；其中 output/legal 的 deterministic ZIP、OOXML part/relationship 保全、既有批注/关系、签名/恶意/漂移与 non-applied 阻断均随全量测试通过。
+- 六项独立 mutation 中，output 直接相关的三项均按“注入变红 → 撤除复绿”完成：non-applied 整体阻断（2 failed / 8 passed，恢复 10/10）、untouched part bytes 保真（1 failed / 5 passed，恢复 6/6）、demo metadata 分支（desktop replay，1 failed / 11 passed，恢复 12/12）。另有单读 TOCTOU、no-replace、主合同锚三项，详见 desktop 报告。
+- `packages/output/test/fixtures/` 本票新增仅 `contract-review-complex.docx` 与 README；其他探针为测试内存派生，未形成第二批 binary fixture。
+- `packages/demo-runtime/SPEC.md` 已记录架构追认的三处同步修正、判据坐标与 golden 重烤，相关 output 消费者实测通过。
+
+### output 范围阻断
+
+本包代码门禁虽全绿，但整票不能放行：最终 desktop 白名单只列出 `packages/output/src/{apply-revision-instruction-set,docx-zip,index}.ts` 的直接消费点；实现新增并被生产导入的 `apps/desktop/src/output/contract-review-file-name.ts` 未列入 desktop 最终白名单，同时 `work-recovery.ts`、`primary-contract.ts` 也未列入。退出证据引用这些模块不能替代架构白名单扩展。该问题属于契约级范围不一致，验收角色不代补。
+
+此外，`apps/desktop/src/App.tsx` 仍在 grant 生产路径使用固定 `合同审查报告.docx` 做 output existence 检查，并在结果卡作旧名 fallback；这违反生产路径旧产物名零出现的票面要求，虽不属于本包源码缺陷，却阻断本包票面整体放行。
+
+### 结论
+
+**驳回 `CONTRACT-OUTPUT-TRUTH-1`。** output 本包测试与结构证据通过，但整票契约级阻断项未清零；不合并、不删分支、不更新 `current.md`。
+
+---
+
+## CONTRACT-OUTPUT-TRUTH-1 R1 聚焦复验（2026-07-26，output 范围，放行）
+
+对象：`codex/contract-output-truth-1` tip `b2ba999`。R1 三模块白名单补录已在 desktop SPEC 完成并逐模块核对；本包相关证据在独立 clean clone `/tmp/courtwork-contract-output-r1` 取得。
+
+- `contract-review-file-name.ts` 仅承载 UTC 字段格式化与版本化命名纯函数，无文件 IO 或新持久格式。
+- output 直接相关的 non-applied、untouched-part bytes fidelity、demo metadata 证据继续通过；三模块/delivery 定向测试 45/45。
+- 旧名文件误报 focused E2E 修复前 1 failed、恢复后 1 passed；四条 App 静态回归锁均逐条 red→green。
+- root 1323/1323、desktop 591/591、build/lint、Rust 83/83 均通过；Playwright floor=343 通过。全量唯一 1 红为在册 `E2E-FLAKY-HOVER-1`，342 passed，不影响本票放行裁决。
+
+**结论：放行 `CONTRACT-OUTPUT-TRUTH-1` R1（仅 OUTPUT 票面，不宣称 TRACE、Word/WPS external-validated 或 v0.2.0）。**
