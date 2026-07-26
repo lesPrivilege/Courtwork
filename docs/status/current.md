@@ -28,7 +28,7 @@
 | Chat 附件 | ready 附件的 `readingMarkdown`、粘贴块与用户文本经同源组装逐字进入真实请求；needs_ocr 与空内容以类型级 reason 显式阻断发送；grant 案的 ready 上传还会复用 `admitEntry` → 宿主 hash → `MaterialStore` 入库链 | Composer 的“存入卷宗/资料”`scope` 目前只供 badge，**不参与入库判据**；grant 案会把所有 ready 上传入库，无论用户是否点该按钮。该语义债归 `DEBT-DOSSIER-1`；OCR 与图片多模态仍未接入 |
 | Provider 设置 | key 与 provider 配置分离，凭证经宿主钥匙串边界；custom/base URL 猜测入口已退役 | — |
 | Provider usage 计量 | 原始 usage（rawUsage 真源）与 cache/reasoning 归一化槽位、unknown 传染、版本化 CostEstimate 经 provider→core Turn 持久→desktop 全链成立并独立验收（`ce37d53`+`91afa57`，报告见 provider ACCEPTANCE） | DeepSeek 真实响应捕获仍阻塞于带 key 环境，fixture 为构造件，不得宣称 external-validated |
-| Work 法律场景窄链 | 非 demo grant 案的 production run/replay/resume/cancel、耐久 store、材料绑定与 docx 文件写入链可达；第六轮真机观察到 RiskList、页内引语展开与本案产出目录中的 docx。`WORK-BUDGET-1` 已把 Settings 金额上限、冻结 DeepSeek route/价目、累计 budget 与持久失败回放装入同一 production 链并独立放行 | 这只证明 Legal S3 窄链及其预算边界可达。源码回溯仍发现：App 忽略非完成 command outcome 后可写文书、最后一项或空清单会自动续行且零 confirmed 被当生成错误、以 `ready[0]` 猜主合同、把 ReadingView Markdown 重建成新 docx、生产预览混入固定 demo redline 且来源按钮未接、completed 指针被清；未落点批注的放行只存 React 内存，输出桥还固定 `overwrite:true`。故既有真机记录不证明原 DOCX 保真、真实 redline、耐久 effect 授权、零文书正常终态、历史产物不被覆盖或可追溯闭环；质量打分与版本级真机复验也未闭合，不宣称 Work 全面 product-live / external-validated |
+| Work 法律场景窄链 | 非 demo grant 案的 production run/replay/resume/cancel、耐久 store、材料绑定与 docx 文件写入链可达；第六轮真机观察到 RiskList、页内引语展开与本案产出目录中的 docx。`WORK-BUDGET-1` 已把 Settings 金额上限、冻结 DeepSeek route/价目、累计 budget 与持久失败回放装入同一 production 链并独立放行。`CONTRACT-REVIEW-SAFETY-1` 已闭合显式最终提交（逐条填满不自动 resume）、resolve outcome 检查（非 completed 零写）、durable post-revision 分流、completed 指针耐久与零文书诚实终态（零风险/任一待索证/全驳回），production 编译器退役 waiver 参数（`onNonApplied:'block'` 无条件）；实现 `b9dc1e9`，回归锁 `5f4d90d`，异会话验收 `e473fbb` | 仍以 `ready[0]` 猜主合同、从 ReadingView Markdown 重建新 docx、生产预览混入固定 demo redline 且来源按钮未接、输出桥固定 `overwrite:true`——四处属 `CONTRACT-OUTPUT-TRUTH-1` 范围。故仍不宣称原 DOCX 保真、真实 redline、历史产物不被覆盖或可追溯闭环；质量打分与版本级真机复验未闭合，不宣称 Work 全面 product-live / external-validated |
 
 Composer 的“存入卷宗/资料”不是第二条入库能力；现行缺口恰是 UI scope 与既有唯一入库判据脱节，
 不得再把它描述成“MaterialStore 尚未接入”，也不得在 `DEBT-DOSSIER-1` 前宣称按钮语义成立。
@@ -88,6 +88,7 @@ Composer 的“存入卷宗/资料”不是第二条入库能力；现行缺口�
 | 2026-07-24 current-main 治理清账 | `FILE-PREVIEW-1`、`CORE-BUDGET-1`、`DEBT-CLEAR-1`、`DEBT-GATE-LABEL-1`、`MD-CONVERGE-1+`、`MODEL-CONFIG-EXPLICIT-1R`；报告门 `GOVERNANCE-CLEAR-1` 提交 `9df31d1`，同一 `94f83ab` 上 build/lint、root 1291、desktop 434、Playwright 329/329 与逐票 mutation 全绿；报告分别见 desktop/core `ACCEPTANCE.md` |
 | 2026-07-24 production Work 预算 | `WORK-BUDGET-1`：实现 `a82f51d`，台账契约修正 `0ff83f7`，异会话验收 `4e301b5`；最终 desktop 465、root 1294、Playwright 333/333，六类 production mutation 均红后恢复。只放行累计预算/冻结 route/价目/持久失败回放，不扩大为整条合同审查闭环 |
 | 2026-07-25 门禁清点 | `GATE-INVENTORY-1`：清点表 `docs/engineering/gate-inventory-1.md`（65 门 / 8557 行，现读现跑非静态推断；旧计数 `8019` 订正为出处保留）。清点期只读边界被遵守，动作按就绪图另立 `GATE-P5-RESCOPE-1` 与 `CI-TOPOLOGY-1` 两票。副产品捕获两项现行问题并经异会话独立复跑坐实：`assert-p5-font-runtime` 判红（exit 1，八条数据位置断言全漂）且未接任何门链、`capture-rp1-compact` 死支（实跑 30s 超时崩溃）。报告内「跨越十余枚提交」一处计数在任一口径下均不成立，已由复测三口径（全仓 69 / `site/` 7 / `site/index.html` 1）订正 |
+| 2026-07-26 合同审查安全面 | `CONTRACT-REVIEW-SAFETY-1`：实现 `d24d62b`+`2a16f44`+`b9dc1e9`，fix-by-acceptance 回归锁 `5f4d90d`，异会话验收 `e473fbb`，合入 `05e0ade`。全量门两轮实跑全绿（root 1294、desktop 501、Playwright 337/337），四项指名 mutation 三项原生红证、一项由回归锁补齐。只放行 SAFETY 票面，不及 OUTPUT/TRACE |
 
 ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第二 agent runtime；企业 SDK 编排只进真实垂类 runtime；新 production blueprint 只能由真实 fixture 与 fail-closed projection 拉动。
 
@@ -95,12 +96,12 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 
 严格按[实现就绪图](../architecture/implementation-readiness.md)派发：
 
-1. `CONTRACT-REVIEW-SAFETY-1`（P0，当前唯一 `App.tsx` 首票）：先闭合显式最终提交、
-   command outcome、durable confirmation/revision 与零文书正常终态；不得与 OUTPUT 并行改同一
-   App/compile path。
-2. SAFETY 独立放行后，按 `CONTRACT-OUTPUT-TRUTH-1 → CONTRACT-TRACE-1` 串行收束本版
-   Legal 单品：显式选择 DOCX 主合同，至少一项 confirmed 且无待索证项时才从原 bytes 产批注稿；
-   来源回跳、完成账本与 production 预览真实同源。
+1. `CONTRACT-OUTPUT-TRUTH-1`（P0，当前唯一 `App.tsx` 首票）：显式选择 DOCX 主合同；至少一项
+   confirmed 且无待索证项时才以一次 readOriginal snapshot 从原 bytes 产批注稿；版本化产物命名
+   与 atomic no-replace；退役 `ready[0]`、ReadingView 重建与生产伪 redline。边界只认就绪图同名
+   开工补充裁决节。
+2. OUTPUT 独立放行后，`CONTRACT-TRACE-1` 收束来源回跳、完成账本与 production 预览真实同源，
+   随后 `DEBT-DOSSIER-1` 取得 App 槽。
 3. `DEBT-DOSSIER-1` 在 CONTRACT-TRACE 后取得 App 槽，闭合 scope 入库判据与真实卷宗计数；
    再依次进入 `C3-1 → C3-2 → C3-3`。C3-4 的预算执法与 flash 价目已前移到预算票，本身只做
    同源可观测出口。
