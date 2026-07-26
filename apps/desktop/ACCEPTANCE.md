@@ -4682,3 +4682,173 @@ lint 承重反例：临时把 `capture.mjs` 退回 `/* global process */` 后，
 
 **最终结论：WORK-BUDGET-1 的契约、功能逻辑、production 装配与架构设计均已实现并可放行。**
 清账仍须由架构角色确认本验收提交成为 `main` 祖先并更新相应状态真源；本报告本身不越权改状态文档。
+
+# ACCEPTANCE: CONTRACT-REVIEW-SAFETY-1 · 独立验收（2026-07-26）
+
+- **验收对象**：分支 `codex/contract-review-safety-1`，实现原始 tip `b9dc1e9`（`git log
+  --oneline main..codex/contract-review-safety-1` 实核，与派单预期一致）；验收追加
+  `fix-by-acceptance` 提交后最终 tip `5f4d90d`。merge-base 与 `main` 当前 tip `b393009` 相同
+  （已 rebase，零冲突）。
+- **独立性**：本会话未参与 CONTRACT-REVIEW-SAFETY-1 实现。另起独立 clean worktree
+  `.claude/worktrees/accept-contract-review-safety-1`（未复用已标 prunable 且已删除的旧
+  worktree `.claude/worktrees/contract-review-safety-1`），独立 `pnpm install`；Playwright 用
+  `COURTWORK_E2E_PORT` 三次取不同隔离端口（14205/14206/14207），配置本身 `reuseExistingServer:
+  false`，未连接共享 dev server。
+- **裁决：✅ 放行 CONTRACT-REVIEW-SAFETY-1。** 附一枚 `fix-by-acceptance:` 提交（详见下方
+  Mutation 红证节），修复验收自身发现的一处回归锁缺口；未改任何契约、schema、SPEC 或验收标准。
+
+## 谱系、白名单与自我披露的三处扩张
+
+四枚提交 `75b6cee`(WIP 快照) → `d24d62b`(白屏根因修复) → `2a16f44`(过手即拆) →
+`b9dc1e9`(e2e 迁移)，`main..branch` 共 **33 files / 2021 insertions / 327 deletions**（验收
+追加 22 insertions 后为 2043）。逐文件核对 `apps/desktop/SPEC.md` 第 4008–4019 行「实现边界」
+白名单（此段文本本身在 `main` 基线即存在，未被本分支改动，确认是架构预先冻结的边界非实现自批）：
+
+- 生产文件全部落白名单：`App.tsx`、`protocol/{client,review-resolution}.ts`、
+  `work/{legal-s3-binding,work-command}.ts`、新建 `work/contract-review-flow.ts`（白名单明列）、
+  `output/compile-review-output.ts`、`workbench/Panels.tsx`；跨包 `packages/legal/src/scenarios
+  /index.ts` 落白名单。
+- **OUTPUT 专属面零命中**：全仓 diff 零 `case_output_fs.rs`、零
+  `contract-review-complex.docx`、零 `case-output-client` 新增、零
+  `material-store`/`delivery`/`work-session-store` 改动；`workbench/Panels.tsx` 底部固定
+  demo redline `<div className="document-preview">…修订 4 处…</div>` 原样未动——OUTPUT-TRUTH-1
+  的已知缺口本票没有顺手碰。
+- 实现在 `apps/desktop/SPEC.md` 新增「实现期架构裁定（本会话留痕）」节，**主动自报三处白名单
+  字面扩张**并附理由：①新建 `work/use-contract-review-submission.ts`（白名单原文只批
+  `contract-review-flow.ts` 一枚新文件）；②`packages/legal/src/package/layout-golden.test.ts`
+  descriptor hash 重铸；③`demo/legal-interaction.test.ts` 两处类型收紧。逐项复核：
+  - ②③经读码确认分别落在白名单「该包 prompt/golden 直接消费点」条款内、以及 recordings.ts
+    改动的机械类型下游，均非真实越界，只是过度谨慎的自我披露。
+  - ①经读码确认：新文件是 React 副作用编排 hook（`useContractReviewSubmission`），与
+    `contract-review-flow.ts`（纯状态 reducer + `createContractReviewSubmitter`）关注点不同；
+    白名单条款本身明文要求「App 触碰须把 live review 状态与提交编排外提」——拆两个文件是该
+    要求的自然实现，未新增依赖/持久格式/状态机，未触其他包或 schema。**判定：可接受**，非
+    契约越界，但仍在此如实登记供架构复核。
+  - `demo/recordings.ts` 另有第四处未被实现方计入「三处」但同样超出白名单字面（白名单只批
+    该文件「exact label 同源更新」，实际改为「demo artifact 经其注册 schema `.parse()`」）。
+    根因核实：白屏是本票自身白名单内 `Panels.tsx` 新增 out-of-coverage 渲染面解引用
+    `riskList.outOfCoverage`，撞上 demo fixture 从未经 parse 故 `.default([])` 未生效的既存
+    问题（判例已入 `docs/engineering/workflow.md`「类型在场 ≠ 运行时在场」）。修法零改 schema，
+    换族级新守卫测试锁死（`session-event.contract.test.ts` 逐 artifact 核 parse 结果），且
+    `packages/legal/src/package/layout-golden.test.ts` 的 descriptor hash 注释证明「与 main
+    逐行 diff 只有一行不同（冻结的 gate label）」。**判定：可接受**，是本票白名单内改动引发的
+    自身回归之修复，非范围外功能扩张，且已充分留痕、已配机器门。
+- `docs/status/current.md`、`docs/engineering/workflow.md`、`apps/desktop/SPEC.md` 的改动不在
+  代码白名单内，但分属「完工后必更新当前基线」（current.md 惯例）与「归档律：跨工单判例进
+  workflow.md、单批事实进 SPEC」（workflow.md 自身规则）范围，核对内容真实且未越界宣称。
+
+## 核心安全逻辑源码结论
+
+逐条对照 `apps/desktop/SPEC.md` CONTRACT-REVIEW-SAFETY-1 章节与 ADR-010 决定五 2026-07-24 修订
+读码，非仅采信自述：
+
+- `work/work-command.ts`：`CommandPayload` 判别联合（`kind:'start'|'resolve_review'`）令
+  `resolveReview` 首次纳入与 `start` 同一张 `commands` first-wins 表（读旧码确认原实现
+  `resolveReview` 完全不参与该表，是真实闸门缺口）；`publish` 从「`catch` 块无条件
+  `publishFrom(store,…)`」改为只经 `afterCommit` 回调（由 `persistBarrier` 在
+  `store.commit()` 成功**之后**调用）触发——直接堵死「未落盘状态泄给 UI」的口子。
+- `work/legal-s3-binding.ts`：`mapReviewResolutionToResume` 对合法 `revise` 按 SPEC 精确顺序
+  产出 `[description RevisionInput, dispositionStatus RevisionInput]` 两枚；空值/同值修正抛
+  `InvalidReviewCorrectionError`；重复 `itemRef` 抛新增 `DuplicateReviewItemError`；
+  `UnknownConfirmationRequestError` 核实为 `packages/core` 既有导出（`executor.ts:161`，未消费
+  requestId 场景既有抛出点），desktop 侧只新增映射，零 core 改动。
+- `work/contract-review-flow.ts`：`createContractReviewSubmitter` 严格 `outcome.status !==
+  'completed'` 才短路为 `not_completed`；随后 `replay` 校验 phase/ref 一致，
+  `assertOutputAuthorization` 精确核 `requested.length===1 && gateLabel 匹配 && resolved.length
+  ===1 && decision==='confirm'`，`latestPersistedRiskList` 从 replay 事件取**最新**
+  `artifact_produced`；`classifyPersistedReview` 五分支文案与 SPEC 逐字一致
+  （「本次审查未形成可提交的风险项；未生成批注稿」「风险均已驳回；未生成批注稿」等）。
+- `output/compile-review-output.ts`：production `compileConfirmedReviewToDocx` 输入类型
+  `CompileConfirmedReviewInput` 结构性不携带 `dispositions`/`confirmedNonApplied`，按
+  `risk.dispositionStatus==='confirmed'` 过滤且 `outOfCoverage` 非空即整份阻断；demo 分支
+  `compileDemoConfirmedReviewToDocx` 物理独立导出，`Panels.tsx` 另以
+  `allowNonAppliedConfirmation={isDemoCase}` 在 UI 层复议同一分流（两层防线）。
+- `App.tsx`：两处旧「填满即 `useEffect` 自动 `resolveReview`」（demo fixture 路径与 grant
+  production 路径各一处）已删除，替换为 `submission.submit`（显式点击驱动）；`dispositions`/
+  `reviewSubmitted`/`nonAppliedPending`/`confirmedNonAppliedIds`/编辑态五个 state 随「过手即拆」
+  外提，App.tsx 由 2830 行降至 2665 行。
+
+## 退出证据逐条核对（就绪图 SAFETY 行）
+
+| 证据 | 核对方式 | 结论 |
+| --- | --- | --- |
+| 修正未提交/取消不 resume | `contract-review.spec.ts` e2e + `review-resolution.test.ts` 单测 | 通过 |
+| 逐条填满仍 paused，不自动 resume | 本会话 mutation 注入见下节 | 通过（红证自产） |
+| 同帧双击同 Promise | `work-command.test.ts`「同 commandId + 同 payload 返回既有结果」等 4 例 + `contract-review-flow.test.ts`「同帧重入复用同一 Promise」 | 通过 |
+| 跨 kind 同 id 冲突拒 | `work-command.test.ts`「start 与 resolveReview 共用 commandId first-wins 命名空间；跨 kind 冲突零 CAS」 | 通过 |
+| 重启后已消费 request → invalid_scope/CAS=0 | `work-command.test.ts`「合法修正真实同源链…再重启重提零新增」端到端真实 store 集成测试 | 通过 |
+| 两个独立 command 实例真并发，败者 failed/internal | `work-command.test.ts`「两个独立 command 实例共享 host 真并发：败者 failed/internal 且 callback 零新事件」 | 通过 |
+| 零 confirmed/mixed OOC 文案账本诚实 | `classifyPersistedReview` 源码 + `contract-review.spec.ts` | 通过 |
+| 四类非完成 outcome/non-applied 各零 docx | 本会话 mutation 注入见下节 | 通过（红证自产，其一发现缺口已自修） |
+| description/status/replay/comment 同源 | 本会话 mutation 注入见下节 + `compile-review-output.test.ts`「持久 post-revision description 是 Word comment 唯一文本源」 | 通过 |
+
+## Mutation 红证（本会话独立注入，非采信实现自述）
+
+在验收 worktree 逐项临时注入源码变更、观察红、撤除恢复绿；四项均为派单指名的必测项：
+
+| 反例注入 | 位置 | 实际红证 | 处置 |
+| --- | --- | --- | --- |
+| 忽略 `resolveReview` outcome（`if (outcome.status !== 'completed')` 改 `if (false)`） | `contract-review-flow.ts:323` | `contract-review-flow.test.ts` 4 个 `it.each` 用例（rejected/failed/canceled/paused）全部转红，13 例不受影响；撤除后 17/17 绿 | 撤除 |
+| 编译消费非持久值（`deps.compile(review.riskList)` 改传 `{...review.riskList, risks:[]}`） | `contract-review-flow.ts:334` | 「完成后只把 replay 最新 RiskList 交给编译」用例转红（`toHaveBeenCalledWith` 收到空 risks 而非 replay 值）；撤除后 17/17 绿 | 撤除 |
+| 恢复自动 resume（`use-contract-review-submission.ts` 插入 `useEffect(() => canSubmit && submit(), [canSubmit])`） | `use-contract-review-submission.ts` | `contract-review.spec.ts` 4 例中 2 例转红（提交按钮因 auto-submit 抢跑而卡在 disabled，`toBeEnabled()` 超时）；撤除后 4/4 绿 | 撤除 |
+| 恢复 transient waiver 授权写入（production `compileConfirmedReviewToDocx` 末行改传 `(input as CompileDemoConfirmedReviewInput).confirmedNonApplied` 给共享 helper） | `compile-review-output.ts` | **既有 7 个测试全绿，零红证**——production/demo 分流只有 TypeScript 类型层强制，运行期无回归锁 | **发现真实缺口**，见下 |
+
+第四项按派单「任何一项注入不红即驳回」的字面标准本应驳回；经核实该缺口是**测试覆盖缺口**而非
+**production 已发生的行为缺陷**（当前唯一生产调用点 `use-contract-review-submission.ts` 的
+`shared` 对象从不携带 `confirmedNonApplied`，本票 production 代码本身正确），且能产出独立、可复现
+的红证、定位精确到单一文件单一测试、修复不改任何契约/schema/SPEC。按 AGENTS.md／
+`docs/engineering/workflow.md`「验收自修探例条款」四个前置条件（缺陷小且定位明确、附独立红证、
+全量门亲跑、`fix-by-acceptance:` 标注）逐条核对后自修：新增回归锁测试
+`production API 对运行期夹带的 confirmedNonApplied 结构性免疫…`，对干净源码绿（8/8）、对
+临时重新注入该 mutation 红（1 failed / 7 passed）、撤除 mutation 后再绿（8/8），三态齐证，提交
+`fix-by-acceptance: lock production compiler's immunity to a smuggled waiver`（`5f4d90d`）。
+**该提交虽经全量门复跑（见下节），仍建议架构角色事后过目**——workflow.md 该条款要求「架构合并
+前逐 diff 复核」，本会话按产品负责人 2026-07-26 指示的清账序列继续推进合并，但在此明确留痕
+供追溯。
+
+四项 mutation 全部撤除后，产品源码相对 `b9dc1e9` **仅这一处净变化**（新增 22 行测试，零生产
+代码改动）；`git diff` 复核确认。
+
+## 遗留发现（未自修，登记不越权代改）
+
+- `output/compile-review-output.ts` 内 `useContractReviewOutput`（连同其独占的 `useCallback`/
+  `useEffect`/`useRef`/`useState`/`CaseBinding`/`MaterialStore`/`bindDocxSourceMarkdown`/
+  `caseOutputClient` 导入）经全仓 `git grep` 核实零消费点——与 `use-contract-review-submission
+  .ts` 的 `produceContractDocx` 逻辑高度重复，判断是「过手即拆」策略从 output 层改落 work 层
+  过程中遗留的旧草稿，未随之删除。不影响任何已验证行为（confirmed 零消费即零风险面），但与
+  SPEC 自报「新增概念：零」字面不完全一致（未新增概念，但新增了约 90 行死代码）。**未按验收
+  自修处理**：删除死代码没有传统红→绿 TDD 证据形态，与本节其余「小缺陷」性质不同，留给下一张
+  相邻票或架构裁定是否顺手清理。
+
+## 复杂度审视义务核对
+
+`apps/desktop/SPEC.md` 新增两节（「本单新增了什么概念、为何非加不可」「实现期架构裁定」）如实
+自报：新增概念/依赖/持久格式均为零，唯一新文件是「过手即拆」的直接产物；highwater 常量随净减
+行数同批下调（2738→2667→2665，两次下调均有对应 diff 佐证：过手即拆一次、清理残留空行一次）。
+经本会话独立核实（见下节 App 高水位门实测 2665），自报数字准确。
+
+## 最终门禁原始数字（独立 worktree `accept-contract-review-safety-1`，隔离端口）
+
+| 命令 / 门 | 实跑结果 |
+| --- | --- |
+| `pnpm install` | 5.9s，零新依赖 |
+| `pnpm -r build`（14 workspace） | exit 0（`5f4d90d` 复跑同样 exit 0） |
+| 根 `pnpm lint`（`eslint .`） | exit 0（`5f4d90d` 复跑同样 exit 0） |
+| 根 `pnpm test`（`vitest run`，`include` 只覆盖 `packages/*` + `eval/`，不含 desktop） | **149 files / 1294 tests passed**（`b9dc1e9`、`5f4d90d` 两次实跑均一致，desktop 改动不影响此计数属预期） |
+| `pnpm --filter @courtwork/desktop test` | `b9dc1e9`：**64 files / 500 tests passed**；`5f4d90d`（含新增回归锁测试）：**64 files / 501 tests passed** |
+| `apps/desktop` `test:e2e`（30+ 静态门 + 3 个 `node --test` 套件 + Playwright，`&&` 串联，任一红即全链停） | `b9dc1e9`（端口 14205）：**337/337 passed（3.0m）**；`5f4d90d`（端口 14207）：**337/337 passed（5.1m）**——两轮均一次性全绿，优于实现自报「336 绿/1 红（`global-verbs.spec.ts` hover 抖动，已知负载相关 flaky，登记为 `E2E-FLAKY-HOVER-1`）」，本会话两轮均未复现该抖动 |
+| `apps/desktop/scripts/assert-app-highwater.mjs` | 独立单跑：`App.tsx 高水位门通过：2665 行（上限 2665，只降不升）`——与自报一致 |
+| `contract-review.spec.ts` 定向（mutation 验证用，隔离端口 14206） | mutation 前 4/4，mutation 后 2/4（红证），撤除后 4/4 |
+| `contract-review-flow.test.ts` / `compile-review-output.test.ts` 定向（mutation 验证用） | 见上方 Mutation 红证表逐行 |
+
+首轮从根目录直接执行 `pnpm lint` 得到的只是 `eslint .`，不含 `lint:app-highwater`/`lint:voice`/
+静态门链——这些实际住在 `apps/desktop` 的 `test:e2e` 组合脚本内（与 `playwright test` 同一
+`&&` 链），已在上表按其真实位置核实，未按字面「pnpm lint 应含」的措辞误判为缺失。
+
+**最终结论：CONTRACT-REVIEW-SAFETY-1 的显式最终提交、command outcome 检查、durable
+confirmation/revision 与零文书正常终态均已实现并可放行。** 本次放行只覆盖 SAFETY 票面（ADR-010
+决定五 2026-07-24 修订的人工修正与落盘终态同源部分），不构成对 `CONTRACT-OUTPUT-TRUTH-1`／
+`CONTRACT-TRACE-1` 范围任何事实的宣称——主合同 preflight、原 DOCX bytes 保真、SourceAnchor 跳转
+真实性与 completed 重开矩阵仍是这两张后续票的独立范围。清账序列（合入 `main`、`git push`、
+worktree/branch 清理、`current.md` 在途分支条款改写）按产品负责人 2026-07-26 指示在本报告之后
+执行。
