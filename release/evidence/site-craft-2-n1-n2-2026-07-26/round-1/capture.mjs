@@ -1,4 +1,4 @@
-/* global process, document, window, console */
+/* global process, document, window, getComputedStyle, console */
 // SITE-CRAFT-2 N2 · 帧证与机器自证采集器（沿 N1 体例，仅换输出名与新分区靶）。
 // 用法：
 //   (cd site && python3 -m http.server 18924 --bind 127.0.0.1) &
