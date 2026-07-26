@@ -152,7 +152,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 
 ```text
 (FILE-PREVIEW-1 + CORE-BUDGET-1) → WORK-BUDGET-1（均已清账）
-CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1
+CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1（已清账）
 (已清账 FILE + OUTPUT) → CONTRACT-TRACE-1 → DEBT-DOSSIER-1（产品链出口；不直接授权候选）
 ```
 
@@ -235,9 +235,10 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 
 **派单规则**（取代波次号）：取任一「依赖层已满足」的票；**若该票 `App.tsx` 列为「是」，须确认当前无第二张 `App.tsx=是` 的票在途**。互斥是运行时的锁，不是纸上的分组。
 
-**`App.tsx` 队列序（2026-07-24，WORK-BUDGET 清账后）**：`CONTRACT-REVIEW-SAFETY-1` 已清账
-（2026-07-26，`e473fbb`）；现行队列 `CONTRACT-OUTPUT-TRUTH-1` → `CONTRACT-TRACE-1` →
-`DEBT-DOSSIER-1` → `C3-1` → `C3-2` → `C3-3`。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
+**`App.tsx` 队列序（2026-07-24，WORK-BUDGET 清账后）**：`CONTRACT-REVIEW-SAFETY-1`
+（`e473fbb`）与 `CONTRACT-OUTPUT-TRUTH-1`（`78655bd`）均已清账；现行队列
+`CONTRACT-TRACE-1` → `DEBT-DOSSIER-1` → `C3-1` → `C3-2` →
+`C3-3`。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
 重复修改。WORK-BUDGET 已清账；其后三票是 v0.2.0
 单品真实性门，不得由 C3 polish 抢位。
 其余 `App.tsx=是` 的票（`PERSIST-BACKEND-1`／`TOOL-READ-1`／`S6-EXEC-1`／
@@ -264,8 +265,8 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 | 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
 |---|---|---|---|---|---|
 | `CONTRACT-REVIEW-SAFETY-1` | ADR-010 决定五 2026-07-24 修订；Legal/Desktop 同名 SPEC | 已清账（实现 `b9dc1e9`、验收 `e473fbb`、合入 `05e0ade`；范围与证据见 desktop ACCEPTANCE 与当前基线） | 已清账 `WORK-BUDGET-1` | **是** | 已交付；四项指名 mutation 三红一锁，报告在案 |
-| `CONTRACT-OUTPUT-TRUTH-1` | ADR-004；ADR-010 决定四/五 2026-07-24 修订；Legal/Desktop/Output 同名 SPEC | 用户显式选一份 ready DOCX 主合同；S3 `materialRefs[0]`/pointer/CaseFile primary 同源并由完整 WorkReplayResult 验真；一次 readOriginal snapshot 同 bytes 复验并直接走 output；唯一 inspect/deliver coordinator 冻结 active-case scope，先分流 normal not_applicable、再触材料/宿主；产物按 persisted createdAt + session SHA-256 版本化命名，以持久 confirmation 时间固定批注并把 UTC 直接编码进 ZIP DOS headers；browser/Tauri 以 case-root/output dirfd + `*at` 实现 typed stat、atomic no-replace 与全 outcome post-stat SHA-256；任一 non-applied 整份阻断，OPC 数字签名 typed 阻断；退役 `ready[0]`、ReadingView 重建与生产伪 redline | `CONTRACT-REVIEW-SAFETY-1` | **是** | 多材料错序、pointer 篡改与切案/grant swap 反例；replay 两分支/demo metadata；单读 TOCTOU mutation；支持锚在前仍选主合同锚；未触 OOXML part 内容 bytes 相等，受触四 part 既有语义保全；non-applied/数字签名/恶意/漂移等零写；同毫秒双 session 不互盖，同 session 跨时区同 hash；dirfd 换目录、hard-link/EEXIST/effect-unknown/symlink 反例不覆盖；coordinator not_applicable/blocked 不显重试；Legal S3 production 路径旧编译/waiver/产物名/`ready[0]` 零出现 |
-| `CONTRACT-TRACE-1` | ADR-010 决定五 2026-07-24 修订；desktop 同名 SPEC；吸收原 `MATERIAL-READER-MERGE-1` | SourceAnchor 真实打开同案 FILE reader；合并 `material-reader/actions` 为 canonical doc/outcome 单调用链，以 textRange/textLayerVersion（分页件连 page）验真并按 block-local 坐标高亮，quote 只作切片等式/显示，合法 bbox-only 独占 unsupported 分支；生产 RiskList 面移除固定 demo 合同/4处/del-ins，interactive/read-only props 类型隔离写权限；fresh start 只在首枚 post-CAS event 或 found replay 后建立 pointer，之后按 replay/typed failure 矩阵 compare-and-clear；completed 可只读重开，且仅 output inspect=ready 时可显式重试 | `FILE-PREVIEW-1` + `CONTRACT-REVIEW-SAFETY-1` + `CONTRACT-OUTPUT-TRUTH-1` | **是** | anchor 指向支持材料仍打开正确件；重复 quote 只落坐标指定处；版本/切片漂移/跨案/bbox 显式 typed；reader shape/端口声明一份；production demo 常量零；start rejected 保留旧/空 pointer，candidate 不抢写；ownerless running 清、durable failed/completed 留，unavailable/unknown-version 留、corrupt 才清；账本 artifact 隔离不清 pointer且零 output；完成/重启/切案/删产物后可看且风险操作零 CAS；ready 重试全落点一写、其他结果零写；恢复 quote 搜索或 outcome-only pointer 分支 mutation 必红 |
+| `CONTRACT-OUTPUT-TRUTH-1` | ADR-004；ADR-010 决定四/五 2026-07-24 修订；Legal/Desktop/Output 同名 SPEC | 已清账（实现 `3171c08`+`b2ba999`、验收一驳回一复验、合入 `78655bd`；范围与证据见 desktop/output ACCEPTANCE 与当前基线） | `CONTRACT-REVIEW-SAFETY-1` | **是** | 已交付；驳回轮两项契约级阻断（白名单缺录、旧产物名）经 R1 修复复验闭合 |
+| `CONTRACT-TRACE-1` | ADR-010 决定五 2026-07-24 修订；desktop 同名 SPEC；吸收原 `MATERIAL-READER-MERGE-1` | SourceAnchor 真实打开同案 FILE reader；合并 `material-reader/actions` 为 canonical doc/outcome 单调用链，以 textRange/textLayerVersion（分页件连 page）验真并按 block-local 坐标高亮，quote 只作切片等式/显示，合法 bbox-only 独占 unsupported 分支；生产 RiskList 面移除固定 demo 合同/4处/del-ins，interactive/read-only props 类型隔离写权限；fresh start 只在首枚 post-CAS event 或 found replay 后建立 pointer，之后按 replay/typed failure 矩阵 compare-and-clear；completed 可只读重开，且仅 output inspect=ready 时可显式重试；顺带（架构裁定 2026-07-26）：清理 `contractOutputExists` 命名残留（现仅 demo 渲染消费、production 交付仍写入），并接通生产预览 demo redline 的交互面（`goto-source` 按钮随本票来源回跳一并成立，退役 `Panels.tsx` 死态） | `FILE-PREVIEW-1` + `CONTRACT-REVIEW-SAFETY-1` + `CONTRACT-OUTPUT-TRUTH-1` | **是** | anchor 指向支持材料仍打开正确件；重复 quote 只落坐标指定处；版本/切片漂移/跨案/bbox 显式 typed；reader shape/端口声明一份；production demo 常量零；start rejected 保留旧/空 pointer，candidate 不抢写；ownerless running 清、durable failed/completed 留，unavailable/unknown-version 留、corrupt 才清；账本 artifact 隔离不清 pointer且零 output；完成/重启/切案/删产物后可看且风险操作零 CAS；ready 重试全落点一写、其他结果零写；恢复 quote 搜索或 outcome-only pointer 分支 mutation 必红 |
 | `DEBT-DOSSIER-1` | `A/R-26` 裁接判据 + 第六轮“卷宗 0 件”源码复核；desktop 同名 SPEC | 仅 `scope==='dossier'` 的 ready 附件进入既有 `ingestComposerUploads`，message-only 只进本轮请求；不得产生第二入库路径。`fileCount` 不持久，未水合不伪 0，CaseRail/Working folders/listForCase 同源并覆盖多案重启 | `CONTRACT-TRACE-1`（版本收束序；逻辑无跨票依赖） | **是** | 双 scope 同发只入一件；多案重启计数与 store 一致、加载中诚实；硬编码 0/scope filter 删除 mutation 必红；demo 隔离与 voice 门不破 |
 | `PERSIST-BACKEND-1` | `A/R-17` 采 + ADR-019 决定一 | S1：五处逐字同构 `defaultBackend` 归并为一份工厂 + 4 处裸 `localStorage` 收编（裸调用**全在 `App.tsx`** 与 `chat/MessageActions.tsx`）；分区维随 ADR-019 决定一**就地补 container 维**。**归并止于 backend 工厂，不越 ADR-019 明确拒绝的通用 KV 线** | ADR-019 | **是** | 五处归并后行为逐字节等同（既有版本化单键 golden 为证）；裸 `localStorage` 零出现（静态门）；通用 KV 未被顺手造出 |
 | `TOOL-READ-1` | `A/R-25` 方向裁定 + ADR-016 决定二、ADR-017 决定八 | L1 受控只读工具。**模型请求通道**：走「知交互」封闭动词集显式扩集——新增 `request_tool` 动词，`toolId` 以注入白名单 `z.literal` 闭集锁定，白名单外即普通不可信文本在校验层拒收；执行仍落 `deterministic_tool` 步，**步骤闭集不扩**。toolResult 采 `content`/`details` 二分。此扩集属跨层契约变更，以 **ADR-011 修订**形式落痕 | ADR-011 修订须先落 | **是**（trace 区工具行现只有 demo 路径，生产路径须新开） | 白名单外调用在校验层拒收（反例触红）；`pure_read` 分级校验前置门已在；工具结果可溯源；stub 链不回退；四知文本 golden 同步 |
@@ -279,7 +280,7 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 | `C3-4 · 可观测性四件` | `C/R-8` 四件全（markdown 扩围**已移出**并入 `MD-CONVERGE-1+`；预算执法与 flash 价目**前移** `CORE/WORK-BUDGET-1`） | 会话累计用量与成本估算的用户可见出口只读消费既有 ledger/runtimeBudget，不另造账、不改变执法；memory 注入逐轮可见；上下文占用可见（`contextWindow` 槽位为协议层**版本化加法扩展**）。上下文占用以**我方自身判断**立论，不以行业基线立论 | 已清账 `WORK-BUDGET-1` | **是** | usage/cost 与既有 ledger/runtimeBudget 同源不另立；`contextWindow` 缺省时逐字节等同；memory 可见面不泄案件内容跨案 |
 | `C3-5 · 无障碍与未开通态归一` | `C/R-11`、`C/R-12`ⓑ、`C/R-13` | 焦点陷阱（FocusScope，归档留档正式消费；现行 `useDismissOnOutside` 消费点在 `App.tsx`）；`aria-live` 流式播报；`.palette-input` focus 反馈；未开通态措辞与机制归一（英文 chrome 统一 Coming soon 族）+ 门扩围至 Settings 域与 CaseRail；**响应 OS 级无障碍字号**（rem/em 基线化）——产品内不提供调节 ≠ 拒绝响应 OS 设置 | 宜紧随票丙（标题轨整备） | **是** | 焦点陷阱反例（Tab 逃逸即红）；未开通态门扩围后 Settings/CaseRail 纳入；**rem/em 等比换算须零视觉 diff**（既有皮层门作证，帧证留档） |
 | `ANCHOR-SWEEP-1` | 第二次复验顺带发现 + 判例「文档引码用符号锚不用行号」 | 小票，两条：①**六处漂移行号改符号锚**——`packages/core/SPEC.md`（`executor.ts:49/261` 实为 50/280；`events/types.ts:116` 指涉已删；`:192` 的 `sumUsage` 实为 208）、`packages/output/SPEC.md:50`（`App.tsx:920` 不可定位）、`apps/desktop/SPEC.md:914`（`App.tsx:1771` 实为 2233；`:359-361` 实为 404-406）。②`workflow.md` 验收固定项已增「自述与实现逐条对照」（本票只需核其被执行，不重复立条）。③**顺带（验收 J 项）**：`assert-layout-converge` 的退役名反向锁已由 2 文件加宽至整个生产源码集，SPEC 与本图中「零出现反向锁」的表述随之收紧为实际覆盖面，不留「读起来像全仓级」的模糊。**判例维持劝告级、不立门**——「现行语境 vs 历史语境」机器不可判（验收报告、craft-evidence 里的行号是当时树的证据，正当且不该被扫红），按判例「判据不可判定不造启发式」，宁可靠人核 | 无 | 否 | 六处逐一改为符号锚且符号在源码内真实存在；改后全仓现行规范文档零硬编码源码行号（一次性核，不留门）；`workflow.md` 固定项在本票验收中被实际执行一次 |
-| `E2E-FLAKY-HOVER-1` | FILE-PREVIEW-1 验收 K 项，架构准 | 小票：`global-verbs.spec.ts` 悬停显现例（`toHaveCSS('opacity','1')` 收到 `0`）负载相关抖动。**定性已由验收对照实验坐实**：单文件隔离跑 21/21 绿、全量跑红、父提交同跑失败更多（321/323，另含 `:28`）——既有缺陷非任一新单引入，末次改动 `2c5470d`。本票只处置该例的稳定性，不改其断言意图 | 无 | 否 | 连续三轮全量跑该例零失败；修法不得以放宽断言或加 `retry` 掩盖（须指认抖动根因：悬停时序/动画未落定/并行负载下的渲染延迟） |
+| `E2E-FLAKY-HOVER-1` | FILE-PREVIEW-1 验收 K 项，架构准 | 小票：`global-verbs.spec.ts` 悬停显现例（`toHaveCSS('opacity','1')` 收到 `0`）负载相关抖动。**定性已由验收对照实验坐实**：单文件隔离跑 21/21 绿、全量跑红、父提交同跑失败更多（321/323，另含 `:28`）——既有缺陷非任一新单引入，末次改动 `2c5470d`。本票只处置该例的稳定性，不改其断言意图。根因已由 OUTPUT 轮实证：断言 `opacity:1` 紧跟 `hover()` 零等待、撞 CSS transition（`--motion-hover`），`retries:0` 下并行负载即硬红；单跑 3/3 绿、全量偶发。修法方向=等待过渡落定或 poll 断言，不得放宽断言或加 retry | 无 | 否 | 连续三轮全量跑该例零失败；修法不得以放宽断言或加 `retry` 掩盖（须指认抖动根因：悬停时序/动画未落定/并行负载下的渲染延迟） |
 
 **不进 Stage B**（`A/R-7` 决定零、ADR-018 不排期）：沙箱实现；bash 实现；`ADR-016` 的 UI 触发入口（归 UI 单，须 ADR 先拍板）。
 
