@@ -152,7 +152,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 
 ```text
 (FILE-PREVIEW-1 + CORE-BUDGET-1) → WORK-BUDGET-1（均已清账）
-CONTRACT-REVIEW-SAFETY-1 → CONTRACT-OUTPUT-TRUTH-1
+CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1
 (已清账 FILE + OUTPUT) → CONTRACT-TRACE-1 → DEBT-DOSSIER-1（产品链出口；不直接授权候选）
 ```
 
@@ -202,6 +202,9 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
   只获准机械迁移到真实 DOCX、显式主合同选择、SAFETY 最终提交与版本化产物名；行为扩张仍只进一枚
   专用 OUTPUT e2e。既有 work-live/legal-s3/work-port/material/host-auth 静态门只可同步本票新
   真源纪律。正式派单前实现者须在 accepted SAFETY tip 重 grep 全部 consumer。
+- 顺带（架构裁定 2026-07-26，SAFETY 验收发现）：删除 `compile-review-output.ts` 内零消费的
+  `useContractReviewOutput` 遗留 hook（约 90 行，「过手即拆」策略调整期草稿）。删除前留 grep
+  零消费证据入 SPEC 留痕，删除不改任何现行行为，build 与既有测试为证。属复杂度清偿，不扩大票面。
 
 **已清账工单**（完整范围与退出证据见各层 SPEC/ACCEPTANCE 与[当前基线](../status/current.md)，本表不再复述）：`WORK-STORE-1`、`HOST-AUTH-LITE`、`CHAT-SESSION-1`、`CHAT-MEMORY-1`、`CASE-ROOT-1`、`MATERIAL-INGRESS-1`、`LEGAL-S3-BINDING-1`、`WORK-LIVE-1`、`WORK-HOST-1`、`USAGE-LEDGER-1`、`UI-SURFACE-1`、`VOICE-SPEC-1`、`DESIGN-MD-1`、`CASE-PERSIST-1`、`OUTPUT-CONFIRM-UI-1`、`SITE-CRAFT-1`、`LAYOUT-CONVERGE-1`、`PILOT-LIVE-1`、`WORK-TURN-1`、`CONFIRM-GRANULARITY-1`、`PILOT-LIVE-2`、`READER-ISOLATION-1`、`PROJECTION-RESUME-1`、`WORK-TURN-2`、`PROVIDER-STREAM-1`、`AUDIT-SEAL-1`、`AUDIT-SEAL-2`、`AUDIT-SEAL-3`、`KEY-PERSIST-1`、`CHAT-MD-TABLE-1`、`CASE-TITLE-CONVERGE-1`、`FILE-PREVIEW-1`、`CORE-BUDGET-1`、`WORK-BUDGET-1`、`DEBT-CLEAR-1`、`DEBT-GATE-LABEL-1`、`MD-CONVERGE-1+`、`MODEL-CONFIG-EXPLICIT-1R`。另：`SITE-CRAFT-2` B1-B3 批已架构复核合入（90be976/d9a75aa/617bc24），票面余量（刻本 title 轨/件库续批/前卫实验田）随评审门后续。另：`UI-RESIDUE-1` 批一已清账，下表行仅余批二范围；`WORK-STORE-MEASURE`、`HOST-AUTH-TRUTH`（被 `HOST-AUTH-LITE` 替代）见历史裁定。遗留便利项：voice 词表扩展扫描面（挂便利单）、真实 DeepSeek usage 捕获（见实测表）。
 
@@ -232,9 +235,9 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 
 **派单规则**（取代波次号）：取任一「依赖层已满足」的票；**若该票 `App.tsx` 列为「是」，须确认当前无第二张 `App.tsx=是` 的票在途**。互斥是运行时的锁，不是纸上的分组。
 
-**`App.tsx` 队列序（2026-07-24，WORK-BUDGET 清账后）**：`CONTRACT-REVIEW-SAFETY-1` →
-`CONTRACT-OUTPUT-TRUTH-1` → `CONTRACT-TRACE-1` → `DEBT-DOSSIER-1` → `C3-1` →
-`C3-2` → `C3-3`。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
+**`App.tsx` 队列序（2026-07-24，WORK-BUDGET 清账后）**：`CONTRACT-REVIEW-SAFETY-1` 已清账
+（2026-07-26，`e473fbb`）；现行队列 `CONTRACT-OUTPUT-TRUTH-1` → `CONTRACT-TRACE-1` →
+`DEBT-DOSSIER-1` → `C3-1` → `C3-2` → `C3-3`。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
 重复修改。WORK-BUDGET 已清账；其后三票是 v0.2.0
 单品真实性门，不得由 C3 polish 抢位。
 其余 `App.tsx=是` 的票（`PERSIST-BACKEND-1`／`TOOL-READ-1`／`S6-EXEC-1`／
@@ -260,7 +263,7 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 
 | 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
 |---|---|---|---|---|---|
-| `CONTRACT-REVIEW-SAFETY-1` | ADR-010 决定五 2026-07-24 修订；Legal/Desktop 同名 SPEC | “修正”成为风险结论的受控编辑：非空异值 description + confirmed status 同次 RevisionEvent；S3 gate 与最终按钮逐字为“提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿”，逐条填满不自动 resume；start/resolve 共用 process-local commandId first-wins，顺序重提与真 CAS 败者保持不同 typed 语义；App 检查 resolve outcome，只有 completed 才从持久 post-revision RiskList 分流，四类非完成 outcome 零写；零风险/任一待索证（含与 confirmed 混合）/全驳回正常完成零文书；编译器退役本地 dispositions 第二真源；production non-applied waiver 退役为整份阻断 | 已清账 `WORK-BUDGET-1` | **是** | 修正未提交/取消不 resume；填满未提交仍 paused；同帧双击同 Promise、跨 kind 同 id 冲突；重启已消费 request 为 invalid_scope/CAS=0；两个独立 command 实例共享 host 的真并发 CAS loser 仍 failed/internal；零 confirmed 与 mixed OOC 文案/账本诚实；四类非完成 outcome/non-applied 各零 docx；description/status/replay/comment 同源；恢复自动 effect、transient waiver、忽略 outcome 或消费旧闭包的 mutation 必红 |
+| `CONTRACT-REVIEW-SAFETY-1` | ADR-010 决定五 2026-07-24 修订；Legal/Desktop 同名 SPEC | 已清账（实现 `b9dc1e9`、验收 `e473fbb`、合入 `05e0ade`；范围与证据见 desktop ACCEPTANCE 与当前基线） | 已清账 `WORK-BUDGET-1` | **是** | 已交付；四项指名 mutation 三红一锁，报告在案 |
 | `CONTRACT-OUTPUT-TRUTH-1` | ADR-004；ADR-010 决定四/五 2026-07-24 修订；Legal/Desktop/Output 同名 SPEC | 用户显式选一份 ready DOCX 主合同；S3 `materialRefs[0]`/pointer/CaseFile primary 同源并由完整 WorkReplayResult 验真；一次 readOriginal snapshot 同 bytes 复验并直接走 output；唯一 inspect/deliver coordinator 冻结 active-case scope，先分流 normal not_applicable、再触材料/宿主；产物按 persisted createdAt + session SHA-256 版本化命名，以持久 confirmation 时间固定批注并把 UTC 直接编码进 ZIP DOS headers；browser/Tauri 以 case-root/output dirfd + `*at` 实现 typed stat、atomic no-replace 与全 outcome post-stat SHA-256；任一 non-applied 整份阻断，OPC 数字签名 typed 阻断；退役 `ready[0]`、ReadingView 重建与生产伪 redline | `CONTRACT-REVIEW-SAFETY-1` | **是** | 多材料错序、pointer 篡改与切案/grant swap 反例；replay 两分支/demo metadata；单读 TOCTOU mutation；支持锚在前仍选主合同锚；未触 OOXML part 内容 bytes 相等，受触四 part 既有语义保全；non-applied/数字签名/恶意/漂移等零写；同毫秒双 session 不互盖，同 session 跨时区同 hash；dirfd 换目录、hard-link/EEXIST/effect-unknown/symlink 反例不覆盖；coordinator not_applicable/blocked 不显重试；Legal S3 production 路径旧编译/waiver/产物名/`ready[0]` 零出现 |
 | `CONTRACT-TRACE-1` | ADR-010 决定五 2026-07-24 修订；desktop 同名 SPEC；吸收原 `MATERIAL-READER-MERGE-1` | SourceAnchor 真实打开同案 FILE reader；合并 `material-reader/actions` 为 canonical doc/outcome 单调用链，以 textRange/textLayerVersion（分页件连 page）验真并按 block-local 坐标高亮，quote 只作切片等式/显示，合法 bbox-only 独占 unsupported 分支；生产 RiskList 面移除固定 demo 合同/4处/del-ins，interactive/read-only props 类型隔离写权限；fresh start 只在首枚 post-CAS event 或 found replay 后建立 pointer，之后按 replay/typed failure 矩阵 compare-and-clear；completed 可只读重开，且仅 output inspect=ready 时可显式重试 | `FILE-PREVIEW-1` + `CONTRACT-REVIEW-SAFETY-1` + `CONTRACT-OUTPUT-TRUTH-1` | **是** | anchor 指向支持材料仍打开正确件；重复 quote 只落坐标指定处；版本/切片漂移/跨案/bbox 显式 typed；reader shape/端口声明一份；production demo 常量零；start rejected 保留旧/空 pointer，candidate 不抢写；ownerless running 清、durable failed/completed 留，unavailable/unknown-version 留、corrupt 才清；账本 artifact 隔离不清 pointer且零 output；完成/重启/切案/删产物后可看且风险操作零 CAS；ready 重试全落点一写、其他结果零写；恢复 quote 搜索或 outcome-only pointer 分支 mutation 必红 |
 | `DEBT-DOSSIER-1` | `A/R-26` 裁接判据 + 第六轮“卷宗 0 件”源码复核；desktop 同名 SPEC | 仅 `scope==='dossier'` 的 ready 附件进入既有 `ingestComposerUploads`，message-only 只进本轮请求；不得产生第二入库路径。`fileCount` 不持久，未水合不伪 0，CaseRail/Working folders/listForCase 同源并覆盖多案重启 | `CONTRACT-TRACE-1`（版本收束序；逻辑无跨票依赖） | **是** | 双 scope 同发只入一件；多案重启计数与 store 一致、加载中诚实；硬编码 0/scope filter 删除 mutation 必红；demo 隔离与 voice 门不破 |
