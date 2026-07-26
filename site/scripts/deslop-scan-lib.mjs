@@ -1535,6 +1535,22 @@ export function checkSchemaParts(html) {
   return failures;
 }
 
+// SITE-CRAFT-2 N1 · 仓内坐标链接实存门。卷五把发布证据写成可点链接——链接即声称：
+// 指向 github.com/lesPrivilege/Courtwork/(blob|tree)/main/<path> 的 <path> 是可解析坐标，
+// 须有机器对应（「可解析数字/坐标须各有机器对应」判例的链接面）。文件改名、挪位或拼写
+// 漂移时，幽灵路径在门内即红，不等读者点出 404。Release 页/issues 等非树内坐标不入面。
+export function checkRepoTreeLinks({ html, exists }) {
+  const failures = [];
+  for (const match of html.matchAll(/\bhref="https:\/\/github\.com\/lesPrivilege\/Courtwork\/(?:blob|tree)\/main\/([^"#?]+)"/g)) {
+    const path = decodeURIComponent(match[1]).replace(/\/+$/, '');
+    if (!exists(path)) {
+      const line = html.slice(0, match.index).split('\n').length;
+      push(failures, 'repo-link', 'site/index.html', line, `repo link target missing from the tree: ${path}`);
+    }
+  }
+  return failures;
+}
+
 export function scanSources(sources, options = {}) {
   const repository = options.repository ?? false;
   const failures = [];

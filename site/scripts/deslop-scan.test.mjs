@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkRepoTreeLinks, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
 import {
   loadFixtureClaimInputs,
   validateFixtureClaims,
@@ -859,4 +859,29 @@ test('N-4 external backups must stay verifiable, or the removal decision is void
     .includes('source-hashes'));
   assert.ok(run({ manifest: { ...manifest, externalBackups: [{ name: 'x', sha256: '0'.repeat(64) }] } })
     .includes('source-hashes'));
+});
+
+// SITE-CRAFT-2 N1 · 仓内坐标链接实存门：卷五把发布证据写成可点链接——链接即声称，
+// blob/tree main 后面的 <path> 是可解析坐标，须有机器对应；幽灵路径在门内即红，
+// 不等读者点出 404（「可解析坐标须各有机器对应」判例的链接面）。
+test('SITE-CRAFT-2 N1 repo-coordinate links must exist in the tree', () => {
+  const linkRules = (html, exists) => checkRepoTreeLinks({ html, exists }).map((failure) => failure.rule);
+  const page = '<a href="https://github.com/lesPrivilege/Courtwork/blob/main/release/DEPLOYMENT.md">实录</a>'
+    + '<a href="https://github.com/lesPrivilege/Courtwork/tree/main/site/scripts">门禁</a>';
+  assert.deepEqual(linkRules(page, () => true), []);
+  // blob 与 tree 两形都在面内，幽灵路径逐形触红。
+  assert.ok(linkRules('<a href="https://github.com/lesPrivilege/Courtwork/blob/main/release/GHOST.md">x</a>',
+    (path) => path !== 'release/GHOST.md').includes('repo-link'));
+  assert.ok(linkRules('<a href="https://github.com/lesPrivilege/Courtwork/tree/main/site/ghost-dir">x</a>', () => false)
+    .includes('repo-link'));
+  // Release 页与站外链接不是仓内坐标，不入面。
+  assert.deepEqual(linkRules('<a href="https://github.com/lesPrivilege/Courtwork/releases/tag/v0.1.2">R</a>', () => false), []);
+  assert.deepEqual(linkRules('<a href="https://github.com/lesPrivilege/Courtwork/issues">I</a>', () => false), []);
+  // 活文件断言：现行页面的全部仓内坐标链接对真实文件树全绿（卷五四链实存）。
+  const liveHtml = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.ok(/blob\/main\//.test(liveHtml), 'page should carry at least one blob/main repo link');
+  assert.deepEqual(checkRepoTreeLinks({
+    html: liveHtml,
+    exists: (path) => existsSync(new URL(`../../${path}`, import.meta.url)),
+  }).map((failure) => failure.rule), []);
 });

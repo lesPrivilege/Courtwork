@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative, resolve } from 'node:path';
 
-import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
+import { checkBrandLineage, checkColorGrammar, checkDemoMotion, checkDisplayFont, checkFontProvenance, checkMaturityClaims, checkP3Evidence, checkP5DataStatic, checkP5FontCoverage, checkRepoTreeLinks, checkSchemaParts, checkSourceHashes, checkThemeBoundary, measureWoff2, partitionByRole, scanSources } from './deslop-scan-lib.mjs';
 import { loadFixtureClaimInputs, validateFixtureClaims } from './fixture-claims.mjs';
 
 const files = ['site/index.html', 'site/styles.css', 'site/main.js', 'site/og.html'];
@@ -215,6 +215,10 @@ for (const failure of checkSchemaParts(html)) {
 // 无门看着就没有第二双眼睛。
 const outwardFacing = { ...sources, 'README.md': readFileSync(resolve('README.md'), 'utf8') };
 for (const failure of checkMaturityClaims(outwardFacing)) {
+  failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
+}
+// 仓内坐标链接实存（N1）：卷五发布事实链等 blob/tree main 链接的 path 必须实存于树内。
+for (const failure of checkRepoTreeLinks({ html, exists: (path) => existsSync(resolve(path)) })) {
   failures.push(`[${failure.rule}] ${failure.file}:${failure.line} ${failure.message}`);
 }
 
