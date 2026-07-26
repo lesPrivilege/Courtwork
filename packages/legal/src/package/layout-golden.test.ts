@@ -21,11 +21,11 @@ function promptBlob(): string {
 describe('VPKG-LAYOUT-1 Legal content golden', () => {
   it('descriptor 保持纯 JSON 深等价、整面 hash 与 prompt blob 字节不漂移', () => {
     expect(structuredClone(LEGAL_PACKAGE_DESCRIPTOR)).toStrictEqual(LEGAL_PACKAGE_DESCRIPTOR);
-    // CONTRACT-REVIEW-SAFETY-1 重铸：整份 descriptor 与 main 逐行 diff 后**只有一行不同**——
-    // legal.S3 的 RiskList gate label 换成本票冻结值。promptBlob hash 同批实测未变，故此处
-    // 只同步 descriptor 一枚，不动第二枚。
-    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('58da8226d5cdafe02bed0c2a2a5bb24c9a1aa426ab95d22578fb05b76876631d');
-    expect(sha256(promptBlob())).toBe('41b8073be2f7d5b6e20a0d940ba300ce476046f642e21fecb2d14ad0de43618a');
+    // CONTRACT-OUTPUT-TRUTH-1 重铸：S3 prompt 补「主合同是批注目标 / 支持材料不冒充主合同定位」
+    // 的主合同纪律（legal SPEC 明载「prompt blob hash 变化是本票有意内容契约变更，须同步 golden」）。
+    // 输出 schema 不变，故两枚 hash 同批重铸——descriptor 含 promptSegments，两者必然一起漂。
+    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('850718a46cb908833f358e0ae7eca8dc046b4a038b69a9b7ccb5dabef7b8a45d');
+    expect(sha256(promptBlob())).toBe('1f76dbd2b2a7dad74fa1d13f6a0c7fd537751a96720356ea76886f7c3979e134');
   });
 
   it('三份 testing fixture 的序列化内容不漂移', () => {

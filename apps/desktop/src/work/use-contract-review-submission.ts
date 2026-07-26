@@ -27,6 +27,9 @@ function readableError(error: unknown, fallback: string): string {
   return error instanceof Error && error.message.trim().length > 0 ? error.message : fallback;
 }
 
+/** demo 卷宗合同原件的固定 fileId：demo 锚全部挂在它上面（与 `demo/legal-interaction.ts` 同源）。 */
+const DEMO_CONTRACT_FILE_ID = '04-设备采购合同.md';
+
 /** demo fixture 的确认适配面；production 走 `LegalS3WorkCommand`，两条路径物理分流。 */
 export interface ContractReviewFixturePort {
   sessionRefFor(caseId: string, flow: ScenarioFlow): { caseId: string; sessionId: string };
@@ -114,14 +117,17 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
     if (caseBinding.kind === 'unbound') throw new Error('本案尚未绑定可写入的案件目录');
     let sourceMarkdown = demoSourceMarkdown;
     let targetFileName = '04-设备采购合同.docx';
+    // demo 卷宗的锚一律挂在这枚固定 fileId 上；grant 案取会话冻结的显式主合同 materialId。
+    let primaryMaterialId = DEMO_CONTRACT_FILE_ID;
     if (caseBinding.kind === 'grant') {
       if (!selectedCaseId || !workContractMaterialId) throw new Error('尚未选定可编译的合同原件');
       const resolved = await materialStore.resolveForProvider(selectedCaseId, workContractMaterialId);
       if (resolved.status !== 'ready') throw new Error('合同原件复验未通过，未能编译文书');
       sourceMarkdown = bindDocxSourceMarkdown(resolved.material);
       targetFileName = resolved.material.fileName;
+      primaryMaterialId = resolved.material.materialId;
     }
-    const shared = { riskList: persistedRiskList, sourceMarkdown, targetFileName, evidenceGrades };
+    const shared = { riskList: persistedRiskList, sourceMarkdown, targetFileName, primaryMaterialId, evidenceGrades };
     const result = caseBinding.kind === 'demo'
       ? compileDemoConfirmedReviewToDocx({ ...shared, dispositions: projectReviewDispositionStates(reviewState), confirmedNonApplied })
       : compileConfirmedReviewToDocx(shared);

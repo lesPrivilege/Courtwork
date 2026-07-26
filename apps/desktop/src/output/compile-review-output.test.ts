@@ -8,6 +8,8 @@ import {
 
 const decode = new TextDecoder();
 
+const PRIMARY_MATERIAL_ID = 'material-primary-contract';
+
 const SOURCE_MD =
   '# 设备采购合同\n\n第四条 验收标准以卖方提供的技术参数为准。\n\n第六条 乙方逾期付款按日计违约金。';
 
@@ -22,7 +24,7 @@ const APPLIED_RISK: RiskList['risks'][number] = {
   dispositionStatus: 'pending',
   basis: [{
     citation: '《民法典》第六百二十一条',
-    sourceAnchors: [{ fileId: 'contract.md', quote: '验收标准以卖方提供的技术参数为准', textRange: { start: 0, end: 16 } }],
+    sourceAnchors: [{ fileId: PRIMARY_MATERIAL_ID, quote: '验收标准以卖方提供的技术参数为准', textRange: { start: 0, end: 16 } }],
   }],
 };
 
@@ -34,7 +36,7 @@ const NON_APPLIED_RISK: RiskList['risks'][number] = {
   dispositionStatus: 'pending',
   basis: [{
     citation: '《民法典》第四百九十七条',
-    sourceAnchors: [{ fileId: 'contract.md', quote: '提供格式条款一方不合理地免除或者减轻其责任加重对方责任', textRange: { start: 0, end: 25 } }],
+    sourceAnchors: [{ fileId: PRIMARY_MATERIAL_ID, quote: '提供格式条款一方不合理地免除或者减轻其责任加重对方责任', textRange: { start: 0, end: 25 } }],
   }],
 };
 
@@ -47,6 +49,7 @@ describe('compileConfirmedReviewToDocx', () => {
       ]),
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
+      primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
     });
@@ -68,6 +71,7 @@ describe('compileConfirmedReviewToDocx', () => {
       ]),
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
+      primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
     });
@@ -93,6 +97,7 @@ describe('compileConfirmedReviewToDocx', () => {
       ]),
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
+      primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
     };
@@ -113,6 +118,7 @@ describe('compileConfirmedReviewToDocx', () => {
       dispositions: { 'risk-applied': 'confirmed', 'risk-strayed': 'confirmed' } as const,
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
+      primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
     };
@@ -135,6 +141,7 @@ describe('compileConfirmedReviewToDocx', () => {
       dispositions: { 'risk-applied': 'confirmed', 'risk-strayed': 'confirmed' } as const,
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
+      primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
     };
@@ -153,6 +160,7 @@ describe('compileConfirmedReviewToDocx', () => {
       ]),
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
+      primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
     });
@@ -169,6 +177,7 @@ describe('compileConfirmedReviewToDocx', () => {
       }]),
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
+      primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
       now: new Date('2026-07-16T00:00:00.000Z'),
     });
@@ -192,6 +201,7 @@ describe('compileConfirmedReviewToDocx', () => {
       },
       sourceMarkdown: SOURCE_MD,
       targetFileName: '设备采购合同.docx',
+      primaryMaterialId: PRIMARY_MATERIAL_ID,
       evidenceGrades: [],
     })).toThrow('仍有待索证项，未生成批注稿');
   });

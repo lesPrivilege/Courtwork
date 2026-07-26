@@ -55,6 +55,12 @@ interface CompileReviewBaseInput {
   riskList: RiskList;
   sourceMarkdown: string;
   targetFileName: string;
+  /**
+   * 显式主合同 materialId。既是 `targetDocument.fileId`，也是选择 locator 锚的唯一判据——
+   * 支持材料锚仍进 citation，但绝不能成为主合同文本定位（ADR-010 决定五 2026-07-24 修订）。
+   * 与 `targetFileName` 分开：文件名是展示，materialId 才是同源判据。
+   */
+  primaryMaterialId: string;
   evidenceGrades: readonly EvidenceGradeRecord[];
   now?: Date;
 }
@@ -140,7 +146,7 @@ function compileRiskListToDocx(
   const originalDocx = compileDraftToDocx(markdownToDocument(input.sourceMarkdown));
   const revisionSet = compileConfirmedRiskListToRevisionInstructions(
     confirmedRiskList,
-    input.targetFileName,
+    input.primaryMaterialId,
     gatekeeper,
   );
 
@@ -228,14 +234,16 @@ export function useContractReviewOutput(options: ContractReviewOutputOptions) {
     if (caseBinding.kind === 'unbound') throw new Error('本案尚未绑定可写入的案件目录');
     let sourceMarkdown = demoSourceMarkdown;
     let targetFileName = '04-设备采购合同.docx';
+    let primaryMaterialId = '04-设备采购合同.md';
     if (caseBinding.kind === 'grant') {
       if (!caseId || !contractMaterialId) throw new Error('尚未选定可编译的合同原件');
       const resolved = await materialStore.resolveForProvider(caseId, contractMaterialId);
       if (resolved.status !== 'ready') throw new Error('合同原件复验未通过，未能编译文书');
       sourceMarkdown = bindDocxSourceMarkdown(resolved.material);
       targetFileName = resolved.material.fileName;
+      primaryMaterialId = resolved.material.materialId;
     }
-    const shared = { riskList, sourceMarkdown, targetFileName, evidenceGrades };
+    const shared = { riskList, sourceMarkdown, targetFileName, primaryMaterialId, evidenceGrades };
     const result = caseBinding.kind === 'demo'
       ? compileDemoConfirmedReviewToDocx({
           ...shared,
