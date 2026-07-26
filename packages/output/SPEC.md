@@ -187,3 +187,14 @@ mutation 各自只让对应组翻红——禁 part / 禁 relationship / 禁 cont
 `546065be238664130b459c9b9f0e236e8a5e9ec7fd1af8b03640cab8ed8b3028`），来源、派生步骤与结构清单见
 同目录 `README.md`；该字节数与 SHA 由 `contract-review-fidelity.test.ts` 断言，README 与实物漂移
 即翻红。所有阳性探针在测试内存中从该原件派生，零第二批 binary fixture。
+
+### O1 退出证据（2026-07-26，随 CONTRACT-OUTPUT-TRUTH-1 同批）
+
+本包全量：`pnpm --filter @courtwork/output build` 0；包内 vitest **12 files / 67 tests** 全绿
+（含新增 `signed-docx` 8、`deterministic-zip` 7、`contract-review-fidelity` 6）。
+全仓 root vitest 1323/1323、`pnpm lint` 0。
+
+未触 part 的内容 byte equality、受触四 part 的既有节点/ID/关系保留与新增唯一性，以及跨
+`TZ=UTC` / `Asia/Singapore` / `America/New_York`（含 DST gap）的 bytes/SHA-256 相等，均对唯一复合
+原件 `contract-review-complex.docx` 实跑。**未执行**：Word/WPS 真机 roundtrip——本包只到程序化保真，
+不得据此声明 external-validated。

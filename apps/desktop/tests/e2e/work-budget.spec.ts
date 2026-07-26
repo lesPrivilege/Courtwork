@@ -1,8 +1,24 @@
 import { expect, test, type Page } from '@playwright/test';
+import { compileDraftToDocx } from '@courtwork/output';
 import { openWorkbench } from './helpers';
 
 const GRANT_ID = 'grant-budget';
-const CONTRACT = '# 合同\n\n第一条 买方应于验收后三十日内付款。';
+/**
+ * CONTRACT-OUTPUT-TRUTH-1 机械迁移：主合同必须是**真实 DOCX**（mediaType 精确判据）且由用户显式选定。
+ * 在 Node 侧用 output 既有 draft 编译器铸真 docx 再喂宿主樁——不拿 Markdown 冒充 Word。
+ */
+const PRIMARY_FILE = '合同.docx';
+const CONTRACT_DOCX = Array.from(new Uint8Array(compileDraftToDocx({
+  title: '合同',
+  paragraphs: ['第一条 买方应于验收后三十日内付款。'],
+})));
+
+/** 显式选定主合同：默认不选，未选时起跑钮禁用。 */
+async function selectPrimaryContract(page: Page) {
+  const select = page.getByTestId('s3-primary-contract');
+  await expect(select).toBeEnabled();
+  await select.selectOption({ label: PRIMARY_FILE });
+}
 const QUOTE = '买方应于验收后三十日内付款。';
 
 type HostAuthHooks = { reset(): void; setNextAuthorize(result: unknown): void };
@@ -83,17 +99,18 @@ async function prepare(page: Page, maxUsd: number, mode: 'known' | 'mismatch' | 
   }, authorize);
   await page.getByTestId('new-case-authorize').click();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
-  await page.evaluate(({ grantId, contract }) => {
+  await page.evaluate(({ grantId, fileName, data }) => {
     (window as unknown as { __courtworkMaterialHost: MaterialHooks }).__courtworkMaterialHost
-      .setFile(grantId, '合同.md', new TextEncoder().encode(contract));
-  }, { grantId: GRANT_ID, contract: CONTRACT });
+      .setFile(grantId, fileName, new Uint8Array(data));
+  }, { grantId: GRANT_ID, fileName: PRIMARY_FILE, data: CONTRACT_DOCX });
   await page.evaluate((result) => {
     (window as unknown as { __courtworkHostAuth: HostAuthHooks }).__courtworkHostAuth.setNextAuthorize(result);
   }, authorize);
   await page.getByTestId('composer-plus').first().click();
   await page.getByTestId('composer-plus-folder').first().click();
-  await expect(page.getByTestId('material-item').filter({ hasText: '合同.md' })).toHaveAttribute('data-status', 'ready');
+  await expect(page.getByTestId('material-item').filter({ hasText: PRIMARY_FILE })).toHaveAttribute('data-status', 'ready');
   await page.getByTestId('scene-work-review').click();
+  await selectPrimaryContract(page);
   await page.getByTestId('s3-subject').fill('测试相对方');
   await page.getByTestId('s3-run').click();
 }

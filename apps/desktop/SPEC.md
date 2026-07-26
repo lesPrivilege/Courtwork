@@ -4551,6 +4551,63 @@ React 回调里、`await` 后可重读 selection，这正是「A 案 replay 写�
 回退 `new Date()`、inspect 也去写。两枚新静态门另以「塞回 `compileDraftToDocx`」与「塞回旧产物名」
 自证。
 
+### O8 收口与退出证据（2026-07-26）
+
+**App 收口**：起跑面接显式主合同选择（`S3LauncherPanel`）；`startWorkRun` 退役 `ready[0]`；
+结果卡显示 coordinator 铸出的版本化产物名（派生外提到 `outputDisplayName`，App 只读一次）。
+高水位 2658 → 2657。
+
+**生产预览 demo redline 数据面退役**（架构 2026-07-26 批准的 `Panels.tsx` 第二面）：
+`RevisionPanel` 加一枚 `showDemoDocumentPreview`，由 App 以既有 `isDemoCase` 供给。demo 原样渲染，
+production 渲染诚实空态——本版产物是「原合同副本 + 已确认风险批注」，应用内没有真实 redline 可呈现，
+就不摆一个假的。**`goto-source` 的交互回跳一行未动**，属 `CONTRACT-TRACE-1`。
+
+**E2E**：既有四枚（`work-live` / `case-persist` / `work-turn` / `work-budget`）只作机械迁移——
+宿主樁改喂**真实 DOCX bytes**（Node 侧用 output 既有 draft 编译器铸，不拿 Markdown 冒充 Word）、
+补显式主合同选择、产物名断言改版本化前缀。行为扩张只进新增的 `contract-output.spec.ts` 五例：
+未选主合同不得起跑与无 DOCX 时显式下一步、候选只列 DOCX、版本化产物名落盘、只有支持材料锚时
+**整份阻断且原因可区分**（断言「未能唯一落到主合同」而非只断言零产物——只断言零产物会让
+non-applied / out-of-coverage / no-risks 三种截然不同的结局看起来一样）、生产审阅面零 demo redline。
+floor 337 → 342。
+
+**顺带的门指针重铸**：`docs/design/schema-exemplar.sources.json` 的 `P0-S03` 来源哈希随 O2 对
+`compile-risk-list-to-revisions.ts` 的改动漂移，`assert-schema-exemplar` 如期咬住并重铸指针
+（同 VOICE-SPEC-1 的 design-md drift 先例：门抓住漂移 → 重生成，不是绕过）。
+
+#### 退出证据（对照就绪图 OUTPUT 行逐条）
+
+| 就绪图要求 | 落点 |
+|---|---|
+| 用户显式选一份 ready DOCX 主合同 | `work/primary-contract.ts` + `S3LauncherPanel`；`contract-output.spec.ts` 前两例 |
+| `materialRefs[0]`/pointer/CaseFile primary 同源，由完整 `WorkReplayResult` 验真 | `orderS3MaterialRefs` / `deriveS3CaseFile` / coordinator ① |
+| 一次 readOriginal snapshot 同 bytes 复验并直接走 output | `MaterialStore.readForOutput`（read 计数断言）+ coordinator ⑥⑦ |
+| 唯一 inspect/deliver coordinator 冻结 active-case scope | `output/contract-review-delivery.ts` |
+| 先分流 normal not_applicable，再触材料/宿主 | coordinator ④，三例断言 `readMaterial` 未被调用 |
+| 产物按 persisted createdAt + session SHA-256 版本化命名 | `contract-review-file-name.ts` 纯函数 |
+| 持久 confirmation 时间固定批注，UTC 直接编码进 ZIP DOS headers | coordinator 传 `confirmedAt`；`docx-zip.ts` 的 `packedDosDateTime` |
+| browser/Tauri typed stat、atomic no-replace、全 outcome post-stat SHA-256 | `case_output_fs.rs` + `case-output-client.ts`；coordinator ⑧⑩ |
+| 退役 `overwrite:true` | 合同审查路径零 `overwrite`（静态门锁）；起草画布**保留**覆盖语义（窄改边界） |
+| replay 失败只在 desktop `WorkReplayError` 映射 | O3 `work-command.ts` replay adapter |
+| 任一 non-applied 整份阻断；OPC 数字签名 typed 阻断 | coordinator `non_applied` / `signed_docx` |
+| Legal 缺主合同锚一次收齐，desktop 机械映射 | `MissingPrimaryMaterialAnchorError` → `non_applied` + `not_located` |
+| output fixture 只新增一枚 | `packages/output/test/fixtures/contract-review-complex.docx` |
+| 退役 `ready[0]`、ReadingView 重建、生产伪 redline | 三处均退役，各有静态门或 e2e 锁 |
+
+#### 全量门实跑（本 tip）
+
+`pnpm -r build` 0；`pnpm lint` 0；root vitest **1323/1323**；desktop vitest **591/591**；
+`cargo test --lib` **83/83**；`pnpm --filter @courtwork/desktop test:e2e`（含全部静态门链）
+**342/342**，独立端口全量 Playwright 另跑一轮同样 342/342。
+
+#### 已知边界（不宣称）
+
+- 真机 Word/WPS 打开—轻改—保存—回读未执行；本票只到自动化与本机成立，不得据此宣称
+  external-validated。
+- 非 macOS 的 case-output 强实现不存在（typed `failed/unavailable`），这是**显式停留**，
+  不是未评估。
+- `CONTRACT-TRACE-1` 票面（来源回跳、reader 合并、pointer compare-and-clear、`document-preview`
+  块整体退役）本票一行未动。
+
 ## CONTRACT-TRACE-1 · 真实锚点与完成账本可重开（2026-07-24，架构票）
 
 权威：ADR-010 决定五修订；直接依赖 `FILE-PREVIEW-1`、`CONTRACT-REVIEW-SAFETY-1` 与

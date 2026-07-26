@@ -248,6 +248,11 @@ export interface RevisionPanelProps {
   submitLabel: string;
   submitEnabled: boolean;
   submitting: boolean;
+  /**
+   * 仅样板案为真：右侧那块固定的合同 redline 是 demo 展示件。
+   * production 渲染诚实空态——不拿一份与本案无关的假 redline 冒充「修订对照」。
+   */
+  showDemoDocumentPreview: boolean;
   onSubmitReview: () => void;
   resultMessage?: string;
 }
@@ -567,7 +572,16 @@ export function RevisionPanel(props: RevisionPanelProps) {
           )}
         </article>
       </div>
-      <div className="document-preview"><header><strong title="精密铸造生产线设备采购合同">精密铸造生产线设备采购合同</strong><span>修订 4 处</span></header><p>乙方应于本合同签订后 7 日内支付预付款。逾期付款的，<del>每逾期一日按未付金额的 1%</del><ins>违约金以实际损失为基础，并依法定标准调整</ins>。</p><p>设备到货后，买方应在 <ins>7 个工作日内书面提出验收异议</ins>；逾期未提出不当然视为验收合格。</p></div>
+      {/*
+        CONTRACT-OUTPUT-TRUTH-1：**数据面**退役。这块固定的合同标题、「修订 4 处」与
+        `<del>`/`<ins>` 是样板案的展示件，此前对真实案件也照渲——用户看到的是一份与本案毫无关系的
+        假 redline。production 改为诚实空态：本版产物是「原合同副本 + 已确认风险批注」，
+        应用内没有真实 redline 可呈现，就不摆一个假的。
+        交互回跳（goto-source）与本块的最终退役属 CONTRACT-TRACE-1，本票一行不动。
+      */}
+      {props.showDemoDocumentPreview
+        ? <div className="document-preview"><header><strong title="精密铸造生产线设备采购合同">精密铸造生产线设备采购合同</strong><span>修订 4 处</span></header><p>乙方应于本合同签订后 7 日内支付预付款。逾期付款的，<del>每逾期一日按未付金额的 1%</del><ins>违约金以实际损失为基础，并依法定标准调整</ins>。</p><p>设备到货后，买方应在 <ins>7 个工作日内书面提出验收异议</ins>；逾期未提出不当然视为验收合格。</p></div>
+        : <div className="document-preview" data-testid="revision-preview-empty"><header><strong>合同批注预览</strong></header><p>本版产出是原合同副本加上已确认风险的批注，需在 Word 中打开查看。</p></div>}
     </div>
   </StaticViewport>;
 }

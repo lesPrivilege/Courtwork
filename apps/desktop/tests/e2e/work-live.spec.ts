@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { compileDraftToDocx } from '@courtwork/output';
 import { openWorkbench } from './helpers';
 
 /**
@@ -11,8 +12,17 @@ import { openWorkbench } from './helpers';
  */
 
 const GRANT_ID = 'grant-wl1';
-const CONTRACT = '# 设备采购合同\n\n第一条 付款：买方应于验收后三十日内付清全部款项。\n\n第二条 交付：卖方逾期交付的，按日承担违约金。';
-const QUOTE = '买方应于验收后三十日内付清全部款项。';
+/**
+ * CONTRACT-OUTPUT-TRUTH-1 机械迁移：主合同必须是**真实 DOCX**（mediaType 精确判据，按后缀猜不算数），
+ * 且必须由用户显式选定。这里在 Node 侧用 output 既有 draft 编译器铸一份真 docx 再喂宿主樁——
+ * 不在浏览器里造 zip，也不拿 Markdown 冒充 Word。
+ */
+const PRIMARY_FILE = '设备采购合同.docx';
+const CONTRACT_PARAGRAPHS = [
+  '第一条 付款：买方应于验收后三十日内付清全部款项。',
+  '第二条 交付：卖方逾期交付的，按日承担违约金。',
+];
+const QUOTE = '第一条 付款：买方应于验收后三十日内付清全部款项。';
 const NO_ABSOLUTE_PATH = /[/\\]Users[/\\]|[/\\]private[/\\]|[A-Za-z]:\\/;
 
 type HostAuthHooks = { reset(): void; setNextAuthorize(result: unknown): void };
@@ -34,14 +44,28 @@ async function setNextAuthorize(page: Page, result: unknown) {
   }, result);
 }
 
-async function setFile(page: Page, relativePath: string, text: string) {
+async function setFileBytes(page: Page, relativePath: string, bytes: number[]) {
   await page.evaluate(
-    ({ grantId, path, content }) => {
-      const bytes = new TextEncoder().encode(content);
-      (window as unknown as { __courtworkMaterialHost: MaterialHooks }).__courtworkMaterialHost.setFile(grantId, path, bytes);
+    ({ grantId, path, data }) => {
+      (window as unknown as { __courtworkMaterialHost: MaterialHooks }).__courtworkMaterialHost.setFile(
+        grantId,
+        path,
+        new Uint8Array(data),
+      );
     },
-    { grantId: GRANT_ID, path: relativePath, content: text },
+    { grantId: GRANT_ID, path: relativePath, data: bytes },
   );
+}
+
+function contractDocxBytes(paragraphs: string[] = CONTRACT_PARAGRAPHS): number[] {
+  return Array.from(new Uint8Array(compileDraftToDocx({ title: '设备采购合同', paragraphs })));
+}
+
+/** 显式选定主合同：默认不选，未选时起跑钮禁用（ADR-010 决定五 2026-07-24 修订）。 */
+async function selectPrimaryContract(page: Page, fileName = PRIMARY_FILE) {
+  const select = page.getByTestId('s3-primary-contract');
+  await expect(select).toBeEnabled();
+  await select.selectOption({ label: fileName });
 }
 
 /** 樁化一次成功的合同审查 turn：从组装请求提取材料 fileId，产出引语可解析的 RiskListDraft（1 高风险）。 */
@@ -114,11 +138,11 @@ async function createGrantCase(page: Page) {
 }
 
 async function ingestContract(page: Page) {
-  await setFile(page, '设备采购合同.md', CONTRACT);
+  await setFileBytes(page, PRIMARY_FILE, contractDocxBytes());
   await setNextAuthorize(page, { status: 'granted', grant: { grantId: GRANT_ID, label: '合同案卷夹' } });
   await page.getByTestId('composer-plus').first().click();
   await page.getByTestId('composer-plus-folder').first().click();
-  await expect(page.getByTestId('material-item').filter({ hasText: '设备采购合同.md' })).toHaveAttribute('data-status', 'ready');
+  await expect(page.getByTestId('material-item').filter({ hasText: PRIMARY_FILE })).toHaveAttribute('data-status', 'ready');
 }
 
 /**
@@ -144,6 +168,7 @@ test('grant 案合同审查全链：真实材料 → 门禁审阅 → docx 落�
   await expect(launcher).toBeVisible();
   // 缺主体时运行钮禁用（不默认补全，ADR-010 决定五）
   await expect(page.getByTestId('s3-run')).toBeDisabled();
+  await selectPrimaryContract(page);
   await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('s3-run').click();
 
@@ -163,7 +188,9 @@ test('grant 案合同审查全链：真实材料 → 门禁审阅 → docx 落�
   // resume → docx 终链落盘（写入走 grant 授权命令）
   const output = page.getByTestId('work-output-docx');
   await expect(output).toBeVisible({ timeout: 15000 });
-  await expect(output).toContainText('合同审查报告.docx');
+  // 版本化产物名：旧固定名 `合同审查报告.docx` 已退役（no-replace + 每 session 独立命名）。
+  await expect(output).toContainText('合同审查批注稿-');
+  await expect(output).not.toContainText('合同审查报告');
   await expect(output).toContainText('已写入本案「产出」目录');
   // 全程 source-neutral：工作面绝无绝对路径
   expect(await page.getByTestId('materials-zone').innerText()).not.toMatch(NO_ABSOLUTE_PATH);
@@ -177,6 +204,7 @@ test('grant 案运行中取消：canceled 终态，无 docx 落盘', async ({ pa
   await ingestContract(page);
 
   await page.getByTestId('scene-work-review').click();
+  await selectPrimaryContract(page);
   await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('s3-run').click();
 
@@ -210,6 +238,7 @@ test('grant 案跨切案恢复：暂停态切走再回 → 恢复审查 → 水�
 
   // 运行到暂停门禁（run→gate 中途）——run 启动即持久化恢复指针。
   await page.getByTestId('scene-work-review').click();
+  await selectPrimaryContract(page);
   await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('s3-run').click();
   const panel = page.getByTestId('revision-panel');
@@ -246,6 +275,7 @@ test('grant 案恢复失效诚实：信封已不存在 → 中性失效反馈 + 
   const grantCaseId = await page.evaluate(() => localStorage.getItem('courtwork.selected-case-id'));
 
   await page.getByTestId('scene-work-review').click();
+  await selectPrimaryContract(page);
   await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('s3-run').click();
   await expect(page.getByTestId('revision-panel')).toContainText('付款期限较长');
@@ -276,6 +306,7 @@ test('grant 案未装配（无 transport 且无 stub）：start → rejected/not
   await ingestContract(page);
 
   await page.getByTestId('scene-work-review').click();
+  await selectPrimaryContract(page);
   await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('s3-run').click();
 
@@ -318,6 +349,7 @@ test('grant 案审阅面板内切换 tab 不关闭工作面', async ({ page }) =
   await ingestContract(page);
 
   await page.getByTestId('scene-work-review').click();
+  await selectPrimaryContract(page);
   await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('s3-run').click();
   await expect(page.getByTestId('revision-panel')).toBeVisible();

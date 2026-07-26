@@ -18,7 +18,7 @@
     {
       "id": "P0-S03",
       "path": "packages/legal/src/domain/compile-risk-list-to-revisions.ts",
-      "sha256": "818e060e5942c3bd7b746da34b267d9d89f77c2724f92f815b4436fff462b866",
+      "sha256": "e9be90c56b574bf87adcff0e4237fcc05267e74879b22a785738417301273a2b",
       "role": "deterministic-domain-compiler",
       "symbols": ["compileConfirmedRiskListToRevisionInstructions"]
     },

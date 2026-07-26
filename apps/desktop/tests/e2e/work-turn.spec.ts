@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { compileDraftToDocx } from '@courtwork/output';
 import { connectProvider, openWorkbench } from './helpers';
 
 /**
@@ -15,7 +16,22 @@ import { connectProvider, openWorkbench } from './helpers';
  */
 
 const GRANT_ID = 'grant-work-turn-1';
-const CONTRACT = '# 设备采购合同\n\n第一条 付款：买方应于验收后三十日内付清全部款项。';
+/**
+ * CONTRACT-OUTPUT-TRUTH-1 机械迁移：主合同必须是**真实 DOCX**（mediaType 精确判据）且由用户显式选定。
+ * 在 Node 侧用 output 既有 draft 编译器铸真 docx 再喂宿主樁——不拿 Markdown 冒充 Word。
+ */
+const PRIMARY_FILE = '设备采购合同.docx';
+const CONTRACT_DOCX = Array.from(new Uint8Array(compileDraftToDocx({
+  title: '设备采购合同',
+  paragraphs: ['第一条 付款：买方应于验收后三十日内付清全部款项。'],
+})));
+
+/** 显式选定主合同：默认不选，未选时起跑钮禁用。 */
+async function selectPrimaryContract(page: Page) {
+  const select = page.getByTestId('s3-primary-contract');
+  await expect(select).toBeEnabled();
+  await select.selectOption({ label: PRIMARY_FILE });
+}
 const QUOTE = '买方应于验收后三十日内付清全部款项。';
 const SAFE_TOKEN_RE = /^[A-Za-z0-9._-]+$/;
 
@@ -38,11 +54,10 @@ async function resetHooks(page: Page) {
 
 async function seedContract(page: Page, grantId: string) {
   await page.evaluate(
-    ({ gid, content }) => {
-      const bytes = new TextEncoder().encode(content);
-      (window as unknown as { __courtworkMaterialHost: MaterialHooks }).__courtworkMaterialHost.setFile(gid, '设备采购合同.md', bytes);
+    ({ gid, fileName, data }) => {
+      (window as unknown as { __courtworkMaterialHost: MaterialHooks }).__courtworkMaterialHost.setFile(gid, fileName, new Uint8Array(data));
     },
-    { gid: grantId, content: CONTRACT },
+    { gid: grantId, fileName: PRIMARY_FILE, data: CONTRACT_DOCX },
   );
 }
 
@@ -112,7 +127,7 @@ async function ingestViaAddFolder(page: Page, label: string, grantId = GRANT_ID)
   );
   await page.getByTestId('composer-plus').first().click();
   await page.getByTestId('composer-plus-folder').first().click();
-  await expect(page.getByTestId('material-item').filter({ hasText: '设备采购合同.md' })).toHaveAttribute('data-status', 'ready');
+  await expect(page.getByTestId('material-item').filter({ hasText: PRIMARY_FILE })).toHaveAttribute('data-status', 'ready');
 }
 
 test('G 铸号红证：中文标题 grant 案的 caseId 恒过安全 token 语法，且场景全链可跑', async ({ page }) => {
@@ -139,6 +154,7 @@ test('G 铸号红证：中文标题 grant 案的 caseId 恒过安全 token 语�
   // 场景全链（樁 turn）：中文标题案审查合同可开、可跑、落审阅面——真机同链不再触发状态引用红条。
   await ingestViaAddFolder(page, '合成卷宗案');
   await page.getByTestId('scene-work-review').click();
+  await selectPrimaryContract(page);
   await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('s3-run').click();
   await expect(page.getByTestId('revision-panel')).toContainText('付款期限较长');
@@ -167,6 +183,7 @@ test('G 存量守卫：旧版中文 id 案运行场景 → 显式引导（原位
   await expect(page.getByTestId('titlebar-case-title')).toContainText('合成卷宗案');
   await ingestViaAddFolder(page, '合成卷宗');
   await page.getByTestId('scene-work-review').click();
+  await selectPrimaryContract(page);
   await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('s3-run').click();
 
@@ -211,7 +228,7 @@ test('H 案语境注入：Work 面自由输入携案根与材料清单；chat �
   );
   expect(workPrompt).toContain('案件语境');
   expect(workPrompt).toContain('合成卷宗案');
-  expect(workPrompt).toContain('设备采购合同.md');
+  expect(workPrompt).toContain(PRIMARY_FILE);
   await expect.poll(() => page.evaluate(
     () => (window as typeof window & { __capturedSystemPrompts?: string[] }).__capturedSystemPrompts?.length ?? 0,
   )).toBe(1);

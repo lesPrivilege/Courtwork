@@ -47,7 +47,10 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // CONTRACT-OUTPUT-TRUTH-1 · O4（2026-07-26）：2661 → 2658。外提物＝production S3 起跑面整块
 // JSX 去向既有 `workbench/Panels.tsx` 的 `S3LauncherPanel`（纯呈现件，零新 CSS、零新 React 模块），
 // App.tsx 侧只余一次组件调用与 props 供给；本票新增的必填主合同 `<select>` 净增由此抵消并再收紧 3。
-const HIGH_WATER_LINES = 2658;
+// CONTRACT-OUTPUT-TRUTH-1 · O8（2026-07-26）：2658 → 2657。外提物＝production 产物**显示名**的
+// 派生（版本化命名由 coordinator 铸出）去向 `work/use-contract-review-submission.ts` 的
+// `outputDisplayName`；App 侧只余一次读取。同批清掉 `startWorkRun` 里多余的主合同别名行。
+const HIGH_WATER_LINES = 2657;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

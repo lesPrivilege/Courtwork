@@ -63,7 +63,10 @@ const count = match ? Number(match[1]) : 0;
 // WORK-BUDGET-1：金额超限 / route mismatch / missing-usage repair blocker / 正常 repair +4 → 333。
 // CONTRACT-REVIEW-SAFETY-1：显式最终提交（填满不自动 resume）/ 修正取消回 pending /
 // 空与同值不可提交 / 修正确认与驳回并存 +4 → 337。数字由 `--list` 实跑核。
-const minimum = 337;
+// CONTRACT-OUTPUT-TRUTH-1：专用 OUTPUT e2e（未选主合同不得起跑与无 DOCX 显式下一步 / 候选只列
+// DOCX / 版本化产物名落盘 / 只有支持材料锚整份阻断且原因可区分 / 生产审阅面零 demo redline）+5 → 342。
+// 既有四枚 spec 只作机械迁移（真实 DOCX + 显式主合同选择 + 版本化名），零新增用例。
+const minimum = 342;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

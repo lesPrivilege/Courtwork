@@ -79,6 +79,8 @@ export interface ContractReviewSubmission {
   confirmedNonAppliedIds: string[];
   /** production 唯一 coordinator 的最近一次结果；未发起过交付时为 undefined。 */
   deliveryOutcome: ContractReviewOutputResult | undefined;
+  /** 结果卡该显示的产物名——版本化命名由 coordinator 铸出，App 不再自己拼固定名。 */
+  outputDisplayName: string | undefined;
   canSubmit: boolean;
   submit(): void;
   confirmNonApplied(instructionId: string): void;
@@ -328,6 +330,8 @@ export function useContractReviewSubmission(deps: ContractReviewSubmissionDeps):
     nonAppliedPending,
     confirmedNonAppliedIds,
     deliveryOutcome,
+    outputDisplayName:
+      deliveryOutcome && 'fileName' in deliveryOutcome ? deliveryOutcome.fileName : undefined,
     canSubmit,
     submit,
     confirmNonApplied: (instructionId: string) =>

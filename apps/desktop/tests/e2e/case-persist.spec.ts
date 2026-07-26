@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { compileDraftToDocx } from '@courtwork/output';
 import { openWorkbench } from './helpers';
 
 /**
@@ -16,7 +17,22 @@ import { openWorkbench } from './helpers';
 
 const GRANT_ID = 'grant-cp1';
 const LABEL = '合同案卷夹';
-const CONTRACT = '# 设备采购合同\n\n第一条 付款：买方应于验收后三十日内付清全部款项。';
+/**
+ * CONTRACT-OUTPUT-TRUTH-1 机械迁移：主合同必须是**真实 DOCX**（mediaType 精确判据）且由用户显式选定。
+ * 在 Node 侧用 output 既有 draft 编译器铸真 docx 再喂宿主樁——不拿 Markdown 冒充 Word。
+ */
+const PRIMARY_FILE = '设备采购合同.docx';
+const CONTRACT_DOCX = Array.from(new Uint8Array(compileDraftToDocx({
+  title: '设备采购合同',
+  paragraphs: ['第一条 付款：买方应于验收后三十日内付清全部款项。'],
+})));
+
+/** 显式选定主合同：默认不选，未选时起跑钮禁用。 */
+async function selectPrimaryContract(page: Page) {
+  const select = page.getByTestId('s3-primary-contract');
+  await expect(select).toBeEnabled();
+  await select.selectOption({ label: PRIMARY_FILE });
+}
 const QUOTE = '买方应于验收后三十日内付清全部款项。';
 const CASE_LIST_KEY = 'courtwork.case-list.v1';
 const LEGACY_TITLE_PREFIX = 'courtwork.case-title.';
@@ -47,10 +63,9 @@ async function setNextAuthorize(page: Page) {
 }
 
 async function setContractFile(page: Page) {
-  await page.evaluate(({ grantId, content }) => {
-    const bytes = new TextEncoder().encode(content);
-    (window as unknown as { __courtworkMaterialHost: MaterialHooks }).__courtworkMaterialHost.setFile(grantId, '设备采购合同.md', bytes);
-  }, { grantId: GRANT_ID, content: CONTRACT });
+  await page.evaluate(({ grantId, fileName, data }) => {
+    (window as unknown as { __courtworkMaterialHost: MaterialHooks }).__courtworkMaterialHost.setFile(grantId, fileName, new Uint8Array(data));
+  }, { grantId: GRANT_ID, fileName: PRIMARY_FILE, data: CONTRACT_DOCX });
 }
 
 /** 樁化一次成功的合同审查 turn：产出引语可解析的 RiskList（1 高风险），run 停在暂停门禁（保留可恢复指针）。 */
@@ -108,7 +123,7 @@ async function ingestContract(page: Page) {
   await setNextAuthorize(page);
   await page.getByTestId('composer-plus').first().click();
   await page.getByTestId('composer-plus-folder').first().click();
-  await expect(page.getByTestId('material-item').filter({ hasText: '设备采购合同.md' })).toHaveAttribute('data-status', 'ready');
+  await expect(page.getByTestId('material-item').filter({ hasText: PRIMARY_FILE })).toHaveAttribute('data-status', 'ready');
 }
 
 /** 重载后落回欢迎态并等侧栏就绪（不点 welcome-demo-start，避免选中 demo 案）。 */
@@ -185,6 +200,7 @@ test('三层重建：重载后 grant 案回侧栏 → 绑定重建 → 恢复入
 
   // 运行到暂停门禁——run 启动即持久化最小恢复指针（work-session.v1）。
   await page.getByTestId('scene-work-review').click();
+  await selectPrimaryContract(page);
   await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('s3-run').click();
   await expect(page.getByTestId('revision-panel')).toContainText('付款期限较长');

@@ -1217,11 +1217,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     if (!partyName) return;
     // CONTRACT-OUTPUT-TRUTH-1：主合同由用户**显式选定**，不再按入库顺序猜。
     // materialRefs[0] 恒为该选择，CaseFile 与 output 原始 bytes 由同一 id 派生。
-    const contractMaterialId = primaryContractId;
-    if (!contractMaterialId) return;
+    if (!primaryContractId) return;
     let materialRefs: string[];
     try {
-      materialRefs = orderS3MaterialRefs(contractMaterialId, caseMaterials);
+      materialRefs = orderS3MaterialRefs(primaryContractId, caseMaterials);
     } catch {
       showSystemFeedback('所选主合同已不在本案可用材料中，请重新选择', false, 'info');
       return;
@@ -1229,7 +1228,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     dispatch({ type: '__clear__' });
     setGate(undefined);
     submission.reset();
-    setWorkContractMaterialId(contractMaterialId);
+    setWorkContractMaterialId(primaryContractId);
     setWorkRunning(true);
     const caseId = selectedCaseId;
     const { sessionId, done } = workCommand.startWithPreflight(
@@ -1244,7 +1243,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     );
     setWorkSessionId(sessionId);
     // WORK-LIVE-REPLAY-1：run 启动成功即持久化最小恢复指针——切案/重启后 workSessionId 清空，恢复入口据此重现。
-    persistWorkSession(caseId, { sessionId, contractMaterialId });
+    persistWorkSession(caseId, { sessionId, contractMaterialId: primaryContractId });
     void done.then((outcome) => {
       setWorkRunning(false);
       // WORK-LIVE-1-FIX：rejected（未就绪/冲突，ADR-010 决定一闭集）是明确的产品语言中性反馈，
@@ -1914,7 +1913,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       </section>;
     }
     return <RevisionPanel
-      riskList={riskList}
+      showDemoDocumentPreview={isDemoCase} riskList={riskList}
       selectedRisk={selectedRisk}
       selectedRiskId={selectedRiskId}
       onSelectRisk={setSelectedRiskId}
@@ -2216,7 +2215,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                   // WORK-LIVE-1：grant 案合同审查 docx 终链的持久结果卡（写入走 grant 授权命令）。
                   // 「打开/在访达显示」在 grant 侧尚无宿主 reveal 命令（同 W8 材料侧边界），故为纯状态卡。
                   <div className="work-output-result" role="status" data-testid="work-output-docx">
-                    <strong>{CONTRACT_OUTPUT_FILE}</strong>
+                    <strong>{submission.outputDisplayName ?? CONTRACT_OUTPUT_FILE}</strong>
                     <span>已写入本案「产出」目录</span>
                   </div>
                 ) : (
