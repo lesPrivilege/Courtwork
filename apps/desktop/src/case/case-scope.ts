@@ -8,12 +8,17 @@ export function isDemoCaseId(caseId: string | null | undefined): boolean {
   return caseId === DEMO_CASE_ID;
 }
 
+/**
+ * 样板案的固定卷宗件数——内置内容包自带的语料条数，是**常量**而非派生值。
+ * 它与 production 的 `MaterialStore.listForCase` 派生物理分流：demo 永不查询生产 store（D-1 双向隔离）。
+ */
+export const DEMO_MATERIAL_COUNT = 20;
+
 export function createDemoCaseSummary(): CaseSummary {
   return {
     id: DEMO_CASE_ID,
     title: '临江精铸 诉 起云智能 设备采购合同纠纷',
     caseNumber: '(2025)云章03民初472号',
-    fileCount: 20,
     archived: false,
     isDemo: true,
     kind: 'case',

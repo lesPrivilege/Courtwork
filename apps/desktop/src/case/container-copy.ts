@@ -10,9 +10,13 @@ export function containerOriginLabel(isDemo: boolean): string | undefined {
   return isDemo ? '样板案' : undefined;
 }
 
+/** 容器名词单点（案件说卷宗、工作区说资料）；件数三态文案在 `material-count.ts` 复用同一个词。 */
+export function containerNoun(kind: ContainerKind): string {
+  return kind === 'workspace' ? '资料' : '卷宗';
+}
+
 export function fileCountLabel(kind: ContainerKind, count: number): string {
-  const noun = kind === 'workspace' ? '资料' : '卷宗';
-  return `${noun} ${count} 件`;
+  return `${containerNoun(kind)} ${count} 件`;
 }
 
 export function originalsZoneTitle(kind: ContainerKind): string {

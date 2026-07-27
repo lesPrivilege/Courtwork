@@ -135,3 +135,34 @@ test('件一：message-only 附件零入库但正文必达；同案 dossier 附�
   await expect(page.getByTestId('material-item').first()).toContainText('存卷件.md');
   expect(await capturedUserContent(page)).toContain('DOSSIER-BODY-9K2M');
 });
+
+test('件二：三处件数读同一份 listForCase——CaseRail / Working folders / 原件列表逐件同源', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await connectProvider(page);
+  await captureChatRequests(page);
+  await createGrantCase(page);
+
+  // 入库前：件数为 0（已派生），不是「未统计」，也不是别处硬编码的 '0'。
+  await expect(page.getByTestId('case-file-count').last()).toHaveText('卷宗 0 件');
+
+  await allowWrite(page);
+  await attach(page, '存卷件.md', DOSSIER_MD);
+  await commitToDossier(page);
+  await send(page, '存入卷宗。');
+
+  await expect(page.getByTestId('material-item')).toHaveCount(1, { timeout: 15_000 });
+  await expect(page.getByTestId('case-file-count').last()).toHaveText('卷宗 1 件');
+  await expect(page.getByTestId('module-working-folders-toggle')).toContainText('1');
+  // 原件列表条数即真源条数——三处同为 1 件（badge 与 listForCase 脱钩即在此翻红）。
+  await expect(page.getByTestId('material-item')).toHaveCount(1);
+});
+
+test('件二：demo 固定计数与 production 派生物理分流——样板案不查生产 store', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+
+  // 样板案的件数来自内置内容包常量，与 MaterialStore 无关（reset 后 store 为空仍是 20 件）。
+  await expect(page.getByTestId('case-file-count').first()).toHaveText('卷宗 20 件');
+  await expect(page.getByTestId('materials-zone')).toHaveCount(0);
+});

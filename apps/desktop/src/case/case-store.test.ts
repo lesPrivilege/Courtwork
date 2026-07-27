@@ -158,12 +158,12 @@ describe('projectPersistableCases：demo 与已归档不入持久（创建写入
     expect(projected).toEqual([GRANT_CASE]);
   });
 
-  it('只投影 {id,title,grantId,label,kind}，剥离 fileCount/caseNumber 等派生或非列表元数据', () => {
-    // 真机传入的是完整 CaseSummary（含 fileCount/caseNumber 等）——投影只读五字段，天然剥离其余。
-    const rich: CaseSummary = { id: 'case-1', title: '合同审查案', grantId: 'grant-a', label: '合同案卷夹', kind: 'case', fileCount: 12, caseNumber: '(2025)…', archived: false, isDemo: false };
+  it('只投影 {id,title,grantId,label,kind}，剥离 caseNumber 等非列表元数据', () => {
+    // 真机传入的是完整 CaseSummary（含 caseNumber 等）——投影只读五字段，天然剥离其余。
+    const rich: CaseSummary = { id: 'case-1', title: '合同审查案', grantId: 'grant-a', label: '合同案卷夹', kind: 'case', caseNumber: '(2025)…', archived: false, isDemo: false };
     const projected = projectPersistableCases([rich]);
     expect(projected).toEqual([GRANT_CASE]);
-    expect(projected[0]).not.toHaveProperty('fileCount');
+    expect(projected[0]).not.toHaveProperty('caseNumber');
     expect(projected[0]).not.toHaveProperty('caseNumber');
   });
 

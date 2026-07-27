@@ -4,7 +4,11 @@ export interface CaseSummary {
   id: string;
   title: string;
   caseNumber?: string;
-  fileCount: number;
+  /**
+   * DEBT-DOSSIER-1 件二：卷宗件数**不在此**。它是 `MaterialStore.listForCase` 的清单长度，
+   * 挂在案件摘要上就是第二份真源——而第二份数字漂移的那一刻没人会发现。
+   * 件数派生与三态（未读取 / N 件）见 `case/material-count.ts`。
+   */
   archived: boolean;
   /**
    * CASE-ROOT-1：案件根的 opaque 宿主引用（= HOST-AUTH-LITE 的 grantId）。绝对路径与授权只住宿主，

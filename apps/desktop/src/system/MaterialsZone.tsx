@@ -14,13 +14,27 @@ const STATUS_COPY: Record<MaterialStatus, string> = {
 };
 
 interface MaterialsZoneProps {
-  materials: StoredMaterial[];
+  /**
+   * 本案已入库材料清单。**`undefined` 是「尚未从 store 读取」，不是「一件也没有」**
+   * （DEBT-DOSSIER-1 件二）——把两者画成同一个空列表，等于替 store 答了它还没答的话。
+   */
+  materials: StoredMaterial[] | undefined;
   onVerify: (materialId: string) => void;
   /** FILE-PREVIEW-1：在应用内打开只读阅读面。原件不动，读的是入库时派生并经重验的阅读视图。 */
   onRead: (materialId: string) => void;
 }
 
 export function MaterialsZone({ materials, onVerify, onRead }: MaterialsZoneProps) {
+  if (materials === undefined) {
+    return (
+      <p className="wf-empty rail-pad" data-testid="materials-unresolved">
+        卷宗原件尚未读取
+      </p>
+    );
+  }
+  if (materials.length === 0) {
+    return <p className="wf-empty rail-pad">尚无卷宗原件</p>;
+  }
   return (
     <div className="originals-zone" data-testid="materials-zone" data-readonly="true">
       <p className="rail-label">卷宗原件 · 只读</p>

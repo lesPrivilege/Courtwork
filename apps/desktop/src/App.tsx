@@ -44,6 +44,8 @@ import {
   stageLabel,
   type CaseBinding,
 } from './case/case-scope';
+import { materialCountBadge } from './case/material-count';
+import { useCaseMaterials } from './case/use-case-materials';
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import type { MaterialStore } from './material/material-store';
 import {
@@ -58,7 +60,6 @@ import {
   type MaterialReaderDoc,
 } from './material/material-actions';
 import { ReaderPane } from './system/ReaderPane';
-import type { StoredMaterial } from './material/material-ref';
 import { CHROME_COPY } from './chrome/copy';
 import { WindowChrome } from './chrome/WindowChrome';
 import { InteractionTurnCard, ToolCallRow, TurnCard, interactionViewFromReplay } from './chat/TurnCard';
@@ -285,7 +286,7 @@ const DEMO_CASE = createDemoCaseSummary();
 
 /**
  * CASE-PERSIST-1：从持久层水合非 demo 案件列表（fail-closed：不可读 → 空列表）。demo 恒挂案由 App 固定注入
- * DEMO_CASE，永不入持久。fileCount 是 MaterialStore 派生（选中案时 listForCase 复算），不入持久以免第二真源漂移。
+ * DEMO_CASE，永不入持久。件数不在案件摘要上——它是 `listForCase` 的清单长度，水合时尚未读取（见 material-count）。
  */
 function hydratePersistedCases(): CaseSummary[] {
   return readCaseList().map((record) => ({
@@ -294,7 +295,6 @@ function hydratePersistedCases(): CaseSummary[] {
     grantId: record.grantId,
     label: record.label,
     kind: record.kind,
-    fileCount: 0,
     archived: false,
     isDemo: false,
   }));
@@ -785,7 +785,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     const handoff = chatMessages
       .filter((message) => message.role === 'user')
       .map((message) => ({ text: message.text, files: message.files, pasteBlocks: message.pasteBlocks ?? [], createdAt: message.createdAt }));
-    const newId = createCase({ title, fileCount: 0, kind });
+    const newId = createCase({ title, kind });
     if (handoff.length) chatHandoff.current = { caseId: newId, messages: handoff };
     // chatspace 侧原对话照单例语义保留（不清空）——切回 chat 面仍可续
     setStoreChatOpen(false);
@@ -1032,23 +1032,14 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   );
   const demoCaseRoot = caseBinding.kind === 'demo' ? DEMO_CASE_ROOT : undefined;
 
-  // MATERIAL-INGRESS-1：真实（grant）案的已入库材料清单，重启后由宿主 MaterialStore 复列。
-  // demo/unbound 永不查询生产 store（双向隔离）；切案即重载，切走清空。
-  const [caseMaterials, setCaseMaterials] = useState<StoredMaterial[]>([]);
-  useEffect(() => {
-    if (caseBinding.kind !== 'grant' || !selectedCaseId) {
-      setCaseMaterials([]);
-      return;
-    }
-    let cancelled = false;
-    const caseId = selectedCaseId;
-    void materialStore.listForCase(caseId).then((materials) => {
-      if (!cancelled) setCaseMaterials(materials);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [caseBinding.kind, selectedCaseId, materialStore]);
+  // MATERIAL-INGRESS-1 + DEBT-DOSSIER-1 件二：已入库材料清单逐案持有，件数与原件列表读同一份
+  // （持有与派生外提至 `case/use-case-materials.ts`）。
+  const {
+    byCase: caseMaterialsByCase,
+    list: listCaseMaterials,
+    selected: caseMaterials,
+    selectedCount: selectedCaseMaterialCount,
+  } = useCaseMaterials(cases, selectedCase, materialStore);
 
   // DEBT-DOSSIER-1：两条入库编排（整夹 / composer 上传）外提至 `material/case-ingest.ts`；
   // 此处只留装配——store、宿主写入与显式态通道注入，材料清单由 `listed` 单口回灌（计数同源）。
@@ -1057,12 +1048,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     writeFile: (input) => hostAuth.writeFile(input),
     sink: {
       feedback: (message, ok) => showSystemFeedback(message, ok),
-      listed: (caseId, materials) => {
-        setCaseMaterials(materials);
-        setCases((current) =>
-          current.map((item) => (item.id === caseId ? { ...item, fileCount: materials.length } : item)),
-        );
-      },
+      listed: listCaseMaterials,
     },
   };
 
@@ -1283,13 +1269,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   const createCase = ({
     title,
-    fileCount = 0,
     kind = 'case',
     grantId,
     label,
   }: {
     title: string;
-    fileCount?: number;
     kind?: ContainerKind;
     // CASE-ROOT-1：绑定文件夹时携 opaque grantId + 展示 label（无绝对路径）；未绑定则二者为空。
     grantId?: string;
@@ -1302,7 +1286,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       {
         id: newId,
         title,
-        fileCount,
         archived: false,
         grantId,
         label,
@@ -1335,7 +1318,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       request.kind === 'workspace'
         ? `项目 · ${new Date().toLocaleDateString('zh-CN')}`
         : `案件 · ${new Date().toLocaleDateString('zh-CN')}`;
-    createCase({ title, fileCount: 0, kind: request.kind });
+    createCase({ title, kind: request.kind });
   };
 
   /**
@@ -1350,7 +1333,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         ? `项目 · ${new Date().toLocaleDateString('zh-CN')}`
         : `案件 · ${new Date().toLocaleDateString('zh-CN')}`;
     const title = row?.title?.trim() || fallback;
-    createCase({ title, fileCount: 0, kind });
+    createCase({ title, kind });
     setUnfiledSessions((current) => current.filter((item) => item.id !== containerizeUnfiledId));
     setContainerizeUnfiledId(null);
   };
@@ -1936,11 +1919,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     {
       id: 'working-folders' as const,
       title: CHROME_COPY.utility.workingFolders,
-      count: isDemoCase ? String(selectedCase?.fileCount ?? 0) : '0',
+      // DEBT-DOSSIER-1 件二：徽标与树体读的正是 CaseRail 与原件列表那一份派生件数（此前 production 恒写死 '0'）。
+      count: materialCountBadge(selectedCaseMaterialCount),
       status: (isDemoCase ? 'active' : 'idle') as 'active' | 'idle',
       open: moduleOpen['working-folders'],
       onToggle: () => toggleModule('working-folders'),
-      body: <WorkingFoldersTree isDemo={isDemoCase} originalCount={selectedCase?.fileCount ?? 0} onFocusOriginals={focusOriginalsZone} onOpenWorkDrafts={openWorkDrafts} onOpenFileOps={openFileOps} workDraftSelected={workDraftMode && activeView === 'draft'} fileOpsSelected={fileOpsMode} />,
+      body: <WorkingFoldersTree isDemo={isDemoCase} originalCount={selectedCaseMaterialCount} onFocusOriginals={focusOriginalsZone} onOpenWorkDrafts={openWorkDrafts} onOpenFileOps={openFileOps} workDraftSelected={workDraftMode && activeView === 'draft'} fileOpsSelected={fileOpsMode} />,
     },
     {
       id: 'context' as const,
@@ -2042,7 +2026,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             flow={flow}
             dispositionsCount={submission.review.decisionCount}
             caseRoot={demoCaseRoot}
-            materials={caseMaterials}
+            materialsByCase={caseMaterialsByCase}
             onVerifyMaterial={verifyMaterial}
             onReadMaterial={readMaterial}
             archiveConfirmCaseId={archiveConfirmCaseId}

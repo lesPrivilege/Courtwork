@@ -13,7 +13,6 @@ import type { CaseSummary } from './types';
 const realCase: CaseSummary = {
   id: 'case-new',
   title: '张三诉李四',
-  fileCount: 0,
   archived: false,
 };
 

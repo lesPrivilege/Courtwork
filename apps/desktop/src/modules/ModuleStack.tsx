@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { Icon } from '../workbench/Icon';
+import { materialCountLabel, type MaterialCount } from '../case/material-count';
 import type { SessionProjection } from '../protocol/client';
 import { workScenarioFailureDisplayCopy } from '../work/work-failure-copy';
 import type { ModuleId, ModuleOpenMap } from './module-stack';
@@ -61,7 +62,8 @@ export function StackModule({
 
 interface WorkingFoldersTreeProps {
   isDemo: boolean;
-  originalCount: number;
+  /** DEBT-DOSSIER-1 件二：与模块头徽标、CaseRail 行内件数同一份派生结果；未读取态如实呈现，不显 0。 */
+  originalCount: MaterialCount;
   onFocusOriginals: () => void;
   onOpenWorkDrafts: () => void;
   onOpenFileOps: () => void;
@@ -91,11 +93,16 @@ export function WorkingFoldersTree({
         {isDemo ? (
           <button type="button" className="stage-row" data-testid="wf-focus-originals" onClick={onFocusOriginals}>
             <Icon name="file" />
-            <span className="truncate">卷宗原件 {originalCount} 件</span>
+            <span className="truncate">{materialCountLabel('case', originalCount)}</span>
             <span>Read only</span>
           </button>
         ) : (
-          <p className="wf-empty">No originals yet</p>
+          // 徽标已经报出真实件数，树体不能还写着 No originals yet——同一模块的头尾不得互相拆台。
+          <p className="wf-empty" data-testid="wf-originals-summary">
+            {originalCount.status === 'resolved' && originalCount.count === 0
+              ? 'No originals yet'
+              : materialCountLabel('case', originalCount)}
+          </p>
         )}
       </div>
       <div className="wf-zone" data-zone="drafts">
