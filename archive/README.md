@@ -24,6 +24,22 @@
 
 **已闭合，结论已全部落入现行文档**——就绪图 ARCH-DEBT 清单与 B5 销号、`typography-density.md` 发凡六（洇染拒迁／朱印互斥）、`voice.md` 门的边界与 chrome 语言口径、`apps/desktop/SPEC.md` 的 ledger 契约节，以及 `maturity-claim`／`source-hashes`／ledger target 三道新门。本件此后只作历史证据线索，不构成现行依据；能力状态仍只认 `docs/status/current.md`。
 
+## arch-rulings-2026-07-26.md（裁决备忘录，已落痕闭合）
+
+2026-07-26 架构裁决备忘录全文：ARCH-DEBT 裁定会三笔半定谳、调研消费 pass 七条清零、GUI 候选八项裁决。**已闭合**——裁定与新票（`UI-TOAST-1`／`WORK-PLAN-PANEL-1` 等）已于 2026-07-27 落入实现就绪图（裁定会记录节＋2026-07-26 裁决批新增票节）、roadmap 不做留痕批与 workflow 依赖许可节。本件此后只作历史证据线索。
+
+## adr-drafts-2026-07-26.md（ADR 草案两份，已成文闭合）
+
+甲（ADR-017 修订案）、乙（ADR-021 草案）、丙（ADR-021 增补：CONTEXT-SURVEY-1 调研回执与产品裁量）。**已闭合**——甲已按修订案三件落入 ADR-017（修订记录 2026-07-26）；乙丙已合并成文为 ADR-021（Draft 占号）。本件此后只作历史证据线索。
+
+## benchmark-openwork-2026-07-26.md（OpenWork 标杆实测，已消费）
+
+`different-ai/openwork` tip `1f41a52` 源码实测：agent loop 100% 外包 opencode 的结构判定（GUI 标杆成立、harness 标杆是 pi/opencode 本体）、三栏对照（已裁不做全部经受实测／有票项获借形坐标／真空白仅三项）、差异化资产清单（预算硬限额/持久授权/原件只读/fail-closed 门禁均在其空白区）。**已消费**——三枚裁决（`CHAT-QUEUE-1` 入票池、OPENWORKER-SURVEY-1 续档、opencode 定向调研挂 `TOOL-READ-1` 前置）已落就绪图与本索引；导航栈与产物面板动作排不采纳入 roadmap 留痕。时效随对象仓演进折旧，结论锚定上述 tip。
+
+## pi-ecosystem-2026-07-26.md（pi 生态摸底，已消费）
+
+云端网页层调研：官方 registry 5,312 包实存、五类扩展编目（权限确认/sandbox/compaction-memory/工具扩展/UI-TUI）、textbook 零命中改拼装消费（作者博客四篇＋官方 extensions 文档）、深读名单五项。**已消费**——三枚裁决（`SANDBOX-PROBE-1` 候选对＝sandbox-runtime vs gondolin、`TOOL-READ-1` 借形坐标＝官方三例＋cc-safety-net、新增 clone 三仓待各票取用）已落就绪图。注意：WebFetch 数字（star/日期）不可靠已被调研自证，机制描述系多源交叉。
+
 ## docs-legacy-2026-07-13/
 
 2026-07-13 文档重整时退出权威链的第一代 `docs/` 全量快照（基线 `f03e742`，143 文件，原编号 00–94 + superpowers/plans）。MANIFEST.md 逐段标注归档原因（已省并/已由 ADR 重述/已被后续契约替代/证据快照）。整体视为已升格或已过时的历史底稿；只在追查某条现行规则历史成因时按原编号定位。
@@ -70,9 +86,11 @@ R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadm
 
 **方向已定、工单待立（发版后队列）**：`skill-refinery-feasibility`（炼化管线成立，SKILL-REFINERY-1 待立；补记：Build schema 定位内部 dogfood）；`invest-daily-brief-testbed` + `invest-daily-digest-field`（invest 实验田，后段挂 scheduled ADR 门槛）。
 
-**定调型（监控/口径资产，无需进一步升格动作）**：`anysearch-retrieval-tier`（检索类 plugin 三原则：具名/fail-closed/外部检索恒为未锚定线索级）；`generic-connectors-tier`（通用连接器层位）；`frontier-vertical-scan-2026h1`（LAB 供弹格局 + Economic Index 量化 + 判定层监控线；追踪 LAB leaderboard 与可靠性平台期论文）；`harness-landscape-2026h1`（口径弹药五条 + 三档过滤；Manus breakpoint 已入实测表）；`kimi-k3-capability-audit`（法律库传言证伪，不立 provider 单）；`newmax-competitive-teardown`（生成式 HTML 瓶颈在裁决；本地优先降格为门槛）。
+**定调型（监控/口径资产，无需进一步升格动作）**：`anysearch-retrieval-tier`（检索类 plugin 三原则：具名/fail-closed/外部检索恒为未锚定线索级）；`generic-connectors-tier`（通用连接器层位）；`frontier-vertical-scan-2026h1`（LAB 供弹格局 + Economic Index 量化 + 判定层监控线；追踪 LAB leaderboard 与可靠性平台期论文）；`harness-landscape-2026h1`（口径弹药五条 + 三档过滤；Manus breakpoint 已入实测表；**监控补记 2026-07-26，转述级未核原文**：Opus 5 发布〔2026-07-24〕、Claude Code 系统提示较前删约 80%——harness 减法方向外部旁证，取用前须一手核实）；`kimi-k3-capability-audit`（法律库传言证伪，不立 provider 单）；`newmax-competitive-teardown`（生成式 HTML 瓶颈在裁决；本地优先降格为门槛）。
 
 **论证素材/词表（仍有效，按需取用）**：`provider-switch-mechanisms`（第二 provider 时立 ADR）；`fortune-invest-schema-stress-test`（schema 可表达性双域证据）；`coding-agent-strategies-subtraction`（减法纪律；两候选挂起）；`chat-as-dossier-thesis`（容器同构论，待立项升 ADR）；`emil-skills-polish-input`（polish R2 工具）；`cognitive-debt-mapping`（可执行业务说明书命名已采）；`namethatui-vocabulary`（UI 正名词典）；`trae-work-landscape`（技能 vs 场景包分野）；`upstream-positioning`（内部定位，不入公开叙事）。
+
+**消费 pass 补记（2026-07-26 架构逐条，余量清零；裁决原件 `arch-rulings-2026-07-26.md`）**：oss-gui #4（cmdk ResizeObserver→CSS 变量高度动画）入 `UI-TOAST-1`／`WORK-PLAN-PANEL-1` 素材；#3（面板显隐双模式＋onShow/onHide 生命周期）挂 `UI-RESIDUE-1` 批二；#8（分隔条命令式直写 DOM）显式不采纳（重启判据＝分栏拖拽出现可测卡顿）；emil polish 规则包挂 polish R2 既有通道不另立票；namethatui 词典并入 voice 词表扩展便利单；SkillsBench 归因协议显式后置（eval 线立项素材）；OWASP Memory Guard 四态显式后置（就绪图「后续 ADR 队列」memory 演进议题池）。
 
 ## research-2026-07-19-agent-pedagogy/（AGENT-PEDAGOGY-SURVEY，只读，不进权威链）
 
@@ -97,5 +115,7 @@ R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadm
 - **桶一（已验证，佐证既有裁定，不新增动作）**：OpenWorker 只有模型后端，人类后端是硬编码 React 组件按工具名分支、与 schema 无编译关系（`ApprovalCard.tsx` 对 `replace_in_file`/`apply_patch` 只读 `args.path`、不呈现 diff 载荷）。此为「干线运力型通用 agent 不自发长出最后一公里」的外部实证，佐证 `schema-engineering.md` 一之二命题——双后端编译是护城河所在。另佐证 ADR-017：其 path-scope 是纯 Python `resolve()`+`relative_to`、与 agent 进程同权限、非 OS 沙箱，`run_shell` 按设计不限定路径，安全全押权限门——即「取形弃容器 = 承接其明确拒绝的风险」的实例。对外叙事可引此对照，措辞落「结构性差异」，过 maturity-claim 门。
 - **桶二（可借形，入素材袋，当期零实现）**：排程自动化的 `_scheduled_approver` 旁路（`manager.py:2320-2350`）——cron 触发的 run 对四个本地写盘工具（`write_file`/`replace_in_file`/`apply_patch`/`apply_unified_diff`）无条件 auto-approve，不查 `is_unattended`、无需既往授权、首次运行即成立，且因写盘工具无 `target_arg` 而从不出现在自动化的同意卡片上；README「unattended 只入箱不自行动作」对此写盘路径为假。登记为未来 scheduled/webhook ADR 的负面判例（见 `implementation-readiness.md`「后续 ADR 队列」）。
 - **桶三（不采纳，留痕）**：第一方连接器中央硬编码枚举（改一个连接器手改三处中心文件）与第三方 MCP 整体信任远端 schema，两极端均非版本化可移除包，正是 ADR-008 / 唯一 ABI 明令反对的形态；工具层零运行时 schema 校验（声明而不校验）同不采纳。
+
+**同族负面判例续档（2026-07-26，源 `benchmark-openwork-2026-07-26.md`，对象为 `different-ai/openwork` tip `1f41a52`——另一仓，判例同族）**：`_scheduled_approver` 类标识符在该仓不存在，但行为判例换名存续——桌面内嵌 server 硬编码 `approvalMode:"auto"`（`apps/desktop/electron/runtime.mjs:1208`），19 处 host/write API 的 `requireApproval` 事实上无条件放行；真正门控工具调用的是 opencode 侧 permission.ask（once/always/reject，事前、always 持久化为 pattern 许可）。两层分明：工具级审批外包且形态尚可，自建 host API 层仍是 auto 直放。scheduled 线其 roadmap 标注 Building/Next，仓内零实现。负面判例效力不变。
 
 **时效**：随对象仓库演进折旧，结论锚定上述 commit，上游日更不追。
