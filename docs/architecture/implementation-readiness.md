@@ -242,10 +242,10 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 
 **派单规则**（取代波次号）：取任一「依赖层已满足」的票；**若该票 `App.tsx` 列为「是」，须确认当前无第二张 `App.tsx=是` 的票在途**。互斥是运行时的锁，不是纸上的分组。
 
-**`App.tsx` 队列序（2026-07-27，TRACE 清账后）**：`CONTRACT-REVIEW-SAFETY-1`
-（`e473fbb`）、`CONTRACT-OUTPUT-TRUTH-1`（`78655bd`）与 `CONTRACT-TRACE-1`（`3e0a0e5`）
-均已清账；现行队列 `DEBT-DOSSIER-1` → `PANEL-BLUEPRINT-1`（matrix 首枚，2026-07-26
-裁定会笔一上提）→ `C3-1` → `C3-2` → `C3-3`。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
+**`App.tsx` 队列序（2026-07-27 夜，DOSSIER 清账后）**：SAFETY（`e473fbb`）、OUTPUT
+（`78655bd`）、TRACE（`3e0a0e5`）与 `DEBT-DOSSIER-1`（`51fe6ad`，no-ff）均已清账；
+现行队列 `PANEL-BLUEPRINT-1`（matrix 首枚，2026-07-26 裁定会笔一上提）→ `C3-1` →
+`C3-2` → `C3-3`。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
 重复修改。v0.2.0 单品真实性门三票（SAFETY/OUTPUT/TRACE）已全数闭合。
 恢复入口三态文案议题（TRACE 验收派单件裁定三）不立票，`DEBT-DOSSIER-1` 后按需重估。
 其余 `App.tsx=是` 的票（`PERSIST-BACKEND-1`／`TOOL-READ-1`／`S6-EXEC-1`／
@@ -275,7 +275,7 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 | `CONTRACT-OUTPUT-TRUTH-1` | ADR-004；ADR-010 决定四/五 2026-07-24 修订；Legal/Desktop/Output 同名 SPEC | 已清账（实现 `3171c08`+`b2ba999`、验收一驳回一复验、合入 `78655bd`；范围与证据见 desktop/output ACCEPTANCE 与当前基线） | `CONTRACT-REVIEW-SAFETY-1` | **是** | 已交付；驳回轮两项契约级阻断（白名单缺录、旧产物名）经 R1 修复复验闭合 |
 | `CONTRACT-TRACE-1` | ADR-010 决定五 2026-07-24 修订；desktop 同名 SPEC；吸收原 `MATERIAL-READER-MERGE-1` | 已清账（实现 `24cccb4`…`c92cdb0`、验收 `3e0a0e5`、清账 `c9e7b5e`；SPEC 留痕四项偏离与两处白名单外触碰经验收派单件六裁定一追认定谳；范围与证据见 desktop SPEC/ACCEPTANCE 与当前基线） | `FILE-PREVIEW-1` + `CONTRACT-REVIEW-SAFETY-1` + `CONTRACT-OUTPUT-TRUTH-1`（均已清账） | **是** | 已交付；五枚真实模块 mutation 红绿（首枚以等价最小扰动形态获准，裁定七），floor 343→347，报告在案 |
 | `DEMO-ANCHOR-1` | TRACE 验收派单件裁定四（2026-07-27） | 便利小票：`packages/demo-data` `risk-list.json` 锚点补真实 `textRange` 与 `textLayerVersion`（现恒 `{start:0,end:N}` 且无版本，样板案「回到原件」必落显式 `anchor_invalid`——该显式反馈是判定优先级的正确输出，不是缺陷）；只改 demo-data 及其 golden 重烤，不触 desktop 判定与 production 路径 | `CONTRACT-TRACE-1`（已清账） | 否 | 样板案回跳命中真实坐标高亮；demo golden 重烤留痕；`anchor_invalid` 反例 fixture 仍保留于测试，不因数据修复丢失判别力 |
-| `DEBT-DOSSIER-1` | `A/R-26` 裁接判据 + 第六轮“卷宗 0 件”源码复核；desktop 同名 SPEC | 仅 `scope==='dossier'` 的 ready 附件进入既有 `ingestComposerUploads`，message-only 只进本轮请求；不得产生第二入库路径。`fileCount` 不持久，未水合不伪 0，CaseRail/Working folders/listForCase 同源并覆盖多案重启 | `CONTRACT-TRACE-1`（已清账；App 槽已移交） | **是** | 双 scope 同发只入一件；多案重启计数与 store 一致、加载中诚实；硬编码 0/scope filter 删除 mutation 必红；demo 隔离与 voice 门不破 |
+| `DEBT-DOSSIER-1` | `A/R-26` 裁接判据 + 第六轮“卷宗 0 件”源码复核；desktop 同名 SPEC | 已清账（实现 `7f4699a`…`e5a3dfa`、验收＋fix-by-acceptance `56bb556`、no-ff 合入 `51fe6ad`；四则架构裁定——白名单外四件准予〔含 `fileCount` 退出 `CaseSummary` 的第二真源结构性消除〕、chip 未然态文案、「双 scope 同发」口径改写为单测穷举＋两次发送、跨重启计数单测替位——见 desktop ACCEPTANCE 与当前基线） | `CONTRACT-TRACE-1`（已清账） | **是** | 已交付；六类 mutation 独立复红，floor 347→351、高水位 2644→2551 |
 | `PERSIST-BACKEND-1` | `A/R-17` 采 + ADR-019 决定一 | S1：五处逐字同构 `defaultBackend` 归并为一份工厂 + 4 处裸 `localStorage` 收编（裸调用**全在 `App.tsx`** 与 `chat/MessageActions.tsx`）；分区维随 ADR-019 决定一**就地补 container 维**。**归并止于 backend 工厂，不越 ADR-019 明确拒绝的通用 KV 线** | ADR-019 | **是** | 五处归并后行为逐字节等同（既有版本化单键 golden 为证）；裸 `localStorage` 零出现（静态门）；通用 KV 未被顺手造出 |
 | `TOOL-READ-1` | `A/R-25` 方向裁定 + ADR-016 决定二、ADR-017 决定八 | L1 受控只读工具。**模型请求通道**：走「知交互」封闭动词集显式扩集——新增 `request_tool` 动词，`toolId` 以注入白名单 `z.literal` 闭集锁定，白名单外即普通不可信文本在校验层拒收；执行仍落 `deterministic_tool` 步，**步骤闭集不扩**。toolResult 采 `content`/`details` 二分。此扩集属跨层契约变更，以 **ADR-011 修订**形式落痕。**借形坐标（2026-07-26 pi 生态摸底）**：官方 `permission-gate`/`protected-paths`/`tool-override` 三例＋cc-safety-net 外置反例（fail-closed 语义分析范本）；**派单前置已完成（2026-07-27）**：opencode 三题有源码级答案（`archive/research-2026-07-27-parallel-survey/opencode-three-questions.md`，史料线索）——归一化借形（统一 Rule/Ruleset、last-match-wins 确定性判定）不借默认（其有效默认 `"*": allow`，本仓默认 deny 不变）；其运行时 approved 规则即 session 级 always，与「授权作用域＝单次提案」相悖，只借皮再证；「中断 tool_use 必补 tool_result」与「截断显式内联告知」两条可借 | ADR-011 修订须先落 | **是**（trace 区工具行现只有 demo 路径，生产路径须新开） | 白名单外调用在校验层拒收（反例触红）；`pure_read` 分级校验前置门已在；工具结果可溯源；stub 链不回退；四知文本 golden 同步 |
 | `S6-EXEC-1` | ADR-017 决定四（effect 授权面）+ ADR-004 | D2：`FileOpsPlan` gate resolve 后的执行触发、授权持久与事务日志。现状是一条与 scenario 无关的 demo 直连管线（renderer `passive`、宿主内存 FS、plan 来自 demo 构造器；唯一入口是 `App.tsx` 的 `fileOpsMode` 本地 state） | ADR-017 + ADR-004 | **是** | 授权决定持久**先于** effect（事后弹窗不追认）；事务日志可回放；非 demo 案不再返回空态；销毁级动词零出现 |
