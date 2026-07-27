@@ -44,6 +44,10 @@
 
 DEBT-DOSSIER-1 在途期间的四路云端并行调研：opencode 定向三题（TOOL-READ-1 前置）、沙箱案头对照（SANDBOX-PROBE-1 前置）、历史论断五组时效核查、竞品态势脉搏。批内 README 载文件表、时效三态与消费去向；全部裁决已于 2026-07-27 落就绪图（TOOL-READ 前置销记、SANDBOX-PROBE 案头补记、CHAT-QUEUE 口径订正）与 roadmap 复核行。**已消费**。
 
+## research-2026-07-27-memory-continuation/（记忆与续行对照批，只读，不进权威链）
+
+产品负责人提议、架构派发的两路 Sonnet 调研：OpenClaw（注入组装/缓存边界二分/记忆写入/压缩生命周期/心跳）与 pi 生态记忆扩展（pi-hermes-memory/官方 handoff.ts/pi-rewind/pi-observational-memory）。批内 README 载消费 pass（加固三条、反例实证一条、新输入一条、深读 +1、显式不采纳两条、license 红线一条）。**已消费**——ADR-021 评审素材已挂指针，深读清单与 DOSSIER-FLOW-1 行已更新。
+
 ## docs-legacy-2026-07-13/
 
 2026-07-13 文档重整时退出权威链的第一代 `docs/` 全量快照（基线 `f03e742`，143 文件，原编号 00–94 + superpowers/plans）。MANIFEST.md 逐段标注归档原因（已省并/已由 ADR 重述/已被后续契约替代/证据快照）。整体视为已升格或已过时的历史底稿；只在追查某条现行规则历史成因时按原编号定位。
