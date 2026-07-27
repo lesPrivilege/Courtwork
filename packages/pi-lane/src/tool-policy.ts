@@ -35,6 +35,20 @@ export interface ToolGate {
   beforeToolCall(request: ToolGateRequest): Promise<ToolGateVerdict | undefined>;
 }
 
+/**
+ * 装配期校验：注册的工具必须全在只读闭集内。
+ *
+ * 之所以需要这道校验：内核在 `beforeToolCall` **之前**就以「Tool X not found」拒掉未注册的工具
+ * （`agent-loop.js` 的 `prepareToolCall` 先查工具表再调钩子），所以闸门只对已注册的工具生效。
+ * 若有人往工具表里加了一件却忘了改闭集，闸门放行、内核也放行——这道校验就是那个缺口的堵头。
+ */
+export function assertToolsWithinPolicy(toolNames: readonly string[], gate: ToolGate): void {
+  const unauthorized = toolNames.filter((name) => !gate.isAllowed(name));
+  if (unauthorized.length > 0) {
+    throw new Error(`工具装配与只读闭集不一致：${unauthorized.join('、')} 不在闭集内——闸门与工具表须同批改`);
+  }
+}
+
 export function createToolGate(allowed: readonly string[] = READ_ONLY_TOOL_NAMES): ToolGate {
   const allowlist = new Set(allowed);
 

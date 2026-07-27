@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { createToolGate, DISABLED_TOOL_NAMES, READ_ONLY_TOOL_NAMES } from './tool-policy.js';
+import {
+  assertToolsWithinPolicy,
+  createToolGate,
+  DISABLED_TOOL_NAMES,
+  READ_ONLY_TOOL_NAMES,
+} from './tool-policy.js';
 
 /**
  * 禁用面（ADR-022 决定二：升档前 edit/write/bash 不可授）。
@@ -62,5 +67,19 @@ describe('禁用面显式拒绝', () => {
       const verdict = await call(name);
       expect(allowed).toBe(verdict === undefined);
     }
+  });
+});
+
+describe('装配期校验：工具表不得越出闭集', () => {
+  it('绿证三：只读三件通过校验', () => {
+    expect(() => assertToolsWithinPolicy([...READ_ONLY_TOOL_NAMES], gate)).not.toThrow();
+  });
+
+  it('红证六：工具表混入闭集外的工具，装配期即失败并点名', () => {
+    expect(() => assertToolsWithinPolicy(['read', 'bash'], gate)).toThrow(/bash/);
+  });
+
+  it('红证七：闸门收窄后，原本合法的工具也会被拦下——校验读的是闸门而非硬编码清单', () => {
+    expect(() => assertToolsWithinPolicy(['read', 'grep'], createToolGate(['read']))).toThrow(/grep/);
   });
 });
