@@ -103,7 +103,7 @@ WORK-BUDGET 验收在实现父 `a82f51d` 独立注入六类 production mutation 
 - **笔三（chat scope 判据）——已闭合销记**：`A/R-26` 裁接判据，已入 `DEBT-DOSSIER-1` 票面与 App 队列，无余量。
 - **笔四（半，interaction actor 两笔）——显式容忍留痕**：当期产品单机单用户，两处 actor 串是稳定常量，不构成运行时风险；替换前置（authenticated principal ADR）属 Stage 2，现在铸 ADR 违反「真实需求进入对应阶段才立」纪律。容忍边界两条：新代码不得新增第三处硬编码 actor（复用现有两常量）；principal ADR 立项时必须携存量持久事件（InteractionResolved／Revision／确认账本）迁移策略，届时本容忍失效。
 
-**忧二 · 减法未足 → OSS 减法评估线**。立一次性盘点票 `OSS-SUBTRACT-1`：对全部自研面（md 渲染、diff、图渲染、OOXML、状态管理、E2E 工装等）逐项问「有无 License 合规（MIT/Apache）的成熟件可换」，输出换/不换理由表——**不换的理由同样是资产**（自研加固清单的验证）；换的逐项立票。此后每张 harness 真实化票自带「OSS 候选评估」节（已入纪律）。**追加（2026-07-26 GUI 裁定）**：卷宗全文检索的中文分词选型并入本票评估面（通用 JS 全文库不直接解决中文分词），试点用户提出检索诉求实证后再立票。
+**忧二 · 减法未足 → OSS 减法评估线**。立一次性盘点票 `OSS-SUBTRACT-1`：对全部自研面（md 渲染、diff、图渲染、OOXML、状态管理、E2E 工装等）逐项问「有无 License 合规（MIT/Apache）的成熟件可换」，输出换/不换理由表——**不换的理由同样是资产**（自研加固清单的验证）；换的逐项立票。此后每张 harness 真实化票自带「OSS 候选评估」节（已入纪律）。**追加（2026-07-26 GUI 裁定）**：卷宗全文检索的中文分词选型并入本票评估面（通用 JS 全文库不直接解决中文分词），试点用户提出检索诉求实证后再立票。**重定向（2026-07-27，ADR-022）**：loop 自研 vs 换件的最大一问已由 ADR-022 先答（引入 pi-agent-core）；本票收窄为其余自研面盘点（md 渲染、diff、图渲染、OOXML、状态管理、E2E 工装等），优先级降一档，⑤ 的解锁判据不变。
 
 **忧三 · 绿≠功能≠架构 → 版级仪式两件**。成熟度枚举与 current.md 唯一口径不变；新增版级收尾仪式：(a) **真机全链回归清单**——试点台账模板化为脚本化 checklist，每版收尾必跑（工程绿只是入场券）；(b) **解耦审计仪式化**——本轮三腿审计（包边界/路由双轨/effect 授权）定为每版收尾动作，新抓口子按 SEAL 模式入票。「机制不对称」教训固化：立门以族为单位铺满。
 
@@ -249,7 +249,7 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 重复修改。v0.2.0 单品真实性门三票（SAFETY/OUTPUT/TRACE）已全数闭合。
 恢复入口三态文案议题（TRACE 验收派单件裁定三）不立票，`DEBT-DOSSIER-1` 后按需重估。
 其余 `App.tsx=是` 的票（`PERSIST-BACKEND-1`／`TOOL-READ-1`／`S6-EXEC-1`／
-`C3-4`／`C3-5`／`UI-TOAST-1`／`WORK-PLAN-PANEL-1`／`CHAT-QUEUE-1`）依赖就绪后按此队列尾随入队。**「即刻并行派发」一类旧措辞已被
+`C3-4`／`C3-5`／`UI-TOAST-1`／`WORK-PLAN-PANEL-1`／`CHAT-QUEUE-1`／`PI-LANE-2`）依赖就绪后按此队列尾随入队。**「即刻并行派发」一类旧措辞已被
 互斥模型取代**——「即派」指依赖就绪即可**入队**，不指同时**在途**。
 
 `GOVERNANCE-CLEAR-1` 已执行完毕：target `94f83ab`，报告提交 `9df31d1`；共享门与逐票
@@ -308,6 +308,16 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 | `CHAT-QUEUE-1` | 标杆实测裁决①（2026-07-26） | 票池（不入当期队列）：chat 面 busy 时输入处置从「禁用」升级为「排队发送」；S3 场景禁 steer 的既有裁定不变。**口径订正（2026-07-27）**：opencode 上游服务端无 steer（busy 即拒，steering 为 open issues），排队是客户端特性——标杆报告所记「busy 即 steer」按客户端排队读；本票「排队不 steer」与上游收敛一致 | `C3-1` 清账后按互斥模型排队 | **是** | 排队消息不丢不重（重启反例）；S3 禁 steer 回归不破 |
 | `REVIEW-PRIMITIVE-1` | 2026-07-27 产品问答定调 | 通用修订评审面原语：中性 edits 提案 schema（ADR-017 决定八形状）＋ `jsdiff` 重皮 diff 渲染 ＋ 逐块 accept 喂既有确认账本；artifact 类型开在预览 tab。垂类加载后的转变＝结构化注解／gate 挂载／编译目标替换／词表换装，骨架不变；md 只作存储不作交互面。`PANEL-BLUEPRINT-1` 迁移时 Legal 修订面改为消费此原语 | `PREVIEW-TAB-1` + edits effect 票 | 派单时定 | 立票时冻结；通用面零垂类词汇（voice 门） |
 | `BRAND-2` | 散条登记（2026-07-26） | 品牌谱系扩面：app icon 为 master 的谱系延展（含 thinking 动画）；范围与素材清单随票冻结，产品壳字体/素材边界沿 `SITE-CRAFT-2` 既有硬边界 | 无 | 否 | 立票时冻结 |
+
+### 2026-07-27 pi lane 立线（ADR-022，产品定调＋架构裁）
+
+通用 agent loop 线引入 `pi-agent-core`（内嵌库、Node sidecar 承载），读面先行；写/bash 面一律锁 `SANDBOX-PROBE-1`。ADR-011 修订三随批落痕。叙事口径反转与 `OSS-SUBTRACT-1` 重定向见 ADR-022「两处反转」节。
+
+| 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
+|---|---|---|---|---|---|
+| `PI-LANE-1` | ADR-022 决定一/二/三（2026-07-27） | Node sidecar 骨架承载 `pi-agent-core`（锚定版本、license 逐仓复核）；只读工具面 scoped 到授权文件夹（protected-paths 式 fail-closed，文件夹外零读）；edit/write/bash 配置层禁用；最小 loop GUI 走独立 dev 入口，不触 `App.tsx`；provider 取甜点档（DeepSeek v4-flash 经 pi-ai，不支持则如实登记换支持者，不改内核）；ADR-022 未决四题逐题回答（预算上限扩展可行性／授权持久时序／journal 分区落点／sidecar 签名链）；rawUsage 可获取性核实（C3-4 未来消费）。落点新包 `packages/pi-lane` ＋ desktop dev 入口，零触既有场景线文件 | ADR-022（已落） | 否（生产挂载归 `PI-LANE-2`） | 授权文件夹内 md 问答/检索/摘要真实跑通（真 key 与构造 provider 分别登记）；文件夹外读 fail-closed 红证；禁用工具请求即拒红证；四题答案回 ADR-022 补记；新包入全量门链 |
+| `PI-LANE-2` | ADR-022 决定一（2026-07-27） | loop 线生产 GUI 挂载（workbench 面板、案件/卷宗容器接线按 ADR-022 决定四）；只登记，`PI-LANE-1` 交付后立票面 | `PI-LANE-1` | **是**（尾随 App 队列） | 立票时冻结 |
+
 
 
 **`R-16`ⓑ 挂账（`C/R-16`）**：「工作稿轨可撤销性在 UI 真实成立」不现在实现、不悬置——登记为 **ADR-019 决定三实施票的验收条款**（须有反例：不可撤销即红）。
