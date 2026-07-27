@@ -102,7 +102,8 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
    `scope==='dossier'` 且 ready 的附件进入既有 `ingestComposerUploads`，message-only 只进本轮
    请求，不产生第二入库路径；`fileCount` 不持久、未水合不伪 0，CaseRail/Working folders/
    listForCase 同源并覆盖多案重启。
-2. 随后依次 `C3-1 → C3-2 → C3-3`；C3-4 的预算执法与 flash 价目已前移到预算票，本身只做
+2. 随后 `PANEL-BLUEPRINT-1`（matrix 首枚，2026-07-26 裁定会上提），再依次
+   `C3-1 → C3-2 → C3-3`；C3-4 的预算执法与 flash 价目已前移到预算票，本身只做
    同源可观测出口。
 3. 真机事实只按 [`pilot-2026-07-17.md`](pilot-2026-07-17.md) 读取：第六轮只证明
    Legal S3→docx 文件写入可达，源码回溯已下调其“引语回跳 / redline / 报告”解释；chat 全链、
