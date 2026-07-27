@@ -6,11 +6,14 @@ import { fileURLToPath } from 'node:url';
 
 import {
   capabilityLedger,
+  nodePrimitiveLedger,
   parseIsolationContract,
+  productionNodePrimitives,
   productionSpawnPrograms,
   validateCapabilityLedger,
   validateIsolationBinding,
   validateLevelEvidence,
+  validateNodePrimitiveLedger,
 } from './isolation-binding-lib.mjs';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -130,4 +133,86 @@ test('登记册里的等级写成闭集外的值触红', () => {
     validateCapabilityLedger(ledger, parseIsolationContract(ADR_FIXTURE), SOURCES_FIXTURE).join('\n'),
     /声明的隔离等级 `jail` 不在 ADR-018 闭集内/,
   );
+});
+
+// ── pi lane 的 Node 侧扫描面（ADR-022 修订记录 2026-07-27 随 `PI-LANE-1` 扩入）──
+
+const CONTRACT = parseIsolationContract(ADR_FIXTURE);
+const scanNode = (sources, ledger = []) => validateNodePrimitiveLedger(ledger, CONTRACT, sources).join('\n');
+
+test('pi lane 绿证一：只读 fs 导入不触红（realpath/readFile 不是写原语）', () => {
+  const sources = {
+    'packages/pi-lane/src/scoped-env.ts': "import { lstat, readdir, readFile, realpath } from 'node:fs/promises';\n",
+  };
+  assert.deepEqual(validateNodePrimitiveLedger([], CONTRACT, sources), []);
+});
+
+test('pi lane 绿证二：同名方法不误报——判据取模块来源而非标识符长相', () => {
+  const sources = {
+    'packages/pi-lane/src/scoped-env.ts': 'async exec() { return err(new ExecutionError("shell_unavailable")); }\nawait env.exec("echo hi");\n',
+  };
+  assert.deepEqual(validateNodePrimitiveLedger([], CONTRACT, sources), []);
+});
+
+test('pi lane 绿证三：仓内真源码 + 在册（空）登记册全绿——读面票内此类调用点应为零', () => {
+  const sourceDir = path.join(repositoryRoot, 'packages/pi-lane/src');
+  const sources = Object.fromEntries(
+    fs
+      .readdirSync(sourceDir)
+      .filter((file) => file.endsWith('.ts'))
+      .map((file) => [path.posix.join('packages/pi-lane/src', file), fs.readFileSync(path.join(sourceDir, file), 'utf8')]),
+  );
+  assert.ok(Object.keys(sources).length > 0, 'pi lane 扫描面为空即判据空转，按红处理');
+  assert.deepEqual(validateNodePrimitiveLedger(nodePrimitiveLedger, CONTRACT, sources), []);
+});
+
+test('pi lane 注入一：注入 child_process 具名导入必红（票面点名的红证）', () => {
+  const sources = { 'packages/pi-lane/src/sidecar.ts': "import { spawn } from 'node:child_process';\nspawn('sh');\n" };
+  assert.match(scanNode(sources), /未登记的 Node 侧执行\/写原语：`child_process`/);
+});
+
+test('pi lane 注入二：require 形式的 child_process 同样必红', () => {
+  const sources = { 'packages/pi-lane/src/sidecar.ts': "const cp = require('child_process');\n" };
+  assert.match(scanNode(sources), /`child_process`/);
+});
+
+test('pi lane 注入三：fs 写调用具名导入触红，并点名是哪一个写原语', () => {
+  const sources = { 'packages/pi-lane/src/scoped-env.ts': "import { writeFile } from 'node:fs/promises';\n" };
+  assert.match(scanNode(sources), /`fs:writeFile`/);
+});
+
+test('pi lane 注入四：命名空间导入 + 成员写调用触红（不靠具名导入才发现）', () => {
+  const sources = { 'packages/pi-lane/src/x.ts': "import fs from 'node:fs';\nfs.writeFileSync(p, c);\n" };
+  assert.match(scanNode(sources), /`fs:writeFileSync`/);
+});
+
+test('pi lane 注入五：登记册留着已不存在的原语触红（反向锁）', () => {
+  const ledger = [{ capability: 'retired-sidecar', primitive: 'child_process', requiredLevel: 'none', anchor: 'x' }];
+  assert.match(scanNode({ 'packages/pi-lane/src/x.ts': 'export const x = 1;\n' }, ledger), /脱节：「retired-sidecar」/);
+});
+
+test('pi lane 注入六：登记的能力越出当期等级触红', () => {
+  const ledger = [{ capability: 'sidecar-spawn', primitive: 'child_process', requiredLevel: 'os_confined', anchor: 'x' }];
+  const sources = { 'packages/pi-lane/src/x.ts': "import { spawn } from 'node:child_process';\n" };
+  assert.match(scanNode(sources, ledger), /pi lane 能力面超出当前隔离等级：「sidecar-spawn」/);
+});
+
+test('pi lane 注入七：测试文件里的 child_process 不计入能力面（与 Rust 侧 cfg(test) 截断同义）', () => {
+  const scanned = productionNodePrimitives({
+    'packages/pi-lane/src/x.test.ts': "import { spawn } from 'node:child_process';\n",
+    'packages/pi-lane/src/x.ts': "import { readFile } from 'node:fs/promises';\n",
+  });
+  assert.deepEqual([...scanned.keys()], []);
+});
+
+test('pi lane 注入八：整条链路——validateIsolationBinding 也把 pi lane 的红带出来', () => {
+  const failures = validateIsolationBinding({
+    adrText: ADR_FIXTURE,
+    evidenceText: null,
+    sources: SOURCES_FIXTURE,
+    ledger: LEDGER_FIXTURE,
+    nodeSources: { 'packages/pi-lane/src/sidecar.ts': "import { exec } from 'node:child_process';\n" },
+    nodeLedger: [],
+  }).failures;
+  assert.match(failures.join('\n'), /packages\/pi-lane 生产码出现未登记的 Node 侧执行\/写原语/);
 });
