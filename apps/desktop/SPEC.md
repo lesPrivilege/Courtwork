@@ -4951,3 +4951,59 @@ RiskList 不携证据等级，故只读面（completed 与门禁未到达两种�
 **一处并发红（非本票）**：首轮全链 `global-verbs.spec.ts › data-card 复制按钮悬停显现` 单例红
 （hover 中途 `opacity` 0.741774 后回落 0，即指针未驻留）。与本票零 diff 交集（该谱、`CopyButton.tsx`、
 `styles.css` 均未触碰）；隔离复跑 3/3 绿，全链复跑 351/351 绿。按抖动登记，不计入本票结论。
+
+## COMPOSER-SPEC-SYNC-1 · 附件 chip 文案断言同源（2026-07-27，微单）
+
+权威：架构 2026-07-27 授权微单，先于 `PANEL-BLUEPRINT-1` 验收合入。
+
+### 必答题：验收轮与合并轮都报过 351/351，这枚红当时为何没被捕获
+
+**结论：断言不是条件依赖的弱锁，因此无从收紧；未被捕获的原因是那个 351/351 的数字取自
+修改之前，而修改之后没有重跑。**
+
+逐条实证：
+
+1. **断言无条件可达**。`composer.spec.ts:45` 自 `97f0134`（composer Playwright 覆盖首批）起就是
+   直线用例：无 `test.skip`、无分支、无前置条件，第 61 行每跑必达。该断言在其整个存活期内为绿，
+   直到文案改动那一刻。故「弱锁」假设被证伪，无「收紧为无条件可达」可做。
+2. **红由 `56bb556` 引入，且可二分坐实**。在独立探针 worktree 上跑同两谱：
+   `56bb556^`（`e5a3dfa`）**9 passed / 0 failed**；`56bb556` **8 passed / 1 failed**。
+3. **`56bb556` 同时做了两件互斥的事**。它把 `scopeCommittedLabel` 由「已存入卷宗」改为
+   「随本条存入卷宗」，并在 `debt-dossier.spec.ts` 新加一条锁**新**文案的断言，却未同步
+   `composer.spec.ts:61` 的**旧**文案断言。两谱自此对同一枚 DOM 节点断言互斥文本——
+   **任何包含 `56bb556` 的 tip 上，351/351 在算术上不可能成立**。
+4. **那个数字出自同一枚提交**。`ACCEPTANCE.md` 的「Playwright 全量 | 端口 `1461`，351 / 351 passed」
+   一行由 `git log -S` 定位，作者提交正是 `56bb556` 本身。即：验收会话先跑出 351/351，**随后**
+   应验收自修改了文案并加了新断言，把已取得的数字与使其失效的改动一并提交，中间没有重跑。
+   这是判例「门跑过之后又编辑就必须重跑，提交前最后一个动作是跑门」的直接实证。
+5. **合并轮的数字是承接而非复测**。`51fe6ad` 之后 main 只有文档提交，src 状态与 `56bb556` 同，
+   故 `docs/status/current.md` 记的合并 tip「Playwright 351/351」同样不可能成立。artifacts 不足以
+   区分「转抄」与「跑错」，此处只登记可证的部分：该数字在其所标注的 tip 上不可复现。
+
+**触发条件如实登记**：无条件触发。这枚红自 `51fe6ad` 合入 main 起，在每一个 main tip 上必现；
+`PANEL-BLUEPRINT-1` 的全链跑 350/351 即其表现。
+
+### 修法
+
+根因不是可达性，是**同一枚 DOM 节点的期望文案在两个谱里各抄了一份字面量**。故两谱改为同取真源
+`case/container-copy.ts` 的 `scopeCommittedLabel('case')`，谱内零字面量副本。
+
+分工写明，避免把断言读成同义反复：**字面量本身由 `container-copy.test.ts` 的单测锁**（它写死
+「随本条存入卷宗」），**e2e 只锁「已确认态渲染的是已落定标签而非仅本条」**。两层各锁一件事，
+文案再改时单测先红，e2e 自动跟随，不再出现两谱互斥。
+
+顺带清掉同族伏笔：`composer/types.ts` 的 `SCOPE_COPY` 删去 `dossier` / `confirmTitle` /
+`confirmBody` 三键。它们在容器双词表落地时即被 `container-copy.ts` 的三个函数取代，此后零消费者
+却仍持旧字面量——正是本次漂移的同一形状。删后 `tsc -b` 通过，确认无隐藏消费点。
+
+### 反例
+
+`AttachmentChip` 已确认态改渲 `SCOPE_COPY.message_only`（即让标签不再随落定态变化）→
+`composer.spec.ts` 与 `debt-dossier.spec.ts` 共 **4 例红**。证明改后的断言仍有区分力，未退化为
+「源码等于源码」的同义反复。已还原并复绿。
+
+### 门禁
+
+`pnpm -r build`、`pnpm lint`、root Vitest **152 files / 1323**、desktop Vitest **73 files / 674**、
+desktop 全部前置静态门、Playwright 全量 **351 / 351**（首次在含 `56bb556` 的血统上真实成立）。
+floor 351 未动——本单零新增用例。
