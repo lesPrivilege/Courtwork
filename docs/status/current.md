@@ -28,6 +28,7 @@
 | Chat 附件 | ready 附件的 `readingMarkdown`、粘贴块与用户文本经同源组装逐字进入真实请求；needs_ocr 与空内容以类型级 reason 显式阻断发送。`DEBT-DOSSIER-1` 已闭合入库判据与材料计数同源：grant 案仅 `scope==='dossier'` 且 ready 的附件经唯一 `ingestComposerUploads` 路径入库，message-only 逐字进请求零入库；件数不持久、水合先显式「未读取」再由 `listForCase` 逐案派生，CaseRail／Working folders 徽标与树体／原件列表同源，demo 常量与 production 派生物理分流；chip 文案改未然态（随本条存入卷宗）。实现 `7f4699a`…`e5a3dfa`，验收自修 `56bb556`，no-ff 合入 `51fe6ad` | OCR 与图片多模态仍未接入；Composer 单附件上限维持现状（双 scope 同发结构性不可达，混合批判据由单测穷举，放宽属另一票且需求未实证） |
 | Provider 设置 | key 与 provider 配置分离，凭证经宿主钥匙串边界；custom/base URL 猜测入口已退役 | — |
 | Provider usage 计量 | 原始 usage（rawUsage 真源）与 cache/reasoning 归一化槽位、unknown 传染、版本化 CostEstimate 经 provider→core Turn 持久→desktop 全链成立并独立验收（`ce37d53`+`91afa57`，报告见 provider ACCEPTANCE） | DeepSeek 真实响应捕获仍阻塞于带 key 环境，fixture 为构造件，不得宣称 external-validated |
+| 通用 loop 线（dev 形态） | `PI-LANE-1` 已交付读面骨架：Node sidecar 内嵌 `@earendil-works/pi-agent-core@0.82.1`（版本锚定、license 逐包核实），read/grep/glob 三件 scoped 到显式授权文件夹（`ExecutionEnv` 层 fail-closed，写/exec 根本不实现），edit/write/bash 三锁禁用并有 R3 扩描静态红证；dev 入口 `packages/pi-lane/dev`（sidecar 自服务，不入产品包）；预算宿主 `abort()` 真停有测；DeepSeek 为 pi-ai 原生 provider。实现 `51c27b6`，验收 `26d4b2b`，no-ff 合入 `6d7a8eb` | **dev 形态非产品面**：无生产 GUI（归 `PI-LANE-2`）、无持久 transcript（`loop/` 提案待实施）、写面与 bash 锁升档纪律；loop 证据出自构造 provider，**真 key 端到端未验**（SPEC 第七节步骤待持 key 者执行）；预算语义为越限即停非永不越限 |
 | Work 法律场景窄链 | 非 demo grant 案的 production run/replay/resume/cancel、耐久 store、材料绑定与 docx 文件写入链可达；第六轮真机观察到 RiskList、页内引语展开与本案产出目录中的 docx。`WORK-BUDGET-1` 已把 Settings 金额上限、冻结 DeepSeek route/价目、累计 budget 与持久失败回放装入同一 production 链并独立放行。`CONTRACT-REVIEW-SAFETY-1` 已闭合显式最终提交（逐条填满不自动 resume）、resolve outcome 检查（非 completed 零写）、durable post-revision 分流、completed 指针耐久与零文书诚实终态（零风险/任一待索证/全驳回），production 编译器退役 waiver 参数（`onNonApplied:'block'` 无条件）；实现 `b9dc1e9`，回归锁 `5f4d90d`，异会话验收 `e473fbb`。`CONTRACT-OUTPUT-TRUTH-1` 已闭合显式选择 DOCX 主合同（退役 `ready[0]`）、一次 readOriginal snapshot 从原 DOCX bytes 产批注稿（退役 ReadingView 重建）、persisted createdAt + session SHA-256 版本化产物名与 atomic no-replace 落盘（退役 `overwrite:true`）、non-applied 与数字签名整份阻断；实现至 `b2ba999`，异会话验收一驳回一聚焦复验放行，合入 `78655bd`。`CONTRACT-TRACE-1` 已闭合真实 SourceAnchor 回跳（fileId 同案重验、`textLayerVersion` + `textRange` 的 block-local 坐标高亮，合法 bbox-only 显式 unsupported）、canonical reader 单调用链（`material-actions` 唯一存活，退役第二 shape 与 quote 搜索）、生产 RiskList 面退役 demo 常量与 disabled 死态（`goto-source` 接通）、会话指针 compare-and-clear 生命周期（candidate 不抢写、durable failed/completed 保留）与 completed 只读重开（仅 inspect=ready 显式重试）；`contractOutputExists` 命名残留随票清理。实现至 `c92cdb0`，异会话验收放行 `3e0a0e5`。 | demo 样板案锚点结构性不可验证（显式 `anchor_invalid`）属 `DEMO-ANCHOR-1`。质量打分、Word/WPS 真机 roundtrip 与版本级真机复验未闭合，仍不宣称 Work 全面 product-live / external-validated |
 
 Composer 的「存入卷宗/资料」自 `DEBT-DOSSIER-1` 起即入库判据本身，badge 是判据投影；
@@ -52,7 +53,7 @@ Composer 的「存入卷宗/资料」自 `DEBT-DOSSIER-1` 起即入库判据本�
   Playwright **333/333** 全绿。成立范围只到 production Work 累计预算、冻结 route/价目与持久
   失败可见，不替代下游 SAFETY/OUTPUT/TRACE；
 - Tauri 文件、钥匙串、网络与窗口宿主能力；宿主存在不等于 CASE-ROOT 授权事实和材料库已经成立；
-- host-owned blueprint、有限可视化原语与 descriptor-driven 通用表；Legal 仍有专用 panel，PM 仍是 catalog-only。
+- host-owned blueprint、有限可视化原语与 descriptor-driven 通用表；Legal 四 panel 中 matrix 已迁 `kind:'component'` 全链（ADR-006 修订记录），其余三枚仍为专用 if 链，PM 仍是 catalog-only。
 
 ## Demo / fixture 集成
 
@@ -93,6 +94,8 @@ Composer 的「存入卷宗/资料」自 `DEBT-DOSSIER-1` 起即入库判据本�
 | 2026-07-27 合同审查来源回跳 | `CONTRACT-TRACE-1`：实现 `24cccb4`…`c92cdb0`（含高水位 2657→2644 同批下调、两处旧断言按本意改写、`work-recovery`/`material-reader` 吸收删除），SPEC 留痕四项偏离与两处白名单外触碰经验收派单件六裁定一追认定谳后交验；五枚真实模块 mutation 红绿（首枚以等价最小扰动形态获准，裁定七），全量门通过（root 1323、desktop 651、Playwright 346/347，唯一红为在册 `E2E-FLAKY-HOVER-1`），floor 343→347；验收报告 `3e0a0e5`，清账 `c9e7b5e`，快进合入。只放行 TRACE 票面（来源回跳／完成账本可重开／production 预览真实同源），不及 DOSSIER |
 | 2026-07-27 沙箱探测与绑定门 | `SANDBOX-PROBE-1`：实现 `bdd539a`+`86baa28`（探测报告＋等级—能力绑定门 12 红绿证），架构复核快进合入并独立抽检门绿。结论部分成立：Seatbelt 于 ad-hoc＋hardened runtime `.app` 内可行携三类双向反例；四则裁决（乙路定谳、门形态追认、EXEC-SCRIPT 不排产、三处未测边界留痕）与 Opus 5 执行追认见就绪图该行。当期隔离等级 `none` 不变 |
 | 2026-07-27 入卷语义与计数同源 | `DEBT-DOSSIER-1`：实现 `7f4699a`…`e5a3dfa`（四提交＋命名残留自查清理），异会话验收放行＋fix-by-acceptance `56bb556`（chip 未然态文案、旧字节水合回归锁），no-ff 合入 `51fe6ad`——主线并行前进致快进不可用，no-ff 保全证据锚点。六类 mutation 独立复红，合并 tip 全量门 root 1323、desktop 674 通过；Playwright 数字经 `COMPOSER-SPEC-SYNC-1` 二分订正：验收轮所记 351/351 系**取数后又改文案未重跑**（`56bb556` 自身使其失效），含该提交起的每个 tip 实为 **350/351**，缺口为 `composer.spec` 旧文案断言。微单已修并 no-ff 合入（`4d4c4f7`）；现行 main tip 实测复核 **351/351**（等价链覆盖合入 tip：`3ac4b42..tip` 非 docs diff 为空，复核轮全量门数字见 desktop ACCEPTANCE 订正块下「复核轮」段）——恢复由预期转为实测。floor 347→351、App 高水位 2644→2551。只放行票面（入库判据／计数同源），不及 OCR 与单附件上限 |
+| 2026-07-27 Legal panel 首枚迁移 | `PANEL-BLUEPRINT-1` matrix 首枚：实现 `f8e3d0e`+`f3d2bf3`（迁 `kind:'component'` 全链、view 扩形与拒载、`revision` 默认落点收口、外提两模组、高水位 2551→2549），验收一驳回（独立终局缺失）一聚焦复验放行（`1039433`/`b521b34`，复验 350/351 携记名豁免），no-ff 合入 `1b8c450` 后合入 tip 351/351 全绿。三枚 mutation 独立复红；其余三 panel 保持开账 |
+| 2026-07-27 通用线首件 | `PI-LANE-1`：实现 `51c27b6`（六枚，含 R3 扩描与两处方法错误自纠留痕），验收放行 `26d4b2b`（七件全核、R3 真树注入独立复证、Playwright 350/351 携豁免与两条 flaky 观察），no-ff 合入 `6d7a8eb` 后合入 tip 351/351。未决四题答卷回 ADR-022 补记；包名供应链陷阱经一手核实入 ADR 修订记录。只放行 dev 读面，不及生产挂载与写面 |
 
 ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第二 agent runtime；企业 SDK 编排只进真实垂类 runtime；新 production blueprint 只能由真实 fixture 与 fail-closed projection 拉动。
 
@@ -100,11 +103,10 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 
 严格按[实现就绪图](../architecture/implementation-readiness.md)派发：
 
-1. `PANEL-BLUEPRINT-1` matrix 首枚（P0，当前唯一 `App.tsx` 首票，随 DOSSIER 清账取得
-   App 槽；2026-07-26 裁定会笔一上提）：`matrix` panel（78 行、prop 面最窄）迁入
-   `kind:'component'` 全链，退役对应 if 链分支；其余三 panel 按「过手即拆」随后续触碰分批。
-2. 随后依次 `C3-1 → C3-2 → C3-3`；C3-4 的预算执法与 flash 价目已前移到预算票，本身只做
-   同源可观测出口。通用线 `PI-LANE-1`（App=否）可全程并行。
+1. `C3-1`（P0，当前唯一 `App.tsx` 首票，随 matrix 清账取得 App 槽），随后依次
+   `C3-2 → C3-3`；C3-4 的预算执法与 flash 价目已前移到预算票，本身只做同源可观测出口。
+2. 版级收尾仪式（真机全链回归清单＋解耦审计三腿）与 `PI-LANE-2` 立票面并行推进；
+   `DEMO-ANCHOR-1` 宜随版前清掉。
 3. 真机事实只按 [`pilot-2026-07-17.md`](pilot-2026-07-17.md) 读取：第六轮只证明
    Legal S3→docx 文件写入可达，源码回溯已下调其“引语回跳 / redline / 报告”解释；chat 全链、
    案件持久、材料 fail-closed 仍有实证。六处埋点正式打分、Office roundtrip、签名/公证及本版
@@ -134,6 +136,7 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 `apps/desktop/ACCEPTANCE.md` 与 `packages/output/ACCEPTANCE.md` 对应节）；`CONTRACT-TRACE-1`
 已于 `3e0a0e5` 合入 `main` 并清账；`DEBT-DOSSIER-1` 已于 `51fe6ad` **no-ff** 合入并清账
 （主线并行前进致快进不可用，no-ff 保全实现与验收提交的证据锚点；独立验收报告见
-`apps/desktop/ACCEPTANCE.md` 对应节）；`SANDBOX-PROBE-1` 探测线已于 `86baa28` 快进合入。
-各票分支与验收 worktree 随清账删除，远端仅剩 `main`。后续派单件的合入条款一律写
-「快进或 no-ff 按届时分叉实况定」。
+`apps/desktop/ACCEPTANCE.md` 对应节）；`SANDBOX-PROBE-1` 探测线已于 `86baa28` 快进合入；`COMPOSER-SPEC-SYNC-1` 已于 `4d4c4f7`
+no-ff 合入（小修批，架构逐 diff 复核清账）；`PANEL-BLUEPRINT-1` matrix 首枚已于 `1b8c450`、
+`PI-LANE-1` 已于 `6d7a8eb` no-ff 合入并清账。各票分支与验收 worktree 随清账删除，远端仅剩
+`main`。合入条款一律「快进或 no-ff 按届时分叉实况定」；Playwright 全链全仓同刻至多一条（排程律）。
