@@ -1,14 +1,14 @@
 import { ArchiveConfirmPopover } from '../case/ArchiveConfirmPopover';
 import { CHROME_COPY } from '../chrome/copy';
 import { WindowChrome } from '../chrome/WindowChrome';
-import { containerOriginLabel, fileCountLabel, type ContainerKind } from '../case/container-copy';
+import { containerOriginLabel, type ContainerKind } from '../case/container-copy';
+import { materialCountLabel, selectMaterialCount, type DerivedCaseMaterials } from '../case/material-count';
 import { isDemoCaseId } from '../case/case-scope';
 import type { CaseSummary } from '../case/types';
 import { CONTAINERIZE_COPY } from '../composer';
 import type { ScenarioFlow } from '../protocol/client';
 import { OriginalsZone } from '../system/OriginalsZone';
 import { MaterialsZone } from '../system/MaterialsZone';
-import type { StoredMaterial } from '../material/material-ref';
 import { ArchiveGlyph } from '../workbench/MiniIcon';
 import { Icon } from '../workbench/Icon';
 import { BrandMarkIcon } from '../icons/custom-icons.generated';
@@ -33,8 +33,11 @@ interface CaseRailProps {
   flow: ScenarioFlow | null;
   dispositionsCount: number;
   caseRoot: string | undefined;
-  /** MATERIAL-INGRESS-1：真实（grant）案的已入库材料清单（source-neutral）。 */
-  materials: StoredMaterial[];
+  /**
+   * MATERIAL-INGRESS-1 + DEBT-DOSSIER-1 件二：按 caseId 分格的已入库材料清单（source-neutral）——
+   * 行内件数与展开态原件列表读的是同一格，故二者结构上不可能各说各话。键缺席即尚未读取（非 0 件）。
+   */
+  materialsByCase: DerivedCaseMaterials;
   /** 核验一件材料（provider 前重验：漂移/删除/需 OCR/跨 case 显式呈现）。 */
   onVerifyMaterial: (materialId: string) => void;
   onReadMaterial: (materialId: string) => void;
@@ -76,7 +79,7 @@ export function CaseRail({
   flow,
   dispositionsCount,
   caseRoot,
-  materials,
+  materialsByCase,
   onVerifyMaterial,
   onReadMaterial,
   archiveConfirmCaseId,
@@ -160,7 +163,7 @@ export function CaseRail({
                     className="case-file-count"
                     data-testid="case-file-count"
                   >
-                    {fileCountLabel(item.kind ?? 'case', item.fileCount)}
+                    {materialCountLabel(item.kind ?? 'case', selectMaterialCount(item, materialsByCase))}
                   </span>
                   {item.archived ? <span> · 已归档</span> : null}
                 </div>
@@ -293,12 +296,10 @@ export function CaseRail({
               </>
             )}
             {caseRoot && demo && <OriginalsZone caseRoot={caseRoot} onFeedback={onFeedback} />}
-            {/* MATERIAL-INGRESS-1：真实案的已入库材料（只读 + 核验）；仅选中案有已加载清单。 */}
-            {!demo && item.id === selectedCaseId && materials.length > 0 && (
-              <MaterialsZone materials={materials} onVerify={onVerifyMaterial} onRead={onReadMaterial} />
-            )}
-            {!demo && !(item.id === selectedCaseId && materials.length > 0) && (
-              <p className="wf-empty rail-pad">尚无卷宗原件</p>
+            {/* MATERIAL-INGRESS-1：真实案的已入库材料（只读 + 核验）。DEBT-DOSSIER-1 件二：清单按本行 caseId
+                取用（不再只有选中案有数），空列表与「尚未读取」由 MaterialsZone 分别如实呈现。 */}
+            {!demo && (
+              <MaterialsZone materials={materialsByCase[item.id]} onVerify={onVerifyMaterial} onRead={onReadMaterial} />
             )}
           </div>
         )}

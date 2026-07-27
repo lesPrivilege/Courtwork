@@ -54,6 +54,16 @@ describe('case-store：案件列表版本化单键持久（work-session 先例�
     expect(readCaseList(reopen(backend))).toEqual([GRANT_CASE]);
   });
 
+  it('DEBT-DOSSIER-1：旧字节带 fileCount 仍可水合，不因退役键拒读', () => {
+    const backend = makeBackend(JSON.stringify({
+      version: CASE_LIST_SCHEMA_VERSION,
+      cases: [{ ...GRANT_CASE, fileCount: 99 }],
+    }));
+
+    expect(loadCaseList(backend).status).toBe('ok');
+    expect(readCaseList(backend)).toMatchObject([GRANT_CASE]);
+  });
+
   it('CASE-TITLE-CONVERGE-1：一次性吸收同案旧键标题，写回列表后删除旧键', () => {
     const backend = makeBackend(JSON.stringify({ version: CASE_LIST_SCHEMA_VERSION, cases: [GRANT_CASE] }));
     const legacyKey = `courtwork.case-title.${GRANT_CASE.id}`;
@@ -158,12 +168,12 @@ describe('projectPersistableCases：demo 与已归档不入持久（创建写入
     expect(projected).toEqual([GRANT_CASE]);
   });
 
-  it('只投影 {id,title,grantId,label,kind}，剥离 fileCount/caseNumber 等派生或非列表元数据', () => {
-    // 真机传入的是完整 CaseSummary（含 fileCount/caseNumber 等）——投影只读五字段，天然剥离其余。
-    const rich: CaseSummary = { id: 'case-1', title: '合同审查案', grantId: 'grant-a', label: '合同案卷夹', kind: 'case', fileCount: 12, caseNumber: '(2025)…', archived: false, isDemo: false };
+  it('只投影 {id,title,grantId,label,kind}，剥离 caseNumber 等非列表元数据', () => {
+    // 真机传入的是完整 CaseSummary（含 caseNumber 等）——投影只读五字段，天然剥离其余。
+    const rich: CaseSummary = { id: 'case-1', title: '合同审查案', grantId: 'grant-a', label: '合同案卷夹', kind: 'case', caseNumber: '(2025)…', archived: false, isDemo: false };
     const projected = projectPersistableCases([rich]);
     expect(projected).toEqual([GRANT_CASE]);
-    expect(projected[0]).not.toHaveProperty('fileCount');
+    expect(projected[0]).not.toHaveProperty('caseNumber');
     expect(projected[0]).not.toHaveProperty('caseNumber');
   });
 

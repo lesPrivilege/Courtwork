@@ -27,13 +27,15 @@ function collectProductionSources(dir) {
   return out;
 }
 
-const [port, browser, tauri, panel, app, main, rust, lib, caseTypes, caseScope, caseStore, newCaseDialog, caseOutput] =
+const [port, browser, tauri, panel, app, caseIngest, main, rust, lib, caseTypes, caseScope, caseStore, newCaseDialog, caseOutput] =
   await Promise.all([
     read('src/host/host-auth-port.ts'),
     read('src/host/browser-host-auth.ts'),
     read('src/host/tauri-host-auth.ts'),
     read('src/host/HostAccessPanel.tsx'),
     read('src/App.tsx'),
+    // DEBT-DOSSIER-1：附件入库写随两条入库编排一并外提至 case-ingest；覆盖语义之门跟着搬家。
+    read('src/material/case-ingest.ts'),
     read('src/main.tsx'),
     read('src-tauri/src/host_auth.rs'),
     read('src-tauri/src/lib.rs'),
@@ -136,7 +138,7 @@ for (const command of ['host_authorize_folder', 'host_list_grants', 'host_read_f
 // ── AUDIT-SEAL-1：覆盖语义必须在 renderer→宿主界面逐点明示 ────────────
 requireMatch(port, /overwrite: boolean;/, 'HostAuthPort.writeFile 必须显式携 overwrite 标志');
 requireMatch(tauri, /overwrite: input\.overwrite/, 'Tauri host adapter 必须透传 overwrite');
-requireMatch(app, /hostAuth\.writeFile\([\s\S]*?overwrite: false,[\s\S]*?\}\);/, '附件入库写必须显式拒绝覆盖');
+requireMatch(caseIngest, /deps\.writeFile\([\s\S]*?overwrite: false,[\s\S]*?\}\);/, '附件入库写必须显式拒绝覆盖');
 requireMatch(panel, /overwrite: true,/, '宿主授权自有探针覆盖必须显式声明');
 requireMatch(caseOutput, /overwrite: true,/, 'case_output 自产报告覆盖必须显式声明');
 requireMatch(

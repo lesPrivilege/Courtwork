@@ -11,7 +11,6 @@ import {
 const demo: CaseSummary = {
   id: 'demo-linjiang',
   title: '临江精铸',
-  fileCount: 20,
   archived: false,
   isDemo: true,
   kind: 'case',
@@ -20,7 +19,6 @@ const demo: CaseSummary = {
 const workspace: CaseSummary = {
   id: 'ws-1',
   title: '尽调资料包',
-  fileCount: 3,
   archived: false,
   kind: 'workspace',
 };
