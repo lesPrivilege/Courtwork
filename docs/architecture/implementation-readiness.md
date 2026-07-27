@@ -98,7 +98,7 @@ WORK-BUDGET 验收在实现父 `a82f51d` 独立注入六类 production mutation 
 
 **裁定会已执行（2026-07-26 三笔半逐笔定谳；2026-07-27 落痕，原件 `arch-rulings-2026-07-26.md` 按归档索引定位）**：
 
-- **笔一（`PANEL-BLUEPRINT-1`）——重构票入队，排位上提**：底座与契约口径确认后，「垂类以硬编码组件进壳」是该口径在仓内的最大存量违例。D1「不提前大爆炸重构、分批交付」不变，但首枚 `matrix` 插入 App 队列 `DEBT-DOSSIER-1` 之后、`C3-1` 之前；其余三 panel 按「过手即拆」随后续触碰分批。
+- **笔一（`PANEL-BLUEPRINT-1`）——重构票入队，排位上提**：底座与契约口径确认后，「垂类以硬编码组件进壳」是该口径在仓内的最大存量违例。D1「不提前大爆炸重构、分批交付」不变，但首枚 `matrix` 插入 App 队列 `DEBT-DOSSIER-1` 之后、`C3-1` 之前；其余三 panel 按「过手即拆」随后续触碰分批。**首枚已偿（2026-07-27）**：matrix 迁 `kind:'component'` 全链（实现 `f3d2bf3`、验收一驳回一聚焦复验放行 `b521b34`、no-ff 合入 `1b8c450`；view 扩形与拒载入 ADR-006 修订记录；`revision` 默认落点顺带收口为显式拒绝；高水位 2551→2549）。其余三 panel 仍在 if 链，按「过手即拆」随触碰分批，本笔保持开账。
 - **笔二（S6 装配点模式）——模式级定谳，细则随票冻结**：沿 `LEGAL-S3-BINDING-1` 先例，执行触发经既有 Work command/confirmation 链在受信组合根装配，renderer 保持 passive，plan 来自 scenario 真实产物；demo 直连管线（`fileOpsMode` 本地 state + demo 构造器 + 内存 FS）退役为 fixture-only，不得成为第二装配点形态。授权持久先于 effect（ADR-017 决定四）不变。SPEC `[需架构拍板]` 按此销记，字段细则在 `S6-EXEC-1` 派单时冻结。
 - **笔三（chat scope 判据）——已闭合销记**：`A/R-26` 裁接判据，已入 `DEBT-DOSSIER-1` 票面与 App 队列，无余量。
 - **笔四（半，interaction actor 两笔）——显式容忍留痕**：当期产品单机单用户，两处 actor 串是稳定常量，不构成运行时风险；替换前置（authenticated principal ADR）属 Stage 2，现在铸 ADR 违反「真实需求进入对应阶段才立」纪律。容忍边界两条：新代码不得新增第三处硬编码 actor（复用现有两常量）；principal ADR 立项时必须携存量持久事件（InteractionResolved／Revision／确认账本）迁移策略，届时本容忍失效。
@@ -244,8 +244,8 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 
 **`App.tsx` 队列序（2026-07-27 夜，DOSSIER 清账后）**：SAFETY（`e473fbb`）、OUTPUT
 （`78655bd`）、TRACE（`3e0a0e5`）与 `DEBT-DOSSIER-1`（`51fe6ad`，no-ff）均已清账；
-现行队列 `PANEL-BLUEPRINT-1`（matrix 首枚，2026-07-26 裁定会笔一上提）→ `C3-1` →
-`C3-2` → `C3-3`。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
+matrix 首枚已清账（`1b8c450`）；现行队列 `C3-1` → `C3-2` → `C3-3`
+（PANEL 余下三枚按「过手即拆」随触碰分批，不再单独占位）。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
 重复修改。v0.2.0 单品真实性门三票（SAFETY/OUTPUT/TRACE）已全数闭合。
 恢复入口三态文案议题（TRACE 验收派单件裁定三）不立票，`DEBT-DOSSIER-1` 后按需重估。
 其余 `App.tsx=是` 的票（`PERSIST-BACKEND-1`／`TOOL-READ-1`／`S6-EXEC-1`／
@@ -315,8 +315,8 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 
 | 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
 |---|---|---|---|---|---|
-| `PI-LANE-1` | ADR-022 决定一/二/三（2026-07-27） | Node sidecar 骨架承载 `pi-agent-core`（锚定版本、license 逐仓复核）；只读工具面 scoped 到授权文件夹（protected-paths 式 fail-closed，文件夹外零读）；edit/write/bash 配置层禁用；最小 loop GUI 走独立 dev 入口，不触 `App.tsx`；provider 取甜点档（DeepSeek v4-flash 经 pi-ai，不支持则如实登记换支持者，不改内核）；ADR-022 未决四题逐题回答（预算上限扩展可行性／授权持久时序／journal 分区落点／sidecar 签名链）；rawUsage 可获取性核实（C3-4 未来消费）；**绑定门 R3 扫描面随本票扩到 `packages/pi-lane` 的 Node 侧执行/写原语**（`child_process`／`fs` 写调用点双向锁——读面票内应为零，禁用面由此获静态红证而不止配置承诺；开口子同批封口子判例，2026-07-27 拍板走机器门路线）。落点新包 `packages/pi-lane` ＋ desktop dev 入口，零触既有场景线文件 | ADR-022（已落，含决定二「放行不等于升档」补句） | 否（生产挂载归 `PI-LANE-2`） | 授权文件夹内 md 问答/检索/摘要真实跑通（真 key 与构造 provider 分别登记）；文件夹外读 fail-closed 红证；禁用工具请求即拒红证；R3 扩描后向 pi-lane 注入 `child_process` 调用必红；四题答案回 ADR-022 补记；新包入全量门链 |
-| `PI-LANE-2` | ADR-022 决定一（2026-07-27） | loop 线生产 GUI 挂载（workbench 面板、案件/卷宗容器接线按 ADR-022 决定四）；只登记，`PI-LANE-1` 交付后立票面 | `PI-LANE-1` | **是**（尾随 App 队列） | 立票时冻结 |
+| `PI-LANE-1` | ADR-022 决定一/二/三（2026-07-27） | 已清账（实现 `51c27b6`、验收 `26d4b2b`、no-ff 合入 `6d7a8eb`；七件全交——sidecar 锚定 `@earendil-works/pi-agent-core@0.82.1`、`ExecutionEnv` 层只读容器〔写/exec 根本不实现〕、三锁禁用面、`packages/pi-lane/dev` sidecar 自服务 dev 入口〔落点已裁〕、DeepSeek 原生 provider、未决四题答卷已回 ADR-022 补记、R3 扩描双向锁真树注入复证；范围与证据见 `packages/pi-lane` SPEC/ACCEPTANCE。真 key 复核未执行，按其 SPEC 第七节由持 key 者另行登记） | ADR-022（已落） | 否 | 已交付；74 例单测、变异对照两例、R3 真树注入红绿、合入 tip Playwright 351/351 |
+| `PI-LANE-2` | ADR-022 决定一（2026-07-27） | loop 线生产 GUI 挂载（workbench 面板、容器接线按已采的 `loop/` 子档提案）。立票面时必须冻结四件：越限即停语义的用户可见呈现（不得宣称等同 RuntimeGuard）；`loop/` 分区细则；sidecar 签名/公证链实付实测（探测报告第七节记账）；写面/bash 是否随本票或另票（升档纪律照 ADR-022 决定二）。前置已满足，待架构立票面 | `PI-LANE-1`（已清账） | **是**（尾随 App 队列） | 立票时冻结 |
 
 
 
