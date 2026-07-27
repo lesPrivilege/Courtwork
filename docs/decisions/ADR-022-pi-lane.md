@@ -7,13 +7,13 @@
 
 ## 背景
 
-到「应对大多数 .md 任务」的通用能力，仓内自研线（TOOL-READ → edits/writing 票 → EXEC-SCRIPT）依赖链长且尚有未立之票；而标准 agent loop（read/edit/write/bash + while 循环）在 pi 生态是已收敛的生产形态（`pi-agent-core` 为 TS 库，MIT，一手核实见归档 pi 批次）。语义层、确认原语等创新点须实测验证，通用 loop 不须。产品据此定调：确定性能力先行，创新层在其后嫁接。
+到「应对大多数 .md 任务」的通用能力，仓内自研线（TOOL-READ → edits/writing 票 → EXEC-SCRIPT）依赖链长且尚有未立之票；而标准 agent loop（read/edit/write/bash + while 循环）在 pi 生态是已收敛的生产形态（`@earendil-works/pi-agent-core` 为 TS 库，MIT，一手核实见归档 pi 批次；包名全称见修订记录之包名订正）。语义层、确认原语等创新点须实测验证，通用 loop 不须。产品据此定调：确定性能力先行，创新层在其后嫁接。
 
 减法纪律①（开源轮子尽可能用）与本裁定同向；此前「借形不接管真源」的边界按本 ADR 显式放宽为「loop runtime 整体引入，真源仍在容器、授权与垂类契约」。
 
 ## 决定一 · 引入 pi-agent-core 作通用线 runtime，双线并立
 
-- 通用线以 **Node sidecar 承载 `pi-agent-core` 库**（内嵌形态，非外挂 serve 进程）；我方持有 GUI、容器、扩展与预算面。
+- 通用线以 **Node sidecar 承载 `@earendil-works/pi-agent-core` 库**（内嵌形态，非外挂 serve 进程；无 scope 的 npm 名 `pi-agent-core` 是第三方占位空壳，禁止依赖）；我方持有 GUI、容器、扩展与预算面。
 - 既有声明式场景 runtime（ADR-009/011 谱系）**原样保留**，垂类包与确认账本流程只挂场景线；两线并立、各自账本，不迁移、不混写。
 - ADR-011 的禁令按重启条款修订为：**不自研第二 runtime、不引入编排框架**；成熟开源 loop 以本 ADR 的受控引入线接入。新必要性证据三条：产品定调（确定性优先）；`pi-agent-core` 库形态使内嵌可行（非进程外包）；容器路线在途（`SANDBOX-PROBE-1` 已派）。
 
@@ -52,6 +52,8 @@ pi lane 会话落卷宗容器内独立分区（工作稿旁），格式从 pi �
 ## 修订记录
 
 - **2026-07-27 晚**：决定二补句「放行不等于升档」——澄清性补句，不改任何决定语义；起因是 SANDBOX-PROBE-1 复读会话提请「探测已放行」易被误读为「写面已解锁」。同批裁定：ADR-018 门 R3 的扫描面随 `PI-LANE-1` 扩到 `packages/pi-lane` 的 Node 侧执行/写原语（机器门路线，非文档承诺路线；开口子同批封口子判例），条款入该票派单加签与就绪图行。
+
+- **2026-07-27 夜二 · 包名订正（供应链陷阱）**：正文两处 `pi-agent-core` 补全为 **`@earendil-works/pi-agent-core`**（引入锚定 0.82.1，MIT，Node ≥22.19.0）。npm 无 scope 名 `pi-agent-core` 是第三方名下的占位空壳（486 字节，自述 placeholder name reservation；发布者为 pi 作者本人故未被抢注，但库本身未发布于该名下）——照订正前文本 `npm i` 会装错包。`PI-LANE-1` 实现一手核实后上报，订正为澄清性修订，不改决定语义。同批裁定一件：dev 入口落点准予 `packages/pi-lane/dev`（sidecar 自服务，不触 desktop 构建配置、dev 页不进产品包），就绪图行「desktop dev 入口」措辞随清账订正。
 
 ## 来源
 
