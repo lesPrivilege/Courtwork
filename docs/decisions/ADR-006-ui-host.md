@@ -15,3 +15,8 @@
 ## 后果
 
 UI 变更需要截图和门禁双证。设计探索、竞稿与历史验收不是规范；被采纳的规则必须进入 design 文档或可执行断言。
+
+## 修订记录
+
+- **2026-07-27（PANEL-BLUEPRINT-1 matrix 首枚，架构追认落痕）**：宿主 blueprint 判别联合的 `kind:'component'` 变体由 `view` 钉死 `'artifact'` 扩形为可持任意工作面 view——扩形属宿主契约演进，`kind` 三态语义未动；配套拒载语义一并入约：**具名工作面至多一枚 blueprint，同名争夺抛错而非 last-wins**。首个消费者 `legal.ReviewMatrix`（`courtwork.review-matrix.v1`，`kind:'component'` 携 renderer 全链）；追认坐标见 desktop ACCEPTANCE 同名节与 2026-07-27 架构追认件。
+

@@ -1,6 +1,6 @@
 # ADR-022：通用 agent loop 线（pi lane）
 
-- 状态：**Accepted（2026-07-27，产品定调＋架构裁；未决四题随 `PI-LANE-1` 回答）**
+- 状态：**Accepted（2026-07-27；未决四题已随 `PI-LANE-1` 作答并补记——题 1/2 源码级已答、题 3 提案已采、题 4 推至 `PI-LANE-2` 实付，细则随其冻结）**
 - 日期：2026-07-27
 - 关系：修订 ADR-011 决定二「不引入第二 agent runtime」（携新必要性证据，见该 ADR 修订记录三）；受 ADR-018 等级—能力绑定约束（写/bash 面锁 `SANDBOX-PROBE-1`）；保全 ADR-017 决定零的核心逻辑（取形必须带容器）；与 ADR-012 垂类包边界并立不相交；消费 ADR-019（loop 会话落卷宗容器）
 - 提出：2026-07-27 产品定调——「此阶段优先立起确定性、有依据的通用 agent 能力；方案成熟、依赖 pi 生态、不存在技术或验证瓶颈；甚至可以只是一个 pi agent 的 GUI」
@@ -39,10 +39,10 @@ pi lane 会话落卷宗容器内独立分区（工作稿旁），格式从 pi �
 
 ## 未决四题（`PI-LANE-1` 必答，答案回本 ADR 补记）
 
-1. 预算上限（steps/usd）能否经扩展 API 可靠实施，还是须 sidecar 层强杀；
-2. 授权决定能否持久化入我方账本（执行前落盘），扩展钩子的时序是否满足 durable-before-effect；
-3. journal 分区的具体落点与备份/删除语义（ADR-019 容器分区细则）；
-4. Node sidecar 的签名/公证链影响（与 `SANDBOX-PROBE-1` 裁点一共用一个 sidecar 的可行性）。**部分回答（2026-07-27，探测报告第七节）**：场景线沙箱已定乙路（Rust 自研窄 profile），不需要 sidecar——「共用」只在甲路成立，而甲路已挂「域名级网络准入成为真实需求」重启；本题剩余部分（sidecar 自身签名链）随 `PI-LANE-1` 回答。
+1. 预算上限（steps/usd）能否经扩展 API 可靠实施，还是须 sidecar 层强杀。**已答（2026-07-27，`docs/engineering/pi-lane-1.md` 第二节，源码级）：不能**——`beforeToolCall` 的 block 只换错误 toolResult 不停 loop；`shouldStopAfterTurn` 不被 `Agent` 转发、`AgentHarness` 零权限钩子。实现取宿主 `abort()`（`turn_end` 记账、被 abort 回合不计入，红证在案）。**已知边界：越限即停 ≠ 永不越限**（末回合可压线超出）——`PI-LANE-2` 生产面必须如实呈现该语义，不得宣称等同场景线 RuntimeGuard；乙路（直驱 `agentLoop()` 换真停钩、自担状态机）与丙路（请求前预估）留为升级选项，届时裁。
+2. 授权决定能否持久化入我方账本（执行前落盘），扩展钩子的时序是否满足 durable-before-effect。**已答（同件第三节）：时序满足**——`beforeToolCall` 被 `await` 且 prepare 阶段串行先于执行。三限制随答登记：未注册工具在钩子前即被内核拒（「全部请求落账」须另解析 `message_end`）；immediate 结果的拒绝语不可覆盖；durable 的落得住半边归我方（ADR-010）。本票读面未实现账本，只证时序可用。
+3. journal 分区的具体落点与备份/删除语义（ADR-019 容器分区细则）。**提案已采（2026-07-27 架构裁）**：容器分区内新增 `loop/` 子档与工作稿并列（对外分区单位仍是容器，不触 ADR-019「第四分区单位触红」判据），内存 pi 原生 journal 格式；不入跨容器检索、不写场景线 Turn journal 与确认账本、随容器整删、凭据不入；loop transcript 属过程记录不走「先入卷再确认」。细则随 `PI-LANE-2` 实施冻结；若届时走乙路自写 journal，格式再议。**已知边界：当期 `Agent` 层无 harness journal，pi lane 会话进程退出即散**（SPEC 已登记）。
+4. Node sidecar 的签名/公证链影响（与 `SANDBOX-PROBE-1` 裁点一共用一个 sidecar 的可行性）。**部分回答（2026-07-27，探测报告第七节）**：场景线沙箱已定乙路（Rust 自研窄 profile），不需要 sidecar——「共用」只在甲路成立，而甲路已挂「域名级网络准入成为真实需求」重启；本题剩余部分（sidecar 自身签名链）随 `PI-LANE-1` 回答。**已答（同件第五节）**：dev 形态不进 `.app`，签名链代价零支付、零事实可测——整体推至 `PI-LANE-2` 生产挂载时实付实测（探测报告第七节记账假定已同步订正）。
 
 ## 对既有口径的两处反转（如实登记）
 
