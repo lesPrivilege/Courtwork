@@ -92,6 +92,7 @@ async function commitToDossier(page: Page) {
   await page.locator('[data-testid^="attachment-scope-"]').first().click();
   await page.locator('[data-testid^="scope-confirm-"]').first().click();
   await expect(page.locator('[data-testid^="attachment-chip-"]').first()).toHaveAttribute('data-scope', 'dossier');
+  await expect(page.locator('[data-testid^="attachment-scope-"]').first()).toHaveText('随本条存入卷宗');
 }
 
 async function send(page: Page, text: string) {

@@ -657,7 +657,7 @@ E2E 樁宿主已在隔离端口自动化走完整链（`work-live.spec.ts`）。
 **新增概念留痕（复杂度节制条）——本单声明零新增概念（第三次复用既有存储先例）**：
 
 1. **`case/case-store.ts`（案件列表元数据的持久层）**——非新概念：沿 [[work-session-store]]（本身沿 [[chat-memory]]）的**版本化单键 localStorage 先例**（`courtwork.case-list.v1` + schema version + fail-closed 读入），非另造文件格式。记录是**列表元数据** `{ id, title, grantId?, label?, kind }`。与 work-session-store 的**唯一差异是基数**：案件列表是有序列表（非 caseId→记录映射），App 持有全量列表，故写入是**整表替换** `writeCaseList(list)`（非 per-entry persist/clear）——同一先例的列表版本，不引新抽象。「创建写入 / 归档清除」的对称由纯投影 `projectPersistableCases`（剔除 demo 与 archived）达成，不散落命令式 persist/clear。
-2. **字段取舍留痕**：就绪图列 `{id,title,grantId,label}` 为核心四字段；本单另持 **`kind`**（既有 `CaseSummary` 字段，非新字段）——不持久会令工作区（workspace）重载后静默漂成案件（case），违核心不变量四「静默降级零容忍」，故随持久。**刻意不持久**：`fileCount`（MaterialStore 派生，选中案时 `listForCase` 复算；持久副本会成第二真源漂移）、`archived`（归档即从投影剔除，与创建写入对称，故无需该字段）、`caseNumber`/`isDemo`（非 demo 案无 caseNumber；demo 恒挂不入持久，isDemo 恒 false）。fail-closed 校验含枚举漂移（未知 `kind`）、空 `grantId`（畸形 opaque 引用）逐一判不可读。
+2. **字段取舍留痕**：就绪图列 `{id,title,grantId,label}` 为核心四字段；本单另持 **`kind`**（既有 `CaseSummary` 字段，非新字段）——不持久会令工作区（workspace）重载后静默漂成案件（case），违核心不变量四「静默降级零容忍」，故随持久。**刻意不持久**：`fileCount`（MaterialStore 派生；`DEBT-DOSSIER-1` 起所有真实案均由 `listForCase` 逐案派生，未读取如实呈现；持久副本会成第二真源漂移）、`archived`（归档即从投影剔除，与创建写入对称，故无需该字段）、`caseNumber`/`isDemo`（非 demo 案无 caseNumber；demo 恒挂不入持久，isDemo 恒 false）。fail-closed 校验含枚举漂移（未知 `kind`）、空 `grantId`（畸形 opaque 引用）逐一判不可读。
 3. **失效 grant 检测是派生态，非新持久**——跨重载后以既有 `hostAuth.listGrants()`（host_auth 跨重启耐久记录）交叉核对持久案件的 `grantId`；宿主查无者进 `invalidGrantIds`（`useMemo` 派生，`null` 未核对完成前不误判以免闪烁）。开案时也复核（`selectedCaseId` 变即重查），保「打开即最新」fail-closed 新鲜度。**无新持久面、无新状态机**。
 
 **目标与形制**：
@@ -672,7 +672,7 @@ E2E 樁宿主已在隔离端口自动化走完整链（`work-live.spec.ts`）。
 
 **精确触面**：`src/case/case-store.ts`（新）+ `src/case/case-store.test.ts`（新，+17）、`src/App.tsx`（import + `hydratePersistedCases` + `cases` 初始水合 + `knownGrantIds` 态 + 列表持久 effect + listGrants 交叉核对 effect + `invalidGrantIds` memo + `removeCase` + CaseRail 两 prop）、`src/rail/CaseRail.tsx`（`invalidGrantIds`/`onRemoveCase` prop + `grantInvalid` 派生 + `data-grant-invalid` + 失效块）、`src/styles.css`（`.case-grant-invalid`/`.case-remove-button`，复用语义 warn token）、`tests/e2e/case-persist.spec.ts`（新，+3）、`scripts/assert-test-count.mjs`（floor `258 → 261`）、本 `SPEC.md`。**禁止扩张（遵守）**：未改 `host_auth`/`src-tauri`（不动 grant 本体持久）；未做案件内容持久（只列表元数据）；未改 provider/schema/Turn/Work 契约；未改 UI 布局（仅 CaseRail 内增失效块）；未碰 `work-command`/`work-session-store`/`material-store` 契约；未改 `docs/status/current.md`、未推送。
 
-**已知边界（诚实留痕）**：① 真机全链跨进程重启的 UI 恢复现已具备**侧栏持久（本单）+ WORK-HOST-1 Tauri 信封耐久**两半，但真机耐久仍待正式签名发布阶段的人工试点复现（本单是其**前置**，非试点本身）；故 REPLAY-1 已知边界③ 的 s3-launcher `此次审查结果在本次会话内有效；跨重启保留即将开通` 说明句**仍未改**——两半在真机联合验证前不宣称，避免过早声称。② 浏览器 E2E 的 host_auth/MaterialStore/Work 樁宿主重载即清空（镜像真机耐久宿主的对立面）——三层重建 e2e 重载后须**重播种 grant + 重入库**模拟真机仍在的 `host-grants.json` 与 MaterialStore app-data，localStorage（案件列表/会话指针）是唯一天然跨重载存活面；此为 browser 樁固有边界，非本单缺陷。③ 未绑定文件夹的案（`grantId` 空）同样持久，重载后归 `unbound`，永不进失效判定（无 grant 可失效）。④ 重载后未选中的持久 grant 案 `fileCount` 显示为 0（派生态，选中即由 `listForCase` 复算），属「只持久列表元数据、不持久内容」的自然结果，非静默降级。
+**已知边界（诚实留痕）**：① 真机全链跨进程重启的 UI 恢复现已具备**侧栏持久（本单）+ WORK-HOST-1 Tauri 信封耐久**两半，但真机耐久仍待正式签名发布阶段的人工试点复现（本单是其**前置**，非试点本身）；故 REPLAY-1 已知边界③ 的 s3-launcher `此次审查结果在本次会话内有效；跨重启保留即将开通` 说明句**仍未改**——两半在真机联合验证前不宣称，避免过早声称。② 浏览器 E2E 的 host_auth/MaterialStore/Work 樁宿主重载即清空（镜像真机耐久宿主的对立面）——三层重建 e2e 重载后须**重播种 grant + 重入库**模拟真机仍在的 `host-grants.json` 与 MaterialStore app-data，localStorage（案件列表/会话指针）是唯一天然跨重载存活面；此为 browser 樁固有边界，非本单缺陷。③ 未绑定文件夹的案（`grantId` 空）同样持久，重载后归 `unbound`，永不进失效判定（无 grant 可失效）。④ `DEBT-DOSSIER-1` 后不再有 `fileCount`；重载后的每个真实案先显示“件数未读取”，再逐案由 `listForCase` 派生。浏览器 E2E 的材料桩重载即清，派生后的 0 只说明该桩的确为空，不能替代真机跨 IPC 耐久证明。
 
 **复杂度扫描提案区（触碰范围内既有偶然复杂度，交架构拍板；本单只登记不越权删）**：
 - **`courtwork.case-title.${id}` 与 `courtwork.case-list.v1` 双持久轻重叠**——CASE-ROOT-1 时代既有 `courtwork.case-title.${id}`（改名时单键持久标题、选中时回灌，`App.tsx:1354/1368`）。本单的 `case-list.v1` 亦持 `title`，二者对同一 title 有轻度重叠：改名 effect 会先由 title 单键回灌、再由列表持久整表写。当前无冲突（列表持久读的是 `cases` 活动态，回灌后即一致），但两处 title 真源可择一收敛。**登记不改**（收敛属 CASE-ROOT 线既有面，非本单引入；改动会触碰改名回灌链）。`[需架构拍板]`
@@ -4944,10 +4944,9 @@ RiskList 不携证据等级，故只读面（completed 与门禁未到达两种�
 - **`ready` 判据在现行调用链上不可区分**：`Composer.handleSend` 已只交出 ready 附件，故模块内的
   `status.kind === 'ready'` 目前只有单测能触红。保留它是因为本模块的契约是「dossier 且 ready」，
   不靠上游恰好过滤过。
-- **`AttachmentChip` 的「已存入卷宗」文案未改**`[需架构拍板]`：chip 只存在于发送前，而入库发生在
-  发送时，故这句在它出现的每一刻都还不成立。件一使该 badge 从装饰变为判据投影，此文案随之名不副实。
-  建议改为「随本条存入卷宗」（`scopeCommittedLabel` 之外另立 pending 词条，不动既有词表消费点）。
-  未自行改动：文案属 voice 与设计凡例治理面，票面未授权。
+- **`AttachmentChip` 的未来态文案（验收自修）**：chip 只存在于发送前，而入库发生在发送时，故“已存入卷宗/资料”
+  在它出现的每一刻都还不成立。按验收派单件的裁定二，既有 `scopeCommittedLabel` 改为“随本条存入卷宗/资料”；
+  `AttachmentChip` 的 `[data-testid^="attachment-scope-"]` DOM 由 e2e 直接锁住。只改文案，未改入库判据、词表边界或接口。
 
 **一处并发红（非本票）**：首轮全链 `global-verbs.spec.ts › data-card 复制按钮悬停显现` 单例红
 （hover 中途 `opacity` 0.741774 后回落 0，即指针未驻留）。与本票零 diff 交集（该谱、`CopyButton.tsx`、

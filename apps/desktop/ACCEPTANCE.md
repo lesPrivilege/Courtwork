@@ -4994,3 +4994,68 @@ E2E 使用独立端口 `15932`，静态链与 floor=343 通过；已登记 hover
 ### 结论
 
 **放行 `CONTRACT-TRACE-1`。** 放行范围只及本票：真实 SourceAnchor 回跳、单 reader 调用链、pointer 生命周期矩阵、completed 只读重开、ready output retry、生产 demo 残留清理及票面顺带两项；不宣称 DOSSIER、质量打分、真机 Word/WPS 或产品成熟度提升。可进入合并清账。
+
+---
+
+## DEBT-DOSSIER-1 独立验收（2026-07-27，放行）
+
+对象：`codex/debt-dossier-1` 实现 tip `e5a3dfa`，范围基线 `d634f50`。本会话在 detached clean worktree
+`/private/tmp/courtwork-debt-dossier-acceptance` 完成；Playwright 使用端口 `1461`、配置
+`reuseExistingServer: false`，未连接共享服务。实现 tip 的 `e5a3dfa` 相对前一提交只改
+`case-store.ts` 头注与 SPEC 留痕，零行为面；该文件本就在白名单内，无新增登记。
+
+### 范围与实况
+
+- `d634f50..e5a3dfa` 共 22 文件；三件新模组 `material/case-ingest.ts`、`case/material-count.ts`、
+  `case/use-case-materials.ts` 均已在 SPEC 入册并各有职责句。它们分别承载唯一入库判据、三态纯派生、
+  逐案 `listForCase` 持有/回灌。
+- 四件登记的白名单外触碰逐件成立：`case/types.ts` 移除第二真源字段；`container-copy.ts` 提出既有双词表
+  的名词复用；`ModuleStack.tsx` 接三态并使树体与徽标同源；`assert-host-auth-contracts.mjs` 将
+  `overwrite:false` 静态锁随外提出的入库调用搬迁。测试侧 `pilot-case-upload.spec.ts` 仅补显式 scope 动作。
+- `fileCount` 复核：生产摘要/消费点零残留；保留 `fileCountLabel` 词表函数及测试、高水位沿革注释，另有本验收的
+  旧字节 fixture。构造 `{ fileCount: 99 }` 的 v1 case-list 能水合为 `ok`；运行时对象保留未知键但所有新计数面
+  均不读取它，故这是兼容的“忽略”而非读取时迁移。已补回归锁，未擅改持久格式。
+- SPEC 的外提清单和已知边界与源码一致；验收同时修正两处 CASE-PERSIST 旧文案，退役“未选中案显示 0”的过时事实。
+
+### 行为、红证与验收自修
+
+- dossier 附件恰走既有 `ingestComposerUploads`；message-only 实测零授权写、零 MaterialStore、正文 marker
+  仍逐字进入请求。混合批单测穷举 `dossier + message_only + uploading`，只选择 dossier/ready。
+- CaseRail、Working folders 徽标/树体及原件列表均读 `listForCase` 派生的同一逐案清单；production 零硬编码
+  `'0'`，demo 常量分流不触 production store。
+- 裁定二满足验收自修条件：先将 DOM 期望改为“随本条存入卷宗”得到 1 个红，再仅改
+  `scopeCommittedLabel` 与双词表单测；`[data-testid^="attachment-scope-"]` 的端到端实测复绿。该改动只校正发送前
+  的未来态文案，未改入库判据或接口。
+- 水合断面满足“小、定位明确、附红证”条件：新增旧字节读取测试；临时使 `isPersistedCase` 拒绝 `fileCount` 后
+  `case-store.test.ts` 1 failed / 19 passed，撤除复绿。
+
+| 独立 mutation | 观察到的红灯 |
+| --- | --- |
+| 删除 dossier scope filter | `case-ingest.test.ts` **4 failed / 7 passed**（message-only 被选入、发生写入） |
+| 未读取伪作 0 | `material-count.test.ts` **3 failed / 8 passed** |
+| 徽标硬编码 `'0'` | `material-count.test.ts` **1 failed / 10 passed** |
+| CaseRail 件数脱离 `materialsByCase` | 独立端口 E2E **1 failed**，真实案显示“件数未读取”而非已派生 `0` |
+| 缩小逐案派生面 | `material-count.test.ts` **1 failed / 10 passed**；即 `534caeb` 将无判别力多案 E2E 改由 `casesNeedingMaterialCount` 单测把守后的独立复证 |
+| 删除 `overwrite:false` | `assert-host-auth-contracts.mjs` 报 **1** 条“附件入库写必须显式拒绝覆盖” |
+
+所有 mutation 均在真实被测生产模块中临时注入、观察红灯后精确撤除；最终树无残留。
+
+### 最终门禁
+
+| 门 | 独立实跑结果 |
+| --- | --- |
+| `pnpm -r build` | 通过 |
+| `pnpm lint` | 通过 |
+| `pnpm test` | **152 files / 1323 passed** |
+| `pnpm --filter @courtwork/desktop test` | **73 files / 674 passed** |
+| desktop 静态链 | 通过；highwater **2644 → 2551**、只降不升与净减触红语义仍在；Playwright floor **351** |
+| Playwright 全量 | 端口 `1461`，**351 / 351 passed**；在册豁免仅 `E2E-FLAKY-HOVER-1`，本轮未复现 |
+
+### 结论与清账边界
+
+**放行 `DEBT-DOSSIER-1`。** 放行仅覆盖 scope 入库判据、材料计数同源、旧字节兼容回归锁与该票两项验收自修；不宣称
+真机跨 IPC 材料耐久、OCR/图片多模态、Word/WPS external validation 或能力成熟度提升。
+
+验收不修改 `docs/status/current.md`，也不代写产品 live 表、下一序、就绪图 DEBT 清账或
+`PANEL-BLUEPRINT-1` App 槽的架构口径。当前 `main` 与实现线均从 `d634f50` 分叉，互不为祖先，故无法按“快进”
+执行合入；须由架构会话在整合该并行文档线后处理。

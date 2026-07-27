@@ -28,7 +28,7 @@ export function scopeCommitTitle(kind: ContainerKind): string {
 }
 
 export function scopeCommittedLabel(kind: ContainerKind): string {
-  return kind === 'workspace' ? '已存入资料' : '已存入卷宗';
+  return kind === 'workspace' ? '随本条存入资料' : '随本条存入卷宗';
 }
 
 export function scopeConfirmBody(kind: ContainerKind, containerName: string): string {

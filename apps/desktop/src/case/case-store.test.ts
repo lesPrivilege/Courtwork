@@ -54,6 +54,16 @@ describe('case-store：案件列表版本化单键持久（work-session 先例�
     expect(readCaseList(reopen(backend))).toEqual([GRANT_CASE]);
   });
 
+  it('DEBT-DOSSIER-1：旧字节带 fileCount 仍可水合，不因退役键拒读', () => {
+    const backend = makeBackend(JSON.stringify({
+      version: CASE_LIST_SCHEMA_VERSION,
+      cases: [{ ...GRANT_CASE, fileCount: 99 }],
+    }));
+
+    expect(loadCaseList(backend).status).toBe('ok');
+    expect(readCaseList(backend)).toMatchObject([GRANT_CASE]);
+  });
+
   it('CASE-TITLE-CONVERGE-1：一次性吸收同案旧键标题，写回列表后删除旧键', () => {
     const backend = makeBackend(JSON.stringify({ version: CASE_LIST_SCHEMA_VERSION, cases: [GRANT_CASE] }));
     const legacyKey = `courtwork.case-title.${GRANT_CASE.id}`;

@@ -15,7 +15,8 @@ describe('container-copy dual vocabulary', () => {
     expect(originalsZoneTitle('workspace')).toBe('资料原件');
     expect(scopeCommitTitle('case')).toBe('存入卷宗');
     expect(scopeCommitTitle('workspace')).toBe('存入资料');
-    expect(scopeCommittedLabel('workspace')).toBe('已存入资料');
+    expect(scopeCommittedLabel('case')).toBe('随本条存入卷宗');
+    expect(scopeCommittedLabel('workspace')).toBe('随本条存入资料');
     expect(scopeConfirmBody('case', '甲诉乙')).toContain('卷宗清单');
     expect(scopeConfirmBody('workspace', '项目甲')).toContain('资料清单');
   });
