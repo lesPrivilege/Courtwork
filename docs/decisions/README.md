@@ -20,14 +20,15 @@
 | [ADR-014](ADR-014-preview-tabs-and-package-tiers.md) | Preview 分页宿主与三层包体系 | Accepted |
 | ADR-015 | （预留：包的装载与生命周期，需求到来才立） | — |
 | [ADR-016](ADR-016-uniform-slot-filling-protocol.md) | 统一填格协议 | Accepted |
-| [ADR-017](ADR-017-controlled-command-execution.md) | 受控命令执行（bash 入界） | Accepted（**决定一至七封存**） |
+| [ADR-017](ADR-017-controlled-command-execution.md) | 受控命令执行（受控脚本执行） | Accepted（2026-07-26 修订：决定一至七启封） |
 | [ADR-018](ADR-018-execution-isolation-and-sandbox.md) | 执行隔离与沙箱边界 | Accepted |
 | [ADR-019](ADR-019-dossier-container-and-local-cache.md) | 卷宗容器与本地缓存分区 | Accepted |
 | [ADR-020](ADR-020-release-distribution-truth.md) | 发行许可、候选制品与公开真值 | Accepted |
+| [ADR-021](ADR-021-dossier-work-semantics.md) | 卷宗工作语义层（standing brief） | Draft（2026-07-26 占号，字段细则待评审） |
 
 四份由 `HARNESS-CORE-1` Stage A 提出，2026-07-20 逐项裁决；决定与理由已全文落入各 ADR 本体，无须回读材料。原始材料 `harness-core-1-stage-a.md` 随裁决闭合归档，按归档索引条目定位（史料线索，非现行依据）。
 
-**`ADR-017` 的特殊状态**：其决定零成立——**bash 当期不入界**；决定**一至七**为「若入界」的既定受控形态，随 ADR 一并 `Accepted` 但**封存不生效**，重启须携新的必要性证据提修订、不得从零辩论已封存形态。**决定八生效**（reading/edits/writing 走既有工具契约，其中 edits/writing 属 effect 面另票）。`ADR-011` 的两处修订记录落在该 ADR 末节。
+**`ADR-017` 的现行状态（2026-07-26 修订）**：决定一至七已按决定零重启条款携新必要性证据（Socmdia kit 工作流证据 + 受控形态零修改适用）**启封生效**，能力面命名「受控脚本执行」——启封的是 argv 受控形态，不是 bash；决定七禁项与「宿主零 shell」承诺继续成立。实现受隔离前置链约束：`SANDBOX-PROBE-1` 探测放行前不得排产 `EXEC-SCRIPT-1`。修订记录见该 ADR 末节。`ADR-021` 为 Draft 占号：转 `Accepted` 前不产生实现约束力。`ADR-011` 的两处修订记录落在该 ADR 末节。
 
 ## 变更规则
 
