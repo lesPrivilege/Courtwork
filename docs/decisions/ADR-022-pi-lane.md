@@ -42,7 +42,7 @@ pi lane 会话落卷宗容器内独立分区（工作稿旁），格式从 pi �
 1. 预算上限（steps/usd）能否经扩展 API 可靠实施，还是须 sidecar 层强杀；
 2. 授权决定能否持久化入我方账本（执行前落盘），扩展钩子的时序是否满足 durable-before-effect；
 3. journal 分区的具体落点与备份/删除语义（ADR-019 容器分区细则）；
-4. Node sidecar 的签名/公证链影响（与 `SANDBOX-PROBE-1` 裁点一共用一个 sidecar 的可行性）。
+4. Node sidecar 的签名/公证链影响（与 `SANDBOX-PROBE-1` 裁点一共用一个 sidecar 的可行性）。**部分回答（2026-07-27，探测报告第七节）**：场景线沙箱已定乙路（Rust 自研窄 profile），不需要 sidecar——「共用」只在甲路成立，而甲路已挂「域名级网络准入成为真实需求」重启；本题剩余部分（sidecar 自身签名链）随 `PI-LANE-1` 回答。
 
 ## 对既有口径的两处反转（如实登记）
 

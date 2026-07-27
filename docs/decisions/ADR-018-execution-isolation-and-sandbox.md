@@ -92,3 +92,7 @@
 - 排期定位：`docs/architecture/implementation-readiness.md` Round 5 方向②「沙盒后期」。
 - 隔离分级与「venv 不是沙盒」（史料线索）：`archive/research-2026-07-19-agent-pedagogy/survey.md`。
 - 沙箱失败显式分支的同行参照与反面教材（史料线索）：`archive/research-2026-07-19-work-agent-landscape/landscape.md`。
+
+## 修订记录
+
+- **2026-07-27（SANDBOX-PROBE-1 落账，正文零改动）**：未决 1（Seatbelt 实测）已由探测票部分回答——ad-hoc 签名 + hardened runtime 的 Tauri v2 `.app` 内 spawn `sandbox-exec` 可行，三类越界双向反例在案，notarized 形态与 TCC 首启归因为未测边界；未决 3（绑定表机器可读）已落门（`apps/desktop/scripts/assert-isolation-binding.mjs`，R1 契约自洽／R2 无反例即无等级／R3 能力面不得越档，真源从本 ADR 正文解析、门内零副本）。证据与判据坐标：`docs/engineering/sandbox-probe-1.md`（现行工程文档，R2 的读取面）。当期等级 `none` 不变；`EXEC-SCRIPT-1` 当期不排产，沙箱实现路线定 Rust 侧自研窄 profile（裁点一，2026-07-27），域名级网络准入成为真实需求时按探测报告第七节代价表重议——此三项为架构裁决记录，不改变本 ADR 任何决定。
