@@ -4979,7 +4979,7 @@ RiskList 不携证据等级，故只读面（completed 与门禁未到达两种�
 
 未新增依赖、持久化格式、状态机与通用抽象。matrix blueprint 不声明 presentation config（见下）。
 
-### 三处架构裁定的落点（2026-07-27）
+### 三处架构裁定的落点（2026-07-27；同日追认，落痕形式如下）
 
 - **`kind:'component'` 的 `view` 扩至全 `HostWorkbenchView`**。`kind` 三态语义未动；解除的是
   「携组件者只能住通用 artifact 页签」这条偶然限制——它源于当时唯一的 component blueprint 恰是
@@ -4987,15 +4987,23 @@ RiskList 不携证据等级，故只读面（completed 与门禁未到达两种�
   （红证：扩形前 `tsc -b` 报 `Type '"matrix"' is not assignable to type '"artifact"'`）。
   配套加一道拒载：具名工作面至多一枚 blueprint，同名争夺抛错而非 last-wins；通用 `artifact`
   页签是唯一的多对一席位。
+  **追认落痕形式**：该扩形属 ADR-006 辖面的**宿主契约演进**，ADR 正文零动，修订记录由架构随清账批
+  补入。本分支不含 ADR 文件改动——验收不应据「无 ADR diff」判缺锚，锚在此节与清账批的修订记录。
 - **改版本化 ID，不造 compatibility alias**。就绪图第 225 行的「保留历史 snapshot 回放与
   compatibility alias」经源码复核为空条：`artifact_produced` 只携 `artifactType` 与 `artifact`
   （`packages/core/src/events/types.ts` `SessionEvent`），全仓持久面无 artifact 侧 `uiTemplateId`
   ——唯一持久的是 interaction 的 `z.literal('question-card')`。回放经 `resolveHostArtifact` 从**当期**
   descriptor 解析模板，故改名不可能破回放，alias 表建成即零消费者。
+  **追认落痕形式**：就绪图第 225 行的 alias 条款按源码事实**作废**。验收口径同步替换——不再核
+  「alias 是否存在」这一字面，改核**「历史 snapshot 回放实测不破」**：以改名前录制的 artifact 事件
+  回放，矩阵面须照常渲染。
 - **matrix blueprint 不声明 presentation config**。矩阵的呈现形状由 `ReviewMatrix` schema 直接决定
   （问题 × 文书 × answers），非表格 `presentation.fields` 可表达。ADR-012 决定四「先验证再投影、
   漂移即整面 fail closed」由 renderer 的 `safeParse` 与共用 `UnsupportedArtifactView` 满足，不为
   单一消费者新造一族配置。
+  **边界写明**：这不是「矩阵永不需要外置配置」，而是**不预造**。将来若出现真实的配置需求
+  （截断行列数、题列选取、词表外置等），按 ADR-012 决定四立独立、可静态准入的 presentation config，
+  届时也不得反手去膨胀 `courtwork.artifact-table.v1` 的 `fields`。
 
 ### 外提清单（过手即拆）与高水位
 
@@ -5049,6 +5057,8 @@ App.tsx 2551 → **2549**，`lint:app-highwater` 同批下调。净减含一处�
   （blueprint 缺席、payload 漂移）在产品内不可达，其红证住单测；补一条重复断言的 e2e 只会虚增计数。
 
 ### 一处既有红（非本票，已定性）
+
+**（已由 `COMPOSER-SPEC-SYNC-1` 微单修复，见同名节；本节保留为本票跑门当时的实况。）**
 
 全链跑 **350 passed / 1 failed**。失败例 `composer.spec.ts:45 › 附件 chip 生命周期` 第 61 行断言
 「已存入卷宗」，实收「随本条存入卷宗」。对照实验：同一用例在**干净 main（`01f4ac7`）**上以相同
