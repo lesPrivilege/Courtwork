@@ -315,7 +315,7 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 
 | 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
 |---|---|---|---|---|---|
-| `PI-LANE-1` | ADR-022 决定一/二/三（2026-07-27） | Node sidecar 骨架承载 `pi-agent-core`（锚定版本、license 逐仓复核）；只读工具面 scoped 到授权文件夹（protected-paths 式 fail-closed，文件夹外零读）；edit/write/bash 配置层禁用；最小 loop GUI 走独立 dev 入口，不触 `App.tsx`；provider 取甜点档（DeepSeek v4-flash 经 pi-ai，不支持则如实登记换支持者，不改内核）；ADR-022 未决四题逐题回答（预算上限扩展可行性／授权持久时序／journal 分区落点／sidecar 签名链）；rawUsage 可获取性核实（C3-4 未来消费）。落点新包 `packages/pi-lane` ＋ desktop dev 入口，零触既有场景线文件 | ADR-022（已落） | 否（生产挂载归 `PI-LANE-2`） | 授权文件夹内 md 问答/检索/摘要真实跑通（真 key 与构造 provider 分别登记）；文件夹外读 fail-closed 红证；禁用工具请求即拒红证；四题答案回 ADR-022 补记；新包入全量门链 |
+| `PI-LANE-1` | ADR-022 决定一/二/三（2026-07-27） | Node sidecar 骨架承载 `pi-agent-core`（锚定版本、license 逐仓复核）；只读工具面 scoped 到授权文件夹（protected-paths 式 fail-closed，文件夹外零读）；edit/write/bash 配置层禁用；最小 loop GUI 走独立 dev 入口，不触 `App.tsx`；provider 取甜点档（DeepSeek v4-flash 经 pi-ai，不支持则如实登记换支持者，不改内核）；ADR-022 未决四题逐题回答（预算上限扩展可行性／授权持久时序／journal 分区落点／sidecar 签名链）；rawUsage 可获取性核实（C3-4 未来消费）；**绑定门 R3 扫描面随本票扩到 `packages/pi-lane` 的 Node 侧执行/写原语**（`child_process`／`fs` 写调用点双向锁——读面票内应为零，禁用面由此获静态红证而不止配置承诺；开口子同批封口子判例，2026-07-27 拍板走机器门路线）。落点新包 `packages/pi-lane` ＋ desktop dev 入口，零触既有场景线文件 | ADR-022（已落，含决定二「放行不等于升档」补句） | 否（生产挂载归 `PI-LANE-2`） | 授权文件夹内 md 问答/检索/摘要真实跑通（真 key 与构造 provider 分别登记）；文件夹外读 fail-closed 红证；禁用工具请求即拒红证；R3 扩描后向 pi-lane 注入 `child_process` 调用必红；四题答案回 ADR-022 补记；新包入全量门链 |
 | `PI-LANE-2` | ADR-022 决定一（2026-07-27） | loop 线生产 GUI 挂载（workbench 面板、案件/卷宗容器接线按 ADR-022 决定四）；只登记，`PI-LANE-1` 交付后立票面 | `PI-LANE-1` | **是**（尾随 App 队列） | 立票时冻结 |
 
 
