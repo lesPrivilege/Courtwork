@@ -5069,3 +5069,65 @@ E2E 使用独立端口 `15932`，静态链与 floor=343 通过；已登记 hover
 验收不修改 `docs/status/current.md`，也不代写产品 live 表、下一序、就绪图 DEBT 清账或
 `PANEL-BLUEPRINT-1` App 槽的架构口径。当前 `main` 与实现线均从 `d634f50` 分叉，互不为祖先，故无法按“快进”
 执行合入；须由架构会话在整合该并行文档线后处理。
+
+---
+
+## PANEL-BLUEPRINT-1（matrix 首枚）独立验收（2026-07-27，未放行）
+
+对象：`codex/panel-matrix-1@f3d2bf3`（实现 `f8e3d0e`、SPEC `ec42c27`、追认 `f3d2bf3`），基线
+`01f4ac7`。验收在 detached clean worktree
+`/private/tmp/courtwork-panel-blueprint-acceptance` 进行；Playwright 配置实核
+`reuseExistingServer:false`，所有实际 UI 运行均用独立端口 `19062`–`19064`。目标不含
+`3ac4b42`（`composer` 同步修复不是祖先），故不采信任何把 `composer.spec.ts:45` 计入本票的结论。
+
+### 已独立核实的范围与红证
+
+- descriptor 的 `legal.ReviewMatrix`、S2 与 `LEGAL_RENDERERS` 三处同步为
+  `courtwork.review-matrix.v1`；宿主 registry 为唯一 `kind:'component'` + `view:'matrix'` +
+  `ReviewMatrixRenderer` 注册。`App.tsx` 不再有渲染链的 `view === 'matrix'`；唯一剩余判等是已登记的
+  `viewCount` demo 计数。`assert-view-abi-contracts` **18/18**、`assert-app-highwater` **2549/2549** 通过。
+- 临时构造一枚改名前录制形状的 `artifact_produced`（仅 `artifactType:'legal.ReviewMatrix'` 与 artifact，零
+  `uiTemplateId`）并经 `replaySession` → 当期 descriptor → `resolveNamedComponentView` 回放；实测为
+  `ready` 且 SSR 含 `data-testid="matrix-panel"`。因此按追认口径，历史 snapshot 回放不破；不把无 alias
+  判为缺锚。SPEC 也明确「不预造」presentation config、未来独立配置且不得膨胀 table `fields`。
+- 三件白名单外触碰均有必要：S2 id 与 descriptor 同改避免悬空 renderer；descriptor JSON SHA-256 独立重算为
+  `55409f1d…71dc9d1`（prompt blob 仍 `1f76dbd2…97e134`）；P0-S02 源文件字节 SHA-256 独立重算为
+  `4c24f2cb…f829f`。高水位净减由两项真实外提（artifact reader、具名 component view resolver）支撑，非注释搬运。
+- mutation 均在生产模块注入后撤除：component→passive 使定向 Vitest **4 failed / 7 passed**，并令
+  `workbench` 矩阵 e2e 红；error-context 实际 DOM 是 `role=status` 的「矩阵审阅／当前版本不支持此工作面」，
+  非白屏或错面。回塞 `if (view === 'matrix')` 与 `MatrixPanel` 直连使 VIEW-ABI **3** 条同时红；移除 renderer
+  `safeParse` 使 fail-closed 例 **1 failed / 1 passed** 并真渲漂移 payload。另选「允许两个 component blueprint
+  争夺同一具名工作面」：registry 测试 **1 failed / 3 passed**。撤除后相关三文件 **11/11** 复绿。
+- `pnpm -r build`、`pnpm lint`、`pnpm test` 均独立通过；后者为 **152 files / 1323 passed**。矩阵及周边既有
+  Playwright 定向回归（workbench、schema-polish、goal2、schema-seams、d1-case-scope）为 **6/6 passed**，端口
+  `19063`。
+
+### 未满足的硬门与结论
+
+本次未取得完整 Playwright **350/351** 的独立终局结果：一次完整 `test:e2e` 在前置静态链尚未结束时被验收执行环境
+中止；分片全量的首片也在 30 条中的第 29 条后被同一环境中止。因而不能以实现会话的 350/351 自述替代，也不能把
+`--list` 的 **351** 或上述 6/6 定向回归冒充全量通过。
+
+**不放行 `PANEL-BLUEPRINT-1`。** 阻断仅是派单件要求的独立全量 Playwright 终局证据缺失，非已观察到的实现或契约
+缺陷；不得合入清账。后续独立验收须在可完成全量链的环境，用本对象、独立端口和 `reuseExistingServer:false` 复跑，
+并按不含 `3ac4b42` 的口径把 `composer.spec.ts:45` 与本票隔离定性。
+
+### 聚焦复验补节（2026-07-27，放行）
+
+按聚焦复验令，在同一 detached clean worktree 的 `ec42c27` 上，以独立端口 `19065` 重跑完整
+`pnpm --filter @courtwork/desktop test:e2e`；配置实核 `reuseExistingServer:false`。完整原始日志为
+`/private/tmp/panel-blueprint-ec42c27-e2e-19065.log`，静态链、`assert-test-count` 的 **351** 用例下限均通过，
+Playwright 终局为 **350 passed / 1 failed（3.6m）**，日志末行是 **`EXIT_CODE=1`**。
+
+唯一失败精确为记名豁免 `tests/e2e/composer.spec.ts:45`（第 61 行）：期待「已存入卷宗」，实际收到
+「随本条存入卷宗」。它符合 `COMPOSER-SPEC-SYNC-1` 已二分坐实的无条件既有红——`56bb556` 同时改变真源
+文案而未同步该谱；修复已进入 `main`，但不属于本验收树。除该记名项外无其他红。观察项
+`goal1.spec.ts:77` 与 `host-auth.spec.ts:41` 本轮均通过，故无单发红需要隔离复跑，也无两轮再现可升格。
+
+放行对象为 **`codex/panel-matrix-1@f3d2bf3`**，不是运行对象 `ec42c27`：架构裁定的差异已独立复核，
+`ec42c27..f3d2bf3` 仅为 `apps/desktop/SPEC.md` 的一枚 SPEC 提交（**+11/−1**），零 Playwright
+触面，`git diff --check` 通过。故本次对 `ec42c27` 的终局证据可等价覆盖该放行对象。
+
+**最终判定：放行 `PANEL-BLUEPRINT-1`（matrix 首枚）✅。** 放行仅覆盖 `f3d2bf3` 的 descriptor →
+blueprint → renderer 迁移与已验范围；`composer.spec.ts:45` 的既有断言修复不并入本票，其他三个 panel、
+未来 presentation config、任何新字段/跨层接口与产品成熟度表述均不随之放行。

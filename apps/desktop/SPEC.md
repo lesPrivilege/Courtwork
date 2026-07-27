@@ -5007,3 +5007,119 @@ RiskList 不携证据等级，故只读面（completed 与门禁未到达两种�
 `pnpm -r build`、`pnpm lint`、root Vitest **152 files / 1323**、desktop Vitest **73 files / 674**、
 desktop 全部前置静态门、Playwright 全量 **351 / 351**（首次在含 `56bb556` 的血统上真实成立）。
 floor 351 未动——本单零新增用例。
+
+## PANEL-BLUEPRINT-1 · matrix 首枚（2026-07-27，架构派单）
+
+权威：`docs/architecture/implementation-readiness.md` 忧一表 `PANEL-BLUEPRINT-1` 行与 2026-07-26
+裁定会笔一；ADR-006、ADR-012 决定四。本票只迁 `matrix` 一枚，其余三 panel 的 `if` 分支原样保留。
+
+### 迁移形状
+
+`legal.ReviewMatrix` 的 `uiTemplateId` 由 `matrix-review-panel` 改为版本化
+`courtwork.review-matrix.v1`，宿主侧由 `kind:'route'` 改为 `kind:'component'` 并携
+`ReviewMatrixRenderer`。渲染链自此为：descriptor → 宿主 blueprint → renderer，`App.tsx` 不再持
+`view === 'matrix'` 的渲染分支，也不再直连 `MatrixPanel`。
+
+`kind:'route'` 载荷只携 view 字符串、不携组件，是四 panel 迁移债的根因；迁移后
+`previewReviewMatrix` 的自动打开面、模块展开与工作面标签逐字不变。
+
+### 本单新增的概念（复杂度节制留痕）
+
+新增两个概念，各自的「为何非加不可」：
+
+1. **具名工作面的 blueprint→组件解析**（`preview/named-component-view.ts`）。通用 `artifact` 页签
+   已有的解析按 artifactType 选面，具名工作面须按 view 反查。没有它，宿主就只能继续按垂类
+   type id 分支，即本票要退役的形态。它同时是其余三 panel 分批迁移的落点，不为矩阵一枚而立。
+2. **会话产出取数**（`work/session-artifacts.ts` 的 `createArtifactReader`）。矩阵迁 blueprint 后
+   取数须按 artifactType 动态发生，原先四处逐个硬编码的写法不可用。
+
+未新增依赖、持久化格式、状态机与通用抽象。matrix blueprint 不声明 presentation config（见下）。
+
+### 三处架构裁定的落点（2026-07-27；同日追认，落痕形式如下）
+
+- **`kind:'component'` 的 `view` 扩至全 `HostWorkbenchView`**。`kind` 三态语义未动；解除的是
+  「携组件者只能住通用 artifact 页签」这条偶然限制——它源于当时唯一的 component blueprint 恰是
+  通用表。若不扩，迁移必然把矩阵挤进通用页签、矩阵审阅页签退役，与「零行为变更」直接冲突
+  （红证：扩形前 `tsc -b` 报 `Type '"matrix"' is not assignable to type '"artifact"'`）。
+  配套加一道拒载：具名工作面至多一枚 blueprint，同名争夺抛错而非 last-wins；通用 `artifact`
+  页签是唯一的多对一席位。
+  **追认落痕形式**：该扩形属 ADR-006 辖面的**宿主契约演进**，ADR 正文零动，修订记录由架构随清账批
+  补入。本分支不含 ADR 文件改动——验收不应据「无 ADR diff」判缺锚，锚在此节与清账批的修订记录。
+- **改版本化 ID，不造 compatibility alias**。就绪图第 225 行的「保留历史 snapshot 回放与
+  compatibility alias」经源码复核为空条：`artifact_produced` 只携 `artifactType` 与 `artifact`
+  （`packages/core/src/events/types.ts` `SessionEvent`），全仓持久面无 artifact 侧 `uiTemplateId`
+  ——唯一持久的是 interaction 的 `z.literal('question-card')`。回放经 `resolveHostArtifact` 从**当期**
+  descriptor 解析模板，故改名不可能破回放，alias 表建成即零消费者。
+  **追认落痕形式**：就绪图第 225 行的 alias 条款按源码事实**作废**。验收口径同步替换——不再核
+  「alias 是否存在」这一字面，改核**「历史 snapshot 回放实测不破」**：以改名前录制的 artifact 事件
+  回放，矩阵面须照常渲染。
+- **matrix blueprint 不声明 presentation config**。矩阵的呈现形状由 `ReviewMatrix` schema 直接决定
+  （问题 × 文书 × answers），非表格 `presentation.fields` 可表达。ADR-012 决定四「先验证再投影、
+  漂移即整面 fail closed」由 renderer 的 `safeParse` 与共用 `UnsupportedArtifactView` 满足，不为
+  单一消费者新造一族配置。
+  **边界写明**：这不是「矩阵永不需要外置配置」，而是**不预造**。将来若出现真实的配置需求
+  （截断行列数、题列选取、词表外置等），按 ADR-012 决定四立独立、可静态准入的 presentation config，
+  届时也不得反手去膨胀 `courtwork.artifact-table.v1` 的 `fields`。
+
+### 外提清单（过手即拆）与高水位
+
+| 外提物 | 去向 |
+|---|---|
+| 会话产出取数（四个工作面各抄一遍的「账本优先 / 仅 demo ref 回落 fixture」表达式） | `work/session-artifacts.ts` · `createArtifactReader` |
+| 具名工作面的 blueprint→组件解析与空态派生 | `preview/named-component-view.ts` · `resolveNamedComponentView` |
+| 矩阵渲染本体的验证与装配 | `preview/ReviewMatrixRenderer.tsx` |
+
+App.tsx 2551 → **2549**，`lint:app-highwater` 同批下调。净减含一处净增：末尾落点由默认收口改为
+显式拒绝（下条）。`MatrixPanel` 本体留在 `workbench/Panels.tsx` 未动，renderer 只做验证与装配。
+
+### 末尾落点显式收口（本票范围内的必要收紧）
+
+迁移前 `revision` 无判等、是 `renderView` 的默认落点。迁移后「blueprint 缺席」有了真实触发条件，
+若不收口，撤销 matrix 的 component 声明会让矩阵页签静默渲染成修订预览——违反不变量四，也不满足
+本票「mutation 必落显式空态或错误」的退出证据。故末尾改为 `view !== 'revision'` 即显式拒绝。
+该守卫在现行注册表下不可达，其非空转由 mutation 实证（见下）。
+
+### 空态文案来源
+
+「矩阵审阅尚未生成」由 descriptor 的 `title` 派生（`legal.ReviewMatrix.title === '矩阵审阅'`），
+宿主不另抄一份垂类词。**边界如实登记**：该空态在两种模式下当前都不可达——demo 有 fixture 兜底，
+非 demo 案在上游即落「该工作面暂不适用于合同审查」。迁移前的硬编码文案同样不可达，故属逐字保全
+而非新增可达路径；其红证在单测，不在 e2e。
+
+### 白名单外触碰（三件，逐件登记）
+
+1. `packages/legal/src/scenarios/index.ts` — S2 场景的 `uiTemplateId` 随 descriptor 同改。不改则
+   准入落 `未声明 renderer` 警告并留下悬空 id。
+2. `packages/legal/src/package/layout-golden.test.ts` — descriptor hash 重铸（`850718a4…` →
+   `55409f1d…`，独立复算核对）。**只漂一枚**：promptSegments 未动，故 prompt blob hash 不变；
+   payload 契约未变，`schemaVersion` 与 `identity.version` 均不升。
+3. `docs/design/schema-exemplar.sources.json` — P0-S02 来源哈希随 `presentation/index.ts` 重铸
+   （`0b864614…` → `4c24f2cb…`）。`schema-exemplar.md` 正文未引用矩阵，无正文改动。
+
+### 退出证据与门禁
+
+- **红证基线**：`tsc -b` 两处 `Type '"matrix"' is not assignable to type '"artifact"'` + 两个模块缺席；
+  定向 vitest 3 文件红（2 缺席套件 + 2 行为失败）。
+- **mutation 三枚，逐枚独立复红**：① blueprint 由 component 降 passive → 定向单测 3 红，且
+  `workbench.spec.ts › 矩阵审阅使用样板案十份合同` e2e 红，真渲落 `role=status` 的
+  「矩阵审阅 / 当前版本不支持此工作面」（显式态，非白屏、非错面）；② 恢复 `if (view === 'matrix')`
+  第二渲染路径 → `assert-view-abi-contracts` 三条同时红（渲染链判等、判等数量、`MatrixPanel` 直连）；
+  ③ 撤掉 renderer 的 `safeParse` 前置验证 → fail-closed 例红。三枚均已还原并复绿。
+- **全量门**：`pnpm -r build` 全绿；root Vitest **152 files / 1323 tests**；desktop Vitest
+  **75 files / 683 tests**（674 → 683，本票 +9）；`pnpm lint` 全绿；desktop 全部前置静态门通过
+  （`assert-view-abi-contracts` 12 → **18** 条）；`assert-test-count` 通过（`--list` 351，下限 351 未动）。
+- **floor 不动的理由**：矩阵已有五个 spec 文件的真渲覆盖（`workbench` / `schema-polish` ×2 /
+  `goal2` / `schema-seams` / `d1-case-scope`），全部零放宽通过，无需机械迁移。本票新可观测面
+  （blueprint 缺席、payload 漂移）在产品内不可达，其红证住单测；补一条重复断言的 e2e 只会虚增计数。
+
+### 一处既有红（非本票，已定性）
+
+**（已由 `COMPOSER-SPEC-SYNC-1` 微单修复，见同名节；本节保留为本票跑门当时的实况。）**
+
+全链跑 **350 passed / 1 failed**。失败例 `composer.spec.ts:45 › 附件 chip 生命周期` 第 61 行断言
+「已存入卷宗」，实收「随本条存入卷宗」。对照实验：同一用例在**干净 main（`01f4ac7`）**上以相同
+条件（`--workers=1`）同样红，故非本票引入、非抖动。根因是 `56bb556`（DEBT-DOSSIER-1
+fix-by-acceptance 裁定二）把 chip 文案改为未然态，真源 `case/container-copy.ts` 的
+`scopeCommittedLabel`，而 `composer.spec.ts` 仍抄退役字面量；`composer/types.ts` 的
+`SCOPE_COPY.dossier` 疑为同批零消费残留。上方 DEBT-DOSSIER-1 节自述「DOM 由 e2e 直接锁住」与实况
+不符，一并如实登记。本票不动它——修它要改 DOSSIER 已验收面，另票处置。
