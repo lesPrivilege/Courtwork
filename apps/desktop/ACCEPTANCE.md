@@ -5101,3 +5101,23 @@ E2E 使用独立端口 `15932`，静态链与 floor=343 通过；已登记 hover
 **不放行 `PANEL-BLUEPRINT-1`。** 阻断仅是派单件要求的独立全量 Playwright 终局证据缺失，非已观察到的实现或契约
 缺陷；不得合入清账。后续独立验收须在可完成全量链的环境，用本对象、独立端口和 `reuseExistingServer:false` 复跑，
 并按不含 `3ac4b42` 的口径把 `composer.spec.ts:45` 与本票隔离定性。
+
+### 聚焦复验补节（2026-07-27，放行）
+
+按聚焦复验令，在同一 detached clean worktree 的 `ec42c27` 上，以独立端口 `19065` 重跑完整
+`pnpm --filter @courtwork/desktop test:e2e`；配置实核 `reuseExistingServer:false`。完整原始日志为
+`/private/tmp/panel-blueprint-ec42c27-e2e-19065.log`，静态链、`assert-test-count` 的 **351** 用例下限均通过，
+Playwright 终局为 **350 passed / 1 failed（3.6m）**，日志末行是 **`EXIT_CODE=1`**。
+
+唯一失败精确为记名豁免 `tests/e2e/composer.spec.ts:45`（第 61 行）：期待「已存入卷宗」，实际收到
+「随本条存入卷宗」。它符合 `COMPOSER-SPEC-SYNC-1` 已二分坐实的无条件既有红——`56bb556` 同时改变真源
+文案而未同步该谱；修复已进入 `main`，但不属于本验收树。除该记名项外无其他红。观察项
+`goal1.spec.ts:77` 与 `host-auth.spec.ts:41` 本轮均通过，故无单发红需要隔离复跑，也无两轮再现可升格。
+
+放行对象为 **`codex/panel-matrix-1@f3d2bf3`**，不是运行对象 `ec42c27`：架构裁定的差异已独立复核，
+`ec42c27..f3d2bf3` 仅为 `apps/desktop/SPEC.md` 的一枚 SPEC 提交（**+11/−1**），零 Playwright
+触面，`git diff --check` 通过。故本次对 `ec42c27` 的终局证据可等价覆盖该放行对象。
+
+**最终判定：放行 `PANEL-BLUEPRINT-1`（matrix 首枚）✅。** 放行仅覆盖 `f3d2bf3` 的 descriptor →
+blueprint → renderer 迁移与已验范围；`composer.spec.ts:45` 的既有断言修复不并入本票，其他三个 panel、
+未来 presentation config、任何新字段/跨层接口与产品成熟度表述均不随之放行。
