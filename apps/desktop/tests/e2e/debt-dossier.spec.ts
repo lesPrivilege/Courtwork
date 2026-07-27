@@ -166,3 +166,43 @@ test('件二：demo 固定计数与 production 派生物理分流——样板案
   await expect(page.getByTestId('case-file-count').first()).toHaveText('卷宗 20 件');
   await expect(page.getByTestId('materials-zone')).toHaveCount(0);
 });
+
+/**
+ * 本例锁的是**件数分格**：两案件数并存且互不串数（共享单一计数即翻红）。
+ * 它**不**证明「逐案派生」——甲案的清单在它被选中时已由入库回灌落格，切走后仍在，
+ * 故把派生面缩到「只有选中案」本例照样绿（已实测）。逐案派生由
+ * `material-count.test.ts` 的 `casesNeedingMaterialCount` 单测把守（缩面即红）；
+ * 浏览器桩的材料宿主是内存态、reload 即清，跨重启多案计数在 e2e 层结构性不可观测（登记在 SPEC）。
+ */
+test('件二：多案件数分格——甲案入库不改乙案件数，两案并存互不串数', async ({ page }) => {
+  await openWorkbench(page);
+  await resetHooks(page);
+  await connectProvider(page);
+  await captureChatRequests(page);
+
+  // 甲案：入库一件。
+  await createGrantCase(page);
+  await allowWrite(page);
+  await attach(page, '甲案存卷件.md', DOSSIER_MD);
+  await commitToDossier(page);
+  await send(page, '存入卷宗。');
+  await expect(page.getByTestId('material-item')).toHaveCount(1, { timeout: 15_000 });
+
+  // 乙案：另起一案，零入库。
+  await page.evaluate(() => {
+    (window as unknown as { __courtworkHostAuth: HostAuthHooks }).__courtworkHostAuth.setNextAuthorize({
+      status: 'granted',
+      grant: { grantId: 'grant-debt-dossier-2', label: '第二案卷' },
+    });
+  });
+  await page.getByTestId('new-case-open').click();
+  const dialog = page.getByTestId('new-case-dialog');
+  await page.getByTestId('new-case-authorize').click();
+  await dialog.getByRole('button', { name: '创建案件' }).click();
+  await expect(dialog).toBeHidden();
+
+  // 两案件数各自成立：非选中案的件数此前恒为 0（只有选中案查过 store），本断言即那条缺口的红证。
+  const counts = page.getByTestId('case-file-count');
+  await expect(counts.filter({ hasText: '卷宗 1 件' })).toHaveCount(1);
+  await expect(counts.filter({ hasText: '卷宗 0 件' })).toHaveCount(1);
+});

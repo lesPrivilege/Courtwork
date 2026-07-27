@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { StoredMaterial } from '../material/material-ref';
-import { isDemoCaseId } from './case-scope';
-import { UNRESOLVED_MATERIAL_COUNT, selectMaterialCount, type MaterialCount } from './material-count';
+import {
+  UNRESOLVED_MATERIAL_COUNT,
+  casesNeedingMaterialCount,
+  selectMaterialCount,
+  type MaterialCount,
+} from './material-count';
 import type { CaseSummary } from './types';
 
 /**
@@ -41,10 +45,7 @@ export function useCaseMaterials(
     setByCase((current) => ({ ...current, [caseId]: materials }));
   }, []);
 
-  const productionCaseIds = cases
-    .filter((item) => !item.isDemo && !isDemoCaseId(item.id))
-    .map((item) => item.id)
-    .join('|');
+  const productionCaseIds = casesNeedingMaterialCount(cases).join('|');
   useEffect(() => {
     let cancelled = false;
     // 按 caseId 逐案派生：迟到的清单只落回它自己那一格，切案途中不会串案。

@@ -3,6 +3,7 @@ import type { StoredMaterial } from '../material/material-ref';
 import { DEMO_CASE_ID } from './case-scope';
 import {
   UNRESOLVED_MATERIAL_COUNT,
+  casesNeedingMaterialCount,
   materialCountBadge,
   materialCountLabel,
   materialCountOf,
@@ -75,5 +76,23 @@ describe('DEBT-DOSSIER-1 件二 · 三态文案（容器双词表照旧）', () 
     expect(materialCountBadge({ status: 'resolved', count: 7 })).toBe('7');
     expect(materialCountBadge({ status: 'resolved', count: 0 })).toBe('0');
     expect(materialCountBadge(UNRESOLVED_MATERIAL_COUNT)).toBe('—');
+  });
+});
+
+describe('DEBT-DOSSIER-1 件二 · 派生面是全部真实案，不是「只有选中的那一个」', () => {
+  const cases = [
+    { id: DEMO_CASE_ID, isDemo: true },
+    { id: 'case-a' },
+    { id: 'case-b' },
+    { id: 'case-c' },
+  ];
+
+  it('三案齐列——跨重启后没有任何案被入过库，漏掉一案即那一行永远停在未读取', () => {
+    expect(casesNeedingMaterialCount(cases)).toEqual(['case-a', 'case-b', 'case-c']);
+  });
+
+  it('样板案不在派生面内（demo 永不查询生产 store）', () => {
+    expect(casesNeedingMaterialCount(cases)).not.toContain(DEMO_CASE_ID);
+    expect(casesNeedingMaterialCount([{ id: DEMO_CASE_ID, isDemo: true }])).toEqual([]);
   });
 });

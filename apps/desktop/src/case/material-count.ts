@@ -29,6 +29,15 @@ export function materialCountOf(materials: readonly StoredMaterial[] | undefined
   return { status: 'resolved', count: materials.length };
 }
 
+/**
+ * 需要向 store 派生件数的案件 id——**全部**非 demo 案，不是「只有选中的那一个」。
+ * 件数要在侧栏每一行上成立：跨重启后没有任何案被入过库，只派生选中案就等于其余行永远停在未读取。
+ * demo 案不在此列（件数取内置常量，那条路径根本不查 store）。
+ */
+export function casesNeedingMaterialCount(cases: readonly MaterialCountSubject[]): string[] {
+  return cases.filter((item) => !item.isDemo && !isDemoCaseId(item.id)).map((item) => item.id);
+}
+
 export interface MaterialCountSubject {
   id: string;
   isDemo?: boolean;

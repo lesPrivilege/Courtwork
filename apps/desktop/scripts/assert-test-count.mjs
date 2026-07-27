@@ -73,8 +73,9 @@ const count = match ? Number(match[1]) : 0;
 // DEBT-DOSSIER-1 件一：入库判据专用 e2e（message-only 零入库但正文必达 / 同案 dossier 恰一件入库）
 // +1 → 348。既有 pilot-case-upload 三例只作机械迁移（发送前显式「存入卷宗」），零新增用例。
 // DEBT-DOSSIER-1 件二：三处件数同源（CaseRail / Working folders / 原件列表）+ demo 与 production
-// 物理分流 +2 → 350。
-const minimum = 350;
+// 物理分流 + 多案件数分格（共享单一计数即红）+3 → 351。逐案派生本身在 e2e 层不可观测
+// （浏览器桩材料宿主内存态、reload 即清），由 material-count 单测的 casesNeedingMaterialCount 把守。
+const minimum = 351;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
