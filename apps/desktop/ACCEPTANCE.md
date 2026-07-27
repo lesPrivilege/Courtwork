@@ -5060,6 +5060,19 @@ E2E 使用独立端口 `15932`，静态链与 floor=343 通过；已登记 hover
 > `composer.spec.ts:45 › 附件 chip 生命周期`。该红自 `51fe6ad` 合入起在每个 main tip 上无条件必现，
 > 已由 COMPOSER-SPEC-SYNC-1 修复（两谱改取文案真源）。成因与判例见 desktop SPEC 同名节。
 > `docs/status/current.md` 记的合并 tip 同一数字有同一问题，属架构口径，由架构在清账时更正。
+>
+> **复核轮（2026-07-27 夜，架构补跑令；执行会话＝微单实现方）**：在**现行 main tip `baa34db`**
+> 独立 worktree、隔离端口 `1751`、`--workers=1` 实跑一轮全量门——`pnpm -r build` 通过、
+> `pnpm lint` 通过、root Vitest **152 files / 1323 passed**、desktop Vitest **73 files / 674 passed**、
+> desktop 全部前置静态门通过（VIEW-ABI 12/12、VISUAL-KIT、SCHEMA-EXEMPLAR、文案门 130 个 UI 源文件、
+> 高水位 2551、假绿防护 351 ≥ 下限 351）、**Playwright 351 / 351 passed（3.5m）**，退出码 `0`
+> 且日志末行 `351 passed` 二者一致；零失败（全文唯一 `failed` 字样出现在一枚**通过**用例的标题
+> `auth_failed` 内）。**`composer.spec.ts` 的 chip 生命周期例已转绿**，即上文所述缺口闭合。
+>
+> 本轮跑在 `baa34db` 而非合入 tip `4d4c4f7`，等价链已自证：`3ac4b42`（微单分支，曾跑出 351/351）
+> → `4d4c4f7`（no-ff 合入）→ `baa34db`，`git diff 3ac4b42..baa34db -- ':!docs' ':!archive'` **为空**，
+> 三点 src 逐字节等同，全量 diff 仅 9 个文档/归档文件。故本轮同时清偿 `4d4c4f7` 的收官证明。
+> 此前「351/351 恢复」在 `current.md` 只记为预期（「应恢复」），自本轮起为实测。
 
 ### 结论与清账边界
 
