@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { connectProvider, openWorkbench } from './helpers';
+// 同 composer.spec.ts：已落定文案的字面量只住 `container-copy.ts` 一处，谱里不另抄。
+import { scopeCommittedLabel } from '../../src/case/container-copy';
 
 /**
  * DEBT-DOSSIER-1：入卷语义与材料计数同源。
@@ -92,7 +94,7 @@ async function commitToDossier(page: Page) {
   await page.locator('[data-testid^="attachment-scope-"]').first().click();
   await page.locator('[data-testid^="scope-confirm-"]').first().click();
   await expect(page.locator('[data-testid^="attachment-chip-"]').first()).toHaveAttribute('data-scope', 'dossier');
-  await expect(page.locator('[data-testid^="attachment-scope-"]').first()).toHaveText('随本条存入卷宗');
+  await expect(page.locator('[data-testid^="attachment-scope-"]').first()).toHaveText(scopeCommittedLabel('case'));
 }
 
 async function send(page: Page, text: string) {

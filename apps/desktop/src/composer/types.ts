@@ -62,12 +62,16 @@ export const DISABLED_TOOLTIPS = {
   voice: 'Coming soon · Type your message for now',
 } as const;
 
+/**
+ * 附件作用域文案里**与容器无关**的三枚。
+ *
+ * 随容器分词的四枚（已落定标签、确认标题、确认正文、以及「卷宗/资料」名词本身）住
+ * `case/container-copy.ts`，此处不留副本：`dossier`/`confirmTitle`/`confirmBody` 三键在
+ * 容器双词表落地时即被 `scopeCommittedLabel`/`scopeCommitTitle`/`scopeConfirmBody` 取代，
+ * 零消费者却仍持旧字面量，是文案漂移的伏笔（COMPOSER-SPEC-SYNC-1 清理）。
+ */
 export const SCOPE_COPY = {
   message_only: '仅本条',
-  dossier: '已存入卷宗',
-  confirmTitle: '存入卷宗',
-  confirmBody: (caseName: string) =>
-    `存入卷宗后，本文件将出现在《${caseName}》的卷宗清单中，可被后续对话与场景引用。此操作不可从输入区撤销。`,
   confirmAction: '确认存入',
   cancelAction: '取消',
 } as const;

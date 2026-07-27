@@ -2,6 +2,10 @@ import { expect, test } from '@playwright/test';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { connectProvider, openWorkbench } from './helpers';
+// 文案真源直取，不在谱里再抄一份字面量——本谱与 debt-dossier.spec.ts 断言同一枚 DOM 节点，
+// 两处各抄一份是这枚红的成因（见 ACCEPTANCE 的 COMPOSER-SPEC-SYNC-1 节）。
+// 分工：字面量本身由 `container-copy.test.ts` 的单测锁，本谱只锁「已确认态渲染的是已落定文案」。
+import { scopeCommittedLabel } from '../../src/case/container-copy';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixtureMd = path.resolve(here, '../fixtures/sample-brief.md');
@@ -58,7 +62,7 @@ test('附件 chip 生命周期：上传成功、作用域确认单向落定', as
   await expect(popover).toBeVisible();
   await expect(popover).toContainText('存入卷宗后');
   await page.locator('[data-testid^="scope-confirm-"]').first().click();
-  await expect(scope).toHaveText('已存入卷宗');
+  await expect(scope).toHaveText(scopeCommittedLabel('case'));
   await expect(chip).toHaveAttribute('data-scope', 'dossier');
   // 单向：已存入后徽章不可再点回
   await expect(scope).toBeDisabled();
