@@ -4951,3 +4951,46 @@ E2E 使用独立端口 `15932`，静态链与 floor=343 通过；已登记 hover
 **放行 `CONTRACT-OUTPUT-TRUTH-1` R1。** 放行仅覆盖本票 OUTPUT 范围：显式主合同、原 DOCX bytes 保真、版本化 no-replace 落盘、非常态零写；不宣称 TRACE、Word/WPS external-validated 或 v0.2.0 可发布。
 
 清账：验收报告提交 `78655bd` 已快进合入 `main`；`current.md` 事实提交为 `89926ca`；后续独立 ESLint 微修缮提交为 `c7897d8`。
+
+---
+
+## CONTRACT-TRACE-1 独立验收（2026-07-27，放行）
+
+验收对象：`codex/contract-trace-1`，实现 tip `c92cdb0`，基线 `aed679b`（后者为当时 `main`，且为目标祖先）。验收在独立 linked worktree `/private/tmp/courtwork-contract-trace-acceptance-c92cdb0` 完成；Playwright 使用独立端口 `1428`，`reuseExistingServer:false`。实现期间未采信自述；全量门、源码/白名单和反例均由本会话独立复核。
+
+### 范围、裁定与吸收核对
+
+- 四枚实现提交 `24cccb4`、`be8928b`、`703cd95`、`c92cdb0` 均落在 TRACE 白名单、测试门或 SPEC 留痕内；`work/work-session-lifecycle.ts` 新建、`work/work-recovery.ts` 吸收删除、`material-reader.ts` 吸收删除，以及两枚既有 e2e 的最小断言改写均已预先登记。
+- `use-contract-review-submission`、`work-command`、`case_output_fs.rs`、Legal/Output 包和 DOSSIER 面相对基线零 diff；未回改已放行 SAFETY/OUTPUT 语义。
+- 架构追认的四项偏离逐项成立：冻结的 `InteractiveReviewControls` 仍逐字不变，四项额外输入只住 interactive 分支；gate 未到达时为 `read_only`，无写路径；恢复入口只用相位无关的“打开上次审查”；demo 锚点失败走 `anchor_invalid` 显式反馈。只读核验列为 `—` 并带说明，未声称持久 RiskList 并不携带的核验事实。
+- `work-recovery.ts` 的四分支恢复矩阵已迁入 `work-session-lifecycle.ts`；其定向 44 例覆盖 completed/failed/running、typed failure、candidate 与 compare-and-clear，未发现分支遗漏。production `contractOutputExists` 已收敛为 `demoContractOutputExists`，production consumer 零出现。
+
+### 全量门禁实跑
+
+| 门 | 结果 |
+| --- | --- |
+| `pnpm -r build` | 通过 |
+| `pnpm lint` | 通过 |
+| `pnpm test` | 152 files / **1323 passed** |
+| `pnpm --filter @courtwork/desktop test` | 71 files / **651 passed** |
+| `pnpm site:guard` | 通过 |
+| desktop 静态门链 | 通过；App highwater **2644/2644**、Playwright floor **347** |
+| Playwright 全量（端口 1428） | **346/347**；唯一红为已登记 `E2E-FLAKY-HOVER-1`：`global-verbs.spec.ts:7` hover opacity transition，非 TRACE 回归，按在册裁定登记、不据以驳回 |
+
+`palette`、focus mode 与设置面均由全量 Playwright 覆盖并通过；全量结果不据此宣称 DOSSIER、质量打分、Word/WPS 真机复验或更高成熟度。
+
+### 独立 mutation 红证（裁定七执行）
+
+裁定七驳回隔离副本替代方案。本会话在被真实测试消费的生产模块中施加瞬时最小 diff，逐项观察红，再精确撤除复绿；无任何 mutation 留在最终树。
+
+| 注入 | 红证 | 撤除后复绿 |
+| --- | --- | --- |
+| 抹去 `resolveReaderFocus` 的 textRange 位置敏感 block 选择 | `material-actions.test.ts` 4 failed / 34 passed，含“重复 quote 只落第三块” | 38/38 |
+| rejected start outcome 改为回收 candidate pointer（outcome-only 分支） | `work-session-lifecycle.test.ts` 四种 rejected reason 均红：4 failed / 40 passed | 44/44 |
+| completed replay 改为清 matching pointer | completed 保留账本断言红：1 failed / 43 passed | 44/44 |
+| read_only 面强行重新渲染确认/驳回/修正控件 | `contract-trace.spec.ts` completed 只读结构断言红：1 failed / 3 passed | 4/4（端口 1428） |
+| gate 未到达窗口强制走 interactive | desktop `tsc -b` 在 `App.tsx` 拒绝把 `ReviewGateProjection | undefined` 交给 interactive controls | desktop build 通过 |
+
+### 结论
+
+**放行 `CONTRACT-TRACE-1`。** 放行范围只及本票：真实 SourceAnchor 回跳、单 reader 调用链、pointer 生命周期矩阵、completed 只读重开、ready output retry、生产 demo 残留清理及票面顺带两项；不宣称 DOSSIER、质量打分、真机 Word/WPS 或产品成熟度提升。可进入合并清账。
