@@ -198,6 +198,10 @@ expect(每个 reason 都有去向)                                 // 于是永�
 改造门形态时，被退役的旧判据须转具名反向锁，不得依赖其以旁效（如裸断言化）触红——红必须报对理由，否则下一个照旧文改写的人读到错误指路。
 
 
+## 依赖许可
+
+运行时依赖许可白名单基线为 MIT／Apache-2.0（既有先例：`GENERIC-PACK-1` 拒 pandoc 于 GPL）。**BSD-3-Clause 纳入白名单（2026-07-26 裁定，源 GUI 候选八项·工作稿版本 diff 项）**：宽松许可、无 copyleft 义务，与 MIT/Apache 同级；`jsdiff` 因此可用。GPL／AGPL 及其派生不入依赖。白名单外许可逐案架构裁定并留痕；`site/` 素材与字体许可另按 `SITE-CRAFT-2` 票面的快照纪律。
+
 ## Git 纪律
 
 - 多 worktree 环境下，历史复核必须用独立 worktree；共享树禁止 checkout 历史 SHA 或 stash 他人工作。
