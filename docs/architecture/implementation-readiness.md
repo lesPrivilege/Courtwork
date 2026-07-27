@@ -96,15 +96,22 @@ WORK-BUDGET 验收在实现父 `a82f51d` 独立注入六类 production mutation 
 
 对策不变：**ARCH-DEBT 裁定会**——架构对上表逐笔裁「ADR 追认为正解 / 重构票入队 / 显式容忍留痕」，三选一不悬置。纪律重申为硬门：实现会话引入新跨层面必须先指认 SPEC/ADR 锚点，无锚即 `[需架构拍板]`，验收查锚。
 
-**忧二 · 减法未足 → OSS 减法评估线**。立一次性盘点票 `OSS-SUBTRACT-1`：对全部自研面（md 渲染、diff、图渲染、OOXML、状态管理、E2E 工装等）逐项问「有无 License 合规（MIT/Apache）的成熟件可换」，输出换/不换理由表——**不换的理由同样是资产**（自研加固清单的验证）；换的逐项立票。此后每张 harness 真实化票自带「OSS 候选评估」节（已入纪律）。
+**裁定会已执行（2026-07-26 三笔半逐笔定谳；2026-07-27 落痕，原件 `arch-rulings-2026-07-26.md` 按归档索引定位）**：
+
+- **笔一（`PANEL-BLUEPRINT-1`）——重构票入队，排位上提**：底座与契约口径确认后，「垂类以硬编码组件进壳」是该口径在仓内的最大存量违例。D1「不提前大爆炸重构、分批交付」不变，但首枚 `matrix` 插入 App 队列 `DEBT-DOSSIER-1` 之后、`C3-1` 之前；其余三 panel 按「过手即拆」随后续触碰分批。
+- **笔二（S6 装配点模式）——模式级定谳，细则随票冻结**：沿 `LEGAL-S3-BINDING-1` 先例，执行触发经既有 Work command/confirmation 链在受信组合根装配，renderer 保持 passive，plan 来自 scenario 真实产物；demo 直连管线（`fileOpsMode` 本地 state + demo 构造器 + 内存 FS）退役为 fixture-only，不得成为第二装配点形态。授权持久先于 effect（ADR-017 决定四）不变。SPEC `[需架构拍板]` 按此销记，字段细则在 `S6-EXEC-1` 派单时冻结。
+- **笔三（chat scope 判据）——已闭合销记**：`A/R-26` 裁接判据，已入 `DEBT-DOSSIER-1` 票面与 App 队列，无余量。
+- **笔四（半，interaction actor 两笔）——显式容忍留痕**：当期产品单机单用户，两处 actor 串是稳定常量，不构成运行时风险；替换前置（authenticated principal ADR）属 Stage 2，现在铸 ADR 违反「真实需求进入对应阶段才立」纪律。容忍边界两条：新代码不得新增第三处硬编码 actor（复用现有两常量）；principal ADR 立项时必须携存量持久事件（InteractionResolved／Revision／确认账本）迁移策略，届时本容忍失效。
+
+**忧二 · 减法未足 → OSS 减法评估线**。立一次性盘点票 `OSS-SUBTRACT-1`：对全部自研面（md 渲染、diff、图渲染、OOXML、状态管理、E2E 工装等）逐项问「有无 License 合规（MIT/Apache）的成熟件可换」，输出换/不换理由表——**不换的理由同样是资产**（自研加固清单的验证）；换的逐项立票。此后每张 harness 真实化票自带「OSS 候选评估」节（已入纪律）。**追加（2026-07-26 GUI 裁定）**：卷宗全文检索的中文分词选型并入本票评估面（通用 JS 全文库不直接解决中文分词），试点用户提出检索诉求实证后再立票。
 
 **忧三 · 绿≠功能≠架构 → 版级仪式两件**。成熟度枚举与 current.md 唯一口径不变；新增版级收尾仪式：(a) **真机全链回归清单**——试点台账模板化为脚本化 checklist，每版收尾必跑（工程绿只是入场券）；(b) **解耦审计仪式化**——本轮三腿审计（包边界/路由双轨/effect 授权）定为每版收尾动作，新抓口子按 SEAL 模式入票。「机制不对称」教训固化：立门以族为单位铺满。
 
-**忧四 · 调研未充分利用 → 消费率清账**。归档索引已有时效三态；追加**消费状态 pass**：全部「可借形/仍有效」项逐条裁「入票 / 显式不采纳留痕」，不许悬置——已知未消费清单：oss-gui-source-patterns 采收 8 项、emil polish 规则包、namethatui 词典正式并入、SkillsBench 归因协议（SKILL-REFINERY 验收设计）、OWASP Memory Guard 四态（memory 演进 ADR 素材）。pass 结果写回归档索引。
+**忧四 · 调研未充分利用 → 消费率清账**。归档索引已有时效三态；追加**消费状态 pass**：全部「可借形/仍有效」项逐条裁「入票 / 显式不采纳留痕」，不许悬置——已知未消费清单：oss-gui-source-patterns 采收 8 项、emil polish 规则包、namethatui 词典正式并入、SkillsBench 归因协议（SKILL-REFINERY 验收设计）、OWASP Memory Guard 四态（memory 演进 ADR 素材）。pass 结果写回归档索引。**pass 已执行（2026-07-26 七条零悬置；2026-07-27 写回归档索引）**：oss-gui #4 入 `UI-TOAST-1`／`WORK-PLAN-PANEL-1` 素材；#3 挂 `UI-RESIDUE-1` 批二；#8 显式不采纳（重启判据＝分栏拖拽出现可测卡顿）；emil polish 挂 R2 既有通道不另立票；namethatui 并入 voice 词表便利单；SkillsBench 归因协议显式后置（eval 线立项素材）；OWASP Memory Guard 四态显式后置（挂「后续 ADR 队列」memory 演进议题）。
 
 **忧五 · 前端克制被轻视 → 凡例权威化 + 克制审计**。SCHEMA-EXEMPLAR-1 凡例文档尽快进 `docs/design/`（权威层）；R2 每批验收附**克制审计条款**：新增视觉元素必须指认业务语义（风险色阶/落定感/双值锚类），纯装饰默认拒绝；**减法纪律**与设计原则是正面资产不是欠账，上游口径同表述。（原文作「减法八条」——该编号清单不存在，见方向②的坐标更正；此处所指是归档减法调研的真实主张「减 UI 暴露面不减能力」，与根 `CLAUDE.md` 复杂度节制条并列而非同一条。）
 
-**执行序**：① SEAL-2/3（在途）→ ② ARCH-DEBT 裁定会 + 调研消费 pass（架构执行）→ ③ OSS-SUBTRACT-1（Sonnet 盘点+架构裁）→ ④ 凡例文档权威化 → ⑤ 放行 harness 真实化线（TOOL-READ-1 → GENERIC-PACK-1/PACK-INTERACT-1/SCENARIO-LIVE-2）与 polish R2。开源纪律与 License 红线（pandoc GPL 拒例）全程适用。
+**执行序**：① SEAL-2/3（在途）→ ② ARCH-DEBT 裁定会 + 调研消费 pass（架构执行）→ ③ OSS-SUBTRACT-1（Sonnet 盘点+架构裁）→ ④ 凡例文档权威化 → ⑤ 放行 harness 真实化线（TOOL-READ-1 → GENERIC-PACK-1/PACK-INTERACT-1/SCENARIO-LIVE-2）与 polish R2。开源纪律与 License 红线（pandoc GPL 拒例）全程适用。**进度（2026-07-27 落痕）**：①②已执行（②的裁定与 pass 结果见上两节）；③ `OSS-SUBTRACT-1` 尚未跑——此前「已起跑」说法系口误，如实订正；前一远程会话的云端快照已随容器回收，重跑以 `main` 现行 tip 取材。③交付后⑤全解锁。
 
 **Rust 重构裁定（2026-07-18）**：节点未到。Rust 边界维持「受控宿主能力」，按需逐点下沉（`scoped_write` 下沉即实例）；全量 Rust 化触 ADR-011 第二 runtime 红线。重启判据：性能实测瓶颈 / 第二宿主真实需求 / TS 层门禁封不住的安全面——满足其一再议。
 
@@ -217,7 +224,7 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 | `PREVIEW-TAB-1` | ADR-014 决定一/二：tab 集合按会话 artifact 动态生成（tab=一张 schema 表）、多 artifact 并列、`containerPackBinding` 数组席位（恒 1）；与 Legal panel 迁移解耦，共存语义按 ADR-014 | 多 artifact 动态开 tab、切换不销毁状态（残留门约束）、单 artifact 回退、混包命名空间隔离反例触红 |
 | `PANEL-BLUEPRINT-1` | ADR-012 迁移债：Legal 四个 route panel（timeline/graph/matrix/revision）逐个迁为版本化 component blueprint，保留历史 snapshot 回放与 compatibility alias；可分批 | 每迁一个：descriptor→projection 全链、drift/fail-closed 反例、视觉对照记录；App.tsx 对应硬编码分支删除 |
 | `UI-RESIDUE-1` | 可逆交互零残留闭合门（架构裁定 2026-07-16：三分区状态矩阵并入本单，同证一个性质；允许单内分批交付，每批独立验收）。批一：`expectNoOverlayResidue()` helper（动画归零/无孤儿 portal/focus 归还/无残留 aria-hidden·inert）+ 全 app 疊层清单纠偏（消费 UI-SURFACE-1-FIX 修正后清单）+ 开合闭合（开→关后像素+DOM+焦点+滚动与基线等价）。批二：三分区状态代数（leftCollapsed/narrowRailRequired/rightCollapsed/focusMode/viewSegment/isWelcome/comparing/右栏双态的合法边与禁止边矩阵）+ 竞态（快速反向/Escape during enter/resize during close/切案切模式无旧区残留）+ 关键交互首帧·中间帧·终帧·反向帧采样。像素基线仅 Chromium 闭环，WKWebView 由 DOM 层兜底。目标措辞：**已枚举状态图内无已知残留/焦点丢失/状态串线/不可逆跳变**（非绝对零 bug 宣称） | 至少一个现存残留缺陷先红测坐实；门禁自身接受 mutation（故意不清 portal/不还 focus/不停动画必须红）；resize 自动收栏不污染用户手动态、focus mode 退出恢复三区、左右同折按原序恢复等矩阵边逐一有测 |
-| `GENERIC-PACK-1` | 下一版候选（通用底座补齐线首单，roadmap Stage 1 节 + archive/research-2026-07-15-round-3/generic-base-inventory.md）：通用场景包首批三场景——通用起草→docx（复用 output 流水线，中性 descriptor）/ md↔docx 可编辑往返（自研 OOXML 路径补齐，**pandoc GPL 已拒**）/ 多文件批处理（descriptor 层 fan-out，系统编排非模型自主）。定调：**通用底座即第一个包**——同一插槽/同一 admitPackages 准入/同一凡例表，零绕过 schema 契约的后门；验收律=「只装通用包时产品是合格 work agent」。零新 core 机制预期 | 三场景过既有准入门与凡例表渲染；卸垂类包冒烟（仅通用包）e2e；批处理逐项报告与失败显式；xlsx/pptx/定时/通道均不夹带 |
+| `GENERIC-PACK-1` | 下一版候选（通用底座补齐线首单，roadmap Stage 1 节 + archive/research-2026-07-15-round-3/generic-base-inventory.md）：通用场景包首批三场景——通用起草→docx（复用 output 流水线，中性 descriptor）/ md↔docx 可编辑往返（自研 OOXML 路径补齐，**pandoc GPL 已拒**）/ 多文件批处理（descriptor 层 fan-out，系统编排非模型自主）。定调：**通用底座即第一个包**——同一插槽/同一 admitPackages 准入/同一凡例表，零绕过 schema 契约的后门；验收律=「只装通用包时产品是合格 work agent」。零新 core 机制预期。**验收用例正式登记（2026-07-26 产品指定）**：Socmdia Slop kit（S0–S5 流水、`scripts/pipeline.py` 断点续行、inbox/outbox 门禁）为通用 work agent 验收用例；其甲路径（S0–S5 编为声明式场景）不受 ADR-017 修订影响可先行——受控脚本执行是补全不是前置 | 三场景过既有准入门与凡例表渲染；卸垂类包冒烟（仅通用包）e2e；批处理逐项报告与失败显式；xlsx/pptx/定时/通道均不夹带 |
 | `PACK-INTERACT-1` | 下一版候选（包装载真实交互一级，2026-07-18 拍板；与 GENERIC-PACK-1 配对）：①Settings 包管理面——随发行版内置包的启用/停用（状态持久沿版本化单键先例）；②建案时选包——case 级垂类绑定从组合根写死改为建案交互供给（S3 绑定语义不变，绑定来源改用户选择）；③插槽显式空态——未启用垂类包时 Work 面诚实显示「未安装垂类包·通用能力可用」，零伪装零降级。**边界**：包仍随应用发行、构建期 admitPackages 准入不变——本单零动态装载；外部包文件导入（zip→运行时准入→签名/供应链）属二级，ADR-015「包的装载与生命周期」议题入池、需求到来才立 | 启用/停用→Work 面能力集与 tab 集随包切换 e2e；建案选包→绑定正确且跨包命名空间隔离；空态显式（voice 门）；停用不丢已有案件账本 |
 | `TOOL-READ-1` | harness 真实化线（L1 受控只读工具，2026-07-17 已批方向、本轮激活；pi 对照调研借形）：Work 对话 turn 可请求**声明式白名单**内的只读工具（首批：读某材料正文/列卷宗清单——复用 resolveForProvider 与 MaterialStore 既有链）；工具白名单静态声明（比照 ScenarioRuntime.toolIds），仅 `pure_read`，零 effect；工具结果进 journal 的形状（toolResult 角色 vs 折叠文本）实现偵察后交拍板再动手；模型不可发现/调用白名单外任何工具；GUI 呼应——工具调用在 Work 画布 trace 区显式呈现（账本条目族） | 白名单外调用拒绝反例触红；pure_read 分级校验（AUDIT-SEAL-1 的全模式门为前置）；工具结果可溯源；stub 链不回退 |
 | `ARCHIVE-MANAGE-1` | P1（真机 J 项，设计拍板见台账）：归档案不入侧栏默认视图；Settings「数据管理」面——案件归档区（查看/恢复/删除）+ 会话存档区（查看/删除）；删除留人确认、只删应用侧记录永不触原件、demo 案不可删；**不做旧 session 续行入口**（ADR-013 语义不变）；**召回入口八条采纳（2026-07-19，archive/research-2026-07-15-round-3/session-recall-survey.md）**：非常驻入口/卷宗分组/只读态标注/FTS 查询/原文恒可见/恢复路径唯一显式/删除三件套防呆（二次确认+回收站优先+禁删活跃）/零后台压缩 | 归档案侧栏缺席+Settings 可达；删除确认流 + 原件零触碰断言；demo 不可删反例；残留门适用 |
@@ -237,12 +244,12 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 
 **`App.tsx` 队列序（2026-07-27，TRACE 清账后）**：`CONTRACT-REVIEW-SAFETY-1`
 （`e473fbb`）、`CONTRACT-OUTPUT-TRUTH-1`（`78655bd`）与 `CONTRACT-TRACE-1`（`3e0a0e5`）
-均已清账；现行队列 `DEBT-DOSSIER-1` → `C3-1` → `C3-2` →
-`C3-3`。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
+均已清账；现行队列 `DEBT-DOSSIER-1` → `PANEL-BLUEPRINT-1`（matrix 首枚，2026-07-26
+裁定会笔一上提）→ `C3-1` → `C3-2` → `C3-3`。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
 重复修改。v0.2.0 单品真实性门三票（SAFETY/OUTPUT/TRACE）已全数闭合。
 恢复入口三态文案议题（TRACE 验收派单件裁定三）不立票，`DEBT-DOSSIER-1` 后按需重估。
 其余 `App.tsx=是` 的票（`PERSIST-BACKEND-1`／`TOOL-READ-1`／`S6-EXEC-1`／
-`C3-4`／`C3-5`）依赖就绪后按此队列尾随入队。**「即刻并行派发」一类旧措辞已被
+`C3-4`／`C3-5`／`UI-TOAST-1`／`WORK-PLAN-PANEL-1`／`CHAT-QUEUE-1`）依赖就绪后按此队列尾随入队。**「即刻并行派发」一类旧措辞已被
 互斥模型取代**——「即派」指依赖就绪即可**入队**，不指同时**在途**。
 
 `GOVERNANCE-CLEAR-1` 已执行完毕：target `94f83ab`，报告提交 `9df31d1`；共享门与逐票
@@ -255,7 +262,7 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 这不是排期技巧能绕开的，是 `App.tsx` 体量债的直接代价，`A/R-22` 已裁
 「`App.tsx` 体量债走 D1 拆分线，不由换库解决」。**D1 裁定（2026-07-20）：不提前。**
 大爆炸重构换并行度是坏交易——D1 自己就是最大的 `App.tsx` 票，提前它等于把串行变成停摆。
-`D1`／`PANEL-BLUEPRINT-1` 维持第三梯队分批（首枚 `matrix`，78 行、prop 面最窄）。代之以两件配套：
+`D1`／`PANEL-BLUEPRINT-1` 维持分批交付；排位经 2026-07-26 裁定会笔一上提——首枚 `matrix`（78 行、prop 面最窄）插入 `DEBT-DOSSIER-1` 之后、`C3-1` 之前，其余三 panel 按「过手即拆」随后续触碰分批。代之以两件配套：
 
 - **①「过手即拆」纪律**：凡触 `App.tsx` 的票，其所触**状态/JSX 面优先外提为独立模组**，票内 SPEC 留痕（外提了什么、去了哪个模组）。验收查此项。
 - **② `App.tsx` 高水位门**（`lint:app-highwater`，已随本批立）：立门当日行数即上限，**只降不升**；票内净增须由等量外提抵消。外提生效后须同批**下调**上限——不收紧则腾出的空间会被下一张票悄悄吃掉，「只降不升」退化为一次性宽限，故门对**净减**同样触红。
@@ -270,7 +277,7 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 | `DEMO-ANCHOR-1` | TRACE 验收派单件裁定四（2026-07-27） | 便利小票：`packages/demo-data` `risk-list.json` 锚点补真实 `textRange` 与 `textLayerVersion`（现恒 `{start:0,end:N}` 且无版本，样板案「回到原件」必落显式 `anchor_invalid`——该显式反馈是判定优先级的正确输出，不是缺陷）；只改 demo-data 及其 golden 重烤，不触 desktop 判定与 production 路径 | `CONTRACT-TRACE-1`（已清账） | 否 | 样板案回跳命中真实坐标高亮；demo golden 重烤留痕；`anchor_invalid` 反例 fixture 仍保留于测试，不因数据修复丢失判别力 |
 | `DEBT-DOSSIER-1` | `A/R-26` 裁接判据 + 第六轮“卷宗 0 件”源码复核；desktop 同名 SPEC | 仅 `scope==='dossier'` 的 ready 附件进入既有 `ingestComposerUploads`，message-only 只进本轮请求；不得产生第二入库路径。`fileCount` 不持久，未水合不伪 0，CaseRail/Working folders/listForCase 同源并覆盖多案重启 | `CONTRACT-TRACE-1`（已清账；App 槽已移交） | **是** | 双 scope 同发只入一件；多案重启计数与 store 一致、加载中诚实；硬编码 0/scope filter 删除 mutation 必红；demo 隔离与 voice 门不破 |
 | `PERSIST-BACKEND-1` | `A/R-17` 采 + ADR-019 决定一 | S1：五处逐字同构 `defaultBackend` 归并为一份工厂 + 4 处裸 `localStorage` 收编（裸调用**全在 `App.tsx`** 与 `chat/MessageActions.tsx`）；分区维随 ADR-019 决定一**就地补 container 维**。**归并止于 backend 工厂，不越 ADR-019 明确拒绝的通用 KV 线** | ADR-019 | **是** | 五处归并后行为逐字节等同（既有版本化单键 golden 为证）；裸 `localStorage` 零出现（静态门）；通用 KV 未被顺手造出 |
-| `TOOL-READ-1` | `A/R-25` 方向裁定 + ADR-016 决定二、ADR-017 决定八 | L1 受控只读工具。**模型请求通道**：走「知交互」封闭动词集显式扩集——新增 `request_tool` 动词，`toolId` 以注入白名单 `z.literal` 闭集锁定，白名单外即普通不可信文本在校验层拒收；执行仍落 `deterministic_tool` 步，**步骤闭集不扩**。toolResult 采 `content`/`details` 二分。此扩集属跨层契约变更，以 **ADR-011 修订**形式落痕 | ADR-011 修订须先落 | **是**（trace 区工具行现只有 demo 路径，生产路径须新开） | 白名单外调用在校验层拒收（反例触红）；`pure_read` 分级校验前置门已在；工具结果可溯源；stub 链不回退；四知文本 golden 同步 |
+| `TOOL-READ-1` | `A/R-25` 方向裁定 + ADR-016 决定二、ADR-017 决定八 | L1 受控只读工具。**模型请求通道**：走「知交互」封闭动词集显式扩集——新增 `request_tool` 动词，`toolId` 以注入白名单 `z.literal` 闭集锁定，白名单外即普通不可信文本在校验层拒收；执行仍落 `deterministic_tool` 步，**步骤闭集不扩**。toolResult 采 `content`/`details` 二分。此扩集属跨层契约变更，以 **ADR-011 修订**形式落痕。**借形坐标（2026-07-26 pi 生态摸底）**：官方 `permission-gate`/`protected-paths`/`tool-override` 三例＋cc-safety-net 外置反例（fail-closed 语义分析范本）；**派单前置**：opencode 定向补充调研三题（permission 配置归一化语义／工具结果进 session 形状／abort-steer 的 turn 语义），云端一次跑完不立独立票 | ADR-011 修订须先落 | **是**（trace 区工具行现只有 demo 路径，生产路径须新开） | 白名单外调用在校验层拒收（反例触红）；`pure_read` 分级校验前置门已在；工具结果可溯源；stub 链不回退；四知文本 golden 同步 |
 | `S6-EXEC-1` | ADR-017 决定四（effect 授权面）+ ADR-004 | D2：`FileOpsPlan` gate resolve 后的执行触发、授权持久与事务日志。现状是一条与 scenario 无关的 demo 直连管线（renderer `passive`、宿主内存 FS、plan 来自 demo 构造器；唯一入口是 `App.tsx` 的 `fileOpsMode` 本地 state） | ADR-017 + ADR-004 | **是** | 授权决定持久**先于** effect（事后弹窗不追认）；事务日志可回放；非 demo 案不再返回空态；销毁级动词零出现 |
 | `GATE-INVENTORY-1` | `A/R-23` 准 | **已清账**（清点表 `docs/engineering/gate-inventory-1.md`，65 门/8557 行现读现跑；`8019` 订正为出处保留）。清点期只读的边界被遵守，动作按下两行另立票 | — | 否 | 已交付：逐门四态分类 + 依据；两项现行问题作副产品捕获并独立复核 |
 | `GATE-P5-RESCOPE-1` | 本图 2026-07-25 架构裁定；`GATE-INVENTORY-1` §0 | 小票：`site/scripts/assert-p5-font-runtime.mjs` 现行判红（exit 1，八条数据位置断言全漂）。**根因是门的口径写错，不是设计违例**——它把一次性前后帧对照实现成「八个节点永远待在这些绝对视口坐标」的常驻断言，而冻结基线 `9a1281b` 之后 `site/` 已过 7 枚提交（含 `VERSIONAL-LANG-1/2/3`、`SKIN-R2 P3/P4/P5`、`72f5543` 换色板等**已签署已验收**批次）。故本票只做两件：①把断言从绝对坐标改为「字体轨前后态的 delta 不变」或重签基线（二选一，须留裁定痕）；②**接线**——一道不在任何门链上的门，它的红不构成信号，接线是本票的实质交付。字体断言与 OG 断言现为全绿，不得在重构中丢失 | 无 | 否 | 门接入某条自动化链后可被机器唤起；重构后对「插入无关段落」不再误红、对「字体轨真扰动数据渲染」仍必红（须有注入反例）；`capture-rp1-compact.mjs` 死支（`enter-compact-layout` testid 零命中，实跑 30s 超时崩溃）随本票一并处置或显式留痕 |
@@ -286,6 +293,22 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 **不进 Stage B**（`A/R-7` 决定零、ADR-018 不排期）：沙箱实现；bash 实现；`ADR-016` 的 UI 触发入口（归 UI 单，须 ADR 先拍板）。
 
 **`R-4`ⓑ 通则（`C/R-4`，跨票适用）**：用户会主动寻找的「刻意不做」功能，须有**用户可见的一句说明**；纯工程内部项文档留痕即可。措辞必须与「即将开通」可区分——**「设计上不做」是承诺，不是欠账**。本轮升级两项（会话导出、memory 编辑/单条删除），落点 Settings 既有 Data & privacy / Data promise 席位，与 `C3-5` 的措辞归一联动。
+
+### 2026-07-26 裁决批新增票（裁定会·GUI 八项·标杆实测·ADR-017 修订；2026-07-27 落痕）
+
+原件三份按归档索引定位（`arch-rulings-2026-07-26.md`／`benchmark-openwork-2026-07-26.md`／`pi-ecosystem-2026-07-26.md`）。当期不立票留痕两项：卷宗全文检索转入 `OSS-SUBTRACT-1` 评估面（见忧二）；材料目录树待 `DEBT-DOSSIER-1` 与 ADR-019 容器实施后有真源可渲染，届时先裁两级折叠 vs 深树、再定是否引 react-arborist。工作稿版本 diff 并入 R-16 验收条款票（ADR-019 决定三实施票）不另立，`jsdiff` 经 BSD-3 白名单扩条可用（工程纪律见 workflow）。pi 生态摸底另记：深读新增三仓（cc-safety-net／gondolin／pi-review）各票开工前本地 clone 取用。
+
+| 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
+|---|---|---|---|---|---|
+| `UI-TOAST-1` | GUI 八项裁决①（2026-07-26） | 全局 toast 层：sonner（MIT）借行为骨架（堆叠/dismiss/焦点/aria-live 时序）重皮为三层表面 token。**红线随票冻结：toast 只承载非阻塞回执与失败提示——确认、授权、不可逆动作与任何须留账本的决定一律不得走 toast**（不变量 3 的 UI 面投影）。`C3-1` 失败文案接线可消费之；通知中心（OpenWork 实测参照）作二期候选不入当期票面 | 无 | **是** | 红线静态门（确认/授权路径零 toast 调用，mutation 必红）；堆叠/dismiss/焦点归还过残留门；aria-live 播报有测 |
+| `WORK-PLAN-PANEL-1` | GUI 八项裁决③（2026-07-26） | plan/任务清单生产 UI：`deriveTodoSnapshot`/`todo_snapshot` 事件已是 core 真源，缺的只是生产消费面；自研平铺渲染，零新持久、零新依赖；系统派生只读，无用户编辑面。OpenWork `TodoPanel`（composer 上方折叠计数/展开逐条）作落位形态参照 | 无 | **是** | 渲染与 `todo_snapshot` 同源（改快照渲染必变的 mutation）；零编辑通道（静态门）；空态显式 |
+| `SANDBOX-PROBE-1` | ADR-017 修订三／ADR-018 未决 1（2026-07-26） | 强制前置探测票：macOS Seatbelt（`sandbox-exec` 或替代原语）在当前 macOS + Tauri v2 打包形态的可行性实测，含越界反例证伪（读策略外路径、连策略外地址未拒即不成立）；选型对比按 ADR-018 决定二——候选对＝`@anthropic-ai/sandbox-runtime`（进程级）vs gondolin（microvm，预期作对照组），许可/维护/体积/逃逸面逐项；等级—能力绑定表升机器可读门随本票 | ADR-017 修订已落（本批） | 否 | 越界反例双向（拒得住＋测得出）；对照结论携证据回架构裁；Seatbelt 不可行时的降档路线（`process` 级＋专用 scratch 分区＋FileOpsPlan 准入）由本票携证据回裁，不预授 |
+| `EXEC-SCRIPT-1` | ADR-017 修订三（2026-07-26） | 受控脚本执行实施票（argv 三段式、三态闭集默认 deny、白名单即能力声明、授权持久先于执行、决定七禁项全部保持）。**只登记不排产**：`SANDBOX-PROBE-1` 放行后才可派单，票面届时按 ADR-017 决定一至七逐条冻结 | `SANDBOX-PROBE-1` | 派单时定 | 立票时逐决定给退出证据 |
+| `DOSSIER-FLOW-1` | ADR-021（Draft，2026-07-26 占号） | 卷宗工作语义层实施票。**只登记不排产**：待 ADR-021 未决项裁毕转 `Accepted` 后立票面 | ADR-021 `Accepted` | 派单时定 | 随 ADR 定稿冻结 |
+| `CHAT-QUEUE-1` | 标杆实测裁决①（2026-07-26） | 票池（不入当期队列）：chat 面 busy 时输入处置从「禁用」升级为「排队发送」；S3 场景禁 steer 的既有裁定不变 | `C3-1` 清账后按互斥模型排队 | **是** | 排队消息不丢不重（重启反例）；S3 禁 steer 回归不破 |
+| `REVIEW-PRIMITIVE-1` | 2026-07-27 产品问答定调 | 通用修订评审面原语：中性 edits 提案 schema（ADR-017 决定八形状）＋ `jsdiff` 重皮 diff 渲染 ＋ 逐块 accept 喂既有确认账本；artifact 类型开在预览 tab。垂类加载后的转变＝结构化注解／gate 挂载／编译目标替换／词表换装，骨架不变；md 只作存储不作交互面。`PANEL-BLUEPRINT-1` 迁移时 Legal 修订面改为消费此原语 | `PREVIEW-TAB-1` + edits effect 票 | 派单时定 | 立票时冻结；通用面零垂类词汇（voice 门） |
+| `BRAND-2` | 散条登记（2026-07-26） | 品牌谱系扩面：app icon 为 master 的谱系延展（含 thinking 动画）；范围与素材清单随票冻结，产品壳字体/素材边界沿 `SITE-CRAFT-2` 既有硬边界 | 无 | 否 | 立票时冻结 |
+
 
 **`R-16`ⓑ 挂账（`C/R-16`）**：「工作稿轨可撤销性在 UI 真实成立」不现在实现、不悬置——登记为 **ADR-019 决定三实施票的验收条款**（须有反例：不可撤销即红）。
 
@@ -328,3 +351,5 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 scheduled invocation 必须等待第 1–2 项明确身份、触发来源、预算和执行前授权；当前 trigger-blind executor 不能作为支持证据。
 
 **负面判例登记（OPENWORKER-SURVEY-1，2026-07-24）**：OpenWorker 排程自动化的 `_scheduled_approver`（`manager.py:2320-2350`，commit `4766e59`）对四个本地写盘工具无条件 auto-approve，首次运行即成立、无需既往授权，且因写盘工具无 `target_arg` 而不出现在自动化的同意卡片上——其 README「unattended 只入箱不自行动作」对写盘路径为假。此例作第 1–2 项 ADR 立项时的负面对照：无人值守若不把 effect 授权做成**执行前持久、且在同意面可见**，「无人值守不升自主权」会退化为「某类风险从未被放上台面」的静默旁路。与本图「Effect 与授权」节及不变量 3（授权持久先于 effect）同轴——scheduled invocation 立项须以此为最低门槛，trigger-blind 自动批准不得作为支持证据。
+
+**memory 演进 ADR 议题池（2026-07-26 消费 pass 登记）**：OWASP Memory Guard 四态素材挂此议题，scheduled／多写者阶段启用；ADR-013 当期形态冻结不动。
