@@ -14,7 +14,7 @@
 | [ADR-008](ADR-008-schema-conformance-and-authority.md) | Schema 包一致性与字段职权 | Accepted |
 | [ADR-009](ADR-009-runtime-ports-and-harness.md) | Runtime Ports、双 Harness 与 Package 双平面 | Accepted |
 | [ADR-010](ADR-010-work-live-boundaries.md) | Work live 的材料、状态与命令边界 | Accepted |
-| [ADR-011](ADR-011-minimal-harness-kernel.md) | 最小 Harness Kernel 与扩展边界 | Accepted（2026-07-20 修订两处） |
+| [ADR-011](ADR-011-minimal-harness-kernel.md) | 最小 Harness Kernel 与扩展边界 | Accepted（2026-07-20 修订两处；2026-07-27 修订三——pi lane） |
 | [ADR-012](ADR-012-vertical-package-kit-and-visual-blueprints.md) | 垂类包体例、企业编排与可视化 Blueprint | Accepted |
 | [ADR-013](ADR-013-chat-session-and-memory.md) | Chat 会话生命周期与自动记忆 | Accepted |
 | [ADR-014](ADR-014-preview-tabs-and-package-tiers.md) | Preview 分页宿主与三层包体系 | Accepted |
@@ -25,6 +25,7 @@
 | [ADR-019](ADR-019-dossier-container-and-local-cache.md) | 卷宗容器与本地缓存分区 | Accepted |
 | [ADR-020](ADR-020-release-distribution-truth.md) | 发行许可、候选制品与公开真值 | Accepted |
 | [ADR-021](ADR-021-dossier-work-semantics.md) | 卷宗工作语义层（standing brief） | Draft（2026-07-26 占号，字段细则待评审） |
+| [ADR-022](ADR-022-pi-lane.md) | 通用 agent loop 线（pi lane） | Accepted（2026-07-27，未决四题随 PI-LANE-1） |
 
 四份由 `HARNESS-CORE-1` Stage A 提出，2026-07-20 逐项裁决；决定与理由已全文落入各 ADR 本体，无须回读材料。原始材料 `harness-core-1-stage-a.md` 随裁决闭合归档，按归档索引条目定位（史料线索，非现行依据）。
 

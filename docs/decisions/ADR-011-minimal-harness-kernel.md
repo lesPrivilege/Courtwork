@@ -1,6 +1,6 @@
 # ADR-011：最小 Harness Kernel 与扩展边界
 
-- 状态：Accepted（**2026-07-20 经 ADR-017 / ADR-016 修订两处，见末节「修订记录」**）
+- 状态：Accepted（**2026-07-20 经 ADR-017 / ADR-016 修订两处；2026-07-27 经 ADR-022 修订一处，见末节「修订记录」**）
 - 日期：2026-07-14
 - 来源：`1fdd7c8`
 - 关系：细化 ADR-007、ADR-009 与 ADR-010；不替代 Turn、Work 或 Package ABI
@@ -129,3 +129,7 @@ Courtwork 可以吸收最小 harness 的优点而不成为通用 agent 平台。
 **四知文本 golden 同步**：契约段常量（`packages/core/src/assembly/segments.ts` 的 `CONTRACT_SEGMENT_BODY`）随之改一次，其 golden 重铸一次——**改动即显式过账**，不得静默漂移。
 
 判据来源与地址锁机制见 [ADR-016](ADR-016-uniform-slot-filling-protocol.md) 决定二；本条款是该机制在交互动词面的应用，契约真源在此，ADR-016 不重述。
+
+### 修订三（2026-07-27，ADR-022 立线）· 「不引入第二 agent runtime」措辞收窄
+
+决定二原措辞「不引入第二 agent runtime」按重启纪律修订为「**不自研第二 runtime、不引入编排框架；成熟开源 loop 以 [ADR-022](ADR-022-pi-lane.md) 的受控引入线接入**」。新必要性证据三条（产品定调确定性优先、`pi-agent-core` 库形态、容器路线在途）与受控边界（容器前置、扩展挂载不变量、双线并立各自账本）见 ADR-022，本条不重述。决定二其余拒绝项（模型自主选择工具、任意 goto、动态图、subagent/crew、session 级 always-allow、YOLO 权限模型）**一并不变**，并对 pi lane 的我方扩展面同样适用；pi 内核自身的 loop 行为按 ADR-022 决定二/三受容器与扩展约束，不据本修订豁免任何前置。
