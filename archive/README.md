@@ -40,6 +40,10 @@
 
 云端网页层调研：官方 registry 5,312 包实存、五类扩展编目（权限确认/sandbox/compaction-memory/工具扩展/UI-TUI）、textbook 零命中改拼装消费（作者博客四篇＋官方 extensions 文档）、深读名单五项。**已消费**——三枚裁决（`SANDBOX-PROBE-1` 候选对＝sandbox-runtime vs gondolin、`TOOL-READ-1` 借形坐标＝官方三例＋cc-safety-net、新增 clone 三仓待各票取用）已落就绪图。注意：WebFetch 数字（star/日期）不可靠已被调研自证，机制描述系多源交叉。
 
+## research-2026-07-27-parallel-survey/（并行时效调研批，只读，不进权威链）
+
+DEBT-DOSSIER-1 在途期间的四路云端并行调研：opencode 定向三题（TOOL-READ-1 前置）、沙箱案头对照（SANDBOX-PROBE-1 前置）、历史论断五组时效核查、竞品态势脉搏。批内 README 载文件表、时效三态与消费去向；全部裁决已于 2026-07-27 落就绪图（TOOL-READ 前置销记、SANDBOX-PROBE 案头补记、CHAT-QUEUE 口径订正）与 roadmap 复核行。**已消费**。
+
 ## docs-legacy-2026-07-13/
 
 2026-07-13 文档重整时退出权威链的第一代 `docs/` 全量快照（基线 `f03e742`，143 文件，原编号 00–94 + superpowers/plans）。MANIFEST.md 逐段标注归档原因（已省并/已由 ADR 重述/已被后续契约替代/证据快照）。整体视为已升格或已过时的历史底稿；只在追查某条现行规则历史成因时按原编号定位。
@@ -86,7 +90,7 @@ R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadm
 
 **方向已定、工单待立（发版后队列）**：`skill-refinery-feasibility`（炼化管线成立，SKILL-REFINERY-1 待立；补记：Build schema 定位内部 dogfood）；`invest-daily-brief-testbed` + `invest-daily-digest-field`（invest 实验田，后段挂 scheduled ADR 门槛）。
 
-**定调型（监控/口径资产，无需进一步升格动作）**：`anysearch-retrieval-tier`（检索类 plugin 三原则：具名/fail-closed/外部检索恒为未锚定线索级）；`generic-connectors-tier`（通用连接器层位）；`frontier-vertical-scan-2026h1`（LAB 供弹格局 + Economic Index 量化 + 判定层监控线；追踪 LAB leaderboard 与可靠性平台期论文）；`harness-landscape-2026h1`（口径弹药五条 + 三档过滤；Manus breakpoint 已入实测表；**监控补记 2026-07-26，转述级未核原文**：Opus 5 发布〔2026-07-24〕、Claude Code 系统提示较前删约 80%——harness 减法方向外部旁证，取用前须一手核实）；`kimi-k3-capability-audit`（法律库传言证伪，不立 provider 单）；`newmax-competitive-teardown`（生成式 HTML 瓶颈在裁决；本地优先降格为门槛）。
+**定调型（监控/口径资产，无需进一步升格动作）**：`anysearch-retrieval-tier`（检索类 plugin 三原则：具名/fail-closed/外部检索恒为未锚定线索级）；`generic-connectors-tier`（通用连接器层位）；`frontier-vertical-scan-2026h1`（LAB 供弹格局 + Economic Index 量化 + 判定层监控线；追踪 LAB leaderboard 与可靠性平台期论文）；`harness-landscape-2026h1`（口径弹药五条 + 三档过滤；Manus breakpoint 已入实测表；**监控补记 2026-07-26，2026-07-27 已核实**：Opus 5 发布属实〔2026-07-24，官方公告〕；「系统提示删约 80%」为团队成员炉边口头声明——changelog 零记录，且按模型条件加载非版本删减，引用按口头声明级；详见 research-2026-07-27-parallel-survey）；`kimi-k3-capability-audit`（法律库传言证伪，不立 provider 单）；`newmax-competitive-teardown`（生成式 HTML 瓶颈在裁决；本地优先降格为门槛）。
 
 **论证素材/词表（仍有效，按需取用）**：`provider-switch-mechanisms`（第二 provider 时立 ADR）；`fortune-invest-schema-stress-test`（schema 可表达性双域证据）；`coding-agent-strategies-subtraction`（减法纪律；两候选挂起）；`chat-as-dossier-thesis`（容器同构论，待立项升 ADR）；`emil-skills-polish-input`（polish R2 工具）；`cognitive-debt-mapping`（可执行业务说明书命名已采）；`namethatui-vocabulary`（UI 正名词典）；`trae-work-landscape`（技能 vs 场景包分野）；`upstream-positioning`（内部定位，不入公开叙事）。
 
@@ -116,6 +120,6 @@ R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadm
 - **桶二（可借形，入素材袋，当期零实现）**：排程自动化的 `_scheduled_approver` 旁路（`manager.py:2320-2350`）——cron 触发的 run 对四个本地写盘工具（`write_file`/`replace_in_file`/`apply_patch`/`apply_unified_diff`）无条件 auto-approve，不查 `is_unattended`、无需既往授权、首次运行即成立，且因写盘工具无 `target_arg` 而从不出现在自动化的同意卡片上；README「unattended 只入箱不自行动作」对此写盘路径为假。登记为未来 scheduled/webhook ADR 的负面判例（见 `implementation-readiness.md`「后续 ADR 队列」）。
 - **桶三（不采纳，留痕）**：第一方连接器中央硬编码枚举（改一个连接器手改三处中心文件）与第三方 MCP 整体信任远端 schema，两极端均非版本化可移除包，正是 ADR-008 / 唯一 ABI 明令反对的形态；工具层零运行时 schema 校验（声明而不校验）同不采纳。
 
-**同族负面判例续档（2026-07-26，源 `benchmark-openwork-2026-07-26.md`，对象为 `different-ai/openwork` tip `1f41a52`——另一仓，判例同族）**：`_scheduled_approver` 类标识符在该仓不存在，但行为判例换名存续——桌面内嵌 server 硬编码 `approvalMode:"auto"`（`apps/desktop/electron/runtime.mjs:1208`），19 处 host/write API 的 `requireApproval` 事实上无条件放行；真正门控工具调用的是 opencode 侧 permission.ask（once/always/reject，事前、always 持久化为 pattern 许可）。两层分明：工具级审批外包且形态尚可，自建 host API 层仍是 auto 直放。scheduled 线其 roadmap 标注 Building/Next，仓内零实现。负面判例效力不变。
+**同族负面判例续档（2026-07-26，源 `benchmark-openwork-2026-07-26.md`，对象为 `different-ai/openwork` tip `1f41a52`——另一仓，判例同族）**：`_scheduled_approver` 类标识符在该仓不存在，但行为判例换名存续——桌面内嵌 server 硬编码 `approvalMode:"auto"`（`apps/desktop/electron/runtime.mjs:1208`），19 处 host/write API 的 `requireApproval` 事实上无条件放行；真正门控工具调用的是 opencode 侧 permission.ask（once/always/reject，事前、always 持久化为 pattern 许可）。两层分明：工具级审批外包且形态尚可，自建 host API 层仍是 auto 直放。scheduled 线其 roadmap 标注 Building/Next，仓内零实现。负面判例效力不变。**2026-07-27 复核**：`approvalMode:"auto"` 于 dev 分支仍现行、scheduled 仍 Building/Next 零发布、07-19 后无 release（见 research-2026-07-27-parallel-survey）。
 
 **时效**：随对象仓库演进折旧，结论锚定上述 commit，上游日更不追。
