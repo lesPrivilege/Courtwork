@@ -170,3 +170,15 @@ gate label golden；post-revision description 被 comment 编译器逐字消费�
 summary/quote 只作 blocker 展示且零 instruction；rejected 风险零 instruction；pending/
 零 confirmed/OOC-only/OOC+confirmed 均不产无效或部分 instruction set；commentOnly 闭集不扩。
 任一实现不得新增 legal→core 依赖。
+
+## 状态更新（2026-07-27，PANEL-BLUEPRINT-1 矩阵首枚）
+
+`legal.ReviewMatrix` 的 `uiTemplateId` 与 S2 场景、`LEGAL_RENDERERS` 声明由 `matrix-review-panel`
+改为版本化 `courtwork.review-matrix.v1`（ADR-012 决定四的版本化 blueprint 体例）。这是**呈现绑定**
+变更：payload 契约、schema、promptSegments 与词表均未动，故 `schemaVersion` 与 `identity.version`
+不升，prompt blob hash 不漂；只有 descriptor hash 随之重铸（`850718a4…` → `55409f1d…`）。
+
+不留 compatibility alias（架构裁定 2026-07-27）：`artifact_produced` 事件只携 `artifactType` 与
+`artifact`，全仓持久面无 artifact 侧 `uiTemplateId`，回放从当期 descriptor 解析模板，故改名不触
+历史 snapshot 回放，alias 表建成即零消费者。宿主侧的可执行 renderer 仍只住 desktop，本包不注入
+React、CSS 或路由函数——`kind:'component'` 是宿主注册表的形态，descriptor 侧只是一个稳定字符串。
