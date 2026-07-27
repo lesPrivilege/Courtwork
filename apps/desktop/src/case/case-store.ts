@@ -15,7 +15,8 @@
  *
  * 边界（本模块只碰列表元数据）：案件根/授权持久归 host_auth 宿主（`host-grants.json`，跨重启耐久）；
  * 材料字节归 MaterialStore；会话信封耐久归 WORK-HOST-1 的 Tauri 宿主；会话恢复指针归 work-session-store。
- * 本模块**不碰**上述任一持久面，也**不存案件内容**（fileCount 是 MaterialStore 派生，不入持久以免第二真源漂移）。
+ * 本模块**不碰**上述任一持久面，也**不存案件内容**（件数不入持久，DEBT-DOSSIER-1 起也不再挂在案件摘要上——
+ * 它是 `MaterialStore.listForCase` 的清单长度，派生与三态见 `case/material-count.ts`）。
  *
  * browser-safe：仅用 localStorage（含内存回退），零 `node:*`；案件内容/密钥永不进入本存储（只存列表元数据）。
  */

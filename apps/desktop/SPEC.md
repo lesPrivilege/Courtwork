@@ -4925,6 +4925,9 @@ RiskList 不携证据等级，故只读面（completed 与门禁未到达两种�
 **测试白名单外触碰**：`tests/e2e/pilot-case-upload.spec.ts` 三例作机械迁移（发送前显式「存入卷宗」），
 断言逐字不变——它证的是入库路由本身，件一后不点按钮即无路由可证。
 
+**命名残留随票清理**：`case/case-store.ts` 头注的「fileCount 是 MaterialStore 派生」点名了件二已删除的
+字段。该句给的理由恰是删它的理由，但它名了一个不存在的标识符，与 `contractOutputExists` 同族，随票清掉。
+
 **高水位**：2644 → 2567（件一，入库编排外提）→ 2551（件二，清单持有与派生外提 + 八处构造点退掉
 `fileCount`）。Playwright floor 347 → 351。
 
