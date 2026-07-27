@@ -1,7 +1,7 @@
 # SANDBOX-PROBE-1 · macOS Seatbelt 真机探测报告
 
 **工单坐标**：`docs/architecture/implementation-readiness.md:305`；立票依据 `ADR-017` 修订三「隔离前置链」与 `ADR-018` 未决 1、未决 3。
-**性质**：一次性证据记录（同 `gate-inventory-1.md` 一类），锚定下方固定的机器状态与仓库状态，不随后续提交演进。
+**性质**：证据记录 + 门的读取面。第五节的三条越界反例登记被 `assert-isolation-binding.mjs` 的 R2 判据读取，故本文档是现行工程文档，不入归档；等级晋升或反例登记迁移时，本节与门同批改。第一、四、六节的机器实测锚定固定环境与固定仓库坐标，那部分不随后续提交演进。
 **本票不执行**：`EXEC-SCRIPT-1` 的任何执行面；`ADR-017`／`ADR-018` 正文一字未改；探测脚本与 profile 样例不入生产白名单，只以原文引在本报告内。
 
 **结论：部分成立。** 主体一项成立并携三类双向反例——在当前发行形态（ad-hoc 签名 + hardened runtime 的 Tauri v2 `.app`）内，由 Rust 侧 `std::process::Command` spawn `/usr/bin/sandbox-exec` 加运行时生成的 Seatbelt profile 可行，读、写、网络三类越界均被内核拒绝，且拒绝可归因于策略本身。未测边界三项逐条列在第八节，均不作通过宣称。**当期隔离等级仍为 `none`，本票不改 `ADR-018` 状态行**——按决定五的顺序纪律，等级晋升须随实现同批取得反例，另裁。
