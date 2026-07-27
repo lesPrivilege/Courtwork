@@ -106,6 +106,30 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
 
 - 单测 74 例（`vitest run packages/pi-lane`），含容器越界、闸门拒绝、预算停 loop、dev 入口 HTTP 面。
 - ADR-018 门单测 12→23 例；真树注入实测：`child_process` 与 `fs:writeFile` 各触红一次，还原复绿。
-- Playwright floor **不动**（本票不加 e2e 用例，dev 入口不属产品面）。
 - 变异对照两例（授权边界）：包含判定退化成裸字符串前缀 → 五条红证转红；跳过 symlink 规范化 →
   定点只打红「symlink 出界」一条。
+
+### Playwright 全链实跑与记名豁免
+
+验收令要求「不触产品面」由 351 门实跑作证，不采信宣称。`COURTWORK_E2E_PORT` 隔离端口，
+`reuseExistingServer: false` 故每轮自起服务。三轮实跑：
+
+| 轮次 | 树 | 结果 | 红例 |
+|---|---|---|---|
+| 实验 | `codex/pi-lane-1` @ `1889f6f` | 350 过 / 1 红（5.3m） | `composer.spec.ts:45` |
+| 对照一 | 基线 `07e94da`（已构建） | 348 过 / 3 红（5.0m） | `composer.spec.ts:45`、`goal1.spec.ts:77:3`、`host-auth.spec.ts:41` |
+| 对照二 | 基线 `07e94da`（重跑） | 350 过 / 1 红（8.5m） | `composer.spec.ts:45` |
+
+**记名豁免**：`composer.spec.ts:45 › 附件 chip 生命周期：上传成功、作用域确认单向落定`。
+判据是基线 2/2 复现、实验态同形同错（断言停在 `scope` 未变为「已存入卷宗」），
+且本分支在 `apps/` 下只改三个门脚本、`apps/desktop/src/` 与任何 spec 零改动。
+该红的修复在在途分支 `codex/composer-spec-sync-1`，未入 main，故基于 main 的本票必然携带它。
+
+**另记两条抖动**（非本票所致，也不宣称本票修复）：`goal1.spec.ts:77:3`（首轮 30.2s，形如超时）
+与 `host-auth.spec.ts:41`（TCC 面，环境敏感）只在对照一出现，对照二消失；两轮耗时 5.0m→8.5m，
+机器负载有变。351 门在本机**并非逐轮确定性**，这条留给验收角色自行复核，不由本票下结论。
+
+- Playwright floor **不动**（本票不加 e2e 用例，dev 入口不属产品面），三轮总数恒为 351。
+- 本节写入后未重跑 Playwright：链上读 `SPEC.md` 的两个门（`assert-schema-parts.mjs`、
+  `skin-r2-ledger-contract-lib.mjs`）只读 `site/SPEC.md` 与 `apps/desktop/SPEC.md`，
+  不读 `packages/*/SPEC.md`，故本文件的改动碰不到任何门；其余快门在写入后复跑。
