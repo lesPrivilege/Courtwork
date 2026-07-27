@@ -1,5 +1,6 @@
 node_modules/
 .claude/
+_benchmark/
 dist/
 *.log
 .DS_Store

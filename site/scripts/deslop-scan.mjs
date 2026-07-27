@@ -255,7 +255,7 @@ for (const failure of checkSourceHashes({
 // cssColorAllowlist 的 file|selector|property 键内，逐条误报为「非 tokens 精确消费者」
 // ——本机既存 109 项红全部源于此，live tree 零失败（2026-07-19 拍板排除）。
 const excludedDirectories = new Set([
-  '.claude', '.git', 'archive', 'coverage', 'dist', 'node_modules', 'playwright-report',
+  '.claude', '.git', '_benchmark', 'archive', 'coverage', 'dist', 'node_modules', 'playwright-report',
   'site-dist', 'target', 'test-results',
 ]);
 const activeExtensions = new Set(['.cjs', '.css', '.html', '.js', '.jsx', '.md', '.mjs', '.svg', '.ts', '.tsx']);
