@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { SchemaParts } from './icons/schema-parts';
-import type { PartyGraph, ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
+import type { PartyGraph, RiskList, Timeline } from '@courtwork/legal';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
   credentialClient,
@@ -26,6 +26,7 @@ import { replayWorkProjection } from './protocol/work-replay';
 import { projectRiskListGate } from './work/legal-s3-binding';
 import { useWorkRunLifecycle } from './work/work-session-lifecycle';
 import { selectPrimaryContractCandidates } from './work/primary-contract';
+import { createArtifactReader } from './work/session-artifacts';
 import type { LegalS3WorkCommand } from './work/work-command';
 import { projectPersistableCases, readCaseList, writeCaseList } from './case/case-store';
 import type { SessionEvent } from '@courtwork/core';
@@ -80,6 +81,8 @@ import {
 import { ContextModuleBody, ProgressModuleBody, WorkingFoldersTree } from './modules/ModuleStack';
 import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRenderer';
 import { ArtifactHostView, resolveHostArtifact } from './preview/ArtifactHostView';
+import { UnsupportedArtifactView } from './preview/ArtifactTableRenderer';
+import { resolveNamedComponentView } from './preview/named-component-view';
 import type { HostRendererRegistry } from './preview/HostRendererRegistry';
 import {
   modelDisplayName,
@@ -104,7 +107,6 @@ import { Icon } from './workbench/Icon';
 import {
   DraftPanel,
   INITIAL_DRAFT,
-  MatrixPanel,
   RevisionPanel,
   S3LauncherPanel,
   TimelinePanel,
@@ -1083,29 +1085,16 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   const fixtureRef = isDemoCase ? activeFixtureRef : undefined;
   // fixture fallback 只属于显式 demo ref；非 demo 分支不会询问 fixture adapter。
-  const riskList = (
-    fixtureRef
-      ? (session.artifacts['legal.RiskList'] ?? workFixture.artifactFor(fixtureRef, 'legal.RiskList'))
-      : session.artifacts['legal.RiskList']
-  ) as RiskList | undefined;
-  const timeline = (
-    fixtureRef
-      ? (session.artifacts['legal.Timeline'] ?? workFixture.artifactFor(fixtureRef, 'legal.Timeline'))
-      : session.artifacts['legal.Timeline']
-  ) as Timeline | undefined;
-  const graph = (
-    fixtureRef
-      ? (session.artifacts['legal.PartyGraph'] ?? workFixture.artifactFor(fixtureRef, 'legal.PartyGraph'))
-      : session.artifacts['legal.PartyGraph']
-  ) as PartyGraph | undefined;
-  const matrix = (
-    fixtureRef
-      ? (session.artifacts['legal.ReviewMatrix'] ?? workFixture.artifactFor(fixtureRef, 'legal.ReviewMatrix'))
-      : session.artifacts['legal.ReviewMatrix']
-  ) as ReviewMatrix | undefined;
+  const artifactPayload = createArtifactReader(session.artifacts, fixtureRef, workFixture);
+  const riskList = artifactPayload('legal.RiskList') as RiskList | undefined;
+  const timeline = artifactPayload('legal.Timeline') as Timeline | undefined;
+  const graph = artifactPayload('legal.PartyGraph') as PartyGraph | undefined;
+  // 通用「结构化产出」页签只收落在该页签上的 component blueprint；具名工作面（矩阵审阅）
+  // 已由自己的 view 承载，不在此重复出现。
   const artifactViewEntries = Object.entries(session.artifacts).filter(([artifactType]) => {
     const resolved = resolveHostArtifact(artifactType, packageRegistries, hostRenderers);
-    return resolved.status === 'unsupported' || resolved.renderer.kind === 'component';
+    return resolved.status === 'unsupported'
+      || (resolved.renderer.kind === 'component' && resolved.renderer.view === 'artifact');
   });
   const artifactViewEntry = artifactViewEntries.find(([artifactType]) => artifactType === activeArtifactType)
     ?? artifactViewEntries.at(-1);
@@ -1734,9 +1723,14 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />
       </Suspense>;
     }
-    if (view === 'matrix') {
-      if (!matrix) return emptyWorkbench('矩阵审阅尚未生成');
-      return <MatrixPanel matrix={matrix} />;
+    // 具名工作面的 component blueprint 全链：宿主按 view 反查在册 blueprint，空态文案由
+    // descriptor 标题派生（宿主不另抄一份垂类词）。仍是 route 的工作面落 unregistered，走下方原分支。
+    const namedView = resolveNamedComponentView(view, artifactPayload, packageRegistries, hostRenderers);
+    if (namedView.status === 'empty') return emptyWorkbench(`${namedView.title}尚未生成`);
+    if (namedView.status === 'unsupported') return <UnsupportedArtifactView title={namedView.title} />;
+    if (namedView.status === 'ready') {
+      const NamedViewRenderer = namedView.component;
+      return <NamedViewRenderer descriptor={namedView.descriptor} payload={namedView.payload} />;
     }
     if (view === 'draft') {
       if (workDraftMode) {
@@ -1769,6 +1763,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         />
       );
     }
+    // 末尾落点显式收口：此前 `revision` 无判等、是默认落点，任何未被上方接住的工作面都会静默
+    // 渲染成修订预览。矩阵迁 blueprint 后这条穿透有了真实触发条件（blueprint 撤销即落此处），
+    // 故改为显式拒绝——缺 renderer 是显式态，不是「渲染别的面」。
+    if (view !== 'revision') return <UnsupportedArtifactView title={VIEW_LABELS[view]} />;
     if (!riskList) return emptyWorkbench('修订预览尚未生成');
     if (!selectedRisk) {
       return <section className="empty-review-result" data-testid="revision-panel">

@@ -60,7 +60,13 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // App 只留装配（store / 宿主写入 / 显式态通道注入）。2644 → 2567。
 // DEBT-DOSSIER-1 件二：材料清单的持有与逐案派生外提至 `case/use-case-materials.ts`
 // （件数不再挂在 CaseSummary 上，八处构造点随之退掉 fileCount）。2567 → 2551。
-const HIGH_WATER_LINES = 2551;
+// PANEL-BLUEPRINT-1（矩阵首枚）：外提物两件——① 会话产出取数（四个工作面各抄一遍的
+// 「账本优先 / 仅 demo ref 回落 fixture」表达式）去向 `work/session-artifacts.ts` 的
+// `createArtifactReader`；② 具名工作面的 blueprint→组件解析去向 `preview/named-component-view.ts`
+// 的 `resolveNamedComponentView`。App 侧只余一次 reader 构造与一次解析消费；`view === 'matrix'`
+// 专用分支与 `MatrixPanel` 直连同批退役。同批显式收口末尾落点（`revision` 原为无判等的默认落点，
+// blueprint 缺席即静默渲染成修订预览）净增 4 行。2551 → 2549。
+const HIGH_WATER_LINES = 2549;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

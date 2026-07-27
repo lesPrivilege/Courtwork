@@ -95,7 +95,7 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
         ],
         rowBudget: 3,
       },
-      uiTemplateId: 'matrix-review-panel',
+      uiTemplateId: 'courtwork.review-matrix.v1',
       vocabulary: {
         enumLabels: { confidence: { high: '高', medium: '中', low: '低' } },
       },
@@ -141,7 +141,7 @@ export const LEGAL_RENDERERS: VerticalPackageDescriptorV1['renderers'] = [
     { uiTemplateId: 'timeline-panel', kind: 'workspace', title: '事件时间线' },
     { uiTemplateId: 'party-graph-panel', kind: 'workspace', title: '当事人图谱' },
     { uiTemplateId: 'risk-review-panel', kind: 'workspace', title: '风险审阅' },
-    { uiTemplateId: 'matrix-review-panel', kind: 'workspace', title: '矩阵审阅' },
+    { uiTemplateId: 'courtwork.review-matrix.v1', kind: 'workspace', title: '矩阵审阅' },
     { uiTemplateId: 'draft-review-panel', kind: 'document', title: '文书修订' },
     { uiTemplateId: 'file-ops-plan-panel', kind: 'workspace', title: '卷宗整理' },
 ];

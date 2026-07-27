@@ -11,7 +11,7 @@
     {
       "id": "P0-S02",
       "path": "packages/legal/src/presentation/index.ts",
-      "sha256": "0b864614ae6841397bb18d3d93f65bd77b4b0902e05494ca0f952f3903e12572",
+      "sha256": "4c24f2cbfcc928976425e481e9eb921f4f429d94bf4d24d87bd3a0f6719f829f",
       "role": "presentation-contract",
       "symbols": ["LEGAL_PRESENTATION"]
     },

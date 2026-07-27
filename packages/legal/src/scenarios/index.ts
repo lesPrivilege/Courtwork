@@ -70,7 +70,7 @@ export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
       inputArtifacts: ['legal.CaseFile'],
       toolIds: [],
       outputArtifacts: ['legal.ReviewMatrix'],
-      uiTemplateId: 'matrix-review-panel',
+      uiTemplateId: 'courtwork.review-matrix.v1',
       confirmationPolicy: {
         mode: 'gates',
         gates: [{ artifact: 'legal.ReviewMatrix', label: '确认矩阵审阅结果' }],

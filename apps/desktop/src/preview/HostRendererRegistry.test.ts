@@ -19,8 +19,9 @@ describe('HostRendererRegistry（宿主以 uiTemplateId 绑定可执行工作面
     expect(registry.get('risk-review-panel')).toEqual({
       uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', moduleTarget: 'revision', autoOpen: true,
     });
-    expect(registry.get('matrix-review-panel')).toEqual({
-      uiTemplateId: 'matrix-review-panel', kind: 'route', view: 'matrix', moduleTarget: 'matrix', autoOpen: true,
+    expect(registry.get('matrix-review-panel')).toBeUndefined();
+    expect(registry.get('courtwork.review-matrix.v1')).toMatchObject({
+      kind: 'component', view: 'matrix', moduleTarget: 'matrix', autoOpen: true,
     });
     expect(registry.get('draft-review-panel')).toEqual({
       uiTemplateId: 'draft-review-panel', kind: 'route', view: 'draft', autoOpen: false,
@@ -38,5 +39,25 @@ describe('HostRendererRegistry（宿主以 uiTemplateId 绑定可执行工作面
     ];
 
     expect(() => createHostRendererRegistry(duplicate)).toThrow(/duplicate host renderer/i);
+  });
+
+  it('拒绝两个 component blueprint 争夺同一具名工作面（禁 silent last-wins）', () => {
+    const component = () => null;
+    const rivals: HostRendererBlueprint[] = [
+      { uiTemplateId: 'matrix.v1', kind: 'component', view: 'matrix', component },
+      { uiTemplateId: 'matrix.v2', kind: 'component', view: 'matrix', component },
+    ];
+
+    expect(() => createHostRendererRegistry(rivals)).toThrow(/duplicate host view/i);
+  });
+
+  it('通用 artifact 页签承载多个 component blueprint，不受具名工作面唯一性约束', () => {
+    const component = () => null;
+    const shared: HostRendererBlueprint[] = [
+      { uiTemplateId: 'table.v1', kind: 'component', view: 'artifact', component },
+      { uiTemplateId: 'table.v2', kind: 'component', view: 'artifact', component },
+    ];
+
+    expect(() => createHostRendererRegistry(shared)).not.toThrow();
   });
 });

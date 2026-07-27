@@ -24,7 +24,11 @@ describe('VPKG-LAYOUT-1 Legal content golden', () => {
     // CONTRACT-OUTPUT-TRUTH-1 重铸：S3 prompt 补「主合同是批注目标 / 支持材料不冒充主合同定位」
     // 的主合同纪律（legal SPEC 明载「prompt blob hash 变化是本票有意内容契约变更，须同步 golden」）。
     // 输出 schema 不变，故两枚 hash 同批重铸——descriptor 含 promptSegments，两者必然一起漂。
-    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('850718a46cb908833f358e0ae7eca8dc046b4a038b69a9b7ccb5dabef7b8a45d');
+    // PANEL-BLUEPRINT-1 重铸（仅 descriptor 一枚）：`legal.ReviewMatrix` 与 S2 场景的 uiTemplateId
+    // 由 `matrix-review-panel` 改为版本化 `courtwork.review-matrix.v1`，renderer 声明同改。
+    // 这是**呈现绑定**变更，payload 契约与 promptSegments 均未动——故 prompt blob hash 不漂、
+    // `schemaVersion` 不升（ADR-012 决定一「payload 契约未变时不得误升」）。
+    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('55409f1dfdf9c2f7e881c0d525b70e40b60463777704f4069b47dd87071dc9d1');
     expect(sha256(promptBlob())).toBe('1f76dbd2b2a7dad74fa1d13f6a0c7fd537751a96720356ea76886f7c3979e134');
   });
 

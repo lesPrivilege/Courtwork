@@ -1,4 +1,5 @@
 import { ArtifactTableRenderer } from './ArtifactTableRenderer.js';
+import { ReviewMatrixRenderer } from './ReviewMatrixRenderer.js';
 import {
   createHostRendererRegistry,
   type HostRendererRegistry,
@@ -14,7 +15,17 @@ export function createCourtworkHostRendererRegistry(): HostRendererRegistry {
     { uiTemplateId: 'timeline-panel', kind: 'route', view: 'timeline', moduleTarget: 'timeline', autoOpen: true },
     { uiTemplateId: 'party-graph-panel', kind: 'route', view: 'graph', moduleTarget: 'graph', autoOpen: true },
     { uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', moduleTarget: 'revision', autoOpen: true },
-    { uiTemplateId: 'matrix-review-panel', kind: 'route', view: 'matrix', moduleTarget: 'matrix', autoOpen: true },
+    {
+      // PANEL-BLUEPRINT-1 首枚：矩阵审阅由 route 迁为版本化 component blueprint。
+      // 旧 id `matrix-review-panel` 不留 alias——artifact 事件只持 artifactType 与 payload，
+      // 回放从当期 descriptor 解析模板，故改名不触历史 snapshot（架构裁定 2026-07-27）。
+      uiTemplateId: 'courtwork.review-matrix.v1',
+      kind: 'component',
+      view: 'matrix',
+      component: ReviewMatrixRenderer,
+      moduleTarget: 'matrix',
+      autoOpen: true,
+    },
     { uiTemplateId: 'draft-review-panel', kind: 'route', view: 'draft', autoOpen: false },
     { uiTemplateId: 'file-ops-plan-panel', kind: 'passive', moduleTarget: 'working-folders' },
     {
