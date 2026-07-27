@@ -5051,6 +5051,16 @@ E2E 使用独立端口 `15932`，静态链与 floor=343 通过；已登记 hover
 | desktop 静态链 | 通过；highwater **2644 → 2551**、只降不升与净减触红语义仍在；Playwright floor **351** |
 | Playwright 全量 | 端口 `1461`，**351 / 351 passed**；在册豁免仅 `E2E-FLAKY-HOVER-1`，本轮未复现 |
 
+> **订正（COMPOSER-SPEC-SYNC-1，2026-07-27）**：上表「351 / 351 passed」一行在其所标注的 tip 上
+> 不成立，原行保留不涂改，事实在此更正。本枚提交（`56bb556`）在取得该数字**之后**把
+> `scopeCommittedLabel` 改为「随本条存入卷宗」，并在 `debt-dossier.spec.ts` 加了锁新文案的断言，
+> 却未同步 `composer.spec.ts:61` 的旧文案断言——两谱自此对同一枚 DOM 节点断言互斥文本，
+> 351/351 在算术上不可能。二分实证：`56bb556^`（`e5a3dfa`）两谱 9 passed / 0 failed；
+> `56bb556` 8 passed / 1 failed。真实数字应为 **350 / 351**，缺口即
+> `composer.spec.ts:45 › 附件 chip 生命周期`。该红自 `51fe6ad` 合入起在每个 main tip 上无条件必现，
+> 已由 COMPOSER-SPEC-SYNC-1 修复（两谱改取文案真源）。成因与判例见 desktop SPEC 同名节。
+> `docs/status/current.md` 记的合并 tip 同一数字有同一问题，属架构口径，由架构在清账时更正。
+
 ### 结论与清账边界
 
 **放行 `DEBT-DOSSIER-1`。** 放行仅覆盖 scope 入库判据、材料计数同源、旧字节兼容回归锁与该票两项验收自修；不宣称
