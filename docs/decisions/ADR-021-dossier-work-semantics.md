@@ -55,6 +55,8 @@
 
 证伪结论：三条核心设计零推翻——滑动尾窗与增量蒸馏为 opencode（`PRUNE_PROTECT`／`hidden` 集合／`previousSummary` 滚动）与 pi（`keepRecentTokens`／`firstKeptEntryId` 增量边界）已收敛的生产形态；Claude Code compact 官方自认「读它所压缩的全量对话，本身是一次大请求」，全量 summarize 不采纳的判断坐实；MemGPT/Letta 官方 v1 自我减法为重框架不采纳的反向证据；DeepSeek 无精确 TTL、前缀单元整体失配，hit/miss 计量法是唯一可行判据（加固而非证伪）。CONTEXT-SURVEY-1 已执行完毕，结论并入本节，不另立票。
 
+**对照批补记（2026-07-27 夜）**：OpenClaw 与 pi 生态记忆扩展两路对照调研已归档（`research-2026-07-27-memory-continuation/`，按归档索引定位）。评审时并入四件：缓存边界二分与「动态值经工具调用取、不入前缀」（决定六第 1 条加固）；两层笔记本同构（决定二细化加固）；**自动静默蒸馏的外部事故实证**（OpenClaw flush 轮泄漏致压缩死循环——「无自动静默蒸馏、水位建议经 ask-user」由设计偏好升为携证裁量）；policy-only 策略块注入作注入编排实现选项（不扩供给者闭集）。`pi-observational-memory`（374★，MIT）入 `DOSSIER-FLOW-1` 开工前深读清单。
+
 ## 未决项（评审时裁）
 
 蒸馏触发时机（逐 N turn／用户显式／容量水位）；语义段与场景六段 assembly 的合成次序与冲突仲裁（垂类段 vs 通用段同名语义谁优先）；供给者预算的分配语义（全局上限内按类配额还是先到先得）。
