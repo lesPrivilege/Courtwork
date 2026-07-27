@@ -74,6 +74,11 @@ async function attachAndSend(page: Page, fileName: string, content: string) {
   await expect(page.locator('[data-testid^="attachment-chip-"]').first()).toHaveAttribute('data-status', 'ready', {
     timeout: 15_000,
   });
+  // DEBT-DOSSIER-1 件一起，入库判据是 scope==='dossier'——本谱证的是入库路由本身，
+  // 故先显式「存入卷宗」再发送（机械迁移：路由断言逐字不变）。
+  await page.locator('[data-testid^="attachment-scope-"]').first().click();
+  await page.locator('[data-testid^="scope-confirm-"]').first().click();
+  await expect(page.locator('[data-testid^="attachment-chip-"]').first()).toHaveAttribute('data-scope', 'dossier');
   await page.getByTestId('composer-input').fill(TEXT_MARKER);
   await page.getByTestId('composer-send').click();
 }

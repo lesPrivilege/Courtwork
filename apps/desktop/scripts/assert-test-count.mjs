@@ -70,7 +70,9 @@ const count = match ? Number(match[1]) : 0;
 // CONTRACT-TRACE-1：专用 TRACE e2e（锚点打开的确是支持材料那一份并按坐标高亮 / 生产审阅面零
 // demo 常量与真实主合同名 / completed 只读重开写入控件结构性缺席 / 已交付零重试入口）+4 → 347。
 // 坐标算法本身由 material-actions 单测穷举（重复 quote、分页件、八类 anchor_invalid），不重复上 e2e。
-const minimum = 347;
+// DEBT-DOSSIER-1 件一：入库判据专用 e2e（message-only 零入库但正文必达 / 同案 dossier 恰一件入库）
+// +1 → 348。既有 pilot-case-upload 三例只作机械迁移（发送前显式「存入卷宗」），零新增用例。
+const minimum = 348;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

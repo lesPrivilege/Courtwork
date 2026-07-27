@@ -46,7 +46,11 @@ import {
 } from './case/case-scope';
 import { containerOriginLabel, type ContainerKind } from './case/container-copy';
 import type { MaterialStore } from './material/material-store';
-import { sha256Hex } from './material/sha256';
+import {
+  ingestAuthorizedFolder,
+  ingestComposerUploads,
+  type CaseIngestDeps,
+} from './material/case-ingest';
 import {
   MATERIAL_READER_BLOCK_REASON_COPY,
   readMaterialAction,
@@ -579,8 +583,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     }
     const workCaseId = selectedCaseId;
     if (workChatFlightRef.current[workCaseId]) return false;
+    // DEBT-DOSSIER-1 件一：入库判据住 `selectDossierUploads`（scope==='dossier' 且 ready）；
+    // 全部附件仍逐字进入本轮请求（下方 assembleRequestContent），message-only 只是不落卷宗。
     if (caseBinding.kind === 'grant' && payload.attachments.length > 0) {
-      void ingestComposerUploads(selectedCaseId, caseBinding.grantId, payload.attachments);
+      void ingestComposerUploads(caseIngestDeps, selectedCaseId, caseBinding.grantId, payload.attachments);
     }
     const requestContent = assembleRequestContent({
       text: payload.text,
@@ -1044,6 +1050,22 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     };
   }, [caseBinding.kind, selectedCaseId, materialStore]);
 
+  // DEBT-DOSSIER-1：两条入库编排（整夹 / composer 上传）外提至 `material/case-ingest.ts`；
+  // 此处只留装配——store、宿主写入与显式态通道注入，材料清单由 `listed` 单口回灌（计数同源）。
+  const caseIngestDeps: CaseIngestDeps = {
+    materials: materialStore,
+    writeFile: (input) => hostAuth.writeFile(input),
+    sink: {
+      feedback: (message, ok) => showSystemFeedback(message, ok),
+      listed: (caseId, materials) => {
+        setCaseMaterials(materials);
+        setCases((current) =>
+          current.map((item) => (item.id === caseId ? { ...item, fileCount: materials.length } : item)),
+        );
+      },
+    },
+  };
+
   // CASE-PERSIST-1：跨重启后交叉核对宿主实际持有的授权（host_auth 的 grant 记录跨重启耐久）。持久案件持的
   // grantId 若宿主查无（文件夹被移动/删除、卷卸载或撤权），标记显式失效态供用户移除——绝不静默从侧栏消失
   // （核心不变量四）。开案时也复核（selectedCaseId 变即重查），保证「打开即最新」的 fail-closed 新鲜度。
@@ -1303,7 +1325,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
    */
   const createCaseWithFolder = (input: { title: string; grantId?: string; label?: string }) => {
     const newId = createCase({ title: input.title, grantId: input.grantId, label: input.label });
-    if (input.grantId) void ingestAuthorizedFolder(newId, input.grantId, input.label ?? '');
+    if (input.grantId) void ingestAuthorizedFolder(caseIngestDeps, newId, input.grantId, input.label ?? '');
     return newId;
   };
 
@@ -1465,105 +1487,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 
   const openOutputDocx = () => openCaseOutputDocx(DEMO_CONTRACT_OUTPUT_FILE);
 
-  // MATERIAL-INGRESS-1：就地入库一个授权文件夹的原件——枚举单层文件 → 逐件读原件、哈希、
-  // reading-view 派生 → 持久 source-neutral MaterialRef。原件永远只读、原地不动（grant root 之下）。
-  // demo 案不走生产 store（双向隔离）；诚实计数上报（就绪/需识别/不可用/失败），零静默。
-  const ingestAuthorizedFolder = async (caseId: string, grantId: string, label: string) => {
-    const listing = await materialStore.listDir(grantId);
-    if (listing.status === 'failed') {
-      showSystemFeedback(hostAuthReasonCopy(listing.reason), false);
-      return;
-    }
-    if (listing.entries.length === 0) {
-      showSystemFeedback(`〔${label}〕内没有可入库的文件`, false);
-      return;
-    }
-    let ready = 0;
-    let needsOcr = 0;
-    let rejected = 0;
-    let failed = 0;
-    for (const entry of listing.entries) {
-      const result = await materialStore.ingest(caseId, {
-        grantId,
-        relativePath: entry.relativePath,
-        fileName: entry.fileName,
-      });
-      if (result.status === 'failed') {
-        failed += 1;
-      } else if (result.material.status === 'ready') {
-        ready += 1;
-      } else if (result.material.status === 'needs_ocr') {
-        needsOcr += 1;
-      } else {
-        rejected += 1;
-      }
-    }
-    const materials = await materialStore.listForCase(caseId);
-    setCaseMaterials(materials);
-    setCases((current) =>
-      current.map((item) => (item.id === caseId ? { ...item, fileCount: materials.length } : item)),
-    );
-    const parts = [`已从〔${label}〕入库 ${ready} 件卷宗原件`];
-    if (needsOcr > 0) parts.push(`${needsOcr} 件需文字识别后方可引用`);
-    if (rejected > 0) parts.push(`${rejected} 件无法转为可引用的阅读视图`);
-    if (failed > 0) parts.push(`${failed} 件读取失败`);
-    showSystemFeedback(parts.join('；'), failed === 0);
-  };
-
-  /**
-   * PILOT-LIVE-2 F：case 语境上传入库路由——composer 附件经既有 grant 写授权落入已授权项目
-   * 文件夹（host_write_file），再按 grant+relativePath 走 material-ingress 原班 ingest（provenance
-   * 与 hash 复验天然成立）。同名同内容＝跳过写入、就地入库（不重复上传）；同名异内容＝显式
-   * 拒绝不覆写（原件只读红线）。零新入库语义：写授权、ingest、计数反馈全部复用既有链。
-   */
-  const ingestComposerUploads = async (
-    caseId: string,
-    grantId: string,
-    attachments: ComposerSendPayload['attachments'],
-  ) => {
-    let ingested = 0;
-    const refused: string[] = [];
-    const failed: string[] = [];
-    for (const attachment of attachments) {
-      const fileName = attachment.fileName;
-      const existing = await materialStore.readSource(grantId, fileName);
-      if (existing.status === 'read') {
-        const [existingSha, uploadSha] = await Promise.all([sha256Hex(existing.bytes), sha256Hex(attachment.bytes)]);
-        if (existingSha !== uploadSha) {
-          refused.push(fileName);
-          continue;
-        }
-        // 同名同内容：原件已在项目文件夹，跳过写入直接就地入库。
-      } else {
-        const wrote = await hostAuth.writeFile({
-          grantId,
-          relativePath: fileName,
-          bytes: attachment.bytes,
-          overwrite: false,
-        });
-        if (wrote.status !== 'wrote') {
-          failed.push(`${fileName}（${hostAuthReasonCopy(wrote.reason)}）`);
-          continue;
-        }
-      }
-      const result = await materialStore.ingest(caseId, { grantId, relativePath: fileName, fileName });
-      if (result.status === 'failed') failed.push(`${fileName}（${hostAuthReasonCopy(result.reason)}）`);
-      else ingested += 1;
-    }
-    const materials = await materialStore.listForCase(caseId);
-    setCaseMaterials(materials);
-    setCases((current) =>
-      current.map((item) => (item.id === caseId ? { ...item, fileCount: materials.length } : item)),
-    );
-    const parts: string[] = [];
-    if (ingested > 0) parts.push(`已入库 ${ingested} 件到本案卷宗`);
-    if (refused.length > 0) {
-      parts.push(`同名文件已在项目文件夹且内容不同，未覆写：${refused.join('、')} · 请改名后重试，或经「+」菜单整夹入库`);
-    }
-    if (failed.length > 0) parts.push(`未能入库：${failed.join('、')}`);
-    if (parts.length > 0) showSystemFeedback(parts.join('；'), refused.length === 0 && failed.length === 0);
-  };
-
   // CASE-ROOT-1 授权 + MATERIAL-INGRESS-1 入库：composer「Add folder」经宿主原生 picker 取文件夹授权。
   // 授权成立且当前为真实案 → 就地入库该文件夹原件；未绑定案先绑此 grant 为案件根，再入库。
   // 无选中案 / demo 案 → 只授权不入库（demo 双向隔离），诚实反馈。
@@ -1588,7 +1511,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             : item,
         ),
       );
-      await ingestAuthorizedFolder(targetCaseId, result.grant.grantId, result.grant.label);
+      await ingestAuthorizedFolder(caseIngestDeps, targetCaseId, result.grant.grantId, result.grant.label);
     });
   };
 

@@ -56,7 +56,9 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // ② 审阅界面状态投影 `projectReviewItemStates` 与批量池/逐条就绪等派生去向 `workbench/Panels.tsx`；
 // ③ 被吸收的 `work/work-recovery.ts` 整件退役。本票在 App 新增的 canonical reader 适配、回到原件
 // 路由与 read_only 分支由此抵消并再收紧 13。
-const HIGH_WATER_LINES = 2644;
+// DEBT-DOSSIER-1 件一：两条入库编排（整夹 / composer 上传）外提至 `material/case-ingest.ts`，
+// App 只留装配（store / 宿主写入 / 显式态通道注入）。2644 → 2567。
+const HIGH_WATER_LINES = 2567;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。
