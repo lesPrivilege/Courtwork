@@ -4899,3 +4899,53 @@ RiskList 不携证据等级，故只读面（completed 与门禁未到达两种�
 - 验收须覆盖 message-only/dossier 双附件同发、重启后多案计数、切案竞态、入库失败与 demo 隔离；
   任何 badge 数与 `listForCase` 数不等、或 message-only 出现在 store，均失败。删除 scope filter、
   恢复初值 0 或 hardcoded utility count 的 mutation 必须触红。
+
+### 实现留痕（2026-07-27，实现会话）
+
+**新建与外提模组（外提即入册，各附职责一句）**
+
+| 模组 | 性质 | 职责 |
+|---|---|---|
+| `material/case-ingest.ts` | App.tsx 外提 | 两条入库编排（整夹授权入库 / composer 上传入库）与**入库判据** `selectDossierUploads`；入库路径仍唯一，件数一律以 `listForCase` 回灌不自增 |
+| `case/material-count.ts` | 新建（纯派生） | 件数三态（未读取 / N 件）、demo 与 production 的分流点、三态文案与徽标串、`casesNeedingMaterialCount` 派生面 |
+| `case/use-case-materials.ts` | App.tsx 外提 | 逐案材料清单的持有与派生（`listForCase` 单一出口），供件数三处与原件列表同源消费 |
+
+**白名单外触碰（逐条登记，`[需架构拍板]`）**——派单白名单在读码前拟定，下列四个文件是本票语义
+的必经之地，非顺手扩张：
+
+1. `case/types.ts`——`fileCount` 退出 `CaseSummary`。件数留在摘要上即第二份真源；派单要求的
+   「不伪造 0」在 `fileCount: number` 这个类型里无法表达（伪 0 正是它逼出来的）。
+2. `case/container-copy.ts`——提出 `containerNoun(kind)` 供三态文案复用，`fileCountLabel` 改为调用它。
+   容器双词表仍是唯一词源，未在别处另写「卷宗/资料」。
+3. `modules/ModuleStack.tsx`——`WorkingFoldersTree.originalCount` 由 `number` 改为三态。同批把
+   production 分支的 `No originals yet` 改为读同一份件数：徽标已报出真实件数，树体不能还写着零。
+4. `scripts/assert-host-auth-contracts.mjs`——附件入库写随编排外提搬家，覆盖语义之门改指
+   `case-ingest.ts` 的 `deps.writeFile(… overwrite: false)`；删该行仍触红（已实测）。
+
+**测试白名单外触碰**：`tests/e2e/pilot-case-upload.spec.ts` 三例作机械迁移（发送前显式「存入卷宗」），
+断言逐字不变——它证的是入库路由本身，件一后不点按钮即无路由可证。
+
+**高水位**：2644 → 2567（件一，入库编排外提）→ 2551（件二，清单持有与派生外提 + 八处构造点退掉
+`fileCount`）。Playwright floor 347 → 351。
+
+**已知边界（如实登记，不粉饰）**
+
+- **「双 scope 附件同一条消息同发」在 UI 上结构性不可达**：`Composer.admitEntry` 每次只收一个附件
+  （`attachments.length === 0 && files.length === 1`）。故退出证据第一条以**同案两次发送**覆盖两侧，
+  混合批判据由 `case-ingest.test.ts` 单测穷举（三件混合列表 → 恰取一件）。放宽单附件上限属另一票。
+- **跨重启多案计数在 e2e 层不可观测**：浏览器桩的材料宿主是内存态、reload 即清，两案 reload 后
+  同为 0 件，任何实现都绿。逐案派生（而非只派生选中案）改由 `casesNeedingMaterialCount` 单测把守
+  ——缩面即红，已实测。多案 e2e 只自称它真锁得住的性质：**件数分格、互不串数**。
+- **「未读取」态在浏览器桩下是瞬时的**：派生在同一微任务链内完成，e2e 捕不到那一帧；该态的红证
+  在单测（`materialCountOf(undefined)` 不得等于 `{resolved,0}`）。真机跨 IPC 时它才有可见时长。
+- **`ready` 判据在现行调用链上不可区分**：`Composer.handleSend` 已只交出 ready 附件，故模块内的
+  `status.kind === 'ready'` 目前只有单测能触红。保留它是因为本模块的契约是「dossier 且 ready」，
+  不靠上游恰好过滤过。
+- **`AttachmentChip` 的「已存入卷宗」文案未改**`[需架构拍板]`：chip 只存在于发送前，而入库发生在
+  发送时，故这句在它出现的每一刻都还不成立。件一使该 badge 从装饰变为判据投影，此文案随之名不副实。
+  建议改为「随本条存入卷宗」（`scopeCommittedLabel` 之外另立 pending 词条，不动既有词表消费点）。
+  未自行改动：文案属 voice 与设计凡例治理面，票面未授权。
+
+**一处并发红（非本票）**：首轮全链 `global-verbs.spec.ts › data-card 复制按钮悬停显现` 单例红
+（hover 中途 `opacity` 0.741774 后回落 0，即指针未驻留）。与本票零 diff 交集（该谱、`CopyButton.tsx`、
+`styles.css` 均未触碰）；隔离复跑 3/3 绿，全链复跑 351/351 绿。按抖动登记，不计入本票结论。
