@@ -102,11 +102,8 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
    del-ins 常量；pointer 按 replay/typed failure 矩阵 compare-and-clear；completed 可只读重开、
    仅 inspect=ready 时显式重试。顺带清理 `contractOutputExists` 命名残留与 demo redline 交互面。
 2. TRACE 独立放行后 `DEBT-DOSSIER-1` 取得 App 槽（scope 入库判据与真实卷宗计数），随后
-   `C3-1 → C3-2 → C3-3`。
-3. `DEBT-DOSSIER-1` 在 CONTRACT-TRACE 后取得 App 槽，闭合 scope 入库判据与真实卷宗计数；
-   再依次进入 `C3-1 → C3-2 → C3-3`。C3-4 的预算执法与 flash 价目已前移到预算票，本身只做
-   同源可观测出口。
-4. 真机事实只按 [`pilot-2026-07-17.md`](pilot-2026-07-17.md) 读取：第六轮只证明
+   `C3-1 → C3-2 → C3-3`。C3-4 的预算执法与 flash 价目已前移到预算票，本身只做同源可观测出口。
+3. 真机事实只按 [`pilot-2026-07-17.md`](pilot-2026-07-17.md) 读取：第六轮只证明
    Legal S3→docx 文件写入可达，源码回溯已下调其“引语回跳 / redline / 报告”解释；chat 全链、
    案件持久、材料 fail-closed 仍有实证。六处埋点正式打分、Office roundtrip、签名/公证及本版
    Legal 单品真机回归均未闭合，不据工程绿自动晋级成熟度。
@@ -132,5 +129,6 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 
 **在途分支**：`CONTRACT-REVIEW-SAFETY-1` 已于 `e473fbb` 合入 `main` 并清账；
 `CONTRACT-OUTPUT-TRUTH-1` 已于 `78655bd` 合入 `main` 并清账（独立验收报告见
-`apps/desktop/ACCEPTANCE.md` 与 `packages/output/ACCEPTANCE.md` 对应节）；两票分支与验收
-worktree 均已删除，远端仅剩 `main`。能力口径（产品 live 表、当前下一序）的相应更新由架构角色另单落痕。
+`apps/desktop/ACCEPTANCE.md` 与 `packages/output/ACCEPTANCE.md` 对应节）；`CONTRACT-TRACE-1`
+已于 `3e0a0e5` 合入 `main` 并清账（独立验收报告见 `apps/desktop/ACCEPTANCE.md` 对应节）。能力口径
+（产品 live 表、当前下一序）的相应更新由架构角色另单落痕。
