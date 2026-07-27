@@ -153,7 +153,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 ```text
 (FILE-PREVIEW-1 + CORE-BUDGET-1) → WORK-BUDGET-1（均已清账）
 CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1（已清账）
-(已清账 FILE + OUTPUT) → CONTRACT-TRACE-1 → DEBT-DOSSIER-1（产品链出口；不直接授权候选）
+(已清账 FILE + OUTPUT + TRACE) → DEBT-DOSSIER-1（产品链出口；不直接授权候选）
 ```
 
 `CONTRACT-OUTPUT-TRUTH-1` 直接消费 Safety 票建立的 post-revision replay、零 confirmed 分流和
@@ -235,12 +235,12 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 
 **派单规则**（取代波次号）：取任一「依赖层已满足」的票；**若该票 `App.tsx` 列为「是」，须确认当前无第二张 `App.tsx=是` 的票在途**。互斥是运行时的锁，不是纸上的分组。
 
-**`App.tsx` 队列序（2026-07-24，WORK-BUDGET 清账后）**：`CONTRACT-REVIEW-SAFETY-1`
-（`e473fbb`）与 `CONTRACT-OUTPUT-TRUTH-1`（`78655bd`）均已清账；现行队列
-`CONTRACT-TRACE-1` → `DEBT-DOSSIER-1` → `C3-1` → `C3-2` →
+**`App.tsx` 队列序（2026-07-27，TRACE 清账后）**：`CONTRACT-REVIEW-SAFETY-1`
+（`e473fbb`）、`CONTRACT-OUTPUT-TRUTH-1`（`78655bd`）与 `CONTRACT-TRACE-1`（`3e0a0e5`）
+均已清账；现行队列 `DEBT-DOSSIER-1` → `C3-1` → `C3-2` →
 `C3-3`。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
-重复修改。WORK-BUDGET 已清账；其后三票是 v0.2.0
-单品真实性门，不得由 C3 polish 抢位。
+重复修改。v0.2.0 单品真实性门三票（SAFETY/OUTPUT/TRACE）已全数闭合。
+恢复入口三态文案议题（TRACE 验收派单件裁定三）不立票，`DEBT-DOSSIER-1` 后按需重估。
 其余 `App.tsx=是` 的票（`PERSIST-BACKEND-1`／`TOOL-READ-1`／`S6-EXEC-1`／
 `C3-4`／`C3-5`）依赖就绪后按此队列尾随入队。**「即刻并行派发」一类旧措辞已被
 互斥模型取代**——「即派」指依赖就绪即可**入队**，不指同时**在途**。
@@ -248,9 +248,9 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 `GOVERNANCE-CLEAR-1` 已执行完毕：target `94f83ab`，报告提交 `9df31d1`；共享门与逐票
 mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 
-**由此得到的结构性事实（2026-07-24 单品收束票加入并吸收 reader 重复票后重算）**：下表
-**15 行中 12 行触 `App.tsx`**
-（逐行可数），仅 3 行不触。也就是说——**在 `App.tsx` 拆分（D1／
+**由此得到的结构性事实（2026-07-27 `DEMO-ANCHOR-1` 入表后重算）**：下表
+**16 行中 12 行触 `App.tsx`**
+（逐行可数），仅 4 行不触。也就是说——**在 `App.tsx` 拆分（D1／
 `PANEL-BLUEPRINT-1`）落地之前，Stage B/C 这条线实质上是串行的**，并行度上限约等于 1。
 这不是排期技巧能绕开的，是 `App.tsx` 体量债的直接代价，`A/R-22` 已裁
 「`App.tsx` 体量债走 D1 拆分线，不由换库解决」。**D1 裁定（2026-07-20）：不提前。**
@@ -266,8 +266,9 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 |---|---|---|---|---|---|
 | `CONTRACT-REVIEW-SAFETY-1` | ADR-010 决定五 2026-07-24 修订；Legal/Desktop 同名 SPEC | 已清账（实现 `b9dc1e9`、验收 `e473fbb`、合入 `05e0ade`；范围与证据见 desktop ACCEPTANCE 与当前基线） | 已清账 `WORK-BUDGET-1` | **是** | 已交付；四项指名 mutation 三红一锁，报告在案 |
 | `CONTRACT-OUTPUT-TRUTH-1` | ADR-004；ADR-010 决定四/五 2026-07-24 修订；Legal/Desktop/Output 同名 SPEC | 已清账（实现 `3171c08`+`b2ba999`、验收一驳回一复验、合入 `78655bd`；范围与证据见 desktop/output ACCEPTANCE 与当前基线） | `CONTRACT-REVIEW-SAFETY-1` | **是** | 已交付；驳回轮两项契约级阻断（白名单缺录、旧产物名）经 R1 修复复验闭合 |
-| `CONTRACT-TRACE-1` | ADR-010 决定五 2026-07-24 修订；desktop 同名 SPEC；吸收原 `MATERIAL-READER-MERGE-1` | SourceAnchor 真实打开同案 FILE reader；合并 `material-reader/actions` 为 canonical doc/outcome 单调用链，以 textRange/textLayerVersion（分页件连 page）验真并按 block-local 坐标高亮，quote 只作切片等式/显示，合法 bbox-only 独占 unsupported 分支；生产 RiskList 面移除固定 demo 合同/4处/del-ins，interactive/read-only props 类型隔离写权限；fresh start 只在首枚 post-CAS event 或 found replay 后建立 pointer，之后按 replay/typed failure 矩阵 compare-and-clear；completed 可只读重开，且仅 output inspect=ready 时可显式重试；顺带（架构裁定 2026-07-26）：清理 `contractOutputExists` 命名残留（现仅 demo 渲染消费、production 交付仍写入），并接通生产预览 demo redline 的交互面（`goto-source` 按钮随本票来源回跳一并成立，退役 `Panels.tsx` 死态） | `FILE-PREVIEW-1` + `CONTRACT-REVIEW-SAFETY-1` + `CONTRACT-OUTPUT-TRUTH-1` | **是** | anchor 指向支持材料仍打开正确件；重复 quote 只落坐标指定处；版本/切片漂移/跨案/bbox 显式 typed；reader shape/端口声明一份；production demo 常量零；start rejected 保留旧/空 pointer，candidate 不抢写；ownerless running 清、durable failed/completed 留，unavailable/unknown-version 留、corrupt 才清；账本 artifact 隔离不清 pointer且零 output；完成/重启/切案/删产物后可看且风险操作零 CAS；ready 重试全落点一写、其他结果零写；恢复 quote 搜索或 outcome-only pointer 分支 mutation 必红 |
-| `DEBT-DOSSIER-1` | `A/R-26` 裁接判据 + 第六轮“卷宗 0 件”源码复核；desktop 同名 SPEC | 仅 `scope==='dossier'` 的 ready 附件进入既有 `ingestComposerUploads`，message-only 只进本轮请求；不得产生第二入库路径。`fileCount` 不持久，未水合不伪 0，CaseRail/Working folders/listForCase 同源并覆盖多案重启 | `CONTRACT-TRACE-1`（版本收束序；逻辑无跨票依赖） | **是** | 双 scope 同发只入一件；多案重启计数与 store 一致、加载中诚实；硬编码 0/scope filter 删除 mutation 必红；demo 隔离与 voice 门不破 |
+| `CONTRACT-TRACE-1` | ADR-010 决定五 2026-07-24 修订；desktop 同名 SPEC；吸收原 `MATERIAL-READER-MERGE-1` | 已清账（实现 `24cccb4`…`c92cdb0`、验收 `3e0a0e5`、清账 `c9e7b5e`；SPEC 留痕四项偏离与两处白名单外触碰经验收派单件六裁定一追认定谳；范围与证据见 desktop SPEC/ACCEPTANCE 与当前基线） | `FILE-PREVIEW-1` + `CONTRACT-REVIEW-SAFETY-1` + `CONTRACT-OUTPUT-TRUTH-1`（均已清账） | **是** | 已交付；五枚真实模块 mutation 红绿（首枚以等价最小扰动形态获准，裁定七），floor 343→347，报告在案 |
+| `DEMO-ANCHOR-1` | TRACE 验收派单件裁定四（2026-07-27） | 便利小票：`packages/demo-data` `risk-list.json` 锚点补真实 `textRange` 与 `textLayerVersion`（现恒 `{start:0,end:N}` 且无版本，样板案「回到原件」必落显式 `anchor_invalid`——该显式反馈是判定优先级的正确输出，不是缺陷）；只改 demo-data 及其 golden 重烤，不触 desktop 判定与 production 路径 | `CONTRACT-TRACE-1`（已清账） | 否 | 样板案回跳命中真实坐标高亮；demo golden 重烤留痕；`anchor_invalid` 反例 fixture 仍保留于测试，不因数据修复丢失判别力 |
+| `DEBT-DOSSIER-1` | `A/R-26` 裁接判据 + 第六轮“卷宗 0 件”源码复核；desktop 同名 SPEC | 仅 `scope==='dossier'` 的 ready 附件进入既有 `ingestComposerUploads`，message-only 只进本轮请求；不得产生第二入库路径。`fileCount` 不持久，未水合不伪 0，CaseRail/Working folders/listForCase 同源并覆盖多案重启 | `CONTRACT-TRACE-1`（已清账；App 槽已移交） | **是** | 双 scope 同发只入一件；多案重启计数与 store 一致、加载中诚实；硬编码 0/scope filter 删除 mutation 必红；demo 隔离与 voice 门不破 |
 | `PERSIST-BACKEND-1` | `A/R-17` 采 + ADR-019 决定一 | S1：五处逐字同构 `defaultBackend` 归并为一份工厂 + 4 处裸 `localStorage` 收编（裸调用**全在 `App.tsx`** 与 `chat/MessageActions.tsx`）；分区维随 ADR-019 决定一**就地补 container 维**。**归并止于 backend 工厂，不越 ADR-019 明确拒绝的通用 KV 线** | ADR-019 | **是** | 五处归并后行为逐字节等同（既有版本化单键 golden 为证）；裸 `localStorage` 零出现（静态门）；通用 KV 未被顺手造出 |
 | `TOOL-READ-1` | `A/R-25` 方向裁定 + ADR-016 决定二、ADR-017 决定八 | L1 受控只读工具。**模型请求通道**：走「知交互」封闭动词集显式扩集——新增 `request_tool` 动词，`toolId` 以注入白名单 `z.literal` 闭集锁定，白名单外即普通不可信文本在校验层拒收；执行仍落 `deterministic_tool` 步，**步骤闭集不扩**。toolResult 采 `content`/`details` 二分。此扩集属跨层契约变更，以 **ADR-011 修订**形式落痕 | ADR-011 修订须先落 | **是**（trace 区工具行现只有 demo 路径，生产路径须新开） | 白名单外调用在校验层拒收（反例触红）；`pure_read` 分级校验前置门已在；工具结果可溯源；stub 链不回退；四知文本 golden 同步 |
 | `S6-EXEC-1` | ADR-017 决定四（effect 授权面）+ ADR-004 | D2：`FileOpsPlan` gate resolve 后的执行触发、授权持久与事务日志。现状是一条与 scenario 无关的 demo 直连管线（renderer `passive`、宿主内存 FS、plan 来自 demo 构造器；唯一入口是 `App.tsx` 的 `fileOpsMode` 本地 state） | ADR-017 + ADR-004 | **是** | 授权决定持久**先于** effect（事后弹窗不追认）；事务日志可回放；非 demo 案不再返回空态；销毁级动词零出现 |
