@@ -25,6 +25,17 @@ export const capabilityLedger = [
   },
 ];
 
+/**
+ * pi lane（`packages/pi-lane`）生产码里每个 **Node 侧执行/写原语**的能力归属。
+ * 扫描面随 `PI-LANE-1` 扩入（ADR-022 修订记录 2026-07-27）：Rust 侧起 sidecar 会被
+ * 上面的 `capabilityLedger` 逼进登记册，但 sidecar 进程内的 Node 工具面原先在盲区。
+ *
+ * 读面票内本册应为空——`packages/pi-lane` 的「edit/write/bash 配置层禁用」由此获得
+ * 静态红证，而不止是配置承诺。新增一个 `child_process` 或 fs 写调用就必须在此登记，
+ * 否则 R3 触红；登记册留着已不存在的调用点，同样触红。
+ */
+export const nodePrimitiveLedger = [];
+
 const CURRENT_LEVEL_PATTERN = /当期隔离等级：`([a-z_]+)`/;
 const TABLE_ROW_PATTERN = /^\|\s*`([a-z_]+)`\s*\|(.+)$/;
 
@@ -147,11 +158,141 @@ export function validateCapabilityLedger(ledger, contract, sources) {
   return failures;
 }
 
-export function validateIsolationBinding({ adrText, evidenceText, sources, ledger = capabilityLedger }) {
+/** 取得写能力的 fs 导出名。`open`/`openSync` 计入——它们能拿到可写句柄。 */
+const FS_WRITE_NAMES = new Set([
+  'appendFile', 'appendFileSync', 'chmod', 'chmodSync', 'chown', 'chownSync', 'copyFile', 'copyFileSync',
+  'cp', 'cpSync', 'createWriteStream', 'link', 'linkSync', 'mkdir', 'mkdirSync', 'mkdtemp', 'mkdtempSync',
+  'open', 'openSync', 'rename', 'renameSync', 'rm', 'rmSync', 'rmdir', 'rmdirSync', 'symlink', 'symlinkSync',
+  'truncate', 'truncateSync', 'unlink', 'unlinkSync', 'utimes', 'utimesSync', 'write', 'writeFile',
+  'writeFileSync', 'writeSync', 'writev',
+]);
+
+const FS_MODULES = new Set(['fs', 'node:fs', 'fs/promises', 'node:fs/promises']);
+const EXEC_MODULES = new Set(['child_process', 'node:child_process']);
+
+const IMPORT_FROM_PATTERN = /import\s+([^'";]*?)\s+from\s*['"]([^'"]+)['"]/g;
+const BARE_IMPORT_PATTERN = /import\s*['"]([^'"]+)['"]/g;
+const REQUIRE_PATTERN = /require\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+
+/** `{ a, b as c }` → ['a','b']；`* as fs` / `fs` → 命名空间绑定名。 */
+function parseImportClause(clause) {
+  const named = [];
+  const namespaces = [];
+  const braced = /\{([^}]*)\}/.exec(clause);
+  if (braced) {
+    for (const part of braced[1].split(',')) {
+      const name = part.trim().split(/\s+as\s+/)[0].trim().replace(/^type\s+/, '');
+      if (name) named.push(name);
+    }
+  }
+  const starred = /\*\s+as\s+([A-Za-z_$][\w$]*)/.exec(clause);
+  if (starred) namespaces.push(starred[1]);
+  const head = clause.replace(/\{[^}]*\}/g, '').replace(/\*\s+as\s+[A-Za-z_$][\w$]*/g, '').replace(/,/g, ' ').trim();
+  if (/^[A-Za-z_$][\w$]*$/.test(head)) namespaces.push(head);
+  return { named, namespaces };
+}
+
+/**
+ * 只取生产码：`.test.` 文件不计入能力面（与 Rust 侧按 `#[cfg(test)]` 截断同义）。
+ * 判据取「模块从哪来」而非「标识符长什么样」——`env.exec()` 这类同名方法不会误报，
+ * 真正拿到能力的唯一途径是 import/require 那两个模块。
+ */
+export function productionNodePrimitives(sources) {
+  const found = new Map();
+  const record = (primitive, file) => {
+    if (!found.has(primitive)) found.set(primitive, new Set());
+    found.get(primitive).add(file);
+  };
+
+  for (const [file, text] of Object.entries(sources)) {
+    if (file.includes('.test.')) continue;
+
+    for (const [, specifier] of [...text.matchAll(BARE_IMPORT_PATTERN), ...text.matchAll(REQUIRE_PATTERN)].map(
+      (match) => [null, match[1]],
+    )) {
+      if (EXEC_MODULES.has(specifier)) record('child_process', file);
+      if (FS_MODULES.has(specifier)) record('fs:*', file);
+    }
+
+    for (const match of text.matchAll(IMPORT_FROM_PATTERN)) {
+      const [, clause, specifier] = match;
+      if (EXEC_MODULES.has(specifier)) {
+        record('child_process', file);
+        continue;
+      }
+      if (!FS_MODULES.has(specifier)) continue;
+      const { named, namespaces } = parseImportClause(clause);
+      for (const name of named) {
+        if (FS_WRITE_NAMES.has(name)) record(`fs:${name}`, file);
+      }
+      for (const namespace of namespaces) {
+        for (const name of FS_WRITE_NAMES) {
+          if (new RegExp(`\\b${namespace}\\s*\\.\\s*(?:promises\\s*\\.\\s*)?${name}\\s*\\(`).test(text)) {
+            record(`fs:${name}`, file);
+          }
+        }
+      }
+    }
+  }
+  return found;
+}
+
+/** R3 的 pi lane 面：登记册与生产码双向锁，等级不得越档。判据与 Rust 侧同构。 */
+export function validateNodePrimitiveLedger(ledger, contract, sources) {
+  const failures = [];
+  const { currentLevel, levels } = contract;
+  const rank = new Map(levels.map((level, index) => [level, index]));
+  const currentRank = rank.has(currentLevel) ? rank.get(currentLevel) : -1;
+
+  for (const entry of ledger) {
+    if (!rank.has(entry.requiredLevel)) {
+      failures.push(`pi lane 能力「${entry.capability}」声明的隔离等级 \`${entry.requiredLevel}\` 不在 ADR-018 闭集内`);
+      continue;
+    }
+    if (currentRank >= 0 && rank.get(entry.requiredLevel) > currentRank) {
+      failures.push(
+        `pi lane 能力面超出当前隔离等级：「${entry.capability}」（原语 \`${entry.primitive}\`）要求 \`${entry.requiredLevel}\`，当期只有 \`${currentLevel}\``,
+      );
+    }
+  }
+
+  const used = productionNodePrimitives(sources);
+  const registered = new Set(ledger.map((entry) => entry.primitive));
+  for (const [primitive, files] of used) {
+    if (!registered.has(primitive)) {
+      failures.push(
+        `packages/pi-lane 生产码出现未登记的 Node 侧执行/写原语：\`${primitive}\`（${[...files].join('、')}）——` +
+          `读面票内此类调用点应为零；确需引入先在能力登记册立项并给出所需隔离等级`,
+      );
+    }
+  }
+  for (const entry of ledger) {
+    if (!used.has(entry.primitive)) {
+      failures.push(
+        `pi lane 能力登记册与生产码脱节：「${entry.capability}」登记了 \`${entry.primitive}\`，生产码里找不到——能力退役须同批销号`,
+      );
+    }
+  }
+
+  return failures;
+}
+
+export function validateIsolationBinding({
+  adrText,
+  evidenceText,
+  sources,
+  nodeSources,
+  ledger = capabilityLedger,
+  nodeLedger = nodePrimitiveLedger,
+}) {
   const contract = parseIsolationContract(adrText);
   if (contract.failures.length > 0) return { contract, failures: contract.failures };
   return {
     contract,
-    failures: [...validateLevelEvidence(contract, evidenceText), ...validateCapabilityLedger(ledger, contract, sources)],
+    failures: [
+      ...validateLevelEvidence(contract, evidenceText),
+      ...validateCapabilityLedger(ledger, contract, sources),
+      ...validateNodePrimitiveLedger(nodeLedger, contract, nodeSources ?? {}),
+    ],
   };
 }
