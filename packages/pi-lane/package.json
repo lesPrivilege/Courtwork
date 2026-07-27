@@ -14,7 +14,8 @@
   "scripts": {
     "test": "vitest run --root ../.. src/*.test.ts",
     "lint": "eslint .",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/sidecar-main.ts"
   },
   "dependencies": {
     "@earendil-works/pi-agent-core": "0.82.1",
