@@ -38,6 +38,12 @@ reasoning 降为 standard 是当前唯一 notice。`Provider.generate()` 只能�
 
 Rust/Tauri 传输必须逐帧转发，禁止先 `.text()` 聚合再模拟流式。网络、鉴权、限流、协议、取消与非法响应均进入闭集失败；正常结束但正文缺失不得伪装成功。
 
+失败闭集中的计费态使用 provider 无关的 `billing`，不得并入 `auth`、`rate_limit` 或
+`invalid_response`。当期 DeepSeek 官方将 HTTP 402 定义为余额不足，因此 transport 对 402
+必须发布 `billing + retryable:false`；用户文案明确“服务商账户余额不足，请充值后重试”，不得
+显示原始 HTTP/body，也不得自动重试。新增 provider 若有不同计费 wire，仍须由其具名 profile
+映射到同一语义，不能按状态码猜任意端点能力。
+
 core 把一次模型调用投影为可回放的 `TurnEvent`：turn started、provider notice、assistant message started/delta/completed、reasoning started/delta/completed、interaction requested/resolved、turn completed/failed。增量可只存在于在途流；持久层至少保存最终 assistant message、可选 reasoning、usage、notice、失败与交互请求/回答。`provider_notice` 只机械转发已经通过闭集校验的 `GenerationNotice`；completed 与 failed 的 `PersistedTurn` 都保留已观察到的 notice，使 Chat/Work 重放不依赖瞬态监听。reasoning 是模型生成内容，不是证据、系统事实或锚点权威；provider 不支持或未返回时必须显式呈现“无可用推理内容”，不得伪造思考过程。
 
 ### Usage 与成本估算
@@ -94,3 +100,9 @@ apps/desktop ──► packages/core ──► packages/provider
 ## 后果
 
 新增 provider 需要显式登记而不是开放任意 URL；短期少一个“看似通用”的配置入口，换来可证明的安全与能力边界。chat 的思考、推理和提问从视觉 demo 变为可取消、可失败、可续行、可回放的状态机，UI 不再承担协议判断。
+
+## 修订记录
+
+- **2026-07-28 · C3-1 前置契约**：`ProviderFailureKind` 增加 `billing`，当期唯一 wire 映射为
+  DeepSeek HTTP 402，`retryable:false`。这是对原先把已知业务失败误投
+  `invalid_response` 的无损分型修正；所有 provider/core/desktop 闭集消费者与诊断证据须同票扩集。

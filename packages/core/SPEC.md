@@ -238,7 +238,9 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 
 ## 要点
 
-- agent loop 自研，只借鉴 pi-mono 的设计形状（极简、协议化、provider 无关的 Provider 抽象）；不引入其代码依赖；不把场景/schema 逻辑写进这层壳。
+- 本包的声明式场景执行器自研，不把场景/schema 逻辑写进通用 loop。ADR-022 后另有
+  `packages/pi-lane` 受控内嵌 `@earendil-works/pi-agent-core`；两线各自账本，core 不依赖或
+  重导出 pi runtime。
 - 场景执行器：从 registry 取场景定义 → 编排（工具调用 / 生成）→ 产出符合 schemas 的 artifact → **停在确认节点**，等待客户端确认事件后继续。数据驱动、零场景特判：`outputArtifacts` 声明顺序即产出顺序。
 - 事件流协议：会话事件（进度、artifact 产出、确认请求/解决、修正记录、进度快照、步骤失败、完成、错误）以可序列化事件对外发布——W9 桌面端与测试脚本共用同一协议。
 - Provider 封装：模型 id/参数来自配置，禁止写死；接 eval/ 的选型结论；不含工具调用能力（场景是声明式固定编排，工具调用由执行器编排，不是模型自主选择）。
@@ -305,7 +307,7 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
 - 2026-07-10：W6 完成。开工前先完成 W2.1 微工单（`packages/registry` YAML 声明加载 strict 化，独立提交 `21c4492`）与两处跨层文档修正（CLAUDE.md 技术基线更正 `6cc21bc`；registry SPEC 场景执行语义补注 `3814cc9`），随后交付本层。
 
   **架构判断点（开工前与用户逐条确认，均获批准）**：
-  1. **pi-mono 借形不借库**：license 未核实、且依据 docs/decisions/ADR-002-schema-workflow.md（场景是声明式固定编排，工具调用由执行器编排而非模型自主选择）通用 agent loop 的核心能力（模型自主选工具）本就用不上——引入依赖是负资产。agent loop 自研，只借鉴 Provider 抽象的设计形状与"极简协议化"哲学。CLAUDE.md 技术基线已同步更正为如实表述。
+  1. **当时的 pi-mono 借形不借库裁定**：license 未核实、且依据 docs/decisions/ADR-002-schema-workflow.md（场景是声明式固定编排，工具调用由执行器编排而非模型自主选择）通用 agent loop 的核心能力（模型自主选工具）对本包无用，因此本包的场景执行器自研。**现行订正**：此项只约束场景线；2026-07-27 ADR-022 已携新必要性与一手许可证据另立 `packages/pi-lane`，内嵌具名 `@earendil-works/pi-agent-core`。两线并立，不把历史判断误读成全仓禁库。
   2. **`outputArtifacts` 声明顺序即执行顺序**：数据驱动、`core` 零场景语义，`toolIds` 全部前置一次性执行，label-only 门禁落产出序列尾。已同步补注为 `packages/registry/SPEC.md` 的显式契约语义（跨层文档补注，架构显式授权），避免未来场景作者把它当无序集合处理。
   3. **信源等级台账走事件流，不改 schemas**：等级判定（`sourceId→grade`）在装配点声明，通用门禁函数不认识任何具体工具/场景，台账不塞进 schemas 定义的 artifact 本体——`artifact_produced` 事件携带台账投影（`evidenceGrades`），W9 渲染信源角标不需要改 schemas。已在 `packages/schemas/SPEC.md` TODO 区留一条观察记录（若未来需要跨 session 持久化角标，可能需要给 `RiskBasis`/`Citation` 加字段，非本层实现，供架构拍板参考）。
 
@@ -753,3 +755,19 @@ desktop 的 `SessionProjection.scenarioFailure` 只有 `{reason,message}`，已�
   `a82f51d` 独立注入并恢复六类 production mutation，随后在最终目标 `0ff83f7` 重跑 core 12/12、
   root 1294 与全量 Playwright 333/333 全绿。报告提交 `4e301b5` 已成为 `main` 祖先并放行，
   详细原始数字只认 `ACCEPTANCE.md`。
+
+## C3-1 · Turn 对 `billing` 与截断终态的机械保全（2026-07-28 架构票面，待实现）
+
+权威：ADR-007 2026-07-28 修订、`packages/provider/SPEC.md` C3-1、实现就绪图 `C3-1`。
+
+- core 不解释 402；只把 provider 已闭合的 `billing` 加入 `PROVIDER_FAILURE_KINDS` 并机械保全
+  `retryable:false` 到 `turn_failed`/`PersistedTurn`。未知 kind 继续 fail-closed，不能因扩一值
+  放宽为任意字符串。
+- `finishReason:'length'` 已在完成终态闭集内，本票不改类型；补回归锁证明 live projection 与
+  replay 都保留该值，供 desktop 显式显示。不得把 length 改写成 stop 或 failed。
+- cancel 与 Retry 语义不变：cancel 落一枚 terminal；Retry 由调用方新开 turnId，core 不删除、
+  覆盖或复用失败 Turn。
+
+退出证据：合法 `billing` 不再被重分型、非法近似值仍拒；`billing`/`length` 经 journal
+序列化—重启—投影逐字保全；取消竞态仍恰一终态。实现会话不得顺带改 WorkState、预算、schema
+或 provider route。

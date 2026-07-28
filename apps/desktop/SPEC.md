@@ -842,7 +842,7 @@ E2E 樁宿主已在隔离端口自动化走完整链（`work-live.spec.ts`）。
 | W1 | 任务/运行进度 | 已有 | 符号 `RightRailModules` Progress 模块（`id:'progress'`, `App.tsx:1660`）消费 `session.progress`；testid `preview-scroll-progress`(`PreviewHost.tsx:60`) 滚动进度轨 + 语义 marker。 |
 | W2 | 步骤展开（**Disclosure**） | 已有 | 同 C27（符号 `ToolCallRow`, `TurnCard.tsx:80`，跨 Chat/Work 复用同一组件）。 |
 | W3 | 产物入口（承载容器 = **Inspector**；未注册 blueprint 回退态「当前版本不支持此工作面」= **Empty State**） | 已有 | `artifact_produced`(`App.tsx:794`) 驱动 PreviewHost 自动打开（符号 `previewViewForArtifact`, `App.tsx:165`），手动关闭按「案件+场景」记忆；符号 `ArtifactHostView`(`ArtifactHostView.tsx:35`) 对未注册 blueprint 诚实回退 `UnsupportedArtifactView`(`ArtifactTableRenderer.tsx:14`)（非假交互）；docx `file` 卡真实「在访达中显示」+「打开文件」。 |
-| W4 | 确认队列 | 已有 | 三条各自独立且完整的就地确认面：审阅门禁（符号 `RevisionPanel`, `Panels.tsx:265`，逐条 + 批量）、`OUTPUT-CONFIRM-UI-1` 未落点修订逐条确认（class `nonapplied-confirm`, `Panels.tsx:282`）、ask-user 交互卡（符号 `InteractionTurnCard`）。三者均在其发生处就地呈现，符合 §6「高风险逐条确认」；Courtwork 单容器单飞行架构（ADR-011「不引入第二 agent runtime」，无并行工具执行）下不存在「多运行并发待办」的场景，故不额外造跨案/跨运行的全局聚合审批收件箱（对比 Cowork/Codex 多并行 agent 场景下的队列控件，产品模型不同不强行对齐，此项减法理由与"已有"并记）。 |
+| W4 | 确认队列 | 已有 | 三条各自独立且完整的就地确认面：审阅门禁（符号 `RevisionPanel`, `Panels.tsx:265`，逐条 + 批量）、`OUTPUT-CONFIRM-UI-1` 未落点修订逐条确认（class `nonapplied-confirm`, `Panels.tsx:282`）、ask-user 交互卡（符号 `InteractionTurnCard`）。三者均在其发生处就地呈现，符合 §6「高风险逐条确认」；Courtwork 场景线单容器单飞行架构（pi lane 另线且不汇入此确认面，无并行场景工具执行）下不存在「多运行并发待办」的场景，故不额外造跨案/跨运行的全局聚合审批收件箱（对比 Cowork/Codex 多并行 agent 场景下的队列控件，产品模型不同不强行对齐，此项减法理由与"已有"并记）。 |
 | W5 | 停止当前请求（Work/排队消息级；禁用态文案走 **Tooltip**） | 已有（未开通态；本单修 §9 文案 + 补测试标记） | testid `queued-message` 内「停止当前」按钮（`App.tsx:1966`）`disabled data-state="unwired"`。**本单 §9 修复**：title 由 `停止当前请求将在执行器接线后启用`（泄漏「执行器／接线」工程内部概念，违 §9）改为 `停止当前运行即将开通`（产品语言，无工程词）。Work 场景执行器确未接通（`current.md`「Work command/projection...production 尚未接通」），未开通态不伪装可用。 |
 | W6 | 卷宗整理计划（FileOps；空态文案属 **Empty State**） | 已有 | testid `file-ops-panel`(`FileOpsPlanPanel.tsx:100`)，勾选/执行/撤销/报告全链真实（经 `@courtwork/tools/file-ops-executor`）；非 demo 案显式空态「整理计划将在拖入未归档文件后生成」(`App.tsx:1522`)，非假交互。 |
 | W7 | 工作稿（WorkDraft） | 已有 | testid `work-draft-panel`(`WorkDraftPanel.tsx:81`)，新建/编辑/自动保存真实（当前内存态存储，重载丢失——数据持久层缺口非控件接线缺口，登记入复杂度扫描提案区，本单不改存储）。 |
@@ -5123,3 +5123,148 @@ fix-by-acceptance 裁定二）把 chip 文案改为未然态，真源 `case/cont
 `scopeCommittedLabel`，而 `composer.spec.ts` 仍抄退役字面量；`composer/types.ts` 的
 `SCOPE_COPY.dossier` 疑为同批零消费残留。上方 DEBT-DOSSIER-1 节自述「DOM 由 e2e 直接锁住」与实况
 不符，一并如实登记。本票不动它——修它要改 DOSSIER 已验收面，另票处置。
+
+## C3-1 · 生成控制与错误恢复（2026-07-28 契约已冻结；顺序后置于 pi 基础线）
+
+权威：ADR-007 2026-07-28 修订、provider/core 同名 SPEC、实现就绪图 `C3-1`。
+
+排期回执：本节仍是有效工单契约，但当前不派发、不占 `App.tsx` 锁。只有
+`PI-BASE-HEADLESS-ACCEPT` 与 `PI-BASE-GUI-ACCEPT` 依次独立放行后，才按实现就绪图回到
+`C3-1 → C3-2 → C3-3`；不得因本节已写完而与 agent GUI 并行触碰 App。
+
+### 真实基线与最小范围
+
+- 普通 Chat 已有 `submitChatContent`、`stopChatTurn`、`retryChatTurn`、AbortSignal 与末位失败
+  Retry；不得重复实现或换 runtime。
+- 缺口只在 case-scoped Work free-chat：现行 `workChatFlightRef` 有单飞行锁，但
+  `sendChatTurn` 没有 signal，`ChatAssistantMessage` 未注入 `onStop`/`onRetry`。
+- Work free-chat 的 state/flight/abort/submit/retry 从 `App.tsx` 外提到
+  `src/work/use-work-chat.ts`；App 只保组合根 props 与渲染。高水位须同批下调，不能以等行换更深
+  耦合。其余 Legal panel 不因本票触碰，不做无关迁移。
+
+### 失败与诊断同源
+
+- desktop 的 provider display-copy 只按
+  `auth | billing | rate_limit | endpoint | model | timeout | network | protocol |
+  invalid_response | canceled` 闭集取文案；`billing` 固定为
+  「服务商账户余额不足，请充值后重试」。Chat/Work 共享同一 helper，raw error/message 不直出；
+  timeout 两路径统一为「服务商响应超时，请稍后重试」，不显示毫秒。
+- `finishReason:'length'` 在 live 与 replay 都显示明确截断提示；它仍是 completed，不伪装失败，
+  也不自动续写。
+- 把现有 `courtwork.provider-evidence.v1` 收口为
+  `src/provider/provider-evidence-store.ts` 的容量 5 versioned ring。普通 Chat 和 Work 失败都从
+  `@courtwork/provider/evidence` 读取后写同一 store；Settings→About 的 Diagnostics 导出同一
+  snapshot。允许字段只限 phase/providerId/modelId/errorName/kind/retryable/status/attempts/
+  contentChars；正文、error message、URL、body、key 与任意附加字段结构性不可达。
+
+### Stop / Retry 精确语义
+
+- 每个 case 独立 AbortController；Stop 只中断当前 case 的 Work free-chat，不中断场景 run、
+  其他 case 或普通 Chat。终态落定后 controller/flight/pending 全清，无残留按钮。
+- Retry 只出现在当前 case 最新一枚失败 assistant Turn，重提交其配对 user content，生成新
+  turnId 并 append；旧失败 Turn 在 journal 保留，不裁掉、不覆盖。running/completed/canceled、
+  非末位失败与缺配对 user 均无 Retry。
+
+### 精确触面与禁止扩张
+
+允许触面：`src-tauri/src/lib.rs` 的 HTTP classifier；`src/App.tsx`；
+`src/work/use-work-chat.ts`（新）；`src/provider/chat-client.ts`、display-copy 与
+`provider-evidence-store.ts`（新）；`src/settings/SettingsPage.tsx` /
+`settings-store.ts`；对应 Vitest/Playwright/静态门；provider/core 同名 SPEC 所列闭集消费点。
+
+禁止：C3 文件新增或 import AI SDK/assistant-ui（pi GUI 若已安装，其依赖只能留在
+`src/pi-lane/` 专属边界，不要求全仓卸载）、改变 Turn journal 格式或其他无关契约、加入
+regenerate/branch/steer/queue、自动重试 402、toast/通知中心、改 Work scenario cancel、改
+provider 清单或把诊断正文持久化。`UI-TOAST-1`、`CHAT-QUEUE-1` 与 C3-2…C3-5 均不夹带。
+
+### TDD 与独立验收
+
+先红至少覆盖：Work signal 缺席；跨 case Stop 串线；Retry 涂改旧 journal；402 仍落
+`invalid_response`；任一闭集消费者漏 `billing`；timeout 泄毫秒；length 无提示；Diagnostics
+注入自由文本/未知字段；重启后证据消失。实现后跑全仓 build/lint/test 与隔离端口完整 Playwright。
+验收会话须在 clean worktree 实际注入 402、超时、length、cancel race、跨 case abort 与证据泄漏
+反例；build 全绿本身不构成放行。
+
+## PI-LANE-UI-1 · 通用 agent 基础成熟 GUI 薄投影（依赖底层总验，尚未开工）
+
+权威：ADR-009 决定七 2026-07-28 窄修订、ADR-022 决定六-D、实现就绪图同名行。
+
+### 开工门与 OSS 选型
+
+- `PI-BASE-HEADLESS-ACCEPT` 未由独立 clean worktree 放行，本节不得施工；write proof、build
+  绿或 sidecar 能启动均不能代替底层功能闭环。
+- 本票是 A2 放行后的唯一当前产品票；不与 `CONTEXT-PROFILE-1`/`DOSSIER-FLOW-1`、C3、plan/source
+  或其他 UI 巧思并行。完成后另由 `PI-BASE-GUI-ACCEPT` 独立验收，不能自己放行自己。
+- 直接依赖 implementation 时复核并 exact pin 的 `@assistant-ui/react`（2026-07-28 一手版本
+  0.14.28，MIT，React 18/19）：只用 headless primitives 与公共
+  `useExternalStoreRuntime` hook。不得装 stock Tailwind/shadcn 皮层，不复制其组件源码另养一份，
+  也不得 import 包内 private/internal 路径。
+- Courtwork 的 Rust JSONL projection 是唯一 message/run/tool/authorization 真源。
+  External Store adapter 只转换；`LocalRuntime`、Assistant Cloud、AI SDK/AG-UI/OpenCode
+  adapter、thread import/export/persistence、branch/edit/reload/queue callback 全禁。未提供
+  callback 的能力不得渲染按钮。
+- 首版回合上限仍为 12，不预装虚拟列表；有真实节点量/帧耗时证据后再评 `react-virtuoso`。
+  `@tanstack` 禁令保持。Logue/OpenWork/OpenCode/Open WebUI 只证明成熟 agent GUI 的行为面
+  已收敛，不指定视觉、壳、源码或 runtime。Open WebUI v0.11.0 的 Svelte/Socket.IO/backend
+  不接入，受其现行许可证约束的组件与样式不复制；其 `content-visibility` 路径在 Safari
+  需旁路，Tauri WKWebView 首版明确不采。
+
+### 首版唯一五面
+
+1. Composer：Prompt、Send/Stop；running 时允许编辑下一条草稿但不提供 steer/queue。
+2. 状态：idle/running/stream/tool-wait/completed/budget-stopped/failed/canceled/interrupted
+   与真实 session 累计预算；首版没有 queued 状态。`tool-wait` 只由已落账
+   `tool_proposed` 尚无授权/effect 终态派生；“达到/超过上限后已停止”不得写成硬上限。
+   interrupted 必须显示“记录、workspace 与预算仍在，但模型上下文已中断”；用户下一次 Send
+   才显式启动同 session 新 sidecar leg，不能伪装无损续聊或自动重放旧 prompt。
+3. Tool：write proposal 的逻辑 `/workspace` path、byteLength、hash、Rust 在授权前按目标是否
+   已存在派生的静态动作标签（“创建 agent workspace artifact”或“全量覆盖 agent workspace
+   artifact”）、逐次允许/拒绝与 `succeeded/denied/failed/uncertain` effect outcome；uncertain
+   必须明确告知“目标可能已是完整新版本，需人工核实”，不得渲染 Retry。其余不扩 pi
+   `{path,content}` schema，不从模型自由文本猜“目的”。正文不进入确认卡或 journal。按钮只发
+   Rust command，点击后不得以 React local state 先宣称批准。`uncertain` 工具卡另给“核验当前
+   workspace 文件”只读动作，调用同一 `openWorkspaceMarkdown`；not_found/当前 hash/bytes
+   都标 `unverified`，不得借核验把 effect 改写成 succeeded。
+4. Transcript：用户/assistant/tool result/error/recovery 的可回放投影；未知 event/type 显式
+   incompatible，不丢弃、不把 raw JSON 或物理路径展示给用户。
+5. Workspace Markdown：从同 session journal 的 write proposal + succeeded effect 确定性 fold
+   出逻辑 `.md` 索引；点击只经既有 command port 调
+   `openWorkspaceMarkdown({containerId,sessionId,logicalPath})`，展示 Rust 返回的当前
+   `{logicalPath,content,contentSha256,byteLength}`。复用现有 `ChatMarkdown` 安全 renderer，raw HTML
+   不执行；只读、可关闭，不提供编辑、保存、rename/delete、diff、promotion 或 filesystem
+   API。正文只在本次 view response/React memory，关闭即释放，不写 journal/localStorage。
+   当前 hash 若不同于所选 succeeded entry 的 hash，须显式标“当前内容已不同于已确认版本”；
+   uncertain 核验入口不进入 succeeded 索引。
+
+来源面板、plan/todo、工作语义 manifest 与垂类修订 UI 可在同一底座上后续长出，但不是本票偷带
+范围。只有 `PI-BASE-GUI-ACCEPT` 放行后，`CONTEXT-PROFILE-1 → DOSSIER-FLOW-1` 才按产品排程
+开工；其 schema 与本 GUI 不互相暗定。
+
+### 触面、门与验收
+
+- 新增独立 `src/pi-lane/` 模组持 command port、adapter、projection view model 与组件；
+  `App.tsx` 只挂入口和 command port，遵守过手即拆与 highwater 下调。安装 exact
+  `@assistant-ui/react` 只允许改 `apps/desktop/package.json` 与根 lockfile；新增/扩围一枚
+  pi GUI 静态门并登记既有门入口。样式只用既有 tokens/motion/reduced-motion。
+- `openWorkspaceMarkdown` 的 Rust/capability 实现归前置 `PI-WORKSPACE-READ-1`，本票只能消费
+  typed port，不得顺手改 wire、journal、workspace grammar 或 host effect。viewer 对 `.md`、
+  UTF-8、131,072-byte cap、session/container 绑定与 hash 的失败只显示 typed error，不回退
+  ambient file API。
+- 静态门：上述禁用 import/identifier 零出现；renderer 零 Tauri direct invoke、零 provider、
+  零 JSONL write、零 absolute path；授权按钮不能调用 toast 代替 command。
+- 定向红测：unknown event；审批点击后 host 拒绝；replace 后屏障失败投影 uncertain 且无 Retry；
+  Stop/terminal race；restart interrupted；两 container 切换；预算末回合超线；canary
+  path/secret；禁用 callback 对应控件意外出现；非 `.md`、跨 session/path、超限 viewer response；
+  viewer 正文误入 journal/localStorage；首次 uncertain create 仍有核验入口；succeeded 后又
+  uncertain overwrite 的 hash mismatch 提示。
+- 展示层可把 streaming journal 增量合并为至多每个 animation frame 一次 projection/render，
+  但 journal 本身仍逐事件持久和发布；`completed/failed/canceled/interrupted/budget-stopped`
+  任一 terminal 到达时必须取消 pending frame 并同步 flush，旧 running/tool-wait 视觉不得多留
+  一帧。滚动跟随仅在用户仍贴近底部时成立；用户上滚读史后，后续 streaming、Stop 或 terminal
+  不得夺回视口，只有显式回到底部才恢复跟随。
+- 独立验收在真实 Tauri WKWebView 跑键盘、读屏语义、焦点归还、reduced motion、流式滚动与
+  Stop race；注入高频 delta + terminal 同帧、用户上滚 + Stop/terminal 两组反例；记录 exact
+  dependency/bundle delta。全仓 build/lint/test/Playwright 全绿只是入场，不替代
+  journal→projection、滚动所有权、授权反例与真实 Markdown 可查看闭环。`PI-BASE-GUI-ACCEPT`
+  还须用 deterministic provider 与真实 DeepSeek 各跑 packages/pi-lane SPEC 的六格同构任务；
+  无真实 key/model 证据只记 external-validated blocked，不更新 current.md。

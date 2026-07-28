@@ -54,7 +54,7 @@ services/ingest       Python OCR/分类/实体对齐（尚待实现）
 
 低频稳定段在前，高频段在后，同时服务语义优先级与 provider 前缀缓存（前三段字节稳定有确定性测试锁定；对真实 provider 缓存命中率的收益属设计意图，未实测）。模型输出必须携目标地址；回填按地址经 schema 严格校验，错步/错类型/裸 artifact 一律拒收，不按生成位置猜测。
 
-这是双轨设计，不是过渡状态：自由对话走轻组装（`generic-chat` 单段），不背 schema 义务，memory 与 session 管理不转嫁给用户，对话即用即走；场景声明走 Work，一套卷宗就是整个 session，schema 是工作语义真源，续行依赖声明式投影锚点（权威态、artifact 摘要、账本尾部、未决门禁），不依赖模型总结历史。
+这是双轨设计，不是过渡状态：自由对话走轻组装（`generic-chat` 单段），不背 schema 义务，memory 与 session 管理不转嫁给用户，对话即用即走；场景声明走 Work，**container 才是卷宗的持久组织单元，session 只是其中的时间切片**，schema 是场景工作语义真源，续行依赖声明式投影锚点（权威态、artifact 摘要、账本尾部、未决门禁），不依赖模型总结历史。ADR-021 的 Dossier compiler 只服务显式 Work：Scenario Work 把其数据块接入第五段，pi work-agent 把同一数据块接入自身单条 system prompt；普通 `generic-chat` v1 不消费 Dossier。
 
 消费范围如实声明：六段组装只由 scenario executor 消费，当前仅 demo/acceptance 链路实跑；production Work 装配进度以[当前基线](../status/current.md)与[实现就绪图](implementation-readiness.md)为准。
 
@@ -80,7 +80,7 @@ desktop 可以承载系统文件选择、钥匙串、打开文件、renderer hos
 
 ## Provider 与 Turn 兼容边界
 
-core 只依赖 `packages/provider` 的 provider port 与流事件，不依赖 OpenAI wire 字段或具名 provider。`packages/provider` 当期以 OpenAI Chat Completions 为协议基线，只注册 DeepSeek；结构化输出优先严格 `json_schema`，具名 profile 仅支持 `json_object` 时才显式降档，并继续经过 Zod 校验与受限重试。能力降档、重试耗尽和响应非法都必须变成结构化失败，不能静默返回空 artifact。
+场景线 core 只依赖 `packages/provider` 的 provider port 与流事件，不依赖 OpenAI wire 字段或具名 provider。`packages/provider` 当期以 OpenAI Chat Completions 为协议基线，只注册 DeepSeek；结构化输出优先严格 `json_schema`，具名 profile 仅支持 `json_object` 时才显式降档，并继续经过 Zod 校验与受限重试。能力降档、重试耗尽和响应非法都必须变成结构化失败，不能静默返回空 artifact。ADR-022 的 pi sidecar 是唯一可直接消费 pi-ai provider 的例外；它不得向场景线回灌协议或状态。
 
 base URL、模型、推理字段和 response format 差异集中在具名 profile/adapter；业务代码、场景和垂类包不得按模型名称分支。desktop 不开放猜测能力的 custom provider。详细 Turn、受控提问、持久化与钥匙串边界见 [ADR-007](../decisions/ADR-007-provider-turn-protocol.md)。
 
@@ -89,6 +89,7 @@ base URL、模型、推理字段和 response format 差异集中在具名 profil
 - Node 22+、pnpm workspace、TypeScript strict、Vitest；
 - Tauri v2 + React；
 - Python ingest 独立服务，uv 管理；
-- provider 当期统一走 OpenAI Chat Completions adapter，具名例外必须进入 provider profile；
-- agent loop 自研，只借鉴轻量、协议化、provider 无关的设计形状；
+- 场景线 provider 当期统一走 OpenAI Chat Completions adapter，具名例外必须进入 provider profile；pi sidecar 例外只认 ADR-022；
+- 声明式场景执行器由 core 自研；通用 agent loop 按 ADR-022 受控内嵌
+  `@earendil-works/pi-agent-core`，两线各自账本、不混写；
 - 模型和 provider 不得写死在业务代码。

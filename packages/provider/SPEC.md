@@ -127,7 +127,7 @@ type ProviderTransportEvent =
 
 ```ts
 type ProviderFailureKind =
-  | 'auth' | 'rate_limit' | 'endpoint' | 'model' | 'timeout'
+  | 'auth' | 'billing' | 'rate_limit' | 'endpoint' | 'model' | 'timeout'
   | 'network' | 'protocol' | 'invalid_response' | 'canceled';
 
 type ProviderStreamEvent =
@@ -173,7 +173,7 @@ type ProviderReadiness = {
 ### 验收
 
 - Rust mock server 分片发送一个汉字的 UTF-8 字节、reasoning/content 多帧、usage 与 `[DONE]`，前端按原顺序实时收到；首个 delta 必须在服务器释放终帧前可观察，证明未聚合 body；
-- 注入 arbitrary URL/providerId、endpoint catalog drift、异常 EOF、空正文、非法 SSE、401/429/5xx、timeout/network 与 cancel race 均触发预期闭集终态；日志/错误不含 URL、body、key；
+- 注入 arbitrary URL/providerId、endpoint catalog drift、异常 EOF、空正文、非法 SSE、401/402/429/5xx、timeout/network 与 cancel race 均触发预期闭集终态；其中 402 精确映射 `billing + retryable:false`，不得折叠为鉴权、限流或非法响应；日志/错误不含 URL、body、key；
 - `generate()` 与 stream 聚合结果一致且只产生一次网络请求；DeepSeek quirk 仍只在 provider 包；
 - key 保存/重启/换模型/探针成功失败的双状态测试与 UI 文案实测；
 - Rust、provider、desktop 定向测试，`pnpm -r build`、`pnpm lint`、`pnpm test`、隔离端口完整 desktop Playwright；不同会话独立验收。
@@ -228,3 +228,22 @@ type ProviderReadiness = {
 - 新增定向回归同时锁版本、核验时点、两模型双价、完整 assumptions 与 flash 实算；原有
   unknown usage/未收录 provider/model 反例继续保留，未新增动态抓价、旧表注册表或运行时网络。
 - 本节是实现会话自证，不构成放行；仍须不同会话在 clean worktree 独立注入价目漂移反例验收。
+
+## C3-1 · Provider 失败闭集扩形（2026-07-28 架构票面，待实现）
+
+权威：ADR-007 2026-07-28 修订、实现就绪图 `C3-1`。本票是 additive union 扩形：
+
+- `ProviderFailureKind` 增 `billing`；当期唯一 wire 是 DeepSeek HTTP 402，
+  `retryable:false`。不得映射为 `auth`、`rate_limit` 或 `invalid_response`，不得解析/展示响应
+  body 来猜余额。
+- `ProviderTransportEvent`、`ProviderStreamEvent`、stream evidence、core Turn 消费方与
+  desktop readiness/display-copy 同票扩集；漏一处闭集即不准合入。历史不含 `billing` 的
+  completed/failed Turn 字节与回放语义不变。
+- timeout 对外只保留 kind，不把 `${timeoutMs}ms` 技术句带到 UI；低层 error 可携调试信息，
+  但诊断出口只能消费 evidence 白名单字段。
+- 不引 Vercel AI SDK、assistant-ui 或第二 provider/message runtime；两者只作 Stop/Retry/错误
+  恢复行为参照。
+
+退出证据：401/402/429/500、timeout、cancel 的 transport→provider→core 序列逐项有定向测试；
+402 必为 `started → failed(billing,false)`，任一改回旧分型须红；evidence 接受 `billing`，
+注入 message/body/url/key 或未知字段必须拒绝。完成后仍须异会话在 clean worktree 独立验收。

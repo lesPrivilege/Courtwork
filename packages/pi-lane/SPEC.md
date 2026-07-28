@@ -1,10 +1,15 @@
 # `@courtwork/pi-lane` SPEC
 
 通用 agent loop 线（ADR-022）的落点。与场景线（ADR-009/011 谱系）**并立不相交**：
-两线各自账本，不迁移、不混写；垂类包与确认账本流程只挂场景线。
+两线各自账本，不迁移、不混写；垂类包与现有 `ConfirmationLedger` 流程只挂场景线，pi write
+逐次授权只落自身 journal。
 
-当期只开**读面**。写面与 bash 面锁 `SANDBOX-PROBE-1`，且**放行不等于升档**——探测放行的是原语可行
-与判据可满足，等级仍须由实现自带该等级的越界反例证成（ADR-022 决定二补句，2026-07-27）。
+现行实现只开**读面**。2026-07-28 产品将“coding-agent 基本能力先行、底层闭合后再做巧思与 GUI”
+定为下一序，并进一步裁定“先复用 pi 覆盖式 write，修订后置”。同日续裁把当前完整里程碑冻结为
+**薄 harness + 基础 GUI**：先通过通用 `.md` headless 任务矩阵，再让用户在 GUI 中完成、停止、
+授权并只读核验 workspace Markdown；Dossier、垂类修订和 UI 巧思均后置。下一票先做 headless
+write characterization；进入产品仍须经虚拟 workspace、Rust host effect、逐次授权与
+durable-before-effect 总验。Node 直写与 bash 没有因此开放。
 
 ## 一 · 职责
 
@@ -92,17 +97,143 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
 5. 反例二次：要求模型执行命令或改写文件，确认得到 `isError` 的拒绝结果。
 6. 记录每轮结束时页面显示的回合数与开销，与 DeepSeek 后台账单对照，核实 usd 计量口径。
 
-## 八 · 偏离与待拍板
+## 八 · 偏离回执
 
-- **dev 入口落点**：就绪图行写「desktop dev 入口」，实现落在 `packages/pi-lane/dev` 并由 sidecar
-  自服务。理由是避免触碰 `apps/desktop` 的 vite 配置（既有场景线文件），也避免 dev 页被打进产品包。
-  若架构要求必须挂 desktop 下，改动面是 vite 多入口配置一处。**[需架构拍板]**
-- **根 `CLAUDE.md` 架构边界表未加本包**。该表是仓库最高工程说明，改它属契约面，实现会话不自行动手。
-  建议补一行：`packages/pi-lane　通用 agent loop 线（ADR-022），只读面，与场景线并立`。**[需架构拍板]**
+- **dev 入口落点已追认**：`packages/pi-lane/dev` + sidecar 自服务保持 dev-only，避免触碰
+  desktop Vite 与产品包；ADR-022 修订记录已销记，不迁回 desktop。
+- **根总纲边界已补**：`CLAUDE.md` 已登记 `packages/pi-lane`，并于 2026-07-28 将“场景执行器自研 /
+  通用 loop 受控内嵌”写成现行技术基线，不再悬置。
 - **`nodePrimitiveLedger` 为空册时的扫描面失效判据**：`packages/pi-lane/src` 扫不到 `.ts` 即触红。
   若本包退役，须同批把扫描面与登记册一并销号，不得让判据静默空转。
 
-## 九 · 门与证据
+## 九 · 下一阶段冻结票面
+
+### 当期薄 harness 不变量
+
+- 产品 Agent 只注册 `read/glob/grep/write`；`exists/read_file/list` 只在 env/host 内部，不成为
+  模型工具。继续直接消费 pi core，不引 `pi-coding-agent`、planner、subagent 或第二 loop。
+- product system prompt 不超过 2,048 UTF-8 bytes，只锁六条：基于实读；`/case` 只读；
+  `/workspace` 是过程草稿；`.md` 覆盖前先读、写后回读并报告逻辑路径；没有
+  edit/delete/rename/promotion/bash；权限与 effect 只认 gate/journal。不得复制 schema、Dossier、
+  plan 模板或长 coding playbook；定向 snapshot/byte gate 必须先红后绿。
+- 首版能力边界是最多 12 assistant turns、prompt/workspace text 各 131,072 UTF-8 bytes 的通用
+  Markdown 工作。模型可用正确工具但写得不好，不等于加厚 harness；只有必要 tool/host result
+  已完整、未截断进入 transcript 后，才允许把内容错误归为模型能力。
+
+### `PI-WRITE-PROOF-1`（可与 STDIO/分发并行）
+
+权威：ADR-004/017/018 的 2026-07-28 窄修订、ADR-022 决定六。
+
+- 直接实例化当前已安装 core 的 `createWriteTool()`，不得复制 schema/execute 或新增工具名。
+  characterization 如实锁：参数表面只有 `{path,content}`，但上游 object 非闭集、空串可过且
+  validator 会做 primitive→string coercion；不存在即创建/存在即覆盖只是
+  `ExecutionEnv.writeFile` 契约，上游自身不建父目录。raw exact-key/type gate 属 Courtwork
+  policy，必须在上游 coercion 前拒额外字段、非 string 与路径 alias。
+- 允许在同一文件实现极薄 `bindWorkspaceWriteTool`：保留上游
+  `name/label/description/parameters`（parameters 引用同一对象），固定
+  `executionMode:'sequential'`；wrapper 只用 raw toolCallId 从注入 registry 查取预先映射的
+  public toolCall，创建 invocation-scoped env，再**恰一次** delegate 上游五参 execute；
+  `writeFile` 真正发 host request 时才为该次 operation 分配 op。tc 的首分配属于未来 product
+  event projector，因为上游 `tool_execution_start` 发生在 validate/beforeToolCall/execute 前；
+  proof 用预种 registry，映射缺失必须拒绝且 port 零调用。不得复制 schema/execute、不得由 binder
+  预分配 tc/op，或以共享 mutable `currentOperation` 关联。
+- 新增 `workspace-write-env.ts`：逻辑 cwd 固定 `/workspace`；相对路径只落该根，
+  `/workspace/<safe-relative-path>` 规范化为同一 logicalPath；完整采用 ADR-022 六-B.2 的
+  POSIX/跨平台 segment grammar，拒绝空/NUL、`/workspace` 根本身、其他绝对路径、
+  `.`/`..`、backslash、drive/UNC、Windows 保留名、超长路径与跨 session。`canonicalPath`
+  固定回 `not_supported`；最终 basename 按 ASCII 大小写不敏感必须以 `.md` 结尾，非 Markdown
+  在分配 operation/调用 port 前以 `unsupported_file_type` 拒绝；raw leading `@` 与
+  NBSP/Unicode-space alias 在 binder 调上游前拒绝。
+  content 采用同 ADR 的 131,072 UTF-8 bytes 上限；另锁 repeated U+0001/引号/反斜杠的
+  encoded-packet worst case，raw cap 以内不得撞破 1 MiB framing。
+- `writeFile` 只调用注入的 `WorkspaceWritePort`，每 tool call 独立 env，每次真实 port 调用独立
+  分配 operationId；port request 精确为
+  `{sessionId,requestId,operationId,logicalPath,content,contentSha256,byteLength,proposalHash}`，
+  hash/frame 逐字采用 ADR-022 六-B.2。不得用共享 mutable current-operation。其余 write-like
+  方法、remove/temp/exec 全拒。生产源码继续零 Node fs 写。
+- 启用 write 的 Agent 装配必须显式 `toolExecution:'sequential'`；0.82.1 缺省
+  `parallel` 的 characterization 也要锁住。共享 env 同路径受上游 mutation queue 串行，而
+  invocation-scoped env 不共享该 queue；两件须分测，产品只依赖 Agent sequential 与后续
+  Rust/container 串行化。
+- characterization 锁上游 Unicode 单位 bug：`备忘😀` 成功文案报 4，但 port request 必须从
+  原 content 得到 UTF-8 `byteLength:10` 与对应 hash；任何产品事实不得解析 success text。
+  另锁 pre-write abort 为 port 0 调用、post-write abort 可为 port 1 调用但 tool error，证明
+  “上游 error ≠ effect 未发生”；产品 outcome 后续只认 host_result/journal。
+- 本票只允许新增 `workspace-write-env.ts` 与定向 test/fixture，并只改本节下方
+  `PI-WRITE-PROOF-1` 的独占回执行；不改 current product tool table、`session.ts`、wire、
+  Rust/Tauri、package/lock、其他 SPEC/ACCEPTANCE 段或 GUI。测试 host 可在临时目录证明 nested
+  `.md` create、overwrite 与 byte-identical read-back；非 `.md` 必须 port 零调用且 op 零分配，
+  但该 adapter 不进生产。
+- 完成只叫 `package/headless proof`，不更新 `current.md`，也不宣称 coding agent 基础已闭合。
+
+### 并行相邻票与合流门
+
+- `PI-CODE-STDIO-1` 只新增
+  `src/product-protocol.ts`、`src/product-stdio.ts` 及同名测试：逐字段实现 ADR-022 六-B 的
+  strict discriminated union、per-direction seq、request/session/state machine、1 MiB framing
+  和可注入 driver；必须覆盖 duplicate JSON member、fatal UTF-8/lone surrogate、LF-only、
+  integer lexical gate、pre-bootstrap null-session error、C0 worst-escape/max-list packet，
+  sidecar-leg seq 与本 leg 去重集合重置、fresh/resume 自洽门、从给定
+  `priorObservedTurns/priorTurns/priorUsd` 初始化累计器、race-late cancel no-op 与在途 host
+  request 的 uncertain 优先收束。新进程没有历史 journal，本票不得伪测跨 leg requestId 去重、
+  previous+1、prior 精确 fold 或 model/limits/grant/container/capability 漂移；这些由
+  `PI-HOST-LOOP-1` 的 Rust/journal 反例承担。它只校验 workspace arguments 的闭集形状/hash 格式；逻辑路径语义由
+  `workspace-write-env` 与未来 Rust host 双验，不在 codec 复制。不得新增尚无产品 driver 的
+  假 executable main，不改 env/tools/session/package/lock，并只改自己的独占回执行。
+- `PI-SIDECAR-DIST-1` 只改 `packages/pi-lane/fixtures/sidecar-dist/`、独立报告
+  `docs/engineering/pi-sidecar-dist-1.md` 与自己的回执行；做 Node 22 LTS sealed bundle vs SEA
+  实验，不改生产 wire/session。若实验必须引 exact MIT/Apache 工具，只允许该票改
+  `packages/pi-lane/package.json` 与根 lockfile，并须在报告逐包记 license/用途/移除结论。
+- 三票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。实现会话
+  分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
+  `specs/PI-SIDECAR-DIST-1.md` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering
+  report，仅在其专属回执写链接与结论。
+- 后续 `PI-WRITE-HOST-1` 才把 port 接到 Rust exact 同版本
+  `cap-std/cap-fs-ext/cap-tempfile@4.0.2` workspace、逐段 no-follow、授权与 journal；
+  `PI-WORKSPACE-READ-1` 再让既有 read/glob/grep 显式路由逻辑 `/workspace` 并跨重启回读，同时
+  提供 GUI 后续消费的
+  `openWorkspaceMarkdown({containerId,sessionId,logicalPath})` 窄 command；它只读当前 `.md`，
+  以同一 grammar/capability 校验后返回逻辑路径、UTF-8 content、重算 hash 与 byteLength，
+  131,072 bytes 封顶，正文不落 journal、物理路径不出 Rust。`list` 只是
+  `ExecutionEnv`/host 内部操作，不新增模型工具。
+- `PI-HOST-LOOP-1` 负责 product `/case` 虚拟 env、物理路径/错误脱敏与 session 累计预算；
+  `PI-WRITE-HOST-1` 负责产品 `session.ts`/tool table/tool policy 的 write 装配与
+  `toolExecution:'sequential'`，并把 dev 只读 prompt 换成上文六条/≤2,048-byte
+  `md-work-v1`；proof 不提前改这些消费点。glob/grep 双根结果必须显示
+  `/case/...` 或 `/workspace/...`，不得形成 `../workspace`。
+- 独立 `PI-BASE-HEADLESS-ACCEPT` 必须实跑
+  `agent write → 批准 → Rust 精确落盘 → agent read-back → restart read-back`。缺任一段，
+  build 全绿也不算基础 agent 功能成立，基础 GUI 不开工。restart 指同一 logical session
+  在 `session_interrupted → session_resumed` 后以新 sidecar leg 回读；journal/workspace/累计预算
+  延续，pi message context 明示从空开始，不得伪装无损续聊。
+
+### `PI-BASE-HEADLESS-ACCEPT` · 通用 Markdown 任务矩阵
+
+独立验收每格同时留 Agent events、host request/result、journal 与最终文件 bytes/hash：
+
+1. 单文件事实问答：read 后回答；读不到或截断须显式。
+2. 多 `.md` 定位汇总：glob/grep → 定点 read → 带来源文件名的摘要。
+3. case brief → `/workspace/brief.md`：read → write → 逐次授权 → byte-identical read-back。
+4. 改写既有 workspace Markdown：先 read，再整体覆盖同路径，再 read-back；不因没有 edit 失败。
+5. 嵌套 Unicode 路径：`notes/会议纪要.md` 写入后 interrupt/resume 新 leg 仍可回读。
+6. 拒绝面：改 `/case`、delete、bash、无效/跨容器路径均零 effect、零物理路径泄漏且有 terminal。
+
+只有全部必要结果已完整、未截断回灌后，模型仍遗漏或写差，才记模型能力；枚举/读取不通、限幅
+未显式、host result 丢失、批准后未落盘、回读不一致或终态缺失一律是 harness 失败。A2 放行后
+只开 `PI-LANE-UI-1`；该 GUI 再由 `PI-BASE-GUI-ACCEPT` 在真实 Tauri + 真实 DeepSeek 复跑同构
+任务。无 key/model 证据只能记 external-validated blocked，不得放行“harness 非瓶颈”。两条
+基础线均放行后，Dossier、修订、plan/source 与 UI 巧思才可开工。
+
+当期禁止项：pi `edit`、自研 create/edit/diff/CAS/merge、用户文件 promotion、bash/remove、
+OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
+
+### 并行票独占回执
+
+- [`PI-WRITE-PROOF-1`](specs/PI-WRITE-PROOF-1.md)
+- [`PI-CODE-STDIO-1`](specs/PI-CODE-STDIO-1.md)
+- [`PI-SIDECAR-DIST-1`](specs/PI-SIDECAR-DIST-1.md)
+
+## 十 · 门与证据
 
 - 单测 74 例（`vitest run packages/pi-lane`），含容器越界、闸门拒绝、预算停 loop、dev 入口 HTTP 面。
 - ADR-018 门单测 12→23 例；真树注入实测：`child_process` 与 `fs:writeFile` 各触红一次，还原复绿。

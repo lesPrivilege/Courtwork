@@ -20,7 +20,7 @@ packages/reading-view                 文档安全预检、阅读视图与锚点
 packages/schemas                      领域无关 wire 契约
 packages/demo-data                    虚构导览、测试与验收语料
 packages/demo-runtime                 demo/acceptance 唯一装配点与 CLI；只由开发/验收消费
-packages/pi-lane                      通用 agent loop 线（ADR-022）：内嵌 @earendil-works/pi-agent-core 的 Node sidecar 与只读容器；与场景线并立、各自账本
+packages/pi-lane                      通用 agent loop 线（ADR-022）：内嵌 @earendil-works/pi-agent-core 的 Node sidecar、只读案件根与 host-mediated app-data workspace；与场景线并立、各自账本
 eval                                  中性评测底座（例外：可生产依赖 demo-data——评测标准答案与导览语料同源，属有意设计；此豁免不扩大到任何其他包）
 services/ingest                        Python OCR/分类/实体对齐
 ```
@@ -45,9 +45,9 @@ services/ingest                        Python OCR/分类/实体对齐
 
 - Node 22+、pnpm workspace、TypeScript strict、Vitest；desktop 为 Tauri v2 + React。
 - ingest 是独立 Python 服务，uv 管理，以 Legal JSON Schema 作为输出边界；在版本化 request / response / error / progress wire 被接受前，不得宣称 HTTP 集成或接入 desktop 与第二宿主。
-- core 与业务代码 provider 无关；通用协议、adapter 与具名怪癖只住 `packages/provider`。当期产品只注册 DeepSeek，未来 provider 以具名 profile/adapter 接入，不开放猜测能力的任意 URL。
-- agent loop 自研；场景是声明式固定编排，当前产品只允许用户显式触发。未来 scheduled / webhook 触发必须先用 ADR 定义 authenticated principal、trigger context、idempotency、session budget 与 effect authorization；模型不得自主选择或绕过不可逆动作授权。
-- Chat 与 Work 共用 provider 无关的 Turn Engine，但分别维护 Turn journal 与 Session/artifact 账本；desktop 以 command/projection port 隔离 UI，Rust 只做受控宿主能力。Package ABI 的可序列化 descriptor 与进程内 runtime bindings 分离；现有 `WorkCommandPort.publish` 是进程内 callback 契约，不得误写为 IPC、HTTP 或 gateway wire。细则见 `docs/decisions/ADR-009-runtime-ports-and-harness.md`。
+- 场景线的 core 与业务代码 provider 无关；通用协议、adapter 与具名怪癖只住 `packages/provider`。当期产品只注册 DeepSeek，未来 provider 以具名 profile/adapter 接入，不开放猜测能力的任意 URL。ADR-022 的 pi sidecar 可直接消费精确版本 pi-ai 的 DeepSeek provider，但不得把该例外反向扩成业务层 provider 分支或第二份场景线协议。
+- 声明式场景执行器自研；通用 agent loop 只按 ADR-022 受控内嵌 `@earendil-works/pi-agent-core`，两线各自账本、不混写。当前产品只允许用户显式触发。未来 scheduled / webhook 触发必须先用 ADR 定义 authenticated principal、trigger context、idempotency、session budget 与 effect authorization；模型不得自主选择或绕过不可逆动作授权。
+- 场景线 Chat 与 Scenario Work 共用 provider 无关的 Turn Engine，但分别维护 Turn journal 与 Session/artifact 账本；ADR-021 的 Dossier 蒸馏同样只能经该 Turn Engine。pi work-agent 的模型回合是 ADR-022 唯一例外，只写自身 wire/journal。desktop 以 command/projection port 隔离 UI，Rust 只做受控宿主能力。Package ABI 的可序列化 descriptor 与进程内 runtime bindings 分离；现有 `WorkCommandPort.publish` 是进程内 callback 契约，不得误写为 IPC、HTTP 或 gateway wire。细则见 `docs/decisions/ADR-009-runtime-ports-and-harness.md`。
 - 产品代码与文档用中文说明，标识符用英文。
 
 ## 必须自研加固
@@ -57,6 +57,7 @@ OCR 印章/手写、跨文档实体对齐、docx/WPS 兼容、卷宗结构还原
 ## 工程纪律
 
 - 视觉变更须绑定唯一激进度档位与已批提案行，详见设计凡例。
+- 成熟开源优先：当前阶段每张新功能或 UI 票在冻结实现方案前，必须以现行 HEAD 的真实缺口为基线复核成熟 OSS，核一手维护状态、许可、体积/宿主兼容和语义边界，并在本层 SPEC 留下「直接依赖 / 借行为或源码范式 / 保留自研 / 删除当期动作」四选一结论。旧调研与 star 数只作线索，不能代替当次源码和上游核实。通用交互、渲染与算法优先交给合规成熟件；案件真源、schema、授权、确认账本、容器隔离与 fail-closed 判定不得因接库外包。没有合适候选也必须写明证据，不得以“全绿”代替评估。
 - 复杂度节制：实现成本趋零不等于复杂度免费。复杂度预算只花在本质复杂度（锚点与事实等级、fail-closed 边界、docx/WPS 兼容、确认账本等自研加固点）；每引入一个新依赖、新持久化格式、新状态机或新通用抽象都要架构拍板，实现会话须在 SPEC 留痕「本单新增了什么概念、为何非加不可」。能用平铺解决的不上抽象，能用规则解决的不上模型，能删的方案优于能配置的方案。
 - TDD：先证明测试会红，再做最小实现。
 - 每层带测试和 golden；读取、输出、schema 漂移与边界守卫必须能注入反例触红。

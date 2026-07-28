@@ -6,6 +6,12 @@
 
 归档材料是历史证据链，不是现行规范。`archive/` 全部内容不参与实现或验收，不得被现行文档、源码、脚本或 SPEC 直接引用（唯一例外见 `docs/README.md`「史料引用例外」：ADR 来源段与就绪图工单行可引路径作历史线索）。归档结论——即便文内标有「架构定调」——只有经现行 ADR、SPEC 或就绪图工单逐条吸收后才具约束力；升格动作须经架构拍板并在现行文档留痕。归档报告中的行号、计数、版本号与外部事实是当时工作树的历史坐标，会漂移；当前验收只认 `docs/status/current.md` 与现行 SPEC/ACCEPTANCE，不得从归档恢复字段、状态或验收标准。reconnect 时架构层文档（`docs/README.md` 起）自足开工，仅在追查现行规则历史成因或核实调研结论是否被推翻时按本索引定位。
 
+## handoffs/desktop-audit-handoff-2026-07-13.md（历史审计交接，已封存）
+
+原 `apps/desktop/AUDIT-HANDOFF.md` 原内容迁档并加归档说明，记录 `main@2e5c014` 时的视觉批、旧机器门数字、
+并行索引清理与 lint 假绿判例。2026-07-28 从活动 desktop 层移除，避免其“最新/待办”措辞被误作
+现行事实；仍保留为旧验收证据入口。现行数字只认 desktop `ACCEPTANCE.md` 与 `current.md`。
+
 ## harness-core-1-stage-a.md（Stage A 决策材料，裁决已闭合）
 
 `HARNESS-CORE-1` Stage A 全文：口径核实（含「减法八条不存在」的坐标订正）、四份 ADR 草案、`TOOL-READ-1` 票面重建、Stage B 实现分解，末附 R-1…R-27 与架构逐项裁决。
@@ -36,6 +42,13 @@
 
 `different-ai/openwork` tip `1f41a52` 源码实测：agent loop 100% 外包 opencode 的结构判定（GUI 标杆成立、harness 标杆是 pi/opencode 本体）、三栏对照（已裁不做全部经受实测／有票项获借形坐标／真空白仅三项）、差异化资产清单（预算硬限额/持久授权/原件只读/fail-closed 门禁均在其空白区）。**已消费**——三枚裁决（`CHAT-QUEUE-1` 入票池、OPENWORKER-SURVEY-1 续档、opencode 定向调研挂 `TOOL-READ-1` 前置）已落就绪图与本索引；导航栈与产物面板动作排不采纳入 roadmap 留痕。时效随对象仓演进折旧，结论锚定上述 tip。
 
+**2026-07-28 时效订正（部分过时）**：二次复核锚定 OpenWork `dev@1aba9e3`、OpenCode
+`dev@3f9dad3`。旧报告仅“OpenWork 把 agent loop 委托给 OpenCode”这一结构结论仍有效；
+原 file:line、薄壳归纳及 busy/steer 生命周期已漂移。当前 OpenCode 会先持久 user message，
+再由运行中的 loop 重读形成 immediate steer；OpenWork 同时提供 immediate steer 与 Zustand
+内存队列，Stop 会清队列，队列不耐久。`CHAT-QUEUE-1` 不再以上游“无 steer/busy reject”为
+事实依据。GUI 成熟度未经当前截图、交互、恢复与源码验收，不构成选型放行。
+
 ## pi-ecosystem-2026-07-26.md（pi 生态摸底，已消费）
 
 云端网页层调研：官方 registry 5,312 包实存、五类扩展编目（权限确认/sandbox/compaction-memory/工具扩展/UI-TUI）、textbook 零命中改拼装消费（作者博客四篇＋官方 extensions 文档）、深读名单五项。**已消费**——三枚裁决（`SANDBOX-PROBE-1` 候选对＝sandbox-runtime vs gondolin、`TOOL-READ-1` 借形坐标＝官方三例＋cc-safety-net、新增 clone 三仓待各票取用）已落就绪图。注意：WebFetch 数字（star/日期）不可靠已被调研自证，机制描述系多源交叉。
@@ -43,6 +56,10 @@
 ## research-2026-07-27-parallel-survey/（并行时效调研批，只读，不进权威链）
 
 DEBT-DOSSIER-1 在途期间的四路云端并行调研：opencode 定向三题（TOOL-READ-1 前置）、沙箱案头对照（SANDBOX-PROBE-1 前置）、历史论断五组时效核查、竞品态势脉搏。批内 README 载文件表、时效三态与消费去向；全部裁决已于 2026-07-27 落就绪图（TOOL-READ 前置销记、SANDBOX-PROBE 案头补记、CHAT-QUEUE 口径订正）与 roadmap 复核行。**已消费**。
+
+**2026-07-28 时效订正**：批内 Q3 所据“server 无 steer、忙时拒绝”已被当前 OpenWork/OpenCode
+源码复核替代；其余结论不随之自动失效。现行行为事实与 Courtwork 排队裁决只认实现就绪图，
+不得从本批恢复旧口径。
 
 ## research-2026-07-27-memory-continuation/（记忆与续行对照批，只读，不进权威链）
 
@@ -83,10 +100,15 @@ R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadm
 
 | 文件 | 主题 | 时效三态 | 消费状态 |
 |---|---|---|---|
-| `pi-tools-first-source.md` | read/edit/write/bash 精确接口、bash 权限模型、toolResult 形态与回灌、agent loop 控制结构 | **有效**（2026-07-20 一手） | 已消费（ADR-017 决定零/八、ADR-018、TOOL-READ-1 票面） |
+| `pi-tools-first-source.md` | read/edit/write/bash 精确接口、bash 权限模型、toolResult 形态与回灌、agent loop 控制结构 | **部分过时**（write 裁决于 2026-07-28 窄修订） | 已消费（ADR-017/018/022、TOOL-READ-1 票面） |
 | `README.md` | 批次入口、核实边界 | 有效 | 已消费（随批） |
 
 **关键结论**：pi 的 bash 范式**就是不做权限模型**（无白名单/黑名单/确认/授权持久化），安全性整体外包给容器；沙箱只是示例扩展非运行时依赖。故「采 pi 范式」与就绪图「沙盒后期」互相排斥。read/edit 的接口与截断纪律可借形，write 的无确认覆盖写与 ADR-004 冲突不采纳。**核实边界**：本机快照无 `.git`，提交日期与 issue/PR 响应时延无法从本地判定。
+
+**2026-07-28 产品窄修订**：历史“不采纳 write”结论对用户原件、工作稿、产出和 Node 直写仍
+成立；仅 app-data、session-scoped agent workspace 例外采用上游覆盖式 `write`，由 Rust 宿主
+逐次授权、先落账再执行。该例外不包含 edit、revision、diff、CAS、promotion 或 bash，且归档
+说明本身不构成现行契约。
 
 ## research-2026-07-15-round-3/（现行最新批，无被推翻项）
 
@@ -125,5 +147,8 @@ R1 多宿主解耦→system.md 复用边界；R2 多写者×跨案矛盾→roadm
 - **桶三（不采纳，留痕）**：第一方连接器中央硬编码枚举（改一个连接器手改三处中心文件）与第三方 MCP 整体信任远端 schema，两极端均非版本化可移除包，正是 ADR-008 / 唯一 ABI 明令反对的形态；工具层零运行时 schema 校验（声明而不校验）同不采纳。
 
 **同族负面判例续档（2026-07-26，源 `benchmark-openwork-2026-07-26.md`，对象为 `different-ai/openwork` tip `1f41a52`——另一仓，判例同族）**：`_scheduled_approver` 类标识符在该仓不存在，但行为判例换名存续——桌面内嵌 server 硬编码 `approvalMode:"auto"`（`apps/desktop/electron/runtime.mjs:1208`），19 处 host/write API 的 `requireApproval` 事实上无条件放行；真正门控工具调用的是 opencode 侧 permission.ask（once/always/reject，事前、always 持久化为 pattern 许可）。两层分明：工具级审批外包且形态尚可，自建 host API 层仍是 auto 直放。scheduled 线其 roadmap 标注 Building/Next，仓内零实现。负面判例效力不变。**2026-07-27 复核**：`approvalMode:"auto"` 于 dev 分支仍现行、scheduled 仍 Building/Next 零发布、07-19 后无 release（见 research-2026-07-27-parallel-survey）。
+
+**2026-07-28 时效注**：上段 OpenWork 审批坐标本轮未重核，不作当前事实；只保留其锚定旧 tip
+的历史判例效力。
 
 **时效**：随对象仓库演进折旧，结论锚定上述 commit，上游日更不追。

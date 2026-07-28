@@ -1,8 +1,9 @@
 # ADR-018：执行隔离与沙箱边界
 
-- 状态：**Accepted（2026-07-20）**
+- 状态：**Accepted（2026-07-20；2026-07-28 两项窄修订）**
 - 日期：2026-07-20
-- 关系：泛化 ADR-005 §3 已有的隔离先例；约束 ADR-017 的受控命令执行（该 ADR 决定一至七已封存，决定八生效，见其决定零裁定）；不改 ADR-009 决定一的 Rust 宿主定位
+- 关系：泛化 ADR-005 §3 已有的隔离先例；约束 ADR-017 已启封但尚未排产的受控命令执行与
+  ADR-022 的 host-mediated workspace；不改 ADR-009 决定一的 Rust 宿主定位
 - 提出单：`HARNESS-CORE-1` Stage A；裁决：R-8 准、R-24 裁（2026-07-20）
 
 > **当期隔离等级：`none`（显式停留，非疏漏）。** 见未决项处置。
@@ -61,8 +62,20 @@
 | `os_confined` | 加：策略内的受限写入 |
 | `container` | 本 ADR 不预授——需求到来时另裁 |
 
-- 当期隔离等级为 `none`，故 ADR-017 的受控命令执行**只能落在最窄档**：白名单 + 逐次确认 + 授权先于执行。这不是保守，是等级绑定的必然结果。
+- 当期隔离等级为 `none`，故 ADR-017 的受控命令执行**不得落地**；白名单、逐次确认与
+  durable-before-effect 是未来执行面的必要准入控制，不是把 `none` 变成可执行等级的充分条件。
 - **不得以「将来会有沙箱」为由预先放宽当期能力面。** 能力随隔离等级晋升而晋升，且每次晋升须有该等级的证伪反例作证据。
+
+### 2026-07-28 窄修订：host-mediated agent workspace
+
+决定五的 `process` 行新增一种不把能力授给子进程的窄形态：ADR-022 的产品 Node sidecar 在独立
+进程、生命周期/崩溃反例成立后，只可调用 pi `write` 生成提案；其
+`ExecutionEnv.writeFile` 阻塞式转给 Rust，Node 生产码无 fs 写。Rust 仅在
+`app_data_dir()/pi-workspaces/<containerId>/<sessionId>/` 内逐 effect 授权、先落账再覆盖。
+
+这不改变等级表：执行物理 effect 的是受信宿主，不是未受限子进程，故 sidecar 仍只称
+`process`，不冒充 `os_confined`。任一让 Node/上游 `NodeExecutionEnv` 直接写文件、执行命令或
+取得用户目录写权的方案，仍至少要求 `os_confined` 与越界反例；路径校验不能替代该前置。
 
 ## 门禁
 
@@ -96,3 +109,10 @@
 ## 修订记录
 
 - **2026-07-27（SANDBOX-PROBE-1 落账，正文零改动）**：未决 1（Seatbelt 实测）已由探测票部分回答——ad-hoc 签名 + hardened runtime 的 Tauri v2 `.app` 内 spawn `sandbox-exec` 可行，三类越界双向反例在案，notarized 形态与 TCC 首启归因为未测边界；未决 3（绑定表机器可读）已落门（`apps/desktop/scripts/assert-isolation-binding.mjs`，R1 契约自洽／R2 无反例即无等级／R3 能力面不得越档，真源从本 ADR 正文解析、门内零副本）。证据与判据坐标：`docs/engineering/sandbox-probe-1.md`（现行工程文档，R2 的读取面）。当期等级 `none` 不变；`EXEC-SCRIPT-1` 当期不排产，沙箱实现路线定 Rust 侧自研窄 profile（裁点一，2026-07-27），域名级网络准入成为真实需求时按探测报告第七节代价表重议——此三项为架构裁决记录，不改变本 ADR 任何决定。
+- **2026-07-28（pi workspace 窄修订）**：按 ADR-022 将“子进程直接写”与“子进程提案、
+  Rust 写可整删 agent workspace”分开。后者纳入 `process` 最高能力，仍须逐 effect 授权和
+  durable-before-effect；前者仍锁 `os_confined`。这不放行 bash，也不把准入控制称作沙箱。
+- **2026-07-28（选型冲突订正）**：撤销 2026-07-27 修订记录里“沙箱实现路线定 Rust 侧自研
+  窄 profile”的预定；该说法与决定二“沙箱是外采面、不自研”直接冲突。SANDBOX-PROBE-1 只证明
+  Seatbelt 原语在一组 ad-hoc 条件下可行，不等于实现方案放行。`EXEC-SCRIPT-1` 继续 parked，
+  开工前须重新携成熟 OSS、许可、维护、Tauri/签名与越界反例回架构裁。

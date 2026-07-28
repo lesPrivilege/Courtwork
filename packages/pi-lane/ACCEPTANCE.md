@@ -36,7 +36,8 @@ R3 不采信实现自述，实际向 production tree 注入后再还原：
 `abort()`，不是请求前硬封顶；`beforeToolCall` 被 await，时序可承载 future durable-before-effect，但本读面未实现
 授权账本；`Agent` 与 `AgentHarness` 的当期分层令 journal 尚未落地，卷宗内 `loop/` 与随容器备份/删除仍是
 `[需架构拍板]` 提案；当前仅 dev sidecar，未进入 `.app`，嵌 Node 的签名/公证/JIT entitlement 与分发体积
-成本须由 `PI-LANE-2` 实测，不能宣称已解决。
+成本后经 2026-07-28 拆票为 `PI-SIDECAR-DIST-1`（开发分发路线）与
+`PI-SIDECAR-RELEASE-1`（Developer ID/notarize 真值）实测；两票未完成前仍不能宣称已解决。
 
 ## 全量门与 Playwright
 

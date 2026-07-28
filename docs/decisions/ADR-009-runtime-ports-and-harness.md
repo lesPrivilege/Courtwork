@@ -1,6 +1,6 @@
 # ADR-009：Runtime Ports、双 Harness 与 Package 双平面
 
-- 状态：Accepted
+- 状态：Accepted（2026-07-28 pi GUI 窄例外；Dossier 蒸馏调用边界补齐）
 - 日期：2026-07-14
 - 来源：`b0767144271ae165b3a61d79f809b0f9a257652d`、`b8815080501d7775a6e2fa27fefa756588496d92`、`016567904ded5edede614dbd8cbe7b6c5cdf59a8`、`4a8fc2f75e33b2b342b6be1149946cc5d7af2fe5`、`0fd4df18cad9a1cd3e7b171ee372464a70ad2951`
 
@@ -124,6 +124,34 @@ model | deterministic_tool | interaction | projection | confirmation
 
 不开放模型自主选工具、任意 goto、动态图、并行 agent/subagent、session 级 always-allow 或不可逆动作自动批准。Work 继续演进既有 `SessionEvent`，不得新建平行 Work journal。
 
+### 2026-07-28 补充：Dossier 蒸馏不是第三套模型运行时
+
+ADR-021 的历史输入蒸馏是系统发起的结构化模型调用，但它**不是**本决定的例外。实现只能在
+composition root 注入现有 `TurnRunnerPort`，不得 import/持有 `Provider`、`TurnStore`，也不得直接
+调用 `generate()`/`stream()`。每次真实 provider attempt 都铸新的
+`turnId/providerRequestId`，并先在 container-scoped Dossier 状态中以
+`{operationId,attempt,turnId,providerRequestId,expectedStateVersion,sourceCut,inputDigest}`
+冻结引用；同一逻辑 operation 因 CAS 冲突重试时 attempt 递增且不得复用 Turn 身份。
+
+调用结果只认 `PersistedTurn`：
+
+- runner 返回后先用 `DossierStatePort` 把 terminal CAS append 到 container-scoped
+  `DossierStateEnvelopeV1.turnEntries`；这是 Dossier 蒸馏唯一耐久 Turn journal，沿用现有
+  `PersistedTurn` schema，字段类型固定 `PersistedTurn[]`，不容纳 `InteractionEvent`，也不复用
+  Chat localStorage、session Work envelope 或 pi JSONL；
+- `completed` terminal 耐久后才解析 `assistantMessage`，再以 ADR-016 的 schema 校验；只有校验
+  通过且第二次 expected-version CAS 成功，才能提交笔记本 revision 与推进 `sourceCut`；
+- `failed`（含 `failure.kind:'canceled'`）或调用未见耐久 terminal 时，不写笔记本、不推进 cut；
+- Turn terminal 已耐久而语义 CAS 前崩溃，可从该 terminal 继续校验/commit；attempt 已落但
+  terminal 缺席时才以新 attempt/新 Turn 身份重试。外部调用仍不宣称 exactly-once；
+- 用户编辑导致 CAS 冲突时丢弃旧模型产物；同一 `operationId` 的 committed 事件仍至多一笔。
+
+这样 Dossier 的 container 信封拥有该内部任务的 Turn terminal 与语义提交，但没有第二套
+provider 生命周期；stream 校验仍由现有 Turn Engine 独占，terminal 正文/usage 也不在 Dossier
+字段中复制第二份。
+pi work-agent 消费 Dossier compiler 的输出不改变此条：pi 自身对话回合仍是下文 ADR-022 例外，
+系统蒸馏调用仍走本节。
+
 ## 决定三：Package ABI 拆成 data plane 与 runtime plane
 
 现有字段语义保留，但载体拆为两面：
@@ -241,6 +269,28 @@ type ArtifactEnvelope = {
 
 本阶段新增第三方 Chat/Agent runtime 依赖数必须为零。
 
+### 2026-07-28 窄修订：pi lane 的 runtime、sidecar 与工具提案例外
+
+本 ADR 决定一、二、六、七的上述绝对句继续完整约束既有场景线 Chat/Work；ADR-022 的 pi lane
+是唯一后来法例外：
+
+- 允许 Rust 宿主拉起产品 Node sidecar，并在其中内嵌精确版本的 pi Agent/pi-ai；WebView 仍只经
+  Rust command/projection，localhost dev server 不进产品；
+- pi 的模型回合不穿现有 Turn Engine，也不写 TurnJournal/SessionEvent；其 wire、预算与
+  app-data JSONL 只认 ADR-022，禁止向场景线混写或反向取代现有 provider 生命周期；
+- pi 原版 `write` 可由模型在 agent workspace 内发出**提案**，但不直接执行；Rust 必须逐 effect
+  授权、先落账再写。用户原件、工作稿、产出与全部场景线工具仍只可由 Scenario/用户显式步骤点名；
+- “第三方 Agent runtime 依赖数为零”不再适用于 ADR-022 已批准的 pi core 与其 GUI 窄依赖；
+  其他 runtime、server、adapter 与状态真源仍为零。
+
+### 2026-07-28 窄修订：pi GUI 的 assistant-ui 例外
+
+决定七继续完整约束场景线 Chat/Work。ADR-022 的 pi GUI 可直接依赖
+`@assistant-ui/react` 的 headless primitives + 公共 `useExternalStoreRuntime` hook，但只把 Courtwork 的
+Rust journal projection 适配成视图状态；禁止 `LocalRuntime`、Assistant Cloud、AI SDK/AG-UI/
+OpenCode adapter、thread persistence/export、branching/edit/queue 等第二真源能力。未提供
+callback 的能力必须保持关闭。此例外不反向扩大场景线依赖面。
+
 ## 决定八：Demo composition 是独立开发包
 
 - 新建 `packages/demo-runtime` 作为唯一 demo/acceptance composition root，承接现有 core 内的 demo assembly、真实/脚本化演示 runner、CLI 与端到端 golden。
@@ -264,3 +314,16 @@ type ArtifactEnvelope = {
 ## 后果
 
 Courtwork 仍是本地优先单体应用，但 UI、core 与宿主能力具有可替换边界；Chat 与 Work 共享模型回合真源而保留各自审计账本；垂类包可以跨进程描述但不能注入可执行 UI；DeepSeek-first 产品面不妨碍未来具名 provider 扩展。代价是短期增加 compatibility adapter 与显式 migration 测试，但避免引入第二 runtime、第二 schema 真源和第二 provider 生命周期。
+
+## 修订记录
+
+- **2026-07-28（Dossier 蒸馏调用边界）**：ADR-021 的系统蒸馏明确复用既有
+  `TurnRunnerPort/PersistedTurn`，不得直连 Provider 或另造 model-call journal；冻结
+  operation/attempt/Turn 身份与 Dossier CAS 次序。该补充不是新的 runtime 例外。
+- **2026-07-28（pi runtime/sidecar 与 GUI 窄例外）**：决定一、二、六、七对场景线
+  Chat/Work 不变；仅 ADR-022 的 pi lane 可内嵌精确版本 pi core/pi-ai、由 Rust 管理 Node
+  sidecar，并让模型只向 agent workspace 产生待授权 write proposal。A2 headless 总验通过后，
+  可再直接依赖 `@assistant-ui/react` 的 headless primitives 与公共
+  `useExternalStoreRuntime` hook 作为
+  Courtwork journal 薄投影。禁止引入其本地/云 runtime、provider adapter、thread persistence
+  或分支/编辑/排队状态真源。

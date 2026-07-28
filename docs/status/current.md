@@ -1,6 +1,6 @@
 # 当前基线
 
-更新时间：随清账滚动（以提交史为准；本轮至 2026-07-24）
+更新时间：随清账滚动（以提交史为准；本轮至 2026-07-28）
 
 文档重整输入基线：`f03e742`
 
@@ -28,7 +28,7 @@
 | Chat 附件 | ready 附件的 `readingMarkdown`、粘贴块与用户文本经同源组装逐字进入真实请求；needs_ocr 与空内容以类型级 reason 显式阻断发送。`DEBT-DOSSIER-1` 已闭合入库判据与材料计数同源：grant 案仅 `scope==='dossier'` 且 ready 的附件经唯一 `ingestComposerUploads` 路径入库，message-only 逐字进请求零入库；件数不持久、水合先显式「未读取」再由 `listForCase` 逐案派生，CaseRail／Working folders 徽标与树体／原件列表同源，demo 常量与 production 派生物理分流；chip 文案改未然态（随本条存入卷宗）。实现 `7f4699a`…`e5a3dfa`，验收自修 `56bb556`，no-ff 合入 `51fe6ad` | OCR 与图片多模态仍未接入；Composer 单附件上限维持现状（双 scope 同发结构性不可达，混合批判据由单测穷举，放宽属另一票且需求未实证） |
 | Provider 设置 | key 与 provider 配置分离，凭证经宿主钥匙串边界；custom/base URL 猜测入口已退役 | — |
 | Provider usage 计量 | 原始 usage（rawUsage 真源）与 cache/reasoning 归一化槽位、unknown 传染、版本化 CostEstimate 经 provider→core Turn 持久→desktop 全链成立并独立验收（`ce37d53`+`91afa57`，报告见 provider ACCEPTANCE） | DeepSeek 真实响应捕获仍阻塞于带 key 环境，fixture 为构造件，不得宣称 external-validated |
-| 通用 loop 线（dev 形态） | `PI-LANE-1` 已交付读面骨架：Node sidecar 内嵌 `@earendil-works/pi-agent-core@0.82.1`（版本锚定、license 逐包核实），read/grep/glob 三件 scoped 到显式授权文件夹（`ExecutionEnv` 层 fail-closed，写/exec 根本不实现），edit/write/bash 三锁禁用并有 R3 扩描静态红证；dev 入口 `packages/pi-lane/dev`（sidecar 自服务，不入产品包）；预算宿主 `abort()` 真停有测；DeepSeek 为 pi-ai 原生 provider。实现 `51c27b6`，验收 `26d4b2b`，no-ff 合入 `6d7a8eb` | **dev 形态非产品面**：无生产 GUI（归 `PI-LANE-2`）、无持久 transcript（`loop/` 提案待实施）、写面与 bash 锁升档纪律；loop 证据出自构造 provider，**真 key 端到端未验**（SPEC 第七节步骤待持 key 者执行）；预算语义为越限即停非永不越限 |
+| 通用 loop 线（dev 形态） | `PI-LANE-1` 已交付读面骨架：Node sidecar 内嵌 `@earendil-works/pi-agent-core@0.82.1`（版本锚定、license 逐包核实），read/grep/glob 三件 scoped 到显式授权文件夹（`ExecutionEnv` 层 fail-closed，写/exec 根本不实现），edit/write/bash 三锁禁用并有 R3 扩描静态红证；dev 入口 `packages/pi-lane/dev`（sidecar 自服务，不入产品包）；预算宿主 `abort()` 真停有测；DeepSeek 为 pi-ai 原生 provider。实现 `51c27b6`，验收 `26d4b2b`，no-ff 合入 `6d7a8eb` | **dev 形态非产品面**：无生产 GUI、无耐久 loop journal、无任何已放行写面或 bash；后续 host-mediated workspace 设计尚未实现，不能反推为当前能力；loop 证据出自构造 provider，**真 key 端到端未验**（SPEC 第七节步骤待持 key 者执行）；预算语义为越限即停非永不越限 |
 | Work 法律场景窄链 | 非 demo grant 案的 production run/replay/resume/cancel、耐久 store、材料绑定与 docx 文件写入链可达；第六轮真机观察到 RiskList、页内引语展开与本案产出目录中的 docx。`WORK-BUDGET-1` 已把 Settings 金额上限、冻结 DeepSeek route/价目、累计 budget 与持久失败回放装入同一 production 链并独立放行。`CONTRACT-REVIEW-SAFETY-1` 已闭合显式最终提交（逐条填满不自动 resume）、resolve outcome 检查（非 completed 零写）、durable post-revision 分流、completed 指针耐久与零文书诚实终态（零风险/任一待索证/全驳回），production 编译器退役 waiver 参数（`onNonApplied:'block'` 无条件）；实现 `b9dc1e9`，回归锁 `5f4d90d`，异会话验收 `e473fbb`。`CONTRACT-OUTPUT-TRUTH-1` 已闭合显式选择 DOCX 主合同（退役 `ready[0]`）、一次 readOriginal snapshot 从原 DOCX bytes 产批注稿（退役 ReadingView 重建）、persisted createdAt + session SHA-256 版本化产物名与 atomic no-replace 落盘（退役 `overwrite:true`）、non-applied 与数字签名整份阻断；实现至 `b2ba999`，异会话验收一驳回一聚焦复验放行，合入 `78655bd`。`CONTRACT-TRACE-1` 已闭合真实 SourceAnchor 回跳（fileId 同案重验、`textLayerVersion` + `textRange` 的 block-local 坐标高亮，合法 bbox-only 显式 unsupported）、canonical reader 单调用链（`material-actions` 唯一存活，退役第二 shape 与 quote 搜索）、生产 RiskList 面退役 demo 常量与 disabled 死态（`goto-source` 接通）、会话指针 compare-and-clear 生命周期（candidate 不抢写、durable failed/completed 保留）与 completed 只读重开（仅 inspect=ready 显式重试）；`contractOutputExists` 命名残留随票清理。实现至 `c92cdb0`，异会话验收放行 `3e0a0e5`。 | demo 样板案锚点结构性不可验证（显式 `anchor_invalid`）属 `DEMO-ANCHOR-1`。质量打分、Word/WPS 真机 roundtrip 与版本级真机复验未闭合，仍不宣称 Work 全面 product-live / external-validated |
 
 Composer 的「存入卷宗/资料」自 `DEBT-DOSSIER-1` 起即入库判据本身，badge 是判据投影；
@@ -41,7 +41,7 @@ Composer 的「存入卷宗/资料」自 `DEBT-DOSSIER-1` 起即入库判据本�
 - `@courtwork/core/work-protocol`、`@courtwork/core/turn-protocol` 的 browser-safe 子路径；`@courtwork/core` 根出口不具备同一声明；
 - citation resolver、coverage 剪枝和 Legal RiskList 的 quote → system anchor 路径；其他部分模型最终 schema 仍直接含 SourceAnchor；
 - reading-view 对 docx/md/txt/文本层 PDF 的解析，以及图片/扫描 PDF 的诚实 `needs_ocr`；
-- output 包自身的 docx 安全预检、基础修订/批注、起草与字体自动化已成立；`OUTPUT-CORRECTNESS-1` 自动化范围已完成并独立验收（pPr 保留、字体只落触碰 run、既有批注/关系保全与幂等、paragraphHint 真实消费、non-applied 落盘门禁、真实 Vite consumer 与 OOXML part/rel diff 留证，`968a6cc`+`9720d39`，报告 `733bbe6`）。但现行 desktop production consumer 没有把原 DOCX bytes 交给该保真链，而是从 ReadingView Markdown 重建新文档；因此端到端原稿保真尚未成立。Word/WPS 真机 roundtrip 也仍未执行，不得声明 external-validated；
+- output 包自身的 docx 安全预检、基础修订/批注、起草与字体自动化已成立；`OUTPUT-CORRECTNESS-1` 自动化范围已完成并独立验收（pPr 保留、字体只落触碰 run、既有批注/关系保全与幂等、paragraphHint 真实消费、non-applied 落盘门禁、真实 Vite consumer 与 OOXML part/rel diff 留证，`968a6cc`+`9720d39`，报告 `733bbe6`）。`CONTRACT-OUTPUT-TRUTH-1` 后现行 desktop production consumer 已经由同一 `materialId` 一次重读并复验**原始 DOCX bytes**，再交给保真修订链；ReadingView Markdown 重建只留在显式 demo 编译器，不能反向描述 production。自动化链成立仍不等于外部兼容：Word/WPS 打开—轻改—保存—回读与 comments/rels 保全的版本矩阵尚未执行，不得声明 external-validated；
 - Legal 垂类包；PM 的 descriptor/schema/presentation 与 catalog fixture，PM 仍无 scenario/prompt/live；
 - Work command/store/material/Legal S3 binding 与 Tauri 耐久宿主已接通；`CORE-BUDGET-1`
   实现 `7808426` 的首轮验收抓出 paid preflight 晚于 step 计数，修复 `07ecca5` 已闭合该缺陷。
@@ -92,25 +92,24 @@ Composer 的「存入卷宗/资料」自 `DEBT-DOSSIER-1` 起即入库判据本�
 | 2026-07-26 合同审查安全面 | `CONTRACT-REVIEW-SAFETY-1`：实现 `d24d62b`+`2a16f44`+`b9dc1e9`，fix-by-acceptance 回归锁 `5f4d90d`，异会话验收 `e473fbb`，合入 `05e0ade`。全量门两轮实跑全绿（root 1294、desktop 501、Playwright 337/337），四项指名 mutation 三项原生红证、一项由回归锁补齐。只放行 SAFETY 票面，不及 OUTPUT/TRACE |
 | 2026-07-26 合同审查输出真实性 | `CONTRACT-OUTPUT-TRUTH-1`：实现 `95ab19d`…`3171c08` + 修复 `b2ba999`，异会话验收一驳回（三模块白名单缺录、旧产物名残留消费）一聚焦复验放行，合入 `78655bd`；随批 eslint `.claude/**` 微修缮 `c7897d8`（红绿证）。六类 mutation 与四条回归锁逐项红绿，Playwright floor 342→343。只放行 OUTPUT 票面，不及 TRACE |
 | 2026-07-27 合同审查来源回跳 | `CONTRACT-TRACE-1`：实现 `24cccb4`…`c92cdb0`（含高水位 2657→2644 同批下调、两处旧断言按本意改写、`work-recovery`/`material-reader` 吸收删除），SPEC 留痕四项偏离与两处白名单外触碰经验收派单件六裁定一追认定谳后交验；五枚真实模块 mutation 红绿（首枚以等价最小扰动形态获准，裁定七），全量门通过（root 1323、desktop 651、Playwright 346/347，唯一红为在册 `E2E-FLAKY-HOVER-1`），floor 343→347；验收报告 `3e0a0e5`，清账 `c9e7b5e`，快进合入。只放行 TRACE 票面（来源回跳／完成账本可重开／production 预览真实同源），不及 DOSSIER |
-| 2026-07-27 沙箱探测与绑定门 | `SANDBOX-PROBE-1`：实现 `bdd539a`+`86baa28`（探测报告＋等级—能力绑定门 12 红绿证），架构复核快进合入并独立抽检门绿。结论部分成立：Seatbelt 于 ad-hoc＋hardened runtime `.app` 内可行携三类双向反例；四则裁决（乙路定谳、门形态追认、EXEC-SCRIPT 不排产、三处未测边界留痕）与 Opus 5 执行追认见就绪图该行。当期隔离等级 `none` 不变 |
+| 2026-07-27 沙箱探测与绑定门 | `SANDBOX-PROBE-1`：实现 `bdd539a`+`86baa28`（探测报告＋等级—能力绑定门 12 红绿证），架构复核快进合入并独立抽检门绿。成立范围只到 Seatbelt 于 ad-hoc＋hardened runtime `.app` 内的原语可行性与三类双向反例；2026-07-27 曾据此预定的“Rust 自研窄 profile”与 ADR-018 外采纪律冲突，已于 2026-07-28 撤销。当前没有产品沙箱选型，`EXEC-SCRIPT-1` 不排产，隔离等级 `none` 不变 |
 | 2026-07-27 入卷语义与计数同源 | `DEBT-DOSSIER-1`：实现 `7f4699a`…`e5a3dfa`（四提交＋命名残留自查清理），异会话验收放行＋fix-by-acceptance `56bb556`（chip 未然态文案、旧字节水合回归锁），no-ff 合入 `51fe6ad`——主线并行前进致快进不可用，no-ff 保全证据锚点。六类 mutation 独立复红，合并 tip 全量门 root 1323、desktop 674 通过；Playwright 数字经 `COMPOSER-SPEC-SYNC-1` 二分订正：验收轮所记 351/351 系**取数后又改文案未重跑**（`56bb556` 自身使其失效），含该提交起的每个 tip 实为 **350/351**，缺口为 `composer.spec` 旧文案断言。微单已修并 no-ff 合入（`4d4c4f7`）；现行 main tip 实测复核 **351/351**（等价链覆盖合入 tip：`3ac4b42..tip` 非 docs diff 为空，复核轮全量门数字见 desktop ACCEPTANCE 订正块下「复核轮」段）——恢复由预期转为实测。floor 347→351、App 高水位 2644→2551。只放行票面（入库判据／计数同源），不及 OCR 与单附件上限 |
 | 2026-07-27 Legal panel 首枚迁移 | `PANEL-BLUEPRINT-1` matrix 首枚：实现 `f8e3d0e`+`f3d2bf3`（迁 `kind:'component'` 全链、view 扩形与拒载、`revision` 默认落点收口、外提两模组、高水位 2551→2549），验收一驳回（独立终局缺失）一聚焦复验放行（`1039433`/`b521b34`，复验 350/351 携记名豁免），no-ff 合入 `1b8c450` 后合入 tip 351/351 全绿。三枚 mutation 独立复红；其余三 panel 保持开账 |
 | 2026-07-27 通用线首件 | `PI-LANE-1`：实现 `51c27b6`（六枚，含 R3 扩描与两处方法错误自纠留痕），验收放行 `26d4b2b`（七件全核、R3 真树注入独立复证、Playwright 350/351 携豁免与两条 flaky 观察），no-ff 合入 `6d7a8eb` 后合入 tip 351/351。未决四题答卷回 ADR-022 补记；包名供应链陷阱经一手核实入 ADR 修订记录。只放行 dev 读面，不及生产挂载与写面 |
 
-ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第二 agent runtime；企业 SDK 编排只进真实垂类 runtime；新 production blueprint 只能由真实 fixture 与 fail-closed projection 拉动。
+ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不自研第二 runtime、不引入编排框架；
+ADR-022 的成熟开源 loop 是唯一受控引入线。企业 SDK 编排只进真实垂类 runtime；新 production
+blueprint 只能由真实 fixture 与 fail-closed projection 拉动。
 
-## 当前下一序
+## 开工指针
 
-严格按[实现就绪图](../architecture/implementation-readiness.md)派发：
+本文件不维护开放工单、并行关系或下一序；这些只认[实现就绪图](../architecture/implementation-readiness.md)。
+2026-07-28 的 pi 基础底座优先级重排只改变开工图，不改变本节任何当前能力声明。
 
-1. `C3-1`（P0，当前唯一 `App.tsx` 首票，随 matrix 清账取得 App 槽），随后依次
-   `C3-2 → C3-3`；C3-4 的预算执法与 flash 价目已前移到预算票，本身只做同源可观测出口。
-2. 版级收尾仪式（真机全链回归清单＋解耦审计三腿）与 `PI-LANE-2` 立票面并行推进；
-   `DEMO-ANCHOR-1` 宜随版前清掉。
-3. 真机事实只按 [`pilot-2026-07-17.md`](pilot-2026-07-17.md) 读取：第六轮只证明
-   Legal S3→docx 文件写入可达，源码回溯已下调其“引语回跳 / redline / 报告”解释；chat 全链、
-   案件持久、材料 fail-closed 仍有实证。六处埋点正式打分、Office roundtrip、签名/公证及本版
-   Legal 单品真机回归均未闭合，不据工程绿自动晋级成熟度。
+真机事实只按 [`pilot-2026-07-17.md`](pilot-2026-07-17.md) 读取：第六轮只证明
+Legal S3→docx 文件写入可达，源码回溯已下调其“引语回跳 / redline / 报告”解释；chat 全链、
+案件持久、材料 fail-closed 仍有实证。六处埋点正式打分、Office roundtrip、签名/公证及本版
+Legal 单品真机回归均未闭合，不据工程绿自动晋级成熟度。
 
 后置但仍真实存在的缺口：`services/ingest` 只有规格，OCR/分类/实体对齐与 HTTP/progress wire 均未实现；正式 macOS Developer ID、公证和升级授权矩阵未完成；企业 identity、ACL、伦理墙、MCP/私域 adapter、scheduled invocation、多写者与跨案图谱属于以后阶段，不得插入本轮 Work live。
 
@@ -119,8 +118,8 @@ ADR-011/012 已冻结最小 harness 与垂类包/blueprint 边界：不引入第
 `HARNESS-CORE-1` 两份决策材料（Stage A 口径核实与四份 ADR 草案、Stage C 九域功能对照）已随三线收敛落痕闭合并归档——去处按归档索引的 `harness-core-1-stage-a.md` 与 `harness-core-1-stage-c.md` 两条条目定位。四项事实如下：
 
 - **ADR-016（统一填格协议）、ADR-017（受控命令执行）、ADR-018（执行隔离与沙箱）、ADR-019（卷宗容器与本地缓存）四份状态均为 `Accepted`**；ADR-011 同批修订两处（决定二措辞改「不引入自由 shell 与后台执行」、动词集扩集条款）。
-- **bash 当期不入界**（ADR-017 决定零）。理由是 pi 范式的安全性外包给容器，取形弃容器等于承接其明确拒绝的风险；work agent 已知场景无一必须任意命令。决定一至七封存为「若入界」的既定受控形态——重启议题须携新必要性证据对该 ADR 提修订，不得从零辩论。
-- **执行隔离等级显式停在 `none`**（ADR-018，R-24 裁不实测）。依据是等级—能力绑定：bash 不入界、`TOOL-READ-1` 为 `pure_read`，当前没有任何票需要超出 `none` 的能力面。Seatbelt 实测挂「首个需要超出 `none` 能力面的票」为强制前置——需求拉动，不预研。**这是显式停留，不是未评估。**
+- **bash 当前仍不入界**。ADR-017 决定一至八已经启封为“若有真实需求时的受控形态”，但启封契约不等于实现或排产；`EXEC-SCRIPT-1` 仍 parked，自由 shell、后台与 TTY 继续禁止。
+- **执行隔离等级显式停在 `none`**。`SANDBOX-PROBE-1` 已证明特定签名条件下 Seatbelt 原语可行，但未选出符合 ADR-018 外采纪律的产品沙箱；曾预定的自研窄 profile 已撤销。后续 host-mediated app-data workspace 是受信 Rust effect 的架构许可，也不构成当前隔离升档。
 - **Stage B 与 Stage C 各票已入实现就绪图**（含 P0 `CORE-BUDGET-1`／
   `WORK-BUDGET-1`、Legal 单品收束三票、`DEBT-DOSSIER-1`、`PERSIST-BACKEND-1`、
   `TOOL-READ-1`、`S6-EXEC-1`、`GATE-INVENTORY-1`、`C3-1`…`C3-5`），各行带裁决坐标、

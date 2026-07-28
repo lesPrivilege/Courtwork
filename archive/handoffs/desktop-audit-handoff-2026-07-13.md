@@ -1,5 +1,9 @@
 # 独立审计交接：自足版本坐标（2026-07-12 建，2026-07-13 更新）
 
+> 2026-07-28 归档说明：本件由 `apps/desktop/AUDIT-HANDOFF.md` 原内容迁入并加本说明。它是旧基线
+> `2e5c014` 的历史审计交接，不是 current、排程或验收真源；其中路径、数字与待办均不得恢复为
+> 当前事实。现行能力只认 `docs/status/current.md`，现行验收只认对应 `ACCEPTANCE.md`。
+
 本文件供独立审计会话取用。描述自足版本状态与验证证据。审计完成后可删。
 
 ## 版本坐标（最新）
@@ -23,7 +27,7 @@
 | `pnpm test`（vitest 全仓） | 85 文件 / **734/734** |
 | `pnpm --filter @courtwork/desktop test`（desktop 单测） | 20 文件 / **94/94** |
 | `npx eslint .`（整仓真绿） | **exit 0**（2026-07-13 复核） |
-| 16 门禁 + Playwright（`test:e2e`） | **R1/R3 连续 190/190 exit 0**（R2 出 4 红=并发 flaky，隔离单 worker 全过排除，D-1 flake 判例形制） |
+| 16 门禁 + Playwright（`test:e2e`） | **R1/R3 连续 190/190 exit 0**（R2 出 4 红=并发 flaky，隔离单 worker 全过排除，D-1 flake 判例） |
 | floor（`assert-test-count`） | **185**（禁降史 …182→183→185；本 12 项视觉批未加 e2e，rp23/rp26 连带门禁随改判随修） |
 | `pnpm test` / `pnpm -r build` / `tsc` | 均 exit 0（2026-07-13 复核） |
 | `demo:s3` golden | PASS，预埋考点 7/7（未回归） |

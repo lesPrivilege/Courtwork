@@ -1,6 +1,6 @@
 # 实现就绪图
 
-状态：Round 3 现行开工图（2026-07-24）
+状态：Round 3 现行开工图（2026-07-28）
 
 本文是 Round 3 的**唯一开工图**：只规定成熟度用语、依赖顺序、验收证据和禁止越界项，不复制完成状态。能力当前是否成立、发布到了哪一枚制品，只认[当前基线](../status/current.md)。跨层字段与语义仍只由 Accepted ADR 拍板。
 
@@ -103,7 +103,26 @@ WORK-BUDGET 验收在实现父 `a82f51d` 独立注入六类 production mutation 
 - **笔三（chat scope 判据）——已闭合销记**：`A/R-26` 裁接判据，已入 `DEBT-DOSSIER-1` 票面与 App 队列，无余量。
 - **笔四（半，interaction actor 两笔）——显式容忍留痕**：当期产品单机单用户，两处 actor 串是稳定常量，不构成运行时风险；替换前置（authenticated principal ADR）属 Stage 2，现在铸 ADR 违反「真实需求进入对应阶段才立」纪律。容忍边界两条：新代码不得新增第三处硬编码 actor（复用现有两常量）；principal ADR 立项时必须携存量持久事件（InteractionResolved／Revision／确认账本）迁移策略，届时本容忍失效。
 
-**忧二 · 减法未足 → OSS 减法评估线**。立一次性盘点票 `OSS-SUBTRACT-1`：对全部自研面（md 渲染、diff、图渲染、OOXML、状态管理、E2E 工装等）逐项问「有无 License 合规（MIT/Apache）的成熟件可换」，输出换/不换理由表——**不换的理由同样是资产**（自研加固清单的验证）；换的逐项立票。此后每张 harness 真实化票自带「OSS 候选评估」节（已入纪律）。**追加（2026-07-26 GUI 裁定）**：卷宗全文检索的中文分词选型并入本票评估面（通用 JS 全文库不直接解决中文分词），试点用户提出检索诉求实证后再立票。**重定向（2026-07-27，ADR-022）**：loop 自研 vs 换件的最大一问已由 ADR-022 先答（引入 pi-agent-core）；本票收窄为其余自研面盘点（md 渲染、diff、图渲染、OOXML、状态管理、E2E 工装等），优先级降一档，⑤ 的解锁判据不变。
+**忧二 · 减法未足 → OSS 减法评估线**。2026-07-28 以 `main@3ddb14e` 的真实消费点重新逐面
+裁定；loop 最大一问已由 ADR-022 先答（内嵌 `@earendil-works/pi-agent-core`）。对已经漂移或
+新进入产品路径的 OpenWork/OpenCode、pi write、agent GUI 与 capability filesystem 重回一手源；
+其余面只在既有调研仍足以回答当前“接/不接/删除”时消费，不把旧版本号伪装成当前事实。下表是
+当期架构基线，不是“所有候选已完成生产兼容实测”的报告；每张直接依赖票仍须在开工时复核 exact
+version、license/传递依赖、维护状态、bundle/Tauri 兼容与反例门。
+
+| 面 | 当期裁定 | 边界 |
+|---|---|---|
+| Chat stream / Stop / Retry | **借行为，不直接依赖** [Vercel AI SDK](https://github.com/vercel/ai) / [assistant-ui](https://github.com/assistant-ui/assistant-ui) | 现有 `provider → Turn Engine → append-only journal → projection` 已成立；接 runtime 会重建 provider、thread、retry 与持久真源。C3-1 只补 Work 缺口 |
+| Toast | **直接依赖** [Sonner](https://github.com/emilkowalski/sonner)（MIT）的 `unstyled` 模式 | 保留其 Toaster DOM、堆叠、update/dismiss、计时与时序状态机，只重皮；确认、授权、不可逆动作与账本决定永禁 |
+| Modal focus | **直接依赖** [`@react-aria/focus`](https://www.npmjs.com/package/%40react-aria/focus)（Apache-2.0）的公开 `FocusScope` | 逐个既有 modal 迁焦点闭环；exact pin、量 bundle delta，禁止 `react-aria/private/*`；`@radix-ui/react-focus-scope` 上游自述为 internal utility，不作为直接 API |
+| 会话检索 / 中文全文检索 | C3-2 **保留现有 substring**；卷宗全文索引**删除当期接库动作** | 小型派生 transcript 无需第二索引；中文语料、召回准则、删除/隔离与性能需求实证后再评 FlexSearch/Orama 等 |
+| Plan / todo、状态持久 | **保留自研投影/窄 store** | `todo_snapshot`、版本信封、CAS、container partition 是项目真源；任务库/Zustand 类不能替代 |
+| Diff | **直接依赖 npm [`diff`](https://www.npmjs.com/package/diff)**（上游项目 jsdiff，BSD-3-Clause） | 只做展示 diff；desktop manifest 必须显式 exact pin，不借 pi core 的传递版本，更不得误装 npm `jsdiff`；accept 仍进确认账本，大文本须 timeout/maxEditLength 或 worker |
+| pi workspace 文件边界 | **直接依赖 exact 同版本** [cap-std](https://github.com/bytecodealliance/cap-std) / `cap-fs-ext` / `cap-tempfile@4.0.2` | `Dir` 持 capability，`open_dir_nofollow` 逐段下降，`TempFile` 同目录替换；本仓薄层只编排私有权限、平台支持的持久化屏障与 journal 状态机。三件均非 OS sandbox，`cap-std` 单独也不证明 root 内 no-link |
+| pi agent GUI | **直接依赖** [assistant-ui](https://github.com/assistant-ui/assistant-ui) 的 headless primitives + 公共 `useExternalStoreRuntime`；[Open WebUI v0.11.0](https://github.com/open-webui/open-webui/releases/tag/v0.11.0) **只借行为证据** | 只用于 pi lane；Courtwork journal/projection 仍是真源，LocalRuntime/cloud/AI SDK adapter/branch/edit/queue 禁用。Open WebUI 的 Svelte/Socket.IO/runtime 不接入，其现行 Open WebUI License 也不满足本项目直接复制/依赖口径 |
+| Markdown / graph / E2E | **维持已直接依赖** unified/remark、G6、Playwright | 安全 AST、事实等级/token、Tauri/Office 真机边界仍由本仓门禁拥有 |
+| OOXML / DOCX | **保留自研加固** | 通用 docx/Mammoth 不证明宏/ZIP/rel/comments/签名/no-replace 与 Word/WPS roundtrip；只能作独立对照 |
+| 材料 tree / 全文 index | **删除当期选库动作** | 容器真源、深树/两级需求和试点检索诉求未实证，先接库会提前造第二真源 |
 
 **忧三 · 绿≠功能≠架构 → 版级仪式两件**。成熟度枚举与 current.md 唯一口径不变；新增版级收尾仪式：(a) **真机全链回归清单**——试点台账模板化为脚本化 checklist，每版收尾必跑（工程绿只是入场券）；(b) **解耦审计仪式化**——本轮三腿审计（包边界/路由双轨/effect 授权）定为每版收尾动作，新抓口子按 SEAL 模式入票。「机制不对称」教训固化：立门以族为单位铺满。
 
@@ -111,15 +130,30 @@ WORK-BUDGET 验收在实现父 `a82f51d` 独立注入六类 production mutation 
 
 **忧五 · 前端克制被轻视 → 凡例权威化 + 克制审计**。SCHEMA-EXEMPLAR-1 凡例文档尽快进 `docs/design/`（权威层）；R2 每批验收附**克制审计条款**：新增视觉元素必须指认业务语义（风险色阶/落定感/双值锚类），纯装饰默认拒绝；**减法纪律**与设计原则是正面资产不是欠账，上游口径同表述。（原文作「减法八条」——该编号清单不存在，见方向②的坐标更正；此处所指是归档减法调研的真实主张「减 UI 暴露面不减能力」，与根 `CLAUDE.md` 复杂度节制条并列而非同一条。）
 
-**执行序**：① SEAL-2/3（在途）→ ② ARCH-DEBT 裁定会 + 调研消费 pass（架构执行）→ ③ OSS-SUBTRACT-1（Sonnet 盘点+架构裁）→ ④ 凡例文档权威化 → ⑤ 放行 harness 真实化线（TOOL-READ-1 → GENERIC-PACK-1/PACK-INTERACT-1/SCENARIO-LIVE-2）与 polish R2。开源纪律与 License 红线（pandoc GPL 拒例）全程适用。**进度（2026-07-27 落痕）**：①②已执行（②的裁定与 pass 结果见上两节）；③ `OSS-SUBTRACT-1` 尚未跑——此前「已起跑」说法系口误，如实订正；前一远程会话的云端快照已随容器回收，重跑以 `main` 现行 tip 取材。③交付后⑤全解锁。
+**执行序**：① SEAL-2/3 → ② ARCH-DEBT 裁定会 + 调研消费 pass（架构执行）→
+③ OSS-SUBTRACT-1 → ④ 凡例文档权威化 → ⑤ harness 真实化线（TOOL-READ-1 →
+GENERIC-PACK-1/PACK-INTERACT-1/SCENARIO-LIVE-2）与 polish R2。开源纪律与 License 红线
+（pandoc GPL 拒例）全程适用。**进度（2026-07-28）**：①②已有在案结果；③已在现行
+`main@3ddb14e` 完成阶段裁定并以上表直接进入权威链，原「已起跑」口误与云端快照失效不再构成
+开工事实；这不替代各直接依赖票的 exact preflight。⑤不再受一张泛化 OSS 报告阻塞，但各票自身
+ADR/SPEC 依赖、`App.tsx` 锁和独立验收纪律不变。
 
 **Rust 重构裁定（2026-07-18）**：节点未到。Rust 边界维持「受控宿主能力」，按需逐点下沉（`scoped_write` 下沉即实例）；全量 Rust 化触 ADR-011 第二 runtime 红线。重启判据：性能实测瓶颈 / 第二宿主真实需求 / TS 层门禁封不住的安全面——满足其一再议。
 
 ## Round 5 方向登记（2026-07-18 夜，产品定调，待逐项出票/ADR）
 
 1. **统一填格协议**（chat/work 同规范；**已由 ADR-016 收口，Accepted**——冻结填格模板随垂类包 descriptor 声明并由 registry 冻结、Chat 填格产物以带版本字段的 Turn journal 条目持久而不上 `ArtifactEnvelope`、UI 触发入口另票）：LLM 握手后按 schema 注入的字段填入对应板块——把场景 model 步的「schema 约束输出→校验入格」泛化为 chat 面同规范（chat 轻量产出也走同一协议，非自由渲染）。跨层契约，**ADR 议题**。
-2. **四项基础 agent 功能**（**已由 ADR-017 收口**）：reading/edits/writing/bash 采 pi 成熟范式为通用底座基础工具集，其余能力走完全解耦的具名注入（既有论定）。**bash 入界属重大边界变更**——**冲突面的坐标此前记错**：原文引「减法八条·无任意 shell」，实测该清单**不存在**（`coding-agent-strategies-subtraction` 全文 24 行、无编号清单、无「八条」字样，且零次出现 shell/bash/命令行；其「减法」所指是**减 UI 暴露面不减能力**，与本议题不同轴）。真实对手是三处：`ADR-011` 决定二明列不引入的「后台 bash」、归档 legacy 的两句硬承诺「永无任意命令执行」「宿主零 shell」、以及 `ADR-004` 的销毁级动词不进能力面。ADR-017 按后者立论并裁**决定零：bash 当期不入界**（决定一至七封存为「若入界」的既定受控形态，重启议题须携新必要性证据对该 ADR 提修订，不得从零辩论）；决定八生效：reading 走既有 `ToolDefinition`/`ToolEnvelope`，edits/writing 属 effect 面另票。edits 沿 pi 范式不过度设计；work agent 比 coding agent 更轻。
-3. **中间文件缓存**：work agent 中间产物落自身缓存区（case-path「工作稿」分区既有先例），edits 作用于缓存/工作稿，原件只读不变。
+2. **四项基础 agent 功能**（**已由 ADR-017/022 收口**）：reading 与 pi 覆盖式 writing 先组成
+   通用底座；edits 只等后续垂类“修订”契约，bash 继续不入界。原案曾把 ADR-017 决定一至七写成
+   封存；2026-07-26 已启封为“若有真实需求时的受控脚本形态”，但 `EXEC-SCRIPT-1` 因成熟外采
+   隔离方案未裁仍 parked，启封不等于实现。**bash 入界属重大边界变更**——冲突面的坐标此前
+   记错：归档“减法”主张是减 UI 暴露面而非任意 shell 纪律；真实约束仍是 ADR-011 的后台 bash
+   禁令、ADR-017 的宿主零 shell 与 ADR-018 的等级—能力绑定。现行唯一写例外是 ADR-022 的
+   Rust host-mediated app-data workspace，不触用户文件。
+3. **中间文件缓存（2026-07-28 订正）**：通用 agent 过程 artifact 先落
+   `app_data/pi-workspaces/<container>/<session>`，不直接进入 case-path「工作稿」；覆盖式
+   `write` 只作用该可整删 workspace。edits/晋升用户工作稿由后续垂类“修订”契约另行确认，
+   原件只读不变。
 4. **本地缓存容器化**（**已由 ADR-019 收口，Accepted**——就地补 container 维而非另起布局、渐进披露 index 惰性建立且失效即重建、未归档区设上限并诚实提示而不拒新建不静默丢；隔离面另见 ADR-018，当期显式停在等级 `none`）：不按 session 分，按 **chat 卷宗（project，待泛化）**——chat-as-dossier 容器同构论（归档已有）升格 ADR 议题；roleplay 同态（前端目录构成规则不同，schema 注入/取用/续行同构，纯编排差异）。session 管理只提供召回入口，默认不展示、不交用户管理；chat/work 形态接近但账本隔离不变。
 5. **chat flow 全量适配**：CHAT-MD-TABLE-1 扩为 chat flow 全量单（md 列表/paste 卡片/结构块逐项清点拍板）；thinking 同态引用（chat 留图标 vs work 查看 progress）**先盘后拍**——立 CHAT-FLOW-AUDIT 侦察单（chat/work 两面 flow 详细构成对照），产出交架构拍板。
 
@@ -242,14 +276,17 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 
 **派单规则**（取代波次号）：取任一「依赖层已满足」的票；**若该票 `App.tsx` 列为「是」，须确认当前无第二张 `App.tsx=是` 的票在途**。互斥是运行时的锁，不是纸上的分组。
 
-**`App.tsx` 队列序（2026-07-27 夜，DOSSIER 清账后）**：SAFETY（`e473fbb`）、OUTPUT
+**`App.tsx` 队列序（2026-07-28，产品重排）**：SAFETY（`e473fbb`）、OUTPUT
 （`78655bd`）、TRACE（`3e0a0e5`）与 `DEBT-DOSSIER-1`（`51fe6ad`，no-ff）均已清账；
-matrix 首枚已清账（`1b8c450`）；现行队列 `C3-1` → `C3-2` → `C3-3`
+matrix 首枚已清账（`1b8c450`）。当前先施工**不触 App** 的 pi agent 底座；其 headless 总验
+放行前没有新的 App 票在途。放行后首票为 `PI-LANE-UI-1`；`PI-BASE-GUI-ACCEPT` 独立放行前，
+不并行启动 Dossier、context profile、垂类修订、plan/source 或 UI 巧思。基础 GUI 放行后才开
+`CONTEXT-PROFILE-1 → DOSSIER-FLOW-1`，并回到 `C3-1 → C3-2 → C3-3`
 （PANEL 余下三枚按「过手即拆」随触碰分批，不再单独占位）。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
 重复修改。v0.2.0 单品真实性门三票（SAFETY/OUTPUT/TRACE）已全数闭合。
 恢复入口三态文案议题（TRACE 验收派单件裁定三）不立票，`DEBT-DOSSIER-1` 后按需重估。
 其余 `App.tsx=是` 的票（`PERSIST-BACKEND-1`／`TOOL-READ-1`／`S6-EXEC-1`／
-`C3-4`／`C3-5`／`UI-TOAST-1`／`WORK-PLAN-PANEL-1`／`CHAT-QUEUE-1`／`PI-LANE-2`）依赖就绪后按此队列尾随入队。**「即刻并行派发」一类旧措辞已被
+`C3-4`／`C3-5`／`UI-TOAST-1`／`WORK-PLAN-PANEL-1`／`CHAT-QUEUE-1`）依赖就绪后按此队列尾随入队。**「即刻并行派发」一类旧措辞已被
 互斥模型取代**——「即派」指依赖就绪即可**入队**，不指同时**在途**。
 
 `GOVERNANCE-CLEAR-1` 已执行完毕：target `94f83ab`，报告提交 `9df31d1`；共享门与逐票
@@ -282,11 +319,11 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 | `GATE-INVENTORY-1` | `A/R-23` 准 | **已清账**（清点表 `docs/engineering/gate-inventory-1.md`，65 门/8557 行现读现跑；`8019` 订正为出处保留）。清点期只读的边界被遵守，动作按下两行另立票 | — | 否 | 已交付：逐门四态分类 + 依据；两项现行问题作副产品捕获并独立复核 |
 | `GATE-P5-RESCOPE-1` | 本图 2026-07-25 架构裁定；`GATE-INVENTORY-1` §0 | 小票：`site/scripts/assert-p5-font-runtime.mjs` 现行判红（exit 1，八条数据位置断言全漂）。**根因是门的口径写错，不是设计违例**——它把一次性前后帧对照实现成「八个节点永远待在这些绝对视口坐标」的常驻断言，而冻结基线 `9a1281b` 之后 `site/` 已过 7 枚提交（含 `VERSIONAL-LANG-1/2/3`、`SKIN-R2 P3/P4/P5`、`72f5543` 换色板等**已签署已验收**批次）。故本票只做两件：①把断言从绝对坐标改为「字体轨前后态的 delta 不变」或重签基线（二选一，须留裁定痕）；②**接线**——一道不在任何门链上的门，它的红不构成信号，接线是本票的实质交付。字体断言与 OG 断言现为全绿，不得在重构中丢失 | 无 | 否 | 门接入某条自动化链后可被机器唤起；重构后对「插入无关段落」不再误红、对「字体轨真扰动数据渲染」仍必红（须有注入反例）；`capture-rp1-compact.mjs` 死支（`enter-compact-layout` testid 零命中，实跑 30s 超时崩溃）随本票一并处置或显式留痕 |
 | `CI-TOPOLOGY-1` | 本图 2026-07-25 架构裁定（产品负责人裁「先记录不动」） | **只登记，本轮不开工。** 实测：`.github/workflows/` 全仓仅一枚 `pages.yml`，`on: push: branches:[main]` + `workflow_dispatch`，跑 `pnpm site:guard` + `site/scripts/build.mjs`；`grep -rn "test:e2e\|playwright" .github/` **零命中**。即 36 道 desktop 静态门与 333 条 Playwright **全靠本地手跑**，且无 `pull_request` 触发。这是 `assert-p5-font-runtime` 能静默烂四天、以及类型层抓不到的运行时缺陷能进 main 的**系统性原因**。开工前须先评估 runner 成本与抖动治理（`E2E-FLAKY-HOVER-1` 尚未清账），属跨层变更，**不得夹在任何产品票里顺手做** | `E2E-FLAKY-HOVER-1` 宜先清 | 否 | 立票时逐条给出：触发面（push/PR）、纳入门集、runner 时长实测、抖动用例处置方案 |
-| `C3-1 · 生成控制与错误恢复` | `C/R-2`（不变量 4 违例）、`C/R-7`、`C/R-9` | work-chat 补 Stop/Retry（透传 `signal` + `onStop`/`onRetry`）；失败文案按 kind 接现成 `FAIL_KIND_MESSAGES` + 补 402；超时文案两路径归一去毫秒；Chat 失败路径纳入 `workFailureDisplayCopy` 同源守卫；截断（`finishReason:'length'`）显式提示；evidence 出口并入 Settings→About 既有 Diagnostics 导出席位 | 无 | **是** | 静默降级零残留（不变量 4 反例触红）；失败文案与 kind 一一对应；取消零残留；`lint:voice` 全绿 |
-| `C3-2 · 会话可检索` | `C/R-1` 三件全、`C/R-14`ⓑ、`C/R-15`② | 接线 `searchTranscripts` 到 UI；会话自动标题（首条消息派生、**用户不可编辑**，守 ADR-013）；会话内查找。归档仍可搜、删除同步出索引 | 无 | **是**（`sessionHistory` 状态与入口住 `App.tsx`） | 检索命中可回跳；标题派生确定性；删除后索引同步（反例：删后仍搜得到即红）；ADR-013 语义不破 |
+| `C3-1 · 生成控制与错误恢复` | `C/R-2`（不变量 4 违例）、`C/R-7`、`C/R-9`；ADR-007 2026-07-28 修订 | **现状收窄**：普通 Chat 已有 AbortSignal/Stop/末位失败 Retry；本票只给 Work free-chat 接同一 signal、`onStop`/`onRetry`，Retry 必须追加新 Turn、旧 journal 不删。`ProviderFailureKind` 全链扩 `billing`，DeepSeek 402=`billing + retryable:false`；全部 Chat/Work 失败按 kind 走单一 display-copy，raw message 不直出，timeout 去毫秒；`finishReason:'length'` 显式提示。Chat/Work 共用容量 5 的 versioned provider-evidence store，Settings→About Diagnostics 只导出既有白名单元数据（零正文/message/key/URL/body）。AI SDK/assistant-ui **只借行为，不加依赖** | ADR-007 修订已落；OSS-SUBTRACT 已裁 | **是** | Work Stop/Retry 真走同一 Turn 链；取消零残留、Retry 不涂改旧 Turn；401/402/429/timeout/length 逐类红绿，闭集消费者漏 `billing` 即红；两路径文案逐字同源；Diagnostics 持久/重启可导出且注入自由文本字段必拒；`lint:voice` 全绿 |
+| `C3-2 · 会话可检索` | `C/R-1` 三件全、`C/R-14`ⓑ、`C/R-15`② | 接线现有 `searchTranscripts` 到 UI；会话自动标题（首条消息派生、**用户不可编辑**，守 ADR-013）；会话内查找。首版继续确定性、大小写不敏感 substring，**不引全文库、不建持久索引**；归档仍可搜、删除直接从 journal 派生结果消失。中文卷宗全文检索另待语料/召回需求实证 | OSS-SUBTRACT 已裁 | **是**（`sessionHistory` 状态与入口住 `App.tsx`） | 检索命中可回跳；中英文 substring 与标题派生确定性；删除后检索零命中（反例：删后仍搜得到即红）；零第二索引/embedding；ADR-013 语义不破 |
 | `C3-3 · 输入面效率` | `C/R-3` 口径、§3.5 顺带裁 | textarea 自增高（补齐已有 max-height）；草稿跨视图/跨历史面板保持（**状态提升出 Composer** 即落 `App.tsx`）；↑ 键召回上一条；粘贴阈值校准——**去除「含换行即转块」判据**，字符阈值 500–1000 区间实测定，补 Shift+粘贴旁路。**不做任何斜杠触发**（见 roadmap「已裁不做」） | 无 | **是** | 草稿跨面保持有断言；阈值实测留证；Shift 旁路可验；零 `/command` 入口（静态门） |
-| `C3-4 · 可观测性四件` | `C/R-8` 四件全（markdown 扩围**已移出**并入 `MD-CONVERGE-1+`；预算执法与 flash 价目**前移** `CORE/WORK-BUDGET-1`） | 会话累计用量与成本估算的用户可见出口只读消费既有 ledger/runtimeBudget，不另造账、不改变执法；memory 注入逐轮可见；上下文占用可见（`contextWindow` 槽位为协议层**版本化加法扩展**）。上下文占用以**我方自身判断**立论，不以行业基线立论 | 已清账 `WORK-BUDGET-1` | **是** | usage/cost 与既有 ledger/runtimeBudget 同源不另立；`contextWindow` 缺省时逐字节等同；memory 可见面不泄案件内容跨案 |
-| `C3-5 · 无障碍与未开通态归一` | `C/R-11`、`C/R-12`ⓑ、`C/R-13` | 焦点陷阱（FocusScope，归档留档正式消费；现行 `useDismissOnOutside` 消费点在 `App.tsx`）；`aria-live` 流式播报；`.palette-input` focus 反馈；未开通态措辞与机制归一（英文 chrome 统一 Coming soon 族）+ 门扩围至 Settings 域与 CaseRail；**响应 OS 级无障碍字号**（rem/em 基线化）——产品内不提供调节 ≠ 拒绝响应 OS 设置 | 宜紧随票丙（标题轨整备） | **是** | 焦点陷阱反例（Tab 逃逸即红）；未开通态门扩围后 Settings/CaseRail 纳入；**rem/em 等比换算须零视觉 diff**（既有皮层门作证，帧证留档） |
+| `C3-4 · 可观测性四件` | `C/R-8` 四件全；ADR-021 决定四（markdown 扩围**已移出**并入 `MD-CONVERGE-1+`；预算执法与 flash 价目**前移** `CORE/WORK-BUDGET-1`） | 会话累计用量与成本估算的用户可见出口只读消费既有 ledger/runtimeBudget，不另造账、不改变执法；memory 注入逐轮可见；上下文占用可见。`ModelContextProfile` 协议与具名 route 解析已拆给不触 App 的 `CONTEXT-PROFILE-1`；本票只消费其投影，缺 profile 明示未知。上下文占用以**我方自身判断**立论，不以行业基线立论 | 已清账 `WORK-BUDGET-1` + `CONTEXT-PROFILE-1` | **是** | usage/cost 与既有 ledger/runtimeBudget 同源不另立；context profile 缺省时既有 Chat/Work 逐字节等同且 UI 明示未知；memory 可见面不泄案件内容跨案 |
+| `C3-5 · 无障碍与未开通态归一` | `C/R-11`、`C/R-12`ⓑ、`C/R-13`；OSS-SUBTRACT 2026-07-28 | 直接依赖 Apache-2.0 `@react-aria/focus` 的公开 `FocusScope`，逐个现有 modal 补焦点陷阱与归还；不接上游自述 internal 的 Radix focus-scope。另含 `aria-live` 流式播报、`.palette-input` focus 反馈、未开通态措辞与机制归一（英文 chrome 统一 Coming soon 族）+ 门扩围至 Settings 域与 CaseRail；**响应 OS 级无障碍字号**（rem/em 基线化）——产品内不提供调节 ≠ 拒绝响应 OS 设置 | 宜紧随票丙（标题轨整备） | **是** | FocusScope 在真实 Tauri WKWebView 的 Tab/Shift+Tab、嵌套 modal、Esc/显式关闭与 trigger restore 反例（逃逸/落 body 即红）；未开通态门扩围后 Settings/CaseRail 纳入；**rem/em 等比换算须零视觉 diff**（既有皮层门作证，帧证留档） |
 | `ANCHOR-SWEEP-1` | 第二次复验顺带发现 + 判例「文档引码用符号锚不用行号」 | 小票，两条：①**六处漂移行号改符号锚**——`packages/core/SPEC.md`（`executor.ts:49/261` 实为 50/280；`events/types.ts:116` 指涉已删；`:192` 的 `sumUsage` 实为 208）、`packages/output/SPEC.md:50`（`App.tsx:920` 不可定位）、`apps/desktop/SPEC.md:914`（`App.tsx:1771` 实为 2233；`:359-361` 实为 404-406）。②`workflow.md` 验收固定项已增「自述与实现逐条对照」（本票只需核其被执行，不重复立条）。③**顺带（验收 J 项）**：`assert-layout-converge` 的退役名反向锁已由 2 文件加宽至整个生产源码集，SPEC 与本图中「零出现反向锁」的表述随之收紧为实际覆盖面，不留「读起来像全仓级」的模糊。**判例维持劝告级、不立门**——「现行语境 vs 历史语境」机器不可判（验收报告、craft-evidence 里的行号是当时树的证据，正当且不该被扫红），按判例「判据不可判定不造启发式」，宁可靠人核 | 无 | 否 | 六处逐一改为符号锚且符号在源码内真实存在；改后全仓现行规范文档零硬编码源码行号（一次性核，不留门）；`workflow.md` 固定项在本票验收中被实际执行一次 |
 | `E2E-FLAKY-HOVER-1` | FILE-PREVIEW-1 验收 K 项，架构准 | 小票：`global-verbs.spec.ts` 悬停显现例（`toHaveCSS('opacity','1')` 收到 `0`）负载相关抖动。**定性已由验收对照实验坐实**：单文件隔离跑 21/21 绿、全量跑红、父提交同跑失败更多（321/323，另含 `:28`）——既有缺陷非任一新单引入，末次改动 `2c5470d`。本票只处置该例的稳定性，不改其断言意图。根因已由 OUTPUT 轮实证：断言 `opacity:1` 紧跟 `hover()` 零等待、撞 CSS transition（`--motion-hover`），`retries:0` 下并行负载即硬红；单跑 3/3 绿、全量偶发。修法方向=等待过渡落定或 poll 断言，不得放宽断言或加 retry | 无 | 否 | 连续三轮全量跑该例零失败；修法不得以放宽断言或加 `retry` 掩盖（须指认抖动根因：悬停时序/动画未落定/并行负载下的渲染延迟） |
 
@@ -296,27 +333,40 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 
 ### 2026-07-26 裁决批新增票（裁定会·GUI 八项·标杆实测·ADR-017 修订；2026-07-27 落痕）
 
-原件三份按归档索引定位（`arch-rulings-2026-07-26.md`／`benchmark-openwork-2026-07-26.md`／`pi-ecosystem-2026-07-26.md`）。当期不立票留痕两项：卷宗全文检索转入 `OSS-SUBTRACT-1` 评估面（见忧二）；材料目录树待 `DEBT-DOSSIER-1` 与 ADR-019 容器实施后有真源可渲染，届时先裁两级折叠 vs 深树、再定是否引 react-arborist。工作稿版本 diff 并入 R-16 验收条款票（ADR-019 决定三实施票）不另立，`jsdiff` 经 BSD-3 白名单扩条可用（工程纪律见 workflow）。pi 生态摸底另记：深读新增三仓（cc-safety-net／gondolin／pi-review）各票开工前本地 clone 取用。
+原件三份按归档索引定位（`arch-rulings-2026-07-26.md`／`benchmark-openwork-2026-07-26.md`／`pi-ecosystem-2026-07-26.md`）。当期不立票留痕两项：卷宗全文检索转入 `OSS-SUBTRACT-1` 评估面（见忧二）；材料目录树待 `DEBT-DOSSIER-1` 与 ADR-019 容器实施后有真源可渲染，届时先裁两级折叠 vs 深树、再定是否引 react-arborist。工作稿版本 diff 并入 R-16 验收条款票（ADR-019 决定三实施票）不另立，npm `diff`（上游项目 jsdiff）经 BSD-3 白名单扩条可用（工程纪律见 workflow）。pi 生态摸底另记：深读新增三仓（cc-safety-net／gondolin／pi-review）各票开工前本地 clone 取用。
 
 | 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
 |---|---|---|---|---|---|
-| `UI-TOAST-1` | GUI 八项裁决①（2026-07-26） | 全局 toast 层：sonner（MIT）借行为骨架（堆叠/dismiss/焦点/aria-live 时序）重皮为三层表面 token。**红线随票冻结：toast 只承载非阻塞回执与失败提示——确认、授权、不可逆动作与任何须留账本的决定一律不得走 toast**（不变量 3 的 UI 面投影）。`C3-1` 失败文案接线可消费之；通知中心（OpenWork 实测参照）作二期候选不入当期票面 | 无 | **是** | 红线静态门（确认/授权路径零 toast 调用，mutation 必红）；堆叠/dismiss/焦点归还过残留门；aria-live 播报有测 |
+| `UI-TOAST-1` | GUI 八项裁决①（2026-07-26）+ OSS-SUBTRACT 2026-07-28 | 全局 toast 层：**直接依赖** Sonner（MIT）的 `unstyled` 模式，消费其 Toaster DOM、堆叠、update/dismiss、计时与时序状态机，重皮为三层表面 token；不复制其内部状态机。**红线随票冻结：toast 只承载非阻塞回执与失败提示——确认、授权、不可逆动作与任何须留账本的决定一律不得走 toast**（不变量 3 的 UI 面投影）。`C3-1` 失败文案接线可消费之；通知中心（OpenWork 实测参照）作二期候选不入当期票面 | 无 | **是** | 红线静态门（确认/授权路径零 toast 调用，mutation 必红）；单一 Toaster、堆叠/update/dismiss/焦点归还过残留门；`aria-live` 在真实 WebKit 有测 |
 | `WORK-PLAN-PANEL-1` | GUI 八项裁决③（2026-07-26） | plan/任务清单生产 UI：`deriveTodoSnapshot`/`todo_snapshot` 事件已是 core 真源，缺的只是生产消费面；自研平铺渲染，零新持久、零新依赖；系统派生只读，无用户编辑面。OpenWork `TodoPanel`（composer 上方折叠计数/展开逐条）作落位形态参照 | 无 | **是** | 渲染与 `todo_snapshot` 同源（改快照渲染必变的 mutation）；零编辑通道（静态门）；空态显式 |
-| `SANDBOX-PROBE-1` | ADR-017 修订三／ADR-018 未决 1（2026-07-26） | 强制前置探测票：macOS Seatbelt（`sandbox-exec` 或替代原语）在当前 macOS + Tauri v2 打包形态的可行性实测，含越界反例证伪（读策略外路径、连策略外地址未拒即不成立）；选型对比按 ADR-018 决定二——候选对＝`@anthropic-ai/sandbox-runtime`（进程级）vs gondolin（microvm，预期作对照组），许可/维护/体积/逃逸面逐项；**已清账（部分成立）**：实现 `bdd539a`+`86baa28`，架构复核合入（快进）＋合入后独立抽检门 12/12＋CLI 绿；Seatbelt 于 ad-hoc＋hardened runtime `.app` 内可行，三类越界双向反例、约束随 fork/exec 继承、TCC 与 Seatbelt 拒绝同形（errno 不可归因）等实测见报告。四则裁决（2026-07-27）：裁点一定乙路（Rust 自研窄 profile，甲路挂域名级网络准入需求重启）；绑定表门形态追认（报告成 R2 读取面，列现行工程文档不入归档）；`EXEC-SCRIPT-1` 不排产；未测边界三处各有去向（notarized 挂 Developer ID 线、TCC 首启挂真机回归清单、gondolin 两数不补测）。执行模型 Opus 5（票面 Sonnet 5，追认留痕）。报告 `docs/engineering/sandbox-probe-1.md`；当期等级 `none` 不变 | ADR-017 修订已落 | 否 | 越界反例双向（拒得住＋测得出）；对照结论携证据回架构裁；Seatbelt 不可行时的降档路线（`process` 级＋专用 scratch 分区＋FileOpsPlan 准入）由本票携证据回裁，不预授 |
-| `EXEC-SCRIPT-1` | ADR-017 修订三（2026-07-26） | 受控脚本执行实施票（argv 三段式、三态闭集默认 deny、白名单即能力声明、授权持久先于执行、决定七禁项全部保持）。**只登记不排产**：前置已放行（SANDBOX-PROBE-1 部分成立，2026-07-27），排产另需真实 kit 脚本需求实证（GENERIC-PACK-1 甲路径先行）；路线预定乙路（Rust 自研窄 profile，裁点一）；票面届时按 ADR-017 决定一至七逐条冻结 | `SANDBOX-PROBE-1`（已放行）＋ kit 需求实证 | 派单时定 | 立票时逐决定给退出证据 |
-| `DOSSIER-FLOW-1` | ADR-021（Draft，2026-07-26 占号） | 卷宗工作语义层实施票。**只登记不排产**：待 ADR-021 未决项裁毕转 `Accepted` 后立票面。开工前深读：`pi-observational-memory`（374★，MIT，压缩前预蒸馏——热窗收割最近对照件）＋既有三仓清单；评审素材见归档 `research-2026-07-27-memory-continuation/` | ADR-021 `Accepted` | 派单时定 | 随 ADR 定稿冻结 |
-| `CHAT-QUEUE-1` | 标杆实测裁决①（2026-07-26） | 票池（不入当期队列）：chat 面 busy 时输入处置从「禁用」升级为「排队发送」；S3 场景禁 steer 的既有裁定不变。**口径订正（2026-07-27）**：opencode 上游服务端无 steer（busy 即拒，steering 为 open issues），排队是客户端特性——标杆报告所记「busy 即 steer」按客户端排队读；本票「排队不 steer」与上游收敛一致 | `C3-1` 清账后按互斥模型排队 | **是** | 排队消息不丢不重（重启反例）；S3 禁 steer 回归不破 |
-| `REVIEW-PRIMITIVE-1` | 2026-07-27 产品问答定调 | 通用修订评审面原语：中性 edits 提案 schema（ADR-017 决定八形状）＋ `jsdiff` 重皮 diff 渲染 ＋ 逐块 accept 喂既有确认账本；artifact 类型开在预览 tab。垂类加载后的转变＝结构化注解／gate 挂载／编译目标替换／词表换装，骨架不变；md 只作存储不作交互面。`PANEL-BLUEPRINT-1` 迁移时 Legal 修订面改为消费此原语 | `PREVIEW-TAB-1` + edits effect 票 | 派单时定 | 立票时冻结；通用面零垂类词汇（voice 门） |
+| `SANDBOX-PROBE-1` | ADR-017 修订三／ADR-018 未决 1（2026-07-26） | 强制前置探测票：macOS Seatbelt（`sandbox-exec` 或替代原语）在当前 macOS + Tauri v2 打包形态的可行性实测，含越界反例证伪（读策略外路径、连策略外地址未拒即不成立）；选型对比按 ADR-018 决定二——候选对＝`@anthropic-ai/sandbox-runtime`（进程级）vs gondolin（microvm，预期作对照组），许可/维护/体积/逃逸面逐项；**已清账（部分成立）**：实现 `bdd539a`+`86baa28`，架构复核合入（快进）＋合入后独立抽检门 12/12＋CLI 绿；Seatbelt 于 ad-hoc＋hardened runtime `.app` 内可行，三类越界双向反例、约束随 fork/exec 继承、TCC 与 Seatbelt 拒绝同形（errno 不可归因）等实测见报告。2026-07-27 曾预定“Rust 自研窄 profile”，但它与 ADR-018“沙箱外采、不自研”正文冲突，已于 2026-07-28 撤销；探测只证明原语可行，不构成实现选型。`EXEC-SCRIPT-1` 继续不排产；未测边界分别挂 Developer ID、真机回归与未来选型实测。报告 `docs/engineering/sandbox-probe-1.md`；当期等级 `none` 不变 | ADR-017 修订已落 | 否 | 越界反例双向（拒得住＋测得出）；未来方案须重新做成熟 OSS/维护/许可/Tauri 对照，不能把探测脚本直接升产品沙箱 |
+| `EXEC-SCRIPT-1` | ADR-017 修订三（2026-07-26；2026-07-28 路线撤回） | 受控脚本执行实施票（argv 三段式、三态闭集默认 deny、白名单即能力声明、授权持久先于执行、决定七禁项全部保持）。**只登记不排产**：除真实 kit 脚本需求实证外，还须按 ADR-018 重新选成熟外采隔离方案；`@anthropic-ai/sandbox-runtime` 当前 beta 且内部 shell `-c`、Gondolin experimental/heavy，均无放行证据。不得自研窄 profile，也不得把 `cap-std` 路径能力冒充执行沙箱 | `SANDBOX-PROBE-1` 证据 + kit 需求实证 + 新 OSS 选型裁定 | 派单时定 | 立票时逐决定给退出证据；无成熟方案则继续 parked，不以基础 agent write 拉动 bash |
+| `CONTEXT-PROFILE-1` | ADR-021 决定四；provider/core 同名 SPEC 待派单前冻结 | 基础 GUI 放行后的 Dossier 前置小票：把 `ModelContextProfile` 作为具名 provider/model route 的版本化机器数据，字段固定 `providerId/modelId/version/effectiveAt/contextWindowTokens/reservedOutputTokens`；只改 `packages/provider/catalog/deepseek.json`、生成器/生成物/registry 与定向测试，以及 core 的只读解析/保守估计器契约，不触 App。真实数值必须回 DeepSeek 一手资料并带生效版本；无可信数值则保持 absent，不猜。不得让既有 Chat/Work 因 profile 缺失改变请求字节或失败；只有 Dossier compiler 缺 profile 才 fail-closed | `PI-BASE-GUI-ACCEPT`（**产品排程门，非 profile 技术依赖**） | 否 | catalog 仍为 TS/Rust 单一机器源、手写第二表触红；route/profile 错配、未知版本、`reserved>=window`、非正整数全拒；同输入估计 byte-identical 且实测 tokenizer corpus 不低估；缺 profile 时 Dossier 调 provider=0，既有 Chat/Work golden 不变 |
+| `DOSSIER-FLOW-1` | ADR-009 Dossier 补充 + ADR-021（Accepted，2026-07-28） | 卷宗工作语义层首票：`app_data/dossier-semantics/<container>.json` 的 container-scoped `DossierStatePort`（逻辑 notebook、attempts、只含 terminal 的 `PersistedTurn[]`、events 同一信封）+ 唯一 compiler；ScenarioExecutorDeps 每 provider 请求 async resolve 后进六段第五段，普通 generic Chat 排除；pi adapter 同票显式迁 transient wire v1→v2，以 typed `dossierContext` 进入单 system prompt，禁止偷塞 user text。蒸馏只经既有 TurnRunnerPort，terminal CAS 先于 schema/语义 CAS。触发只含 descriptor 首读、容量水位 ask-user、用户显式；`pi-observational-memory` 只借 ledger/cut/fold，不直接依赖。首票不解锁后台/每 N turn、自动 rebase、跨容器 recall、全局 memory 或物理工作稿晋升 | `PI-BASE-GUI-ACCEPT` + `CONTEXT-PROFILE-1`（A4 产品排程门） | **否** | 四类 crash 点逐一红绿；terminal 已耐久可续 commit、attempt 无 terminal 才新身份；同 operationId 至多一笔 committed、用户编辑不被旧模型覆盖；Scenario 无 resolver 与普通 Chat golden byte-identical；Scenario/pi 两 adapter 消费同 envelope digest；v2 混跑、context hash/container 错配、text+context raw>131072/packet>1MiB、缺 profile/required source 超限/估计未知均 provider=0；跨 container/global-memory/secret 输入全红 |
+| `CHAT-QUEUE-1` | 标杆实测裁决①（2026-07-26；2026-07-28 时效订正） | 票池（不入当期队列）：Courtwork 若做 busy 输入，仍选择“排队、不 steer”，但这是本仓产品语义，不再借上游事实背书。当前 OpenCode 已是“先持久 user message、复用 running loop、下一轮重读”的 immediate steer；OpenWork 同时有 immediate steer 与 Zustand 内存队列，Stop 会先清队列，队列不 durable。旧“server busy reject、无 steer”结论已失效 | `C3-1` 清账后按互斥模型排队 | **是** | 排队消息跨重启不丢不重；Stop/失败后的队列去向显式；S3 禁 steer 回归不破；不得复制上游非耐久队列 |
+| `REVIEW-PRIMITIVE-1` | 2026-07-27 产品问答定调 | 通用修订评审面原语：中性 edits 提案 schema（ADR-017 决定八形状）＋ npm `diff`（上游项目 jsdiff）重皮 diff 渲染 ＋ 逐块 accept 喂既有确认账本；artifact 类型开在预览 tab。垂类加载后的转变＝结构化注解／gate 挂载／编译目标替换／词表换装，骨架不变；md 只作存储不作交互面。`PANEL-BLUEPRINT-1` 迁移时 Legal 修订面改为消费此原语 | `PREVIEW-TAB-1` + edits effect 票 | 派单时定 | 立票时 exact pin npm `diff`；通用面零垂类词汇（voice 门） |
 | `BRAND-2` | 散条登记（2026-07-26） | 品牌谱系扩面：app icon 为 master 的谱系延展（含 thinking 动画）；范围与素材清单随票冻结，产品壳字体/素材边界沿 `SITE-CRAFT-2` 既有硬边界 | 无 | 否 | 立票时冻结 |
 
 ### 2026-07-27 pi lane 立线（ADR-022，产品定调＋架构裁）
 
-通用 agent loop 线引入 `pi-agent-core`（内嵌库、Node sidecar 承载），读面先行；写/bash 面一律锁 `SANDBOX-PROBE-1`。ADR-011 修订三随批落痕。叙事口径反转与 `OSS-SUBTRACT-1` 重定向见 ADR-022「两处反转」节。
+通用 agent loop 线引入 `pi-agent-core`（内嵌库、Node sidecar 承载），读面先行。2026-07-28
+产品再裁：pi 覆盖式 `write` 以 Rust host-mediated app-data workspace 进入，不把写权授给 Node；
+`bash` 仍锁隔离与真实需求。ADR-011 修订三随批落痕。叙事口径反转与 `OSS-SUBTRACT-1`
+重定向见 ADR-022「两处反转」节。
 
 | 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
 |---|---|---|---|---|---|
 | `PI-LANE-1` | ADR-022 决定一/二/三（2026-07-27） | 已清账（实现 `51c27b6`、验收 `26d4b2b`、no-ff 合入 `6d7a8eb`；七件全交——sidecar 锚定 `@earendil-works/pi-agent-core@0.82.1`、`ExecutionEnv` 层只读容器〔写/exec 根本不实现〕、三锁禁用面、`packages/pi-lane/dev` sidecar 自服务 dev 入口〔落点已裁〕、DeepSeek 原生 provider、未决四题答卷已回 ADR-022 补记、R3 扩描双向锁真树注入复证；范围与证据见 `packages/pi-lane` SPEC/ACCEPTANCE。真 key 复核未执行，按其 SPEC 第七节由持 key 者另行登记） | ADR-022（已落） | 否 | 已交付；74 例单测、变异对照两例、R3 真树注入红绿、合入 tip Playwright 351/351 |
-| `PI-LANE-2` | ADR-022 决定一（2026-07-27） | loop 线生产 GUI 挂载（workbench 面板、容器接线按已采的 `loop/` 子档提案）。立票面时必须冻结四件：越限即停语义的用户可见呈现（不得宣称等同 RuntimeGuard）；`loop/` 分区细则；sidecar 签名/公证链实付实测（探测报告第七节记账）；写面/bash 是否随本票或另票（升档纪律照 ADR-022 决定二）。前置已满足，待架构立票面 | `PI-LANE-1`（已清账） | **是**（尾随 App 队列） | 立票时冻结 |
+| `PI-WRITE-PROOF-1` | ADR-004/017/018 窄修订 + ADR-022 决定六 | **可与下两票并行**。只新增 `packages/pi-lane/src/workspace-write-env.ts` 与定向测试，并只写专属 `specs/PI-WRITE-PROOF-1.md` 回执：直接实例化上游 `createWriteTool()`；极薄 binder 保留 metadata/schema 引用，以 raw toolCallId 查取预种 public tc、创建 invocation-scoped env，直到 `writeFile` 真发 port 才分配 op 后 delegate。注入 port 证明 nested `.md` create、existing overwrite 与精确回读；产品 workspace write 最终 basename 只收 ASCII 大小写不敏感 `.md`。不得改父级 SPEC、product tool table/session/policy、wire、Rust/Tauri、package/lock 或 GUI | `PI-LANE-1`（已清账） | 否 | characterization 锁上游 open schema/coercion、exact raw gate、调用序列与单次 port、Unicode `4 code units ≠ 10 UTF-8 bytes`、pre/post-write abort、同 env queue vs per-call env 无共享；缺 tc mapping、非 `.md`、全部路径/容量反例均 port 零调用且零 op；binder/Agent sequential 双锁；两真实 port 调用 operation 不串；生产源码零 Node fs 写；明确只到 package/headless proof |
+| `PI-CODE-STDIO-1` | ADR-022 六-B.1/B.2 | **可与相邻两票并行**。只新增 `product-protocol.ts`、`product-stdio.ts` 与同名测试并只写专属 `specs/PI-CODE-STDIO-1.md` 回执；逐字段实现 v1 strict codec、可注入 stdio machine、双向 leg seq/request/session/state、1 MiB、resume bootstrap、cancel/shutdown、host correlation。不得造无 driver 的 executable main，不改父级 SPEC、env/tools/session/package/lock、Tauri/Rust 或 workspace 语义 | `PI-LANE-1`（已清账） | 否 | 每种 packet/payload 正反例；重复/额外字段、lone surrogate/非法 UTF-8、CRLF/空行/partial、integer 非规范 lexeme、version/type、跳号/本 leg ID 复用/状态错均 fatal；pre-bootstrap error 可用 null session 取代 ready；131072 raw 的 C0/quote/backslash worst-case 与 2000×255 max-list 整包不过 1MiB；fresh/resume 自洽且从 supplied prior 精确初始化累计器，明确不伪测无 journal 的跨 leg 历史；raw upstream id 零出 wire，tc 在 start 分配、op 只在真实 host request 分配；race-late cancel、在途 uncertain 优先级、canary 零泄漏 |
+| `PI-SIDECAR-DIST-1` | ADR-022 决定六-E | **可与相邻两票并行**。只改 `packages/pi-lane/fixtures/sidecar-dist/`、`docs/engineering/pi-sidecar-dist-1.md` 与专属 `specs/PI-SIDECAR-DIST-1.md` 回执；Node 22 LTS + sealed bundle 对 Node SEA，按 Tauri `externalBin` target-triple，用真实 import pi core fixture 测体积、冷启、stdio、abort、崩溃回收与 aarch64/x86_64 装配。实验必需的 exact MIT/Apache 工具才可改 pi-lane package/根 lock，并逐包记 license/移除结论；不改父级 SPEC 或生产 wire/session | `PI-LANE-1`（已清账） | 否 | 两路线数据、fixture SHA 与失败记录齐；开发态 ad-hoc 事实不冒充 Developer ID/notarized；路线由架构回写 ADR-022 |
+| `PI-HOST-LOOP-1` | ADR-022 决定六-A/B；`PI-SIDECAR-DIST-1` 路线裁定 | Rust 按裁定路线管理 sidecar/credential bootstrap/cancel/crash；Node product `/case` 虚拟 env 隐去 cwd/FileInfo/error 物理路径；单写 `app_data/pi-loop/<container>/<session>.jsonl`，append+sync_all 后才发布；session 累计预算、headless read/glob/grep/replay。interrupted 后可显式起同 session 新 leg，但 pi message context 从空开始并显示断点；不得接 GUI 或文件 effect | `PI-CODE-STDIO-1` + `PI-SIDECAR-DIST-1` | 否 | 逐 crash 窗实证：未 LF tail 只截 partial；已 LF 坏记录/seq drift quarantine；半闭合 prompt 补对应 session 终态；dangling effect→uncertain/failed，active paid prompt+usd limit→budget_unknown/failed，durable limit reached→budget_stopped，只有预算/effect 安全的 open leg 才 interrupted。Rust 以 journal 独占校验 resume：先落 session_resumed，leg=previous+1，priorObservedTurns/计数/费用精确 fold 且不重置，跨 leg requestId 重用、model/limits/grant/container/capability 漂移必拒；tc 在 start 分配、raw gate block 零 op；两 container 隔离/整删与 key/path 零泄漏 |
+| `PI-WRITE-HOST-1` | ADR-022 A2 + ADR-004/017/018 窄修订 | 把 proof port 接到 Rust exact 同版本 `cap-std/cap-fs-ext/cap-tempfile@4.0.2` workspace；在产品 tool table/session/policy 注册原版 write、设 `toolExecution:'sequential'`、逐 toolCall 独立 env/operation，并把 dev 只读 prompt 换成 ADR-022 六-0 的六条/≤2048-byte `md-work-v1` prompt。Rust 逐段 `open_dir_nofollow`、单段建目录再重开，`TempFile` 私有同目录写入/同步/replace；物理根只在 app-data，逐次授权先 durable，Node 仍零 fs 写。不得加 edit/diff/CAS/promotion/bash/GUI | `PI-WRITE-PROOF-1` + `PI-HOST-LOOP-1` | 否 | prompt snapshot/byte gate 与四工具 exact set 有 mutation 红证；两端路径 golden 一致；非 `.md` 在 Node 零 op、注入 Rust 畸形 request 零 effect；root 内/外 symlink 父段、final symlink、swap race、Windows junction/mount/name-surrogate reparse、cross-container 全拒且零 effect；ambient API/`create_dir_all`/canonicalize 授权/`std::fs` mutation/remove-then-rename 零出现；`effect_started` append+sync 失败必须零 temp/replace；并发 reader 只见 old/new；kill 覆盖 temp sync、replace、parent/journal 屏障；Windows 无 delete-share 占用保持旧文件；宽权限 temp 与 fallback mutation 必红；unsupported remote/removable FS effect 前拒绝；replace 后屏障失败或落账前 crash 只落/派生 uncertain，不能伪 failed/completed |
+| `PI-WORKSPACE-READ-1` | ADR-022 A2 的“写后可读”闭环 | 只让既有 read/glob/grep 显式路由 `/workspace/...`，由 Rust host-mediated `exists/read_file/list` 在同一 logical session 的新 sidecar leg 回读；`list` 不是新模型工具。另提供 GUI 后续消费的窄 `openWorkspaceMarkdown({containerId,sessionId,logicalPath})` command：只读当前 `.md`，返回逻辑路径/content/hash/byteLength，不落正文 journal。`/case` 仍只读；双根显示逻辑绝对路径，不得出现 `../workspace`，物理根永不进模型/journal/error。不得自动晋升工作稿 | `PI-WRITE-HOST-1` | 否 | agent write→批准→Rust 落盘→agent byte-identical read-back→glob/grep→interrupted/resumed 新 leg read-back；viewer command 对 session/path/UTF-8/131072 cap 双验且物理路径零泄漏；case/workspace 两根无串读、symlink 不跟 |
+| `PI-BASE-HEADLESS-ACCEPT` | AGENTS.md 实现/验收分离；ADR-022 A2 | 独立 clean worktree 总验，不实施契约修补，只写 `packages/pi-lane/ACCEPTANCE.md`：真实 pi Agent 跑通单文件问答、多 md 定位汇总、case→新 Markdown、workspace 全量改写、嵌套 Unicode 路径+重启回读与拒绝面；另含取消、崩溃、两容器、session 累计预算与 wire fail-closed。每格同时留 Agent events、host request/result、journal、最终 bytes/hash；build 绿只作入场 | `PI-HOST-LOOP-1` + `PI-WRITE-HOST-1` + `PI-WORKSPACE-READ-1` | 否 | 必要结果完整且未截断后才可把内容错误归模型；缺工具/回灌/显式截断/落盘/回读任一项均判 harness 失败。六格反例实际注入；只在通过后允许基础 GUI 开工，未过不更新 current.md |
+| `PI-LANE-UI-1` | ADR-009 决定七窄修订 + ADR-022 六-0/六-D | pi 线基础成熟 GUI 薄投影：直接依赖 exact `@assistant-ui/react` headless primitives + 公共 `useExternalStoreRuntime` hook；React→Rust command，journal→projection。首版只给 Prompt/Stop、真实运行/预算、tool proposal+逐次授权、结果/错误/恢复，以及从 succeeded write fold 出的 workspace `.md` 索引与 host-mediated 只读查看；uncertain 不进成功索引但工具卡可核验当前文件。沿 Courtwork tokens 重皮。Logue/OpenWork/OpenCode/Open WebUI 只作成熟形态证据，不作视觉指定、源码来源或 runtime 依赖 | `PI-BASE-HEADLESS-ACCEPT` 放行；本票独占当前 App 槽，不与 Dossier/context/其他 UI 票并行 | **是**（放行后的 App 首票） | LocalRuntime/cloud/AI SDK/OpenCode adapter/branch/edit/queue/private import 零出现；未知 event fail-closed；审批按钮只发 command，决定只认 journal；viewer 复用 `ChatMarkdown`、正文不持久且无编辑/保存/promotion；首次 uncertain create 可核验且仍标 unverified，当前 hash 异于 succeeded hash 必提示；展示投影的流态更新至多每 rAF 合并一次、所有 terminal 取消 pending frame 并立即 flush；用户上滚后 streaming/Stop/terminal 不夺回视口；WKWebView 键盘/读屏/焦点/Stop race 真测；bundle delta 留证 |
+| `PI-BASE-GUI-ACCEPT` | AGENTS.md 实现/验收分离；ADR-022 A3 | 独立 clean worktree + 真实 Tauri WKWebView 总验，不修契约，只写 `apps/desktop/ACCEPTANCE.md`：从现有凭证/授权入口发起通用 `.md` work，观察 stream/Stop、write proposal 逐次允许/拒绝、终态/预算/恢复，并从 workspace 索引打开当前 Markdown；确定性 provider 跑机械反例，真实 DeepSeek 甜点档再跑 headless 同构任务矩阵 | `PI-LANE-UI-1` | 否 | scripted matrix 与真实 provider 均留 journal→projection→workspace bytes/hash 同源证据；真实 key/model 缺席则只能报 external-validated blocked，不得放行“harness 非瓶颈”；键盘/读屏/焦点/reduced-motion/scroll ownership/Stop race 全实跑。仅本票放行后允许 Dossier、修订与 UI 巧思开工并更新 current.md |
+| `PI-SIDECAR-RELEASE-1` | ADR-020 + ADR-022 六-E | Developer ID、nested executable 逐件签名、notarize/staple、Finder 首启、`spctl` 与双架构读/写/abort/crash 复跑；不夹功能开发 | `PI-BASE-HEADLESS-ACCEPT` + 已裁 sidecar 分发路线 | 否 | 无凭据如实 external-validated blocked；`codesign --deep` 只 verify 不代签；正式制品证据闭合后才更新 release 成熟度 |
 
 
 

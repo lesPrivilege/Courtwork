@@ -204,7 +204,14 @@ expect(每个 reason 都有去向)                                 // 于是永�
 
 ## 依赖许可
 
-运行时依赖许可白名单基线为 MIT／Apache-2.0（既有先例：`GENERIC-PACK-1` 拒 pandoc 于 GPL）。**BSD-3-Clause 纳入白名单（2026-07-26 裁定，源 GUI 候选八项·工作稿版本 diff 项）**：宽松许可、无 copyleft 义务，与 MIT/Apache 同级；`jsdiff` 因此可用。GPL／AGPL 及其派生不入依赖。白名单外许可逐案架构裁定并留痕；`site/` 素材与字体许可另按 `SITE-CRAFT-2` 票面的快照纪律。
+运行时依赖许可白名单基线为 MIT／Apache-2.0（既有先例：`GENERIC-PACK-1` 拒 pandoc 于 GPL）。**BSD-3-Clause 纳入白名单（2026-07-26 裁定，源 GUI 候选八项·工作稿版本 diff 项）**：宽松许可、无 copyleft 义务，与 MIT/Apache 同级；npm `diff`（上游项目 jsdiff）因此可用，禁止误装另一个 npm `jsdiff` 包。**`Apache-2.0 WITH LLVM-exception` 于 2026-07-28 为 Bytecode Alliance capability filesystem 同系三件 `cap-std/cap-fs-ext/cap-tempfile@4.0.2` 窄项批准**：须 exact 同版本、保留完整 SPDX 表达式与 notices，不扩成任意白名单外许可自动准入。GPL／AGPL 及其派生不入依赖。白名单外许可逐案架构裁定并留痕；`site/` 素材与字体许可另按 `SITE-CRAFT-2` 票面的快照纪律。
+
+**新功能 / UI 的 OSS 前置（2026-07-28 架构纪律）**：实现票冻结前须以现行 HEAD
+逐项写入 OSS 候选结论，分类只用「直接依赖 / 借行为或源码范式 / 保留自研 / 删除当期动作」。
+核查至少覆盖上游一手来源、当前维护信号、精确许可、直接/传递依赖、包体或宿主代价、现有真源与
+状态机是否会被重建。旧报告、归档与 star 数只能帮助找候选；需求、现行源码或上游版本有变化时必须
+重查，不能据旧结论直接开工。直接依赖只接管通用机制，项目的 schema、账本、授权、容器隔离、
+fail-closed 与领域语义继续由本仓契约拥有。没有合适候选时同样留证；build/test 全绿不构成评估完成。
 
 ## Git 纪律
 
