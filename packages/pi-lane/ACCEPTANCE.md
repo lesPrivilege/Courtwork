@@ -96,6 +96,27 @@ BSD-3-Clause（非 MIT），实现剥 BOM 后调用 `JSON.parse` 再处理 proto
 duplicate-key stack、strict framing/fatal UTF-8、canonical integer 或跨字段 validator。专属回执已作
 前进式事实修正，结论仍为「保留窄自研、无新依赖」。
 
+## 追加源码复核：真实逻辑缺陷
+
+在 `0ffae46` 的 clean tree 上，临时独立测试
+`pnpm exec vitest run packages/pi-lane/src/acceptance-logic-defects.test.ts --reporter=verbose` 实跑为
+**1 file / 6 failed**；文件已删除，以下均为实际 production 行为而非 mutation：
+
+1. **Blocker — runtime failure canary 泄漏**：`product-stdio.ts:273–277` 把注入 runtime 的 failed
+   message 仅按长度截断，`sk-secret-accept /private/case/file.md` 原样进入 terminal wire。
+2. **Blocker — pending write 被 force terminal 丢弃**：`product-stdio.ts:296–321` 的
+   `failUpstream()` 对仍有 pending host operation 调 `terminate(..., true)`；临时运行在 write request
+   后注入未 started 的 tool_progress，实际发出 terminal，未等 host_result/uncertain 收束。
+3. **Blocker — bootstrap re-entry 可 fatal 后复活**：`product-stdio.ts:347–363` 在
+   `runtime.capabilities()` 返回前没有 reentrancy guard。该同步 hook 送入 seq 2 prompt，先得到
+   fatal protocol_error，外层仍继续设为 idle 并发 ready。
+4. **Major — host_result ok value 未 correlation**：`product-stdio.ts:403–427` 只比
+   operationId/capability/operation。对 write `a.md` 的 pending op 回 `b.md`、不同 hash/byteLength 仍
+   deliver 给 runtime；这违反 request/result 严格同构。
+5. **Major — terminal retryable 语义未闭合**：`product-protocol.ts:1324–1338` 接受
+   `failed + budget_unknown + retryable:true` 及 `failed + effect_uncertain + retryable:true`（两枚独立红）。
+   两者都是不可重试的安全终态，却可被伪造成 retryable。
+
 ## Mutation 限制与结论
 
 独立设计的临时 counterexample 文件实际运行为 **12/12 passed**，随后删除（故不改产品树）。逐项
@@ -112,5 +133,6 @@ snapshot `turns:3,usd:0`；completed+turn reached → `invalid_schema`；含 api
 **0/至少 8** 个可计的 production mutation 红证，也无法满足要求的至少 12 类高风险 mutation 证据。
 其余门虽全绿，仍不得放行。
 
-**最终判定：REJECT（证据门未满足，非已知代码回归）**。最小 terminal decoder 修复与 OSS 事实订正可保留；
-须由能获准执行临时“只会过度拒绝/错误关联”的源码 mutation 的独立验收会话补齐并复验，才可改为 PASS。
+**最终判定：REJECT（3 blockers + 2 majors 的真实逻辑缺陷；另有 mutation 证据缺口）**。最小 terminal
+decoder 修复与 OSS 事实订正可保留；必须先由实现角色修复上述五项，再由新的独立验收会话复验；其后仍须补齐
+production semantic mutation 证据，才可改为 PASS。
