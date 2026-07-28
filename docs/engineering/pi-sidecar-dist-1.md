@@ -373,7 +373,15 @@ SEA 改一行就要重跑整条注入链。若架构更看重「上游稳定 + �
 ## 十二 · 复现与残留清理
 
 全部产物落 `packages/pi-lane/fixtures/sidecar-dist/dist/`，被仓库根 `.gitignore` 的 `dist/`
-覆盖，**不入库**。峰值约 1.4 GiB（两份官方发行包 + 解包树 + 十枚产物），跑完须清。
+覆盖，**不入库**。跑完整套后实测峰值 **2,436,991,750 B（约 2.27 GiB）**，跑完须清：
+
+| 子目录 | 字节 |
+|---|---|
+| `sign-probe/`（六份重签副本 + `.app`） | 786,434,540 |
+| `route-a/`（三档 × 两 triple + 中间件） | 690,788,262 |
+| `runtime/`（两份官方发行包 + 解包树） | 501,090,578 |
+| `route-b/`（两档 × 两 triple + blob） | 458,606,510 |
+| 三份读数 JSON 与语料 | 71,860 |
 
 ```bash
 pnpm --filter @courtwork/pi-lane build
