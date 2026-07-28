@@ -141,8 +141,9 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   `/workspace/<safe-relative-path>` 规范化为同一 logicalPath；完整采用 ADR-022 六-B.2 的
   POSIX/跨平台 segment grammar，拒绝空/NUL、`/workspace` 根本身、其他绝对路径、
   `.`/`..`、backslash、drive/UNC、Windows 保留名、超长路径与跨 session。`canonicalPath`
-  固定回 `not_supported`；最终 basename 按 ASCII 大小写不敏感必须以 `.md` 结尾，非 Markdown
-  在分配 operation/调用 port 前以 `unsupported_file_type` 拒绝；raw leading `@` 与
+  固定回 `not_supported`；最终 basename 按 ASCII 大小写不敏感必须以 `.md` 结尾且扩展名前
+  至少有一个字符（basename 恰为 `.md` 必拒），非 Markdown 在分配 operation/调用 port 前以
+  `unsupported_file_type` 拒绝；raw leading `@` 与
   NBSP/Unicode-space alias 在 binder 调上游前拒绝。
   content 采用同 ADR 的 131,072 UTF-8 bytes 上限；另锁 repeated U+0001/引号/反斜杠的
   encoded-packet worst case，raw cap 以内不得撞破 1 MiB framing。

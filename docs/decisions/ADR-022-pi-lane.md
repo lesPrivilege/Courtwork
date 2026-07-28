@@ -348,8 +348,9 @@ type WorkspaceHostRequest = {
 write content 最多 `131_072` UTF-8 bytes；`byteLength` 必须等于 UTF-8 实长，
 `contentSha256`/`proposalHash` 均为小写 64 位 hex，Rust 必须重算。workspace 只含本协议写入的
 UTF-8 Markdown；workspace write 的最终 basename 按 ASCII 大小写不敏感必须以 `.md` 结尾，
-Node gate 须在分配 operation 前以 `unsupported_file_type` 拒绝；若畸形 request 仍到 Rust，
-Rust 防御门以同 code 拒绝且零 effect。`read_file` 超同一上限 fail closed。`list` 只列直接子项、
+且 `.md` 前至少有一个字符（basename 恰为 `.md` 非法）。Node gate 须在分配 operation 前以
+`unsupported_file_type` 拒绝；若畸形 request 仍到 Rust，Rust 防御门以同 code 拒绝且零
+effect。`read_file` 超同一上限 fail closed。`list` 只列直接子项、
 按 UTF-8 name 升序、
 最多 2,000 项；超限返回 `limit_exceeded`，不得静默截断。它只是 env 内部操作，**不新增模型
 `list` 工具**；现有 glob/grep 通过它遍历。codec 必须用 2,000 个各 255 UTF-8 bytes 的合法
@@ -634,6 +635,8 @@ STDIO 票只新增 strict codec、可注入 stdio machine 与定向测试，不�
 
 ## 修订记录
 
+- **2026-07-28 · `.md` basename 边界拍板**：最终 basename 恰为 `.md` 不构成可识别的
+  workspace artifact；Node 与 Rust 的 `unsupported_file_type` 门统一要求扩展名前至少一个字符。
 - **2026-07-28 · 产品再裁：薄 harness 与基础 GUI 为当前里程碑**：冻结四工具与六条最小
   system prompt、通用 `.md` 任务边界、模型失败/harness 失败分界和 workspace Markdown
   只读查看；Dossier、修订、plan/source 与 UI 巧思整体后移到 A2+A3 独立验收之后。
