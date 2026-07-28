@@ -138,7 +138,7 @@ turn、单次 prompt/workspace text 各不超过 131,072 UTF-8 bytes，完成定
 写 stdout/stdin，不能只检查 raw payload。wire delimiter 只收单字节 LF (`0x0A`)；CRLF、空行、
 EOF 前未见 LF 的 partial packet 都拒绝。声明为 integer 的 JSON number lexeme 只允许
 `0|[1-9][0-9]*`，再按字段排除 0；指数、fraction、前导零、负数与 `-0` 均不得先 parse/coerce 后
-放行。其他非负 number 同样拒绝 negative zero。公共头精确为：
+放行。其他非负 number 同样拒绝 negative zero。公共五字段集为：
 
 ```ts
 type SafeToken = string; // /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/
@@ -150,6 +150,12 @@ type Header = {
   type: string;
 };
 ```
+
+`Header` 只是每枚 packet 的公共字段投影，不是一枚可单独发送的完整 packet。v1 wire 的每枚
+packet 顶层**精确六字段**
+`{protocolVersion,seq,sessionId,requestId,type,payload}`；逐包字段只可嵌套在单一
+`payload` member 内，不得平铺到顶层。packet root 与 payload 内每一层 record 分别执行
+`additionalProperties:false`/重复 member 拒绝；nested 与 flat 两种形态不得双读兼容。
 
 - host 与 sidecar 各自维护一条 **per-sidecar-leg** `seq`，均从 1 开始，发出任何 packet
   （含 error）都加一。一个 sidecar 进程只承载一个 logical session；同一 session 显式恢复时
@@ -298,6 +304,16 @@ type Terminal =
   `stopReason:'turns'`；
 - cancel 仅在 provider 尚未发起、费用已完整结算，或 maxUsd 本就为 null 时可收束为 canceled；
   maxUsd null 时未知费用只把 `usd/usdLimit` 保持 `null/'disabled'`，不阻断 turn limit。
+
+decoder 还必须拒绝与上述优先级自相矛盾的单包 Terminal：`budget_stopped` 的
+`usdLimit` 不得为 `unknown`，且 `turnLimit:'reached'` 时 `stopReason` 必须为 `turns`，否则须由
+`usdLimit:'reached' + stopReason:'usd'` 成立；`completed`、`canceled` 与
+`effect_uncertain|budget_unknown` 之外的 failed 不得携 known reached 或
+`usdLimit:'unknown'`。`failed + budget_unknown` 必须携 `usdLimit:'unknown'`；
+`failed + effect_uncertain` 因优先级最高可与其他 budget 状态并存。另锁
+`usdLimit:'unknown' → usd:null`、`usdLimit:'open'|'reached' → usd` 为已知数；
+是否精确达到 bootstrap 中的 maxTurns/maxUsd 仍由持 session 配置的一侧校验，不在无状态 codec
+猜阈值。
 
 其他非 budget terminal 的 `stopReason` 为 null；failed error message 同样最多
 1024 UTF-8 bytes且不得带 raw provider body、secret 或物理路径。bootstrap 的
@@ -635,6 +651,9 @@ STDIO 票只新增 strict codec、可注入 stdio machine 与定向测试，不�
 
 ## 修订记录
 
+- **2026-07-28 · stdio packet 形态与 Terminal 互洽门拍板**：明确五字段 `Header` 只是公共投影，
+  完整 packet 顶层恰六字段且业务字段统一嵌套在 `payload`；flat v1 必拒。把既有终态优先级可由
+  单包判定的反例写成 decoder 门，不改变预算优先顺序。
 - **2026-07-28 · `.md` basename 边界拍板**：最终 basename 恰为 `.md` 不构成可识别的
   workspace artifact；Node 与 Rust 的 `unsupported_file_type` 门统一要求扩展名前至少一个字符。
 - **2026-07-28 · 产品再裁：薄 harness 与基础 GUI 为当前里程碑**：冻结四工具与六条最小

@@ -171,16 +171,25 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
 
 - `PI-CODE-STDIO-1` 只新增
   `src/product-protocol.ts`、`src/product-stdio.ts` 及同名测试：逐字段实现 ADR-022 六-B 的
-  strict discriminated union、per-direction seq、request/session/state machine、1 MiB framing
+  strict discriminated union；完整 packet 顶层恰为
+  `{protocolVersion,seq,sessionId,requestId,type,payload}`，逐包业务字段只在 nested `payload`
+  中，flat v1 必拒。另实现 per-direction seq、request/session/state machine、1 MiB framing
   和可注入 driver；必须覆盖 duplicate JSON member、fatal UTF-8/lone surrogate、LF-only、
   integer lexical gate、pre-bootstrap null-session error、C0 worst-escape/max-list packet，
   sidecar-leg seq 与本 leg 去重集合重置、fresh/resume 自洽门、从给定
   `priorObservedTurns/priorTurns/priorUsd` 初始化累计器、race-late cancel no-op 与在途 host
-  request 的 uncertain 优先收束。新进程没有历史 journal，本票不得伪测跨 leg requestId 去重、
-  previous+1、prior 精确 fold 或 model/limits/grant/container/capability 漂移；这些由
+  request 的 uncertain 优先收束。Terminal codec 必须拒绝与
+  `effect_uncertain > budget_unknown > known limit > cancel > outcome` 冲突的 budget/status 组合，
+  包含 reached/unknown/stopReason/usd 互洽反例。新进程没有历史 journal，本票不得伪测跨 leg
+  requestId 去重、previous+1、prior 精确 fold 或 model/limits/grant/container/capability 漂移；这些由
   `PI-HOST-LOOP-1` 的 Rust/journal 反例承担。它只校验 workspace arguments 的闭集形状/hash 格式；逻辑路径语义由
   `workspace-write-env` 与未来 Rust host 双验，不在 codec 复制。不得新增尚无产品 driver 的
   假 executable main，不改 env/tools/session/package/lock，并只改自己的独占回执行。
+- 成熟 OSS 四选一结论为**保留自研**这一条窄 strict scanner/stdio state machine，不新增依赖。
+  TypeBox 只能校验 parse 后的 value；现有 line splitter 不满足 LF-only、fatal UTF-8 与 partial
+  EOF；`jsonc-parser` 虽能提供 offset/token，但仍须自写 duplicate-key stack、canonical integer、
+  strict trivia/framing 与全部跨字段状态门，不能减少概念数。后续若重开依赖选型，必须以 exact
+  stable version 的相同反例 spike 证明能删除现有边界，而非只替换约 200 行 tokenizer。
 - `PI-SIDECAR-DIST-1` 只改 `packages/pi-lane/fixtures/sidecar-dist/`、独立报告
   `docs/engineering/pi-sidecar-dist-1.md` 与自己的回执行；做 Node 22 LTS sealed bundle vs SEA
   实验，不改生产 wire/session。若实验必须引 exact MIT/Apache 工具，只允许该票改
