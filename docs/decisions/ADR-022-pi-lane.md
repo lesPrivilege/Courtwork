@@ -251,7 +251,9 @@ cost 是非负有限数；null 都表示该字段未知，不是 0。`turn` 是�
 pi 的 `agent_start/turn_start/message_start/message_end/agent_end` 仅作本地结构信号，不出包；
 `message_update/tool_execution_start|update|end/turn_end` 必须映射为上述闭集，不得透传 raw
 message/args/result。上游新增未知 event/tool name 时 terminal
-`failed + upstream_event_unsupported`，不能静默吞掉或塞 raw JSON。
+`failed + upstream_event_unsupported`，不能静默吞掉或塞 raw JSON。TypeScript union 不是运行时
+验证；投影入口须先验 kind/toolName 再读取 turn/usage 等分支字段，cast 或未来上游 event 也不得
+逃逸为 `TypeError` 或 callback failure。
 
 runtime 向状态机报告失败时只给结构化 code/retryability，**不得给自由 message**。sidecar 的
 terminal message 只能由本地固定 code→安全文案表产生，不能拼接或截断后转发 provider body、
@@ -263,13 +265,30 @@ source literal 并由 snapshot 锁住；不得用插值、`String(error)` 或 `e
 per-leg **write** tool registry 至少区分
 `started → validated → raw_gate_passed → operation_reserved(op,tc) →
 operation_pending(snapshot) → host_result(status) → operation_settled → tool_finished`；阶段只能
-单向推进。write 在 **operation 尚未创建** 时的 finished 只按本地阶段事实分型：
+单向推进。`tool_started` 当场把 public tc 绑定到当前 `requestId` 与一枚不可变 `toolName`；
+后续 progress/finished/reserve 都必须引用当前 prompt 中仍有效、同名、尚未 finished 的 tc，
+旧 prompt tc、finished tc 与改名事件一律拒绝。产品 Agent 虽固定
+`toolExecution:'sequential'`，状态机仍须显式守住“每 prompt 至多一枚未 finished tc”，不能把
+正常上游调度当作安全边界或用注释证明重叠不可达。模型工具到 host capability 的映射固定为
+`write ↔ workspace_write`、`read|glob|grep ↔ workspace_read`；映射、owner、阶段与宣告能力全部
+通过后才可烧 operation ordinal。
+
+write 在 **operation 尚未创建** 时的 finished 只按本地阶段事实分型：
 
 - TypeBox/参数 validation、raw extra/type/path alias/content-size 失败，或 host_request 前 abort
   → `failed`；
 - 只有明确的 capability 未授权、用户拒绝或 policy deny → `denied`；
 - 任何其他 start 后、operation 前的未知结束 → `failed`，随后 prompt 以
   `upstream_event_unsupported` 关闭，不从通用 error message 猜类型。
+
+因此 pre-operation 的 `succeeded|uncertain` 绝不得原样上 wire；状态机须先以 `failed` 闭合该
+public tc，再按 upstream 违约关闭。write 一旦 send 即只允许这一枚 operation；host_result 未到
+前收到 runtime `tool_finished` 或 `finishPrompt`，都视为 upstream 违约并进入下述 pending
+闩锁，不得相信调用方 outcome。host_result 已到而合法 `tool_finished` 未到时，保存的
+`operation_settled` 与新的 reservation/pending 结构性互斥；runtime 提前 finish、起下一工具或
+发下一 host request 时，必须先按已保存 host status 发恰一枚正确的 `tool_finished`，再按既定
+优先级 terminal。任何普通 terminal 都不得清掉未投影的 settled effect。read/glob/grep 才可在
+同一 active tc 内重复 host-operation 子循环。
 
 `workspace-write-env` 已冻结为“gate 后由 registry 分配 op → 用该 op 计算 proposalHash → port
 发送含同一 op/hash 的八字段 request”。product stdio 必须提供与之同构的两段式内部 API：
@@ -287,7 +306,9 @@ sendReservedHostRequest({
 pending correlation；它**不得**再分配 op、重算 proposalHash 或读取私有 current-operation。
 reserve 只可发生在所有本地 gate 之后；若其后的异步 hash 在 send 前失败，ordinal 永久烧号但
 不出 wire、不成为 pending、不得复用。该烧号不是 effect/journal 事实。product stdio 不再持有
-第二枚 `ProposalHasher`。
+第二枚 `ProposalHasher`。同一 tc 在首枚 request 尚未 send 时可以再 reserve，以烧掉 hash
+失败留下的旧 ordinal；一旦 send，write 不得为该 tc 铸第二枚 operation。owner/tool/capability/
+phase 任一门失败都发生在 ordinal 分配之前。
 
 一旦进入 `operation_pending`，write 的 `tool_finished.outcome` **只认对应
 `host_result.status`**，不认上游 tool result 的 `isError`。0.82.1 在 `writeFile` 成功后若 signal
@@ -396,6 +417,9 @@ callback 抛出的原 Error/message/cause 均不得转发或保留；普通路�
 无 cause 的 `ProductSidecarError`。`pending_upstream_failure` 已进入 effect 收束后，cancel/
 host-result consumer 的 callback 异常只作固定内部失败并继续上述收束，不能再次丢 pending。
 transport 是单向 stdio adapter，不属于 runtime callback，契约上禁止同步回调 session。
+callback 抛错后不做事务式状态回滚：已经发出的 event/effect 不可撤销；未来 host driver 必须把
+逃逸的 `ProductSidecarError` 当作 runtime/sidecar fault，终止该进程并按 journal 恢复规则落账，
+不得吞错后继续使用同一内存 session。
 
 #### 六-B.2 · workspace request/result 与跨平台逻辑路径
 
@@ -755,6 +779,12 @@ ad-hoc/sign synthetic `.app` 仍只算同机探针，绝不冒充 Tauri bundler�
 
 ## 修订记录
 
+- **2026-07-28 · stdio 返修独立验收再拒绝与 tc 状态表闭口**：`4df2e84` 在原 227 绿测之外
+  注入 9 枚 production 反例全部见红，坐实 tool→capability 越权、settled effect 被普通 finish/
+  新 pending 抹掉、tc 改名/跨 prompt 复用/finished 后倒退、unknown event 逃逸与 pre-operation
+  伪成功。保留 USD 一律传染、预登记 public tc、callback 不回滚及 reserve/send 单一 op/hash；
+  新增 request-scoped 不可变 tc identity、显式单向 phase、精确 capability 映射、pending/settled
+  结构互斥与 premature finish 自闭合。`toolExecution:'sequential'` 不再被接受为状态门的替代品。
 - **2026-07-28 · 基础 GUI 的 Design 自主边界**：区分 headless GUI 机制与视觉设计；取消
   “先把前端全部确定好”的隐含前置，冻结浅色先行、冷白/深墨、扁平版本目录学、克制反乌托邦
   与 anti-slop 禁区，把构图、浅色 token 微调、微交互和截图迭代留给 Opus；dark 只守同构回归，

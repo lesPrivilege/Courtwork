@@ -224,6 +224,39 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   pending `ok/denied/failed/uncertain`、host_result-before-violation race、cancel 与 usd taint、
   canary。完成后仍只叫“待独立复验”，不得自放行；原验收要求的 semantic mutation 证据缺口由
   后续独立验收补齐。
+- `PI-CODE-STDIO-1R` 实现 `9f9255b` / 回执 `7c8c9c3` 虽保住上述六项与全仓 1550 绿测，独立
+  验收 `4df2e84` 另注入 9 枚 production 反例得到 **9 red / 227 green**，结论仍为
+  **REJECT**。USD 一律传染、预登记 public tc、callback 不回滚与 reserve/send 不二次铸 op/hash
+  四项不回退；问题是 tc registry 未真正绑定 request/tool/capability/phase，且普通 finish 可
+  抹掉已确认 effect。返修 `PI-CODE-STDIO-1R2` 只许改同四份
+  `product-protocol.ts/.test.ts`、`product-stdio.ts/.test.ts` 与新回执
+  `specs/PI-CODE-STDIO-1R2.md`；不得改 1/1R 旧回执、ACCEPTANCE、父级 SPEC/ADR、index/env/
+  tools/session/package/lock、workspace-write-env、Rust/Tauri 或 GUI：
+  1. public tc 记录不可变 `{requestId,toolName,phase}`，只属生成它的 active prompt；每 prompt
+     至多一枚未 finished tc。progress/finished/reserve 必须同 tc、同 toolName、同 request，
+     finished 后 progress/finished/reserve 与旧 prompt tc 全拒。不能拿
+     `toolExecution:'sequential'` 代替机器门。
+  2. tool→capability 映射固定为 `write↔workspace_write`、
+     `read|glob|grep↔workspace_read`。owner/name/phase/宣告能力全部通过后才烧 ordinal；send 前
+     的有效重复 reserve 只烧掉旧 hash-failure ordinal，send 后 write 不得铸第二 op。
+  3. pre-operation write 只准可信本地 `failed|denied` 分型；`succeeded|uncertain` 必须由状态机
+     改投 `tool_finished:failed` 后以 upstream failure 关闭。write pending 时 runtime 的
+     tool_finished/finishPrompt 只进入 pending failure 闩锁、不得先出 finished/terminal；
+     outcome 仍只认 host_result。
+  4. host_result 已收但 tool_finished 未到时，settled effect 与新 reservation/pending 结构互斥。
+     合法同名、同 outcome finished 正常闭合；改名/错 outcome、普通 finish、新 tool 或新 host
+     request 都须先按保存 status 自发恰一枚正确 finished，再按原优先级 terminal。任何普通
+     terminal 都不得清掉 settled effect。
+  5. runtime 投影入口先做 kind/toolName 运行时闭集检查；unknown/future event 不得落入
+     turn_finished default、抛 `TypeError` 或变成 callback failure。重复 finished、finished 后
+     progress、pending 前 finished、跨 prompt stale tc 都须 fail-closed；read/glob/grep 的同 tc
+     多 host-operation 子循环仍保留。
+  6. R2 不得破坏 1R 已成立的固定安全文案、retryability、五 callback guard、四态 latch、
+     cancel/usd/result-before-violation、同一 op/hash 与逐值 correlation。九枚验收反例须先在
+     未改 production 的 1R tree 直接见红；上述每个新增转移做有效 source mutation，且至少锁
+     capability 双向错配、tc 改名、stale tc、pre-op succeeded、pending 提前 finished、
+     settled→finish、新 pending 与 unknown event。完成后仍须异会话 clean-worktree 验收，
+     不得由实现者或本轮验收者放行。
 - `PI-SIDECAR-DIST-1` 的实现 `70e6482`、回执 `01ff5e7`/订正 `3207b27` 经独立验收
   `9b8142f` 判定 **REJECT**；其报告与 SEA-default 建议不得用于路线裁定。返修
   `PI-SIDECAR-DIST-1R` 只许改 fixture `README.md`，`scripts/` 下
@@ -264,6 +297,8 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   report，仅在其专属回执写链接与结论。返修票不属于这组三票；为避免把父级架构提交反向
   cherry-pick 到旧基线，组合树均从本节所在 `main` tip 新建，再按序取证据提交：
   `PI-CODE-STDIO-1R` 取 `79a13d2 → 223185e → 0ffae46 → cfb4715`；
+  `PI-CODE-STDIO-1R2` 取
+  `5b55885 → 5133c6e → 0872a5c → 855db1b → 9f9255b → 7c8c9c3 → 4df2e84`；
   `PI-SIDECAR-DIST-1R` 取 `70e6482 → 01ff5e7 → 3207b27 → 9b8142f`。实现者只改各自票面文件
   与新回执，并在回执记录组合后的目标 SHA；冲突一律停下回架构，不得借解决冲突改父级文档。
 - 后续 `PI-WRITE-HOST-1` 才把 port 接到 Rust exact 同版本
@@ -310,6 +345,7 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - [`PI-WRITE-PROOF-1`](specs/PI-WRITE-PROOF-1.md)
 - [`PI-CODE-STDIO-1`](specs/PI-CODE-STDIO-1.md)
 - [`PI-CODE-STDIO-1R`](specs/PI-CODE-STDIO-1R.md)
+- [`PI-CODE-STDIO-1R2`](specs/PI-CODE-STDIO-1R2.md)
 - [`PI-SIDECAR-DIST-1`](specs/PI-SIDECAR-DIST-1.md)
 - [`PI-SIDECAR-DIST-1R`](specs/PI-SIDECAR-DIST-1R.md)
 
