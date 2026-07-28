@@ -1,15 +1,26 @@
 /**
- * PI-SIDECAR-DIST-1 · 六项实测：体积/SHA、冷启动、stdin/stdout、abort、崩溃回收、双架构。
+ * PI-SIDECAR-DIST-1R · 十件库存的功能实测：体积/SHA、身份、stdio、loop、abort、四类崩溃。
  *
- * 纪律三条，写在最前面免得读数被误读：
- * 1. **失败也是数据**：任一格失败按原样记 code/signal/stderr，不重试到绿、不抹平。
- * 2. **Rosetta 先热身**：x86_64 首跑含翻译代价，热身后再取样；两类数字分别标注，不混为
- *    「x86_64 就是这么慢」。
- * 3. **本机只能实证本机**：Intel 真机、Windows、Linux、Developer ID/公证一律不外推，
- *    在报告里记 blocked。
+ * 与 `70e6482` 的根本差别只有一条：**这里的每一格都会判红**。
+ * 原件把失败序列化进 JSON 后仍从 `measure.mjs:207/246/279` 返回 `status:'ok'`，
+ * 缺产物在 `:60/:74` 被静默 `continue`——`9b8142f` 因此判 REJECT。现在：
  *
- * 用法：`node scripts/measure.mjs [--samples N]`
- * 结果同时写 `dist/measurements.json`（机器面）与 stdout 摘要（人面）。
+ * - 库存恰十件闭集，少一、多一、重复、错名都令顶层 `status:'failed'` 且进程非零；
+ * - 两枚 `esm-naive` 是**负控**，必须以既知 `Dynamic require of "process"` 非零失败；
+ * - 其余八枚逐件锁身份三元组、pong、三 payload 的 byte/hash、exact 工具表、
+ *   真实 read loop、干净 EOF、abort 四条与四类崩溃的 exact code/signal 及逐类复启；
+ * - 判据全部住 `lib/probe-verdict.mjs`，本文件只负责采集观察值。
+ *
+ * 冷启动读数已整体移到 `coldstart-rounds.mjs`：单轮读数会被负载带偏（本票失败记录三），
+ * 留在这里只会诱人引用一个自己都声明不作数的数字。
+ *
+ * 用法：
+ *   `node scripts/measure.mjs`                          正式实测
+ *   `node scripts/measure.mjs --counterexample <name>`   注入反例，验证判据确实拦得住
+ *   `node scripts/measure.mjs --list-counterexamples`    列出全部反例名
+ *
+ * 退出码：0＝干净全过；1＝正式实测判红；2＝反例被判据抓住（期望结果）；
+ * 3＝反例**没**被抓住或压根没改动观察值（等价变异，须如实登记，不得当作覆盖）。
  */
 
 import { createHash } from 'node:crypto';
@@ -18,281 +29,242 @@ import os from 'node:os';
 import path from 'node:path';
 
 import {
+  PAYLOAD_SPECS,
+  conclude,
+  payloadText,
+  verdictAbort,
+  verdictCrash,
+  verdictIdentity,
+  verdictInventory,
+  verdictNegativeControl,
+  verdictStdio,
+} from './lib/probe-verdict.mjs';
+import {
   DIST_DIR,
-  NODE_VERSION,
-  RUNTIME_DIR,
-  SIDECAR_BASENAME,
+  artifactPresent,
   byteSize,
   ensureDir,
-  median,
+  resolveInventory,
   round,
   run,
   sha256File,
   spawnNdjson,
 } from './lib/toolkit.mjs';
 
+// —— 反例注入面 ————————————————————————————————————————————————————
+//
+// 被测 `sidecar-fixture.mjs` 由票面冻结，故反例只能落在**采集完成、判定之前**的观察值上：
+// 真起进程、真跑一轮、真收包，然后只坏一处。这测的是判据的区分力，不是 fixture 的行为。
+// 物理面的反例（删产物、截断 archive、预置错件）不走这里，直接动磁盘。
+
+const COUNTEREXAMPLES = {
+  'identity.node': { target: 'candidate', apply: (o) => (o.ready.node = 'v20.19.0') },
+  'identity.arch': { target: 'candidate', apply: (o) => (o.ready.arch = 'ppc64') },
+  'identity.sea': { target: 'sea-candidate', apply: (o) => (o.ready.sea = 'not-sea') },
+  'stdio.pong': { target: 'candidate', apply: (o) => (o.stdio.pong.seen = false) },
+  'stdio.payload.bytes': { target: 'candidate', apply: (o) => (o.stdio.payloads[0].observedBytes -= 1) },
+  'stdio.payload.sha': { target: 'candidate', apply: (o) => (o.stdio.payloads[1].observedSha256 = '0'.repeat(64)) },
+  'stdio.tools': { target: 'candidate', apply: (o) => (o.stdio.session.tools = ['read', 'grep']) },
+  'stdio.loop.tools': { target: 'candidate', apply: (o) => (o.stdio.loop.toolsExecuted = []) },
+  'stdio.loop.turns': { target: 'candidate', apply: (o) => (o.stdio.loop.turns = 1) },
+  'stdio.eof': { target: 'candidate', apply: (o) => (o.stdio.eofExit = { code: 3, signal: null }) },
+  'abort.ack': { target: 'candidate', apply: (o) => (o.abort.ack.seen = false) },
+  'abort.wasRunning': { target: 'candidate', apply: (o) => (o.abort.ack.wasRunning = false) },
+  'abort.stopReason': { target: 'candidate', apply: (o) => (o.abort.ended.stopReason = 'endTurn') },
+  'abort.survived': { target: 'candidate', apply: (o) => (o.abort.pingAfterAbort = false) },
+  'crash.throw': { target: 'candidate', apply: (o) => (crashRow(o, 'throw').exitCode = 0) },
+  'crash.exit': { target: 'candidate', apply: (o) => (crashRow(o, 'exit').exitCode = 1) },
+  'crash.hang': { target: 'candidate', apply: (o) => ((crashRow(o, 'hang').signal = 'SIGTERM')) },
+  'crash.sigterm': { target: 'candidate', apply: (o) => ((crashRow(o, 'sigterm').signal = 'SIGKILL')) },
+  'crash.respawn': { target: 'candidate', apply: (o) => (crashRow(o, 'exit').respawnReady = false) },
+  'negativeControl.launched': { target: 'negative-control', apply: (o) => (o.negativeControl.launched = true) },
+  'negativeControl.reason': {
+    target: 'negative-control',
+    apply: (o) => (o.negativeControl.errorLine = 'Error: unrelated failure'),
+  },
+  'inventory.extra': { target: 'inventory', apply: (ids) => ids.push('a/aarch64-apple-darwin/wasm') },
+};
+
+const crashRow = (observation, kind) => observation.crash.terminations.find((entry) => entry.kind === kind);
+
 const argv = process.argv.slice(2);
-const samplesFlag = argv.indexOf('--samples');
-const SAMPLES = samplesFlag >= 0 ? Number(argv[samplesFlag + 1]) : 20;
-const WARMUP = 3;
+if (argv.includes('--list-counterexamples')) {
+  process.stdout.write(`${Object.keys(COUNTEREXAMPLES).join('\n')}\n`);
+  process.exit(0);
+}
+const ceFlag = argv.indexOf('--counterexample');
+const COUNTEREXAMPLE = ceFlag >= 0 ? argv[ceFlag + 1] : null;
+if (COUNTEREXAMPLE && !COUNTEREXAMPLES[COUNTEREXAMPLE]) {
+  process.stderr.write(`未知反例 ${COUNTEREXAMPLE}；可选：\n${Object.keys(COUNTEREXAMPLES).join('\n')}\n`);
+  process.exit(3);
+}
 
 const CORPUS = path.join(DIST_DIR, 'corpus');
 ensureDir(CORPUS);
 fs.writeFileSync(path.join(CORPUS, '备忘.md'), '# 备忘\n合同编号 HT-2024-081\n違約金 3%\n');
 fs.writeFileSync(path.join(CORPUS, '附件.md'), '# 附件\n交付期 2026-09-30\n');
 
-const TRIPLES = ['aarch64-apple-darwin', 'x86_64-apple-darwin'];
-const ROUTE_A_VARIANTS = [
-  { name: 'esm-naive', bundle: 'sidecar.mjs' },
-  { name: 'esm-createrequire', bundle: 'sidecar.mjs' },
-  { name: 'cjs', bundle: 'sidecar.cjs' },
-];
-const ROUTE_B_VARIANTS = ['default', 'code-cache'];
+// —— 采集 ————————————————————————————————————————————————————————
 
-/** 被测集合：路线甲三档 bundle 形态、路线乙两档 blob 形态，各跨两个 triple。 */
-function artifacts() {
-  const list = [];
-  for (const triple of TRIPLES) {
-    for (const variant of ROUTE_A_VARIANTS) {
-      const dir = path.join(DIST_DIR, 'route-a', `${triple}--${variant.name}`);
-      const executable = path.join(dir, `${SIDECAR_BASENAME}-${triple}`);
-      const carried = path.join(dir, variant.bundle);
-      if (!fs.existsSync(executable) || !fs.existsSync(carried)) continue;
-      list.push({
-        id: `a/${triple}/${variant.name}`,
-        route: 'a-sealed-bundle',
-        triple,
-        variant: variant.name,
-        command: executable,
-        args: [carried],
-        files: [executable, carried],
-      });
-    }
-    for (const variant of ROUTE_B_VARIANTS) {
-      const executable = path.join(DIST_DIR, 'route-b', `${triple}--${variant}`, `${SIDECAR_BASENAME}-${triple}`);
-      if (!fs.existsSync(executable)) continue;
-      list.push({
-        id: `b/${triple}/${variant}`,
-        route: 'b-node-sea',
-        triple,
-        variant,
-        command: executable,
-        args: [],
-        files: [executable],
-      });
-    }
-  }
-  return list;
-}
-
-/**
- * 一次启动探针：先判「这枚产物到底跑不跑得起来」。
- * 跑不起来就不必再花二十次冷启样本，直接把 stderr 首行留成红证。
- */
+/** 一次启动探针：只回报「起没起来、起来了是什么身份、没起来是死在哪句」。 */
 async function launchProbe(artifact) {
   const proc = spawnNdjson(artifact.command, artifact.args);
-  const ready = await proc.waitFor((p) => p.op === 'ready', 30_000);
+  const ready = await proc.waitFor((packet) => packet.op === 'ready', 30_000);
   if (!ready) {
     proc.child.kill('SIGKILL');
     const exited = await proc.exited;
     const lines = proc.stderr().split('\n').filter(Boolean);
     return {
-      launches: false,
+      launched: false,
       exit: exited,
-      // 首条 Error/异常行才是归因所在；栈尾只说明它死在 ESM loader，不说明死于什么。
-      // 只取行首的 `XxxError`/`XxxException`；不整段回灌 stderr——esm-naive 的失败会先吐出
-      // 整行 852 KB 的 bundle 源码，塞进读数文件毫无用处。
+      // 首条 `XxxError`/`XxxException` 行才是归因所在。不整段回灌 stderr——
+      // esm-naive 的失败会先吐出整行 852 KB 的 bundle 源码。
       errorLine: lines.find((line) => /^[A-Za-z]*(?:Error|Exception)\b/.test(line.trim()))?.slice(0, 300) ?? null,
       stderrTail: lines.slice(-3),
     };
   }
   proc.child.stdin.end();
-  await proc.exited;
-  return { launches: true, node: ready.node, arch: ready.arch, sea: ready.sea };
+  const exited = await proc.exited;
+  return { launched: true, ready: { node: ready.node, arch: ready.arch, sea: ready.sea }, exit: exited };
 }
 
-/** 裸 runtime 基线：把「Node 自身启动」与「pi 模块图载入」分开，否则冷启读数无从归因。 */
-function runtimeBaseline(nodeArch) {
-  const binary = path.join(RUNTIME_DIR, `node-${NODE_VERSION}-darwin-${nodeArch}`, 'bin', 'node');
-  if (!fs.existsSync(binary)) return { status: 'blocked', reason: 'runtime-missing' };
-  const samples = [];
-  for (let index = 0; index < SAMPLES; index += 1) {
-    const started = process.hrtime.bigint();
-    const result = run(binary, ['-e', 'process.stdout.write("x")']);
-    const elapsed = Number(process.hrtime.bigint() - started) / 1e6;
-    if (result.status !== 0) return { status: 'failed', exit: result.status, stderr: result.stderr.slice(0, 400) };
-    if (index >= WARMUP) samples.push(elapsed);
-  }
-  return { status: 'ok', samples: samples.length, medianMs: round(median(samples)), minMs: round(Math.min(...samples)) };
-}
-
-async function coldStart(artifact) {
-  const external = [];
-  const internal = [];
-  let ready = null;
-  for (let index = 0; index < SAMPLES; index += 1) {
-    const started = process.hrtime.bigint();
-    const proc = spawnNdjson(artifact.command, artifact.args);
-    const packet = await proc.waitFor((p) => p.op === 'ready', 30_000);
-    const elapsed = Number(process.hrtime.bigint() - started) / 1e6;
-    if (!packet) {
-      proc.child.kill('SIGKILL');
-      return { status: 'failed', reason: 'no-ready', stderr: proc.stderr().slice(0, 1200), atSample: index };
-    }
-    ready = packet;
-    proc.child.stdin.end();
-    await proc.exited;
-    if (index >= WARMUP) {
-      external.push(elapsed);
-      internal.push(packet.uptimeMs);
-    }
-  }
-  return {
-    status: 'ok',
-    samples: external.length,
-    warmupDropped: WARMUP,
-    externalMedianMs: round(median(external)),
-    externalMinMs: round(Math.min(...external)),
-    externalMaxMs: round(Math.max(...external)),
-    inProcessMedianMs: round(median(internal)),
-    node: ready.node,
-    arch: ready.arch,
-    sea: ready.sea,
-  };
-}
-
-/** stdin/stdout：往返、超大行、多字节。sha256 比对保证「没被改字节、没被截断」。 */
+/** stdio：pong、三类大 payload 的 byte/hash 往返、工具表、真跑一轮 loop、EOF。 */
 async function stdio(artifact) {
   const proc = spawnNdjson(artifact.command, artifact.args);
-  const ready = await proc.waitFor((p) => p.op === 'ready', 30_000);
+  const ready = await proc.waitFor((packet) => packet.op === 'ready', 30_000);
   if (!ready) {
     proc.child.kill('SIGKILL');
-    return { status: 'failed', reason: 'no-ready', stderr: proc.stderr().slice(0, 1200) };
+    return { unreachable: 'no-ready', stderr: proc.stderr().slice(0, 1200) };
   }
 
   const started = process.hrtime.bigint();
   proc.send({ op: 'ping', id: 'p1' });
-  const pong = await proc.waitFor((p) => p.op === 'pong' && p.id === 'p1', 15_000);
+  const pong = await proc.waitFor((packet) => packet.op === 'pong' && packet.id === 'p1', 15_000);
   const roundTripMs = Number(process.hrtime.bigint() - started) / 1e6;
 
-  const cases = [];
-  for (const [label, text] of [
-    ['ascii-1MiB', 'a'.repeat(1024 * 1024)],
-    ['utf8-multibyte', '契約書𝒜😀'.repeat(50_000)],
-    // C0 控制字符 + 引号 + 反斜杠：JSON 编码后单字符最坏膨胀到六字节，
-    // 正是 ADR-022 六-B.1 点名的 encoded-packet worst case。
-    ['c0-worst-escape', '\u0001"\\'.repeat(80_000)],
-  ]) {
-    const expectedBytes = Buffer.byteLength(text, 'utf8');
-    const expectedSha = createHash('sha256').update(text, 'utf8').digest('hex');
-    proc.send({ op: 'echo', id: label, text });
-    const echoed = await proc.waitFor((p) => p.op === 'echoed' && p.id === label, 30_000);
-    cases.push({
-      label,
-      sentBytes: expectedBytes,
-      ok: Boolean(echoed) && echoed.byteLength === expectedBytes && echoed.sha256 === expectedSha,
-      observed: echoed ? { byteLength: echoed.byteLength, shaMatch: echoed.sha256 === expectedSha } : null,
+  const payloads = [];
+  for (const spec of PAYLOAD_SPECS) {
+    const text = payloadText(spec);
+    const sentBytes = Buffer.byteLength(text, 'utf8');
+    const sentSha256 = createHash('sha256').update(text, 'utf8').digest('hex');
+    proc.send({ op: 'echo', id: spec.label, text });
+    const echoed = await proc.waitFor((packet) => packet.op === 'echoed' && packet.id === spec.label, 60_000);
+    payloads.push({
+      label: spec.label,
+      sentBytes,
+      sentSha256,
+      observedBytes: echoed ? echoed.byteLength : null,
+      observedSha256: echoed ? echoed.sha256 : null,
     });
   }
 
-  // 真跑一轮 loop：证明打进去的确实是能用的 pi core，不是「能启动的空壳」。
+  // 真跑一轮 loop：证明打进去的是能用的 pi core，不是「能启动的空壳」。
   proc.send({ op: 'init', id: 'i1', root: CORPUS });
-  const inited = await proc.waitFor((p) => p.op === 'inited' && p.id === 'i1', 30_000);
+  const inited = await proc.waitFor((packet) => packet.op === 'inited' && packet.id === 'i1', 60_000);
   proc.send({ op: 'run', id: 'r1', file: '备忘.md' });
-  const ran = await proc.waitFor((p) => p.op === 'ran' && p.id === 'r1', 30_000);
+  const ran = await proc.waitFor((packet) => packet.op === 'ran' && packet.id === 'r1', 60_000);
 
   proc.child.stdin.end();
-  const exited = await proc.exited;
+  const eofExit = await proc.exited;
 
   return {
-    status: 'ok',
-    pingRoundTripMs: pong ? round(roundTripMs, 2) : null,
-    payloads: cases,
+    pong: { seen: Boolean(pong), roundTripMs: pong ? round(roundTripMs, 2) : null },
+    payloads,
     session: inited ? { tools: inited.tools, setupMs: round(inited.sessionSetupMs) } : null,
     loop: ran ? { toolsExecuted: ran.toolsExecuted, turns: ran.turns, lastRole: ran.lastRole } : null,
-    eofExit: exited,
+    eofExit,
     stderr: proc.stderr().slice(0, 600),
   };
 }
 
-/** abort：慢流在途 → abort → 回合以 aborted 收尾，且**进程仍活着能继续服务**。 */
+/** abort：在途回合被打断、以 `aborted` 收束、进程仍能服务、随后 EOF 干净退 0。 */
 async function abort(artifact) {
   const proc = spawnNdjson(artifact.command, artifact.args);
-  const ready = await proc.waitFor((p) => p.op === 'ready', 30_000);
+  const ready = await proc.waitFor((packet) => packet.op === 'ready', 30_000);
   if (!ready) {
     proc.child.kill('SIGKILL');
-    return { status: 'failed', reason: 'no-ready', stderr: proc.stderr().slice(0, 1200) };
+    return { unreachable: 'no-ready', stderr: proc.stderr().slice(0, 1200) };
   }
   proc.send({ op: 'slow', id: 's1', root: CORPUS, tokensPerSecond: 2, text: `${'词 '.repeat(600)}` });
-  const running = await proc.waitFor((p) => p.op === 'running' && p.id === 's1', 30_000);
+  const running = await proc.waitFor((packet) => packet.op === 'running' && packet.id === 's1', 60_000);
   if (!running) {
     proc.child.kill('SIGKILL');
-    return { status: 'failed', reason: 'slow-never-started', stderr: proc.stderr().slice(0, 1200) };
+    return { unreachable: 'slow-never-started', stderr: proc.stderr().slice(0, 1200) };
   }
 
   await new Promise((resolve) => setTimeout(resolve, 400));
+  // 两个监听都要在 send 之前挂上：`waitFor` 只看得见挂上之后到达的行，
+  // 先 await ack 再挂 slow-ended 会漏掉抢先到达的收束包。
+  const ackPromise = proc.waitFor((packet) => packet.op === 'aborted' && packet.id === 'a1', 30_000);
+  const endedPromise = proc.waitFor((packet) => packet.op === 'slow-ended' && packet.id === 's1', 60_000);
   const abortStarted = process.hrtime.bigint();
   proc.send({ op: 'abort', id: 'a1' });
-  const ended = await proc.waitFor((p) => p.op === 'slow-ended' && p.id === 's1', 30_000);
+  const ack = await ackPromise;
+  const ended = await endedPromise;
   const abortLatencyMs = Number(process.hrtime.bigint() - abortStarted) / 1e6;
 
-  // 关键判据：abort 不得把 sidecar 打死——宿主要能继续用同一进程。
   proc.send({ op: 'ping', id: 'after' });
-  const alive = await proc.waitFor((p) => p.op === 'pong' && p.id === 'after', 15_000);
+  const alive = await proc.waitFor((packet) => packet.op === 'pong' && packet.id === 'after', 15_000);
 
   proc.child.stdin.end();
-  const exited = await proc.exited;
+  const eofExit = await proc.exited;
   return {
-    status: ended ? 'ok' : 'failed',
+    ack: { seen: Boolean(ack), wasRunning: ack ? ack.wasRunning : null },
+    ended: ended ? { stopReason: ended.stopReason ?? null, elapsedMs: round(ended.elapsedMs) } : null,
+    pingAfterAbort: Boolean(alive),
     abortLatencyMs: ended ? round(abortLatencyMs) : null,
-    stopReason: ended?.stopReason ?? null,
-    turnElapsedMs: ended ? round(ended.elapsedMs) : null,
-    survivedAbort: Boolean(alive),
-    eofExit: exited,
+    eofExit,
   };
 }
 
-/** 崩溃回收：四类终止各记 code/signal，再复启一次证明产物本身没坏。 */
+/** 四类崩溃：各记 exact code/signal，并**逐类**复启一次证明产物字节未受影响。 */
 async function crashes(artifact) {
-  const results = [];
+  const terminations = [];
   for (const kind of ['throw', 'exit', 'hang', 'sigterm']) {
     const proc = spawnNdjson(artifact.command, artifact.args);
-    const ready = await proc.waitFor((p) => p.op === 'ready', 30_000);
+    const ready = await proc.waitFor((packet) => packet.op === 'ready', 30_000);
     if (!ready) {
       proc.child.kill('SIGKILL');
-      results.push({ kind, status: 'failed', reason: 'no-ready' });
+      terminations.push({ kind, exitCode: null, signal: null, respawnReady: false, reason: 'no-ready' });
       continue;
     }
     if (kind === 'sigterm') {
       proc.child.kill('SIGTERM');
     } else {
       proc.send({ op: 'crash', id: kind, kind });
-      await proc.waitFor((p) => p.op === 'crashing' && p.id === kind, 15_000);
+      await proc.waitFor((packet) => packet.op === 'crashing' && packet.id === kind, 15_000);
       if (kind === 'hang') {
         await new Promise((resolve) => setTimeout(resolve, 300));
         proc.child.kill('SIGKILL');
       }
     }
     const exited = await proc.exited;
-    results.push({
+
+    const again = spawnNdjson(artifact.command, artifact.args);
+    const respawn = await again.waitFor((packet) => packet.op === 'ready', 30_000);
+    if (respawn) again.child.stdin.end();
+    else again.child.kill('SIGKILL');
+    await again.exited;
+
+    terminations.push({
       kind,
-      status: 'ok',
       exitCode: exited.code,
       signal: exited.signal,
+      respawnReady: Boolean(respawn),
       stderrHead: proc.stderr().split('\n').filter(Boolean).slice(0, 2),
     });
   }
-
-  // 回收后复启：产物字节未被崩溃影响，宿主可无条件重来。
-  const proc = spawnNdjson(artifact.command, artifact.args);
-  const ready = await proc.waitFor((p) => p.op === 'ready', 30_000);
-  proc.child.stdin.end();
-  await proc.exited;
-  return { terminations: results, respawnReady: Boolean(ready) };
+  return { terminations };
 }
 
+// —— 主流程 ——————————————————————————————————————————————————————
+
 const report = {
+  probe: 'measure',
   generatedOn: new Date().toISOString(),
+  counterexample: COUNTEREXAMPLE
+    ? { name: COUNTEREXAMPLE, appliedTo: null, applied: false, caught: null }
+    : null,
   host: {
     platform: process.platform,
     release: os.release(),
@@ -302,72 +274,136 @@ const report = {
     harnessNode: process.version,
     rosetta: run('arch', ['-x86_64', '/usr/bin/true']).status === 0 ? 'available' : 'unavailable',
   },
-  runtime: NODE_VERSION,
-  samples: SAMPLES,
-  runtimeBaseline: {
-    'aarch64-apple-darwin': runtimeBaseline('arm64'),
-    'x86_64-apple-darwin': runtimeBaseline('x64'),
-  },
   artifacts: [],
 };
 
-// Rosetta 首跑含一次性翻译代价。先跑热，再取样，否则 x86_64 的冷启读数是翻译时间不是启动时间。
-const rosettaWarmup = run(
-  path.join(RUNTIME_DIR, `node-${NODE_VERSION}-darwin-x64`, 'bin', 'node'),
-  ['-e', 'process.stdout.write("warm")'],
-);
-report.host.rosettaWarmup = rosettaWarmup.status === 0 ? 'ok' : `exit ${rosettaWarmup.status}`;
+/** 只坏一处，并验证「确实坏到了」——改不动的变异是等价变异，必须如实登记，不算覆盖。 */
+function injectInto(scope, subject, payload) {
+  if (!COUNTEREXAMPLE) return false;
+  const spec = COUNTEREXAMPLES[COUNTEREXAMPLE];
+  if (spec.target !== scope) return false;
+  if (report.counterexample.applied) return false;
+  const before = JSON.stringify(payload);
+  spec.apply(payload);
+  const changed = JSON.stringify(payload) !== before;
+  report.counterexample.applied = changed;
+  report.counterexample.appliedTo = subject;
+  if (!changed) report.counterexample.equivalentMutation = true;
+  return changed;
+}
 
-for (const artifact of artifacts()) {
+const inventory = resolveInventory();
+const observedIds = [];
+const failures = [];
+
+for (const artifact of inventory) {
   process.stderr.write(`· 量 ${artifact.id}\n`);
+  const present = artifactPresent(artifact);
   const entry = {
     id: artifact.id,
     route: artifact.route,
     triple: artifact.triple,
     variant: artifact.variant,
+    role: artifact.role,
+    present,
     executable: path.relative(DIST_DIR, artifact.command),
-    files: artifact.files.map((file) => ({
-      name: path.basename(file),
-      bytes: byteSize(file),
-      sha256: sha256File(file),
-    })),
-    shippedBytes: artifact.files.reduce((total, file) => total + byteSize(file), 0),
-    fileCount: artifact.files.length,
   };
 
-  entry.launchProbe = await launchProbe(artifact);
-  if (!entry.launchProbe.launches) {
-    // 起不来的产物不再耗二十轮样本：失败本身已经是结论，红证留在 launchProbe。
-    entry.coldStart = { status: 'skipped', reason: 'does-not-launch' };
-    entry.stdio = { status: 'skipped', reason: 'does-not-launch' };
-    entry.abort = { status: 'skipped', reason: 'does-not-launch' };
-    entry.crash = { status: 'skipped', reason: 'does-not-launch' };
+  if (!present) {
+    entry.missingFiles = artifact.files.filter((file) => !fs.existsSync(file)).map((file) => path.relative(DIST_DIR, file));
+    report.artifacts.push(entry);
+    continue; // 不进 observedIds → 由 verdictInventory 判红，不再静默。
+  }
+  observedIds.push(artifact.id);
+
+  entry.files = artifact.files.map((file) => ({
+    name: path.basename(file),
+    bytes: byteSize(file),
+    sha256: sha256File(file),
+  }));
+  entry.shippedBytes = entry.files.reduce((total, file) => total + file.bytes, 0);
+  entry.fileCount = entry.files.length;
+
+  const probe = await launchProbe(artifact);
+
+  if (artifact.role === 'negative-control') {
+    const observation = { negativeControl: probe };
+    injectInto('negative-control', artifact.id, observation);
+    entry.negativeControl = observation.negativeControl;
+    failures.push(...verdictNegativeControl(artifact.id, observation.negativeControl));
     report.artifacts.push(entry);
     continue;
   }
 
-  entry.coldStart = await coldStart(artifact);
-  entry.stdio = await stdio(artifact);
-  entry.abort = await abort(artifact);
-  entry.crash = await crashes(artifact);
+  if (!probe.launched) {
+    // 候选起不来即整枚不可用：留红证，不再耗后续探针。
+    entry.launchProbe = probe;
+    failures.push({
+      id: artifact.id,
+      check: 'candidate.launched',
+      expected: true,
+      observed: false,
+      errorLine: probe.errorLine,
+    });
+    report.artifacts.push(entry);
+    continue;
+  }
+
+  const observation = {
+    ready: { ...probe.ready },
+    stdio: await stdio(artifact),
+    abort: await abort(artifact),
+    crash: await crashes(artifact),
+  };
+  injectInto('candidate', artifact.id, observation);
+  if (artifact.route === 'b-node-sea') injectInto('sea-candidate', artifact.id, observation);
+
+  entry.ready = observation.ready;
+  entry.stdio = observation.stdio;
+  entry.abort = observation.abort;
+  entry.crash = observation.crash;
+
+  failures.push(...verdictIdentity(artifact.id, observation.ready));
+  failures.push(...verdictStdio(artifact.id, observation.stdio));
+  failures.push(...verdictAbort(artifact.id, observation.abort));
+  failures.push(...verdictCrash(artifact.id, observation.crash));
   report.artifacts.push(entry);
 }
 
-fs.writeFileSync(path.join(DIST_DIR, 'measurements.json'), `${JSON.stringify(report, null, 2)}\n`);
+injectInto('inventory', 'inventory', observedIds);
+failures.unshift(...verdictInventory(observedIds));
 
-const rows = report.artifacts.map((entry) => ({
+const verdict = conclude(failures, report);
+ensureDir(DIST_DIR);
+fs.writeFileSync(path.join(DIST_DIR, 'measurements.json'), `${JSON.stringify(verdict, null, 2)}\n`);
+
+const rows = verdict.artifacts.map((entry) => ({
   id: entry.id,
-  launches: entry.launchProbe.launches,
-  files: entry.fileCount,
-  MiB: round(entry.shippedBytes / 1024 / 1024, 2),
-  coldMs: entry.coldStart.externalMedianMs ?? entry.coldStart.status,
-  inProcMs: entry.coldStart.inProcessMedianMs ?? '—',
-  sea: entry.coldStart.sea ?? '—',
-  loop: entry.stdio.loop ? entry.stdio.loop.toolsExecuted.join('+') : entry.stdio.status,
-  payloadOk: entry.stdio.payloads ? entry.stdio.payloads.every((c) => c.ok) : '—',
-  abortMs: entry.abort.abortLatencyMs ?? entry.abort.status,
-  survived: entry.abort.survivedAbort ?? '—',
-  respawn: entry.crash.respawnReady ?? '—',
+  role: entry.role,
+  present: entry.present,
+  MiB: entry.shippedBytes ? round(entry.shippedBytes / 1024 / 1024, 2) : '—',
+  files: entry.fileCount ?? '—',
+  sea: entry.ready?.sea ?? (entry.negativeControl ? 'n/a (negative control)' : '—'),
+  payloads: entry.stdio?.payloads ? entry.stdio.payloads.length : '—',
+  loop: entry.stdio?.loop ? entry.stdio.loop.toolsExecuted.join('+') : '—',
+  abortMs: entry.abort?.abortLatencyMs ?? '—',
+  crashes: entry.crash ? entry.crash.terminations.map((row) => row.exitCode ?? row.signal).join('/') : '—',
 }));
 process.stdout.write(`${JSON.stringify(rows, null, 2)}\n`);
-process.stdout.write(`\n写入 ${path.join(DIST_DIR, 'measurements.json')}\n`);
+process.stdout.write(`\nstatus=${verdict.status} failures=${verdict.failureCount}\n`);
+for (const failure of verdict.failures.slice(0, 40)) {
+  process.stdout.write(`  ✗ ${failure.id} ${failure.check}: 期望 ${JSON.stringify(failure.expected)}，实测 ${JSON.stringify(failure.observed)}\n`);
+}
+process.stdout.write(`写入 ${path.join(DIST_DIR, 'measurements.json')}\n`);
+
+if (COUNTEREXAMPLE) {
+  const caught = verdict.status === 'failed';
+  verdict.counterexample.caught = caught;
+  fs.writeFileSync(path.join(DIST_DIR, 'measurements.json'), `${JSON.stringify(verdict, null, 2)}\n`);
+  const applied = verdict.counterexample.applied;
+  process.stdout.write(`反例 ${COUNTEREXAMPLE}：applied=${applied} caught=${caught}\n`);
+  // 抓住＝2（期望）；没抓住或压根没改动＝3（等价变异／补丁没生效，须如实登记）。
+  process.exit(applied && caught ? 2 : 3);
+}
+
+if (verdict.status !== 'ok') process.exit(1);

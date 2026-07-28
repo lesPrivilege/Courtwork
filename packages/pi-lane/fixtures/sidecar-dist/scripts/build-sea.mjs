@@ -20,6 +20,7 @@ import path from 'node:path';
 
 import * as esbuild from 'esbuild';
 
+import { SEA_VARIANTS } from './lib/probe-verdict.mjs';
 import {
   DIST_DIR,
   FIXTURE_DIR,
@@ -79,14 +80,15 @@ try {
       note: error.notes?.[0]?.text ?? null,
     })),
   };
+  summary.status = 'failed';
+  fs.writeFileSync(path.join(DIST_DIR, 'build-sea.json'), `${JSON.stringify(summary, null, 2)}\n`);
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
-  process.exit(0);
+  // 降编不下来是路线级阻断，不是「也算一种数据」：非零退出。
+  process.exit(1);
 }
 
-const VARIANTS = [
-  { name: 'default', useCodeCache: false },
-  { name: 'code-cache', useCodeCache: true },
-];
+/** 档位取自库存闭集，不再另写一份。 */
+const VARIANTS = SEA_VARIANTS;
 
 for (const target of TARGETS) {
   const hostNode = path.join(RUNTIME_DIR, `node-${NODE_VERSION}-darwin-${target.nodeArch}`, 'bin', 'node');
@@ -170,4 +172,12 @@ for (const target of TARGETS) {
   }
 }
 
+summary.expectedVariants = TARGETS.length * VARIANTS.length;
+summary.status =
+  summary.variants.filter((variant) => variant.status === 'ok').length === summary.expectedVariants
+    ? 'ok'
+    : 'failed';
+
+fs.writeFileSync(path.join(DIST_DIR, 'build-sea.json'), `${JSON.stringify(summary, null, 2)}\n`);
 process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+if (summary.status !== 'ok') process.exit(1);

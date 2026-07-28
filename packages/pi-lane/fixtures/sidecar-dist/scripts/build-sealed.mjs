@@ -21,6 +21,7 @@ import path from 'node:path';
 
 import * as esbuild from 'esbuild';
 
+import { SEALED_VARIANTS } from './lib/probe-verdict.mjs';
 import {
   DIST_DIR,
   FIXTURE_DIR,
@@ -44,11 +45,9 @@ const CREATE_REQUIRE_BANNER = [
   'const require = __cwCreateRequire(import.meta.url);',
 ].join('\n');
 
-const VARIANTS = [
-  { name: 'esm-naive', format: 'esm', extension: 'mjs', banner: null },
-  { name: 'esm-createrequire', format: 'esm', extension: 'mjs', banner: CREATE_REQUIRE_BANNER },
-  { name: 'cjs', format: 'cjs', extension: 'cjs', banner: null },
-];
+/** 档位与身份取自库存闭集；本文件只补各档的打包参数，不再另写一份档位表。 */
+const BANNERS = { 'esm-createrequire': CREATE_REQUIRE_BANNER };
+const VARIANTS = SEALED_VARIANTS.map((variant) => ({ ...variant, banner: BANNERS[variant.name] ?? null }));
 
 rmrf(ROUTE_DIR);
 ensureDir(ROUTE_DIR);
@@ -137,4 +136,16 @@ for (const target of TARGETS) {
   }
 }
 
+// 装配失败不得静默：少一件产物会在 `measure.mjs` 的库存闭集处判红，但那时已浪费一整轮。
+// 这里就地拦下，且把 blocked 与 build failure 一起算成非零。
+const blocked = summary.targets.filter((target) => target.status !== 'ok');
+const brokenBundles = Object.entries(summary.bundles).filter(([, forms]) => forms.minified?.failed);
+summary.status = blocked.length === 0 && brokenBundles.length === 0 ? 'ok' : 'failed';
+summary.expectedTargets = TARGETS.length * VARIANTS.length;
+if (summary.targets.filter((target) => target.status === 'ok').length !== summary.expectedTargets) {
+  summary.status = 'failed';
+}
+
+fs.writeFileSync(path.join(DIST_DIR, 'build-sealed.json'), `${JSON.stringify(summary, null, 2)}\n`);
 process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+if (summary.status !== 'ok') process.exit(1);

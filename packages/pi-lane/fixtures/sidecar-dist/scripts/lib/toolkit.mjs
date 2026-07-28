@@ -1,8 +1,9 @@
 /**
- * PI-SIDECAR-DIST-1 · 实验公共件。
+ * PI-SIDECAR-DIST-1R · 实验公共件。
  *
- * 只放「两条路线都要用」的机械动作：路径、跑外部命令、量文件、算 SHA。
- * 任何判定都不住这里——判定住各自的 build/measure 脚本，便于逐条追到实测出处。
+ * 只放「各支都要用」的机械动作：路径、跑外部命令、量文件、算 SHA、起 NDJSON 子进程。
+ * **判定一律不住这里**——判定只住 `lib/probe-verdict.mjs`，四支探针共用同一份；
+ * 本件连 `NODE_VERSION`/`TARGETS` 也改为从那里转出，免得两谱各抄一份字面量后各自漂移。
  */
 
 import { spawn, spawnSync } from 'node:child_process';
@@ -10,21 +11,15 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { INVENTORY, NODE_VERSION, SEALED_VARIANTS, SIDECAR_BASENAME, TARGETS } from './probe-verdict.mjs';
+
 /** `fixtures/sidecar-dist/`。 */
 export const FIXTURE_DIR = path.resolve(import.meta.dirname, '..', '..');
 export const DIST_DIR = path.join(FIXTURE_DIR, 'dist');
 export const RUNTIME_DIR = path.join(DIST_DIR, 'runtime');
 export const REPO_ROOT = path.resolve(FIXTURE_DIR, '..', '..', '..', '..');
 
-export const NODE_VERSION = 'v22.23.1';
-
-/** Tauri `bundle.externalBin` 的 target triple ↔ Node 官方发行包的架构名。 */
-export const TARGETS = [
-  { triple: 'aarch64-apple-darwin', nodeArch: 'arm64', native: true },
-  { triple: 'x86_64-apple-darwin', nodeArch: 'x64', native: false },
-];
-
-export const SIDECAR_BASENAME = 'pi-sidecar';
+export { NODE_VERSION, SIDECAR_BASENAME, TARGETS };
 
 export function sha256File(file) {
   return createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -133,6 +128,37 @@ export function spawnNdjson(command, args, options = {}) {
       child.on('exit', (code, signal) => resolve({ code, signal }));
     }),
   };
+}
+
+/**
+ * 由库存闭集推出磁盘坐标。**不做存在性跳过**——缺件必须以「解析得出但文件不在」
+ * 的形态交给判定层，这正是 `9b8142f` 拒绝的「静默 continue」的反面。
+ */
+export function resolveArtifact(entry) {
+  if (entry.route === 'a-sealed-bundle') {
+    const variant = SEALED_VARIANTS.find((candidate) => candidate.name === entry.variant);
+    const dir = path.join(DIST_DIR, 'route-a', `${entry.triple}--${entry.variant}`);
+    const executable = path.join(dir, `${SIDECAR_BASENAME}-${entry.triple}`);
+    const carried = path.join(dir, `sidecar.${variant.extension}`);
+    return { ...entry, dir, command: executable, args: [carried], files: [executable, carried] };
+  }
+  const dir = path.join(DIST_DIR, 'route-b', `${entry.triple}--${entry.variant}`);
+  const executable = path.join(dir, `${SIDECAR_BASENAME}-${entry.triple}`);
+  return { ...entry, dir, command: executable, args: [], files: [executable] };
+}
+
+export const resolveInventory = () => INVENTORY.map(resolveArtifact);
+
+export const artifactPresent = (artifact) => artifact.files.every((file) => fs.existsSync(file));
+
+/** Fisher–Yates。冷启逐轮打乱取样次序，把「机器越跑越热」摊到各候选上。 */
+export function shuffled(list) {
+  const copy = [...list];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swap = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swap]] = [copy[swap], copy[index]];
+  }
+  return copy;
 }
 
 export const median = (values) => {
