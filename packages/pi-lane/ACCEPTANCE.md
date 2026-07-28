@@ -1,5 +1,79 @@
 # PI-SIDECAR-DIST-1 独立验收（2026-07-28，拒绝）
 
+## PI-SIDECAR-DIST-1R 独立验收（2026-07-28，拒绝）
+
+对象：`codex/pi-sidecar-dist-1r@61c2b09`（实现 `ba71df8`，组合基线
+`7a500d1`）。验收树为独立 clean worktree
+`/private/tmp/courtwork-accept-pi-sidecar-dist-1r`，分支
+`codex/accept-pi-sidecar-dist-1r`；本结论不采信实现回执。
+
+**结论：REJECT。** `PI-HOST-LOOP-1` 不得消费本票，也不得据此裁定分发路线。
+实现的共享 pure verdict 虽替换了旧版「恒报 ok」的聚合，却仍没有把票面要求的磁盘闭集、
+每个冷启样本身份和有效 SHA 闭合进 production verdict。三个独立、可复现的 blocker 足以
+否决；因此没有把空 `dist/` 的 31 枚昂贵矩阵重跑当作放行条件。
+
+### 先核对的边界
+
+- `ba71df8` 对 `7a500d1` 的实现足迹恰为票面 14 文件；`61c2b09` 只改专属回执。
+  `sidecar-fixture.mjs` 的跨基线 diff 为空；验收开始时目标工作树 clean。
+- `node --test packages/pi-lane/fixtures/sidecar-dist/scripts/probe-verdict.test.mjs`：
+  **102/102** 绿。这只说明现有 102 例覆盖它们构造的 observation，不抵消以下生产反例。
+- 规定门均在独立树实跑：`pnpm -r build`、`pnpm lint`、
+  `pnpm --filter @courtwork/desktop lint:isolation-binding`、`pnpm test` 均 exit 0；全仓
+  **160 files / 1397 tests**。首次 build 因新 worktree 缺 `node_modules` 未起门；用 frozen
+  lockfile 安装后重跑，以上才是有效读数。
+
+### Blocker 1：所谓“十件闭集”不检查实际随包磁盘集合
+
+`toolkit.resolveInventory()` 只由常量 `INVENTORY` 推出十个预期坐标，`artifactPresent()` 也只
+检查每个坐标的预期文件；`measure.mjs` 把由此得到的静态 `observedIds` 交给
+`verdictInventory()`。它从不枚举 `route-a/` 或 `route-b/` 的实际目录、文件或附带资源。
+实现自报的 `inventory.extra` 反例只是在内存 `observedIds` push 一个 ID，不是磁盘反例。
+
+我在**验收树自己的**已 clone `dist/route-a/` 落入
+`unexpected-physical/proof.txt`，未删除或改动任一预期产物，随后运行未改的
+`node scripts/measure.mjs`。真实十件 probe 全部执行结束，输出为
+`status=ok failures=0`。因此一个实际多制品/多资源分发仍被 production 误报通过，直接违反
+SPEC 对“多一件”必须顶层 failed、进程非零的要求。
+
+### Blocker 2：冷启身份可在首个坏样本后假绿
+
+`coldstart-rounds.mjs` 把第一份 `ready` 设为 identity；若随后样本不同，只把随后样本写入
+`identityDrift`，并将 **drift 后的** identity 作为 `round.identity` 返回。
+verdictColdstart()` 只验 `round.identity`，完全不读 `identityDrift`。
+
+直接调用 production `verdictColdstart()`，构造“第一个 ready 三元组错误、后 24 个正确”的实际
+收束形状（`round.identity` 为后来正确值、`identityDrift` 非 null），返回 `[]`。既有测试的
+“身份漂移”仅把最终 `round.identity.node` 改坏，未命中这一收束路径。票面要求每轮身份不得漂移；
+当前实现不能证明它。
+
+### Blocker 3：可复现性接受不存在/非法 SHA
+
+`deterministic()` 只比较两个值的 JavaScript 相等性，未先要求二者均为 64 位小写 SHA-256。
+直接调用 production `verdictReproducibility()`，其 sealed 项为合法相同 SHA、code-cache 为合法
+不同 SHA、cross-arch warning 正确，而两个 SEA default 项均为 `shas:[null,null]`、
+`identical:true`；函数仍返回 `[]`。也就是说构建摘要丢失 executable SHA 时，可复现性门仍假绿。
+
+### 其余已定位的失败闭口
+
+- `measure.mjs` 的 crash `throw`/`exit` 只 await `crashing`，不判其是否收到；随后无 deadline 地
+  await `proc.exited`。若进程既不发 ack 也不退出，整支 probe 永久挂起，既不写 failed verdict
+  也不非零退出。`hang` 的 SIGKILL 特判不能覆盖此前两类。
+- `build-sea.mjs` 收集了 `codesign --remove-signature`、最终 `--sign` 与 `--verify` 的退出码，
+  但即使三者非零仍把 variant 写成 `status:'ok'`；只有 postject 非零被拦。既没有 shared verdict
+  消费这些值，也没有逐件 final verify 作为生成成功前提。
+- 报告/README/回执改为 **2.35 GiB**，但父级 SPEC 本票明确要求 README/报告统一 **2.27 GiB**。
+  这可能是实测订正，却是验收会话无权追认的契约漂移，须架构先裁定；不可借全绿静默覆盖。
+
+### 未继续耗时的项目
+
+官方 archive partial→校验→rename 的 source path、十件预期 ID、负控、双 cycle/随机化形状、
+签名矩阵和 postject 自身 MIT + vendor LIEF（许可证中另含 Apache-2.0 文本）的登记均已阅读；
+但这不修复上述三项 production 假绿。按验收纪律，已坐实 blocker 后停止从空 `dist/` 的全量
+31 反例、双 cycle、冷启和签名矩阵，以免把数小时运行误写成放行证据。返修至少须把真实 shipped
+file/dir 闭集、每个 coldstart sample identity、SHA lexical validity、crash ack/exit deadline 和
+SEA 重签每步结果接入同一个 hard verdict，并重新由独立会话验收。
+
 对象：`codex/pi-sidecar-dist-1@3207b27`；实施基线
 `00c8dbdbad466f0ab2edbf9083cda2998b659de7`。验收在独立 clean worktree
 `/private/tmp/courtwork-accept-pi-sidecar-dist-1` 的
