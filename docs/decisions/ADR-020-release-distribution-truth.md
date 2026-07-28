@@ -1,6 +1,6 @@
 # ADR-020：发行许可、候选制品与公开真值
 
-- 状态：**Accepted（2026-07-24）**
+- 状态：**Accepted（2026-07-24；2026-07-28 冻结新公开发行，新增维护者本机 debug 通道）**
 - 日期：2026-07-24
 - 关系：继承 ADR-004 的原件/产物边界、ADR-005 的本地数据边界与现行发布手册；不改变产品运行契约
 - 提出单：`v0.2.0` 发布就绪只读盘点
@@ -21,6 +21,34 @@
 
 因此“build 通过”“功能逻辑成立”“可公开分发”是三件不同的事。本 ADR 只收口第三件事的
 跨层真值，不把许可工程描述成法律意见。
+
+## 决定零（2026-07-28 修订）：Pi 先取得 agent 资格，新制品只走个人 debug
+
+合同审查窄链跑通只证明垂类工作流成立；现行 Pi 仍只有 dev-only 读面骨架，缺少受控 write、
+耐久续行与基础 GUI，故 Courtwork 当前只能称“本地优先法律工作台”。只有
+`PI-BASE-GUI-ACCEPT` 以真实 Tauri WKWebView、确定性 provider 与维护者真实 DeepSeek key
+共同放行后，产品才取得现在时的通用 work agent 称谓。build、合同审查通过或 headless 单独
+通过均不能越过该称谓门。
+
+从本修订起，**下一枚制品的唯一授权通道是维护者本人本机 debug**：
+
+- Pi 基础 GUI 放行后由 `PI-DEBUG-BUILD-1` 从 exact accepted `productSha` 构建 Apple
+  Silicon Tauri `.app` / DMG；制品只落仓库外、按 commit SHA 与 DMG SHA 拒绝覆盖的只读路径，
+  由另一会话消费同一字节做真机交互复验；
+- debug 制品固定为 ad-hoc 开发件，不递增到 `0.2.0`，不写 release SHA、Release notes、
+  `DEPLOYMENT.md`、site/current 版本真值，也不取得 `released` 或 `product-live` 成熟度；
+- 本阶段禁止因该制品创建或推送 tag、GitHub Release/asset，禁止切换 Pages 下载链接或公开
+  “agent 已上线”叙事；本裁定也不授权 push `main` 触发 Pages。工单可按实现/验收分离纪律
+  合入本地 `main`，任何远端 push 另候明确授权；
+- Developer ID、notarize/staple、公开 Finder/Gatekeeper 与双架构发行验证仍属
+  `PI-SIDECAR-RELEASE-1`，该票现行 **parked**，不是 debug 前置。
+
+既有 `v0.1.2` annotated tag、GitHub Release、DMG、Pages、SHA 与部署实录是已经发生的公开
+历史，继续原样保留；本修订不把它倒写成未发布，也不授权删除远端资产。下文 `v0.2.0`
+许可、候选与公开顺序保留为未来重启时的基线，但整条链当前 **parked**：任何
+`RELEASE-*` 票（包括 FONT）均不得派发，也不得生成候选或执行公开顺序。未来公开发行至少须在
+`PI-BASE-GUI-ACCEPT`、`PI-DEBUG-BUILD-1` 与 `PI-SIDECAR-RELEASE-1` 分别独立放行后，由架构
+角色重新冻结版本、最终依赖/许可图、候选范围与公开真值；不得直接沿用 2026-07-24 的输入 hash。
 
 ## 决定一：字体与软件 notices 分账，发行时同时到场
 
@@ -111,9 +139,9 @@ executable 与 `/System/Library`、`/usr/lib` 系统链接；任何未在 frozen
 软件 notices 独立验收之后若 desktop source import、package/Cargo manifest 或 lockfile 变化，
 其验收在候选生成之前也已失效，必须从 policy drift 起重验，不能等到候选阶段才发现。
 
-## 决定五：公开顺序保持资产先于页面
+## 决定五：公开顺序保持资产先于页面（现行 parked）
 
-公开顺序固定为：
+未来经决定零重新授权公开发行后，顺序固定为：
 
 1. accepted release tip 上创建 annotated tag，只 push tag；
 2. 创建 GitHub Release，上传 exact DMG、SHA 与本版要求的伴随资产；
@@ -125,7 +153,7 @@ executable 与 `/System/Library`、`/usr/lib` 系统链接；任何未在 frozen
 `cancel-in-progress` 不能被用来抢跑后置记录。Developer ID 与 notarization 凭据缺失只决定当前
 通道必须诚实标为 arm64 ad-hoc、未公证；不能用来豁免 notices、候选同一性或直接启动验证。
 
-## 派生工单
+## 派生工单（公开发行链现行 parked）
 
 1. `RELEASE-FONT-LICENSE-1`：八字体 manifest、RFN 改名、字体 notice、desktop/site 分发与门。
 2. `RELEASE-VERSION-PREP-1`：产品四票放行后把 desktop 唯一版本真值准备为 `0.2.0`，在软件
@@ -136,8 +164,9 @@ executable 与 `/System/Library`、`/usr/lib` 系统链接；任何未在 frozen
    五枚 MPL source archive、精确分发资源与 Settings 诚实文案。
 5. `RELEASE-SMOKE-TRUTH-1`：实现可执行的候选同一性、原生漂移和直接启动门。
 
-FONT 可与产品链并行；VERSION-PREP 必须等产品链放行；AUDIT 同时依赖 FONT 与 VERSION-PREP，
-NOTICES 再只读消费 AUDIT。
+下列依赖关系在未来重启时仍成立，但本阶段不得据此派发公开发行票：FONT 可与产品链并行；
+VERSION-PREP 必须等产品链放行；AUDIT 同时依赖 FONT 与 VERSION-PREP，NOTICES 再只读消费
+AUDIT。
 所有实现票先由非实现会话完成 pre-candidate 验收，AUDIT 经独立只读复核并由架构冻结，才允许
 生成 `v0.2.0` 唯一候选。随后另由未参与候选构建的会话在该 exact DMG 上做 candidate
 acceptance；pre-candidate 的 fixture/mutation 通过不得冒充真机候选已经验收。

@@ -1,11 +1,13 @@
 # SPEC: release
 
-状态：`v0.1.2` 是当前已发布真值；`v0.2.0` 候选尚未生成。现行跨层语义与公开顺序只认
+状态：`v0.1.2` 是当前已发布历史真值；`v0.2.0` 候选尚未生成，且自 2026-07-28 起公开发行链
+**parked**。下一枚制品仅走 ADR-022 的 `PI-DEBUG-BUILD-1` 维护者本机通道，不属于本 SPEC 的
+candidate/release。现行跨层语义与未来公开顺序只认
 [ADR-020](../docs/decisions/ADR-020-release-distribution-truth.md)；[发布手册](../docs/engineering/release.md)
 是其可执行落地，但在 `RELEASE-SMOKE-TRUTH-1` 放行前已知缺少直接启动、资源同一性与部署记录
 后第二轮 Pages 成功等待，故不得反向覆盖 ADR 或据旧手册发布。
 
-## v0.2.0 发布闭合链
+## v0.2.0 发布闭合链（parked）
 
 ```text
 产品真值：SAFETY → OUTPUT → TRACE → DOSSIER → VERSION-PREP ─┐
@@ -24,7 +26,15 @@ Legal/Output/core 契约或产品功能。实现票的目标 SHA 未成为 `main
 或下游输入漂移，均不得进入公开边界。pre-candidate 放行只授权生成唯一候选；真实 DMG 仍须
 另一会话独立 candidate acceptance。
 
+上图与下列各票只保留为未来架构显式恢复公开发行时的契约基线；现阶段不得派发任何
+`RELEASE-*` 票（包括 FONT），不得生成 `0.2.0`、候选、tag、Release asset 或 Pages 下载
+真值。恢复时必须在 `PI-BASE-GUI-ACCEPT`、`PI-DEBUG-BUILD-1` 与
+`PI-SIDECAR-RELEASE-1` 分别独立放行后重冻版本、最终依赖/许可图和输入 hash，不能把旧
+pre-candidate 结论直接续用。
+
 ## RELEASE-FONT-LICENSE-1 · 八字体 OFL/RFN 发行闭合
+
+状态：**parked，不得派发**。
 
 依赖：无产品票依赖；须先于 `RELEASE-SOFTWARE-AUDIT-1`，以便审计消费完成后的 Tauri/site/
 字体输入。
@@ -127,6 +137,8 @@ token、删/改 ID 0/5/13/14 或 CFF 版本字段、新增未登记 WOFF2。ID 0
 禁止触碰 `App.tsx`、Legal/Output/core、`current.md`、历史 release 制品或 archive。
 
 ## RELEASE-VERSION-PREP-1 · 最终产品版本真值
+
+状态：**parked，不得派发**。
 
 依赖：`CONTRACT-REVIEW-SAFETY-1 → CONTRACT-OUTPUT-TRUTH-1 → CONTRACT-TRACE-1 →
 DEBT-DOSSIER-1` 已全部独立放行并成为 `main` 祖先。
@@ -286,7 +298,7 @@ lock 变化、`App.tsx`、Legal/Output/core、产品功能与历史 release 制�
 任一 source import、package/Cargo manifest 或 lock 漂移都会使 AUDIT 与本票验收失效，须回到
 架构复核；不得顺手安装或静默扩图。
 
-## RELEASE-SMOKE-TRUTH-1 · 挂载候选直接启动
+## RELEASE-SMOKE-TRUTH-1 · 挂载候选直接启动（parked）
 
 依赖：`RELEASE-SOFTWARE-NOTICES-1` 已独立放行（其上游 FONT/AUDIT/VERSION 仍有效）。
 
@@ -315,7 +327,10 @@ pre-candidate 验收以 synthetic app/DMG seam 实跑 success 与 mutation，证
 另一个未参与构建的会话在仓库外只读、按 SHA 命名且拒绝覆盖的路径消费 exact DMG，再实跑同一
 validator。fixture 绿不等于真机 candidate acceptance。
 
-## v0.2.0 候选与公开边界
+## v0.2.0 候选与公开边界（parked）
+
+本节当前不可执行；它只规定未来经 ADR-020 决定零重新授权后的顺序。维护者个人 debug DMG
+不得写入本节所列路径、真值文件或发布记录。
 
 1. 产品四票与 FONT、VERSION-PREP、SOFTWARE-NOTICES、SMOKE 实现票全部 pre-candidate
    accepted，目标 SHA 均为 `main` 祖先；SOFTWARE-AUDIT 的 frozen SHA 与只读复核仍有效。

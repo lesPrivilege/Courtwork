@@ -1,14 +1,18 @@
 # Courtwork
 
-面向中国律所与企业法务的本地优先工作 agent：案件文件夹级协作、声明式场景、结构化产出、来源锚点和人工确认。
+面向中国律所与企业法务的本地优先法律工作台：案件文件夹级协作、声明式场景、结构化产出、来源锚点和人工确认。
 
 Courtwork 不把模型包装成会自主行动的 chatbot。它把模型放进可验证的工作秩序里：模型生成引语与判断，系统验证坐标、权限和契约，用户决定确认与定稿。原件永远只读；模型出引语，系统出坐标；不可逆动作属于用户。
 
-与通用 agent 的差异在两件通用产品没有的东西：**schema 管理**（每类工作产物有版本化契约、机器门与确认策略，不是自由文本）与**结构化 preview**（结论、依据、修订逐条可视、可追溯到原文坐标、可逐项驳回）。通用 chatbot 做过的法律场景问答，在这套秩序里变成可验证、可定稿、可审计的工作件。
+合同审查窄链已经跑通，但这只证明垂类工作流成立，不能把产品称为 agent。通用 work agent
+仍在建设中的薄 Pi 闭环必须同时具备模型回合、受控 read/write、续行与基础 GUI，并通过
+`PI-BASE-GUI-ACCEPT` 独立总验；在此之前，现行称谓只到“法律工作台”。
+
+目标形态与通用 agent 的差异在两件通用产品没有的东西：**schema 管理**（每类工作产物有版本化契约、机器门与确认策略，不是自由文本）与**结构化 preview**（结论、依据、修订逐条可视、可追溯到原文坐标、可逐项驳回）。通用 chatbot 做过的法律场景问答，在这套秩序里变成可验证、可定稿、可审计的工作件。
 
 架构与垂类解耦：core 机器层不理解法律语义，垂类以包 ABI 接入（已有 legal 与 PM 两个垂类包）。MVP 阶段优先实现 legal 垂类，这是市场选择而非架构绑定。
 
-本 README 是仓库结构与能力的导览快照（2026-07-20）。能力成熟度的唯一状态真源是[当前基线](docs/status/current.md)；各包的职责、公开 API 与验收证据以包内 `SPEC.md` / `ACCEPTANCE.md` 为准。本文与它们冲突时，以后者为准。
+本 README 是仓库结构与能力的导览快照（2026-07-28）。能力成熟度与发布事实的唯一状态真源是[当前基线](docs/status/current.md)；各包的职责、公开 API 与验收证据以包内 `SPEC.md` / `ACCEPTANCE.md` 为准。下一枚制品仅供维护者本人本机 debug，不生成新 tag、GitHub Release 或 Pages 下载真值；公开的 `v0.1.2` 只作为既有历史事实保留。本文与权威契约冲突时，以后者为准。
 
 ## 架构总览
 
@@ -24,6 +28,7 @@ packages/core ────────► packages/provider
 
 packages/demo-data      虚构导览、测试与验收语料
 packages/demo-runtime   demo/acceptance 唯一装配点与 CLI（只由开发/验收消费）
+packages/pi-lane        薄 Pi loop 与 sidecar（现行仅 dev/在建，尚未取得 agent 产品称谓）
 eval                    中性评测底座 + 垂类数据集适配
 services/ingest         Python OCR/分类/实体对齐（当前仅有规格）
 ```
@@ -100,7 +105,9 @@ PM 垂类 schema、presentation 与确定性计算（RICE 打分），用于证�
 
 ### apps/desktop — 产品壳
 
-Tauri v2 + React。通用 UI 宿主、系统权限桥与产品交互；Rust 只做受控宿主能力。当前发布版本 `v0.1.2`（Apple Silicon DMG，ad-hoc 签名）。
+Tauri v2 + React。通用 UI 宿主、系统权限桥与产品交互；Rust 只做受控宿主能力。既有公开版本
+`v0.1.2` 是 Apple Silicon、ad-hoc 签名的历史开发制品，不包含正在建设的 Pi agent 基础闭环；
+下一枚制品仅作维护者本机 debug。
 
 主要目录：`composer/`（输入与附件管线：解析、needs_ocr/空内容类型级阻断、同源请求组装）、`chat/`（Turn 卡片、受控提问、思考轨迹渲染）、`provider/`（chat/turn 协议客户端与模型配置）、`credentials/`（钥匙串边界）、`protocol/`（Work command/projection port 客户端）、`preview/`（artifact 宿主渲染与十二族可视化组件库）、`workbench/` 与 `rail/`（分栏工作台与卷宗导航）、`system/`（原件只读区、工作稿面板）、`output/`（对接 output 包编译）、`demo/`（demo 模式装配，非 demo case 一律 fail closed）、`case/`（卷宗容器与作用域，真实 case 绝不回落 demo 根）、`composition/`（desktop 侧包运行时组合根）、`settings/`（含主题控制器：浅/深双宗只在根 token 层换值，组件零主题分支）。
 

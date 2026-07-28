@@ -1,6 +1,8 @@
 # Courtwork 工程总纲
 
-Courtwork 是面向中国律所与企业法务的本地优先工作代理。产品与文档入口见 `docs/README.md`。
+Courtwork 当前是面向中国律所与企业法务的本地优先法律工作台；通用 work agent 是
+`PI-BASE-GUI-ACCEPT` 独立放行后的产品称谓，不是合同审查窄链或现行 dev-only pi 骨架可以
+提前取得的成熟度。产品与文档入口见 `docs/README.md`。
 
 本文件是仓库最高工程说明；跨层语义由 `docs/decisions/` 的 Accepted ADR 展开。开工前必须阅读：本文件、相关 ADR、认领层的 `SPEC.md`。
 

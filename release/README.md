@@ -2,8 +2,9 @@
 
 Git 不跟踪 DMG 二进制；公开制品由 GitHub Release 托管。本目录保存可审计的 SHA-256、Release notes 与发布说明。
 
-现行发行契约见 [SPEC.md](SPEC.md)。`v0.2.0` 仍在产品真值与发行许可闭合阶段，尚无候选制品；
-不得把开工票或本地 build 写成已发布事实。
+现行发行契约见 [SPEC.md](SPEC.md)。`v0.2.0` 公开发行链自 2026-07-28 起 parked，尚无候选
+制品；下一枚制品只供维护者本人本机 debug，不进入本目录，不产生 tag、GitHub Release、Pages
+下载真值或已发布叙事。不得把开工票或本地 build 写成候选/已发布事实。
 
 ## 当前已发布
 

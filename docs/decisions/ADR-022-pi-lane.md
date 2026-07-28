@@ -1,6 +1,6 @@
 # ADR-022：通用 agent loop 线（pi lane）
 
-- 状态：**Accepted（2026-07-27；2026-07-28 已冻结“薄 harness → 基础 GUI → 原生语义/交互生长”的生产阶梯）**
+- 状态：**Accepted（2026-07-27；2026-07-28 已冻结“薄 harness → 基础 GUI → 个人 debug → 原生语义/交互生长”的生产阶梯与 agent 称谓门）**
 - 日期：2026-07-27
 - 关系：修订 ADR-011 决定二「不引入第二 agent runtime」（携新必要性证据，见该 ADR 修订记录三）；受 ADR-018 等级—能力绑定约束（Node 直写/bash 锁 `os_confined`，host-mediated workspace 见决定六窄例外）；保全 ADR-017 决定零的核心逻辑（取形必须带容器）；与 ADR-012 垂类包边界并立不相交；消费 ADR-019（loop 会话落卷宗容器）
 - 提出：2026-07-27 产品定调——「此阶段优先立起确定性、有依据的通用 agent 能力；方案成熟、依赖 pi 生态、不存在技术或验证瓶颈；甚至可以只是一个 pi agent 的 GUI」
@@ -10,6 +10,23 @@
 到「应对大多数 .md 任务」的通用能力，仓内自研线（TOOL-READ → edits/writing 票 → EXEC-SCRIPT）依赖链长且尚有未立之票；而标准 agent loop（read/edit/write/bash + while 循环）在 pi 生态是已收敛的生产形态（`@earendil-works/pi-agent-core` 为 TS 库，MIT，一手核实见归档 pi 批次；包名全称见修订记录之包名订正）。语义层、确认原语等创新点须实测验证，通用 loop 不须。产品据此定调：确定性能力先行，创新层在其后嫁接。
 
 减法纪律①（开源轮子尽可能用）与本裁定同向；此前「借形不接管真源」的边界按本 ADR 显式放宽为「loop runtime 整体引入，真源仍在容器、授权与垂类契约」。
+
+## 产品称谓与本阶段出口（2026-07-28 补充）
+
+合同审查窄链已经跑通，但场景执行、结构化 preview 与 docx 产出本身不构成通用 agent：
+缺 Pi 时用户不能在同一 work 面发起任意 `.md` 需求、观察 tool loop、逐次授权 write、停止、
+续行并核验 workspace。故 A0/A1、单独合同审查、build 全绿或只过 headless 均不得把 Courtwork
+写成当前已成立的 agent。
+
+称谓门只认 `PI-BASE-GUI-ACCEPT`：它必须消费 A2 的真实 read/write/恢复链，在真实 Tauri
+WKWebView 中同时通过确定性 provider 与维护者真实 DeepSeek 甜点档矩阵。放行前产品统一称
+“本地优先法律工作台”；放行后才能把“通用 work agent”写成现在时能力，并仍须逐项声明
+未成立的垂类、脚本与发行边界。
+
+本阶段出口不是公开 release，而是 `PI-DEBUG-BUILD-1` 的维护者本人本机 debug 制品。它只为
+验证已放行 Pi 闭环在实际安装形态下不被 sidecar 装配、签名或 WebView 生命周期破坏；不产生
+`v0.2.0`、tag、GitHub Release、Pages 下载位、发行成熟度或公开 agent 叙事。未来公开发行另受
+ADR-020 的显式重启门约束。
 
 ## 决定一 · 引入 pi-agent-core 作通用线 runtime，双线并立
 
@@ -735,7 +752,96 @@ STDIO 票只新增 strict codec、可注入 stdio machine 与定向测试，不�
    路线由架构回写本 ADR 后，生产宿主票才开工。
 2. `PI-SIDECAR-RELEASE-1` 独立承担 Developer ID、逐件 nested executable 签名、
    notarize/staple、Finder 首启与 `spctl`。`codesign --deep` 只作 verify，不能代签；无凭据
-   如实标 external-validated blocked。该票是 released 前置，不阻塞底座的开发态 headless 验收。
+   如实标 external-validated blocked。该票是未来 released 前置，现行 **parked**，不阻塞
+   底座、GUI 或个人 debug。
+3. `PI-DEBUG-BUILD-1` 只在 `PI-BASE-GUI-ACCEPT` 放行后构建 exact accepted `productSha`
+   的 arm64 Tauri `.app` / DMG；`productSha` 固定为 build receipt 出现前、clean local
+   `main` 上已含 GUI 放行记录的产品 tip。文件名固定
+   `Courtwork_debug_<short-product-sha>_aarch64.dmg`，复制到仓库外
+   `/private/tmp/courtwork-debug-builds/<full-product-sha>/<dmg-sha256>/`，路径已存在时只接受
+   byte-identical，随后去掉写位。`spctl` 拒绝是未公证 debug 件的预期边界，不得伪绿。
+
+`PI-DEBUG-BUILD-1` 不改四处产品版本，不写 `release/*.sha256`、Release notes、
+`release/DEPLOYMENT.md`、`current.md` 或 site/README 版本真值；不 tag、不 push、不创建
+GitHub Release/asset、不 notarize/staple、不宣称 `released` / `product-live`。它不依赖
+`PI-SIDECAR-RELEASE-1`，成功成熟度最多为 `external-validated`，且验证范围只到维护者个人
+debug。既有
+`v0.1.2` 公开历史原样保留。构建会话只可新增
+`packages/pi-lane/specs/PI-DEBUG-BUILD-1.md`；独立验收会话只可追加
+`apps/desktop/ACCEPTANCE.md`。这两枚后置文档提交不改变 `productSha`，也不得以自身新 tip
+重建替换已验 exact DMG。
+
+#### `PI-DEBUG-BUILD-1` 物理证据与签名闭口
+
+本票在 sidecar 路线裁定后仍**不可直接派发**。架构角色须先把该路线的精确签名表冻结为
+`packages/pi-lane/specs/PI-DEBUG-BUILD-1.signing-plan.json`；该 blob 必须已在 `productSha`
+tree 中，manifest 以 repo-relative path + byte SHA 双绑，不能引用后置提交中的未来表。每行恰含
+`relativePath/kind/architectures/signingOrder/entitlementsSource/entitlementsSha256/
+hardenedRuntime`，顶层另含 `routeId/schemaVersion`，所有层 `additionalProperties:false`。
+表的路径闭集来自最终 `.app/Contents/{MacOS,Frameworks,PlugIns,Resources}` 的递归
+Mach-O/executable inventory，而非文件扩展名猜测；entitlements 为 `none` 时也须显式登记。
+此时 `entitlementsSource:"none"` 且 hash 固定为空字节 SHA-256
+`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`；其他值只能是架构冻结的
+canonical plist repo path 及其 byte hash。
+路线未知、表未冻结、字节/hash 未定、实物少件/多件/非 regular/symlink、架构漂移或出现表外
+executable 均为 `debug-blocked`，实现者不得现场决定。
+
+签名严格按 `signingOrder` 由最深 nested executable 向外层 `.app` inside-out 执行；每件只消费
+表中 canonical entitlements bytes，以 ad-hoc identity 单独签名，再逐件执行
+`codesign --verify --strict --verbose=4`，抽取实际 entitlements 做 canonical plist 比较并复算
+hash。最外层签完再做整包 strict/deep verify；`codesign --deep` 只可作最后 verify，永不代签。
+任一步非零、实际 entitlements 与表不等、hardened runtime 漂移或签后 executable hash 未进入
+manifest 都不得产出 debug artifact。
+
+同一架构会话还须在派单前冻结
+`packages/pi-lane/specs/PI-DEBUG-BUILD-1.manifest.schema.json`；它是 JSON Schema Draft
+2020-12、全层 `required` + `additionalProperties:false`、零 nullable，并精确约束：commit/tree
+OID 为当前仓库 40 位小写 hex，SHA-256 为 64 位小写 hex，byte length 为正 safe integer，
+repo/executable path 是 `/` 分隔的安全相对路径且无空段、`.`、`..`、反斜杠或 NUL，
+`buildArgv` 为非空 string 数组，版本/identifier 为非空 string，architectures 为去重排序的
+`arm64|x86_64` 非空闭集；inventory `kind` 与 host architecture 的 enum 随已裁路线在该 schema
+中闭死。该 schema blob 同样必须属于 `productSha` tree 并由 manifest path + hash 双绑；实现者
+不得另写 validator 语义。
+
+DMG 与 manifest 在同一仓库外最终目录。构建会话先在唯一 staging 目录生成，计算 DMG SHA 后
+以拒绝覆盖语义发布，再将严格 JSON `manifest.json` 通过
+`manifest.json.partial → fsync → atomic rename → parent fsync` 落定，最后才把 DMG、manifest
+与目录去掉写位。manifest 必须通过上述 repo schema，`schemaVersion:1`，顶层恰含：
+
+- `productSha/sourceTreeOid/gitStatusPorcelainSha256/pnpmLockSha256/cargoLockSha256`；
+  `sourceTreeOid` 必须等于 `productSha^{tree}`，clean porcelain 的 hash 必须等于上列空字节
+  SHA-256；两枚 lock 分别固定根 `pnpm-lock.yaml` 与
+  `apps/desktop/src-tauri/Cargo.lock`；
+- `routeId/manifestSchema/debugSigningPlan/buildArgv/toolchain`；`manifestSchema` 与
+  `debugSigningPlan` 均恰含 `repoRelativePath/sha256`，且前者 path 固定为上列 schema、后者固定
+  为上列 signing plan；`buildArgv` 是 argv 数组，不存 shell；
+  `toolchain` 恰含 `nodeVersion/pnpmVersion/rustcVersion/cargoVersion/tauriCliVersion`；
+- `dmg:{fileName,byteLength,sha256}`；
+- `app:{bundleIdentifier,shortVersion,bundleVersion,buildInventory,mountedInventory}`；
+- `host:{macOSVersion,buildVersion,architecture}`。
+
+两份 inventory 均为按 `relativePath` 排序的精确闭集，每项恰含
+`relativePath/kind/architectures/byteLength/sha256/signatureIdentifier/
+entitlementsSha256`；build 与只读挂载副本的主程序、sidecar 与全部 nested executable 必须
+逐项同集、同 bytes/hash。manifest 不含自身 hash；构建回执只引用唯一
+`productSha/manifestPath/manifestSha256/dmgSha256/dmgByteLength`。同一 `productSha` 即使存在
+多个不同 DMG，独立验收也只能消费回执指定的 manifest 与 exact DMG，禁止任选。验收必须从
+`productSha` tree 读取 schema 与 signing plan、先核两者 byte hash，再校验 manifest 和实物；
+当前 worktree 或后置回执 tip 的同名文件均不是权威输入。
+
+构建/回执会话不得启动、书写或判定 acceptance。另一**不同会话**须从独立 clean worktree
+开始，先逐字核回执 → manifest SHA/schema → productSha/tree/locks → physical DMG bytes/SHA →
+mounted inventory/signing plan，再从只读挂载直接启动真实 Tauri/WKWebView；同一会话、同一
+worktree、缺 manifest 或换 DMG 一律 REJECT。验收矩阵两格缺一不可：
+
+1. 直接驱动随包 sidecar 的 deterministic provider control，复跑 read/write/Stop/crash/restart，
+   区分装配/协议失败与外部 provider 波动；
+2. 从 mounted App 以维护者真实 DeepSeek key 跑 read→proposal→允许/拒绝 write→workspace
+   回读、Stop 与重启。
+
+确定性格或物理同一性任一失败记 `debug-blocked`；真实 key/model 缺席只能记
+`external-validated blocked`，不得放行。manifest、回执、验收报告和命令输出不得含 key、
+`Authorization`、原始 prompt 或 workspace 正文，只留长度、hash、状态与必要的逻辑路径。
 
 `PI-SIDECAR-DIST-1@3207b27` 的独立验收 `9b8142f` 判定 **REJECT**，故其 SEA-default 建议
 不是架构输入，路线仍未裁。拒绝不表示两路线功能失败，而是装置会把 stdio/abort/crash 失败

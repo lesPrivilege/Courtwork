@@ -173,10 +173,11 @@ ADR/SPEC 依赖、`App.tsx` 锁和独立验收纪律不变。
 
 Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度节制条）：实现会话在 SPEC 留痕「本单新增了什么概念、为何非加不可」；并对触碰范围内既有代码做一次复杂度扫描，发现可删的偶然复杂度（死配置、无消费导出、多余抽象）列入该层 SPEC 提案区交架构拍板，不越权顺手删。数单之后全仓即完成一轮复杂度过筛。
 
-### 当前版本收束线：Legal 合同审查单品（目标 `v0.2.0`）
+### 已闭合垂类窄链与停放的公开候选线
 
-2026-07-24 架构拍板：下一枚版本不是通用平台扩围，也不是只换皮清账，而是一枚仍处
-**Stage 0** 的 Legal 合同审查单品里程碑。用户承诺收窄为：
+2026-07-24 曾把下一枚公开版本收窄为仍处 **Stage 0** 的 Legal 合同审查单品；2026-07-28
+产品再裁：这条窄链已经跑通，但它不能替代 Pi 交互，也不能让产品取得 agent 称谓或
+`v0.2.0` 候选授权。下列承诺作为已完成垂类链的边界与未来发行输入保留：
 
 > 把一份明确选定的 Word 主合同与支持材料放入案件，逐条审阅可回到原文的风险，亲自确认、驳回
 > 或修正结论；若至少确认一项风险且没有待索证项，得到以原 DOCX bytes 为底稿、未触 parts 内容
@@ -184,7 +185,7 @@ Round 3 起每张工单附带**复杂度审视义务**（根 CLAUDE.md 复杂度
 > 诚实完成但不伪造空文书；
 > 并能在重启/切案后查看或继续同一账本。
 
-它**不宣称 Stage 0 已退出**：Word/WPS 精确版本打开—轻改—保存—回读、持续真实试点的采纳/
+它**不宣称 Stage 0 已退出或产品已是 agent**：Word/WPS 精确版本打开—轻改—保存—回读、持续真实试点的采纳/
 驳回/修正/交付基线、六处考点正式打分仍是外部证据；没有这些证据时 release notes 必须继续写
 `not external-validated`。`GENERIC-PACK-1` / `PACK-INTERACT-1` 后置到本单品闭合之后，不以
 “下一版候选”字样越过 roadmap 的先 Legal 后泛化方向。
@@ -199,11 +200,13 @@ CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1（已清账�
 
 `CONTRACT-OUTPUT-TRUTH-1` 直接消费 Safety 票建立的 post-revision replay、零 confirmed 分流和
 退役后的本地 dispositions/non-applied waiver，因此依赖关系是严格
-`SAFETY → OUTPUT → TRACE`，不得并行改同一 App/compile path。发布候选须明确区分
-“自动化/本机成立”与上述外部证据，不以版本号抬高成熟度。
+`SAFETY → OUTPUT → TRACE`，不得并行改同一 App/compile path。未来若重启公开发布，候选仍须
+明确区分“自动化/本机成立”与上述外部证据，不以版本号抬高成熟度。现阶段唯一收敛节点是
+`PI-BASE-HEADLESS-ACCEPT → PI-LANE-UI-1 → PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
+前三节点赋予 agent 称谓所需的产品能力，最后一节点只证明维护者个人安装形态。
 
-**`v0.2.0` 发行许可链（2026-07-24，ADR-020）**：产品 App 队列之外另有一条不触
-`App.tsx` 的发行前置链：
+**停放的 `v0.2.0` 公开发行许可链（2026-07-24；2026-07-28 parked，ADR-020）**：下图只保留
+为未来显式重启时的依赖基线，不是现行可派队列：
 
 ```text
 SAFETY → OUTPUT → TRACE → DOSSIER → VERSION-PREP ─┐
@@ -215,10 +218,12 @@ RELEASE-FONT-LICENSE-1 ───────────────────
                                                                          └──► 全量门 / 唯一候选 DMG / 独立候选验收
 ```
 
-字段、文件白名单与 mutation 只认 [`release/SPEC.md`](../../release/SPEC.md)。FONT 可与产品链
-并行；VERSION-PREP 等产品链，AUDIT 同时等 FONT 与 VERSION 后再冻结最终图与逐件许可裁定，
-NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 notice 不等于软件 notices；两账、
-图审计与候选直接启动任一未放行，`v0.2.0` 均不可公开。
+字段、文件白名单与 mutation 只认 [`release/SPEC.md`](../../release/SPEC.md)。未来重启时 FONT
+可与产品链并行；VERSION-PREP 等产品链，AUDIT 同时等 FONT 与 VERSION 后再冻结最终图与逐件
+许可裁定，NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 notice 不等于软件
+notices；两账、图审计与候选直接启动任一未放行，`v0.2.0` 均不可公开。现阶段**所有
+`RELEASE-*` 票（包括 FONT）均不得派发**；恢复时还须重新冻结版本、最终图和许可输入，不能
+沿用旧 hash。
 
 ### CONTRACT-OUTPUT-TRUTH-1 开工补充裁决（2026-07-24）
 
@@ -251,6 +256,7 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 
 | 工单 | 最小范围 | 退出证据 |
 |---|---|---|
+| `AGENT-CLAIM-CORRECTION-1` | **当前唯一可抢在 Pi headless 前执行的 App 正确性小票**：实现会话只改 `apps/desktop/src/App.tsx`、`apps/desktop/tests/e2e/rp2.spec.ts` 与 `apps/desktop/SPEC.md` 留痕，把 composer 现行 `Courtwork is an agent...` 改为「模型可能出错，请核对回复。提供反馈」，保留 mailto 行为；不改布局、样式、组件、功能、其他文案或发布面。先让旧 exact copy / `Courtwork is an agent` 零出现断言见红，再做最小替换；验收会话只能追加 `apps/desktop/ACCEPTANCE.md` | 定向 Vitest/Playwright 与全仓门绿；静态反例把现在时 agent 文案复活即红；桌面 1280/窄宽可见、链接焦点/读屏名不退；实现与验收不同会话/clean worktree。此票不赋予 agent 称谓，也不授权公开 build |
 | `PM-SCHEMA-1` | 令 OOC score 与确定性计算同义，并版本化 payload/schema/migration；**顺带（2026-07-18 登记）**：凡例 OOC/Estimate 显式件（score=null 出格态/点值/区间三态）设计缺口随本单一并拍板 | OOC、drift、旧版本迁移与 catalog-only 边界触红；不夹带 PM scenario |
 | `SITE-CRAFT-2` | Pages 视效升级（对标 trae.ai 级门面，避免被归入普通 repo）。架构定向：不拼通用工艺（渐变/3D 与克制纪律相悖且拼不过预算），高级感由**产品本体的 schema 可视化承担**——hero 升级为活的 schema 工作面微演示（锚点跳转/逐条确认/修订对照的录制回放或轻交互重建，feldar 台账的活化版）；新增动效逐个走 site-evidence-line 例外条款 + AST 锁扩展 + 逐帧采样。供料：Sol 视觉扫 trae.ai 一类站点（computer use）+ Codex image 穷举存货。**范围扩展（2026-07-17 拍板）**：site/ 为个人非商业 Pages，许可口径放宽——归档调研批次的参考技法、小巧思、素材包（vault 余量、emil、feldar、namethatui 等）与**中文陌生化字体**均可经本单升格使用——**字体策略修订（2026-07-18 夜；2026-07-19 二次修订·产品拍板）**：字体编排定位反转——**标题取通行宋体**（成熟、全字重衬线，首选思源宋体类 OFL 大字重轨；「标题用考究的通行衬线」路线，权威感由成熟字形承担；刻本类字形【齐伋体/汇文明朝体/京华老宋体】降为前卫实验田探索项，不入主轨）；**正文取仿宋陌生化轨**——首选方正聚珍新仿（商业字库：个人非商业授权与 web 嵌入授权**分别**核实留快照，任一未核清即以朱雀仿宋 SIL OFL 为落地值，不悬置不静默替换）；**显式拒苹方/系统黑体做正文**（昔日品味符号、今日 slop 分布中心——陌生化正文即 kill-slop 的字体面）；编排义务四条随裁定：仿宋正文字号/行高补偿（仿宋视觉偏小偏窄，AA 联测以实际度量为准）、标题至少双字重梯度、拉丁与数字配衬字显式指定（仿宋拉丁字形弱，不得裸回退）、中文 webfont 子集化+font-display 显式声明；每项字体/素材落 `site/craft-evidence/` 留许可来源快照。**冷色起疑对治五杠杆（2026-07-18 追加定向）**：①阶的作者性——色相收窄、藏青阶做深（暗部层次+纸感+Inset 材质响应），拒绝均匀平铺；②语义色稀缺性**宣告**——红/琥珀仅风险、绿仅落定，站面一行小注明示「色彩仅承载语义」（被宣告的克制才是作者性）；③文书文化抽象引用——卷宗编号体例/骑缝式分隔/印记式落定章；**左侧彩色竖条退役候选（2026-07-18 夜）**：通用色条换文书系记号——鱼尾（节标）、乌丝栏细界行（结构分隔，无彩）、侧点圈点（强调）、朱色专属裁决落定（朱批/朱印语义，彩色只在人做决定处出现），站面先行验证后经 R2 门评估回迁（**抽象引用，法槌天平类具象 kitsch 一律拒**）。**边框语汇裁定（2026-07-19）**：掐边花纹（回纹/云纹/缠枝类）拒——纯装饰且与数据区静止相冲；「边框感」一律走刻本框廓的结构性语汇：**文武线**（粗细双线）与四周双边，几何抽象零具象，站面前卫端先行、产品壳经克制审计再议。**线级语法（2026-07-19 扩展）**：全面替换「均一 1px 单线」的 AI 工具脸——线重即层级语义：主界=文武线（粗细双线错落），次界=乌丝细线，层级不同线重不同（与色阶「阶的作者性」同构，线的粗细携结构信息非装饰）；落 token 化（--rule-major/--rule-minor 类），皮层迁移的版式置换项之一。常见 AI 衬线同理由刻本/仿宋双轨替换（字体策略既有）。**冷暖调和裁定（2026-07-18 夜）**：陌生化统一溯源**版本目录之学**（市面罕见），冷色适配走**磁青纸宗**——写经传统的深靛蓝纸即冷色古典脉，藏青底天然承接；鱼尾/界行/圈点为墨系记号不择纸温；暖色纸感（米黄+衬线=slop 分布中心）明确拒绝；色彩语法四位：磁青为底、墨为记、朱仅裁决、泥金候选 hero 唯一强调（均核实色值入 token 流程）；④秩序件当主角（hero 微演示既有定向）；⑤克制的机器门叙事——「设计克制是 CI 强制的」一句话连 craft-evidence，把克制从美学主张升格为工程事实。**前卫实验田条款（2026-07-18 夜追加）**：site 定位为前端先锋技法实验田——比产品壳更前卫的版式/交互先上站验证，成熟后经 R2 门回迁（Design 四面已证「从现行语言自然生长+版式可穷举」，站面负责探边界）；SchemaParts 件库以**原生 SVG** 绘制（与 Design 稿约定一致），站/稿共用；调研站点全集（vault/emil/feldar/trae/namethatui/geist/oss-gui 等归档批次）全量供料按需取形。**品牌一致性挂账（2026-07-19，B1 分治裁定③）**：B1 已将壳侧权威源稿 `docs/design/icon-light/dark.svg` 随锚迁 217° 换值，`site/assets/icon.svg` 仍持迁移前旧板——品牌两侧暂不一致，随本单磁青宗批一并置换并做品牌一致性核；site 侧色板现由 `deslop-scan-lib.mjs` 的 `siteFrozenColors` 按值冻结（带到期指针，届时整体删除、回绑 token 名）。**硬边界：仅 site/，产品壳字体与素材不随动**（商用授权另案拍板），归档升格以本单票面为准、site 源码仍不得直接引用 archive/ 路径 | 微演示可视对照与逐帧证据；例外条款留痕；site:guard 全绿；数据区绝对静止不破；字体/素材许可快照齐备，产品壳零渗入（静态门可验） |
 | `FILE-PREVIEW-1` | **实现已在 `main`，不得重复施工；范围验收已过，固定门仍驳回。** 顺带条款（2026-07-17 拍板）：执行 READER-ISOLATION-1 SPEC 提案区已批准的 rails-compact 四步退役（删 App 派生与 class → 删 CSS → `assert-layout-converge.mjs` 存在锁转「零出现」反向锁 → `data-compact` 消费点转 `right-narrow`）；主体范围如下。md 文档 preview 入口落 working folders：点击文件直接进入只读预览（frontier 同型交互），内容经 reading-view 派生（复用既有 convertToReadingView，原件只读不变）；先 md/txt，docx/文本层 PDF 视 reading-view 既有覆盖顺带 | 报告 `79ddd16`：功能/架构与 327/327 通过，但目标 `b0f667b` 的站点脚本 lint 红，故不清账。外部 lint 修复成为 `main` 祖先后，由新会话在 clean worktree 复跑全仓 lint、FILE 定向与必要回归并写放行报告 |
@@ -258,8 +264,8 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 | `PREVIEW-TAB-1` | ADR-014 决定一/二：tab 集合按会话 artifact 动态生成（tab=一张 schema 表）、多 artifact 并列、`containerPackBinding` 数组席位（恒 1）；与 Legal panel 迁移解耦，共存语义按 ADR-014 | 多 artifact 动态开 tab、切换不销毁状态（残留门约束）、单 artifact 回退、混包命名空间隔离反例触红 |
 | `PANEL-BLUEPRINT-1` | ADR-012 迁移债：Legal 四个 route panel（timeline/graph/matrix/revision）逐个迁为版本化 component blueprint，保留历史 snapshot 回放与 compatibility alias；可分批 | 每迁一个：descriptor→projection 全链、drift/fail-closed 反例、视觉对照记录；App.tsx 对应硬编码分支删除 |
 | `UI-RESIDUE-1` | 可逆交互零残留闭合门（架构裁定 2026-07-16：三分区状态矩阵并入本单，同证一个性质；允许单内分批交付，每批独立验收）。批一：`expectNoOverlayResidue()` helper（动画归零/无孤儿 portal/focus 归还/无残留 aria-hidden·inert）+ 全 app 疊层清单纠偏（消费 UI-SURFACE-1-FIX 修正后清单）+ 开合闭合（开→关后像素+DOM+焦点+滚动与基线等价）。批二：三分区状态代数（leftCollapsed/narrowRailRequired/rightCollapsed/focusMode/viewSegment/isWelcome/comparing/右栏双态的合法边与禁止边矩阵）+ 竞态（快速反向/Escape during enter/resize during close/切案切模式无旧区残留）+ 关键交互首帧·中间帧·终帧·反向帧采样。像素基线仅 Chromium 闭环，WKWebView 由 DOM 层兜底。目标措辞：**已枚举状态图内无已知残留/焦点丢失/状态串线/不可逆跳变**（非绝对零 bug 宣称） | 至少一个现存残留缺陷先红测坐实；门禁自身接受 mutation（故意不清 portal/不还 focus/不停动画必须红）；resize 自动收栏不污染用户手动态、focus mode 退出恢复三区、左右同折按原序恢复等矩阵边逐一有测 |
-| `GENERIC-PACK-1` | 下一版候选（通用底座补齐线首单，roadmap Stage 1 节 + archive/research-2026-07-15-round-3/generic-base-inventory.md）：通用场景包首批三场景——通用起草→docx（复用 output 流水线，中性 descriptor）/ md↔docx 可编辑往返（自研 OOXML 路径补齐，**pandoc GPL 已拒**）/ 多文件批处理（descriptor 层 fan-out，系统编排非模型自主）。定调：**通用底座即第一个包**——同一插槽/同一 admitPackages 准入/同一凡例表，零绕过 schema 契约的后门；验收律=「只装通用包时产品是合格 work agent」。零新 core 机制预期。**验收用例正式登记（2026-07-26 产品指定）**：Socmdia Slop kit（S0–S5 流水、`scripts/pipeline.py` 断点续行、inbox/outbox 门禁）为通用 work agent 验收用例；其甲路径（S0–S5 编为声明式场景）不受 ADR-017 修订影响可先行——受控脚本执行是补全不是前置 | 三场景过既有准入门与凡例表渲染；卸垂类包冒烟（仅通用包）e2e；批处理逐项报告与失败显式；xlsx/pptx/定时/通道均不夹带 |
-| `PACK-INTERACT-1` | 下一版候选（包装载真实交互一级，2026-07-18 拍板；与 GENERIC-PACK-1 配对）：①Settings 包管理面——随发行版内置包的启用/停用（状态持久沿版本化单键先例）；②建案时选包——case 级垂类绑定从组合根写死改为建案交互供给（S3 绑定语义不变，绑定来源改用户选择）；③插槽显式空态——未启用垂类包时 Work 面诚实显示「未安装垂类包·通用能力可用」，零伪装零降级。**边界**：包仍随应用发行、构建期 admitPackages 准入不变——本单零动态装载；外部包文件导入（zip→运行时准入→签名/供应链）属二级，ADR-015「包的装载与生命周期」议题入池、需求到来才立 | 启用/停用→Work 面能力集与 tab 集随包切换 e2e；建案选包→绑定正确且跨包命名空间隔离；空态显式（voice 门）；停用不丢已有案件账本 |
+| `GENERIC-PACK-1` | **parked，Pi 基础 GUI 与个人 debug 放行后的通用底座补齐线首单**（roadmap Stage 1 节 + archive/research-2026-07-15-round-3/generic-base-inventory.md）：通用场景包首批三场景——通用起草→docx（复用 output 流水线，中性 descriptor）/ md↔docx 可编辑往返（自研 OOXML 路径补齐，**pandoc GPL 已拒**）/ 多文件批处理（descriptor 层 fan-out，系统编排非模型自主）。定调：**通用底座即第一个包**——同一插槽/同一 admitPackages 准入/同一凡例表，零绕过 schema 契约的后门；验收律=「只装通用包时产品是合格 work agent」。零新 core 机制预期。**验收用例正式登记（2026-07-26 产品指定）**：Socmdia Slop kit（S0–S5 流水、`scripts/pipeline.py` 断点续行、inbox/outbox 门禁）为通用 work agent 验收用例；其甲路径（S0–S5 编为声明式场景）不受 ADR-017 修订影响可先行——受控脚本执行是补全不是前置 | 三场景过既有准入门与凡例表渲染；卸垂类包冒烟（仅通用包）e2e；批处理逐项报告与失败显式；xlsx/pptx/定时/通道均不夹带 |
+| `PACK-INTERACT-1` | **parked，不早于 `PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；与 GENERIC-PACK-1 配对**（包装载真实交互一级，2026-07-18 拍板）：①Settings 包管理面——随发行版内置包的启用/停用（状态持久沿版本化单键先例）；②建案时选包——case 级垂类绑定从组合根写死改为建案交互供给（S3 绑定语义不变，绑定来源改用户选择）；③插槽显式空态——未启用垂类包时 Work 面诚实显示「未安装垂类包·通用能力可用」，零伪装零降级。**边界**：包仍随应用发行、构建期 admitPackages 准入不变——本单零动态装载；外部包文件导入（zip→运行时准入→签名/供应链）属二级，ADR-015「包的装载与生命周期」议题入池、需求到来才立 | 启用/停用→Work 面能力集与 tab 集随包切换 e2e；建案选包→绑定正确且跨包命名空间隔离；空态显式（voice 门）；停用不丢已有案件账本 |
 | `TOOL-READ-1` | harness 真实化线（L1 受控只读工具，2026-07-17 已批方向、本轮激活；pi 对照调研借形）：Work 对话 turn 可请求**声明式白名单**内的只读工具（首批：读某材料正文/列卷宗清单——复用 resolveForProvider 与 MaterialStore 既有链）；工具白名单静态声明（比照 ScenarioRuntime.toolIds），仅 `pure_read`，零 effect；工具结果进 journal 的形状（toolResult 角色 vs 折叠文本）实现偵察后交拍板再动手；模型不可发现/调用白名单外任何工具；GUI 呼应——工具调用在 Work 画布 trace 区显式呈现（账本条目族） | 白名单外调用拒绝反例触红；pure_read 分级校验（AUDIT-SEAL-1 的全模式门为前置）；工具结果可溯源；stub 链不回退 |
 | `ARCHIVE-MANAGE-1` | P1（真机 J 项，设计拍板见台账）：归档案不入侧栏默认视图；Settings「数据管理」面——案件归档区（查看/恢复/删除）+ 会话存档区（查看/删除）；删除留人确认、只删应用侧记录永不触原件、demo 案不可删；**不做旧 session 续行入口**（ADR-013 语义不变）；**召回入口八条采纳（2026-07-19，archive/research-2026-07-15-round-3/session-recall-survey.md）**：非常驻入口/卷宗分组/只读态标注/FTS 查询/原文恒可见/恢复路径唯一显式/删除三件套防呆（二次确认+回收站优先+禁删活跃）/零后台压缩 | 归档案侧栏缺席+Settings 可达；删除确认流 + 原件零触碰断言；demo 不可删反例；残留门适用 |
 | `SCHEMA-EXEMPLAR-1` | 收尾拍板（2026-07-17）：schema 契约与 UI 凡例库——以 legal.S3/RiskList 全链为唯一凡例（五列语义/gate 分级/引语锚点回跳/修订映射/未落格确认知悉流），沉淀为新表衍生起点（契约凡例文档 + blueprint 凡例引用）；凡例本身入 polish R2 打磨；目标：新垂类表从凡例衍生 one-shot 过门。与 ADR-012 blueprint 门槛、ADR-014 tab 语义对齐，不新增第二套契约真源。**设计层 one-shot 自证：仓内无实物**（D-4 更正，`ARCH-SCOPE-2026-07-20` §1.2 A 组）——原记「2026-07-18 已过：Claude Design 以 `RiskReviewSurface`+domain 词表缝真渲 PM 事项表」，但该标识符在 `apps`/`packages`/`docs` 全仓 grep 命中 **0**，无对应 presentation config、fixture、golden 或 craft-evidence；`r2-tier-ledger.json` 内 `PrdReview` 命中亦为 0。该自证只存在于本图叙述，按成熟度不混写条**降级为未发生**，退出证据仍以下栏为准。如实缺口一条——OOC/Estimate（score=null 出格/点值/区间）为独立语义暂借「待核实」表达，专用件随 PM-SCHEMA-1 拍板补 | 凡例文档落 docs/（权威）；至少一张新表（PM 或阅卷类）从凡例衍生首次过门的实证；准入门/golden 适用 |
@@ -279,11 +285,14 @@ NOTICES 只读消费 AUDIT，SMOKE 最后收同一性/直接启动。字体 noti
 **`App.tsx` 队列序（2026-07-28，产品重排）**：SAFETY（`e473fbb`）、OUTPUT
 （`78655bd`）、TRACE（`3e0a0e5`）与 `DEBT-DOSSIER-1`（`51fe6ad`，no-ff）均已清账；
 matrix 首枚已清账（`1b8c450`）。当前先施工**不触 App** 的 pi agent 底座；其 headless 总验
-放行前没有新的 App 票在途。放行后首票为 `PI-LANE-UI-1`；`PI-BASE-GUI-ACCEPT` 独立放行前，
+放行前除 `AGENT-CLAIM-CORRECTION-1` 这一枚现时错误声明修正外，没有新的 App 票在途；该小票
+放行后继续空出 App 槽。headless 放行后首票为 `PI-LANE-UI-1`；`PI-BASE-GUI-ACCEPT` 独立放行前，
 不并行启动 Dossier、context profile、垂类修订、plan/source 或 UI 巧思。基础 GUI 放行后才开
-`CONTEXT-PROFILE-1 → DOSSIER-FLOW-1`，并回到 `C3-1 → C3-2 → C3-3`
+`PI-DEBUG-BUILD-1` 做维护者本人安装态复核；该票不占 App 实现槽，也不授权公开发行。
+随后才开 `CONTEXT-PROFILE-1 → DOSSIER-FLOW-1`，并回到 `C3-1 → C3-2 → C3-3`
 （PANEL 余下三枚按「过手即拆」随触碰分批，不再单独占位）。MODEL-1R 与 FILE 已由 current-main 治理清账，不再占 App 锁，也不授权
-重复修改。v0.2.0 单品真实性门三票（SAFETY/OUTPUT/TRACE）已全数闭合。
+重复修改。Legal 单品真实性门三票（SAFETY/OUTPUT/TRACE）已全数闭合，但 `v0.2.0` 公开链
+现行 parked，不得由此推导候选。
 `PI-LANE-UI-1` 前不另排 wireframe/token 定稿票：ADR-022 六-D 与现行 design 真值提供护栏，
 Opus 在同票以真实状态截图完成构图和浅色 craft；这是实现自由，不放宽 journal/授权/workspace
 职权或独立验收。
@@ -372,8 +381,9 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 | `PI-WORKSPACE-READ-1` | ADR-022 A2 的“写后可读”闭环 | 只让既有 read/glob/grep 显式路由 `/workspace/...`，由 Rust host-mediated `exists/read_file/list` 在同一 logical session 的新 sidecar leg 回读；`list` 不是新模型工具。另提供 GUI 后续消费的窄 `openWorkspaceMarkdown({containerId,sessionId,logicalPath})` command：只读当前 `.md`，返回逻辑路径/content/hash/byteLength，不落正文 journal。`/case` 仍只读；双根显示逻辑绝对路径，不得出现 `../workspace`，物理根永不进模型/journal/error。不得自动晋升工作稿 | `PI-WRITE-HOST-1` | 否 | agent write→批准→Rust 落盘→agent byte-identical read-back→glob/grep→interrupted/resumed 新 leg read-back；viewer command 对 session/path/UTF-8/131072 cap 双验且物理路径零泄漏；case/workspace 两根无串读、symlink 不跟 |
 | `PI-BASE-HEADLESS-ACCEPT` | AGENTS.md 实现/验收分离；ADR-022 A2 | 独立 clean worktree 总验，不实施契约修补，只写 `packages/pi-lane/ACCEPTANCE.md`：真实 pi Agent 跑通单文件问答、多 md 定位汇总、case→新 Markdown、workspace 全量改写、嵌套 Unicode 路径+重启回读与拒绝面；另含取消、崩溃、两容器、session 累计预算与 wire fail-closed。每格同时留 Agent events、host request/result、journal、最终 bytes/hash；build 绿只作入场 | `PI-HOST-LOOP-1` + `PI-WRITE-HOST-1` + `PI-WORKSPACE-READ-1` | 否 | 必要结果完整且未截断后才可把内容错误归模型；缺工具/回灌/显式截断/落盘/回读任一项均判 harness 失败。六格反例实际注入；只在通过后允许基础 GUI 开工，未过不更新 current.md |
 | `PI-LANE-UI-1` | ADR-009 决定七窄修订 + ADR-022 六-0/六-D | pi 线基础成熟 GUI 薄投影：直接依赖 exact `@assistant-ui/react` headless primitives + 公共 `useExternalStoreRuntime` hook；React→Rust command，journal→projection。首版只给 Prompt/Stop、真实运行/预算、tool proposal+逐次授权、结果/错误/恢复，以及从 succeeded write fold 出的 workspace `.md` 索引与 host-mediated 只读查看；uncertain 不进成功索引但工具卡可核验当前文件。浅色 craft 与 GUI 同票交 Opus：方向锁冷白/深墨、扁平、版本目录学、克制反乌托邦及 anti-slop，构图/比例/间距/浅色 token 微调/合规微交互由真实截图迭代，不给指定 wireframe；dark 只守同构回归，磁青精修后置。assistant-ui 只给机制；OpenDesign/Moda/Logue/OpenWork/OpenCode/Open WebUI 只作筛选过的参考，不作视觉真源、源码来源或 runtime 依赖；证据索引见 `archive/research-gui-design-direction-2026-07-28.md` | `PI-BASE-HEADLESS-ACCEPT` 放行；本票独占当前 App 槽，不与 Dossier/context/其他 UI 票并行；不开阻塞它的前置 Design 票 | **是**（放行后的 App 首票） | LocalRuntime/cloud/AI SDK/OpenCode adapter/branch/edit/queue/private import 零出现；未知 event fail-closed；审批按钮只发 command，决定只认 journal；viewer 复用 `ChatMarkdown`、正文不持久且无编辑/保存/promotion；首次 uncertain create 可核验且仍标 unverified，当前 hash 异于 succeeded hash 必提示；展示投影的流态更新至多每 rAF 合并一次、所有 terminal 取消 pending frame 并立即 flush；用户上滚后 streaming/Stop/terminal 不夺回视口；浅宗交空/运行/proposal/succeeded/denied/failed/uncertain/resume/viewer/overlay 全状态截图，dark 做结构/对比/溢出烟测；WKWebView 键盘/读屏/焦点/Stop race 真测；bundle delta 留证 |
-| `PI-BASE-GUI-ACCEPT` | AGENTS.md 实现/验收分离；ADR-022 A3 | 独立 clean worktree + 真实 Tauri WKWebView 总验，不修契约，只写 `apps/desktop/ACCEPTANCE.md`：从现有凭证/授权入口发起通用 `.md` work，观察 stream/Stop、write proposal 逐次允许/拒绝、终态/预算/恢复，并从 workspace 索引打开当前 Markdown；确定性 provider 跑机械反例，真实 DeepSeek 甜点档再跑 headless 同构任务矩阵 | `PI-LANE-UI-1` | 否 | scripted matrix 与真实 provider 均留 journal→projection→workspace bytes/hash 同源证据；真实 key/model 缺席则只能报 external-validated blocked，不得放行“harness 非瓶颈”；键盘/读屏/焦点/reduced-motion/scroll ownership/Stop race 全实跑。仅本票放行后允许 Dossier、修订与 UI 巧思开工并更新 current.md |
-| `PI-SIDECAR-RELEASE-1` | ADR-020 + ADR-022 六-E | Developer ID、nested executable 逐件签名、notarize/staple、Finder 首启、`spctl` 与双架构读/写/abort/crash 复跑；不夹功能开发 | `PI-BASE-HEADLESS-ACCEPT` + 已裁 sidecar 分发路线 | 否 | 无凭据如实 external-validated blocked；`codesign --deep` 只 verify 不代签；正式制品证据闭合后才更新 release 成熟度 |
+| `PI-BASE-GUI-ACCEPT` | AGENTS.md 实现/验收分离；ADR-022 A3 | 独立 clean worktree + 真实 Tauri WKWebView 总验，不修契约，只写 `apps/desktop/ACCEPTANCE.md`：从现有凭证/授权入口发起通用 `.md` work，观察 stream/Stop、write proposal 逐次允许/拒绝、终态/预算/恢复，并从 workspace 索引打开当前 Markdown；确定性 provider 跑机械反例，真实 DeepSeek 甜点档再跑 headless 同构任务矩阵 | `PI-LANE-UI-1` | 否 | scripted matrix 与真实 provider 均留 journal→projection→workspace bytes/hash 同源证据；真实 key/model 缺席则只能报 external-validated blocked，不得放行“harness 非瓶颈”；键盘/读屏/焦点/reduced-motion/scroll ownership/Stop race 全实跑。本票放行只取得 agent 称谓门与 debug-build 开工权；Dossier、修订与 UI 巧思仍须等 `PI-DEBUG-BUILD-1` 独立放行后开工，届时才更新 current.md |
+| `PI-DEBUG-BUILD-1` | ADR-020 决定零 + ADR-022 产品称谓门/六-E 的物理证据闭口 | `PI-BASE-GUI-ACCEPT` 后只构建 exact accepted `productSha`（build receipt 前、clean local `main` 上已含 GUI 放行记录的产品 tip）的 arm64 Tauri `.app`/DMG，命名 `Courtwork_debug_<short-product-sha>_aarch64.dmg`；仓库外按 full product SHA + DMG SHA 拒绝覆盖、只读保全。构建前须由架构把已裁路线的 exact signing plan 与 strict manifest JSON Schema 固定在 ADR-022 指定 repo path，且两 blob 已属于 `productSha` tree；未冻结不可派。构建会话只新增 `packages/pi-lane/specs/PI-DEBUG-BUILD-1.md`，且不得判 acceptance；不同验收会话从独立 clean worktree 只读消费回执指定的 manifest + exact DMG，只追加 `apps/desktop/ACCEPTANCE.md`。零功能开发、零版本变化 | `PI-BASE-GUI-ACCEPT` + `PI-SIDECAR-DIST-1R2` 已放行并裁路线 + 架构已冻结 schema/signing-plan 两 blob | 否 | strict manifest 原子落定并双绑 productSha tree 内 schema/plan path+hash，锁 `productSha/tree/locks/route/build argv/toolchain/host/DMG/app/build-vs-mounted inventory/signing`；回执引用 manifest path/hash，少/多/换件即红。逐件 inside-out 签名/entitlements/strict verify 与 `spctl` 预期拒绝如实留证。验收先跑随包 sidecar deterministic control，再从 mounted WKWebView 以维护者真实 key 跑 read→proposal→允许/拒绝 write→回读、Stop/crash/restart；物理/确定性失败=`debug-blocked`，key/model 缺席=`external-validated blocked`，证据零 secret/Authorization/raw prompt/workspace 正文。禁止 tag/push/Release/asset/Pages、四处版本到 `0.2.0`、release/current/site/README 真值变化、Developer ID/notarize/staple 及 `released`/`product-live` 宣称；成功最多记 `external-validated`，范围只到维护者个人 debug |
+| `PI-SIDECAR-RELEASE-1` | ADR-020 + ADR-022 六-E | **parked：未来公开发行重启时才可派。** Developer ID、nested executable 逐件签名、notarize/staple、Finder 首启、`spctl` 与双架构读/写/abort/crash 复跑；不夹功能开发 | `PI-BASE-GUI-ACCEPT` + `PI-DEBUG-BUILD-1` + 已裁 sidecar 分发路线 + 架构显式恢复公开发行 | 否 | 无凭据如实 external-validated blocked；`codesign --deep` 只 verify 不代签；正式制品证据闭合后仍须重冻版本/许可/候选链，不能单独更新 release 成熟度 |
 
 
 

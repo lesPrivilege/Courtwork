@@ -1,6 +1,14 @@
 # 发布手册
 
-本手册定义 Courtwork 从已验收 `main` 生成 macOS 制品、GitHub Release 与 Pages 的唯一现行路径。发布不改变产品契约；任何产品代码变化必须先完成独立实现与验收。除非另有说明，以下命令均从仓库根目录执行。
+状态：**公开发布路径自 2026-07-28 起 parked**。本手册保留 Courtwork 未来从已验收 `main`
+生成 macOS 制品、GitHub Release 与 Pages 的唯一路径，但在 ADR-020 决定零重新授权前不得执行。
+发布不改变产品契约；任何产品代码变化必须先完成独立实现与验收。除非另有说明，以下命令均从
+仓库根目录执行。
+
+下一枚制品只允许按 ADR-022 / implementation-readiness 的 `PI-DEBUG-BUILD-1` 供维护者本人
+本机 debug。该票不使用本手册的版本、tag、Release、下载真值或 Pages 步骤，也不授权 push
+`main`；不得把 debug build 填进下列变量后冒充候选。既有 `v0.1.2` 公开资产与历史部署实录
+保持不变。
 
 每次发布先在同一 shell 设置参数；版本不带 `v` 前缀：
 
@@ -15,10 +23,10 @@ export SHA_FILE="release/${ASSET}.sha256"
 export NOTES="release/RELEASE_NOTES_v${VERSION}.md"
 ```
 
-## 发布通道
+## 发布通道（现行 parked）
 
-- 当前公开通道：Apple Silicon 开发构建。
-- 当前签名：ad-hoc；没有 Developer ID 和 notarization 时，官网、Release notes 与校验记录必须逐字说明“未公证”，不得称为正式 Apple 公证发行包。
+- 既有公开通道：`v0.1.2` Apple Silicon 开发构建；现无获授权的新公开通道。
+- 既有签名：ad-hoc；未来没有 Developer ID 和 notarization 时，官网、Release notes 与校验记录必须逐字说明“未公证”，不得称为正式 Apple 公证发行包。
 - 正式通道：需要外部提供 Developer ID Application identity 与 notarytool 凭证；证书、密码、API key 和 profile 不进入仓库。
 
 ## 1. 冻结候选
