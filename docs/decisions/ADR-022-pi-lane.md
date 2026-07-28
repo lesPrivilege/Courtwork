@@ -700,6 +700,26 @@ STDIO 票只新增 strict codec、可注入 stdio machine 与定向测试，不�
    notarize/staple、Finder 首启与 `spctl`。`codesign --deep` 只作 verify，不能代签；无凭据
    如实标 external-validated blocked。该票是 released 前置，不阻塞底座的开发态 headless 验收。
 
+`PI-SIDECAR-DIST-1@3207b27` 的独立验收 `9b8142f` 判定 **REJECT**，故其 SEA-default 建议
+不是架构输入，路线仍未裁。拒绝不表示两路线功能失败，而是装置会把 stdio/abort/crash 失败
+只写进 JSON 后仍报 `status:'ok'`，还会静默跳过缺失产物；验收侧取得的 Node 22 archive 又未过
+官方 SHA 门，双架构制品无法独立重建。
+
+返修 `PI-SIDECAR-DIST-1R` 只修实验可信度，不改生产契约。库存闭集固定为两架构各三枚
+sealed 产物与两枚 SEA 产物：其中两枚 `esm-naive` 是必须以既知 dynamic-require 原因失败的
+负控，其余八枚才是候选。少件、多件、错 version/arch/SEA 身份、任一 probe 失败或 blocked
+都须令顶层 verdict 与进程非零；不得以「失败也是数据」把候选失败降格成成功。stdio 须锁
+ping、三 payload 的 byte/hash、exact tool set、真实 read loop 与 clean EOF；abort 须锁在途
+ack、`aborted`、继续 ping 与 clean EOF；四种 crash 须锁 exact code/signal 及复启。三轮冷启
+逐轮随机化八候选并保存顺序，不设性能胜负阈值。
+
+官方 Node 只从固定 nodejs.org 版本目录取，先写唯一 partial，核下载的 SHASUMS 对应项、已冻结
+byte size/SHA、tar 完整性与解包后的 version/Mach-O arch，全部通过后才原子落正式名；现存正式
+archive 也须先验，错件不得覆盖。该门只证明 HTTPS 来源的传输完整性，不冒充 release-key
+供应链认证。两次空目录重建须再锁 sealed/default 可复现、code-cache 不可复现与跨架构 warning；
+ad-hoc/sign synthetic `.app` 仍只算同机探针，绝不冒充 Tauri bundler、Developer ID 或公证。
+返修经另一会话放行后，架构才消费报告并在本节裁路线。
+
 后续产品装配归属也冻结：`PI-HOST-LOOP-1` 建 product `/case` 虚拟 env、路径/错误脱敏、累计预算
 与 Rust 生命周期；`PI-WRITE-HOST-1` 才注册 `createWriteTool()`、扩产品 tool policy、设置
 `toolExecution:'sequential'`、启用六-0 的 `md-work-v1` 最小 system prompt，并把每次 toolCall
@@ -722,6 +742,10 @@ STDIO 票只新增 strict codec、可注入 stdio machine 与定向测试，不�
 
 ## 修订记录
 
+- **2026-07-28 · sidecar 分发实验独立验收拒绝与返修门**：`9b8142f` 坐实关键 probe 只记
+  失败不判红、缺产物可静默跳过，且独立 Node 22 archive 未过 SHA 门；撤销对原路线建议的
+  消费资格，冻结十件库存、八候选/两负控、统一 hard verdict、来源原子落盘、随机化冷启与
+  双 cycle 可复现性复证。路线保持未裁。
 - **2026-07-28 · stdio 独立验收拒绝后的安全闭口**：独立反例坐实 runtime message 泄漏、
   pending effect 被 force 丢弃、runtime 同步 inbound 重入复活、host-result 值未关联与安全终态
   `retryable:true` 五类缺陷；相邻 write proof 交叉复核再发现 op/hash 会在 stdio 被二次生成。

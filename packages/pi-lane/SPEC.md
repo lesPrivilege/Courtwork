@@ -224,16 +224,48 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   pending `ok/denied/failed/uncertain`、host_result-before-violation race、cancel 与 usd taint、
   canary。完成后仍只叫“待独立复验”，不得自放行；原验收要求的 semantic mutation 证据缺口由
   后续独立验收补齐。
-- `PI-SIDECAR-DIST-1` 只改 `packages/pi-lane/fixtures/sidecar-dist/`、独立报告
-  `docs/engineering/pi-sidecar-dist-1.md` 与自己的回执行；做 Node 22 LTS sealed bundle vs SEA
-  实验，不改生产 wire/session。若实验必须引 exact MIT/Apache 工具，只允许该票改
-  `packages/pi-lane/package.json` 与根 lockfile，并须在报告逐包记 license/用途/移除结论。
+- `PI-SIDECAR-DIST-1` 的实现 `70e6482`、回执 `01ff5e7`/订正 `3207b27` 经独立验收
+  `9b8142f` 判定 **REJECT**；其报告与 SEA-default 建议不得用于路线裁定。返修
+  `PI-SIDECAR-DIST-1R` 只许改 fixture `README.md`，`scripts/` 下
+  `fetch-runtime.mjs`、`extract-runtime.mjs`、`build-sealed.mjs`、`build-sea.mjs`、
+  `measure.mjs`、`coldstart-rounds.mjs`、`sign-probe.mjs`、`reproducibility-probe.mjs`、
+  `clean.mjs`，以及 `scripts/lib/toolkit.mjs`、新增
+  `scripts/lib/probe-verdict.mjs` 与 `scripts/probe-verdict.test.mjs`，原独立报告
+  `docs/engineering/pi-sidecar-dist-1.md` 与新回执 `specs/PI-SIDECAR-DIST-1R.md`。被测
+  `sidecar-fixture.mjs` 冻结；不得改旧回执/ACCEPTANCE、package/lock、生产源码、父级文档、
+  Tauri/Rust 或 GUI：
+  1. 新增薄的纯 verdict 层及定向测试，`measure`、三轮冷启、签名/可复现性探针必须消费同一
+     判定，不得各自只写观察值。库存恰为十件：两架构 × sealed 三档 + SEA 两档；两枚
+     `esm-naive` 必须以 `Dynamic require of "process"` 的非零启动失败作负控，其余八枚缺一、
+     多一、跳过或任一项 blocked 均令顶层 JSON `status:'failed'` 且进程非零。
+  2. 八候选逐件锁 `ready` 的 Node version/arch/SEA 身份、pong、三 payload 的 byte/hash、
+     exact `read/grep/glob` 工具表、`read`/2 turns/assistant 的真实 loop 与 EOF code 0。
+     abort 必须收到 `aborted` ack 且 `wasRunning:true`、slow 以 `aborted` 闭合、随后 ping
+     仍通及 EOF 0；throw/exit/hang/sigterm 必须分别为 code 1/code 7/SIGKILL/SIGTERM，逐类
+     复启 ready。
+  3. runtime 只从固定 `https://nodejs.org/dist/v22.23.1/` 取。下载写同目录唯一 partial，
+     fsync 后核冻结文件名/byte size/SHA、下载 SHASUMS 的同名记录与 tar 完整性，全部通过才
+     原子 rename 并同步父目录；现存正式件先验再复用，失配拒绝且不覆盖。解包再核
+     `node --version` 与 Mach-O arch。不得把 HTTPS+SHA 写成 release-key 认证。
+  4. 冷启固定八候选、三轮 × 每轮 25 样本（丢三热身），逐轮随机化并记录顺序；少轮、少样本、
+     异常 EOF 或身份错均非零，只报告同机数字，不设路线胜负阈值。两次从空 route 目录重建，
+     sealed minified bundles 与 SEA default 必须 byte-identical；code-cache 必须记录不一致，
+     arm64 blob 注入 x64 必须观察 `Code cache data rejected.`，不得静默降级。
+  5. sign probe 锁两候选 × plain/hardened-no-entitlements/hardened-with-entitlements 三姿势的
+     sign/verify/launch 观察与 synthetic `.app` 的逐件先内后外签名；只宣称同机 ad-hoc
+     探针，不宣称 Tauri bundler、Developer ID、notarize 或跨机可复现。
+  6. 直接反例至少覆盖缺产物、payload/hash、tool/loop、abort 四岔、四 crash、身份三元组、
+     冷启缺轮/样本、default SHA 漂移、code-cache 误报可复现、跨架构 warning 消失与
+     archive 截断/预置错件；每枚须验证变异确实命中并使生产 verdict 非零。README/报告统一
+     2.27 GiB 与完整 isolation 命令。全流程从空 `dist/` 起跑，原始 JSON 保全到独立验收后再清。
 - 原三张并行票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。
   原实现会话分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
   `specs/PI-SIDECAR-DIST-1.md` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering
-  report，仅在其专属回执写链接与结论。返修票不属于这组三票：`PI-CODE-STDIO-1R` 组合基线为
-  `codex/accept-pi-code-stdio-1@cfb4715` 加本节所在架构提交，实现者只更新新回执并在其中记录
-  cherry-pick 后的目标 SHA。
+  report，仅在其专属回执写链接与结论。返修票不属于这组三票；为避免把父级架构提交反向
+  cherry-pick 到旧基线，组合树均从本节所在 `main` tip 新建，再按序取证据提交：
+  `PI-CODE-STDIO-1R` 取 `79a13d2 → 223185e → 0ffae46 → cfb4715`；
+  `PI-SIDECAR-DIST-1R` 取 `70e6482 → 01ff5e7 → 3207b27 → 9b8142f`。实现者只改各自票面文件
+  与新回执，并在回执记录组合后的目标 SHA；冲突一律停下回架构，不得借解决冲突改父级文档。
 - 后续 `PI-WRITE-HOST-1` 才把 port 接到 Rust exact 同版本
   `cap-std/cap-fs-ext/cap-tempfile@4.0.2` workspace、逐段 no-follow、授权与 journal；
   `PI-WORKSPACE-READ-1` 再让既有 read/glob/grep 显式路由逻辑 `/workspace` 并跨重启回读，同时
@@ -279,6 +311,7 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - [`PI-CODE-STDIO-1`](specs/PI-CODE-STDIO-1.md)
 - [`PI-CODE-STDIO-1R`](specs/PI-CODE-STDIO-1R.md)
 - [`PI-SIDECAR-DIST-1`](specs/PI-SIDECAR-DIST-1.md)
+- [`PI-SIDECAR-DIST-1R`](specs/PI-SIDECAR-DIST-1R.md)
 
 ## 十 · 门与证据
 
