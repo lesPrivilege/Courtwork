@@ -438,7 +438,7 @@ describe('最终 basename 按 ASCII 大小写不敏感只允许 .md', () => {
     expect(gate.ok).toBe(true);
   });
 
-  it.each(['brief.txt', 'brief', 'brief.md.txt', 'brief.markdown', '备忘.ｍｄ'])(
+  it.each(['.md', 'brief.txt', 'brief', 'brief.md.txt', 'brief.markdown', '备忘.ｍｄ'])(
     '%s → unsupported_file_type',
     async (input) => {
       const gate = await gateWorkspaceWrite(input, 'x');

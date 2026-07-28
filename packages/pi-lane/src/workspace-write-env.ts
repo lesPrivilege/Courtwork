@@ -108,7 +108,8 @@ const asciiLower = (value: string): string => value.replace(/[A-Z]/g, (char) => 
 
 function isMarkdownBasename(logicalPath: string): boolean {
   const basename = logicalPath.slice(logicalPath.lastIndexOf('/') + 1);
-  if (basename.length < MARKDOWN_SUFFIX.length) return false;
+  // `.md` 本身没有 artifact stem；ADR-022 要求扩展名前至少一个字符。
+  if (basename.length <= MARKDOWN_SUFFIX.length) return false;
   return asciiLower(basename.slice(-MARKDOWN_SUFFIX.length)) === MARKDOWN_SUFFIX;
 }
 
