@@ -136,3 +136,73 @@ snapshot `turns:3,usd:0`；completed+turn reached → `invalid_schema`；含 api
 **最终判定：REJECT（3 blockers + 2 majors 的真实逻辑缺陷；另有 mutation 证据缺口）**。最小 terminal
 decoder 修复与 OSS 事实订正可保留；必须先由实现角色修复上述五项，再由新的独立验收会话复验；其后仍须补齐
 production semantic mutation 证据，才可改为 PASS。
+
+---
+
+# PI-CODE-STDIO-1R 独立验收（2026-07-28，拒绝）
+
+目标实现为 `codex/pi-code-stdio-1r@7c8c9c3`（实现锚 `9f9255b`，主线基线 `0e50b03`）；验收树
+`/private/tmp/courtwork-accept-pi-code-stdio-1r`，分支 `codex/accept-pi-code-stdio-1r`。本会话与实现
+会话独立。`9f9255b` 自身严格只改四份 stdio/protocol source/test，`7c8c9c3` 自身只改专属回执；组合
+树中的旧 `ACCEPTANCE.md`、旧回执来自票面指定的历史证据顺取，不计为本返修实现越界。
+
+## 复核范围、接缝与原有绿门
+
+- 先读根治理、状态/就绪图、ADR-022 六-B、pi-lane SPEC/旧验收与 1R 回执；ADR 的 `upstream
+  投影违约一律把累计 usd 传染为 null` 高于 SPEC 中较窄的文字，故实现把所有投影违约置为
+  `usd:null` 的取法正确。`reserve` 也确应只接受已登记 public tc：上游 write binder 只查预登记
+  tc，随后把同一 op/hash 原样交 port；stdio 不得自行二次铸造。
+- 未修改 `workspace-write-env`。只读复核 `codex/pi-write-proof-1` 证实 binder 在 gate 后调用
+  `allocateOperationId(publicToolCallId)`，据该 op 算 hash，再将同一八字段 request 交 port。因此
+  stdio 必须同时守住 tc 的 toolName、当前 prompt 与阶段，不能只查 tc 字符串存在。
+- clean target 原定向 protocol/stdio 绿 **10 files / 227 tests**；其后撤去所有临时反例，再跑一次
+  同一门仍为 **10 / 227**。这只说明既有考卷未覆盖下述状态，不能抵消红证。
+- clean target 全仓 `pnpm -r build`、`pnpm lint`、`pnpm test` 均 EXIT 0；最后一门为
+  **162 files / 1550 tests**。`node apps/desktop/scripts/assert-isolation-binding.mjs` EXIT 0，扫描
+  6 host / 22 pi-lane 源码。apps 未改，故 Playwright 不适用。
+
+## 实际注入的九条生产反例
+
+临时把九例加入 `product-stdio.test.ts`，在未改 production source 的目标树运行：
+**10 files / 236 tests，其中 9 failed、227 passed**。随后用补丁逐块撤回；`git diff --quiet --
+packages/pi-lane/src/product-stdio.test.ts` EXIT 0，故红证不留在产品树。九例均直接命中 production：
+
+1. 已登记 `read` tc 可 reserve/send `workspace_write`，把只读工具升级为写 effect；反向的
+   toolName/capability 绑定根本不存在。
+2. write 的 host_result 已到而 upstream tool_finished 未到时，callback 能再 reserve/send 第二个
+   operation；形成 `settledWrite(op1)+pending(op2)`。随后违约只会收束后者，前者的 finished 可丢。
+3. 同一已登记 raw tc 的 `tool_progress`/`tool_finished` 可换成另一 toolName 并照样上 wire；tc→
+   toolName 没有单向约束。
+4. cast 塞入未来/未知 runtime event 会落入 `switch default`、读取不存在的 turn/usage 后逃逸为
+   callback `ProductSidecarError`，而非 `upstream_event_unsupported` terminal。
+5. write 仍 `operation_pending` 时，上游先发 tool_finished 会被直接投影；它没有等 host_result
+   作为唯一 outcome 真源。
+6. write 只有 started、尚无 operation 时，上游 finished:succeeded 被直接发出；ADR 的本地阶段
+   分型要求此未知结束为 failed，再按 upstream 违约关闭。
+7. write 已 settled 时 callback 直接 `finishPrompt(completed)`，`terminate()` 只检查 pending，清空
+   settledWrite 后发 completed，零自合成 tool_finished。
+8. finished 后的同 tc progress 仍可出 wire，registry 未实行 `started → … → tool_finished` 单向阶段。
+9. prompt1 已结束的 tc 可在 prompt2 reserve/send；registry 未把 tc 限在当前 prompt 的有效期。
+
+这些不是同一断言的九种表面写法：它们分别破坏 effect 最小权限、两个 latch 条件互斥、公开投影
+稳定性、closed event union、host-result truth、write 阶段分型、effect 收束、单向 registry 与
+request-scoped reservation。任何一项都足以使 Rust 后续 journal 看见不可信工具账；合并后再由
+`PI-HOST-LOOP-1` 补救已太晚。
+
+## 结论与架构裁定
+
+**REJECT。** 此轮不适用 `fix-by-acceptance`：九条红证共同表明 core tc registry/state machine
+缺少显式阶段记录与 request/tool/capability 绑定；把它们零散加 guard 会新造未定义的收束优先级，
+不是“定位明确的小实现修复”。必须由实现角色以新的返修票先把 registry 状态表和以下不变量冻结并
+测试：
+
+- public tc 记录 `{requestId, toolName, phase}`；toolName→capability 固定映射，且 reserve 只收
+  当前 prompt、未 finished 的 tc；
+- `pending` 与 `settledWrite` 结构性互斥；settled 时任何 runtime finish/new reserve 都按上游
+  违约走保存 outcome 的恰一 tool_finished，再按现有优先级 terminal；
+- unknown event、name mismatch、progress/finished 倒序、pending 前 finished 均 fail-closed，且
+  write 无 op 的 finished 按 ADR 本地阶段分型；
+- 对上述每个转移做 production mutation/反例红证，并另会话从 clean worktree 重新验收。
+
+USD「一律」与已登记 public tc 两项不需架构回退；callback Error 不回滚状态本身亦可成立，但不得
+以它绕过 settled effect 收束。`PI-HOST-LOOP-1` 继续阻塞，不能把 `PI-CODE-STDIO-1R` 计为完成。
