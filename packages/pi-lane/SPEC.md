@@ -291,6 +291,53 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      冷启缺轮/样本、default SHA 漂移、code-cache 误报可复现、跨架构 warning 消失与
      archive 截断/预置错件；每枚须验证变异确实命中并使生产 verdict 非零。README/报告统一
      2.27 GiB 与完整 isolation 命令。全流程从空 `dist/` 起跑，原始 JSON 保全到独立验收后再清。
+- `PI-SIDECAR-DIST-1R` 实现 `ba71df8` / 回执 `61c2b09` 虽交出 102 例 pure-verdict 绿测、
+  31 枚自报 counterexample 与全仓 1397 绿测，独立验收 `f261347` 仍判 **REJECT**：
+  production `measure` 对真实多余目录/文件报绿，cold-start 会用后续正确 identity 洗掉首个
+  错样本，reproducibility 会把两个 null SHA 判作相等；另有 crash 无界等待与 SEA
+  remove-signature/sign/strict-verify 非零仍记 ok。R1 已成立的官方 Node 来源门、stdio/abort/
+  四 crash exact 语义、八候选/两负控、sign matrix 与删除旧 SEA-default 建议均不回退；
+  `PI-SIDECAR-DIST-1R2` 只许改 fixture `README.md`，`scripts/` 下
+  `build-sealed.mjs`、`build-sea.mjs`、`measure.mjs`、`coldstart-rounds.mjs`、
+  `sign-probe.mjs`、`reproducibility-probe.mjs`、`clean.mjs`，
+  `scripts/lib/toolkit.mjs`、`scripts/lib/probe-verdict.mjs`、
+  `scripts/probe-verdict.test.mjs`，原工程报告
+  `docs/engineering/pi-sidecar-dist-1.md` 与新回执
+  `specs/PI-SIDECAR-DIST-1R2.md`。不得改 `fetch-runtime`/`extract-runtime`、
+  `sidecar-fixture.mjs`、1/1R 旧回执、ACCEPTANCE、package/lock、生产源码、父级文档、
+  Tauri/Rust 或 GUI：
+  1. 新建唯一 `dist/assembly`；corpus、runtime、构建 scratch、JSON 与反例留档全在其外。
+     assembly 顶层恰为 `route-a/`、`route-b/`，其下分别恰有六个、四个 target/variant 目录：
+     route A 每目录恰为 executable + 指定 bundle，route B 每目录恰为 executable。production
+     从 `readdir/lstat` 的实物构造
+     observation，不从 `INVENTORY.map()` 反推 observed；预期项须为 regular file，额外文件、
+     子目录、symlink、socket/FIFO 或错 basename 全部顶层 failed/非零。
+  2. cold-start 每轮保留 25 枚 `{sample,identity,elapsed,eof}`；三枚 warmup 只不入性能统计，
+     仍须过身份和 EOF 门。每枚逐一校验 Node version/arch/SEA，`identityDrift !== null` 必红，
+     不得用首值、末值或 drift 值代替逐样本证据。
+  3. 双 cycle 每项先记录并校验 assembly 内相对路径、exists、regular-file、正安全整数 bytes
+     与 64 位小写 hex SHA，再比较：sealed/default 只许两份有效 SHA 相同，code-cache 只许两份
+     有效 SHA 不同。`null`、空串、占位串、缺件、目录或零字节均先失败；测试 fixture 不得再用
+     `sea-arm` 一类非 SHA 占位值。
+  4. crash 的具名 deadline 固定为 ack 15,000 ms、exit 15,000 ms、respawn-ready 30,000 ms、
+     respawn-EOF 15,000 ms、kill-confirm 5,000 ms；throw/exit/hang 必须收到 `crashing` ack，
+     sigterm 不要求 ack 但同样要求有界退出。任一超时写结构化 failure，杀掉仍存活子进程且
+     最终非零；kill 后也不得裸 `await exited`。用能 ready 但忽略 crash/exit 的受控子进程
+     证明整支 probe 在上界内失败，不得改冻结 fixture 来制造红证。
+  5. SEA 每 variant 从干净 staging 严格走 copy → remove-signature → postject → ad-hoc sign →
+     `codesign --verify --strict` → publish；四个外部阶段任一非零都写精确 stage/exit/stderr、
+     顶层非零，且 assembly 零该 variant 成品。先成功后注入失败也不得复用 stale executable；
+     只有全部通过才原子发布。
+  6. 三枚验收 blocker 必须在未改 production 的 R1 tree 直接先红；再补物理额外文件/目录、
+     报告 JSON 位于 assembly 外不误伤、首/尾/warmup 身份错、null/空/非 hex/缺件 SHA、
+     忽略 crash 与 SEA 四阶段失败反例。既有 102 测试、31 反例及从空 assembly 的完整双架构
+     功能/冷启/双 cycle/sign matrix 全部复跑；每个新 gate 做有效 source mutation。
+  7. 报告继续不提路线建议。SEA default 只称同 worktree、同绝对路径的两次空 assembly
+     byte-identical；跨路径变化与 Developer ID 后净体积均标未实测。负载超时只登记本次观察，
+     不外推频率。许可写为 Postject 自有部分 MIT、package 内 `vendor/LIEF` Apache-2.0，最终
+     制品携带/notice 归发行票。残留双列：`3207b27` 的 2,436,991,750 B（2.27 GiB）是历史范围，
+     R1 的 2,527,892,648 B（2.35 GiB）是较大保全范围，互不取代；R2 另以逐项求和报告实值。
+     本条只取代上一段 R1 条款 6 的“统一 2.27 GiB”口径，不改其他 R1 门。
 - 原三张并行票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。
   原实现会话分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
   `specs/PI-SIDECAR-DIST-1.md` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering
@@ -299,7 +346,10 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   `PI-CODE-STDIO-1R` 取 `79a13d2 → 223185e → 0ffae46 → cfb4715`；
   `PI-CODE-STDIO-1R2` 取
   `5b55885 → 5133c6e → 0872a5c → 855db1b → 9f9255b → 7c8c9c3 → 4df2e84`；
-  `PI-SIDECAR-DIST-1R` 取 `70e6482 → 01ff5e7 → 3207b27 → 9b8142f`。实现者只改各自票面文件
+  `PI-SIDECAR-DIST-1R` 取 `70e6482 → 01ff5e7 → 3207b27 → 9b8142f`；
+  `PI-SIDECAR-DIST-1R2` 取
+  `e364868 → 43c1ae7 → 1d4329e → 7a500d1 → ba71df8 → 61c2b09 → f261347`。
+  实现者只改各自票面文件
   与新回执，并在回执记录组合后的目标 SHA；冲突一律停下回架构，不得借解决冲突改父级文档。
 - 后续 `PI-WRITE-HOST-1` 才把 port 接到 Rust exact 同版本
   `cap-std/cap-fs-ext/cap-tempfile@4.0.2` workspace、逐段 no-follow、授权与 journal；
@@ -348,6 +398,7 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - [`PI-CODE-STDIO-1R2`](specs/PI-CODE-STDIO-1R2.md)
 - [`PI-SIDECAR-DIST-1`](specs/PI-SIDECAR-DIST-1.md)
 - [`PI-SIDECAR-DIST-1R`](specs/PI-SIDECAR-DIST-1R.md)
+- [`PI-SIDECAR-DIST-1R2`](specs/PI-SIDECAR-DIST-1R2.md)
 
 ## 十 · 门与证据
 

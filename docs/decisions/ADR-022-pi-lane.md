@@ -757,6 +757,33 @@ archive 也须先验，错件不得覆盖。该门只证明 HTTPS 来源的传�
 ad-hoc/sign synthetic `.app` 仍只算同机探针，绝不冒充 Tauri bundler、Developer ID 或公证。
 返修经另一会话放行后，架构才消费报告并在本节裁路线。
 
+`PI-SIDECAR-DIST-1R@61c2b09` 的独立验收 `f261347` 再判 **REJECT**。三枚 production
+反例分别坐实：磁盘真实多出 `route-a/unexpected-physical/proof.txt` 后 `measure` 仍
+`status:'ok'`；首枚 cold-start 身份错误、后 24 枚正确会被漂移后的 identity 洗白；SEA
+default 的 `shas:[null,null]` 会被 JavaScript 相等性当作可复现。另有两处尚未形成有界失败：
+packet 驱动的 crash ack/exit 可无限等待，SEA remove-signature/sign/strict-verify 的非零退出
+不决定 variant 状态。故 R1 的 102 绿测、31 枚自报 counterexample 与全仓绿门均不赋予报告
+消费资格，路线仍未裁。
+
+`PI-SIDECAR-DIST-1R2` 只闭合实验装置，不改变产品 wire 或路线候选。十件可随包制品须进入
+唯一 `dist/assembly`，构建暂存、runtime、corpus、JSON 与反例留档全在其外；assembly 内每个
+route/target/variant 目录及 basename 是 `readdir` + `lstat` 得出的精确闭集，额外文件、目录、
+symlink 或非 regular file 一律失败。cold-start 保留并校验每轮 25 枚 identity/EOF 样本，
+warmup 只从统计排除，不能从安全门排除；任何 drift 失败。双 cycle 的每份 observation 先证明
+文件存在、是 regular file、字节数为正且 SHA 是 64 位小写 hex，再谈相等或不等。crash 的
+ack/exit/respawn-ready/respawn-EOF/kill-confirm deadline 分别固定为
+15,000/15,000/30,000/15,000/5,000 ms，超时写结构化 failure、清理子进程并非零退出。SEA
+按 remove-signature → postject → ad-hoc sign → strict verify 全部成功后才从 staging 发布，
+任一步失败不得留下或复用旧成品。
+
+残留口径在此拍板为**并列而非订正**：`3207b27` 的 `2,436,991,750 B（2.27 GiB）` 是原实验
+保全范围的历史峰值；R1 的 `2,527,892,648 B（2.35 GiB）` 来自包含 31 份反例、cross-arch
+与 final 读数的较大保全范围，不能“取代”旧值。R2 须另报其最终实际总数与逐项求和。报告只可
+称 SEA default 在同 worktree、同绝对路径的两次空 assembly 构建 byte-identical；换路径变化与
+Developer ID 后净体积均属未实测。负载超时只登记本次观察，不形成免责频率。许可口径固定为
+Postject 自有部分 MIT、package 内 `vendor/LIEF` 为 Apache-2.0；是否进入最终分发件及 notice
+义务归发行票复核。
+
 后续产品装配归属也冻结：`PI-HOST-LOOP-1` 建 product `/case` 虚拟 env、路径/错误脱敏、累计预算
 与 Rust 生命周期；`PI-WRITE-HOST-1` 才注册 `createWriteTool()`、扩产品 tool policy、设置
 `toolExecution:'sequential'`、启用六-0 的 `md-work-v1` 最小 system prompt，并把每次 toolCall
@@ -779,6 +806,10 @@ ad-hoc/sign synthetic `.app` 仍只算同机探针，绝不冒充 Tauri bundler�
 
 ## 修订记录
 
+- **2026-07-28 · sidecar 分发返修再拒绝与物理证据闭口**：`f261347` 以三枚独立 production
+  反例坐实 R1 仍会把真实多制品、首样本身份漂移与空 SHA 报绿，并确认 crash 无界等待及 SEA
+  重签失败不决定 build status。路线继续未裁；R2 改用独立 assembly 物理闭集、逐样本身份、
+  有效文件摘要、有界 crash 生命周期与成功后发布，残留双列、实测/推论和许可证口径同时闭口。
 - **2026-07-28 · stdio 返修独立验收再拒绝与 tc 状态表闭口**：`4df2e84` 在原 227 绿测之外
   注入 9 枚 production 反例全部见红，坐实 tool→capability 越权、settled effect 被普通 finish/
   新 pending 抹掉、tc 改名/跨 prompt 复用/finished 后倒退、unknown event 逃逸与 pre-operation
