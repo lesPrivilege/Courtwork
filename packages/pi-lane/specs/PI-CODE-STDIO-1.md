@@ -206,13 +206,18 @@ Node v25.9.0 实测：
 
 结论：**保留自研**。
 
-现行 HEAD 的真实缺口只有「任一层重复 member 拒绝」与「number 原始 lexeme」两条。一手核实：
-`secure-json-parse`（MIT，Fastify 系）只防 `__proto__` 与 `constructor` 原型污染，不做重复
-member 与 lexeme；`jsonc-parser`（MIT，Microsoft）提供带偏移的 scanner，据其接口可自建重复
-检测，是唯一值得再核的候选。工作区 store 内现存的 `json-bigint@1.0.0` 属精度分叉、非严格性
-工具，且系他包传递依赖，不得直接消费。票面禁止改 `package.json` 与 lockfile，故「直接依赖」与
-「借行为或源码范式」两项在本票不可选；即便可选，重复 member 判定仍须自写。若架构后续愿开
-依赖，`jsonc-parser` 是复核起点。
+现行 HEAD 的真实缺口只有「任一层重复 member 拒绝」与「number 原始 lexeme」两条。一手复核
+（2026-07-28）：Fastify `secure-json-parse` 当前 package/license 是 **BSD-3-Clause**，不是 MIT；它
+先剥 BOM 后交 `JSON.parse`，再筛 `__proto__`/`constructor`，因此既不保留 number lexeme，也不能满足
+本票的 BOM/framing 与重复 member 门。`json-bigint@1.0.0` 的 `strict:true` 实际会在递归 object parser
+的任意层拒绝 duplicate key，不能笼统写成「非严格」；但它把 number 立刻转为 JS number / BigNumber /
+BigInt（并接受 fraction/exponent），丢失 canonical raw lexeme 且引入数值语义分叉，仍不能替代此 codec。
+它仅为传递依赖，`package.json`/lock 的零改动只排除了**直接依赖**，不等于免除借行为或源码范式复核。
+`jsonc-parser`（MIT，Microsoft）提供 offset/token scanner，但其 scanner 可识别 comment 与 line-break
+trivia、number token 也接受 fraction/exponent；即使借其扫描，仍要保有 duplicate-key stack、LF-only byte
+framing、fatal UTF-8、canonical integer 和全部跨字段 terminal/state validator，不能删除本票的窄边界。
+故本票四选一仍为**保留自研、无新依赖**；后续若架构重开依赖，必须以相同反例证明能删除这些边界，而
+不是只以 package/lock 零差异或换约 200 行 tokenizer 作结论。
 
 ## 待独立验收项
 

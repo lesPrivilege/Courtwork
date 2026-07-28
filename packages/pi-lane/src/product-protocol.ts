@@ -1243,6 +1243,51 @@ function readBudgetView(node: JsonNode): BudgetView {
   };
 }
 
+/**
+ * Terminal 是可单包验证的优先级投影；这里不猜 bootstrap 阈值，
+ * 但绝不接受已经与 ADR-022 六-B.1 优先级相矛盾的组合。
+ */
+function validateTerminalBudget(
+  status: 'completed' | 'budget_stopped' | 'canceled' | 'failed',
+  budget: BudgetView,
+  failureCode?: TerminalFailureCode,
+): void {
+  if (budget.usdLimit === 'unknown' && budget.usd !== null) {
+    fail('invalid_schema', 'usdLimit 为 unknown 时 usd 必须为 null');
+  }
+  if ((budget.usdLimit === 'open' || budget.usdLimit === 'reached') && budget.usd === null) {
+    fail('invalid_schema', '已知金额限额状态必须携带已知 usd');
+  }
+
+  if (status === 'budget_stopped') {
+    if (budget.usdLimit === 'unknown') {
+      fail('invalid_schema', 'budget_stopped 不得携带 unknown usdLimit');
+    }
+    if (budget.turnLimit === 'reached') {
+      if (budget.stopReason !== 'turns') {
+        fail('invalid_schema', 'turnLimit reached 的 budget_stopped 必须以 turns 停止');
+      }
+      return;
+    }
+    if (budget.usdLimit !== 'reached' || budget.stopReason !== 'usd') {
+      fail('invalid_schema', '非 turn reached 的 budget_stopped 必须由 usd reached 停止');
+    }
+    return;
+  }
+
+  if (status === 'failed' && failureCode === 'budget_unknown') {
+    if (budget.usdLimit !== 'unknown') {
+      fail('invalid_schema', 'failed budget_unknown 必须携带 unknown usdLimit');
+    }
+    return;
+  }
+  if (status === 'failed' && failureCode === 'effect_uncertain') return;
+
+  if (budget.turnLimit === 'reached' || budget.usdLimit === 'reached' || budget.usdLimit === 'unknown') {
+    fail('invalid_schema', '此 terminal 不得绕过 effect/budget 优先级');
+  }
+}
+
 function readTerminalPayload(node: JsonNode): Terminal {
   const probe = requireObject(node, 'terminal payload');
   const status = readEnum(pick(probe, 'status', 'terminal'), 'terminal.status', [
@@ -1262,6 +1307,7 @@ function readTerminalPayload(node: JsonNode): Terminal {
     const members = closedRecord(node, 'canceled terminal', ['status', 'reason', 'budget']);
     const budget = readBudgetView(pick(members, 'budget', 'terminal'));
     if (budget.stopReason !== null) fail('invalid_schema', '非 budget terminal 的 budget.stopReason 必须为 null');
+    validateTerminalBudget(status, budget);
     return {
       status,
       reason: readEnum(pick(members, 'reason', 'terminal'), 'terminal.reason', CANCEL_REASONS),
@@ -1278,10 +1324,12 @@ function readTerminalPayload(node: JsonNode): Terminal {
     ]);
     const budget = readBudgetView(pick(members, 'budget', 'terminal'));
     if (budget.stopReason !== null) fail('invalid_schema', '非 budget terminal 的 budget.stopReason 必须为 null');
+    const code = readEnum(pick(errorMembers, 'code', 'error'), 'error.code', TERMINAL_FAILURE_CODES);
+    validateTerminalBudget(status, budget, code);
     return {
       status,
       error: {
-        code: readEnum(pick(errorMembers, 'code', 'error'), 'error.code', TERMINAL_FAILURE_CODES),
+        code,
         message: readString(pick(errorMembers, 'message', 'error'), 'error.message', MAX_TERMINAL_MESSAGE_BYTES),
         retryable: readBoolean(pick(errorMembers, 'retryable', 'error'), 'error.retryable'),
       },
@@ -1296,6 +1344,7 @@ function readTerminalPayload(node: JsonNode): Terminal {
   } else if (budget.stopReason !== null) {
     fail('invalid_schema', '非 budget terminal 的 budget.stopReason 必须为 null');
   }
+  validateTerminalBudget(status, budget);
   return { status, budget };
 }
 

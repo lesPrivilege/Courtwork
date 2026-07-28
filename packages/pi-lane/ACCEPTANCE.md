@@ -51,3 +51,66 @@ R3 不采信实现自述，实际向 production tree 注入后再还原：
 **最终判定：放行 `PI-LANE-1@51c27b6` ✅。** 放行只覆盖以我方容器约束的 pi read lane、开发入口及 R3
 机器门；不放行写/bash、生产 GUI/sidecar 嵌入、journal/确认账本、真 key external validation、sidecar
 签名公证，亦不等同场景线保障或隔离等级提升。
+
+---
+
+# PI-CODE-STDIO-1 独立验收（2026-07-28，拒绝）
+
+目标实现 `223185e9b3197c4c07ab5a4b1e738504d3cd5a80`，验收树
+`/private/tmp/courtwork-accept-pi-code-stdio-1`，分支 `codex/accept-pi-code-stdio-1`；先后精确
+cherry-pick 架构澄清 `e87471f`、`19036b1`，未 merge `main`。实现相对 `00c8dbd` 的五文件范围成立；
+架构三文档变更仅来自指定 cherry-pick。App/apps 零改，App 高水位仍为 2549/2549。
+
+## 先红与验收修复
+
+- 首次定向红为 **1**：`product-protocol.ts:1246` 的 terminal decoder 原只检查
+  `stopReason` 是否存在/为空，接受 `budget_stopped` 无 known reached、`completed/canceled` 携
+  known reached 或 `usdLimit:'unknown'`、以及错误的 `budget_unknown` 组合，违反 ADR-022 六-B.1
+  308–315 行的 stateless 门。
+- 新增 `validateTerminalBudget()`（`product-protocol.ts:1251–1290`）及
+  `product-protocol.test.ts:1014–1075`；它仅拒绝单包可判的优先级矛盾，不猜 bootstrap 的实际阈值。
+  修复后定向 `product-protocol` + `product-stdio` 为 **2 files / 124 tests passed**。
+
+## 独立复核与门禁
+
+- codec source：`product-protocol.ts:437–759` 的 fatal UTF-8、BOM/NUL/surrogate、SP/TAB-only、
+  raw lexeme integer、任层 duplicate、depth、1 MiB/encoder 回灌；`1368–1438` 的六字段 nested
+  packet；`1246–1347` 的 Terminal；stdio `product-stdio.ts:205–520` 的 framing/seq/state，
+  `517–652` 的 tc/op/correlation/cancel，`235–310` 的优先级。
+- 现有定向反例覆盖 nested/flat/extra、duplicate、UTF-8/partial/LF/CRLF/EOF/size、integer 两门、
+  per-leg seq、request/op correlation、late cancel、prior 累计、tc/raw-id、uncertain 和 budget。
+  明确不伪测 Rust/journal 的跨-leg requestId、previous+1 与 historical fold 事实。
+- `node apps/desktop/scripts/assert-isolation-binding.mjs`: EXIT 0（6 host / 22 pi-lane files）。
+- `pnpm -r build`: EXIT 0；`pnpm lint`: EXIT 0；`pnpm --filter @courtwork/desktop lint:app-highwater`: EXIT 0；
+  `pnpm test`（脱离 loopback 限制复跑）: **162 files / 1521 tests passed**。
+- `pnpm exec vitest run packages/pi-lane`: sandbox 首跑的 8 个 localhost sidecar 用例均 5 s timeout；
+  同树、解除该环境限制后 EXIT 0，**10 files / 198 tests passed**，故首跑记环境失败而非产品失败。
+
+## OSS 事实订正
+
+一手读取 Fastify `secure-json-parse` 的当前 `package.json`、LICENSE、`index.js`：license 为
+BSD-3-Clause（非 MIT），实现剥 BOM 后调用 `JSON.parse` 再处理 prototype key。工作区的
+`json-bigint@1.0.0` 源码实核 `strict:true` 会在递归 object parser 任层拒 duplicate key，但数字
+立即化为 number/BigNumber/BigInt，丢失 raw lexeme 并接受 fraction/exponent。Microsoft
+`node-jsonc-parser` 的 scanner 明示 comments/line-break trivia 与 fraction/exponent token；它不能删除
+duplicate-key stack、strict framing/fatal UTF-8、canonical integer 或跨字段 validator。专属回执已作
+前进式事实修正，结论仍为「保留窄自研、无新依赖」。
+
+## Mutation 限制与结论
+
+独立设计的临时 counterexample 文件实际运行为 **12/12 passed**，随后删除（故不改产品树）。逐项
+输入 → 实测如下：flat/mixed header → `invalid_schema`；nested duplicate → `invalid_json`；lone
+continuation byte 与 CRLF → `invalid_json`；合法 bootstrap 的无 LF EOF → sidecar
+`protocol_error:invalid_json`；`seq:1e0` → `invalid_schema`；bootstrap 后 seq 跳至 3 →
+`seq_mismatch`；terminal 后复用 requestId → `duplicate_id`；错误 operationId host_result →
+`request_mismatch`；terminal 后同 request late cancel → 零新包/零 exit；resume supplied prior 3 →
+snapshot `turns:3,usd:0`；completed+turn reached → `invalid_schema`；含 api-key/case-root canary 的
+畸形行 → 输出零泄漏。这些是独立输入/状态反例，**不替代**要求的 production semantic mutation。
+
+尝试对 production codec 作临时 patch（closed-record 放宽；随后仅过度拒绝的 root payload 缺失、
+`expectedInboundSeq=2`）均被执行安全策略拒绝；按派单要求不绕过、不把它们计入红证。因此已取得
+**0/至少 8** 个可计的 production mutation 红证，也无法满足要求的至少 12 类高风险 mutation 证据。
+其余门虽全绿，仍不得放行。
+
+**最终判定：REJECT（证据门未满足，非已知代码回归）**。最小 terminal decoder 修复与 OSS 事实订正可保留；
+须由能获准执行临时“只会过度拒绝/错误关联”的源码 mutation 的独立验收会话补齐并复验，才可改为 PASS。

@@ -999,13 +999,77 @@ describe('terminal / protocol_error payload', () => {
 
   it('BudgetView 闭集与 message 上限', () => {
     expect(decodeSidecarPacketLine(terminal({ status: 'completed', budget: { ...openBudget, usdLimit: 'nope' } })).ok).toBe(false);
-    expect(decodeSidecarPacketLine(terminal({ status: 'completed', budget: { ...openBudget, usd: null, usdLimit: 'unknown' } })).ok).toBe(true);
+    expect(decodeSidecarPacketLine(terminal({ status: 'completed', budget: { ...openBudget, usd: null, usdLimit: 'unknown' } })).ok).toBe(false);
     expect(
       decodeSidecarPacketLine(
         terminal({
           status: 'failed',
           error: { code: 'provider_error', message: 'a'.repeat(1025), retryable: true },
           budget: openBudget,
+        }),
+      ).ok,
+    ).toBe(false);
+  });
+
+  it('拒绝与终态优先级相矛盾的 budget 组合', () => {
+    const reachedTurns = { ...openBudget, turnLimit: 'reached' as const };
+    const reachedUsd = { ...openBudget, usdLimit: 'reached' as const };
+    const unknownUsd = { ...openBudget, usd: null, usdLimit: 'unknown' as const };
+
+    // budget_stopped 必须可由一个已知限额解释，且 stopReason 必须与该限额一致。
+    expect(
+      decodeSidecarPacketLine(
+        terminal({ status: 'budget_stopped', budget: { ...openBudget, stopReason: 'turns' } }),
+      ).ok,
+    ).toBe(false);
+    expect(
+      decodeSidecarPacketLine(
+        terminal({ status: 'budget_stopped', budget: { ...reachedTurns, stopReason: 'usd' } }),
+      ).ok,
+    ).toBe(false);
+    expect(
+      decodeSidecarPacketLine(
+        terminal({ status: 'budget_stopped', budget: { ...reachedUsd, stopReason: 'turns' } }),
+      ).ok,
+    ).toBe(false);
+
+    // 非最高优先级失败与正常终态不能吞掉 known reached / unknown amount。
+    for (const payload of [
+      { status: 'completed', budget: reachedTurns },
+      { status: 'canceled', reason: 'user', budget: reachedUsd },
+      {
+        status: 'failed',
+        error: { code: 'provider_error', message: 'provider failed', retryable: true },
+        budget: reachedTurns,
+      },
+      { status: 'completed', budget: unknownUsd },
+    ]) {
+      expect(decodeSidecarPacketLine(terminal(payload)).ok).toBe(false);
+    }
+
+    expect(
+      decodeSidecarPacketLine(
+        terminal({
+          status: 'failed',
+          error: { code: 'budget_unknown', message: 'unknown cost', retryable: false },
+          budget: openBudget,
+        }),
+      ).ok,
+    ).toBe(false);
+    expect(
+      decodeSidecarPacketLine(
+        terminal({
+          status: 'failed',
+          error: { code: 'effect_uncertain', message: 'uncertain write', retryable: false },
+          budget: reachedTurns,
+        }),
+      ).ok,
+    ).toBe(true);
+    expect(
+      decodeSidecarPacketLine(
+        terminal({
+          status: 'completed',
+          budget: { ...openBudget, usd: null, usdLimit: 'open' },
         }),
       ).ok,
     ).toBe(false);
