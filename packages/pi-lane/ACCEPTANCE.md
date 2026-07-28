@@ -122,3 +122,23 @@ R3 不采信实现自述，实际向 production tree 注入后再还原：
 **最终判定：放行 `PI-WRITE-PROOF-1` ✅。** 放行只到 package/headless proof，并包含验收修复
 `4fee6d2`；不代表产品写面、Rust host durability/no-follow、journal/逐次授权、GUI、workspace 回读或
 external validation 已放行。
+
+## 架构复核补证（2026-07-28）
+
+`8061861` 后按架构复核要求，在同一独立验收树逐一施加**不会扩大能力面**的临时 production
+mutation；每次只用 recording port、运行指定定向断言、立即以反向补丁还原，并在还原后完整复跑
+`workspace-write-env.test.ts` **99/99**。不是编译错、ReferenceError 或 no-op。
+
+| 类别 | 临时 patch | 观察到的有效红证 |
+|---|---|---|
+| metadata/schema identity | `parameters: upstream.parameters` 改成浅复制的新 object | **1 red**：`toBe` Object.is identity 失败，值深相同但 binder schema 不是 upstream 的同一对象。 |
+| sequential 双锁 | binder `executionMode` 设为 `undefined`；真实 Agent fixture 保持显式 `toolExecution:'sequential'`，未运行并行 effect | **1 red**：`undefined !== 'sequential'`，证明 binder 自身锁不可省且不以 Agent 锁替代。 |
+| operation 时点 | 仅把 `allocateOperationId` 移至 `gateWorkspaceWrite` 之前；失败路径仍不发 port | **1 red**：`.txt` 拒绝时 port=0、但 `allocations` 为 `['tc_1_1→op_1_1']`，精确击中 op=0 guard。 |
+| Unicode bytes/hash | 分两次：`byteLength + 1`，再将 content hash 改为 empty bytes hash；均只流向 recording port | byte mutation **2 red**（`备忘😀` 11≠10、普通 request 35≠34）；hash mutation **2 red**（`备忘😀` 与八字段 request 的 SHA-256 都变成 `e3b0…b855`，不等于从原 UTF-8 bytes 独立重算值）。 |
+| env freshness / operation correlation | 在 binder closure 缓存 first env，第二次 call 复用，未触外部 host | **1 red**：两次 allocation 变为 `tc_1_1→op_1_1`, `tc_1_1→op_1_2`，期待的第二 public tc `tc_1_2` 未被使用。 |
+
+本补证共得到 **7 个语义红证**；每个 patch 均已还原，随后全组定向实跑为 **1 file / 99 tests passed**。
+此前 raw-gate 弱化 mutation 仍因安全策略禁止而未执行、亦不计入；没有绕过该限制。R3 弱化同样未注入，
+其已记录的当前树实际命令结果仍为绿，不冒充为本轮 mutation。
+
+**复核后最终判定：放行 `PI-WRITE-PROOF-1` ✅。**
