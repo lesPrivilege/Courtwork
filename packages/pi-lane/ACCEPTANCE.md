@@ -1,3 +1,68 @@
+# PI-SIDECAR-DIST-1 独立验收（2026-07-28，拒绝）
+
+对象：`codex/pi-sidecar-dist-1@3207b27`；实施基线
+`00c8dbdbad466f0ab2edbf9083cda2998b659de7`。验收在独立 clean worktree
+`/private/tmp/courtwork-accept-pi-sidecar-dist-1` 的
+`codex/accept-pi-sidecar-dist-1` 分支进行。未合并、未推送、未改生产源码或 ADR。
+
+**判定：拒绝，不能据此裁定分发路线。** 这不是路线甲/乙的功能反证；是实验装置没有把
+自身的关键判据做成失败条件，且本验收无法在通过 Node 来源完整性门的前提下复跑二进制制品。
+
+## 范围、依赖与可复建的静态部分
+
+- `00c8dbd..3207b27` 恰为 14 文件：fixture 10 文件、独立工程报告、独占回执、
+  `packages/pi-lane/package.json` 与根 lockfile；无 `apps/**`、无
+  `packages/*/src`、无父级 SPEC/ADR 改动，符合票面范围。
+- exact devDependency 复核为 `esbuild@0.28.1` 与
+  `postject@1.0.0-alpha.6`；后者的唯一传递项为 `commander@9.5.0`。本地安装后逐份读取
+  `LICENSE.md`/`LICENSE`，三者均为 MIT；production dependency 未变化。
+- 使用隔离树的 Node v25 只复建 bundle（**不是 Node 22 制品复验**）：三种 minified bundle
+  均为 959 inputs、零 warning，SHA 精确重现报告的
+  `34b11452…`（ESM naive）、`463e75a5…`（ESM + createRequire）与
+  `33ae7197…`（CJS）；SEA 输入 CJS 与 sealed CJS 亦逐字节相同。
+  同环境 ESM naive 实际以 `Dynamic require of "process" is not supported` 退出 1，
+  createRequire 形态可启动，CJS 的 ping/UTF-8 echo 可通。这只复核 bundle/反例，不能替代
+  Node 22 SEA、双架构、冷启或签名结论。
+
+## 拒绝理由
+
+1. **量测不会因关键语义失败而判红。**
+   [`measure.mjs`](fixtures/sidecar-dist/scripts/measure.mjs) 只把 `stdio()` 的 pong、三项 payload、`init`、tool loop 和
+   EOF 结果序列化；它在这些任一缺失/不匹配时仍从 207 行返回 `status: 'ok'`。`abort()` 在
+   246 行只以收到了 `slow-ended` 判 `ok`，不要求 `stopReason === 'aborted'` 或
+   `survivedAbort === true`；`crashes()` 在 279 行也不核对异常/exit/SIGKILL/SIGTERM 的预期
+   code/signal。故「八枚全过」没有由装置自动证伪，不能充当验收证据。须先将上述语义变为
+   非零/failed 条件，并为每类各注入一枚反例观察变红。
+2. **独立 Node 22 重放被来源门正确阻断。** 从报告指定的官方 URL 下载后，arm64 archive
+   为 49,274,880 B、SHA `8fec0b59…`（期望 `ef28d8fa…`）；x64 archive 虽为
+   51,245,086 B，SHA 为 `358e430c…`（期望 `b8da981b…`）且 `tar -tzf` 报 truncated input。
+   `extract-runtime.mjs` 因此拒绝继续。这是本验收环境的传输/缓存异常，**不推断为上游文件
+   变更**；但在取得通过官方 checksum 的 archive 前，无法独立确认 SEA 注入、八制品启动、
+   abort/crash、三轮冷启与 ad-hoc 签名读数。
+3. **两处回执精度漂移。** fixture README 仍写 clean 为 `~1.4 GiB`，与
+   `3207b27` 已订正的 2.27 GiB 相冲突；并且仓库根没有 `lint:isolation-binding` script，
+   无限定的 `pnpm lint:isolation-binding` 实测 exit 254。正确命令
+   `pnpm --filter @courtwork/desktop lint:isolation-binding` 本验收 exit 0。报告与 README
+   应写完整可执行命令及同一残留数。
+
+## 已实跑门与环境说明
+
+- `pnpm -r build`、`pnpm lint`：通过。
+- root `pnpm test`：受限沙箱下仅 8 个 localhost sidecar 例统一超时，其余
+  1389/1397 通过；在独立提升环境复跑为 **160 files / 1397 tests passed**。
+- `pnpm --filter @courtwork/desktop lint:isolation-binding`：通过，输出扫描 6 份宿主源码与
+  18 份 pi-lane 源码、等级 `none`。
+
+## 复验后才可放行的最小条件
+
+1. 修复量测的 pass/fail 聚合，实际注入 stdout、abort 与四类 crash 的反例并留红证；
+2. 使用 checksum 通过的官方 Node 22 arm64/x64 archives，从空 `dist/` 重建两路线；
+3. 重跑八制品的功能/abort/crash、三轮冷启、default/code-cache 可复现性及 sign-probe；
+4. 统一 README/报告/回执的清理体积和 isolation gate 命令。路线选择及 entitlements 归票仍是
+   **[需架构拍板]**，验收不作裁定。
+
+---
+
 # PI-LANE-1 独立验收（2026-07-27，放行）
 
 对象：`codex/pi-lane-1@51c27b6`；基线：`01f4ac7`。验收由独立会话在 clean target tree
