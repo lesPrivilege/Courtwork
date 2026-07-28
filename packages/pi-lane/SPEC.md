@@ -190,14 +190,50 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   EOF；`jsonc-parser` 虽能提供 offset/token，但仍须自写 duplicate-key stack、canonical integer、
   strict trivia/framing 与全部跨字段状态门，不能减少概念数。后续若重开依赖选型，必须以 exact
   stable version 的相同反例 spike 证明能删除现有边界，而非只替换约 200 行 tokenizer。
+- `PI-CODE-STDIO-1` 的实现 `79a13d2` 经独立验收修复 `0ffae46` 后仍由 6 枚临时反例坐实
+  3 blockers + 2 majors，结论为 **REJECT**；build/test 全绿不改变此结论。返修票
+  `PI-CODE-STDIO-1R` 只许改同四份 source/test 与专属
+  `specs/PI-CODE-STDIO-1R.md` 回执，基线为验收报告 tip，不得改旧回执、ACCEPTANCE、父级
+  SPEC/ADR、index/env/tools/session/package/lock、Rust/Tauri 或 GUI：
+  1. `PromptCompletion` 删除自由 message，精确 union 为
+     `completed | provider_error/host_error + retryable:boolean |
+     invalid_state/unknown + retryable:false`；其余三种 failure 不得由 runtime 构造。terminal
+     message 每 code 一枚本地 source literal（措辞非 wire ABI）；即使 cast 塞入 secret/绝对
+     路径或 callback 抛含 canary Error，也不得出 wire/error/cause。
+  2. upstream 违约时若有 pending operation，闩锁失败而不清 pending、不提前 terminal；停止后续
+     runtime 输出，仍接受当前 request 至多一次 cancel，只待严格匹配 host_result。进入闩锁即把
+     usd 传染 null；result 先解 deferred，状态机再基于保存的 tc/toolName/status 自行发恰一枚
+     tool_finished 并自动 terminal，不等 runtime finish。uncertain 必收束 effect_uncertain，
+     其他结果按原优先级关闭；host_result 已到、tool_finished 未到的 race 同样闭合。
+  3. 五个 runtime callback 共用 callback-depth guard；同步 inbound reentry 在触碰
+     carry/seq/phase/wire/exit 前抛，`finally` 复位；`startPrompt` 的合法同步 outbound 不受禁。
+     未捕获 callback Error 只换成固定无 cause `ProductSidecarError`；闩锁收束期 callback Error
+     不得再次丢 effect。
+  4. 关闭 write proof→stdio 接缝：删 `ProductSidecarSessionOptions.hashProposal` 与会二次铸 op/
+     hash 的一段式 `requestHost`，改为 `reserveHostOperation({publicToolCallId,capability})` +
+     `sendReservedHostRequest(existing request)`。reserve 后 hash 失败只烧 ordinal；send 原样消费
+     proof 的 op/hash，零预测、零重算、零 shared-current。reservation 保存 public tc/toolName。
+  5. pending 保存 send 入参的一次不可变镜像；全部 status 比 request/op/capability/operation，
+     只有 ok 再比 value：write 比 `logicalPath/contentSha256/byteLength`，
+     exists/read_file/list 比 logicalPath；错值 fatal 且 runtime consumer 零调用。正常 write
+     的 tool_finished outcome 也必须与已保存 host status 一致。
+  6. Terminal decoder 对 `budget_unknown|effect_uncertain|upstream_event_unsupported|
+     invalid_state|unknown` 强制 `retryable:false`。
+  TDD 首红必须直接落在上述现有缺陷而非 stub/module load；六项各做有效 production mutation，
+  write 三个镜像字段分别撤门也须逐项红，另锁五 callback reentry、reserve/send 的同 op/hash、
+  pending `ok/denied/failed/uncertain`、host_result-before-violation race、cancel 与 usd taint、
+  canary。完成后仍只叫“待独立复验”，不得自放行；原验收要求的 semantic mutation 证据缺口由
+  后续独立验收补齐。
 - `PI-SIDECAR-DIST-1` 只改 `packages/pi-lane/fixtures/sidecar-dist/`、独立报告
   `docs/engineering/pi-sidecar-dist-1.md` 与自己的回执行；做 Node 22 LTS sealed bundle vs SEA
   实验，不改生产 wire/session。若实验必须引 exact MIT/Apache 工具，只允许该票改
   `packages/pi-lane/package.json` 与根 lockfile，并须在报告逐包记 license/用途/移除结论。
-- 三票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。实现会话
-  分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
+- 原三张并行票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。
+  原实现会话分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
   `specs/PI-SIDECAR-DIST-1.md` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering
-  report，仅在其专属回执写链接与结论。
+  report，仅在其专属回执写链接与结论。返修票不属于这组三票：`PI-CODE-STDIO-1R` 组合基线为
+  `codex/accept-pi-code-stdio-1@cfb4715` 加本节所在架构提交，实现者只更新新回执并在其中记录
+  cherry-pick 后的目标 SHA。
 - 后续 `PI-WRITE-HOST-1` 才把 port 接到 Rust exact 同版本
   `cap-std/cap-fs-ext/cap-tempfile@4.0.2` workspace、逐段 no-follow、授权与 journal；
   `PI-WORKSPACE-READ-1` 再让既有 read/glob/grep 显式路由逻辑 `/workspace` 并跨重启回读，同时
@@ -241,6 +277,7 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 
 - [`PI-WRITE-PROOF-1`](specs/PI-WRITE-PROOF-1.md)
 - [`PI-CODE-STDIO-1`](specs/PI-CODE-STDIO-1.md)
+- [`PI-CODE-STDIO-1R`](specs/PI-CODE-STDIO-1R.md)
 - [`PI-SIDECAR-DIST-1`](specs/PI-SIDECAR-DIST-1.md)
 
 ## 十 · 门与证据

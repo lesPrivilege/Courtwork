@@ -253,8 +253,16 @@ pi 的 `agent_start/turn_start/message_start/message_end/agent_end` 仅作本地
 message/args/result。上游新增未知 event/tool name 时 terminal
 `failed + upstream_event_unsupported`，不能静默吞掉或塞 raw JSON。
 
+runtime 向状态机报告失败时只给结构化 code/retryability，**不得给自由 message**。sidecar 的
+terminal message 只能由本地固定 code→安全文案表产生，不能拼接或截断后转发 provider body、
+runtime error、host error、bootstrap secret/path 或任意调用方字符串；截断只是长度门，不是脱敏。
+runtime 可报告的普通失败只限 `provider_error|host_error|invalid_state|unknown`，预算、effect 与
+upstream 投影失败均由状态机自身判定。具体措辞不是 wire ABI，但每个 code 必须映到独立的本地
+source literal 并由 snapshot 锁住；不得用插值、`String(error)` 或 `error.message`。
+
 per-leg **write** tool registry 至少区分
-`started → validated → raw_gate_passed → operation_pending(op) → host_result(status)`；阶段只能
+`started → validated → raw_gate_passed → operation_reserved(op,tc) →
+operation_pending(snapshot) → host_result(status) → operation_settled → tool_finished`；阶段只能
 单向推进。write 在 **operation 尚未创建** 时的 finished 只按本地阶段事实分型：
 
 - TypeBox/参数 validation、raw extra/type/path alias/content-size 失败，或 host_request 前 abort
@@ -262,6 +270,24 @@ per-leg **write** tool registry 至少区分
 - 只有明确的 capability 未授权、用户拒绝或 policy deny → `denied`；
 - 任何其他 start 后、operation 前的未知结束 → `failed`，随后 prompt 以
   `upstream_event_unsupported` 关闭，不从通用 error message 猜类型。
+
+`workspace-write-env` 已冻结为“gate 后由 registry 分配 op → 用该 op 计算 proposalHash → port
+发送含同一 op/hash 的八字段 request”。product stdio 必须提供与之同构的两段式内部 API：
+
+```ts
+reserveHostOperation({ publicToolCallId, capability }): operationId
+sendReservedHostRequest({
+  sessionId, requestId, operationId, capability, proposalHash, arguments
+}): void
+```
+
+`WorkspaceWriteRegistry.allocateOperationId(tc)` 的生产实现委托第一段；
+`WorkspaceWritePort.write(request)` 原样把既有 request 交第二段。第二段只接受本 prompt 中仍
+有效、tc/capability 相同的 reservation，随后把一次复制的 request snapshot 同时用于出包与
+pending correlation；它**不得**再分配 op、重算 proposalHash 或读取私有 current-operation。
+reserve 只可发生在所有本地 gate 之后；若其后的异步 hash 在 send 前失败，ordinal 永久烧号但
+不出 wire、不成为 pending、不得复用。该烧号不是 effect/journal 事实。product stdio 不再持有
+第二枚 `ProposalHasher`。
 
 一旦进入 `operation_pending`，write 的 `tool_finished.outcome` **只认对应
 `host_result.status`**，不认上游 tool result 的 `isError`。0.82.1 在 `writeFile` 成功后若 signal
@@ -271,6 +297,31 @@ per-leg **write** tool registry 至少区分
 分型。read/glob/grep 无 effect，才可由其已脱敏执行阶段与结果映射 outcome；它们若一次 tool
 需要多次 host operation，registry 可重复 `operation_pending → host_result` 子循环，但每轮都铸
 新 op，不能复用 write 的单-operation 假设。
+
+upstream 投影违约一律把累计 `usd` 传染为 null：该事件已证明 provider turn 在跑，但合法
+`turn_finished`/usage 闭合已不可再信。若 maxUsd 启用，后续 `budget_unknown` 因此高于普通
+upstream failure。
+
+若违约时仍有 `operation_pending`，或 host_result 已到但对应 write 尚未合法
+`tool_finished`，状态机进入 `pending_upstream_failure`，不得用 force 清空或提前发普通 failed：
+
+1. 等待期停止新的 runtime delta/event/host request/finish；host inbound 仍只接受当前 request
+   至多一次合法 cancel 与该 operation 的严格匹配 host_result。cancel 仍调用受 guard 包裹的
+   runtime cancel，但其 callback 失败不得阻断 effect 收束。
+2. host_result 未到时不得 terminal。到达后先做全部 correlation；把 result 交 runtime
+   consumer 以解开既有 deferred，但 callback 的返回或异常不再拥有终态。
+3. 状态机保存 reservation 中的 public tc/toolName，并从 host status **自行发恰一枚**
+   `tool_finished`：write 逐字映射 `ok→succeeded / denied→denied / failed→failed /
+   uncertain→uncertain`；read 若因本异常路径被迫中止，`denied→denied`，其余合法 status
+   收为 failed。若 result 在违约前已经合法收下但 tool_finished 尚未到，同样消费已保存的
+   outcome，不再等第二枚 result。
+4. 随后由状态机自动按
+   `effect_uncertain > budget_unknown > known limit > cancel > upstream_event_unsupported`
+   发 terminal，不依赖 runtime 再调 finish。对应 runtime 的迟到 event/finish 不得产生第二枚
+   wire packet。
+
+错 op、错 request 或错 capability/operation/value 仍是 host wire 违约，不能借闩锁降格或忽略。
+若违约前该 operation 的 `tool_finished` 已合法发布，则 effect 已闭合，直接按同一优先级 terminal。
 
 ```ts
 type BudgetView = {
@@ -284,9 +335,10 @@ type Terminal =
   | { status: 'completed' | 'budget_stopped'; budget: BudgetView }
   | { status: 'canceled'; reason: 'user' | 'host'; budget: BudgetView }
   | { status: 'failed';
-      error: { code: 'provider_error' | 'host_error' | 'budget_unknown' |
-                       'effect_uncertain' | 'upstream_event_unsupported' |
-                       'invalid_state' | 'unknown'; message: string; retryable: boolean };
+      error:
+        | { code: 'provider_error' | 'host_error'; message: string; retryable: boolean }
+        | { code: 'budget_unknown' | 'effect_uncertain' | 'upstream_event_unsupported' |
+                  'invalid_state' | 'unknown'; message: string; retryable: false };
       budget: BudgetView }
   | { status: 'shutdown' };
 ```
@@ -313,7 +365,8 @@ decoder 还必须拒绝与上述优先级自相矛盾的单包 Terminal：`budge
 `failed + effect_uncertain` 因优先级最高可与其他 budget 状态并存。另锁
 `usdLimit:'unknown' → usd:null`、`usdLimit:'open'|'reached' → usd` 为已知数；
 是否精确达到 bootstrap 中的 maxTurns/maxUsd 仍由持 session 配置的一侧校验，不在无状态 codec
-猜阈值。
+猜阈值。decoder 同时执行 retryability 闭集：只有 `provider_error|host_error` 可携
+`retryable:true`；其余五种 failed code 必须为 false。
 
 其他非 budget terminal 的 `stopReason` 为 null；failed error message 同样最多
 1024 UTF-8 bytes且不得带 raw provider body、secret 或物理路径。bootstrap 的
@@ -333,6 +386,16 @@ Rust 不得启动新 leg；其中前两种只凭当前 bootstrap 即可判定的
 `invalid_json | packet_too_large | invalid_schema | unsupported_version | unknown_type |
 seq_mismatch | session_mismatch | request_mismatch | state_violation | duplicate_id`。fatal error 发出后
 不得继续收发，sidecar 非零退出；secret/path canary 不得出现在 message。
+
+注入 runtime 的 `capabilities/startPrompt/cancel/deliverHostResult/shutdown` 都是同步可重入
+边界。状态机须以同一 callback-depth guard 包裹五者；callback 尚未返回时同步调用
+`receive/endOfInput` 属 runtime 编程错误，必须在消费字节、推进 seq/phase、写 wire 或 exit 前抛
+`ProductSidecarError`。该 guard 不禁止 `startPrompt` 同步调用合法的 outbound API；所有 guard
+都须 `finally` 复位，callback 返回后也不得无条件覆盖已经 closed/terminal 的状态。任一 runtime
+callback 抛出的原 Error/message/cause 均不得转发或保留；普通路径只向 driver 重抛一枚固定字面量、
+无 cause 的 `ProductSidecarError`。`pending_upstream_failure` 已进入 effect 收束后，cancel/
+host-result consumer 的 callback 异常只作固定内部失败并继续上述收束，不能再次丢 pending。
+transport 是单向 stdio adapter，不属于 runtime callback，契约上禁止同步回调 session。
 
 #### 六-B.2 · workspace request/result 与跨平台逻辑路径
 
@@ -392,6 +455,14 @@ proposal hash 不引入自研 canonical JSON。定义
   `name` 必须是单个合法 segment，`byteLength` 对 file 为非负安全整数、对 directory/symlink
   为 `null`，`mtimeMs` 为非负安全整数或 `null`；wire 的 `symlink` 是“不跟随链接”的统一投影，
   Windows junction/mount point/name-surrogate reparse point 也归此类，只可列名，永不读取。
+
+codec 只证明 result 自身形状合法；有 pending 真值的状态机还必须保存**实际发出包的不可变镜像
+字段**并逐值关联，不能只比较 operationId/capability/operation，也不能在回包时重读 runtime
+仍可变的 arguments 对象。全部 status 都比较 requestId/operationId/capability/operation；
+仅 `status:'ok'` 的 value 再逐值比较：write 比
+`logicalPath/contentSha256/byteLength`，exists/read_file/list 比 `logicalPath`。非 ok 没有
+value，不虚构比较。任一错配以 `request_mismatch` fatal，且不得调用 runtime 的
+host-result consumer。
 
 `denied` 只含 `{code:'user_denied'|'policy_denied',message}`；`failed` 只含
 `{code:'invalid_path'|'not_found'|'not_directory'|'is_directory'|'symlink_forbidden'|
@@ -651,6 +722,12 @@ STDIO 票只新增 strict codec、可注入 stdio machine 与定向测试，不�
 
 ## 修订记录
 
+- **2026-07-28 · stdio 独立验收拒绝后的安全闭口**：独立反例坐实 runtime message 泄漏、
+  pending effect 被 force 丢弃、runtime 同步 inbound 重入复活、host-result 值未关联与安全终态
+  `retryable:true` 五类缺陷；相邻 write proof 交叉复核再发现 op/hash 会在 stdio 被二次生成。
+  冻结固定安全文案、pending failure 闩锁及自动收束、五 callback reentrancy guard、逐值
+  correlation、retryability 闭集与 reserve→send 单一 op/hash 接缝；不改变 wire 字段或既定
+  终态优先级。
 - **2026-07-28 · stdio packet 形态与 Terminal 互洽门拍板**：明确五字段 `Header` 只是公共投影，
   完整 packet 顶层恰六字段且业务字段统一嵌套在 `payload`；flat v1 必拒。把既有终态优先级可由
   单包判定的反例写成 decoder 门，不改变预算优先顺序。
