@@ -1075,6 +1075,38 @@ describe('terminal / protocol_error payload', () => {
     ).toBe(false);
   });
 
+  it('R6 · retryability 闭集：只有 provider_error / host_error 可携 retryable:true', () => {
+    const unknownUsd = { ...openBudget, usd: null, usdLimit: 'unknown' as const };
+    // 每枚 code 都配一枚自身合法的 budget，使红只可能来自 retryability 门。
+    const closedSet = [
+      ['budget_unknown', unknownUsd],
+      ['effect_uncertain', openBudget],
+      ['upstream_event_unsupported', openBudget],
+      ['invalid_state', openBudget],
+      ['unknown', openBudget],
+    ] as const;
+
+    for (const [code, budget] of closedSet) {
+      expect(
+        decodeSidecarPacketLine(terminal({ status: 'failed', error: { code, message: 'x', retryable: false }, budget })).ok,
+        `${code} + retryable:false`,
+      ).toBe(true);
+      expect(
+        decodeSidecarPacketLine(terminal({ status: 'failed', error: { code, message: 'x', retryable: true }, budget })).ok,
+        `${code} + retryable:true`,
+      ).toBe(false);
+    }
+
+    for (const code of ['provider_error', 'host_error'] as const) {
+      for (const retryable of [true, false]) {
+        expect(
+          decodeSidecarPacketLine(terminal({ status: 'failed', error: { code, message: 'x', retryable }, budget: openBudget })).ok,
+          `${code} + ${retryable}`,
+        ).toBe(true);
+      }
+    }
+  });
+
   it('protocol_error fatal 恒真、code 闭集、message 上限', () => {
     const error = (payload: unknown, sessionId: string | null = null): Uint8Array =>
       json({ protocolVersion: 1, seq: 1, sessionId, requestId: null, type: 'protocol_error', payload });

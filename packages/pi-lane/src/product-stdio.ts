@@ -19,6 +19,7 @@ import {
   LINE_DELIMITER,
   MAX_PACKET_BYTES,
   MAX_TERMINAL_MESSAGE_BYTES,
+  SHA256_HEX_PATTERN,
   decodeHostPacketLine,
   encodePacketLine,
   utf8ByteLength,
@@ -28,6 +29,7 @@ import {
   type BudgetView,
   type CancelReason,
   type HostResultPayload,
+  type HostResultStatus,
   type ProductToolName,
   type ProtocolErrorCode,
   type SafeToken,
@@ -38,9 +40,9 @@ import {
   type TurnStopReason,
   type TurnUsage,
   type WorkspaceCapability,
+  type WorkspaceHostRequest,
   type WorkspaceOperation,
   type WorkspaceReadArguments,
-  type WorkspaceRequestArguments,
   type WorkspaceWriteArguments,
 } from './product-protocol.js';
 
@@ -51,6 +53,25 @@ export class ProductSidecarError extends Error {
     this.name = 'ProductSidecarError';
   }
 }
+
+/**
+ * terminal message 的**唯一**来源：每个 code 一枚独立的本地 source literal。
+ * 措辞不是 wire ABI，但「不拼接、不插值、不转发」是——runtime error、provider body、
+ * host error 与 bootstrap 的 secret/物理路径都不得由此出包（ADR-022 六-B.1）。
+ */
+const TERMINAL_MESSAGES: Readonly<Record<TerminalFailureCode, string>> = {
+  provider_error: 'provider 调用失败，本轮未能完成',
+  host_error: '宿主操作失败，本轮未能完成',
+  budget_unknown: '已启用金额限额，但存在费用未知的回合',
+  effect_uncertain: '目标可能已是完整新版本，落盘无法证明',
+  upstream_event_unsupported: '上游事件序列不在投影闭集内',
+  invalid_state: '状态机收到不合法的状态转移',
+  unknown: '未归类的失败',
+};
+
+/** runtime callback 抛出时对 driver 的**唯一**答复：固定字面量、无 cause。 */
+const RUNTIME_CALLBACK_FAILED = '注入 runtime 的 callback 抛出，原错误不予转发';
+const REENTRANT_INBOUND = 'runtime callback 未返回时不得同步调用 receive / endOfInput';
 
 /** 注入的传输面。`write` 收到的是**整行**（已含结尾 LF）。 */
 export interface ProductSidecarTransport {
@@ -72,19 +93,6 @@ export interface ProductSidecarRuntime {
   shutdown(): void;
 }
 
-/**
- * proposalHash 由注入件计算。ADR-022 六-B.2 的 frame 拼接归
- * `PI-WRITE-PROOF-1` 的 `workspace-write-env` 所有；本票只铸 operationId、校验 **hash 格式**，
- * 不复制第二份 hash 实现。
- */
-export type ProposalHasher = (input: {
-  capability: 'workspace_write' | 'workspace_read';
-  sessionId: SafeToken;
-  requestId: SafeToken;
-  operationId: SafeToken;
-  arguments: WorkspaceRequestArguments;
-}) => string;
-
 /** runtime 发出的 agent event：只给 raw tool call id，公开 tc 由状态机铸造并替换。 */
 export type OutboundAgentEvent =
   | { kind: 'assistant_text_delta'; delta: string }
@@ -104,14 +112,40 @@ export type OutboundAgentEvent =
       stopReason: TurnStopReason;
     };
 
-export type OutboundHostRequest =
-  | { capability: 'workspace_write'; arguments: WorkspaceWriteArguments }
-  | { capability: 'workspace_read'; arguments: WorkspaceReadArguments };
+/** 两段式接缝第一段的入参：预留 op 时只认公开 tc 与能力，不碰 arguments。 */
+export type HostOperationReservation = {
+  publicToolCallId: SafeToken;
+  capability: 'workspace_write' | 'workspace_read';
+};
 
-/** runtime 报告的原始收束；最终 terminal 仍由状态机按 ADR 优先级矩阵裁定。 */
+/**
+ * 两段式接缝第二段的入参，逐字同构 `WorkspaceWritePort.write(request)` 的八字段 request。
+ * op 与 proposalHash 由**调用方**（`workspace-write-env` 的 registry / hasher）给出，
+ * 状态机原样消费：零预测、零重算、零 shared-current。
+ */
+export type ReservedHostRequest = {
+  sessionId: SafeToken;
+  requestId: SafeToken;
+  operationId: SafeToken;
+  proposalHash: string;
+} & (
+  | { capability: 'workspace_write'; arguments: WorkspaceWriteArguments }
+  | { capability: 'workspace_read'; arguments: WorkspaceReadArguments }
+);
+
+/**
+ * runtime 报告的原始收束；最终 terminal 仍由状态机按 ADR 优先级矩阵裁定。
+ *
+ * 精确闭集，**没有自由 message**：预算、effect 与上游投影三类失败只能由状态机自行判定，
+ * runtime 不得构造；能重试的也只有 provider/host 两枚。
+ */
 export type PromptCompletion =
   | { kind: 'completed' }
-  | { kind: 'failed'; code: TerminalFailureCode; message: string; retryable: boolean };
+  | { kind: 'failed'; code: 'provider_error' | 'host_error'; retryable: boolean }
+  | { kind: 'failed'; code: 'invalid_state' | 'unknown'; retryable: false };
+
+/** 状态机内部的终态意图：比 {@link PromptCompletion} 多出它**自己**才能判定的三枚 code。 */
+type TerminalIntent = { kind: 'completed' } | { kind: 'failed'; code: TerminalFailureCode; retryable: boolean };
 
 export type SessionPhase = 'awaiting_bootstrap' | 'idle' | 'prompting' | 'closed';
 
@@ -132,7 +166,6 @@ export type SessionSnapshot = {
 export interface ProductSidecarSessionOptions {
   transport: ProductSidecarTransport;
   runtime: ProductSidecarRuntime;
-  hashProposal: ProposalHasher;
 }
 
 export interface ProductSidecarSession {
@@ -142,11 +175,42 @@ export interface ProductSidecarSession {
   endOfInput(): void;
 
   publishAgentEvent(event: OutboundAgentEvent): void;
-  /** 铸 op、发 `host_request`，返回 operationId。只有真发包才分配 op。 */
-  requestHost(request: OutboundHostRequest): SafeToken;
+  /**
+   * 接缝第一段：所有本地 gate 之后预留 operationId。
+   * 其后的异步 hash 若失败而不 send，该 ordinal 永久烧号——不出 wire、不成为 pending、不得复用。
+   */
+  reserveHostOperation(reservation: HostOperationReservation): SafeToken;
+  /** 接缝第二段：原样消费调用方已铸的 op 与已算的 proposalHash，发出 `host_request`。 */
+  sendReservedHostRequest(request: ReservedHostRequest): void;
   finishPrompt(completion: PromptCompletion): void;
 
   snapshot(): SessionSnapshot;
+}
+
+/** 已发出 request 的**不可变镜像**；host_result 只与它比对，绝不回读 runtime 仍可变的对象。 */
+type PendingOperation = {
+  operationId: SafeToken;
+  requestId: SafeToken;
+  toolCallId: SafeToken;
+  toolName: ProductToolName;
+  capability: 'workspace_write' | 'workspace_read';
+  operation: WorkspaceOperation;
+  logicalPath: string;
+  /** 只有 write 有这两枚镜像字段；read 一律 null，不虚构比较。 */
+  contentSha256: string | null;
+  byteLength: number | null;
+};
+
+/** host_result 已合法收下、对应 write 的 `tool_finished` 尚未发布的中间态。 */
+type SettledWrite = { toolCallId: SafeToken; toolName: ProductToolName; status: HostResultStatus };
+
+/**
+ * write 进入 `operation_pending` 后，`tool_finished.outcome` **只认** host status，
+ * 不认上游 tool result 的 `isError`；read 被异常路径迫停时只保 denied，其余合法 status 收为 failed。
+ */
+function outcomeFromHostStatus(toolName: ProductToolName, status: HostResultStatus): ToolOutcome {
+  if (toolName === 'write') return status === 'ok' ? 'succeeded' : status;
+  return status === 'denied' ? 'denied' : 'failed';
 }
 
 const EMPTY = new Uint8Array(0);
@@ -169,7 +233,7 @@ function normalizeCapabilities(input: readonly WorkspaceCapability[]): Workspace
 export function createProductSidecarSession(
   options: ProductSidecarSessionOptions,
 ): ProductSidecarSession {
-  const { transport, runtime, hashProposal } = options;
+  const { transport, runtime } = options;
 
   let phase: SessionPhase = 'awaiting_bootstrap';
   let sessionId: SafeToken | null = null;
@@ -196,11 +260,55 @@ export function createProductSidecarSession(
   const canceledRequestIds = new Set<SafeToken>();
   /** 本 leg 的 raw→公开 tc 映射。跨 leg 唯一性靠 leg 前缀 + Rust 的 previous+1 校验。 */
   const toolCallIds = new Map<string, SafeToken>();
+  /** 公开 tc→toolName：reservation 与闩锁收束都要凭它自行发 `tool_finished`。 */
+  const toolNames = new Map<SafeToken, ProductToolName>();
   const resolvedOperationIds = new Set<SafeToken>();
-  let pending: { operationId: SafeToken; capability: WorkspaceCapability; operation: WorkspaceOperation } | null =
-    null;
+  let pending: PendingOperation | null = null;
+  let settledWrite: SettledWrite | null = null;
+  /** `pending_upstream_failure`：不清 pending、不提前 terminal，只等 effect 收束。 */
+  let upstreamLatched = false;
+  let reservation:
+    | { operationId: SafeToken; requestId: SafeToken; toolCallId: SafeToken; toolName: ProductToolName; capability: 'workspace_write' | 'workspace_read' }
+    | null = null;
   let toolCallOrdinal = 0;
   let operationOrdinal = 0;
+  /** 五枚 runtime callback 共用；>0 时同步 inbound 属 runtime 编程错误。 */
+  let callbackDepth = 0;
+
+  /**
+   * 包裹全部五枚 runtime callback。两件事同时成立：
+   * 1. 期间的同步 `receive`/`endOfInput` 被 {@link assertNotInsideCallback} 拒；
+   * 2. 逃逸的原 Error/message/cause 一律不转发，只换成固定字面量、无 cause 的错误。
+   */
+  function invokeRuntime<T>(call: () => T): T {
+    callbackDepth += 1;
+    try {
+      return call();
+    } catch {
+      throw new ProductSidecarError(RUNTIME_CALLBACK_FAILED);
+    } finally {
+      callbackDepth -= 1;
+    }
+  }
+
+  /** 闩锁收束期专用：callback 的二次失败不得再次丢掉已发生的 effect。 */
+  function invokeRuntimeSuppressed(call: () => void): void {
+    try {
+      invokeRuntime(call);
+    } catch (error) {
+      if (!(error instanceof ProductSidecarError)) throw error;
+    }
+  }
+
+  function assertNotInsideCallback(): void {
+    if (callbackDepth > 0) throw new ProductSidecarError(REENTRANT_INBOUND);
+  }
+
+  function requireNotLatched(): void {
+    if (upstreamLatched) {
+      throw new ProductSidecarError('上游违约收束中，不再接受新的 runtime 输出');
+    }
+  }
 
   function emit(packet: Omit<SidecarPacket, 'protocolVersion' | 'seq'>): boolean {
     const encoded = encodePacketLine({ protocolVersion: 1, seq: nextOutboundSeq, ...packet } as SidecarPacket);
@@ -245,21 +353,22 @@ export function createProductSidecarSession(
    * 注意最后一档：limit reached 压过 runtime 自己报的 provider/host 失败，这是 ADR 的明文次序，
    * 不是本实现的取舍。
    */
-  function resolveTerminal(completion: PromptCompletion, budget: BudgetView): Terminal {
-    if (effectUncertain) {
-      return {
-        status: 'failed',
-        error: { code: 'effect_uncertain', message: '目标可能已是完整新版本，落盘无法证明', retryable: false },
-        budget,
-      };
-    }
-    if (maxUsd !== null && usd === null) {
-      return {
-        status: 'failed',
-        error: { code: 'budget_unknown', message: '已启用金额限额，但存在费用未知的回合', retryable: false },
-        budget,
-      };
-    }
+  function failedTerminal(code: TerminalFailureCode, retryable: boolean, budget: BudgetView): Terminal {
+    return {
+      status: 'failed',
+      // retryability 闭集与 decoder 同源：只有 provider/host 两枚可重试，cast 也翻不过来。
+      error: {
+        code,
+        message: TERMINAL_MESSAGES[code],
+        retryable: (code === 'provider_error' || code === 'host_error') && retryable,
+      },
+      budget,
+    };
+  }
+
+  function resolveTerminal(intent: TerminalIntent, budget: BudgetView): Terminal {
+    if (effectUncertain) return failedTerminal('effect_uncertain', false, budget);
+    if (maxUsd !== null && usd === null) return failedTerminal('budget_unknown', false, budget);
     if (budget.turnLimit === 'reached' || budget.usdLimit === 'reached') {
       return {
         status: 'budget_stopped',
@@ -269,12 +378,8 @@ export function createProductSidecarSession(
     if (cancelRequested !== null) {
       return { status: 'canceled', reason: cancelRequested, budget };
     }
-    if (completion.kind === 'completed') return { status: 'completed', budget };
-    return {
-      status: 'failed',
-      error: { code: completion.code, message: clampMessage(completion.message), retryable: completion.retryable },
-      budget,
-    };
+    if (intent.kind === 'completed') return { status: 'completed', budget };
+    return failedTerminal(intent.code, intent.retryable, budget);
   }
 
   /** 只有 completed / canceled / 可重试的 provider|host 失败留在 idle，其余关闭 logical session。 */
@@ -293,32 +398,66 @@ export function createProductSidecarSession(
     }
   }
 
-  /** `force` 只给 upstream 事件违约用：那条路本身就已把 prompt 判死，不再等在途 operation。 */
-  function terminate(completion: PromptCompletion, force = false): void {
-    if (pending !== null && !force) {
+  function terminate(intent: TerminalIntent): void {
+    // 在途 operation 一律不许被 terminal 甩掉——upstream 违约走闩锁，不走 force。
+    if (pending !== null) {
       throw new ProductSidecarError('在途 host request 未收束前不得发 terminal');
     }
     const requestId = activeRequestId;
-    const terminal = resolveTerminal(completion, budgetView());
+    const terminal = resolveTerminal(intent, budgetView());
     activeRequestId = null;
     lastTerminatedRequestId = requestId;
-    pending = null;
     cancelRequested = null;
     effectUncertain = false;
+    upstreamLatched = false;
+    settledWrite = null;
+    reservation = null;
     if (!emit({ sessionId, requestId, type: 'terminal', payload: terminal })) return;
     phase = closesSession(terminal) ? 'closed' : 'idle';
   }
 
-  function failUpstream(): void {
-    terminate(
-      {
-        kind: 'failed',
-        code: 'upstream_event_unsupported',
-        message: '上游事件序列不在投影闭集内',
-        retryable: false,
+  /**
+   * 闩锁收束：状态机凭 reservation 保存的 public tc/toolName 与 host status **自行**发恰一枚
+   * `tool_finished`，随后按 ADR 优先级自动 terminal——不等 runtime 再调 finish。
+   */
+  function settleUpstreamFailure(settled: SettledWrite): void {
+    settledWrite = null;
+    const published = emit({
+      sessionId,
+      requestId: activeRequestId,
+      type: 'agent_event',
+      payload: {
+        kind: 'tool_finished',
+        toolCallId: settled.toolCallId,
+        toolName: settled.toolName,
+        outcome: outcomeFromHostStatus(settled.toolName, settled.status),
       },
-      true,
-    );
+    });
+    if (!published) return;
+    terminate({ kind: 'failed', code: 'upstream_event_unsupported', retryable: false });
+  }
+
+  /**
+   * 上游投影违约。ADR-022 六-B.1：一律把累计 `usd` 传染为 null——该事件已证明 provider turn
+   * 在跑，合法 `turn_finished`/usage 闭合已不可再信；maxUsd 启用时 `budget_unknown` 因此更高优先。
+   *
+   * 只有既无在途 operation、也无待收束 write 时才可直接 terminal；否则进闩锁等 effect 收束。
+   * 二者不会同时成立：产品 Agent 是 `toolExecution:'sequential'`，write 的单 operation 必在
+   * 下一件工具起手前由 `tool_finished` 闭合。
+   */
+  function failUpstream(): void {
+    usd = null;
+    if (pending !== null) {
+      upstreamLatched = true;
+      return;
+    }
+    if (settledWrite !== null) {
+      // host_result 已合法收下、tool_finished 未到的 race：直接消费已保存的 outcome。
+      upstreamLatched = true;
+      settleUpstreamFailure(settledWrite);
+      return;
+    }
+    terminate({ kind: 'failed', code: 'upstream_event_unsupported', retryable: false });
   }
 
   function requireActivePrompt(): SafeToken {
@@ -357,7 +496,7 @@ export function createProductSidecarSession(
     countedTurns = payload.resume.priorTurns;
     observedTurns = payload.resume.priorObservedTurns;
     usd = payload.resume.priorUsd;
-    capabilities = normalizeCapabilities(runtime.capabilities(payload));
+    capabilities = normalizeCapabilities(invokeRuntime(() => runtime.capabilities(payload)));
     phase = 'idle';
     emit({ sessionId, requestId: null, type: 'ready', payload: { capabilities } });
   }
@@ -376,8 +515,11 @@ export function createProductSidecarSession(
     cancelRequested = null;
     effectUncertain = false;
     pending = null;
+    settledWrite = null;
+    upstreamLatched = false;
+    reservation = null;
     phase = 'prompting';
-    runtime.startPrompt({ requestId, text });
+    invokeRuntime(() => runtime.startPrompt({ requestId, text }));
   }
 
   function handleCancel(requestId: SafeToken, reason: CancelReason): void {
@@ -388,7 +530,9 @@ export function createProductSidecarSession(
     if (phase === 'prompting' && requestId === activeRequestId) {
       canceledRequestIds.add(requestId);
       cancelRequested = reason;
-      runtime.cancel({ requestId, reason });
+      // 闩锁期仍照发 cancel，但其 callback 失败不得阻断 effect 收束。
+      if (upstreamLatched) invokeRuntimeSuppressed(() => runtime.cancel({ requestId, reason }));
+      else invokeRuntime(() => runtime.cancel({ requestId, reason }));
       return;
     }
     // race-late：terminal 已先发出，随后才读到同一 request 的 cancel。
@@ -417,14 +561,53 @@ export function createProductSidecarSession(
       rejectFatal('request_mismatch', 'host_result 未对应任何在途 operation');
       return;
     }
+    if (requestId !== pending.requestId) {
+      rejectFatal('request_mismatch', 'host_result 必须回发出该 operation 时的 requestId');
+      return;
+    }
     if (payload.capability !== pending.capability || payload.operation !== pending.operation) {
       rejectFatal('request_mismatch', 'host_result 的 capability/operation 必须与待办完全相同');
       return;
     }
+    // 只有 ok 才有 value；逐值比对**已发出包的不可变镜像**，不重读 runtime 仍可变的 arguments。
+    if (payload.status === 'ok') {
+      if (payload.capability === 'workspace_write') {
+        if (payload.value.logicalPath !== pending.logicalPath) {
+          rejectFatal('request_mismatch', 'write ok 的 logicalPath 必须与已发出 request 相同');
+          return;
+        }
+        if (payload.value.contentSha256 !== pending.contentSha256) {
+          rejectFatal('request_mismatch', 'write ok 的 contentSha256 必须与已发出 request 相同');
+          return;
+        }
+        if (payload.value.byteLength !== pending.byteLength) {
+          rejectFatal('request_mismatch', 'write ok 的 byteLength 必须与已发出 request 相同');
+          return;
+        }
+      } else if (payload.value.logicalPath !== pending.logicalPath) {
+        rejectFatal('request_mismatch', 'read ok 的 logicalPath 必须与已发出 request 相同');
+        return;
+      }
+    }
+
     resolvedOperationIds.add(payload.operationId);
+    const settled: SettledWrite = {
+      toolCallId: pending.toolCallId,
+      toolName: pending.toolName,
+      status: payload.status,
+    };
     pending = null;
     if (payload.status === 'uncertain') effectUncertain = true;
-    runtime.deliverHostResult(payload);
+
+    if (upstreamLatched) {
+      // 先解开既有 deferred；callback 的返回或异常都不再拥有终态。
+      invokeRuntimeSuppressed(() => runtime.deliverHostResult(payload));
+      settleUpstreamFailure(settled);
+      return;
+    }
+    // write 的 tool_finished 只认这枚 status，故先记再回灌（runtime 可能同步就发 finished）。
+    if (settled.toolName === 'write') settledWrite = settled;
+    invokeRuntime(() => runtime.deliverHostResult(payload));
   }
 
   function handleShutdown(): void {
@@ -432,7 +615,7 @@ export function createProductSidecarSession(
       rejectFatal('state_violation', 'shutdown 只能在 idle 发出');
       return;
     }
-    runtime.shutdown();
+    invokeRuntime(() => runtime.shutdown());
     if (!emit({ sessionId, requestId: null, type: 'terminal', payload: { status: 'shutdown' } })) return;
     phase = 'closed';
     carry = EMPTY;
@@ -482,6 +665,8 @@ export function createProductSidecarSession(
   }
 
   function receive(chunk: Uint8Array): void {
+    // 必须早于消费字节、推进 seq/phase、写 wire 或 exit 的任何一步。
+    assertNotInsideCallback();
     if (isClosed()) return;
     let data: Uint8Array;
     if (carry.length === 0) {
@@ -515,6 +700,7 @@ export function createProductSidecarSession(
   }
 
   function endOfInput(): void {
+    assertNotInsideCallback();
     if (isClosed()) return;
     if (carry.length === 0) return;
     carry = EMPTY;
@@ -525,6 +711,7 @@ export function createProductSidecarSession(
 
   function publishAgentEvent(event: OutboundAgentEvent): void {
     const requestId = requireActivePrompt();
+    requireNotLatched();
     const currentLeg = requireLeg();
 
     const publish = (payload: AgentProjectionEvent): void => {
@@ -548,6 +735,7 @@ export function createProductSidecarSession(
         toolCallOrdinal += 1;
         const toolCallId = `tc_${currentLeg}_${toolCallOrdinal}`;
         toolCallIds.set(event.rawToolCallId, toolCallId);
+        toolNames.set(toolCallId, event.toolName);
         publish({ kind: 'tool_started', toolCallId, toolName: event.toolName });
         return;
       }
@@ -565,6 +753,14 @@ export function createProductSidecarSession(
         if (toolCallId === undefined) {
           failUpstream();
           return;
+        }
+        if (settledWrite !== null && settledWrite.toolCallId === toolCallId) {
+          // 已进入 operation_pending 的 write：outcome 只认 host status，上游改型即违约。
+          if (event.outcome !== outcomeFromHostStatus(settledWrite.toolName, settledWrite.status)) {
+            failUpstream();
+            return;
+          }
+          settledWrite = null;
         }
         publish({ kind: 'tool_finished', toolCallId, toolName: event.toolName, outcome: event.outcome });
         return;
@@ -589,9 +785,10 @@ export function createProductSidecarSession(
     }
   }
 
-  function requestHost(request: OutboundHostRequest): SafeToken {
+  /** reserve 与 send 共用的前置门；两段都要在自己那一刻重验，不靠对方兜底。 */
+  function requireHostRequestWindow(): { requestId: SafeToken; currentSession: SafeToken } {
     const requestId = requireActivePrompt();
-    const currentLeg = requireLeg();
+    requireNotLatched();
     const currentSession = sessionId;
     if (currentSession === null) throw new ProductSidecarError('bootstrap 尚未成立，没有 sessionId');
     if (cancelRequested !== null) {
@@ -600,37 +797,86 @@ export function createProductSidecarSession(
     if (pending !== null) {
       throw new ProductSidecarError('同一时刻只允许一个在途 host request');
     }
-    if (!capabilities.includes(request.capability)) {
+    return { requestId, currentSession };
+  }
+
+  function reserveHostOperation(input: HostOperationReservation): SafeToken {
+    const { requestId } = requireHostRequestWindow();
+    const currentLeg = requireLeg();
+    if (!capabilities.includes(input.capability)) {
       throw new ProductSidecarError('未在 ready 宣告的 capability 不得发 host request');
     }
+    const toolName = toolNames.get(input.publicToolCallId);
+    if (toolName === undefined) {
+      throw new ProductSidecarError('reserve 只接受本 leg 已登记的公开 toolCallId');
+    }
 
+    // 上一枚未 send 的 reservation 就此烧号：不出 wire、不成为 pending、不得复用。
     operationOrdinal += 1;
     const operationId = `op_${currentLeg}_${operationOrdinal}`;
-    const operation: WorkspaceOperation =
-      request.capability === 'workspace_write' ? 'write' : request.arguments.operation;
-    const proposalHash = hashProposal({
-      capability: request.capability,
-      sessionId: currentSession,
-      requestId,
-      operationId,
-      arguments: request.arguments,
-    });
-
-    pending = { operationId, capability: request.capability, operation };
-    emit({
-      sessionId: currentSession,
-      requestId,
-      type: 'host_request',
-      payload:
-        request.capability === 'workspace_write'
-          ? { operationId, proposalHash, capability: 'workspace_write', arguments: request.arguments }
-          : { operationId, proposalHash, capability: 'workspace_read', arguments: request.arguments },
-    });
+    reservation = { operationId, requestId, toolCallId: input.publicToolCallId, toolName, capability: input.capability };
     return operationId;
+  }
+
+  function sendReservedHostRequest(request: ReservedHostRequest): void {
+    const { requestId, currentSession } = requireHostRequestWindow();
+    const reserved = reservation;
+    if (reserved === null || reserved.operationId !== request.operationId) {
+      throw new ProductSidecarError('send 只接受本 prompt 中仍有效的那一枚 reservation');
+    }
+    if (request.sessionId !== currentSession || request.requestId !== requestId || reserved.requestId !== requestId) {
+      throw new ProductSidecarError('reserved request 的 session/request 必须是当前活动 prompt');
+    }
+    if (reserved.capability !== request.capability) {
+      throw new ProductSidecarError('send 的 capability 必须与 reservation 相同');
+    }
+    // 本票只校验 hash **格式**：frame 拼接归 `workspace-write-env`，不在此复制第二份实现。
+    if (!SHA256_HEX_PATTERN.test(request.proposalHash)) {
+      throw new ProductSidecarError('proposalHash 必须是小写 64 位 hex');
+    }
+
+    // 恰一次复制：同一枚 snapshot 既出包、又做 pending correlation。
+    const payload: WorkspaceHostRequest =
+      request.capability === 'workspace_write'
+        ? {
+            operationId: request.operationId,
+            proposalHash: request.proposalHash,
+            capability: 'workspace_write',
+            arguments: {
+              logicalPath: request.arguments.logicalPath,
+              content: request.arguments.content,
+              contentSha256: request.arguments.contentSha256,
+              byteLength: request.arguments.byteLength,
+            },
+          }
+        : {
+            operationId: request.operationId,
+            proposalHash: request.proposalHash,
+            capability: 'workspace_read',
+            arguments:
+              request.arguments.operation === 'list'
+                ? { operation: 'list', logicalPath: request.arguments.logicalPath }
+                : { operation: request.arguments.operation, logicalPath: request.arguments.logicalPath },
+          };
+
+    reservation = null;
+    pending = {
+      operationId: request.operationId,
+      requestId,
+      toolCallId: reserved.toolCallId,
+      toolName: reserved.toolName,
+      capability: payload.capability,
+      operation: payload.capability === 'workspace_write' ? 'write' : payload.arguments.operation,
+      logicalPath: payload.arguments.logicalPath,
+      contentSha256: payload.capability === 'workspace_write' ? payload.arguments.contentSha256 : null,
+      byteLength: payload.capability === 'workspace_write' ? payload.arguments.byteLength : null,
+    };
+    emit({ sessionId: currentSession, requestId, type: 'host_request', payload });
   }
 
   function finishPrompt(completion: PromptCompletion): void {
     requireActivePrompt();
+    requireNotLatched();
     terminate(completion);
   }
 
@@ -648,5 +894,13 @@ export function createProductSidecarSession(
     };
   }
 
-  return { receive, endOfInput, publishAgentEvent, requestHost, finishPrompt, snapshot };
+  return {
+    receive,
+    endOfInput,
+    publishAgentEvent,
+    reserveHostOperation,
+    sendReservedHostRequest,
+    finishPrompt,
+    snapshot,
+  };
 }

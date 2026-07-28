@@ -1326,12 +1326,18 @@ function readTerminalPayload(node: JsonNode): Terminal {
     if (budget.stopReason !== null) fail('invalid_schema', '非 budget terminal 的 budget.stopReason 必须为 null');
     const code = readEnum(pick(errorMembers, 'code', 'error'), 'error.code', TERMINAL_FAILURE_CODES);
     validateTerminalBudget(status, budget, code);
+    const retryable = readBoolean(pick(errorMembers, 'retryable', 'error'), 'error.retryable');
+    // retryability 闭集（ADR-022 六-B.1）：只有 provider_error|host_error 可重试；
+    // 其余五种都是安全终态，不得被伪造成可重试。
+    if (retryable && code !== 'provider_error' && code !== 'host_error') {
+      fail('invalid_schema', '本 failed code 属不可重试闭集，retryable 必须为 false');
+    }
     return {
       status,
       error: {
         code,
         message: readString(pick(errorMembers, 'message', 'error'), 'error.message', MAX_TERMINAL_MESSAGE_BYTES),
-        retryable: readBoolean(pick(errorMembers, 'retryable', 'error'), 'error.retryable'),
+        retryable,
       },
       budget,
     };

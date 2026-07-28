@@ -8,13 +8,15 @@ import {
   type ProductPacket,
   type SidecarPacket,
   type WorkspaceCapability,
+  type WorkspaceReadArguments,
+  type WorkspaceWriteArguments,
 } from './product-protocol.js';
 import {
   ProductSidecarError,
   createProductSidecarSession,
-  type OutboundHostRequest,
   type ProductSidecarSession,
   type PromptCompletion,
+  type ReservedHostRequest,
 } from './product-stdio.js';
 
 /**
@@ -51,9 +53,11 @@ function createHarness(options: { capabilities?: WorkspaceCapability[]; hash?: s
   const exits: number[] = [];
   const calls: string[] = [];
   const hooks: {
+    capabilities?: (payload: BootstrapPayload, session: ProductSidecarSession) => void;
     startPrompt?: (prompt: { requestId: string; text: string }, session: ProductSidecarSession) => void;
     cancel?: (cancel: { requestId: string; reason: 'user' | 'host' }, session: ProductSidecarSession) => void;
     deliverHostResult?: (result: HostResultPayload, session: ProductSidecarSession) => void;
+    shutdown?: (session: ProductSidecarSession) => void;
   } = {};
 
   const session = createProductSidecarSession({
@@ -62,7 +66,11 @@ function createHarness(options: { capabilities?: WorkspaceCapability[]; hash?: s
       exit: (code) => void exits.push(code),
     },
     runtime: {
-      capabilities: () => options.capabilities ?? ['workspace_write', 'case_read', 'workspace_read'],
+      capabilities: (payload) => {
+        calls.push('capabilities');
+        hooks.capabilities?.(payload, session);
+        return options.capabilities ?? ['workspace_write', 'case_read', 'workspace_read'];
+      },
       startPrompt: (prompt) => {
         calls.push(`startPrompt:${prompt.requestId}`);
         hooks.startPrompt?.(prompt, session);
@@ -75,9 +83,11 @@ function createHarness(options: { capabilities?: WorkspaceCapability[]; hash?: s
         calls.push(`hostResult:${result.operationId}:${result.status}`);
         hooks.deliverHostResult?.(result, session);
       },
-      shutdown: () => void calls.push('shutdown'),
+      shutdown: () => {
+        calls.push('shutdown');
+        hooks.shutdown?.(session);
+      },
     },
-    hashProposal: () => options.hash ?? HASH,
   });
 
   let seq = 0;
@@ -120,10 +130,42 @@ function hostResult(harness: Harness, payload: HostResultPayload, requestId = 'r
   harness.send({ sessionId: SESSION, requestId, type: 'host_result', payload });
 }
 
+type OutboundHostRequest =
+  | { capability: 'workspace_write'; arguments: WorkspaceWriteArguments }
+  | { capability: 'workspace_read'; arguments: WorkspaceReadArguments };
+
 const WRITE_REQUEST: OutboundHostRequest = {
   capability: 'workspace_write',
   arguments: { logicalPath: 'brief.md', content: '正文', contentSha256: 'c'.repeat(64), byteLength: 6 },
 };
+
+/**
+ * 两段式接缝的调用侧替身：模拟 `workspace-write-env`——registry 先铸 op，hasher 再算 hash，
+ * 最后把**同一枚** request 原样交给状态机。测试全册只经此路发 host request。
+ */
+function requestHost(
+  session: ProductSidecarSession,
+  request: OutboundHostRequest,
+  options: { toolCallId?: string; requestId?: string; sessionId?: string; proposalHash?: string } = {},
+): string {
+  const operationId = session.reserveHostOperation({
+    publicToolCallId: options.toolCallId ?? 'tc_1_1',
+    capability: request.capability,
+  });
+  session.sendReservedHostRequest({
+    sessionId: options.sessionId ?? SESSION,
+    requestId: options.requestId ?? 'req-1',
+    operationId,
+    proposalHash: options.proposalHash ?? HASH,
+    ...request,
+  } as ReservedHostRequest);
+  return operationId;
+}
+
+/** 绝大多数反例只需要「有一枚已登记的公开 tc」这一前置事实。 */
+function startTool(session: ProductSidecarSession, toolName: 'read' | 'write' = 'write', rawId = 'call_w'): void {
+  session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: rawId, toolName });
+}
 
 function writeOk(operationId: string): HostResultPayload {
   return {
@@ -392,7 +434,7 @@ describe('prompt 与 agent event', () => {
 
   it('本 leg raw id 重复 → upstream_event_unsupported 终止', () => {
     const h = createHarness();
-    bootstrap(h);
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
     h.hooks.startPrompt = (_p, session) => {
       session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_x', toolName: 'read' });
       session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_x', toolName: 'read' });
@@ -407,7 +449,7 @@ describe('prompt 与 agent event', () => {
   it('start 之前先见 progress / finished → upstream_event_unsupported', () => {
     for (const kind of ['tool_progress', 'tool_finished'] as const) {
       const h = createHarness();
-      bootstrap(h);
+      bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
       h.hooks.startPrompt = (_p, session) => {
         session.publishAgentEvent(
           kind === 'tool_progress'
@@ -420,6 +462,24 @@ describe('prompt 与 agent event', () => {
         payload: { status: 'failed', error: { code: 'upstream_event_unsupported' } },
       });
     }
+  });
+
+  it('上游违约一律把累计 usd 传染 null：启用 maxUsd 时 budget_unknown 反压过 upstream 失败', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: 0.5 } }));
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent(turnEvent(1, true, 0.01));
+      session.publishAgentEvent({ kind: 'tool_progress', rawToolCallId: 'call_ghost', toolName: 'read' });
+    };
+    prompt(h, 'req-1');
+    expect(lastPacket(h)).toMatchObject({
+      type: 'terminal',
+      payload: {
+        status: 'failed',
+        error: { code: 'budget_unknown', retryable: false },
+        budget: { usd: null, usdLimit: 'unknown' },
+      },
+    });
   });
 
   it('没有活动 prompt 时 publish 即抛', () => {
@@ -475,7 +535,7 @@ describe('host correlation', () => {
     let operationId = '';
     h.hooks.startPrompt = (_p, session) => {
       session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
-      operationId = session.requestHost(WRITE_REQUEST);
+      operationId = requestHost(session, WRITE_REQUEST);
     };
     prompt(h, 'req-1');
     return { h, operationId };
@@ -539,7 +599,7 @@ describe('host correlation', () => {
     const h = createHarness({ capabilities: ['case_read'] });
     bootstrap(h);
     h.hooks.startPrompt = (_p, session) => {
-      expect(() => session.requestHost(WRITE_REQUEST)).toThrow(ProductSidecarError);
+      expect(() => requestHost(session, WRITE_REQUEST)).toThrow(ProductSidecarError);
       session.finishPrompt({ kind: 'completed' });
     };
     prompt(h, 'req-1');
@@ -550,8 +610,9 @@ describe('host correlation', () => {
     const h = createHarness();
     bootstrap(h);
     h.hooks.startPrompt = (_p, session) => {
-      session.requestHost(WRITE_REQUEST);
-      expect(() => session.requestHost(WRITE_REQUEST)).toThrow(ProductSidecarError);
+      startTool(session);
+      requestHost(session, WRITE_REQUEST);
+      expect(() => requestHost(session, WRITE_REQUEST)).toThrow(ProductSidecarError);
       expect(() => session.finishPrompt({ kind: 'completed' })).toThrow(ProductSidecarError);
     };
     prompt(h, 'req-1');
@@ -562,8 +623,11 @@ describe('host correlation', () => {
     const h = createHarness();
     bootstrap(h);
     const ids: string[] = [];
-    h.hooks.startPrompt = (_p, session) => void ids.push(session.requestHost(WRITE_REQUEST));
-    h.hooks.deliverHostResult = (_r, session) => void ids.push(session.requestHost(WRITE_REQUEST));
+    h.hooks.startPrompt = (_p, session) => {
+      startTool(session, 'read', 'call_r');
+      ids.push(requestHost(session, WRITE_REQUEST));
+    };
+    h.hooks.deliverHostResult = (_r, session) => void ids.push(requestHost(session, WRITE_REQUEST));
     prompt(h, 'req-1');
     hostResult(h, writeOk('op_1_1'));
     expect(ids).toEqual(['op_1_1', 'op_1_2']);
@@ -590,7 +654,7 @@ describe('cancel', () => {
     h.hooks.startPrompt = () => {};
     h.hooks.cancel = (_c, session) => {
       expect(() => session.publishAgentEvent({ kind: 'assistant_text_delta', delta: '甲' })).toThrow(ProductSidecarError);
-      expect(() => session.requestHost(WRITE_REQUEST)).toThrow(ProductSidecarError);
+      expect(() => requestHost(session, WRITE_REQUEST)).toThrow(ProductSidecarError);
       session.finishPrompt({ kind: 'completed' });
     };
     prompt(h, 'req-1');
@@ -633,7 +697,10 @@ describe('cancel', () => {
   it('在途 host request 必须先收束；uncertain 优先于 canceled', () => {
     const h = createHarness();
     bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
-    h.hooks.startPrompt = (_p, session) => void session.requestHost(WRITE_REQUEST);
+    h.hooks.startPrompt = (_p, session) => {
+      startTool(session);
+      requestHost(session, WRITE_REQUEST);
+    };
     h.hooks.cancel = () => {};
     h.hooks.deliverHostResult = (_r, session) => session.finishPrompt({ kind: 'completed' });
     prompt(h, 'req-1');
@@ -648,7 +715,10 @@ describe('cancel', () => {
   it('在途 host request 回真实 ok 时，仍可收束为 canceled', () => {
     const h = createHarness();
     bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
-    h.hooks.startPrompt = (_p, session) => void session.requestHost(WRITE_REQUEST);
+    h.hooks.startPrompt = (_p, session) => {
+      startTool(session);
+      requestHost(session, WRITE_REQUEST);
+    };
     h.hooks.cancel = () => {};
     h.hooks.deliverHostResult = (_r, session) => session.finishPrompt({ kind: 'completed' });
     prompt(h, 'req-1');
@@ -742,7 +812,8 @@ describe('预算与 terminal 优先级矩阵', () => {
     bootstrap(h, bootstrapPayload({ limits: { maxTurns: 2, maxUsd: 1 } }));
     h.hooks.startPrompt = (_p, session) => {
       session.publishAgentEvent(turnEvent(1, true, null));
-      session.requestHost(WRITE_REQUEST);
+      startTool(session);
+      requestHost(session, WRITE_REQUEST);
     };
     h.hooks.deliverHostResult = (_r, session) => session.finishPrompt({ kind: 'completed' });
     prompt(h, 'req-1');
@@ -750,16 +821,17 @@ describe('预算与 terminal 优先级矩阵', () => {
     expect(lastPacket(h)).toMatchObject({ payload: { status: 'failed', error: { code: 'effect_uncertain' } } });
   });
 
-  it('runtime 报告的失败在无更高优先项时如实上报', () => {
+  it('runtime 报告的失败在无更高优先项时如实上报 code 与 retryability，message 出自本地表', () => {
     const h = runWithTurns(bootstrapPayload({ limits: { maxTurns: 9, maxUsd: null } }), [turnEvent(1, true, 0.1)], {
       kind: 'failed',
       code: 'provider_error',
-      message: '上游 5xx',
       retryable: true,
     });
     expect(lastPacket(h)).toMatchObject({
-      payload: { status: 'failed', error: { code: 'provider_error', message: '上游 5xx', retryable: true } },
+      payload: { status: 'failed', error: { code: 'provider_error', retryable: true } },
     });
+    const message = ((lastPacket(h).payload as { error: { message: string } }).error).message;
+    expect(message.length).toBeGreaterThan(0);
   });
 
   it('idle 续 prompt 不重置累计预算', () => {
@@ -780,14 +852,14 @@ describe('预算与 terminal 优先级矩阵', () => {
     const retryable = createHarness();
     bootstrap(retryable, bootstrapPayload({ limits: { maxTurns: 9, maxUsd: null } }));
     retryable.hooks.startPrompt = (_p, session) =>
-      session.finishPrompt({ kind: 'failed', code: 'provider_error', message: 'x', retryable: true });
+      session.finishPrompt({ kind: 'failed', code: 'provider_error', retryable: true });
     prompt(retryable, 'req-1');
     expect(retryable.session.snapshot().phase).toBe('idle');
 
     const fatal = createHarness();
     bootstrap(fatal, bootstrapPayload({ limits: { maxTurns: 9, maxUsd: null } }));
     fatal.hooks.startPrompt = (_p, session) =>
-      session.finishPrompt({ kind: 'failed', code: 'host_error', message: 'x', retryable: false });
+      session.finishPrompt({ kind: 'failed', code: 'host_error', retryable: false });
     prompt(fatal, 'req-1');
     expect(fatal.session.snapshot().phase).toBe('closed');
     const before = fatal.out().length;
@@ -835,7 +907,8 @@ describe('canary', () => {
     bootstrap(h);
     h.hooks.startPrompt = (_p, session) => {
       session.publishAgentEvent({ kind: 'assistant_text_delta', delta: '甲' });
-      session.requestHost(WRITE_REQUEST);
+      startTool(session);
+      requestHost(session, WRITE_REQUEST);
     };
     prompt(h, 'req-1');
     hostResult(h, writeOk('op_1_1'));
@@ -864,7 +937,7 @@ describe('canary', () => {
     let captured: unknown;
     h.hooks.startPrompt = (_p, session) => {
       try {
-        session.requestHost(WRITE_REQUEST);
+        requestHost(session, WRITE_REQUEST);
       } catch (error) {
         captured = error;
       }
@@ -874,5 +947,571 @@ describe('canary', () => {
     expect(captured).toBeInstanceOf(ProductSidecarError);
     expect(String((captured as Error).message)).not.toContain(CANARY_KEY);
     expect(String((captured as Error).message)).not.toContain(CANARY_ROOT);
+  });
+});
+
+// ── PI-CODE-STDIO-1R · 六类返修反例 ──────────────────────────────────────────
+//
+// 每一节直接落在 `PI-CODE-STDIO-1` 独立验收坐实的缺陷上，不测 stub、不测 module load。
+
+const PROOF_HASH = 'a1'.repeat(32);
+const SECOND_HASHER_SENTINEL = 'deadbeef'.repeat(8);
+
+/** 上游违约的统一注入口：未经 `tool_started` 的 raw id 先见 `tool_progress`。 */
+function injectUpstreamViolation(session: ProductSidecarSession): void {
+  session.publishAgentEvent({ kind: 'tool_progress', rawToolCallId: 'call_ghost', toolName: 'write' });
+}
+
+describe('R1 · 固定安全文案与 retryability 闭集', () => {
+  it('runtime 报告失败时不得由自由 message 决定 wire：terminal message 只出自本地固定表', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    h.hooks.startPrompt = (_p, session) => {
+      // 即便调用方 cast 塞入 secret 与绝对路径，也不得出 wire。
+      session.finishPrompt({
+        kind: 'failed',
+        code: 'provider_error',
+        retryable: true,
+        message: `${CANARY_KEY} ${CANARY_ROOT}`,
+      } as unknown as PromptCompletion);
+    };
+    prompt(h, 'req-1');
+
+    const error = (lastPacket(h).payload as { error: { code: string; message: string } }).error;
+    expect(error.code).toBe('provider_error');
+    expect(error.message).not.toContain(CANARY_KEY);
+    expect(error.message).not.toContain(CANARY_ROOT);
+    expect(h.allText()).not.toContain(CANARY_KEY);
+    expect(h.allText()).not.toContain(CANARY_ROOT);
+  });
+
+  it('每个 failure code 一枚独立本地 literal，互不相同也互不为空', () => {
+    const messages = new Map<string, string>();
+    for (const code of ['provider_error', 'host_error', 'invalid_state', 'unknown'] as const) {
+      const h = createHarness();
+      bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+      h.hooks.startPrompt = (_p, session) =>
+        session.finishPrompt({ kind: 'failed', code, retryable: false } as PromptCompletion);
+      prompt(h, 'req-1');
+      const error = (lastPacket(h).payload as { error: { code: string; message: string } }).error;
+      expect(error.code, code).toBe(code);
+      messages.set(code, error.message);
+    }
+    expect([...messages.values()].every((message) => message.length > 0)).toBe(true);
+    expect(new Set(messages.values()).size).toBe(messages.size);
+  });
+
+  it('runtime callback 抛出的 Error 只换成固定无 cause 的 ProductSidecarError', () => {
+    const h = createHarness();
+    bootstrap(h);
+    h.hooks.startPrompt = () => {
+      throw new Error(`${CANARY_KEY} ${CANARY_ROOT}`, { cause: new Error(CANARY_KEY) });
+    };
+    let caught: unknown;
+    try {
+      prompt(h, 'req-1');
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(ProductSidecarError);
+    expect((caught as Error).message).not.toContain(CANARY_KEY);
+    expect((caught as Error).message).not.toContain(CANARY_ROOT);
+    expect((caught as { cause?: unknown }).cause).toBeUndefined();
+    expect(h.allText()).not.toContain(CANARY_KEY);
+  });
+
+  it('cast 进来的非 provider/host code 不得携 retryable:true', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    h.hooks.startPrompt = (_p, session) =>
+      session.finishPrompt({ kind: 'failed', code: 'unknown', retryable: true } as unknown as PromptCompletion);
+    prompt(h, 'req-1');
+    expect(lastPacket(h)).toMatchObject({
+      type: 'terminal',
+      payload: { status: 'failed', error: { code: 'unknown', retryable: false } },
+    });
+  });
+});
+
+describe('R2 · pending upstream failure 闩锁', () => {
+  function latched(maxUsd: number | null = null): Harness {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd } }));
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      requestHost(session, WRITE_REQUEST);
+      injectUpstreamViolation(session);
+    };
+    prompt(h, 'req-1');
+    return h;
+  }
+
+  it('在途 host operation 时的上游违约不清 pending、不提前 terminal', () => {
+    const h = latched();
+    expect(h.out().some((packet) => packet.type === 'terminal')).toBe(false);
+    expect(h.session.snapshot()).toMatchObject({ phase: 'prompting', activeRequestId: 'req-1', pendingOperationId: 'op_1_1' });
+    expect(h.exits).toEqual([]);
+  });
+
+  it('闩锁期停止后续 runtime 输出', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    const rejected: string[] = [];
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      requestHost(session, WRITE_REQUEST);
+      injectUpstreamViolation(session);
+      for (const [label, call] of [
+        ['delta', () => session.publishAgentEvent({ kind: 'assistant_text_delta', delta: '甲' })],
+        ['request', () => requestHost(session, WRITE_REQUEST)],
+        ['finish', () => session.finishPrompt({ kind: 'completed' })],
+      ] as const) {
+        try {
+          call();
+        } catch (error) {
+          if (error instanceof ProductSidecarError) rejected.push(label);
+        }
+      }
+    };
+    prompt(h, 'req-1');
+    expect(rejected).toEqual(['delta', 'request', 'finish']);
+    expect(h.out().some((packet) => packet.type === 'terminal')).toBe(false);
+  });
+
+  it('host_result 到达后由状态机自发恰一枚 tool_finished 并自动 terminal，不等 runtime finish', () => {
+    const h = latched();
+    hostResult(h, writeOk('op_1_1'));
+    expect(h.calls).toContain('hostResult:op_1_1:ok');
+
+    const finished = h.out().filter(
+      (packet) => packet.type === 'agent_event' && (packet.payload as { kind: string }).kind === 'tool_finished',
+    );
+    expect(finished).toHaveLength(1);
+    expect(finished[0].payload).toEqual({
+      kind: 'tool_finished',
+      toolCallId: 'tc_1_1',
+      toolName: 'write',
+      outcome: 'succeeded',
+    });
+    expect(lastPacket(h)).toMatchObject({
+      type: 'terminal',
+      payload: { status: 'failed', error: { code: 'upstream_event_unsupported', retryable: false } },
+    });
+  });
+
+  it('闩锁收束逐字映射 host status；uncertain 必收束 effect_uncertain', () => {
+    const uncertain = latched();
+    hostResult(uncertain, writeUncertain('op_1_1'));
+    expect(uncertain.out().filter((packet) => packet.type === 'agent_event').pop()?.payload).toMatchObject({
+      kind: 'tool_finished',
+      outcome: 'uncertain',
+    });
+    expect(lastPacket(uncertain)).toMatchObject({
+      payload: { status: 'failed', error: { code: 'effect_uncertain', retryable: false } },
+    });
+
+    const denied = latched();
+    hostResult(denied, {
+      operationId: 'op_1_1',
+      capability: 'workspace_write',
+      operation: 'write',
+      status: 'denied',
+      error: { code: 'user_denied', message: '用户拒绝' },
+    });
+    expect(denied.out().filter((packet) => packet.type === 'agent_event').pop()?.payload).toMatchObject({
+      kind: 'tool_finished',
+      outcome: 'denied',
+    });
+  });
+
+  it('进入闩锁即把 usd 传染 null：maxUsd 启用时收束为 budget_unknown', () => {
+    const h = latched(1);
+    hostResult(h, writeOk('op_1_1'));
+    expect(lastPacket(h)).toMatchObject({
+      type: 'terminal',
+      payload: {
+        status: 'failed',
+        error: { code: 'budget_unknown', retryable: false },
+        budget: { usd: null, usdLimit: 'unknown' },
+      },
+    });
+  });
+
+  it('闩锁期仍接受当前 request 至多一次 cancel，其 callback 异常不阻断 effect 收束', () => {
+    const h = latched();
+    h.hooks.cancel = () => {
+      throw new Error(CANARY_KEY);
+    };
+    cancel(h, 'req-1');
+    expect(h.calls).toContain('cancel:req-1:user');
+    expect(h.out().some((packet) => packet.type === 'terminal')).toBe(false);
+
+    hostResult(h, writeOk('op_1_1'));
+    expect(lastPacket(h)).toMatchObject({ type: 'terminal' });
+    expect(h.allText()).not.toContain(CANARY_KEY);
+
+    // 第二次 cancel 仍是 state_violation，不因闩锁降格。
+    const second = latched();
+    cancel(second, 'req-1');
+    cancel(second, 'req-1');
+    expect(lastPacket(second)).toMatchObject({ payload: { code: 'state_violation' } });
+  });
+
+  it('host_result 已到、tool_finished 未到的 race 同样闭合', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      requestHost(session, WRITE_REQUEST);
+    };
+    // runtime 合法收下 result，却迟迟不发 tool_finished。
+    h.hooks.deliverHostResult = () => {};
+    prompt(h, 'req-1');
+    hostResult(h, writeOk('op_1_1'));
+    injectUpstreamViolation(h.session);
+
+    const finished = h.out().filter(
+      (packet) => packet.type === 'agent_event' && (packet.payload as { kind: string }).kind === 'tool_finished',
+    );
+    expect(finished).toHaveLength(1);
+    expect(finished[0].payload).toMatchObject({ toolCallId: 'tc_1_1', outcome: 'succeeded' });
+    expect(lastPacket(h)).toMatchObject({
+      payload: { status: 'failed', error: { code: 'upstream_event_unsupported' } },
+    });
+  });
+
+  it('无在途 operation 的上游违约仍直接 terminal', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    h.hooks.startPrompt = (_p, session) => injectUpstreamViolation(session);
+    prompt(h, 'req-1');
+    expect(lastPacket(h)).toMatchObject({
+      type: 'terminal',
+      payload: { status: 'failed', error: { code: 'upstream_event_unsupported' } },
+    });
+  });
+});
+
+describe('R3 · 五 callback 共用 reentrancy guard', () => {
+  const reentrantLine = (): Uint8Array => {
+    const encoded = encodePacketLine({
+      protocolVersion: 1,
+      seq: 2,
+      sessionId: SESSION,
+      requestId: 'req-reentrant',
+      type: 'prompt',
+      payload: { text: '重入' },
+    } as ProductPacket);
+    if (!encoded.ok) throw new Error('fixture 编码失败');
+    return encoded.line;
+  };
+
+  it('capabilities 内同步 receive 在触碰 carry/seq/phase/wire/exit 前抛，fatal 后不得复活为 ready', () => {
+    const h = createHarness();
+    h.hooks.capabilities = (_payload, session) => session.receive(reentrantLine());
+    expect(() => bootstrap(h)).toThrow(ProductSidecarError);
+    expect(h.out()).toEqual([]);
+    expect(h.exits).toEqual([]);
+    expect(h.session.snapshot().phase).toBe('awaiting_bootstrap');
+  });
+
+  it('startPrompt / cancel / deliverHostResult / shutdown 内同步 receive 同样被拒', () => {
+    const startPrompt = createHarness();
+    bootstrap(startPrompt);
+    startPrompt.hooks.startPrompt = (_p, session) => session.receive(reentrantLine());
+    expect(() => prompt(startPrompt, 'req-1')).toThrow(ProductSidecarError);
+    expect(startPrompt.out().some((packet) => packet.type === 'protocol_error')).toBe(false);
+
+    const canceled = createHarness();
+    bootstrap(canceled, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    canceled.hooks.startPrompt = () => {};
+    canceled.hooks.cancel = (_c, session) => session.receive(reentrantLine());
+    prompt(canceled, 'req-1');
+    expect(() => cancel(canceled, 'req-1')).toThrow(ProductSidecarError);
+    expect(canceled.out().some((packet) => packet.type === 'protocol_error')).toBe(false);
+
+    const delivered = createHarness();
+    bootstrap(delivered, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    delivered.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      requestHost(session, WRITE_REQUEST);
+    };
+    delivered.hooks.deliverHostResult = (_r, session) => session.receive(reentrantLine());
+    prompt(delivered, 'req-1');
+    expect(() => hostResult(delivered, writeOk('op_1_1'))).toThrow(ProductSidecarError);
+    expect(delivered.out().some((packet) => packet.type === 'protocol_error')).toBe(false);
+
+    const stopped = createHarness();
+    bootstrap(stopped);
+    stopped.hooks.shutdown = (session) => session.receive(reentrantLine());
+    expect(() =>
+      stopped.send({ sessionId: SESSION, requestId: null, type: 'shutdown', payload: { reason: 'host_shutdown' } }),
+    ).toThrow(ProductSidecarError);
+    expect(stopped.exits).toEqual([]);
+  });
+
+  it('callback 内同步 endOfInput 同样被拒', () => {
+    const h = createHarness();
+    bootstrap(h);
+    h.hooks.startPrompt = (_p, session) => session.endOfInput();
+    expect(() => prompt(h, 'req-1')).toThrow(ProductSidecarError);
+  });
+
+  it('guard 用 finally 复位：callback 抛出后，后续 inbound 不被误判为重入', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    h.hooks.startPrompt = () => {
+      throw new Error('第一枚 prompt 的 runtime 失败');
+    };
+    expect(() => prompt(h, 'req-1')).toThrow(ProductSidecarError);
+    // callback 抛出不回滚状态机；但 depth 必须已复位，后续合法 cancel 要正常处理。
+    h.hooks.cancel = (_c, session) => session.finishPrompt({ kind: 'completed' });
+    cancel(h, 'req-1');
+    expect(h.calls).toContain('cancel:req-1:user');
+    expect(lastPacket(h)).toMatchObject({ type: 'terminal', payload: { status: 'canceled' } });
+  });
+
+  it('startPrompt 的合法同步 outbound 不受 guard 禁止', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'assistant_text_delta', delta: '甲' });
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      requestHost(session, WRITE_REQUEST);
+    };
+    prompt(h, 'req-1');
+    expect(h.out().map((packet) => packet.type)).toEqual(['ready', 'agent_event', 'agent_event', 'host_request']);
+  });
+});
+
+describe('R4 · write proof → stdio 的 reserve/send 接缝', () => {
+  function reserveAndSend(
+    session: ProductSidecarSession,
+    overrides: { hash?: string; operationId?: string; requestId?: string; sessionId?: string } = {},
+  ): string {
+    const operationId = session.reserveHostOperation({
+      publicToolCallId: 'tc_1_1',
+      capability: 'workspace_write',
+    });
+    session.sendReservedHostRequest({
+      sessionId: overrides.sessionId ?? SESSION,
+      requestId: overrides.requestId ?? 'req-1',
+      operationId: overrides.operationId ?? operationId,
+      capability: 'workspace_write',
+      proposalHash: overrides.hash ?? PROOF_HASH,
+      arguments: WRITE_REQUEST.arguments as { logicalPath: string; content: string; contentSha256: string; byteLength: number },
+    });
+    return operationId;
+  }
+
+  it('send 原样消费调用方的 op/hash，状态机零预测、零重算、零第二枚 hasher', () => {
+    const h = createHarness({ hash: SECOND_HASHER_SENTINEL });
+    bootstrap(h);
+    let reserved = '';
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      reserved = reserveAndSend(session);
+    };
+    prompt(h, 'req-1');
+
+    expect(reserved).toBe('op_1_1');
+    expect(h.out()[2]).toMatchObject({
+      type: 'host_request',
+      requestId: 'req-1',
+      payload: { operationId: 'op_1_1', proposalHash: PROOF_HASH, capability: 'workspace_write' },
+    });
+    expect(h.allText()).not.toContain(SECOND_HASHER_SENTINEL);
+    expect(h.session.snapshot().pendingOperationId).toBe('op_1_1');
+  });
+
+  it('reserve 后未 send 只烧 ordinal：不出 wire、不成为 pending、不得复用', () => {
+    const h = createHarness();
+    bootstrap(h);
+    const reserved: string[] = [];
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      // 第一枚 reservation 的异步 hash 失败，调用方永不 send。
+      reserved.push(session.reserveHostOperation({ publicToolCallId: 'tc_1_1', capability: 'workspace_write' }));
+      reserved.push(reserveAndSend(session));
+    };
+    prompt(h, 'req-1');
+    expect(reserved).toEqual(['op_1_1', 'op_1_2']);
+    expect(h.out().filter((packet) => packet.type === 'host_request')).toHaveLength(1);
+    expect(h.session.snapshot().pendingOperationId).toBe('op_1_2');
+  });
+
+  it('send 只接受本 prompt 中仍有效、tc/capability/session/request 相同的 reservation', () => {
+    const h = createHarness();
+    bootstrap(h);
+    const rejected: string[] = [];
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      for (const [label, overrides] of [
+        ['op', { operationId: 'op_1_9' }],
+        ['session', { sessionId: 'sess-other' }],
+        ['request', { requestId: 'req-other' }],
+        ['hash', { hash: 'NOT-HEX' }],
+      ] as const) {
+        try {
+          reserveAndSend(session, overrides);
+        } catch (error) {
+          if (error instanceof ProductSidecarError) rejected.push(label);
+        }
+      }
+      // 未登记的公开 tc 不得 reserve。
+      try {
+        session.reserveHostOperation({ publicToolCallId: 'tc_1_9', capability: 'workspace_write' });
+      } catch (error) {
+        if (error instanceof ProductSidecarError) rejected.push('tc');
+      }
+    };
+    prompt(h, 'req-1');
+    expect(rejected).toEqual(['op', 'session', 'request', 'hash', 'tc']);
+    expect(h.out().some((packet) => packet.type === 'host_request')).toBe(false);
+  });
+});
+
+describe('R5 · pending 不可变镜像与逐值关联', () => {
+  function withPendingWriteFor(args: Partial<{ logicalPath: string; contentSha256: string; byteLength: number }> = {}): Harness {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      requestHost(session, {
+        capability: 'workspace_write',
+        arguments: { ...(WRITE_REQUEST.arguments as Record<string, unknown>), ...args } as never,
+      });
+    };
+    prompt(h, 'req-1');
+    return h;
+  }
+
+  it('ok 的 write value 逐值关联：三枚镜像字段任一错配即 fatal 且 consumer 零调用', () => {
+    const cases = [
+      ['logicalPath', { logicalPath: 'other.md', disposition: 'created', contentSha256: 'c'.repeat(64), byteLength: 6 }],
+      ['contentSha256', { logicalPath: 'brief.md', disposition: 'created', contentSha256: 'd'.repeat(64), byteLength: 6 }],
+      ['byteLength', { logicalPath: 'brief.md', disposition: 'created', contentSha256: 'c'.repeat(64), byteLength: 7 }],
+    ] as const;
+    for (const [label, value] of cases) {
+      const h = withPendingWriteFor();
+      hostResult(h, {
+        operationId: 'op_1_1',
+        capability: 'workspace_write',
+        operation: 'write',
+        status: 'ok',
+        value: value as never,
+      });
+      expect(lastPacket(h), label).toMatchObject({ type: 'protocol_error', payload: { code: 'request_mismatch' } });
+      expect(h.calls, label).not.toContain('hostResult:op_1_1:ok');
+      expect(h.exits, label).toEqual([1]);
+    }
+  });
+
+  it('逐值同构的 ok 正常回灌；disposition 不参与关联', () => {
+    const h = withPendingWriteFor();
+    hostResult(h, {
+      operationId: 'op_1_1',
+      capability: 'workspace_write',
+      operation: 'write',
+      status: 'ok',
+      value: { logicalPath: 'brief.md', disposition: 'overwritten', contentSha256: 'c'.repeat(64), byteLength: 6 },
+    });
+    expect(h.calls).toContain('hostResult:op_1_1:ok');
+    expect(h.exits).toEqual([]);
+  });
+
+  it('read 的 ok value 只比 logicalPath，错配同样 fatal', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+      requestHost(session, { capability: 'workspace_read', arguments: { operation: 'read_file', logicalPath: 'notes.md' } });
+    };
+    prompt(h, 'req-1');
+    hostResult(h, {
+      operationId: 'op_1_1',
+      capability: 'workspace_read',
+      operation: 'read_file',
+      status: 'ok',
+      value: { logicalPath: 'other.md', content: 'a', contentSha256: 'c'.repeat(64), byteLength: 1 },
+    });
+    expect(lastPacket(h)).toMatchObject({ payload: { code: 'request_mismatch' } });
+    expect(h.calls).not.toContain('hostResult:op_1_1:ok');
+  });
+
+  it('非 ok 的四态不虚构 value 比较，逐态正常回灌', () => {
+    const nonOk: HostResultPayload[] = [
+      {
+        operationId: 'op_1_1',
+        capability: 'workspace_write',
+        operation: 'write',
+        status: 'denied',
+        error: { code: 'user_denied', message: '用户拒绝' },
+      },
+      {
+        operationId: 'op_1_1',
+        capability: 'workspace_write',
+        operation: 'write',
+        status: 'failed',
+        error: { code: 'io', message: '落盘失败' },
+      },
+      writeUncertain('op_1_1'),
+    ];
+    for (const payload of nonOk) {
+      const h = withPendingWriteFor();
+      hostResult(h, payload);
+      expect(h.calls, payload.status).toContain(`hostResult:op_1_1:${payload.status}`);
+      expect(h.exits, payload.status).toEqual([]);
+    }
+  });
+
+  it('pending 是 send 入参的不可变镜像：调用方随后改写 arguments 不影响关联', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    const mutable = { logicalPath: 'brief.md', content: '正文', contentSha256: 'c'.repeat(64), byteLength: 6 };
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      requestHost(session, { capability: 'workspace_write', arguments: mutable });
+      mutable.logicalPath = '被改写.md';
+      mutable.byteLength = 999;
+    };
+    prompt(h, 'req-1');
+    hostResult(h, writeOk('op_1_1'));
+    expect(h.calls).toContain('hostResult:op_1_1:ok');
+    expect(h.exits).toEqual([]);
+  });
+
+  it('正常 write 的 tool_finished outcome 必须与已保存 host status 一致', () => {
+    const h = withPendingWriteFor();
+    h.hooks.deliverHostResult = (_r, session) => {
+      // host 判 denied，上游却报 succeeded：投影违约，不得照抄。
+      session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_w', toolName: 'write', outcome: 'succeeded' });
+    };
+    hostResult(h, {
+      operationId: 'op_1_1',
+      capability: 'workspace_write',
+      operation: 'write',
+      status: 'denied',
+      error: { code: 'policy_denied', message: '策略拒绝' },
+    });
+    const finished = h.out().filter(
+      (packet) => packet.type === 'agent_event' && (packet.payload as { kind: string }).kind === 'tool_finished',
+    );
+    expect(finished).toHaveLength(1);
+    expect(finished[0].payload).toMatchObject({ toolCallId: 'tc_1_1', outcome: 'denied' });
+    expect(lastPacket(h)).toMatchObject({
+      type: 'terminal',
+      payload: { status: 'failed', error: { code: 'upstream_event_unsupported' } },
+    });
+  });
+
+  it('与已保存 host status 一致的 tool_finished 正常放行', () => {
+    const h = withPendingWriteFor();
+    h.hooks.deliverHostResult = (_r, session) => {
+      session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_w', toolName: 'write', outcome: 'succeeded' });
+      session.finishPrompt({ kind: 'completed' });
+    };
+    hostResult(h, writeOk('op_1_1'));
+    expect(lastPacket(h)).toMatchObject({ type: 'terminal', payload: { status: 'completed' } });
   });
 });
