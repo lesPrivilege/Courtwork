@@ -34,6 +34,15 @@
 
 2026-07-26 架构裁决备忘录全文：ARCH-DEBT 裁定会三笔半定谳、调研消费 pass 七条清零、GUI 候选八项裁决。**已闭合**——裁定与新票（`UI-TOAST-1`／`WORK-PLAN-PANEL-1` 等）已于 2026-07-27 落入实现就绪图（裁定会记录节＋2026-07-26 裁决批新增票节）、roadmap 不做留痕批与 workflow 依赖许可节。本件此后只作历史证据线索。
 
+## research-gui-design-direction-2026-07-28.md（pi 基础 GUI / Design 复核，已部分消费）
+
+复核 Moda Micro-interaction Pack、OpenDesign、Logue、Open WebUI 0.11.0、assistant-ui 与旧
+Radix/cmdk/dockview/OpenWork 供料，区分“成熟 GUI 机制”与“Courtwork Design”。结论为浅色
+先行、冷白与深墨拉开、扁平、版本目录学、克制反乌托邦及 anti-slop 禁区；同时明确不在 Opus
+开工前冻结 wireframe、最终色值或逐处间距，构图/浅色 token 微调/微交互/截图迭代由其承担。
+**已部分消费**至 ADR-022 六-D 与 `PI-LANE-UI-1` 就绪行；本件只作参考证据，不是组件或 token
+真源，外部许可边界亦不得从归档反推为可依赖。
+
 ## adr-drafts-2026-07-26.md（ADR 草案两份，已成文闭合）
 
 甲（ADR-017 修订案）、乙（ADR-021 草案）、丙（ADR-021 增补：CONTEXT-SURVEY-1 调研回执与产品裁量）。**已闭合**——甲已按修订案三件落入 ADR-017（修订记录 2026-07-26）；乙丙已合并成文为 ADR-021（Draft 占号）。本件此后只作历史证据线索。

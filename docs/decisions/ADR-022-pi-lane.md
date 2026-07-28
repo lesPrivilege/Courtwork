@@ -684,6 +684,19 @@ A0.5/A2 的工具与 workspace 精确语义如下：
   受 [Open WebUI License](https://github.com/open-webui/open-webui/blob/v0.11.0/LICENSE) 及
   [LICENSE_NOTICE](https://github.com/open-webui/open-webui/blob/v0.11.0/LICENSE_NOTICE)
   约束，不满足本项目直接复制或依赖口径。
+- **成熟 GUI 机制不等于 Design 答案**。`PI-LANE-UI-1` 不再增设“先确定全部前端”的设计
+  前置票；给 Opus 的权威输入是本节业务边界、`docs/design/` 现行原则/token、功能状态矩阵、
+  anti-slop 禁区与已筛选参考，构图、比例、信息层级、间距、浅色 token 微调和合规微交互由
+  实现会话在真实截图中完成。不得提前冻结 wireframe 或以“像某参考站”作为验收标准。
+- 首轮 craft **浅色先行**：保持冷色而把亮层拉向冷白、墨/深控件与关键边界压深，拒绝用中等
+  藏青覆盖全站；气质取扁平、版本目录学、克制的制度/档案式反乌托邦，不取 cyberpunk。
+  现行 dark token 仍须结构、对比、溢出与状态可辨回归，但磁青宗精修不阻塞浅色基础 GUI，
+  新组件不得为 dark 写版式或状态分支。
+- 负面护栏锁紫蓝霓虹渐变、玻璃、pill/圆角/卡片汤、shadow stack、无意义 dashboard、裸
+  spinner 与永久 skeleton/shimmer、弹簧/抬卡/crossfade、装饰网格/噪点、法槌/天平/卷轴及
+  伪古文交互词。OpenDesign 只借“截图 + computed style + 11 层 + Don'ts”的参考打包方法；
+  Moda 只借反馈时机；Logue/Open WebUI/OpenWork 只借成熟形态，均不成为视觉真源。调研证据见
+  [`archive/research-gui-design-direction-2026-07-28.md`](../../archive/research-gui-design-direction-2026-07-28.md)。
 
 ### 六-E · 分发与发行拆票
 
@@ -742,6 +755,10 @@ ad-hoc/sign synthetic `.app` 仍只算同机探针，绝不冒充 Tauri bundler�
 
 ## 修订记录
 
+- **2026-07-28 · 基础 GUI 的 Design 自主边界**：区分 headless GUI 机制与视觉设计；取消
+  “先把前端全部确定好”的隐含前置，冻结浅色先行、冷白/深墨、扁平版本目录学、克制反乌托邦
+  与 anti-slop 禁区，把构图、浅色 token 微调、微交互和截图迭代留给 Opus；dark 只守同构回归，
+  磁青精修后置。
 - **2026-07-28 · sidecar 分发实验独立验收拒绝与返修门**：`9b8142f` 坐实关键 probe 只记
   失败不判红、缺产物可静默跳过，且独立 Node 22 archive 未过 SHA 门；撤销对原路线建议的
   消费资格，冻结十件库存、八候选/两负控、统一 hard verdict、来源原子落盘、随机化冷启与
