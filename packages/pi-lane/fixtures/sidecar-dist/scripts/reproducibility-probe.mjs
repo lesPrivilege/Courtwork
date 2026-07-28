@@ -38,11 +38,14 @@ import {
   verdictReproducibility,
 } from './lib/probe-verdict.mjs';
 import {
+  ASSEMBLY_DIR,
+  BUILD_DIR,
   DIST_DIR,
   FIXTURE_DIR,
   REPO_ROOT,
   RUNTIME_DIR,
   ensureDir,
+  fileFingerprint,
   mustRun,
   rmrf,
   run,
@@ -54,15 +57,18 @@ import {
  * 反例注入面：落在采集完成、判定之前的观察值上。三枚分别对应报告第十节的三条断言，
  * 也正是 `70e6482` 只用人工叙述、没有任何一处会判红的三条。
  */
+/** 换成另一枚合法的 64 位小写 hex——「漂移」要测的是不相等，不是格式非法。 */
+const OTHER_VALID_SHA = 'f'.repeat(64);
+
 const COUNTEREXAMPLES = {
   // `default` 档两次 SHA 漂移＝可复现性断言失效。
   'default.sha': (o) => {
-    o.seaDefault[0].shas[1] = `${o.seaDefault[0].shas[1]}-drifted`;
+    o.seaDefault[0].cycles[1].sha256 = OTHER_VALID_SHA;
     o.seaDefault[0].identical = false;
   },
   // `code-cache` 竟然两次一致＝误报可复现，不许当好消息收。
   'codeCache.identical': (o) => {
-    o.seaCodeCache[0].shas[1] = o.seaCodeCache[0].shas[0];
+    o.seaCodeCache[0].cycles[1].sha256 = o.seaCodeCache[0].cycles[0].sha256;
     o.seaCodeCache[0].identical = true;
   },
   // 跨架构注入没看见 warning＝静默降级，零容忍。
@@ -71,8 +77,66 @@ const COUNTEREXAMPLES = {
     o.crossArchCodeCache.warning = null;
   },
   'sealed.sha': (o) => {
-    o.sealedBundles[2].shas[1] = `${o.sealedBundles[2].shas[1]}-drifted`;
+    o.sealedBundles[2].cycles[1].sha256 = OTHER_VALID_SHA;
     o.sealedBundles[2].identical = false;
+  },
+
+  // —— R2 新增：SHA 有效性门。四枚分别对应 `f261347` blocker 3 的四种「无效读数」。
+  //    R1 的 `deterministic()` 只做 `===`，故 null/null、''/''、占位/占位都能自洽通过。
+  'default.shaNull': (o) => {
+    for (const row of o.seaDefault) {
+      row.cycles[0].sha256 = null;
+      row.cycles[1].sha256 = null;
+      row.identical = true;
+    }
+  },
+  'default.shaEmpty': (o) => {
+    o.seaDefault[0].cycles[0].sha256 = '';
+    o.seaDefault[0].cycles[1].sha256 = '';
+    o.seaDefault[0].identical = true;
+  },
+  // 正是 R1 测试 fixture 里那类占位值：像个名字，不是 SHA。
+  'default.shaPlaceholder': (o) => {
+    o.seaDefault[0].cycles[0].sha256 = 'sea-arm';
+    o.seaDefault[0].cycles[1].sha256 = 'sea-arm';
+    o.seaDefault[0].identical = true;
+  },
+  // 大写 hex 不是本判据认的形态（64 位**小写**）。
+  'default.shaUppercase': (o) => {
+    const upper = o.seaDefault[0].cycles[0].sha256.toUpperCase();
+    o.seaDefault[0].cycles[0].sha256 = upper;
+    o.seaDefault[0].cycles[1].sha256 = upper;
+  },
+  // 文件缺失：两份都「不存在」，SHA 自然也没有。
+  'default.missingFile': (o) => {
+    o.seaDefault[0].cycles = o.seaDefault[0].cycles.map(() => ({
+      exists: false,
+      regularFile: false,
+      bytes: null,
+      sha256: null,
+    }));
+    o.seaDefault[0].identical = true;
+  },
+  // 零字节成品：SHA 合法且两次相同，但那是空文件，不能算「可复现的产物」。
+  'default.zeroBytes': (o) => {
+    for (const cycle of o.seaDefault[0].cycles) cycle.bytes = 0;
+  },
+  // 目录冒充成品：exists 为真但不是 regular file。
+  'default.notRegularFile': (o) => {
+    for (const cycle of o.seaDefault[0].cycles) cycle.regularFile = false;
+  },
+
+  // —— 缺口一：path 没绑库存项。三枚都**保持两枚 fingerprint 完全有效**，
+  //    只把坐标换掉——「非空字符串」那种判法对它们零区分力。
+  'path.wrongCell': (o) => {
+    o.seaDefault[0].path = o.seaDefault[1].path; // 指向另一个合格 cell
+  },
+  'path.escapesAssembly': (o) => {
+    o.seaDefault[0].path = '../outside/pi-sidecar-aarch64-apple-darwin';
+  },
+  'path.wrongExtension': (o) => {
+    // cjs 档的随包件是 sidecar.cjs，这里写成 .mjs。
+    o.sealedBundles[2].path = o.sealedBundles[2].path.replace(/\.cjs$/, '.mjs');
   },
 };
 
@@ -88,47 +152,65 @@ const SCRIPTS = path.join(FIXTURE_DIR, 'scripts');
 const POSTJECT = path.join(REPO_ROOT, 'packages', 'pi-lane', 'node_modules', '.bin', 'postject');
 const FUSE = 'NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2';
 
-/** 跑一个完整 cycle：先清空两条 route 目录，再逐支装配，回报本轮全部 SHA。 */
+/**
+ * 被比对的**随包件**在 assembly 内的相对路径。取实际发布的那一份，而不是构建摘要里
+ * 自报的 SHA——摘要可能压根没记下 SHA（`f261347` 的 blocker 3 就是两个 `null` 互证）。
+ * sealed 三档取 aarch64 那一份随包 bundle；两 triple 的随包件是同一 bundle 的副本。
+ */
+const SEALED_PATHS = SEALED_VARIANTS.map((variant) => ({
+  variant: variant.name,
+  path: `route-a/${TARGETS[0].triple}--${variant.name}/sidecar.${variant.extension}`,
+}));
+const seaPath = (triple, variant) => `route-b/${triple}--${variant}/${SIDECAR_BASENAME}-${triple}`;
+
+/** 跑一个完整 cycle：先清空 assembly 与构建 scratch，再逐支装配，回报本轮实物指纹。 */
 function cycle(index) {
-  process.stderr.write(`· cycle ${index}：清空 route 目录并重建\n`);
-  rmrf(path.join(DIST_DIR, 'route-a'));
-  rmrf(path.join(DIST_DIR, 'route-b'));
+  process.stderr.write(`· cycle ${index}：清空 assembly 与 scratch 并重建\n`);
+  rmrf(ASSEMBLY_DIR);
+  rmrf(BUILD_DIR);
   mustRun(process.execPath, [path.join(SCRIPTS, 'build-sealed.mjs')], { cwd: FIXTURE_DIR });
   mustRun(process.execPath, [path.join(SCRIPTS, 'build-sea.mjs')], { cwd: FIXTURE_DIR });
 
-  const sealed = JSON.parse(fs.readFileSync(path.join(DIST_DIR, 'build-sealed.json'), 'utf8'));
-  const sea = JSON.parse(fs.readFileSync(path.join(DIST_DIR, 'build-sea.json'), 'utf8'));
+  // 指纹一律现读磁盘：exists / regular-file / bytes / SHA 四项同源同刻。
+  const fingerprint = (relative) => fileFingerprint(path.join(ASSEMBLY_DIR, relative));
   return {
-    sealedMinified: Object.fromEntries(
-      SEALED_VARIANTS.map((variant) => [variant.name, sealed.bundles[variant.name].minified.sha256]),
-    ),
-    seaExecutables: Object.fromEntries(
-      sea.variants.map((entry) => [`${entry.triple}|${entry.variant}`, entry.executableSha256 ?? null]),
+    sealed: Object.fromEntries(SEALED_PATHS.map((entry) => [entry.variant, fingerprint(entry.path)])),
+    sea: Object.fromEntries(
+      TARGETS.flatMap((target) =>
+        ['default', 'code-cache'].map((variant) => [
+          `${target.triple}|${variant}`,
+          fingerprint(seaPath(target.triple, variant)),
+        ]),
+      ),
     ),
   };
 }
 
 const cycles = [cycle(1), cycle(2)];
 
-const pair = (first, second) => ({ shas: [first, second], identical: first === second });
+const pair = (first, second) => ({
+  cycles: [first, second],
+  identical: first.sha256 !== null && first.sha256 === second.sha256,
+});
 
 const observation = {
   cycles: cycles.length,
   buildPath: FIXTURE_DIR,
-  sealedBundles: SEALED_VARIANTS.map((variant) => ({
-    variant: variant.name,
-    ...pair(cycles[0].sealedMinified[variant.name], cycles[1].sealedMinified[variant.name]),
+  assembly: ASSEMBLY_DIR,
+  sealedBundles: SEALED_PATHS.map((entry) => ({
+    variant: entry.variant,
+    path: entry.path,
+    ...pair(cycles[0].sealed[entry.variant], cycles[1].sealed[entry.variant]),
   })),
   seaDefault: TARGETS.map((target) => ({
     triple: target.triple,
-    ...pair(cycles[0].seaExecutables[`${target.triple}|default`], cycles[1].seaExecutables[`${target.triple}|default`]),
+    path: seaPath(target.triple, 'default'),
+    ...pair(cycles[0].sea[`${target.triple}|default`], cycles[1].sea[`${target.triple}|default`]),
   })),
   seaCodeCache: TARGETS.map((target) => ({
     triple: target.triple,
-    ...pair(
-      cycles[0].seaExecutables[`${target.triple}|code-cache`],
-      cycles[1].seaExecutables[`${target.triple}|code-cache`],
-    ),
+    path: seaPath(target.triple, 'code-cache'),
+    ...pair(cycles[0].sea[`${target.triple}|code-cache`], cycles[1].sea[`${target.triple}|code-cache`]),
   })),
 };
 
@@ -138,7 +220,8 @@ const crossDir = path.join(DIST_DIR, 'cross-arch');
 rmrf(crossDir);
 ensureDir(crossDir);
 
-const armBlob = path.join(DIST_DIR, 'route-b', 'aarch64-apple-darwin--code-cache', 'sea-prep.blob');
+// blob 是构建中间件，住 scratch——它不随包，故不在 assembly 里。
+const armBlob = path.join(BUILD_DIR, 'route-b', 'aarch64-apple-darwin--code-cache', 'sea-prep.blob');
 const x64Node = path.join(RUNTIME_DIR, `node-${NODE_VERSION}-darwin-x64`, 'bin', 'node');
 
 if (!fs.existsSync(armBlob) || !fs.existsSync(x64Node)) {

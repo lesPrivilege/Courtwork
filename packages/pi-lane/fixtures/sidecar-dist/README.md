@@ -1,4 +1,4 @@
-# `sidecar-dist` fixture · PI-SIDECAR-DIST-1R
+# `sidecar-dist` fixture · PI-SIDECAR-DIST-1R2
 
 `ADR-022` 六-E 分发调研票的实验装置。**这不是产品代码**，也不是产品 sidecar：
 生产 wire 由 `PI-CODE-STDIO-1` 实现，生产宿主由 `PI-HOST-LOOP-1` 实现，两者本票都不碰。
@@ -11,7 +11,7 @@
 ## 返修要点：判定住一个地方，且一定会判红
 
 `PI-SIDECAR-DIST-1` 的独立验收（`9b8142f`）判 **REJECT**，首要理由是装置把 stdio/abort/crash
-的失败**只序列化进 JSON**、顶层照报 `status:'ok'`，缺产物还会静默跳过。返修后：
+的失败**只序列化进 JSON**、顶层照报 `status:'ok'`，缺产物还会静默跳过。R1 返修后：
 
 - 判据全部住 [`scripts/lib/probe-verdict.mjs`](scripts/lib/probe-verdict.mjs)（纯函数、零 I/O），
   `measure` / `coldstart-rounds` / `reproducibility-probe` / `sign-probe` **共用同一份**；
@@ -20,6 +20,34 @@
   少一件、多一件、重复、错名、任一项 blocked 或失败，都令顶层 `status:'failed'` 且**进程非零**；
 - 判定层自带定向测试，`node --test` 跑（见下）。
 
+## R2 返修要点：判据要对着**实物**，且 crash 生命周期的每个等待都有上界
+
+`PI-SIDECAR-DIST-1R` 的独立验收（`f261347`）再判 **REJECT**：R1 的判定虽然集中了，
+却仍有三处对着**自己算出来的观察值**判绿。R2 逐条闭合：
+
+| `f261347` 的坐实 | R1 为什么绿 | R2 的收紧 |
+|---|---|---|
+| 磁盘真多出 `route-a/unexpected-physical/proof.txt`，`measure` 仍 `status:'ok'` | `observedIds` 由常量 `INVENTORY` 推出，从不枚举磁盘 | 唯一 `dist/assembly`，observation 由 `readdir`+`lstat` 的**实物**构造，与冻结闭集双向比对 |
+| 首枚 cold-start 身份错、后 24 枚正确 → 零 failure | 只判一个收束后的 `round.identity`，而它已被换成漂移**后**的值 | 每轮 25 枚样本逐枚留档、逐枚校验身份与 EOF；`identityDrift` 非 null 即红 |
+| SEA default 的 `shas:[null,null]` 被判可复现 | `deterministic()` 只做 `===`，`null===null` 为真 | 先证 exists / regular-file / 正字节 / 64 位小写 hex，**无效读数不进相等比较** |
+| crash 的 ack/exit 可无限等待 | 只 `await crashing` 再裸 `await proc.exited` | 五个具名 deadline（ack 15s、exit 15s、respawn-ready 30s、respawn-EOF 15s、kill-confirm 5s），超时写结构化 failure、杀残留、非零 |
+| SEA remove-signature/sign/strict-verify 非零仍记 `ok` | 只有 postject 非零被拦 | 四个外部阶段逐个判，全过才从干净 staging 原子发布；任一失败零成品，也不复用旧件 |
+
+**`dist/` 的分区是判据能成立的前提**：只有十件随包制品进 `dist/assembly/`，
+构建 scratch（`dist/build/`）、runtime、corpus、读数 JSON 与反例留档全在其外——
+否则「多一件」这条判据会被装置自己的中间件误伤，等于没判。
+
+### 上界的**准确范围**（不夸大）
+
+有上界的是 **crash 生命周期**（`measure.mjs` 的 `crashes()`）与 **cold-start 取样**
+（`coldstart-rounds.mjs` 的 EOF 等待）这两处，共用 `CRASH_DEADLINES` 五个具名值，
+且每次 cleanup 都经 `killAndConfirmInto()` 消费返回值——确认不了就补记 `kill-confirm`。
+
+**其余等待仍是裸 `await proc.exited`，如实登记，不冒充有界**：
+`measure.mjs` 的 `launchProbe`／`stdio`／`abort`、`sign-probe.mjs` 的 `launches`、
+`reproducibility-probe.mjs` 的跨架构注入各一处。它们都跟在一个**已有超时的 `waitFor`**
+之后（进程已确认可服务），失败方向是挂起而非假绿；本票未收窄它们，也不声称已收窄。
+
 ## 复现序（须按序）
 
 ```bash
@@ -27,9 +55,9 @@ pnpm --filter @courtwork/pi-lane build     # fixture 经 ../../../dist/index.js 
 cd packages/pi-lane/fixtures/sidecar-dist
 node scripts/fetch-runtime.mjs             # 官方 Node 22：partial → 全项校验 → 原子落名
 node scripts/extract-runtime.mjs           # 解包并核 node --version / Mach-O 架构
-node scripts/reproducibility-probe.mjs     # 从空 route 目录连做两个 cycle（**这一步同时是装配步**）
-node scripts/measure.mjs                   # 十件库存的身份/stdio/loop/abort/崩溃 → dist/measurements.json
-node scripts/coldstart-rounds.mjs          # 八候选 × 三轮 × 25 样本，逐轮随机化 → dist/coldstart-rounds.json
+node scripts/reproducibility-probe.mjs     # 从空 assembly 连做两个 cycle（**这一步同时是装配步**）
+node scripts/measure.mjs                   # assembly 实物闭集 + 十件的身份/stdio/loop/abort/崩溃
+node scripts/coldstart-rounds.mjs          # 八候选 × 三轮 × 25 样本（逐枚留档）→ dist/coldstart-rounds.json
 node scripts/sign-probe.mjs                # ad-hoc 签名矩阵与 .app 嵌套 → dist/sign-probe.json
 node scripts/clean.mjs --report-only        # 清点残留（**独立验收前不要真清**）
 ```
@@ -67,8 +95,26 @@ node --test packages/pi-lane/fixtures/sidecar-dist/scripts/probe-verdict.test.mj
 ```bash
 node scripts/measure.mjs --list-counterexamples
 node scripts/measure.mjs --counterexample stdio.payload.sha
+node scripts/coldstart-rounds.mjs --list-counterexamples
+node scripts/coldstart-rounds.mjs --counterexample identity.firstSample
 node scripts/reproducibility-probe.mjs --counterexample codeCache.identical
 node scripts/coldstart-rounds.mjs --rounds 1          # 少轮
+```
+
+R2 另有三类**不走注入面**的反例：
+
+```bash
+# 物理面：真往 assembly 里落一份多余文件／目录／symlink／FIFO，再跑未改的 measure
+mkdir -p dist/assembly/route-a/unexpected-physical
+printf p > dist/assembly/route-a/unexpected-physical/proof.txt
+node scripts/measure.mjs                              # 期望 exit 1
+
+# SEA 四阶段：真让某个外部命令失败（给它一个必然失败的实参），非改观察值
+node scripts/build-sea.mjs --fail-stage verifyStrict --fail-cell 'aarch64-apple-darwin|default'
+
+# crash 上界：对一枚**能 ready、但忽略 crash/exit** 的受控子进程跑崩溃探针。
+# 桩由脚本现生成到 dist/counterexamples/，不改被票面冻结的 sidecar-fixture.mjs。
+node scripts/measure.mjs --counterexample crash.ignored
 ```
 
 退出码：`0`＝干净全过；`1`＝正式实测判红；`2`＝反例被判据抓住（**期望结果**）；
@@ -91,16 +137,26 @@ node scripts/coldstart-rounds.mjs --rounds 1          # 少轮
 | `scripts/coldstart-rounds.mjs` | 三轮随机化冷启与裸 runtime 基线 |
 | `scripts/sign-probe.mjs` | entitlement、三姿势重签、`.app` 嵌套签名 |
 | `scripts/clean.mjs` | 残留清点（`--report-only`）与清理 |
+| `dist/assembly/` | **唯一随包目录**：恰 `route-a/`（六目录 × 两件）+ `route-b/`（四目录 × 一件）＝ 12 目录 + 16 文件 |
+| `dist/build/` | 构建 scratch：中间 bundle、`sea-config.json`、blob、staging。**不随包** |
+| `dist/counterexamples/` | 反例红证留档（含现生成的受控子进程桩） |
+| `dist/final/` | 最终一轮读数与 assembly 的 SHA 清单 |
 | `dist/` | 全部产物与读数。**被仓库根 `.gitignore` 的 `dist/` 覆盖，不入库** |
 
 ## 残留
 
-跑完整套（含 31 枚反例的逐枚留档）实测 **2,527,892,648 B（2.35 GiB）**，逐子目录字节见
-报告[第十八节](../../../../docs/engineering/pi-sidecar-dist-1.md)。该数取自
-`node scripts/clean.mjs --report-only` 的实测输出，非估算；它取代 `3207b27` 的 2.27 GiB
-（差额构成见报告同节）。
+三个数**并列，互不取代**——它们是三个不同的保全范围，不是同一个量的三次修正：
 
-**独立验收前不要真清**：`dist/counterexamples/` 与 `dist/final/` 是反例红证与最终读数的留档。
+| 出处 | 字节 | 保全范围 |
+|---|---|---|
+| `3207b27` | 2,436,991,750（2.27 GiB） | 原实验的历史峰值 |
+| `PI-SIDECAR-DIST-1R` | 2,527,892,648（2.35 GiB） | 含 31 份反例、`cross-arch/` 与 final 读数的较大范围 |
+| `PI-SIDECAR-DIST-1R2` | 见报告[第十八节](../../../../docs/engineering/pi-sidecar-dist-1.md)逐项求和 | 本票范围（assembly/build 分区后，反例留档更多） |
+
+三个数均取自 `node scripts/clean.mjs --report-only` 的实测输出，非估算。
+
+**独立验收前不要真清**：`dist/counterexamples/`、`dist/final/` 与 `dist/r2-evidence/`
+是反例红证、最终读数与 blocker 复现留档。
 
 ## 两处体例说明
 

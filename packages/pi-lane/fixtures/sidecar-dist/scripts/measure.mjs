@@ -29,10 +29,12 @@ import os from 'node:os';
 import path from 'node:path';
 
 import {
+  CRASH_DEADLINES,
   PAYLOAD_SPECS,
   conclude,
   payloadText,
   verdictAbort,
+  verdictAssembly,
   verdictCrash,
   verdictIdentity,
   verdictInventory,
@@ -40,10 +42,14 @@ import {
   verdictStdio,
 } from './lib/probe-verdict.mjs';
 import {
+  ASSEMBLY_DIR,
+  COUNTEREXAMPLE_DIR,
   DIST_DIR,
   artifactPresent,
   byteSize,
   ensureDir,
+  killAndConfirmInto,
+  observeAssembly,
   resolveInventory,
   round,
   run,
@@ -83,7 +89,31 @@ const COUNTEREXAMPLES = {
     apply: (o) => (o.negativeControl.errorLine = 'Error: unrelated failure'),
   },
   'inventory.extra': { target: 'inventory', apply: (ids) => ids.push('a/aarch64-apple-darwin/wasm') },
+
+  // —— R2 新增：crash 上界。`f261347` 点名的「ack/exit 可无限等待」。
+  //
+  // 反例主体是一个**受控子进程**：它照发 `ready`、照答 `ping`，但对 `crash` 一概不理，
+  // 也不退出。票面冻结了 `sidecar-fixture.mjs`，故这枚桩由本脚本在 `dist/counterexamples/`
+  // 现生成——它是 gitignore 的 scratch，不是新增源文件，也不在 assembly 内。
+  // 期望：整支 probe 在具名 deadline 内收束、写结构化 failure、非零退出，而不是挂死。
+  'crash.ignored': { target: 'crash-stub' },
 };
+
+/** 能 ready、能 ping、但**忽略 crash/exit** 的桩。用它证明 probe 会在上界内失败。 */
+function writeIgnoreCrashStub() {
+  ensureDir(COUNTEREXAMPLE_DIR);
+  const stub = path.join(COUNTEREXAMPLE_DIR, 'ignores-crash-sidecar.mjs');
+  fs.writeFileSync(
+    stub,
+    [
+      "process.stdout.write(JSON.stringify({ op: 'ready', node: process.version, arch: process.arch, sea: 'not-sea' }) + '\\n');",
+      "process.stdin.on('data', () => {});",
+      '// 既不 ack `crash`，也不退出，还压住 stdin EOF——正是会把裸 await 挂死的那种子进程。',
+      'setInterval(() => {}, 1 << 30);',
+    ].join('\n'),
+  );
+  return stub;
+}
 
 const crashRow = (observation, kind) => observation.crash.terminations.find((entry) => entry.kind === kind);
 
@@ -217,40 +247,82 @@ async function abort(artifact) {
   };
 }
 
-/** 四类崩溃：各记 exact code/signal，并**逐类**复启一次证明产物字节未受影响。 */
-async function crashes(artifact) {
+/**
+ * 四类崩溃：各记 exact code/signal，并**逐类**复启一次证明产物字节未受影响。
+ *
+ * `f261347` 的失败闭口之二：R1 只 `await crashing`（不判有没有收到）再裸 `await proc.exited`。
+ * 子进程若既不 ack 也不退出，整支 probe 永久挂起——既不写 failed verdict 也不非零退出，
+ * 连超时都没有。R2 把每一步都套上具名 deadline，超时写进 `timeouts`、杀掉残留、照常收束，
+ * 由 `verdictCrash` 判红。**`command`/`args` 可外部指定**，好让「忽略 crash 的子进程」
+ * 这枚反例不必去改被票面冻结的 `sidecar-fixture.mjs`。
+ */
+async function crashes(artifact, command = artifact.command, args = artifact.args) {
   const terminations = [];
   for (const kind of ['throw', 'exit', 'hang', 'sigterm']) {
-    const proc = spawnNdjson(artifact.command, artifact.args);
-    const ready = await proc.waitFor((packet) => packet.op === 'ready', 30_000);
+    const timeouts = [];
+    const proc = spawnNdjson(command, args);
+    const ready = await proc.waitFor((packet) => packet.op === 'ready', CRASH_DEADLINES.respawnReadyMs);
     if (!ready) {
-      proc.child.kill('SIGKILL');
-      terminations.push({ kind, exitCode: null, signal: null, respawnReady: false, reason: 'no-ready' });
+      // cleanup 的返回值必须被消费：杀完确认不了，就再记一条 `kill-confirm`。
+      const readyTimeouts = ['ready'];
+      await killAndConfirmInto(proc, CRASH_DEADLINES.killConfirmMs, readyTimeouts);
+      terminations.push({
+        kind,
+        ackSeen: false,
+        exitCode: null,
+        signal: null,
+        respawnReady: false,
+        respawnEofClean: false,
+        timeouts: readyTimeouts,
+        reason: 'no-ready',
+      });
       continue;
     }
+
+    let ackSeen = null;
     if (kind === 'sigterm') {
-      proc.child.kill('SIGTERM');
+      proc.child.kill('SIGTERM'); // 外部信号，不要求 ack
     } else {
       proc.send({ op: 'crash', id: kind, kind });
-      await proc.waitFor((packet) => packet.op === 'crashing' && packet.id === kind, 15_000);
+      const ack = await proc.waitFor((packet) => packet.op === 'crashing' && packet.id === kind, CRASH_DEADLINES.ackMs);
+      ackSeen = Boolean(ack);
+      if (!ack) timeouts.push('ack');
       if (kind === 'hang') {
         await new Promise((resolve) => setTimeout(resolve, 300));
         proc.child.kill('SIGKILL');
       }
     }
-    const exited = await proc.exited;
 
-    const again = spawnNdjson(artifact.command, artifact.args);
-    const respawn = await again.waitFor((packet) => packet.op === 'ready', 30_000);
-    if (respawn) again.child.stdin.end();
-    else again.child.kill('SIGKILL');
-    await again.exited;
+    // 有上界地等退出；超时就杀，杀完还要**确认**它真的走了，确认本身也有上界。
+    let exited = await proc.waitForExit(CRASH_DEADLINES.exitMs);
+    if (!exited) {
+      timeouts.push('exit');
+      exited = await killAndConfirmInto(proc, CRASH_DEADLINES.killConfirmMs, timeouts);
+    }
+
+    const again = spawnNdjson(command, args);
+    const respawn = await again.waitFor((packet) => packet.op === 'ready', CRASH_DEADLINES.respawnReadyMs);
+    let respawnExit = null;
+    if (respawn) {
+      again.child.stdin.end();
+      respawnExit = await again.waitForExit(CRASH_DEADLINES.respawnEofMs);
+      if (!respawnExit) {
+        timeouts.push('respawn-eof');
+        await killAndConfirmInto(again, CRASH_DEADLINES.killConfirmMs, timeouts);
+      }
+    } else {
+      timeouts.push('respawn-ready');
+      await killAndConfirmInto(again, CRASH_DEADLINES.killConfirmMs, timeouts);
+    }
 
     terminations.push({
       kind,
-      exitCode: exited.code,
-      signal: exited.signal,
+      ackSeen,
+      exitCode: exited ? exited.code : null,
+      signal: exited ? exited.signal : null,
       respawnReady: Boolean(respawn),
+      respawnEofClean: Boolean(respawnExit && respawnExit.code === 0 && respawnExit.signal === null),
+      timeouts,
       stderrHead: proc.stderr().split('\n').filter(Boolean).slice(0, 2),
     });
   }
@@ -295,6 +367,39 @@ function injectInto(scope, subject, payload) {
 const inventory = resolveInventory();
 const observedIds = [];
 const failures = [];
+
+/**
+ * **物理**闭集先判。`f261347` 的 blocker 1：R1 只由常量 `INVENTORY` 推坐标再问「在不在」，
+ * 于是磁盘上真多出 `route-a/unexpected-physical/proof.txt` 也照报 `status:'ok' failures:0`
+ * （本票已实测复现，红证留档在报告与回执）。
+ *
+ * 现在 observation 由 `readdir` + `lstat` 从 assembly 实物构造，与冻结的期望闭集**双向**比对。
+ * 读数 JSON、构建 scratch、runtime、corpus 与反例留档都在 assembly 之外，故不会被误伤。
+ */
+const assembly = observeAssembly();
+report.assembly = { root: path.relative(DIST_DIR, ASSEMBLY_DIR), exists: assembly.exists, entries: assembly.entries };
+if (COUNTEREXAMPLE === 'crash.ignored') {
+  // 桩不是随包件，故这枚反例只跑崩溃面，不进十件库存的常规量测。
+  const stub = writeIgnoreCrashStub();
+  process.stderr.write('· 反例 crash.ignored：对忽略 crash 的受控子进程跑崩溃探针\n');
+  const started = Date.now();
+  const observation = await crashes({ id: 'counterexample/ignores-crash' }, process.execPath, [stub]);
+  report.counterexample.applied = true;
+  report.counterexample.appliedTo = 'counterexample/ignores-crash';
+  report.counterexample.elapsedMs = Date.now() - started;
+  report.crashStub = { stub: path.relative(DIST_DIR, stub), deadlines: CRASH_DEADLINES, ...observation };
+  const stubVerdict = conclude(verdictCrash('counterexample/ignores-crash', observation), report);
+  ensureDir(DIST_DIR);
+  fs.writeFileSync(path.join(DIST_DIR, 'measurements.json'), `${JSON.stringify(stubVerdict, null, 2)}\n`);
+  const caught = stubVerdict.status === 'failed';
+  process.stdout.write(`\nstatus=${stubVerdict.status} failures=${stubVerdict.failureCount} elapsedMs=${report.counterexample.elapsedMs}\n`);
+  for (const failure of stubVerdict.failures.slice(0, 40)) {
+    process.stdout.write(`  ✗ ${failure.id} ${failure.check}: 期望 ${JSON.stringify(failure.expected)}，实测 ${JSON.stringify(failure.observed)}\n`);
+  }
+  process.stdout.write(`反例 crash.ignored：applied=true caught=${caught}\n`);
+  process.exit(caught ? 2 : 3);
+}
+failures.push(...verdictAssembly(assembly));
 
 for (const artifact of inventory) {
   process.stderr.write(`· 量 ${artifact.id}\n`);

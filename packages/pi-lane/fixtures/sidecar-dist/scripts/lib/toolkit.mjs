@@ -11,7 +11,14 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { INVENTORY, NODE_VERSION, SEALED_VARIANTS, SIDECAR_BASENAME, TARGETS } from './probe-verdict.mjs';
+import {
+  ASSEMBLY_DIR_NAME,
+  INVENTORY,
+  NODE_VERSION,
+  ROUTE_DIR_NAMES,
+  SIDECAR_BASENAME,
+  TARGETS,
+} from './probe-verdict.mjs';
 
 /** `fixtures/sidecar-dist/`。 */
 export const FIXTURE_DIR = path.resolve(import.meta.dirname, '..', '..');
@@ -19,7 +26,95 @@ export const DIST_DIR = path.join(FIXTURE_DIR, 'dist');
 export const RUNTIME_DIR = path.join(DIST_DIR, 'runtime');
 export const REPO_ROOT = path.resolve(FIXTURE_DIR, '..', '..', '..', '..');
 
+/**
+ * **唯一随包目录**。只装十件可随包制品，别的一律不许进来。
+ * 构建中间件、runtime、corpus、JSON 读数与反例留档各有其位，全部住 assembly 之外——
+ * 否则「多一件」的判据会被自己的 scratch 误伤，那等于没判。
+ */
+export const ASSEMBLY_DIR = path.join(DIST_DIR, ASSEMBLY_DIR_NAME);
+/** 构建 scratch：中间 bundle、sea-config、blob、staging。**不随包**。 */
+export const BUILD_DIR = path.join(DIST_DIR, 'build');
+/** 反例红证留档。同样在 assembly 之外。 */
+export const COUNTEREXAMPLE_DIR = path.join(DIST_DIR, 'counterexamples');
+
+export const assemblyRouteDir = (route) => path.join(ASSEMBLY_DIR, ROUTE_DIR_NAMES[route]);
+
 export { NODE_VERSION, SIDECAR_BASENAME, TARGETS };
+
+/**
+ * assembly 的**实物**枚举：逐层 `readdir` 取名、逐项 `lstat` 定类型。
+ *
+ * 两处刻意为之：
+ * - 用 `readdir(名字)` + `lstat`，**不用** `withFileTypes` 的便利——`lstat` 不跟随
+ *   symlink，符号链接会如实报成 `symlink` 而不是它指向的那个类型；
+ * - 只对 `type==='dir'` 递归，故 symlink 指向的目录树不会被走进去。
+ *
+ * 判据不从这里取，也不从 `INVENTORY` 反推：本函数只交实物，比对住 `verdictAssembly`。
+ */
+export function observeAssembly(root = ASSEMBLY_DIR) {
+  // **根自身也要 lstat**。只做 `existsSync` 时，一个指向合格树的 symlink 根会被
+  // 直接 `readdirSync` 跟随进去，整棵树看起来完全合格——那是「随包根被换成链接」
+  // 这一类形状的结构性盲区。故先定根的类型，非真目录一律不递归。
+  let rootStat;
+  try {
+    rootStat = fs.lstatSync(root);
+  } catch {
+    return { root, exists: false, rootType: null, entries: [] };
+  }
+  const rootType = classifyStat(rootStat);
+  if (rootType !== 'dir') return { root, exists: true, rootType, entries: [] };
+
+  const entries = [];
+  const walk = (absolute, relative) => {
+    for (const name of fs.readdirSync(absolute)) {
+      const childAbsolute = path.join(absolute, name);
+      const childRelative = relative ? `${relative}/${name}` : name;
+      const type = classifyStat(fs.lstatSync(childAbsolute));
+      const record = { path: childRelative, type };
+      if (type === 'file') record.bytes = fs.statSync(childAbsolute).size;
+      entries.push(record);
+      if (type === 'dir') walk(childAbsolute, childRelative);
+    }
+  };
+  walk(root, '');
+  entries.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+  return { root, exists: true, rootType, entries };
+}
+
+/** `lstat` 结果 → 类型名。symlink 优先判定，故永远不会被它指向的类型顶替。 */
+function classifyStat(stat) {
+  if (stat.isSymbolicLink()) return 'symlink';
+  if (stat.isDirectory()) return 'dir';
+  if (stat.isFile()) return 'file';
+  if (stat.isSocket()) return 'socket';
+  if (stat.isFIFO()) return 'fifo';
+  if (stat.isBlockDevice() || stat.isCharacterDevice()) return 'device';
+  return 'other';
+}
+
+/**
+ * cleanup 的唯一窄接缝：杀掉子进程、**确认它真的走了**，确认不了就把 `kill-confirm`
+ * 记进该 termination 的结构化 `timeouts`。
+ *
+ * 之所以要这么一个 helper：`measure.mjs` 里有四处 cleanup，其中三处（initial ready 超时、
+ * respawn-ready 超时、respawn 后 EOF 超时）调了 `killAndConfirm()` 却把返回值丢掉，
+ * 于是「杀完还确认不了」这件事只有主 exit-timeout 那一条登记得上，另外三条静默。
+ * 收进一处之后，四个调用点共用同一套登记，且这条语义本身可被定向测试直接打。
+ */
+export async function killAndConfirmInto(proc, timeoutMs, timeouts) {
+  const exit = await proc.killAndConfirm(timeoutMs);
+  // 返回值必须被**消费**：确认不了就是一条真实的超时，追加登记（不顶替既有超时）。
+  if (exit === null || exit === undefined) timeouts.push('kill-confirm');
+  return exit ?? null;
+}
+
+/** 一份文件的双 cycle 读数格：先自证存在/regular/字节，再谈 SHA。 */
+export function fileFingerprint(absolute) {
+  if (!fs.existsSync(absolute)) return { exists: false, regularFile: false, bytes: null, sha256: null };
+  const stat = fs.lstatSync(absolute);
+  if (!stat.isFile()) return { exists: true, regularFile: false, bytes: null, sha256: null };
+  return { exists: true, regularFile: true, bytes: stat.size, sha256: sha256File(absolute) };
+}
 
 export function sha256File(file) {
   return createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -98,6 +193,10 @@ export function spawnNdjson(command, args, options = {}) {
   });
   child.stderr.on('data', (chunk) => stderrChunks.push(chunk));
 
+  const exited = new Promise((resolve) => {
+    child.on('exit', (code, signal) => resolve({ code, signal }));
+  });
+
   return {
     child,
     stderr: () => Buffer.concat(stderrChunks).toString('utf8'),
@@ -124,9 +223,26 @@ export function spawnNdjson(command, args, options = {}) {
         listeners.add(listener);
       });
     },
-    exited: new Promise((resolve) => {
-      child.on('exit', (code, signal) => resolve({ code, signal }));
-    }),
+    exited,
+    /**
+     * 有上界的退出等待：超时回 `null`，由调用方写结构化 failure 并收拾子进程。
+     * 裸 `await exited` 在「既不 ack 也不退出」的子进程上会永久挂起——
+     * `f261347` 点名的正是这一处，故本件此后不再提供无上界的等法。
+     */
+    waitForExit(timeoutMs) {
+      return new Promise((resolve) => {
+        const timer = setTimeout(() => resolve(null), timeoutMs);
+        exited.then((value) => {
+          clearTimeout(timer);
+          resolve(value);
+        });
+      });
+    },
+    /** SIGKILL 后仍要确认它真的走了；确认本身也有上界。 */
+    async killAndConfirm(timeoutMs, signal = 'SIGKILL') {
+      if (child.exitCode === null && child.signalCode === null) child.kill(signal);
+      return this.waitForExit(timeoutMs);
+    },
   };
 }
 
@@ -135,15 +251,12 @@ export function spawnNdjson(command, args, options = {}) {
  * 的形态交给判定层，这正是 `9b8142f` 拒绝的「静默 continue」的反面。
  */
 export function resolveArtifact(entry) {
-  if (entry.route === 'a-sealed-bundle') {
-    const variant = SEALED_VARIANTS.find((candidate) => candidate.name === entry.variant);
-    const dir = path.join(DIST_DIR, 'route-a', `${entry.triple}--${entry.variant}`);
-    const executable = path.join(dir, `${SIDECAR_BASENAME}-${entry.triple}`);
-    const carried = path.join(dir, `sidecar.${variant.extension}`);
+  const dir = path.join(assemblyRouteDir(entry.route), `${entry.triple}--${entry.variant}`);
+  const executable = path.join(dir, `${SIDECAR_BASENAME}-${entry.triple}`);
+  if (entry.carriedBasename) {
+    const carried = path.join(dir, entry.carriedBasename);
     return { ...entry, dir, command: executable, args: [carried], files: [executable, carried] };
   }
-  const dir = path.join(DIST_DIR, 'route-b', `${entry.triple}--${entry.variant}`);
-  const executable = path.join(dir, `${SIDECAR_BASENAME}-${entry.triple}`);
   return { ...entry, dir, command: executable, args: [], files: [executable] };
 }
 

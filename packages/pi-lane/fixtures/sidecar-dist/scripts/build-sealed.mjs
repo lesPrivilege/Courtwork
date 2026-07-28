@@ -23,12 +23,14 @@ import * as esbuild from 'esbuild';
 
 import { SEALED_VARIANTS } from './lib/probe-verdict.mjs';
 import {
+  BUILD_DIR,
   DIST_DIR,
   FIXTURE_DIR,
   NODE_VERSION,
   RUNTIME_DIR,
   SIDECAR_BASENAME,
   TARGETS,
+  assemblyRouteDir,
   byteSize,
   ensureDir,
   rmrf,
@@ -36,7 +38,13 @@ import {
   sha256File,
 } from './lib/toolkit.mjs';
 
-const ROUTE_DIR = path.join(DIST_DIR, 'route-a');
+/**
+ * R2 的装配面一分为二：中间 bundle 全住 scratch，**只有随包的两件**进 assembly。
+ * R1 把六档 bundle（含未 minify 的）直接摊在 `route-a/` 顶层，于是「随包目录」里
+ * 混着一堆不随包的东西；那种形状下「多一件」根本无从判起。
+ */
+const SCRATCH_DIR = path.join(BUILD_DIR, 'route-a');
+const ROUTE_DIR = assemblyRouteDir('a-sealed-bundle');
 const ENTRY = path.join(FIXTURE_DIR, 'scripts', 'sidecar-fixture.mjs');
 
 /** esbuild 官方给 ESM 产物补 CJS `require` 的做法；不是自研垫片。 */
@@ -51,11 +59,13 @@ const VARIANTS = SEALED_VARIANTS.map((variant) => ({ ...variant, banner: BANNERS
 
 rmrf(ROUTE_DIR);
 ensureDir(ROUTE_DIR);
+rmrf(SCRATCH_DIR);
+ensureDir(SCRATCH_DIR);
 
 async function bundle(variant, minify) {
   // 中间件名带 variant，避免三档互相覆盖；`cjs` 档的 name 与 extension 同名，去重一次。
   const stem = variant.name === variant.extension ? 'sidecar' : `sidecar.${variant.name}`;
-  const outfile = path.join(ROUTE_DIR, `${stem}${minify ? '.min' : ''}.${variant.extension}`);
+  const outfile = path.join(SCRATCH_DIR, `${stem}${minify ? '.min' : ''}.${variant.extension}`);
   const result = await esbuild.build({
     entryPoints: [ENTRY],
     outfile,
@@ -106,16 +116,28 @@ for (const target of TARGETS) {
     const built = summary.bundles[variant.name].minified;
     if (!built || built.failed) continue;
     const targetDir = path.join(ROUTE_DIR, `${target.triple}--${variant.name}`);
-    ensureDir(targetDir);
+
+    // 原子发布：先在 assembly **之外**把两件凑齐，全齐了才整目录 rename 进去。
+    // 中途失败时 assembly 里零该 variant 成品，不留半成品也不复用旧件。
+    const staging = path.join(SCRATCH_DIR, `staging--${target.triple}--${variant.name}`);
+    rmrf(staging);
+    ensureDir(staging);
+    rmrf(targetDir);
 
     // externalBin 形态：官方 node 原样改名，不改一个字节。
-    const executable = path.join(targetDir, `${SIDECAR_BASENAME}-${target.triple}`);
-    fs.copyFileSync(source, executable);
-    fs.chmodSync(executable, 0o755);
+    const stagedExecutable = path.join(staging, `${SIDECAR_BASENAME}-${target.triple}`);
+    fs.copyFileSync(source, stagedExecutable);
+    fs.chmodSync(stagedExecutable, 0o755);
 
     // 随行 bundle：Tauri 侧须另走 `bundle.resources`（或第二条 externalBin），本票只记形态与体积。
+    const stagedCarried = path.join(staging, `sidecar.${variant.extension}`);
+    fs.copyFileSync(built.outfile, stagedCarried);
+
+    ensureDir(path.dirname(targetDir));
+    fs.renameSync(staging, targetDir);
+
+    const executable = path.join(targetDir, `${SIDECAR_BASENAME}-${target.triple}`);
     const carried = path.join(targetDir, `sidecar.${variant.extension}`);
-    fs.copyFileSync(built.outfile, carried);
 
     summary.targets.push({
       triple: target.triple,

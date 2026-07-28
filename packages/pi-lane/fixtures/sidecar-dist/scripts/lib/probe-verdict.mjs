@@ -81,6 +81,8 @@ export const INVENTORY = TARGETS.flatMap((target) => [
     variant: variant.name,
     role: variant.role,
     fileCount: 2,
+    // 随包 bundle 的确切 basename。判据侧与采集侧共用它，错名即额外项。
+    carriedBasename: `sidecar.${variant.extension}`,
     expectedNode: NODE_VERSION,
     expectedArch: target.processArch,
     expectedSea: 'not-sea',
@@ -135,8 +137,76 @@ export const CRASH_EXPECTATIONS = [
   { kind: 'sigterm', code: null, signal: 'SIGTERM' },
 ];
 
-/** 冷启取样形状：三轮 × 每轮 25 样本，丢前 3 热身。 */
+/**
+ * 崩溃探针的具名 deadline（ms）。由 `f261347` 的「crash ack/exit 可无限等待」拍板冻结：
+ * 每一步等待都必须有上界，超时写结构化 failure、杀掉残留子进程并令顶层非零。
+ */
+export const CRASH_DEADLINES = {
+  ackMs: 15_000,
+  exitMs: 15_000,
+  respawnReadyMs: 30_000,
+  respawnEofMs: 15_000,
+  killConfirmMs: 5_000,
+};
+
+/** `throw`/`exit`/`hang` 必须先收到 `crashing` ack；`sigterm` 是外部信号，不要求 ack。 */
+export const CRASH_ACK_REQUIRED = ['throw', 'exit', 'hang'];
+
+/** 冷启取样形状：三轮 × 每轮 25 样本，前 3 枚只不入性能统计——**不从安全门排除**。 */
 export const COLDSTART_SHAPE = { rounds: 3, samples: 25, warmup: 3 };
+
+/** SEA 每 variant 必须走完的四个外部阶段，缺一或任一非零都不得发布。 */
+export const SEA_STAGES = ['removeSignature', 'postject', 'sign', 'verifyStrict'];
+
+/** 64 位小写 hex。`null`、空串、占位串（如 `sea-arm`）、大写与截断一律不是有效 SHA-256。 */
+const SHA256_HEX = /^[0-9a-f]{64}$/;
+
+export const isSha256Hex = (value) => typeof value === 'string' && SHA256_HEX.test(value);
+
+const isPositiveSize = (value) => Number.isSafeInteger(value) && value > 0;
+
+/**
+ * 唯一随包目录。构建 scratch、runtime、corpus、JSON 与反例留档**全在其外**——
+ * `f261347` 的 blocker 1 正是「装置只按常量推坐标、从不枚举磁盘」，多一件不会被发现。
+ */
+export const ASSEMBLY_DIR_NAME = 'assembly';
+
+export const ROUTE_DIR_NAMES = { 'a-sealed-bundle': 'route-a', 'b-node-sea': 'route-b' };
+
+/**
+ * assembly 的**期望闭集**：顶层恰 `route-a`/`route-b`，其下恰六个、四个 target/variant 目录，
+ * route A 每目录恰 executable + 指定 bundle，route B 每目录恰 executable。
+ * 这是判据侧的冻结字面量；采集侧必须由 `readdir`/`lstat` 独立得出实物，两边比对才有区分力。
+ */
+export function assemblyLayout() {
+  const dirs = ['route-a', 'route-b'];
+  const files = [];
+  for (const entry of INVENTORY) {
+    const dir = `${ROUTE_DIR_NAMES[entry.route]}/${entry.triple}--${entry.variant}`;
+    dirs.push(dir);
+    files.push(`${dir}/${SIDECAR_BASENAME}-${entry.triple}`);
+    if (entry.carriedBasename) files.push(`${dir}/${entry.carriedBasename}`);
+  }
+  return { dirs, files };
+}
+
+/**
+ * 随包件在 assembly 内的**唯一**预期相对路径。可复现性判据据此做 exact equality——
+ * 只问「是不是非空字符串」等于没绑：换成另一个合格 cell 的路径、`../outside`、
+ * 或错扩展名，都能带着两枚有效 fingerprint 蒙混过关。
+ */
+export function sealedBundleAssemblyPath(variantName) {
+  const variant = SEALED_VARIANTS.find((candidate) => candidate.name === variantName);
+  if (!variant) return null;
+  return `route-a/${TARGETS[0].triple}--${variantName}/sidecar.${variant.extension}`;
+}
+
+export function seaExecutableAssemblyPath(triple, variantName) {
+  const knownTriple = TARGETS.some((target) => target.triple === triple);
+  const knownVariant = SEA_VARIANTS.some((variant) => variant.name === variantName);
+  if (!knownTriple || !knownVariant) return null;
+  return `route-b/${triple}--${variantName}/${SIDECAR_BASENAME}-${triple}`;
+}
 
 /** ad-hoc 签名三姿势 × 两候选；`launches` 是**已实测的既知形态**，变了就该红。 */
 export const SIGN_MODES = [
@@ -175,6 +245,73 @@ export function normalizeMachoArch(fileOutput) {
 // 判定本体。十支各自只回报失败清单；顶层由 `conclude` 收束。
 // 判据一律「有一处不符就记一条」，不做提前 return——一次跑完要看到全部缺口。
 // ——————————————————————————————————————————————————————————————————————
+
+/**
+ * **物理** assembly 闭集。`f261347` 的 blocker 1：R1 只由常量 `INVENTORY` 推坐标、
+ * 再问「这些坐标存在吗」，于是磁盘上真多出 `route-a/unexpected-physical/proof.txt`
+ * 也照报 `status:'ok' failures:0`（本票已实测复现）。
+ *
+ * 判据因此翻转方向：采集侧交上来的是 `readdir` + `lstat` 得出的**实物全集**，
+ * 判据拿它与期望闭集做**双向**比对——期望的每一项要在且类型对，实物的每一项要在期望内。
+ * 预期文件必须是 regular file 且字节为正；symlink / socket / FIFO / 设备 / 子目录
+ * 一律不是 regular file，故落在 `assembly.fileType` 或 `assembly.unexpected`。
+ */
+export function verdictAssembly(observation) {
+  if (!observation) return [fail('assembly', 'assembly.observation', 'physical assembly observation', null)];
+  if (observation.exists !== true) {
+    return [fail('assembly', 'assembly.exists', true, asNullable(observation.exists))];
+  }
+  // 根自身必须是**真目录**。指向合格树的 symlink 根若被跟随，整棵树看起来毫无问题，
+  // 而随包根其实是一条链接——这一格不判，前面所有实物比对都建在流沙上。
+  if (observation.rootType !== 'dir') {
+    return [fail('assembly', 'assembly.rootType', 'dir', asNullable(observation.rootType))];
+  }
+
+  const failures = [];
+  const entries = Array.isArray(observation.entries) ? observation.entries : [];
+  const byPath = new Map();
+  for (const entry of entries) {
+    if (byPath.has(entry.path)) {
+      failures.push(fail(entry.path, 'assembly.duplicate', 'listed once', 'listed more than once'));
+    }
+    byPath.set(entry.path, entry);
+  }
+
+  const layout = assemblyLayout();
+  for (const dir of layout.dirs) {
+    const entry = byPath.get(dir);
+    if (!entry) {
+      failures.push(fail(dir, 'assembly.missingDir', 'directory', 'absent'));
+      continue;
+    }
+    if (entry.type !== 'dir') failures.push(fail(dir, 'assembly.dirType', 'dir', asNullable(entry.type)));
+  }
+  for (const file of layout.files) {
+    const entry = byPath.get(file);
+    if (!entry) {
+      failures.push(fail(file, 'assembly.missingFile', 'regular file', 'absent'));
+      continue;
+    }
+    if (entry.type !== 'file') {
+      failures.push(fail(file, 'assembly.fileType', 'regular file', asNullable(entry.type)));
+      continue;
+    }
+    if (!isPositiveSize(entry.bytes)) {
+      failures.push(fail(file, 'assembly.fileBytes', 'positive safe integer', asNullable(entry.bytes)));
+    }
+  }
+
+  const expected = new Set([...layout.dirs, ...layout.files]);
+  for (const entry of entries) {
+    if (!expected.has(entry.path)) {
+      failures.push(fail(entry.path, 'assembly.unexpected', 'not in closed set', asNullable(entry.type)));
+    }
+  }
+  if (entries.length !== expected.size) {
+    failures.push(fail('assembly', 'assembly.count', expected.size, entries.length));
+  }
+  return failures;
+}
 
 /** 库存必须恰为十件闭集：少一、多一、重复、错名都判红。 */
 export function verdictInventory(observedIds) {
@@ -338,7 +475,14 @@ export function verdictAbort(id, observation) {
   return failures;
 }
 
-/** 四类崩溃：kind 闭集、exact code/signal、且**逐类**复启 ready。 */
+/**
+ * 四类崩溃：kind 闭集、exact code/signal、逐类复启 ready，**且每一步等待都有上界**。
+ *
+ * `f261347` 的失败闭口之二：R1 只 `await crashing` 再裸 `await proc.exited`，
+ * 子进程若既不 ack 也不退出，整支 probe 永久挂起——既不写 failed verdict 也不非零退出。
+ * 现在 ack / exit / respawn-ready / respawn-EOF / kill-confirm 各有具名 deadline，
+ * 任一超时由采集侧写进 `timeouts`，本判据逐条记红。
+ */
 export function verdictCrash(id, observation) {
   const terminations = Array.isArray(observation?.terminations) ? observation.terminations : [];
   const failures = [];
@@ -352,6 +496,20 @@ export function verdictCrash(id, observation) {
   for (const expectation of CRASH_EXPECTATIONS) {
     const row = terminations.find((entry) => entry.kind === expectation.kind);
     if (!row) continue; // 缺类已由 crash.kinds 记过。
+
+    // 超时先记：挂住的那一步之后的读数本就不可信，但**不 early return**——
+    // 一次跑完要看到全部缺口，这是本模块的一贯口径。
+    const timeouts = Array.isArray(row.timeouts) ? row.timeouts : [];
+    for (const timeout of timeouts) {
+      failures.push(
+        fail(id, `crash.${expectation.kind}.deadline`, `within ${JSON.stringify(CRASH_DEADLINES)}`, timeout),
+      );
+    }
+
+    if (CRASH_ACK_REQUIRED.includes(expectation.kind) && row.ackSeen !== true) {
+      failures.push(fail(id, `crash.${expectation.kind}.ack`, true, asNullable(row.ackSeen)));
+    }
+
     const code = asNullable(row.exitCode);
     const signal = asNullable(row.signal);
     if (code !== expectation.code || signal !== expectation.signal) {
@@ -366,6 +524,96 @@ export function verdictCrash(id, observation) {
     }
     if (row.respawnReady !== true) {
       failures.push(fail(id, `crash.${expectation.kind}.respawn`, true, asNullable(row.respawnReady)));
+    }
+    if (row.respawnEofClean !== true) {
+      failures.push(fail(id, `crash.${expectation.kind}.respawnEof`, true, asNullable(row.respawnEofClean)));
+    }
+  }
+  return failures;
+}
+
+/**
+ * SEA 每 variant 的四个外部阶段。`f261347` 的失败闭口之三：R1 收了
+ * `codesign --remove-signature`、最终 `--sign` 与 `--verify` 的退出码，却只有 postject
+ * 非零会被拦，其余三者非零仍写 `status:'ok'`，也没有任何 shared verdict 消费这些值。
+ *
+ * 现在四阶段逐个判，且 `published` 与阶段结果必须自洽：任一阶段非零就不得发布成品。
+ */
+export function verdictSeaBuild(observation) {
+  if (!observation) return [fail('sea-build', 'seaBuild.observation', 'sea build observation', null)];
+  const failures = [];
+
+  const rows = Array.isArray(observation.variants) ? observation.variants : [];
+  const expectedCells = TARGETS.flatMap((target) => SEA_VARIANTS.map((variant) => `${target.triple}|${variant.name}`));
+  const observedCells = rows.map((row) => `${row.triple}|${row.variant}`);
+  if (!sameSet(observedCells, expectedCells) || new Set(observedCells).size !== observedCells.length) {
+    failures.push(fail('sea-build', 'seaBuild.matrix', expectedCells, observedCells));
+  }
+
+  for (const cell of expectedCells) {
+    const row = rows.find((entry) => `${entry.triple}|${entry.variant}` === cell);
+    if (!row) continue; // 缺格已由 seaBuild.matrix 记过。
+    const stages = row.stages ?? {};
+
+    // 第一个**非零**阶段就是归因点。缺席的阶段不算非零——它只是没跑到。
+    const firstFailing = SEA_STAGES.find((stage) => stages[stage] && stages[stage].exit !== 0) ?? null;
+    const allRanClean = SEA_STAGES.every((stage) => stages[stage] && stages[stage].exit === 0);
+
+    if (firstFailing) {
+      // 只报**那一个**阶段，不把后面缺席的阶段也算成失败——否则四枚反例互相串味，
+      // 「红了」就无从证明「红得准确」。
+      failures.push(fail(cell, `seaBuild.${firstFailing}`, 0, asNullable(stages[firstFailing].exit)));
+
+      const stderr = stages[firstFailing].stderr;
+      if (typeof stderr !== 'string' || stderr.trim().length === 0) {
+        failures.push(fail(cell, 'seaBuild.stageStderr', 'non-empty stderr for the failing stage', asNullable(stderr)));
+      }
+      if (row.stage !== firstFailing) {
+        failures.push(fail(cell, 'seaBuild.stage', firstFailing, asNullable(row.stage)));
+      }
+      if (row.status !== 'failed') {
+        failures.push(fail(cell, 'seaBuild.status', 'failed', asNullable(row.status)));
+      }
+      if (row.published !== false) {
+        failures.push(fail(cell, 'seaBuild.published', false, asNullable(row.published)));
+      }
+      if (row.publishedPath !== null && row.publishedPath !== undefined) {
+        failures.push(fail(cell, 'seaBuild.publishedPath', null, asNullable(row.publishedPath)));
+      }
+      // 物理残留：失败后整个 publishDir 必须不存在——file / dir / symlink 一律算残留。
+      if (row.publishDirPresent !== false) {
+        failures.push(fail(cell, 'seaBuild.publishDirPresent', false, asNullable(row.publishDirPresent)));
+      }
+      // 失败之后的阶段可以缺席（没跑到），但**不得冒充已成功运行**。
+      const after = SEA_STAGES.slice(SEA_STAGES.indexOf(firstFailing) + 1);
+      const faked = after.filter((stage) => stages[stage] && stages[stage].exit === 0);
+      if (faked.length > 0) {
+        failures.push(fail(cell, 'seaBuild.laterStage', `absent after ${firstFailing}`, faked));
+      }
+      continue;
+    }
+
+    if (!allRanClean) {
+      // 既没有非零阶段、又不是四阶段全过：说明有阶段压根没留记录（blocked / sea-config 早退）。
+      const missing = SEA_STAGES.filter((stage) => !stages[stage]);
+      failures.push(fail(cell, 'seaBuild.stagesMissing', SEA_STAGES, missing));
+      if (row.status === 'ok') failures.push(fail(cell, 'seaBuild.status', 'failed', 'ok'));
+      if (row.published === true) failures.push(fail(cell, 'seaBuild.published', false, true));
+      continue;
+    }
+
+    // —— 四阶段全过：这一格必须自证「确实发布了」。
+    if (row.status !== 'ok') {
+      failures.push(fail(cell, 'seaBuild.status', 'ok', asNullable(row.status)));
+    }
+    if (row.published !== true) {
+      failures.push(fail(cell, 'seaBuild.published', true, asNullable(row.published)));
+    }
+    if (typeof row.publishedPath !== 'string' || row.publishedPath.length === 0) {
+      failures.push(fail(cell, 'seaBuild.publishedPath', 'published assembly path', asNullable(row.publishedPath)));
+    }
+    if (row.publishDirPresent !== true) {
+      failures.push(fail(cell, 'seaBuild.publishDirPresent', true, asNullable(row.publishDirPresent)));
     }
   }
   return failures;
@@ -415,6 +663,15 @@ export function verdictColdstart(observation) {
     if (rounds.length !== COLDSTART_SHAPE.rounds) {
       failures.push(fail(subject.id, 'coldstart.rounds', COLDSTART_SHAPE.rounds, rounds.length));
     }
+    // 轮号必须严格是 1,2,3。三轮都标 `round:1` 时数量仍对，但那不是三轮证据。
+    const expectedRoundNumbers = Array.from({ length: COLDSTART_SHAPE.rounds }, (_, index) => index + 1);
+    const observedRoundNumbers = rounds.map((round) => round?.round);
+    if (
+      observedRoundNumbers.length !== expectedRoundNumbers.length ||
+      observedRoundNumbers.some((value, index) => value !== expectedRoundNumbers[index])
+    ) {
+      failures.push(fail(subject.id, 'coldstart.roundNumbers', expectedRoundNumbers, observedRoundNumbers));
+    }
     for (const round of rounds) {
       const at = `${subject.id}#${round.round ?? '?'}`;
       if (round.failed) {
@@ -424,10 +681,50 @@ export function verdictColdstart(observation) {
       if (round.keptSamples !== keptExpected) {
         failures.push(fail(at, 'coldstart.round.keptSamples', keptExpected, asNullable(round.keptSamples)));
       }
-      if (round.eofClean !== true) {
-        failures.push(fail(at, 'coldstart.round.eof', true, asNullable(round.eofClean)));
+
+      // `f261347` 的 blocker 2：R1 只判一个收束后的 `round.identity`，而 `sampleRound`
+      // 的返回把它换成了**漂移后**的值——「首枚样本身份错、后 24 枚正确」于是零 failure。
+      // 现在逐枚样本自证身份与 EOF，`identityDrift` 本身也是硬失败；
+      // 三枚 warmup 只不入性能统计，同样要过身份与 EOF 门。
+      const samples = Array.isArray(round.samples) ? round.samples : null;
+      if (samples === null) {
+        failures.push(fail(at, 'coldstart.round.samples', COLDSTART_SHAPE.samples, null));
+        continue;
       }
-      failures.push(...verdictIdentity(subject.id, round.identity).map((entry) => ({ ...entry, id: at })));
+      if (samples.length !== COLDSTART_SHAPE.samples) {
+        failures.push(fail(at, 'coldstart.round.sampleCount', COLDSTART_SHAPE.samples, samples.length));
+      }
+      const warmupCount = samples.filter((sample) => sample?.warmup === true).length;
+      if (warmupCount !== COLDSTART_SHAPE.warmup) {
+        failures.push(fail(at, 'coldstart.round.warmupCount', COLDSTART_SHAPE.warmup, warmupCount));
+      }
+      // `keptSamples` 既要等于冻结的 22，也要等于**实际**非 warmup 枚数——
+      // 只对其中一个，就还能靠改 warmup 标记把两边凑圆。
+      const actualKept = samples.filter((sample) => sample?.warmup !== true).length;
+      if (round.keptSamples !== actualKept) {
+        failures.push(fail(at, 'coldstart.round.keptSelfConsistent', actualKept, asNullable(round.keptSamples)));
+      }
+      samples.forEach((sample, index) => {
+        const where = `${at}#sample-${sample?.sample ?? index}`;
+        // ordinal 必须严格等于数组下标：`0..24` 各一次且顺序完整。
+        // 「复制 sample:0 顶掉 sample:1」总数仍是 25，只有这一条抓得住。
+        if (sample?.sample !== index) {
+          failures.push(fail(where, 'coldstart.sample.ordinal', index, asNullable(sample?.sample)));
+        }
+        // warmup 必须是**前三枚**，不是「随便三枚」。
+        const expectedWarmup = index < COLDSTART_SHAPE.warmup;
+        if (sample?.warmup !== expectedWarmup) {
+          failures.push(fail(where, 'coldstart.sample.warmupPosition', expectedWarmup, asNullable(sample?.warmup)));
+        }
+        failures.push(...verdictIdentity(subject.id, sample?.identity).map((entry) => ({ ...entry, id: where })));
+        failures.push(...cleanExit(where, 'coldstart.sample.eof', sample?.eof));
+        if (!Number.isFinite(sample?.elapsedMs) || sample.elapsedMs <= 0) {
+          failures.push(fail(where, 'coldstart.sample.elapsed', 'positive elapsed ms', asNullable(sample?.elapsedMs)));
+        }
+      });
+      if (round.identityDrift !== null && round.identityDrift !== undefined) {
+        failures.push(fail(at, 'coldstart.round.identityDrift', null, round.identityDrift));
+      }
     }
   }
   return failures;
@@ -453,7 +750,9 @@ export function verdictReproducibility(observation) {
   if (!sameSet(sealedNames, expectedSealed)) {
     failures.push(fail('reproducibility', 'reproducibility.sealed.set', expectedSealed, sealedNames));
   }
-  for (const row of sealed) failures.push(...deterministic(`sealed/${row.variant}`, row, true));
+  for (const row of sealed) {
+    failures.push(...deterministic(`sealed/${row.variant}`, row, sealedBundleAssemblyPath(row.variant), true));
+  }
 
   const seaDefault = Array.isArray(observation.seaDefault) ? observation.seaDefault : [];
   const expectedTriples = TARGETS.map((target) => target.triple);
@@ -462,7 +761,11 @@ export function verdictReproducibility(observation) {
       fail('reproducibility', 'reproducibility.default.set', expectedTriples, seaDefault.map((row) => row.triple)),
     );
   }
-  for (const row of seaDefault) failures.push(...deterministic(`sea-default/${row.triple}`, row, true));
+  for (const row of seaDefault) {
+    failures.push(
+      ...deterministic(`sea-default/${row.triple}`, row, seaExecutableAssemblyPath(row.triple, 'default'), true),
+    );
+  }
 
   const codeCache = Array.isArray(observation.seaCodeCache) ? observation.seaCodeCache : [];
   if (!sameSet(codeCache.map((row) => row.triple), expectedTriples)) {
@@ -470,7 +773,11 @@ export function verdictReproducibility(observation) {
       fail('reproducibility', 'reproducibility.codeCache.set', expectedTriples, codeCache.map((row) => row.triple)),
     );
   }
-  for (const row of codeCache) failures.push(...deterministic(`sea-code-cache/${row.triple}`, row, false));
+  for (const row of codeCache) {
+    failures.push(
+      ...deterministic(`sea-code-cache/${row.triple}`, row, seaExecutableAssemblyPath(row.triple, 'code-cache'), false),
+    );
+  }
 
   const cross = observation.crossArchCodeCache ?? null;
   if (!cross) {
@@ -488,13 +795,47 @@ export function verdictReproducibility(observation) {
   return failures;
 }
 
-/** 两次 SHA 的比对。`expectIdentical=false` 时「一致」才是失败——即误报可复现。 */
-function deterministic(label, row, expectIdentical) {
-  const shas = Array.isArray(row?.shas) ? row.shas : [];
-  if (shas.length !== 2) {
-    return [fail(label, 'reproducibility.cycleShas', 2, shas.length)];
+/**
+ * 两次读数的比对。`expectIdentical=false` 时「一致」才是失败——即误报可复现。
+ *
+ * `f261347` 的 blocker 3：R1 的 `deterministic()` 只做 JavaScript 相等性，于是
+ * `shas:[null,null]` 因 `null === null` 被当作「两次字节一致」。真相是构建摘要压根没记下
+ * executable SHA，可复现性无从谈起。
+ *
+ * 故次序在此翻转并**硬性前置**：先逐 cycle 证明「路径已记录、文件存在、是 regular file、
+ * 字节为正、SHA 是 64 位小写 hex」，任一不成立就到此为止——**无效读数不进相等比较**，
+ * 否则又是拿两个空值互证。
+ */
+function deterministic(label, row, expectedPath, expectIdentical) {
+  const cycles = Array.isArray(row?.cycles) ? row.cycles : [];
+  if (cycles.length !== 2) {
+    return [fail(label, 'reproducibility.cycleShas', 2, cycles.length)];
   }
-  const identical = shas[0] === shas[1];
+
+  const invalid = [];
+  // **exact equality**，不是「非空字符串」。path 必须正是该 variant/triple 的唯一预期坐标——
+  // 这一条同时挡掉错 cell、错扩展名与 `../outside`：它们都不等于那个唯一值。
+  if (row?.path !== expectedPath) {
+    invalid.push(fail(label, 'reproducibility.path', expectedPath, asNullable(row?.path)));
+  }
+  cycles.forEach((cycle, index) => {
+    const at = `${label}#cycle-${index + 1}`;
+    if (cycle?.exists !== true) {
+      invalid.push(fail(at, 'reproducibility.exists', true, asNullable(cycle?.exists)));
+    }
+    if (cycle?.regularFile !== true) {
+      invalid.push(fail(at, 'reproducibility.regularFile', true, asNullable(cycle?.regularFile)));
+    }
+    if (!isPositiveSize(cycle?.bytes)) {
+      invalid.push(fail(at, 'reproducibility.bytes', 'positive safe integer', asNullable(cycle?.bytes)));
+    }
+    if (!isSha256Hex(cycle?.sha256)) {
+      invalid.push(fail(at, 'reproducibility.sha256', '64-char lowercase hex', asNullable(cycle?.sha256)));
+    }
+  });
+  if (invalid.length > 0) return invalid;
+
+  const identical = cycles[0].sha256 === cycles[1].sha256;
   const failures = [];
   if (row.identical !== identical) {
     failures.push(fail(label, 'reproducibility.selfConsistent', identical, asNullable(row.identical)));
