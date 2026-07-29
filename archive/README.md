@@ -6,6 +6,13 @@
 
 归档材料是历史证据链，不是现行规范。`archive/` 全部内容不参与实现或验收，不得被现行文档、源码、脚本或 SPEC 直接引用（唯一例外见 `docs/README.md`「史料引用例外」：ADR 来源段与就绪图工单行可引路径作历史线索）。归档结论——即便文内标有「架构定调」——只有经现行 ADR、SPEC 或就绪图工单逐条吸收后才具约束力；升格动作须经架构拍板并在现行文档留痕。归档报告中的行号、计数、版本号与外部事实是当时工作树的历史坐标，会漂移；当前验收只认 `docs/status/current.md` 与现行 SPEC/ACCEPTANCE，不得从归档恢复字段、状态或验收标准。reconnect 时架构层文档（`docs/README.md` 起）自足开工，仅在追查现行规则历史成因或核实调研结论是否被推翻时按本索引定位。
 
+## handoffs/fable-pi-foundation-2026-07-29.md（现行接棒索引，非权威契约）
+
+Pi 基础线合流后的 Fable 长会话接棒件：索引现行 authority、串行收敛链、Fable/Sonnet 分工、
+GUI/Design 边界、调研召回与 OSS 复用闸门，以及未落仓线索。它只帮助新会话恢复 context；
+实际能力、字段、依赖与开工条件仍只认 `current.md`、implementation-readiness、ADR、SPEC 和
+ACCEPTANCE。后续 handoff 取代它时，应更新本索引，不得让两个“现行接棒”并存。
+
 ## handoffs/desktop-audit-handoff-2026-07-13.md（历史审计交接，已封存）
 
 原 `apps/desktop/AUDIT-HANDOFF.md` 原内容迁档并加归档说明，记录 `main@2e5c014` 时的视觉批、旧机器门数字、
@@ -42,6 +49,13 @@ Radix/cmdk/dockview/OpenWork 供料，区分“成熟 GUI 机制”与“Courtwo
 开工前冻结 wireframe、最终色值或逐处间距，构图/浅色 token 微调/微交互/截图迭代由其承担。
 **已部分消费**至 ADR-022 六-D 与 `PI-LANE-UI-1` 就绪行；本件只作参考证据，不是组件或 token
 真源，外部许可边界亦不得从归档反推为可依赖。
+
+## design-prototype-2026-07-19-r2/（历史 R2 原型，部分结论已被现行设计覆盖）
+
+封版原型、构图盘点与当时的 consolidation survey；可用于追查版式取舍和反例，但不是现行 token、
+字体、线级或组件真源。进入新 GUI 票时必须与 `docs/design/` 现行规范以及
+`site/craft-evidence/SKIN-R2-*`、`VERSIONAL-LANG-*`、`SITE-CRAFT-2*` 的真实验收证据对照；
+旧原型与现行证据冲突时，以后者为准，不得照图复刻。
 
 ## adr-drafts-2026-07-26.md（ADR 草案两份，已成文闭合）
 
