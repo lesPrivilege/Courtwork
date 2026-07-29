@@ -20,7 +20,10 @@
 4. 触 GUI 时加读：`docs/decisions/ADR-009-runtime-ports-and-harness.md`
    的 2026-07-28 pi GUI 窄例外、`docs/decisions/ADR-020-release-distribution-truth.md`、
    `apps/desktop/SPEC.md` 的相关 UI 段、`docs/design/README.md`、
-   `docs/design/tokens.json`、`docs/design/principles.md`、`docs/design/voice.md`。
+   `docs/design/tokens.json`、`docs/design/principles.md`、`docs/design/voice.md`、
+   `docs/design/typography-density.md`、`docs/design/signature-line.md`。
+   `docs/design/courtwork-design.md` 是供设计 agent 消费的编译件，只读、不得手改；触 schema
+   preview 时再加载 `schema-exemplar.md` / `visualization-kit.md`，不要把全套材料提前塞满 context。
 5. 只有在权威链读完后，才从 `archive/README.md` 这个唯一入口召回本文件下方的归档调研；
    归档只提供候选、反例与历史证据，不得形成隐含契约。
 
@@ -211,6 +214,29 @@ GUI 是成熟交互壳，Design 是作者性的视觉语言，两者分别解决
 Fable 已获实现自主权：方向、权威 token、参考包与禁区充足后，可以自己完成前端，不必等待所有
 像素先由架构角色定死。但新增语义、跨层字段和产品能力仍必须先出票。
 
+### 2026-07-30 Design / anti-slop 新材料已消费
+
+先读 `archive/research-design-anti-slop-recall-2026-07-30.md` 的窄结论，不再重做泛调研：
+
+- René Wang 的 [Field Notes](https://rene.wang/essay/field-notes-01) 值得借的是
+  before/after 决策日志、菜单的信息结构/措辞一致性、垂直密度与“协调对象共用同一参数”；
+  不是 LobeHub 皮层。其 layout spring 不得越过 desktop 数据区静止和四属性动效白名单；
+- `anti-ai-slop-kit` 只作非权威 review overlay：借参考“字/色/空/动/文/源，3 借 3 拒”、
+  edge-case grid 与人工反例；包无可复用许可且数据有漂移，禁止整贴 AGENTS/prompt、复制 token、
+  法律布局、截图或未经当日核实就安装 detector；
+- 两份 `.dc.html` 已逐字节存在
+  `site/craft-evidence/VERSIONAL-LANG-1/sources/`，并进入 architecture signature、proposal、
+  机器门和独立视觉验收；勿从 Downloads 再复制。它们是已消费 craft evidence，不是 token 或像素稿。
+
+新增视觉机制固定填写：
+
+`出处 | 真实 UI 职能 | 所替 slop | 唯一档位 | 现行 token | 机器门 | 区分力反例`
+
+任一栏答不出即不实现。仓内 `site:guard` 与 desktop 的 motion/elevation/signature-line/
+rule/typography/voice 门先跑；它们不覆盖“无意义 dashboard、模板化信息层级、英文 chrome
+措辞”等全部语义型 slop，仍须用真实 journal 状态、长中文、键盘/reduced-motion、scroll ownership
+和多宽度截图做人类审计。外部 scanner 只能补充，不能成为第二裁判。
+
 ## 八、调研召回索引
 
 按当前票装载，避免把全部历史一次塞进 context：
@@ -241,6 +267,8 @@ Fable 已获实现自主权：方向、权威 token、参考包与禁区充足�
 
 - `archive/research-gui-design-direction-2026-07-28.md`：Moda/OpenDesign/Logue/
   Open WebUI 0.11.0/assistant-ui 的消费边界、浅色方向和 anti-slop 反例；
+- `archive/research-design-anti-slop-recall-2026-07-30.md`：Field Notes、仓外 anti-slop kit、
+  两份已入仓 VERSIONAL-LANG 来源件的增量/重复/冲突审计，以及 GUI/OSS 证据状态速查；
 - `archive/benchmark-openwork-2026-07-26.md`：OpenWork/OpenCode 行为实测；注意其中部分
   queue/steer 结论后来已被 readiness 的时效订正推翻；
 - `archive/pi-ecosystem-2026-07-26.md`：pi 生态、thin harness 和安全参考候选；

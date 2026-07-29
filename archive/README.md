@@ -13,6 +13,14 @@ GUI/Design 边界、调研召回与 OSS 复用闸门，以及未落仓线索。�
 实际能力、字段、依赖与开工条件仍只认 `current.md`、implementation-readiness、ADR、SPEC 和
 ACCEPTANCE。后续 handoff 取代它时，应更新本索引，不得让两个“现行接棒”并存。
 
+## research-design-anti-slop-recall-2026-07-30.md（Fable Design / GUI 召回补记）
+
+核读 René Wang `Field Notes`、仓外 `anti-ai-slop-kit` 与用户再次提供的两份 `.dc.html`；
+确认两份 HTML 已以相同 SHA 进入 VERSIONAL-LANG 证据链，kit 的八站数据与旧归档大量重复且有
+观察漂移、整包无可复用许可。裁定只借 before/after 决策日志、参考“3 借 3 拒”、状态矩阵与
+人工 anti-slop 问题集；拒绝复制 token、prompt、法律布局、截图和外部皮层。附 GUI/OSS
+证据状态速查与 Fable 固定召回顺序。本件是归档输入，不替代 `docs/design/` 或当票上游复核。
+
 ## handoffs/desktop-audit-handoff-2026-07-13.md（历史审计交接，已封存）
 
 原 `apps/desktop/AUDIT-HANDOFF.md` 原内容迁档并加归档说明，记录 `main@2e5c014` 时的视觉批、旧机器门数字、
