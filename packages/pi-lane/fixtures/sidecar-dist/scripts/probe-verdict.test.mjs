@@ -556,6 +556,12 @@ describe('缺口五 · SEA 失败证据必须红得准确', () => {
     failed(verdictSeaBuild(observation), '成功行无 publishedPath');
   });
 
+  it('成功行 publishedPath 指向 assembly 外必须判红', () => {
+    const observation = goodSeaBuild();
+    observation.variants[0].publishedPath = '../bogus';
+    hasCheck(verdictSeaBuild(observation), 'seaBuild.publishedPath', '成功行 path 逃逸');
+  });
+
   it('成功行 status 不是 ok 判红', () => {
     const observation = goodSeaBuild();
     observation.variants[0].status = 'failed';

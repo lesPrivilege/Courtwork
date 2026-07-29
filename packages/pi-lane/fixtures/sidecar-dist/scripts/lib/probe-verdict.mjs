@@ -609,8 +609,9 @@ export function verdictSeaBuild(observation) {
     if (row.published !== true) {
       failures.push(fail(cell, 'seaBuild.published', true, asNullable(row.published)));
     }
-    if (typeof row.publishedPath !== 'string' || row.publishedPath.length === 0) {
-      failures.push(fail(cell, 'seaBuild.publishedPath', 'published assembly path', asNullable(row.publishedPath)));
+    const expectedPublishedPath = `assembly/${seaExecutableAssemblyPath(row.triple, row.variant)}`;
+    if (row.publishedPath !== expectedPublishedPath) {
+      failures.push(fail(cell, 'seaBuild.publishedPath', expectedPublishedPath, asNullable(row.publishedPath)));
     }
     if (row.publishDirPresent !== true) {
       failures.push(fail(cell, 'seaBuild.publishDirPresent', true, asNullable(row.publishDirPresent)));
