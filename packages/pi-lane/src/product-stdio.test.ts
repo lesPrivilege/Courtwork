@@ -14,6 +14,7 @@ import {
 import {
   ProductSidecarError,
   createProductSidecarSession,
+  type OutboundAgentEvent,
   type ProductSidecarSession,
   type PromptCompletion,
   type ReservedHostRequest,
@@ -139,6 +140,11 @@ const WRITE_REQUEST: OutboundHostRequest = {
   arguments: { logicalPath: 'brief.md', content: '正文', contentSha256: 'c'.repeat(64), byteLength: 6 },
 };
 
+const READ_REQUEST: OutboundHostRequest = {
+  capability: 'workspace_read',
+  arguments: { operation: 'read_file', logicalPath: 'notes.md' },
+};
+
 /**
  * 两段式接缝的调用侧替身：模拟 `workspace-write-env`——registry 先铸 op，hasher 再算 hash，
  * 最后把**同一枚** request 原样交给状态机。测试全册只经此路发 host request。
@@ -174,6 +180,16 @@ function writeOk(operationId: string): HostResultPayload {
     operation: 'write',
     status: 'ok',
     value: { logicalPath: 'brief.md', disposition: 'created', contentSha256: 'c'.repeat(64), byteLength: 6 },
+  };
+}
+
+function readOk(operationId: string): HostResultPayload {
+  return {
+    operationId,
+    capability: 'workspace_read',
+    operation: 'read_file',
+    status: 'ok',
+    value: { logicalPath: 'notes.md', content: '正文', contentSha256: 'c'.repeat(64), byteLength: 6 },
   };
 }
 
@@ -399,20 +415,22 @@ describe('prompt 与 agent event', () => {
     h.hooks.startPrompt = (_p, session) => {
       session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_abc123', toolName: 'write' });
       session.publishAgentEvent({ kind: 'tool_progress', rawToolCallId: 'call_abc123', toolName: 'write' });
-      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_def456', toolName: 'read' });
+      // 每 prompt 至多一枚未 finished tc：第二件工具必须等第一件闭合。
+      // 这枚 write 尚无 operation，故只有本地可判定的 failed/denied 可信。
       session.publishAgentEvent({
         kind: 'tool_finished',
         rawToolCallId: 'call_abc123',
         toolName: 'write',
-        outcome: 'succeeded',
+        outcome: 'failed',
       });
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_def456', toolName: 'read' });
     };
     prompt(h, 'req-1');
     const ids = h
       .out()
       .filter((packet) => packet.type === 'agent_event')
       .map((packet) => (packet.payload as { toolCallId?: string }).toolCallId);
-    expect(ids).toEqual(['tc_1_1', 'tc_1_1', 'tc_1_2', 'tc_1_1']);
+    expect(ids).toEqual(['tc_1_1', 'tc_1_1', 'tc_1_1', 'tc_1_2']);
     expect(h.allText()).not.toContain('call_abc123');
     expect(h.allText()).not.toContain('call_def456');
   });
@@ -625,11 +643,13 @@ describe('host correlation', () => {
     const ids: string[] = [];
     h.hooks.startPrompt = (_p, session) => {
       startTool(session, 'read', 'call_r');
-      ids.push(requestHost(session, WRITE_REQUEST));
+      ids.push(requestHost(session, READ_REQUEST));
     };
-    h.hooks.deliverHostResult = (_r, session) => void ids.push(requestHost(session, WRITE_REQUEST));
+    // read/glob/grep 无 effect，才可在同一 active tc 内重复 host-operation 子循环；
+    // 每轮都铸新 op，不复用。write 的单-operation 假设不适用于它们。
+    h.hooks.deliverHostResult = (_r, session) => void ids.push(requestHost(session, READ_REQUEST));
     prompt(h, 'req-1');
-    hostResult(h, writeOk('op_1_1'));
+    hostResult(h, readOk('op_1_1'));
     expect(ids).toEqual(['op_1_1', 'op_1_2']);
   });
 });
@@ -1513,5 +1533,409 @@ describe('R5 · pending 不可变镜像与逐值关联', () => {
     };
     hostResult(h, writeOk('op_1_1'));
     expect(lastPacket(h)).toMatchObject({ type: 'terminal', payload: { status: 'completed' } });
+  });
+});
+
+// ── PI-CODE-STDIO-1R2 · tc 状态表九枚反例 ────────────────────────────────────
+//
+// 九枚逐条落在 `PI-CODE-STDIO-1R` 独立验收（`4df2e84`）注入的 production 反例上。
+// 共同根因是 registry 只记 raw→tc 与 tc→toolName：既没有 owner prompt、没有阶段、
+// 没有 toolName↔capability 绑定，也不把「已 settled 的 effect」与「新 reservation」
+// 视作结构性互斥。九例分别破坏 effect 最小权限、两个 latch 条件互斥、公开投影稳定性、
+// closed event union、host-result truth、write 阶段分型、effect 收束、单向 registry
+// 与 request-scoped reservation。
+
+/** 反例册反复要数「恰一枚 tool_finished」，故单独取投影出去的该族事件。 */
+function finishedEvents(h: Harness): Record<string, unknown>[] {
+  return h
+    .out()
+    .filter((packet) => packet.type === 'agent_event' && (packet.payload as { kind: string }).kind === 'tool_finished')
+    .map((packet) => packet.payload as Record<string, unknown>);
+}
+
+/** 「不该出 wire 的事件真的没出 wire」比「抛了错」更接近本票的验收面。 */
+function agentEventKinds(h: Harness): string[] {
+  return h
+    .out()
+    .filter((packet) => packet.type === 'agent_event')
+    .map((packet) => (packet.payload as { kind: string }).kind);
+}
+
+function terminals(h: Harness): SidecarPacket[] {
+  return h.out().filter((packet) => packet.type === 'terminal');
+}
+
+/**
+ * 受测 API 一律在 runtime callback 内调用。这里不预设逃逸物的类型——反例四要证明的
+ * 恰恰是「现行实现逃逸为 TypeError / callback failure」，若先断言 ProductSidecarError
+ * 就把待证事实写进了夹具。
+ */
+function capture(call: () => void): unknown {
+  try {
+    call();
+    return null;
+  } catch (error) {
+    return error;
+  }
+}
+
+function openHarness(): Harness {
+  const h = createHarness();
+  bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+  return h;
+}
+
+const UPSTREAM_TERMINAL = {
+  type: 'terminal',
+  payload: { status: 'failed', error: { code: 'upstream_event_unsupported', retryable: false } },
+} as const;
+
+describe('R2-1 · tc identity：owner / toolName / capability', () => {
+  it('反例一 · toolName↔capability 双向错配都在 ordinal 分配前拒绝', () => {
+    // 正向：read tc 升权 workspace_write，把只读工具变成写 effect。
+    const escalate = openHarness();
+    const escalateOrdinals: string[] = [];
+    const escalateRejected: string[] = [];
+    escalate.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+      const error = capture(() => {
+        escalateOrdinals.push(session.reserveHostOperation({ publicToolCallId: 'tc_1_1', capability: 'workspace_write' }));
+      });
+      if (error !== null) escalateRejected.push('read→workspace_write');
+      // 同一 tc 的合法 read reservation 必须仍拿首枚 ordinal：错配不得烧号。
+      escalateOrdinals.push(session.reserveHostOperation({ publicToolCallId: 'tc_1_1', capability: 'workspace_read' }));
+    };
+    prompt(escalate, 'req-1');
+    expect(escalateRejected).toEqual(['read→workspace_write']);
+    expect(escalateOrdinals).toEqual(['op_1_1']);
+
+    // 反向：write tc 借 workspace_read 出请求，同样是 owner/name 绑定缺失。
+    const demote = openHarness();
+    const demoteOrdinals: string[] = [];
+    const demoteRejected: string[] = [];
+    demote.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      const error = capture(() => {
+        demoteOrdinals.push(session.reserveHostOperation({ publicToolCallId: 'tc_1_1', capability: 'workspace_read' }));
+      });
+      if (error !== null) demoteRejected.push('write→workspace_read');
+      demoteOrdinals.push(session.reserveHostOperation({ publicToolCallId: 'tc_1_1', capability: 'workspace_write' }));
+    };
+    prompt(demote, 'req-1');
+    expect(demoteRejected).toEqual(['write→workspace_read']);
+    expect(demoteOrdinals).toEqual(['op_1_1']);
+  });
+
+  it('反例三 · 同一 tc 不得改 toolName：progress / finished 改名一律 fail-closed', () => {
+    const progress = openHarness();
+    progress.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      capture(() => session.publishAgentEvent({ kind: 'tool_progress', rawToolCallId: 'call_w', toolName: 'read' }));
+    };
+    prompt(progress, 'req-1');
+    expect(agentEventKinds(progress)).toEqual(['tool_started']);
+    expect(lastPacket(progress)).toMatchObject(UPSTREAM_TERMINAL);
+
+    const finished = openHarness();
+    finished.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+      capture(() =>
+        session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_r', toolName: 'glob', outcome: 'succeeded' }),
+      );
+    };
+    prompt(finished, 'req-1');
+    expect(agentEventKinds(finished)).toEqual(['tool_started']);
+    expect(lastPacket(finished)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+
+  /**
+   * prompt 1 故意留下一枚**未 finished** 的 tc。这样 owner 门就是唯一能拦住它的判据：
+   * 阶段门（finished）与登记门（从未登记）都不适用——否则 stale 反例会被别的门顺手挡下，
+   * 于是「owner 门」自身零区分力。
+   */
+  function withStaleToolCall(): Harness {
+    const h = openHarness();
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+      session.finishPrompt({ kind: 'completed' });
+    };
+    prompt(h, 'req-1');
+    expect(lastPacket(h)).toMatchObject({ type: 'terminal', payload: { status: 'completed' } });
+    return h;
+  }
+
+  it('反例九 · 上一 prompt 的 stale tc 不得在新 prompt 中 reserve', () => {
+    const h = withStaleToolCall();
+    const ordinals: string[] = [];
+    const rejected: string[] = [];
+    h.hooks.startPrompt = (_p, session) => {
+      const error = capture(() => {
+        ordinals.push(session.reserveHostOperation({ publicToolCallId: 'tc_1_1', capability: 'workspace_read' }));
+      });
+      if (error !== null) rejected.push('stale');
+      // 本 prompt 自己的 tc 才有效；stale reserve 不得预先烧掉它的 ordinal。
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r2', toolName: 'read' });
+      ordinals.push(session.reserveHostOperation({ publicToolCallId: 'tc_1_2', capability: 'workspace_read' }));
+    };
+    prompt(h, 'req-2');
+    expect(rejected).toEqual(['stale']);
+    expect(ordinals).toEqual(['op_1_1']);
+  });
+
+  it('stale tc 的 progress / finished 同样 fail-closed，raw id 仍在本 leg 映射内也不例外', () => {
+    for (const event of [
+      { kind: 'tool_progress', rawToolCallId: 'call_r', toolName: 'read' },
+      { kind: 'tool_finished', rawToolCallId: 'call_r', toolName: 'read', outcome: 'succeeded' },
+    ] as const) {
+      const h = withStaleToolCall();
+      h.hooks.startPrompt = (_p, session) => {
+        // 'call_r' 的 raw→tc 映射是 per-leg 的，仍指向 tc_1_1；拦住它的只能是 owner prompt。
+        capture(() => session.publishAgentEvent(event));
+      };
+      prompt(h, 'req-2');
+      // 全册只该有 prompt 1 那一枚 tool_started；prompt 2 的 stale 事件零出 wire。
+      expect(agentEventKinds(h), event.kind).toEqual(['tool_started']);
+      expect(lastPacket(h), event.kind).toMatchObject(UPSTREAM_TERMINAL);
+    }
+  });
+
+  it('反例十 · finished 之后不得用旧 reservation 补发 host_request', () => {
+    const h = openHarness();
+    const ordinals: string[] = [];
+    const rejected: string[] = [];
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      const operationId = session.reserveHostOperation({
+        publicToolCallId: 'tc_1_1',
+        capability: 'workspace_write',
+      });
+      ordinals.push(operationId);
+      // 本地阶段可判定的 failed：该 tc 就此 finished，这枚尚未 send 的 reservation 随之作废。
+      session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_w', toolName: 'write', outcome: 'failed' });
+
+      // reserve 期通过不构成 send 期授权：否则写 effect 会晚于它所属工具的公开生命周期。
+      const late = capture(() =>
+        session.sendReservedHostRequest({
+          sessionId: SESSION,
+          requestId: 'req-1',
+          operationId,
+          proposalHash: HASH,
+          ...WRITE_REQUEST,
+        } as ReservedHostRequest),
+      );
+      if (late instanceof ProductSidecarError) rejected.push('finished-send');
+
+      // 已烧的 ordinal 不回收：下一枚合法 tc 的 reservation 只能是 op_1_2。
+      capture(() => {
+        session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w2', toolName: 'write' });
+        ordinals.push(session.reserveHostOperation({ publicToolCallId: 'tc_1_2', capability: 'workspace_write' }));
+      });
+    };
+    prompt(h, 'req-1');
+    expect(rejected).toEqual(['finished-send']);
+    expect(h.out().filter((packet) => packet.type === 'host_request')).toHaveLength(0);
+    expect(h.session.snapshot().pendingOperationId).toBeNull();
+    expect(ordinals).toEqual(['op_1_1', 'op_1_2']);
+  });
+
+  it('已 finished 的 tc 不得再 reserve，且拒绝同样早于 ordinal 分配', () => {
+    const h = openHarness();
+    const ordinals: string[] = [];
+    const rejected: string[] = [];
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+      session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_r', toolName: 'read', outcome: 'succeeded' });
+      const error = capture(() => {
+        ordinals.push(session.reserveHostOperation({ publicToolCallId: 'tc_1_1', capability: 'workspace_read' }));
+      });
+      if (error !== null) rejected.push('finished');
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r2', toolName: 'read' });
+      ordinals.push(session.reserveHostOperation({ publicToolCallId: 'tc_1_2', capability: 'workspace_read' }));
+    };
+    prompt(h, 'req-1');
+    expect(rejected).toEqual(['finished']);
+    expect(ordinals).toEqual(['op_1_1']);
+  });
+});
+
+describe('R2-2 · 单向 phase 与 closed event union', () => {
+  it('反例八 · finished 之后的同 tc progress / finished 必须 fail-closed', () => {
+    const progress = openHarness();
+    progress.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+      session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_r', toolName: 'read', outcome: 'succeeded' });
+      capture(() => session.publishAgentEvent({ kind: 'tool_progress', rawToolCallId: 'call_r', toolName: 'read' }));
+    };
+    prompt(progress, 'req-1');
+    expect(agentEventKinds(progress)).toEqual(['tool_started', 'tool_finished']);
+    expect(lastPacket(progress)).toMatchObject(UPSTREAM_TERMINAL);
+
+    const twice = openHarness();
+    twice.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+      session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_r', toolName: 'read', outcome: 'succeeded' });
+      capture(() =>
+        session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_r', toolName: 'read', outcome: 'failed' }),
+      );
+    };
+    prompt(twice, 'req-1');
+    expect(finishedEvents(twice)).toHaveLength(1);
+    expect(lastPacket(twice)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+
+  it('每 prompt 至多一枚未 finished tc：重叠 tool_started 由状态机显式拒，不靠上游 sequential 调度', () => {
+    const h = openHarness();
+    h.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_a', toolName: 'read' });
+      capture(() => session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_b', toolName: 'glob' }));
+    };
+    prompt(h, 'req-1');
+    expect(agentEventKinds(h)).toEqual(['tool_started']);
+    expect(lastPacket(h)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+
+  it('反例四 · 未知 kind / 未知 toolName 收为 upstream_event_unsupported，不逃逸为 TypeError 或 callback failure', () => {
+    const unknownKind = openHarness();
+    let escaped: unknown = 'unset';
+    unknownKind.hooks.startPrompt = (_p, session) => {
+      escaped = capture(() =>
+        session.publishAgentEvent({
+          kind: 'tool_cancelled',
+          rawToolCallId: 'call_w',
+          toolName: 'write',
+        } as unknown as OutboundAgentEvent),
+      );
+    };
+    prompt(unknownKind, 'req-1');
+    expect(escaped).toBeNull();
+    expect(agentEventKinds(unknownKind)).toEqual([]);
+    expect(lastPacket(unknownKind)).toMatchObject(UPSTREAM_TERMINAL);
+    // 未知 event 不得顺手把 turn 累计器写成 undefined。
+    expect(unknownKind.session.snapshot().observedTurns).toBe(0);
+
+    const unknownTool = openHarness();
+    let toolEscaped: unknown = 'unset';
+    unknownTool.hooks.startPrompt = (_p, session) => {
+      toolEscaped = capture(() =>
+        session.publishAgentEvent({
+          kind: 'tool_started',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+        } as unknown as OutboundAgentEvent),
+      );
+    };
+    prompt(unknownTool, 'req-1');
+    // 闭集外的 toolName 同样只走 terminal，不得以抛错代替 fail-closed 投影。
+    expect(toolEscaped).toBeNull();
+    expect(agentEventKinds(unknownTool)).toEqual([]);
+    expect(lastPacket(unknownTool)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+});
+
+describe('R2-3 · write 阶段分型与 host-result truth', () => {
+  it('反例六 · write 尚无 operation 时的 succeeded / uncertain 先改投 failed，再按上游违约关闭', () => {
+    for (const outcome of ['succeeded', 'uncertain'] as const) {
+      const h = openHarness();
+      h.hooks.startPrompt = (_p, session) => {
+        startTool(session, 'write');
+        capture(() =>
+          session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_w', toolName: 'write', outcome }),
+        );
+      };
+      prompt(h, 'req-1');
+      expect(finishedEvents(h), outcome).toEqual([
+        { kind: 'tool_finished', toolCallId: 'tc_1_1', toolName: 'write', outcome: 'failed' },
+      ]);
+      expect(lastPacket(h), outcome).toMatchObject(UPSTREAM_TERMINAL);
+    }
+
+    // 本地阶段真能判定的两枚仍如实放行，改投不得误伤。
+    for (const outcome of ['failed', 'denied'] as const) {
+      const h = openHarness();
+      h.hooks.startPrompt = (_p, session) => {
+        startTool(session, 'write');
+        session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_w', toolName: 'write', outcome });
+        session.finishPrompt({ kind: 'completed' });
+      };
+      prompt(h, 'req-1');
+      expect(finishedEvents(h), outcome).toEqual([
+        { kind: 'tool_finished', toolCallId: 'tc_1_1', toolName: 'write', outcome },
+      ]);
+      expect(lastPacket(h), outcome).toMatchObject({ type: 'terminal', payload: { status: 'completed' } });
+    }
+  });
+
+  it('反例五 · write 仍 operation_pending 时的上游 tool_finished 只进闩锁，outcome 只认 host status', () => {
+    const h = openHarness();
+    h.hooks.startPrompt = (_p, session) => {
+      startTool(session, 'write');
+      requestHost(session, WRITE_REQUEST);
+      capture(() =>
+        session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_w', toolName: 'write', outcome: 'succeeded' }),
+      );
+    };
+    prompt(h, 'req-1');
+    // 闩锁：不投影上游 outcome、不提前 terminal、pending 不丢。
+    expect(finishedEvents(h)).toEqual([]);
+    expect(terminals(h)).toEqual([]);
+    expect(h.session.snapshot().pendingOperationId).toBe('op_1_1');
+
+    hostResult(h, {
+      operationId: 'op_1_1',
+      capability: 'workspace_write',
+      operation: 'write',
+      status: 'denied',
+      error: { code: 'user_denied', message: '用户拒绝' },
+    });
+    expect(finishedEvents(h)).toEqual([
+      { kind: 'tool_finished', toolCallId: 'tc_1_1', toolName: 'write', outcome: 'denied' },
+    ]);
+    expect(lastPacket(h)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+});
+
+describe('R2-4 · settled effect 与新 reservation 结构互斥', () => {
+  /** host_result 已合法收下、`tool_finished` 尚未投影的那一刻。 */
+  function settled(onDeliver: (session: ProductSidecarSession) => void): Harness {
+    const h = openHarness();
+    h.hooks.startPrompt = (_p, session) => {
+      startTool(session, 'write');
+      requestHost(session, WRITE_REQUEST);
+    };
+    h.hooks.deliverHostResult = (_r, session) => void capture(() => onDeliver(session));
+    prompt(h, 'req-1');
+    capture(() => hostResult(h, writeOk('op_1_1')));
+    return h;
+  }
+
+  const SETTLED_FINISHED = {
+    kind: 'tool_finished',
+    toolCallId: 'tc_1_1',
+    toolName: 'write',
+    outcome: 'succeeded',
+  };
+
+  it('反例二 · settled write 未投影前不得再 reserve / send 第二枚 operation', () => {
+    const h = settled((session) => void requestHost(session, WRITE_REQUEST));
+    expect(finishedEvents(h)).toEqual([SETTLED_FINISHED]);
+    expect(h.out().filter((packet) => packet.type === 'host_request')).toHaveLength(1);
+    expect(terminals(h)).toHaveLength(1);
+    expect(lastPacket(h)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+
+  it('反例七 · settled effect 未投影时的普通 finishPrompt 不得抹掉它', () => {
+    const h = settled((session) => session.finishPrompt({ kind: 'completed' }));
+    expect(finishedEvents(h)).toEqual([SETTLED_FINISHED]);
+    expect(terminals(h)).toHaveLength(1);
+    expect(lastPacket(h)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+
+  it('settled effect 未投影时起下一枚工具，同样先自发 tool_finished 再 terminal', () => {
+    const h = settled((session) =>
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' }),
+    );
+    expect(finishedEvents(h)).toEqual([SETTLED_FINISHED]);
+    expect(terminals(h)).toHaveLength(1);
+    expect(lastPacket(h)).toMatchObject(UPSTREAM_TERMINAL);
   });
 });

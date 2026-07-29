@@ -187,12 +187,46 @@ export interface ProductSidecarSession {
   snapshot(): SessionSnapshot;
 }
 
+/**
+ * 模型工具到 host capability 的**固定双向映射**（ADR-022 六-B.1）。
+ * 它同时充当 tool name 的运行时闭集：`ProductToolName` 是编译期 union，cast 与未来上游
+ * 事件都翻得过去，故 `PRODUCT_TOOL_NAMES` 从本表键派生，避免第二份词表各自漂移。
+ */
+const TOOL_CAPABILITY = {
+  read: 'workspace_read',
+  glob: 'workspace_read',
+  grep: 'workspace_read',
+  write: 'workspace_write',
+} as const satisfies Record<ProductToolName, 'workspace_read' | 'workspace_write'>;
+
+const PRODUCT_TOOL_NAMES: ReadonlySet<string> = new Set(Object.keys(TOOL_CAPABILITY));
+
+/**
+ * 公开 tc 的阶段。只向前推进，`finished` 是终态。
+ *
+ * `started → reserved → pending` 之后按工具分叉：write 落 `settled` 等自己的 `tool_finished`；
+ * read/glob/grep 无 effect，回到 `started` 以保留同一 tc 内的多 host-operation 子循环。
+ */
+type ToolCallPhase = 'started' | 'reserved' | 'pending' | 'settled' | 'finished';
+
+/** `tool_started` 当场铸出、此后不可改的 tc 身份，加上单向推进的阶段。 */
+type ToolCallRecord = {
+  /** 生成它的 active prompt。旧 prompt 的 tc 一律 stale，不因 leg 未换而复活。 */
+  readonly requestId: SafeToken;
+  /** 一枚 tc 一个名字；progress/finished/reserve 改名即违约。 */
+  readonly toolName: ProductToolName;
+  phase: ToolCallPhase;
+  /** write 一旦 send 就只允许这一枚 operation；send 前 hash 失败烧掉的 ordinal 不算。 */
+  writeOperationSent: boolean;
+};
+
 /** 已发出 request 的**不可变镜像**；host_result 只与它比对，绝不回读 runtime 仍可变的对象。 */
 type PendingOperation = {
   operationId: SafeToken;
   requestId: SafeToken;
   toolCallId: SafeToken;
-  toolName: ProductToolName;
+  /** registry 里那一条记录本身：`requestId`/`toolName` 只读，故仍是镜像语义。 */
+  record: ToolCallRecord;
   capability: 'workspace_write' | 'workspace_read';
   operation: WorkspaceOperation;
   logicalPath: string;
@@ -202,7 +236,7 @@ type PendingOperation = {
 };
 
 /** host_result 已合法收下、对应 write 的 `tool_finished` 尚未发布的中间态。 */
-type SettledWrite = { toolCallId: SafeToken; toolName: ProductToolName; status: HostResultStatus };
+type SettledWrite = { toolCallId: SafeToken; record: ToolCallRecord; status: HostResultStatus };
 
 /**
  * write 进入 `operation_pending` 后，`tool_finished.outcome` **只认** host status，
@@ -260,15 +294,20 @@ export function createProductSidecarSession(
   const canceledRequestIds = new Set<SafeToken>();
   /** 本 leg 的 raw→公开 tc 映射。跨 leg 唯一性靠 leg 前缀 + Rust 的 previous+1 校验。 */
   const toolCallIds = new Map<string, SafeToken>();
-  /** 公开 tc→toolName：reservation 与闩锁收束都要凭它自行发 `tool_finished`。 */
-  const toolNames = new Map<SafeToken, ProductToolName>();
+  /** 公开 tc→身份与阶段。owner/name/phase 三门与闩锁自发 `tool_finished` 都凭它。 */
+  const toolCalls = new Map<SafeToken, ToolCallRecord>();
+  /**
+   * 本 prompt 中尚未 finished 的那一枚 tc。产品 Agent 固定 `toolExecution:'sequential'`，
+   * 但那是上游调度，不是安全边界——「每 prompt 至多一枚未 finished tc」必须由本机器显式守住。
+   */
+  let activeToolCallId: SafeToken | null = null;
   const resolvedOperationIds = new Set<SafeToken>();
   let pending: PendingOperation | null = null;
   let settledWrite: SettledWrite | null = null;
   /** `pending_upstream_failure`：不清 pending、不提前 terminal，只等 effect 收束。 */
   let upstreamLatched = false;
   let reservation:
-    | { operationId: SafeToken; requestId: SafeToken; toolCallId: SafeToken; toolName: ProductToolName; capability: 'workspace_write' | 'workspace_read' }
+    | { operationId: SafeToken; requestId: SafeToken; toolCallId: SafeToken; record: ToolCallRecord; capability: 'workspace_write' | 'workspace_read' }
     | null = null;
   let toolCallOrdinal = 0;
   let operationOrdinal = 0;
@@ -412,8 +451,26 @@ export function createProductSidecarSession(
     upstreamLatched = false;
     settledWrite = null;
     reservation = null;
+    // tc 记录本身留着：下一 prompt 引用它必须被判 stale，而不是被当成「从未登记」。
+    activeToolCallId = null;
     if (!emit({ sessionId, requestId, type: 'terminal', payload: terminal })) return;
     phase = closesSession(terminal) ? 'closed' : 'idle';
+  }
+
+  /**
+   * 投影 `tool_finished` 并同步登记：该 tc 就此 finished（单向阶段的终点），
+   * 本 prompt 的 active 位随之释放。所有出 wire 的 finished 都必须经这里，
+   * 否则 registry 会与已发布的投影脱节。
+   */
+  function publishToolFinished(record: ToolCallRecord, toolCallId: SafeToken, outcome: ToolOutcome): boolean {
+    record.phase = 'finished';
+    if (activeToolCallId === toolCallId) activeToolCallId = null;
+    return emit({
+      sessionId,
+      requestId: activeRequestId,
+      type: 'agent_event',
+      payload: { kind: 'tool_finished', toolCallId, toolName: record.toolName, outcome },
+    });
   }
 
   /**
@@ -422,19 +479,25 @@ export function createProductSidecarSession(
    */
   function settleUpstreamFailure(settled: SettledWrite): void {
     settledWrite = null;
-    const published = emit({
-      sessionId,
-      requestId: activeRequestId,
-      type: 'agent_event',
-      payload: {
-        kind: 'tool_finished',
-        toolCallId: settled.toolCallId,
-        toolName: settled.toolName,
-        outcome: outcomeFromHostStatus(settled.toolName, settled.status),
-      },
-    });
+    const published = publishToolFinished(
+      settled.record,
+      settled.toolCallId,
+      outcomeFromHostStatus(settled.record.toolName, settled.status),
+    );
     if (!published) return;
     terminate({ kind: 'failed', code: 'upstream_event_unsupported', retryable: false });
+  }
+
+  /**
+   * settled effect 与「新 reservation / 新工具 / 普通 finish」结构性互斥。
+   *
+   * 返回 true 表示已按**已保存的 host status** 自发恰一枚正确 `tool_finished`、再按既定
+   * 优先级 terminal，调用方就此收手——普通 terminal 绝不能把未投影的 settled effect 抹掉。
+   */
+  function closeSettledEffectOnViolation(): boolean {
+    if (settledWrite === null) return false;
+    failUpstream();
+    return true;
   }
 
   /**
@@ -518,6 +581,7 @@ export function createProductSidecarSession(
     settledWrite = null;
     upstreamLatched = false;
     reservation = null;
+    activeToolCallId = null;
     phase = 'prompting';
     invokeRuntime(() => runtime.startPrompt({ requestId, text }));
   }
@@ -593,9 +657,12 @@ export function createProductSidecarSession(
     resolvedOperationIds.add(payload.operationId);
     const settled: SettledWrite = {
       toolCallId: pending.toolCallId,
-      toolName: pending.toolName,
+      record: pending.record,
       status: payload.status,
     };
+    // write 停在 settled 等自己的 tool_finished；read/glob/grep 无 effect，回到 started
+    // 以保留同一 active tc 内的多 host-operation 子循环。
+    settled.record.phase = settled.record.toolName === 'write' ? 'settled' : 'started';
     pending = null;
     if (payload.status === 'uncertain') effectUncertain = true;
 
@@ -606,7 +673,7 @@ export function createProductSidecarSession(
       return;
     }
     // write 的 tool_finished 只认这枚 status，故先记再回灌（runtime 可能同步就发 finished）。
-    if (settled.toolName === 'write') settledWrite = settled;
+    if (settled.record.toolName === 'write') settledWrite = settled;
     invokeRuntime(() => runtime.deliverHostResult(payload));
   }
 
@@ -728,44 +795,74 @@ export function createProductSidecarSession(
         return;
       }
       case 'tool_started': {
+        // toolName 闭集先于一切：cast 或未来上游工具不得凭空登记一枚 tc。
+        if (!PRODUCT_TOOL_NAMES.has(event.toolName)) {
+          failUpstream();
+          return;
+        }
         if (toolCallIds.has(event.rawToolCallId)) {
+          failUpstream();
+          return;
+        }
+        // 起下一件工具前，上一枚 write 的 settled effect 必须先被投影。
+        if (closeSettledEffectOnViolation()) return;
+        if (activeToolCallId !== null) {
           failUpstream();
           return;
         }
         toolCallOrdinal += 1;
         const toolCallId = `tc_${currentLeg}_${toolCallOrdinal}`;
         toolCallIds.set(event.rawToolCallId, toolCallId);
-        toolNames.set(toolCallId, event.toolName);
+        toolCalls.set(toolCallId, {
+          requestId,
+          toolName: event.toolName,
+          phase: 'started',
+          writeOperationSent: false,
+        });
+        activeToolCallId = toolCallId;
         publish({ kind: 'tool_started', toolCallId, toolName: event.toolName });
         return;
       }
       case 'tool_progress': {
-        const toolCallId = toolCallIds.get(event.rawToolCallId);
-        if (toolCallId === undefined) {
+        const active = resolveActiveToolCall(event.rawToolCallId, requestId, event.toolName);
+        if (active === null) {
           failUpstream();
           return;
         }
-        publish({ kind: 'tool_progress', toolCallId, toolName: event.toolName });
+        // 名字出自 registry，不出自本次事件——公开投影的稳定性不交给调用方。
+        publish({ kind: 'tool_progress', toolCallId: active.toolCallId, toolName: active.record.toolName });
         return;
       }
       case 'tool_finished': {
-        const toolCallId = toolCallIds.get(event.rawToolCallId);
-        if (toolCallId === undefined) {
+        const active = resolveActiveToolCall(event.rawToolCallId, requestId, event.toolName);
+        if (active === null) {
           failUpstream();
           return;
         }
+        const { toolCallId, record } = active;
+
         if (settledWrite !== null && settledWrite.toolCallId === toolCallId) {
-          // 已进入 operation_pending 的 write：outcome 只认 host status，上游改型即违约。
-          if (event.outcome !== outcomeFromHostStatus(settledWrite.toolName, settledWrite.status)) {
+          // host_result 已到的 write：outcome 只认 host status，上游改型即违约。
+          if (event.outcome !== outcomeFromHostStatus(record.toolName, settledWrite.status)) {
             failUpstream();
             return;
           }
           settledWrite = null;
+        } else if (record.phase === 'pending') {
+          // host_result 未到就报 outcome：不得相信调用方，转入 pending 闩锁等唯一真源。
+          failUpstream();
+          return;
+        } else if (record.toolName === 'write' && (event.outcome === 'succeeded' || event.outcome === 'uncertain')) {
+          // operation 尚未创建的未知结束。ADR 本地阶段分型：先以 failed 闭合该 public tc，
+          // 再按 upstream 违约关闭 prompt——pre-operation 的伪成功绝不得原样上 wire。
+          publishToolFinished(record, toolCallId, 'failed');
+          failUpstream();
+          return;
         }
-        publish({ kind: 'tool_finished', toolCallId, toolName: event.toolName, outcome: event.outcome });
+        publishToolFinished(record, toolCallId, event.outcome);
         return;
       }
-      default: {
+      case 'turn_finished': {
         if (event.turn <= observedTurns) {
           throw new ProductSidecarError('observed turn ordinal 必须跨 prompt 与 leg 严格递增');
         }
@@ -781,8 +878,35 @@ export function createProductSidecarSession(
           usage: event.usage,
           stopReason: event.stopReason,
         });
+        return;
+      }
+      default: {
+        // TypeScript union 不是运行时验证。cast 进来的、以及未来上游新增的 event 必须收为
+        // 闭集失败，不得落进某个分支去读不存在的字段、再逃逸成 TypeError 或 callback failure。
+        failUpstream();
       }
     }
+  }
+
+  /**
+   * progress/finished 的共用解析门：闭集内的 toolName、本 prompt 铸出的 tc、与登记同名、
+   * 且尚未 finished，四条全过才算有效。任一不成立都交给调用方 fail-closed。
+   */
+  function resolveActiveToolCall(
+    rawToolCallId: string,
+    requestId: SafeToken,
+    toolName: string,
+  ): { toolCallId: SafeToken; record: ToolCallRecord } | null {
+    if (!PRODUCT_TOOL_NAMES.has(toolName)) return null;
+    const toolCallId = toolCallIds.get(rawToolCallId);
+    if (toolCallId === undefined) return null;
+    const record = toolCalls.get(toolCallId);
+    if (record === undefined) return null;
+    // 旧 prompt 的 tc、改名、已 finished 的倒退，三者一律不是有效引用。
+    if (record.requestId !== requestId) return null;
+    if (record.toolName !== toolName) return null;
+    if (record.phase === 'finished') return null;
+    return { toolCallId, record };
   }
 
   /** reserve 与 send 共用的前置门；两段都要在自己那一刻重验，不靠对方兜底。 */
@@ -797,6 +921,9 @@ export function createProductSidecarSession(
     if (pending !== null) {
       throw new ProductSidecarError('同一时刻只允许一个在途 host request');
     }
+    if (closeSettledEffectOnViolation()) {
+      throw new ProductSidecarError('settled effect 未投影前不得发新的 host request');
+    }
     return { requestId, currentSession };
   }
 
@@ -806,15 +933,26 @@ export function createProductSidecarSession(
     if (!capabilities.includes(input.capability)) {
       throw new ProductSidecarError('未在 ready 宣告的 capability 不得发 host request');
     }
-    const toolName = toolNames.get(input.publicToolCallId);
-    if (toolName === undefined) {
-      throw new ProductSidecarError('reserve 只接受本 leg 已登记的公开 toolCallId');
+    const record = toolCalls.get(input.publicToolCallId);
+    if (record === undefined || record.requestId !== requestId) {
+      throw new ProductSidecarError('reserve 只接受当前 prompt 铸出的公开 toolCallId');
+    }
+    if (record.phase === 'finished') {
+      throw new ProductSidecarError('已 finished 的 toolCallId 不得再 reserve');
+    }
+    if (TOOL_CAPABILITY[record.toolName] !== input.capability) {
+      throw new ProductSidecarError('capability 必须等于该 toolName 的固定映射');
+    }
+    if (record.writeOperationSent) {
+      throw new ProductSidecarError('write 一旦 send 即不得为同一 tc 铸第二枚 operation');
     }
 
-    // 上一枚未 send 的 reservation 就此烧号：不出 wire、不成为 pending、不得复用。
+    // owner/name/phase/capability 全过之后才烧号。上一枚未 send 的 reservation 就此作废：
+    // 不出 wire、不成为 pending、不得复用。
     operationOrdinal += 1;
     const operationId = `op_${currentLeg}_${operationOrdinal}`;
-    reservation = { operationId, requestId, toolCallId: input.publicToolCallId, toolName, capability: input.capability };
+    reservation = { operationId, requestId, toolCallId: input.publicToolCallId, record, capability: input.capability };
+    record.phase = 'reserved';
     return operationId;
   }
 
@@ -829,6 +967,21 @@ export function createProductSidecarSession(
     }
     if (reserved.capability !== request.capability) {
       throw new ProductSidecarError('send 的 capability 必须与 reservation 相同');
+    }
+    // reserve 与 send 之间是一段真实的异步窗口（proposalHash 正是在其中计算），期间可能已经
+    // 发生 tool_finished、工具切换或改名。**reserve 期的一次通过不构成 send 期的授权**：
+    // 若不在此当场重验，已 finished 的 tc 就能凭旧 reservation 补发 host_request——写 effect
+    // 于是晚于它所属工具的公开生命周期，而 Rust 侧只见一枚形状合法的 op。
+    //
+    // 这里刻意不靠「finish 时顺手清掉 reservation」兜底：清理是便利，不是判据。判据必须落在
+    // send 当场，否则将来任何新增的 reservation 存活路径都会重新打开这个口子。
+    if (
+      reserved.record.phase !== 'reserved' ||
+      activeToolCallId !== reserved.toolCallId ||
+      reserved.record.requestId !== requestId ||
+      TOOL_CAPABILITY[reserved.record.toolName] !== request.capability
+    ) {
+      throw new ProductSidecarError('send 只接受当前 prompt 中仍处 reserved 阶段的那一枚 reservation');
     }
     // 本票只校验 hash **格式**：frame 拼接归 `workspace-write-env`，不在此复制第二份实现。
     if (!SHA256_HEX_PATTERN.test(request.proposalHash)) {
@@ -860,11 +1013,14 @@ export function createProductSidecarSession(
           };
 
     reservation = null;
+    reserved.record.phase = 'pending';
+    // write 的单-operation 假设就在这一刻成立：此后同一 tc 不得再铸第二枚 op。
+    if (reserved.record.toolName === 'write') reserved.record.writeOperationSent = true;
     pending = {
       operationId: request.operationId,
       requestId,
       toolCallId: reserved.toolCallId,
-      toolName: reserved.toolName,
+      record: reserved.record,
       capability: payload.capability,
       operation: payload.capability === 'workspace_write' ? 'write' : payload.arguments.operation,
       logicalPath: payload.arguments.logicalPath,
@@ -877,6 +1033,10 @@ export function createProductSidecarSession(
   function finishPrompt(completion: PromptCompletion): void {
     requireActivePrompt();
     requireNotLatched();
+    // 未投影的 settled effect 先自发 `tool_finished` 再按优先级 terminal；prompt 由此已经
+    // 收束，本次普通 completion 就此作废。这里不抛：调用方要的终态已经发出，只是 code 由
+    // 状态机按 ADR 优先级裁定，而不是照抄 runtime 的 completed。
+    if (closeSettledEffectOnViolation()) return;
     terminate(completion);
   }
 
