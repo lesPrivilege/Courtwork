@@ -785,6 +785,20 @@ export function createProductSidecarSession(
       emit({ sessionId, requestId, type: 'agent_event', payload });
     };
 
+    // TypeScript 的 union 不构成运行时边界。连 kind 都无法安全读取的 cast 输入必须在任何
+    // 分支取字段之前 fail-closed，不能把 TypeError 泄漏成 runtime callback failure。
+    const runtimeEvent: unknown = event;
+    if (
+      typeof runtimeEvent !== 'object' ||
+      runtimeEvent === null ||
+      Array.isArray(runtimeEvent) ||
+      !('kind' in runtimeEvent) ||
+      typeof runtimeEvent.kind !== 'string'
+    ) {
+      failUpstream();
+      return;
+    }
+
     switch (event.kind) {
       case 'assistant_text_delta':
       case 'assistant_reasoning_delta': {
@@ -1033,6 +1047,13 @@ export function createProductSidecarSession(
   function finishPrompt(completion: PromptCompletion): void {
     requireActivePrompt();
     requireNotLatched();
+    // write 尚在 operation_pending 时，runtime 的提前 finish 是 upstream 违约，不是一个可安全
+    // 抛回并继续使用同一 session 的普通 API 错误。只进入 pending latch，等待严格匹配的
+    // host_result 决定唯一 tool outcome，再由状态机自动收束。
+    if (pending !== null) {
+      failUpstream();
+      return;
+    }
     // 未投影的 settled effect 先自发 `tool_finished` 再按优先级 terminal；prompt 由此已经
     // 收束，本次普通 completion 就此作废。这里不抛：调用方要的终态已经发出，只是 code 由
     // 状态机按 ADR 优先级裁定，而不是照抄 runtime 的 completed。

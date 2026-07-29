@@ -624,17 +624,40 @@ describe('host correlation', () => {
     expect(h.out().some((packet) => packet.type === 'host_request')).toBe(false);
   });
 
-  it('同时两个在途 host request 被拒；在途未收束就 finishPrompt 也被拒', () => {
+  it('同时两个在途 host request 被拒；pending 时 finishPrompt 只闩锁等 host_result', () => {
     const h = createHarness();
-    bootstrap(h);
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    let finishError: unknown = 'unset';
     h.hooks.startPrompt = (_p, session) => {
       startTool(session);
       requestHost(session, WRITE_REQUEST);
       expect(() => requestHost(session, WRITE_REQUEST)).toThrow(ProductSidecarError);
-      expect(() => session.finishPrompt({ kind: 'completed' })).toThrow(ProductSidecarError);
+      try {
+        session.finishPrompt({ kind: 'completed' });
+        finishError = null;
+      } catch (error) {
+        finishError = error;
+      }
+      expect(() =>
+        session.publishAgentEvent({ kind: 'assistant_text_delta', delta: '不得继续' }),
+      ).toThrow(ProductSidecarError);
     };
     prompt(h, 'req-1');
+    expect(finishError).toBeNull();
     expect(h.out().filter((packet) => packet.type === 'host_request')).toHaveLength(1);
+    expect(h.out().filter((packet) => packet.type === 'terminal')).toHaveLength(0);
+    expect(h.session.snapshot().pendingOperationId).toBe('op_1_1');
+
+    hostResult(h, writeOk('op_1_1'));
+    expect(
+      h.out().filter(
+        (packet) => packet.type === 'agent_event' && (packet.payload as { kind: string }).kind === 'tool_finished',
+      ),
+    ).toHaveLength(1);
+    expect(lastPacket(h)).toMatchObject({
+      type: 'terminal',
+      payload: { status: 'failed', error: { code: 'upstream_event_unsupported', retryable: false } },
+    });
   });
 
   it('第二枚 op 铸新号，不复用', () => {
@@ -1590,6 +1613,56 @@ const UPSTREAM_TERMINAL = {
   payload: { status: 'failed', error: { code: 'upstream_event_unsupported', retryable: false } },
 } as const;
 
+describe('架构裁定的两处旧非法绿测形态', () => {
+  it('原序列仍分别 fail-closed，不能因既有测试再成形而失去反例', () => {
+    // 旧形态一：第一件 write 未 finished 就起第二件 read，随后还把 pre-operation write
+    // 报 succeeded。重叠 start 当场收束；后续旧 write 的 finished 不得再出 wire。
+    const overlap = openHarness();
+    let overlapEscaped: unknown = 'unset';
+    let lateFinishEscaped: unknown = 'unset';
+    overlap.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_w', toolName: 'write' });
+      session.publishAgentEvent({ kind: 'tool_progress', rawToolCallId: 'call_w', toolName: 'write' });
+      overlapEscaped = capture(() =>
+        session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' }),
+      );
+      lateFinishEscaped = capture(() =>
+        session.publishAgentEvent({
+          kind: 'tool_finished',
+          rawToolCallId: 'call_w',
+          toolName: 'write',
+          outcome: 'succeeded',
+        }),
+      );
+    };
+    prompt(overlap, 'req-1');
+    expect(overlapEscaped).toBeNull();
+    expect(lateFinishEscaped).toBeInstanceOf(ProductSidecarError);
+    expect(agentEventKinds(overlap)).toEqual(['tool_started', 'tool_progress']);
+    expect(terminals(overlap)).toHaveLength(1);
+    expect(lastPacket(overlap)).toMatchObject(UPSTREAM_TERMINAL);
+
+    // 旧形态二：read tc 试图 reserve workspace_write。拒绝必须早于烧号；随后合法 read
+    // request 仍拿 op_1_1，证明不是靠“测试不再走这条路”把非法形态藏掉。
+    const escalatedRead = openHarness();
+    let escalationError: unknown = 'unset';
+    let validOperationId = 'unset';
+    escalatedRead.hooks.startPrompt = (_p, session) => {
+      startTool(session, 'read', 'call_r');
+      escalationError = capture(() => requestHost(session, WRITE_REQUEST));
+      validOperationId = requestHost(session, READ_REQUEST);
+    };
+    prompt(escalatedRead, 'req-1');
+    expect(escalationError).toBeInstanceOf(ProductSidecarError);
+    expect(validOperationId).toBe('op_1_1');
+    expect(escalatedRead.out().filter((packet) => packet.type === 'host_request')).toHaveLength(1);
+    expect(lastPacket(escalatedRead)).toMatchObject({
+      type: 'host_request',
+      payload: { operationId: 'op_1_1', capability: 'workspace_read' },
+    });
+  });
+});
+
 describe('R2-1 · tc identity：owner / toolName / capability', () => {
   it('反例一 · toolName↔capability 双向错配都在 ordinal 分配前拒绝', () => {
     // 正向：read tc 升权 workspace_write，把只读工具变成写 effect。
@@ -1813,6 +1886,46 @@ describe('R2-2 · 单向 phase 与 closed event union', () => {
     // 未知 event 不得顺手把 turn 累计器写成 undefined。
     expect(unknownKind.session.snapshot().observedTurns).toBe(0);
 
+    const nonRecord = openHarness();
+    let nonRecordEscaped: unknown = 'unset';
+    nonRecord.hooks.startPrompt = (_p, session) => {
+      nonRecordEscaped = capture(() =>
+        session.publishAgentEvent(null as unknown as OutboundAgentEvent),
+      );
+    };
+    prompt(nonRecord, 'req-1');
+    expect(nonRecordEscaped).toBeNull();
+    expect(agentEventKinds(nonRecord)).toEqual([]);
+    expect(lastPacket(nonRecord)).toMatchObject(UPSTREAM_TERMINAL);
+
+    const undefinedRecord = openHarness();
+    let undefinedEscaped: unknown = 'unset';
+    undefinedRecord.hooks.startPrompt = (_p, session) => {
+      undefinedEscaped = capture(() =>
+        session.publishAgentEvent(undefined as unknown as OutboundAgentEvent),
+      );
+    };
+    prompt(undefinedRecord, 'req-1');
+    expect(undefinedEscaped).toBeNull();
+    expect(agentEventKinds(undefinedRecord)).toEqual([]);
+    expect(lastPacket(undefinedRecord)).toMatchObject(UPSTREAM_TERMINAL);
+
+    const arrayRecord = openHarness();
+    let arrayEscaped: unknown = 'unset';
+    arrayRecord.hooks.startPrompt = (_p, session) => {
+      const disguisedArray = Object.assign([], {
+        kind: 'assistant_text_delta',
+        delta: '不得投影',
+      });
+      arrayEscaped = capture(() =>
+        session.publishAgentEvent(disguisedArray as unknown as OutboundAgentEvent),
+      );
+    };
+    prompt(arrayRecord, 'req-1');
+    expect(arrayEscaped).toBeNull();
+    expect(agentEventKinds(arrayRecord)).toEqual([]);
+    expect(lastPacket(arrayRecord)).toMatchObject(UPSTREAM_TERMINAL);
+
     const unknownTool = openHarness();
     let toolEscaped: unknown = 'unset';
     unknownTool.hooks.startPrompt = (_p, session) => {
@@ -1924,7 +2037,11 @@ describe('R2-4 · settled effect 与新 reservation 结构互斥', () => {
   });
 
   it('反例七 · settled effect 未投影时的普通 finishPrompt 不得抹掉它', () => {
-    const h = settled((session) => session.finishPrompt({ kind: 'completed' }));
+    let escaped: unknown = 'unset';
+    const h = settled((session) => {
+      escaped = capture(() => session.finishPrompt({ kind: 'completed' }));
+    });
+    expect(escaped).toBeNull();
     expect(finishedEvents(h)).toEqual([SETTLED_FINISHED]);
     expect(terminals(h)).toHaveLength(1);
     expect(lastPacket(h)).toMatchObject(UPSTREAM_TERMINAL);
@@ -1934,6 +2051,7 @@ describe('R2-4 · settled effect 与新 reservation 结构互斥', () => {
     const h = settled((session) =>
       session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' }),
     );
+    expect(agentEventKinds(h)).toEqual(['tool_started', 'tool_finished']);
     expect(finishedEvents(h)).toEqual([SETTLED_FINISHED]);
     expect(terminals(h)).toHaveLength(1);
     expect(lastPacket(h)).toMatchObject(UPSTREAM_TERMINAL);
