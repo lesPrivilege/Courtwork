@@ -1047,11 +1047,30 @@ canonical bytes、签名模式、deadline 或产品 signing plan：
    真实旧逻辑，可先把 blocked-first 表达式行为等价抽成 production-used 纯 classifier，证明
    既有测试结果不变后再加混合反例；缺 import、stub 或未被 production 调用的 helper 不算红证。
 
+R4 所称“完整 receipt 关联”与“判定端独立重算”还包含 raw→summary 这一段，不只包含
+observation→receipt membership。`official verify/display` 的 argv 形状须分别 exact
+`codesign --verify --strict --verbose=4 <official-path>` 与
+`codesign -d --verbose=4 <official-path>`，末项必须等于 receipt 中已过 SHA 的
+`officialNode.path`；XML/human 的既有 exact path 门不退。command identity 须消费 production
+receipt 的全部既有字段，至少包含 `error`，不能把未比较字段写成“field-identical”。
+
+`controlSignatureOk/signatureOk/spctlOk` 不得由 producer 的 `signExit/verifyExit/values`、
+signature identity 或 Gatekeeper 摘要循环互证。判定端须从已绑定 raw commands 重导 exit/signal、
+stdout/stderr 与 signature identity，再要求 producer 摘要逐值相同；classifier 只消费重导值。
+XML 语义继续复用成熟的绝对 `/usr/bin/plutil`，不自研第二套宽 XML parser：采集端保存 raw
+codesign stdout 落盘件的 path/bytes/SHA、`plutil -lint` 与 `plutil -convert json -o -`
+两条完整 command receipt；判定端要求落盘指纹等于 raw stdout、两条 argv exact 指向该件、
+command 与完整 receipt 同轮绑定，并从绑定的 JSON stdout 自行 `JSON.parse` 后核六键。缺/改 raw
+exit、路径、指纹、plutil receipt、JSON 或 producer parity 任一项都须红。
+
 R4 必须在 R3 target 上先复现验收的四枚 identity 删除、一枚 raw `[Array]` 与一枚
 `control lifecycle=false + blockedReasons>0` 假绿，再补 execution-domain id、canonical source、
 harness path/execPath、official SHA、未知 marker/嵌套 Dict 与三工具 command coverage 反例。
 至少三枚独立 production mutation 要分别撤掉完整 receipt 投影、恢复 skip-unknown parser、
 恢复 blocked-first 次序并见红；mutation 须验证命中、逐枚恢复且 production bytes 最终同源。
+新增 raw→summary 闭口还须先红 official verify/display 换成 bogus target、raw control-sign
+失败而 summary 报零、raw official identity/Gatekeeper/XML 与摘要漂移、command `error` 漂移，
+并以有效 mutation 分别证明 path、raw gate/parity 与完整 command identity。
 随后先以 built control 在 seatbelt 内准确 blocked，再以故意缺 sidecar build 的混合形态准确
 `probe_failed`，批准的非受限域跑 preflight/full 六格；最后从空 assembly 复跑全部 verdict、
 76 counterexamples、600 cold-start、双 cycle、十件/source 与四仓库门。实现和新的独立验收

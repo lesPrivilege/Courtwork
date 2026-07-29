@@ -460,11 +460,22 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      置顶。抽取前后须先证明旧行为等价，再让
      `control lifecycle=false + blockedReasons>0` 在旧 blocked-first 逻辑上见红；不得以新 helper
      缺失、stub 或 module-load failure 冒充首红。
+     “独立重算”必须从同轮 raw command 到 gate 全链成立，不能在 command membership 之后又读
+     producer 摘要：control sign/verify、official verify/display 与 `spctl` 的 exit/signal/
+     streams 由判定端重导，official identity 从 raw display 重解析，Gatekeeper 第一非空行从
+     raw stderr 重取，producer 字段只作 parity。official verify/display 的 exact argv-last
+     必须等于已过 SHA 的 receipt `officialNode.path`。XML 不新增自写宽 parser；采集保存 raw
+     stdout 落盘 path/bytes/SHA 与绝对 `plutil -lint`、`plutil -convert json -o -` 完整 receipts，
+     verdict 绑定同轮 command、核落盘指纹等于 raw stdout，并从绑定 JSON stdout 自行解析六键。
+     command field identity 至少须包含 production 已记录的 `error`，不得漏字段后仍称逐字段相同。
   4. first-red 至少含验收实证的 `host/harnessNode/developerTools/officialNode` 四枚删除、
      raw `[Array]` 一枚与混合 preflight 一枚；另补 receipt id mismatch、canonical source
      缺/漂、harness path/execPath mismatch、official SHA 漂移、nested Dict/未知 marker 与
      三工具 command 缺件。各门须有实际命中的 source mutation；至少独立撤完整 receipt 投影、
      恢复 `if (!key) continue` 与 blocked-first，逐枚定向见红并 byte-identical 恢复。
+     另补 official verify/display 与 receipt path 同步换 bogus、raw control-sign 非零而摘要为零、
+     raw official/Gatekeeper/XML 与摘要漂移、command `error` 漂移；path、raw gate/parity、
+     完整 command identity 各有有效 source mutation。
   5. 实物重跑必须错峰、串行：先 build 后让 seatbelt control 准确
      `security_execution_domain_blocked`，再故意隐藏/缺失 `packages/pi-lane/dist/index.js`
      证明混合形态为 `probe_failed`，恢复后在批准非受限域跑 preflight + full 六格。随后从空
