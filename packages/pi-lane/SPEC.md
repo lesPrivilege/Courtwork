@@ -257,6 +257,11 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      capability 双向错配、tc 改名、stale tc、pre-op succeeded、pending 提前 finished、
      settled→finish、新 pending 与 unknown event。完成后仍须异会话 clean-worktree 验收，
      不得由实现者或本轮验收者放行。
+  7. `710faaa` 的实现收敛项由架构拍板如下：原两枚绿测包含已冻结的非法转移，允许分别改到
+     顺序闭合 tc 与 read 多 operation 子循环，但独立验收仍须另注入旧非法形态；settled write
+     上的 `finishPrompt` 在状态机发保存结果的唯一 finished 与优先级 terminal 后正常返回，
+     不要求额外抛错；send 期 phase exact 与 active-tc exact 在可达图中同步失效，撤整块有效性
+     门的 mutation 可作为红证，两道检查均须保留，不为制造单条件 mutation 改变状态图。
 - `PI-SIDECAR-DIST-1` 的实现 `70e6482`、回执 `01ff5e7`/订正 `3207b27` 经独立验收
   `9b8142f` 判定 **REJECT**；其报告与 SEA-default 建议不得用于路线裁定。返修
   `PI-SIDECAR-DIST-1R` 只许改 fixture `README.md`，`scripts/` 下

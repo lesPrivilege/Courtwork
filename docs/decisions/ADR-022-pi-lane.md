@@ -1091,6 +1091,15 @@ seatbelt 混合态 `probe_failed` 与批准非受限域 full 六格。
 
 ## 修订记录
 
+- **2026-07-29 · stdio R2 实现收敛拍板**：`710faaa` 登记的两处既有测试改写予以接受：
+  旧形态分别包含“前一 tc 未 finished 即起下一工具并把 pre-operation write 报 succeeded”
+  与“read tc 申请 workspace_write”，均已被本 ADR 冻结为非法转移；新测试在合法状态图上
+  保留 raw→public tc 分配与 ordinal 不复用的原目的，验收仍须另外注入旧非法形态并观察
+  fail-closed。settled write 已收 host_result、尚未投影时调用 `finishPrompt`，规范行为是状态机
+  先按保存的 status 发恰一枚 `tool_finished`、再按既定优先级发 terminal，随后正常返回；
+  不额外抛 runtime API 错误，reserve/send 的非法调用仍抛。send 当场的
+  `phase==='reserved'` 与 active-tc exact equality 在当前可达状态图同步失效，允许以撤整门的
+  mutation 证明效力；两道检查仍作为纵深防御保留，不为制造非等价单变异而改状态图。
 - **2026-07-29 · R2 验收再拒绝与 entitlements 四层证据契约**：保留 acceptance 的 SEA
   exact-cell 修复；以 Node v22.23.1 上游签名脚本和 632-byte plist 冻结 canonical probe 输入，
   把 security execution-domain preflight、官方实物 observation 与重签输入拆开，并让重签只
