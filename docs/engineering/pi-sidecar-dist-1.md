@@ -1050,3 +1050,135 @@ canonical SHA／actual entitlements 漂移、重复 execution-domain 目录与�
 本节只报告 R3 当前物理范围。
 
 本节只登记实验事实与证据边界，**零路线建议**；状态停在待独立验收。
+
+## 二十 · R4：raw→verdict 全链闭口与批准域全矩阵
+
+`PI-SIDECAR-DIST-1R4` 只闭合判定链，不改两条路线的构建、runtime、库存、wire 或产品代码。
+本节**零路线建议**：只登记实测、执行域前提与最强反对意见。
+
+### 二十之一 · 三种 execution domain 必须分开读
+
+R3 之前的争议全部源于「把不同执行域的读数混成一次运行」。R4 起三者分列，互不代替：
+
+| 域 | 由谁跑 | id | status | manifest SHA-256 |
+|---|---|---|---|---|
+| Seatbelt 受限域 | 架构支持会话 | `arch-r4e-seatbelt-frozen` | `security_execution_domain_blocked` | `1d3b06fd1a88a5a81f7015013578258707dad6065d44d79ece209aaabe590f04` |
+| 缺 build 混合态 | 架构支持会话 | `arch-r4e-mixed-frozen` | `probe_failed` | `d5c2af8c70b02dac6499f975d34c8e88ab2ebb646f3daedcde3407ea06a55fbf` |
+| 实现域 preflight | 实现会话 | `impl-r4g-preflight` | `passed` | `8adc88b2f5dfb991cfa88e80e5393641d857f367effd8e12eaa38436dd7dd3d8` |
+| 实现域 full | 实现会话 | `impl-r4g-full` | `ok`（六格全过） | `d257c301fd9afbd24b07baa018a97a775214ea58d851bd0bc0d49dd728e893ca` |
+
+**provenance 必须连读**：前两格由架构支持会话在**同一实现 worktree 的冻结 production bytes**
+上代跑，不是实现者自跑，也不替代独立验收自跑。实现会话的功能 preflight 证明本域**非受限**
+（control sign/verify/XML 全 0、XML 568 bytes、官方 Node strict verify 通过并解出真实三条
+Authority、`spctl` exact exit 3 `rejected`、`blockedReasons` 空），故实现域**不可能**自证
+Seatbelt blocked——这正是要由外部域补格的原因。
+
+冻结 production blob（此后任一字节变化都令上面两格作废）：
+
+- `scripts/sign-probe.mjs`：`ebedb76d8cc53c68b01f2bc7dfcdee4c97f9e0e9`
+- `scripts/lib/probe-verdict.mjs`：`bf260c53af189e96e27310fce64748e18f5e0c45`
+- `scripts/probe-verdict.test.mjs`：`4e08bced058a2cab4c46e42aa8c3723afe4d9a42`
+- `fixtures/sidecar-dist/README.md`：`3b64b0dbf2f55db2769f5dd76a2374d2f01c5c87`
+
+### 二十之二 · 判定层闭合了什么
+
+`eb71d6f` 判定的三处 false-green 与其后四轮复核暴露的口子，逐条收紧：
+
+1. **完整同轮 receipt 原样入 verdict**，逐字段硬门 `schemaVersion` / execution-domain id
+   （与 probe exact 相同）/ `capturedAt` / host 六字段与 `platform:'darwin'` / harness
+   `path===execPath` 与架构一致 / CLT 两字段 / official 双 SHA / canonical source 五值 /
+   三工具各至少一条同轮 command。
+2. **DER human 由共享纯 parser 从 raw stdout 严格重解析**，与 producer 的
+   `parseError/entries/values` 逐值互证；`stderr` 整流逐字节等于 `Executable=<official-path>\n`；
+   `expectedExecutable` 取已绑定的 receipt official path，不取 command 自报 argv-last。
+3. **preflight 分类次序固定**为 control lifecycle → 已冻结闭集内的具名 security evidence →
+   passed → 其余；blocked reason 由判定端从本轮六条 raw receipt 重导并与 producer exact parity。
+4. **official 四条命令锁同一条已过 SHA 的 receipt path**；八条关键观察与
+   `receipt.commands` 中同一条 receipt 逐字段相同（identity 含 production 已记录的 `error`）。
+5. **gate 只从绑定 raw command 重导**：五条成功命令必须 exit 为预期值**且** `signal === null`；
+   official identity 从 raw display 重解析；Gatekeeper 首非空行从 raw stderr 重取；`spctl`
+   argv exact。四个 gate 由 `deriveGatesFromRaw()` 单一定义构造，classifier 只消费重导值，
+   `preflight.gates` 与之做**恰四键 exact flat record** 比对。
+6. **XML 语义不自研第二套宽 parser**：绑定绝对 `/usr/bin/plutil` 的 `-lint` 与
+   `-convert json -o -` 两条完整 receipt，核落盘件指纹等于 raw codesign stdout、两条 argv exact
+   指向该件，再从绑定 JSON stdout 自行解析核六键，producer 摘要只作 parity。
+
+定向测试 **356 例全绿**（`node --test`，exit 0；R2 203 + R3 21 + R4 132）。
+
+### 二十之三 · mutation
+
+**31 枚 source mutation 逐枚验证命中、逐枚定向见红、逐枚 byte-identical 恢复**，
+其中 **30 枚有效**，**1 枚（`m22`）等价，如实登记不充作红证**：把 classifier 改回消费
+producer 自报的 `preflight.gates` 得 **0 红**——因为 gates parity 会独立抓住任何分叉。
+「classifier 只消费重导值」这条性质是与 parity **联合**成立的，不是由一处可单独撤掉的检查守住；
+这一点必须照实说，不能记成 mutation 覆盖。
+
+`m1`（`runFullProbe()` 退回 `{tools,commands}` 投影）需要物理 full，故以一次性 disposable
+非受限 full 做对照实验：control 7 failures（全部来自当时缺 assembly 的 artifact-missing），
+mutated 17，**delta 恰 10 ＝ 8 receipt identity + 2 human-path**，随后 `sign-probe.mjs`
+byte-identical 恢复。
+
+另有一条**结构性、无 mutation** 的边界照实登记：full matrix 串味防护由构造保证
+（`deriveSecurityBlockedReasons()` 入参是固定六条 preflight receipt 的闭集，`verdictPreflight`
+根本拿不到 `resign`），只有通过用例，没有可撤掉的检查，故不声称有 mutation 覆盖。
+
+### 二十之四 · 批准域全矩阵实测
+
+严格串行，未与 Rosetta、冷启或仓库门并发：
+
+- **来源门**：arm64 `50,067,502` B / `ef28d8fa…`，x64 `51,245,086` B / `b8da981b…`，
+  SHASUMS 对应项、`tar` 完整性、解包后 `v22.23.1` 与 Mach-O 架构全过；解包后 arm64 实物
+  SHA-256 `2e3f1286…b99d`，等于冻结官方值。
+- **双 cycle 可复现性**：三份 sealed bundle 与两架构 SEA default 各自 byte-identical；
+  两架构 code-cache 各自**不**相同；跨架构注入观察到 exact `Code cache data rejected.`。
+  边界：byte-identical 只在**同一 worktree、同一绝对构建路径**下成立（SEA blob 内含入口
+  绝对路径），换路径与 Developer ID 后净体积均属未实测。
+- **十件库存闭集**：8 候选 + 2 负控，`status:"ok" failures:0`；assembly 恰 12 目录 / 16 文件。
+- **stdio / tool loop / abort / 四类崩溃**：十件逐项过，崩溃 exact code/signal 与复启齐备。
+- **冷启动**：8 候选 × 3 轮 × 25 样本 ＝ **600** 样本逐枚留档，`status:"ok" failures:0`。
+- **六格签名**：两候选 × plain / hardened-no-entitlements / hardened-with-node-v22.23.1
+  全部 sign 与 strict verify exit 0；plain 与带 canonical 输入的两格可启动，
+  hardened-no-entitlements 两格按冻结形态不可启动；签后回读 actual entitlements 前四格
+  `none`、后两格六键逐值等同。嵌套 `.app` 另证 nested → outer → deep strict verify 全 0、
+  内嵌 sidecar `ready → EOF → exit 0`、`spctl` exact exit 3 `rejected`。
+  该轮 manifest 逐件绑定 `host-tool-receipt.json` 81,831 B `d8a6f6a6…`、
+  `preflight.json` 16,014 B `bf80bbb6…`、`sign-probe.json` 166,365 B `86386ac5…`。
+- **76 枚反例逐枚串行实注入、零逃脱、零不符**：measure 23（exit 2）、coldstart 15
+  （13 枚 exit 2 + `--rounds 1` 与 `--samples 10` 各 exit 1）、reproducibility 14（exit 2）、
+  SEA 8（四枚 `--fail-stage` exit 1 + 四枚 `:evidence` exit 0）、physical 11
+  （十枚 exit 1 + 反向对照 `reportsOutside` exit 0）、fetch 4、extract 1。
+  每枚物理反例还原后复跑 `measure` 均回到 exit 0。
+
+  四枚 SEA `:evidence` 逐项解析同轮 JSON 核：`row.status='failed'`、`row.stage` 等于注入阶段、
+  该阶段非零 exit 与非空 stderr、`published:false`、`publishedPath:null`、其后阶段未冒充成功、
+  `publishDir` 内成品物理不存在，且顶层 failures **只**命中该阶段（不串味）。每枚注入前先跑一次
+  成功构建并确认成品在位，故「先成功后失败不留 stale artifact」是实测而非推断。
+
+  `fetch:truncated:notOverwritten` 取 `9b8142f` 当时实际观察到的 **49,274,880 B**：拒绝后错件
+  原样保留、未被覆盖。预置错件那格 `tar` 能过——拦住它的是冻结字节数与 SHA，**只做完整性校验
+  不足以确认身份**。
+
+### 二十之五 · 残留与最强反对意见
+
+`clean.mjs --report-only` 实测 **5,225,397,510 B（4.87 GiB）**，逐项求和与 total 相等，
+`removed` 全为 `false`——**未执行真实清理**，`dist` 实物完整保留给独立验收。
+主要保全范围：`security-domain/` 3,486,411,568 + `assembly/` 1,143,565,916 +
+`runtime/` 473,562,352 + `cross-arch/` 115,806,624 + `build/` 5,854,354。
+该数与 `3207b27` 的 2.27 GiB、R1 的 2.35 GiB **并列而非订正**：三者是三个不同的保全范围。
+
+最强反对意见，逐条照实：
+
+1. **本轮全部签名读数出自同机 ad-hoc probe**，不覆盖 Developer ID、notarization/staple、
+   Tauri bundler 产物或任何公开发行成熟度。`spctl` 的 exact `rejected` 正是未公证件的预期边界，
+   不得读成「签名链有问题」，更不得读成「已具备发行条件」。
+2. **实现域非受限这一事实本身是前提，不是结论**。Seatbelt blocked 与缺 build 混合态两格由
+   架构支持会话代跑；它们绑定的是**冻结 bytes**，源码再变即作废。独立验收仍须在自己的 clean
+   worktree 用自己的 fresh id 真跑这两格与批准域 full 六格。
+3. **byte-identical 只在同一绝对路径成立**；换构建路径、加 Developer ID 后的净体积、以及
+   x86_64 实物在真 Intel 机（而非 Rosetta）上的行为，本票**均未实测**。
+4. **`m22` 等价**说明「classifier 只消费重导值」缺少独立可撤检查；full matrix 串味防护同样
+   只有结构保证。两处都不该被读成「已有 mutation 红证」。
+5. 同轮 receipt 的 `error` 非 null 时是否应直接令成功 gate 失败，本轮**未扩张**，
+   属 `[需架构拍板]`；`error` 只进 command identity 的比较面。
+6. 本节不含任何路线建议。两条路线的取舍仍未裁，`PI-HOST-LOOP-1` 与 `PI-DEBUG-BUILD-1`
+   继续 blocked，直到异会话完整放行本票且架构消费报告后另行裁定。
