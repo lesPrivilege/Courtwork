@@ -11,6 +11,13 @@
 write characterization；进入产品仍须经虚拟 workspace、Rust host effect、逐次授权与
 durable-before-effect 总验。Node 直写与 bash 没有因此开放。
 
+2026-07-29 架构清账：`PI-WRITE-PROOF-1` 已含验收修复并独立放行（验收 tip
+`9caa8ae`），以 no-ff merge `7216b2f` 进入 `main`；`PI-CODE-STDIO-1R2` 已含
+验收修复并独立放行（验收 tip `cc5faf5`），以 no-ff merge `db4f360` 进入 `main`。
+这两项只把 write 的 package/headless proof 与 product stdio/状态机前置闭合为可消费事实；
+它们仍未由 `index.ts`/产品 host 装配，未实现 Rust durability、workspace 回读、GUI 或真实
+模型全链，因此不更新 `current.md` 的产品能力成熟度，也不取得 agent/发行称谓。
+
 ## 一 · 职责
 
 | 模块 | 职责 |
@@ -262,6 +269,11 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      上的 `finishPrompt` 在状态机发保存结果的唯一 finished 与优先级 terminal 后正常返回，
      不要求额外抛错；send 期 phase exact 与 active-tc exact 在可达图中同步失效，撤整块有效性
      门的 mutation 可作为红证，两道检查均须保留，不为制造单条件 mutation 改变状态图。
+- `PI-CODE-STDIO-1R2` 已由异会话在 clean worktree 独立验收：先以
+  `43b3796 fix-by-acceptance` 补上 reserve 后、send 前 tc 已结束时的有效性复核，再由
+  `cc5faf5` 明确 **PASS**；实现/验收组合以 `db4f360` no-ff 合入 `main`。放行只覆盖本包
+  strict protocol、stdio 状态机与 write proof→stdio 的两段式接缝，不代表 sidecar 分发路线、
+  Rust host/journal、workspace effect 或产品 composition 已成立。
 - `PI-SIDECAR-DIST-1` 的实现 `70e6482`、回执 `01ff5e7`/订正 `3207b27` 经独立验收
   `9b8142f` 判定 **REJECT**；其报告与 SEA-default 建议不得用于路线裁定。返修
   `PI-SIDECAR-DIST-1R` 只许改 fixture `README.md`，`scripts/` 下
