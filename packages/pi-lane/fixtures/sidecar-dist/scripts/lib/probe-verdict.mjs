@@ -17,6 +17,8 @@
  * 在那份口径上 `probe-verdict.test.mjs` 102 例红 87 例；随后才逐条收紧到下文判据，同件转全绿。
  */
 
+import { createHash } from 'node:crypto';
+
 /** 被测运行时。只此一个版本，`fetch-runtime` / `extract-runtime` 与判定共用。 */
 export const NODE_VERSION = 'v22.23.1';
 
@@ -212,13 +214,48 @@ export function seaExecutableAssemblyPath(triple, variantName) {
 export const SIGN_MODES = [
   { name: 'adhoc-plain', hardened: false, entitlements: false, launches: true },
   { name: 'adhoc-hardened-no-entitlements', hardened: true, entitlements: false, launches: false },
-  { name: 'adhoc-hardened-with-official-entitlements', hardened: true, entitlements: true, launches: true },
+  {
+    name: 'adhoc-hardened-with-node-v22.23.1-entitlements',
+    hardened: true,
+    entitlements: true,
+    launches: true,
+  },
 ];
 
 export const SIGN_SUBJECT_IDS = [
   `a/${TARGETS[0].triple}/cjs`,
   `b/${TARGETS[0].triple}/default`,
 ];
+
+export const CANONICAL_ENTITLEMENTS = {
+  repoRelativePath:
+    'packages/pi-lane/fixtures/sidecar-dist/upstream/node-v22.23.1/osx-entitlements.plist',
+  bytes: 632,
+  sha256: 'a0387464b93dd3d92c9f92c3d3f67713b355cc76d131f0542a69d2ca2cc6d797',
+  values: {
+    'com.apple.security.cs.allow-jit': true,
+    'com.apple.security.cs.allow-unsigned-executable-memory': true,
+    'com.apple.security.cs.disable-executable-page-protection': true,
+    'com.apple.security.cs.allow-dyld-environment-variables': true,
+    'com.apple.security.cs.disable-library-validation': true,
+    'com.apple.security.get-task-allow': true,
+  },
+};
+
+export const OFFICIAL_NODE_SIGNATURE = {
+  identifier: 'node',
+  cdhash: '59cdea89a982b05f23e756c08115bebc555ff092',
+  teamIdentifier: 'HX7739G8FX',
+  flags: '0x10000(runtime)',
+  authorities: [
+    'Developer ID Application: Node.js Foundation (HX7739G8FX)',
+    'Developer ID Certification Authority',
+    'Apple Root CA',
+  ],
+};
+
+export const APPLE_TOOL_PATHS = ['/usr/bin/codesign', '/usr/sbin/spctl', '/usr/bin/plutil'];
+export const EXECUTION_DOMAIN_ID = /^[a-z0-9][a-z0-9-]{0,31}$/;
 
 /** 跨架构 code cache 被拒时 Node 在 stderr 留下的原句。静默降级零容忍即锁这一句。 */
 export const CODE_CACHE_REJECT_WARNING = 'Code cache data rejected.';
@@ -858,6 +895,44 @@ export function verdictSign(observation) {
   if (!observation) return [fail('sign', 'sign.observation', 'sign observation', null)];
   const failures = [];
 
+  if (!EXECUTION_DOMAIN_ID.test(observation.executionDomainId ?? '')) {
+    failures.push(
+      fail(
+        'sign',
+        'sign.executionDomainId',
+        '[a-z0-9][a-z0-9-]{0,31}',
+        asNullable(observation.executionDomainId),
+      ),
+    );
+  }
+
+  const canonical = observation.canonical ?? null;
+  if (canonical?.repoRelativePath !== CANONICAL_ENTITLEMENTS.repoRelativePath) {
+    failures.push(
+      fail(
+        'sign',
+        'sign.canonical.path',
+        CANONICAL_ENTITLEMENTS.repoRelativePath,
+        asNullable(canonical?.repoRelativePath),
+      ),
+    );
+  }
+  if (canonical?.bytes !== CANONICAL_ENTITLEMENTS.bytes) {
+    failures.push(fail('sign', 'sign.canonical.bytes', CANONICAL_ENTITLEMENTS.bytes, asNullable(canonical?.bytes)));
+  }
+  if (canonical?.sha256 !== CANONICAL_ENTITLEMENTS.sha256) {
+    failures.push(
+      fail('sign', 'sign.canonical.sha256', CANONICAL_ENTITLEMENTS.sha256, asNullable(canonical?.sha256)),
+    );
+  }
+  if (!sameFlatRecord(canonical?.values, CANONICAL_ENTITLEMENTS.values)) {
+    failures.push(fail('sign', 'sign.canonical.values', CANONICAL_ENTITLEMENTS.values, asNullable(canonical?.values)));
+  }
+
+  failures.push(...verdictPreflight(observation.preflight));
+  failures.push(...verdictOfficialEntitlements(observation.officialEntitlements));
+  failures.push(...verdictHostToolReceipt(observation.hostToolReceipt));
+
   const rows = Array.isArray(observation.resign) ? observation.resign : [];
   const expectedCells = SIGN_SUBJECT_IDS.flatMap((subject) => SIGN_MODES.map((mode) => `${subject}|${mode.name}`));
   const observedCells = rows.map((row) => `${row.subject}|${row.mode}`);
@@ -876,8 +951,47 @@ export function verdictSign(observation) {
       }
       if (row.signExit !== 0) failures.push(fail(at, 'sign.signExit', 0, asNullable(row.signExit)));
       if (row.verifyExit !== 0) failures.push(fail(at, 'sign.verifyExit', 0, asNullable(row.verifyExit)));
+      const expectedFlags = mode.hardened ? '0x10002(adhoc,runtime)' : '0x2(adhoc)';
+      const observedFlags = String(row.flags ?? '').replace(/^flags=/, '');
+      if (observedFlags !== expectedFlags) {
+        failures.push(fail(at, 'sign.flags', expectedFlags, asNullable(row.flags)));
+      }
       if (row.launched !== mode.launches) {
         failures.push(fail(at, 'sign.launched', mode.launches, asNullable(row.launched)));
+      }
+      if (row.canonicalInputPath !== CANONICAL_ENTITLEMENTS.repoRelativePath) {
+        failures.push(
+          fail(
+            at,
+            'sign.matrix.canonicalInputPath',
+            CANONICAL_ENTITLEMENTS.repoRelativePath,
+            asNullable(row.canonicalInputPath),
+          ),
+        );
+      }
+      if (row.canonicalInputSha256 !== CANONICAL_ENTITLEMENTS.sha256) {
+        failures.push(
+          fail(
+            at,
+            'sign.matrix.canonicalInputSha256',
+            CANONICAL_ENTITLEMENTS.sha256,
+            asNullable(row.canonicalInputSha256),
+          ),
+        );
+      }
+      const actual = row.actualEntitlements ?? null;
+      const actualOk = mode.entitlements
+        ? actual?.kind === 'present' && sameFlatRecord(actual.values, CANONICAL_ENTITLEMENTS.values)
+        : actual?.kind === 'none' && sameFlatRecord(actual.values, {});
+      if (!actualOk) {
+        failures.push(
+          fail(
+            at,
+            'sign.matrix.actualEntitlements',
+            mode.entitlements ? CANONICAL_ENTITLEMENTS.values : 'none',
+            asNullable(actual),
+          ),
+        );
       }
     }
   }
@@ -896,12 +1010,259 @@ export function verdictSign(observation) {
     if (app.nestedLaunched !== true) {
       failures.push(fail('sign/.app', 'sign.app.nestedLaunched', true, asNullable(app.nestedLaunched)));
     }
-    // ad-hoc 必然过不了 Gatekeeper。真过了，说明这不再是 ad-hoc 面，读数不可用。
-    if (app.spctlExit === 0) {
-      failures.push(fail('sign/.app', 'sign.app.spctl', 'non-zero (ad-hoc rejected)', 0));
+    const expectedSpctlLine = `${app.appPath}: rejected`;
+    if (
+      app.spctlExit !== 3 ||
+      app.spctlStdout !== '' ||
+      app.spctlStderrFirstNonemptyLine !== expectedSpctlLine
+    ) {
+      failures.push(
+        fail(
+          'sign/.app',
+          'sign.app.spctl',
+          { exit: 3, stdout: '', stderrFirstNonemptyLine: expectedSpctlLine },
+          {
+            exit: asNullable(app.spctlExit),
+            stdout: asNullable(app.spctlStdout),
+            stderrFirstNonemptyLine: asNullable(app.spctlStderrFirstNonemptyLine),
+          },
+        ),
+      );
     }
   }
   return failures;
+}
+
+function sameFlatRecord(actual, expected) {
+  if (!actual || typeof actual !== 'object' || Array.isArray(actual)) return false;
+  const actualEntries = Object.entries(actual);
+  const expectedEntries = Object.entries(expected);
+  return (
+    actualEntries.length === expectedEntries.length &&
+    expectedEntries.every(([key, value]) => Object.hasOwn(actual, key) && actual[key] === value)
+  );
+}
+
+function verdictPreflight(preflight) {
+  if (!preflight) return [fail('sign', 'sign.preflight', 'preflight observation', null)];
+  const failures = [];
+  const xml = preflight.control?.xml ?? null;
+  const blockedShape =
+    xml?.bytes === 0 ||
+    /invalid entitlements blob|Authority unavailable|internal error/i.test(String(xml?.stderr ?? ''));
+  if (blockedShape && preflight.classification !== 'security_execution_domain_blocked') {
+    failures.push(
+      fail(
+        'sign',
+        'sign.preflight.classification',
+        'security_execution_domain_blocked',
+        asNullable(preflight.classification),
+      ),
+    );
+  }
+  if (preflight.status !== 'ok' || preflight.classification !== 'passed') {
+    failures.push(
+      fail(
+        'sign',
+        'sign.preflight.status',
+        { status: 'ok', classification: 'passed' },
+        { status: asNullable(preflight.status), classification: asNullable(preflight.classification) },
+      ),
+    );
+  }
+  if (
+    preflight.control?.signExit !== 0 ||
+    preflight.control?.verifyExit !== 0 ||
+    xml?.exit !== 0 ||
+    !isPositiveSize(xml?.bytes) ||
+    !isSha256Hex(xml?.sha256) ||
+    !sameFlatRecord(xml?.values, CANONICAL_ENTITLEMENTS.values)
+  ) {
+    failures.push(
+      fail('sign', 'sign.preflight.control.xml', 'nonempty valid XML with canonical six-key semantics', asNullable(xml)),
+    );
+  }
+  const launch = preflight.control?.launch ?? null;
+  if (
+    launch?.ready !== true ||
+    launch?.eofSent !== true ||
+    launch?.exit?.code !== 0 ||
+    launch?.exit?.signal !== null ||
+    !sameFlatRecord(launch?.deadlines, {
+      readyMs: 30_000,
+      eofMs: 15_000,
+      exitMs: 15_000,
+      killConfirmMs: 5_000,
+    }) ||
+    !Array.isArray(launch?.timeouts) ||
+    launch.timeouts.length !== 0
+  ) {
+    failures.push(fail('sign', 'sign.preflight.control.launch', 'bounded ready → EOF → exit 0', launch));
+  }
+
+  const official = preflight.officialSignature ?? null;
+  for (const key of ['identifier', 'cdhash', 'teamIdentifier', 'flags']) {
+    if (official?.[key] !== OFFICIAL_NODE_SIGNATURE[key]) {
+      failures.push(
+        fail('sign', `sign.preflight.official.${key}`, OFFICIAL_NODE_SIGNATURE[key], asNullable(official?.[key])),
+      );
+    }
+  }
+  if (
+    !Array.isArray(official?.authorities) ||
+    official.authorities.length !== OFFICIAL_NODE_SIGNATURE.authorities.length ||
+    official.authorities.some((value, index) => value !== OFFICIAL_NODE_SIGNATURE.authorities[index])
+  ) {
+    failures.push(
+      fail(
+        'sign',
+        'sign.preflight.official.authorities',
+        OFFICIAL_NODE_SIGNATURE.authorities,
+        asNullable(official?.authorities),
+      ),
+    );
+  }
+  if (official?.verifyExit !== 0 || official?.displayExit !== 0) {
+    failures.push(
+      fail(
+        'sign',
+        'sign.preflight.official.exit',
+        { verifyExit: 0, displayExit: 0 },
+        { verifyExit: asNullable(official?.verifyExit), displayExit: asNullable(official?.displayExit) },
+      ),
+    );
+  }
+
+  const gatekeeper = preflight.appGatekeeper ?? null;
+  const expectedLine = `${gatekeeper?.appPath}: rejected`;
+  if (
+    gatekeeper?.exit !== 3 ||
+    gatekeeper?.signal !== null ||
+    gatekeeper?.stdout !== '' ||
+    gatekeeper?.stderrFirstNonemptyLine !== expectedLine
+  ) {
+    failures.push(
+      fail(
+        'sign',
+        'sign.preflight.spctl',
+        { exit: 3, signal: null, stdout: '', stderrFirstNonemptyLine: expectedLine },
+        gatekeeper,
+      ),
+    );
+  }
+  return failures;
+}
+
+function verdictOfficialEntitlements(observation) {
+  if (!observation) return [fail('sign', 'sign.officialEntitlements', 'XML and DER-human observations', null)];
+  const failures = [];
+  const xml = observation.xml ?? null;
+  if (
+    xml?.command?.exit !== 0 ||
+    xml?.command?.signal !== null ||
+    !validStream(xml?.command?.stdout, { nonempty: true }) ||
+    !sameFlatRecord(xml?.values, CANONICAL_ENTITLEMENTS.values)
+  ) {
+    failures.push(fail('sign', 'sign.official.xml', CANONICAL_ENTITLEMENTS.values, asNullable(xml)));
+  }
+
+  const human = observation.human ?? null;
+  const entries = Array.isArray(human?.entries) ? human.entries : [];
+  const values = {};
+  let structurallyValid = entries.length === Object.keys(CANONICAL_ENTITLEMENTS.values).length;
+  for (const entry of entries) {
+    if (
+      !entry ||
+      typeof entry.key !== 'string' ||
+      typeof entry.value !== 'boolean' ||
+      Object.hasOwn(values, entry.key)
+    ) {
+      structurallyValid = false;
+      continue;
+    }
+    values[entry.key] = entry.value;
+  }
+  if (
+    human?.command?.exit !== 0 ||
+    human?.command?.signal !== null ||
+    !(
+      validStream(human?.command?.stdout, { nonempty: true }) ||
+      validStream(human?.command?.stderr, { nonempty: true })
+    ) ||
+    !structurallyValid ||
+    !sameFlatRecord(values, CANONICAL_ENTITLEMENTS.values) ||
+    !sameFlatRecord(human?.values, CANONICAL_ENTITLEMENTS.values)
+  ) {
+    failures.push(fail('sign', 'sign.official.human', CANONICAL_ENTITLEMENTS.values, asNullable(human)));
+  }
+  for (const command of [xml?.command, human?.command]) {
+    failures.push(...verdictCommandStreams(command));
+  }
+  return failures;
+}
+
+function verdictHostToolReceipt(receipt) {
+  if (!receipt) return [fail('sign', 'sign.receipt', 'host/tool receipt', null)];
+  const failures = [];
+  const tools = Array.isArray(receipt.tools) ? receipt.tools : [];
+  const commands = Array.isArray(receipt.commands) ? receipt.commands : [];
+  const byPath = new Map(tools.map((tool) => [tool.path, tool]));
+  if (
+    tools.length !== APPLE_TOOL_PATHS.length ||
+    APPLE_TOOL_PATHS.some((toolPath) => !byPath.has(toolPath))
+  ) {
+    failures.push(fail('sign', 'sign.receipt.tools', APPLE_TOOL_PATHS, tools.map((tool) => tool.path)));
+  }
+  for (const toolPath of APPLE_TOOL_PATHS) {
+    const tool = byPath.get(toolPath);
+    if (
+      !tool ||
+      tool.regularFile !== true ||
+      tool.symlink !== false ||
+      !isPositiveSize(tool.bytes) ||
+      !isSha256Hex(tool.sha256) ||
+      !Array.isArray(tool.architectures) ||
+      tool.architectures.length === 0
+    ) {
+      failures.push(fail(toolPath, 'sign.receipt.tool', 'regular non-symlink fingerprint', asNullable(tool)));
+    }
+  }
+  for (const command of commands) {
+    const argv0 = command?.argv?.[0];
+    const tool = byPath.get(argv0);
+    if (
+      !APPLE_TOOL_PATHS.includes(argv0) ||
+      command?.tool?.path !== argv0 ||
+      command?.tool?.sha256 !== tool?.sha256 ||
+      command?.env?.LC_ALL !== 'C'
+    ) {
+      failures.push(fail(argv0 ?? 'command', 'sign.receipt.commandTool', 'same absolute tool + SHA + LC_ALL=C', command));
+    }
+    failures.push(...verdictCommandStreams(command));
+  }
+  return failures;
+}
+
+function verdictCommandStreams(command) {
+  if (!command) return [fail('command', 'sign.receipt.command', 'command receipt', null)];
+  const failures = [];
+  for (const streamName of ['stdout', 'stderr']) {
+    if (!validStream(command[streamName])) {
+      failures.push(fail(command.argv?.[0] ?? 'command', 'sign.receipt.stream', 'self-consistent bytes/SHA', command[streamName]));
+    }
+  }
+  return failures;
+}
+
+function validStream(stream, { nonempty = false } = {}) {
+  if (!stream || typeof stream.content !== 'string') return false;
+  const bytes = Buffer.byteLength(stream.content, 'utf8');
+  const hash = awaitlessSha256(stream.content);
+  return stream.bytes === bytes && stream.sha256 === hash && (!nonempty || bytes > 0);
+}
+
+function awaitlessSha256(value) {
+  return createHash('sha256').update(value, 'utf8').digest('hex');
 }
 
 /**

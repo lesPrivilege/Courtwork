@@ -166,6 +166,43 @@ function goodColdstart() {
  */
 const sha = (seed) => createHash('sha256').update(seed, 'utf8').digest('hex');
 const cycleOf = (seed) => ({ exists: true, regularFile: true, bytes: 115_447_952, sha256: sha(seed) });
+const canonicalEntitlements = {
+  repoRelativePath:
+    'packages/pi-lane/fixtures/sidecar-dist/upstream/node-v22.23.1/osx-entitlements.plist',
+  bytes: 632,
+  sha256: 'a0387464b93dd3d92c9f92c3d3f67713b355cc76d131f0542a69d2ca2cc6d797',
+  values: {
+    'com.apple.security.cs.allow-jit': true,
+    'com.apple.security.cs.allow-unsigned-executable-memory': true,
+    'com.apple.security.cs.disable-executable-page-protection': true,
+    'com.apple.security.cs.allow-dyld-environment-variables': true,
+    'com.apple.security.cs.disable-library-validation': true,
+    'com.apple.security.get-task-allow': true,
+  },
+};
+
+const noEntitlements = { kind: 'none', values: {} };
+const canonicalActualEntitlements = () => ({
+  kind: 'present',
+  values: clone(canonicalEntitlements.values),
+});
+
+const goodCommandReceipt = (argv0, label) => {
+  const stdout = `${label} stdout`;
+  const stderr = `${label} stderr`;
+  return {
+    argv: [argv0, `--r3-${label}`],
+    cwd: '/private/tmp/courtwork-sidecar-r3',
+    env: { LC_ALL: 'C' },
+    startedAt: '2026-07-29T00:00:00.000Z',
+    finishedAt: '2026-07-29T00:00:00.100Z',
+    exit: 0,
+    signal: null,
+    stdout: { bytes: Buffer.byteLength(stdout), sha256: sha(stdout), content: stdout },
+    stderr: { bytes: Buffer.byteLength(stderr), sha256: sha(stderr), content: stderr },
+    tool: { path: argv0, sha256: sha(argv0) },
+  };
+};
 
 /**
  * 随包件的**唯一**预期 assembly-relative path。构造件不再自己拼字面量——
@@ -250,14 +287,78 @@ function seaBuildFailingAt(stage, triple = 'aarch64-apple-darwin', variant = 'de
 }
 
 const goodSign = () => ({
+  executionDomainId: 'r3-first-red',
+  canonical: clone(canonicalEntitlements),
+  preflight: {
+    status: 'ok',
+    classification: 'passed',
+    control: {
+      signExit: 0,
+      verifyExit: 0,
+      xml: { exit: 0, bytes: 632, sha256: canonicalEntitlements.sha256, values: clone(canonicalEntitlements.values) },
+      launch: {
+        ready: true,
+        eofSent: true,
+        exit: { code: 0, signal: null },
+        deadlines: { readyMs: 30_000, eofMs: 15_000, exitMs: 15_000, killConfirmMs: 5_000 },
+        timeouts: [],
+      },
+    },
+    officialSignature: {
+      verifyExit: 0,
+      displayExit: 0,
+      identifier: 'node',
+      cdhash: '59cdea89a982b05f23e756c08115bebc555ff092',
+      teamIdentifier: 'HX7739G8FX',
+      flags: '0x10000(runtime)',
+      authorities: [
+        'Developer ID Application: Node.js Foundation (HX7739G8FX)',
+        'Developer ID Certification Authority',
+        'Apple Root CA',
+      ],
+    },
+    appGatekeeper: {
+      exit: 3,
+      signal: null,
+      stdout: '',
+      stderrFirstNonemptyLine: '/private/tmp/SidecarProbe.app: rejected',
+      appPath: '/private/tmp/SidecarProbe.app',
+    },
+  },
+  officialEntitlements: {
+    xml: {
+      command: goodCommandReceipt('/usr/bin/codesign', 'official-xml'),
+      values: clone(canonicalEntitlements.values),
+    },
+    human: {
+      command: goodCommandReceipt('/usr/bin/codesign', 'official-human'),
+      entries: Object.entries(canonicalEntitlements.values).map(([key, value]) => ({ key, value })),
+      values: clone(canonicalEntitlements.values),
+    },
+  },
+  hostToolReceipt: {
+    tools: [
+      { path: '/usr/bin/codesign', regularFile: true, symlink: false, bytes: 1_000_000, sha256: sha('/usr/bin/codesign'), architectures: ['arm64', 'x86_64'] },
+      { path: '/usr/sbin/spctl', regularFile: true, symlink: false, bytes: 1_000_000, sha256: sha('/usr/sbin/spctl'), architectures: ['arm64', 'x86_64'] },
+      { path: '/usr/bin/plutil', regularFile: true, symlink: false, bytes: 1_000_000, sha256: sha('/usr/bin/plutil'), architectures: ['arm64', 'x86_64'] },
+    ],
+    commands: [
+      goodCommandReceipt('/usr/bin/codesign', 'receipt-codesign'),
+      goodCommandReceipt('/usr/sbin/spctl', 'receipt-spctl'),
+      goodCommandReceipt('/usr/bin/plutil', 'receipt-plutil'),
+    ],
+  },
   resign: SIGN_SUBJECT_IDS.flatMap((subject) =>
     SIGN_MODES.map((mode) => ({
       subject,
       mode: mode.name,
+      canonicalInputPath: canonicalEntitlements.repoRelativePath,
+      canonicalInputSha256: canonicalEntitlements.sha256,
       signExit: 0,
       verifyExit: 0,
       flags: mode.hardened ? 'flags=0x10002(adhoc,runtime)' : 'flags=0x2(adhoc)',
       launched: mode.launches,
+      actualEntitlements: mode.entitlements ? canonicalActualEntitlements() : clone(noEntitlements),
     })),
   ),
   appBundle: {
@@ -266,6 +367,9 @@ const goodSign = () => ({
     verifyDeepStrictExit: 0,
     nestedLaunched: true,
     spctlExit: 3,
+    spctlStdout: '',
+    spctlStderrFirstNonemptyLine: '/private/tmp/SidecarProbe.app: rejected',
+    appPath: '/private/tmp/SidecarProbe.app',
   },
 });
 
@@ -1336,7 +1440,146 @@ describe('两次空目录重建的可复现性', () => {
   });
 });
 
-// —— 九 · ad-hoc sign matrix ————————————————————————————————————
+// —— 九 · R3 entitlements / security-execution-domain 首红 ——————————
+
+describe('R3 · entitlements 四层证据与 execution-domain 判据', () => {
+  it('第三姿势必须改名为冻结的 Node v22.23.1 上游输入', () => {
+    assert.deepEqual(
+      SIGN_MODES.map((mode) => mode.name),
+      [
+        'adhoc-plain',
+        'adhoc-hardened-no-entitlements',
+        'adhoc-hardened-with-node-v22.23.1-entitlements',
+      ],
+    );
+  });
+
+  it('canonical 632-byte SHA 漂移必须判红', () => {
+    const observation = goodSign();
+    observation.canonical.sha256 = sha('wrong-canonical');
+    hasCheck(verdictSign(observation), 'sign.canonical.sha256', 'canonical SHA');
+  });
+
+  it('canonical 六键中的 true 被改成 false 必须判红', () => {
+    const observation = goodSign();
+    observation.canonical.values['com.apple.security.cs.allow-jit'] = false;
+    hasCheck(verdictSign(observation), 'sign.canonical.values', 'canonical 六键');
+  });
+
+  it('受限执行域不得被普通 probe_failed 混淆', () => {
+    const observation = goodSign();
+    observation.preflight.status = 'failed';
+    observation.preflight.classification = 'probe_failed';
+    observation.preflight.control.xml = {
+      exit: 0,
+      bytes: 0,
+      sha256: sha(''),
+      values: null,
+      stderr: 'invalid entitlements blob',
+    };
+    hasCheck(verdictSign(observation), 'sign.preflight.classification', '受限域分类');
+  });
+
+  it('control XML exit 0 但 stdout 0 bytes 必须判红', () => {
+    const observation = goodSign();
+    observation.preflight.control.xml.bytes = 0;
+    observation.preflight.control.xml.values = null;
+    hasCheck(verdictSign(observation), 'sign.preflight.control.xml', 'control 空 XML');
+  });
+
+  it('control 只签验、不完成 ready → EOF → exit 0 必须判红', () => {
+    const observation = goodSign();
+    observation.preflight.control.launch.ready = false;
+    observation.preflight.control.launch.eofSent = false;
+    observation.preflight.control.launch.exit = { code: null, signal: 'SIGKILL' };
+    hasCheck(verdictSign(observation), 'sign.preflight.control.launch', 'control 生命周期');
+  });
+
+  it('official Node identity 的 ordered Authority 漂移必须判红', () => {
+    const observation = goodSign();
+    observation.preflight.officialSignature.authorities.reverse();
+    hasCheck(verdictSign(observation), 'sign.preflight.official.authorities', 'official Authority');
+  });
+
+  it('spctl exit 1 / internal error 不是 exact rejected', () => {
+    const observation = goodSign();
+    observation.preflight.appGatekeeper.exit = 1;
+    observation.preflight.appGatekeeper.stderrFirstNonemptyLine = 'internal error';
+    hasCheck(verdictSign(observation), 'sign.preflight.spctl', 'spctl internal error');
+  });
+
+  it('spctl exit 3 但第一非空行不是 exact <app>: rejected 仍判红', () => {
+    const observation = goodSign();
+    observation.preflight.appGatekeeper.stderrFirstNonemptyLine = 'SidecarProbe.app: rejected';
+    hasCheck(verdictSign(observation), 'sign.preflight.spctl', 'spctl 非 exact 行');
+  });
+
+  it('official XML exit 0 但 stdout 为空必须判红', () => {
+    const observation = goodSign();
+    observation.officialEntitlements.xml.command.stdout = { bytes: 0, sha256: sha(''), content: '' };
+    observation.officialEntitlements.xml.values = null;
+    hasCheck(verdictSign(observation), 'sign.official.xml', 'official XML 空成功');
+  });
+
+  for (const [label, mutate] of [
+    ['少键', (human) => human.entries.pop()],
+    ['多键', (human) => human.entries.push({ key: 'com.example.extra', value: true })],
+    ['false', (human) => { human.entries[0].value = false; }],
+    ['重复键', (human) => human.entries.push(clone(human.entries[0]))],
+  ]) {
+    it(`DER human ${label}必须判红`, () => {
+      const observation = goodSign();
+      mutate(observation.officialEntitlements.human);
+      hasCheck(verdictSign(observation), 'sign.official.human', `human ${label}`);
+    });
+  }
+
+  it('六格任一 canonical input SHA 漂移必须判红', () => {
+    const observation = goodSign();
+    observation.resign[0].canonicalInputSha256 = sha('wrong-input');
+    hasCheck(verdictSign(observation), 'sign.matrix.canonicalInputSha256', '每格 input SHA');
+  });
+
+  it('签后 actual entitlements 漂移必须判红', () => {
+    const observation = goodSign();
+    const row = observation.resign.find((entry) => entry.mode.includes('with-'));
+    row.actualEntitlements.values['com.apple.security.cs.allow-jit'] = false;
+    hasCheck(verdictSign(observation), 'sign.matrix.actualEntitlements', '签后 actual');
+  });
+
+  it('plain 签后出现 entitlements 必须判红', () => {
+    const observation = goodSign();
+    const row = observation.resign.find((entry) => entry.mode === 'adhoc-plain');
+    row.actualEntitlements = canonicalActualEntitlements();
+    hasCheck(verdictSign(observation), 'sign.matrix.actualEntitlements', 'plain actual');
+  });
+
+  it('execution-domain id 不满足闭集必须判红', () => {
+    const observation = goodSign();
+    observation.executionDomainId = '../seatbelt';
+    hasCheck(verdictSign(observation), 'sign.executionDomainId', 'execution-domain id');
+  });
+
+  it('PATH shim 作为实际 argv[0] 必须判红', () => {
+    const observation = goodSign();
+    observation.hostToolReceipt.commands[0].argv[0] = 'codesign';
+    hasCheck(verdictSign(observation), 'sign.receipt.commandTool', 'PATH shim');
+  });
+
+  it('tool receipt 的 SHA 与 command receipt 不一致必须判红', () => {
+    const observation = goodSign();
+    observation.hostToolReceipt.commands[0].tool.sha256 = sha('other-codesign');
+    hasCheck(verdictSign(observation), 'sign.receipt.commandTool', 'tool SHA correlation');
+  });
+
+  it('命令双流 bytes/SHA 自相矛盾必须判红', () => {
+    const observation = goodSign();
+    observation.officialEntitlements.xml.command.stdout.bytes += 1;
+    hasCheck(verdictSign(observation), 'sign.receipt.stream', 'command stream receipt');
+  });
+});
+
+// —— 十 · ad-hoc sign matrix ————————————————————————————————————
 
 describe('两候选 × 三姿势的 ad-hoc 签名矩阵', () => {
   it('六格 + 嵌套 .app 齐备即通过', () => passed(verdictSign(goodSign()), 'sign 合格'));
@@ -1374,7 +1617,7 @@ describe('两候选 × 三姿势的 ad-hoc 签名矩阵', () => {
   it('带官方 entitlements 反而起不来要判红', () => {
     const observation = goodSign();
     observation.resign.find(
-      (row) => row.mode === 'adhoc-hardened-with-official-entitlements',
+      (row) => row.mode === 'adhoc-hardened-with-node-v22.23.1-entitlements',
     ).launched = false;
     failed(verdictSign(observation), '带权限失败');
   });

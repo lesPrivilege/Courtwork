@@ -937,3 +937,116 @@ ADR-022 六-E 已把口径拍板为并列而非订正——它们是三个不同
 全部产物落 `packages/pi-lane/fixtures/sidecar-dist/dist/`，被仓库根 `.gitignore` 的 `dist/` 覆盖，
 **不入库**。**独立验收前不要真清**：`dist/r2-evidence/`、`dist/first-red/`、`dist/final/` 与
 `dist/void-aborted-sweep-2026-07-28/` 分别是反例红证、先红留档、最终读数与作废批次的留档。
+
+## 十九 · R3：entitlements 与 security execution domain 证据链
+
+`PI-SIDECAR-DIST-1R3` 只修签名实验的证据链，不改两条路线的构建、runtime 或产品代码。
+R2 production 的判定层原有 **203/203** 例先绿；加入 21 枚 R3 定向测试、尚未改 production 时，
+得到 **224 例中 203 绿、21 红**。红点分别落在 canonical 输入、execution-domain 分类、
+control、official signature、spctl、XML／DER human、六格 actual entitlements 与 tool receipt，
+不是 missing import、stub 或脚本未命中。收紧后 **224/224** 全绿。
+
+### 十九之一 · canonical 输入与四层 observation
+
+唯一重签输入是仓内
+[`upstream/node-v22.23.1/osx-entitlements.plist`](../../packages/pi-lane/fixtures/sidecar-dist/upstream/node-v22.23.1/osx-entitlements.plist)。
+它逐字来自 Node v22.23.1 commit
+`bd96dfbf0361576724b65322046e2ca9f9609cb9`：上游签名脚本 blob
+`346afdbe66e9fda3349c46b5ccae221160313720`，plist blob
+`045df8eaf98e65e4fb4ea9a82b5821d41590dbdd`。仓内实物为 regular file、**632 bytes**、
+SHA-256 `a0387464b93dd3d92c9f92c3d3f67713b355cc76d131f0542a69d2ca2cc6d797`，
+`/usr/bin/plutil -lint` 通过，六键全为 `true`。脚本没有历史 `dist/`、runtime extraction、
+临时生成或路径逃逸 fallback。
+
+四层 observation 都绑定这份 input：
+
+1. **control**：official arm64 Node 的私有副本以 canonical 重签，strict verify 通过，XML
+   为 568 bytes、SHA-256
+   `cf2c3d27530139c19ee66f289be8169991dc3206322d5df3c22f529c136883e6`，并真跑冻结
+   `sidecar-fixture.mjs` 完成 `ready → EOF → exit 0`。
+2. **official Node 原签名**：Identifier `node`、CDHash
+   `59cdea89a982b05f23e756c08115bebc555ff092`、TeamIdentifier `HX7739G8FX`、
+   flags `0x10000(runtime)`，Authority 按序为 Node.js Foundation Developer ID、
+   Developer ID Certification Authority、Apple Root CA；synthetic `.app` 的 spctl 为 exact
+   exit 3、stdout 0 bytes、第一非空 stderr 行 `<absolute-app-path>: rejected`。
+3. **两条独立 entitlement extraction**：XML stdout 568 bytes；DER human-readable stdout
+   469 bytes、SHA-256
+   `954631d7167d00e90d08416ff1aa128785b111ec68e54f4aa544e55481937147`。
+   两者分别严格解析，均逐键等义于 canonical；没有以 XML 结果代填 human observation。
+4. **六格签后回读**：两候选 × plain／hardened-no-entitlements／
+   hardened-with-node-v22.23.1-entitlements 共六格。六格 sign 与 strict verify 均 exit 0；
+   plain 两格可启动、hardened-no-entitlements 两格按冻结形态不可启动、带 canonical 的两格可启动。
+   前四格 actual entitlements 为空，后两格 actual 六键全 `true`。嵌套 `.app` 另证
+   nested sign → outer sign → deep strict verify → 内嵌 sidecar `ready → EOF → exit 0`，
+   其 spctl 同样 exact exit 3／rejected。
+
+### 十九之二 · 两个 execution domain 与工具实物绑定
+
+受限域 final preflight 的独占目录为
+`dist/security-domain/impl-seatbelt-final/`。control 自身完整通过，但 official Node strict verify
+返回 security service 不可用、Authority 为 `(unavailable)`，spctl 返回 Code Signing subsystem
+internal error；因此精确分类为 `security_execution_domain_blocked`，不是普通 `probe_failed`。
+其 manifest path 为
+`dist/security-domain/impl-seatbelt-final/manifest.json`，外算 SHA-256
+`4ef6b974ca69c1bd8cc9328d0cd41735f61985f2f5db4093d4c5fffeddd4b2f0`。
+
+经明确批准的非-seatbelt 域在同一进程先完成 preflight，再跑 full；独占目录为
+`dist/security-domain/impl-approved-full-final/`，manifest `status:"ok"`，外算 SHA-256
+`cedfd3a35c7da21d298e9adea7a38abee492e3691fa88642ccd0910ec0d449ff`。
+该 manifest 逐文件绑定：
+
+- `host-tool-receipt.json`：83,497 bytes，SHA-256
+  `d2ae4844c3b02ffada4859805aeaa06ac0ccdd75df069a2a5bff5e720c01798c`；
+- `preflight.json`：13,056 bytes，SHA-256
+  `1b2e93effd3030dd6f4c86dfbf6b767eb473ef80efeb32c233104786be442a79`；
+- `sign-probe.json`：154,831 bytes，SHA-256
+  `6a4869df83b34a20a9a18e302f611a709f86019a296f776260157fac449a6c6c`。
+
+所有 Apple 工具只以 `/usr/bin/codesign`、`/usr/sbin/spctl`、`/usr/bin/plutil` 调用；
+同轮 receipt 证明 regular、非 symlink、bytes、SHA、Mach-O architectures，所有命令
+`LC_ALL=C`，command receipt 再绑同一工具 SHA 与 stdout/stderr bytes+SHA。顶层共享
+`dist/sign-probe.json` 不存在；重复使用 `impl-approved-full-final` 与非法 id `../escape`
+均在动作前以 exit 2 拒绝，既有目录未被覆盖。
+
+`sign-probe.mjs` 的 ready、EOF、exit、kill-confirm 均为具名 deadline，不含裸
+`await proc.exited`。`get-task-allow:true` 只是上游 canonical ad-hoc probe 的控制变量，
+没有进入 product signing plan。
+
+### 十九之三 · mutation、全量重跑与残留
+
+三枚 source mutation 保持 observation 形状不变，只短路一层判据：
+
+| mutation | 224 例结果 |
+|---|---:|
+| preflight 判据短路 | 218 绿、6 红 |
+| official XML／DER observation 判据短路 | 218 绿、6 红 |
+| host/tool receipt 判据短路 | 222 绿、2 红 |
+
+逐枚恢复后 224/224 绿。另有真实入口反例：受限域准确 blocked、PATH-shim argv 被判红、
+spctl internal error 不得冒充 rejected、空 XML、human 少键／多键／false／重复键、六格
+canonical SHA／actual entitlements 漂移、重复 execution-domain 目录与非法 id，均有红证。
+
+快速签名门通过后，从空 `dist/assembly` 完整重跑：
+
+- verdict **224/224**（其中 R2 203、R3 21）；
+- R2 固定 **76** 枚反例：23 verdict、15 cold-start、14 reproducibility、8 SEA、
+  11 physical、4 fetch、1 extract，全部命中冻结退出码；
+- normal measurement：十件闭集、8 候选、2 负控，`status:"ok" failures:0`；
+- cold-start：8 候选 × 3 轮 × 25 样本 = **600**，`status:"ok" failures:0`；
+- 双 cycle：三份 sealed bundle 与两架构 SEA default 指纹各自相同；两架构 code-cache 指纹
+  各自不同；跨架构注入观察到 exact `Code cache data rejected.` warning；
+- runtime source、受限域 preflight、批准域六格 full 均取自本轮，不回填旧 `dist/final`。
+
+四项仓库门串行实跑：`pnpm -r build` exit 0、`pnpm lint` exit 0、
+`pnpm --filter @courtwork/desktop lint:isolation-binding` exit 0。`pnpm test` 在受限域首跑与
+单文件复核都只红 `packages/pi-lane/src/sidecar.test.ts` 的 8 例，且八例同样停在
+`server.listen(0, '127.0.0.1')` callback 前的 5 s timeout；在明确批准的非-seatbelt 域完整重跑，
+**160 files / 1397 tests** 全绿、exit 0。没有修改该测试或产品源码来回避执行域差异。
+
+本轮 `clean.mjs --report-only` 为 **4,664,670,380 bytes（4.34 GiB）**，未清理。
+主要保全范围为 `security-domain/` 2,924,845,105 bytes、`assembly/` 1,143,565,916 bytes、
+`runtime/` 473,562,352 bytes、`cross-arch/` 115,806,624 bytes、`build/` 5,854,322 bytes、
+`r3-evidence/` 716,291 bytes；其余为本轮 JSON 与小型 corpus。旧 R2 残留数字保留其历史口径，
+本节只报告 R3 当前物理范围。
+
+本节只登记实验事实与证据边界，**零路线建议**；状态停在待独立验收。

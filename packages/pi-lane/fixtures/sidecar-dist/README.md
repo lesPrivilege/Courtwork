@@ -1,4 +1,4 @@
-# `sidecar-dist` fixture · PI-SIDECAR-DIST-1R2
+# `sidecar-dist` fixture · PI-SIDECAR-DIST-1R3
 
 `ADR-022` 六-E 分发调研票的实验装置。**这不是产品代码**，也不是产品 sidecar：
 生产 wire 由 `PI-CODE-STDIO-1` 实现，生产宿主由 `PI-HOST-LOOP-1` 实现，两者本票都不碰。
@@ -37,6 +37,27 @@
 构建 scratch（`dist/build/`）、runtime、corpus、读数 JSON 与反例留档全在其外——
 否则「多一件」这条判据会被装置自己的中间件误伤，等于没判。
 
+## R3 返修要点：entitlements 证据必须绑定输入、工具与 execution domain
+
+R3 不改两条分发路线，只收紧签名实验的证据链：
+
+- canonical 输入是仓内冻结的
+  [`upstream/node-v22.23.1/osx-entitlements.plist`](upstream/node-v22.23.1/osx-entitlements.plist)：
+  exact 632 bytes、SHA-256
+  `a0387464b93dd3d92c9f92c3d3f67713b355cc76d131f0542a69d2ca2cc6d797`，六键全为
+  `true`；不从历史 `dist/`、运行时 extraction 或临时生成文件回退。
+- 签名前先在**同一进程、同一 execution domain**完成 control：official Node 私有副本以
+  canonical 输入重签、strict verify、XML 等义，并真跑冻结的 `sidecar-fixture.mjs`
+  `ready → EOF → exit 0`。受限域只写
+  `security_execution_domain_blocked`，不得冒充普通 `probe_failed`。
+- `/usr/bin/codesign`、`/usr/sbin/spctl`、`/usr/bin/plutil` 均以绝对路径和 `LC_ALL=C`
+  调用；同轮 receipt 绑定工具实物 SHA、命令 argv 与 stdout/stderr bytes+SHA。
+- official Node 的 XML 与 DER human-readable 是两条独立 observation；六格重签后再回读
+  actual entitlements。plain / hardened-no-entitlements 必须为空，带 canonical 输入的
+  hardened 格必须逐值等义。
+- 每次运行只写 `dist/security-domain/<id>/`，staging 原子落名；既有 id 拒绝覆盖，
+  顶层不再生成共享 `dist/sign-probe.json`。
+
 ### 上界的**准确范围**（不夸大）
 
 有上界的是 **crash 生命周期**（`measure.mjs` 的 `crashes()`）与 **cold-start 取样**
@@ -44,9 +65,11 @@
 且每次 cleanup 都经 `killAndConfirmInto()` 消费返回值——确认不了就补记 `kill-confirm`。
 
 **其余等待仍是裸 `await proc.exited`，如实登记，不冒充有界**：
-`measure.mjs` 的 `launchProbe`／`stdio`／`abort`、`sign-probe.mjs` 的 `launches`、
+`measure.mjs` 的 `launchProbe`／`stdio`／`abort` 与
 `reproducibility-probe.mjs` 的跨架构注入各一处。它们都跟在一个**已有超时的 `waitFor`**
 之后（进程已确认可服务），失败方向是挂起而非假绿；本票未收窄它们，也不声称已收窄。
+R3 新写的 `sign-probe.mjs` 不含裸 `await proc.exited`；ready、EOF、exit 与 kill-confirm
+各走具名 deadline。
 
 ## 复现序（须按序）
 
@@ -58,7 +81,9 @@ node scripts/extract-runtime.mjs           # 解包并核 node --version / Mach-
 node scripts/reproducibility-probe.mjs     # 从空 assembly 连做两个 cycle（**这一步同时是装配步**）
 node scripts/measure.mjs                   # assembly 实物闭集 + 十件的身份/stdio/loop/abort/崩溃
 node scripts/coldstart-rounds.mjs          # 八候选 × 三轮 × 25 样本（逐枚留档）→ dist/coldstart-rounds.json
-node scripts/sign-probe.mjs                # ad-hoc 签名矩阵与 .app 嵌套 → dist/sign-probe.json
+node scripts/sign-probe.mjs --execution-domain-id acceptor-preflight --preflight-only
+# 上一条在受限域应准确 blocked；正式 full 必须在明确批准的非-seatbelt 域用新 id：
+node scripts/sign-probe.mjs --execution-domain-id acceptor-full
 node scripts/clean.mjs --report-only        # 清点残留（**独立验收前不要真清**）
 ```
 
@@ -83,7 +108,8 @@ rename 并 fsync 父目录；现存正式件先按同一套复核再复用，错
 node --test packages/pi-lane/fixtures/sidecar-dist/scripts/probe-verdict.test.mjs
 ```
 
-不进 root `pnpm test`：`vitest.config.ts` 的 include 只收各包 `src` 下的 `.test.ts`。
+当前定向测试为 **224 例**（R2 203 + R3 21）。不进 root `pnpm test`：
+`vitest.config.ts` 的 include 只收各包 `src` 下的 `.test.ts`。
 体例与 `site/scripts` 下的同类 `.test.mjs` 一致，走 `node --test`。
 
 ## 反例（验证判据确实拦得住）
@@ -135,11 +161,14 @@ node scripts/measure.mjs --counterexample crash.ignored
 | `scripts/reproducibility-probe.mjs` | 双 cycle 可复现性 + 跨架构 code cache 注入 |
 | `scripts/measure.mjs` | 十件库存的体积/SHA、身份、stdio、loop、abort、四类崩溃 |
 | `scripts/coldstart-rounds.mjs` | 三轮随机化冷启与裸 runtime 基线 |
-| `scripts/sign-probe.mjs` | entitlement、三姿势重签、`.app` 嵌套签名 |
+| `scripts/sign-probe.mjs` | execution-domain preflight、canonical entitlement、三姿势重签、`.app` 嵌套签名 |
+| `upstream/node-v22.23.1/osx-entitlements.plist` | Node v22.23.1 上游冻结的 632-byte canonical 重签输入 |
 | `scripts/clean.mjs` | 残留清点（`--report-only`）与清理 |
 | `dist/assembly/` | **唯一随包目录**：恰 `route-a/`（六目录 × 两件）+ `route-b/`（四目录 × 一件）＝ 12 目录 + 16 文件 |
 | `dist/build/` | 构建 scratch：中间 bundle、`sea-config.json`、blob、staging。**不随包** |
 | `dist/counterexamples/` | 反例红证留档（含现生成的受控子进程桩） |
+| `dist/security-domain/<id>/` | 每个执行域独占的 host/tool、preflight、full 与 manifest；拒绝覆盖 |
+| `dist/r3-evidence/` | R3 本轮 first-red、mutation、76 反例与 final 重跑留档 |
 | `dist/final/` | 最终一轮读数与 assembly 的 SHA 清单 |
 | `dist/` | 全部产物与读数。**被仓库根 `.gitignore` 的 `dist/` 覆盖，不入库** |
 

@@ -1,186 +1,909 @@
 /**
- * PI-SIDECAR-DIST-1R · 签名与 `.app` 嵌套形态探针（**同机开发态 ad-hoc 面**）。
+ * PI-SIDECAR-DIST-1R3 · entitlements 四层证据与 security-execution-domain 探针。
  *
- * 边界先说清楚，且本文件不作任何超出它的宣称：本机没有 Developer ID 证书，也没有公证凭据。
- * 本支能证的只有「同机 ad-hoc 条件下的可签、可验、可跑」。它**不宣称** Tauri bundler 的实际
- * 行为、不宣称 Developer ID、不宣称 notarize/staple、不宣称跨机可复现——那些属
- * `PI-SIDECAR-RELEASE-1`，一律记 blocked，不以 ad-hoc 冒充。
+ * 只证明同机 ad-hoc 探针；不裁路线，不产生产品 signing plan，不宣称 Developer ID、
+ * notarization、Tauri bundler 或公开发行成熟度。
  *
- * 三问，都是分发路线选型直接要用的：
- * 1. 官方 Node 二进制带哪些 entitlement？两条路线都在分发一个 Node，重签时丢了会怎样？
- * 2. `-o runtime`（硬化运行时）下不带 entitlement 重签，V8 还能不能起来？
- * 3. 把产物放进 `.app` 的 `Contents/MacOS/`、按「先内后外」嵌套签名，验得过吗？还跑得动吗？
- *
- * 与 `70e6482` 的差别：原件全篇只记录、无一处比对，连 `blocked` 也只是写进 JSON。现在
- * 六格 × sign/verify/launch 与嵌套 `.app` 全部经 `verdictSign` 判——其中
- * 「硬化 + 无 entitlements 必须起不来」也是锁死的既知形态：它哪天起来了，报告第七节的
- * 结论就得重写，故同样判红。
- *
- * 用法：`node scripts/sign-probe.mjs`
+ * 用法：
+ *   node scripts/sign-probe.mjs --execution-domain-id <id> [--preflight-only]
  */
 
+import { spawnSync } from 'node:child_process';
+import { createHash, randomBytes } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { SIGN_MODES, SIGN_SUBJECT_IDS, TARGETS, conclude, verdictSign } from './lib/probe-verdict.mjs';
+import {
+  APPLE_TOOL_PATHS,
+  CANONICAL_ENTITLEMENTS,
+  EXECUTION_DOMAIN_ID,
+  OFFICIAL_NODE_SIGNATURE,
+  SIGN_MODES,
+  SIGN_SUBJECT_IDS,
+  TARGETS,
+  conclude,
+  verdictSign,
+} from './lib/probe-verdict.mjs';
 import {
   DIST_DIR,
+  FIXTURE_DIR,
   NODE_VERSION,
+  REPO_ROOT,
   RUNTIME_DIR,
   SIDECAR_BASENAME,
   byteSize,
   ensureDir,
   resolveInventory,
-  rmrf,
-  run,
+  sha256File,
   spawnNdjson,
 } from './lib/toolkit.mjs';
 
-const PROBE_DIR = path.join(DIST_DIR, 'sign-probe');
-rmrf(PROBE_DIR);
-ensureDir(PROBE_DIR);
+const CODESIGN = '/usr/bin/codesign';
+const SPCTL = '/usr/sbin/spctl';
+const PLUTIL = '/usr/bin/plutil';
+const FILE = '/usr/bin/file';
+const SW_VERS = '/usr/bin/sw_vers';
+const UNAME = '/usr/bin/uname';
+const XCODE_SELECT = '/usr/bin/xcode-select';
+const PKGUTIL = '/usr/sbin/pkgutil';
+const TRUE = '/usr/bin/true';
 
-const TRIPLE = TARGETS[0].triple;
-const OFFICIAL = path.join(RUNTIME_DIR, `node-${NODE_VERSION}-darwin-arm64`, 'bin', 'node');
-
-const report = {
-  scope: 'same-machine ad-hoc only; Developer ID / notarize / staple / tauri-bundler 均 blocked',
-  triple: TRIPLE,
-  official: {},
-  resign: [],
-  appBundle: {},
+const CONTROL_DEADLINES = {
+  readyMs: 30_000,
+  eofMs: 15_000,
+  exitMs: 15_000,
+  killConfirmMs: 5_000,
 };
 
-// —— 问一：官方二进制的签名与 entitlement 真值。
-const dumped = run('codesign', ['-d', '--entitlements', '-', '--xml', OFFICIAL]);
-const entitlementsFile = path.join(PROBE_DIR, 'node-official.entitlements.plist');
-const xml = dumped.stdout.slice(dumped.stdout.indexOf('<?xml'));
-if (xml.startsWith('<?xml')) fs.writeFileSync(entitlementsFile, xml);
-report.official = {
-  binary: OFFICIAL,
-  bytes: fs.existsSync(OFFICIAL) ? byteSize(OFFICIAL) : null,
-  codesign: run('codesign', ['-dv', '--verbose=4', OFFICIAL]).stderr.trim().split('\n'),
-  entitlementKeys: [...xml.matchAll(/<key>([^<]+)<\/key>/g)].map((match) => match[1]),
-  entitlementsFile: fs.existsSync(entitlementsFile) ? entitlementsFile : null,
+const args = process.argv.slice(2);
+const domainFlag = args.indexOf('--execution-domain-id');
+const executionDomainId = domainFlag >= 0 ? args[domainFlag + 1] : null;
+const preflightOnly = args.includes('--preflight-only');
+const allowedArgCount = preflightOnly ? 3 : 2;
+
+if (
+  !executionDomainId ||
+  !EXECUTION_DOMAIN_ID.test(executionDomainId) ||
+  domainFlag < 0 ||
+  args.length !== allowedArgCount ||
+  (preflightOnly && args.at(-1) !== '--preflight-only')
+) {
+  process.stderr.write(
+    '用法：node scripts/sign-probe.mjs --execution-domain-id <[a-z0-9][a-z0-9-]{0,31}> [--preflight-only]\n',
+  );
+  process.exit(2);
+}
+
+const SECURITY_DOMAIN_DIR = path.join(DIST_DIR, 'security-domain');
+const FINAL_DIR = path.join(SECURITY_DOMAIN_DIR, executionDomainId);
+if (fs.existsSync(FINAL_DIR)) {
+  process.stderr.write(`拒绝覆盖既有 execution-domain 目录：${FINAL_DIR}\n`);
+  process.exit(2);
+}
+
+ensureDir(SECURITY_DOMAIN_DIR);
+const STAGING_DIR = path.join(
+  SECURITY_DOMAIN_DIR,
+  `.stage-${executionDomainId}-${process.pid}-${randomBytes(6).toString('hex')}`,
+);
+fs.mkdirSync(STAGING_DIR, { recursive: false, mode: 0o700 });
+
+const startedAt = new Date().toISOString();
+const commandReceipts = [];
+let hostToolReceipt = null;
+let preflight = null;
+let signProbe = null;
+let fatal = null;
+
+try {
+  hostToolReceipt = collectHostToolReceipt();
+  writeJsonSynced(path.join(STAGING_DIR, 'host-tool-receipt.json'), hostToolReceipt);
+
+  const canonical = validateCanonical();
+  const official = officialNodeFingerprint();
+  hostToolReceipt.officialNode = official;
+  hostToolReceipt.canonicalSource = {
+    tag: 'v22.23.1',
+    annotatedTagObject: 'af059a8d162418050857e202315220d1b79a6d03',
+    commit: 'bd96dfbf0361576724b65322046e2ca9f9609cb9',
+    codesignScriptBlob: '346afdbe66e9fda3349c46b5ccae221160313720',
+    entitlementsBlob: '045df8eaf98e65e4fb4ea9a82b5821d41590dbdd',
+  };
+  writeJsonSynced(path.join(STAGING_DIR, 'host-tool-receipt.json'), hostToolReceipt);
+
+  preflight = await runPreflight(canonical, official);
+  writeJsonSynced(path.join(STAGING_DIR, 'preflight.json'), preflight);
+
+  if (preflight.status === 'ok' && !preflightOnly) {
+    signProbe = await runFullProbe(canonical, official, preflight);
+    writeJsonSynced(path.join(STAGING_DIR, 'sign-probe.json'), signProbe);
+  }
+} catch (cause) {
+  fatal = {
+    classification: 'probe_failed',
+    code: 'unexpected_probe_error',
+    message: cause instanceof Error ? cause.message : String(cause),
+  };
+  if (!hostToolReceipt) {
+    hostToolReceipt = {
+      status: 'failed',
+      failure: fatal,
+      commands: commandReceipts,
+    };
+    writeJsonSynced(path.join(STAGING_DIR, 'host-tool-receipt.json'), hostToolReceipt);
+  }
+  if (!preflight) {
+    preflight = {
+      executionDomainId,
+      status: 'failed',
+      classification: 'probe_failed',
+      failure: fatal,
+      startedAt,
+      finishedAt: new Date().toISOString(),
+      commandReceipts,
+    };
+    writeJsonSynced(path.join(STAGING_DIR, 'preflight.json'), preflight);
+  }
+}
+
+hostToolReceipt.commands = commandReceipts;
+writeJsonSynced(path.join(STAGING_DIR, 'host-tool-receipt.json'), hostToolReceipt);
+
+const finalStatus =
+  (preflightOnly && preflight?.status === 'ok') || signProbe?.status === 'ok'
+    ? 'ok'
+    : preflight?.classification === 'security_execution_domain_blocked'
+      ? 'security_execution_domain_blocked'
+      : 'probe_failed';
+
+const manifest = {
+  schemaVersion: 1,
+  executionDomainId,
+  mode: preflightOnly ? 'preflight-only' : 'full',
+  status: finalStatus,
+  cwd: process.cwd(),
+  startedAt,
+  finishedAt: new Date().toISOString(),
+  files: listJsonEvidence(STAGING_DIR),
 };
+writeJsonSynced(path.join(STAGING_DIR, 'manifest.json'), manifest);
+syncDir(STAGING_DIR);
+fs.renameSync(STAGING_DIR, FINAL_DIR);
+syncDir(SECURITY_DOMAIN_DIR);
 
-/** 起一次、要一个 ready、再退出；跑不起来就把 stderr 尾三行留成红证。 */
-async function launches(command, args = []) {
-  const proc = spawnNdjson(command, args);
-  const ready = await proc.waitFor((packet) => packet.op === 'ready', 30_000);
-  if (!ready) {
-    proc.child.kill('SIGKILL');
-    const exit = await proc.exited;
-    return { ok: false, exit, stderrTail: proc.stderr().split('\n').filter(Boolean).slice(-3) };
-  }
-  proc.child.stdin.end();
-  await proc.exited;
-  return { ok: true, sea: ready.sea, node: ready.node };
+const output = {
+  status: finalStatus,
+  executionDomainId,
+  mode: manifest.mode,
+  manifestPath: repoRelative(path.join(FINAL_DIR, 'manifest.json')),
+  manifestSha256: sha256File(path.join(FINAL_DIR, 'manifest.json')),
+  failureCount: signProbe?.failureCount ?? (finalStatus === 'ok' ? 0 : 1),
+  fatal,
+};
+process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
+if (finalStatus !== 'ok') process.exit(1);
+
+function collectHostToolReceipt() {
+  const tools = APPLE_TOOL_PATHS.map(fingerprintTool);
+  const product = runReceipt(SW_VERS, ['-productVersion'], { record: false });
+  const build = runReceipt(SW_VERS, ['-buildVersion'], { record: false });
+  const darwin = runReceipt(UNAME, ['-r'], { record: false });
+  const hardware = runReceipt(UNAME, ['-m'], { record: false });
+  const xcodeSelect = runReceipt(XCODE_SELECT, ['-p'], { record: false });
+  const clt = runReceipt(PKGUTIL, ['--pkg-info=com.apple.pkg.CLTools_Executables'], { record: false });
+  const harnessNode = fingerprintRegularFile(process.execPath);
+
+  return {
+    schemaVersion: 1,
+    executionDomainId,
+    capturedAt: new Date().toISOString(),
+    host: {
+      macOSProductVersion: text(product.stdout),
+      macOSBuildVersion: text(build.stdout),
+      darwinRelease: text(darwin.stdout),
+      hardwareArchitecture: text(hardware.stdout),
+      processArchitecture: process.arch,
+      platform: process.platform,
+    },
+    harnessNode: {
+      ...harnessNode,
+      version: process.version,
+      execPath: process.execPath,
+      architecture: process.arch,
+    },
+    developerTools: {
+      xcodeSelectPath: text(xcodeSelect.stdout),
+      cltPackageVersion: parsePkgVersion(text(clt.stdout)),
+    },
+    tools,
+    commands: commandReceipts,
+  };
 }
 
-// —— 问二：三种重签姿势 × 两条路线各一枚 aarch64 产物。
-const inventory = resolveInventory();
-const SUBJECTS = SIGN_SUBJECT_IDS.map((id) => {
-  const artifact = inventory.find((entry) => entry.id === id);
-  return { id, source: artifact.command, args: artifact.args };
-});
+function validateCanonical() {
+  const absolute = path.join(REPO_ROOT, CANONICAL_ENTITLEMENTS.repoRelativePath);
+  const fingerprint = fingerprintRegularFile(absolute);
+  const lint = runApple(PLUTIL, ['-lint', absolute]);
+  const json = runApple(PLUTIL, ['-convert', 'json', '-o', '-', absolute]);
+  const values = json.exit === 0 ? JSON.parse(json.stdout.content) : null;
+  const failures = [];
 
-const flagsFor = (mode) => ['--sign', '-', ...(mode.hardened ? ['--options', 'runtime'] : []),
-  ...(mode.entitlements ? ['--entitlements', entitlementsFile] : [])];
-
-for (const subject of SUBJECTS) {
-  for (const mode of SIGN_MODES) {
-    if (!fs.existsSync(subject.source)) {
-      report.resign.push({ subject: subject.id, mode: mode.name, status: 'blocked', reason: 'artifact-missing' });
-      continue;
-    }
-    if (mode.entitlements && !fs.existsSync(entitlementsFile)) {
-      report.resign.push({ subject: subject.id, mode: mode.name, status: 'blocked', reason: 'entitlements-missing' });
-      continue;
-    }
-    const workDir = path.join(PROBE_DIR, `${subject.id.replaceAll('/', '-')}--${mode.name}`);
-    ensureDir(workDir);
-    const copy = path.join(workDir, `${SIDECAR_BASENAME}-${TRIPLE}`);
-    fs.copyFileSync(subject.source, copy);
-    fs.chmodSync(copy, 0o755);
-    // 路线甲的随行 bundle 也要跟着到 workDir，否则「跑不起来」测的是缺文件不是签名。
-    for (const arg of subject.args) fs.copyFileSync(arg, path.join(workDir, path.basename(arg)));
-    const args = subject.args.map((arg) => path.join(workDir, path.basename(arg)));
-
-    const signed = run('codesign', ['--force', ...flagsFor(mode), copy]);
-    const verified = run('codesign', ['--verify', '--strict', '--verbose=2', copy]);
-    const displayed = run('codesign', ['-dv', '--verbose=2', copy]);
-    const attempt = await launches(copy, args);
-    report.resign.push({
-      subject: subject.id,
-      mode: mode.name,
-      status: 'ok',
-      signExit: signed.status,
-      signStderr: signed.stderr.trim().slice(0, 400),
-      verifyExit: verified.status,
-      flags: (displayed.stderr.match(/flags=[^\s]+/) ?? [null])[0],
-      launched: attempt.ok,
-      run: attempt,
-    });
+  if (
+    fingerprint.bytes !== CANONICAL_ENTITLEMENTS.bytes ||
+    fingerprint.sha256 !== CANONICAL_ENTITLEMENTS.sha256
+  ) {
+    failures.push('canonical byte identity mismatch');
   }
+  if (lint.exit !== 0 || json.exit !== 0) failures.push('plutil rejected canonical fixture');
+  if (!sameFlatRecord(values, CANONICAL_ENTITLEMENTS.values)) failures.push('canonical six-key semantics mismatch');
+  if (failures.length > 0) throw new Error(`canonical_input_invalid: ${failures.join('; ')}`);
+
+  return {
+    ...CANONICAL_ENTITLEMENTS,
+    absolutePath: absolute,
+    regularFile: fingerprint.regularFile,
+    symlink: fingerprint.symlink,
+    values,
+    lint,
+    json,
+  };
 }
 
-// —— 问三：`.app` 内嵌套形态。Tauri 会把 externalBin 复制进 Contents/MacOS/。
-const APP = path.join(PROBE_DIR, 'SidecarProbe.app');
-ensureDir(path.join(APP, 'Contents', 'MacOS'));
-ensureDir(path.join(APP, 'Contents', 'Resources'));
-fs.writeFileSync(
-  path.join(APP, 'Contents', 'Info.plist'),
-  `<?xml version="1.0" encoding="UTF-8"?>
+function officialNodeFingerprint() {
+  const officialPath = path.join(RUNTIME_DIR, `node-${NODE_VERSION}-darwin-arm64`, 'bin', 'node');
+  const fingerprint = fingerprintRegularFile(officialPath);
+  if (
+    fingerprint.sha256 !== '2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d'
+  ) {
+    throw new Error(`official_node_source_invalid: ${fingerprint.sha256 ?? 'missing'}`);
+  }
+  return {
+    ...fingerprint,
+    path: officialPath,
+    expectedSha256: '2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d',
+  };
+}
+
+async function runPreflight(canonical, official) {
+  const controlDir = path.join(STAGING_DIR, 'control');
+  fs.mkdirSync(controlDir, { mode: 0o700 });
+  const controlNode = path.join(controlDir, 'node');
+  fs.copyFileSync(official.path, controlNode, fs.constants.COPYFILE_EXCL);
+  fs.chmodSync(controlNode, 0o755);
+
+  const controlSign = runApple(CODESIGN, [
+    '--force',
+    '--sign',
+    '-',
+    '--options',
+    'runtime',
+    '--entitlements',
+    canonical.absolutePath,
+    controlNode,
+  ]);
+  const controlVerify = runApple(CODESIGN, ['--verify', '--strict', '--verbose=4', controlNode]);
+  const controlXmlCommand = runApple(CODESIGN, ['-d', '--entitlements', '-', '--xml', controlNode]);
+  const controlXml = parseXmlObservation(controlXmlCommand, path.join(controlDir, 'control.xml.plist'));
+  const controlLaunch = await launchControl(controlNode);
+
+  const verify = runApple(CODESIGN, ['--verify', '--strict', '--verbose=4', official.path]);
+  const display = runApple(CODESIGN, ['-d', '--verbose=4', official.path]);
+  const officialSignature = parseOfficialSignature(verify, display);
+
+  const appGatekeeper = createAndProbeSyntheticApp(controlDir);
+  const blockedReasons = securityBlockedReasons([
+    controlSign,
+    controlVerify,
+    controlXmlCommand,
+    verify,
+    display,
+    appGatekeeper.command,
+  ]);
+  if (controlXmlCommand.exit === 0 && controlXmlCommand.stdout.bytes === 0) {
+    blockedReasons.push('control_xml_empty');
+  }
+
+  const controlOk =
+    controlSign.exit === 0 &&
+    controlVerify.exit === 0 &&
+    controlXmlCommand.exit === 0 &&
+    controlXmlCommand.stdout.bytes > 0 &&
+    sameFlatRecord(controlXml.values, CANONICAL_ENTITLEMENTS.values) &&
+    controlLaunch.ready === true &&
+    controlLaunch.eofSent === true &&
+    controlLaunch.exit?.code === 0 &&
+    controlLaunch.exit?.signal === null;
+  const signatureOk = exactOfficialSignature(officialSignature);
+  const spctlOk =
+    appGatekeeper.exit === 3 &&
+    appGatekeeper.signal === null &&
+    appGatekeeper.stdout === '' &&
+    appGatekeeper.stderrFirstNonemptyLine === `${appGatekeeper.appPath}: rejected`;
+
+  const status = blockedReasons.length > 0 ? 'failed' : controlOk && signatureOk && spctlOk ? 'ok' : 'failed';
+  const classification =
+    blockedReasons.length > 0 ? 'security_execution_domain_blocked' : status === 'ok' ? 'passed' : 'probe_failed';
+
+  return {
+    schemaVersion: 1,
+    executionDomainId,
+    status,
+    classification,
+    blockedReasons,
+    canonical: stripAbsoluteCanonical(canonical),
+    control: {
+      signExit: controlSign.exit,
+      verifyExit: controlVerify.exit,
+      sign: controlSign,
+      verify: controlVerify,
+      xml: controlXml,
+      launch: controlLaunch,
+    },
+    officialSignature,
+    appGatekeeper,
+    startedAt,
+    finishedAt: new Date().toISOString(),
+  };
+}
+
+async function runFullProbe(canonical, official, preflightObservation) {
+  const officialXmlCommand = runApple(CODESIGN, ['-d', '--entitlements', '-', '--xml', official.path]);
+  const officialXml = parseXmlObservation(
+    officialXmlCommand,
+    path.join(STAGING_DIR, 'official-node.xml.plist'),
+  );
+  const officialHumanCommand = runApple(CODESIGN, ['-d', '--entitlements', '-', official.path]);
+  const officialHuman = parseHumanObservation(officialHumanCommand);
+
+  const inventory = resolveInventory();
+  const subjects = SIGN_SUBJECT_IDS.map((id) => {
+    const artifact = inventory.find((entry) => entry.id === id);
+    return { id, source: artifact.command, args: artifact.args };
+  });
+  const resign = [];
+
+  for (const subject of subjects) {
+    for (const mode of SIGN_MODES) {
+      const workDir = path.join(STAGING_DIR, 'matrix', safeName(`${subject.id}--${mode.name}`));
+      fs.mkdirSync(workDir, { recursive: true, mode: 0o700 });
+      const copy = path.join(workDir, `${SIDECAR_BASENAME}-${TARGETS[0].triple}`);
+      const row = {
+        subject: subject.id,
+        mode: mode.name,
+        status: 'failed',
+        canonicalInputPath: CANONICAL_ENTITLEMENTS.repoRelativePath,
+        canonicalInputSha256: CANONICAL_ENTITLEMENTS.sha256,
+      };
+      if (!fs.existsSync(subject.source)) {
+        row.reason = 'artifact-missing';
+        resign.push(row);
+        continue;
+      }
+      fs.copyFileSync(subject.source, copy, fs.constants.COPYFILE_EXCL);
+      fs.chmodSync(copy, 0o755);
+      for (const arg of subject.args) {
+        fs.copyFileSync(arg, path.join(workDir, path.basename(arg)), fs.constants.COPYFILE_EXCL);
+      }
+      const copiedArgs = subject.args.map((arg) => path.join(workDir, path.basename(arg)));
+      const signArgs = [
+        '--force',
+        '--sign',
+        '-',
+        ...(mode.hardened ? ['--options', 'runtime'] : []),
+        ...(mode.entitlements ? ['--entitlements', canonical.absolutePath] : []),
+        copy,
+      ];
+      const signed = runApple(CODESIGN, signArgs);
+      const verified = runApple(CODESIGN, ['--verify', '--strict', '--verbose=4', copy]);
+      const displayed = runApple(CODESIGN, ['-d', '--verbose=4', copy]);
+      const actual = readActualEntitlements(copy, mode.entitlements, workDir);
+      const launch = await launchExecutable(copy, copiedArgs);
+      row.status = 'ok';
+      row.signExit = signed.exit;
+      row.sign = signed;
+      row.verifyExit = verified.exit;
+      row.verify = verified;
+      row.flags = parseFlags(displayed.stderr.content);
+      row.display = displayed;
+      row.launched = launch.ok;
+      row.run = launch;
+      row.actualEntitlements = actual;
+      resign.push(row);
+    }
+  }
+
+  const appBundle = await createFullAppBundle(subjects.find((subject) => subject.id.startsWith('b/')));
+  const observation = {
+    executionDomainId,
+    canonical: stripAbsoluteCanonical(canonical),
+    preflight: {
+      status: preflightObservation.status,
+      classification: preflightObservation.classification,
+      control: {
+        signExit: preflightObservation.control.signExit,
+        verifyExit: preflightObservation.control.verifyExit,
+        xml: {
+          exit: preflightObservation.control.xml.command.exit,
+          bytes: preflightObservation.control.xml.command.stdout.bytes,
+          sha256: preflightObservation.control.xml.command.stdout.sha256,
+          values: preflightObservation.control.xml.values,
+          stderr: preflightObservation.control.xml.command.stderr.content,
+        },
+        launch: preflightObservation.control.launch,
+      },
+      officialSignature: preflightObservation.officialSignature,
+      appGatekeeper: {
+        exit: preflightObservation.appGatekeeper.exit,
+        signal: preflightObservation.appGatekeeper.signal,
+        stdout: preflightObservation.appGatekeeper.stdout,
+        stderrFirstNonemptyLine: preflightObservation.appGatekeeper.stderrFirstNonemptyLine,
+        appPath: preflightObservation.appGatekeeper.appPath,
+      },
+    },
+    officialEntitlements: {
+      xml: { command: officialXmlCommand, values: officialXml.values },
+      human: { command: officialHumanCommand, entries: officialHuman.entries, values: officialHuman.values },
+    },
+    hostToolReceipt: {
+      tools: hostToolReceipt.tools,
+      commands: commandReceipts.filter((receipt) => APPLE_TOOL_PATHS.includes(receipt.argv[0])),
+    },
+    resign,
+    appBundle,
+  };
+  const verdict = conclude(verdictSign(observation), {
+    probe: 'sign-probe-r3',
+    scope: 'same-machine ad-hoc only; no route recommendation',
+    ...observation,
+  });
+  return verdict;
+}
+
+async function createFullAppBundle(subject) {
+  const app = path.join(STAGING_DIR, 'app-bundle', 'SidecarProbe.app');
+  const macos = path.join(app, 'Contents', 'MacOS');
+  fs.mkdirSync(macos, { recursive: true, mode: 0o700 });
+  fs.writeFileSync(
+    path.join(app, 'Contents', 'Info.plist'),
+    `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
 <key>CFBundleExecutable</key><string>SidecarProbe</string>
-<key>CFBundleIdentifier</key><string>cn.courtwork.sidecar-probe</string>
+<key>CFBundleIdentifier</key><string>cn.courtwork.sidecar-probe.r3.full</string>
 <key>CFBundleName</key><string>SidecarProbe</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleShortVersionString</key><string>0.0.0</string>
 </dict></plist>
 `,
-);
-// 外壳主可执行文件用系统 `/usr/bin/true` 的副本：本探针只关心嵌套结构，不关心外壳行为。
-fs.copyFileSync('/usr/bin/true', path.join(APP, 'Contents', 'MacOS', 'SidecarProbe'));
-fs.chmodSync(path.join(APP, 'Contents', 'MacOS', 'SidecarProbe'), 0o755);
+    { mode: 0o600 },
+  );
+  const outerExecutable = path.join(macos, 'SidecarProbe');
+  fs.copyFileSync(TRUE, outerExecutable, fs.constants.COPYFILE_EXCL);
+  fs.chmodSync(outerExecutable, 0o755);
 
-const nestedSource = inventory.find((entry) => entry.id === SIGN_SUBJECT_IDS[1]).command;
-const nested = path.join(APP, 'Contents', 'MacOS', `${SIDECAR_BASENAME}-${TRIPLE}`);
-if (fs.existsSync(nestedSource)) {
-  fs.copyFileSync(nestedSource, nested);
+  const nested = path.join(macos, `${SIDECAR_BASENAME}-${TARGETS[0].triple}`);
+  if (!subject || !fs.existsSync(subject.source)) {
+    return { status: 'blocked', reason: 'route-b-artifact-missing' };
+  }
+  fs.copyFileSync(subject.source, nested, fs.constants.COPYFILE_EXCL);
   fs.chmodSync(nested, 0o755);
 
-  // 苹果的次序要求：先签嵌套代码，再签外层 bundle。`--deep` 只用于 verify，不代签。
-  const signNested = run('codesign', ['--force', '--sign', '-', nested]);
-  const signOuter = run('codesign', ['--force', '--sign', '-', APP]);
-  const deepVerify = run('codesign', ['--verify', '--deep', '--strict', '--verbose=2', APP]);
-  const spctl = run('spctl', ['-a', '-vv', APP]);
-  const nestedRun = await launches(nested);
-  report.appBundle = {
+  const signNested = runApple(CODESIGN, ['--force', '--sign', '-', nested]);
+  const signOuter = runApple(CODESIGN, ['--force', '--sign', '-', app]);
+  const deepVerify = runApple(CODESIGN, ['--verify', '--deep', '--strict', '--verbose=4', app]);
+  const spctl = runApple(SPCTL, ['-a', '-vv', app]);
+  const nestedRun = await launchExecutable(nested);
+  const spctlStderrFirstNonemptyLine =
+    spctl.stderr.content.split(/\r?\n/).find((line) => line.trim().length > 0) ?? null;
+  return {
     status: 'ok',
-    layout: 'Contents/MacOS/<externalBin>',
-    signNestedExit: signNested.status,
-    signOuterExit: signOuter.status,
-    verifyDeepStrictExit: deepVerify.status,
-    verifyDeepStrictStderr: deepVerify.stderr.trim().split('\n').slice(0, 4),
-    // ad-hoc 必然过不了 Gatekeeper：如实记下它说什么，作为「未公证」的实证而非推断。
-    spctlExit: spctl.status,
-    spctl: spctl.stderr.trim().split('\n').slice(0, 4),
+    signNestedExit: signNested.exit,
+    signOuterExit: signOuter.exit,
+    verifyDeepStrictExit: deepVerify.exit,
     nestedLaunched: nestedRun.ok,
     nestedRun,
+    spctlExit: spctl.exit,
+    spctlStdout: spctl.stdout.content,
+    spctlStderrFirstNonemptyLine,
+    appPath: app,
+    signNested,
+    signOuter,
+    deepVerify,
+    spctl,
   };
-} else {
-  report.appBundle = { status: 'blocked', reason: 'route-b-artifact-missing' };
 }
 
-const verdict = conclude(verdictSign(report), { probe: 'sign-probe', ...report });
-fs.writeFileSync(path.join(DIST_DIR, 'sign-probe.json'), `${JSON.stringify(verdict, null, 2)}\n`);
-process.stdout.write(`${JSON.stringify(verdict, null, 2)}\n`);
-process.stdout.write(`\nstatus=${verdict.status} failures=${verdict.failureCount}\n`);
-for (const failure of verdict.failures) {
-  process.stdout.write(`  ✗ ${failure.id} ${failure.check}: 期望 ${JSON.stringify(failure.expected)}，实测 ${JSON.stringify(failure.observed)}\n`);
+function createAndProbeSyntheticApp(root) {
+  const app = path.join(root, 'SidecarProbe.app');
+  const macos = path.join(app, 'Contents', 'MacOS');
+  fs.mkdirSync(macos, { recursive: true, mode: 0o700 });
+  fs.writeFileSync(
+    path.join(app, 'Contents', 'Info.plist'),
+    `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleExecutable</key><string>SidecarProbe</string>
+<key>CFBundleIdentifier</key><string>cn.courtwork.sidecar-probe.r3</string>
+<key>CFBundleName</key><string>SidecarProbe</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleShortVersionString</key><string>0.0.0</string>
+</dict></plist>
+`,
+    { mode: 0o600 },
+  );
+  const executable = path.join(macos, 'SidecarProbe');
+  fs.copyFileSync(TRUE, executable, fs.constants.COPYFILE_EXCL);
+  fs.chmodSync(executable, 0o755);
+  const signNested = runApple(CODESIGN, ['--force', '--sign', '-', executable]);
+  const signOuter = runApple(CODESIGN, ['--force', '--sign', '-', app]);
+  const deepVerify = runApple(CODESIGN, ['--verify', '--deep', '--strict', '--verbose=4', app]);
+  const command = runApple(SPCTL, ['-a', '-vv', app]);
+  const stderrLines = command.stderr.content.split(/\r?\n/).filter((line) => line.trim().length > 0);
+  return {
+    appPath: app,
+    exit: command.exit,
+    signal: command.signal,
+    stdout: command.stdout.content,
+    stderrFirstNonemptyLine: stderrLines[0] ?? null,
+    command,
+    appBundle: {
+      status: 'ok',
+      signNestedExit: signNested.exit,
+      signOuterExit: signOuter.exit,
+      verifyDeepStrictExit: deepVerify.exit,
+      nestedLaunched: true,
+      spctlExit: command.exit,
+      spctlStdout: command.stdout.content,
+      spctlStderrFirstNonemptyLine: stderrLines[0] ?? null,
+      appPath: app,
+    },
+  };
 }
 
-if (verdict.status !== 'ok') process.exit(1);
+async function launchControl(command) {
+  const proc = spawnNdjson(command, [path.join(FIXTURE_DIR, 'scripts', 'sidecar-fixture.mjs')], {
+    cwd: FIXTURE_DIR,
+    env: { ...process.env, LC_ALL: 'C' },
+  });
+  const timeouts = [];
+  const ready = await proc.waitFor((packet) => packet.op === 'ready', CONTROL_DEADLINES.readyMs);
+  if (!ready) {
+    timeouts.push('ready');
+    const killed = await proc.killAndConfirm(CONTROL_DEADLINES.killConfirmMs);
+    if (!killed) timeouts.push('kill-confirm');
+    return {
+      ready: false,
+      eofSent: false,
+      exit: killed,
+      deadlines: CONTROL_DEADLINES,
+      timeouts,
+      stderrTail: tail(proc.stderr()),
+    };
+  }
+  proc.child.stdin.end();
+  const exit = await proc.waitForExit(CONTROL_DEADLINES.exitMs);
+  if (!exit) {
+    timeouts.push('exit');
+    const killed = await proc.killAndConfirm(CONTROL_DEADLINES.killConfirmMs);
+    if (!killed) timeouts.push('kill-confirm');
+    return {
+      ready: true,
+      eofSent: true,
+      exit: killed,
+      deadlines: CONTROL_DEADLINES,
+      timeouts,
+      stderrTail: tail(proc.stderr()),
+    };
+  }
+  return {
+    ready: true,
+    eofSent: true,
+    exit,
+    deadlines: CONTROL_DEADLINES,
+    timeouts,
+    node: ready.node,
+    sea: ready.sea,
+    stderrTail: tail(proc.stderr()),
+  };
+}
+
+async function launchExecutable(command, args = []) {
+  const proc = spawnNdjson(command, args, {
+    cwd: path.dirname(command),
+    env: { ...process.env, LC_ALL: 'C' },
+  });
+  const timeouts = [];
+  const ready = await proc.waitFor((packet) => packet.op === 'ready', CONTROL_DEADLINES.readyMs);
+  if (!ready) {
+    timeouts.push('ready');
+    const killed = await proc.killAndConfirm(CONTROL_DEADLINES.killConfirmMs);
+    if (!killed) timeouts.push('kill-confirm');
+    return { ok: false, exit: killed, timeouts, stderrTail: tail(proc.stderr()) };
+  }
+  proc.child.stdin.end();
+  const exit = await proc.waitForExit(CONTROL_DEADLINES.exitMs);
+  if (!exit) {
+    timeouts.push('exit');
+    const killed = await proc.killAndConfirm(CONTROL_DEADLINES.killConfirmMs);
+    if (!killed) timeouts.push('kill-confirm');
+    return { ok: false, exit: killed, timeouts, stderrTail: tail(proc.stderr()) };
+  }
+  return {
+    ok: exit.code === 0 && exit.signal === null,
+    exit,
+    timeouts,
+    node: ready.node,
+    sea: ready.sea,
+    stderrTail: tail(proc.stderr()),
+  };
+}
+
+function readActualEntitlements(binary, expectedPresent, workDir) {
+  const command = runApple(CODESIGN, ['-d', '--entitlements', '-', '--xml', binary]);
+  if (command.exit === 0 && command.stdout.bytes > 0) {
+    const parsed = parseXmlObservation(command, path.join(workDir, 'actual-entitlements.plist'));
+    return { kind: 'present', values: parsed.values, command };
+  }
+  if (
+    !expectedPresent &&
+    command.exit === 0 &&
+    command.stdout.bytes === 0 &&
+    !securityBlockedReasons([command]).length
+  ) {
+    return { kind: 'none', values: {}, command };
+  }
+  return { kind: 'unreadable', values: null, command };
+}
+
+function parseXmlObservation(command, outputPath) {
+  let values = null;
+  let parseError = null;
+  if (command.exit === 0 && command.stdout.bytes > 0) {
+    fs.writeFileSync(outputPath, command.stdout.buffer, { flag: 'wx', mode: 0o600 });
+    const lint = runApple(PLUTIL, ['-lint', outputPath]);
+    const json = runApple(PLUTIL, ['-convert', 'json', '-o', '-', outputPath]);
+    if (lint.exit === 0 && json.exit === 0) {
+      try {
+        values = JSON.parse(json.stdout.content);
+      } catch (cause) {
+        parseError = cause instanceof Error ? cause.message : String(cause);
+      }
+    } else {
+      parseError = 'plutil rejected extraction';
+    }
+  }
+  return { command: stripBuffer(command), values, parseError };
+}
+
+function parseHumanObservation(command) {
+  const combined = `${command.stdout.content}\n${command.stderr.content}`;
+  const entries = [];
+  let parseError = null;
+  const lines = combined.split(/\r?\n/);
+  for (let index = 0; index < lines.length; index += 1) {
+    const key = lines[index].match(/^\s*\[Key\]\s+(.+?)\s*$/);
+    if (!key) continue;
+    const valueMarker = lines[index + 1]?.match(/^\s*\[Value\]\s*$/);
+    const bool = lines[index + 2]?.match(/^\s*\[Bool\]\s+(true|false)\s*$/);
+    if (!valueMarker || !bool) {
+      parseError = `key without exact Value/Bool pair: ${key[1]}`;
+      break;
+    }
+    entries.push({ key: key[1], value: bool[1] === 'true' });
+    index += 2;
+  }
+  if (entries.length === 0 && !parseError) parseError = 'no flat dictionary entries';
+  const values = {};
+  for (const entry of entries) {
+    if (Object.hasOwn(values, entry.key)) {
+      parseError = `duplicate key: ${entry.key}`;
+      break;
+    }
+    values[entry.key] = entry.value;
+  }
+  return { command: stripBuffer(command), entries, values, parseError };
+}
+
+function parseOfficialSignature(verify, display) {
+  const stderr = display.stderr.content;
+  return {
+    verifyExit: verify.exit,
+    displayExit: display.exit,
+    identifier: parseLineValue(stderr, 'Identifier'),
+    cdhash: parseLineValue(stderr, 'CDHash'),
+    teamIdentifier: parseLineValue(stderr, 'TeamIdentifier'),
+    flags: parseFlags(stderr),
+    authorities: [...stderr.matchAll(/^Authority=(.+)$/gm)].map((match) => match[1]),
+    verify,
+    display,
+  };
+}
+
+function exactOfficialSignature(observation) {
+  return (
+    observation.verifyExit === 0 &&
+    observation.displayExit === 0 &&
+    observation.identifier === OFFICIAL_NODE_SIGNATURE.identifier &&
+    observation.cdhash === OFFICIAL_NODE_SIGNATURE.cdhash &&
+    observation.teamIdentifier === OFFICIAL_NODE_SIGNATURE.teamIdentifier &&
+    observation.flags === OFFICIAL_NODE_SIGNATURE.flags &&
+    observation.authorities.length === OFFICIAL_NODE_SIGNATURE.authorities.length &&
+    observation.authorities.every((value, index) => value === OFFICIAL_NODE_SIGNATURE.authorities[index])
+  );
+}
+
+function parseFlags(textValue) {
+  const match = textValue.match(/^CodeDirectory .*\bflags=([^\s]+)(?:\s|$)/m);
+  return match?.[1] ?? null;
+}
+
+function parseLineValue(textValue, key) {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return textValue.match(new RegExp(`^${escaped}=([^\\r\\n]+)$`, 'm'))?.[1] ?? null;
+}
+
+function fingerprintTool(toolPath) {
+  const file = fingerprintRegularFile(toolPath);
+  const description = runReceipt(FILE, ['-b', toolPath], { record: false });
+  const architectures = [];
+  const output = text(description.stdout);
+  if (/\barm64\b/.test(output)) architectures.push('arm64');
+  if (/\bx86_64\b/.test(output)) architectures.push('x86_64');
+  return { ...file, path: toolPath, architectures, fileDescription: output };
+}
+
+function fingerprintRegularFile(filePath) {
+  const stat = fs.lstatSync(filePath);
+  if (!stat.isFile() || stat.isSymbolicLink()) {
+    throw new Error(`not_regular_or_symlink: ${filePath}`);
+  }
+  return {
+    path: filePath,
+    regularFile: true,
+    symlink: false,
+    bytes: stat.size,
+    sha256: sha256File(filePath),
+  };
+}
+
+function runApple(command, commandArgs) {
+  if (!APPLE_TOOL_PATHS.includes(command)) throw new Error(`not an approved Apple tool: ${command}`);
+  const receipt = runReceipt(command, commandArgs);
+  const tool = hostToolReceipt?.tools?.find((entry) => entry.path === command) ?? fingerprintTool(command);
+  receipt.tool = { path: command, sha256: tool.sha256 };
+  return receipt;
+}
+
+function runReceipt(command, commandArgs, { record = true } = {}) {
+  const commandStartedAt = new Date().toISOString();
+  const result = spawnSync(command, commandArgs, {
+    cwd: process.cwd(),
+    env: { ...process.env, LC_ALL: 'C' },
+    encoding: null,
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  const stdout = Buffer.isBuffer(result.stdout) ? result.stdout : Buffer.alloc(0);
+  const stderr = Buffer.isBuffer(result.stderr) ? result.stderr : Buffer.alloc(0);
+  const receipt = {
+    argv: [command, ...commandArgs],
+    cwd: process.cwd(),
+    env: { LC_ALL: 'C' },
+    startedAt: commandStartedAt,
+    finishedAt: new Date().toISOString(),
+    exit: result.status,
+    signal: result.signal,
+    stdout: streamReceipt(stdout),
+    stderr: streamReceipt(stderr),
+    error: result.error ? String(result.error.message) : null,
+  };
+  if (record) commandReceipts.push(receipt);
+  return receipt;
+}
+
+function streamReceipt(buffer) {
+  return {
+    bytes: buffer.byteLength,
+    sha256: createHash('sha256').update(buffer).digest('hex'),
+    content: buffer.toString('utf8'),
+    buffer,
+  };
+}
+
+function stripBuffer(value) {
+  if (Array.isArray(value)) return value.map(stripBuffer);
+  if (!value || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => key !== 'buffer')
+      .map(([key, entry]) => [key, stripBuffer(entry)]),
+  );
+}
+
+function securityBlockedReasons(receipts) {
+  const reasons = [];
+  for (const receipt of receipts) {
+    const combined = `${receipt?.stdout?.content ?? ''}\n${receipt?.stderr?.content ?? ''}`;
+    if (/Authority(?:=|\s+)(?:\(unavailable\)|unavailable)/i.test(combined)) {
+      reasons.push('authority_unavailable');
+    }
+    if (/invalid entitlements blob/i.test(combined)) reasons.push('invalid_entitlements_blob');
+    if (/internal error/i.test(combined)) reasons.push('security_subsystem_internal_error');
+  }
+  return [...new Set(reasons)];
+}
+
+function stripAbsoluteCanonical(canonical) {
+  return {
+    repoRelativePath: canonical.repoRelativePath,
+    bytes: canonical.bytes,
+    sha256: canonical.sha256,
+    values: canonical.values,
+  };
+}
+
+function sameFlatRecord(actual, expected) {
+  if (!actual || typeof actual !== 'object' || Array.isArray(actual)) return false;
+  const actualKeys = Object.keys(actual);
+  const expectedKeys = Object.keys(expected);
+  return (
+    actualKeys.length === expectedKeys.length &&
+    expectedKeys.every((key) => Object.hasOwn(actual, key) && actual[key] === expected[key])
+  );
+}
+
+function listJsonEvidence(directory) {
+  return fs
+    .readdirSync(directory)
+    .filter((name) => name.endsWith('.json') && name !== 'manifest.json')
+    .sort()
+    .map((name) => {
+      const absolute = path.join(directory, name);
+      return {
+        repoRelativePath: repoRelative(path.join(FINAL_DIR, name)),
+        bytes: byteSize(absolute),
+        sha256: sha256File(absolute),
+      };
+    });
+}
+
+function writeJsonSynced(filePath, value) {
+  const serializable = stripBuffer(value);
+  const buffer = Buffer.from(`${JSON.stringify(serializable, null, 2)}\n`, 'utf8');
+  const fd = fs.openSync(filePath, fs.existsSync(filePath) ? 'w' : 'wx', 0o600);
+  try {
+    fs.ftruncateSync(fd, 0);
+    fs.writeFileSync(fd, buffer);
+    fs.fsyncSync(fd);
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
+function syncDir(directory) {
+  const fd = fs.openSync(directory, 'r');
+  try {
+    fs.fsyncSync(fd);
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
+function repoRelative(absolute) {
+  return path.relative(REPO_ROOT, absolute).split(path.sep).join('/');
+}
+
+function text(stream) {
+  return stream.content.trim();
+}
+
+function parsePkgVersion(output) {
+  return output.match(/^version:\s*(.+)$/m)?.[1] ?? null;
+}
+
+function safeName(value) {
+  return value.replaceAll('/', '-').replaceAll('|', '-');
+}
+
+function tail(value) {
+  return value.split(/\r?\n/).filter(Boolean).slice(-5);
+}
