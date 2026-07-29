@@ -51,3 +51,94 @@ R3 不采信实现自述，实际向 production tree 注入后再还原：
 **最终判定：放行 `PI-LANE-1@51c27b6` ✅。** 放行只覆盖以我方容器约束的 pi read lane、开发入口及 R3
 机器门；不放行写/bash、生产 GUI/sidecar 嵌入、journal/确认账本、真 key external validation、sidecar
 签名公证，亦不等同场景线保障或隔离等级提升。
+
+# PI-WRITE-PROOF-1 独立验收（2026-07-28，放行）
+
+对象：实现回执目标 `3d457752e133363096b4a4c5df059422d5d1c1e6`
+（实现 `c0b7989c81b71cb1d465c27503d005a758a7076a`）；基线
+`00c8dbdbad466f0ab2edbf9083cda2998b659de7`。验收在独立 clean worktree
+`/private/tmp/courtwork-accept-pi-write-proof-1`、branch
+`codex/accept-pi-write-proof-1` 完成。仅 cherry-pick 架构澄清
+`e87471f443e12d5378bca166cae6ba9c92aa2d11`（本树对应 `18818ae`），未 merge main、未复用实现树。
+
+## 范围、修复与判定
+
+- 相对基线的实现 scope 精确为三件：新增
+  `src/workspace-write-env.ts`、`src/workspace-write-env.test.ts`，以及专属
+  `specs/PI-WRITE-PROOF-1.md`；架构澄清涉及的 ADR/SPEC/readiness 三文档只作输入，不计实现越界。
+- 验收发现原实现按旧回执放行 basename 恰为 `.md`，与已拍板的
+  `unsupported_file_type` 冲突。先把 `.md` 加入拒绝参数化测试，定向实跑
+  **99 tests 中 1 failed**；随后以最小的 `<= '.md'.length` stem 门修复，提交
+  `4fee6d2 fix-by-acceptance: reject empty markdown basename`。同一 99 例复跑全绿，
+  `.md` 不分配 operation、port 零调用。
+- 未修改 `current.md`、父 SPEC、product tool table/session/policy、wire、Rust/Tauri、lock、index
+  或 GUI。模块仍未由 `index.ts` 导出。
+
+## 一手源码与行为证据
+
+- 已安装的精确上游位于
+  `node_modules/.pnpm/@earendil-works+pi-agent-core@0.82.1_.../node_modules/@earendil-works/pi-agent-core`。
+  `dist/harness/tools/write.js:5-29` 给出开放 TypeBox object、五参 `execute`、pre/post-write abort
+  和以 `content.length` 报“bytes”；`dist/agent.js:110-133` 证实 Agent 缺省 parallel；
+  `dist/harness/tools/file-mutation-queue.js:1-44` 证实 WeakMap 以 env identity 加 queue、
+  `not_supported` 时退 absolutePath；`dist/harness/tools/path-utils.js:2-10` 证实 `@` 和 Unicode
+  spaces 会先被静默归一。`workspace-write-env.test.ts` 的真实 Agent、faux provider 与 direct upstream
+  调用分别锁住上述行为：schema identity/metadata 原样保留、binder sequential、Agent explicit sequential、
+  raw tc 查表（缺失拒绝）、每 call 新 env、exactly-once delegate、同 env 串行而 per-call 并行、两条真实
+  port request 的 operation 独立、pre/post abort 以及 `备忘😀` 的 4 code-units / 10 UTF-8 bytes。
+- 本实现 `workspace-write-env.ts:215-246` 按 path grammar → `.md`（非空 stem）→ Unicode/NUL → UTF-8
+  capacity 的顺序 gate；`339-365` 在全 gate 通过后才 allocate op、构造八字段 request 并唯一调用 port。
+  `473-497` 只用 raw toolCallId 查预种 public tc、原样保留 upstream metadata/schema object、固定 sequential、
+  per-call 建 env 后五参 delegate。Unicode request 的 byteLength/contentSha256/proposalHash 由原 bytes 独立
+  重算，绝不解析上游 success text。
+- `workspace-write-env.ts` 本身零 Node builtin import/直接 fs 写；临时目录 fs adapter 仅在同名 `.test.ts`。
+  它只证 port semantics（nested create、overwrite、逐字节回读），不宣称 durable-before-effect、atomic/no-follow
+  或断电 durability；这些仍属 `PI-WRITE-HOST-1`。
+
+## 反例、变异与门禁
+
+- 实际有效 mutation：上述 `.md` 空 stem 契约反例先红 1/99、修复后绿。弱化 raw gate 的源码 patch 被本环境
+  安全策略拒绝，未绕过且**不计 mutation**；改以安全的真实 upstream counterexample：绕开 binder 直调
+  `createWriteTool`，`@a.md` 实际被改写成 `a.md`，且 upstream characterization 证明额外字段和
+  primitive-to-string coercion 均会通过。其余 raw exact-key/type、metadata/schema identity、sequential、tc
+  mapping、op 时点、一次 delegate、env/并发、UTF-8 hash、pre/post abort 均由独立定向运行的真实反例与
+  Agent 装配断言覆盖；没有把 ReferenceError 或 no-op 当红证。
+- 路径反例实际覆盖空/root/其他 absolute、`.`/`..`、backslash、drive/UNC、Windows reserved、超长、
+  cross-session grammar、raw `@`、NBSP/U+2009/U+3000 alias；file/content 覆盖 non-md、exact `.md`、
+  Unicode nested markdown、lone surrogate/NUL 与 oversize，全部失败均断言 port=0/op=0。
+- ADR-018 R3 实跑：`node apps/desktop/scripts/assert-isolation-binding.mjs` EXIT=0，扫描 6 份 Rust、20 份
+  pi-lane TypeScript。R3 绿只是当前 production scan；本轮未能安全注入弱化写/执行原语，未伪称该项为
+  新 mutation 红证。
+
+## 实跑结果与局限
+
+- `pnpm exec vitest run packages/pi-lane/src/workspace-write-env.test.ts --reporter=verbose`：EXIT=0，
+  **1 file / 99 tests**。
+- `pnpm exec vitest run packages/pi-lane/src/*.test.ts --reporter=verbose`：受限 sandbox 首轮 sidecar localhost
+  timeout（其余 8 files / 165 tests 通过）；移出限制重跑 EXIT=0，**9 files / 173 tests**。
+- `pnpm -r build` EXIT=0；`pnpm lint` EXIT=0；`pnpm test`（移出 loopback 限制）EXIT=0，
+  **161 files / 1496 tests**。
+
+**最终判定：放行 `PI-WRITE-PROOF-1` ✅。** 放行只到 package/headless proof，并包含验收修复
+`4fee6d2`；不代表产品写面、Rust host durability/no-follow、journal/逐次授权、GUI、workspace 回读或
+external validation 已放行。
+
+## 架构复核补证（2026-07-28）
+
+`8061861` 后按架构复核要求，在同一独立验收树逐一施加**不会扩大能力面**的临时 production
+mutation；每次只用 recording port、运行指定定向断言、立即以反向补丁还原，并在还原后完整复跑
+`workspace-write-env.test.ts` **99/99**。不是编译错、ReferenceError 或 no-op。
+
+| 类别 | 临时 patch | 观察到的有效红证 |
+|---|---|---|
+| metadata/schema identity | `parameters: upstream.parameters` 改成浅复制的新 object | **1 red**：`toBe` Object.is identity 失败，值深相同但 binder schema 不是 upstream 的同一对象。 |
+| sequential 双锁 | binder `executionMode` 设为 `undefined`；真实 Agent fixture 保持显式 `toolExecution:'sequential'`，未运行并行 effect | **1 red**：`undefined !== 'sequential'`，证明 binder 自身锁不可省且不以 Agent 锁替代。 |
+| operation 时点 | 仅把 `allocateOperationId` 移至 `gateWorkspaceWrite` 之前；失败路径仍不发 port | **1 red**：`.txt` 拒绝时 port=0、但 `allocations` 为 `['tc_1_1→op_1_1']`，精确击中 op=0 guard。 |
+| Unicode bytes/hash | 分两次：`byteLength + 1`，再将 content hash 改为 empty bytes hash；均只流向 recording port | byte mutation **2 red**（`备忘😀` 11≠10、普通 request 35≠34）；hash mutation **2 red**（`备忘😀` 与八字段 request 的 SHA-256 都变成 `e3b0…b855`，不等于从原 UTF-8 bytes 独立重算值）。 |
+| env freshness / operation correlation | 在 binder closure 缓存 first env，第二次 call 复用，未触外部 host | **1 red**：两次 allocation 变为 `tc_1_1→op_1_1`, `tc_1_1→op_1_2`，期待的第二 public tc `tc_1_2` 未被使用。 |
+
+本补证共得到 **7 个语义红证**；每个 patch 均已还原，随后全组定向实跑为 **1 file / 99 tests passed**。
+此前 raw-gate 弱化 mutation 仍因安全策略禁止而未执行、亦不计入；没有绕过该限制。R3 弱化同样未注入，
+其已记录的当前树实际命令结果仍为绿，不冒充为本轮 mutation。
+
+**复核后最终判定：放行 `PI-WRITE-PROOF-1` ✅。**
