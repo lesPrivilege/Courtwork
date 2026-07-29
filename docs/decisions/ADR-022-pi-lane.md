@@ -1059,6 +1059,16 @@ harness path/execPath、official SHA、未知 marker/嵌套 Dict 与三工具 co
 “control lifecycle/ordinary gate 成立后才可写 blocked”，旧 `dist` 零回填，报告继续零路线建议。只有异会话完整
 放行 R4，架构才可消费报告裁路线；此前 `PI-HOST-LOOP-1`、`PI-DEBUG-BUILD-1` 继续 blocked。
 
+R4 的实现执行域若经功能 preflight 证明为非受限域，不能伪造 blocked，也不能为取得 blocked
+而改探针。此时只允许架构支持会话在**同一实现 worktree、冻结后的 exact production bytes**
+上代跑 built-seatbelt 与缺 build 混合态两枚短观察：使用实现票独占的 fresh id，回执逐枚记录
+实际执行角色、manifest path + 外算 SHA，以及 `sign-probe.mjs` /
+`lib/probe-verdict.mjs` 的 Git blob；恢复被隐藏 build 后还须核对两件 production blob 未变。
+任一 production byte 此后变化，两枚观察立即作废并须 fresh-id 重跑。该代跑只补实现票无法
+进入的 execution-domain cell，不算实现者自跑，不替代批准非受限域 full/长矩阵，更不替代
+独立验收；验收会话仍须在自己的 clean worktree 以自己的 fresh id 真跑 seatbelt blocked、
+seatbelt 混合态 `probe_failed` 与批准非受限域 full 六格。
+
 后续产品装配归属也冻结：`PI-HOST-LOOP-1` 建 product `/case` 虚拟 env、路径/错误脱敏、累计预算
 与 Rust 生命周期；`PI-WRITE-HOST-1` 才注册 `createWriteTool()`、扩产品 tool policy、设置
 `toolExecution:'sequential'`、启用六-0 的 `md-work-v1` 最小 system prompt，并把每次 toolCall

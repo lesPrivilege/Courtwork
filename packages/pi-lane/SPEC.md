@@ -466,6 +466,12 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      assembly 复跑全部 verdict（既有 224 例不得回退，数字随新例增长）、76 counterexamples、
      600 cold-start、双 cycle、十件 inventory/source、六格 sign 与四仓库门。实现/验收各用
      新 execution-domain id/manifest，旧 `dist` 零回填；报告继续零路线建议。
+     若实现会话的功能 preflight 证明其执行域非受限，架构支持会话可在同一实现 worktree 的
+     冻结 production bytes 上代跑前两枚短观察；须 fresh id，回执逐枚标明实际执行角色、
+     manifest path/外算 SHA 与 `sign-probe.mjs`、`lib/probe-verdict.mjs` 的 Git blob，恢复
+     build 后复核 blob 未变。production byte 后续一旦变化，外供观察作废并须重跑。此例外
+     不允许伪造 blocked，不替代实现会话的非受限 full/长矩阵，也不替代独立验收在 clean
+     worktree 自跑 seatbelt blocked、混合 `probe_failed` 与批准域 full 六格。
   6. fixture README 只把“受限域只写 blocked”窄化成“control lifecycle/ordinary gate 成立后
      才可写 blocked”；原工程报告只追加 R4 实测，二者都不得改路线结论。本票不引入依赖或新
      产品概念；这是 project-specific 证据判定，OSS 结论维持窄自研、零新依赖。实现提交先于
