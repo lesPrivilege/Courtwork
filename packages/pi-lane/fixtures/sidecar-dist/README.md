@@ -1,4 +1,4 @@
-# `sidecar-dist` fixture · PI-SIDECAR-DIST-1R3
+# `sidecar-dist` fixture · PI-SIDECAR-DIST-1R4
 
 `ADR-022` 六-E 分发调研票的实验装置。**这不是产品代码**，也不是产品 sidecar：
 生产 wire 由 `PI-CODE-STDIO-1` 实现，生产宿主由 `PI-HOST-LOOP-1` 实现，两者本票都不碰。
@@ -37,6 +37,68 @@
 构建 scratch（`dist/build/`）、runtime、corpus、读数 JSON 与反例留档全在其外——
 否则「多一件」这条判据会被装置自己的中间件误伤，等于没判。
 
+## R4 返修要点：判定必须消费完整同轮 receipt 与 raw 原文
+
+`PI-SIDECAR-DIST-1R3` 的独立验收（`eb71d6f`）第四次判 **REJECT**。R3 的四层证据模型没错，
+错在 hard verdict 三处 false-green——它们都是「采到了、没判」：
+
+| `eb71d6f` 的坐实 | R3 为什么绿 | R4 的收紧 |
+|---|---|---|
+| 删掉 `host` / `harnessNode` / `developerTools` / `officialNode` 各得零 failure | `runFullProbe()` 把完整 receipt 投影成 `{tools, commands}` 才交给判定 | 完整 receipt **原样**入 verdict，逐字段硬门：`schemaVersion`、与 probe exact 相同的 execution-domain id、`capturedAt`、host 六字段 + `platform:'darwin'`、harness `path===execPath` 与架构一致、CLT 两字段、official 双 SHA、canonical source 五值、三工具各至少一条同轮 command |
+| raw stdout 注入未知 `[Array]` 层级仍零 failure | parser 对非 `[Key]` 行直接 `continue`，且判定只信 producer 派生的六键 | grammar 收进 `probe-verdict.mjs` 的共享纯函数；判定端从 raw command **再解析一次**，并要求与 producer 保存的 `parseError/entries/values` 逐值相同 |
+| control 因缺 `dist/index.js` 起不来，却报执行域受限 | `blockedReasons.length > 0` 无条件置顶 | 次序固定为 control lifecycle → 具名 blocked evidence → passed → 其余；blocked reason 另收进已冻结闭集，闭集外字符串不得洗白普通失败 |
+
+判定端还独立重算一次 preflight 分类并与记录值互证——producer 自报不再是分类真源。
+
+返修二又补了三处「各自自洽就放过」的口子：
+
+- **official path 与同轮 command 绑定**：`officialNode.path` 必须非空；XML/human 两条抽取的
+  argv 形状固定，argv-last 必须 exact 指向该 path；这两条连同 preflight 的 control
+  sign/verify/XML、official verify/display、`spctl` 共八条关键观察，都必须与完整
+  `receipt.commands` 中**同一条** receipt 逐字段相同。把 XML/human 的目标一起换成 bogus path
+  再重算 stream，伪造件自身完全自洽，就是被这一层挡住的。
+- **DER stderr 收成整流 exact**：`stderr` 必须逐字节等于 `Executable=<official-path>\n`
+  （实测形状）。不 trim、不按行 `some()`——空 stderr、重复行、带前后空白的行此前全被放过。
+  `expectedExecutable` 由调用方从已绑定的 receipt official path 传入，**不取** command 自报的
+  argv-last，否则伪造件可以自己跟自己互证。
+- **blocked reason 不再信 producer**：推导收进 `deriveSecurityBlockedReasons()`，采集端与判定端
+  共用；判定端只从本轮 control sign/verify/XML、official verify/display、`spctl` 六条 raw
+  receipt 重导（含 control XML 空成功一条结构性见证），与 producer 自报 exact parity 后才送
+  classifier。刻意不扫 full matrix 的重签命令——那批文本会串味。
+
+返修三补的是 **raw→summary 那一段**。前两轮只闭合了「observation 与 receipt 是同一条」，
+membership 之后判定端又回头读 producer 摘要，于是 raw command 与摘要一旦分叉就看不见：
+
+- **official 四条命令锁同一条已过 SHA 的路径**：`--verify --strict --verbose=4 <path>` 与
+  `-d --verbose=4 <path>` 的 argv 形状 exact，末项必须等于 receipt `officialNode.path`；
+  XML/human 两条原有的 exact-path 门不退。
+- **gate 一律从绑定 raw command 重导**：control sign/verify、official verify/display 与 `spctl`
+  的 exit/signal/streams 由判定端重取；official identity 从 raw display **重解析**；Gatekeeper
+  首非空行从 raw stderr 重取。producer 摘要只作逐值 parity，classifier 只消费重导值。
+- **XML 语义继续外包给绝对 `/usr/bin/plutil`，不自研第二套宽 parser**：采集端保存 raw codesign
+  stdout 落盘件的 path/bytes/SHA 与 `-lint`、`-convert json -o -` 两条完整 receipt；判定端核
+  落盘指纹等于 raw stdout、两条 argv exact 指向该件、command 属同轮绑定，再从绑定 JSON stdout
+  自行 `JSON.parse` 核六键，producer 的 `values` 只作 parity。
+- **command identity 覆盖 production 记下的全部格位**，含 `error`——漏一格还自称「逐字段相同」，
+  等于给那一格留后门。
+
+返修四补的是「成功形状」与摘要旁路：
+
+- **成功不能只看 exit**：control sign/verify/XML 与 official verify/display 五条同轮命令必须
+  exit 为预期值**且** `signal === null`。被信号打死却把 exit 记成 0 的命令不算成功。
+- **四个 gate 只有一份定义**：`deriveGatesFromRaw()` 由采集端与判定端共用，入参全是同轮 raw
+  observation。classifier 只消费判定端重导的那一份，producer 记在 `preflight.gates` 的四个
+  布尔与它做**恰四键的 exact flat record** 比对（复用既有 `sameFlatRecord`，不另写宽比较）：
+  `controlLifecycleOk` / `controlSignatureOk` / `signatureOk` / `spctlOk`，null、array、
+  缺键、多键、错值一律失败。只遍历 derived 四键的话，`gates` 上多挂的键从来没人看——
+  真实 observation 加一个 `unexpected` 也是 7→7。
+- **`control.xml.stderr` 摘要与绑定 raw stderr exact parity**。
+- **`spctl` 的 argv 必须 exact** `/usr/sbin/spctl -a -vv <appGatekeeper.appPath>`，
+  membership、exit/signal/stdout 与首非空 stderr 行的既有门不退。
+
+**留待架构拍板**：同轮 receipt 的 `error` 非 null 时是否应直接令成功 gate 失败，本轮未扩张——
+`error` 只进 command identity 的比较面，不进成功判据。control command 也未新增额外 path schema。
+
 ## R3 返修要点：entitlements 证据必须绑定输入、工具与 execution domain
 
 R3 不改两条分发路线，只收紧签名实验的证据链：
@@ -48,8 +110,11 @@ R3 不改两条分发路线，只收紧签名实验的证据链：
   `true`；不从历史 `dist/`、运行时 extraction 或临时生成文件回退。
 - 签名前先在**同一进程、同一 execution domain**完成 control：official Node 私有副本以
   canonical 输入重签、strict verify、XML 等义，并真跑冻结的 `sidecar-fixture.mjs`
-  `ready → EOF → exit 0`。受限域只写
-  `security_execution_domain_blocked`，不得冒充普通 `probe_failed`。
+  `ready → EOF → exit 0`。**只有 control 的 `ready → EOF → exit 0` 生命周期与普通门先成立，
+  才可以写 `security_execution_domain_blocked`**；control 启动/协议失败（例如缺
+  `packages/pi-lane/dist/index.js` 导致的 `ERR_MODULE_NOT_FOUND` 或 ready 超时）一律是普通
+  `probe_failed`，不得被随后采到的 blocked reason 掩盖。这是 R4 对 R3 原表述
+  「受限域只写 blocked」的窄化——原话把次序说反了。
 - `/usr/bin/codesign`、`/usr/sbin/spctl`、`/usr/bin/plutil` 均以绝对路径和 `LC_ALL=C`
   调用；同轮 receipt 绑定工具实物 SHA、命令 argv 与 stdout/stderr bytes+SHA。
 - official Node 的 XML 与 DER human-readable 是两条独立 observation；六格重签后再回读
@@ -108,7 +173,7 @@ rename 并 fsync 父目录；现存正式件先按同一套复核再复用，错
 node --test packages/pi-lane/fixtures/sidecar-dist/scripts/probe-verdict.test.mjs
 ```
 
-当前定向测试为 **224 例**（R2 203 + R3 21）。不进 root `pnpm test`：
+当前定向测试为 **356 例**（R2 203 + R3 21 + R4 132）。不进 root `pnpm test`：
 `vitest.config.ts` 的 include 只收各包 `src` 下的 `.test.ts`。
 体例与 `site/scripts` 下的同类 `.test.mjs` 一致，走 `node --test`。
 

@@ -16,12 +16,20 @@ import path from 'node:path';
 import {
   APPLE_TOOL_PATHS,
   CANONICAL_ENTITLEMENTS,
+  CANONICAL_SOURCE,
   EXECUTION_DOMAIN_ID,
-  OFFICIAL_NODE_SIGNATURE,
+  OFFICIAL_NODE_SHA256,
   SIGN_MODES,
   SIGN_SUBJECT_IDS,
   TARGETS,
+  classifyPreflight,
   conclude,
+  deriveGatesFromRaw,
+  deriveSecurityBlockedReasons,
+  firstNonemptyLine,
+  parseDerHumanEntitlements,
+  parseOfficialSignatureIdentity,
+  securityReasonsFromStreams,
   verdictSign,
 } from './lib/probe-verdict.mjs';
 import {
@@ -102,13 +110,7 @@ try {
   const canonical = validateCanonical();
   const official = officialNodeFingerprint();
   hostToolReceipt.officialNode = official;
-  hostToolReceipt.canonicalSource = {
-    tag: 'v22.23.1',
-    annotatedTagObject: 'af059a8d162418050857e202315220d1b79a6d03',
-    commit: 'bd96dfbf0361576724b65322046e2ca9f9609cb9',
-    codesignScriptBlob: '346afdbe66e9fda3349c46b5ccae221160313720',
-    entitlementsBlob: '045df8eaf98e65e4fb4ea9a82b5821d41590dbdd',
-  };
+  hostToolReceipt.canonicalSource = { ...CANONICAL_SOURCE };
   writeJsonSynced(path.join(STAGING_DIR, 'host-tool-receipt.json'), hostToolReceipt);
 
   preflight = await runPreflight(canonical, official);
@@ -252,16 +254,10 @@ function validateCanonical() {
 function officialNodeFingerprint() {
   const officialPath = path.join(RUNTIME_DIR, `node-${NODE_VERSION}-darwin-arm64`, 'bin', 'node');
   const fingerprint = fingerprintRegularFile(officialPath);
-  if (
-    fingerprint.sha256 !== '2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d'
-  ) {
+  if (fingerprint.sha256 !== OFFICIAL_NODE_SHA256) {
     throw new Error(`official_node_source_invalid: ${fingerprint.sha256 ?? 'missing'}`);
   }
-  return {
-    ...fingerprint,
-    path: officialPath,
-    expectedSha256: '2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d',
-  };
+  return { ...fingerprint, path: officialPath, expectedSha256: OFFICIAL_NODE_SHA256 };
 }
 
 async function runPreflight(canonical, official) {
@@ -291,38 +287,30 @@ async function runPreflight(canonical, official) {
   const officialSignature = parseOfficialSignature(verify, display);
 
   const appGatekeeper = createAndProbeSyntheticApp(controlDir);
-  const blockedReasons = securityBlockedReasons([
+  // 采集端与判定端共用同一份推导：判定端会从同一批 raw receipt 重导并要求 exact parity。
+  const blockedReasons = deriveSecurityBlockedReasons({
     controlSign,
     controlVerify,
-    controlXmlCommand,
-    verify,
-    display,
-    appGatekeeper.command,
-  ]);
-  if (controlXmlCommand.exit === 0 && controlXmlCommand.stdout.bytes === 0) {
-    blockedReasons.push('control_xml_empty');
-  }
+    controlXml: controlXmlCommand,
+    officialVerify: verify,
+    officialDisplay: display,
+    spctl: appGatekeeper.command,
+  });
 
-  const controlOk =
-    controlSign.exit === 0 &&
-    controlVerify.exit === 0 &&
-    controlXmlCommand.exit === 0 &&
-    controlXmlCommand.stdout.bytes > 0 &&
-    sameFlatRecord(controlXml.values, CANONICAL_ENTITLEMENTS.values) &&
-    controlLaunch.ready === true &&
-    controlLaunch.eofSent === true &&
-    controlLaunch.exit?.code === 0 &&
-    controlLaunch.exit?.signal === null;
-  const signatureOk = exactOfficialSignature(officialSignature);
-  const spctlOk =
-    appGatekeeper.exit === 3 &&
-    appGatekeeper.signal === null &&
-    appGatekeeper.stdout === '' &&
-    appGatekeeper.stderrFirstNonemptyLine === `${appGatekeeper.appPath}: rejected`;
-
-  const status = blockedReasons.length > 0 ? 'failed' : controlOk && signatureOk && spctlOk ? 'ok' : 'failed';
-  const classification =
-    blockedReasons.length > 0 ? 'security_execution_domain_blocked' : status === 'ok' ? 'passed' : 'probe_failed';
+  // 四个 gate 与判定端共用同一份定义，直接从本轮 raw command 与 bounded launch 重导。
+  // 签名面与生命周期面分开，正是 R3 分不清「域被挡」与「控制进程没起来」的修法。
+  const gates = deriveGatesFromRaw({
+    launch: controlLaunch,
+    controlSign,
+    controlVerify,
+    controlXml: controlXmlCommand,
+    controlXmlValues: controlXml.values,
+    officialVerify: verify,
+    officialDisplay: display,
+    spctl: appGatekeeper.command,
+    appPath: appGatekeeper.appPath,
+  });
+  const { status, classification } = classifyPreflight({ ...gates, blockedReasons });
 
   return {
     schemaVersion: 1,
@@ -330,6 +318,7 @@ async function runPreflight(canonical, official) {
     status,
     classification,
     blockedReasons,
+    gates,
     canonical: stripAbsoluteCanonical(canonical),
     control: {
       signExit: controlSign.exit,
@@ -353,7 +342,7 @@ async function runFullProbe(canonical, official, preflightObservation) {
     path.join(STAGING_DIR, 'official-node.xml.plist'),
   );
   const officialHumanCommand = runApple(CODESIGN, ['-d', '--entitlements', '-', official.path]);
-  const officialHuman = parseHumanObservation(officialHumanCommand);
+  const officialHuman = parseHumanObservation(officialHumanCommand, official.path);
 
   const inventory = resolveInventory();
   const subjects = SIGN_SUBJECT_IDS.map((id) => {
@@ -419,15 +408,26 @@ async function runFullProbe(canonical, official, preflightObservation) {
     preflight: {
       status: preflightObservation.status,
       classification: preflightObservation.classification,
+      blockedReasons: preflightObservation.blockedReasons,
+      gates: preflightObservation.gates,
       control: {
         signExit: preflightObservation.control.signExit,
         verifyExit: preflightObservation.control.verifyExit,
+        // 三条 control raw receipt 原样带上：判定端要拿它们重导 blocked reason，
+        // 并与完整 receipt.commands 里的同一条逐字段对齐。
+        sign: preflightObservation.control.sign,
+        verify: preflightObservation.control.verify,
         xml: {
           exit: preflightObservation.control.xml.command.exit,
           bytes: preflightObservation.control.xml.command.stdout.bytes,
           sha256: preflightObservation.control.xml.command.stdout.sha256,
           values: preflightObservation.control.xml.values,
           stderr: preflightObservation.control.xml.command.stderr.content,
+          command: preflightObservation.control.xml.command,
+          // 落盘件与两条 plutil receipt：判定端据此重核 XML 语义，不接受自研宽 parser。
+          artifact: preflightObservation.control.xml.artifact,
+          lint: preflightObservation.control.xml.lint,
+          json: preflightObservation.control.xml.json,
         },
         launch: preflightObservation.control.launch,
       },
@@ -438,16 +438,27 @@ async function runFullProbe(canonical, official, preflightObservation) {
         stdout: preflightObservation.appGatekeeper.stdout,
         stderrFirstNonemptyLine: preflightObservation.appGatekeeper.stderrFirstNonemptyLine,
         appPath: preflightObservation.appGatekeeper.appPath,
+        command: preflightObservation.appGatekeeper.command,
       },
     },
     officialEntitlements: {
-      xml: { command: officialXmlCommand, values: officialXml.values },
-      human: { command: officialHumanCommand, entries: officialHuman.entries, values: officialHuman.values },
+      xml: {
+        command: officialXmlCommand,
+        values: officialXml.values,
+        artifact: officialXml.artifact,
+        lint: officialXml.lint,
+        json: officialXml.json,
+      },
+      human: {
+        command: officialHumanCommand,
+        parseError: officialHuman.parseError,
+        entries: officialHuman.entries,
+        values: officialHuman.values,
+      },
     },
-    hostToolReceipt: {
-      tools: hostToolReceipt.tools,
-      commands: commandReceipts.filter((receipt) => APPLE_TOOL_PATHS.includes(receipt.argv[0])),
-    },
+    // R4：**原样**交出同轮完整 receipt。R3 在这里投影成 `{tools, commands}`，
+    // 于是 host / harness Node / Developer Tools / official Node 删掉都还能假绿。
+    hostToolReceipt,
     resign,
     appBundle,
   };
@@ -493,8 +504,7 @@ async function createFullAppBundle(subject) {
   const deepVerify = runApple(CODESIGN, ['--verify', '--deep', '--strict', '--verbose=4', app]);
   const spctl = runApple(SPCTL, ['-a', '-vv', app]);
   const nestedRun = await launchExecutable(nested);
-  const spctlStderrFirstNonemptyLine =
-    spctl.stderr.content.split(/\r?\n/).find((line) => line.trim().length > 0) ?? null;
+  const spctlStderrFirstNonemptyLine = firstNonemptyLine(spctl.stderr.content);
   return {
     status: 'ok',
     signNestedExit: signNested.exit,
@@ -538,13 +548,14 @@ function createAndProbeSyntheticApp(root) {
   const signOuter = runApple(CODESIGN, ['--force', '--sign', '-', app]);
   const deepVerify = runApple(CODESIGN, ['--verify', '--deep', '--strict', '--verbose=4', app]);
   const command = runApple(SPCTL, ['-a', '-vv', app]);
-  const stderrLines = command.stderr.content.split(/\r?\n/).filter((line) => line.trim().length > 0);
+  // 与判定端同源：首非空行只由共享纯函数从 raw stderr 取一次。
+  const firstLine = firstNonemptyLine(command.stderr.content);
   return {
     appPath: app,
     exit: command.exit,
     signal: command.signal,
     stdout: command.stdout.content,
-    stderrFirstNonemptyLine: stderrLines[0] ?? null,
+    stderrFirstNonemptyLine: firstLine,
     command,
     appBundle: {
       status: 'ok',
@@ -554,7 +565,7 @@ function createAndProbeSyntheticApp(root) {
       nestedLaunched: true,
       spctlExit: command.exit,
       spctlStdout: command.stdout.content,
-      spctlStderrFirstNonemptyLine: stderrLines[0] ?? null,
+      spctlStderrFirstNonemptyLine: firstLine,
       appPath: app,
     },
   };
@@ -648,20 +659,28 @@ function readActualEntitlements(binary, expectedPresent, workDir) {
     !expectedPresent &&
     command.exit === 0 &&
     command.stdout.bytes === 0 &&
-    !securityBlockedReasons([command]).length
+    !securityReasonsFromStreams([command]).length
   ) {
     return { kind: 'none', values: {}, command };
   }
   return { kind: 'unreadable', values: null, command };
 }
 
+/**
+ * XML observation 不自研第二套 parser：语义一律来自绝对 `/usr/bin/plutil`。
+ * 采集端把落盘件的 path/bytes/SHA 与两条 plutil receipt 一并留档，判定端据此重核并自行解析。
+ */
 function parseXmlObservation(command, outputPath) {
   let values = null;
   let parseError = null;
+  let artifact = null;
+  let lint = null;
+  let json = null;
   if (command.exit === 0 && command.stdout.bytes > 0) {
     fs.writeFileSync(outputPath, command.stdout.buffer, { flag: 'wx', mode: 0o600 });
-    const lint = runApple(PLUTIL, ['-lint', outputPath]);
-    const json = runApple(PLUTIL, ['-convert', 'json', '-o', '-', outputPath]);
+    artifact = { path: outputPath, bytes: byteSize(outputPath), sha256: sha256File(outputPath) };
+    lint = runApple(PLUTIL, ['-lint', outputPath]);
+    json = runApple(PLUTIL, ['-convert', 'json', '-o', '-', outputPath]);
     if (lint.exit === 0 && json.exit === 0) {
       try {
         values = JSON.parse(json.stdout.content);
@@ -672,74 +691,38 @@ function parseXmlObservation(command, outputPath) {
       parseError = 'plutil rejected extraction';
     }
   }
-  return { command: stripBuffer(command), values, parseError };
+  return { command: stripBuffer(command), values, parseError, artifact, lint, json };
 }
 
-function parseHumanObservation(command) {
-  const combined = `${command.stdout.content}\n${command.stderr.content}`;
-  const entries = [];
-  let parseError = null;
-  const lines = combined.split(/\r?\n/);
-  for (let index = 0; index < lines.length; index += 1) {
-    const key = lines[index].match(/^\s*\[Key\]\s+(.+?)\s*$/);
-    if (!key) continue;
-    const valueMarker = lines[index + 1]?.match(/^\s*\[Value\]\s*$/);
-    const bool = lines[index + 2]?.match(/^\s*\[Bool\]\s+(true|false)\s*$/);
-    if (!valueMarker || !bool) {
-      parseError = `key without exact Value/Bool pair: ${key[1]}`;
-      break;
-    }
-    entries.push({ key: key[1], value: bool[1] === 'true' });
-    index += 2;
-  }
-  if (entries.length === 0 && !parseError) parseError = 'no flat dictionary entries';
-  const values = {};
-  for (const entry of entries) {
-    if (Object.hasOwn(values, entry.key)) {
-      parseError = `duplicate key: ${entry.key}`;
-      break;
-    }
-    values[entry.key] = entry.value;
-  }
+/**
+ * 采集端不再自带第二套 grammar：解析交给 `probe-verdict.mjs` 的共享纯函数，
+ * 判定端会拿同一份 raw command 再跑一次并与这里保存的三者互证。
+ * R3 把 stdout 与 stderr 拼起来喂进同一个 grammar，那正是「未知层级被跳过」的温床。
+ */
+function parseHumanObservation(command, officialPath) {
+  const { parseError, entries, values } = parseDerHumanEntitlements({
+    stdout: command.stdout.content,
+    stderr: command.stderr.content,
+    // 与判定端同源：期望值取实物 official path，不取 command 自报的 argv-last。
+    expectedExecutable: officialPath,
+  });
   return { command: stripBuffer(command), entries, values, parseError };
 }
 
 function parseOfficialSignature(verify, display) {
-  const stderr = display.stderr.content;
+  // 与判定端同源：identity 只由共享纯函数从 raw display stderr 解析一次。
   return {
     verifyExit: verify.exit,
     displayExit: display.exit,
-    identifier: parseLineValue(stderr, 'Identifier'),
-    cdhash: parseLineValue(stderr, 'CDHash'),
-    teamIdentifier: parseLineValue(stderr, 'TeamIdentifier'),
-    flags: parseFlags(stderr),
-    authorities: [...stderr.matchAll(/^Authority=(.+)$/gm)].map((match) => match[1]),
+    ...parseOfficialSignatureIdentity(display.stderr.content),
     verify,
     display,
   };
 }
 
-function exactOfficialSignature(observation) {
-  return (
-    observation.verifyExit === 0 &&
-    observation.displayExit === 0 &&
-    observation.identifier === OFFICIAL_NODE_SIGNATURE.identifier &&
-    observation.cdhash === OFFICIAL_NODE_SIGNATURE.cdhash &&
-    observation.teamIdentifier === OFFICIAL_NODE_SIGNATURE.teamIdentifier &&
-    observation.flags === OFFICIAL_NODE_SIGNATURE.flags &&
-    observation.authorities.length === OFFICIAL_NODE_SIGNATURE.authorities.length &&
-    observation.authorities.every((value, index) => value === OFFICIAL_NODE_SIGNATURE.authorities[index])
-  );
-}
-
 function parseFlags(textValue) {
   const match = textValue.match(/^CodeDirectory .*\bflags=([^\s]+)(?:\s|$)/m);
   return match?.[1] ?? null;
-}
-
-function parseLineValue(textValue, key) {
-  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return textValue.match(new RegExp(`^${escaped}=([^\\r\\n]+)$`, 'm'))?.[1] ?? null;
 }
 
 function fingerprintTool(toolPath) {
@@ -817,19 +800,6 @@ function stripBuffer(value) {
       .filter(([key]) => key !== 'buffer')
       .map(([key, entry]) => [key, stripBuffer(entry)]),
   );
-}
-
-function securityBlockedReasons(receipts) {
-  const reasons = [];
-  for (const receipt of receipts) {
-    const combined = `${receipt?.stdout?.content ?? ''}\n${receipt?.stderr?.content ?? ''}`;
-    if (/Authority(?:=|\s+)(?:\(unavailable\)|unavailable)/i.test(combined)) {
-      reasons.push('authority_unavailable');
-    }
-    if (/invalid entitlements blob/i.test(combined)) reasons.push('invalid_entitlements_blob');
-    if (/internal error/i.test(combined)) reasons.push('security_subsystem_internal_error');
-  }
-  return [...new Set(reasons)];
 }
 
 function stripAbsoluteCanonical(canonical) {
