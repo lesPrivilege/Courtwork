@@ -338,6 +338,83 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      制品携带/notice 归发行票。残留双列：`3207b27` 的 2,436,991,750 B（2.27 GiB）是历史范围，
      R1 的 2,527,892,648 B（2.35 GiB）是较大保全范围，互不取代；R2 另以逐项求和报告实值。
      本条只取代上一段 R1 条款 6 的“统一 2.27 GiB”口径，不改其他 R1 门。
+- `PI-SIDECAR-DIST-1R2` 实现 `42858b2` / 回执 `33100d8` 经独立验收 `9ebb92a`
+  判定 **REJECT**；验收修复 `850fa11` 已把 SEA 成功行 `publishedPath` 从“非空”收紧为
+  exact assembly cell，须完整保留。拒绝点只由 `PI-SIDECAR-DIST-1R3` 处理：同一枚 SHA
+  已验证的官方 arm64 Node 上，`codesign -d --entitlements - --xml` 出现 exit 0 / stdout
+  0 bytes / invalid-blob warning，令两枚 with-entitlements 格 blocked；架构后续已用同 host/tool/
+  Node SHA 的 seatbelt 内外成对实测把根因定位为 security execution domain，而非 blob 损坏。
+  R2 未登记/判定此前提，REJECT 仍成立。R3 从当前架构 `main` tip 新建，再顺取
+  `c304745→e8963ef→972f42a→c6361a7→4e530cb→3435fa8→166a89a→42858b2→33100d8→850fa11→9ebb92a`；
+  只许改 fixture `README.md`、`scripts/sign-probe.mjs`、
+  `scripts/lib/probe-verdict.mjs`、`scripts/lib/toolkit.mjs`、
+  `scripts/probe-verdict.test.mjs`，新增
+  `upstream/node-v22.23.1/osx-entitlements.plist`，原工程报告
+  `docs/engineering/pi-sidecar-dist-1.md` 与新回执
+  `specs/PI-SIDECAR-DIST-1R3.md`。不得改其他 fixture/build/runtime 脚本、1/1R/1R2 旧回执、
+  ACCEPTANCE、package/lock、生产源码、父级文档、Tauri/Rust 或 GUI：
+  1. canonical probe 输入只认 Node `v22.23.1` commit
+     `bd96dfbf0361576724b65322046e2ca9f9609cb9` 的
+     `tools/osx-entitlements.plist` 原始 632 bytes：Git blob
+     `045df8eaf98e65e4fb4ea9a82b5821d41590dbdd`、SHA-256
+     `a0387464b93dd3d92c9f92c3d3f67713b355cc76d131f0542a69d2ca2cc6d797`；同树的
+     `tools/osx-codesign.sh`（blob `346afdbe66e9fda3349c46b5ccae221160313720`）须作为
+     “上游确实消费该文件”的一手证据。仓内副本须 exact path、`lstat` regular-file/non-symlink、
+     exact bytes/hash、绝对 `/usr/bin/plutil` 合法、恰六键且值全 true。任意手写、历史 `dist/`、运行时生成、
+     抽取输出或路径替代均禁止；这份副本是固定输入，不叫 fallback。
+  2. 在解释官方 blob 前先做 security execution-domain preflight：用 canonical file 签临时
+     official Node 副本，要求 strict verify + XML 回读 + canonical 逐值比较，并以该副本运行
+     `scripts/sidecar-fixture.mjs`，在 deadline 内完成 `ready → stdin EOF → exit 0`；
+     只签/验不启动不算 control。official Node 必须分别通过
+     `/usr/bin/codesign --verify --strict --verbose=4`，并由
+     `/usr/bin/codesign -d --verbose=4` 取得 exact `Identifier=node`、
+     `CDHash=59cdea89a982b05f23e756c08115bebc555ff092`、
+     `TeamIdentifier=HX7739G8FX`、`flags=0x10000(runtime)` 及按序三条 Authority：
+     `Developer ID Application: Node.js Foundation (HX7739G8FX)`、
+     `Developer ID Certification Authority`、`Apple Root CA`。
+     synthetic ad-hoc `.app` 的 `/usr/sbin/spctl -a -vv` 必须在 `LC_ALL=C` 下 exact
+     stdout 空、exit 3、stderr 第一非空行 `<app>: rejected`，不能把 exit 1 /
+     `internal error` 等任意非零冒充预期拒绝。
+     `Authority unavailable`、invalid blob、0-byte XML 或 security subsystem internal error
+     一律结构化为 `security_execution_domain_blocked` 并非零，不能继续判官方内容，也不能用
+     human 输出绕过；canonical/source/tool 失败、control 协议/启动失败与未知错误另记
+     `probe_failed`，不能滥归环境。提供快速 `--preflight-only`；实现须以验收保存的 exact command receipt
+     写先红/变异并在自身执行域实跑，独立验收须真跑“Codex seatbelt 准确 blocked + 明确批准的
+     非受限域通过”两格，正式签名读数只取后一格。环境变量只作诊断，功能 preflight 才作判定。
+  3. preflight 通过后，官方实物 extraction 才与输入分账。同轮运行 XML 与默认 DER
+     human-readable 两路径，逐条保全 argv/exit/signal/stdout/stderr bytes+SHA。XML 必须非空、
+     是合法 plist 且与 canonical 等义；human parser 只收单层 dictionary、无重复/额外键、
+     六键 bool true。两路都须与 canonical 逐键逐值等同；human 是交叉见证，不是 XML fallback。
+  4. 重签模式精确改名为
+     `adhoc-hardened-with-node-v22.23.1-entitlements`；旧
+     `adhoc-hardened-with-official-entitlements` 在生产 fixture 零出现。六格每行都记录
+     canonical input path/SHA，并从签后副本回读 actual entitlements：plain 与
+     hardened-no-entitlements 恰为 none，with-upstream 恰等 canonical 六键。sign/strict
+     verify 绿不能替代实际回读；临时 plist、错 input SHA、少/多/错值或 blocked 均失败。
+  5. CLI 强制 `--execution-domain-id <[a-z0-9][a-z0-9-]{0,31}>`，拒绝已存在目标；
+     每次在私有 staging 原子发布到 `dist/security-domain/<id>/`，其中
+     `host-tool-receipt.json`、`preflight.json`、`manifest.json` 是最小闭集，full 只在**同一
+     进程/域** preflight 通过后增加 `sign-probe.json`。禁止共享顶层 `dist/sign-probe.json`、
+     跨运行复用 preflight、覆盖目录或留下 stale/半份 sign 读数。manifest 锁 id/mode/status/
+     cwd/timestamps 及其余 JSON 的 repo-relative path/bytes/SHA；实现、验收各以不同 id 物理
+     留档，并在自己的回执引用 manifest path + 外算 SHA。
+     verdict 必须消费同轮 receipt：macOS product/build、Darwin、hardware/process arch、
+     harness Node path/version/arch/bytes/SHA、`xcode-select`/CLT version，以及 official Node
+     bytes/SHA/固定 signature identity。Apple 工具实际调用只许绝对 `/usr/bin/codesign`、
+     `/usr/sbin/spctl`、`/usr/bin/plutil`，三者各以 `lstat` regular/non-symlink +
+     path/bytes/SHA/Mach-O slices 登记；每条 receipt 的 `argv[0]`/tool SHA 绑定该件并固定
+     `LC_ALL=C`。缺字段、空值、事后常量、command exit/双流 bytes+SHA 不自洽、指纹与实际
+     executable 不一致均有具名失败。
+  6. sign probe 的 ready/EOF/kill-confirm 进入具名 deadline；不得再裸
+     `await proc.exited`。canonical hash/语义、受限域误归因、`spctl internal error` 假拒绝、
+     XML 空成功、human 少/多/false/重复、fixture symlink/path、每格 input SHA、签后 actual、
+     execution-domain id/path 碰撞、跨域复用、PATH 三枚同名 shim、host/tool receipt 与
+     bounded control cleanup 均须先在未改 R2 production 上见红，再逐门有效 source mutation。
+  7. R3 的上游六键含 `get-task-allow`，只作同机 ad-hoc 控制变量，不授权
+     `PI-DEBUG-BUILD-1` 或公开发行复用。批准的非受限域快速签名门通过后，实施与独立验收各自
+     从空 assembly 复跑 R2 的 203 verdict 回归、76 counterexamples、600 cold-start samples、
+     双 cycle、六格签名、来源门与四仓库门；不得从旧 `dist/final` 回填。报告仍零路线建议，
+     R3 异会话完整放行前不得裁路线或启动 Host。
 - 原三张并行票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。
   原实现会话分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
   `specs/PI-SIDECAR-DIST-1.md` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering
@@ -348,7 +425,10 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   `5b55885 → 5133c6e → 0872a5c → 855db1b → 9f9255b → 7c8c9c3 → 4df2e84`；
   `PI-SIDECAR-DIST-1R` 取 `70e6482 → 01ff5e7 → 3207b27 → 9b8142f`；
   `PI-SIDECAR-DIST-1R2` 取
-  `e364868 → 43c1ae7 → 1d4329e → 7a500d1 → ba71df8 → 61c2b09 → f261347`。
+  `e364868 → 43c1ae7 → 1d4329e → 7a500d1 → ba71df8 → 61c2b09 → f261347`；
+  `PI-SIDECAR-DIST-1R3` 取
+  `c304745 → e8963ef → 972f42a → c6361a7 → 4e530cb → 3435fa8 → 166a89a →
+  42858b2 → 33100d8 → 850fa11 → 9ebb92a`。
   实现者只改各自票面文件
   与新回执，并在回执记录组合后的目标 SHA；冲突一律停下回架构，不得借解决冲突改父级文档。
 - 后续 `PI-WRITE-HOST-1` 才把 port 接到 Rust exact 同版本
@@ -399,6 +479,7 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - [`PI-SIDECAR-DIST-1`](specs/PI-SIDECAR-DIST-1.md)
 - [`PI-SIDECAR-DIST-1R`](specs/PI-SIDECAR-DIST-1R.md)
 - [`PI-SIDECAR-DIST-1R2`](specs/PI-SIDECAR-DIST-1R2.md)
+- [`PI-SIDECAR-DIST-1R3`](specs/PI-SIDECAR-DIST-1R3.md)
 
 ## 十 · 门与证据
 

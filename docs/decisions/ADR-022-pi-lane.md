@@ -890,6 +890,124 @@ Developer ID 后净体积均属未实测。负载超时只登记本次观察，�
 Postject 自有部分 MIT、package 内 `vendor/LIEF` 为 Apache-2.0；是否进入最终分发件及 notice
 义务归发行票复核。
 
+`PI-SIDECAR-DIST-1R2@33100d8` 的独立验收 `9ebb92a` 第三次判定 **REJECT**。验收先以
+`850fa11` 修掉一处实现级假绿：SEA 成功行的 `publishedPath` 原只要求非空，故
+`../bogus` 会通过；返修后必须等于该 target/variant 的唯一 assembly cell。该修复与对应首红、
+mutation 均须保留。最终拒绝点在 sign probe：同一枚已过来源门的官方 arm64 Node
+（SHA-256 `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`）上，
+`codesign -d --entitlements - --xml` 虽 exit 0，却给出 0-byte stdout 与
+`invalid entitlements blob` 警告；旧脚本因此无法生成临时 plist，两枚
+hardened-with-entitlements 格正确 blocked。实现会话另一时点留下的 568-byte 抽取件与六格
+全绿是真实历史观察，但没有绑定当时的 OS/codesign 身份，不能替代独立复现。架构后续在**同一
+主机、同一 `/usr/bin/codesign`、同一 Node SHA** 做成对复核，已坐实分叉来自执行域：Codex
+seatbelt 内重现 0-byte/invalid，批准的非受限执行中得到 568-byte XML，SHA-256
+`cf2c3d27530139c19ee66f289be8169991dc3206322d5df3c22f529c136883e6`，逐键等于上游
+六键；官方 signature verify 与旧 synthetic `.app` 的 `spctl` 也分别呈现
+`Authority unavailable`/`internal error` 对真实证书链/`rejected` 的同形分叉。故 R2 的两份
+观察都真实，错误是没有把 security execution domain 当成证据前提，并把环境 preflight 失败
+误归为 entitlement 内容失败。另以只读 Mach-O SuperBlob 交叉核实：官方实物同时带 legacy XML
+`-5` 与 DER `-7` 槽，CodeDirectory special-slot hash 均匹配；`-5` 的 632-byte payload 与上游
+plist **逐字节相同**，`-7` 亦解出同一六键真值。因此 seatbelt 内的 warning 不是原始 blob
+损坏证据。
+
+`PI-SIDECAR-DIST-1R3` 只修这条证据链，不改变两条路线、库存、功能 wire 或产品签名方案。
+架构现冻结四层，严禁再混成一层：
+
+1. **canonical 输入来自 Node 上游源码，不来自本机抽取。** Node `v22.23.1` annotated tag
+   `af059a8d162418050857e202315220d1b79a6d03` 解引用到 commit
+   `bd96dfbf0361576724b65322046e2ca9f9609cb9`；该树的
+   [`tools/osx-codesign.sh`](https://github.com/nodejs/node/blob/bd96dfbf0361576724b65322046e2ca9f9609cb9/tools/osx-codesign.sh)
+   （Git blob `346afdbe66e9fda3349c46b5ccae221160313720`）明确把
+   [`tools/osx-entitlements.plist`](https://github.com/nodejs/node/blob/bd96dfbf0361576724b65322046e2ca9f9609cb9/tools/osx-entitlements.plist)
+   传给 `codesign --entitlements`。后者恰 632 bytes、Git blob
+   `045df8eaf98e65e4fb4ea9a82b5821d41590dbdd`、SHA-256
+   `a0387464b93dd3d92c9f92c3d3f67713b355cc76d131f0542a69d2ca2cc6d797`。R3 只许把这
+   632 bytes 原样存为
+   `packages/pi-lane/fixtures/sidecar-dist/upstream/node-v22.23.1/osx-entitlements.plist`，
+   以 byte/hash、绝对 `/usr/bin/plutil` 与恰六枚 `true` 键三重校验；它是**冻结的上游 probe 输入**，
+   不是 fallback。实现者现场手写、从历史 `dist/` 拷贝、从某次 `codesign` 输出生成或在
+   抽取失败时换另一份 plist，一律禁止。
+2. **先判 security execution domain，不能拿受限域结果判签名内容。** `sign-probe` 先以固定
+   canonical file 给官方 Node 的私有副本做 hardened ad-hoc 签名，再要求 control 的 strict
+   verify、XML extraction 与 canonical 逐值比较全部通过；该 control 还须以
+   `scripts/sidecar-fixture.mjs` 做一次有界的 `ready → stdin EOF → exit 0` 启动，不能只证明
+   “签得上/验得过”。同时要求官方 Node strict verify 通过并由独立 display 命令取得下列固定
+   identity；synthetic ad-hoc `.app` 的 `spctl` 必须是 exact `rejected`，不能把
+   `internal error` 等任意非零当 Gatekeeper 拒绝。任一项出现 `Authority unavailable`、
+   invalid blob、0-byte XML 或 security subsystem internal error，只能结构化记为
+   `security_execution_domain_blocked` 并非零退出；不得继续给官方 blob 定性，也不得以默认
+   human 输出绕过 preflight。canonical/source/tool gate 的普通失败、control 协议/启动失败或
+   未知错误必须记 `probe_failed`，不能被宽泛归入环境 blocked。实现会话须以验收保存的 exact
+   command-receipt 形状写先红/变异，并在自身可用执行域跑 `--preflight-only`；独立验收则必须
+   在 Codex seatbelt 与明确批准的非受限执行中各真跑一次，前者准确 blocked、后者通过后才完成
+   正式六格。报告须把两域结果分开，不能混成一次运行；`CODEX_SANDBOX` 一类环境变量只作诊断，
+   功能 preflight 才是判定真源。
+3. **官方实物 observation 独立于签名输入。** preflight 通过后的同一轮须同时保存
+   `codesign -d --entitlements - --xml <official-node>` 与不带 `--xml` 的 DER human-readable
+   路径之完整 argv/exit/signal/stdout/stderr byte/hash。exit 0 + 空 stdout 不能叫成功；
+   XML 必须是可解析 plist 并与 canonical 等义；另以严格的 flat-dictionary parser 解析 human
+   路径，拒绝未知层级、重复/额外键、非 bool 或 false，不能只用正则捞六个 key。两条路径均须
+   把实物还原成与冻结上游文件**恰同的六键真值**；任一不可读或语义漂移即顶层失败。human
+   路径是交叉见证，不是 XML 失败时的 fallback。
+4. **六格重签始终只消费第 1 层固定 bytes。** 旧模式名
+   `adhoc-hardened-with-official-entitlements` 退役为
+   `adhoc-hardened-with-node-v22.23.1-entitlements`，防止把“来自官方实物抽取”继续写进语义。
+   两候选 × plain / hardened-no-entitlements / hardened-with-upstream 三姿势仍是精确闭集；
+   每格除 sign/strict-verify/launch 外，还须回读**签后副本**的实际 entitlements：前两姿势恰
+   `none`，第三姿势与冻结六键逐值等同，并记录实际消费的 canonical repo path/SHA。签名命令改用
+   临时抽取件、漏传/换掉 canonical path、输入 hash 不符、实际回读不同或任一格 blocked 均失败。
+
+R3 禁止再让不同执行域覆写同一份 `dist/sign-probe.json`。CLI 必须显式接收
+`--execution-domain-id <id>`（只收 `[a-z0-9][a-z0-9-]{0,31}`）以及可选
+`--preflight-only`，并拒绝已存在的目标目录。每次调用先在私有 staging 中原子形成
+`dist/security-domain/<id>/host-tool-receipt.json`、`preflight.json`、`manifest.json`；
+只有同一进程、同一域的 preflight 通过，full 模式才追加 `sign-probe.json`。full 不能消费先前
+preflight 文件，blocked/full 也不得产生半份或 stale `sign-probe.json`。`manifest.json`
+记录 execution-domain id（只作标签，不作真源）、mode/status、cwd、started/finished time，
+以及除 manifest 自身外每件 JSON 的 repo-relative path/bytes/SHA-256；实现回执、验收回执与报告
+分别引用各自 manifest 的 path + 外算 SHA。不同会话/域使用不同 id，目录不碰撞、不覆盖。
+
+三枚 Apple 工具的**实际调用**只许绝对 `/usr/bin/codesign`、`/usr/sbin/spctl`、
+`/usr/bin/plutil`，每条 command receipt 的 `argv[0]` 与 tool SHA 都须绑定同轮
+`host-tool-receipt.json`；禁止先给系统实物做指纹、实际却经 `PATH` 调同名 shim。三件工具均以
+`lstat` 证明 regular/non-symlink，并记录 path/bytes/SHA-256/Mach-O architectures；所有 Apple
+命令固定 `LC_ALL=C` 并把该环境值写入 receipt。`spctl` 的唯一预期拒绝命令是
+`/usr/sbin/spctl -a -vv <app>`：stdout 空、exit 3，stderr 第一非空行须 exact
+`<app>: rejected`；exit 1 / internal error 不是拒绝。
+
+官方 Node 的签名身份拆成两条、不得以一句“证书链有效”代替：
+
+- `/usr/bin/codesign --verify --strict --verbose=4 <official-node>` 必须 exit 0；
+- `/usr/bin/codesign -d --verbose=4 <official-node>` 必须 exit 0，且在已过来源 SHA 的实物上
+  解析到 `Identifier=node`、`CDHash=59cdea89a982b05f23e756c08115bebc555ff092`、
+  `TeamIdentifier=HX7739G8FX`、`flags=0x10000(runtime)`，以及按序恰三条 Authority：
+  `Developer ID Application: Node.js Foundation (HX7739G8FX)`、
+  `Developer ID Certification Authority`、`Apple Root CA`。
+
+`host-tool-receipt.json` 还须记录同轮环境而非事后口述：macOS product/build、Darwin release、
+hardware/process arch、执行探针的 Node version/execPath/bytes/SHA、`xcode-select` 与 CLT
+package version。official Node 另记 path/regular-file/bytes/SHA 与上述 identity。
+preflight 与关键命令均保全 argv、cwd、started/finished time、exit/signal、stdout/stderr
+bytes+SHA 与原始内容；上述字段缺失、空值、事后常量补写、tool receipt 与 argv 不一致须有
+定向反例。`sign-probe.mjs` 已在本票触碰面内，其 control/sign-matrix 的
+ready/EOF/exit/kill-confirm 等待同时收进具名 deadline；不得保留裸 `await proc.exited`
+让复验挂死。
+
+`get-task-allow` 虽在 Node 该版本上游六键中，按 Apple 公证规则不得据此成为 Courtwork 公开
+发行默认。R3 的 632-byte 文件只服务同机 ad-hoc probe；它不自动进入
+`PI-DEBUG-BUILD-1.signing-plan.json`，更不得进入 parked 的 `PI-SIDECAR-RELEASE-1`。未来产品
+debug/release entitlements 仍须由架构在对应 signing plan 逐件冻结，运行时零 fallback。
+
+R3 从含 `850fa11`/`9ebb92a` 的组合树开工，先让 canonical hash/语义、受限域误归因、
+`spctl internal error` 假拒绝、XML 空成功、human 严格解析、签后回读、执行域目录碰撞、
+跨域 preflight 复用、PATH shim、host/tool receipt 与 bounded control launch 的反例在未改
+production 上见红，再做有效 source mutation。快速
+`--preflight-only` 在受限域须准确 blocked、在批准的非受限域须通过；正式签名门过后，才允许
+从空 assembly 复跑 R2 全量：203 例既有 verdict 回归、76 枚 counterexample、600 cold-start
+samples、双 cycle、六格签名、来源门与四个仓库门。
+实现与独立验收均不得从旧 `dist/final` 回填数字；报告继续零路线建议。只有另一会话完整放行 R3，
+架构才可消费报告裁路线；此前 `PI-HOST-LOOP-1`、`PI-DEBUG-BUILD-1` 继续 blocked。
+
 后续产品装配归属也冻结：`PI-HOST-LOOP-1` 建 product `/case` 虚拟 env、路径/错误脱敏、累计预算
 与 Rust 生命周期；`PI-WRITE-HOST-1` 才注册 `createWriteTool()`、扩产品 tool policy、设置
 `toolExecution:'sequential'`、启用六-0 的 `md-work-v1` 最小 system prompt，并把每次 toolCall
@@ -912,6 +1030,12 @@ Postject 自有部分 MIT、package 内 `vendor/LIEF` 为 Apache-2.0；是否进
 
 ## 修订记录
 
+- **2026-07-29 · R2 验收再拒绝与 entitlements 四层证据契约**：保留 acceptance 的 SEA
+  exact-cell 修复；以 Node v22.23.1 上游签名脚本和 632-byte plist 冻结 canonical probe 输入，
+  把 security execution-domain preflight、官方实物 observation 与重签输入拆开，并让重签只
+  消费上游固定 bytes。任意手写/历史抽取 fallback 禁止；受限域/非受限域成对复证、XML 空成功、
+  DER human 严格解析、签后实际 entitlements、同轮 host/tool 指纹、exact `spctl rejected` 与
+  bounded launch 一并进入 R3 红绿门。路线继续未裁。
 - **2026-07-28 · sidecar 分发返修再拒绝与物理证据闭口**：`f261347` 以三枚独立 production
   反例坐实 R1 仍会把真实多制品、首样本身份漂移与空 SHA 报绿，并确认 crash 无界等待及 SEA
   重签失败不决定 build status。路线继续未裁；R2 改用独立 assembly 物理闭集、逐样本身份、
