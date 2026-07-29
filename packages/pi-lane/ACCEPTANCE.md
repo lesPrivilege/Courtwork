@@ -206,3 +206,90 @@ request-scoped reservation。任何一项都足以使 Rust 后续 journal 看见
 
 USD「一律」与已登记 public tc 两项不需架构回退；callback Error 不回滚状态本身亦可成立，但不得
 以它绕过 settled effect 收束。`PI-HOST-LOOP-1` 继续阻塞，不能把 `PI-CODE-STDIO-1R` 计为完成。
+
+---
+
+# PI-CODE-STDIO-1R2 独立验收（2026-07-29，验收窄修后放行）
+
+验收对象为组合 target `710faaa30c9383d3642b06223e88e32cc0b3654d`，实现提交
+`7686dfd3d2137f0085d5b49810bfe920e5305d97`，组合基线
+`63787cb7b4528953e33544a5aca7c06a86d284af`。独立 worktree
+`/private/tmp/courtwork-accept-pi-code-stdio-1r2-gpt`、分支
+`codex/accept-pi-code-stdio-1r2` 从 exact target 建立；实现与验收会话分离。验收开始时树 clean，
+`63787cb → 7686dfd → 710faaa` 的逐段 ancestry 均成立：实现段只改
+`product-stdio.ts`／`.test.ts`，target 尾提交只改专属 1R2 回执。架构裁定
+`main@1e14894` 不在 target 祖先链，两树 merge-base 为 `efcd0ab`；本验收按裁定明确允许两处旧绿测
+再成形，并以「settled `finishPrompt` 先发保存 outcome 的 finished、再发优先级 terminal、正常返回」
+作为冻结契约，未自行扩张 schema 或跨层接口。
+
+## exact target 的两处真实缺陷与验收窄修
+
+exact target 原定向门为 **2 files / 167 tests passed**，但独立把冻结契约写成断言后发现两处
+实现级缺陷；两者均定位明确、无契约歧义，按验收权限落为
+`fix-by-acceptance@43b3796e29ce6f97ba288be49b541afad61bb26b`：
+
+1. **pending `finishPrompt` 假绿。** 原测试把 operation pending 时的抛错写成绿色；
+   production 实际进入 `terminate()` 并抛 `ProductSidecarError`，既未置
+   `upstreamLatched`，也未把 `usd` 传染为 null。把旧测试依架构裁定改成「正常返回、零 terminal、
+   pending 保留、后续 runtime 输出被 latch、严格匹配的 host_result 后恰一
+   `tool_finished` + upstream terminal」后，未修 production 的首跑 **EXIT 1**，实际逃逸
+   `在途 host request 未收束前不得发 terminal`。修复仅在 `finishPrompt()` 加
+   `pending → failUpstream() → return`；删除该分支的 production mutation 再次 **EXIT 1**。
+2. **runtime event 非 record 可绕过闭集。** target 在读取 `event.kind` 前没有运行时 record
+   门：`null as OutboundAgentEvent` 首跑 **EXIT 1**，逃逸
+   `TypeError: Cannot read properties of null (reading 'kind')`；补 null 后，带合法
+   `assistant_text_delta` 字段的伪装 Array 又被直接投影，仍 **EXIT 1**。最终入口先拒绝
+   非 object、null、Array、无字符串 kind，再进入 union switch；`null`、`undefined` 与伪装
+   Array 各自撤掉对应 production 子门均独立变红，均无 TypeError/callback failure 逃逸。
+
+验收同时补强三处原本可假绿的断言，但不改变生产语义：settled `finishPrompt` 明确断言正常返回，
+人工在正确 finished/terminal 后再抛会红；settled 时尝试起新工具锁完整
+`['tool_started','tool_finished']` 序列（只有旧 write 的 start/finished，新 read 零投影），人工提前
+投影新 `tool_started` 会红；event-record 例补 `undefined`，单撤 `typeof object` 子门会以
+`'kind' in undefined` TypeError 变红。
+
+## 反例、旧测再成形与 production mutation
+
+- 九枚历史拒绝反例逐项实跑：tool/capability 双向错配、settled 后第二 operation、同 tc 改名、
+  unknown event、pending 提前 finished、pre-op 伪成功、settled 被普通 finish 抹掉、finished 后
+  倒退、stale tc 跨 prompt，最终全绿；另有 single-active、settled-new-tool 与 finished-reservation
+  late-send 三条独立边界。
+- 架构允许改写的两条旧绿测没有把非法输入藏掉。验收另以旧原序列重放：
+  `write started/progress → 未 finished 即 read started → pre-op succeeded` 当场 fail-closed，
+  新 read/旧伪 finished 均零出 wire；`read tc → workspace_write` 在烧 ordinal 前拒绝，随后合法
+  read 仍拿 `op_1_1`。改写后的合法 read 多 operation 子循环及合法 tc 释放亦经独立 mutation
+  证明有 production 区分力。
+- 本会话在真实 production source 上逐枚注入并恢复：read 映射、single-active、pre-op
+  success 改投、pending `tool_finished` latch、settled/new reservation、settled
+  `finishPrompt` 正常返回、新工具零投影、pending `finishPrompt` latch、event record 的
+  object/null/Array 子门，以及**整块 send-time 有效性门**。各对应反例均 **EXIT 1**；整块
+  send 门删除时 late-send 明确不再被拒并出现 `expected [] to equal ['finished-send']`。裁定所称
+  M16/M17 单撤在可达状态结构性等价如实保留，不伪报逐条红；四个 send 子条件仍全在最终源码中。
+- 所有 mutation 均用补丁逐枚还原；最终搜索无 `mutation`／`false &&` 残留，`git diff --check`
+  **EXIT 0**。另由只读审计复核 live diff 与上述关键门，结论同为无残留、覆盖可放行。
+
+1R 的六组回归均未改语义：固定安全文案/retryability、pending upstream latch、五 callback
+reentrancy guard、reserve/send 接缝、pending 不可变镜像与逐值关联、protocol retryability 与两条
+canary 均在最终定向/全包门内通过。最终定向
+`product-protocol.test.ts + product-stdio.test.ts` 为 **2 files / 168 tests passed**；pi-lane
+全包为 **10 files / 242 tests passed**。pi-lane 首次沙箱运行仅
+`sidecar.test.ts` 的 8 个 localhost 用例统一 5 秒 timeout（其余 9 files / 234 tests 通过）；
+允许本机回环随机端口后，同树 242/242、**EXIT 0**，故记环境限制，不记产品红。
+
+## 最终门与结论
+
+| 门 | 退出码 | 结果 |
+|---|---:|---|
+| `pnpm -r build` | 0 | 14/15 workspace 范围通过 |
+| `pnpm lint` | 0 | ESLint 全绿 |
+| `pnpm test` | 0 | **162 files / 1565 tests passed** |
+| `pnpm --filter @courtwork/desktop lint:isolation-binding` | 0 | 等级 `none`；扫描 6 host / 22 pi-lane 源码 |
+| `git diff --check` | 0 | 无空白错误 |
+
+apps、Host/Rust、R4 与导出面均未触；Playwright 不适用，未启动 `PI-HOST-LOOP-1`，也未把本票放行
+外推成 Rust journal/host loop 已完成。
+
+**最终判定：exact target `710faaa` 原样为 NO-GO；连同窄修提交 `43b3796` 后，
+`PI-CODE-STDIO-1R2` ACCEPT / 放行 ✅。** 放行理由是两处真实缺陷已以契约内最小实现修复，分别有
+首红、production mutation 红证与最终全仓绿门；九枚历史反例、late-send 组合门、旧非法序列及
+settled 正常返回均不再依赖假绿。
