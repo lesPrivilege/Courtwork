@@ -415,6 +415,61 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      从空 assembly 复跑 R2 的 203 verdict 回归、76 counterexamples、600 cold-start samples、
      双 cycle、六格签名、来源门与四仓库门；不得从旧 `dist/final` 回填。报告仍零路线建议，
      R3 异会话完整放行前不得裁路线或启动 Host。
+- `PI-SIDECAR-DIST-1R3` 实现 `7b4184b` / 回执 `47fd7e5` 经独立验收 `eb71d6f`
+  判定 **REJECT**。R3 的 canonical fixture、四层证据、双 execution domain、deadline、实际
+  签后回读与 R2 exact-cell 门全部保留；拒绝只因三处 hard-verdict false-green：完整
+  host/runtime identity 未进入判定，DER human 未从 raw stdout 严格重解析，blocked reason
+  覆盖 control launch/protocol failure。`PI-SIDECAR-DIST-1R4` 从当前架构 `main` tip 新建，
+  再顺取
+  `f0162fd→eb806f2→b284764→f7ecd32→20461aa→c6a9819→df65ab0→0230bf6→57f91dc→
+  473bc00→ba374d8→7b4184b→47fd7e5→eb71d6f`。只许改
+  `fixtures/sidecar-dist/scripts/sign-probe.mjs`、
+  `fixtures/sidecar-dist/scripts/lib/probe-verdict.mjs`、
+  `fixtures/sidecar-dist/scripts/probe-verdict.test.mjs`、
+  `fixtures/sidecar-dist/README.md`、
+  `docs/engineering/pi-sidecar-dist-1.md` 与新回执
+  `specs/PI-SIDECAR-DIST-1R4.md`。不得改 toolkit、canonical plist、其他
+  fixture/build/runtime 脚本、旧回执/ACCEPTANCE、package/lock、生产源码、父级文档、
+  Tauri/Rust/GUI：
+  1. `runFullProbe()` 必须把完整同轮 receipt 交给 `verdictSign()`，不得再投影为
+     `{tools,commands}`。hard verdict 必须消费并关联 `schemaVersion:1`、与 probe 相同的
+     `executionDomainId`、非空时间、host 六字段、harness Node、Developer Tools、official Node、
+     canonical source、tools 与 commands。host `platform` 恰为 `darwin`；harness
+     `path===execPath`、arch 等于 host process arch，且与 official Node、三 Apple tools 一样
+     均锁 regular/non-symlink、正 bytes、有效 SHA。official actual/expected SHA 都须等冻结
+     Node SHA；canonical tag/tag-object/commit/codesign-script blob/entitlements blob 逐值等于
+     ADR 常量。三工具既有 argv[0]/tool SHA/`LC_ALL=C`/双流自洽门不退，且各至少出现一条
+     command。macOS、Darwin、hardware arch、`xcode-select` 与 CLT version 须非空登记，但不
+     冻结具体版本。
+  2. 把 DER human grammar 做成 `probe-verdict.mjs` 导出的纯解析器并由采集端与 verdict 共用。
+     只收 raw stdout 的唯一根 `[Dict]` 和恰六组 `[Key]`/`[Value]`/`[Bool] true`，可忽略空行；
+     `[Array]`、嵌套/重复 root、未知 marker、自由文本、残缺组、重复/额外键、非 bool/false
+     均失败。stderr 只许 exact `Executable=<command argv 最后一项>`。采集端不得丢
+     `parseError`；verdict 须重解析 raw command，并要求 producer 保存的
+     `parseError/entries/values` 与重解析结果逐值一致。
+  3. 把 preflight 分类抽成 production 实际调用的纯函数，固定次序为 control lifecycle/
+     protocol 或 ordinary probe failure → `probe_failed`；ordinary 不包含能被已冻结具名
+     security evidence 解释的 control sign/XML、official signature 或 `spctl` 失败。其余形态
+     有具名 security evidence → `security_execution_domain_blocked`；无 blocked 且所有 exact
+     gate 绿 → `passed`；其他 → `probe_failed`。不得把含 sign/XML 的旧总 `controlOk` 直接
+     置顶。抽取前后须先证明旧行为等价，再让
+     `control lifecycle=false + blockedReasons>0` 在旧 blocked-first 逻辑上见红；不得以新 helper
+     缺失、stub 或 module-load failure 冒充首红。
+  4. first-red 至少含验收实证的 `host/harnessNode/developerTools/officialNode` 四枚删除、
+     raw `[Array]` 一枚与混合 preflight 一枚；另补 receipt id mismatch、canonical source
+     缺/漂、harness path/execPath mismatch、official SHA 漂移、nested Dict/未知 marker 与
+     三工具 command 缺件。各门须有实际命中的 source mutation；至少独立撤完整 receipt 投影、
+     恢复 `if (!key) continue` 与 blocked-first，逐枚定向见红并 byte-identical 恢复。
+  5. 实物重跑必须错峰、串行：先 build 后让 seatbelt control 准确
+     `security_execution_domain_blocked`，再故意隐藏/缺失 `packages/pi-lane/dist/index.js`
+     证明混合形态为 `probe_failed`，恢复后在批准非受限域跑 preflight + full 六格。随后从空
+     assembly 复跑全部 verdict（既有 224 例不得回退，数字随新例增长）、76 counterexamples、
+     600 cold-start、双 cycle、十件 inventory/source、六格 sign 与四仓库门。实现/验收各用
+     新 execution-domain id/manifest，旧 `dist` 零回填；报告继续零路线建议。
+  6. fixture README 只把“受限域只写 blocked”窄化成“control lifecycle/ordinary gate 成立后
+     才可写 blocked”；原工程报告只追加 R4 实测，二者都不得改路线结论。本票不引入依赖或新
+     产品概念；这是 project-specific 证据判定，OSS 结论维持窄自研、零新依赖。实现提交先于
+     回执提交，最终停在待独立验收，不 push、不 merge、不裁路线、不启动 Host/DMG/Pages。
 - 原三张并行票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。
   原实现会话分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
   `specs/PI-SIDECAR-DIST-1.md` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering
@@ -428,7 +483,10 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   `e364868 → 43c1ae7 → 1d4329e → 7a500d1 → ba71df8 → 61c2b09 → f261347`；
   `PI-SIDECAR-DIST-1R3` 取
   `c304745 → e8963ef → 972f42a → c6361a7 → 4e530cb → 3435fa8 → 166a89a →
-  42858b2 → 33100d8 → 850fa11 → 9ebb92a`。
+  42858b2 → 33100d8 → 850fa11 → 9ebb92a`；
+  `PI-SIDECAR-DIST-1R4` 取
+  `f0162fd → eb806f2 → b284764 → f7ecd32 → 20461aa → c6a9819 → df65ab0 →
+  0230bf6 → 57f91dc → 473bc00 → ba374d8 → 7b4184b → 47fd7e5 → eb71d6f`。
   实现者只改各自票面文件
   与新回执，并在回执记录组合后的目标 SHA；冲突一律停下回架构，不得借解决冲突改父级文档。
 - 后续 `PI-WRITE-HOST-1` 才把 port 接到 Rust exact 同版本
@@ -480,6 +538,7 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - [`PI-SIDECAR-DIST-1R`](specs/PI-SIDECAR-DIST-1R.md)
 - [`PI-SIDECAR-DIST-1R2`](specs/PI-SIDECAR-DIST-1R2.md)
 - [`PI-SIDECAR-DIST-1R3`](specs/PI-SIDECAR-DIST-1R3.md)
+- [`PI-SIDECAR-DIST-1R4`](specs/PI-SIDECAR-DIST-1R4.md)
 
 ## 十 · 门与证据
 

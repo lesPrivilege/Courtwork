@@ -1008,6 +1008,57 @@ samples、双 cycle、六格签名、来源门与四个仓库门。
 实现与独立验收均不得从旧 `dist/final` 回填数字；报告继续零路线建议。只有另一会话完整放行 R3，
 架构才可消费报告裁路线；此前 `PI-HOST-LOOP-1`、`PI-DEBUG-BUILD-1` 继续 blocked。
 
+`PI-SIDECAR-DIST-1R3@47fd7e5` 的独立验收 `eb71d6f` 第四次判定 **REJECT**。R3 已正确建立
+canonical 上游输入、双 execution domain、签后回读、绝对 Apple 工具、deadline 与不可覆盖
+manifest，但 hard verdict 仍有三处实现违约：完整 `host-tool-receipt.json` 在进入 verdict 前被
+截成 `tools/commands`，故删除 host、harness Node、Developer Tools 或 official Node 身份仍会
+假绿；DER human parser 跳过未知 hierarchy，且 verdict 只信派生的六键而不重解析 raw stdout；
+preflight 让具名 blocked reason 无条件压过 control launch/protocol failure，故缺失 sidecar
+产物造成的 `ERR_MODULE_NOT_FOUND`/ready timeout 会被误报为 execution-domain blocked。全仓
+build/lint/test 绿、seatbelt 内 built control 准确 blocked、上游 632-byte 来源再次核真均不能
+抵消这些 false-green；不得消费 R3 报告、裁路线或启动 Host/DMG。
+
+`PI-SIDECAR-DIST-1R4` 只闭合上述三处判定，不改变 R3 的四层模型、两条路线、库存、wire、
+canonical bytes、签名模式、deadline 或产品 signing plan：
+
+1. full probe 必须把同轮完整 host receipt 原样交给 verdict。判定至少硬消费
+   `schemaVersion/executionDomainId/capturedAt/host/harnessNode/developerTools/officialNode/
+   canonicalSource/tools/commands`：receipt id 与 probe id 相等；host 六字段非空、
+   `platform:'darwin'`，process arch 与 harness arch 一致；harness `path===execPath`、
+   regular/non-symlink、正 bytes、有效 SHA 与非空 Node version；Developer Tools 两字段非空；
+   official Node actual/expected SHA 都等于冻结的
+   `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`，且为
+   regular/non-symlink 正字节；canonical source 的 tag/tag-object/commit/two blobs 逐值等于
+   本节已冻结常量。三枚 Apple tool 的既有指纹/command 相关性不退，且每件至少有一条同轮
+   command receipt。macOS/CLT 的具体版本只登记，不冻结成支持矩阵。
+2. DER human observation 的唯一解析器须是共享纯函数：只解析 raw stdout 的一个根
+   `[Dict]` 与恰六组 `[Key] → [Value] → [Bool] true`，空行可忽略；未知 marker、嵌套
+   `[Dict]`、`[Array]`、自由文本、残缺三联、重复/额外键、非 bool 或 false 一律
+   `parseError`。stderr 只许 exact `Executable=<argv-last>` 信息行。采集端保存
+   `parseError/entries/values`，verdict 必须从 raw command 再解析并与三者逐值一致，不得把
+   producer 的派生字段当真源。
+3. preflight 分类顺序固定为：control `ready → EOF → exit 0` 协议/启动失败或其他 ordinary
+   probe failure 先记 `probe_failed`；这里 ordinary failure 不含已被具名 security evidence
+   解释的 control sign/XML、official signature 或 `spctl` 失败。在 control lifecycle 与普通
+   门成立后，出现已冻结的 security blocked evidence 才记
+   `security_execution_domain_blocked`；无 blocked 且全部 exact gate 通过才是 `passed`，
+   其余均为 `probe_failed`。不得把包含 sign/XML 的旧总 `controlOk` 直接置顶，否则合法的
+   seatbelt blocked 会反被误归普通失败。环境变量仍只诊断。为使首红落在
+   真实旧逻辑，可先把 blocked-first 表达式行为等价抽成 production-used 纯 classifier，证明
+   既有测试结果不变后再加混合反例；缺 import、stub 或未被 production 调用的 helper 不算红证。
+
+R4 必须在 R3 target 上先复现验收的四枚 identity 删除、一枚 raw `[Array]` 与一枚
+`control lifecycle=false + blockedReasons>0` 假绿，再补 execution-domain id、canonical source、
+harness path/execPath、official SHA、未知 marker/嵌套 Dict 与三工具 command coverage 反例。
+至少三枚独立 production mutation 要分别撤掉完整 receipt 投影、恢复 skip-unknown parser、
+恢复 blocked-first 次序并见红；mutation 须验证命中、逐枚恢复且 production bytes 最终同源。
+随后先以 built control 在 seatbelt 内准确 blocked，再以故意缺 sidecar build 的混合形态准确
+`probe_failed`，批准的非受限域跑 preflight/full 六格；最后从空 assembly 复跑全部 verdict、
+76 counterexamples、600 cold-start、双 cycle、十件/source 与四仓库门。实现和新的独立验收
+使用各自 execution-domain id/manifest，fixture README 同步把“受限域只写 blocked”窄化为
+“control lifecycle/ordinary gate 成立后才可写 blocked”，旧 `dist` 零回填，报告继续零路线建议。只有异会话完整
+放行 R4，架构才可消费报告裁路线；此前 `PI-HOST-LOOP-1`、`PI-DEBUG-BUILD-1` 继续 blocked。
+
 后续产品装配归属也冻结：`PI-HOST-LOOP-1` 建 product `/case` 虚拟 env、路径/错误脱敏、累计预算
 与 Rust 生命周期；`PI-WRITE-HOST-1` 才注册 `createWriteTool()`、扩产品 tool policy、设置
 `toolExecution:'sequential'`、启用六-0 的 `md-work-v1` 最小 system prompt，并把每次 toolCall
