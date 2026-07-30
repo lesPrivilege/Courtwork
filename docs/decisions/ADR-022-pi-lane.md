@@ -1155,6 +1155,48 @@ cycle、十件/source、seatbelt blocked、缺 build 混合 `probe_failed`、批
 `fix-by-acceptance`，契约问题直接 REJECT。R5 放行前报告继续零路线建议，`current.md`、Host、
 DMG、Pages 与 R5 实现链的 merge/push 均不动；架构契约提交可正常入 `main` 供实现/验收读取。
 
+#### 2026-07-30 路线裁定：Route A 为现行 default
+
+`PI-SIDECAR-DIST-1R5` exact target `6cdb9ba` 经独立 Codex 验收 `0b0d985` **PASS**，并由
+no-ff merge `5aef222` 保全进入 `main`。验收在空 assembly 上独立闭合 384/384 verdict、
+600 个 cold-start samples、历史 76 项（68 个失败注入 + 8 个恢复／证据对照）、另造 8/8
+strengthened negatives、R5 五枚有效 counterexample + 验收自造 SIGTERM 反例、四枚 production
+mutation 与三种 execution domain；二次只读审计未发现 PASS blocker。实现回执所引未入 Git
+scratchpad 与 `crash.ignored` JSON 的 `caught` 写入时序仍是如实登记的 evidence-packaging
+缺口，不改变 production hard verdict，也不得在后票复用为权威装置。
+
+现行默认路线冻结为 **Route A：官方 Node v22.23.1 runtime + minified sealed CJS bundle**，
+`routeId:"node22-runtime-sealed-cjs-v1"`，`useCodeCache:false`。生产装配恰为不可拆分的同版双件：
+
+1. target-triple 命名的官方 Node runtime 作为 Tauri `bundle.externalBin`；
+2. `sidecar.cjs` 作为 Tauri resource，由 Rust 在启动前解析实际 resource 位置，并作为 argv
+   交给同版 runtime。
+
+Rust 必须在 spawn 前把双件作为一个 manifest pair 校验：expected route/version/target、
+regular 且 non-symlink、正字节、各自 exact SHA，缺件、多件、错版、错架构或 hash 漂移一律
+fail-closed。物理路径只存在于 Rust；不得进入 WebView、模型上下文、journal、provider error
+或产品文案。安装后不得把“双件可分别校验”实现成热替换；不得增加 Route A/B live switch、
+runtime fallback、naive ESM 档或 SEA fallback。
+
+裁点不是性能或体积胜负。R5 证明两路 stdio、真实 tool loop、abort、crash 与双架构装配在
+功能上同构；SEA default 的单件装配也是真实优势。但当前阶段先支付 Host lifecycle、journal
+与恢复，Route A 的 JS 文件可读、栈可定位、改 sidecar 只需重打 CJS，且只依赖稳定 esbuild；
+Route B 把单件收益交换为 Node SEA Stability 1.1、`postject@1.0.0-alpha.6`、LIEF 许可与
+remove-signature→inject→resign 全链，并仍带构建绝对路径。约 1 ms 冷启与签名前约 0.85 MiB
+差异不构成裁点。只有真实 Tauri build 证明 Route A 的 resource/signing 是实质阻断，才可由
+新证据修订本 ADR 重开 Route B；不得运行时自动降级。SEA `code-cache` 档因不可复现且跨架构
+静默拒 cache，明确不进入 default。
+
+`postject`/LIEF/SEA 只保留在历史比较 fixture 的 dev evidence plane，不能进入 production
+consumer、production build graph 或制品；是否迁档/删除该 fixture 与 devDependency 另以窄票
+处理，不能为“清理”改写已验收证据。路线裁定只解锁 `PI-HOST-LOOP-1`，作用域到维护者个人
+`PI-DEBUG-BUILD-1`；不解锁公开发行。两路共同的 V8 entitlement、Tauri nested executable/
+resource 重签、inside-out signing、Developer ID/notarize/staple/Gatekeeper 与原生 Intel
+验证仍未支付。R3 的 Node 上游六键 plist 只是一手 probe 输入，尤其 `get-task-allow` 不得进入
+公开发行；`PI-DEBUG-BUILD-1` 前仍须由真实 Tauri inventory 冻结 route-specific signing plan
+与 manifest schema，`PI-SIDECAR-RELEASE-1` 继续 parked。sidecar 的分发形态是独立
+`process`；ADR-018 的全局当期隔离等级仍为 `none`，不因路线裁定升档。
+
 后续产品装配归属也冻结：`PI-HOST-LOOP-1` 建 product `/case` 虚拟 env、路径/错误脱敏、累计预算
 与 Rust 生命周期；`PI-WRITE-HOST-1` 才注册 `createWriteTool()`、扩产品 tool policy、设置
 `toolExecution:'sequential'`、启用六-0 的 `md-work-v1` 最小 system prompt，并把每次 toolCall
@@ -1177,6 +1219,11 @@ DMG、Pages 与 R5 实现链的 merge/push 均不动；架构契约提交可正�
 
 ## 修订记录
 
+- **2026-07-30 · R5 独立放行与 sidecar default 路线裁定**：exact target `6cdb9ba` 经
+  独立验收 `0b0d985` 放行并由 no-ff merge `5aef222` 进入 `main`。架构消费同机、双架构、
+  双 cycle、签名与 execution-domain 证据后，裁 Route A（Node v22.23.1 runtime + sealed
+  CJS）为 `node22-runtime-sealed-cjs-v1` 现行 default，code-cache 与 live fallback 禁止；
+  SEA 留作已验证备选。裁定只解锁 Host，不升级 `current.md`、GUI 或发布事实。
 - **2026-07-30 · R5 验收冻结件 76 项口径订正**：R2 沿用至 R5 的“76 counterexamples”
   历史叫法实际包含 68 个失败注入与 8 个恢复／证据对照；冻结件初版却又要求 76 项逐项
   非零且具名，二者不可同时成立。现保留 8/5/14/23/15/11 的历史矩阵与逐项观察，另要求独立

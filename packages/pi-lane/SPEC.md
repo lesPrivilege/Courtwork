@@ -594,6 +594,18 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      恢复／证据对照；验收须另造 8 个失败变体补强且与历史 76 项分计。冻结件同时登记
      `sea` 打印 9 行含一行非矩阵项、`reproducibility-probe.mjs` 不支持枚举 flag 两处读数陷阱；
      枚举为零或少于冻结值一律判失败。实现回执引用但未提交的 scratchpad 不算可复跑交付物。
+  8. **已放行并清账（2026-07-30）**：exact target `6cdb9ba` 经独立 Codex 验收
+     `0b0d985` PASS，no-ff merge `5aef222` 使二者成为 `main` 祖先。验收独立取得 384/384、
+     600 cold samples、历史 76 项（68 negative + 8 controls）、strengthened 8/8、R5 五枚
+     有效反例 + 验收自造 SIGTERM 反例、四枚 production mutation 与三 execution domains；
+     evidence-packaging 缺口保留在验收报告，不冒充 production blocker。
+  9. **架构路线消费**：ADR-022 六-E 已裁
+     `routeId:"node22-runtime-sealed-cjs-v1"` 为现行 default——官方 Node v22.23.1
+     target-triple external binary + minified sealed `sidecar.cjs` resource，双件同版、spawn
+     前各自 exact hash/identity、Rust-only path resolution、`useCodeCache:false`、零 live
+     route switch/fallback。SEA/postject 只留 historical dev evidence plane，不得成为
+     production consumer 或制品依赖。该裁定只解锁 `PI-HOST-LOOP-1`；不代表 Host、GUI、
+     debug DMG 或公开发行已经成立，`current.md` 不随之升档。
 - 原三张并行票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。
   原实现会话分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
   `specs/PI-SIDECAR-DIST-1.md` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering
@@ -665,6 +677,7 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - [`PI-SIDECAR-DIST-1R3`](specs/PI-SIDECAR-DIST-1R3.md)
 - [`PI-SIDECAR-DIST-1R4`](specs/PI-SIDECAR-DIST-1R4.md)
 - [`PI-SIDECAR-DIST-1R5`](specs/PI-SIDECAR-DIST-1R5.md)
+- [`PI-SIDECAR-DIST-1R5-ACCEPT`](specs/PI-SIDECAR-DIST-1R5-ACCEPT.md)
 
 ## 十 · 门与证据
 

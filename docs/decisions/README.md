@@ -25,7 +25,7 @@
 | [ADR-019](ADR-019-dossier-container-and-local-cache.md) | 卷宗容器与本地缓存分区 | Accepted |
 | [ADR-020](ADR-020-release-distribution-truth.md) | 发行许可、候选制品与公开真值 | Accepted |
 | [ADR-021](ADR-021-dossier-work-semantics.md) | 卷宗工作语义层（standing brief） | Accepted（2026-07-28，触发/合成/预算/事务边界已冻结） |
-| [ADR-022](ADR-022-pi-lane.md) | 通用 agent loop 线（pi lane） | Accepted（2026-07-27；2026-07-28 冻结薄 harness→基础 GUI→原生能力生长阶梯） |
+| [ADR-022](ADR-022-pi-lane.md) | 通用 agent loop 线（pi lane） | Accepted（2026-07-30：R5 放行；Route A `node22-runtime-sealed-cjs-v1` 为现行 default） |
 
 四份由 `HARNESS-CORE-1` Stage A 提出，2026-07-20 逐项裁决；决定与理由已全文落入各 ADR 本体，无须回读材料。原始材料 `harness-core-1-stage-a.md` 随裁决闭合归档，按归档索引条目定位（史料线索，非现行依据）。
 
