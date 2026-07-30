@@ -588,7 +588,10 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      自跑完整物理矩阵并放行，架构才可消费报告裁路线。Fable 提供不可变实现 SHA 后，由架构
      另立 `PI-SIDECAR-DIST-1R5-ACCEPT`，冻结 target、允许面、反例与 mutation；验收默认只追加
      `packages/pi-lane/ACCEPTANCE.md`，实现级小修才适用 `fix-by-acceptance`，不得消费实现者
-     manifest 代替自跑。
+     manifest 代替自跑。**已冻结（2026-07-30）**：目标 `6cdb9ba`，件见
+     [`specs/PI-SIDECAR-DIST-1R5-ACCEPT.md`](specs/PI-SIDECAR-DIST-1R5-ACCEPT.md)——其中逐组
+     反例枚数以独立字面量冻结（8/5/14/23/15/11＝76），并登记 `sea` 打印 9 行含一行非反例、
+     `reproducibility-probe.mjs` 不支持枚举 flag 两处读数陷阱；枚举为零或少于冻结值一律判失败。
 - 原三张并行票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。
   原实现会话分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
   `specs/PI-SIDECAR-DIST-1.md` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering
