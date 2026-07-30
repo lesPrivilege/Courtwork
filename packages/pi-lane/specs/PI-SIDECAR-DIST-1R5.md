@@ -16,7 +16,8 @@ R4 目标 `07d2dbc`（实现 `891c23d`）经独立验收判定 REJECT；验收�
 只更新本回执和父级 SPEC 的七路径白名单；不改 toolkit/canonical fixture、其他
 fixture/build/runtime 脚本、旧回执/ACCEPTANCE、父级文档、依赖、产品源码、Rust/Tauri 或 GUI：
 
-- 架构锚点、十六枚 cherry-pick、逐枚 patch-id、组合基线与 untouched R4 target SHA：
+- 架构锚点、十四枚 cherry-pick 逐枚 patch-id、两枚 ACCEPTANCE 架构移植的
+  added-lines 逐字节对照、组合基线与 untouched R4 target SHA：
 - 旧脏验收树零接管、零复制及实现起点 clean 证据：
 - first-red A：跨架构 exact warning + 非零 exit、exit timeout/kill-confirm：
 - first-red B：command timestamps 两副本同时缺失、全填同一 canonical UTC 常量：

@@ -514,8 +514,16 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   诊断输入；任何实现会话不得接管、代提交或把它当 first-red 证据。
 - `PI-SIDECAR-DIST-1R5` 从本架构 `main` tip 新建 clean worktree/branch，顺取
   `f0162fd→eb806f2→b284764→f7ecd32→20461aa→c6a9819→df65ab0→0230bf6→57f91dc→
-  473bc00→ba374d8→7b4184b→47fd7e5→eb71d6f→891c23d→07d2dbc`；每枚 patch-id
-  与源提交相同，冲突即停。只许改：
+  473bc00→ba374d8→7b4184b→47fd7e5→eb71d6f→891c23d→07d2dbc`；除下述两枚外，
+  每枚 patch-id 与源提交相同，冲突即停。**配方修订（2026-07-30 架构裁，首次组合实测）**：
+  `ba374d8` 与 `eb71d6f` 两枚 ACCEPTANCE 拒绝报告在现行 `main` 上无法满足 patch-id
+  等同——原提交在其时文件末尾追加，该位置已被后续合入 `main` 的 WRITE-PROOF/STDIO
+  验收报告占据，任何冲突解法都会改变 hunk 上下文（实测：前十枚 patch-id 逐枚相同，
+  `ba374d8` 即停）。此两枚改为**架构内容移植**：由架构会话把源提交的 added lines
+  逐字节插入 DIST 报告连续区——`ba374d8` 的 74 行紧接 `PI-SIDECAR-DIST-1R` 拒绝节
+  之后，`eb71d6f` 的 122 行紧接其后——提交信息保留原主题并标注「架构移植＋源 SHA」，
+  验证以移植区与源提交 added lines 逐字节相等代替 patch-id；实现会话不执行、不修改
+  移植。其余十四枚配方不变。只许改：
   `fixtures/sidecar-dist/scripts/reproducibility-probe.mjs`、
   `fixtures/sidecar-dist/scripts/sign-probe.mjs`、
   `fixtures/sidecar-dist/scripts/lib/probe-verdict.mjs`、
