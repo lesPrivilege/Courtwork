@@ -1177,6 +1177,13 @@ DMG、Pages 与 R5 实现链的 merge/push 均不动；架构契约提交可正�
 
 ## 修订记录
 
+- **2026-07-30 · R5 实现期一处既有断言改写追认**：R4 期测试「full matrix 命令里的
+  internal error 不得串味到 preflight 分类」原断言整份观察为绿；该绿只成立于 R4 不判
+  六格 raw，与 R5 六-E 闭口三（六格 raw security stderr 必须失败）不可同真。追认按原意
+  收窄：串味主张收紧为五枚 preflight 判据名逐一不得出现在 failures，并新增该格自身必须
+  红在 `sign.matrix.raw.display.security`；只加门不减门，撤 full raw 真源的 mutation 使
+  其转红（区分力在案）。独立验收须复核旧「整份观察绿」形态在 R5 下不可再现，且串味防护
+  仍有效。
 - **2026-07-30 · R4 独立验收再拒绝与 R5 evidence-truth 闭口**：
   `PI-SIDECAR-DIST-1R4@07d2dbc` 虽闭合 R3 的三项既知假绿，独立验收仍在真实 observation
   坐实跨架构 exit 无界/漏判、command timeline 无真实性、raw command/run/actual-entitlements/
