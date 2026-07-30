@@ -213,7 +213,7 @@ manifest 顶层恰含
 - `schemaVersion:1`、`routeId:'node22-runtime-sealed-cjs-v1'`、
   `nodeVersion:'22.23.1'`、`useCodeCache:false`；
 - `bundle` 恰含
-  `{resourceRelativePath:'pi-sidecar/sidecar.cjs',bytes,sha256}`；
+  `{resourceRelativePath:'pi-loop-resources/sidecar.cjs',bytes,sha256}`；
 - `targets` 恰两行并按 `targetTriple` UTF-8 升序，每行恰含
   `{targetTriple,machoArch,sourceArchive,runtime}`；
 - `sourceArchive` 恰含 `{filename,bytes,sha256}`；
@@ -251,18 +251,26 @@ Tauri config 的冻结映射：
   `../../../packages/pi-lane/dist/product-sidecar/pi-sidecar`；
 - resource map：
   `../../../packages/pi-lane/dist/product-sidecar/sidecar.cjs`
-  → `pi-sidecar/sidecar.cjs`；
+  → `pi-loop-resources/sidecar.cjs`；
 - source manifest
   `pi-sidecar/route-manifest.json`
-  → `pi-sidecar/route-manifest.json`。
+  → `pi-loop-resources/route-manifest.json`。
+
+**2026-07-31 映射订正（实现实测）**：原 resource 目标前缀 `pi-sidecar/` 与 externalBin
+基名在 dev target 展平层互斥——tauri-build 把 `Contents/MacOS` 与 `Contents/Resources`
+展平进同一 `target/<profile>/`，同名之下文件与目录不能并存（单变量对照：只 externalBin
+通过为 regular file、只 resources 通过为目录、三条同落 `File exists (os error 17)`）。
+resource 目标前缀改为 `pi-loop-resources/`（与 journal `pi-loop`、cwd `pi-loop-runtime`
+同族，不落 sibling 禁形 `pi-sidecar-*`）；externalBin 基名、快照三件名与源路径
+`apps/desktop/src-tauri/pi-sidecar/` 不变。
 
 packaged runtime 只从 current executable sibling `pi-sidecar` 解析；CJS/manifest 只从
-Tauri `resource_dir()/pi-sidecar/` 解析。测试/headless locator 可注入临时 app-layout，
+Tauri `resource_dir()/pi-loop-resources/` 解析。测试/headless locator 可注入临时 app-layout，
 production 零本机 Node、PATH、repo、fixture 或 SEA fallback。本票只验证配置、locator 与
 headless app-layout；真实 Tauri `.app` 的 nested signing/entitlements/inventory 仍由
 `PI-DEBUG-BUILD-1` 支付，不能借本票宣布可发行。
 
-“extra” 的闭集按位置判断：resource `pi-sidecar/` 恰含 route manifest 与 `sidecar.cjs`；
+“extra” 的闭集按位置判断：resource `pi-loop-resources/` 恰含 route manifest 与 `sidecar.cjs`；
 current executable sibling 目录可以含主程序等其他包内文件，但不得出现第二枚
 `pi-sidecar-*` / route-prefixed sidecar 候选。不得把整个 `Contents/MacOS` 误判为两件闭集。
 
