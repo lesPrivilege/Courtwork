@@ -6,12 +6,20 @@
 
 归档材料是历史证据链，不是现行规范。`archive/` 全部内容不参与实现或验收，不得被现行文档、源码、脚本或 SPEC 直接引用（唯一例外见 `docs/README.md`「史料引用例外」：ADR 来源段与就绪图工单行可引路径作历史线索）。归档结论——即便文内标有「架构定调」——只有经现行 ADR、SPEC 或就绪图工单逐条吸收后才具约束力；升格动作须经架构拍板并在现行文档留痕。归档报告中的行号、计数、版本号与外部事实是当时工作树的历史坐标，会漂移；当前验收只认 `docs/status/current.md` 与现行 SPEC/ACCEPTANCE，不得从归档恢复字段、状态或验收标准。reconnect 时架构层文档（`docs/README.md` 起）自足开工，仅在追查现行规则历史成因或核实调研结论是否被推翻时按本索引定位。
 
-## handoffs/fable-pi-foundation-2026-07-29.md（现行接棒索引，非权威契约）
+## handoffs/fable-pi-foundation-post-r5-2026-07-30.md（现行接棒索引，非权威契约）
+
+R5 独立放行、Route A 裁定与 `PI-HOST-LOOP-1` 冻结后的 Fable 长会话增量接棒件。它给出
+`main@45d97cb` 架构锚、唯一基础施工链与独立 debug 制品支线、Fable/Sonnet/独立 Codex
+分工、研究与 OSS 按需召回、GUI/Design/anti-slop 使用边界，以及 README/Pages/DMG/公开叙事
+停点。实际能力、字段、依赖与开工条件仍只认 `current.md`、implementation-readiness、ADR、
+SPEC 和 ACCEPTANCE。
+
+## handoffs/fable-pi-foundation-2026-07-29.md（已由 R5 后增量件取代）
 
 Pi 基础线合流后的 Fable 长会话接棒件：索引现行 authority、串行收敛链、Fable/Sonnet 分工、
 GUI/Design 边界、调研召回与 OSS 复用闸门，以及未落仓线索。它只帮助新会话恢复 context；
-实际能力、字段、依赖与开工条件仍只认 `current.md`、implementation-readiness、ADR、SPEC 和
-ACCEPTANCE。后续 handoff 取代它时，应更新本索引，不得让两个“现行接棒”并存。
+其中 R4 blocked、路线未裁与 Host 不可开工的状态已过时；长会话纪律与历史成因仍可按需查阅，
+但现行接棒只认上列 R5 后增量件。
 
 ## research-design-anti-slop-recall-2026-07-30.md（Fable Design / GUI 召回补记）
 
