@@ -191,6 +191,80 @@ R3 不采信实现自述，实际向 production tree 注入后再还原：
 机器门；不放行写/bash、生产 GUI/sidecar 嵌入、journal/确认账本、真 key external validation、sidecar
 签名公证，亦不等同场景线保障或隔离等级提升。
 
+---
+
+# PI-SIDECAR-DIST-1R2 独立验收（2026-07-29，拒绝）
+
+对象：`codex/pi-sidecar-dist-1r2@33100d83fe9499d1639d45997d6a16c562bf9bbb`；实现提交
+`42858b2f011535d9e3d9cf4fc0d599a4a0df3c78`。验收在独立 clean worktree
+`/private/tmp/courtwork-accept-pi-sidecar-dist-1r2` 的
+`codex/accept-pi-sidecar-dist-1r2` 分支进行；未触实现 worktree、未 push、未 merge、未裁分发路线。
+
+**结论：REJECT。** `PI-HOST-LOOP-1` 不得消费本票，路线继续是 `[需架构拍板]`。此结论不以实现
+回执的 202/202、76 枚或全仓绿数字为依据。
+
+## 范围与验收修复
+
+- 实现范围相对 `166a89a` 恰为票面 12 文件：原报告、fixture README、9 个 harness 文件、verdict
+  测试与专属 R2 回执；`33100d8` 仅在 `42858b2` 上追加专属回执。生产 wire/session、依赖、旧回执、
+  父级 SPEC/ADR/ACCEPTANCE 均未由实现提交触碰。
+- target 的 `probe-verdict.test.mjs` 是 **202/202** 绿，但独立把一个成功 SEA 格的
+  `publishedPath` 改为 `../bogus`（四阶段仍全 0、目录仍在）后，`verdictSeaBuild()` 返回零 failure。
+  它只判非空字符串，不证明成功行指向该 triple/variant 的 assembly 成品，违反 R2 对有效
+  `publishedPath` 的闭口要求。
+- 这是不改契约的实现级小缺陷。验收树以 `fix-by-acceptance` 加入 exact
+  `assembly/${seaExecutableAssemblyPath(triple, variant)}` 门与首红测试：新增用例在未修 target 上
+  单独红，修后 **203/203** 绿；再把该 production 条件变异为 `false`，定向套件为 **201 pass / 2 fail**，
+  精确落在缺 path 与 path escape 两例，随后恢复。该两文件修复待单独提交，不能反写实现回执。
+- 同一轮还把 assembly root-type 门变异为 `false`，原 202 例转 **199 pass / 3 fail**（真实 symlink、
+  完整 entries 的 symlink、file/FIFO/null root 三组），随后 SHA 字节级恢复；说明已有 root 门不是装饰。
+
+## 不采信自述后的实测
+
+- 冻结 Node v22.23.1 的 arm64/x64 archive 均重新下载、bytes/SHA/SHASUMS/tar、解包 version 与
+  Mach-O arch 全过；sealed/SEA 从空 assembly 构建成功，正常 `measure.mjs` 对十件库存返回
+  `status=ok/failureCount=0`。
+- 实物向 assembly 注入额外目录与文件，production `observeAssembly()` + `verdictAssembly()` 命中
+  `assembly.unexpected`，随后恢复原状。`crash.ignored` 的真实受控子进程在 **136,028 ms** 收束为
+  failed，留 `ack/exit/respawn-eof` deadline 的结构化 failure，而非永久等待。
+- 先有一轮四格 SEA 成功，再分别注入 `removeSignature`、`postject`、`sign`、`verifyStrict` 的真实
+  外部命令失败。每一轮四格均为 `status:failed`、stage 精确、stderr 非空、`published:false`、
+  `publishedPath:null`，且 `lstat` 观察 `publishDirPresent:false`；双 cycle reproducibility 返回 ok。
+
+## 拒绝原因：签名矩阵在可信 runtime 上实际 blocked
+
+`sign-probe.mjs` 没有复现回执所称的六格全过，而是 **2 failure**：两枚
+`adhoc-hardened-with-official-entitlements` 均为 `entitlements-missing`。根因可复现且发生在已通过
+冻结 SHA 的官方 arm64 Node 上：
+
+```text
+codesign -d --entitlements - --xml <official-node>
+stdoutBytes=0
+warning: binary contains an invalid entitlements blob. The OS will ignore these entitlements.
+```
+
+脚本从 `dumped.stdout` 提取 XML，因此无法生成官方 entitlements 文件，shared `verdictSign()` 正确将
+两格判为 blocked。不能凭回执中旧环境的读数、手写 entitlement 文件或降低 verdict 来把这次失败涂绿。
+这可能是当前 macOS/codesign 对同一冻结 Node 二进制的环境差异，也可能意味着报告的签名证据缺少
+可复现前提；无论哪一种，在重新给出可信、可重复的官方 entitlement 来源与完整六格重测前，票面
+签名退出证据不成立。
+
+已因此停止昂贵的 600-sample cold-start 与 76-counterexample 全量重跑；它们不能修复一个已实测失败的
+必需签名格，也不得用实现会话保存的读数代替。报告/README/R2 回执的无路线建议、2.27/2.35/R2 三口径
+并列文字已作静态复核，未发现借此裁路线的表述。
+
+## 仓库门
+
+- `pnpm -r build`：exit 0。
+- `pnpm lint`：exit 0。
+- `pnpm test`：沙箱内 8 个 pi localhost sidecar 用例统一 5 s 超时（1389/1397）；在独立提升环境重跑
+  **160 files / 1397 tests，exit 0**。
+- `pnpm --filter @courtwork/desktop lint:isolation-binding`：exit 0（6 host / 18 pi-lane source）。
+
+复验前最小动作是：保持 exact `publishedPath` acceptance fix，调查/冻结官方 Node entitlement 提取在此
+macOS 上的事实来源，令六格签名矩阵不依赖无效 blob 后从空 assembly 重跑签名面；随后再以独立会话重跑
+cold-start、76 枚反例与最终读数。不得据本次拒绝结果选择路线。
+
 # PI-WRITE-PROOF-1 独立验收（2026-07-28，放行）
 
 对象：实现回执目标 `3d457752e133363096b4a4c5df059422d5d1c1e6`
