@@ -43,7 +43,7 @@
 1. verdict 定向测试全量（预期 **384/384**；356 基线 + R5 增量 28 分计）。
 2. 空 assembly 复跑：来源门双架构、双 cycle、十件 inventory/source、600 cold-start、
    `measure`（assembly 实物闭集）、跨架构注入（须见 `timeouts:[]` 与 `exit:{code:0,signal:null}`）。
-3. **既有 76 枚 counterexample 全量**逐枚注入→非零 + 具名判据→byte-identical 还原。
+3. **既有 76 项回归矩阵全量**逐项实跑→核冻结观察→byte-identical 还原。
    **逐组枚数在此冻结为独立字面量，验收须以本表为期望侧、逐组核对实跑枚数**（承「被测物不得
    给自己出考卷」：期望侧必须独立于被测装置，不得由 harness 自身枚举派生）：
 
@@ -57,14 +57,45 @@
    | `physical` | 11 |
    | **合计** | **76** |
 
+   **2026-07-30 架构口径订正**：这 76 项沿用 R2 冻结账，精确构成为 **68 个失败注入 +
+   8 个恢复／证据对照**，不得把 8 个 exit 0／数值观察伪写成失败注入：
+
+   - `sea`：4 个 `--fail-stage` 失败注入 + 4 个 `:evidence` 对照；
+   - `fetchextract`：`truncated:notOverwritten` 数值证据、fetch restored、extract restored 共
+     3 个对照，其余 2 个为失败注入；
+   - `physical`：`reportsOutside` 为反向对照，其余 10 个为失败注入；
+   - `repro` 14、`measure` 23、`coldstart` 15 均为失败注入。
+
+   68 个失败注入须证明变形或物理前置实际成立（有 `applied` 字段者必须为 `true`）并核冻结
+   非零退出；有稳定 check 字段者还须核具名判据，其余须核冻结失败观察与磁盘后置条件，不得
+   臆造判据名。8 个对照须核各自冻结的 exit 0／数值观察及后置条件。验收还须另造下列
+   **8 个 acceptance-owned 失败变体**，逐一证明上述对照所保护的判断面不会因恢复／证据行而
+   假绿；每行须独立 applied/变形前置、失败观察、恢复与健康复证，同一变体不得跨行复用：
+
+   | 对应历史对照 | 验收自造变形 | 最小区分证据 |
+   |---|---|---|
+   | `sea:remove-signature:evidence` | 在真实该阶段失败 observation 上把 row `status` 改报 `ok` | verdict 非空且命中 `seaBuild.status` |
+   | `sea:postject:evidence` | 在真实该阶段失败 observation 上把 row `stage` 改报另一阶段 | verdict 非空且命中 `seaBuild.stage` |
+   | `sea:sign:evidence` | 在真实该阶段失败 observation 上填入非空 `publishedPath` | verdict 非空且命中 `seaBuild.publishedPath` |
+   | `sea:strict-verify:evidence` | 在真实该阶段失败 observation 上把 `publishDirPresent` 改报 `true` | verdict 非空且命中 `seaBuild.publishDirPresent` |
+   | `fetch:truncated:notOverwritten` | 让 acceptance checker 所比的 after bytes/hash 与拒绝前错件不同 | checker 必须非零；随后恢复拒绝前错件，再恢复 canonical archive |
+   | `fetch:restored` | 恢复后再放入一份非冻结 regular archive 并真跑 fetch | exit 非零、target `rejected` + `problems` 非空，错件仍不被覆盖 |
+   | `extract:restored` | 在 extract 交 verdict 前把一格解包身份改成错误 `nodeVersion` | exit 非零并命中 `runtime.nodeVersion` |
+   | `physical:reportsOutside` | 把同类 report 实物放入 assembly root 后真跑 `measure` | exit 非零并命中 `assembly.unexpected` / `assembly.count` |
+
+   这 8 个新增负例与历史 76 项**分别计数、不得冒称历史 exact 复跑**。本订正修复的是冻结件
+   把历史对照误写成“逐枚非零”的内部矛盾，不降低任何 production 门。
+
    两处**已知读数陷阱**，验收须避开：其一，`sea` 组会打印 **9** 行，末行 `sea:restore→measure`
-   是组后 assembly 复建验证、**不是反例**——把 9 计入会得出 77 的错数（架构侧首轮即误算，
+   是组后 assembly 复建验证、**不是矩阵项**——把 9 计入会得出 77 的错数（架构侧首轮即误算，
    由实现侧纠正）。其二，`reproducibility-probe.mjs` **不支持** `--list-counterexamples`，
    未知 flag 被忽略、照常跑完整探针并 exit 0，枚举得零而组账印作「共 0 枚，符合 0 枚」＝
    读起来像通过；该组 14 枚名单须从探针源码 `COUNTEREXAMPLES` 表取。**枚举为零或少于本表
-   冻结值一律判失败**，不得以「本组无反例」解释。
-4. R5 新增反例（四门五枚有效，实现侧 `r5-counterexample.mjs` 可复跑）＋验收自造变体；
-   等价形态如实作废、不计红证。
+   冻结值一律判失败**，不得以「本组无项」解释。
+4. R5 新增反例（四门五枚有效）＋验收自造变体；等价形态如实作废、不计红证。实现回执所引
+   `scratchpad/r5-stage-{b,c}`、`ce76.mjs` 与 `r5-counterexample.mjs` **未进入 Git 对象**，
+   不能称为可复跑交付物；验收须从冻结契约与 production 源码独立重建装置，不得用实现叙述
+   代替实际注入，并在报告登记这一 evidence-packaging 缺口。
 5. **production mutation 独立注入**：至少覆盖撤跨架构 exit/deadline 门、撤 timeline 严格推进、
    撤 preflight hard verdict、撤 full raw 真源四形；逐枚验证 patch 命中、定向见红、
    byte-identical 恢复，总用例数不漂。

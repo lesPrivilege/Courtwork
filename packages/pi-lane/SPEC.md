@@ -575,7 +575,7 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   5. 至少四枚有效 production mutation 分别撤跨架构 exit/deadline、timeline 严格推进、
      preflight hard verdict、full raw 真源；逐枚校验 patch 确实命中、定向见红、byte-identical
      恢复。旧 R2–R4 门不得删弱；结构性等价 mutation 如实登记，不计作红证。
-  6. 从空 assembly 严格串行复跑全部 verdict、既有 76 counterexamples 全量与 R5 新增反例
+  6. 从空 assembly 严格串行复跑全部 verdict、既有 76 项回归矩阵与 R5 新增反例
      （分别计数）、600 cold-start、双 cycle、十件 inventory/source、built seatbelt blocked、
      缺 build 混合 `probe_failed`、批准域
      preflight/full 六格与
@@ -590,8 +590,10 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      `packages/pi-lane/ACCEPTANCE.md`，实现级小修才适用 `fix-by-acceptance`，不得消费实现者
      manifest 代替自跑。**已冻结（2026-07-30）**：目标 `6cdb9ba`，件见
      [`specs/PI-SIDECAR-DIST-1R5-ACCEPT.md`](specs/PI-SIDECAR-DIST-1R5-ACCEPT.md)——其中逐组
-     反例枚数以独立字面量冻结（8/5/14/23/15/11＝76），并登记 `sea` 打印 9 行含一行非反例、
-     `reproducibility-probe.mjs` 不支持枚举 flag 两处读数陷阱；枚举为零或少于冻结值一律判失败。
+     项数以独立字面量冻结（8/5/14/23/15/11＝76），精确构成为 68 个失败注入 + 8 个
+     恢复／证据对照；验收须另造 8 个失败变体补强且与历史 76 项分计。冻结件同时登记
+     `sea` 打印 9 行含一行非矩阵项、`reproducibility-probe.mjs` 不支持枚举 flag 两处读数陷阱；
+     枚举为零或少于冻结值一律判失败。实现回执引用但未提交的 scratchpad 不算可复跑交付物。
 - 原三张并行票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。
   原实现会话分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
   `specs/PI-SIDECAR-DIST-1.md` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering

@@ -1145,7 +1145,7 @@ command times 全删与全填同一合法常量；preflight-only target 同步�
 mutation 分别撤跨架构 exit/deadline 门、timeline 严格推进、preflight hard verdict 与 full
 raw 真源门，逐枚验证命中、见红、byte-identical 恢复。
 
-实现最终仍须从空 assembly 串行复跑全部 verdict、既有 76 counterexamples 全量及 R5 新增
+实现最终仍须从空 assembly 串行复跑全部 verdict、既有 76 项回归矩阵及 R5 新增
 反例（分别计数）、600 cold-start、双
 cycle、十件/source、seatbelt blocked、缺 build 混合 `probe_failed`、批准域 preflight/full
 六格与仓库门；实现与验收各用 fresh execution-domain id，旧 `dist` 零回填。另一 Codex
@@ -1177,6 +1177,12 @@ DMG、Pages 与 R5 实现链的 merge/push 均不动；架构契约提交可正�
 
 ## 修订记录
 
+- **2026-07-30 · R5 验收冻结件 76 项口径订正**：R2 沿用至 R5 的“76 counterexamples”
+  历史叫法实际包含 68 个失败注入与 8 个恢复／证据对照；冻结件初版却又要求 76 项逐项
+  非零且具名，二者不可同时成立。现保留 8/5/14/23/15/11 的历史矩阵与逐项观察，另要求独立
+  验收自造 8 个失败变体并分计，不把对照冒充红证，也不降低 production 门。实现回执引用的
+  `scratchpad/r5-stage-{b,c}` 未进入 Git 对象，验收必须由契约与 production 源码独立重建，
+  并把 evidence-packaging 缺口写入报告。
 - **2026-07-30 · R5 实现期一处既有断言改写追认**：R4 期测试「full matrix 命令里的
   internal error 不得串味到 preflight 分类」原断言整份观察为绿；该绿只成立于 R4 不判
   六格 raw，与 R5 六-E 闭口三（六格 raw security stderr 必须失败）不可同真。追认按原意
