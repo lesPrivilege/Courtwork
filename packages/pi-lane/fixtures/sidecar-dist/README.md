@@ -125,16 +125,21 @@ R3 不改两条分发路线，只收紧签名实验的证据链：
 
 ### 上界的**准确范围**（不夸大）
 
-有上界的是 **crash 生命周期**（`measure.mjs` 的 `crashes()`）与 **cold-start 取样**
-（`coldstart-rounds.mjs` 的 EOF 等待）这两处，共用 `CRASH_DEADLINES` 五个具名值，
-且每次 cleanup 都经 `killAndConfirmInto()` 消费返回值——确认不了就补记 `kill-confirm`。
+有上界的是 **crash 生命周期**（`measure.mjs` 的 `crashes()`）、**cold-start 取样**
+（`coldstart-rounds.mjs` 的 EOF 等待）与 **R5 起的跨架构注入**
+（`reproducibility-probe.mjs`），共用 `CRASH_DEADLINES` 的具名值，且每次 cleanup 都经
+`killAndConfirmInto()` 或 `killAndConfirm()` 消费返回值——确认不了就补记 `kill-confirm`。
 
-**其余等待仍是裸 `await proc.exited`，如实登记，不冒充有界**：
-`measure.mjs` 的 `launchProbe`／`stdio`／`abort` 与
-`reproducibility-probe.mjs` 的跨架构注入各一处。它们都跟在一个**已有超时的 `waitFor`**
-之后（进程已确认可服务），失败方向是挂起而非假绿；本票未收窄它们，也不声称已收窄。
-R3 新写的 `sign-probe.mjs` 不含裸 `await proc.exited`；ready、EOF、exit 与 kill-confirm
-各走具名 deadline。
+**R5 收窄了跨架构那一处**（`ADR-022` 六-E R5 第 1 条）：ready 门保留 60,000 ms，ready 后发
+EOF，退出固定用 `CRASH_DEADLINES.exitMs`、失败再用 `killConfirmMs` 收束；observation 显式携
+`timeouts` 与 `{code,signal}`，判定端只接受 `timeouts:[]`、`launched:true`、exact warning 与
+`exit:{code:0,signal:null}`。该处**不再有裸 `await proc.exited`**。
+
+**其余等待仍是裸 `await proc.exited`，如实登记，不冒充有界**：`measure.mjs` 恰四处——
+`launchProbe` 两处（第 145、157 行）、`stdio` 一处（第 198 行）、`abort` 一处（第 240 行）。
+它们都跟在一个**已有超时的 `waitFor`** 之后（进程已确认可服务），失败方向是挂起而非假绿；
+R5 未收窄它们，也不声称已收窄。`sign-probe.mjs` 自 R3 起不含裸 `await proc.exited`；
+ready、EOF、exit 与 kill-confirm 各走具名 deadline。
 
 ## 复现序（须按序）
 
@@ -173,7 +178,11 @@ rename 并 fsync 父目录；现存正式件先按同一套复核再复用，错
 node --test packages/pi-lane/fixtures/sidecar-dist/scripts/probe-verdict.test.mjs
 ```
 
-当前定向测试为 **356 例**（R2 203 + R3 21 + R4 132）。不进 root `pnpm test`：
+当前定向测试为 **384 例**（R2 203 + R3 21 + R4 132 + R5 28）。R5 的 28 例**另计**：
+23 例是 five-family first-red（跨架构生命周期 4、command timeline 2、preflight-only 漂移 3、
+full 摘要洗绿 4、串格与深层 raw 10），在未改 production 的 R4 target 上全红、收紧后全绿；
+另 5 例是**阳性对照**（每族一枚合格基线判绿），保证测量有区分力而非「什么都红」。
+不进 root `pnpm test`：
 `vitest.config.ts` 的 include 只收各包 `src` 下的 `.test.ts`。
 体例与 `site/scripts` 下的同类 `.test.mjs` 一致，走 `node --test`。
 
@@ -210,6 +219,13 @@ node scripts/measure.mjs --counterexample crash.ignored
 
 退出码：`0`＝干净全过；`1`＝正式实测判红；`2`＝反例被判据抓住（**期望结果**）；
 `3`＝反例没被抓住，或压根没改动观察值。
+
+**R5 四道新门的 script 级反例与上面这些不同类，须分开读**：它们是 Stage C 的**一次性注入**
+（patch → 真跑 → 核非零与具名判据 → byte-identical 还原），**不是**冻结进探针的
+`--counterexample` 项。逐枚的 patch、退出码与还原 SHA 见
+[工程报告 §二十一](../../../../docs/engineering/pi-sidecar-dist-1.md)。
+判定层那一侧的对应覆盖是常驻的——即上文 384 例里 R5 的 23 枚。
+「把这四门也冻成探针 flag」尚未做，属已登记的后续项，不得读成已有常驻脚本级反例。
 
 ## 目录
 

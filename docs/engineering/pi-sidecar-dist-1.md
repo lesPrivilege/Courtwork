@@ -1182,3 +1182,225 @@ byte-identical 恢复。
    属 `[需架构拍板]`；`error` 只进 command identity 的比较面。
 6. 本节不含任何路线建议。两条路线的取舍仍未裁，`PI-HOST-LOOP-1` 与 `PI-DEBUG-BUILD-1`
    继续 blocked，直到异会话完整放行本票且架构消费报告后另行裁定。
+
+## 二十一 · R5：evidence-truth 三项 P1 闭口与实现域全矩阵
+
+`PI-SIDECAR-DIST-1R5` 只闭合 `07d2dbc` 被独立验收坐实的三项 P1，不改两条路线的来源、assembly、
+cold-start、canonical 四层、双 execution domain、签名模式、库存、wire、deadline、路线候选或
+产品 signing plan。本节**零路线建议**：只登记实测、执行域前提与最强反对意见。
+
+### 二十一之一 · 组合基线与 untouched target（git 自证）
+
+| 项 | 实测 |
+|---|---|
+| base `main` | `5ec9839`（`docs(pi-lane): R5 补拍 preflight official path 的 trusted 锚点`），已核为 `HEAD` 祖先 |
+| 组合枝 | `5ec9839..94f662e` 恰 16 枚 |
+| 十四枚 cherry-pick | patch-id 与源提交**逐枚相同**（`git patch-id --stable` 实测，见下） |
+| 两枚 ACCEPTANCE | 架构内容移植，patch-id 按 SPEC 修订条豁免；added-lines 另法复验 |
+| untouched R4 target | `07d2dbc` 与 `94f662e` 在 `fixtures/sidecar-dist`、工程报告、R1–R4 回执上 `git diff` 为空 |
+
+十四枚 patch-id `SAME`：`f0162fd eb806f2 b284764 f7ecd32 20461aa c6a9819 df65ab0 0230bf6
+57f91dc 473bc00 7b4184b 47fd7e5 891c23d 07d2dbc`。两枚 `DIFF` 恰为移植枚
+（`b6172ca ← ba374d8`、`245c48f ← eb71d6f`，提交主题带 `[架构移植 <源 SHA>]`）。
+
+移植复验（本会话实测，非转述）：源 `ba374d8` 的 diff-added 恰 **74** 行、SHA-256
+`cd9c553592a8ebb78c272720feb98b5e1e58c477bb616074da05710cc2452cb4`；源 `eb71d6f` 恰 **122** 行、
+SHA-256 `49694a9feb437b28b79c75b90b5891f2454ff6541b11be5d0a4a21ed86564d28`——两值与移植提交
+信息记录的 canonical SHA **逐字符相同**。移植区与源的差异**只有一处且已归因**：空行分隔符
+从首行（源在文件末尾追加，需前导空行）移到末行（移植插在节间）。剔除空行后两侧
+**非空内容行 SHA-256 相等**，空行计数亦相等（16/16、23/23）。故「逐字节等同」在内容行上
+成立，分隔符位移是插入点不同的必然结果，不是内容差异。
+
+`fixtures/sidecar-dist` 目录树对象在两枚提交下同为 `f83e798e31e0872778ebad3e504bb915f22b73b9`，
+工程报告 blob 同为 `7ae61d757ec4993cbed04c2f0839ff48169837e8`。
+
+### 二十一之二 · 判定层闭合了什么
+
+四道闭口，判据仍只住 `scripts/lib/probe-verdict.mjs`；**新增 25 枚具名判据，旧 R2–R4 判据名
+删除数为 0**（机器核实：两枚提交的判据名字面量集合作差，旧集合无一项消失）。
+
+| P1 | R4 为什么绿 | R5 的收紧 |
+|---|---|---|
+| 跨架构 ready 后裸等，hard verdict 只核 `launched/warning` | `verdictReproducibility` 从不看最终退出与超时 | ready 门保留 60,000 ms；ready 后发 EOF、退出用 `CRASH_DEADLINES.exitMs`、失败再 `killConfirmMs`；observation 显式携 `timeouts` 与 `{code,signal}`；判定端只受 `timeouts:[]`、`launched:true`、exact warning、`{code:0,signal:null}`。该处**不再有裸 `await proc.exited`** |
+| command 时间只作两副本 identity | 整列同步删除、全填同一常量都能过 | `verdictCommandTimeline`：逐条可往返 `Date#toISOString()`、逐条 `start<=finish`、相邻 `previous.finishedAt<=next.startedAt`、整轮 `commands[0].startedAt < commands[last].finishedAt`。时间字段继续参加 identity，本门与之**并列** |
+| preflight/full 的成功判定可由 producer 摘要洗绿；preflight-only 更是发布前无 verdict | `sign-probe.mjs` 第 119 行 preflight-only 不进 `runFullProbe()`，`finalStatus` 直取 `preflight.status` | `verdictPreflightEvidence` / `derivePreflightFromRaw` / `verdictPreflightRun` 三支；两条路径都在形成 manifest/status **之前**进程内跑 hard verdict，final status 唯一映射（failure→`probe_failed`、恰 `{ok,passed}`→`ok`、恰 blocked→同名 blocked）。producer 自报值降为 exact parity |
+| 六格与 `.app` 的 raw 一条不判、role↔occurrence 非一一 | 摘要即真源；`identities` 是 Set，无基数概念 | role→receipt **index** 恰一条且零跨 role/cell 复用；六格与 `.app` 坐标全部由唯一 trusted stage root 加冻结 subject/mode 坐标构造；从 raw 重导 exit/signal/**error**/security stderr/flags/`run`/签后 XML，与 `.app` 的 inner/outer/deep verify、`spctl`、nested run |
+
+**锚点（`2026-07-30` 架构补拍，SPEC R5 第 4 条）**：official Node 的 expected path 由判定层
+**自持** `PROBE_ROOT`（`import.meta.dirname` 纯字符串运算）加冻结布局坐标
+`dist/runtime/node-v22.23.1-darwin-<host-arch>/bin/node` 独立构造，host-arch 取判定进程实测。
+receipt 的 `officialNode.path` 与 raw argv-last 自此都是**被验值**，冻结 SHA 门不变。
+采集端与判定端共用同一构造器、同一 flags 解析（`parseCodesignFlags`）与同一 cell 目录口径
+（`signCellDirName`），退役了采集端自带的第二份。
+
+**R4 留的 `[需架构拍板]` 就此收口一半**：同轮 receipt 的 `error` 非 null 时是否令成功 gate
+失败——R5 在**六格与 `.app`** 上判为「是」（`rawCommandOk` 三项齐核 exit/signal/error），
+因为 SPEC R5 第 4 条把 `error` 明列为 raw 真源。preflight 六条关键命令仍只让 `error` 进
+command identity 比较面，**未扩张**，仍属未决。
+
+判定层的纯度声明随之**窄化并如实登记**：模块仍不碰 fs、不 spawn、不 `exit`，但新增两枚
+具名例外——自持 `PROBE_ROOT` 与 `HOST_ARCH`。二者都不是 I/O，也**不来自被判定的
+observation**；正因为观察面移不动它们，才能当锚。
+
+### 二十一之三 · first-red 账（28 例，与 R2/R3/R4 的 356 例分别计数）
+
+Stage A 在**未改 production 的 R4 target** 上先取红：23 枚缺陷红 + 5 枚阳性对照。
+每族先证「合格基线判绿」再证「坏了也绿＝假绿」，故测量有区分力而非「什么都红」。
+全部打在现行 production 判定路径上（`verdictReproducibility` / `verdictSign` / `runPreflight()`
+真实调用的三支导出），无一枚靠 stub、私造函数、helper 缺失或 module-load failure。
+
+| 族 | 红数 | 形态 |
+|---|---|---|
+| A 跨架构生命周期 | 4 | exact warning 一字不差，但最终非零／带 signal／exit 超时／kill-confirm 超时 |
+| B command timeline | 2 | 两副本同步整列缺失；全部 command 同填一枚合法 canonical UTC 常量 |
+| C preflight-only | 3 | target 三处同步漂移；official identity 摘要漂移（raw 仍真实）；同一份漂移在 full 路径同样假绿 |
+| D full 摘要洗绿 | 4 | 六格 raw 非零／带 signal／spawn error／security stderr，而摘要「正确」 |
+| E 串格与深层 raw | 10 | 一枚 occurrence 顶两 role；A 格复用 B 格实物；`.app` 五条 raw（inner/outer/deep verify/spctl/nested run）；`run`；actual-entitlements 两向 |
+
+**C 族第三枚是 Stage A 的实测新发现**：三处同步漂移（observation＋`receipt.commands`＋
+`receipt.officialNode.path`）令 `verdictSign` 返回**零 failure**——full 路径与 preflight-only
+同样假绿。成因是 expected target 取自自报 path。该发现直接触发上文锚点补拍。
+
+**一枚 R4 绿测的断言被收窄并已架构追认**：「full matrix 命令里的 internal error 不得串味到
+preflight 分类」原断言整份观察 `passed()`，那份绿只成立于「R4 压根不判六格 raw」，与 R5 第
+1/4 条要求的「六格 raw security stderr 必须失败」不可同真。现收窄到本例真正的主张（串味面
+不受影响：五个 preflight 判据名均不得出现，且 raw 重导仍 `{ok,passed}`、`blockedReasons` 空），
+并新增「本格自身须红在 `sign.matrix.raw.display.security`」。**只加门不减门**，且 `m-d` 会令
+该测试转红，证明它仍有区分力。
+
+### 二十一之四 · mutation 账（四枚，Stage B）
+
+baseline `probe-verdict.mjs` SHA-256 `f2f3d480a13b2450171fbce51f670686af1901c396af833746c25a0caf0ebfc7`。
+逐枚校验 patch 确实命中（替换文本在、原文本不在、文件 SHA 变），跑定向测试，再从备份还原并以
+SHA-256 前后对照证明 byte-identical；**总用例数每轮恒 384，不漂**。
+
+| 枚 | 撤掉的门 | 变异后 SHA | 红数 | 定向失败测试 |
+|---|---|---|---|---|
+| `m-a` | 跨架构 exit/deadline | `0645e31ebcac` | 4 | A1／A2／A3／A4 |
+| `m-b` | timeline 整轮严格推进（`<`→`<=`） | `61d2b1e61ae9` | 1 | B2（B1 仍由 canonical 门守住＝红得准确） |
+| `m-c` | preflight hard verdict（回退 producer status） | `d1a36b4cf4e8` | 2 | C1／C2 |
+| `m-d` | full 六格 raw 真源（回退纯摘要） | `ec075dcfe452` | 8 | D1–D4／E3／E4a／E4b／「internal error 不串味」 |
+
+四枚还原后 SHA 均回 `f2f3d480a13b`。**无等价变异作废项。** `m-d` 未波及 E1b 与 E2 五枚，
+因它们分别由 occurrence 绑定与 `.app` raw 两处独立守住——红得准确，不是一撤全红。
+
+### 二十一之五 · 执行域必须分开读（R5 实现域）
+
+| 域 | 由谁跑 | id | status | manifest SHA-256（外算） |
+|---|---|---|---|---|
+| 实现域 preflight（首跑，坐实两处实现缺陷） | 实现会话 | `impl-r5-preflight-1` | `probe_failed` | `5b480f6c706bf04b82088e9653d0817571fe6be0a46caa07ae524ee9ac4d76e1` |
+| 实现域 preflight（修后） | 实现会话 | `impl-r5-preflight-2` | `ok` / `passed` | `cba2d511147d14449dd340ee235cc52b3106c13f483b0f733109bdbcd693b4cd` |
+| 实现域 full 六格 + 嵌套 `.app` | 实现会话 | `impl-r5-full-1` | `ok` | `26125038e1f390e0efd52fdf3fcb3e3b59441e56eaf0576bd483b99aa726096e` |
+| Seatbelt 受限域 | **未跑** | — | — | 见下 |
+| 缺 build 混合态 | **未跑** | — | — | 见下 |
+
+三枚 manifest 的外算 SHA-256 与探针自报的 `manifestSha256` 逐枚相同。
+
+**本实现域非受限**，故**不可能**自证 Seatbelt blocked：`impl-r5-preflight-2` 实测 control
+sign/verify/XML 全 0、控制 XML **568 bytes** 且 `plutil` 解出 canonical 六键全 `true`、
+官方 Node strict verify 通过并解出真实三条 Authority、`spctl` exact exit 3 `rejected`、
+`blockedReasons` 空、四个 gate 全 `true`。按诚实协议，Seatbelt blocked 与缺 build 混合
+`probe_failed` 两格**本会话不跑、不模拟、不回填**，留待架构按 provenance 例外另行安排或由
+独立验收在自己的受限域自跑。
+
+**首跑 `probe_failed` 的归因（重要，不得读成执行域问题）**：该域四个 gate 全真、producer
+自报 `ok/passed`，hard verdict 仍判红 5 条——`sign.preflight.control.xml` 与四条
+`sign.preflight.rawGateParity`。成因是**实现缺陷**：控制 XML 的摊平投影只存在于
+`runFullProbe()`，`runPreflight()` 交出的是 `parseXmlObservation()` 原形，缺
+`exit/bytes/sha256/stderr` 四格；preflight-only 把它喂进同一道 verdict，四条 parity 全判 `null`。
+同时坐实第二处缺陷：`failureCount` 在 preflight-only 下是占位常量（非 ok 一律报 1），
+hard verdict 的 failures 一条也不进输出面——「判红了但不说为什么」本身就是静默降级。
+两处均已修（投影上移到 `runPreflight()` 并由 `runFullProbe()` 原样复用；stdout 摊出真实计数、
+具名判据与 raw 重导分类），修后同装置在 fresh id 上 `ok/passed`、exit 0、`failureCount` 0。
+**这两处是 R5 新门抓出来的自身缺陷，如实登记，不算执行域受限。**
+
+### 二十一之六 · 实现域全矩阵读数（从空 assembly 起，严格串行）
+
+`dist/` 起点为**不存在**（`ls` 实测 no such file），故本轮所有产物与读数都由本会话从零产生，
+旧 `dist` 零回填；三枚 execution domain 均用 fresh id（探针对既有 id 直接 exit 2，不覆盖）。
+
+| 项 | 读数 | 退出码 |
+|---|---|---|
+| 判定层定向测试 | **384/384**（356 baseline + R5 增量 28，分计） | 0 |
+| 官方 archive 取件门 | 两架构冻结名/字节/SHA-256/SHASUMS/tar 全过 | 0 |
+| 解包身份门 | `node --version` 与 Mach-O 架构逐架构符合 | 0 |
+| 双 cycle 可复现性 | sealed 三档各自相同；SEA `default` 两架构各自相同；`code-cache` 两架构各自**不同** | 0 |
+| 跨架构 code cache 注入 | `launched=true`、exact `Code cache data rejected.`、`exit={code:0,signal:null}`、`timeouts:[]` | 0 |
+| `measure` 十件闭集 | `status:"ok" failures:0`，assembly 实物 **28** 项（12 目录 + 16 文件） | 0 |
+| cold-start | 8 候选 × 3 轮 × 25 样本 = **600**，三轮顺序各为排列且非全同 | 0 |
+| preflight（修后） | `impl-r5-preflight-2` → `ok`/`passed`、`failureCount:0` | 0 |
+| full 六格 + 嵌套 `.app` | `impl-r5-full-1` → `ok`、`failureCount:0`、同轮 **49** 条 command receipt | 0 |
+| R5 新增反例（四门） | 5 枚有效全部被抓（exit 1 + 具名判据）；1 枚等价变异**作废** | 见下 |
+| 既有 76 枚 counterexample | 见下 | 见下 |
+
+**R5 新增反例与既有 76 枚分别计数**，逐枚「注入 → 真跑 → 核非零与具名判据 → byte-identical
+还原」，装置 `scratchpad/r5-stage-c/r5-counterexample.mjs`：
+
+| 枚 | 门 | 形态 | exit | 命中判据 |
+|---|---|---|---|---|
+| `r5-ce-1` | A | **行为**注入：现生成受控桩，发 exact warning 与 `ready` 后忽略 EOF 永不退出 | 1 | `reproducibility.crossArch.timeouts` |
+| `r5-ce-2` | A | 最终非零退出（warning 一字不差） | 1 | `reproducibility.crossArch.exit` |
+| `r5-ce-3` | B | 全部 command timestamps 同填一枚合法常量 | 1 | `sign.receipt.commandTimeline.advance` |
+| `r5-ce-4` | C | official target 同步漂移（`/bin/../bin/node`：解析到同一实物、字符串不等） | 1 | `sign.receipt.officialNodePath`、`sign.receipt.officialCommandBinding` |
+| `r5-ce-5` | D/E | raw `sign.exit=1` 而摘要 `signExit=0` | 1 | `sign.matrix.raw.sign`、`sign.matrix.raw.signExitParity`、`sign.receipt.commandBinding` |
+
+**作废登记（必须连读）**：`r5-ce-5` 首版 patch 是 `row.signExit = signed.exit` →
+`row.signExit = 0`。健康轮里 `signed.exit` **本来就是 0**，故该 patch 语义上是 no-op——
+实测 exit 0、零命中。它是**等价变异**，如实登记、**不计红证**，已换成让 raw 与摘要真的分叉
+的有效形态后才通过。这正是「0 红可能是补丁没生效而非覆盖缺口」那条判例的又一次实证。
+
+`r5-ce-1` 是本组唯一的**行为**注入（真让子进程挂起），故它才是「有界超时真的有界」的证据；
+其余四枚是观察面注入，按既有体例落在「采集完成、判定之前」。
+
+**既有 76 枚 counterexample：本会话未完成，如实登记，不以部分冒充全量。** 全量装置已写好且
+可复跑（`scratchpad/r5-stage-c/ce76.mjs`，分六组 `measure` 23／`coldstart` 15／`repro` 14／
+`sea` 8／`physical` 11／`fetchextract` 5，逐枚「注入 → 真跑 → 核冻结退出码与命名判据 → 还原 →
+复绿」；`physical` 每枚还原后另跑一次 `measure`，`sea` 四枚 `:evidence` 按 R2 口径逐项解析同轮
+JSON）。**实测代价**：单枚 `measure` 反例要一次完整十件量测（本机约 8 min），单枚 `coldstart`
+反例要一次 600 样本取样（约 10 min），76 枚全量约 **6 小时** wall-clock，超出本会话窗口。
+已启动 `measure` 组后按纪律**主动中止**——五道仓库门不得与反例注入并发跑（并发会制造 1/1000
+量级假红，是既有判例）。中止后即刻复跑 `measure` 确认 assembly 完好（exit 0）、工作树无代码
+残留。这一行必须由独立验收或续跑补齐。
+
+需要连读的是：R5 **没有删弱**任何被这 76 枚覆盖的判据（判据名删除数为 0，已机器核实），
+故它们是**回归**证据，不是本票新门的证据；本票新门的覆盖来自 384 例中的 R5 23 枚（常驻）
+与上表五枚 script 级注入（一次性、可复跑）。
+
+**跨架构读数的时效性**：`reproducibility-probe.mjs` 在首轮读数之后因 `pnpm lint` 的
+`no-useless-assignment` 被编辑过一次（死赋值移除，见 T1c）。按「门跑过又编辑就必须重跑」判例，
+该读数已在 T1c 的最终 bytes 上**另跑一轮**复核：双 cycle `status:"ok" failures:0` EXIT=0，
+跨架构仍 `launched=true`、`warningSeen=true`、`exit={code:0,signal:null}`、`timeouts:[]`。
+
+### 二十一之七 · 残留与最强反对意见
+
+残留实测（`clean.mjs --report-only`，**非估算**）：**4,889,013,119 B（4.55 GiB）**。逐项：
+`security-domain` 3,149,904,049；`assembly` 1,143,565,916；`runtime` 473,562,352；
+`cross-arch` 115,806,624；`build` 5,854,166；读数 JSON 与反例留档合计约 0.3 MB。
+比 R2 的 2.36 GiB 大，主因是本轮保全了三枚 execution domain 的完整证据（含首跑的
+`probe_failed` 归因证据）。**独立验收前不要真清。**
+
+最强反对意见，逐条如实登记：
+
+1. **两格执行域缺席**。Seatbelt 受限域 `blocked` 与缺 build 混合 `probe_failed` 本会话**未跑**。
+   本实现域实测非受限，不可能自证 blocked；按诚实协议停手，不模拟、不伪造、不回填。
+   在这两格补齐前，「三种执行域分开读」这一结论对 R5 只成立两格（preflight 与 full）。
+2. **首跑判红是自身缺陷，不是执行域问题**。`impl-r5-preflight-1` 的 `probe_failed` 由 R5 新门
+   抓出两处实现缺陷（控制 XML 投影只在 full 路径成型；`failureCount` 是占位常量）。这既证明
+   新门有区分力，也证明 Stage B 的绿是**构造件绿**——真装置上仍有两处形状不对。任何「Stage B
+   全绿即装置正确」的读法都被这一跑否证。
+3. **R5 四门没有常驻脚本级反例**。四门的 script 级反例是 Stage C 的一次性注入（可复跑，装置留档），
+   **不是**冻进探针的 `--counterexample` flag。常驻覆盖只在判定层那 23 枚。把这四门冻成探针
+   flag 是已登记的后续项，不得读成「已有常驻脚本级反例」。
+4. **preflight 的 `error` 门未扩张**。六格与 `.app` 已把 `error !== null` 计入失败
+   （SPEC R5 第 4 条明列 `error` 为 raw 真源），但 preflight 六条关键命令仍只让 `error` 进
+   command identity 比较面。该不对称是**有意保留**、仍属 `[需架构拍板]`。
+5. **判定层纯度被窄化**。模块新增两枚具名例外（自持 `PROBE_ROOT`、`HOST_ARCH`）。它们不是 I/O、
+   也不来自被判定的 observation，但「零 I/O 纯函数」这句话此后必须连着这两枚例外读。
+6. **`HOST_ARCH` 与冻结 SHA 的耦合未被独立证伪**。非 arm64 宿主上 `officialNodeExpectedPath()`
+   会指向 `darwin-<其他架构>`，而 `OFFICIAL_NODE_SHA256` 独立锚定 arm64 实物，故该宿主会先在
+   SHA 门失败——这是**推理**，本会话只有 arm64 一台机，未实测。
+7. **stage root 只有形状门**。staging 目录名含 pid 与随机段，判定层无法凭冻结数据重建它，故口径
+   是「绑定唯一一个 root，并要求它是 `dist/security-domain/` 的直接子目录」，此后全部 cell 坐标
+   由该 root 加冻结坐标推出。一个**合法形状但内容被换过**的 stage root 不在本门射程内。
+8. 本节不含任何路线建议。两条路线的取舍仍未裁，`PI-HOST-LOOP-1` 与 `PI-DEBUG-BUILD-1` 继续
+   blocked，直到异会话完整放行本票且架构消费报告后另行裁定。
