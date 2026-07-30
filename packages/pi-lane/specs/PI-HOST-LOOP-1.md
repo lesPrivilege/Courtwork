@@ -58,14 +58,31 @@ ADR-022 六-A 已冻结：Rust 用 `grantId` 解析物理案件根，并只在�
 
 `scoped-env.ts` / `authorized-root.ts` 是 dev 形态且会投影物理路径，只可读作反例和底层
 no-follow 手法；产品不得直接把其返回对象转售给模型。`tools.ts` 的上游工具形态只读复用，
-不改模型工具参数或自行复制 read/glob/grep。
+不改模型工具 schema 或自行复制 read/glob/grep。为闭合现行工具的相对路径输出，本票窄改
+`createReadOnlyTools()`：
+
+- 新增唯一可选调用形态 `createReadOnlyTools({logicalRoot:'/case'})`，无参调用的 dev 行为与
+  可观察输出逐字保持不变；
+- read binder 保持上游 `name/label/description/parameters`（schema 同一对象），先用本次
+  product env 把 path 归一成 `/case[/...]`，再只调用一次原版 `createReadTool().execute`；
+  因而上游截断提示中的 path 也只能是逻辑绝对路径；
+- glob/grep 只把既有相对命中投影成 `/case[/...]`，参数 schema、扫描/截断上限、正则与遍历
+  逻辑不变。
+
+撤掉 binder、改回相对命中、改变上游 schema identity 或双调 upstream 任一项须有红证。本票
+对同时受同一用户控制的案件目录只承诺每次调用观察到的 symlink/reparse point 均拒，不宣称
+Node 直读已消除并发路径替换 TOCTOU，也不据此把 `process/none` 升成 OS confinement。
 
 ### 2. 产品 provider 与临时 system prompt
 
 产品 runtime 直接使用 pi-ai 0.82.1 的 DeepSeek provider/model catalog。key 只取 bootstrap
 内存值，并显式放进本次 `streamSimple` options；不得写 `process.env`、不得调用 dev
 `createDeepSeekLane()`、不得接受 endpoint/header/provider fallback。modelId 必须与 bootstrap
-值及 journal 首记录一致。
+值及 journal 首记录一致。Rust 产品 Host 只消费 Keychain 中由用户显式保存的
+`StoredCredential::Pasted` 或 `StoredCredential::Environment{name}`；后者可按既有
+`active_secret()` 当场解析用户具名环境变量，但不得在没有这条存档时自动回落
+`DEEPSEEK_API_KEY` 或扫描其他配置。无存档时即使固定环境变量存在，也须在 journal/spawn 前
+保持未配置；解析后的 key 仍只进入 bootstrap 内存，child 环境继续严格为空。
 
 本票临时 prompt id 为 `case-read-v1`，字节恰为以下四行以 LF 相连、末尾无 LF：
 
@@ -78,6 +95,24 @@ no-follow 手法；产品不得直接把其返回对象转售给模型。`tools.
 
 实现须锁 exact snapshot 和 ≤2,048 UTF-8 bytes。`PI-WRITE-HOST-1` 才把它替换成
 `md-work-v1`；不得在本票提前加 write 说明或垂类提示。
+
+产品 `Agent` 从本票起显式固定 `toolExecution:'sequential'`，并以同一 turn 两枚只读 tool call
+的真实 characterization 证明 callback 不重叠；不得依赖上游 0.82.1 的 `parallel` 缺省。
+每 leg 恰创建一枚 Agent，同 leg 的后续 prompt 保留该 Agent 的 messages；只有新 leg 创建空
+messages 的新 Agent，并以第二 prompt/新 leg 对照锁死。`PI-WRITE-HOST-1` 只保持该 Agent 值，
+并另外给 write binder 固定 `executionMode:'sequential'`。
+
+真实 provider 不作为本票 hard gate 的随机裁判。`product-runtime.ts` 提供 crate/package 内部
+factory seam，让测试注入 scripted `streamSimple`；production `product-main.ts` 只组合 pi-ai
+DeepSeek catalog/model 与真实 `streamSimple`，不从 argv/env/wire 选择 provider。定向测试用
+esbuild 从同一 runtime factory 生成临时 control CJS，在冻结官方 Node 22 下确定性逼出
+read→tool result→terminal；metafile 与 bundle canary 必须证明 control provider 未进入
+production CJS。production sealed CJS 另以 dummy in-memory key 真跑
+bootstrap→ready→shutdown，零网络请求。
+
+维护者显式提供真实 DeepSeek key/model 时可另跑 case-read external smoke；缺 key/network 或
+模型未调用工具只记 `external-smoke blocked/failed`，不冒充 deterministic harness 失败，也不
+阻断本票 PASS。真实甜点模型是否被 harness 阻塞由后续 `PI-BASE-HEADLESS-ACCEPT` 统一裁。
 
 ### 3. loop journal envelope 与十九种 payload
 
@@ -101,7 +136,7 @@ no-follow 手法；产品不得直接把其返回对象转售给模型。`tools.
 
 | type | payload 闭集 |
 |---|---|
-| `session_started` | `{routeId:'node22-runtime-sealed-cjs-v1',routeManifestSha256,nodeVersion:'22.23.1',targetTriple:'aarch64-apple-darwin'|'x86_64-apple-darwin',grantId,caseRoot:'/case',promptId:'case-read-v1',provider:{id:'deepseek',modelId},limits:{maxTurns,maxUsd},capabilities:['case_read']}` |
+| `session_started` | `{routeId:'node22-runtime-sealed-cjs-v1',routeManifestSha256,nodeVersion:'22.23.1',targetTriple:'aarch64-apple-darwin'|'x86_64-apple-darwin',grantId,caseRoot:'/case',promptId:'case-read-v1',provider:{id:'deepseek',modelId},limits:{maxTurns,maxUsd},capabilities:['case_read']}`；`routeManifestSha256` 恰为 Rust 对已先验证与编译期 expected bytes byte-identical 的 runtime route-manifest **原始 bytes** 重算所得小写 SHA-256，不接受调用方、自报或旧值 |
 | `session_resumed` | `{startedEventId:'event_1',previousLeg,priorObservedTurns,priorTurns,priorUsd,messageContext:'empty'}`；`previousLeg===leg-1`，各 prior 值必须由本 journal fold |
 | `user_prompted` | 复用 `{text}`；trim 后非空，UTF-8 ≤131,072 bytes；这是本地 UI replay 的明文真值，不另存 prompt hash 副本 |
 | `agent_event` | 直接复用 `AgentProjectionEvent` 闭集，不包 raw upstream event |
@@ -134,12 +169,43 @@ no-follow 手法；产品不得直接把其返回对象转售给模型。`tools.
 - prompt terminal 先落唯一 prompt terminal；按 ADR 映射需要 session terminal 时再落第二笔，
   两笔都完成后才向调用者发布最终投影。
 
+crash replay 只有一类半对可确定性补写：若 journal 最后一条完整 LF record 恰为合法
+`agent_event(kind:'turn_finished')`，且尚无其同 request/turn 的 `turn_usage_recorded`，恢复须从
+该已 durable payload 逐值生成唯一 usage row，以新 seq/eventId、同 leg/requestId、
+非递减 recordedAt append+sync 后才进入其余 crash fold。缺口不在尾端、已有重复或不匹配 usage、
+terminal 已在其后，均不是 partial-tail，整 journal quarantine；不得忽略该回合、重问 provider
+或从 session 计数反推。
+
+Host 收到 schema 合法但不等于 `['case_read']` 的 ready 时，须在首 prompt 前落
+`session_failed {cause:{kind:'protocol',code:'state_violation'}}` 并回收 leg；不得新增自由
+`capability_mismatch` code，也不得拿 spawn 前的 expected capability 洗白实收漂移。
+
+Rust crash fold 自造 `prompt_failed` 时，七枚 `TerminalFailureCode` 文案必须与 TS 唯一表逐字
+相同：
+
+| code | message |
+|---|---|
+| `provider_error` | `provider 调用失败，本轮未能完成` |
+| `host_error` | `宿主操作失败，本轮未能完成` |
+| `budget_unknown` | `已启用金额限额，但存在费用未知的回合` |
+| `effect_uncertain` | `目标可能已是完整新版本，落盘无法证明` |
+| `upstream_event_unsupported` | `上游事件序列不在投影闭集内` |
+| `invalid_state` | `状态机收到不合法的状态转移` |
+| `unknown` | `未归类的失败` |
+
+共享 golden 必须含这七格；Rust 不得从退出、stderr 或 OS error 拼 message。进程异常也不直接
+等于 `session_failed.runtime`：有 active prompt 时先按 ADR crash fold 取 prompt/budget/effect
+终态；安全 open leg 落 `session_interrupted`；只有无可归因 prompt 的不可恢复 runtime fault
+才使用对应 runtime cause。
+
 ### 4. Route A manifest 是编译期 expected-side
 
 唯一跟踪真源为
 `apps/desktop/src-tauri/pi-sidecar/route-manifest.json`。Rust 以 `include_bytes!` 同义方式把
 该文件 bytes 编进 host binary；运行时 resource manifest 必须先与编译 bytes byte-identical，
 再 closed-decode。不得从 runtime/CJS 实物重算一份 manifest 后把自报值当 expected。
+本节是 **route-pair manifest**；`PI-DEBUG-BUILD-1` 后续另冻的是 `.app`/DMG build-evidence
+manifest schema，后者不得改写或替代本 manifest。
 
 manifest 顶层恰含
 `schemaVersion/routeId/nodeVersion/useCodeCache/bundle/targets`：
@@ -196,19 +262,28 @@ production 零本机 Node、PATH、repo、fixture 或 SEA fallback。本票只�
 headless app-layout；真实 Tauri `.app` 的 nested signing/entitlements/inventory 仍由
 `PI-DEBUG-BUILD-1` 支付，不能借本票宣布可发行。
 
+“extra” 的闭集按位置判断：resource `pi-sidecar/` 恰含 route manifest 与 `sidecar.cjs`；
+current executable sibling 目录可以含主程序等其他包内文件，但不得出现第二枚
+`pi-sidecar-*` / route-prefixed sidecar 候选。不得把整个 `Contents/MacOS` 误判为两件闭集。
+
 ### 5. child 环境、deadline 与回收
 
 - `env_clear()`；child env 严格为空。未来 proxy/CA 需求另票，不能留“必要变量”口子；
 - argv 恰 `[verifiedRuntimePath, verifiedSidecarCjsPath]`，无其他 flag；
-- cwd 恰为新建、权限收窄的 `app_data_dir()/pi-loop-runtime`，不得是 case/workspace/resource；
+- cwd 恰为新建的 `app_data_dir()/pi-loop-runtime`，目录 mode 为 `0700`；root 与各级 parent
+  都须是 regular directory、非 symlink，失败一律 pre-spawn。cwd 不得是 case/workspace/resource；
 - stderr 每 leg 最多 65,536 bytes；原文只活在受限内存/test seam，不写 journal/log/error/UI。
   超限为 `stderr_limit` 并杀 leg；对外只给 byte count/hash 与固定 code；
-- prompt 正常运行不设总时限；只有生命周期有界：
+- 每枚 host→child 完整 packet 的 write+flush 以 5,000 ms 为界；超时按
+  `lifecycle_timeout` 收束。活动 prompt/provider stream **本体**不设总时限，stdout reader
+  在该区间持续等事件；除这一处明确例外，全部 child I/O 与 lifecycle wait 都必须有界：
   bootstrap→ready 30,000 ms，cancel→prompt terminal 15,000 ms，
   idle shutdown→shutdown terminal 15,000 ms，fatal/shutdown terminal→EOF+exit 15,000 ms；
   违例先 SIGTERM、grace 5,000 ms，再 SIGKILL、kill-confirm 5,000 ms；
 - 任一 timeout/EOF/nonzero/signal/runtime fault 先按已 durable journal 做 crash fold，再停止
-  outward publish；任何 wait 都不得无界，kill-confirm 失败也必须具名。
+  outward publish；kill-confirm 失败也必须具名。SIGTERM 必须由既有
+  `libc::kill(pid,SIGTERM)` 完成；`std::process::Child::kill()` 只可用于 SIGKILL，不得用外部
+  `/bin/kill` 或新增 spawn。
 
 ### 6. quarantine 实物
 
@@ -217,9 +292,16 @@ headless app-layout；真实 Tauri `.app` 的 nested signing/entitlements/invent
 
 `app_data_dir()/pi-loop/<containerId>/quarantine/<sessionId>/<sha256-of-original-bytes>.jsonl`
 
-目标必须不存在；先建目录并 sync，rename 后 sync 目标文件与两级 parent。不得覆盖、自动修、
-自动新建同 session journal 或继续 spawn。相同目标已存在也 fail closed。按 container 整删同时
-删除其 quarantine。
+目标必须不存在；container/session/quarantine 每级均须 lstat 为 owned regular directory、
+非 symlink。先关闭 active journal handle，再建目录并 sync，rename 后重新打开并 sync 目标文件，
+再 sync 两级 parent。不得覆盖、自动修、自动新建同 session journal 或继续 spawn。相同目标已
+存在也 fail closed。
+
+crate-private `PiLoopHost::delete_container(containerId)` 同票交付：SafeToken 不合法拒；该
+container 仍有任一 live session/leg 时以固定 `container_active` 拒且零删除；不存在则幂等返回
+`deleted:false`；存在时先拒绝非 directory/symlink root，再删除该 container 的全部 journal 与
+quarantine、sync `pi-loop` parent，返回 `deleted:true`。递归删除不得跟随内部 symlink。两
+container 必须互不可读；删一方后另一方 bytes、journal、quarantine 与 live 状态不变。
 
 ### 7. resume 断点只由 journal 投影，不扩 sidecar wire
 
@@ -235,9 +317,20 @@ crate-private `PiLoopHost` 与 headless integration driver。未来 `PI-LANE-UI-
 start/prompt/cancel/resume/replay/delete adapter。
 
 现行 isolation gate 只识别字面量 `Command::new("...")`，本票须同批扫出任何动态
-`Command::new(<expr>)`。唯一 production 动态 spawn 必须锚在 `pi_loop_process.rs` 的 verified
-runtime path，并在 capability ledger 以 `requiredLevel:'none'` 具名登记；这里 `process` 是
-拓扑，不是 ADR-018 全局隔离升档。改变量、helper 包裹、拼接或另增动态 spawn 都须触红。
+`Command::new(<expr>)`。`capabilityLedger` 保持现有 literal row 形态；另增加一类 closed
+dynamic row，恰含
+`{capability,programExpression,enclosingFunction,requiredLevel,anchor,exactCount,note}`，本票
+唯一行固定：
+
+`{capability:'pi-product-sidecar',programExpression:'verified_runtime_path',enclosingFunction:'spawn_verified_sidecar',requiredLevel:'none',anchor:'apps/desktop/src-tauri/src/pi_loop_process.rs',exactCount:1,...}`。
+
+scanner 在各 Rust production 段同时枚举 literal 与 dynamic `Command::new`；dynamic 表达式按
+去首尾空白后的 exact source text、直接包围它的 Rust function name、anchor 与 count 四项双向
+匹配；唯一调用必须直接住在 `spawn_verified_sidecar`，不能搬进 command factory/helper。
+未登记、留空登记、错 function/anchor、改变量、拼接、helper 包裹、第二 spawn 或
+literal/dynamic 串类都须触红。运行期的
+`verified_runtime_path` 仍必须来自通过 manifest 身份门的不可变 path；机器门只证明调用点
+闭集，不冒充运行期 hash 证明。这里 `process` 是拓扑，不是 ADR-018 全局隔离升档。
 Node `src/` 的 child_process/fs-write ledger 仍为空；`node:process` 只许 stdin/stdout/exit，
 不得读写 `process.env`。
 
@@ -253,6 +346,9 @@ Node `src/` 的 child_process/fs-write ledger 仍为空；`node:process` 只许 
 - 新建 `packages/pi-lane/src/product-runtime.test.ts`
 - 新建 `packages/pi-lane/src/product-main.ts`
 - 新建 `packages/pi-lane/src/product-main.test.ts`
+- `packages/pi-lane/src/tools.ts`（只加 `/case` logicalRoot 调用形态，dev 默认逐字保持）
+- `packages/pi-lane/src/tools.test.ts`（只测上述窄 binder/投影）
+- 新建 `packages/pi-lane/fixtures/product-wire-v1.jsonl`
 - 新建 `packages/pi-lane/scripts/build-product-sidecar.mjs`
 - 新建 `packages/pi-lane/scripts/build-product-sidecar.test.mjs`
 - `packages/pi-lane/package.json`（只加独占 build/test script，零依赖）
@@ -264,6 +360,8 @@ Node `src/` 的 child_process/fs-write ledger 仍为空；`node:process` 只许 
 - 新建 `apps/desktop/src-tauri/src/pi_loop_process.rs`
 - 新建 `apps/desktop/src-tauri/src/pi_loop.rs`
 - `apps/desktop/src-tauri/src/lib.rs`（只接 module 与内部构造，不加 invoke handler）
+- `apps/desktop/src-tauri/Cargo.toml`（只把既有 `libc` 用途注释扩到
+  `pi_loop_process` 的 SIGTERM；版本与依赖集合不变）
 - 新建 `apps/desktop/src-tauri/pi-sidecar/route-manifest.json`
 - `apps/desktop/src-tauri/tauri.conf.json`（只加上述 externalBin/resources）
 
@@ -273,18 +371,27 @@ Node `src/` 的 child_process/fs-write ledger 仍为空；`node:process` 只许 
 - `apps/desktop/scripts/assert-isolation-binding.test.mjs`
 - 本文件（实现完成后只追加回执，不改前述合同）
 
-默认禁止 `Cargo.toml/Cargo.lock/pnpm-lock.yaml`：serde/serde_json/tokio/sha2/libc 已有，
-本票不得加 crate/npm。`product-protocol.ts/.test.ts`、`product-stdio.ts/.test.ts`、
-`tools.ts`、`session.ts`、`scoped-env.ts`、`authorized-root.ts`、`sidecar*.ts`、
+默认禁止 `Cargo.lock/pnpm-lock.yaml`，本票不得加 crate/npm；上一清单对 `Cargo.toml` 的注释
+例外不许改 dependency table。`product-protocol.ts/.test.ts`、`product-stdio.ts/.test.ts`、
+`session.ts`、`scoped-env.ts`、`authorized-root.ts`、`sidecar*.ts`、
 `workspace-write-env.ts`、`index.ts`、`fixtures/sidecar-dist/**` 均只读。任何实证必须改白名单
 的情况先停并标 `[需架构拍板]`，不得用顺手重构扩票。
+
+`product-wire-v1.jsonl` 每行是一个 LF 终止的 canonical packet，覆盖 host→sidecar 与
+sidecar→host 每种 packet/type/union branch、七枚 terminal failure 文案和边界值；文件本身不
+构成可连续运行的 leg。Node 测试对每行去掉末尾 LF 后分别调用现行公开
+`decodeHostPacketLine` / `decodeSidecarPacketLine`，必须恰有一个方向成功，再用公开
+`encodePacketLine` canonical re-encode 为同 bytes；不得导出或复制内部 `decodePacketNode`。
+Rust test 以 `include_bytes!` 读同一 tracked blob、closed decode 后 canonical re-encode 同
+bytes。任一侧不得生成 fixture 后再验证自己；缺行、重复行、双向皆成/皆败、extra key、CRLF、
+BOM、数值 lexeme 与任一字面量 drift 都须触红。
 
 ## 四、施工顺序与区分力
 
 严格串行：
 
 1. **H1 Node + Route A**：product case env/runtime/main、deterministic CJS、source manifest；
-   verified Node 真跑 ready→prompt(case read)→terminal→shutdown。
+   verified Node 分别跑 production ready→shutdown 与 scripted read→tool result→terminal。
 2. **H2 Rust lifecycle + journal**：pair preflight、clean child、strict driver、
    append+sync-before-publish、crash fold/quarantine/resume/budget。
 3. **H3 failure matrix + machine gate**：物理/协议/crash/canary/dynamic-spawn 反例，最后回执。
@@ -300,19 +407,26 @@ counterexample/mutation 证明，逐枚验证确实命中并 byte-identical 恢�
 
 1. Route pair：缺/多/symlink/dir/零字节/错 target/arch/version/runtime SHA/CJS SHA/
    manifest extra/missing/乱序/双件交换，均在 spawn、Keychain read、journal 前失败；
+   把 journal `routeManifestSha256` 改为旧值或任意其他合法 64 位小写 hex 必红；普通
+   `pnpm test` 中的无网络测试须从 product source 临时重建 CJS，并逐值核 tracked manifest
+   bundle bytes/SHA，source 漂移不能等独占下载/发布命令才发现；
 2. `/case`：Unicode 与 255/1024 byte 边界正例；absolute/`..`/空段/backslash/drive/UNC/
    控制字/保留名/symlink/prefix sibling 全拒；把任一结果改回 physical path 必红；
-3. wire：Rust↔TS golden；重复/额外/缺 key、BOM、CRLF、partial、>1 MiB、seq/session/request
-   漂移、terminal 后来包均杀 leg；
+3. wire：共享 tracked Rust↔TS golden；重复/额外/缺 key、BOM、CRLF、partial、>1 MiB、
+   seq/session/request 漂移、ready capability 漂移、terminal 后来包均杀 leg；
 4. durability：append/sync failure 时 outward=0；publish-before-sync、把 LF-bad 当 partial
-   截断、quarantine 覆盖任一 mutation 必红；
+   截断、撤 final `turn_finished`→usage repair、把非尾端/不匹配半对误补、quarantine 覆盖任一
+   mutation 必红；
 5. crash/deadline：逐个 crash fold 窗、cancel/shutdown/EOF/exit 与
    SIGTERM→SIGKILL→confirm 真跑；撤 timeout/kill-confirm 必红；
 6. resume/budget：leg/prior 三值、跨 leg ID、配置/capability/manifest 漂移；第二 prompt/
    新 leg 重置预算或 null→0 必红；
 7. canary：互异 secret/root 扫 argv/env/cwd/stdout/stderr/journal/reply/error/diagnostic；
    把 key 改回 env provider 或回显 root 必红；
-8. isolation：动态变量、改名、拼接、helper 包裹与第二 spawn 都被双向 ledger 抓住。
+8. isolation：动态变量、改名、拼接、helper 包裹与第二 spawn 都被双向 ledger 抓住；
+9. credential/container：pasted 与用户显式保存的 environment-name 两路可启动；无存档时即使
+   `DEEPSEEK_API_KEY` 存在也零自动回落，child env 始终为空；active container 删除零 effect，
+   idle 整删 journal+quarantine 且另一 container byte-identical。
 
 ## 五、实现门、回执与停点
 
@@ -320,12 +434,13 @@ counterexample/mutation 证明，逐枚验证确实命中并 byte-identical 恢�
 
 1. 定向 Node tests（含 build script test）；
 2. desktop Rust `cargo test` 与现行 format/clippy 门；
-3. verified Node v22.23.1 + sealed CJS headless 集成；
-4. `pnpm -r build`；
-5. `pnpm lint`；
-6. `pnpm test`；
-7. `pnpm --filter @courtwork/desktop lint:isolation-binding`；
-8. `git diff --check`。
+3. verified Node v22.23.1 + production sealed CJS 的 ready/shutdown control；
+4. verified Node v22.23.1 + test-only scripted stream 的 read→tool result→terminal hard gate；
+5. `pnpm -r build`；
+6. `pnpm lint`；
+7. `pnpm test`；
+8. `pnpm --filter @courtwork/desktop lint:isolation-binding`；
+9. `git diff --check`。
 
 Tauri config 本票只证明 source mapping 与临时 app-layout locator，不把未支付的 nested signing
 写成绿。实现提交与回执提交分开；回执引用真实 implementation SHA、first-red、有效 mutation、
@@ -339,11 +454,15 @@ route manifest hash、物理 headless 读数、门数字、偏离与所有 `[需
 至少实注：
 
 - wrong hash、extra、symlink、wrong arch/target；
+- journal `routeManifestSha256` 的旧值/随机合法值；
 - case path/canary 与 Rust↔TS wire drift；
 - append/sync、partial-tail、LF-bad quarantine；
+- final `turn_finished` 缺 usage 的唯一补写窗，以及非尾端/不匹配半对 quarantine；
 - crash/cancel/kill-confirm、resume drift、budget null/limit；
 - dynamic spawn gate 的变量/helper 形态；
-- production main 的真实 Node 22 case-read loop。
+- credential 无存档 env fallback、两 container 隔离/active 拒删/inactive 整删；
+- official Node 22 production CJS ready/shutdown 与 test-only scripted read loop，且 control canary
+  不得进入 production bundle；真实 DeepSeek 只作具名 external smoke。
 
 payload/schema/route/deadline/公开 command 争议是契约问题，直接 REJECT；实现级小缺陷才可按
 AGENTS.md 用 `fix-by-acceptance`。报告只追加 `packages/pi-lane/ACCEPTANCE.md`，明确

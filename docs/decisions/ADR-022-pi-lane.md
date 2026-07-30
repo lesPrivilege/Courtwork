@@ -1205,30 +1205,44 @@ resource 重签、inside-out signing、Developer ID/notarize/staple/Gatekeeper �
 
 - `/case` 不扩成第三种 host-request capability。Rust 仍只在 bootstrap 例外把物理 case root
   交给 sidecar；Node 产品 env 直接只读该根，但 cwd/FileInfo/tool result/error 一律投影
-  `/case`，ready 恰宣告 `case_read`，读工具零 operation/host_request。现行
-  workspace read/write wire 不动；
-- product runtime 的 key 只来自 bootstrap 内存并显式传 pi stream options；不读
-  `process.env`。Host 期临时 prompt 固定 `case-read-v1`，WRITE-HOST 才换 `md-work-v1`；
+  `/case`，ready 恰宣告 `case_read`，读工具零 operation/host_request。现行工具只加保留
+  upstream schema identity 的 `/case` path binder/显示参数；workspace read/write wire 不动；
+- product runtime 的 key 只来自 bootstrap 内存并显式传 pi stream options；Node 不读
+  `process.env`。Rust 只消费用户显式保存的 pasted 或 environment-name credential，不做固定
+  `DEEPSEEK_API_KEY` 自动回落，child env 仍为空。Host 期临时 prompt 固定 `case-read-v1`，
+  Agent 从本票起固定 `toolExecution:'sequential'`；WRITE-HOST 才换 `md-work-v1` 并加 write
+  binder 顺序锁。Host hard gate 以同一 runtime factory 的 test-only scripted stream 在官方
+  Node 22 跑真实 read tool loop，production CJS 另跑 ready/shutdown；真实 DeepSeek 只作外部
+  smoke，不拿模型是否主动调工具裁 harness；
 - journal envelope 的 eventId/recordedAt/operationId 规则与十九种 payload 全部 closed，
   replay 不收自由 JSON；fresh/resume 都在 spawn 前 durable，turn usage 与 outward event
-  遵循 append+sync-before-publish；
+  遵循 append+sync-before-publish；Rust 补终态用 TS 同一七枚固定 message，shared
+  Rust↔TS golden 是独立 expected-side；唯一可补的 LF-complete 半对是 journal 尾端
+  `agent_event(turn_finished)` 缺同义 usage row，恢复逐值追加并 sync 后再 fold，其余半对
+  quarantine；
 - Route A 的 expected-side 是编进 Rust 的 tracked
   `apps/desktop/src-tauri/pi-sidecar/route-manifest.json`；ignored product snapshot 恰为双
   target Node + 一件 `sidecar.cjs`，manifest 与双件逐值核验，production 零 fallback；
-- child 用空环境、固定非案件 cwd；bootstrap/cancel/shutdown/exit/kill-confirm 有界，普通
-  prompt 不设总时限；stderr 原文不持久；
+  journal 的 `routeManifestSha256` 只能由 Rust 对已验证与编译期 expected byte-identical 的
+  runtime manifest 原始 bytes 重算，不收调用方、自报或旧值；
+- child 用空环境、固定非案件 cwd；stdin packet 与 bootstrap/cancel/shutdown/exit/
+  kill-confirm 有界，只有活动 prompt/provider stream 本体无总时限；SIGTERM 复用既有
+  `libc::kill`，stderr 原文不持久；
 - LF 完整的坏 journal 原子移入按原 bytes SHA 命名的 container quarantine，零自动修/覆盖/
   续跑；只有末尾无 LF partial 可截断；
 - resume 断点只从 journal fold 导出，不增 sidecar packet，不回填旧 pi messages；
-- 本票不新增 WebView/Tauri command；动态 `Command::new(path)` 必须进入 ADR-018 双向机器门。
+- 本票不新增 WebView/Tauri command；container inactive 才可整删 journal+quarantine；
+  动态 `Command::new(path)` 按 exact expression/enclosing-function/anchor/count 进入
+  ADR-018 双向机器门。
 
 这些是 Host 工单的实现输入，不是新能力事实。异会话 PASS 前 `current.md` 不变，
 `PI-WRITE-HOST-1` 不开工。
 
 后续产品装配归属也冻结：`PI-HOST-LOOP-1` 建 product `/case` 虚拟 env、路径/错误脱敏、累计预算
-与 Rust 生命周期；`PI-WRITE-HOST-1` 才注册 `createWriteTool()`、扩产品 tool policy、设置
-`toolExecution:'sequential'`、启用六-0 的 `md-work-v1` 最小 system prompt，并把每次 toolCall
-绑定独立 write env/operation；
+与 Rust 生命周期，并从产品 Agent 首次出现起固定 `toolExecution:'sequential'`；
+`PI-WRITE-HOST-1` 才注册 `createWriteTool()`、扩产品 tool policy、保持 Agent sequential、
+给 write binder 固定 `executionMode:'sequential'`、启用六-0 的 `md-work-v1` 最小 system
+prompt，并把每次 toolCall 绑定独立 write env/operation；
 `PI-WORKSPACE-READ-1` 只给既有 read/glob/grep 增 `/workspace` 路由，glob/grep 返回
 `/case/...` 或 `/workspace/...`，并提供上述只读 `openWorkspaceMarkdown` host command；
 绝不显示 `../workspace` 或物理根，也不新增 `list` 模型工具。
@@ -1247,6 +1261,10 @@ resource 重签、inside-out signing、Developer ID/notarize/staple/Gatekeeper �
 
 ## 修订记录
 
+- **2026-07-30 · PI-HOST-LOOP-1 开工接缝订正**：反对性审查闭合 `/case` 工具输出、
+  Agent parallel 缺省、explicit credential env 边界、shared Rust↔TS golden、ready 漂移、
+  Rust 补终态固定文案、stdin/deadline/SIGTERM、inactive container 整删与 dynamic spawn
+  ledger，以及 final turn/usage crash 半对；不扩既有 wire。
 - **2026-07-30 · PI-HOST-LOOP-1 开工合同闭合**：在 R5 放行与 Route A 裁定后，补冻
   `/case` bootstrap 内存例外（不扩 host-request）、十九类 journal payload、tracked
   route manifest、child 空环境与 lifecycle deadline、SHA quarantine、journal-only resume

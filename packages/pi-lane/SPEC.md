@@ -639,10 +639,15 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   [`specs/PI-HOST-LOOP-1.md`](specs/PI-HOST-LOOP-1.md)。该票不扩 `case_read`
   host-request：物理 case root 仍只在 bootstrap 例外进入 Node 内存，模型/工具/journal 只见
   `/case`；并按 Route A tracked manifest 管 verified Node+CJS、十九型 closed journal、
-  crash/quarantine/resume 与动态 spawn 机器门。零 WebView command、零 write/effect；
+  crash/quarantine/resume 与动态 spawn 机器门。产品 credential 只消费用户显式保存的 pasted
+  或 environment-name source、不做固定 env fallback；shared Rust↔TS golden 锁 wire/固定终态
+  文案且只走现有公开 codec，journal route hash 必须绑定已验证 runtime manifest 原始 bytes；
+  Agent 从本票固定 `toolExecution:'sequential'`；官方 Node22 的 production
+  ready/shutdown 与 test-only scripted read hard gate 分离，真实 DeepSeek 只作 external smoke；
+  零 WebView command、零 write/effect；
   `PI-WRITE-HOST-1` 负责产品 `session.ts`/tool table/tool policy 的 write 装配与
-  `toolExecution:'sequential'`，并把 dev 只读 prompt 换成上文六条/≤2,048-byte
-  `md-work-v1`；proof 不提前改这些消费点。glob/grep 双根结果必须显示
+  write binder `executionMode:'sequential'`，同时保持 Agent 顺序，并把 dev 只读 prompt 换成
+  上文六条/≤2,048-byte `md-work-v1`；proof 不提前改这些消费点。glob/grep 双根结果必须显示
   `/case/...` 或 `/workspace/...`，不得形成 `../workspace`。
 - 独立 `PI-BASE-HEADLESS-ACCEPT` 必须实跑
   `agent write → 批准 → Rust 精确落盘 → agent read-back → restart read-back`。缺任一段，
