@@ -1077,6 +1077,7 @@ harness path/execPath、official SHA、未知 marker/嵌套 Dict 与三工具 co
 使用各自 execution-domain id/manifest，fixture README 同步把“受限域只写 blocked”窄化为
 “control lifecycle/ordinary gate 成立后才可写 blocked”，旧 `dist` 零回填，报告继续零路线建议。只有异会话完整
 放行 R4，架构才可消费报告裁路线；此前 `PI-HOST-LOOP-1`、`PI-DEBUG-BUILD-1` 继续 blocked。
+该句只记录 R4 当时的历史门；R4 已被下文独立验收拒绝，现行门由 R5 取代。
 
 R4 的实现执行域若经功能 preflight 证明为非受限域，不能伪造 blocked，也不能为取得 blocked
 而改探针。此时只允许架构支持会话在**同一实现 worktree、冻结后的 exact production bytes**
@@ -1087,6 +1088,72 @@ R4 的实现执行域若经功能 preflight 证明为非受限域，不能伪造
 进入的 execution-domain cell，不算实现者自跑，不替代批准非受限域 full/长矩阵，更不替代
 独立验收；验收会话仍须在自己的 clean worktree 以自己的 fresh id 真跑 seatbelt blocked、
 seatbelt 混合态 `probe_failed` 与批准非受限域 full 六格。
+
+`PI-SIDECAR-DIST-1R4@07d2dbc`（实现 `891c23d`）经独立验收判定 **REJECT**。R4 已闭合
+R3 的三项既知假绿，但验收又在 production observation 上坐实三项 P1：
+
+1. 跨架构 code-cache 注入在 ready 后裸等子进程退出，hard verdict 又只核
+   `launched/warning`；进程可无界等待，或带正确 warning 但最终非零退出仍假绿。
+2. command 的 `startedAt/finishedAt` 只参加 observation↔receipt 副本 identity，没有真实性
+   约束；两边同步删字段、或所有 command 同填一枚合法时间常量，均可通过。
+3. full/preflight 虽绑定了 raw command receipt，成功判定仍大量消费 producer 的
+   `signExit/flags/launched/values/.app` 摘要；raw 非零、signal、spawn error、security stderr、
+   串格 target、真实 run/actual-entitlements/.app 失败都可被正确摘要洗绿。preflight-only
+   也未在发布状态前执行独立 hard verdict。
+
+这三项使 R4 的路线报告继续不可消费；`PI-HOST-LOOP-1`、`PI-DEBUG-BUILD-1` 与路线裁定保持
+blocked。验收树中的五文件未提交返修约 1800 行，已经超过“实现级小缺陷”的
+`fix-by-acceptance` 例外；它只作诊断输入，不是可代提交工作树，原验收会话也不得验收其衍生物。
+
+`PI-SIDECAR-DIST-1R5` 只闭合上述三项，不改变 R2–R4 已成立的来源、assembly、cold-start、
+canonical 四层、双 execution domain、签名模式、库存、wire、deadline、路线候选或产品
+signing plan：
+
+1. `reproducibility-probe` 的跨架构子进程保留 60,000 ms ready 门；ready 后发送 EOF，
+   退出固定用既有 `CRASH_DEADLINES.exitMs`，失败后用
+   `CRASH_DEADLINES.killConfirmMs` 收束。observation 显式携
+   `timeouts` 与 `{code,signal}`；hard verdict 只接受 `timeouts:[]`、
+   `launched:true`、exact warning 与 `exit:{code:0,signal:null}`。ready/exit/kill-confirm
+   任一超时均结构化失败并令进程非零，禁止裸 `await proc.exited`。
+2. 每条同轮 command receipt 的 `startedAt/finishedAt` 都必须是可往返
+   `Date#toISOString()` 的 UTC 时间，且 `startedAt <= finishedAt`。`commands` 数组就是串行
+   调用顺序，相邻项须满足 `previous.finishedAt <= next.startedAt`；整轮还须满足
+   `commands[0].startedAt < commands[last].finishedAt`，因此整列缺失、倒序或同一常量均失败。
+   时间字段继续参加完整 command identity；这道 timeline 门是额外真实性约束，不以两副本相等
+   代替。
+3. preflight-only 与 full 都必须在形成最终 manifest/status 前运行 production-used hard
+   verdict。每条被判断的 raw command 必须逐字段属于同轮 receipt；raw argv、target、exit、
+   signal、error、stdout/stderr 与实际 run/actual-entitlements 是真源，producer summary 只可
+   作 exact parity，不能单独决定成功。preflight 须从 raw 重导 control lifecycle、四 gates、
+   official identity、XML/plutil 与 Gatekeeper；full 六格另须绑定唯一 stage root 与
+   subject/mode physical cell，从 raw 重导 sign/verify/display flags、launch exit/timeouts 与
+   Node/SEA 来源身份、签后 XML/plutil，并对 nested `.app` 的 inner/outer/deep verify、spctl 与
+   nested run 做同义闭口。缺 status、错/缺 raw receipt、摘要漂移、A/B 串格或同步换 bogus
+   target 均失败。每个语义 role + subject + mode 必须绑定 `commands` 数组中唯一的 receipt
+   occurrence/index，同一 occurrence 不得跨 role/cell 复用；expected argv-last/target 必须从
+   trusted stage root 与冻结的 subject/mode coordinate 独立构造，不能从 row/appPath 摘要反推。
+   final manifest/status 只取 hard verdict：preflight raw 重导为
+   `{status:'ok',classification:'passed'}` 才映射 `ok`；
+   `{status:'failed',classification:'security_execution_domain_blocked'}` 才映射同名 blocked；
+   任一证据完整性/ordinary/control/full hard-verdict failure 一律映射 `probe_failed`。
+   preflight 自报 status/classification 与 full summary 都只作 parity，调用 verdict 后不得忽略
+   failures 或再用 producer 字段重算 final status。
+
+R5 必须在 untouched R4 target 上先写反例并见红：跨架构 warning 正确但 exit 非零/timeout；
+command times 全删与全填同一合法常量；preflight-only target 同步漂移；六格 raw 失败而摘要
+成功、A 格复用 B 实物、run/actual-entitlements/nested app raw 失败。至少以四枚有效 production
+mutation 分别撤跨架构 exit/deadline 门、timeline 严格推进、preflight hard verdict 与 full
+raw 真源门，逐枚验证命中、见红、byte-identical 恢复。
+
+实现最终仍须从空 assembly 串行复跑全部 verdict、既有 76 counterexamples 全量及 R5 新增
+反例（分别计数）、600 cold-start、双
+cycle、十件/source、seatbelt blocked、缺 build 混合 `probe_failed`、批准域 preflight/full
+六格与仓库门；实现与验收各用 fresh execution-domain id，旧 `dist` 零回填。另一 Codex
+会话必须从 clean worktree 独立复验，不能消费实现者的 manifest 代替自跑。Fable 给出不可变
+实现 SHA 后，架构另立 `PI-SIDECAR-DIST-1R5-ACCEPT`，冻结目标 SHA、允许面、反例与 mutation；
+验收者原则上只追加 `packages/pi-lane/ACCEPTANCE.md`，实现级小修才可按 AGENTS.md 使用
+`fix-by-acceptance`，契约问题直接 REJECT。R5 放行前报告继续零路线建议，`current.md`、Host、
+DMG、Pages 与 R5 实现链的 merge/push 均不动；架构契约提交可正常入 `main` 供实现/验收读取。
 
 后续产品装配归属也冻结：`PI-HOST-LOOP-1` 建 product `/case` 虚拟 env、路径/错误脱敏、累计预算
 与 Rust 生命周期；`PI-WRITE-HOST-1` 才注册 `createWriteTool()`、扩产品 tool policy、设置
@@ -1110,6 +1177,13 @@ seatbelt 混合态 `probe_failed` 与批准非受限域 full 六格。
 
 ## 修订记录
 
+- **2026-07-30 · R4 独立验收再拒绝与 R5 evidence-truth 闭口**：
+  `PI-SIDECAR-DIST-1R4@07d2dbc` 虽闭合 R3 的三项既知假绿，独立验收仍在真实 observation
+  坐实跨架构 exit 无界/漏判、command timeline 无真实性、raw command/run/actual-entitlements/
+  nested `.app` 可被 producer summary 洗绿三项 P1。R4 保持 REJECT；旧验收树的大宗未提交
+  返修不进入实现史。新立 R5，冻结有界 cross-arch lifecycle、canonical 串行 timeline 与
+  preflight/full raw-truth hard verdict；实现后只交全新 Codex 会话从 clean worktree 独立验收，
+  放行前路线、Host、DMG、Pages、R5 实现链 merge/push 与 `current.md` 均不动。
 - **2026-07-29 · stdio R2 实现收敛拍板**：`710faaa` 登记的两处既有测试改写予以接受：
   旧形态分别包含“前一 tc 未 finished 即起下一工具并把 pre-operation write 报 succeeded”
   与“read tc 申请 workspace_write”，均已被本 ADR 冻结为非法转移；新测试在合法状态图上
