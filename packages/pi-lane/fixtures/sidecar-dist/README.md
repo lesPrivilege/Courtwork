@@ -220,10 +220,22 @@ node scripts/measure.mjs --counterexample crash.ignored
 退出码：`0`＝干净全过；`1`＝正式实测判红；`2`＝反例被判据抓住（**期望结果**）；
 `3`＝反例没被抓住，或压根没改动观察值。
 
+R5 全量复跑实测：**76/76，escape 0**。逐组 `sea` 8（4 × `--fail-stage` + 4 × `:evidence`）／
+`fetchextract` 5（fetch 4 + extract 1）／`repro` 14／`measure` 23／`coldstart` 15
+（13 + `--rounds 1` + `--samples 10`）／`physical` 11（10 + 反向对照 `reportsOutside`），
+与 R2 冻结口径逐组相同；每组结束后 `measure` 复核 assembly 全部 exit 0、代码残留 0。
+六组净跑约 2 h（跨度 4 h 27 min，含一段约 2 h 的 harness 假停空转）。
+**跑这批时有两处 harness 缺陷已修并登记**：driver 的 `grep -c || echo 0` 在零命中时产出
+两行 `"0\n0"` 触发假停；`repro` 组首轮因本探针**不支持** `--list-counterexamples` 而枚举到
+零枚，却把「零枚待跑」打印成「共 0 枚，符合 0 枚」——读起来像通过，实为**静默零**，
+该组 14 枚是**第二次运行**才真实注入。详见
+[工程报告 §二十一](../../../../docs/engineering/pi-sidecar-dist-1.md)。
+**`reproducibility-probe.mjs` 没有 `--list-counterexamples`**：它的反例名单只能读源码的
+`COUNTEREXAMPLES` 表；给它传该 flag 会被静默忽略并跑完一次完整双 cycle 探针。
+
 **R5 四道新门的 script 级反例与上面这些不同类，须分开读**：它们是 Stage C 的**一次性注入**
 （patch → 真跑 → 核非零与具名判据 → byte-identical 还原），**不是**冻结进探针的
-`--counterexample` 项。逐枚的 patch、退出码与还原 SHA 见
-[工程报告 §二十一](../../../../docs/engineering/pi-sidecar-dist-1.md)。
+`--counterexample` 项。逐枚的 patch、退出码与还原 SHA 见工程报告 §二十一。
 判定层那一侧的对应覆盖是常驻的——即上文 384 例里 R5 的 23 枚。
 「把这四门也冻成探针 flag」尚未做，属已登记的后续项，不得读成已有常驻脚本级反例。
 

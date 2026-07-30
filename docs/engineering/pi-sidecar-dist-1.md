@@ -1331,7 +1331,7 @@ hard verdict 的 failures 一条也不进输出面——「判红了但不说为
 | preflight（修后） | `impl-r5-preflight-2` → `ok`/`passed`、`failureCount:0` | 0 |
 | full 六格 + 嵌套 `.app` | `impl-r5-full-1` → `ok`、`failureCount:0`、同轮 **49** 条 command receipt | 0 |
 | R5 新增反例（四门） | 5 枚有效全部被抓（exit 1 + 具名判据）；1 枚等价变异**作废** | 见下 |
-| 既有 76 枚 counterexample | 见下 | 见下 |
+| 既有 76 枚 counterexample | **76/76，escape 0**（六组严格串行；逐组 post-measure exit 0、代码残留 0） | 见下 |
 
 **R5 新增反例与既有 76 枚分别计数**，逐枚「注入 → 真跑 → 核非零与具名判据 → byte-identical
 还原」，装置 `scratchpad/r5-stage-c/r5-counterexample.mjs`：
@@ -1352,15 +1352,55 @@ hard verdict 的 failures 一条也不进输出面——「判红了但不说为
 `r5-ce-1` 是本组唯一的**行为**注入（真让子进程挂起），故它才是「有界超时真的有界」的证据；
 其余四枚是观察面注入，按既有体例落在「采集完成、判定之前」。
 
-**既有 76 枚 counterexample：本会话未完成，如实登记，不以部分冒充全量。** 全量装置已写好且
-可复跑（`scratchpad/r5-stage-c/ce76.mjs`，分六组 `measure` 23／`coldstart` 15／`repro` 14／
-`sea` 8／`physical` 11／`fetchextract` 5，逐枚「注入 → 真跑 → 核冻结退出码与命名判据 → 还原 →
-复绿」；`physical` 每枚还原后另跑一次 `measure`，`sea` 四枚 `:evidence` 按 R2 口径逐项解析同轮
-JSON）。**实测代价**：单枚 `measure` 反例要一次完整十件量测（本机约 8 min），单枚 `coldstart`
-反例要一次 600 样本取样（约 10 min），76 枚全量约 **6 小时** wall-clock，超出本会话窗口。
-已启动 `measure` 组后按纪律**主动中止**——五道仓库门不得与反例注入并发跑（并发会制造 1/1000
-量级假红，是既有判例）。中止后即刻复跑 `measure` 确认 assembly 完好（exit 0）、工作树无代码
-残留。这一行必须由独立验收或续跑补齐。
+#### 既有 76 枚 counterexample：**76/76 全量闭合，escape 0**
+
+在 tip `9466b51` 上以 `scratchpad/r5-stage-c/ce76.mjs` 六组**严格串行**跑完，全程未并发任何
+仓库门、测试或其他矩阵项。逐组计数与 R2 冻结口径**逐组相同**：
+
+| 组 | 枚数 | 冻结退出码 | post-measure | 代码残留 | escape |
+|---|---|---|---|---|---|
+| `sea` | 8 | 4 × `--fail-stage` exit 1 + 4 × `:evidence` exit 0 | 0 | 0 | 0 |
+| `fetchextract` | 5 | fetch 4 + extract 1 | 0 | 0 | 0 |
+| `repro` | 14 | exit 2（**补跑**，见下） | 0 | 0 | 0 |
+| `measure` | 23 | exit 2 | 0 | 0 | 0 |
+| `coldstart` | 15 | 13 × exit 2 + `--rounds 1` / `--samples 10` 各 exit 1 | 0 | 0 | 0 |
+| `physical` | 11 | 10 × exit 1 + 反向对照 `reportsOutside` exit 0 | 0 | 0 | 0 |
+| **合计** | **76** | — | 全 0 | 全 0 | **0** |
+
+四枚 `sea:evidence` 的九项子判据（`row.status`／`row.stage`／该阶段非零 exit 与非空 stderr／
+`published:false`／`publishedPath:null`／后续阶段未冒充成功／`publishDir` 物理不存在／
+顶层 failures 只命中该阶段）全部 `true`。`physical` 每枚还原后另跑一次 `measure` 复绿。
+
+**计数口径须连读**：`sea` 组打印 **9** 行记录 = 8 枚反例 + 1 行 `sea:restore→measure` 还原
+复核（后者是组后 assembly 复建验证，**不是**反例）。故记录行合计 77、反例合计 **76**。
+把 9 直接计入反例会得出 77 的错数；本报告按 76 记。
+
+耗时按 driver 实测（`ce76-driver.txt`）：跨度 12:57:33 → 17:25:02 ≈ **4 h 27 min**，其中约
+**2 h 12 min** 是下述假停空转；六组**净跑约 2 h 0 min**（sea 4m14s、fetchextract 29s、
+measure 37m27s、coldstart 21m58s、physical 34m49s、repro 补跑 20m55s）。本报告此前写的
+「约 6 小时」是**估算且偏高**，现按实测更正。
+
+**两处 harness 缺陷必须连读。** 它们属反例装置、不属 production；但「76 枚全量」这一宣称
+若不带下述说明即为失实：
+
+1. **假停（约 2 h 空转）**。driver 的 `esc=$(grep -c '^XX ' … || echo 0)` 在零命中时，
+   `grep -c` 先打印 `0` 并以退出码 1 收束，`|| echo 0` 再补一枚，变量遂成两行 `"0\n0"`
+   ≠ `"0"`，halt 条件被**计数管道自身**触发。`sea` 组 9/9 干净却被判停。真实逃逸为零。
+   已修（取首行 + 空值兜底）并自第二组续跑。日志中的
+   `HALT_ON_GROUP … escapes=0` / `0` 与 `DRIVER_HALTED` 两行**原样保留**，是过程真相。
+2. **静默零（`repro` 组首轮 14 枚从未注入）**。`reproducibility-probe.mjs` 不支持
+   `--list-counterexamples`——源码实测命中数：`measure.mjs` 2、`coldstart-rounds.mjs` 1、
+   `reproducibility-probe.mjs` **0**。未知 flag 被忽略、探针照常跑完整两 cycle 并 exit 0
+   输出 JSON，枚举正则零匹配，于是「零枚待跑」被打印成
+   `[repro] 共 0 枚，符合 0 枚，不符 0 枚`——**读起来像通过**。识别线索是它自称最慢组却只花
+   **65 秒**（15:17:17 → 15:18:22），且 harness 头注写明 14 枚。已修 `ce76.mjs` 两条：
+   枚举为空**一律抛错硬失败**；不支持该 flag 的探针改从源码 `COUNTEREXAMPLES` 表直取名单。
+   **首轮那行「共 0 枚」作废，不得作为通过证据**；`repro` 的 14 枚是**第二次运行**
+   （17:04:07 → 17:25:02）才真实注入，逐枚 `applied=true caught=true`、期望 2 实测 2。
+
+这两处与本票 production 侧的三处自身缺陷同类：**「零」与「绿」在读数上长得一样**，
+只有把「零枚」当作硬失败、把耗时当作旁证，才拦得住。它们正是本票判定层要解决的同一个病，
+只不过发生在反例装置这一侧。
 
 需要连读的是：R5 **没有删弱**任何被这 76 枚覆盖的判据（判据名删除数为 0，已机器核实），
 故它们是**回归**证据，不是本票新门的证据；本票新门的覆盖来自 384 例中的 R5 23 枚（常驻）
@@ -1402,5 +1442,12 @@ JSON）。**实测代价**：单枚 `measure` 反例要一次完整十件量测�
 7. **stage root 只有形状门**。staging 目录名含 pid 与随机段，判定层无法凭冻结数据重建它，故口径
    是「绑定唯一一个 root，并要求它是 `dist/security-domain/` 的直接子目录」，此后全部 cell 坐标
    由该 root 加冻结坐标推出。一个**合法形状但内容被换过**的 stage root 不在本门射程内。
-8. 本节不含任何路线建议。两条路线的取舍仍未裁，`PI-HOST-LOOP-1` 与 `PI-DEBUG-BUILD-1` 继续
+8. **76/76 这个数字依赖「抓住了一次静默零」，而反例装置本身没有独立门**。`repro` 组首轮的
+   「共 0 枚，符合 0 枚」与真正的通过在读数上**长得一模一样**；它被发现靠的是耗时旁证
+   （最慢组只跑了 65 秒）与 harness 头注的枚数，不是任何自动判据。修法（枚举为空即硬失败）
+   只堵住了「枚举到零」这一种形态；若某组枚举到**偏少但非零**的名单，现有装置仍不会报警。
+   `ce76.mjs` 没有把「每组应有枚数」冻成常量并逐组核对——这是本轮暴露、**尚未闭合**的口子。
+   在它闭合前，「76/76」的可信度上限是「本次逐组人工核对过分组计数与 R2 冻结口径相同」，
+   不是「装置保证不会再少跑」。
+9. 本节不含任何路线建议。两条路线的取舍仍未裁，`PI-HOST-LOOP-1` 与 `PI-DEBUG-BUILD-1` 继续
    blocked，直到异会话完整放行本票且架构消费报告后另行裁定。
