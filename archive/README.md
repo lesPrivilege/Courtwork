@@ -21,6 +21,22 @@ ACCEPTANCE。后续 handoff 取代它时，应更新本索引，不得让两个�
 人工 anti-slop 问题集；拒绝复制 token、prompt、法律布局、截图和外部皮层。附 GUI/OSS
 证据状态速查与 Fable 固定召回顺序。本件是归档输入，不替代 `docs/design/` 或当票上游复核。
 
+## research-pi-sidecar-route-prep-2026-07-30.md（R4 路线裁定备料，待放行后消费）
+
+Opus 跑腿对 `codex/pi-sidecar-dist-1r4@07d2dbc` 回执与工程报告的只读消化：两路线对照、
+十二决策点证据状态、六条最强反对意见、残留与验收面预览；另核出三处（分支树 ADR-022 较 main
+缺 38 行、esbuild/postject 随 R1–R3 血缘入 devDependencies、§十四 冷启行为 R1 旧值），前两处
+经 Fable 亲测复核坐实。**R4 数字在独立验收 PASS 前不作主线事实；本件零路线建议**，只服务
+放行后的架构裁路线，不替代对放行报告的直接消费。
+
+## research-pi-host-loop-inventory-2026-07-30.md（HOST-LOOP 开工前仓内盘点，票仍 blocked）
+
+Sonnet 跑腿在 main@6908009 的只读盘点：R2 已验收 wire/状态机不变量清单（Rust driver 对话
+基线）、票面 journal 语义与现有定义的三档对应（TS 已实现／ADR 已写死零实现／全新）、
+pi-agent-core@0.82.1 生命周期一手事实（协作式 abort、零耐久原语、context 纯内存）、仓内
+Rust 耐久手法可复用坐标与反面教材、七项 `[需架构拍板]`。冻结 HOST-LOOP 时由架构逐项复核
+载重项并把拍板结论落 SPEC/ADR；本件不做设计拍板，不构成开工授权。
+
 ## handoffs/desktop-audit-handoff-2026-07-13.md（历史审计交接，已封存）
 
 原 `apps/desktop/AUDIT-HANDOFF.md` 原内容迁档并加归档说明，记录 `main@2e5c014` 时的视觉批、旧机器门数字、
