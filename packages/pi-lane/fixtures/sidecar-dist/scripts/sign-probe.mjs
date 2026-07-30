@@ -191,13 +191,21 @@ syncDir(STAGING_DIR);
 fs.renameSync(STAGING_DIR, FINAL_DIR);
 syncDir(SECURITY_DOMAIN_DIR);
 
+// R5 修（Stage C 矩阵实测坐实）：R4 的 `failureCount` 在 preflight-only 下是个**占位常量**
+// （非 ok 一律报 1），hard verdict 的 failures 一条也不出现在任何输出面——「判红了但不说
+// 为什么」本身就是静默降级。现在逐条摊到 stdout：真实计数 + 具名判据 + 期望/实测。
+const hardFailures = [...hardVerdict.failures, ...fullFailures];
 const output = {
   status: finalStatus,
   executionDomainId,
   mode: manifest.mode,
   manifestPath: repoRelative(path.join(FINAL_DIR, 'manifest.json')),
   manifestSha256: sha256File(path.join(FINAL_DIR, 'manifest.json')),
-  failureCount: signProbe?.failureCount ?? (finalStatus === 'ok' ? 0 : 1),
+  rawPreflight: hardVerdict.raw
+    ? { status: hardVerdict.raw.status, classification: hardVerdict.raw.classification }
+    : null,
+  failureCount: hardFailures.length,
+  failures: hardFailures,
   fatal,
 };
 process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
@@ -344,7 +352,11 @@ async function runPreflight(canonical, official) {
       verifyExit: controlVerify.exit,
       sign: controlSign,
       verify: controlVerify,
-      xml: controlXml,
+      // R5 修（Stage C 矩阵实测坐实）：控制 XML 的**投影**必须在这里就成型。R4 只有
+      // `runFullProbe()` 才把 exit/bytes/sha256/stderr 摊平，`runPreflight()` 交的是
+      // `parseXmlObservation()` 原形；preflight-only 于是把缺这四格的对象喂进同一道
+      // verdict，四条 `sign.preflight.rawGateParity` 全判 null。两条路径现在共用这一份投影。
+      xml: projectXmlObservation(controlXml),
       launch: controlLaunch,
     },
     officialSignature,
@@ -441,18 +453,9 @@ async function runFullProbe(canonical, official, preflightObservation) {
         // 并与完整 receipt.commands 里的同一条逐字段对齐。
         sign: preflightObservation.control.sign,
         verify: preflightObservation.control.verify,
-        xml: {
-          exit: preflightObservation.control.xml.command.exit,
-          bytes: preflightObservation.control.xml.command.stdout.bytes,
-          sha256: preflightObservation.control.xml.command.stdout.sha256,
-          values: preflightObservation.control.xml.values,
-          stderr: preflightObservation.control.xml.command.stderr.content,
-          command: preflightObservation.control.xml.command,
-          // 落盘件与两条 plutil receipt：判定端据此重核 XML 语义，不接受自研宽 parser。
-          artifact: preflightObservation.control.xml.artifact,
-          lint: preflightObservation.control.xml.lint,
-          json: preflightObservation.control.xml.json,
-        },
+        // R5 修：投影已在 `runPreflight()` 成型（含落盘件与两条 plutil receipt，
+        // 判定端据此重核 XML 语义，不接受自研宽 parser），这里原样复用，不再各摊一次。
+        xml: preflightObservation.control.xml,
         launch: preflightObservation.control.launch,
       },
       officialSignature: preflightObservation.officialSignature,
@@ -697,6 +700,25 @@ function readActualEntitlements(binary, expectedPresent, workDir) {
     return { kind: 'none', values: {}, command };
   }
   return { kind: 'unreadable', values: null, command };
+}
+
+/**
+ * `parseXmlObservation()` 的**唯一**摊平投影：把 raw command 的 exit 与 stdout/stderr 摊成
+ * 判定端消费的四格摘要，raw/落盘件/两条 plutil receipt 原样带上。judge 侧会拿这四格与绑定
+ * raw 作 exact parity，故这里只许**取值**、不许兜底成 null——缺 raw 本身另有硬门。
+ */
+function projectXmlObservation(observation) {
+  return {
+    exit: observation.command.exit,
+    bytes: observation.command.stdout.bytes,
+    sha256: observation.command.stdout.sha256,
+    values: observation.values,
+    stderr: observation.command.stderr.content,
+    command: observation.command,
+    artifact: observation.artifact,
+    lint: observation.lint,
+    json: observation.json,
+  };
 }
 
 /**
