@@ -1,3 +1,142 @@
+# PI-SIDECAR-DIST-1 独立验收（2026-07-28，拒绝）
+
+## PI-SIDECAR-DIST-1R 独立验收（2026-07-28，拒绝）
+
+对象：`codex/pi-sidecar-dist-1r@61c2b09`（实现 `ba71df8`，组合基线
+`7a500d1`）。验收树为独立 clean worktree
+`/private/tmp/courtwork-accept-pi-sidecar-dist-1r`，分支
+`codex/accept-pi-sidecar-dist-1r`；本结论不采信实现回执。
+
+**结论：REJECT。** `PI-HOST-LOOP-1` 不得消费本票，也不得据此裁定分发路线。
+实现的共享 pure verdict 虽替换了旧版「恒报 ok」的聚合，却仍没有把票面要求的磁盘闭集、
+每个冷启样本身份和有效 SHA 闭合进 production verdict。三个独立、可复现的 blocker 足以
+否决；因此没有把空 `dist/` 的 31 枚昂贵矩阵重跑当作放行条件。
+
+### 先核对的边界
+
+- `ba71df8` 对 `7a500d1` 的实现足迹恰为票面 14 文件；`61c2b09` 只改专属回执。
+  `sidecar-fixture.mjs` 的跨基线 diff 为空；验收开始时目标工作树 clean。
+- `node --test packages/pi-lane/fixtures/sidecar-dist/scripts/probe-verdict.test.mjs`：
+  **102/102** 绿。这只说明现有 102 例覆盖它们构造的 observation，不抵消以下生产反例。
+- 规定门均在独立树实跑：`pnpm -r build`、`pnpm lint`、
+  `pnpm --filter @courtwork/desktop lint:isolation-binding`、`pnpm test` 均 exit 0；全仓
+  **160 files / 1397 tests**。首次 build 因新 worktree 缺 `node_modules` 未起门；用 frozen
+  lockfile 安装后重跑，以上才是有效读数。
+
+### Blocker 1：所谓“十件闭集”不检查实际随包磁盘集合
+
+`toolkit.resolveInventory()` 只由常量 `INVENTORY` 推出十个预期坐标，`artifactPresent()` 也只
+检查每个坐标的预期文件；`measure.mjs` 把由此得到的静态 `observedIds` 交给
+`verdictInventory()`。它从不枚举 `route-a/` 或 `route-b/` 的实际目录、文件或附带资源。
+实现自报的 `inventory.extra` 反例只是在内存 `observedIds` push 一个 ID，不是磁盘反例。
+
+我在**验收树自己的**已 clone `dist/route-a/` 落入
+`unexpected-physical/proof.txt`，未删除或改动任一预期产物，随后运行未改的
+`node scripts/measure.mjs`。真实十件 probe 全部执行结束，输出为
+`status=ok failures=0`。因此一个实际多制品/多资源分发仍被 production 误报通过，直接违反
+SPEC 对“多一件”必须顶层 failed、进程非零的要求。
+
+### Blocker 2：冷启身份可在首个坏样本后假绿
+
+`coldstart-rounds.mjs` 把第一份 `ready` 设为 identity；若随后样本不同，只把随后样本写入
+`identityDrift`，并将 **drift 后的** identity 作为 `round.identity` 返回。
+verdictColdstart()` 只验 `round.identity`，完全不读 `identityDrift`。
+
+直接调用 production `verdictColdstart()`，构造“第一个 ready 三元组错误、后 24 个正确”的实际
+收束形状（`round.identity` 为后来正确值、`identityDrift` 非 null），返回 `[]`。既有测试的
+“身份漂移”仅把最终 `round.identity.node` 改坏，未命中这一收束路径。票面要求每轮身份不得漂移；
+当前实现不能证明它。
+
+### Blocker 3：可复现性接受不存在/非法 SHA
+
+`deterministic()` 只比较两个值的 JavaScript 相等性，未先要求二者均为 64 位小写 SHA-256。
+直接调用 production `verdictReproducibility()`，其 sealed 项为合法相同 SHA、code-cache 为合法
+不同 SHA、cross-arch warning 正确，而两个 SEA default 项均为 `shas:[null,null]`、
+`identical:true`；函数仍返回 `[]`。也就是说构建摘要丢失 executable SHA 时，可复现性门仍假绿。
+
+### 其余已定位的失败闭口
+
+- `measure.mjs` 的 crash `throw`/`exit` 只 await `crashing`，不判其是否收到；随后无 deadline 地
+  await `proc.exited`。若进程既不发 ack 也不退出，整支 probe 永久挂起，既不写 failed verdict
+  也不非零退出。`hang` 的 SIGKILL 特判不能覆盖此前两类。
+- `build-sea.mjs` 收集了 `codesign --remove-signature`、最终 `--sign` 与 `--verify` 的退出码，
+  但即使三者非零仍把 variant 写成 `status:'ok'`；只有 postject 非零被拦。既没有 shared verdict
+  消费这些值，也没有逐件 final verify 作为生成成功前提。
+- 报告/README/回执改为 **2.35 GiB**，但父级 SPEC 本票明确要求 README/报告统一 **2.27 GiB**。
+  这可能是实测订正，却是验收会话无权追认的契约漂移，须架构先裁定；不可借全绿静默覆盖。
+
+### 未继续耗时的项目
+
+官方 archive partial→校验→rename 的 source path、十件预期 ID、负控、双 cycle/随机化形状、
+签名矩阵和 postject 自身 MIT + vendor LIEF（许可证中另含 Apache-2.0 文本）的登记均已阅读；
+但这不修复上述三项 production 假绿。按验收纪律，已坐实 blocker 后停止从空 `dist/` 的全量
+31 反例、双 cycle、冷启和签名矩阵，以免把数小时运行误写成放行证据。返修至少须把真实 shipped
+file/dir 闭集、每个 coldstart sample identity、SHA lexical validity、crash ack/exit deadline 和
+SEA 重签每步结果接入同一个 hard verdict，并重新由独立会话验收。
+
+对象：`codex/pi-sidecar-dist-1@3207b27`；实施基线
+`00c8dbdbad466f0ab2edbf9083cda2998b659de7`。验收在独立 clean worktree
+`/private/tmp/courtwork-accept-pi-sidecar-dist-1` 的
+`codex/accept-pi-sidecar-dist-1` 分支进行。未合并、未推送、未改生产源码或 ADR。
+
+**判定：拒绝，不能据此裁定分发路线。** 这不是路线甲/乙的功能反证；是实验装置没有把
+自身的关键判据做成失败条件，且本验收无法在通过 Node 来源完整性门的前提下复跑二进制制品。
+
+## 范围、依赖与可复建的静态部分
+
+- `00c8dbd..3207b27` 恰为 14 文件：fixture 10 文件、独立工程报告、独占回执、
+  `packages/pi-lane/package.json` 与根 lockfile；无 `apps/**`、无
+  `packages/*/src`、无父级 SPEC/ADR 改动，符合票面范围。
+- exact devDependency 复核为 `esbuild@0.28.1` 与
+  `postject@1.0.0-alpha.6`；后者的唯一传递项为 `commander@9.5.0`。本地安装后逐份读取
+  `LICENSE.md`/`LICENSE`，三者均为 MIT；production dependency 未变化。
+- 使用隔离树的 Node v25 只复建 bundle（**不是 Node 22 制品复验**）：三种 minified bundle
+  均为 959 inputs、零 warning，SHA 精确重现报告的
+  `34b11452…`（ESM naive）、`463e75a5…`（ESM + createRequire）与
+  `33ae7197…`（CJS）；SEA 输入 CJS 与 sealed CJS 亦逐字节相同。
+  同环境 ESM naive 实际以 `Dynamic require of "process" is not supported` 退出 1，
+  createRequire 形态可启动，CJS 的 ping/UTF-8 echo 可通。这只复核 bundle/反例，不能替代
+  Node 22 SEA、双架构、冷启或签名结论。
+
+## 拒绝理由
+
+1. **量测不会因关键语义失败而判红。**
+   [`measure.mjs`](fixtures/sidecar-dist/scripts/measure.mjs) 只把 `stdio()` 的 pong、三项 payload、`init`、tool loop 和
+   EOF 结果序列化；它在这些任一缺失/不匹配时仍从 207 行返回 `status: 'ok'`。`abort()` 在
+   246 行只以收到了 `slow-ended` 判 `ok`，不要求 `stopReason === 'aborted'` 或
+   `survivedAbort === true`；`crashes()` 在 279 行也不核对异常/exit/SIGKILL/SIGTERM 的预期
+   code/signal。故「八枚全过」没有由装置自动证伪，不能充当验收证据。须先将上述语义变为
+   非零/failed 条件，并为每类各注入一枚反例观察变红。
+2. **独立 Node 22 重放被来源门正确阻断。** 从报告指定的官方 URL 下载后，arm64 archive
+   为 49,274,880 B、SHA `8fec0b59…`（期望 `ef28d8fa…`）；x64 archive 虽为
+   51,245,086 B，SHA 为 `358e430c…`（期望 `b8da981b…`）且 `tar -tzf` 报 truncated input。
+   `extract-runtime.mjs` 因此拒绝继续。这是本验收环境的传输/缓存异常，**不推断为上游文件
+   变更**；但在取得通过官方 checksum 的 archive 前，无法独立确认 SEA 注入、八制品启动、
+   abort/crash、三轮冷启与 ad-hoc 签名读数。
+3. **两处回执精度漂移。** fixture README 仍写 clean 为 `~1.4 GiB`，与
+   `3207b27` 已订正的 2.27 GiB 相冲突；并且仓库根没有 `lint:isolation-binding` script，
+   无限定的 `pnpm lint:isolation-binding` 实测 exit 254。正确命令
+   `pnpm --filter @courtwork/desktop lint:isolation-binding` 本验收 exit 0。报告与 README
+   应写完整可执行命令及同一残留数。
+
+## 已实跑门与环境说明
+
+- `pnpm -r build`、`pnpm lint`：通过。
+- root `pnpm test`：受限沙箱下仅 8 个 localhost sidecar 例统一超时，其余
+  1389/1397 通过；在独立提升环境复跑为 **160 files / 1397 tests passed**。
+- `pnpm --filter @courtwork/desktop lint:isolation-binding`：通过，输出扫描 6 份宿主源码与
+  18 份 pi-lane 源码、等级 `none`。
+
+## 复验后才可放行的最小条件
+
+1. 修复量测的 pass/fail 聚合，实际注入 stdout、abort 与四类 crash 的反例并留红证；
+2. 使用 checksum 通过的官方 Node 22 arm64/x64 archives，从空 `dist/` 重建两路线；
+3. 重跑八制品的功能/abort/crash、三轮冷启、default/code-cache 可复现性及 sign-probe；
+4. 统一 README/报告/回执的清理体积和 isolation gate 命令。路线选择及 entitlements 归票仍是
+   **[需架构拍板]**，验收不作裁定。
+
+---
+
 # PI-LANE-1 独立验收（2026-07-27，放行）
 
 对象：`codex/pi-lane-1@51c27b6`；基线：`01f4ac7`。验收由独立会话在 clean target tree
@@ -51,6 +190,202 @@ R3 不采信实现自述，实际向 production tree 注入后再还原：
 **最终判定：放行 `PI-LANE-1@51c27b6` ✅。** 放行只覆盖以我方容器约束的 pi read lane、开发入口及 R3
 机器门；不放行写/bash、生产 GUI/sidecar 嵌入、journal/确认账本、真 key external validation、sidecar
 签名公证，亦不等同场景线保障或隔离等级提升。
+
+---
+
+# PI-SIDECAR-DIST-1R2 独立验收（2026-07-29，拒绝）
+
+对象：`codex/pi-sidecar-dist-1r2@33100d83fe9499d1639d45997d6a16c562bf9bbb`；实现提交
+`42858b2f011535d9e3d9cf4fc0d599a4a0df3c78`。验收在独立 clean worktree
+`/private/tmp/courtwork-accept-pi-sidecar-dist-1r2` 的
+`codex/accept-pi-sidecar-dist-1r2` 分支进行；未触实现 worktree、未 push、未 merge、未裁分发路线。
+
+**结论：REJECT。** `PI-HOST-LOOP-1` 不得消费本票，路线继续是 `[需架构拍板]`。此结论不以实现
+回执的 202/202、76 枚或全仓绿数字为依据。
+
+## 范围与验收修复
+
+- 实现范围相对 `166a89a` 恰为票面 12 文件：原报告、fixture README、9 个 harness 文件、verdict
+  测试与专属 R2 回执；`33100d8` 仅在 `42858b2` 上追加专属回执。生产 wire/session、依赖、旧回执、
+  父级 SPEC/ADR/ACCEPTANCE 均未由实现提交触碰。
+- target 的 `probe-verdict.test.mjs` 是 **202/202** 绿，但独立把一个成功 SEA 格的
+  `publishedPath` 改为 `../bogus`（四阶段仍全 0、目录仍在）后，`verdictSeaBuild()` 返回零 failure。
+  它只判非空字符串，不证明成功行指向该 triple/variant 的 assembly 成品，违反 R2 对有效
+  `publishedPath` 的闭口要求。
+- 这是不改契约的实现级小缺陷。验收树以 `fix-by-acceptance` 加入 exact
+  `assembly/${seaExecutableAssemblyPath(triple, variant)}` 门与首红测试：新增用例在未修 target 上
+  单独红，修后 **203/203** 绿；再把该 production 条件变异为 `false`，定向套件为 **201 pass / 2 fail**，
+  精确落在缺 path 与 path escape 两例，随后恢复。该两文件修复待单独提交，不能反写实现回执。
+- 同一轮还把 assembly root-type 门变异为 `false`，原 202 例转 **199 pass / 3 fail**（真实 symlink、
+  完整 entries 的 symlink、file/FIFO/null root 三组），随后 SHA 字节级恢复；说明已有 root 门不是装饰。
+
+## 不采信自述后的实测
+
+- 冻结 Node v22.23.1 的 arm64/x64 archive 均重新下载、bytes/SHA/SHASUMS/tar、解包 version 与
+  Mach-O arch 全过；sealed/SEA 从空 assembly 构建成功，正常 `measure.mjs` 对十件库存返回
+  `status=ok/failureCount=0`。
+- 实物向 assembly 注入额外目录与文件，production `observeAssembly()` + `verdictAssembly()` 命中
+  `assembly.unexpected`，随后恢复原状。`crash.ignored` 的真实受控子进程在 **136,028 ms** 收束为
+  failed，留 `ack/exit/respawn-eof` deadline 的结构化 failure，而非永久等待。
+- 先有一轮四格 SEA 成功，再分别注入 `removeSignature`、`postject`、`sign`、`verifyStrict` 的真实
+  外部命令失败。每一轮四格均为 `status:failed`、stage 精确、stderr 非空、`published:false`、
+  `publishedPath:null`，且 `lstat` 观察 `publishDirPresent:false`；双 cycle reproducibility 返回 ok。
+
+## 拒绝原因：签名矩阵在可信 runtime 上实际 blocked
+
+`sign-probe.mjs` 没有复现回执所称的六格全过，而是 **2 failure**：两枚
+`adhoc-hardened-with-official-entitlements` 均为 `entitlements-missing`。根因可复现且发生在已通过
+冻结 SHA 的官方 arm64 Node 上：
+
+```text
+codesign -d --entitlements - --xml <official-node>
+stdoutBytes=0
+warning: binary contains an invalid entitlements blob. The OS will ignore these entitlements.
+```
+
+脚本从 `dumped.stdout` 提取 XML，因此无法生成官方 entitlements 文件，shared `verdictSign()` 正确将
+两格判为 blocked。不能凭回执中旧环境的读数、手写 entitlement 文件或降低 verdict 来把这次失败涂绿。
+这可能是当前 macOS/codesign 对同一冻结 Node 二进制的环境差异，也可能意味着报告的签名证据缺少
+可复现前提；无论哪一种，在重新给出可信、可重复的官方 entitlement 来源与完整六格重测前，票面
+签名退出证据不成立。
+
+已因此停止昂贵的 600-sample cold-start 与 76-counterexample 全量重跑；它们不能修复一个已实测失败的
+必需签名格，也不得用实现会话保存的读数代替。报告/README/R2 回执的无路线建议、2.27/2.35/R2 三口径
+并列文字已作静态复核，未发现借此裁路线的表述。
+
+## 仓库门
+
+- `pnpm -r build`：exit 0。
+- `pnpm lint`：exit 0。
+- `pnpm test`：沙箱内 8 个 pi localhost sidecar 用例统一 5 s 超时（1389/1397）；在独立提升环境重跑
+  **160 files / 1397 tests，exit 0**。
+- `pnpm --filter @courtwork/desktop lint:isolation-binding`：exit 0（6 host / 18 pi-lane source）。
+
+复验前最小动作是：保持 exact `publishedPath` acceptance fix，调查/冻结官方 Node entitlement 提取在此
+macOS 上的事实来源，令六格签名矩阵不依赖无效 blob 后从空 assembly 重跑签名面；随后再以独立会话重跑
+cold-start、76 枚反例与最终读数。不得据本次拒绝结果选择路线。
+
+---
+
+# PI-SIDECAR-DIST-1R3 独立验收（2026-07-29，拒绝）
+
+对象：`codex/pi-sidecar-dist-1r3@47fd7e530e44964b233560f97043f7c7d3d4d788`；实现／报告锚点
+`7b4184b70cecea26fe583d177fbb9eb62b644369`；组合基线
+`ba374d867ff34a1a620220debd5f9e4049fb4a40`；架构锚点
+`4e2d07a08f0a772873ddea65a66bf4ef312f5e05`。验收在独立 worktree
+`/Users/lesprivilege/.codex/worktrees/a204/Courtwork` 的
+`codex/accept-pi-sidecar-dist-1r3` 分支进行；实现 worktree 位于
+`/Users/lesprivilege/.codex/worktrees/889c/Courtwork`，两者物理隔离。开工时本树 detached HEAD
+恰为 target 且 clean；target 分支指向同一 SHA，implementation、baseline、architecture anchor
+均为 target 祖先，`main...target` 为 0 behind / 13 ahead。
+
+**结论：REJECT。** R3 的签名 verdict 仍可在关键证据缺失或结构不合法时 false-green，且
+preflight 会把控制进程失败误报成执行域阻断。它们都是契约级证据链缺口，验收会话不得自行改写契约后
+放行；没有产生 `fix-by-acceptance` 提交。`PI-HOST-LOOP-1` 不得消费本票，分发路线仍由架构角色裁定。
+
+## 范围、保全门与 target 基线
+
+- `baseline..target` 恰为票面 7 路径：工程报告、fixture README、`probe-verdict.mjs`、
+  `probe-verdict.test.mjs`、`sign-probe.mjs`、冻结的
+  `upstream/node-v22.23.1/osx-entitlements.plist`、R3 专属回执。零父级 ADR/SPEC/current/readiness、
+  旧 ACCEPTANCE、依赖或产品源码越界；target 回执提交只增加 R3 回执。
+- `850fa11` 经 `473bc00` 进入组合基线的 SEA exact publishedPath 门仍在：
+  成功格必须精确等于 `assembly/${seaExecutableAssemblyPath(triple, variant)}`；缺 path、escape、
+  错格与错扩展反例均保留。R3 未回退该门。
+- target 原样运行
+  `node --test packages/pi-lane/fixtures/sidecar-dist/scripts/probe-verdict.test.mjs`
+  为 **20 suites / 224 tests passed，exit 0**。该数字只说明既有用例绿，不证明下列契约。
+
+## 拒绝原因一：同轮 host/runtime identity 没有进入 hard verdict
+
+`sign-probe.mjs` 的完整 receipt 实际采集了 `host`、`harnessNode`、`developerTools`、
+`officialNode`、`canonicalSource`、`tools` 与 commands；但向 `verdictSign()` 传值时只保留
+`tools` 和 Apple commands（第 447–450 行）。`verdictHostToolReceipt()` 也只消费这两个字段
+（`probe-verdict.mjs` 第 1204–1243 行）。因此报告可写出宿主、CLT、harness Node、官方 runtime
+和 canonical source 身份，判定器却不要求它们存在，更不证明来自同一轮。
+
+独立在 target 测试 fixture 中补入完整、合法的 identity 后，分别删除 `host`、`harnessNode`、
+`developerTools`、`officialNode`；每个 mutation 均确认命中传给 `verdictSign()` 的 observation，
+但四次都得到 **0 failure**。定向首红合计 **0 pass / 4 fail**（断言期望判红、实际 false-green）。
+mutation 随后逐字节还原，测试文件 SHA-256 恢复为
+`18087e9627e31668d6bdefab632d700a2cc1aa4a876887b37b1c58917feaf34c`。
+
+## 拒绝原因二：DER human parser 接受未知层级
+
+`parseHumanObservation()` 对任何不是 `[Key]` 的行直接 `continue`（`sign-probe.mjs`
+第 678–704 行），而传给 verdict 的 human observation 又丢弃 `parseError`（第 443–445 行）。
+`verdictOfficialEntitlements()` 只复核派生后的六条 entries/values 和流 bytes/SHA；它无法证明原始
+`codesign -d --entitlements :-` 输出是严格 flat dictionary。
+
+独立把一条未知 `[Array]` 层级前缀加入成功 human command 的真实 stdout，再同步重算 bytes/SHA；
+六个 canonical 键值保持不变。mutation 确实命中原始流，`verdictSign()` 仍返回 **0 failure**。
+与上节四例合并运行的首红为 **0 pass / 5 fail，exit 1**。这不是 duplicate/extra/false 已有用例
+的等价重复，而是 R3 明列的「未知 hierarchy 必须拒绝」反例。
+
+## 拒绝原因三：`probe_failed` 可被 blocked reason 覆盖
+
+`runPreflight()` 先收集官方签名／Gatekeeper 的 blocked reasons，再以
+`blockedReasons.length > 0` 无条件优先定为 `security_execution_domain_blocked`
+（`sign-probe.mjs` 第 323–325 行），没有先要求控制进程成立。
+
+本验收树第一次从空 package build 状态运行独占 id `accept-r3-a204-seatbelt` 时，控制进程因
+`packages/pi-lane/dist/index.js` 不存在而 `ERR_MODULE_NOT_FOUND`，观测为
+`ready=false`、`eofSent=false`、exit 1、`ready` deadline timeout；脚本却返回
+`security_execution_domain_blocked`，manifest SHA-256 为
+`1976405d0e26bf501a4513ad66624c914aaeb6037ee4661356c58b43643607fe`。这是真实入口反例：
+控制协议／启动失败按契约必须是 `probe_failed`，不能被随后采到的 Authority unavailable 或
+Code Signing subsystem internal error 掩盖。
+
+为避免把该反例误当 seatbelt 正证，先构建 `@courtwork/pi-lane`，再用另一独占 id
+`accept-r3-a204-seatbelt-built` 重跑。此轮控制 sign/verify/XML 全 0，XML 568 bytes，
+`ready=true → eofSent=true → exit 0`；官方 Node verify exit 1 且 Authority unavailable，
+`spctl` exit 1 且首行精确为 Code Signing subsystem internal error，故准确返回
+`security_execution_domain_blocked`、进程 exit 1。manifest SHA-256
+`196e1c5602a5d8eb59edcee9016a905cebd7f6df4fcab53303c2822f021c359d`，其中两项实物：
+
+- `host-tool-receipt.json`：22,167 bytes，
+  `04c13b72352a54d029c194899886cb2782b97b78871286c40787a31a03b52e20`；
+- `preflight.json`：12,947 bytes，
+  `1a2122c8959deb4c806406a35ff2a7cd47a0d229a8bbda3e6db4bd7355707951`。
+
+manifest 中的 path/bytes/SHA 与实物逐项一致，13 条 Apple command receipt 均为绝对
+`/usr/bin/codesign`、`/usr/sbin/spctl`、`/usr/bin/plutil`，工具 SHA 同轮一致、`LC_ALL=C`，
+stdout/stderr 原文及 bytes/SHA 在 receipt；该 preflight 目录没有 `sign-probe.json`，也没有覆盖
+第一次 execution-domain 目录。
+
+## 独立来源、许可证、报告与残留
+
+- 未用实现者保存的 4.34 GiB `dist`、manifest 或读数。本树从无 `dist` 开始，由冻结脚本从
+  `https://nodejs.org/dist/v22.23.1/` 下载 arm64/x64：50,067,502 /
+  51,245,086 bytes，SHA-256 `ef28d8fa…` / `b8da981b…`，SHASUMS、tar、解包后的
+  `v22.23.1` 与 Mach-O arm64/x64 均过。
+- 独立访问 Node 官方 Git 仓库：annotated tag `v22.23.1` 为 `af059a8d…`，peeled commit
+  `bd96dfbf…`。该 commit 的 plist 为 632 bytes、blob `045df8ea…`、SHA-256 `a0387464…`，
+  与仓库副本 `cmp` 相同并解出恰六个 true；官方 `osx-codesign.sh` blob `346afdbe…`
+  在 `codesign --entitlements tools/osx-entitlements.plist` 中直接消费它。无手写、旧件或
+  extraction fallback。
+- 实装依赖复核为 `esbuild@0.28.1` MIT、`postject@1.0.0-alpha.6` 自有部分 MIT 且其
+  LICENSE 第 32 行起明确 `vendor/LIEF` Apache-2.0、`commander@14.0.3` MIT；R3 无依赖改动。
+- 报告明确区分实测、推论、blocked，多处写明不作选型且 R3 节为零路线建议；静态复核未发现 R3
+  借签名证据裁路线。`get-task-allow:true` 只登记为 Node 上游 canonical ad-hoc probe 控制变量，
+  报告明确禁止直接进入 Courtwork product signing plan。
+- 未清理本验收树证据。`clean.mjs --report-only` 实测总计 **698,356,051 bytes（0.65 GiB）**：
+  runtime 473,562,352 + security-domain 224,791,101 + runtime-source 1,608 +
+  runtime-fetch 990，逐项求和与 total 相等。
+
+## 仓库门与停止边界
+
+- `pnpm -r build`：exit 0（14/15 workspace scope；Vite 仅既有 chunk warning）。
+- `pnpm lint`：exit 0。
+- 提升到非 seatbelt 域运行 `pnpm test`：**160 files / 1397 tests passed，exit 0**。
+- `pnpm --filter @courtwork/desktop lint:isolation-binding`：exit 0（6 host / 18 pi-lane source）。
+
+全仓绿不修复上述 false-green。由于 contract-level blocker 已用六个独立命中证据确认，本会话没有再请求
+批准域 full 六格，也没有从空 assembly 运行 76 counterexamples、600 cold-start、双 cycle、
+十件 inventory/runtime source/sign 全矩阵；这些昂贵读数无法令不消费关键证据的判定器成立，也不得拿
+实现回执数字补齐。本停止原因是 **REJECT**，不是外部条件 BLOCKED。复验前须由架构角色确认契约落实方式，
+实现者修复三处 hard verdict／classification 后，再由新的独立验收会话从空目录完整执行 R3 票面矩阵。
+不得据本回执选择 sidecar 路线、启动 Host、构建 DMG 或改写父级权威文档。
 
 # PI-WRITE-PROOF-1 独立验收（2026-07-28，放行）
 
@@ -383,3 +718,261 @@ apps、Host/Rust、R4 与导出面均未触；Playwright 不适用，未启动 `
 `PI-CODE-STDIO-1R2` ACCEPT / 放行 ✅。** 放行理由是两处真实缺陷已以契约内最小实现修复，分别有
 首红、production mutation 红证与最终全仓绿门；九枚历史反例、late-send 组合门、旧非法序列及
 settled 正常返回均不再依赖假绿。
+
+---
+
+# PI-SIDECAR-DIST-1R5 独立验收（2026-07-30，PASS）
+
+**最终判定：exact target `6cdb9bab9632edf5c965ac3f0ba888b83b1d9809`
+ACCEPT / 放行 ✅。**
+
+本轮没有修改 production、测试、fixture、SPEC、ADR、依赖或 lockfile；验收唯一持久化改动是本节。
+放行仅表示 R5 四道闭口及其冻结证据在该 exact target 上成立，**不裁路线、不消费路线、不外推**
+Developer ID、公证、跨绝对路径 reproducibility、DMG 或 release readiness。
+
+## 对象、契约与隔离
+
+- 独立 worktree：
+  `/private/tmp/courtwork-accept-pi-sidecar-dist-1r5-codex`；独立分支
+  `codex/accept-pi-sidecar-dist-1r5`，从 exact target 建立。未进入实现树
+  `/private/tmp/courtwork-pi-sidecar-dist-1r5`，也未读取其 `dist`、manifest 或旧 R4 验收树。
+- target 始终为 `6cdb9ba`；验收末 `main` / `origin/main` 均为
+  `41710438c43dd73e28330b098ef289ecde2025b2`。后者是本轮架构对 76 项口径的订正：
+  历史账精确为 **68 个失败注入 + 8 个恢复／证据对照**，另造 8 个 acceptance-owned
+  失败变体并分计。本报告按该架构提交裁定，不把 exit 0 或数值证据伪报成红证。
+- 依赖在独立树以 `pnpm install --frozen-lockfile` 自装；首次 sandbox 因网络权限失败，
+  批准联网后成功，lockfile 与 tracked tree 未变。fixture 的 `dist` 起初不存在；全部 runtime、
+  assembly、读数与 execution-domain manifest 都由本会话新生。
+- 长矩阵、cold-start、签名与仓库门严格串行；没有并发第二个测试、probe 或 repo gate。
+  fresh execution-domain id 均以 `accept-r5-` 开头，未复用 `impl-r5`。
+
+## 组合树复核
+
+`5ec9839` 是 target 祖先；`5ec9839..94f662e` 恰 **16** 枚，
+`94f662e..6cdb9ba` 恰 **5** 枚。十四枚 cherry-pick 的 source/combo patch-id
+逐枚相同：
+
+| source | combo | `git patch-id --stable` |
+|---|---|---|
+| `f0162fd` | `7b561af` | `eb2e876c288bb63cde00ade2d4ffa4d58d0a437b` |
+| `eb806f2` | `4b306f8` | `dbd149ec3be05f66f5cec881ed58c44ca66d6e69` |
+| `b284764` | `5b2aa81` | `2f070b5799d8f4bf962319aff7ac6c3c1e3099f3` |
+| `f7ecd32` | `d48de2e` | `148bf2a8c4c128e416cd42da5a1e56e539ac6d62` |
+| `20461aa` | `5de8815` | `c645b83ebec973d11a166050cc37497f1e9786fe` |
+| `c6a9819` | `72aff11` | `9c8966e28a9c3b70c3400ef5eb35208c4bbb63c0` |
+| `df65ab0` | `87b388c` | `4036c223deb6127329f77a8aba88817442c31ca6` |
+| `0230bf6` | `0ef21cf` | `071e1ab23141ac2e01b4054f8fa1b40ae32e9be6` |
+| `57f91dc` | `cf23b8a` | `94acd3999205f636425200f10bb7b8a5f3dcf09f` |
+| `473bc00` | `dcf8696` | `b4037d53cf531ca314adfe692cad57ec4a802d15` |
+| `7b4184b` | `aa4a5ef` | `fa5124e618e71681b2ae0eba8a7e9997592d5125` |
+| `47fd7e5` | `82b3c9d` | `624672855389fc64fb263b25f28eafc015af61a3` |
+| `891c23d` | `1f8a07a` | `9f0f456c3ad2cd97f55c095908d8481fd6bf4215` |
+| `07d2dbc` | `94f662e` | `2d31e1de57df446c622b34db07d155d77f34cb2b` |
+
+两块 `[架构移植]` 以文件区域而非 diff hunk 提取：
+
+- target `ACCEPTANCE.md` 第 193–266 行为 74 行，
+  SHA-256 `cd9c553592a8ebb78c272720feb98b5e1e58c477bb616074da05710cc2452cb4`，
+  与 source `ba374d8` 同区域相同；
+- target 第 267–388 行为 122 行，
+  SHA-256 `49694a9feb437b28b79c75b90b5891f2454ff6541b11be5d0a4a21ed86564d28`，
+  与 source `eb71d6f` 同区域相同。
+
+R4 untouched 面也成立：`07d2dbc` 与 `94f662e` 下 fixture tree 均为
+`f83e798e31e0872778ebad3e504bb915f22b73b9`，工程报告 blob 均为
+`7ae61d757ec4993cbed04c2f0839ff48169837e8`；T2/T3 相对 T1c 的 `scripts/` diff
+均为空。target 尾段只改冻结的七文件。
+
+## 从空 assembly 的健康基线
+
+1. `probe-verdict.test.mjs` 独立实跑：**40 suites / 384 tests / 384 pass / 0 fail**。
+   356 条既有基线与 R5 增量 28 条均在同一最终总数内。
+2. 官方来源门与解包：
+   - arm64 archive：50,067,502 B，
+     SHA `ef28d8fab2c0e4314522d4bb1b7173270aa3937e93b92cb7de79c112ac1fa953`；
+   - x64 archive：51,245,086 B，
+     SHA `b8da981b8a0b1241b70249204916da76c63573ddf5814dbd2d1e41069105cb81`；
+   - 解包 arm64 binary：112,928,848 B，
+     SHA `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`，
+     `v22.23.1` / arm64；
+   - 解包 x64 binary：115,447,952 B，
+     SHA `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`，
+     `v22.23.1` / x64。
+   两架构 bytes、冻结 SHA、同次 SHASUMS、tar、version 与 Mach-O arch 全过。
+3. 从空 assembly 连跑双 cycle：sealed 三档各自相同；两架构 SEA default 各自相同；
+   两架构 code-cache 各自不同；cross-arch 见 exact `Code cache data rejected.`、
+   `launched:true`、`timeouts:[]`、`exit:{code:0,signal:null}`。整支
+   `status:"ok" failures:0` / exit 0。
+4. 健康 `measure`：10 个 inventory item 全量、8 candidate + 2 negative control；
+   stdio、三 payload、tool loop、abort、四类 crash 与 respawn 全过；
+   assembly 实物闭集为 **28 项（12 目录 + 16 文件）**，`status:"ok" failures:0`。
+5. cold-start 以 `--rounds 3 --samples 25 --warmup 3` 实跑：
+   8 candidate × 3 × 25 = **600** 个 retained sample，三轮各为排列且不全同，
+   `status:"ok" failures:0`。
+
+上述 healthy 基线及后续物理组恢复后，production 源最终 SHA 为：
+
+| 文件 | target SHA-256 |
+|---|---|
+| `measure.mjs` | `fa35fad82d2bb341091a14a6cdda9f0334378a9d0480f958cab07b9c5ba48425` |
+| `coldstart-rounds.mjs` | `4aa79b474f336da3e0682aff34e5ee205586d79810b5d678198c4603d5451e88` |
+| `reproducibility-probe.mjs` | `fd4c9cb971af816922b8df2eafafdfe8a4a7e344d12354d056fb296f877bf544` |
+| `build-sea.mjs` | `e3933d2d6b01e568cfe3a2a21c1ce8b7d804ed1ccb3633734e5baad036e2e85e` |
+| `extract-runtime.mjs` | `1eef1219c288248be65b34d4c17a3589c2cfd272be04d43d8d51ab481570e0fd` |
+| `sign-probe.mjs` | `056d014ba342901dd2a7886b31e701e86a2a4502eab0f2ece2d6bb4f3f70cea9` |
+| `lib/probe-verdict.mjs` | `f2f3d480a13b2450171fbce51f670686af1901c396af833746c25a0caf0ebfc7` |
+
+## 历史 76 项回归矩阵
+
+验收期望名单与组数由冻结契约字面量独立写入临时 harness，没有从被测 CLI 的枚举输出生成；
+尤其没有向不支持枚举的 `reproducibility-probe.mjs` 传
+`--list-counterexamples`。实跑总账为 **76/76**，精确构成为
+**68 个失败注入 + 8 个恢复／证据对照**：
+
+| 组 | 冻结项数 | 独立实跑结果 |
+|---|---:|---|
+| `measure` | 23 | 23 个 production counterexample 均 exit 2；identity、stdio、loop、abort、crash、negative-control、inventory 各具名门命中 |
+| `coldstart` | 15 | 13 个 observation 变形均 exit 2；`--rounds 1`、`--samples 10` 各 exit 1；sample ordinal/warmup position/round numbers 均命中 |
+| `repro` | 14 | 14 个源码字面名单均真实注入并 exit 2；SHA/path/exists/regular-file/bytes/non-deterministic/cross-arch warning 各门命中 |
+| `sea` | 8 | 四阶段各 exit 1 + 各自 evidence 对照 exit 0；每阶段顶层 failure 只命中 `seaBuild.<stage>` |
+| `fetchextract` | 5 | truncated 与 wrong-file fetch 各 exit 1；not-overwritten 数值证据、fetch restored、extract restored 三项按冻结观察通过 |
+| `physical` | 11 | 十个物理失败各 exit 1；`reportsOutside` 反向对照 exit 0 / failures 0 |
+| **合计** | **76** | **68 negative + 8 evidence/control；零逃逸，逐组复绿** |
+
+关键实物证据：
+
+- `crash.ignored` 的受控子进程忽略 crash 后在有界 deadline 内收束，exit 2，命中
+  `crash.throw.deadline`、`crash.throw.ack`、`crash.throw`；stdout 明记
+  `applied=true caught=true`。该 special branch 在给 `counterexample.caught` 赋值前先写一次
+  `measurements.json`，所以 JSON 留 `caught:null`；这是一处**既有证据写入时序瑕疵**，
+  不影响真实非零退出、具名 failures 或随后健康 measure，未越 R5 范围代修。
+- SEA 四阶段分别为 `removeSignature`、`postject`、`sign`、`verifyStrict`。每项注入前目标
+  cell 真存在；失败 row 的 status/stage、阶段非零与 stderr、`published:false`、
+  `publishedPath:null`、后续阶段未冒充成功、publishDir 物理不存在、顶层 failure 唯一归因，
+  九项全部为真；末尾健康 SEA 重建及 `measure` exit 0。四行 `:evidence` 是对照，不冒称红证。
+- 截断 arm archive 精确为 49,274,880 B，fetch exit 1 后 bytes 与
+  SHA `85d9c1720e94c368b4ad09fd5d2c4f5390dea242924e5d9dfd38df9dbce4f61b`
+  均未改变；把完整 x64 archive 放到 arm 正式名时 `tarOk:true`，仍因冻结 bytes/SHA 被拒。
+  恢复后 fetch / extract 都 exit 0。
+- physical 十项逐个实造并逐个恢复：extra file、`unexpected-physical/proof.txt`、第三 route、
+  FIFO、artifact symlink、missing file、wrong basename、nested subdir、missing carried
+  bundle、assembly root symlink。root symlink 指回完整合格树时只命中
+  `assembly.rootType`；artifact symlink 只命中 `assembly.fileType`。每项恢复后另跑一次
+  `measure`，均 exit 0。
+
+## 8 个 acceptance-owned strengthened negatives
+
+按 `main@4171043` 的订正逐行独立注入、失败、恢复并健康复证；与历史 76 分计：
+
+| 对应对照 | 本轮真实变形 | 结果 |
+|---|---|---|
+| SEA remove evidence | 真实 remove-signature 失败 row 把 `status` 改报 `ok` | exit 1；`seaBuild.removeSignature` + `seaBuild.status` |
+| SEA postject evidence | 真实 postject 失败 row 把 `stage` 改报 `sign` | exit 1；`seaBuild.postject` + `seaBuild.stage` |
+| SEA sign evidence | 真实 sign 失败 row 填非空 `publishedPath` | exit 1；`seaBuild.sign` + `seaBuild.publishedPath` |
+| SEA strict-verify evidence | 真实 verify 失败 row 把 `publishDirPresent` 改报 `true` | exit 1；`seaBuild.verifyStrict` + `seaBuild.publishDirPresent` |
+| truncated not-overwritten | 独立重造截断件，拒绝后从 49,274,880 B 漂到 49,274,881 B，SHA 同步变化 | acceptance checker exit 1；再恢复拒绝前错件，最后恢复 canonical archive |
+| fetch restored | canonical 恢复后独立放入 8,192 B 非冻结 regular archive | fetch exit 1；target `rejected`、`problems` 非空、错件未被覆盖 |
+| extract restored | verdict 前把 arm 解包观察的 `nodeVersion` 改为 `v0.0.0` | extract exit 1；唯一命中 `runtime.nodeVersion` |
+| reportsOutside | 把同类 `measurements.json` 实物放入 assembly root | measure exit 1；`assembly.unexpected` + `assembly.count` |
+
+四份 source mutation 均逐枚用补丁恢复；canonical archives 最终仍为前述冻结 bytes/SHA；
+最后 `measure` 与 extract 各自回 `status:"ok" failures:0`。
+
+## R5 五枚有效反例、验收自造变体与等价形态
+
+实现回执所引 `scratchpad/r5-stage-{b,c}`、`ce76.mjs`、`r5-counterexample.mjs` 均不在
+target Git 对象中，不能作为可复跑交付物。本会话从冻结契约与 production 源码独立重建设备；
+此项记为 **evidence-packaging 缺口**，但所有受影响红证已被独立重跑补足，故不阻断 production
+放行。
+
+| 项 | 真注入 | production 结果 |
+|---|---|---|
+| R5 CE1 | exact warning + ready 后忽略 EOF、持续存活 | exit 1；`reproducibility.crossArch.timeouts`，并合理附带 SIGKILL 后的 `crossArch.exit` |
+| R5 CE2 | exact warning + ready + EOF 后 exit 7 | exit 1；`timeouts:[]`，只命中 `reproducibility.crossArch.exit` |
+| R5 CE3 | 全部 command 的 started/finished 同填一枚 canonical UTC | preflight exit 1；只命中 `sign.receipt.commandTimeline.advance` |
+| R5 CE4 | official path 三处同步漂为 `/bin/../bin/node` | preflight exit 1；`officialNodePath` + 两条 `officialCommandBinding` |
+| R5 CE5 | 六格 row 的 raw sign clone 改为 exit 1，summary 与 receipt 仍为 0 | full exit 1；六格各命中 raw sign、signExit parity、command binding，共 18 failures |
+| acceptance CE6 | exact warning + ready + EOF 后由 SIGTERM 收束 | exit 1；`timeouts:[]`、`exit:{code:null,signal:"SIGTERM"}`，只命中 `crossArch.exit` |
+
+CE5 首次验收注入曾原地改共享 receipt 对象，虽命中 raw/parity，却没有形成 receipt 分叉；
+该次不计冻结红证。改为独立 clone 后三类门全部命中。另把
+`row.signExit = signed.exit` 改成 `row.signExit = 0` 的历史形态以 fresh full id 真跑，
+结果仍 `status:"ok" failureCount:0`；因为健康 `signed.exit` 本来就是 0，明确作废为等价变异，
+不计红证。两份 source 最终恢复为 target SHA。
+
+## 四枚 production mutation 与追认复核
+
+判定器 target SHA 为
+`f2f3d480a13b2450171fbce51f670686af1901c396af833746c25a0caf0ebfc7`。
+每枚 mutation 都先证明 SHA 改变与 patch 命中，定向观察转红，再 byte-identical 恢复并独立跑
+**384/384**；测试文件总数从未漂移。
+
+| mutation | 变形后 SHA | 定向红证 |
+|---|---|---|
+| A：撤 cross-arch timeout / exit 两门 | `02aaebc77ff889e5b6339186c1fb6e4d8ba9218882de006dbe60d28296836f39` | A1–A4 恰 4 tests / 4 fail |
+| B：timeline 严格 `<` 放宽为 `<=` | `61d2b1e61ae9b0a2c993556fe6e2c5e4af5f0b6f86e4c2a098d531a522e4e51f` | B2 恰 1 test / 1 fail |
+| C：hard verdict status 回退 producer status | `23f0cedbf090231092e02ec99d0f975d2953aab147d5001597b2a9c6f66b9475` | C1/C2 恰 2 tests / 2 fail |
+| D：撤六格 `verdictSignCellRaw` | `d2c8f29a18fe964a6033f08d0da9ec8219e7198c9fe422172244b094d8c355e7` | D1–D4、E3、E4a、E4b、串味追认例，恰 8 tests / 8 fail |
+
+追认例在健康 target 上另跑为 1/1 pass：full matrix 的 internal error 命中
+`sign.matrix.raw.display.security`，failures 不含
+`sign.preflight.blockedReasons`、`blockedReasonDerivation`、`classification`、
+`classificationDerivation`、`status` 五个 preflight check；raw 重导仍为 `ok/passed`。
+撤 full raw 真源时该例按要求转红。旧“整份观察绿”形态没有被冒充重现。
+
+## 三格 execution domain
+
+分类只认功能 preflight，不以环境变量自证。三格均使用 fresh id；批准域按冻结要求分开跑
+preflight 与 full，所以共有四份新 manifest，外算 SHA 与 production 自报逐字一致：
+
+| 功能域 / id | 结果 | manifest path | 外算 SHA-256 |
+|---|---|---|---|
+| seatbelt `accept-r5-seatbelt-0730a` | preflight exit 1，`security_execution_domain_blocked`；raw 同分类 | `packages/pi-lane/fixtures/sidecar-dist/dist/security-domain/accept-r5-seatbelt-0730a/manifest.json` | `495a39ecbe9e8193cc0a49279a7e71b8a70ca1c30f7e4c74d4f518293eb8b35b` |
+| seatbelt + 缺 build `accept-r5-missing-0730a` | 临时隐藏 `packages/pi-lane/dist` 后 exit 1，`probe_failed`；ordinary lifecycle failure 优先 | `packages/pi-lane/fixtures/sidecar-dist/dist/security-domain/accept-r5-missing-0730a/manifest.json` | `9bea1d417bedefdea199e221c36138df04184ac2b1108e87cbe0f0b7fc40d1ab` |
+| approved preflight `accept-r5-open-pre-0730a` | exit 0，`ok/passed` | `packages/pi-lane/fixtures/sidecar-dist/dist/security-domain/accept-r5-open-pre-0730a/manifest.json` | `dd066ec41bf369cdfde8c55f1c7ae293c568b01885a6a34edee9b0834d4aa7cd` |
+| approved full `accept-r5-open-full-0730a` | exit 0，`status:"ok" failures:0` | `packages/pi-lane/fixtures/sidecar-dist/dist/security-domain/accept-r5-open-full-0730a/manifest.json` | `025885e13907a43d525f18119677d2d349785a89f1cad73d781b7866c03e808b` |
+
+缺 build 格在 `finally` 中恢复真实目录，随后 build/gates 全绿。approved full 有 **6 个 resign
+rows**；nested / outer sign、deep strict verify 均 exit 0，nested sidecar
+`ready → EOF → exit {code:0,signal:null}` 且 `timeouts:[]`，`spctl` 为冻结的 exit 3 /
+首非空行 `rejected`。
+
+## 仓库门与稳定性事实
+
+所有矩阵结束、所有 mutation 恢复后，五门逐门独立运行：
+
+| 门 | 最终退出码 | 结果 |
+|---|---:|---|
+| `pnpm -r build` | 0 | 14/15 workspace scope；desktop Vite build 完成 |
+| `pnpm lint` | 0 | ESLint 全绿 |
+| `pnpm test` | 0 | **163 files / 1664 tests passed** |
+| `pnpm --filter @courtwork/desktop lint:isolation-binding` | 0 | 等级 `none`；扫描 6 份 host / 24 份 pi-lane 源码 |
+| `git diff --check` | 0 | 无空白错误 |
+
+测试门的过程事实不抹除：
+
+1. sandbox 首跑为 162 files pass / `sidecar.test.ts` 8 个 localhost 用例统一 5 秒 timeout；
+   同文件在明确批准的非受限域独立复跑为 8/8 pass（49 ms），故归因为 loopback bind 域限制。
+2. 非受限全跑首轮为 1663 pass / 1 fail：`workspace-write-env.test.ts` 的并发
+   characterization 在 `settle()` 后读到空 trace；该精确用例隔离复跑 1/1 pass（24 ms）。
+3. 不改代码、不放宽 timeout 后，再做完整非受限全跑得到上述 163/163、1664/1664、exit 0。
+
+第二项是与 R5 七文件改动面无交集的调度敏感性观察，未拿隔离绿替代最终全量门；完整门已另轮
+真实闭合。
+
+## 放行理由与保留项
+
+R5 四道 production 闭口分别有 healthy 阳性、真实行为/观察反例、独立 production mutation
+转红与恢复后的 384 全绿；历史 76 项按订正后的真实口径全量闭合，另 8 个 strengthened
+negative 全部逐行成立；空 assembly、官方来源、600 samples、双 cycle、十件 inventory、
+三 execution domains 与最终五门均由验收会话亲跑。
+
+保留但不阻断的两项均已明确边界：
+
+- 实现回执引用的 scratchpad harness 未入 Git，是 evidence-packaging 缺口；本轮独立重建已消除
+  对其取信，但后续回执不应再把 untracked scratchpad 称为可复跑交付物。
+- `crash.ignored` special branch 的 JSON `caught` 写入顺序滞后一拍；真实 exit 2、具名 failure、
+  stdout applied/caught 与健康复证都有区分力，且该文件不在 R5 改动面，故本轮不跨票代修。
+
+**结论：`PI-SIDECAR-DIST-1R5` 在 exact target `6cdb9ba` 上 PASS。** 下一步只可由架构角色消费
+本报告决定能力状态与路线；本验收不 merge、不 push 实现链，也不改 `current.md`。
