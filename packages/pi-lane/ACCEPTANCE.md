@@ -265,6 +265,128 @@ warning: binary contains an invalid entitlements blob. The OS will ignore these 
 macOS 上的事实来源，令六格签名矩阵不依赖无效 blob 后从空 assembly 重跑签名面；随后再以独立会话重跑
 cold-start、76 枚反例与最终读数。不得据本次拒绝结果选择路线。
 
+---
+
+# PI-SIDECAR-DIST-1R3 独立验收（2026-07-29，拒绝）
+
+对象：`codex/pi-sidecar-dist-1r3@47fd7e530e44964b233560f97043f7c7d3d4d788`；实现／报告锚点
+`7b4184b70cecea26fe583d177fbb9eb62b644369`；组合基线
+`ba374d867ff34a1a620220debd5f9e4049fb4a40`；架构锚点
+`4e2d07a08f0a772873ddea65a66bf4ef312f5e05`。验收在独立 worktree
+`/Users/lesprivilege/.codex/worktrees/a204/Courtwork` 的
+`codex/accept-pi-sidecar-dist-1r3` 分支进行；实现 worktree 位于
+`/Users/lesprivilege/.codex/worktrees/889c/Courtwork`，两者物理隔离。开工时本树 detached HEAD
+恰为 target 且 clean；target 分支指向同一 SHA，implementation、baseline、architecture anchor
+均为 target 祖先，`main...target` 为 0 behind / 13 ahead。
+
+**结论：REJECT。** R3 的签名 verdict 仍可在关键证据缺失或结构不合法时 false-green，且
+preflight 会把控制进程失败误报成执行域阻断。它们都是契约级证据链缺口，验收会话不得自行改写契约后
+放行；没有产生 `fix-by-acceptance` 提交。`PI-HOST-LOOP-1` 不得消费本票，分发路线仍由架构角色裁定。
+
+## 范围、保全门与 target 基线
+
+- `baseline..target` 恰为票面 7 路径：工程报告、fixture README、`probe-verdict.mjs`、
+  `probe-verdict.test.mjs`、`sign-probe.mjs`、冻结的
+  `upstream/node-v22.23.1/osx-entitlements.plist`、R3 专属回执。零父级 ADR/SPEC/current/readiness、
+  旧 ACCEPTANCE、依赖或产品源码越界；target 回执提交只增加 R3 回执。
+- `850fa11` 经 `473bc00` 进入组合基线的 SEA exact publishedPath 门仍在：
+  成功格必须精确等于 `assembly/${seaExecutableAssemblyPath(triple, variant)}`；缺 path、escape、
+  错格与错扩展反例均保留。R3 未回退该门。
+- target 原样运行
+  `node --test packages/pi-lane/fixtures/sidecar-dist/scripts/probe-verdict.test.mjs`
+  为 **20 suites / 224 tests passed，exit 0**。该数字只说明既有用例绿，不证明下列契约。
+
+## 拒绝原因一：同轮 host/runtime identity 没有进入 hard verdict
+
+`sign-probe.mjs` 的完整 receipt 实际采集了 `host`、`harnessNode`、`developerTools`、
+`officialNode`、`canonicalSource`、`tools` 与 commands；但向 `verdictSign()` 传值时只保留
+`tools` 和 Apple commands（第 447–450 行）。`verdictHostToolReceipt()` 也只消费这两个字段
+（`probe-verdict.mjs` 第 1204–1243 行）。因此报告可写出宿主、CLT、harness Node、官方 runtime
+和 canonical source 身份，判定器却不要求它们存在，更不证明来自同一轮。
+
+独立在 target 测试 fixture 中补入完整、合法的 identity 后，分别删除 `host`、`harnessNode`、
+`developerTools`、`officialNode`；每个 mutation 均确认命中传给 `verdictSign()` 的 observation，
+但四次都得到 **0 failure**。定向首红合计 **0 pass / 4 fail**（断言期望判红、实际 false-green）。
+mutation 随后逐字节还原，测试文件 SHA-256 恢复为
+`18087e9627e31668d6bdefab632d700a2cc1aa4a876887b37b1c58917feaf34c`。
+
+## 拒绝原因二：DER human parser 接受未知层级
+
+`parseHumanObservation()` 对任何不是 `[Key]` 的行直接 `continue`（`sign-probe.mjs`
+第 678–704 行），而传给 verdict 的 human observation 又丢弃 `parseError`（第 443–445 行）。
+`verdictOfficialEntitlements()` 只复核派生后的六条 entries/values 和流 bytes/SHA；它无法证明原始
+`codesign -d --entitlements :-` 输出是严格 flat dictionary。
+
+独立把一条未知 `[Array]` 层级前缀加入成功 human command 的真实 stdout，再同步重算 bytes/SHA；
+六个 canonical 键值保持不变。mutation 确实命中原始流，`verdictSign()` 仍返回 **0 failure**。
+与上节四例合并运行的首红为 **0 pass / 5 fail，exit 1**。这不是 duplicate/extra/false 已有用例
+的等价重复，而是 R3 明列的「未知 hierarchy 必须拒绝」反例。
+
+## 拒绝原因三：`probe_failed` 可被 blocked reason 覆盖
+
+`runPreflight()` 先收集官方签名／Gatekeeper 的 blocked reasons，再以
+`blockedReasons.length > 0` 无条件优先定为 `security_execution_domain_blocked`
+（`sign-probe.mjs` 第 323–325 行），没有先要求控制进程成立。
+
+本验收树第一次从空 package build 状态运行独占 id `accept-r3-a204-seatbelt` 时，控制进程因
+`packages/pi-lane/dist/index.js` 不存在而 `ERR_MODULE_NOT_FOUND`，观测为
+`ready=false`、`eofSent=false`、exit 1、`ready` deadline timeout；脚本却返回
+`security_execution_domain_blocked`，manifest SHA-256 为
+`1976405d0e26bf501a4513ad66624c914aaeb6037ee4661356c58b43643607fe`。这是真实入口反例：
+控制协议／启动失败按契约必须是 `probe_failed`，不能被随后采到的 Authority unavailable 或
+Code Signing subsystem internal error 掩盖。
+
+为避免把该反例误当 seatbelt 正证，先构建 `@courtwork/pi-lane`，再用另一独占 id
+`accept-r3-a204-seatbelt-built` 重跑。此轮控制 sign/verify/XML 全 0，XML 568 bytes，
+`ready=true → eofSent=true → exit 0`；官方 Node verify exit 1 且 Authority unavailable，
+`spctl` exit 1 且首行精确为 Code Signing subsystem internal error，故准确返回
+`security_execution_domain_blocked`、进程 exit 1。manifest SHA-256
+`196e1c5602a5d8eb59edcee9016a905cebd7f6df4fcab53303c2822f021c359d`，其中两项实物：
+
+- `host-tool-receipt.json`：22,167 bytes，
+  `04c13b72352a54d029c194899886cb2782b97b78871286c40787a31a03b52e20`；
+- `preflight.json`：12,947 bytes，
+  `1a2122c8959deb4c806406a35ff2a7cd47a0d229a8bbda3e6db4bd7355707951`。
+
+manifest 中的 path/bytes/SHA 与实物逐项一致，13 条 Apple command receipt 均为绝对
+`/usr/bin/codesign`、`/usr/sbin/spctl`、`/usr/bin/plutil`，工具 SHA 同轮一致、`LC_ALL=C`，
+stdout/stderr 原文及 bytes/SHA 在 receipt；该 preflight 目录没有 `sign-probe.json`，也没有覆盖
+第一次 execution-domain 目录。
+
+## 独立来源、许可证、报告与残留
+
+- 未用实现者保存的 4.34 GiB `dist`、manifest 或读数。本树从无 `dist` 开始，由冻结脚本从
+  `https://nodejs.org/dist/v22.23.1/` 下载 arm64/x64：50,067,502 /
+  51,245,086 bytes，SHA-256 `ef28d8fa…` / `b8da981b…`，SHASUMS、tar、解包后的
+  `v22.23.1` 与 Mach-O arm64/x64 均过。
+- 独立访问 Node 官方 Git 仓库：annotated tag `v22.23.1` 为 `af059a8d…`，peeled commit
+  `bd96dfbf…`。该 commit 的 plist 为 632 bytes、blob `045df8ea…`、SHA-256 `a0387464…`，
+  与仓库副本 `cmp` 相同并解出恰六个 true；官方 `osx-codesign.sh` blob `346afdbe…`
+  在 `codesign --entitlements tools/osx-entitlements.plist` 中直接消费它。无手写、旧件或
+  extraction fallback。
+- 实装依赖复核为 `esbuild@0.28.1` MIT、`postject@1.0.0-alpha.6` 自有部分 MIT 且其
+  LICENSE 第 32 行起明确 `vendor/LIEF` Apache-2.0、`commander@14.0.3` MIT；R3 无依赖改动。
+- 报告明确区分实测、推论、blocked，多处写明不作选型且 R3 节为零路线建议；静态复核未发现 R3
+  借签名证据裁路线。`get-task-allow:true` 只登记为 Node 上游 canonical ad-hoc probe 控制变量，
+  报告明确禁止直接进入 Courtwork product signing plan。
+- 未清理本验收树证据。`clean.mjs --report-only` 实测总计 **698,356,051 bytes（0.65 GiB）**：
+  runtime 473,562,352 + security-domain 224,791,101 + runtime-source 1,608 +
+  runtime-fetch 990，逐项求和与 total 相等。
+
+## 仓库门与停止边界
+
+- `pnpm -r build`：exit 0（14/15 workspace scope；Vite 仅既有 chunk warning）。
+- `pnpm lint`：exit 0。
+- 提升到非 seatbelt 域运行 `pnpm test`：**160 files / 1397 tests passed，exit 0**。
+- `pnpm --filter @courtwork/desktop lint:isolation-binding`：exit 0（6 host / 18 pi-lane source）。
+
+全仓绿不修复上述 false-green。由于 contract-level blocker 已用六个独立命中证据确认，本会话没有再请求
+批准域 full 六格，也没有从空 assembly 运行 76 counterexamples、600 cold-start、双 cycle、
+十件 inventory/runtime source/sign 全矩阵；这些昂贵读数无法令不消费关键证据的判定器成立，也不得拿
+实现回执数字补齐。本停止原因是 **REJECT**，不是外部条件 BLOCKED。复验前须由架构角色确认契约落实方式，
+实现者修复三处 hard verdict／classification 后，再由新的独立验收会话从空目录完整执行 R3 票面矩阵。
+不得据本回执选择 sidecar 路线、启动 Host、构建 DMG 或改写父级权威文档。
+
 # PI-WRITE-PROOF-1 独立验收（2026-07-28，放行）
 
 对象：实现回执目标 `3d457752e133363096b4a4c5df059422d5d1c1e6`
