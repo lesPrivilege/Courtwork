@@ -520,8 +520,10 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   等同——原提交在其时文件末尾追加，该位置已被后续合入 `main` 的 WRITE-PROOF/STDIO
   验收报告占据，任何冲突解法都会改变 hunk 上下文（实测：前十枚 patch-id 逐枚相同，
   `ba374d8` 即停）。此两枚改为**架构内容移植**：由架构会话把源提交的 added lines
-  逐字节插入 DIST 报告连续区——`ba374d8` 的 74 行紧接 `PI-SIDECAR-DIST-1R` 拒绝节
-  之后，`eb71d6f` 的 122 行紧接其后——提交信息保留原主题并标注「架构移植＋源 SHA」，
+  逐字节按各自源 hunk 的前导上下文落位（2026-07-30 移植实测订正：该历史文件中
+  DIST 各节并不连续，`PI-SIDECAR-DIST-1R` 以 `##` 子节居 `PI-SIDECAR-DIST-1` 节首）——
+  `ba374d8` 的 74 行紧接 `PI-LANE-1` 放行节尾行之后，`eb71d6f` 的 122 行紧接移植后的
+  `PI-SIDECAR-DIST-1R2` 拒绝节尾行之后——提交信息保留原主题并标注「架构移植＋源 SHA」，
   验证以移植区与源提交 added lines 逐字节相等代替 patch-id；实现会话不执行、不修改
   移植。其余十四枚配方不变。只许改：
   `fixtures/sidecar-dist/scripts/reproducibility-probe.mjs`、
