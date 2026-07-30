@@ -635,6 +635,11 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   131,072 bytes 封顶，正文不落 journal、物理路径不出 Rust。`list` 只是
   `ExecutionEnv`/host 内部操作，不新增模型工具。
 - `PI-HOST-LOOP-1` 负责 product `/case` 虚拟 env、物理路径/错误脱敏与 session 累计预算；
+  专属冻结件为
+  [`specs/PI-HOST-LOOP-1.md`](specs/PI-HOST-LOOP-1.md)。该票不扩 `case_read`
+  host-request：物理 case root 仍只在 bootstrap 例外进入 Node 内存，模型/工具/journal 只见
+  `/case`；并按 Route A tracked manifest 管 verified Node+CJS、十九型 closed journal、
+  crash/quarantine/resume 与动态 spawn 机器门。零 WebView command、零 write/effect；
   `PI-WRITE-HOST-1` 负责产品 `session.ts`/tool table/tool policy 的 write 装配与
   `toolExecution:'sequential'`，并把 dev 只读 prompt 换成上文六条/≤2,048-byte
   `md-work-v1`；proof 不提前改这些消费点。glob/grep 双根结果必须显示
@@ -678,6 +683,7 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - [`PI-SIDECAR-DIST-1R4`](specs/PI-SIDECAR-DIST-1R4.md)
 - [`PI-SIDECAR-DIST-1R5`](specs/PI-SIDECAR-DIST-1R5.md)
 - [`PI-SIDECAR-DIST-1R5-ACCEPT`](specs/PI-SIDECAR-DIST-1R5-ACCEPT.md)
+- [`PI-HOST-LOOP-1`](specs/PI-HOST-LOOP-1.md)
 
 ## 十 · 门与证据
 

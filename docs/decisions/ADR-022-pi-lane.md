@@ -1197,6 +1197,34 @@ resource 重签、inside-out signing、Developer ID/notarize/staple/Gatekeeper �
 与 manifest schema，`PI-SIDECAR-RELEASE-1` 继续 parked。sidecar 的分发形态是独立
 `process`；ADR-018 的全局当期隔离等级仍为 `none`，不因路线裁定升档。
 
+#### `PI-HOST-LOOP-1` 开工补拍
+
+专属冻结件见
+[`packages/pi-lane/specs/PI-HOST-LOOP-1.md`](../../packages/pi-lane/specs/PI-HOST-LOOP-1.md)。
+这里登记会改变跨层语义的八项裁点，避免实现会话自行补合同：
+
+- `/case` 不扩成第三种 host-request capability。Rust 仍只在 bootstrap 例外把物理 case root
+  交给 sidecar；Node 产品 env 直接只读该根，但 cwd/FileInfo/tool result/error 一律投影
+  `/case`，ready 恰宣告 `case_read`，读工具零 operation/host_request。现行
+  workspace read/write wire 不动；
+- product runtime 的 key 只来自 bootstrap 内存并显式传 pi stream options；不读
+  `process.env`。Host 期临时 prompt 固定 `case-read-v1`，WRITE-HOST 才换 `md-work-v1`；
+- journal envelope 的 eventId/recordedAt/operationId 规则与十九种 payload 全部 closed，
+  replay 不收自由 JSON；fresh/resume 都在 spawn 前 durable，turn usage 与 outward event
+  遵循 append+sync-before-publish；
+- Route A 的 expected-side 是编进 Rust 的 tracked
+  `apps/desktop/src-tauri/pi-sidecar/route-manifest.json`；ignored product snapshot 恰为双
+  target Node + 一件 `sidecar.cjs`，manifest 与双件逐值核验，production 零 fallback；
+- child 用空环境、固定非案件 cwd；bootstrap/cancel/shutdown/exit/kill-confirm 有界，普通
+  prompt 不设总时限；stderr 原文不持久；
+- LF 完整的坏 journal 原子移入按原 bytes SHA 命名的 container quarantine，零自动修/覆盖/
+  续跑；只有末尾无 LF partial 可截断；
+- resume 断点只从 journal fold 导出，不增 sidecar packet，不回填旧 pi messages；
+- 本票不新增 WebView/Tauri command；动态 `Command::new(path)` 必须进入 ADR-018 双向机器门。
+
+这些是 Host 工单的实现输入，不是新能力事实。异会话 PASS 前 `current.md` 不变，
+`PI-WRITE-HOST-1` 不开工。
+
 后续产品装配归属也冻结：`PI-HOST-LOOP-1` 建 product `/case` 虚拟 env、路径/错误脱敏、累计预算
 与 Rust 生命周期；`PI-WRITE-HOST-1` 才注册 `createWriteTool()`、扩产品 tool policy、设置
 `toolExecution:'sequential'`、启用六-0 的 `md-work-v1` 最小 system prompt，并把每次 toolCall
@@ -1219,6 +1247,10 @@ resource 重签、inside-out signing、Developer ID/notarize/staple/Gatekeeper �
 
 ## 修订记录
 
+- **2026-07-30 · PI-HOST-LOOP-1 开工合同闭合**：在 R5 放行与 Route A 裁定后，补冻
+  `/case` bootstrap 内存例外（不扩 host-request）、十九类 journal payload、tracked
+  route manifest、child 空环境与 lifecycle deadline、SHA quarantine、journal-only resume
+  break、无 WebView API及动态 spawn 机器门；专属 SPEC 成为 Fable 下一张实现票。
 - **2026-07-30 · R5 独立放行与 sidecar default 路线裁定**：exact target `6cdb9ba` 经
   独立验收 `0b0d985` 放行并由 no-ff merge `5aef222` 进入 `main`。架构消费同机、双架构、
   双 cycle、签名与 execution-domain 证据后，裁 Route A（Node v22.23.1 runtime + sealed
