@@ -27,17 +27,19 @@ import {
   deriveGatesFromRaw,
   deriveSecurityBlockedReasons,
   firstNonemptyLine,
+  officialNodeExpectedPath,
+  parseCodesignFlags,
   parseDerHumanEntitlements,
   parseOfficialSignatureIdentity,
   securityReasonsFromStreams,
+  signCellDirName,
+  verdictPreflightRun,
   verdictSign,
 } from './lib/probe-verdict.mjs';
 import {
   DIST_DIR,
   FIXTURE_DIR,
-  NODE_VERSION,
   REPO_ROOT,
-  RUNTIME_DIR,
   SIDECAR_BASENAME,
   byteSize,
   ensureDir,
@@ -151,12 +153,28 @@ try {
 hostToolReceipt.commands = commandReceipts;
 writeJsonSynced(path.join(STAGING_DIR, 'host-tool-receipt.json'), hostToolReceipt);
 
-const finalStatus =
-  (preflightOnly && preflight?.status === 'ok') || signProbe?.status === 'ok'
-    ? 'ok'
-    : preflight?.classification === 'security_execution_domain_blocked'
-      ? 'security_execution_domain_blocked'
-      : 'probe_failed';
+// —— R5 闭口三：在形成 manifest/status **之前**跑 production-used hard verdict ——————
+//
+// R4 在这里直接取 producer 的 `preflight.status` / `signProbe.status`，preflight-only 更是
+// 全程不经任何 verdict。现在两条路径都先过 hard verdict，final status 只由它映射；
+// producer 自报值降为 parity。verdict 是进程内消费，不新增持久化证据文件。
+const hardVerdict = fatal
+  ? { status: 'probe_failed', failures: [{ id: 'sign', check: 'sign.probe.fatal', expected: null, observed: fatal }] }
+  : verdictPreflightRun({
+      executionDomainId,
+      canonical: preflight?.canonical,
+      preflight,
+      hostToolReceipt,
+    });
+
+// full 路径另叠 `verdictSign` 的六格/`.app`/officialEntitlements 闭口；
+// 任一层有 failure 都不得再由摘要重算成功。
+const fullFailures = preflightOnly || fatal ? [] : (signProbe?.failures ?? [{ id: 'sign', check: 'sign.fullProbe.missing', expected: 'full probe verdict', observed: null }]);
+
+// `verdictPreflightRun()` 的 `status` 已经把三种映射收在一处（failure→probe_failed、
+// 恰 passed→ok、恰 blocked→同名 blocked），故这里只需再叠 full 的失败。
+// producer 自报 status/classification 的 parity 由判定层内部强制，不在这里重算。
+const finalStatus = fullFailures.length > 0 ? 'probe_failed' : hardVerdict.status;
 
 const manifest = {
   schemaVersion: 1,
@@ -252,7 +270,8 @@ function validateCanonical() {
 }
 
 function officialNodeFingerprint() {
-  const officialPath = path.join(RUNTIME_DIR, `node-${NODE_VERSION}-darwin-arm64`, 'bin', 'node');
+  // R5 锚点：坐标由判定层的冻结构造器给出，采集端与判定端共用同一份，不各拼一次。
+  const officialPath = officialNodeExpectedPath();
   const fingerprint = fingerprintRegularFile(officialPath);
   if (fingerprint.sha256 !== OFFICIAL_NODE_SHA256) {
     throw new Error(`official_node_source_invalid: ${fingerprint.sha256 ?? 'missing'}`);
@@ -353,7 +372,8 @@ async function runFullProbe(canonical, official, preflightObservation) {
 
   for (const subject of subjects) {
     for (const mode of SIGN_MODES) {
-      const workDir = path.join(STAGING_DIR, 'matrix', safeName(`${subject.id}--${mode.name}`));
+      // 物理 cell 目录名走判定端的共享口径，两谱不再各拼一次。
+      const workDir = path.join(STAGING_DIR, 'matrix', signCellDirName(subject.id, mode.name));
       fs.mkdirSync(workDir, { recursive: true, mode: 0o700 });
       const copy = path.join(workDir, `${SIDECAR_BASENAME}-${TARGETS[0].triple}`);
       const row = {
@@ -362,6 +382,8 @@ async function runFullProbe(canonical, official, preflightObservation) {
         status: 'failed',
         canonicalInputPath: CANONICAL_ENTITLEMENTS.repoRelativePath,
         canonicalInputSha256: CANONICAL_ENTITLEMENTS.sha256,
+        // R5：判定端要按 mode 重建 sign 的完整 argv，故带上本轮 canonical 的绝对路径。
+        canonicalInputAbsolutePath: mode.entitlements ? canonical.absolutePath : null,
       };
       if (!fs.existsSync(subject.source)) {
         row.reason = 'artifact-missing';
@@ -392,7 +414,7 @@ async function runFullProbe(canonical, official, preflightObservation) {
       row.sign = signed;
       row.verifyExit = verified.exit;
       row.verify = verified;
-      row.flags = parseFlags(displayed.stderr.content);
+      row.flags = parseCodesignFlags(displayed.stderr.content);
       row.display = displayed;
       row.launched = launch.ok;
       row.run = launch;
@@ -404,6 +426,8 @@ async function runFullProbe(canonical, official, preflightObservation) {
   const appBundle = await createFullAppBundle(subjects.find((subject) => subject.id.startsWith('b/')));
   const observation = {
     executionDomainId,
+    // R5 闭口四：六格与 `.app` 的全部 expected 坐标都由这一个 trusted stage root 推出。
+    stageRoot: STAGING_DIR,
     canonical: stripAbsoluteCanonical(canonical),
     preflight: {
       status: preflightObservation.status,
@@ -653,7 +677,16 @@ function readActualEntitlements(binary, expectedPresent, workDir) {
   const command = runApple(CODESIGN, ['-d', '--entitlements', '-', '--xml', binary]);
   if (command.exit === 0 && command.stdout.bytes > 0) {
     const parsed = parseXmlObservation(command, path.join(workDir, 'actual-entitlements.plist'));
-    return { kind: 'present', values: parsed.values, command };
+    // R5 闭口四：签后 XML 的语义同样只认绑定的绝对 plutil 两条 receipt，故落盘件指纹与
+    // `lint`/`json` 必须一并交给判定端——R4 在这里把它们丢掉了，于是只剩 producer 的 values。
+    return {
+      kind: 'present',
+      values: parsed.values,
+      command,
+      artifact: parsed.artifact,
+      lint: parsed.lint,
+      json: parsed.json,
+    };
   }
   if (
     !expectedPresent &&
@@ -720,10 +753,8 @@ function parseOfficialSignature(verify, display) {
   };
 }
 
-function parseFlags(textValue) {
-  const match = textValue.match(/^CodeDirectory .*\bflags=([^\s]+)(?:\s|$)/m);
-  return match?.[1] ?? null;
-}
+// R5：flags 解析退役为判定端的共享 `parseCodesignFlags`——判定端会从同一份 raw stderr
+// 重解析并与 `row.flags` 作 parity，两谱各写一套迟早各自漂移。
 
 function fingerprintTool(toolPath) {
   const file = fingerprintRegularFile(toolPath);
@@ -868,10 +899,6 @@ function text(stream) {
 
 function parsePkgVersion(output) {
   return output.match(/^version:\s*(.+)$/m)?.[1] ?? null;
-}
-
-function safeName(value) {
-  return value.replaceAll('/', '-').replaceAll('|', '-');
 }
 
 function tail(value) {

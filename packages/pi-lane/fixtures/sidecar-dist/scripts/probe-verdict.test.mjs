@@ -35,15 +35,22 @@ import {
   NEGATIVE_CONTROL_IDS,
   OFFICIAL_NODE_SHA256,
   PAYLOAD_SPECS,
+  PROBE_ROOT,
   RUNTIME_ARCHIVES,
   SEA_STAGES,
   SIGN_MODES,
   SIGN_SUBJECT_IDS,
+  appBundleNestedPath,
+  appBundlePath,
   assemblyLayout,
   classifyPreflight,
   conclude,
+  derivePreflightFromRaw,
   entryOf,
+  officialNodeExpectedPath,
   payloadText,
+  signCellDirName,
+  signCellPath,
   verdictAbort,
   verdictAssembly,
   verdictColdstart,
@@ -51,6 +58,7 @@ import {
   verdictIdentity,
   verdictInventory,
   verdictNegativeControl,
+  verdictPreflightRun,
   verdictReproducibility,
   verdictRuntimeSource,
   verdictSeaBuild,
@@ -197,8 +205,11 @@ const streamOf = (content) => ({ bytes: Buffer.byteLength(content, 'utf8'), sha2
  * `codesign -d --entitlements -` 的 DER human dump 是缩进的一个根 `[Dict]` 加六组三元行，
  * `Executable=<path>` 走 stderr。判定端要从这份原文重解析，故构造件必须长成原文的样子。
  */
-const FIXTURE_CWD = '/private/tmp/courtwork-sidecar-r4/packages/pi-lane/fixtures/sidecar-dist';
-const OFFICIAL_NODE_PATH = `${FIXTURE_CWD}/dist/runtime/node-v22.23.1-darwin-arm64/bin/node`;
+// R5 锚点裁定后，official expected path 由判定层自持 probe root 拼冻结布局坐标独立构造。
+// 构造件因此不能再写死一个别的树的绝对路径——否则合格观察自己就过不了锚点门。
+// 两个值都取判定层的那一份，构造件与判据不会各自漂移，也不依赖跑在哪棵树上。
+const FIXTURE_CWD = PROBE_ROOT;
+const OFFICIAL_NODE_PATH = officialNodeExpectedPath();
 const CONTROL_NODE_PATH = `${FIXTURE_CWD}/dist/security-domain/.stage-a/control/node`;
 const CONTROL_APP_PATH = `${FIXTURE_CWD}/dist/security-domain/.stage-a/control/SidecarProbe.app`;
 const CANONICAL_ABS_PATH = `${FIXTURE_CWD}/upstream/node-v22.23.1/osx-entitlements.plist`;
@@ -434,7 +445,8 @@ const goodReproducibility = () => ({
     cycles: [cycleOf(`cc-${triple}-1`), cycleOf(`cc-${triple}-2`)],
     identical: false,
   })),
-  crossArchCodeCache: { launched: true, warningSeen: true, warning: CODE_CACHE_REJECT_WARNING },
+  // R5 起 observation 显式携 `timeouts` 与 `{code,signal}`（`goodCrossArch()` 是唯一定义）。
+  crossArchCodeCache: goodCrossArch(),
 });
 
 /** assembly 的合格实物：顶层两条 route，其下六 + 四个目录，各含指定件。 */
@@ -489,9 +501,16 @@ function seaBuildFailingAt(stage, triple = 'aarch64-apple-darwin', variant = 'de
 
 const SIGN_DOMAIN_ID = 'r4-first-red';
 
+/**
+ * 合格 sign 观察。R5 起它就是 **production 的完整形状**：除 preflight/officialEntitlements
+ * 外，还带 trusted `stageRoot`、六格逐格 raw（sign/verify/display/run/actual-entitlements）
+ * 与嵌套 `.app` 的四条 raw + nestedRun——`runFullProbe()`/`createFullAppBundle()` 本来就都记着，
+ * R4 的构造件只是没带。补齐的那一段由下文的 `enrichFullMatrix()`（函数声明，会提升）负责，
+ * 避免「合格 sign 观察」出现第二份定义。
+ */
 const goodSign = () => {
   const commands = signCommandSet();
-  return {
+  return enrichFullMatrix({
   executionDomainId: SIGN_DOMAIN_ID,
   canonical: clone(canonicalEntitlements),
   preflight: {
@@ -580,7 +599,7 @@ const goodSign = () => {
     spctlStderrFirstNonemptyLine: '/private/tmp/SidecarProbe.app: rejected',
     appPath: '/private/tmp/SidecarProbe.app',
   },
-  };
+  });
 };
 
 const goodRuntimeSource = () => ({
@@ -2312,11 +2331,37 @@ describe('R4 返修二 · blocked reason 由判定端从 raw stream 重导', () 
   it('full matrix 命令里的 internal error 不得串味到 preflight 分类', () => {
     const observation = goodSign();
     // 六格重签阶段的失败文本不属于 preflight 证据面，不得据此判执行域受限。
-    observation.resign[0].display = {
-      argv: ['/usr/bin/codesign', '-d', '--verbose=4', '/tmp/copy'],
-      stderr: { content: 'Code Signing subsystem internal error', bytes: 36, sha256: sha('x') },
-    };
-    passed(verdictSign(observation), 'full matrix 不串味');
+    //
+    // **R5 登记偏离（待架构追认）**：本例 R4 时断言的是整份观察 `passed()`，而那份「绿」
+    // 只成立于「R4 压根不判六格 raw」。R5 SPEC 第 1/4 条明文要求六格 raw 的
+    // security stderr 必须失败（Stage A 的 D4 就是这一枚红），两者不可同真。
+    // 故这里把断言**收窄到本例真正的主张**：串味面（preflight 分类）不受影响——
+    // 而不是整份观察为绿。这一改只加门不减门：矩阵格自身的缺陷现在也会被抓住。
+    const row = observation.resign[0];
+    row.display.stderr = streamOf('Code Signing subsystem internal error\n');
+    const failures = verdictSign(observation);
+
+    // 主张一：这一格自己必须红，且红在矩阵 raw 面。
+    hasCheck(failures, 'sign.matrix.raw.display.security', 'matrix 格自身的 security 证据');
+
+    // 主张二（本例的原意）：preflight 的分类面**一点没被串味**。
+    for (const check of [
+      'sign.preflight.blockedReasons',
+      'sign.preflight.blockedReasonDerivation',
+      'sign.preflight.classification',
+      'sign.preflight.classificationDerivation',
+      'sign.preflight.status',
+    ]) {
+      assert.ok(
+        !failures.some((failure) => failure.check === check),
+        `full matrix 不串味：preflight 面不得出现 ${check}，实际 ${JSON.stringify(failures.map((f) => f.check))}`,
+      );
+    }
+    // 从 raw 重导的 preflight 分类仍必须是 passed——串味的定义就是这里被染成 blocked。
+    const raw = derivePreflightFromRaw(observation.preflight);
+    assert.equal(raw.status, 'ok', 'full matrix 不串味：preflight raw 重导仍应 ok');
+    assert.equal(raw.classification, 'passed', 'full matrix 不串味：preflight raw 重导仍应 passed');
+    assert.deepEqual(raw.blockedReasons, [], 'full matrix 不串味：blocked reason 必须仍为空');
   });
 });
 
@@ -2769,5 +2814,644 @@ describe('顶层收束', () => {
     const verdict = conclude([{ id: 'x', check: 'y' }], { status: 'ok', failureCount: 0 });
     assert.equal(verdict.status, 'failed');
     assert.equal(verdict.failureCount, 1);
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// R5 · Stage A first-red 五族：采到了、没判
+// ══════════════════════════════════════════════════════════════════════
+//
+// 本组是 `PI-SIDECAR-DIST-1R5` 的首红面，逐族对应 `ADR-022` 六-E 中独立验收在 R4
+// production observation 上坐实的三项 P1，与父级 SPEC `PI-SIDECAR-DIST-1R5` 第 1 条
+// 点名的五种形态（A 跨架构生命周期／B command timeline／C preflight-only 漂移／
+// D full 摘要洗绿／E 串格与深层 raw）。
+//
+// 五族全部打在**现行 production 判定路径**上，无一枚靠 stub、私造函数、helper 缺失或
+// 模块加载失败取红：
+//   - 族 A 走 `verdictReproducibility`（`reproducibility-probe.mjs` 真实调用）；
+//   - 族 B/D/E 走 `verdictSign`（`runFullProbe()` 真实调用）；
+//   - 族 C 逐字重演 `sign-probe.mjs` 的 preflight-only 分支：Stage A 时那里是「三支
+//     derive + `classifyPreflight`，`finalStatus` 直取 producer 的 `preflight.status`」；
+//     Stage B 收口后改为先跑 `verdictPreflightRun()` 再由它唯一映射 final status。
+//
+// 体例与全文一致：每族先有阳性对照证明「合法基线判绿」（保证测量有区分力），再由缺陷
+// 形态证明「坏了也绿」。缺陷一律只坏一处，且刻意让 producer 摘要保持**正确**——被洗绿
+// 的机制正是「判定端回头读摘要」。
+//
+// 族 C 需要的 `verdictPreflightRun` 按既有字母序插进文件顶部的 import 块。
+
+// —— 族 A · 跨架构注入的生命周期 ————————————————————————————————————
+//
+// `ADR-022` 六-E R5 第 1 条要求 observation 显式携 `timeouts` 与 `{code,signal}`，
+// hard verdict 只接受 `timeouts:[]`、`launched:true`、exact warning 与
+// `exit:{code:0,signal:null}`。现行 `verdictReproducibility` 只核 `launched` 与
+// `warning`（`lib/probe-verdict.mjs` 第 846-858 行），故「warning 一字不差、进程却
+// 非零退出／被信号打死／某一步超时」四种形态全部假绿。
+
+/**
+ * R5 契约下跨架构 observation 的合格形状：ready → EOF → exit 0，零超时。
+ *
+ * 刻意写成**函数声明**（会提升）：上文既有的 `goodReproducibility()` 直接调它。
+ * 让「合格跨架构形状」只有一份定义——两谱各抄一份字面量正是本文件一贯要避免的形状。
+ */
+function goodCrossArch() {
+  return {
+    injection: 'aarch64 blob → x86_64 binary',
+    postjectExit: 0,
+    executableSha256: sha('cross-arch-x64-binary'),
+    launched: true,
+    exit: { code: 0, signal: null },
+    timeouts: [],
+    warningSeen: true,
+    warning: CODE_CACHE_REJECT_WARNING,
+    stderrHead: [CODE_CACHE_REJECT_WARNING],
+  };
+}
+
+const crossArchObservation = (mutate) => {
+  const observation = goodReproducibility();
+  observation.crossArchCodeCache = goodCrossArch();
+  if (mutate) mutate(observation.crossArchCodeCache);
+  return observation;
+};
+
+/** 静默降级那一句必须一字不改——族 A 坏的只是「它到底有没有干净跑完」。 */
+const assertWarningIntact = (observation) => {
+  const cross = observation.crossArchCodeCache;
+  assert.equal(cross.launched, true, '族 A：launched 面必须保持正确');
+  assert.equal(cross.warningSeen, true, '族 A：warningSeen 面必须保持正确');
+  assert.equal(cross.warning, CODE_CACHE_REJECT_WARNING, '族 A：exact warning 必须保持正确');
+};
+
+describe('R5 族 A · 跨架构生命周期（exact warning 不等于跑完）', () => {
+  it('阳性对照：exact warning + 零超时 + exit 0 判绿', () =>
+    passed(verdictReproducibility(crossArchObservation()), 'R5 族 A 基线'));
+
+  it('A1：warning 正确但最终 exit 非零，必须判红', () => {
+    const observation = crossArchObservation((cross) => {
+      cross.exit = { code: 1, signal: null };
+    });
+    assertWarningIntact(observation);
+    failed(verdictReproducibility(observation), 'A1 跨架构非零退出');
+  });
+
+  it('A2：warning 正确但被信号收束，必须判红', () => {
+    const observation = crossArchObservation((cross) => {
+      cross.exit = { code: null, signal: 'SIGKILL' };
+    });
+    assertWarningIntact(observation);
+    failed(verdictReproducibility(observation), 'A2 跨架构信号收束');
+  });
+
+  it('A3：exit deadline 超时（ready 已过、exit 未收束），必须判红', () => {
+    // ready 已过故 `launched` 为真，坏的是 `CRASH_DEADLINES.exitMs` 那一步没收束。
+    // 刻意不动 `launched`：动了就会命中既有 `crossArch.launched` 那条旧红，等于零区分力。
+    const observation = crossArchObservation((cross) => {
+      cross.timeouts = ['exit'];
+      cross.exit = { code: null, signal: null };
+    });
+    assertWarningIntact(observation);
+    failed(verdictReproducibility(observation), 'A3 exit 超时');
+  });
+
+  it('A4：kill-confirm 超时（残留子进程未确认），必须判红', () => {
+    const observation = crossArchObservation((cross) => {
+      cross.timeouts = ['exit', 'kill-confirm'];
+      cross.exit = { code: null, signal: null };
+    });
+    assertWarningIntact(observation);
+    failed(verdictReproducibility(observation), 'A4 kill-confirm 超时');
+  });
+});
+
+// —— 族 B · command timeline 的真实性 ————————————————————————————————
+//
+// `startedAt/finishedAt` 现在只经 `commandIdentity`（`lib/probe-verdict.mjs`
+// 第 1441-1456 行）参加**两副本 identity**，没有任何真实性约束：
+// `verdictHostToolReceipt`（第 1802-1932 行）只对 `receipt.capturedAt` 用了
+// `validTimestamp`，逐条 command 的时间既不校验可往返、也不校验 `start<=finish`、
+// 相邻不重叠与整轮严格推进。故两边同步删字段、或所有 command 同填一枚合法常量都假绿。
+//
+// production 的 observation 与 receipt 共享同一批 receipt 对象（`sign-probe.mjs` 的
+// `commandReceipts` 元素），构造件也照此共享，故「删一次」就是「两副本同时删」。
+
+describe('R5 族 B · command timeline（副本相等不是真实性）', () => {
+  it('阳性对照：逐条 canonical UTC、串行严格推进的同轮 receipt 判绿', () => {
+    const observation = goodSign();
+    const commands = observation.hostToolReceipt.commands;
+    // 基线本身就满足 R5 第 3 条的四道时间门；先自证，再证判定层放它过。
+    for (const command of commands) {
+      assert.equal(new Date(command.startedAt).toISOString(), command.startedAt, 'startedAt 须可往返');
+      assert.equal(new Date(command.finishedAt).toISOString(), command.finishedAt, 'finishedAt 须可往返');
+      assert.ok(command.startedAt <= command.finishedAt, `${command.argv[0]} 须 start<=finish`);
+    }
+    for (let index = 1; index < commands.length; index += 1) {
+      assert.ok(
+        commands[index - 1].finishedAt <= commands[index].startedAt,
+        `相邻第 ${index} 项须不重叠`,
+      );
+    }
+    assert.ok(commands[0].startedAt < commands.at(-1).finishedAt, '整轮须严格推进');
+    passed(verdictSign(observation), 'R5 族 B 基线');
+  });
+
+  it('B1：两副本同时整列缺失 startedAt/finishedAt，必须判红', () => {
+    const observation = goodSign();
+    for (const command of observation.hostToolReceipt.commands) {
+      delete command.startedAt;
+      delete command.finishedAt;
+    }
+    // 坐实「两副本同时缺失」：observation 侧的每一处引用也一起没了这两格。
+    assert.ok(
+      observation.hostToolReceipt.commands.every(
+        (command) => !('startedAt' in command) && !('finishedAt' in command),
+      ),
+      'receipt 侧必须整列缺失',
+    );
+    for (const pick of [
+      (o) => o.preflight.control.sign,
+      (o) => o.preflight.officialSignature.display,
+      (o) => o.preflight.appGatekeeper.command,
+      (o) => o.officialEntitlements.human.command,
+    ]) {
+      assert.ok(!('startedAt' in pick(observation)), 'observation 侧必须同步缺失');
+    }
+    failed(verdictSign(observation), 'B1 时间整列缺失');
+  });
+
+  it('B2：全部 command 同填一枚合法 canonical UTC 常量，必须判红', () => {
+    const observation = goodSign();
+    const constant = '2026-07-29T00:00:01.000Z';
+    // 常量本身完全合法：可往返、UTC、`start<=finish` 成立。坏的是整轮零推进。
+    assert.equal(new Date(constant).toISOString(), constant, '常量须可往返');
+    for (const command of observation.hostToolReceipt.commands) {
+      command.startedAt = constant;
+      command.finishedAt = constant;
+    }
+    const commands = observation.hostToolReceipt.commands;
+    assert.equal(commands[0].startedAt, commands.at(-1).finishedAt, '整轮首尾必须已零推进');
+    failed(verdictSign(observation), 'B2 同一时间常量');
+  });
+});
+
+// —— 族 C · preflight-only 在发布 status 前没有独立 hard verdict ————————————
+//
+// `sign-probe.mjs` 第 119 行 `if (preflight.status === 'ok' && !preflightOnly)`：
+// preflight-only 模式压根不进 `runFullProbe()`，故 `verdictSign` 全程不被调用。
+// 第 154-155 行的 `finalStatus` 直接取 `preflight.status`，而那个值是 `runPreflight()`
+// 自己用共享 classifier 算出来的 producer 值。于是「target 同步漂移」与「已有 hard
+// verdict 明明拦得住的摘要漂移」都能在发布 manifest/status 前一路绿灯。
+
+/**
+ * preflight-only 的 production 决策，逐字重演 `sign-probe.mjs` 的 preflight-only 分支：
+ * 先跑 `verdictPreflightRun()`（production-used hard verdict），`finalStatus` 只取它的
+ * `status`。R5 之前这里重演的是「三支 derive + classifyPreflight，且 finalStatus 直取
+ * producer 的 preflight.status」——那正是 Stage A 的 C1/C2 打中的形状。
+ *
+ * 映射逻辑本身住判定层（`verdictPreflightRun`），本 helper 不含任何自造判据；
+ * 断言只看 `{status, classification}`，故与 R5 前的形状可直接对照。
+ */
+function preflightOnlyDecision(observation) {
+  const run = verdictPreflightRun({
+    executionDomainId: observation.executionDomainId,
+    canonical: observation.canonical,
+    preflight: observation.preflight,
+    hostToolReceipt: observation.hostToolReceipt,
+  });
+  return {
+    status: run.status === 'ok' ? 'ok' : 'failed',
+    classification: run.status === 'ok' ? 'passed' : run.status,
+  };
+}
+
+const BOGUS_TARGET = '/private/tmp/bogus/node';
+
+/** official target 在 observation、receipt.commands 与 receipt.officialNode 三处一起漂移。 */
+function driftOfficialTargetInSync(observation) {
+  const forged = signCommandSet({ officialTarget: BOGUS_TARGET });
+  observation.preflight.officialSignature.verify = forged.officialVerify;
+  observation.preflight.officialSignature.display = forged.officialDisplay;
+  observation.officialEntitlements.xml.command = forged.officialXml;
+  observation.officialEntitlements.human.command = forged.officialHuman;
+  observation.hostToolReceipt.commands = forged.all;
+  observation.hostToolReceipt.officialNode.path = BOGUS_TARGET;
+  return observation;
+}
+
+describe('R5 族 C · preflight-only 发布 status 前无独立 hard verdict', () => {
+  it('阳性对照：合法 preflight 的 production 决策链报 ok/passed', () => {
+    assert.deepEqual(preflightOnlyDecision(goodSign()), { status: 'ok', classification: 'passed' });
+  });
+
+  it('C1：official target 三处同步漂到 bogus，preflight-only 决策必须拒绝', () => {
+    const observation = driftOfficialTargetInSync(goodSign());
+    // 伪造件自身完全自洽：argv-last、stderr、bytes/SHA 与 receipt path 互相对得上。
+    assert.equal(observation.preflight.officialSignature.verify.argv.at(-1), BOGUS_TARGET);
+    assert.equal(observation.preflight.officialSignature.display.argv.at(-1), BOGUS_TARGET);
+    assert.equal(observation.hostToolReceipt.officialNode.path, BOGUS_TARGET);
+    // 冻结 SHA 仍自称官方件——这一格是自报值，同步漂移不会碰它。
+    assert.equal(observation.hostToolReceipt.officialNode.sha256, OFFICIAL_NODE_SHA256);
+    const decision = preflightOnlyDecision(observation);
+    assert.notEqual(
+      decision.status,
+      'ok',
+      `C1：preflight-only 必须在发布 status 前拒绝 bogus target，实测 ${JSON.stringify(decision)}`,
+    );
+  });
+
+  it('C3：同一份同步漂移在 full hard verdict 上同样假绿，必须判红', () => {
+    // Stage A 实测（`02-diagnostic`）：这份三处同步漂移令 `verdictSign` 返回**零 failure**。
+    // 成因是 `verdictCommandBinding`（第 1646 行）把 expected target 取自
+    // `receipt.officialNode.path` 这个**自报值**，把锚点一起换掉，整份证据就自洽了。
+    // 故 SPEC 第 4 条要求 expected argv-last/target 从 trusted stage root 与冻结 coordinate
+    // **独立构造**，不得从 row/appPath 摘要反推。
+    const observation = driftOfficialTargetInSync(goodSign());
+    // 锚点自身已被换掉，故「argv-last 等于 receipt path」这条自反检查照旧成立。
+    assert.equal(
+      observation.preflight.officialSignature.verify.argv.at(-1),
+      observation.hostToolReceipt.officialNode.path,
+      'C3：漂移后自反检查必须仍成立（这正是它没区分力的原因）',
+    );
+    failed(verdictSign(observation), 'C3 full 路径对同步漂移同样假绿');
+  });
+
+  it('C2：official identity 摘要漂移（raw 仍真实），preflight-only 决策必须拒绝', () => {
+    const observation = goodSign();
+    // 只坏 producer 自报的 cdhash 一格；raw display stderr 里的 CDHash 保持真实。
+    observation.preflight.officialSignature.cdhash = '0'.repeat(40);
+    assert.ok(
+      observation.preflight.officialSignature.display.stderr.content.includes(
+        'CDHash=59cdea89a982b05f23e756c08115bebc555ff092',
+      ),
+      'raw display 必须仍带真实 CDHash',
+    );
+    // 已有 hard verdict 明明拦得住这一格——preflight-only 只是从不调用它。
+    hasCheck(verdictSign(observation), 'sign.preflight.official.cdhash', 'C2：full 路径拦得住');
+    const decision = preflightOnlyDecision(observation);
+    assert.notEqual(
+      decision.status,
+      'ok',
+      `C2：preflight-only 必须在发布 status 前跑那道 hard verdict，实测 ${JSON.stringify(decision)}`,
+    );
+  });
+});
+
+// —— 族 D/E 的 production 形状：六格与 `.app` 的 raw 一并在场 ————————————
+//
+// `runFullProbe()` 每格都记 raw `sign`/`verify`/`display`/`run` 与
+// `actualEntitlements.command`，`createFullAppBundle()` 另记
+// `signNested`/`signOuter`/`deepVerify`/`spctl`/`nestedRun`。`goodSign()` 只带摘要，
+// 故先把 raw 补齐成 production 的形状——族 D/E 要打的正是「采到了、没判」。
+
+// 坐标一律走判定层的冻结构造器，构造件不再自己拼字面量——它们与判据同源于 stage root，
+// 却不同源于**被判定的观察值**，这才是锚点该有的形状。
+const MATRIX_STAGE_ROOT = `${FIXTURE_CWD}/dist/security-domain/.stage-a`;
+const APP_BUNDLE_PATH = appBundlePath(MATRIX_STAGE_ROOT);
+const APP_NESTED_PATH = appBundleNestedPath(MATRIX_STAGE_ROOT);
+
+const matrixCellPath = (subject, mode) => signCellPath(MATRIX_STAGE_ROOT, subject, mode);
+
+/** 一格重签后 `codesign -d --verbose=4` 的实测 stderr 形状。`flags=` 与摘要同源。 */
+const matrixDisplayStderr = (target, hardened) => `Executable=${target}
+Identifier=pi-sidecar-aarch64-apple-darwin
+Format=Mach-O thin (arm64)
+CodeDirectory v=20400 size=3521 flags=${hardened ? '0x10002(adhoc,runtime)' : '0x2(adhoc)'} hashes=104+2 location=embedded
+Signature=adhoc
+Info.plist=not bound
+TeamIdentifier=not set
+Sealed Resources=none
+`;
+
+/**
+ * 六格 + 嵌套 `.app` 的 raw 齐备形态。每格绑自己的物理 cell 路径，每条 raw 是独立
+ * occurrence，并按 production 的 `runApple` 一并进同轮 `receipt.commands`。
+ */
+function enrichFullMatrix(observation) {
+  const appended = [];
+  // R5 闭口四：六格与 `.app` 的坐标全部由这一个 trusted stage root 推出。
+  observation.stageRoot = MATRIX_STAGE_ROOT;
+
+  for (const row of observation.resign) {
+    const mode = SIGN_MODES.find((entry) => entry.name === row.mode);
+    const cell = matrixCellPath(row.subject, row.mode);
+    const sign = appleCommand(
+      [
+        '/usr/bin/codesign',
+        '--force',
+        '--sign',
+        '-',
+        ...(mode.hardened ? ['--options', 'runtime'] : []),
+        ...(mode.entitlements ? ['--entitlements', CANONICAL_ABS_PATH] : []),
+        cell,
+      ],
+      { stderr: `${cell}: replacing existing signature\n` },
+    );
+    const verify = appleCommand(['/usr/bin/codesign', '--verify', '--strict', '--verbose=4', cell], {
+      stderr: `${cell}: valid on disk\n${cell}: satisfies its Designated Requirement\n`,
+    });
+    const display = appleCommand(['/usr/bin/codesign', '-d', '--verbose=4', cell], {
+      stderr: matrixDisplayStderr(cell, mode.hardened),
+    });
+    const actualCommand = appleCommand(
+      ['/usr/bin/codesign', '-d', '--entitlements', '-', '--xml', cell],
+      mode.entitlements
+        ? { stdout: xmlPlistText, stderr: `Executable=${cell}\n` }
+        : { stderr: `Executable=${cell}\n` },
+    );
+    // 带 entitlements 的格：签后 XML 语义同样只经绑定的绝对 plutil 两条 receipt 重核。
+    const actualArtifact = `${MATRIX_STAGE_ROOT}/matrix/${signCellDirName(row.subject, row.mode)}/actual-entitlements.plist`;
+    const actualLint = mode.entitlements
+      ? appleCommand(['/usr/bin/plutil', '-lint', actualArtifact], { stdout: `${actualArtifact}: OK\n` })
+      : null;
+    const actualJson = mode.entitlements
+      ? appleCommand(['/usr/bin/plutil', '-convert', 'json', '-o', '-', actualArtifact], { stdout: xmlJsonText })
+      : null;
+    // production `runFullProbe()` 每格跑完都写 `row.status = 'ok'`；`goodSign()` 省了这一格
+    // （falsy 会被 `verdictSign` 第 980 行跳过）。族 D/E 要断言「摘要仍报 ok」，故补齐。
+    row.status = 'ok';
+    row.cellPath = cell;
+    row.sign = sign;
+    row.verify = verify;
+    row.display = display;
+    // `launchExecutable()` 的两种实测收束：起得来是 exit 0 零超时；
+    // 硬化无 entitlements 那格被内核打死，ready 超时后走 kill-confirm。
+    row.run = mode.launches
+      ? { ok: true, exit: { code: 0, signal: null }, timeouts: [], node: 'v22.23.1', sea: 'sea', stderrTail: [] }
+      : {
+          ok: false,
+          exit: { code: null, signal: 'SIGKILL' },
+          timeouts: ['ready'],
+          stderrTail: [`${cell}: Killed: 9`],
+        };
+    row.canonicalInputAbsolutePath = mode.entitlements ? CANONICAL_ABS_PATH : null;
+    row.actualEntitlements = {
+      ...row.actualEntitlements,
+      command: actualCommand,
+      ...(mode.entitlements
+        ? {
+            artifact: { path: actualArtifact, bytes: actualCommand.stdout.bytes, sha256: actualCommand.stdout.sha256 },
+            lint: actualLint,
+            json: actualJson,
+          }
+        : {}),
+    };
+    appended.push(sign, verify, display, actualCommand);
+    if (mode.entitlements) appended.push(actualLint, actualJson);
+  }
+
+  const signNested = appleCommand(['/usr/bin/codesign', '--force', '--sign', '-', APP_NESTED_PATH], {
+    stderr: `${APP_NESTED_PATH}: replacing existing signature\n`,
+  });
+  const signOuter = appleCommand(['/usr/bin/codesign', '--force', '--sign', '-', APP_BUNDLE_PATH], {
+    stderr: `${APP_BUNDLE_PATH}: replacing existing signature\n`,
+  });
+  const deepVerify = appleCommand(
+    ['/usr/bin/codesign', '--verify', '--deep', '--strict', '--verbose=4', APP_BUNDLE_PATH],
+    { stderr: `${APP_BUNDLE_PATH}: valid on disk\n${APP_BUNDLE_PATH}: satisfies its Designated Requirement\n` },
+  );
+  const appSpctl = appleCommand(['/usr/sbin/spctl', '-a', '-vv', APP_BUNDLE_PATH], {
+    exit: 3,
+    stderr: `${APP_BUNDLE_PATH}: rejected\n`,
+  });
+  observation.appBundle = {
+    status: 'ok',
+    signNestedExit: 0,
+    signOuterExit: 0,
+    verifyDeepStrictExit: 0,
+    nestedLaunched: true,
+    spctlExit: 3,
+    spctlStdout: '',
+    spctlStderrFirstNonemptyLine: `${APP_BUNDLE_PATH}: rejected`,
+    appPath: APP_BUNDLE_PATH,
+    signNested,
+    signOuter,
+    deepVerify,
+    spctl: appSpctl,
+    nestedRun: {
+      ok: true,
+      exit: { code: 0, signal: null },
+      timeouts: [],
+      node: 'v22.23.1',
+      sea: 'sea',
+      stderrTail: [],
+    },
+  };
+  appended.push(signNested, signOuter, deepVerify, appSpctl);
+
+  observation.hostToolReceipt.commands = [...observation.hostToolReceipt.commands, ...appended];
+  return observation;
+}
+
+/**
+ * 族 D/E 的入口。R5 起「合格 sign 观察」只有一份定义（`goodSign()` 已含六格与 `.app` 的
+ * 全部 raw），故这里只是个读起来更贴题的别名，不是第二份构造件。
+ */
+const goodFullMatrix = () => goodSign();
+
+/** 取一格 resign 行。族 D/E 一律按 subject+mode 定位，不按下标——增删格位会静默指错。 */
+const cellOf = (observation, subject, mode) =>
+  observation.resign.find((row) => row.subject === subject && row.mode === mode);
+
+// —— 族 D · full 六格的 raw 失败被 producer 摘要洗绿 ————————————————————
+//
+// `verdictSign` 第 968-1029 行逐格只读 `signExit`/`verifyExit`/`flags`/`launched`/
+// `canonicalInput*`/`actualEntitlements` 这些 **producer 摘要**，同轮 raw
+// `sign`/`verify`/`display` 一条也不判。于是 raw 非零、带 signal、spawn error 与
+// security stderr 四种形态，只要摘要还写着「正确」，就一路绿灯。
+
+describe('R5 族 D · full 六格 raw 失败被摘要洗绿', () => {
+  it('阳性对照：六格 raw 齐备且与摘要一致的完整观察判绿', () =>
+    passed(verdictSign(goodFullMatrix()), 'R5 族 D 基线'));
+
+  it('D1：raw sign exit 非零而摘要 signExit 报零，必须判红', () => {
+    const observation = goodFullMatrix();
+    const row = cellOf(observation, SIGN_SUBJECT_IDS[0], 'adhoc-plain');
+    row.sign.exit = 1;
+    row.sign.stderr = streamOf(`${row.cellPath}: the signature could not be applied\n`);
+    assert.equal(row.signExit, 0, '摘要必须仍报成功');
+    assert.equal(row.status, 'ok', '摘要必须仍报 ok');
+    failed(verdictSign(observation), 'D1 raw sign 非零');
+  });
+
+  it('D2：raw verify 带 signal（exit 仍 0）而摘要 verifyExit 报零，必须判红', () => {
+    const observation = goodFullMatrix();
+    const row = cellOf(observation, SIGN_SUBJECT_IDS[1], 'adhoc-plain');
+    row.verify.signal = 'SIGKILL';
+    assert.equal(row.verify.exit, 0, 'exit 面刻意保持 0：坏的只有 signal 一格');
+    assert.equal(row.verifyExit, 0, '摘要必须仍报成功');
+    failed(verdictSign(observation), 'D2 raw verify 带 signal');
+  });
+
+  it('D3：raw sign 带 spawn error（exit 仍 0）而摘要「正确」，必须判红', () => {
+    const observation = goodFullMatrix();
+    const row = cellOf(observation, SIGN_SUBJECT_IDS[0], 'adhoc-hardened-no-entitlements');
+    row.sign.error = 'spawn /usr/bin/codesign EPERM';
+    assert.equal(row.sign.exit, 0, 'exit 面刻意保持 0：坏的只有 error 一格');
+    assert.equal(row.signExit, 0, '摘要必须仍报成功');
+    failed(verdictSign(observation), 'D3 raw sign spawn error');
+  });
+
+  it('D4：raw display stderr 带具名 security evidence 而摘要 flags 仍正确，必须判红', () => {
+    const observation = goodFullMatrix();
+    const row = cellOf(
+      observation,
+      SIGN_SUBJECT_IDS[1],
+      'adhoc-hardened-with-node-v22.23.1-entitlements',
+    );
+    row.display.stderr = streamOf(
+      `${matrixDisplayStderr(row.cellPath, true)}${row.cellPath}: invalid entitlements blob\n`,
+    );
+    assert.equal(row.flags, 'flags=0x10002(adhoc,runtime)', '摘要 flags 必须仍正确');
+    failed(verdictSign(observation), 'D4 raw display security stderr');
+  });
+});
+
+// —— 族 E · 串格与深层 raw ————————————————————————————————————————
+//
+// 两处缺口：
+//   1. `verdictCommandBinding`（第 1643-1710 行）把 `receipt.commands` 收成
+//      `identities` 这个 **Set**，只问「这条在不在」。于是同一枚 occurrence 可以同时
+//      顶下多个 semantic role，六格也没有任何 role+subject+mode → 唯一 index 的绑定，
+//      A 格因此能直接复用 B 格的实物。
+//   2. `.app`（第 1031-1064 行）与逐格 `run`/`actualEntitlements` 同样只读摘要整数与
+//      派生 values，`signNested`/`signOuter`/`deepVerify`/`spctl`/`nestedRun` 的 raw
+//      与 actual-entitlements raw 一条也不判。
+
+describe('R5 族 E · 串格与深层 raw 被摘要洗绿', () => {
+  it('阳性对照：逐格独占 occurrence、`.app` raw 与摘要一致的完整观察判绿', () => {
+    const observation = goodFullMatrix();
+    // 先自证「基线本就一格一实物」：六格的物理坐标互不相同，raw occurrence 也互不复用。
+    const cells = observation.resign.map((row) => row.cellPath);
+    assert.equal(new Set(cells).size, cells.length, '六格物理坐标必须互不相同');
+    const occurrences = observation.resign.flatMap((row) => [row.sign, row.verify, row.display]);
+    assert.equal(new Set(occurrences).size, occurrences.length, 'raw occurrence 必须互不复用');
+    passed(verdictSign(observation), 'R5 族 E 基线');
+  });
+
+  it('E1a：一枚 command occurrence 同时顶下 control sign 与 control verify 两个 role，必须判红', () => {
+    const observation = goodFullMatrix();
+    const real = observation.preflight.control.verify;
+    // 把 verify 这个 role 指到 sign 那一枚 occurrence 上。真实的 verify 命令仍留在
+    // `receipt.commands` 里（它确实跑过），坏的只是 role 与 occurrence 不再一一对应。
+    observation.preflight.control.verify = observation.preflight.control.sign;
+    assert.ok(
+      observation.hostToolReceipt.commands.includes(real),
+      '真实 verify 命令必须仍在同轮 receipt 中',
+    );
+    assert.equal(
+      observation.preflight.control.verify,
+      observation.preflight.control.sign,
+      '两个 role 必须已指向同一枚 occurrence',
+    );
+    assert.equal(observation.preflight.control.verifyExit, 0, '摘要必须仍报成功');
+    failed(verdictSign(observation), 'E1a control role 串占同一 occurrence');
+  });
+
+  it('E1b：A 格（route-a/cjs）复用 B 格（route-b/default）的实物与 occurrence，必须判红', () => {
+    const observation = goodFullMatrix();
+    const cellA = cellOf(observation, SIGN_SUBJECT_IDS[0], 'adhoc-plain');
+    const cellB = cellOf(observation, SIGN_SUBJECT_IDS[1], 'adhoc-plain');
+    assert.notEqual(cellA.subject, cellB.subject, '两格必须是不同 subject');
+    // A 格的三条 raw 全部换成 B 格的实物：A 格自此没有任何属于自己的物理证据。
+    cellA.sign = cellB.sign;
+    cellA.verify = cellB.verify;
+    cellA.display = cellB.display;
+    cellA.actualEntitlements = { ...cellA.actualEntitlements, command: cellB.actualEntitlements.command };
+    assert.equal(cellA.sign.argv.at(-1), cellB.cellPath, 'A 格 raw 必须已指向 B 格实物');
+    assert.notEqual(cellA.cellPath, cellB.cellPath, 'A 格自己的物理坐标仍是另一个');
+    assert.equal(cellA.signExit, 0, '摘要必须仍报成功');
+    failed(verdictSign(observation), 'E1b A/B physical cell 串格');
+  });
+
+  for (const [label, key, mutate] of [
+    ['inner（nested）签名', 'signNested', (app) => {
+      app.signNested.exit = 1;
+      app.signNested.stderr = streamOf(`${APP_NESTED_PATH}: the signature could not be applied\n`);
+    }],
+    ['outer 签名', 'signOuter', (app) => {
+      app.signOuter.exit = 1;
+      app.signOuter.stderr = streamOf(`${APP_BUNDLE_PATH}: bundle format unrecognized\n`);
+    }],
+    ['deep verify', 'deepVerify', (app) => {
+      app.deepVerify.exit = 1;
+      app.deepVerify.stderr = streamOf(`${APP_BUNDLE_PATH}: code object is not signed at all\n`);
+    }],
+    ['spctl（Gatekeeper 竟然放行）', 'spctl', (app) => {
+      app.spctl.exit = 0;
+      app.spctl.stderr = streamOf(`${APP_BUNDLE_PATH}: accepted\n`);
+    }],
+    ['nested run', 'nestedRun', (app) => {
+      app.nestedRun = {
+        ok: false,
+        exit: { code: 1, signal: null },
+        timeouts: [],
+        stderrTail: [`${APP_NESTED_PATH}: Abort trap: 6`],
+      };
+    }],
+  ]) {
+    it(`E2 · \`.app\` 的 ${label} raw 失败而摘要仍报成功，必须判红`, () => {
+      const observation = goodFullMatrix();
+      const before = clone({
+        signNestedExit: observation.appBundle.signNestedExit,
+        signOuterExit: observation.appBundle.signOuterExit,
+        verifyDeepStrictExit: observation.appBundle.verifyDeepStrictExit,
+        nestedLaunched: observation.appBundle.nestedLaunched,
+        spctlExit: observation.appBundle.spctlExit,
+        spctlStdout: observation.appBundle.spctlStdout,
+        spctlStderrFirstNonemptyLine: observation.appBundle.spctlStderrFirstNonemptyLine,
+      });
+      mutate(observation.appBundle);
+      // 摘要七格一字不改：被洗绿的就是这个机制。
+      for (const [field, value] of Object.entries(before)) {
+        assert.deepEqual(observation.appBundle[field], value, `${label}：摘要 ${field} 必须保持原值`);
+      }
+      assert.ok(observation.appBundle[key], `${label}：raw ${key} 必须在场`);
+      failed(verdictSign(observation), `E2 .app ${label} raw 失败`);
+    });
+  }
+
+  it('E3：某格 run raw 失败而摘要 launched 报真，必须判红', () => {
+    const observation = goodFullMatrix();
+    const row = cellOf(observation, SIGN_SUBJECT_IDS[0], 'adhoc-plain');
+    row.run = {
+      ok: false,
+      exit: { code: 1, signal: null },
+      timeouts: [],
+      stderrTail: [`${row.cellPath}: Abort trap: 6`],
+    };
+    assert.equal(row.launched, true, '摘要 launched 必须仍报真');
+    failed(verdictSign(observation), 'E3 run raw 失败');
+  });
+
+  it('E4a：actual-entitlements raw 读取失败而摘要仍报 present + canonical 六键，必须判红', () => {
+    const observation = goodFullMatrix();
+    const row = cellOf(
+      observation,
+      SIGN_SUBJECT_IDS[0],
+      'adhoc-hardened-with-node-v22.23.1-entitlements',
+    );
+    row.actualEntitlements.command.exit = 1;
+    row.actualEntitlements.command.stdout = streamOf('');
+    row.actualEntitlements.command.stderr = streamOf(
+      `${row.cellPath}: code object is not signed at all\n`,
+    );
+    assert.equal(row.actualEntitlements.kind, 'present', '摘要 kind 必须仍报 present');
+    assert.deepEqual(
+      row.actualEntitlements.values,
+      canonicalEntitlements.values,
+      '摘要 values 必须仍是 canonical 六键',
+    );
+    failed(verdictSign(observation), 'E4a actual-entitlements raw 读取失败');
+  });
+
+  it('E4b：无 entitlements 格的 raw 实测带六键而摘要仍报 none，必须判红', () => {
+    const observation = goodFullMatrix();
+    const row = cellOf(observation, SIGN_SUBJECT_IDS[0], 'adhoc-hardened-no-entitlements');
+    // raw 明说这枚二进制带着 canonical 六键；摘要却报「一个也没有」。
+    row.actualEntitlements.command.stdout = streamOf(xmlPlistText);
+    assert.equal(row.actualEntitlements.kind, 'none', '摘要 kind 必须仍报 none');
+    assert.deepEqual(row.actualEntitlements.values, {}, '摘要 values 必须仍是空');
+    assert.ok(row.actualEntitlements.command.stdout.bytes > 0, 'raw stdout 必须非空');
+    failed(verdictSign(observation), 'E4b actual-entitlements raw 与摘要相反');
   });
 });

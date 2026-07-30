@@ -30,6 +30,7 @@ import path from 'node:path';
 
 import {
   CODE_CACHE_REJECT_WARNING,
+  CRASH_DEADLINES,
   NODE_VERSION,
   SEALED_VARIANTS,
   SIDECAR_BASENAME,
@@ -148,6 +149,9 @@ if (COUNTEREXAMPLE && !COUNTEREXAMPLES[COUNTEREXAMPLE]) {
   process.exit(3);
 }
 
+/** 跨架构注入的 ready 门。由 R5 契约冻结为 60,000 ms——注入件启动本就比常态慢。 */
+const CROSS_ARCH_READY_MS = 60_000;
+
 const SCRIPTS = path.join(FIXTURE_DIR, 'scripts');
 const POSTJECT = path.join(REPO_ROOT, 'packages', 'pi-lane', 'node_modules', '.bin', 'postject');
 const FUSE = 'NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2';
@@ -229,6 +233,9 @@ if (!fs.existsSync(armBlob) || !fs.existsSync(x64Node)) {
     launched: false,
     warningSeen: false,
     warning: null,
+    // 缺件也交出可判形状：`launched:false` 已是硬红，这两格不留 undefined。
+    exit: { code: null, signal: null },
+    timeouts: [],
     reason: !fs.existsSync(armBlob) ? 'arm64-blob-missing' : 'x64-runtime-missing',
   };
 } else {
@@ -247,11 +254,27 @@ if (!fs.existsSync(armBlob) || !fs.existsSync(x64Node)) {
   ]);
   run('codesign', ['--sign', '-', executable]);
 
+  // R5 闭口一：ready 门保留 60,000 ms；ready 后发 EOF，退出固定用既有
+  // `CRASH_DEADLINES.exitMs`，失败再用 `killConfirmMs` 收束。**不再裸 `await proc.exited`**
+  // ——那一处正是「既不 ack 也不退出」时整支 probe 永久挂起的口子（R3 第十三节如实登记过，
+  // R5 把它收窄）。三段等待各自超时都写进 `timeouts`，判定侧只接受 `timeouts:[]`。
   const proc = spawnNdjson(executable, []);
-  const ready = await proc.waitFor((packet) => packet.op === 'ready', 60_000);
-  if (ready) proc.child.stdin.end();
-  else proc.child.kill('SIGKILL');
-  const exit = await proc.exited;
+  const timeouts = [];
+  const ready = await proc.waitFor((packet) => packet.op === 'ready', CROSS_ARCH_READY_MS);
+  let exit = null;
+  if (!ready) {
+    timeouts.push('ready');
+    exit = await proc.killAndConfirm(CRASH_DEADLINES.killConfirmMs);
+    if (!exit) timeouts.push('kill-confirm');
+  } else {
+    proc.child.stdin.end();
+    exit = await proc.waitForExit(CRASH_DEADLINES.exitMs);
+    if (!exit) {
+      timeouts.push('exit');
+      exit = await proc.killAndConfirm(CRASH_DEADLINES.killConfirmMs);
+      if (!exit) timeouts.push('kill-confirm');
+    }
+  }
   const stderr = proc.stderr();
 
   observation.crossArchCodeCache = {
@@ -259,7 +282,9 @@ if (!fs.existsSync(armBlob) || !fs.existsSync(x64Node)) {
     postjectExit: injected.status,
     executableSha256: sha256File(executable),
     launched: Boolean(ready),
-    exit,
+    // 显式携 `{code,signal}`：确认不了退出时也要留下一个可判的形状，不留 undefined。
+    exit: exit ?? { code: null, signal: null },
+    timeouts,
     // 「照常启动、只在 stderr 留一句」正是静默降级的形状：读数必须逐字锁那一句。
     warningSeen: stderr.includes(CODE_CACHE_REJECT_WARNING),
     warning:

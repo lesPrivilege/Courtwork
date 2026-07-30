@@ -6,7 +6,12 @@
  * 没有任何一处会因语义失败而判红——那不是证据，是排版。
  *
  * 本模块因此只做一件事：把「观察值」翻成「通过 / 不通过」。
- * - **纯**：不碰 fs、不 spawn、不读 `process`、不 `exit`。观察由各 probe 采集后传进来。
+ * - **纯**：不碰 fs、不 spawn、不 `exit`。观察由各 probe 采集后传进来。
+ *   **R5 起有两枚具名例外**（`2026-07-30` 架构裁定，见 SPEC R5 第 4 条锚点段）：模块自持
+ *   `PROBE_ROOT`（由 `import.meta.dirname` 作纯字符串运算得出）与 `HOST_ARCH`
+ *   （`process.arch`）。两者都不是 I/O，也**不来自被判定的 observation**——正因为观察面
+ *   移不动它们，才能当 official Node expected path 的锚。Stage A 实测：锚在 receipt
+ *   自报 path 上时，三处同步漂移零区分力。除这两枚外仍不读 `process`。
  * - **唯一**：`measure` / `coldstart-rounds` / `reproducibility-probe` / `sign-probe`
  *   四支必须消费同一份判据，不得各自另写一套宽松口径。
  * - **闭集**：库存恰十件，多一件少一件都是失败；判据本身是冻结字面量，不从被测包 import——
@@ -18,9 +23,60 @@
  */
 
 import { createHash } from 'node:crypto';
+import path from 'node:path';
 
 /** 被测运行时。只此一个版本，`fetch-runtime` / `extract-runtime` 与判定共用。 */
 export const NODE_VERSION = 'v22.23.1';
+
+/**
+ * 判定层**自持**的 probe root。由本模块自身位置作纯字符串运算得出（`scripts/lib` 上两级），
+ * 不读 fs、不取 observation 字段。被判定的观察面无法移动它——这正是它能当锚的理由。
+ */
+export const PROBE_ROOT = path.resolve(import.meta.dirname, '..', '..');
+
+/** 判定进程实测的 host 架构。冻结的 `OFFICIAL_NODE_SHA256` 独立锚定 arm64 实物，故非 arm64 宿主先在 SHA 门失败，不会静默走岔。 */
+export const HOST_ARCH = process.arch;
+
+/**
+ * official Node 的 expected path：自持 probe root + 冻结布局坐标，**独立构造**。
+ * 采集端（`sign-probe.mjs` 的 `officialNodeFingerprint()`）与判定端共用这一份，
+ * 避免两谱各拼一次；receipt 的 `officialNode.path` 自此只是**被验值**，不是真源。
+ */
+export function officialNodeExpectedPath(hostArch = HOST_ARCH) {
+  return path.join(PROBE_ROOT, 'dist', 'runtime', `node-${NODE_VERSION}-darwin-${hostArch}`, 'bin', 'node');
+}
+
+/** 每次运行独占的 execution-domain 目录根。stage root 必须落在它下面。 */
+export const SECURITY_DOMAIN_ROOT = path.join(PROBE_ROOT, 'dist', 'security-domain');
+
+/**
+ * full 六格的 **stage root 形状门**。staging 目录名含 pid 与随机段，判定层无法凭冻结数据
+ * 重建它，故口径是「绑定唯一一个 root，并要求它确实落在本 probe 的 security-domain 下」；
+ * 此后全部 cell 坐标都由这一个 root 加**冻结** subject/mode 坐标推出，不从 row/appPath 反推。
+ */
+export function verdictStageRoot(stageRoot) {
+  if (!nonemptyString(stageRoot) || !path.isAbsolute(stageRoot)) {
+    return [fail('sign', 'sign.stageRoot', 'absolute staging path', asNullable(stageRoot))];
+  }
+  const relative = path.relative(SECURITY_DOMAIN_ROOT, stageRoot);
+  // 必须是 security-domain 的**直接**子目录：`..` 逃逸、绝对路径与多层嵌套一律不算。
+  if (relative === '' || relative.startsWith('..') || path.isAbsolute(relative) || relative.includes(path.sep)) {
+    return [fail('sign', 'sign.stageRoot', `direct child of ${SECURITY_DOMAIN_ROOT}`, stageRoot)];
+  }
+  return [];
+}
+
+/** production `safeName()` 的共享口径：`/` 与 `|` 换 `-`。采集端与判定端共用一份。 */
+export const signCellDirName = (subject, mode) => `${subject}--${mode}`.replaceAll('/', '-').replaceAll('|', '-');
+
+/** 一格重签实物的**唯一**预期坐标：trusted stage root + 冻结 subject/mode 坐标。 */
+export const signCellPath = (stageRoot, subject, mode) =>
+  path.join(stageRoot, 'matrix', signCellDirName(subject, mode), `${SIDECAR_BASENAME}-${TARGETS[0].triple}`);
+
+/** 嵌套 `.app` 的三个预期坐标，同样由 trusted stage root 推出，不取 `app.appPath` 自报值。 */
+export const appBundlePath = (stageRoot) => path.join(stageRoot, 'app-bundle', 'SidecarProbe.app');
+export const appBundleNestedPath = (stageRoot) =>
+  path.join(appBundlePath(stageRoot), 'Contents', 'MacOS', `${SIDECAR_BASENAME}-${TARGETS[0].triple}`);
 
 /** 官方发行目录。冻结到版本级，不接受任意 URL。 */
 export const NODE_DIST_BASE = `https://nodejs.org/dist/${NODE_VERSION}/`;
@@ -855,6 +911,25 @@ export function verdictReproducibility(observation) {
         fail('cross-arch', 'reproducibility.crossArch.warning', CODE_CACHE_REJECT_WARNING, asNullable(cross.warning)),
       );
     }
+    // R5 闭口一（`07d2dbc` 被独立验收坐实的 P1 之一）：R4 只核 `launched` 与 `warning`，
+    // 于是「静默降级那句一字不差、进程却非零退出／被信号打死／某一步超时」全部假绿。
+    // 60,000 ms ready 门留在采集侧；判定侧只接受**零超时**与 `{code:0,signal:null}`。
+    const timeouts = Array.isArray(cross.timeouts) ? cross.timeouts : null;
+    if (timeouts === null || timeouts.length !== 0) {
+      failures.push(fail('cross-arch', 'reproducibility.crossArch.timeouts', [], asNullable(cross.timeouts)));
+    }
+    const exitCode = asNullable(cross.exit?.code);
+    const exitSignal = asNullable(cross.exit?.signal);
+    if (exitCode !== 0 || exitSignal !== null) {
+      failures.push(
+        fail(
+          'cross-arch',
+          'reproducibility.crossArch.exit',
+          { code: 0, signal: null },
+          { code: exitCode, signal: exitSignal },
+        ),
+      );
+    }
   }
   return failures;
 }
@@ -917,10 +992,13 @@ function deterministic(label, row, expectedPath, expectIdentical) {
  * 公证，也不宣称跨机可复现。`launches` 逐格锁既知形态——包括「硬化 + 无 entitlements
  * 必须起不来」这一条；它哪天起来了，第七节的结论就得重写，故也判红。
  */
-export function verdictSign(observation) {
-  if (!observation) return [fail('sign', 'sign.observation', 'sign observation', null)];
+/**
+ * execution-domain id 与 canonical 输入门。R5 起由 `verdictSign` 与
+ * `verdictPreflightEvidence` 共用——canonical 输入是仓内冻结件，与执行域分类无关，
+ * preflight-only 同样必须过。行为与 R4 内联时逐条相同，只是搬成一处。
+ */
+function verdictDomainAndCanonical(observation) {
   const failures = [];
-
   if (!EXECUTION_DOMAIN_ID.test(observation.executionDomainId ?? '')) {
     failures.push(
       fail(
@@ -954,16 +1032,238 @@ export function verdictSign(observation) {
   if (!sameFlatRecord(canonical?.values, CANONICAL_ENTITLEMENTS.values)) {
     failures.push(fail('sign', 'sign.canonical.values', CANONICAL_ENTITLEMENTS.values, asNullable(canonical?.values)));
   }
+  return failures;
+}
+
+/**
+ * R5 闭口三·前半：preflight 的**证据完整性**门，与执行域分类无关。
+ *
+ * 刻意**不**含「必须 passed」那一类形状门——受限域里合法的 blocked 也必须先过这一层，
+ * 否则就是 R3 blocked-first 的反面：把一次准确的 blocked 误归普通失败。分类相关的形状门
+ * 住 `verdictPreflight()`，由 `verdictPreflightRun()` 仅在 raw 重导为 `passed` 时追加。
+ */
+export function verdictPreflightEvidence(observation) {
+  if (!observation) return [fail('sign', 'sign.observation', 'preflight observation', null)];
+  const receipt = observation.hostToolReceipt ?? null;
+  const commands = Array.isArray(receipt?.commands) ? receipt.commands : [];
+  const preflight = observation.preflight ?? null;
+  const failures = [
+    ...verdictDomainAndCanonical(observation),
+    ...verdictHostToolReceipt(receipt, observation.executionDomainId),
+    ...verdictRoleOccurrenceBinding(commands, preflightBindingRoles(preflight)),
+    ...verdictOfficialTargetAnchor([
+      ['official.verify', preflight?.officialSignature?.verify],
+      ['official.display', preflight?.officialSignature?.display],
+    ]),
+  ];
+
+  // producer 自报的 status/classification 只作 **exact parity**，且这道 parity 与分类无关：
+  // blocked 路径不跑 passed 形状门，若这里也不核，「raw 判 blocked、producer 自称 passed」
+  // 就没人看得见。
+  if (!preflight) {
+    failures.push(fail('sign', 'sign.preflight', 'preflight observation', null));
+  } else {
+    const raw = derivePreflightFromRaw(preflight);
+    if (preflight.status !== raw.status || preflight.classification !== raw.classification) {
+      failures.push(
+        fail('sign', 'sign.preflight.producerStatusParity', { status: raw.status, classification: raw.classification }, {
+          status: asNullable(preflight.status),
+          classification: asNullable(preflight.classification),
+        }),
+      );
+    }
+  }
+  return failures;
+}
+
+/**
+ * preflight 的 raw 重导分类。采集端（`runPreflight()`）与判定端共用同一条链：
+ * `deriveSecurityBlockedReasons` → `deriveGatesFromRaw` → `classifyPreflight`。
+ * producer 自报的 `status`/`classification` 只作 parity，不参与这里的计算。
+ */
+export function derivePreflightFromRaw(preflight) {
+  const official = preflight?.officialSignature ?? null;
+  const gatekeeper = preflight?.appGatekeeper ?? null;
+  const blockedReasons = deriveSecurityBlockedReasons({
+    controlSign: preflight?.control?.sign,
+    controlVerify: preflight?.control?.verify,
+    controlXml: preflight?.control?.xml?.command,
+    officialVerify: official?.verify,
+    officialDisplay: official?.display,
+    spctl: gatekeeper?.command,
+  });
+  const gates = deriveGatesFromRaw({
+    launch: preflight?.control?.launch,
+    controlSign: preflight?.control?.sign,
+    controlVerify: preflight?.control?.verify,
+    controlXml: preflight?.control?.xml?.command,
+    controlXmlValues: verdictXmlEvidence('preflight/control.xml', preflight?.control?.xml).values,
+    officialVerify: official?.verify,
+    officialDisplay: official?.display,
+    spctl: gatekeeper?.command,
+    appPath: gatekeeper?.appPath,
+  });
+  return { ...classifyPreflight({ ...gates, blockedReasons }), gates, blockedReasons };
+}
+
+/**
+ * R5 闭口三：preflight-only 与 full 在形成最终 manifest/status **之前**都要跑的
+ * production-used hard verdict，并给出 final status 的**唯一**映射。
+ *
+ * R4 的 `sign-probe.mjs` 在 preflight-only 模式压根不进 `runFullProbe()`，`finalStatus`
+ * 直接取 producer 的 `preflight.status`（第 154-155 行），于是 target 同步漂移与摘要漂移
+ * 都能在发布前一路绿灯（Stage A 的 C1/C2）。
+ *
+ * 映射次序不可交换：证据完整性失败一律 `probe_failed`；只有 raw 重导恰为
+ * `{ok,passed}` 且 passed 形状门全过才是 `ok`；恰为
+ * `{failed,security_execution_domain_blocked}` 才是同名 blocked；其余一律 `probe_failed`。
+ */
+export function verdictPreflightRun(observation) {
+  const evidence = verdictPreflightEvidence(observation);
+  const raw = derivePreflightFromRaw(observation?.preflight);
+  // passed 形状门只在 raw 判 passed 时追加——受限域的 blocked 不该被「必须 passed」误伤。
+  const shape = raw.classification === 'passed' ? verdictPreflight(observation?.preflight) : [];
+  const failures = [...evidence, ...shape];
+  const status =
+    failures.length > 0
+      ? 'probe_failed'
+      : raw.status === 'ok' && raw.classification === 'passed'
+        ? 'ok'
+        : raw.status === 'failed' && raw.classification === 'security_execution_domain_blocked'
+          ? 'security_execution_domain_blocked'
+          : 'probe_failed';
+  return { failures, raw, status };
+}
+
+/** raw command 的成功形状：exit 为预期值、无 signal、无 spawn error。三者缺一不算成功。 */
+const rawCommandOk = (command, expectedExit) =>
+  command?.exit === expectedExit && command?.signal === null && asNullable(command?.error) === null;
+
+/**
+ * 一格重签的 **raw 真源**闭口。R4 逐格只读 `signExit`/`verifyExit`/`flags`/`launched`/
+ * `actualEntitlements` 这些 producer 摘要，同轮 raw 一条也不判（Stage A 的 D1–D4、E1b、
+ * E3、E4）。这里从 raw 重导同样的结论，并要求摘要与 raw **exact parity**。
+ *
+ * 目标坐标由 trusted stage root 加冻结 subject/mode 坐标独立构造，不从 `row.cellPath`
+ * 或 argv 自报值反推——否则 A 格指向 B 格实物照旧自洽。
+ */
+function verdictSignCellRaw(at, row, mode, stageRoot) {
+  const failures = [];
+  const cell = nonemptyString(stageRoot) ? signCellPath(stageRoot, row.subject, row.mode) : null;
+  if (cell === null) return failures; // stage root 本身已红，坐标无从构造。
+
+  const signArgv = [
+    '/usr/bin/codesign',
+    '--force',
+    '--sign',
+    '-',
+    ...(mode.hardened ? ['--options', 'runtime'] : []),
+    ...(mode.entitlements ? ['--entitlements', row.canonicalInputAbsolutePath ?? ''] : []),
+    cell,
+  ];
+  for (const [label, command, shape, expectedExit] of [
+    ['sign', row.sign, signArgv, 0],
+    ['verify', row.verify, ['/usr/bin/codesign', '--verify', '--strict', '--verbose=4', cell], 0],
+    ['display', row.display, ['/usr/bin/codesign', '-d', '--verbose=4', cell], 0],
+    [
+      'actualEntitlements',
+      row.actualEntitlements?.command,
+      ['/usr/bin/codesign', '-d', '--entitlements', '-', '--xml', cell],
+      0,
+    ],
+  ]) {
+    // entitlements 那一格的 canonical 绝对路径由采集端记在 row 上；缺了就只核末项。
+    const argv = Array.isArray(command?.argv) ? command.argv : null;
+    const targetOk = argv !== null && argv[0] === shape[0] && argv.at(-1) === cell;
+    const shapeOk = label === 'sign' && !nonemptyString(row.canonicalInputAbsolutePath)
+      ? targetOk
+      : argv !== null && sameArgv(argv, shape);
+    if (!shapeOk || !targetOk) {
+      failures.push(fail(at, `sign.matrix.raw.${label}.argv`, shape, asNullable(argv)));
+    }
+    if (!rawCommandOk(command, expectedExit)) {
+      failures.push(
+        fail(at, `sign.matrix.raw.${label}`, { exit: expectedExit, signal: null, error: null }, {
+          exit: asNullable(command?.exit),
+          signal: asNullable(command?.signal),
+          error: asNullable(command?.error),
+        }),
+      );
+    }
+    // 具名 security evidence 出现在重签命令的流里，就不再是一次普通成功。
+    const reasons = securityReasonsFromStreams([command]);
+    if (reasons.length > 0) {
+      failures.push(fail(at, `sign.matrix.raw.${label}.security`, [], reasons));
+    }
+  }
+
+  // 摘要的 exit 只作 parity；flags 从 raw display stderr **重解析**，不取 `row.flags`。
+  if (row.signExit !== asNullable(row.sign?.exit)) {
+    failures.push(fail(at, 'sign.matrix.raw.signExitParity', asNullable(row.sign?.exit), asNullable(row.signExit)));
+  }
+  if (row.verifyExit !== asNullable(row.verify?.exit)) {
+    failures.push(fail(at, 'sign.matrix.raw.verifyExitParity', asNullable(row.verify?.exit), asNullable(row.verifyExit)));
+  }
+  const rawFlags = parseCodesignFlags(row.display?.stderr?.content);
+  const expectedFlags = mode.hardened ? '0x10002(adhoc,runtime)' : '0x2(adhoc)';
+  if (rawFlags !== expectedFlags) {
+    failures.push(fail(at, 'sign.matrix.raw.flags', expectedFlags, rawFlags));
+  }
+  if (String(row.flags ?? '').replace(/^flags=/, '') !== rawFlags) {
+    failures.push(fail(at, 'sign.matrix.raw.flagsParity', rawFlags, asNullable(row.flags)));
+  }
+
+  // 实际 run 是真源：`launched` 摘要必须与 raw 的 exit/timeouts 一致。
+  const run = row.run ?? null;
+  if (!run) {
+    failures.push(fail(at, 'sign.matrix.raw.run', 'launch observation', null));
+  } else {
+    const timeouts = Array.isArray(run.timeouts) ? run.timeouts : null;
+    const rawLaunched = run.exit?.code === 0 && run.exit?.signal === null && timeouts !== null && timeouts.length === 0;
+    if (run.ok !== rawLaunched) {
+      failures.push(fail(at, 'sign.matrix.raw.run.selfConsistent', rawLaunched, asNullable(run.ok)));
+    }
+    if (row.launched !== rawLaunched) {
+      failures.push(fail(at, 'sign.matrix.raw.run.launchedParity', rawLaunched, asNullable(row.launched)));
+    }
+    // 起不来的那一格必须**真的**起不来：既知形态由 `SIGN_MODES.launches` 冻结。
+    if (rawLaunched !== mode.launches) {
+      failures.push(fail(at, 'sign.matrix.raw.run.expected', mode.launches, rawLaunched));
+    }
+  }
+
+  // 签后 XML：带 entitlements 的格必须经绑定 plutil 重核六键；无 entitlements 的格
+  // raw stdout 必须**真的空**——「raw 里明摆着六键、摘要报 none」正是 E4b 的形状。
+  const actual = row.actualEntitlements ?? null;
+  const actualStdoutBytes = asNullable(actual?.command?.stdout?.bytes);
+  if (mode.entitlements) {
+    failures.push(...verdictXmlEvidence(`${at}/actualEntitlements`, actual).failures);
+  } else if (actualStdoutBytes !== 0) {
+    failures.push(fail(at, 'sign.matrix.raw.actualEntitlements.empty', 0, actualStdoutBytes));
+  }
+  return failures;
+}
+
+export function verdictSign(observation) {
+  if (!observation) return [fail('sign', 'sign.observation', 'sign observation', null)];
+  const failures = [];
+
+  failures.push(...verdictDomainAndCanonical(observation));
 
   failures.push(...verdictPreflight(observation.preflight));
   failures.push(
     ...verdictOfficialEntitlements(
       observation.officialEntitlements,
-      observation.hostToolReceipt?.officialNode?.path ?? null,
+      // R5 锚点：expected executable 取独立构造值，不再取 receipt 自报 path。
+      officialNodeExpectedPath(),
     ),
   );
   failures.push(...verdictHostToolReceipt(observation.hostToolReceipt, observation.executionDomainId));
   failures.push(...verdictCommandBinding(observation));
+
+  // R5 闭口四：六格与 `.app` 的全部坐标都从这**一个** trusted stage root 推出。
+  const stageRoot = observation.stageRoot ?? null;
+  failures.push(...verdictStageRoot(stageRoot));
 
   const rows = Array.isArray(observation.resign) ? observation.resign : [];
   const expectedCells = SIGN_SUBJECT_IDS.flatMap((subject) => SIGN_MODES.map((mode) => `${subject}|${mode.name}`));
@@ -1025,8 +1325,34 @@ export function verdictSign(observation) {
           ),
         );
       }
+      // R5 闭口四：以上全是 producer 摘要。下面这一层从**同轮 raw** 重导同样的结论——
+      // raw 非零、带 signal、spawn error、security stderr 与串格，此前都能被好摘要洗绿。
+      failures.push(...verdictSignCellRaw(at, row, mode, stageRoot));
     }
   }
+
+  // 六格的 raw occurrence 必须逐条绑到同轮 receipt 里**唯一且互不复用**的一条：
+  // 一次性收齐再判，才能发现「A 格复用 B 格实物」这种跨 cell 串格。
+  failures.push(
+    ...verdictRoleOccurrenceBinding(
+      Array.isArray(observation.hostToolReceipt?.commands) ? observation.hostToolReceipt.commands : [],
+      [
+        ...rows.flatMap((row) => {
+          const at = `${row.subject}|${row.mode}`;
+          return [
+            [`${at}/sign`, row.sign],
+            [`${at}/verify`, row.verify],
+            [`${at}/display`, row.display],
+            [`${at}/actualEntitlements`, row.actualEntitlements?.command],
+          ];
+        }),
+        ['app/signNested', observation.appBundle?.signNested],
+        ['app/signOuter', observation.appBundle?.signOuter],
+        ['app/deepVerify', observation.appBundle?.deepVerify],
+        ['app/spctl', observation.appBundle?.spctl],
+      ],
+    ),
+  );
 
   const app = observation.appBundle ?? null;
   if (!app || (app.status && app.status !== 'ok')) {
@@ -1042,7 +1368,13 @@ export function verdictSign(observation) {
     if (app.nestedLaunched !== true) {
       failures.push(fail('sign/.app', 'sign.app.nestedLaunched', true, asNullable(app.nestedLaunched)));
     }
-    const expectedSpctlLine = `${app.appPath}: rejected`;
+    // R5 闭口四：expected appPath 由 trusted stage root 独立构造，**不再**取 `app.appPath`
+    // 自报值反推预期行——否则把 appPath 与 stderr 一起换掉就自洽了。
+    const expectedAppPath = nonemptyString(stageRoot) ? appBundlePath(stageRoot) : null;
+    if (expectedAppPath !== null && app.appPath !== expectedAppPath) {
+      failures.push(fail('sign/.app', 'sign.app.appPath', expectedAppPath, asNullable(app.appPath)));
+    }
+    const expectedSpctlLine = `${expectedAppPath ?? app.appPath}: rejected`;
     if (
       app.spctlExit !== 3 ||
       app.spctlStdout !== '' ||
@@ -1060,6 +1392,85 @@ export function verdictSign(observation) {
           },
         ),
       );
+    }
+    failures.push(...verdictAppBundleRaw(app, stageRoot, expectedAppPath));
+  }
+  return failures;
+}
+
+/**
+ * 嵌套 `.app` 的 raw 真源闭口。R4 只读 `signNestedExit`/`signOuterExit`/
+ * `verifyDeepStrictExit`/`nestedLaunched`/`spctl*` 五组摘要整数，四条 raw command 与
+ * `nestedRun` 一条也不判（Stage A 的 E2 五枚）。
+ *
+ * inner/outer/deep verify/`spctl` 的 argv 全部由 trusted stage root 推出；
+ * 摘要整数只作 exact parity；nested run 的成功由 raw exit/timeouts 重导。
+ */
+function verdictAppBundleRaw(app, stageRoot, expectedAppPath) {
+  const failures = [];
+  if (!nonemptyString(stageRoot) || expectedAppPath === null) return failures;
+  const nested = appBundleNestedPath(stageRoot);
+
+  for (const [label, command, shape, expectedExit, summaryKey] of [
+    ['signNested', app.signNested, ['/usr/bin/codesign', '--force', '--sign', '-', nested], 0, 'signNestedExit'],
+    ['signOuter', app.signOuter, ['/usr/bin/codesign', '--force', '--sign', '-', expectedAppPath], 0, 'signOuterExit'],
+    [
+      'deepVerify',
+      app.deepVerify,
+      ['/usr/bin/codesign', '--verify', '--deep', '--strict', '--verbose=4', expectedAppPath],
+      0,
+      'verifyDeepStrictExit',
+    ],
+    ['spctl', app.spctl, spctlArgvFor(expectedAppPath), 3, 'spctlExit'],
+  ]) {
+    const argv = Array.isArray(command?.argv) ? command.argv : null;
+    if (!argv || !sameArgv(argv, shape)) {
+      failures.push(fail('sign/.app', `sign.app.raw.${label}.argv`, shape, asNullable(argv)));
+    }
+    if (!rawCommandOk(command, expectedExit)) {
+      failures.push(
+        fail('sign/.app', `sign.app.raw.${label}`, { exit: expectedExit, signal: null, error: null }, {
+          exit: asNullable(command?.exit),
+          signal: asNullable(command?.signal),
+          error: asNullable(command?.error),
+        }),
+      );
+    }
+    if (app[summaryKey] !== asNullable(command?.exit)) {
+      failures.push(
+        fail('sign/.app', `sign.app.raw.${label}.exitParity`, asNullable(command?.exit), asNullable(app[summaryKey])),
+      );
+    }
+  }
+
+  // Gatekeeper 首非空行与 stdout 从 raw 重取，摘要只作 parity。
+  const rawSpctlLine = firstNonemptyLine(app.spctl?.stderr?.content);
+  if (rawSpctlLine !== `${expectedAppPath}: rejected` || app.spctlStderrFirstNonemptyLine !== rawSpctlLine) {
+    failures.push(
+      fail('sign/.app', 'sign.app.raw.spctl.stderrLine', `${expectedAppPath}: rejected`, {
+        raw: rawSpctlLine,
+        summary: asNullable(app.spctlStderrFirstNonemptyLine),
+      }),
+    );
+  }
+  if (app.spctlStdout !== asNullable(app.spctl?.stdout?.content)) {
+    failures.push(
+      fail('sign/.app', 'sign.app.raw.spctl.stdoutParity', asNullable(app.spctl?.stdout?.content), asNullable(app.spctlStdout)),
+    );
+  }
+
+  const nestedRun = app.nestedRun ?? null;
+  if (!nestedRun) {
+    failures.push(fail('sign/.app', 'sign.app.raw.nestedRun', 'nested launch observation', null));
+  } else {
+    const timeouts = Array.isArray(nestedRun.timeouts) ? nestedRun.timeouts : null;
+    const rawLaunched =
+      nestedRun.exit?.code === 0 && nestedRun.exit?.signal === null && timeouts !== null && timeouts.length === 0;
+    if (nestedRun.ok !== rawLaunched) {
+      failures.push(fail('sign/.app', 'sign.app.raw.nestedRun.selfConsistent', rawLaunched, asNullable(nestedRun.ok)));
+    }
+    if (app.nestedLaunched !== rawLaunched) {
+      failures.push(fail('sign/.app', 'sign.app.raw.nestedRun.launchedParity', rawLaunched, asNullable(app.nestedLaunched)));
     }
   }
   return failures;
@@ -1416,6 +1827,13 @@ export function parseOfficialSignatureIdentity(stderrText) {
   };
 }
 
+/**
+ * `codesign -d --verbose=4` 的 CodeDirectory flags。采集端（`sign-probe.mjs` 的
+ * `parseFlags`）与判定端共用这一份：R5 起判定端从 raw stderr 重解析，`row.flags` 只作 parity。
+ */
+export const parseCodesignFlags = (textValue) =>
+  String(textValue ?? '').match(/^CodeDirectory .*\bflags=([^\s]+)(?:\s|$)/m)?.[1] ?? null;
+
 /** raw stream 的第一非空行。Gatekeeper 判定只认从 raw stderr 重取的这一行。 */
 export const firstNonemptyLine = (text) =>
   String(text ?? '')
@@ -1640,73 +2058,114 @@ const sameDerResult = (a, b) =>
  * 这一层挡的是：把 XML/human 的目标一起换成 bogus path 并重算 stream——伪造件自身完全
  * 自洽，只有跟同轮真实 command 对不上。
  */
-function verdictCommandBinding(observation) {
-  const receipt = observation.hostToolReceipt ?? null;
-  const commands = Array.isArray(receipt?.commands) ? receipt.commands : [];
-  const officialPath = receipt?.officialNode?.path ?? null;
-  const preflight = observation.preflight ?? null;
-  const entitlements = observation.officialEntitlements ?? null;
+/**
+ * R5 闭口三：role → **唯一 occurrence/index** 的绑定。
+ *
+ * R4 把 `commands` 收成 `identities` 这个 Set，只问「这条在不在」。Set 没有基数概念，于是
+ * 一枚 occurrence 可以同时顶下多个 semantic role（Stage A 的 E1a：把 `control.verify`
+ * 指到 `control.sign` 那一枚上，零 failure）。现在改为按 index 绑定：
+ * 每个 role 必须**恰好**匹配一条 receipt，且该 index 不得被第二个 role 认领。
+ *
+ * `roles` 的每项是 `[id, command]`；调用方负责给出本次判定范围内的全部 role。
+ */
+function verdictRoleOccurrenceBinding(commands, roles) {
   const failures = [];
-  const identities = new Set(commands.map(commandIdentity));
+  const identities = commands.map(commandIdentity);
+  const claimedBy = new Map();
 
-  for (const [id, command] of [
-    ['control.sign', preflight?.control?.sign],
-    ['control.verify', preflight?.control?.verify],
-    ['control.xml', preflight?.control?.xml?.command],
-    ['control.xml.lint', preflight?.control?.xml?.lint],
-    ['control.xml.json', preflight?.control?.xml?.json],
-    ['official.verify', preflight?.officialSignature?.verify],
-    ['official.display', preflight?.officialSignature?.display],
-    ['spctl', preflight?.appGatekeeper?.command],
-    ['official.xml', entitlements?.xml?.command],
-    ['official.xml.lint', entitlements?.xml?.lint],
-    ['official.xml.json', entitlements?.xml?.json],
-    ['official.human', entitlements?.human?.command],
-  ]) {
-    if (!command || !identities.has(commandIdentity(command))) {
-      failures.push(
-        fail(id, 'sign.receipt.commandBinding', 'field-identical receipt inside hostToolReceipt.commands', asNullable(command?.argv)),
-      );
+  for (const [id, command] of roles) {
+    if (!command) {
+      failures.push(fail(id, 'sign.receipt.commandBinding', 'field-identical receipt inside hostToolReceipt.commands', null));
+      continue;
     }
+    const identity = commandIdentity(command);
+    const matches = identities.reduce((list, candidate, index) => {
+      if (candidate === identity) list.push(index);
+      return list;
+    }, []);
+    if (matches.length === 0) {
+      failures.push(
+        fail(id, 'sign.receipt.commandBinding', 'field-identical receipt inside hostToolReceipt.commands', asNullable(command.argv)),
+      );
+      continue;
+    }
+    if (matches.length > 1) {
+      // 同轮里出现两条逐字段相同的 receipt：绑定不再唯一，也就无从谈「就是这一条」。
+      failures.push(fail(id, 'sign.receipt.commandOccurrence', 'exactly one matching receipt index', matches));
+      continue;
+    }
+    const [index] = matches;
+    if (claimedBy.has(index)) {
+      failures.push(
+        fail(id, 'sign.receipt.commandOccurrenceReuse', `receipt index ${index} not already claimed`, claimedBy.get(index)),
+      );
+      continue;
+    }
+    claimedBy.set(index, id);
   }
+  return failures;
+}
 
-  if (nonemptyString(officialPath)) {
-    // official 的**四条**命令都锁在同一条已过 SHA 的 receipt path 上：
-    // 换目标而不换 path，正是「observation 与 receipt 各自自洽」的最后一个出口。
-    for (const [id, command, shape] of [
-      [
-        'official.verify',
-        preflight?.officialSignature?.verify,
-        ['/usr/bin/codesign', '--verify', '--strict', '--verbose=4', officialPath],
-      ],
-      [
-        'official.display',
-        preflight?.officialSignature?.display,
-        ['/usr/bin/codesign', '-d', '--verbose=4', officialPath],
-      ],
-      [
-        'official.xml',
-        entitlements?.xml?.command,
-        ['/usr/bin/codesign', '-d', '--entitlements', '-', '--xml', officialPath],
-      ],
-      [
-        'official.human',
-        entitlements?.human?.command,
-        ['/usr/bin/codesign', '-d', '--entitlements', '-', officialPath],
-      ],
-    ]) {
-      const argv = Array.isArray(command?.argv) ? command.argv : null;
-      if (
-        !argv ||
-        argv.length !== shape.length ||
-        argv.some((value, index) => value !== shape[index]) ||
-        argv.at(-1) !== officialPath
-      ) {
-        failures.push(fail(id, 'sign.receipt.officialCommandBinding', shape, asNullable(argv)));
-      }
+/** preflight 范围的八条 role。preflight-only 与 full 共用同一份清单。 */
+const preflightBindingRoles = (preflight) => [
+  ['control.sign', preflight?.control?.sign],
+  ['control.verify', preflight?.control?.verify],
+  ['control.xml', preflight?.control?.xml?.command],
+  ['control.xml.lint', preflight?.control?.xml?.lint],
+  ['control.xml.json', preflight?.control?.xml?.json],
+  ['official.verify', preflight?.officialSignature?.verify],
+  ['official.display', preflight?.officialSignature?.display],
+  ['spctl', preflight?.appGatekeeper?.command],
+];
+
+/**
+ * official Node 四条命令的 argv 形状。`officialPath` 由调用方从**判定层自持的 probe root**
+ * 与冻结布局坐标独立构造（`officialNodeExpectedPath()`），**不取** receipt 自报值——
+ * Stage A 的 C1/C3 实测：锚在自报 path 上时，observation＋commands＋`officialNode.path`
+ * 三处同步漂移零区分力，full 与 preflight-only 同样假绿。
+ */
+const officialCommandShapes = (officialPath) => ({
+  'official.verify': ['/usr/bin/codesign', '--verify', '--strict', '--verbose=4', officialPath],
+  'official.display': ['/usr/bin/codesign', '-d', '--verbose=4', officialPath],
+  'official.xml': ['/usr/bin/codesign', '-d', '--entitlements', '-', '--xml', officialPath],
+  'official.human': ['/usr/bin/codesign', '-d', '--entitlements', '-', officialPath],
+});
+
+function verdictOfficialTargetAnchor(pairs) {
+  const officialPath = officialNodeExpectedPath();
+  const shapes = officialCommandShapes(officialPath);
+  const failures = [];
+  for (const [id, command] of pairs) {
+    const shape = shapes[id];
+    const argv = Array.isArray(command?.argv) ? command.argv : null;
+    if (!argv || !sameArgv(argv, shape) || argv.at(-1) !== officialPath) {
+      failures.push(fail(id, 'sign.receipt.officialCommandBinding', shape, asNullable(argv)));
     }
   }
   return failures;
+}
+
+function verdictCommandBinding(observation) {
+  const receipt = observation.hostToolReceipt ?? null;
+  const commands = Array.isArray(receipt?.commands) ? receipt.commands : [];
+  const preflight = observation.preflight ?? null;
+  const entitlements = observation.officialEntitlements ?? null;
+
+  return [
+    ...verdictRoleOccurrenceBinding(commands, [
+      ...preflightBindingRoles(preflight),
+      ['official.xml', entitlements?.xml?.command],
+      ['official.xml.lint', entitlements?.xml?.lint],
+      ['official.xml.json', entitlements?.xml?.json],
+      ['official.human', entitlements?.human?.command],
+    ]),
+    ...verdictOfficialTargetAnchor([
+      ['official.verify', preflight?.officialSignature?.verify],
+      ['official.display', preflight?.officialSignature?.display],
+      ['official.xml', entitlements?.xml?.command],
+      ['official.human', entitlements?.human?.command],
+    ]),
+  ];
 }
 
 function verdictOfficialEntitlements(observation, officialPath) {
@@ -1793,6 +2252,82 @@ const nonemptyString = (value) => typeof value === 'string' && value.trim().leng
 const validTimestamp = (value) => nonemptyString(value) && Number.isFinite(Date.parse(value));
 
 /**
+ * canonical UTC：必须可**往返** `Date#toISOString()`。`validTimestamp` 只问「Date.parse 认不认」，
+ * 于是 `'2026-07-29'`、`'Wed, 29 Jul 2026 00:00:00 GMT'`、带偏移的本地时间全都能过；
+ * 那些形状无法逐字节比对，也就撑不起 timeline。
+ */
+const canonicalUtcTimestamp = (value) =>
+  nonemptyString(value) && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString() === value;
+
+/**
+ * R5 闭口二（`07d2dbc` 被坐实的 P1 之二）：R4 只让时间字段参加 `commandIdentity` 的
+ * **两副本 identity**，没有任何真实性约束。于是两边同步删掉整列、或所有 command 同填一枚
+ * 合法常量都能通过——「两副本相等」证明的是两处抄得一样，不是这一轮真的按序跑过。
+ *
+ * 四道门互不替代：逐条可往返 canonical UTC、逐条 `start<=finish`、
+ * 相邻 `previous.finishedAt<=next.startedAt`（`commands` 数组就是串行调用序）、
+ * 整轮 `commands[0].startedAt < commands[last].finishedAt` 严格推进。
+ * 时间字段继续参加 identity；本门是**额外**的 hard gate，不取代它。
+ */
+export function verdictCommandTimeline(commands) {
+  const list = Array.isArray(commands) ? commands : [];
+  const failures = [];
+  if (list.length === 0) return failures; // 缺 command 已由 toolCommandCoverage 记过。
+
+  const at = (command, index) => `${command?.argv?.[0] ?? 'command'}#${index}`;
+  list.forEach((command, index) => {
+    for (const field of ['startedAt', 'finishedAt']) {
+      if (!canonicalUtcTimestamp(command?.[field])) {
+        failures.push(
+          fail(at(command, index), `sign.receipt.commandTime.${field}`, 'round-trippable canonical UTC', asNullable(command?.[field])),
+        );
+      }
+    }
+    if (
+      canonicalUtcTimestamp(command?.startedAt) &&
+      canonicalUtcTimestamp(command?.finishedAt) &&
+      Date.parse(command.startedAt) > Date.parse(command.finishedAt)
+    ) {
+      failures.push(
+        fail(at(command, index), 'sign.receipt.commandTime.order', 'startedAt <= finishedAt', {
+          startedAt: command.startedAt,
+          finishedAt: command.finishedAt,
+        }),
+      );
+    }
+  });
+
+  for (let index = 1; index < list.length; index += 1) {
+    const previous = list[index - 1];
+    const current = list[index];
+    if (!canonicalUtcTimestamp(previous?.finishedAt) || !canonicalUtcTimestamp(current?.startedAt)) continue;
+    if (Date.parse(previous.finishedAt) > Date.parse(current.startedAt)) {
+      failures.push(
+        fail(at(current, index), 'sign.receipt.commandTime.serial', 'previous.finishedAt <= next.startedAt', {
+          previousFinishedAt: previous.finishedAt,
+          startedAt: current.startedAt,
+        }),
+      );
+    }
+  }
+
+  const first = list[0];
+  const last = list.at(-1);
+  if (canonicalUtcTimestamp(first?.startedAt) && canonicalUtcTimestamp(last?.finishedAt)) {
+    // **严格**小于：全列同填一枚合法常量时这一条是唯一抓得住的——其余三门都成立。
+    if (!(Date.parse(first.startedAt) < Date.parse(last.finishedAt))) {
+      failures.push(
+        fail('sign', 'sign.receipt.commandTimeline.advance', 'commands[0].startedAt < commands[last].finishedAt', {
+          firstStartedAt: first.startedAt,
+          lastFinishedAt: last.finishedAt,
+        }),
+      );
+    }
+  }
+  return failures;
+}
+
+/**
  * 同轮完整 receipt 的硬门。R3 只把 `tools`/`commands` 交进来，故删掉 host、harness Node、
  * Developer Tools 或 official Node 仍会假绿（`eb71d6f` 拒绝原因一）。R4 起逐字段消费，
  * 并要求 receipt 的 execution-domain id 与本次 probe exact 相同——跨轮拼接不得成立。
@@ -1825,6 +2360,8 @@ function verdictHostToolReceipt(receipt, probeExecutionDomainId) {
   if (!validTimestamp(receipt.capturedAt)) {
     failures.push(fail('sign', 'sign.receipt.capturedAt', 'non-empty ISO timestamp', asNullable(receipt.capturedAt)));
   }
+  // R5 闭口二：同轮 command 的时间真实性 hard gate（与 identity 并列，不取代它）。
+  failures.push(...verdictCommandTimeline(commands));
 
   const host = receipt.host ?? null;
   const hostFields = [
@@ -1878,6 +2415,13 @@ function verdictHostToolReceipt(receipt, probeExecutionDomainId) {
     official.expectedSha256 !== OFFICIAL_NODE_SHA256
   ) {
     failures.push(fail('sign', 'sign.receipt.officialNode', OFFICIAL_NODE_SHA256, asNullable(official)));
+  }
+  // R5 锚点：receipt 自报的 path 必须等于判定层独立构造的冻结坐标。冻结 SHA 门不变——
+  // 两道门并列：SHA 证「是那枚实物」，path 证「取自约定坐标」，同步漂移过不了后者。
+  if (official?.path !== officialNodeExpectedPath()) {
+    failures.push(
+      fail('sign', 'sign.receipt.officialNodePath', officialNodeExpectedPath(), asNullable(official?.path)),
+    );
   }
 
   const canonicalSource = receipt.canonicalSource ?? null;
