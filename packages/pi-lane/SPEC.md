@@ -559,7 +559,14 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      nested run。缺 status/receipt、摘要漂移、A/B 串格、同步换 bogus target 均失败。每个
      semantic role + subject + mode 必须绑定 `commands` 数组中唯一的 receipt occurrence/index；
      同一 occurrence 不得跨 role/cell 复用。expected argv-last/target 从 trusted stage root
-     与冻结的 subject/mode coordinate 独立构造，不得从 row/appPath 摘要反推。final status
+     与冻结的 subject/mode coordinate 独立构造，不得从 row/appPath 摘要反推。
+     **preflight 的 official Node expected path 同理独立构造（2026-07-30 Stage A C3 补拍）**：
+     以判定层自持的 probe root（非 receipt 值）拼接冻结布局坐标
+     `dist/runtime/node-v22.23.1-darwin-<host-arch>/bin/node`，host-arch 取判定进程实测；
+     raw display/verify 的 argv-last 与 receipt `officialNode.path` 均须等于该构造值，
+     `officialNode` 冻结 SHA 门不变——path 自此只是被验值、不是真源（Stage A 实测：
+     锚在自报 path 时 observation＋commands＋officialNode.path 三处同步漂移零区分力，
+     full 与 preflight-only 同样假绿）。final status
      只取 hard verdict：preflight raw 重导 `{status:'ok',classification:'passed'}` 才为
      `ok`；精确 `{status:'failed',classification:'security_execution_domain_blocked'}` 才为
      同名 blocked；任一证据完整性/ordinary/control/full failure 均为 `probe_failed`。
