@@ -261,7 +261,8 @@ if (!fs.existsSync(armBlob) || !fs.existsSync(x64Node)) {
   const proc = spawnNdjson(executable, []);
   const timeouts = [];
   const ready = await proc.waitFor((packet) => packet.op === 'ready', CROSS_ARCH_READY_MS);
-  let exit = null;
+  // 不给初值：两条分支都必赋值，写 `= null` 会被 `no-useless-assignment` 判死赋值。
+  let exit;
   if (!ready) {
     timeouts.push('ready');
     exit = await proc.killAndConfirm(CRASH_DEADLINES.killConfirmMs);
