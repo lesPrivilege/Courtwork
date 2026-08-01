@@ -1070,3 +1070,122 @@ production 方法并 **exit 101**。测试使用计数 credential、scripted leg
 **结论重申：`PI-HOST-LOOP-1@0d4799c` REJECT。** `current.md` 不更新，
 `PI-WRITE-HOST-1` 不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修须由
 实现角色先闭合上述契约，再交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R 独立复验（2026-08-01，拒绝）
+
+对象：exact target `fa9e2f892fac45acde2b5bef4ae9e3f1ec759a9a`，其中 implementation tip 为
+`6f3a337`，本轮冻结契约与组合基线为 `main@70dae96097710afedb3dfeb4b93abd6ccaa7de8d`。
+验收在独立 worktree `/private/tmp/courtwork-accept-pi-host-loop-1r-codex`、分支
+`codex/accept-pi-host-loop-1r` 进行；未进入或读取实现 worktree，也未消费实现者 ignored snapshot、
+cache 或自报 manifest。实现与验收会话分离。
+
+**最终判定：REJECT。** 十一枚返修常驻测试与正向 Route A controls 本轮均绿，但冻结契约仍有四类
+可复现反例：N2 明定的 `aborted → canceled` 被写成 `failed/unknown`；R2 没有在 I/O 前执行 bootstrap
+上界闭集，`maxTurns=13` 已实际 spawn；journal 接受孤儿 usage 与倒序 observed turn；新增的 verified
+Node hard gate 对同尺寸 runtime 篡改及 symlink 假绿。前三类是产品语义/耐久语义违约，第四类使原票
+门 3/4 不能证明它运行的是冻结 runtime。它们都不是验收者可代修的实现级小缺陷。
+
+## 独立重建与正向 controls
+
+- 验收 worktree 的 `dist/product-sidecar` 起初不存在。本会话独立执行 frozen-lockfile install 与
+  `build:product-sidecar`；第二次构建报告 `reused-identical`。snapshot 为 arm64 runtime
+  `112,928,848` B /
+  `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`、x64 runtime
+  `115,447,952` B /
+  `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`、sealed CJS
+  `523,057` B /
+  `b72fe521439022c494477b2d41bc7b230d6aa5df2bde8668dba248d3cbf4107d`。tracked route manifest
+  SHA-256 为 `c74ecd1878dd7105fb5ea19112cbf921f205eec7bbb3a9dff71f746524c3a2f0`。
+- 非受限域 `pnpm --filter @courtwork/pi-lane test` 为 **14 files / 443 tests passed**；
+  `test:product-sidecar` 为 **10/10**。独立仓外脚本复核 N1 物理根、`/workspace` 与 `../` 均固定投影
+  `（非法路径）` 且零泄漏；N2 的 `stopReason:error` 得 `failed/provider_error`；N3 越界 read 的
+  `details.denied === true`。
+- production verified-node gate 为 **10/10**；scripted control gate 为 **14/14**，双 read 的 outcome
+  恰为 `['succeeded','denied']`。缺 runtime、bundle、manifest，以及 bundle bytes/SHA 漂移都能
+  exit 2。这里先登记健康路径；其 runtime 身份 false-green 见下文 blocker 4。
+- Rust 常驻 R1–R8 八枚逐名实跑 **8/8 pass**；`pi_loop` 为 29 pass / 1 ignored，
+  `pi_loop_journal` 为 20/20，`pi_loop_process` 为 16/16。受限域 `cargo test --lib` 为
+  155 pass / 3 fail / 1 ignored；三红仍是 localhost bind 的 `Operation not permitted`，不是本票
+  代码回归。阳性与常驻反例都绿，证明返修覆盖了报告中的原形，但不抵消下面独立扩边所得红证。
+
+## Blocker 1：N2 的 `aborted` 没有走 canceled
+
+返修件 §二 N2 逐字规定：上游 `stopReason:'error'` 收 `failed/provider_error`，`'aborted'` 走
+canceled 路径；一切非 `stop|toolUse` 不得 completed。本轮用临时 faux provider 真实发
+`stopReason:'aborted'`，观察序列为 `ready → agent_event(turn_finished, aborted) → terminal`，但
+terminal 实得：
+
+```text
+{status:'failed', error:{code:'unknown', retryable:false}}
+```
+
+而不是 `canceled`。`product-runtime.ts` 的 `completionFor()` 只特判 `error`，其余 default 固定
+返回 `failed/unknown`；当前常驻 N2 只测 `error` 与 `length`，没有钉住票面 `aborted` 分支。临时
+动态脚本取证后已删除，tracked tree 无残留。这是 1R 自己明列的 N2 闭口未完成，单项足以拒绝。
+
+## Blocker 2：R2 bootstrap 上界在 spawn 后才失败
+
+ADR-022 冻结 `maxTurns` 为整数 `1..12`、`maxUsd` 为 `null` 或 `0 < n <= 100000`，`modelId` trim
+后最多 256 UTF-8 bytes，并要求长度边界在 Rust 发包前校验。返修件又要求所有 bootstrap/config
+非法值在 journal/spawn 前以具名错误拒绝。当前 `validate_start_config()` 只检查
+`maxTurns >= 1`、`maxUsd > 0 && finite`、`modelId` 非空，漏掉三项上界。
+
+本轮把常驻 R2 表临时扩入 `maxTurns=13`，两次取证分别钉住外观与副作用：
+
+1. 原断言顺序下，实得 `Protocol(InvalidSchema)`，不是 `invalid_config`，证明错误拖到后置 packet
+   encoder；
+2. 把 spawn 断言前置后，实得 `spawns left: 1, right: 0`，证明非法配置已经拉起 child。
+
+`maxUsd=100001` 与 257-byte `modelId` 从源码走同一漏检路径；本报告不把源码推演冒充额外动态数字。
+临时测试已精确移除，`pi_loop.rs` 恢复 target SHA-256
+`1bb635183f1b3a8f092c70e847cf249d54855ebe4bd709c031db043dd3133b96`。
+
+## Blocker 3：不可能的 durable turn 历史被当成可恢复 session
+
+原票/ADR 要求 observed upstream turn 从 1 开始跨 prompt/leg 严格递增；已 LF 完整但次序不可能或
+`turn_finished ↔ turn_usage_recorded` 非尾端半对的 journal 必须整份 quarantine。本轮在
+`pi_loop_journal.rs` 的 test module 临时加入两枚直接驱动 `load_session` 的反例，均真实
+**exit 101**：
+
+| 反例 | 完整 LF 历史 | target 实际结果 |
+|---|---|---|
+| orphan usage | `session_started → user_prompted → turn_usage_recorded → prompt_completed → session_interrupted`，没有对应 `agent_event.turn_finished` | 期望 quarantine，实得 `LoadedJournal`；`priorObservedTurns=1`、`priorTurns=1`、`repaired=false` |
+| descending ordinal | 完整 event+usage pair 的 turn 依次为 `2 → 1` | 期望 quarantine，实得 `LoadedJournal`；`priorObservedTurns=2`、`priorTurns=2`、`repaired=false` |
+
+源码原因与红证一致：`validate_records()` 对 turn 只取 `observed_turns.max(turn)` 并累计 counted，既不
+要求从 1 起也不要求严格递增；`plan_turn_usage_repair()` 只从 `AgentEvent::TurnFinished` 向 usage
+查找，没有反向拒绝孤儿 usage。两枚临时测试已精确移除，`pi_loop_journal.rs` 恢复 target
+SHA-256 `8396d690fe7e31d5fa21256453942ae9a67b7d81ee493a04df41a6e06b1da897`。
+
+## Blocker 4：新增 verified-node hard gate 对 runtime 身份假绿
+
+返修件「三·补」把 `verified-node-gate.mjs` 纳入 tracked 实现，目的正是让原票门 3/4 从可复核的
+冻结 Node 身份上运行。当前 resolver 对 sealed CJS 检查 bytes + SHA，却对 runtime 只比较 bytes；
+`requireFile()` 又用跟随 symlink 的 `statSync()`。本轮逐枚改 ignored snapshot、实跑、恢复：
+
+- 把 arm64 runtime 最后一字节 XOR，文件长度不变但 SHA 已漂移，production gate 仍
+  **10/10、exit 0**；
+- 把 runtime 换为 symlink，gate 同样通过；
+- 删除或修改 manifest 的 `routeId`、`nodeVersion`、`useCodeCache`、`resourceRelativePath`，gate
+  仍通过。
+
+每次注入后均恢复 snapshot；最终两 runtime 与 CJS SHA 回到本报告首节值。Rust production
+preflight 的其他测试不能替代门 3/4 对“本次实际执行哪枚二进制”的证明，因此这不是普通测试增强
+建议，而是硬门可 false-green。另有一项同源漂移：builder 回执仍写
+`pi-sidecar/sidecar.cjs`，而 tracked manifest、Tauri mapping 与 Rust 冻结的 resource path 是
+`pi-loop-resources/sidecar.cjs`。
+
+## 停止边界、现场恢复与结论
+
+- 四类 blocker 中前三类已直接违反产品/耐久契约，第四类违反本返修新增 hard-gate 目的；验收会话
+  没有作 `fix-by-acceptance`，也没有改任何 production 或合同。
+- 所有临时 Node/Rust 反例与 snapshot mutation 均已删除或 byte-identical 恢复。写报告前
+  `git status --short --branch` 只显示分支行，`git diff --check` exit 0；报告之外无 tracked 残留。
+- 决定性 blocker 成立后按原票停止边界，没有继续耗费完整九门/root 长矩阵，也不拿常驻测试数字
+  替代遗漏契约的动态反例。
+
+**结论重申：`PI-HOST-LOOP-1R@fa9e2f8` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 继续不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修须由
+实现角色先闭合上述契约，再交另一全新会话从 clean worktree 复验。
