@@ -485,3 +485,196 @@ DMG/Pages/version/README/current 能力晋级，全部禁止。
 
 归档 `archive/research-pi-host-loop-inventory-2026-07-30.md` 只作源码索引；其中“R5/路线仍
 blocked”已过时，任何其他结论也不得覆盖本冻结件。
+
+---
+
+## 八、实现回执（2026-08-01）
+
+状态：**实现完成，停在待独立验收**。未 push、未 merge、未启动 WRITE/GUI/DMG/Pages。
+
+### 1. SHA 链
+
+实现（分支 `codex/pi-host-loop-1`，base `main@4ceedad`）：
+
+| 阶段 | SHA | 面 |
+|---|---|---|
+| H1 | `4c4aeba` | Node product entry/runtime/case-env、wire golden、Route A 构建面 |
+| 偏离修复 | `9fa714a` | 既有 transport 取消测试改条件等待并解除 accept 阻塞 |
+| H2 | `079ba85` | Rust 四模块、loop journal、route manifest 与 tauri.conf 三映射 |
+| H3 | `d7f0662` | 动态 spawn 机器门、headless 真跑 driver、失败矩阵补缺 |
+| 回执 | 本次 docs 提交 | 本节 |
+
+架构锚链：`774aae6`（R5 合入后 Route A 裁定）→ `2f9fd2d`（冻结本件）→ `90fdf6c`（收口实现接缝）
+→ `4ceedad`（resource 前缀订正）。`main` 其后另有 `7a18f05`（workflow 判例），不绑本票实现，未变基。
+
+Route A 身份：source manifest `apps/desktop/src-tauri/pi-sidecar/route-manifest.json`
+1,272 B / `79e72a0523e4c24bd1c1c28c89e71b530cb16aa15407899a004701797f37babc`；
+bundle `sidecar.cjs` 522,649 B / `4c09a985f489bbc791686197f44a5303fb1295a657c855d3df679bf776967f6b`。
+journal `session_started.routeManifestSha256` 恒等于 Rust 对已验证 manifest 原始 bytes 的重算值。
+
+### 2. first-red 三枚
+
+票面 §四 点名三条，均以永久反例留档：
+
+1. **现行 scoped env 的物理路径泄漏**（H1）。`product-case-env.test.ts` 末组直接跑 dev
+   `scoped-env`：`cwd`、`FileInfo.path`、拒绝理由仍是物理路径——产品 env 因此不能转售它。
+2. **dev session 的 per-prompt `budget.reset()`**（H1）。同法留档于 `product-runtime.test.ts`。
+3. **isolation 门对动态 `Command::new(<expr>)` 静默漏扫**（H3）。基线实测：
+   `pnpm --filter @courtwork/desktop lint:isolation-binding` 在 `pi_loop_process.rs:567` 已有
+   `Command::new(verified_runtime_path)`、动态登记册为零的情况下 **exit 0**；
+   `productionSpawnPrograms` 对该文件枚举为 `[]`。行为红证：新判据在实现前跑，
+   「仓内真 `pi_loop_process.rs` 的动态 spawn，在空 dynamic 登记下必须触红」实得 `actual: ''`
+   （零失败），红。实现后同枚转绿，43/43。
+
+同批查出的第四件不在票面点名之内，一并订正：生产段边界旧判据截到**首个** `#[cfg(test)]`，
+被 impl 内 test-only 构造器的属性提前一刀切下，`pi_loop_process.rs` 丢 18,781 B（36%，
+含唯一 spawn 调用点）、`pi_loop_journal.rs` 丢 30,801 B（24%）。改认 `#[cfg(test)] mod`
+module 边界后扫描面只增不减；退回旧判据即触红（M-ISO-6）。
+
+### 3. 九族反例总表
+
+分阶段计数。H1 与 H2 的总数按各自提交登记：H1「16 枚有效反例红、1 枚等价（M16）」，
+H2「八枚 production mutation：六红、M3 补强双窗口后红、M1 作废」。两阶段未按族拆分登记，
+本节不追补拆分数——未经复测的拆分即是编造。可复核的既有读数只列一条：`/case` path grammar
+的纯函数拒面 21 条、收面 8 条，另有段 255 B 与逻辑总长 1,024 B 两组双向边界。
+
+下表只列 H3 新增，逐条可在 `d7f0662` 的测试面复核。
+
+| 族 | H3 新增 | 落点 |
+|---|---|---|
+| 1 route pair | 7 | 实物零字节 runtime 停 bytes 门；journal `routeManifestSha256` 旧值／随机合法 hex／target 三枚 spawn 前拒；快照实物错 target／双件交换／bundle 零字节 |
+| 2 `/case` | 0 | H1 已覆盖 Unicode、段 255 B、逻辑总长 1,024 B 双向边界，无缺口 |
+| 3 wire | 2 | 半行 + EOF 不冒充 packet；shutdown terminal 之后来包杀 leg 且不落 `session_completed` |
+| 4 durability | 1 | 九条 durable record 逐行核**盘上 bytes**，与内存账本逐条对齐 |
+| 5 crash/deadline | 3 | prompt 途中真 SIGKILL 自注入→五步 fold；capability 漂移实测回收真进程；kill-confirm 改 pid 实测 |
+| 6 resume/budget | 4 | 真第二 leg：`leg=2`、prior 三值精确、`priorUsd` 保持 null、跨 leg requestId 去重 |
+| 7 canary | 9 | 九面各一：argv／env／cwd／stdout（inbox）／stderr／journal／reply／error／diagnostic |
+| 8 isolation | 18 | gate 单测 12 枚注入 + 生产段边界 2 + 扫描面 3 + 绿证对照 1；门本体另有 6 枚 mutation，另计 |
+| 9 credential/container | 4 | pasted 与 environment-name 两路真起 leg；无存档时 `DEEPSEEK_API_KEY` 在场零回落；child env 严格为空；host 生产段静态零 `env::var` |
+
+H3 新增测试：`cargo test` 由 141 增至 150 passed + 1 ignored（新增十枚，另补强既有一枚）；
+isolation gate 单测由 23 增至 43。
+
+### 4. mutation 分账
+
+**H3 生产码 mutation 八枚**，逐枚命中校验、逐枚 byte-identical 还原：
+
+| 编号 | 变异 | 结果 |
+|---|---|---|
+| H3-M1 | `terminate()` 撤 kill-confirm，SIGKILL 后直接报 `Ok(Signal(SIGKILL))` | **首轮绿**——见下 |
+| H3-M2 | `read_packet` 把有界当无界 | 红（30.01 s 后 `bootstrap_ready_window_times_out_by_name` 失败） |
+| H3-M3 | `secret_from_stored` 的 `Missing` 分支回落 `DEEPSEEK_API_KEY` | 红 |
+| H3-M4 | `PiLoopHost` 的 `Debug` 回显物理案件根 | 红 |
+| H3-M5 | `pump` 把 publish 提到 append 之前 | 红 |
+| H3-M6 | `turn_finished` 只落一笔，撤 `turn_usage_recorded` | 首次变异**作废**——见下；重做后红 |
+| H3-M7 | preflight 撤 manifest byte-identical 门 | 红 |
+| H3-M8 | resume 撤 route manifest 漂移门 | 红 |
+
+两条诚实条目：
+
+- **H3-M1 首轮绿是真实覆盖缺口，不是变异无效。**
+  `sigterm_grace_then_sigkill_confirm_reclaims_a_stubborn_leg` 原本只断言 `terminate()` 的返回值
+  等于 `Signal(SIGKILL)`；把 kill-confirm 整段换成 `Ok(ExitOutcome::Signal(SIGKILL))` 同样满足。
+  判据与被判对象同源，零区分力。改法：child 自报 pid，回收前断言 `kill(pid,0)==0`，
+  `terminate()` 返回后断言 `!=0`——kill-confirm 的语义是已 `waitpid`，撤掉只拿得到僵尸，
+  `kill(pid,0)` 仍返回 0。补强后复跑，红。
+- **H3-M6 首次变异作废。** perl 替换造成 unclosed delimiter，编译期即失败；编译不过不是语义红。
+  按「等价与作废须如实登记」重做为 `if false` 包裹，命中校验通过后红。
+
+**isolation 门本体 mutation 六枚**（M-ISO-1…6），全红、全 byte-identical 还原：改变量名、
+helper 包裹、同函数第二枚 spawn（`实测 2 处，登记 1 处`）、错 anchor、整册摘除、退回旧生产段判据。
+
+**沿用 H1／H2 的登记不重打**：H1 的 M16（`usd` null→0 由冻结 wire 层承担，等价）、
+H2 的 M1（作废）与 M3（补强双窗口后红）维持原判。
+
+### 5. 九门数字
+
+各门单独取 exit，不经管道，严格串行，全部跑在实现 tip `d7f0662`。
+
+| 门 | 命令 | 读数 | exit |
+|---|---|---|---|
+| 1a | `pnpm --filter @courtwork/pi-lane test` | 14 files / 433 tests | 0 |
+| 1b | `pnpm --filter @courtwork/pi-lane test:product-sidecar` | 10 tests；bundle 522,649 B、SHA 同上，两次现编 byte-identical | 0 |
+| 1c | `node --test scripts/assert-isolation-binding.test.mjs` | 43 tests | 0 |
+| 2a | `cargo test` | 150 passed / 1 ignored | 0 |
+| 2b | `cargo test --lib -- --ignored` | 1 passed（快照 E2E，16.43 s） | 0 |
+| 2c | `rustfmt --check` 本票四模块 | 零命中 | 0 |
+| 2d | `cargo clippy --all-targets -- -D warnings` | 7 处，全落 `src/lib.rs`；本票四模块零命中 | 101（既有基线，归属见偏离五） |
+| 3 | verified Node v22.23.1 + production sealed CJS | 见下 | 0 |
+| 4 | verified Node v22.23.1 + scripted control CJS | 见下 | 0 |
+| 5 | `pnpm -r build` | 全包通过 | 0 |
+| 6 | `pnpm lint` | 零命中 | 0 |
+| 7 | `pnpm test` | 166 files / 1,756 tests | 0 |
+| 8 | `pnpm --filter @courtwork/desktop lint:isolation-binding` | 扫 10 份宿主源码、30 份 pi lane 源码 | 0 |
+| 9 | `git diff --check` | 零命中 | 0 |
+
+### 6. 物理 headless 读数
+
+**门 3**（冻结 Node v22.23.1，112,928,848 B；production sealed CJS 522,649 B）：bootstrap →
+`ready{capabilities:["case_read"]}` → shutdown → `terminal{status:"shutdown"}` → EOF → exit 0。
+恰两枚出包，stderr 0 B，出包不含 key 与物理案件根，零网络请求。
+
+**门 4**（同一枚冻结 Node，control CJS 由定向测试的同一 `createProductRuntime` factory 现编）：
+`ready` → `tool_started{read}` → `tool_finished{read,succeeded}` → `turn_finished{turn:2}` →
+`terminal{status:"completed"}` → `terminal{status:"shutdown"}`，exit 0。模型复述出的编号
+`HT-2024-081` 取自案件目录里的真文件——`/case` 逻辑根真的解析到了实物，桩读不出这个。
+control canary 未进 production bundle。
+
+判定层刻意不复用仓内 codec：门 3／门 4 的驱动器只做裸 JSON 行解析并逐字段断言，
+免得被判对象与判据同源。
+
+**Rust 侧整机 E2E**（`snapshot_e2e_runs_the_real_verified_node_through_the_whole_route_preflight`）：
+用快照三件组装临时 app layout（hard link，无 112 MiB 拷贝），走完整 `preflight_route_pair` →
+journal durable → 真 spawn → bootstrap（dummy 内存 key）→ ready → shutdown → EOF + exit，
+16.43 s；随后在同一实物上注入错 target、双件交换、bundle 零字节三枚反例，并以还原后仍通过作对照。
+
+**Rust 侧 headless driver**（`cargo test` 内，无外部依赖）：production `ProcessSpawner` →
+`spawn_verified_sidecar` → 真 OS 进程，对端为 `/bin/sh` 应答器。一整条 leg 落九条 durable
+record（`session_started` / `user_prompted` / `agent_event`×4 / `turn_usage_recorded` /
+`prompt_completed` / `session_completed`），逐行核盘上 bytes；argv `argc=0`、
+`arg0` 恰为已核验的 sidecar 路径、cwd 恰为 `app_data_dir()/pi-loop-runtime`；
+child env 除 `/bin/sh` 自设的 `PWD`／`SHLVL`／`_` 外为空，父进程的 `HOME`、`PATH` 均不可见。
+
+### 7. 偏离
+
+一、**resource 前缀契约订正**（已落 `4ceedad`）。原目标前缀 `pi-sidecar/` 与 externalBin 基名在
+dev target 展平层互斥。单变量对照实验：只 externalBin 通过（regular file）、只 resources
+通过（目录）、三条同落 `File exists (os error 17)`。前缀改 `pi-loop-resources/`，
+externalBin 基名、快照三件名与源路径不变。H2 已复跑正反对照，互斥解除。
+
+二、**H1 三项拍板裁定**。（1）上游工具在无匹配文件时回的幻觉工具名属 wire 层语义，
+wire 层即正解，不在产品层另加一层改写；（2）`product-wire-v1.jsonl` 的 TS 侧核验落点定为
+`product-main.test.ts`，不新开文件；（3）manifest 与 product source 的交叉门由 H2 接上，
+H1 只交冻结真值。三项均经架构裁定后落地。
+
+三、**`9fa714a` 白名单外修复**。`lib.rs` 测试段属本票白名单外，此偏离由架构裁定随票落地。
+两处缺陷在 H2 测试族真实负载下必然显形：20 ms 定长睡眠赌注册时序；cancel 赢在 TCP connect
+之前时 server 线程永久卡 `accept()`、unconditional join 把测试挂死。取证链含三次复现，
+其中一次挂死 12 小时，`lsof` 只见 LISTEN 零连接、current-thread runtime parked。
+修法为条件等待注册（10 s 上限）加哑连接解除 accept 阻塞后再 join。
+
+四、**external smoke 未跑，记 blocked**。本机无真实 DeepSeek key，
+case-read external smoke 未执行。按 §二.2，只记 `external-smoke blocked`，
+不冒充 deterministic harness 失败，也不阻断本票 PASS。
+
+五、**clippy 与 fmt 的既有基线**。`cargo clippy --all-targets -- -D warnings` 现有 7 处命中，
+全部落在 `src/lib.rs`；`cargo fmt --all -- --check` 现有 5 份文件命中
+（`case_output_fs.rs` 7、`host_auth.rs` 12、`lib.rs` 11、`material_store.rs` 6、`work_state.rs` 20）。
+归属证据：在基线 `main@4ceedad` 起独立 worktree 跑同一对命令，得到**逐项相同**的文件与计数。
+本票四模块零命中。按票面「fmt 既有文件基线不动」，未对既有文件跑 rustfmt。
+
+六、**生产段边界订正**（H3）。见 §八.2 末段。改动落在白名单内的
+`isolation-binding-lib.mjs`，扫描面只增不减；字面量与动态两个面共用同一边界。
+
+七、**快照 E2E 显式 `#[ignore]`**（H3）。该枚消费独占 `build:product-sidecar` 生成的
+112 MiB 快照。若设为无条件，`cargo test` 在未建快照的 clean worktree 上必红；若静默跳过，
+则违反「静默降级零容忍」。取 `#[ignore]` 并在属性里写明前提与跑法——`cargo test` 会把它
+计进 `1 ignored`，看得见；本回执 §八.5 门 2b 另记其独立读数。
+
+无 `[需架构拍板]` 悬置项。
+
+### 8. 停点
+
+实现与回执分提交，均停在本分支，等待全新 Codex 会话在独立 clean worktree 独立验收。
+验收者按 §六 独立重建 Node/CJS 快照，不消费本会话的 ignored `dist/product-sidecar`、
+runtime cache 或 manifest 读数。`docs/status/current.md` 不更新，`PI-WRITE-HOST-1` 不开工。
