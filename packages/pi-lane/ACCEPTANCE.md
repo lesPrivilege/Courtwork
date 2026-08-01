@@ -976,3 +976,97 @@ negative 全部逐行成立；空 assembly、官方来源、600 samples、双 cy
 
 **结论：`PI-SIDECAR-DIST-1R5` 在 exact target `6cdb9ba` 上 PASS。** 下一步只可由架构角色消费
 本报告决定能力状态与路线；本验收不 merge、不 push 实现链，也不改 `current.md`。
+
+---
+
+# PI-HOST-LOOP-1 独立验收（2026-08-01，拒绝）
+
+对象：exact target `0d4799c872044c196aa74cacc0fcbc0d29012f9f`，其中 code tip 为
+`d7f06623acde8cca9cebfc573feb341f1392d320`，冻结契约锚为
+`4ceedad16252709d1525c8b574d95830b2e84441`。验收在独立 worktree
+`/private/tmp/courtwork-accept-pi-host-loop-1-codex`、分支
+`codex/accept-pi-host-loop-1` 进行；没有进入或读取实现 worktree 的 ignored snapshot、cache 或
+自报 manifest。实现与验收会话分离。
+
+**最终判定：REJECT。** 最小真实反例已坐实 Node 产品面的路径泄漏与两类 false-success，并在
+Rust Host 上得到八枚直接命中 production 方法的红证。尤其 Route A 坏件会在身份门之前读取凭据，
+逐字违反冻结件 §四“所有 route-pair 失败必须先于 Keychain read、journal 与 spawn”的次序；这
+一项已经是契约级 blocker。其余启动、prompt、预算、protocol、shutdown、resume 与单写者缺口又
+分别破坏耐久语义，不能按 `fix-by-acceptance` 由验收者代修。按冻结件 §六与续行纪律，确认决定性
+blocker 后停止昂贵的完整 failure matrix；本报告不以未跑完的大数字伪装放行。
+
+## 独立重建与正向 control
+
+- 验收 `dist` 起初不存在；本会话独立安装 frozen lockfile 并执行
+  `build:product-sidecar`。snapshot 恰为双官方 Node v22.23.1 runtime 与一件 sealed CJS：
+  arm64 runtime `112,928,848` B /
+  `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`，x64 runtime
+  `115,447,952` B /
+  `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`，sealed CJS
+  `522,649` B /
+  `4c09a985f489bbc791686197f44a5303fb1295a657c855d3df679bf776967f6b`；两次构建
+  byte-identical。tracked route manifest 为 `1,272` B /
+  `79e72a0523e4c24bd1c1c28c89e71b530cb16aa15407899a004701797f37babc`。
+- 冻结 arm64 Node 直接运行 production CJS：恰得到
+  `ready{capabilities:['case_read']}` 与 `terminal{status:'shutdown'}`，随后 EOF / exit 0，
+  stderr 0 B。production bundle 不含 control canary。
+- 同一 runtime 运行由 `createProductRuntime` factory 构建的 test-only control CJS：真实完成
+  `read` 的 `tool_started → tool_finished:succeeded → turn_finished`，随后
+  `completed → shutdown`、EOF / exit 0，stderr 0 B；从案件实物读得 `HT-2024-081`。
+  这些阳性证明 Route A 正常样本能启动，不抵消下面的失败判定与 false-success。
+
+## Node 产品面的三枚契约红证
+
+验收临时追加三枚 acceptance-only 测试，运行
+`product-case-env.test.ts + product-runtime.test.ts` 得 **3 failed / 69 passed，exit 1**；测试在
+取证后已完整移除，target 原测试复跑 **69/69，exit 0**。三枚均直接驱动 production factory/env：
+
+1. **物理案件根泄漏。** 把真实 `caseRoot` 本身作为非法 read 参数时，返回的 `FileError` 把该
+   绝对路径保存在 `path`，合并观察为
+   `拒绝访问：绝对路径只接受 /case ... /private/.../案卷`。冻结件 §二.1 要求
+   `FileInfo.path`、工具结果与安全错误只出现 `/case` 或 `/case/...`；当前错误对象可序列化出
+   物理根，canary 断言真实变红。
+2. **provider error 被伪成成功。** scripted provider 以 `stopReason:'error'` 结束时，journal
+   虽出现 error stop reason，最终 terminal 实际仍是 `{status:'completed'}`，而不是结构化
+   `failed/provider_error`。这会把上游失败写成产品成功终态。
+3. **政策拒绝被伪成工具成功。** 模型请求 read `/workspace/记录.md`，case-only policy 明确拒绝，
+   但 runtime 发布的 `tool_finished.outcome` 实际为 `succeeded`，不是 `denied`。后续 Rust journal
+   因而会收到与真实授权结果相反的工具账。
+
+## Rust Host 八枚直接红证
+
+验收临时在 `pi_loop.rs` 测试模块加入八枚反例；每枚以完整测试名单独运行，均真实命中目标
+production 方法并 **exit 101**。测试使用计数 credential、scripted leg/spawner 只隔离外部 I/O，
+未复制被判状态机；取证结束后整块测试已补丁移除。
+
+| 反例 | target 实际结果 | 违反的冻结事实 |
+|---|---|---|
+| bad route + counting credential | route 最终拒绝，但 credential read 为 **1**（应为 0） | route 身份门必须先于 Keychain read/journal/spawn |
+| `maxTurns=0` start config | 仍执行 **1 次 spawn** | bootstrap/config 闭集须在 journal/spawn 前拒绝 |
+| 空白 prompt | records 从 **1 增为 2**，盘上 journal bytes 改变 | prompt trim 非空/容量门须在 `user_prompted` durable 前成立 |
+| schema-valid 假 terminal budget | `prompt()` 返回成功并接受 `turns:9/usd:7.5` | 累计预算真值归 Rust journal fold，不能信 sidecar 自报 |
+| malformed packet `{` | 返回 protocol error，但 child `terminated=false`，无 durable session terminal | decode/EOF/fault 必须先 fail/fold/reclaim 再停止 outward publish |
+| shutdown 后 child exit 7 | `shutdown()` 返回成功并准备落 `session_completed` | nonzero/signal/kill-confirm 失败不得成为 completed |
+| resume `priorTurns` 从 1 改为 0 | `load_session()` 仍成功 | prior observed/turns/usd 必须逐值等于 preceding journal fold |
+| 第二 Host 打开同一 live session | 第二次 start 成功并继续 spawn/recover | 同一 logical session 必须由 Rust 单写者独占 |
+
+源码对照说明这些并非测试构造错误：`start_inner` 当前顺序是 credential → case-root → route；
+`prompt` 先 append `user_prompted` 才由 encoder 暴露非法文本；`expect_packet` 的 decode/EOF/fault
+直接经 `?` 逸出；`shutdown` 只特殊处理 `Pending`，随后不论 `Code(7)`/signal 都追加
+`session_completed`；journal validator 只核 `session_resumed.previousLeg`，没有把 prior 三值与
+前序 fold 比较；Host 也没有 live-session writer/file lock。
+
+## 停止边界、现场恢复与门
+
+- 八枚 Rust 红与三枚 Node 红均为 payload/lifecycle/durability 契约问题，故没有修改 production，
+  没有产生 `fix-by-acceptance`。
+- 三份临时 tracked 测试改动全部以补丁移除；写报告前 `git status --short --branch` 只剩分支行，
+  `git diff --check` exit 0。Node 原定向套件恢复为 69/69。
+- 恢复后 `cargo test --lib` 在受限执行域为 147 pass / 3 fail / 1 ignored；三红均是既有 localhost
+  bind `Operation not permitted`（cancel endpoint 与两枚 mock endpoint），不是本票新增失败。
+  由于契约 REJECT 已成立，未申请提升环境重跑，也未继续 full cargo/root/pnpm 长矩阵。
+- 动态 spawn gate 与独立 snapshot 没有被改写；报告之外无 tracked 验收残留。
+
+**结论重申：`PI-HOST-LOOP-1@0d4799c` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修须由
+实现角色先闭合上述契约，再交另一全新会话从 clean worktree 复验。
