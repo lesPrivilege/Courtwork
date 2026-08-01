@@ -1695,6 +1695,76 @@ mod tests {
     }
 
     #[test]
+    fn counterexample_journal_route_identity_drift_refuses_resume_before_spawn() {
+        // `routeManifestSha256` 是 Rust 对已验证 manifest **原始 bytes** 重算的值。
+        // 把 journal 里那一枚改成旧值、改成任意其他合法 64 位小写 hex、或改 target，
+        // 都必须在 spawn 之前拒——不得拿「反正也是 64 位 hex」放行。
+        let h = harness("route-identity");
+        let (host, _, _) = start_with(
+            &h,
+            vec![VecDeque::from(vec![ready(
+                1,
+                vec![WorkspaceCapability::CaseRead],
+            )])],
+        );
+        let mut host = host.expect("启动");
+        host.reclaim_after_fault(SessionInterruptReason::SidecarEnded)
+            .expect("回收");
+        drop(host);
+
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let pristine = fs::read_to_string(&path).expect("读 journal");
+        let genuine = crate::pi_loop_process::sha256_bytes(EXPECTED_ROUTE_MANIFEST);
+        assert!(
+            pristine.contains(&genuine),
+            "对照：journal 里确实是重算出的那一枚"
+        );
+
+        for (label, replacement) in [
+            // 旧值：R5 之前的 manifest hash 形态（合法 hex，但不是现行真值）。
+            (
+                "旧值",
+                "0000000000000000000000000000000000000000000000000000000000000001".to_string(),
+            ),
+            // 任意其他合法 64 位小写 hex。
+            (
+                "随机合法 hex",
+                "7f3c1d9ab2e845760c15af398d24be0173e6c8905fa2143b6d7e08c9152a3b4e".to_string(),
+            ),
+        ] {
+            fs::write(&path, pristine.replace(&genuine, &replacement)).expect("写变异 journal");
+            let (result, _, spawns) = start_with(&h, Vec::new());
+            assert!(
+                matches!(result, Err(HostError::ResumeRefused(_))),
+                "{label} 必须拒"
+            );
+            assert_eq!(spawns, 0, "{label} 必须在 spawn 之前拒");
+        }
+
+        // target 漂移同理。
+        fs::write(
+            &path,
+            pristine.replace("aarch64-apple-darwin", "x86_64-apple-darwin"),
+        )
+        .expect("写 target 变异");
+        let (result, _, spawns) = start_with(&h, Vec::new());
+        assert!(matches!(result, Err(HostError::ResumeRefused(_))));
+        assert_eq!(spawns, 0);
+
+        // 对照：还原后同一配置仍能 resume——上面三枚不是恒红。
+        fs::write(&path, &pristine).expect("还原 journal");
+        let (ok, _, spawns) = start_with(
+            &h,
+            vec![VecDeque::from(vec![ready(
+                1,
+                vec![WorkspaceCapability::CaseRead],
+            )])],
+        );
+        assert!(ok.is_ok(), "对照：未漂移必须能起第二 leg");
+        assert_eq!(spawns, 1);
+    }
+
+    #[test]
     fn shutdown_writes_session_completed_after_terminal_and_eof() {
         let h = harness("shutdown");
         let (host, _, _) = start_with(
@@ -1909,5 +1979,798 @@ mod tests {
             outside.join("keep.txt").exists(),
             "递归删除不得跟随内部 symlink"
         );
+    }
+
+    // ── H3：headless 集成 driver（真进程 / 真 framing / 真回收）──────────────
+    //
+    // 上面的全序测试用 scripted leg 把**分支**逼齐；这一段换成真 OS 进程，
+    // 走 production 的 `ProcessSpawner` → `spawn_verified_sidecar` → `SidecarProcess`
+    // 整条链，证明的是分支之外那些只有真跑才成立的事：argv/env/cwd 实物、
+    // packet framing 真的跨管道、durable bytes 真的落盘、真 SIGKILL 之后 fold 出正确终态、
+    // 以及 leg 真的被回收。
+    //
+    // 对端是一枚 `/bin/sh` 应答器。它只负责「是一枚真进程 + 按 host 入包回 canonical
+    // product wire」；应答行由 `encode_packet_line` 生成——codec 自身的区分力由 tracked
+    // golden（`fixtures/product-wire-v1.jsonl`，Rust/TS 双侧同源核验）独立承担，
+    // 这里被测的是 host，不是 codec。
+
+    struct Responder {
+        script_path: PathBuf,
+        observations: PathBuf,
+        inbox: PathBuf,
+    }
+
+    impl Responder {
+        fn observation(&self, key: &str) -> Option<String> {
+            let text = fs::read_to_string(&self.observations).ok()?;
+            text.lines()
+                .find_map(|line| line.strip_prefix(key).map(str::to_string))
+        }
+        fn observations_text(&self) -> String {
+            fs::read_to_string(&self.observations).unwrap_or_default()
+        }
+        fn inbox_lines(&self) -> Vec<String> {
+            fs::read_to_string(&self.inbox)
+                .unwrap_or_default()
+                .lines()
+                .map(str::to_string)
+                .collect()
+        }
+        /// 应答器把自己的 pid 记在观察面上，回收才可被**实测**而不是靠信。
+        fn child_pid(&self) -> i32 {
+            self.observation("pid=")
+                .expect("应答器已登记 pid")
+                .trim()
+                .parse()
+                .expect("pid 是整数")
+        }
+    }
+
+    fn wire(seq: u64, request: Option<&str>, payload: PacketPayload) -> String {
+        let packet = ProductPacket {
+            seq,
+            session_id: Some("sess-1".to_string()),
+            request_id: request.map(str::to_string),
+            payload,
+        };
+        let mut line = encode_packet_line(&packet).expect("合契约");
+        line.pop();
+        let text = String::from_utf8(line).expect("UTF-8");
+        assert!(
+            !text.contains('\''),
+            "应答行要嵌进 sh 单引号，测试数据不得自带撇号"
+        );
+        text
+    }
+
+    /// 把若干 canonical 行变成 sh 的 `printf` 序列。
+    fn emit(lines: &[String]) -> String {
+        lines
+            .iter()
+            .map(|line| format!("      printf '%s\\n' '{line}'\n"))
+            .collect()
+    }
+
+    /// `arms`：(入包子串, 命中后要执行的 sh 片段)。
+    fn responder(root: &Path, tag: &str, arms: &[(&str, String)]) -> Responder {
+        let observations = root.join(format!("{tag}-observations.txt"));
+        let inbox = root.join(format!("{tag}-inbox.jsonl"));
+        let script_path = root.join(format!("{tag}-responder.sh"));
+        let mut script = String::new();
+        script.push_str(&format!(
+            "OBS='{}'\nIN='{}'\n",
+            observations.display(),
+            inbox.display()
+        ));
+        // argv / env / cwd 三面的实物观察，写在处理任何入包之前。
+        script.push_str("printf 'argc=%s\\n' \"$#\" > \"$OBS\"\n");
+        script.push_str("printf 'arg0=%s\\n' \"$0\" >> \"$OBS\"\n");
+        script.push_str("printf 'pwd=%s\\n' \"$(pwd)\" >> \"$OBS\"\n");
+        script.push_str("printf 'pid=%s\\n' \"$$\" >> \"$OBS\"\n");
+        script.push_str("printf 'env-begin\\n' >> \"$OBS\"\n");
+        script.push_str("env >> \"$OBS\"\n");
+        script.push_str("printf 'env-end\\n' >> \"$OBS\"\n");
+        script.push_str(": > \"$IN\"\n");
+        script.push_str("while IFS= read -r line; do\n");
+        script.push_str("  printf '%s\\n' \"$line\" >> \"$IN\"\n");
+        script.push_str("  case \"$line\" in\n");
+        for (needle, body) in arms {
+            script.push_str(&format!("    *'{needle}'*)\n"));
+            script.push_str(body);
+            script.push_str("      ;;\n");
+        }
+        script.push_str("  esac\ndone\n");
+        fs::write(&script_path, script).expect("写应答器");
+        Responder {
+            script_path,
+            observations,
+            inbox,
+        }
+    }
+
+    fn real_pair(responder: &Responder) -> VerifiedRoutePair {
+        VerifiedRoutePair::for_lifecycle_test(
+            PathBuf::from("/bin/sh"),
+            responder.script_path.clone(),
+        )
+    }
+
+    fn start_real(
+        harness: &Harness,
+        responder: &Responder,
+        credentials: &dyn CredentialPort,
+    ) -> Result<PiLoopHost, HostError> {
+        PiLoopHost::start_with_pair(
+            &harness.app_data,
+            real_pair(responder),
+            harness.config.clone(),
+            credentials,
+            &mut ProcessSpawner,
+        )
+    }
+
+    /// durable 面只认**盘上的 bytes**：逐行核 type，并核最后一枚 byte 是 LF。
+    fn journal_types_on_disk(app_data: &Path) -> Vec<String> {
+        let bytes = fs::read(journal_path(app_data, "cnt-1", "sess-1")).expect("读 journal");
+        assert_eq!(bytes.last(), Some(&b'\n'), "durable 行必须以 LF 收束");
+        String::from_utf8(bytes)
+            .expect("UTF-8")
+            .lines()
+            .map(|line| {
+                let head = line.find("\"type\":\"").expect("每行都有 type") + 8;
+                let tail = line[head..].find('"').expect("type 闭合") + head;
+                line[head..tail].to_string()
+            })
+            .collect()
+    }
+
+    /// 条件等待：不赌时长（workflow 判例「异步前置要等条件，不要赌时长」）。
+    fn wait_until(deadline: Duration, mut predicate: impl FnMut() -> bool) -> bool {
+        let started = std::time::Instant::now();
+        while started.elapsed() < deadline {
+            if predicate() {
+                return true;
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        predicate()
+    }
+
+    fn process_alive(pid: i32) -> bool {
+        // SAFETY: `kill(pid, 0)` 只做存在性探测，不投递信号。
+        unsafe { libc::kill(pid, 0) == 0 }
+    }
+
+    fn leg_arms(request_id: &str) -> Vec<(&'static str, String)> {
+        let ready_line = wire(
+            1,
+            None,
+            PacketPayload::Ready {
+                capabilities: vec![WorkspaceCapability::CaseRead],
+            },
+        );
+        let prompt_lines = vec![
+            wire(
+                2,
+                Some(request_id),
+                PacketPayload::AgentEvent(AgentProjectionEvent::AssistantTextDelta {
+                    delta: "正在读取 /case/备忘.md".to_string(),
+                }),
+            ),
+            wire(
+                3,
+                Some(request_id),
+                PacketPayload::AgentEvent(AgentProjectionEvent::ToolStarted {
+                    tool_call_id: "call-1".to_string(),
+                    tool_name: crate::pi_loop_protocol::ProductToolName::Read,
+                }),
+            ),
+            wire(
+                4,
+                Some(request_id),
+                PacketPayload::AgentEvent(AgentProjectionEvent::ToolFinished {
+                    tool_call_id: "call-1".to_string(),
+                    tool_name: crate::pi_loop_protocol::ProductToolName::Read,
+                    outcome: crate::pi_loop_protocol::ToolOutcome::Succeeded,
+                }),
+            ),
+            wire(
+                5,
+                Some(request_id),
+                PacketPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                    turn: 1,
+                    counted_toward_turn_limit: true,
+                    usage: known_usage(0.25),
+                    stop_reason: TurnStopReason::Stop,
+                }),
+            ),
+            wire(
+                6,
+                Some(request_id),
+                PacketPayload::Terminal(Terminal::Completed {
+                    budget: open_budget(1, Some(0.25)),
+                }),
+            ),
+        ];
+        let shutdown_line = wire(7, None, PacketPayload::Terminal(Terminal::Shutdown));
+        vec![
+            ("\"type\":\"bootstrap\"", emit(&[ready_line])),
+            ("\"type\":\"prompt\"", emit(&prompt_lines)),
+            ("\"type\":\"shutdown\"", emit(&[shutdown_line])),
+        ]
+    }
+
+    #[test]
+    fn headless_driver_runs_a_whole_leg_over_a_real_child_process() {
+        let h = harness("real-leg");
+        let responder = responder(&h.app_data, "leg", &leg_arms("req-1"));
+        let mut host = start_real(&h, &responder, &FixedKey).expect("真跑启动");
+
+        assert_eq!(host.leg(), 1);
+        assert_eq!(host.capabilities(), EXPECTED_CAPABILITIES);
+
+        // 真进程的 argv / cwd 实物。
+        assert_eq!(responder.observation("argc=").as_deref(), Some("0"));
+        assert_eq!(
+            responder.observation("arg0=").as_deref(),
+            Some(responder.script_path.to_string_lossy().as_ref())
+        );
+        let expected_cwd =
+            fs::canonicalize(h.app_data.join("pi-loop-runtime")).expect("规范化 runtime cwd");
+        assert_eq!(
+            responder
+                .observation("pwd=")
+                .and_then(|value| fs::canonicalize(value).ok()),
+            Some(expected_cwd)
+        );
+
+        let terminal = host.prompt("req-1", "合同编号是多少").expect("prompt 终态");
+        assert!(matches!(terminal, Terminal::Completed { .. }));
+        host.shutdown().expect("shutdown");
+
+        // 每枚 outward event 先落同义 journal；turn_finished 两笔；terminal 之后才是 session。
+        assert_eq!(
+            journal_types_on_disk(&h.app_data),
+            vec![
+                "session_started",
+                "user_prompted",
+                "agent_event",
+                "agent_event",
+                "agent_event",
+                "agent_event",
+                "turn_usage_recorded",
+                "prompt_completed",
+                "session_completed",
+            ],
+            "durable bytes 的次序即语义"
+        );
+        assert_eq!(
+            host.records().len(),
+            journal_types_on_disk(&h.app_data).len(),
+            "内存账本与盘上 bytes 逐条对齐"
+        );
+        assert_eq!(host.published().len(), 7, "ready + 四枚 agent + 两枚终态");
+        assert_eq!(
+            host.published().last(),
+            Some(&HostEvent::SessionTerminal(JournalType::SessionCompleted))
+        );
+        assert_eq!(host.projection().prior_turns, 1);
+        assert_eq!(host.projection().prior_usd, Some(0.25));
+
+        // 真 child 已随 shutdown 收束。
+        assert!(
+            wait_until(Duration::from_millis(5_000), || !process_alive(
+                responder.child_pid()
+            )),
+            "shutdown 之后 child 必须已退出"
+        );
+    }
+
+    #[test]
+    fn canary_sweep_over_a_real_child_covers_every_observable_surface() {
+        // secret 与物理根取**互异**的可搜字符串：任一面命中都能指名道姓。
+        const SECRET: &str = "sk-canary-SECRET-9f2a4c";
+        const ROOT_TAG: &str = "canary-ROOT-7b31d5";
+        struct CanaryKey;
+        impl CredentialPort for CanaryKey {
+            fn resolve(&self) -> Result<String, HostError> {
+                Ok(SECRET.to_string())
+            }
+        }
+
+        let mut h = harness("canary");
+        let case_root = h.case_root.parent().expect("有父级").join(ROOT_TAG);
+        fs::create_dir_all(&case_root).expect("建 canary 案件根");
+        h.config.case_root = case_root.clone();
+
+        let mut arms = leg_arms("req-1");
+        // stderr 面：child 往 stderr 泼一枚独有 canary，host 任何投影都不得转售它。
+        arms[0]
+            .1
+            .push_str("      printf 'stderr-canary-e11c\\n' >&2\n");
+        let responder = responder(&h.app_data, "canary", &arms);
+        let mut host = start_real(&h, &responder, &CanaryKey).expect("真跑启动");
+        host.prompt("req-1", "读一下材料").expect("prompt 终态");
+
+        let physical = case_root.to_string_lossy().into_owned();
+        let inbox = responder.inbox_lines();
+
+        // 面 1–3：argv / env / cwd。
+        let observations = responder.observations_text();
+        assert!(!observations.contains(SECRET), "argv/env/cwd 面不得有 key");
+        assert!(
+            !observations.contains(ROOT_TAG),
+            "argv/env/cwd 面不得有物理根"
+        );
+        assert!(!observations.contains("HOME="), "child env 严格为空");
+        let env_block = observations
+            .split("env-begin\n")
+            .nth(1)
+            .and_then(|rest| rest.split("env-end").next())
+            .expect("env 段存在");
+        // `env_clear()` 之后 child env 为空；`PWD`/`SHLVL`/`_` 是 `/bin/sh` 自己进程内设的，
+        // 不是从父进程继承来的。真正要证的是「父进程有、child 没有」——`HOME`/`PATH` 即对照。
+        assert!(
+            std::env::var_os("HOME").is_some() && std::env::var_os("PATH").is_some(),
+            "对照前提：父进程确实有 HOME 与 PATH"
+        );
+        let shell_owned = ["PWD=", "SHLVL=", "_="];
+        assert!(
+            env_block
+                .lines()
+                .all(|line| line.is_empty()
+                    || shell_owned.iter().any(|prefix| line.starts_with(prefix))),
+            "除 shell 自设的三枚外，child env 不得有任何继承变量：{env_block:?}"
+        );
+
+        // 面 4：host→child 的 stdout（即 inbox）。只有首枚 bootstrap 可以带，其余一律不得。
+        assert!(
+            inbox[0].contains(SECRET) && inbox[0].contains(ROOT_TAG),
+            "对照：bootstrap 确实带 key 与物理根，否则下面的否定是空的"
+        );
+        for line in inbox.iter().skip(1) {
+            assert!(
+                !line.contains(SECRET),
+                "bootstrap 之后不得再出现 key：{line}"
+            );
+            assert!(
+                !line.contains(ROOT_TAG),
+                "bootstrap 之后不得再出现物理根：{line}"
+            );
+        }
+
+        // 面 5：child stderr 的原文不得出现在 host 的任何投影里。
+        let journal_text =
+            fs::read_to_string(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读 journal");
+        let published = format!("{:?}", host.published());
+        let diagnostic = format!("{host:?}");
+        for surface in [&journal_text, &published, &diagnostic] {
+            assert!(
+                !surface.contains("stderr-canary"),
+                "stderr 原文只活在受限内存/test seam"
+            );
+        }
+
+        // 面 6–8：journal / reply / diagnostic。
+        for (name, surface) in [
+            ("journal", &journal_text),
+            ("reply", &published),
+            ("diagnostic", &diagnostic),
+        ] {
+            assert!(!surface.contains(SECRET), "{name} 面出现了 key");
+            assert!(!surface.contains(ROOT_TAG), "{name} 面出现了物理根");
+            assert!(!surface.contains(&physical), "{name} 面出现了物理路径");
+        }
+        assert!(
+            journal_text.contains("\"caseRoot\":\"/case\""),
+            "journal 里案件根恒为逻辑根"
+        );
+
+        // 面 9：error。逼一枚真失败，核错误串同样干净。
+        let reused = host
+            .prompt("req-1", "再问一次")
+            .expect_err("requestId 复用必拒");
+        let error_text = format!("{reused:?}");
+        assert!(!error_text.contains(SECRET));
+        assert!(!error_text.contains(ROOT_TAG));
+    }
+
+    #[test]
+    fn real_child_killed_mid_prompt_folds_to_interrupted_and_resumes_on_a_new_leg() {
+        let h = harness("real-crash");
+        let ready_line = wire(
+            1,
+            None,
+            PacketPayload::Ready {
+                capabilities: vec![WorkspaceCapability::CaseRead],
+            },
+        );
+        let delta = wire(
+            2,
+            Some("req-1"),
+            PacketPayload::AgentEvent(AgentProjectionEvent::AssistantTextDelta {
+                delta: "开始读材料".to_string(),
+            }),
+        );
+        // 真 SIGKILL 自注入：prompt 途中进程整枚消失，host 只见 EOF。
+        let crash_arms = vec![
+            (
+                "\"type\":\"bootstrap\"",
+                emit(std::slice::from_ref(&ready_line)),
+            ),
+            (
+                "\"type\":\"prompt\"",
+                format!("{}      kill -9 $$\n", emit(&[delta])),
+            ),
+        ];
+        let first = responder(&h.app_data, "crash", &crash_arms);
+        let mut host = start_real(&h, &first, &FixedKey).expect("leg1 启动");
+        assert_eq!(
+            host.prompt("req-1", "问第一句").expect_err("child 已死"),
+            HostError::Process(ProcessFault::UnexpectedEof)
+        );
+        // 对照：应答器确实进过 prompt 分支才自杀的，EOF 不是「压根没起来」。
+        assert_eq!(
+            first.inbox_lines().len(),
+            2,
+            "bootstrap + prompt 各收到一枚"
+        );
+        let crashed_pid = first.child_pid();
+        host.reclaim_after_fault(SessionInterruptReason::SidecarEnded)
+            .expect("按已 durable journal 做 crash fold");
+        // 回收之后 pid 才既不活也不是 zombie——`kill(pid,0)` 对未 reap 的僵尸仍返回 0，
+        // 所以这条断言必须放在 reclaim 之后，否则测的是「父进程还没收尸」。
+        assert!(
+            wait_until(Duration::from_millis(5_000), || !process_alive(crashed_pid)),
+            "SIGKILL 之后 leg 必须被回收干净"
+        );
+        drop(host);
+
+        // 五步 fold：maxUsd 未启用 + active prompt ⇒ 步骤 4 落 session_interrupted。
+        assert_eq!(
+            journal_types_on_disk(&h.app_data),
+            vec![
+                "session_started",
+                "user_prompted",
+                "agent_event",
+                "session_interrupted",
+            ]
+        );
+        let journal_text =
+            fs::read_to_string(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读");
+        assert!(journal_text.contains("\"reason\":\"sidecar_ended\""));
+        assert!(journal_text.contains("\"costCoverage\":\"unknown\""));
+
+        // 新 leg：leg=prev+1、prior 三值精确、messageContext 恒为 empty。
+        let second = responder(&h.app_data, "resume", &leg_arms("req-2"));
+        let mut resumed = start_real(&h, &second, &FixedKey).expect("resume 启动");
+        assert_eq!(resumed.leg(), 2);
+        assert_eq!(
+            journal_types_on_disk(&h.app_data)
+                .last()
+                .map(String::as_str),
+            Some("session_resumed")
+        );
+        let resumed_text =
+            fs::read_to_string(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读");
+        assert!(resumed_text.contains("\"previousLeg\":1"));
+        assert!(resumed_text.contains("\"startedEventId\":\"event_1\""));
+        assert!(resumed_text.contains("\"messageContext\":\"empty\""));
+        assert!(resumed_text.contains("\"priorObservedTurns\":0"));
+        assert!(resumed_text.contains("\"priorTurns\":0"));
+        // 被打断的那一回合可能已经付过费：`costCoverage:'unknown'` 把总额毒成 null，
+        // prior 三值照 fold 如实带过去，绝不把 null 恢复成 0。
+        assert!(resumed_text.contains("\"priorUsd\":null"));
+        assert_eq!(resumed.projection().prior_usd, None);
+
+        // 新 leg 的 bootstrap 必须带 after_interruption 与同一 leg 号，且不传旧 messages。
+        let bootstrap = &second.inbox_lines()[0];
+        assert!(bootstrap.contains("\"kind\":\"after_interruption\""));
+        assert!(bootstrap.contains("\"leg\":2"));
+        assert!(!bootstrap.contains("messages"));
+
+        // 跨 leg 的 requestId 去重由持 durable journal 的这一侧独占。
+        assert!(matches!(
+            resumed.prompt("req-1", "拿旧 id 再问"),
+            Err(HostError::ResumeRefused(_))
+        ));
+        resumed.prompt("req-2", "换新 id 再问").expect("新 id 可用");
+        assert_eq!(resumed.projection().prior_turns, 1);
+    }
+
+    #[test]
+    fn ready_capability_drift_reclaims_the_real_child_before_the_first_prompt() {
+        let h = harness("real-drift");
+        let drifted = wire(
+            1,
+            None,
+            PacketPayload::Ready {
+                capabilities: vec![WorkspaceCapability::WorkspaceRead],
+            },
+        );
+        let arms = vec![("\"type\":\"bootstrap\"", emit(&[drifted]))];
+        let responder = responder(&h.app_data, "drift", &arms);
+        assert_eq!(
+            start_real(&h, &responder, &FixedKey).expect_err("capability 漂移必拒"),
+            HostError::Protocol(ProtocolErrorCode::StateViolation)
+        );
+        assert_eq!(
+            journal_types_on_disk(&h.app_data),
+            vec!["session_started", "session_failed"]
+        );
+        // 回收是**实测**的：真进程必须不在了。
+        assert!(
+            wait_until(Duration::from_millis(6_000), || !process_alive(
+                responder.child_pid()
+            )),
+            "漂移之后 leg 必须被真回收"
+        );
+    }
+
+    #[test]
+    fn both_stored_credential_forms_start_a_real_leg_and_none_falls_back_to_the_ambient_env() {
+        use crate::{ReadCredential, StoredCredential};
+
+        // 用户显式保存的具名环境变量：`active_secret()` 当场解析。
+        std::env::set_var("COURTWORK_PI_LOOP_TEST_KEY", "sk-from-user-named-env");
+        // 固定环境变量确实存在——下面「无存档即未配置」才有区分力。
+        std::env::set_var("DEEPSEEK_API_KEY", "sk-ambient-must-never-be-used");
+
+        /// 复用 production 的存储形制 → secret 纯函数，不另开第二条凭证路径。
+        enum StoredForm {
+            Pasted(&'static str),
+            Named(&'static str),
+            Missing,
+        }
+        impl CredentialPort for StoredForm {
+            fn resolve(&self) -> Result<String, HostError> {
+                let read = match self {
+                    StoredForm::Pasted(secret) => {
+                        ReadCredential::Stored(StoredCredential::Pasted {
+                            secret: (*secret).to_string(),
+                        })
+                    }
+                    StoredForm::Named(name) => {
+                        ReadCredential::Stored(StoredCredential::Environment {
+                            name: (*name).to_string(),
+                        })
+                    }
+                    StoredForm::Missing => ReadCredential::Missing,
+                };
+                match crate::secret_from_stored(read) {
+                    Ok((_source, secret)) if !secret.trim().is_empty() => Ok(secret),
+                    _ => Err(HostError::CredentialUnconfigured),
+                }
+            }
+        }
+
+        // 两路都能真起 leg，且 child env 始终为空。
+        for (label, stored, expected_key) in [
+            (
+                "pasted",
+                StoredForm::Pasted("sk-pasted-by-user"),
+                "sk-pasted-by-user",
+            ),
+            (
+                "environment-name",
+                StoredForm::Named("COURTWORK_PI_LOOP_TEST_KEY"),
+                "sk-from-user-named-env",
+            ),
+        ] {
+            let h = harness(&format!("cred-{label}"));
+            let responder = responder(&h.app_data, label, &leg_arms("req-1"));
+            let host = start_real(&h, &responder, &stored)
+                .unwrap_or_else(|error| panic!("{label} 必须能起 leg，实得 {error:?}"));
+            assert_eq!(host.capabilities(), EXPECTED_CAPABILITIES);
+            let bootstrap = &responder.inbox_lines()[0];
+            assert!(
+                bootstrap.contains(expected_key),
+                "{label}：解析出的 key 只经 bootstrap 进内存"
+            );
+            let observations = responder.observations_text();
+            assert!(
+                !observations.contains(expected_key) && !observations.contains("DEEPSEEK_API_KEY"),
+                "{label}：child env 严格为空，key 绝不经环境传"
+            );
+            drop(host);
+        }
+
+        // 无存档：固定环境变量摆在那儿也零回落，且 journal / spawn 一个都不发生。
+        let h = harness("cred-missing");
+        assert_eq!(
+            PiLoopHost::start_with_pair(
+                &h.app_data,
+                lifecycle_pair(&h.layout),
+                h.config.clone(),
+                &StoredForm::Missing,
+                &mut RefusingSpawner,
+            )
+            .expect_err("无存档必须保持未配置"),
+            HostError::CredentialUnconfigured
+        );
+        assert!(!journal_path(&h.app_data, "cnt-1", "sess-1").exists());
+
+        // 生产段静态面：host 侧一处都不读那枚固定环境变量。
+        let source = include_str!("pi_loop.rs");
+        let production = source
+            .split_once("#[cfg(test)]")
+            .map(|(head, _)| head)
+            .unwrap_or(source);
+        assert!(
+            !production.contains("var(\"DEEPSEEK") && !production.contains("env::var"),
+            "产品 host 不得从环境里捞凭证"
+        );
+
+        std::env::remove_var("COURTWORK_PI_LOOP_TEST_KEY");
+        std::env::remove_var("DEEPSEEK_API_KEY");
+    }
+
+    #[test]
+    fn a_packet_after_the_shutdown_terminal_kills_the_leg_instead_of_being_absorbed() {
+        // terminal 之后的来包必须杀 leg：`terminal→EOF` 窗里只允许 EOF。
+        let h = harness("post-terminal");
+        let ready_line = wire(
+            1,
+            None,
+            PacketPayload::Ready {
+                capabilities: vec![WorkspaceCapability::CaseRead],
+            },
+        );
+        let shutdown_line = wire(2, None, PacketPayload::Terminal(Terminal::Shutdown));
+        let straggler = wire(
+            3,
+            Some("req-late"),
+            PacketPayload::AgentEvent(AgentProjectionEvent::AssistantTextDelta {
+                delta: "terminal 之后还想说话".to_string(),
+            }),
+        );
+        let arms = vec![
+            ("\"type\":\"bootstrap\"", emit(&[ready_line])),
+            ("\"type\":\"shutdown\"", emit(&[shutdown_line, straggler])),
+        ];
+        let responder = responder(&h.app_data, "post-terminal", &arms);
+        let mut host = start_real(&h, &responder, &FixedKey).expect("启动");
+        assert_eq!(
+            host.shutdown().expect_err("terminal 后来包必须杀 leg"),
+            HostError::Protocol(ProtocolErrorCode::StateViolation)
+        );
+        assert_eq!(
+            journal_types_on_disk(&h.app_data),
+            vec!["session_started", "session_failed"],
+            "不得落 session_completed——它没有干净收束"
+        );
+    }
+
+    /// 冻结 Node v22.23.1 + production sealed CJS 的整机 E2E（票面 §五门 3 的 Rust 侧对应）。
+    ///
+    /// 它消费独占 `pnpm --filter @courtwork/pi-lane build:product-sidecar` 生成的 112 MiB
+    /// 快照，故**显式** `#[ignore]`：`cargo test` 会把它计进 “ignored”，不会静默当成跑过。
+    /// 跑法：`cargo test --lib pi_loop::tests::snapshot -- --ignored --nocapture`。
+    #[test]
+    #[ignore = "需先跑 build:product-sidecar 生成 112MiB verified runtime 快照；见票面 §五门 3"]
+    fn snapshot_e2e_runs_the_real_verified_node_through_the_whole_route_preflight() {
+        let repository = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(3)
+            .expect("仓库根")
+            .to_path_buf();
+        let snapshot = repository.join("packages/pi-lane/dist/product-sidecar");
+        let triple = crate::pi_loop_process::host_target_triple().expect("本机 target 在闭集内");
+        let runtime_source = snapshot.join(format!("pi-sidecar-{}", triple.as_str()));
+        assert!(
+            runtime_source.exists(),
+            "快照缺 {}——先跑 build:product-sidecar",
+            runtime_source.display()
+        );
+
+        let root = temp_root("snapshot-e2e");
+        let app_data = root.join("app-data");
+        fs::create_dir_all(&app_data).expect("建 app-data");
+        let case_root = root.join("案卷");
+        fs::create_dir_all(&case_root).expect("建案件根");
+        fs::write(case_root.join("备忘.md"), "合同编号 HT-2024-081\n").expect("写材料");
+
+        // 组装真实 app layout：hard link 省掉 112 MiB 拷贝，bytes 与 inode 都是同一份。
+        let executable_dir = root.join("MacOS");
+        let resource_dir = root.join("Resources");
+        fs::create_dir_all(&executable_dir).expect("建可执行目录");
+        fs::create_dir_all(resource_dir.join(RESOURCE_DIR_NAME)).expect("建 resource 目录");
+        let link_or_copy = |from: PathBuf, to: PathBuf| {
+            if fs::hard_link(&from, &to).is_err() {
+                fs::copy(&from, &to).expect("落件");
+            }
+        };
+        link_or_copy(runtime_source, executable_dir.join(RUNTIME_BASENAME));
+        link_or_copy(
+            snapshot.join(BUNDLE_BASENAME),
+            resource_dir.join(RESOURCE_DIR_NAME).join(BUNDLE_BASENAME),
+        );
+        fs::write(
+            resource_dir.join(RESOURCE_DIR_NAME).join(MANIFEST_BASENAME),
+            EXPECTED_ROUTE_MANIFEST,
+        )
+        .expect("写 manifest");
+
+        let layout = AppLayout {
+            executable_dir,
+            resource_dir,
+        };
+        let config = StartConfig {
+            container_id: "cnt-snap".to_string(),
+            session_id: "sess-snap".to_string(),
+            grant_id: "grant-1".to_string(),
+            case_root,
+            model_id: "deepseek-v4-flash".to_string(),
+            max_turns: 12,
+            max_usd: None,
+        };
+        // 全序：preflight（实物双件逐值）→ journal durable → spawn → bootstrap → ready。
+        // 不发 prompt，因此零网络请求。
+        let mut host = PiLoopHost::start(
+            &app_data,
+            &layout,
+            triple,
+            config,
+            &FixedKey,
+            &mut ProcessSpawner,
+        )
+        .expect("真 Node + production sealed CJS 起得来");
+        assert_eq!(host.capabilities(), EXPECTED_CAPABILITIES);
+        host.shutdown().expect("shutdown");
+
+        let bytes = fs::read(journal_path(&app_data, "cnt-snap", "sess-snap")).expect("读 journal");
+        let text = String::from_utf8(bytes).expect("UTF-8");
+        assert!(text.contains("\"routeId\":\"node22-runtime-sealed-cjs-v1\""));
+        assert!(text.contains("\"nodeVersion\":\"22.23.1\""));
+        assert!(text.contains("session_completed"));
+        assert!(
+            text.contains(&format!(
+                "\"routeManifestSha256\":\"{}\"",
+                crate::pi_loop_process::sha256_bytes(EXPECTED_ROUTE_MANIFEST)
+            )),
+            "journal 记的是对已验证 manifest 原始 bytes 重算的值"
+        );
+
+        // ── 只有实物在场才做得出的三枚反例 ──────────────────────────────
+        let runtime_file = layout.executable_dir.join(RUNTIME_BASENAME);
+        let bundle_file = layout
+            .resource_dir
+            .join(RESOURCE_DIR_NAME)
+            .join(BUNDLE_BASENAME);
+
+        // (1) 错 target：arm 的实物按 x86_64 那一行的冻结真值核，bytes 当场对不上。
+        let other = match triple {
+            TargetTriple::Aarch64AppleDarwin => TargetTriple::X8664AppleDarwin,
+            TargetTriple::X8664AppleDarwin => TargetTriple::Aarch64AppleDarwin,
+        };
+        assert_eq!(
+            crate::pi_loop_process::preflight_route_pair(&layout, other)
+                .expect_err("错 target 必拒"),
+            RouteError::ArtifactBytes("runtime")
+        );
+
+        // (2) 双件交换：把 runtime 与 CJS 的内容对调，两件各自都不再是自己。
+        let runtime_bytes = fs::read(&runtime_file).expect("读 runtime");
+        let bundle_bytes = fs::read(&bundle_file).expect("读 bundle");
+        fs::remove_file(&runtime_file).expect("先移走 hard link");
+        fs::remove_file(&bundle_file).expect("先移走 hard link");
+        fs::write(&runtime_file, &bundle_bytes).expect("写交换后的 runtime");
+        fs::write(&bundle_file, &runtime_bytes).expect("写交换后的 bundle");
+        assert_eq!(
+            crate::pi_loop_process::preflight_route_pair(&layout, triple).expect_err("交换必拒"),
+            RouteError::ArtifactBytes("runtime")
+        );
+
+        // (3) bundle 零字节：runtime 先真过 bytes+SHA 两道门，失败点才唯一落在 bundle 上。
+        fs::write(&runtime_file, &runtime_bytes).expect("还原 runtime");
+        fs::write(&bundle_file, b"").expect("bundle 截成零字节");
+        assert_eq!(
+            crate::pi_loop_process::preflight_route_pair(&layout, triple).expect_err("零字节必拒"),
+            RouteError::ArtifactBytes("sidecar.cjs")
+        );
+
+        // 对照：还原后仍能过——上面三枚不是恒红。
+        fs::write(&bundle_file, &bundle_bytes).expect("还原 bundle");
+        assert!(crate::pi_loop_process::preflight_route_pair(&layout, triple).is_ok());
     }
 }

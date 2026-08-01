@@ -1187,6 +1187,39 @@ mod tests {
     }
 
     #[test]
+    fn counterexample_zero_byte_runtime_stops_at_the_byte_gate() {
+        // 「零字节」在 manifest 字段一侧已由 shape drift 覆盖；这里补**实物**一侧。
+        // bundle 的零字节形态要求 runtime 先真过 SHA 门（112 MiB 官方件，单测合成不出来），
+        // 由 `pi_loop::tests::snapshot_e2e_*` 的实物注入承担。
+        let root = temp_dir("zero-runtime");
+        let layout = layout_with_manifest(&root, EXPECTED_ROUTE_MANIFEST);
+        fs::write(layout.executable_dir.join(RUNTIME_BASENAME), b"").expect("截成零字节");
+        assert_eq!(
+            preflight_route_pair(&layout, TargetTriple::Aarch64AppleDarwin).expect_err("必须拒"),
+            RouteError::ArtifactBytes("runtime"),
+            "零字节必须停在 bytes 门，而不是等 SHA 或更晚的 spawn"
+        );
+    }
+
+    #[test]
+    fn partial_line_before_eof_is_reported_as_a_fault_not_as_a_packet() {
+        // EOF 之前没见到 LF 的半行不是一枚 packet：wire 一侧没有 journal 那种
+        // 「截到前一枚 durable」的说法，只能以 `UnexpectedEof` 收束，绝不投出半行。
+        let root = temp_dir("partial");
+        let (pair, cwd) = shell_pair(&root, "printf 'partial-without-lf'\nexit 0\n");
+        let child = spawn_verified_sidecar(&pair, &cwd).expect("spawn");
+        let mut process = SidecarProcess::attach(child);
+        let outcome = process.read_packet(Some(Duration::from_millis(5_000)), "partial");
+        assert!(
+            matches!(
+                outcome,
+                ReadOutcome::Eof | ReadOutcome::Fault(ProcessFault::UnexpectedEof)
+            ),
+            "半行 + EOF 不得冒充 packet，实得 {outcome:?}"
+        );
+    }
+
+    #[test]
     fn runtime_cwd_is_created_0700_and_refuses_symlinked_parents() {
         let root = temp_dir("cwd");
         let app_data = root.join("app-data");
@@ -1321,23 +1354,37 @@ mod tests {
     fn sigterm_grace_then_sigkill_confirm_reclaims_a_stubborn_leg() {
         let root = temp_dir("kill");
         // 屏蔽 SIGTERM 的 child：只有 SIGKILL 能收走它，kill-confirm 必须成功且具名。
+        // child 把自己的 pid 报出来，回收才可被**实测**——只断言返回值等于
+        // `Signal(SIGKILL)` 是零区分力的：把 kill-confirm 整段换成
+        // `Ok(ExitOutcome::Signal(SIGKILL))` 也能骗过它（H3-M1 实测）。
         let (pair, cwd) = shell_pair(
             &root,
-            "trap '' TERM\nprintf 'up\\n'\nwhile true; do sleep 1; done\n",
+            "trap '' TERM\nprintf '%s\\n' \"$$\"\nwhile true; do sleep 1; done\n",
         );
         let child = spawn_verified_sidecar(&pair, &cwd).expect("spawn");
         let mut process = SidecarProcess::attach(child);
-        assert!(
-            matches!(
-                process.read_packet(Some(Duration::from_millis(5_000)), "up"),
-                ReadOutcome::Line(_)
-            ),
-            "对照：child 已经起来了，否则下面测的是空气"
-        );
+        let ReadOutcome::Line(line) = process.read_packet(Some(Duration::from_millis(5_000)), "up")
+        else {
+            panic!("对照：child 已经起来了，否则下面测的是空气");
+        };
+        let pid: i32 = String::from_utf8_lossy(&line)
+            .trim()
+            .parse()
+            .expect("child 报出自己的 pid");
+        // SAFETY: `kill(pid, 0)` 只做存在性探测，不投递信号。
+        assert_eq!(unsafe { libc::kill(pid, 0) }, 0, "对照：回收之前它确实活着");
+
         assert_eq!(
             process.terminate().expect("kill-confirm 必须成功"),
             ExitOutcome::Signal(libc::SIGKILL),
             "SIGTERM 被屏蔽后由 SIGKILL 收走"
+        );
+        // kill-confirm 的语义是「已确认回收」：真等到了 waitpid，pid 才既不活也不是僵尸。
+        // 撤掉这一步只能拿到 zombie，`kill(pid,0)` 仍返回 0。
+        assert_ne!(
+            unsafe { libc::kill(pid, 0) },
+            0,
+            "terminate 返回时必须已确认回收，不能只是发过信号"
         );
     }
 
