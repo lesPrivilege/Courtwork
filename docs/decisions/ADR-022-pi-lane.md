@@ -1261,6 +1261,14 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 
 ## 修订记录
 
+- **2026-08-01 · HOST-LOOP 首轮验收拒绝与 1R 十一项闭口**：`PI-HOST-LOOP-1@0d4799c`
+  经独立验收 `314117d` REJECT。决定性违约为凭证读取先于 route 身份门（逐字违反「route-pair
+  失败先于 Keychain read/journal/spawn」）；另十枚坐实非法输入回显物理根、provider error 与
+  政策拒绝两类 false-success、config/prompt 门后置、预算采信 sidecar 自报、wire fault 不
+  fold、shutdown 非零伪 completed、resume prior 三值不核、单写者缺失。返修合同冻结于
+  `packages/pi-lane/specs/PI-HOST-LOOP-1R.md`：十一项闭口在既有契约语义内收紧实现，不改
+  wire/payload 闭集，不回退既有门；验收反例原形转 permanent 首红。放行前
+  `PI-WRITE-HOST-1` 继续 blocked。
 - **2026-07-30 · PI-HOST-LOOP-1 开工接缝订正**：反对性审查闭合 `/case` 工具输出、
   Agent parallel 缺省、explicit credential env 边界、shared Rust↔TS golden、ready 漂移、
   Rust 补终态固定文案、stdin/deadline/SIGTERM、inactive container 整删与 dynamic spawn
