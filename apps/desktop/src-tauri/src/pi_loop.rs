@@ -19,7 +19,6 @@
 
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::{Mutex, OnceLock};
 use std::time::Duration;
 
 use crate::pi_loop_journal::{
@@ -35,8 +34,9 @@ use crate::pi_loop_process::{
 };
 use crate::pi_loop_protocol::{
     decode_sidecar_packet_line, encode_packet_line, is_safe_token, AgentProjectionEvent,
-    BootstrapLimits, BootstrapPayload, BootstrapProvider, BootstrapResume, CancelReason,
-    PacketPayload, ProductPacket, ProtocolErrorCode, ResumeKind, Terminal, WorkspaceCapability,
+    BootstrapLimits, BootstrapPayload, BootstrapProvider, BootstrapResume, BudgetStopReason,
+    BudgetTurnLimit, BudgetView, CancelReason, PacketPayload, ProductPacket, ProtocolErrorCode,
+    ResumeKind, Terminal, WorkspaceCapability, MAX_TEXT_BYTES,
 };
 
 /// 本票 ready 恰宣告这一枚能力。
@@ -61,6 +61,14 @@ pub(crate) enum HostError {
     Protocol(ProtocolErrorCode),
     /// container 仍有 live session/leg。
     ContainerActive,
+    /// 同一 logical session 已有 live 写者（单写者独占锁被占，R8）。
+    SessionActive,
+    /// bootstrap/config 闭集非法：在 journal 与 spawn 之前拒（R2）。
+    InvalidConfig(&'static str),
+    /// prompt 文本不合闭集：在 `user_prompted` append 之前拒（R3）。
+    InvalidPrompt(&'static str),
+    /// 不可恢复的 runtime fault（nonzero exit / signal / 超时，R6）。
+    Runtime(pi_loop_journal::RuntimeFailureCode),
     InvalidRef,
     Spawn(&'static str),
 }
@@ -77,6 +85,10 @@ impl HostError {
             HostError::ResumeRefused(_) => "resume_refused",
             HostError::Protocol(_) => "protocol",
             HostError::ContainerActive => "container_active",
+            HostError::SessionActive => "session_active",
+            HostError::InvalidConfig(_) => "invalid_config",
+            HostError::InvalidPrompt(_) => "invalid_prompt",
+            HostError::Runtime(_) => "runtime",
             HostError::InvalidRef => "invalid_ref",
             HostError::Spawn(_) => "spawn",
         }
@@ -85,7 +97,11 @@ impl HostError {
 
 impl From<JournalError> for HostError {
     fn from(error: JournalError) -> Self {
-        HostError::Journal(error.code())
+        match error {
+            // 单写者拒绝是它自己的具名事实，不该被压成一般 journal I/O 失败。
+            JournalError::SessionActive => HostError::SessionActive,
+            other => HostError::Journal(other.code()),
+        }
     }
 }
 
@@ -175,35 +191,6 @@ pub(crate) enum HostEvent {
     SessionTerminal(JournalType),
 }
 
-// ── 活跃容器登记（delete_container 的 fail-closed 前置）────────────────────
-
-fn active_containers() -> &'static Mutex<Vec<String>> {
-    static ACTIVE: OnceLock<Mutex<Vec<String>>> = OnceLock::new();
-    ACTIVE.get_or_init(|| Mutex::new(Vec::new()))
-}
-
-fn mark_active(container_id: &str) {
-    active_containers()
-        .lock()
-        .expect("登记未中毒")
-        .push(container_id.to_string());
-}
-
-fn unmark_active(container_id: &str) {
-    let mut guard = active_containers().lock().expect("登记未中毒");
-    if let Some(index) = guard.iter().position(|entry| entry == container_id) {
-        guard.remove(index);
-    }
-}
-
-fn is_active(container_id: &str) -> bool {
-    active_containers()
-        .lock()
-        .expect("登记未中毒")
-        .iter()
-        .any(|entry| entry == container_id)
-}
-
 // ── 启动配置 ────────────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone)]
@@ -216,6 +203,26 @@ pub(crate) struct StartConfig {
     pub(crate) model_id: String,
     pub(crate) max_turns: u64,
     pub(crate) max_usd: Option<f64>,
+}
+
+/// bootstrap/config 闭集（PI-HOST-LOOP-1R R2）。
+///
+/// 这些值最终都要过 `encode_packet_line` 的同一套闭集判据，但那是**spawn 之后**的事：
+/// 首轮实现因此会为一份 `maxTurns=0` 的配置先落 `session_started`、再起一枚进程，
+/// 最后才由 encoder 报 `invalid_schema`。判据前移到入参层，错的配置一步都走不动。
+fn validate_start_config(config: &StartConfig) -> Result<(), HostError> {
+    if config.max_turns < 1 {
+        return Err(HostError::InvalidConfig("maxTurns 必须 ≥ 1"));
+    }
+    if let Some(max_usd) = config.max_usd {
+        if !max_usd.is_finite() || max_usd <= 0.0 {
+            return Err(HostError::InvalidConfig("maxUsd 必须是正有限数或 null"));
+        }
+    }
+    if config.model_id.trim().is_empty() {
+        return Err(HostError::InvalidConfig("modelId 不得为空"));
+    }
+    Ok(())
 }
 
 impl std::fmt::Debug for PiLoopHost {
@@ -236,6 +243,9 @@ pub(crate) struct PiLoopHost {
     container_id: String,
     session_id: String,
     journal: Journal,
+    /// 单写者独占锁：本 Host 是这条 logical session 的唯一写者，直到 teardown（R8）。
+    /// `delete_container` 的 active 判定读的就是这把锁，不另立登记册。
+    lock: Option<pi_loop_journal::SessionLock>,
     records: Vec<JournalRecord>,
     projection: SessionProjection,
     started: SessionStartedPayload,
@@ -254,7 +264,8 @@ impl Drop for PiLoopHost {
         if let Some(mut leg) = self.leg_handle.take() {
             let _ = leg.terminate();
         }
-        unmark_active(&self.container_id);
+        // 写权随 Host 一起交出：锁 guard 在字段析构时 `LOCK_UN`。
+        self.lock = None;
     }
 }
 
@@ -275,12 +286,13 @@ impl PiLoopHost {
         &self.capabilities
     }
 
-    /// fresh / resume 全序。次序即语义，前一步不过就绝不走到后一步：
+    /// fresh / resume 全序。次序即语义，前一步不过就绝不走到后一步（PI-HOST-LOOP-1R R1/R2）：
     ///
-    /// 1. 凭证（无存档即未配置，零自动回落）；
+    /// 0. token 与 bootstrap/config 闭集（纯入参，零 I/O）；
+    /// 1. route pair preflight（编译期 expected → closed decode → 双件逐值）——**身份门在最前**；
     /// 2. 物理案件根（存在、目录、非 symlink）；
-    /// 3. route pair preflight（编译期 expected → closed decode → 双件逐值）；
-    /// 4. journal 载入 + partial-tail / quarantine / 唯一补写 / 五步 crash fold；
+    /// 3. 凭证（无存档即未配置，零自动回落）——Keychain read 必须晚于前两道门；
+    /// 4. journal 载入（含单写者独占锁）+ partial-tail / quarantine / 唯一补写 / 五步 crash fold；
     /// 5. fresh 落 `session_started`、resume 逐类漂移门后落 `session_resumed`——**都在 spawn 之前**；
     /// 6. runtime cwd → spawn → bootstrap（caseRoot 与 key 只在此入内存）；
     /// 7. ready 且 capability 恰为 `['case_read']`，否则落 `session_failed{protocol,state_violation}`。
@@ -335,8 +347,12 @@ impl PiLoopHost {
             return Err(HostError::InvalidRef);
         }
 
-        // 1. 凭证：解析出的 key 只进内存，child 环境仍严格为空。
-        let api_key = credentials.resolve()?;
+        // 0. bootstrap/config 闭集。纯入参判定，零 I/O，故排在所有门之前：非法配置
+        //    不该先花掉一次 Keychain read、一条 journal 记录和一枚进程，再由 encoder 兜底。
+        validate_start_config(&config)?;
+
+        // 1. route pair preflight——身份门在最前，早于 Keychain read、journal 与 spawn。
+        let pair = resolve_pair()?;
 
         // 2. 物理案件根：只在这里被看见一次，此后只以 `/case` 出现。
         let metadata = fs::symlink_metadata(&config.case_root)
@@ -348,10 +364,10 @@ impl PiLoopHost {
             return Err(HostError::CaseRoot("案件根不是目录"));
         }
 
-        // 3. route pair preflight——早于 journal 与 spawn。
-        let pair = resolve_pair()?;
+        // 3. 凭证：解析出的 key 只进内存，child 环境仍严格为空。
+        let api_key = credentials.resolve()?;
 
-        // 4. journal 载入（内含 partial-tail 截断、quarantine、唯一补写与五步 crash fold）。
+        // 4. journal 载入（先取单写者锁，再做 partial-tail 截断、quarantine、唯一补写与五步 crash fold）。
         let loaded = pi_loop_journal::load_session(
             app_data_dir,
             &config.container_id,
@@ -359,6 +375,7 @@ impl PiLoopHost {
             SessionInterruptReason::SidecarEnded,
         )?;
         let mut journal = loaded.journal;
+        let lock = loaded.lock;
         let mut records = loaded.records;
         let projection = loaded.projection;
 
@@ -435,7 +452,6 @@ impl PiLoopHost {
         // 6. cwd → spawn → bootstrap。
         let cwd = ensure_runtime_cwd(app_data_dir).map_err(HostError::Route)?;
         let leg_handle = spawner.spawn(&pair, &cwd)?;
-        mark_active(&config.container_id);
 
         let projection = pi_loop_journal::fold(&records);
         let mut host = PiLoopHost {
@@ -443,6 +459,7 @@ impl PiLoopHost {
             container_id: config.container_id.clone(),
             session_id: config.session_id.clone(),
             journal,
+            lock: Some(lock),
             records,
             projection,
             started,
@@ -521,20 +538,26 @@ impl PiLoopHost {
         leg.write_packet(&line).map_err(HostError::Process)
     }
 
+    /// 读一枚入包。**任何** fault 都不得经 `?` 直接逸出（PI-HOST-LOOP-1R R5）：
+    /// decode 失败、意外 EOF、超限与其他 fault 一律先按已 durable journal 执行 crash fold、
+    /// 回收 child、落对应 durable 终态，才停止 outward publish 并返回错误。
     fn expect_packet(
         &mut self,
         deadline: Option<Duration>,
         window: &'static str,
     ) -> Result<ProductPacket, HostError> {
-        let leg = self
-            .leg_handle
-            .as_mut()
-            .ok_or(HostError::Process(ProcessFault::UnexpectedEof))?;
-        let packet = match leg.read_packet(deadline, window) {
-            ReadOutcome::Line(line) => decode_sidecar_packet_line(&line)
-                .map_err(|rejection| HostError::Protocol(rejection.code))?,
-            ReadOutcome::Eof => return Err(HostError::Process(ProcessFault::UnexpectedEof)),
-            ReadOutcome::Fault(fault) => return Err(HostError::Process(fault)),
+        let outcome = match self.leg_handle.as_mut() {
+            Some(leg) => leg.read_packet(deadline, window),
+            None => return Err(HostError::Process(ProcessFault::UnexpectedEof)),
+        };
+        let line = match outcome {
+            ReadOutcome::Line(line) => line,
+            ReadOutcome::Eof => return Err(self.fail_process(ProcessFault::UnexpectedEof)),
+            ReadOutcome::Fault(fault) => return Err(self.fail_process(fault)),
+        };
+        let packet = match decode_sidecar_packet_line(&line) {
+            Ok(packet) => packet,
+            Err(rejection) => return Err(self.fail_protocol(rejection.code)),
         };
         // 每方向的 seq 从 1 严格递增；跳号/重复一律 fatal，不做宽松兼容。
         self.inbound_seq += 1;
@@ -542,6 +565,22 @@ impl PiLoopHost {
             return Err(self.fail_protocol(ProtocolErrorCode::SeqMismatch));
         }
         Ok(packet)
+    }
+
+    /// 进程侧 fault 的统一出口：先 crash fold（内含回收 child 与落 durable 终态），再具名返回。
+    ///
+    /// 归因不在这里定：`session_interrupted` 还是 prompt/budget/effect 终态，由
+    /// {@link pi_loop_journal::load_session} 的五步 crash fold 按已 durable 的 journal 决定；
+    /// 本函数只保证「fold 先于抛」这一条次序。
+    fn fail_process(&mut self, fault: ProcessFault) -> HostError {
+        let reason = match fault {
+            ProcessFault::LifecycleTimeout(_) => SessionInterruptReason::LifecycleTimeout,
+            _ => SessionInterruptReason::SidecarEnded,
+        };
+        if let Err(error) = self.reclaim_after_fault(reason) {
+            return error;
+        }
+        HostError::Process(fault)
     }
 
     /// capability 漂移与其他协议违约：落 `session_failed{protocol,code}` 并回收 leg。
@@ -588,6 +627,15 @@ impl PiLoopHost {
             return Err(HostError::ResumeRefused(
                 "requestId 在本 logical session 内已用过",
             ));
+        }
+        // prompt 门**先于** append：首轮把这两条判据留给了 encoder，于是非法 prompt 会先
+        // 把 `user_prompted` 写进盘上 journal，再由编码失败收场——盘上多出一条本不该存在的
+        // 明文记录，且 requestId 就此被占用（R3）。
+        if text.trim().is_empty() {
+            return Err(HostError::InvalidPrompt("prompt 文本 trim 后不得为空"));
+        }
+        if text.len() > MAX_TEXT_BYTES {
+            return Err(HostError::InvalidPrompt("prompt 文本超过 131,072 字节上限"));
         }
 
         let record = self.journal.append(
@@ -687,32 +735,61 @@ impl PiLoopHost {
         }
     }
 
+    /// 本 request 的预算**真值**：对已 durable 的 `turn_usage_recorded` fold 得出（R4）。
+    /// `budget_stopped` 的 `stopReason` 由同一份 fold 的 limit 状态派生，不抄自报值。
+    fn folded_budget(&self, terminal: &Terminal) -> BudgetView {
+        let mut budget =
+            pi_loop_journal::budget_of(&self.records, self.started.max_turns, self.started.max_usd);
+        if matches!(terminal, Terminal::BudgetStopped { .. }) {
+            budget.stop_reason = Some(if budget.turn_limit == BudgetTurnLimit::Reached {
+                BudgetStopReason::Turns
+            } else {
+                BudgetStopReason::Usd
+            });
+        }
+        budget
+    }
+
     fn record_prompt_terminal(
         &mut self,
         request_id: &str,
         terminal: &Terminal,
     ) -> Result<(), HostError> {
+        // 预算真值归 Rust fold；sidecar 自报只作 parity。逐值漂移即 state_violation 关 leg——
+        // 不采信、也不静默用真值覆盖掉（覆盖等于把一次协议违约当成排版问题）。
+        let budget = self.folded_budget(terminal);
+        let reported = match terminal {
+            Terminal::Completed { budget }
+            | Terminal::Canceled { budget, .. }
+            | Terminal::BudgetStopped { budget }
+            | Terminal::Failed { budget, .. } => budget,
+            Terminal::Shutdown => unreachable!("shutdown terminal 不走 prompt 路径"),
+        };
+        if *reported != budget {
+            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        }
+
         let (prompt_payload, session_close) = match terminal {
-            Terminal::Completed { budget } => (
+            Terminal::Completed { .. } => (
                 JournalPayload::PromptCompleted {
                     budget: budget.clone(),
                 },
                 false,
             ),
-            Terminal::Canceled { reason, budget } => (
+            Terminal::Canceled { reason, .. } => (
                 JournalPayload::PromptCanceled {
                     reason: *reason,
                     budget: budget.clone(),
                 },
                 false,
             ),
-            Terminal::BudgetStopped { budget } => (
+            Terminal::BudgetStopped { .. } => (
                 JournalPayload::PromptBudgetStopped {
                     budget: budget.clone(),
                 },
                 true,
             ),
-            Terminal::Failed { error, budget } => (
+            Terminal::Failed { error, .. } => (
                 JournalPayload::PromptFailed {
                     error: error.clone(),
                     budget: budget.clone(),
@@ -731,7 +808,8 @@ impl PiLoopHost {
 
         if session_close {
             let payload = match terminal {
-                Terminal::BudgetStopped { budget } => JournalPayload::SessionBudgetStopped {
+                // session 侧那一笔同样用 Rust 算出的那一份，不回头再取自报值。
+                Terminal::BudgetStopped { .. } => JournalPayload::SessionBudgetStopped {
                     prompt_event_id,
                     budget: budget.clone(),
                 },
@@ -767,19 +845,48 @@ impl PiLoopHost {
         if !matches!(packet.payload, PacketPayload::Terminal(Terminal::Shutdown)) {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
         }
-        if let Some(leg) = self.leg_handle.as_mut() {
-            leg.close_stdin();
-            match leg.read_packet(Some(TERMINAL_EXIT_DEADLINE), "terminal→EOF") {
-                ReadOutcome::Eof => {}
-                ReadOutcome::Fault(fault) => return Err(HostError::Process(fault)),
-                ReadOutcome::Line(_) => {
-                    return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        // 阶段一：只与 leg 打交道，取回 EOF 观察与退出结局；借用在此结束。
+        let observed = match self.leg_handle.as_mut() {
+            None => Ok(None),
+            Some(leg) => {
+                leg.close_stdin();
+                match leg.read_packet(Some(TERMINAL_EXIT_DEADLINE), "terminal→EOF") {
+                    ReadOutcome::Eof => {
+                        let exit = leg.wait_exit(TERMINAL_EXIT_DEADLINE);
+                        if exit == ExitOutcome::Pending {
+                            let _ = leg.terminate();
+                        }
+                        Ok(Some(exit))
+                    }
+                    ReadOutcome::Fault(fault) => Err(Some(fault)),
+                    ReadOutcome::Line(_) => Err(None),
                 }
             }
-            if leg.wait_exit(TERMINAL_EXIT_DEADLINE) == ExitOutcome::Pending {
-                let _ = leg.terminate();
+        };
+        let exit = match observed {
+            Ok(exit) => exit,
+            Err(Some(fault)) => return Err(self.fail_process(fault)),
+            Err(None) => return Err(self.fail_protocol(ProtocolErrorCode::StateViolation)),
+        };
+
+        // 阶段二：出口如实（PI-HOST-LOOP-1R R6）。只有 deadline 内 EOF **且 exit 0** 才是
+        // `session_completed`；首轮只特殊处理了 `Pending`，`Code(7)` 与 signal 一路落成
+        // completed——把 child 的非正常收场写成了产品的干净收场。
+        let runtime_code = match exit {
+            None | Some(ExitOutcome::Code(0)) => None,
+            Some(ExitOutcome::Code(_)) => Some(pi_loop_journal::RuntimeFailureCode::NonzeroExit),
+            Some(ExitOutcome::Signal(_)) => Some(pi_loop_journal::RuntimeFailureCode::Signal),
+            Some(ExitOutcome::Pending) => {
+                Some(pi_loop_journal::RuntimeFailureCode::LifecycleTimeout)
             }
+        };
+        if let Some(code) = runtime_code {
+            // 走既有 `session_failed{cause:{kind:'runtime',code}}`，不新增 runtime code。
+            self.fail_runtime(code)?;
+            self.leg_handle = None;
+            return Err(HostError::Runtime(code));
         }
+
         let record = self
             .journal
             .append(None, None, JournalPayload::SessionCompleted)?;
@@ -790,7 +897,8 @@ impl PiLoopHost {
         self.published
             .push(HostEvent::SessionTerminal(journal_type));
         self.leg_handle = None;
-        unmark_active(&self.container_id);
+        // 干净收束后交出写权：这条 logical session 已有终态，不再需要单写者独占。
+        self.lock = None;
         Ok(())
     }
 
@@ -802,16 +910,23 @@ impl PiLoopHost {
         reason: SessionInterruptReason,
     ) -> Result<(), HostError> {
         self.reclaim_leg();
-        let loaded = pi_loop_journal::load_session(
+        // 重入自身 journal 时交回**同一把**锁：flock 在同进程的不同 fd 之间也冲突，
+        // 「先放再取」既会自锁，也会在窗口里把写权对外开一条缝。
+        let held = self
+            .lock
+            .take()
+            .ok_or(HostError::Journal("session 单写者锁已交出"))?;
+        let loaded = pi_loop_journal::load_session_holding(
             &self.app_data_dir,
             &self.container_id,
             &self.session_id,
             reason,
+            held,
         )?;
         self.records = loaded.records;
         self.projection = loaded.projection;
         self.journal = loaded.journal;
-        unmark_active(&self.container_id);
+        self.lock = Some(loaded.lock);
         Ok(())
     }
 
@@ -848,7 +963,9 @@ impl PiLoopHost {
         if !is_safe_container_token(container_id) {
             return Err(HostError::InvalidRef);
         }
-        if is_active(container_id) {
+        // active 判定与单写者锁**同源**（R8）：逐 session 试取同一把 advisory lock，
+        // 取不到即仍有 live 写者。进程内登记册已废除——那是第二个可漂移的真源。
+        if pi_loop_journal::container_has_live_session(app_data_dir, container_id)? {
             return Err(HostError::ContainerActive);
         }
         let target = container_dir(app_data_dir, container_id);
@@ -951,7 +1068,7 @@ mod tests {
     };
     use std::collections::VecDeque;
     use std::sync::atomic::{AtomicU64, Ordering};
-    use std::sync::Arc;
+    use std::sync::{Arc, Mutex};
 
     static TEMP_SEQ: AtomicU64 = AtomicU64::new(0);
 
@@ -1189,64 +1306,110 @@ mod tests {
         }
     }
 
+    /// 三道 preflight 门各自独立生效，且全部在 journal 与 spawn 之前。
+    ///
+    /// **本枚为 PI-HOST-LOOP-1R 重写**（旧名 `credential_and_case_root_gates_run_before_route_journal_and_spawn`）。
+    /// 旧形态把「凭证门先于 route 门」当规范编码进了断言——那恰恰是首轮被独立验收判为
+    /// 契约级 blocker 的病灶本身。按 1R R1 的正序重写，并且比旧法更紧：每道门单独锁，
+    /// 且坏 route 下 Keychain read 计数必须恰 0（旧形态对读了几次凭证没有任何约束）。
     #[test]
-    fn credential_and_case_root_gates_run_before_route_journal_and_spawn() {
-        let h = harness("gates");
-        // 无存档：即使固定环境变量存在也零自动回落，且 journal 一行都不写。
-        assert_eq!(
+    fn route_then_case_root_then_credential_gate_in_order_before_journal_and_spawn() {
+        // (一) route pair 不合（测试 layout 的双件是 placeholder）：身份门最先兑现，
+        //      且此时**一次 Keychain read 都不许发生**。
+        let h = harness("gate-route");
+        let reads = Arc::new(AtomicU64::new(0));
+        let counting = CountingCredential {
+            reads: Arc::clone(&reads),
+        };
+        assert!(matches!(
             PiLoopHost::start(
                 &h.app_data,
                 &h.layout,
                 TargetTriple::Aarch64AppleDarwin,
                 h.config.clone(),
-                &NoCredential,
+                &counting,
                 &mut RefusingSpawner,
-            )
-            .expect_err("未配置必须拒"),
+            ),
+            Err(HostError::Route(_))
+        ));
+        assert_eq!(
+            reads.load(Ordering::SeqCst),
+            0,
+            "route 门先于 Keychain read"
+        );
+        assert!(
+            !journal_path(&h.app_data, "cnt-1", "sess-1").exists(),
+            "route 门在 journal 之前"
+        );
+
+        // (二) route 已验证、案件根是 symlink：根门独立生效，凭证仍不许被读。
+        let h = harness("gate-case-root");
+        let reads = Arc::new(AtomicU64::new(0));
+        let counting = CountingCredential {
+            reads: Arc::clone(&reads),
+        };
+        let linked = h.case_root.parent().expect("有父级").join("linked-case");
+        std::os::unix::fs::symlink(&h.case_root, &linked).expect("建 symlink");
+        let mut linked_config = h.config.clone();
+        linked_config.case_root = linked;
+        let (result, _, spawns) = start_probe(
+            &h,
+            linked_config,
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &counting,
+        );
+        assert!(
+            matches!(result, Err(HostError::CaseRoot(_))),
+            "实得 {result:?}"
+        );
+        assert_eq!(
+            reads.load(Ordering::SeqCst),
+            0,
+            "案件根门也先于 Keychain read"
+        );
+        assert_eq!(spawns, 0, "案件根门在 spawn 之前");
+        assert!(
+            !journal_path(&h.app_data, "cnt-1", "sess-1").exists(),
+            "案件根门在 journal 之前"
+        );
+
+        // (三) route 与根都过、无存档：即使固定环境变量存在也零自动回落，journal 一行都不写。
+        let h = harness("gate-credential");
+        let (result, _, spawns) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &NoCredential,
+        );
+        assert_eq!(
+            result.expect_err("未配置必须拒"),
             HostError::CredentialUnconfigured
         );
+        assert_eq!(spawns, 0, "凭证门在 spawn 之前");
         assert!(
             !journal_path(&h.app_data, "cnt-1", "sess-1").exists(),
             "凭证门在 journal 之前"
         );
 
-        // 案件根是 symlink。
-        let linked = h.case_root.parent().expect("有父级").join("linked-case");
-        std::os::unix::fs::symlink(&h.case_root, &linked).expect("建 symlink");
-        let mut linked_config = h.config.clone();
-        linked_config.case_root = linked;
-        assert!(matches!(
-            PiLoopHost::start(
-                &h.app_data,
-                &h.layout,
-                TargetTriple::Aarch64AppleDarwin,
-                linked_config,
-                &FixedKey,
-                &mut RefusingSpawner,
-            ),
-            Err(HostError::CaseRoot(_))
-        ));
-        assert!(
-            !journal_path(&h.app_data, "cnt-1", "sess-1").exists(),
-            "案件根门也在 journal 之前"
+        // 对照：三门齐过就起得来，且凭证恰被读一次——上面三条不是恒拒。
+        let h = harness("gate-ok");
+        let reads = Arc::new(AtomicU64::new(0));
+        let counting = CountingCredential {
+            reads: Arc::clone(&reads),
+        };
+        let (result, _, spawns) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &counting,
         );
-
-        // route pair 不合（双件是 placeholder）：spawn 与 journal 都不该发生。
-        assert!(matches!(
-            PiLoopHost::start(
-                &h.app_data,
-                &h.layout,
-                TargetTriple::Aarch64AppleDarwin,
-                h.config.clone(),
-                &FixedKey,
-                &mut RefusingSpawner,
-            ),
-            Err(HostError::Route(_))
-        ));
-        assert!(
-            !journal_path(&h.app_data, "cnt-1", "sess-1").exists(),
-            "route 门在 journal 之前"
-        );
+        assert!(result.is_ok(), "对照必须能起：{result:?}");
+        assert_eq!(reads.load(Ordering::SeqCst), 1);
+        assert_eq!(spawns, 1);
+        assert!(journal_path(&h.app_data, "cnt-1", "sess-1").exists());
     }
 
     #[test]
@@ -1468,22 +1631,39 @@ mod tests {
         }
     }
 
+    /// **PI-HOST-LOOP-1R 调整**：原形态直接脚本一枚 `turns:12 / usd:0.5 / reached` 的自报
+    /// budget，而 journal 里一条 `turn_usage_recorded` 都没有——R4 落地后那正是要被
+    /// `state_violation` 关 leg 的漂移形态。本意（「两笔都落账之后才发布最终投影」）不变，
+    /// 改为真跑满两个回合把限额**挣**到，自报值与 Rust fold 因此逐值相同。
     #[test]
     fn budget_terminal_writes_both_prompt_and_session_records_before_publishing() {
         let h = harness("budget-terminal");
+        let mut config = h.config.clone();
+        config.max_turns = 2;
         let budget = BudgetView {
-            turns: 12,
+            turns: 2,
             usd: Some(0.5),
             turn_limit: BudgetTurnLimit::Reached,
             usd_limit: BudgetUsdLimit::Disabled,
             stop_reason: Some(BudgetStopReason::Turns),
         };
-        let (host, _, _) = start_with(
+        let turn = |ordinal: u64| {
+            PacketPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                turn: ordinal,
+                counted_toward_turn_limit: true,
+                usage: known_usage(0.25),
+                stop_reason: TurnStopReason::Stop,
+            })
+        };
+        let (host, _, _) = start_config_with(
             &h,
+            config,
             vec![VecDeque::from(vec![
                 ready(1, vec![WorkspaceCapability::CaseRead]),
+                sidecar_line(2, Some("req-1"), turn(1)),
+                sidecar_line(3, Some("req-1"), turn(2)),
                 sidecar_line(
-                    2,
+                    4,
                     Some("req-1"),
                     PacketPayload::Terminal(Terminal::BudgetStopped {
                         budget: budget.clone(),
@@ -1931,18 +2111,34 @@ mod tests {
         );
 
         // active → 固定 container_active 且**零删除**。
-        mark_active("cnt-a");
+        //
+        // **本段为 PI-HOST-LOOP-1R 重写**：旧形态往进程内登记册里 `mark_active("cnt-a")`，
+        // 那份登记册已按 R8 废除（它与真正的写者身份是两个可漂移的真源）。改为真持一把
+        // session 单写者锁——`delete_container` 的 active 判定读的就是同一把锁。
+        let live = pi_loop_journal::load_session(
+            &app_data,
+            "cnt-a",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect("取 cnt-a 的单写者锁");
+        let before_a = fs::read(journal_path(&app_data, "cnt-a", "sess-1")).expect("读 a");
         assert_eq!(
             PiLoopHost::delete_container(&app_data, "cnt-a"),
             Err(HostError::ContainerActive)
         );
-        assert!(
-            journal_path(&app_data, "cnt-a", "sess-1").exists(),
+        assert_eq!(
+            fs::read(journal_path(&app_data, "cnt-a", "sess-1")).expect("读 a"),
+            before_a,
             "active 拒必须零 effect"
         );
-        unmark_active("cnt-a");
+        assert!(
+            !pi_loop_journal::container_has_live_session(&app_data, "cnt-b").expect("探测 cnt-b"),
+            "邻居没有 live 写者，判定不得被 cnt-a 带偏"
+        );
+        drop(live);
 
-        // idle → 整删 journal + quarantine。
+        // idle → 整删 journal + quarantine。锁交出后立刻可删，说明上面那条不是恒拒。
         assert_eq!(PiLoopHost::delete_container(&app_data, "cnt-a"), Ok(true));
         assert!(!container_dir(&app_data, "cnt-a").exists());
         // 另一 container 逐字节不变。
@@ -2142,6 +2338,18 @@ mod tests {
     }
 
     fn leg_arms(request_id: &str) -> Vec<(&'static str, String)> {
+        // fresh leg：prior 三值全零，跑完一个 0.25 的回合后累计恰为 turns=1 / usd=0.25。
+        leg_arms_with_terminal_budget(request_id, open_budget(1, Some(0.25)))
+    }
+
+    /// 应答器的终态 budget 必须与**当条 logical session 的 fold** 一致（PI-HOST-LOOP-1R R4）。
+    /// resume 之后 prior usd 已被 `costCoverage:'unknown'` 毒成 null，真 sidecar 拿到
+    /// `priorUsd:null` 的 bootstrap 后也只会回 null——故那一路要另给 budget，
+    /// 不能沿用 fresh leg 那份。
+    fn leg_arms_with_terminal_budget(
+        request_id: &str,
+        terminal_budget: BudgetView,
+    ) -> Vec<(&'static str, String)> {
         let ready_line = wire(
             1,
             None,
@@ -2188,7 +2396,7 @@ mod tests {
                 6,
                 Some(request_id),
                 PacketPayload::Terminal(Terminal::Completed {
-                    budget: open_budget(1, Some(0.25)),
+                    budget: terminal_budget,
                 }),
             ),
         ];
@@ -2442,7 +2650,13 @@ mod tests {
         assert!(journal_text.contains("\"costCoverage\":\"unknown\""));
 
         // 新 leg：leg=prev+1、prior 三值精确、messageContext 恒为 empty。
-        let second = responder(&h.app_data, "resume", &leg_arms("req-2"));
+        // 终态 budget 用 `usd:null`——上一 leg 的 `costCoverage:'unknown'` 已把累计毒成 null，
+        // 拿到 `priorUsd:null` 的真 sidecar 也只会回 null（R4 的 parity 因此成立）。
+        let second = responder(
+            &h.app_data,
+            "resume",
+            &leg_arms_with_terminal_budget("req-2", open_budget(1, None)),
+        );
         let mut resumed = start_real(&h, &second, &FixedKey).expect("resume 启动");
         assert_eq!(resumed.leg(), 2);
         assert_eq!(
@@ -2772,5 +2986,647 @@ mod tests {
         // 对照：还原后仍能过——上面三枚不是恒红。
         fs::write(&bundle_file, &bundle_bytes).expect("还原 bundle");
         assert!(crate::pi_loop_process::preflight_route_pair(&layout, triple).is_ok());
+    }
+
+    // ── PI-HOST-LOOP-1R：首轮独立验收（`314117d`）的八枚 Rust 反例，转为常驻 ─────
+    //
+    // 形态沿用验收会话：counting credential 与 scripted leg/spawner 只隔离外部 I/O
+    // （Keychain、真进程），被判的仍是 production 的 `start_inner` / `prompt` /
+    // `expect_packet` / `shutdown` / `load_session` 本体，不复制被判状态机。
+
+    /// R1 的次序探针：任何 route / case-root 失败下，这个计数必须恰 0。
+    struct CountingCredential {
+        reads: Arc<AtomicU64>,
+    }
+
+    impl CredentialPort for CountingCredential {
+        fn resolve(&self) -> Result<String, HostError> {
+            self.reads.fetch_add(1, Ordering::SeqCst);
+            Ok("sk-in-memory-only".to_string())
+        }
+    }
+
+    /// 与 {@link ScriptedLeg} 同形，只多一件：`wait_exit` 的结局可配置。
+    /// R6 要的正是「child 真的以 exit 7 收场」这一位事实。
+    struct ExitingLeg {
+        inbox: VecDeque<Scripted>,
+        log: Arc<Mutex<LegLog>>,
+        exit: ExitOutcome,
+    }
+
+    impl SidecarLeg for ExitingLeg {
+        fn write_packet(&mut self, line: &[u8]) -> Result<(), ProcessFault> {
+            self.log
+                .lock()
+                .expect("日志未中毒")
+                .written
+                .push(line.to_vec());
+            Ok(())
+        }
+        fn read_packet(
+            &mut self,
+            _deadline: Option<Duration>,
+            window: &'static str,
+        ) -> ReadOutcome {
+            match self.inbox.pop_front() {
+                Some(Scripted::Line(line)) => ReadOutcome::Line(line),
+                Some(Scripted::Eof) | None => ReadOutcome::Eof,
+                Some(Scripted::Timeout) => {
+                    ReadOutcome::Fault(ProcessFault::LifecycleTimeout(window))
+                }
+            }
+        }
+        fn close_stdin(&mut self) {}
+        fn terminate(&mut self) -> Result<ExitOutcome, ProcessFault> {
+            self.log.lock().expect("日志未中毒").terminated = true;
+            Ok(self.exit)
+        }
+        fn wait_exit(&mut self, _deadline: Duration) -> ExitOutcome {
+            self.exit
+        }
+    }
+
+    struct ExitingSpawner {
+        legs: VecDeque<VecDeque<Scripted>>,
+        log: Arc<Mutex<LegLog>>,
+        spawns: usize,
+        exit: ExitOutcome,
+    }
+
+    impl LegSpawner for ExitingSpawner {
+        fn spawn(
+            &mut self,
+            _pair: &VerifiedRoutePair,
+            _cwd: &Path,
+        ) -> Result<Box<dyn SidecarLeg>, HostError> {
+            self.spawns += 1;
+            Ok(Box::new(ExitingLeg {
+                inbox: self.legs.pop_front().unwrap_or_default(),
+                log: Arc::clone(&self.log),
+                exit: self.exit,
+            }))
+        }
+    }
+
+    /// 可注入 credential 与 child 退出结局的 `start_with_pair` 入口。
+    fn start_probe(
+        harness: &Harness,
+        config: StartConfig,
+        legs: Vec<VecDeque<Scripted>>,
+        exit: ExitOutcome,
+        credentials: &dyn CredentialPort,
+    ) -> (Result<PiLoopHost, HostError>, Arc<Mutex<LegLog>>, usize) {
+        let log = Arc::new(Mutex::new(LegLog::default()));
+        let mut spawner = ExitingSpawner {
+            legs: legs.into_iter().collect(),
+            log: Arc::clone(&log),
+            spawns: 0,
+            exit,
+        };
+        let result = PiLoopHost::start_with_pair(
+            &harness.app_data,
+            lifecycle_pair(&harness.layout),
+            config,
+            credentials,
+            &mut spawner,
+        );
+        (result, log, spawner.spawns)
+    }
+
+    fn ready_leg() -> VecDeque<Scripted> {
+        VecDeque::from(vec![ready(1, vec![WorkspaceCapability::CaseRead])])
+    }
+
+    fn journal_bytes(app_data: &Path, container: &str) -> Vec<u8> {
+        fs::read(journal_path(app_data, container, "sess-1")).unwrap_or_default()
+    }
+
+    /// R1：preflight 全序恰为 route → case root → credential → durable → cwd → spawn。
+    #[test]
+    fn counterexample_credential_is_read_only_after_route_and_case_root_pass() {
+        // (一) route-pair 坏件（测试 layout 的双件是 placeholder，真 preflight 必拒）。
+        let h = harness("r1-route");
+        let reads = Arc::new(AtomicU64::new(0));
+        let credential = CountingCredential {
+            reads: Arc::clone(&reads),
+        };
+        let error = PiLoopHost::start(
+            &h.app_data,
+            &h.layout,
+            TargetTriple::Aarch64AppleDarwin,
+            h.config.clone(),
+            &credential,
+            &mut RefusingSpawner,
+        )
+        .expect_err("route 坏件必拒");
+        assert!(matches!(error, HostError::Route(_)), "实得 {error:?}");
+        assert_eq!(
+            reads.load(Ordering::SeqCst),
+            0,
+            "route 身份门必须先于 Keychain read"
+        );
+        assert!(
+            !journal_path(&h.app_data, "cnt-1", "sess-1").exists(),
+            "preflight 失败 journal 零字节"
+        );
+
+        // (二) route 已验证、案件根是 symlink：credential 仍必须恰 0 次。
+        let h = harness("r1-case-root");
+        let reads = Arc::new(AtomicU64::new(0));
+        let credential = CountingCredential {
+            reads: Arc::clone(&reads),
+        };
+        let linked = h.case_root.parent().expect("有父级").join("linked-case");
+        std::os::unix::fs::symlink(&h.case_root, &linked).expect("建 symlink");
+        let mut config = h.config.clone();
+        config.case_root = linked;
+        let (result, _, spawns) =
+            start_probe(&h, config, Vec::new(), ExitOutcome::Code(0), &credential);
+        assert!(
+            matches!(result, Err(HostError::CaseRoot(_))),
+            "实得 {result:?}"
+        );
+        assert_eq!(
+            reads.load(Ordering::SeqCst),
+            0,
+            "case root 门也必须先于 Keychain read"
+        );
+        assert_eq!(spawns, 0, "preflight 失败 spawn 计数 0");
+        assert!(!journal_path(&h.app_data, "cnt-1", "sess-1").exists());
+
+        // 对照：两道门都过时 credential 恰读一次，journal 与 spawn 都发生——上面两条不是恒红。
+        let h = harness("r1-ok");
+        let reads = Arc::new(AtomicU64::new(0));
+        let credential = CountingCredential {
+            reads: Arc::clone(&reads),
+        };
+        let (result, _, spawns) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &credential,
+        );
+        assert!(result.is_ok(), "对照必须能起：{result:?}");
+        assert_eq!(reads.load(Ordering::SeqCst), 1);
+        assert_eq!(spawns, 1);
+    }
+
+    /// R2：bootstrap/config 闭集在 journal 与 spawn 之前以具名错误拒绝。
+    #[test]
+    fn counterexample_start_config_closed_set_is_refused_before_journal_and_spawn() {
+        type ConfigCase = (&'static str, fn(&mut StartConfig));
+        let cases: [ConfigCase; 4] = [
+            ("maxTurns=0", |config| config.max_turns = 0),
+            ("maxUsd=0", |config| config.max_usd = Some(0.0)),
+            ("maxUsd 负数", |config| config.max_usd = Some(-1.0)),
+            ("maxUsd 非有限", |config| config.max_usd = Some(f64::NAN)),
+        ];
+        for (label, mutate) in cases {
+            let h = harness("r2-config");
+            let mut config = h.config.clone();
+            mutate(&mut config);
+            let (result, _, spawns) = start_probe(
+                &h,
+                config,
+                vec![ready_leg()],
+                ExitOutcome::Code(0),
+                &FixedKey,
+            );
+            let error = result.expect_err(label);
+            assert_eq!(
+                error.code(),
+                "invalid_config",
+                "{label} 须以具名错误拒绝，实得 {error:?}"
+            );
+            assert_eq!(spawns, 0, "{label}：spawn 计数恰 0");
+            assert!(
+                !journal_path(&h.app_data, "cnt-1", "sess-1").exists(),
+                "{label}：journal 零字节"
+            );
+        }
+
+        // 对照：闭集内的配置照常起 leg。
+        let h = harness("r2-ok");
+        let (result, _, spawns) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        assert!(result.is_ok(), "对照必须能起：{result:?}");
+        assert_eq!(spawns, 1);
+    }
+
+    /// R3：prompt 的 trim 非空与容量门先于 `user_prompted` append。
+    #[test]
+    fn counterexample_prompt_gate_runs_before_the_user_prompted_append() {
+        let h = harness("r3-prompt");
+        let (host, _, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![VecDeque::from(vec![
+                ready(1, vec![WorkspaceCapability::CaseRead]),
+                sidecar_line(
+                    2,
+                    Some("req-ok"),
+                    PacketPayload::Terminal(Terminal::Completed {
+                        budget: open_budget(0, Some(0.0)),
+                    }),
+                ),
+            ])],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("启动成功");
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let before = fs::read(&path).expect("读 journal");
+        let records_before = host.records().len();
+
+        // 「字」是 3 UTF-8 bytes：50,000 枚 = 150,000 bytes > 131,072 上限。
+        let oversized = "字".repeat(50_000);
+        for (label, request, text) in [
+            ("空串", "req-empty", String::new()),
+            ("全空白", "req-blank", "  \t \u{3000}\n ".to_string()),
+            ("超 131072 字节", "req-huge", oversized),
+        ] {
+            let error = host.prompt(request, &text).expect_err(label);
+            assert_eq!(
+                error.code(),
+                "invalid_prompt",
+                "{label} 须以具名错误拒绝，实得 {error:?}"
+            );
+            assert_eq!(
+                fs::read(&path).expect("读 journal"),
+                before,
+                "{label}：盘上 journal bytes 必须逐字节不变"
+            );
+            assert_eq!(
+                host.records().len(),
+                records_before,
+                "{label}：内存账本也不得增长"
+            );
+        }
+
+        // 对照：合法 prompt 仍走得通——上面三条不是恒红。
+        host.prompt("req-ok", "合法一问").expect("合法 prompt");
+        assert_eq!(
+            journal_types_on_disk(&h.app_data),
+            vec!["session_started", "user_prompted", "prompt_completed"]
+        );
+    }
+
+    /// R4：prompt terminal 的预算真值归 Rust fold，sidecar 自报只作 parity。
+    #[test]
+    fn counterexample_terminal_budget_comes_from_the_rust_fold_not_the_self_report() {
+        let turn = || {
+            PacketPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                turn: 1,
+                counted_toward_turn_limit: true,
+                usage: known_usage(0.25),
+                stop_reason: TurnStopReason::Stop,
+            })
+        };
+
+        // schema 合法但与 journal fold 不符的自报 budget：turns 9 / usd 7.5。
+        let h = harness("r4-drift");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![VecDeque::from(vec![
+                ready(1, vec![WorkspaceCapability::CaseRead]),
+                sidecar_line(2, Some("req-1"), turn()),
+                sidecar_line(
+                    3,
+                    Some("req-1"),
+                    PacketPayload::Terminal(Terminal::Completed {
+                        budget: open_budget(9, Some(7.5)),
+                    }),
+                ),
+            ])],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("启动成功");
+        let error = host.prompt("req-1", "问").expect_err("自报漂移必须关 leg");
+        assert_eq!(
+            error,
+            HostError::Protocol(ProtocolErrorCode::StateViolation),
+            "逐值漂移按 state_violation 关 leg"
+        );
+        assert!(log.lock().expect("日志").terminated, "漂移必须回收 leg");
+        let types = journal_types_on_disk(&h.app_data);
+        assert_eq!(
+            types.last().map(String::as_str),
+            Some("session_failed"),
+            "实得 {types:?}"
+        );
+        let text = String::from_utf8(journal_bytes(&h.app_data, "cnt-1")).expect("UTF-8");
+        assert!(
+            !text.contains("\"turns\":9"),
+            "sidecar 自报的假 turns 不得落账"
+        );
+        assert!(!text.contains("7.5"), "sidecar 自报的假 usd 不得落账");
+
+        // 对照：自报与 fold 逐值相同就照常收束，落的是 Rust 算出的那一份。
+        let h = harness("r4-parity");
+        let (host, _, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![VecDeque::from(vec![
+                ready(1, vec![WorkspaceCapability::CaseRead]),
+                sidecar_line(2, Some("req-1"), turn()),
+                sidecar_line(
+                    3,
+                    Some("req-1"),
+                    PacketPayload::Terminal(Terminal::Completed {
+                        budget: open_budget(1, Some(0.25)),
+                    }),
+                ),
+            ])],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("启动成功");
+        host.prompt("req-1", "问").expect("parity 必须放行");
+        let text = String::from_utf8(journal_bytes(&h.app_data, "cnt-1")).expect("UTF-8");
+        assert!(text.contains("\"turns\":1"), "落的是 Rust fold 的真值");
+    }
+
+    /// R5：decode 失败 / 意外 EOF / fault 必须先 fold + 回收 child，再抛。
+    #[test]
+    fn counterexample_wire_fault_folds_and_reclaims_before_throwing() {
+        // (一) malformed `{`：protocol 族，落 session_failed 并回收 child。
+        let h = harness("r5-malformed");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![VecDeque::from(vec![
+                ready(1, vec![WorkspaceCapability::CaseRead]),
+                Scripted::Line(b"{".to_vec()),
+            ])],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("启动成功");
+        let error = host.prompt("req-1", "问").expect_err("坏包必须失败");
+        assert!(matches!(error, HostError::Protocol(_)), "实得 {error:?}");
+        assert!(
+            log.lock().expect("日志").terminated,
+            "fault 必须先回收 child 再抛"
+        );
+        let types = journal_types_on_disk(&h.app_data);
+        assert_eq!(
+            types.last().map(String::as_str),
+            Some("session_failed"),
+            "session 必须有 durable terminal，实得 {types:?}"
+        );
+        drop(host);
+
+        // (二) 意外 EOF：走 crash fold，落 leg 终态并回收 child。
+        let h = harness("r5-eof");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![VecDeque::from(vec![
+                ready(1, vec![WorkspaceCapability::CaseRead]),
+                Scripted::Eof,
+            ])],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("启动成功");
+        let error = host.prompt("req-1", "问").expect_err("EOF 必须失败");
+        assert_eq!(error, HostError::Process(ProcessFault::UnexpectedEof));
+        assert!(
+            log.lock().expect("日志").terminated,
+            "EOF 也必须先回收 child 再抛"
+        );
+        let types = journal_types_on_disk(&h.app_data);
+        assert_eq!(
+            types.last().map(String::as_str),
+            Some("session_interrupted"),
+            "已 durable 的 journal 必须先 fold，实得 {types:?}"
+        );
+    }
+
+    /// R6：shutdown 出口如实——只有 deadline 内 EOF + exit 0 才是 `session_completed`。
+    #[test]
+    fn counterexample_shutdown_exit_status_is_reported_truthfully() {
+        let shutdown_leg = || {
+            VecDeque::from(vec![
+                ready(1, vec![WorkspaceCapability::CaseRead]),
+                sidecar_line(2, None, PacketPayload::Terminal(Terminal::Shutdown)),
+                Scripted::Eof,
+            ])
+        };
+
+        for (label, exit, expected_code) in [
+            ("exit 7", ExitOutcome::Code(7), "nonzero_exit"),
+            ("SIGTERM", ExitOutcome::Signal(libc::SIGTERM), "signal"),
+        ] {
+            let h = harness("r6-exit");
+            let (host, _, _) =
+                start_probe(&h, h.config.clone(), vec![shutdown_leg()], exit, &FixedKey);
+            let mut host = host.expect("启动成功");
+            let error = host.shutdown().expect_err(label);
+            assert_eq!(
+                error.code(),
+                "runtime",
+                "{label} 须以 runtime 族具名，实得 {error:?}"
+            );
+            let types = journal_types_on_disk(&h.app_data);
+            assert_eq!(
+                types.last().map(String::as_str),
+                Some("session_failed"),
+                "{label} 不得落 session_completed，实得 {types:?}"
+            );
+            let text = String::from_utf8(journal_bytes(&h.app_data, "cnt-1")).expect("UTF-8");
+            assert!(
+                text.contains(&format!("\"code\":\"{expected_code}\"")),
+                "{label} 的 runtime cause 必须具名为 {expected_code}"
+            );
+            assert!(
+                !text.contains("session_completed"),
+                "{label} 不得同时留下 completed"
+            );
+        }
+
+        // 对照：EOF + exit 0 仍落 session_completed——上面两条不是恒红。
+        let h = harness("r6-clean");
+        let (host, _, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![shutdown_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("启动成功");
+        host.shutdown().expect("干净收束");
+        assert_eq!(
+            journal_types_on_disk(&h.app_data)
+                .last()
+                .map(String::as_str),
+            Some("session_completed")
+        );
+    }
+
+    /// R7：`session_resumed` 的 prior 三值逐值等于前序 journal fold。
+    #[test]
+    fn counterexample_resume_checks_every_prior_value_against_the_preceding_fold() {
+        let h = harness("r7-prior");
+        let (host, _, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![VecDeque::from(vec![
+                ready(1, vec![WorkspaceCapability::CaseRead]),
+                sidecar_line(
+                    2,
+                    Some("req-1"),
+                    PacketPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                        turn: 1,
+                        counted_toward_turn_limit: true,
+                        usage: known_usage(0.25),
+                        stop_reason: TurnStopReason::Stop,
+                    }),
+                ),
+                sidecar_line(
+                    3,
+                    Some("req-1"),
+                    PacketPayload::Terminal(Terminal::Completed {
+                        budget: open_budget(1, Some(0.25)),
+                    }),
+                ),
+            ])],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("启动成功");
+        host.prompt("req-1", "问").expect("第一枚 prompt");
+        host.reclaim_after_fault(SessionInterruptReason::SidecarEnded)
+            .expect("回收");
+        drop(host);
+
+        // 起第二 leg 落 `session_resumed`，再干净收束，取得可复现的 pristine bytes。
+        let (resumed, _, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut resumed = resumed.expect("resume 成功");
+        resumed
+            .reclaim_after_fault(SessionInterruptReason::SidecarEnded)
+            .expect("回收");
+        drop(resumed);
+
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let pristine = fs::read_to_string(&path).expect("读 journal");
+        assert!(
+            pristine.contains("\"priorObservedTurns\":1,\"priorTurns\":1,\"priorUsd\":0.25"),
+            "对照：写下的 prior 三值确实来自 fold"
+        );
+
+        for (label, from, to) in [
+            ("priorTurns 1→0", "\"priorTurns\":1", "\"priorTurns\":0"),
+            (
+                "priorObservedTurns 1→9",
+                "\"priorObservedTurns\":1",
+                "\"priorObservedTurns\":9",
+            ),
+            ("priorUsd 0.25→0", "\"priorUsd\":0.25", "\"priorUsd\":0"),
+            (
+                "priorUsd 0.25→null",
+                "\"priorUsd\":0.25",
+                "\"priorUsd\":null",
+            ),
+        ] {
+            fs::write(&path, pristine.replacen(from, to, 1)).expect("写变异 journal");
+            let (result, _, spawns) = start_probe(
+                &h,
+                h.config.clone(),
+                Vec::new(),
+                ExitOutcome::Code(0),
+                &FixedKey,
+            );
+            let error = result.expect_err(label);
+            assert!(
+                matches!(error, HostError::Journal(_)),
+                "{label} 须被 validator 拒，实得 {error:?}"
+            );
+            assert_eq!(spawns, 0, "{label} 必须在 spawn 之前拒");
+        }
+
+        // 对照：还原后仍能起下一 leg——上面四枚不是恒红。
+        fs::write(&path, &pristine).expect("还原 journal");
+        let (ok, _, spawns) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        assert!(ok.is_ok(), "对照：未篡改必须能起下一 leg：{ok:?}");
+        assert_eq!(spawns, 1);
+    }
+
+    /// R8：同一 logical session 由 OS 级独占 advisory lock 保证单写者。
+    #[test]
+    fn counterexample_a_second_host_on_a_live_session_is_refused_as_session_active() {
+        let h = harness("r8-single-writer");
+        let mut config = h.config.clone();
+        // 与其余测试的 `cnt-1` 分开：单写者判定不得被同进程别的用例带偏。
+        config.container_id = "cnt-r8".to_string();
+
+        let (first, _, _) = start_probe(
+            &h,
+            config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let first = first.expect("第一枚 Host 启动");
+        let path = journal_path(&h.app_data, "cnt-r8", "sess-1");
+        let before = fs::read(&path).expect("读 journal");
+
+        let (second, _, spawns) = start_probe(
+            &h,
+            config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let error = second.expect_err("同一 live session 的第二 Host 必须被拒");
+        assert_eq!(
+            error.code(),
+            "session_active",
+            "须以具名 session_active 拒，实得 {error:?}"
+        );
+        assert_eq!(spawns, 0, "被拒的 Host 零 spawn");
+        assert_eq!(
+            fs::read(&path).expect("读 journal"),
+            before,
+            "被拒的 Host 零 journal 变化"
+        );
+
+        // `delete_container` 的 active 判定与该锁同源，不得双真源。
+        assert_eq!(
+            PiLoopHost::delete_container(&h.app_data, "cnt-r8"),
+            Err(HostError::ContainerActive)
+        );
+
+        // 对照：第一枚交出锁之后，下一枚能起。
+        drop(first);
+        let (third, _, spawns) = start_probe(
+            &h,
+            config,
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        assert!(third.is_ok(), "锁释放后必须能起新 leg：{third:?}");
+        assert_eq!(spawns, 1);
     }
 }

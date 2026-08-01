@@ -39,6 +39,16 @@ import { MAX_LOGICAL_PATH_BYTES, MAX_SEGMENT_BYTES, utf8ByteLength } from './pro
 /** 模型能看见的唯一根。`/workspace` 是后票 `PI-WRITE-HOST-1` 的事，本票不认。 */
 export const CASE_LOGICAL_ROOT = '/case';
 
+/**
+ * 不满足 grammar 的入参的**唯一**可观察形态（PI-HOST-LOOP-1R N1）。
+ *
+ * 首轮实现把入参原文原样放进 `FileError.path`，于是把真实案件根本身当路径喂进来时，
+ * 整个错误对象可序列化出物理根——回显非法输入等于给出一条不经容器的旁路。
+ * 收紧后：拒绝理由只说明**为什么**拒，`path` 不再复述**拒的是什么**；
+ * 合法输入仍只以归一化逻辑路径出现。
+ */
+export const ILLEGAL_PATH_PLACEHOLDER = '（非法路径）';
+
 const WRITE_DENIED = '写面未授权：本会话只开 /case 只读面（ADR-022 六-A；write 工具在本票根本不存在）';
 const SHELL_DENIED = 'bash 面未授权：本会话只开 /case 只读面（ADR-022 六-A；无命令执行能力）';
 
@@ -162,8 +172,10 @@ export function createProductCaseEnv(options: ProductCaseEnvOptions): ExecutionE
   async function locate(input: unknown): Promise<Result<{ logical: string; physical: string }, FileError>> {
     const normalized = normalizeCasePath(input);
     if (!normalized.ok) {
-      const target = typeof input === 'string' ? input : '';
-      return err(new FileError('permission_denied', `拒绝访问：${normalized.reason}`, target));
+      // 非法入参零回显：错误对象只带固定占位符，不复述原文（N1）。
+      return err(
+        new FileError('permission_denied', `拒绝访问：${normalized.reason}`, ILLEGAL_PATH_PLACEHOLDER),
+      );
     }
 
     let current = physicalRoot;
@@ -207,9 +219,16 @@ export function createProductCaseEnv(options: ProductCaseEnvOptions): ExecutionE
     return run(located.value);
   }
 
-  function denyWrite<T>(input?: unknown): Result<T, FileError> {
+  /**
+   * 写面拒绝。`hasTarget=false` 是临时件那两枚——它们根本没有目标路径可投影，
+   * 故不带 `path`；其余一律「合法即逻辑路径、非法即占位符」，与读面同一口径（N1）。
+   */
+  function denyWrite<T>(input: unknown, hasTarget = true): Result<T, FileError> {
+    if (!hasTarget) return err(new FileError('not_supported', WRITE_DENIED, undefined));
     const normalized = normalizeCasePath(input);
-    return err(new FileError('not_supported', WRITE_DENIED, normalized.ok ? normalized.logical : undefined));
+    return err(
+      new FileError('not_supported', WRITE_DENIED, normalized.ok ? normalized.logical : ILLEGAL_PATH_PLACEHOLDER),
+    );
   }
 
   async function statOf(physical: string, logical: string): Promise<Result<FileInfo, FileError>> {
@@ -340,11 +359,11 @@ export function createProductCaseEnv(options: ProductCaseEnvOptions): ExecutionE
     },
 
     async createTempDir() {
-      return denyWrite();
+      return denyWrite(undefined, false);
     },
 
     async createTempFile() {
-      return denyWrite();
+      return denyWrite(undefined, false);
     },
 
     async exec() {

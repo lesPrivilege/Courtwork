@@ -232,6 +232,69 @@ describe('写面与 shell 面在本容器里根本不存在', () => {
   });
 });
 
+/**
+ * PI-HOST-LOOP-1R N1（首轮验收 `314117d` 的 Node 反例一，转为常驻）。
+ *
+ * 冻结件 §二.1 要求 `FileInfo.path`、工具结果与安全错误只出现 `/case` 或 `/case/...`。
+ * 首轮实现把**非法输入原文**存进了 `FileError.path`，于是把真实案件根本身当 read 参数时，
+ * 整个错误对象可序列化出物理路径。合法输入只以归一化逻辑路径出现，非法输入一律占位符。
+ */
+const ILLEGAL_PATH_PLACEHOLDER = '（非法路径）';
+
+/** 把错误对象的**全部**自有字段（含 message/path/name/stack/cause）摊成一段可扫描文本。 */
+const serializeWholeError = (error: unknown): string => {
+  if (typeof error !== 'object' || error === null) return String(error);
+  const own: Record<string, unknown> = {};
+  for (const key of Object.getOwnPropertyNames(error)) {
+    own[key] = (error as Record<string, unknown>)[key];
+  }
+  return JSON.stringify(own);
+};
+
+describe('非法输入零回显（N1）', () => {
+  it('canary：真实 caseRoot 本身作 read 参数，整个错误对象序列化后零物理字节', async () => {
+    const error = denial(await env.readTextFile(caseRoot));
+    const whole = serializeWholeError(error);
+    expect(whole).not.toContain(caseRoot);
+    expect(whole).not.toContain(path.basename(caseRoot));
+    expect(error.path).toBe(ILLEGAL_PATH_PLACEHOLDER);
+  });
+
+  it('九类非法输入的 path 与 message 都不含输入原文，只给固定占位符', async () => {
+    const illegal = [
+      caseRoot,
+      `${caseRoot}/备忘.md`,
+      '/workspace/记录.md',
+      '/etc/passwd',
+      '../界外/机密.md',
+      'C:\\案卷\\机密.md',
+      '\\\\server\\share\\机密.md',
+      `${caseRoot}-外/旁证.md`,
+      'con.md',
+    ];
+    for (const input of illegal) {
+      const error = denial(await env.readTextFile(input));
+      const whole = serializeWholeError(error);
+      expect(whole, `输入 ${input} 的错误对象回显了原文`).not.toContain(input);
+      expect(error.path, `输入 ${input} 的 path 不是占位符`).toBe(ILLEGAL_PATH_PLACEHOLDER);
+    }
+  });
+
+  it('对照：合法输入仍以归一化逻辑路径出现，占位符不外溢', async () => {
+    const missing = denial(await env.readTextFile('证据/不存在.md'));
+    expect(missing.path).toBe('/case/证据/不存在.md');
+    const info = unwrap(await env.fileInfo('备忘.md'));
+    expect(info.path).toBe('/case/备忘.md');
+  });
+
+  it('写面拒绝与 joinPath 的非法入参同样只给占位符', async () => {
+    expect(denial(await env.writeFile('/workspace/记录.md', 'x')).path).toBe(ILLEGAL_PATH_PLACEHOLDER);
+    const joined = denial(await env.joinPath([caseRoot, '备忘.md']));
+    expect(serializeWholeError(joined)).not.toContain(caseRoot);
+    expect(joined.path).toBe(ILLEGAL_PATH_PLACEHOLDER);
+  });
+});
+
 describe('dev scoped env 是反例，不得被转售给模型', () => {
   it('它的 cwd/FileInfo/拒绝理由仍然是物理路径——这正是产品 env 存在的理由', async () => {
     const devEnv = createReadOnlyScopedEnv(await createAuthorizedRoot(caseRoot));

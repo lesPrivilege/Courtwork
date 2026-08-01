@@ -912,10 +912,13 @@ mod tests {
     fn compiled_manifest_decodes_and_matches_the_frozen_truth_table() {
         let manifest =
             decode_route_manifest(EXPECTED_ROUTE_MANIFEST).expect("编译期 manifest 合法");
-        assert_eq!(manifest.bundle.bytes, 522_649);
+        // bundle 身份是 product source 的函数：PI-HOST-LOOP-1R 的 N1–N3 改了
+        // `product-case-env.ts` / `product-runtime.ts`，sealed CJS 因此换了字节与 SHA。
+        // 双方由 `product-main.test.ts` 的跨侧门逐值锁死，不许只改一边。
+        assert_eq!(manifest.bundle.bytes, 523_057);
         assert_eq!(
             manifest.bundle.sha256,
-            "4c09a985f489bbc791686197f44a5303fb1295a657c855d3df679bf776967f6b"
+            "b72fe521439022c494477b2d41bc7b230d6aa5df2bde8668dba248d3cbf4107d"
         );
         assert_eq!(
             manifest.bundle_resource_relative_path,
@@ -995,12 +998,12 @@ mod tests {
             ("乱序", format!("{head}{intel},{arm}{foot}")),
             ("重复 target", format!("{head}{arm},{arm}{foot}")),
             ("单 target", format!("{head}{arm}{foot}")),
-            ("零字节", compact.replace("\"bytes\":522649", "\"bytes\":0")),
+            ("零字节", compact.replace("\"bytes\":523057", "\"bytes\":0")),
             (
                 "大写 SHA",
                 compact.replace(
-                    "4c09a985f489bbc791686197f44a5303fb1295a657c855d3df679bf776967f6b",
-                    "4C09A985F489BBC791686197F44A5303FB1295A657C855D3DF679BF776967F6B",
+                    "b72fe521439022c494477b2d41bc7b230d6aa5df2bde8668dba248d3cbf4107d",
+                    "B72FE521439022C494477B2D41BC7B230D6AA5DF2BDE8668DBA248D3CBF4107D",
                 ),
             ),
             (

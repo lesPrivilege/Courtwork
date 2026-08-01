@@ -40,7 +40,12 @@ import type {
   TurnUsage,
   WorkspaceCapability,
 } from './product-protocol.js';
-import type { OutboundAgentEvent, ProductSidecarRuntime, ProductSidecarSession } from './product-stdio.js';
+import type {
+  OutboundAgentEvent,
+  ProductSidecarRuntime,
+  ProductSidecarSession,
+  PromptCompletion,
+} from './product-stdio.js';
 import { assertToolsWithinPolicy, createToolGate } from './tool-policy.js';
 import { createReadOnlyTools } from './tools.js';
 
@@ -131,6 +136,41 @@ function toCostUsd(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null;
 }
 
+/**
+ * case-env / policy 的拒绝信号（PI-HOST-LOOP-1R N3）。
+ *
+ * 三件只读工具在容器拒绝时回的是带 `details.denied` 的**文本**结果（见 `tools.ts`），
+ * 上游 `isError` 因而为 false；首轮只按 `isError` 二分，于是把政策拒绝投影成 `succeeded`，
+ * Rust journal 收到与真实授权结果相反的工具账。翻译在此冻结：denied > failed > succeeded。
+ */
+function isDeniedToolResult(result: unknown): boolean {
+  const details = (result as { details?: unknown } | null | undefined)?.details;
+  if (typeof details !== 'object' || details === null) return false;
+  return (details as { denied?: unknown }).denied === true;
+}
+
+/**
+ * 收尾 stop reason → prompt completion（PI-HOST-LOOP-1R N2）。
+ *
+ * 只有 `stop|tool` 是真完成；`error` 归 `provider_error`；其余（`aborted`、`length`、
+ * `unknown`）落七格闭集的兜底 `unknown`——截断或中断收尾报 completed 属静默降级，
+ * 而闭集不在本票扩展。`aborted` 之所以不需要单独一支：状态机的终态优先级里
+ * `budget_stopped > cancel > 其他 outcome`，真有 cancel 或越限时它会压过这里的 intent。
+ */
+function completionFor(stopReason: TurnStopReason | null): PromptCompletion {
+  switch (stopReason) {
+    // 一枚回合都没观察到时按完成收——没有可归因的失败，就不凭空造一个。
+    case null:
+    case 'stop':
+    case 'tool':
+      return { kind: 'completed' };
+    case 'error':
+      return { kind: 'failed', code: 'provider_error', retryable: true };
+    default:
+      return { kind: 'failed', code: 'unknown', retryable: false };
+  }
+}
+
 const INTERRUPTED_USAGE: TurnUsage = {
   inputTokens: null,
   outputTokens: null,
@@ -170,6 +210,8 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
   let activeRequestId: SafeToken | null = null;
   let canceled = false;
   let violated = false;
+  /** 本次 prompt 最后观察到的收尾 stop reason。终态由它决定，不由「跑完了」决定（N2）。 */
+  let lastStopReason: TurnStopReason | null = null;
   let running: Promise<void> = Promise.resolve();
 
   function requireSession(): ProductSidecarSession {
@@ -212,6 +254,7 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
     const stopReason = toTurnStopReason(String(message.stopReason ?? ''));
     const interrupted = stopReason === 'aborted' || stopReason === 'error';
     const usage = projectUsage(message as { usage?: unknown }, interrupted);
+    lastStopReason = stopReason;
 
     observedTurns += 1;
     if (!interrupted) {
@@ -262,7 +305,8 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
           kind: 'tool_finished',
           rawToolCallId: event.toolCallId,
           toolName: event.toolName as never,
-          outcome: event.isError ? 'failed' : 'succeeded',
+          // 政策/容器拒绝优先于 isError：拒绝就是 denied，不是失败，更不是成功（N3）。
+          outcome: isDeniedToolResult(event.result) ? 'denied' : event.isError ? 'failed' : 'succeeded',
         });
         return;
       case 'turn_end':
@@ -285,7 +329,8 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
       current.finishPrompt({ kind: 'failed', code: 'invalid_state', retryable: false });
       return;
     }
-    current.finishPrompt({ kind: 'completed' });
+    // 终态如实：收尾 stop reason 说了算，「prompt() 返回了」不等于 completed（N2）。
+    current.finishPrompt(completionFor(lastStopReason));
   }
 
   return {
@@ -342,6 +387,7 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
       activeRequestId = requestId;
       canceled = false;
       violated = false;
+      lastStopReason = null;
       running = (async () => {
         try {
           await current.prompt(text);

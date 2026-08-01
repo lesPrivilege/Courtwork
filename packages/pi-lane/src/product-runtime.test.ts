@@ -538,6 +538,107 @@ describe('Node 侧零 process.env', () => {
   });
 });
 
+/**
+ * PI-HOST-LOOP-1R N2（首轮验收 `314117d` 的 Node 反例二，转为常驻）。
+ *
+ * 首轮实现的 `finish()` 无条件发 `{kind:'completed'}`，于是上游 `stopReason:'error'`
+ * 结束的一轮虽然在 `turn_finished` 里如实记了 error，最终终态仍是 `{status:'completed'}`——
+ * 把上游失败写成了产品成功。收尾 stop reason 不是 `stop|toolUse` 的一律不得 completed。
+ */
+describe('provider 失败终态如实（N2）', () => {
+  it("上游 stopReason:'error' 必以 failed{provider_error} 收场，不得 completed", async () => {
+    faux.setResponses([
+      fauxAssistantMessage([fauxText('半截')], { stopReason: 'error', errorMessage: '上游连接中断' }),
+    ]);
+    const harness = createHarness();
+    harness.bootstrap();
+    await harness.prompt('问一句', 'request-1');
+
+    // 对照：turn_finished 那一层本来就如实记了 error——真正丢失真相的是终态那一层。
+    const turns = harness.packets.flatMap((packet) =>
+      packet.type === 'agent_event' && packet.payload.kind === 'turn_finished' ? [packet.payload] : [],
+    );
+    expect(turns.map((turn) => turn.stopReason)).toEqual(['error']);
+
+    const terminal = harness.terminals().at(-1);
+    expect(terminal?.status).toBe('failed');
+    if (terminal?.status !== 'failed') return;
+    expect(terminal.error.code).toBe('provider_error');
+    expect(terminal.error.message).toBe('provider 调用失败，本轮未能完成');
+  });
+
+  it("上游 stopReason:'length' 同样不得产出 completed", async () => {
+    faux.setResponses([fauxAssistantMessage([fauxText('被截断了')], { stopReason: 'length' })]);
+    const harness = createHarness();
+    harness.bootstrap();
+    await harness.prompt('问一句', 'request-1');
+    expect(harness.terminals().at(-1)?.status).not.toBe('completed');
+  });
+
+  it('对照：stop 与 toolUse 收尾仍是 completed——上面两条不是恒红', async () => {
+    faux.setResponses([
+      fauxAssistantMessage([fauxToolCall('read', { path: '备忘.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxText('读完了。')], { stopReason: 'stop' }),
+    ]);
+    const harness = createHarness();
+    harness.bootstrap();
+    await harness.prompt('读一读', 'request-1');
+    expect(harness.terminals().at(-1)?.status).toBe('completed');
+  });
+});
+
+/**
+ * PI-HOST-LOOP-1R N3（首轮验收 `314117d` 的 Node 反例三，转为常驻）。
+ *
+ * `bindReadToLogicalRoot` / glob / grep 在 case-env 拒绝时回的是 `details.denied` 的
+ * 文本结果，上游 `isError` 因而为 false；首轮 runtime 只按 `isError` 二分，于是把政策
+ * 拒绝投影成 `succeeded`——Rust journal 会收到与真实授权结果相反的工具账。
+ */
+describe('政策拒绝的工具账如实（N3）', () => {
+  const outcomes = (harness: Harness) =>
+    harness.packets.flatMap((packet) =>
+      packet.type === 'agent_event' && packet.payload.kind === 'tool_finished' ? [packet.payload.outcome] : [],
+    );
+
+  it('read /workspace/记录.md 被 case-only policy 拒绝，outcome 必为 denied', async () => {
+    faux.setResponses([
+      fauxAssistantMessage([fauxToolCall('read', { path: '/workspace/记录.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxText('读不到。')]),
+    ]);
+    const harness = createHarness();
+    harness.bootstrap();
+    await harness.prompt('读一读 /workspace/记录.md', 'request-1');
+    expect(outcomes(harness)).toEqual(['denied']);
+  });
+
+  it('glob 与 grep 的越界起始目录同样是 denied，不是 succeeded', async () => {
+    for (const call of [
+      fauxToolCall('glob', { pattern: '**/*.md', path: '/workspace' }),
+      fauxToolCall('grep', { pattern: '张三', path: '../界外' }),
+    ]) {
+      faux.setResponses([
+        fauxAssistantMessage([call], { stopReason: 'toolUse' }),
+        fauxAssistantMessage([fauxText('检索不到。')]),
+      ]);
+      const harness = createHarness();
+      harness.bootstrap();
+      await harness.prompt('检索', 'request-1');
+      expect(outcomes(harness)).toEqual(['denied']);
+    }
+  });
+
+  it('对照：界内合法调用仍是 succeeded——denied 不是恒判', async () => {
+    faux.setResponses([
+      fauxAssistantMessage([fauxToolCall('read', { path: '/case/备忘.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxText('合同编号是 HT-2024-081。')]),
+    ]);
+    const harness = createHarness();
+    harness.bootstrap();
+    await harness.prompt('读备忘', 'request-1');
+    expect(outcomes(harness)).toEqual(['succeeded']);
+  });
+});
+
 describe('dev session 是反例，不得被误当产品面', () => {
   it('它的 prompt() 每次都重置预算——产品口径不允许', async () => {
     faux.setResponses([fauxAssistantMessage([fauxText('一')]), fauxAssistantMessage([fauxText('二')])]);

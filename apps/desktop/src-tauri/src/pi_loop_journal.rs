@@ -24,6 +24,7 @@ use std::collections::HashSet;
 use std::fs::{self, File, OpenOptions};
 use std::io::Write;
 use std::os::unix::fs::MetadataExt;
+use std::os::unix::io::AsRawFd;
 use std::path::{Path, PathBuf};
 
 use sha2::{Digest, Sha256};
@@ -1390,6 +1391,8 @@ pub(crate) enum JournalError {
     },
     /// quarantine 本身失败：目标已存在、路径不是 owned regular directory 等，一律 fail closed。
     QuarantineRefused(&'static str),
+    /// 同一 logical session 已有 live 写者持有独占 advisory lock（PI-HOST-LOOP-1R R8）。
+    SessionActive,
 }
 
 impl JournalError {
@@ -1399,6 +1402,7 @@ impl JournalError {
             JournalError::Io(_) => "io",
             JournalError::Quarantined { .. } => "quarantined",
             JournalError::QuarantineRefused(_) => "quarantine_refused",
+            JournalError::SessionActive => "session_active",
         }
     }
 }
@@ -1450,6 +1454,96 @@ pub(crate) fn sha256_hex(bytes: &[u8]) -> String {
         out.push_str(&format!("{byte:02x}"));
     }
     out
+}
+
+// ── 单写者独占锁（PI-HOST-LOOP-1R R8）───────────────────────────────────────
+
+/// session 锁文件的后缀。锁文件与 journal 同级同名，住在既有
+/// `app_data_dir()/pi-loop/<containerId>/` 层级内，不新增顶层目录。
+pub(crate) const SESSION_LOCK_SUFFIX: &str = ".lock";
+
+pub(crate) fn session_lock_path(root: &Path, container_id: &str, session_id: &str) -> PathBuf {
+    container_dir(root, container_id).join(format!("{session_id}.jsonl{SESSION_LOCK_SUFFIX}"))
+}
+
+/// 同一 logical session 的 journal 的 OS 级独占 advisory lock，随 Host 持有至 teardown。
+///
+/// 用 `flock` 而不是 `fcntl` 记录锁：`fcntl` 锁按**进程**归属，同进程的第二把总能拿到，
+/// 对「同一宿主里起第二枚 Host」零区分力；`flock` 按 **open file description** 归属，
+/// 同进程不同 fd 之间同样冲突——第二枚 Host 因此拿不到，正是本条要的语义。
+///
+/// 锁文件本身只是句柄载体：它的路径与内容都**不进**模型、journal 或 error 正文。
+#[derive(Debug)]
+pub(crate) struct SessionLock {
+    handle: File,
+}
+
+impl SessionLock {
+    /// 非阻塞取锁。已被别的 open file description 持有即 {@link JournalError::SessionActive}。
+    fn acquire(path: &Path) -> Result<SessionLock, JournalError> {
+        let handle = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(false)
+            .open(path)
+            .map_err(|_| io("打开 session 锁失败"))?;
+        // SAFETY: 只对本函数刚打开、且由返回值独占持有的 fd 调用 flock，无别名。
+        if unsafe { libc::flock(handle.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) } != 0 {
+            let errno = std::io::Error::last_os_error().raw_os_error();
+            return match errno {
+                Some(libc::EWOULDBLOCK) => Err(JournalError::SessionActive),
+                _ => Err(io("取 session 锁失败")),
+            };
+        }
+        Ok(SessionLock { handle })
+    }
+
+    /// 探测某 session 当前是否有 live 写者。取得即立刻释放，不改任何字节。
+    fn probe(path: &Path) -> Result<bool, JournalError> {
+        match SessionLock::acquire(path) {
+            Ok(lock) => {
+                drop(lock);
+                Ok(false)
+            }
+            Err(JournalError::SessionActive) => Ok(true),
+            Err(other) => Err(other),
+        }
+    }
+}
+
+impl Drop for SessionLock {
+    fn drop(&mut self) {
+        // SAFETY: fd 由本结构独占持有；close 也会隐式解锁，这里显式解一次让语义可读。
+        unsafe {
+            libc::flock(self.handle.as_raw_fd(), libc::LOCK_UN);
+        }
+    }
+}
+
+/// 某 container 下是否仍有 live session。`delete_container` 的 active 判定由此而来，
+/// 与单写者锁**同源**——不另立进程内登记册，那会是第二个可漂移的真源。
+pub(crate) fn container_has_live_session(
+    root: &Path,
+    container_id: &str,
+) -> Result<bool, JournalError> {
+    let container = container_dir(root, container_id);
+    let entries = match fs::read_dir(&container) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+        Err(_) => return Err(io("枚举 container 失败")),
+    };
+    for entry in entries {
+        let path = entry.map_err(|_| io("枚举 container 项失败"))?.path();
+        let is_lock = path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .is_some_and(|name| name.ends_with(SESSION_LOCK_SUFFIX));
+        if is_lock && SessionLock::probe(&path)? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 // ── Journal 句柄 ─────────────────────────────────────────────────────────────
@@ -1554,6 +1648,8 @@ impl Journal {
 #[derive(Debug)]
 pub(crate) struct LoadedJournal {
     pub(crate) journal: Journal,
+    /// 单写者独占锁。调用方必须持有它直到 teardown——放掉即交出写权（R8）。
+    pub(crate) lock: SessionLock,
     pub(crate) records: Vec<JournalRecord>,
     pub(crate) projection: SessionProjection,
     /// 本次载入是否截断过 partial tail（诊断用，不进 journal）。
@@ -1705,6 +1801,12 @@ fn validate_records(
     let mut session_closed = false;
     let mut seen_requests: HashSet<String> = HashSet::new();
     let mut open_requests: HashSet<String> = HashSet::new();
+    // resume 的 prior 三值要与**前序**记录的 fold 逐值比对，故边走边算一份同口径的 fold
+    // （与 {@link fold} 同序、同运算，因此浮点也逐位相同）。
+    let mut observed_turns = 0_u64;
+    let mut counted_turns = 0_u64;
+    let mut usd_total = 0.0_f64;
+    let mut cost_known = true;
 
     for (expected_seq, record) in (1_u64..).zip(records.iter()) {
         if session_closed {
@@ -1739,6 +1841,17 @@ fn validate_records(
                 if record.leg != leg + 1 || resumed.previous_leg != leg {
                     return Err(StructureProblem("resume 的 leg 必须恰为 previous+1"));
                 }
+                // 只核 previousLeg 是不够的：prior 三值同样是耐久真值，篡改任一枚都能把
+                // 累计预算改小、把已用满的 session 洗成还能跑（R8 之前的 R7 病灶）。
+                let prior_usd = if cost_known { Some(usd_total) } else { None };
+                if resumed.prior_observed_turns != observed_turns
+                    || resumed.prior_turns != counted_turns
+                    || resumed.prior_usd != prior_usd
+                {
+                    return Err(StructureProblem(
+                        "session_resumed 的 prior 三值必须逐值等于前序 fold",
+                    ));
+                }
                 leg = record.leg;
                 leg_open = true;
             }
@@ -1765,6 +1878,31 @@ fn validate_records(
             if journal_type.is_prompt_terminal() {
                 open_requests.remove(request_id);
             }
+        }
+
+        // 与 {@link fold} 逐字同口径地累计，供下一枚 `session_resumed` 逐值比对。
+        match &record.payload {
+            JournalPayload::TurnUsageRecorded {
+                turn,
+                counted_toward_turn_limit,
+                usage,
+                ..
+            } => {
+                observed_turns = observed_turns.max(*turn);
+                if *counted_toward_turn_limit {
+                    counted_turns += 1;
+                }
+                match usage.cost_usd {
+                    None => cost_known = false,
+                    Some(cost) => usd_total += cost,
+                }
+            }
+            JournalPayload::SessionInterrupted { cost_coverage, .. }
+                if *cost_coverage == CostCoverage::Unknown =>
+            {
+                cost_known = false;
+            }
+            _ => {}
         }
 
         if journal_type.is_session_terminal() {
@@ -1932,12 +2070,41 @@ pub(crate) fn load_session(
     session_id: &str,
     interrupt_reason: SessionInterruptReason,
 ) -> Result<LoadedJournal, JournalError> {
+    load_session_locked(root, container_id, session_id, interrupt_reason, None)
+}
+
+/// 已持锁者的重入入口（`PiLoopHost::reclaim_after_fault`）：交回**同一把**锁继续用。
+///
+/// 不走「先放再取」：`flock` 在同进程的不同 fd 之间也冲突，放了再取会自锁；
+/// 即便不自锁，那个窗口也等于把写权对外开了一条缝。
+pub(crate) fn load_session_holding(
+    root: &Path,
+    container_id: &str,
+    session_id: &str,
+    interrupt_reason: SessionInterruptReason,
+    lock: SessionLock,
+) -> Result<LoadedJournal, JournalError> {
+    load_session_locked(root, container_id, session_id, interrupt_reason, Some(lock))
+}
+
+fn load_session_locked(
+    root: &Path,
+    container_id: &str,
+    session_id: &str,
+    interrupt_reason: SessionInterruptReason,
+    held: Option<SessionLock>,
+) -> Result<LoadedJournal, JournalError> {
     if !is_safe_container_token(container_id) || !is_safe_container_token(session_id) {
         return Err(JournalError::InvalidRef);
     }
     let container = container_dir(root, container_id);
     fs::create_dir_all(&container).map_err(|_| io("创建容器目录失败"))?;
     assert_owned_directory(&container)?;
+    // 单写者门在**任何读写之前**：被拒的 Host 因此零 journal 变化、零 spawn（R8）。
+    let lock = match held {
+        Some(lock) => lock,
+        None => SessionLock::acquire(&session_lock_path(root, container_id, session_id))?,
+    };
     let path = journal_path(root, container_id, session_id);
 
     let existing = match fs::read(&path) {
@@ -2079,11 +2246,22 @@ pub(crate) fn load_session(
 
     Ok(LoadedJournal {
         journal,
+        lock,
         records,
         projection,
         truncated_partial_tail,
         repaired_turn_usage,
     })
+}
+
+/// prompt terminal 的预算**真值**：对已 durable 的 `turn_usage_recorded` fold 得出（R4）。
+/// sidecar 自报只作 parity 对照，不是真源。
+pub(crate) fn budget_of(
+    records: &[JournalRecord],
+    max_turns: u64,
+    max_usd: Option<f64>,
+) -> BudgetView {
+    budget_from(&fold(records), max_turns, max_usd)
 }
 
 fn budget_from(projection: &SessionProjection, max_turns: u64, max_usd: Option<f64>) -> BudgetView {
@@ -2938,6 +3116,9 @@ mod tests {
         assert_eq!(reloaded.projection.prior_usd, None);
 
         // 幂等：再载一次不得补第二枚。
+        // 先交出单写者锁——同一 logical session 不许两个写者并存（PI-HOST-LOOP-1R R8），
+        // 「再载一次」因此必须是**接手**，不是并肩。
+        drop(reloaded);
         let again = open(&root);
         assert!(!again.repaired_turn_usage, "已补过就不再补");
         assert_eq!(
