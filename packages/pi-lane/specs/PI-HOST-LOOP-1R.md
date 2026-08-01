@@ -74,6 +74,28 @@ Node 三枚与 Rust 八枚反例全部命中 production 方法；正向 Route A 
 4. 回执追加在本文件尾部；实现提交先于回执提交；停在待独立验收；不 push、不 merge、不
    启动 `PI-WRITE-HOST-1`、不更新 `current.md`。
 
+## 三·补 · 2026-08-01 架构追加裁定（Stage 2 回报四件）
+
+1. **bundle 身份漂移随批订正**：N1–N3 改产品源码必然换 sealed CJS 身份
+   （`522,649`/`4c09a985…` → `523,057`/`b72fe521439022c494477b2d41bc7b230d6aa5df2bde8668dba248d3cbf4107d`）。
+   tracked manifest、`pi_loop_process.rs` 真值表与变异靶字面量同批订正为该值；runtime 两件与
+   `routeId/nodeVersion/targets` 不动。该漂移由门先抓（1a 期望值红 → 2a 编译期真值表红 →
+   2c 变异靶失效守卫红），属门在工作，回执须保留这条「门先于自查」的实测链。
+2. **第三批既有测试调整追认**：`tail_turn_finished_without_usage_is_repaired_exactly_once`
+   （单写者下二次 `load_session` 即两并存写者，插 `drop` 改为接手）、
+   `budget_terminal_writes_both…`（原脚本自报 `turns:12` 而 journal 零 usage 记录，改真跑挣满
+   限额）、`real_child_killed_mid_prompt…`（resume leg 沿用 fresh leg 的 `usd`，而该 leg
+   `priorUsd` 已被 `costCoverage:'unknown'` 毒成 null，拆出独立断言）。三枚同属「世界变了」，
+   按本意重写、强度未放宽，逐枚在回执登记前后断言对照。
+3. **门 3/4 驱动器入白名单**：`packages/pi-lane/scripts/verified-node-gate.mjs` 追加为 tracked
+   实现件。理由：票面 §五 把「冻结 Node × production CJS」与「冻结 Node × scripted control
+   CJS」列为必跑硬门，而其唯一装置若只活在 scratchpad，门就退化为轶事——R5 验收已就同型
+   evidence-packaging 缺口留过批评。约束四条：确定性、零网络、缺快照硬失败（不静默跳过）、
+   不进 root `pnpm test`（循 `build-product-sidecar.test.mjs` 先例由独占命令调用）。白名单
+   仅扩此一件。
+4. **门 4 强化追认**：scripted 脚本改双 read（`/case` 与 `/workspace` 各一），实测 outcome
+   恰 `["succeeded","denied"]`——N3 在真实 sealed 产品字节上端到端成立。
+
 ## 四、白名单
 
 同原票 §三 全部文件（Node 产品四对＋tools＋fixture＋build 脚本＋package.json；Rust 四模块
