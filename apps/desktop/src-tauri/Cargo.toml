@@ -23,6 +23,10 @@ futures-util = "0.3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time"] }
 # CONTRACT-OUTPUT-TRUTH-1：只供 case-output 的 stat/write。sha2 用于产物 SHA-256 流式核验；
 # libc 只用于 dirfd / no-follow / *at 系列调用。二者不得扩成通用路径读取 API。
+# PI-HOST-LOOP-1 §二.5：libc 用途另加 `pi_loop_process` 的 `kill(pid, SIGTERM)` 与 `geteuid`——
+# SIGTERM 必须由既有 libc::kill 完成，`Child::kill()` 只可用于 SIGKILL，不得改用外部
+# `/bin/kill` 或新增 spawn；sha2 用途另加 route manifest 与 journal quarantine 的 SHA-256。
+# 依赖集合与版本均不变。
 sha2 = "0.10.9"
 libc = "0.2.186"
 

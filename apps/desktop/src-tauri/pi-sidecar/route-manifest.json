@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "routeId": "node22-runtime-sealed-cjs-v1",
+  "nodeVersion": "22.23.1",
+  "useCodeCache": false,
+  "bundle": {
+    "resourceRelativePath": "pi-loop-resources/sidecar.cjs",
+    "bytes": 522649,
+    "sha256": "4c09a985f489bbc791686197f44a5303fb1295a657c855d3df679bf776967f6b"
+  },
+  "targets": [
+    {
+      "targetTriple": "aarch64-apple-darwin",
+      "machoArch": "arm64",
+      "sourceArchive": {
+        "filename": "node-v22.23.1-darwin-arm64.tar.gz",
+        "bytes": 50067502,
+        "sha256": "ef28d8fab2c0e4314522d4bb1b7173270aa3937e93b92cb7de79c112ac1fa953"
+      },
+      "runtime": {
+        "externalBinBasename": "pi-sidecar",
+        "bytes": 112928848,
+        "sha256": "2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d"
+      }
+    },
+    {
+      "targetTriple": "x86_64-apple-darwin",
+      "machoArch": "x86_64",
+      "sourceArchive": {
+        "filename": "node-v22.23.1-darwin-x64.tar.gz",
+        "bytes": 51245086,
+        "sha256": "b8da981b8a0b1241b70249204916da76c63573ddf5814dbd2d1e41069105cb81"
+      },
+      "runtime": {
+        "externalBinBasename": "pi-sidecar",
+        "bytes": 115447952,
+        "sha256": "03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b"
+      }
+    }
+  ]
+}

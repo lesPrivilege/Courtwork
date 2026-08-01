@@ -33,6 +33,16 @@ const CONTROL_CANARY = 'PI-HOST-LOOP-1-CONTROL-PROVIDER-CANARY';
 type BuildModule = {
   BUILD_DIR: string;
   PRODUCT_ENTRY: string;
+  ROUTE_ID: string;
+  NODE_VERSION: string;
+  USE_CODE_CACHE: boolean;
+  SIDECAR_BASENAME: string;
+  TARGETS: {
+    targetTriple: string;
+    machoArch: string;
+    archive: { filename: string; bytes: number; sha256: string };
+    runtime: { bytes: number; sha256: string };
+  }[];
   bundleOptions(entryPoint: string, outfile: string): Record<string, unknown>;
   buildDeterministicBundle(input?: { entryPoint?: string; scratchDir?: string }): Promise<{
     bytes: number;
@@ -623,5 +633,93 @@ describe('product-wire-v1 共享 golden', () => {
         : packet,
     ) as ProductPacket[];
     expect(coverageProblems(drifted)).toContain('terminalFailure:unknown=未归类的失败 未覆盖');
+  });
+});
+
+/**
+ * 跨侧核验门（PI-HOST-LOOP-1 §四.1 末句）。
+ *
+ * Route A 的 expected-side 是 tracked `apps/desktop/src-tauri/pi-sidecar/route-manifest.json`——
+ * Rust 以 `include_bytes!` 把它编进 host binary。可它记的是 **product source 编出来的 bundle**
+ * 的字节与 SHA：source 一改，manifest 就过时了，而 Rust 侧对此毫无察觉（它只比对 resource
+ * 与编译期 bytes 是否一致，两边可以一起旧下去）。
+ *
+ * 所以这道门必须住在**普通 `pnpm test`** 里：从同一份 product entry 现编一次 CJS，逐值核
+ * tracked manifest 的 `bundle.bytes` 与 `bundle.sha256`。source 漂移当场红，不等独占下载
+ * 或发布命令才发现。
+ */
+describe('route manifest 与 product source 的跨侧核验', () => {
+  const MANIFEST_URL = new URL('../../../apps/desktop/src-tauri/pi-sidecar/route-manifest.json', import.meta.url);
+
+  it('tracked manifest 的 bundle bytes/SHA 恰等于现编 product CJS', async () => {
+    const manifest = JSON.parse(await readFile(MANIFEST_URL, 'utf8')) as {
+      schemaVersion: number;
+      routeId: string;
+      nodeVersion: string;
+      useCodeCache: boolean;
+      bundle: { resourceRelativePath: string; bytes: number; sha256: string };
+      targets: {
+        targetTriple: string;
+        machoArch: string;
+        sourceArchive: { filename: string; bytes: number; sha256: string };
+        runtime: { externalBinBasename: string; bytes: number; sha256: string };
+      }[];
+    };
+
+    const built = await build.buildDeterministicBundle();
+    expect(built.reproducible).toBe(true);
+    // 逐值：字节数与 SHA 都不许「差不多」。
+    expect(manifest.bundle.bytes).toBe(built.bytes);
+    expect(manifest.bundle.sha256).toBe(built.sha256);
+    expect(manifest.bundle.resourceRelativePath).toBe('pi-loop-resources/sidecar.cjs');
+  }, 180_000);
+
+  it('manifest 顶层与两枚 target 逐字段等于本包的冻结真值表', async () => {
+    const manifest = JSON.parse(await readFile(MANIFEST_URL, 'utf8')) as Record<string, unknown>;
+    expect(manifest.schemaVersion).toBe(1);
+    expect(manifest.routeId).toBe(build.ROUTE_ID);
+    expect(manifest.nodeVersion).toBe(build.NODE_VERSION);
+    expect(manifest.useCodeCache).toBe(build.USE_CODE_CACHE);
+    expect(Object.keys(manifest).sort()).toEqual(
+      ['bundle', 'nodeVersion', 'routeId', 'schemaVersion', 'targets', 'useCodeCache'].sort(),
+    );
+
+    const targets = manifest.targets as {
+      targetTriple: string;
+      machoArch: string;
+      sourceArchive: { filename: string; bytes: number; sha256: string };
+      runtime: { externalBinBasename: string; bytes: number; sha256: string };
+    }[];
+    expect(targets).toHaveLength(2);
+    // 恰两行并按 targetTriple UTF-8 升序。
+    expect(targets.map((target) => target.targetTriple)).toEqual(
+      [...targets.map((target) => target.targetTriple)].sort(),
+    );
+    expect(new Set(targets.map((target) => target.targetTriple)).size).toBe(2);
+
+    for (const target of targets) {
+      const frozen = build.TARGETS.find((candidate) => candidate.targetTriple === target.targetTriple);
+      expect(frozen).toBeDefined();
+      expect(Object.keys(target).sort()).toEqual(['machoArch', 'runtime', 'sourceArchive', 'targetTriple'].sort());
+      expect(target.machoArch).toBe(frozen!.machoArch);
+      expect(target.sourceArchive).toEqual({
+        filename: frozen!.archive.filename,
+        bytes: frozen!.archive.bytes,
+        sha256: frozen!.archive.sha256,
+      });
+      expect(target.runtime).toEqual({
+        externalBinBasename: build.SIDECAR_BASENAME,
+        bytes: frozen!.runtime.bytes,
+        sha256: frozen!.runtime.sha256,
+      });
+      // 0/null/TODO/placeholder 一律拒。
+      for (const bytes of [target.sourceArchive.bytes, target.runtime.bytes]) {
+        expect(Number.isSafeInteger(bytes)).toBe(true);
+        expect(bytes).toBeGreaterThan(0);
+      }
+      for (const sha of [target.sourceArchive.sha256, target.runtime.sha256]) {
+        expect(sha).toMatch(/^[0-9a-f]{64}$/);
+      }
+    }
   });
 });

@@ -13,6 +13,13 @@ use std::sync::{Mutex, Once, OnceLock, RwLock};
 mod case_output_fs;
 mod host_auth;
 mod material_store;
+// PI-HOST-LOOP-1 §二.8：本票只接 module 与 crate-private 构造，**零 invoke handler**、
+// 零 event channel、零 frontend 类型。start/prompt/cancel/resume/replay/delete 的 WebView
+// adapter 由 `PI-LANE-UI-1` 另冻；在那之前 `PiLoopHost` 只由 crate 内部与 headless driver 消费。
+mod pi_loop;
+mod pi_loop_journal;
+mod pi_loop_process;
+mod pi_loop_protocol;
 mod work_state;
 
 /// 发行包 service；dev（debug_assertions）加 `.dev` 后缀，避免污染发行 ACL（F6）。
