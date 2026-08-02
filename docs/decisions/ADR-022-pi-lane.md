@@ -1261,6 +1261,13 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 
 ## 修订记录
 
+- **2026-08-02 · PromptCompletion 闭集扩 canceled（1R2 C1 裁定）**：runtime→状态机
+  接缝原闭集无 canceled 分支，上游单方 `aborted` 无路可走（1R 复验 Blocker 1 根因
+  之一）。扩 `{kind:'canceled'}`，wire `Terminal` 闭集不变；未置 `cancelRequested` 的
+  canceled 完成以 `reason:'host'` 收——`aborted` 仅宿主侧 AbortController 可产生，
+  归因恒真；cancel 闩锁与预算终态优先级不回退。sealed CJS 身份三处钉死值按 1R
+  Stage-2 仪式同批订正。乙路（改契约文字把 aborted 归 provider_error）因违反终态
+  诚实明确拒绝。
 - **2026-08-02 · HOST-LOOP 1R 复验拒绝与 1R2 四项闭口**：`PI-HOST-LOOP-1R@fa9e2f8`
   经独立复验 `427f4fa` REJECT——`aborted` 终态未走 canceled、bootstrap 三项上界后置于
   spawn、journal 载入接受孤儿 usage 与倒序 observed turn、verified-node gate 对 runtime

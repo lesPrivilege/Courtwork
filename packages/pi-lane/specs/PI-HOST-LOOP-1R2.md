@@ -33,6 +33,27 @@ completed（现行）、`error`→`failed/provider_error`（现行）、`aborted
 按宿主发起方既有语义）、其余/未知→`failed/unknown` 仅作显式兜底分支并有注释指明闭集
 来源。常驻 N2 扩表钉住 `aborted` 分支与「非 stop|toolUse 零 completed」的全枚举断言。
 
+**2026-08-02 C1 裁定（实现实测后补拍）**：两道白名单障碍经红证坐实——canceled 在
+runtime↔状态机接缝（`PromptCompletion` 闭集）不可表达；且任何 `product-runtime.ts`
+production 改动都使 sealed CJS 身份漂移，而该身份被三处白名单外文件钉死。裁**甲路**：
+
+- `product-stdio.ts` 的 `PromptCompletion` 闭集扩 `{kind:'canceled'}`——进程内接缝
+  闭集扩项，wire `Terminal` 本已含 canceled，**wire 闭集零变化**。状态机消费：
+  `cancelRequested` 已置则维持既有 reason 语义不回退；未置而收 canceled 完成时以
+  `reason:'host'` 收。语义依据：pi 的 `aborted` 只能由宿主侧 AbortController 触发，
+  provider 结构上无法产生，故宿主归因恒真。cancel 闩锁、budget_stopped 与既有终态
+  优先级全部不回退。
+- 白名单随裁扩四件：`packages/pi-lane/src/product-stdio.ts`、`product-stdio.test.ts`
+  （只增 canceled 分支与消费断言，旧判据零删除）、
+  `apps/desktop/src-tauri/pi-sidecar/route-manifest.json` 与
+  `apps/desktop/src-tauri/src/pi_loop_process.rs`（后两件**仅限** sealed CJS 身份三处
+  钉死值随批订正：manifest `bundle.bytes/sha256`、编译期真值表、变异靶字面量）。
+- 身份订正仪式（承 1R Stage-2「门先于自查」裁定）：production bundle 两次构建
+  byte-identical 后，三处钉死值与 tracked manifest 在**同一提交**内同步；跨侧门
+  （`product-main.test.ts`）与 Rust 编译期门在新身份上复绿为证。
+- **乙路（`aborted`→`failed/provider_error`）明确拒绝**：把非错误标成 provider 失败
+  违反终态诚实，其 retryable 语义还诱导重试已被中止的运行。
+
 ### C2 · bootstrap 上界闭集前置于 journal/spawn（Rust）
 
 ADR-022 冻结 `maxTurns` 整数 `1..12`、`maxUsd` 为 `null` 或 `0 < n <= 100000`、`modelId`
