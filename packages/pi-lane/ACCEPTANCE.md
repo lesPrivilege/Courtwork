@@ -1482,3 +1482,108 @@ blob `89a97c98ef7811a72cc70917a20428440153c45b`、SHA-256
 显式清账与 Host 前置边界；若属 codec `Other`，则须具名写出允许上述 durable 副作用的依据，并让
 scanner/ledger 至少能发现、登记这道现存格式门。两路都不能继续由三枚函数名字面量静默决定族；
 裁定与实现完成后交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R5 独立复验（2026-08-02，拒绝）
+
+对象：exact target `a08225752e76ee1f42853760ef6f4456b5422cee`，implementation tip
+`3f0bc6fa92318a6dfa7803d2d55c9b5a6d5dbb58`，组合基线
+`84f0710cbfa05a0666570832f9fbc06141f04591`；票面冻结于 `main@bb20cef`。验收在独立
+worktree `/private/tmp/courtwork-accept-pi-host-loop-1r5-codex`、分支
+`codex/accept-pi-host-loop-1r5` 进行；未进入或读取实现树。十九枚证据链逐枚比较 patch-id，结果
+**19/19 等价**；`84f0710..3f0bc6f` 只改 `apps/desktop/src-tauri/src/pi_loop.rs`，回执提交只改
+`packages/pi-lane/specs/PI-HOST-LOOP-1R5.md`，`ACCEPTANCE.md` 与 `current.md` 在目标树零触碰。
+
+**最终判定：REJECT。** G1 的四道 NUL production 门、四类副作用边界以及撤门阳性 mutations
+均成立；但 G2 的完成态仍不是“枚举全部拒绝分支，unknown 判红”。当前
+`scan_refusal_branches()` 只寻找字面 token `return Err(`。验收把票面指定的 M4——
+`model_id.contains('/')` 未登记门——保持语义不变，仅改用合法 Rust 等价构造
+`return Err::<(), HostError>(...)`；新增分支编译、rustfmt 均绿，却完全不进入扫描集，G2 轴、
+bounded ledger、既有行为反例和完整 pi-loop 测试全部 **FALSE_GREEN**。这正是 1R5 §零裁定要
+永久消灭的“语法标记定义族”，不是未来规则推演，也不是普通测试增强建议。
+
+## 独立事实、snapshot 与健康 controls
+
+- `pi_loop.rs` production 前缀从基线 `49,093` B /
+  `44a7ff55ecef4a0dfca5706c2b7fb4acbe18704fa6764017109076d66f29f33a` 变为目标
+  `50,780` B / `67bcfa26238d218fc0cf3f0ea5ec209a2ce887f7a8f7b0650170b33aeea5dfde`；本轮确有 Rust
+  production 改动。Node production、route manifest 与三枚宿主接缝相对基线零 diff。
+- 本验收从独立树重建 product snapshot。sealed CJS 为 `523,235` B /
+  `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`；arm64 runtime 为
+  `112,928,848` B / `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`；x64 runtime 为
+  `115,447,952` B / `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`。
+  三件均为 regular file；sealed CJS 与 1R4 身份逐字节相同。
+- 独立 Node controls：pi-lane Vitest **14 files / 448 tests**、builder **10/10**、
+  verified-node gate **8/8**、production gate **10 PASS**、scripted control **14 PASS**、
+  isolation Node **43/43** 与 desktop isolation script 均 exit 0。sandbox 首跑 Vitest 的八枚
+  localhost timeout 在非受限完整复跑消失，未冒充产品红。
+- exact target 静态重算与回执一致：轴 A **36 行 = 17 HostInput + 19 Other**，轴 B
+  **90 行 = 12 Fronted + 78 Other**，bounded ledger 75 行，manifest 11 行 / 34 枚反例。
+  这些数量证明当前表自洽，不能证明 scanner 的 population 与“拒绝分支族”同宽。
+
+## G1 正向与撤门阳性对照
+
+验收用临时 probe 逐枚走 production gate，结果如下：
+
+| 输入 | target 返回 | 最早副作用边界 |
+|---|---|---|
+| `modelId` 含 NUL | `InvalidConfig("modelId 不得含 NUL")` | spawn/journal/write 均零 |
+| `caseRoot` 含 NUL | `InvalidConfig("caseRoot 不得含 NUL")` | 先于 shape、lstat；spawn/journal/write 均零 |
+| `apiKey` 含 NUL | `InvalidConfig("apiKey 不得含 NUL")` | credential 后、journal/spawn 前；三者均零 |
+| prompt `text` 含 NUL | `InvalidPrompt("prompt 文本不得含 NUL")` | journal/records/write 均零增，requestId 未占用 |
+
+阳性 mutation 也真实变红：撤 prompt NUL 门后，行为反例实得
+`Protocol(InvalidSchema)`，行为门与轴 A 均 exit 101；只撤 caseRoot NUL 门后，行为反例实得
+`CaseRoot("案件根不可 lstat")`，行为门与轴 A 同样 exit 101。恢复后既有
+`counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn` 为 1 passed。
+因此下节假绿不能归因于测试环境、未编译 mutation 或轴 A 从未能变红。
+
+## Blocker：轴 A 仍由 `return Err(` 的一种拼写定义 refusal family
+
+目标源码的 `scan_refusal_branches()`（`pi_loop.rs:5367-5415`）在每个归属函数块里执行
+`body.find("return Err(")`（`:5375`）；找不到就结束该块扫描。所谓 unknown 并没有进入“判红”
+分支，而是在成为 scanner population 之前已经被当作“不存在”。回执所称“扫描器内零跳过型
+过滤器”不改变这一事实：字面 marker 本身就是隐式 allowlist。
+
+验收从 exact blob 出发，在 `validate_start_config()` 加入票面与回执均指定的 M4 语义：
+
+```rust
+if config.model_id.contains('/') {
+    return Err::<(), HostError>(HostError::InvalidConfig("modelId 不得含路径分隔符"));
+}
+```
+
+这只是把实现回执 M4 的 `return Err(...)` 写成标准库 `Err` 构造器的显式泛型形式；函数仍从同一
+guard 返回同一 `HostError::InvalidConfig`，没有换判据、site、code 或时序。该写法经 rustfmt 后
+稳定，完整测试编译通过；命中核确认新增 `contains('/')` 与 `Err::<(), HostError>` 均在生产段，
+而新增分支不含 scanner 唯一识别的 `return Err(` token。实跑结果：
+
+| 证据 | mutation 后结果 |
+|---|---:|
+| `host_refusal_branches_are_fail_closed_against_the_source` | **1 passed / 0 failed** |
+| `bounded_judgment_ledger_matches_the_source_and_covers_every_frozen_bound` | **1 passed / 0 failed** |
+| `counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn` | **1 passed / 0 failed** |
+| 完整 `pi_loop::tests` | **34 passed / 0 failed / 1 ignored** |
+| `pi_loop.rs` 定向 rustfmt check | **exit 0** |
+
+这枚反例不是要求 scanner 预知新判据；恰恰相反，G2 的明文合同就是“前置函数族的全部拒绝分支
+判据表达式，未登记即红”，并把同一 `contains('/')` 门列为 permanent mutation。当前装置只对
+实现者碰巧采用的 token 拼写 fail-closed，对合法等价 Rust 写法仍 fail-open。轴 B 也使用三枚
+marker 字面量并对 `(function, reason)` 去重，但决定性轴 A 反例成立后按停止边界未再注入第二枚
+blocker。
+
+## 停止边界、恢复与结论
+
+- 全部 G1 probes、M1/M5 与 G2 等价 M4 均已用 `apply_patch` 精确拆除；没有作
+  `fix-by-acceptance`，没有修改 production 或合同来代修。
+- `pi_loop.rs` 恢复目标 blob `6cd888fd849bdc20fa8eddc0d9654e7faab19a32`、SHA-256
+  `0f3519f2340b667a4385831420bf11c8529ca709f72ec562593cb091e404fca8`；报告落笔前源码 diff 与
+  `git diff --check` 均为零，报告之外无 tracked 残留。
+- 决定性 G2 自证违约成立后，按票面停止边界不再虚耗 cargo/clippy/root full-build 长矩阵；
+  已跑的 G1/Node controls 只登记健康范围，不抵消 coverage apparatus 的假绿。
+
+**结论重申：`PI-HOST-LOOP-1R5@a082257` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 继续不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修须让
+scanner population 由 Rust 拒绝结构而非若干源文本 token 派生，并把当前 M4 的等价返回形态转为
+常驻定向红；完成后交另一全新会话从 clean worktree 复验。
