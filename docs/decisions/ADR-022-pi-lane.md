@@ -1261,6 +1261,16 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 
 ## 修订记录
 
+- **2026-08-02 · HOST-LOOP 1R2 复验拒绝与 1R3 按族闭口**：`PI-HOST-LOOP-1R2@1ab9c03`
+  经独立复验 `23f8339` REJECT——`apiKey ≤8192`／`caseRoot ≤4096` 两枚冻结上界仍后置
+  （8193-byte key 先落 journal 再 spawn，4097-byte root 以 lstat 外观代替配置门）；
+  verified-node gate 未独立冻结 `bundle.bytes/sha256`，实物与被判 manifest 同步漂移
+  FALSE_GREEN。四枚 1R2 原形与六项偏离均已获追认，两枚 blocker 都是**同批判据的未点名
+  同族成员**。新立 `PI-HOST-LOOP-1R3`（`specs/PI-HOST-LOOP-1R3.md`）：D1 有界输入闭集
+  全部前置并以双向清单自证覆盖、D2 gate expected side 一律锚 tracked manifest 并对每类
+  比较值加同步漂移反例、D3 对本票冻结面（全部 `MAX_*` 与全部判据的期望来源）穷举清账。
+  方法订正一并落痕：验收报告点名的是样本不是清单，闭口的完成态是闭集被穷举覆盖且覆盖
+  有机器自证。
 - **2026-08-02 · PromptCompletion 闭集扩 canceled（1R2 C1 裁定）**：runtime→状态机
   接缝原闭集无 canceled 分支，上游单方 `aborted` 无路可走（1R 复验 Blocker 1 根因
   之一）。扩 `{kind:'canceled'}`，wire `Terminal` 闭集不变；未置 `cancelRequested` 的
