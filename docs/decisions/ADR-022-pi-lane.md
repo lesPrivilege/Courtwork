@@ -1261,6 +1261,16 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 
 ## 修订记录
 
+- **2026-08-02 · HOST-LOOP 1R4 复验拒绝与 1R5 两裁定**：`PI-HOST-LOOP-1R4@d4163df` 经
+  独立复验 `5271342` REJECT——requestId/七成员/M1–M4/E2 全成立，唯一决定性：扫描轴仍是
+  语法白名单（函数名单），协议既有 wire NUL 门（`scan_string` `unit==0`）不在轴上，
+  `modelId`/`apiKey`/prompt `text` 含 NUL 先落账（前两者并 spawn、后者占 requestId）后才
+  由 encoder 拒。裁定一：**NUL 归 D1 Fronted**（毒化 durable journal＋浪费 spawn＝先污染
+  后拒绝；不可编码＝无效输入；lone surrogate 于 Rust String 结构性不可达，以具名理由行
+  入账）。裁定二：**扫描器 fail-closed 化**——枚举前置函数族全部拒绝分支，unknown 判据
+  表达式判红而非跳过；协议具名 wire 判据作对照面逐枚入账；排除只能是票面/清账表具名
+  理由行，实现内白名单/过滤器永久出局。新立 `PI-HOST-LOOP-1R5`
+  （`specs/PI-HOST-LOOP-1R5.md`），基线顺取十九枚 patch-id 等同。
 - **2026-08-02 · HOST-LOOP 1R3 复验拒绝与 1R4 扫描轴对齐**：`PI-HOST-LOOP-1R3@51369e4`
   经独立复验 `a0644cd` REJECT——D2 已闭合，决定性恰一枚：D1 覆盖自证的扫描轴按 `MAX_*`
   常量枚举，而族定义是「受验输入」，SafeToken 函数型判据不在轴上；prompt `requestId`
