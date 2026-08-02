@@ -1440,8 +1440,8 @@ R3 D1 的旧句只点“冻结上界或非空/形状”，但 R4 正是对此扫
 hardcoded allowlist 代替该裁定。
 
 仓库里这道门不是推演：`pi_loop_protocol.rs::scan_string()` 对 `unit == 0` 具名返回
-`InvalidSchema`；`encode_packet_line()` 序列化后回灌该 decoder，自带常驻 NUL 反例亦为
-**1 passed**。但 Host 前置层只做：
+`InvalidSchema`；直接打 `scan_json` 的 `\u0000` fixture 常驻反例为 **1 passed**，源码另证
+`encode_packet_line()` 序列化后会回灌同一 decoder。但 Host 前置层只做：
 
 - `validate_start_config()`：modelId trim/长度，caseRoot 非空/长度/shape；
 - `validate_api_key()`：trim/长度；
