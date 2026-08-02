@@ -1261,6 +1261,16 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 
 ## 修订记录
 
+- **2026-08-02 · HOST-LOOP 1R5 复验拒绝与 1R6 结构性裁定**：`PI-HOST-LOOP-1R5@a082257`
+  经独立复验 `9d4013e` REJECT——G1 四门与阳性对照全成立；唯一决定性：拒绝分支扫描器以
+  `return Err(` 字面量定义种群，fail-closed 建立在 fail-open 种群上，turbofish 合法拼写
+  即出圈（常量名→函数名→return 字面量三层同败）。裁定 **encode-before-effect**：Host 在
+  journal/spawn 前真实编码 exact wire packet，编码失败以既有具名 code 拒绝、成功 bytes
+  复用发送——codec 成为唯一校验真源，wire 判据前置从验证同步变结构性成立；文本扫描双轴
+  与同步账本受契约祝福退役（行为反例与手写清单全数保留），新增普适不变量探针
+  （`Err ⇒ 副作用恰零`）。担保边界如实声明：非 wire 判据靠显式门＋电池广度＋独立验收，
+  不再假装文本扫描能证。新立 `PI-HOST-LOOP-1R6`（`specs/PI-HOST-LOOP-1R6.md`），基线
+  顺取二十二枚 patch-id 等同。
 - **2026-08-02 · HOST-LOOP 1R4 复验拒绝与 1R5 两裁定**：`PI-HOST-LOOP-1R4@d4163df` 经
   独立复验 `5271342` REJECT——requestId/七成员/M1–M4/E2 全成立，唯一决定性：扫描轴仍是
   语法白名单（函数名单），协议既有 wire NUL 门（`scan_string` `unit==0`）不在轴上，
