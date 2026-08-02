@@ -142,9 +142,16 @@ function frozenEqual(observed, expected, label) {
  * 1R 只从 manifest 里挑出三四个字段用，其余删改一律不问——于是 `routeId`/`nodeVersion`/
  * `useCodeCache`/`resourceRelativePath` 全都可以随便改而门照样绿。冻结值来自
  * {@link FROZEN_ROUTE}（源自 builder 冻结表），不从被判的 manifest 自取。
- * `bundle.bytes/sha256` 是构建产出而非冻结常量，故不在此比，交给下面与实物的逐值比对。
+ *
+ * `bundle.bytes/sha256` 仍不在此比——builder 冻结表里没有这两枚常量，它们随 product source
+ * 变。1R2 的注释就此收在「故不比」，于是 resolver 转而拿**被判 manifest 的自报值**当实物的
+ * expected，正中在案判例「被测物不得给自己出考卷」（复验 blocker 2：bundle 与 manifest
+ * 同步篡改可 false-green）。1R3 D2 的裁定是：bundle 身份的独立锚点就是按 repo 路径读到的
+ * **tracked** manifest（与 Rust `include_bytes!` 同源），实物一律与它比；被判 layout 自带的
+ * manifest 只是被判物，须先与 tracked bytes 逐字节相同才允许当 manifest 看待。
+ * 逐值比对见 {@link ARTIFACT_CHECKS} 与 {@link resolveVerifiedRoute}。
  */
-function assertManifestFrozen(manifest, frozen) {
+export function assertManifestFrozen(manifest, frozen) {
   closedRecord(
     manifest,
     ['schemaVersion', 'routeId', 'nodeVersion', 'useCodeCache', 'bundle', 'targets'],
@@ -190,51 +197,150 @@ function hostTargetTriple() {
 }
 
 /**
- * 缺件 / 漂移一律硬失败：门要么在真实物上跑，要么不跑。
+ * **唯一 expected side**：按 repo 路径读到的 tracked route manifest，与 Rust
+ * `include_bytes!("../pi-sidecar/route-manifest.json")` 同一枚锚。
  *
- * 三枚坐标与冻结表都可注入，供定向反例用合成 app-layout 构造篡改形态——不去动那份
- * ignored 的真实 snapshot（还原式变异是验收手法，不是常驻测试该做的事）。
+ * 参数只为让 manifest 逐字段冻结判据本身可以被定向反例单独驱动；
+ * {@link resolveVerifiedRoute} **不转发**任何覆盖——期望侧一旦可注入，
+ * 「把被判 layout 的 manifest 递进来」就又成了合法调用。
  */
-export function resolveVerifiedRoute({
-  snapshotDir = SNAPSHOT_DIR,
-  manifestFile = MANIFEST_FILE,
-  frozen = FROZEN_ROUTE,
-  triple = hostTargetTriple(),
-} = {}) {
-  const runtime = path.join(snapshotDir, `${SIDECAR_BASENAME}-${triple}`);
-  const bundle = path.join(snapshotDir, BUNDLE_BASENAME);
+export function readTrackedRoute({ manifestFile = MANIFEST_FILE, frozen = FROZEN_ROUTE } = {}) {
   requireFile(manifestFile, 'tracked route manifest');
-  const runtimeStats = requireFile(runtime, `冻结 runtime（${triple}）`);
-  const bundleStats = requireFile(bundle, 'production sealed CJS');
-
+  const bytes = fs.readFileSync(manifestFile);
   let manifest;
   try {
-    manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
+    manifest = JSON.parse(bytes.toString('utf8'));
   } catch (cause) {
     return fail(`tracked route manifest 不是合法 JSON：${cause instanceof Error ? cause.message : cause}`);
   }
   assertManifestFrozen(manifest, frozen);
-  const target = manifest.targets.find((row) => row.targetTriple === triple);
-  if (!target) fail(`tracked manifest 没有 ${triple} 那一行`);
+  const byTriple = Object.fromEntries(manifest.targets.map((row) => [row.targetTriple, row]));
+  return { manifestFile, bytes, manifest, byTriple };
+}
 
-  // 快照实物必须与 tracked manifest 逐值相同——对不上就是漂移，不是「差不多」。
-  // runtime 与 sealed CJS **同待遇**：bytes + SHA 双核。只比 bytes 时，同尺寸的尾字节
-  // 篡改一枚都拦不住，而门 3/4 的全部意义就是证明本次执行的是那枚冻结二进制。
-  if (runtimeStats.size !== target.runtime.bytes) {
-    fail(`runtime bytes 漂移：实物 ${runtimeStats.size} ≠ manifest ${target.runtime.bytes}`);
+/**
+ * 实物逐值比对表。每行显式声明期望值取自哪个**独立锚点**：
+ *
+ * - `tracked` = {@link readTrackedRoute} 的返回，即按 repo 路径读到的 tracked manifest；
+ * - `frozen`  = {@link FROZEN_ROUTE}，即 builder 冻结表里不随构建变的常量。
+ *
+ * 被判 layout（snapshot 实物、layout 自带 manifest）永远不是取值来源。每个 `expected`
+ * 都写成「以锚点为根的一条属性路径」，`verified-node-gate.test.mjs` 的清单核对逐条扫这
+ * 一行源码：出现第三类来源即红。
+ *
+ * runtime 两枚都核：门只跑得动宿主那一枚，但装包发出去的是两枚，
+ * 「另一枚随便换」不该是门放行的形态。
+ */
+export const ARTIFACT_CHECKS = [
+  {
+    label: 'sealed CJS bytes',
+    anchor: 'tracked',
+    expected: (tracked) => tracked.manifest.bundle.bytes,
+    observe: (probe) => probe.bundle.bytes,
+  },
+  {
+    label: 'sealed CJS sha256',
+    anchor: 'tracked',
+    expected: (tracked) => tracked.manifest.bundle.sha256,
+    observe: (probe) => probe.bundle.sha256,
+  },
+  {
+    label: 'runtime aarch64-apple-darwin bytes',
+    anchor: 'tracked',
+    expected: (tracked) => tracked.byTriple['aarch64-apple-darwin'].runtime.bytes,
+    observe: (probe) => probe.runtimes['aarch64-apple-darwin'].bytes,
+  },
+  {
+    label: 'runtime aarch64-apple-darwin sha256',
+    anchor: 'tracked',
+    expected: (tracked) => tracked.byTriple['aarch64-apple-darwin'].runtime.sha256,
+    observe: (probe) => probe.runtimes['aarch64-apple-darwin'].sha256,
+  },
+  {
+    label: 'runtime x86_64-apple-darwin bytes',
+    anchor: 'tracked',
+    expected: (tracked) => tracked.byTriple['x86_64-apple-darwin'].runtime.bytes,
+    observe: (probe) => probe.runtimes['x86_64-apple-darwin'].bytes,
+  },
+  {
+    label: 'runtime x86_64-apple-darwin sha256',
+    anchor: 'tracked',
+    expected: (tracked) => tracked.byTriple['x86_64-apple-darwin'].runtime.sha256,
+    observe: (probe) => probe.runtimes['x86_64-apple-darwin'].sha256,
+  },
+  {
+    label: 'bundle resourceRelativePath',
+    anchor: 'frozen',
+    expected: (frozen) => frozen.bundle.resourceRelativePath,
+    observe: (probe) => probe.bundle.resourceRelativePath,
+  },
+];
+
+/**
+ * 缺件 / 漂移一律硬失败：门要么在真实物上跑，要么不跑。
+ *
+ * `snapshotDir` 与 `layoutManifestFile` 都是**被判物**坐标，可注入供定向反例构造篡改形态；
+ * 期望侧不可注入。若被测 layout 自带 manifest，它须先与 tracked bytes **逐字节相同**
+ * 才允许被当作 manifest 看待——镜像 Rust 侧「resource manifest 必须先与编译 bytes
+ * byte-identical，才轮到 closed decode」的次序。
+ */
+export function resolveVerifiedRoute({
+  snapshotDir = SNAPSHOT_DIR,
+  layoutManifestFile = null,
+  triple = hostTargetTriple(),
+} = {}) {
+  const tracked = readTrackedRoute();
+
+  if (layoutManifestFile !== null) {
+    requireFile(layoutManifestFile, 'layout route manifest');
+    const layoutBytes = fs.readFileSync(layoutManifestFile);
+    if (!layoutBytes.equals(tracked.bytes)) {
+      fail(
+        `layout manifest 与 tracked manifest 不是逐字节相同（${layoutBytes.byteLength} B ≠ ${tracked.bytes.byteLength} B 或内容不同）：${layoutManifestFile}\n  期望侧只有 ${tracked.manifestFile} 一处；layout 自带的那份只是被判物`,
+      );
+    }
   }
-  const runtimeSha = sha256File(runtime);
-  if (runtimeSha !== target.runtime.sha256) {
-    fail(`runtime SHA 漂移：实物 ${runtimeSha} ≠ manifest ${target.runtime.sha256}`);
+
+  const bundle = path.join(snapshotDir, BUNDLE_BASENAME);
+  const bundleStats = requireFile(bundle, 'production sealed CJS');
+  const runtimeFiles = {};
+  const runtimes = {};
+  for (const target of TARGETS) {
+    const file = path.join(snapshotDir, `${SIDECAR_BASENAME}-${target.targetTriple}`);
+    const stats = requireFile(file, `冻结 runtime（${target.targetTriple}）`);
+    runtimeFiles[target.targetTriple] = file;
+    // bytes + SHA 双核。只比 bytes 时，同尺寸的尾字节篡改一枚都拦不住，
+    // 而门 3/4 的全部意义就是证明本次执行的是那两枚冻结二进制。
+    runtimes[target.targetTriple] = { bytes: stats.size, sha256: sha256File(file) };
   }
-  if (bundleStats.size !== manifest.bundle.bytes) {
-    fail(`sealed CJS bytes 漂移：实物 ${bundleStats.size} ≠ manifest ${manifest.bundle.bytes}`);
+  const probe = {
+    bundle: {
+      bytes: bundleStats.size,
+      sha256: sha256File(bundle),
+      resourceRelativePath: `${RESOURCE_DIR_BASENAME}/${BUNDLE_BASENAME}`,
+    },
+    runtimes,
+  };
+
+  for (const check of ARTIFACT_CHECKS) {
+    const expected = check.expected(check.anchor === 'frozen' ? FROZEN_ROUTE : tracked);
+    const observed = check.observe(probe);
+    if (observed !== expected) {
+      fail(
+        `${check.label} 漂移：实物 ${JSON.stringify(observed)} ≠ ${check.anchor} 锚点 ${JSON.stringify(expected)}`,
+      );
+    }
   }
-  const bundleSha = sha256File(bundle);
-  if (bundleSha !== manifest.bundle.sha256) {
-    fail(`sealed CJS SHA 漂移：实物 ${bundleSha} ≠ manifest ${manifest.bundle.sha256}`);
-  }
-  return { triple, runtime, bundle, manifest, bundleSha, runtimeSha };
+
+  if (runtimeFiles[triple] === undefined) fail(`target 不在冻结表内：${triple}`);
+  return {
+    triple,
+    runtime: runtimeFiles[triple],
+    bundle,
+    manifest: tracked.manifest,
+    bundleSha: probe.bundle.sha256,
+    runtimeSha: probe.runtimes[triple].sha256,
+  };
 }
 
 /**

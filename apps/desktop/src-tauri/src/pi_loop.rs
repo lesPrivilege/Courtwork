@@ -33,11 +33,11 @@ use crate::pi_loop_process::{
     TERMINAL_EXIT_DEADLINE,
 };
 use crate::pi_loop_protocol::{
-    decode_sidecar_packet_line, encode_packet_line, is_safe_token, AgentProjectionEvent,
-    BootstrapLimits, BootstrapPayload, BootstrapProvider, BootstrapResume, BudgetStopReason,
-    BudgetTurnLimit, BudgetView, CancelReason, PacketPayload, ProductPacket, ProtocolErrorCode,
-    ResumeKind, Terminal, WorkspaceCapability, MAX_MODEL_ID_BYTES, MAX_TEXT_BYTES, MAX_TURNS_LIMIT,
-    MAX_USD_LIMIT,
+    decode_sidecar_packet_line, encode_packet_line, is_absolute_path_shape, is_safe_token,
+    AgentProjectionEvent, BootstrapLimits, BootstrapPayload, BootstrapProvider, BootstrapResume,
+    BudgetStopReason, BudgetTurnLimit, BudgetView, CancelReason, PacketPayload, ProductPacket,
+    ProtocolErrorCode, ResumeKind, Terminal, WorkspaceCapability, MAX_API_KEY_BYTES,
+    MAX_CASE_ROOT_BYTES, MAX_MODEL_ID_BYTES, MAX_TEXT_BYTES, MAX_TURNS_LIMIT, MAX_USD_LIMIT,
 };
 
 /// 本票 ready 恰宣告这一枚能力。
@@ -215,6 +215,11 @@ pub(crate) struct StartConfig {
 /// 1R 只补了下界，上界仍漏：`maxTurns=13`、`maxUsd=100001`、257 字节 `modelId` 三者
 /// 都走到 spawn 之后才由 encoder 拦下（复验 blocker 2）。三枚上界的冻结值直接取
 /// `pi_loop_protocol` 的常量，不在此另抄一份——两谱各抄一次就各自漂移。
+///
+/// PI-HOST-LOOP-1R3 D1 按**族**收口：前两轮各按验收报告点名的实例补门，于是每轮都被
+/// 下一位验收者在同族里找到另一枚。凡进入 host→sidecar 方向、在 `pi_loop_protocol`
+/// 有冻结上界或非空/形状要求的入参，一律在此一次收齐；encoder 的同名检查降为纵深防御的
+/// **最后一道**。清单与源码扫描的双向自证见 `bounded_input_manifest`。
 fn validate_start_config(config: &StartConfig) -> Result<(), HostError> {
     if config.max_turns < 1 || config.max_turns > MAX_TURNS_LIMIT {
         return Err(HostError::InvalidConfig("maxTurns 必须是 1..=12 的整数"));
@@ -233,6 +238,41 @@ fn validate_start_config(config: &StartConfig) -> Result<(), HostError> {
     // 而进 wire 的正是原串。这与「trim 后 ≤256」不冲突——原串不超限时 trim 必然也不超。
     if config.model_id.len() > MAX_MODEL_ID_BYTES {
         return Err(HostError::InvalidConfig("modelId 不得超过 256 UTF-8 字节"));
+    }
+    // caseRoot 的非空、长度与绝对形状都是纯入参判定，**必须先于 lstat**。
+    // 1R2 复验实测：4097 字节的案件根在此返回 `Ok(())`，最终以
+    // `case_root("案件根不可 lstat")` 收场——拿文件系统外观代替配置门。相对路径更糟，
+    // 它可能相对 cwd 解析成功，一路走到 spawn 之后才由 encoder 拦下。
+    // 判的是**将要上 wire 的那一串**：`to_string_lossy()` 与 bootstrap 出包同源。
+    let case_root = config.case_root.to_string_lossy();
+    if case_root.is_empty() {
+        return Err(HostError::InvalidConfig("caseRoot 不得为空"));
+    }
+    if case_root.len() > MAX_CASE_ROOT_BYTES {
+        return Err(HostError::InvalidConfig(
+            "caseRoot 不得超过 4096 UTF-8 字节",
+        ));
+    }
+    if !is_absolute_path_shape(&case_root) {
+        return Err(HostError::InvalidConfig("caseRoot 必须是平台绝对路径"));
+    }
+    Ok(())
+}
+
+/// 凭证闭集（PI-HOST-LOOP-1R3 D1）。
+///
+/// key 同样是 host→sidecar 方向的有界输入，判据必须在 journal append 与 spawn 之前兑现。
+/// 1R2 复验实测：8193 字节的 key 会先落 `session_started`、再拉起一枚 child，
+/// 最后才由 packet encoder 报 `Protocol(InvalidSchema)`——盘上多出一条本不该存在的记录，
+/// 还白起了一枚进程。空白判定与 `KeychainCredentials` 既有的 `trim().is_empty()` 同口径。
+///
+/// 错误只带 `&'static str`：key 本体一个字节都不进 reason（本模块红线 2）。
+fn validate_api_key(api_key: &str) -> Result<(), HostError> {
+    if api_key.trim().is_empty() {
+        return Err(HostError::InvalidConfig("apiKey 不得为空"));
+    }
+    if api_key.len() > MAX_API_KEY_BYTES {
+        return Err(HostError::InvalidConfig("apiKey 不得超过 8192 UTF-8 字节"));
     }
     Ok(())
 }
@@ -300,10 +340,11 @@ impl PiLoopHost {
 
     /// fresh / resume 全序。次序即语义，前一步不过就绝不走到后一步（PI-HOST-LOOP-1R R1/R2）：
     ///
-    /// 0. token 与 bootstrap/config 闭集（纯入参，零 I/O）；
+    /// 0. token 与 bootstrap/config 闭集（纯入参，零 I/O；含 caseRoot 的长度与绝对形状）；
     /// 1. route pair preflight（编译期 expected → closed decode → 双件逐值）——**身份门在最前**；
-    /// 2. 物理案件根（存在、目录、非 symlink）；
+    /// 2. 物理案件根（存在、目录、非 symlink）——长度门已在第 0 步兑现，此处只判实体；
     /// 3. 凭证（无存档即未配置，零自动回落）——Keychain read 必须晚于前两道门；
+    ///    解析出的 key 当场过闭集判据，仍在 journal 与 spawn 之前；
     /// 4. journal 载入（含单写者独占锁）+ partial-tail / quarantine / 唯一补写 / 五步 crash fold；
     /// 5. fresh 落 `session_started`、resume 逐类漂移门后落 `session_resumed`——**都在 spawn 之前**；
     /// 6. runtime cwd → spawn → bootstrap（caseRoot 与 key 只在此入内存）；
@@ -377,7 +418,10 @@ impl PiLoopHost {
         }
 
         // 3. 凭证：解析出的 key 只进内存，child 环境仍严格为空。
+        //    闭集判据紧跟解析、仍在 journal 载入与 spawn 之前——key 是入参层最后一枚
+        //    有界 host→sidecar 输入，不能留给 encoder 兜底（1R3 D1）。
         let api_key = credentials.resolve()?;
+        validate_api_key(&api_key)?;
 
         // 4. journal 载入（先取单写者锁，再做 partial-tail 截断、quarantine、唯一补写与五步 crash fold）。
         let loaded = pi_loop_journal::load_session(
@@ -3653,5 +3697,768 @@ mod tests {
         );
         assert!(third.is_ok(), "锁释放后必须能起新 leg：{third:?}");
         assert_eq!(spawns, 1);
+    }
+
+    // ── D1 覆盖自证（PI-HOST-LOOP-1R3 §二 D1）────────────────────────────────
+    //
+    // 1R 与 1R2 两轮都按验收报告点名的实例逐条补门，于是每轮都由下一位验收者在同一族里
+    // 找到另一枚：C2 补了 `maxTurns/maxUsd/modelId`（1R 报告点的三项），而同批冻结的
+    // `caseRoot ≤4096`、`apiKey ≤8192` 无人管，1R2 复验一试即中。本节改按族收口——
+    // 手写冻结清单持有整个闭集，并与源码扫描**双向**核对：
+    //
+    //   ① 清单每行都有 pre-journal/pre-spawn 红例，每例双轴断言（具名外观 + 零副作用）；
+    //   ② 清账表登记四模块生产段每一处有界常量消费点，encoder 侧新增一道上界而不补表即红。
+    //
+    // 期望侧一律手写字面量：判据名、拒绝 code、消费点归属都不从被测结构或 encoder 派生
+    // （承在案判例「被测物不得给自己出考卷」）。
+
+    struct ScriptedKey(&'static str, usize);
+    impl CredentialPort for ScriptedKey {
+        fn resolve(&self) -> Result<String, HostError> {
+            Ok(self.0.repeat(self.1))
+        }
+    }
+
+    /// 一枚 `StartConfig` 反例：标签 + 只改被判那一项的变异。
+    type ConfigCounterexample = (&'static str, fn(&mut StartConfig));
+    /// 一枚文本反例：标签 + 现造文本（超限串太长，不适合写成 `&'static str` 字面量）。
+    type TextCounterexample = (&'static str, fn() -> String);
+
+    /// 清单行的驱动方式。三种入口对应三条时序，双轴断言各自不同。
+    enum BoundedProbe {
+        /// 纯 `StartConfig` 入参：双轴＝`spawns == 0` 且 app-data 下压根没有 journal 树。
+        Config(Vec<ConfigCounterexample>),
+        /// 凭证解析结果：同双轴，错值由注入的 `CredentialPort` 给出（单元串 × 重复次数）。
+        Credential(Vec<(&'static str, &'static str, usize)>),
+        /// 已起 leg 之后的 prompt 文本：双轴＝盘上 journal bytes 不变且内存账本不增。
+        Prompt(Vec<TextCounterexample>),
+    }
+
+    /// 手写冻结清单：输入名 → 判据（常量或语法函数）名 → 具名拒绝 code。
+    struct BoundedInput {
+        input: &'static str,
+        judgment: &'static str,
+        code: &'static str,
+        probe: BoundedProbe,
+    }
+
+    fn bounded_input_manifest() -> Vec<BoundedInput> {
+        vec![
+            BoundedInput {
+                input: "containerId",
+                judgment: "is_safe_container_token",
+                code: "invalid_ref",
+                probe: BoundedProbe::Config(vec![
+                    ("空串", |config| config.container_id = String::new()),
+                    ("含路径分隔符", |config| {
+                        config.container_id = "cnt/1".to_string()
+                    }),
+                    ("129 字节", |config| config.container_id = "c".repeat(129)),
+                ]),
+            },
+            BoundedInput {
+                input: "sessionId",
+                judgment: "is_safe_container_token",
+                code: "invalid_ref",
+                probe: BoundedProbe::Config(vec![
+                    ("空串", |config| config.session_id = String::new()),
+                    ("首字符非字母数字", |config| {
+                        config.session_id = "-sess".to_string()
+                    }),
+                    ("129 字节", |config| config.session_id = "s".repeat(129)),
+                ]),
+            },
+            BoundedInput {
+                input: "grantId",
+                judgment: "is_safe_token",
+                code: "invalid_ref",
+                probe: BoundedProbe::Config(vec![
+                    ("空串", |config| config.grant_id = String::new()),
+                    ("含空格", |config| {
+                        config.grant_id = "grant 1".to_string()
+                    }),
+                    ("129 字节", |config| config.grant_id = "g".repeat(129)),
+                ]),
+            },
+            BoundedInput {
+                input: "limits.maxTurns",
+                judgment: "MAX_TURNS_LIMIT",
+                code: "invalid_config",
+                probe: BoundedProbe::Config(vec![
+                    ("0", |config| config.max_turns = 0),
+                    ("13", |config| config.max_turns = 13),
+                ]),
+            },
+            BoundedInput {
+                input: "limits.maxUsd",
+                judgment: "MAX_USD_LIMIT",
+                code: "invalid_config",
+                probe: BoundedProbe::Config(vec![
+                    ("0", |config| config.max_usd = Some(0.0)),
+                    ("负数", |config| config.max_usd = Some(-1.0)),
+                    ("非有限", |config| config.max_usd = Some(f64::NAN)),
+                    ("100001", |config| config.max_usd = Some(100_001.0)),
+                ]),
+            },
+            BoundedInput {
+                input: "provider.modelId",
+                judgment: "MAX_MODEL_ID_BYTES",
+                code: "invalid_config",
+                probe: BoundedProbe::Config(vec![
+                    ("空串", |config| config.model_id = String::new()),
+                    ("全空白", |config| config.model_id = " \t ".to_string()),
+                    ("257 字节", |config| config.model_id = "m".repeat(257)),
+                ]),
+            },
+            BoundedInput {
+                input: "caseRoot",
+                judgment: "MAX_CASE_ROOT_BYTES",
+                code: "invalid_config",
+                probe: BoundedProbe::Config(vec![
+                    ("空串", |config| config.case_root = PathBuf::from("")),
+                    ("4097 字节", |config| {
+                        config.case_root = PathBuf::from(format!("/{}", "a".repeat(4096)))
+                    }),
+                ]),
+            },
+            BoundedInput {
+                input: "caseRoot 绝对形状",
+                judgment: "is_absolute_path_shape",
+                code: "invalid_config",
+                probe: BoundedProbe::Config(vec![
+                    ("相对路径", |config| {
+                        config.case_root = PathBuf::from("案卷/相对")
+                    }),
+                    ("单段相对名", |config| {
+                        config.case_root = PathBuf::from("案卷")
+                    }),
+                ]),
+            },
+            BoundedInput {
+                input: "provider.apiKey",
+                judgment: "MAX_API_KEY_BYTES",
+                code: "invalid_config",
+                probe: BoundedProbe::Credential(vec![
+                    ("空串", "", 1),
+                    ("全空白", " \t ", 1),
+                    ("8193 字节", "k", 8193),
+                ]),
+            },
+            BoundedInput {
+                input: "prompt.text",
+                judgment: "MAX_TEXT_BYTES",
+                code: "invalid_prompt",
+                probe: BoundedProbe::Prompt(vec![
+                    ("空串", String::new),
+                    ("全空白", || "  \t \u{3000}\n ".to_string()),
+                    // 「字」是 3 UTF-8 bytes：50,000 枚 = 150,000 bytes > 131,072 上限。
+                    ("超 131072 字节", || "字".repeat(50_000)),
+                ]),
+            },
+        ]
+    }
+
+    /// 零副作用的容器侧判据：非法输入连 journal 树都不许建出来。
+    /// 比「`cnt-1/sess-1` 那一枚文件不存在」更紧——containerId/sessionId 被变异时，
+    /// 按固定坐标去看的那条断言本来就恒真，等于没判。
+    fn journal_tree_exists(app_data: &Path) -> bool {
+        app_data.join(PI_LOOP_DIR).exists()
+    }
+
+    /// ① 清单每行都在 journal append 与 spawn 之前以具名 code 拒绝，且零副作用。
+    #[test]
+    fn counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn() {
+        for row in bounded_input_manifest() {
+            match &row.probe {
+                BoundedProbe::Config(cases) => {
+                    for (label, mutate) in cases {
+                        let h = harness("d1-config");
+                        let mut config = h.config.clone();
+                        mutate(&mut config);
+                        let (result, _, spawns) = start_probe(
+                            &h,
+                            config,
+                            vec![ready_leg()],
+                            ExitOutcome::Code(0),
+                            &FixedKey,
+                        );
+                        assert_eq!(spawns, 0, "{}/{label}：spawn 计数恰 0", row.input);
+                        assert!(
+                            !journal_tree_exists(&h.app_data),
+                            "{}/{label}：app-data 下不得留下任何 journal",
+                            row.input
+                        );
+                        let error = result.expect_err(&format!("{}/{label} 必须被拒", row.input));
+                        assert_eq!(
+                            error.code(),
+                            row.code,
+                            "{}/{label} 须以 {} 拒绝，实得 {error:?}",
+                            row.input,
+                            row.code
+                        );
+                    }
+                }
+                BoundedProbe::Credential(cases) => {
+                    for (label, unit, times) in cases {
+                        let h = harness("d1-credential");
+                        let (result, _, spawns) = start_probe(
+                            &h,
+                            h.config.clone(),
+                            vec![ready_leg()],
+                            ExitOutcome::Code(0),
+                            &ScriptedKey(unit, *times),
+                        );
+                        assert_eq!(spawns, 0, "{}/{label}：spawn 计数恰 0", row.input);
+                        assert!(
+                            !journal_tree_exists(&h.app_data),
+                            "{}/{label}：app-data 下不得留下任何 journal",
+                            row.input
+                        );
+                        let error = result.expect_err(&format!("{}/{label} 必须被拒", row.input));
+                        assert_eq!(
+                            error.code(),
+                            row.code,
+                            "{}/{label} 须以 {} 拒绝，实得 {error:?}",
+                            row.input,
+                            row.code
+                        );
+                    }
+                }
+                BoundedProbe::Prompt(cases) => {
+                    let h = harness("d1-prompt");
+                    let (host, _, _) = start_probe(
+                        &h,
+                        h.config.clone(),
+                        vec![VecDeque::from(vec![
+                            ready(1, vec![WorkspaceCapability::CaseRead]),
+                            sidecar_line(
+                                2,
+                                Some("req-ok"),
+                                PacketPayload::Terminal(Terminal::Completed {
+                                    budget: open_budget(0, Some(0.0)),
+                                }),
+                            ),
+                        ])],
+                        ExitOutcome::Code(0),
+                        &FixedKey,
+                    );
+                    let mut host = host.expect("prompt 清单驱动前须先起 leg");
+                    let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+                    let before = fs::read(&path).expect("读 journal");
+                    let records_before = host.records().len();
+                    for (index, (label, make)) in cases.iter().enumerate() {
+                        let error = host
+                            .prompt(&format!("req-{index}"), &make())
+                            .expect_err(&format!("{}/{label} 必须被拒", row.input));
+                        assert_eq!(
+                            error.code(),
+                            row.code,
+                            "{}/{label} 须以 {} 拒绝，实得 {error:?}",
+                            row.input,
+                            row.code
+                        );
+                        assert_eq!(
+                            fs::read(&path).expect("读 journal"),
+                            before,
+                            "{}/{label}：盘上 journal bytes 必须逐字节不变",
+                            row.input
+                        );
+                        assert_eq!(
+                            host.records().len(),
+                            records_before,
+                            "{}/{label}：内存账本也不得增长",
+                            row.input
+                        );
+                    }
+                    host.prompt("req-ok", "合法一问")
+                        .expect("对照：合法 prompt 仍走得通");
+                }
+            }
+        }
+
+        // 对照：闭集内的配置 + 闭集内的 key 照常起 leg——上面全部行都不是恒红。
+        let h = harness("d1-ok");
+        let (result, _, spawns) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &ScriptedKey("k", 8192),
+        );
+        assert!(result.is_ok(), "对照必须能起：{result:?}");
+        assert_eq!(spawns, 1);
+    }
+
+    /// 清账表①行：一处有界常量消费点。
+    struct BoundedConstantUse {
+        module: &'static str,
+        function: &'static str,
+        constant: &'static str,
+        /// `host→sidecar` / `sidecar→host` / `journal` / `内部`。
+        direction: &'static str,
+        consumption: Consumption,
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum Consumption {
+        /// 属 D1 前置闭集：必须在清单里有同名判据行，且在 `pi_loop.rs` 生产段有前置消费点。
+        Fronted,
+        /// 不属前置闭集，附具名理由。禁止空行、禁止省略。
+        Other(&'static str),
+    }
+
+    fn bounded_constant_ledger() -> Vec<BoundedConstantUse> {
+        let host_outbound_unused = Consumption::Other(
+            "host_result 是 host→sidecar 出包，但本票 ready capability 恰 ['case_read']，\
+             宿主一枚都不生成；PI-WRITE-HOST-1 开工时须连同前置门一并补",
+        );
+        vec![
+            BoundedConstantUse {
+                module: "pi_loop.rs",
+                function: "prompt",
+                constant: "MAX_TEXT_BYTES",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop.rs",
+                function: "validate_api_key",
+                constant: "MAX_API_KEY_BYTES",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop.rs",
+                function: "validate_start_config",
+                constant: "MAX_CASE_ROOT_BYTES",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop.rs",
+                function: "validate_start_config",
+                constant: "MAX_MODEL_ID_BYTES",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop.rs",
+                function: "validate_start_config",
+                constant: "MAX_TURNS_LIMIT",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop.rs",
+                function: "validate_start_config",
+                constant: "MAX_USD_LIMIT",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_journal.rs",
+                function: "decode_record",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "journal",
+                consumption: Consumption::Other("journal record 的 seq/ts 整数上界，不进 wire"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_journal.rs",
+                function: "now_millis",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "journal",
+                consumption: Consumption::Other("落账时钟读数封顶，不进 wire"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_journal.rs",
+                function: "read_payload",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "journal",
+                consumption: Consumption::Other("journal payload 的整数字段上界，不进 wire"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_journal.rs",
+                function: "read_payload",
+                constant: "MAX_TEXT_BYTES",
+                direction: "journal",
+                consumption: Consumption::Other(
+                    "读回既有 journal 的 user_prompted 文本；写入侧的同一上界由 `prompt` 前置",
+                ),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_journal.rs",
+                function: "read_session_resumed",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "journal",
+                consumption: Consumption::Other("resume 三值读回时的整数上界，不进 wire"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_journal.rs",
+                function: "read_terminal_error",
+                constant: "MAX_TERMINAL_MESSAGE_BYTES",
+                direction: "journal",
+                consumption: Consumption::Other("终态文案取自冻结表，读回时复核长度"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_process.rs",
+                function: "attach",
+                constant: "MAX_PACKET_BYTES",
+                direction: "sidecar→host",
+                consumption: Consumption::Other("child stdout 读行的 framing 上界，不绑单一输入"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_process.rs",
+                function: "read_artifact",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "内部",
+                consumption: Consumption::Other("route manifest 的 bytes 字段整数上界"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "decode_packet_line",
+                constant: "MAX_PACKET_BYTES",
+                direction: "内部",
+                consumption: Consumption::Other("双向共用的 framing 上界，先于任何解析"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "decode_packet_node",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "内部",
+                consumption: Consumption::Other("packet 信封 seq 的整数上界，由宿主自增产出"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "encode_packet_line",
+                constant: "MAX_PACKET_BYTES",
+                direction: "内部",
+                consumption: Consumption::Other(
+                    "按编码后实际字节复核 framing；它判的是成品行长度，不是某一枚入参",
+                ),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_agent_event_payload",
+                constant: "MAX_DELTA_BYTES",
+                direction: "sidecar→host",
+                consumption: Consumption::Other("只辖入站 agent_event 解码"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_agent_event_payload",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "sidecar→host",
+                consumption: Consumption::Other("只辖入站 agent_event 解码"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_bootstrap_payload",
+                constant: "MAX_API_KEY_BYTES",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_bootstrap_payload",
+                constant: "MAX_CASE_ROOT_BYTES",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_bootstrap_payload",
+                constant: "MAX_MODEL_ID_BYTES",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_bootstrap_payload",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "host→sidecar",
+                consumption: Consumption::Other(
+                    "resume 的 leg/priorObservedTurns/priorTurns 由本 journal 的 fold 产出，\
+                     不是入参；读回侧已由 journal decode 的同一上界收口",
+                ),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_bootstrap_payload",
+                constant: "MAX_TURNS_LIMIT",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_bootstrap_payload",
+                constant: "MAX_USD_LIMIT",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_budget_view",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "sidecar→host",
+                consumption: Consumption::Other("只辖入站 budget 自报值解码"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_host_result_payload",
+                constant: "MAX_HOST_ERROR_MESSAGE_BYTES",
+                direction: "host→sidecar",
+                consumption: host_outbound_unused,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_host_result_payload",
+                constant: "MAX_LIST_ENTRIES",
+                direction: "host→sidecar",
+                consumption: host_outbound_unused,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_host_result_payload",
+                constant: "MAX_TEXT_BYTES",
+                direction: "host→sidecar",
+                consumption: host_outbound_unused,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_integer",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "内部",
+                consumption: Consumption::Other("通用整数读取器的安全整数封顶，双向共用"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_list_entry",
+                constant: "MAX_SEGMENT_BYTES",
+                direction: "host→sidecar",
+                consumption: host_outbound_unused,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_logical_path",
+                constant: "MAX_LOGICAL_PATH_BYTES",
+                direction: "内部",
+                consumption: Consumption::Other(
+                    "logicalPath 同时出现在入站 host_request 与出站 host_result；\
+                     本票不生成 host_result，入站侧由 decoder 直接收口",
+                ),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_nullable_integer",
+                constant: "MAX_SAFE_INTEGER",
+                direction: "内部",
+                consumption: Consumption::Other("通用可空整数读取器，双向共用"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_prompt_payload",
+                constant: "MAX_TEXT_BYTES",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_protocol_error_payload",
+                constant: "MAX_TERMINAL_MESSAGE_BYTES",
+                direction: "sidecar→host",
+                consumption: Consumption::Other("只辖入站 protocol_error 解码"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_terminal_payload",
+                constant: "MAX_TERMINAL_MESSAGE_BYTES",
+                direction: "sidecar→host",
+                consumption: Consumption::Other("只辖入站 terminal 解码"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_write_arguments",
+                constant: "MAX_TEXT_BYTES",
+                direction: "sidecar→host",
+                consumption: Consumption::Other(
+                    "只辖入站 host_request 的 workspace_write arguments；本票 capability 不含它",
+                ),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "scan_array",
+                constant: "MAX_JSON_DEPTH",
+                direction: "内部",
+                consumption: Consumption::Other("JSON 扫描器的嵌套深度上限，双向共用"),
+            },
+            BoundedConstantUse {
+                module: "pi_loop_protocol.rs",
+                function: "scan_object",
+                constant: "MAX_JSON_DEPTH",
+                direction: "内部",
+                consumption: Consumption::Other("JSON 扫描器的嵌套深度上限，双向共用"),
+            },
+        ]
+    }
+
+    /// 生产段边界认 `#[cfg(test)] mod` **module** 边界。
+    /// 截到首个 `#[cfg(test)]` 会被 impl 内 test-only 构造器的属性提前一刀切下
+    /// （PI-HOST-LOOP-1 §八.2 已就同一形状留过判例）。
+    fn production_section(source: &'static str) -> &'static str {
+        match source.find("#[cfg(test)]\nmod tests") {
+            Some(index) => &source[..index],
+            None => source,
+        }
+    }
+
+    fn function_name(trimmed: &str) -> Option<String> {
+        let rest = trimmed
+            .strip_prefix("pub(crate) ")
+            .or_else(|| trimmed.strip_prefix("pub "))
+            .unwrap_or(trimmed);
+        let rest = rest.strip_prefix("fn ")?;
+        let end = rest.find(|c: char| !(c.is_ascii_alphanumeric() || c == '_'))?;
+        Some(rest[..end].to_string())
+    }
+
+    /// 行内出现的独立 `MAX_*` 标识符。前一个字节是标识符字符时不算（避免 `FOO_MAX_X`）。
+    fn bounded_constants_in(line: &str) -> Vec<String> {
+        let bytes = line.as_bytes();
+        let mut found = Vec::new();
+        let mut cursor = 0;
+        while let Some(offset) = line[cursor..].find("MAX_") {
+            let start = cursor + offset;
+            let boundary = start == 0
+                || !(bytes[start - 1].is_ascii_alphanumeric() || bytes[start - 1] == b'_');
+            let mut end = start;
+            while end < bytes.len()
+                && (bytes[end].is_ascii_uppercase()
+                    || bytes[end].is_ascii_digit()
+                    || bytes[end] == b'_')
+            {
+                end += 1;
+            }
+            if boundary {
+                found.push(line[start..end].to_string());
+            }
+            cursor = end.max(start + 4);
+        }
+        found
+    }
+
+    /// 逐行扫描生产段，产出去重并排序的 `(模块, 函数, MAX_* 常量)` 三元组。
+    ///
+    /// 三条扫描规则，都是为了让「谁消费了这枚上界」有确定含义：
+    /// 1. 只记落在某枚函数体内的引用——文件头的 `use` 与 `const` 声明不是消费点；
+    /// 2. 注释行整行跳过，否则本表自己的说明文字会把计数打脏；
+    /// 3. 顶格 `}` 关闭当前函数，`impl` 内的方法由下一枚 `fn` 顶替。
+    fn scan_bounded_constant_uses(
+        module: &'static str,
+        source: &'static str,
+    ) -> Vec<(String, String, String)> {
+        let mut rows: Vec<(String, String, String)> = Vec::new();
+        let mut current: Option<String> = None;
+        for line in production_section(source).lines() {
+            let trimmed = line.trim_start();
+            if trimmed.starts_with("//") {
+                continue;
+            }
+            if let Some(name) = function_name(trimmed) {
+                current = Some(name);
+            } else if line == "}" {
+                current = None;
+            }
+            let Some(function) = current.clone() else {
+                continue;
+            };
+            for constant in bounded_constants_in(line) {
+                let row = (module.to_string(), function.clone(), constant);
+                if !rows.contains(&row) {
+                    rows.push(row);
+                }
+            }
+        }
+        rows.sort();
+        rows
+    }
+
+    fn declared_bounded_constants(source: &'static str) -> Vec<String> {
+        production_section(source)
+            .lines()
+            .filter_map(|line| line.trim_start().strip_prefix("pub(crate) const "))
+            .filter(|rest| rest.starts_with("MAX_"))
+            .map(|rest| rest[..rest.find(':').expect("常量声明带类型标注")].to_string())
+            .collect()
+    }
+
+    /// ② 清账表与源码双向锁死：encoder 侧新增一道上界而不补表即红。
+    #[test]
+    fn bounded_constant_ledger_matches_the_source_and_covers_every_frozen_bound() {
+        let mut scanned = Vec::new();
+        for (module, source) in [
+            ("pi_loop.rs", include_str!("pi_loop.rs")),
+            ("pi_loop_journal.rs", include_str!("pi_loop_journal.rs")),
+            ("pi_loop_process.rs", include_str!("pi_loop_process.rs")),
+            ("pi_loop_protocol.rs", include_str!("pi_loop_protocol.rs")),
+        ] {
+            scanned.extend(scan_bounded_constant_uses(module, source));
+        }
+        scanned.sort();
+
+        let ledger = bounded_constant_ledger();
+        let mut registered: Vec<(String, String, String)> = ledger
+            .iter()
+            .map(|row| {
+                (
+                    row.module.to_string(),
+                    row.function.to_string(),
+                    row.constant.to_string(),
+                )
+            })
+            .collect();
+        registered.sort();
+        assert_eq!(
+            scanned, registered,
+            "生产段的有界常量消费点必须与清账表逐行相同：新增一道上界就得同时补表并给出归属"
+        );
+
+        // 每枚冻结常量至少有一处登记消费点——声明了却无人消费，同样要显式暴露。
+        for constant in declared_bounded_constants(include_str!("pi_loop_protocol.rs")) {
+            assert!(
+                ledger.iter().any(|row| row.constant == constant),
+                "{constant} 在清账表里没有任何消费点"
+            );
+        }
+
+        // 归属为 Fronted 的常量必须同时满足两件事：清单里有同名判据行，
+        // 且在 `pi_loop.rs` 生产段真有前置消费点——只在 encoder 里出现不算前置。
+        let manifest = bounded_input_manifest();
+        for row in &ledger {
+            if row.consumption != Consumption::Fronted {
+                continue;
+            }
+            assert!(
+                manifest.iter().any(|input| input.judgment == row.constant),
+                "{} 标为前置闭集，却不在 D1 手写清单里",
+                row.constant
+            );
+            assert!(
+                ledger
+                    .iter()
+                    .any(|other| other.module == "pi_loop.rs" && other.constant == row.constant),
+                "{} 标为前置闭集，却在 pi_loop.rs 生产段没有前置消费点",
+                row.constant
+            );
+        }
+
+        // 清单侧的手写字面量自身也要闭集：拒绝 code 只允许三枚具名值。
+        for input in &manifest {
+            assert!(
+                ["invalid_config", "invalid_ref", "invalid_prompt"].contains(&input.code),
+                "{} 的拒绝 code {} 不在既有闭集内",
+                input.input,
+                input.code
+            );
+        }
     }
 }

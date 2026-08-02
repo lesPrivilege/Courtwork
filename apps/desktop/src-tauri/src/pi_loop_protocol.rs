@@ -1153,7 +1153,10 @@ fn read_logical_path(node: &JsonNode, label: &str) -> CodecResult<String> {
 }
 
 /// 只做形状判定：POSIX 绝对、Windows drive 或 UNC。真实存在性与规范化归宿主。
-fn is_absolute_path_shape(value: &str) -> bool {
+///
+/// `pub(crate)` 是为了让 host 侧的 bootstrap 前置门直接 import 同一枚判据
+/// （PI-HOST-LOOP-1R3 D1）——两谱各抄一份形状规则就各自漂移。
+pub(crate) fn is_absolute_path_shape(value: &str) -> bool {
     if value.starts_with('/') || value.starts_with("\\\\") {
         return true;
     }
