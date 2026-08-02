@@ -1261,6 +1261,13 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 
 ## 修订记录
 
+- **2026-08-02 · HOST-LOOP 1R3 复验拒绝与 1R4 扫描轴对齐**：`PI-HOST-LOOP-1R3@51369e4`
+  经独立复验 `a0644cd` REJECT——D2 已闭合，决定性恰一枚：D1 覆盖自证的扫描轴按 `MAX_*`
+  常量枚举，而族定义是「受验输入」，SafeToken 函数型判据不在轴上；prompt `requestId`
+  （六-B.1 SafeToken 七成员之一）同时躲过清单与扫描，撤其 production 门后全套自证假绿。
+  新立 `PI-HOST-LOOP-1R4`（`specs/PI-HOST-LOOP-1R4.md`）：requestId 入册双轴、扫描轴扩
+  函数型判据、SafeToken 七成员全员清账；回执计数据实且真源必须在 exact target 树内。
+  判据订正落痕：扫描谓词从族定义出发与族同宽，语法标记不得反过来定义族。
 - **2026-08-02 · HOST-LOOP 1R2 复验拒绝与 1R3 按族闭口**：`PI-HOST-LOOP-1R2@1ab9c03`
   经独立复验 `23f8339` REJECT——`apiKey ≤8192`／`caseRoot ≤4096` 两枚冻结上界仍后置
   （8193-byte key 先落 journal 再 spawn，4097-byte root 以 lstat 外观代替配置门）；
