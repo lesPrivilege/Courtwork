@@ -35,8 +35,8 @@ use crate::pi_loop_process::{
 use crate::pi_loop_protocol::{
     decode_sidecar_packet_line, encode_packet_line, is_absolute_path_shape, is_safe_token,
     AgentProjectionEvent, BootstrapLimits, BootstrapPayload, BootstrapProvider, BootstrapResume,
-    BudgetStopReason, BudgetTurnLimit, BudgetView, CancelReason, PacketPayload, ProductPacket,
-    ProtocolErrorCode, ResumeKind, Terminal, WorkspaceCapability, MAX_API_KEY_BYTES,
+    BudgetStopReason, BudgetTurnLimit, BudgetView, CancelReason, PacketPayload, PacketRejection,
+    ProductPacket, ProtocolErrorCode, ResumeKind, Terminal, WorkspaceCapability, MAX_API_KEY_BYTES,
     MAX_CASE_ROOT_BYTES, MAX_MODEL_ID_BYTES, MAX_TEXT_BYTES, MAX_TURNS_LIMIT, MAX_USD_LIMIT,
 };
 
@@ -303,6 +303,65 @@ fn validate_api_key(api_key: &str) -> Result<(), HostError> {
     Ok(())
 }
 
+// ── 编码-先于-效果 ──────────────────────────────────────────────────────────
+
+/// 编码失败时给出的 codec 通用文案。**零字段回显**：key、物理案件根与任何入参值一个字节
+/// 都不进错误（本模块红线 2）——`PacketRejection.reason` 会带上字段标签与实况，故一律丢弃，
+/// 只保留具名 code 与这句静态文案。
+const CONFIG_NOT_ENCODABLE: &str = "配置无法编成 bootstrap packet";
+const PROMPT_NOT_ENCODABLE: &str = "prompt 无法编成 packet";
+
+/// 一行**已经编成字节**的出包：seq 与 bytes 同时定下，发送端只搬运、不再构造。
+///
+/// PI-HOST-LOOP-1R6 §零裁定一。1R3→1R5 三轮做的是同一件事的手工版：把 codec 的每一条
+/// wire 判据在 host 前置门里再抄一遍，再拿扫描器盯住两谱同步。三轮同败于同一处——
+/// 在富语言里用文本模式枚举语义构造，合法拼写无穷，枚举器的种群谓词永远追不上。
+///
+/// 改道后不再有「同步」这件事：**先真编码，再产生任何效果**。codec 成为唯一校验真源，
+/// 今日与未来的每一条 wire 判据都自动排在 journal append 与 spawn 之前，需要同步的账
+/// 结构性消失。既有前置门一枚不撤：它们给出带字段归属的文案（`modelId 不得含 NUL`
+/// 好过 `invalid_schema`），且 caseRoot 的 lstat、容器 token 的目录路径用途等**非 wire**
+/// 判据本来就不在 codec 辖内。
+struct OutboundLine {
+    seq: u64,
+    bytes: Vec<u8>,
+}
+
+/// 把「将要发出的那一行」在任何效果之前真编出来。
+///
+/// `outbound_seq` 是**编码时**的已发计数，编出来的 seq 恒为它 +1；发送端照搬这枚 seq，
+/// 不重算、不重编——验过的那一份与发出去的那一份因此是同一份字节。
+fn encode_outbound_line(
+    outbound_seq: u64,
+    session_id: &str,
+    request_id: Option<&str>,
+    payload: PacketPayload,
+) -> Result<OutboundLine, PacketRejection> {
+    let seq = outbound_seq + 1;
+    let packet = ProductPacket {
+        seq,
+        session_id: Some(session_id.to_string()),
+        request_id: request_id.map(str::to_string),
+        payload,
+    };
+    let bytes = encode_packet_line(&packet)?;
+    Ok(OutboundLine { seq, bytes })
+}
+
+/// codec 拒绝 → 具名 host 拒绝的唯一映射点（config 侧 / prompt 侧各一枚）。
+///
+/// `PacketRejection.reason` 带字段标签与实况，一律**丢弃**：这条路上的入参正是 apiKey 与
+/// 物理案件根，回显一个字节都不行（本模块红线 2）。因此签名吃掉整枚 rejection、只交出
+/// 闭集 code 与静态文案；具名 code 不得退化成通用 `protocol`——那会把「配置错」说成
+/// 「协议错」，也让调用方分不出该改配置还是该报故障。
+fn config_codec_refusal(_rejection: PacketRejection) -> HostError {
+    HostError::InvalidConfig(CONFIG_NOT_ENCODABLE)
+}
+
+fn prompt_codec_refusal(_rejection: PacketRejection) -> HostError {
+    HostError::InvalidPrompt(PROMPT_NOT_ENCODABLE)
+}
+
 impl std::fmt::Debug for PiLoopHost {
     /// 只投影闭集事实：物理路径、secret 与 leg 句柄一律不进 Debug 输出。
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -467,11 +526,12 @@ impl PiLoopHost {
 
         let started;
         let leg;
-        // 5. fresh / resume：两条路都在 spawn 之前 durable。
+        // 5. fresh / resume 各自的开场记录。**先定内容、后落账**：落账动作统一挪到编码
+        //    之后（下一段），两条路的判定顺序与文本一字未动。
+        let opening;
         match projection.started.clone() {
             None => {
                 leg = 1;
-                journal.set_leg(leg);
                 started = SessionStartedPayload {
                     route_manifest_sha256: pair.manifest_sha256().to_string(),
                     target_triple: pair.target_triple(),
@@ -480,11 +540,7 @@ impl PiLoopHost {
                     max_turns: config.max_turns,
                     max_usd: config.max_usd,
                 };
-                records.push(journal.append(
-                    None,
-                    None,
-                    JournalPayload::SessionStarted(started.clone()),
-                )?);
+                opening = JournalPayload::SessionStarted(started.clone());
             }
             Some(historic) => {
                 // 逐类漂移门全部在 spawn 之前。
@@ -516,22 +572,65 @@ impl PiLoopHost {
                 }
                 started = historic;
                 leg = projection.leg + 1;
-                journal.set_leg(leg);
-                records.push(journal.append(
-                    None,
-                    None,
-                    JournalPayload::SessionResumed(SessionResumedPayload {
-                        previous_leg: projection.leg,
-                        // prior 三值必须由本 journal fold；绝不重置，也不把 null 恢复成 0。
-                        prior_observed_turns: projection.prior_observed_turns,
-                        prior_turns: projection.prior_turns,
-                        prior_usd: projection.prior_usd,
-                    }),
-                )?);
+                opening = JournalPayload::SessionResumed(SessionResumedPayload {
+                    previous_leg: projection.leg,
+                    // prior 三值必须由本 journal fold；绝不重置，也不把 null 恢复成 0。
+                    prior_observed_turns: projection.prior_observed_turns,
+                    prior_turns: projection.prior_turns,
+                    prior_usd: projection.prior_usd,
+                });
             }
         }
 
-        // 6. cwd → spawn → bootstrap。
+        // 5.5 编码-先于-效果（PI-HOST-LOOP-1R6 H1）。首枚 bootstrap 的**成品字节**在
+        //     `session_started` / `session_resumed` 落账与 spawn 之前就编出来：codec 的
+        //     每一条 wire 判据自此天然排在效果之前，不再需要在前置门里抄第二份。
+        //     编码失败以 `invalid_config` 收场，只带 codec 通用文案、零值回显。
+        //
+        //     resume 三值取**落账前**的投影：`fold` 对 `session_resumed` 只改 leg /
+        //     leg_open / interrupted，prior 三值一字不动，故与旧写法（落账后再 fold）
+        //     逐值相同；`started` 的 limits 在 fresh 路来自 config、在 resume 路已被
+        //     `limits 漂移` 门锁成与 config 相等。
+        let resume = if leg == 1 {
+            BootstrapResume {
+                kind: ResumeKind::Fresh,
+                leg,
+                prior_observed_turns: 0,
+                prior_turns: 0,
+                prior_usd: Some(0.0),
+            }
+        } else {
+            BootstrapResume {
+                kind: ResumeKind::AfterInterruption,
+                leg,
+                prior_observed_turns: projection.prior_observed_turns,
+                prior_turns: projection.prior_turns,
+                prior_usd: projection.prior_usd,
+            }
+        };
+        let bootstrap = PacketPayload::Bootstrap(BootstrapPayload {
+            container_id: config.container_id.clone(),
+            grant_id: config.grant_id.clone(),
+            // 物理案件根**只**在这一枚 packet 里出现。
+            case_root: config.case_root.to_string_lossy().into_owned(),
+            provider: BootstrapProvider {
+                model_id: config.model_id.clone(),
+                api_key,
+            },
+            limits: BootstrapLimits {
+                max_turns: started.max_turns,
+                max_usd: started.max_usd,
+            },
+            resume,
+        });
+        // bootstrap 是本 leg 的首枚出包：编码时的已发计数恒为 0，编出来的 seq 恒为 1。
+        let bootstrap_line = encode_outbound_line(0, &config.session_id, None, bootstrap)
+            .map_err(config_codec_refusal)?;
+
+        // 6. durable → cwd → spawn → bootstrap。
+        journal.set_leg(leg);
+        records.push(journal.append(None, None, opening)?);
+
         let cwd = ensure_runtime_cwd(app_data_dir).map_err(HostError::Route)?;
         let leg_handle = spawner.spawn(&pair, &cwd)?;
 
@@ -555,39 +654,8 @@ impl PiLoopHost {
             closed: false,
         };
 
-        let resume = if leg == 1 {
-            BootstrapResume {
-                kind: ResumeKind::Fresh,
-                leg,
-                prior_observed_turns: 0,
-                prior_turns: 0,
-                prior_usd: Some(0.0),
-            }
-        } else {
-            BootstrapResume {
-                kind: ResumeKind::AfterInterruption,
-                leg,
-                prior_observed_turns: host.projection.prior_observed_turns,
-                prior_turns: host.projection.prior_turns,
-                prior_usd: host.projection.prior_usd,
-            }
-        };
-        let bootstrap = PacketPayload::Bootstrap(BootstrapPayload {
-            container_id: config.container_id.clone(),
-            grant_id: config.grant_id.clone(),
-            // 物理案件根**只**在这一枚 packet 里出现。
-            case_root: config.case_root.to_string_lossy().into_owned(),
-            provider: BootstrapProvider {
-                model_id: config.model_id.clone(),
-                api_key,
-            },
-            limits: BootstrapLimits {
-                max_turns: host.started.max_turns,
-                max_usd: host.started.max_usd,
-            },
-            resume,
-        });
-        host.send(None, bootstrap)?;
+        // 发的就是 5.5 验过的那一份字节，不重编。
+        host.write_encoded(bootstrap_line)?;
 
         // 7. ready 窗有界；capability 漂移在**首 prompt 之前**收束。
         let packet = host.expect_packet(Some(BOOTSTRAP_READY_DEADLINE), "bootstrap→ready")?;
@@ -603,21 +671,22 @@ impl PiLoopHost {
         Ok(host)
     }
 
-    fn send(&mut self, request_id: Option<&str>, payload: PacketPayload) -> Result<(), HostError> {
-        self.outbound_seq += 1;
-        let packet = ProductPacket {
-            seq: self.outbound_seq,
-            session_id: Some(self.session_id.clone()),
-            request_id: request_id.map(str::to_string),
-            payload,
-        };
-        let line =
-            encode_packet_line(&packet).map_err(|rejection| HostError::Protocol(rejection.code))?;
+    /// 发一行**已编好**的字节。seq 由编码时定下，这里只认领，不重算也不重编。
+    fn write_encoded(&mut self, line: OutboundLine) -> Result<(), HostError> {
+        self.outbound_seq = line.seq;
         let leg = self
             .leg_handle
             .as_mut()
             .ok_or(HostError::Process(ProcessFault::UnexpectedEof))?;
-        leg.write_packet(&line).map_err(HostError::Process)
+        leg.write_packet(&line.bytes).map_err(HostError::Process)
+    }
+
+    /// cancel / shutdown 的出包：两相同形（先编码后发送），只是这两条路上编码与发送之间
+    /// 本来就没有任何效果，故合成一枚。
+    fn send(&mut self, request_id: Option<&str>, payload: PacketPayload) -> Result<(), HostError> {
+        let line = encode_outbound_line(self.outbound_seq, &self.session_id, request_id, payload)
+            .map_err(|rejection| HostError::Protocol(rejection.code))?;
+        self.write_encoded(line)
     }
 
     /// 读一枚入包。**任何** fault 都不得经 `?` 直接逸出（PI-HOST-LOOP-1R R5）：
@@ -723,6 +792,19 @@ impl PiLoopHost {
             return Err(HostError::InvalidPrompt("prompt 文本不得含 NUL"));
         }
 
+        // 编码-先于-效果（H1）：整枚 prompt packet 的成品字节先编出来，`user_prompted`
+        // 落账、requestId 认领与发包都排在它之后。编码失败沿 prompt 侧具名 code，
+        // 只带 codec 通用文案，requestId 不占用。
+        let line = encode_outbound_line(
+            self.outbound_seq,
+            &self.session_id,
+            Some(request_id),
+            PacketPayload::Prompt {
+                text: text.to_string(),
+            },
+        )
+        .map_err(prompt_codec_refusal)?;
+
         let record = self.journal.append(
             Some(request_id),
             None,
@@ -734,12 +816,8 @@ impl PiLoopHost {
         self.projection = pi_loop_journal::fold(&self.records);
         self.active_request = Some(request_id.to_string());
 
-        self.send(
-            Some(request_id),
-            PacketPayload::Prompt {
-                text: text.to_string(),
-            },
-        )?;
+        // 发的就是上面验过的那一份字节，不重编。
+        self.write_encoded(line)?;
         self.pump(request_id, None, "prompt")
     }
 
@@ -4112,6 +4190,713 @@ mod tests {
         assert_eq!(spawns, 1);
     }
 
+    // ── ② 普适不变量探针（PI-HOST-LOOP-1R6 §零裁定二）─────────────────────────
+    //
+    // 1R3 用 `MAX_*` 常量名单、1R4 用判据函数名单、1R5 用 `return Err(` 字面量，三代装置
+    // 同败于同一处：**在富语言里用文本模式枚举语义构造**。1R5 复验只把票面点名的那道门
+    // 写成 `return Err::<(), HostError>(…)`，扫描集、清账表、行为反例与整套 pi-loop 全部
+    // 假绿。第七个更聪明的模式不会赢。
+    //
+    // 本装置改判**结果**、不判**形状**：逐字段 × 逐违规类驱动完整 `start` / `prompt` 入口，
+    // 只断言一条普适不变量——**Err ⇒ 副作用恰零**（spawn 零、journal 字节零增、内存账本
+    // 零增、出包零、requestId 不占用）。它不读源码一个字；任何位置、任何拼写的门，只要
+    // 拒绝了电池里的输入而副作用已经发生，即红。
+    //
+    // 担保边界（如实声明，承 §零）：wire 判据的前置由 `encode_outbound_line` 结构性成立
+    // ——codec 是唯一校验真源，今日与未来每一条 wire 判据都自动排在效果之前，不再需要
+    // 「codec 规则」与「前置门」之间的同步账。非 wire 判据（caseRoot 的 lstat、容器 token
+    // 的目录路径用途）靠显式门 ＋ D1 清单的 34 枚行为反例。未来若有人在 journal 之后
+    // **故意**新增非 wire 拒绝门且其输入不在电池内，本装置不宣称能证——那由电池广度、
+    // 两相结构的代码形状与独立验收承担，不再假装文本扫描能证。
+
+    /// 电池一行：字段 × 违规类 × 驱动方式。
+    struct Violation {
+        field: &'static str,
+        class: String,
+        drive: ViolationDrive,
+    }
+
+    enum ViolationDrive {
+        /// 变一枚 `StartConfig` 字符串字段，驱动完整 `start`。
+        Config(fn(&mut StartConfig, &str), String),
+        /// 变一枚 `StartConfig` 数值 limit（没有字符串违规类可套），驱动完整 `start`。
+        ConfigNumber(fn(&mut StartConfig)),
+        /// 变 Keychain 解析结果，驱动完整 `start`。
+        Credential(String),
+        /// 已起 leg 之后驱动完整 `prompt`：变正文，header 恒合法。
+        PromptText(String),
+        /// 已起 leg 之后驱动完整 `prompt`：变 header `requestId`，正文恒合法。
+        PromptRequestId(String),
+    }
+
+    fn set_container_id(config: &mut StartConfig, value: &str) {
+        config.container_id = value.to_string();
+    }
+    fn set_session_id(config: &mut StartConfig, value: &str) {
+        config.session_id = value.to_string();
+    }
+    fn set_grant_id(config: &mut StartConfig, value: &str) {
+        config.grant_id = value.to_string();
+    }
+    fn set_case_root(config: &mut StartConfig, value: &str) {
+        config.case_root = PathBuf::from(value);
+    }
+    fn set_model_id(config: &mut StartConfig, value: &str) {
+        config.model_id = value.to_string();
+    }
+    fn zero_max_turns(config: &mut StartConfig) {
+        config.max_turns = 0;
+    }
+    fn over_max_turns(config: &mut StartConfig) {
+        config.max_turns = MAX_TURNS_LIMIT + 1;
+    }
+    fn huge_max_turns(config: &mut StartConfig) {
+        config.max_turns = u64::MAX;
+    }
+    fn zero_max_usd(config: &mut StartConfig) {
+        config.max_usd = Some(0.0);
+    }
+    fn negative_max_usd(config: &mut StartConfig) {
+        config.max_usd = Some(-1.0);
+    }
+    fn nan_max_usd(config: &mut StartConfig) {
+        config.max_usd = Some(f64::NAN);
+    }
+    fn infinite_max_usd(config: &mut StartConfig) {
+        config.max_usd = Some(f64::INFINITY);
+    }
+    fn negative_infinite_max_usd(config: &mut StartConfig) {
+        config.max_usd = Some(f64::NEG_INFINITY);
+    }
+    fn over_max_usd(config: &mut StartConfig) {
+        config.max_usd = Some(MAX_USD_LIMIT + 1.0);
+    }
+    fn far_over_max_usd(config: &mut StartConfig) {
+        config.max_usd = Some(MAX_USD_LIMIT * 1e6);
+    }
+    fn subnormal_max_usd(config: &mut StartConfig) {
+        config.max_usd = Some(f64::MIN_POSITIVE);
+    }
+
+    /// SafeToken 的字节上界没有 `MAX_*` 常量可 import——直接**问判据函数本人**：
+    /// 由 `is_safe_token` 逐长探出上界，测试里因此不存在第二份 `128`（两谱各抄一次
+    /// 就各自漂移，这正是 1R3/1R4 栽过的形）。
+    fn safe_token_limit() -> usize {
+        let mut limit = 0;
+        for length in 1..=1024 {
+            if is_safe_token(&"a".repeat(length)) {
+                limit = length;
+            }
+        }
+        assert!(limit > 0, "SafeToken 上界探测失败：判据对任何长度都不放行");
+        limit
+    }
+
+    /// 字符串违规类闭集。上界一律取**传入的 protocol 常量 +1 字节**，不在测试里另抄数字。
+    fn string_violations(limit: usize) -> Vec<(&'static str, String)> {
+        vec![
+            ("空串", String::new()),
+            ("纯空白", " \t \u{3000}".to_string()),
+            ("含 NUL", "a\u{0}b".to_string()),
+            ("含 C0 控制字符", "a\u{1}b".to_string()),
+            ("含 DEL", "a\u{7f}b".to_string()),
+            ("含 LF 分隔符", "a\nb".to_string()),
+            ("含 CR", "a\rb".to_string()),
+            ("含 TAB", "a\tb".to_string()),
+            ("含双引号", "a\"b".to_string()),
+            ("含反斜杠", "a\\b".to_string()),
+            ("含 U+2028 行分隔", "a\u{2028}b".to_string()),
+            ("含路径分隔符", "a/b".to_string()),
+            ("含空格", "a b".to_string()),
+            ("首字符非字母数字", "-ab".to_string()),
+            ("lone-surrogate 转义文本", "a\\ud800b".to_string()),
+            ("超上界 +1 字节", "a".repeat(limit + 1)),
+        ]
+    }
+
+    fn violation_battery() -> Vec<Violation> {
+        let token_limit = safe_token_limit();
+        let mut battery: Vec<Violation> = Vec::new();
+
+        for (field, setter) in [
+            (
+                "containerId",
+                set_container_id as fn(&mut StartConfig, &str),
+            ),
+            ("sessionId", set_session_id as fn(&mut StartConfig, &str)),
+            ("grantId", set_grant_id as fn(&mut StartConfig, &str)),
+        ] {
+            for (class, value) in string_violations(token_limit) {
+                battery.push(Violation {
+                    field,
+                    class: class.to_string(),
+                    drive: ViolationDrive::Config(setter, value),
+                });
+            }
+        }
+
+        for (class, value) in string_violations(MAX_MODEL_ID_BYTES) {
+            battery.push(Violation {
+                field: "provider.modelId",
+                class: class.to_string(),
+                drive: ViolationDrive::Config(set_model_id, value),
+            });
+        }
+
+        // caseRoot 的内容违规类挂在合法绝对前缀之后，否则整族都先撞 shape 门、内容判据
+        // 一条都到不了。shape 违规另立三行。
+        for (class, value) in string_violations(MAX_CASE_ROOT_BYTES) {
+            battery.push(Violation {
+                field: "caseRoot",
+                class: format!("{class}（绝对前缀）"),
+                drive: ViolationDrive::Config(set_case_root, format!("/{value}")),
+            });
+        }
+        for (class, value) in [
+            ("空串", ""),
+            ("相对路径", "案卷/相对"),
+            ("单段相对名", "案卷"),
+        ] {
+            battery.push(Violation {
+                field: "caseRoot",
+                class: class.to_string(),
+                drive: ViolationDrive::Config(set_case_root, value.to_string()),
+            });
+        }
+
+        for (class, value) in string_violations(MAX_API_KEY_BYTES) {
+            battery.push(Violation {
+                field: "provider.apiKey",
+                class: class.to_string(),
+                drive: ViolationDrive::Credential(value),
+            });
+        }
+
+        for (class, setter) in [
+            ("0", zero_max_turns as fn(&mut StartConfig)),
+            ("上界 +1", over_max_turns),
+            ("u64::MAX", huge_max_turns),
+        ] {
+            battery.push(Violation {
+                field: "limits.maxTurns",
+                class: class.to_string(),
+                drive: ViolationDrive::ConfigNumber(setter),
+            });
+        }
+        for (class, setter) in [
+            ("0", zero_max_usd as fn(&mut StartConfig)),
+            ("负数", negative_max_usd),
+            ("NaN", nan_max_usd),
+            ("+inf", infinite_max_usd),
+            ("-inf", negative_infinite_max_usd),
+            ("上界 +1", over_max_usd),
+            ("上界 ×1e6", far_over_max_usd),
+            ("次正规最小正数", subnormal_max_usd),
+        ] {
+            battery.push(Violation {
+                field: "limits.maxUsd",
+                class: class.to_string(),
+                drive: ViolationDrive::ConfigNumber(setter),
+            });
+        }
+
+        for (class, value) in string_violations(MAX_TEXT_BYTES) {
+            battery.push(Violation {
+                field: "prompt.text",
+                class: class.to_string(),
+                drive: ViolationDrive::PromptText(value),
+            });
+        }
+        for (class, value) in string_violations(token_limit) {
+            battery.push(Violation {
+                field: "prompt.requestId",
+                class: class.to_string(),
+                drive: ViolationDrive::PromptRequestId(value),
+            });
+        }
+
+        battery
+    }
+
+    struct LiteralKey(String);
+    impl CredentialPort for LiteralKey {
+        fn resolve(&self) -> Result<String, HostError> {
+            Ok(self.0.clone())
+        }
+    }
+
+    /// journal 树下**全部文件**的 (相对路径, 字节) 足迹。比「那一枚固定坐标的文件」紧：
+    /// containerId/sessionId 被变异时，按固定坐标去看的断言本来就恒真，等于没判。
+    fn journal_footprint(app_data: &Path) -> Vec<(String, Vec<u8>)> {
+        fn walk(root: &Path, dir: &Path, rows: &mut Vec<(String, Vec<u8>)>) {
+            let Ok(entries) = fs::read_dir(dir) else {
+                return;
+            };
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    walk(root, &path, rows);
+                } else if let Ok(bytes) = fs::read(&path) {
+                    rows.push((
+                        path.strip_prefix(root)
+                            .unwrap_or(&path)
+                            .to_string_lossy()
+                            .into_owned(),
+                        bytes,
+                    ));
+                }
+            }
+        }
+        let root = app_data.join(PI_LOOP_DIR);
+        let mut rows = Vec::new();
+        walk(&root, &root, &mut rows);
+        rows.sort();
+        rows
+    }
+
+    /// 「journal 字节零增」：既有文件逐字节不变，新出现的文件必须是零字节，总字节数不增。
+    /// 只判字节、不判目录存在——`load_session` 会先建目录与空 journal 再做后续判定，
+    /// 那不是 durable 记录；被判的是**盘上多没多出一个字节**。
+    fn assert_journal_bytes_unchanged(
+        before: &[(String, Vec<u8>)],
+        after: &[(String, Vec<u8>)],
+        context: &str,
+    ) {
+        for (name, bytes) in before {
+            let found = after
+                .iter()
+                .find(|(candidate, _)| candidate == name)
+                .unwrap_or_else(|| panic!("{context}：既有 journal 文件 {name} 消失了"));
+            assert_eq!(
+                &found.1, bytes,
+                "{context}：既有 journal 文件 {name} 被改写"
+            );
+        }
+        for (name, bytes) in after {
+            if before.iter().any(|(candidate, _)| candidate == name) {
+                continue;
+            }
+            assert!(
+                bytes.is_empty(),
+                "{context}：被拒的一轮在 journal 树里写下了 {} 字节（{name}）",
+                bytes.len()
+            );
+        }
+        let total =
+            |rows: &[(String, Vec<u8>)]| rows.iter().map(|(_, bytes)| bytes.len()).sum::<usize>();
+        assert_eq!(
+            total(after),
+            total(before),
+            "{context}：journal 树总字节数必须零增"
+        );
+    }
+
+    /// 被拒的错误里不得回显入参值（本模块红线 2）。空串不判——`contains("")` 恒真。
+    fn assert_no_echo(error: &HostError, canaries: &[&str], context: &str) {
+        let rendered = format!("{error:?}");
+        for canary in canaries {
+            if canary.is_empty() {
+                continue;
+            }
+            assert!(
+                !rendered.contains(canary),
+                "{context}：拒绝理由回显了入参值（{rendered}）"
+            );
+        }
+    }
+
+    /// 驱动一次完整 `start`；被拒即断言四轴零副作用。返回「这一枚是否被拒」。
+    fn universal_start_case(
+        h: &Harness,
+        config: StartConfig,
+        credentials: &dyn CredentialPort,
+        canaries: &[&str],
+        context: &str,
+    ) -> bool {
+        let before = journal_footprint(&h.app_data);
+        let (result, log, spawns) = start_probe(
+            h,
+            config,
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            credentials,
+        );
+        let refused = match &result {
+            Err(error) => {
+                assert_eq!(
+                    spawns, 0,
+                    "{context}：被拒的 start 不得 spawn（实得 {error:?}）"
+                );
+                assert_eq!(
+                    log.lock().expect("日志未中毒").written.len(),
+                    0,
+                    "{context}：被拒的 start 不得出包（实得 {error:?}）"
+                );
+                assert_journal_bytes_unchanged(&before, &journal_footprint(&h.app_data), context);
+                assert_no_echo(error, canaries, context);
+                true
+            }
+            Ok(_) => false,
+        };
+        drop(result);
+        refused
+    }
+
+    /// 已起 leg 之后驱动一次完整 `prompt`；被拒即断言四轴零副作用。
+    fn universal_prompt_case(
+        tag: &str,
+        request_id: &str,
+        text: &str,
+        canaries: &[&str],
+        context: &str,
+    ) -> bool {
+        let h = harness(tag);
+        let terminal = PacketPayload::Terminal(Terminal::Completed {
+            budget: open_budget(0, Some(0.0)),
+        });
+        let mut inbox = vec![ready(1, vec![WorkspaceCapability::CaseRead])];
+        // 合法 requestId 才脚本得出应答行；不可编码的 requestId 必然在发包前就被拒，
+        // 这一枚应答永远用不上。
+        if let Some(line) = optional_sidecar_line(2, Some(request_id), terminal) {
+            inbox.push(line);
+        }
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![VecDeque::from(inbox)],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("电池驱动 prompt 前须先起 leg");
+        let before = journal_footprint(&h.app_data);
+        let records_before = host.records().len();
+        let writes_before = log.lock().expect("日志未中毒").written.len();
+        match host.prompt(request_id, text) {
+            Err(error) => {
+                assert_journal_bytes_unchanged(&before, &journal_footprint(&h.app_data), context);
+                assert_eq!(
+                    host.records().len(),
+                    records_before,
+                    "{context}：被拒的 prompt 不得增内存账本（实得 {error:?}）"
+                );
+                assert_eq!(
+                    log.lock().expect("日志未中毒").written.len(),
+                    writes_before,
+                    "{context}：被拒的 prompt 不得出包（实得 {error:?}）"
+                );
+                assert!(
+                    !host.projection.request_ids.contains(request_id),
+                    "{context}：被拒的 prompt 不得占用 requestId（实得 {error:?}）"
+                );
+                assert_no_echo(&error, canaries, context);
+                true
+            }
+            Ok(_) => false,
+        }
+    }
+
+    fn optional_sidecar_line(
+        seq: u64,
+        request: Option<&str>,
+        payload: PacketPayload,
+    ) -> Option<Scripted> {
+        let packet = ProductPacket {
+            seq,
+            session_id: Some("sess-1".to_string()),
+            request_id: request.map(str::to_string),
+            payload,
+        };
+        let mut line = encode_packet_line(&packet).ok()?;
+        line.pop();
+        Some(Scripted::Line(line))
+    }
+
+    /// ② 普适不变量：**任何**被拒的 host 输入都必须零副作用——不问门在哪、叫什么、怎么拼。
+    #[test]
+    fn universal_invariant_refused_host_input_leaves_zero_side_effects() {
+        let battery = violation_battery();
+        let mut refused: std::collections::BTreeMap<&'static str, usize> =
+            std::collections::BTreeMap::new();
+        let mut accepted: std::collections::BTreeMap<&'static str, usize> =
+            std::collections::BTreeMap::new();
+
+        for row in &battery {
+            let context = format!("{}/{}", row.field, row.class);
+            let hit = match &row.drive {
+                ViolationDrive::Config(setter, value) => {
+                    let h = harness("uni-config");
+                    let mut config = h.config.clone();
+                    setter(&mut config, value);
+                    let case_root = h.case_root.to_string_lossy().into_owned();
+                    universal_start_case(
+                        &h,
+                        config,
+                        &FixedKey,
+                        &["sk-in-memory-only", &case_root, value],
+                        &context,
+                    )
+                }
+                ViolationDrive::ConfigNumber(setter) => {
+                    let h = harness("uni-config-number");
+                    let mut config = h.config.clone();
+                    setter(&mut config);
+                    let case_root = h.case_root.to_string_lossy().into_owned();
+                    universal_start_case(
+                        &h,
+                        config,
+                        &FixedKey,
+                        &["sk-in-memory-only", &case_root],
+                        &context,
+                    )
+                }
+                ViolationDrive::Credential(value) => {
+                    let h = harness("uni-credential");
+                    let config = h.config.clone();
+                    let case_root = h.case_root.to_string_lossy().into_owned();
+                    universal_start_case(
+                        &h,
+                        config,
+                        &LiteralKey(value.clone()),
+                        &[&case_root, value],
+                        &context,
+                    )
+                }
+                ViolationDrive::PromptText(value) => universal_prompt_case(
+                    "uni-prompt-text",
+                    "req-probe",
+                    value,
+                    &["sk-in-memory-only", value],
+                    &context,
+                ),
+                ViolationDrive::PromptRequestId(value) => universal_prompt_case(
+                    "uni-prompt-request",
+                    value,
+                    "合法一问",
+                    &["sk-in-memory-only", value],
+                    &context,
+                ),
+            };
+            *(if hit {
+                refused.entry(row.field)
+            } else {
+                accepted.entry(row.field)
+            })
+            .or_insert(0) += 1;
+        }
+
+        // 靶未打空守卫，三层。**枚举塌缩与全通过在读数上同形**（承在案判例「静默零＝空枚举
+        // 与全通过同形，枚举为空一律硬失败」）：把电池删空、把字段删剩一枚、把拒绝全变成
+        // 放行，三种动作在没有下面这三道断言时都是一片绿。
+        let fields: std::collections::BTreeSet<&'static str> =
+            battery.iter().map(|row| row.field).collect();
+        assert!(
+            battery.len() >= 100,
+            "电池只剩 {} 枚：枚举塌缩与全通过同形，一律硬失败",
+            battery.len()
+        );
+        assert!(
+            fields.len() >= 10,
+            "电池只覆盖 {} 枚字段：host 方向输入面塌缩",
+            fields.len()
+        );
+        assert!(
+            refused.values().sum::<usize>() >= 100,
+            "全电池只拒了 {} 枚：不是收紧了，就是入口被绕开了",
+            refused.values().sum::<usize>()
+        );
+        for field in &fields {
+            assert!(
+                refused.get(field).copied().unwrap_or(0) > 0,
+                "{field}：整族违规一枚都没被拒，本族断言恒真"
+            );
+        }
+        for field in &fields {
+            eprintln!(
+                "电池 {field}：拒 {} / 放行 {}",
+                refused.get(field).copied().unwrap_or(0),
+                accepted.get(field).copied().unwrap_or(0)
+            );
+        }
+        eprintln!(
+            "电池合计 {} 枚：拒 {} / 放行 {}",
+            battery.len(),
+            refused.values().sum::<usize>(),
+            accepted.values().sum::<usize>()
+        );
+
+        // 对照：闭集内的输入照常起 leg、照常问得出一句——上面全族不是恒红。
+        let h = harness("uni-control");
+        let (result, log, spawns) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![VecDeque::from(vec![
+                ready(1, vec![WorkspaceCapability::CaseRead]),
+                sidecar_line(
+                    2,
+                    Some("req-ok"),
+                    PacketPayload::Terminal(Terminal::Completed {
+                        budget: open_budget(0, Some(0.0)),
+                    }),
+                ),
+            ])],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = result.expect("对照必须能起");
+        assert_eq!(spawns, 1);
+        host.prompt("req-ok", "合法一问").expect("对照必须问得通");
+        assert_eq!(log.lock().expect("日志未中毒").written.len(), 2);
+    }
+
+    /// H1 的编码失败出口：**具名 code ＋ 零值回显**。
+    ///
+    /// codec 拒绝这一路上的入参正是 apiKey 与物理案件根，两者都不许露出一个字节；具名
+    /// code 也不得退化成通用 `protocol`——那会把「配置错」说成「协议错」。期望侧手写
+    /// 字面量，不从被测常量派生。
+    #[test]
+    fn a_codec_refusal_surfaces_as_a_named_refusal_without_echoing_the_input() {
+        let key_canary = "sk-canary-Z9Q4M7";
+        let root_canary = "/案卷-canary-Z9Q4M7";
+        let rejection = encode_outbound_line(
+            0,
+            "sess-1",
+            None,
+            PacketPayload::Bootstrap(BootstrapPayload {
+                container_id: "cnt-1".to_string(),
+                grant_id: "grant-1".to_string(),
+                case_root: root_canary.to_string(),
+                provider: BootstrapProvider {
+                    // NUL 是 wire 字符串闭集判据，codec 必拒；这里要的正是那一枚拒绝。
+                    model_id: "m\u{0}x".to_string(),
+                    api_key: key_canary.to_string(),
+                },
+                limits: BootstrapLimits {
+                    max_turns: 12,
+                    max_usd: None,
+                },
+                resume: BootstrapResume {
+                    kind: ResumeKind::Fresh,
+                    leg: 1,
+                    prior_observed_turns: 0,
+                    prior_turns: 0,
+                    prior_usd: Some(0.0),
+                },
+            }),
+        )
+        .err()
+        .expect("含 NUL 的 modelId 必须编不出来");
+        // 前提校验：codec 自己的理由**确实**带字段实况——否则「不回显」这一条恒真。
+        assert!(
+            !rejection.reason.trim().is_empty(),
+            "codec 拒绝理由不该是空串，否则零回显断言恒真"
+        );
+
+        let config_error = config_codec_refusal(rejection);
+        assert_eq!(config_error.code(), "invalid_config");
+        let rendered = format!("{config_error:?}");
+        assert!(
+            !rendered.contains(key_canary),
+            "配置侧拒绝回显了 apiKey：{rendered}"
+        );
+        assert!(
+            !rendered.contains(root_canary),
+            "配置侧拒绝回显了物理案件根：{rendered}"
+        );
+
+        let prompt_rejection = encode_outbound_line(
+            0,
+            "sess-1",
+            Some("req-1"),
+            PacketPayload::Prompt {
+                text: format!("{key_canary}\u{0}"),
+            },
+        )
+        .err()
+        .expect("含 NUL 的 prompt 必须编不出来");
+        let prompt_error = prompt_codec_refusal(prompt_rejection);
+        assert_eq!(prompt_error.code(), "invalid_prompt");
+        assert!(
+            !format!("{prompt_error:?}").contains(key_canary),
+            "prompt 侧拒绝回显了正文"
+        );
+    }
+
+    /// H1 的字节身份：**验过的那一份**与**发出去的那一份**是同一份字节。
+    ///
+    /// 期望侧独立重编 exact packet（seq / sessionId / requestId / payload 全部手写字面量，
+    /// 不从被测结构派生），与真正写进 leg 的那两行逐字节比对。发送路径若改成重编码而与
+    /// 验过的那一份不等——改 seq、改字段、改顺序、少一个 LF——这一枚即红。
+    #[test]
+    fn the_bytes_validated_before_the_effect_are_the_bytes_put_on_the_wire() {
+        let h = harness("h1-bytes");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![VecDeque::from(vec![
+                ready(1, vec![WorkspaceCapability::CaseRead]),
+                sidecar_line(
+                    2,
+                    Some("req-1"),
+                    PacketPayload::Terminal(Terminal::Completed {
+                        budget: open_budget(0, Some(0.0)),
+                    }),
+                ),
+            ])],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("对照 leg 必须起得来");
+        host.prompt("req-1", "一问")
+            .expect("合法 prompt 必须走得通");
+
+        let expected_bootstrap = encode_packet_line(&ProductPacket {
+            seq: 1,
+            session_id: Some("sess-1".to_string()),
+            request_id: None,
+            payload: PacketPayload::Bootstrap(BootstrapPayload {
+                container_id: "cnt-1".to_string(),
+                grant_id: "grant-1".to_string(),
+                case_root: h.case_root.to_string_lossy().into_owned(),
+                provider: BootstrapProvider {
+                    model_id: "deepseek-v4-flash".to_string(),
+                    api_key: "sk-in-memory-only".to_string(),
+                },
+                limits: BootstrapLimits {
+                    max_turns: 12,
+                    max_usd: None,
+                },
+                resume: BootstrapResume {
+                    kind: ResumeKind::Fresh,
+                    leg: 1,
+                    prior_observed_turns: 0,
+                    prior_turns: 0,
+                    prior_usd: Some(0.0),
+                },
+            }),
+        })
+        .expect("期望侧 bootstrap 可编码");
+        let expected_prompt = encode_packet_line(&ProductPacket {
+            seq: 2,
+            session_id: Some("sess-1".to_string()),
+            request_id: Some("req-1".to_string()),
+            payload: PacketPayload::Prompt {
+                text: "一问".to_string(),
+            },
+        })
+        .expect("期望侧 prompt 可编码");
+
+        let written = log.lock().expect("日志未中毒").written.clone();
+        assert_eq!(written.len(), 2, "本例恰两枚出包");
+        assert_eq!(
+            written[0], expected_bootstrap,
+            "bootstrap 出线字节须与效果之前验过的那一份逐字节相同"
+        );
+        assert_eq!(
+            written[1], expected_prompt,
+            "prompt 出线字节须与效果之前验过的那一份逐字节相同"
+        );
+    }
+
     // ── ③ SafeToken 七成员清账（1R4 E1.3）──────────────────────────────────────
     //
     // ADR-022 六-B.1 明列七枚共用 `SafeToken` 的 ID。1R3 的 D1 清单只收了「今天恰有一道
@@ -4269,2263 +5054,5 @@ mod tests {
             .count();
         assert_eq!(host_inputs, 4, "host 方向受验输入行数");
         assert_eq!(ledger.len() - host_inputs, 5, "不适用另门的理由行数");
-    }
-
-    /// 清账表①行：一处**受验门**消费点。
-    ///
-    /// 1R4 §零把族定义从「语法标记」改回「受验输入」：`judgment` 既可以是 `MAX_*` 冻结常量，
-    /// 也可以是 `is_safe_token` 这类格式函数或 `trim_non_empty` 这类非空门。1R3 的扫描轴
-    /// 只认前者，于是 SafeToken 家族整体不可见——`requestId` 同时躲过手写清单与源码扫描。
-    struct BoundedJudgmentUse {
-        module: &'static str,
-        function: &'static str,
-        judgment: &'static str,
-        /// `host→sidecar` / `sidecar→host` / `journal` / `内部`。
-        direction: &'static str,
-        consumption: Consumption,
-    }
-
-    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-    enum Consumption {
-        /// 属 D1 前置闭集：必须在清单里有同名判据行，且在 `pi_loop.rs` 生产段有前置消费点。
-        /// 落在 `pi_loop.rs` 的 Fronted 行还须与清单在 `(site, judgment)` 粒度上一一对应。
-        Fronted,
-        /// 不属前置闭集，附具名理由。禁止空行、禁止省略。
-        Other(&'static str),
-    }
-
-    fn bounded_judgment_ledger() -> Vec<BoundedJudgmentUse> {
-        let host_outbound_unused = Consumption::Other(
-            "host_result 是 host→sidecar 出包，但本票 ready capability 恰 ['case_read']，\
-             宿主一枚都不生成；PI-WRITE-HOST-1 开工时须连同前置门一并补",
-        );
-        // 判据函数自身的签名行也落在扫描面内。扫描器不做「这行是定义、跳过它」的聪明省略——
-        // 扫描器侧每加一条过滤就多一个藏身处（1R4 §零）。定义行改由本表具名登记。
-        let predicate_definition =
-            Consumption::Other("判据函数自身的定义签名行，不是任何输入的消费点");
-        vec![
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "prompt",
-                judgment: "MAX_TEXT_BYTES",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_api_key",
-                judgment: "MAX_API_KEY_BYTES",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_start_config",
-                judgment: "MAX_CASE_ROOT_BYTES",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_start_config",
-                judgment: "MAX_MODEL_ID_BYTES",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_start_config",
-                judgment: "MAX_TURNS_LIMIT",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_start_config",
-                judgment: "MAX_USD_LIMIT",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "decode_record",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "journal",
-                consumption: Consumption::Other("journal record 的 seq/ts 整数上界，不进 wire"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "now_millis",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "journal",
-                consumption: Consumption::Other("落账时钟读数封顶，不进 wire"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "read_payload",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "journal",
-                consumption: Consumption::Other("journal payload 的整数字段上界，不进 wire"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "read_payload",
-                judgment: "MAX_TEXT_BYTES",
-                direction: "journal",
-                consumption: Consumption::Other(
-                    "读回既有 journal 的 user_prompted 文本；写入侧的同一上界由 `prompt` 前置",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "read_session_resumed",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "journal",
-                consumption: Consumption::Other("resume 三值读回时的整数上界，不进 wire"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "read_terminal_error",
-                judgment: "MAX_TERMINAL_MESSAGE_BYTES",
-                direction: "journal",
-                consumption: Consumption::Other("终态文案取自冻结表，读回时复核长度"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_process.rs",
-                function: "attach",
-                judgment: "MAX_PACKET_BYTES",
-                direction: "sidecar→host",
-                consumption: Consumption::Other("child stdout 读行的 framing 上界，不绑单一输入"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_process.rs",
-                function: "read_artifact",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "内部",
-                consumption: Consumption::Other("route manifest 的 bytes 字段整数上界"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "decode_packet_line",
-                judgment: "MAX_PACKET_BYTES",
-                direction: "内部",
-                consumption: Consumption::Other("双向共用的 framing 上界，先于任何解析"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "decode_packet_node",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "内部",
-                consumption: Consumption::Other("packet 信封 seq 的整数上界，由宿主自增产出"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "encode_packet_line",
-                judgment: "MAX_PACKET_BYTES",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "按编码后实际字节复核 framing；它判的是成品行长度，不是某一枚入参",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_agent_event_payload",
-                judgment: "MAX_DELTA_BYTES",
-                direction: "sidecar→host",
-                consumption: Consumption::Other("只辖入站 agent_event 解码"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_agent_event_payload",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "sidecar→host",
-                consumption: Consumption::Other("只辖入站 agent_event 解码"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_bootstrap_payload",
-                judgment: "MAX_API_KEY_BYTES",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_bootstrap_payload",
-                judgment: "MAX_CASE_ROOT_BYTES",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_bootstrap_payload",
-                judgment: "MAX_MODEL_ID_BYTES",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_bootstrap_payload",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "host→sidecar",
-                consumption: Consumption::Other(
-                    "resume 的 leg/priorObservedTurns/priorTurns 由本 journal 的 fold 产出，\
-                     不是入参；读回侧已由 journal decode 的同一上界收口",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_bootstrap_payload",
-                judgment: "MAX_TURNS_LIMIT",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_bootstrap_payload",
-                judgment: "MAX_USD_LIMIT",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_budget_view",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "sidecar→host",
-                consumption: Consumption::Other("只辖入站 budget 自报值解码"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_host_result_payload",
-                judgment: "MAX_HOST_ERROR_MESSAGE_BYTES",
-                direction: "host→sidecar",
-                consumption: host_outbound_unused,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_host_result_payload",
-                judgment: "MAX_LIST_ENTRIES",
-                direction: "host→sidecar",
-                consumption: host_outbound_unused,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_host_result_payload",
-                judgment: "MAX_TEXT_BYTES",
-                direction: "host→sidecar",
-                consumption: host_outbound_unused,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_integer",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "内部",
-                consumption: Consumption::Other("通用整数读取器的安全整数封顶，双向共用"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_list_entry",
-                judgment: "MAX_SEGMENT_BYTES",
-                direction: "host→sidecar",
-                consumption: host_outbound_unused,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_logical_path",
-                judgment: "MAX_LOGICAL_PATH_BYTES",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "logicalPath 同时出现在入站 host_request 与出站 host_result；\
-                     本票不生成 host_result，入站侧由 decoder 直接收口",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_nullable_integer",
-                judgment: "MAX_SAFE_INTEGER",
-                direction: "内部",
-                consumption: Consumption::Other("通用可空整数读取器，双向共用"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_prompt_payload",
-                judgment: "MAX_TEXT_BYTES",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_protocol_error_payload",
-                judgment: "MAX_TERMINAL_MESSAGE_BYTES",
-                direction: "sidecar→host",
-                consumption: Consumption::Other("只辖入站 protocol_error 解码"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_terminal_payload",
-                judgment: "MAX_TERMINAL_MESSAGE_BYTES",
-                direction: "sidecar→host",
-                consumption: Consumption::Other("只辖入站 terminal 解码"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_write_arguments",
-                judgment: "MAX_TEXT_BYTES",
-                direction: "sidecar→host",
-                consumption: Consumption::Other(
-                    "只辖入站 host_request 的 workspace_write arguments；本票 capability 不含它",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "scan_array",
-                judgment: "MAX_JSON_DEPTH",
-                direction: "内部",
-                consumption: Consumption::Other("JSON 扫描器的嵌套深度上限，双向共用"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "scan_object",
-                judgment: "MAX_JSON_DEPTH",
-                direction: "内部",
-                consumption: Consumption::Other("JSON 扫描器的嵌套深度上限，双向共用"),
-            },
-            // ── 函数型判据（1R4 E1.2）───────────────────────────────────────────
-            //
-            // SafeToken 没有 `MAX_REQUEST_ID_*` 可扫，1R3 的常量轴因此看不见整个家族。
-            // 下面这一段与上面的常量段共用同一枚扫描器、同一条生产段边界、同一道
-            // 「扫描集 == 清账表」等式：族按受验输入定义，语法标记只是它的投影。
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "start_inner",
-                judgment: "is_safe_container_token",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "start_inner",
-                judgment: "is_safe_token",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_start_config",
-                judgment: "is_absolute_path_shape",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_start_config",
-                judgment: "trim_non_empty",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_api_key",
-                judgment: "trim_non_empty",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "prompt",
-                judgment: "is_safe_token",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "prompt",
-                judgment: "trim_non_empty",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            // ── NUL 前置（1R5 §零裁定一 + G1）─────────────────────────────────
-            //
-            // ADR-022 六-B.1 冻结「wire 字符串不得含 NUL 或 lone surrogate」。1R4 之前
-            // 这道门只住 `scan_string`：`modelId`/`apiKey` 含 NUL 先落 durable
-            // `session_started` 并 spawn，prompt `text` 含 NUL 先落 `user_prompted`
-            // 并占掉 requestId，最后才由 encoder 回灌 decoder 拒。四枚自由串就此前置。
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "is_nul_free",
-                judgment: "is_nul_free",
-                direction: "内部",
-                consumption: predicate_definition,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_start_config",
-                judgment: "is_nul_free",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_api_key",
-                judgment: "is_nul_free",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "prompt",
-                judgment: "is_nul_free",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            // ── 裸 `.is_empty()` 非空门（1R5 G3 新轴复扫浮出）──────────────────
-            //
-            // 旧扫描面只认 `.trim()`，于是 `caseRoot` 的非空门（`case_root.is_empty()`）
-            // 既不在扫描集也不在清单里。新轴把裸 `.is_empty()` 一并收进来，四模块生产段
-            // 因此浮出六处，逐处在此交代。
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "validate_start_config",
-                judgment: "non_empty",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "read_event_id",
-                judgment: "non_empty",
-                direction: "journal",
-                consumption: Consumption::Other(
-                    "读回 journal 的 `event_{seq}` 时核数字段非空，宿主自产字段的回读复核",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "load_session_locked",
-                judgment: "non_empty",
-                direction: "journal",
-                consumption: Consumption::Other("partial-tail 截断时跳过空行，不是输入值判据"),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "is_safe_token",
-                judgment: "non_empty",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "SafeToken 文法自带的非空分支，住在判据函数定义体内，不是独立消费点",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_non_empty_string",
-                judgment: "non_empty",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "通用非空字符串读取器，双向共用；host 方向唯一消费点是 bootstrap 的 \
-                     caseRoot，其前置门在 `validate_start_config`",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "decode_packet_line",
-                judgment: "non_empty",
-                direction: "内部",
-                consumption: Consumption::Other("空行不是 packet：framing 判据，不绑单一输入"),
-            },
-            // ── 派生判据函数族浮出的两枚（1R5 G3）─────────────────────────────
-            //
-            // 判据函数族改由签名派生后，`is_sha256_hex` 与 `is_integer_lexeme` 自动进轴。
-            // 两枚都不是 host 方向的用户入参，但按「浮出即入账」逐处交代，不留给下一轮。
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "is_sha256_hex",
-                judgment: "is_sha256_hex",
-                direction: "内部",
-                consumption: predicate_definition,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_sha256_hex",
-                judgment: "is_sha256_hex",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "sha256 解码器：被判的摘要由宿主自算（route manifest 与 session_started），\
-                     不是任何一枚用户入参",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_process.rs",
-                function: "read_artifact",
-                judgment: "is_sha256_hex",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "route manifest 的 artifact 摘要形状门；被判值取自随包冻结件，不是入参",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "is_integer_lexeme",
-                judgment: "is_integer_lexeme",
-                direction: "内部",
-                consumption: predicate_definition,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_integer",
-                judgment: "is_integer_lexeme",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "JSON number lexeme 的规范形判据，双向共用；辖的是文本写法而非某一枚输入的值",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "decode_packet_node",
-                judgment: "is_integer_lexeme",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "protocolVersion 的规范整数写法判据；该字段由宿主按冻结常量自产",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "resolve",
-                judgment: "trim_non_empty",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "`KeychainCredentials::resolve` 的「存档为空视同未配置」判定，零自动回落；\
-                     上 wire 的同一枚 key 由 `validate_api_key` 前置",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop.rs",
-                function: "delete_container",
-                judgment: "is_safe_container_token",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "容器整删的入参门：被判的 token 只用于拼装 app-data 下的目录路径，不上 wire；\
-                     同名 token 的 host→sidecar 前置门在 `start_inner`",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "is_safe_container_token",
-                judgment: "is_safe_container_token",
-                direction: "内部",
-                consumption: predicate_definition,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "is_safe_container_token",
-                judgment: "is_safe_token",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "`is_safe_container_token` 是 `is_safe_token` 的同名转发定义——容器/会话目录名与\
-                     wire ID 共用同一枚 SafeToken 形状；此处不判任何具体输入",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "load_session_locked",
-                judgment: "is_safe_container_token",
-                direction: "journal",
-                consumption: Consumption::Other(
-                    "journal 路径拼装前的纵深防御；同一对 token 的前置门在 `start_inner`（清单两行）",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "read_session_started",
-                judgment: "trim_non_empty",
-                direction: "journal",
-                consumption: Consumption::Other(
-                    "读回既有 journal 的 modelId 非空；写入侧的同一判据由 `validate_start_config` 前置",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_journal.rs",
-                function: "read_payload",
-                judgment: "trim_non_empty",
-                direction: "journal",
-                consumption: Consumption::Other(
-                    "读回既有 journal 的 user_prompted 文本非空；写入侧的同一判据由 `prompt` 前置",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "is_safe_token",
-                judgment: "is_safe_token",
-                direction: "内部",
-                consumption: predicate_definition,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "is_absolute_path_shape",
-                judgment: "is_absolute_path_shape",
-                direction: "内部",
-                consumption: predicate_definition,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_safe_token",
-                judgment: "is_safe_token",
-                direction: "内部",
-                consumption: Consumption::Other(
-                    "通用 SafeToken 解码器，入站/出站共用；host 方向的每一枚具名 token 都另有前置门",
-                ),
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_bootstrap_payload",
-                judgment: "is_absolute_path_shape",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_bootstrap_payload",
-                judgment: "trim_non_empty",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-            BoundedJudgmentUse {
-                module: "pi_loop_protocol.rs",
-                function: "read_prompt_payload",
-                judgment: "trim_non_empty",
-                direction: "host→sidecar",
-                consumption: Consumption::Fronted,
-            },
-        ]
-    }
-
-    /// 本票四模块的生产段源码。扫描面的唯一入口，两条扫描轴共用。
-    fn scanned_modules() -> [(&'static str, &'static str); 4] {
-        [
-            ("pi_loop.rs", include_str!("pi_loop.rs")),
-            ("pi_loop_journal.rs", include_str!("pi_loop_journal.rs")),
-            ("pi_loop_process.rs", include_str!("pi_loop_process.rs")),
-            ("pi_loop_protocol.rs", include_str!("pi_loop_protocol.rs")),
-        ]
-    }
-
-    /// 生产段边界认 `#[cfg(test)] mod` **module** 边界。
-    /// 截到首个 `#[cfg(test)]` 会被 impl 内 test-only 构造器的属性提前一刀切下
-    /// （PI-HOST-LOOP-1 §八.2 已就同一形状留过判例）。
-    fn production_section(source: &'static str) -> &'static str {
-        match source.find("#[cfg(test)]\nmod tests") {
-            Some(index) => &source[..index],
-            None => source,
-        }
-    }
-
-    fn function_name(trimmed: &str) -> Option<String> {
-        let rest = trimmed
-            .strip_prefix("pub(crate) ")
-            .or_else(|| trimmed.strip_prefix("pub "))
-            .unwrap_or(trimmed);
-        let rest = rest.strip_prefix("fn ")?;
-        let end = rest.find(|c: char| !(c.is_ascii_alphanumeric() || c == '_'))?;
-        Some(rest[..end].to_string())
-    }
-
-    /// 行内出现的独立 `MAX_*` 标识符。前一个字节是标识符字符时不算（避免 `FOO_MAX_X`）。
-    fn bounded_constants_in(line: &str) -> Vec<String> {
-        let bytes = line.as_bytes();
-        let mut found = Vec::new();
-        let mut cursor = 0;
-        while let Some(offset) = line[cursor..].find("MAX_") {
-            let start = cursor + offset;
-            let boundary = start == 0
-                || !(bytes[start - 1].is_ascii_alphanumeric() || bytes[start - 1] == b'_');
-            let mut end = start;
-            while end < bytes.len()
-                && (bytes[end].is_ascii_uppercase()
-                    || bytes[end].is_ascii_digit()
-                    || bytes[end] == b'_')
-            {
-                end += 1;
-            }
-            if boundary {
-                found.push(line[start..end].to_string());
-            }
-            cursor = end.max(start + 4);
-        }
-        found
-    }
-
-    /// 函数型判据族**由签名派生**，不再是手写名单（1R5 §零裁定二：名字清单永久出局）。
-    /// 四模块生产段里凡 `fn <name>(… : &str …) -> bool` 的自由函数即属该族——新写一枚
-    /// 判据函数自动进轴，它的定义行与每一处调用点都必须在清账表里有行，漏登记即红。
-    fn declared_string_predicates(sources: &[(&'static str, &'static str)]) -> Vec<String> {
-        let mut names: Vec<String> = Vec::new();
-        for (_, source) in sources {
-            for line in production_section(source).lines() {
-                let trimmed = line.trim_start();
-                if trimmed.starts_with("//")
-                    || !trimmed.ends_with("-> bool {")
-                    || !trimmed.contains(": &str")
-                {
-                    continue;
-                }
-                if let Some(name) = function_name(trimmed) {
-                    if !names.contains(&name) {
-                        names.push(name);
-                    }
-                }
-            }
-        }
-        names.sort();
-        names
-    }
-
-    /// 派生结果的冻结对照。期望侧一律手写字面量，不由被测源码派生（承在案判例
-    /// 「被测物不得给自己出考卷」）：新增或删掉一枚判据函数都要在这里同步。
-    const DECLARED_STRING_PREDICATES: [&str; 6] = [
-        "is_absolute_path_shape",
-        "is_integer_lexeme",
-        "is_nul_free",
-        "is_safe_container_token",
-        "is_safe_token",
-        "is_sha256_hex",
-    ];
-
-    /// 「trim 后非空」与「非空」两枚判据没有可取的函数标识符，规范化成这两枚表内名。
-    const TRIM_JUDGMENT: &str = "trim_non_empty";
-    const NON_EMPTY_JUDGMENT: &str = "non_empty";
-
-    /// 行内出现的函数型判据。判据名按标识符边界匹配；`.trim()` 记 `trim_non_empty`，
-    /// 不带 `.trim()` 的裸 `.is_empty()` 记 `non_empty`。
-    ///
-    /// 认 `.trim()` 而不认 `.trim().is_empty()`：后者一旦被折行就整条看不见，而扫描器
-    /// 看不见的门正是 1R3 栽的那一跤。两枚标记都**过度近似**——非门用途的 trim/is_empty
-    /// 照样入扫描集，必须在清账表里以 `Other` 具名登记，不得靠收窄扫描面躲开。
-    fn bounded_predicates_in(line: &str, predicates: &[String]) -> Vec<String> {
-        let bytes = line.as_bytes();
-        let is_ident = |byte: u8| byte.is_ascii_alphanumeric() || byte == b'_';
-        let mut found = Vec::new();
-        for name in predicates {
-            let mut cursor = 0;
-            while let Some(offset) = line[cursor..].find(name.as_str()) {
-                let start = cursor + offset;
-                let end = start + name.len();
-                let left = start == 0 || !is_ident(bytes[start - 1]);
-                let right = end >= bytes.len() || !is_ident(bytes[end]);
-                if left && right {
-                    found.push(name.clone());
-                }
-                cursor = end;
-            }
-        }
-        if line.contains(".trim()") {
-            found.push(TRIM_JUDGMENT.to_string());
-        } else if line.contains(".is_empty()") {
-            found.push(NON_EMPTY_JUDGMENT.to_string());
-        }
-        found
-    }
-
-    /// 逐行扫描生产段，产出去重并排序的 `(模块, 函数, 判据)` 三元组。判据＝`MAX_*` 冻结
-    /// 常量 ∪ 函数型格式判据——族由**受验输入**定义，两类语法标记都只是它的投影（1R4 §零）。
-    ///
-    /// 三条扫描规则，都是为了让「谁消费了这道门」有确定含义：
-    /// 1. 只记落在某枚函数体内的引用——文件头的 `use` 与 `const` 声明不是消费点；
-    /// 2. 注释行整行跳过，否则本表自己的说明文字会把计数打脏；
-    /// 3. 顶格 `}` 关闭当前函数，`impl` 内的方法由下一枚 `fn` 顶替。
-    ///
-    /// 规则之外不再加任何过滤：判据函数自身的签名行照记，由清账表具名登记为定义行。
-    fn scan_bounded_judgment_uses(
-        module: &'static str,
-        source: &'static str,
-        predicates: &[String],
-    ) -> Vec<(String, String, String)> {
-        let mut rows: Vec<(String, String, String)> = Vec::new();
-        let mut current: Option<String> = None;
-        for line in production_section(source).lines() {
-            let trimmed = line.trim_start();
-            if trimmed.starts_with("//") {
-                continue;
-            }
-            if let Some(name) = function_name(trimmed) {
-                current = Some(name);
-            } else if line == "}" {
-                current = None;
-            }
-            let Some(function) = current.clone() else {
-                continue;
-            };
-            for judgment in bounded_constants_in(line)
-                .into_iter()
-                .chain(bounded_predicates_in(line, predicates))
-            {
-                let row = (module.to_string(), function.clone(), judgment);
-                if !rows.contains(&row) {
-                    rows.push(row);
-                }
-            }
-        }
-        rows.sort();
-        rows
-    }
-
-    fn declared_bounded_constants(source: &'static str) -> Vec<String> {
-        production_section(source)
-            .lines()
-            .filter_map(|line| line.trim_start().strip_prefix("pub(crate) const "))
-            .filter(|rest| rest.starts_with("MAX_"))
-            .map(|rest| rest[..rest.find(':').expect("常量声明带类型标注")].to_string())
-            .collect()
-    }
-
-    /// ② 清账表与源码双向锁死：encoder 侧新增一道上界而不补表即红；生产段多出一道
-    /// 清单外的受验门即红；清单行在生产段找不到同 `(函数, 判据)` 消费点也即红。
-    #[test]
-    fn bounded_judgment_ledger_matches_the_source_and_covers_every_frozen_bound() {
-        let sources = scanned_modules();
-        // 判据函数族先由签名派生，再与冻结字面量核对——1R4 的三枚硬编码函数名就此出局。
-        let predicates = declared_string_predicates(&sources);
-        let expected_predicates: Vec<String> = DECLARED_STRING_PREDICATES
-            .iter()
-            .map(|name| name.to_string())
-            .collect();
-        assert_eq!(
-            predicates, expected_predicates,
-            "四模块生产段的 `&str -> bool` 判据函数族与冻结清单不符：新写一枚判据函数须同批入册"
-        );
-        let mut scanned = Vec::new();
-        for (module, source) in sources {
-            scanned.extend(scan_bounded_judgment_uses(module, source, &predicates));
-        }
-        scanned.sort();
-
-        let ledger = bounded_judgment_ledger();
-        let mut registered: Vec<(String, String, String)> = ledger
-            .iter()
-            .map(|row| {
-                (
-                    row.module.to_string(),
-                    row.function.to_string(),
-                    row.judgment.to_string(),
-                )
-            })
-            .collect();
-        registered.sort();
-        assert_eq!(
-            scanned, registered,
-            "生产段的受验门消费点必须与清账表逐行相同：新增一道门就得同时补表并给出归属"
-        );
-
-        // 每枚冻结常量至少有一处登记消费点——声明了却无人消费，同样要显式暴露。
-        for constant in declared_bounded_constants(include_str!("pi_loop_protocol.rs")) {
-            assert!(
-                ledger.iter().any(|row| row.judgment == constant),
-                "{constant} 在清账表里没有任何消费点"
-            );
-        }
-
-        // 归属为 Fronted 的判据必须同时满足两件事：清单里有同名判据行，
-        // 且在 `pi_loop.rs` 生产段真有前置消费点——只在 encoder 里出现不算前置。
-        let manifest = bounded_input_manifest();
-        for row in &ledger {
-            if row.consumption != Consumption::Fronted {
-                continue;
-            }
-            assert!(
-                manifest
-                    .iter()
-                    .any(|input| input.judgments.contains(&row.judgment)),
-                "{} 标为前置闭集，却不在 D1 手写清单里",
-                row.judgment
-            );
-            assert!(
-                ledger
-                    .iter()
-                    .any(|other| other.module == "pi_loop.rs" && other.judgment == row.judgment),
-                "{} 标为前置闭集，却在 pi_loop.rs 生产段没有前置消费点",
-                row.judgment
-            );
-        }
-
-        // ── 1R4 E1.2：清单 ↔ 生产段消费点在 `(函数, 判据)` 粒度上双向一一对应 ──────
-        //
-        // 只按判据名核对撑不住整个族：`is_safe_token` 同时住在 `start_inner`（grantId）与
-        // `prompt`（requestId），撤掉后者时前者会替它把名字对上——1R3 复验实测的假绿正是这
-        // 一形。改按 `(site, judgment)` 锚定后，撤门必然同时打掉清单行的源码锚点。
-
-        // 正向：清单每行的每一枚判据，都要在 `pi_loop.rs` 生产段的 `site` 里真有消费点。
-        for input in &manifest {
-            for judgment in input.judgments {
-                assert!(
-                    ledger.iter().any(|row| row.module == "pi_loop.rs"
-                        && row.function == input.site
-                        && row.judgment == *judgment
-                        && row.consumption == Consumption::Fronted),
-                    "清单行 {} 声称由 pi_loop.rs::{} 的 {judgment} 前置，生产段却扫不到这处消费点",
-                    input.input,
-                    input.site
-                );
-            }
-        }
-
-        // 反向：`pi_loop.rs` 生产段每一道前置门，都要被清单某一行在同一 `site` 上认领。
-        for row in &ledger {
-            if row.module != "pi_loop.rs" || row.consumption != Consumption::Fronted {
-                continue;
-            }
-            assert!(
-                manifest
-                    .iter()
-                    .any(|input| input.site == row.function
-                        && input.judgments.contains(&row.judgment)),
-                "pi_loop.rs::{} 的前置门 {} 不在 D1 手写清单里——族闭集不完整",
-                row.function,
-                row.judgment
-            );
-        }
-
-        // 清单侧的手写字面量自身也要闭集：拒绝 code 只允许三枚具名值。
-        for input in &manifest {
-            assert!(
-                ["invalid_config", "invalid_ref", "invalid_prompt"].contains(&input.code),
-                "{} 的拒绝 code {} 不在既有闭集内",
-                input.input,
-                input.code
-            );
-        }
-
-        // ── 1R4 E2：计数冻结 ───────────────────────────────────────────────────
-        //
-        // 1R3 回执把清单报成「9 行 / 26 枚」、ledger 报成「11 Fronted + 28 Other」，
-        // 实数是 10/28 与 12/27——手抄转述的计数没有任何机器约束。四枚数字自此写死在
-        // 被测面上：回执引用它们时与源码同源，改一行不改这里必红。
-        let counterexamples: usize = manifest
-            .iter()
-            .map(|input| match &input.probe {
-                BoundedProbe::Config(cases) => cases.len(),
-                BoundedProbe::Credential(cases) => cases.len(),
-                BoundedProbe::Prompt(cases) => cases.len(),
-                BoundedProbe::RequestId(cases) => cases.len(),
-            })
-            .sum();
-        let fronted = ledger
-            .iter()
-            .filter(|row| row.consumption == Consumption::Fronted)
-            .count();
-        assert_eq!(manifest.len(), 11, "D1 手写清单行数");
-        assert_eq!(counterexamples, 34, "D1 常驻反例枚数");
-        assert_eq!(fronted, 26, "清账表 Fronted 行数");
-        assert_eq!(ledger.len() - fronted, 49, "清账表 Other 行数");
-    }
-
-    // ── G2 · fail-closed 扫描（PI-HOST-LOOP-1R5 §零裁定二）───────────────────────
-    //
-    // 1R3 用常量名单、1R4 用函数名单，两轮同败，病根同一：白名单对 unknown 的处置是
-    // **跳过**。终局形态是反置——枚举受审面的**全部拒绝分支**，逐条要求手写表有行；
-    // 表里没有的表达式**判红而非跳过**。排除只能是表里的具名理由行，扫描器内不再有
-    // 任何跳过型过滤器（每加一条过滤就多一个藏身处）。
-
-    /// 生产段逐行归属的函数名（`None` = 函数体外的文件头 / impl 头 / 类型定义）。
-    fn attributed_production_lines(source: &'static str) -> Vec<(Option<String>, &'static str)> {
-        let mut rows = Vec::new();
-        let mut current: Option<String> = None;
-        for line in production_section(source).lines() {
-            let trimmed = line.trim_start();
-            if !trimmed.starts_with("//") {
-                if let Some(name) = function_name(trimmed) {
-                    current = Some(name);
-                } else if line == "}" {
-                    current = None;
-                }
-            }
-            rows.push((current.clone(), line));
-        }
-        rows
-    }
-
-    fn normalize_ws(text: &str) -> String {
-        text.split_whitespace().collect::<Vec<_>>().join(" ")
-    }
-
-    /// 截掉行尾注释。字符串字面量里的 `//` 不算注释起点。
-    fn strip_trailing_comment(line: &str) -> &str {
-        let bytes = line.as_bytes();
-        let mut in_string = false;
-        let mut index = 0;
-        while index < bytes.len() {
-            match bytes[index] {
-                b'\\' if in_string => index += 1,
-                b'"' => in_string = !in_string,
-                b'/' if !in_string && bytes.get(index + 1) == Some(&b'/') => return &line[..index],
-                _ => {}
-            }
-            index += 1;
-        }
-        line
-    }
-
-    /// 分支起始行：`if` / `else`（含 `let … else`）/ `match` / match 臂。
-    fn is_branch_head(trimmed: &str) -> bool {
-        let rest = match trimmed.strip_prefix('}') {
-            Some(tail) => tail.trim_start(),
-            None => trimmed,
-        };
-        rest.starts_with("if ")
-            || rest.starts_with("else")
-            || rest.starts_with("match ")
-            || rest.contains("=>")
-            || rest.ends_with("else {")
-    }
-
-    /// 从 `lines[index]` 的 `from` 字节处起做定界符配平读取，可跨行；字符串字面量内的
-    /// 定界符不计数。返回归一化空白后的整段文本。配平不成立时读到生产段末尾——那一串
-    /// 必然与手写表对不上，于是仍是红，不是静默跳过。
-    fn balanced_from(
-        lines: &[(Option<String>, &'static str)],
-        index: usize,
-        from: usize,
-        open: char,
-        close: char,
-    ) -> String {
-        let mut text = String::new();
-        let mut depth = 0i32;
-        let mut in_string = false;
-        let mut escaped = false;
-        let mut cursor = index;
-        let mut chunk = strip_trailing_comment(lines[index].1)[from..].to_string();
-        loop {
-            text.push(' ');
-            text.push_str(&chunk);
-            let mut closed = false;
-            for ch in chunk.chars() {
-                if escaped {
-                    escaped = false;
-                    continue;
-                }
-                if in_string {
-                    if ch == '\\' {
-                        escaped = true;
-                    } else if ch == '"' {
-                        in_string = false;
-                    }
-                    continue;
-                }
-                if ch == '"' {
-                    in_string = true;
-                } else if ch == open {
-                    depth += 1;
-                } else if ch == close {
-                    depth -= 1;
-                    if depth == 0 {
-                        closed = true;
-                        break;
-                    }
-                }
-            }
-            if closed || cursor + 1 >= lines.len() {
-                break;
-            }
-            cursor += 1;
-            chunk = strip_trailing_comment(lines[cursor].1).trim().to_string();
-        }
-        normalize_ws(&text)
-    }
-
-    /// 文本里最后一枚字符串字面量的内容。
-    fn last_string_literal(text: &str) -> Option<String> {
-        let mut best = None;
-        let mut current: Option<String> = None;
-        let mut escaped = false;
-        for ch in text.chars() {
-            match &mut current {
-                Some(buffer) => {
-                    if escaped {
-                        buffer.push(ch);
-                        escaped = false;
-                    } else if ch == '\\' {
-                        buffer.push(ch);
-                        escaped = true;
-                    } else if ch == '"' {
-                        best = Some(buffer.clone());
-                        current = None;
-                    } else {
-                        buffer.push(ch);
-                    }
-                }
-                None => {
-                    if ch == '"' {
-                        current = Some(String::new());
-                    }
-                }
-            }
-        }
-        best
-    }
-
-    /// `pi_loop.rs` 生产段每一处 `return Err(`：`(函数, 分支头, 拒绝表达式)`。
-    ///
-    /// 分支头取该行 `return Err(` 之前的同行文本（match 臂形态），为空则回溯到最近一处
-    /// 分支起始行并连同其间所有行原样拼接。条件与文案**同时**参与键：改条件、改文案、
-    /// 加一道门，三种动作各自都会让扫描集变形。
-    fn scan_refusal_branches(source: &'static str) -> Vec<(String, String, String)> {
-        let lines = attributed_production_lines(source);
-        let mut rows: Vec<(String, String, String)> = Vec::new();
-        for index in 0..lines.len() {
-            let Some(function) = lines[index].0.clone() else {
-                continue;
-            };
-            let body = strip_trailing_comment(lines[index].1);
-            let Some(at) = body.find("return Err(") else {
-                continue;
-            };
-            let expression = balanced_from(&lines, index, at + "return Err".len(), '(', ')');
-            let inline = normalize_ws(&body[..at]);
-            let guard = if inline.is_empty() {
-                let mut probe = index;
-                let mut head = None;
-                while probe > 0 {
-                    probe -= 1;
-                    if lines[probe].0.as_deref() != Some(function.as_str()) {
-                        break;
-                    }
-                    let candidate = strip_trailing_comment(lines[probe].1).trim();
-                    if candidate.is_empty() {
-                        continue;
-                    }
-                    if is_branch_head(candidate) {
-                        head = Some(probe);
-                        break;
-                    }
-                }
-                match head {
-                    Some(start) => normalize_ws(
-                        &lines[start..index]
-                            .iter()
-                            .map(|(_, line)| strip_trailing_comment(line))
-                            .collect::<Vec<_>>()
-                            .join(" "),
-                    ),
-                    None => "<无前置分支头>".to_string(),
-                }
-            } else {
-                inline
-            };
-            let row = (function, guard, expression);
-            if !rows.contains(&row) {
-                rows.push(row);
-            }
-        }
-        rows.sort();
-        rows
-    }
-
-    /// `pi_loop_protocol.rs` 生产段每一处具名拒绝：`(函数, 理由字面量)`。
-    ///
-    /// 该模块只有三种拒绝构造式：`reject(…)`、`reject_field(…)` 与 `PacketRejection { … }`
-    /// 字面量。三者都扫，理由取该段最后一枚字符串字面量。新写一枚判据必然带一句新理由
-    /// （或把老理由搬进新函数），两种情形都会让扫描集变形。
-    const WIRE_REJECTION_MARKERS: [(&str, char, char); 3] = [
-        ("reject_field(", '(', ')'),
-        ("reject(", '(', ')'),
-        ("PacketRejection {", '{', '}'),
-    ];
-
-    fn scan_wire_rejections(source: &'static str) -> Vec<(String, String)> {
-        let lines = attributed_production_lines(source);
-        let mut rows: Vec<(String, String)> = Vec::new();
-        for index in 0..lines.len() {
-            let Some(function) = lines[index].0.clone() else {
-                continue;
-            };
-            let body = strip_trailing_comment(lines[index].1);
-            let bytes = body.as_bytes();
-            let mut cursor = 0;
-            while cursor < body.len() {
-                let hit = WIRE_REJECTION_MARKERS
-                    .iter()
-                    .filter_map(|(marker, open, close)| {
-                        body[cursor..]
-                            .find(marker)
-                            .map(|offset| (cursor + offset, *marker, *open, *close))
-                    })
-                    .min_by_key(|(at, _, _, _)| *at);
-                let Some((at, marker, open, close)) = hit else {
-                    break;
-                };
-                cursor = at + marker.len();
-                let boundary =
-                    at == 0 || !(bytes[at - 1].is_ascii_alphanumeric() || bytes[at - 1] == b'_');
-                if !boundary {
-                    continue;
-                }
-                let text = balanced_from(&lines, index, at + marker.len() - 1, open, close);
-                let reason =
-                    last_string_literal(&text).unwrap_or_else(|| "<无字面理由>".to_string());
-                let row = (function.clone(), reason);
-                if !rows.contains(&row) {
-                    rows.push(row);
-                }
-            }
-        }
-        rows.sort();
-        rows
-    }
-
-    // ── G2.1 · host 前置拒绝分支的 fail-closed 表 ───────────────────────────────
-
-    /// 三枚具名拒绝 code 的构造式。host 前置族**由源码派生**：`pi_loop.rs` 生产段里
-    /// 凡返回这三枚之一的函数即属该族，再与冻结清单逐名核对——新写一枚前置函数即红。
-    const HOST_REFUSAL_CODES: [&str; 3] = [
-        "HostError::InvalidConfig",
-        "HostError::InvalidPrompt",
-        "HostError::InvalidRef",
-    ];
-
-    /// 冻结的 host 前置函数族（按名排序）。1R5 的新轴把 `start_inner` 与
-    /// `delete_container` 一并浮出——两者同样返回具名拒绝 code，本轮逐条入账，不留给下一轮。
-    const HOST_PREFLIGHT_FAMILY: [&str; 5] = [
-        "delete_container",
-        "prompt",
-        "start_inner",
-        "validate_api_key",
-        "validate_start_config",
-    ];
-
-    /// 一处拒绝分支：函数 + 分支头 + 拒绝表达式 + 归属。三段文本都是手写字面量，
-    /// 与生产段扫描集**逐行相等**；表里没有的表达式判红，不是跳过。
-    struct RefusalBranch {
-        function: &'static str,
-        guard: &'static str,
-        error: &'static str,
-        disposition: BranchDisposition,
-    }
-
-    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-    enum BranchDisposition {
-        /// host→sidecar 输入的值判据：指名它在 D1 手写清单里的行（一条分支可判多枚输入）。
-        HostInput(&'static [&'static str]),
-        /// 不是输入值判据，附具名理由。禁空理由、禁省行——排除只住这里，扫描器内没有过滤器。
-        Other(&'static str),
-    }
-
-    fn host_refusal_branches() -> Vec<RefusalBranch> {
-        let fs_fact =
-            "文件系统事实判据（lstat / symlink / 目录类型）：判的是盘上实物，不是入参值；\
-             同一枚 caseRoot 的入参层判据由 `validate_start_config` 在此之前收齐";
-        let container_delete =
-            "容器整删的入参门：被判 token 只用于拼装 app-data 下的目录路径，不上 wire；\
-             同名 token 的 host→sidecar 前置门在 `start_inner`（清单两行）";
-        let runtime_state =
-            "运行时状态门（会话已收束 / 容器仍有 live 写者）：判的是本 host 当前态，不判入参值";
-        let dedup = "跨 leg requestId 去重：判的是 durable 投影里的历史，不是入参形状；\
-             同一枚 requestId 的形状门是本函数上一道 `is_safe_token`";
-        let resume_drift =
-            "resume 前置：本 leg 入参与 durable 历史的一致性判据，被判的是两者之差而非入参\
-             自身的形状；全部落在 spawn 之前";
-        let inbound_shape =
-            "入站包形状门：判的是 sidecar 实收的 ready payload 与 capability 自报，\
-             方向是 sidecar→host";
-        vec![
-            RefusalBranch {
-                function: "delete_container",
-                guard: "Err(_) =>",
-                error: "(HostError::Journal(\"lstat container 失败\")),",
-                disposition: BranchDisposition::Other(fs_fact),
-            },
-            RefusalBranch {
-                function: "delete_container",
-                guard: "if !is_safe_container_token(container_id) {",
-                error: "(HostError::InvalidRef);",
-                disposition: BranchDisposition::Other(container_delete),
-            },
-            RefusalBranch {
-                function: "delete_container",
-                guard: "if metadata.file_type().is_symlink() || !metadata.is_dir() {",
-                error: "(HostError::Journal(\"container root 不是 regular directory\"));",
-                disposition: BranchDisposition::Other(fs_fact),
-            },
-            RefusalBranch {
-                function: "delete_container",
-                guard: "if pi_loop_journal::container_has_live_session(app_data_dir, container_id)? {",
-                error: "(HostError::ContainerActive);",
-                disposition: BranchDisposition::Other(runtime_state),
-            },
-            RefusalBranch {
-                function: "prompt",
-                guard: "if !is_nul_free(text) {",
-                error: "(HostError::InvalidPrompt(\"prompt 文本不得含 NUL\"));",
-                disposition: BranchDisposition::HostInput(&["prompt.text"]),
-            },
-            RefusalBranch {
-                function: "prompt",
-                guard: "if !is_safe_token(request_id) {",
-                error: "(HostError::InvalidRef);",
-                disposition: BranchDisposition::HostInput(&["prompt.requestId"]),
-            },
-            RefusalBranch {
-                function: "prompt",
-                guard: "if self.closed {",
-                error: "(HostError::SessionClosed);",
-                disposition: BranchDisposition::Other(runtime_state),
-            },
-            RefusalBranch {
-                function: "prompt",
-                guard: "if self.projection.request_ids.contains(request_id) {",
-                error: "(HostError::ResumeRefused( \"requestId 在本 logical session 内已用过\", ));",
-                disposition: BranchDisposition::Other(dedup),
-            },
-            RefusalBranch {
-                function: "prompt",
-                guard: "if text.len() > MAX_TEXT_BYTES {",
-                error: "(HostError::InvalidPrompt(\"prompt 文本超过 131,072 字节上限\"));",
-                disposition: BranchDisposition::HostInput(&["prompt.text"]),
-            },
-            RefusalBranch {
-                function: "prompt",
-                guard: "if text.trim().is_empty() {",
-                error: "(HostError::InvalidPrompt(\"prompt 文本 trim 后不得为空\"));",
-                disposition: BranchDisposition::HostInput(&["prompt.text"]),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if !is_safe_container_token(&config.container_id) || !is_safe_container_token(&config.session_id) || !is_safe_token(&config.grant_id) {",
-                error: "(HostError::InvalidRef);",
-                disposition: BranchDisposition::HostInput(&["containerId", "sessionId", "grantId"]),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if !metadata.is_dir() {",
-                error: "(HostError::CaseRoot(\"案件根不是目录\"));",
-                disposition: BranchDisposition::Other(fs_fact),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if !projection.interrupted {",
-                error: "(HostError::ResumeRefused( \"上一 leg 未以 session_interrupted 收束\", ));",
-                disposition: BranchDisposition::Other(resume_drift),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if capabilities.as_slice() != EXPECTED_CAPABILITIES {",
-                error: "(host.fail_protocol(ProtocolErrorCode::StateViolation));",
-                disposition: BranchDisposition::Other(inbound_shape),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if historic.grant_id != config.grant_id {",
-                error: "(HostError::ResumeRefused(\"grant 漂移\"));",
-                disposition: BranchDisposition::Other(resume_drift),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if historic.max_turns != config.max_turns || historic.max_usd != config.max_usd {",
-                error: "(HostError::ResumeRefused(\"limits 漂移\"));",
-                disposition: BranchDisposition::Other(resume_drift),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if historic.max_usd.is_some() && projection.prior_usd.is_none() {",
-                error: "(HostError::ResumeRefused(\"maxUsd 已启用而历史费用未知\"));",
-                disposition: BranchDisposition::Other(resume_drift),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if historic.model_id != config.model_id {",
-                error: "(HostError::ResumeRefused(\"model 漂移\"));",
-                disposition: BranchDisposition::Other(resume_drift),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if historic.route_manifest_sha256 != pair.manifest_sha256() {",
-                error: "(HostError::ResumeRefused(\"route manifest 漂移\"));",
-                disposition: BranchDisposition::Other(resume_drift),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if historic.target_triple != pair.target_triple() {",
-                error: "(HostError::ResumeRefused(\"target 漂移\"));",
-                disposition: BranchDisposition::Other(resume_drift),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if metadata.file_type().is_symlink() {",
-                error: "(HostError::CaseRoot(\"案件根是 symlink\"));",
-                disposition: BranchDisposition::Other(fs_fact),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if projection.is_closed() {",
-                error: "(HostError::SessionClosed);",
-                disposition: BranchDisposition::Other(runtime_state),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "if projection.prior_turns >= historic.max_turns {",
-                error: "(HostError::ResumeRefused(\"历史 counted turns 已达 maxTurns\"));",
-                disposition: BranchDisposition::Other(resume_drift),
-            },
-            RefusalBranch {
-                function: "start_inner",
-                guard: "let PacketPayload::Ready { capabilities } = packet.payload else {",
-                error: "(host.fail_protocol(ProtocolErrorCode::StateViolation));",
-                disposition: BranchDisposition::Other(inbound_shape),
-            },
-            RefusalBranch {
-                function: "validate_api_key",
-                guard: "if !is_nul_free(api_key) {",
-                error: "(HostError::InvalidConfig(\"apiKey 不得含 NUL\"));",
-                disposition: BranchDisposition::HostInput(&["provider.apiKey"]),
-            },
-            RefusalBranch {
-                function: "validate_api_key",
-                guard: "if api_key.len() > MAX_API_KEY_BYTES {",
-                error: "(HostError::InvalidConfig(\"apiKey 不得超过 8192 UTF-8 字节\"));",
-                disposition: BranchDisposition::HostInput(&["provider.apiKey"]),
-            },
-            RefusalBranch {
-                function: "validate_api_key",
-                guard: "if api_key.trim().is_empty() {",
-                error: "(HostError::InvalidConfig(\"apiKey 不得为空\"));",
-                disposition: BranchDisposition::HostInput(&["provider.apiKey"]),
-            },
-            RefusalBranch {
-                function: "validate_start_config",
-                guard: "if !is_absolute_path_shape(&case_root) {",
-                error: "(HostError::InvalidConfig(\"caseRoot 必须是平台绝对路径\"));",
-                disposition: BranchDisposition::HostInput(&["caseRoot 绝对形状"]),
-            },
-            RefusalBranch {
-                function: "validate_start_config",
-                guard: "if !is_nul_free(&case_root) {",
-                error: "(HostError::InvalidConfig(\"caseRoot 不得含 NUL\"));",
-                disposition: BranchDisposition::HostInput(&["caseRoot"]),
-            },
-            RefusalBranch {
-                function: "validate_start_config",
-                guard: "if !is_nul_free(&config.model_id) {",
-                error: "(HostError::InvalidConfig(\"modelId 不得含 NUL\"));",
-                disposition: BranchDisposition::HostInput(&["provider.modelId"]),
-            },
-            RefusalBranch {
-                function: "validate_start_config",
-                guard: "if !max_usd.is_finite() || max_usd <= 0.0 || max_usd > MAX_USD_LIMIT {",
-                error: "(HostError::InvalidConfig( \"maxUsd 必须是 (0, 100000] 内的有限数或 null\", ));",
-                disposition: BranchDisposition::HostInput(&["limits.maxUsd"]),
-            },
-            RefusalBranch {
-                function: "validate_start_config",
-                guard: "if case_root.is_empty() {",
-                error: "(HostError::InvalidConfig(\"caseRoot 不得为空\"));",
-                disposition: BranchDisposition::HostInput(&["caseRoot"]),
-            },
-            RefusalBranch {
-                function: "validate_start_config",
-                guard: "if case_root.len() > MAX_CASE_ROOT_BYTES {",
-                error: "(HostError::InvalidConfig( \"caseRoot 不得超过 4096 UTF-8 字节\", ));",
-                disposition: BranchDisposition::HostInput(&["caseRoot"]),
-            },
-            RefusalBranch {
-                function: "validate_start_config",
-                guard: "if config.max_turns < 1 || config.max_turns > MAX_TURNS_LIMIT {",
-                error: "(HostError::InvalidConfig(\"maxTurns 必须是 1..=12 的整数\"));",
-                disposition: BranchDisposition::HostInput(&["limits.maxTurns"]),
-            },
-            RefusalBranch {
-                function: "validate_start_config",
-                guard: "if config.model_id.len() > MAX_MODEL_ID_BYTES {",
-                error: "(HostError::InvalidConfig(\"modelId 不得超过 256 UTF-8 字节\"));",
-                disposition: BranchDisposition::HostInput(&["provider.modelId"]),
-            },
-            RefusalBranch {
-                function: "validate_start_config",
-                guard: "if config.model_id.trim().is_empty() {",
-                error: "(HostError::InvalidConfig(\"modelId 不得为空\"));",
-                disposition: BranchDisposition::HostInput(&["provider.modelId"]),
-            },
-        ]
-    }
-
-    /// G2.1：host 前置族的**全部拒绝分支**逐条要求手写表有行；表里没有的表达式判红。
-    ///
-    /// 1R4 复验用一枚未登记的 `model_id.contains('/')` 证明旧扫描器 false-green——
-    /// 那枚结构反例在本轮转成常驻形态：加任何一道未登记的门，扫描集与表就此不等。
-    #[test]
-    fn host_refusal_branches_are_fail_closed_against_the_source() {
-        let scanned = scan_refusal_branches(include_str!("pi_loop.rs"));
-
-        // ① 族由源码派生：凡返回三枚具名拒绝 code 之一的函数即属 host 前置族。
-        let mut derived: Vec<String> = Vec::new();
-        for (function, _, error) in &scanned {
-            if HOST_REFUSAL_CODES.iter().any(|code| error.contains(code))
-                && !derived.contains(function)
-            {
-                derived.push(function.clone());
-            }
-        }
-        derived.sort();
-        let frozen: Vec<String> = HOST_PREFLIGHT_FAMILY
-            .iter()
-            .map(|name| name.to_string())
-            .collect();
-        assert_eq!(
-            derived, frozen,
-            "host 前置函数族与冻结清单不符：新写一枚返回具名拒绝 code 的函数须同批入册"
-        );
-
-        // ② 族内**全部**拒绝分支与手写表逐行相同。
-        let table = host_refusal_branches();
-        let mut registered: Vec<(String, String, String)> = table
-            .iter()
-            .map(|row| {
-                (
-                    row.function.to_string(),
-                    row.guard.to_string(),
-                    row.error.to_string(),
-                )
-            })
-            .collect();
-        registered.sort();
-        let mut in_family: Vec<(String, String, String)> = scanned
-            .into_iter()
-            .filter(|(function, _, _)| HOST_PREFLIGHT_FAMILY.contains(&function.as_str()))
-            .collect();
-        in_family.sort();
-        assert_eq!(
-            in_family, registered,
-            "host 前置族的拒绝分支必须与手写表逐行相同：加一道门、改一个条件、改一句文案，\
-             三种动作都要同批补表并给出归属"
-        );
-
-        // ③ 归属为 host 输入的分支，必须在 D1 清单里有同 `site` 的那一行。
-        let manifest = bounded_input_manifest();
-        for row in &table {
-            match row.disposition {
-                BranchDisposition::HostInput(inputs) => {
-                    assert!(
-                        !inputs.is_empty(),
-                        "{}::{} 登记为 host 输入判据，却没指名清单行",
-                        row.function,
-                        row.guard
-                    );
-                    for input in inputs {
-                        assert!(
-                            manifest
-                                .iter()
-                                .any(|entry| entry.input == *input && entry.site == row.function),
-                            "拒绝分支 {}::{} 认领的清单行 {input} 不存在，或它的 site 不是本函数",
-                            row.function,
-                            row.guard
-                        );
-                    }
-                }
-                BranchDisposition::Other(reason) => {
-                    assert!(
-                        !reason.trim().is_empty(),
-                        "{}::{} 登记为非输入值判据，却没写理由",
-                        row.function,
-                        row.guard
-                    );
-                }
-            }
-        }
-
-        // ④ 反向：D1 清单每一行都要被至少一处拒绝分支认领——撤掉生产门，清单行随即失锚。
-        for entry in &manifest {
-            assert!(
-                table.iter().any(|row| matches!(
-                    row.disposition,
-                    BranchDisposition::HostInput(inputs) if inputs.contains(&entry.input)
-                )),
-                "D1 清单行 {} 在拒绝分支表里无人认领",
-                entry.input
-            );
-        }
-
-        // ⑤ 计数冻结：回执引用这两枚数字时与源码同源。
-        let host_rows = table
-            .iter()
-            .filter(|row| matches!(row.disposition, BranchDisposition::HostInput(_)))
-            .count();
-        assert_eq!(table.len(), 36, "host 前置族拒绝分支行数");
-        assert_eq!(host_rows, 17, "其中 host 输入值判据行数");
-    }
-
-    // ── G2.2 · 协议模块具名 wire 判据的对照面 ───────────────────────────────────
-    //
-    // ADR-022 六-B.1 的 wire 字符串判据住在 `pi_loop_protocol.rs`：NUL / lone surrogate、
-    // 长度、非空、SafeToken、shape、JSON 深度……1R4 之前它们整族不在任何扫描轴上，于是
-    // 「`scan_string` 的 `unit == 0`」这道现存格式门既不进 ledger 也不进 manifest。
-    // 本表把该模块**全部具名拒绝**逐行收下：`Fronted`（host 侧已有前置门，指名清单行）
-    // 或具名理由 `Other`。
-
-    /// 允许出现 `PacketRejection { … }` 字面量的函数闭集。新写一枚拒绝 helper 即红——
-    /// 否则它的调用点会整族逃出扫描面（1R3/1R4 两轮栽的正是同一形）。
-    const WIRE_REJECTION_LITERAL_SITES: [&str; 4] = ["pick", "read_enum", "reject", "reject_field"];
-
-    /// 一处具名 wire 判据：函数 + 拒绝理由字面量 + 归属。
-    struct WireJudgment {
-        function: &'static str,
-        reason: &'static str,
-        disposition: WireDisposition,
-    }
-
-    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-    enum WireDisposition {
-        /// 同一判据已在 host 前置：逐对指名 D1 清单行与判据名，附一句归属说明。
-        Fronted {
-            inputs: &'static [(&'static str, &'static str)],
-            note: &'static str,
-        },
-        /// 不属 host 方向输入值判据，附具名理由。禁空、禁省行。
-        Other(&'static str),
-    }
-
-    fn wire_judgment_ledger() -> Vec<WireJudgment> {
-        let framing = "packet framing 判据：辖成品行的字节形状，双向共用，不绑任何单一输入";
-        let envelope = "packet 信封字段判据：protocolVersion/type/sessionId/requestId 由宿主按\
-                        冻结常量与方向闭集自产，读回时逐值复核";
-        let closed_shape = "契约闭形判据（additionalProperties:false / 缺字段）：辖 packet 的\
-                            字段集，不是某一枚输入的值判据";
-        let closed_enum = "闭集枚举判据：host 方向的取值由 Rust enum 结构性保证，入站侧由 \
-                           decoder 收口";
-        let json_lexical = "JSON 词法判据：辖文本写法，不是任何一枚 host 输入的值判据";
-        let json_depth = "JSON 嵌套深度：结构约束非输入值判据，双向共用";
-        let rust_typed = "JSON 类型判据：host 方向出包由 Rust 类型结构性保证，这一路只对入站\
-                          解码有效";
-        let inbound_only = "只辖 sidecar→host 入站解码，host 方向不生成该字段";
-        let host_outbound_unused = "host_result 是 host→sidecar 出包，但本票 ready capability \
-                                    恰 ['case_read']，宿主一枚都不生成；PI-WRITE-HOST-1 开工时\
-                                    须连同前置门一并补";
-        let list_entries = "array 条目上限：host 方向唯一消费点是 host_result 的 list（本票不\
-                            生成），其余为入站解码";
-        let derived_resume = "resume 三值由本 journal 的 fold 产出，不是入参；对应的 host 侧拒绝\
-                              住在 `start_inner` 的 resume 漂移分支（拒绝分支表逐行有据）";
-        let safe_integer = "MAX_SAFE_INTEGER 封顶：host 方向的整数由宿主自增或由 journal fold \
-                            派生，不是入参";
-        let self_produced_digest = "sha256 由宿主自算（route manifest 与 session_started），\
-                                    不是任何一枚用户入参";
-        let constructor_definition = "拒绝构造式自身的定义，不判任何输入";
-
-        let case_root_shape_note = "caseRoot 的绝对形状门已在 `validate_start_config` 前置";
-        let model_id_trim_note = "modelId 的 trim 非空门已在 `validate_start_config` 前置";
-        let prompt_trim_note = "prompt 文本的 trim 非空门已在 `prompt` 前置";
-        let non_empty_note = "通用非空读取器；host 方向唯一消费点是 bootstrap 的 caseRoot，\
-                              其非空门已在 `validate_start_config` 前置";
-        let length_note = "通用带上界字符串读取器，双向共用；host 方向四枚自由串各有前置上界门";
-        let safe_token_note = "通用 SafeToken 解码器，入站/出站共用；host 方向四枚具名 token \
-                               各有前置门";
-        let max_turns_note = "通用整数读取器的契约上下界，双向共用；host 方向唯一带契约区间的\
-                              入参是 maxTurns";
-        let max_usd_note = "maxUsd 的负值/负零、非有限与上限三态都由 `validate_start_config` 的\
-                            同一道前置门覆盖";
-        let nul_note = "ADR-022 六-B.1 冻结的 wire 字符串判据。NUL 归 host 前置（1R5 §零裁定一：\
-                        副作用、语义、家族三轴）；同一枚理由字面量并管的 **lone surrogate 在 \
-                        Rust `String` 侧结构性不可达**——`String` 保证 Unicode scalar 序列，\
-                        host 方向永远构造不出这一形，故不另设前置门，以本行具名登记。";
-
-        vec![
-            WireJudgment {
-                function: "closed_record",
-                reason: "的字段集必须与契约逐字相同（additionalProperties:false）",
-                disposition: WireDisposition::Other(closed_shape),
-            },
-            WireJudgment {
-                function: "closed_record",
-                reason: "缺少契约字段或含契约外字段",
-                disposition: WireDisposition::Other(closed_shape),
-            },
-            WireJudgment {
-                function: "decode_packet_line",
-                reason: "单 packet 连结尾 LF 超过字节上限",
-                disposition: WireDisposition::Other(framing),
-            },
-            WireJudgment {
-                function: "decode_packet_line",
-                reason: "空行不是 packet",
-                disposition: WireDisposition::Other(framing),
-            },
-            WireJudgment {
-                function: "decode_packet_line",
-                reason: "行不是合法 UTF-8（fatal 解码，不做 U+FFFD 替换）",
-                disposition: WireDisposition::Other(framing),
-            },
-            WireJudgment {
-                function: "decode_packet_line",
-                reason: "行以 CR 结尾：delimiter 只收单字节 LF，CRLF 不放行",
-                disposition: WireDisposition::Other(framing),
-            },
-            WireJudgment {
-                function: "decode_packet_line",
-                reason: "行内出现 LF",
-                disposition: WireDisposition::Other(framing),
-            },
-            WireJudgment {
-                function: "decode_packet_line",
-                reason: "行带 UTF-8 BOM",
-                disposition: WireDisposition::Other(framing),
-            },
-            WireJudgment {
-                function: "decode_packet_node",
-                reason: "protocolVersion 不是本协议版本",
-                disposition: WireDisposition::Other(envelope),
-            },
-            WireJudgment {
-                function: "decode_packet_node",
-                reason: "protocolVersion 必须是规范整数",
-                disposition: WireDisposition::Other(envelope),
-            },
-            WireJudgment {
-                function: "decode_packet_node",
-                reason: "sessionId 不得为 null",
-                disposition: WireDisposition::Other(envelope),
-            },
-            WireJudgment {
-                function: "decode_packet_node",
-                reason: "sessionId:null 只允许 bootstrap 未成立时的 protocol_error",
-                disposition: WireDisposition::Other(envelope),
-            },
-            WireJudgment {
-                function: "decode_packet_node",
-                reason: "type 不在本方向的闭集内",
-                disposition: WireDisposition::Other(envelope),
-            },
-            WireJudgment {
-                function: "decode_packet_node",
-                reason: "type 必须是字符串",
-                disposition: WireDisposition::Other(envelope),
-            },
-            WireJudgment {
-                function: "decode_packet_node",
-                reason: "本 type 的 requestId 不得为 null",
-                disposition: WireDisposition::Other(envelope),
-            },
-            WireJudgment {
-                function: "decode_packet_node",
-                reason: "本 type 的 requestId 必须为 null",
-                disposition: WireDisposition::Other(envelope),
-            },
-            WireJudgment {
-                function: "encode_packet_line",
-                reason: "编码后字节连结尾 LF 超过单 packet 上限",
-                disposition: WireDisposition::Other(framing),
-            },
-            WireJudgment {
-                function: "pick",
-                reason: "{label} 缺少契约字段",
-                disposition: WireDisposition::Other(closed_shape),
-            },
-            WireJudgment {
-                function: "read_agent_event_payload",
-                reason: "aborted/error 回合固定不计入 turn 限额，其余 stopReason 固定计入",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "read_agent_event_payload",
-                reason: "aborted/error 回合的 usage 字段必须全部为 null",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "read_array",
-                reason: "必须是 array",
-                disposition: WireDisposition::Other(rust_typed),
-            },
-            WireJudgment {
-                function: "read_array",
-                reason: "超过条目上限",
-                disposition: WireDisposition::Other(list_entries),
-            },
-            WireJudgment {
-                function: "read_boolean",
-                reason: "必须是 boolean",
-                disposition: WireDisposition::Other(rust_typed),
-            },
-            WireJudgment {
-                function: "read_bootstrap_payload",
-                reason: "after_interruption 的 leg 至少为 2",
-                disposition: WireDisposition::Other(derived_resume),
-            },
-            WireJudgment {
-                function: "read_bootstrap_payload",
-                reason: "caseRoot 必须是平台绝对路径",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[("caseRoot 绝对形状", "is_absolute_path_shape")],
-                    note: case_root_shape_note,
-                },
-            },
-            WireJudgment {
-                function: "read_bootstrap_payload",
-                reason: "fresh 必须是 leg:1 且 prior 三项全零",
-                disposition: WireDisposition::Other(derived_resume),
-            },
-            WireJudgment {
-                function: "read_bootstrap_payload",
-                reason: "maxUsd 已启用时 priorUsd 不得为未知",
-                disposition: WireDisposition::Other(derived_resume),
-            },
-            WireJudgment {
-                function: "read_bootstrap_payload",
-                reason: "priorObservedTurns 不得小于 priorTurns",
-                disposition: WireDisposition::Other(derived_resume),
-            },
-            WireJudgment {
-                function: "read_bootstrap_payload",
-                reason: "provider.modelId trim 后不得为空",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[("provider.modelId", "trim_non_empty")],
-                    note: model_id_trim_note,
-                },
-            },
-            WireJudgment {
-                function: "read_bootstrap_payload",
-                reason: "历史 counted turns 已达 maxTurns，不得启动新 leg",
-                disposition: WireDisposition::Other(derived_resume),
-            },
-            WireJudgment {
-                function: "read_bootstrap_payload",
-                reason: "历史费用已达 maxUsd，不得启动新 leg",
-                disposition: WireDisposition::Other(derived_resume),
-            },
-            WireJudgment {
-                function: "read_enum",
-                reason: "{label} 不在契约闭集内",
-                disposition: WireDisposition::Other(closed_enum),
-            },
-            WireJudgment {
-                function: "read_enum",
-                reason: "必须是字符串",
-                disposition: WireDisposition::Other(rust_typed),
-            },
-            WireJudgment {
-                function: "read_host_result_payload",
-                reason: "uncertain 只允许 workspace write",
-                disposition: WireDisposition::Other(host_outbound_unused),
-            },
-            WireJudgment {
-                function: "read_host_result_payload",
-                reason: "value.byteLength 必须等于 content 的 UTF-8 实长",
-                disposition: WireDisposition::Other(host_outbound_unused),
-            },
-            WireJudgment {
-                function: "read_host_result_payload",
-                reason: "workspace_read 的 operation 不得为 write",
-                disposition: WireDisposition::Other(host_outbound_unused),
-            },
-            WireJudgment {
-                function: "read_host_result_payload",
-                reason: "workspace_write 的 operation 固定为 write",
-                disposition: WireDisposition::Other(host_outbound_unused),
-            },
-            WireJudgment {
-                function: "read_integer",
-                reason: "必须是整数",
-                disposition: WireDisposition::Other(rust_typed),
-            },
-            WireJudgment {
-                function: "read_integer",
-                reason: "的 JSON number lexeme 不是规范非负整数",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "read_integer",
-                reason: "超出契约范围",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[("limits.maxTurns", "MAX_TURNS_LIMIT")],
-                    note: max_turns_note,
-                },
-            },
-            WireJudgment {
-                function: "read_integer",
-                reason: "超出安全整数范围",
-                disposition: WireDisposition::Other(safe_integer),
-            },
-            WireJudgment {
-                function: "read_list_entry",
-                reason: "directory/symlink 条目的 byteLength 必须为 null",
-                disposition: WireDisposition::Other(host_outbound_unused),
-            },
-            WireJudgment {
-                function: "read_list_entry",
-                reason: "file 条目必须给出 byteLength",
-                disposition: WireDisposition::Other(host_outbound_unused),
-            },
-            WireJudgment {
-                function: "read_non_empty_string",
-                reason: "不得为空",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[("caseRoot", "non_empty")],
-                    note: non_empty_note,
-                },
-            },
-            WireJudgment {
-                function: "read_non_negative_number",
-                reason: "不得为负数或 negative zero",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[("limits.maxUsd", "MAX_USD_LIMIT")],
-                    note: max_usd_note,
-                },
-            },
-            WireJudgment {
-                function: "read_non_negative_number",
-                reason: "必须大于 0",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[("limits.maxUsd", "MAX_USD_LIMIT")],
-                    note: max_usd_note,
-                },
-            },
-            WireJudgment {
-                function: "read_non_negative_number",
-                reason: "必须是数值",
-                disposition: WireDisposition::Other(rust_typed),
-            },
-            WireJudgment {
-                function: "read_non_negative_number",
-                reason: "必须是有限数",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[("limits.maxUsd", "MAX_USD_LIMIT")],
-                    note: max_usd_note,
-                },
-            },
-            WireJudgment {
-                function: "read_non_negative_number",
-                reason: "超出契约上限",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[("limits.maxUsd", "MAX_USD_LIMIT")],
-                    note: max_usd_note,
-                },
-            },
-            WireJudgment {
-                function: "read_prompt_payload",
-                reason: "prompt.text trim 后不得为空",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[("prompt.text", "trim_non_empty")],
-                    note: prompt_trim_note,
-                },
-            },
-            WireJudgment {
-                function: "read_protocol_error_payload",
-                reason: "protocol_error.fatal 恒为 true",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "read_ready_payload",
-                reason: "ready.capabilities 必须去重并按字典序升序",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "read_safe_token",
-                reason: "不满足 SafeToken 形状",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[
-                        ("containerId", "is_safe_container_token"),
-                        ("sessionId", "is_safe_container_token"),
-                        ("grantId", "is_safe_token"),
-                        ("prompt.requestId", "is_safe_token"),
-                    ],
-                    note: safe_token_note,
-                },
-            },
-            WireJudgment {
-                function: "read_safe_token",
-                reason: "必须是 SafeToken 字符串",
-                disposition: WireDisposition::Other(rust_typed),
-            },
-            WireJudgment {
-                function: "read_sha256_hex",
-                reason: "必须是字符串",
-                disposition: WireDisposition::Other(rust_typed),
-            },
-            WireJudgment {
-                function: "read_sha256_hex",
-                reason: "必须是小写 64 位 hex",
-                disposition: WireDisposition::Other(self_produced_digest),
-            },
-            WireJudgment {
-                function: "read_string",
-                reason: "必须是字符串",
-                disposition: WireDisposition::Other(rust_typed),
-            },
-            WireJudgment {
-                function: "read_string",
-                reason: "超过 UTF-8 字节上限",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[
-                        ("provider.modelId", "MAX_MODEL_ID_BYTES"),
-                        ("caseRoot", "MAX_CASE_ROOT_BYTES"),
-                        ("provider.apiKey", "MAX_API_KEY_BYTES"),
-                        ("prompt.text", "MAX_TEXT_BYTES"),
-                    ],
-                    note: length_note,
-                },
-            },
-            WireJudgment {
-                function: "read_terminal_payload",
-                reason: "budget_stopped 必须给出 budget.stopReason",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "read_terminal_payload",
-                reason: "本 failed code 属不可重试闭集，retryable 必须为 false",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "read_terminal_payload",
-                reason: "非 budget terminal 的 budget.stopReason 必须为 null",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "read_write_arguments",
-                reason: "arguments.byteLength 必须等于 content 的 UTF-8 实长",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "reject",
-                reason: "<无字面理由>",
-                disposition: WireDisposition::Other(constructor_definition),
-            },
-            WireJudgment {
-                function: "reject_field",
-                reason: "{label} {tail}",
-                disposition: WireDisposition::Other(constructor_definition),
-            },
-            WireJudgment {
-                function: "require_object",
-                reason: "必须是 JSON object",
-                disposition: WireDisposition::Other(rust_typed),
-            },
-            WireJudgment {
-                function: "scan_array",
-                reason: "JSON array 未正确闭合",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_array",
-                reason: "JSON 嵌套超过深度上限",
-                disposition: WireDisposition::Other(json_depth),
-            },
-            WireJudgment {
-                function: "scan_hex4",
-                reason: "JSON `\\\\u` 转义必须是四位 hex",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_literal",
-                reason: "JSON 字面量不合语法",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_number",
-                reason: "JSON number 不合语法",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_number",
-                reason: "JSON number 的小数部分缺数字",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_number",
-                reason: "JSON number 的指数部分缺数字",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_object",
-                reason: "JSON object 出现重复 member（任一层皆拒）",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_object",
-                reason: "JSON object 未正确闭合",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_object",
-                reason: "JSON object 的 member 名必须是字符串",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_object",
-                reason: "JSON object 的 member 缺少冒号",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_object",
-                reason: "JSON 嵌套超过深度上限",
-                disposition: WireDisposition::Other(json_depth),
-            },
-            WireJudgment {
-                function: "scan_string",
-                reason: "JSON 字符串含契约外转义",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_string",
-                reason: "JSON 字符串含未转义控制字符",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_string",
-                reason: "JSON 字符串未闭合",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_string",
-                reason: "wire 字符串必须是不含 NUL 与 lone surrogate 的 Unicode scalar 序列",
-                disposition: WireDisposition::Fronted {
-                    inputs: &[
-                        ("provider.modelId", "is_nul_free"),
-                        ("caseRoot", "is_nul_free"),
-                        ("provider.apiKey", "is_nul_free"),
-                        ("prompt.text", "is_nul_free"),
-                    ],
-                    note: nul_note,
-                },
-            },
-            WireJudgment {
-                function: "scan_value",
-                reason: "JSON 在期待值的位置提前结束",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "scan_with",
-                reason: "只允许一个 JSON 值，其后出现多余内容",
-                disposition: WireDisposition::Other(json_lexical),
-            },
-            WireJudgment {
-                function: "validate_terminal_budget",
-                reason: "budget_stopped 不得携带 unknown usdLimit",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "validate_terminal_budget",
-                reason: "failed budget_unknown 必须携带 unknown usdLimit",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "validate_terminal_budget",
-                reason: "turnLimit reached 的 budget_stopped 必须以 turns 停止",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "validate_terminal_budget",
-                reason: "usdLimit 为 unknown 时 usd 必须为 null",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "validate_terminal_budget",
-                reason: "已知金额限额状态必须携带已知 usd",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "validate_terminal_budget",
-                reason: "此 terminal 不得绕过 effect/budget 优先级",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-            WireJudgment {
-                function: "validate_terminal_budget",
-                reason: "非 turn reached 的 budget_stopped 必须由 usd reached 停止",
-                disposition: WireDisposition::Other(inbound_only),
-            },
-        ]
-    }
-
-    /// G2.2：`pi_loop_protocol.rs` 生产段的**全部具名拒绝**逐条要求本表有行；
-    /// 新增一枚具名判据（新理由，或把老理由搬进新函数）不入账即红。
-    #[test]
-    fn wire_judgment_ledger_covers_every_named_protocol_rejection() {
-        let source = include_str!("pi_loop_protocol.rs");
-
-        // ① 拒绝构造式闭集：`PacketRejection { … }` 字面量只许住在冻结的四枚函数里。
-        let mut literal_sites: Vec<String> = Vec::new();
-        for (owner, line) in attributed_production_lines(source) {
-            if !strip_trailing_comment(line).contains("PacketRejection {") {
-                continue;
-            }
-            if let Some(function) = owner {
-                if !literal_sites.contains(&function) {
-                    literal_sites.push(function);
-                }
-            }
-        }
-        literal_sites.sort();
-        let frozen: Vec<String> = WIRE_REJECTION_LITERAL_SITES
-            .iter()
-            .map(|name| name.to_string())
-            .collect();
-        assert_eq!(
-            literal_sites, frozen,
-            "新写一枚拒绝构造式即红：否则它的调用点会整族逃出扫描面"
-        );
-
-        // ② 全部具名拒绝与手写表逐行相同。
-        let scanned = scan_wire_rejections(source);
-        let table = wire_judgment_ledger();
-        let mut registered: Vec<(String, String)> = table
-            .iter()
-            .map(|row| (row.function.to_string(), row.reason.to_string()))
-            .collect();
-        registered.sort();
-        assert_eq!(
-            scanned, registered,
-            "协议模块的具名拒绝必须与对照表逐行相同：新增一枚判据就得同批补表并给出归属"
-        );
-
-        // ③ `Fronted` 行必须真落在 D1 清单的 `(input, judgment)` 上，且该行的 site
-        //    在 host 前置族内——「已前置」不许只是嘴上说。
-        let manifest = bounded_input_manifest();
-        for row in &table {
-            match row.disposition {
-                WireDisposition::Fronted { inputs, note } => {
-                    assert!(
-                        !inputs.is_empty(),
-                        "{}/{} 登记为已前置，却没指名清单行",
-                        row.function,
-                        row.reason
-                    );
-                    assert!(
-                        !note.trim().is_empty(),
-                        "{}/{} 登记为已前置，却没写归属说明",
-                        row.function,
-                        row.reason
-                    );
-                    for (input, judgment) in inputs {
-                        let entry = manifest
-                            .iter()
-                            .find(|entry| entry.input == *input)
-                            .unwrap_or_else(|| {
-                                panic!(
-                                    "{}/{} 指名的清单行 {input} 不存在",
-                                    row.function, row.reason
-                                )
-                            });
-                        assert!(
-                            entry.judgments.contains(judgment),
-                            "{}/{} 指名清单行 {input} 由 {judgment} 前置，该行的判据表里却没有它",
-                            row.function,
-                            row.reason
-                        );
-                        assert!(
-                            HOST_PREFLIGHT_FAMILY.contains(&entry.site),
-                            "{}/{} 指名的清单行 {input} 落在 host 前置族之外的 {}",
-                            row.function,
-                            row.reason,
-                            entry.site
-                        );
-                    }
-                }
-                WireDisposition::Other(reason) => {
-                    assert!(
-                        !reason.trim().is_empty(),
-                        "{}/{} 登记为非 host 输入值判据，却没写理由",
-                        row.function,
-                        row.reason
-                    );
-                }
-            }
-        }
-
-        // ④ 计数冻结。
-        let fronted = table
-            .iter()
-            .filter(|row| matches!(row.disposition, WireDisposition::Fronted { .. }))
-            .count();
-        assert_eq!(table.len(), 90, "协议模块具名拒绝行数");
-        assert_eq!(fronted, 12, "其中已由 host 前置的行数");
     }
 }
