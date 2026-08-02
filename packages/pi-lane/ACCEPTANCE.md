@@ -1370,3 +1370,115 @@ host→sidecar 闭集，且 `requestId` 是其公共 header 上的非空 SafeTok
 `PI-WRITE-HOST-1` 不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修至少须
 把 `requestId` 纳入手写族清单与双轴常驻反例，并让删除其前置门的 mutation 真实变红；订正 D3/回执
 计数后，再交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R4 独立复验（2026-08-02，拒绝）
+
+对象：exact target `d4163df2adfc3e481b0ccecad09728be918f509b`，implementation tip
+`a204d139e44edd4d4ec6807be01fdcec2b4cedd4`，组合基线
+`f20e27696c718bba79775c4742a5f89b7b20fee4`；票面冻结于 `main@157407a`。验收在独立
+worktree `/private/tmp/courtwork-accept-pi-host-loop-1r4-codex`、分支
+`codex/accept-pi-host-loop-1r4` 进行；未进入或读取实现树，十五枚证据链经 `git cherry` 复核为
+patch-id **15/15** 等价。
+
+**最终判定：REJECT。** 本轮指名的 requestId 门、SafeToken 七成员清账、M1–M4 与 E2 真源订正
+都成立，D2/D3 也没有回退；但 E1 的完成态仍未达到“扫描谓词与受验输入族同宽”。当前 scanner
+只识别三枚手写函数名、`MAX_*` 与 `.trim()`，看不见协议里已经存在的 wire-string NUL 格式门。
+`modelId`、`apiKey` 与 prompt `text` 含 NUL 时均越过应在 append/spawn 前完成的 Host preflight；
+前两者已落 `session_started`（apiKey 本体仍不落账）并 spawn，prompt 则已落 `user_prompted`，
+最后才由 encoder 回灌 decoder 报错。故本轮唯一决定性 blocker 同时有**现存契约成员＋production-used
+副作用＋覆盖装置假绿**三轴证据，不依赖假设未来会新增什么规则。
+
+## 独立基线、快照与健康 controls
+
+- `f20e276..a204d13` 只改 `apps/desktop/src-tauri/src/pi_loop.rs` 的 test module；生产前缀在
+  base/implementation/target 逐字节相同，SHA-256 均为
+  `44a7ff55ecef4a0dfca5706c2b7fb4acbe18704fa6764017109076d66f29f33a`。
+  `a204d13..d4163df` 只追加本票回执，`ACCEPTANCE.md` 在实现树零触碰。
+- 本验收自建 product snapshot：sealed CJS `523,235` B /
+  `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`；arm64 runtime
+  `112,928,848` B / `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`；x64 runtime
+  `115,447,952` B / `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`；
+  tracked manifest `1,272` B /
+  `590827f328ee9d8c24b84e3a32935005cb8a7abf6b79855988a300f9c1a0f19e`。Route A 身份无漂移。
+- 独立实跑：pi-lane Vitest **14 files / 448 passed**；Rust **162 passed / 0 failed / 1 ignored**，
+  其中 `pi_loop::tests` **32 passed / 0 failed / 1 ignored**；builder **10/10**、verified-node gate
+  **8/8**、production gate **10/10**、scripted control **14/14**、isolation **43/43**，desktop
+  isolation lint 与 `git diff --check` 均绿。全仓 `cargo fmt --check` 的 56 hunk 全属既有五文件，
+  本票 `pi_loop.rs` 定向 rustfmt 为绿。
+
+这些 controls 证明现有列项健康，不替代下面对 E1 自证闭集的反例。
+
+## E1 指名闭口与 E2 复核
+
+requestId 两形态反例会在 `user_prompted`/send 前以 `invalid_ref` 拒绝，journal bytes、内存 records、
+writes 三不变。验收自行实注并逐枚恢复四枚 mutation：
+
+| mutation | 独立结果 |
+|---|---|
+| M1 撤 requestId production 门 | exit 101，ledger 锚点与 requestId 行为反例共 2 failed |
+| M2 扫描轴回退到只认 `MAX_*` | exit 101，函数型判据行全部失锚 |
+| M3 删除 requestId manifest 行 | exit 101，清单外门与 SafeToken 清账共 2 failed |
+| M4 同时撤 production 门并删清账行 | exit 101，manifest 正向锚与行为反例共 2 failed |
+
+四枚均命中、定向红、零等价；这部分 PASS。SafeToken 七成员以及 cancel/shutdown 两条现状理由也
+逐行有据。E2 计数从 exact target 真源重算：1R3 为 manifest **10/28**、ledger
+**12 Fronted + 27 Other**；1R4 为 **11/30**、**22 Fronted + 37 Other**，与回执订正一致。
+回执引用的清账真源均在树内，八项偏离可追认，不构成拒绝原因。
+
+## Blocker：现存 NUL 格式门不在扫描族内，三类 Host 输入后置失败
+
+ADR-022 六-B.1 冻结“所有 wire 字符串不得含 NUL 或 lone surrogate”；R4 E1.2 要求扫描
+host 方向生产段的格式判据（列举项前写的是“至少”），并明确“生产段出现清单外的受验门即红”。
+workflow 同批补正又把受验输入展开为“常量上界门＋格式门＋非空门…”，禁止用语法标记反过来
+定义族。
+
+R3 D1 的旧句只点“冻结上界或非空/形状”，但 R4 正是对此扫描轴作补正，并用“格式判据、至少”
+和“格式门…”显式扩宽族；本验收以较新的 R4 条款为准，不能把未写在三枚示例名字里的既有格式门
+静默降成 `Other`。若架构意图排除 decoder-only wire-scalar，须另在票面具名排除，不能由实现的
+hardcoded allowlist 代替该裁定。
+
+仓库里这道门不是推演：`pi_loop_protocol.rs::scan_string()` 对 `unit == 0` 具名返回
+`InvalidSchema`；`encode_packet_line()` 序列化后回灌该 decoder，自带常驻 NUL 反例亦为
+**1 passed**。但 Host 前置层只做：
+
+- `validate_start_config()`：modelId trim/长度，caseRoot 非空/长度/shape；
+- `validate_api_key()`：trim/长度；
+- `prompt()`：requestId SafeToken、text trim/长度。
+
+1R4 的 `PREDICATE_JUDGMENTS` 则仍是
+`[is_safe_token,is_safe_container_token,is_absolute_path_shape]` 三枚硬编码名字，另特判
+`.trim()`；inline `unit == 0` 既不进 scanner，也不进 ledger/manifest。验收临时加入一枚只记录
+production-used 结果的 NUL 探针，实跑 **1 passed / 163 filtered**，原始状态变化为：
+
+| 输入 | target 返回 | spawn | durable journal / 内存 records | sidecar writes |
+|---|---|---:|---|---:|
+| `modelId = "m\0x"` | `Protocol(InvalidSchema)` | `0 → 1` | `0 B → 563 B`；`0 → 1` | `0 → 0` |
+| `apiKey = "k\0x"` | `Protocol(InvalidSchema)` | `0 → 1` | `0 B → 564 B`；`0 → 1` | `0 → 0` |
+| prompt `text = "p\0x"` | `Protocol(InvalidSchema)` | 已为 1 | `564 B → 784 B`；`1 → 2` | `1 → 1` |
+
+前两枚先 durable `session_started`、再 spawn，bootstrap encoder 才拒；第三枚先 durable
+`user_prompted` 并占用 requestId，prompt encoder 才拒。Host 对外只保留
+`Protocol(InvalidSchema)`；另行直调 codec 得到的 rejection reason 恰为
+“wire 字符串必须是不含 NUL 与 lone surrogate 的 Unicode scalar 序列”。这与 R3 首红中“先落账/
+spawn、再由 encoder 拦”的机制同形，也证明 NUL 是当前实际闭集成员，而不是为验收杜撰的新契约。
+
+覆盖装置的结构反例与动态结果一致：验收临时在 `validate_start_config()` 加一条不命中既有 fixture
+的 `model_id.contains('/')` 格式门，不登记 ledger/manifest；ledger 常驻与 D1 全反例常驻仍各自
+**1 passed**。本项只用来证明 hardcoded syntax allowlist 的 false-green 机制；决定性结论本身由
+上述既有 NUL 契约与真实副作用承担。
+
+## 停止边界、恢复与结论
+
+所有 M1–M4、NUL probe 与 scanner 结构反例均已精确拆除。报告落笔前 `pi_loop.rs` 恢复 target
+blob `89a97c98ef7811a72cc70917a20428440153c45b`、SHA-256
+`f84d265ab2e0076a3feb8c2160271bd5b62dfd76c4669f2e7714e376b35c12d1`；`git diff --check`
+与报告外 tracked diff 均为零。验收没有代修 production、测试或合同。
+
+**结论重申：`PI-HOST-LOOP-1R4@d4163df` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。
+**[需架构拍板]** 返修前须先在票面裁定 wire-scalar/NUL 在 E1 的归属：若属 `Fronted`，纳入 D1
+显式清账与 Host 前置边界；若属 codec `Other`，则须具名写出允许上述 durable 副作用的依据，并让
+scanner/ledger 至少能发现、登记这道现存格式门。两路都不能继续由三枚函数名字面量静默决定族；
+裁定与实现完成后交另一全新会话从 clean worktree 复验。
