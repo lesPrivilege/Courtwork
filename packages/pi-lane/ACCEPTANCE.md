@@ -1587,3 +1587,124 @@ blocker。
 `PI-WRITE-HOST-1` 继续不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修须让
 scanner population 由 Rust 拒绝结构而非若干源文本 token 派生，并把当前 M4 的等价返回形态转为
 常驻定向红；完成后交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R6 独立复验（2026-08-02，拒绝）
+
+对象：exact target `57a19a5f7fabf0315055f3b0b294580ac7ec5132`，implementation tip
+`e3118a715887b7dcc5360735792020c97242232b`，组合基线
+`601ba56f4c8c2dc9235ddd8176189f3355f31c05`；票面冻结于 `main@4dc8e85`。验收在独立
+worktree `/private/tmp/courtwork-accept-pi-host-loop-1r6-codex`、分支
+`codex/accept-pi-host-loop-1r6` 进行；未进入或读取实现树。二十二枚证据链逐枚比较 stable
+patch-id，结果 **22/22 等价**；`601ba56..e3118a7` 只改
+`apps/desktop/src-tauri/src/pi_loop.rs`，回执提交只改
+`packages/pi-lane/specs/PI-HOST-LOOP-1R6.md`，`ACCEPTANCE.md`、`current.md` 与 readiness 在
+目标树零触碰。
+
+**最终判定：REJECT。** fresh start、prompt、cancel/shutdown 的先编码形状与同一份 bytes 复用
+成立，H2 的退役/保留边界与 142 枚电池构成也成立；但 `start_inner()` 在真实 bootstrap 编码前
+先调用会写盘的 `load_session()`。恢复旧会话时，后者会截断 partial tail、补 usage 或执行 crash
+fold。验收加入一条 Host 尚未手抄的 codec-only future rule 后，第二次 start 最终返回具名
+`invalid_config`，却已先把 `session_interrupted` durable append：journal **558 B → 790 B**，
+spawn `0`、wire write `0`。这直接否定票面“任何 journal append 前编码”、`Err ⇒ journal 字节零增`
+以及“∀今日与未来 codec 规则结构性成立”；同步账并未在 resume/recovery 路径上消失。
+
+## 独立事实、snapshot 与健康 controls
+
+- 验收树先在 exact target 保持 clean；target parent=`e3118a7`、implementation parent/base=
+  `601ba56`、target/main merge-base=`4dc8e85`。`4dc8e85..main@5642c65` 仅有 WRITE-HOST 前向债的
+  readiness 文档一行，不含本票实现，交接坐标成立。
+- 独立 frozen install 后自建 product snapshot。sealed CJS 为 **523,235 B** /
+  `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`；arm64 runtime 为
+  **112,928,848 B** / `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`；
+  x64 runtime 为 **115,447,952 B** /
+  `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`。三件身份与交接一致。
+- `pi_loop.rs` production prefix 独立重算为 **55,787 B** /
+  `c6cc789aa4ce2f579a190fd5f108d3b6d92297d1b9bd2df19f1b8df95ddc82ea`，与回执一致；Node
+  侧 production 零漂移。
+- 独立 Node controls：product-sidecar builder **10/10**、verified-node gate **8/8**（同尺寸
+  XOR、symlink、manifest 漂移及同步漂移均实注变红）、production gate **10 PASS**、scripted
+  control 全 PASS。
+- H1 两枚定向 baseline：`the_bytes_validated_before_the_effect_are_the_bytes_put_on_the_wire`
+  与 `a_codec_refusal_surfaces_as_a_named_refusal_without_echoing_the_input` 各 **1 passed / 0 failed**。
+  它们证明 fresh/正常路径的 bytes 复用与具名零回显映射可达，不替代下节 recovery 反例。
+
+## 成立面：fresh/prompt 两相形状与 H2 装置替换
+
+H1 在正常路径上的形状成立：bootstrap 于 `pi_loop.rs:585-628` 编码，早于本函数自己的
+opening append（`:630-632`）与 spawn（`:634-635`）；prompt 于 `:795-806` 编码，早于
+`user_prompted` append/内存认领（`:808-817`）与 write（`:819-820`）；cancel/shutdown 共用
+只在编码成功后推进 seq 的 `send()`。`write_encoded()` 只搬运 `OutboundLine.bytes`，定向守卫也
+确认发出的就是效果前验证过的同一份 bytes。
+
+H2 的完成态按明文合同成立：
+
+- 三枚退役测试及轴 A/轴 B/75 行同步账的 35 枚函数、类型、常量逐名对应授权清单；目标源码
+  对这 35 名全文零残留。`#[test]` 数量 parent/target 均为 35。
+- D1 手写清单 11 行/34 枚行为反例、G1 四道 NUL 门、SafeToken 七成员与四轴
+  `prompt_axis_probe` 均在位。父树主保留段与目标唯一逐字节匹配。
+- `violation_battery()` 静态为 **142** 行、10 字段：三枚 token 字段 `3×16`、model `16`、
+  caseRoot `19`、apiKey `16`、maxTurns `3`、maxUsd `8`、prompt text `16`、requestId `16`；
+  protocol 上界直接 import，SafeToken 上界经实际判据探出。普适 probe 对已拒样本逐项核
+  spawn/journal bytes/records/writes/requestId/no-echo，并带一枚合法 control。
+
+一处非阻断事实偏差：回执 §三称保留面 `3,129` 行且 parent `4114–4273` 共 160 行逐字节原样；
+实际内容保留到 `4272`，目标少的是测试后的单枚空行，即 **3,128 行内容 + 1 行格式空缺**，行为
+零影响，但后续回执应订正。另源码 `pi_loop.rs:211-222` 仍以现在时声称 encoder 在 spawn 后并提及
+已退役的“源码扫描双向自证”，属于自陈漂移；它不构成本次 production blocker。
+
+## Blocker：`load_session()` 的 durable recovery 发生在真实编码之前
+
+票面 §零明文要求 Host 在**任何** journal append 与 spawn 前真实编码 exact packet
+（`PI-HOST-LOOP-1R6.md:21-27`），并承诺 wire 判据对“今日与未来 codec 规则”结构性成立
+（`:37-40`）；普适不变量是 `Err ⇒ journal 字节零增`（`:30-35`）。ADR-022 同样裁定
+“journal/spawn 前真实编码”（`ADR-022-pi-lane.md:1267-1271`）。
+
+目标实现的实际顺序是：
+
+1. `start_inner()` 于 `pi_loop.rs:511-521` 调 `load_session()`；
+2. `load_session()` 可先截断 partial tail（`pi_loop_journal.rs:2168-2184`）、补
+   `turn_usage_recorded`（`:2260-2284`），再调用 crash fold（`:2291-2297`）；open idle leg 的
+   step 5 会 durable append `session_interrupted`（`:2588-2603`）；
+3. 直到上述动作完成，`start_inner()` 才于 `pi_loop.rs:627-628` 真实编码 bootstrap。
+
+验收从 exact blob 出发作一枚结构性 mutation：只在 protocol 的 bootstrap decoder 为
+`provider.modelId` 增加 `contains('/')` 的 codec-only future wire rule，不在 Host 增加/删除手写门。
+然后用正常 start 建立一份 leg-open journal，把历史 `modelId` 改成 journal schema 本来允许、且与
+二次 config 相同的 `deepseek/v4`，再驱动完整 resume/start。该历史可恢复、不是 malformed/quarantine
+样本；唯一新增拒绝来自 exact bootstrap 的真实 codec。focused test 实得：
+
+```text
+future-codec-after-load: journal_bytes_before=558 after=790 spawn=0 writes=0 error_code=invalid_config
+temporary_future_codec_rejection_after_load_session_writes_before_err ... ok
+test result: ok. 1 passed; 0 failed
+```
+
+新增 rule 的 code 映射是对的，spawn/write 也确为零；失败点恰在 durable append **之后**：790 B
+journal 已包含 `session_interrupted`。因此不是“哪道显式门漏抄”的第七轮实例，而是裁定所依赖的
+两相边界仍切在副作用函数之后。回执偏离 5（`PI-HOST-LOOP-1R6.md:360-365`）只实测并披露 fresh
+失败会留下零字节 journal/lock，没有披露既有 session 上 `load_session()` 的非零截断、补写与 crash
+fold；该偏离不能豁免 §零/ADR 的 broad invariant。
+
+这枚反例也解释为何目标常驻 142 电池照绿：`universal_start_case` 每行都从 fresh harness/session
+起步，只观察 `load_session()` 新建的零字节文件；它没有一枚 recoverable existing-session 输入，因而
+无法命中编码前的 durable recovery 分支。
+
+## 停止边界、恢复与结论
+
+- codec-only rule 与临时 recovery test 均以 `apply_patch` 精确拆除；没有作
+  `fix-by-acceptance`，没有修改 production、测试或合同来代修。
+- 恢复后 `pi_loop_protocol.rs` target blob 为
+  `47991acb84e09f731d19eb95b315012eacc0a0c6`，`pi_loop.rs` target blob 为
+  `fdc75ff91c224020c7eefdc7ce96ea4d7a335d1d`；`git diff --check` 净，报告之外无 tracked diff。
+- 决定性 H1 结构违约成立后，按停止边界不再虚耗 cargo/clippy/root full-build 长矩阵；已跑的
+  snapshot、Node controls、H1 focused controls 与 H2 静态核验只登记健康范围，不抵消 blocker。
+
+**结论重申：`PI-HOST-LOOP-1R6@57a19a5` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 继续不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。
+**[需架构拍板]** 下一轮必须让 recovery 的“读取/校验/计划”与 durable apply 分相：先从纯投影构造并
+真实编码 exact bootstrap，成功后才执行 partial-tail/usage repair/crash-fold/opening append 与 spawn；
+或在契约层明确撤回“任何 append”“Err ⇒ 零字节”“∀ future codec rule”三项结构担保并给出新的可验
+边界。不能继续以 fresh journal 的零字节读数代替已有 session 的恢复副作用；完成后交另一全新会话
+从 clean worktree 复验。
