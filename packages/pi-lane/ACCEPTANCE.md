@@ -1284,3 +1284,89 @@ M10 状态机变异；它们没有扩张 wire/contract，也不是本次拒绝�
 **结论重申：`PI-HOST-LOOP-1R2@1ab9c03` REJECT。** `current.md` 不更新，
 `PI-WRITE-HOST-1` 继续不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修须由
 实现角色闭合上述两项后，再交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R3 独立复验（2026-08-02，拒绝）
+
+对象：exact target `51369e4d7143497d3c8a4e9c3af3f20e44893d79`，implementation tip
+`51c823f`，组合基线 `5396ad8`；票面冻结于 `main@7992b3a`，验收时 main 为 `56822a9`，后者只另加
+`PI-WRITE-HOST-1` 前向债。验收在独立 worktree
+`/private/tmp/courtwork-accept-pi-host-loop-1r3-codex`、分支
+`codex/accept-pi-host-loop-1r3` 进行；没有进入或读取实现树，也没有消费实现者 snapshot/cache。
+组合基线的十二枚证据链经 `git cherry` 复核为 patch-id 12/12 等价。
+
+**最终判定：REJECT。** D2 的 tracked-manifest expected side 与三类同步漂移已闭合；D1 当前生产
+也确实会拒绝坏 `requestId`。但 1R3 的完成态不是“今天实现里恰有一道门”，而是“该族闭集被手写
+清单穷举，且覆盖本身有机器自证”。当前所谓完整 D1 清单漏掉 host→sidecar prompt header 的
+`requestId`；临时撤掉唯一 production 门后，清单、MAX ledger 与既有 prompt 常驻测试全部继续绿。
+这正是本票 §零要消灭的“下一轮再找到一个同族兄弟”，故属于票面自证合同未完成，不是验收者可
+代补的小测试缺口。
+
+## 独立 snapshot 与健康 controls
+
+- 新 worktree 起初没有 `dist/product-sidecar`。本会话从该树安装 frozen lockfile 并执行
+  `build:product-sidecar`，自建 snapshot；sealed CJS 为 `523,235` B /
+  `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`，arm64 runtime 为
+  `112,928,848` B / `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`，
+  x86_64 runtime 为 `115,447,952` B /
+  `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`；tracked manifest 为
+  `1,272` B / `590827f328ee9d8c24b84e3a32935005cb8a7abf6b79855988a300f9c1a0f19e`。
+- `test:verified-node-gate` 为 **8/8**；production gate 与 scripted control 均 exit 0。独立
+  `/private/tmp` CoW layout 的 bundle+manifest 同步漂移、arm64 runtime+manifest 同步漂移、
+  layout manifest 冻结字段漂移三类反例均在 tracked-vs-layout byte identity 门真实变红，fixture
+  已清理。D2 的 expected side 确为 tracked manifest，layout manifest 先逐字节相等才允许 decode。
+- Rust `pi_loop::tests` 为 **31 passed / 1 ignored**；D1 清单、bounded ledger、config/prompt
+  时序的定向正向 tests 均绿。它们证明现有列项健康，但不能替代下文对自证盲区的 mutation。
+
+## Blocker：D1 的 SafeToken 族漏 `requestId`，撤门后全套自证假绿
+
+ADR-022 六-B.1 明列
+`containerId/grantId/sessionId/requestId/operationId/eventId/toolCallId` 共用 SafeToken；prompt 是
+host→sidecar 闭集，且 `requestId` 是其公共 header 上的非空 SafeToken。当前
+`PiLoopHost::prompt()` 在 `pi_loop.rs:678` 用 `is_safe_token(request_id)` 前置拒绝，语义本身正确；
+但 `bounded_input_manifest()` 的十行只列 `containerId/sessionId/grantId` 三枚 SafeToken 输入，
+没有 `requestId`。另一道 scanner 只枚举 `MAX_*` 常量，而 SafeToken 判据是函数、没有可被它发现的
+`MAX_REQUEST_ID_*`，所以两道证明共享同一盲区。
+
+验收先以临时 test 构造 `requestId = 'r' × 129` 与 `bad/id`：原 target 均在
+`user_prompted`/send 前以 `invalid_ref` 拒绝，journal bytes、内存 records 与 writes 不变。随后只
+临时撤掉 `prompt()` 的三行 `is_safe_token(request_id)` production guard，命中数恰一；实跑结果：
+
+| 常驻证据 | 撤门后的结果 |
+|---|---|
+| `counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn` | **PASS（假绿）** |
+| `bounded_constant_ledger_matches_the_source_and_covers_every_frozen_bound` | **PASS（假绿）** |
+| `counterexample_prompt_gate_runs_before_the_user_prompted_append` | **PASS（假绿）** |
+| 独立 requestId 扩边 probe | **exit 101**；实得 `protocol`，期望 `invalid_ref` |
+
+因此现有机器证据既不能证明 SafeToken 前置闭集完整，也不能在删除已存在的同族门时报警。cancel 只
+复用已验证 active request、shutdown 为 null；当前 host 不生成 `host_result`，event/toolCall 是
+反方向，均不改变 prompt `requestId` 是本票当前 production-used 漏项这一事实。
+
+## D3 清账与偏离复核
+
+- `MAX_*` scanner 的四模块范围与仓库 production 使用面相符，15 枚声明常量、39 行 ledger 的
+  定向测试通过；五枚当前不适用的 host-result/list/logical-path 项均有理由，且已在
+  `main@56822a9` 挂为 `PI-WRITE-HOST-1` 开工必偿债。本轮按架构交接口径接受该前向登记。
+- 表②的 Rust decoder 期望是源码内手写闭集键/范围，未从被判 manifest 派生；本票 D3 要求登记
+  expected source，不另要求复制第二份 decoder 真值表，故该行的“独立”分类不作为拒绝理由。回执
+  §七八项偏离也都在白名单与只收紧范围内，可追认。
+- 回执仍有须订正的事实误差：`bounded_input_manifest()` 实为 **10 行 / 28 枚反例**，不是
+  “9 行 / 26 枚”；39 行 ledger 实为 **12 Fronted + 27 Other**，不是 “11 + 28”；所称完整表
+  `12-d3-table1.md` 也不在 exact target，当前可核的完整真源只有 Rust 函数。这些不另立第二枚
+  blocker，但下一轮回执必须据实修正，不能继续拿错误计数宣称穷举完成。
+
+## 停止边界、恢复与结论
+
+- 决定性 D1 blocker 成立后，按票面停止边界没有继续虚耗 full cargo/root 九门长矩阵；已跑的
+  D2/Rust controls 只登记健康范围，不抵消覆盖自证假绿。
+- 临时 requestId test、production mutation、CoW layout 与依赖 symlink 均已移除；
+  `pi_loop.rs` 的 blob 恢复为 target 的
+  `5ae2a107f478fb8306c2e638359bafb21a021a59`，报告落笔前 `git diff --check` 为零，报告之外无
+  tracked 残留。验收没有作 `fix-by-acceptance`，也没有改 production 或合同。
+
+**结论重申：`PI-HOST-LOOP-1R3@51369e4` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修至少须
+把 `requestId` 纳入手写族清单与双轴常驻反例，并让删除其前置门的 mutation 真实变红；订正 D3/回执
+计数后，再交另一全新会话从 clean worktree 复验。
