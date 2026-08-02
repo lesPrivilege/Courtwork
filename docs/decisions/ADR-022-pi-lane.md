@@ -1261,6 +1261,13 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 
 ## 修订记录
 
+- **2026-08-02 · HOST-LOOP 1R 复验拒绝与 1R2 四项闭口**：`PI-HOST-LOOP-1R@fa9e2f8`
+  经独立复验 `427f4fa` REJECT——`aborted` 终态未走 canceled、bootstrap 三项上界后置于
+  spawn、journal 载入接受孤儿 usage 与倒序 observed turn、verified-node gate 对 runtime
+  同尺寸篡改/symlink/manifest 字段漂移假绿（另录 builder 回执 resource 前缀同源漂移）。
+  1R 十一项常驻与正向 controls 全绿不抵消。新立 `PI-HOST-LOOP-1R2`
+  （`specs/PI-HOST-LOOP-1R2.md`）冻结四项闭口；基线顺取九枚 patch-id 等同，两枚拒绝
+  报告随链入树；1R 十一项与既有门不回退。
 - **2026-08-01 · HOST-LOOP 首轮验收拒绝与 1R 十一项闭口**：`PI-HOST-LOOP-1@0d4799c`
   经独立验收 `314117d` REJECT。决定性违约为凭证读取先于 route 身份门（逐字违反「route-pair
   失败先于 Keychain read/journal/spawn」）；另十枚坐实非法输入回显物理根、provider error 与
