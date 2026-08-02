@@ -17,6 +17,7 @@
     "build": "tsc -p tsconfig.json",
     "build:product-sidecar": "node scripts/build-product-sidecar.mjs",
     "test:product-sidecar": "node --test scripts/build-product-sidecar.test.mjs",
+    "test:verified-node-gate": "node --test scripts/verified-node-gate.test.mjs",
     "gate:verified-node-production": "node scripts/verified-node-gate.mjs production",
     "gate:verified-node-control": "node scripts/verified-node-gate.mjs control",
     "dev": "tsx src/sidecar-main.ts"

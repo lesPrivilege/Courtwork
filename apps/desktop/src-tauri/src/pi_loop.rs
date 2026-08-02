@@ -36,7 +36,8 @@ use crate::pi_loop_protocol::{
     decode_sidecar_packet_line, encode_packet_line, is_safe_token, AgentProjectionEvent,
     BootstrapLimits, BootstrapPayload, BootstrapProvider, BootstrapResume, BudgetStopReason,
     BudgetTurnLimit, BudgetView, CancelReason, PacketPayload, ProductPacket, ProtocolErrorCode,
-    ResumeKind, Terminal, WorkspaceCapability, MAX_TEXT_BYTES,
+    ResumeKind, Terminal, WorkspaceCapability, MAX_MODEL_ID_BYTES, MAX_TEXT_BYTES, MAX_TURNS_LIMIT,
+    MAX_USD_LIMIT,
 };
 
 /// 本票 ready 恰宣告这一枚能力。
@@ -205,22 +206,33 @@ pub(crate) struct StartConfig {
     pub(crate) max_usd: Option<f64>,
 }
 
-/// bootstrap/config 闭集（PI-HOST-LOOP-1R R2）。
+/// bootstrap/config 闭集（PI-HOST-LOOP-1R R2、PI-HOST-LOOP-1R2 C2）。
 ///
 /// 这些值最终都要过 `encode_packet_line` 的同一套闭集判据，但那是**spawn 之后**的事：
 /// 首轮实现因此会为一份 `maxTurns=0` 的配置先落 `session_started`、再起一枚进程，
 /// 最后才由 encoder 报 `invalid_schema`。判据前移到入参层，错的配置一步都走不动。
+///
+/// 1R 只补了下界，上界仍漏：`maxTurns=13`、`maxUsd=100001`、257 字节 `modelId` 三者
+/// 都走到 spawn 之后才由 encoder 拦下（复验 blocker 2）。三枚上界的冻结值直接取
+/// `pi_loop_protocol` 的常量，不在此另抄一份——两谱各抄一次就各自漂移。
 fn validate_start_config(config: &StartConfig) -> Result<(), HostError> {
-    if config.max_turns < 1 {
-        return Err(HostError::InvalidConfig("maxTurns 必须 ≥ 1"));
+    if config.max_turns < 1 || config.max_turns > MAX_TURNS_LIMIT {
+        return Err(HostError::InvalidConfig("maxTurns 必须是 1..=12 的整数"));
     }
     if let Some(max_usd) = config.max_usd {
-        if !max_usd.is_finite() || max_usd <= 0.0 {
-            return Err(HostError::InvalidConfig("maxUsd 必须是正有限数或 null"));
+        if !max_usd.is_finite() || max_usd <= 0.0 || max_usd > MAX_USD_LIMIT {
+            return Err(HostError::InvalidConfig(
+                "maxUsd 必须是 (0, 100000] 内的有限数或 null",
+            ));
         }
     }
     if config.model_id.trim().is_empty() {
         return Err(HostError::InvalidConfig("modelId 不得为空"));
+    }
+    // 核**原串**字节：trim 后合法而整串超限的 modelId 一样会被 encoder 后置拒，
+    // 而进 wire 的正是原串。这与「trim 后 ≤256」不冲突——原串不超限时 trim 必然也不超。
+    if config.model_id.len() > MAX_MODEL_ID_BYTES {
+        return Err(HostError::InvalidConfig("modelId 不得超过 256 UTF-8 字节"));
     }
     Ok(())
 }
@@ -3173,14 +3185,27 @@ mod tests {
     }
 
     /// R2：bootstrap/config 闭集在 journal 与 spawn 之前以具名错误拒绝。
+    ///
+    /// 上界三行来自 PI-HOST-LOOP-1R2 C2（独立复验 `427f4fa` 的 Blocker 2）：1R 的
+    /// `validate_start_config()` 只查下界与非空，`maxTurns=13` 实得 `Protocol(InvalidSchema)`
+    /// 且**已 spawn 一次**——错误被拖到 bootstrap 出包时 encoder 的自解码 parity 才发作，
+    /// 那时 route 门已过、Keychain 已读、journal 已写、child 已起。
+    ///
+    /// 断言次序按复验示范：先钉副作用再钉外观。反过来写，外观那枚一失败就把
+    /// 「非法配置已经拉起 child」这半个事实盖住了。
     #[test]
     fn counterexample_start_config_closed_set_is_refused_before_journal_and_spawn() {
         type ConfigCase = (&'static str, fn(&mut StartConfig));
-        let cases: [ConfigCase; 4] = [
+        let cases: [ConfigCase; 7] = [
             ("maxTurns=0", |config| config.max_turns = 0),
+            ("maxTurns=13", |config| config.max_turns = 13),
             ("maxUsd=0", |config| config.max_usd = Some(0.0)),
             ("maxUsd 负数", |config| config.max_usd = Some(-1.0)),
             ("maxUsd 非有限", |config| config.max_usd = Some(f64::NAN)),
+            ("maxUsd=100001", |config| config.max_usd = Some(100_001.0)),
+            ("modelId 257 bytes", |config| {
+                config.model_id = "m".repeat(257)
+            }),
         ];
         for (label, mutate) in cases {
             let h = harness("r2-config");
@@ -3193,16 +3218,16 @@ mod tests {
                 ExitOutcome::Code(0),
                 &FixedKey,
             );
+            assert_eq!(spawns, 0, "{label}：spawn 计数恰 0");
+            assert!(
+                !journal_path(&h.app_data, "cnt-1", "sess-1").exists(),
+                "{label}：journal 零字节"
+            );
             let error = result.expect_err(label);
             assert_eq!(
                 error.code(),
                 "invalid_config",
                 "{label} 须以具名错误拒绝，实得 {error:?}"
-            );
-            assert_eq!(spawns, 0, "{label}：spawn 计数恰 0");
-            assert!(
-                !journal_path(&h.app_data, "cnt-1", "sess-1").exists(),
-                "{label}：journal 零字节"
             );
         }
 

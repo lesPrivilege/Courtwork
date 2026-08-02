@@ -138,14 +138,25 @@ export type ReservedHostRequest = {
  *
  * 精确闭集，**没有自由 message**：预算、effect 与上游投影三类失败只能由状态机自行判定，
  * runtime 不得构造；能重试的也只有 provider/host 两枚。
+ *
+ * `canceled` 由 PI-HOST-LOOP-1R2 C1 的 2026-08-02 裁定（甲路）扩入：上游
+ * `stopReason:'aborted'` 必须走 canceled 路径，而 canceled 终态原先只能由入站 `cancel`
+ * packet 经 `cancelRequested` 产生，runtime 侧无从表达。这是**进程内接缝**闭集扩项——
+ * wire 的 {@link Terminal} 本已含 `canceled`，wire 闭集零变化。
+ * 注意它**不带** reason：归因权仍在状态机（见 {@link resolveTerminal}），
+ * runtime 不得自己指认是谁取消的。
  */
 export type PromptCompletion =
   | { kind: 'completed' }
+  | { kind: 'canceled' }
   | { kind: 'failed'; code: 'provider_error' | 'host_error'; retryable: boolean }
   | { kind: 'failed'; code: 'invalid_state' | 'unknown'; retryable: false };
 
 /** 状态机内部的终态意图：比 {@link PromptCompletion} 多出它**自己**才能判定的三枚 code。 */
-type TerminalIntent = { kind: 'completed' } | { kind: 'failed'; code: TerminalFailureCode; retryable: boolean };
+type TerminalIntent =
+  | { kind: 'completed' }
+  | { kind: 'canceled' }
+  | { kind: 'failed'; code: TerminalFailureCode; retryable: boolean };
 
 export type SessionPhase = 'awaiting_bootstrap' | 'idle' | 'prompting' | 'closed';
 
@@ -418,6 +429,11 @@ export function createProductSidecarSession(
       return { status: 'canceled', reason: cancelRequested, budget };
     }
     if (intent.kind === 'completed') return { status: 'completed', budget };
+    // 闩锁不在而 runtime 报了 canceled：上游 `aborted` 只可能来自宿主侧 AbortController，
+    // provider 结构上产生不了它，故归因恒为 `host`（C1 2026-08-02 裁定）。
+    // 位置在 cancel 闩锁**之后**：真收到 cancel packet 时仍沿闩锁的 reason，`user` 不被
+    // 这一支洗成 `host`；上面三档优先级也一并保持原次序。
+    if (intent.kind === 'canceled') return { status: 'canceled', reason: 'host', budget };
     return failedTerminal(intent.code, intent.retryable, budget);
   }
 

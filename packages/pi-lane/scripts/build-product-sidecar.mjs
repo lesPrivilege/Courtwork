@@ -43,6 +43,8 @@ export const NODE_DIST_BASE = `https://nodejs.org/dist/v${NODE_VERSION}/`;
 export const SHASUMS_NAME = 'SHASUMS256.txt';
 export const SIDECAR_BASENAME = 'pi-sidecar';
 export const BUNDLE_BASENAME = 'sidecar.cjs';
+/** 装包后 CJS 的 resource 前缀。与 tracked manifest、tauri.conf mapping、Rust `RESOURCE_DIR_NAME` 同源。 */
+export const RESOURCE_DIR_BASENAME = 'pi-loop-resources';
 export const USE_CODE_CACHE = false;
 
 export const TARGETS = [
@@ -447,7 +449,7 @@ export async function main() {
     const bundle = await buildDeterministicBundle();
     writeSynced(path.join(stageDir, BUNDLE_BASENAME), bundle.content, 0o644);
     report.bundle = {
-      resourceRelativePath: `${SIDECAR_BASENAME}/${BUNDLE_BASENAME}`,
+      resourceRelativePath: `${RESOURCE_DIR_BASENAME}/${BUNDLE_BASENAME}`,
       bytes: bundle.bytes,
       sha256: bundle.sha256,
       reproducible: bundle.reproducible,

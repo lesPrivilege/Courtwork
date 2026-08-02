@@ -31,20 +31,56 @@ import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
+import { pathToFileURL } from 'node:url';
 
 import {
   BUILD_DIR,
   BUNDLE_BASENAME,
+  NODE_VERSION,
   PACKAGE_ROOT,
+  RESOURCE_DIR_BASENAME,
+  ROUTE_ID,
   SIDECAR_BASENAME,
   SNAPSHOT_DIR,
+  TARGETS,
+  USE_CODE_CACHE,
   bundleOptions,
 } from './build-product-sidecar.mjs';
 
-const MANIFEST_FILE = path.resolve(
+export const MANIFEST_FILE = path.resolve(
   PACKAGE_ROOT,
   '../../apps/desktop/src-tauri/pi-sidecar/route-manifest.json',
 );
+
+/**
+ * 判 manifest 用的冻结真值。它**不**从被判的 manifest 里取值——判据与被判对象同源就没有
+ * 区分力，正是复验 blocker 4 的形状。这里逐值来自 `build-product-sidecar.mjs` 的冻结表，
+ * 与 Tauri mapping、Rust `RESOURCE_DIR_NAME` 同源。
+ */
+export const FROZEN_ROUTE = {
+  schemaVersion: 1,
+  routeId: ROUTE_ID,
+  nodeVersion: NODE_VERSION,
+  useCodeCache: USE_CODE_CACHE,
+  bundle: { resourceRelativePath: `${RESOURCE_DIR_BASENAME}/${BUNDLE_BASENAME}` },
+  targets: TARGETS.map((target) => ({
+    targetTriple: target.targetTriple,
+    machoArch: target.machoArch,
+    sourceArchive: {
+      filename: target.archive.filename,
+      bytes: target.archive.bytes,
+      sha256: target.archive.sha256,
+    },
+    runtime: {
+      externalBinBasename: SIDECAR_BASENAME,
+      bytes: target.runtime.bytes,
+      sha256: target.runtime.sha256,
+    },
+  })),
+};
+
+/** 门自身的失败信号。CLI 入口把它翻成 exit 2；定向测试直接捕获它断言。 */
+export class GateFailure extends Error {}
 const REBUILD_HINT = 'pnpm --filter @courtwork/pi-lane build:product-sidecar';
 /** 每一步等条件的上界。到点仍不满足即失败，不再等。 */
 const STEP_DEADLINE_MS = 30_000;
@@ -53,16 +89,23 @@ const KEY_CANARY = 'sk-canary-verified-node-gate-in-memory-only';
 const MODES = ['production', 'control'];
 
 function fail(message) {
-  console.error(`verified-node-gate: ${message}`);
-  process.exit(2);
+  throw new GateFailure(message);
 }
 
+/**
+ * `lstat` 而非 `stat`：跟随 symlink 的 `statSync` 看到的是**目标**的类型与尺寸，于是
+ * 「把 runtime 换成指向别处的软链」在门里与真实物没有区别（复验 blocker 4 第二形态）。
+ * 这里要判的恰恰是这一枚路径上摆着什么，故只认 regular file 本身。
+ */
 function requireFile(file, what) {
   let stats;
   try {
-    stats = fs.statSync(file);
+    stats = fs.lstatSync(file);
   } catch {
     return fail(`缺${what}：${file}\n  先跑独占命令生成快照：${REBUILD_HINT}`);
+  }
+  if (stats.isSymbolicLink()) {
+    return fail(`${what}是 symlink，不是实物：${file}\n  先跑独占命令重建：${REBUILD_HINT}`);
   }
   if (!stats.isFile() || stats.size === 0) {
     return fail(`${what}不是非空 regular file：${file}\n  先跑独占命令重建：${REBUILD_HINT}`);
@@ -74,6 +117,71 @@ function sha256File(file) {
   return createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 }
 
+/** closed record：键集必须逐字相同，多一枚少一枚都是漂移。 */
+function closedRecord(value, keys, label) {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    fail(`manifest ${label} 必须是对象`);
+  }
+  const observed = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  if (JSON.stringify(observed) !== JSON.stringify(expected)) {
+    fail(`manifest ${label} 键集漂移：实得 ${JSON.stringify(observed)} ≠ ${JSON.stringify(expected)}`);
+  }
+  return value;
+}
+
+function frozenEqual(observed, expected, label) {
+  if (observed !== expected) {
+    fail(`manifest ${label} 漂移：实得 ${JSON.stringify(observed)} ≠ 冻结值 ${JSON.stringify(expected)}`);
+  }
+}
+
+/**
+ * tracked manifest 的 closed decode + 逐值冻结核对。
+ *
+ * 1R 只从 manifest 里挑出三四个字段用，其余删改一律不问——于是 `routeId`/`nodeVersion`/
+ * `useCodeCache`/`resourceRelativePath` 全都可以随便改而门照样绿。冻结值来自
+ * {@link FROZEN_ROUTE}（源自 builder 冻结表），不从被判的 manifest 自取。
+ * `bundle.bytes/sha256` 是构建产出而非冻结常量，故不在此比，交给下面与实物的逐值比对。
+ */
+function assertManifestFrozen(manifest, frozen) {
+  closedRecord(
+    manifest,
+    ['schemaVersion', 'routeId', 'nodeVersion', 'useCodeCache', 'bundle', 'targets'],
+    '顶层',
+  );
+  frozenEqual(manifest.schemaVersion, frozen.schemaVersion, 'schemaVersion');
+  frozenEqual(manifest.routeId, frozen.routeId, 'routeId');
+  frozenEqual(manifest.nodeVersion, frozen.nodeVersion, 'nodeVersion');
+  frozenEqual(manifest.useCodeCache, frozen.useCodeCache, 'useCodeCache');
+
+  closedRecord(manifest.bundle, ['resourceRelativePath', 'bytes', 'sha256'], 'bundle');
+  frozenEqual(
+    manifest.bundle.resourceRelativePath,
+    frozen.bundle.resourceRelativePath,
+    'bundle.resourceRelativePath',
+  );
+
+  if (!Array.isArray(manifest.targets) || manifest.targets.length !== frozen.targets.length) {
+    fail(`manifest targets 必须恰 ${frozen.targets.length} 行，实得 ${JSON.stringify(manifest.targets)}`);
+  }
+  for (const [index, expected] of frozen.targets.entries()) {
+    const row = manifest.targets[index];
+    const at = `targets[${index}]`;
+    closedRecord(row, ['targetTriple', 'machoArch', 'sourceArchive', 'runtime'], at);
+    frozenEqual(row.targetTriple, expected.targetTriple, `${at}.targetTriple`);
+    frozenEqual(row.machoArch, expected.machoArch, `${at}.machoArch`);
+    closedRecord(row.sourceArchive, ['filename', 'bytes', 'sha256'], `${at}.sourceArchive`);
+    for (const key of ['filename', 'bytes', 'sha256']) {
+      frozenEqual(row.sourceArchive[key], expected.sourceArchive[key], `${at}.sourceArchive.${key}`);
+    }
+    closedRecord(row.runtime, ['externalBinBasename', 'bytes', 'sha256'], `${at}.runtime`);
+    for (const key of ['externalBinBasename', 'bytes', 'sha256']) {
+      frozenEqual(row.runtime[key], expected.runtime[key], `${at}.runtime.${key}`);
+    }
+  }
+}
+
 function hostTargetTriple() {
   if (process.platform !== 'darwin') fail(`本门只覆盖 darwin，实得 ${process.platform}`);
   if (process.arch === 'arm64') return 'aarch64-apple-darwin';
@@ -81,22 +189,43 @@ function hostTargetTriple() {
   return fail(`target 不在闭集内：${process.arch}`);
 }
 
-/** 缺件 / 漂移一律硬失败：门要么在真实物上跑，要么不跑。 */
-function resolveVerifiedRoute() {
-  const triple = hostTargetTriple();
-  const runtime = path.join(SNAPSHOT_DIR, `${SIDECAR_BASENAME}-${triple}`);
-  const bundle = path.join(SNAPSHOT_DIR, BUNDLE_BASENAME);
-  requireFile(MANIFEST_FILE, 'tracked route manifest');
+/**
+ * 缺件 / 漂移一律硬失败：门要么在真实物上跑，要么不跑。
+ *
+ * 三枚坐标与冻结表都可注入，供定向反例用合成 app-layout 构造篡改形态——不去动那份
+ * ignored 的真实 snapshot（还原式变异是验收手法，不是常驻测试该做的事）。
+ */
+export function resolveVerifiedRoute({
+  snapshotDir = SNAPSHOT_DIR,
+  manifestFile = MANIFEST_FILE,
+  frozen = FROZEN_ROUTE,
+  triple = hostTargetTriple(),
+} = {}) {
+  const runtime = path.join(snapshotDir, `${SIDECAR_BASENAME}-${triple}`);
+  const bundle = path.join(snapshotDir, BUNDLE_BASENAME);
+  requireFile(manifestFile, 'tracked route manifest');
   const runtimeStats = requireFile(runtime, `冻结 runtime（${triple}）`);
   const bundleStats = requireFile(bundle, 'production sealed CJS');
 
-  const manifest = JSON.parse(fs.readFileSync(MANIFEST_FILE, 'utf8'));
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
+  } catch (cause) {
+    return fail(`tracked route manifest 不是合法 JSON：${cause instanceof Error ? cause.message : cause}`);
+  }
+  assertManifestFrozen(manifest, frozen);
   const target = manifest.targets.find((row) => row.targetTriple === triple);
   if (!target) fail(`tracked manifest 没有 ${triple} 那一行`);
 
   // 快照实物必须与 tracked manifest 逐值相同——对不上就是漂移，不是「差不多」。
+  // runtime 与 sealed CJS **同待遇**：bytes + SHA 双核。只比 bytes 时，同尺寸的尾字节
+  // 篡改一枚都拦不住，而门 3/4 的全部意义就是证明本次执行的是那枚冻结二进制。
   if (runtimeStats.size !== target.runtime.bytes) {
     fail(`runtime bytes 漂移：实物 ${runtimeStats.size} ≠ manifest ${target.runtime.bytes}`);
+  }
+  const runtimeSha = sha256File(runtime);
+  if (runtimeSha !== target.runtime.sha256) {
+    fail(`runtime SHA 漂移：实物 ${runtimeSha} ≠ manifest ${target.runtime.sha256}`);
   }
   if (bundleStats.size !== manifest.bundle.bytes) {
     fail(`sealed CJS bytes 漂移：实物 ${bundleStats.size} ≠ manifest ${manifest.bundle.bytes}`);
@@ -105,7 +234,7 @@ function resolveVerifiedRoute() {
   if (bundleSha !== manifest.bundle.sha256) {
     fail(`sealed CJS SHA 漂移：实物 ${bundleSha} ≠ manifest ${manifest.bundle.sha256}`);
   }
-  return { triple, runtime, bundle, manifest, bundleSha };
+  return { triple, runtime, bundle, manifest, bundleSha, runtimeSha };
 }
 
 /**
@@ -389,16 +518,28 @@ async function runControlGate(route) {
   }
 }
 
-const mode = process.argv[2];
-if (!MODES.includes(mode)) {
-  fail(`用法：node scripts/verified-node-gate.mjs <${MODES.join('|')}>（实得 ${mode ?? '空'}）`);
+/** 只有被独占 script 直接调起时才跑门；`import` 进来只取上面那些可注入的纯件。 */
+const invokedDirectly =
+  process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (invokedDirectly) {
+  const mode = process.argv[2];
+  let route;
+  try {
+    if (!MODES.includes(mode)) {
+      fail(`用法：node scripts/verified-node-gate.mjs <${MODES.join('|')}>（实得 ${mode ?? '空'}）`);
+    }
+    route = resolveVerifiedRoute();
+  } catch (cause) {
+    if (!(cause instanceof GateFailure)) throw cause;
+    console.error(`verified-node-gate: ${cause.message}`);
+    process.exit(2);
+  }
+  console.log(
+    `verified-node-gate ${mode}\n  runtime  ${route.runtime}\n  target   ${route.triple}\n  runtime SHA ${route.runtimeSha}\n  bundle   ${route.bundle}\n  bundle SHA ${route.bundleSha}`,
+  );
+
+  const failed = mode === 'production' ? await runProductionGate(route) : await runControlGate(route);
+  console.log(failed === 0 ? `\n门 ${mode}：全部通过` : `\n门 ${mode}：失败 ${failed} 项`);
+  process.exit(failed === 0 ? 0 : 1);
 }
-
-const route = resolveVerifiedRoute();
-console.log(
-  `verified-node-gate ${mode}\n  runtime  ${route.runtime}\n  target   ${route.triple}\n  bundle   ${route.bundle}\n  bundle SHA ${route.bundleSha}`,
-);
-
-const failed = mode === 'production' ? await runProductionGate(route) : await runControlGate(route);
-console.log(failed === 0 ? `\n门 ${mode}：全部通过` : `\n门 ${mode}：失败 ${failed} 项`);
-process.exit(failed === 0 ? 0 : 1);

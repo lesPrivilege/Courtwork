@@ -691,6 +691,40 @@ describe('cancel', () => {
     expect(lastPacket(h)).toMatchObject({ type: 'terminal', payload: { status: 'canceled', reason: 'host' } });
   });
 
+  /**
+   * PI-HOST-LOOP-1R2 C1（2026-08-02 裁定甲路）：`PromptCompletion` 扩出的 `canceled`
+   * 两形态。runtime 只说「这是一次中止」，是谁中止的由状态机归因。
+   */
+  it('runtime 报 canceled：闩锁在时沿闩锁的 reason，user 不被洗成 host', () => {
+    for (const reason of ['user', 'host'] as const) {
+      const h = createHarness();
+      bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+      h.hooks.startPrompt = () => {};
+      h.hooks.cancel = (_c, session) => session.finishPrompt({ kind: 'canceled' });
+      prompt(h, 'req-1');
+      cancel(h, 'req-1', reason);
+      expect(lastPacket(h)).toMatchObject({
+        type: 'terminal',
+        payload: { status: 'canceled', reason },
+      });
+      // canceled 不关 logical session——既有 `closesSession` 语义零变化。
+      expect(h.session.snapshot().phase).toBe('idle');
+    }
+  });
+
+  it('runtime 报 canceled：无闩锁时归因 host（上游 aborted 只可能来自宿主侧 abort）', () => {
+    const h = createHarness();
+    bootstrap(h, bootstrapPayload({ limits: { maxTurns: 12, maxUsd: null } }));
+    h.hooks.startPrompt = (_p, session) => session.finishPrompt({ kind: 'canceled' });
+    prompt(h, 'req-1');
+    expect(h.calls).not.toContain('cancel:req-1:host');
+    expect(lastPacket(h)).toMatchObject({
+      type: 'terminal',
+      payload: { status: 'canceled', reason: 'host' },
+    });
+    expect(h.session.snapshot().phase).toBe('idle');
+  });
+
   it('cancel 后不得再产生 delta 或 host request', () => {
     const h = createHarness();
     bootstrap(h);
@@ -916,6 +950,55 @@ describe('预算与 terminal 优先级矩阵', () => {
     const before = h.out().length;
     prompt(h, 'req-2');
     expect(h.out()).toHaveLength(before);
+  });
+
+  /**
+   * PI-HOST-LOOP-1R2 C1：`canceled` intent 扩入后，既有优先级
+   * `effect_uncertain > budget_unknown > 已知 limit reached > cancel > 其他 outcome`
+   * 一档都不许挪。新分支落在 cancel 闩锁**之后**，故上面三档必须照旧压过它。
+   */
+  it('canceled intent 不抬优先级：三档更高项照旧压过它', () => {
+    // 一、turn 限额达成压过 canceled。
+    const turnLimit = runWithTurns(
+      bootstrapPayload({ limits: { maxTurns: 1, maxUsd: null } }),
+      [turnEvent(1, true, 0.1)],
+      { kind: 'canceled' },
+    );
+    expect(lastPacket(turnLimit)).toMatchObject({
+      payload: { status: 'budget_stopped', budget: { turnLimit: 'reached', stopReason: 'turns' } },
+    });
+
+    // 二、budget_unknown 压过 canceled。
+    const unknownCost = runWithTurns(
+      bootstrapPayload({ limits: { maxTurns: 9, maxUsd: 1 } }),
+      [turnEvent(1, true, null)],
+      { kind: 'canceled' },
+    );
+    expect(lastPacket(unknownCost)).toMatchObject({
+      payload: { status: 'failed', error: { code: 'budget_unknown' } },
+    });
+
+    // 三、effect_uncertain 压过 canceled。
+    const uncertain = createHarness();
+    bootstrap(uncertain, bootstrapPayload({ limits: { maxTurns: 9, maxUsd: null } }));
+    uncertain.hooks.startPrompt = (_p, session) => {
+      startTool(session);
+      requestHost(session, WRITE_REQUEST);
+    };
+    uncertain.hooks.deliverHostResult = (_r, session) => session.finishPrompt({ kind: 'canceled' });
+    prompt(uncertain, 'req-1');
+    hostResult(uncertain, writeUncertain('op_1_1'));
+    expect(lastPacket(uncertain)).toMatchObject({
+      payload: { status: 'failed', error: { code: 'effect_uncertain' } },
+    });
+
+    // 对照：三档都不成立时才轮到 canceled，故上面三条不是恒红。
+    const plain = runWithTurns(
+      bootstrapPayload({ limits: { maxTurns: 9, maxUsd: null } }),
+      [turnEvent(1, true, 0.1)],
+      { kind: 'canceled' },
+    );
+    expect(lastPacket(plain)).toMatchObject({ payload: { status: 'canceled', reason: 'host' } });
   });
 });
 

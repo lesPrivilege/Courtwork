@@ -150,12 +150,20 @@ function isDeniedToolResult(result: unknown): boolean {
 }
 
 /**
- * 收尾 stop reason → prompt completion（PI-HOST-LOOP-1R N2）。
+ * 收尾 stop reason → prompt completion（PI-HOST-LOOP-1R N2、PI-HOST-LOOP-1R2 C1）。
  *
- * 只有 `stop|tool` 是真完成；`error` 归 `provider_error`；其余（`aborted`、`length`、
- * `unknown`）落七格闭集的兜底 `unknown`——截断或中断收尾报 completed 属静默降级，
- * 而闭集不在本票扩展。`aborted` 之所以不需要单独一支：状态机的终态优先级里
- * `budget_stopped > cancel > 其他 outcome`，真有 cancel 或越限时它会压过这里的 intent。
+ * 闭集来源是 `product-protocol.ts` 的 `TurnStopReason`
+ * （`stop | length | tool | aborted | error | unknown`——由 {@link toTurnStopReason} 从
+ * pi-ai 0.82.1 `StopReason` 的五枚归一而来）。这里**逐枚显式列全**：1R 把闭集其余成员
+ * 一起交给 default，`aborted` 因而被写成 `failed/unknown`，正是独立复验 blocker 1 抓到的
+ * 形状——少一支 case 就少一条能被门看见的语义。
+ *
+ * - `stop|tool`：真完成。
+ * - `aborted`：走 canceled 路径（C1 2026-08-02 裁定甲路）。pi 的 `aborted` 只能由宿主侧
+ *   AbortController 触发，provider 结构上产生不了它，故它恒是一次中止而非失败。reason
+ *   不在这里指认：有 cancel 闩锁时状态机沿闩锁的 reason，无闩锁时归 `host`。
+ * - `error`：`provider_error`，retryable 按既有闭集。
+ * - `length|unknown`：截断或认不出的收尾，报 completed 即静默降级，落兜底 `unknown`。
  */
 function completionFor(stopReason: TurnStopReason | null): PromptCompletion {
   switch (stopReason) {
@@ -164,9 +172,16 @@ function completionFor(stopReason: TurnStopReason | null): PromptCompletion {
     case 'stop':
     case 'tool':
       return { kind: 'completed' };
+    case 'aborted':
+      return { kind: 'canceled' };
     case 'error':
       return { kind: 'failed', code: 'provider_error', retryable: true };
+    case 'length':
+    case 'unknown':
+      return { kind: 'failed', code: 'unknown', retryable: false };
     default:
+      // 闭集之外。`TurnStopReason` 若来日扩员而此处未跟上，宁可显式收 unknown，
+      // 也不落回 completed——兜底只兜「不知道」，不兜「算成功」。
       return { kind: 'failed', code: 'unknown', retryable: false };
   }
 }

@@ -1807,6 +1807,8 @@ fn validate_records(
     let mut counted_turns = 0_u64;
     let mut usd_total = 0.0_f64;
     let mut cost_known = true;
+    // observed upstream turn 的连续性游标（PI-HOST-LOOP-1R2 C3）。0 表示尚未观察到任何回合。
+    let mut last_observed_turn = 0_u64;
 
     for (expected_seq, record) in (1_u64..).zip(records.iter()) {
         if session_closed {
@@ -1880,6 +1882,29 @@ fn validate_records(
             }
         }
 
+        // observed upstream turn 必须自 1 起、跨 prompt/leg 逐枚 +1（PI-HOST-LOOP-1R2 C3）。
+        //
+        // 耐久序对每个回合是**双笔**：先 `agent_event.turn_finished`，再同 turn 的
+        // `turn_usage_recorded`。故连续性钉在前一笔，配对钉在后一笔；等值、倒退、跳号
+        // 与「usage 先于其 turn_finished 出现」都不是任何 crash 窗能产生的历史。
+        // 1R 只对 turn 取 `max()`，倒序 `2 → 1` 与孤儿 usage 因此都被当成可恢复 session。
+        match &record.payload {
+            JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished { turn, .. }) => {
+                if *turn != last_observed_turn + 1 {
+                    return Err(StructureProblem(
+                        "observed turn 必须自 1 起跨 prompt/leg 逐枚递增",
+                    ));
+                }
+                last_observed_turn = *turn;
+            }
+            JournalPayload::TurnUsageRecorded { turn, .. } if *turn != last_observed_turn => {
+                return Err(StructureProblem(
+                    "turn_usage_recorded 未接在同 turn 的 turn_finished 之后",
+                ));
+            }
+            _ => {}
+        }
+
         // 与 {@link fold} 逐字同口径地累计，供下一枚 `session_resumed` 逐值比对。
         match &record.payload {
             JournalPayload::TurnUsageRecorded {
@@ -1921,9 +1946,36 @@ fn validate_records(
 /// 半对判定：返回需要补写的尾端 `turn_finished`（若有），否则 `Err` 表示整份 quarantine。
 type TurnUsageRepair = (String, AgentProjectionEvent);
 
+/// 双向闭合（PI-HOST-LOOP-1R2 C3）。
+///
+/// 1R 只从 `turn_finished` 单向找 usage：缺 usage 的尾端 `turn_finished` 是可确定性补写的
+/// crash 半对，这一支已经正确。反过来的孤儿 usage——有 `turn_usage_recorded` 而无同
+/// request/turn 的 `turn_finished`——却完全没有判据，于是被静默接受。它不是任何 crash 窗
+/// 能产生的形态（耐久序是先 event 后 usage），故**没有**补写窗，一律 quarantine。
 fn plan_turn_usage_repair(
     records: &[JournalRecord],
 ) -> Result<Option<TurnUsageRepair>, StructureProblem> {
+    for record in records.iter() {
+        let JournalPayload::TurnUsageRecorded { turn, .. } = &record.payload else {
+            continue;
+        };
+        let request_id = record.request_id.as_deref().unwrap_or_default();
+        let paired = records.iter().any(|candidate| {
+            candidate.request_id.as_deref().unwrap_or_default() == request_id
+                && matches!(
+                    &candidate.payload,
+                    JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                        turn: other, ..
+                    }) if other == turn
+                )
+        });
+        if !paired {
+            return Err(StructureProblem(
+                "turn_usage_recorded 没有同 request/turn 的 turn_finished",
+            ));
+        }
+    }
+
     let mut repair: Option<TurnUsageRepair> = None;
     for (index, record) in records.iter().enumerate() {
         let JournalPayload::AgentEvent(event) = &record.payload else {
@@ -3386,6 +3438,20 @@ mod tests {
                 },
             )
             .expect("prompt");
+        // 双笔耐久序（C3）：turn_finished 在前，逐值相同的 usage 在后。
+        loaded
+            .journal
+            .append(
+                Some("req-1"),
+                None,
+                JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                    turn: 1,
+                    counted_toward_turn_limit: true,
+                    usage: known_usage(0.25),
+                    stop_reason: TurnStopReason::Stop,
+                }),
+            )
+            .expect("turn_finished");
         loaded
             .journal
             .append(
@@ -3514,6 +3580,19 @@ mod tests {
                     },
                 )
                 .expect("prompt");
+            // 每个回合的耐久序是双笔：先 turn_finished，再同 turn 的 usage（C3 起为硬约束）。
+            journal
+                .append(
+                    Some(request),
+                    None,
+                    JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                        turn: index as u64 + 1,
+                        counted_toward_turn_limit: true,
+                        usage: known_usage(0.25),
+                        stop_reason: TurnStopReason::Stop,
+                    }),
+                )
+                .expect("turn_finished");
             journal
                 .append(
                     Some(request),
@@ -3574,6 +3653,19 @@ mod tests {
                 },
             )
             .expect("prompt");
+        // 双笔耐久序（C3）：turn_finished 在前，逐值相同的 usage 在后。
+        journal
+            .append(
+                Some("req-1"),
+                None,
+                JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                    turn: 1,
+                    counted_toward_turn_limit: false,
+                    usage: TurnUsage::all_unknown(),
+                    stop_reason: TurnStopReason::Aborted,
+                }),
+            )
+            .expect("turn_finished");
         journal
             .append(
                 Some("req-1"),
@@ -3660,6 +3752,163 @@ mod tests {
                 "{tag} 实得 {error:?}"
             );
         }
+    }
+
+    /// PI-HOST-LOOP-1R2 C3（独立复验 `427f4fa` 的 Blocker 3，两枚原形转常驻）。
+    ///
+    /// 两份历史都已 LF 完整、逐条合 schema、seq 连续，但 observed turn 的次序在真实上游
+    /// 下不可能出现：
+    ///
+    /// - **孤儿 usage**：`turn_usage_recorded` 没有同 request/turn 的 `agent_event.turn_finished`。
+    ///   耐久序是「先 turn_finished 再 turn_usage_recorded」双笔，缺前一笔就不是 crash 窗，
+    ///   而是一份被改过或半写坏的历史。
+    /// - **倒序 ordinal**：完整 pair 的 turn 依次 `2 → 1`。observed turn 须自 1 起、跨
+    ///   prompt/leg 逐枚 +1。
+    ///
+    /// 1R 实得两份都被接受为 `LoadedJournal`（`priorObservedTurns` 分别为 1 与 2）：
+    /// `validate_records()` 对 turn 只取 `max()`，`plan_turn_usage_repair()` 只从
+    /// `turn_finished` 单向找 usage，没有反向拒绝孤儿。resume 因此能从一份不可能的历史继续。
+    #[test]
+    fn counterexample_impossible_turn_history_is_quarantined() {
+        let turn_finished = |turn: u64| {
+            JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                turn,
+                counted_toward_turn_limit: true,
+                usage: known_usage(0.25),
+                stop_reason: TurnStopReason::Stop,
+            })
+        };
+        let turn_usage = |turn: u64| JournalPayload::TurnUsageRecorded {
+            turn,
+            counted_toward_turn_limit: true,
+            usage: known_usage(0.25),
+            stop_reason: TurnStopReason::Stop,
+        };
+        let completed = |turns: u64, usd: f64| JournalPayload::PromptCompleted {
+            budget: BudgetView {
+                turns,
+                usd: Some(usd),
+                turn_limit: BudgetTurnLimit::Open,
+                usd_limit: BudgetUsdLimit::Disabled,
+                stop_reason: None,
+            },
+        };
+
+        // 每份历史都是 (requestId, payload) 的完整 LF 序列，直接驱动 `load_session`。
+        type Row = (Option<&'static str>, JournalPayload);
+        let orphan_usage: Vec<Row> = vec![
+            (None, JournalPayload::SessionStarted(started_payload())),
+            (
+                Some("req-1"),
+                JournalPayload::UserPrompted {
+                    text: "问".to_string(),
+                },
+            ),
+            (Some("req-1"), turn_usage(1)),
+            (Some("req-1"), completed(1, 0.25)),
+        ];
+        let descending: Vec<Row> = vec![
+            (None, JournalPayload::SessionStarted(started_payload())),
+            (
+                Some("req-1"),
+                JournalPayload::UserPrompted {
+                    text: "问".to_string(),
+                },
+            ),
+            (Some("req-1"), turn_finished(2)),
+            (Some("req-1"), turn_usage(2)),
+            (Some("req-1"), turn_finished(1)),
+            (Some("req-1"), turn_usage(1)),
+            (Some("req-1"), completed(2, 0.5)),
+        ];
+
+        // 第三形态：跨 request 的孤儿 usage。req-2 的 usage 借了 req-1 已观察到的 turn 1，
+        // 「turn 与游标相等」这条连续性判据因此放它过去——只有 request/turn 逐枚配对
+        // （`plan_turn_usage_repair` 的反向闭合）才拦得住。少了它，这份历史会被当成可恢复
+        // session，且 req-2 白得一枚 counted turn。
+        let cross_request_orphan: Vec<Row> = vec![
+            (None, JournalPayload::SessionStarted(started_payload())),
+            (
+                Some("req-1"),
+                JournalPayload::UserPrompted {
+                    text: "问".to_string(),
+                },
+            ),
+            (Some("req-1"), turn_finished(1)),
+            (Some("req-1"), turn_usage(1)),
+            (Some("req-1"), completed(1, 0.25)),
+            (
+                Some("req-2"),
+                JournalPayload::UserPrompted {
+                    text: "再问".to_string(),
+                },
+            ),
+            (Some("req-2"), turn_usage(1)),
+            (Some("req-2"), completed(2, 0.5)),
+        ];
+
+        for (tag, rows) in [
+            ("orphan-usage", orphan_usage),
+            ("descending", descending),
+            ("cross-request-orphan", cross_request_orphan),
+        ] {
+            let root = temp_root(tag);
+            let mut loaded = open(&root);
+            for (request, payload) in rows {
+                loaded
+                    .journal
+                    .append(request, None, payload)
+                    .unwrap_or_else(|error| panic!("{tag} 落账失败：{error:?}"));
+            }
+            loaded
+                .journal
+                .append(
+                    None,
+                    None,
+                    JournalPayload::SessionInterrupted {
+                        reason: SessionInterruptReason::SidecarEnded,
+                        cost_coverage: CostCoverage::Known,
+                    },
+                )
+                .expect("interrupted");
+            drop(loaded);
+
+            let error = load_session(
+                &root,
+                "cnt-1",
+                "sess-1",
+                SessionInterruptReason::SidecarEnded,
+            )
+            .expect_err(tag);
+            assert!(
+                matches!(error, JournalError::Quarantined { .. }),
+                "{tag}：不可能的 turn 历史必须整份 quarantine，实得 {error:?}"
+            );
+        }
+
+        // 对照：同形但次序可能的历史（1 → 2 逐枚配对）照常载入，故上面不是恒红。
+        let root = temp_root("ascending-ok");
+        let mut loaded = open(&root);
+        for (request, payload) in [
+            (None, JournalPayload::SessionStarted(started_payload())),
+            (
+                Some("req-1"),
+                JournalPayload::UserPrompted {
+                    text: "问".to_string(),
+                },
+            ),
+            (Some("req-1"), turn_finished(1)),
+            (Some("req-1"), turn_usage(1)),
+            (Some("req-1"), turn_finished(2)),
+            (Some("req-1"), turn_usage(2)),
+            (Some("req-1"), completed(2, 0.5)),
+        ] {
+            loaded.journal.append(request, None, payload).expect("落账");
+        }
+        drop(loaded);
+        let reloaded = open(&root);
+        assert_eq!(reloaded.projection.prior_observed_turns, 2);
+        assert_eq!(reloaded.projection.prior_turns, 2);
     }
 
     #[test]

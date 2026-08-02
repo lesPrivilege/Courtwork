@@ -913,12 +913,14 @@ mod tests {
         let manifest =
             decode_route_manifest(EXPECTED_ROUTE_MANIFEST).expect("编译期 manifest 合法");
         // bundle 身份是 product source 的函数：PI-HOST-LOOP-1R 的 N1–N3 改了
-        // `product-case-env.ts` / `product-runtime.ts`，sealed CJS 因此换了字节与 SHA。
+        // `product-case-env.ts` / `product-runtime.ts`，sealed CJS 因此换了字节与 SHA；
+        // PI-HOST-LOOP-1R2 的 C1（`completionFor()` 全枚举、`aborted`→canceled）再换一次
+        // （`523,057`/`b72fe521…` → `523,235`/`75eff9b9…`）。
         // 双方由 `product-main.test.ts` 的跨侧门逐值锁死，不许只改一边。
-        assert_eq!(manifest.bundle.bytes, 523_057);
+        assert_eq!(manifest.bundle.bytes, 523_235);
         assert_eq!(
             manifest.bundle.sha256,
-            "b72fe521439022c494477b2d41bc7b230d6aa5df2bde8668dba248d3cbf4107d"
+            "75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b"
         );
         assert_eq!(
             manifest.bundle_resource_relative_path,
@@ -998,12 +1000,12 @@ mod tests {
             ("乱序", format!("{head}{intel},{arm}{foot}")),
             ("重复 target", format!("{head}{arm},{arm}{foot}")),
             ("单 target", format!("{head}{arm}{foot}")),
-            ("零字节", compact.replace("\"bytes\":523057", "\"bytes\":0")),
+            ("零字节", compact.replace("\"bytes\":523235", "\"bytes\":0")),
             (
                 "大写 SHA",
                 compact.replace(
-                    "b72fe521439022c494477b2d41bc7b230d6aa5df2bde8668dba248d3cbf4107d",
-                    "B72FE521439022C494477B2D41BC7B230D6AA5DF2BDE8668DBA248D3CBF4107D",
+                    "75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b",
+                    "75EFF9B9C6089B613E85638A2F7A1B3159C1DF08BD5439EB1DB9978E6D65399B",
                 ),
             ),
             (

@@ -585,6 +585,68 @@ describe('provider 失败终态如实（N2）', () => {
     await harness.prompt('读一读', 'request-1');
     expect(harness.terminals().at(-1)?.status).toBe('completed');
   });
+
+  /**
+   * PI-HOST-LOOP-1R2 C1（独立复验 `427f4fa` 的 Blocker 1，转为常驻）。
+   *
+   * 1R 的 `completionFor()` 只特判 `error`，`aborted` 掉进 default 的 `failed/unknown`——
+   * 上游真发 `stopReason:'aborted'` 时终态实得 `{status:'failed',error:{code:'unknown'}}`，
+   * 而票面 N2 明定它必须走 canceled 路径。宿主 cancel 与越限 abort 两条路各有优先级压过
+   * 这里，故唯一露出的就是**上游自行 abort**这一支。
+   *
+   * 按 2026-08-02 C1 裁定走甲路：runtime 报 `{kind:'canceled'}`，状态机在没有 cancel
+   * 闩锁时以 `reason:'host'` 收——`aborted` 只能由宿主侧 AbortController 触发，
+   * provider 结构上产生不了它，故宿主归因恒真。
+   */
+  it("上游 stopReason:'aborted' 必走 canceled 路径，不得落 failed/unknown", async () => {
+    faux.setResponses([fauxAssistantMessage([fauxText('半截就断了')], { stopReason: 'aborted' })]);
+    const harness = createHarness();
+    harness.bootstrap();
+    await harness.prompt('问一句', 'request-1');
+
+    // 对照：turn_finished 那一层如实记了 aborted——丢失真相的仍是终态那一层。
+    const turns = harness.packets.flatMap((packet) =>
+      packet.type === 'agent_event' && packet.payload.kind === 'turn_finished' ? [packet.payload] : [],
+    );
+    expect(turns.map((turn) => turn.stopReason)).toEqual(['aborted']);
+
+    const terminal = harness.terminals().at(-1);
+    expect(terminal?.status).toBe('canceled');
+    // 无闩锁的上游 abort 归因宿主；`user` 只属真收到 cancel packet 的那一支。
+    expect(terminal?.status === 'canceled' && terminal.reason).toBe('host');
+  });
+
+  /**
+   * PI-HOST-LOOP-1R2 C1 的全枚举断言：`StopReason` 闭集逐枚过一遍，
+   * 只有 `stop|toolUse` 允许 completed。单测 `error` 与 `length` 两枚挡不住 default 分支
+   * 把整个闭集其余成员一起吞掉——复验的 `aborted` 正是从那条 default 溜走的。
+   */
+  it('全枚举：StopReason 闭集里非 stop|toolUse 的收尾一律零 completed', async () => {
+    // 上游 `StopReason` 闭集（pi-ai 0.82.1 types.d.ts）恰五枚，另加一枚认不出的收尾。
+    const nonCompleting = ['length', 'aborted', 'error'] as const;
+    for (const stopReason of nonCompleting) {
+      faux.setResponses([fauxAssistantMessage([fauxText('半截')], { stopReason })]);
+      const harness = createHarness();
+      harness.bootstrap();
+      await harness.prompt('问一句', 'request-1');
+      expect(harness.terminals().at(-1)?.status, `stopReason=${stopReason}`).not.toBe('completed');
+    }
+
+    // 对照两枚：`stop` 与 `toolUse` 是仅有的完成路径，故上面不是恒红。
+    for (const responses of [
+      [fauxAssistantMessage([fauxText('答完了。')], { stopReason: 'stop' })],
+      [
+        fauxAssistantMessage([fauxToolCall('read', { path: '备忘.md' })], { stopReason: 'toolUse' }),
+        fauxAssistantMessage([fauxText('读完了。')], { stopReason: 'stop' }),
+      ],
+    ]) {
+      faux.setResponses(responses);
+      const harness = createHarness();
+      harness.bootstrap();
+      await harness.prompt('问一句', 'request-1');
+      expect(harness.terminals().at(-1)?.status).toBe('completed');
+    }
+  });
 });
 
 /**
