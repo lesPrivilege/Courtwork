@@ -220,6 +220,21 @@ pub(crate) struct StartConfig {
 /// 下一位验收者在同族里找到另一枚。凡进入 host→sidecar 方向、在 `pi_loop_protocol`
 /// 有冻结上界或非空/形状要求的入参，一律在此一次收齐；encoder 的同名检查降为纵深防御的
 /// **最后一道**。清单与源码扫描的双向自证见 `bounded_input_manifest`。
+/// wire 字符串闭集判据（ADR-022 六-B.1）：不得含 NUL。
+///
+/// PI-HOST-LOOP-1R5 §零裁定一把这道门归入 host 前置（D1 `Fronted`），三轴理由：
+/// ① 副作用——NUL 值毒化 durable journal（落下永远发不出去的 `session_started` /
+/// `user_prompted`）、白费一枚 spawn、占掉 requestId，正是历轮在杀的「先污染后拒绝」形；
+/// ② 语义——config/prompt 存在的唯一目的就是被发送，不可编码即无效输入；
+/// ③ 家族——它与上界、非空、形状作用在同一批 host 方向输入上。
+///
+/// 同一条冻结判据的另一半 **lone surrogate 在 Rust `String` 侧结构性不可达**（`String`
+/// 保证 Unicode scalar 序列），故不另设门，以清账表的具名理由行登记。SafeToken 四员
+/// 由文法排除 NUL，同样只登记不另设门。`scan_string` 里的同名检查自此降为最后一道防线。
+fn is_nul_free(value: &str) -> bool {
+    !value.contains('\0')
+}
+
 fn validate_start_config(config: &StartConfig) -> Result<(), HostError> {
     if config.max_turns < 1 || config.max_turns > MAX_TURNS_LIMIT {
         return Err(HostError::InvalidConfig("maxTurns 必须是 1..=12 的整数"));
@@ -239,7 +254,10 @@ fn validate_start_config(config: &StartConfig) -> Result<(), HostError> {
     if config.model_id.len() > MAX_MODEL_ID_BYTES {
         return Err(HostError::InvalidConfig("modelId 不得超过 256 UTF-8 字节"));
     }
-    // caseRoot 的非空、长度与绝对形状都是纯入参判定，**必须先于 lstat**。
+    if !is_nul_free(&config.model_id) {
+        return Err(HostError::InvalidConfig("modelId 不得含 NUL"));
+    }
+    // caseRoot 的非空、长度、NUL-free 与绝对形状都是纯入参判定，**必须先于 lstat**。
     // 1R2 复验实测：4097 字节的案件根在此返回 `Ok(())`，最终以
     // `case_root("案件根不可 lstat")` 收场——拿文件系统外观代替配置门。相对路径更糟，
     // 它可能相对 cwd 解析成功，一路走到 spawn 之后才由 encoder 拦下。
@@ -252,6 +270,11 @@ fn validate_start_config(config: &StartConfig) -> Result<(), HostError> {
         return Err(HostError::InvalidConfig(
             "caseRoot 不得超过 4096 UTF-8 字节",
         ));
+    }
+    // 含 NUL 的案件根在此之前只会以 `case_root("案件根不可 lstat")` 收场——同样是拿
+    // 文件系统外观代替配置门（1R2 复验对 4097 字节案件根的同一判据）。
+    if !is_nul_free(&case_root) {
+        return Err(HostError::InvalidConfig("caseRoot 不得含 NUL"));
     }
     if !is_absolute_path_shape(&case_root) {
         return Err(HostError::InvalidConfig("caseRoot 必须是平台绝对路径"));
@@ -273,6 +296,9 @@ fn validate_api_key(api_key: &str) -> Result<(), HostError> {
     }
     if api_key.len() > MAX_API_KEY_BYTES {
         return Err(HostError::InvalidConfig("apiKey 不得超过 8192 UTF-8 字节"));
+    }
+    if !is_nul_free(api_key) {
+        return Err(HostError::InvalidConfig("apiKey 不得含 NUL"));
     }
     Ok(())
 }
@@ -692,6 +718,9 @@ impl PiLoopHost {
         }
         if text.len() > MAX_TEXT_BYTES {
             return Err(HostError::InvalidPrompt("prompt 文本超过 131,072 字节上限"));
+        }
+        if !is_nul_free(text) {
+            return Err(HostError::InvalidPrompt("prompt 文本不得含 NUL"));
         }
 
         let record = self.journal.append(
@@ -3843,23 +3872,31 @@ mod tests {
             BoundedInput {
                 input: "provider.modelId",
                 site: "validate_start_config",
-                judgments: &["MAX_MODEL_ID_BYTES", "trim_non_empty"],
+                judgments: &["MAX_MODEL_ID_BYTES", "trim_non_empty", "is_nul_free"],
                 code: "invalid_config",
                 probe: BoundedProbe::Config(vec![
                     ("空串", |config| config.model_id = String::new()),
                     ("全空白", |config| config.model_id = " \t ".to_string()),
                     ("257 字节", |config| config.model_id = "m".repeat(257)),
+                    // 1R5 §零裁定一：NUL 归 host 前置。未前置时这一枚会先落 durable
+                    // `session_started` 并 spawn 一枚进程，最后才由 bootstrap encoder 拒。
+                    ("含 NUL", |config| config.model_id = "m\u{0}x".to_string()),
                 ]),
             },
             BoundedInput {
                 input: "caseRoot",
                 site: "validate_start_config",
-                judgments: &["MAX_CASE_ROOT_BYTES"],
+                judgments: &["MAX_CASE_ROOT_BYTES", "non_empty", "is_nul_free"],
                 code: "invalid_config",
                 probe: BoundedProbe::Config(vec![
                     ("空串", |config| config.case_root = PathBuf::from("")),
                     ("4097 字节", |config| {
                         config.case_root = PathBuf::from(format!("/{}", "a".repeat(4096)))
+                    }),
+                    // 未前置时它以 `case_root("案件根不可 lstat")` 收场——拿文件系统外观
+                    // 代替配置门，与 1R2 复验里 4097 字节案件根同病。
+                    ("含 NUL", |config| {
+                        config.case_root = PathBuf::from("/案卷\u{0}x")
                     }),
                 ]),
             },
@@ -3880,24 +3917,28 @@ mod tests {
             BoundedInput {
                 input: "provider.apiKey",
                 site: "validate_api_key",
-                judgments: &["MAX_API_KEY_BYTES", "trim_non_empty"],
+                judgments: &["MAX_API_KEY_BYTES", "trim_non_empty", "is_nul_free"],
                 code: "invalid_config",
                 probe: BoundedProbe::Credential(vec![
                     ("空串", "", 1),
                     ("全空白", " \t ", 1),
                     ("8193 字节", "k", 8193),
+                    ("含 NUL", "k\u{0}x", 1),
                 ]),
             },
             BoundedInput {
                 input: "prompt.text",
                 site: "prompt",
-                judgments: &["MAX_TEXT_BYTES", "trim_non_empty"],
+                judgments: &["MAX_TEXT_BYTES", "trim_non_empty", "is_nul_free"],
                 code: "invalid_prompt",
                 probe: BoundedProbe::Prompt(vec![
                     ("空串", String::new),
                     ("全空白", || "  \t \u{3000}\n ".to_string()),
                     // 「字」是 3 UTF-8 bytes：50,000 枚 = 150,000 bytes > 131,072 上限。
                     ("超 131072 字节", || "字".repeat(50_000)),
+                    // 未前置时它先落 durable `user_prompted`、占掉 requestId，
+                    // 最后才由 prompt encoder 拒（1R4 复验第三行）。
+                    ("含 NUL", || "p\u{0}x".to_string()),
                 ]),
             },
         ]
@@ -3969,6 +4010,14 @@ mod tests {
                 log.lock().expect("日志未中毒").written.len(),
                 writes_before,
                 "{}/{label}：拒绝须先于发包，出包一枚都不许多",
+                row.input
+            );
+            // 第四轴（1R5）：被拒的这一轮不得占掉 requestId。1R4 复验实测：含 NUL 的
+            // prompt 先落 durable `user_prompted`，requestId 就此被去重集吃掉，同一枚
+            // 再也用不了——「先污染后拒绝」在这一族上的具体形态。
+            assert!(
+                !host.projection.request_ids.contains(request_id.as_str()),
+                "{}/{label}：requestId 不得被占用",
                 row.input
             );
         }
@@ -4594,6 +4643,149 @@ mod tests {
                 direction: "host→sidecar",
                 consumption: Consumption::Fronted,
             },
+            // ── NUL 前置（1R5 §零裁定一 + G1）─────────────────────────────────
+            //
+            // ADR-022 六-B.1 冻结「wire 字符串不得含 NUL 或 lone surrogate」。1R4 之前
+            // 这道门只住 `scan_string`：`modelId`/`apiKey` 含 NUL 先落 durable
+            // `session_started` 并 spawn，prompt `text` 含 NUL 先落 `user_prompted`
+            // 并占掉 requestId，最后才由 encoder 回灌 decoder 拒。四枚自由串就此前置。
+            BoundedJudgmentUse {
+                module: "pi_loop.rs",
+                function: "is_nul_free",
+                judgment: "is_nul_free",
+                direction: "内部",
+                consumption: predicate_definition,
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop.rs",
+                function: "validate_start_config",
+                judgment: "is_nul_free",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop.rs",
+                function: "validate_api_key",
+                judgment: "is_nul_free",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop.rs",
+                function: "prompt",
+                judgment: "is_nul_free",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            // ── 裸 `.is_empty()` 非空门（1R5 G3 新轴复扫浮出）──────────────────
+            //
+            // 旧扫描面只认 `.trim()`，于是 `caseRoot` 的非空门（`case_root.is_empty()`）
+            // 既不在扫描集也不在清单里。新轴把裸 `.is_empty()` 一并收进来，四模块生产段
+            // 因此浮出六处，逐处在此交代。
+            BoundedJudgmentUse {
+                module: "pi_loop.rs",
+                function: "validate_start_config",
+                judgment: "non_empty",
+                direction: "host→sidecar",
+                consumption: Consumption::Fronted,
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop_journal.rs",
+                function: "read_event_id",
+                judgment: "non_empty",
+                direction: "journal",
+                consumption: Consumption::Other(
+                    "读回 journal 的 `event_{seq}` 时核数字段非空，宿主自产字段的回读复核",
+                ),
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop_journal.rs",
+                function: "load_session_locked",
+                judgment: "non_empty",
+                direction: "journal",
+                consumption: Consumption::Other("partial-tail 截断时跳过空行，不是输入值判据"),
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop_protocol.rs",
+                function: "is_safe_token",
+                judgment: "non_empty",
+                direction: "内部",
+                consumption: Consumption::Other(
+                    "SafeToken 文法自带的非空分支，住在判据函数定义体内，不是独立消费点",
+                ),
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_non_empty_string",
+                judgment: "non_empty",
+                direction: "内部",
+                consumption: Consumption::Other(
+                    "通用非空字符串读取器，双向共用；host 方向唯一消费点是 bootstrap 的 \
+                     caseRoot，其前置门在 `validate_start_config`",
+                ),
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop_protocol.rs",
+                function: "decode_packet_line",
+                judgment: "non_empty",
+                direction: "内部",
+                consumption: Consumption::Other("空行不是 packet：framing 判据，不绑单一输入"),
+            },
+            // ── 派生判据函数族浮出的两枚（1R5 G3）─────────────────────────────
+            //
+            // 判据函数族改由签名派生后，`is_sha256_hex` 与 `is_integer_lexeme` 自动进轴。
+            // 两枚都不是 host 方向的用户入参，但按「浮出即入账」逐处交代，不留给下一轮。
+            BoundedJudgmentUse {
+                module: "pi_loop_protocol.rs",
+                function: "is_sha256_hex",
+                judgment: "is_sha256_hex",
+                direction: "内部",
+                consumption: predicate_definition,
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_sha256_hex",
+                judgment: "is_sha256_hex",
+                direction: "内部",
+                consumption: Consumption::Other(
+                    "sha256 解码器：被判的摘要由宿主自算（route manifest 与 session_started），\
+                     不是任何一枚用户入参",
+                ),
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop_process.rs",
+                function: "read_artifact",
+                judgment: "is_sha256_hex",
+                direction: "内部",
+                consumption: Consumption::Other(
+                    "route manifest 的 artifact 摘要形状门；被判值取自随包冻结件，不是入参",
+                ),
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop_protocol.rs",
+                function: "is_integer_lexeme",
+                judgment: "is_integer_lexeme",
+                direction: "内部",
+                consumption: predicate_definition,
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop_protocol.rs",
+                function: "read_integer",
+                judgment: "is_integer_lexeme",
+                direction: "内部",
+                consumption: Consumption::Other(
+                    "JSON number lexeme 的规范形判据，双向共用；辖的是文本写法而非某一枚输入的值",
+                ),
+            },
+            BoundedJudgmentUse {
+                module: "pi_loop_protocol.rs",
+                function: "decode_packet_node",
+                judgment: "is_integer_lexeme",
+                direction: "内部",
+                consumption: Consumption::Other(
+                    "protocolVersion 的规范整数写法判据；该字段由宿主按冻结常量自产",
+                ),
+            },
             BoundedJudgmentUse {
                 module: "pi_loop.rs",
                 function: "resolve",
@@ -4705,6 +4897,16 @@ mod tests {
         ]
     }
 
+    /// 本票四模块的生产段源码。扫描面的唯一入口，两条扫描轴共用。
+    fn scanned_modules() -> [(&'static str, &'static str); 4] {
+        [
+            ("pi_loop.rs", include_str!("pi_loop.rs")),
+            ("pi_loop_journal.rs", include_str!("pi_loop_journal.rs")),
+            ("pi_loop_process.rs", include_str!("pi_loop_process.rs")),
+            ("pi_loop_protocol.rs", include_str!("pi_loop_protocol.rs")),
+        ]
+    }
+
     /// 生产段边界认 `#[cfg(test)] mod` **module** 边界。
     /// 截到首个 `#[cfg(test)]` 会被 impl 内 test-only 构造器的属性提前一刀切下
     /// （PI-HOST-LOOP-1 §八.2 已就同一形状留过判例）。
@@ -4750,41 +4952,73 @@ mod tests {
         found
     }
 
-    /// 冻结的函数型判据族。列表本身是手写字面量，扩族要动这里——而动这里必然连带
-    /// 触发「扫描集 == 清账表」等式，漏登记即红。
-    const PREDICATE_JUDGMENTS: [&str; 3] = [
-        "is_safe_token",
-        "is_safe_container_token",
+    /// 函数型判据族**由签名派生**，不再是手写名单（1R5 §零裁定二：名字清单永久出局）。
+    /// 四模块生产段里凡 `fn <name>(… : &str …) -> bool` 的自由函数即属该族——新写一枚
+    /// 判据函数自动进轴，它的定义行与每一处调用点都必须在清账表里有行，漏登记即红。
+    fn declared_string_predicates(sources: &[(&'static str, &'static str)]) -> Vec<String> {
+        let mut names: Vec<String> = Vec::new();
+        for (_, source) in sources {
+            for line in production_section(source).lines() {
+                let trimmed = line.trim_start();
+                if trimmed.starts_with("//")
+                    || !trimmed.ends_with("-> bool {")
+                    || !trimmed.contains(": &str")
+                {
+                    continue;
+                }
+                if let Some(name) = function_name(trimmed) {
+                    if !names.contains(&name) {
+                        names.push(name);
+                    }
+                }
+            }
+        }
+        names.sort();
+        names
+    }
+
+    /// 派生结果的冻结对照。期望侧一律手写字面量，不由被测源码派生（承在案判例
+    /// 「被测物不得给自己出考卷」）：新增或删掉一枚判据函数都要在这里同步。
+    const DECLARED_STRING_PREDICATES: [&str; 6] = [
         "is_absolute_path_shape",
+        "is_integer_lexeme",
+        "is_nul_free",
+        "is_safe_container_token",
+        "is_safe_token",
+        "is_sha256_hex",
     ];
 
-    /// 「trim 后非空」判据没有可取的标识符，规范化成这枚表内名。
+    /// 「trim 后非空」与「非空」两枚判据没有可取的函数标识符，规范化成这两枚表内名。
     const TRIM_JUDGMENT: &str = "trim_non_empty";
+    const NON_EMPTY_JUDGMENT: &str = "non_empty";
 
-    /// 行内出现的函数型判据。判据名按标识符边界匹配；`.trim()` 一律记 `trim_non_empty`。
+    /// 行内出现的函数型判据。判据名按标识符边界匹配；`.trim()` 记 `trim_non_empty`，
+    /// 不带 `.trim()` 的裸 `.is_empty()` 记 `non_empty`。
     ///
     /// 认 `.trim()` 而不认 `.trim().is_empty()`：后者一旦被折行就整条看不见，而扫描器
-    /// 看不见的门正是 1R3 栽的那一跤。今日生产段每一处 `.trim()` 都紧跟 `.is_empty()`；
-    /// 将来出现非门用途的 trim，必须在清账表里以 `Other` 具名登记，不得靠收窄扫描面躲开。
-    fn bounded_predicates_in(line: &str) -> Vec<String> {
+    /// 看不见的门正是 1R3 栽的那一跤。两枚标记都**过度近似**——非门用途的 trim/is_empty
+    /// 照样入扫描集，必须在清账表里以 `Other` 具名登记，不得靠收窄扫描面躲开。
+    fn bounded_predicates_in(line: &str, predicates: &[String]) -> Vec<String> {
         let bytes = line.as_bytes();
         let is_ident = |byte: u8| byte.is_ascii_alphanumeric() || byte == b'_';
         let mut found = Vec::new();
-        for name in PREDICATE_JUDGMENTS {
+        for name in predicates {
             let mut cursor = 0;
-            while let Some(offset) = line[cursor..].find(name) {
+            while let Some(offset) = line[cursor..].find(name.as_str()) {
                 let start = cursor + offset;
                 let end = start + name.len();
                 let left = start == 0 || !is_ident(bytes[start - 1]);
                 let right = end >= bytes.len() || !is_ident(bytes[end]);
                 if left && right {
-                    found.push(name.to_string());
+                    found.push(name.clone());
                 }
                 cursor = end;
             }
         }
         if line.contains(".trim()") {
             found.push(TRIM_JUDGMENT.to_string());
+        } else if line.contains(".is_empty()") {
+            found.push(NON_EMPTY_JUDGMENT.to_string());
         }
         found
     }
@@ -4801,6 +5035,7 @@ mod tests {
     fn scan_bounded_judgment_uses(
         module: &'static str,
         source: &'static str,
+        predicates: &[String],
     ) -> Vec<(String, String, String)> {
         let mut rows: Vec<(String, String, String)> = Vec::new();
         let mut current: Option<String> = None;
@@ -4819,7 +5054,7 @@ mod tests {
             };
             for judgment in bounded_constants_in(line)
                 .into_iter()
-                .chain(bounded_predicates_in(line))
+                .chain(bounded_predicates_in(line, predicates))
             {
                 let row = (module.to_string(), function.clone(), judgment);
                 if !rows.contains(&row) {
@@ -4844,14 +5079,20 @@ mod tests {
     /// 清单外的受验门即红；清单行在生产段找不到同 `(函数, 判据)` 消费点也即红。
     #[test]
     fn bounded_judgment_ledger_matches_the_source_and_covers_every_frozen_bound() {
+        let sources = scanned_modules();
+        // 判据函数族先由签名派生，再与冻结字面量核对——1R4 的三枚硬编码函数名就此出局。
+        let predicates = declared_string_predicates(&sources);
+        let expected_predicates: Vec<String> = DECLARED_STRING_PREDICATES
+            .iter()
+            .map(|name| name.to_string())
+            .collect();
+        assert_eq!(
+            predicates, expected_predicates,
+            "四模块生产段的 `&str -> bool` 判据函数族与冻结清单不符：新写一枚判据函数须同批入册"
+        );
         let mut scanned = Vec::new();
-        for (module, source) in [
-            ("pi_loop.rs", include_str!("pi_loop.rs")),
-            ("pi_loop_journal.rs", include_str!("pi_loop_journal.rs")),
-            ("pi_loop_process.rs", include_str!("pi_loop_process.rs")),
-            ("pi_loop_protocol.rs", include_str!("pi_loop_protocol.rs")),
-        ] {
-            scanned.extend(scan_bounded_judgment_uses(module, source));
+        for (module, source) in sources {
+            scanned.extend(scan_bounded_judgment_uses(module, source, &predicates));
         }
         scanned.sort();
 
@@ -4969,8 +5210,1322 @@ mod tests {
             .filter(|row| row.consumption == Consumption::Fronted)
             .count();
         assert_eq!(manifest.len(), 11, "D1 手写清单行数");
-        assert_eq!(counterexamples, 30, "D1 常驻反例枚数");
-        assert_eq!(fronted, 22, "清账表 Fronted 行数");
-        assert_eq!(ledger.len() - fronted, 37, "清账表 Other 行数");
+        assert_eq!(counterexamples, 34, "D1 常驻反例枚数");
+        assert_eq!(fronted, 26, "清账表 Fronted 行数");
+        assert_eq!(ledger.len() - fronted, 49, "清账表 Other 行数");
+    }
+
+    // ── G2 · fail-closed 扫描（PI-HOST-LOOP-1R5 §零裁定二）───────────────────────
+    //
+    // 1R3 用常量名单、1R4 用函数名单，两轮同败，病根同一：白名单对 unknown 的处置是
+    // **跳过**。终局形态是反置——枚举受审面的**全部拒绝分支**，逐条要求手写表有行；
+    // 表里没有的表达式**判红而非跳过**。排除只能是表里的具名理由行，扫描器内不再有
+    // 任何跳过型过滤器（每加一条过滤就多一个藏身处）。
+
+    /// 生产段逐行归属的函数名（`None` = 函数体外的文件头 / impl 头 / 类型定义）。
+    fn attributed_production_lines(source: &'static str) -> Vec<(Option<String>, &'static str)> {
+        let mut rows = Vec::new();
+        let mut current: Option<String> = None;
+        for line in production_section(source).lines() {
+            let trimmed = line.trim_start();
+            if !trimmed.starts_with("//") {
+                if let Some(name) = function_name(trimmed) {
+                    current = Some(name);
+                } else if line == "}" {
+                    current = None;
+                }
+            }
+            rows.push((current.clone(), line));
+        }
+        rows
+    }
+
+    fn normalize_ws(text: &str) -> String {
+        text.split_whitespace().collect::<Vec<_>>().join(" ")
+    }
+
+    /// 截掉行尾注释。字符串字面量里的 `//` 不算注释起点。
+    fn strip_trailing_comment(line: &str) -> &str {
+        let bytes = line.as_bytes();
+        let mut in_string = false;
+        let mut index = 0;
+        while index < bytes.len() {
+            match bytes[index] {
+                b'\\' if in_string => index += 1,
+                b'"' => in_string = !in_string,
+                b'/' if !in_string && bytes.get(index + 1) == Some(&b'/') => return &line[..index],
+                _ => {}
+            }
+            index += 1;
+        }
+        line
+    }
+
+    /// 分支起始行：`if` / `else`（含 `let … else`）/ `match` / match 臂。
+    fn is_branch_head(trimmed: &str) -> bool {
+        let rest = match trimmed.strip_prefix('}') {
+            Some(tail) => tail.trim_start(),
+            None => trimmed,
+        };
+        rest.starts_with("if ")
+            || rest.starts_with("else")
+            || rest.starts_with("match ")
+            || rest.contains("=>")
+            || rest.ends_with("else {")
+    }
+
+    /// 从 `lines[index]` 的 `from` 字节处起做定界符配平读取，可跨行；字符串字面量内的
+    /// 定界符不计数。返回归一化空白后的整段文本。配平不成立时读到生产段末尾——那一串
+    /// 必然与手写表对不上，于是仍是红，不是静默跳过。
+    fn balanced_from(
+        lines: &[(Option<String>, &'static str)],
+        index: usize,
+        from: usize,
+        open: char,
+        close: char,
+    ) -> String {
+        let mut text = String::new();
+        let mut depth = 0i32;
+        let mut in_string = false;
+        let mut escaped = false;
+        let mut cursor = index;
+        let mut chunk = strip_trailing_comment(lines[index].1)[from..].to_string();
+        loop {
+            text.push(' ');
+            text.push_str(&chunk);
+            let mut closed = false;
+            for ch in chunk.chars() {
+                if escaped {
+                    escaped = false;
+                    continue;
+                }
+                if in_string {
+                    if ch == '\\' {
+                        escaped = true;
+                    } else if ch == '"' {
+                        in_string = false;
+                    }
+                    continue;
+                }
+                if ch == '"' {
+                    in_string = true;
+                } else if ch == open {
+                    depth += 1;
+                } else if ch == close {
+                    depth -= 1;
+                    if depth == 0 {
+                        closed = true;
+                        break;
+                    }
+                }
+            }
+            if closed || cursor + 1 >= lines.len() {
+                break;
+            }
+            cursor += 1;
+            chunk = strip_trailing_comment(lines[cursor].1).trim().to_string();
+        }
+        normalize_ws(&text)
+    }
+
+    /// 文本里最后一枚字符串字面量的内容。
+    fn last_string_literal(text: &str) -> Option<String> {
+        let mut best = None;
+        let mut current: Option<String> = None;
+        let mut escaped = false;
+        for ch in text.chars() {
+            match &mut current {
+                Some(buffer) => {
+                    if escaped {
+                        buffer.push(ch);
+                        escaped = false;
+                    } else if ch == '\\' {
+                        buffer.push(ch);
+                        escaped = true;
+                    } else if ch == '"' {
+                        best = Some(buffer.clone());
+                        current = None;
+                    } else {
+                        buffer.push(ch);
+                    }
+                }
+                None => {
+                    if ch == '"' {
+                        current = Some(String::new());
+                    }
+                }
+            }
+        }
+        best
+    }
+
+    /// `pi_loop.rs` 生产段每一处 `return Err(`：`(函数, 分支头, 拒绝表达式)`。
+    ///
+    /// 分支头取该行 `return Err(` 之前的同行文本（match 臂形态），为空则回溯到最近一处
+    /// 分支起始行并连同其间所有行原样拼接。条件与文案**同时**参与键：改条件、改文案、
+    /// 加一道门，三种动作各自都会让扫描集变形。
+    fn scan_refusal_branches(source: &'static str) -> Vec<(String, String, String)> {
+        let lines = attributed_production_lines(source);
+        let mut rows: Vec<(String, String, String)> = Vec::new();
+        for index in 0..lines.len() {
+            let Some(function) = lines[index].0.clone() else {
+                continue;
+            };
+            let body = strip_trailing_comment(lines[index].1);
+            let Some(at) = body.find("return Err(") else {
+                continue;
+            };
+            let expression = balanced_from(&lines, index, at + "return Err".len(), '(', ')');
+            let inline = normalize_ws(&body[..at]);
+            let guard = if inline.is_empty() {
+                let mut probe = index;
+                let mut head = None;
+                while probe > 0 {
+                    probe -= 1;
+                    if lines[probe].0.as_deref() != Some(function.as_str()) {
+                        break;
+                    }
+                    let candidate = strip_trailing_comment(lines[probe].1).trim();
+                    if candidate.is_empty() {
+                        continue;
+                    }
+                    if is_branch_head(candidate) {
+                        head = Some(probe);
+                        break;
+                    }
+                }
+                match head {
+                    Some(start) => normalize_ws(
+                        &lines[start..index]
+                            .iter()
+                            .map(|(_, line)| strip_trailing_comment(line))
+                            .collect::<Vec<_>>()
+                            .join(" "),
+                    ),
+                    None => "<无前置分支头>".to_string(),
+                }
+            } else {
+                inline
+            };
+            let row = (function, guard, expression);
+            if !rows.contains(&row) {
+                rows.push(row);
+            }
+        }
+        rows.sort();
+        rows
+    }
+
+    /// `pi_loop_protocol.rs` 生产段每一处具名拒绝：`(函数, 理由字面量)`。
+    ///
+    /// 该模块只有三种拒绝构造式：`reject(…)`、`reject_field(…)` 与 `PacketRejection { … }`
+    /// 字面量。三者都扫，理由取该段最后一枚字符串字面量。新写一枚判据必然带一句新理由
+    /// （或把老理由搬进新函数），两种情形都会让扫描集变形。
+    const WIRE_REJECTION_MARKERS: [(&str, char, char); 3] = [
+        ("reject_field(", '(', ')'),
+        ("reject(", '(', ')'),
+        ("PacketRejection {", '{', '}'),
+    ];
+
+    fn scan_wire_rejections(source: &'static str) -> Vec<(String, String)> {
+        let lines = attributed_production_lines(source);
+        let mut rows: Vec<(String, String)> = Vec::new();
+        for index in 0..lines.len() {
+            let Some(function) = lines[index].0.clone() else {
+                continue;
+            };
+            let body = strip_trailing_comment(lines[index].1);
+            let bytes = body.as_bytes();
+            let mut cursor = 0;
+            while cursor < body.len() {
+                let hit = WIRE_REJECTION_MARKERS
+                    .iter()
+                    .filter_map(|(marker, open, close)| {
+                        body[cursor..]
+                            .find(marker)
+                            .map(|offset| (cursor + offset, *marker, *open, *close))
+                    })
+                    .min_by_key(|(at, _, _, _)| *at);
+                let Some((at, marker, open, close)) = hit else {
+                    break;
+                };
+                cursor = at + marker.len();
+                let boundary =
+                    at == 0 || !(bytes[at - 1].is_ascii_alphanumeric() || bytes[at - 1] == b'_');
+                if !boundary {
+                    continue;
+                }
+                let text = balanced_from(&lines, index, at + marker.len() - 1, open, close);
+                let reason =
+                    last_string_literal(&text).unwrap_or_else(|| "<无字面理由>".to_string());
+                let row = (function.clone(), reason);
+                if !rows.contains(&row) {
+                    rows.push(row);
+                }
+            }
+        }
+        rows.sort();
+        rows
+    }
+
+    // ── G2.1 · host 前置拒绝分支的 fail-closed 表 ───────────────────────────────
+
+    /// 三枚具名拒绝 code 的构造式。host 前置族**由源码派生**：`pi_loop.rs` 生产段里
+    /// 凡返回这三枚之一的函数即属该族，再与冻结清单逐名核对——新写一枚前置函数即红。
+    const HOST_REFUSAL_CODES: [&str; 3] = [
+        "HostError::InvalidConfig",
+        "HostError::InvalidPrompt",
+        "HostError::InvalidRef",
+    ];
+
+    /// 冻结的 host 前置函数族（按名排序）。1R5 的新轴把 `start_inner` 与
+    /// `delete_container` 一并浮出——两者同样返回具名拒绝 code，本轮逐条入账，不留给下一轮。
+    const HOST_PREFLIGHT_FAMILY: [&str; 5] = [
+        "delete_container",
+        "prompt",
+        "start_inner",
+        "validate_api_key",
+        "validate_start_config",
+    ];
+
+    /// 一处拒绝分支：函数 + 分支头 + 拒绝表达式 + 归属。三段文本都是手写字面量，
+    /// 与生产段扫描集**逐行相等**；表里没有的表达式判红，不是跳过。
+    struct RefusalBranch {
+        function: &'static str,
+        guard: &'static str,
+        error: &'static str,
+        disposition: BranchDisposition,
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum BranchDisposition {
+        /// host→sidecar 输入的值判据：指名它在 D1 手写清单里的行（一条分支可判多枚输入）。
+        HostInput(&'static [&'static str]),
+        /// 不是输入值判据，附具名理由。禁空理由、禁省行——排除只住这里，扫描器内没有过滤器。
+        Other(&'static str),
+    }
+
+    fn host_refusal_branches() -> Vec<RefusalBranch> {
+        let fs_fact =
+            "文件系统事实判据（lstat / symlink / 目录类型）：判的是盘上实物，不是入参值；\
+             同一枚 caseRoot 的入参层判据由 `validate_start_config` 在此之前收齐";
+        let container_delete =
+            "容器整删的入参门：被判 token 只用于拼装 app-data 下的目录路径，不上 wire；\
+             同名 token 的 host→sidecar 前置门在 `start_inner`（清单两行）";
+        let runtime_state =
+            "运行时状态门（会话已收束 / 容器仍有 live 写者）：判的是本 host 当前态，不判入参值";
+        let dedup = "跨 leg requestId 去重：判的是 durable 投影里的历史，不是入参形状；\
+             同一枚 requestId 的形状门是本函数上一道 `is_safe_token`";
+        let resume_drift =
+            "resume 前置：本 leg 入参与 durable 历史的一致性判据，被判的是两者之差而非入参\
+             自身的形状；全部落在 spawn 之前";
+        let inbound_shape =
+            "入站包形状门：判的是 sidecar 实收的 ready payload 与 capability 自报，\
+             方向是 sidecar→host";
+        vec![
+            RefusalBranch {
+                function: "delete_container",
+                guard: "Err(_) =>",
+                error: "(HostError::Journal(\"lstat container 失败\")),",
+                disposition: BranchDisposition::Other(fs_fact),
+            },
+            RefusalBranch {
+                function: "delete_container",
+                guard: "if !is_safe_container_token(container_id) {",
+                error: "(HostError::InvalidRef);",
+                disposition: BranchDisposition::Other(container_delete),
+            },
+            RefusalBranch {
+                function: "delete_container",
+                guard: "if metadata.file_type().is_symlink() || !metadata.is_dir() {",
+                error: "(HostError::Journal(\"container root 不是 regular directory\"));",
+                disposition: BranchDisposition::Other(fs_fact),
+            },
+            RefusalBranch {
+                function: "delete_container",
+                guard: "if pi_loop_journal::container_has_live_session(app_data_dir, container_id)? {",
+                error: "(HostError::ContainerActive);",
+                disposition: BranchDisposition::Other(runtime_state),
+            },
+            RefusalBranch {
+                function: "prompt",
+                guard: "if !is_nul_free(text) {",
+                error: "(HostError::InvalidPrompt(\"prompt 文本不得含 NUL\"));",
+                disposition: BranchDisposition::HostInput(&["prompt.text"]),
+            },
+            RefusalBranch {
+                function: "prompt",
+                guard: "if !is_safe_token(request_id) {",
+                error: "(HostError::InvalidRef);",
+                disposition: BranchDisposition::HostInput(&["prompt.requestId"]),
+            },
+            RefusalBranch {
+                function: "prompt",
+                guard: "if self.closed {",
+                error: "(HostError::SessionClosed);",
+                disposition: BranchDisposition::Other(runtime_state),
+            },
+            RefusalBranch {
+                function: "prompt",
+                guard: "if self.projection.request_ids.contains(request_id) {",
+                error: "(HostError::ResumeRefused( \"requestId 在本 logical session 内已用过\", ));",
+                disposition: BranchDisposition::Other(dedup),
+            },
+            RefusalBranch {
+                function: "prompt",
+                guard: "if text.len() > MAX_TEXT_BYTES {",
+                error: "(HostError::InvalidPrompt(\"prompt 文本超过 131,072 字节上限\"));",
+                disposition: BranchDisposition::HostInput(&["prompt.text"]),
+            },
+            RefusalBranch {
+                function: "prompt",
+                guard: "if text.trim().is_empty() {",
+                error: "(HostError::InvalidPrompt(\"prompt 文本 trim 后不得为空\"));",
+                disposition: BranchDisposition::HostInput(&["prompt.text"]),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if !is_safe_container_token(&config.container_id) || !is_safe_container_token(&config.session_id) || !is_safe_token(&config.grant_id) {",
+                error: "(HostError::InvalidRef);",
+                disposition: BranchDisposition::HostInput(&["containerId", "sessionId", "grantId"]),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if !metadata.is_dir() {",
+                error: "(HostError::CaseRoot(\"案件根不是目录\"));",
+                disposition: BranchDisposition::Other(fs_fact),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if !projection.interrupted {",
+                error: "(HostError::ResumeRefused( \"上一 leg 未以 session_interrupted 收束\", ));",
+                disposition: BranchDisposition::Other(resume_drift),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if capabilities.as_slice() != EXPECTED_CAPABILITIES {",
+                error: "(host.fail_protocol(ProtocolErrorCode::StateViolation));",
+                disposition: BranchDisposition::Other(inbound_shape),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if historic.grant_id != config.grant_id {",
+                error: "(HostError::ResumeRefused(\"grant 漂移\"));",
+                disposition: BranchDisposition::Other(resume_drift),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if historic.max_turns != config.max_turns || historic.max_usd != config.max_usd {",
+                error: "(HostError::ResumeRefused(\"limits 漂移\"));",
+                disposition: BranchDisposition::Other(resume_drift),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if historic.max_usd.is_some() && projection.prior_usd.is_none() {",
+                error: "(HostError::ResumeRefused(\"maxUsd 已启用而历史费用未知\"));",
+                disposition: BranchDisposition::Other(resume_drift),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if historic.model_id != config.model_id {",
+                error: "(HostError::ResumeRefused(\"model 漂移\"));",
+                disposition: BranchDisposition::Other(resume_drift),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if historic.route_manifest_sha256 != pair.manifest_sha256() {",
+                error: "(HostError::ResumeRefused(\"route manifest 漂移\"));",
+                disposition: BranchDisposition::Other(resume_drift),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if historic.target_triple != pair.target_triple() {",
+                error: "(HostError::ResumeRefused(\"target 漂移\"));",
+                disposition: BranchDisposition::Other(resume_drift),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if metadata.file_type().is_symlink() {",
+                error: "(HostError::CaseRoot(\"案件根是 symlink\"));",
+                disposition: BranchDisposition::Other(fs_fact),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if projection.is_closed() {",
+                error: "(HostError::SessionClosed);",
+                disposition: BranchDisposition::Other(runtime_state),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "if projection.prior_turns >= historic.max_turns {",
+                error: "(HostError::ResumeRefused(\"历史 counted turns 已达 maxTurns\"));",
+                disposition: BranchDisposition::Other(resume_drift),
+            },
+            RefusalBranch {
+                function: "start_inner",
+                guard: "let PacketPayload::Ready { capabilities } = packet.payload else {",
+                error: "(host.fail_protocol(ProtocolErrorCode::StateViolation));",
+                disposition: BranchDisposition::Other(inbound_shape),
+            },
+            RefusalBranch {
+                function: "validate_api_key",
+                guard: "if !is_nul_free(api_key) {",
+                error: "(HostError::InvalidConfig(\"apiKey 不得含 NUL\"));",
+                disposition: BranchDisposition::HostInput(&["provider.apiKey"]),
+            },
+            RefusalBranch {
+                function: "validate_api_key",
+                guard: "if api_key.len() > MAX_API_KEY_BYTES {",
+                error: "(HostError::InvalidConfig(\"apiKey 不得超过 8192 UTF-8 字节\"));",
+                disposition: BranchDisposition::HostInput(&["provider.apiKey"]),
+            },
+            RefusalBranch {
+                function: "validate_api_key",
+                guard: "if api_key.trim().is_empty() {",
+                error: "(HostError::InvalidConfig(\"apiKey 不得为空\"));",
+                disposition: BranchDisposition::HostInput(&["provider.apiKey"]),
+            },
+            RefusalBranch {
+                function: "validate_start_config",
+                guard: "if !is_absolute_path_shape(&case_root) {",
+                error: "(HostError::InvalidConfig(\"caseRoot 必须是平台绝对路径\"));",
+                disposition: BranchDisposition::HostInput(&["caseRoot 绝对形状"]),
+            },
+            RefusalBranch {
+                function: "validate_start_config",
+                guard: "if !is_nul_free(&case_root) {",
+                error: "(HostError::InvalidConfig(\"caseRoot 不得含 NUL\"));",
+                disposition: BranchDisposition::HostInput(&["caseRoot"]),
+            },
+            RefusalBranch {
+                function: "validate_start_config",
+                guard: "if !is_nul_free(&config.model_id) {",
+                error: "(HostError::InvalidConfig(\"modelId 不得含 NUL\"));",
+                disposition: BranchDisposition::HostInput(&["provider.modelId"]),
+            },
+            RefusalBranch {
+                function: "validate_start_config",
+                guard: "if !max_usd.is_finite() || max_usd <= 0.0 || max_usd > MAX_USD_LIMIT {",
+                error: "(HostError::InvalidConfig( \"maxUsd 必须是 (0, 100000] 内的有限数或 null\", ));",
+                disposition: BranchDisposition::HostInput(&["limits.maxUsd"]),
+            },
+            RefusalBranch {
+                function: "validate_start_config",
+                guard: "if case_root.is_empty() {",
+                error: "(HostError::InvalidConfig(\"caseRoot 不得为空\"));",
+                disposition: BranchDisposition::HostInput(&["caseRoot"]),
+            },
+            RefusalBranch {
+                function: "validate_start_config",
+                guard: "if case_root.len() > MAX_CASE_ROOT_BYTES {",
+                error: "(HostError::InvalidConfig( \"caseRoot 不得超过 4096 UTF-8 字节\", ));",
+                disposition: BranchDisposition::HostInput(&["caseRoot"]),
+            },
+            RefusalBranch {
+                function: "validate_start_config",
+                guard: "if config.max_turns < 1 || config.max_turns > MAX_TURNS_LIMIT {",
+                error: "(HostError::InvalidConfig(\"maxTurns 必须是 1..=12 的整数\"));",
+                disposition: BranchDisposition::HostInput(&["limits.maxTurns"]),
+            },
+            RefusalBranch {
+                function: "validate_start_config",
+                guard: "if config.model_id.len() > MAX_MODEL_ID_BYTES {",
+                error: "(HostError::InvalidConfig(\"modelId 不得超过 256 UTF-8 字节\"));",
+                disposition: BranchDisposition::HostInput(&["provider.modelId"]),
+            },
+            RefusalBranch {
+                function: "validate_start_config",
+                guard: "if config.model_id.trim().is_empty() {",
+                error: "(HostError::InvalidConfig(\"modelId 不得为空\"));",
+                disposition: BranchDisposition::HostInput(&["provider.modelId"]),
+            },
+        ]
+    }
+
+    /// G2.1：host 前置族的**全部拒绝分支**逐条要求手写表有行；表里没有的表达式判红。
+    ///
+    /// 1R4 复验用一枚未登记的 `model_id.contains('/')` 证明旧扫描器 false-green——
+    /// 那枚结构反例在本轮转成常驻形态：加任何一道未登记的门，扫描集与表就此不等。
+    #[test]
+    fn host_refusal_branches_are_fail_closed_against_the_source() {
+        let scanned = scan_refusal_branches(include_str!("pi_loop.rs"));
+
+        // ① 族由源码派生：凡返回三枚具名拒绝 code 之一的函数即属 host 前置族。
+        let mut derived: Vec<String> = Vec::new();
+        for (function, _, error) in &scanned {
+            if HOST_REFUSAL_CODES.iter().any(|code| error.contains(code))
+                && !derived.contains(function)
+            {
+                derived.push(function.clone());
+            }
+        }
+        derived.sort();
+        let frozen: Vec<String> = HOST_PREFLIGHT_FAMILY
+            .iter()
+            .map(|name| name.to_string())
+            .collect();
+        assert_eq!(
+            derived, frozen,
+            "host 前置函数族与冻结清单不符：新写一枚返回具名拒绝 code 的函数须同批入册"
+        );
+
+        // ② 族内**全部**拒绝分支与手写表逐行相同。
+        let table = host_refusal_branches();
+        let mut registered: Vec<(String, String, String)> = table
+            .iter()
+            .map(|row| {
+                (
+                    row.function.to_string(),
+                    row.guard.to_string(),
+                    row.error.to_string(),
+                )
+            })
+            .collect();
+        registered.sort();
+        let mut in_family: Vec<(String, String, String)> = scanned
+            .into_iter()
+            .filter(|(function, _, _)| HOST_PREFLIGHT_FAMILY.contains(&function.as_str()))
+            .collect();
+        in_family.sort();
+        assert_eq!(
+            in_family, registered,
+            "host 前置族的拒绝分支必须与手写表逐行相同：加一道门、改一个条件、改一句文案，\
+             三种动作都要同批补表并给出归属"
+        );
+
+        // ③ 归属为 host 输入的分支，必须在 D1 清单里有同 `site` 的那一行。
+        let manifest = bounded_input_manifest();
+        for row in &table {
+            match row.disposition {
+                BranchDisposition::HostInput(inputs) => {
+                    assert!(
+                        !inputs.is_empty(),
+                        "{}::{} 登记为 host 输入判据，却没指名清单行",
+                        row.function,
+                        row.guard
+                    );
+                    for input in inputs {
+                        assert!(
+                            manifest
+                                .iter()
+                                .any(|entry| entry.input == *input && entry.site == row.function),
+                            "拒绝分支 {}::{} 认领的清单行 {input} 不存在，或它的 site 不是本函数",
+                            row.function,
+                            row.guard
+                        );
+                    }
+                }
+                BranchDisposition::Other(reason) => {
+                    assert!(
+                        !reason.trim().is_empty(),
+                        "{}::{} 登记为非输入值判据，却没写理由",
+                        row.function,
+                        row.guard
+                    );
+                }
+            }
+        }
+
+        // ④ 反向：D1 清单每一行都要被至少一处拒绝分支认领——撤掉生产门，清单行随即失锚。
+        for entry in &manifest {
+            assert!(
+                table.iter().any(|row| matches!(
+                    row.disposition,
+                    BranchDisposition::HostInput(inputs) if inputs.contains(&entry.input)
+                )),
+                "D1 清单行 {} 在拒绝分支表里无人认领",
+                entry.input
+            );
+        }
+
+        // ⑤ 计数冻结：回执引用这两枚数字时与源码同源。
+        let host_rows = table
+            .iter()
+            .filter(|row| matches!(row.disposition, BranchDisposition::HostInput(_)))
+            .count();
+        assert_eq!(table.len(), 36, "host 前置族拒绝分支行数");
+        assert_eq!(host_rows, 17, "其中 host 输入值判据行数");
+    }
+
+    // ── G2.2 · 协议模块具名 wire 判据的对照面 ───────────────────────────────────
+    //
+    // ADR-022 六-B.1 的 wire 字符串判据住在 `pi_loop_protocol.rs`：NUL / lone surrogate、
+    // 长度、非空、SafeToken、shape、JSON 深度……1R4 之前它们整族不在任何扫描轴上，于是
+    // 「`scan_string` 的 `unit == 0`」这道现存格式门既不进 ledger 也不进 manifest。
+    // 本表把该模块**全部具名拒绝**逐行收下：`Fronted`（host 侧已有前置门，指名清单行）
+    // 或具名理由 `Other`。
+
+    /// 允许出现 `PacketRejection { … }` 字面量的函数闭集。新写一枚拒绝 helper 即红——
+    /// 否则它的调用点会整族逃出扫描面（1R3/1R4 两轮栽的正是同一形）。
+    const WIRE_REJECTION_LITERAL_SITES: [&str; 4] = ["pick", "read_enum", "reject", "reject_field"];
+
+    /// 一处具名 wire 判据：函数 + 拒绝理由字面量 + 归属。
+    struct WireJudgment {
+        function: &'static str,
+        reason: &'static str,
+        disposition: WireDisposition,
+    }
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum WireDisposition {
+        /// 同一判据已在 host 前置：逐对指名 D1 清单行与判据名，附一句归属说明。
+        Fronted {
+            inputs: &'static [(&'static str, &'static str)],
+            note: &'static str,
+        },
+        /// 不属 host 方向输入值判据，附具名理由。禁空、禁省行。
+        Other(&'static str),
+    }
+
+    fn wire_judgment_ledger() -> Vec<WireJudgment> {
+        let framing = "packet framing 判据：辖成品行的字节形状，双向共用，不绑任何单一输入";
+        let envelope = "packet 信封字段判据：protocolVersion/type/sessionId/requestId 由宿主按\
+                        冻结常量与方向闭集自产，读回时逐值复核";
+        let closed_shape = "契约闭形判据（additionalProperties:false / 缺字段）：辖 packet 的\
+                            字段集，不是某一枚输入的值判据";
+        let closed_enum = "闭集枚举判据：host 方向的取值由 Rust enum 结构性保证，入站侧由 \
+                           decoder 收口";
+        let json_lexical = "JSON 词法判据：辖文本写法，不是任何一枚 host 输入的值判据";
+        let json_depth = "JSON 嵌套深度：结构约束非输入值判据，双向共用";
+        let rust_typed = "JSON 类型判据：host 方向出包由 Rust 类型结构性保证，这一路只对入站\
+                          解码有效";
+        let inbound_only = "只辖 sidecar→host 入站解码，host 方向不生成该字段";
+        let host_outbound_unused = "host_result 是 host→sidecar 出包，但本票 ready capability \
+                                    恰 ['case_read']，宿主一枚都不生成；PI-WRITE-HOST-1 开工时\
+                                    须连同前置门一并补";
+        let list_entries = "array 条目上限：host 方向唯一消费点是 host_result 的 list（本票不\
+                            生成），其余为入站解码";
+        let derived_resume = "resume 三值由本 journal 的 fold 产出，不是入参；对应的 host 侧拒绝\
+                              住在 `start_inner` 的 resume 漂移分支（拒绝分支表逐行有据）";
+        let safe_integer = "MAX_SAFE_INTEGER 封顶：host 方向的整数由宿主自增或由 journal fold \
+                            派生，不是入参";
+        let self_produced_digest = "sha256 由宿主自算（route manifest 与 session_started），\
+                                    不是任何一枚用户入参";
+        let constructor_definition = "拒绝构造式自身的定义，不判任何输入";
+
+        let case_root_shape_note = "caseRoot 的绝对形状门已在 `validate_start_config` 前置";
+        let model_id_trim_note = "modelId 的 trim 非空门已在 `validate_start_config` 前置";
+        let prompt_trim_note = "prompt 文本的 trim 非空门已在 `prompt` 前置";
+        let non_empty_note = "通用非空读取器；host 方向唯一消费点是 bootstrap 的 caseRoot，\
+                              其非空门已在 `validate_start_config` 前置";
+        let length_note = "通用带上界字符串读取器，双向共用；host 方向四枚自由串各有前置上界门";
+        let safe_token_note = "通用 SafeToken 解码器，入站/出站共用；host 方向四枚具名 token \
+                               各有前置门";
+        let max_turns_note = "通用整数读取器的契约上下界，双向共用；host 方向唯一带契约区间的\
+                              入参是 maxTurns";
+        let max_usd_note = "maxUsd 的负值/负零、非有限与上限三态都由 `validate_start_config` 的\
+                            同一道前置门覆盖";
+        let nul_note = "ADR-022 六-B.1 冻结的 wire 字符串判据。NUL 归 host 前置（1R5 §零裁定一：\
+                        副作用、语义、家族三轴）；同一枚理由字面量并管的 **lone surrogate 在 \
+                        Rust `String` 侧结构性不可达**——`String` 保证 Unicode scalar 序列，\
+                        host 方向永远构造不出这一形，故不另设前置门，以本行具名登记。";
+
+        vec![
+            WireJudgment {
+                function: "closed_record",
+                reason: "的字段集必须与契约逐字相同（additionalProperties:false）",
+                disposition: WireDisposition::Other(closed_shape),
+            },
+            WireJudgment {
+                function: "closed_record",
+                reason: "缺少契约字段或含契约外字段",
+                disposition: WireDisposition::Other(closed_shape),
+            },
+            WireJudgment {
+                function: "decode_packet_line",
+                reason: "单 packet 连结尾 LF 超过字节上限",
+                disposition: WireDisposition::Other(framing),
+            },
+            WireJudgment {
+                function: "decode_packet_line",
+                reason: "空行不是 packet",
+                disposition: WireDisposition::Other(framing),
+            },
+            WireJudgment {
+                function: "decode_packet_line",
+                reason: "行不是合法 UTF-8（fatal 解码，不做 U+FFFD 替换）",
+                disposition: WireDisposition::Other(framing),
+            },
+            WireJudgment {
+                function: "decode_packet_line",
+                reason: "行以 CR 结尾：delimiter 只收单字节 LF，CRLF 不放行",
+                disposition: WireDisposition::Other(framing),
+            },
+            WireJudgment {
+                function: "decode_packet_line",
+                reason: "行内出现 LF",
+                disposition: WireDisposition::Other(framing),
+            },
+            WireJudgment {
+                function: "decode_packet_line",
+                reason: "行带 UTF-8 BOM",
+                disposition: WireDisposition::Other(framing),
+            },
+            WireJudgment {
+                function: "decode_packet_node",
+                reason: "protocolVersion 不是本协议版本",
+                disposition: WireDisposition::Other(envelope),
+            },
+            WireJudgment {
+                function: "decode_packet_node",
+                reason: "protocolVersion 必须是规范整数",
+                disposition: WireDisposition::Other(envelope),
+            },
+            WireJudgment {
+                function: "decode_packet_node",
+                reason: "sessionId 不得为 null",
+                disposition: WireDisposition::Other(envelope),
+            },
+            WireJudgment {
+                function: "decode_packet_node",
+                reason: "sessionId:null 只允许 bootstrap 未成立时的 protocol_error",
+                disposition: WireDisposition::Other(envelope),
+            },
+            WireJudgment {
+                function: "decode_packet_node",
+                reason: "type 不在本方向的闭集内",
+                disposition: WireDisposition::Other(envelope),
+            },
+            WireJudgment {
+                function: "decode_packet_node",
+                reason: "type 必须是字符串",
+                disposition: WireDisposition::Other(envelope),
+            },
+            WireJudgment {
+                function: "decode_packet_node",
+                reason: "本 type 的 requestId 不得为 null",
+                disposition: WireDisposition::Other(envelope),
+            },
+            WireJudgment {
+                function: "decode_packet_node",
+                reason: "本 type 的 requestId 必须为 null",
+                disposition: WireDisposition::Other(envelope),
+            },
+            WireJudgment {
+                function: "encode_packet_line",
+                reason: "编码后字节连结尾 LF 超过单 packet 上限",
+                disposition: WireDisposition::Other(framing),
+            },
+            WireJudgment {
+                function: "pick",
+                reason: "{label} 缺少契约字段",
+                disposition: WireDisposition::Other(closed_shape),
+            },
+            WireJudgment {
+                function: "read_agent_event_payload",
+                reason: "aborted/error 回合固定不计入 turn 限额，其余 stopReason 固定计入",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "read_agent_event_payload",
+                reason: "aborted/error 回合的 usage 字段必须全部为 null",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "read_array",
+                reason: "必须是 array",
+                disposition: WireDisposition::Other(rust_typed),
+            },
+            WireJudgment {
+                function: "read_array",
+                reason: "超过条目上限",
+                disposition: WireDisposition::Other(list_entries),
+            },
+            WireJudgment {
+                function: "read_boolean",
+                reason: "必须是 boolean",
+                disposition: WireDisposition::Other(rust_typed),
+            },
+            WireJudgment {
+                function: "read_bootstrap_payload",
+                reason: "after_interruption 的 leg 至少为 2",
+                disposition: WireDisposition::Other(derived_resume),
+            },
+            WireJudgment {
+                function: "read_bootstrap_payload",
+                reason: "caseRoot 必须是平台绝对路径",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[("caseRoot 绝对形状", "is_absolute_path_shape")],
+                    note: case_root_shape_note,
+                },
+            },
+            WireJudgment {
+                function: "read_bootstrap_payload",
+                reason: "fresh 必须是 leg:1 且 prior 三项全零",
+                disposition: WireDisposition::Other(derived_resume),
+            },
+            WireJudgment {
+                function: "read_bootstrap_payload",
+                reason: "maxUsd 已启用时 priorUsd 不得为未知",
+                disposition: WireDisposition::Other(derived_resume),
+            },
+            WireJudgment {
+                function: "read_bootstrap_payload",
+                reason: "priorObservedTurns 不得小于 priorTurns",
+                disposition: WireDisposition::Other(derived_resume),
+            },
+            WireJudgment {
+                function: "read_bootstrap_payload",
+                reason: "provider.modelId trim 后不得为空",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[("provider.modelId", "trim_non_empty")],
+                    note: model_id_trim_note,
+                },
+            },
+            WireJudgment {
+                function: "read_bootstrap_payload",
+                reason: "历史 counted turns 已达 maxTurns，不得启动新 leg",
+                disposition: WireDisposition::Other(derived_resume),
+            },
+            WireJudgment {
+                function: "read_bootstrap_payload",
+                reason: "历史费用已达 maxUsd，不得启动新 leg",
+                disposition: WireDisposition::Other(derived_resume),
+            },
+            WireJudgment {
+                function: "read_enum",
+                reason: "{label} 不在契约闭集内",
+                disposition: WireDisposition::Other(closed_enum),
+            },
+            WireJudgment {
+                function: "read_enum",
+                reason: "必须是字符串",
+                disposition: WireDisposition::Other(rust_typed),
+            },
+            WireJudgment {
+                function: "read_host_result_payload",
+                reason: "uncertain 只允许 workspace write",
+                disposition: WireDisposition::Other(host_outbound_unused),
+            },
+            WireJudgment {
+                function: "read_host_result_payload",
+                reason: "value.byteLength 必须等于 content 的 UTF-8 实长",
+                disposition: WireDisposition::Other(host_outbound_unused),
+            },
+            WireJudgment {
+                function: "read_host_result_payload",
+                reason: "workspace_read 的 operation 不得为 write",
+                disposition: WireDisposition::Other(host_outbound_unused),
+            },
+            WireJudgment {
+                function: "read_host_result_payload",
+                reason: "workspace_write 的 operation 固定为 write",
+                disposition: WireDisposition::Other(host_outbound_unused),
+            },
+            WireJudgment {
+                function: "read_integer",
+                reason: "必须是整数",
+                disposition: WireDisposition::Other(rust_typed),
+            },
+            WireJudgment {
+                function: "read_integer",
+                reason: "的 JSON number lexeme 不是规范非负整数",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "read_integer",
+                reason: "超出契约范围",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[("limits.maxTurns", "MAX_TURNS_LIMIT")],
+                    note: max_turns_note,
+                },
+            },
+            WireJudgment {
+                function: "read_integer",
+                reason: "超出安全整数范围",
+                disposition: WireDisposition::Other(safe_integer),
+            },
+            WireJudgment {
+                function: "read_list_entry",
+                reason: "directory/symlink 条目的 byteLength 必须为 null",
+                disposition: WireDisposition::Other(host_outbound_unused),
+            },
+            WireJudgment {
+                function: "read_list_entry",
+                reason: "file 条目必须给出 byteLength",
+                disposition: WireDisposition::Other(host_outbound_unused),
+            },
+            WireJudgment {
+                function: "read_non_empty_string",
+                reason: "不得为空",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[("caseRoot", "non_empty")],
+                    note: non_empty_note,
+                },
+            },
+            WireJudgment {
+                function: "read_non_negative_number",
+                reason: "不得为负数或 negative zero",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[("limits.maxUsd", "MAX_USD_LIMIT")],
+                    note: max_usd_note,
+                },
+            },
+            WireJudgment {
+                function: "read_non_negative_number",
+                reason: "必须大于 0",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[("limits.maxUsd", "MAX_USD_LIMIT")],
+                    note: max_usd_note,
+                },
+            },
+            WireJudgment {
+                function: "read_non_negative_number",
+                reason: "必须是数值",
+                disposition: WireDisposition::Other(rust_typed),
+            },
+            WireJudgment {
+                function: "read_non_negative_number",
+                reason: "必须是有限数",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[("limits.maxUsd", "MAX_USD_LIMIT")],
+                    note: max_usd_note,
+                },
+            },
+            WireJudgment {
+                function: "read_non_negative_number",
+                reason: "超出契约上限",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[("limits.maxUsd", "MAX_USD_LIMIT")],
+                    note: max_usd_note,
+                },
+            },
+            WireJudgment {
+                function: "read_prompt_payload",
+                reason: "prompt.text trim 后不得为空",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[("prompt.text", "trim_non_empty")],
+                    note: prompt_trim_note,
+                },
+            },
+            WireJudgment {
+                function: "read_protocol_error_payload",
+                reason: "protocol_error.fatal 恒为 true",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "read_ready_payload",
+                reason: "ready.capabilities 必须去重并按字典序升序",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "read_safe_token",
+                reason: "不满足 SafeToken 形状",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[
+                        ("containerId", "is_safe_container_token"),
+                        ("sessionId", "is_safe_container_token"),
+                        ("grantId", "is_safe_token"),
+                        ("prompt.requestId", "is_safe_token"),
+                    ],
+                    note: safe_token_note,
+                },
+            },
+            WireJudgment {
+                function: "read_safe_token",
+                reason: "必须是 SafeToken 字符串",
+                disposition: WireDisposition::Other(rust_typed),
+            },
+            WireJudgment {
+                function: "read_sha256_hex",
+                reason: "必须是字符串",
+                disposition: WireDisposition::Other(rust_typed),
+            },
+            WireJudgment {
+                function: "read_sha256_hex",
+                reason: "必须是小写 64 位 hex",
+                disposition: WireDisposition::Other(self_produced_digest),
+            },
+            WireJudgment {
+                function: "read_string",
+                reason: "必须是字符串",
+                disposition: WireDisposition::Other(rust_typed),
+            },
+            WireJudgment {
+                function: "read_string",
+                reason: "超过 UTF-8 字节上限",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[
+                        ("provider.modelId", "MAX_MODEL_ID_BYTES"),
+                        ("caseRoot", "MAX_CASE_ROOT_BYTES"),
+                        ("provider.apiKey", "MAX_API_KEY_BYTES"),
+                        ("prompt.text", "MAX_TEXT_BYTES"),
+                    ],
+                    note: length_note,
+                },
+            },
+            WireJudgment {
+                function: "read_terminal_payload",
+                reason: "budget_stopped 必须给出 budget.stopReason",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "read_terminal_payload",
+                reason: "本 failed code 属不可重试闭集，retryable 必须为 false",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "read_terminal_payload",
+                reason: "非 budget terminal 的 budget.stopReason 必须为 null",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "read_write_arguments",
+                reason: "arguments.byteLength 必须等于 content 的 UTF-8 实长",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "reject",
+                reason: "<无字面理由>",
+                disposition: WireDisposition::Other(constructor_definition),
+            },
+            WireJudgment {
+                function: "reject_field",
+                reason: "{label} {tail}",
+                disposition: WireDisposition::Other(constructor_definition),
+            },
+            WireJudgment {
+                function: "require_object",
+                reason: "必须是 JSON object",
+                disposition: WireDisposition::Other(rust_typed),
+            },
+            WireJudgment {
+                function: "scan_array",
+                reason: "JSON array 未正确闭合",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_array",
+                reason: "JSON 嵌套超过深度上限",
+                disposition: WireDisposition::Other(json_depth),
+            },
+            WireJudgment {
+                function: "scan_hex4",
+                reason: "JSON `\\\\u` 转义必须是四位 hex",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_literal",
+                reason: "JSON 字面量不合语法",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_number",
+                reason: "JSON number 不合语法",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_number",
+                reason: "JSON number 的小数部分缺数字",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_number",
+                reason: "JSON number 的指数部分缺数字",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_object",
+                reason: "JSON object 出现重复 member（任一层皆拒）",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_object",
+                reason: "JSON object 未正确闭合",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_object",
+                reason: "JSON object 的 member 名必须是字符串",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_object",
+                reason: "JSON object 的 member 缺少冒号",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_object",
+                reason: "JSON 嵌套超过深度上限",
+                disposition: WireDisposition::Other(json_depth),
+            },
+            WireJudgment {
+                function: "scan_string",
+                reason: "JSON 字符串含契约外转义",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_string",
+                reason: "JSON 字符串含未转义控制字符",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_string",
+                reason: "JSON 字符串未闭合",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_string",
+                reason: "wire 字符串必须是不含 NUL 与 lone surrogate 的 Unicode scalar 序列",
+                disposition: WireDisposition::Fronted {
+                    inputs: &[
+                        ("provider.modelId", "is_nul_free"),
+                        ("caseRoot", "is_nul_free"),
+                        ("provider.apiKey", "is_nul_free"),
+                        ("prompt.text", "is_nul_free"),
+                    ],
+                    note: nul_note,
+                },
+            },
+            WireJudgment {
+                function: "scan_value",
+                reason: "JSON 在期待值的位置提前结束",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "scan_with",
+                reason: "只允许一个 JSON 值，其后出现多余内容",
+                disposition: WireDisposition::Other(json_lexical),
+            },
+            WireJudgment {
+                function: "validate_terminal_budget",
+                reason: "budget_stopped 不得携带 unknown usdLimit",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "validate_terminal_budget",
+                reason: "failed budget_unknown 必须携带 unknown usdLimit",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "validate_terminal_budget",
+                reason: "turnLimit reached 的 budget_stopped 必须以 turns 停止",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "validate_terminal_budget",
+                reason: "usdLimit 为 unknown 时 usd 必须为 null",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "validate_terminal_budget",
+                reason: "已知金额限额状态必须携带已知 usd",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "validate_terminal_budget",
+                reason: "此 terminal 不得绕过 effect/budget 优先级",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+            WireJudgment {
+                function: "validate_terminal_budget",
+                reason: "非 turn reached 的 budget_stopped 必须由 usd reached 停止",
+                disposition: WireDisposition::Other(inbound_only),
+            },
+        ]
+    }
+
+    /// G2.2：`pi_loop_protocol.rs` 生产段的**全部具名拒绝**逐条要求本表有行；
+    /// 新增一枚具名判据（新理由，或把老理由搬进新函数）不入账即红。
+    #[test]
+    fn wire_judgment_ledger_covers_every_named_protocol_rejection() {
+        let source = include_str!("pi_loop_protocol.rs");
+
+        // ① 拒绝构造式闭集：`PacketRejection { … }` 字面量只许住在冻结的四枚函数里。
+        let mut literal_sites: Vec<String> = Vec::new();
+        for (owner, line) in attributed_production_lines(source) {
+            if !strip_trailing_comment(line).contains("PacketRejection {") {
+                continue;
+            }
+            if let Some(function) = owner {
+                if !literal_sites.contains(&function) {
+                    literal_sites.push(function);
+                }
+            }
+        }
+        literal_sites.sort();
+        let frozen: Vec<String> = WIRE_REJECTION_LITERAL_SITES
+            .iter()
+            .map(|name| name.to_string())
+            .collect();
+        assert_eq!(
+            literal_sites, frozen,
+            "新写一枚拒绝构造式即红：否则它的调用点会整族逃出扫描面"
+        );
+
+        // ② 全部具名拒绝与手写表逐行相同。
+        let scanned = scan_wire_rejections(source);
+        let table = wire_judgment_ledger();
+        let mut registered: Vec<(String, String)> = table
+            .iter()
+            .map(|row| (row.function.to_string(), row.reason.to_string()))
+            .collect();
+        registered.sort();
+        assert_eq!(
+            scanned, registered,
+            "协议模块的具名拒绝必须与对照表逐行相同：新增一枚判据就得同批补表并给出归属"
+        );
+
+        // ③ `Fronted` 行必须真落在 D1 清单的 `(input, judgment)` 上，且该行的 site
+        //    在 host 前置族内——「已前置」不许只是嘴上说。
+        let manifest = bounded_input_manifest();
+        for row in &table {
+            match row.disposition {
+                WireDisposition::Fronted { inputs, note } => {
+                    assert!(
+                        !inputs.is_empty(),
+                        "{}/{} 登记为已前置，却没指名清单行",
+                        row.function,
+                        row.reason
+                    );
+                    assert!(
+                        !note.trim().is_empty(),
+                        "{}/{} 登记为已前置，却没写归属说明",
+                        row.function,
+                        row.reason
+                    );
+                    for (input, judgment) in inputs {
+                        let entry = manifest
+                            .iter()
+                            .find(|entry| entry.input == *input)
+                            .unwrap_or_else(|| {
+                                panic!(
+                                    "{}/{} 指名的清单行 {input} 不存在",
+                                    row.function, row.reason
+                                )
+                            });
+                        assert!(
+                            entry.judgments.contains(judgment),
+                            "{}/{} 指名清单行 {input} 由 {judgment} 前置，该行的判据表里却没有它",
+                            row.function,
+                            row.reason
+                        );
+                        assert!(
+                            HOST_PREFLIGHT_FAMILY.contains(&entry.site),
+                            "{}/{} 指名的清单行 {input} 落在 host 前置族之外的 {}",
+                            row.function,
+                            row.reason,
+                            entry.site
+                        );
+                    }
+                }
+                WireDisposition::Other(reason) => {
+                    assert!(
+                        !reason.trim().is_empty(),
+                        "{}/{} 登记为非 host 输入值判据，却没写理由",
+                        row.function,
+                        row.reason
+                    );
+                }
+            }
+        }
+
+        // ④ 计数冻结。
+        let fronted = table
+            .iter()
+            .filter(|row| matches!(row.disposition, WireDisposition::Fronted { .. }))
+            .count();
+        assert_eq!(table.len(), 90, "协议模块具名拒绝行数");
+        assert_eq!(fronted, 12, "其中已由 host 前置的行数");
     }
 }
