@@ -21,6 +21,14 @@ GUI/Design 边界、调研召回与 OSS 复用闸门，以及未落仓线索。�
 其中 R4 blocked、路线未裁与 Host 不可开工的状态已过时；长会话纪律与历史成因仍可按需查阅，
 但现行接棒只认上列 R5 后增量件。
 
+## research-loopx-matter-memory-2026-08-03.md（LoopX goal/memory 核查与消费结论）
+
+Sonnet 只读核查 `huangruiteng/loopx@91d8ed0`（MIT，goal 而非 session 为持久单位）＋架构
+九条消费裁定：借理念四（工作语义核四字段、编译预算回执、回执准入形态、记忆写入网关与
+陈旧化显式态）、后置登记一（quota 状态机作 scheduled ADR 正面参照）、结构性不借二（出程
+文本注入、开关后免逐次授权）、显式不采纳一（逐记录可训字段）、核实提醒一（其并发写安全
+未完备）。消费坐标已写回就绪图；star 数两读不一致不采信，JS 渲染页数据缺口如实登记。
+
 ## research-design-anti-slop-recall-2026-07-30.md（Fable Design / GUI 召回补记）
 
 核读 René Wang `Field Notes`、仓外 `anti-ai-slop-kit` 与用户再次提供的两份 `.dc.html`；
