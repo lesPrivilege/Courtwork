@@ -33,9 +33,13 @@ function allAnchors() {
 
 describe('risk-list.json 锚点对齐样板案原文（结构真值）', () => {
   const anchors = allAnchors();
+  const locatable = anchors.filter((a) => a.anchor.textLayerVersion);
+  const exhibit = anchors.filter((a) => !a.anchor.textLayerVersion);
 
-  it('恰 8 枚锚点', () => {
+  it('恰 8 枚锚点（6 可定位 + 2 指定展品）', () => {
     expect(anchors.length).toBe(8);
+    expect(locatable.length).toBe(6);
+    expect(exhibit.length).toBe(2);
   });
 
   it('6 个 risk-id 各至少一枚锚点', () => {
@@ -44,7 +48,7 @@ describe('risk-list.json 锚点对齐样板案原文（结构真值）', () => {
     for (let i = 1; i <= 6; i++) expect(ids.has(`risk-0${i}`)).toBe(true);
   });
 
-  it.each(anchors.map((a) => [`${a.riskId}[${a.basisIndex}][${a.anchorIndex}]`, a] as const))(
+  it.each(locatable.map((a) => [`${a.riskId}[${a.basisIndex}][${a.anchorIndex}]`, a] as const))(
     '%s: slice===quote、start>0、end≤length',
     (_label, { anchor }) => {
       expect(anchor.fileId).toBe('04-设备采购合同.md');
@@ -57,9 +61,20 @@ describe('risk-list.json 锚点对齐样板案原文（结构真值）', () => {
     },
   );
 
-  it('8 枚 textLayerVersion 彼此相等（内部一致）', () => {
-    const versions = new Set(anchors.map((a) => a.anchor.textLayerVersion));
-    expect(versions.size, '所有锚点应指向同一文本层版本').toBe(1);
+  it('指定展品恰两枚：risk-02[0] 与 risk-06[0]（statute 文本，结构性不可锚于合同）', () => {
+    expect(exhibit).toHaveLength(2);
+    const ids = exhibit.map((e) => `${e.riskId}[${e.basisIndex}]`);
+    expect(ids).toContain('risk-02[0]');
+    expect(ids).toContain('risk-06[0]');
+    for (const e of exhibit) {
+      expect(e.anchor.textLayerVersion).toBeUndefined();
+      expect(e.anchor.quote.length).toBeGreaterThan(2);
+    }
+  });
+
+  it('6 枚 textLayerVersion 彼此相等（内部一致）', () => {
+    const versions = new Set(locatable.map((a) => a.anchor.textLayerVersion));
+    expect(versions.size, '所有可定位锚点应指向同一文本层版本').toBe(1);
     const version = [...versions][0]!;
     expect(version.length).toBeGreaterThan(0);
   });

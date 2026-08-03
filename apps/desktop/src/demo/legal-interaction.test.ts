@@ -2,15 +2,14 @@ import { describe, expect, it } from 'vitest';
 
 import { TurnProtocolClient, createLocalStorageTurnJournalBackend } from '../provider/turn-protocol-client';
 import { resolveReaderFocus } from '../material/material-actions';
-import type { MaterialBlock } from '../material/material-ref';
 import { DEMO_CASE_ID } from '../case/case-scope';
 import { DEMO_ARTIFACTS } from './recordings';
 import {
+  CONTRACT_TEXT_LAYER,
   LEGAL_DEMO_INTERACTION_TURN_ID,
   ensureLegalDemoInteraction,
   resolveLegalDemoSource,
 } from './legal-interaction';
-import contractSourceMd from '../../../../packages/demo-data/data/dossier/04-设备采购合同.md?raw';
 
 class MemoryStorage implements Storage {
   private readonly values = new Map<string, string>();
@@ -74,25 +73,13 @@ describe('legal demo interaction adapter', () => {
 });
 
 /**
- * DEMO-ANCHOR-1 F2：消费端对齐——判别力的真座位在真实 resolver，不在数据包自含谓词。
- * 全文单块文本层与 desktop legal-interaction.ts 的 CONTRACT_TEXT_LAYER 同构。
+ * DEMO-ANCHOR-1 G1+G2：消费端对齐——判别力的真座位在真实 resolver，不在数据包自含谓词。
+ * 直接消费生产 CONTRACT_TEXT_LAYER（零副本）；改生产版本或 block 内容即红。
  */
 describe('risk-list.json × resolveReaderFocus 消费端对齐', () => {
-  function contentVersion(text: string): string {
-    let hash = 0x811c9dc5;
-    for (let i = 0; i < text.length; i += 1) {
-      hash ^= text.charCodeAt(i);
-      hash = Math.imul(hash, 0x01000193);
-    }
-    return `source-text@1:${text.length}:${(hash >>> 0).toString(16).padStart(8, '0')}`;
-  }
-
-  const blocks: readonly MaterialBlock[] = [{
-    blockId: 'source',
-    text: contractSourceMd,
-    rangeBase: 0,
-    textLayerVersion: contentVersion(contractSourceMd),
-  }];
+  const blocks = CONTRACT_TEXT_LAYER.blocks;
+  const version = blocks[0]!.textLayerVersion;
+  const textLength = blocks[0]!.text.length;
 
   function allAnchors() {
     return DEMO_ARTIFACTS.riskList.risks.flatMap((risk) =>
@@ -102,21 +89,34 @@ describe('risk-list.json × resolveReaderFocus 消费端对齐', () => {
     );
   }
 
-  it('8 枚锚点全部经真实 resolveReaderFocus 解析为 focus（非 blocked）', () => {
-    const anchors = allAnchors();
-    expect(anchors).toHaveLength(8);
-    for (const { riskId, anchor } of anchors) {
+  it('6 枚可定位锚点经真实 resolveReaderFocus 解析为 focus', () => {
+    const locatable = allAnchors().filter((a) => a.anchor.textLayerVersion);
+    expect(locatable).toHaveLength(6);
+    for (const { riskId, anchor } of locatable) {
       const result = resolveReaderFocus(blocks, anchor);
       expect(result.status, `${riskId}: ${anchor.quote?.slice(0, 20)}… 不得落 anchor_invalid`).toBe('focus');
+    }
+  });
+
+  it('risk-02[0] 与 risk-06[0] 指定展品（statute 文本无 textLayerVersion）经 resolver 落 anchor_invalid', () => {
+    const exhibits = allAnchors().filter((a) => !a.anchor.textLayerVersion);
+    expect(exhibits).toHaveLength(2);
+    const ids = exhibits.map((e) => e.riskId);
+    expect(ids).toContain('risk-02');
+    expect(ids).toContain('risk-06');
+    for (const { anchor } of exhibits) {
+      const result = resolveReaderFocus(blocks, anchor);
+      expect(result.status).toBe('blocked');
+      if (result.status === 'blocked') expect(result.reason).toBe('anchor_invalid');
     }
   });
 
   const INVALID_FIXTURES: Array<[string, Parameters<typeof resolveReaderFocus>[1]]> = [
     ['缺 textLayerVersion', { fileId: '04-设备采购合同.md', quote: '验收标准以甲方提供的技术参数为准', textRange: { start: 756, end: 772 } }],
     ['textLayerVersion 漂移', { fileId: '04-设备采购合同.md', quote: '验收标准以甲方提供的技术参数为准', textRange: { start: 756, end: 772 }, textLayerVersion: 'stale-version' }],
-    ['end < start（反转区间）', { fileId: '04-设备采购合同.md', quote: '验收标准以甲方提供的技术参数为准', textRange: { start: 772, end: 756 }, textLayerVersion: contentVersion(contractSourceMd) }],
-    ['quote 与切片不一致', { fileId: '04-设备采购合同.md', quote: '完全不存在的文本', textRange: { start: 756, end: 772 }, textLayerVersion: contentVersion(contractSourceMd) }],
-    ['end 越界', { fileId: '04-设备采购合同.md', quote: 'x', textRange: { start: contractSourceMd.length, end: contractSourceMd.length + 1 }, textLayerVersion: contentVersion(contractSourceMd) }],
+    ['end < start（反转区间）', { fileId: '04-设备采购合同.md', quote: '验收标准以甲方提供的技术参数为准', textRange: { start: 772, end: 756 }, textLayerVersion: version }],
+    ['quote 与切片不一致', { fileId: '04-设备采购合同.md', quote: '完全不存在的文本', textRange: { start: 756, end: 772 }, textLayerVersion: version }],
+    ['end 越界', { fileId: '04-设备采购合同.md', quote: 'x', textRange: { start: textLength, end: textLength + 1 }, textLayerVersion: version }],
   ];
 
   it.each(INVALID_FIXTURES)('%s → resolver 落 blocked/anchor_invalid', (label, anchor) => {

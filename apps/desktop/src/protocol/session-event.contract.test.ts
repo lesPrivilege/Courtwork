@@ -48,21 +48,22 @@ describe('core 事件录制回放契约', () => {
 
     const artifact = S3_RECORDING.find((event) => event.type === 'artifact_produced');
     if (artifact?.type === 'artifact_produced') {
-      const anchorCount = (artifact.artifact as RiskList).risks
-        .flatMap((risk) => risk.basis.flatMap((basis) => basis.sourceAnchors)).length;
+      const allAnchors = (artifact.artifact as RiskList).risks
+        .flatMap((risk) => risk.basis.flatMap((basis) => basis.sourceAnchors));
+      const locatable = allAnchors.filter((a) => a.textLayerVersion);
       expect(artifact.citationStats).toEqual({
-        claims: anchorCount,
-        firstPassResolved: anchorCount,
+        claims: allAnchors.length,
+        firstPassResolved: locatable.length,
         retryRounds: 0,
-        resolvedAfterRetry: anchorCount,
-        outOfCoverage: 0,
+        resolvedAfterRetry: locatable.length,
+        outOfCoverage: allAnchors.length - locatable.length,
       });
     }
   });
 
   it('citationStats 随 artifact 机械投影，且续行重发（无观测字段）不清空既有观测', () => {
     const projected = S3_RECORDING.reduce(projectSession, EMPTY_SESSION);
-    expect(projected.citationStats).toEqual({ claims: 8, firstPassResolved: 8, retryRounds: 0, resolvedAfterRetry: 8, outOfCoverage: 0 });
+    expect(projected.citationStats).toEqual({ claims: 8, firstPassResolved: 6, retryRounds: 0, resolvedAfterRetry: 6, outOfCoverage: 2 });
     const reEmit: SessionEvent = {
       type: 'artifact_produced', artifactType: 'legal.RiskList', artifact: { caseId: 'c1', risks: [] }, evidenceGrades: [],
       sessionId: 'demo-s3', seq: 5, emittedAt: '2026-07-13T00:00:05.000Z',

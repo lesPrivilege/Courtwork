@@ -2,9 +2,11 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
-## DEMO-ANCHOR-1 F2 · 消费端对齐用例（实现完成，待独立验收）
+## DEMO-ANCHOR-1 G1+G2 · 消费端对齐真实性修复与 non-applied 展品恢复（实现完成，待独立验收）
 
-`src/demo/legal-interaction.test.ts` 追加 `risk-list.json × resolveReaderFocus 消费端对齐` 节：8 枚真实锚点经真实 `resolveReaderFocus` 全部 `{status:'focus'}`；5 枚 invalid fixture（缺版本/版本漂移/反转区间/切片不符/越界）全部 `{status:'blocked', reason:'anchor_invalid'}`。判别力的真座位在消费端 resolver，不在数据包自含谓词。权威：DEMO-ANCHOR-1 返修单 F2。
+G1：`src/demo/legal-interaction.test.ts` 的消费端对齐测试删除复制的 `contentVersion`/`blocks`，改为直接导入生产 `CONTRACT_TEXT_LAYER`（`src/demo/legal-interaction.ts` 新增 `export`，零行为变化）。自证：改生产版本 `@1→@9`，恰「6 枚可定位锚点」一条翻红（1 failed / 10 passed），还原复绿。
+
+G2：6 枚可定位锚点经 `resolveReaderFocus` 全部 `{status:'focus'}`；risk-02[0] 与 risk-06[0] 指定展品（statute 文本无 textLayerVersion）经 resolver 落 `{status:'blocked', reason:'anchor_invalid'}`。5 枚 invalid fixture 不变。`recordings.ts` `citationStats` 随动：`firstPassResolved: 6, outOfCoverage: 2`；`session-event.contract.test.ts` 按 `locatable.length` 计算真值。output-confirm e2e 2/2 绿（nonapplied-confirm 2 处重现）。
 
 ## MD-CONVERGE-1+ · ChatMarkdown 改用 remark 并扩围五项（实现完成，待独立验收）
 
