@@ -1607,18 +1607,16 @@ impl Journal {
         clamped.max(self.last_recorded_at)
     }
 
-    /// append 一枚 record 并 `sync_all`。返回 `Ok` 之前调用方**不得**对外发布任何东西。
-    pub(crate) fn append(
-        &mut self,
+    /// 纯构造：按当前 `next_seq` / `leg` / 时钟做出**将要落盘的那一枚 record**。
+    /// 不写盘、不动计数——`eventId` 与 `seq` 的对应关系只有这一处，计划相与落账相同源。
+    fn stage(
+        &self,
         request_id: Option<&str>,
         operation_id: Option<&str>,
         payload: JournalPayload,
-    ) -> Result<JournalRecord, JournalError> {
+    ) -> JournalRecord {
         let seq = self.next_seq;
-        if self.fail_append_from.is_some_and(|from| seq >= from) {
-            return Err(io("注入的 append 失败"));
-        }
-        let record = JournalRecord {
+        JournalRecord {
             event_id: format!("event_{seq}"),
             seq,
             container_id: self.container_id.clone(),
@@ -1628,8 +1626,22 @@ impl Journal {
             operation_id: operation_id.map(str::to_string),
             recorded_at: self.now_millis(),
             payload,
-        };
-        let line = encode_record(&record);
+        }
+    }
+
+    /// 认领一枚已 stage 的 record：只前移内存计数，不写盘。
+    /// 计划相靠它连续 stage 出多枚**互相引用**的 record（如 `promptEventId`）。
+    fn claim(&mut self, record: &JournalRecord) {
+        self.next_seq = record.seq + 1;
+        self.last_recorded_at = record.recorded_at;
+    }
+
+    /// 把一枚已 stage 的 record 落盘并 `sync_all`。
+    fn write_staged(&mut self, record: &JournalRecord) -> Result<(), JournalError> {
+        if self.fail_append_from.is_some_and(|from| record.seq >= from) {
+            return Err(io("注入的 append 失败"));
+        }
+        let line = encode_record(record);
         let file = self
             .file
             .as_mut()
@@ -1637,9 +1649,34 @@ impl Journal {
         file.write_all(&line).map_err(|_| io("写入 journal 失败"))?;
         // 屏障：macOS 上 Rust std 的 `sync_all` 走 `fcntl(F_FULLFSYNC)`（同 work_state.rs 之注）。
         file.sync_all().map_err(|_| io("同步 journal 失败"))?;
-        self.next_seq += 1;
-        self.last_recorded_at = record.recorded_at;
+        Ok(())
+    }
+
+    /// append 一枚 record 并 `sync_all`。返回 `Ok` 之前调用方**不得**对外发布任何东西。
+    ///
+    /// 写盘失败时计数一枚都不前移——失败的那一枚 seq 留给下一次。
+    pub(crate) fn append(
+        &mut self,
+        request_id: Option<&str>,
+        operation_id: Option<&str>,
+        payload: JournalPayload,
+    ) -> Result<JournalRecord, JournalError> {
+        let record = self.stage(request_id, operation_id, payload);
+        self.write_staged(&record)?;
+        self.claim(&record);
         Ok(record)
+    }
+
+    /// 计划相的 append：**只**构造并认领，落盘留给 `PlannedSession::apply`。
+    fn plan_append(
+        &mut self,
+        request_id: Option<&str>,
+        operation_id: Option<&str>,
+        payload: JournalPayload,
+    ) -> JournalRecord {
+        let record = self.stage(request_id, operation_id, payload);
+        self.claim(&record);
+        record
     }
 }
 
@@ -2114,15 +2151,113 @@ pub(crate) fn fold(records: &[JournalRecord]) -> SessionProjection {
     projection
 }
 
+/// 恢复计划：读/计划相算出的**值**，一个字节都还没落盘。
+///
+/// PI-HOST-LOOP-1R7 §零裁定一。1R6 把 wire 判据的前置从「文本同步」升成「结构性成立」，
+/// 但两相边界切在 `load_session()` **之后**——病根不是又一道漏抄的门，而是**读取既有账本
+/// 与修复既有账本混居同一函数**：读是纯的，修是 durable effect。于是任何「先校验后效果」
+/// 的排序担保都只对 fresh 路径成立，恢复既有会话时截断/补写/crash fold 照样先落盘
+/// （1R6 复验实测 journal 558 B → 790 B 而 spawn/wire 均零）。
+///
+/// 分相之后：读/计划相只读字节、内存跳过 partial tail、解码校验、把全部修复算成**值**；
+/// 落盘留给 `PlannedSession::apply`，由调用方决定时机。计划被弃置时账本原状重现，
+/// 下一次成功的 start 重算同一计划——幂等由 `leg_open` 闸门既证。
+#[derive(Debug)]
+pub(crate) struct RecoveryPlan {
+    /// 物理截断的目标长度；`None` 表示没有 partial tail 要截。
+    truncate_to: Option<u64>,
+    /// 唯一 usage 补写 ＋ 五步 crash fold 的全部追加，按落盘次序。
+    appends: Vec<JournalRecord>,
+    repaired_turn_usage: bool,
+}
+
+impl RecoveryPlan {
+    pub(crate) fn is_empty(&self) -> bool {
+        self.truncate_to.is_none() && self.appends.is_empty()
+    }
+
+    pub(crate) fn appends(&self) -> &[JournalRecord] {
+        &self.appends
+    }
+}
+
+/// 读/计划相的产物：单写者锁已在手、字节已读、计划已算，**journal 内容零写入**。
+#[derive(Debug)]
+pub(crate) struct PlannedSession {
+    journal: Journal,
+    lock: SessionLock,
+    /// 既有完整记录 ＋ 计划记录。`apply` 之后即为盘上真值。
+    records: Vec<JournalRecord>,
+    /// 对 `records` 的折叠。`apply` 后重折叠逐值相同。
+    projection: SessionProjection,
+    truncated_partial_tail: bool,
+    plan: RecoveryPlan,
+}
+
+impl PlannedSession {
+    pub(crate) fn projection(&self) -> &SessionProjection {
+        &self.projection
+    }
+
+    pub(crate) fn records(&self) -> &[JournalRecord] {
+        &self.records
+    }
+
+    pub(crate) fn plan(&self) -> &RecoveryPlan {
+        &self.plan
+    }
+
+    /// durable apply 相：逐条落盘既定计划，交出可续写的句柄。
+    ///
+    /// 次序即语义：先物理截断，再按计划次序逐枚 append + `sync_all`。
+    pub(crate) fn apply(self) -> Result<LoadedJournal, JournalError> {
+        let PlannedSession {
+            mut journal,
+            lock,
+            records,
+            projection,
+            truncated_partial_tail,
+            plan,
+        } = self;
+        if let Some(complete_len) = plan.truncate_to {
+            let path = journal.path();
+            let file = OpenOptions::new()
+                .write(true)
+                .open(&path)
+                .map_err(|_| io("打开 journal 以截断失败"))?;
+            file.set_len(complete_len)
+                .map_err(|_| io("截断 partial tail 失败"))?;
+            file.sync_all()
+                .map_err(|_| io("同步截断后的 journal 失败"))?;
+            drop(file);
+            sync_directory(&container_dir(&journal.root, &journal.container_id))?;
+        }
+        for record in &plan.appends {
+            journal.write_staged(record)?;
+        }
+        Ok(LoadedJournal {
+            journal,
+            lock,
+            records,
+            projection,
+            truncated_partial_tail,
+            repaired_turn_usage: plan.repaired_turn_usage,
+        })
+    }
+}
+
 /// 打开（或新建）某 session 的 journal，执行 partial-tail 截断、结构校验、唯一 usage 补写与
 /// 五步 crash fold，返回可续写的句柄与投影。全套完成并 sync 之前不得启动 sidecar。
+///
+/// 读/计划与 durable apply 一次做完。**以修复本身为目的**的收账路径（`reclaim_after_fault`）
+/// 用这一枚；要把效果排在自己某道门之后的调用方改用 `plan_session`（1R7 §零裁定一）。
 pub(crate) fn load_session(
     root: &Path,
     container_id: &str,
     session_id: &str,
     interrupt_reason: SessionInterruptReason,
 ) -> Result<LoadedJournal, JournalError> {
-    load_session_locked(root, container_id, session_id, interrupt_reason, None)
+    plan_session_locked(root, container_id, session_id, interrupt_reason, None)?.apply()
 }
 
 /// 已持锁者的重入入口（`PiLoopHost::reclaim_after_fault`）：交回**同一把**锁继续用。
@@ -2136,16 +2271,27 @@ pub(crate) fn load_session_holding(
     interrupt_reason: SessionInterruptReason,
     lock: SessionLock,
 ) -> Result<LoadedJournal, JournalError> {
-    load_session_locked(root, container_id, session_id, interrupt_reason, Some(lock))
+    plan_session_locked(root, container_id, session_id, interrupt_reason, Some(lock))?.apply()
 }
 
-fn load_session_locked(
+/// 只做读/计划相：取单写者锁、读字节、内存跳过 partial tail、解码校验、算出修复计划与
+/// 投影。**零 journal 内容写入**；落盘由调用方在自己的门全过之后调 `apply` 触发。
+pub(crate) fn plan_session(
+    root: &Path,
+    container_id: &str,
+    session_id: &str,
+    interrupt_reason: SessionInterruptReason,
+) -> Result<PlannedSession, JournalError> {
+    plan_session_locked(root, container_id, session_id, interrupt_reason, None)
+}
+
+fn plan_session_locked(
     root: &Path,
     container_id: &str,
     session_id: &str,
     interrupt_reason: SessionInterruptReason,
     held: Option<SessionLock>,
-) -> Result<LoadedJournal, JournalError> {
+) -> Result<PlannedSession, JournalError> {
     if !is_safe_container_token(container_id) || !is_safe_container_token(session_id) {
         return Err(JournalError::InvalidRef);
     }
@@ -2166,23 +2312,15 @@ fn load_session_locked(
     };
 
     // 只有**最后一条未以 LF 结束**的 partial bytes 可以截到前一枚 durable LF。
+    //
+    // 物理截断本身对解析**不必要**：下面的解码唯一输入是内存切片 `existing[..complete_len]`。
+    // 故这里只把截断长度算成计划值，落盘留给 `apply`（1R7 §零裁定一）。
     let complete_len = match existing.iter().rposition(|byte| *byte == b'\n') {
         Some(index) => index + 1,
         None => 0,
     };
     let truncated_partial_tail = complete_len != existing.len();
-    if truncated_partial_tail {
-        let file = OpenOptions::new()
-            .write(true)
-            .open(&path)
-            .map_err(|_| io("打开 journal 以截断失败"))?;
-        file.set_len(complete_len as u64)
-            .map_err(|_| io("截断 partial tail 失败"))?;
-        file.sync_all()
-            .map_err(|_| io("同步截断后的 journal 失败"))?;
-        drop(file);
-        sync_directory(&container)?;
-    }
+    let truncate_to = truncated_partial_tail.then_some(complete_len as u64);
     let complete = existing[..complete_len].to_vec();
 
     let mut handle = Some(open_append(&path)?);
@@ -2257,6 +2395,7 @@ fn load_session_locked(
         fail_append_from: None,
     };
 
+    let mut planned: Vec<JournalRecord> = Vec::new();
     let mut repaired_turn_usage = false;
     if let Some((request_id, event)) = repair {
         let AgentProjectionEvent::TurnFinished {
@@ -2269,7 +2408,7 @@ fn load_session_locked(
             unreachable!("只可能是 turn_finished");
         };
         // 逐值从已 durable payload 生成；不重问 provider，也不从 session 计数反推。
-        let record = journal.append(
+        let record = journal.plan_append(
             Some(&request_id),
             None,
             JournalPayload::TurnUsageRecorded {
@@ -2278,7 +2417,8 @@ fn load_session_locked(
                 usage,
                 stop_reason,
             },
-        )?;
+        );
+        planned.push(record.clone());
         records.push(record);
         repaired_turn_usage = true;
     }
@@ -2288,21 +2428,27 @@ fn load_session_locked(
     journal.leg = projection.leg.max(1);
     journal.last_recorded_at = projection.last_recorded_at;
 
-    // 全套结构检查通过后才可执行 crash fold。
-    let appended = crash_fold(&mut journal, &records, &projection, interrupt_reason)?;
+    // 全套结构检查通过后才可计划 crash fold。
+    let appended = plan_crash_fold(&mut journal, &records, &projection, interrupt_reason);
+    planned.extend(appended.iter().cloned());
     records.extend(appended);
+    // 投影以「既有完整记录 ＋ 计划记录」内存折叠得出——apply 之后重折叠逐值相同。
     let projection = fold(&records);
     journal.next_seq = projection.next_seq;
     journal.leg = projection.leg.max(1);
     journal.last_recorded_at = projection.last_recorded_at;
 
-    Ok(LoadedJournal {
+    Ok(PlannedSession {
         journal,
         lock,
         records,
         projection,
         truncated_partial_tail,
-        repaired_turn_usage,
+        plan: RecoveryPlan {
+            truncate_to,
+            appends: planned,
+            repaired_turn_usage,
+        },
     })
 }
 
@@ -2444,18 +2590,22 @@ fn dangling_effect(records: &[JournalRecord]) -> Option<(String, Option<(String,
 
 /// ADR-022 六-B 的**五步固定次序**。步骤 1–4 产生的 session terminal 永久关闭 logical session；
 /// 步骤 4 的 maxUsd-null interrupted 与步骤 5 只关闭当前 leg。
-fn crash_fold(
+///
+/// 只**计划**、不落盘（1R7 §零裁定一）：全部 append 点走 `plan_append`，因此本函数不再有
+/// I/O 失败面。逐值与旧写法相同——`eventId` 由同一处的 `stage` 按 `seq` 定，故步骤 2/3/4
+/// 里「后一枚引用前一枚 `promptEventId`」的交叉引用同样成立。
+fn plan_crash_fold(
     journal: &mut Journal,
     records: &[JournalRecord],
     projection: &SessionProjection,
     interrupt_reason: SessionInterruptReason,
-) -> Result<Vec<JournalRecord>, JournalError> {
+) -> Vec<JournalRecord> {
     let mut appended = Vec::new();
     let Some(started) = projection.started.as_ref() else {
-        return Ok(appended);
+        return appended;
     };
     if projection.is_closed() {
-        return Ok(appended);
+        return appended;
     }
     let (max_turns, max_usd) = (started.max_turns, started.max_usd);
 
@@ -2465,39 +2615,39 @@ fn crash_fold(
             PendingSessionClose::BudgetStopped {
                 prompt_event_id,
                 budget,
-            } => journal.append(
+            } => journal.plan_append(
                 None,
                 None,
                 JournalPayload::SessionBudgetStopped {
                     prompt_event_id,
                     budget,
                 },
-            )?,
-            PendingSessionClose::Failed { prompt_event_id } => journal.append(
+            ),
+            PendingSessionClose::Failed { prompt_event_id } => journal.plan_append(
                 None,
                 None,
                 JournalPayload::SessionFailed {
                     cause: SessionFailureCause::Prompt { prompt_event_id },
                 },
-            )?,
+            ),
         };
         appended.push(record);
-        return Ok(appended);
+        return appended;
     }
 
     // 步骤 2：dangling effect。本票不真实生成 effect 家族（PI-WRITE-HOST-1 才首次激活），
     // 但 replay 一侧必须按同一链条收束，不得猜 succeeded/failed、复用授权或自动重试。
     if let Some((request_id, derive)) = dangling_effect(records) {
         if let Some((tool_call_id, operation_id)) = derive {
-            appended.push(journal.append(
+            appended.push(journal.plan_append(
                 Some(&request_id),
                 Some(&operation_id),
                 JournalPayload::EffectUncertain { tool_call_id },
-            )?);
+            ));
         }
         let code = TerminalFailureCode::EffectUncertain;
         let budget = budget_from(projection, max_turns, max_usd);
-        let prompt = journal.append(
+        let prompt = journal.plan_append(
             Some(&request_id),
             None,
             JournalPayload::PromptFailed {
@@ -2508,17 +2658,17 @@ fn crash_fold(
                 },
                 budget,
             },
-        )?;
+        );
         let prompt_event_id = prompt.event_id.clone();
         appended.push(prompt);
-        appended.push(journal.append(
+        appended.push(journal.plan_append(
             None,
             None,
             JournalPayload::SessionFailed {
                 cause: SessionFailureCause::Prompt { prompt_event_id },
             },
-        )?);
-        return Ok(appended);
+        ));
+        return appended;
     }
 
     // 步骤 3/4：active prompt 的预算。
@@ -2528,12 +2678,12 @@ fn crash_fold(
         if coverage_unknown {
             budget.usd_limit = BudgetUsdLimit::Unknown;
             budget.usd = None;
-            appended.extend(close_with_budget_unknown(
+            appended.extend(plan_close_with_budget_unknown(
                 journal,
                 &active.request_id,
                 budget,
-            )?);
-            return Ok(appended);
+            ));
+            return appended;
         }
         if budget.turn_limit == BudgetTurnLimit::Reached
             || budget.usd_limit == BudgetUsdLimit::Reached
@@ -2543,46 +2693,46 @@ fn crash_fold(
             } else {
                 BudgetStopReason::Usd
             });
-            let prompt = journal.append(
+            let prompt = journal.plan_append(
                 Some(&active.request_id),
                 None,
                 JournalPayload::PromptBudgetStopped {
                     budget: budget.clone(),
                 },
-            )?;
+            );
             let prompt_event_id = prompt.event_id.clone();
             appended.push(prompt);
-            appended.push(journal.append(
+            appended.push(journal.plan_append(
                 None,
                 None,
                 JournalPayload::SessionBudgetStopped {
                     prompt_event_id,
                     budget,
                 },
-            )?);
-            return Ok(appended);
+            ));
+            return appended;
         }
         // 步骤 4：预算仍 open。v1 没有 provider-start ack，保守视为可能已付费。
         if max_usd.is_some() {
             let mut unknown = budget;
             unknown.usd_limit = BudgetUsdLimit::Unknown;
             unknown.usd = None;
-            appended.extend(close_with_budget_unknown(
+            appended.extend(plan_close_with_budget_unknown(
                 journal,
                 &active.request_id,
                 unknown,
-            )?);
-            return Ok(appended);
+            ));
+            return appended;
         }
-        appended.push(journal.append(
+        appended.push(journal.plan_append(
             None,
             None,
             JournalPayload::SessionInterrupted {
                 reason: interrupt_reason,
                 cost_coverage: CostCoverage::Unknown,
             },
-        )?);
-        return Ok(appended);
+        ));
+        return appended;
     }
 
     // 步骤 5：leg 已开、无 session/leg-close、也没有 active prompt（含 ready 前 crash 与 idle crash）。
@@ -2592,25 +2742,25 @@ fn crash_fold(
         } else {
             CostCoverage::Unknown
         };
-        appended.push(journal.append(
+        appended.push(journal.plan_append(
             None,
             None,
             JournalPayload::SessionInterrupted {
                 reason: interrupt_reason,
                 cost_coverage: coverage,
             },
-        )?);
+        ));
     }
-    Ok(appended)
+    appended
 }
 
-fn close_with_budget_unknown(
+fn plan_close_with_budget_unknown(
     journal: &mut Journal,
     request_id: &str,
     budget: BudgetView,
-) -> Result<Vec<JournalRecord>, JournalError> {
+) -> Vec<JournalRecord> {
     let code = TerminalFailureCode::BudgetUnknown;
-    let prompt = journal.append(
+    let prompt = journal.plan_append(
         Some(request_id),
         None,
         JournalPayload::PromptFailed {
@@ -2621,16 +2771,16 @@ fn close_with_budget_unknown(
             },
             budget,
         },
-    )?;
+    );
     let prompt_event_id = prompt.event_id.clone();
-    let session = journal.append(
+    let session = journal.plan_append(
         None,
         None,
         JournalPayload::SessionFailed {
             cause: SessionFailureCause::Prompt { prompt_event_id },
         },
-    )?;
-    Ok(vec![prompt, session])
+    );
+    vec![prompt, session]
 }
 
 #[cfg(test)]
@@ -3181,6 +3331,108 @@ mod tests {
                 .count(),
             1
         );
+    }
+
+    /// PI-HOST-LOOP-1R7 J1：恢复计划是**值**，`apply` 逐条兑现它，两相的投影逐值相同。
+    ///
+    /// 三件事各自独立判红：① 读/计划相对盘上字节零触碰；② `apply` 之后重折叠 ==
+    /// 计划相算出的投影；③ 盘上真值 == 计划记录。把任一条 apply 挪回计划相、或让计划
+    /// 与落账各算一次 `eventId`/`seq`，都在这里当场红。
+    #[test]
+    fn the_recovery_plan_is_a_value_and_apply_reproduces_it_exactly() {
+        let root = temp_root("plan-apply");
+        let mut loaded = open(&root);
+        let journal = &mut loaded.journal;
+        journal
+            .append(
+                None,
+                None,
+                JournalPayload::SessionStarted(started_payload()),
+            )
+            .expect("session_started");
+        journal
+            .append(
+                Some("req-1"),
+                None,
+                JournalPayload::UserPrompted {
+                    text: "问".to_string(),
+                },
+            )
+            .expect("user_prompted");
+        journal
+            .append(
+                Some("req-1"),
+                None,
+                JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                    turn: 1,
+                    counted_toward_turn_limit: true,
+                    usage: known_usage(0.25),
+                    stop_reason: TurnStopReason::Stop,
+                }),
+            )
+            .expect("turn_finished");
+        drop(loaded);
+
+        // 三类修复同时挂着：物理截断 ＋ usage 补写 ＋ crash fold。
+        let path = journal_path(&root, "cnt-1", "sess-1");
+        let mut seeded = fs::read(&path).expect("读种子");
+        seeded.extend_from_slice(b"{\"eventId\":\"event_9\",\"seq\":9,\"contain");
+        fs::write(&path, &seeded).expect("写半行");
+
+        let planned = plan_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect("计划相成功");
+        // 对照：本形状确实有修复可计划——否则下面三条断言全是恒真。
+        assert!(!planned.plan().is_empty(), "种子无修复可计划，本枚恒真");
+        assert_eq!(
+            planned.plan().truncate_to,
+            Some(seeded.len() as u64 - 37),
+            "半行必须被算进截断计划"
+        );
+        assert_eq!(
+            planned
+                .plan()
+                .appends()
+                .iter()
+                .map(JournalRecord::journal_type)
+                .collect::<Vec<JournalType>>(),
+            vec![
+                JournalType::TurnUsageRecorded,
+                JournalType::SessionInterrupted
+            ],
+            "计划的追加次序：先唯一 usage 补写，后 crash fold"
+        );
+        let planned_projection = planned.projection().clone();
+        let planned_records = planned.records().to_vec();
+
+        // ① 读/计划相对盘上字节零触碰。
+        assert_eq!(
+            fs::read(&path).expect("读计划后"),
+            seeded,
+            "读/计划相不得改一个字节"
+        );
+
+        let loaded = planned.apply().expect("apply 成功");
+        // ② apply 之后重折叠 == 计划投影（逐值）。
+        assert_eq!(fold(&loaded.records), planned_projection);
+        assert_eq!(loaded.records, planned_records);
+        assert!(loaded.truncated_partial_tail && loaded.repaired_turn_usage);
+        drop(loaded);
+
+        // ③ 盘上真值 == 计划记录：`eventId`/`seq`/`leg`/payload 逐值，不是「差不多」。
+        let bytes = fs::read(&path).expect("读 apply 后");
+        assert!(bytes.ends_with(b"\n"), "半行必须已被物理截断");
+        let on_disk: Vec<JournalRecord> = bytes
+            .split(|byte| *byte == b'\n')
+            .filter(|line| !line.is_empty())
+            .map(|line| decode_record(line).expect("盘上每一行都可解码"))
+            .collect();
+        assert_eq!(on_disk, planned_records);
+        assert_eq!(fold(&on_disk), planned_projection);
     }
 
     #[test]

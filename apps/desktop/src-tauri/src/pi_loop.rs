@@ -208,9 +208,9 @@ pub(crate) struct StartConfig {
 
 /// bootstrap/config 闭集（PI-HOST-LOOP-1R R2、PI-HOST-LOOP-1R2 C2）。
 ///
-/// 这些值最终都要过 `encode_packet_line` 的同一套闭集判据，但那是**spawn 之后**的事：
-/// 首轮实现因此会为一份 `maxTurns=0` 的配置先落 `session_started`、再起一枚进程，
-/// 最后才由 encoder 报 `invalid_schema`。判据前移到入参层，错的配置一步都走不动。
+/// 这些值最终都要过 `encode_packet_line` 的同一套闭集判据。**历史上**那是 spawn 之后的事：
+/// 首轮实现会为一份 `maxTurns=0` 的配置先落 `session_started`、再起一枚进程，最后才由
+/// encoder 报 `invalid_schema`。判据前移到入参层，错的配置一步都走不动。
 ///
 /// 1R 只补了下界，上界仍漏：`maxTurns=13`、`maxUsd=100001`、257 字节 `modelId` 三者
 /// 都走到 spawn 之后才由 encoder 拦下（复验 blocker 2）。三枚上界的冻结值直接取
@@ -218,8 +218,15 @@ pub(crate) struct StartConfig {
 ///
 /// PI-HOST-LOOP-1R3 D1 按**族**收口：前两轮各按验收报告点名的实例补门，于是每轮都被
 /// 下一位验收者在同族里找到另一枚。凡进入 host→sidecar 方向、在 `pi_loop_protocol`
-/// 有冻结上界或非空/形状要求的入参，一律在此一次收齐；encoder 的同名检查降为纵深防御的
-/// **最后一道**。清单与源码扫描的双向自证见 `bounded_input_manifest`。
+/// 有冻结上界或非空/形状要求的入参，一律在此一次收齐。
+///
+/// **今日的次序不再是「encoder 在 spawn 之后」**：1R6 起 exact packet 在任何 journal
+/// append 与 spawn 之前就真编出来（见 `encode_outbound_line`），1R7 起连 `load_session`
+/// 的 durable 修复也退到编码之后（见 `PlannedSession`）。encoder 的同名检查因此不是
+/// 「最后一道」而是**同一批判据的第二遍**，前置门留着的理由只剩文案归属
+/// （`modelId 不得含 NUL` 好过 `invalid_schema`）。1R3 那套「清单与源码扫描的双向自证」
+/// 已按 1R6 H2 整体退役；今日的自证是 `bounded_input_manifest` 的行为反例，加上
+/// 违规电池驱动完整入口的普适不变量（`Err ⇒ 副作用恰零`）。
 /// wire 字符串闭集判据（ADR-022 六-B.1）：不得含 NUL。
 ///
 /// PI-HOST-LOOP-1R5 §零裁定一把这道门归入 host 前置（D1 `Fronted`），三轴理由：
@@ -508,17 +515,22 @@ impl PiLoopHost {
         let api_key = credentials.resolve()?;
         validate_api_key(&api_key)?;
 
-        // 4. journal 载入（先取单写者锁，再做 partial-tail 截断、quarantine、唯一补写与五步 crash fold）。
-        let loaded = pi_loop_journal::load_session(
+        // 4. journal **读/计划相**（先取单写者锁，再读字节、内存跳过 partial tail、结构校验与
+        //    quarantine 判定，算出唯一 usage 补写与五步 crash fold 的修复计划与投影）。
+        //
+        //    PI-HOST-LOOP-1R7 §零裁定一：这一相**零 journal 内容写入**。物理截断、usage
+        //    补写与 crash fold 的落盘全部推迟到 `planned.apply()`，它排在 5.5 编码成功之后。
+        //    1R6 已经把编码排在本函数自己的 append 之前，但 `load_session` 自身会写盘，恢复
+        //    既有会话时三项担保因此不成立（复验实测 journal 558 B → 790 B 而 spawn/wire 均零）。
+        //    此后任何一条 Err 出口（closed 门、resume 漂移具名拒、codec 拒）都让计划随
+        //    `PlannedSession` 一起弃置，账本原状重现；下一次成功的 start 重算同一计划。
+        let planned = pi_loop_journal::plan_session(
             app_data_dir,
             &config.container_id,
             &config.session_id,
             SessionInterruptReason::SidecarEnded,
         )?;
-        let mut journal = loaded.journal;
-        let lock = loaded.lock;
-        let mut records = loaded.records;
-        let projection = loaded.projection;
+        let projection = planned.projection().clone();
 
         if projection.is_closed() {
             return Err(HostError::SessionClosed);
@@ -627,7 +639,12 @@ impl PiLoopHost {
         let bootstrap_line = encode_outbound_line(0, &config.session_id, None, bootstrap)
             .map_err(config_codec_refusal)?;
 
-        // 6. durable → cwd → spawn → bootstrap。
+        // 6. durable → cwd → spawn → bootstrap。恢复计划在这里、也只在这里落盘：编码之前
+        //    它还只是一组值（1R7 §零裁定一）。
+        let loaded = planned.apply()?;
+        let mut journal = loaded.journal;
+        let lock = loaded.lock;
+        let mut records = loaded.records;
         journal.set_leg(leg);
         records.push(journal.append(None, None, opening)?);
 
@@ -1220,14 +1237,16 @@ pub(crate) fn replay(records: &[JournalRecord]) -> Vec<ReplayItem> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::pi_loop_journal::{journal_path, QUARANTINE_DIR};
+    use crate::pi_loop_journal::{
+        decode_record, journal_path, EffectStartedPayload, QUARANTINE_DIR,
+    };
     use crate::pi_loop_process::{
         BUNDLE_BASENAME, EXPECTED_ROUTE_MANIFEST, MANIFEST_BASENAME, RESOURCE_DIR_NAME,
         RUNTIME_BASENAME,
     };
     use crate::pi_loop_protocol::{
         BudgetStopReason, BudgetTurnLimit, BudgetUsdLimit, BudgetView, ProtocolErrorPayload,
-        TerminalError, TerminalFailureCode, TurnStopReason, TurnUsage,
+        TerminalError, TerminalFailureCode, TurnStopReason, TurnUsage, WriteDisposition,
     };
     use std::collections::VecDeque;
     use std::sync::atomic::{AtomicU64, Ordering};
@@ -4227,6 +4246,278 @@ mod tests {
         PromptText(String),
         /// 已起 leg 之后驱动完整 `prompt`：变 header `requestId`，正文恒合法。
         PromptRequestId(String),
+        /// **状态域**：在一份既有可恢复 journal 上驱动完整 `start`（PI-HOST-LOOP-1R7 J2）。
+        Recovery(SessionShape, RecoveryTrigger),
+    }
+
+    // ── recovery 状态域（PI-HOST-LOOP-1R7 J2）─────────────────────────────────
+    //
+    // 1R6 的 142 行电池只枚举**值域**（非法值 × 字段），且每一行都从 fresh harness 起步；
+    // 带 durable 修复的载入分支因此结构性照不到——「142 行全绿」与「该分支从未被测」
+    // 同时为真（1R6 复验 blocker 的成因）。本族补的是**状态域**：既有可恢复 journal 的
+    // 五类形状 × 两类拒绝触发。两类触发各有分工：`ResumeDrift` 的拒绝点在载入**之后**，
+    // 正是本轮裁定要挡的那一类；`ConfigViolation` 沿用电池既有违规值，拒绝点在载入
+    // **之前**，防的是未来有人把入参门后移到载入之后。
+
+    #[derive(Clone, Copy)]
+    enum SessionShape {
+        /// 末行未以 LF 结束：载入本该物理截断。
+        PartialTail,
+        /// 尾端 `turn_finished` 缺 `turn_usage_recorded`：载入本该补写唯一一枚。
+        MissingUsageTail,
+        /// leg 已开、无 active prompt：crash fold 步骤 5 本该追加 `session_interrupted`。
+        /// 这一枚是 1R6 复验反例的原形。
+        OpenIdleLeg,
+        /// active prompt ＋ maxUsd 已启用：crash fold 步骤 3/4 本该追加 `prompt_failed`
+        /// ＋ `session_failed` 两枚，且后者逐值引用前者的 `promptEventId`。
+        ActivePromptBudget,
+        /// `effect_started` 无三态收束：crash fold 步骤 2 本该先派生 uncertain 再关闭链。
+        DanglingEffect,
+    }
+
+    impl SessionShape {
+        /// 逐形状独立成族：电池的「整族一枚都没被拒即恒真」守卫因此逐形状生效。
+        fn field(self) -> &'static str {
+            match self {
+                SessionShape::PartialTail => "recovery.partialTail",
+                SessionShape::MissingUsageTail => "recovery.missingUsageTail",
+                SessionShape::OpenIdleLeg => "recovery.openIdleLeg",
+                SessionShape::ActivePromptBudget => "recovery.activePromptBudget",
+                SessionShape::DanglingEffect => "recovery.danglingEffect",
+            }
+        }
+
+        /// 该形状载入时**必然**会产生的那一枚修复痕迹——控制组据此证明种子非空跑。
+        fn repair_marker(self) -> JournalType {
+            match self {
+                SessionShape::PartialTail | SessionShape::OpenIdleLeg => {
+                    JournalType::SessionInterrupted
+                }
+                SessionShape::MissingUsageTail => JournalType::TurnUsageRecorded,
+                SessionShape::ActivePromptBudget => JournalType::PromptFailed,
+                SessionShape::DanglingEffect => JournalType::EffectUncertain,
+            }
+        }
+    }
+
+    const RECOVERY_SHAPES: [SessionShape; 5] = [
+        SessionShape::PartialTail,
+        SessionShape::MissingUsageTail,
+        SessionShape::OpenIdleLeg,
+        SessionShape::ActivePromptBudget,
+        SessionShape::DanglingEffect,
+    ];
+
+    #[derive(Clone, Copy)]
+    enum RecoveryTrigger {
+        /// resume 漂移具名拒：拒绝点在载入之后。
+        ResumeDrift,
+        /// 电池既有违规值（`modelId` 含 NUL）：拒绝点在载入之前。
+        ConfigViolation,
+    }
+
+    /// crash 窗留下的半行：无 LF 结尾，载入本该把它物理截掉。
+    const PARTIAL_TAIL: &[u8] = b"{\"eventId\":\"event_9\",\"seq\":9,\"contain";
+
+    fn seeded_started(max_usd: Option<f64>) -> SessionStartedPayload {
+        SessionStartedPayload {
+            route_manifest_sha256: crate::pi_loop_process::sha256_bytes(EXPECTED_ROUTE_MANIFEST),
+            target_triple: TargetTriple::Aarch64AppleDarwin,
+            grant_id: "grant-1".to_string(),
+            model_id: "deepseek-v4-flash".to_string(),
+            max_turns: 12,
+            max_usd,
+        }
+    }
+
+    /// 造一份**可恢复**的既有 journal：不是 malformed、不进 quarantine，载入必然要修复。
+    fn seed_session(h: &Harness, shape: SessionShape) {
+        let max_usd = match shape {
+            SessionShape::ActivePromptBudget => Some(1.0),
+            _ => None,
+        };
+        let mut loaded = pi_loop_journal::load_session(
+            &h.app_data,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect("建种子 journal");
+        let journal = &mut loaded.journal;
+        journal
+            .append(
+                None,
+                None,
+                JournalPayload::SessionStarted(seeded_started(max_usd)),
+            )
+            .expect("session_started");
+        let prompt = |journal: &mut Journal| {
+            journal
+                .append(
+                    Some("req-1"),
+                    None,
+                    JournalPayload::UserPrompted {
+                        text: "问".to_string(),
+                    },
+                )
+                .expect("user_prompted");
+        };
+        match shape {
+            SessionShape::PartialTail | SessionShape::OpenIdleLeg => {}
+            SessionShape::MissingUsageTail => {
+                prompt(journal);
+                journal
+                    .append(
+                        Some("req-1"),
+                        None,
+                        JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                            turn: 1,
+                            counted_toward_turn_limit: true,
+                            usage: known_usage(0.25),
+                            stop_reason: TurnStopReason::Stop,
+                        }),
+                    )
+                    .expect("turn_finished");
+            }
+            SessionShape::ActivePromptBudget => prompt(journal),
+            SessionShape::DanglingEffect => {
+                prompt(journal);
+                journal
+                    .append(
+                        Some("req-1"),
+                        Some("op_1_1"),
+                        JournalPayload::EffectStarted(EffectStartedPayload {
+                            tool_call_id: "tc_1_1".to_string(),
+                            logical_path: "纪要.md".to_string(),
+                            proposal_hash:
+                                "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+                                    .to_string(),
+                            action: WriteDisposition::Created,
+                            content_sha256:
+                                "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
+                                    .to_string(),
+                            byte_length: 10,
+                        }),
+                    )
+                    .expect("effect_started");
+            }
+        }
+        // 交出单写者锁：接手的那一次 start 必须能独占。
+        drop(loaded);
+        if matches!(shape, SessionShape::PartialTail) {
+            let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+            let mut bytes = fs::read(&path).expect("读种子 journal");
+            bytes.extend_from_slice(PARTIAL_TAIL);
+            fs::write(&path, bytes).expect("写半行");
+        }
+    }
+
+    fn decode_bytes(bytes: &[u8]) -> Vec<JournalRecord> {
+        bytes
+            .split(|byte| *byte == b'\n')
+            .filter(|line| !line.is_empty())
+            .filter_map(|line| decode_record(line).ok())
+            .collect()
+    }
+
+    /// 「修复未应用」：逐形状的特征痕迹必须不在盘上。字节相等已蕴含它，但这一层**不靠**
+    /// 字节断言活着——把字节断言放宽或换掉 harness 时，它仍单独判红。
+    fn assert_repair_not_applied(shape: SessionShape, bytes: &[u8], context: &str) {
+        if matches!(shape, SessionShape::PartialTail) {
+            assert!(
+                bytes.ends_with(PARTIAL_TAIL),
+                "{context}：partial tail 已被物理截断"
+            );
+        }
+        let records = decode_bytes(bytes);
+        let marker = shape.repair_marker();
+        assert_eq!(
+            records
+                .iter()
+                .filter(|record| record.journal_type() == marker)
+                .count(),
+            0,
+            "{context}：被拒的一轮已把 {} 落账",
+            marker.as_str()
+        );
+    }
+
+    /// 驱动一次「既有可恢复会话」上的完整 `start`；被拒即断言六轴零副作用。
+    fn universal_recovery_start_case(
+        shape: SessionShape,
+        trigger: RecoveryTrigger,
+        context: &str,
+    ) -> bool {
+        let h = harness("uni-recovery");
+        seed_session(&h, shape);
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let before_bytes = fs::read(&path).expect("读 pre-start snapshot");
+        let before_records = decode_bytes(&before_bytes);
+        let before = journal_footprint(&h.app_data);
+
+        let mut config = h.config.clone();
+        let canary = match trigger {
+            RecoveryTrigger::ResumeDrift => {
+                config.grant_id = "grant-9".to_string();
+                String::new()
+            }
+            RecoveryTrigger::ConfigViolation => {
+                config.model_id = "a\u{0}b".to_string();
+                config.model_id.clone()
+            }
+        };
+        let case_root = h.case_root.to_string_lossy().into_owned();
+        let (result, log, spawns) = start_probe(
+            &h,
+            config,
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let refused = match &result {
+            Err(error) => {
+                assert_eq!(
+                    spawns, 0,
+                    "{context}：被拒的 start 不得 spawn（实得 {error:?}）"
+                );
+                assert_eq!(
+                    log.lock().expect("日志未中毒").written.len(),
+                    0,
+                    "{context}：被拒的 start 不得出包（实得 {error:?}）"
+                );
+                let after_bytes = fs::read(&path).expect("读 start 之后的 journal");
+                assert!(
+                    after_bytes == before_bytes,
+                    "{context}：被拒的一轮改写了既有 journal（{} B → {} B，实得 {error:?}）",
+                    before_bytes.len(),
+                    after_bytes.len()
+                );
+                assert_journal_bytes_unchanged(&before, &journal_footprint(&h.app_data), context);
+                let after_records = decode_bytes(&after_bytes);
+                assert_eq!(
+                    after_records.len(),
+                    before_records.len(),
+                    "{context}：被拒的一轮增了 durable 记录（实得 {error:?}）"
+                );
+                assert_eq!(
+                    pi_loop_journal::fold(&after_records).request_ids,
+                    pi_loop_journal::fold(&before_records).request_ids,
+                    "{context}：被拒的一轮占用了 requestId（实得 {error:?}）"
+                );
+                assert_repair_not_applied(shape, &after_bytes, context);
+                assert_no_echo(error, &["sk-in-memory-only", &case_root, &canary], context);
+                // 行为归属（G3 同义复扫的读数面）：这一行实际拒于哪一枚具名 code。
+                eprintln!(
+                    "电池 {context}：拒于 {}（{} B 原样）",
+                    error.code(),
+                    after_bytes.len()
+                );
+                true
+            }
+            Ok(_) => false,
+        };
+        drop(result);
+        refused
     }
 
     fn set_container_id(config: &mut StartConfig, value: &str) {
@@ -4413,6 +4704,26 @@ mod tests {
                 class: class.to_string(),
                 drive: ViolationDrive::PromptRequestId(value),
             });
+        }
+
+        // 状态域：既有可恢复 journal 的五类形状 × 两类拒绝触发（PI-HOST-LOOP-1R7 J2）。
+        for shape in RECOVERY_SHAPES {
+            for (class, trigger) in [
+                (
+                    "resume 漂移具名拒（载入之后）",
+                    RecoveryTrigger::ResumeDrift,
+                ),
+                (
+                    "modelId 含 NUL（载入之前）",
+                    RecoveryTrigger::ConfigViolation,
+                ),
+            ] {
+                battery.push(Violation {
+                    field: shape.field(),
+                    class: class.to_string(),
+                    drive: ViolationDrive::Recovery(shape, trigger),
+                });
+            }
         }
 
         battery
@@ -4675,6 +4986,9 @@ mod tests {
                     &["sk-in-memory-only", value],
                     &context,
                 ),
+                ViolationDrive::Recovery(shape, trigger) => {
+                    universal_recovery_start_case(*shape, *trigger, &context)
+                }
             };
             *(if hit {
                 refused.entry(row.field)
@@ -4703,6 +5017,25 @@ mod tests {
             refused.values().sum::<usize>() >= 100,
             "全电池只拒了 {} 枚：不是收紧了，就是入口被绕开了",
             refused.values().sum::<usize>()
+        );
+        // 状态域的塌缩守卫（1R7 J2）：「recovery 族被删空」与「本来就没有」读数同形。
+        let recovery_rows = battery
+            .iter()
+            .filter(|row| matches!(row.drive, ViolationDrive::Recovery(..)))
+            .count();
+        assert!(
+            recovery_rows >= 8,
+            "recovery 族只剩 {recovery_rows} 行：状态域塌缩，带修复的载入分支又照不到了"
+        );
+        let recovery_fields: std::collections::BTreeSet<&'static str> = battery
+            .iter()
+            .filter(|row| matches!(row.drive, ViolationDrive::Recovery(..)))
+            .map(|row| row.field)
+            .collect();
+        assert!(
+            recovery_fields.len() >= 4,
+            "recovery 族只覆盖 {} 类 journal 形状",
+            recovery_fields.len()
         );
         for field in &fields {
             assert!(
@@ -4746,6 +5079,112 @@ mod tests {
         assert_eq!(spawns, 1);
         host.prompt("req-ok", "合法一问").expect("对照必须问得通");
         assert_eq!(log.lock().expect("日志未中毒").written.len(), 2);
+    }
+
+    /// recovery 族的对照组：五类种子**确有**修复可做，且修复在 start 成功时照常落盘。
+    ///
+    /// 没有这一枚，`assert_repair_not_applied` 有一半机会是恒真——种子若本来就不需要修复，
+    /// 「修复未应用」当然成立（承在案判例「静默零＝空枚举与全通过同形」）。第二段是
+    /// 1R7 first-red ① 的绿形另一半：拒绝时的「逐字节不变」不是靠不做修复换来的。
+    #[test]
+    fn recovery_seeds_all_carry_a_repair_and_a_successful_start_applies_it() {
+        for shape in RECOVERY_SHAPES {
+            let h = harness("recovery-control");
+            seed_session(&h, shape);
+            let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+            let before = fs::read(&path).expect("读种子 journal");
+            let loaded = pi_loop_journal::load_session(
+                &h.app_data,
+                "cnt-1",
+                "sess-1",
+                SessionInterruptReason::SidecarEnded,
+            )
+            .expect("载入必须成功——种子是可恢复形，不是 malformed");
+            let marker = shape.repair_marker();
+            assert!(
+                loaded
+                    .records
+                    .iter()
+                    .any(|record| record.journal_type() == marker),
+                "{}：种子无修复可做，本形状的「修复未应用」断言恒真",
+                shape.field()
+            );
+            drop(loaded);
+            let after = fs::read(&path).expect("读修复后的 journal");
+            assert!(
+                after != before,
+                "{}：修复没有落盘，对照本身失效",
+                shape.field()
+            );
+        }
+
+        // 绿形对照：同一份 open idle leg journal，配置不漂移时 start 成功，
+        // 恢复计划与开场记录照常落盘，且既有字节只许被追加、不许被改写。
+        let h = harness("recovery-green");
+        seed_session(&h, SessionShape::OpenIdleLeg);
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let before = fs::read(&path).expect("读种子 journal");
+        let (result, _, spawns) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let host = result.expect("不漂移必须能起第二 leg");
+        assert_eq!(spawns, 1);
+        let after = fs::read(&path).expect("读起 leg 之后的 journal");
+        assert!(after.starts_with(&before), "既有字节只许追加，不许改写");
+        let types: Vec<JournalType> = decode_bytes(&after)
+            .iter()
+            .map(JournalRecord::journal_type)
+            .collect();
+        assert_eq!(
+            types,
+            vec![
+                JournalType::SessionStarted,
+                JournalType::SessionInterrupted,
+                JournalType::SessionResumed
+            ],
+            "恢复计划与开场记录都必须落盘，次序恰为：既有 → crash fold → resume"
+        );
+        drop(host);
+    }
+
+    /// characterization：`reclaim_after_fault` **保持立即 apply**（1R7 §零担保边界）。
+    ///
+    /// 它是已运行会话的故障收账，fold 本身就是目的效果，不适用 encode-before-effect——
+    /// 分相 API 允许调用方选择 apply 时机，但不得为凑不变量把这条路也改成延迟。把它改成
+    /// 延迟 apply（只 plan 不落盘）即在这里当场红。
+    #[test]
+    fn reclaim_after_fault_lands_the_crash_fold_on_disk_immediately() {
+        let h = harness("reclaim-characterization");
+        let (host, _, _) = start_with(&h, vec![ready_leg()]);
+        let mut host = host.expect("启动");
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let before = fs::read(&path).expect("读起 leg 之后的 journal");
+        host.reclaim_after_fault(SessionInterruptReason::SidecarEnded)
+            .expect("回收");
+        // 不 drop host、不再经任何门：盘上此刻就必须有 session_interrupted。
+        let after = fs::read(&path).expect("读收账之后的 journal");
+        assert!(
+            after.starts_with(&before) && after.len() > before.len(),
+            "故障收账必须当场落盘（{} B → {} B）",
+            before.len(),
+            after.len()
+        );
+        assert_eq!(
+            decode_bytes(&after)
+                .iter()
+                .map(JournalRecord::journal_type)
+                .collect::<Vec<JournalType>>(),
+            vec![JournalType::SessionStarted, JournalType::SessionInterrupted]
+        );
+        // 内存投影与盘上真值同步。
+        assert!(
+            host.projection().interrupted,
+            "收账后投影必须已 interrupted"
+        );
     }
 
     /// H1 的编码失败出口：**具名 code ＋ 零值回显**。
