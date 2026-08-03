@@ -145,6 +145,6 @@ no-ff 合入（小修批，架构逐 diff 复核清账）；`PANEL-BLUEPRINT-1` 
 `/private/tmp` worktree 的内容已以 patch-id 等同随合入链入树，随清账可删。`AGENT-CLAIM-CORRECTION-1` 已于 `11ca7f7`、`DEMO-ANCHOR-1` 已于 `a141386` no-ff 合入并
 清账；`worktree-impl+agent-claim-correction-1`、`worktree-demo-anchor-1`、
 `codex/accept-agent-claim-correction-1`、`codex/accept-demo-anchor-1` 随清账可删。当前
-无实现票在途；最终 tip 全量门本机复跑待执行（覆盖三票合入）。各票分支与验收 worktree 随清账删除，
+无验收中实现票；`PI-LANE-SIDECAR-HANG-1` 的实现分支 `claude/pi-lane-sidecar-hang-1`（单枚 `19d64b9`，base `8d90aa8`）待独立验收。最终 tip 全量门本机复跑已于 2026-08-03 深夜至 08-04 凌晨在 `8d90aa8` 完成（与 `69d6ddc` 只差状态登记提交，同覆三票合入）：build/lint 绿；root **1782/1782**——sidecar 八枚全绿（本轮 shell 实测可 bind；与 `69d6ddc` 轮八枚 5s 超时并观，坐实该红属环境条件红、非树上无条件红，与 HANG-1 票面根因相容）；desktop **690/690**；cargo **167 过/1 忽略**——fresh checkout 缺 `product-sidecar` 制品时 build script 显式拒绝，先 `pnpm --filter @courtwork/pi-lane build:product-sidecar` 后过，制品可复现且身份（523235 B / `75eff9b9…`）与 spec 在册一致；Playwright 一轮 **352/352**。随跑 site:guard 抓出 9 处既往未见命中（deslop 门不在全量门相位，两处来源 `0e50b03`/`12cd201` 均晚于其上次实跑）：ADR-022 六-D 归档链接体例 1 处已改反引号史料体例复绿（`9292aed`）；`packages/pi-lane/dev/index.html` raw-color 8 处待拍板——dev-only 页受 tokens 唯一消费门辖，或以具名理由行豁免（豁免须同批封口）。各票分支与验收 worktree 随清账删除，
 远端仅剩 `main`。合入条款一律「快进或 no-ff 按届时分叉实况定」；Playwright 全链全仓同刻
 至多一条（排程律）。
