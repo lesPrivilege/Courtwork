@@ -5199,3 +5199,9 @@ worktree，未 push、未 merge、未更新 `docs/status/current.md`。本节是
 
 **最终判定：PASS。** 放行范围仅为 composer disclaimer 文案、对应断言与 SPEC 留痕；不赋予
 agent 称谓，不授权公开 build，不扩大其他文案、布局、功能或发布面。
+
+4db54a1a796e004dad09edcdc67dab6b009b7a4d
+
+## DEMO-ANCHOR-1 F2 聚焦复验镜像（2026-08-03）
+
+- **F2：✅ 通过**——生产 `CONTRACT_TEXT_LAYER` 漂移注入使对齐谱 **2 failed / 9 passed**，还原后 **11/11 passed**；真实 resolver 得到 6 focus + 2 blocked/anchor_invalid + 5 invalid，`output-confirm.spec.ts` 串行两枚展品 **2/2 passed**。完整记录见 `packages/demo-data/ACCEPTANCE.md` 的 exact target `4db54a1a796e004dad09edcdc67dab6b009b7a4d` 章节。

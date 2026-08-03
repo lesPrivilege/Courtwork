@@ -37,6 +37,37 @@ data/pm/
 - `getPmFixture()` 只消费 `@courtwork/pm` 的公开 schema，在模块加载时解析数据并返回递归冻结的单例；访问器不做业务投影、排序或降级。
 - TDD 红线先由缺失 `@courtwork/pm` 依赖与 accessor 触发；常驻测试覆盖冻结文件全集、公开 schema、id/cluster 双向闭合、逐字锚、水印、内容 hash 与深层不可变性。门禁结果随本单提交记录，最终放行留给独立验收会话。
 
+## DEMO-ANCHOR-1 · risk-list.json 锚点补真实 textRange 与 textLayerVersion（实现完成，待独立验收）
+
+权威：CONTRACT-TRACE-1 验收派单件裁定四（2026-07-27），就绪图本票行。基线 `main @ 497a288`。
+
+### 改动摘要
+
+- `data/artifacts/risk-list.json`：8 枚 sourceAnchor 中 6 枚补真实 `textRange`（JS UTF-16 string offset，`contractSource.slice(start,end) === quote`）与 `textLayerVersion`（`source-text@1:1250:b936515f`，FNV-1a，与 desktop `CONTRACT_TEXT_LAYER` 同构）。退役旧占位 `{start:0, end:N}`。
+- 2 枚指定展品保持无 textLayerVersion、占位 range：risk-02 basis[0]（民法典 496 条）与 risk-06 basis[0]（民法典 497 条），statute 文本结构性不可锚于合同——这是刻意设计的「依据不可定位→待索证」诚实降级展品，output-confirm e2e 的 2 处 nonapplied 修订即由此产生。risk-02 回跳能力由 basis[1] 承担，risk-06 同理。
+- risk-01 basis[0] quote 改写（追认为票面必要形态）：原引法条文本，结构性不可锚于合同原文，改为合同中对应条款子句。risk-04 anchor 由含 `**` 标记的合并 span 改为单枚干净第一子句 `设备交付即视为风险转移至乙方`。
+- risk-06 basis[1] `本合同未对甲方……` 经核为合同源码原句（demo 源既有设计），登记观察不动。
+- anchor count 保持 8，`recordings.ts` 的 `citationStats` 随动：`claims: 8, firstPassResolved: 6, outOfCoverage: 2`。
+- `src/risk-list-anchors.test.ts`：去同步账——删 FNV-1a 复制函数与自含谓词反例块（判别力真座位在消费端 resolver，不在数据包自含谓词）；保留本包拥有的结构真值：6 枚 slice===quote/start>0/bounds，2 枚展品具名断言，计数 8，6 risk-id 覆盖，6 枚 textLayerVersion 内部一致，无控制字符。
+
+### 复杂度审视
+
+新增概念：零。改数据值与测试瘦身，无新抽象、新依赖、新持久化格式或新状态机。
+
+### golden 零受影响枚举与证据
+
+本包无 golden snapshot 文件。`risk-list.json` 本身是数据真值而非 golden——它被测试消费而非由测试生成。消费侧 golden（desktop session-event.contract.test.ts 的 `claims: 8`）因 anchor count 不变而不受影响；`firstPassResolved`/`outOfCoverage` 按展品实况随动。
+
+### 追认与展品指定
+
+1. risk-01 quote 改写：statute 文本（《民法典》条文）结构性不可锚于合同原文——citation 字段仍承载法律依据语义，sourceAnchor 改为合同中对应条款子句是唯一合法形态。
+2. risk-02 basis[0] 与 risk-06 basis[0] 指定为 non-applied 展品（G2）：statute 文本结构性不可锚，保持无 textLayerVersion 与占位 range，output-confirm 2 处 nonapplied 修订由此产生。展品是展示面资产——显式降级是产品设计而非缺陷。
+3. risk-06 basis[1] `本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准` 经核为 `04-设备采购合同.md` 第 905–930 字符处原句，属 demo 源既有设计（合同文本本身包含对缺失条款的陈述），登记为观察，不动。
+
+### 偏离登记
+
+- 票面「恰一枚指定展品（risk-02[0]）」实际为两枚（risk-02[0] + risk-06[0]）。原因：output-confirm e2e 期望 2 处 nonapplied（risk-02 + risk-06），退出判据「该 spec 全绿」要求两枚展品同时存在。单枚展品不满足退出判据。
+
 ## 背景
 
 承接 `docs/decisions/ADR-001-package-abi.md`：演示数据从"放在 packages/tools 内"改为独立成包，与消费方 src 完全解耦。本包不属于 `当时的架构工单册` 原始工单编号序列，是 W5 在途期间的架构增量（见 `packages/tools/SPEC.md` 的 W5.1 验收记录）。

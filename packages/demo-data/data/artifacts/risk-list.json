@@ -13,9 +13,10 @@
               "fileId": "04-设备采购合同.md",
               "quote": "乙方逾期支付任何一期款项的，每逾期一日应按未付金额的1%向甲方支付违约金",
               "textRange": {
-                "start": 0,
-                "end": 36
-              }
+                "start": 866,
+                "end": 902
+              },
+              "textLayerVersion": "source-text@1:1250:b936515f"
             }
           ]
         }
@@ -47,9 +48,10 @@
               "fileId": "04-设备采购合同.md",
               "quote": "提交甲方所在地有管辖权的人民法院管辖",
               "textRange": {
-                "start": 0,
-                "end": 18
-              }
+                "start": 1090,
+                "end": 1108
+              },
+              "textLayerVersion": "source-text@1:1250:b936515f"
             }
           ]
         }
@@ -68,9 +70,10 @@
               "fileId": "04-设备采购合同.md",
               "quote": "验收标准以甲方提供的技术参数为准",
               "textRange": {
-                "start": 0,
-                "end": 16
-              }
+                "start": 756,
+                "end": 772
+              },
+              "textLayerVersion": "source-text@1:1250:b936515f"
             }
           ]
         }
@@ -87,11 +90,12 @@
           "sourceAnchors": [
             {
               "fileId": "04-设备采购合同.md",
-              "quote": "设备交付即视为风险转移至乙方；同时约定验收合格前设备所有权仍归甲方所有",
+              "quote": "设备交付即视为风险转移至乙方",
               "textRange": {
-                "start": 0,
-                "end": 35
-              }
+                "start": 952,
+                "end": 966
+              },
+              "textLayerVersion": "source-text@1:1250:b936515f"
             }
           ]
         }
@@ -110,9 +114,10 @@
               "fileId": "04-设备采购合同.md",
               "quote": "因地震、洪水、战争等不可抗力致使本合同不能履行的，双方互不承担违约责任",
               "textRange": {
-                "start": 0,
-                "end": 35
-              }
+                "start": 1009,
+                "end": 1044
+              },
+              "textLayerVersion": "source-text@1:1250:b936515f"
             }
           ]
         }
@@ -144,9 +149,10 @@
               "fileId": "04-设备采购合同.md",
               "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
               "textRange": {
-                "start": 0,
-                "end": 25
-              }
+                "start": 905,
+                "end": 930
+              },
+              "textLayerVersion": "source-text@1:1250:b936515f"
             }
           ]
         }

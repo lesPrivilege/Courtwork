@@ -25,6 +25,12 @@
 - 新增静态反例：`Courtwork is an agent` / `can make mistakes` 出现即红——防旧宣称复活
 - 用户菜单 `Give us feedback` 不在本票范围，测试不变
 
+## DEMO-ANCHOR-1 G1+G2 · 消费端对齐真实性修复与 non-applied 展品恢复（实现完成，待独立验收）
+
+G1：`src/demo/legal-interaction.test.ts` 的消费端对齐测试删除复制的 `contentVersion`/`blocks`，改为直接导入生产 `CONTRACT_TEXT_LAYER`（`src/demo/legal-interaction.ts` 新增 `export`，零行为变化）。自证：改生产版本 `@1→@9`，恰「6 枚可定位锚点」一条翻红（1 failed / 10 passed），还原复绿。
+
+G2：6 枚可定位锚点经 `resolveReaderFocus` 全部 `{status:'focus'}`；risk-02[0] 与 risk-06[0] 指定展品（statute 文本无 textLayerVersion）经 resolver 落 `{status:'blocked', reason:'anchor_invalid'}`。5 枚 invalid fixture 不变。`recordings.ts` `citationStats` 随动：`firstPassResolved: 6, outOfCoverage: 2`；`session-event.contract.test.ts` 按 `locatable.length` 计算真值。output-confirm e2e 2/2 绿（nonapplied-confirm 2 处重现）。
+
 ## MD-CONVERGE-1+ · ChatMarkdown 改用 remark 并扩围五项（实现完成，待独立验收）
 
 权威：[实现就绪图 `MD-CONVERGE-1+` 行](../../docs/architecture/implementation-readiness.md)（合票 `A/R-18` + `C/R-6`）。基线 `main @ a49db9c`。分支 `impl/md-converge-1`，隔离 worktree 施工（主工作树有票甲未提交面，不共仓）。desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动，**未触 `App.tsx`**（就绪图该行 App.tsx 列标「否」的成立前提）。

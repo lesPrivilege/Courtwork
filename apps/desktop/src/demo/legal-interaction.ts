@@ -22,7 +22,7 @@ function contentVersion(text: string): string {
 }
 
 const CONTRACT_TEXT_LAYER_VERSION = contentVersion(contractSourceMd);
-const CONTRACT_TEXT_LAYER = {
+export const CONTRACT_TEXT_LAYER = {
   fileId: CONTRACT_FILE_ID,
   blocks: [{
     blockId: 'source',

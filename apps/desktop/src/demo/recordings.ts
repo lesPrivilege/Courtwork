@@ -50,7 +50,7 @@ export const S3_RECORDING: SessionEvent[] = [
       { key: 'contract-corpus', grade: 'B', sourceId: 'demo-fixture', confirmed: true },
       { key: 'open-reference', grade: 'C', sourceId: 'demo-fixture', confirmed: false },
     ],
-    citationStats: { claims: 8, firstPassResolved: 8, retryRounds: 0, resolvedAfterRetry: 8, outOfCoverage: 0 },
+    citationStats: { claims: 8, firstPassResolved: 6, retryRounds: 0, resolvedAfterRetry: 6, outOfCoverage: 2 },
   },
   {
     type: 'todo_snapshot', sessionId: 'demo-s3', seq: 3, emittedAt: at(3),
