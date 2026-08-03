@@ -110,3 +110,18 @@ be0d9ad→3f0bc6f→a082257→9d4013e→e3118a7→57a19a5→cd3810a` 二十五�
 实现提交先于回执提交；本文件只追加回执。停在待独立验收：全新会话从独立 clean
 worktree 复验（自建 snapshot、recovery 反例自行实注、分相边界以自造 journal 形状独立
 探测）。未获 PASS 前不 push、不 merge、不更新 `current.md`、不开 `PI-WRITE-HOST-1`。
+
+## 五、冻结后裁定（2026-08-03 回执受理，架构）
+
+1. 回执 §八.9-1 追认为正解：计划折叠至终态（`session_failed`／budget_unknown 族）的
+   会话经 closed 门拒绝且零 apply，终态 fold 不经 start 路径落盘。依据：journal 唯一
+   真源是原始记录，fold 是确定性投影；用户可见错误面与分相前实现同源（同为
+   SessionClosed），resume／未来 GUI／workspace 派生一律以折叠读取，无第二真源。后续
+   GUI 票不得据此新增「补写终态」旁路；如未来确需物化终态，另立票改契约，不在本线顺手做。
+2. 回执 §八.9-2 追认：apply 中途失败留部分修复，与旧 crash-fold 部分 append 同类且
+   self-healing（截断幂等、补写与 fold 追加各自消除自身重算条件），非新增失效模式。
+3. 换靶两处准：「撤除断言→红」按语义改「注入使断言为假的等价靶」——撤除断言只会空绿，
+   属原票措辞病，特此订正；recovery 形状按票面「步骤 3/4 形态」括注扩为五类
+   （`activePromptBudget` 入列）。
+4. 本节只受理回执登记，不改变任何实现要求；验收按票面＋本节合并读取。closed 门拒绝的
+   零 apply 语义须与「盘上已 durable 关闭的会话拒绝面」对照验证（两态同一错误面）。
