@@ -198,3 +198,24 @@ mutation 各自只让对应组翻红——禁 part / 禁 relationship / 禁 cont
 `TZ=UTC` / `Asia/Singapore` / `America/New_York`（含 DST gap）的 bytes/SHA-256 相等，均对唯一复合
 原件 `contract-review-complex.docx` 实跑。**未执行**：Word/WPS 真机 roundtrip——本包只到程序化保真，
 不得据此声明 external-validated。
+## OUTPUT-APPLY-FIDELITY-1 · 段内保真与落点诚实（2026-08-04，实现完成待独立验收）
+
+权威：2026-08-04 审计（93-agent 双否证）三项确认缺陷，产品负责人批立票并指定本会话即时开工；判据锚定既有 OUTPUT-CORRECTNESS-1 清单 #3（既有 range 保全——此前证据只覆 comments part 合并，段内 range 面缺失）与 #6（非落点诚实——零编辑不得报 applied）。
+
+**三缺陷与修复**（全部住 `src/apply-instructions.ts`，schema 零改动）：
+
+1. **整段批注 range 插到 `w:pPr` 之前**（schema 无效 OOXML，违反本文件 #1 落痕自述的「`w:pPr` 首子节点」规则）——`attachCommentToWholeParagraph` 改 pPr 感知插入；golden `apply-revision-instruction-set` 快照两处随之更新，diff 逐字核对仅此两处位序、零内容变化（置换批定式：旧快照钉住的是无效形态）。
+2. **replace/delete 清空重建压平段内既有结构**——`textOf` 含 `w:delText`，重建会复活他人已删文本、抹掉外来 `w:ins`/`w:del`/批注 range/链接，run 内 `w:br`/`w:tab` 静默丢失。新增 fail-closed 预审 `paragraphSupportsRebuild`：段子节点白名单 `{pPr, r, proofErr}`、run 子节点白名单 `{rPr, t, lastRenderedPageBreak}`，白名单外（含未知节点）一律拒绝重建，返回新状态 `unsupported_existing_markup`（非落点，经既有 `NonAppliedInstructionsError` 门交用户处置）。text 段 replace/delete、tableCell replace、tableRow delete 四路径同批铺满。
+3. **fuzzy 命中后拿字面 quote 改写**——定位器 `LocateResult.fuzzy` 本就携带 `matchedText`，dispatch 丢弃它导致 `split(quote)` 落空：零编辑重建仍报 `applied_fuzzy`（静默 no-op ＋顺带压平段落）。改为消费 `matchedText`；`applyMinimalReplace` 改返 `{changed}` 并在产不出任何修订痕迹时一个节点不动、上层报 `locator_text_mismatch`（等值替换同路径兜住）。
+
+**本单新增了什么概念、为何非加不可**：一枚重建预审谓词（`paragraphSupportsRebuild`）与一个非落点状态（`unsupported_existing_markup`）。预审非加不可：重建式 replace 的破坏面只能在动手前判定，白名单拒未知是「不认识就跳过」判例的反面（fail-closed）；新状态非加不可：既有五个非落点状态没有一个诚实描述「能定位、但为保全原结构拒绝改写」。未加第二抽象；结构保全式逐 run surgical replace 是能力扩张，不入本票，需求实证后另立。
+
+**消费点同步**（契约先行，grep 全消费点）：`ApplyStatus` 扩员一枚；`isApplied` 无需改（新状态非 applied）；desktop `compile-review-output.ts` `REASON_BY_STATUS` 增 `unsupported_existing_markup: 'unsupported'` 一行（复用既有 `NonAppliedReason` 词表，UI 零新文案）——顺手记录：该表 `?? 'not_located'` 兜底会把未映射新状态错标理由，属静默降级形态，本票以补映射闭口，兜底改显式另票斟酌。
+
+**红证**：8 枚新测试（`apply-instructions.test.ts` OUTPUT-APPLY-FIDELITY-1 三组）born-red 实跑 7 红（第 8 枚 proofErr 阳性对照防过度拒绝，当期即绿属预期），实现后 8/8 绿、包内 75/75、golden 快照经逐字复核后重生成。
+
+**顺手观察（未处置，待架构斟酌）**：`ensureRPrIn` 把 `w:rPr` 插为 `w:pPr` 首子节点，而 CT_PPr 序列要求 `rPr` 居后；Word/WPS 实测容忍度未知，超出本票三缺陷面，不动、只登记。
+
+**OSS 前置结论**：保留自研——本票为 docx/WPS 兼容自研加固点上的缺陷修复，非新功能；无引库动作。
+
+**退出证据（实现会话自测，不代表验收）**：包内 **76/76**（含 golden 结构回归锁「凡有 `w:pPr` 的段落其首元素子节点必为 pPr」——手动倒置快照一处位序实测红后还原，可红性已证）；全仓 `pnpm -r build`／`pnpm lint`／root `pnpm test` **1791/1791** 绿；desktop 690/690 与隔离 Playwright **352/352** 在实现完成树实跑，其后仅增测试与本 SPEC 文档（非 e2e 消费面），如实登记。数字待独立验收复跑。

@@ -85,6 +85,7 @@ const REASON_BY_STATUS: Partial<Record<InstructionOutcome['status'], NonAppliedR
   locator_ambiguous: 'ambiguous',
   locator_text_mismatch: 'text_changed',
   unsupported_locator: 'unsupported',
+  unsupported_existing_markup: 'unsupported',
 };
 
 /**
