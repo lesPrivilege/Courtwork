@@ -1261,6 +1261,19 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 
 ## 修订记录
 
+- **2026-08-03 · HOST-LOOP 1R6 复验拒绝与 1R7 恢复分相**：`PI-HOST-LOOP-1R6@57a19a5`
+  经独立复验 `cd3810a` REJECT——encode-before-effect 的 fresh/prompt 形状、bytes 复用、
+  装置退役边界与 142 电池全成立；唯一决定性：`start_inner()` 在真实编码前调用会写盘的
+  `load_session()`，恢复既有会话时 partial-tail 截断、usage 补写与 crash fold 的 durable
+  append 先于编码（codec-only future rule 反例实测 journal 558 B→790 B 而 spawn/wire
+  均零），三项担保在 resume/recovery 路径不成立。裁定**恢复分相**：`load_session` 拆
+  读/计划（纯，零 journal 内容写入）与 durable apply 两相，apply 后置于编码成功；三项
+  担保不撤、观察面精确化（inode 级创建获准先行、quarantine 人口不相交、
+  `reclaim_after_fault` 立即 apply 不适用 encode-before-effect）。零漂移已经源码核实：
+  `fold()` 纯函数，bootstrap 恢复态字段与 crash-fold 追加互不作用，物理截断对解析不
+  必要。违规电池扩 recoverable existing-session 族，断言升「与 pre-start snapshot 逐
+  字节不变＋修复未应用」。新立 `PI-HOST-LOOP-1R7`（`specs/PI-HOST-LOOP-1R7.md`），
+  基线顺取二十五枚 patch-id 等同。
 - **2026-08-02 · HOST-LOOP 1R5 复验拒绝与 1R6 结构性裁定**：`PI-HOST-LOOP-1R5@a082257`
   经独立复验 `9d4013e` REJECT——G1 四门与阳性对照全成立；唯一决定性：拒绝分支扫描器以
   `return Err(` 字面量定义种群，fail-closed 建立在 fail-open 种群上，turbofish 合法拼写
