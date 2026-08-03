@@ -1708,3 +1708,106 @@ fold；该偏离不能豁免 §零/ADR 的 broad invariant。
 或在契约层明确撤回“任何 append”“Err ⇒ 零字节”“∀ future codec rule”三项结构担保并给出新的可验
 边界。不能继续以 fresh journal 的零字节读数代替已有 session 的恢复副作用；完成后交另一全新会话
 从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R7 独立验收（2026-08-03，PASS）
+
+对象：exact target `744c070a1f4fcee61d2a7cca4711643f445b5911`，implementation tip
+`f915eea932e022bc9733d79c563833301340d6c5`；独立 worktree
+`/private/tmp/courtwork-accept-pi-host-loop-1r7`、branch `codex/accept-pi-host-loop-1r7`。
+未进入或读取实现 worktree `/private/tmp/courtwork-pi-host-loop-1r7`。按票面合并读取，§八.9
+两项架构追认及两处换靶按已准偏离处理。
+
+## 基线与 sealed snapshot
+
+- `HEAD=744c070`，target/main merge-base=`497a28806d7f8ca737fb20dc54fcca1c01745e50`；
+  `ac0d326..main` 为 0 枚。票面 25 枚加 `f915eea`、`744c070`，稳定 patch-id multiset
+  **27/27 等同**；frozen install 成功，product build 成功。
+- product snapshot inventory 恰三件，无残留 `.product-sidecar.stage-*`：CJS
+  `523,235 B`, SHA-256 `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`；
+  arm64 `112,928,848 B`, SHA-256 `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`；
+  x64 `115,447,952 B`, SHA-256 `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`。
+  三件值与 exact target 的 route manifest 逐字段一致；CJS 零漂移。
+
+## J1：两相边界源码审计与 future-rule 双臂
+
+生产源码逐函数复核结论：`pi_loop.rs:527-533` 只调用 `plan_session` 并取内存投影；closed
+门 `:535-537`、resume 判定 `:544-595`、exact bootstrap 编码 `:639-640` 均先于
+`planned.apply()` `:644`、opening append `:649`、spawn `:652`。`plan_session_locked`
+（`pi_loop_journal.rs:2288-2452`）只读完整内存切片、构造 `truncate_to`/usage/crash-fold
+完整 `JournalRecord` 计划并折叠投影；`write_staged` 仅在 `PlannedSession::apply`
+（`:2213-2245`）中调用。锁、目录、0-byte inode 创建与 quarantine 属票面明示的 inode/账本处置，
+不是 journal 内容写入；编码前没有 append、write_all、物理 set_len、修复 apply 或 spawn。
+
+从 exact target blob 临时注入同一 codec-only future rule（`modelId` 含 `/`），同一恢复 journal
+及配置做双臂实跑：
+
+| 臂 | journal | spawn | writes | 实得 |
+|---|---:|---:|---:|---|
+| 实验臂：当前 apply 后置 | 558 → **558** | 0 | 0 | `invalid_config` |
+| 对照臂：apply 前移 | 558 → **790** | 0 | 0 | `invalid_config` |
+
+对照复现 558→790 类增长；临时 rule/test 逐字节拆除，生产 `pi_loop.rs`、`pi_loop_journal.rs`、
+`pi_loop_protocol.rs` SHA-256 恢复为 `6889bc39a5d3baac774cbe08d5ddc35ea3528913bb7ef8f4168c103eae065372`、
+`ac96253538fb5111077e1ae4edc67f1814044518c7d81c6f658515282f595ac5`、
+`f9b47ddc6b7cba7654dd220cd5c5b96b0ac2d12b49fc6347fe965b46e81473de`；源码无临时 marker 残留。
+
+## first-red、J2 电池与 §五.4
+
+自演旧 apply 顺序的 first-red 五形状实跑，均为旧行为红（spawn/writes 均 0）：
+
+| 形状 | journal bytes | 错误面 |
+|---|---:|---|
+| `recovery.partialTail` | 601 → **796** | `resume_refused` |
+| `recovery.missingUsageTail` | 1119 → **1699** | `resume_refused` |
+| `recovery.openIdleLeg` | 564 → **796** | `resume_refused` |
+| `recovery.activePromptBudget` | 755 → **1394** | `session_closed` |
+| `recovery.danglingEffect` | 1211 → **2107** | `session_closed` |
+
+常驻 target 电池 `RECOVERY_SHAPES` 恰五类、五类各两触发；原始实跑为 **152 枚、15 字段，
+拒 114 / 放行 38**。十枚 recovery 行的 pre-start journal 均逐字节原样（partial tail 未截、
+usage/session-interrupted/prompt-failed/effect-uncertain 修复未应用），records、spawn、writes、
+requestId 断言全为零/不变；resume 漂移行分别实得 `resume_refused`、计划关闭的 active prompt 与
+dangling effect 分别实得 `session_closed`，modelId NUL 行实得 `invalid_config`。对照测试
+`recovery_seeds_all_carry_a_repair_and_a_successful_start_applies_it` 通过，证明五类种子确有修复，
+成功路径会 apply；open idle 成功次序为 `session_started → session_interrupted → session_resumed`。
+
+§五.4 两态对照成立：计划 fold 后的 closed projection 在 `pi_loop.rs:535-537` 先返回
+`SessionClosed`，所以计划关闭态不经过 apply；同一错误面由
+`shutdown_writes_session_completed_after_terminal_and_eof` 锁定的盘上 durable closed 再次 start
+复现，且 spawn 为 0。`reclaim_after_fault` 仍立即 apply，characterization 通过；延迟 apply 的
+mutation 使同一断言 `564 B → 564 B` 命中红。
+
+## 七枚 mutation 独立重注
+
+每枚均在 exact target blob 命中唯一锚点，定向红后 `apply_patch` 还原并复核 byte-identical：
+
+1. apply 前移：电池 partial-tail `601 → 796` 红。
+2. 物理截断前移：计划/电池 partial-tail `601 → 564` 红。
+3. apply 重新 stage：计划值与盘上 seq `4/5` 对 `6/7` 红。
+4. recovery 族删空：塌缩守卫以 `recovery 族只剩 0 行` 红。
+5. grant 拒绝前 apply：`601 → 796` 红。
+6. `reclaim_after_fault` 延迟 apply：characterization `564 → 564` 红。
+7. M7 codec-only future rule：后置臂 `558 → 558`，前移臂 `558 → 790`，等价靶亦红。
+
+## J3、R6 订正与门禁
+
+- `pi_loop.rs:211-229` 已将 spawn-after-encoder 改为历史陈述，清除当前时错误断言，并明确
+  “源码扫描双向自证”已退役、当前由行为反例和普适电池自证。
+- R6 计数独立重算：pristine `28d81b2` 的 `4114..4272` 为 159 行内容，前段为 2,969 行，
+  合计 **3,128 行内容 + 1 行格式空行缺失**；目标对应块逐字节相等，边界差异仅空行/测试模块收尾。
+- 非受限域门禁原始结果：pi-lane `14 files / 448 tests`；product-sidecar `10/10`；verified-node
+  tests `8/8`；isolation-binding `43/43`；verified production `10 PASS`，control 全 PASS；
+  Rust `cargo test --lib` **167 passed / 0 failed / 1 ignored**，ignored snapshot **1 passed**；
+  四模块 rustfmt `exit 0`。clippy `-D warnings` 按 parent 基线预期 `exit 101`，恰 **7** 项且
+  全在 `src/lib.rs`（5 unnecessary-unsafe、2 needless-return）；四个 `pi_loop*` 模块零新增，
+  target 与 pre-implementation parent 的 `lib.rs` 无 diff。
+- 仓级 `pnpm -r build`、`pnpm lint`、顺序重跑的 `pnpm test` 均通过；root test 原始结果
+  **166 files / 1,771 tests**，desktop `lint:isolation-binding` 通过；`git diff --check` 通过。
+  root test 以 build 完成后顺序重跑，避免并行 build/test 的包 dist 竞态。
+
+## 结论与停止边界
+
+判定：**PASS，待架构消费**。本会话只追加本段 `packages/pi-lane/ACCEPTANCE.md`；不 merge、不
+push、不更新 `current.md`、不开 `PI-WRITE-HOST-1`，PASS 也停在待架构消费。
