@@ -5144,3 +5144,9 @@ Playwright 终局为 **350 passed / 1 failed（3.6m）**，日志末行是 **`EX
 **最终判定：放行 `PANEL-BLUEPRINT-1`（matrix 首枚）✅。** 放行仅覆盖 `f3d2bf3` 的 descriptor →
 blueprint → renderer 迁移与已验范围；`composer.spec.ts:45` 的既有断言修复不并入本票，其他三个 panel、
 未来 presentation config、任何新字段/跨层接口与产品成熟度表述均不随之放行。
+
+4db54a1a796e004dad09edcdc67dab6b009b7a4d
+
+## DEMO-ANCHOR-1 F2 聚焦复验镜像（2026-08-03）
+
+- **F2：✅ 通过**——生产 `CONTRACT_TEXT_LAYER` 漂移注入使对齐谱 **2 failed / 9 passed**，还原后 **11/11 passed**；真实 resolver 得到 6 focus + 2 blocked/anchor_invalid + 5 invalid，`output-confirm.spec.ts` 串行两枚展品 **2/2 passed**。完整记录见 `packages/demo-data/ACCEPTANCE.md` 的 exact target `4db54a1a796e004dad09edcdc67dab6b009b7a4d` 章节。
