@@ -1982,8 +1982,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         />
       </div>
       <p className="composer-disclaimer" data-testid="composer-disclaimer">
-        Courtwork is an agent and can make mistakes. Please double-check responses.{' '}
-        <a href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">Give us feedback</a>
+        模型可能出错，请核对回复。
+        <a href="mailto:feedback@courtwork.local?subject=Courtwork%20feedback">提供反馈</a>
       </p>
     </div>
   );
