@@ -91,10 +91,10 @@
           "sourceAnchors": [
             {
               "fileId": "04-设备采购合同.md",
-              "quote": "设备交付即视为风险转移至乙方**；同时约定**验收合格前设备所有权仍归甲方所有",
+              "quote": "设备交付即视为风险转移至乙方",
               "textRange": {
                 "start": 952,
-                "end": 991
+                "end": 966
               },
               "textLayerVersion": "source-text@1:1250:b936515f"
             }

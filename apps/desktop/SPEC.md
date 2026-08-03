@@ -2,6 +2,10 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## DEMO-ANCHOR-1 F2 · 消费端对齐用例（实现完成，待独立验收）
+
+`src/demo/legal-interaction.test.ts` 追加 `risk-list.json × resolveReaderFocus 消费端对齐` 节：8 枚真实锚点经真实 `resolveReaderFocus` 全部 `{status:'focus'}`；5 枚 invalid fixture（缺版本/版本漂移/反转区间/切片不符/越界）全部 `{status:'blocked', reason:'anchor_invalid'}`。判别力的真座位在消费端 resolver，不在数据包自含谓词。权威：DEMO-ANCHOR-1 返修单 F2。
+
 ## MD-CONVERGE-1+ · ChatMarkdown 改用 remark 并扩围五项（实现完成，待独立验收）
 
 权威：[实现就绪图 `MD-CONVERGE-1+` 行](../../docs/architecture/implementation-readiness.md)（合票 `A/R-18` + `C/R-6`）。基线 `main @ a49db9c`。分支 `impl/md-converge-1`，隔离 worktree 施工（主工作树有票甲未提交面，不共仓）。desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动，**未触 `App.tsx`**（就绪图该行 App.tsx 列标「否」的成立前提）。

@@ -19,20 +19,8 @@ const riskList = JSON.parse(readFileSync(riskListPath, 'utf8')) as {
   }>;
 };
 
-/** FNV-1a — same algorithm as apps/desktop/src/demo/legal-interaction.ts contentVersion. */
-function contentVersion(text: string): string {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < text.length; i += 1) {
-    hash ^= text.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return `source-text@1:${text.length}:${(hash >>> 0).toString(16).padStart(8, '0')}`;
-}
-
-const EXPECTED_VERSION = contentVersion(contractSource);
-
-function allAnchors(): Array<{ riskId: string; basisIndex: number; anchorIndex: number; anchor: typeof riskList.risks[0]['basis'][0]['sourceAnchors'][0] }> {
-  const result: typeof allAnchors extends () => infer R ? R : never = [];
+function allAnchors() {
+  const result: Array<{ riskId: string; basisIndex: number; anchorIndex: number; anchor: typeof riskList.risks[0]['basis'][0]['sourceAnchors'][0] }> = [];
   for (const risk of riskList.risks) {
     for (let bi = 0; bi < risk.basis.length; bi++) {
       for (let ai = 0; ai < risk.basis[bi]!.sourceAnchors.length; ai++) {
@@ -43,44 +31,44 @@ function allAnchors(): Array<{ riskId: string; basisIndex: number; anchorIndex: 
   return result;
 }
 
-describe('risk-list.json 锚点对齐样板案原文', () => {
+describe('risk-list.json 锚点对齐样板案原文（结构真值）', () => {
   const anchors = allAnchors();
 
-  it('至少有 6 条锚点（risk-01 ~ risk-06 各 basis 至少一枚）', () => {
-    expect(anchors.length).toBeGreaterThanOrEqual(6);
+  it('恰 8 枚锚点', () => {
+    expect(anchors.length).toBe(8);
+  });
+
+  it('6 个 risk-id 各至少一枚锚点', () => {
+    const ids = new Set(anchors.map((a) => a.riskId));
+    expect(ids.size).toBe(6);
+    for (let i = 1; i <= 6; i++) expect(ids.has(`risk-0${i}`)).toBe(true);
   });
 
   it.each(anchors.map((a) => [`${a.riskId}[${a.basisIndex}][${a.anchorIndex}]`, a] as const))(
-    '%s: textRange 切片 === quote 且 textLayerVersion 匹配',
+    '%s: slice===quote、start>0、end≤length',
     (_label, { anchor }) => {
       expect(anchor.fileId).toBe('04-设备采购合同.md');
-      expect(anchor.textLayerVersion, 'textLayerVersion 必须存在').toBe(EXPECTED_VERSION);
+      expect(anchor.textLayerVersion, 'textLayerVersion 必须存在且为非空字符串').toBeTruthy();
       const { start, end } = anchor.textRange;
       expect(start, 'start 不得恒为 0').toBeGreaterThan(0);
       expect(end).toBeGreaterThan(start);
+      expect(end, 'end 不得越界').toBeLessThanOrEqual(contractSource.length);
       expect(contractSource.slice(start, end), `offset [${start},${end}) 切片必须逐字等于 quote`).toBe(anchor.quote);
     },
   );
-});
 
-describe('anchor_invalid 反例保全', () => {
-  const INVALID_ANCHORS = [
-    { label: '缺 textLayerVersion', anchor: { fileId: '04-设备采购合同.md', quote: '验收标准', textRange: { start: 756, end: 760 } } },
-    { label: 'textLayerVersion 不匹配', anchor: { fileId: '04-设备采购合同.md', quote: '验收标准', textRange: { start: 756, end: 760 }, textLayerVersion: 'stale-version' } },
-    { label: 'start=0 恒零', anchor: { fileId: '04-设备采购合同.md', quote: '验收标准', textRange: { start: 0, end: 4 }, textLayerVersion: EXPECTED_VERSION } },
-    { label: 'quote 与切片不一致', anchor: { fileId: '04-设备采购合同.md', quote: '完全不存在的文本', textRange: { start: 756, end: 772 }, textLayerVersion: EXPECTED_VERSION } },
-    { label: 'end 越界', anchor: { fileId: '04-设备采购合同.md', quote: 'x', textRange: { start: contractSource.length, end: contractSource.length + 1 }, textLayerVersion: EXPECTED_VERSION } },
-  ];
+  it('8 枚 textLayerVersion 彼此相等（内部一致）', () => {
+    const versions = new Set(anchors.map((a) => a.anchor.textLayerVersion));
+    expect(versions.size, '所有锚点应指向同一文本层版本').toBe(1);
+    const version = [...versions][0]!;
+    expect(version.length).toBeGreaterThan(0);
+  });
 
-  it.each(INVALID_ANCHORS.map((c) => [c.label, c.anchor] as const))(
-    '%s → 至少一项校验失败',
-    (_label, anchor) => {
-      const fails = [];
-      if (!anchor.textLayerVersion || anchor.textLayerVersion !== EXPECTED_VERSION) fails.push('version');
-      if (anchor.textRange.start <= 0) fails.push('start');
-      if (anchor.textRange.end > contractSource.length) fails.push('bounds');
-      if (contractSource.slice(anchor.textRange.start, anchor.textRange.end) !== anchor.quote) fails.push('slice');
-      expect(fails.length, `反例 "${_label}" 必须触发至少一项失败`).toBeGreaterThan(0);
-    },
-  );
+  it('quote 不含控制字符且长度 > 2（非退化引文）', () => {
+    for (const { anchor } of anchors) {
+      expect(anchor.quote.length).toBeGreaterThan(2);
+      // eslint-disable-next-line no-control-regex
+      expect(anchor.quote).not.toMatch(/[\x00-\x08\x0b\x0c\x0e-\x1f]/);
+    }
+  });
 });
