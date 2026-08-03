@@ -1261,6 +1261,14 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 
 ## 修订记录
 
+- **2026-08-03 · HOST-LOOP 1R7 放行与七轮收束**：`PI-HOST-LOOP-1R7@744c070`（实现
+  `f915eea`）经独立验收 `6da6aea` **PASS**：恢复分相结构成立（M7 双臂对照——同树同
+  codec-only future rule，apply 前移臂复现 558→790，分相臂 558→558）、电池 152 行/15
+  字段含五类 recoverable existing-session 形状、七枚 mutation 逐红、§五.4 两态对照过。
+  no-ff 合入 `653c121`，六轮拒绝报告以 patch-id 等同随链入树。§五冻结后裁定四则随票
+  受理（终态 fold 不经 start 落盘为正解；apply 中途失败 self-healing 同类；换靶两处准）。
+  `PI-HOST-LOOP-1` 至此清账，`PI-WRITE-HOST-1` 依赖层齐备；成立范围只到 Host 读面基础，
+  不及 WRITE/GUI/headless 总验与真 key 端到端。
 - **2026-08-03 · HOST-LOOP 1R6 复验拒绝与 1R7 恢复分相**：`PI-HOST-LOOP-1R6@57a19a5`
   经独立复验 `cd3810a` REJECT——encode-before-effect 的 fresh/prompt 形状、bytes 复用、
   装置退役边界与 142 电池全成立；唯一决定性：`start_inner()` 在真实编码前调用会写盘的
