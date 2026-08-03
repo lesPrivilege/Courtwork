@@ -13,6 +13,13 @@ use std::sync::{Mutex, Once, OnceLock, RwLock};
 mod case_output_fs;
 mod host_auth;
 mod material_store;
+// PI-HOST-LOOP-1 §二.8：本票只接 module 与 crate-private 构造，**零 invoke handler**、
+// 零 event channel、零 frontend 类型。start/prompt/cancel/resume/replay/delete 的 WebView
+// adapter 由 `PI-LANE-UI-1` 另冻；在那之前 `PiLoopHost` 只由 crate 内部与 headless driver 消费。
+mod pi_loop;
+mod pi_loop_journal;
+mod pi_loop_process;
+mod pi_loop_protocol;
 mod work_state;
 
 /// 发行包 service；dev（debug_assertions）加 `.dev` 后缀，避免污染发行 ACL（F6）。
@@ -2577,14 +2584,30 @@ mod tests {
             )
             .await;
         });
-        tokio::time::sleep(std::time::Duration::from_millis(20)).await;
-        if let Ok(mut store) = cancellation_store().lock() {
-            let cancel = store
-                .remove("cancel-before-headers")
-                .expect("request registered before HTTP response");
-            let _ = cancel.send(());
-        }
+        // 条件等待注册（承 workflow「异步前置要等条件，不要赌时长」判例）：
+        // 原 20ms 定长睡眠在并发测试负载下会让 cancel 赢在注册/connect 之前。
+        let cancel = {
+            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+            loop {
+                if let Some(cancel) = cancellation_store()
+                    .lock()
+                    .expect("cancellation store lock")
+                    .remove("cancel-before-headers")
+                {
+                    break cancel;
+                }
+                assert!(
+                    std::time::Instant::now() < deadline,
+                    "request not registered within 10s"
+                );
+                tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+            }
+        };
+        let _ = cancel.send(());
         task.await.expect("stream task");
+        // cancel 仍可能赢在 TCP connect 之前；补一枚哑连接解除 accept 阻塞，
+        // 否则 server 线程永久卡 accept()，join 挂死整个测试（2026-08-01 实证）。
+        let _ = std::net::TcpStream::connect(address);
         server.join().expect("cancel server");
         let events = events.lock().expect("events");
         assert_eq!(events.len(), 1);

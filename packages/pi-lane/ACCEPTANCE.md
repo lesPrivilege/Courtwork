@@ -976,3 +976,838 @@ negative 全部逐行成立；空 assembly、官方来源、600 samples、双 cy
 
 **结论：`PI-SIDECAR-DIST-1R5` 在 exact target `6cdb9ba` 上 PASS。** 下一步只可由架构角色消费
 本报告决定能力状态与路线；本验收不 merge、不 push 实现链，也不改 `current.md`。
+
+---
+
+# PI-HOST-LOOP-1 独立验收（2026-08-01，拒绝）
+
+对象：exact target `0d4799c872044c196aa74cacc0fcbc0d29012f9f`，其中 code tip 为
+`d7f06623acde8cca9cebfc573feb341f1392d320`，冻结契约锚为
+`4ceedad16252709d1525c8b574d95830b2e84441`。验收在独立 worktree
+`/private/tmp/courtwork-accept-pi-host-loop-1-codex`、分支
+`codex/accept-pi-host-loop-1` 进行；没有进入或读取实现 worktree 的 ignored snapshot、cache 或
+自报 manifest。实现与验收会话分离。
+
+**最终判定：REJECT。** 最小真实反例已坐实 Node 产品面的路径泄漏与两类 false-success，并在
+Rust Host 上得到八枚直接命中 production 方法的红证。尤其 Route A 坏件会在身份门之前读取凭据，
+逐字违反冻结件 §四“所有 route-pair 失败必须先于 Keychain read、journal 与 spawn”的次序；这
+一项已经是契约级 blocker。其余启动、prompt、预算、protocol、shutdown、resume 与单写者缺口又
+分别破坏耐久语义，不能按 `fix-by-acceptance` 由验收者代修。按冻结件 §六与续行纪律，确认决定性
+blocker 后停止昂贵的完整 failure matrix；本报告不以未跑完的大数字伪装放行。
+
+## 独立重建与正向 control
+
+- 验收 `dist` 起初不存在；本会话独立安装 frozen lockfile 并执行
+  `build:product-sidecar`。snapshot 恰为双官方 Node v22.23.1 runtime 与一件 sealed CJS：
+  arm64 runtime `112,928,848` B /
+  `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`，x64 runtime
+  `115,447,952` B /
+  `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`，sealed CJS
+  `522,649` B /
+  `4c09a985f489bbc791686197f44a5303fb1295a657c855d3df679bf776967f6b`；两次构建
+  byte-identical。tracked route manifest 为 `1,272` B /
+  `79e72a0523e4c24bd1c1c28c89e71b530cb16aa15407899a004701797f37babc`。
+- 冻结 arm64 Node 直接运行 production CJS：恰得到
+  `ready{capabilities:['case_read']}` 与 `terminal{status:'shutdown'}`，随后 EOF / exit 0，
+  stderr 0 B。production bundle 不含 control canary。
+- 同一 runtime 运行由 `createProductRuntime` factory 构建的 test-only control CJS：真实完成
+  `read` 的 `tool_started → tool_finished:succeeded → turn_finished`，随后
+  `completed → shutdown`、EOF / exit 0，stderr 0 B；从案件实物读得 `HT-2024-081`。
+  这些阳性证明 Route A 正常样本能启动，不抵消下面的失败判定与 false-success。
+
+## Node 产品面的三枚契约红证
+
+验收临时追加三枚 acceptance-only 测试，运行
+`product-case-env.test.ts + product-runtime.test.ts` 得 **3 failed / 69 passed，exit 1**；测试在
+取证后已完整移除，target 原测试复跑 **69/69，exit 0**。三枚均直接驱动 production factory/env：
+
+1. **物理案件根泄漏。** 把真实 `caseRoot` 本身作为非法 read 参数时，返回的 `FileError` 把该
+   绝对路径保存在 `path`，合并观察为
+   `拒绝访问：绝对路径只接受 /case ... /private/.../案卷`。冻结件 §二.1 要求
+   `FileInfo.path`、工具结果与安全错误只出现 `/case` 或 `/case/...`；当前错误对象可序列化出
+   物理根，canary 断言真实变红。
+2. **provider error 被伪成成功。** scripted provider 以 `stopReason:'error'` 结束时，journal
+   虽出现 error stop reason，最终 terminal 实际仍是 `{status:'completed'}`，而不是结构化
+   `failed/provider_error`。这会把上游失败写成产品成功终态。
+3. **政策拒绝被伪成工具成功。** 模型请求 read `/workspace/记录.md`，case-only policy 明确拒绝，
+   但 runtime 发布的 `tool_finished.outcome` 实际为 `succeeded`，不是 `denied`。后续 Rust journal
+   因而会收到与真实授权结果相反的工具账。
+
+## Rust Host 八枚直接红证
+
+验收临时在 `pi_loop.rs` 测试模块加入八枚反例；每枚以完整测试名单独运行，均真实命中目标
+production 方法并 **exit 101**。测试使用计数 credential、scripted leg/spawner 只隔离外部 I/O，
+未复制被判状态机；取证结束后整块测试已补丁移除。
+
+| 反例 | target 实际结果 | 违反的冻结事实 |
+|---|---|---|
+| bad route + counting credential | route 最终拒绝，但 credential read 为 **1**（应为 0） | route 身份门必须先于 Keychain read/journal/spawn |
+| `maxTurns=0` start config | 仍执行 **1 次 spawn** | bootstrap/config 闭集须在 journal/spawn 前拒绝 |
+| 空白 prompt | records 从 **1 增为 2**，盘上 journal bytes 改变 | prompt trim 非空/容量门须在 `user_prompted` durable 前成立 |
+| schema-valid 假 terminal budget | `prompt()` 返回成功并接受 `turns:9/usd:7.5` | 累计预算真值归 Rust journal fold，不能信 sidecar 自报 |
+| malformed packet `{` | 返回 protocol error，但 child `terminated=false`，无 durable session terminal | decode/EOF/fault 必须先 fail/fold/reclaim 再停止 outward publish |
+| shutdown 后 child exit 7 | `shutdown()` 返回成功并准备落 `session_completed` | nonzero/signal/kill-confirm 失败不得成为 completed |
+| resume `priorTurns` 从 1 改为 0 | `load_session()` 仍成功 | prior observed/turns/usd 必须逐值等于 preceding journal fold |
+| 第二 Host 打开同一 live session | 第二次 start 成功并继续 spawn/recover | 同一 logical session 必须由 Rust 单写者独占 |
+
+源码对照说明这些并非测试构造错误：`start_inner` 当前顺序是 credential → case-root → route；
+`prompt` 先 append `user_prompted` 才由 encoder 暴露非法文本；`expect_packet` 的 decode/EOF/fault
+直接经 `?` 逸出；`shutdown` 只特殊处理 `Pending`，随后不论 `Code(7)`/signal 都追加
+`session_completed`；journal validator 只核 `session_resumed.previousLeg`，没有把 prior 三值与
+前序 fold 比较；Host 也没有 live-session writer/file lock。
+
+## 停止边界、现场恢复与门
+
+- 八枚 Rust 红与三枚 Node 红均为 payload/lifecycle/durability 契约问题，故没有修改 production，
+  没有产生 `fix-by-acceptance`。
+- 三份临时 tracked 测试改动全部以补丁移除；写报告前 `git status --short --branch` 只剩分支行，
+  `git diff --check` exit 0。Node 原定向套件恢复为 69/69。
+- 恢复后 `cargo test --lib` 在受限执行域为 147 pass / 3 fail / 1 ignored；三红均是既有 localhost
+  bind `Operation not permitted`（cancel endpoint 与两枚 mock endpoint），不是本票新增失败。
+  由于契约 REJECT 已成立，未申请提升环境重跑，也未继续 full cargo/root/pnpm 长矩阵。
+- 动态 spawn gate 与独立 snapshot 没有被改写；报告之外无 tracked 验收残留。
+
+**结论重申：`PI-HOST-LOOP-1@0d4799c` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修须由
+实现角色先闭合上述契约，再交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R 独立复验（2026-08-01，拒绝）
+
+对象：exact target `fa9e2f892fac45acde2b5bef4ae9e3f1ec759a9a`，其中 implementation tip 为
+`6f3a337`，本轮冻结契约与组合基线为 `main@70dae96097710afedb3dfeb4b93abd6ccaa7de8d`。
+验收在独立 worktree `/private/tmp/courtwork-accept-pi-host-loop-1r-codex`、分支
+`codex/accept-pi-host-loop-1r` 进行；未进入或读取实现 worktree，也未消费实现者 ignored snapshot、
+cache 或自报 manifest。实现与验收会话分离。
+
+**最终判定：REJECT。** 十一枚返修常驻测试与正向 Route A controls 本轮均绿，但冻结契约仍有四类
+可复现反例：N2 明定的 `aborted → canceled` 被写成 `failed/unknown`；R2 没有在 I/O 前执行 bootstrap
+上界闭集，`maxTurns=13` 已实际 spawn；journal 接受孤儿 usage 与倒序 observed turn；新增的 verified
+Node hard gate 对同尺寸 runtime 篡改及 symlink 假绿。前三类是产品语义/耐久语义违约，第四类使原票
+门 3/4 不能证明它运行的是冻结 runtime。它们都不是验收者可代修的实现级小缺陷。
+
+## 独立重建与正向 controls
+
+- 验收 worktree 的 `dist/product-sidecar` 起初不存在。本会话独立执行 frozen-lockfile install 与
+  `build:product-sidecar`；第二次构建报告 `reused-identical`。snapshot 为 arm64 runtime
+  `112,928,848` B /
+  `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`、x64 runtime
+  `115,447,952` B /
+  `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`、sealed CJS
+  `523,057` B /
+  `b72fe521439022c494477b2d41bc7b230d6aa5df2bde8668dba248d3cbf4107d`。tracked route manifest
+  SHA-256 为 `c74ecd1878dd7105fb5ea19112cbf921f205eec7bbb3a9dff71f746524c3a2f0`。
+- 非受限域 `pnpm --filter @courtwork/pi-lane test` 为 **14 files / 443 tests passed**；
+  `test:product-sidecar` 为 **10/10**。独立仓外脚本复核 N1 物理根、`/workspace` 与 `../` 均固定投影
+  `（非法路径）` 且零泄漏；N2 的 `stopReason:error` 得 `failed/provider_error`；N3 越界 read 的
+  `details.denied === true`。
+- production verified-node gate 为 **10/10**；scripted control gate 为 **14/14**，双 read 的 outcome
+  恰为 `['succeeded','denied']`。缺 runtime、bundle、manifest，以及 bundle bytes/SHA 漂移都能
+  exit 2。这里先登记健康路径；其 runtime 身份 false-green 见下文 blocker 4。
+- Rust 常驻 R1–R8 八枚逐名实跑 **8/8 pass**；`pi_loop` 为 29 pass / 1 ignored，
+  `pi_loop_journal` 为 20/20，`pi_loop_process` 为 16/16。受限域 `cargo test --lib` 为
+  155 pass / 3 fail / 1 ignored；三红仍是 localhost bind 的 `Operation not permitted`，不是本票
+  代码回归。阳性与常驻反例都绿，证明返修覆盖了报告中的原形，但不抵消下面独立扩边所得红证。
+
+## Blocker 1：N2 的 `aborted` 没有走 canceled
+
+返修件 §二 N2 逐字规定：上游 `stopReason:'error'` 收 `failed/provider_error`，`'aborted'` 走
+canceled 路径；一切非 `stop|toolUse` 不得 completed。本轮用临时 faux provider 真实发
+`stopReason:'aborted'`，观察序列为 `ready → agent_event(turn_finished, aborted) → terminal`，但
+terminal 实得：
+
+```text
+{status:'failed', error:{code:'unknown', retryable:false}}
+```
+
+而不是 `canceled`。`product-runtime.ts` 的 `completionFor()` 只特判 `error`，其余 default 固定
+返回 `failed/unknown`；当前常驻 N2 只测 `error` 与 `length`，没有钉住票面 `aborted` 分支。临时
+动态脚本取证后已删除，tracked tree 无残留。这是 1R 自己明列的 N2 闭口未完成，单项足以拒绝。
+
+## Blocker 2：R2 bootstrap 上界在 spawn 后才失败
+
+ADR-022 冻结 `maxTurns` 为整数 `1..12`、`maxUsd` 为 `null` 或 `0 < n <= 100000`，`modelId` trim
+后最多 256 UTF-8 bytes，并要求长度边界在 Rust 发包前校验。返修件又要求所有 bootstrap/config
+非法值在 journal/spawn 前以具名错误拒绝。当前 `validate_start_config()` 只检查
+`maxTurns >= 1`、`maxUsd > 0 && finite`、`modelId` 非空，漏掉三项上界。
+
+本轮把常驻 R2 表临时扩入 `maxTurns=13`，两次取证分别钉住外观与副作用：
+
+1. 原断言顺序下，实得 `Protocol(InvalidSchema)`，不是 `invalid_config`，证明错误拖到后置 packet
+   encoder；
+2. 把 spawn 断言前置后，实得 `spawns left: 1, right: 0`，证明非法配置已经拉起 child。
+
+`maxUsd=100001` 与 257-byte `modelId` 从源码走同一漏检路径；本报告不把源码推演冒充额外动态数字。
+临时测试已精确移除，`pi_loop.rs` 恢复 target SHA-256
+`1bb635183f1b3a8f092c70e847cf249d54855ebe4bd709c031db043dd3133b96`。
+
+## Blocker 3：不可能的 durable turn 历史被当成可恢复 session
+
+原票/ADR 要求 observed upstream turn 从 1 开始跨 prompt/leg 严格递增；已 LF 完整但次序不可能或
+`turn_finished ↔ turn_usage_recorded` 非尾端半对的 journal 必须整份 quarantine。本轮在
+`pi_loop_journal.rs` 的 test module 临时加入两枚直接驱动 `load_session` 的反例，均真实
+**exit 101**：
+
+| 反例 | 完整 LF 历史 | target 实际结果 |
+|---|---|---|
+| orphan usage | `session_started → user_prompted → turn_usage_recorded → prompt_completed → session_interrupted`，没有对应 `agent_event.turn_finished` | 期望 quarantine，实得 `LoadedJournal`；`priorObservedTurns=1`、`priorTurns=1`、`repaired=false` |
+| descending ordinal | 完整 event+usage pair 的 turn 依次为 `2 → 1` | 期望 quarantine，实得 `LoadedJournal`；`priorObservedTurns=2`、`priorTurns=2`、`repaired=false` |
+
+源码原因与红证一致：`validate_records()` 对 turn 只取 `observed_turns.max(turn)` 并累计 counted，既不
+要求从 1 起也不要求严格递增；`plan_turn_usage_repair()` 只从 `AgentEvent::TurnFinished` 向 usage
+查找，没有反向拒绝孤儿 usage。两枚临时测试已精确移除，`pi_loop_journal.rs` 恢复 target
+SHA-256 `8396d690fe7e31d5fa21256453942ae9a67b7d81ee493a04df41a6e06b1da897`。
+
+## Blocker 4：新增 verified-node hard gate 对 runtime 身份假绿
+
+返修件「三·补」把 `verified-node-gate.mjs` 纳入 tracked 实现，目的正是让原票门 3/4 从可复核的
+冻结 Node 身份上运行。当前 resolver 对 sealed CJS 检查 bytes + SHA，却对 runtime 只比较 bytes；
+`requireFile()` 又用跟随 symlink 的 `statSync()`。本轮逐枚改 ignored snapshot、实跑、恢复：
+
+- 把 arm64 runtime 最后一字节 XOR，文件长度不变但 SHA 已漂移，production gate 仍
+  **10/10、exit 0**；
+- 把 runtime 换为 symlink，gate 同样通过；
+- 删除或修改 manifest 的 `routeId`、`nodeVersion`、`useCodeCache`、`resourceRelativePath`，gate
+  仍通过。
+
+每次注入后均恢复 snapshot；最终两 runtime 与 CJS SHA 回到本报告首节值。Rust production
+preflight 的其他测试不能替代门 3/4 对“本次实际执行哪枚二进制”的证明，因此这不是普通测试增强
+建议，而是硬门可 false-green。另有一项同源漂移：builder 回执仍写
+`pi-sidecar/sidecar.cjs`，而 tracked manifest、Tauri mapping 与 Rust 冻结的 resource path 是
+`pi-loop-resources/sidecar.cjs`。
+
+## 停止边界、现场恢复与结论
+
+- 四类 blocker 中前三类已直接违反产品/耐久契约，第四类违反本返修新增 hard-gate 目的；验收会话
+  没有作 `fix-by-acceptance`，也没有改任何 production 或合同。
+- 所有临时 Node/Rust 反例与 snapshot mutation 均已删除或 byte-identical 恢复。写报告前
+  `git status --short --branch` 只显示分支行，`git diff --check` exit 0；报告之外无 tracked 残留。
+- 决定性 blocker 成立后按原票停止边界，没有继续耗费完整九门/root 长矩阵，也不拿常驻测试数字
+  替代遗漏契约的动态反例。
+
+**结论重申：`PI-HOST-LOOP-1R@fa9e2f8` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 继续不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修须由
+实现角色先闭合上述契约，再交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R2 独立复验（2026-08-02，拒绝）
+
+对象：exact target `1ab9c0313cd68e03c4ff3a19b948ca8cf1d7c769`，其中 implementation tip 为
+`b4175eafb69b5eb2d79c58a3d0bea66bde256b6b`，组合链 parent 为
+`d42ba8b53f0b9334bf62d0ad5ec2b2ae8e27f790`，冻结契约所在 main 为
+`bee7c79fc3a6ed00b6bb7ab8debb184f31cf63ad`。验收在独立 worktree
+`/private/tmp/courtwork-accept-pi-host-loop-1r2-codex`、分支
+`codex/accept-pi-host-loop-1r2` 进行；没有进入或读取实现 worktree，也没有消费实现者 ignored
+snapshot/cache。实现与验收会话分离。
+
+**最终判定：REJECT。** 1R2 明列的 `aborted`、三项配置上界、journal 不可能历史与三类 runtime
+身份反例都已转成常驻绿测；但原票与 1R 保持有效的 bootstrap 闭集仍漏掉 `apiKey/caseRoot` 长度门，
+其中 8193-byte key 会先落 journal、拉起 child，最后才报 protocol error。verified-node gate 也只让
+sealed CJS 与被判 manifest 自洽，没有独立冻结 `bundle.bytes/sha256`，故 bundle 与 manifest 同步
+篡改可 false-green。两项都命中 production-used 路径与冻结契约，不属于验收者可代修的小缺陷。
+
+## 独立重建与正向 controls
+
+- 新验收 worktree 的 `dist/product-sidecar` 起初不存在；本轮独立安装 frozen lockfile、执行
+  `build:product-sidecar` 并复跑得到 `reused-identical`。snapshot 为 arm64 runtime
+  `112,928,848` B /
+  `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`、x64 runtime
+  `115,447,952` B /
+  `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`、sealed CJS
+  `523,235` B /
+  `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`；tracked route manifest
+  SHA-256 为 `590827f328ee9d8c24b84e3a32935005cb8a7abf6b79855988a300f9c1a0f19e`。
+- 非受限域 `pnpm --filter @courtwork/pi-lane test` 为 **14 files / 448 tests passed**；受限域先跑的
+  8 红全是 `sidecar.test.ts` localhost 5 秒 timeout，非受限完整复跑消失。builder 为 **10/10**，
+  verified-node 常驻注入为 **5/5**，production gate 为 **10/10**，scripted control gate 为
+  **14/14**；control 双 read outcome 恰为 `succeeded/denied`，两门均用上述新 runtime/CJS 身份。
+- C1 定向 `aborted` 反例与 canceled 优先级回归均绿：terminal 为
+  `canceled{reason:'host'}`，且已有 cancel/预算/effect 优先级未回退。C2 现有 R2 七行表全部
+  `invalid_config + journal absent + spawn=0`；C3 `pi_loop_journal::tests` 为 **21/21**，包含
+  descending/orphan/cross-request quarantine，跨 prompt/leg 累计预算正向用例亦绿。这些 controls
+  证明票面四枚原形已修，不抵消下面的扩边红证。
+
+## Blocker 1：bootstrap 长度闭集仍在 journal/spawn 后拒绝
+
+ADR-022 冻结 `caseRoot` 非空且最多 4096 UTF-8 bytes、`apiKey` 非空且最多 8192 UTF-8 bytes，
+并要求全部长度边界在 Rust 发包前与 sidecar 收包后各验一次。1R R2 又要求 bootstrap/config 的
+非法值在 journal/spawn 前以具名错误拒绝；1R2 §一/开头明确原票与 1R 全部合同原样有效、只收紧
+不回退。当前 `validate_start_config()`（`pi_loop.rs:218-237`）只核
+`maxTurns/maxUsd/modelId`；`caseRoot` 先进入 lstat，credential 解析出的 `apiKey` 则经过 journal
+append 与 spawn 后才由 packet encoder 的 `MAX_API_KEY_BYTES` 拒绝。
+
+本轮临时加入 production Host 反例并逐枚 exact 运行：
+
+| 反例 | target 实际结果 | 契约期望 |
+|---|---|---|
+| `apiKey = 'k' × 8193` | `spawns=1`、`journal_exists=true`、`Err(Protocol(InvalidSchema))`；测试 exit 101 | credential 解析后、journal/spawn 前具名 `invalid_config`，零副作用 |
+| 4097-byte 绝对 `caseRoot` | `validate_start_config() = Ok(())`；start 得 `Err(CaseRoot("案件根不可 lstat"))`，测试 exit 101 | 长度闭集先报 `invalid_config`，不得拿文件系统外观代替配置门 |
+
+第一枚同时钉住错误外观和真实副作用，单独已足以拒绝；第二枚证明漏项不只 credential。1R2 新加的
+三项上界常驻表全绿，只覆盖了本轮新列出的 `maxTurns/maxUsd/modelId`，不能删去仍然有效的原合同。
+临时测试块已精确移除，`pi_loop.rs` 恢复 target SHA-256
+`2588f86e02af308fd85de41d4efabd8029f628a834cd48eef101f3aa013258f0`。
+
+## Blocker 2：bundle 与 manifest 同步漂移仍可过 verified-node 门
+
+1R2 C4 要求 manifest closed-decode 后逐值核
+`schemaVersion/routeId/nodeVersion/useCodeCache/bundle/targets` **全部冻结值**，判据不得从被判物
+自取。当前 `FROZEN_ROUTE.bundle`（`verified-node-gate.mjs:60-66`）只含
+`resourceRelativePath`；文件注释在 `:145` 明说 `bundle.bytes/sha256` 不冻结，
+`assertManifestFrozen()`（`:147-163`）也只比较 path。resolver（`:230-235`）再把 CJS 实物的
+bytes/SHA 与同一份被判 manifest 比较，形成“对象与自报一致”而非“对象等于独立真值”的门。
+
+本轮在 `/private/tmp` 合成 app-layout，保持 runtime 与其他冻结字段正确，只把 sealed CJS 换成
+29-byte 新实物，并把 manifest 的 `bundle.bytes/sha256` 同步为
+`29` / `7afe7c3e922a2eb1d8fdb7534e2a4d1c9794d56382018f2a479c7bd3736fd5f6`。调用
+production resolver **exit 0，实得 `FALSE_GREEN`**，返回的 bundle SHA 与被改 manifest 完全相同。
+常驻 C4 mutation 表虽为 5/5，却只变异 runtime、symlink 与 route/target 字段，没有覆盖
+bundle identity 的同步漂移。临时脚本与 fixture 已删除，真 snapshot 未变。
+
+## 偏离追认、停止边界与现场恢复
+
+回执 §五的六项登记偏离本轮逐项复核，均可追认：C3 合法绿测补真实配对、独占 gate script、
+builder 资源目录同源常量、`GateFailure + invokedDirectly` 注入装置、旧→新身份归因注释，以及额外
+M10 状态机变异；它们没有扩张 wire/contract，也不是本次拒绝原因。
+
+- 两枚 blocker 均在临时注入下直接变红；验收会话没有修改 production、合同或测试来代修。
+- 所有临时 Rust/Node 反例与合成 fixture 均已删除；两份 Rust 源码恢复 target hash，snapshot
+  （`pi_loop.rs` 为 `2588f86e02af308fd85de41d4efabd8029f628a834cd48eef101f3aa013258f0`，
+  `pi_loop_journal.rs` 为 `116b0ee1eb2fe57120ca1deb8e971a557db090e0cf7772e9fd48248284f4b407`），
+  snapshot 复核为本报告首节身份。写报告前 `git status --short --branch` 只显示分支行，
+  `git diff --check` exit 0，报告之外无 tracked 残留。
+- 决定性违约成立后依冻结件停止边界，没有继续虚耗 full cargo/root 九门长矩阵；已跑 controls
+  只说明已覆盖部分健康，不作为遗漏契约的替代证明。
+
+**结论重申：`PI-HOST-LOOP-1R2@1ab9c03` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 继续不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修须由
+实现角色闭合上述两项后，再交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R3 独立复验（2026-08-02，拒绝）
+
+对象：exact target `51369e4d7143497d3c8a4e9c3af3f20e44893d79`，implementation tip
+`51c823f`，组合基线 `5396ad8`；票面冻结于 `main@7992b3a`，验收时 main 为 `56822a9`，后者只另加
+`PI-WRITE-HOST-1` 前向债。验收在独立 worktree
+`/private/tmp/courtwork-accept-pi-host-loop-1r3-codex`、分支
+`codex/accept-pi-host-loop-1r3` 进行；没有进入或读取实现树，也没有消费实现者 snapshot/cache。
+组合基线的十二枚证据链经 `git cherry` 复核为 patch-id 12/12 等价。
+
+**最终判定：REJECT。** D2 的 tracked-manifest expected side 与三类同步漂移已闭合；D1 当前生产
+也确实会拒绝坏 `requestId`。但 1R3 的完成态不是“今天实现里恰有一道门”，而是“该族闭集被手写
+清单穷举，且覆盖本身有机器自证”。当前所谓完整 D1 清单漏掉 host→sidecar prompt header 的
+`requestId`；临时撤掉唯一 production 门后，清单、MAX ledger 与既有 prompt 常驻测试全部继续绿。
+这正是本票 §零要消灭的“下一轮再找到一个同族兄弟”，故属于票面自证合同未完成，不是验收者可
+代补的小测试缺口。
+
+## 独立 snapshot 与健康 controls
+
+- 新 worktree 起初没有 `dist/product-sidecar`。本会话从该树安装 frozen lockfile 并执行
+  `build:product-sidecar`，自建 snapshot；sealed CJS 为 `523,235` B /
+  `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`，arm64 runtime 为
+  `112,928,848` B / `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`，
+  x86_64 runtime 为 `115,447,952` B /
+  `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`；tracked manifest 为
+  `1,272` B / `590827f328ee9d8c24b84e3a32935005cb8a7abf6b79855988a300f9c1a0f19e`。
+- `test:verified-node-gate` 为 **8/8**；production gate 与 scripted control 均 exit 0。独立
+  `/private/tmp` CoW layout 的 bundle+manifest 同步漂移、arm64 runtime+manifest 同步漂移、
+  layout manifest 冻结字段漂移三类反例均在 tracked-vs-layout byte identity 门真实变红，fixture
+  已清理。D2 的 expected side 确为 tracked manifest，layout manifest 先逐字节相等才允许 decode。
+- Rust `pi_loop::tests` 为 **31 passed / 1 ignored**；D1 清单、bounded ledger、config/prompt
+  时序的定向正向 tests 均绿。它们证明现有列项健康，但不能替代下文对自证盲区的 mutation。
+
+## Blocker：D1 的 SafeToken 族漏 `requestId`，撤门后全套自证假绿
+
+ADR-022 六-B.1 明列
+`containerId/grantId/sessionId/requestId/operationId/eventId/toolCallId` 共用 SafeToken；prompt 是
+host→sidecar 闭集，且 `requestId` 是其公共 header 上的非空 SafeToken。当前
+`PiLoopHost::prompt()` 在 `pi_loop.rs:678` 用 `is_safe_token(request_id)` 前置拒绝，语义本身正确；
+但 `bounded_input_manifest()` 的十行只列 `containerId/sessionId/grantId` 三枚 SafeToken 输入，
+没有 `requestId`。另一道 scanner 只枚举 `MAX_*` 常量，而 SafeToken 判据是函数、没有可被它发现的
+`MAX_REQUEST_ID_*`，所以两道证明共享同一盲区。
+
+验收先以临时 test 构造 `requestId = 'r' × 129` 与 `bad/id`：原 target 均在
+`user_prompted`/send 前以 `invalid_ref` 拒绝，journal bytes、内存 records 与 writes 不变。随后只
+临时撤掉 `prompt()` 的三行 `is_safe_token(request_id)` production guard，命中数恰一；实跑结果：
+
+| 常驻证据 | 撤门后的结果 |
+|---|---|
+| `counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn` | **PASS（假绿）** |
+| `bounded_constant_ledger_matches_the_source_and_covers_every_frozen_bound` | **PASS（假绿）** |
+| `counterexample_prompt_gate_runs_before_the_user_prompted_append` | **PASS（假绿）** |
+| 独立 requestId 扩边 probe | **exit 101**；实得 `protocol`，期望 `invalid_ref` |
+
+因此现有机器证据既不能证明 SafeToken 前置闭集完整，也不能在删除已存在的同族门时报警。cancel 只
+复用已验证 active request、shutdown 为 null；当前 host 不生成 `host_result`，event/toolCall 是
+反方向，均不改变 prompt `requestId` 是本票当前 production-used 漏项这一事实。
+
+## D3 清账与偏离复核
+
+- `MAX_*` scanner 的四模块范围与仓库 production 使用面相符，15 枚声明常量、39 行 ledger 的
+  定向测试通过；五枚当前不适用的 host-result/list/logical-path 项均有理由，且已在
+  `main@56822a9` 挂为 `PI-WRITE-HOST-1` 开工必偿债。本轮按架构交接口径接受该前向登记。
+- 表②的 Rust decoder 期望是源码内手写闭集键/范围，未从被判 manifest 派生；本票 D3 要求登记
+  expected source，不另要求复制第二份 decoder 真值表，故该行的“独立”分类不作为拒绝理由。回执
+  §七八项偏离也都在白名单与只收紧范围内，可追认。
+- 回执仍有须订正的事实误差：`bounded_input_manifest()` 实为 **10 行 / 28 枚反例**，不是
+  “9 行 / 26 枚”；39 行 ledger 实为 **12 Fronted + 27 Other**，不是 “11 + 28”；所称完整表
+  `12-d3-table1.md` 也不在 exact target，当前可核的完整真源只有 Rust 函数。这些不另立第二枚
+  blocker，但下一轮回执必须据实修正，不能继续拿错误计数宣称穷举完成。
+
+## 停止边界、恢复与结论
+
+- 决定性 D1 blocker 成立后，按票面停止边界没有继续虚耗 full cargo/root 九门长矩阵；已跑的
+  D2/Rust controls 只登记健康范围，不抵消覆盖自证假绿。
+- 临时 requestId test、production mutation、CoW layout 与依赖 symlink 均已移除；
+  `pi_loop.rs` 的 blob 恢复为 target 的
+  `5ae2a107f478fb8306c2e638359bafb21a021a59`，报告落笔前 `git diff --check` 为零，报告之外无
+  tracked 残留。验收没有作 `fix-by-acceptance`，也没有改 production 或合同。
+
+**结论重申：`PI-HOST-LOOP-1R3@51369e4` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修至少须
+把 `requestId` 纳入手写族清单与双轴常驻反例，并让删除其前置门的 mutation 真实变红；订正 D3/回执
+计数后，再交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R4 独立复验（2026-08-02，拒绝）
+
+对象：exact target `d4163df2adfc3e481b0ccecad09728be918f509b`，implementation tip
+`a204d139e44edd4d4ec6807be01fdcec2b4cedd4`，组合基线
+`f20e27696c718bba79775c4742a5f89b7b20fee4`；票面冻结于 `main@157407a`。验收在独立
+worktree `/private/tmp/courtwork-accept-pi-host-loop-1r4-codex`、分支
+`codex/accept-pi-host-loop-1r4` 进行；未进入或读取实现树，十五枚证据链经 `git cherry` 复核为
+patch-id **15/15** 等价。
+
+**最终判定：REJECT。** 本轮指名的 requestId 门、SafeToken 七成员清账、M1–M4 与 E2 真源订正
+都成立，D2/D3 也没有回退；但 E1 的完成态仍未达到“扫描谓词与受验输入族同宽”。当前 scanner
+只识别三枚手写函数名、`MAX_*` 与 `.trim()`，看不见协议里已经存在的 wire-string NUL 格式门。
+`modelId`、`apiKey` 与 prompt `text` 含 NUL 时均越过应在 append/spawn 前完成的 Host preflight；
+前两者已落 `session_started`（apiKey 本体仍不落账）并 spawn，prompt 则已落 `user_prompted`，
+最后才由 encoder 回灌 decoder 报错。故本轮唯一决定性 blocker 同时有**现存契约成员＋production-used
+副作用＋覆盖装置假绿**三轴证据，不依赖假设未来会新增什么规则。
+
+## 独立基线、快照与健康 controls
+
+- `f20e276..a204d13` 只改 `apps/desktop/src-tauri/src/pi_loop.rs` 的 test module；生产前缀在
+  base/implementation/target 逐字节相同，SHA-256 均为
+  `44a7ff55ecef4a0dfca5706c2b7fb4acbe18704fa6764017109076d66f29f33a`。
+  `a204d13..d4163df` 只追加本票回执，`ACCEPTANCE.md` 在实现树零触碰。
+- 本验收自建 product snapshot：sealed CJS `523,235` B /
+  `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`；arm64 runtime
+  `112,928,848` B / `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`；x64 runtime
+  `115,447,952` B / `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`；
+  tracked manifest `1,272` B /
+  `590827f328ee9d8c24b84e3a32935005cb8a7abf6b79855988a300f9c1a0f19e`。Route A 身份无漂移。
+- 独立实跑：pi-lane Vitest **14 files / 448 passed**；Rust **162 passed / 0 failed / 1 ignored**，
+  其中 `pi_loop::tests` **32 passed / 0 failed / 1 ignored**；builder **10/10**、verified-node gate
+  **8/8**、production gate **10/10**、scripted control **14/14**、isolation **43/43**，desktop
+  isolation lint 与 `git diff --check` 均绿。全仓 `cargo fmt --check` 的 56 hunk 全属既有五文件，
+  本票 `pi_loop.rs` 定向 rustfmt 为绿。
+
+这些 controls 证明现有列项健康，不替代下面对 E1 自证闭集的反例。
+
+## E1 指名闭口与 E2 复核
+
+requestId 两形态反例会在 `user_prompted`/send 前以 `invalid_ref` 拒绝，journal bytes、内存 records、
+writes 三不变。验收自行实注并逐枚恢复四枚 mutation：
+
+| mutation | 独立结果 |
+|---|---|
+| M1 撤 requestId production 门 | exit 101，ledger 锚点与 requestId 行为反例共 2 failed |
+| M2 扫描轴回退到只认 `MAX_*` | exit 101，函数型判据行全部失锚 |
+| M3 删除 requestId manifest 行 | exit 101，清单外门与 SafeToken 清账共 2 failed |
+| M4 同时撤 production 门并删清账行 | exit 101，manifest 正向锚与行为反例共 2 failed |
+
+四枚均命中、定向红、零等价；这部分 PASS。SafeToken 七成员以及 cancel/shutdown 两条现状理由也
+逐行有据。E2 计数从 exact target 真源重算：1R3 为 manifest **10/28**、ledger
+**12 Fronted + 27 Other**；1R4 为 **11/30**、**22 Fronted + 37 Other**，与回执订正一致。
+回执引用的清账真源均在树内，八项偏离可追认，不构成拒绝原因。
+
+## Blocker：现存 NUL 格式门不在扫描族内，三类 Host 输入后置失败
+
+ADR-022 六-B.1 冻结“所有 wire 字符串不得含 NUL 或 lone surrogate”；R4 E1.2 要求扫描
+host 方向生产段的格式判据（列举项前写的是“至少”），并明确“生产段出现清单外的受验门即红”。
+workflow 同批补正又把受验输入展开为“常量上界门＋格式门＋非空门…”，禁止用语法标记反过来
+定义族。
+
+R3 D1 的旧句只点“冻结上界或非空/形状”，但 R4 正是对此扫描轴作补正，并用“格式判据、至少”
+和“格式门…”显式扩宽族；本验收以较新的 R4 条款为准，不能把未写在三枚示例名字里的既有格式门
+静默降成 `Other`。若架构意图排除 decoder-only wire-scalar，须另在票面具名排除，不能由实现的
+hardcoded allowlist 代替该裁定。
+
+仓库里这道门不是推演：`pi_loop_protocol.rs::scan_string()` 对 `unit == 0` 具名返回
+`InvalidSchema`；直接打 `scan_json` 的 `\u0000` fixture 常驻反例为 **1 passed**，源码另证
+`encode_packet_line()` 序列化后会回灌同一 decoder。但 Host 前置层只做：
+
+- `validate_start_config()`：modelId trim/长度，caseRoot 非空/长度/shape；
+- `validate_api_key()`：trim/长度；
+- `prompt()`：requestId SafeToken、text trim/长度。
+
+1R4 的 `PREDICATE_JUDGMENTS` 则仍是
+`[is_safe_token,is_safe_container_token,is_absolute_path_shape]` 三枚硬编码名字，另特判
+`.trim()`；inline `unit == 0` 既不进 scanner，也不进 ledger/manifest。验收临时加入一枚只记录
+production-used 结果的 NUL 探针，实跑 **1 passed / 163 filtered**，原始状态变化为：
+
+| 输入 | target 返回 | spawn | durable journal / 内存 records | sidecar writes |
+|---|---|---:|---|---:|
+| `modelId = "m\0x"` | `Protocol(InvalidSchema)` | `0 → 1` | `0 B → 563 B`；`0 → 1` | `0 → 0` |
+| `apiKey = "k\0x"` | `Protocol(InvalidSchema)` | `0 → 1` | `0 B → 564 B`；`0 → 1` | `0 → 0` |
+| prompt `text = "p\0x"` | `Protocol(InvalidSchema)` | 已为 1 | `564 B → 784 B`；`1 → 2` | `1 → 1` |
+
+前两枚先 durable `session_started`、再 spawn，bootstrap encoder 才拒；第三枚先 durable
+`user_prompted` 并占用 requestId，prompt encoder 才拒。Host 对外只保留
+`Protocol(InvalidSchema)`；另行直调 codec 得到的 rejection reason 恰为
+“wire 字符串必须是不含 NUL 与 lone surrogate 的 Unicode scalar 序列”。这与 R3 首红中“先落账/
+spawn、再由 encoder 拦”的机制同形，也证明 NUL 是当前实际闭集成员，而不是为验收杜撰的新契约。
+
+覆盖装置的结构反例与动态结果一致：验收临时在 `validate_start_config()` 加一条不命中既有 fixture
+的 `model_id.contains('/')` 格式门，不登记 ledger/manifest；ledger 常驻与 D1 全反例常驻仍各自
+**1 passed**。本项只用来证明 hardcoded syntax allowlist 的 false-green 机制；决定性结论本身由
+上述既有 NUL 契约与真实副作用承担。
+
+## 停止边界、恢复与结论
+
+所有 M1–M4、NUL probe 与 scanner 结构反例均已精确拆除。报告落笔前 `pi_loop.rs` 恢复 target
+blob `89a97c98ef7811a72cc70917a20428440153c45b`、SHA-256
+`f84d265ab2e0076a3feb8c2160271bd5b62dfd76c4669f2e7714e376b35c12d1`；`git diff --check`
+与报告外 tracked diff 均为零。验收没有代修 production、测试或合同。
+
+**结论重申：`PI-HOST-LOOP-1R4@d4163df` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。
+**[需架构拍板]** 返修前须先在票面裁定 wire-scalar/NUL 在 E1 的归属：若属 `Fronted`，纳入 D1
+显式清账与 Host 前置边界；若属 codec `Other`，则须具名写出允许上述 durable 副作用的依据，并让
+scanner/ledger 至少能发现、登记这道现存格式门。两路都不能继续由三枚函数名字面量静默决定族；
+裁定与实现完成后交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R5 独立复验（2026-08-02，拒绝）
+
+对象：exact target `a08225752e76ee1f42853760ef6f4456b5422cee`，implementation tip
+`3f0bc6fa92318a6dfa7803d2d55c9b5a6d5dbb58`，组合基线
+`84f0710cbfa05a0666570832f9fbc06141f04591`；票面冻结于 `main@bb20cef`。验收在独立
+worktree `/private/tmp/courtwork-accept-pi-host-loop-1r5-codex`、分支
+`codex/accept-pi-host-loop-1r5` 进行；未进入或读取实现树。十九枚证据链逐枚比较 patch-id，结果
+**19/19 等价**；`84f0710..3f0bc6f` 只改 `apps/desktop/src-tauri/src/pi_loop.rs`，回执提交只改
+`packages/pi-lane/specs/PI-HOST-LOOP-1R5.md`，`ACCEPTANCE.md` 与 `current.md` 在目标树零触碰。
+
+**最终判定：REJECT。** G1 的四道 NUL production 门、四类副作用边界以及撤门阳性 mutations
+均成立；但 G2 的完成态仍不是“枚举全部拒绝分支，unknown 判红”。当前
+`scan_refusal_branches()` 只寻找字面 token `return Err(`。验收把票面指定的 M4——
+`model_id.contains('/')` 未登记门——保持语义不变，仅改用合法 Rust 等价构造
+`return Err::<(), HostError>(...)`；新增分支编译、rustfmt 均绿，却完全不进入扫描集，G2 轴、
+bounded ledger、既有行为反例和完整 pi-loop 测试全部 **FALSE_GREEN**。这正是 1R5 §零裁定要
+永久消灭的“语法标记定义族”，不是未来规则推演，也不是普通测试增强建议。
+
+## 独立事实、snapshot 与健康 controls
+
+- `pi_loop.rs` production 前缀从基线 `49,093` B /
+  `44a7ff55ecef4a0dfca5706c2b7fb4acbe18704fa6764017109076d66f29f33a` 变为目标
+  `50,780` B / `67bcfa26238d218fc0cf3f0ea5ec209a2ce887f7a8f7b0650170b33aeea5dfde`；本轮确有 Rust
+  production 改动。Node production、route manifest 与三枚宿主接缝相对基线零 diff。
+- 本验收从独立树重建 product snapshot。sealed CJS 为 `523,235` B /
+  `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`；arm64 runtime 为
+  `112,928,848` B / `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`；x64 runtime 为
+  `115,447,952` B / `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`。
+  三件均为 regular file；sealed CJS 与 1R4 身份逐字节相同。
+- 独立 Node controls：pi-lane Vitest **14 files / 448 tests**、builder **10/10**、
+  verified-node gate **8/8**、production gate **10 PASS**、scripted control **14 PASS**、
+  isolation Node **43/43** 与 desktop isolation script 均 exit 0。sandbox 首跑 Vitest 的八枚
+  localhost timeout 在非受限完整复跑消失，未冒充产品红。
+- exact target 静态重算与回执一致：轴 A **36 行 = 17 HostInput + 19 Other**，轴 B
+  **90 行 = 12 Fronted + 78 Other**，bounded ledger 75 行，manifest 11 行 / 34 枚反例。
+  这些数量证明当前表自洽，不能证明 scanner 的 population 与“拒绝分支族”同宽。
+
+## G1 正向与撤门阳性对照
+
+验收用临时 probe 逐枚走 production gate，结果如下：
+
+| 输入 | target 返回 | 最早副作用边界 |
+|---|---|---|
+| `modelId` 含 NUL | `InvalidConfig("modelId 不得含 NUL")` | spawn/journal/write 均零 |
+| `caseRoot` 含 NUL | `InvalidConfig("caseRoot 不得含 NUL")` | 先于 shape、lstat；spawn/journal/write 均零 |
+| `apiKey` 含 NUL | `InvalidConfig("apiKey 不得含 NUL")` | credential 后、journal/spawn 前；三者均零 |
+| prompt `text` 含 NUL | `InvalidPrompt("prompt 文本不得含 NUL")` | journal/records/write 均零增，requestId 未占用 |
+
+阳性 mutation 也真实变红：撤 prompt NUL 门后，行为反例实得
+`Protocol(InvalidSchema)`，行为门与轴 A 均 exit 101；只撤 caseRoot NUL 门后，行为反例实得
+`CaseRoot("案件根不可 lstat")`，行为门与轴 A 同样 exit 101。恢复后既有
+`counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn` 为 1 passed。
+因此下节假绿不能归因于测试环境、未编译 mutation 或轴 A 从未能变红。
+
+## Blocker：轴 A 仍由 `return Err(` 的一种拼写定义 refusal family
+
+目标源码的 `scan_refusal_branches()`（`pi_loop.rs:5367-5415`）在每个归属函数块里执行
+`body.find("return Err(")`（`:5375`）；找不到就结束该块扫描。所谓 unknown 并没有进入“判红”
+分支，而是在成为 scanner population 之前已经被当作“不存在”。回执所称“扫描器内零跳过型
+过滤器”不改变这一事实：字面 marker 本身就是隐式 allowlist。
+
+验收从 exact blob 出发，在 `validate_start_config()` 加入票面与回执均指定的 M4 语义：
+
+```rust
+if config.model_id.contains('/') {
+    return Err::<(), HostError>(HostError::InvalidConfig("modelId 不得含路径分隔符"));
+}
+```
+
+这只是把实现回执 M4 的 `return Err(...)` 写成标准库 `Err` 构造器的显式泛型形式；函数仍从同一
+guard 返回同一 `HostError::InvalidConfig`，没有换判据、site、code 或时序。该写法经 rustfmt 后
+稳定，完整测试编译通过；命中核确认新增 `contains('/')` 与 `Err::<(), HostError>` 均在生产段，
+而新增分支不含 scanner 唯一识别的 `return Err(` token。实跑结果：
+
+| 证据 | mutation 后结果 |
+|---|---:|
+| `host_refusal_branches_are_fail_closed_against_the_source` | **1 passed / 0 failed** |
+| `bounded_judgment_ledger_matches_the_source_and_covers_every_frozen_bound` | **1 passed / 0 failed** |
+| `counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn` | **1 passed / 0 failed** |
+| 完整 `pi_loop::tests` | **34 passed / 0 failed / 1 ignored** |
+| `pi_loop.rs` 定向 rustfmt check | **exit 0** |
+
+这枚反例不是要求 scanner 预知新判据；恰恰相反，G2 的明文合同就是“前置函数族的全部拒绝分支
+判据表达式，未登记即红”，并把同一 `contains('/')` 门列为 permanent mutation。当前装置只对
+实现者碰巧采用的 token 拼写 fail-closed，对合法等价 Rust 写法仍 fail-open。轴 B 也使用三枚
+marker 字面量并对 `(function, reason)` 去重，但决定性轴 A 反例成立后按停止边界未再注入第二枚
+blocker。
+
+## 停止边界、恢复与结论
+
+- 全部 G1 probes、M1/M5 与 G2 等价 M4 均已用 `apply_patch` 精确拆除；没有作
+  `fix-by-acceptance`，没有修改 production 或合同来代修。
+- `pi_loop.rs` 恢复目标 blob `6cd888fd849bdc20fa8eddc0d9654e7faab19a32`、SHA-256
+  `0f3519f2340b667a4385831420bf11c8529ca709f72ec562593cb091e404fca8`；报告落笔前源码 diff 与
+  `git diff --check` 均为零，报告之外无 tracked 残留。
+- 决定性 G2 自证违约成立后，按票面停止边界不再虚耗 cargo/clippy/root full-build 长矩阵；
+  已跑的 G1/Node controls 只登记健康范围，不抵消 coverage apparatus 的假绿。
+
+**结论重申：`PI-HOST-LOOP-1R5@a082257` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 继续不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。返修须让
+scanner population 由 Rust 拒绝结构而非若干源文本 token 派生，并把当前 M4 的等价返回形态转为
+常驻定向红；完成后交另一全新会话从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R6 独立复验（2026-08-02，拒绝）
+
+对象：exact target `57a19a5f7fabf0315055f3b0b294580ac7ec5132`，implementation tip
+`e3118a715887b7dcc5360735792020c97242232b`，组合基线
+`601ba56f4c8c2dc9235ddd8176189f3355f31c05`；票面冻结于 `main@4dc8e85`。验收在独立
+worktree `/private/tmp/courtwork-accept-pi-host-loop-1r6-codex`、分支
+`codex/accept-pi-host-loop-1r6` 进行；未进入或读取实现树。二十二枚证据链逐枚比较 stable
+patch-id，结果 **22/22 等价**；`601ba56..e3118a7` 只改
+`apps/desktop/src-tauri/src/pi_loop.rs`，回执提交只改
+`packages/pi-lane/specs/PI-HOST-LOOP-1R6.md`，`ACCEPTANCE.md`、`current.md` 与 readiness 在
+目标树零触碰。
+
+**最终判定：REJECT。** fresh start、prompt、cancel/shutdown 的先编码形状与同一份 bytes 复用
+成立，H2 的退役/保留边界与 142 枚电池构成也成立；但 `start_inner()` 在真实 bootstrap 编码前
+先调用会写盘的 `load_session()`。恢复旧会话时，后者会截断 partial tail、补 usage 或执行 crash
+fold。验收加入一条 Host 尚未手抄的 codec-only future rule 后，第二次 start 最终返回具名
+`invalid_config`，却已先把 `session_interrupted` durable append：journal **558 B → 790 B**，
+spawn `0`、wire write `0`。这直接否定票面“任何 journal append 前编码”、`Err ⇒ journal 字节零增`
+以及“∀今日与未来 codec 规则结构性成立”；同步账并未在 resume/recovery 路径上消失。
+
+## 独立事实、snapshot 与健康 controls
+
+- 验收树先在 exact target 保持 clean；target parent=`e3118a7`、implementation parent/base=
+  `601ba56`、target/main merge-base=`4dc8e85`。`4dc8e85..main@5642c65` 仅有 WRITE-HOST 前向债的
+  readiness 文档一行，不含本票实现，交接坐标成立。
+- 独立 frozen install 后自建 product snapshot。sealed CJS 为 **523,235 B** /
+  `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`；arm64 runtime 为
+  **112,928,848 B** / `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`；
+  x64 runtime 为 **115,447,952 B** /
+  `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`。三件身份与交接一致。
+- `pi_loop.rs` production prefix 独立重算为 **55,787 B** /
+  `c6cc789aa4ce2f579a190fd5f108d3b6d92297d1b9bd2df19f1b8df95ddc82ea`，与回执一致；Node
+  侧 production 零漂移。
+- 独立 Node controls：product-sidecar builder **10/10**、verified-node gate **8/8**（同尺寸
+  XOR、symlink、manifest 漂移及同步漂移均实注变红）、production gate **10 PASS**、scripted
+  control 全 PASS。
+- H1 两枚定向 baseline：`the_bytes_validated_before_the_effect_are_the_bytes_put_on_the_wire`
+  与 `a_codec_refusal_surfaces_as_a_named_refusal_without_echoing_the_input` 各 **1 passed / 0 failed**。
+  它们证明 fresh/正常路径的 bytes 复用与具名零回显映射可达，不替代下节 recovery 反例。
+
+## 成立面：fresh/prompt 两相形状与 H2 装置替换
+
+H1 在正常路径上的形状成立：bootstrap 于 `pi_loop.rs:585-628` 编码，早于本函数自己的
+opening append（`:630-632`）与 spawn（`:634-635`）；prompt 于 `:795-806` 编码，早于
+`user_prompted` append/内存认领（`:808-817`）与 write（`:819-820`）；cancel/shutdown 共用
+只在编码成功后推进 seq 的 `send()`。`write_encoded()` 只搬运 `OutboundLine.bytes`，定向守卫也
+确认发出的就是效果前验证过的同一份 bytes。
+
+H2 的完成态按明文合同成立：
+
+- 三枚退役测试及轴 A/轴 B/75 行同步账的 35 枚函数、类型、常量逐名对应授权清单；目标源码
+  对这 35 名全文零残留。`#[test]` 数量 parent/target 均为 35。
+- D1 手写清单 11 行/34 枚行为反例、G1 四道 NUL 门、SafeToken 七成员与四轴
+  `prompt_axis_probe` 均在位。父树主保留段与目标唯一逐字节匹配。
+- `violation_battery()` 静态为 **142** 行、10 字段：三枚 token 字段 `3×16`、model `16`、
+  caseRoot `19`、apiKey `16`、maxTurns `3`、maxUsd `8`、prompt text `16`、requestId `16`；
+  protocol 上界直接 import，SafeToken 上界经实际判据探出。普适 probe 对已拒样本逐项核
+  spawn/journal bytes/records/writes/requestId/no-echo，并带一枚合法 control。
+
+一处非阻断事实偏差：回执 §三称保留面 `3,129` 行且 parent `4114–4273` 共 160 行逐字节原样；
+实际内容保留到 `4272`，目标少的是测试后的单枚空行，即 **3,128 行内容 + 1 行格式空缺**，行为
+零影响，但后续回执应订正。另源码 `pi_loop.rs:211-222` 仍以现在时声称 encoder 在 spawn 后并提及
+已退役的“源码扫描双向自证”，属于自陈漂移；它不构成本次 production blocker。
+
+## Blocker：`load_session()` 的 durable recovery 发生在真实编码之前
+
+票面 §零明文要求 Host 在**任何** journal append 与 spawn 前真实编码 exact packet
+（`PI-HOST-LOOP-1R6.md:21-27`），并承诺 wire 判据对“今日与未来 codec 规则”结构性成立
+（`:37-40`）；普适不变量是 `Err ⇒ journal 字节零增`（`:30-35`）。ADR-022 同样裁定
+“journal/spawn 前真实编码”（`ADR-022-pi-lane.md:1267-1271`）。
+
+目标实现的实际顺序是：
+
+1. `start_inner()` 于 `pi_loop.rs:511-521` 调 `load_session()`；
+2. `load_session()` 可先截断 partial tail（`pi_loop_journal.rs:2168-2184`）、补
+   `turn_usage_recorded`（`:2260-2284`），再调用 crash fold（`:2291-2297`）；open idle leg 的
+   step 5 会 durable append `session_interrupted`（`:2588-2603`）；
+3. 直到上述动作完成，`start_inner()` 才于 `pi_loop.rs:627-628` 真实编码 bootstrap。
+
+验收从 exact blob 出发作一枚结构性 mutation：只在 protocol 的 bootstrap decoder 为
+`provider.modelId` 增加 `contains('/')` 的 codec-only future wire rule，不在 Host 增加/删除手写门。
+然后用正常 start 建立一份 leg-open journal，把历史 `modelId` 改成 journal schema 本来允许、且与
+二次 config 相同的 `deepseek/v4`，再驱动完整 resume/start。该历史可恢复、不是 malformed/quarantine
+样本；唯一新增拒绝来自 exact bootstrap 的真实 codec。focused test 实得：
+
+```text
+future-codec-after-load: journal_bytes_before=558 after=790 spawn=0 writes=0 error_code=invalid_config
+temporary_future_codec_rejection_after_load_session_writes_before_err ... ok
+test result: ok. 1 passed; 0 failed
+```
+
+新增 rule 的 code 映射是对的，spawn/write 也确为零；失败点恰在 durable append **之后**：790 B
+journal 已包含 `session_interrupted`。因此不是“哪道显式门漏抄”的第七轮实例，而是裁定所依赖的
+两相边界仍切在副作用函数之后。回执偏离 5（`PI-HOST-LOOP-1R6.md:360-365`）只实测并披露 fresh
+失败会留下零字节 journal/lock，没有披露既有 session 上 `load_session()` 的非零截断、补写与 crash
+fold；该偏离不能豁免 §零/ADR 的 broad invariant。
+
+这枚反例也解释为何目标常驻 142 电池照绿：`universal_start_case` 每行都从 fresh harness/session
+起步，只观察 `load_session()` 新建的零字节文件；它没有一枚 recoverable existing-session 输入，因而
+无法命中编码前的 durable recovery 分支。
+
+## 停止边界、恢复与结论
+
+- codec-only rule 与临时 recovery test 均以 `apply_patch` 精确拆除；没有作
+  `fix-by-acceptance`，没有修改 production、测试或合同来代修。
+- 恢复后 `pi_loop_protocol.rs` target blob 为
+  `47991acb84e09f731d19eb95b315012eacc0a0c6`，`pi_loop.rs` target blob 为
+  `fdc75ff91c224020c7eefdc7ce96ea4d7a335d1d`；`git diff --check` 净，报告之外无 tracked diff。
+- 决定性 H1 结构违约成立后，按停止边界不再虚耗 cargo/clippy/root full-build 长矩阵；已跑的
+  snapshot、Node controls、H1 focused controls 与 H2 静态核验只登记健康范围，不抵消 blocker。
+
+**结论重申：`PI-HOST-LOOP-1R6@57a19a5` REJECT。** `current.md` 不更新，
+`PI-WRITE-HOST-1` 继续不得开工；本验收不 merge、不 push，也不启动 WRITE/GUI/DMG/Pages。
+**[需架构拍板]** 下一轮必须让 recovery 的“读取/校验/计划”与 durable apply 分相：先从纯投影构造并
+真实编码 exact bootstrap，成功后才执行 partial-tail/usage repair/crash-fold/opening append 与 spawn；
+或在契约层明确撤回“任何 append”“Err ⇒ 零字节”“∀ future codec rule”三项结构担保并给出新的可验
+边界。不能继续以 fresh journal 的零字节读数代替已有 session 的恢复副作用；完成后交另一全新会话
+从 clean worktree 复验。
+
+---
+
+# PI-HOST-LOOP-1R7 独立验收（2026-08-03，PASS）
+
+对象：exact target `744c070a1f4fcee61d2a7cca4711643f445b5911`，implementation tip
+`f915eea932e022bc9733d79c563833301340d6c5`；独立 worktree
+`/private/tmp/courtwork-accept-pi-host-loop-1r7`、branch `codex/accept-pi-host-loop-1r7`。
+未进入或读取实现 worktree `/private/tmp/courtwork-pi-host-loop-1r7`。按票面合并读取，§八.9
+两项架构追认及两处换靶按已准偏离处理。
+
+## 基线与 sealed snapshot
+
+- `HEAD=744c070`，target/main merge-base=`497a28806d7f8ca737fb20dc54fcca1c01745e50`；
+  `ac0d326..main` 为 0 枚。票面 25 枚加 `f915eea`、`744c070`，稳定 patch-id multiset
+  **27/27 等同**；frozen install 成功，product build 成功。
+- product snapshot inventory 恰三件，无残留 `.product-sidecar.stage-*`：CJS
+  `523,235 B`, SHA-256 `75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`；
+  arm64 `112,928,848 B`, SHA-256 `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`；
+  x64 `115,447,952 B`, SHA-256 `03afb3618a2685335209c93f8c34633f8316dbe6cc32196bc19daa1a73852e5b`。
+  三件值与 exact target 的 route manifest 逐字段一致；CJS 零漂移。
+
+## J1：两相边界源码审计与 future-rule 双臂
+
+生产源码逐函数复核结论：`pi_loop.rs:527-533` 只调用 `plan_session` 并取内存投影；closed
+门 `:535-537`、resume 判定 `:544-595`、exact bootstrap 编码 `:639-640` 均先于
+`planned.apply()` `:644`、opening append `:649`、spawn `:652`。`plan_session_locked`
+（`pi_loop_journal.rs:2288-2452`）只读完整内存切片、构造 `truncate_to`/usage/crash-fold
+完整 `JournalRecord` 计划并折叠投影；`write_staged` 仅在 `PlannedSession::apply`
+（`:2213-2245`）中调用。锁、目录、0-byte inode 创建与 quarantine 属票面明示的 inode/账本处置，
+不是 journal 内容写入；编码前没有 append、write_all、物理 set_len、修复 apply 或 spawn。
+
+从 exact target blob 临时注入同一 codec-only future rule（`modelId` 含 `/`），同一恢复 journal
+及配置做双臂实跑：
+
+| 臂 | journal | spawn | writes | 实得 |
+|---|---:|---:|---:|---|
+| 实验臂：当前 apply 后置 | 558 → **558** | 0 | 0 | `invalid_config` |
+| 对照臂：apply 前移 | 558 → **790** | 0 | 0 | `invalid_config` |
+
+对照复现 558→790 类增长；临时 rule/test 逐字节拆除，生产 `pi_loop.rs`、`pi_loop_journal.rs`、
+`pi_loop_protocol.rs` SHA-256 恢复为 `6889bc39a5d3baac774cbe08d5ddc35ea3528913bb7ef8f4168c103eae065372`、
+`ac96253538fb5111077e1ae4edc67f1814044518c7d81c6f658515282f595ac5`、
+`f9b47ddc6b7cba7654dd220cd5c5b96b0ac2d12b49fc6347fe965b46e81473de`；源码无临时 marker 残留。
+
+## first-red、J2 电池与 §五.4
+
+自演旧 apply 顺序的 first-red 五形状实跑，均为旧行为红（spawn/writes 均 0）：
+
+| 形状 | journal bytes | 错误面 |
+|---|---:|---|
+| `recovery.partialTail` | 601 → **796** | `resume_refused` |
+| `recovery.missingUsageTail` | 1119 → **1699** | `resume_refused` |
+| `recovery.openIdleLeg` | 564 → **796** | `resume_refused` |
+| `recovery.activePromptBudget` | 755 → **1394** | `session_closed` |
+| `recovery.danglingEffect` | 1211 → **2107** | `session_closed` |
+
+常驻 target 电池 `RECOVERY_SHAPES` 恰五类、五类各两触发；原始实跑为 **152 枚、15 字段，
+拒 114 / 放行 38**。十枚 recovery 行的 pre-start journal 均逐字节原样（partial tail 未截、
+usage/session-interrupted/prompt-failed/effect-uncertain 修复未应用），records、spawn、writes、
+requestId 断言全为零/不变；resume 漂移行分别实得 `resume_refused`、计划关闭的 active prompt 与
+dangling effect 分别实得 `session_closed`，modelId NUL 行实得 `invalid_config`。对照测试
+`recovery_seeds_all_carry_a_repair_and_a_successful_start_applies_it` 通过，证明五类种子确有修复，
+成功路径会 apply；open idle 成功次序为 `session_started → session_interrupted → session_resumed`。
+
+§五.4 两态对照成立：计划 fold 后的 closed projection 在 `pi_loop.rs:535-537` 先返回
+`SessionClosed`，所以计划关闭态不经过 apply；同一错误面由
+`shutdown_writes_session_completed_after_terminal_and_eof` 锁定的盘上 durable closed 再次 start
+复现，且 spawn 为 0。`reclaim_after_fault` 仍立即 apply，characterization 通过；延迟 apply 的
+mutation 使同一断言 `564 B → 564 B` 命中红。
+
+## 七枚 mutation 独立重注
+
+每枚均在 exact target blob 命中唯一锚点，定向红后 `apply_patch` 还原并复核 byte-identical：
+
+1. apply 前移：电池 partial-tail `601 → 796` 红。
+2. 物理截断前移：计划/电池 partial-tail `601 → 564` 红。
+3. apply 重新 stage：计划值与盘上 seq `4/5` 对 `6/7` 红。
+4. recovery 族删空：塌缩守卫以 `recovery 族只剩 0 行` 红。
+5. grant 拒绝前 apply：`601 → 796` 红。
+6. `reclaim_after_fault` 延迟 apply：characterization `564 → 564` 红。
+7. M7 codec-only future rule：后置臂 `558 → 558`，前移臂 `558 → 790`，等价靶亦红。
+
+## J3、R6 订正与门禁
+
+- `pi_loop.rs:211-229` 已将 spawn-after-encoder 改为历史陈述，清除当前时错误断言，并明确
+  “源码扫描双向自证”已退役、当前由行为反例和普适电池自证。
+- R6 计数独立重算：pristine `28d81b2` 的 `4114..4272` 为 159 行内容，前段为 2,969 行，
+  合计 **3,128 行内容 + 1 行格式空行缺失**；目标对应块逐字节相等，边界差异仅空行/测试模块收尾。
+- 非受限域门禁原始结果：pi-lane `14 files / 448 tests`；product-sidecar `10/10`；verified-node
+  tests `8/8`；isolation-binding `43/43`；verified production `10 PASS`，control 全 PASS；
+  Rust `cargo test --lib` **167 passed / 0 failed / 1 ignored**，ignored snapshot **1 passed**；
+  四模块 rustfmt `exit 0`。clippy `-D warnings` 按 parent 基线预期 `exit 101`，恰 **7** 项且
+  全在 `src/lib.rs`（5 unnecessary-unsafe、2 needless-return）；四个 `pi_loop*` 模块零新增，
+  target 与 pre-implementation parent 的 `lib.rs` 无 diff。
+- 仓级 `pnpm -r build`、`pnpm lint`、顺序重跑的 `pnpm test` 均通过；root test 原始结果
+  **166 files / 1,771 tests**，desktop `lint:isolation-binding` 通过；`git diff --check` 通过。
+  root test 以 build 完成后顺序重跑，避免并行 build/test 的包 dist 竞态。
+
+## 结论与停止边界
+
+判定：**PASS，待架构消费**。本会话只追加本段 `packages/pi-lane/ACCEPTANCE.md`；不 merge、不
+push、不更新 `current.md`、不开 `PI-WRITE-HOST-1`，PASS 也停在待架构消费。

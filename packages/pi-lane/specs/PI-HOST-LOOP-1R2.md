@@ -111,3 +111,63 @@ Node 身份上运行。复验红证三类：arm64 runtime 尾字节 XOR（同尺
 全新 Codex 会话从独立 clean worktree 复验（自建 snapshot、不消费实现者 ignored 产物、
 四类反例与 mutation 自行实注）。未获 PASS 前不 push、不 merge、不更新 `current.md`、
 不开 `PI-WRITE-HOST-1`、不启动 GUI/DMG/Pages。
+
+## 五、实现回执（2026-08-02，待独立验收）
+
+实现 tip `b4175ea`（组合基线 `d42ba8b`＝main@bee7c79 + 九枚 patch-id 等同证据链，
+两枚拒绝报告随链入树）。四项闭口全落地，九门非受限域全绿，停在待独立验收。
+
+**first-red（untouched 链尖 `d42ba8b` 上、未改 production 先红）**：C1 faux provider 真发
+`stopReason:'aborted'`→terminal 实得 `failed`（期望 canceled）；C2 R2 表三行外观
+`Protocol(InvalidSchema)`＋副作用 `spawns=1,journal_exists=true`；C3 孤儿 usage 与倒序
+`2→1` 两史实得 `LoadedJournal`（期望 quarantine）；C4 三注入 `Missing expected exception`。
+
+**实现 delta**：
+- C1 `product-stdio.ts:142-159`（`PromptCompletion`/`TerminalIntent` 扩 `{kind:'canceled'}`，
+  不带 reason）、`:436` `resolveTerminal` 于 `cancelRequested` 闩锁判断后、`failedTerminal`
+  前新支 `reason:'host'`（三档更高优先级 effect_uncertain/budget_unknown/limit 位置不动，
+  `closesSession` canceled→留 idle 不变）；`product-runtime.ts:152-186` `completionFor()`
+  全枚举，`aborted`→`{kind:'canceled'}`，default 显式兜底「只兜不知道不兜算成功」。
+- C2 `pi_loop.rs:219/223/234` 三上界 import `pi_loop_protocol` 的
+  `MAX_TURNS_LIMIT/MAX_USD_LIMIT/MAX_MODEL_ID_BYTES`（核原串，原串不超限 trim 必不超），
+  常驻 R2 表 `:3199` 4→7 行双轴。
+- C3 `pi_loop_journal.rs:1885-1905` 连续性游标（turn_finished 须 +1、usage 须等游标）＋
+  `:1949-1978` `plan_turn_usage_repair` 反向闭合；常驻 `:3772` 三形态（含 cross-request-orphan，
+  该形态另暴露并堵住 req-2 白得一枚 counted turn 的实洞）。
+- C4 `verified-node-gate.mjs:103` lstatSync 拒 symlink、`:226` runtime bytes+SHA 双核、
+  `:147/:216` manifest closed-decode 逐值核，判据 `FROZEN_ROUTE`(`:60`) 源自 builder
+  冻结表不从被判 manifest 自取；`build-product-sidecar.mjs:452` 回执前缀订正、`:47` 常量。
+
+**sealed CJS 身份订正**（承 1R Stage-2「门先于自查」仪式）：改 production 后跨侧门
+`product-main.test.ts` 当场红，据此进入订正——两次构建 byte-identical 得
+`523,235`/`75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`（旧
+`523,057`/`b72fe521…`），三处钉死值同批同步：manifest `bundle.bytes/sha256`、
+`pi_loop_process.rs:918-922` 编译期真值表、`:1003-1009` 变异靶两字面量；runtime 两件 SHA
+未变。跨侧门与 `cargo test --lib pi_loop_process` 16/16（含变异靶失效守卫在新字面量仍绿）
+复绿；旧身份源码 grep 残留仅真值表内一行「旧→新」归因注释（订正说明本身，非漏改）。
+
+**mutation（10 有效红 + 1 等价作废，逐枚命中校验/定向红/byte-identical 恢复）**：
+M1/M7/M8 撤三上界（R2 表红）；M2 撤 turn 连续性（descending 红）；~~M3~~ 撤孤儿拒在旧语料
+等价作废（冗余判据变异必等价＝覆盖缺口信号），补 cross-request 语料后 M3b 真红；
+M4 撤 runtime SHA 双核、M5 lstat→stat、M6 撤 manifest 冻结核（三枚 gate 注入红）；
+M9 撤 `aborted`→canceled 分支（C1 红）；M10 撤 `resolveTerminal` 归因 host→user（3 红，
+状态机侧独立区分力）。
+
+**九门（tip `b4175ea`，逐门独立 exit，串行，非受限域）**：pi-lane vitest 448/build-script
+10/verified-node-gate 5/`cargo test` 159+1 ignored/`cargo fmt --check` 基线红 56 hunk（本单
+Rust 三件命中 0，五件未触为 HEAD 原样）/clippy 7 全在既有 lib.rs/production ready-shutdown
+10（新身份）/scripted read hard gate 14（新身份）/`pnpm -r build` 0/`pnpm lint` 0/
+`pnpm test` 1771/isolation-binding 0（等级 none）/`git diff --check` 0。Fable 终审独立复跑
+vitest 448、cargo 159/0/1、diff-check 净、manifest 新值与旧身份残留定位一致。
+
+**只收紧自证**：删除 Rust `#[test] fn` 名 0、`it/test/describe` 名 0、`product-stdio.test.ts`
+删除行 0；判据净减为零。
+
+**登记偏离（待验收追认）**：① C3 三枚既有绿测语料补真实 `TurnFinished` 配对（测试名与
+断言一字未改，「世界变了」定式）；② `package.json` 加 `test:verified-node-gate` 独占 script；
+③ `build-product-sidecar.mjs` 加 `RESOURCE_DIR_BASENAME` 常量使 gate 与 builder 同源；
+④ `verified-node-gate.mjs` `fail()` 改抛 `GateFailure`＋CLI 收进 `invokedDirectly`（做
+permanent 注入的必要装置，production CLI 外观与退出码不变）；⑤ `pi_loop_process.rs` 真值表
+旁 3 行归因注释续写「1R2 C1 再换一次」（含旧值→新值，故旧 SHA 在此一行留痕，是订正说明
+非漏改，Fable 追认保留）；⑥ M10 为自加变异（brief 仅要 M9，状态机归因侧需独立区分力）。
+external smoke 无 key，记 blocked 不冒充。无 `[需架构拍板]` 悬置。
