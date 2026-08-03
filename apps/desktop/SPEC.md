@@ -2,6 +2,29 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+## AGENT-CLAIM-CORRECTION-1 · composer 声明文案修正（实现完成，待独立验收）
+
+权威：[实现就绪图 `AGENT-CLAIM-CORRECTION-1` 行](../../docs/architecture/implementation-readiness.md)。基线 `main @ 497a288`。隔离 worktree 施工。
+
+### 变更
+
+`apps/desktop/src/App.tsx` 第 1984–1986 行 composer disclaimer：
+
+- 旧文案：`Courtwork is an agent and can make mistakes. Please double-check responses. Give us feedback`
+- 新文案：`模型可能出错，请核对回复。提供反馈`
+- mailto 行为保留，链接文本 `Give us feedback` → `提供反馈`
+- 布局、样式、组件、功能、其他文案、发布面均未触碰
+
+### 本单新增了什么概念、为何非加不可
+
+**零新概念。** 纯文案替换，无新抽象、新依赖、新状态、新持久化格式。
+
+### 测试
+
+- `rp2.spec.ts`：既有 disclaimer 精确文本断言改为新文案；link role 断言改为 `提供反馈`；布局/结构断言不变
+- 新增静态反例：`Courtwork is an agent` / `can make mistakes` 出现即红——防旧宣称复活
+- 用户菜单 `Give us feedback` 不在本票范围，测试不变
+
 ## MD-CONVERGE-1+ · ChatMarkdown 改用 remark 并扩围五项（实现完成，待独立验收）
 
 权威：[实现就绪图 `MD-CONVERGE-1+` 行](../../docs/architecture/implementation-readiness.md)（合票 `A/R-18` + `C/R-6`）。基线 `main @ a49db9c`。分支 `impl/md-converge-1`，隔离 worktree 施工（主工作树有票甲未提交面，不共仓）。desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动，**未触 `App.tsx`**（就绪图该行 App.tsx 列标「否」的成立前提）。

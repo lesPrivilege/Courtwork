@@ -34,13 +34,19 @@ test('双侧折叠保留原位展开 bar', async ({ page }) => {
   await expect(page.getByTestId('conversation-canvas')).toBeVisible();
 });
 
-test('composer 定稿声明与 feedback 链接一字不改', async ({ page }) => {
+test('composer 声明文案与 feedback 链接——已修正', async ({ page }) => {
   await expect(page.getByTestId('composer-disclaimer')).toHaveText(
-    'Courtwork is an agent and can make mistakes. Please double-check responses. Give us feedback',
+    '模型可能出错，请核对回复。提供反馈',
   );
-  await expect(page.getByRole('link', { name: 'Give us feedback' })).toHaveAttribute('href', /^mailto:/);
+  await expect(page.getByRole('link', { name: '提供反馈' })).toHaveAttribute('href', /^mailto:/);
   await expect(page.getByTestId('composer-disclaimer').locator('xpath=..')).toHaveClass(/composer-stack/);
   await expect(page.getByTestId('composer-disclaimer').locator('xpath=..').locator('.composer-float')).toHaveCount(1);
+});
+
+test('composer 声明不含 agent 现在时宣称——静态反例', async ({ page }) => {
+  const text = await page.getByTestId('composer-disclaimer').textContent();
+  expect(text).not.toContain('Courtwork is an agent');
+  expect(text).not.toContain('can make mistakes');
 });
 
 test('收窄时案件与模块标题横向省略，不竖排溢出', async ({ page }) => {

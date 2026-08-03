@@ -5144,3 +5144,58 @@ Playwright 终局为 **350 passed / 1 failed（3.6m）**，日志末行是 **`EX
 **最终判定：放行 `PANEL-BLUEPRINT-1`（matrix 首枚）✅。** 放行仅覆盖 `f3d2bf3` 的 descriptor →
 blueprint → renderer 迁移与已验范围；`composer.spec.ts:45` 的既有断言修复不并入本票，其他三个 panel、
 未来 presentation config、任何新字段/跨层接口与产品成熟度表述均不随之放行。
+
+## AGENT-CLAIM-CORRECTION-1 独立验收（2026-08-03，PASS）
+
+对象：`worktree-impl+agent-claim-correction-1@673b7b5`，父提交 `main@497a288`。验收在独立
+detached clean worktree `/private/tmp/courtwork-acceptance-agent-claim-correction-1` 完成；未进入实现
+worktree，未 push、未 merge、未更新 `docs/status/current.md`。本节是本票唯一追加。
+
+### 文件面与 SPEC 逐条对照
+
+| SPEC 自述 | 独立证据 | 结论 |
+| --- | --- | --- |
+| 只触碰 `App.tsx`、`rp2.spec.ts`、`SPEC.md` | `git diff --name-status 497a288 673b7b5` 恰为三件：`apps/desktop/src/App.tsx`、`apps/desktop/tests/e2e/rp2.spec.ts`、`apps/desktop/SPEC.md`；`git diff --check` 通过 | 一致 |
+| `renderComposer` 只把旧 disclaimer 换成「模型可能出错，请核对回复。提供反馈」 | 生产 diff 仅一处文本 hunk；`App.tsx` 高水位为 `2549`，门为 `2549/2549` | 一致 |
+| mailto 行为保留 | 基线与目标均为 `mailto:feedback@courtwork.local?subject=Courtwork%20feedback`；真实渲染探针逐字核对 href | 一致 |
+| 布局、样式、组件、功能、其他文案不变 | `App.tsx` 除 disclaimer 两行替换外无 diff；用户菜单 `Give us feedback` 断言未变；静态门全绿 | 一致 |
+| 零新概念 | 无新增依赖、状态、持久化或跨层接口；目标 diff 仅上述三文件 | 一致 |
+| 新文案精确断言、链接/结构断言、旧 agent 现在时反例 | 目标树 `rp2.spec.ts` 定向 Playwright `7/7 passed`；`composer-disclaimer`、父级 `.composer-float` 与 link role 均通过 | 一致 |
+
+### first-red 与静态反例
+
+在独立 first-red 副本 `/private/tmp/courtwork-acceptance-agent-claim-correction-1-first-red` 中，
+仅将真实 `App.tsx` disclaimer 恢复为 `Courtwork is an agent and can make mistakes...`，再跑
+`rp2.spec.ts`：`5 passed / 2 failed`。失败分别是新精确文案断言和
+`not.toContain('Courtwork is an agent')`；`not.toContain('can make mistakes')` 同样在该失败中被观测。
+撤销该注入后目标树定向谱 `7/7 passed`。
+
+### 全量门禁
+
+| 门 | 独立实跑结果 |
+| --- | --- |
+| `pnpm -r build` | 通过 |
+| `pnpm lint` | 通过 |
+| `pnpm test` | 提权 loopback 对照后 `163 files / 1664 passed` |
+| desktop 静态链 | 全绿；App highwater `2549/2549`；Playwright floor `352`（要求 ≥351） |
+| Playwright 全链（端口 `18681`，`reuseExistingServer:false`） | `352 passed`，退出码 0 |
+
+首轮全链（端口 `18674`）曾出现 `349 passed / 3 failed`，三红均为本票未触及的既有测试面，
+未笼统归为环境红，逐条做了独立对照：
+
+- `global-verbs.spec.ts:91` 归档 popover 在并行启动阶段等不到 `event-stream`；隔离三次 `3/3 passed`，
+  后续完整链通过；在册 `E2E-FLAKY-HOVER-1` 本轮实际通过，非本次红因。
+- `goal2.spec.ts:65` 对齐例在并行启动阶段等不到 `utility-rail`；隔离三次 `3/3 passed`，后续完整链通过。
+- `host-auth.spec.ts:58` 首轮为 `resetHooks` 取不到注入对象；隔离三次 `3/3 passed`，后续完整链通过。
+
+根 `pnpm test` 无提权首跑的 8 个 `pi-lane/src/sidecar.test.ts` loopback 超时，在同一目标 clone
+提权复跑为 `163/163` 文件通过、`1664/1664` 测试通过；不是本票生产路径红。
+
+### 真实渲染
+
+独立临时渲染探针在端口 `18680` 实跑 `2/2 passed`：`1280px` 与窄宽 `1180px` 下 disclaimer
+一行可见、无横向溢出；「提供反馈」可聚焦，读屏 accessible name 为「提供反馈」，href 逐字为
+`mailto:feedback@courtwork.local?subject=Courtwork%20feedback`。
+
+**最终判定：PASS。** 放行范围仅为 composer disclaimer 文案、对应断言与 SPEC 留痕；不赋予
+agent 称谓，不授权公开 build，不扩大其他文案、布局、功能或发布面。
