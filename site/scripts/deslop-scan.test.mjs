@@ -68,6 +68,22 @@ test('raw colors are tied to an exact token consumer, including icon audit', () 
   assert.ok(rules([source('site/rogue.js', `document.body.style.setProperty('color', '${hex('123456')}');`)]).includes('raw-color'));
 });
 
+test('pi-lane dev page pins are exact, scoped, and drift-red', () => {
+  const devPath = 'packages/pi-lane/dev/index.html';
+  const real = readFileSync(new URL(devPath, repoRoot), 'utf8');
+  // 钉值以真文件为准，不另造 fixture：页与册漂移时本断言先红。
+  assert.deepEqual(rules([source(devPath, real)]), []);
+  // 在册值变动即红。
+  assert.deepEqual(rules([source(devPath, real.replace('#27ae60', '#123456'))]), ['raw-color']);
+  // 新增声明不入册即红。
+  assert.deepEqual(rules([source(devPath, real.replace(
+    '.done { border-left-color: #27ae60; }',
+    '.done { border-left-color: #27ae60; }\n      .warn { border-left-color: #f39c12; }',
+  ))]), ['raw-color']);
+  // 例外不随目录泛化：第二个 dev 文件照常逐条红。
+  assert.deepEqual(rules([source('packages/pi-lane/dev/other.html', real)]), Array(8).fill('raw-color'));
+});
+
 test('graph theme literals are exact token consumers, not a whole-file escape', () => {
   assert.deepEqual(rules([source('apps/desktop/src/workbench/graph-theme.ts',
     `export const graphTokens = { background: '${hex('FFFFFF')}', amber: '${hex('8F6420')}' } as const;`)]), []);

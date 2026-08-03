@@ -187,6 +187,16 @@ const cssColorAllowlist = new Map([
   colorEntry('site/styles.css', ':root', '--mac-close', '#FF5F57'),
   colorEntry('site/styles.css', ':root', '--mac-minimize', '#FEBC2E'),
   colorEntry('site/styles.css', ':root', '--mac-zoom', '#28C840'),
+  // PI-LANE-1 dev 入口（不入产品包，页首自陈不走设计门语汇）具名钉值例外：
+  // 仅此一文件、逐条对值；值漂移、新增声明、其他 dev 文件均照常红。产品负责人 2026-08-04 批。
+  colorEntry('packages/pi-lane/dev/index.html', 'header', 'border-bottom', '1px solid #8884'),
+  colorEntry('packages/pi-lane/dev/index.html', '#status.bad', 'color', '#c0392b'),
+  colorEntry('packages/pi-lane/dev/index.html', 'input[type=text]', 'border', '1px solid #8886'),
+  colorEntry('packages/pi-lane/dev/index.html', 'button', 'border', '1px solid #8886'),
+  colorEntry('packages/pi-lane/dev/index.html', '.entry', 'border-left', '3px solid #8884'),
+  colorEntry('packages/pi-lane/dev/index.html', '.tool', 'border-left-color', '#2980b9'),
+  colorEntry('packages/pi-lane/dev/index.html', '.error', 'border-left-color', '#c0392b'),
+  colorEntry('packages/pi-lane/dev/index.html', '.done', 'border-left-color', '#27ae60'),
   colorEntry('apps/desktop/src/icons/icon-audit.css', ':root', 'color', tokenAt('color.text.primary.value')),
   colorEntry('apps/desktop/src/icons/icon-audit.css', ':root', 'background', tokenAt('color.bg.app.value')),
   colorEntry('apps/desktop/src/icons/icon-audit.css', ':root', '--audit-border', tokenAt('color.border.hairline.value')),
