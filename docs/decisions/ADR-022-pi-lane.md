@@ -737,7 +737,7 @@ A0.5/A2 的工具与 workspace 精确语义如下：
   spinner 与永久 skeleton/shimmer、弹簧/抬卡/crossfade、装饰网格/噪点、法槌/天平/卷轴及
   伪古文交互词。OpenDesign 只借“截图 + computed style + 11 层 + Don'ts”的参考打包方法；
   Moda 只借反馈时机；Logue/Open WebUI/OpenWork 只借成熟形态，均不成为视觉真源。调研证据见
-  [`archive/research-gui-design-direction-2026-07-28.md`](../../archive/research-gui-design-direction-2026-07-28.md)。
+  `archive/research-gui-design-direction-2026-07-28.md`（史料线索）。
 
 ### 六-E · 分发与发行拆票
 
