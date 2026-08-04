@@ -2682,3 +2682,221 @@ CONTESTED 裁定、移交条与 D5／D9 复核、制品身份、cargo 首跑、�
 处方都触碰 SPEC 承诺或工具结果契约，属契约级，验收不得代改）；不 merge、不 push、不更新
 `docs/status/current.md` 与 implementation-readiness、不开下游票。worktree
 `.claude/worktrees/accept-pth` 保留至收编。
+
+# PI-TOOLS-HONESTY-1R 独立复验（2026-08-05，REJECT）
+
+目标 `5528222`（1R 实现 `801f522` ＋回执 `5528222`），链
+`f9cbc26` → `39271f8` → 本会话首轮 REJECT `fa01eca` → `801f522` → `5528222`。
+同一保留 worktree `.claude/worktrees/accept-pth`，`git checkout 5528222` 后自建制品、自跑八相门。
+回执一律当未证宣称。
+
+## 一 · 首轮拒因已闭合，形态正确
+
+首轮单一拒因（`MAX_LINE_LENGTH` 行截断静默）按处方甲收口，本会话逐项复现：
+
+- **反例转 permanent**：1211 字命中行现出行尾具名标记 `…（本行截断：原 1211 字符，只给前 400）`，
+  `lineTruncated: 1` 进 `details`，注记出「1 行超长截断」子句。首轮反例的三个观察点全部翻转。
+- **标记／字段／注记三向互斥实测成立**（M12/M13/M14，见五节）：撤任一枚只红其专属那一枚（或两枚），
+  互不遮蔽。`clipLine()` 让「出面文本」与「是否被裁」同源返回，撤标记不可能仍报未裁——这一形状对。
+- **symlink 二次证伪已闭合**：`symlinksSkipped` 计数＋独立注记子句，dev 与产品两形态各有锚（M15–M17）。
+- **收窄句在两处容器排除下确为真**（三节复核），**D13 的分层判据成立**。
+
+首轮我在报告第二节点名的两条二次证伪（symlink、grammar 排除）均已按其可观察性分别处置，无遗漏。
+
+## 二 · 再拒理由：同一函数最后一条丢弃分支仍无账，1R 新写的「恰五类」与收窄句被同一条真命中同时证伪
+
+`tools.ts:320`（1R 未触碰，就在本票 hunk#10 改动的三行之上）：
+
+```ts
+read.value.forEach((line, index) => {
+  // 裸 NUL 是二进制的可靠信号：按二进制跳过，不把乱码喂给模型。
+  if (line.includes('\u0000')) return;      // ← 裸 return，无字段、无注记、不计数
+  ...
+  if (!matcher.test(line)) return;
+```
+
+判据在 `matcher.test(line)` **之前**：一条**本会命中**的行，只要含裸 NUL 就被压掉，且不进任何账。
+
+### 2.1 反例（本会话构造，dev 与产品两形态各一，附对照臂）
+
+| 探针 | 语料 | 观测 |
+|---|---|---|
+| dev 形态 | 案卷内一份「像 PDF 的」二进制件（正文含 `合同编号 HT-2024-081`，该行含裸 NUL）＋一份普通 md | `无命中`，**无注记**；`{matched:0, scanned:2, truncated:false, matchesTruncated:false, lineTruncated:0, symlinksSkipped:0, skipped:[]}` |
+| 产品形态 | 同件走 `/case` 链 | 同上，`{matched:0, scanned:1}`，无注记 |
+| **对照臂** | 同一份内容**去掉 NUL** | `{matched:1}` |
+| 单行 md | 一份 md，命中行尾带一枚 NUL | `无命中`、无注记、五枚字段全空 |
+
+对照臂是关键：被压掉的确是一条**真命中**，不是「本来就没有」。
+
+### 2.2 这直接证伪 1R 新写入 SPEC 的两句
+
+`SPEC.md` 五-8（1R 新增）：
+
+> **本层可观察的不完整来源恰五类**——扫描上限、命中上限、行截断、容器拒读、symlink 不跟随——
+> 五类各自出字段与注记。故「工具结果里没有注记」是一句可依赖的断言，其**确切含义**是：
+> **容器交给本层的每一个条目都被检索、每一条命中都完整列出**。
+
+- 「恰五类」为假：NUL 行排除是**第六**类，且它 100% 属于「本层可观察」——判断就写在本层、
+  用本层手里的整行数据做出。1R 自己选定的分层判据（可观察性）明白无误地把它划进甲路。
+- 「每一条命中都完整列出」为假：上表对照臂证明那一行 `matcher.test` 为真，它既没被列出，
+  也没有任何字段或注记提到它。
+
+### 2.3 全函数丢弃分支逐条扫描：九条，八条有账，第九条没有
+
+不按我点名的实例收口，按**族**收口。`tools.ts` 检索路径上全部会丢内容的分支：
+
+| # | 位置 | 分支 | 出账 |
+|---|---|---|---|
+| 1 | `walkFiles:105` | `!listed.ok`（目录拒读） | `skipped` ✓ |
+| 2 | `walkFiles:113` | `kind === 'symlink'` | `symlinksSkipped` ✓（1R） |
+| 3 | `walkFiles:120` | `scanned >= MAX_FILES_SCANNED` | `truncated` ✓ |
+| 4 | `glob:247` | `matches.length >= MAX_MATCHES` | `matchesTruncated` ✓ |
+| 5 | `grep:308` | `hits >= MAX_MATCHES`（跨文件） | `matchesTruncated` ✓ |
+| 6 | `grep:313` | `!read.ok`（文件拒读） | `skipped` ✓ |
+| 7 | `grep:322` | `hits >= MAX_MATCHES`（行层） | `matchesTruncated` ✓ |
+| 8 | `clipLine:141` | 行长 > `MAX_LINE_LENGTH` | `lineTruncated` ＋行尾标记 ✓（1R） |
+| **9** | **`grep:320`** | **`line.includes('\u0000')`** | **无** ✗ |
+
+（`globToRegExp` 的两处 `continue` 是模式解析，`!matcher.test` 两处是「不命中」，均非丢弃。）
+九条丢弃/限幅分支，八条有账。**这是一次可穷举、已穷举的扫描**——不是又挑了一个更尖的尖端，
+而是本函数最后一条没账的分支。
+
+### 2.4 为什么这不作「上浮不阻断」
+
+三条与首轮同构：
+
+1. **判据是 1R 自己立的，而扫描没做完。** 1R 把处置规则写成「本层可观察 → 甲」，这条规则对；
+   但没有按这条规则把函数扫一遍，于是又留下一枚落在规则内、却被闭集句盖住的成员。
+   首轮判例「闭口按族不按验收点名的实例」在这里第二次适用——这一次实现方已经走到了「立族」，
+   只差把族里的成员点完。
+2. **产品语义上是同一种病，不是更轻的一种。** 案卷里放着扫描件 PDF、docx 导出的带控制字节的 md，
+   是这条产品线的常态；模型问「本案有没有 HT-2024-081」，工具答「无命中」并**附带一句结构性保证
+   说结果完整**。这正是票面开篇写的「对法律材料的自信假阴」，换了个触发条件。
+3. **最小诚实动作照旧在范围内、成本近零。** 不需要改 `MAX_LINE_LENGTH`、不需要改 NUL 判据本身
+   （二进制不喂给模型这一策略我不反对，就像不跟随 symlink 一样）：需要的只是**让跳过出账**——
+   1R 自己为 symlink 写下的那句话逐字适用：「保守解是策略，隐瞒不是」。
+
+**如实登记我方的账**：这一枚首轮我没找到，首轮报告第二节只点了 symlink 与 grammar 排除两条。
+1R 在我点名之外自行提炼了判据，方向正确；本次拒的是判据之下的**清点不全**，不是判据。
+
+### 2.5 返修要求
+
+- **甲（推荐）**：`grep` 的 NUL 分支出账——一枚与其余并列的计数（例如「N 行按二进制跳过」或
+  按文件计的「N 份疑似二进制未按文本检索」，命名与粒度属契约，须回票面）＋注记子句；
+  反例＝上表 dev/产品两形态与对照臂各转 permanent，撤字段、撤注记、撤计数源三层各自窄红。
+- **乙**：不改行为，但把 五-8 的「恰五类」与「每一条命中都完整列出」按实收窄，并把 NUL 排除
+  逐条登记为已知边界。**注意乙路在这里比 symlink 那次更难自洽**：symlink 最终没走乙，理由是
+  「本层看得见就得说」；同一理由对 NUL 同样成立。
+- 无论甲乙，请**同批把整条丢弃分支表（上表九行）写进 SPEC 或回执**，让下一次改这个函数的人
+  不必再靠逐次验收来发现族里还有谁。
+
+**同批上浮一枚（不作拒因，属 env 契约面）**：`scoped-env.ts:111` 的
+`readFile(absolute, 'utf8')` 对非法 UTF-8 字节静默替换成 U+FFFD——命中行**内容被改写**后原样
+交给模型，无任何标记（本会话实测：`合同编号 HT-2024-081 <FF FE FD> 尾` 出面为含替换字符的一行，
+无注记）。它住 env 而非工具层，与 五-8 已登记的两处容器排除同一接缝，建议一并挂
+`PI-WORKSPACE-READ-1`；ADR-022 六-B.1 对 wire 侧明令禁止这种替换后继续，读取侧目前无对应条款。
+
+## 三 · 分层裁定 D13 终裁：**分层成立，予以确认**
+
+协调留我终裁，据下列独立核实结果确认：
+
+- **甲路对「本层可观察」正确**：行截断与 symlink 都在 `tools.ts` 内、以本层持有的数据判定，
+  出字段＋注记是唯一诚实解。1R 的处置正确。
+- **乙路对 grammar 排除结构上必需**，本会话核到上游契约层：
+  `@earendil-works/pi-agent-core@0.82.1` `dist/harness/types.d.ts:182`
+  `listDir(path, abortSignal?): Promise<Result<FileInfo[], FileError>>`——**单个 Result**，
+  `FileInfo`（同文件 138–148 行）无「被排除」变体，`FileErrorCode`（91 行）是闭集 8 枚。
+  容器在 `listDir` 内部 `continue` 掉的条目，在这个契约下**没有任何位置**可以带出来。
+  故对第三形按甲实施确实不可能，不改 env 契约就办不到，而那属 `PI-WORKSPACE-READ-1`。
+- **收窄句在两处容器排除下确为真**：（a）产品 grammar 排除——1R 新增测试直接钉住形态
+  （容器 `listDir('/case')` 只回 `['/case/正常.md']`，保留名条目从未交给工具；工具把拿到的
+  一个条目全检索了，故按收窄口径无注记，成立）；（b）单条目 `lstat` 失败——同理，工具收不到该条目。
+  两处均落在「容器交给本层的条目」之外，收窄句对它们成立。
+
+**分层判据本身我确认为对，并建议架构追认。** 本次拒的是甲路成员清点不全（二节），不是分层。
+
+## 四 · D12 复核：首轮那条正面证据确曾立在坏地基上
+
+反向注入实测：把 1R 改过的那枚正面语料换回**首轮原样**（跑在主 fixture 上），对 1R 生产面复跑——
+
+```
+FAIL  未触任一上限时两枚字段都出 false，且不附注记
+AssertionError: expected '命中 3 份…（另有 1 处符号链接未跟随（本容器一律不跟随）；结果可能不完整）'
+  not to contain '不完整'
+```
+
+1 红 / 495 绿。主 fixture 的 `外链` symlink 使那棵树在 1R 口径下本就不完整，故**首轮我复现通过的
+那枚「无注记」正面证据，当时是在一棵不完整的树上取得的**。D12 的登记如实，改动必要且形态正确
+（改用无 symlink 的干净 sandbox，而不是放宽断言）。还原后逐字复原、`git status` 归零。
+
+## 五 · born-red 与变异复跑（本会话独立脚本，命中数校验恰为 1 方允改写，还原后前推 mtime）
+
+**born-red**：把 `tools.ts` 与 `route-manifest.json` 逐字回退到 `fa01eca`（测试面保持 1R 原样）——
+**8 枚定向红** / 488 绿（496），EXIT=1；`cp` 还原后 **496/16 全绿**、`git status` 归零。
+回执 8.3 记 7 枚，差额来自其后把「标记」与「字段」拆成两枚锚（M12/M13 各自窄红所必需），
+拆前 495 例、拆后 496 例——**回执自陈了这次拆分**，对得上，不作发现。
+
+| 变异 | 本会话定向红 | 回执宣称 | 附带结构红 | 命名的红 |
+|---|---|---|---|---|
+| M12 撤行截断**标记** | 1 | 1 | 1 | 反例·标记与原长 |
+| M13 撤 grep `details.lineTruncated` | 2 | 2 | 1 | 反例·计数／未超长零标记 |
+| M14 撤行截断**注记子句** | 1 | 1 | 1 | 行截断进注记 |
+| M15 撤 glob `details.symlinksSkipped` | 4 | 4 | 1 | 干净树无注记／symlink 双工具／symlink 产品形态／grammar 收窄形 |
+| M16 撤 symlink **注记子句** | 2 | 2 | 1 | symlink 双工具／symlink 产品形态 |
+| M17 撤 `walkFiles` **计数源** | 2 | 2 | 1 | symlink 双工具／symlink 产品形态 |
+
+六枚逐值相同。**M12/M13/M14 的三向互斥经实测成立**：三枚红集两两不相交，标记、字段、注记
+各有专属锚。**M16 与 M17 红同一对测试名**——回执对 symlink 族只宣称「覆盖字段/注记/计数源三层」
+而未宣称互斥，措辞与实测相符，不作发现；grep 侧的 `symlinksSkipped` 字段由 `symlink 双工具`
+那枚的循环断言覆盖，未失锚。
+
+## 六 · 制品身份第三录与 cargo（1R 后首次实跑）
+
+- 本树从源码独立重建：`sidecar.cjs` **535,827 B** /
+  `a9ae0f93f20bce27a42c3630ab5f76f6c19b7f511fe4b7b38c13913a03172072`，`reproducible: true`。
+  与 D11 宣称逐值相同。
+- **首跑落在正式根 fail-closed 上**：`action: "failed"`，理由「正式根已存在且与本轮不一致，
+  拒绝原地覆盖：sidecar.cjs 与本轮 stage 不 byte-identical——换 source 须显式 clean snapshot」，
+  EXIT=1。按 `PI-WRITE-HOST-1` 验收已在册的同一处方，显式删正式根后重建，`action: "created"`、
+  EXIT=0。**这是该 fail-closed 第二次被实证，门未放宽。**
+- **七处钉值逐条核**：`route-manifest.json` bytes/sha 两处、`pi_loop_process.rs` 变迁注释一处、
+  冻结表 bytes/sha 两处、负注入语料 bytes/sha 两处——全部为新值；旧值 `535040`/`b3d974ef`
+  在现行源码与配置中**零活体残留**（仅存于 `ACCEPTANCE.md` 首轮报告与本票回执的历史叙事）。
+- **`cargo test` 1R 后首次实跑：218 passed / 0 failed / 1 ignored，EXIT=0。** 负注入的
+  `assert_ne!(mutated, compact, "…变异必须真的命中")` 靶失效守卫原样在位，故两枚 `replace` 靶
+  确实命中，非静默 no-op。
+
+## 七 · 门禁实跑（本树自跑，逐条记退出码，未经管道吞码）
+
+| 门 | 结果 | 退出码 |
+|---|---|---|
+| `build:product-sidecar`（clean snapshot 后） | 535,827 B / `a9ae0f93…`，`reproducible: true`，`created` | 0 |
+| `pnpm --filter @courtwork/pi-lane test` | **496 例 / 16 文件** | 0 |
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size warning） | 0 |
+| `pnpm lint`（`eslint .`） | 通过 | 0 |
+| root `pnpm test` | **169 files / 1881 tests passed** | 0 |
+| `pnpm --filter @courtwork/desktop test` | **75 files / 690 tests passed** | 0 |
+| `cargo test`（`src-tauri`） | **218 passed / 0 failed / 1 ignored** | 0 |
+| `pnpm test:e2e`（apps/desktop cwd，完整 Playwright，隔离端口 1493） | **352 passed，3.0m** | 0 |
+
+root 对账：首轮 tip 实测 1874，1R 包级净增 7（489→496），1874+7=**1881**，实测逐值相符，
+与回执九节给的对账口径一致。SPEC §十 的 496/16 与本树实跑一致。跑毕 `chrome-headless-shell`
+残留计零，工作树 `git status` 全净、HEAD 仍为 `5528222`。
+
+## 八 · 结论与停止边界
+
+**判定：REJECT。** 单一拒因即第二节：`grep` 的 NUL 分支是本函数九条丢弃分支里**最后一条没有账**
+的，它压掉的是 `matcher.test` 为真的真命中（对照臂已证），而 1R 新写入 SPEC 五-8 的「本层可观察
+的不完整来源恰五类」与「每一条命中都完整列出」被同一条反例同时证伪。返修按 2.5 甲／乙二选一，
+并同批把九行丢弃分支表写进现行文档。
+
+**已通过、返修勿重做**：首轮拒因的收口形态（标记＋字段＋注记，三向互斥实测）、symlink 族三层
+锚（M15–M17）、born-red 全链、D12 复核、**D13 分层裁定（本节予以确认并建议架构追认，含上游
+`listDir` 契约的结构性核实）**、收窄句在两处容器排除下为真、制品身份第三录与七处钉值、
+cargo 1R 后首实跑、八相全量门——本会话已逐项独立复现，数字均在七节。
+
+本会话只追加本段 `packages/pi-lane/ACCEPTANCE.md`，**未做 fix-by-acceptance**（2.5 的两条处方
+都触碰 SPEC 承诺或工具结果契约，属契约级）；不 merge、不 push、不更新 `docs/status/current.md`
+与 implementation-readiness、不开下游票。合入相仍须把 `current.md` 的 sidecar 身份改为
+**535,827 B / `a9ae0f93…`**（不是首轮的 535,040）。worktree `.claude/worktrees/accept-pth`
+保留至收编。
