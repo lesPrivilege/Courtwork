@@ -121,3 +121,95 @@
 结论：**放行。** 独立验收以真实 `LEGAL_PACKAGE + PM_PACKAGE` 同次准入得到 `[legal, pm]`、零拒载、零 warning，四个 PM artifact 全部进入统一 `artifactSchemas` registry；注入坏 PM 后只有 `pm` 被拒，Legal 不受污染。registry 的 RFC 6901/valueLabels 门和 anchor model-output draft/citation 门均经强制变异实际观察红灯，恢复后 registry **4 files / 62 tests**、PM/registry/legal/schemas 合跑 **28 files / 255 tests**。
 
 完整 PM catalog、JSON Schema、旧真源清零、变异与全仓门禁证据见 [`packages/pm/ACCEPTANCE.md`](../pm/ACCEPTANCE.md)。本节不重复建立第二份验收真源。
+
+---
+
+# ADMISSION-ENUM-1R 独立验收（2026-08-04）
+
+验收树：`.claude/worktrees/accept-admission-enum-1`（detached `b5a172c`）
+
+实现分支：`codex/admission-enum-1`，链 `7a2e3c4`（首轮）→ `b5a172c`（1R 返修），base `d62e22d`
+
+结论：**驳回。** 一相四项发现逐条复核成立，六枚 mutation 全部命中，born-red 与回执逐字相符。驳回依据只有一条，且不在既往发现之内：本票的受控外溢改动了设计权威来源 `packages/legal/src/presentation/index.ts`，未同步 `docs/design/schema-exemplar.sources.json` 的封存哈希，`assert-schema-exemplar` 在 desktop `test:e2e` 相位红；该门位于 `&&` 串链中 `playwright test` 之前，红即短路，352 条 Playwright 用例在本票既定跑法下从未启动。
+
+## 一相四项发现复核
+
+前次验收会话在完成一相后进程崩溃，四项发现经返修宪章转述。本次自零复核，不采信转述。
+
+1. **F-A（`z.email()/z.uuid()/z.url()` 被误判未识别节点）：已闭合，措辞如实。** zod 4.4.3 实测 `z.email()→ZodEmail`、`z.uuid()→ZodUUID`、`z.url()→ZodURL`，三者 `instanceof z.ZodString` 均为 `false`、`instanceof z.ZodStringFormat` 均为 `true`，与 SPEC 第 149 行逐字相符。搜索「已覆盖」「含全部」「全部格式」，仅命中该行的撤销声明本身，无残留宣称。
+2. **F-B（键判据取全子树，误拼撞深层同名键即静默过门）：已闭合，镜像之说成立。** 裁定见下节。
+3. **F-C（`visited` 跨 collect 共享致假拒）：已闭合，掩盖之说经对照实验坐实。** `checkCitationBinding` 内 `collect()` 每次新建 `visited`，环保护仍由单次 collect 内承担。
+4. **F-D（瞬态红）：已改写为机制结论。** SPEC 第 186 行登记为「门对、红真、非 flaky」，病因是 mutation 备份的游离 `.ts` 短暂落仓内且消费 `/testing`，对治为备份落 `$TMPDIR`；「待验收复跑观察」措辞已撤。
+
+## F-B 口径裁定
+
+返修未把 `draftField`/`anchorField` 收紧到 item 根直接键，改取「item 树中某对象节点的直接键且值为数组」，理由是该谓词与消费面同宽。消费面为 `packages/core/src/citation/resolver.ts` 的 `resolveItem`：深走全部对象节点，在 `key === binding.draftField && Array.isArray(value)` 处公证。legal 的 `quoteClaims`/`sourceAnchors` 住在 `basis[]` 元素层而非 risk item 根，收紧到 item 根确会误拒现行 legal 包。
+
+以真实门与真实 resolver 同时驱动同一组 binding，实测三形：
+
+- 深层 STRING 值同名键（`draftField` 误指 `basis[].citation`）：门拒载，拒因具名；消费面 `claims=0`，`quoteClaims` 原样穿过未公证，静默丢引语。门与消费面同判。
+- 深层 ARRAY 值同名键（`draftField` 误指 `basis[].notes`）：门准入；消费面确实公证同一节点，`status=needs_repair`、`claims=1/failed=1`，剪枝后该单元入 `outOfCoverage` 并标 `citation_unresolved`。门放行的正是消费面真正到达的节点，失败显式，不复现缺陷②的「零报错」病象。
+- 真实 `LEGAL_PACKAGE` 单独准入：`admitted=1`、零拒载。
+
+**裁定：门谓词与消费面谓词在键名与值形两轴上同宽，F-B 按返修宪章判据成立。** `outOfCoverageField` 与 `itemSummaryField` 已分别落 final 根直接键（`binding.outOfCoverageField in finalRoot.shape`）与 draft item 根直接键（`binding.itemSummaryField in draftItem.shape`），与 `rebuildFromSurvivors` 的 `root[field]`、`outcome.item[field]` 两处消费坐标一致。
+
+## 驳回依据
+
+**G-1 `assert-schema-exemplar` 来源哈希漂移。**
+
+`docs/design/schema-exemplar.sources.json` 以 `P0-S01`–`P0-S09` 封存设计权威来源的 sha256，`docs/design/schema-exemplar.md` 第 67 行定「正式来源只认」该登记。本票的受控外溢在 `packages/legal/src/presentation/index.ts` 的 `LEGAL_ARTIFACTS` 补 `enumLabels.reason`，该文件正是 `P0-S02`，role 为 `presentation-contract`。四方哈希对照：
+
+| 取值处 | sha256 |
+| --- | --- |
+| `sources.json` 登记值 | `4c24f2cb…719f829f` |
+| base `d62e22d` 的文件 | `4c24f2cb…719f829f` |
+| 首轮 `7a2e3c4` 的文件 | `f19a76a2…c29e1892` |
+| target `b5a172c` 的文件 | `f19a76a2…c29e1892` |
+
+base 与登记值逐字相等，漂移自首轮引入并延续至 target；`sources.json` 在 `d62e22d..b5a172c` 全程未改。此红由本票自身产生，非既存条件，非环境。
+
+后果有二。其一，设计权威账本已不覆盖实际出货的 presentation 契约。其二，`test:e2e` 是 `&&` 串链，该门红即短路，其后的 Playwright 从未启动；回执列出的零回归证据全属 vitest 相位，未触及该门。
+
+登记哈希属设计权威行为，`schema-exemplar.md` 正文另有章节须与来源一致，故不作 fix-by-acceptance，交返修与架构处置。
+
+## 本相另获两项，不构成独立驳回依据
+
+**G-2 SPEC 红绿证表数字失准。** SPEC 第 174 行记「registry 全量 1R 后 **6 files / 97 tests**（admission 67 例）」。实测 `b5a172c` 为 **6 files / 105 tests**，其中 admission 67；把首轮 `7a2e3c4` 的生产面与测试面一并还原后实测恰为 **6 files / 97 tests**。该句把首轮总数与 1R 的 admission 分项并列于同一行。同段「legal/pm/registry 合跑 25 files / 237 tests」实测相符。属「跑门后又编辑未重跑」一族。
+
+**G-3 `anchorField` 位置轴未闭合，登记不自裁。** 门对 `draftField` 与 `anchorField` 分别在 draft、final 两棵树独立判存在，不校验二者同位；而 `resolveItem` 把铸出的锚写在 `draftField` 命中的那个节点上。构造 final 在 item 根另有数组键 `topAnchors`、`basis` 元素的 `sourceAnchors` 取 `.default([])` 的形状，`anchorField` 误指 `topAnchors` 时：门准入，resolver 报 `resolved=1`，而 executor 的 `descriptor.schema.safeParse` 把错位写入的 `topAnchors` 从 `basis` 节点 strip 掉、`sourceAnchors` 回落 `[]`，`success=true`，最终形零锚点且零报错。此形与缺陷②描述的病象同族，但票面改法只要求「其余字段须为对应 schema 已声明键」，返修宪章亦只就键形轴设判据，故不作本次驳回依据，供架构决定是否另立票。SPEC 缺陷②节「写错一字不再被 zod strip 静默吞」一句宜加轴限定。
+
+## mutation 复红
+
+每枚先备份至 `$TMPDIR`、注入、grep 校验命中、定向跑、还原、`git status --porcelain` 复核零残留。
+
+| 变异 | 命中校验 | 实得 |
+| --- | --- | --- |
+| `draftField` 数组直接键 → 回全树 | 1 | 1 failed / 66 passed，红在「draftField 只活在数组元素内层」 |
+| `anchorField` 数组直接键 → 回全树 | 1 | 1 failed / 66 passed，红在「anchorField 只活在数组元素内层」 |
+| `outOfCoverageField` 根直接键 → 回全树 | 1 | 1 failed / 66 passed |
+| `itemSummaryField` 根直接键 → 回全树 | 1 | 1 failed / 66 passed |
+| 撤 `ZodStringFormat` 叶子 | 残留 0 | 3 failed / 64 passed，三枚格式类正例 |
+| `visited` 恢复跨 collect 共享 | 1 | 1 failed / 66 passed |
+
+## born-red 与 F-C 掩盖之说
+
+以 `b5a172c` 的测试面对 `7a2e3c4` 的生产面：**7 failed / 60 passed**，与回执逐字相符；红为格式类三枚、`anchorField`/`draftField`/`itemSummaryField` 三形、共用 schema 一枚。此态下 `outOfCoverageField` 一形为绿。
+
+在同一生产面上只施 F-C 一处修（`visited` 改每 collect 新建），仍 **7 failed / 60 passed**，红的成员恰换一枚：`outOfCoverageField` 转红，共用 schema 转绿。掩盖机制由此坐实——首轮 `collect(finalSchema)` 排在 final item 收集之后且共享 `visited`，深层键所在子树已被访过而遭跳过，全子树判据恰好收不到该键，于是误判为拒载。回执「该形的绿是被 visited bug 偶然掩盖、F-C 修后独立复红」成立。
+
+## 二相全量门
+
+- `pnpm -r build`：通过，desktop 仅余既有 chunk-size warning。
+- `pnpm lint`：通过，EXIT=0。验收树内无 `.claude/` 目录，未触发嵌套 worktree 的解析歧义。
+- 根 `pnpm test`：**167 files / 1802 tests** 全绿。
+- `pnpm --filter @courtwork/desktop test`：**75 files / 690 tests** 全绿。
+- `pnpm --filter @courtwork/desktop test:e2e`（`COURTWORK_E2E_PORT=1467`）：**红**，止于 `assert-schema-exemplar`，见 G-1。
+- 越过该门单独复核其后各关：`assert-skin-r2-ledger` 绿、`assert-app-highwater` 绿（2549 行，上限 2549）、`assert-isolation-binding` 绿、`assert-test-count` 绿（352 条，下限 351）、`npx playwright test` **352 passed**。G-1 是本票 e2e 相位的唯一阻断。
+- cargo 非本票面，未跑。开跑 Playwright 前 `chrome-headless-shell` 实计为 0。
+
+## 返修指向
+
+1. 同步 `docs/design/schema-exemplar.sources.json` 的 `P0-S02` 哈希，并核 `docs/design/schema-exemplar.md` 正文是否须随 presentation 契约变化同改。该登记属设计权威行为，须经架构拍板，不由实现会话自决。
+2. 订正 SPEC 第 174 行的 registry 计数。
+3. G-3 由架构裁定：另立票收位置轴，或就地为缺陷②节的宣称加轴限定。
+4. 返修后须以完整 `test:e2e` 收尾；提交前最后一个动作是跑门。
