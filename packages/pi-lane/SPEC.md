@@ -692,7 +692,8 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 
 ## 十 · 门与证据
 
-- 单测 **450 例 / 14 文件**（`vitest run packages/pi-lane`，2026-08-03 实测），含容器越界、闸门拒绝、
+- 单测 **469 例 / 15 文件**（`vitest run packages/pi-lane`，2026-08-05 由 `PI-WRITE-HOST-1` 独立验收
+  在 clean worktree 实测），含容器越界、闸门拒绝、
   预算停 loop、dev 入口 HTTP 面。原写「74 例」是 `PI-LANE-1` 期真值，其后由 product-* 诸票增长；
   本票只据实更新该计数（含本票新增两枚注入反例），不追认也不复核其他票面的证据。
 - ADR-018 门单测 12→23 例；真树注入实测：`child_process` 与 `fs:writeFile` 各触红一次，还原复绿。
