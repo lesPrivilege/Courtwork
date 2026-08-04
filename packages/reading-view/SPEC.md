@@ -168,6 +168,31 @@ packages/reading-view/
 
 **退出证据（实现会话自测，不代表验收）**：包内 **157/157**（首轮基线 146 ＋ 本批 11 枚）；`pnpm --filter @courtwork/reading-view build`（`tsc`）exit 0；`eslint packages/reading-view/src` exit 0。按票面，全量门归验收二相，本会话未跑。触碰面：`docx-reader.ts`、`docx-to-markdown.test.ts`、本 SPEC 三个文件，无第四个。
 
+## READING-SDT-1R · 独立验收裁决（2026-08-04，**PASS**，含一处 fix-by-acceptance）
+
+完整验收报告见本包 `ACCEPTANCE.md` 同名节。以下只留后续实现会话必须知道的结论。
+
+**放行**：首轮拒因（四道块级直子过滤器只闭两道）在 1R 已结构性根治。验收自跑复现：生产面逐字节回退 `c9c5f28` 后 **10 failed / 12 passed**，红形逐条量到静默丢内容（P1/P9/P11/P3 为 `ok` ＋ `md=""`，P2 退化空表，`zz:tcPr` 吞正文）；三轴变异实测 **2 / 5 / 1**，枚名与回执逐字相符。`readTable` 的「行、格、合并探测读同一份已过门元素、无第二遍按名扫描」经源码核实成立——`children()` 余下两个消费者（`isBoldParagraph`／`hasMergeMark`）都只在已过门元素**内部**做属性查找，不再自行遍历块级直子。
+
+**裁断①（接受）**：`w:tcPr` 内 `zz:gridSpan` 不再误判为合并。元素身份由「命名空间 ＋ 局部名」共同决定，Word 按 MCE 忽略未知命名空间元素，该单元格在 Word 里本就不合并；此改动消灭的是假阳性过度降级，不引入内容丢失方向的风险。**无需后续动作。**
+
+**裁断②（补齐，验收自修）**：tbl/tr 两级良性名单补 `RANGE_MARKUP`，tr 级另补 `tblPrEx`。依据 ECMA-376 Part 1 wml.xsd——`CT_Tbl` 序列以 `EG_RangeMarkupElements*` 起头，`CT_Tbl`／`CT_Row` 的行内容组均含 `EG_RunLevelElts`（其中即含 range markup），故这五枚在 tbl/tr 直子位置合法且 Word 常发（跨行书签、表格批注区间）；`tblPrEx` 是 `CT_Row` 明文直子，与已在名单的 `trPr` 同类。不补的后果不是丢内容，而是**带书签／批注区间的真实表格合同被整文件拒读**——这类文件在本票之前读得出来，1R 把正确案例变成了拒绝，属本票引入的真实回归。
+
+**良性名单收编原则（今后照此判，别再逐枚拍脑袋）**：三条同时满足才进名单——(1) ECMA-376 上是该父元素的合法直子；(2) 零正文承载；(3) 同一元素已在别的层级被判为良性。任一不满足留给架构。据此 `w:permStart`／`w:permEnd`／`w:ins`／`w:del`／`w:altChunk` 一概不收（第 (3) 条不满足，属 `EG_RunLevelElts` 整组另议）。
+
+**放宽只及良性面**：专设「放宽守卫」反例，在 tbl／tr 直子同时放 range markup 与 `w:sdt`／`w:customXml`，断言仍整文件降级且 detail 具名包装形而非书签——良性面放宽不得渗进内容面。验收自修的红绿证：4 枚新反例改前全红改后全绿；两枚新变异（撤 `TBL_GATE` 的 `RANGE_MARKUP` → 恰 2 红；撤 `TR_GATE` 的 `tblPrEx` → 恰 1 红）。既有变异①在补齐后由 2 红变 3 红，多的一枚正是新增守卫，**是加钉不是稀释**。
+
+**登记（不修，转后继票）**：
+
+1. **多 `w:body` 静默丢内容**：`docx-reader.ts` 里取 body 用 `doc.getElementsByTagNameNS(W,'body')[0]`，是**全树搜索取首枚**而非取 `w:document` 直子。实测两个同级 `w:body` 时第二个 body 的全部正文静默消失且 `status:'ok'`、`md=""`。该行两次提交均未触碰、属本票之前既有面，票面范围是直子过滤器而非 body 选取，故不阻断本票——**但这是本轮专项再攻唯一找到的仍在场的同禁区形态**，建议单开一票：取直子 ＋ 多 body 显式落 `corrupt_file`。
+2. `w:permStart`／`w:permEnd`／`w:ins`／`w:del`／`w:altChunk` 于 body 直子合法但不在名单，触发整文件降级（方向安全）。需架构就 `EG_RunLevelElts` 整组定调。
+3. 良性属性容器（`w:tcPr`／`w:sectPr`／`w:tblGrid`）内部不过门，往里塞正文读不到；但这些容器在 schema 上不容纳 `w:p`／`w:tr`，Word 亦不渲染，故不是「Word 看得见而模型看不见」的保真缺口。不修。
+4. `mc:AlternateContent` 出现在 `w:p` 内时 `Choice` 与 `Fallback` 文本被一并收进（实测 `"甲版乙版"`）——**增字非丢字**，与 1R 登记 2 同族。body 级同结构走门禁降级，无泄漏。
+5. 只含图片（`w:drawing`）无文本的 `w:p` 被静默丢弃（`textOf` 为空即 `continue`）。`DocxBlock` 闭集无图片形，属既有「最小可用」代价，本票未改变其行为。
+6. 1R 变异③覆盖注记：其「唯一独立面是属性层」论证成立，但该面有两个子情形（`w:tcPr` 内 `zz:gridSpan`、`w:rPr` 内 `zz:b`），只配了前者反例。验收实测后者亦为活的区分点（变异③下 `<zz:r><zz:rPr><zz:b/>` 伪造出 `## ` 标题，1R 下不会）——只影响 heading 判定、不丢内容，记为覆盖注记。
+
+**验收自跑全量门（唯一有约束力的一组数字）**：worktree `.claude/worktrees/accept-rsdt-2`，base `main@8f4e937`，机器 PW/cargo 零进程时串行跑。`pnpm -r build` exit 0；`pnpm lint` exit 0；root **1802/1802**（167 files；＝基线 1782 ＋ 首轮 5 ＋ 1R 11 ＋ 验收自修 4，算术自洽）；desktop **690/690**（75 files）；隔离端口 `test:e2e` 全链（含链上全部守卫脚本）Playwright **352/352**，exit 0。包内 **161/161**。`c9c5f28` 登记的首轮数字（root 1787 等）出自已崩溃会话，按「跑腿的数字须自己复测」判例作暂记，以本组为准。
+
 ## TODO（跨层放入区）
 
 - [已在本工单一并落地，非遗留 TODO] `packages/schemas` 的 `IngestStatusEnum` 增补 `needs_ocr`——架构当场拍板通过，见其 SPEC 验收记录；`packages/registry` 的 `S1.yaml` `trigger.fileTypes` 同步补 `docx`/`md`/`txt`——见其 SPEC 验收记录；根 `CLAUDE.md` 架构图补本包一行。三项均已完成，此处只做索引，不是待办。

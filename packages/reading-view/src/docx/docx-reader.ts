@@ -99,8 +99,15 @@ const BODY_GATE: LevelGate = {
   content: new Set(['p', 'tbl']),
   benign: new Set(['sectPr', ...RANGE_MARKUP]),
 };
-const TBL_GATE: LevelGate = { content: new Set(['tr']), benign: new Set(['tblPr', 'tblGrid']) };
-const TR_GATE: LevelGate = { content: new Set(['tc']), benign: new Set(['trPr']) };
+/**
+ * tbl/tr 两级的良性名单同样带 range markup（1R 独立验收 fix-by-acceptance）：ECMA-376 里
+ * `CT_Tbl` 的序列以 `EG_RangeMarkupElements*` 起头，`CT_Tbl`/`CT_Row` 的行内容组又都含
+ * `EG_RunLevelElts`（其中即含 range markup），故这五枚在此两级合法且 Word 会发；漏收会让带
+ * 书签/批注区间的真实表格合同被整文件拒读。`tblPrEx` 是 `CT_Row` 的明文直子，与 `trPr` 同类。
+ * 放宽只及零正文承载的良性面——`w:sdt`/`w:customXml` 等内容承载包装形仍一律降级。
+ */
+const TBL_GATE: LevelGate = { content: new Set(['tr']), benign: new Set(['tblPr', 'tblGrid', ...RANGE_MARKUP]) };
+const TR_GATE: LevelGate = { content: new Set(['tc']), benign: new Set(['trPr', 'tblPrEx', ...RANGE_MARKUP]) };
 const CELL_GATE: LevelGate = {
   content: new Set(['p']),
   benign: new Set(['tcPr', ...RANGE_MARKUP]),

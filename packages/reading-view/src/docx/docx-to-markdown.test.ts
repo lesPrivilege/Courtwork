@@ -321,3 +321,77 @@ describe('READING-SDT-1R · 表内两道直子过滤器与外部命名空间同�
     expect(outcome.view.markdown).toContain('| 预付款 | 1,140,000元 |');
   });
 });
+
+/**
+ * READING-SDT-1R 独立验收 · fix-by-acceptance：tbl/tr 两级良性名单补齐。
+ *
+ * 1R 把 `EG_RangeMarkupElements` 收进了 body 与 `w:tc` 两级良性名单，却没收进 `w:tbl`
+ * 与 `w:tr`（SPEC 登记为 [需架构拍板]）。验收核 ECMA-376 wml.xsd：`CT_Tbl` 的序列以
+ * `EG_RangeMarkupElements*` 起头，`CT_Row` 与 `CT_Tbl` 的行内容组都含 `EG_RunLevelElts`
+ * （其中即含 range markup），故这五枚在 tbl/tr 直子位置**合法且 Word 会发**；`w:tblPrEx`
+ * 同样是 `CT_Row` 的明文直子（与已在名单里的 `trPr` 是同一类行属性元素）。
+ *
+ * 不补的后果不是丢内容，而是**带书签/批注区间的真实表格合同被整文件拒读**——首轮之前这些
+ * 文件本来读得出来（空标记被按名采集天然跳过），1R 把一个正确案例变成了拒绝。方向虽安全，
+ * 但属本票引入的真实回归，故按 fail-closed 不放宽内容面的前提下补齐良性面。
+ * 收编原则（三条同时满足才进名单，任一不满足留给架构）：schema 合法直子、零正文承载、
+ * 同一元素已在别的层级被判为良性（range markup 在 body/cell；`tblPrEx` 对应 `trPr`）。
+ * 因此 `w:permStart`/`w:permEnd`/`w:ins`/`w:del`/`w:altChunk` 一概不动——它们在任何层级
+ * 都还没有先例，属另一议题。
+ */
+describe('READING-SDT-1R 验收补齐 · tbl/tr 直子的合法零内容元素不得整文件拒读', () => {
+  const cell = (text: string) => `<w:tc><w:p><w:r><w:t xml:space="preserve">${text}</w:t></w:r></w:p></w:tc>`;
+
+  async function convertRaw(fileId: string, xml: string) {
+    const data = buildDocxFixture({ blocks: [{ type: 'raw', xml }] });
+    return convertDocxToReadingView({ fileId, fileName: 'c.docx', data }, DEFAULT_LIMITS);
+  }
+
+  it('w:tbl 直子的书签区间（跨行书签，CT_Tbl 合法且 Word 常发）：表格照常转出、行零损', async () => {
+    const outcome = await convertRaw(
+      'acc-bm-tbl',
+      '<w:tbl><w:bookmarkStart w:id="1" w:name="_Ref_payment"/><w:tblPr><w:tblStyle w:val="TableGrid"/></w:tblPr>' +
+        `<w:tr>${cell('预付款')}${cell('1,140,000元')}</w:tr><w:bookmarkEnd w:id="1"/></w:tbl>`,
+    );
+    expect(outcome.status).toBe('ok');
+    if (outcome.status !== 'ok') throw new Error('unreachable');
+    expect(outcome.view.markdown).toContain('| 预付款 | 1,140,000元 |');
+  });
+
+  it('w:tr 直子的书签/批注区间与 proofErr（CT_Row 合法）：单元格照常转出、内容零损', async () => {
+    const outcome = await convertRaw(
+      'acc-bm-tr',
+      '<w:tbl><w:tr><w:bookmarkStart w:id="2" w:name="_Ref_row"/><w:commentRangeStart w:id="3"/><w:proofErr w:type="spellStart"/>' +
+        `${cell('质保金')}${cell('380,000元')}<w:commentRangeEnd w:id="3"/><w:bookmarkEnd w:id="2"/></w:tr></w:tbl>`,
+    );
+    expect(outcome.status).toBe('ok');
+    if (outcome.status !== 'ok') throw new Error('unreachable');
+    expect(outcome.view.markdown).toContain('| 质保金 | 380,000元 |');
+  });
+
+  it('w:tblPrEx（CT_Row 明文直子的行属性例外，与 trPr 同类）：表格照常转出、内容零损', async () => {
+    const outcome = await convertRaw(
+      'acc-tblprex',
+      `<w:tbl><w:tr><w:tblPrEx><w:tblBorders/></w:tblPrEx><w:trPr><w:trHeight w:val="397"/></w:trPr>${cell('期次')}${cell('金额')}</w:tr></w:tbl>`,
+    );
+    expect(outcome.status).toBe('ok');
+    if (outcome.status !== 'ok') throw new Error('unreachable');
+    expect(outcome.view.markdown).toContain('| 期次 | 金额 |');
+  });
+
+  it('放宽只限良性面：tbl/tr 直子的内容承载包装形（w:sdt/w:customXml）仍必须整文件降级', async () => {
+    const wrappedRow = await convertRaw(
+      'acc-guard-tbl',
+      `<w:tbl><w:bookmarkStart w:id="1" w:name="b"/><w:sdt><w:sdtContent><w:tr>${cell('预付款')}</w:tr></w:sdtContent></w:sdt></w:tbl>`,
+    );
+    const wrappedCell = await convertRaw(
+      'acc-guard-tr',
+      `<w:tbl><w:tr><w:bookmarkStart w:id="1" w:name="b"/><w:customXml w:element="C">${cell('1,140,000元')}</w:customXml></w:tr></w:tbl>`,
+    );
+    expect(wrappedRow).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    expect(wrappedCell).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (wrappedRow.status !== 'disabled' || wrappedCell.status !== 'disabled') throw new Error('unreachable');
+    expect(wrappedRow.detail).toContain('sdt');
+    expect(wrappedCell.detail).toContain('customXml');
+  });
+});
