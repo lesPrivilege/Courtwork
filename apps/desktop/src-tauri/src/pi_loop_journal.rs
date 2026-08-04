@@ -1441,7 +1441,16 @@ pub(crate) fn assert_owned_directory(path: &Path) -> Result<(), JournalError> {
     Ok(())
 }
 
+#[cfg(test)]
+thread_local! {
+    /// 测试可观测面：本线程内 `sync_directory` 实调次数。电源级掉电无法在进程内证明，
+    /// 目录项 fsync 的在场性以计数＋mutation 红绿证锁定（PI-HOST-JOURNAL-1 ①）。
+    pub(crate) static SYNC_DIRECTORY_CALLS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
+}
+
 pub(crate) fn sync_directory(path: &Path) -> Result<(), JournalError> {
+    #[cfg(test)]
+    SYNC_DIRECTORY_CALLS.with(|calls| calls.set(calls.get() + 1));
     let handle = File::open(path).map_err(|_| io("打开目录失败"))?;
     handle.sync_all().map_err(|_| io("同步目录项失败"))
 }
@@ -2298,6 +2307,11 @@ fn plan_session_locked(
     let container = container_dir(root, container_id);
     fs::create_dir_all(&container).map_err(|_| io("创建容器目录失败"))?;
     assert_owned_directory(&container)?;
+    // 目录项落盘（ADR-010 决定二，比照 work_state.rs 先例；PI-HOST-JOURNAL-1 ①）：
+    // container 的目录项住 pi-loop，pi-loop 的目录项住 root——子先父后各 sync 一次，
+    // 否则硬断电后目录项可缺，下次读得 NotFound 走 fresh 支，已计费腿静默归零。
+    sync_directory(container.parent().expect("container 必有父目录"))?;
+    sync_directory(root)?;
     // 单写者门在**任何读写之前**：被拒的 Host 因此零 journal 变化、零 spawn（R8）。
     let lock = match held {
         Some(lock) => lock,
@@ -2310,6 +2324,21 @@ fn plan_session_locked(
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => Vec::new(),
         Err(_) => return Err(io("读取 journal 失败")),
     };
+
+    // quarantine 在案的 session 不得静默起新腿（PI-HOST-JOURNAL-1 ②后半）：
+    // 空 journal ＋ 非空 `quarantine/<sessionId>/` 说明历史已被整档隔离，fresh 支的
+    // leg=1/prior_turns=0/prior_usd=Some(0.0) 会把已计费历史静默归零——显式拒绝，交用户处置。
+    if existing.is_empty() {
+        let prior_quarantine = container.join(QUARANTINE_DIR).join(session_id);
+        let has_prior = fs::read_dir(&prior_quarantine)
+            .map(|mut entries| entries.next().is_some())
+            .unwrap_or(false);
+        if has_prior {
+            return Err(JournalError::QuarantineRefused(
+                "该会话存在 quarantine 在案记录，拒绝静默起新腿",
+            ));
+        }
+    }
 
     // 只有**最后一条未以 LF 结束**的 partial bytes 可以截到前一枚 durable LF。
     //
@@ -2324,6 +2353,9 @@ fn plan_session_locked(
     let complete = existing[..complete_len].to_vec();
 
     let mut handle = Some(open_append(&path)?);
+    // journal 文件的目录项住 container：`open_append` 可能刚创建了文件，同步一次
+    // 使其目录项 durable（与 append 内容的 `sync_all` 各管一层；PI-HOST-JOURNAL-1 ①）。
+    sync_directory(&container)?;
 
     let mut records: Vec<JournalRecord> = Vec::new();
     let mut lines = 0_usize;
@@ -2340,7 +2372,7 @@ fn plan_session_locked(
                     container_id,
                     session_id,
                     &mut handle,
-                    &complete,
+                    &existing,
                     "已 LF 结束的记录不合 schema",
                 ));
             }
@@ -3150,6 +3182,171 @@ mod tests {
         assert!(
             !container_dir(&root, "cnt-1").join(QUARANTINE_DIR).exists(),
             "partial tail 不得触发 quarantine"
+        );
+    }
+
+    #[test]
+    fn fresh_session_plan_syncs_directory_entries() {
+        // PI-HOST-JOURNAL-1 ①：fresh 计划路径必须同步目录项——pi-loop（container 之父）、
+        // root（pi-loop 之父）、container（journal 文件之父）各至少一次；掉电不可在进程内
+        // 证明，在场性以本线程计数＋mutation 红绿证锁定。
+        let root = temp_root("dirent-sync");
+        SYNC_DIRECTORY_CALLS.with(|calls| calls.set(0));
+        let _loaded = open(&root);
+        let calls = SYNC_DIRECTORY_CALLS.with(|calls| calls.get());
+        assert!(
+            calls >= 3,
+            "fresh 计划路径目录项 sync 不足：实测 {calls} 次，至少须 3 次"
+        );
+    }
+
+    #[test]
+    fn counterexample_quarantine_digest_covers_untruncated_bytes() {
+        // PI-HOST-JOURNAL-1 ③：quarantine 文件名的 SHA 必须盖住**未截断原字节**（含
+        // partial tail），搬运后的文件内容与其名字互证。
+        let root = temp_root("digest-full");
+        let mut loaded = open(&root);
+        loaded
+            .journal
+            .append(
+                None,
+                None,
+                JournalPayload::SessionStarted(started_payload()),
+            )
+            .expect("首枚落账");
+        drop(loaded);
+        let path = journal_path(&root, "cnt-1", "sess-1");
+        let mut file = OpenOptions::new()
+            .append(true)
+            .open(&path)
+            .expect("追加打开");
+        file.write_all(b"{\"schemaVersion\":1,\"eventId\":\"event_2\"}\n")
+            .expect("写坏行");
+        file.write_all(b"{\"partial").expect("写 partial tail");
+        file.sync_all().expect("同步");
+        drop(file);
+        let full = fs::read(&path).expect("读全文");
+        let error = load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect_err("坏行必须 quarantine");
+        let JournalError::Quarantined { target_sha256, .. } = &error else {
+            panic!("必须是 Quarantined，实得 {error:?}");
+        };
+        assert_eq!(
+            *target_sha256,
+            sha256_hex(&full),
+            "命名 SHA 必须盖住未截断原字节"
+        );
+        let target = container_dir(&root, "cnt-1")
+            .join(QUARANTINE_DIR)
+            .join("sess-1")
+            .join(format!("{target_sha256}.jsonl"));
+        let moved = fs::read(&target).expect("读 quarantine");
+        assert_eq!(sha256_hex(&moved), *target_sha256, "内容与名字互证");
+        assert_eq!(moved, full, "搬运 byte-identical 且含 partial tail");
+    }
+
+    #[test]
+    fn counterexample_same_prefix_different_tails_do_not_collide_in_quarantine() {
+        // PI-HOST-JOURNAL-1 ③反例二：同 LF 前缀、异 partial tail 的两档不得撞名——
+        // 撞名把第二档打成 QuarantineRefused，该 sessionId 从此永久卡死。
+        let root = temp_root("digest-tails");
+        let mut loaded = open(&root);
+        loaded
+            .journal
+            .append(
+                None,
+                None,
+                JournalPayload::SessionStarted(started_payload()),
+            )
+            .expect("首枚落账");
+        drop(loaded);
+        let path = journal_path(&root, "cnt-1", "sess-1");
+        let good = fs::read(&path).expect("读原文");
+        let bad_line: &[u8] = b"{\"schemaVersion\":1,\"eventId\":\"event_2\"}\n";
+        let mut first = good.clone();
+        first.extend_from_slice(bad_line);
+        first.extend_from_slice(b"{\"tail-one");
+        fs::write(&path, &first).expect("写第一形");
+        let first_err = load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect_err("第一形 quarantine");
+        let JournalError::Quarantined {
+            target_sha256: first_sha,
+            ..
+        } = &first_err
+        else {
+            panic!("第一形必须 Quarantined，实得 {first_err:?}");
+        };
+        let mut second = good.clone();
+        second.extend_from_slice(bad_line);
+        second.extend_from_slice(b"{\"tail-two");
+        fs::write(&path, &second).expect("写第二形");
+        let second_err = load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect_err("第二形 quarantine");
+        let JournalError::Quarantined {
+            target_sha256: second_sha,
+            ..
+        } = &second_err
+        else {
+            panic!("第二形必须 Quarantined 而非撞名 QuarantineRefused，实得 {second_err:?}");
+        };
+        assert_ne!(first_sha, second_sha, "异尾必须异名");
+    }
+
+    #[test]
+    fn counterexample_fresh_start_after_quarantine_is_refused_not_silently_zeroed() {
+        // PI-HOST-JOURNAL-1 ②后半：quarantine 之后的下一次 start 不得静默 fresh——
+        // leg=1/prior_turns=0/prior_usd=Some(0.0) 会把已计费历史静默归零，必须显式拒绝。
+        let root = temp_root("post-quarantine");
+        let mut loaded = open(&root);
+        loaded
+            .journal
+            .append(
+                None,
+                None,
+                JournalPayload::SessionStarted(started_payload()),
+            )
+            .expect("首枚落账");
+        drop(loaded);
+        let path = journal_path(&root, "cnt-1", "sess-1");
+        let mut file = OpenOptions::new()
+            .append(true)
+            .open(&path)
+            .expect("追加打开");
+        file.write_all(b"{\"schemaVersion\":1,\"eventId\":\"event_2\"}\n")
+            .expect("写坏行");
+        file.sync_all().expect("同步");
+        drop(file);
+        load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect_err("先 quarantine");
+        let second = load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        );
+        assert!(
+            matches!(second, Err(JournalError::QuarantineRefused(_))),
+            "quarantine 在案时 start 必须显式拒绝而非静默 fresh"
         );
     }
 

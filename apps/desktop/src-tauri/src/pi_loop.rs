@@ -870,6 +870,15 @@ impl PiLoopHost {
                     if packet.request_id.as_deref() != Some(request_id) {
                         return Err(self.fail_protocol(ProtocolErrorCode::RequestMismatch));
                     }
+                    // 写侧序号门（PI-HOST-JOURNAL-1 ②）：与读侧 `validate_records` 同真源，
+                    // `turn_finished` 必须逐一递增。坏序号在 append 前拒绝——坏事件零落盘，
+                    // 失败经 `fail_protocol` 显式落账；否则本机会 durable 写入自家读侧必拒的
+                    // 记录，下次 start 整档 quarantine。
+                    if let AgentProjectionEvent::TurnFinished { turn, .. } = &event {
+                        if *turn != self.projection.prior_observed_turns + 1 {
+                            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+                        }
+                    }
                     let record = self.journal.append(
                         Some(request_id),
                         None,
@@ -1811,6 +1820,58 @@ mod tests {
             .expect("UTF-8");
             assert!(!text.contains("这一枚不该被发布"), "fail_from={fail_from}");
         }
+    }
+
+    /// PI-HOST-JOURNAL-1 ②：写侧序号门。sidecar 首腿自报 `turn:2`（合法值 1）时，
+    /// pump 必须在 append 前拒绝——坏事件与其 usage 第二笔零落盘，失败经 `fail_protocol`
+    /// 显式落账；否则本机 durable 写入自家读侧 `validate_records` 必拒的记录，
+    /// 下次 start 整档 quarantine。
+    #[test]
+    fn counterexample_out_of_order_turn_is_refused_before_append() {
+        let h = harness("ordinal-gate");
+        let (host, _, _) = start_with(
+            &h,
+            vec![VecDeque::from(vec![
+                ready(1, vec![WorkspaceCapability::CaseRead]),
+                sidecar_line(
+                    2,
+                    Some("req-1"),
+                    PacketPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+                        turn: 2,
+                        counted_toward_turn_limit: true,
+                        usage: known_usage(0.01),
+                        stop_reason: TurnStopReason::Stop,
+                    }),
+                ),
+            ])],
+        );
+        let mut host = host.expect("启动成功");
+        let error = host.prompt("req-1", "问一句").expect_err("跳号必须拒");
+        assert!(
+            matches!(
+                &error,
+                HostError::Protocol(ProtocolErrorCode::StateViolation)
+            ),
+            "须 StateViolation，实得 {error:?}"
+        );
+        let footprint = journal_footprint(&h.app_data);
+        let records: Vec<JournalRecord> = footprint
+            .iter()
+            .flat_map(|(_, bytes)| decode_bytes(bytes))
+            .collect();
+        assert!(
+            records.iter().all(|record| !matches!(
+                record.journal_type(),
+                JournalType::AgentEvent | JournalType::TurnUsageRecorded
+            )),
+            "坏序号事件与 usage 第二笔必须零落盘"
+        );
+        assert!(
+            records
+                .iter()
+                .any(|record| matches!(record.journal_type(), JournalType::SessionFailed)),
+            "失败必须显式落账"
+        );
     }
 
     /// **PI-HOST-LOOP-1R 调整**：原形态直接脚本一枚 `turns:12 / usd:0.5 / reached` 的自报
