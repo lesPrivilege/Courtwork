@@ -51,18 +51,21 @@
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use cap_fs_ext::DirExt;
+use cap_fs_ext::{DirExt, FollowSymlinks, OpenOptionsFollowExt}; // READ-NOFOLLOW：OpenOptions 的 follow 扩展
 use cap_std::fs::{
     Dir, DirBuilder, DirBuilderExt, MetadataExt as CapMetadataExt, Permissions, PermissionsExt,
 };
+use cap_std::fs::OpenOptions; // READ-NOFOLLOW：读面末段以 FollowSymlinks::No 打开，见扫描器第二之二条
 use cap_tempfile::TempFile;
 
 use crate::pi_loop::{
-    EffectOutcome, WorkspaceWriteHost, WorkspaceWritePlan, WriteAuthorization, WriteDecisionDriver,
+    EffectOutcome, WorkspaceReadHost, WorkspaceWriteHost, WorkspaceWritePlan, WriteAuthorization,
+    WriteDecisionDriver,
 };
 use crate::pi_loop_journal::sha256_hex;
 use crate::pi_loop_protocol::{
-    HostFailureCode, WriteDisposition, MAX_LOGICAL_PATH_BYTES, MAX_SEGMENT_BYTES,
+    HostFailureCode, ListEntry, ListEntryKind, WriteDisposition, MAX_LOGICAL_PATH_BYTES,
+    MAX_SEGMENT_BYTES, MAX_TEXT_BYTES,
 };
 
 /// `/workspace` 的物理根一级：`app_data_dir()/pi-workspaces/<containerId>/<sessionId>/`
@@ -169,6 +172,52 @@ fn check_markdown_basename(basename: &str) -> Result<(), HostFailureCode> {
         return Err(HostFailureCode::UnsupportedFileType);
     }
     Ok(())
+}
+
+/// ADR-022 六-B.2：`list` 的根在 wire 上恰写作 `"."`。
+pub(crate) const WORKSPACE_LIST_ROOT: &str = ".";
+
+/// ADR-022 六-B.2：`list` 只列直接子项、最多 2,000 项；超限 `limit_exceeded`，不静默少列。
+pub(crate) const MAX_LIST_ENTRIES: usize = 2000;
+
+/// 已过 grammar 的**读**路径。`basename` 为 `None` 恰表示 workspace 根本身（只服务 `list`）。
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct ReadPathPlan {
+    pub(crate) parents: Vec<String>,
+    pub(crate) basename: Option<String>,
+}
+
+/// 读面 grammar：与 {@link parse_write_path} 共用同一套 segment 闭集，差别恰两条——
+/// 读面**不要求** `.md`（要 list 目录、要 exists 任意条目），且认 `"."` 这枚 list 根。
+///
+/// `allow_root` 由调用方按操作给：ADR 的例外只给了 `list` 一枚，`exists`/`read_file`
+/// 拿到根一律 `invalid_path`（不外扩例外，也不把「根是不是文件」留给下游猜）。
+pub(crate) fn parse_read_path(
+    logical: &str,
+    allow_root: bool,
+) -> Result<ReadPathPlan, HostFailureCode> {
+    if logical.is_empty() || logical.len() > MAX_LOGICAL_PATH_BYTES {
+        return Err(HostFailureCode::InvalidPath);
+    }
+    if logical == WORKSPACE_LIST_ROOT {
+        if !allow_root {
+            return Err(HostFailureCode::InvalidPath);
+        }
+        return Ok(ReadPathPlan {
+            parents: Vec::new(),
+            basename: None,
+        });
+    }
+    let mut segments: Vec<String> = Vec::new();
+    for segment in logical.split('/') {
+        check_segment(segment)?;
+        segments.push(segment.to_string());
+    }
+    let basename = segments.pop().expect("split 至少产出一段");
+    Ok(ReadPathPlan {
+        parents: segments,
+        basename: Some(basename),
+    })
 }
 
 // ── 文件系统能力前置 ────────────────────────────────────────────────────────
@@ -551,6 +600,266 @@ impl WorkspaceWriteHost for WorkspaceFsHost {
             Err((true, _)) => EffectOutcome::Uncertain,
         }
     }
+}
+
+/// 读面真件（`PI-WORKSPACE-READ-1`）。
+///
+/// 三条与写面共享、不另起一套（STAGE4 移交 5 明写「读侧票直接沿用同两枚函数」）：
+/// capability 根的取得与 `dev`/`ino` 回证、`session_root` 三段、`descend` 逐段 no-follow。
+/// 读面自己只多两件事：末段以 `FollowSymlinks::No` 打开，以及 UTF-8 fail-closed。
+///
+/// **零 mutation**：`session_root(false)`／`descend(.., false)` 全程纯读，缺目录即
+/// 「不存在」，绝不因为一次读而把 workspace 目录建出来。
+impl WorkspaceReadHost for WorkspaceFsHost {
+    fn exists(&mut self, logical_path: &str) -> Result<bool, HostFailureCode> {
+        let parsed = parse_read_path(logical_path, false)?;
+        let basename = parsed.basename.as_ref().ok_or(HostFailureCode::InvalidPath)?;
+        let Some(root) = self.session_root(false)? else {
+            return Ok(false);
+        };
+        let Some(parent) = Self::descend(root, &parsed.parents, false)? else {
+            return Ok(false);
+        };
+        match parent.symlink_metadata(basename) {
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
+            Err(_) => Err(HostFailureCode::Io),
+            // 末段是 symlink：**不跟随**，也不谎称不存在——两者是不同的事实。
+            Ok(metadata) if metadata.file_type().is_symlink() => {
+                Err(HostFailureCode::SymlinkForbidden)
+            }
+            Ok(_) => Ok(true),
+        }
+    }
+
+    fn read_file(&mut self, logical_path: &str) -> Result<(String, u64), HostFailureCode> {
+        let parsed = parse_read_path(logical_path, false)?;
+        let basename = parsed.basename.as_ref().ok_or(HostFailureCode::InvalidPath)?;
+        let root = self.session_root(false)?.ok_or(HostFailureCode::NotFound)?;
+        let parent =
+            Self::descend(root, &parsed.parents, false)?.ok_or(HostFailureCode::NotFound)?;
+        match parent.symlink_metadata(basename) {
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                return Err(HostFailureCode::NotFound)
+            }
+            Err(_) => return Err(HostFailureCode::Io),
+            Ok(metadata) if metadata.file_type().is_symlink() => {
+                return Err(HostFailureCode::SymlinkForbidden)
+            }
+            Ok(metadata) if metadata.is_dir() => return Err(HostFailureCode::IsDirectory),
+            Ok(_) => {}
+        }
+        // `symlink_metadata` 只报理由；门是这一枚 `FollowSymlinks::No` 的打开。
+        let mut options = OpenOptions::new(); // READ-NOFOLLOW：唯一构造点
+        options.read(true);
+        options.follow(FollowSymlinks::No);
+        let mut file = parent
+            .open_with(basename, &options)
+            .map_err(|_| HostFailureCode::Io)?;
+        let metadata = file.metadata().map_err(|_| HostFailureCode::Io)?;
+        // 上限先于读取：不把超限文件整个吸进内存再拒。
+        if metadata.len() > MAX_TEXT_BYTES as u64 {
+            return Err(HostFailureCode::LimitExceeded);
+        }
+        let mut bytes = Vec::new();
+        std::io::Read::read_to_end(&mut file, &mut bytes).map_err(|_| HostFailureCode::Io)?;
+        // 读取与 stat 之间可能变长；再判一次，越限一律拒。
+        if bytes.len() > MAX_TEXT_BYTES {
+            return Err(HostFailureCode::LimitExceeded);
+        }
+        // **UTF-8 fail-closed**：`from_utf8_lossy` 会把坏字节换成 U+FFFD，那是静默改写正文
+        // ——回读双验会连带失效（hash 对的是被改写后的字节）。workspace 只承载本协议写入的
+        // UTF-8 Markdown，故非 UTF-8 是真实异常，如实拒。
+        let content = String::from_utf8(bytes).map_err(|_| HostFailureCode::Io)?;
+        let byte_length = content.len() as u64;
+        Ok((content, byte_length))
+    }
+
+    fn list(&mut self, logical_path: &str) -> Result<Vec<ListEntry>, HostFailureCode> {
+        let parsed = parse_read_path(logical_path, true)?;
+        let Some(root) = self.session_root(false)? else {
+            // 根尚未建出来（本 session 一次都没写过）：空目录是事实，不是错误。
+            return if parsed.basename.is_none() {
+                Ok(Vec::new())
+            } else {
+                Err(HostFailureCode::NotFound)
+            };
+        };
+        let parent =
+            Self::descend(root, &parsed.parents, false)?.ok_or(HostFailureCode::NotFound)?;
+        let directory = match &parsed.basename {
+            None => parent,
+            Some(basename) => match open_child_dir(&parent, basename)? {
+                Some(child) => child,
+                None => return Err(HostFailureCode::NotFound),
+            },
+        };
+
+        let mut entries: Vec<ListEntry> = Vec::new();
+        for item in directory.entries().map_err(|_| HostFailureCode::Io)? {
+            let item = item.map_err(|_| HostFailureCode::Io)?;
+            let name = item
+                .file_name()
+                .into_string()
+                .map_err(|_| HostFailureCode::InvalidPath)?;
+            // 目录里真实存在的名字仍须过一次 grammar：不合规的名字不投影出去
+            // （与 `/case` 容器同口径），也不把它算进上限。
+            if check_segment(&name).is_err() {
+                continue;
+            }
+            let metadata = item.metadata().map_err(|_| HostFailureCode::Io)?;
+            let file_type = metadata.file_type();
+            let kind = if file_type.is_symlink() {
+                ListEntryKind::Symlink
+            } else if file_type.is_dir() {
+                ListEntryKind::Directory
+            } else {
+                ListEntryKind::File
+            };
+            entries.push(ListEntry {
+                // wire 契约：`byteLength` 只对 file 有值，其余恒 `null`。
+                byte_length: if kind == ListEntryKind::File {
+                    Some(metadata.len())
+                } else {
+                    None
+                },
+                mtime_ms: metadata
+                    .modified()
+                    .ok()
+                    .and_then(|at| at.into_std().duration_since(std::time::UNIX_EPOCH).ok())
+                    .map(|since| since.as_millis() as u64),
+                name,
+                kind,
+            });
+        }
+        // ADR-022 六-B.2：按 UTF-8 name 升序。`sort_by` 而非 `sort_unstable_by`——
+        // 名字唯一，两者等价，取稳定序少一处「取决于实现」。
+        entries.sort_by(|left, right| left.name.as_bytes().cmp(right.name.as_bytes()));
+        if entries.len() > MAX_LIST_ENTRIES {
+            return Err(HostFailureCode::LimitExceeded);
+        }
+        Ok(entries)
+    }
+}
+
+// ── viewer 查询面（ADR-022 六-D，`PI-WORKSPACE-READ-1`）────────────────────────
+
+/// `openWorkspaceMarkdown` 的失败闭集（ADR-022 六-D 逐字）。
+///
+/// 与 {@link HostFailureCode} 分列：那一枚是**模型面**的 wire 闭集，这一枚是 **WebView 面**的。
+/// 两者成员相近但受众不同，合成一枚会让「给模型看的理由」与「给用户看的理由」共用一份措辞，
+/// 将来任一侧调文案都会误伤另一侧。
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum WorkspaceViewError {
+    SessionMismatch,
+    InvalidPath,
+    NotFound,
+    IsDirectory,
+    SymlinkForbidden,
+    LimitExceeded,
+    UnsupportedFileType,
+    Io,
+}
+
+impl WorkspaceViewError {
+    pub(crate) fn code(self) -> &'static str {
+        match self {
+            WorkspaceViewError::SessionMismatch => "session_mismatch",
+            WorkspaceViewError::InvalidPath => "invalid_path",
+            WorkspaceViewError::NotFound => "not_found",
+            WorkspaceViewError::IsDirectory => "is_directory",
+            WorkspaceViewError::SymlinkForbidden => "symlink_forbidden",
+            WorkspaceViewError::LimitExceeded => "limit_exceeded",
+            WorkspaceViewError::UnsupportedFileType => "unsupported_file_type",
+            WorkspaceViewError::Io => "io",
+        }
+    }
+
+    /// 文案的**唯一**真源，体例同 {@link HostFailureCode::message}：宿主自产、不拼路径、
+    /// 不转发 OS error，且逐条远短于 ADR 的 1,024 UTF-8 bytes 上限。
+    pub(crate) fn message(self) -> &'static str {
+        match self {
+            WorkspaceViewError::SessionMismatch => "会话标识不合法，拒绝打开",
+            WorkspaceViewError::InvalidPath => "逻辑路径不在工作稿语法闭集内",
+            WorkspaceViewError::NotFound => "目标不存在",
+            WorkspaceViewError::IsDirectory => "目标是目录，不是工作稿文件",
+            WorkspaceViewError::SymlinkForbidden => "路径含符号链接，工作稿根内不跟随",
+            WorkspaceViewError::LimitExceeded => "工作稿超过可查看的大小上限",
+            WorkspaceViewError::UnsupportedFileType => "只接受 Markdown 工作稿",
+            WorkspaceViewError::Io => "工作稿读取失败",
+        }
+    }
+}
+
+/// 模型面 code → viewer 面 code。手写不派生：两枚闭集的成员本就不是一一对应
+/// （viewer 没有 `hash_mismatch`／`state_changed`／`aborted`；模型面没有 `session_mismatch`）。
+fn view_error_from(code: HostFailureCode) -> WorkspaceViewError {
+    match code {
+        HostFailureCode::InvalidPath => WorkspaceViewError::InvalidPath,
+        HostFailureCode::NotFound => WorkspaceViewError::NotFound,
+        HostFailureCode::NotDirectory => WorkspaceViewError::NotFound,
+        HostFailureCode::IsDirectory => WorkspaceViewError::IsDirectory,
+        HostFailureCode::SymlinkForbidden => WorkspaceViewError::SymlinkForbidden,
+        HostFailureCode::LimitExceeded => WorkspaceViewError::LimitExceeded,
+        HostFailureCode::UnsupportedFileType => WorkspaceViewError::UnsupportedFileType,
+        // 其余成员在读路径上不可达（它们只属写臂）；不静默映射成某个「像样」的理由。
+        _ => WorkspaceViewError::Io,
+    }
+}
+
+/// `openWorkspaceMarkdown` 的返回值。**没有物理路径字段**——WebView 见不到物理坐标。
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct WorkspaceMarkdownView {
+    pub(crate) logical_path: String,
+    pub(crate) content: String,
+    pub(crate) content_sha256: String,
+    pub(crate) byte_length: u64,
+}
+
+/// 容器/会话 id 的 token 闭集：它们要成为物理路径的**段**，故语法必须与 wire 的
+/// `SafeToken` 同宽——放宽一格就等于给 viewer 开一条模型面没有的路径构造口。
+fn is_safe_container_token(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= MAX_SEGMENT_BYTES
+        && value
+            .chars()
+            .all(|unit| unit.is_ascii_alphanumeric() || unit == '-' || unit == '_')
+}
+
+/// GUI 后续消费的窄只读查询面（ADR-022 六-D）。**双验**：
+///
+/// 1. session：`containerId`/`sessionId` 各过 token 闭集，不合即 `session_mismatch`，
+///    一个字节都不碰文件系统；
+/// 2. path：同一套 workspace grammar，外加 `.md` 强制（viewer 只看 Markdown）；
+/// 3. UTF-8 与 131,072 bytes 上限由读件自己兑现（与模型面同一条路径，不另写一份）；
+/// 4. hash 由**本函数从当前正文重算**——它因此可能与已落账的 succeeded hash 不同，
+///    那正是 UI 要显示「当前内容已不同于已确认版本」的依据（ADR-022 六-D）。本层只给事实，
+///    不做比对，也不把正文写回 journal。
+pub(crate) fn open_workspace_markdown(
+    app_data_dir: &Path,
+    container_id: &str,
+    session_id: &str,
+    logical_path: &str,
+) -> Result<WorkspaceMarkdownView, WorkspaceViewError> {
+    if !is_safe_container_token(container_id) || !is_safe_container_token(session_id) {
+        return Err(WorkspaceViewError::SessionMismatch);
+    }
+    // `.md` 门先于任何 I/O：非 Markdown 连读都不读。
+    let parsed = parse_read_path(logical_path, false).map_err(view_error_from)?;
+    let basename = parsed
+        .basename
+        .as_ref()
+        .ok_or(WorkspaceViewError::InvalidPath)?;
+    check_markdown_basename(basename).map_err(view_error_from)?;
+
+    let mut host = WorkspaceFsHost::new(app_data_dir, container_id, session_id);
+    let (content, byte_length) = WorkspaceReadHost::read_file(&mut host, logical_path)
+        .map_err(view_error_from)?;
+    Ok(WorkspaceMarkdownView {
+        content_sha256: sha256_hex(content.as_bytes()),
+        logical_path: logical_path.to_string(),
+        content,
+        byte_length,
+    })
 }
 
 #[cfg(test)]
@@ -1510,6 +1819,214 @@ mod tests {
         );
     }
 
+    // ── 读面与 viewer（PI-WORKSPACE-READ-1）──────────────────────────────────
+
+    /// 落一份真文件再走真读件：三枚 wire 值都从**当前正文**自算，不复述写入时的自报值。
+    fn land(bench: &Bench, logical: &str, content: &str) {
+        let mut host = bench.host().with_decision_driver(Box::new(AlwaysApprove));
+        assert!(
+            matches!(
+                host.perform(&plan(logical, content), WriteDisposition::Created),
+                EffectOutcome::Succeeded
+            ),
+            "前置：写入必须成功"
+        );
+    }
+
+    struct AlwaysApprove;
+    impl WriteDecisionDriver for AlwaysApprove {
+        fn decide(
+            &mut self,
+            _plan: &WorkspaceWritePlan,
+            _action: WriteDisposition,
+        ) -> WriteAuthorization {
+            WriteAuthorization::Approved
+        }
+    }
+
+    #[test]
+    fn read_file_returns_the_landed_bytes_and_fails_closed_on_non_utf8() {
+        let bench = bench("read-file");
+        let content = "# 纪要\n第一条：合同编号 HT-2024-081\n";
+        land(&bench, "notes/会议纪要.md", content);
+
+        let mut host = bench.host();
+        let (read, byte_length) =
+            WorkspaceReadHost::read_file(&mut host, "notes/会议纪要.md").expect("必须读得到");
+        assert_eq!(read, content, "逐字节回读");
+        assert_eq!(byte_length, content.len() as u64);
+
+        // 非 UTF-8 **不**做 lossy 替换：那会把正文静默改写，回读双验也随之失效。
+        std::fs::write(bench.workspace().join("坏.md"), [0xff, 0xfe, 0x00]).expect("造坏字节");
+        assert_eq!(
+            WorkspaceReadHost::read_file(&mut host, "坏.md"),
+            Err(HostFailureCode::Io),
+            "非 UTF-8 必须 fail-closed，不得回 U+FFFD"
+        );
+    }
+
+    #[test]
+    fn read_face_is_pure_and_never_creates_the_workspace_root() {
+        let bench = bench("read-pure");
+        let mut host = bench.host();
+        // 一次都没写过：三枚读操作都不许把目录建出来。
+        assert_eq!(WorkspaceReadHost::exists(&mut host, "任意.md"), Ok(false));
+        assert_eq!(WorkspaceReadHost::list(&mut host, "."), Ok(Vec::new()));
+        assert_eq!(
+            WorkspaceReadHost::read_file(&mut host, "任意.md"),
+            Err(HostFailureCode::NotFound)
+        );
+        assert!(
+            !bench.workspace().exists(),
+            "读是纯读：workspace 根一个字节都不许因读而出现"
+        );
+    }
+
+    #[test]
+    fn list_is_direct_children_only_sorted_by_utf8_name() {
+        let bench = bench("read-list");
+        land(&bench, "乙.md", "b\n");
+        land(&bench, "甲.md", "a\n");
+        land(&bench, "子目录/丙.md", "c\n");
+
+        let mut host = bench.host();
+        let entries = WorkspaceReadHost::list(&mut host, ".").expect("列根");
+        assert_eq!(
+            entries.iter().map(|entry| entry.name.as_str()).collect::<Vec<_>>(),
+            vec!["乙.md", "子目录", "甲.md"],
+            "只列直接子项，按 UTF-8 name 升序"
+        );
+        // `byteLength` 只对 file 有值（wire 契约）。
+        for entry in &entries {
+            match entry.kind {
+                ListEntryKind::File => assert!(entry.byte_length.is_some()),
+                _ => assert!(entry.byte_length.is_none()),
+            }
+        }
+    }
+
+    #[test]
+    fn read_face_does_not_follow_symlinks_at_any_segment() {
+        let bench = bench("read-symlink");
+        land(&bench, "真件.md", "x\n");
+        let root = bench.workspace();
+        std::os::unix::fs::symlink("/etc/hosts", root.join("外链.md")).expect("造末段链接");
+        std::fs::create_dir(bench.root.join("别处")).expect("造界外目录");
+        std::os::unix::fs::symlink(bench.root.join("别处"), root.join("链目录")).expect("造中间段链接");
+
+        let mut host = bench.host();
+        assert_eq!(
+            WorkspaceReadHost::read_file(&mut host, "外链.md"),
+            Err(HostFailureCode::SymlinkForbidden),
+            "末段是链接：拒，且绝不去看它指向谁"
+        );
+        assert_eq!(
+            WorkspaceReadHost::exists(&mut host, "外链.md"),
+            Err(HostFailureCode::SymlinkForbidden),
+            "exists 同样不许把链接读成「在」或「不在」"
+        );
+        assert_eq!(
+            WorkspaceReadHost::read_file(&mut host, "链目录/任意.md"),
+            Err(HostFailureCode::SymlinkForbidden),
+            "中间段是链接：同样拒"
+        );
+    }
+
+    /// 两个 session 各有自己的 workspace 根：一个读不到另一个的文件。
+    #[test]
+    fn sessions_do_not_read_through_to_each_other() {
+        let bench = bench("read-isolation");
+        land(&bench, "机密.md", "只属本 session\n");
+
+        let mut other = WorkspaceFsHost::new(&bench.app_data, CONTAINER, "sess-2");
+        assert_eq!(WorkspaceReadHost::exists(&mut other, "机密.md"), Ok(false));
+        assert_eq!(
+            WorkspaceReadHost::read_file(&mut other, "机密.md"),
+            Err(HostFailureCode::NotFound),
+        );
+        let mut other_container = WorkspaceFsHost::new(&bench.app_data, "cnt-2", SESSION);
+        assert_eq!(
+            WorkspaceReadHost::exists(&mut other_container, "机密.md"),
+            Ok(false)
+        );
+    }
+
+    #[test]
+    fn viewer_returns_current_bytes_with_a_recomputed_hash() {
+        let bench = bench("viewer-ok");
+        let first = "# 初稿\n";
+        land(&bench, "简报.md", first);
+        let view = open_workspace_markdown(&bench.app_data, CONTAINER, SESSION, "简报.md")
+            .expect("必须打得开");
+        assert_eq!(view.logical_path, "简报.md");
+        assert_eq!(view.content, first);
+        assert_eq!(view.content_sha256, sha256_hex(first.as_bytes()));
+        assert_eq!(view.byte_length, first.len() as u64);
+
+        // 覆盖之后再看：hash 跟着**当前**正文走，不复述上一次落账的那一枚。
+        let second = "# 二稿\n多了一行\n";
+        land(&bench, "简报.md", second);
+        let again = open_workspace_markdown(&bench.app_data, CONTAINER, SESSION, "简报.md")
+            .expect("必须打得开");
+        assert_eq!(again.content_sha256, sha256_hex(second.as_bytes()));
+        assert_ne!(again.content_sha256, view.content_sha256, "两稿必不同 hash");
+    }
+
+    #[test]
+    fn viewer_double_gate_refuses_bad_session_and_bad_path_with_zero_leakage() {
+        let bench = bench("viewer-gate");
+        land(&bench, "简报.md", "正文\n");
+        std::fs::create_dir_all(bench.workspace().join("子目录")).expect("造目录");
+
+        let cases: Vec<(&str, &str, &str, &str, WorkspaceViewError)> = vec![
+            ("容器 id 越界", "../逃逸", SESSION, "简报.md", WorkspaceViewError::SessionMismatch),
+            ("会话 id 越界", CONTAINER, "sess/1", "简报.md", WorkspaceViewError::SessionMismatch),
+            ("会话 id 为空", CONTAINER, "", "简报.md", WorkspaceViewError::SessionMismatch),
+            ("路径含 ..", CONTAINER, SESSION, "../简报.md", WorkspaceViewError::InvalidPath),
+            ("非 Markdown", CONTAINER, SESSION, "简报.txt", WorkspaceViewError::UnsupportedFileType),
+            ("basename 恰为 .md", CONTAINER, SESSION, ".md", WorkspaceViewError::UnsupportedFileType),
+            ("不存在", CONTAINER, SESSION, "没有.md", WorkspaceViewError::NotFound),
+            // 目录名不以 `.md` 结尾，故先被 Markdown 门拦下——顺序即语义，如实登记实际拒因。
+            ("目录名不是 Markdown", CONTAINER, SESSION, "子目录", WorkspaceViewError::UnsupportedFileType),
+        ];
+        let physical = bench.app_data.to_string_lossy().to_string();
+        for (label, container, session, logical, expected) in cases {
+            let result = open_workspace_markdown(&bench.app_data, container, session, logical);
+            assert_eq!(result, Err(expected), "{label}");
+            let message = expected.message();
+            assert!(!message.contains(&physical), "{label}：文案不得含物理根");
+            assert!(
+                message.len() <= 1024,
+                "{label}：文案不得越 ADR 的 1,024 bytes 上限"
+            );
+        }
+    }
+
+    /// viewer 的 session 门必须在**任何 I/O 之前**：坏 token 不许把目录建出来，也不许触盘。
+    #[test]
+    fn viewer_session_gate_runs_before_touching_the_filesystem() {
+        let bench = bench("viewer-gate-order");
+        assert_eq!(
+            open_workspace_markdown(&bench.app_data, "cnt/1", "sess-1", "简报.md"),
+            Err(WorkspaceViewError::SessionMismatch)
+        );
+        assert!(
+            !bench.app_data.join(PI_WORKSPACES_DIR).exists(),
+            "session 门不成立时一个目录都不许建"
+        );
+    }
+
+    #[test]
+    fn viewer_refuses_oversized_markdown() {
+        let bench = bench("viewer-cap");
+        let big = "あ".repeat(MAX_TEXT_BYTES); // 每字 3 bytes，稳超上限
+        land(&bench, "巨稿.md", &big);
+        assert_eq!(
+            open_workspace_markdown(&bench.app_data, CONTAINER, SESSION, "巨稿.md"),
+            Err(WorkspaceViewError::LimitExceeded)
+        );
+    }
+
     // ── ambient / mutation 面的 fail-closed 静态门 ───────────────────────────
 
     /// PREFLIGHT §ambient 逃逸口穷举（种子照抄上游 `ambient-authority` 的 clippy 禁用清单）。
@@ -1525,7 +2042,6 @@ mod tests {
         "remove_dir",
         "hard_link",
         "read_link",
-        "OpenOptions",
         "File::create",
         "File::open",
         "set_len",
@@ -1534,6 +2050,19 @@ mod tests {
 
     /// 唯一允许出现的 ambient 取得构件——且只许出现在带 `AMBIENT-ROOT` 的具名理由行上。
     const AMBIENT_CONSTRUCTS: &[&str] = &["open_ambient_dir", "ambient_authority"];
+
+    /// `OpenOptions` 从 {@link FORBIDDEN_CONSTRUCTS} 移到这里（`PI-WORKSPACE-READ-1`）。
+    ///
+    /// 它当初被整体禁掉，是因为写路径**只**该经 `TempFile` + `replace`，任何自造 open 都会
+    /// 绕开屏障。读路径没有屏障可绕，但它需要**比默认更强**的一件事：以
+    /// `FollowSymlinks::No` 打开末段——这正是本模块「门是 nofollow 打开、`symlink_metadata`
+    /// 只报理由」那条doctrine 在文件层的兑现。换成 `Dir::open` 反而更弱（cap-std 只保证不
+    /// 逃出 root，不保证 root 内不跟随），故取「保留最强原语 + 具名登记」而非「换弱原语过门」。
+    ///
+    /// 约束与 ambient 同形：只许出现在带 `READ-NOFOLLOW` 的具名理由行上，且**恰三处**
+    /// （两枚 `use` 引入 + 一枚构造）。多一处、少一处、或落在没有理由行的位置，一律红。
+    const NOFOLLOW_OPEN_CONSTRUCTS: &[&str] = &["OpenOptions"];
+    const NOFOLLOW_OPEN_SITES: usize = 3;
 
     /// 唯一登记的 `std::fs::` 调用：只读 `lstat`。其余任何 `fs::` 出现都判红——
     /// **不是**白名单允许清单，而是「未登记即红」的 fail-closed 枚举（承 1R5 判例：
@@ -1591,6 +2120,26 @@ mod tests {
             ambient_lines.len(),
             1,
             "ambient 取得点必须恰一处，实得 {ambient_lines:?}"
+        );
+
+        // 二之二：no-follow 打开只许住在具名理由行上，且恰三处。
+        let mut nofollow_lines: Vec<usize> = Vec::new();
+        for (number, line) in &lines {
+            if NOFOLLOW_OPEN_CONSTRUCTS
+                .iter()
+                .any(|construct| line.contains(construct))
+            {
+                assert!(
+                    line.contains("READ-NOFOLLOW"),
+                    "第 {number} 行的 OpenOptions 没有具名理由：{line}"
+                );
+                nofollow_lines.push(*number);
+            }
+        }
+        assert_eq!(
+            nofollow_lines.len(),
+            NOFOLLOW_OPEN_SITES,
+            "no-follow 打开点必须恰 {NOFOLLOW_OPEN_SITES} 处，实得 {nofollow_lines:?}"
         );
 
         // 三：`fs::` 调用逐处清账；未登记即红。

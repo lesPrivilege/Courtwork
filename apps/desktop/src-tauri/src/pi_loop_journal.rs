@@ -57,11 +57,20 @@ pub(crate) const CURRENT_PROMPT_ID: &str = "md-work-v1";
 pub(crate) const LEGACY_PROMPT_ID: &str = "case-read-v1";
 /// 读侧闭集恰两员：**不是**通配，也不是「非空即可」。
 pub(crate) const LEGAL_PROMPT_IDS: &[&str] = &[LEGACY_PROMPT_ID, CURRENT_PROMPT_ID];
-/// 读侧 capabilities 闭集：旧档一员、⑤ 之后的新形一员。次序即判据（Node 侧按字典序归一）。
+/// 读侧 capabilities 闭集：旧档一员、⑤ 之后一员、`PI-WORKSPACE-READ-1` 之后一员。
+/// 次序即判据（Node 侧按字典序归一）。
+///
+/// **只扩员、不收窄**（循 `PI-WRITE-HOST-1` ⑥ 裁定A 先例）：三员都必须 valid——收窄它等于
+/// 让先前落的档整批 quarantine。写侧记当刻真值，读侧按本表收。
 pub(crate) const LEGAL_CAPABILITY_SETS: &[&[WorkspaceCapability]] = &[
     &[WorkspaceCapability::CaseRead],
     &[
         WorkspaceCapability::CaseRead,
+        WorkspaceCapability::WorkspaceWrite,
+    ],
+    &[
+        WorkspaceCapability::CaseRead,
+        WorkspaceCapability::WorkspaceRead,
         WorkspaceCapability::WorkspaceWrite,
     ],
 ];
@@ -769,7 +778,7 @@ fn read_session_started(node: &JsonNode) -> CodecResult<SessionStartedPayload> {
     if !LEGAL_CAPABILITY_SETS.contains(&capabilities.as_slice()) {
         return reject(
             ProtocolErrorCode::InvalidSchema,
-            "capabilities 必须恰为 ['case_read'] 或 ['case_read','workspace_write']",
+            "capabilities 必须是 LEGAL_CAPABILITY_SETS 的一员",
         );
     }
 
@@ -3480,7 +3489,7 @@ mod tests {
                 r#""capabilities":["workspace_write"]"#,
             ),
             (
-                "集外能力组合：含未谈成的 workspace_read",
+                "集外能力组合：缺 workspace_write 的残缺组合",
                 r#""capabilities":["case_read","workspace_write"]"#,
                 r#""capabilities":["case_read","workspace_read"]"#,
             ),
