@@ -158,6 +158,17 @@ closed_enum!(ResumeKind { Fresh => "fresh", AfterInterruption => "after_interrup
 
 closed_enum!(HostDeniedCode { UserDenied => "user_denied", PolicyDenied => "policy_denied" });
 
+impl HostDeniedCode {
+    /// 两枚拒绝文案的**唯一** Rust 真源，体例同 {@link TerminalFailureCode::message}。
+    /// 文案里不得出现物理路径、secret 或任何入参值（ADR-022 六-B.2）。
+    pub(crate) fn message(self) -> &'static str {
+        match self {
+            HostDeniedCode::UserDenied => "用户未批准这次工作稿写入",
+            HostDeniedCode::PolicyDenied => "策略不允许这次工作稿写入",
+        }
+    }
+}
+
 closed_enum!(HostFailureCode {
     InvalidPath => "invalid_path",
     NotFound => "not_found",
@@ -173,6 +184,30 @@ closed_enum!(HostFailureCode {
     Aborted => "aborted",
     Interrupted => "interrupted",
 });
+
+impl HostFailureCode {
+    /// 十三枚失败文案的**唯一** Rust 真源，体例同 {@link TerminalFailureCode::message}。
+    ///
+    /// 宿主自产：不得从 OS error、errno 或 stderr 拼装，也不得把逻辑/物理路径拼进去
+    /// （ADR-022 六-B.2：error message 不得含物理路径或 secret）。
+    pub(crate) fn message(self) -> &'static str {
+        match self {
+            HostFailureCode::InvalidPath => "逻辑路径不在工作稿语法闭集内",
+            HostFailureCode::NotFound => "目标不存在",
+            HostFailureCode::NotDirectory => "路径中间段不是目录",
+            HostFailureCode::IsDirectory => "目标是目录，不是工作稿文件",
+            HostFailureCode::SymlinkForbidden => "路径含符号链接，工作稿根内不跟随",
+            HostFailureCode::LimitExceeded => "超出工作稿的尺寸或数量上限",
+            HostFailureCode::HashMismatch => "内容与提案哈希不一致",
+            HostFailureCode::StateChanged => "目标状态在授权之后发生变化，本次零写",
+            HostFailureCode::UnsupportedFileType => "只接受 Markdown 工作稿",
+            HostFailureCode::UnsupportedFilesystem => "该文件系统不支持所需的持久化保证",
+            HostFailureCode::Io => "工作稿读写失败",
+            HostFailureCode::Aborted => "本次工作稿写入已被中止",
+            HostFailureCode::Interrupted => "本次工作稿写入被中断",
+        }
+    }
+}
 
 closed_enum!(TerminalFailureCode {
     ProviderError => "provider_error",
