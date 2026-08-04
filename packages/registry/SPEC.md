@@ -138,15 +138,15 @@ type InteractionTemplate = {
 - **包 manifest + 准入 + 五 registry** 落地：`VerticalPackageManifest`（身份/descriptor/场景 v2/声明段正文/renderer 声明/词表节/锚色席位）；`admitPackages`（引用闭合：artifact 与 prompt ref 装载期解析、同 id 拒载、命名空间所有权、词表完备性——必备键 + 枚举字段 enumLabels 零编码暴露律机器化、none×副作用 artifact 契约护栏；**一包拒载不传染他包**=加载兜底④底座义务）；`buildPackageRegistries` 五面（artifact schema 注入式+读侧别名归一 / scenario：promptSegmentRef 闭合为 promptBody、steps 确定性派生 / renderer：缺声明→渲染兜底 / projection / vocabulary：包词优先缺词落底座中性话）。
 - **v1 装载面退役**：scenario.ts/loader.ts/query.ts 与 scenarios/*.yaml 五张随 legal 迁包删除——场景声明随包 manifest 走 ABI 门。文案归宿律照裁：不设第六文案 registry。
 
-## ADMISSION-ENUM-1 实现记录（2026-08-04，审计双确认批，实现完成待独立验收）
+## ADMISSION-ENUM-1 实现记录（2026-08-04，审计双确认批；1R 返修 2026-08-04 追加，实现完成待独立验收）
 
-权威：`docs/architecture/implementation-readiness.md` 2026-08-04 审计双确认批 `ADMISSION-ENUM-1` 行（逐字为准）。边界：只改准入门与反例测试；不放松任何既有门。
+权威：`docs/architecture/implementation-readiness.md` 2026-08-04 审计双确认批 `ADMISSION-ENUM-1` 行（逐字为准）；1R 返修按验收第一相四项（F-A/F-B/F-C/F-D）逐条闭合。边界：只改准入门与反例测试；不放松任何既有门。
 
 ### 缺陷①：枚举收集 walker 对 record/default 等静默跳过 → 补齐 + fail-closed
 
 - `collectEnumFields` 重构为 `collectSchemaInfo`（`packages/registry/src/admission.ts`）：一次遍历同时产出「枚举字段集」与「对象已声明键集」——两样东西共用**同一套** zod 4.4.3 节点分类，不再复制分类逻辑（此前 `collectEnumFields` 与 `unwrapSchema` 一模块两口径的教训；判例「扫描谓词与族定义同宽」「名字清单换材质仍是白名单」）。
 - 已处理的容器/包装类：`ZodObject`/`ZodArray`/`ZodOptional`/`ZodNullable`/`ZodDefault`/`ZodReadonly`/`ZodCatch`/`ZodRecord`（keyType+valueType 都走）/`ZodTuple`（`def.items`）/`ZodIntersection`（`def.left/right`）/`ZodLazy`（`def.getter()`，带环保护与求值失败具名拒）/`ZodUnion`/`ZodDiscriminatedUnion`。
-- 标量叶子显式列举并静默停走（结构性不可能含枚举/子键）：`ZodString`（含全部格式子类）/`ZodNumber`/`ZodBigInt`/`ZodBoolean`/`ZodDate`/`ZodISODate`/`ZodISODateTime`/`ZodISOTime`/`ZodISODuration`/`ZodSymbol`/`ZodUndefined`/`ZodNull`/`ZodAny`/`ZodUnknown`/`ZodNever`/`ZodVoid`/`ZodLiteral`/`ZodNaN`。
+- 标量叶子显式列举并静默停走（结构性不可能含枚举/子键）：`ZodString`／`ZodStringFormat` 系（**如实措辞，1R F-A 订正**：zod 4.4.3 中 `z.email()`→`ZodEmail`、`z.uuid()`→`ZodUUID`、`z.url()`→`ZodURL` 等格式类实测**非** `instanceof ZodString`，而是 `ZodStringFormat` 子类——补基类检查并经三枚正例锁定，此前「含全部格式子类」的宣称与实测不符已撤）／`ZodNumber`/`ZodBigInt`/`ZodBoolean`/`ZodDate`/`ZodISODate`/`ZodISODateTime`/`ZodISOTime`/`ZodISODuration`/`ZodSymbol`/`ZodUndefined`/`ZodNull`/`ZodAny`/`ZodUnknown`/`ZodNever`/`ZodVoid`/`ZodLiteral`/`ZodNaN`。
 - **fail-closed**：未识别节点必 push issue（`准入检查遇到未识别 zod 节点 <类名>`），包被拒载；新增 zod 容器类必须先扩 walker 再准入。**边界登记**：zod 4.4.3 中 `.transform()`/`.pipe()` 同属 `ZodPipe`，另有 `ZodPreprocess`、`ZodMap`/`ZodSet`/`ZodPromise`/`ZodFunction` 等未列入票面的容器维持 fail-closed——用到的包须先扩 walker（当期 legal/pm binding 实测可达类集不含它们，见下方外溢清单的探针证据）。
 
 ### 缺陷②：citationBinding 五字段与 draft/final schema 对账（`checkCitationBinding`）
@@ -154,20 +154,25 @@ type InteractionTemplate = {
 写错一字不再被 zod strip 静默吞——不命中即拒载，消费面坐标（符号锚，`packages/core/src/citation/resolver.ts`）：
 
 - `itemScope`：在**草稿** schema 解析为数组（`resolveDraftArtifact`/`resolveDraftArtifactWithPruning` 的 `resolvePointerPath` 消费面）；
-- `draftField` / `itemSummaryField`：**草稿** item 子树（itemScope 元素）内已声明键（`resolveItem` 深走面 / 缺口摘要读取面）；
-- `anchorField`：**最终** item 子树内已声明键（铸造坐标写回后不得被 final parse strip）；
-- `outOfCoverageField`：**最终** schema 根级已声明键（`rebuildFromSurvivors` 落根，不得被 final parse strip）。
+- **1R F-B 收紧（直接键判据，替代初版「全子树成员资格」）**：验收实证三形——`outOfCoverageField` 只活在元素内层、`anchorField`/`draftField` 只活在数组元素内层的键误拼即静默过门（fail-open）。判据按**消费面位置**收紧：
+  - `outOfCoverageField`＝final schema **根对象直接键**（`rebuildFromSurvivors` 的 `root[field]` 落点）；
+  - `itemSummaryField`＝draft item **根对象直接键**（`outcome.item[field]` 读面）；
+  - `draftField`＝draft item 树中**某对象节点的直接键且值为数组**（`resolveItem` 深走公证面 `key === draftField && Array.isArray(value)`——string 形深层同名键不会被公证，误拼即静默丢引语）；
+  - `anchorField`＝final item 树中**某对象节点的直接键且值为数组**（与 draftField 同位的写回点）。
+  - 口径说明：draftField/anchorField **未**收紧到 item 根直接键——消费面（resolver 深走）允许键住嵌套对象，legal 的 `quoteClaims`/`sourceAnchors` 恰在 `basis[]` 元素层，收紧到 item 根会误拒合法 legal 包；「直接键＋数组类型」同时挡三形误拼（string 深层键不参与公证）并保 legal 深走形状准入（1R 合跑实测 legal/pm 仍准入）。
 
 ### 概念账（复杂度审视：本单新增了什么概念、为何非加不可）
 
-- **「已声明键集」收集**：为 citationBinding 对账而新增的第二输出——与枚举收集同源于一个 walker，避免第三份 zod 分类拷贝；不加新依赖、不加新导出、不改 payload/schema 语义。
+- **「已声明键集」收集**：为 citationBinding 对账而新增的第二输出——与枚举收集同源于一个 walker，避免第三份 zod 分类拷贝；不加新依赖、不加新导出、不改 payload/schema 语义。1R F-B 追加第三输出 `arrayKeys`（值为数组的对象直接键）支撑公证面判据，仍同一 walker。
 - **fail-closed 节点分类**：把「未覆盖即静默」改为「未覆盖即拒载」——这是本票两枚缺陷的共同根因形态（unknown → 跳过 的病根，判例 1R4/1R5 同族），不是新概念而是既有纪律的准入端落位。
+- **1R F-C**：`visited` 生命周期归每次 `collect()`——draft/final 绑同一 `ZodType` 对象时共享 visited 会让后续 collect 漏收键（假拒且拒因与事实相反），属一行修；环保护仍由单次 collect 内 visited 承担。
 
 ### 红绿证表（全部来自完整实跑原始输出）
 
-- **born-red**（实现前）：`admission.test.ts` 新增 10 枚反例全部按预期红——`z.record` 内嵌枚举缺 enumLabels、`.default()` 直接包裹枚举 / 包裹枚举数组两形、合成 `z.map` 未识别节点、citationBinding 五字段各错形（`outOfCoverageField` 误名一字符、`itemScope` 指向 `/caseId` 非数组、`itemScope` 深路径、`draftField`/`anchorField`/`itemSummaryField` 不存在）。实得 **10 failed / 49 passed**。
-- **实现后**：registry 全量 **6 files / 97 tests** 全绿；legal/pm/registry 合跑 **25 files / 229 tests** 全绿。
-- **mutation 逐枚复红**（每枚先备份、注入、定向验证红、恢复、diff 零残留）：撤 ZodRecord 分支 → record 反例红；撤 fail-closed（unknown 静默）→ 合成节点反例红；撤 ZodDefault 分支 → `.default()` 两形反例红；撤整体 citationBinding 对账 → 六枚对账反例全红；撤 `itemScope`/`draftField`/`itemSummaryField`/`anchorField`/`outOfCoverageField` 任一单字段对账 → 对应反例红。
+- **born-red（初版，实现前）**：`admission.test.ts` 新增 10 枚反例全部按预期红——`z.record` 内嵌枚举缺 enumLabels、`.default()` 直接包裹枚举 / 包裹枚举数组两形、合成 `z.map` 未识别节点、citationBinding 五字段各错形（`outOfCoverageField` 误名一字符、`itemScope` 指向 `/caseId` 非数组、`itemScope` 深路径、`draftField`/`anchorField`/`itemSummaryField` 不存在）。实得 **10 failed / 49 passed**。
+- **born-red（1R，返修前）**：新增 7 枚红——F-A 格式类三枚正例（`z.email()`/`z.uuid()`/`z.url()` 被误判未识别拒载）、F-B 三形（`anchorField`/`draftField`/`itemSummaryField` 深层误拼准入）与 F-C 共用 schema 正例（假拒）。`outOfCoverageField` 形在 F-C 修复前的「绿」是被 visited bug 偶然掩盖（root 收集跳过已访子树恰好收不到深层键）；F-C 修复后该形独立复红（mutation 复证），born-red 成立。实得 **7 failed / 60 passed**。
+- **实现后**：registry 全量 1R 后 **6 files / 97 tests**（admission 67 例）；legal/pm/registry 合跑 **25 files / 237 tests** 全绿（真实 legal 深走形状 `quoteClaims`/`sourceAnchors` 按「数组直接键」判据仍准入）。
+- **mutation 逐枚复红（每枚先备份、注入、定向验证红、恢复、diff 零残留；备份一律落 `$TMPDIR` 仓外，F-D）**：初版九枚（撤 ZodRecord 分支 / 撤 fail-closed / 撤 ZodDefault 分支 / 撤整体 citationBinding 对账 / 撤 itemScope / draftField / itemSummaryField / anchorField / outOfCoverageField 各单字段）全部命中；1R 六枚——撤 `ZodStringFormat` 叶子（F-A 三枚正例红）、撤 outOfCoverageField 根直接键改回全树、撤 anchorField 数组直接键改回全树、撤 draftField 数组直接键改回全树、撤 itemSummaryField 根直接键改回全树、`visited` 恢复跨 collect 共享——逐枚命中。
 
 ### 受控外溢清单（票面「扩紧后若现行 legal/pm 被拒载须补词表/binding 使合规」；接受验收查证）
 
@@ -178,5 +183,5 @@ type InteractionTemplate = {
 ### 定序冲突登记（如实登记，不自裁）
 
 - 与 **PM-SCHEMA-1** 的定序：本单触碰 registry 准入面（`admission.ts` 与反例测试）；PM-SCHEMA-1 若同样触碰准入面（OOC/Estimate 语义），须按同包互斥定序，不得并行改。本单未改 estimate 形状门、未改 payload/schema 语义、未改 `PresentationFieldFormatSchema`。
-- **观察到的瞬态（如实登记）**：mutation 收尾后的首次合跑中，「全仓只有 demo-runtime、acceptance 与 test 可以消费 /testing」用例（`vertical-package-exports.test.ts`）出现单次红，当时未捕获断言 diff（输出被过滤）；随后同树 **26 次连续复跑全绿**，且静态分析排除现行树可产生该红（扫描输入确定性：全部 `/testing` 消费方均在白名单内）。当时机上有验收会话 Playwright 全量在跑（`ext-accept-output-apply`），持续时间亦异常（5.7s vs 常态 ~2.5s）。按判例「一次绿不构成对 flaky 的反驳」如实上报为环境瞬态待查，验收会话可自行复跑观察；本单不因该瞬态回退任何代码。
+- **vertical-package-exports.test.ts 瞬态红——已结案（1R F-D，验收定位，非 flaky）**：初版 mutation 收尾后的首次合跑中，「全仓只有 demo-runtime、acceptance 与 test 可以消费 /testing」用例出现单次红。**机制结论**：该测试是文件系统扫描器，对「仓内任意 `.ts/.tsx/.mts/.mjs` 文件消费 `@courtwork/*/testing` 且路径不在白名单」触红——当时红因是 mutation 备份的游离 `.ts` 文件短暂落仓内且消费 `/testing`，**门对、红真、非 flaky**（扫描器把游离文件当真实代码审计正是其职责）。对治：备份一律落 `$TMPDIR` 仓外，不留仓内游离 `.ts`。此前「待验收复跑观察」措辞撤销。
 

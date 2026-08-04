@@ -41,12 +41,17 @@ export interface AdmissionResult {
 interface CollectedSchemaInfo {
   enums: Map<string, Set<string>>;
   keys: Set<string>;
+  /** 值为数组（unwrap 后 ZodArray）的对象直接键——citationBinding 的 draftField/anchorField 公证面（resolver 只公证数组键）。 */
+  arrayKeys: Set<string>;
 }
 
-/** 结构性不可能含枚举/子键的标量叶子（zod 4.4.3 全量；各 String/Number 子类经 instanceof 覆盖）。 */
+/** 结构性不可能含枚举/子键的标量叶子（zod 4.4.3 全量）。
+ * 注意：格式类（z.email()/z.uuid()/z.url() 等）在 4.4.3 是 ZodStringFormat 子类而非
+ * ZodString 子类，须经基类检查覆盖（实测：ZodEmail/ZodUUID/ZodURL instanceof ZodString === false）。 */
 function isScalarLeaf(schema: z.ZodTypeAny): boolean {
   return (
     schema instanceof z.ZodString
+    || schema instanceof z.ZodStringFormat
     || schema instanceof z.ZodNumber
     || schema instanceof z.ZodBigInt
     || schema instanceof z.ZodBoolean
@@ -91,6 +96,7 @@ function collectSchemaInfo(
   if (schema instanceof z.ZodObject) {
     for (const [key, value] of Object.entries(schema.shape as Record<string, z.ZodTypeAny>)) {
       info.keys.add(key);
+      if (unwrapSchema(value) instanceof z.ZodArray) info.arrayKeys.add(key);
       collectSchemaInfo(value, key, info, descriptorTypeId, issues, visited);
     }
     return;
@@ -150,7 +156,7 @@ function collectSchemaInfo(
 
 function checkEnumVocabulary(descriptor: ArtifactDescriptorDataV1, schema: z.ZodType): string[] {
   const issues: string[] = [];
-  const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set() };
+  const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set(), arrayKeys: new Set() };
   collectSchemaInfo(schema, undefined, info, descriptor.typeId, issues, new Map());
   for (const [field, options] of info.enums) {
     const labels = descriptor.vocabulary?.enumLabels?.[field];
@@ -168,12 +174,14 @@ function checkEnumVocabulary(descriptor: ArtifactDescriptorDataV1, schema: z.Zod
 }
 
 /**
- * citationBinding 五字段与 draft/final schema 静态对账（ADMISSION-ENUM-1）：
- * 写错一字不再被 zod strip 静默吞——不命中即拒载。
- * - itemScope：在草稿 schema 解析为数组（resolver 的 resolvePointerPath 消费面）；
- * - draftField / itemSummaryField：草稿 item 子树内已声明键（resolver 深走/读摘要面）；
- * - anchorField：最终 item 子树内已声明键（铸造坐标写回后不得被 final strip）；
- * - outOfCoverageField：最终 schema 根级已声明键（缺口条目落根，不得被 final strip）。
+ * citationBinding 五字段与 draft/final schema 静态对账（ADMISSION-ENUM-1 / 1R）：
+ * 写错一字不再被 zod strip 静默吞——不命中即拒载。判据按**消费面位置**收紧为直接键
+ * （1R F-B，实证三形：只活在嵌套/数组元素内层的键误拼即静默过门）：
+ * - outOfCoverageField：final schema **根对象直接键**（rebuildFromSurvivors 的 root[field] 落点）；
+ * - itemSummaryField：draft item **根对象直接键**（resolveDraftArtifactWithPruning 的 outcome.item[field] 读面）；
+ * - draftField：draft item 树中**某对象节点的直接键且值为数组**（resolveItem 深走公证面：
+ *   key === draftField && Array.isArray(value)——string 形深层同名键不会被公证，误拼即静默丢引语）；
+ * - anchorField：final item 树中**某对象节点的直接键且值为数组**（与 draftField 同位的写回点）。
  */
 function checkCitationBinding(
   descriptor: ArtifactDescriptorDataV1,
@@ -183,49 +191,69 @@ function checkCitationBinding(
   const binding = descriptor.citationBinding;
   if (binding === undefined) return [];
   const issues: string[] = [];
-  const visited = new Map<object, Set<string | undefined>>();
+  // 1R F-C：visited 每次 collect() 内新建——draft/final 绑同一 ZodType 对象时共享 visited 会让
+  // 后续 collect 漏收键（假拒且拒因与事实相反）。环保护仍由单次 collect 内的 visited 承担。
   const collect = (schema: z.ZodTypeAny): CollectedSchemaInfo => {
-    const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set() };
-    collectSchemaInfo(schema, undefined, info, descriptor.typeId, issues, visited);
+    const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set(), arrayKeys: new Set() };
+    collectSchemaInfo(schema, undefined, info, descriptor.typeId, issues, new Map());
     return info;
   };
+
+  const finalRoot = unwrapSchema(finalSchema as z.ZodTypeAny);
+  if (!(finalRoot instanceof z.ZodObject)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding 对账：最终 schema 根不是对象，无法核对 outOfCoverageField`,
+    );
+  } else if (!(binding.outOfCoverageField in (finalRoot.shape as object))) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.outOfCoverageField "${binding.outOfCoverageField}" 不是最终 schema 根对象直接键（缺口条目落根后将被 strip 静默吞）`,
+    );
+  }
 
   const scopeSchema = resolveSchemaPointer(draftSchema as z.ZodTypeAny, binding.itemScope);
   if (!(scopeSchema instanceof z.ZodArray)) {
     issues.push(
       `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 未命中草稿 schema 的数组（回填映射必须指向数组单元）`,
     );
-  } else {
-    const draftItemKeys = collect(scopeSchema.element as z.ZodTypeAny).keys;
-    if (!draftItemKeys.has(binding.draftField)) {
-      issues.push(
-        `descriptor ${descriptor.typeId} citationBinding.draftField "${binding.draftField}" 不是草稿 schema 在 itemScope 内已声明键（resolver 深走不到，引语将被静默丢弃）`,
-      );
-    }
-    if (!draftItemKeys.has(binding.itemSummaryField)) {
-      issues.push(
-        `descriptor ${descriptor.typeId} citationBinding.itemSummaryField "${binding.itemSummaryField}" 不是草稿 schema 在 itemScope 内已声明键（缺口摘要将回落 (无摘要)）`,
-      );
-    }
-    const finalScopeSchema = resolveSchemaPointer(finalSchema as z.ZodTypeAny, binding.itemScope);
-    if (!(finalScopeSchema instanceof z.ZodArray)) {
-      issues.push(
-        `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 未命中最终 schema 的数组`,
-      );
-    } else {
-      const finalItemKeys = collect(finalScopeSchema.element as z.ZodTypeAny).keys;
-      if (!finalItemKeys.has(binding.anchorField)) {
-        issues.push(
-          `descriptor ${descriptor.typeId} citationBinding.anchorField "${binding.anchorField}" 不是最终 schema 在 itemScope 内已声明键（铸造坐标将被 strip 静默吞）`,
-        );
-      }
-    }
+    return issues;
+  }
+  const draftItem = unwrapSchema(scopeSchema.element as z.ZodTypeAny);
+  if (!(draftItem instanceof z.ZodObject)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 的草稿元素不是对象，无法核对 item 级字段`,
+    );
+    return issues;
+  }
+  if (!(binding.itemSummaryField in (draftItem.shape as object))) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.itemSummaryField "${binding.itemSummaryField}" 不是草稿 item 根对象直接键（缺口摘要将回落 (无摘要)）`,
+    );
+  }
+  const draftInfo = collect(draftItem);
+  if (!draftInfo.arrayKeys.has(binding.draftField)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.draftField "${binding.draftField}" 不是草稿 item 树中任何对象节点的数组直接键（resolver 深走只公证数组键，误拼将静默丢引语）`,
+    );
   }
 
-  const finalRootKeys = collect(finalSchema as z.ZodTypeAny).keys;
-  if (!finalRootKeys.has(binding.outOfCoverageField)) {
+  const finalScopeSchema = resolveSchemaPointer(finalSchema as z.ZodTypeAny, binding.itemScope);
+  if (!(finalScopeSchema instanceof z.ZodArray)) {
     issues.push(
-      `descriptor ${descriptor.typeId} citationBinding.outOfCoverageField "${binding.outOfCoverageField}" 不是最终 schema 根级已声明键（缺口条目将被 strip 静默吞）`,
+      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 未命中最终 schema 的数组`,
+    );
+    return issues;
+  }
+  const finalItem = unwrapSchema(finalScopeSchema.element as z.ZodTypeAny);
+  if (!(finalItem instanceof z.ZodObject)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 的最终元素不是对象，无法核对 item 级字段`,
+    );
+    return issues;
+  }
+  const finalInfo = collect(finalItem);
+  if (!finalInfo.arrayKeys.has(binding.anchorField)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.anchorField "${binding.anchorField}" 不是最终 item 树中任何对象节点的数组直接键（铸造坐标写回点不存在，将被 strip 静默吞）`,
     );
   }
   return issues;

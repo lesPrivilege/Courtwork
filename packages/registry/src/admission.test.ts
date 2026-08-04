@@ -757,6 +757,21 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
       expect(result.rejected[0]!.issues.join()).toContain('ZodMap');
       expect(result.rejected[0]!.issues.join()).toMatch(/未识别|fail-closed|fail closed/);
     });
+
+    it.each([
+      ['z.email()', z.email()],
+      ['z.uuid()', z.uuid()],
+      ['z.url()', z.url()],
+    ])('zod 格式类 %s 是标量叶子，不误判为未识别节点', (_name, fieldSchema) => {
+      const manifest = withBinding(
+        z.object({ caseId: z.string(), contact: fieldSchema as z.ZodTypeAny }),
+      );
+
+      const result = admitPackages([manifest]);
+
+      expect(result.rejected).toEqual([]);
+      expect(result.admitted).toHaveLength(1);
+    });
   });
 
   describe('ADMISSION-ENUM-1：citationBinding 五字段与 draft/final schema 对账', () => {
@@ -852,6 +867,113 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
       ]);
       expect(result.admitted).toEqual([]);
       expect(result.rejected[0]!.issues.join()).toContain('itemScope');
+    });
+
+    it('outOfCoverageField 只活在元素内层必拒载（必须是 final 根对象直接键）', () => {
+      const result = admitPackages([
+        makeCitationManifest({
+          finalSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                sourceAnchors: z.array(z.object({ fileId: z.string() })),
+                extra: z.object({ nestedOnlyKey: z.string() }),
+              }),
+            ),
+            outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+          }),
+          binding: { outOfCoverageField: 'nestedOnlyKey' },
+        }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('outOfCoverageField');
+      expect(joined).toContain('nestedOnlyKey');
+    });
+
+    it('anchorField 只活在数组元素内层必拒载（误拼撞深层同名键不得静默过门）', () => {
+      const result = admitPackages([
+        makeCitationManifest({
+          finalSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                sourceAnchors: z.array(z.object({ fileId: z.string() })),
+                meta: z.array(z.object({ deepAnchorKey: z.string() })),
+              }),
+            ),
+            outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+          }),
+          binding: { anchorField: 'deepAnchorKey' },
+        }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('anchorField');
+      expect(joined).toContain('deepAnchorKey');
+    });
+
+    it('draftField 只活在数组元素内层必拒载（误拼撞深层同名键不得静默过门）', () => {
+      const result = admitPackages([
+        makeCitationManifest({
+          draftSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                basis: z.array(z.object({ citation: z.string(), deepDraftKey: z.string() })),
+              }),
+            ),
+          }),
+          binding: { draftField: 'deepDraftKey' },
+        }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('draftField');
+      expect(joined).toContain('deepDraftKey');
+    });
+
+    it('itemSummaryField 只活在数组元素内层必拒载（必须是草稿 item 根对象直接键）', () => {
+      const result = admitPackages([
+        makeCitationManifest({
+          draftSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                quoteClaims: z.array(z.object({ fileId: z.string() })),
+                sub: z.array(z.object({ deepSummaryKey: z.string() })),
+              }),
+            ),
+          }),
+          binding: { itemSummaryField: 'deepSummaryKey' },
+        }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('itemSummaryField');
+      expect(joined).toContain('deepSummaryKey');
+    });
+
+    it('draft 与 final 绑同一 schema 对象时五字段对账仍准入（visited 不得跨 collect 共享）', () => {
+      const shared = z.object({
+        caseId: z.string(),
+        risks: z.array(
+          z.object({
+            description: z.string(),
+            quoteClaims: z.array(z.object({ fileId: z.string() })),
+            sourceAnchors: z.array(z.object({ fileId: z.string() })),
+          }),
+        ),
+        outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+      });
+      const result = admitPackages([
+        makeCitationManifest({ finalSchema: shared, draftSchema: shared }),
+      ]);
+      expect(result.rejected).toEqual([]);
+      expect(result.admitted).toHaveLength(1);
     });
   });
 
