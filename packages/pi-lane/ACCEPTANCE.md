@@ -1887,3 +1887,386 @@ push、不更新 `current.md`、不开 `PI-WRITE-HOST-1`，PASS 也停在待架�
 连续三轮 root test 全绿，build/lint 全绿，且触碰面严格为票面两文件。本会话只追加本段，
 不修改实现、不 merge、不 push、不更新 `current.md`，清理时只删除本会话创建的 target/base
 验收 worktree。
+# PI-HOST-JOURNAL-1 独立验收（2026-08-04，拒绝）
+
+对象：`claude/pi-host-journal-1` 分支尾 `b238d28acd23a3aae56a0649b32de5190e8c5866`（回执提交），
+实现提交 `98467ec`；基线 `main@ac6ba06`。验收在独立 detached worktree
+`/Users/lesprivilege/Projects/Courtwork/.claude/worktrees/accept-pi-host-journal-1` 进行，
+与实现 worktree `.claude/worktrees/pi-host-journal-1` 物理隔离，全程未触碰后者。开工与收工时
+本树 HEAD 恰为 target 且工作树 clean；`ac6ba06` 经 `git merge-base --is-ancestor` 确认是 target
+祖先，`main...target` 为 2 behind / 2 ahead（main 侧两枚为纯 docs 提交 `8f4e937`、`d62e22d`）。
+`pnpm install --frozen-lockfile` 与 `packages/pi-lane/scripts/build-product-sidecar.mjs` 均在本树
+自行执行；sidecar bundle 实测 `bytes 523235`、
+`sha256 75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`、`reproducible: true`。
+
+**结论：REJECT。** 票面缺口③（quarantine 内容寻址）只在四个 `quarantine_session` 调用点中的
+**一个**闭口，另外三个仍传 LF 截断前缀；本会话在 target 上以独立反例实测到该缺陷的两种原形态
+（命名 SHA 与搬运内容不符、同前缀异尾撞名把 sessionId 卡死）**原样存活**。这直接落在票面③
+「同前缀异尾两档不撞名」的验收摘要上，属验收标准未达成，非实现级小瑕；且实现回执把该修复
+自述为「四处调用点……改传 `&existing`」，与实测不符。按 `workflow.md`「闭口按族，不按验收
+点名的实例」与「自述与实现逐条对照」两条判据，本会话不做 `fix-by-acceptance`，退回默认动作
+驳回返修。
+
+## 范围判定：合票面边界
+
+- `ac6ba06..b238d28` 恰三路径：`apps/desktop/src-tauri/src/pi_loop.rs`、
+  `apps/desktop/src-tauri/src/pi_loop_journal.rs`、`packages/pi-lane/specs/PI-HOST-JOURNAL-1.md`。
+  实现面恰两文件，与票面「三枚，全住 `apps/desktop/src-tauri/src/`」一致；零 ADR/SPEC 父级、
+  零 `current.md`/readiness、零依赖、零 GUI、零 write 面越界。
+- wire／记录形状／codec 零改动：`pi_loop_protocol.rs` 逐字节未动。新增的写侧序号门只是在既有
+  `state_violation` 上多一条拒绝分支，不新增 wire 字段、不改任何 payload 形状。
+- R6 encode-before-effect 与 R7 恢复分相装置未回退：`plan_session_locked` 的读／计划／apply 分相
+  结构原样保留，截断仍只算计划值（`truncate_to`）不在读取函数内落盘；全量 `cargo test` 173 枚
+  （172 passed / 0 failed / 1 ignored）通过，R7 的 recovery characterization 与普适电池全绿。
+- 一处措辞遗留：`plan_session_locked` 中「单写者门在**任何读写之前**」的注释下方，本批新增的
+  两次 `sync_directory` 位于 `SessionLock::acquire` **之前**。因 `create_dir_all` 与
+  `assert_owned_directory` 原本就在该注释之上，此注释此前即取「任何 **journal** 读写之前」的读法，
+  本批未新增违背，但注释的字面与代码次序的落差被本批放大一档，建议随返修一并钉准。
+
+## born-red 独立复现（逐 hunk 反向注入，非采信自述）
+
+不采用「整体回退到基线」的做法（新测与生产码同住两文件，回退会连测试一起抹掉，红因不可归属）。
+改为在 target 树上**逐一反向注入单个生产 hunk**，每次 perl 置换带命中校验（`HIT=1`，否则
+`die`），跑后以 `diff` 对 pristine 备份核实改动面恰为该 hunk，再从备份逐字节还原。全部六次注入
+的还原后 `git status --short` 为空，两文件 SHA-256 恢复为
+`03d1a9d7…`（`pi_loop_journal.rs`）与 `79e50ee5…`（`pi_loop.rs`）。
+
+| 反向注入的生产 hunk | 受影响测试 | 实测红形（原文） |
+|---|---|---|
+| 撤 `sync_directory(container.parent())` | `fresh_session_plan_syncs_directory_entries` | `目录项 sync 不足：实测 2 次，至少须 3 次`，exit 101 |
+| 撤 `sync_directory(root)` | 同上 | `实测 2 次，至少须 3 次`，exit 101 |
+| 撤 `open_append` 后的 `sync_directory(&container)` | 同上 | `实测 2 次，至少须 3 次`，exit 101 |
+| 撤 `pump` 写侧序号门（5 行） | `counterexample_out_of_order_turn_is_refused_before_append` | `须 StateViolation，实得 Journal("quarantined")`，exit 101 |
+| 撤 quarantine 在案拒绝块（11 行） | `counterexample_fresh_start_after_quarantine_is_refused_not_silently_zeroed` | `quarantine 在案时 start 必须显式拒绝而非静默 fresh`，exit 101 |
+| `&existing` 改回 `&complete`（唯一已改调用点） | `counterexample_quarantine_digest_covers_untruncated_bytes`＋`counterexample_same_prefix_different_tails_do_not_collide_in_quarantine` | 前者 `left e487f60c… ≠ right 06be59b3…`；后者 `实得 QuarantineRefused("quarantine 目标已存在，拒绝覆盖")`，exit 101 |
+
+还原后五枚定向测试 `5 passed / 0 failed`、exit 0。**票面要求的「mutation 撤任一目录 fsync 复红 ×3」
+独立复现成立**，红因逐条与缺陷叙事相符；写侧序号门那一枚的红形 `Journal("quarantined")` 确如回执
+所述，把审计全链叙事（写侧收下 → 读侧整档隔离）压进一枚测试内。这五枚的红绿证本身没有问题。
+
+## 拒绝理由：③ 只闭了四分之一，族内其余三个入口原样带病
+
+`quarantine_session` 的 doc 自述与文件命名契约是 `<sha256-of-original-bytes>.jsonl`，而它 rename
+搬走的永远是**含 partial tail 的原文件**（R7 分相后截断只是计划值，不落盘）。故四个调用点都必须
+传未截断原字节。target 实测：
+
+| 调用点（`plan_session_locked` 内） | 触发条件 | 本批实参 |
+|---|---|---|
+| `"已 LF 结束的记录不合 schema"`（`decode_record` 失败） | 坏 JSON 行 | **`&existing`（已修）** |
+| `"journal 含空行"` | 含空行 | `&complete`（未修） |
+| `validate_records` 失败（`problem.0`） | 结构违规 | `&complete`（未修） |
+| `plan_turn_usage_repair` 失败（`problem.0`） | usage 配对违规 | `&complete`（未修） |
+
+逐字实测：`&existing` 恰 1 处（行 2375），`&complete` 恰 3 处（行 2387／2398／2411）。该计数以两种
+工具交叉（`/usr/bin/grep` 与 `rg`，承「否定性结论须换第二工具交叉」的同源纪律），并经产品负责人
+在实现 worktree 上第三次独立复核坐实（同为 1︰3，三处缩进各异——缩进差异正是单一固定模式扫描会
+漏掉的形态）。本会话在 target 上另写两枚独立反例，把票面③
+的同一判据改由 `validate_records` 入口触发（构造法：把首枚合法记录字节整份重复一次，`decode_record`
+仍过、`validate_records` 以「event seq 必须从 1 起逐枚递增」拒），两枚在 **未经任何变异的 target
+上直接红**：
+
+- `acceptance_probe_digest_via_validate_records_path`：
+  `命名 SHA 必须盖住未截断原字节（validate_records 调用点）`，
+  `left a90207cd…` ≠ `right b4fbe865…`；
+- `acceptance_probe_collision_via_validate_records_path`：第二形实得
+  `QuarantineRefused("quarantine 目标已存在，拒绝覆盖")`——**即票面明列的「同前缀异尾两档撞名把
+  sessionId 卡死」原形态，在 target 上原样复现**。
+
+合计 `0 passed / 2 failed`、exit 101。两枚探针跑后即删，`git status --short` 空、
+`pi_loop_journal.rs` SHA-256 复原为 `03d1a9d7…`。
+
+这不是「验收点名的实例」清单问题，而是族覆盖问题：本批的两枚 born-red 都只经 `decode_record`
+失败这一个入口构造语料，测试面本身没有覆盖族，于是修一处即全绿。按 `workflow.md` 该判据的完成态
+——「闭集被穷举覆盖，且覆盖本身有机器自证」——本批未达成。返修须同时做到：四个调用点全部传
+未截断原字节，且测试面对四个入口各有一枚（或有一枚机器自证：`quarantine_session` 的调用点
+全集扫描，实参非未截断原字节即红）。
+
+## 回执宣称与实现的逐条对照
+
+- **不实**：「四处调用点由 `&complete`（LF 截断前缀）改传 `&existing`（未截断原字节）」——实测
+  `git diff ac6ba06..98467ec` 只含一处该置换，另三处未动。同段的「实现自此与其 doc 自述
+  `<sha256-of-original-bytes>.jsonl` 一致」对四分之三的入口不成立。
+- **口径偏松**：「`pump` 在 append 前按读侧 `validate_records` 同一真源拒绝跳号」——实为**第二份
+  规则副本**，非同一真源：读侧是 `pi_loop_journal.rs` 内 `validate_records` 的游标
+  `last_observed_turn`（严格 +1 递推），写侧是 `pi_loop.rs` 内读 `self.projection.prior_observed_turns`
+  （由 `fold` 以 `max()` 维护）。两者今日语义等价（本会话逐分支核对：`fold` 只在
+  `TurnUsageRecorded` 臂更新该字段，而 `pump` 每写完 `turn_finished`＋`turn_usage_recorded` 两笔
+  即重折叠，故两侧游标同步），但没有共享函数、没有机器自证的同步锁。按 R6 复验立下的
+  「同步消灭优于同步验证」，此处宜标为待架构裁定，不宜以「同真源」措辞收口。
+  附带一项**未成问题的核实**：读侧另一条序号判据（`turn_usage_recorded` 必须接在同 turn 的
+  `turn_finished` 之后）在写侧是结构性不可违反的——`pump` 的 usage 笔逐值抄自刚落账的
+  `turn_finished`，此处正是「同步消灭」的正确形态，无需补门。
+- **属实并已复现**：三处目录 fsync 的位置与比照 `work_state.rs` 的说法、`cfg(test)` 线程局部计数器
+  为生产零码、`QuarantineRefused` 复用既有错误变体（错误闭集零移动）、`reclaim_after_fault` 语义
+  零变化、cargo `172 过 / 0 败 / 1 忽略`。
+
+## 待复核子项（`cost_usd` 无界 f64）裁定复核
+
+票面给的是「核后二选一」，故**登记而不修**这一动作本身在票面许可内，形式合规。但登记所依据的
+前提只在一半分支上成立，本会话实测：
+
+- 单值确无上界但**拒非有限数**：`read_nullable_non_negative_number` → `read_non_negative_number(_,_,false,None)`，
+  其中 `if !value.is_finite() { reject }` 在场。故 `+inf` 只能由累加产生，不能由单值直送——回执
+  未提这一层，属对己方有利的省略，但结论方向一致。
+- `max_usd = Some(limit)` 时回执的说法**成立**：`budget_from` 的 `usd >= limit` 对 `+inf` 为真 →
+  `BudgetUsdLimit::Reached`，确是 fail-closed。
+- `max_usd = None` 时**不成立**：`budget_from` 走 `(None, _) => Disabled` 臂，`usd` 字段随即取
+  `projection.prior_usd`，即 `Some(+inf)` 原样带出。而 `write_budget_view` 以
+  `nullable_number("usd", budget.usd)` → `format_js_number` 落字面量，本会话在 target 上以探针实测
+  `format_js_number(f64::MAX + f64::MAX)` 返回 **`"inf"`**——一个非 JSON 数值 token。
+  该路径若被写进 journal，即构成「本机 durable 写入自家读侧必拒的记录」，正是本票缺口②要消灭的
+  那一类，不是 fail-closed。
+
+需如实区分证据层级：`format_js_number(+inf) == "inf"` 与 `budget_from` 两分支的取值是**实测/逐行
+核对**；从 `BudgetView.usd` 到一条落盘 journal 行的端到端可达性，本会话**只做了源码链路核对
+（`write_budget_view` → `nullable_number` → `format_js_number`），未端到端实跑构造**。故此项不作为
+驳回依据，登记为：**「已知边界」的登记理由需重写，`max_usd = None` 分支的定性请架构裁定**是随本票
+返修收口，还是另票。
+
+## 门禁实跑
+
+本树自跑，逐条记退出码（未经管道吞码）：
+
+| 门 | 结果 | 退出码 |
+|---|---|---|
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size warning） | 0 |
+| `pnpm lint` | 通过（`eslint .` 无输出） | 0 |
+| root `pnpm test` | **167 files / 1782 tests passed** | 0 |
+| `pnpm --filter @courtwork/desktop test` | **75 files / 690 tests passed** | 0 |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | **173 running；172 passed / 0 failed / 1 ignored** | 0 |
+| `pnpm --filter @courtwork/desktop test:e2e`（完整 Playwright） | **未取得**（一轮截断作废，经裁决不补跑） | 无 |
+
+Playwright 一轮**作废、不计入通过率**，两条独立理由各自充分：其一，该轮被 `SIGTERM` 截断
+（日志尾为 `Command failed with signal "SIGTERM"`，list reporter 的失败摘要从未打印，无失败详情
+可归因）；其二，同机另一验收会话的 Playwright（worktree `ext-accept-output-apply`，vite
+`--port 21420`，多枚 chrome-headless worker）与本轮并发在跑，按「环境红禁入任何批次验收结论」
+与「反例期禁并发跑全仓门」，该窗口内读数不具归属力。截断处计数为 163 ✓ / 14 ✘，失败单条耗时
+39 s–1.7 min，形态与负载超时一致而非断言不符，但**本报告不据此下任何结论**，如实登记为截断。
+端口层面无串扰：本树 `playwright.config.ts` 为 `reuseExistingServer: false`、默认端口 1420，
+与对方 21420 不同源；返修批重跑时须以 `COURTWORK_E2E_PORT` 显式取隔离端口。
+
+**该门经裁决不予补跑**，理由见下节；本报告因此**不含任何 Playwright 通过率宣称**，该格是
+「未取得」而非「通过」，返修批必须自行取得完整一轮。
+
+## 停止边界
+
+契约级 blocker 已由 target 上未经变异的两枚独立反例直接坐实（`0 passed / 2 failed`，exit 101），
+按 `PI-SIDECAR-DIST-1R3` 先例，昂贵读数无法令未达成的验收摘要成立，**停止原因是 REJECT，不是
+外部条件 BLOCKED**；完整 Playwright 经产品负责人裁决不予补跑，如实登记为未取得。本会话不做
+`fix-by-acceptance` 提交，不 merge、不 push、不更新 `docs/status/current.md` 与
+implementation-readiness、不开 `PI-WRITE-HOST-1`；`PI-HOST-JOURNAL-1` 仍占「须早于
+`PI-WRITE-HOST-1`」的在途位。
+
+复验前的最小条件：
+
+1. `quarantine_session` 四个调用点全部传未截断原字节，并对该闭集补机器自证（调用点全集扫描，
+   实参不是未截断原字节即红），使新增入口不入清单亦红；
+2. 测试面按族铺满——至少 `journal 含空行`、`validate_records`、`plan_turn_usage_repair` 三个入口
+   各有一枚「命名 SHA 覆盖全字节」与「同前缀异尾不撞名」的反例；
+3. 回执改写「四处调用点」与「同一真源」两处不实/偏松措辞，写侧序号门与读侧的关系按事实描述为
+   两份副本，并标注是否请架构按「同步消灭优于同步验证」裁定；
+4. `cost_usd` 登记理由重写，`max_usd = None` 分支的定性请架构拍板；
+5. 全量门（含隔离端口的完整 Playwright）在返修 tip 上重跑，由新的独立验收会话复验。
+
+## 附：两枚验收反例原形（按「验收反例原形转 permanent」判例移交返修批）
+
+下列两枚是本轮的决定性反例，在 target 上跑后即删（本树零残留）。按 `PI-HOST-LOOP-1R2` 立下的
+「验收反例原形转 permanent 首红」判例，返修批须把它们收作**永久测试**并署名本验收轮，不得只当
+一次性证据。语料构造的要点是**换入口而非换判据**：把首枚合法记录的字节整份重复一次，
+`decode_record` 仍过（字节合法）而 `validate_records` 以「event seq 必须从 1 起逐枚递增」拒，
+于是 quarantine 走的是第三个调用点而非已修的第一个。
+
+```rust
+#[test]
+fn acceptance_probe_digest_via_validate_records_path() {
+    let root = temp_root("probe-validate-path");
+    let mut loaded = open(&root);
+    loaded
+        .journal
+        .append(None, None, JournalPayload::SessionStarted(started_payload()))
+        .expect("首枚落账");
+    drop(loaded);
+    let path = journal_path(&root, "cnt-1", "sess-1");
+    let good = fs::read(&path).expect("读原文");
+    let mut bytes = good.clone();
+    bytes.extend_from_slice(&good); // 重复 seq=1：decode 过、validate_records 拒
+    bytes.extend_from_slice(b"{\"partial");
+    fs::write(&path, &bytes).expect("写探针形");
+    let error = load_session(&root, "cnt-1", "sess-1", SessionInterruptReason::SidecarEnded)
+        .expect_err("结构违规必须 quarantine");
+    let JournalError::Quarantined { target_sha256, .. } = &error else {
+        panic!("必须是 Quarantined，实得 {error:?}");
+    };
+    assert_eq!(
+        *target_sha256,
+        sha256_hex(&bytes),
+        "命名 SHA 必须盖住未截断原字节（validate_records 调用点）"
+    );
+}
+
+#[test]
+fn acceptance_probe_collision_via_validate_records_path() {
+    let root = temp_root("probe-validate-collide");
+    let mut loaded = open(&root);
+    loaded
+        .journal
+        .append(None, None, JournalPayload::SessionStarted(started_payload()))
+        .expect("首枚落账");
+    drop(loaded);
+    let path = journal_path(&root, "cnt-1", "sess-1");
+    let good = fs::read(&path).expect("读原文");
+    let mut first = good.clone();
+    first.extend_from_slice(&good);
+    first.extend_from_slice(b"{\"tail-one");
+    fs::write(&path, &first).expect("写第一形");
+    let first_err = load_session(&root, "cnt-1", "sess-1", SessionInterruptReason::SidecarEnded)
+        .expect_err("第一形 quarantine");
+    assert!(
+        matches!(first_err, JournalError::Quarantined { .. }),
+        "第一形必须 Quarantined，实得 {first_err:?}"
+    );
+    let mut second = good.clone();
+    second.extend_from_slice(&good);
+    second.extend_from_slice(b"{\"tail-two");
+    fs::write(&path, &second).expect("写第二形");
+    let second_err = load_session(&root, "cnt-1", "sess-1", SessionInterruptReason::SidecarEnded)
+        .expect_err("第二形 quarantine");
+    assert!(
+        matches!(second_err, JournalError::Quarantined { .. }),
+        "第二形必须 Quarantined 而非撞名 QuarantineRefused，实得 {second_err:?}"
+    );
+}
+```
+
+两枚在 target `b238d28` 未经变异直接红（`0 passed / 2 failed`，exit 101），红因分别为
+`left a90207cd… ≠ right b4fbe865…` 与 `实得 QuarantineRefused("quarantine 目标已存在，拒绝覆盖")`。
+移交提醒两条：其一，返修后这两枚**必须仍能以撤除修复而复红**，否则说明它们被改成了自洽断言；
+其二，它们只覆盖四个入口中的第三个，返修批仍须按上节「复验前的最小条件」第 1、2 项把闭集铺满，
+**不得把这两枚当成待修清单的全部**——那正是本轮驳回所依据的同一条判据。
+
+# PI-HOST-JOURNAL-1R 独立复验（2026-08-04，放行）
+
+对象：`claude/pi-host-journal-1` 分支尾 `2bdba2503a7338df8d822e6613598a40a100ca05`（1R 回执），
+返修实现 `6005bd9`；复验基线为本会话同日 REJECT 提交 `bdba10a`。链：`98467ec` 实现 →
+`b238d28` 回执 → `bdba10a` REJECT → `6005bd9` 返修 → `2bdba25` 1R 回执。复验在独立 detached
+worktree `.claude/worktrees/accept-phj-1r` 进行，与实现 worktree 物理隔离；`pnpm install
+--frozen-lockfile` 与 `build-product-sidecar.mjs` 均本树自跑，bundle 实测 `bytes 523235`、
+`sha256 75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b`、`reproducible: true`
+——与 REJECT 轮在另一棵树上的产物**逐字节相同**，制品可复现性再获一次独立佐证。
+
+**结论：PASS，待架构消费。** REJECT 轮点名的③族缺陷已由**结构性收束**闭合，而非逐点闭口：
+`quarantine_session` 删去 `original: &[u8]` 参数、rename 前自读源文件全字节取摘要，「调用方传对
+切片」这本账随参数一并消灭。本会话按票面对**全部四条隔离入口**做专项证伪，未能构造出任何一条
+使摘要不盖全字节的路径；撤修复变异使摘要族**六枚**测试全红，区分力坐实。
+
+## 范围判定
+
+`bdba10a..2bdba25` 恰三路径：`pi_loop.rs`（5 行，改调共用判据）、`pi_loop_journal.rs`（132 行）、
+`packages/pi-lane/specs/PI-HOST-JOURNAL-1.md`（16 行回执）。wire／记录形状／codec 零改动
+（`pi_loop_protocol.rs` 未动）；`JournalError` 错误闭集零移动——新增的「读取待隔离 journal 失败」
+复用既有 `QuarantineRefused` 变体，未新增变体（diff 实测）。零 GUI、零 write 面、零父级文档越界。
+
+## 专项证伪一：四条隔离入口逐条构造，未能证伪
+
+1R 回执自陈「行为面保留 decode 与 validate 两入口共四枚反例，其余两入口的等价性由结构性保证」
+——即**空行**与 **repair 拒**两条入口在 1R 交付面上无反例。本会话为这两条各写一枚探针补齐族，
+且**以 `reason` 字段断言确实走到了目标入口**（避免探针自以为换了入口、实际仍落在已测入口上）：
+
+| 隔离入口 | 语料构造 | 反例来源 | 实测 |
+|---|---|---|---|
+| `decode_record` 失败 | 坏 JSON 行＋partial tail | 首轮既有两枚 | 绿 |
+| `validate_records` 拒 | 首枚合法记录整份重复（seq 撞）＋partial tail | **REJECT 轮探针转 permanent** | 绿 |
+| `journal 含空行` | 合法记录＋裸 `\n`＋partial tail | **本复验轮新增探针** | 绿，`reason == "journal 含空行"` |
+| `plan_turn_usage_repair` 拒 | 同 request/turn 重复 `turn_usage_recorded`＋partial tail | **本复验轮新增探针** | 绿，`reason == "同一 request/turn 出现重复 turn_usage_recorded"` |
+
+四条入口合计六枚，在 target 上 `6 passed / 0 failed`、exit 0。每枚除断言
+`target_sha256 == sha256(未截断全字节)` 外，另断言 `fs::read(隔离档) == 全字节`——**名与实双向
+互证**，而非只比对两个哈希字符串。证伪未遂：自读发生在 rename 之前、读的与搬的是同一路径、
+active handle 已在函数首行置空、单写者锁在外层持有，故「摘要输入」与「被搬字节」在结构上不可
+分离；调用方已无参数可传错。
+
+## 专项证伪二：撤修复复红（M1）
+
+在函数内注回「LF 截断哈希」旧语义（perl 置换带命中校验 `HIT=1`，`diff` 核改动面恰为该两行）：
+
+```
+-    let digest = sha256_hex(&original);
++    let mutant_len = ...rposition(b'\n')...;
++    let digest = sha256_hex(&original[..mutant_len]);
+```
+
+摘要族**六枚全红**（`0 passed / 6 failed`，exit 101），含本轮新增的空行与 repair 两枚。这同时
+证明两件事：1R 回执「四枚全红」的自述属实且实际覆盖面比自述更宽；本轮新增的两枚探针具备区分力，
+不是恒真断言。变异后逐字节还原，`git status` 空，`pi_loop_journal.rs` SHA-256 复原为
+`119276085967002e716cfc6f3d05bb69feffeb2ffbac5ebc01e3c5f537fd5892`。
+
+## 观察②裁定：共用判据成立，游标二元性登记为观察、不阻断
+
+REJECT 轮指出写侧序号门是读侧规则的第二份副本。1R 抽出
+`turn_finished_follows(last_observed_turn, turn)`，读侧 `validate_records` 与写侧 pump 门同调。
+**「共用」不采信自述，以变异证**：把该函数改为恒真（`HIT=1`），跑全量 cargo——
+
+- 写侧 `pi_loop::tests::counterexample_out_of_order_turn_is_refused_before_append` **红**；
+- 读侧 `pi_loop_journal::tests::counterexample_impossible_turn_history_is_quarantined` **红**；
+- 其余 172 枚全绿（`172 passed / 2 failed / 1 ignored`）。
+
+两侧各有独立红证同时落地，说明该函数确被两个消费点真实消费，不是一侧接线、另一侧留旧副本的
+装饰性重构。**规则副本已消灭，观察②按「同步消灭优于同步验证」正确收口。**
+
+游标二元性（读侧 `last_observed_turn` 沿记录流严格递推、写侧 `prior_observed_turns` 取自 `fold`
+且在 `TurnUsageRecorded` 臂以 `max()` 更新）**裁定为足够，不要求本票进一步收束**，理由与残余风险
+一并如实登记：
+
+- `pump` 是直线双写——`turn_finished` 落账后紧接同 turn 的 `turn_usage_recorded`，随即整体重折叠，
+  两笔之间不可能插入第二枚 `turn_finished`，故进程内无发散窗口；
+- resume 路径上 `prior_observed_turns` 折叠自**已过 `validate_records` 的**耐久记录，而该门正是
+  严格递推，故 `max()` 永远看不到违规历史；
+- 残余风险是这份一致性属**涌现性质**（由 pump 的直线结构＋validate 把守 resume 共同保证），
+  不是机器自证的不变量。它今日不构成缺陷，但下一位改动 pump 写序或 `fold` 更新臂的人不会被门拦住。
+  建议架构在 `PI-WRITE-HOST-1` 一并考虑把两侧游标也收敛为单一来源；本票不作阻断条件。
+
+回执把该二元性主动写明并留给复验审视，属正确披露，本会话据此裁定而非另行发掘。
+
+## 其余观察的落实核对（逐条对照，不采信自述）
+
+- **观察⑤（注释措辞）**：已钉准为「单写者门在**任何 journal 读写之前**」，并补注目录项 fsync
+  属容器结构准备、不触 journal 字节。核对代码次序属实。
+- **观察④（`cost_usd` Disabled 臂）**：维持 `[需架构拍板]`，且回执措辞已按 REJECT 轮的实测收窄
+  ——明写 `max_usd=None` 时 `Some(+inf)` 原样带出、`format_js_number` 对非有限值输出裸 `inf`
+  （非 JSON token）。与本会话 REJECT 轮的实测一致，不再是「一律 fail-closed」的半真前提。
+  是否加界属 wire 面，本票不动，留待架构。
+- **③失实自述**：回执已用删除线纠正原句，并具名引用本会话 REJECT 提交 `bdba10a` 与「实际只改到
+  1/4 调用点」的实测，另留下「`Edit replace_all` 的全部替换指字面串全部出现、不等于语义位点全部
+  覆盖」的自伤记录。**纠正留痕合格**——不是删掉旧句了事，而是保留原句并标注被证伪。
+- **REJECT 轮探针转 permanent**：`counterexample_validate_entry_quarantine_covers_untruncated_bytes`
+  与 `counterexample_validate_entry_same_prefix_tails_do_not_collide` 已在位并署名验收轮；其
+  「先红」由本会话 REJECT 轮在 `b238d28` 的实测（`0 passed / 2 failed`，exit 101）构成，
+  「后绿」与「仍可红」由本轮的 `6 passed` 与 M1 六枚全红分别构成。首轮实现只修 decode 一入口
+  即全绿的病根，自此被这两枚永久钉住。
+
+## 门禁实跑（本树自跑，逐条记退出码，未经管道吞码）
+
+| 门 | 结果 | 退出码 |
+|---|---|---|
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size warning） | 0 |
+| `pnpm lint` | 通过 | 0 |
+| root `pnpm test` | **167 files / 1782 tests passed** | 0 |
+| `pnpm --filter @courtwork/desktop test` | **75 files / 690 tests passed** | 0 |
+| `cargo test`（先行 `build:product-sidecar`） | **175 running；174 passed / 0 failed / 1 ignored** | 0 |
+| `pnpm --filter @courtwork/desktop test:e2e`（完整 Playwright，隔离端口 31420） | **352 passed / 0 failed，4.8m**；其前 38 枚静态 assert-* 门全过（含 `App.tsx` 高水位 2549、isolation-binding 10 宿主／30 pi-lane 源码） | 0 |
+
+Playwright 以 `COURTWORK_E2E_PORT=31420` 自起服务、`reuseExistingServer: false`，整机独占无并发
+负载（REJECT 轮那一次因截断＋他会话并发已作废，本轮为重新取得的完整一轮）。root 与 desktop
+两组数字与 REJECT 轮逐值相同，返修零回归。
+
+## 结论与停止边界
+
+**判定：PASS，待架构消费。** 票面三缺口全部闭合且各有独立红证：①三处目录 fsync（REJECT 轮已
+逐一撤除复红，本轮 174 全绿沿用）；②写侧序号门（M2 两侧各自变红证共用判据成真）＋quarantine
+在案显式拒绝；③内容寻址由结构性收束闭合，四入口证伪未遂、M1 六枚全红。R6 encode-before-effect
+与 R7 恢复分相装置零回退。
+
+本会话只追加本段 `packages/pi-lane/ACCEPTANCE.md`；不 merge、不 push、不更新
+`docs/status/current.md` 与 implementation-readiness、不开 `PI-WRITE-HOST-1`——PASS 亦停在待架构
+消费。移交架构的两项：**观察②游标二元性**（建议随 `PI-WRITE-HOST-1` 收敛为单一来源，本票不阻断）
+与**观察④ `cost_usd` Disabled 臂**（`[需架构拍板]`，加界属 wire 面）。
