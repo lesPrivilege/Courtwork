@@ -1785,7 +1785,6 @@ fn quarantine_session(
     container_id: &str,
     session_id: &str,
     handle: &mut Option<File>,
-    original: &[u8],
     reason: &'static str,
 ) -> JournalError {
     // 先关闭 active handle：仍持有可写 fd 时搬文件，等于允许搬走之后还能写回去。
@@ -1804,13 +1803,19 @@ fn quarantine_session(
         return error;
     }
 
-    let digest = sha256_hex(original);
+    // 摘要字节由本函数自读自证（PI-HOST-JOURNAL-1R）：rename 搬的是磁盘上这份文件，
+    // 命名 SHA 就取这份文件的全部字节——调用方无从传错切片，「传截断前缀」一族
+    // 随参数一并消灭（同步消灭优于同步验证）。
+    let source = journal_path(root, container_id, session_id);
+    let original = match fs::read(&source) {
+        Ok(bytes) => bytes,
+        Err(_) => return JournalError::QuarantineRefused("读取待隔离 journal 失败"),
+    };
+    let digest = sha256_hex(&original);
     let target = session_root.join(format!("{digest}.jsonl"));
     if fs::symlink_metadata(&target).is_ok() {
         return JournalError::QuarantineRefused("quarantine 目标已存在，拒绝覆盖");
     }
-
-    let source = journal_path(root, container_id, session_id);
     if fs::rename(&source, &target).is_err() {
         return JournalError::QuarantineRefused("quarantine rename 失败");
     }
@@ -1831,6 +1836,12 @@ fn quarantine_session(
         reason,
         target_sha256: digest,
     }
+}
+
+/// `turn_finished` 序号唯一判据：读侧（`validate_records`）与写侧（pump ingest 门）共用，
+/// 不留第二份规则副本（同步消灭优于同步验证；PI-HOST-JOURNAL-1R，采验收轮观察②）。
+pub(crate) fn turn_finished_follows(last_observed_turn: u64, turn: u64) -> bool {
+    turn == last_observed_turn + 1
 }
 
 struct StructureProblem(&'static str);
@@ -1936,7 +1947,7 @@ fn validate_records(
         // 1R 只对 turn 取 `max()`，倒序 `2 → 1` 与孤儿 usage 因此都被当成可恢复 session。
         match &record.payload {
             JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished { turn, .. }) => {
-                if *turn != last_observed_turn + 1 {
+                if !turn_finished_follows(last_observed_turn, *turn) {
                     return Err(StructureProblem(
                         "observed turn 必须自 1 起跨 prompt/leg 逐枚递增",
                     ));
@@ -2312,7 +2323,8 @@ fn plan_session_locked(
     // 否则硬断电后目录项可缺，下次读得 NotFound 走 fresh 支，已计费腿静默归零。
     sync_directory(container.parent().expect("container 必有父目录"))?;
     sync_directory(root)?;
-    // 单写者门在**任何读写之前**：被拒的 Host 因此零 journal 变化、零 spawn（R8）。
+    // 单写者门在**任何 journal 读写之前**（其上的目录项 fsync 属容器结构准备，
+    // 不触 journal 字节；验收轮观察⑤钉准措辞）：被拒的 Host 仍零 journal 变化、零 spawn（R8）。
     let lock = match held {
         Some(lock) => lock,
         None => SessionLock::acquire(&session_lock_path(root, container_id, session_id))?,
@@ -2372,7 +2384,6 @@ fn plan_session_locked(
                     container_id,
                     session_id,
                     &mut handle,
-                    &existing,
                     "已 LF 结束的记录不合 schema",
                 ));
             }
@@ -2384,7 +2395,6 @@ fn plan_session_locked(
             container_id,
             session_id,
             &mut handle,
-            &complete,
             "journal 含空行",
         ));
     }
@@ -2395,7 +2405,6 @@ fn plan_session_locked(
             container_id,
             session_id,
             &mut handle,
-            &complete,
             problem.0,
         ));
     }
@@ -2408,7 +2417,6 @@ fn plan_session_locked(
                 container_id,
                 session_id,
                 &mut handle,
-                &complete,
                 problem.0,
             ));
         }
@@ -3305,6 +3313,110 @@ mod tests {
             panic!("第二形必须 Quarantined 而非撞名 QuarantineRefused，实得 {second_err:?}");
         };
         assert_ne!(first_sha, second_sha, "异尾必须异名");
+    }
+
+    #[test]
+    fn counterexample_validate_entry_quarantine_covers_untruncated_bytes() {
+        // 验收 REJECT 轮反例原形转 permanent：语料经 validate_records 入口
+        // （首枚合法记录字节整份重复——decode 通过、结构校验拒），而非 decode 失败入口；
+        // 隔离摘要仍须盖住未截断原字节。首轮实现只修 decode 入口即全绿，正是「闭口按族」病根。
+        let root = temp_root("digest-validate-entry");
+        let mut loaded = open(&root);
+        loaded
+            .journal
+            .append(
+                None,
+                None,
+                JournalPayload::SessionStarted(started_payload()),
+            )
+            .expect("首枚落账");
+        drop(loaded);
+        let path = journal_path(&root, "cnt-1", "sess-1");
+        let good = fs::read(&path).expect("读原文");
+        let mut corrupted = good.clone();
+        corrupted.extend_from_slice(&good);
+        corrupted.extend_from_slice(b"{\"partial");
+        fs::write(&path, &corrupted).expect("写语料");
+        let error = load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect_err("必须 quarantine");
+        let JournalError::Quarantined { target_sha256, .. } = &error else {
+            panic!("必须 Quarantined，实得 {error:?}");
+        };
+        assert_eq!(
+            *target_sha256,
+            sha256_hex(&corrupted),
+            "摘要必须盖未截断原字节（validate 入口）"
+        );
+        let target = container_dir(&root, "cnt-1")
+            .join(QUARANTINE_DIR)
+            .join("sess-1")
+            .join(format!("{target_sha256}.jsonl"));
+        assert_eq!(
+            sha256_hex(&fs::read(&target).expect("读隔离档")),
+            *target_sha256,
+            "内容与名互证"
+        );
+    }
+
+    #[test]
+    fn counterexample_validate_entry_same_prefix_tails_do_not_collide() {
+        // 验收 REJECT 轮反例二转 permanent：同 LF 前缀、异 partial tail 经 validate 入口
+        // 两档不得撞名——撞名即票面点名的「sessionId 永久卡死」原形态。
+        let root = temp_root("digest-validate-tails");
+        let mut loaded = open(&root);
+        loaded
+            .journal
+            .append(
+                None,
+                None,
+                JournalPayload::SessionStarted(started_payload()),
+            )
+            .expect("首枚落账");
+        drop(loaded);
+        let path = journal_path(&root, "cnt-1", "sess-1");
+        let good = fs::read(&path).expect("读原文");
+        let mut base = good.clone();
+        base.extend_from_slice(&good);
+        let mut first = base.clone();
+        first.extend_from_slice(b"{\"tail-A");
+        fs::write(&path, &first).expect("写第一形");
+        let first_err = load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect_err("第一形隔离");
+        let JournalError::Quarantined {
+            target_sha256: sha_a,
+            ..
+        } = &first_err
+        else {
+            panic!("第一形须 Quarantined，实得 {first_err:?}");
+        };
+        let mut second = base.clone();
+        second.extend_from_slice(b"{\"tail-B");
+        fs::write(&path, &second).expect("写第二形");
+        let second_err = load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect_err("第二形隔离");
+        let JournalError::Quarantined {
+            target_sha256: sha_b,
+            ..
+        } = &second_err
+        else {
+            panic!("第二形须 Quarantined 而非撞名拒绝，实得 {second_err:?}");
+        };
+        assert_ne!(sha_a, sha_b, "异尾必须异名");
     }
 
     #[test]

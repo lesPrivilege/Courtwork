@@ -875,7 +875,10 @@ impl PiLoopHost {
                     // 失败经 `fail_protocol` 显式落账；否则本机会 durable 写入自家读侧必拒的
                     // 记录，下次 start 整档 quarantine。
                     if let AgentProjectionEvent::TurnFinished { turn, .. } = &event {
-                        if *turn != self.projection.prior_observed_turns + 1 {
+                        if !pi_loop_journal::turn_finished_follows(
+                            self.projection.prior_observed_turns,
+                            *turn,
+                        ) {
                             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
                         }
                     }
