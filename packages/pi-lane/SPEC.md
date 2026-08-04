@@ -93,18 +93,29 @@ durable-before-effect 总验。Node 直写与 bash 没有因此开放。
    （带 `FileError` code）：`details` 出逐条（路径与命中同一条投影链），文本出「另有 N 处不可读
    已跳过：<拒因计数>」。逐条路径只进 `details`、文本只给条数与拒因分类，是为了不让一棵大范围
    拒读的子树顶掉模型上下文。
-   **本层可观察的不完整来源恰五类**——扫描上限、命中上限、行截断、容器拒读、symlink 不跟随——
-   五类各自出字段与注记。故「工具结果里没有注记」是一句可依赖的断言，其**确切含义**是：
-   容器交给本层的每一个条目都被检索、每一条命中都完整列出。「无命中」因此不再与「读不动所以
-   没看见」同形。
+   **本层可观察的不完整来源恰六类**——扫描上限、命中上限、行截断、容器拒读、symlink 不跟随、
+   裸 NUL 行——六类各自出字段与注记。该口径不是列举，是**对 `tools.ts` 检索路径上全部九条
+   丢弃/限幅分支逐条扫描**后的结果（三条与已有类同账）；九行族表逐条带坐标住
+   [`specs/PI-TOOLS-HONESTY-1.md`](specs/PI-TOOLS-HONESTY-1.md) 十节，**改这个函数先对表**。
+   故「工具结果里没有注记」是一句可依赖的断言，其**确切含义**是：容器交给本层的每一个条目
+   都被检索、每一条命中都完整列出。「无命中」因此不再与「读不动所以没看见」同形。
+   裸 NUL 行的判据刻意在 `matcher.test` **之前**——先认出二进制、再谈匹配，故被跳过的行里
+   **可能有真命中**（`nulLinesSkipped` 的注记逐字这么说）。判据位置与「不把乱码喂给模型」的
+   策略都不变，只是不再沉默：保守解是策略，隐瞒不是。计数粒度取**行**（与分支同位、零新增状态）；
+   要按文件报「哪几份疑似二进制」需要第二个概念，本票不加。
    **承诺到此为止，本层不替容器作保**：容器自己在 `listDir` 内部丢掉的条目，工具连它们存在都
    不知道，`ExecutionEnv` 也没有第二条通道能把「我丢了什么」带出来。现有两处，逐条登记：
    （a）产品形态的 grammar 排除——`product-case-env.ts` 的 `listDir` 对保留名、控制字符、超长段
    的**真实文件**直接 `continue`，它们不进模型面，也不进任何注记；（b）目录内**单个条目**
-   `lstat` 失败——`scoped-env.ts`、`product-case-env.ts` 各一处 `if (info.ok)`，静默略过。
-   两处都要改 env 契约本身（多一条 per-entry 的失败/排除通道），与 `PI-WORKSPACE-READ-1` 的
-   双根改造是同一处接缝，见九节移交。在那之前，它们是**显式登记的产品边界**，不是本层的一句
-   更大的全称句。
+   `lstat` 失败——`scoped-env.ts`、`product-case-env.ts` 各一处 `if (info.ok)`，静默略过；
+   （c）**非法 UTF-8 字节被静默改写**——两份容器的 `readFile(…, 'utf8')` 把坏字节换成 U+FFFD，
+   命中行**内容变了**却照原样出面，无任何标记（2R 复验上浮）。前两处是「丢条目」，第三处是
+   「改内容」，形态不同但同属容器层：`ExecutionEnv` 的 `listDir`/`readTextLines` 契约里没有
+   位置能把「我丢了什么／我改了什么」带出来（上游 `Result<FileInfo[], FileError>` 单值、
+   `FileInfo` 无「被排除」变体、`FileErrorCode` 闭集 8 枚）。三处都要改 env 契约本身，与
+   `PI-WORKSPACE-READ-1` 的双根改造是同一处接缝，见九节移交。在那之前，它们是**显式登记的
+   产品边界**，不是本层的一句更大的全称句。ADR-022 六-B.1 对 wire 侧明令禁止「替换后继续」，
+   读取侧目前无对应条款——这一条也随之交出。
 
 ## 六 · dev 入口用法
 
@@ -673,10 +684,13 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   `{ scanned, truncated, skipped, symlinks }`，`skipped` 是 `{ path, code }[]`、路径与命中共用
   同一枚 `HitProjection`。双根改造只需按根各跑一次 walk 后**按根归并**这四笔，字段形状与文本注记
   不必再动；`skipped` 天然可带第二个根的条目，因为它记的是路径而不是「第几个根」。
-  同批未收口的**两处**一并交出，它们都住 env 契约、与双根是同一处接缝（五-8 末段）：
-  `listDir` 内单条目 `lstat` 失败静默略过；产品形态 grammar 排除真实文件而模型面零登记。
-  `ExecutionEnv` 若在双根改造里获得 per-entry 的失败/排除通道，这两处即可同批收口——
-  在那之前它们只是显式登记的边界，工具层不得用一句更大的全称句盖过去。
+  同批未收口的**三处**一并交出，它们都住 env 契约、与双根是同一处接缝（五-8 末段）：
+  `listDir` 内单条目 `lstat` 失败静默略过；产品形态 grammar 排除真实文件而模型面零登记；
+  `readFile(…, 'utf8')` 把非法 UTF-8 字节静默换成 U+FFFD 后照常出面。
+  `ExecutionEnv` 若在双根改造里获得 per-entry 的失败/排除通道与「内容已被替换」的标记位，
+  这三处即可同批收口——在那之前它们只是显式登记的边界，工具层不得用一句更大的全称句盖过去。
+  另交出一份**九行丢弃分支族表**（`specs/PI-TOOLS-HONESTY-1.md` 十节）：本票三轮被拒两次，
+  两次都是「按验收点名的实例收口，而不是按族收口」，族清单自此由实现方持有、改函数先对表。
 - `PI-HOST-LOOP-1` 负责 product `/case` 虚拟 env、物理路径/错误脱敏与 session 累计预算；
   专属冻结件为
   [`specs/PI-HOST-LOOP-1.md`](specs/PI-HOST-LOOP-1.md)。该票不扩 `case_read`
@@ -735,10 +749,10 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 
 ## 十 · 门与证据
 
-- 单测 **496 例 / 16 文件**（`pnpm --filter @courtwork/pi-lane test`，2026-08-05 由
-  `PI-TOOLS-HONESTY-1R` 在其 worktree 实测；同票首轮 489/16，1R 因行截断与 symlink 出账再增七枚；
-  更前的 469/15 出自同日 `PI-WRITE-HOST-1` 独立验收），含容器越界、闸门拒绝、预算停 loop、
-  dev 入口 HTTP 面、三枚上限与拒读/symlink 的诚实面。原写「74 例」是 `PI-LANE-1` 期真值，
+- 单测 **500 例 / 16 文件**（`pnpm --filter @courtwork/pi-lane test`，2026-08-05 由
+  `PI-TOOLS-HONESTY-2R` 在其 worktree 实测；同票首轮 489/16、1R 496/16，2R 因裸 NUL 行出账
+  再增四枚；更前的 469/15 出自同日 `PI-WRITE-HOST-1` 独立验收），含容器越界、闸门拒绝、
+  预算停 loop、dev 入口 HTTP 面、六类不完整来源的诚实面。原写「74 例」是 `PI-LANE-1` 期真值，
   其后由 product-* 诸票增长；每票只据实更新该计数，不追认也不复核其他票面的证据。
 - ADR-018 门单测 12→23 例；真树注入实测：`child_process` 与 `fs:writeFile` 各触红一次，还原复绿。
 - 变异对照两例（授权边界）：包含判定退化成裸字符串前缀 → 五条红证转红；跳过 symlink 规范化 →

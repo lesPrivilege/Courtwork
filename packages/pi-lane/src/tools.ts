@@ -155,10 +155,15 @@ function summarizeSkipCodes(skipped: readonly SkippedEntry[]): string {
 }
 
 /**
- * 不完整注记：**本层能观察到的五类**来源各自成句、互不遮蔽，一条都不成立时**不出注记**。
+ * 不完整注记：**本层能观察到的六类**来源各自成句、互不遮蔽，一条都不成立时**不出注记**。
  *
- * 五类：扫描上限、命中上限、行截断、容器拒读、symlink 不跟随。因此「没有注记」是一句可依赖的
- * 断言——**容器交给本层的每一个条目都被检索、每一条命中都完整列出**；而不是「本工具从不说这些」。
+ * 六类＝本函数检索路径上**全部九条丢弃/限幅分支**去掉三条同账者之后的口径：扫描上限、
+ * 命中上限（跨文件与行层同账）、行截断、容器拒读（目录与文件同账）、symlink 不跟随、
+ * 裸 NUL 行。族清单逐条在 `specs/PI-TOOLS-HONESTY-1.md` 十节，改本函数**先对表**——
+ * 本票三轮的教训正是「按验收点名的实例收口，而不是按族收口」，两次都是同一条路走回来的。
+ *
+ * 因此「没有注记」是一句可依赖的断言——**容器交给本层的每一个条目都被检索、每一条命中都完整
+ * 列出**；而不是「本工具从不说这些」。
  *
  * 承诺**到此为止，不替容器作保**（1R 收窄，见 SPEC 五-8）：容器自己在 `listDir` 里丢掉的条目
  * ——产品形态的 grammar 排除、单条目 `lstat` 失败——本层连它们存在都不知道，`ExecutionEnv`
@@ -172,6 +177,8 @@ function incompleteNote(input: {
   readonly matchUnit: string;
   /** 被裁掉尾部的命中行数。glob 不产出命中行，恒为 0。 */
   readonly lineTruncated: number;
+  /** 含裸 NUL 而未按文本检索的行数。glob 不读行内容，恒为 0。 */
+  readonly nulLinesSkipped: number;
   readonly skipped: readonly SkippedEntry[];
   readonly symlinksSkipped: number;
 }): string {
@@ -180,6 +187,9 @@ function incompleteNote(input: {
   if (input.matchesTruncated) clauses.push(`已达命中上限 ${MAX_MATCHES} ${input.matchUnit}`);
   if (input.lineTruncated > 0) {
     clauses.push(`${input.lineTruncated} 行超长截断（每行 ${MAX_LINE_LENGTH} 字符封顶，行尾有具名标记）`);
+  }
+  if (input.nulLinesSkipped > 0) {
+    clauses.push(`另有 ${input.nulLinesSkipped} 行含裸 NUL，已按二进制跳过（未按文本检索，其中可能有命中）`);
   }
   if (input.skipped.length > 0) {
     clauses.push(`另有 ${input.skipped.length} 处不可读已跳过：${summarizeSkipCodes(input.skipped)}`);
@@ -256,8 +266,9 @@ function createGlobTool(
         truncated,
         matchesTruncated,
         matchUnit: '份',
-        // glob 出的是文件名，没有行可截——恒 0 是事实，不是占位。
+        // glob 出的是文件名，既不截行也不读行内容——两枚恒 0 是事实，不是占位。
         lineTruncated: 0,
+        nulLinesSkipped: 0,
         skipped,
         symlinksSkipped: symlinks,
       });
@@ -298,6 +309,7 @@ function createGrepTool(
       const skippedFiles: RawSkip[] = [];
       let matchesTruncated = false;
       let lineTruncated = 0;
+      let nulLinesSkipped = 0;
       const { scanned, truncated, skipped: rawSkipped, symlinks } = await walkFiles(
         context.env,
         started.value,
@@ -316,7 +328,13 @@ function createGrepTool(
           const relative = project(toPosix(path.relative(context.env.cwd, absolute)));
           read.value.forEach((line, index) => {
             // 裸 NUL 是二进制的可靠信号：按二进制跳过，不把乱码喂给模型。
-            if (line.includes('\u0000')) return;
+            // 跳过是策略，出账是义务（2R 再拒因）：判据刻意在 matcher 之前——先认出二进制、
+            // 再谈匹配——因此这里压掉的**可能正是一条真命中**，不计数就等于用「无命中」
+            // 回答一条它其实找到了的证据。判据位置不变，沉默改掉。
+            if (line.includes('\u0000')) {
+              nulLinesSkipped += 1;
+              return;
+            }
             if (hits.length >= MAX_MATCHES) {
               matchesTruncated = true;
               return;
@@ -337,6 +355,7 @@ function createGrepTool(
         matchesTruncated,
         matchUnit: '条',
         lineTruncated,
+        nulLinesSkipped,
         skipped,
         symlinksSkipped: symlinks,
       });
@@ -346,6 +365,7 @@ function createGrepTool(
         truncated,
         matchesTruncated,
         lineTruncated,
+        nulLinesSkipped,
         skipped,
         symlinksSkipped: symlinks,
       });

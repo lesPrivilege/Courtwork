@@ -564,6 +564,69 @@ describe('1R · 行截断与 symlink：本层看得见的不完整，一律出�
   });
 
   /**
+   * 2R 再拒因（复验 `13eab2e` 第二节）：裸 NUL 行的丢弃是本函数**第九条**丢弃分支，也是
+   * 1R 收口后唯一没账的一条。判据写在 `matcher.test` **之前**，故一条真命中只要同行带 NUL
+   * 就被整条压掉——`无命中` 且六枚字段全净，同时还附着一句「结果完整」的结构性保证。
+   *
+   * 对照臂是这组语料的要害：去掉 NUL 立刻 `matched:1`，证明被压掉的确是真命中，
+   * 不是「本来就没有」。案卷里放扫描件 PDF、docx 导出的带控制字节 md 是本产品线常态。
+   */
+  describe('2R · 裸 NUL 行：跳过是策略，隐瞒不是', () => {
+    const NUL = String.fromCharCode(0);
+    const HIT = '合同编号 HT-2024-081';
+    let binary: ExecutionToolContext;
+    let binaryRoot: string;
+    let plain: ExecutionToolContext;
+
+    beforeAll(async () => {
+      ({ root: binaryRoot, context: binary } = await sandbox('tools-nul', async (directory) => {
+        // 「像 PDF 的」件：正文真含命中词，同一行带裸 NUL。
+        await writeFile(path.join(directory, '扫描件.md'), `${HIT} 附件${NUL}二进制尾\n`);
+        await writeFile(path.join(directory, '说明.txt'), '本目录用于存放扫描件\n');
+      }));
+      // 对照臂：逐字节同内容，只去掉 NUL。
+      ({ context: plain } = await sandbox('tools-nul-control', async (directory) => {
+        await writeFile(path.join(directory, '扫描件.md'), `${HIT} 附件二进制尾\n`);
+        await writeFile(path.join(directory, '说明.txt'), '本目录用于存放扫描件\n');
+      }));
+    });
+
+    it('对照臂：去掉 NUL 即命中，且零注记零计数', async () => {
+      const result = await runWith(plain, 'grep', { pattern: 'HT-2024-081' });
+      expect(detailsOf(result)).toMatchObject({ matched: 1, nulLinesSkipped: 0 });
+      // 断言只认注记子句：语料正文本身含「二进制」三字，拿裸词判会自伤。
+      expect(textOf(result)).not.toContain('按二进制跳过');
+      expect(textOf(result)).not.toContain('不完整');
+    });
+
+    it('dev 形态：被压掉的真命中出注记', async () => {
+      const text = textOf(await runWith(binary, 'grep', { pattern: 'HT-2024-081' }));
+      expect(text).toContain('无命中');
+      expect(text).toContain('按二进制跳过');
+      expect(text).toContain('不完整');
+    });
+
+    it('dev 形态：被压掉的真命中同批进 details 计数', async () => {
+      const result = await runWith(binary, 'grep', { pattern: 'HT-2024-081' });
+      expect(detailsOf(result)).toMatchObject({ matched: 0, scanned: 2, nulLinesSkipped: 1 });
+    });
+
+    it('产品形态：同一件走 /case 链，账目一致', async () => {
+      const productTools = createReadOnlyTools({ logicalRoot: '/case' });
+      const tool = productTools.find((candidate) => candidate.name === 'grep');
+      const result = await tool!.execute(
+        'call-1',
+        { pattern: 'HT-2024-081' } as never,
+        undefined,
+        undefined,
+        { env: createProductCaseEnv({ caseRoot: binaryRoot }) },
+      );
+      expect(detailsOf(result)).toMatchObject({ matched: 0, nulLinesSkipped: 1 });
+      expect(textOf(result)).toContain('按二进制跳过');
+    });
+  });
+
+  /**
    * 第三形：产品 grammar 排除。**不在本层可修**——`product-case-env.ts` 的 `listDir` 在容器内
    * 就把保留名滤掉了，工具收到的条目里根本没有它，`ExecutionEnv` 也没有第二条通道能把「我丢了
    * 什么」带出来。本枚因此钉两件事：排除确实发生在容器层（不是工具静默），以及工具的注记承诺
