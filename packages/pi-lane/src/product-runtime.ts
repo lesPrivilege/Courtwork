@@ -30,6 +30,7 @@ import {
 import { createModels, type Api, type Model } from '@earendil-works/pi-ai';
 import { deepseekProvider } from '@earendil-works/pi-ai/providers/deepseek';
 
+import { createDualRootEnv } from './dual-root-env.js';
 import { CASE_LOGICAL_ROOT, createProductCaseEnv } from './product-case-env.js';
 import type {
   BootstrapPayload,
@@ -51,7 +52,14 @@ import type {
 import { assertToolsWithinPolicy, createToolGate, PRODUCT_TOOL_NAMES } from './tool-policy.js';
 import { createReadOnlyTools } from './tools.js';
 import {
+  createWorkspaceReadEnv,
+  type WorkspaceReadPort,
+  type WorkspaceReadPortOutcome,
+  type WorkspaceReadRegistry,
+} from './workspace-read-env.js';
+import {
   bindWorkspaceWriteTool,
+  WORKSPACE_LOGICAL_ROOT,
   type WorkspaceWritePort,
   type WorkspaceWritePortOutcome,
   type WorkspaceWriteRegistry,
@@ -90,9 +98,14 @@ export const PRODUCT_SYSTEM_PROMPT_MAX_BYTES = 2048;
  *
  * `workspace_write` 在这里只表示「本会话可以**申请** workspace write host operation」；
  * 每一次写是否发生仍由宿主逐次授权（ADR-022 六-C），宣告能力不等于预先批准。
- * `workspace_read` 属 `PI-WORKSPACE-READ-1`，本票不宣告。
+ * `workspace_read`（`PI-WORKSPACE-READ-1`）同理只是申请权：它服务 `exists/read_file/list`
+ * 三枚 env 内部操作，**不**新增模型工具——read/glob/grep 经双根 env 路由到它。
  */
-export const PRODUCT_CAPABILITIES: readonly WorkspaceCapability[] = ['case_read', 'workspace_write'];
+export const PRODUCT_CAPABILITIES: readonly WorkspaceCapability[] = [
+  'case_read',
+  'workspace_read',
+  'workspace_write',
+];
 
 /** 产品 provider 只认这一个 id；未来 provider 由架构另立具名 profile，不在此处开分支。 */
 export const PRODUCT_PROVIDER_ID = 'deepseek';
@@ -293,10 +306,10 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
    * promise，宿主的 `host_result` 到达时由状态机回灌，这里按 operationId 严格对号后 resolve。
    * 对不上号一律显式抛出——静默接受等于给未来留一个「谁都能收束别人 operation」的默认通路。
    */
-  let pendingHostOperation: {
-    readonly operationId: string;
-    readonly settle: (outcome: WorkspaceWritePortOutcome) => void;
-  } | null = null;
+  let pendingHostOperation:
+    | { readonly kind: 'write'; readonly operationId: string; readonly settle: (outcome: WorkspaceWritePortOutcome) => void }
+    | { readonly kind: 'read'; readonly operationId: string; readonly settle: (outcome: WorkspaceReadPortOutcome) => void }
+    | null = null;
 
   /**
    * 已收束、尚未投影的那一枚 write 的工具账。一 tc 一 op、Agent 又是 sequential，
@@ -316,6 +329,17 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
   };
 
   /**
+   * 读面登记册。与写面同一枚 `publicToolCallId` 查表，只在 capability 上分叉——
+   * 状态机的 `TOOL_CAPABILITY` 固定映射会当场校验「这枚 tc 的工具名确实归 workspace_read」，
+   * 故这里写死 capability 不是第二份判定，而是被那道门盯着的一次声明。
+   */
+  const readRegistry: WorkspaceReadRegistry = {
+    publicToolCallId: (rawToolCallId) => requireSession().publicToolCallId(rawToolCallId),
+    allocateOperationId: (publicToolCallId) =>
+      requireSession().reserveHostOperation({ publicToolCallId, capability: 'workspace_read' }),
+  };
+
+  /**
    * 两段式接缝的第二段。`reserveHostOperation` 已在 registry 那一侧烧过号，这里只把
    * 调用方算好的 op 与 proposalHash 原样交给状态机出包：零预测、零重算。
    *
@@ -331,7 +355,7 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
         if (pendingHostOperation !== null) {
           throw new Error('同一时刻只允许一枚在途 workspace operation');
         }
-        pendingHostOperation = { operationId: request.operationId, settle: resolve };
+        pendingHostOperation = { kind: 'write', operationId: request.operationId, settle: resolve };
         try {
           current.sendReservedHostRequest({
             sessionId: request.sessionId,
@@ -348,6 +372,38 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
           });
         } catch (error) {
           // 没能出 wire 的 operation 不留在途：这一枚 ordinal 就此烧掉，不复用、不补发。
+          pendingHostOperation = null;
+          throw error;
+        }
+      });
+    },
+  };
+
+  /**
+   * 读面 port（`PI-WORKSPACE-READ-1`）。与写面 port 逐条同构，两处差别只有两枚：
+   * capability 是 `workspace_read`，arguments 是 `{operation,logicalPath}`。
+   *
+   * 它同样**不接 abort signal**：读没有 effect，但在途 operation 的收束权仍只属状态机——
+   * 提前 resolve 会让一枚 `host_result` 回来时找不到对号的待办，那是 fatal 而不是「取消成功」。
+   */
+  const readPort: WorkspaceReadPort = {
+    read(request) {
+      const current = requireSession();
+      return new Promise<WorkspaceReadPortOutcome>((resolve) => {
+        if (pendingHostOperation !== null) {
+          throw new Error('同一时刻只允许一枚在途 workspace operation');
+        }
+        pendingHostOperation = { kind: 'read', operationId: request.operationId, settle: resolve };
+        try {
+          current.sendReservedHostRequest({
+            sessionId: request.sessionId,
+            requestId: request.requestId,
+            operationId: request.operationId,
+            proposalHash: request.proposalHash,
+            capability: 'workspace_read',
+            arguments: { operation: request.operation, logicalPath: request.logicalPath },
+          });
+        } catch (error) {
           pendingHostOperation = null;
           throw error;
         }
@@ -483,8 +539,34 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
       observedTurns = bootstrap.resume.priorObservedTurns;
       usd = bootstrap.resume.priorUsd;
 
-      const env = createProductCaseEnv({ caseRoot: bootstrap.caseRoot });
-      const readTools = createReadOnlyTools({ logicalRoot: CASE_LOGICAL_ROOT });
+      const caseEnv = createProductCaseEnv({ caseRoot: bootstrap.caseRoot });
+      const readTools = createReadOnlyTools({ logicalRoots: [CASE_LOGICAL_ROOT, WORKSPACE_LOGICAL_ROOT] });
+
+      /**
+       * 每次 read/glob/grep 调用一只双根容器（`PI-WORKSPACE-READ-1`）。
+       *
+       * `/case` 那一半是 leg 级常件（Node 直读，无会话状态）；`/workspace` 那一半必须是
+       * **invocation-scoped**——它要铸 operation，而 op 归属哪枚 tool call 只有本次调用知道。
+       * 若改成 leg 级共享件，就得在 runtime 里留一枚可变的 current-tool-call，正是 ADR-022
+       * 六-B.2 对 write 明禁的那种共享可变关联。
+       */
+      const dualRootEnvFor = (rawToolCallId: string, sessionId: SafeToken, requestId: SafeToken) => {
+        return createDualRootEnv({
+          roots: [
+            { logicalRoot: CASE_LOGICAL_ROOT, env: caseEnv },
+            {
+              logicalRoot: WORKSPACE_LOGICAL_ROOT,
+              env: createWorkspaceReadEnv({
+                sessionId,
+                requestId,
+                rawToolCallId,
+                registry: readRegistry,
+                port: readPort,
+              }),
+            },
+          ],
+        });
+      };
       /**
        * write 自带 invocation-scoped 虚拟 workspace 容器，**不走**下面那一层 `{ env }` 注入：
        * 那一层注的是 `/case` 只读容器，会把 workspace 容器整个顶掉，写面于是变成读面容器里的
@@ -528,7 +610,11 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
                 ({
                   ...tool,
                   execute: (toolCallId: string, params: never, signal?: AbortSignal, onUpdate?: never) =>
-                    tool.execute(toolCallId, params, signal, onUpdate, { env }),
+                    tool.execute(toolCallId, params, signal, onUpdate, {
+                      // session/request 取**执行时**真值：一条 leg 只建一枚 Agent，而 requestId
+                      // 每 prompt 换一枚（与 write binder 的 getter 同一条理由）。
+                      env: dualRootEnvFor(toolCallId, requireSessionId(), requireActiveRequestId()),
+                    }),
                 }) as AgentTool<never>,
             ),
             // binder 已是四参 execute，且自带容器；再包一层就等于替它选容器。
@@ -572,10 +658,46 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
       if (waiting === null || waiting.operationId !== result.operationId) {
         throw new Error('没有与这枚 host_result 对号的在途 workspace operation，不接受');
       }
-      if (result.capability !== 'workspace_write') {
-        throw new Error('本票只申请 workspace_write，不接受其他 capability 的 host_result');
-      }
       pendingHostOperation = null;
+
+      // capability 必须与**在途那一枚**同族：写的待办收不到读的回执，反之亦然。
+      if (waiting.kind === 'read') {
+        if (result.capability !== 'workspace_read') {
+          throw new Error('host_result 的 capability 与在途 read operation 不同族，不接受');
+        }
+        // 读没有 effect，故**不**碰 `settledWriteOutcome`：读的 tool outcome 仍走本地判据
+        // （容器拒绝/isError），把它并进 write 那条通道会让一次 glob 顶掉一次 write 的账。
+        if (result.status !== 'ok') {
+          waiting.settle({ status: result.status, code: result.error.code, message: result.error.message });
+          return;
+        }
+        if (result.operation === 'exists') {
+          waiting.settle({ status: 'ok', operation: 'exists', logicalPath: result.value.logicalPath, exists: result.value.exists });
+          return;
+        }
+        if (result.operation === 'read_file') {
+          waiting.settle({
+            status: 'ok',
+            operation: 'read_file',
+            logicalPath: result.value.logicalPath,
+            content: result.value.content,
+            contentSha256: result.value.contentSha256,
+            byteLength: result.value.byteLength,
+          });
+          return;
+        }
+        waiting.settle({
+          status: 'ok',
+          operation: 'list',
+          logicalPath: result.value.logicalPath,
+          entries: result.value.entries,
+        });
+        return;
+      }
+
+      if (result.capability !== 'workspace_write') {
+        throw new Error('host_result 的 capability 与在途 write operation 不同族，不接受');
+      }
       settledWriteOutcome = outcomeFromHostStatus(result.status);
       // 精确 code 闭集属 wire 与 Rust 宿主；这里只把它原样交给工具侧，不复制第二份判定，
       // 也不从 status 反推「文件到底有没有变」——那只有 host_result 与 journal 说了算。

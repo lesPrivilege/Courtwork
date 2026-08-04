@@ -326,8 +326,10 @@ describe('write-session-v1 双端 golden', () => {
 
     // 真跑一遍读＋写：模型侧看到的恰是两个逻辑根，物理案件根一次都不出现。
     faux.setResponses([
-      // 取 glob：读面把命中**逐条以 `/case/...` 展示**，故它是双根投影的可观测面。
-      fauxAssistantMessage([fauxToolCall('glob', { pattern: '**/*.md' })], { stopReason: 'toolUse' }),
+      // 取 glob 并**显式给 `/case` 起点**：本枚只看模型可见的投影面，故刻意把范围限在
+      // Node 直读那一根——不给起点会连 `/workspace` 一起检索，那要真宿主答 `list`
+      // （`PI-WORKSPACE-READ-1`），而本枚的 transport 是空实现。
+      fauxAssistantMessage([fauxToolCall('glob', { pattern: '**/*.md', path: CASE_LOGICAL_ROOT })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxText(`已写入 ${WORKSPACE_LOGICAL_ROOT}/${request.logicalPath}。`)]),
     ]);
     const runtime = createProductRuntime({

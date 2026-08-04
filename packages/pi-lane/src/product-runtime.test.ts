@@ -78,7 +78,7 @@ type Harness = {
  * 回包排在 microtask 里：状态机禁止在 runtime callback 内同步 `receive`，而 tool execute
  * 本就跑在 agent loop 的异步段，这里只是把「宿主不会同步答复」这条事实照实建模。
  */
-type ScriptedHost = (request: WorkspaceHostRequest) => HostResultPayload;
+type ScriptedHost = (request: WorkspaceHostRequest) => HostResultPayload | Promise<HostResultPayload>;
 
 const hostWriteOk: ScriptedHost = (request) => ({
   operationId: request.operationId,
@@ -95,6 +95,114 @@ const hostWriteOk: ScriptedHost = (request) => ({
         }
       : { logicalPath: '', disposition: 'created', contentSha256: '', byteLength: 0 },
 });
+
+/**
+ * 读写通吃的脚本宿主（`PI-WORKSPACE-READ-1`）。workspace 用一张内存表建模，
+ * 写入照收、读回同一份字节——`byte-identical read-back` 在本文件就是这张表进出的逐值相等。
+ */
+function scriptedWorkspaceHost(initial: Record<string, string> = {}): {
+  host: ScriptedHost;
+  files: Map<string, string>;
+} {
+  const files = new Map(Object.entries(initial));
+  const encoder = new TextEncoder();
+  // 真 SHA-256：读面容器会重算并逐值比对，喂假 hash 等于把回读双验那道门自己拆了。
+  const sha256 = async (value: string) => {
+    const bytes = encoder.encode(value);
+    const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes.slice().buffer);
+    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+  };
+  const childrenOf = (directory: string) => {
+    const prefix = directory === '.' ? '' : `${directory}/`;
+    const names = new Map<string, 'file' | 'directory'>();
+    for (const logical of files.keys()) {
+      if (!logical.startsWith(prefix)) continue;
+      const rest = logical.slice(prefix.length);
+      if (rest.length === 0) continue;
+      const cut = rest.indexOf('/');
+      if (cut === -1) names.set(rest, 'file');
+      else names.set(rest.slice(0, cut), 'directory');
+    }
+    return [...names].sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0));
+  };
+  const host: ScriptedHost = async (request) => {
+    if (request.capability === 'workspace_write') {
+      files.set(request.arguments.logicalPath, request.arguments.content);
+      return {
+        operationId: request.operationId,
+        capability: 'workspace_write',
+        operation: 'write',
+        status: 'ok',
+        value: {
+          logicalPath: request.arguments.logicalPath,
+          disposition: 'created',
+          contentSha256: request.arguments.contentSha256,
+          byteLength: request.arguments.byteLength,
+        },
+      };
+    }
+    const { operation, logicalPath } = request.arguments;
+    if (operation === 'exists') {
+      return {
+        operationId: request.operationId,
+        capability: 'workspace_read',
+        operation: 'exists',
+        status: 'ok',
+        value: { logicalPath, exists: files.has(logicalPath) || childrenOf(logicalPath).length > 0 },
+      };
+    }
+    if (operation === 'read_file') {
+      const content = files.get(logicalPath);
+      if (content === undefined) {
+        return {
+          operationId: request.operationId,
+          capability: 'workspace_read',
+          operation: 'read_file',
+          status: 'failed',
+          error: { code: 'not_found', message: '目标不存在' },
+        };
+      }
+      return {
+        operationId: request.operationId,
+        capability: 'workspace_read',
+        operation: 'read_file',
+        status: 'ok',
+        value: {
+          logicalPath,
+          content,
+          contentSha256: await sha256(content),
+          byteLength: encoder.encode(content).byteLength,
+        },
+      };
+    }
+    const entries = childrenOf(logicalPath);
+    if (logicalPath !== '.' && entries.length === 0) {
+      return {
+        operationId: request.operationId,
+        capability: 'workspace_read',
+        operation: 'list',
+        status: 'failed',
+        error: { code: 'not_found', message: '目标不存在' },
+      };
+    }
+    return {
+      operationId: request.operationId,
+      capability: 'workspace_read',
+      operation: 'list',
+      status: 'ok',
+      value: {
+        logicalPath,
+        entries: entries.map(([name, kind]) => ({
+          name,
+          kind,
+          byteLength: kind === 'file' ? encoder.encode(files.get(`${logicalPath === '.' ? '' : `${logicalPath}/`}${name}`) ?? '').byteLength : null,
+          mtimeMs: 1,
+        })),
+      },
+    };
+  };
+  return { host, files };
+}
 
 function bootstrapPayload(overrides: Partial<BootstrapPayload> = {}): BootstrapPayload {
   return {
@@ -154,8 +262,8 @@ function createHarness(host?: ScriptedHost): Harness {
 
   if (host !== undefined) {
     answer = (packet) => {
-      const payload = host(packet.payload);
-      queueMicrotask(() => {
+      // 允许脚本宿主异步出结果：`read_file` 的 hash 走 `crypto.subtle`，而它是异步的。
+      void Promise.resolve(host(packet.payload)).then((payload) => {
         seq += 1;
         send({
           protocolVersion: 1,
@@ -309,18 +417,18 @@ describe('provider 装配', () => {
 
 describe('bootstrap → ready', () => {
   /**
-   * `workspace_write` 进闭集是 `PI-WRITE-HOST-1` ⑤ 的握手改动，与 Rust
-   * `EXPECTED_CAPABILITIES` 同批。字典序不是排版：状态机按字典序归一，Rust 逐值比对，
-   * 顺序错一位就是 capability 漂移。`workspace_read` 属 `PI-WORKSPACE-READ-1`，此处必须不在。
+   * `workspace_write` 进闭集是 `PI-WRITE-HOST-1` ⑤ 的握手改动，`workspace_read` 是
+   * `PI-WORKSPACE-READ-1` 的，两枚都与 Rust `EXPECTED_CAPABILITIES` 同批。字典序不是排版：
+   * 状态机按字典序归一，Rust 逐值比对，顺序错一位就是 capability 漂移。
    */
-  it('ready 恰宣告 case_read 与 workspace_write，按字典序', () => {
+  it('ready 恰宣告 case_read、workspace_read 与 workspace_write，按字典序', () => {
     const harness = createHarness();
     harness.bootstrap();
     const ready = harness.packets.find((packet) => packet.type === 'ready');
     expect(ready?.type).toBe('ready');
     if (ready?.type !== 'ready') return;
     expect(ready.payload.capabilities).toEqual([...PRODUCT_CAPABILITIES]);
-    expect(ready.payload.capabilities).toEqual(['case_read', 'workspace_write']);
+    expect(ready.payload.capabilities).toEqual(['case_read', 'workspace_read', 'workspace_write']);
   });
 
   it('modelId 只认 bootstrap 给的那一个，目录里没有就不出 ready', () => {
@@ -364,14 +472,13 @@ describe('真实 read loop（scripted stream，零网络）', () => {
   });
 
   /**
-   * 读面不申请 operation，这条在写面开通之后**更**要守：三件只读工具经 `/case` 容器直接
-   * 执行，一枚 host operation 都不该铸。首轮以源码扫描（`product-runtime.ts` 不出现
-   * `reserveHostOperation`）兼作判据，⑤ 把那两个名字真的接进来之后该扫描恒红且零区分力，
-   * 故改为行为判据：读面跑完 host_request 仍恰零。
+   * `/case` 侧的读**仍然**一枚 operation 都不铸：那一根是 Node 直读容器。
+   * `PI-WORKSPACE-READ-1` 改的只是 `/workspace` 那一根——两根各自的账在此分开钉住，
+   * 否则「读面开始发 host request 了」会顺手把 `/case` 的直读性质一起冲掉。
    */
-  it('read/glob/grep 一枚 operation 都不申请，host_request 全程为零', async () => {
+  it('起点落在 /case 时读面一枚 operation 都不申请，host_request 恰零', async () => {
     faux.setResponses([
-      fauxAssistantMessage([fauxToolCall('glob', { pattern: '**/*.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('glob', { pattern: '**/*.md', path: '/case' })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxToolCall('read', { path: '备忘.md' })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxText('读完了。')]),
     ]);
@@ -382,17 +489,69 @@ describe('真实 read loop（scripted stream，零网络）', () => {
     expect(harness.terminals().at(-1)?.status).toBe('completed');
   });
 
+  it('起点落在 /workspace 时读面走 host-mediated：capability 恰为 workspace_read', async () => {
+    const { host } = scriptedWorkspaceHost({ '简报.md': '# 简报\n结论一\n' });
+    faux.setResponses([
+      fauxAssistantMessage([fauxToolCall('glob', { pattern: '**/*.md', path: '/workspace' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxText('工作稿里有一份简报。')]),
+    ]);
+    const harness = createHarness(host);
+    harness.bootstrap();
+    await harness.prompt('看看工作稿', 'request-1');
+    const requests = harness.hostRequests();
+    expect(requests.length).toBeGreaterThan(0);
+    for (const request of requests) expect(request.capability).toBe('workspace_read');
+    expect(requests.map((request) => request.capability === 'workspace_read' && request.arguments.operation)).toContain('list');
+    // 物理坐标零泄漏：wire 上恒是裸逻辑路径，根写作 `.`。
+    for (const request of requests) {
+      if (request.capability !== 'workspace_read') continue;
+      expect(request.arguments.logicalPath.startsWith('/')).toBe(false);
+      expect(request.arguments.logicalPath).not.toContain(caseRoot);
+    }
+    expect(JSON.stringify(harness.runtime.messages())).toContain('/workspace/简报.md');
+  });
+
   it('模型给相对路径也走同一容器，工具结果不含物理根', async () => {
+    const { host } = scriptedWorkspaceHost();
     faux.setResponses([
       fauxAssistantMessage([fauxToolCall('grep', { pattern: '张三' })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxText('证人是张三。')]),
     ]);
-    const harness = createHarness();
+    const harness = createHarness(host);
     harness.bootstrap();
     await harness.prompt('证人是谁', 'request-1');
     const transcript = JSON.stringify(harness.runtime.messages());
     expect(transcript).toContain('/case/证人.md');
     expect(transcript).not.toContain(caseRoot);
+    // 双根检索的出面恒是逻辑绝对路径：`../workspace` 这一形态结构性不存在。
+    expect(transcript).not.toContain('../workspace');
+  });
+
+  /**
+   * 票面的闭环判据：write → 批准 → 落盘 → **同 leg 内**逐字节回读。
+   * 这里的「落盘」由脚本宿主的内存表建模，Rust 真件的屏障与原子性由 `pi_loop_workspace`
+   * 自有反例门承担；本文件只证 Node 侧那一半——回读拿到的就是写出去的那份字节。
+   */
+  it('write → 回读：同一 leg 内 byte-identical，且回读双验真的在跑', async () => {
+    const content = '# 简报\n合同编号 HT-2024-081\n附：签署地 临江\n';
+    const { host, files } = scriptedWorkspaceHost();
+    faux.setResponses([
+      fauxAssistantMessage([fauxToolCall('write', { path: '简报.md', content })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('read', { path: '/workspace/简报.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxText('已写入并回读确认：/workspace/简报.md')]),
+    ]);
+    const harness = createHarness(host);
+    harness.bootstrap();
+    await harness.prompt('写一份简报再回读', 'request-1');
+
+    expect(files.get('简报.md')).toBe(content);
+    const transcript = JSON.stringify(harness.runtime.messages());
+    // 回读的正文逐字出现在 transcript 里（JSON 转义后按同一口径比对）。
+    expect(transcript).toContain(JSON.stringify(content).slice(1, -1));
+    const capabilities = harness.hostRequests().map((request) => request.capability);
+    expect(capabilities[0]).toBe('workspace_write');
+    expect(capabilities.slice(1).every((capability) => capability === 'workspace_read')).toBe(true);
+    expect(harness.terminals().at(-1)?.status).toBe('completed');
   });
 
   it('cancel 后终态是 canceled，且 cancel 之后不再出 delta', async () => {
@@ -623,7 +782,7 @@ describe('toolExecution:"sequential" 是显式固定值', () => {
         return result;
       },
     };
-    const tools = createReadOnlyTools({ logicalRoot: CASE_LOGICAL_ROOT }).map(
+    const tools = createReadOnlyTools({ logicalRoots: [CASE_LOGICAL_ROOT] }).map(
       (tool) =>
         ({
           ...tool,
@@ -902,20 +1061,37 @@ describe('政策拒绝的工具账如实（N3）', () => {
       packet.type === 'agent_event' && packet.payload.kind === 'tool_finished' ? [packet.payload.outcome] : [],
     );
 
-  it('read /workspace/记录.md 被 case-only policy 拒绝，outcome 必为 denied', async () => {
+  /**
+   * `PI-WORKSPACE-READ-1` 之后 `/workspace` 不再是拒绝面，但**读不到仍必须显式**：
+   * 宿主回 `not_found` 时工具账不得变成 succeeded——那才是静默降级。
+   */
+  it('read 不存在的 /workspace 文件：宿主 not_found 如实成为失败，不冒充成功', async () => {
+    const { host } = scriptedWorkspaceHost();
     faux.setResponses([
       fauxAssistantMessage([fauxToolCall('read', { path: '/workspace/记录.md' })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxText('读不到。')]),
     ]);
-    const harness = createHarness();
+    const harness = createHarness(host);
     harness.bootstrap();
     await harness.prompt('读一读 /workspace/记录.md', 'request-1');
-    expect(outcomes(harness)).toEqual(['denied']);
+    expect(outcomes(harness)).toEqual(['failed']);
   });
 
-  it('glob 与 grep 的越界起始目录同样是 denied，不是 succeeded', async () => {
+  it('存在的 /workspace 文件读得到：not_found 不是恒判', async () => {
+    const { host } = scriptedWorkspaceHost({ '记录.md': '第一条\n' });
+    faux.setResponses([
+      fauxAssistantMessage([fauxToolCall('read', { path: '/workspace/记录.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxText('读到了。')]),
+    ]);
+    const harness = createHarness(host);
+    harness.bootstrap();
+    await harness.prompt('读一读 /workspace/记录.md', 'request-1');
+    expect(outcomes(harness)).toEqual(['succeeded']);
+  });
+
+  it('两根之外的起始目录仍是 denied，不是 succeeded', async () => {
     for (const call of [
-      fauxToolCall('glob', { pattern: '**/*.md', path: '/workspace' }),
+      fauxToolCall('glob', { pattern: '**/*.md', path: '/别的根' }),
       fauxToolCall('grep', { pattern: '张三', path: '../界外' }),
     ]) {
       faux.setResponses([

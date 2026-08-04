@@ -19,8 +19,6 @@ import {
 } from '@earendil-works/pi-agent-core';
 import { Type } from '@earendil-works/pi-ai';
 
-import { CASE_LOGICAL_ROOT } from './product-case-env.js';
-
 /**
  * 单次调用的遍历与输出上限：dev 线不做无界扫描。
  *
@@ -91,10 +89,15 @@ async function walkFiles(
   env: ExecutionToolContext['env'],
   start: string,
   visit: (absolute: string) => Promise<void>,
+  /**
+   * 已用掉的扫描额度。上限是**全次调用**口径（一次 glob/grep 一份账，`PI-TOOLS-HONESTY-1`
+   * 移交 4），双根因此不是各给一份 2000——第二根接着第一根的余额走，走不动就 `truncated`。
+   */
+  scannedBefore = 0,
 ): Promise<{ scanned: number; truncated: boolean; skipped: RawSkip[]; symlinks: number }> {
   const queue = [start];
   const skipped: RawSkip[] = [];
-  let scanned = 0;
+  let scanned = scannedBefore;
   let symlinks = 0;
   while (queue.length > 0) {
     const directory = queue.shift();
@@ -212,7 +215,7 @@ const grepSchema = Type.Object({
 
 /**
  * 命中与拒读的路径投影。dev 无参形态是恒等函数——输出与逻辑根引入前逐字相同；
- * 产品形态只把既有相对路径前缀成 `/case/...`，扫描/截断上限、正则与遍历逻辑一概不动。
+ * 产品形态把相对路径前缀成所属逻辑根，扫描/截断上限、正则与遍历逻辑一概不动。
  *
  * 唯一一处非恒等：授权根**自身**被拒读时相对路径是空串，dev 形态显示成 `.`。
  * 命中面永远拿不到空相对路径（命中的是文件，不是根），故可观察输出仍逐字不变。
@@ -221,19 +224,69 @@ type HitProjection = (relative: string) => string;
 
 const identityProjection: HitProjection = (relative) => (relative === '' ? '.' : relative);
 
+/**
+ * 逻辑根投影（`PI-WORKSPACE-READ-1`）。相对路径**永远相对它自己那个根**算，故双根下
+ * 结构性产不出 `../workspace`：跨根的相对路径从来不被构造，而不是被构造之后再改写掉。
+ *
+ * 空相对路径（根自身被拒读）出根名本身，**不带尾斜杠**——旧式 `${root}/${relative}`
+ * 在这一格会出 `/case/`，那既不是合法逻辑路径，也是同一枚投影的两种写法。
+ */
+const rootProjection =
+  (logicalRoot: string): HitProjection =>
+  (relative) =>
+    relative === '' ? logicalRoot : `${logicalRoot}/${relative}`;
+
+/**
+ * 一段检索范围：从哪儿走、相对谁算、按哪枚投影出面。
+ *
+ * dev 恰一段；产品不给起点即两根各一段，给起点则恰是它所属的那一段。
+ */
+interface SearchScope {
+  /** `path.relative` 的基准。dev 是 `env.cwd`，产品是该段所属的逻辑根。 */
+  readonly base: string;
+  readonly start: string;
+  readonly project: HitProjection;
+}
+
 /** 拒读登记与命中共用同一条投影链——两处各投一次就有两处可以漂移。 */
-const projectSkipped = (
-  env: ExecutionToolContext['env'],
-  project: HitProjection,
-  skipped: readonly RawSkip[],
-): SkippedEntry[] =>
+const projectSkipped = (scope: SearchScope, skipped: readonly RawSkip[]): SkippedEntry[] =>
   skipped.map(({ absolute, code }) => ({
-    path: project(toPosix(path.relative(env.cwd, absolute))),
+    path: scope.project(toPosix(path.relative(scope.base, absolute))),
     code,
   }));
 
+/**
+ * 起点 → 检索范围。产品形态**不给 `path` 就两根全检索**：`/workspace` 的工作稿与 `/case`
+ * 的案件材料在同一次 glob/grep 里各按自己的根出面，模型不必先知道有几个根。
+ */
+async function resolveScopes(
+  context: ExecutionToolContext,
+  logicalRoots: readonly string[] | undefined,
+  requested: string | undefined,
+): Promise<{ readonly ok: true; readonly scopes: SearchScope[] } | { readonly ok: false; readonly message: string }> {
+  if (logicalRoots === undefined) {
+    const started = await context.env.absolutePath(requested ?? '.');
+    if (!started.ok) return { ok: false, message: started.error.message };
+    return { ok: true, scopes: [{ base: context.env.cwd, start: started.value, project: identityProjection }] };
+  }
+  if (requested === undefined) {
+    return {
+      ok: true,
+      scopes: logicalRoots.map((root) => ({ base: root, start: root, project: rootProjection(root) })),
+    };
+  }
+  const started = await context.env.absolutePath(requested);
+  if (!started.ok) return { ok: false, message: started.error.message };
+  const root = logicalRoots.find(
+    (candidate) => started.value === candidate || started.value.startsWith(`${candidate}/`),
+  );
+  // 归一化后仍不落在任一根内：不回显入参原文（N1——回显非法输入等于给一条旁路）。
+  if (root === undefined) return { ok: false, message: '拒绝访问：起始路径不在任何逻辑根内' };
+  return { ok: true, scopes: [{ base: root, start: started.value, project: rootProjection(root) }] };
+}
+
 function createGlobTool(
-  project: HitProjection,
+  logicalRoots: readonly string[] | undefined,
 ): AgentHarnessTool<ExecutionToolContext, typeof globSchema, Record<string, unknown>> {
   return {
     name: 'glob',
@@ -241,26 +294,39 @@ function createGlobTool(
     description: '在授权文件夹内按文件名模式列出文件。授权文件夹外的路径一律拒绝。',
     parameters: globSchema,
     async execute(_toolCallId, params, _signal, _onUpdate, context) {
-      const started = await context.env.absolutePath(params.path ?? '.');
-      if (!started.ok) return textResult(started.error.message, { denied: true });
+      const resolved = await resolveScopes(context, logicalRoots, params.path);
+      if (!resolved.ok) return textResult(resolved.message, { denied: true });
 
       const matcher = globToRegExp(params.pattern);
       const matches: string[] = [];
+      const skipped: SkippedEntry[] = [];
       let matchesTruncated = false;
-      const { scanned, truncated, skipped: rawSkipped, symlinks } = await walkFiles(
-        context.env,
-        started.value,
-        async (absolute) => {
-          const relative = toPosix(path.relative(context.env.cwd, absolute));
-          // 匹配仍按相对路径判定——模式语义不因投影而改变；只有出面的那一份被投影。
-          if (!matcher.test(relative)) return;
-          if (matches.length < MAX_MATCHES) matches.push(project(relative));
-          // 这里丢的是**已经找到**的命中，与「还有文件没看」不是一回事。
-          else matchesTruncated = true;
-        },
-      );
+      let scanned = 0;
+      let truncated = false;
+      let symlinks = 0;
 
-      const skipped = projectSkipped(context.env, project, rawSkipped);
+      for (const scope of resolved.scopes) {
+        const walk = await walkFiles(
+          context.env,
+          scope.start,
+          async (absolute) => {
+            const relative = toPosix(path.relative(scope.base, absolute));
+            // 匹配仍按相对路径判定——模式语义不因投影而改变；只有出面的那一份被投影。
+            if (!matcher.test(relative)) return;
+            if (matches.length < MAX_MATCHES) matches.push(scope.project(relative));
+            // 这里丢的是**已经找到**的命中，与「还有文件没看」不是一回事。
+            else matchesTruncated = true;
+          },
+          scanned,
+        );
+        scanned = walk.scanned;
+        truncated = truncated || walk.truncated;
+        symlinks += walk.symlinks;
+        skipped.push(...projectSkipped(scope, walk.skipped));
+        // 扫描额度是全次调用的：用尽即停，不让第二根凭空多拿一份。
+        if (walk.truncated) break;
+      }
+
       const header = matches.length === 0 ? '无命中' : `命中 ${matches.length} 份`;
       const note = incompleteNote({
         truncated,
@@ -285,7 +351,7 @@ function createGlobTool(
 }
 
 function createGrepTool(
-  project: HitProjection,
+  logicalRoots: readonly string[] | undefined,
 ): AgentHarnessTool<ExecutionToolContext, typeof grepSchema, Record<string, unknown>> {
   return {
     name: 'grep',
@@ -293,8 +359,8 @@ function createGrepTool(
     description: '在授权文件夹内按正则逐行检索文本文件。授权文件夹外的路径一律拒绝。',
     parameters: grepSchema,
     async execute(_toolCallId, params, _signal, _onUpdate, context) {
-      const started = await context.env.absolutePath(params.path ?? '.');
-      if (!started.ok) return textResult(started.error.message, { denied: true });
+      const resolved = await resolveScopes(context, logicalRoots, params.path);
+      if (!resolved.ok) return textResult(resolved.message, { denied: true });
 
       let matcher: RegExp;
       try {
@@ -306,13 +372,19 @@ function createGrepTool(
       }
 
       const hits: string[] = [];
-      const skippedFiles: RawSkip[] = [];
+      const skipped: SkippedEntry[] = [];
       let matchesTruncated = false;
       let lineTruncated = 0;
       let nulLinesSkipped = 0;
-      const { scanned, truncated, skipped: rawSkipped, symlinks } = await walkFiles(
+      let scanned = 0;
+      let truncated = false;
+      let symlinks = 0;
+
+      for (const scope of resolved.scopes) {
+        const skippedFiles: RawSkip[] = [];
+        const walk = await walkFiles(
         context.env,
-        started.value,
+        scope.start,
         async (absolute) => {
           // 命中已满：后面的文件根本不读。**停下**这件事要说出来，否则 200 条整看着像刚好找完。
           if (hits.length >= MAX_MATCHES) {
@@ -325,7 +397,7 @@ function createGrepTool(
             skippedFiles.push({ absolute, code: read.error.code });
             return;
           }
-          const relative = project(toPosix(path.relative(context.env.cwd, absolute)));
+          const relative = scope.project(toPosix(path.relative(scope.base, absolute)));
           read.value.forEach((line, index) => {
             // 裸 NUL 是二进制的可靠信号：按二进制跳过，不把乱码喂给模型。
             // 跳过是策略，出账是义务（2R 再拒因）：判据刻意在 matcher 之前——先认出二进制、
@@ -345,10 +417,16 @@ function createGrepTool(
             hits.push(`${relative}:${index + 1}: ${clipped.text}`);
           });
         },
-      );
+        scanned,
+        );
+        scanned = walk.scanned;
+        truncated = truncated || walk.truncated;
+        symlinks += walk.symlinks;
+        // 目录（walkFiles 的 listDir）与文件（本工具的 readTextLines）两处拒读，同一处出面。
+        skipped.push(...projectSkipped(scope, [...walk.skipped, ...skippedFiles]));
+        if (walk.truncated) break;
+      }
 
-      // 目录（walkFiles 的 listDir）与文件（本工具的 readTextLines）两处拒读，同一处出面。
-      const skipped = projectSkipped(context.env, project, [...rawSkipped, ...skippedFiles]);
       const header = hits.length === 0 ? '无命中' : `命中 ${hits.length} 行`;
       const note = incompleteNote({
         truncated,
@@ -416,20 +494,24 @@ export interface ReadOnlyToolsOptions {
   /**
    * 唯一可选形态：把 read 的入参与 glob/grep 的命中投影到逻辑根。
    * 不传即 dev 形态，可观察输出与本选项引入前逐字相同。
+   *
+   * 产品形态给 `[CASE_LOGICAL_ROOT, WORKSPACE_LOGICAL_ROOT]` 两枚（次序即不给起点时的检索
+   * 次序）。`read` 的路由不看这张表——它交给本次 env 的 `absolutePath`，双根 env 自己按前缀
+   * 分派；这张表只决定 glob/grep 在**没有起点**时走哪几棵树。
    */
-  readonly logicalRoot?: typeof CASE_LOGICAL_ROOT;
+  readonly logicalRoots?: readonly string[];
 }
 
 /** 只读三件。名字必须与 {@link READ_ONLY_TOOL_NAMES} 一致，由 tool-policy 的红证锁死。 */
 export function createReadOnlyTools(options?: ReadOnlyToolsOptions): AgentHarnessTool<ExecutionToolContext>[] {
-  const logicalRoot = options?.logicalRoot;
-  if (logicalRoot === undefined) {
-    return [createReadTool(), createGlobTool(identityProjection), createGrepTool(identityProjection)] as AgentHarnessTool<ExecutionToolContext>[];
+  const logicalRoots = options?.logicalRoots;
+  if (logicalRoots === undefined) {
+    return [createReadTool(), createGlobTool(undefined), createGrepTool(undefined)] as AgentHarnessTool<ExecutionToolContext>[];
   }
-  const project: HitProjection = (relative) => `${logicalRoot}/${relative}`;
+  if (logicalRoots.length === 0) throw new Error('产品形态至少要有一枚逻辑根');
   return [
     bindReadToLogicalRoot(createReadTool() as AgentHarnessTool<ExecutionToolContext>),
-    createGlobTool(project),
-    createGrepTool(project),
+    createGlobTool(logicalRoots),
+    createGrepTool(logicalRoots),
   ] as AgentHarnessTool<ExecutionToolContext>[];
 }
