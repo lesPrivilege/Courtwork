@@ -222,7 +222,14 @@ function attachCommentToWholeParagraph(doc: Document, p: Element, text: string, 
   attr(ref, 'w:id', cid);
   refRun.appendChild(ref);
 
-  p.insertBefore(start, p.firstChild);
+  // OOXML 要求 w:pPr 保持 w:p 首子节点；整段批注的 range 起点只能落在它之后。
+  const pPr = firstChildOf(p, 'pPr');
+  if (pPr) {
+    if (pPr.nextSibling) p.insertBefore(start, pPr.nextSibling);
+    else p.appendChild(start);
+  } else {
+    p.insertBefore(start, p.firstChild);
+  }
   p.appendChild(end);
   p.appendChild(refRun);
 
@@ -286,16 +293,41 @@ function markRowDeleted(doc: Document, tr: Element): void {
   }
 }
 
+const REBUILD_SAFE_P_CHILDREN = new Set(['pPr', 'r', 'proofErr']);
+const REBUILD_SAFE_RUN_CHILDREN = new Set(['rPr', 't', 'lastRenderedPageBreak']);
+
+/**
+ * replace/delete 会清空重建或逐 run 改写段落；这些路径读不懂的结构（既有修订、批注 range、
+ * 链接、书签、内容控件、run 内换行/制表等）一律拒绝重建（fail-closed）：压平会抹掉他人修订、
+ * 复活 delText 或静默丢内容（SPEC OUTPUT-CORRECTNESS-1 #3 的段内 range 面与 #6 的诚实面）。
+ * 白名单之外的未知节点同样拒绝，不做「不认识就跳过」。
+ */
+function paragraphSupportsRebuild(p: Element): boolean {
+  for (let c = p.firstChild; c; c = c.nextSibling) {
+    if (c.nodeType !== 1) continue;
+    const child = c as Element;
+    if (child.namespaceURI !== W || !REBUILD_SAFE_P_CHILDREN.has(child.localName ?? '')) return false;
+    if (child.localName === 'r') {
+      for (let rc = child.firstChild; rc; rc = rc.nextSibling) {
+        if (rc.nodeType !== 1) continue;
+        const runChild = rc as Element;
+        if (runChild.namespaceURI !== W || !REBUILD_SAFE_RUN_CHILDREN.has(runChild.localName ?? '')) return false;
+      }
+    }
+  }
+  return true;
+}
+
 function applyMinimalReplace(
   doc: Document,
   p: Element,
-  quote: string,
+  effectiveQuote: string,
   replacement: string,
   annotation: { text: string } | undefined,
   comments: CommentDraft[],
-): void {
+): { changed: boolean } {
   const full = textOf(p);
-  const newFull = full.split(quote).join(replacement);
+  const newFull = full.split(effectiveQuote).join(replacement);
   const template = firstRunTemplate(p);
 
   let prefixLen = 0;
@@ -315,6 +347,12 @@ function applyMinimalReplace(
   const deleted = full.slice(prefixLen, full.length - suffixLen);
   const inserted = newFull.slice(prefixLen, newFull.length - suffixLen);
   const suffix = full.slice(full.length - suffixLen);
+
+  if (deleted === '' && inserted === '') {
+    // 等值替换或匹配失效：产不出任何修订痕迹。段落一个节点都不动，交上层报非落点，
+    // 不做「零编辑照常报 applied」的静默 no-op。
+    return { changed: false };
+  }
 
   // 段落级属性（编号 w:numPr、样式 w:pStyle、段前分页 w:pageBreakBefore 等）承载在 w:pPr 上，
   // 与被替换的正文 run 无关。清空重建 run 时必须原样保留 w:pPr，并保持它仍是段落首个子节点
@@ -340,6 +378,7 @@ function applyMinimalReplace(
     })();
     attachCommentAround(doc, p, anchor, annotation.text, comments);
   }
+  return { changed: true };
 }
 
 export type ApplyStatus =
@@ -348,7 +387,8 @@ export type ApplyStatus =
   | 'locator_not_found'
   | 'locator_ambiguous'
   | 'locator_text_mismatch'
-  | 'unsupported_locator';
+  | 'unsupported_locator'
+  | 'unsupported_existing_markup';
 
 export interface InstructionOutcome {
   id: string;
@@ -386,7 +426,11 @@ function applyOne(doc: Document, body: Element, instruction: RevisionInstruction
     if (!p) return { id, status: 'locator_not_found' };
     if (!textOf(p).includes(locator.quote)) return { id, status: 'locator_text_mismatch' };
     if (kind === 'replace') {
-      applyMinimalReplace(doc, p, locator.quote, instruction.text, annotation, comments);
+      if (!paragraphSupportsRebuild(p)) {
+        return { id, status: 'unsupported_existing_markup', detail: '目标单元格段落含既有修订、批注或链接类标记，为保全原结构未自动改写' };
+      }
+      const { changed } = applyMinimalReplace(doc, p, locator.quote, instruction.text, annotation, comments);
+      if (!changed) return { id, status: 'locator_text_mismatch', detail: '替换未产生任何修订痕迹（替换文本与原文等值）' };
       return { id, status: 'applied' };
     }
     if (kind === 'commentOnly') {
@@ -401,6 +445,12 @@ function applyOne(doc: Document, body: Element, instruction: RevisionInstruction
     const row = tbl ? findRowContaining(tbl, locator.rowContains) : null;
     if (!tbl || !row) return { id, status: 'locator_not_found' };
     if (kind === 'delete') {
+      for (const tc of cellsOf(row)) {
+        const cellP = firstParaOf(tc);
+        if (cellP && !paragraphSupportsRebuild(cellP)) {
+          return { id, status: 'unsupported_existing_markup', detail: '目标行单元格含既有修订、批注或链接类标记，为保全原结构未自动整行删除' };
+        }
+      }
       markRowDeleted(doc, row);
       if (annotation) {
         const firstCell = cellsOf(row)[0];
@@ -449,10 +499,19 @@ function applyOne(doc: Document, body: Element, instruction: RevisionInstruction
   const outStatus: ApplyStatus = located.status === 'fuzzy' ? 'applied_fuzzy' : 'applied';
 
   if (kind === 'replace') {
-    applyMinimalReplace(doc, p, locator.quote, instruction.text, annotation, comments);
+    if (!paragraphSupportsRebuild(p)) {
+      return { id, status: 'unsupported_existing_markup', detail: '目标段落含既有修订、批注或链接类标记，为保全原结构未自动改写' };
+    }
+    // fuzzy 命中时消费定位器给出的实际匹配文本；拿字面 quote 去改写会静默落空。
+    const effectiveQuote = located.status === 'fuzzy' ? located.matchedText : locator.quote;
+    const { changed } = applyMinimalReplace(doc, p, effectiveQuote, instruction.text, annotation, comments);
+    if (!changed) return { id, status: 'locator_text_mismatch', detail: '替换未产生任何修订痕迹（替换文本与匹配原文等值）' };
     return { id, status: outStatus };
   }
   if (kind === 'delete') {
+    if (!paragraphSupportsRebuild(p)) {
+      return { id, status: 'unsupported_existing_markup', detail: '目标段落含既有修订、批注或链接类标记，为保全原结构未自动整段删除' };
+    }
     markParagraphDeleted(doc, p);
     if (annotation) attachCommentToWholeParagraph(doc, p, annotation.text, comments);
     return { id, status: outStatus };

@@ -154,3 +154,50 @@
 **结论：放行 `CONTRACT-OUTPUT-TRUTH-1` R1（仅 OUTPUT 票面，不宣称 TRACE、Word/WPS external-validated 或 v0.2.0）。**
 
 清账合入 SHA：`78655bd`；`main` 后续状态事实提交：`89926ca`；独立 ESLint 微修缮：`c7897d8`。
+
+---
+
+## OUTPUT-APPLY-FIDELITY-1 · 独立验收（2026-08-04，放行，含 fix-by-acceptance）
+
+### 范围裁定
+
+- 验收对象：分支 `claude/output-apply-fidelity-1`，tip `5220e7c`，base `c4903b9`；在独立 clean worktree `/Users/lesprivilege/Projects/Courtwork/.claude/worktrees/ext-accept-output-apply` 完成。
+- 已按授权顺序读取 `AGENTS.md`、`docs/engineering/workflow.md`、implementation-readiness 对应行、`packages/output/SPEC.md` 回执节及本文件先例；`pnpm install --frozen-lockfile` 成功，lockfile 未改。
+- `git diff c4903b9..5220e7c` 实测仅触及 5 个文件：`packages/output/src/apply-instructions.ts`、同名测试、golden XML、`packages/output/SPEC.md`、`apps/desktop/src/output/compile-review-output.ts`。未触及 `comments-part.ts`、`fonts.ts`、`compile-draft-to-docx`；desktop 仅新增 `REASON_BY_STATUS` 的 `unsupported_existing_markup` 一行。`NonAppliedReason` 闭集未扩展。
+- golden XML 逐结构比较：内容、属性、文本、ID 均相等；仅有两处 `commentRangeStart` 从 `w:pPr` 前移到其后（comment id `9` 与 `2`），未发现夹带结构变化。
+
+初始 tip 的票面实现通过了 8 枚工单测试及 golden 回归锁。独立边界审计另发现 `paragraphSupportsRebuild` 只按 `localName` 判白名单，外部 namespace 复用 WordprocessingML 同名节点时会被错误重建；该问题不改契约、不改导出、不改闭集，按验收条款以最小 `fix-by-acceptance` 修复并补反例测试。
+
+### 亲手复红与恢复
+
+| 变异 | 红证 | 恢复后 |
+| --- | --- | --- |
+| 撤掉 pPr 感知的 comment range 插入 | focused：`1 failed / 17 skipped`；失败明确为 start 越过 `w:pPr` 的顺序反转 | pPr 测试通过 |
+| 撤掉 4 个 `paragraphSupportsRebuild` 调用点 | foreign-markup 组：`4 failed / 1 passed / 13 skipped`；tracked deletion、既有 comment range、`br`、hyperlink 四类均错误 applied，`proofErr` 正例仍绿 | 5/5 通过 |
+| fuzzy replace 改回消费字面 `locator.quote` | focused：fuzzy 实际匹配测试失败，no-op 测试通过；不能产生预期修订 | fuzzy 组通过 |
+| 撤掉 `changed === false` 零痕兜底 | no-op focused 测试失败：同值替换错误变为 applied | fuzzy/no-op 组通过 |
+| 独立注入 foreign namespace 同名节点 | 新增反例在修复前 `1 failed / 18 skipped / 19 total`，结果为 `applied` 且会抹掉 `<x:r>` | 加 namespace 门禁后反例通过并保留原 XML |
+
+变异均逐 hunk 还原；未留下变异残片。最终 `apply-instructions.test.ts` 为 **19/19**，output 全部源码测试为 **12 files / 77 tests passed**。
+
+### 修复与契约复核
+
+- `paragraphSupportsRebuild` 现在同时要求段落直接子节点与 run 子节点的 `namespaceURI === W`，再检查原有 local-name 白名单；未知节点及外部 namespace 均 fail-closed 为 `unsupported_existing_markup`。
+- 新测试验证 foreign `<x:r><x:t>` 不被重建且原文仍在；没有扩展 `NonAppliedReason`，`ApplyStatus` 的新增状态继续经过既有 non-applied 门禁。
+- `isApplied` 仍只接受 `applied` / `applied_fuzzy`；desktop 只增加一条状态到原因的映射。未发现契约级问题，无 `[需架构拍板]` 项。
+
+### 最终门禁数字
+
+- `pnpm -r build`：通过，14/15 workspace projects。
+- `pnpm lint`：通过。
+- `pnpm test`：**167 files / 1792 tests passed**。
+- `pnpm --filter @courtwork/desktop test`：**75 files / 690 tests passed**。
+- `COURTWORK_E2E_PORT=21425 pnpm --filter @courtwork/desktop test:e2e`：独占端口、4 workers，**352 passed (5.9m)**，退出码 `0`。
+
+验收过程中曾有一轮完整 Playwright 在 4-worker 负载下出现 2 个既有 `global-verbs.spec.ts` 动画时序红（`350 passed / 2 failed`）；同文件独占 focused 为 `21/21`，随后完整复跑为 `352/352`。最终修复后的完整运行再次以端口 `21425` 实测 `352 passed`，本报告只以该明确退出码结果作为最终门证。
+
+### 裁决
+
+**放行 `OUTPUT-APPLY-FIDELITY-1`。**
+
+放行包含本验收会话发现并修复的实现级 namespace fail-closed 缺陷；修复与反例测试将以 `fix-by-acceptance:` 前缀提交，报告与修复同一提交，提交 SHA 见交回。未更新 `docs/status/current.md`，未推送；未据本报告宣称 Word/WPS external roundtrip。
