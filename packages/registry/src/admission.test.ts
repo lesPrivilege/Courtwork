@@ -502,10 +502,12 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
       caseId: z.string(),
       risks: z.array(
         z.object({
+          description: z.string(),
           level: z.enum(['high', 'medium', 'low']),
           sourceAnchors: z.array(z.object({ fileId: z.string() })),
         }),
       ),
+      outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
     });
     safe.artifacts[0] = {
       ...safe.artifacts[0]!,
@@ -521,7 +523,19 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
     safe.bindings = {
       schemas: new Map([
         ['legal.RiskList', finalSchema],
-        ['legal.RiskListDraft', z.object({ caseId: z.string(), risks: z.array(z.object({})) })],
+        [
+          'legal.RiskListDraft',
+          z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                level: z.enum(['high', 'medium', 'low']),
+                quoteClaims: z.array(z.object({ fileId: z.string(), exactQuote: z.string() })),
+              }),
+            ),
+          }),
+        ],
         ['legal.CaseFile', z.object({ caseId: z.string() })],
       ]),
     };
@@ -655,6 +669,351 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
     expect(result.rejected).toHaveLength(1);
     expect(result.rejected[0]!.issues.join()).toContain('accessor');
     expect(result.admitted.map((item) => item.identity.packageId)).toEqual(['legal']);
+  });
+
+  describe('ADMISSION-ENUM-1：枚举收集 walker 扩宽（record/default 等不再静默跳过）', () => {
+    /** artifacts[0] 换成仅携 level 词表的 RiskList，绑定 schema 由用例注入。 */
+    function withBinding(schema: z.ZodType): VerticalPackageManifest {
+      const manifest = makeManifest();
+      manifest.bindings = {
+        schemas: new Map([
+          ['legal.RiskList', schema],
+          ['legal.CaseFile', z.object({ caseId: z.string() })],
+        ]),
+      };
+      return manifest;
+    }
+
+    it('z.record 内嵌枚举缺 enumLabels 必拒载（零编码暴露律机器化）', () => {
+      const manifest = withBinding(
+        z.object({
+          caseId: z.string(),
+          rows: z.array(
+            z.object({
+              answers: z.record(
+                z.string(),
+                z.object({ confidence: z.enum(['high', 'medium', 'low']) }),
+              ),
+            }),
+          ),
+        }),
+      );
+
+      const result = admitPackages([manifest]);
+
+      expect(result.admitted).toEqual([]);
+      expect(result.rejected[0]!.issues.join()).toContain('confidence');
+      expect(result.rejected[0]!.issues.join()).toContain('enumLabels');
+    });
+
+    it('z.record 内嵌枚举携完整 enumLabels 照常准入', () => {
+      const manifest = withBinding(
+        z.object({
+          caseId: z.string(),
+          rows: z.array(
+            z.object({
+              answers: z.record(
+                z.string(),
+                z.object({ confidence: z.enum(['high', 'medium', 'low']) }),
+              ),
+            }),
+          ),
+        }),
+      );
+      manifest.artifacts[0] = {
+        ...manifest.artifacts[0]!,
+        vocabulary: { enumLabels: { confidence: { high: '高', medium: '中', low: '低' } } },
+      };
+
+      const result = admitPackages([manifest]);
+
+      expect(result.rejected).toEqual([]);
+      expect(result.admitted).toHaveLength(1);
+    });
+
+    it.each([
+      ['直接包裹枚举', z.enum(['alpha', 'beta']).default('alpha')],
+      ['包裹枚举数组', z.array(z.enum(['alpha', 'beta'])).default([])],
+    ])('.default() %s 内嵌枚举缺 enumLabels 必拒载', (_name, fieldSchema) => {
+      const manifest = withBinding(
+        z.object({ caseId: z.string(), scope: fieldSchema as z.ZodTypeAny }),
+      );
+
+      const result = admitPackages([manifest]);
+
+      expect(result.admitted).toEqual([]);
+      expect(result.rejected[0]!.issues.join()).toContain('scope');
+      expect(result.rejected[0]!.issues.join()).toContain('enumLabels');
+    });
+
+    it('未识别 zod 节点必拒载（fail-closed：合成节点注入，不得静默跳过）', () => {
+      const manifest = withBinding(
+        z.object({ caseId: z.string(), mapping: z.map(z.string(), z.enum(['x'])) }),
+      );
+
+      const result = admitPackages([manifest]);
+
+      expect(result.admitted).toEqual([]);
+      expect(result.rejected[0]!.issues.join()).toContain('ZodMap');
+      expect(result.rejected[0]!.issues.join()).toMatch(/未识别|fail-closed|fail closed/);
+    });
+
+    it.each([
+      ['z.email()', z.email()],
+      ['z.uuid()', z.uuid()],
+      ['z.url()', z.url()],
+    ])('zod 格式类 %s 是标量叶子，不误判为未识别节点', (_name, fieldSchema) => {
+      const manifest = withBinding(
+        z.object({ caseId: z.string(), contact: fieldSchema as z.ZodTypeAny }),
+      );
+
+      const result = admitPackages([manifest]);
+
+      expect(result.rejected).toEqual([]);
+      expect(result.admitted).toHaveLength(1);
+    });
+  });
+
+  describe('ADMISSION-ENUM-1：citationBinding 五字段与 draft/final schema 对账', () => {
+    /** 合法对账基准：draft item 声明 quoteClaims/description，final item 声明 sourceAnchors/description，final 根声明 outOfCoverage。 */
+    function makeCitationManifest(overrides: {
+      binding?: Partial<VerticalPackageManifest['artifacts'][number]['citationBinding']>;
+      finalSchema?: z.ZodType;
+      draftSchema?: z.ZodType;
+    } = {}): VerticalPackageManifest {
+      const manifest = makeManifest();
+      const finalSchema =
+        overrides.finalSchema ??
+        z.object({
+          caseId: z.string(),
+          risks: z.array(
+            z.object({
+              description: z.string(),
+              sourceAnchors: z.array(z.object({ fileId: z.string() })),
+            }),
+          ),
+          outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+        });
+      const draftSchema =
+        overrides.draftSchema ??
+        z.object({
+          caseId: z.string(),
+          risks: z.array(
+            z.object({
+              description: z.string(),
+              quoteClaims: z.array(z.object({ fileId: z.string(), exactQuote: z.string() })),
+            }),
+          ),
+        });
+      manifest.bindings = {
+        schemas: new Map([
+          ['legal.RiskList', finalSchema],
+          ['legal.RiskListDraft', draftSchema],
+          ['legal.CaseFile', z.object({ caseId: z.string() })],
+        ]),
+      };
+      const binding = {
+        draftField: 'quoteClaims',
+        anchorField: 'sourceAnchors',
+        itemScope: '/risks',
+        itemSummaryField: 'description',
+        outOfCoverageField: 'outOfCoverage',
+        ...overrides.binding,
+      };
+      manifest.artifacts[0] = {
+        ...manifest.artifacts[0]!,
+        draftSchemaId: 'legal.RiskListDraft',
+        citationBinding: binding,
+      };
+      setRiskPresentation(manifest, {
+        collectionPointer: '/risks',
+        fields: [{ pointer: '/sourceAnchors', label: '原文依据', format: 'anchor' }],
+      });
+      return manifest;
+    }
+
+    it('五字段全部对账命中时准入', () => {
+      const result = admitPackages([makeCitationManifest()]);
+      expect(result.rejected).toEqual([]);
+      expect(result.admitted).toHaveLength(1);
+    });
+
+    it.each([
+      ['outOfCoverageField 误名一字符', { outOfCoverageField: 'outOfCoveragee' }],
+      ['anchorField 在 final item 不存在', { anchorField: 'sourceAnchorz' }],
+      ['draftField 在 draft item 不存在', { draftField: 'quoteClaimz' }],
+      ['itemSummaryField 在 draft item 不存在', { itemSummaryField: 'descriptio' }],
+    ])('%s 必拒载', (_name, bindingPatch) => {
+      const result = admitPackages([makeCitationManifest({ binding: bindingPatch })]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('citationBinding');
+      expect(joined).toContain(Object.values(bindingPatch)[0]!);
+    });
+
+    it('itemScope 指向非数组（/caseId）必拒载', () => {
+      const result = admitPackages([
+        makeCitationManifest({ binding: { itemScope: '/caseId' } }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('itemScope');
+      expect(joined).toContain('数组');
+    });
+
+    it('itemScope 深路径未命中草稿 schema 必拒载', () => {
+      const result = admitPackages([
+        makeCitationManifest({ binding: { itemScope: '/risks/0' } }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      expect(result.rejected[0]!.issues.join()).toContain('itemScope');
+    });
+
+    it('outOfCoverageField 只活在元素内层必拒载（必须是 final 根对象直接键）', () => {
+      const result = admitPackages([
+        makeCitationManifest({
+          finalSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                sourceAnchors: z.array(z.object({ fileId: z.string() })),
+                extra: z.object({ nestedOnlyKey: z.string() }),
+              }),
+            ),
+            outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+          }),
+          binding: { outOfCoverageField: 'nestedOnlyKey' },
+        }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('outOfCoverageField');
+      expect(joined).toContain('nestedOnlyKey');
+    });
+
+    it('anchorField 只活在数组元素内层必拒载（误拼撞深层同名键不得静默过门）', () => {
+      const result = admitPackages([
+        makeCitationManifest({
+          finalSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                sourceAnchors: z.array(z.object({ fileId: z.string() })),
+                meta: z.array(z.object({ deepAnchorKey: z.string() })),
+              }),
+            ),
+            outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+          }),
+          binding: { anchorField: 'deepAnchorKey' },
+        }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('anchorField');
+      expect(joined).toContain('deepAnchorKey');
+    });
+
+    it('draftField 只活在数组元素内层必拒载（误拼撞深层同名键不得静默过门）', () => {
+      const result = admitPackages([
+        makeCitationManifest({
+          draftSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                basis: z.array(z.object({ citation: z.string(), deepDraftKey: z.string() })),
+              }),
+            ),
+          }),
+          binding: { draftField: 'deepDraftKey' },
+        }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('draftField');
+      expect(joined).toContain('deepDraftKey');
+    });
+
+    it('itemSummaryField 只活在数组元素内层必拒载（必须是草稿 item 根对象直接键）', () => {
+      const result = admitPackages([
+        makeCitationManifest({
+          draftSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                quoteClaims: z.array(z.object({ fileId: z.string() })),
+                sub: z.array(z.object({ deepSummaryKey: z.string() })),
+              }),
+            ),
+          }),
+          binding: { itemSummaryField: 'deepSummaryKey' },
+        }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('itemSummaryField');
+      expect(joined).toContain('deepSummaryKey');
+    });
+
+    it('draft 与 final 绑同一 schema 对象时五字段对账仍准入（visited 不得跨 collect 共享）', () => {
+      const shared = z.object({
+        caseId: z.string(),
+        risks: z.array(
+          z.object({
+            description: z.string(),
+            quoteClaims: z.array(z.object({ fileId: z.string() })),
+            sourceAnchors: z.array(z.object({ fileId: z.string() })),
+          }),
+        ),
+        outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+      });
+      const result = admitPackages([
+        makeCitationManifest({ finalSchema: shared, draftSchema: shared }),
+      ]);
+      expect(result.rejected).toEqual([]);
+      expect(result.admitted).toHaveLength(1);
+    });
+
+    it('anchorField 与 draftField 不在同一对象节点必拒载（位置轴：resolver 把锚写在 draftField 命中节点）', () => {
+      const result = admitPackages([
+        makeCitationManifest({
+          draftSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                basis: z.array(
+                  z.object({
+                    citation: z.string(),
+                    quoteClaims: z.array(z.object({ fileId: z.string(), exactQuote: z.string() })),
+                  }),
+                ),
+              }),
+            ),
+          }),
+          finalSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                topAnchors: z.array(z.object({ fileId: z.string() })),
+                basis: z.array(
+                  z.object({ citation: z.string(), sourceAnchors: z.array(z.object({ fileId: z.string() })).default([]) }),
+                ),
+              }),
+            ),
+            outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+          }),
+          binding: { anchorField: 'topAnchors' },
+        }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('anchorField');
+      expect(joined).toContain('topAnchors');
+    });
   });
 
   it('成功准入返回与源对象脱钩的递归深冻结 descriptor', () => {

@@ -29,43 +29,147 @@ export interface AdmissionResult {
 }
 
 /**
- * 枚举字段收集（零编码暴露律机器化的准入端）：best-effort 走 object/array/optional/
- * nullable/union 结构，收集 `{字段名 → 枚举值集}`。未覆盖的 zod 节点静默停走（lazy/
- * record/intersection 等——当期包 schema 用不到；用到时扩 walker，不误报）。
+ * 准入检查收集器：一次遍历同时产出两样东西——
+ * ① 枚举字段集 `{字段名 → 枚举值集}`（零编码暴露律机器化的收集端）；
+ * ② 全部对象节点已声明键集（citationBinding 五字段对账用）。
+ *
+ * walker 覆盖 zod 4.4.3 全部可能携带子 schema 的容器类型；纯标量叶子（string/number/
+ * 日期/字面量等）结构性不可能含枚举或子键，静默停走。**未识别节点 fail-closed**：
+ * 无法证明 wire 枚举/字段已全量覆盖即 push issue，绝不允许静默跳过（判例「名字清单
+ * 换材质仍是白名单」：unknown → 跳过 的病根）。新增 zod 容器类必须先扩 walker 再准入。
  */
-function collectEnumFields(schema: z.ZodTypeAny, fieldName: string | undefined, out: Map<string, Set<string>>): void {
+interface CollectedSchemaInfo {
+  enums: Map<string, Set<string>>;
+  keys: Set<string>;
+  /** 值为数组（unwrap 后 ZodArray）的对象直接键——citationBinding 的 draftField/anchorField 公证面（resolver 只公证数组键）。 */
+  arrayKeys: Set<string>;
+  /** 数组键 → 命中节点路径集合（从收集根开始的 shape 键序列，数组元素以 `[]` 占位；JSON 序列化防键名歧义）——
+   *  G-3 同位判据：resolver 把锚写在 draftField 命中的那个节点，anchorField 必须与 draftField 同路径命中。 */
+  arrayKeyPaths: Map<string, Set<string>>;
+}
+
+/** 结构性不可能含枚举/子键的标量叶子（zod 4.4.3 全量）。
+ * 注意：格式类（z.email()/z.uuid()/z.url() 等）在 4.4.3 是 ZodStringFormat 子类而非
+ * ZodString 子类，须经基类检查覆盖（实测：ZodEmail/ZodUUID/ZodURL instanceof ZodString === false）。 */
+function isScalarLeaf(schema: z.ZodTypeAny): boolean {
+  return (
+    schema instanceof z.ZodString
+    || schema instanceof z.ZodStringFormat
+    || schema instanceof z.ZodNumber
+    || schema instanceof z.ZodBigInt
+    || schema instanceof z.ZodBoolean
+    || schema instanceof z.ZodDate
+    || schema instanceof z.ZodISODate
+    || schema instanceof z.ZodISODateTime
+    || schema instanceof z.ZodISOTime
+    || schema instanceof z.ZodISODuration
+    || schema instanceof z.ZodSymbol
+    || schema instanceof z.ZodUndefined
+    || schema instanceof z.ZodNull
+    || schema instanceof z.ZodAny
+    || schema instanceof z.ZodUnknown
+    || schema instanceof z.ZodNever
+    || schema instanceof z.ZodVoid
+    || schema instanceof z.ZodLiteral
+    || schema instanceof z.ZodNaN
+  );
+}
+
+function collectSchemaInfo(
+  schema: z.ZodTypeAny,
+  fieldName: string | undefined,
+  info: CollectedSchemaInfo,
+  descriptorTypeId: string,
+  issues: string[],
+  visited: Map<object, Set<string | undefined>>,
+  path: readonly string[] = [],
+): void {
+  const seenFields = visited.get(schema);
+  if (seenFields !== undefined && seenFields.has(fieldName)) return;
+  if (seenFields === undefined) visited.set(schema, new Set());
+  visited.get(schema)!.add(fieldName);
+
   if (schema instanceof z.ZodEnum) {
     if (fieldName !== undefined) {
-      const bucket = out.get(fieldName) ?? new Set<string>();
+      const bucket = info.enums.get(fieldName) ?? new Set<string>();
       for (const option of schema.options as string[]) bucket.add(String(option));
-      out.set(fieldName, bucket);
+      info.enums.set(fieldName, bucket);
     }
-    return;
-  }
-  if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable) {
-    collectEnumFields(schema.unwrap() as z.ZodTypeAny, fieldName, out);
-    return;
-  }
-  if (schema instanceof z.ZodArray) {
-    collectEnumFields(schema.element as z.ZodTypeAny, fieldName, out);
     return;
   }
   if (schema instanceof z.ZodObject) {
     for (const [key, value] of Object.entries(schema.shape as Record<string, z.ZodTypeAny>)) {
-      collectEnumFields(value, key, out);
+      info.keys.add(key);
+      if (unwrapSchema(value) instanceof z.ZodArray) {
+        info.arrayKeys.add(key);
+        const nodePath = JSON.stringify(path);
+        const paths = info.arrayKeyPaths.get(key) ?? new Set<string>();
+        paths.add(nodePath);
+        info.arrayKeyPaths.set(key, paths);
+      }
+      collectSchemaInfo(value, key, info, descriptorTypeId, issues, visited, [...path, key]);
+    }
+    return;
+  }
+  if (
+    schema instanceof z.ZodOptional
+    || schema instanceof z.ZodNullable
+    || schema instanceof z.ZodDefault
+    || schema instanceof z.ZodReadonly
+    || schema instanceof z.ZodCatch
+  ) {
+    collectSchemaInfo(schema.unwrap() as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
+    return;
+  }
+  if (schema instanceof z.ZodArray) {
+    collectSchemaInfo(schema.element as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, [...path, '[]']);
+    return;
+  }
+  if (schema instanceof z.ZodRecord) {
+    // keyType 亦可能携枚举（enum-keyed record），一并收集；当期包 keyType 均为 string，无行为变化。
+    // 路径不推进：record 键动态，valueType 命中节点路径记到 record 所在路径（同位判据对两侧同构 record 仍成立）。
+    collectSchemaInfo(schema.def.keyType as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
+    collectSchemaInfo(schema.def.valueType as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
+    return;
+  }
+  if (schema instanceof z.ZodTuple) {
+    for (const item of schema.def.items as z.ZodTypeAny[]) {
+      collectSchemaInfo(item, fieldName, info, descriptorTypeId, issues, visited, path);
+    }
+    return;
+  }
+  if (schema instanceof z.ZodIntersection) {
+    collectSchemaInfo(schema.def.left as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
+    collectSchemaInfo(schema.def.right as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
+    return;
+  }
+  if (schema instanceof z.ZodLazy) {
+    try {
+      collectSchemaInfo(schema.def.getter() as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
+    } catch {
+      issues.push(
+        `descriptor ${descriptorTypeId} 准入检查遇到无法求值的 z.lazy 节点（fail-closed：不能证明 wire 枚举/字段已全量覆盖）`,
+      );
     }
     return;
   }
   if (schema instanceof z.ZodUnion || schema instanceof z.ZodDiscriminatedUnion) {
-    for (const option of schema.options as z.ZodTypeAny[]) collectEnumFields(option, fieldName, out);
+    for (const option of schema.options as z.ZodTypeAny[]) {
+      collectSchemaInfo(option, fieldName, info, descriptorTypeId, issues, visited, path);
+    }
+    return;
   }
+  if (isScalarLeaf(schema)) return;
+  issues.push(
+    `descriptor ${descriptorTypeId} 准入检查遇到未识别 zod 节点 ${schema.constructor?.name ?? '(未知类型)'}（fail-closed：不能证明 wire 枚举/字段已全量覆盖，须扩 walker 或调整 schema）`,
+  );
 }
 
 function checkEnumVocabulary(descriptor: ArtifactDescriptorDataV1, schema: z.ZodType): string[] {
   const issues: string[] = [];
-  const found = new Map<string, Set<string>>();
-  collectEnumFields(schema, undefined, found);
-  for (const [field, options] of found) {
+  const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set(), arrayKeys: new Set(), arrayKeyPaths: new Map() };
+  collectSchemaInfo(schema, undefined, info, descriptor.typeId, issues, new Map());
+  for (const [field, options] of info.enums) {
     const labels = descriptor.vocabulary?.enumLabels?.[field];
     if (labels === undefined) {
       issues.push(`descriptor ${descriptor.typeId} 枚举字段 "${field}" 缺 enumLabels（零编码暴露律：wire 枚举必须经词表映射）`);
@@ -76,6 +180,104 @@ function checkEnumVocabulary(descriptor: ArtifactDescriptorDataV1, schema: z.Zod
         issues.push(`descriptor ${descriptor.typeId} 枚举字段 "${field}" 的取值 "${option}" 缺 enumLabels 词条`);
       }
     }
+  }
+  return issues;
+}
+
+/**
+ * citationBinding 五字段与 draft/final schema 静态对账（ADMISSION-ENUM-1 / 1R）：
+ * 写错一字不再被 zod strip 静默吞——不命中即拒载。判据按**消费面位置**收紧为直接键
+ * （1R F-B，实证三形：只活在嵌套/数组元素内层的键误拼即静默过门）：
+ * - outOfCoverageField：final schema **根对象直接键**（rebuildFromSurvivors 的 root[field] 落点）；
+ * - itemSummaryField：draft item **根对象直接键**（resolveDraftArtifactWithPruning 的 outcome.item[field] 读面）；
+ * - draftField：draft item 树中**某对象节点的直接键且值为数组**（resolveItem 深走公证面：
+ *   key === draftField && Array.isArray(value)——string 形深层同名键不会被公证，误拼即静默丢引语）；
+ * - anchorField：final item 树中**某对象节点的直接键且值为数组**（与 draftField 同位的写回点）。
+ */
+function checkCitationBinding(
+  descriptor: ArtifactDescriptorDataV1,
+  finalSchema: z.ZodType,
+  draftSchema: z.ZodType,
+): string[] {
+  const binding = descriptor.citationBinding;
+  if (binding === undefined) return [];
+  const issues: string[] = [];
+  // 1R F-C：visited 每次 collect() 内新建——draft/final 绑同一 ZodType 对象时共享 visited 会让
+  // 后续 collect 漏收键（假拒且拒因与事实相反）。环保护仍由单次 collect 内的 visited 承担。
+  const collect = (schema: z.ZodTypeAny): CollectedSchemaInfo => {
+    const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set(), arrayKeys: new Set(), arrayKeyPaths: new Map() };
+    collectSchemaInfo(schema, undefined, info, descriptor.typeId, issues, new Map());
+    return info;
+  };
+
+  const finalRoot = unwrapSchema(finalSchema as z.ZodTypeAny);
+  if (!(finalRoot instanceof z.ZodObject)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding 对账：最终 schema 根不是对象，无法核对 outOfCoverageField`,
+    );
+  } else if (!(binding.outOfCoverageField in (finalRoot.shape as object))) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.outOfCoverageField "${binding.outOfCoverageField}" 不是最终 schema 根对象直接键（缺口条目落根后将被 strip 静默吞）`,
+    );
+  }
+
+  const scopeSchema = resolveSchemaPointer(draftSchema as z.ZodTypeAny, binding.itemScope);
+  if (!(scopeSchema instanceof z.ZodArray)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 未命中草稿 schema 的数组（回填映射必须指向数组单元）`,
+    );
+    return issues;
+  }
+  const draftItem = unwrapSchema(scopeSchema.element as z.ZodTypeAny);
+  if (!(draftItem instanceof z.ZodObject)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 的草稿元素不是对象，无法核对 item 级字段`,
+    );
+    return issues;
+  }
+  if (!(binding.itemSummaryField in (draftItem.shape as object))) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.itemSummaryField "${binding.itemSummaryField}" 不是草稿 item 根对象直接键（缺口摘要将回落 (无摘要)）`,
+    );
+  }
+  const draftInfo = collect(draftItem);
+  if (!draftInfo.arrayKeys.has(binding.draftField)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.draftField "${binding.draftField}" 不是草稿 item 树中任何对象节点的数组直接键（resolver 深走只公证数组键，误拼将静默丢引语）`,
+    );
+  }
+
+  const finalScopeSchema = resolveSchemaPointer(finalSchema as z.ZodTypeAny, binding.itemScope);
+  if (!(finalScopeSchema instanceof z.ZodArray)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 未命中最终 schema 的数组`,
+    );
+    return issues;
+  }
+  const finalItem = unwrapSchema(finalScopeSchema.element as z.ZodTypeAny);
+  if (!(finalItem instanceof z.ZodObject)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 的最终元素不是对象，无法核对 item 级字段`,
+    );
+    return issues;
+  }
+  const finalInfo = collect(finalItem);
+  if (!finalInfo.arrayKeys.has(binding.anchorField)) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.anchorField "${binding.anchorField}" 不是最终 item 树中任何对象节点的数组直接键（铸造坐标写回点不存在，将被 strip 静默吞）`,
+    );
+  }
+  // G-3 位置轴：resolver（resolveItem）把铸出的锚写在 draftField 命中的那个对象节点上；
+  // 键形轴之外还须同位——draftField 命中节点路径与 anchorField 命中节点路径存在交集。
+  // 错位形（anchorField 指 item 根的其它数组键）会过键形轴，但 executor 的 final safeParse
+  // 会把错位写入的锚 strip 掉、sourceAnchors 回落 []、success=true——成品零锚点零报错。
+  const draftPaths = draftInfo.arrayKeyPaths.get(binding.draftField) ?? new Set<string>();
+  const anchorPaths = finalInfo.arrayKeyPaths.get(binding.anchorField) ?? new Set<string>();
+  const coLocated = [...draftPaths].some((nodePath) => anchorPaths.has(nodePath));
+  if (!coLocated) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.anchorField "${binding.anchorField}" 与 draftField "${binding.draftField}" 不在同一对象节点（resolver 把锚写在 draftField 命中节点，错位锚会被 final parse strip——无锚落格）`,
+    );
   }
   return issues;
 }
@@ -464,6 +666,12 @@ function admitOne(
     if (finalSchema !== undefined) {
       if (artifact.presentation === undefined) issues.push(...checkEnumVocabulary(artifact, finalSchema));
       else issues.push(...checkPresentation(artifact, finalSchema));
+      if (artifact.citationBinding !== undefined) {
+        const draftSchema = schemaBindings.get(artifact.draftSchemaId as string);
+        if (draftSchema !== undefined) {
+          issues.push(...checkCitationBinding(artifact, finalSchema, draftSchema));
+        }
+      }
     }
   }
 

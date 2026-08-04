@@ -80,6 +80,12 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
         enumLabels: {
           level: { high: '高', medium: '中', low: '低' },
           dispositionStatus: { pending: '待处置', confirmed: '已确认', rejected: '已驳回' },
+          /**
+           * ADMISSION-ENUM-1 受控外溢：缺口表 failures[].reason 的引语拒收理由枚举
+           * （not_found/ambiguous/file_unavailable，@courtwork/schemas CitationFailureReasonEnum）
+           * 经 walker 补 ZodDefault 后首次被准入发现——wire 枚举必须经词表映射。
+           */
+          reason: { not_found: '未命中', ambiguous: '多义命中', file_unavailable: '文件不可达' },
         },
       },
     },
