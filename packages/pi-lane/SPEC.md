@@ -75,8 +75,21 @@ durable-before-effect 总验。Node 直写与 bash 没有因此开放。
 4. **预算是「越限即停」，非「永不越限」**：usd 只能事后知道，最后一个回合可能压线越过。
 5. **symlink 一律不跟随**，界内软链子树也不可见（取保守解）。
 6. **glob 语法只到三个元字符**（`**`、`*`、`?`）；扩语法是契约变更。
-7. **单次调用上限**：扫描 2000 份文件、200 条命中，超限在结果里显式告知模型。
-8. **不宣称等同场景线保障**：本线没有确认账本、没有 durable-before-effect 落账、没有事实等级。
+7. **单次调用上限**：扫描 2000 份文件、200 条命中。两条是**两类**不完整来源，各自出独立字段
+   （`truncated` / `matchesTruncated`）并在结果文本里分别具名，不合成一个布尔——前者说「还有文件
+   没看」，模型据以换起始目录；后者说「看到的命中没全列」，模型据以换更窄的模式。两件工具的
+   `matchesTruncated` 语义有一处差别，如实登记：glob 只在**真有**第 201 条命中被丢弃时置位；
+   grep 置位于「因命中已满而停止继续搜」，故满 200 条整时即便余下文件恰好零命中也会置位——
+   宁可多报一次不完整，不肯少报一次。命中满额之后遇到的拒读文件不再进 `skipped`：那时已经不读了，
+   由 `matchesTruncated` 一并说明。
+8. **不宣称等同场景线保障，也不宣称检索结果完整**：本线没有确认账本、没有 durable-before-effect
+   落账、没有事实等级。容器拒读的目录与文件进独立的 `skipped`（带 `FileError` code）：`details`
+   出逐条（路径与命中同一条投影链），结果文本出「另有 N 处不可读已跳过：<拒因计数>」。「无命中」
+   因此不再与「读不动所以没看见」同形，而「没有注记」是一句可依赖的断言——本次检索完整。逐条路径
+   只进 `details`、文本只给条数与拒因分类，是为了不让一棵大范围拒读的子树顶掉模型上下文。
+   仍未收口的一处：`ExecutionEnv.listDir` 契约只回一个 `Result`，目录内**单个条目** `lstat` 失败时
+   （`scoped-env.ts`、`product-case-env.ts` 各一处 `if (info.ok)`）仍是静默略过。本票不改——
+   要改的是 env 契约本身，与 `PI-WORKSPACE-READ-1` 的双根改造是同一处接缝，见九节移交。
 
 ## 六 · dev 入口用法
 
@@ -89,6 +102,12 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
 
 授权文件夹**必须显式给出**，不默认取 cwd——默认取 cwd 等于默认越权。
 缺凭据时页面显式标红并禁用提问入口，`/api/prompt` 回 503，不静默假跑。
+
+三枚数值变量**设置了就必须是有限正数**，否则 stderr 具名报错并 `exit(1)`，与缺授权文件夹同一处方
+（判定住可测的 `dev-config.ts`）。`PI_LANE_MAX_TURNS=十二` 这类写法过去会静默变成 `NaN`：`budget.ts`
+的 `turns >= limits.maxTurns` 与 `usd >= limits.maxUsd` 双双恒假，ADR-022 决定三要的那道上限于是
+整枚失守而进程一声不吭；`PI_LANE_PORT` 同族（`listen(NaN)` 被 Node 当 0，服务起在随机端口而 banner
+印着 `NaN`）。不回落默认值——把用户写错的上限静默换成另一个上限是同一种静默降级换了个位置。
 
 ## 七 · 真 key 复核步骤（本票**未执行**，留给持 key 者）
 
@@ -634,6 +653,13 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   以同一 grammar/capability 校验后返回逻辑路径、UTF-8 content、重算 hash 与 byteLength，
   131,072 bytes 封顶，正文不落 journal、物理路径不出 Rust。`list` 只是
   `ExecutionEnv`/host 内部操作，不新增模型工具。
+- **`PI-TOOLS-HONESTY-1` 给 `PI-WORKSPACE-READ-1` 的移交**（详见
+  [`specs/PI-TOOLS-HONESTY-1.md`](specs/PI-TOOLS-HONESTY-1.md) 六节）：`walkFiles` 现回
+  `{ scanned, truncated, skipped }`，`skipped` 是 `{ path, code }[]`、路径与命中共用同一枚
+  `HitProjection`。双根改造只需按根各跑一次 walk 后**按根归并**这三笔，字段形状与文本注记
+  不必再动；`skipped` 天然可带第二个根的条目，因为它记的是路径而不是「第几个根」。
+  同批未收口的一处一并交出：`listDir` 内单条目 `lstat` 失败仍静默略过（五-8 末段），
+  它住 env 契约，与双根是同一处接缝。
 - `PI-HOST-LOOP-1` 负责 product `/case` 虚拟 env、物理路径/错误脱敏与 session 累计预算；
   专属冻结件为
   [`specs/PI-HOST-LOOP-1.md`](specs/PI-HOST-LOOP-1.md)。该票不扩 `case_read`
@@ -692,10 +718,10 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 
 ## 十 · 门与证据
 
-- 单测 **469 例 / 15 文件**（`vitest run packages/pi-lane`，2026-08-05 由 `PI-WRITE-HOST-1` 独立验收
-  在 clean worktree 实测），含容器越界、闸门拒绝、
-  预算停 loop、dev 入口 HTTP 面。原写「74 例」是 `PI-LANE-1` 期真值，其后由 product-* 诸票增长；
-  本票只据实更新该计数（含本票新增两枚注入反例），不追认也不复核其他票面的证据。
+- 单测 **489 例 / 16 文件**（`pnpm --filter @courtwork/pi-lane test`，2026-08-05 由
+  `PI-TOOLS-HONESTY-1` 在其 worktree 实测；前值 469/15 出自同日 `PI-WRITE-HOST-1` 独立验收），
+  含容器越界、闸门拒绝、预算停 loop、dev 入口 HTTP 面、上限与拒读的诚实面。原写「74 例」是
+  `PI-LANE-1` 期真值，其后由 product-* 诸票增长；每票只据实更新该计数，不追认也不复核其他票面的证据。
 - ADR-018 门单测 12→23 例；真树注入实测：`child_process` 与 `fs:writeFile` 各触红一次，还原复绿。
 - 变异对照两例（授权边界）：包含判定退化成裸字符串前缀 → 五条红证转红；跳过 symlink 规范化 →
   定点只打红「symlink 出界」一条。

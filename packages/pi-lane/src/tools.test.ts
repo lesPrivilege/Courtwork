@@ -1,8 +1,8 @@
-import { mkdtemp, mkdir, realpath, symlink, writeFile } from 'node:fs/promises';
+import { chmod, mkdtemp, mkdir, readFile, readdir, realpath, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { createAuthorizedRoot } from './authorized-root.js';
 import { createProductCaseEnv } from './product-case-env.js';
@@ -28,6 +28,10 @@ const toolNamed = (name: string) => {
 
 const run = (name: string, params: unknown) =>
   toolNamed(name).execute('call-1', params as never, undefined, undefined, context);
+
+/** 同一批 dev 形态工具跑在**另一个**容器上——工具无状态，换的只是 env。 */
+const runWith = (target: ExecutionToolContext, name: string, params: unknown) =>
+  toolNamed(name).execute('call-1', params as never, undefined, undefined, target);
 
 const textOf = (result: { content: { type: string }[] }) =>
   result.content
@@ -252,5 +256,228 @@ describe('createReadOnlyTools({ logicalRoot: "/case" })', () => {
     const listed = textOf(await run('glob', { pattern: '*.md' }));
     expect(listed).toContain('起诉状.md');
     expect(listed).not.toContain('/case/');
+  });
+});
+
+/**
+ * 结果的不完整性必须**分因**可见（`PI-TOOLS-HONESTY-1`；不变量四）。
+ *
+ * 三条互不遮蔽的轴，缺一条模型就只能猜：
+ * 1. `truncated`——「还有文件没看」（扫描上限）；
+ * 2. `matchesTruncated`——「看到的命中没全列」（命中上限）。与 1 合成一个布尔，模型
+ *    就无从判断该换更窄的模式还是该换起始目录；
+ * 3. `skipped`——「有子树或文件被容器拒读」。它与「真无命中」必须可分辨，否则一次
+ *    permission_denied 就变成一句自信的「没有这份材料」。
+ *
+ * 三者都同时出 `details`（给宿主与账）与结果文本（给模型）：只出其一等于让另一侧漂移。
+ */
+
+const detailsOf = (result: unknown): Record<string, unknown> =>
+  (result as { details: Record<string, unknown> }).details;
+
+const skippedOf = (result: unknown): { path: string; code: string }[] =>
+  detailsOf(result).skipped as { path: string; code: string }[];
+
+/** 分批写，免得一次开 2001 个描述符撞 EMFILE。 */
+async function createFiles(
+  directory: string,
+  count: number,
+  nameOf: (index: number) => string,
+  content: string,
+): Promise<void> {
+  for (let start = 0; start < count; start += 50) {
+    const size = Math.min(50, count - start);
+    await Promise.all(
+      Array.from({ length: size }, (_, offset) =>
+        writeFile(path.join(directory, nameOf(start + offset)), content),
+      ),
+    );
+  }
+}
+
+async function sandbox(
+  label: string,
+  build: (directory: string) => Promise<void>,
+): Promise<{ root: string; context: ExecutionToolContext }> {
+  const created = await realpath(await mkdtemp(path.join(tmpdir(), `pi-lane-${label}-`)));
+  await build(created);
+  return {
+    root: created,
+    context: { env: createReadOnlyScopedEnv(await createAuthorizedRoot(created)) },
+  };
+}
+
+describe('单次调用上限：扫描与命中是两类，各自出字段与注记', () => {
+  let hits: ExecutionToolContext;
+  let scan: ExecutionToolContext;
+  let longFile: ExecutionToolContext;
+
+  beforeAll(async () => {
+    ({ context: hits } = await sandbox('tools-hits', async (directory) => {
+      await createFiles(directory, 250, (index) => `材料-${index}.md`, '合同编号 HT-2024-081\n');
+    }));
+    ({ context: longFile } = await sandbox('tools-longfile', async (directory) => {
+      await writeFile(path.join(directory, '长文.md'), '合同编号 HT-2024-081\n'.repeat(250));
+    }));
+    ({ context: scan } = await sandbox('tools-scan', async (directory) => {
+      await createFiles(directory, 2001, (index) => `其他-${index}.txt`, '与检索无关的一行\n');
+    }));
+  }, 120_000);
+
+  it('未触任一上限时两枚字段都出 false，且不附注记', async () => {
+    const result = await run('glob', { pattern: '**/*.md' });
+    expect(detailsOf(result)).toMatchObject({ truncated: false, matchesTruncated: false });
+    expect(skippedOf(result)).toEqual([]);
+    expect(textOf(result)).not.toContain('不完整');
+  });
+
+  it('glob 满 200 条命中：置 matchesTruncated 并具名，扫描上限未触发', async () => {
+    const result = await runWith(hits, 'glob', { pattern: '**/*.md' });
+    expect(detailsOf(result)).toMatchObject({ matched: 200, matchesTruncated: true, truncated: false });
+    const text = textOf(result);
+    expect(text).toContain('命中上限 200');
+    expect(text).not.toContain('扫描上限');
+  });
+
+  it('grep 满 200 条命中：置 matchesTruncated 并具名，扫描上限未触发', async () => {
+    const result = await runWith(hits, 'grep', { pattern: 'HT-2024-081' });
+    expect(detailsOf(result)).toMatchObject({ matched: 200, matchesTruncated: true, truncated: false });
+    const text = textOf(result);
+    expect(text).toContain('命中上限 200');
+    expect(text).not.toContain('扫描上限');
+  });
+
+  /**
+   * grep 的命中上限有**两处**判据：跨文件那处（不再读下一份）与文件内那处（不再看下一行）。
+   * 250 份单行文件只打到第一处，250 行的单份文件只打到第二处——两枚各有一条语料，
+   * 撤掉任一处都有专属的红，不互相遮蔽。
+   */
+  it('grep 单文件内命中超限：行层判据同样置 matchesTruncated', async () => {
+    const result = await runWith(longFile, 'grep', { pattern: 'HT-2024-081' });
+    expect(detailsOf(result)).toMatchObject({
+      matched: 200,
+      scanned: 1,
+      matchesTruncated: true,
+      truncated: false,
+    });
+    expect(textOf(result)).toContain('命中上限 200');
+  });
+
+  it('glob 满 2000 份扫描：只置 truncated，命中上限未触发', async () => {
+    const result = await runWith(scan, 'glob', { pattern: '**/*.md' });
+    expect(detailsOf(result)).toMatchObject({
+      matched: 0,
+      scanned: 2000,
+      truncated: true,
+      matchesTruncated: false,
+    });
+    const text = textOf(result);
+    expect(text).toContain('扫描上限 2000');
+    expect(text).not.toContain('命中上限');
+  });
+
+  it('grep 满 2000 份扫描：只置 truncated，命中上限未触发', async () => {
+    const result = await runWith(scan, 'grep', { pattern: '并不存在的词' });
+    expect(detailsOf(result)).toMatchObject({
+      matched: 0,
+      scanned: 2000,
+      truncated: true,
+      matchesTruncated: false,
+    });
+    const text = textOf(result);
+    expect(text).toContain('扫描上限 2000');
+    expect(text).not.toContain('命中上限');
+  });
+});
+
+describe('容器拒读：不静默丢子树', () => {
+  let deniedRoot: string;
+  let denied: ExecutionToolContext;
+  let deniedProduct: ExecutionToolContext;
+  let productTools: AgentHarnessTool<ExecutionToolContext>[];
+
+  const runProductDenied = (name: string, params: unknown) => {
+    const tool = productTools.find((candidate) => candidate.name === name);
+    if (!tool) throw new Error(`工具 ${name} 未装配`);
+    return tool.execute('call-1', params as never, undefined, undefined, deniedProduct);
+  };
+
+  beforeAll(async () => {
+    ({ root: deniedRoot, context: denied } = await sandbox('tools-denied', async (directory) => {
+      await writeFile(path.join(directory, '可读.md'), '合同编号 HT-2024-081\n');
+      await writeFile(path.join(directory, '不可读.md'), '合同编号 HT-2024-081\n');
+      await mkdir(path.join(directory, '密室'));
+      await writeFile(path.join(directory, '密室', '内件.md'), '合同编号 HT-2024-081\n');
+      await chmod(path.join(directory, '不可读.md'), 0o000);
+      await chmod(path.join(directory, '密室'), 0o000);
+    }));
+    // 前置实证：本用户对这两处确实读不动。以 root 身份跑时 chmod 不生效，
+    // 那时本行显式红——反例失效必须自报，不能让后面几枚绿证空转。
+    await expect(readdir(path.join(deniedRoot, '密室'))).rejects.toThrow();
+    await expect(readFile(path.join(deniedRoot, '不可读.md'), 'utf8')).rejects.toThrow();
+    deniedProduct = { env: createProductCaseEnv({ caseRoot: deniedRoot }) };
+    productTools = createReadOnlyTools({ logicalRoot: '/case' });
+  });
+
+  afterAll(async () => {
+    // 还原权限：留一枚 0 权目录在 tmp 里会卡住清理，也会污染后来者。
+    await chmod(path.join(deniedRoot, '密室'), 0o755);
+    await chmod(path.join(deniedRoot, '不可读.md'), 0o644);
+  });
+
+  it('glob：拒读子树进 skipped 并在文本里点名，同级文件照常命中', async () => {
+    const result = await runWith(denied, 'glob', { pattern: '**/*.md' });
+    expect(skippedOf(result)).toEqual([{ path: '密室', code: 'permission_denied' }]);
+    expect(detailsOf(result).matched).toBe(2);
+    const text = textOf(result);
+    expect(text).toContain('不可读已跳过');
+    expect(text).toContain('permission_denied');
+    expect(text).not.toContain('内件.md');
+  });
+
+  it('grep：拒读目录与拒读文件各记一笔', async () => {
+    const result = await runWith(denied, 'grep', { pattern: 'HT-2024-081' });
+    const skipped = skippedOf(result);
+    expect(skipped.map((entry) => entry.path).sort()).toEqual(['不可读.md', '密室']);
+    expect(skipped.map((entry) => entry.code)).toEqual(['permission_denied', 'permission_denied']);
+    expect(detailsOf(result).matched).toBe(1);
+    expect(textOf(result)).toContain('2 处不可读已跳过');
+  });
+
+  it('拒读与真无命中可分辨：同是「无命中」，一个带注记一个不带', async () => {
+    const withDenied = textOf(await runWith(denied, 'grep', { pattern: '并不存在的词' }));
+    const clean = textOf(await run('grep', { pattern: '并不存在的词' }));
+    expect(withDenied).toContain('无命中');
+    expect(withDenied).toContain('不可读已跳过');
+    expect(clean).toContain('无命中');
+    expect(clean).not.toContain('不可读已跳过');
+  });
+
+  it('起始目录本身不可读：记该目录，不报「无命中」了事', async () => {
+    const result = await runWith(denied, 'glob', { pattern: '**/*.md', path: '密室' });
+    expect(skippedOf(result)).toEqual([{ path: '密室', code: 'permission_denied' }]);
+    expect(detailsOf(result).matched).toBe(0);
+  });
+
+  it('授权根自身不可读：skipped 记根自身，不是一条空路径', async () => {
+    const sealed = await sandbox('tools-sealed', async (directory) => {
+      await writeFile(path.join(directory, '材料.md'), '合同编号 HT-2024-081\n');
+    });
+    await chmod(sealed.root, 0o000);
+    try {
+      const result = await runWith(sealed.context, 'glob', { pattern: '**/*.md' });
+      expect(skippedOf(result)).toEqual([{ path: '.', code: 'permission_denied' }]);
+      expect(textOf(result)).toContain('1 处不可读已跳过');
+    } finally {
+      await chmod(sealed.root, 0o755);
+    }
+  });
+
+  it('产品形态：skipped 路径只出逻辑根，物理根零泄漏', async () => {
+    const result = await runProductDenied('grep', { pattern: 'HT-2024-081' });
+    const skipped = skippedOf(result);
+    expect(skipped.map((entry) => entry.path).sort()).toEqual(['/case/不可读.md', '/case/密室']);
+    expect(JSON.stringify(skipped)).not.toContain(deniedRoot);
+    expect(textOf(result)).not.toContain(deniedRoot);
   });
 });

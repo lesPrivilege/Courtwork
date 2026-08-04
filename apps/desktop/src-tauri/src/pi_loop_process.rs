@@ -917,12 +917,14 @@ mod tests {
         // PI-HOST-LOOP-1R2 的 C1（`completionFor()` 全枚举、`aborted`→canceled）再换一次
         // （`523,057`/`b72fe521…` → `523,235`/`75eff9b9…`）；`PI-WRITE-HOST-1` ⑤ 的 Node 装配
         // （write binder、两段式接缝、`md-work-v1` prompt、四件工具闭集）第三次换
-        // （`523,235`/`75eff9b9…` → `534,219`/`8520026c…`）。
+        // （`523,235`/`75eff9b9…` → `534,219`/`8520026c…`）；`PI-TOOLS-HONESTY-1` 的
+        // `tools.ts` 上限/拒读诚实化第四次换（`534,219`/`8520026c…` →
+        // `535,040`/`b3d974ef…`）——本票只改 Node 侧只读工具面，Rust 侧仅重录这枚身份。
         // 双方由 `product-main.test.ts` 的跨侧门逐值锁死，不许只改一边。
-        assert_eq!(manifest.bundle.bytes, 534_219);
+        assert_eq!(manifest.bundle.bytes, 535_040);
         assert_eq!(
             manifest.bundle.sha256,
-            "8520026cb78e4fbd773b020a8b59a23082e55790403149de5fb91be332fce562"
+            "b3d974eff19fc1b984fe0d92ce7f2e769f44d6b375938b5d9f579c8354718206"
         );
         assert_eq!(
             manifest.bundle_resource_relative_path,
@@ -1002,12 +1004,12 @@ mod tests {
             ("乱序", format!("{head}{intel},{arm}{foot}")),
             ("重复 target", format!("{head}{arm},{arm}{foot}")),
             ("单 target", format!("{head}{arm}{foot}")),
-            ("零字节", compact.replace("\"bytes\":534219", "\"bytes\":0")),
+            ("零字节", compact.replace("\"bytes\":535040", "\"bytes\":0")),
             (
                 "大写 SHA",
                 compact.replace(
-                    "8520026cb78e4fbd773b020a8b59a23082e55790403149de5fb91be332fce562",
-                    "8520026CB78E4FBD773B020A8B59A23082E55790403149DE5FB91BE332FCE562",
+                    "b3d974eff19fc1b984fe0d92ce7f2e769f44d6b375938b5d9f579c8354718206",
+                    "B3D974EFF19FC1B984FE0D92CE7F2E769F44D6B375938B5D9F579C8354718206",
                 ),
             ),
             (
