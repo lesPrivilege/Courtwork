@@ -692,7 +692,9 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 
 ## 十 · 门与证据
 
-- 单测 74 例（`vitest run packages/pi-lane`），含容器越界、闸门拒绝、预算停 loop、dev 入口 HTTP 面。
+- 单测 **450 例 / 14 文件**（`vitest run packages/pi-lane`，2026-08-03 实测），含容器越界、闸门拒绝、
+  预算停 loop、dev 入口 HTTP 面。原写「74 例」是 `PI-LANE-1` 期真值，其后由 product-* 诸票增长；
+  本票只据实更新该计数（含本票新增两枚注入反例），不追认也不复核其他票面的证据。
 - ADR-018 门单测 12→23 例；真树注入实测：`child_process` 与 `fs:writeFile` 各触红一次，还原复绿。
 - 变异对照两例（授权边界）：包含判定退化成裸字符串前缀 → 五条红证转红；跳过 symlink 规范化 →
   定点只打红「symlink 出界」一条。
@@ -721,3 +723,61 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - 本节写入后未重跑 Playwright：链上读 `SPEC.md` 的两个门（`assert-schema-parts.mjs`、
   `skin-r2-ledger-contract-lib.mjs`）只读 `site/SPEC.md` 与 `apps/desktop/SPEC.md`，
   不读 `packages/*/SPEC.md`，故本文件的改动碰不到任何门；其余快门在写入后复跑。
+
+## 十一 · 回环往返的环境前置与悬挂形态（`PI-LANE-SIDECAR-HANG-1`）
+
+`sidecar.test.ts` 八枚（全文件）各挂满 5s 通用超时，于两个独立环境复现（DEMO 验收沙箱 `4db54a1`、
+维护者本机 `69d6ddc`），同日 1R7 实现 worktree 全绿。本节记根因、淘汰过的候选与现行修法。
+
+**结构性前提**：本文件是全仓**唯一真发网络往返**的测试——`packages/provider/src/http-client.test.ts`
+的 fetch 是 `vi.fn()` 注入桩。故凡本机回环不通的环境，红只会落在这一个文件、且是整文件级。
+这条前提此前从未写下来，于是「只有它红」被读成用例问题，而不是环境前置问题。
+
+**根因（已注入复现，非推断）**：`start()` 只在 `listen` 回调里 `resolve`，而 `listen` 失败**不走回调**、
+只发 `'error'` 事件；该事件没有监听者，promise 于是永不 settle，每枚测试挂到 vitest 的 5s 通用超时。
+失败原因被完全吞掉——拒 bind 注入实测：八枚 40.06s，日志里 `EPERM` 出现 **0 次**、Unhandled 段 **0 个**。
+这是不变量四（静默降级零容忍）在测试面的破口：环境问题被降级成一句无信息的
+`Test timed out in 5000ms`，读日志的人拿不到任何可行动信息。
+
+**实验表**（本机 node v25.9.0、8 核、vitest 4.1.10；worktree `8d90aa8` 装齐并构建）：
+
+| 条件 | 结果 | 判 |
+|---|---|---|
+| fresh worktree 装齐并构建，root 全量 | 167 文件 / 1782 全绿 12.1s | 本机**不复现**，如实登记 |
+| 主仓单文件 | 8 绿 496ms | 不复现 |
+| Seatbelt 拒 `connect(localhost)` | 8 红 **306ms**，`EPERM` 显式可见 | 「拒绝」只快红不悬挂，**证否** |
+| Seatbelt 拒 `bind` | 8 红 × 5006ms、合计 **40.06s**，八句「Test timed out in 5000ms」 | 与登记签名**逐字同形**，根因坐实 |
+| 16 路 CPU 饱和（8 核 2× 超订）root 全量 | 1784 全绿 **30.1s**（空载 12.1s） | 「并行 worker 负载」**证否**：只拖慢 2.5×，造不出 5s |
+| node 25 代理矩阵（`HTTP_PROXY` 指黑洞） | 默认 DIRECT 11ms；仅 `NODE_USE_ENV_PROXY=1` 时 HANG | 代理默认不劫持回环；该变量本机未设 |
+| `packages/pi-lane` 对 `@courtwork/*` 的依赖 | **零**（三处命中全在注释） | 「fresh checkout 缺 gitignored 构建制品」**结构性证否** |
+
+**未证否，不下结论**：那两个环境具体是哪一层让回环不通（bind 被拒／OS 本地网络权限／静默丢包），
+本机无法到达那两个环境，故不判。修法不依赖该结论——三条路都已具名，下次在失败环境跑一次即自报。
+
+**修法**（只动测试面，产品码零改动；不 skip、不 retry、不放大 timeout、不放宽断言）：
+
+1. `start()` 挂 `'error'` → 具名 reject，带 errno 与环境事实。用 `on` 而非 `once`：`afterEach` 对
+   未起来的 server 调 `close` 会再发一次 `'error'`，届时没有监听者那一发就是未捕获异常。
+2. 唯一请求出口 `call()` 给回环往返显式预算 `ROUND_TRIP_BUDGET_MS = 2000`。预算必须显著**小于**
+   5s 通用超时，否则先到的仍是那句无信息的超时；健康环境往返是毫秒级，两个量级余量，
+   不是在赌时长（判例见 `workflow.md`「异步前置要等条件，不要赌时长」——此处等不到条件的是
+   环境本身，故给预算并具名，而非放大等待）。
+3. 环境事实随失败报出：node 版本与 `NODE_USE_ENV_PROXY`/`HTTP_PROXY`/`NO_PROXY` 的**有无**。
+   只报有无不报值——代理 URL 可能内嵌凭据，不变量八禁其进日志。
+
+**效果**（同一注入环境，拒 bind）：修前八枚 40.06s 零信息；修后十枚合计 **17ms** 全部具名，
+形如 `回环监听失败 127.0.0.1:0：EPERM（node v25.9.0；NODE_USE_ENV_PROXY=未设；…）`，并带
+`Caused by: listen EPERM` 与序列化 errno。
+
+**注入反例与变异红证**：
+
+| 编号 | 注入 | 无修复时 | 有修复时 |
+|---|---|---|---|
+| 反例一 | 先占端口，令 `listen` 撞 `EADDRINUSE` | 挂满 5006ms，报无信息超时 | 具名快红，断言 `/回环监听失败.*EADDRINUSE/` |
+| 反例二 | 黑洞服务只 accept 不回话 | 挂满 5003ms，报无信息超时 | 按预算具名，断言 `/回环往返未在 \d+ms 内完成/` |
+| M1 | 只撤 `start()` 的 `'error'` 监听 | — | 定点只打红反例一（5007ms），反例二仍绿 |
+| M2 | 只撤 `call()` 的显式预算 | — | 定点只打红反例二（5017ms），反例一仍绿 |
+
+**自伤留痕**：反例首版的陪衬服务自己没挂 `'error'`，于是在拒 bind 环境里两枚反例各挂满 5s，
+把本票要修的形态原样复刻了一遍（实测 10 枚 10.03s）。`listenPlaceholder` 因此同样挂 `'error'`。
+教训是这条前提对**任何** `listen` 都成立，不只对被测的那一个。

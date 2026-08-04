@@ -1,4 +1,4 @@
-import type { AddressInfo } from 'node:net';
+import { createServer, type AddressInfo } from 'node:net';
 import { mkdtemp, mkdir, realpath, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -30,14 +30,52 @@ const readiness = (configured: boolean): ProviderReadiness => ({
   detail: configured ? 'deepseek-v4-flash 已就绪' : '未配置 DEEPSEEK_API_KEY：pi lane 不会用无凭据的连接去试',
 });
 
-const start = (configured = true) =>
-  new Promise<void>((resolve) => {
+/**
+ * 环境前置（`PI-LANE-SIDECAR-HANG-1`）：本文件是全仓唯一真发网络往返的测试
+ * （`packages/provider/src/http-client.test.ts` 的 fetch 是注入桩）。因此凡是本机回环不通的
+ * 环境，红都只落在这里；而原先它落成**无信息的悬挂**——`listen` 失败只发 `'error'` 事件、
+ * 不走回调，`start()` 又只在回调里 resolve，promise 于是永不 settle，八枚各挂满 5s 通用超时，
+ * 日志里连 errno 都不出现（Seatbelt 拒 bind 实测：八枚 40.06s，`EPERM` 出现 0 次）。
+ * 两条路现在都具名快红，注入反例见文件末尾。
+ *
+ * 预算必须显著小于 vitest 的 5s 通用超时，否则先到的仍是那句无信息的超时；
+ * 健康环境下一次回环往返是毫秒级，2000ms 是两个量级的余量，不是在赌时长。
+ */
+const ROUND_TRIP_BUDGET_MS = 2000;
+
+/** 失败时把环境事实一并报出，否则下一个人还得把这次诊断从头做一遍。代理只报有无，不报值（不变量八）。 */
+const environment = () =>
+  [
+    `node ${process.version}`,
+    ...['NODE_USE_ENV_PROXY', 'HTTP_PROXY', 'NO_PROXY'].map((name) => `${name}=${process.env[name] ? '已设' : '未设'}`),
+  ].join('；');
+
+const start = (configured = true, port = 0) =>
+  new Promise<void>((resolve, reject) => {
     server = createSidecar({ session, readiness: configured ? readiness(true) : readiness(false), page: '<h1>pi lane</h1>' });
-    server.listen(0, '127.0.0.1', () => {
+    // 用 `on` 而非 `once`：afterEach 对未起来的 server 调 close 会再发一次 'error'，
+    // 届时若没有监听者，那一发就是未捕获异常。promise 只 settle 一次，重复 reject 是空操作。
+    server.on('error', (cause: NodeJS.ErrnoException) => {
+      reject(new Error(`回环监听失败 127.0.0.1:${port}：${cause.code ?? cause.message}（${environment()}）`, { cause }));
+    });
+    server.listen(port, '127.0.0.1', () => {
       origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
       resolve();
     });
   });
+
+/** 本文件唯一的请求出口。回环往返给显式预算：连得上却不回话（或被静默丢包）时当场具名。 */
+async function call(route: string, init: RequestInit = {}, base = origin): Promise<Response> {
+  try {
+    return await fetch(`${base}${route}`, { ...init, signal: AbortSignal.timeout(ROUND_TRIP_BUDGET_MS) });
+  } catch (cause) {
+    const detail =
+      (cause as { name?: string })?.name === 'TimeoutError'
+        ? `回环往返未在 ${ROUND_TRIP_BUDGET_MS}ms 内完成（连得上但没回话，或被静默丢包）`
+        : `回环请求失败：${(cause as { cause?: NodeJS.ErrnoException })?.cause?.code ?? (cause as Error)?.message}`;
+    throw new Error(`${detail}：${base}${route}（${environment()}）`, { cause });
+  }
+}
 
 const getJson = async <T>(response: Response): Promise<T> => (await response.json()) as T;
 
@@ -71,7 +109,7 @@ afterEach(() => {
 describe('dev 入口路由', () => {
   it('绿证一：根路径回 dev 页面', async () => {
     await start();
-    const response = await fetch(origin);
+    const response = await call('/');
     expect(response.headers.get('content-type')).toContain('text/html');
     expect(await response.text()).toContain('pi lane');
   });
@@ -79,7 +117,7 @@ describe('dev 入口路由', () => {
   it('绿证二：状态面回授权文件夹、可用工具与禁用面', async () => {
     await start();
     const status = await getJson<{ root: string; tools: string[]; disabled: string[]; configured: boolean }>(
-      await fetch(`${origin}/api/status`),
+      await call('/api/status'),
     );
     expect(status.root).toBe(root);
     expect(status.tools).toEqual(['read', 'glob', 'grep']);
@@ -89,7 +127,7 @@ describe('dev 入口路由', () => {
 
   it('红证一：状态面不回传任何凭据字段（密钥不进前端）', async () => {
     await start();
-    const raw = await (await fetch(`${origin}/api/status`)).text();
+    const raw = await (await call('/api/status')).text();
     expect(raw.toLowerCase()).not.toContain('api_key');
     expect(raw.toLowerCase()).not.toContain('apikey');
     expect(raw).not.toContain('sk-');
@@ -97,7 +135,7 @@ describe('dev 入口路由', () => {
 
   it('红证二：未知路由回 404 且说明是哪条', async () => {
     await start();
-    const response = await fetch(`${origin}/api/whatever`);
+    const response = await call('/api/whatever');
     expect(response.status).toBe(404);
     expect((await getJson<{ error: string }>(response)).error).toContain('/api/whatever');
   });
@@ -112,7 +150,7 @@ describe('提问链路', () => {
     ]);
 
     const events = await collect(
-      await fetch(`${origin}/api/prompt`, {
+      await call('/api/prompt', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ text: '合同编号是多少' }),
@@ -128,7 +166,7 @@ describe('提问链路', () => {
 
   it('红证三：未配置凭据时直接 503，且回的是那句人话（不静默假跑）', async () => {
     await start(false);
-    const response = await fetch(`${origin}/api/prompt`, {
+    const response = await call('/api/prompt', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ text: '随便问问' }),
@@ -141,7 +179,7 @@ describe('提问链路', () => {
     await start();
     faux.setResponses([fauxAssistantMessage('不该被消费')]);
     const events = await collect(
-      await fetch(`${origin}/api/prompt`, {
+      await call('/api/prompt', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ text: '   ' }),
@@ -159,7 +197,7 @@ describe('提问链路', () => {
     ]);
 
     const events = await collect(
-      await fetch(`${origin}/api/prompt`, {
+      await call('/api/prompt', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ text: '删掉所有文件' }),
@@ -169,5 +207,40 @@ describe('提问链路', () => {
     const ended = events.find((event) => event.type === 'tool_execution_end');
     expect(ended?.toolName).toBe('bash');
     expect(ended?.isError).toBe(true);
+  });
+});
+
+/**
+ * 反例用的陪衬服务。它同样得挂 `'error'`——第一版没挂，于是在拒 bind 的注入环境里
+ * 两枚反例自己各挂满 5s，把本票要修的悬挂形态原样复刻了一遍（实测记入 SPEC 十一）。
+ */
+const listenPlaceholder = (onConnection?: () => void) =>
+  new Promise<ReturnType<typeof createServer>>((resolve, reject) => {
+    const placeholder = onConnection ? createServer(onConnection) : createServer();
+    placeholder.on('error', (cause: NodeJS.ErrnoException) => {
+      reject(new Error(`反例陪衬服务监听失败：${cause.code ?? cause.message}（${environment()}）`, { cause }));
+    });
+    placeholder.listen(0, '127.0.0.1', () => resolve(placeholder));
+  });
+
+describe('环境前置：回环往返（PI-LANE-SIDECAR-HANG-1 悬挂形态注入）', () => {
+  it('反例一：listen 失败当场具名，不挂满通用超时', async () => {
+    const occupied = await listenPlaceholder();
+    const taken = (occupied.address() as AddressInfo).port;
+    try {
+      await expect(start(true, taken)).rejects.toThrow(/回环监听失败.*EADDRINUSE/s);
+    } finally {
+      occupied.close();
+    }
+  });
+
+  it('反例二：连上却不回话时按预算具名快红，不静默挂死', async () => {
+    const blackhole = await listenPlaceholder(() => {});
+    const base = `http://127.0.0.1:${(blackhole.address() as AddressInfo).port}`;
+    try {
+      await expect(call('/', {}, base)).rejects.toThrow(/回环往返未在 \d+ms 内完成/);
+    } finally {
+      blackhole.close();
+    }
   });
 });
