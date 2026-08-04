@@ -373,6 +373,20 @@ describe('applyInstructionsToDocumentXml refuses to rebuild paragraphs carrying 
     expect(outcomes[0]!.status).toBe('unsupported_existing_markup');
   });
 
+  it('refuses rebuild when a foreign namespace reuses WordprocessingML local names', () => {
+    const xml = minimalDocumentXml(
+      `<w:p xmlns:x="urn:foreign"><x:r><x:t>外部结构文本</x:t></x:r></w:p>`,
+    );
+    const { documentXml, outcomes } = applyInstructionsToDocumentXml(
+      xml,
+      replaceSet('外部结构文本', '替换文本'),
+      FIXED_NOW,
+    );
+    expect(outcomes[0]!.status).toBe('unsupported_existing_markup');
+    expect(documentXml).toContain('<x:r>');
+    expect(documentXml).toContain('<x:t>外部结构文本</x:t>');
+  });
+
   it('still applies replace on a clean paragraph with proofErr noise present', () => {
     const xml = minimalDocumentXml(
       `<w:p><w:proofErr w:type="spellStart"/><w:r><w:t>违约金为合同总价的百分之十。</w:t></w:r><w:proofErr w:type="spellEnd"/></w:p>`,

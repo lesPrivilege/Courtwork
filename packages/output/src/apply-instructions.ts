@@ -306,11 +306,12 @@ function paragraphSupportsRebuild(p: Element): boolean {
   for (let c = p.firstChild; c; c = c.nextSibling) {
     if (c.nodeType !== 1) continue;
     const child = c as Element;
-    if (!REBUILD_SAFE_P_CHILDREN.has(child.localName ?? '')) return false;
+    if (child.namespaceURI !== W || !REBUILD_SAFE_P_CHILDREN.has(child.localName ?? '')) return false;
     if (child.localName === 'r') {
       for (let rc = child.firstChild; rc; rc = rc.nextSibling) {
         if (rc.nodeType !== 1) continue;
-        if (!REBUILD_SAFE_RUN_CHILDREN.has((rc as Element).localName ?? '')) return false;
+        const runChild = rc as Element;
+        if (runChild.namespaceURI !== W || !REBUILD_SAFE_RUN_CHILDREN.has(runChild.localName ?? '')) return false;
       }
     }
   }
