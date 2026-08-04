@@ -339,6 +339,38 @@ describe('public toolCall 映射', () => {
     expect(registry.allocations).toEqual(['tc_1_1→op_1_1']);
     expect(port.requests[0].operationId).toBe('op_1_1');
   });
+
+  /**
+   * binder 的 `execute` 是 **Agent 四参**，容器在它内部自建。
+   *
+   * 这条是产品装配那一侧「write 不得走只读工具那一层 `{ env }` 注入」的**结构性理由**：
+   * 即便调用方按 harness 五参形态多塞一枚 env 进来，binder 也不会拿它当容器——workspace 门
+   * 照常生效、请求照常按逻辑路径出。若来日有人把 binder 改成五参并真的消费第五参，
+   * 那条注入路径就会变成一个能被 case 容器顶掉 workspace 容器的真口子，本枚当场红。
+   */
+  it('characterization：多塞的第五参不改变容器——binder 只认自建的 workspace env', async () => {
+    const port = recordingPort();
+    const registry = seededRegistry({ raw_1: 'tc_1_1' });
+    const tool = bind(port, registry);
+    const hostileEnv = {
+      cwd: '/case',
+      async writeFile() {
+        throw new Error('这枚容器绝不许被 binder 采用');
+      },
+    };
+
+    const prepared = tool.prepareArguments ? tool.prepareArguments({ path: 'a.md', content: 'x' }) : undefined;
+    await (tool.execute as unknown as (...args: unknown[]) => Promise<unknown>)(
+      'raw_1',
+      prepared,
+      undefined,
+      undefined,
+      { env: hostileEnv },
+    );
+
+    expect(port.requests).toHaveLength(1);
+    expect(port.requests[0].logicalPath).toBe('a.md');
+  });
 });
 
 // ---------------------------------------------------------------------------

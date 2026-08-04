@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -21,7 +22,9 @@ import {
   encodePacketLine,
   type BootstrapPayload,
   type HostPacket,
+  type HostResultPayload,
   type SidecarPacket,
+  type WorkspaceHostRequest,
 } from './product-protocol.js';
 import {
   PRODUCT_CAPABILITIES,
@@ -64,7 +67,34 @@ type Harness = {
   prompt(text: string, requestId: string): Promise<void>;
   kinds(): string[];
   terminals(): Extract<SidecarPacket, { type: 'terminal' }>['payload'][];
+  hostRequests(): WorkspaceHostRequest[];
 };
+
+/**
+ * 受测宿主替身：收到 `host_request` 就按脚本回一枚 `host_result`。
+ *
+ * 它**不执行任何 effect**——本文件证的是 Node 侧装配（提案、两段式接缝、投影与收束），
+ * 真实落盘、授权账本与屏障在 Rust（`pi_loop`/`pi_loop_workspace`）自有反例门。
+ * 回包排在 microtask 里：状态机禁止在 runtime callback 内同步 `receive`，而 tool execute
+ * 本就跑在 agent loop 的异步段，这里只是把「宿主不会同步答复」这条事实照实建模。
+ */
+type ScriptedHost = (request: WorkspaceHostRequest) => HostResultPayload;
+
+const hostWriteOk: ScriptedHost = (request) => ({
+  operationId: request.operationId,
+  capability: 'workspace_write',
+  operation: 'write',
+  status: 'ok',
+  value:
+    request.capability === 'workspace_write'
+      ? {
+          logicalPath: request.arguments.logicalPath,
+          disposition: 'created',
+          contentSha256: request.arguments.contentSha256,
+          byteLength: request.arguments.byteLength,
+        }
+      : { logicalPath: '', disposition: 'created', contentSha256: '', byteLength: 0 },
+});
 
 function bootstrapPayload(overrides: Partial<BootstrapPayload> = {}): BootstrapPayload {
   return {
@@ -78,11 +108,12 @@ function bootstrapPayload(overrides: Partial<BootstrapPayload> = {}): BootstrapP
   };
 }
 
-function createHarness(): Harness {
+function createHarness(host?: ScriptedHost): Harness {
   const packets: SidecarPacket[] = [];
   const exits: number[] = [];
   const streamOptions: (SimpleStreamOptions | undefined)[] = [];
   let seq = 0;
+  let answer: ((packet: Extract<SidecarPacket, { type: 'host_request' }>) => void) | null = null;
 
   const runtime = createProductRuntime({
     createProvider: ({ modelId, apiKey }): ProductProviderBinding => {
@@ -105,6 +136,7 @@ function createHarness(): Harness {
         const decoded = decodeSidecarPacketLine(line.subarray(0, line.byteLength - 1));
         if (!decoded.ok) throw new Error(`sidecar 出包不合契约：${decoded.reason}`);
         packets.push(decoded.packet);
+        if (decoded.packet.type === 'host_request' && answer !== null) answer(decoded.packet);
       },
       exit(code) {
         exits.push(code);
@@ -119,6 +151,23 @@ function createHarness(): Harness {
     if (!encoded.ok) throw new Error(`host 入包不合契约：${encoded.reason}`);
     session.receive(encoded.line);
   };
+
+  if (host !== undefined) {
+    answer = (packet) => {
+      const payload = host(packet.payload);
+      queueMicrotask(() => {
+        seq += 1;
+        send({
+          protocolVersion: 1,
+          seq,
+          sessionId: packet.sessionId,
+          requestId: packet.requestId,
+          type: 'host_result',
+          payload,
+        });
+      });
+    };
+  }
 
   return {
     packets,
@@ -163,6 +212,10 @@ function createHarness(): Harness {
       packets
         .filter((packet): packet is Extract<SidecarPacket, { type: 'terminal' }> => packet.type === 'terminal')
         .map((packet) => packet.payload),
+    hostRequests: () =>
+      packets
+        .filter((packet): packet is Extract<SidecarPacket, { type: 'host_request' }> => packet.type === 'host_request')
+        .map((packet) => packet.payload),
   };
 }
 
@@ -179,23 +232,45 @@ beforeEach(async () => {
   model = faux.getModel();
 });
 
-describe('case-read-v1 system prompt', () => {
-  it('exact snapshot：四行以 LF 相连、末尾无 LF', () => {
-    expect(PRODUCT_PROMPT_ID).toBe('case-read-v1');
+describe('md-work-v1 system prompt', () => {
+  it('exact snapshot：六行以 LF 相连、末尾无 LF', () => {
+    expect(PRODUCT_PROMPT_ID).toBe('md-work-v1');
     expect(PRODUCT_SYSTEM_PROMPT).toBe(
-      '你是一名只读文档助手，案件材料只在虚拟根 /case。\n' +
-        '可用工具只有 read、glob、grep；回答前须实际读取，读不到或结果被截断就明确说明。\n' +
-        '你不能修改、新建、删除文件，也不能执行命令或声称已经完成这些动作。\n' +
-        '引用材料时使用 /case 开头的逻辑路径；不得猜测、回显或索要任何物理路径与凭证。',
+      '你是一名文档工作助手；回答与写入都只能基于实际读到的内容，读不到、被截断或没读过就直说，不猜。\n' +
+        '你有两个逻辑根：/case 是只读案件材料，/workspace 是你的过程草稿区；一律用逻辑路径，不猜测、不回显任何物理路径与凭证。\n' +
+        '在 /workspace 新建或改写 Markdown 只有一种方式：用 write 覆盖式整体写入，目标 basename 必须以 .md 结尾且扩展名前至少一个字符。\n' +
+        '覆盖既有文件前先读它；每次写入后回读确认，并把最终逻辑路径报告给用户。\n' +
+        '你没有 edit、delete、rename、把文件晋升到用户目录或执行命令的能力，也不得声称做过这些。\n' +
+        '一次写入是否真的发生只由宿主的授权结果与 journal 决定；工具文案不是证据，未获授权或结果未确认就如实说明。',
     );
     expect(PRODUCT_SYSTEM_PROMPT.endsWith('\n')).toBe(false);
-    expect(PRODUCT_SYSTEM_PROMPT.split('\n')).toHaveLength(4);
+    expect(PRODUCT_SYSTEM_PROMPT.split('\n')).toHaveLength(6);
   });
 
-  it('不超过 2048 字节，且不含 write/workspace 说明（那是 md-work-v1 的事）', () => {
+  /**
+   * ADR-022 六-0 的六条语义逐条在场。exact snapshot 只锁「一个字都没变」，
+   * 这一枚锁的是**变的时候仍必须还是那六条**——改写 prompt 时两枚一起红才说明是有意换语义。
+   */
+  it('六行逐条覆盖 ADR-022 六-0 点名的六条语义', () => {
+    const lines = PRODUCT_SYSTEM_PROMPT.split('\n');
+    expect(lines[0]).toContain('实际读到');
+    expect(lines[1]).toContain('/case');
+    expect(lines[1]).toContain('/workspace');
+    expect(lines[2]).toContain('write');
+    expect(lines[2]).toContain('.md');
+    expect(lines[3]).toContain('回读');
+    expect(lines[4]).toContain('edit');
+    expect(lines[4]).toContain('rename');
+    expect(lines[5]).toContain('journal');
+    for (const line of lines) expect(line.trim().length).toBeGreaterThan(0);
+  });
+
+  it('不超过 2048 字节，且不夹带工具 schema、plan 格式或垂类正文', () => {
     expect(Buffer.byteLength(PRODUCT_SYSTEM_PROMPT, 'utf8')).toBeLessThanOrEqual(PRODUCT_SYSTEM_PROMPT_MAX_BYTES);
-    expect(PRODUCT_SYSTEM_PROMPT).not.toContain('workspace');
-    expect(PRODUCT_SYSTEM_PROMPT).not.toContain('write');
+    // 六-0 明禁：复制工具 schema、注入 coding playbook、Dossier 正文、plan 格式或营销人格。
+    for (const forbidden of ['{"type"', 'parameters', 'JSON Schema', 'Dossier', '卷宗', 'plan:', 'Courtwork']) {
+      expect(PRODUCT_SYSTEM_PROMPT).not.toContain(forbidden);
+    }
   });
 });
 
@@ -233,14 +308,19 @@ describe('provider 装配', () => {
 });
 
 describe('bootstrap → ready', () => {
-  it('ready 恰宣告 case_read', () => {
+  /**
+   * `workspace_write` 进闭集是 `PI-WRITE-HOST-1` ⑤ 的握手改动，与 Rust
+   * `EXPECTED_CAPABILITIES` 同批。字典序不是排版：状态机按字典序归一，Rust 逐值比对，
+   * 顺序错一位就是 capability 漂移。`workspace_read` 属 `PI-WORKSPACE-READ-1`，此处必须不在。
+   */
+  it('ready 恰宣告 case_read 与 workspace_write，按字典序', () => {
     const harness = createHarness();
     harness.bootstrap();
     const ready = harness.packets.find((packet) => packet.type === 'ready');
     expect(ready?.type).toBe('ready');
     if (ready?.type !== 'ready') return;
     expect(ready.payload.capabilities).toEqual([...PRODUCT_CAPABILITIES]);
-    expect(ready.payload.capabilities).toEqual(['case_read']);
+    expect(ready.payload.capabilities).toEqual(['case_read', 'workspace_write']);
   });
 
   it('modelId 只认 bootstrap 给的那一个，目录里没有就不出 ready', () => {
@@ -283,19 +363,23 @@ describe('真实 read loop（scripted stream，零网络）', () => {
     expect(JSON.stringify(harness.runtime.messages())).toContain('HT-2024-081');
   });
 
+  /**
+   * 读面不申请 operation，这条在写面开通之后**更**要守：三件只读工具经 `/case` 容器直接
+   * 执行，一枚 host operation 都不该铸。首轮以源码扫描（`product-runtime.ts` 不出现
+   * `reserveHostOperation`）兼作判据，⑤ 把那两个名字真的接进来之后该扫描恒红且零区分力，
+   * 故改为行为判据：读面跑完 host_request 仍恰零。
+   */
   it('read/glob/grep 一枚 operation 都不申请，host_request 全程为零', async () => {
     faux.setResponses([
       fauxAssistantMessage([fauxToolCall('glob', { pattern: '**/*.md' })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxToolCall('read', { path: '备忘.md' })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxText('读完了。')]),
     ]);
-    const harness = createHarness();
+    const harness = createHarness(hostWriteOk);
     harness.bootstrap();
     await harness.prompt('先列再读', 'request-1');
-    expect(harness.packets.filter((packet) => packet.type === 'host_request')).toEqual([]);
-    const source = await readFile(new URL('product-runtime.ts', import.meta.url), 'utf8');
-    expect(source).not.toContain('reserveHostOperation');
-    expect(source).not.toContain('sendReservedHostRequest');
+    expect(harness.hostRequests()).toEqual([]);
+    expect(harness.terminals().at(-1)?.status).toBe('completed');
   });
 
   it('模型给相对路径也走同一容器，工具结果不含物理根', async () => {
@@ -337,6 +421,162 @@ describe('真实 read loop（scripted stream，零网络）', () => {
     await harness.runtime.settled();
     const terminal = harness.terminals().at(-1);
     expect(terminal?.status).toBe('canceled');
+  });
+});
+
+/**
+ * write 装配（`PI-WRITE-HOST-1` ⑤）。
+ *
+ * 本组只证 **Node 侧装配**：模型的一次 `write` 经极薄 binder → invocation-scoped 虚拟 env →
+ * 两段式接缝（reserve op → send host_request）→ 等宿主的 `host_result` → 收束工具账。
+ * 落盘、逐次授权与持久化屏障全在 Rust，本文件的宿主替身**不执行任何 effect**，
+ * 因此这里的绿不构成「写面已放行」。
+ */
+describe('write 装配：提案上 wire、effect 归宿主', () => {
+  const writeCall = (path: string, content: string) =>
+    fauxAssistantMessage([fauxToolCall('write', { path, content })], { stopReason: 'toolUse' });
+
+  it('模型一次 write ⇒ 恰一枚 host_request，八字段逐值可独立重算', async () => {
+    const content = '# 摘要\n合同编号 HT-2024-081。\n';
+    faux.setResponses([writeCall('brief.md', content), fauxAssistantMessage([fauxText('已写入 /workspace/brief.md。')])]);
+    const harness = createHarness(hostWriteOk);
+    harness.bootstrap();
+    await harness.prompt('写一份摘要', 'request-1');
+
+    const requests = harness.hostRequests();
+    expect(requests).toHaveLength(1);
+    const request = requests[0];
+    expect(request.capability).toBe('workspace_write');
+    if (request.capability !== 'workspace_write') return;
+    // logicalPath 不带 /workspace 前缀（ADR-022 六-B.2）。
+    expect(request.arguments.logicalPath).toBe('brief.md');
+    expect(request.arguments.content).toBe(content);
+    // 独立重算：production 走 crypto.subtle，这里走 node:crypto，避免同源假绿。
+    expect(request.arguments.contentSha256).toBe(createHash('sha256').update(content, 'utf8').digest('hex'));
+    expect(request.arguments.byteLength).toBe(Buffer.byteLength(content, 'utf8'));
+    // op 由状态机铸，不由 binder 预分配。
+    expect(request.operationId).toBe('op_1_1');
+
+    /*
+     * proposalHash 的**生产者**自本票起真实存在（此前 wire 上只有测试喂的常量）。
+     * 这里按 ADR-022 六-B.2 的 `frame(x)=u32be(len)||UTF8(x)` 独立重算一遍：它同时证明
+     * 绑定的 session/request/operation 三枚 id 都是**本次**的，而不是某个冻结在 bind 时的旧值。
+     * Rust 侧的重算与 `hash_mismatch` 反例是 ⑥ 的债（④ 回执 §八.2），本枚给它留下可比对的真值。
+     */
+    const frame = (value: string): Buffer => {
+      const body = Buffer.from(value, 'utf8');
+      const header = Buffer.alloc(4);
+      header.writeUInt32BE(body.byteLength, 0);
+      return Buffer.concat([header, body]);
+    };
+    const expected = createHash('sha256')
+      .update(
+        Buffer.concat(
+          [
+            'courtwork.pi.workspace_write.v1',
+            'session-1',
+            'request-1',
+            request.operationId,
+            request.arguments.logicalPath,
+            String(request.arguments.byteLength),
+            request.arguments.contentSha256,
+          ].map(frame),
+        ),
+      )
+      .digest('hex');
+    expect(request.proposalHash).toBe(expected);
+  });
+
+  it('公开 tc 与 operation 对得上：一枚 tool call 恰一枚 operation，收束按 host status', async () => {
+    faux.setResponses([writeCall('notes/会议纪要.md', '记录'), fauxAssistantMessage([fauxText('写好了。')])]);
+    const harness = createHarness(hostWriteOk);
+    harness.bootstrap();
+    await harness.prompt('记一笔', 'request-1');
+
+    expect(harness.kinds().filter((kind) => kind.startsWith('tool_'))).toEqual([
+      'tool_started:tc_1_1',
+      'tool_finished:tc_1_1',
+    ]);
+    const finished = harness.packets.flatMap((packet) =>
+      packet.type === 'agent_event' && packet.payload.kind === 'tool_finished' ? [packet.payload] : [],
+    );
+    expect(finished.map((event) => [event.toolName, event.outcome])).toEqual([['write', 'succeeded']]);
+    expect(harness.hostRequests().map((request) => request.operationId)).toEqual(['op_1_1']);
+    expect(harness.terminals().at(-1)?.status).toBe('completed');
+  });
+
+  it('host 拒绝时工具账是 denied，不是失败更不是成功', async () => {
+    faux.setResponses([writeCall('brief.md', '正文'), fauxAssistantMessage([fauxText('没有获得授权。')])]);
+    const harness = createHarness((request) => ({
+      operationId: request.operationId,
+      capability: 'workspace_write',
+      operation: 'write',
+      status: 'denied',
+      error: { code: 'policy_denied', message: '本次未获授权' },
+    }));
+    harness.bootstrap();
+    await harness.prompt('写一份摘要', 'request-1');
+
+    const outcomes = harness.packets.flatMap((packet) =>
+      packet.type === 'agent_event' && packet.payload.kind === 'tool_finished' ? [packet.payload.outcome] : [],
+    );
+    expect(outcomes).toEqual(['denied']);
+    expect(harness.terminals().at(-1)?.status).toBe('completed');
+  });
+
+  it('Node 门先拒的一律零 operation：非 .md、basename 恰 .md、越界路径都不上 wire', async () => {
+    for (const path of ['brief.txt', '.md', 'notes/.md', '/case/备忘.md', '../外面.md', '/workspace']) {
+      faux.setResponses([writeCall(path, '正文'), fauxAssistantMessage([fauxText('写不了。')])]);
+      const harness = createHarness(hostWriteOk);
+      harness.bootstrap();
+      await harness.prompt('试着写', 'request-1');
+      expect(harness.hostRequests(), path).toEqual([]);
+      // 拒绝必须显式落在工具账上：既不是 succeeded，也不是静默无事发生。
+      const outcomes = harness.packets.flatMap((packet) =>
+        packet.type === 'agent_event' && packet.payload.kind === 'tool_finished' ? [packet.payload.outcome] : [],
+      );
+      expect(outcomes, path).toEqual(['failed']);
+    }
+  });
+
+  /**
+   * binder 在 bootstrap 当场建成一次（一 leg 一枚 Agent），而 `requestId` 每 prompt 换一枚。
+   * 若装配把首个 prompt 的 requestId 冻结在 binder 上，第二个 prompt 的 write 就会带着旧
+   * requestId 上 wire——状态机的 send 门会当场拒（`reserved request 的 session/request 必须是
+   * 当前活动 prompt`），故这条既证取值时机、又证那道门确实在。
+   */
+  it('第二个 prompt 的 write 带的是第二个 requestId，不是 bind 当时那一枚', async () => {
+    faux.setResponses([
+      writeCall('一.md', '甲'),
+      fauxAssistantMessage([fauxText('第一份写好了。')]),
+      writeCall('二.md', '乙'),
+      fauxAssistantMessage([fauxText('第二份写好了。')]),
+    ]);
+    const harness = createHarness(hostWriteOk);
+    harness.bootstrap();
+    await harness.prompt('写第一份', 'request-1');
+    await harness.prompt('写第二份', 'request-2');
+
+    const requestIds = harness.packets.flatMap((packet) =>
+      packet.type === 'host_request' ? [packet.requestId] : [],
+    );
+    expect(requestIds).toEqual(['request-1', 'request-2']);
+    expect(harness.hostRequests().map((request) => request.operationId)).toEqual(['op_1_1', 'op_1_2']);
+    expect(harness.terminals().map((terminal) => terminal.status)).toEqual(['completed', 'completed']);
+  });
+
+  it('没有在途 operation 时 deliverHostResult 显式抛出，不静默吞', () => {
+    const harness = createHarness(hostWriteOk);
+    harness.bootstrap();
+    expect(() =>
+      harness.runtime.deliverHostResult({
+        operationId: 'op_1_1',
+        capability: 'workspace_write',
+        operation: 'write',
+        status: 'ok',
+        value: { logicalPath: 'brief.md', disposition: 'created', contentSha256: 'c'.repeat(64), byteLength: 6 },
+      }),
+    ).toThrow(/在途/);
   });
 });
 

@@ -45,8 +45,15 @@ use crate::pi_loop_protocol::{
     MAX_TURNS_LIMIT, MAX_USD_LIMIT,
 };
 
-/// 本票 ready 恰宣告这一枚能力。
-const EXPECTED_CAPABILITIES: &[WorkspaceCapability] = &[WorkspaceCapability::CaseRead];
+/// ready 握手必须逐值等于这张表（次序即判据：Node 侧按字典序归一后出包）。
+///
+/// `PI-WRITE-HOST-1` ⑤ 加入 `workspace_write`：它只表示「本会话可以**申请** workspace write
+/// host operation」，不表示预先批准——逐次授权仍在 `WriteDecisionDriver`（ADR-022 六-C）。
+/// `workspace_read` 属 `PI-WORKSPACE-READ-1`，未谈成，`serve_host_request` 的 0.1 门照拒。
+const EXPECTED_CAPABILITIES: &[WorkspaceCapability] = &[
+    WorkspaceCapability::CaseRead,
+    WorkspaceCapability::WorkspaceWrite,
+];
 
 // ── 错误闭集 ────────────────────────────────────────────────────────────────
 
@@ -576,12 +583,16 @@ impl PiLoopHost {
         self.write_host = host;
     }
 
-    /// **测试专用**：把⑤ 才会谈成的 `workspace_write` 记进本次握手结果。production 的
-    /// `capabilities` 只由 ready 握手写入，且必须逐值等于 `EXPECTED_CAPABILITIES`；
-    /// 本 setter 不动那两枚闭集，只让③ 的四段账序在能力真到位时可被驱动。
+    /// **测试专用**：把 `workspace_write` 从本次握手结果里撤掉。
+    ///
+    /// ⑤ 之后握手闭集恒含它（`EXPECTED_CAPABILITIES` 逐值比对，谈不成就根本起不来 leg），
+    /// 于是 `serve_host_request` 的 0.1 能力门在产品线上再也无法由真实握手证否。撤销这一枚
+    /// 正是为了让那道门**仍有可被证否的形态**：撤掉之后来一枚 write 请求，
+    /// 若 0.1 不在，它就会一路走到真实 effect。③ 期的 `grant_workspace_write` 由此反向取代。
     #[cfg(test)]
-    fn grant_workspace_write(&mut self) {
-        self.capabilities.push(WorkspaceCapability::WorkspaceWrite);
+    fn revoke_workspace_write(&mut self) {
+        self.capabilities
+            .retain(|capability| *capability != WorkspaceCapability::WorkspaceWrite);
     }
 
     /// fresh / resume 全序。次序即语义，前一步不过就绝不走到后一步（PI-HOST-LOOP-1R R1/R2）：
@@ -594,7 +605,8 @@ impl PiLoopHost {
     /// 4. journal 载入（含单写者独占锁）+ partial-tail / quarantine / 唯一补写 / 五步 crash fold；
     /// 5. fresh 落 `session_started`、resume 逐类漂移门后落 `session_resumed`——**都在 spawn 之前**；
     /// 6. runtime cwd → spawn → bootstrap（caseRoot 与 key 只在此入内存）；
-    /// 7. ready 且 capability 恰为 `['case_read']`，否则落 `session_failed{protocol,state_violation}`。
+    /// 7. ready 且 capability 逐值等于 `EXPECTED_CAPABILITIES`，否则落
+    ///    `session_failed{protocol,state_violation}`。
     pub(crate) fn start(
         app_data_dir: &Path,
         layout: &AppLayout,
@@ -823,9 +835,15 @@ impl PiLoopHost {
             published: Vec::new(),
             active_request: None,
             active_tool_call: None,
-            // ④：production 从此有真件。0.4 门因此从「结构性挡死」退回「缺件才挡」，
-            // 0.1 能力门（ready 恰 `['case_read']`）与真件自身的 `policy_denied`
-            // 两道仍各自独立地挡住产品线上的 effect——⑤ 加 `workspace_write` 时须同批复核。
+            // ④：production 从此有真件；⑤：握手也谈成了 `workspace_write`。
+            //
+            // 两道产品闸的现况**如实登记**（⑤ 逐一复核）：
+            // - 0.1 能力门：`workspace_write` 已进闭集，故它不再挡 write，只继续挡未谈成的
+            //   `workspace_read`（`PI-WORKSPACE-READ-1` 之前恒拒）；它对 write 的可证否形态
+            //   由 `revoke_workspace_write` 的反例保留。
+            // - 逐次授权：production **至今没有 decision driver**（GUI/headless 验收才注入），
+            //   故真件的 `decide` 恒 `policy_denied`——产品线上的 write 因此仍零 effect，
+            //   且是显式拒绝、显式落账，不是静默跳过。硬编码 `Approved` 属 ADR-022 六-C 明禁。
             write_host: Some(Box::new(crate::pi_loop_workspace::WorkspaceFsHost::new(
                 app_data_dir,
                 &config.container_id,
@@ -1178,8 +1196,9 @@ impl PiLoopHost {
         request: WorkspaceHostRequest,
     ) -> Result<(), HostError> {
         // 0.1 能力门：只服务本次握手**真的谈成**的那几枚。不拿编译期 expected 洗白，也不认
-        //     请求自报——今日 ready 恰 `['case_read']`，本臂在产品线上因此结构性不可达；
-        //     `workspace_write` 的加入属⑤（`EXPECTED_CAPABILITIES` ＋ Node 侧同批）。
+        //     请求自报。⑤ 之后 `workspace_write` 已在闭集内，本门对 write 不再是产品线上的
+        //     挡板（挡 write 的是逐次授权那一道）；它继续挡的是未谈成的 `workspace_read`。
+        //     可证否形态由 `revoke_workspace_write` 的反例保留，不随能力到位而失去覆盖。
         if !self.capabilities.contains(&request.capability) {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
         }
@@ -2060,7 +2079,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         let host = host.expect("启动成功");
@@ -2074,7 +2096,10 @@ mod tests {
         assert_eq!(
             host.published(),
             &[HostEvent::Ready {
-                capabilities: vec![WorkspaceCapability::CaseRead]
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ]
             }]
         );
 
@@ -2163,7 +2188,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -2238,7 +2269,13 @@ mod tests {
             let (host, _, _) = start_with(
                 &h,
                 vec![VecDeque::from(vec![
-                    ready(1, vec![WorkspaceCapability::CaseRead]),
+                    ready(
+                        1,
+                        vec![
+                            WorkspaceCapability::CaseRead,
+                            WorkspaceCapability::WorkspaceWrite,
+                        ],
+                    ),
                     sidecar_line(
                         2,
                         Some("req-1"),
@@ -2282,7 +2319,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -2352,7 +2395,13 @@ mod tests {
             &h,
             config,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, Some("req-1"), turn(1)),
                 sidecar_line(3, Some("req-1"), turn(2)),
                 sidecar_line(
@@ -2399,7 +2448,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -2447,7 +2502,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, Some("req-1"), turn(1, 0.25)),
                 sidecar_line(
                     3,
@@ -2490,7 +2551,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         let resumed = resumed.expect("resume 成功");
@@ -2526,7 +2590,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         let mut host = host.expect("启动");
@@ -2560,7 +2627,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         assert!(ok.is_ok(), "对照：同一配置必须能起第二 leg");
@@ -2577,7 +2647,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         let mut host = host.expect("启动");
@@ -2630,7 +2703,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         assert!(ok.is_ok(), "对照：未漂移必须能起第二 leg");
@@ -2643,7 +2719,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, None, PacketPayload::Terminal(Terminal::Shutdown)),
                 Scripted::Eof,
             ])],
@@ -2665,7 +2747,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         assert_eq!(again.expect_err("已关闭"), HostError::SessionClosed);
@@ -2706,7 +2791,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 2,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         assert_eq!(
@@ -2721,7 +2809,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -3047,7 +3141,10 @@ mod tests {
             1,
             None,
             PacketPayload::Ready {
-                capabilities: vec![WorkspaceCapability::CaseRead],
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             },
         );
         let prompt_lines = vec![
@@ -3283,7 +3380,10 @@ mod tests {
             1,
             None,
             PacketPayload::Ready {
-                capabilities: vec![WorkspaceCapability::CaseRead],
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             },
         );
         let delta = wire(
@@ -3520,7 +3620,10 @@ mod tests {
             1,
             None,
             PacketPayload::Ready {
-                capabilities: vec![WorkspaceCapability::CaseRead],
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             },
         );
         let shutdown_line = wire(2, None, PacketPayload::Terminal(Terminal::Shutdown));
@@ -3787,7 +3890,13 @@ mod tests {
     }
 
     fn ready_leg() -> VecDeque<Scripted> {
-        VecDeque::from(vec![ready(1, vec![WorkspaceCapability::CaseRead])])
+        VecDeque::from(vec![ready(
+            1,
+            vec![
+                WorkspaceCapability::CaseRead,
+                WorkspaceCapability::WorkspaceWrite,
+            ],
+        )])
     }
 
     fn journal_bytes(app_data: &Path, container: &str) -> Vec<u8> {
@@ -3933,7 +4042,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-ok"),
@@ -4001,7 +4116,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, Some("req-1"), turn()),
                 sidecar_line(
                     3,
@@ -4041,7 +4162,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, Some("req-1"), turn()),
                 sidecar_line(
                     3,
@@ -4069,7 +4196,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 Scripted::Line(b"{".to_vec()),
             ])],
             ExitOutcome::Code(0),
@@ -4096,7 +4229,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 Scripted::Eof,
             ])],
             ExitOutcome::Code(0),
@@ -4122,7 +4261,13 @@ mod tests {
     fn counterexample_shutdown_exit_status_is_reported_truthfully() {
         let shutdown_leg = || {
             VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, None, PacketPayload::Terminal(Terminal::Shutdown)),
                 Scripted::Eof,
             ])
@@ -4186,7 +4331,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -4751,7 +4902,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-ok"),
@@ -5738,7 +5895,13 @@ mod tests {
         let terminal = PacketPayload::Terminal(Terminal::Completed {
             budget: open_budget(0, Some(0.0)),
         });
-        let mut inbox = vec![ready(1, vec![WorkspaceCapability::CaseRead])];
+        let mut inbox = vec![ready(
+            1,
+            vec![
+                WorkspaceCapability::CaseRead,
+                WorkspaceCapability::WorkspaceWrite,
+            ],
+        )];
         // 合法 requestId 才脚本得出应答行；不可编码的 requestId 必然在发包前就被拒，
         // 这一枚应答永远用不上。
         if let Some(line) = optional_sidecar_line(2, Some(request_id), terminal) {
@@ -5968,7 +6131,8 @@ mod tests {
         );
         // 效果域的塌缩守卫（PI-WRITE-HOST-1 ②）：五枚前向债一枚字段都不许掉队。
         // 「host_result 族被删空」与「本来就没有出站样本」在读数上同形——恰是这五行
-        // 在 HOST-LOOP 全程为债的成因（ready capability 恰 `['case_read']`，一枚都不生成）。
+        // 在 HOST-LOOP 全程为债的成因（彼时 ready capability 恰 `['case_read']`，出站 host_result
+        // 一枚都不生成；⑤ 谈成 `workspace_write` 之后才有真样本，守卫因此更要在场）。
         let host_result_rows = battery
             .iter()
             .filter(|row| {
@@ -6023,7 +6187,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-ok"),
@@ -6232,7 +6402,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -6511,7 +6687,13 @@ mod tests {
     /// 一枚完整的 write 回合：`tool_started → host_request → tool_finished → completed`。
     fn write_leg() -> VecDeque<Scripted> {
         VecDeque::from(vec![
-            ready(1, vec![WorkspaceCapability::CaseRead]),
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
             tool_started_line(2),
             sidecar_line(
                 3,
@@ -6605,8 +6787,8 @@ mod tests {
         }
     }
 
-    /// 起 leg、谈成 `workspace_write`、装上脚本座——三步是⑤/④ 到位后的产品常态，
-    /// 在③ 由两枚 `#[cfg(test)]` seam 就位。
+    /// 起 leg（⑤ 之后握手当场就谈成 `workspace_write`），再把真件换成脚本座。
+    /// ③ 期那一枚 `grant_workspace_write` 已随真实握手退役。
     fn armed_host(
         h: &Harness,
         legs: Vec<VecDeque<Scripted>>,
@@ -6616,7 +6798,6 @@ mod tests {
             start_probe(h, h.config.clone(), legs, ExitOutcome::Code(0), &FixedKey);
         let mut host = host.expect("启动");
         let effect_log = Arc::clone(&write_host.log);
-        host.grant_workspace_write();
         host.install_write_host(Some(Box::new(write_host)));
         (host, log, effect_log)
     }
@@ -6920,7 +7101,10 @@ mod tests {
     /// 静默跳过与假装成功在读数上同形（1R5 判例）。
     #[test]
     fn counterexample_host_request_gates_refuse_before_any_effect() {
-        // (label, 是否谈成 workspace_write, 是否装真件, 是否先来一枚 tool_started, 请求)
+        // (label, 本次握手是否谈成 workspace_write, 是否装真件, 是否先来一枚 tool_started, 请求)
+        //
+        // ⑤ 之后握手闭集恒含 `workspace_write`，故「能力未谈成」这一格改由
+        // `revoke_workspace_write` 显式撤销构造——0.1 门的反例因此不因能力到位而失去覆盖。
         let cases: Vec<(&str, bool, bool, bool, PacketPayload)> = vec![
             (
                 "能力未谈成",
@@ -6962,9 +7146,15 @@ mod tests {
             ),
         ];
 
-        for (label, grant, install, tool_started, request) in cases {
+        for (label, negotiated, install, tool_started, request) in cases {
             let h = harness("write-gate");
-            let mut leg = vec![ready(1, vec![WorkspaceCapability::CaseRead])];
+            let mut leg = vec![ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            )];
             let mut seq = 2;
             if tool_started {
                 leg.push(tool_started_line(seq));
@@ -6981,8 +7171,8 @@ mod tests {
             let mut host = host.expect("启动");
             let write_host = ScriptedWriteHost::new(&h);
             let effects = Arc::clone(&write_host.log);
-            if grant {
-                host.grant_workspace_write();
+            if !negotiated {
+                host.revoke_workspace_write();
             }
             // ④ 起构造点恒装真件，故「真件座缺席」这一格必须**显式置 `None`**——
             // 0.4 门的反例因此仍然咬得住，不因真件到位而悄悄失去覆盖。
@@ -7024,7 +7214,13 @@ mod tests {
     fn counterexample_one_tool_call_serves_at_most_one_operation() {
         let h = harness("write-one-op");
         let leg = VecDeque::from(vec![
-            ready(1, vec![WorkspaceCapability::CaseRead]),
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
             tool_started_line(2),
             sidecar_line(
                 3,
@@ -7217,7 +7413,13 @@ mod tests {
 
     fn real_write_leg(logical_path: &str, content: &str) -> VecDeque<Scripted> {
         VecDeque::from(vec![
-            ready(1, vec![WorkspaceCapability::CaseRead]),
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
             tool_started_line(2),
             sidecar_line(
                 3,
@@ -7261,7 +7463,6 @@ mod tests {
         let (host, log, _) =
             start_probe(h, h.config.clone(), legs, ExitOutcome::Code(0), &FixedKey);
         let mut host = host.expect("启动");
-        host.grant_workspace_write();
         // 构造点装的就是真件；这里只在需要时补一枚 decision driver（⑤ 的真 driver 落点）。
         if let Some(decision) = decision {
             host.install_write_host(Some(Box::new(
@@ -7401,6 +7602,14 @@ mod tests {
     fn real_write_host_without_a_decision_driver_denies_and_writes_nothing() {
         let h = harness("real-nodriver");
         let (mut host, log) = real_armed_host(&h, vec![real_write_leg("纪要.md", "正文")], None);
+        // ⑤ 复核点：能力**已经谈成**，0.1 门因此不再是挡板；挡住这一轮的恰是逐次授权那一道。
+        // 两件事不能互相顶名——若此处的能力反而没谈成，下面的 denied 就成了「门 A 的绿冒充门 B」。
+        assert!(
+            host.capabilities()
+                .contains(&WorkspaceCapability::WorkspaceWrite),
+            "本例必须跑在能力已谈成的路径上，实得 {:?}",
+            host.capabilities()
+        );
         host.prompt("req-1", "写一份纪要")
             .expect("拒绝不是协议失败");
 
