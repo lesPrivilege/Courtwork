@@ -110,6 +110,22 @@ packages/reading-view/
 - PDF 页内文本层顺序取 pdfjs-dist 默认抽取顺序，不做跨列/跨栏重排——复杂版式 PDF 可能行序错乱，属于"最小可用"的已知代价。
 - **PDF 每页整体作为一个 `ReadingViewParagraph`**，不在页内再切分段落——真正的段内分段需要基于文本项坐标做版面分析，超出"最小可用"范围；锚点粒度因此是页级而非页内段落级，`page` 字段保证了这级粒度仍然精确可溯源。
 
+## READING-SDT-1 · 块级白名单 fail-closed（2026-08-04，实现完成待独立验收）
+
+票面：就绪图「2026-08-04 审计双确认批」同名行（两条独立审计维度同址命中）。基线 `main@8f4e937`，分支 `claude/reading-sdt-1`。
+
+**裁定痕（票面二选一取乙路：白名单外整文件降级并具名标签）**：甲路（递归收编）对 `w:tc` 内嵌套表结构性无解——`DocxBlock` 闭集无嵌套表形、md 无嵌套表语法，收编须扩块形与锚点粒度，正是合并单元格先例已裁过的局面；且按标签逐个递归对其余未知标签仍 fail-open，过不了合成标签反例。乙路零新类型、复用既有 `fidelity_insufficient` 闭集与既有降级出口，fail-closed 由构造成立。**升格路径具名**：`w:sdt`（内容控件/自动目录/封面）真实合同中在场，仓内暂无真实 docx 语料可测频次（本 SPEC 语料节既有登记）；以真实频次立据后另票把 `sdt` 从拒绝升为透明展开（白名单一行之移，锚点坐标中性已论证）。
+
+**实现**：`docx-reader.ts` 两张良性名单（body：`sectPr`/`bookmarkStart|End`/`proofErr`/`commentRangeStart|End`；cell：`tcPr` ＋同前五）＋ `unsupportedBlock(tag)`（detail 具名标签）；`readCellText` 外提携 cell 名单；名单外含未知标签一律 throw，经 `docx-to-markdown` 既有 `DocxReadError`→`disabled` 出口落 `fidelity_insufficient`。**`sectPr` 必须在名单**——真实 docx body 必有而仓内 fixture 全无，漏之即真文件全降级而测试全绿（fixture 盲区，正向名单守卫因此非可选）。converter 与 desktop 零改动。
+
+**本单新增了什么概念、为何非加不可**：两张字面量名单＋一枚错误构造函数。名单是 fail-closed 的定义载体（「不认识就跳过」判例的反面），非加不可；未加块形、未动 `DisabledReason` 闭集与锚点契约。
+
+**红绿证**：fixture 建造器扩 `{type:'raw';xml}` 一形；四枚 born-red 基线实跑四红（sdt 包段落／sdt 包表格／`w:tc` 内嵌套表／合成未知标签 `zzUnknownBlock`），良性名单正向守卫先行即绿；实现后包内 **146/146**。变异：名单收编 `'sdt'` → 恰两枚 sdt 测试红、合成标签反例保持绿——区分力在名单不在断言（循「不为撤断言形变异」判例），复原零残留。
+
+**顺手观察（未处置，desktop 面）**：`outcome-copy.ts` 对 `fidelity_insufficient` 的文案「请简化表格后重试」对内容控件场景失准；其 switch 带 `default:` 使新 reason 无编译面拦截。两项登记不动。
+
+**退出证据（实现会话自测，不代表验收）**：包内 146/146、`pnpm --filter "@courtwork/reading-view..." build` 绿；全量门数字待机器空档补跑后登记（在途验收串行占用中）。
+
 ## TODO（跨层放入区）
 
 - [已在本工单一并落地，非遗留 TODO] `packages/schemas` 的 `IngestStatusEnum` 增补 `needs_ocr`——架构当场拍板通过，见其 SPEC 验收记录；`packages/registry` 的 `S1.yaml` `trigger.fileTypes` 同步补 `docx`/`md`/`txt`——见其 SPEC 验收记录；根 `CLAUDE.md` 架构图补本包一行。三项均已完成，此处只做索引，不是待办。

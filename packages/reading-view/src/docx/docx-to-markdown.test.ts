@@ -108,3 +108,79 @@ describe('convertDocxToReadingView', () => {
     expect(outcome).toMatchObject({ status: 'disabled', reason: 'corrupt_file' });
   });
 });
+
+describe('READING-SDT-1 · 块级白名单外整文件降级（不静默丢内容）', () => {
+  const SDT_P =
+    '<w:sdt><w:sdtPr/><w:sdtContent><w:p><w:r><w:t xml:space="preserve">第五条 违约责任：违约金为合同总价百分之十。</w:t></w:r></w:p></w:sdtContent></w:sdt>';
+
+  it('body 级 w:sdt 包段落：整文件降级并具名 sdt，正文不静默消失', async () => {
+    const data = buildDocxFixture({
+      blocks: [
+        { type: 'paragraph', paragraph: { text: '第一条 总则' } },
+        { type: 'raw', xml: SDT_P },
+      ],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'f-sdt-p', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('sdt');
+  });
+
+  it('body 级 w:sdt 包表格：同样整文件降级', async () => {
+    const data = buildDocxFixture({
+      blocks: [
+        {
+          type: 'raw',
+          xml: '<w:sdt><w:sdtContent><w:tbl><w:tr><w:tc><w:p><w:r><w:t>期次</w:t></w:r></w:p></w:tc></w:tr></w:tbl></w:sdtContent></w:sdt>',
+        },
+      ],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'f-sdt-t', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+  });
+
+  it('单元格内嵌套表格：整文件降级并具名，不静默丢内层文本', async () => {
+    const data = buildDocxFixture({
+      blocks: [
+        {
+          type: 'raw',
+          xml: '<w:tbl><w:tr><w:tc><w:p><w:r><w:t>外层</w:t></w:r></w:p><w:tbl><w:tr><w:tc><w:p><w:r><w:t>内层保证金条款</w:t></w:r></w:p></w:tc></w:tr></w:tbl></w:tc></w:tr></w:tbl>',
+        },
+      ],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'f-nested', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('tbl');
+  });
+
+  it('白名单外未知块级节点必不静默通过（合成标签反例）', async () => {
+    const data = buildDocxFixture({
+      blocks: [{ type: 'raw', xml: '<w:zzUnknownBlock><w:p><w:r><w:t>正文</w:t></w:r></w:p></w:zzUnknownBlock>' }],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'f-unk', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('zzUnknownBlock');
+  });
+
+  it('白名单内良性节点（sectPr/bookmark/proofErr/commentRange）照常 ok，段落零损', async () => {
+    const data = buildDocxFixture({
+      blocks: [
+        { type: 'raw', xml: '<w:bookmarkStart w:id="0" w:name="_Toc1"/>' },
+        { type: 'paragraph', paragraph: { text: '第一条 总则' } },
+        {
+          type: 'raw',
+          xml: '<w:bookmarkEnd w:id="0"/><w:proofErr w:type="spellStart"/><w:commentRangeStart w:id="1"/><w:commentRangeEnd w:id="1"/>',
+        },
+        { type: 'paragraph', paragraph: { text: '第二条 定义' } },
+        { type: 'raw', xml: '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr>' },
+      ],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'f-benign', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome.status).toBe('ok');
+    if (outcome.status !== 'ok') throw new Error('unreachable');
+    expect(outcome.view.markdown).toContain('第一条 总则');
+    expect(outcome.view.markdown).toContain('第二条 定义');
+  });
+});

@@ -90,10 +90,37 @@ function tableHasMergedCells(tbl: Element): boolean {
   return false;
 }
 
+/**
+ * READING-SDT-1：块级读取 fail-closed 化。本包只认得下面两张白名单里的结构；
+ * 名单外（含未来新增的未知标签）一律整文件降级并具名标出——沿合并单元格先例，
+ * 绝不静默丢内容（SPEC 硬禁区）。`w:sdt`（内容控件/自动目录）在真实合同中存在，
+ * 递归收编属能力扩张，须以真实语料频次立据后另票把 `sdt` 由拒绝升为透明展开。
+ */
+const BODY_BENIGN_TAGS = new Set(['sectPr', 'bookmarkStart', 'bookmarkEnd', 'proofErr', 'commentRangeStart', 'commentRangeEnd']);
+const CELL_BENIGN_TAGS = new Set(['tcPr', 'bookmarkStart', 'bookmarkEnd', 'proofErr', 'commentRangeStart', 'commentRangeEnd']);
+
+function unsupportedBlock(tag: string): DocxReadError {
+  return new DocxReadError(
+    'fidelity_insufficient',
+    `文档含本包无法安全转出的块级结构（w:${tag}），整文件降级（不静默丢内容）`,
+  );
+}
+
+function readCellText(tc: Element): string {
+  for (let c = tc.firstChild; c; c = c.nextSibling) {
+    const tag = localName(c);
+    if (tag === null || tag === 'p' || CELL_BENIGN_TAGS.has(tag)) continue;
+    // 嵌套表格、单元格内内容控件等：文本会从行拼接中静默消失，整文件降级。
+    throw unsupportedBlock(tag);
+  }
+  return children(tc, 'p').map(textOf).join(' ');
+}
+
 function walkBody(body: Element): DocxBlock[] {
   const blocks: DocxBlock[] = [];
   for (let c = body.firstChild; c; c = c.nextSibling) {
     const tag = localName(c);
+    if (tag === null) continue;
     if (tag === 'p') {
       const p = c as Element;
       const text = textOf(p);
@@ -101,8 +128,10 @@ function walkBody(body: Element): DocxBlock[] {
       blocks.push({ kind: 'paragraph', text, heading: isBoldParagraph(p) });
     } else if (tag === 'tbl') {
       const tbl = c as Element;
-      const rows = children(tbl, 'tr').map((tr) => children(tr, 'tc').map((tc) => children(tc, 'p').map(textOf).join(' ')));
+      const rows = children(tbl, 'tr').map((tr) => children(tr, 'tc').map(readCellText));
       blocks.push({ kind: 'table', rows, merged: tableHasMergedCells(tbl) });
+    } else if (!BODY_BENIGN_TAGS.has(tag)) {
+      throw unsupportedBlock(tag);
     }
   }
   return blocks;

@@ -16,7 +16,11 @@ export interface FixtureTable {
   /** true 时给第一行第一个单元格加 gridSpan，模拟合并单元格。 */
   merged?: boolean;
 }
-export type FixtureBlock = { type: 'paragraph'; paragraph: FixtureParagraph } | { type: 'table'; table: FixtureTable };
+export type FixtureBlock =
+  | { type: 'paragraph'; paragraph: FixtureParagraph }
+  | { type: 'table'; table: FixtureTable }
+  /** 反例/边界探测专用：原样注入 body 级 XML 片段（调用方自证片段是良构 XML）。 */
+  | { type: 'raw'; xml: string };
 
 export interface BuildDocxOptions {
   blocks: FixtureBlock[];
@@ -54,7 +58,7 @@ const DEFAULT_CONTENT_TYPES =
 
 export function buildDocxFixture(options: BuildDocxOptions): Uint8Array {
   const bodyXml = options.blocks
-    .map((b) => (b.type === 'paragraph' ? renderParagraphXml(b.paragraph) : renderTableXml(b.table)))
+    .map((b) => (b.type === 'paragraph' ? renderParagraphXml(b.paragraph) : b.type === 'table' ? renderTableXml(b.table) : b.xml))
     .join('');
   const documentXml =
     `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="${DOCX_WORD_NAMESPACE}">` +
