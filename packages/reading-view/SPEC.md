@@ -99,7 +99,7 @@ packages/reading-view/
 ## 测试与验收策略
 
 - **md/txt 路径**：`@courtwork/demo-data` 的 20 份 dossier + `main-contract.md`，共 21 个真实文件全量跑 golden 快照——这是 deliverable"样板案 20 份 dossier 文书 + 主合同全量跑通"的字面对应；这批文件当前都是 `.md`，天然只对得上 md 路径，docx/pdf 路径没有对应规模的真实语料可用，不是刻意回避。
-- **docx 路径**：语料目前没有 docx 二进制，手工构造小体量 fixture：至少一份从 `main-contract.md` 内容派生、真实带 `w:tbl` 付款条款表的 fixture（比 md 原文的行内编号写法更贴近真实 Word 合同的常见写法，用于验证表格转出）；加合并单元格、DOCTYPE 注入、zip 炸弹形态、`.docm` 扩展名等降级触发样本。
+- **docx 路径**：语料**有**一份 docx 二进制——`packages/demo-data/data/contracts/设备采购合同.docx`（READING-SDT-1R 核实登记，此前本行写「语料目前没有 docx 二进制」已不成立）。但它是由 `main-contract.md` 派生的**生成器产物，不是真实 Word 导出**：实测部件只有 `[Content_Types].xml`/`_rels/.rels`/`word/document.xml`/`word/_rels/document.xml.rels`，body 标签计数为 `w:p` 42、`w:r` 42、`w:t` 42，**无 `w:tbl`、无 `w:sectPr`、无 `w:sdt`、无任何外部命名空间**。因此它对表格、分节、内容控件的真实频次零证据力，凡涉这些结构的判断仍属无语料状态。其余继续手工构造小体量 fixture：至少一份从 `main-contract.md` 内容派生、真实带 `w:tbl` 付款条款表的 fixture（比 md 原文的行内编号写法更贴近真实 Word 合同的常见写法，用于验证表格转出）；加合并单元格、DOCTYPE 注入、zip 炸弹形态、`.docm` 扩展名等降级触发样本。
 - **pdf 路径**：含文本层干净样本（判 `ok`）、图片型无文本层样本（判 `needs_ocr`）、截断/损坏样本（判 `disabled`）。
 - 降级路径测试覆盖数量超过 deliverable 要求的"一个"下限——按安全基线类（zip 炸弹/XXE/宏）与保真度类（合并单元格）分别覆盖，不是凑数。
 
@@ -109,6 +109,89 @@ packages/reading-view/
 - docx 列表编号（`w:numPr`）不重建。
 - PDF 页内文本层顺序取 pdfjs-dist 默认抽取顺序，不做跨列/跨栏重排——复杂版式 PDF 可能行序错乱，属于"最小可用"的已知代价。
 - **PDF 每页整体作为一个 `ReadingViewParagraph`**，不在页内再切分段落——真正的段内分段需要基于文本项坐标做版面分析，超出"最小可用"范围；锚点粒度因此是页级而非页内段落级，`page` 字段保证了这级粒度仍然精确可溯源。
+
+## READING-SDT-1 · 块级白名单 fail-closed（2026-08-04，首轮独立验收 **REJECT**，返修见下方 1R 节）
+
+票面：就绪图「2026-08-04 审计双确认批」同名行（两条独立审计维度同址命中）。基线 `main@8f4e937`，分支 `claude/reading-sdt-1`。
+
+**裁定痕（票面二选一取乙路：白名单外整文件降级并具名标签）**：甲路（递归收编）对 `w:tc` 内嵌套表结构性无解——`DocxBlock` 闭集无嵌套表形、md 无嵌套表语法，收编须扩块形与锚点粒度，正是合并单元格先例已裁过的局面；且按标签逐个递归对其余未知标签仍 fail-open，过不了合成标签反例。乙路零新类型、复用既有 `fidelity_insufficient` 闭集与既有降级出口。~~fail-closed 由构造成立~~——**此句是首轮的未证宣称，1R 判定作废**：四道块级直子过滤器当时只闭了两道（body 与 `w:tc`），`w:tbl→w:tr`、`w:tr→w:tc` 仍是「不认识就跳过」，且全部判据只比 `localName` 不比命名空间；「由构造成立」只在被检查的那两道上成立，对未检查的两道是空话。实测拒因与闭合表见下方 1R 节。**升格路径具名**：`w:sdt`（内容控件/自动目录/封面）真实合同中在场，仓内**无真实 Word 导出语料**可测频次（唯一在册 docx 是生成器产物，body 只有 `w:p/w:r/w:t`，见本 SPEC 语料节）；以真实频次立据后另票把 `sdt` 从拒绝升为透明展开（白名单一行之移，锚点坐标中性已论证）。
+
+**实现**：`docx-reader.ts` 两张良性名单（body：`sectPr`/`bookmarkStart|End`/`proofErr`/`commentRangeStart|End`；cell：`tcPr` ＋同前五）＋ `unsupportedBlock(tag)`（detail 具名标签）；`readCellText` 外提携 cell 名单；名单外含未知标签一律 throw，经 `docx-to-markdown` 既有 `DocxReadError`→`disabled` 出口落 `fidelity_insufficient`。**`sectPr` 必须在名单**——真实 docx body 必有而仓内 fixture 全无，漏之即真文件全降级而测试全绿（fixture 盲区，正向名单守卫因此非可选）。converter 与 desktop 零改动。
+
+**本单新增了什么概念、为何非加不可**：两张字面量名单＋一枚错误构造函数。名单是 fail-closed 的定义载体（「不认识就跳过」判例的反面），非加不可；未加块形、未动 `DisabledReason` 闭集与锚点契约。
+
+**红绿证**：fixture 建造器扩 `{type:'raw';xml}` 一形；四枚 born-red 基线实跑四红（sdt 包段落／sdt 包表格／`w:tc` 内嵌套表／合成未知标签 `zzUnknownBlock`），良性名单正向守卫先行即绿；实现后包内 **146/146**。变异：名单收编 `'sdt'` → 恰两枚 sdt 测试红、合成标签反例保持绿——区分力在名单不在断言（循「不为撤断言形变异」判例），复原零残留。
+
+**顺手观察（未处置，desktop 面）**：`outcome-copy.ts` 对 `fidelity_insufficient` 的文案「请简化表格后重试」对内容控件场景失准；其 switch 带 `default:` 使新 reason 无编译面拦截。两项登记不动。
+
+**退出证据（实现会话自测，不代表验收）**：包内 146/146；分支尾 `10e6451` 全量门实测（2026-08-04，机器独占串行）：`pnpm -r build` 0、`pnpm lint` 0、root **1787/1787**（基线 1782＋本批 5 枚）、desktop **690/690**、隔离端口 Playwright **352/352**，全 exit 0。基线为 `main@8f4e937`；其后 main 已前进至 `4ab5671`（审计批首三票合入），本批触碰面与该三票零重叠，验收可按需在合并态复跑。
+
+## READING-SDT-1R · 四道直子过滤器全闭 + 命名空间判据（2026-08-04，返修完成待复验）
+
+**拒因（独立验收）**：首轮只闭了 4 道块级直子过滤器中的 2 道。`walkBody` 与 `tableHasMergedCells` 里的 `children(tbl,'tr')`、`children(tr,'tc')` 仍是「不认识就跳过」——行或单元格被 `w:sdt`（重复节内容控件，付款表常见）、`w:customXml` 包住时整行文本静默消失，且 `status` 仍报 `ok`。**最严重的一枚是 P10/P11 成对**：合并单元格在裸 `w:tr` 下正确降级，同一个合并单元格把行包进一层 `w:sdt` 就变成 `ok` + 内容全丢——本包唯一的保真出口被一层包装绕过。另按协调裁定并入同族的 P3：良性名单只比 `localName`，外部命名空间借名（`<zz:sectPr xmlns:zz="urn:x">`）携正文时被当作自己人跳过，`md` 直接空。
+
+**四道过滤器闭合表**（全部判据均要求 `namespaceURI === W`）：
+
+| 层级 | 内容名单 | 良性名单 | 首轮状态 | 1R 状态 |
+| --- | --- | --- | --- | --- |
+| `w:body` 直子 | `p`、`tbl` | `sectPr` ＋ 五枚 range markup | 已闭（仅 localName） | 补命名空间判据 |
+| `w:tbl` 直子 | `tr` | `tblPr`、`tblGrid` | **fail-open** | 闭合 |
+| `w:tr` 直子 | `tc` | `trPr` | **fail-open** | 闭合 |
+| `w:tc` 直子 | `p` | `tcPr` ＋ 五枚 range markup | 已闭（仅 localName） | 补命名空间判据 |
+
+**实现**：四级名单收进一张 `LevelGate` 表，`gatedChildren(parent, gate)` 是唯一门禁——非元素跳过；元素必须同时满足「W 命名空间」与「名字在内容或良性名单」，两条缺一即 `unsupportedBlock` 具名降级。`readTable` 取代首轮的「采集一遍 + `tableHasMergedCells` 再按名扫一遍」：行、单元格与合并探测读**同一份已过门的元素**，包装形在 tbl 直子门禁上即被拒，早于合并探测（P10/P11 的结构性根治，不是加一条并列判断）。`children()` 同步只认 W。报错块名对 W 节点用规范前缀 `w:`，对外部命名空间原样带出文档限定名（`zz:sectPr`），不冒充 W 节点。`DisabledReason` 闭集、`DocxBlock` 闭集、锚点契约、converter 与 desktop 全部零改动；未加第二层 OOXML 抽象。命名空间两级判据的写法对齐 `packages/output` 已放行的 `paragraphSupportsRebuild`（`0c94b94`）。
+
+**红绿证**：11 枚新反例，**10 枚在首轮 tip `c9c5f28` 上实测born-red（10 failed / 12 passed）**，红形不是「没抛错」而是逐条量到静默丢内容——
+
+| 反例 | 首轮实测 | 1R |
+| --- | --- | --- |
+| P1 `w:tbl>w:sdt>w:tr` | `ok` ＋ `md=""`（整行 预付款/1,140,000元 消失） | 降级具名 `w:sdt` |
+| P2 `w:tr>w:sdt>w:tc` | `ok` ＋ `md="\|  \|\n\|  \|"`（退化成空表） | 降级具名 `w:sdt` |
+| P9 `w:tbl>w:customXml>w:tr` | `ok` ＋ `md=""` | 降级具名 `w:customXml` |
+| **P10/P11 成对** | 裸行 `disabled`；同一合并单元格包进 `w:sdt` → `ok` ＋ `md=""` | 两形皆降级，包装形 detail 具名 `w:sdt`（证明拒在 tbl 门禁而非合并探测） |
+| P3 `<zz:sectPr>` 携正文 | `ok` ＋ `md=""`（保密义务条款消失） | 降级具名 `zz:sectPr`，并断言 detail 不含 `w:sectPr` |
+| P4 `<zz:p>` | `ok`，被误判为 `w:p` 正常出块 | 落 body 门禁降级具名 `zz:p` |
+| tbl 级 `<zz:tr>` | `ok`，外部行被当 W 行采集 | 降级具名 `zz:tr` |
+| tr 级 `<zz:tc>` | `ok`，外部格被当 W 格采集 | 降级具名 `zz:tc` |
+| tc 级 `<zz:tcPr>` 携正文 | `ok`，「藏在外部节点里的正文」消失 | 降级具名 `zz:tcPr` |
+| `w:tcPr` 内 `<zz:gridSpan>` | `disabled`（误判合并，**过度降级**） | `ok` ＋ 内容零损（详见下方登记③） |
+| 正向守卫 `tblPr`/`tblGrid`/`trPr` | 先行即绿 | 保持绿（真实 docx 必有而 fixture 全无的盲区，同首轮 `sectPr` 先例） |
+
+**变异（逐枚命中校验，复原后与变异前逐字节同 SHA，零残留）**：①tbl 良性名单收编 `'sdt'` → 恰 **2 红**（P1、P10/P11 成对），而 `zzUnknownBlock`、P2、P9 全绿——区分力锁在 tbl 那一级名单，不在断言；②`gatedChildren` 撤命名空间判据 → 恰 **5 红**（P3/P4/`zz:tr`/`zz:tc`/`zz:tcPr`），结构族全绿——命名空间轴独立可测；③`children()` 退回只比 localName → 恰 **1 红**（`w:tcPr` 内 `zz:gridSpan`）。变异③的红面之窄本身是结论：四道门禁已把 `children()` 的命名空间感知在所有受门层级上**吸收**，它唯一独立可观测的面是属性层（`w:tcPr`/`w:rPr` 内部），故该面专配了一枚反例，否则这处改动将无红证。
+
+**已知观察（登记，本单不修）**：
+
+1. `isBoldParagraph` 只看段落**直子** `w:r`——加粗若写在行内 `w:sdt`/`w:hyperlink` 里就照不到，影响 heading 判定（该段落不加 `##`），**不丢内容**。行内层不在本单块级门禁面内。
+2. `textOf` 仍按 `localName === 't'` 收文本，会一并收进非 W 命名空间的 `t`——**增字非丢字**，与「不静默丢内容」不冲突，故不动。
+3. **本单唯一放宽方向的行为变化**：`children()` 转 W 感知后，`w:tcPr` 内的 `zz:gridSpan`/`zz:vMerge`、`w:rPr` 内的 `zz:b` 不再被当作 W 标记。后果是原先「误判为合并 → 整文件降级」的过度降级消失，表格正常转出且内容零损。理据：W 语义下合并只由 `w:gridSpan`/`w:vMerge` 表达，外部命名空间元素是生产方扩展数据（Word 自身按 MCE 忽略）。属性层不在本单四道门禁面内，未加第五道门。此变化已由专门反例锁住（即变异③的唯一红），**如实标出供复验裁断**。
+4. **[需架构拍板]** tbl/tr 两级良性名单按票面只收 `{tblPr, tblGrid}` / `{trPr}`。但 OOXML schema 里 `EG_RangeMarkupElements`（`bookmarkStart|End`、`commentRangeStart|End`、`proofErr`）在 `w:tbl`、`w:tr` 直子位置同样合法，且都是零正文承载的空元素。当前一律降级——**保守但不丢内容**，方向安全；代价是带书签/批注区间的真实表格文档会整文件降级。是否比照 body/cell 两级把这五枚也收进 tbl/tr 良性名单，请复验裁定；本单按票面不动。
+
+**退出证据（实现会话自测，不代表验收）**：包内 **157/157**（首轮基线 146 ＋ 本批 11 枚）；`pnpm --filter @courtwork/reading-view build`（`tsc`）exit 0；`eslint packages/reading-view/src` exit 0。按票面，全量门归验收二相，本会话未跑。触碰面：`docx-reader.ts`、`docx-to-markdown.test.ts`、本 SPEC 三个文件，无第四个。
+
+## READING-SDT-1R · 独立验收裁决（2026-08-04，**PASS**，含一处 fix-by-acceptance）
+
+完整验收报告见本包 `ACCEPTANCE.md` 同名节。以下只留后续实现会话必须知道的结论。
+
+**放行**：首轮拒因（四道块级直子过滤器只闭两道）在 1R 已结构性根治。验收自跑复现：生产面逐字节回退 `c9c5f28` 后 **10 failed / 12 passed**，红形逐条量到静默丢内容（P1/P9/P11/P3 为 `ok` ＋ `md=""`，P2 退化空表，`zz:tcPr` 吞正文）；三轴变异实测 **2 / 5 / 1**，枚名与回执逐字相符。`readTable` 的「行、格、合并探测读同一份已过门元素、无第二遍按名扫描」经源码核实成立——`children()` 余下两个消费者（`isBoldParagraph`／`hasMergeMark`）都只在已过门元素**内部**做属性查找，不再自行遍历块级直子。
+
+**裁断①（接受）**：`w:tcPr` 内 `zz:gridSpan` 不再误判为合并。元素身份由「命名空间 ＋ 局部名」共同决定，Word 按 MCE 忽略未知命名空间元素，该单元格在 Word 里本就不合并；此改动消灭的是假阳性过度降级，不引入内容丢失方向的风险。**无需后续动作。**
+
+**裁断②（补齐，验收自修）**：tbl/tr 两级良性名单补 `RANGE_MARKUP`，tr 级另补 `tblPrEx`。依据 ECMA-376 Part 1 wml.xsd——`CT_Tbl` 序列以 `EG_RangeMarkupElements*` 起头，`CT_Tbl`／`CT_Row` 的行内容组均含 `EG_RunLevelElts`（其中即含 range markup），故这五枚在 tbl/tr 直子位置合法且 Word 常发（跨行书签、表格批注区间）；`tblPrEx` 是 `CT_Row` 明文直子，与已在名单的 `trPr` 同类。不补的后果不是丢内容，而是**带书签／批注区间的真实表格合同被整文件拒读**——这类文件在本票之前读得出来，1R 把正确案例变成了拒绝，属本票引入的真实回归。
+
+**良性名单收编原则（今后照此判，别再逐枚拍脑袋）**：三条同时满足才进名单——(1) ECMA-376 上是该父元素的合法直子；(2) 零正文承载；(3) 同一元素已在别的层级被判为良性。任一不满足留给架构。据此 `w:permStart`／`w:permEnd`／`w:ins`／`w:del`／`w:altChunk` 一概不收（第 (3) 条不满足，属 `EG_RunLevelElts` 整组另议）。
+
+**放宽只及良性面**：专设「放宽守卫」反例，在 tbl／tr 直子同时放 range markup 与 `w:sdt`／`w:customXml`，断言仍整文件降级且 detail 具名包装形而非书签——良性面放宽不得渗进内容面。验收自修的红绿证：4 枚新反例改前全红改后全绿；两枚新变异（撤 `TBL_GATE` 的 `RANGE_MARKUP` → 恰 2 红；撤 `TR_GATE` 的 `tblPrEx` → 恰 1 红）。既有变异①在补齐后由 2 红变 3 红，多的一枚正是新增守卫，**是加钉不是稀释**。
+
+**登记（不修，转后继票）**：
+
+1. **多 `w:body` 静默丢内容**：`docx-reader.ts` 里取 body 用 `doc.getElementsByTagNameNS(W,'body')[0]`，是**全树搜索取首枚**而非取 `w:document` 直子。实测两个同级 `w:body` 时第二个 body 的全部正文静默消失且 `status:'ok'`、`md=""`。该行两次提交均未触碰、属本票之前既有面，票面范围是直子过滤器而非 body 选取，故不阻断本票——**但这是本轮专项再攻唯一找到的仍在场的同禁区形态**，建议单开一票：取直子 ＋ 多 body 显式落 `corrupt_file`。
+2. `w:permStart`／`w:permEnd`／`w:ins`／`w:del`／`w:altChunk` 于 body 直子合法但不在名单，触发整文件降级（方向安全）。需架构就 `EG_RunLevelElts` 整组定调。
+3. 良性属性容器（`w:tcPr`／`w:sectPr`／`w:tblGrid`）内部不过门，往里塞正文读不到；但这些容器在 schema 上不容纳 `w:p`／`w:tr`，Word 亦不渲染，故不是「Word 看得见而模型看不见」的保真缺口。不修。
+4. `mc:AlternateContent` 出现在 `w:p` 内时 `Choice` 与 `Fallback` 文本被一并收进（实测 `"甲版乙版"`）——**增字非丢字**，与 1R 登记 2 同族。body 级同结构走门禁降级，无泄漏。
+5. 只含图片（`w:drawing`）无文本的 `w:p` 被静默丢弃（`textOf` 为空即 `continue`）。`DocxBlock` 闭集无图片形，属既有「最小可用」代价，本票未改变其行为。
+6. 1R 变异③覆盖注记：其「唯一独立面是属性层」论证成立，但该面有两个子情形（`w:tcPr` 内 `zz:gridSpan`、`w:rPr` 内 `zz:b`），只配了前者反例。验收实测后者亦为活的区分点（变异③下 `<zz:r><zz:rPr><zz:b/>` 伪造出 `## ` 标题，1R 下不会）——只影响 heading 判定、不丢内容，记为覆盖注记。
+
+**验收自跑全量门（唯一有约束力的一组数字）**：worktree `.claude/worktrees/accept-rsdt-2`，base `main@8f4e937`，机器 PW/cargo 零进程时串行跑。`pnpm -r build` exit 0；`pnpm lint` exit 0；root **1802/1802**（167 files；＝基线 1782 ＋ 首轮 5 ＋ 1R 11 ＋ 验收自修 4，算术自洽）；desktop **690/690**（75 files）；隔离端口 `test:e2e` 全链（含链上全部守卫脚本）Playwright **352/352**，exit 0。包内 **161/161**。`c9c5f28` 登记的首轮数字（root 1787 等）出自已崩溃会话，按「跑腿的数字须自己复测」判例作暂记，以本组为准。
 
 ## TODO（跨层放入区）
 

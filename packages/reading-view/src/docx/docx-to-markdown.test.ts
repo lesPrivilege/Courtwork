@@ -108,3 +108,290 @@ describe('convertDocxToReadingView', () => {
     expect(outcome).toMatchObject({ status: 'disabled', reason: 'corrupt_file' });
   });
 });
+
+describe('READING-SDT-1 · 块级白名单外整文件降级（不静默丢内容）', () => {
+  const SDT_P =
+    '<w:sdt><w:sdtPr/><w:sdtContent><w:p><w:r><w:t xml:space="preserve">第五条 违约责任：违约金为合同总价百分之十。</w:t></w:r></w:p></w:sdtContent></w:sdt>';
+
+  it('body 级 w:sdt 包段落：整文件降级并具名 sdt，正文不静默消失', async () => {
+    const data = buildDocxFixture({
+      blocks: [
+        { type: 'paragraph', paragraph: { text: '第一条 总则' } },
+        { type: 'raw', xml: SDT_P },
+      ],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'f-sdt-p', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('sdt');
+  });
+
+  it('body 级 w:sdt 包表格：同样整文件降级', async () => {
+    const data = buildDocxFixture({
+      blocks: [
+        {
+          type: 'raw',
+          xml: '<w:sdt><w:sdtContent><w:tbl><w:tr><w:tc><w:p><w:r><w:t>期次</w:t></w:r></w:p></w:tc></w:tr></w:tbl></w:sdtContent></w:sdt>',
+        },
+      ],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'f-sdt-t', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+  });
+
+  it('单元格内嵌套表格：整文件降级并具名，不静默丢内层文本', async () => {
+    const data = buildDocxFixture({
+      blocks: [
+        {
+          type: 'raw',
+          xml: '<w:tbl><w:tr><w:tc><w:p><w:r><w:t>外层</w:t></w:r></w:p><w:tbl><w:tr><w:tc><w:p><w:r><w:t>内层保证金条款</w:t></w:r></w:p></w:tc></w:tr></w:tbl></w:tc></w:tr></w:tbl>',
+        },
+      ],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'f-nested', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('tbl');
+  });
+
+  it('白名单外未知块级节点必不静默通过（合成标签反例）', async () => {
+    const data = buildDocxFixture({
+      blocks: [{ type: 'raw', xml: '<w:zzUnknownBlock><w:p><w:r><w:t>正文</w:t></w:r></w:p></w:zzUnknownBlock>' }],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'f-unk', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('zzUnknownBlock');
+  });
+
+  it('白名单内良性节点（sectPr/bookmark/proofErr/commentRange）照常 ok，段落零损', async () => {
+    const data = buildDocxFixture({
+      blocks: [
+        { type: 'raw', xml: '<w:bookmarkStart w:id="0" w:name="_Toc1"/>' },
+        { type: 'paragraph', paragraph: { text: '第一条 总则' } },
+        {
+          type: 'raw',
+          xml: '<w:bookmarkEnd w:id="0"/><w:proofErr w:type="spellStart"/><w:commentRangeStart w:id="1"/><w:commentRangeEnd w:id="1"/>',
+        },
+        { type: 'paragraph', paragraph: { text: '第二条 定义' } },
+        { type: 'raw', xml: '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr>' },
+      ],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'f-benign', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome.status).toBe('ok');
+    if (outcome.status !== 'ok') throw new Error('unreachable');
+    expect(outcome.view.markdown).toContain('第一条 总则');
+    expect(outcome.view.markdown).toContain('第二条 定义');
+  });
+});
+
+/**
+ * READING-SDT-1R：首轮只闭了 body 与 `w:tc` 两道直子过滤器，`w:tbl→w:tr` 与 `w:tr→w:tc`
+ * 两道仍是「不认识就跳过」（fail-open），外加所有门禁判据只比 localName 不比命名空间。
+ * 下面每一枚都在首轮 tip 上先实测为红（现状 status:'ok' 且内容静默消失），再最小实现转绿。
+ */
+describe('READING-SDT-1R · 表内两道直子过滤器与外部命名空间同样 fail-closed', () => {
+  const cell = (text: string) => `<w:tc><w:p><w:r><w:t xml:space="preserve">${text}</w:t></w:r></w:p></w:tc>`;
+  const MERGED_CELL = '<w:tc><w:tcPr><w:gridSpan w:val="2"/></w:tcPr><w:p><w:r><w:t>期次</w:t></w:r></w:p></w:tc>';
+
+  async function convertRaw(fileId: string, xml: string) {
+    const data = buildDocxFixture({ blocks: [{ type: 'raw', xml }] });
+    return convertDocxToReadingView({ fileId, fileName: 'c.docx', data }, DEFAULT_LIMITS);
+  }
+
+  it('P1 · w:tbl 的行被 w:sdt 包住（重复节内容控件，真实付款表常见）：整文件降级并具名 sdt', async () => {
+    const outcome = await convertRaw(
+      'p1',
+      `<w:tbl><w:sdt><w:sdtContent><w:tr>${cell('预付款')}${cell('1,140,000元')}</w:tr></w:sdtContent></w:sdt></w:tbl>`,
+    );
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('sdt');
+  });
+
+  it('P2 · w:tr 的单元格被 w:sdt 包住：整文件降级并具名 sdt', async () => {
+    const outcome = await convertRaw(
+      'p2',
+      `<w:tbl><w:tr><w:sdt><w:sdtContent>${cell('1,140,000元')}</w:sdtContent></w:sdt></w:tr></w:tbl>`,
+    );
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('sdt');
+  });
+
+  it('P9 · w:customXml 包住 w:tr：与 sdt 同族，整文件降级并具名 customXml', async () => {
+    const outcome = await convertRaw(
+      'p9',
+      `<w:tbl><w:customXml w:element="Row"><w:tr>${cell('质保金')}${cell('380,000元')}</w:tr></w:customXml></w:tbl>`,
+    );
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('customXml');
+  });
+
+  it('P10/P11 成对 · 合并单元格在裸 w:tr 下降级；同一合并单元格被 w:sdt 包住后必须同样降级（本包唯一保真出口不可被一层包装绕过）', async () => {
+    const bare = await convertRaw('p10', `<w:tbl><w:tr>${MERGED_CELL}</w:tr></w:tbl>`);
+    const wrapped = await convertRaw(
+      'p11',
+      `<w:tbl><w:sdt><w:sdtContent><w:tr>${MERGED_CELL}</w:tr></w:sdtContent></w:sdt></w:tbl>`,
+    );
+    expect(bare).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    expect(wrapped).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    // 包装形必须在 tbl 直子门禁上就被拒——早于合并探测，故 detail 具名 sdt 而不是合并单元格文案。
+    if (wrapped.status !== 'disabled') throw new Error('unreachable');
+    expect(wrapped.detail).toContain('sdt');
+  });
+
+  it('P3 · 外部命名空间借用良性名（zz:sectPr 携正文）：不得被良性名单吞掉，且报错不冒充 w: 节点', async () => {
+    const data = buildDocxFixture({
+      blocks: [
+        { type: 'paragraph', paragraph: { text: '第一条 总则' } },
+        {
+          type: 'raw',
+          xml: '<zz:sectPr xmlns:zz="urn:x"><w:p><w:r><w:t>第三条 保密义务：乙方不得披露。</w:t></w:r></w:p></zz:sectPr>',
+        },
+      ],
+    });
+    const outcome = await convertDocxToReadingView({ fileId: 'p3', fileName: 'c.docx', data }, DEFAULT_LIMITS);
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('zz:sectPr');
+    expect(outcome.detail).not.toContain('w:sectPr');
+  });
+
+  it('P4 · 外部命名空间借用内容名（zz:p）：不再误判为 w:p，落 body 门禁降级', async () => {
+    const outcome = await convertRaw(
+      'p4',
+      '<zz:p xmlns:zz="urn:x"><zz:r><zz:t>外部结构承载的正文</zz:t></zz:r></zz:p>',
+    );
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('zz:p');
+  });
+
+  it('tbl 级外部命名空间（zz:tr）：不得被当作 w:tr 采集，落 tbl 直子门禁降级', async () => {
+    const outcome = await convertRaw(
+      'ns-tr',
+      `<w:tbl><zz:tr xmlns:zz="urn:x">${cell('预付款')}</zz:tr></w:tbl>`,
+    );
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('zz:tr');
+  });
+
+  it('tr 级外部命名空间（zz:tc）：不得被当作 w:tc 采集，落 tr 直子门禁降级', async () => {
+    const outcome = await convertRaw(
+      'ns-tc',
+      '<w:tbl><w:tr><zz:tc xmlns:zz="urn:x"><w:p><w:r><w:t>1,140,000元</w:t></w:r></w:p></zz:tc></w:tr></w:tbl>',
+    );
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('zz:tc');
+  });
+
+  it('tc 级外部命名空间借用良性名（zz:tcPr 携正文）：不得被单元格良性名单吞掉', async () => {
+    const outcome = await convertRaw(
+      'ns-tcpr',
+      '<w:tbl><w:tr><w:tc><zz:tcPr xmlns:zz="urn:x"><w:p><w:r><w:t>藏在外部节点里的正文</w:t></w:r></w:p></zz:tcPr><w:p><w:r><w:t>期次</w:t></w:r></w:p></w:tc></w:tr></w:tbl>',
+    );
+    expect(outcome).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (outcome.status !== 'disabled') throw new Error('unreachable');
+    expect(outcome.detail).toContain('zz:tcPr');
+  });
+
+  it('w:tcPr 内的外部命名空间 gridSpan 不是 W 合并标记：表格照常转出、内容零损（children 只认 W 的直接后果，SPEC 已登记为本单唯一放宽方向变化）', async () => {
+    const outcome = await convertRaw(
+      'ns-gridspan',
+      `<w:tbl><w:tr><w:tc><w:tcPr><zz:gridSpan xmlns:zz="urn:x" w:val="2"/></w:tcPr><w:p><w:r><w:t>预付款</w:t></w:r></w:p></w:tc>${cell('1,140,000元')}</w:tr></w:tbl>`,
+    );
+    expect(outcome.status).toBe('ok');
+    if (outcome.status !== 'ok') throw new Error('unreachable');
+    expect(outcome.view.markdown).toContain('预付款');
+    expect(outcome.view.markdown).toContain('1,140,000元');
+  });
+
+  it('正向守卫 · 表格属性直子（tblPr/tblGrid/trPr）照常 ok，单元格内容零损（真实 docx 必有而 fixture 全无的盲区，同 sectPr 先例）', async () => {
+    const outcome = await convertRaw(
+      'benign-tbl',
+      '<w:tbl><w:tblPr><w:tblStyle w:val="TableGrid"/></w:tblPr><w:tblGrid><w:gridCol w:w="4261"/><w:gridCol w:w="4261"/></w:tblGrid>' +
+        `<w:tr><w:trPr><w:trHeight w:val="397"/></w:trPr>${cell('预付款')}${cell('1,140,000元')}</w:tr></w:tbl>`,
+    );
+    expect(outcome.status).toBe('ok');
+    if (outcome.status !== 'ok') throw new Error('unreachable');
+    expect(outcome.view.markdown).toContain('| 预付款 | 1,140,000元 |');
+  });
+});
+
+/**
+ * READING-SDT-1R 独立验收 · fix-by-acceptance：tbl/tr 两级良性名单补齐。
+ *
+ * 1R 把 `EG_RangeMarkupElements` 收进了 body 与 `w:tc` 两级良性名单，却没收进 `w:tbl`
+ * 与 `w:tr`（SPEC 登记为 [需架构拍板]）。验收核 ECMA-376 wml.xsd：`CT_Tbl` 的序列以
+ * `EG_RangeMarkupElements*` 起头，`CT_Row` 与 `CT_Tbl` 的行内容组都含 `EG_RunLevelElts`
+ * （其中即含 range markup），故这五枚在 tbl/tr 直子位置**合法且 Word 会发**；`w:tblPrEx`
+ * 同样是 `CT_Row` 的明文直子（与已在名单里的 `trPr` 是同一类行属性元素）。
+ *
+ * 不补的后果不是丢内容，而是**带书签/批注区间的真实表格合同被整文件拒读**——首轮之前这些
+ * 文件本来读得出来（空标记被按名采集天然跳过），1R 把一个正确案例变成了拒绝。方向虽安全，
+ * 但属本票引入的真实回归，故按 fail-closed 不放宽内容面的前提下补齐良性面。
+ * 收编原则（三条同时满足才进名单，任一不满足留给架构）：schema 合法直子、零正文承载、
+ * 同一元素已在别的层级被判为良性（range markup 在 body/cell；`tblPrEx` 对应 `trPr`）。
+ * 因此 `w:permStart`/`w:permEnd`/`w:ins`/`w:del`/`w:altChunk` 一概不动——它们在任何层级
+ * 都还没有先例，属另一议题。
+ */
+describe('READING-SDT-1R 验收补齐 · tbl/tr 直子的合法零内容元素不得整文件拒读', () => {
+  const cell = (text: string) => `<w:tc><w:p><w:r><w:t xml:space="preserve">${text}</w:t></w:r></w:p></w:tc>`;
+
+  async function convertRaw(fileId: string, xml: string) {
+    const data = buildDocxFixture({ blocks: [{ type: 'raw', xml }] });
+    return convertDocxToReadingView({ fileId, fileName: 'c.docx', data }, DEFAULT_LIMITS);
+  }
+
+  it('w:tbl 直子的书签区间（跨行书签，CT_Tbl 合法且 Word 常发）：表格照常转出、行零损', async () => {
+    const outcome = await convertRaw(
+      'acc-bm-tbl',
+      '<w:tbl><w:bookmarkStart w:id="1" w:name="_Ref_payment"/><w:tblPr><w:tblStyle w:val="TableGrid"/></w:tblPr>' +
+        `<w:tr>${cell('预付款')}${cell('1,140,000元')}</w:tr><w:bookmarkEnd w:id="1"/></w:tbl>`,
+    );
+    expect(outcome.status).toBe('ok');
+    if (outcome.status !== 'ok') throw new Error('unreachable');
+    expect(outcome.view.markdown).toContain('| 预付款 | 1,140,000元 |');
+  });
+
+  it('w:tr 直子的书签/批注区间与 proofErr（CT_Row 合法）：单元格照常转出、内容零损', async () => {
+    const outcome = await convertRaw(
+      'acc-bm-tr',
+      '<w:tbl><w:tr><w:bookmarkStart w:id="2" w:name="_Ref_row"/><w:commentRangeStart w:id="3"/><w:proofErr w:type="spellStart"/>' +
+        `${cell('质保金')}${cell('380,000元')}<w:commentRangeEnd w:id="3"/><w:bookmarkEnd w:id="2"/></w:tr></w:tbl>`,
+    );
+    expect(outcome.status).toBe('ok');
+    if (outcome.status !== 'ok') throw new Error('unreachable');
+    expect(outcome.view.markdown).toContain('| 质保金 | 380,000元 |');
+  });
+
+  it('w:tblPrEx（CT_Row 明文直子的行属性例外，与 trPr 同类）：表格照常转出、内容零损', async () => {
+    const outcome = await convertRaw(
+      'acc-tblprex',
+      `<w:tbl><w:tr><w:tblPrEx><w:tblBorders/></w:tblPrEx><w:trPr><w:trHeight w:val="397"/></w:trPr>${cell('期次')}${cell('金额')}</w:tr></w:tbl>`,
+    );
+    expect(outcome.status).toBe('ok');
+    if (outcome.status !== 'ok') throw new Error('unreachable');
+    expect(outcome.view.markdown).toContain('| 期次 | 金额 |');
+  });
+
+  it('放宽只限良性面：tbl/tr 直子的内容承载包装形（w:sdt/w:customXml）仍必须整文件降级', async () => {
+    const wrappedRow = await convertRaw(
+      'acc-guard-tbl',
+      `<w:tbl><w:bookmarkStart w:id="1" w:name="b"/><w:sdt><w:sdtContent><w:tr>${cell('预付款')}</w:tr></w:sdtContent></w:sdt></w:tbl>`,
+    );
+    const wrappedCell = await convertRaw(
+      'acc-guard-tr',
+      `<w:tbl><w:tr><w:bookmarkStart w:id="1" w:name="b"/><w:customXml w:element="C">${cell('1,140,000元')}</w:customXml></w:tr></w:tbl>`,
+    );
+    expect(wrappedRow).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    expect(wrappedCell).toMatchObject({ status: 'disabled', reason: 'fidelity_insufficient' });
+    if (wrappedRow.status !== 'disabled' || wrappedCell.status !== 'disabled') throw new Error('unreachable');
+    expect(wrappedRow.detail).toContain('sdt');
+    expect(wrappedCell.detail).toContain('customXml');
+  });
+});
