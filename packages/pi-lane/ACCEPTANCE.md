@@ -2472,3 +2472,213 @@ power-loss durability 本链不宣称——⑦ §七 的四项「不宣称」经
 
 合入时须同批跟进一处（非本分支缺陷）：`docs/status/current.md` 仍记 sidecar 身份
 `523235 B / 75eff9b9…`（描述 `main@8d90aa8`），本票合入后与树上钉值不合。
+
+# PI-TOOLS-HONESTY-1 独立验收（2026-08-05，REJECT）
+
+目标 `39271f8`（实现 `f9cbc26` ＋回执 `39271f8`），base `main@f0d6df0`。
+独立 clean worktree `.claude/worktrees/accept-pth`（detached 39271f8），本树自 install、
+自建 `build:product-sidecar`、自跑八相门。**回执一律当未证宣称**：下列全部数字与红证均本会话实测。
+
+## 一 · 总审：冻结范围在场，禁区未越
+
+票面两枚缺陷逐项在场且形态正确：①`matchesTruncated` 与 `truncated` 分列，两件工具的 `details`
+与结果文本双通道同批出账；②`skipped: {path, code}[]` 覆盖 `walkFiles` 的 `listDir` 失败与 grep
+的 `readTextLines` 失败两处，`code` 直取上游 `FileErrorCode` 不自造词表。
+
+禁区逐条核，均未越：`MAX_FILES_SCANNED=2000`／`MAX_MATCHES=200`／`MAX_LINE_LENGTH=400` 三枚值
+逐字未动；`globToRegExp` 不在 diff 内；`if (entry.kind === 'symlink') continue;` 未动；write 与
+host 行为面零触碰；wire 零改动——全仓 `.details` 消费点只有 `product-runtime.ts:172`
+的 `isDeniedToolResult`（只读 `details.denied`），新增两键不进 journal、不进 golden。
+`f0d6df0..39271f8` 恰九个文件，无越界文件。
+
+D1 的四处钉值（`route-manifest.json` 的 bytes/sha256、`pi_loop_process.rs` 的冻结表两值与负注入
+语料两靶）核为身份追随、零语义改动：Rust 侧唯一新增是一段变迁注释，`assert_ne!(mutated, compact,
+"{label}：变异必须真的命中")` 这道变异靶失效守卫原样在位，故「replace 靶落空 → 静默 no-op」的
+假绿形态被机器挡住。**判 D1 越「不动 host 面」字面边界成立，但属票面「包级全绿」直接逼出的
+最小追随，不作拒因。**
+
+## 二 · 拒绝理由：第三枚上限仍是静默截断，而本票新写入 SPEC 的「无注记即完整」是可证伪的全称句
+
+本票的命题是「结果的不完整性必须**分因**可见」。它把两类说出来了，第三类原样留在同一个函数里，
+且**新写入的 SPEC 句子把这条缺口盖住了**。
+
+`tools.ts:273`（本票 hunk#4 改的正是它上面那两行）：
+
+```ts
+if (matcher.test(line)) hits.push(`${relative}:${index + 1}: ${line.slice(0, MAX_LINE_LENGTH)}`);
+```
+
+超过 400 UTF-16 单元的命中行被**无标记地切掉尾部**：无省略号、无注记、`truncated`／
+`matchesTruncated`／`skipped` 三枚字段全部报「完整」。本会话反例（`dist` 现编产物，产品与 dev
+共用的同一件 grep）：
+
+| 输入 | 原行长 | 输出文本总长 | 行尾证据是否在场 | 任何截断标记 | details |
+|---|---|---|---|---|---|
+| 单文件单行，行内含 `关键证据在这里结尾` | 1211 | 416 | **否** | **无** | `{matched:1, scanned:1, truncated:false, matchesTruncated:false, skipped:[]}` |
+
+与之直接冲突的是本票**新增**的两句：
+
+- `SPEC.md` 五-8：「而**「没有注记」是一句可依赖的断言——本次检索完整**」；
+- `tools.ts` `incompleteNote` 文档：「不完整注记：**三类**来源各自成句……「没有注记」因此是一句
+  可依赖的断言——**结果完整**；而不是「本工具从不说这些」」。
+
+这是一句闭集全称句（来源恰三类 ⇒ 无注记即完整），上表一行即证伪。落在法律材料上，它的形态
+恰是本票开篇要治的病换了个位置：一条 400 字后才出现操作性内容的合同条款，模型看到的是一句
+**看起来完整**的引语，而系统刚刚向它保证过「没有注记即完整」。ADR-022（本票所据同一 ADR）
+第 110–111 行把「**截断未显式**」逐字列为 harness 缺陷、不得归因模型；不变量 4 与不变量 2 同向。
+
+三条判定要件都成立，故不作「上浮不阻断」处理：
+
+1. **同族、同函数、同一次改动的邻行**。回执三节自陈「`MAX_FILES_SCANNED`/`MAX_MATCHES`/
+   `MAX_LINE_LENGTH` 三枚值……一概未动」——三枚都被点到眼前，只有两枚被诚实化，第三枚连一行
+   登记都没有。`MAX_LINE_LENGTH` 在全仓现行文档（SPEC、ADR-022）里零出现，不存在「早已在别处
+   登记」的退路。
+2. **最小诚实动作在范围内且成本近零，且实现方当天演示过它**。修此缺口**不需要改上限值**（禁区
+   是「不改上限值」，不是「不许说」）：要么给命中行加一枚标记＋一枚字段，要么把 五-8 那句全称句
+   收窄并按 五-8 末段既有体例补一行「仍未收口的一处」。后者正是实现方为 `listDir` 单条目
+   `lstat` 缺口写过的形状——同一份回执里，一个缺口如实交出，另一个同族缺口被一句全称句盖住。
+3. **本票是把断言写强的那一票**。旧 五-7 只说「超限在结果里显式告知模型」，没有闭集承诺；
+   本票把它改写成逐类枚举并追加「无注记即完整」。留旧措辞尚只是含糊，写成全称句即是新增的
+   活体假话——D3 自己的判据（「不改即当日第二句活体假话」）在这里反向适用。
+
+**同句还被另外两条既有行为二次证伪**（不单独构成拒因，但返修那一句须一并收口）：
+`walkFiles` 对 `symlink` 的 `continue`（SPEC 五-5 登记为已知边界，但模型侧同样看不见任何注记）；
+`product-case-env.ts:310` 产品形态下 `if (!normalizeCasePath(childLogical).ok) continue`——
+保留名／控制字符／超长段的真实文件在产品链上被**静默**排除，全仓 SPEC 无登记，只有一行代码注释。
+
+### 返修要求（二选一，选哪一枚属架构拍板）
+
+- **甲**：命中行超长时出显式标记，并出一枚与 `truncated`／`matchesTruncated` 并列的独立字段
+  （命名与是否进注记属契约，须回票面）；反例＝一枚超 400 的命中行必须可从输出判出被截，
+  撤该标记须定向复红。
+- **乙**：不改行为，但把 五-8 那句全称句改为**列名例外**：逐条写明 `MAX_LINE_LENGTH` 行截断、
+  symlink 跳过、产品 grammar 排除三者不出注记，并按 五-8 末段体例交给下游票。
+  代码里 `incompleteNote` 的「三类来源」文档同步订正。
+
+两条都不需要动上限值、glob 语法、symlink 保守解、write／host 面或 wire。
+
+## 三 · born-red 独立复现（逐 hunk 反向注入，非采信自述）
+
+把 `tools.ts`／`sidecar-main.ts`／`route-manifest.json` 三份逐字回退到 `f0d6df0`、删除
+`dev-config.ts`，测试面保持 tip 原样：
+
+| 相 | 结果 | EXIT |
+|---|---|---|
+| 反向注入后 | `dev-config.test.ts` **整文件加载失败**（`Cannot find module './dev-config.js'`，0 test）＋ `tools.test.ts` **12 枚定向红** / 469 绿（481） | 1 |
+| `cp` 还原 ＋ 前推 mtime | **489 例 / 16 文件全绿**，`git status` 全净 | 0 |
+
+**12 vs 回执的 11：差额可解释且解释成立。** 多出的一枚是 `grep 单文件内命中超限：行层判据同样置
+matchesTruncated`——回执 D7 已如实登记它是变异相补的、非先红后绿（红证＝M3）。回执 4.1 的 11 枚
+是当时测试面的真值，本会话在**最终**测试面复现自然是 12。同理 `dev-config.test.ts` 现有 8 枚而
+回执记 7 枚未计入，差额是 D7 的另一枚（`空值与坏值给两条理由`）。两处对得上，不作发现。
+
+## 四 · 变异 11 枚逐枚复跑（本会话独立脚本，命中数校验恰为 1 方允改写，改后前推 mtime，跑毕 `cp` 还原并核 `git status` 归零）
+
+| 变异 | 本会话定向红 | 回执宣称 | 附带 route-manifest 结构红 |
+|---|---|---|---|
+| M1 glob `else matchesTruncated = false` | 1 | 1 | 1 |
+| M2 grep 跨文件满额撤置位 | 1 | 1 | 1 |
+| M3 grep 行层满额撤置位 | 1 | 1 | 1 |
+| M4 撤目录拒读登记 | 5 | 5 | 1 |
+| M5 撤文件拒读登记 | 2 | 2 | 1 |
+| M6 注记退回旧文案（`details` 不动） | 7 | 7 | 1 |
+| M7 撤拒读路径投影（`path: absolute`） | 4 | 4 | 1 |
+| M8 只撤 glob `details.matchesTruncated` | 3 | 3 | 1 |
+| M9 只撤 grep `details.skipped` | 2 | 2 | 1 |
+| M10 `dev-config` 有限正数门 → `value < 0` | 5 | 5 | **0** |
+| M11 `dev-config` 撤空值专属分支 | 1 | 1 | **0** |
+
+十一枚逐值相同，命名的红也逐条相同。M6 与 M8/M9 的双向唯一锚定成立（前者只动文本、后者只动
+字段，两侧各有专属红）；M2/M3 互不遮蔽成立（250 份单行文件只打跨文件判据、250 行单文件只打行层
+判据）。M10/M11 结构红为 0 是一条**独立证据**，坐实 `dev-config.ts` 不在 product bundle 内。
+
+**M7 收窄读数：判「如实登记」，不要求补产品面独立锚。** 实测撤投影只红 dev 形态四枚，
+`产品形态：skipped 路径只出逻辑根，物理根零泄漏` 仍绿——原因经本会话核实成立：产品容器
+`createProductCaseEnv` 逻辑进逻辑出，`entry.path` 与 `absolutePath` 都已是 `/case/…`，物理根
+**从未进入** `projectSkipped` 的入参，故该函数在产品形态是恒等。要求补一枚"产品面投影锚"只会造出
+一枚恒真断言。该测试名里的「零泄漏」锚的是容器而非投影，这一点回执已在正文与 M7 段两处点明；
+且该枚在 M4／M5／M9 下均转红，说明它对「拒读登记是否出账」这条真判据仍有区分力。**如实且够格。**
+
+**M11 等价史：补锚确有区分力，实测无误。** 撤空值分支后 `Number('')===0` 仍被「非正数」门接住，
+`空串不当成 0 收下` 那枚照绿；唯一转红的正是补的那枚 `空值与坏值给两条理由`。区分力由该锚独家
+提供，D7 的「补于变异相、不冒充先红」登记如实。
+
+## 五 · 两件工具 `matchesTruncated` 的语义差：如实且可辩护（专项探针四枚，本会话构造，跑毕删除、树净）
+
+| 探针 | 观测 | 与 SPEC 五-7 措辞 |
+|---|---|---|
+| glob 恰 200 命中 | `matchesTruncated=false` | 「只在**真有**第 201 条被丢弃时置位」成立 |
+| glob 201 命中 | `matched=200, matchesTruncated=true` | 同上 |
+| grep 恰 200 命中且**无余文件** | `false` | 与「因命中已满而**停止继续搜**」自洽 |
+| grep 恰 200 命中 ＋ 一份零命中余文件 | `true`，文本出「命中上限 200」 | 「满 200 条整时即便余下恰好零命中也置位」逐字成立 |
+
+即：SPEC 的措辞不是「满 200 即置位」而是「因满额而停止」，本会话四枚探针与之逐字相符，未见
+夸大。宁多报不少报的取向可辩护。「命中满额之后遇到的拒读**文件**不再进 `skipped`」经源码核实
+成立（满额判据先于 `readTextLines`，那些文件根本没被尝试读）；同一条件下拒读**目录**仍会登记
+（`listDir` 在 `walkFiles` 层无条件发生），SPEC 用词恰为「文件」，无误。
+
+## 六 · CONTESTED 裁定核实：startup fail-closed 成立
+
+- **结构论证核实**：`sidecar-main.ts:42` 是模块顶层 `await createDeepSeekLane()`，模块级另有三处
+  `process.exit`——`import` 即执行全链，结构上确实进不了单测面。判定逻辑外提到 29 行纯函数
+  `dev-config.ts` 是正确落点，不是为了凑一个可测面。
+- **病根核实**：`budget.ts:41/43` 是 `usd >= limits.maxUsd` 与 `turns >= limits.maxTurns`；NaN 参与
+  比较恒假，`exceeded` 永远 false。ADR-022 决定三的上限整枚失守属实。
+- **三变量含 `PI_LANE_PORT`**：`sidecar-main.ts:38-40` 三枚全部经 `requirePositiveNumber`，无遗漏。
+- **不回落默认**：`DevNumberResult` 的失败臂无 `value` 字段，调用方拿不到「先凑合用」的分支；
+  测试 `拒绝时不返回任何可用值` 与 M10 的五枚红双向锁住。判据只到「有限正数」、端口值域交给
+  Node `ERR_SOCKET_BAD_PORT` 的取舍，避免第二处可漂移真源，合理。
+
+**裁定成立，不作拒因。**
+
+## 七 · 移交条与未收口缺口登记：如实
+
+`scoped-env.ts:144` 与 `product-case-env.ts:312` 逐行核对，两处 `if (info.ok) entries.push(...)`
+确实存在且确为静默略过，行号逐字准确；SPEC 五-8 末段与九节两处均已登记且指向 env 契约与
+`PI-WORKSPACE-READ-1` 同一接缝，判如实够格。D5 复核成立：全仓（去 `archive/`）无
+`PI-WORKSPACE-READ-1-RECON.md`，`specs/` 目录实物核对确认不存在，改据就绪图定序无误。
+D9 复核成立：`docs/status/current.md:149` 现记 `534,219 B / 8520026c…`，合入后即过时，须由架构同批改。
+
+## 八 · 制品身份与 cargo：本会话独立重建、本门首次实跑
+
+- `node packages/pi-lane/scripts/build-product-sidecar.mjs` 在本树从源码独立重建：
+  `sidecar.cjs` **535,040 B** /
+  `b3d974eff19fc1b984fe0d92ce7f2e769f44d6b375938b5d9f579c8354718206`，`reproducible: true`，
+  snapshot `created`。另以 `buildDeterministicBundle()` **连编两次**取 SHA 相等复核。
+  与 D1 宣称逐值相同。
+- **`cargo test` 是 D8 自承未跑的那道门，本会话首次实跑：218 passed / 0 failed / 1 ignored，
+  EXIT=0。** D1 的四处重钉无漏；负注入语料两枚 `replace` 靶均真命中（若落空，
+  `assert_ne!(mutated, compact)` 当场红）。7 条 warning 全为既有 `unnecessary unsafe block`，
+  与本票无关。
+
+## 九 · 门禁实跑（本树自跑，逐条记退出码，未经管道吞码）
+
+| 门 | 结果 | 退出码 |
+|---|---|---|
+| `build:product-sidecar`（先于 cargo） | 535,040 B / `b3d974ef…`，`reproducible: true`，snapshot `created` | 0 |
+| `pnpm --filter @courtwork/pi-lane test` | **489 例 / 16 文件** | 0 |
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size warning） | 0 |
+| `pnpm lint`（`eslint .`） | 通过 | 0 |
+| root `pnpm test` | **169 files / 1874 tests passed** | 0 |
+| `pnpm --filter @courtwork/desktop test` | **75 files / 690 tests passed** | 0 |
+| `cargo test`（`src-tauri`） | **218 passed / 0 failed / 1 ignored** | 0 |
+| `pnpm test:e2e`（apps/desktop cwd，完整 Playwright，隔离端口 1491） | **352 passed，3.0m** | 0 |
+
+root 对账：`PI-WRITE-HOST-1` 合并 tip 记 1854，本票包级净增 20（469→489），1854+20=**1874**，
+实测逐值相符。SPEC §十 的 489/16 与本树实跑一致，D3 订数如实。跑毕 `chrome-headless-shell`
+残留计零，工作树 `git status` 全净、HEAD 仍为 `39271f8`。
+
+## 十 · 结论与停止边界
+
+**判定：REJECT。** 单一拒因即第二节：`MAX_LINE_LENGTH` 的命中行截断仍是静默的，而本票**新写入**
+`SPEC.md` 五-8 与 `incompleteNote` 文档的「来源恰三类／没有注记即结果完整」是一句可被单条 1211 字
+命中行当场证伪的全称句。返修按第二节甲／乙二选一，选哪一枚属架构拍板；两条都不触碰票面禁区。
+
+**其余全部通过，返修勿重做**：两枚缺陷的实装形态、11 枚变异的红数与命名、born-red 全链、
+CONTESTED 裁定、移交条与 D5／D9 复核、制品身份、cargo 首跑、八相全量门——本会话已逐项独立复现，
+数字均在上表。M7 的收窄读数与 M11 的等价史两条，实测支持回执的登记，判「如实」，不要求补锚。
+
+本会话只追加本段 `packages/pi-lane/ACCEPTANCE.md`，**未做任何 fix-by-acceptance**（第二节的两条
+处方都触碰 SPEC 承诺或工具结果契约，属契约级，验收不得代改）；不 merge、不 push、不更新
+`docs/status/current.md` 与 implementation-readiness、不开下游票。worktree
+`.claude/worktrees/accept-pth` 保留至收编。
