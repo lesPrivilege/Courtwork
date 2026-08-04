@@ -30,9 +30,32 @@ function manifest(): VerticalPackageManifest {
       },
     ],
     bindings: {
-      schemas: new Map([
-        ['legal.RiskList', z.object({ caseId: z.string() })],
-        ['legal.RiskListDraft', z.object({ caseId: z.string(), quoteClaims: z.array(z.unknown()) })],
+      schemas: new Map<string, z.ZodType>([
+        [
+          'legal.RiskList',
+          z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                sourceAnchors: z.array(z.object({ fileId: z.string() })),
+              }),
+            ),
+            outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+          }),
+        ],
+        [
+          'legal.RiskListDraft',
+          z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                quoteClaims: z.array(z.object({ fileId: z.string(), exactQuote: z.string() })),
+              }),
+            ),
+          }),
+        ],
       ]),
     },
     scenarios: [

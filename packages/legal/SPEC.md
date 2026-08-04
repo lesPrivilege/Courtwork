@@ -171,6 +171,18 @@ summary/quote 只作 blocker 展示且零 instruction；rejected 风险零 instr
 零 confirmed/OOC-only/OOC+confirmed 均不产无效或部分 instruction set；commentOnly 闭集不扩。
 任一实现不得新增 legal→core 依赖。
 
+## 状态更新（2026-08-04，ADMISSION-ENUM-1 受控外溢）
+
+registry 准入 walker 扩宽（补 `ZodRecord`/`ZodDefault` 等容器并 fail-closed，票面 `ADMISSION-ENUM-1`）后，
+`legal.RiskList` 的缺口表 `outOfCoverage[].failures[].reason`（`CitationFailureReasonEnum`：
+`not_found`/`ambiguous`/`file_unavailable`，`@courtwork/schemas`）首次被准入发现缺词表——
+属票面「扩紧后若现行 legal 被拒载须补词表使合规」的**受控外溢**，非门放宽。
+
+处置：`LEGAL_ARTIFACTS` 中 RiskList 的 `vocabulary.enumLabels` 补 `reason` 三词条；
+descriptor 整面 hash 重铸（`layout-golden.test.ts` 同步，`55409f1d…` → `533f9d40…`），
+promptSegments 零漂移，`schemaVersion`/`identity.version` 不升（payload 契约未变，ADR-012 决定一）。
+pm 包不涉及：四 artifact 全部走 presentation 路径（field-local `valueLabels`），不触词表外溢。
+
 ## 状态更新（2026-07-27，PANEL-BLUEPRINT-1 矩阵首枚）
 
 `legal.ReviewMatrix` 的 `uiTemplateId` 与 S2 场景、`LEGAL_RENDERERS` 声明由 `matrix-review-panel`

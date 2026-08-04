@@ -28,7 +28,9 @@ describe('VPKG-LAYOUT-1 Legal content golden', () => {
     // 由 `matrix-review-panel` 改为版本化 `courtwork.review-matrix.v1`，renderer 声明同改。
     // 这是**呈现绑定**变更，payload 契约与 promptSegments 均未动——故 prompt blob hash 不漂、
     // `schemaVersion` 不升（ADR-012 决定一「payload 契约未变时不得误升」）。
-    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('55409f1dfdf9c2f7e881c0d525b70e40b60463777704f4069b47dd87071dc9d1');
+    // ADMISSION-ENUM-1 重铸（仅 descriptor 一枚）：legal.RiskList 词表补 `enumLabels.reason`
+    // （受控外溢，见 legal SPEC 状态更新）——promptSegments 未动，prompt blob hash 不漂。
+    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('533f9d40294e767f348b17dca98aaf404fc4fa42ecc77bf02492ea4101b5f146');
     expect(sha256(promptBlob())).toBe('1f76dbd2b2a7dad74fa1d13f6a0c7fd537751a96720356ea76886f7c3979e134');
   });
 
