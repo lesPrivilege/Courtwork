@@ -7,7 +7,9 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createAuthorizedRoot } from './authorized-root.js';
 import { createProductCaseEnv } from './product-case-env.js';
 import { createReadOnlyScopedEnv } from './scoped-env.js';
+import { createDualRootEnv } from './dual-root-env.js';
 import { createReadOnlyTools } from './tools.js';
+import { createWorkspaceReadEnv, type WorkspaceReadPort } from './workspace-read-env.js';
 import { createReadTool, type AgentHarnessTool, type ExecutionToolContext } from '@earendil-works/pi-agent-core';
 
 /**
@@ -161,7 +163,7 @@ describe('createReadOnlyTools({ logicalRoot: "/case" })', () => {
         },
       } as ExecutionToolContext['env'],
     };
-    productTools = createReadOnlyTools({ logicalRoot: '/case' });
+    productTools = createReadOnlyTools({ logicalRoots: ['/case'] });
     await writeFile(path.join(root, '超长行.md'), `${'甲'.repeat(60 * 1024)}\n`);
   });
 
@@ -427,7 +429,7 @@ describe('容器拒读：不静默丢子树', () => {
     await expect(readdir(path.join(deniedRoot, '密室'))).rejects.toThrow();
     await expect(readFile(path.join(deniedRoot, '不可读.md'), 'utf8')).rejects.toThrow();
     deniedProduct = { env: createProductCaseEnv({ caseRoot: deniedRoot }) };
-    productTools = createReadOnlyTools({ logicalRoot: '/case' });
+    productTools = createReadOnlyTools({ logicalRoots: ['/case'] });
   });
 
   afterAll(async () => {
@@ -555,7 +557,7 @@ describe('1R · 行截断与 symlink：本层看得见的不完整，一律出�
   });
 
   it('产品形态同样出 symlink 计数：两形态的账不许只有一侧', async () => {
-    const productTools = createReadOnlyTools({ logicalRoot: '/case' });
+    const productTools = createReadOnlyTools({ logicalRoots: ['/case'] });
     const productContext = { env: createProductCaseEnv({ caseRoot: root }) };
     const tool = productTools.find((candidate) => candidate.name === 'glob');
     const result = await tool!.execute('call-1', { pattern: '**/*.md' } as never, undefined, undefined, productContext);
@@ -612,7 +614,7 @@ describe('1R · 行截断与 symlink：本层看得见的不完整，一律出�
     });
 
     it('产品形态：同一件走 /case 链，账目一致', async () => {
-      const productTools = createReadOnlyTools({ logicalRoot: '/case' });
+      const productTools = createReadOnlyTools({ logicalRoots: ['/case'] });
       const tool = productTools.find((candidate) => candidate.name === 'grep');
       const result = await tool!.execute(
         'call-1',
@@ -643,7 +645,7 @@ describe('1R · 行截断与 symlink：本层看得见的不完整，一律出�
     // 容器层：保留名条目从未出现在交给工具的清单里。
     expect(listed.value.map((entry) => entry.path)).toEqual(['/case/正常.md']);
 
-    const productTools = createReadOnlyTools({ logicalRoot: '/case' });
+    const productTools = createReadOnlyTools({ logicalRoots: ['/case'] });
     const tool = productTools.find((candidate) => candidate.name === 'glob');
     const result = await tool!.execute(
       'call-1',
@@ -655,5 +657,217 @@ describe('1R · 行截断与 symlink：本层看得见的不完整，一律出�
     // 工具层：它拿到的一个条目全检索了，故按收窄后的口径无注记；con.md 的账在容器层，见 SPEC 五-8。
     expect(detailsOf(result)).toMatchObject({ matched: 1, scanned: 1, symlinksSkipped: 0 });
     expect(textOf(result)).not.toContain('不完整');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 双根（PI-WORKSPACE-READ-1）
+// ---------------------------------------------------------------------------
+
+/** 内存 workspace 宿主替身：只回本表里的东西，未登记的一律具名 failed，不静默回空。 */
+function workspaceHost(files: Record<string, string>): WorkspaceReadPort {
+  const encoder = new TextEncoder();
+  const digest = async (content: string) => {
+    const bytes = encoder.encode(content);
+    const hashed = await globalThis.crypto.subtle.digest('SHA-256', bytes.slice().buffer);
+    return Array.from(new Uint8Array(hashed), (byte) => byte.toString(16).padStart(2, '0')).join('');
+  };
+  const childrenOf = (directory: string) => {
+    const prefix = directory === '.' ? '' : `${directory}/`;
+    const names = new Map<string, 'file' | 'directory'>();
+    for (const logical of Object.keys(files)) {
+      if (!logical.startsWith(prefix)) continue;
+      const rest = logical.slice(prefix.length);
+      if (rest.length === 0) continue;
+      const cut = rest.indexOf('/');
+      if (cut === -1) names.set(rest, 'file');
+      else names.set(rest.slice(0, cut), 'directory');
+    }
+    return [...names].sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0));
+  };
+  return {
+    async read(request) {
+      if (request.operation === 'exists') {
+        const present =
+          files[request.logicalPath] !== undefined || childrenOf(request.logicalPath).length > 0;
+        return { status: 'ok', operation: 'exists', logicalPath: request.logicalPath, exists: present };
+      }
+      if (request.operation === 'read_file') {
+        const content = files[request.logicalPath];
+        if (content === undefined) {
+          return { status: 'failed', code: 'not_found', message: '目标不存在' };
+        }
+        return {
+          status: 'ok',
+          operation: 'read_file',
+          logicalPath: request.logicalPath,
+          content,
+          contentSha256: await digest(content),
+          byteLength: encoder.encode(content).byteLength,
+        };
+      }
+      const entries = childrenOf(request.logicalPath);
+      if (request.logicalPath !== '.' && entries.length === 0) {
+        return { status: 'failed', code: 'not_found', message: '目标不存在' };
+      }
+      return {
+        status: 'ok',
+        operation: 'list',
+        logicalPath: request.logicalPath,
+        entries: entries.map(([name, kind]) => ({
+          name,
+          kind,
+          byteLength: kind === 'file' ? encoder.encode(files[`${request.logicalPath === '.' ? '' : `${request.logicalPath}/`}${name}`] ?? '').byteLength : null,
+          mtimeMs: 1,
+        })),
+      };
+    },
+  };
+}
+
+function dualContext(caseRoot: string, files: Record<string, string>): ExecutionToolContext {
+  let ordinal = 0;
+  const workspace = createWorkspaceReadEnv({
+    sessionId: 'sess_1',
+    requestId: 'req_1',
+    rawToolCallId: 'tc_1',
+    registry: {
+      publicToolCallId: () => 'tc_1',
+      allocateOperationId: () => {
+        ordinal += 1;
+        return `op_1_${ordinal}`;
+      },
+    },
+    port: workspaceHost(files),
+  });
+  return {
+    env: createDualRootEnv({
+      roots: [
+        { logicalRoot: '/case', env: createProductCaseEnv({ caseRoot }) },
+        { logicalRoot: '/workspace', env: workspace },
+      ],
+    }),
+  };
+}
+
+describe('双根检索：两根各按自己的逻辑绝对路径出面', () => {
+  const roots = ['/case', '/workspace'] as const;
+  let dual: ExecutionToolContext;
+  let productTools: AgentHarnessTool<ExecutionToolContext>[];
+
+  const runDual = (name: string, params: unknown) => {
+    const tool = productTools.find((candidate) => candidate.name === name);
+    if (!tool) throw new Error(`工具 ${name} 未装配`);
+    return tool.execute('call-1', params as never, undefined, undefined, dual);
+  };
+
+  beforeAll(async () => {
+    const { root: caseRoot } = await sandbox('tools-dual', async (directory) => {
+      await mkdir(path.join(directory, '证据'));
+      await writeFile(path.join(directory, '起诉状.md'), '合同编号 HT-2024-081\n');
+      await writeFile(path.join(directory, '证据', '合同.md'), '合同编号 HT-2024-081\n');
+    });
+    dual = dualContext(caseRoot, {
+      '简报.md': '合同编号 HT-2024-081 的摘要\n',
+      'notes/会议纪要.md': '# 会议纪要\n无关内容\n',
+    });
+    productTools = createReadOnlyTools({ logicalRoots: [...roots] });
+  });
+
+  it('不给起点即两根全检索，且命中一律逻辑绝对路径', async () => {
+    const result = await runDual('glob', { pattern: '**/*.md' });
+    const listed = textOf(result).split('\n').filter((line) => line.startsWith('/'));
+    expect(listed.sort()).toEqual(
+      ['/case/证据/合同.md', '/case/起诉状.md', '/workspace/notes/会议纪要.md', '/workspace/简报.md'].sort(),
+    );
+    expect(detailsOf(result)).toMatchObject({ matched: 4 });
+  });
+
+  it('结果里恒无 `../workspace`、`../case` 与任何 `..` 段', async () => {
+    for (const name of ['glob', 'grep'] as const) {
+      const result = await runDual(name, name === 'glob' ? { pattern: '**/*.md' } : { pattern: '合同编号' });
+      const text = textOf(result);
+      expect(text).not.toContain('../workspace');
+      expect(text).not.toContain('../case');
+      expect(text).not.toContain('..');
+      const details = detailsOf(result) as { skipped: { path: string }[] };
+      for (const entry of details.skipped) expect(entry.path).not.toContain('..');
+    }
+  });
+
+  it('grep 跨两根逐行命中，行号与根前缀各自成立', async () => {
+    const result = await runDual('grep', { pattern: '合同编号' });
+    const lines = textOf(result).split('\n').filter((line) => line.startsWith('/'));
+    expect(lines.sort()).toEqual(
+      [
+        '/case/起诉状.md:1: 合同编号 HT-2024-081',
+        '/case/证据/合同.md:1: 合同编号 HT-2024-081',
+        '/workspace/简报.md:1: 合同编号 HT-2024-081 的摘要',
+      ].sort(),
+    );
+  });
+
+  it('给了起点即只走它所属的那一根', async () => {
+    const only = await runDual('glob', { pattern: '**/*.md', path: '/workspace' });
+    expect(textOf(only).split('\n').filter((line) => line.startsWith('/')).sort()).toEqual([
+      '/workspace/notes/会议纪要.md',
+      '/workspace/简报.md',
+    ]);
+    const cased = await runDual('glob', { pattern: '**/*.md', path: '/case/证据' });
+    expect(textOf(cased).split('\n').filter((line) => line.startsWith('/'))).toEqual(['/case/证据/合同.md']);
+  });
+
+  it('两根共享一份扫描额度，不是各给一份', async () => {
+    const result = await runDual('glob', { pattern: '**/*.md' });
+    // 案件三件（含证据目录）＋ workspace 两件；scanned 是全次调用总账。
+    expect((detailsOf(result) as { scanned: number }).scanned).toBe(4);
+  });
+
+  it('根自身被拒读时出的是根名本身，不带尾斜杠', async () => {
+    const denied = await sandbox('tools-dual-denied', async (directory) => {
+      await writeFile(path.join(directory, '占位.md'), 'x\n');
+    });
+    await chmod(denied.root, 0o000);
+    try {
+      const context_ = dualContext(denied.root, { '稿件.md': '正文\n' });
+      const tool = productTools.find((candidate) => candidate.name === 'glob');
+      const result = await tool!.execute('call-1', { pattern: '**/*.md' } as never, undefined, undefined, context_);
+      const details = detailsOf(result) as { skipped: { path: string }[] };
+      expect(details.skipped.map((entry) => entry.path).sort()).toEqual(['/case']);
+      expect(textOf(result)).toContain('/workspace/稿件.md');
+    } finally {
+      await chmod(denied.root, 0o700);
+    }
+  });
+
+  it('宿主拒读 workspace 子树时如实计入 skipped，不塌成「无命中」', async () => {
+    const refusing: WorkspaceReadPort = {
+      async read() {
+        return { status: 'denied', code: 'policy_denied', message: '策略不允许' };
+      },
+    };
+    let ordinal = 0;
+    const context_: ExecutionToolContext = {
+      env: createDualRootEnv({
+        roots: [
+          { logicalRoot: '/workspace', env: createWorkspaceReadEnv({
+            sessionId: 'sess_1',
+            requestId: 'req_1',
+            rawToolCallId: 'tc_1',
+            registry: {
+              publicToolCallId: () => 'tc_1',
+              allocateOperationId: () => `op_1_${(ordinal += 1)}`,
+            },
+            port: refusing,
+          }) },
+        ],
+      }),
+    };
+    const tool = createReadOnlyTools({ logicalRoots: ['/workspace'] }).find((c) => c.name === 'grep');
+    const result = await tool!.execute('call-1', { pattern: '.' } as never, undefined, undefined, context_);
+    const details = detailsOf(result) as { skipped: { path: string; code: string }[] };
+    expect(details.skipped.map((entry) => entry.path)).toEqual(['/workspace']);
+    expect(details.skipped[0].code).toBe('permission_denied');
+    expect(textOf(result)).toContain('不可读已跳过');
   });
 });

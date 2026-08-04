@@ -25,7 +25,9 @@ durable-before-effect 总验。Node 直写与 bash 没有因此开放。
 | `authorized-root.ts` | 授权文件夹边界。以**规范化后**路径判定，symlink 出界按界外处理 |
 | `scoped-env.ts` | 只读 `ExecutionEnv`（我方供给的容器）。写面与 shell 在此不实现 |
 | `tool-policy.ts` | 工具闸门。挂 pi 内核 `beforeToolCall`，把「默认放行」翻转为默认拒绝 |
-| `tools.ts` | 只读三件：`read`（pi 原版）、`glob`、`grep`（自备，同样只经 env） |
+| `tools.ts` | 只读三件：`read`（pi 原版）、`glob`、`grep`（自备，同样只经 env）。产品形态双根：命中相对**各自根**算再投影，`../workspace` 结构性产不出 |
+| `workspace-read-env.ts` | host-mediated `/workspace` 只读容器（`PI-WORKSPACE-READ-1`）。每次读是一枚 `exists｜read_file｜list` host request，Node 侧零 fs；`read_file` 回读双验（重编码后 hash/byteLength/logicalPath 三项复核） |
+| `dual-root-env.ts` | 双根路由容器。按逻辑前缀把一枚 `ExecutionEnv` 分派到 `/case`（Node 直读）或 `/workspace`（host-mediated）。只分派，不改写返回值 |
 | `budget.ts` | 回合与开销计量 |
 | `session.ts` | 装配 pi `Agent` + 容器 + 闸门 + 预算 |
 | `provider.ts` | DeepSeek 甜点档接线与就绪判定 |
@@ -116,6 +118,14 @@ durable-before-effect 总验。Node 直写与 bash 没有因此开放。
    `PI-WORKSPACE-READ-1` 的双根改造是同一处接缝，见九节移交。在那之前，它们是**显式登记的
    产品边界**，不是本层的一句更大的全称句。ADR-022 六-B.1 对 wire 侧明令禁止「替换后继续」，
    读取侧目前无对应条款——这一条也随之交出。
+   **`PI-WORKSPACE-READ-1` 的处置（2026-08-05，逐件不悬置）**：三处**维持显式登记**，理由是
+   收口它们要改 `ExecutionEnv` 契约本身（多一条 per-entry 失败通道），属 ADR 级跨层变更，
+   实现会话不自裁——请架构在 env 契约票里一并裁。但本票**没有让这一族多一个成员**：新增的
+   host-mediated 读容器 `workspace-read-env.ts` 在同一位置取 **fail-closed** 而非 `continue`
+   ——宿主列目录时已按同一套 segment 闭集筛过，故 Node 侧再见到不合规的名字只可能是两端
+   grammar 分叉，整次 listing 因此具名拒绝，不表现成「那个文件不存在」。(c) 的 U+FFFD 一路
+   在读容器里也不成立：`read_file` 的正文由 Rust 侧 UTF-8 fail-closed 取出，Node 侧再按
+   重编码后的 hash/byteLength 双验，坏字节结构性到不了命中面。
 
 ## 六 · dev 入口用法
 
@@ -171,6 +181,11 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
 - 首版能力边界是最多 12 assistant turns、prompt/workspace text 各 131,072 UTF-8 bytes 的通用
   Markdown 工作。模型可用正确工具但写得不好，不等于加厚 harness；只有必要 tool/host result
   已完整、未截断进入 transcript 后，才允许把内容错误归为模型能力。
+- **prompt 第④条「写后回读」的缺口已于 `PI-WORKSPACE-READ-1` 闭合**（2026-08-05）。
+  `PI-WRITE-HOST-1` ⑤回执 §九.8 与 ⑦回执 §七曾如实登记：读侧票放行前，模型照 prompt 第④条
+  回读 `/workspace/...` 只会拿到一枚 case-only 容器的 `denied`。读面装配之后该路径真的通了——
+  read/glob/grep 经双根 env 路由到 host-mediated 读容器，同 leg 与跨 leg 均可逐字节回读。
+  两处历史登记**不改**（回执记的是当时事实，改它才是造假）；缺口的现行状态以本条为准。
 
 ### `PI-WRITE-PROOF-1`（可与 STDIO/分发并行）
 
@@ -746,13 +761,16 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - [`PI-SIDECAR-DIST-1R5`](specs/PI-SIDECAR-DIST-1R5.md)
 - [`PI-SIDECAR-DIST-1R5-ACCEPT`](specs/PI-SIDECAR-DIST-1R5-ACCEPT.md)
 - [`PI-HOST-LOOP-1`](specs/PI-HOST-LOOP-1.md)
+- [`PI-WORKSPACE-READ-1` 侦察](specs/PI-WORKSPACE-READ-1-RECON.md)
+- [`PI-WORKSPACE-READ-1`](specs/PI-WORKSPACE-READ-1.md)
 
 ## 十 · 门与证据
 
-- 单测 **500 例 / 16 文件**（`pnpm --filter @courtwork/pi-lane test`，2026-08-05 由
-  `PI-TOOLS-HONESTY-2R` 在其 worktree 实测；同票首轮 489/16、1R 496/16，2R 因裸 NUL 行出账
-  再增四枚；更前的 469/15 出自同日 `PI-WRITE-HOST-1` 独立验收），含容器越界、闸门拒绝、
-  预算停 loop、dev 入口 HTTP 面、六类不完整来源的诚实面。原写「74 例」是 `PI-LANE-1` 期真值，
+- 单测 **531 例 / 17 文件**（`vitest run packages/pi-lane`，2026-08-05 由
+  `PI-WORKSPACE-READ-1` 在其 worktree 实测；`PI-TOOLS-HONESTY` 一线为首轮 489/16、1R 496/16、
+  2R 500/16；更前的 469/15 出自同日 `PI-WRITE-HOST-1` 独立验收），含容器越界、闸门拒绝、
+  预算停 loop、dev 入口 HTTP 面、六类不完整来源的诚实面，以及本票新增的 host-mediated 读容器
+  与双根检索面。原写「74 例」是 `PI-LANE-1` 期真值，
   其后由 product-* 诸票增长；每票只据实更新该计数，不追认也不复核其他票面的证据。
 - ADR-018 门单测 12→23 例；真树注入实测：`child_process` 与 `fs:writeFile` 各触红一次，还原复绿。
 - 变异对照两例（授权边界）：包含判定退化成裸字符串前缀 → 五条红证转红；跳过 symlink 规范化 →

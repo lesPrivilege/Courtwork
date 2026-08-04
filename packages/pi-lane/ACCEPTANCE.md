@@ -3073,3 +3073,215 @@ implementation-readiness、不开下游票。PASS 只覆盖 `packages/pi-lane` �
 与本票冻结范围：容器层三处（grammar 排除、单条目 `lstat`、U+FFFD 替换）本票未修、按边界登记，
 其收口属 `PI-WORKSPACE-READ-1`；真 key 复核属 `PI-BASE-GUI-ACCEPT`。
 worktree `.claude/worktrees/accept-pth` 保留至收编。
+
+# PI-WORKSPACE-READ-1 独立验收（2026-08-05，PASS）
+
+目标 `8af1db9`，链 `1117569`（自侦察）→ `06e777b`（Node 读面）→ `dbf4d4f`（Rust 读臂＋
+`openWorkspaceMarkdown`）→ `8af1db9`（回执），base `main@26c2acf`。独立 clean worktree
+`.claude/worktrees/accept-pwr`，自 install、自建制品、自跑八相门。回执与 SPEC 的每一句宣称
+一律当未证，逐条自证或自否。
+
+## 一 · 总审：票面五项退出证据逐条在场，禁区未越
+
+| 票面判据 | 本会话核到的落点 | 判 |
+|---|---|---|
+| write→批准→Rust 落盘→byte-identical read-back | Rust `real_read_arm_returns_the_bytes_the_write_arm_landed`：真件 `perform`（`AlwaysApprove` 测试 driver）落盘后同 leg `read_file`，`content`/`contentSha256`/`byteLength` 三值逐值等于写入那一份；Node 侧同闭环由 `product-runtime.test.ts`「write → 回读」以内存宿主表建模 | 成立 |
+| glob/grep 双根 | `tools.test.ts` 双根七枚：不给起点两根全检索、给起点只走所属根、跨根行号与前缀各自成立 | 成立 |
+| interrupted/resumed 新 leg read-back | `a_new_leg_after_interruption_reads_back_what_the_previous_leg_wrote`：第一腿写入后 `reclaim_after_fault` 落 `session_interrupted`，第二腿（新 requestId）逐字节读回，并断言 journal 真含 `SessionInterrupted`＋`SessionResumed` 两型作前置对照 | 成立 |
+| viewer 对 session/path/UTF-8/131072 双验，物理路径零泄漏 | `viewer_double_gate_…`（八格）、`viewer_session_gate_runs_before_touching_the_filesystem`、`viewer_refuses_oversized_markdown`；出参结构体无物理路径字段，`WorkspaceViewError::message()` 是静态八行表，测试逐格断言不含 `app_data` 与链接目标。ADR 六-D 的 1,024 bytes 上限与八枚 code 闭集逐字对上 | 成立 |
+| 两根无串读、symlink 不跟 | `sessions_do_not_read_through_to_each_other`（换 session、换 container 各一）、`read_face_does_not_follow_symlinks_at_any_segment`（末段＋中间段） | 成立 |
+| `list` 不成为模型工具 | `READ_ONLY_TOOL_NAMES` 未变，`createReadOnlyTools` 仍恰三件 | 成立 |
+| 不得自动晋升工作稿 | 本批零新增写路径；读容器六枚写面方法与 `exec` 全部 `not_supported`，且 `port` 零调用（有专测） | 成立 |
+
+**wire 零 schema 变更**：`git diff 26c2acf..8af1db9 -- apps/desktop/src-tauri/src/pi_loop_protocol.rs`
+空，Node 侧 `product-protocol.ts`／`product-stdio.ts` 亦不在改动面内——本票确是接线不是扩契约。
+**journal 十九型闭集零变化**：`pi_loop_journal.rs` 的 diff 中 `JournalType` 命中数为 **0**；
+唯一动的是 `LEGAL_CAPABILITY_SETS` 的**值域扩员**（三员并存、旧两档续 valid），循裁定A 先例。
+读不落账由 `real_read_arm_…` 的记录序断言钉住（与纯写那一枚逐型相同），并另断言回读正文与
+物理根都不进 journal 文本。
+
+**ADR 六-B.2 read 行确实存在**：域串 `courtwork.pi.workspace_read.v1` ＋ sessionId／requestId／
+operationId／operation／logicalPath 六枚 frame，与实装逐字相同。回执七.2-A 的自我更正
+（RECON 曾误报「未定义」）如实，且 ADR 本身未被本票改动。
+
+**`tools.ts` 对 `PI-TOOLS-HONESTY-1` 九行族表逐条核**：九条丢弃/限幅分支（目录拒读、symlink、
+扫描上限、glob 命中上限、grep 跨文件命中上限、文件拒读、裸 NUL 行、grep 行层命中上限、行截断）
+判据、位置与口径**一条未动**，只把遍历基准与投影按根拆开；`skipped`／`symlinks` 按根归并，
+`scanned` 以 `scannedBefore` 续账（全次调用一份额度，用尽即 `break`）。六类来源与九条分支的
+对应关系不变。上一轮验收移交的「`/case/` 尾斜杠」已由 `rootProjection` 的空相对路径特例收口，
+M1 是它的红证。
+
+## 二 · 核心行为专项：不采信自述，逐条注反例
+
+九枚变异全部由本会话独立施加（Edit 唯一匹配即命中数校验恰为 1），跑毕 `cp` 还原并前推 mtime，
+每次 `git status --porcelain` 归零后才做下一枚。
+
+| 编号 | 变异 | 本会话实测 | 回执宣称 | 判 |
+|---|---|---|---|---|
+| M1 | 撤 `rootProjection` 空相对路径特例（回 `${root}/${relative}`） | 定点红 **2**（`/case`／`/workspace` 尾斜杠回潮）＋ sealed CJS 身份门 1 | 「定点红 2 枚」 | 相符 |
+| M2 | glob 相对基准换回 `context.env.cwd` | 定点红 **3**，实测产出 `/workspace/../workspace/简报.md`、`…/notes/会议纪要.md`——票面点名要禁的形态原样复现 ＋身份门 1 | 「红 3 枚」 | 相符 |
+| M3 | 读臂 `active_tool_call` 由 peek 改 take | 定点红 **1**（`read_arm_serves_many_operations_under_one_tool_call`，实得 `Protocol(StateViolation)`） | 「定点红一枚」 | 相符 |
+| M4 | 读 `proposalHash` 域串换成写域串（Rust 侧） | 定点红 **4**：`real_read_arm_…`、`read_arm_serves_many_operations…`、`a_new_leg_after_interruption…`、**`read_arm_refuses_symlinks_and_never_leaks_physical_paths`**；hash 反例仍绿（它本就要求不符） | 「红 3 枚正向读用例」 | **数字差一，见五节③**；定向性宣称成立 |
+| M5（本会话新增） | Rust `read_file` 的 `String::from_utf8` 换 `from_utf8_lossy` | 定点红 1，实得 `Ok(("<U+FFFD><U+FFFD>\0", 7))` 而期望 `Err(Io)`——**「显式拒 vs 静默改写」两态实测可分** | — | UTF-8 fail-closed 坐实 |
+| M6（本会话新增） | 撤 Node 读容器的回读 hash 双验 | 定点红 1（「宿主自报 hash 与正文不符即拒」）＋身份门 1 | — | 回读双验非装饰 |
+| M7（**无效变异，如实登记**） | 以**整行注释**注入第四处 `OpenOptions` 提及 | **零红**。根因：`production_lines()` 明文过滤 `//` 整行注释（「注释行没有可执行代码」），故该靶不在扫描面上——是我选靶失当，不是门失效 | — | 作废 |
+| M7b | 以**真代码行** `let _probe = OpenOptions::new(); // READ-NOFOLLOW…` 注入第四处 | 定点红 1，实得「no-follow 打开点必须恰 3 处，实得 [54, 58, 652, 653]」 | D6「恰三处计数门」 | 门成立 |
+| M8（本会话新增） | 撤 `open_workspace_markdown` 的 session token 门 | 定点红 2（`viewer_double_gate_…` 与 `viewer_session_gate_runs_before_touching_the_filesystem`） | 「双验，session 门先于任何 I/O」 | 成立 |
+| M9（本会话新增） | 双根路由 `matches` 退化成裸 `startsWith(logicalRoot)` | **零定点红**（唯一红是 sealed CJS 身份门，属字节漂移不属语义判断） | 回执三.1「`/casex` 这类同前缀兄弟不命中 `/case`」 | **该宣称零覆盖，见五节②** |
+
+born-red 逆向抽两段：**Node 读面**取 M6（撤双验即红，故 `workspace-read-env.test.ts` 那一枚
+不是恒真）；**Rust 读臂**取 M5（撤 UTF-8 fail-closed 即红）。两段都能在现行实装上被证否，
+不是「写完就绿」的陪衬。
+
+**读域串 frame 篡改反例**另有生产侧四格（`counterexample_read_proposal_hash_is_recomputed_and_binds_every_read_field`），
+其决定性判据是「workspace 根一个字节都没被建出来」而不是「回了 failed」——口径正确。
+
+**容器层 U+FFFD 在读容器结构性不成立**一句我另行验算：正文经 `TextEncoder().encode` 再
+`TextDecoder().decode` 往返，输入既是 JS 字符串则往返无损；若宿主经 wire 送来孤立代理对，
+`encode` 会产出 U+FFFD 三字节，随即被 hash／byteLength 双验判否。**结论成立，且是 fail-closed
+而不是恰好不发生。**
+
+## 三 · 偏离八枚与 37 枚握手 seed
+
+**D1**（`logicalRoot`→`logicalRoots`）：`PI-TOOLS-HONESTY-1` 的 47 枚断言一字未动，只改调用形，
+本树复跑逐枚仍绿。**D3／D4／D5／D7／D8** 逐条核对无异议；D8 的处置正确——缺口闭合登记在**现行**
+SPEC，`PI-WRITE-HOST-1` ⑤／⑦ 两处历史回执未改（改历史回执才是造假）。
+
+**D2 四枚契约面改写**按置换批定式逐枚核：
+①「`/workspace` 读不到即 `denied`」→「宿主 `not_found` 如实成为 `failed`」并**新增正向对照**
+（存在即 `succeeded`）——**更强**；②「读面零 operation」按根拆两枚，`/case` 仍恒零、`/workspace`
+断言 capability 恰为 `workspace_read` 且 wire 上 `logicalPath` 不以 `/` 开头、不含物理案件根
+——**更强**；③ ready 三枚能力属闭集同批更新；④ 双端 golden 那一枚把 glob 起点**显式限回**
+`/case`——**这一枚是收窄不是增强**。理由经我实测复核成立：该枚的 `transport.write()` 是空实现，
+不给起点会连 `/workspace` 一起检索而无人应答。所失覆盖（不给起点的双根检索）已由
+`tools.test.ts` 双根七枚独立承担，**覆盖未丢，只是换了地方**；偏离本身如实登记，不作拒因。
+
+**D6**（`OpenOptions` 移出禁用清单，改 `READ-NOFOLLOW` 具名理由行＋恰三处计数门）：
+取「保留最强原语并登记」而非「换弱原语过门」的理由我一手核过——cap-std 的 `Dir::open` 只保证
+不逃出 root，**不保证 root 内不跟随**，换它确实更弱。净判据不减经 M7b 实证（真代码第四处即红），
+且未打标签的任何 `OpenOptions` 仍撞「没有具名理由」那一条。**唯一边界（本会话发现并登记）**：
+扫描面排除 `//` 整行注释，故注释里提及该构件不计数——那是设计如此、且注释无可执行语义，
+不构成逃逸口，但下一个人改这道门时须知道靶只能落在代码行上。
+
+**37 枚 seed**：本会话独立点数——`pi_loop.rs` diff 中 `WorkspaceCapability::WorkspaceRead,`
+的**纯缩进 vec 行**共 44 处新增，减去 `EXPECTED_CAPABILITIES` 生产常量 1 处、本票新增五枚读用例
+自带的 6 处（跨腿那一枚占两处），余 **37** 处，与回执逐枚列名的数目**逐值相符**。抽核两枚
+`counterexample_*_drift_*`：capability 确是**基线**，漂移注入在 `config` 上（grant／model／
+maxTurns／maxUsd 四格）且带「不漂移就能 resume」的对照臂——归类如实，反例未被改钝。
+
+## 四 · 制品身份第五／第六录：本树独立重建逐值相同
+
+从源码独立重建 `sidecar.cjs`：**546,906 B** /
+`36615e5b6c9e54ddb153608985f369cc88e350c17e2eddd6915821a7850150fd`，`reproducible: true`，
+snapshot `created`。与 D4 宣称、`route-manifest.json` 两值、`pi_loop_process.rs` 冻结表两值与
+负注入靶逐值相同；旧值 `536,123`／`060cc00a…` 在 `pi_loop_process.rs` 内只余变迁注释，断言与
+manifest 中零活体残留。
+
+**取件来源如实登记**：`SHASUMS256.txt` 与 arm64 archive 本会话**现下**（`origin:"downloaded"`）；
+x64 archive 因本机代理下该次传输迟迟不返，改由本机既有同名件放入 `dist/runtime` 后复用
+（`origin:"reused"`）。该复用**不削弱身份锚**：`archiveProblems` 对复用件同样比对冻结 bytes／
+冻结 SHA-256／**本次现下 SHASUMS 记录**三项并跑 `tar -tzf`，四项任一不符即原样保留并抛错。
+解出的 runtime 两枚 SHA 亦与冻结值逐值相同，arm64 真跑 `--version` 得 `v22.23.1`，x64 如实记
+`cross-arch-not-executed`。
+
+## 五 · 三项上浮与一处 fix-by-acceptance（均不阻断）
+
+### ① fix-by-acceptance（本会话唯一改动，一处，纯注释）
+
+`apps/desktop/src-tauri/src/pi_loop.rs` 的 **0.1 能力门注释**仍写
+「它继续挡的是未谈成的 `workspace_read`」——`workspace_read` 今日已在握手闭集内，该句是
+**反事实自述**。本票自己的 RECON 三.1 点名了三处须同批订正的注释（模块头、0.1 门、0.2 门），
+实到两处，0.1 这一处漏了。已按其自陈本意订正为「它挡的是本次握手**没谈成**的任何 capability，
+可证否形态由 `revoke_workspace_write` 与 `revoke_workspace_read` 两枚反例保留」。
+**零语义风险**：正确口径由紧邻的 0.2 门注释、模块头 `EXPECTED_CAPABILITIES` 说明与
+`counterexample_host_request_gates_refuse_before_any_effect` 的两格标签三处独立确定。
+循 `PI-TOOLS-HONESTY-2R` 验收「SPEC 五-8 数词」的同形先例处理。改后八相门**全量重跑**（见六节）。
+
+**不作拒因的理由**：本票两次同族拒绝的形态是「一句关于系统行为的假话独占某论断、且掩盖着一枚
+真缺陷」；本处是一句被同文件三处正确复述压住的陈旧状态自述，读者无从据它得出错误结论，
+也未掩盖任何行为。
+
+### ② 双根路由的同前缀兄弟判据零覆盖（移交，建议补一枚测试）
+
+M9 实测：把 `dual-root-env.ts` 的 `matches` 退化成裸 `startsWith(logicalRoot)`，**零定点红**。
+回执三.1 把「`/casex` 这类同前缀兄弟不命中 `/case`」写成设计属性，但全仓无 `dual-root-env.test.ts`，
+`tools.test.ts` 也从不喂同前缀兄弟。
+
+**不作拒因**：该句对代码为真（我逐字核过），且路由器**按其自述不是边界**——两枚目标容器各自
+fail-closed，`/casex/…` 落 case 容器被 `normalizeCasePath` 拒（`product-case-env.test.ts` 已有
+同前缀兄弟反例）、`/workspacex/…` 落读容器被 `resolveWorkspaceReadPath` 的绝对路径分支拒。
+故误路由不构成逃逸，只是一条**没有红证的宣称**。承在案判例「包含判定退化成裸字符串前缀」
+（授权根那一处有五条红证），建议补一枚直测把它对齐。
+
+### ③ Rust `list` 的 grammar 过滤是**静默 `continue`**，与容器层三处同形（移交架构）
+
+`pi_loop_workspace.rs` 的 `WorkspaceReadHost::list` 对不合 `check_segment` 的真实目录项
+`continue`，注释自陈「与 `/case` 容器同口径」——那正是 SPEC 五-8 家族成员（a）的形状：
+真实存在的条目在模型面既不出现、也不进任何注记。回执七.1 与 SPEC 五-8 新增段写的
+「本票**没有让这一族多一个成员**」，其**成立范围**只到 Node 侧读容器（那一层确实取 fail-closed，
+有正反两枚测试）；宿主侧新添的这一枚同形分支不在该句覆盖内。
+
+**不作拒因的理由**：该分支在本系统不变量下**结构性不可达**——workspace 物理根只由本协议写入，
+而写路径 `parse_write_path` 对每一段跑的正是同一枚 `check_segment`，故落得下去的名字必然过得了
+读侧过滤（家族成员（a）针对的是用户任意命名的案件根，可达性完全不同）。它是纵深防御分支，
+不是今日可触发的静默降级。
+
+**请架构裁**：或把它登记为该家族第四员（并把 SPEC 五-8 那句收窄为「模型面容器未增员」），
+或让它随 env 契约票一并改成具名 fail-closed。两条都不该由本票或本次验收自裁。
+另附一枚同处观察：`entries.len() > MAX_LIST_ENTRIES` 的判定发生在过滤**之后**，故被过滤的条目
+不占 2,000 名额——同属上面这条的处置面。
+
+### ④ 读容器 `fileInfo` 对存在项恒报 `kind:'file'`、`size:0`、`mtimeMs:0`（低危，登记）
+
+wire 读闭集恰三枚，无单件 stat，故该方法只能按 `exists` 回答在场性——这一步合理；但它随后
+**编造**了 kind 与两枚零值，而同处注释写「不在这里编造」。本会话核实：注册的三件只读工具
+（`read`／`glob`／`grep`）无一消费 `fileInfo`（上游只有 `edit`／`skills`／`prompt-templates` 用它，
+三者本线均未注册），故今日零可观察后果。将来若有工具消费它，这三枚值就是假的。建议改回
+typed 拒绝或把注释改准。
+
+**另如实登记两条不作缺陷的观察**：`tools.test.ts`「两根共享一份扫描额度」那一枚的行内注释写
+「案件三件（含证据目录）＋ workspace 两件」而断言是 `scanned === 4`（目录不计扫描额度），
+注释与断言不一致；该枚对「累加 vs 各自归零」仍有区分力（各自归零会得 2），故只是措辞。
+`pi_loop_process.rs` 负注入「大写 SHA」一格填的是**旧** SHA 的大写形，语义上仍只考「非小写 hex
+即拒」，区分力不减，但读起来会误导下一个人。
+
+## 六 · 门禁实跑（本树自跑，逐条记退出码，未经管道吞码；五节①改后**全量重跑**）
+
+| 门 | 结果 | 退出码 |
+|---|---|---|
+| `build-product-sidecar.mjs` | 546,906 B / `36615e5b…`，`reproducible: true`，`created` | 0 |
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size warning） | 0 |
+| `pnpm lint`（`eslint .`） | 通过 | 0 |
+| root `pnpm test` | **170 files / 1916 tests passed** | 0 |
+| `pnpm --filter @courtwork/pi-lane test` | **531 例 / 17 文件** | 0 |
+| `pnpm --filter @courtwork/desktop test` | **75 files / 690 tests passed** | 0 |
+| `cargo test`（`src-tauri`，`build:product-sidecar` 先行） | **232 passed / 0 failed / 1 ignored** | 0 |
+| `cargo clippy --all-targets` | 7 枚警告，逐条落在 `lib.rs:199/531/1553-1566`（既有 unsafe/return），本票新增面零警告 | 0 |
+| `pnpm test:e2e`（apps/desktop cwd，完整 Playwright，隔离端口） | **352 passed，3.0m** | 0 |
+
+**root 对账**：上一枚验收在 `078c9e8` 实测 1885，本票包级净增 31（500→531），1885＋31＝**1916**，
+实测逐值相符。**cargo 对账**：上一枚 218，本票新增 Rust 用例 14 枚（`pi_loop.rs` 5 ＋
+`pi_loop_workspace.rs` 9），218＋14＝**232**，实测逐值相符。SPEC §十 的 531/17 与本树实跑一致。
+跑前跑后 `pgrep -f 'chrome-headless-[s]hell'` 均计零；九枚变异全部还原、`git status` 归零后
+才跑门，工作树只余五节①那一处注释订正与本段追加。
+
+## 七 · 结论与停止边界
+
+**判定：PASS，待架构消费。** 票面五项退出证据逐条在场并各有可证否的红证：byte-identical
+读回（同 leg 与跨 leg 各一）、双根投影使 `../workspace` **结构性**产不出（M2 让禁形原样复现）、
+UTF-8 fail-closed 与 U+FFFD 两态实测可分（M5）、读臂 peek 不 take（M3）、读域串六枚 frame 逐字段
+可判（M4 ＋生产四格反例）、viewer 双验与物理路径零泄漏（M8）。wire 零 schema 变更与 journal
+十九型闭集零变化均以 diff 实证而非采信；九行族表逐条对码无漂移；37 枚 seed 数目独立点算相符；
+制品身份第五／第六录本树独立重建逐值相同；八相全量门在本树全绿。
+
+本会话唯一改动的产品/文档面是五节①那一处 fix-by-acceptance（`pi_loop.rs` 0.1 门注释的反事实
+自述），**未做任何契约级修改**；不 merge、不 push、不更新 `docs/status/current.md` 与
+implementation-readiness、不开下游票。
+
+PASS 只覆盖 `/workspace` 读面在 **package／host 级**成立，与回执八节的成立范围逐字一致；
+**不覆盖**：headless 总验（`PI-BASE-HEADLESS-ACCEPT`）、真 key 端到端、GUI 消费面
+（`PI-LANE-UI-1`）与任何成熟度升档。容器层三处已登记边界本票未修（其收口属 env 契约票），
+五节③新添的宿主侧同形分支请架构一并裁；五节②的路由判据建议补测；回执七.2 的 B／D 两条
+承接如实，仍挂各自的门。合入相另请把 `docs/status/current.md` 的 sidecar 身份更新为
+**546,906 B / `36615e5b…`**（上一枚验收请求的 536,123 至今未由架构面更新，两笔并作一次）。
+worktree `.claude/worktrees/accept-pwr` 保留至收编。

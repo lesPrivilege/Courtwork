@@ -1744,6 +1744,69 @@ struct WorkStateCommitInput {
     bytes: Vec<u8>,
 }
 
+/// `openWorkspaceMarkdown` 的入参（ADR-022 六-D）。三枚，闭集；多一枚字段即反序列化失败。
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct OpenWorkspaceMarkdownInput {
+    container_id: String,
+    session_id: String,
+    logical_path: String,
+}
+
+/// 出参。**没有物理路径**：WebView 见不到物理坐标（ADR-022 六-C/六-D）。
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct OpenWorkspaceMarkdownReply {
+    logical_path: String,
+    content: String,
+    content_sha256: String,
+    byte_length: u64,
+}
+
+/// 失败以结构化 code + 宿主自产文案返回。code 取 ADR 六-D 的八枚闭集，message 不拼路径。
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct OpenWorkspaceMarkdownFailure {
+    code: String,
+    message: String,
+}
+
+/// GUI 后续消费的**只读** workspace Markdown 查询面（`PI-WORKSPACE-READ-1`）。
+///
+/// 它不是模型工具、不铸 operation、不写 journal，也**不做任何比对**：当前 hash 与已落账
+/// hash 是否相同由 UI 自己判（`PI-LANE-UI-1`），本命令只如实交出当刻事实。
+#[tauri::command]
+fn open_workspace_markdown(
+    app: tauri::AppHandle,
+    input: OpenWorkspaceMarkdownInput,
+) -> Result<OpenWorkspaceMarkdownReply, OpenWorkspaceMarkdownFailure> {
+    use tauri::Manager;
+    let dir = app.path().app_data_dir().map_err(|_| {
+        let error = pi_loop_workspace::WorkspaceViewError::Io;
+        OpenWorkspaceMarkdownFailure {
+            code: error.code().to_string(),
+            message: error.message().to_string(),
+        }
+    })?;
+    match pi_loop_workspace::open_workspace_markdown(
+        &dir,
+        &input.container_id,
+        &input.session_id,
+        &input.logical_path,
+    ) {
+        Ok(view) => Ok(OpenWorkspaceMarkdownReply {
+            logical_path: view.logical_path,
+            content: view.content,
+            content_sha256: view.content_sha256,
+            byte_length: view.byte_length,
+        }),
+        Err(error) => Err(OpenWorkspaceMarkdownFailure {
+            code: error.code().to_string(),
+            message: error.message().to_string(),
+        }),
+    }
+}
+
 /// Work 状态信封目录（app-data 内，扁平存放 `<caseId>__<sessionId>.env`；绝不落用户案件目录）。
 fn work_state_dir_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     use tauri::Manager;
@@ -2043,6 +2106,7 @@ pub fn run() {
             material_read_original,
             work_state_read,
             work_state_commit,
+            open_workspace_markdown,
             sync_macos_window_controls,
         ])
         .run(tauri::generate_context!())

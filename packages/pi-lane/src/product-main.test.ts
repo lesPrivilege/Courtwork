@@ -236,7 +236,11 @@ describe('production sealed CJS：bootstrap → ready → shutdown', () => {
     expect(run.packets.map((packet) => packet.type)).toEqual(['ready', 'terminal']);
     const ready = run.packets[0];
     // 真跑一遍 sealed CJS 的握手闭集：与 `PRODUCT_CAPABILITIES`、Rust `EXPECTED_CAPABILITIES` 同表。
-    expect(ready.type === 'ready' && ready.payload.capabilities).toEqual(['case_read', 'workspace_write']);
+    expect(ready.type === 'ready' && ready.payload.capabilities).toEqual([
+      'case_read',
+      'workspace_read',
+      'workspace_write',
+    ]);
     const terminal = run.packets[1];
     expect(terminal.type === 'terminal' && terminal.payload).toEqual({ status: 'shutdown' });
   }, 120_000);

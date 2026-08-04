@@ -39,19 +39,21 @@ use crate::pi_loop_protocol::{
     AgentProjectionEvent, BootstrapLimits, BootstrapPayload, BootstrapProvider, BootstrapResume,
     BudgetStopReason, BudgetTurnLimit, BudgetView, CancelReason, HostDeniedCode, HostFailureCode,
     HostResultOutcome, HostResultPayload, HostResultValue, PacketPayload, PacketRejection,
-    ProductPacket, ProductToolName, ProtocolErrorCode, ResumeKind, Terminal, TerminalFailureCode,
-    WorkspaceCapability, WorkspaceHostRequest, WorkspaceOperation, WorkspaceRequestArguments,
-    WriteDisposition, MAX_API_KEY_BYTES, MAX_CASE_ROOT_BYTES, MAX_MODEL_ID_BYTES, MAX_TEXT_BYTES,
-    MAX_TURNS_LIMIT, MAX_USD_LIMIT,
+    ListEntry, ProductPacket, ProductToolName, ProtocolErrorCode, ResumeKind, Terminal,
+    TerminalFailureCode, WorkspaceCapability, WorkspaceHostRequest, WorkspaceOperation,
+    WorkspaceRequestArguments, WriteDisposition, MAX_API_KEY_BYTES, MAX_CASE_ROOT_BYTES,
+    MAX_MODEL_ID_BYTES, MAX_TEXT_BYTES, MAX_TURNS_LIMIT, MAX_USD_LIMIT,
 };
 
 /// ready 握手必须逐值等于这张表（次序即判据：Node 侧按字典序归一后出包）。
 ///
 /// `PI-WRITE-HOST-1` ⑤ 加入 `workspace_write`：它只表示「本会话可以**申请** workspace write
 /// host operation」，不表示预先批准——逐次授权仍在 `WriteDecisionDriver`（ADR-022 六-C）。
-/// `workspace_read` 属 `PI-WORKSPACE-READ-1`，未谈成，`serve_host_request` 的 0.1 门照拒。
+/// `PI-WORKSPACE-READ-1` 加入 `workspace_read`：同理只是申请权，服务 `exists/read_file/list`
+/// 三枚 env 内部操作，**不**新增模型工具。次序即判据（Node 侧按字典序归一后出包）。
 const EXPECTED_CAPABILITIES: &[WorkspaceCapability] = &[
     WorkspaceCapability::CaseRead,
+    WorkspaceCapability::WorkspaceRead,
     WorkspaceCapability::WorkspaceWrite,
 ];
 
@@ -60,6 +62,10 @@ const EXPECTED_CAPABILITIES: &[WorkspaceCapability] = &[
 /// `packages/pi-lane/fixtures/write-session-wire-v1.jsonl` 这枚双端 golden 钉在一起，
 /// 任一侧单独漂移都会让对端的 golden 判据当场红。
 const WORKSPACE_WRITE_PROPOSAL_DOMAIN: &str = "courtwork.pi.workspace_write.v1";
+
+/// 读面 `proposalHash` 的域分隔串（ADR-022 六-B.2 read 行）。与写面**不同值**，故两族提案
+/// hash 结构性不可互冒：把一枚写提案的 hash 搬到读请求上，这里重算即不符。
+const WORKSPACE_READ_PROPOSAL_DOMAIN: &str = "courtwork.pi.workspace_read.v1";
 
 // ── 错误闭集 ────────────────────────────────────────────────────────────────
 
@@ -442,6 +448,18 @@ pub(crate) trait WorkspaceWriteHost {
     fn perform(&mut self, plan: &WorkspaceWritePlan, action: WriteDisposition) -> EffectOutcome;
 }
 
+/// workspace 读的注入座（`PI-WORKSPACE-READ-1`）。
+///
+/// 与 {@link WorkspaceWriteHost} 分列两枚 trait 而不是并进一枚：读**没有** probe/decide/perform
+/// 三段——它没有 effect，也就没有可授权的对象。合成一枚会逼出「读的 decide 恒 Approved」
+/// 这种恒真桩，那正是 ADR-022 六-C 明禁的「用恒批准冒充授权」的形状。
+pub(crate) trait WorkspaceReadHost {
+    fn exists(&mut self, logical_path: &str) -> Result<bool, HostFailureCode>;
+    /// 回 `(content, byteLength)`；`byteLength` 是 UTF-8 实长，由真件从正文自算。
+    fn read_file(&mut self, logical_path: &str) -> Result<(String, u64), HostFailureCode>;
+    fn list(&mut self, logical_path: &str) -> Result<Vec<ListEntry>, HostFailureCode>;
+}
+
 /// 逐次授权的真源座（ADR-022 六-C：授权属用户）。
 ///
 /// **非加不可**：④ 把 production 的 `write_host` 从 `None` 换成真件的那一刻，`decide` 必须
@@ -552,6 +570,9 @@ pub(crate) struct PiLoopHost {
     /// workspace write 的真件座。production 恒 `None`：④ 才装 cap-std 落盘件，
     /// ③ 不拿脚本座冒充成功（总纲不变量 4）。
     write_host: Option<Box<dyn WorkspaceWriteHost>>,
+    /// workspace 读的真件座（`PI-WORKSPACE-READ-1`）。与 `write_host` 分列两枚：
+    /// 读臂不碰授权、不落账，两座各自可注入、各自可缺席。
+    read_host: Option<Box<dyn WorkspaceReadHost>>,
     closed: bool,
 }
 
@@ -589,6 +610,11 @@ impl PiLoopHost {
         self.write_host = host;
     }
 
+    #[cfg(test)]
+    fn install_read_host(&mut self, host: Option<Box<dyn WorkspaceReadHost>>) {
+        self.read_host = host;
+    }
+
     /// **测试专用**：把 `workspace_write` 从本次握手结果里撤掉。
     ///
     /// ⑤ 之后握手闭集恒含它（`EXPECTED_CAPABILITIES` 逐值比对，谈不成就根本起不来 leg），
@@ -599,6 +625,17 @@ impl PiLoopHost {
     fn revoke_workspace_write(&mut self) {
         self.capabilities
             .retain(|capability| *capability != WorkspaceCapability::WorkspaceWrite);
+    }
+
+    /// **测试专用**：把 `workspace_read` 从本次握手结果里撤掉。
+    ///
+    /// 与 {@link PiLoopHost::revoke_workspace_write} 同一条理由：`PI-WORKSPACE-READ-1` 之后
+    /// 握手闭集恒含 `workspace_read`，0.1 能力门对读也再不能由真实握手证否。撤掉它之后来一枚
+    /// 读请求，若 0.1 不在，它就会一路走到真实文件读取。
+    #[cfg(test)]
+    fn revoke_workspace_read(&mut self) {
+        self.capabilities
+            .retain(|capability| *capability != WorkspaceCapability::WorkspaceRead);
     }
 
     /// fresh / resume 全序。次序即语义，前一步不过就绝不走到后一步（PI-HOST-LOOP-1R R1/R2）：
@@ -846,16 +883,24 @@ impl PiLoopHost {
             published: Vec::new(),
             active_request: None,
             active_tool_call: None,
-            // ④：production 从此有真件；⑤：握手也谈成了 `workspace_write`。
+            // ④：production 从此有真件；⑤：握手也谈成了 `workspace_write`；
+            // `PI-WORKSPACE-READ-1`：握手再谈成 `workspace_read`，读件同批装上。
             //
-            // 两道产品闸的现况**如实登记**（⑤ 逐一复核）：
-            // - 0.1 能力门：`workspace_write` 已进闭集，故它不再挡 write，只继续挡未谈成的
-            //   `workspace_read`（`PI-WORKSPACE-READ-1` 之前恒拒）；它对 write 的可证否形态
-            //   由 `revoke_workspace_write` 的反例保留。
+            // 两道产品闸的现况**如实登记**：
+            // - 0.1 能力门：`workspace_write` 与 `workspace_read` 都已进闭集，故它不再挡这两枚。
+            //   它挡的是**本次握手没谈成**的任何 capability——可证否形态由
+            //   `revoke_workspace_write` 与 `revoke_workspace_read` 两枚反例保留，
+            //   不随能力到位而失去覆盖。
             // - 逐次授权：production **至今没有 decision driver**（GUI/headless 验收才注入），
             //   故真件的 `decide` 恒 `policy_denied`——产品线上的 write 因此仍零 effect，
             //   且是显式拒绝、显式落账，不是静默跳过。硬编码 `Approved` 属 ADR-022 六-C 明禁。
+            //   **读没有这一道**：读不是 effect，没有可授权的对象；它的边界全在容器与 grammar。
             write_host: Some(Box::new(crate::pi_loop_workspace::WorkspaceFsHost::new(
+                app_data_dir,
+                &config.container_id,
+                &config.session_id,
+            ))),
+            read_host: Some(Box::new(crate::pi_loop_workspace::WorkspaceFsHost::new(
                 app_data_dir,
                 &config.container_id,
                 &config.session_id,
@@ -1240,14 +1285,19 @@ impl PiLoopHost {
         request: WorkspaceHostRequest,
     ) -> Result<(), HostError> {
         // 0.1 能力门：只服务本次握手**真的谈成**的那几枚。不拿编译期 expected 洗白，也不认
-        //     请求自报。⑤ 之后 `workspace_write` 已在闭集内，本门对 write 不再是产品线上的
-        //     挡板（挡 write 的是逐次授权那一道）；它继续挡的是未谈成的 `workspace_read`。
-        //     可证否形态由 `revoke_workspace_write` 的反例保留，不随能力到位而失去覆盖。
+        //     请求自报。⑤ 与 `PI-WORKSPACE-READ-1` 之后 `workspace_write`／`workspace_read`
+        //     都已在闭集内，本门对这两枚不再是产品线上的挡板（挡 write 的是逐次授权那一道）；
+        //     它挡的是本次握手**没谈成**的任何 capability。可证否形态由
+        //     `revoke_workspace_write` 与 `revoke_workspace_read` 两枚反例保留，
+        //     不随能力到位而失去覆盖。
         if !self.capabilities.contains(&request.capability) {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
         }
-        // 0.2 本阶段只服务 workspace_write。`exists|read_file|list` 属 PI-WORKSPACE-READ-1，
-        //     未实装即**显式**拒，不静默跳过（1R5 判例：unknown → 跳过是病根）。
+        // 0.2 按 capability 分叉。闭集恰两枚，两枚都已实装；将来若再添一枚而此处未跟上，
+        //     它会落到下面的 `else` 上被**显式**拒，不静默跳过（1R5 判例：unknown → 跳过是病根）。
+        if request.capability == WorkspaceCapability::WorkspaceRead {
+            return self.serve_read_request(request_id, request);
+        }
         if request.capability != WorkspaceCapability::WorkspaceWrite {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
         }
@@ -1376,6 +1426,158 @@ impl PiLoopHost {
             EffectOutcome::Failed(code) => self.settle_failed(request_id, &plan, code),
             EffectOutcome::Uncertain => self.settle_uncertain(request_id, &plan),
         }
+    }
+
+    /// 读面 `proposalHash`（ADR-022 六-B.2 read 行）。域串换、frame 机制同。
+    ///
+    /// `operation` 在拼接里**不可省**：省掉它，同一路径上的 `exists` 与 `read_file` 得到同一枚
+    /// hash，把请求改成另一种操作就无从判定。
+    fn workspace_read_proposal_hash(
+        session_id: &str,
+        request_id: &str,
+        operation_id: &str,
+        operation: WorkspaceOperation,
+        logical_path: &str,
+    ) -> String {
+        let mut bytes = Vec::new();
+        for field in [
+            WORKSPACE_READ_PROPOSAL_DOMAIN,
+            session_id,
+            request_id,
+            operation_id,
+            operation.as_str(),
+            logical_path,
+        ] {
+            bytes.extend_from_slice(&(field.len() as u32).to_be_bytes());
+            bytes.extend_from_slice(field.as_bytes());
+        }
+        pi_loop_journal::sha256_hex(&bytes)
+    }
+
+    /// `host_request` 的读臂（`PI-WORKSPACE-READ-1`）。与写臂**三处结构性不同**，逐条有由：
+    ///
+    /// 1. **`active_tool_call` 只 peek 不 take**。写是「一 tc 一 op」；而一次 `glob` 要逐层
+    ///    `list`，同一枚 tool call 因此会发多枚读 operation。Node 状态机侧已按此设计
+    ///    （read 系工具的 tool call 在 `host_result` 收束后回到 `started`）；这里若照写臂
+    ///    认领即消费，第二枚读请求就会当场无主。
+    /// 2. **零 journal 记录**。四段账（proposed/authorized/started/settled）描述的是一次
+    ///    **effect** 的生命周期；读没有 effect，落一笔账等于把「读过什么」写进持久档——
+    ///    正文与读取轨迹都不该进 journal（ADR-022 六-C）。十九型 payload 闭集因此零变化。
+    /// 3. **零授权**。没有 effect 就没有可授权的对象；边界全在 capability、grammar 与容器。
+    fn serve_read_request(
+        &mut self,
+        request_id: &str,
+        request: WorkspaceHostRequest,
+    ) -> Result<(), HostError> {
+        let WorkspaceRequestArguments::Read(arguments) = request.arguments else {
+            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        };
+        // 读同样必须归属于一枚在场的 tool call：会话里没有活动工具却来读，是状态违约。
+        if self.active_tool_call.is_none() {
+            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        }
+        if self.read_host.is_none() {
+            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        }
+
+        // 本侧重算，不认对端自报（ADR-022 六-B.2「Rust 必须重算」）。
+        let recomputed = Self::workspace_read_proposal_hash(
+            &self.session_id,
+            request_id,
+            &request.operation_id,
+            arguments.operation,
+            &arguments.logical_path,
+        );
+        if recomputed != request.proposal_hash {
+            return self.settle_read_failed(
+                request_id,
+                &request.operation_id,
+                arguments.operation,
+                HostFailureCode::HashMismatch,
+            );
+        }
+
+        let reader = self
+            .read_host
+            .as_mut()
+            .expect("上面已判读件座非空")
+            .as_mut();
+        let outcome = match arguments.operation {
+            WorkspaceOperation::Exists => reader
+                .exists(&arguments.logical_path)
+                .map(|exists| HostResultValue::Exists {
+                    logical_path: arguments.logical_path.clone(),
+                    exists,
+                }),
+            WorkspaceOperation::ReadFile => {
+                reader
+                    .read_file(&arguments.logical_path)
+                    .map(|(content, byte_length)| HostResultValue::ReadFile {
+                        content_sha256: pi_loop_journal::sha256_hex(content.as_bytes()),
+                        logical_path: arguments.logical_path.clone(),
+                        content,
+                        byte_length,
+                    })
+            }
+            WorkspaceOperation::List => {
+                reader
+                    .list(&arguments.logical_path)
+                    .map(|entries| HostResultValue::List {
+                        logical_path: arguments.logical_path.clone(),
+                        entries,
+                    })
+            }
+            // decoder 已锁死「`workspace_read` 的 operation 不得为 write」，此支不可达；
+            // 仍显式拒，不用 `unreachable!` 把一条协议漂移变成 panic。
+            WorkspaceOperation::Write => {
+                return Err(self.fail_protocol(ProtocolErrorCode::StateViolation))
+            }
+        };
+
+        match outcome {
+            Ok(value) => {
+                let line = self.encode_or_fail(
+                    request_id,
+                    HostResultPayload {
+                        operation_id: request.operation_id,
+                        capability: WorkspaceCapability::WorkspaceRead,
+                        operation: arguments.operation,
+                        outcome: HostResultOutcome::Ok(value),
+                    },
+                )?;
+                self.write_encoded(line)
+            }
+            Err(code) => self.settle_read_failed(
+                request_id,
+                &request.operation_id,
+                arguments.operation,
+                code,
+            ),
+        }
+    }
+
+    /// 读的失败收束：**只发包，不落账**（读没有 effect）。文案仍出自 `HostFailureCode` 单表，
+    /// 不拼路径、不转发 OS error。
+    fn settle_read_failed(
+        &mut self,
+        request_id: &str,
+        operation_id: &str,
+        operation: WorkspaceOperation,
+        code: HostFailureCode,
+    ) -> Result<(), HostError> {
+        let line = self.encode_or_fail(
+            request_id,
+            HostResultPayload {
+                operation_id: operation_id.to_string(),
+                capability: WorkspaceCapability::WorkspaceRead,
+                operation,
+                outcome: HostResultOutcome::Failed {
+                    code,
+                    message: code.message().to_string(),
+                },
+            },
+        )?;
+        self.write_encoded(line)
     }
 
     /// 真件座的取用点。0.4 已判非空，故此处 `expect` 不是宽容而是断言。
@@ -2135,6 +2337,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             )])],
@@ -2152,6 +2355,7 @@ mod tests {
             &[HostEvent::Ready {
                 capabilities: vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ]
             }]
@@ -2206,6 +2410,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             )])],
@@ -2292,6 +2497,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -2373,6 +2579,7 @@ mod tests {
                         1,
                         vec![
                             WorkspaceCapability::CaseRead,
+                            WorkspaceCapability::WorkspaceRead,
                             WorkspaceCapability::WorkspaceWrite,
                         ],
                     ),
@@ -2423,6 +2630,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -2499,6 +2707,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -2552,6 +2761,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -2606,6 +2816,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -2653,6 +2864,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             )])],
@@ -2692,6 +2904,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             )])],
@@ -2729,6 +2942,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             )])],
@@ -2749,6 +2963,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             )])],
@@ -2805,6 +3020,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             )])],
@@ -2823,6 +3039,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -2849,6 +3066,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             )])],
@@ -2893,6 +3111,7 @@ mod tests {
                 2,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             )])],
@@ -2913,6 +3132,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -3245,6 +3465,7 @@ mod tests {
             PacketPayload::Ready {
                 capabilities: vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             },
@@ -3484,6 +3705,7 @@ mod tests {
             PacketPayload::Ready {
                 capabilities: vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             },
@@ -3724,6 +3946,7 @@ mod tests {
             PacketPayload::Ready {
                 capabilities: vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             },
@@ -3996,6 +4219,7 @@ mod tests {
             1,
             vec![
                 WorkspaceCapability::CaseRead,
+                WorkspaceCapability::WorkspaceRead,
                 WorkspaceCapability::WorkspaceWrite,
             ],
         )])
@@ -4148,6 +4372,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -4222,6 +4447,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -4268,6 +4494,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -4302,6 +4529,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -4335,6 +4563,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -4367,6 +4596,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -4437,6 +4667,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -5008,6 +5239,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -6003,6 +6235,7 @@ mod tests {
             1,
             vec![
                 WorkspaceCapability::CaseRead,
+                WorkspaceCapability::WorkspaceRead,
                 WorkspaceCapability::WorkspaceWrite,
             ],
         )];
@@ -6295,6 +6528,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -6510,6 +6744,7 @@ mod tests {
                     1,
                     vec![
                         WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
@@ -6770,9 +7005,14 @@ mod tests {
     }
 
     fn tool_started_line(seq: u64) -> Scripted {
+        tool_started_line_for(seq, "req-1")
+    }
+
+    /// requestId 参数化版：同一 logical session 内 requestId 不可复用，跨腿的脚本因此要换枚。
+    fn tool_started_line_for(seq: u64, request_id: &str) -> Scripted {
         sidecar_line(
             seq,
-            Some("req-1"),
+            Some(request_id),
             PacketPayload::AgentEvent(AgentProjectionEvent::ToolStarted {
                 tool_call_id: TOOL_CALL.to_string(),
                 tool_name: ProductToolName::Write,
@@ -6781,9 +7021,13 @@ mod tests {
     }
 
     fn tool_finished_line(seq: u64) -> Scripted {
+        tool_finished_line_for(seq, "req-1")
+    }
+
+    fn tool_finished_line_for(seq: u64, request_id: &str) -> Scripted {
         sidecar_line(
             seq,
-            Some("req-1"),
+            Some(request_id),
             PacketPayload::AgentEvent(AgentProjectionEvent::ToolFinished {
                 tool_call_id: TOOL_CALL.to_string(),
                 tool_name: ProductToolName::Write,
@@ -6793,9 +7037,13 @@ mod tests {
     }
 
     fn completed_line(seq: u64) -> Scripted {
+        completed_line_for(seq, "req-1")
+    }
+
+    fn completed_line_for(seq: u64, request_id: &str) -> Scripted {
         sidecar_line(
             seq,
-            Some("req-1"),
+            Some(request_id),
             PacketPayload::Terminal(Terminal::Completed {
                 budget: open_budget(0, Some(0.0)),
             }),
@@ -6809,6 +7057,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             ),
@@ -7215,61 +7464,73 @@ mod tests {
 
     /// 四道门逐枚：拒绝一律 `state_violation`，且 effect 恰 0 次、`host_result` 一枚不发。
     ///
-    /// 「未实装即显式拒」是这一族的要害：`exists|read_file|list` 属 PI-WORKSPACE-READ-1，
-    /// 静默跳过与假装成功在读数上同形（1R5 判例）。
+    /// `PI-WORKSPACE-READ-1` 之后「读操作未实装」这一格**已不成立**（读臂真的在服务），
+    /// 原位换成「读能力未谈成」：0.1 能力门对读的可证否形态由 `revoke_workspace_read` 保留，
+    /// 与写那一格同构。撤掉之后来一枚读请求，若 0.1 不在，它会一路走到真实文件读取。
     #[test]
     fn counterexample_host_request_gates_refuse_before_any_effect() {
-        // (label, 本次握手是否谈成 workspace_write, 是否装真件, 是否先来一枚 tool_started, 请求)
+        // (label, 本次握手撤掉哪一枚能力, 是否装真件, 是否先来一枚 tool_started, 请求)
         //
-        // ⑤ 之后握手闭集恒含 `workspace_write`，故「能力未谈成」这一格改由
-        // `revoke_workspace_write` 显式撤销构造——0.1 门的反例因此不因能力到位而失去覆盖。
-        let cases: Vec<(&str, bool, bool, bool, PacketPayload)> = vec![
+        // 握手闭集恒含 `workspace_write`／`workspace_read`，故两格「能力未谈成」都改由显式
+        // 撤销构造——0.1 门的反例因此不因能力到位而失去覆盖。
+        let read_request_packet = || {
+            PacketPayload::HostRequest(WorkspaceHostRequest {
+                operation_id: OPERATION.to_string(),
+                proposal_hash: PROBE_SHA.to_string(),
+                capability: WorkspaceCapability::WorkspaceRead,
+                arguments: WorkspaceRequestArguments::Read(
+                    crate::pi_loop_protocol::WorkspaceReadArguments {
+                        operation: WorkspaceOperation::List,
+                        logical_path: "子目录".to_string(),
+                    },
+                ),
+            })
+        };
+        let cases: Vec<(&str, Option<WorkspaceCapability>, bool, bool, PacketPayload)> = vec![
             (
-                "能力未谈成",
-                false,
+                "写能力未谈成",
+                Some(WorkspaceCapability::WorkspaceWrite),
                 true,
                 true,
                 write_request_packet("纪要.md", WRITE_CONTENT),
             ),
             (
-                "读操作未实装",
+                "读能力未谈成",
+                Some(WorkspaceCapability::WorkspaceRead),
                 true,
                 true,
-                true,
-                PacketPayload::HostRequest(WorkspaceHostRequest {
-                    operation_id: OPERATION.to_string(),
-                    proposal_hash: PROBE_SHA.to_string(),
-                    capability: WorkspaceCapability::WorkspaceRead,
-                    arguments: WorkspaceRequestArguments::Read(
-                        crate::pi_loop_protocol::WorkspaceReadArguments {
-                            operation: WorkspaceOperation::List,
-                            logical_path: "子目录".to_string(),
-                        },
-                    ),
-                }),
+                read_request_packet(),
             ),
             (
                 "无活动 tool call",
-                true,
+                None,
                 true,
                 false,
                 write_request_packet("纪要.md", WRITE_CONTENT),
             ),
             (
-                "真件座缺席",
+                "读的无活动 tool call",
+                None,
                 true,
+                false,
+                read_request_packet(),
+            ),
+            (
+                "真件座缺席",
+                None,
                 false,
                 true,
                 write_request_packet("纪要.md", WRITE_CONTENT),
             ),
         ];
 
-        for (label, negotiated, install, tool_started, request) in cases {
+        for (label, revoke, install, tool_started, request) in cases {
             let h = harness("write-gate");
             let mut leg = vec![ready(
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             )];
@@ -7289,8 +7550,10 @@ mod tests {
             let mut host = host.expect("启动");
             let write_host = ScriptedWriteHost::new(&h);
             let effects = Arc::clone(&write_host.log);
-            if !negotiated {
-                host.revoke_workspace_write();
+            match revoke {
+                Some(WorkspaceCapability::WorkspaceWrite) => host.revoke_workspace_write(),
+                Some(WorkspaceCapability::WorkspaceRead) => host.revoke_workspace_read(),
+                Some(_) | None => {}
             }
             // ④ 起构造点恒装真件，故「真件座缺席」这一格必须**显式置 `None`**——
             // 0.4 门的反例因此仍然咬得住，不因真件到位而悄悄失去覆盖。
@@ -7336,6 +7599,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             ),
@@ -7611,6 +7875,7 @@ mod tests {
                 1,
                 vec![
                     WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             ),
@@ -7676,6 +7941,507 @@ mod tests {
 
     /// 端到端：四段账 ＋ **真字节**落进 `app_data_dir()/pi-workspaces/<c>/<s>/`，
     /// 出站 `host_result` 与盘上事实逐值同一结论，正文一个字节都不进 journal。
+    /// ── 读臂（`PI-WORKSPACE-READ-1`）──
+    ///
+    /// 一枚读请求。`proposal_hash` 由**本测试独立重算**——不调生产那一枚函数，
+    /// 否则「本侧重算」这条判据就是被测代码自证。
+    fn read_request_packet(
+        operation_id: &str,
+        operation: WorkspaceOperation,
+        logical_path: &str,
+    ) -> PacketPayload {
+        let mut bytes = Vec::new();
+        for field in [
+            "courtwork.pi.workspace_read.v1",
+            "sess-1",
+            "req-1",
+            operation_id,
+            operation.as_str(),
+            logical_path,
+        ] {
+            bytes.extend_from_slice(&(field.len() as u32).to_be_bytes());
+            bytes.extend_from_slice(field.as_bytes());
+        }
+        PacketPayload::HostRequest(WorkspaceHostRequest {
+            operation_id: operation_id.to_string(),
+            proposal_hash: pi_loop_journal::sha256_hex(&bytes),
+            capability: WorkspaceCapability::WorkspaceRead,
+            arguments: WorkspaceRequestArguments::Read(
+                crate::pi_loop_protocol::WorkspaceReadArguments {
+                    operation,
+                    logical_path: logical_path.to_string(),
+                },
+            ),
+        })
+    }
+
+    fn read_request_packet_for(
+        request_id: &str,
+        operation_id: &str,
+        operation: WorkspaceOperation,
+        logical_path: &str,
+    ) -> PacketPayload {
+        let mut bytes = Vec::new();
+        for field in [
+            "courtwork.pi.workspace_read.v1",
+            "sess-1",
+            request_id,
+            operation_id,
+            operation.as_str(),
+            logical_path,
+        ] {
+            bytes.extend_from_slice(&(field.len() as u32).to_be_bytes());
+            bytes.extend_from_slice(field.as_bytes());
+        }
+        PacketPayload::HostRequest(WorkspaceHostRequest {
+            operation_id: operation_id.to_string(),
+            proposal_hash: pi_loop_journal::sha256_hex(&bytes),
+            capability: WorkspaceCapability::WorkspaceRead,
+            arguments: WorkspaceRequestArguments::Read(
+                crate::pi_loop_protocol::WorkspaceReadArguments {
+                    operation,
+                    logical_path: logical_path.to_string(),
+                },
+            ),
+        })
+    }
+
+    fn host_results(log: &Arc<Mutex<LegLog>>) -> Vec<HostResultPayload> {
+        log.lock()
+            .expect("日志未中毒")
+            .written
+            .iter()
+            .filter_map(|line| match decode_host_packet_for_test(line)?.payload {
+                PacketPayload::HostResult(payload) => Some(payload),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// 票面闭环的 Rust 那一半：write → 批准 → 真落盘 → **同 leg 内**逐字节回读。
+    ///
+    /// 三件同时钉住：回读的 content/hash/byteLength 与写入那一枚逐值相同；读**不落一笔账**
+    /// （记录序与纯写那一枚逐型相同）；物理根不进 host_result 也不进 journal。
+    #[test]
+    fn real_read_arm_returns_the_bytes_the_write_arm_landed() {
+        let h = harness("real-readback");
+        let content = "# 纪要\n真件落盘\n第二行\n";
+        let leg = VecDeque::from(vec![
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
+            tool_started_line(2),
+            sidecar_line(
+                3,
+                Some("req-1"),
+                real_write_request_packet("notes/会议纪要.md", content),
+            ),
+            tool_finished_line(4),
+            tool_started_line(5),
+            sidecar_line(
+                6,
+                Some("req-1"),
+                read_request_packet("op-read-1", WorkspaceOperation::ReadFile, "notes/会议纪要.md"),
+            ),
+            tool_finished_line(7),
+            completed_line(8),
+        ]);
+        let (mut host, log) = real_armed_host(
+            &h,
+            vec![leg],
+            Some(ScriptedDecision {
+                approve: true,
+                before: None,
+            }),
+        );
+        let terminal = host.prompt("req-1", "写完再回读").expect("闭环必须走得通");
+        assert!(matches!(terminal, Terminal::Completed { .. }));
+
+        let results = host_results(&log);
+        assert_eq!(results.len(), 2, "写一枚、读一枚，各恰一次");
+        assert_eq!(
+            results[1].outcome,
+            HostResultOutcome::Ok(HostResultValue::ReadFile {
+                logical_path: "notes/会议纪要.md".to_string(),
+                content: content.to_string(),
+                content_sha256: pi_loop_journal::sha256_hex(content.as_bytes()),
+                byte_length: content.len() as u64,
+            }),
+            "回读必须逐字节等于写入那一份",
+        );
+
+        // 读**零落账**：记录序与纯写那一枚逐型相同，一笔都不多。
+        assert_eq!(
+            record_types(host.records()),
+            vec![
+                JournalType::SessionStarted,
+                JournalType::UserPrompted,
+                JournalType::AgentEvent,
+                JournalType::ToolProposed,
+                JournalType::AuthorizationDecided,
+                JournalType::EffectStarted,
+                JournalType::EffectSucceeded,
+                JournalType::AgentEvent,
+                JournalType::AgentEvent,
+                JournalType::AgentEvent,
+                JournalType::PromptCompleted,
+            ],
+        );
+        let text =
+            String::from_utf8(fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"))
+                .expect("UTF-8");
+        assert!(!text.contains("真件落盘"), "回读的正文同样不得落进 journal");
+        assert!(
+            !text.contains(&h.app_data.to_string_lossy().to_string()),
+            "物理根不得进 journal"
+        );
+    }
+
+    /// 一枚 tool call **可以**服务多枚读 operation（写是「一 tc 一 op」，读不是）。
+    ///
+    /// 这正是读臂只 peek 不 take `active_tool_call` 的判据：照写臂认领即消费，
+    /// 第二枚读请求会当场无主，而一次 `glob` 恰恰要逐层 `list`。
+    #[test]
+    fn read_arm_serves_many_operations_under_one_tool_call() {
+        let h = harness("read-multi-op");
+        let content = "正文\n";
+        let leg = VecDeque::from(vec![
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
+            tool_started_line(2),
+            sidecar_line(
+                3,
+                Some("req-1"),
+                real_write_request_packet("子目录/稿.md", content),
+            ),
+            tool_finished_line(4),
+            tool_started_line(5),
+            // 同一枚 tool call 里连发三枚读：list 根、list 子目录、read_file。
+            sidecar_line(
+                6,
+                Some("req-1"),
+                read_request_packet("op-read-1", WorkspaceOperation::List, "."),
+            ),
+            sidecar_line(
+                7,
+                Some("req-1"),
+                read_request_packet("op-read-2", WorkspaceOperation::List, "子目录"),
+            ),
+            sidecar_line(
+                8,
+                Some("req-1"),
+                read_request_packet("op-read-3", WorkspaceOperation::Exists, "子目录/稿.md"),
+            ),
+            tool_finished_line(9),
+            completed_line(10),
+        ]);
+        let (mut host, log) = real_armed_host(
+            &h,
+            vec![leg],
+            Some(ScriptedDecision {
+                approve: true,
+                before: None,
+            }),
+        );
+        host.prompt("req-1", "写完逐层列").expect("多枚读必须都被服务");
+
+        let results = host_results(&log);
+        assert_eq!(results.len(), 4, "一写三读，四枚 host_result 一个不少");
+        assert_eq!(
+            results[1].outcome,
+            HostResultOutcome::Ok(HostResultValue::List {
+                logical_path: ".".to_string(),
+                entries: vec![ListEntry {
+                    name: "子目录".to_string(),
+                    kind: crate::pi_loop_protocol::ListEntryKind::Directory,
+                    byte_length: None,
+                    mtime_ms: results_list_mtime(&results[1]),
+                }],
+            }),
+        );
+        assert_eq!(
+            results[3].outcome,
+            HostResultOutcome::Ok(HostResultValue::Exists {
+                logical_path: "子目录/稿.md".to_string(),
+                exists: true,
+            }),
+        );
+    }
+
+    /// `mtimeMs` 是真实文件时间，不能写死；只从被测结果里取出来做结构对照。
+    fn results_list_mtime(payload: &HostResultPayload) -> Option<u64> {
+        match &payload.outcome {
+            HostResultOutcome::Ok(HostResultValue::List { entries, .. }) => {
+                entries.first().and_then(|entry| entry.mtime_ms)
+            }
+            _ => None,
+        }
+    }
+
+    /// 读的 `proposalHash` 由**本侧重算**：五枚被绑字段各改一枚，都必须当场不符。
+    ///
+    /// 决定性判据不是「回了 failed」，而是**读件一次都没被碰**——不符的请求从未成为一次读取。
+    #[test]
+    fn counterexample_read_proposal_hash_is_recomputed_and_binds_every_read_field() {
+        // (label, 改后的请求)：operationId／operation／logicalPath 三枚直接换值；
+        // sessionId／requestId 两枚由臂上下文固定，改它们等价于换一枚 hash，故以裸错 hash 代表。
+        let cases: Vec<(&str, PacketPayload)> = vec![
+            (
+                "operationId 被换",
+                match read_request_packet("op-read-1", WorkspaceOperation::List, ".") {
+                    PacketPayload::HostRequest(mut request) => {
+                        request.operation_id = "op-read-9".to_string();
+                        PacketPayload::HostRequest(request)
+                    }
+                    other => other,
+                },
+            ),
+            (
+                "operation 被换",
+                match read_request_packet("op-read-1", WorkspaceOperation::List, ".") {
+                    PacketPayload::HostRequest(mut request) => {
+                        request.arguments = WorkspaceRequestArguments::Read(
+                            crate::pi_loop_protocol::WorkspaceReadArguments {
+                                operation: WorkspaceOperation::Exists,
+                                logical_path: ".".to_string(),
+                            },
+                        );
+                        PacketPayload::HostRequest(request)
+                    }
+                    other => other,
+                },
+            ),
+            (
+                "logicalPath 被换",
+                match read_request_packet("op-read-1", WorkspaceOperation::List, ".") {
+                    PacketPayload::HostRequest(mut request) => {
+                        request.arguments = WorkspaceRequestArguments::Read(
+                            crate::pi_loop_protocol::WorkspaceReadArguments {
+                                operation: WorkspaceOperation::List,
+                                logical_path: "别处".to_string(),
+                            },
+                        );
+                        PacketPayload::HostRequest(request)
+                    }
+                    other => other,
+                },
+            ),
+            (
+                "域串被换（写域冒充读域）",
+                match read_request_packet("op-read-1", WorkspaceOperation::List, ".") {
+                    PacketPayload::HostRequest(mut request) => {
+                        request.proposal_hash = scripted_proposal_hash(".", "");
+                        PacketPayload::HostRequest(request)
+                    }
+                    other => other,
+                },
+            ),
+        ];
+
+        for (label, request) in cases {
+            let h = harness("read-hash");
+            let leg = VecDeque::from(vec![
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
+                tool_started_line(2),
+                sidecar_line(3, Some("req-1"), request),
+                tool_finished_line(4),
+                completed_line(5),
+            ]);
+            let (mut host, log) = real_armed_host(&h, vec![leg], None);
+            host.prompt("req-1", "读一读").expect("hash 不符只收束这一枚，不炸 leg");
+            let results = host_results(&log);
+            assert_eq!(results.len(), 1, "{label}：恰一枚 host_result");
+            assert!(
+                matches!(
+                    results[0].outcome,
+                    HostResultOutcome::Failed {
+                        code: HostFailureCode::HashMismatch,
+                        ..
+                    }
+                ),
+                "{label}：实得 {:?}",
+                results[0].outcome,
+            );
+            // 决定性：workspace 根一个字节都没被建出来——不符的请求从未成为一次读取。
+            assert!(
+                !workspace_root(&h).exists(),
+                "{label}：hash 不符不许触到文件系统"
+            );
+        }
+    }
+
+    /// 读面的失败文案与结果里没有物理坐标，且不跟随 symlink。
+    #[test]
+    fn read_arm_refuses_symlinks_and_never_leaks_physical_paths() {
+        let h = harness("read-symlink");
+        let content = "正文\n";
+        let leg = VecDeque::from(vec![
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
+            tool_started_line(2),
+            sidecar_line(3, Some("req-1"), real_write_request_packet("稿.md", content)),
+            tool_finished_line(4),
+            tool_started_line(5),
+            sidecar_line(
+                6,
+                Some("req-1"),
+                read_request_packet("op-read-1", WorkspaceOperation::ReadFile, "外链.md"),
+            ),
+            tool_finished_line(7),
+            completed_line(8),
+        ]);
+        let (mut host, log) = real_armed_host(
+            &h,
+            vec![leg],
+            Some(ScriptedDecision {
+                approve: true,
+                // 授权窗口里把一枚 symlink 放进 workspace 根：读到它必须拒，不跟随。
+                before: Some(Box::new({
+                    let root = workspace_root(&h);
+                    move || {
+                        if root.exists() && !root.join("外链.md").exists() {
+                            let _ = std::os::unix::fs::symlink("/etc/hosts", root.join("外链.md"));
+                        }
+                    }
+                })),
+            }),
+        );
+        host.prompt("req-1", "读一读外链").expect("拒绝只收束这一枚");
+
+        let results = host_results(&log);
+        let last = results.last().expect("必有结果");
+        let physical = h.app_data.to_string_lossy().to_string();
+        match &last.outcome {
+            HostResultOutcome::Failed { code, message } => {
+                assert!(
+                    matches!(
+                        code,
+                        HostFailureCode::SymlinkForbidden | HostFailureCode::NotFound
+                    ),
+                    "实得 {code:?}",
+                );
+                assert!(!message.contains(&physical), "错误文案不得含物理根");
+                assert!(!message.contains("/etc/hosts"), "错误文案不得含链接目标");
+            }
+            other => panic!("symlink 必须拒，实得 {other:?}"),
+        }
+    }
+
+    /// 票面判据三：`session_interrupted → session_resumed` 之后，**新 sidecar leg** 仍能
+    /// 回读旧 leg 写下的文件。
+    ///
+    /// workspace 的延续性不靠任何续传机制，而是 `pi-workspaces/<containerId>/<sessionId>/`
+    /// 这一枚物理坐标只由 container/session 决定、与 leg 无关。故这一条要证的恰是：
+    /// 换了 leg（新进程、pi messages 从空开始）之后，同一 logical session 的读仍落回同一棵树。
+    #[test]
+    fn a_new_leg_after_interruption_reads_back_what_the_previous_leg_wrote() {
+        let h = harness("read-resume");
+        let content = "# 跨腿\n第一腿写下的\n";
+        let first = VecDeque::from(vec![
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
+            tool_started_line(2),
+            sidecar_line(
+                3,
+                Some("req-1"),
+                real_write_request_packet("notes/跨腿.md", content),
+            ),
+            tool_finished_line(4),
+            completed_line(5),
+        ]);
+        let (mut host, _) = real_armed_host(
+            &h,
+            vec![first],
+            Some(ScriptedDecision {
+                approve: true,
+                before: None,
+            }),
+        );
+        host.prompt("req-1", "写一份").expect("第一腿必须写成");
+        // 第一腿以中断收场：journal 落 `session_interrupted`，workspace 留在盘上。
+        host.reclaim_after_fault(SessionInterruptReason::SidecarEnded)
+            .expect("回收第一腿");
+        drop(host);
+
+        // 第二腿：新进程、新 leg，只读回上一腿写下的那份字节。
+        let second = VecDeque::from(vec![
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
+            tool_started_line_for(2, "req-2"),
+            sidecar_line(
+                3,
+                Some("req-2"),
+                read_request_packet_for(
+                    "req-2",
+                    "op-read-1",
+                    WorkspaceOperation::ReadFile,
+                    "notes/跨腿.md",
+                ),
+            ),
+            tool_finished_line_for(4, "req-2"),
+            completed_line_for(5, "req-2"),
+        ]);
+        let (mut resumed, log) = real_armed_host(&h, vec![second], None);
+        // requestId 在同一 logical session 内不可复用，故第二腿换一枚。
+        resumed.prompt("req-2", "回读上一腿写的").expect("第二腿必须读得到");
+
+        let results = host_results(&log);
+        assert_eq!(results.len(), 1, "第二腿恰一枚读结果");
+        assert_eq!(
+            results[0].outcome,
+            HostResultOutcome::Ok(HostResultValue::ReadFile {
+                logical_path: "notes/跨腿.md".to_string(),
+                content: content.to_string(),
+                content_sha256: pi_loop_journal::sha256_hex(content.as_bytes()),
+                byte_length: content.len() as u64,
+            }),
+            "新 leg 必须逐字节读回旧 leg 写下的内容",
+        );
+        // 对照：leg 确实换了（journal 里有中断与续起的痕迹），不是同一腿接着跑。
+        let types = record_types(resumed.records());
+        assert!(
+            types.contains(&JournalType::SessionInterrupted)
+                && types.contains(&JournalType::SessionResumed),
+            "前置：必须真的经过 interrupted → resumed，实得 {types:?}"
+        );
+    }
+
     #[test]
     fn real_write_host_lands_bytes_and_settles_the_four_stage_ledger() {
         let h = harness("real-write");

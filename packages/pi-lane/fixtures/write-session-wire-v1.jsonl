@@ -1,4 +1,4 @@
-{"protocolVersion":1,"seq":1,"sessionId":"sess-1","requestId":null,"type":"ready","payload":{"capabilities":["case_read","workspace_write"]}}
+{"protocolVersion":1,"seq":1,"sessionId":"sess-1","requestId":null,"type":"ready","payload":{"capabilities":["case_read","workspace_read","workspace_write"]}}
 {"protocolVersion":1,"seq":2,"sessionId":"sess-1","requestId":"req-1","type":"prompt","payload":{"text":"写一份纪要"}}
 {"protocolVersion":1,"seq":2,"sessionId":"sess-1","requestId":"req-1","type":"agent_event","payload":{"kind":"tool_started","toolCallId":"tc_1_1","toolName":"write"}}
 {"protocolVersion":1,"seq":3,"sessionId":"sess-1","requestId":"req-1","type":"host_request","payload":{"operationId":"op_1_1","proposalHash":"cd21701618c17258adfd1544a406f77d445f833b7257088cb08b6d4b4f76c14a","capability":"workspace_write","arguments":{"logicalPath":"纪要.md","content":"# 纪要\n合同编号 HT-2024-081。\n","contentSha256":"e80ddeb170a3513e335ada586bec6f0068e8be8c66ab0845b38ec541edb888ba","byteLength":37}}}
