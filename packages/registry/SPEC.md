@@ -138,9 +138,9 @@ type InteractionTemplate = {
 - **包 manifest + 准入 + 五 registry** 落地：`VerticalPackageManifest`（身份/descriptor/场景 v2/声明段正文/renderer 声明/词表节/锚色席位）；`admitPackages`（引用闭合：artifact 与 prompt ref 装载期解析、同 id 拒载、命名空间所有权、词表完备性——必备键 + 枚举字段 enumLabels 零编码暴露律机器化、none×副作用 artifact 契约护栏；**一包拒载不传染他包**=加载兜底④底座义务）；`buildPackageRegistries` 五面（artifact schema 注入式+读侧别名归一 / scenario：promptSegmentRef 闭合为 promptBody、steps 确定性派生 / renderer：缺声明→渲染兜底 / projection / vocabulary：包词优先缺词落底座中性话）。
 - **v1 装载面退役**：scenario.ts/loader.ts/query.ts 与 scenarios/*.yaml 五张随 legal 迁包删除——场景声明随包 manifest 走 ABI 门。文案归宿律照裁：不设第六文案 registry。
 
-## ADMISSION-ENUM-1 实现记录（2026-08-04，审计双确认批；1R 返修 2026-08-04 追加，实现完成待独立验收）
+## ADMISSION-ENUM-1 实现记录（2026-08-04，审计双确认批；1R 返修 2026-08-04 追加；2R 返修 2026-08-04 追加，实现完成待独立验收）
 
-权威：`docs/architecture/implementation-readiness.md` 2026-08-04 审计双确认批 `ADMISSION-ENUM-1` 行（逐字为准）；1R 返修按验收第一相四项（F-A/F-B/F-C/F-D）逐条闭合。边界：只改准入门与反例测试；不放松任何既有门。
+权威：`docs/architecture/implementation-readiness.md` 2026-08-04 审计双确认批 `ADMISSION-ENUM-1` 行（逐字为准）；1R 返修按验收第一相四项（F-A/F-B/F-C/F-D）逐条闭合；2R 返修按验收报告 `0b16072`（G-1 驳回依据＋G-2/G-3 并入项）闭合。边界：只改准入门与反例测试；不放松任何既有门。
 
 ### 缺陷①：枚举收集 walker 对 record/default 等静默跳过 → 补齐 + fail-closed
 
@@ -160,6 +160,7 @@ type InteractionTemplate = {
   - `draftField`＝draft item 树中**某对象节点的直接键且值为数组**（`resolveItem` 深走公证面 `key === draftField && Array.isArray(value)`——string 形深层同名键不会被公证，误拼即静默丢引语）；
   - `anchorField`＝final item 树中**某对象节点的直接键且值为数组**（与 draftField 同位的写回点）。
   - 口径说明：draftField/anchorField **未**收紧到 item 根直接键——消费面（resolver 深走）允许键住嵌套对象，legal 的 `quoteClaims`/`sourceAnchors` 恰在 `basis[]` 元素层，收紧到 item 根会误拒合法 legal 包；「直接键＋数组类型」同时挡三形误拼（string 深层键不参与公证）并保 legal 深走形状准入（1R 合跑实测 legal/pm 仍准入）。
+  - **2R G-3 位置轴（协调裁定收口，并入本轮）**：键形轴之外补同位判据——`anchorField` 须与 `draftField` **命中同一对象节点**（`resolveItem` 把铸出的锚写在 draftField 命中的那个节点；错位形会过键形轴，但 executor 的 final `safeParse` 把错位写入的锚 strip、`sourceAnchors` 回落 `[]`、`success=true`——成品零锚点零报错，直触不变量二「无锚不落格」）。实现：walker 增路径追踪（shape 键序列＋数组元素 `[]` 占位），`arrayKeyPaths` 收集数组键的命中节点路径集，同位判据＝draftField 与 anchorField 命中路径集非空交集。record 动态键不推进路径（两侧同构时同位仍成立）；共享子 schema 只记首访路径（visited 键控 (schema, fieldName)），当期 legal/pm 无此形状。
 
 ### 概念账（复杂度审视：本单新增了什么概念、为何非加不可）
 
@@ -171,12 +172,14 @@ type InteractionTemplate = {
 
 - **born-red（初版，实现前）**：`admission.test.ts` 新增 10 枚反例全部按预期红——`z.record` 内嵌枚举缺 enumLabels、`.default()` 直接包裹枚举 / 包裹枚举数组两形、合成 `z.map` 未识别节点、citationBinding 五字段各错形（`outOfCoverageField` 误名一字符、`itemScope` 指向 `/caseId` 非数组、`itemScope` 深路径、`draftField`/`anchorField`/`itemSummaryField` 不存在）。实得 **10 failed / 49 passed**。
 - **born-red（1R，返修前）**：新增 7 枚红——F-A 格式类三枚正例（`z.email()`/`z.uuid()`/`z.url()` 被误判未识别拒载）、F-B 三形（`anchorField`/`draftField`/`itemSummaryField` 深层误拼准入）与 F-C 共用 schema 正例（假拒）。`outOfCoverageField` 形在 F-C 修复前的「绿」是被 visited bug 偶然掩盖（root 收集跳过已访子树恰好收不到深层键）；F-C 修复后该形独立复红（mutation 复证），born-red 成立。实得 **7 failed / 60 passed**。
-- **实现后**：registry 全量 1R 后 **6 files / 97 tests**（admission 67 例）；legal/pm/registry 合跑 **25 files / 237 tests** 全绿（真实 legal 深走形状 `quoteClaims`/`sourceAnchors` 按「数组直接键」判据仍准入）。
-- **mutation 逐枚复红（每枚先备份、注入、定向验证红、恢复、diff 零残留；备份一律落 `$TMPDIR` 仓外，F-D）**：初版九枚（撤 ZodRecord 分支 / 撤 fail-closed / 撤 ZodDefault 分支 / 撤整体 citationBinding 对账 / 撤 itemScope / draftField / itemSummaryField / anchorField / outOfCoverageField 各单字段）全部命中；1R 六枚——撤 `ZodStringFormat` 叶子（F-A 三枚正例红）、撤 outOfCoverageField 根直接键改回全树、撤 anchorField 数组直接键改回全树、撤 draftField 数组直接键改回全树、撤 itemSummaryField 根直接键改回全树、`visited` 恢复跨 collect 共享——逐枚命中。
+- **born-red（2R，返修前）**：G-3 错位形（验收 `0b16072` 语料转 permanent：final item 根另有数组键 `topAnchors`、`basis` 元素 `sourceAnchors` 取 `.default([])`、`anchorField` 误指 `topAnchors`——键形轴过、位置轴应拒）1 枚，实得 **1 failed / 67 passed**。
+- **实现后**：registry 全量 1R 后 **6 files / 105 tests**（admission 67 例；G-2 订正：初版 97 为 7a2e3c4 实测，1R 增 8 枚测试后为 105）；legal/pm/registry 合跑 1R **25 files / 237 tests** 全绿（真实 legal 深走形状 `quoteClaims`/`sourceAnchors` 按「数组直接键」判据仍准入）。2R（G-3）后 registry **6 files / 106 tests**、合跑 **25 files / 238 tests** 全绿。
+- **mutation 逐枚复红（每枚先备份、注入、定向验证红、恢复、diff 零残留；备份一律落 `$TMPDIR` 仓外，F-D）**：初版九枚（撤 ZodRecord 分支 / 撤 fail-closed / 撤 ZodDefault 分支 / 撤整体 citationBinding 对账 / 撤 itemScope / draftField / itemSummaryField / anchorField / outOfCoverageField 各单字段）全部命中；1R 六枚——撤 `ZodStringFormat` 叶子（F-A 三枚正例红）、撤 outOfCoverageField 根直接键改回全树、撤 anchorField 数组直接键改回全树、撤 draftField 数组直接键改回全树、撤 itemSummaryField 根直接键改回全树、`visited` 恢复跨 collect 共享——逐枚命中；2R 一枚——撤 G-3 同位判据 → 错位形反例红。
 
 ### 受控外溢清单（票面「扩紧后若现行 legal/pm 被拒载须补词表/binding 使合规」；接受验收查证）
 
 1. **legal.RiskList 补 `enumLabels.reason`**（`not_found`/`ambiguous`/`file_unavailable` = `CitationFailureReasonEnum`，`@courtwork/schemas`）：walker 补 ZodDefault 后，`outOfCoverage[].failures[].reason` 首次被准入发现——legal 是唯一被扩紧拒载的现行包（实测拒载理由恰一条：`descriptor legal.RiskList 枚举字段 "reason" 缺 enumLabels`）。词条落 `packages/legal/src/presentation/index.ts`；legal descriptor 整面 hash 重铸（`layout-golden.test.ts`），prompt blob 零漂移、`schemaVersion` 不升。
+   - **G-1 来源哈希重封存（协调授权在案，2026-08-04）**：`packages/legal/src/presentation/index.ts` 是 schema-exemplar 来源登记 `P0-S02`（role `presentation-contract`）。外溢本为票面所批，哈希重封存是其必要完件——`docs/design/schema-exemplar.sources.json` 的 `P0-S02.sha256` 由 `4c24f2cb…719f829f`（base 登记值）重封存为 `f19a76a2…c29e1892`（受控外溢后现值）。**authorization**：ADMISSION-ENUM-1 票面「扩紧后若现行 legal/pm 被拒载须补词表/binding 使合规——该外溢属受控外溢，须在对应 SPEC 留痕并接受验收查证」＋ 1R 返修宪章「协调授权在案：外溢本为票面所批，哈希重封存是其必要完件」。`schema-exemplar.md` 正文为符号指针式（「payload 字段、枚举、默认值与 token 数值只认各自机器真源；本文不复制它们」），经核无需同改。
 2. **两处测试 fixture 按「置换批定式」按其本意重写**（本批改变了世界，非放宽门）：`admission.test.ts` anchor 闭合用例与 `package-registries.test.ts` `manifest()` 的 draft/final schema 形状原先与 binding 自相矛盾（draft item 为空对象、final 无 `outOfCoverage` 根键），重写为语义自洽形状。
 3. **外溢探针证据**：以 tsx 探针遍历 legal/pm 全部 binding schema 的可达 zod 类集（`/tmp/admission-enum-1-probe.mts`，一次性工具，未入仓）——可达集为 `ZodObject/ZodArray/ZodOptional/ZodNullable/ZodDefault/ZodEnum/ZodLiteral/ZodString/ZodNumber/ZodBoolean/ZodISODate/ZodISODateTime/ZodRecord/ZodUnion/ZodDiscriminatedUnion`，无其他容器类；故 fail-closed 对现行两包零误伤。
 

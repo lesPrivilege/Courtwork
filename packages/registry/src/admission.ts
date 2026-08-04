@@ -43,6 +43,9 @@ interface CollectedSchemaInfo {
   keys: Set<string>;
   /** 值为数组（unwrap 后 ZodArray）的对象直接键——citationBinding 的 draftField/anchorField 公证面（resolver 只公证数组键）。 */
   arrayKeys: Set<string>;
+  /** 数组键 → 命中节点路径集合（从收集根开始的 shape 键序列，数组元素以 `[]` 占位；JSON 序列化防键名歧义）——
+   *  G-3 同位判据：resolver 把锚写在 draftField 命中的那个节点，anchorField 必须与 draftField 同路径命中。 */
+  arrayKeyPaths: Map<string, Set<string>>;
 }
 
 /** 结构性不可能含枚举/子键的标量叶子（zod 4.4.3 全量）。
@@ -79,6 +82,7 @@ function collectSchemaInfo(
   descriptorTypeId: string,
   issues: string[],
   visited: Map<object, Set<string | undefined>>,
+  path: readonly string[] = [],
 ): void {
   const seenFields = visited.get(schema);
   if (seenFields !== undefined && seenFields.has(fieldName)) return;
@@ -96,8 +100,14 @@ function collectSchemaInfo(
   if (schema instanceof z.ZodObject) {
     for (const [key, value] of Object.entries(schema.shape as Record<string, z.ZodTypeAny>)) {
       info.keys.add(key);
-      if (unwrapSchema(value) instanceof z.ZodArray) info.arrayKeys.add(key);
-      collectSchemaInfo(value, key, info, descriptorTypeId, issues, visited);
+      if (unwrapSchema(value) instanceof z.ZodArray) {
+        info.arrayKeys.add(key);
+        const nodePath = JSON.stringify(path);
+        const paths = info.arrayKeyPaths.get(key) ?? new Set<string>();
+        paths.add(nodePath);
+        info.arrayKeyPaths.set(key, paths);
+      }
+      collectSchemaInfo(value, key, info, descriptorTypeId, issues, visited, [...path, key]);
     }
     return;
   }
@@ -108,33 +118,34 @@ function collectSchemaInfo(
     || schema instanceof z.ZodReadonly
     || schema instanceof z.ZodCatch
   ) {
-    collectSchemaInfo(schema.unwrap() as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited);
+    collectSchemaInfo(schema.unwrap() as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
     return;
   }
   if (schema instanceof z.ZodArray) {
-    collectSchemaInfo(schema.element as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited);
+    collectSchemaInfo(schema.element as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, [...path, '[]']);
     return;
   }
   if (schema instanceof z.ZodRecord) {
     // keyType 亦可能携枚举（enum-keyed record），一并收集；当期包 keyType 均为 string，无行为变化。
-    collectSchemaInfo(schema.def.keyType as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited);
-    collectSchemaInfo(schema.def.valueType as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited);
+    // 路径不推进：record 键动态，valueType 命中节点路径记到 record 所在路径（同位判据对两侧同构 record 仍成立）。
+    collectSchemaInfo(schema.def.keyType as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
+    collectSchemaInfo(schema.def.valueType as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
     return;
   }
   if (schema instanceof z.ZodTuple) {
     for (const item of schema.def.items as z.ZodTypeAny[]) {
-      collectSchemaInfo(item, fieldName, info, descriptorTypeId, issues, visited);
+      collectSchemaInfo(item, fieldName, info, descriptorTypeId, issues, visited, path);
     }
     return;
   }
   if (schema instanceof z.ZodIntersection) {
-    collectSchemaInfo(schema.def.left as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited);
-    collectSchemaInfo(schema.def.right as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited);
+    collectSchemaInfo(schema.def.left as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
+    collectSchemaInfo(schema.def.right as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
     return;
   }
   if (schema instanceof z.ZodLazy) {
     try {
-      collectSchemaInfo(schema.def.getter() as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited);
+      collectSchemaInfo(schema.def.getter() as z.ZodTypeAny, fieldName, info, descriptorTypeId, issues, visited, path);
     } catch {
       issues.push(
         `descriptor ${descriptorTypeId} 准入检查遇到无法求值的 z.lazy 节点（fail-closed：不能证明 wire 枚举/字段已全量覆盖）`,
@@ -144,7 +155,7 @@ function collectSchemaInfo(
   }
   if (schema instanceof z.ZodUnion || schema instanceof z.ZodDiscriminatedUnion) {
     for (const option of schema.options as z.ZodTypeAny[]) {
-      collectSchemaInfo(option, fieldName, info, descriptorTypeId, issues, visited);
+      collectSchemaInfo(option, fieldName, info, descriptorTypeId, issues, visited, path);
     }
     return;
   }
@@ -156,7 +167,7 @@ function collectSchemaInfo(
 
 function checkEnumVocabulary(descriptor: ArtifactDescriptorDataV1, schema: z.ZodType): string[] {
   const issues: string[] = [];
-  const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set(), arrayKeys: new Set() };
+  const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set(), arrayKeys: new Set(), arrayKeyPaths: new Map() };
   collectSchemaInfo(schema, undefined, info, descriptor.typeId, issues, new Map());
   for (const [field, options] of info.enums) {
     const labels = descriptor.vocabulary?.enumLabels?.[field];
@@ -194,7 +205,7 @@ function checkCitationBinding(
   // 1R F-C：visited 每次 collect() 内新建——draft/final 绑同一 ZodType 对象时共享 visited 会让
   // 后续 collect 漏收键（假拒且拒因与事实相反）。环保护仍由单次 collect 内的 visited 承担。
   const collect = (schema: z.ZodTypeAny): CollectedSchemaInfo => {
-    const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set(), arrayKeys: new Set() };
+    const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set(), arrayKeys: new Set(), arrayKeyPaths: new Map() };
     collectSchemaInfo(schema, undefined, info, descriptor.typeId, issues, new Map());
     return info;
   };
@@ -254,6 +265,18 @@ function checkCitationBinding(
   if (!finalInfo.arrayKeys.has(binding.anchorField)) {
     issues.push(
       `descriptor ${descriptor.typeId} citationBinding.anchorField "${binding.anchorField}" 不是最终 item 树中任何对象节点的数组直接键（铸造坐标写回点不存在，将被 strip 静默吞）`,
+    );
+  }
+  // G-3 位置轴：resolver（resolveItem）把铸出的锚写在 draftField 命中的那个对象节点上；
+  // 键形轴之外还须同位——draftField 命中节点路径与 anchorField 命中节点路径存在交集。
+  // 错位形（anchorField 指 item 根的其它数组键）会过键形轴，但 executor 的 final safeParse
+  // 会把错位写入的锚 strip 掉、sourceAnchors 回落 []、success=true——成品零锚点零报错。
+  const draftPaths = draftInfo.arrayKeyPaths.get(binding.draftField) ?? new Set<string>();
+  const anchorPaths = finalInfo.arrayKeyPaths.get(binding.anchorField) ?? new Set<string>();
+  const coLocated = [...draftPaths].some((nodePath) => anchorPaths.has(nodePath));
+  if (!coLocated) {
+    issues.push(
+      `descriptor ${descriptor.typeId} citationBinding.anchorField "${binding.anchorField}" 与 draftField "${binding.draftField}" 不在同一对象节点（resolver 把锚写在 draftField 命中节点，错位锚会被 final parse strip——无锚落格）`,
     );
   }
   return issues;

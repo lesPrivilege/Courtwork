@@ -975,6 +975,45 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
       expect(result.rejected).toEqual([]);
       expect(result.admitted).toHaveLength(1);
     });
+
+    it('anchorField 与 draftField 不在同一对象节点必拒载（位置轴：resolver 把锚写在 draftField 命中节点）', () => {
+      const result = admitPackages([
+        makeCitationManifest({
+          draftSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                basis: z.array(
+                  z.object({
+                    citation: z.string(),
+                    quoteClaims: z.array(z.object({ fileId: z.string(), exactQuote: z.string() })),
+                  }),
+                ),
+              }),
+            ),
+          }),
+          finalSchema: z.object({
+            caseId: z.string(),
+            risks: z.array(
+              z.object({
+                description: z.string(),
+                topAnchors: z.array(z.object({ fileId: z.string() })),
+                basis: z.array(
+                  z.object({ citation: z.string(), sourceAnchors: z.array(z.object({ fileId: z.string() })).default([]) }),
+                ),
+              }),
+            ),
+            outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+          }),
+          binding: { anchorField: 'topAnchors' },
+        }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('anchorField');
+      expect(joined).toContain('topAnchors');
+    });
   });
 
   it('成功准入返回与源对象脱钩的递归深冻结 descriptor', () => {
