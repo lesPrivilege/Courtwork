@@ -91,10 +91,11 @@ async function walkFiles(
   env: ExecutionToolContext['env'],
   start: string,
   visit: (absolute: string) => Promise<void>,
-): Promise<{ scanned: number; truncated: boolean; skipped: RawSkip[] }> {
+): Promise<{ scanned: number; truncated: boolean; skipped: RawSkip[]; symlinks: number }> {
   const queue = [start];
   const skipped: RawSkip[] = [];
   let scanned = 0;
+  let symlinks = 0;
   while (queue.length > 0) {
     const directory = queue.shift();
     if (directory === undefined) break;
@@ -105,18 +106,42 @@ async function walkFiles(
       continue;
     }
     for (const entry of listed.value) {
-      if (entry.kind === 'symlink') continue;
+      // 不跟随是保守解（SPEC 五-5），但**跳过要出账**：不出账，模型看到的就是一棵
+      // 「不存在这条链接」的树，而不是「有一条链接我没跟」。
+      if (entry.kind === 'symlink') {
+        symlinks += 1;
+        continue;
+      }
       if (entry.kind === 'directory') {
         queue.push(entry.path);
         continue;
       }
       // 扫描上限：队列里剩下的目录连同本文件都没看。这一条由 `truncated` 说，不进 skipped。
-      if (scanned >= MAX_FILES_SCANNED) return { scanned, truncated: true, skipped };
+      if (scanned >= MAX_FILES_SCANNED) return { scanned, truncated: true, skipped, symlinks };
       scanned += 1;
       await visit(entry.path);
     }
   }
-  return { scanned, truncated: false, skipped };
+  return { scanned, truncated: false, skipped, symlinks };
+}
+
+/**
+ * 命中行裁剪（1R 拒因）。`MAX_LINE_LENGTH` 是第三枚上限，首轮把它漏在同一个函数里：
+ * 一条 1211 字的合同条款被无标记地切到 400 字交给模型，三枚字段全报完整——而模型看到的
+ * 是一句**看起来完整**的引语。ADR-022 决定三把「截断未显式」逐字列为 harness 缺陷。
+ *
+ * 出面文本与「是否被裁」同源返回：撤掉标记就不可能仍报 `truncated:false`，两者不会各说各话。
+ * 原长一并给出——模型据此判断还差多少、要不要改用 `read` 取全文；只给一个省略号等于让它猜。
+ *
+ * 已知边界（同批登记进 SPEC 五-7）：按 UTF-16 单元切，恰好落在代理对中间时会切出半只字符。
+ * 本票不改切法（那是上限语义变更），但截断本身自此有标记，不再是静默的。
+ */
+function clipLine(line: string): { text: string; truncated: boolean } {
+  if (line.length <= MAX_LINE_LENGTH) return { text: line, truncated: false };
+  return {
+    text: `${line.slice(0, MAX_LINE_LENGTH)}…（本行截断：原 ${line.length} 字符，只给前 ${MAX_LINE_LENGTH}）`,
+    truncated: true,
+  };
 }
 
 /**
@@ -130,21 +155,37 @@ function summarizeSkipCodes(skipped: readonly SkippedEntry[]): string {
 }
 
 /**
- * 不完整注记：三类来源各自成句、互不遮蔽，一条都不成立时**不出注记**。
- * 「没有注记」因此是一句可依赖的断言——结果完整；而不是「本工具从不说这些」。
+ * 不完整注记：**本层能观察到的五类**来源各自成句、互不遮蔽，一条都不成立时**不出注记**。
+ *
+ * 五类：扫描上限、命中上限、行截断、容器拒读、symlink 不跟随。因此「没有注记」是一句可依赖的
+ * 断言——**容器交给本层的每一个条目都被检索、每一条命中都完整列出**；而不是「本工具从不说这些」。
+ *
+ * 承诺**到此为止，不替容器作保**（1R 收窄，见 SPEC 五-8）：容器自己在 `listDir` 里丢掉的条目
+ * ——产品形态的 grammar 排除、单条目 `lstat` 失败——本层连它们存在都不知道，`ExecutionEnv`
+ * 也没有第二条通道能把「我丢了什么」带出来。那两处按边界显式登记并随 env 契约一并移交，
+ * 不在这里用一句更大的全称句盖过去。
  */
 function incompleteNote(input: {
   readonly truncated: boolean;
   readonly matchesTruncated: boolean;
   /** 命中的量词：glob 数文件（份），grep 数行（条）。 */
   readonly matchUnit: string;
+  /** 被裁掉尾部的命中行数。glob 不产出命中行，恒为 0。 */
+  readonly lineTruncated: number;
   readonly skipped: readonly SkippedEntry[];
+  readonly symlinksSkipped: number;
 }): string {
   const clauses: string[] = [];
   if (input.truncated) clauses.push(`已达扫描上限 ${MAX_FILES_SCANNED} 份文件`);
   if (input.matchesTruncated) clauses.push(`已达命中上限 ${MAX_MATCHES} ${input.matchUnit}`);
+  if (input.lineTruncated > 0) {
+    clauses.push(`${input.lineTruncated} 行超长截断（每行 ${MAX_LINE_LENGTH} 字符封顶，行尾有具名标记）`);
+  }
   if (input.skipped.length > 0) {
     clauses.push(`另有 ${input.skipped.length} 处不可读已跳过：${summarizeSkipCodes(input.skipped)}`);
+  }
+  if (input.symlinksSkipped > 0) {
+    clauses.push(`另有 ${input.symlinksSkipped} 处符号链接未跟随（本容器一律不跟随）`);
   }
   return clauses.length === 0 ? '' : `\n（${clauses.join('；')}；结果可能不完整）`;
 }
@@ -196,7 +237,7 @@ function createGlobTool(
       const matcher = globToRegExp(params.pattern);
       const matches: string[] = [];
       let matchesTruncated = false;
-      const { scanned, truncated, skipped: rawSkipped } = await walkFiles(
+      const { scanned, truncated, skipped: rawSkipped, symlinks } = await walkFiles(
         context.env,
         started.value,
         async (absolute) => {
@@ -211,13 +252,22 @@ function createGlobTool(
 
       const skipped = projectSkipped(context.env, project, rawSkipped);
       const header = matches.length === 0 ? '无命中' : `命中 ${matches.length} 份`;
-      const note = incompleteNote({ truncated, matchesTruncated, matchUnit: '份', skipped });
+      const note = incompleteNote({
+        truncated,
+        matchesTruncated,
+        matchUnit: '份',
+        // glob 出的是文件名，没有行可截——恒 0 是事实，不是占位。
+        lineTruncated: 0,
+        skipped,
+        symlinksSkipped: symlinks,
+      });
       return textResult(`${header}\n${matches.join('\n')}${note}`, {
         matched: matches.length,
         scanned,
         truncated,
         matchesTruncated,
         skipped,
+        symlinksSkipped: symlinks,
       });
     },
   };
@@ -247,7 +297,8 @@ function createGrepTool(
       const hits: string[] = [];
       const skippedFiles: RawSkip[] = [];
       let matchesTruncated = false;
-      const { scanned, truncated, skipped: rawSkipped } = await walkFiles(
+      let lineTruncated = 0;
+      const { scanned, truncated, skipped: rawSkipped, symlinks } = await walkFiles(
         context.env,
         started.value,
         async (absolute) => {
@@ -270,7 +321,10 @@ function createGrepTool(
               matchesTruncated = true;
               return;
             }
-            if (matcher.test(line)) hits.push(`${relative}:${index + 1}: ${line.slice(0, MAX_LINE_LENGTH)}`);
+            if (!matcher.test(line)) return;
+            const clipped = clipLine(line);
+            if (clipped.truncated) lineTruncated += 1;
+            hits.push(`${relative}:${index + 1}: ${clipped.text}`);
           });
         },
       );
@@ -278,13 +332,22 @@ function createGrepTool(
       // 目录（walkFiles 的 listDir）与文件（本工具的 readTextLines）两处拒读，同一处出面。
       const skipped = projectSkipped(context.env, project, [...rawSkipped, ...skippedFiles]);
       const header = hits.length === 0 ? '无命中' : `命中 ${hits.length} 行`;
-      const note = incompleteNote({ truncated, matchesTruncated, matchUnit: '条', skipped });
+      const note = incompleteNote({
+        truncated,
+        matchesTruncated,
+        matchUnit: '条',
+        lineTruncated,
+        skipped,
+        symlinksSkipped: symlinks,
+      });
       return textResult(`${header}\n${hits.join('\n')}${note}`, {
         matched: hits.length,
         scanned,
         truncated,
         matchesTruncated,
+        lineTruncated,
         skipped,
+        symlinksSkipped: symlinks,
       });
     },
   };

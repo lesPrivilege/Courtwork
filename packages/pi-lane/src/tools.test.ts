@@ -324,9 +324,20 @@ describe('单次调用上限：扫描与命中是两类，各自出字段与注�
     }));
   }, 120_000);
 
-  it('未触任一上限时两枚字段都出 false，且不附注记', async () => {
-    const result = await run('glob', { pattern: '**/*.md' });
-    expect(detailsOf(result)).toMatchObject({ truncated: false, matchesTruncated: false });
+  /**
+   * 「无注记即完整」的正面语料**必须选一棵真正完整的树**：主 fixture 里有一条 symlink，
+   * 那棵树本来就不完整（1R 拒因的二次证伪之一），拿它来证「无注记」等于自证前提。
+   */
+  it('未触任一来源时诸字段都出空值，且不附注记', async () => {
+    const clean = await sandbox('tools-clean', async (directory) => {
+      await writeFile(path.join(directory, '起诉状.md'), '合同编号 HT-2024-081\n');
+    });
+    const result = await runWith(clean.context, 'glob', { pattern: '**/*.md' });
+    expect(detailsOf(result)).toMatchObject({
+      truncated: false,
+      matchesTruncated: false,
+      symlinksSkipped: 0,
+    });
     expect(skippedOf(result)).toEqual([]);
     expect(textOf(result)).not.toContain('不完整');
   });
@@ -479,5 +490,107 @@ describe('容器拒读：不静默丢子树', () => {
     expect(skipped.map((entry) => entry.path).sort()).toEqual(['/case/不可读.md', '/case/密室']);
     expect(JSON.stringify(skipped)).not.toContain(deniedRoot);
     expect(textOf(result)).not.toContain(deniedRoot);
+  });
+});
+
+/**
+ * 1R 拒因与其二次证伪（验收 `fa01eca` 第二节）。
+ *
+ * 首轮把「无注记即结果完整」写成了闭集全称句，而同一个函数的邻行 `line.slice(0, MAX_LINE_LENGTH)`
+ * 正在无标记地切掉命中行的尾部：一条 1211 字的合同条款切到 400 字交给模型，三枚字段全报完整。
+ * ADR-022:110-111 把「截断未显式」逐字列为 harness 缺陷。同句还被两条既有行为二次证伪：
+ * symlink 跳过、产品 grammar 排除。
+ *
+ * 收口分两层，形态不同，必须分开说：
+ * - **本层看得见的**（行截断、symlink）出字段与注记，全称句在这两形下真；
+ * - **本层看不见的**（容器 `listDir` 内部的 grammar 排除与单条目 `lstat` 失败）——工具连那些
+ *   条目的存在都不知道，替容器作保就是第二句假话。故全称句收窄到「容器交给本层的条目」，
+ *   容器那一层的排除按边界显式登记（SPEC 五-8、九节移交），并由下面最后一枚测试钉住形态。
+ */
+describe('1R · 行截断与 symlink：本层看得见的不完整，一律出字段与注记', () => {
+  let longLine: ExecutionToolContext;
+  const ORIGINAL_LENGTH = 1211;
+  const TAIL = '关键证据在这里结尾';
+
+  beforeAll(async () => {
+    ({ context: longLine } = await sandbox('tools-longline', async (directory) => {
+      const line = '甲'.repeat(ORIGINAL_LENGTH - TAIL.length) + TAIL;
+      expect(line).toHaveLength(ORIGINAL_LENGTH);
+      await writeFile(path.join(directory, '条款.md'), `${line}\n`);
+    }));
+  });
+
+  /** 标记与字段拆成两枚：撤标记只红前者、撤字段只红后者，两条通道各有专属锚。 */
+  it('验收反例转 permanent：1211 字命中行被截，行尾具名标记与原长在场', async () => {
+    const text = textOf(await runWith(longLine, 'grep', { pattern: '甲' }));
+    // 被切掉的尾部不在输出里——这正是「看起来完整」的那句引语的来源。
+    expect(text).not.toContain(TAIL);
+    // 故截断必须自己说出来：具名标记 + 原长，模型据此决定要不要改用 read。
+    expect(text).toContain(`本行截断：原 ${ORIGINAL_LENGTH} 字符`);
+  });
+
+  it('验收反例转 permanent：行截断同批进 details 计数', async () => {
+    const result = await runWith(longLine, 'grep', { pattern: '甲' });
+    expect(detailsOf(result)).toMatchObject({ matched: 1, scanned: 1, lineTruncated: 1 });
+  });
+
+  it('行截断进注记，故「无注记即完整」在本形下不被证伪', async () => {
+    const text = textOf(await runWith(longLine, 'grep', { pattern: '甲' }));
+    expect(text).toContain('不完整');
+    expect(text).toContain('行超长截断');
+  });
+
+  it('未超长的命中行零标记：标记不是无条件后缀', async () => {
+    const result = await run('grep', { pattern: 'HT-2024-081' });
+    expect(textOf(result)).not.toContain('本行截断');
+    expect(detailsOf(result).lineTruncated).toBe(0);
+  });
+
+  it('symlink 不跟随同样出字段与注记：主 fixture 的 `外链` 一条都不许静默', async () => {
+    for (const tool of ['glob', 'grep'] as const) {
+      const result = await run(tool, tool === 'glob' ? { pattern: '**/*.md' } : { pattern: 'HT' });
+      expect(detailsOf(result).symlinksSkipped).toBe(1);
+      expect(textOf(result)).toContain('符号链接未跟随');
+    }
+  });
+
+  it('产品形态同样出 symlink 计数：两形态的账不许只有一侧', async () => {
+    const productTools = createReadOnlyTools({ logicalRoot: '/case' });
+    const productContext = { env: createProductCaseEnv({ caseRoot: root }) };
+    const tool = productTools.find((candidate) => candidate.name === 'glob');
+    const result = await tool!.execute('call-1', { pattern: '**/*.md' } as never, undefined, undefined, productContext);
+    expect(detailsOf(result).symlinksSkipped).toBe(1);
+    expect(textOf(result)).toContain('符号链接未跟随');
+  });
+
+  /**
+   * 第三形：产品 grammar 排除。**不在本层可修**——`product-case-env.ts` 的 `listDir` 在容器内
+   * 就把保留名滤掉了，工具收到的条目里根本没有它，`ExecutionEnv` 也没有第二条通道能把「我丢了
+   * 什么」带出来。本枚因此钉两件事：排除确实发生在容器层（不是工具静默），以及工具的注记承诺
+   * 只覆盖「容器交给本层的条目」——SPEC 五-8 的措辞按此收窄，容器那层的边界另行登记与移交。
+   */
+  it('产品 grammar 排除发生在容器层，工具的承诺范围据此收窄', async () => {
+    const excluded = await sandbox('tools-grammar', async (directory) => {
+      await writeFile(path.join(directory, 'con.md'), '合同编号 HT-2024-081\n');
+      await writeFile(path.join(directory, '正常.md'), '合同编号 HT-2024-081\n');
+    });
+    const caseEnv = createProductCaseEnv({ caseRoot: excluded.root });
+    const listed = await caseEnv.listDir('/case');
+    if (!listed.ok) throw new Error('容器应能列出 /case');
+    // 容器层：保留名条目从未出现在交给工具的清单里。
+    expect(listed.value.map((entry) => entry.path)).toEqual(['/case/正常.md']);
+
+    const productTools = createReadOnlyTools({ logicalRoot: '/case' });
+    const tool = productTools.find((candidate) => candidate.name === 'glob');
+    const result = await tool!.execute(
+      'call-1',
+      { pattern: '**/*.md' } as never,
+      undefined,
+      undefined,
+      { env: caseEnv },
+    );
+    // 工具层：它拿到的一个条目全检索了，故按收窄后的口径无注记；con.md 的账在容器层，见 SPEC 五-8。
+    expect(detailsOf(result)).toMatchObject({ matched: 1, scanned: 1, symlinksSkipped: 0 });
+    expect(textOf(result)).not.toContain('不完整');
   });
 });
