@@ -160,7 +160,7 @@ type InteractionTemplate = {
   - `draftField`＝draft item 树中**某对象节点的直接键且值为数组**（`resolveItem` 深走公证面 `key === draftField && Array.isArray(value)`——string 形深层同名键不会被公证，误拼即静默丢引语）；
   - `anchorField`＝final item 树中**某对象节点的直接键且值为数组**（与 draftField 同位的写回点）。
   - 口径说明：draftField/anchorField **未**收紧到 item 根直接键——消费面（resolver 深走）允许键住嵌套对象，legal 的 `quoteClaims`/`sourceAnchors` 恰在 `basis[]` 元素层，收紧到 item 根会误拒合法 legal 包；「直接键＋数组类型」同时挡三形误拼（string 深层键不参与公证）并保 legal 深走形状准入（1R 合跑实测 legal/pm 仍准入）。
-  - **2R G-3 位置轴（协调裁定收口，并入本轮）**：键形轴之外补同位判据——`anchorField` 须与 `draftField` **命中同一对象节点**（`resolveItem` 把铸出的锚写在 draftField 命中的那个节点；错位形会过键形轴，但 executor 的 final `safeParse` 把错位写入的锚 strip、`sourceAnchors` 回落 `[]`、`success=true`——成品零锚点零报错，直触不变量二「无锚不落格」）。实现：walker 增路径追踪（shape 键序列＋数组元素 `[]` 占位），`arrayKeyPaths` 收集数组键的命中节点路径集，同位判据＝draftField 与 anchorField 命中路径集非空交集。record 动态键不推进路径（两侧同构时同位仍成立）；共享子 schema 只记首访路径（visited 键控 (schema, fieldName)），当期 legal/pm 无此形状。
+  - **2R G-3 位置轴（协调裁定收口，并入本轮）**：键形轴之外补同位判据——`anchorField` 须与 `draftField` **命中同一对象节点**（`resolveItem` 把铸出的锚写在 draftField 命中的那个节点；错位形会过键形轴，但 executor 的 final `safeParse` 把错位写入的锚 strip、`sourceAnchors` 回落 `[]`、`success=true`——成品零锚点零报错，直触不变量二「无锚不落格」）。实现：walker 增路径追踪（shape 键序列＋数组元素 `[]` 占位），`arrayKeyPaths` 收集数组键的命中节点路径集，同位判据＝draftField 与 anchorField 命中路径集非空交集。record 动态键不推进路径（两侧同构时同位仍成立）；共享子 schema 只记首访路径（visited 键控 (schema, fieldName)）。**验收订正（`0b16072` 后第三轮，措辞范围过宽已改）**：记录路径集是真路径集的子集，故该截断只会误拒、不会误放——判据仍 sound，只是 incomplete（验收实测：构造 anchor 侧同一对象两处挂载、同 fieldName 形，门拒而消费面实际可工作、落库锚点 1）。当期**参与同位判据的** schema（`legal.RiskList`/`legal.RiskListDraft`）实测 0 处此形状；`legal.RevisionInstructionSet` 与 pm 的 `FeedbackDigest`/`PriorityScore`/`ActionItems` 确有此形状，但均不携 citationBinding、不进同位判据。原文「当期 legal/pm 无此形状」不成立，按实测收窄至判据参与面。
 
 ### 概念账（复杂度审视：本单新增了什么概念、为何非加不可）
 

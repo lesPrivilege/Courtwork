@@ -213,3 +213,85 @@ base 与登记值逐字相等，漂移自首轮引入并延续至 target；`sour
 2. 订正 SPEC 第 174 行的 registry 计数。
 3. G-3 由架构裁定：另立票收位置轴，或就地为缺陷②节的宣称加轴限定。
 4. 返修后须以完整 `test:e2e` 收尾；提交前最后一个动作是跑门。
+
+---
+
+# ADMISSION-ENUM-1R2 独立验收（2026-08-04）
+
+验收树：`.claude/worktrees/accept-admission-enum-1`（detached `b53d303`）
+
+实现链：`7a2e3c4`（首轮）→ `b5a172c`（1R）→ `0b16072`（1R 驳回报告）→ `b53d303`（2R 返修，单枚 4 文件 +83/−18），base `d62e22d`
+
+验收修复：本轮一处 fix-by-acceptance，只动 `packages/registry/SPEC.md` 措辞，不触生产面（见 G-3 边界二）
+
+结论：**放行。** 上轮驳回依据 G-1 已闭合并经完整 `test:e2e` 实跑坐实——`assert-schema-exemplar` 绿，Playwright **352 passed** 真启动（上轮它从未跑过）。G-3 位置轴以路径追踪收口，双驱复核门与消费面同判；G-2 三组数字与实测对账相符。两则边界宣称中，record 一则成立，共享子 schema 一则的范围措辞与实测不符，已按实测收窄留痕。
+
+## 三轮记事
+
+| 轮次 | tip | 裁决 | 决定性事由 |
+| --- | --- | --- | --- |
+| 首轮 | `7a2e3c4` | 驳回（前任会话，四项 F-A/F-B/F-C/F-D） | 格式类误判、键判据取全子树 fail-open、visited 跨 collect 共享、瞬态红未结案 |
+| 1R | `b5a172c` | 驳回（`0b16072`） | G-1：受控外溢改 `P0-S02` 来源却未重封存哈希，`assert-schema-exemplar` 红并短路其后 Playwright |
+| 2R | `b53d303` | **放行** | G-1 重封存到位且 e2e 全链实跑；G-3 位置轴收口；G-2 数字订正 |
+
+## G-1 来源哈希重封存
+
+- `sources.json` 的 `P0-S02.sha256` 现值与 `packages/legal/src/presentation/index.ts` 实物 sha256 逐字相等，同为 `f19a76a253b0549923664b467ac30cebffab70e4c3271013a95bdc8bc29e1892`。
+- `sources.json` 改动面恰一逻辑行（一删一增），`id`/`path`/`role`/`symbols` 均未动，无格式漂移。
+- authorization 双处在场：提交信息正文（票面「扩紧后须补词表使合规」＋返修宪章「哈希重封存是其必要完件」）与 registry SPEC 受控外溢清单第 1 条的 **authorization** 子条。
+- SPEC 宣称「`schema-exemplar.md` 正文为符号指针式，经核无需同改」成立：该文第 7 行自陈「payload 字段、枚举、默认值与 token 数值只认各自机器真源；本文不复制它们」，全文搜 `enumLabels`/`not_found`/`ambiguous`/`file_unavailable` 零命中。
+- **最终证据是实跑**：`assert-schema-exemplar` 单独跑 `SCHEMA-EXEMPLAR contracts passed`、EXIT=0；完整 `test:e2e` 一路走到 `playwright test` 并 **352 passed**。
+
+## G-3 位置轴：双驱复核
+
+判据为「`draftField` 与 `anchorField` 命中节点路径集非空交集」，路径＝从收集根起的 shape 键序列、数组元素以 `[]` 占位。判据取值正当性在于 `resolveItem` 由草稿值重建成品，成品结构即草稿结构（仅 `draftField` 换成 `anchorField`），故跨 draft/final 两棵 schema 比路径成立。
+
+以真实门与真实 `resolveDraftArtifact` 同驱同一 binding，并把成品交 final `safeParse` 数落库锚点：
+
+| 形 | 门 | resolver | executor 落库锚点 |
+| --- | --- | --- | --- |
+| 错位形（`topAnchors` 于 final item 根） | **拒**，拒因具名同位 | `resolved=1` | `finalParse=true`，**0** |
+| 合法 legal 形（`quoteClaims`/`sourceAnchors` 同住 `basis[]`） | **准入** | `resolved=1` | `finalParse=true`，**1** |
+| 真实 `LEGAL_PACKAGE` | **准入**，零拒载 | — | — |
+
+错位形正是 `0b16072` 的 G-3 语料，现已转 permanent 反例入 `admission.test.ts`。门拒的那一形，消费面实测确为「零锚点且零报错」，与不变量二「无锚不落格」的触点一致；门准入的那一形，锚点真落库。**门与消费面同判，G-3 收口成立。**
+
+### 边界一：record 动态键不推进路径
+
+两侧同构时同位仍成立，实测两形：
+
+- record 同位形（draft `answers: record(_, {quoteClaims})` × final `answers: record(_, {sourceAnchors})`）：门准入，resolver `resolved=1`，落库锚点 1。
+- record 错位形（final 把 `sourceAnchors` 挪到 item 根）：门拒，且消费面 `finalParse=false` 显式失败。
+
+宣称成立。
+
+### 边界二：共享子 schema 只记首访路径（**范围措辞不实，已按实测收窄**）
+
+`visited` 键控 `(schema, fieldName)`，同一子 schema 在同名字段下二次挂载即被跳过，故只记首访路径。
+
+- **方向实测**：构造 anchor 侧同一对象两处挂载、`quoteClaims` 只在第二处的形——门**拒**，而消费面实际可工作（resolver `resolved=1`，`finalParse=true`，**落库锚点 1**）。即该截断产生的是**误拒**。
+- **方向论证**：记录路径集是真路径集的子集，子集交集非空蕴含真集交集非空，故判据 sound（不误放）、incomplete（可能误拒）。误拒属 fail-closed 方向，不构成安全缺口。
+- **范围实测**：SPEC 原文称「当期 legal/pm 无此形状」。实测该形状在 legal 与 pm **确实存在**——`legal.RevisionInstructionSet` 6 处（`(ZodDiscriminatedUnion, locator)`、`(ZodObject, annotation)`），pm `FeedbackDigest` 6 处、`PriorityScore` 17 处、`ActionItems` 1 处。真正成立的是收窄后的命题：**参与同位判据的 schema**（`legal.RiskList`/`legal.RiskListDraft`，pm 无任何 citationBinding）实测 **0 处**。
+- **处置**：本轮 fix-by-acceptance 只改 `packages/registry/SPEC.md` 该句措辞，按实测收窄至判据参与面并补记方向结论；不触生产面，判据行为零变化。此项不构成驳回依据——门本身正确且 fail-closed，操作性结论（当期两包不受影响）经实测为真，失准只在范围措辞。
+
+## mutation 与 born-red
+
+- **mutation（撤同位判据）**：`coLocated` 恒真化，命中校验 1，实得 **1 failed / 67 passed**，红在「anchorField 与 draftField 不在同一对象节点必拒载」；还原后 `git status --porcelain` 零残留。
+- **born-red（2R，返修前）**：以 `b53d303` 测试面对 `0b16072` 生产面（`arrayKeyPaths`/`coLocated` 命中数均为 0，确认生产 hunk 已逆向），实得 **1 failed / 67 passed**，与回执相符；还原后 **68 passed / 68**。
+
+## G-2 数字对账
+
+SPEC 表内三组数字与实测逐一相符：`7a2e3c4` 首轮 registry **6 files / 97 tests**（上轮实测）、1R **6 files / 105 tests**（上轮实测）、2R **6 files / 106 tests**（本轮实测，admission 68）。合跑 1R **25 files / 237 tests**、2R **25 files / 238 tests**（本轮实测）。上轮 G-2 所指「97 标作 1R 后」的错位已订正。
+
+## 二相全量门
+
+- `pnpm -r build`：通过，desktop 仅余既有 chunk-size warning。
+- `pnpm lint`：通过，EXIT=0。验收树内无 `.claude/` 目录，不触发嵌套 worktree 解析歧义。
+- 根 `pnpm test`：**167 files / 1803 tests** 全绿。
+- `pnpm --filter @courtwork/desktop test`：**75 files / 690 tests** 全绿。
+- `apps/desktop` cwd 完整 `pnpm test:e2e`（`COURTWORK_E2E_PORT=1467`）：**全绿**，`assert-schema-exemplar` 通过，`assert-app-highwater` 2549（上限 2549），`assert-test-count` 352（下限 351），`playwright test` **352 passed**，EXIT=0。
+- 开跑 Playwright 前以括号法 `pgrep -f 'chrome-headless-[s]hell|[p]laywright'` 实计为 0（裸模式会命中 pgrep 自身的 wrapper shell，假报 1）。cargo 非本票面。
+
+## 下游放行
+
+**允许合入 main。** 同位判据是键形轴之上的第二道，二者同为 `checkCitationBinding` 内的静态对账，不得在别处复制第三份路径口径。后续若有包需要「共享子 schema 多处挂载 + citationBinding」形状，须先改 `visited` 的路径记录粒度再准入——当期该形状不落在任何判据参与面上，SPEC 已按实测留痕。
