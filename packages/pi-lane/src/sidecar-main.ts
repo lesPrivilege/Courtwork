@@ -8,6 +8,7 @@
 import { readFile } from 'node:fs/promises';
 import process from 'node:process';
 
+import { parsePositiveNumberEnv } from './dev-config.js';
 import { createDeepSeekLane } from './provider.js';
 import { createPiLaneSession } from './session.js';
 import { createSidecar } from './sidecar.js';
@@ -21,9 +22,22 @@ if (!root) {
   process.exit(1);
 }
 
-const port = Number(process.env.PI_LANE_PORT ?? 4319);
-const maxTurns = Number(process.env.PI_LANE_MAX_TURNS ?? 12);
-const maxUsd = Number(process.env.PI_LANE_MAX_USD ?? 0.5);
+/**
+ * 数值环境变量一律 fail-closed（`PI-TOOLS-HONESTY-1` CONTESTED 裁定）。
+ * 判定住 `dev-config.ts`（可测），这里只负责「拒绝即停」——与上面缺授权文件夹同一处方。
+ */
+function requirePositiveNumber(name: string, fallback: number): number {
+  const parsed = parsePositiveNumberEnv(name, process.env[name], fallback);
+  if (!parsed.ok) {
+    process.stderr.write(`${parsed.reason}\n`);
+    process.exit(1);
+  }
+  return parsed.value;
+}
+
+const port = requirePositiveNumber('PI_LANE_PORT', 4319);
+const maxTurns = requirePositiveNumber('PI_LANE_MAX_TURNS', 12);
+const maxUsd = requirePositiveNumber('PI_LANE_MAX_USD', 0.5);
 
 const readiness = await createDeepSeekLane();
 if (!readiness.model) {
