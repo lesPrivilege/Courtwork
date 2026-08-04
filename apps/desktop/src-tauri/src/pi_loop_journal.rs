@@ -37,7 +37,7 @@ use crate::pi_loop_protocol::{
     AgentProjectionEvent, BudgetStopReason, BudgetTurnLimit, BudgetUsdLimit, BudgetView,
     CancelReason, CodecResult, HostFailureCode, JsonNode, ProtocolErrorCode, TerminalError,
     TerminalFailureCode, TurnStopReason, TurnUsage, WorkspaceCapability, WriteDisposition,
-    MAX_SAFE_INTEGER, MAX_TERMINAL_MESSAGE_BYTES, MAX_TEXT_BYTES,
+    MAX_LOGICAL_PATH_BYTES, MAX_SAFE_INTEGER, MAX_TERMINAL_MESSAGE_BYTES, MAX_TEXT_BYTES,
 };
 
 /// 容器根目录名。`loop/` 是 ADR-019 的逻辑容器子档，物理上属 ADR-005 的 app-data 状态平面，
@@ -909,7 +909,7 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                 logical_path: read_string(
                     pick(members, "logicalPath", "tool_proposed")?,
                     "logicalPath",
-                    1_024,
+                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 proposal_hash: read_sha256_hex(
                     pick(members, "proposalHash", "tool_proposed")?,
@@ -986,7 +986,7 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                 logical_path: read_string(
                     pick(members, "logicalPath", "effect_started")?,
                     "logicalPath",
-                    1_024,
+                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 proposal_hash: read_sha256_hex(
                     pick(members, "proposalHash", "effect_started")?,
@@ -1029,7 +1029,7 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                 logical_path: read_string(
                     pick(members, "logicalPath", "effect_succeeded")?,
                     "logicalPath",
-                    1_024,
+                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 disposition: read_enum(
                     pick(members, "disposition", "effect_succeeded")?,
@@ -3104,6 +3104,245 @@ mod tests {
             );
         }
         assert_eq!(seen.len(), JournalType::ALL.len(), "十九型必须逐枚覆盖");
+    }
+
+    // ── effect 家族的真值样本（PI-WRITE-HOST-1 ②）──────────────────────────────
+    //
+    // 十九型 round-trip 只担保「每型至少有一枚样本走得通」。effect 六型此前每型只挑了
+    // 一枚枚举值——`EffectFailed` 的 13 枚 `HostFailureCode` 里只跑过 `symlink_forbidden`、
+    // `AuthorizationDecided` 的两枚 deny code 里只跑过 `user_denied`、三枚带
+    // `WriteDisposition` 的型只跑过其中一半。HOST-LOOP 全程 ready capability 恰
+    // `['case_read']`，这六型一枚都没被真实生成过，于是「值域被测过」与「值域从没被碰过」
+    // 在读数上同形。本票是它们首次真实生成，样本按闭集逐值补齐。
+
+    fn effect_records() -> Vec<JournalPayload> {
+        let path = "纪要.md".to_string();
+        let proposal =
+            "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".to_string();
+        let content =
+            "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".to_string();
+        let tool_call_id = "tc_1_1".to_string();
+        let mut payloads = Vec::new();
+
+        for action in WriteDisposition::ALL.iter().copied() {
+            payloads.push(JournalPayload::ToolProposed(ToolProposedPayload {
+                tool_call_id: tool_call_id.clone(),
+                logical_path: path.clone(),
+                proposal_hash: proposal.clone(),
+                content_sha256: content.clone(),
+                byte_length: 10,
+                action,
+            }));
+            payloads.push(JournalPayload::EffectStarted(EffectStartedPayload {
+                tool_call_id: tool_call_id.clone(),
+                logical_path: path.clone(),
+                proposal_hash: proposal.clone(),
+                action,
+                content_sha256: content.clone(),
+                byte_length: 10,
+            }));
+            payloads.push(JournalPayload::EffectSucceeded(EffectSucceededPayload {
+                tool_call_id: tool_call_id.clone(),
+                logical_path: path.clone(),
+                disposition: action,
+                content_sha256: content.clone(),
+                byte_length: 10,
+            }));
+        }
+        payloads.push(JournalPayload::AuthorizationDecided {
+            tool_call_id: tool_call_id.clone(),
+            decision: AuthorizationDecision::Approved,
+            code: None,
+        });
+        for code in AuthorizationDenyCode::ALL.iter().copied() {
+            payloads.push(JournalPayload::AuthorizationDecided {
+                tool_call_id: tool_call_id.clone(),
+                decision: AuthorizationDecision::Denied,
+                code: Some(code),
+            });
+        }
+        for code in HostFailureCode::ALL.iter().copied() {
+            payloads.push(JournalPayload::EffectFailed {
+                tool_call_id: tool_call_id.clone(),
+                code,
+            });
+        }
+        payloads.push(JournalPayload::EffectUncertain { tool_call_id });
+        payloads
+    }
+
+    fn effect_record(seq: usize, payload: JournalPayload) -> JournalRecord {
+        JournalRecord {
+            event_id: format!("event_{}", seq + 1),
+            seq: seq as u64 + 1,
+            container_id: "cnt-1".to_string(),
+            session_id: "sess-1".to_string(),
+            leg: 1,
+            request_id: Some("req-1".to_string()),
+            operation_id: Some("op_1_1".to_string()),
+            recorded_at: 1_700_000_000_000 + seq as u64,
+            payload,
+        }
+    }
+
+    #[test]
+    fn effect_family_truth_samples_cover_every_closed_value() {
+        let payloads = effect_records();
+        let mut dispositions: HashSet<WriteDisposition> = HashSet::new();
+        let mut failure_codes: HashSet<HostFailureCode> = HashSet::new();
+        let mut deny_codes: HashSet<AuthorizationDenyCode> = HashSet::new();
+        let mut types: HashSet<JournalType> = HashSet::new();
+
+        for (index, payload) in payloads.into_iter().enumerate() {
+            types.insert(payload.journal_type());
+            match &payload {
+                JournalPayload::ToolProposed(proposed) => {
+                    dispositions.insert(proposed.action);
+                }
+                JournalPayload::EffectStarted(started) => {
+                    dispositions.insert(started.action);
+                }
+                JournalPayload::EffectSucceeded(succeeded) => {
+                    dispositions.insert(succeeded.disposition);
+                }
+                JournalPayload::EffectFailed { code, .. } => {
+                    failure_codes.insert(*code);
+                }
+                JournalPayload::AuthorizationDecided {
+                    code: Some(code), ..
+                } => {
+                    deny_codes.insert(*code);
+                }
+                _ => {}
+            }
+            let record = effect_record(index, payload);
+            let encoded = encode_record(&record);
+            let decoded = decode_record(&encoded[..encoded.len() - 1])
+                .unwrap_or_else(|error| panic!("effect 第 {index} 枚解码失败：{}", error.reason));
+            assert_eq!(decoded, record, "effect 第 {index} 枚 round-trip 不等");
+            assert_eq!(
+                encode_record(&decoded),
+                encoded,
+                "effect 第 {index} 枚 canonical 重编码不同 bytes"
+            );
+        }
+
+        // 闭集塌缩守卫：把样本删剩一枚与「本来就只测了一枚」读数同形。期望侧一律取
+        // 闭集自己的 `ALL`——枚举加一枚新 code 而不补样本，这里立刻红。
+        assert_eq!(
+            dispositions.len(),
+            WriteDisposition::ALL.len(),
+            "WriteDisposition 未逐值取样"
+        );
+        assert_eq!(
+            failure_codes.len(),
+            HostFailureCode::ALL.len(),
+            "HostFailureCode 未逐值取样"
+        );
+        assert_eq!(
+            deny_codes.len(),
+            AuthorizationDenyCode::ALL.len(),
+            "AuthorizationDenyCode 未逐值取样"
+        );
+        assert_eq!(types.len(), 6, "effect 家族恰六型，实为 {types:?}");
+    }
+
+    /// effect 家族的 `logicalPath` / `byteLength` 上界与 **wire 同一枚真源**。
+    ///
+    /// 出站 `host_result` 的 `logicalPath` 由 `MAX_LOGICAL_PATH_BYTES` 收口（本票偿的五枚
+    /// 前向债之一：`read_logical_path`），而同一条逻辑路径随后要落进 `tool_proposed` /
+    /// `effect_started` / `effect_succeeded` 三型 journal。两谱各抄一份上界就各自漂移——
+    /// wire 收紧一字节，journal 仍会把 wire 已经拒掉的那一枚原样收下，
+    /// encode-before-effect 的结构性担保在这一段断掉，而且断得静默。
+    ///
+    /// 本枚逐型钉死「cap 收得下、cap+1 收不下」，期望值只从 protocol 常量取。
+    #[test]
+    fn effect_family_path_and_length_bounds_come_from_the_wire_constants() {
+        let proposal =
+            "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".to_string();
+        let content =
+            "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".to_string();
+        /// 三型共用的构造签名：逻辑路径 × byteLength × proposal/content 两枚 sha。
+        type EffectShape = fn(String, u64, String, String) -> JournalPayload;
+        let shapes: Vec<(&str, EffectShape)> = vec![
+            ("tool_proposed", |path, byte_length, proposal, content| {
+                JournalPayload::ToolProposed(ToolProposedPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: path,
+                    proposal_hash: proposal,
+                    content_sha256: content,
+                    byte_length,
+                    action: WriteDisposition::Created,
+                })
+            }),
+            ("effect_started", |path, byte_length, proposal, content| {
+                JournalPayload::EffectStarted(EffectStartedPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: path,
+                    proposal_hash: proposal,
+                    action: WriteDisposition::Created,
+                    content_sha256: content,
+                    byte_length,
+                })
+            }),
+            (
+                "effect_succeeded",
+                |path, byte_length, _proposal, content| {
+                    JournalPayload::EffectSucceeded(EffectSucceededPayload {
+                        tool_call_id: "tc_1_1".to_string(),
+                        logical_path: path,
+                        disposition: WriteDisposition::Created,
+                        content_sha256: content,
+                        byte_length,
+                    })
+                },
+            ),
+        ];
+
+        let decodes = |payload: JournalPayload| -> bool {
+            let record = effect_record(0, payload);
+            let encoded = encode_record(&record);
+            decode_record(&encoded[..encoded.len() - 1]).is_ok()
+        };
+
+        for (name, make) in shapes {
+            assert!(
+                decodes(make(
+                    "p".repeat(MAX_LOGICAL_PATH_BYTES),
+                    10,
+                    proposal.clone(),
+                    content.clone()
+                )),
+                "{name}：恰 MAX_LOGICAL_PATH_BYTES 的逻辑路径必须收得下"
+            );
+            assert!(
+                !decodes(make(
+                    "p".repeat(MAX_LOGICAL_PATH_BYTES + 1),
+                    10,
+                    proposal.clone(),
+                    content.clone()
+                )),
+                "{name}：journal 收下了 wire 已拒的逻辑路径——两谱上界漂移"
+            );
+            assert!(
+                decodes(make(
+                    "纪要.md".to_string(),
+                    MAX_TEXT_BYTES as u64,
+                    proposal.clone(),
+                    content.clone()
+                )),
+                "{name}：恰 MAX_TEXT_BYTES 的 byteLength 必须收得下"
+            );
+            assert!(
+                !decodes(make(
+                    "纪要.md".to_string(),
+                    MAX_TEXT_BYTES as u64 + 1,
+                    proposal.clone(),
+                    content.clone()
+                )),
+                "{name}：journal 收下了 wire 已拒的 byteLength——两谱上界漂移"
+            );
+        }
     }
 
     #[test]

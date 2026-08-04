@@ -35,9 +35,10 @@ use crate::pi_loop_process::{
 use crate::pi_loop_protocol::{
     decode_sidecar_packet_line, encode_packet_line, is_absolute_path_shape, is_safe_token,
     AgentProjectionEvent, BootstrapLimits, BootstrapPayload, BootstrapProvider, BootstrapResume,
-    BudgetStopReason, BudgetTurnLimit, BudgetView, CancelReason, PacketPayload, PacketRejection,
-    ProductPacket, ProtocolErrorCode, ResumeKind, Terminal, WorkspaceCapability, MAX_API_KEY_BYTES,
-    MAX_CASE_ROOT_BYTES, MAX_MODEL_ID_BYTES, MAX_TEXT_BYTES, MAX_TURNS_LIMIT, MAX_USD_LIMIT,
+    BudgetStopReason, BudgetTurnLimit, BudgetView, CancelReason, HostResultPayload, PacketPayload,
+    PacketRejection, ProductPacket, ProtocolErrorCode, ResumeKind, Terminal, WorkspaceCapability,
+    MAX_API_KEY_BYTES, MAX_CASE_ROOT_BYTES, MAX_MODEL_ID_BYTES, MAX_TEXT_BYTES, MAX_TURNS_LIMIT,
+    MAX_USD_LIMIT,
 };
 
 /// 本票 ready 恰宣告这一枚能力。
@@ -698,6 +699,33 @@ impl PiLoopHost {
         leg.write_packet(&line.bytes).map_err(HostError::Process)
     }
 
+    /// 出站 `host_result` 的**唯一**编码入口（PI-WRITE-HOST-1 ②，偿 PI-HOST-LOOP-1R3 D1 表①
+    /// 登记的五枚前向债：`read_host_result_payload`×3、`read_list_entry`、`read_logical_path`）。
+    ///
+    /// 与 `send` 分成两相，因为这条路上编码与发送之间**有**效果：`tool_proposed`/
+    /// `effect_started` 的 durable append、真实落盘、三态收束都排在中间。故只交出
+    /// 已编好的 `OutboundLine`，由调用方在效果全部完成后 `write_encoded` 照搬同一份字节。
+    ///
+    /// 本函数只吃 `&self`：不落账、不发包、不推进 `outbound_seq`——「Err ⇒ 副作用恰零」
+    /// 在这一枚上是**结构性**的，行为轴断言（D1 出站探针）另判，防的是日后有人改成
+    /// `&mut self` 顺手做事。
+    ///
+    /// 拒绝映射同 `send`：`PacketRejection.reason` 带字段标签与实况，一律丢弃，
+    /// 只留闭集 `ProtocolErrorCode`——逻辑路径与正文一个字节都不进错误（本模块红线 2）。
+    fn encode_host_result(
+        &self,
+        request_id: &str,
+        payload: HostResultPayload,
+    ) -> Result<OutboundLine, HostError> {
+        encode_outbound_line(
+            self.outbound_seq,
+            &self.session_id,
+            Some(request_id),
+            PacketPayload::HostResult(payload),
+        )
+        .map_err(|rejection| HostError::Protocol(rejection.code))
+    }
+
     /// cancel / shutdown 的出包：两相同形（先编码后发送），只是这两条路上编码与发送之间
     /// 本来就没有任何效果，故合成一枚。
     fn send(&mut self, request_id: Option<&str>, payload: PacketPayload) -> Result<(), HostError> {
@@ -1257,8 +1285,11 @@ mod tests {
         RUNTIME_BASENAME,
     };
     use crate::pi_loop_protocol::{
-        BudgetStopReason, BudgetTurnLimit, BudgetUsdLimit, BudgetView, ProtocolErrorPayload,
-        TerminalError, TerminalFailureCode, TurnStopReason, TurnUsage, WriteDisposition,
+        BudgetStopReason, BudgetTurnLimit, BudgetUsdLimit, BudgetView, HostFailureCode,
+        HostResultOutcome, HostResultValue, ListEntry, ListEntryKind, ProtocolErrorPayload,
+        TerminalError, TerminalFailureCode, TurnStopReason, TurnUsage, WorkspaceOperation,
+        WriteDisposition, MAX_HOST_ERROR_MESSAGE_BYTES, MAX_LIST_ENTRIES, MAX_LOGICAL_PATH_BYTES,
+        MAX_SEGMENT_BYTES,
     };
     use std::collections::VecDeque;
     use std::sync::atomic::{AtomicU64, Ordering};
@@ -3924,7 +3955,23 @@ mod tests {
     /// 一枚文本反例：标签 + 现造文本（超限串太长，不适合写成 `&'static str` 字面量）。
     type TextCounterexample = (&'static str, fn() -> String);
 
-    /// 清单行的驱动方式。四种入口对应四条时序，双轴断言各自不同。
+    /// 出站 `host_result` 的一枚反例（PI-WRITE-HOST-1 ② 新增的**第五形态**）。
+    ///
+    /// 前四种全是**入站**（配置、凭证、prompt 正文、prompt header），判的是「别人交进来的
+    /// 值」；五枚前向债判的是「本机将要发出去的值」。构造器统一吃一枚规模参数：
+    ///
+    /// - `cap: Some(n)` —— 边界对：`make(n)` 必须编得出、`make(n + 1)` 必须被拒。唯一变量是
+    ///   那 1 字节/1 条，于是「其实是别的原因红了」（framing 撞 `MAX_PACKET_BYTES`、
+    ///   sha 形状不对、闭集键漏字段…）被结构性排除。上界值只从 protocol 常量取，
+    ///   测试里不另抄数字。
+    /// - `cap: None` —— 纯负例（空串等没有「恰好合法」的对偶），只判拒，参数取 0。
+    struct HostResultCase {
+        label: &'static str,
+        cap: Option<usize>,
+        make: fn(usize) -> HostResultPayload,
+    }
+
+    /// 清单行的驱动方式。五种入口对应五条时序，双轴断言各自不同。
     enum BoundedProbe {
         /// 纯 `StartConfig` 入参：双轴＝`spawns == 0` 且 app-data 下压根没有 journal 树。
         Config(Vec<ConfigCounterexample>),
@@ -3935,6 +3982,10 @@ mod tests {
         /// 已起 leg 之后的 prompt header `requestId`：文本恒合法，判的只有 header 那一枚。
         /// 三轴同 `Prompt`——`user_prompted` 不许 durable，出包一枚都不许发。
         RequestId(Vec<TextCounterexample>),
+        /// **出站** `host_result`（PI-WRITE-HOST-1 ②）：已起 leg 之后驱动
+        /// `encode_host_result`，五轴＝盘上 journal bytes、内存账本、出包数、
+        /// `outbound_seq` 全不变，且拒绝理由不回显被判值。
+        HostResult(Vec<HostResultCase>),
     }
 
     /// 手写冻结清单：输入名 → 生产段消费点（`pi_loop.rs` 内的函数名）→ 判据名（常量或
@@ -3950,6 +4001,75 @@ mod tests {
         judgments: &'static [&'static str],
         code: &'static str,
         probe: BoundedProbe,
+    }
+
+    // ── 出站 host_result 的反例构造器（PI-WRITE-HOST-1 ②）──────────────────────
+    //
+    // 五枚前向债的受判面各在一枚 value/error 形状里，故按形状分四支构造器；每支只留
+    // 被判那一枚字段可变，其余字段恒取闭集内合法值——被判的因此永远只有一枚输入。
+
+    const PROBE_SHA: &str = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
+
+    fn write_ok_result(logical_path: String) -> HostResultPayload {
+        HostResultPayload {
+            operation_id: "op_1_1".to_string(),
+            capability: WorkspaceCapability::WorkspaceWrite,
+            operation: WorkspaceOperation::Write,
+            outcome: HostResultOutcome::Ok(HostResultValue::Write {
+                logical_path,
+                disposition: WriteDisposition::Created,
+                content_sha256: PROBE_SHA.to_string(),
+                byte_length: 10,
+            }),
+        }
+    }
+
+    fn read_file_ok_result(content: String) -> HostResultPayload {
+        let byte_length = content.len() as u64;
+        HostResultPayload {
+            operation_id: "op_1_1".to_string(),
+            capability: WorkspaceCapability::WorkspaceRead,
+            operation: WorkspaceOperation::ReadFile,
+            outcome: HostResultOutcome::Ok(HostResultValue::ReadFile {
+                logical_path: "纪要.md".to_string(),
+                content,
+                content_sha256: PROBE_SHA.to_string(),
+                byte_length,
+            }),
+        }
+    }
+
+    fn list_ok_result(entries: Vec<ListEntry>) -> HostResultPayload {
+        HostResultPayload {
+            operation_id: "op_1_1".to_string(),
+            capability: WorkspaceCapability::WorkspaceRead,
+            operation: WorkspaceOperation::List,
+            outcome: HostResultOutcome::Ok(HostResultValue::List {
+                logical_path: "子目录".to_string(),
+                entries,
+            }),
+        }
+    }
+
+    fn list_entry(name: String) -> ListEntry {
+        ListEntry {
+            name,
+            kind: ListEntryKind::File,
+            byte_length: Some(10),
+            mtime_ms: Some(1_700_000_000_000),
+        }
+    }
+
+    fn failed_result(message: String) -> HostResultPayload {
+        HostResultPayload {
+            operation_id: "op_1_1".to_string(),
+            capability: WorkspaceCapability::WorkspaceWrite,
+            operation: WorkspaceOperation::Write,
+            outcome: HostResultOutcome::Failed {
+                code: HostFailureCode::Io,
+                message,
+            },
+        }
     }
 
     fn bounded_input_manifest() -> Vec<BoundedInput> {
@@ -4102,6 +4222,95 @@ mod tests {
                     ("含 NUL", || "p\u{0}x".to_string()),
                 ]),
             },
+            // ── 五枚前向债（PI-HOST-LOOP-1R3 D1 表① 登记，本票开工偿）──────────
+            //
+            // 表①原文：`read_host_result_payload`×3、`read_list_entry`、`read_logical_path`
+            // 的出站面共 5 行「本票 ready capability 恰 ['case_read']，宿主一枚 host_result
+            // 都不生成；PI-WRITE-HOST-1 开工时须连同前置门一并补」。
+            //
+            // 偿形循 1R6 裁定：**不再补第二份手工前置门**。出站 host_result 与 prompt 同走
+            // `encode_outbound_line`——codec 是唯一校验真源，五枚 wire 判据因此结构性排在
+            // journal append、真实落盘与发包之前。下面五行补的是这条结构性担保的**行为
+            // 反例**：判据在不在、拒得准不准、拒的那一轮有没有副作用，逐行现场实测。
+            //
+            // 拒绝 code 一律 `protocol`（同 `send` 既有映射，`PacketRejection.reason` 丢弃）。
+            // `protocol` 是粗粒度的——`packet_too_large` 与 `invalid_schema` 同压成它，故每行
+            // 另带 cap 处的正向对照，把「其实是别的原因红了」排除在外（见 `HostResultCase`）。
+            BoundedInput {
+                input: "host_result.value.logicalPath",
+                site: "encode_host_result",
+                judgments: &["MAX_LOGICAL_PATH_BYTES", "non_empty"],
+                code: "protocol",
+                probe: BoundedProbe::HostResult(vec![
+                    HostResultCase {
+                        label: "上界 ±1 字节",
+                        cap: Some(MAX_LOGICAL_PATH_BYTES),
+                        make: |size| write_ok_result("p".repeat(size)),
+                    },
+                    HostResultCase {
+                        label: "空串",
+                        cap: None,
+                        make: |_| write_ok_result(String::new()),
+                    },
+                ]),
+            },
+            BoundedInput {
+                input: "host_result.value.entries[].name",
+                site: "encode_host_result",
+                judgments: &["MAX_SEGMENT_BYTES", "non_empty"],
+                code: "protocol",
+                probe: BoundedProbe::HostResult(vec![
+                    HostResultCase {
+                        label: "上界 ±1 字节",
+                        cap: Some(MAX_SEGMENT_BYTES),
+                        make: |size| list_ok_result(vec![list_entry("n".repeat(size))]),
+                    },
+                    HostResultCase {
+                        label: "空串",
+                        cap: None,
+                        make: |_| list_ok_result(vec![list_entry(String::new())]),
+                    },
+                ]),
+            },
+            BoundedInput {
+                input: "host_result.value.entries",
+                site: "encode_host_result",
+                judgments: &["MAX_LIST_ENTRIES"],
+                code: "protocol",
+                probe: BoundedProbe::HostResult(vec![HostResultCase {
+                    label: "上界 ±1 条",
+                    cap: Some(MAX_LIST_ENTRIES),
+                    // 条目名恒 1 字节：2001 条也只有约 120 KB，离 1 MiB framing 还远，
+                    // 于是被判的确实是条目数上界，不是 packet 尺寸。
+                    make: |size| {
+                        list_ok_result((0..size).map(|_| list_entry("n".to_string())).collect())
+                    },
+                }]),
+            },
+            BoundedInput {
+                input: "host_result.value.content",
+                site: "encode_host_result",
+                judgments: &["MAX_TEXT_BYTES"],
+                code: "protocol",
+                probe: BoundedProbe::HostResult(vec![HostResultCase {
+                    label: "上界 ±1 字节",
+                    cap: Some(MAX_TEXT_BYTES),
+                    // `byteLength` 由构造器按实长给出，故 cap 处 `byteLength == content.len()`
+                    // 的交叉门也照样过——+1 那一枚红的是 content 上界本身。
+                    make: |size| read_file_ok_result("c".repeat(size)),
+                }]),
+            },
+            BoundedInput {
+                input: "host_result.error.message",
+                site: "encode_host_result",
+                judgments: &["MAX_HOST_ERROR_MESSAGE_BYTES"],
+                code: "protocol",
+                probe: BoundedProbe::HostResult(vec![HostResultCase {
+                    label: "上界 ±1 字节",
+                    cap: Some(MAX_HOST_ERROR_MESSAGE_BYTES),
+                    make: |size| failed_result("m".repeat(size)),
+                }]),
+            },
         ]
     }
 
@@ -4186,10 +4395,125 @@ mod tests {
             .expect("对照：合法 prompt 仍走得通");
     }
 
+    /// 出站 host_result 族反例驱动（PI-WRITE-HOST-1 ② 第五形态）：具名 code ＋ **五轴**
+    /// 零副作用——盘上 journal bytes 逐字节不变、内存账本不增、出包一枚不发、
+    /// `outbound_seq` 不推进、拒绝理由不回显逻辑路径与正文。
+    ///
+    /// 带 `cap` 的行另跑 cap 处的正向对照：同一枚构造器、同一条路径，只差 1 字节/1 条。
+    /// 没有它，「+1 被拒」这条读数与「这形状根本编不出来」在读数上同形。
+    fn host_result_axis_probe(row: &BoundedInput, cases: &[HostResultCase]) {
+        let h = harness("d1-host-result");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let host = host.expect("出站清单驱动前须先起 leg");
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let before = fs::read(&path).expect("读 journal");
+        let records_before = host.records().len();
+        let writes_before = log.lock().expect("日志未中毒").written.len();
+        let seq_before = host.outbound_seq;
+
+        for case in cases {
+            if let Some(cap) = case.cap {
+                let line = host
+                    .encode_host_result("req-probe", (case.make)(cap))
+                    .unwrap_or_else(|error| {
+                        panic!(
+                            "{}/{}：cap 处必须编得出，否则 +1 的红说明不了是这一枚上界（实得 {error:?}）",
+                            row.input, case.label
+                        )
+                    });
+                assert_eq!(
+                    line.seq,
+                    seq_before + 1,
+                    "{}/{}：编码只定 seq，不认领",
+                    row.input,
+                    case.label
+                );
+            }
+            let over = case.cap.map(|cap| cap + 1).unwrap_or(0);
+            let error = host
+                .encode_host_result("req-probe", (case.make)(over))
+                .err()
+                .unwrap_or_else(|| panic!("{}/{} 必须被拒", row.input, case.label));
+            assert_eq!(
+                error.code(),
+                row.code,
+                "{}/{} 须以 {} 拒绝，实得 {error:?}",
+                row.input,
+                case.label,
+                row.code
+            );
+            // `protocol` 太粗：`packet_too_large` 与闭集违规同压成它。出站族一律要求
+            // `invalid_schema`——撞到 framing 上限即红，红得不对也算没红。
+            assert_eq!(
+                error,
+                HostError::Protocol(ProtocolErrorCode::InvalidSchema),
+                "{}/{}：拒绝理由必须恰是闭集违规",
+                row.input,
+                case.label
+            );
+            assert_eq!(
+                fs::read(&path).expect("读 journal"),
+                before,
+                "{}/{}：盘上 journal bytes 必须逐字节不变",
+                row.input,
+                case.label
+            );
+            assert_eq!(
+                host.records().len(),
+                records_before,
+                "{}/{}：内存账本也不得增长",
+                row.input,
+                case.label
+            );
+            assert_eq!(
+                log.lock().expect("日志未中毒").written.len(),
+                writes_before,
+                "{}/{}：拒绝须先于发包，出包一枚都不许多",
+                row.input,
+                case.label
+            );
+            assert_eq!(
+                host.outbound_seq, seq_before,
+                "{}/{}：被拒的一轮不得推进 outbound_seq",
+                row.input, case.label
+            );
+            assert_no_echo(
+                &error,
+                &["sk-in-memory-only", "纪要.md", "子目录"],
+                &format!("{}/{}", row.input, case.label),
+            );
+        }
+    }
+
     /// ① 清单每行都在 journal append 与 spawn 之前以具名 code 拒绝，且零副作用。
     #[test]
     fn counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn() {
-        for row in bounded_input_manifest() {
+        // 清单塌缩守卫（PI-WRITE-HOST-1 ②）：本测试的判据**就是**清单本身，删行即静默失覆盖
+        // ——「删空」与「全通过」在读数上同形。出站族按 1R3 D1 表① 的五枚前向债钉死条数，
+        // 入站族只留总数下限（既有 11 行，未来收紧只许加不许减）。
+        let manifest = bounded_input_manifest();
+        let outbound = manifest
+            .iter()
+            .filter(|row| matches!(row.probe, BoundedProbe::HostResult(_)))
+            .count();
+        assert_eq!(
+            outbound, 5,
+            "出站清单必须恰 5 行（`read_host_result_payload`×3、`read_list_entry`、\
+             `read_logical_path`），实为 {outbound}"
+        );
+        assert!(
+            manifest.len() >= 16,
+            "清单只剩 {} 行：入站 11 行 ＋ 出站 5 行是下限",
+            manifest.len()
+        );
+
+        for row in manifest {
             match &row.probe {
                 BoundedProbe::Config(cases) => {
                     for (label, mutate) in cases {
@@ -4257,6 +4581,7 @@ mod tests {
                         (request_id.to_string(), "合法一问".to_string())
                     });
                 }
+                BoundedProbe::HostResult(cases) => host_result_axis_probe(&row, cases),
             }
         }
 
@@ -4312,6 +4637,12 @@ mod tests {
         PromptRequestId(String),
         /// **状态域**：在一份既有可恢复 journal 上驱动完整 `start`（PI-HOST-LOOP-1R7 J2）。
         Recovery(SessionShape, RecoveryTrigger),
+        /// **效果域**（PI-WRITE-HOST-1 ②）：已起 leg 之后驱动完整 `encode_host_result`，
+        /// 把违规串塞进出站结果的一枚字符串字段。前五种驱动全是**入站**方向，
+        /// 「Err ⇒ 副作用恰零」在出站面此前一枚样本都没有。
+        HostResult(fn(&str) -> HostResultPayload, String),
+        /// 效果域的**规模轴**：条目数没有字符串违规类可套，单独按条数驱动。
+        HostResultScale(fn(usize) -> HostResultPayload, usize),
     }
 
     // ── recovery 状态域（PI-HOST-LOOP-1R7 J2）─────────────────────────────────
@@ -4633,6 +4964,27 @@ mod tests {
         config.max_usd = Some(f64::MIN_POSITIVE);
     }
 
+    // ── 效果域的四支出站构造器（PI-WRITE-HOST-1 ②）────────────────────────────
+    //
+    // 与 D1 出站清单同源（同一批 `*_ok_result` 构造器），只是这里由电池逐类灌违规串：
+    // D1 判「拒得准不准」，电池判「拒的那一轮有没有副作用」，两层不互相顶名。
+
+    fn result_logical_path(value: &str) -> HostResultPayload {
+        write_ok_result(value.to_string())
+    }
+    fn result_entry_name(value: &str) -> HostResultPayload {
+        list_ok_result(vec![list_entry(value.to_string())])
+    }
+    fn result_content(value: &str) -> HostResultPayload {
+        read_file_ok_result(value.to_string())
+    }
+    fn result_error_message(value: &str) -> HostResultPayload {
+        failed_result(value.to_string())
+    }
+    fn result_entries_of(size: usize) -> HostResultPayload {
+        list_ok_result((0..size).map(|_| list_entry("n".to_string())).collect())
+    }
+
     /// SafeToken 的字节上界没有 `MAX_*` 常量可 import——直接**问判据函数本人**：
     /// 由 `is_safe_token` 逐长探出上界，测试里因此不存在第二份 `128`（两谱各抄一次
     /// 就各自漂移，这正是 1R3/1R4 栽过的形）。
@@ -4767,6 +5119,47 @@ mod tests {
                 field: "prompt.requestId",
                 class: class.to_string(),
                 drive: ViolationDrive::PromptRequestId(value),
+            });
+        }
+
+        // 效果域：出站 host_result 的五枚前向债字段 × 违规类（PI-WRITE-HOST-1 ②）。
+        // 上界一律取传入的 protocol 常量 +1 字节，测试里不另抄数字。
+        for (field, make, limit) in [
+            (
+                "host_result.value.logicalPath",
+                result_logical_path as fn(&str) -> HostResultPayload,
+                MAX_LOGICAL_PATH_BYTES,
+            ),
+            (
+                "host_result.value.entries[].name",
+                result_entry_name,
+                MAX_SEGMENT_BYTES,
+            ),
+            ("host_result.value.content", result_content, MAX_TEXT_BYTES),
+            (
+                "host_result.error.message",
+                result_error_message,
+                MAX_HOST_ERROR_MESSAGE_BYTES,
+            ),
+        ] {
+            for (class, value) in string_violations(limit) {
+                battery.push(Violation {
+                    field,
+                    class: class.to_string(),
+                    drive: ViolationDrive::HostResult(make, value),
+                });
+            }
+        }
+        for (class, size) in [
+            ("空列表", 0),
+            ("上界", MAX_LIST_ENTRIES),
+            ("上界 +1 条", MAX_LIST_ENTRIES + 1),
+            ("上界 ×2 条", MAX_LIST_ENTRIES * 2),
+        ] {
+            battery.push(Violation {
+                field: "host_result.value.entries",
+                class: class.to_string(),
+                drive: ViolationDrive::HostResultScale(result_entries_of, size),
             });
         }
 
@@ -4970,6 +5363,53 @@ mod tests {
         }
     }
 
+    /// 已起 leg 之后驱动一次完整 `encode_host_result`；被拒即断言五轴零副作用。
+    ///
+    /// 出站方向的「零副作用」今日是**结构性**的（`&self` 拿不到可变态），但断言照旧逐轴写
+    /// 死：结构性成立是今天的实现事实，不是契约担保——日后有人把签名改成 `&mut self`
+    /// 顺手落账，这一族必须当场红。
+    fn universal_host_result_case(
+        payload: HostResultPayload,
+        canaries: &[&str],
+        context: &str,
+    ) -> bool {
+        let h = harness("uni-host-result");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let host = host.expect("电池驱动出站结果前须先起 leg");
+        let before = journal_footprint(&h.app_data);
+        let records_before = host.records().len();
+        let writes_before = log.lock().expect("日志未中毒").written.len();
+        let seq_before = host.outbound_seq;
+        match host.encode_host_result("req-probe", payload) {
+            Err(error) => {
+                assert_journal_bytes_unchanged(&before, &journal_footprint(&h.app_data), context);
+                assert_eq!(
+                    host.records().len(),
+                    records_before,
+                    "{context}：被拒的出站结果不得增内存账本（实得 {error:?}）"
+                );
+                assert_eq!(
+                    log.lock().expect("日志未中毒").written.len(),
+                    writes_before,
+                    "{context}：被拒的出站结果不得出包（实得 {error:?}）"
+                );
+                assert_eq!(
+                    host.outbound_seq, seq_before,
+                    "{context}：被拒的出站结果不得推进 outbound_seq（实得 {error:?}）"
+                );
+                assert_no_echo(&error, canaries, context);
+                true
+            }
+            Ok(_) => false,
+        }
+    }
+
     fn optional_sidecar_line(
         seq: u64,
         request: Option<&str>,
@@ -5053,6 +5493,12 @@ mod tests {
                 ViolationDrive::Recovery(shape, trigger) => {
                     universal_recovery_start_case(*shape, *trigger, &context)
                 }
+                ViolationDrive::HostResult(make, value) => {
+                    universal_host_result_case(make(value), &["sk-in-memory-only", value], &context)
+                }
+                ViolationDrive::HostResultScale(make, size) => {
+                    universal_host_result_case(make(*size), &["sk-in-memory-only"], &context)
+                }
             };
             *(if hit {
                 refused.entry(row.field)
@@ -5067,18 +5513,21 @@ mod tests {
         // 放行，三种动作在没有下面这三道断言时都是一片绿。
         let fields: std::collections::BTreeSet<&'static str> =
             battery.iter().map(|row| row.field).collect();
+        // 三枚全局下限随电池增长同步抬高（PI-WRITE-HOST-1 ②：142→152→220 枚 / 15→20 字段
+        // / 拒 126 枚）。不抬高就等于「删掉整个效果域仍旧全绿」——下限留在旧刻度上，
+        // 新族的塌缩只剩族内那一道守卫接得住，全局这一层等于没判。
         assert!(
-            battery.len() >= 100,
+            battery.len() >= 200,
             "电池只剩 {} 枚：枚举塌缩与全通过同形，一律硬失败",
             battery.len()
         );
         assert!(
-            fields.len() >= 10,
+            fields.len() >= 18,
             "电池只覆盖 {} 枚字段：host 方向输入面塌缩",
             fields.len()
         );
         assert!(
-            refused.values().sum::<usize>() >= 100,
+            refused.values().sum::<usize>() >= 115,
             "全电池只拒了 {} 枚：不是收紧了，就是入口被绕开了",
             refused.values().sum::<usize>()
         );
@@ -5100,6 +5549,37 @@ mod tests {
             recovery_fields.len() >= 4,
             "recovery 族只覆盖 {} 类 journal 形状",
             recovery_fields.len()
+        );
+        // 效果域的塌缩守卫（PI-WRITE-HOST-1 ②）：五枚前向债一枚字段都不许掉队。
+        // 「host_result 族被删空」与「本来就没有出站样本」在读数上同形——恰是这五行
+        // 在 HOST-LOOP 全程为债的成因（ready capability 恰 `['case_read']`，一枚都不生成）。
+        let host_result_rows = battery
+            .iter()
+            .filter(|row| {
+                matches!(
+                    row.drive,
+                    ViolationDrive::HostResult(..) | ViolationDrive::HostResultScale(..)
+                )
+            })
+            .count();
+        assert!(
+            host_result_rows >= 60,
+            "效果域只剩 {host_result_rows} 行：出站面塌缩，五枚前向债又照不到了"
+        );
+        let host_result_fields: std::collections::BTreeSet<&'static str> = battery
+            .iter()
+            .filter(|row| {
+                matches!(
+                    row.drive,
+                    ViolationDrive::HostResult(..) | ViolationDrive::HostResultScale(..)
+                )
+            })
+            .map(|row| row.field)
+            .collect();
+        assert_eq!(
+            host_result_fields.len(),
+            5,
+            "效果域必须恰覆盖五枚前向债字段，实为 {host_result_fields:?}"
         );
         for field in &fields {
             assert!(
