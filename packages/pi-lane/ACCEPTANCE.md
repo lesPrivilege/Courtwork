@@ -1811,3 +1811,79 @@ mutation 使同一断言 `564 B → 564 B` 命中红。
 
 判定：**PASS，待架构消费**。本会话只追加本段 `packages/pi-lane/ACCEPTANCE.md`；不 merge、不
 push、不更新 `current.md`、不开 `PI-WRITE-HOST-1`，PASS 也停在待架构消费。
+
+---
+
+# PI-LANE-SIDECAR-HANG-1 独立验收（2026-08-04，PASS）
+
+对象：exact target `19d64b9375db93343e0be224ae56183f9373752d`，base
+`8d90aa8`；目标 worktree `/Users/lesprivilege/Projects/Courtwork/.claude/worktrees/ext-accept-sidecar-hang`，
+另建 base 对照 worktree `/Users/lesprivilege/Projects/Courtwork/.claude/worktrees/ext-accept-sidecar-hang-base`。
+实现会话未被采信；验收从 target clean tree 独立安装、审 diff 与实跑。目标树安装
+`pnpm install --frozen-lockfile` 成功，base 对照树同命令亦成功。
+
+## 范围与静态核验
+
+- `git diff --name-status 8d90aa8..19d64b9` 恰为 `packages/pi-lane/src/sidecar.test.ts` 与
+  `packages/pi-lane/SPEC.md`；stat 为 `146 insertions(+), 13 deletions(-)`。
+- `git diff --check` 通过；build/test 后目标 worktree 仍无 tracked 漂移。
+- `sidecar.test.ts` 的修法是监听 `listen` 的 `'error'` 并携 errno/环境事实 reject，且把唯一
+  回环请求出口收紧为 `ROUND_TRIP_BUDGET_MS = 2000`；该预算小于既有 Vitest 5s 通用超时。
+  断言未放宽，未加入 skip、retry 或 timeout 放大；代理只记录 `NODE_USE_ENV_PROXY`、
+  `HTTP_PROXY`、`NO_PROXY` 的有无，不记录值。
+- `git diff` 未触碰产品码；`apps/desktop/src`、desktop e2e 与其行为契约零改动。
+
+## 正常环境与失败环境双臂
+
+可 bind 的正常 shell 下，连续三轮定向命令
+`npx vitest run packages/pi-lane/src/sidecar.test.ts` 均通过：
+
+| 轮次 | 结果 | Vitest duration |
+|---|---|---:|
+| 1 | 1 file / 10 passed / 0 failed | 2.35s |
+| 2 | 1 file / 10 passed / 0 failed | 2.36s |
+| 3 | 1 file / 10 passed / 0 failed | 3.46s |
+
+拒 bind 注入命令为：
+`sandbox-exec -p '(version 1)(allow default)(deny network-bind (local ip "*:*"))' npx vitest run packages/pi-lane/src/sidecar.test.ts`。
+
+- target tip：`10 failed`（原八枚 + 两枚注入反例），测试耗时 `18ms`、外层 `real 0.81s`；
+  失败具名为 `回环监听失败 ... EPERM`，含 `node v25.9.0`、代理变量有无与
+  `Caused by: listen EPERM`，没有 `Test timed out in 5000ms`。
+- base `8d90aa8`：`8 failed`，测试耗时 `40041ms`、外层 `real 42.75s`；八枚逐一为
+  `5003–5010ms` 的 `Test timed out in 5000ms`，无 errno，复现旧的无信息悬挂。
+
+拒 connect 对照命令为：
+`sandbox-exec -p '(version 1)(allow default)(deny network-outbound (remote ip "localhost:*"))' npx vitest run packages/pi-lane/src/sidecar.test.ts`。
+
+- target：`9 failed / 1 passed`，测试耗时 `45ms`、外层 `real 1.40s`；原八枚均快红为
+  `connect EPERM`，没有 5s 悬挂。第十枚黑洞反例在该 profile 下无法建立“连上但不回话”
+  条件，因连接已被拒绝而按预期走 `回环请求失败：EPERM`，不是超时。
+- base：`8 failed`，测试耗时 `25ms`、外层 `real 1.08s`，直接观察到 `connect EPERM`。
+
+这两种 Seatbelt 形态区分成立：bind 受限把旧树拖成 40s 无信息超时，而连接被拒绝在两树中
+均为亚秒具名快红；tip 还覆盖了真实可达但黑洞不回话时的 2000ms 具名预算。默认受限沙箱
+本身也曾让 tip 在约 443ms 内报具名 `listen EPERM`；该轮仅作环境红证，没有冒充正常绿证。
+
+## 全量门
+
+- `pnpm -r build`：exit 0；14/15 workspace projects 完成，desktop Vite `3594 modules transformed`
+  并完成 production build。
+- `pnpm lint`：exit 0。
+- 可 bind 正常 shell 下连续三轮 `pnpm test`：
+
+| 轮次 | 结果 | Vitest duration |
+|---|---|---:|
+| 1 | 167 files / 1784 passed / 0 failed | 13.66s |
+| 2 | 167 files / 1784 passed / 0 failed | 11.45s |
+| 3 | 167 files / 1784 passed / 0 failed | 12.03s |
+
+本票不触 desktop 行为，未运行 Playwright；理由为目标 diff 无 `apps/desktop` 产品码或 e2e
+变更，desktop build 已由 `pnpm -r build` 覆盖。该豁免不扩展为产品行为通过宣称。
+
+## 结论与停止边界
+
+判定：**PASS，待架构消费**。失败环境由无信息 5s 悬挂变为具名 fail-fast，正常定向测试与
+连续三轮 root test 全绿，build/lint 全绿，且触碰面严格为票面两文件。本会话只追加本段，
+不修改实现、不 merge、不 push、不更新 `current.md`，清理时只删除本会话创建的 target/base
+验收 worktree。
