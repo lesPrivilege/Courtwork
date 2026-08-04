@@ -804,6 +804,12 @@ impl PiLoopHost {
                     prior_observed_turns: projection.prior_observed_turns,
                     prior_turns: projection.prior_turns,
                     prior_usd: projection.prior_usd,
+                    // Gate D：记 resumed leg 的**当刻**身份，与 fresh 路的 `session_started`
+                    // （上文 :763/:767）同源同理。旧档 `session_started` 声称的旧值不再顶名新
+                    // leg 的实况——第 7 步 ready 若不逐值等于 `EXPECTED_CAPABILITIES`，leg 当场
+                    // 以 StateViolation 收束，故「记下的」与「谈成的」在任何能往下跑的路径上恒等。
+                    prompt_id: pi_loop_journal::CURRENT_PROMPT_ID.to_string(),
+                    capabilities: EXPECTED_CAPABILITIES.to_vec(),
                 });
             }
         }
@@ -2884,8 +2890,11 @@ mod tests {
                 prior_observed_turns: 2,
                 prior_turns: 2,
                 prior_usd: Some(0.75),
+                // Gate D：resumed leg 记当刻实收，不是旧档声称的旧值。
+                prompt_id: pi_loop_journal::CURRENT_PROMPT_ID.to_string(),
+                capabilities: EXPECTED_CAPABILITIES.to_vec(),
             }),
-            "跨 leg 不重置、不把 null 恢复成 0"
+            "跨 leg 不重置、不把 null 恢复成 0；身份记当刻实收"
         );
 
         // bootstrap 里的 prior 三值必须与 journal fold 逐值相同。
