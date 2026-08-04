@@ -205,6 +205,21 @@ CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1（已清账�
 `PI-BASE-HEADLESS-ACCEPT → PI-LANE-UI-1 → PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
 前三节点赋予 agent 称谓所需的产品能力，最后一节点只证明维护者个人安装形态。
 
+**收敛节点前置新立票 `PI-HEADLESS-HARNESS-1`（2026-08-05 侦察定谳，协调立票）**：`PI-BASE-HEADLESS-ACCEPT`
+是纯验收（「不实施契约修补，只写 ACCEPTANCE.md」），但其六格矩阵要求跑一条 real-Agent↔real-stdio-wire↔
+real `WorkspaceFsHost`(注入 Approve driver)↔real-disk＋restart 的合成链——现读实证该链**不存在**：Rust
+golden 走 `Scripted::Line` 回放（`pi_loop.rs` `dual_end_golden_wire_session…`），Node faux 走 `createHarness`
+host 桩（`product-runtime.test.ts`），每枚测试只桩住 seam 一侧。故 HEADLESS-ACCEPT 前须先立最小实现票
+`PI-HEADLESS-HARNESS-1`，范围两件：**(A) Gate D 清偿**——`session_resumed` 记实收 promptId/capabilities，
+journal 闭集**循裁定A先例扩员**（旧档续 valid，读侧闭集非通配），关闭「注入 driver 后账实不符」（[需架构拍板]A
+的 resume 孪生，协调裁定＝扩员，留架构推翻窗）；**(B) headless 合成 harness**——dev/acceptance-only 入口
+（不入 production wiring，faux provider 不进产品 provider 注册，守 demo/real 隔离），composes 真 pi Agent＋
+pi-ai 自带 faux provider（真 key 属 GUI-ACCEPT，本票不触网）＋真 stdio wire＋`WorkspaceFsHost.with_decision_driver(Approve)`
+显式注入（ADR-022 六-C:650 明令 headless 须显式注入、禁 always-allow 冒充产品授权）＋真 disk，可驱动六格脚本
+对话与 restart/resume 新 leg 回读。退出证据：六格各产 Agent events＋host req/result＋journal＋最终 bytes/hash；
+两注入点（Approve driver／faux provider）为 ADR 明批的显式延迟，其余全走 production 代码路径；App 槽无关（纯
+headless）。此票放行后 `PI-BASE-HEADLESS-ACCEPT` 方可跑矩阵。
+
 **GUI 后下一相（2026-08-04 产品定向落痕）**：`PI-BASE-GUI-ACCEPT` 收敛后，下一相为垂类/demo
 材料解耦成独立装载的插件包——路径沿既有冻结票阶梯：`GENERIC-PACK-1`（构建期解耦，验收律
 「只装通用包时产品是合格 work agent」＋卸垂类包冒烟 e2e）→ `PACK-INTERACT-1`（启停/建案
