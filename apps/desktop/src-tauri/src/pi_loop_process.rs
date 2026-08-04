@@ -923,13 +923,13 @@ mod tests {
         // （→ `535,827`/`a9ae0f93…`）、2R 裸 NUL 行出账（→ `536,123`/`060cc00a…`）。
         // `PI-WORKSPACE-READ-1` 的 Node 侧读面装配（host-mediated `/workspace` 读容器、
         // 双根路由容器、glob/grep 双根投影、握手闭集加 `workspace_read`）**第五次**换
-        // （`536,123`/`060cc00a…` → `546,665`/`58106760…`）。
+        // （`536,123`/`060cc00a…` → `546,906`/`36615e5b…`）。
         // 该票只改 Node 侧只读工具面，Rust 侧仅重录这枚身份。
         // 双方由 `product-main.test.ts` 的跨侧门逐值锁死，不许只改一边。
-        assert_eq!(manifest.bundle.bytes, 546_665);
+        assert_eq!(manifest.bundle.bytes, 546_906);
         assert_eq!(
             manifest.bundle.sha256,
-            "58106760e47dc78789f9a1d6f48fead202a6f86af1dc4ee012d7832fed38fdc9"
+            "36615e5b6c9e54ddb153608985f369cc88e350c17e2eddd6915821a7850150fd"
         );
         assert_eq!(
             manifest.bundle_resource_relative_path,
@@ -1009,11 +1009,11 @@ mod tests {
             ("乱序", format!("{head}{intel},{arm}{foot}")),
             ("重复 target", format!("{head}{arm},{arm}{foot}")),
             ("单 target", format!("{head}{arm}{foot}")),
-            ("零字节", compact.replace("\"bytes\":546665", "\"bytes\":0")),
+            ("零字节", compact.replace("\"bytes\":546906", "\"bytes\":0")),
             (
                 "大写 SHA",
                 compact.replace(
-                    "58106760e47dc78789f9a1d6f48fead202a6f86af1dc4ee012d7832fed38fdc9",
+                    "36615e5b6c9e54ddb153608985f369cc88e350c17e2eddd6915821a7850150fd",
                     "060CC00AFFF2F5D1178D16E0A8C4C18A136525936CAF1D4133FFDE96938FEC17",
                 ),
             ),

@@ -407,10 +407,19 @@ export function createWorkspaceReadEnv(options: WorkspaceReadEnvOptions): Execut
       }
       const entries: FileInfo[] = [];
       for (const entry of outcome.entries) {
-        // 宿主给的 name 仍须过一次本层 grammar：单段合法才投影给模型（与 `/case` 同口径）。
         const child = virtualPath === WORKSPACE_LOGICAL_ROOT ? entry.name : `${answered.value.logicalPath}/${entry.name}`;
         const resolved = resolveWorkspaceReadPath(child, 'exists');
-        if (!resolved.ok) continue;
+        // 宿主给的 name 仍过一次本层 grammar，但**不合规不是「跳过」而是协议漂移**：
+        // Rust 侧列目录时已按同一套 segment 闭集筛过，故此处出现不合规的名字只可能是两端
+        // grammar 分叉。静默 `continue` 会让分叉表现成「那个文件不存在」——正是
+        // `PI-TOOLS-HONESTY-1` 交出的容器层三处边界的同一种形状。本容器**不加入那一族**：
+        // 整次 listing fail-closed，理由具名。
+        if (!resolved.ok) {
+          return deny(
+            'unknown',
+            `拒绝采信：${virtualPath} 的目录项含不合本层 grammar 的名字（两端 grammar 分叉，非「该项不存在」）`,
+          );
+        }
         entries.push({
           name: entry.name,
           path: resolved.virtualPath,

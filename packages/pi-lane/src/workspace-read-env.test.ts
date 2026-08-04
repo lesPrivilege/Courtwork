@@ -351,3 +351,35 @@ describe('host-mediated 读容器', () => {
     expect(allocations).toBe(0);
   });
 });
+
+describe('容器层丢条目：读容器不加入那一族', () => {
+  it('宿主给出不合 grammar 的目录项：整次 listing fail-closed，不静默略过', async () => {
+    const { env } = harness(() => ({
+      status: 'ok',
+      operation: 'list',
+      logicalPath: WORKSPACE_LIST_ROOT,
+      entries: [
+        { name: '正常.md', kind: 'file', byteLength: 3, mtimeMs: 1 },
+        // Rust 侧列目录已按同一套 segment 闭集筛过，故这一枚只可能是两端 grammar 分叉。
+        { name: 'CON.md', kind: 'file', byteLength: 3, mtimeMs: 1 },
+      ],
+    }));
+    const listed = await env.listDir('/workspace');
+    expect(listed.ok).toBe(false);
+    if (listed.ok) return;
+    expect(listed.error.message).toContain('grammar 分叉');
+  });
+
+  it('对照：全部合规时照常列出——fail-closed 不是恒判', async () => {
+    const { env } = harness(() => ({
+      status: 'ok',
+      operation: 'list',
+      logicalPath: WORKSPACE_LIST_ROOT,
+      entries: [{ name: '正常.md', kind: 'file', byteLength: 3, mtimeMs: 1 }],
+    }));
+    const listed = await env.listDir('/workspace');
+    expect(listed.ok).toBe(true);
+    if (!listed.ok) return;
+    expect(listed.value.map((entry) => entry.path)).toEqual(['/workspace/正常.md']);
+  });
+});
