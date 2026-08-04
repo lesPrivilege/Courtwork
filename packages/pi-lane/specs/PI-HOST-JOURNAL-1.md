@@ -6,7 +6,7 @@
 
 1. **目录项落盘（①）**：`plan_session_locked` 在 `create_dir_all` 后子先父后 `sync_directory(container.parent())`、`sync_directory(root)`；`open_append` 后 `sync_directory(&container)`（journal 文件目录项）。比照 `work_state.rs` 既有先例（ADR-010 决定二）。掉电本身不可在进程内证明——在场性以 `cfg(test)` thread_local 计数器（生产零码）＋撤除 mutant 锁定，口径入本回执。
 2. **写侧序号门＋quarantine 显式化（②）**：`pump` 在 append 前按读侧 `validate_records` 同一真源拒绝跳号 `turn_finished`——坏事件与其 usage 第二笔**零落盘**，失败经 `fail_protocol` 落显式 `session_failed`（pump 全部既有门的唯一惯用形，亦是不变量 4 的落点）；`plan_session_locked` 对「空 journal ＋ 非空 `quarantine/<sessionId>/`」显式拒绝（复用既有 `QuarantineRefused` 变体，错误闭集零移动），fresh 支不再静默把已计费历史归零。
-3. **quarantine 内容寻址（③）**：四处调用点由 `&complete`（LF 截断前缀）改传 `&existing`（未截断原字节），文件名 SHA 与搬运内容互证，同前缀异尾两档不再撞名把 sessionId 卡死；`quarantine_session` 本体零改，实现自此与其 doc 自述 `<sha256-of-original-bytes>.jsonl` 一致。
+3. **quarantine 内容寻址（③）**：~~四处调用点由 `&complete` 改传 `&existing`~~——**该自述经独立验收证伪（REJECT `bdba10a`）：实际只改到 1/4 调用点**，且首轮 born-red 两枚同走 decode 入口、未覆盖族。1R 返修改为结构性收束（见下节）：`quarantine_session` 删除 `original` 参数、rename 前自读源文件全字节取摘要，调用方无从传错切片，四入口同死。
 
 ## 本单新增了什么概念、为何非加不可
 
@@ -41,3 +41,17 @@ R6 encode-before-effect 与 R7 恢复分相装置零回退——152 行普适电
 ## 退出证据（实现会话自测，不代表验收）
 
 cargo **172 过 / 0 败 / 1 忽略**（167 既有全绿 ＋ 5 新）；`build:product-sidecar` 先行（制品可复现）。全量门（build/lint/root/desktop/Playwright）数字见分支尾提交所附登记。验收提示：mutant 复现用 perl 置换须带命中校验；`fresh_session_plan_syncs_directory_entries` 的计数为线程局部，并行跑不互染。
+
+## 1R 返修（2026-08-04，采验收 REJECT `bdba10a` 五项发现）
+
+拒因＝③族缺陷：`&existing` 恰 1 处、`&complete` 恰 3 处（三方独立计数一致）；两枚 born-red 同走 `decode_record` 失败一个入口，修一处即全绿——「闭口按族」判例在本票实现自身身上复现。**自伤记录：`Edit replace_all` 的「全部替换」指字面串的全部出现，不等于语义位点的全部覆盖；多点同改后必须 grep 计数核对，命中校验律同样适用于编辑器。**
+
+**返修（`6005bd9`）**：
+- **③结构性收束**（同步消灭优于同步验证）：`quarantine_session` 删 `original: &[u8]` 参数，rename 前 `fs::read(source)` 自读全字节取摘要；读失败显式 `QuarantineRefused`。「调用方传对切片」这本账整本消灭，四条隔离入口（decode 失败／空行／`validate_records` 拒／repair 拒）由单点构造同时成立——逐入口摘要测试自此 redundant-by-construction，行为面保留 decode 与 validate 两入口共四枚反例，其余两入口的等价性由「摘要在函数内取自被搬文件本身」结构性保证，复验可自行加撤修复红证核验。
+- **验收探针转 permanent**（署名 REJECT 轮）：`counterexample_validate_entry_quarantine_covers_untruncated_bytes`／`counterexample_validate_entry_same_prefix_tails_do_not_collide`，tip 先证红（0/2，红形与验收轮逐字同）后绿。
+- **采观察②**：新增 `turn_finished_follows(last_observed, turn)` 单一判据函数，读侧 `validate_records` 与写侧 pump 门共用；两侧游标各因其相位（流内递推 vs 已折叠投影的 `prior_observed_turns`），在已验前缀上等价——游标二元性如实留给复验审视。
+- **采观察⑤**：`plan_session_locked` 单写者门注释钉准为「任何 **journal** 读写之前」，目录项 fsync 属容器结构准备、不触 journal 字节。
+- **变异**：函数内注回「LF 截断哈希」旧语义（perl 带命中校验）→ 摘要族四枚测试全红；复原零残留后 174/174。
+- **观察④（cost_usd Disabled 臂）维持 [需架构拍板]**：`max_usd=Some` 时 `+inf→Reached` fail-closed 属实；`max_usd=None` 走 Disabled 臂 `Some(+inf)` 原样带出，且 `format_js_number` 对非有限值输出裸 `inf`（非 JSON token）——已知边界的登记措辞须按此收窄，是否加界属 wire 面，本票不动。
+
+**退出证据（1R，实现自测）**：cargo **174 过／0 败／1 忽略**（含两枚探针转 permanent）；全量门数字由复验轮实跑为准。
