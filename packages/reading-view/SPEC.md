@@ -124,7 +124,7 @@ packages/reading-view/
 
 **顺手观察（未处置，desktop 面）**：`outcome-copy.ts` 对 `fidelity_insufficient` 的文案「请简化表格后重试」对内容控件场景失准；其 switch 带 `default:` 使新 reason 无编译面拦截。两项登记不动。
 
-**退出证据（实现会话自测，不代表验收）**：包内 146/146、`pnpm --filter "@courtwork/reading-view..." build` 绿；全量门数字待机器空档补跑后登记（在途验收串行占用中）。
+**退出证据（实现会话自测，不代表验收）**：包内 146/146；分支尾 `10e6451` 全量门实测（2026-08-04，机器独占串行）：`pnpm -r build` 0、`pnpm lint` 0、root **1787/1787**（基线 1782＋本批 5 枚）、desktop **690/690**、隔离端口 Playwright **352/352**，全 exit 0。基线为 `main@8f4e937`；其后 main 已前进至 `4ab5671`（审计批首三票合入），本批触碰面与该三票零重叠，验收可按需在合并态复跑。
 
 ## TODO（跨层放入区）
 
