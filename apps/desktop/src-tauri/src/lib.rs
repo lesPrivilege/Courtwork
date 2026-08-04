@@ -20,6 +20,7 @@ mod pi_loop;
 mod pi_loop_journal;
 mod pi_loop_process;
 mod pi_loop_protocol;
+mod pi_loop_workspace;
 mod work_state;
 
 /// 发行包 service；dev（debug_assertions）加 `.dev` 后缀，避免污染发行 ACL（F6）。

@@ -915,12 +915,14 @@ mod tests {
         // bundle 身份是 product source 的函数：PI-HOST-LOOP-1R 的 N1–N3 改了
         // `product-case-env.ts` / `product-runtime.ts`，sealed CJS 因此换了字节与 SHA；
         // PI-HOST-LOOP-1R2 的 C1（`completionFor()` 全枚举、`aborted`→canceled）再换一次
-        // （`523,057`/`b72fe521…` → `523,235`/`75eff9b9…`）。
+        // （`523,057`/`b72fe521…` → `523,235`/`75eff9b9…`）；`PI-WRITE-HOST-1` ⑤ 的 Node 装配
+        // （write binder、两段式接缝、`md-work-v1` prompt、四件工具闭集）第三次换
+        // （`523,235`/`75eff9b9…` → `534,219`/`8520026c…`）。
         // 双方由 `product-main.test.ts` 的跨侧门逐值锁死，不许只改一边。
-        assert_eq!(manifest.bundle.bytes, 523_235);
+        assert_eq!(manifest.bundle.bytes, 534_219);
         assert_eq!(
             manifest.bundle.sha256,
-            "75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b"
+            "8520026cb78e4fbd773b020a8b59a23082e55790403149de5fb91be332fce562"
         );
         assert_eq!(
             manifest.bundle_resource_relative_path,
@@ -1000,12 +1002,12 @@ mod tests {
             ("乱序", format!("{head}{intel},{arm}{foot}")),
             ("重复 target", format!("{head}{arm},{arm}{foot}")),
             ("单 target", format!("{head}{arm}{foot}")),
-            ("零字节", compact.replace("\"bytes\":523235", "\"bytes\":0")),
+            ("零字节", compact.replace("\"bytes\":534219", "\"bytes\":0")),
             (
                 "大写 SHA",
                 compact.replace(
-                    "75eff9b9c6089b613e85638a2f7a1b3159c1df08bd5439eb1db9978e6d65399b",
-                    "75EFF9B9C6089B613E85638A2F7A1B3159C1DF08BD5439EB1DB9978E6D65399B",
+                    "8520026cb78e4fbd773b020a8b59a23082e55790403149de5fb91be332fce562",
+                    "8520026CB78E4FBD773B020A8B59A23082E55790403149DE5FB91BE332FCE562",
                 ),
             ),
             (

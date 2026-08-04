@@ -187,6 +187,19 @@ export interface ProductSidecarSession {
 
   publishAgentEvent(event: OutboundAgentEvent): void;
   /**
+   * raw→公开 tc 的**只读查询面**。
+   *
+   * 公开 tc 的唯一真源是本状态机在 `tool_started` 当场铸的那一枚；runtime 侧的 write binder
+   * 需要它才能把一次上游 tool call 归到某个公开 tc 上。之所以是查询而不是让 runtime 自己
+   * 镜像 `tool_started`：镜像立刻产生第二份可漂移的 tc 表，而「查不到即拒、绝不代分配」
+   * 只有在唯一真源上才成立。
+   *
+   * 它**只查表，不授权**：owner/name/phase/capability 的判据留在 {@link reserveHostOperation}
+   * 与 {@link sendReservedHostRequest} 各自那一刻——发包的授权必须落在发包当场，
+   * 不能靠一次早先的查询代劳。
+   */
+  publicToolCallId(rawToolCallId: string): SafeToken | undefined;
+  /**
    * 接缝第一段：所有本地 gate 之后预留 operationId。
    * 其后的异步 hash 若失败而不 send，该 ordinal 永久烧号——不出 wire、不成为 pending、不得复用。
    */
@@ -939,6 +952,11 @@ export function createProductSidecarSession(
     return { toolCallId, record };
   }
 
+  /** 只读查询：本 leg 的 raw→公开 tc。查不到即 `undefined`，调用方据此拒绝，绝不代分配。 */
+  function publicToolCallId(rawToolCallId: string): SafeToken | undefined {
+    return toolCallIds.get(rawToolCallId);
+  }
+
   /** reserve 与 send 共用的前置门；两段都要在自己那一刻重验，不靠对方兜底。 */
   function requireHostRequestWindow(): { requestId: SafeToken; currentSession: SafeToken } {
     const requestId = requireActivePrompt();
@@ -1095,6 +1113,7 @@ export function createProductSidecarSession(
     receive,
     endOfInput,
     publishAgentEvent,
+    publicToolCallId,
     reserveHostOperation,
     sendReservedHostRequest,
     finishPrompt,

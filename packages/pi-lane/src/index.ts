@@ -21,6 +21,7 @@ export {
   assertToolsWithinPolicy,
   createToolGate,
   DISABLED_TOOL_NAMES,
+  PRODUCT_TOOL_NAMES,
   READ_ONLY_TOOL_NAMES,
   type ToolGate,
 } from './tool-policy.js';

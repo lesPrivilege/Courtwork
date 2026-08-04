@@ -37,7 +37,7 @@ use crate::pi_loop_protocol::{
     AgentProjectionEvent, BudgetStopReason, BudgetTurnLimit, BudgetUsdLimit, BudgetView,
     CancelReason, CodecResult, HostFailureCode, JsonNode, ProtocolErrorCode, TerminalError,
     TerminalFailureCode, TurnStopReason, TurnUsage, WorkspaceCapability, WriteDisposition,
-    MAX_SAFE_INTEGER, MAX_TERMINAL_MESSAGE_BYTES, MAX_TEXT_BYTES,
+    MAX_LOGICAL_PATH_BYTES, MAX_SAFE_INTEGER, MAX_TERMINAL_MESSAGE_BYTES, MAX_TEXT_BYTES,
 };
 
 /// 容器根目录名。`loop/` 是 ADR-019 的逻辑容器子档，物理上属 ADR-005 的 app-data 状态平面，
@@ -50,7 +50,21 @@ pub(crate) const ROUTE_ID: &str = "node22-runtime-sealed-cjs-v1";
 pub(crate) const NODE_VERSION: &str = "22.23.1";
 /// 本票 sidecar 只看得见虚拟根；物理案件根永不进 journal。
 pub(crate) const LOGICAL_CASE_ROOT: &str = "/case";
-pub(crate) const PROMPT_ID: &str = "case-read-v1";
+/// 本线**当刻**在跑的 prompt 身份（Node 侧 `PRODUCT_PROMPT_ID` 的对端真源；两侧由
+/// `fixtures/write-session-journal-v1.jsonl` 这枚双端 golden 钉在一起）。
+pub(crate) const CURRENT_PROMPT_ID: &str = "md-work-v1";
+/// `PI-HOST-LOOP-1` 时期写下的旧档身份。读侧继续收它——改既有档的解码语义等于毁旧档。
+pub(crate) const LEGACY_PROMPT_ID: &str = "case-read-v1";
+/// 读侧闭集恰两员：**不是**通配，也不是「非空即可」。
+pub(crate) const LEGAL_PROMPT_IDS: &[&str] = &[LEGACY_PROMPT_ID, CURRENT_PROMPT_ID];
+/// 读侧 capabilities 闭集：旧档一员、⑤ 之后的新形一员。次序即判据（Node 侧按字典序归一）。
+pub(crate) const LEGAL_CAPABILITY_SETS: &[&[WorkspaceCapability]] = &[
+    &[WorkspaceCapability::CaseRead],
+    &[
+        WorkspaceCapability::CaseRead,
+        WorkspaceCapability::WorkspaceWrite,
+    ],
+];
 pub(crate) const PROVIDER_ID: &str = "deepseek";
 /// `session_resumed.startedEventId` 恒指向首枚记录。
 pub(crate) const STARTED_EVENT_ID: &str = "event_1";
@@ -175,9 +189,13 @@ pub(crate) struct SessionStartedPayload {
     pub(crate) route_manifest_sha256: String,
     pub(crate) target_triple: TargetTriple,
     pub(crate) grant_id: String,
+    /// 本会话在跑的 prompt 身份。写侧记当刻真值，读侧按 {@link LEGAL_PROMPT_IDS} 收。
+    pub(crate) prompt_id: String,
     pub(crate) model_id: String,
     pub(crate) max_turns: u64,
     pub(crate) max_usd: Option<f64>,
+    /// 本会话的握手闭集。写侧记当刻真值，读侧按 {@link LEGAL_CAPABILITY_SETS} 收。
+    pub(crate) capabilities: Vec<WorkspaceCapability>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -395,7 +413,7 @@ fn write_payload(out: &mut String, payload: &JournalPayload) {
             object.string("targetTriple", started.target_triple.as_str());
             object.string("grantId", &started.grant_id);
             object.string("caseRoot", LOGICAL_CASE_ROOT);
-            object.string("promptId", PROMPT_ID);
+            object.string("promptId", &started.prompt_id);
             object.key("provider");
             {
                 let mut provider = Obj::start(object.out);
@@ -412,7 +430,12 @@ fn write_payload(out: &mut String, payload: &JournalPayload) {
             }
             object.key("capabilities");
             object.out.push('[');
-            write_json_string(object.out, WorkspaceCapability::CaseRead.as_str());
+            for (index, capability) in started.capabilities.iter().enumerate() {
+                if index > 0 {
+                    object.out.push(',');
+                }
+                write_json_string(object.out, capability.as_str());
+            }
             object.out.push(']');
             object.finish();
         }
@@ -669,11 +692,18 @@ fn read_session_started(node: &JsonNode) -> CodecResult<SessionStartedPayload> {
         "caseRoot",
         LOGICAL_CASE_ROOT,
     )?;
-    expect_literal(
+    // 裁定A：闭集扩员，不是放开。集外一律拒，空串也拒（`LEGAL_PROMPT_IDS` 里没有它）。
+    let prompt_id = read_enum(
         pick(members, "promptId", "session_started")?,
         "promptId",
-        PROMPT_ID,
-    )?;
+        |value| {
+            LEGAL_PROMPT_IDS
+                .iter()
+                .copied()
+                .find(|legal| *legal == value)
+        },
+    )?
+    .to_string();
 
     let provider = closed_record(
         pick(members, "provider", "session_started")?,
@@ -726,13 +756,20 @@ fn read_session_started(node: &JsonNode) -> CodecResult<SessionStartedPayload> {
             "capabilities 必须是 array",
         );
     };
-    if items.len() != 1
-        || read_enum(&items[0], "capabilities[]", WorkspaceCapability::parse)?
-            != WorkspaceCapability::CaseRead
-    {
+    let mut capabilities = Vec::with_capacity(items.len());
+    for item in items {
+        capabilities.push(read_enum(
+            item,
+            "capabilities[]",
+            WorkspaceCapability::parse,
+        )?);
+    }
+    // 裁定A：闭集扩员。次序、重复与集外组合都在这一枚判据里当场现形——`contains` 比的是
+    // 整张表，不是「每一员都合法」那种逐项放行。
+    if !LEGAL_CAPABILITY_SETS.contains(&capabilities.as_slice()) {
         return reject(
             ProtocolErrorCode::InvalidSchema,
-            "本票 capabilities 恰为 ['case_read']",
+            "capabilities 必须恰为 ['case_read'] 或 ['case_read','workspace_write']",
         );
     }
 
@@ -740,9 +777,11 @@ fn read_session_started(node: &JsonNode) -> CodecResult<SessionStartedPayload> {
         route_manifest_sha256,
         target_triple,
         grant_id,
+        prompt_id,
         model_id,
         max_turns,
         max_usd,
+        capabilities,
     })
 }
 
@@ -909,7 +948,7 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                 logical_path: read_string(
                     pick(members, "logicalPath", "tool_proposed")?,
                     "logicalPath",
-                    1_024,
+                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 proposal_hash: read_sha256_hex(
                     pick(members, "proposalHash", "tool_proposed")?,
@@ -986,7 +1025,7 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                 logical_path: read_string(
                     pick(members, "logicalPath", "effect_started")?,
                     "logicalPath",
-                    1_024,
+                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 proposal_hash: read_sha256_hex(
                     pick(members, "proposalHash", "effect_started")?,
@@ -1029,7 +1068,7 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                 logical_path: read_string(
                     pick(members, "logicalPath", "effect_succeeded")?,
                     "logicalPath",
-                    1_024,
+                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 disposition: read_enum(
                     pick(members, "disposition", "effect_succeeded")?,
@@ -2846,9 +2885,14 @@ mod tests {
                 "4c09a985f489bbc791686197f44a5303fb1295a657c855d3df679bf776967f6b".to_string(),
             target_triple: TargetTriple::Aarch64AppleDarwin,
             grant_id: "grant-1".to_string(),
+            prompt_id: CURRENT_PROMPT_ID.to_string(),
             model_id: "deepseek-v4-flash".to_string(),
             max_turns: 12,
             max_usd: None,
+            capabilities: vec![
+                WorkspaceCapability::CaseRead,
+                WorkspaceCapability::WorkspaceWrite,
+            ],
         }
     }
 
@@ -3106,6 +3150,245 @@ mod tests {
         assert_eq!(seen.len(), JournalType::ALL.len(), "十九型必须逐枚覆盖");
     }
 
+    // ── effect 家族的真值样本（PI-WRITE-HOST-1 ②）──────────────────────────────
+    //
+    // 十九型 round-trip 只担保「每型至少有一枚样本走得通」。effect 六型此前每型只挑了
+    // 一枚枚举值——`EffectFailed` 的 13 枚 `HostFailureCode` 里只跑过 `symlink_forbidden`、
+    // `AuthorizationDecided` 的两枚 deny code 里只跑过 `user_denied`、三枚带
+    // `WriteDisposition` 的型只跑过其中一半。HOST-LOOP 全程 ready capability 恰
+    // `['case_read']`，这六型一枚都没被真实生成过，于是「值域被测过」与「值域从没被碰过」
+    // 在读数上同形。本票是它们首次真实生成，样本按闭集逐值补齐。
+
+    fn effect_records() -> Vec<JournalPayload> {
+        let path = "纪要.md".to_string();
+        let proposal =
+            "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".to_string();
+        let content =
+            "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".to_string();
+        let tool_call_id = "tc_1_1".to_string();
+        let mut payloads = Vec::new();
+
+        for action in WriteDisposition::ALL.iter().copied() {
+            payloads.push(JournalPayload::ToolProposed(ToolProposedPayload {
+                tool_call_id: tool_call_id.clone(),
+                logical_path: path.clone(),
+                proposal_hash: proposal.clone(),
+                content_sha256: content.clone(),
+                byte_length: 10,
+                action,
+            }));
+            payloads.push(JournalPayload::EffectStarted(EffectStartedPayload {
+                tool_call_id: tool_call_id.clone(),
+                logical_path: path.clone(),
+                proposal_hash: proposal.clone(),
+                action,
+                content_sha256: content.clone(),
+                byte_length: 10,
+            }));
+            payloads.push(JournalPayload::EffectSucceeded(EffectSucceededPayload {
+                tool_call_id: tool_call_id.clone(),
+                logical_path: path.clone(),
+                disposition: action,
+                content_sha256: content.clone(),
+                byte_length: 10,
+            }));
+        }
+        payloads.push(JournalPayload::AuthorizationDecided {
+            tool_call_id: tool_call_id.clone(),
+            decision: AuthorizationDecision::Approved,
+            code: None,
+        });
+        for code in AuthorizationDenyCode::ALL.iter().copied() {
+            payloads.push(JournalPayload::AuthorizationDecided {
+                tool_call_id: tool_call_id.clone(),
+                decision: AuthorizationDecision::Denied,
+                code: Some(code),
+            });
+        }
+        for code in HostFailureCode::ALL.iter().copied() {
+            payloads.push(JournalPayload::EffectFailed {
+                tool_call_id: tool_call_id.clone(),
+                code,
+            });
+        }
+        payloads.push(JournalPayload::EffectUncertain { tool_call_id });
+        payloads
+    }
+
+    fn effect_record(seq: usize, payload: JournalPayload) -> JournalRecord {
+        JournalRecord {
+            event_id: format!("event_{}", seq + 1),
+            seq: seq as u64 + 1,
+            container_id: "cnt-1".to_string(),
+            session_id: "sess-1".to_string(),
+            leg: 1,
+            request_id: Some("req-1".to_string()),
+            operation_id: Some("op_1_1".to_string()),
+            recorded_at: 1_700_000_000_000 + seq as u64,
+            payload,
+        }
+    }
+
+    #[test]
+    fn effect_family_truth_samples_cover_every_closed_value() {
+        let payloads = effect_records();
+        let mut dispositions: HashSet<WriteDisposition> = HashSet::new();
+        let mut failure_codes: HashSet<HostFailureCode> = HashSet::new();
+        let mut deny_codes: HashSet<AuthorizationDenyCode> = HashSet::new();
+        let mut types: HashSet<JournalType> = HashSet::new();
+
+        for (index, payload) in payloads.into_iter().enumerate() {
+            types.insert(payload.journal_type());
+            match &payload {
+                JournalPayload::ToolProposed(proposed) => {
+                    dispositions.insert(proposed.action);
+                }
+                JournalPayload::EffectStarted(started) => {
+                    dispositions.insert(started.action);
+                }
+                JournalPayload::EffectSucceeded(succeeded) => {
+                    dispositions.insert(succeeded.disposition);
+                }
+                JournalPayload::EffectFailed { code, .. } => {
+                    failure_codes.insert(*code);
+                }
+                JournalPayload::AuthorizationDecided {
+                    code: Some(code), ..
+                } => {
+                    deny_codes.insert(*code);
+                }
+                _ => {}
+            }
+            let record = effect_record(index, payload);
+            let encoded = encode_record(&record);
+            let decoded = decode_record(&encoded[..encoded.len() - 1])
+                .unwrap_or_else(|error| panic!("effect 第 {index} 枚解码失败：{}", error.reason));
+            assert_eq!(decoded, record, "effect 第 {index} 枚 round-trip 不等");
+            assert_eq!(
+                encode_record(&decoded),
+                encoded,
+                "effect 第 {index} 枚 canonical 重编码不同 bytes"
+            );
+        }
+
+        // 闭集塌缩守卫：把样本删剩一枚与「本来就只测了一枚」读数同形。期望侧一律取
+        // 闭集自己的 `ALL`——枚举加一枚新 code 而不补样本，这里立刻红。
+        assert_eq!(
+            dispositions.len(),
+            WriteDisposition::ALL.len(),
+            "WriteDisposition 未逐值取样"
+        );
+        assert_eq!(
+            failure_codes.len(),
+            HostFailureCode::ALL.len(),
+            "HostFailureCode 未逐值取样"
+        );
+        assert_eq!(
+            deny_codes.len(),
+            AuthorizationDenyCode::ALL.len(),
+            "AuthorizationDenyCode 未逐值取样"
+        );
+        assert_eq!(types.len(), 6, "effect 家族恰六型，实为 {types:?}");
+    }
+
+    /// effect 家族的 `logicalPath` / `byteLength` 上界与 **wire 同一枚真源**。
+    ///
+    /// 出站 `host_result` 的 `logicalPath` 由 `MAX_LOGICAL_PATH_BYTES` 收口（本票偿的五枚
+    /// 前向债之一：`read_logical_path`），而同一条逻辑路径随后要落进 `tool_proposed` /
+    /// `effect_started` / `effect_succeeded` 三型 journal。两谱各抄一份上界就各自漂移——
+    /// wire 收紧一字节，journal 仍会把 wire 已经拒掉的那一枚原样收下，
+    /// encode-before-effect 的结构性担保在这一段断掉，而且断得静默。
+    ///
+    /// 本枚逐型钉死「cap 收得下、cap+1 收不下」，期望值只从 protocol 常量取。
+    #[test]
+    fn effect_family_path_and_length_bounds_come_from_the_wire_constants() {
+        let proposal =
+            "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".to_string();
+        let content =
+            "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".to_string();
+        /// 三型共用的构造签名：逻辑路径 × byteLength × proposal/content 两枚 sha。
+        type EffectShape = fn(String, u64, String, String) -> JournalPayload;
+        let shapes: Vec<(&str, EffectShape)> = vec![
+            ("tool_proposed", |path, byte_length, proposal, content| {
+                JournalPayload::ToolProposed(ToolProposedPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: path,
+                    proposal_hash: proposal,
+                    content_sha256: content,
+                    byte_length,
+                    action: WriteDisposition::Created,
+                })
+            }),
+            ("effect_started", |path, byte_length, proposal, content| {
+                JournalPayload::EffectStarted(EffectStartedPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: path,
+                    proposal_hash: proposal,
+                    action: WriteDisposition::Created,
+                    content_sha256: content,
+                    byte_length,
+                })
+            }),
+            (
+                "effect_succeeded",
+                |path, byte_length, _proposal, content| {
+                    JournalPayload::EffectSucceeded(EffectSucceededPayload {
+                        tool_call_id: "tc_1_1".to_string(),
+                        logical_path: path,
+                        disposition: WriteDisposition::Created,
+                        content_sha256: content,
+                        byte_length,
+                    })
+                },
+            ),
+        ];
+
+        let decodes = |payload: JournalPayload| -> bool {
+            let record = effect_record(0, payload);
+            let encoded = encode_record(&record);
+            decode_record(&encoded[..encoded.len() - 1]).is_ok()
+        };
+
+        for (name, make) in shapes {
+            assert!(
+                decodes(make(
+                    "p".repeat(MAX_LOGICAL_PATH_BYTES),
+                    10,
+                    proposal.clone(),
+                    content.clone()
+                )),
+                "{name}：恰 MAX_LOGICAL_PATH_BYTES 的逻辑路径必须收得下"
+            );
+            assert!(
+                !decodes(make(
+                    "p".repeat(MAX_LOGICAL_PATH_BYTES + 1),
+                    10,
+                    proposal.clone(),
+                    content.clone()
+                )),
+                "{name}：journal 收下了 wire 已拒的逻辑路径——两谱上界漂移"
+            );
+            assert!(
+                decodes(make(
+                    "纪要.md".to_string(),
+                    MAX_TEXT_BYTES as u64,
+                    proposal.clone(),
+                    content.clone()
+                )),
+                "{name}：恰 MAX_TEXT_BYTES 的 byteLength 必须收得下"
+            );
+            assert!(
+                !decodes(make(
+                    "纪要.md".to_string(),
+                    MAX_TEXT_BYTES as u64 + 1,
+                    proposal.clone(),
+                    content.clone()
+                )),
+                "{name}：journal 收下了 wire 已拒的 byteLength——两谱上界漂移"
+            );
+        }
+    }
+
     #[test]
     fn counterexample_operation_id_only_on_the_six_effect_types() {
         let extra = br#"{"schemaVersion":1,"eventId":"event_1","seq":1,"containerId":"cnt-1","sessionId":"sess-1","leg":1,"requestId":"req-1","operationId":"op-1","type":"agent_event","recordedAt":1,"payload":{"kind":"assistant_text_delta","delta":"x"}}"#;
@@ -3141,6 +3424,94 @@ mod tests {
             decode_record(physical.as_bytes()).is_err(),
             "物理案件根不得进 journal"
         );
+    }
+
+    // ── 裁定A：`promptId`/`capabilities` 的读侧闭集与写侧实况 ────────────────
+    //
+    // 判据形态是**文本**而非结构体字段，故它在扩员之前就能编译、就能红：受验的正是
+    // 「今天真的跑起来的那一形会话，能不能被自家读侧收下」。
+
+    /// 旧档：`case-read-v1` ＋ `['case_read']`。扩员前后都必须 valid——收窄它等于毁旧档。
+    const LEGACY_SESSION_STARTED: &str = r#"{"schemaVersion":1,"eventId":"event_1","seq":1,"containerId":"cnt-1","sessionId":"sess-1","leg":1,"requestId":null,"type":"session_started","recordedAt":1,"payload":{"routeId":"node22-runtime-sealed-cjs-v1","routeManifestSha256":"4c09a985f489bbc791686197f44a5303fb1295a657c855d3df679bf776967f6b","nodeVersion":"22.23.1","targetTriple":"aarch64-apple-darwin","grantId":"grant-1","caseRoot":"/case","promptId":"case-read-v1","provider":{"id":"deepseek","modelId":"deepseek-v4-flash"},"limits":{"maxTurns":12,"maxUsd":null},"capabilities":["case_read"]}}"#;
+
+    /// 新形：⑤ 之后真实在跑的那一形——`md-work-v1` ＋ 实收握手闭集。
+    const CURRENT_SESSION_STARTED: &str = r#"{"schemaVersion":1,"eventId":"event_1","seq":1,"containerId":"cnt-1","sessionId":"sess-1","leg":1,"requestId":null,"type":"session_started","recordedAt":1,"payload":{"routeId":"node22-runtime-sealed-cjs-v1","routeManifestSha256":"4c09a985f489bbc791686197f44a5303fb1295a657c855d3df679bf776967f6b","nodeVersion":"22.23.1","targetTriple":"aarch64-apple-darwin","grantId":"grant-1","caseRoot":"/case","promptId":"md-work-v1","provider":{"id":"deepseek","modelId":"deepseek-v4-flash"},"limits":{"maxTurns":12,"maxUsd":null},"capabilities":["case_read","workspace_write"]}}"#;
+
+    /// 读侧闭集恰两员：新旧两形各自 valid，且各自 canonical 重编码回同一份字节。
+    ///
+    /// 「重编码同字节」这一半不是装饰：它证明扩员之后 `promptId`/`capabilities`
+    /// 是**被记住的值**，而不是解码时被丢弃、编码时又按常量补回去的假往返。
+    #[test]
+    fn session_started_accepts_exactly_the_two_prompt_and_capability_forms() {
+        for (label, line) in [
+            ("旧档", LEGACY_SESSION_STARTED),
+            ("新形", CURRENT_SESSION_STARTED),
+        ] {
+            let record = decode_record(line.as_bytes())
+                .unwrap_or_else(|error| panic!("{label} 必须 valid，实得 {error:?}"));
+            let reencoded = encode_record(&record);
+            let mut expected = line.as_bytes().to_vec();
+            expected.push(b'\n');
+            assert_eq!(
+                String::from_utf8(reencoded).expect("UTF-8"),
+                String::from_utf8(expected).expect("UTF-8"),
+                "{label} 必须逐字节往返"
+            );
+        }
+    }
+
+    /// 闭集是闭集，不是通配：集外的 promptId 与集外的 capability 组合一律拒。
+    #[test]
+    fn counterexample_prompt_and_capability_sets_are_closed_not_open() {
+        let cases = [
+            (
+                "集外 promptId",
+                r#""promptId":"md-work-v1""#,
+                r#""promptId":"md-work-v2""#,
+            ),
+            (
+                "空 promptId",
+                r#""promptId":"md-work-v1""#,
+                r#""promptId":"""#,
+            ),
+            (
+                "集外能力组合：只有 workspace_write",
+                r#""capabilities":["case_read","workspace_write"]"#,
+                r#""capabilities":["workspace_write"]"#,
+            ),
+            (
+                "集外能力组合：含未谈成的 workspace_read",
+                r#""capabilities":["case_read","workspace_write"]"#,
+                r#""capabilities":["case_read","workspace_read"]"#,
+            ),
+            (
+                "次序漂移",
+                r#""capabilities":["case_read","workspace_write"]"#,
+                r#""capabilities":["workspace_write","case_read"]"#,
+            ),
+            (
+                "重复项",
+                r#""capabilities":["case_read","workspace_write"]"#,
+                r#""capabilities":["case_read","case_read"]"#,
+            ),
+            (
+                "空集",
+                r#""capabilities":["case_read","workspace_write"]"#,
+                r#""capabilities":[]"#,
+            ),
+        ];
+        for (label, from, to) in cases {
+            assert_eq!(
+                CURRENT_SESSION_STARTED.matches(from).count(),
+                1,
+                "{label}：受替换的锚点必须唯一"
+            );
+            let mutated = CURRENT_SESSION_STARTED.replace(from, to);
+            assert!(
+                decode_record(mutated.as_bytes()).is_err(),
+                "{label} 必须被读侧拒"
+            );
+        }
     }
 
     #[test]

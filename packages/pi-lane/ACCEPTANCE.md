@@ -2270,3 +2270,205 @@ Playwright 以 `COURTWORK_E2E_PORT=31420` 自起服务、`reuseExistingServer: f
 `docs/status/current.md` 与 implementation-readiness、不开 `PI-WRITE-HOST-1`——PASS 亦停在待架构
 消费。移交架构的两项：**观察②游标二元性**（建议随 `PI-WRITE-HOST-1` 收敛为单一来源，本票不阻断）
 与**观察④ `cost_usd` Disabled 臂**（`[需架构拍板]`，加界属 wire 面）。
+
+# PI-WRITE-HOST-1 独立验收（2026-08-05，PASS）
+
+target `c2b395d`（链 `3908333`→`b660d15`→`32ad737`→`f9e6a1b`→`dcbd53f`→`5ba36f1`→`cc81eaa`→
+`c2b395d`），base `main@4ab5671`。本会话在 `.claude/worktrees/accept-pwh` 自建 clean worktree，
+`pnpm install --frozen-lockfile` 后先 `build:product-sidecar`、再 `cargo`。实现回执的每一句
+在本会话都是未证断言；下列数字与红证一律为本树自跑，非采信自述。
+
+## 一 · 总审：票面冻结范围逐项在场
+
+| 票面条款 | 实测坐标 | 判定 |
+|---|---|---|
+| cap-std / cap-fs-ext / cap-tempfile exact `=4.0.2` | `Cargo.toml:37-39`；registry 实解 `cap-tempfile-4.0.2` | 在场 |
+| 注册 pi 原版 `write` | `tool-policy.ts:23` `PRODUCT_TOOL_NAMES` 四件 `satisfies ProductToolName[]`；`product-runtime.ts:525` 恰 `[...readTools, writeTool]` | 在场 |
+| Agent sequential ＋ binder `executionMode:'sequential'` | `product-runtime.ts:521`；`workspace-write-env.ts:481`（本票逐字节未动） | 在场 |
+| 逐 toolCall 独立 env/operation | `publicToolCallId` 只读查询面 ＋ `pendingHostOperation` 按 operationId 对号 | 在场 |
+| `md-work-v1` 六条 ≤2048B | `product-runtime.ts:70-77` | 在场 |
+| 逐段 `open_dir_nofollow`、单段建再重开 | `pi_loop_workspace.rs:214-248` | 在场 |
+| `TempFile` 私有同目录写入／同步／replace | `pi_loop_workspace.rs:463-486` | 在场 |
+| 物理根只在 app-data | `pi_loop.rs:858`；G-22 断言 journal 不含 `pi-workspaces` 与绝对路径 | 在场 |
+| 逐次授权先 durable | `pi_loop.rs:1310-1345` 四段账序 | 在场 |
+| Node 零 fs 写 | 本票触碰的四份 pi-lane 生产文件全无 `node:fs`/`child_process`/`writeFile` | 在场 |
+| 五枚前向债 | 偿形＝`encode_packet_line` 编码后**用同一份 decoder 当场回解**（`pi_loop_protocol.rs:2833`），结构性覆盖 | 在场 |
+| **不得加 edit/diff/CAS/promotion/bash/GUI** | wire 闭集零扩员（`git diff` 中 `+.*closed_enum!` 零命中）；`lib.rs` 只加 `mod`，零新 Tauri command；diff 内 `edit/bash/晋升` 全部是否定式条款或反例断言 | **未越界** |
+
+## 二 · 裁定A 再裁：闭集扩员成立，判 PASS，建议架构追认
+
+读实现核实：`LEGAL_PROMPT_IDS` 恰二元、`LEGAL_CAPABILITY_SETS` 恰二组，判据是
+`contains(&capabilities.as_slice())` ——比的是整张表，**不是**「每一员都合法」那种逐项放行；
+次序、重复、空集、集外组合都在同一枚判据里现形。四枚 mutation 构成完整四角箱，逐枚本会话自注：
+
+| 变异 | 注入 | 实测 | 证成 |
+|---|---|---|---|
+| M-A1 | 闭集收窄回 `[LEGACY]` | 32 red，含 `session_started_accepts_exactly_the_two_...` | 「维持现状」不可行 |
+| M-A4 | 闭集收窄到 `[CURRENT]` | 1 red（恰同一枚） | 「收窄毁旧档」不是修辞——旧档语料真在门内 |
+| M-A2 | `contains` 判据置 `false`（放通配） | 1 red：`counterexample_prompt_and_capability_sets_are_closed_not_open` | 闭性是闭性，非通配 |
+| M-A3 | 写侧改回硬编码常量 | 1 red（恰同一枚） | 逐字节往返**不是**「解码丢弃、编码补回」的假往返 |
+
+三选一论证成立：扩员是唯一同时满足「旧档续 valid」与「写侧不撒谎」的形态。修订面恰
+`promptId`／`capabilities` 两枚字段；`pi_loop_protocol.rs` 自③ 起逐相 SHA 恒
+`cf3aa9aa71a3d88e…`（④⑤⑥⑦ 逐值相同），**wire 一字未动**，裁定A 只落 journal codec——本会话
+逐相 `git show | shasum` 复核属实。
+
+**一处描述订正（不改判定）**：⑦ §四／偏离 ⑥-1 写「写侧记当刻真值／记实况」。实测写侧取的是
+**编译期常量**（`pi_loop.rs:723-730`：`CURRENT_PROMPT_ID`、`EXPECTED_CAPABILITIES.to_vec()`），
+落账在第 5 步，**早于** spawn（第 6 步）与 ready 握手（第 7 步 `pi_loop.rs:874` 逐值比对）。
+代码注释自陈是准确的（「在任何能继续往下跑的路径上恒等」），受订正的是回执散文。差别仍是实质的
+——旧形是贯穿整场且被后续每一份档继承的假话，现形只在握手当场即 `StateViolation` 收束的死路上
+短暂不符，且紧随其后的失败记录自己否定它。故裁定A 结论不变，措辞应改为「写侧记本会话**必须**
+谈成的那张表；谈不成即当场收束」。
+
+## 三 · 上浮 B / D：均不阻断，维持上浮
+
+- **B（`logicalPath` 空串两侧异源）**：实测 journal 生产段 3 处 `read_string(… "logicalPath")`、
+  `read_non_empty_string` 0 处，wire 侧 `read_logical_path` 走非空判据——异源属实。三层挡法逐层
+  复核在场（wire 判据前置／encode-before-effect／`parse_write_path` 对空串 `invalid_path`）。
+  影响面恰是「手工构造的空路径 journal 不会被 quarantine」，非 effect 面。**不阻断**。
+- **D（resume 缺 prompt/capability 漂移门）**：实测漂移门覆盖 grant／model／limits／
+  routeManifest／targetTriple／usd／turns 七项，确无 promptId 与 capabilities。两重实况把风险
+  压到记账层：一、production 至今无 decision driver，任何 write 恒 `policy_denied`，旧档 resume
+  后不可能发生「头部声称只读、实际写入」；二、每一枚 effect 各自逐条落账，审计不依赖头部那一行。
+  **不阻断**，但它是 A3 GUI／headless 注入真 driver **之前**必须清偿的前置——一旦有了 driver，
+  这条就从记账问题升级为账实不符。建议架构在 `PI-LANE-UI-1` 开工门上挂此项。
+
+## 四 · 回执互核四处：本会话立唯一真值
+
+1. **capability 种子计数（⑦ §八.1 的裁定不成立）**。⑦ 判「现读以⑤ 的 `changed: 36` 为准」。
+   本会话逐相实测 `pi_loop.rs` 中一员制 `[WorkspaceCapability::CaseRead]` 位点：
+   base **33** → ② 33 → ③ **36**（+3，③ 自述属实）→ ④ **37**（+1，④ 自述「新增 4 枚」**不实**）
+   → ⑤ **0**（全数改写，同形回灌 0）。⑤ 相 diff 删除侧命中 **37**，TS 侧另 3 处
+   （`product-runtime.ts`／`product-runtime.test.ts`／`product-main.test.ts`）。
+   **唯一真值：⑤ 改写 40 枚（Rust 37 ＋ TS 3）；分支总账为 33+3 枚既有位点被改值＝36，另 5 枚
+   Rust 新位点直接出生为两员制。** `36` 恰等于分支总账、却不描述⑤ 做了什么，三谱与⑦ 的裁定
+   都应照此改记。该数不是任何门的判据（门是 `EXPECTED_CAPABILITIES` 逐值比对 ＋
+   `revoke_workspace_write` 反例），故属记账失实，不阻断。
+2. **⑤ 触碰面名单**。实测 `git diff --name-only dcbd53f..5ba36f1` 恰 12 项；`product-stdio.test.ts`
+   一字未动、`index.test.ts` 树内不存在，受影响的第四份测试是 `workspace-write-env.test.ts`。
+   ⑦ 的自陈属实。**本会话已单独审到那 32 行**：一枚 characterization「多塞的第五参不改变容器」，
+   以 `writeFile` 必抛的 hostileEnv 作靶，有牙、非占位。影响面已闭合。
+3. **cargo `--lib` 口径**。本树实测：`src-tauri/` 无 `tests/` 目录；两口径逐值相同
+   （带 `--lib` **218 passed / 0 failed / 1 ignored**；不带 `--lib` 同为 218/0/1，另两枚
+   0 例目标）。⑦ 的「本仓等值」结论**成立**。处置建议：口径以 `--lib` 冻结并写入 SPEC §十，
+   日后该 crate 增设集成测试时两口径才分叉。
+4. **SPEC §十 计数陈旧**。实测 `vitest run packages/pi-lane` ＝ **469 例 / 15 文件**，§十 仍写
+   「450 例 / 14 文件」。该行自身的体例是「本票只据实更新该计数」，故它是本票范围内、
+   实现有义务也有权限修的一句活体假话。**已按 fix-by-acceptance 订正**（见 §七）。
+
+## 五 · 红证抽样：逐枚本会话反向注入，非采信自述
+
+变异一律带唯一锚定（命中数 ≠ 1 即中止）、还原后逐值核 SHA。
+
+| # | 注入 | 实测红 | 意义 |
+|---|---|---|---|
+| M-B1 | `open_dir_nofollow` → `open_dir`（逐段下降改跟随） | **恰 1 red**：`counterexample_symlinks_within_the_root_are_still_never_followed` | 复现 M④3 的**三层遮蔽**：指向 root 外的链接撞 cap-std root confinement、绝对目标解析器直拒，两层都会假绿；只有「两端都在 root 内且目标为相对」那一枚咬得动。遮蔽结构在代码注释里已如实写明，实测与之逐条吻合 |
+| M-C1 | Rust `CURRENT_PROMPT_ID` 单侧漂移 | 4 red，含 `dual_end_golden_journal_ledger_matches_byte_for_byte` | 跨端钉子：本侧漂移，**对端** golden 当场红 |
+| M-C2 | Node `PRODUCT_PROMPT_ID` 单侧漂移 | 1 red：`跨端常量：journal golden 的 promptId / capabilities …` | 反向同理。两枚合看才是「双端」，单侧自证不成立 |
+| M-D1 | `write` 同时留在禁用表与产品表 | 2 red（绿证三＋红证八） | ⑤ R1 两表自洽有牙 |
+| M-E1 | `effect_started` durable 屏障去掉中止力（`?`→`.ok()`） | **恰 1 red**：`counterexample_any_durable_barrier_failure_leaves_the_effect_at_zero` | 票面退出证据「append+sync 失败必须零 temp/replace」实证 |
+| M-F1 | `read_logical_path` 上界放宽 4 倍（撤五枚前向债之一） | **恰 1 red**：`counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn` | 前向债偿形有牙——放松一枚上界，220 枚电池即红 |
+| M-G1 | 缺 decision driver 时默认 `Approved` | 2 red（臂上一枚＋模块内一枚） | 逐次授权闸有牙 |
+| M-G2 | 撤 0.1 能力门 | **恰 1 red**：`counterexample_host_request_gates_refuse_before_any_effect` | 能力门在能力已谈成之后**仍保有可证否形态** |
+| M-H1 | 撤 temp 权限收紧 | 2 red（landed mode 实得 `0o644`≠`0o600`） | 「`TempFile::new` 默认 0o644」的平台宣称由本会话独立复现 |
+| M-A1/A2/A3/A4 | 见 §二 | 见 §二 | 裁定A 四角箱 |
+
+**上游一手复核（不引回执）**：`cap-tempfile-4.0.2/src/tempfile.rs:162` 实测
+`pub fn new_anonymous(dir: &'d Dir) -> io::Result<File>` ——返回 `File` 而非 `TempFile`，
+**结构性没有 `replace`**，④「不可用于就位路径」的宣称属实；`:176-198` 的 `impl_replace` 实测
+恰一枚 `self.dir.rename(&tempname, self.dir, destname)`，路径上无 `remove`/`unlink`，
+矩阵 #14「remove-then-rename 零出现」由上游结构性满足，本仓另有静态门与 inode 反例双锁。
+上游 doc 自称 `replace` 后 "default to read-only" 一句实测在源码中确实存在，而本平台无对应
+chmod 路径——④ 登记「不引用该句、改由实测钉死」属实。
+
+## 六 · 两道产品闸与 `driver=None` 诚实边界：成立
+
+production 构造点 `pi_loop.rs:858` 实测**不带** `.with_decision_driver(...)`，真件 `decide`
+因此恒 `policy_denied`。`real_write_host_without_a_decision_driver_denies_and_writes_nothing`
+逐条断言：能力**已谈成**（两闸不得互相顶名）→ `tool_proposed` 在账 → `effect_started` **不在账**
+→ `host_result` 恰 `Denied{policy_denied}` → workspace 物理根**根本不存在**。M-G1／M-G2 两枚
+反向注入各自触红，证明两闸各有独立区分力。
+
+按 ADR-022 六-C（「headless 的 decision driver 必须显式注入，不得用 session always-allow 冒充
+产品授权」）与总纲不变量 3，**判「当期诚实边界」成立**：宣告 `workspace_write` 只表示可以
+**申请**，与「每一枚 write 今日都被拒」不矛盾；拒绝是显式的、落账的、可复核的，不是静默跳过。
+
+## 七 · 偏离总账过目与新发现
+
+38 条逐条过目（另有专项交叉核）。**推翻结论：零条**——⑥-1 是唯一契约级，且已自标待架构追认，
+验收只上浮不受理；其余 37 条均为实现级，追认无异议。两条描述与现状不符（②-5「今日无生产
+调用点」在③ 接线后已失效；③-6「`probe` 保持不可失败」在④ 已放宽），属阶段态残留，非实质。
+
+**未登记偏离（本会话新发现，均实现级，不阻断，建议补登记）**：
+
+1. `pi_loop_protocol.rs:161-211` 新增 15 枚 wire 可见失败/拒绝文案。schema 确未变（`message`
+   字段本就在册），但这是它们**首次有值**，且双端 golden 只跑 `status:"ok"`，故无跨端 golden。
+   缓解：`pi_loop_protocol.rs:2924` 有 ∀-code 电池逐值钉死 `error.message == code.message()`，
+   且全部为静态字面量、臂上零插值，「不含物理路径/secret」结构性成立。
+2. `pi_loop.rs:1150-1156`：第二枚 `tool_started{write}` **无条件覆盖** `active_tool_call`，
+   槽位已占用不是 fail-closed 而是丢掉前一枚认领。影响有界（Node 状态机已禁「每 prompt 二枚
+   未 finished tc」；`proposalHash` 不绑 tc，故覆盖换不来授权），但属账面归属的静默态丢失，
+   与不变量 4 的字面相抵。建议随 `PI-WORKSPACE-READ-1` 改 fail-closed。
+3. `session_started` 写侧记编译期常量而非握手真值——见 §二 的描述订正。
+4. `pi_loop_workspace.rs:511-513`：`lstat_owned_directory_chain` 把「祖先不是目录」也报成
+   `SymlinkForbidden`，与同模块 `open_child_dir:220-224` 刻意区分 `SymlinkForbidden`/
+   `NotDirectory` 的体例不一致。理由不准，但门本身是 fail-closed，不影响放行。
+5. `pi_loop_workspace.rs:243`：`ensure_child_dir` 把 `AlreadyExists` 视同建成。安全性由随后
+   `open_dir_nofollow` 重开兜住，属未登记的行为选择。
+6. 包公开面两处扩张未按偏离登记：`ProductSidecarSession.publicToolCallId`、
+   `index.ts` 导出 `PRODUCT_TOOL_NAMES`。低危。
+
+**fix-by-acceptance（本会话唯一改动的生产/文档面）**：`packages/pi-lane/SPEC.md` §十 单测计数
+`450 例 / 14 文件` → `469 例 / 15 文件`，并记本会话实测日期。理由：该行体例自陈「本票只据实更新
+该计数」，它今天是一句活体假话且修复在本票层内、零语义风险；⑦ 因「触碰面恰一处」自缚而未修，
+由验收补上。**回执散文的订正（capability 计数、裁定A 措辞）不改实现回执**——STAGE7 留作实现方
+历史记录，订正以本节为准。
+
+## 八 · 门禁实跑（本树自跑，逐条记退出码，未经管道吞码）
+
+| 门 | 结果 | 退出码 |
+|---|---|---|
+| `build:product-sidecar`（先于 cargo） | `sidecar.cjs` **534,219 B** / `8520026cb78e4fbd773b020a8b59a23082e55790403149de5fb91be332fce562`，`reproducible: true`，snapshot `created` | 0 |
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size warning） | 0 |
+| `pnpm lint`（`eslint .`） | 通过 | 0 |
+| root `pnpm test` | **168 files / 1813 tests passed** | 0 |
+| `pnpm --filter @courtwork/desktop test` | **75 files / 690 tests passed** | 0 |
+| `cargo test --lib`（`src-tauri`） | **218 passed / 0 failed / 1 ignored** | 0 |
+| `pnpm test:e2e`（apps/desktop cwd，完整 Playwright，隔离端口 1487，`reuseExistingServer:false`） | **352 passed，3.0m**；其前全部静态 assert-* 门通过 | 0 |
+
+sidecar 制品身份在**本树从源码独立重建**得出，与⑤ 建、⑥ 复核、⑦ 实测逐值相同；
+`route-manifest.json`／`pi_loop_process.rs` 冻结真值表／同文件负注入语料三处钉值与实物一致，
+全树无旧值（`523235`/`75eff9b9`）活体残留（仅存变迁叙事注释与既往相回执）。
+
+**环境登记两枚**：（一）`nodejs.org` runtime 下载在本机首轮**挂死**（19 分钟、1.3s CPU、socket
+空闲），同址 `curl` 实测 ~1.9 MB/s——判为环境态，改以已验 archive 预置后由脚本自身
+`ensureArchive` 重验（`origin: "reused"`，逐项过冻结身份与 SHASUMS 记录）通过，门未放宽。
+（二）本机 `umask` 实测 `0o022`、app-data 卷 `apfs`，G-12／G-13 的可复现前提成立。
+
+**一枚自伤判例（记录在案，避免后人重蹈）**：变异还原用 `shutil.copy`+`move` 会把文件 mtime
+**回拨**到备份时刻，早于 cargo 上一次记录的构建时间，于是 cargo 认定源码未变、**不重编**——
+源码 SHA 逐值还原、`git status` 全净，跑出来的却仍是上一枚变异体（本会话据此一度读到
+「216 passed / 2 failed」的假红）。`touch` 刷新 mtime 后两口径均复归 218/0/1。
+**判例：还原核 SHA 只证源码，不证构建缓存；凡按 mtime 做指纹的构建系统，还原后必须前推 mtime 再复跑。**
+
+## 九 · 结论与停止边界
+
+**判定：PASS，待架构消费。** 票面冻结范围逐项在场、禁区未越；裁定A 经四角箱复裁成立；两道
+产品闸与 `driver=None` 诚实边界成立；五段最重红证逐枚由本会话反向注入复现，无一采信自述；
+八相全量门在本树全绿，sidecar 身份独立重建逐值相同。三十八条偏离无一需推翻为契约级。
+
+移交架构四项：**裁定A 追认**（措辞按 §二 订正）；**上浮 B**（`logicalPath` 空串异源，
+不阻断）；**上浮 D**（resume 漂移门缺 prompt/capability——**建议挂为 `PI-LANE-UI-1` 与
+`PI-BASE-HEADLESS-ACCEPT` 注入真 driver 的前置**，在那之前它只是记账问题，在那之后是账实不符）；
+**六条未登记偏离补登记**（§七），其中第 2 条（`active_tool_call` 静默覆盖）建议随
+`PI-WORKSPACE-READ-1` 改 fail-closed。
+
+本会话只追加本段 `packages/pi-lane/ACCEPTANCE.md` 与 §七 那一处 fix-by-acceptance；
+**不 merge、不 push、不更新 `docs/status/current.md` 与 implementation-readiness、不开下游票**。
+PASS 只覆盖 **package／host 级** write 面：`/workspace` 回读闭环属 `PI-WORKSPACE-READ-1`，
+headless 总验属 `PI-BASE-HEADLESS-ACCEPT`，真 key 复核属 `PI-BASE-GUI-ACCEPT`，
+power-loss durability 本链不宣称——⑦ §七 的四项「不宣称」经本会话复核，逐条如实。
+
+合入时须同批跟进一处（非本分支缺陷）：`docs/status/current.md` 仍记 sidecar 身份
+`523235 B / 75eff9b9…`（描述 `main@8d90aa8`），本票合入后与树上钉值不合。

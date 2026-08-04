@@ -35,7 +35,9 @@ import type {
   BootstrapPayload,
   CancelReason,
   HostResultPayload,
+  HostResultStatus,
   SafeToken,
+  ToolOutcome,
   TurnStopReason,
   TurnUsage,
   WorkspaceCapability,
@@ -46,28 +48,51 @@ import type {
   ProductSidecarSession,
   PromptCompletion,
 } from './product-stdio.js';
-import { assertToolsWithinPolicy, createToolGate } from './tool-policy.js';
+import { assertToolsWithinPolicy, createToolGate, PRODUCT_TOOL_NAMES } from './tool-policy.js';
 import { createReadOnlyTools } from './tools.js';
+import {
+  bindWorkspaceWriteTool,
+  type WorkspaceWritePort,
+  type WorkspaceWritePortOutcome,
+  type WorkspaceWriteRegistry,
+} from './workspace-write-env.js';
 
-/** 本票的临时 prompt 身份。`PI-WRITE-HOST-1` 才换成 `md-work-v1`。 */
-export const PRODUCT_PROMPT_ID = 'case-read-v1';
+/** 产品 prompt 身份（ADR-022 六-0）。`case-read-v1` 是 `PI-HOST-LOOP-1` 的临时身份，已退役。 */
+export const PRODUCT_PROMPT_ID = 'md-work-v1';
 
 /**
- * `case-read-v1` 的 exact snapshot：四行以 LF 相连，**末尾无 LF**。
- * 字节由票面 §二.2 冻结；改一个字都属契约变更。
+ * `md-work-v1` 的 exact snapshot：六行以 LF 相连，**末尾无 LF**。
+ *
+ * 六条语义逐条来自 ADR-022 六-0，一条不多一条不少：①只凭实读事实；②`/case` 只读、
+ * `/workspace` 是过程草稿；③`.md` 只用覆盖式 write；④覆盖前先读、写后回读并报逻辑路径；
+ * ⑤无 edit/delete/rename/晋升/bash；⑥授权与 effect 只认 gate 与 journal。
+ *
+ * **它不是安全边界**（ADR-017 2026-07-28 窄修订）：模型照不照做都不改变闸门、容器、
+ * host 授权与 journal 的判定。prompt 只负责让模型正确使用**已经授权**的能力；因此这里
+ * 不复制工具 schema、不注入 coding playbook、不放垂类正文或人格，UTF-8 亦不得越
+ * {@link PRODUCT_SYSTEM_PROMPT_MAX_BYTES}——snapshot 与 byte gate 两枚一起锁。
  */
 export const PRODUCT_SYSTEM_PROMPT = [
-  '你是一名只读文档助手，案件材料只在虚拟根 /case。',
-  '可用工具只有 read、glob、grep；回答前须实际读取，读不到或结果被截断就明确说明。',
-  '你不能修改、新建、删除文件，也不能执行命令或声称已经完成这些动作。',
-  '引用材料时使用 /case 开头的逻辑路径；不得猜测、回显或索要任何物理路径与凭证。',
+  '你是一名文档工作助手；回答与写入都只能基于实际读到的内容，读不到、被截断或没读过就直说，不猜。',
+  '你有两个逻辑根：/case 是只读案件材料，/workspace 是你的过程草稿区；一律用逻辑路径，不猜测、不回显任何物理路径与凭证。',
+  '在 /workspace 新建或改写 Markdown 只有一种方式：用 write 覆盖式整体写入，目标 basename 必须以 .md 结尾且扩展名前至少一个字符。',
+  '覆盖既有文件前先读它；每次写入后回读确认，并把最终逻辑路径报告给用户。',
+  '你没有 edit、delete、rename、把文件晋升到用户目录或执行命令的能力，也不得声称做过这些。',
+  '一次写入是否真的发生只由宿主的授权结果与 journal 决定；工具文案不是证据，未获授权或结果未确认就如实说明。',
 ].join('\n');
 
 /** system prompt 的字节上限（票面 §二.2）。 */
 export const PRODUCT_SYSTEM_PROMPT_MAX_BYTES = 2048;
 
-/** 本票 ready 恰宣告这一枚能力。 */
-export const PRODUCT_CAPABILITIES: readonly WorkspaceCapability[] = ['case_read'];
+/**
+ * ready 宣告的能力闭集。字典序与状态机的 `normalizeCapabilities` 同序，
+ * Rust 侧 `EXPECTED_CAPABILITIES` 逐值比对同一张表——两端同批改，一端漂移即 `state_violation`。
+ *
+ * `workspace_write` 在这里只表示「本会话可以**申请** workspace write host operation」；
+ * 每一次写是否发生仍由宿主逐次授权（ADR-022 六-C），宣告能力不等于预先批准。
+ * `workspace_read` 属 `PI-WORKSPACE-READ-1`，本票不宣告。
+ */
+export const PRODUCT_CAPABILITIES: readonly WorkspaceCapability[] = ['case_read', 'workspace_write'];
 
 /** 产品 provider 只认这一个 id；未来 provider 由架构另立具名 profile，不在此处开分支。 */
 export const PRODUCT_PROVIDER_ID = 'deepseek';
@@ -147,6 +172,20 @@ function isDeniedToolResult(result: unknown): boolean {
   const details = (result as { details?: unknown } | null | undefined)?.details;
   if (typeof details !== 'object' || details === null) return false;
   return (details as { denied?: unknown }).denied === true;
+}
+
+/**
+ * 已收束 write operation 的工具账（ADR-022 六-B.2）。
+ *
+ * write 一旦进入 `operation_pending`，`tool_finished.outcome` 的唯一真源就是 host status——
+ * 上游 write 工具那一侧只看得到一枚笼统的 `FileError`（binder 把 denied/failed/uncertain 一并
+ * 压成它），从工具错误反推 outcome 必然把「未获授权」写成「失败」。
+ *
+ * 状态机侧有一份同构映射并在 `tool_finished` 当场逐值比对，两处一旦漂移即 upstream 违约收束，
+ * 故这份复制是**被机器盯着的**复制，不是第二个自由真源。
+ */
+function outcomeFromHostStatus(status: HostResultStatus): ToolOutcome {
+  return status === 'ok' ? 'succeeded' : status;
 }
 
 /**
@@ -234,6 +273,88 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
     return session;
   }
 
+  /** wire 上的 session 身份只有状态机知道；runtime 不另存一份，免得两处各自漂移。 */
+  function requireSessionId(): SafeToken {
+    const current = requireSession().snapshot().sessionId;
+    if (current === null) throw new Error('bootstrap 尚未成立，没有 sessionId');
+    return current;
+  }
+
+  /** host operation 只属于**当前活动 prompt**；没有活动 prompt 就没有可归属的 request。 */
+  function requireActiveRequestId(): SafeToken {
+    if (activeRequestId === null) throw new Error('没有活动 prompt，不得申请 workspace operation');
+    return activeRequestId;
+  }
+
+  /**
+   * 在途的 workspace operation，同一时刻至多一枚。
+   *
+   * 它是 `deliverHostResult` 与 write 工具之间**唯一**的接缝：工具那一侧在 await 一枚
+   * promise，宿主的 `host_result` 到达时由状态机回灌，这里按 operationId 严格对号后 resolve。
+   * 对不上号一律显式抛出——静默接受等于给未来留一个「谁都能收束别人 operation」的默认通路。
+   */
+  let pendingHostOperation: {
+    readonly operationId: string;
+    readonly settle: (outcome: WorkspaceWritePortOutcome) => void;
+  } | null = null;
+
+  /**
+   * 已收束、尚未投影的那一枚 write 的工具账。一 tc 一 op、Agent 又是 sequential，
+   * 故同时至多一枚；投影时消费掉，避免它被下一次（可能根本没到 wire 的）write 复用。
+   */
+  let settledWriteOutcome: ToolOutcome | null = null;
+
+  /**
+   * per-leg 登记册。两件事都不在这里发生：public tc 的**首分配**属状态机
+   * （`tool_started` 当场铸），op 的分配属状态机的 reserve 段。runtime 只转手，
+   * 因此不存在第二份可漂移的 tc/op 真源，也没有「查不到就代分配一枚」的口子。
+   */
+  const hostRegistry: WorkspaceWriteRegistry = {
+    publicToolCallId: (rawToolCallId) => requireSession().publicToolCallId(rawToolCallId),
+    allocateOperationId: (publicToolCallId) =>
+      requireSession().reserveHostOperation({ publicToolCallId, capability: 'workspace_write' }),
+  };
+
+  /**
+   * 两段式接缝的第二段。`reserveHostOperation` 已在 registry 那一侧烧过号，这里只把
+   * 调用方算好的 op 与 proposalHash 原样交给状态机出包：零预测、零重算。
+   *
+   * **不接 abort signal**（形参一概不取）：write 一旦出 wire，effect 是否已经发生就只有
+   * `host_result` 与 Rust journal 说了算。在这里因 abort 提前 resolve/reject，等于用 Node
+   * 的取消意图冒充宿主的 effect 事实——中止路径由状态机的 pending 闩锁承担，它会等到严格
+   * 匹配的 `host_result` 再收束（`invokeRuntimeSuppressed`）。
+   */
+  const hostPort: WorkspaceWritePort = {
+    write(request) {
+      const current = requireSession();
+      return new Promise<WorkspaceWritePortOutcome>((resolve) => {
+        if (pendingHostOperation !== null) {
+          throw new Error('同一时刻只允许一枚在途 workspace operation');
+        }
+        pendingHostOperation = { operationId: request.operationId, settle: resolve };
+        try {
+          current.sendReservedHostRequest({
+            sessionId: request.sessionId,
+            requestId: request.requestId,
+            operationId: request.operationId,
+            proposalHash: request.proposalHash,
+            capability: 'workspace_write',
+            arguments: {
+              logicalPath: request.logicalPath,
+              content: request.content,
+              contentSha256: request.contentSha256,
+              byteLength: request.byteLength,
+            },
+          });
+        } catch (error) {
+          // 没能出 wire 的 operation 不留在途：这一枚 ordinal 就此烧掉，不复用、不补发。
+          pendingHostOperation = null;
+          throw error;
+        }
+      });
+    },
+  };
+
   /**
    * 出包统一入口。状态机抛出的 `ProductSidecarError` 说明投影序列已不合法：
    * 记下违约、停止后续投影，由 {@link finish} 交出 `invalid_state`——不把它当无事发生。
@@ -315,15 +436,20 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
           toolName: event.toolName as never,
         });
         return;
-      case 'tool_execution_end':
+      case 'tool_execution_end': {
+        // 已有 host status 的 write：只认它。没有 host status 说明这次 write 连 operation
+        // 都没铸出来（Node 门先拒），那时才轮到下面两条本地判据。
+        const settled = event.toolName === 'write' ? settledWriteOutcome : null;
+        settledWriteOutcome = null;
         publish({
           kind: 'tool_finished',
           rawToolCallId: event.toolCallId,
           toolName: event.toolName as never,
           // 政策/容器拒绝优先于 isError：拒绝就是 denied，不是失败，更不是成功（N3）。
-          outcome: isDeniedToolResult(event.result) ? 'denied' : event.isError ? 'failed' : 'succeeded',
+          outcome: settled ?? (isDeniedToolResult(event.result) ? 'denied' : event.isError ? 'failed' : 'succeeded'),
         });
         return;
+      }
       case 'turn_end':
         if (event.message.role === 'assistant') onTurnEnd(event.message as AgentMessage & { stopReason?: string });
         return;
@@ -358,12 +484,29 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
       usd = bootstrap.resume.priorUsd;
 
       const env = createProductCaseEnv({ caseRoot: bootstrap.caseRoot });
-      const tools = createReadOnlyTools({ logicalRoot: CASE_LOGICAL_ROOT });
-      const gate = createToolGate();
-      assertToolsWithinPolicy(
-        tools.map((tool) => tool.name),
-        gate,
-      );
+      const readTools = createReadOnlyTools({ logicalRoot: CASE_LOGICAL_ROOT });
+      /**
+       * write 自带 invocation-scoped 虚拟 workspace 容器，**不走**下面那一层 `{ env }` 注入：
+       * 那一层注的是 `/case` 只读容器，会把 workspace 容器整个顶掉，写面于是变成读面容器里的
+       * 一次越界写。两条容器在此分叉，之后再不合流。
+       *
+       * `sessionId`/`requestId` 取 getter：一条 leg 只建一枚 Agent、也只建一枚 binder，
+       * 而 requestId 每 prompt 换一枚。冻结在 bind 那一刻就会让第二个 prompt 的写带着旧
+       * request 上 wire；取值时机因此必须是**执行时**，并由状态机 send 段的 request 同一性门
+       * 兜底（两侧都验，不靠对方）。
+       */
+      const writeTool = bindWorkspaceWriteTool({
+        get sessionId() {
+          return requireSessionId();
+        },
+        get requestId() {
+          return requireActiveRequestId();
+        },
+        registry: hostRegistry,
+        port: hostPort,
+      });
+      const gate = createToolGate(PRODUCT_TOOL_NAMES);
+      assertToolsWithinPolicy([...readTools.map((tool) => tool.name), writeTool.name], gate);
 
       const provider = options.createProvider({
         modelId: bootstrap.provider.modelId,
@@ -379,14 +522,18 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
         initialState: {
           systemPrompt: PRODUCT_SYSTEM_PROMPT,
           model: provider.model,
-          tools: tools.map(
-            (tool) =>
-              ({
-                ...tool,
-                execute: (toolCallId: string, params: never, signal?: AbortSignal, onUpdate?: never) =>
-                  tool.execute(toolCallId, params, signal, onUpdate, { env }),
-              }) as AgentTool<never>,
-          ),
+          tools: [
+            ...readTools.map(
+              (tool) =>
+                ({
+                  ...tool,
+                  execute: (toolCallId: string, params: never, signal?: AbortSignal, onUpdate?: never) =>
+                    tool.execute(toolCallId, params, signal, onUpdate, { env }),
+                }) as AgentTool<never>,
+            ),
+            // binder 已是四参 execute，且自带容器；再包一层就等于替它选容器。
+            writeTool as unknown as AgentTool<never>,
+          ],
         },
       });
       agent.subscribe((event) => {
@@ -421,9 +568,22 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
     },
 
     deliverHostResult(result: HostResultPayload) {
-      void result;
-      // 本票不发 host_request，故不可能收到 host_result；静默接受等于给未来留一个默认通路。
-      throw new Error('本票不申请 host operation，不接受 host_result');
+      const waiting = pendingHostOperation;
+      if (waiting === null || waiting.operationId !== result.operationId) {
+        throw new Error('没有与这枚 host_result 对号的在途 workspace operation，不接受');
+      }
+      if (result.capability !== 'workspace_write') {
+        throw new Error('本票只申请 workspace_write，不接受其他 capability 的 host_result');
+      }
+      pendingHostOperation = null;
+      settledWriteOutcome = outcomeFromHostStatus(result.status);
+      // 精确 code 闭集属 wire 与 Rust 宿主；这里只把它原样交给工具侧，不复制第二份判定，
+      // 也不从 status 反推「文件到底有没有变」——那只有 host_result 与 journal 说了算。
+      waiting.settle(
+        result.status === 'ok'
+          ? { status: 'ok' }
+          : { status: result.status, code: result.error.code, message: result.error.message },
+      );
     },
 
     shutdown() {

@@ -22,9 +22,11 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use crate::pi_loop_journal::{
-    self, container_dir, is_safe_container_token, sync_directory, Journal, JournalError,
+    self, container_dir, is_safe_container_token, sync_directory, AuthorizationDecision,
+    AuthorizationDenyCode, EffectStartedPayload, EffectSucceededPayload, Journal, JournalError,
     JournalPayload, JournalRecord, JournalType, SessionFailureCause, SessionInterruptReason,
-    SessionProjection, SessionResumedPayload, SessionStartedPayload, TargetTriple, PI_LOOP_DIR,
+    SessionProjection, SessionResumedPayload, SessionStartedPayload, TargetTriple,
+    ToolProposedPayload, PI_LOOP_DIR,
 };
 use crate::pi_loop_process::{
     ensure_runtime_cwd, preflight_route_pair, spawn_verified_sidecar, AppLayout, ExitOutcome,
@@ -35,13 +37,29 @@ use crate::pi_loop_process::{
 use crate::pi_loop_protocol::{
     decode_sidecar_packet_line, encode_packet_line, is_absolute_path_shape, is_safe_token,
     AgentProjectionEvent, BootstrapLimits, BootstrapPayload, BootstrapProvider, BootstrapResume,
-    BudgetStopReason, BudgetTurnLimit, BudgetView, CancelReason, PacketPayload, PacketRejection,
-    ProductPacket, ProtocolErrorCode, ResumeKind, Terminal, WorkspaceCapability, MAX_API_KEY_BYTES,
-    MAX_CASE_ROOT_BYTES, MAX_MODEL_ID_BYTES, MAX_TEXT_BYTES, MAX_TURNS_LIMIT, MAX_USD_LIMIT,
+    BudgetStopReason, BudgetTurnLimit, BudgetView, CancelReason, HostDeniedCode, HostFailureCode,
+    HostResultOutcome, HostResultPayload, HostResultValue, PacketPayload, PacketRejection,
+    ProductPacket, ProductToolName, ProtocolErrorCode, ResumeKind, Terminal, TerminalFailureCode,
+    WorkspaceCapability, WorkspaceHostRequest, WorkspaceOperation, WorkspaceRequestArguments,
+    WriteDisposition, MAX_API_KEY_BYTES, MAX_CASE_ROOT_BYTES, MAX_MODEL_ID_BYTES, MAX_TEXT_BYTES,
+    MAX_TURNS_LIMIT, MAX_USD_LIMIT,
 };
 
-/// 本票 ready 恰宣告这一枚能力。
-const EXPECTED_CAPABILITIES: &[WorkspaceCapability] = &[WorkspaceCapability::CaseRead];
+/// ready 握手必须逐值等于这张表（次序即判据：Node 侧按字典序归一后出包）。
+///
+/// `PI-WRITE-HOST-1` ⑤ 加入 `workspace_write`：它只表示「本会话可以**申请** workspace write
+/// host operation」，不表示预先批准——逐次授权仍在 `WriteDecisionDriver`（ADR-022 六-C）。
+/// `workspace_read` 属 `PI-WORKSPACE-READ-1`，未谈成，`serve_host_request` 的 0.1 门照拒。
+const EXPECTED_CAPABILITIES: &[WorkspaceCapability] = &[
+    WorkspaceCapability::CaseRead,
+    WorkspaceCapability::WorkspaceWrite,
+];
+
+/// `proposalHash` 的域分隔串（ADR-022 六-B.2）。它与 Node 侧
+/// `WORKSPACE_WRITE_PROPOSAL_DOMAIN` 是同一枚字面量的两份；两侧由
+/// `packages/pi-lane/fixtures/write-session-wire-v1.jsonl` 这枚双端 golden 钉在一起，
+/// 任一侧单独漂移都会让对端的 golden 判据当场红。
+const WORKSPACE_WRITE_PROPOSAL_DOMAIN: &str = "courtwork.pi.workspace_write.v1";
 
 // ── 错误闭集 ────────────────────────────────────────────────────────────────
 
@@ -369,6 +387,134 @@ fn prompt_codec_refusal(_rejection: PacketRejection) -> HostError {
     HostError::InvalidPrompt(PROMPT_NOT_ENCODABLE)
 }
 
+// ── workspace write 的 effect 接缝（PI-WRITE-HOST-1 ③）──────────────────────
+
+/// 一枚 workspace write 的**计划**：字段全部来自已过 wire 判据的 `host_request`。
+///
+/// 物理坐标一个字节都不在其中——物理根永不进 journal、wire 与模型（ADR-022 六-C）。
+pub(crate) struct WorkspaceWritePlan {
+    pub(crate) operation_id: String,
+    /// wire 上没有这一枚（`host_request` 恰 `{operationId,proposalHash,capability,arguments}`）；
+    /// 唯一真源是本 leg 已 durable 的 `tool_started`，见 {@link PiLoopHost::serve_host_request}。
+    pub(crate) tool_call_id: String,
+    pub(crate) logical_path: String,
+    pub(crate) proposal_hash: String,
+    pub(crate) content_sha256: String,
+    pub(crate) byte_length: u64,
+    /// 正文只在内存里活着：journal 只记逻辑路径 / hash / byteLength / outcome。
+    pub(crate) content: String,
+}
+
+/// 逐次授权的结论（核心不变量 3：授权属用户）。
+pub(crate) enum WriteAuthorization {
+    Approved,
+    Denied(AuthorizationDenyCode),
+}
+
+/// effect 的三态结局（ADR-022 六-C）。
+pub(crate) enum EffectOutcome {
+    Succeeded,
+    Failed(HostFailureCode),
+    /// replace 已被调用而结果无法自证：既不能声称回滚，也不得复用授权自动重试。
+    Uncertain,
+}
+
+/// workspace write 的注入座。
+///
+/// ④ 之后 `probe`/`perform` 的真件是 {@link crate::pi_loop_workspace::WorkspaceFsHost}；
+/// `decide` 的真源仍在注入座之外——真件把它转交 {@link WriteDecisionDriver}，
+/// 缺 driver 即 `policy_denied`（ADR-022 六-C 明禁「用 session always-allow 冒充产品授权」），
+/// 真 driver（GUI 或 headless 验收）属⑤。
+pub(crate) trait WorkspaceWriteHost {
+    /// 授权**前**的在场判定：目标已在 ⇒ `Overwritten`，否则 `Created`（ADR-022 六-C）。
+    ///
+    /// ④ 按 ③回执 §六.6 放宽为 `Result`：真件的 symlink / not_directory / is_directory /
+    /// invalid_path / unsupported_file_type / unsupported_filesystem / io 都是真实可达的失败分支。
+    /// **纯读**：`probe` 一个字节都不许动——建目录同样是物理 mutation，只能排在
+    /// `effect_started` 之后。
+    fn probe(&mut self, plan: &WorkspaceWritePlan) -> Result<WriteDisposition, HostFailureCode>;
+
+    /// 逐次授权。
+    fn decide(&mut self, plan: &WorkspaceWritePlan, action: WriteDisposition)
+        -> WriteAuthorization;
+
+    /// 真实落盘。`Succeeded` 的语义是「④ 的全部物理屏障已过」，不是「rename 返回了 0」。
+    fn perform(&mut self, plan: &WorkspaceWritePlan, action: WriteDisposition) -> EffectOutcome;
+}
+
+/// 逐次授权的真源座（ADR-022 六-C：授权属用户）。
+///
+/// **非加不可**：④ 把 production 的 `write_host` 从 `None` 换成真件的那一刻，`decide` 必须
+/// 有一个答案。硬编码 `Approved` 就是 ADR 明禁的「用 session always-allow 冒充产品授权」，
+/// 而把 `decide` 留在 `WorkspaceWriteHost` 上又会让真件无处安放外部决定。故立此一枚座：
+/// 缺席 ⇒ `policy_denied` fail-closed，⑤／headless 验收装真件。
+pub(crate) trait WriteDecisionDriver {
+    fn decide(&mut self, plan: &WorkspaceWritePlan, action: WriteDisposition)
+        -> WriteAuthorization;
+}
+
+/// 出站结果的四支构造器。逐支只吃计划与结局，不碰 `self`——「编出来的那一份」
+/// 与「落账的那一份」因此只有一处取值来源。
+fn write_success_payload(plan: &WorkspaceWritePlan, action: WriteDisposition) -> HostResultPayload {
+    HostResultPayload {
+        operation_id: plan.operation_id.clone(),
+        capability: WorkspaceCapability::WorkspaceWrite,
+        operation: WorkspaceOperation::Write,
+        outcome: HostResultOutcome::Ok(HostResultValue::Write {
+            logical_path: plan.logical_path.clone(),
+            disposition: action,
+            content_sha256: plan.content_sha256.clone(),
+            byte_length: plan.byte_length,
+        }),
+    }
+}
+
+fn write_denied_payload(plan: &WorkspaceWritePlan, code: HostDeniedCode) -> HostResultPayload {
+    HostResultPayload {
+        operation_id: plan.operation_id.clone(),
+        capability: WorkspaceCapability::WorkspaceWrite,
+        operation: WorkspaceOperation::Write,
+        outcome: HostResultOutcome::Denied {
+            code,
+            message: code.message().to_string(),
+        },
+    }
+}
+
+fn write_failed_payload(plan: &WorkspaceWritePlan, code: HostFailureCode) -> HostResultPayload {
+    HostResultPayload {
+        operation_id: plan.operation_id.clone(),
+        capability: WorkspaceCapability::WorkspaceWrite,
+        operation: WorkspaceOperation::Write,
+        outcome: HostResultOutcome::Failed {
+            code,
+            message: code.message().to_string(),
+        },
+    }
+}
+
+/// `uncertain` 的文案与终态表同源：`effect_uncertain` 的 prompt 终态用的就是这一句，
+/// 两处各抄一份就会各自漂移。
+fn write_uncertain_payload(plan: &WorkspaceWritePlan) -> HostResultPayload {
+    HostResultPayload {
+        operation_id: plan.operation_id.clone(),
+        capability: WorkspaceCapability::WorkspaceWrite,
+        operation: WorkspaceOperation::Write,
+        outcome: HostResultOutcome::Uncertain {
+            message: TerminalFailureCode::EffectUncertain.message().to_string(),
+        },
+    }
+}
+
+/// journal 侧的拒绝 code → wire 侧的拒绝 code。两枚闭集逐值同名，映射手写不派生：
+/// 日后任一侧加成员，这里当场编译不过，不会静默压扁。
+fn denied_code_on_wire(code: AuthorizationDenyCode) -> HostDeniedCode {
+    match code {
+        AuthorizationDenyCode::UserDenied => HostDeniedCode::UserDenied,
+        AuthorizationDenyCode::PolicyDenied => HostDeniedCode::PolicyDenied,
+    }
+}
+
 impl std::fmt::Debug for PiLoopHost {
     /// 只投影闭集事实：物理路径、secret 与 leg 句柄一律不进 Debug 输出。
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -400,6 +546,12 @@ pub(crate) struct PiLoopHost {
     capabilities: Vec<WorkspaceCapability>,
     published: Vec<HostEvent>,
     active_request: Option<String>,
+    /// 本 leg 里**尚未收束**的那一枚 write tool call（③）。`host_request` 的 wire 上没有
+    /// `toolCallId`，四段账又逐枚要它——这是它的唯一真源。认领即消费（一 tc 一 op）。
+    active_tool_call: Option<String>,
+    /// workspace write 的真件座。production 恒 `None`：④ 才装 cap-std 落盘件，
+    /// ③ 不拿脚本座冒充成功（总纲不变量 4）。
+    write_host: Option<Box<dyn WorkspaceWriteHost>>,
     closed: bool,
 }
 
@@ -430,6 +582,25 @@ impl PiLoopHost {
         &self.capabilities
     }
 
+    /// **测试专用**：换掉构造点装上的真件（换脚本座，或置 `None` 以保留 0.4 门的反例）。
+    /// production 没有 setter：`write_host` 恒由构造点装真件。
+    #[cfg(test)]
+    fn install_write_host(&mut self, host: Option<Box<dyn WorkspaceWriteHost>>) {
+        self.write_host = host;
+    }
+
+    /// **测试专用**：把 `workspace_write` 从本次握手结果里撤掉。
+    ///
+    /// ⑤ 之后握手闭集恒含它（`EXPECTED_CAPABILITIES` 逐值比对，谈不成就根本起不来 leg），
+    /// 于是 `serve_host_request` 的 0.1 能力门在产品线上再也无法由真实握手证否。撤销这一枚
+    /// 正是为了让那道门**仍有可被证否的形态**：撤掉之后来一枚 write 请求，
+    /// 若 0.1 不在，它就会一路走到真实 effect。③ 期的 `grant_workspace_write` 由此反向取代。
+    #[cfg(test)]
+    fn revoke_workspace_write(&mut self) {
+        self.capabilities
+            .retain(|capability| *capability != WorkspaceCapability::WorkspaceWrite);
+    }
+
     /// fresh / resume 全序。次序即语义，前一步不过就绝不走到后一步（PI-HOST-LOOP-1R R1/R2）：
     ///
     /// 0. token 与 bootstrap/config 闭集（纯入参，零 I/O；含 caseRoot 的长度与绝对形状）；
@@ -440,7 +611,8 @@ impl PiLoopHost {
     /// 4. journal 载入（含单写者独占锁）+ partial-tail / quarantine / 唯一补写 / 五步 crash fold；
     /// 5. fresh 落 `session_started`、resume 逐类漂移门后落 `session_resumed`——**都在 spawn 之前**；
     /// 6. runtime cwd → spawn → bootstrap（caseRoot 与 key 只在此入内存）；
-    /// 7. ready 且 capability 恰为 `['case_read']`，否则落 `session_failed{protocol,state_violation}`。
+    /// 7. ready 且 capability 逐值等于 `EXPECTED_CAPABILITIES`，否则落
+    ///    `session_failed{protocol,state_violation}`。
     pub(crate) fn start(
         app_data_dir: &Path,
         layout: &AppLayout,
@@ -548,9 +720,14 @@ impl PiLoopHost {
                     route_manifest_sha256: pair.manifest_sha256().to_string(),
                     target_triple: pair.target_triple(),
                     grant_id: config.grant_id.clone(),
+                    // 裁定A：记当刻真值。capabilities 取的是本会话**必须**谈成的那一张表
+                    // ——第 7 步 ready 若不逐值等于它，leg 当场以 StateViolation 收束，
+                    // 故「记下的」与「谈成的」在任何能继续往下跑的路径上恒等。
+                    prompt_id: pi_loop_journal::CURRENT_PROMPT_ID.to_string(),
                     model_id: config.model_id.clone(),
                     max_turns: config.max_turns,
                     max_usd: config.max_usd,
+                    capabilities: EXPECTED_CAPABILITIES.to_vec(),
                 };
                 opening = JournalPayload::SessionStarted(started.clone());
             }
@@ -668,6 +845,21 @@ impl PiLoopHost {
             capabilities: Vec::new(),
             published: Vec::new(),
             active_request: None,
+            active_tool_call: None,
+            // ④：production 从此有真件；⑤：握手也谈成了 `workspace_write`。
+            //
+            // 两道产品闸的现况**如实登记**（⑤ 逐一复核）：
+            // - 0.1 能力门：`workspace_write` 已进闭集，故它不再挡 write，只继续挡未谈成的
+            //   `workspace_read`（`PI-WORKSPACE-READ-1` 之前恒拒）；它对 write 的可证否形态
+            //   由 `revoke_workspace_write` 的反例保留。
+            // - 逐次授权：production **至今没有 decision driver**（GUI/headless 验收才注入），
+            //   故真件的 `decide` 恒 `policy_denied`——产品线上的 write 因此仍零 effect，
+            //   且是显式拒绝、显式落账，不是静默跳过。硬编码 `Approved` 属 ADR-022 六-C 明禁。
+            write_host: Some(Box::new(crate::pi_loop_workspace::WorkspaceFsHost::new(
+                app_data_dir,
+                &config.container_id,
+                &config.session_id,
+            ))),
             closed: false,
         };
 
@@ -696,6 +888,49 @@ impl PiLoopHost {
             .as_mut()
             .ok_or(HostError::Process(ProcessFault::UnexpectedEof))?;
         leg.write_packet(&line.bytes).map_err(HostError::Process)
+    }
+
+    /// 出站 `host_result` 的**唯一**编码入口（PI-WRITE-HOST-1 ②，偿 PI-HOST-LOOP-1R3 D1 表①
+    /// 登记的五枚前向债：`read_host_result_payload`×3、`read_list_entry`、`read_logical_path`）。
+    ///
+    /// 与 `send` 分成两相，因为这条路上编码与发送之间**有**效果：`tool_proposed`/
+    /// `effect_started` 的 durable append、真实落盘、三态收束都排在中间。故只交出
+    /// 已编好的 `OutboundLine`，由调用方在效果全部完成后 `write_encoded` 照搬同一份字节。
+    ///
+    /// 本函数只吃 `&self`：不落账、不发包、不推进 `outbound_seq`——「Err ⇒ 副作用恰零」
+    /// 在这一枚上是**结构性**的，行为轴断言（D1 出站探针）另判，防的是日后有人改成
+    /// `&mut self` 顺手做事。
+    ///
+    /// 拒绝映射同 `send`：`PacketRejection.reason` 带字段标签与实况，一律丢弃，
+    /// 只留闭集 `ProtocolErrorCode`——逻辑路径与正文一个字节都不进错误（本模块红线 2）。
+    fn encode_host_result(
+        &self,
+        request_id: &str,
+        payload: HostResultPayload,
+    ) -> Result<OutboundLine, HostError> {
+        encode_outbound_line(
+            self.outbound_seq,
+            &self.session_id,
+            Some(request_id),
+            PacketPayload::HostResult(payload),
+        )
+        .map_err(|rejection| HostError::Protocol(rejection.code))
+    }
+
+    /// `encode_host_result` 在 `pump` 里的落点：编不出来就是协议级故障。
+    ///
+    /// 既然这一枚 `host_result` 答不出来，本 session 也就走不下去，故按 `pump` 既有形显式落
+    /// `session_failed{protocol,code}` 并回收 leg——不静默继续，也不留一枚永不收束的 operation。
+    fn encode_or_fail(
+        &mut self,
+        request_id: &str,
+        payload: HostResultPayload,
+    ) -> Result<OutboundLine, HostError> {
+        match self.encode_host_result(request_id, payload) {
+            Ok(line) => Ok(line),
+            Err(HostError::Protocol(code)) => Err(self.fail_protocol(code)),
+            Err(other) => Err(other),
+        }
     }
 
     /// cancel / shutdown 的出包：两相同形（先编码后发送），只是这两条路上编码与发送之间
@@ -909,7 +1144,30 @@ impl PiLoopHost {
                         self.records.push(usage_row);
                     }
                     self.projection = pi_loop_journal::fold(&self.records);
+                    // 活动 write tool call 的唯一真源（PI-WRITE-HOST-1 ③）：`host_request` 的
+                    // wire 上没有 `toolCallId`，四段账逐枚要它。只认 `write`——别的工具不经
+                    // 宿主 effect，替它们记一枚只会让 `host_request` 找到不该找的主。
+                    match &event {
+                        AgentProjectionEvent::ToolStarted {
+                            tool_call_id,
+                            tool_name: ProductToolName::Write,
+                        } => {
+                            self.active_tool_call = Some(tool_call_id.clone());
+                        }
+                        AgentProjectionEvent::ToolFinished { tool_call_id, .. }
+                            if self.active_tool_call.as_deref() == Some(tool_call_id.as_str()) =>
+                        {
+                            self.active_tool_call = None;
+                        }
+                        _ => {}
+                    }
                     self.published.push(HostEvent::Agent(event));
+                }
+                PacketPayload::HostRequest(request) => {
+                    if packet.request_id.as_deref() != Some(request_id) {
+                        return Err(self.fail_protocol(ProtocolErrorCode::RequestMismatch));
+                    }
+                    self.serve_host_request(request_id, request)?;
                 }
                 PacketPayload::Terminal(terminal) => {
                     if matches!(terminal, Terminal::Shutdown) {
@@ -925,6 +1183,264 @@ impl PiLoopHost {
                 _ => return Err(self.fail_protocol(ProtocolErrorCode::StateViolation)),
             }
         }
+    }
+
+    /// ADR-022 六-B.2 的 `proposalHash`。
+    ///
+    /// ```text
+    /// proposalHash = sha256(frame(domain) || frame(sessionId) || frame(requestId)
+    ///                       || frame(operationId) || frame(logicalPath)
+    ///                       || frame(byteLength 十进制) || frame(contentSha256))
+    /// frame(x)     = u32be(UTF8(x).byteLength) || UTF8(x)
+    /// ```
+    ///
+    /// 长度前缀在场，故任何一枚字段的边界都不可能被另一枚吞掉——「拼串」式的域混淆
+    /// （`a|bc` 与 `ab|c`）在这一形上结构性不成立。
+    fn workspace_write_proposal_hash(
+        session_id: &str,
+        request_id: &str,
+        plan: &WorkspaceWritePlan,
+    ) -> String {
+        let byte_length = plan.byte_length.to_string();
+        let mut bytes = Vec::new();
+        for field in [
+            WORKSPACE_WRITE_PROPOSAL_DOMAIN,
+            session_id,
+            request_id,
+            plan.operation_id.as_str(),
+            plan.logical_path.as_str(),
+            byte_length.as_str(),
+            plan.content_sha256.as_str(),
+        ] {
+            bytes.extend_from_slice(&(field.len() as u32).to_be_bytes());
+            bytes.extend_from_slice(field.as_bytes());
+        }
+        pi_loop_journal::sha256_hex(&bytes)
+    }
+
+    /// `host_request` 臂：一枚 workspace write 的四段落账（PI-WRITE-HOST-1 ③）。
+    ///
+    /// 次序即语义（ADR-022 六-C），前一步不过就绝不走到后一步：
+    ///
+    /// 0. 四道门——能力、参数族、活动 tool call、真件座。任一不成立即 `state_violation`，
+    ///    零落账、零效果、零出包；
+    /// 1. 在场判定 → 派生 `created|overwritten` 静态动作标签；
+    /// 2. **编码先于效果**：成功行的整枚 packet 在任何 append 与任何效果之前真编出来。
+    ///    codec 是唯一校验真源，今日与未来的每一条 wire 判据都因此排在 journal、effect
+    ///    与发包之前（1R6 §零裁定一）；
+    /// 3. `tool_proposed` → `authorization_decided`。被拒即在此收束，`effect_started` 不落；
+    /// 4. 授权后、effect 前**再次**在场判定：动作已变则 `state_changed` 且零写；
+    /// 5. `effect_started` append + `sync_all` 成功才允许进入 effect——它是第一次真实写入
+    ///    之前的最后一道 durable 屏障（票面判据：失败即零 temp / 零 replace）；
+    /// 6. 三态逐枚 durable 收束；
+    /// 7. 终态记录 durable 之后才发包，且成功那一行发的就是第 2 步验过的同一份字节。
+    fn serve_host_request(
+        &mut self,
+        request_id: &str,
+        request: WorkspaceHostRequest,
+    ) -> Result<(), HostError> {
+        // 0.1 能力门：只服务本次握手**真的谈成**的那几枚。不拿编译期 expected 洗白，也不认
+        //     请求自报。⑤ 之后 `workspace_write` 已在闭集内，本门对 write 不再是产品线上的
+        //     挡板（挡 write 的是逐次授权那一道）；它继续挡的是未谈成的 `workspace_read`。
+        //     可证否形态由 `revoke_workspace_write` 的反例保留，不随能力到位而失去覆盖。
+        if !self.capabilities.contains(&request.capability) {
+            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        }
+        // 0.2 本阶段只服务 workspace_write。`exists|read_file|list` 属 PI-WORKSPACE-READ-1，
+        //     未实装即**显式**拒，不静默跳过（1R5 判例：unknown → 跳过是病根）。
+        if request.capability != WorkspaceCapability::WorkspaceWrite {
+            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        }
+        let WorkspaceRequestArguments::Write(arguments) = request.arguments else {
+            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        };
+        // 0.3 一 tc 一 op。`toolCallId` 不在 wire 上，唯一真源是本 leg 已 durable 的
+        //     `tool_started`；认领即消费，同一枚 tool call 的第二枚 host_request 因此当场无主。
+        let Some(tool_call_id) = self.active_tool_call.take() else {
+            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        };
+        // 0.4 真件座。④ 之后构造点恒装真件，本门于产品线上因此结构性不可达；保留为
+        //     fail-closed 兜底——缺件一律显式拒，绝不静默跳过或拿脚本座冒充成功。
+        if self.write_host.is_none() {
+            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        }
+
+        let plan = WorkspaceWritePlan {
+            operation_id: request.operation_id,
+            tool_call_id,
+            logical_path: arguments.logical_path,
+            proposal_hash: request.proposal_hash,
+            content_sha256: arguments.content_sha256,
+            byte_length: arguments.byte_length,
+            content: arguments.content,
+        };
+
+        // 0.5 `proposalHash` 由**本侧重算**，不认对端自报（ADR-022 六-B.2 明文「Rust 必须
+        //     重算」）。它绑定 session/request/operation 三枚 id 与逻辑路径、长度、内容 hash：
+        //     任一枚被篡改，这里当场不符，请求**从未成为提案**，effect 恰零次。
+        //     与④ 的**内容** hash 重算是两枚不同的 hash：那一枚挡在授权之后、replace 之前，
+        //     这一枚挡在提案之前，两者不互相顶名（`proposal_hash_and_content_hash_are_two_different_gates`）。
+        let recomputed = Self::workspace_write_proposal_hash(&self.session_id, request_id, &plan);
+        if recomputed != plan.proposal_hash {
+            return self.settle_failed(request_id, &plan, HostFailureCode::HashMismatch);
+        }
+
+        // 1. 在场判定（④ 起是 capability `Dir` 的实测）。它自己就能失败：grammar、symlink、
+        //    目录、不支持的文件系统都在这一步现形。**从未成为提案**的请求因此在这里收束——
+        //    `tool_proposed` 不落，effect 恰零次（ADR-022 六-B.2：Rust 防御门以同 code 拒绝且零
+        //    effect）。
+        let action = match self.effector().probe(&plan) {
+            Ok(action) => action,
+            Err(code) => return self.settle_failed(request_id, &plan, code),
+        };
+
+        // 2. 编码-先于-效果。这一枚 `OutboundLine` 一直捏在手里，直到第 7 步原样发出。
+        let success_line = self.encode_or_fail(request_id, write_success_payload(&plan, action))?;
+
+        // 3. 第一、二段账。
+        self.append_effect_record(
+            request_id,
+            &plan,
+            JournalPayload::ToolProposed(ToolProposedPayload {
+                tool_call_id: plan.tool_call_id.clone(),
+                logical_path: plan.logical_path.clone(),
+                proposal_hash: plan.proposal_hash.clone(),
+                content_sha256: plan.content_sha256.clone(),
+                byte_length: plan.byte_length,
+                action,
+            }),
+        )?;
+
+        let (decision, deny_code) = match self.effector().decide(&plan, action) {
+            WriteAuthorization::Approved => (AuthorizationDecision::Approved, None),
+            WriteAuthorization::Denied(code) => (AuthorizationDecision::Denied, Some(code)),
+        };
+        self.append_effect_record(
+            request_id,
+            &plan,
+            JournalPayload::AuthorizationDecided {
+                tool_call_id: plan.tool_call_id.clone(),
+                decision,
+                code: deny_code,
+            },
+        )?;
+        if let Some(code) = deny_code {
+            // 未获授权就在此收束：`effect_started` 不落，effect 恰零次。
+            let line = self.encode_or_fail(
+                request_id,
+                write_denied_payload(&plan, denied_code_on_wire(code)),
+            )?;
+            return self.write_encoded(line);
+        }
+
+        // 4. 授权后、effect 前再判一次在场：动作已变则零写。这一枚同时是 swap-race 的收口
+        //    ——授权与 effect 之间被换成 symlink 的父段在这里以 `symlink_forbidden` 现形，
+        //    而不是被压成笼统的 `state_changed`。
+        match self.effector().probe(&plan) {
+            Ok(again) if again == action => {}
+            Ok(_) => return self.settle_failed(request_id, &plan, HostFailureCode::StateChanged),
+            Err(code) => return self.settle_failed(request_id, &plan, code),
+        }
+
+        // 5. 第一次真实写入之前的最后一道 durable 屏障。
+        self.append_effect_record(
+            request_id,
+            &plan,
+            JournalPayload::EffectStarted(EffectStartedPayload {
+                tool_call_id: plan.tool_call_id.clone(),
+                logical_path: plan.logical_path.clone(),
+                proposal_hash: plan.proposal_hash.clone(),
+                action,
+                content_sha256: plan.content_sha256.clone(),
+                byte_length: plan.byte_length,
+            }),
+        )?;
+
+        // 6. 真实 effect。
+        match self.effector().perform(&plan, action) {
+            EffectOutcome::Succeeded => {
+                self.append_effect_record(
+                    request_id,
+                    &plan,
+                    JournalPayload::EffectSucceeded(EffectSucceededPayload {
+                        tool_call_id: plan.tool_call_id.clone(),
+                        logical_path: plan.logical_path.clone(),
+                        disposition: action,
+                        content_sha256: plan.content_sha256.clone(),
+                        byte_length: plan.byte_length,
+                    }),
+                )?;
+                // 7. 发的就是第 2 步验过的那一份字节，不重编。
+                self.write_encoded(success_line)
+            }
+            EffectOutcome::Failed(code) => self.settle_failed(request_id, &plan, code),
+            EffectOutcome::Uncertain => self.settle_uncertain(request_id, &plan),
+        }
+    }
+
+    /// 真件座的取用点。0.4 已判非空，故此处 `expect` 不是宽容而是断言。
+    fn effector(&mut self) -> &mut dyn WorkspaceWriteHost {
+        self.write_host
+            .as_mut()
+            .expect("0.4 已判真件座非空")
+            .as_mut()
+    }
+
+    /// 四段账的落账口：**append + `sync_all` 成功**才认领内存账本与投影。
+    /// 失败一律经 `?` 逸出，调用方因此绝不会走到下一步——effect 与出包都排在它之后。
+    fn append_effect_record(
+        &mut self,
+        request_id: &str,
+        plan: &WorkspaceWritePlan,
+        payload: JournalPayload,
+    ) -> Result<(), HostError> {
+        let record = self
+            .journal
+            .append(Some(request_id), Some(&plan.operation_id), payload)?;
+        self.records.push(record);
+        self.projection = pi_loop_journal::fold(&self.records);
+        Ok(())
+    }
+
+    /// `effect_failed` 收束：先 durable，再发包。
+    fn settle_failed(
+        &mut self,
+        request_id: &str,
+        plan: &WorkspaceWritePlan,
+        code: HostFailureCode,
+    ) -> Result<(), HostError> {
+        self.append_effect_record(
+            request_id,
+            plan,
+            JournalPayload::EffectFailed {
+                tool_call_id: plan.tool_call_id.clone(),
+                code,
+            },
+        )?;
+        let line = self.encode_or_fail(request_id, write_failed_payload(plan, code))?;
+        self.write_encoded(line)
+    }
+
+    /// `effect_uncertain` 收束。ADR-022 六-C：落账成功才可回 `status:'uncertain'`；
+    /// **该记录自身无法 durable 时宿主立即终止 sidecar leg**——不留一枚既没落账、
+    /// 对端又还在等的 operation。
+    fn settle_uncertain(
+        &mut self,
+        request_id: &str,
+        plan: &WorkspaceWritePlan,
+    ) -> Result<(), HostError> {
+        if let Err(error) = self.append_effect_record(
+            request_id,
+            plan,
+            JournalPayload::EffectUncertain {
+                tool_call_id: plan.tool_call_id.clone(),
+            },
+        ) {
+            self.reclaim_leg();
+            return Err(error);
+        }
+        let line = self.encode_or_fail(request_id, write_uncertain_payload(plan))?;
+        self.write_encoded(line)
     }
 
     /// 本 request 的预算**真值**：对已 durable 的 `turn_usage_recorded` fold 得出（R4）。
@@ -1257,8 +1773,12 @@ mod tests {
         RUNTIME_BASENAME,
     };
     use crate::pi_loop_protocol::{
-        BudgetStopReason, BudgetTurnLimit, BudgetUsdLimit, BudgetView, ProtocolErrorPayload,
-        TerminalError, TerminalFailureCode, TurnStopReason, TurnUsage, WriteDisposition,
+        BudgetStopReason, BudgetTurnLimit, BudgetUsdLimit, BudgetView, HostFailureCode,
+        HostResultOutcome, HostResultValue, ListEntry, ListEntryKind, ProductToolName,
+        ProtocolErrorPayload, TerminalError, TerminalFailureCode, ToolOutcome, TurnStopReason,
+        TurnUsage, WorkspaceHostRequest, WorkspaceOperation, WorkspaceRequestArguments,
+        WorkspaceWriteArguments, WriteDisposition, MAX_HOST_ERROR_MESSAGE_BYTES, MAX_LIST_ENTRIES,
+        MAX_LOGICAL_PATH_BYTES, MAX_PACKET_BYTES, MAX_SEGMENT_BYTES,
     };
     use std::collections::VecDeque;
     use std::sync::atomic::{AtomicU64, Ordering};
@@ -1613,7 +2133,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         let host = host.expect("启动成功");
@@ -1627,7 +2150,10 @@ mod tests {
         assert_eq!(
             host.published(),
             &[HostEvent::Ready {
-                capabilities: vec![WorkspaceCapability::CaseRead]
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ]
             }]
         );
 
@@ -1664,6 +2190,52 @@ mod tests {
             "\"routeManifestSha256\":\"{}\"",
             crate::pi_loop_process::sha256_bytes(EXPECTED_ROUTE_MANIFEST)
         )));
+    }
+
+    /// 裁定A 写侧：`session_started` 记的必须是**当刻真值**。
+    ///
+    /// 判据不是「等于某个常量」，而是**内一致**：记录里的 capabilities 逐值等于本会话
+    /// `capabilities()` 的实收握手集，promptId 等于本线在跑的 prompt 身份。两谱一旦分叉，
+    /// durable 记录就是一句与事实不符的话——总纲不变量 4 与 6 都不许它悄悄成立。
+    #[test]
+    fn session_started_records_the_prompt_and_capabilities_actually_in_force() {
+        let h = harness("started-truth");
+        let (host, _log, _) = start_with(
+            &h,
+            vec![VecDeque::from(vec![ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            )])],
+        );
+        let host = host.expect("启动成功");
+        let journal_text =
+            String::from_utf8(fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"))
+                .expect("UTF-8");
+
+        // 实收握手集 → 记录里应有的那一串。expected 由**实收值**渲染，不抄常量表。
+        let recorded = format!(
+            "\"capabilities\":[{}]",
+            host.capabilities()
+                .iter()
+                .map(|capability| format!("\"{}\"", capability.as_str()))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        assert!(
+            journal_text.contains(&recorded),
+            "journal 必须记实收握手集 {recorded}，实得 {journal_text}"
+        );
+        assert!(
+            journal_text.contains("\"promptId\":\"md-work-v1\""),
+            "journal 必须记在跑的 prompt 身份，实得 {journal_text}"
+        );
+        assert!(
+            !journal_text.contains("case-read-v1"),
+            "⑤ 之后本线不再跑 case-read-v1，记录里不得出现它"
+        );
     }
 
     #[test]
@@ -1716,7 +2288,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -1791,7 +2369,13 @@ mod tests {
             let (host, _, _) = start_with(
                 &h,
                 vec![VecDeque::from(vec![
-                    ready(1, vec![WorkspaceCapability::CaseRead]),
+                    ready(
+                        1,
+                        vec![
+                            WorkspaceCapability::CaseRead,
+                            WorkspaceCapability::WorkspaceWrite,
+                        ],
+                    ),
                     sidecar_line(
                         2,
                         Some("req-1"),
@@ -1835,7 +2419,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -1905,7 +2495,13 @@ mod tests {
             &h,
             config,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, Some("req-1"), turn(1)),
                 sidecar_line(3, Some("req-1"), turn(2)),
                 sidecar_line(
@@ -1952,7 +2548,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -2000,7 +2602,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, Some("req-1"), turn(1, 0.25)),
                 sidecar_line(
                     3,
@@ -2043,7 +2651,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         let resumed = resumed.expect("resume 成功");
@@ -2079,7 +2690,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         let mut host = host.expect("启动");
@@ -2113,7 +2727,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         assert!(ok.is_ok(), "对照：同一配置必须能起第二 leg");
@@ -2130,7 +2747,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         let mut host = host.expect("启动");
@@ -2183,7 +2803,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         assert!(ok.is_ok(), "对照：未漂移必须能起第二 leg");
@@ -2196,7 +2819,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, None, PacketPayload::Terminal(Terminal::Shutdown)),
                 Scripted::Eof,
             ])],
@@ -2218,7 +2847,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 1,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         assert_eq!(again.expect_err("已关闭"), HostError::SessionClosed);
@@ -2259,7 +2891,10 @@ mod tests {
             &h,
             vec![VecDeque::from(vec![ready(
                 2,
-                vec![WorkspaceCapability::CaseRead],
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             )])],
         );
         assert_eq!(
@@ -2274,7 +2909,13 @@ mod tests {
         let (host, _, _) = start_with(
             &h,
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -2328,9 +2969,11 @@ mod tests {
                                 .to_string(),
                         target_triple: TargetTriple::Aarch64AppleDarwin,
                         grant_id: "grant-1".to_string(),
+                        prompt_id: pi_loop_journal::CURRENT_PROMPT_ID.to_string(),
                         model_id: "deepseek-v4-flash".to_string(),
                         max_turns: 12,
                         max_usd: None,
+                        capabilities: EXPECTED_CAPABILITIES.to_vec(),
                     }),
                 )
                 .expect("落账");
@@ -2600,7 +3243,10 @@ mod tests {
             1,
             None,
             PacketPayload::Ready {
-                capabilities: vec![WorkspaceCapability::CaseRead],
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             },
         );
         let prompt_lines = vec![
@@ -2836,7 +3482,10 @@ mod tests {
             1,
             None,
             PacketPayload::Ready {
-                capabilities: vec![WorkspaceCapability::CaseRead],
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             },
         );
         let delta = wire(
@@ -3073,7 +3722,10 @@ mod tests {
             1,
             None,
             PacketPayload::Ready {
-                capabilities: vec![WorkspaceCapability::CaseRead],
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
             },
         );
         let shutdown_line = wire(2, None, PacketPayload::Terminal(Terminal::Shutdown));
@@ -3340,7 +3992,13 @@ mod tests {
     }
 
     fn ready_leg() -> VecDeque<Scripted> {
-        VecDeque::from(vec![ready(1, vec![WorkspaceCapability::CaseRead])])
+        VecDeque::from(vec![ready(
+            1,
+            vec![
+                WorkspaceCapability::CaseRead,
+                WorkspaceCapability::WorkspaceWrite,
+            ],
+        )])
     }
 
     fn journal_bytes(app_data: &Path, container: &str) -> Vec<u8> {
@@ -3486,7 +4144,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-ok"),
@@ -3554,7 +4218,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, Some("req-1"), turn()),
                 sidecar_line(
                     3,
@@ -3594,7 +4264,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, Some("req-1"), turn()),
                 sidecar_line(
                     3,
@@ -3622,7 +4298,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 Scripted::Line(b"{".to_vec()),
             ])],
             ExitOutcome::Code(0),
@@ -3649,7 +4331,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 Scripted::Eof,
             ])],
             ExitOutcome::Code(0),
@@ -3675,7 +4363,13 @@ mod tests {
     fn counterexample_shutdown_exit_status_is_reported_truthfully() {
         let shutdown_leg = || {
             VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(2, None, PacketPayload::Terminal(Terminal::Shutdown)),
                 Scripted::Eof,
             ])
@@ -3739,7 +4433,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -3924,7 +4624,23 @@ mod tests {
     /// 一枚文本反例：标签 + 现造文本（超限串太长，不适合写成 `&'static str` 字面量）。
     type TextCounterexample = (&'static str, fn() -> String);
 
-    /// 清单行的驱动方式。四种入口对应四条时序，双轴断言各自不同。
+    /// 出站 `host_result` 的一枚反例（PI-WRITE-HOST-1 ② 新增的**第五形态**）。
+    ///
+    /// 前四种全是**入站**（配置、凭证、prompt 正文、prompt header），判的是「别人交进来的
+    /// 值」；五枚前向债判的是「本机将要发出去的值」。构造器统一吃一枚规模参数：
+    ///
+    /// - `cap: Some(n)` —— 边界对：`make(n)` 必须编得出、`make(n + 1)` 必须被拒。唯一变量是
+    ///   那 1 字节/1 条，于是「其实是别的原因红了」（framing 撞 `MAX_PACKET_BYTES`、
+    ///   sha 形状不对、闭集键漏字段…）被结构性排除。上界值只从 protocol 常量取，
+    ///   测试里不另抄数字。
+    /// - `cap: None` —— 纯负例（空串等没有「恰好合法」的对偶），只判拒，参数取 0。
+    struct HostResultCase {
+        label: &'static str,
+        cap: Option<usize>,
+        make: fn(usize) -> HostResultPayload,
+    }
+
+    /// 清单行的驱动方式。五种入口对应五条时序，双轴断言各自不同。
     enum BoundedProbe {
         /// 纯 `StartConfig` 入参：双轴＝`spawns == 0` 且 app-data 下压根没有 journal 树。
         Config(Vec<ConfigCounterexample>),
@@ -3935,6 +4651,10 @@ mod tests {
         /// 已起 leg 之后的 prompt header `requestId`：文本恒合法，判的只有 header 那一枚。
         /// 三轴同 `Prompt`——`user_prompted` 不许 durable，出包一枚都不许发。
         RequestId(Vec<TextCounterexample>),
+        /// **出站** `host_result`（PI-WRITE-HOST-1 ②）：已起 leg 之后驱动
+        /// `encode_host_result`，五轴＝盘上 journal bytes、内存账本、出包数、
+        /// `outbound_seq` 全不变，且拒绝理由不回显被判值。
+        HostResult(Vec<HostResultCase>),
     }
 
     /// 手写冻结清单：输入名 → 生产段消费点（`pi_loop.rs` 内的函数名）→ 判据名（常量或
@@ -3950,6 +4670,75 @@ mod tests {
         judgments: &'static [&'static str],
         code: &'static str,
         probe: BoundedProbe,
+    }
+
+    // ── 出站 host_result 的反例构造器（PI-WRITE-HOST-1 ②）──────────────────────
+    //
+    // 五枚前向债的受判面各在一枚 value/error 形状里，故按形状分四支构造器；每支只留
+    // 被判那一枚字段可变，其余字段恒取闭集内合法值——被判的因此永远只有一枚输入。
+
+    const PROBE_SHA: &str = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08";
+
+    fn write_ok_result(logical_path: String) -> HostResultPayload {
+        HostResultPayload {
+            operation_id: "op_1_1".to_string(),
+            capability: WorkspaceCapability::WorkspaceWrite,
+            operation: WorkspaceOperation::Write,
+            outcome: HostResultOutcome::Ok(HostResultValue::Write {
+                logical_path,
+                disposition: WriteDisposition::Created,
+                content_sha256: PROBE_SHA.to_string(),
+                byte_length: 10,
+            }),
+        }
+    }
+
+    fn read_file_ok_result(content: String) -> HostResultPayload {
+        let byte_length = content.len() as u64;
+        HostResultPayload {
+            operation_id: "op_1_1".to_string(),
+            capability: WorkspaceCapability::WorkspaceRead,
+            operation: WorkspaceOperation::ReadFile,
+            outcome: HostResultOutcome::Ok(HostResultValue::ReadFile {
+                logical_path: "纪要.md".to_string(),
+                content,
+                content_sha256: PROBE_SHA.to_string(),
+                byte_length,
+            }),
+        }
+    }
+
+    fn list_ok_result(entries: Vec<ListEntry>) -> HostResultPayload {
+        HostResultPayload {
+            operation_id: "op_1_1".to_string(),
+            capability: WorkspaceCapability::WorkspaceRead,
+            operation: WorkspaceOperation::List,
+            outcome: HostResultOutcome::Ok(HostResultValue::List {
+                logical_path: "子目录".to_string(),
+                entries,
+            }),
+        }
+    }
+
+    fn list_entry(name: String) -> ListEntry {
+        ListEntry {
+            name,
+            kind: ListEntryKind::File,
+            byte_length: Some(10),
+            mtime_ms: Some(1_700_000_000_000),
+        }
+    }
+
+    fn failed_result(message: String) -> HostResultPayload {
+        HostResultPayload {
+            operation_id: "op_1_1".to_string(),
+            capability: WorkspaceCapability::WorkspaceWrite,
+            operation: WorkspaceOperation::Write,
+            outcome: HostResultOutcome::Failed {
+                code: HostFailureCode::Io,
+                message,
+            },
+        }
     }
 
     fn bounded_input_manifest() -> Vec<BoundedInput> {
@@ -4102,6 +4891,95 @@ mod tests {
                     ("含 NUL", || "p\u{0}x".to_string()),
                 ]),
             },
+            // ── 五枚前向债（PI-HOST-LOOP-1R3 D1 表① 登记，本票开工偿）──────────
+            //
+            // 表①原文：`read_host_result_payload`×3、`read_list_entry`、`read_logical_path`
+            // 的出站面共 5 行「本票 ready capability 恰 ['case_read']，宿主一枚 host_result
+            // 都不生成；PI-WRITE-HOST-1 开工时须连同前置门一并补」。
+            //
+            // 偿形循 1R6 裁定：**不再补第二份手工前置门**。出站 host_result 与 prompt 同走
+            // `encode_outbound_line`——codec 是唯一校验真源，五枚 wire 判据因此结构性排在
+            // journal append、真实落盘与发包之前。下面五行补的是这条结构性担保的**行为
+            // 反例**：判据在不在、拒得准不准、拒的那一轮有没有副作用，逐行现场实测。
+            //
+            // 拒绝 code 一律 `protocol`（同 `send` 既有映射，`PacketRejection.reason` 丢弃）。
+            // `protocol` 是粗粒度的——`packet_too_large` 与 `invalid_schema` 同压成它，故每行
+            // 另带 cap 处的正向对照，把「其实是别的原因红了」排除在外（见 `HostResultCase`）。
+            BoundedInput {
+                input: "host_result.value.logicalPath",
+                site: "encode_host_result",
+                judgments: &["MAX_LOGICAL_PATH_BYTES", "non_empty"],
+                code: "protocol",
+                probe: BoundedProbe::HostResult(vec![
+                    HostResultCase {
+                        label: "上界 ±1 字节",
+                        cap: Some(MAX_LOGICAL_PATH_BYTES),
+                        make: |size| write_ok_result("p".repeat(size)),
+                    },
+                    HostResultCase {
+                        label: "空串",
+                        cap: None,
+                        make: |_| write_ok_result(String::new()),
+                    },
+                ]),
+            },
+            BoundedInput {
+                input: "host_result.value.entries[].name",
+                site: "encode_host_result",
+                judgments: &["MAX_SEGMENT_BYTES", "non_empty"],
+                code: "protocol",
+                probe: BoundedProbe::HostResult(vec![
+                    HostResultCase {
+                        label: "上界 ±1 字节",
+                        cap: Some(MAX_SEGMENT_BYTES),
+                        make: |size| list_ok_result(vec![list_entry("n".repeat(size))]),
+                    },
+                    HostResultCase {
+                        label: "空串",
+                        cap: None,
+                        make: |_| list_ok_result(vec![list_entry(String::new())]),
+                    },
+                ]),
+            },
+            BoundedInput {
+                input: "host_result.value.entries",
+                site: "encode_host_result",
+                judgments: &["MAX_LIST_ENTRIES"],
+                code: "protocol",
+                probe: BoundedProbe::HostResult(vec![HostResultCase {
+                    label: "上界 ±1 条",
+                    cap: Some(MAX_LIST_ENTRIES),
+                    // 条目名恒 1 字节：2001 条也只有约 120 KB，离 1 MiB framing 还远，
+                    // 于是被判的确实是条目数上界，不是 packet 尺寸。
+                    make: |size| {
+                        list_ok_result((0..size).map(|_| list_entry("n".to_string())).collect())
+                    },
+                }]),
+            },
+            BoundedInput {
+                input: "host_result.value.content",
+                site: "encode_host_result",
+                judgments: &["MAX_TEXT_BYTES"],
+                code: "protocol",
+                probe: BoundedProbe::HostResult(vec![HostResultCase {
+                    label: "上界 ±1 字节",
+                    cap: Some(MAX_TEXT_BYTES),
+                    // `byteLength` 由构造器按实长给出，故 cap 处 `byteLength == content.len()`
+                    // 的交叉门也照样过——+1 那一枚红的是 content 上界本身。
+                    make: |size| read_file_ok_result("c".repeat(size)),
+                }]),
+            },
+            BoundedInput {
+                input: "host_result.error.message",
+                site: "encode_host_result",
+                judgments: &["MAX_HOST_ERROR_MESSAGE_BYTES"],
+                code: "protocol",
+                probe: BoundedProbe::HostResult(vec![HostResultCase {
+                    label: "上界 ±1 字节",
+                    cap: Some(MAX_HOST_ERROR_MESSAGE_BYTES),
+                    make: |size| failed_result("m".repeat(size)),
+                }]),
+            },
         ]
     }
 
@@ -4126,7 +5004,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-ok"),
@@ -4186,10 +5070,125 @@ mod tests {
             .expect("对照：合法 prompt 仍走得通");
     }
 
+    /// 出站 host_result 族反例驱动（PI-WRITE-HOST-1 ② 第五形态）：具名 code ＋ **五轴**
+    /// 零副作用——盘上 journal bytes 逐字节不变、内存账本不增、出包一枚不发、
+    /// `outbound_seq` 不推进、拒绝理由不回显逻辑路径与正文。
+    ///
+    /// 带 `cap` 的行另跑 cap 处的正向对照：同一枚构造器、同一条路径，只差 1 字节/1 条。
+    /// 没有它，「+1 被拒」这条读数与「这形状根本编不出来」在读数上同形。
+    fn host_result_axis_probe(row: &BoundedInput, cases: &[HostResultCase]) {
+        let h = harness("d1-host-result");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let host = host.expect("出站清单驱动前须先起 leg");
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let before = fs::read(&path).expect("读 journal");
+        let records_before = host.records().len();
+        let writes_before = log.lock().expect("日志未中毒").written.len();
+        let seq_before = host.outbound_seq;
+
+        for case in cases {
+            if let Some(cap) = case.cap {
+                let line = host
+                    .encode_host_result("req-probe", (case.make)(cap))
+                    .unwrap_or_else(|error| {
+                        panic!(
+                            "{}/{}：cap 处必须编得出，否则 +1 的红说明不了是这一枚上界（实得 {error:?}）",
+                            row.input, case.label
+                        )
+                    });
+                assert_eq!(
+                    line.seq,
+                    seq_before + 1,
+                    "{}/{}：编码只定 seq，不认领",
+                    row.input,
+                    case.label
+                );
+            }
+            let over = case.cap.map(|cap| cap + 1).unwrap_or(0);
+            let error = host
+                .encode_host_result("req-probe", (case.make)(over))
+                .err()
+                .unwrap_or_else(|| panic!("{}/{} 必须被拒", row.input, case.label));
+            assert_eq!(
+                error.code(),
+                row.code,
+                "{}/{} 须以 {} 拒绝，实得 {error:?}",
+                row.input,
+                case.label,
+                row.code
+            );
+            // `protocol` 太粗：`packet_too_large` 与闭集违规同压成它。出站族一律要求
+            // `invalid_schema`——撞到 framing 上限即红，红得不对也算没红。
+            assert_eq!(
+                error,
+                HostError::Protocol(ProtocolErrorCode::InvalidSchema),
+                "{}/{}：拒绝理由必须恰是闭集违规",
+                row.input,
+                case.label
+            );
+            assert_eq!(
+                fs::read(&path).expect("读 journal"),
+                before,
+                "{}/{}：盘上 journal bytes 必须逐字节不变",
+                row.input,
+                case.label
+            );
+            assert_eq!(
+                host.records().len(),
+                records_before,
+                "{}/{}：内存账本也不得增长",
+                row.input,
+                case.label
+            );
+            assert_eq!(
+                log.lock().expect("日志未中毒").written.len(),
+                writes_before,
+                "{}/{}：拒绝须先于发包，出包一枚都不许多",
+                row.input,
+                case.label
+            );
+            assert_eq!(
+                host.outbound_seq, seq_before,
+                "{}/{}：被拒的一轮不得推进 outbound_seq",
+                row.input, case.label
+            );
+            assert_no_echo(
+                &error,
+                &["sk-in-memory-only", "纪要.md", "子目录"],
+                &format!("{}/{}", row.input, case.label),
+            );
+        }
+    }
+
     /// ① 清单每行都在 journal append 与 spawn 之前以具名 code 拒绝，且零副作用。
     #[test]
     fn counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn() {
-        for row in bounded_input_manifest() {
+        // 清单塌缩守卫（PI-WRITE-HOST-1 ②）：本测试的判据**就是**清单本身，删行即静默失覆盖
+        // ——「删空」与「全通过」在读数上同形。出站族按 1R3 D1 表① 的五枚前向债钉死条数，
+        // 入站族只留总数下限（既有 11 行，未来收紧只许加不许减）。
+        let manifest = bounded_input_manifest();
+        let outbound = manifest
+            .iter()
+            .filter(|row| matches!(row.probe, BoundedProbe::HostResult(_)))
+            .count();
+        assert_eq!(
+            outbound, 5,
+            "出站清单必须恰 5 行（`read_host_result_payload`×3、`read_list_entry`、\
+             `read_logical_path`），实为 {outbound}"
+        );
+        assert!(
+            manifest.len() >= 16,
+            "清单只剩 {} 行：入站 11 行 ＋ 出站 5 行是下限",
+            manifest.len()
+        );
+
+        for row in manifest {
             match &row.probe {
                 BoundedProbe::Config(cases) => {
                     for (label, mutate) in cases {
@@ -4257,6 +5256,7 @@ mod tests {
                         (request_id.to_string(), "合法一问".to_string())
                     });
                 }
+                BoundedProbe::HostResult(cases) => host_result_axis_probe(&row, cases),
             }
         }
 
@@ -4312,6 +5312,12 @@ mod tests {
         PromptRequestId(String),
         /// **状态域**：在一份既有可恢复 journal 上驱动完整 `start`（PI-HOST-LOOP-1R7 J2）。
         Recovery(SessionShape, RecoveryTrigger),
+        /// **效果域**（PI-WRITE-HOST-1 ②）：已起 leg 之后驱动完整 `encode_host_result`，
+        /// 把违规串塞进出站结果的一枚字符串字段。前五种驱动全是**入站**方向，
+        /// 「Err ⇒ 副作用恰零」在出站面此前一枚样本都没有。
+        HostResult(fn(&str) -> HostResultPayload, String),
+        /// 效果域的**规模轴**：条目数没有字符串违规类可套，单独按条数驱动。
+        HostResultScale(fn(usize) -> HostResultPayload, usize),
     }
 
     // ── recovery 状态域（PI-HOST-LOOP-1R7 J2）─────────────────────────────────
@@ -4388,9 +5394,11 @@ mod tests {
             route_manifest_sha256: crate::pi_loop_process::sha256_bytes(EXPECTED_ROUTE_MANIFEST),
             target_triple: TargetTriple::Aarch64AppleDarwin,
             grant_id: "grant-1".to_string(),
+            prompt_id: pi_loop_journal::CURRENT_PROMPT_ID.to_string(),
             model_id: "deepseek-v4-flash".to_string(),
             max_turns: 12,
             max_usd,
+            capabilities: EXPECTED_CAPABILITIES.to_vec(),
         }
     }
 
@@ -4633,6 +5641,27 @@ mod tests {
         config.max_usd = Some(f64::MIN_POSITIVE);
     }
 
+    // ── 效果域的四支出站构造器（PI-WRITE-HOST-1 ②）────────────────────────────
+    //
+    // 与 D1 出站清单同源（同一批 `*_ok_result` 构造器），只是这里由电池逐类灌违规串：
+    // D1 判「拒得准不准」，电池判「拒的那一轮有没有副作用」，两层不互相顶名。
+
+    fn result_logical_path(value: &str) -> HostResultPayload {
+        write_ok_result(value.to_string())
+    }
+    fn result_entry_name(value: &str) -> HostResultPayload {
+        list_ok_result(vec![list_entry(value.to_string())])
+    }
+    fn result_content(value: &str) -> HostResultPayload {
+        read_file_ok_result(value.to_string())
+    }
+    fn result_error_message(value: &str) -> HostResultPayload {
+        failed_result(value.to_string())
+    }
+    fn result_entries_of(size: usize) -> HostResultPayload {
+        list_ok_result((0..size).map(|_| list_entry("n".to_string())).collect())
+    }
+
     /// SafeToken 的字节上界没有 `MAX_*` 常量可 import——直接**问判据函数本人**：
     /// 由 `is_safe_token` 逐长探出上界，测试里因此不存在第二份 `128`（两谱各抄一次
     /// 就各自漂移，这正是 1R3/1R4 栽过的形）。
@@ -4767,6 +5796,47 @@ mod tests {
                 field: "prompt.requestId",
                 class: class.to_string(),
                 drive: ViolationDrive::PromptRequestId(value),
+            });
+        }
+
+        // 效果域：出站 host_result 的五枚前向债字段 × 违规类（PI-WRITE-HOST-1 ②）。
+        // 上界一律取传入的 protocol 常量 +1 字节，测试里不另抄数字。
+        for (field, make, limit) in [
+            (
+                "host_result.value.logicalPath",
+                result_logical_path as fn(&str) -> HostResultPayload,
+                MAX_LOGICAL_PATH_BYTES,
+            ),
+            (
+                "host_result.value.entries[].name",
+                result_entry_name,
+                MAX_SEGMENT_BYTES,
+            ),
+            ("host_result.value.content", result_content, MAX_TEXT_BYTES),
+            (
+                "host_result.error.message",
+                result_error_message,
+                MAX_HOST_ERROR_MESSAGE_BYTES,
+            ),
+        ] {
+            for (class, value) in string_violations(limit) {
+                battery.push(Violation {
+                    field,
+                    class: class.to_string(),
+                    drive: ViolationDrive::HostResult(make, value),
+                });
+            }
+        }
+        for (class, size) in [
+            ("空列表", 0),
+            ("上界", MAX_LIST_ENTRIES),
+            ("上界 +1 条", MAX_LIST_ENTRIES + 1),
+            ("上界 ×2 条", MAX_LIST_ENTRIES * 2),
+        ] {
+            battery.push(Violation {
+                field: "host_result.value.entries",
+                class: class.to_string(),
+                drive: ViolationDrive::HostResultScale(result_entries_of, size),
             });
         }
 
@@ -4929,7 +5999,13 @@ mod tests {
         let terminal = PacketPayload::Terminal(Terminal::Completed {
             budget: open_budget(0, Some(0.0)),
         });
-        let mut inbox = vec![ready(1, vec![WorkspaceCapability::CaseRead])];
+        let mut inbox = vec![ready(
+            1,
+            vec![
+                WorkspaceCapability::CaseRead,
+                WorkspaceCapability::WorkspaceWrite,
+            ],
+        )];
         // 合法 requestId 才脚本得出应答行；不可编码的 requestId 必然在发包前就被拒，
         // 这一枚应答永远用不上。
         if let Some(line) = optional_sidecar_line(2, Some(request_id), terminal) {
@@ -4962,6 +6038,53 @@ mod tests {
                 assert!(
                     !host.projection.request_ids.contains(request_id),
                     "{context}：被拒的 prompt 不得占用 requestId（实得 {error:?}）"
+                );
+                assert_no_echo(&error, canaries, context);
+                true
+            }
+            Ok(_) => false,
+        }
+    }
+
+    /// 已起 leg 之后驱动一次完整 `encode_host_result`；被拒即断言五轴零副作用。
+    ///
+    /// 出站方向的「零副作用」今日是**结构性**的（`&self` 拿不到可变态），但断言照旧逐轴写
+    /// 死：结构性成立是今天的实现事实，不是契约担保——日后有人把签名改成 `&mut self`
+    /// 顺手落账，这一族必须当场红。
+    fn universal_host_result_case(
+        payload: HostResultPayload,
+        canaries: &[&str],
+        context: &str,
+    ) -> bool {
+        let h = harness("uni-host-result");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let host = host.expect("电池驱动出站结果前须先起 leg");
+        let before = journal_footprint(&h.app_data);
+        let records_before = host.records().len();
+        let writes_before = log.lock().expect("日志未中毒").written.len();
+        let seq_before = host.outbound_seq;
+        match host.encode_host_result("req-probe", payload) {
+            Err(error) => {
+                assert_journal_bytes_unchanged(&before, &journal_footprint(&h.app_data), context);
+                assert_eq!(
+                    host.records().len(),
+                    records_before,
+                    "{context}：被拒的出站结果不得增内存账本（实得 {error:?}）"
+                );
+                assert_eq!(
+                    log.lock().expect("日志未中毒").written.len(),
+                    writes_before,
+                    "{context}：被拒的出站结果不得出包（实得 {error:?}）"
+                );
+                assert_eq!(
+                    host.outbound_seq, seq_before,
+                    "{context}：被拒的出站结果不得推进 outbound_seq（实得 {error:?}）"
                 );
                 assert_no_echo(&error, canaries, context);
                 true
@@ -5053,6 +6176,12 @@ mod tests {
                 ViolationDrive::Recovery(shape, trigger) => {
                     universal_recovery_start_case(*shape, *trigger, &context)
                 }
+                ViolationDrive::HostResult(make, value) => {
+                    universal_host_result_case(make(value), &["sk-in-memory-only", value], &context)
+                }
+                ViolationDrive::HostResultScale(make, size) => {
+                    universal_host_result_case(make(*size), &["sk-in-memory-only"], &context)
+                }
             };
             *(if hit {
                 refused.entry(row.field)
@@ -5067,18 +6196,21 @@ mod tests {
         // 放行，三种动作在没有下面这三道断言时都是一片绿。
         let fields: std::collections::BTreeSet<&'static str> =
             battery.iter().map(|row| row.field).collect();
+        // 三枚全局下限随电池增长同步抬高（PI-WRITE-HOST-1 ②：142→152→220 枚 / 15→20 字段
+        // / 拒 126 枚）。不抬高就等于「删掉整个效果域仍旧全绿」——下限留在旧刻度上，
+        // 新族的塌缩只剩族内那一道守卫接得住，全局这一层等于没判。
         assert!(
-            battery.len() >= 100,
+            battery.len() >= 200,
             "电池只剩 {} 枚：枚举塌缩与全通过同形，一律硬失败",
             battery.len()
         );
         assert!(
-            fields.len() >= 10,
+            fields.len() >= 18,
             "电池只覆盖 {} 枚字段：host 方向输入面塌缩",
             fields.len()
         );
         assert!(
-            refused.values().sum::<usize>() >= 100,
+            refused.values().sum::<usize>() >= 115,
             "全电池只拒了 {} 枚：不是收紧了，就是入口被绕开了",
             refused.values().sum::<usize>()
         );
@@ -5100,6 +6232,38 @@ mod tests {
             recovery_fields.len() >= 4,
             "recovery 族只覆盖 {} 类 journal 形状",
             recovery_fields.len()
+        );
+        // 效果域的塌缩守卫（PI-WRITE-HOST-1 ②）：五枚前向债一枚字段都不许掉队。
+        // 「host_result 族被删空」与「本来就没有出站样本」在读数上同形——恰是这五行
+        // 在 HOST-LOOP 全程为债的成因（彼时 ready capability 恰 `['case_read']`，出站 host_result
+        // 一枚都不生成；⑤ 谈成 `workspace_write` 之后才有真样本，守卫因此更要在场）。
+        let host_result_rows = battery
+            .iter()
+            .filter(|row| {
+                matches!(
+                    row.drive,
+                    ViolationDrive::HostResult(..) | ViolationDrive::HostResultScale(..)
+                )
+            })
+            .count();
+        assert!(
+            host_result_rows >= 60,
+            "效果域只剩 {host_result_rows} 行：出站面塌缩，五枚前向债又照不到了"
+        );
+        let host_result_fields: std::collections::BTreeSet<&'static str> = battery
+            .iter()
+            .filter(|row| {
+                matches!(
+                    row.drive,
+                    ViolationDrive::HostResult(..) | ViolationDrive::HostResultScale(..)
+                )
+            })
+            .map(|row| row.field)
+            .collect();
+        assert_eq!(
+            host_result_fields.len(),
+            5,
+            "效果域必须恰覆盖五枚前向债字段，实为 {host_result_fields:?}"
         );
         for field in &fields {
             assert!(
@@ -5127,7 +6291,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-ok"),
@@ -5336,7 +6506,13 @@ mod tests {
             &h,
             h.config.clone(),
             vec![VecDeque::from(vec![
-                ready(1, vec![WorkspaceCapability::CaseRead]),
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
                 sidecar_line(
                     2,
                     Some("req-1"),
@@ -5457,9 +6633,9 @@ mod tests {
                 member: "operationId",
                 disposition: SafeTokenDisposition::NoHostGate(
                     "只出现在入站 `host_request` 的 header，由 sidecar 生成、宿主 decode 时经 \
-                     `read_safe_token` 收口；同名字段的 host 方向出现在出站 `host_result`，\
-                     而本票 ready capability 恰 ['case_read']、宿主一枚都不生成\
-                     （前向债已挂 PI-WRITE-HOST-1）",
+                     `read_safe_token` 收口；出站 `host_result` 原样回同一枚，而③ 的 \
+                     `serve_host_request` 先编码后落账，故那一枚同样排在 journal、effect \
+                     与发包之前由 codec 判——不另立第二道会漂移的门",
                 ),
             },
             SafeTokenMember {
@@ -5557,5 +6733,1740 @@ mod tests {
             .count();
         assert_eq!(host_inputs, 4, "host 方向受验输入行数");
         assert_eq!(ledger.len() - host_inputs, 5, "不适用另门的理由行数");
+    }
+
+    // ── ④ `host_request` 臂：四段落账（PI-WRITE-HOST-1 ③）──────────────────────
+
+    const TOOL_CALL: &str = "tc_1_1";
+    const OPERATION: &str = "op_1_1";
+    const WRITE_CONTENT: &str = "0123456789";
+
+    /// ③ 期的脚本请求：`contentSha256` 是脚本座认得的哨兵（脚本座不重算内容），
+    /// 但 `proposalHash` 自⑥ 起必须是真值——它绑定的正是这一枚**自报的** `contentSha256`。
+    fn scripted_proposal_hash(logical_path: &str, content: &str) -> String {
+        expected_proposal_hash(
+            "courtwork.pi.workspace_write.v1",
+            "sess-1",
+            "req-1",
+            OPERATION,
+            logical_path,
+            content.len() as u64,
+            PROBE_SHA,
+        )
+    }
+
+    fn write_request_packet(logical_path: &str, content: &str) -> PacketPayload {
+        PacketPayload::HostRequest(WorkspaceHostRequest {
+            operation_id: OPERATION.to_string(),
+            proposal_hash: scripted_proposal_hash(logical_path, content),
+            capability: WorkspaceCapability::WorkspaceWrite,
+            arguments: WorkspaceRequestArguments::Write(WorkspaceWriteArguments {
+                logical_path: logical_path.to_string(),
+                content: content.to_string(),
+                content_sha256: PROBE_SHA.to_string(),
+                byte_length: content.len() as u64,
+            }),
+        })
+    }
+
+    fn tool_started_line(seq: u64) -> Scripted {
+        sidecar_line(
+            seq,
+            Some("req-1"),
+            PacketPayload::AgentEvent(AgentProjectionEvent::ToolStarted {
+                tool_call_id: TOOL_CALL.to_string(),
+                tool_name: ProductToolName::Write,
+            }),
+        )
+    }
+
+    fn tool_finished_line(seq: u64) -> Scripted {
+        sidecar_line(
+            seq,
+            Some("req-1"),
+            PacketPayload::AgentEvent(AgentProjectionEvent::ToolFinished {
+                tool_call_id: TOOL_CALL.to_string(),
+                tool_name: ProductToolName::Write,
+                outcome: ToolOutcome::Succeeded,
+            }),
+        )
+    }
+
+    fn completed_line(seq: u64) -> Scripted {
+        sidecar_line(
+            seq,
+            Some("req-1"),
+            PacketPayload::Terminal(Terminal::Completed {
+                budget: open_budget(0, Some(0.0)),
+            }),
+        )
+    }
+
+    /// 一枚完整的 write 回合：`tool_started → host_request → tool_finished → completed`。
+    fn write_leg() -> VecDeque<Scripted> {
+        VecDeque::from(vec![
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
+            tool_started_line(2),
+            sidecar_line(
+                3,
+                Some("req-1"),
+                write_request_packet("纪要.md", WRITE_CONTENT),
+            ),
+            tool_finished_line(4),
+            completed_line(5),
+        ])
+    }
+
+    /// 脚本化的 workspace write 真件座。三枚方法各留一份**调用现场快照**：
+    /// 每次调用当刻盘上 journal 的字节数与已发包数——「effect 排在 durable 之后」
+    /// 因此是读数，不是宣称。
+    struct ScriptedWriteHost {
+        disposition: WriteDisposition,
+        /// 第二次在场判定的结果；`None` ⇒ 与第一次相同（动作未变）。
+        reprobe: Option<WriteDisposition>,
+        /// 第 n 次在场判定改判失败（1 起数）。④ 起 `probe` 可失败，臂必须把这枚 code
+        /// 原样带到出站；`None` ⇒ 两次都成功。
+        probe_error: Option<(usize, HostFailureCode)>,
+        authorization: fn() -> WriteAuthorization,
+        outcome: fn() -> EffectOutcome,
+        journal: PathBuf,
+        log: Arc<Mutex<WriteHostLog>>,
+    }
+
+    #[derive(Default)]
+    struct WriteHostLog {
+        probes: usize,
+        decisions: usize,
+        performs: usize,
+        /// 每次 `perform` 当刻盘上 journal 的**完整字节**。「effect 排在 durable 之后」
+        /// 因此是从盘上读回来的读数，不是宣称。
+        journal_at_perform: Vec<Vec<u8>>,
+    }
+
+    impl ScriptedWriteHost {
+        fn new(h: &Harness) -> ScriptedWriteHost {
+            ScriptedWriteHost {
+                disposition: WriteDisposition::Created,
+                reprobe: None,
+                probe_error: None,
+                authorization: || WriteAuthorization::Approved,
+                outcome: || EffectOutcome::Succeeded,
+                journal: journal_path(&h.app_data, "cnt-1", "sess-1"),
+                log: Arc::new(Mutex::new(WriteHostLog::default())),
+            }
+        }
+    }
+
+    impl WorkspaceWriteHost for ScriptedWriteHost {
+        fn probe(
+            &mut self,
+            _plan: &WorkspaceWritePlan,
+        ) -> Result<WriteDisposition, HostFailureCode> {
+            let mut log = self.log.lock().expect("日志未中毒");
+            log.probes += 1;
+            let round = log.probes;
+            drop(log);
+            if let Some((at, code)) = self.probe_error {
+                if at == round {
+                    return Err(code);
+                }
+            }
+            Ok(if round >= 2 {
+                self.reprobe.unwrap_or(self.disposition)
+            } else {
+                self.disposition
+            })
+        }
+        fn decide(
+            &mut self,
+            _plan: &WorkspaceWritePlan,
+            _action: WriteDisposition,
+        ) -> WriteAuthorization {
+            self.log.lock().expect("日志未中毒").decisions += 1;
+            (self.authorization)()
+        }
+        fn perform(
+            &mut self,
+            _plan: &WorkspaceWritePlan,
+            _action: WriteDisposition,
+        ) -> EffectOutcome {
+            let bytes = fs::read(&self.journal).unwrap_or_default();
+            let mut log = self.log.lock().expect("日志未中毒");
+            log.performs += 1;
+            log.journal_at_perform.push(bytes);
+            drop(log);
+            (self.outcome)()
+        }
+    }
+
+    /// 起 leg（⑤ 之后握手当场就谈成 `workspace_write`），再把真件换成脚本座。
+    /// ③ 期那一枚 `grant_workspace_write` 已随真实握手退役。
+    fn armed_host(
+        h: &Harness,
+        legs: Vec<VecDeque<Scripted>>,
+        write_host: ScriptedWriteHost,
+    ) -> (PiLoopHost, Arc<Mutex<LegLog>>, Arc<Mutex<WriteHostLog>>) {
+        let (host, log, _) =
+            start_probe(h, h.config.clone(), legs, ExitOutcome::Code(0), &FixedKey);
+        let mut host = host.expect("启动");
+        let effect_log = Arc::clone(&write_host.log);
+        host.install_write_host(Some(Box::new(write_host)));
+        (host, log, effect_log)
+    }
+
+    fn record_types(records: &[JournalRecord]) -> Vec<JournalType> {
+        records.iter().map(JournalRecord::journal_type).collect()
+    }
+
+    /// effect 六型。手写字面量，不从被测结构派生（承 D1 体例）。
+    fn is_effect_type(journal_type: JournalType) -> bool {
+        matches!(
+            journal_type,
+            JournalType::ToolProposed
+                | JournalType::AuthorizationDecided
+                | JournalType::EffectStarted
+                | JournalType::EffectSucceeded
+                | JournalType::EffectFailed
+                | JournalType::EffectUncertain
+        )
+    }
+
+    /// 已发出的最后一枚出包解回 `host_result`；没有出包即 `None`。
+    fn last_host_result(log: &Arc<Mutex<LegLog>>) -> Option<HostResultPayload> {
+        let written = log.lock().expect("日志未中毒").written.clone();
+        let line = written.last()?.clone();
+        let packet = decode_host_packet_for_test(&line)?;
+        match packet.payload {
+            PacketPayload::HostResult(payload) => Some(payload),
+            _ => None,
+        }
+    }
+
+    fn host_result_count(log: &Arc<Mutex<LegLog>>) -> usize {
+        log.lock()
+            .expect("日志未中毒")
+            .written
+            .iter()
+            .filter(|line| {
+                matches!(
+                    decode_host_packet_for_test(line).map(|packet| packet.payload),
+                    Some(PacketPayload::HostResult(_))
+                )
+            })
+            .count()
+    }
+
+    fn decode_host_packet_for_test(line: &[u8]) -> Option<ProductPacket> {
+        let mut body = line.to_vec();
+        if body.last() == Some(&b'\n') {
+            body.pop();
+        }
+        crate::pi_loop_protocol::decode_host_packet_line(&body).ok()
+    }
+
+    /// **首红装置**（RECON §born-red 复用装置）：HEAD 的 `pump` 没有 `HostRequest` 臂，
+    /// 脚本化的 `host_request` 落进 `_ => fail_protocol(StateViolation)` 兜底。
+    ///
+    /// 绿形锁的是四段账的**逐值**内容与次序，不只是「有几条」。
+    #[test]
+    fn counterexample_scripted_host_request_is_served_not_dropped_into_the_fallback() {
+        let h = harness("write-arm-born-red");
+        let (mut host, log, effects) =
+            armed_host(&h, vec![write_leg()], ScriptedWriteHost::new(&h));
+        let terminal = host
+            .prompt("req-1", "写一份纪要")
+            .expect("host_request 必须由本臂服务，而不是掉进兜底");
+        assert!(matches!(terminal, Terminal::Completed { .. }));
+
+        assert_eq!(
+            record_types(host.records()),
+            vec![
+                JournalType::SessionStarted,
+                JournalType::UserPrompted,
+                JournalType::AgentEvent,
+                JournalType::ToolProposed,
+                JournalType::AuthorizationDecided,
+                JournalType::EffectStarted,
+                JournalType::EffectSucceeded,
+                JournalType::AgentEvent,
+                JournalType::PromptCompleted,
+            ],
+            "四段账次序恰为 tool_proposed → authorization_decided → effect_started → effect_succeeded"
+        );
+        // 四段全部挂同一 request 与同一 operation（ADR-022 六-C：全链必须回同一 request）。
+        for record in host
+            .records()
+            .iter()
+            .filter(|record| is_effect_type(record.journal_type()))
+        {
+            assert_eq!(record.request_id.as_deref(), Some("req-1"));
+            assert_eq!(record.operation_id.as_deref(), Some(OPERATION));
+        }
+        assert_eq!(
+            host.records()[3].payload,
+            JournalPayload::ToolProposed(ToolProposedPayload {
+                tool_call_id: TOOL_CALL.to_string(),
+                logical_path: "纪要.md".to_string(),
+                proposal_hash: scripted_proposal_hash("纪要.md", WRITE_CONTENT),
+                content_sha256: PROBE_SHA.to_string(),
+                byte_length: WRITE_CONTENT.len() as u64,
+                action: WriteDisposition::Created,
+            }),
+        );
+        assert_eq!(
+            host.records()[4].payload,
+            JournalPayload::AuthorizationDecided {
+                tool_call_id: TOOL_CALL.to_string(),
+                decision: AuthorizationDecision::Approved,
+                code: None,
+            },
+        );
+
+        // 出站：恰一枚 host_result，逐值等于计划。
+        assert_eq!(host_result_count(&log), 1);
+        assert_eq!(
+            last_host_result(&log).expect("必须发出 host_result"),
+            HostResultPayload {
+                operation_id: OPERATION.to_string(),
+                capability: WorkspaceCapability::WorkspaceWrite,
+                operation: WorkspaceOperation::Write,
+                outcome: HostResultOutcome::Ok(HostResultValue::Write {
+                    logical_path: "纪要.md".to_string(),
+                    disposition: WriteDisposition::Created,
+                    content_sha256: PROBE_SHA.to_string(),
+                    byte_length: WRITE_CONTENT.len() as u64,
+                }),
+            }
+        );
+        // 正文一个字节都不进 journal（ADR-022 六-C：只记逻辑路径 / hash / byteLength / outcome）。
+        let text =
+            String::from_utf8(fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"))
+                .expect("UTF-8");
+        assert!(!text.contains(WRITE_CONTENT), "正文不得落进 journal");
+
+        let effects = effects.lock().expect("日志未中毒");
+        assert_eq!(
+            (effects.probes, effects.decisions, effects.performs),
+            (2, 1, 1)
+        );
+        // effect 那一刻，`effect_started` 已经在盘上——durable-before-effect 是读数，不是宣称。
+        assert_eq!(
+            record_types(&decode_bytes(&effects.journal_at_perform[0])),
+            vec![
+                JournalType::SessionStarted,
+                JournalType::UserPrompted,
+                JournalType::AgentEvent,
+                JournalType::ToolProposed,
+                JournalType::AuthorizationDecided,
+                JournalType::EffectStarted,
+            ],
+            "真实落盘发生时，四段账的前三段必须已经 durable"
+        );
+    }
+
+    /// 票面判据：`effect_started` 的 append + `sync_all` 失败 ⇒ **零 temp、零 replace**。
+    ///
+    /// 三枚屏障逐枚注入（`tool_proposed` / `authorization_decided` / `effect_started`）：
+    /// 任一枚落不住，`perform` 都必须恰 0 次，出站 `host_result` 也一枚不发。
+    /// 只测 `effect_started` 一枚是不够的——前两枚落不住却照样 effect，同样是
+    /// 「授权未 durable 就动手」。
+    #[test]
+    fn counterexample_any_durable_barrier_failure_leaves_the_effect_at_zero() {
+        for (fail_from, barrier) in [
+            (4_u64, JournalType::ToolProposed),
+            (5, JournalType::AuthorizationDecided),
+            (6, JournalType::EffectStarted),
+        ] {
+            let h = harness("write-barrier");
+            let (mut host, log, effects) =
+                armed_host(&h, vec![write_leg()], ScriptedWriteHost::new(&h));
+            host.journal.inject_append_failure_from(fail_from);
+            let error = host
+                .prompt("req-1", "写一份纪要")
+                .expect_err("屏障落不住必须拒");
+            assert_eq!(error.code(), "journal", "{barrier:?}：实得 {error:?}");
+            assert_eq!(
+                effects.lock().expect("日志未中毒").performs,
+                0,
+                "{barrier:?} 落不住时 effect 必须恰 0 次"
+            );
+            assert_eq!(
+                host_result_count(&log),
+                0,
+                "{barrier:?} 落不住时 host_result 一枚都不许发"
+            );
+            let types = record_types(&decode_bytes(
+                &fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"),
+            ));
+            assert!(
+                !types.contains(&barrier),
+                "{barrier:?}：失败那一枚不得留在盘上，实得 {types:?}"
+            );
+        }
+    }
+
+    /// 终态记录 durable **之后**才发包：`effect_succeeded` 落不住时，effect 已经做了，
+    /// 但对端一个字节都收不到——不得出现「账上没有、对端却当成功」的一轮。
+    #[test]
+    fn counterexample_host_result_waits_for_the_terminal_record_to_be_durable() {
+        let h = harness("write-terminal-durable");
+        let (mut host, log, effects) =
+            armed_host(&h, vec![write_leg()], ScriptedWriteHost::new(&h));
+        host.journal.inject_append_failure_from(7);
+        let error = host
+            .prompt("req-1", "写一份纪要")
+            .expect_err("终态落不住必须拒");
+        assert_eq!(error.code(), "journal", "实得 {error:?}");
+        assert_eq!(
+            effects.lock().expect("日志未中毒").performs,
+            1,
+            "effect 已经发生——本枚判的正是它之后的那一步"
+        );
+        assert_eq!(host_result_count(&log), 0, "终态没落住就不许发包");
+    }
+
+    /// `SessionShape::DanglingEffect` 的**首份真数据**（PI-WRITE-HOST-1 ③ 票面第三项）：
+    /// 盘上那枚 `effect_started` 由生产臂写出，不是手工种进去的。
+    ///
+    /// crash fold 步骤 2 因此必须：先派生 `effect_uncertain`，再
+    /// `prompt_failed(effect_uncertain, retryable:false)` → `session_failed`；
+    /// 不猜 succeeded/failed、不复用授权自动重试。随后该 logical session 永久关闭。
+    #[test]
+    fn dangling_effect_written_by_the_real_arm_folds_to_uncertain_and_closes_the_session() {
+        let h = harness("write-dangling");
+        let (mut host, _, effects) = armed_host(&h, vec![write_leg()], ScriptedWriteHost::new(&h));
+        host.journal.inject_append_failure_from(7);
+        host.prompt("req-1", "写一份纪要")
+            .expect_err("终态落不住必须拒");
+        assert_eq!(effects.lock().expect("日志未中毒").performs, 1);
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let before = record_types(&decode_bytes(&fs::read(&path).expect("读")));
+        assert_eq!(
+            before.last(),
+            Some(&JournalType::EffectStarted),
+            "前置条件：盘上恰停在无收束的 effect_started，实得 {before:?}"
+        );
+        // 交出单写者锁。
+        drop(host);
+
+        let loaded = pi_loop_journal::load_session(
+            &h.app_data,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect("载入必须成功——这是可恢复形，不是 malformed");
+        assert_eq!(
+            record_types(&loaded.records),
+            vec![
+                JournalType::SessionStarted,
+                JournalType::UserPrompted,
+                JournalType::AgentEvent,
+                JournalType::ToolProposed,
+                JournalType::AuthorizationDecided,
+                JournalType::EffectStarted,
+                JournalType::EffectUncertain,
+                JournalType::PromptFailed,
+                JournalType::SessionFailed,
+            ],
+            "crash fold 步骤 2：先派生 uncertain 再走同一关闭链"
+        );
+        let derived = &loaded.records[6];
+        assert_eq!(
+            derived.payload,
+            JournalPayload::EffectUncertain {
+                tool_call_id: TOOL_CALL.to_string(),
+            },
+            "派生的 uncertain 必须认领同一枚 toolCallId"
+        );
+        assert_eq!(derived.request_id.as_deref(), Some("req-1"));
+        assert_eq!(derived.operation_id.as_deref(), Some(OPERATION));
+        let JournalPayload::PromptFailed { error, .. } = &loaded.records[7].payload else {
+            panic!("第八枚必须是 prompt_failed，实得 {:?}", loaded.records[7]);
+        };
+        assert_eq!(error.code, TerminalFailureCode::EffectUncertain);
+        assert!(!error.retryable, "effect_uncertain 不得自动重试");
+        drop(loaded);
+
+        // 修复已落盘，且该 logical session 自此永久关闭。
+        assert_eq!(
+            record_types(&decode_bytes(&fs::read(&path).expect("读"))).len(),
+            9
+        );
+        let (result, _, spawns) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        assert!(
+            matches!(result, Err(HostError::SessionClosed)),
+            "session_failed 之后不得再起 leg"
+        );
+        assert_eq!(spawns, 0);
+    }
+
+    /// 四道门逐枚：拒绝一律 `state_violation`，且 effect 恰 0 次、`host_result` 一枚不发。
+    ///
+    /// 「未实装即显式拒」是这一族的要害：`exists|read_file|list` 属 PI-WORKSPACE-READ-1，
+    /// 静默跳过与假装成功在读数上同形（1R5 判例）。
+    #[test]
+    fn counterexample_host_request_gates_refuse_before_any_effect() {
+        // (label, 本次握手是否谈成 workspace_write, 是否装真件, 是否先来一枚 tool_started, 请求)
+        //
+        // ⑤ 之后握手闭集恒含 `workspace_write`，故「能力未谈成」这一格改由
+        // `revoke_workspace_write` 显式撤销构造——0.1 门的反例因此不因能力到位而失去覆盖。
+        let cases: Vec<(&str, bool, bool, bool, PacketPayload)> = vec![
+            (
+                "能力未谈成",
+                false,
+                true,
+                true,
+                write_request_packet("纪要.md", WRITE_CONTENT),
+            ),
+            (
+                "读操作未实装",
+                true,
+                true,
+                true,
+                PacketPayload::HostRequest(WorkspaceHostRequest {
+                    operation_id: OPERATION.to_string(),
+                    proposal_hash: PROBE_SHA.to_string(),
+                    capability: WorkspaceCapability::WorkspaceRead,
+                    arguments: WorkspaceRequestArguments::Read(
+                        crate::pi_loop_protocol::WorkspaceReadArguments {
+                            operation: WorkspaceOperation::List,
+                            logical_path: "子目录".to_string(),
+                        },
+                    ),
+                }),
+            ),
+            (
+                "无活动 tool call",
+                true,
+                true,
+                false,
+                write_request_packet("纪要.md", WRITE_CONTENT),
+            ),
+            (
+                "真件座缺席",
+                true,
+                false,
+                true,
+                write_request_packet("纪要.md", WRITE_CONTENT),
+            ),
+        ];
+
+        for (label, negotiated, install, tool_started, request) in cases {
+            let h = harness("write-gate");
+            let mut leg = vec![ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            )];
+            let mut seq = 2;
+            if tool_started {
+                leg.push(tool_started_line(seq));
+                seq += 1;
+            }
+            leg.push(sidecar_line(seq, Some("req-1"), request));
+            let (host, log, _) = start_probe(
+                &h,
+                h.config.clone(),
+                vec![VecDeque::from(leg)],
+                ExitOutcome::Code(0),
+                &FixedKey,
+            );
+            let mut host = host.expect("启动");
+            let write_host = ScriptedWriteHost::new(&h);
+            let effects = Arc::clone(&write_host.log);
+            if !negotiated {
+                host.revoke_workspace_write();
+            }
+            // ④ 起构造点恒装真件，故「真件座缺席」这一格必须**显式置 `None`**——
+            // 0.4 门的反例因此仍然咬得住，不因真件到位而悄悄失去覆盖。
+            host.install_write_host(if install {
+                Some(Box::new(write_host) as Box<dyn WorkspaceWriteHost>)
+            } else {
+                None
+            });
+            let error = host
+                .prompt("req-1", "写一份纪要")
+                .expect_err(&format!("{label}：门不成立必须拒"));
+            assert_eq!(
+                error,
+                HostError::Protocol(ProtocolErrorCode::StateViolation),
+                "{label}：实得 {error:?}"
+            );
+            assert_eq!(
+                effects.lock().expect("日志未中毒").probes,
+                0,
+                "{label}：被拒的一轮连在场判定都不许做"
+            );
+            assert_eq!(host_result_count(&log), 0, "{label}：不许发 host_result");
+            let types = record_types(&decode_bytes(
+                &fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"),
+            ));
+            assert!(
+                !types.iter().copied().any(is_effect_type),
+                "{label}：effect 六型一枚都不许落账，实得 {types:?}"
+            );
+            assert!(
+                types.contains(&JournalType::SessionFailed),
+                "{label}：失败必须显式落账"
+            );
+        }
+    }
+
+    /// 一 tc 一 op：同一枚 tool call 的第二枚 `host_request` 当场无主可认。
+    #[test]
+    fn counterexample_one_tool_call_serves_at_most_one_operation() {
+        let h = harness("write-one-op");
+        let leg = VecDeque::from(vec![
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
+            tool_started_line(2),
+            sidecar_line(
+                3,
+                Some("req-1"),
+                write_request_packet("纪要.md", WRITE_CONTENT),
+            ),
+            sidecar_line(
+                4,
+                Some("req-1"),
+                write_request_packet("纪要.md", WRITE_CONTENT),
+            ),
+        ]);
+        let (mut host, log, effects) = armed_host(&h, vec![leg], ScriptedWriteHost::new(&h));
+        let error = host
+            .prompt("req-1", "写一份纪要")
+            .expect_err("同一 tool call 的第二枚 operation 必须拒");
+        assert_eq!(
+            error,
+            HostError::Protocol(ProtocolErrorCode::StateViolation)
+        );
+        assert_eq!(
+            effects.lock().expect("日志未中毒").performs,
+            1,
+            "第一枚照常服务，第二枚才是被判的那一枚"
+        );
+        assert_eq!(host_result_count(&log), 1);
+    }
+
+    /// 三态收束 ＋ 未获授权 ＋ 授权后状态已变，逐形态锁「哪一枚记录、哪一种 status」。
+    #[test]
+    fn write_arm_settles_each_outcome_on_its_own_record_and_status() {
+        struct Case {
+            label: &'static str,
+            reprobe: Option<WriteDisposition>,
+            authorization: fn() -> WriteAuthorization,
+            outcome: fn() -> EffectOutcome,
+            performs: usize,
+            tail: Vec<JournalType>,
+            result: HostResultOutcome,
+        }
+        let cases = vec![
+            Case {
+                label: "succeeded",
+                reprobe: None,
+                authorization: || WriteAuthorization::Approved,
+                outcome: || EffectOutcome::Succeeded,
+                performs: 1,
+                tail: vec![JournalType::EffectStarted, JournalType::EffectSucceeded],
+                result: HostResultOutcome::Ok(HostResultValue::Write {
+                    logical_path: "纪要.md".to_string(),
+                    disposition: WriteDisposition::Created,
+                    content_sha256: PROBE_SHA.to_string(),
+                    byte_length: WRITE_CONTENT.len() as u64,
+                }),
+            },
+            Case {
+                label: "failed",
+                reprobe: None,
+                authorization: || WriteAuthorization::Approved,
+                outcome: || EffectOutcome::Failed(HostFailureCode::Io),
+                performs: 1,
+                tail: vec![JournalType::EffectStarted, JournalType::EffectFailed],
+                result: HostResultOutcome::Failed {
+                    code: HostFailureCode::Io,
+                    message: HostFailureCode::Io.message().to_string(),
+                },
+            },
+            Case {
+                label: "uncertain",
+                reprobe: None,
+                authorization: || WriteAuthorization::Approved,
+                outcome: || EffectOutcome::Uncertain,
+                performs: 1,
+                tail: vec![JournalType::EffectStarted, JournalType::EffectUncertain],
+                result: HostResultOutcome::Uncertain {
+                    message: TerminalFailureCode::EffectUncertain.message().to_string(),
+                },
+            },
+            Case {
+                label: "denied",
+                reprobe: None,
+                authorization: || WriteAuthorization::Denied(AuthorizationDenyCode::UserDenied),
+                outcome: || panic!("未获授权就不该走到 effect"),
+                performs: 0,
+                tail: vec![JournalType::AuthorizationDecided],
+                result: HostResultOutcome::Denied {
+                    code: HostDeniedCode::UserDenied,
+                    message: HostDeniedCode::UserDenied.message().to_string(),
+                },
+            },
+            Case {
+                label: "授权后状态已变",
+                reprobe: Some(WriteDisposition::Overwritten),
+                authorization: || WriteAuthorization::Approved,
+                outcome: || panic!("动作已变就必须零写"),
+                performs: 0,
+                tail: vec![JournalType::AuthorizationDecided, JournalType::EffectFailed],
+                result: HostResultOutcome::Failed {
+                    code: HostFailureCode::StateChanged,
+                    message: HostFailureCode::StateChanged.message().to_string(),
+                },
+            },
+        ];
+
+        for case in cases {
+            let h = harness("write-outcome");
+            let mut write_host = ScriptedWriteHost::new(&h);
+            write_host.reprobe = case.reprobe;
+            write_host.authorization = case.authorization;
+            write_host.outcome = case.outcome;
+            let (mut host, log, effects) = armed_host(&h, vec![write_leg()], write_host);
+            host.prompt("req-1", "写一份纪要")
+                .unwrap_or_else(|error| panic!("{}：本形态必须走得通，实得 {error:?}", case.label));
+            assert_eq!(
+                effects.lock().expect("日志未中毒").performs,
+                case.performs,
+                "{}：effect 次数",
+                case.label
+            );
+            let types = record_types(host.records());
+            let tail_start = types
+                .windows(case.tail.len())
+                .position(|window| window == case.tail.as_slice());
+            assert!(
+                tail_start.is_some(),
+                "{}：账本里找不到 {:?}，实得 {types:?}",
+                case.label,
+                case.tail
+            );
+            assert!(
+                !types.contains(&JournalType::EffectSucceeded) || case.label == "succeeded",
+                "{}：只有 succeeded 一形态可以落 effect_succeeded",
+                case.label
+            );
+            assert!(
+                case.performs == 1 || !types.contains(&JournalType::EffectStarted),
+                "{}：零写的形态不得留下 effect_started",
+                case.label
+            );
+            assert_eq!(host_result_count(&log), 1, "{}：出站恰一枚", case.label);
+            assert_eq!(
+                last_host_result(&log)
+                    .expect("必须发出 host_result")
+                    .outcome,
+                case.result,
+                "{}：出站 status 与账本必须同一结论",
+                case.label
+            );
+        }
+    }
+
+    /// ADR-022 六-C：`effect_uncertain` 自身落不住 ⇒ 宿主**立即终止 sidecar leg**。
+    /// 不留一枚既没落账、对端又还在等的 operation。
+    #[test]
+    fn counterexample_undurable_uncertain_terminates_the_leg_at_once() {
+        let h = harness("write-uncertain-undurable");
+        let mut write_host = ScriptedWriteHost::new(&h);
+        write_host.outcome = || EffectOutcome::Uncertain;
+        let (mut host, log, effects) = armed_host(&h, vec![write_leg()], write_host);
+        host.journal.inject_append_failure_from(7);
+        let error = host
+            .prompt("req-1", "写一份纪要")
+            .expect_err("uncertain 落不住必须拒");
+        assert_eq!(error.code(), "journal", "实得 {error:?}");
+        assert_eq!(effects.lock().expect("日志未中毒").performs, 1);
+        assert_eq!(host_result_count(&log), 0, "落不住就不许回 uncertain");
+        assert!(
+            log.lock().expect("日志未中毒").terminated,
+            "leg 必须当场终止"
+        );
+        assert!(host.closed, "leg 已交出，本 Host 不得再被当作 live 写者");
+    }
+
+    // ── ④ 真件端到端：cap-std 落盘、屏障与防御门在**臂上**的读数 ──────────────
+
+    /// ADR-022 六-B.2 的 `proposalHash`，**在测试里独立重写一遍**——不 import 生产件的
+    /// 那一份，否则「重算」与「被重算的东西」同源，判据零区分力。
+    ///
+    /// 七枚 frame 的次序即契约：domain、sessionId、requestId、operationId、logicalPath、
+    /// byteLength（十进制文本）、contentSha256。
+    fn expected_proposal_hash(
+        domain: &str,
+        session_id: &str,
+        request_id: &str,
+        operation_id: &str,
+        logical_path: &str,
+        byte_length: u64,
+        content_sha256: &str,
+    ) -> String {
+        let mut bytes = Vec::new();
+        for field in [
+            domain,
+            session_id,
+            request_id,
+            operation_id,
+            logical_path,
+            &byte_length.to_string(),
+            content_sha256,
+        ] {
+            bytes.extend_from_slice(&(field.len() as u32).to_be_bytes());
+            bytes.extend_from_slice(field.as_bytes());
+        }
+        pi_loop_journal::sha256_hex(&bytes)
+    }
+
+    /// 本 harness 恒定的三枚 id：`sess-1` / `req-1` / `op_1_1`。
+    fn harness_proposal_hash(logical_path: &str, content: &str) -> String {
+        expected_proposal_hash(
+            "courtwork.pi.workspace_write.v1",
+            "sess-1",
+            "req-1",
+            OPERATION,
+            logical_path,
+            content.len() as u64,
+            &pi_loop_journal::sha256_hex(content.as_bytes()),
+        )
+    }
+
+    /// 真件的 host_request：`contentSha256` 取正文真值（真件重算，PROBE_SHA 过不了）；
+    /// `proposalHash` 亦取真值——⑥ 之后宿主对它同样重算，自报的假值一律 `hash_mismatch`。
+    fn real_write_request_packet(logical_path: &str, content: &str) -> PacketPayload {
+        real_write_request_with_hash(
+            logical_path,
+            content,
+            &harness_proposal_hash(logical_path, content),
+        )
+    }
+
+    fn real_write_request_with_hash(
+        logical_path: &str,
+        content: &str,
+        proposal_hash: &str,
+    ) -> PacketPayload {
+        real_write_request_full(
+            logical_path,
+            content,
+            &pi_loop_journal::sha256_hex(content.as_bytes()),
+            proposal_hash,
+        )
+    }
+
+    /// 两枚 hash 各自可独立指定——`contentSha256` 与 `proposalHash` 是**两枚不同的 hash**，
+    /// 分开喂才能让「谁在挡」这件事有区分力。
+    fn real_write_request_full(
+        logical_path: &str,
+        content: &str,
+        content_sha256: &str,
+        proposal_hash: &str,
+    ) -> PacketPayload {
+        PacketPayload::HostRequest(WorkspaceHostRequest {
+            operation_id: OPERATION.to_string(),
+            proposal_hash: proposal_hash.to_string(),
+            capability: WorkspaceCapability::WorkspaceWrite,
+            arguments: WorkspaceRequestArguments::Write(WorkspaceWriteArguments {
+                logical_path: logical_path.to_string(),
+                content: content.to_string(),
+                content_sha256: content_sha256.to_string(),
+                byte_length: content.len() as u64,
+            }),
+        })
+    }
+
+    fn real_write_leg(logical_path: &str, content: &str) -> VecDeque<Scripted> {
+        real_write_leg_with(real_write_request_packet(logical_path, content))
+    }
+
+    fn real_write_leg_with(request: PacketPayload) -> VecDeque<Scripted> {
+        VecDeque::from(vec![
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
+            tool_started_line(2),
+            sidecar_line(3, Some("req-1"), request),
+            tool_finished_line(4),
+            completed_line(5),
+        ])
+    }
+
+    /// 逐次授权的脚本 driver。`decide` 恰跑在两次在场判定**之间**，故 `before` 是臂上真实的
+    /// 「授权后、effect 前」窗口——不是模拟的时序。
+    struct ScriptedDecision {
+        approve: bool,
+        before: Option<Box<dyn FnMut()>>,
+    }
+
+    impl WriteDecisionDriver for ScriptedDecision {
+        fn decide(
+            &mut self,
+            _plan: &WorkspaceWritePlan,
+            _action: WriteDisposition,
+        ) -> WriteAuthorization {
+            if let Some(hook) = self.before.as_mut() {
+                hook();
+            }
+            if self.approve {
+                WriteAuthorization::Approved
+            } else {
+                WriteAuthorization::Denied(AuthorizationDenyCode::UserDenied)
+            }
+        }
+    }
+
+    fn real_armed_host(
+        h: &Harness,
+        legs: Vec<VecDeque<Scripted>>,
+        decision: Option<ScriptedDecision>,
+    ) -> (PiLoopHost, Arc<Mutex<LegLog>>) {
+        let (host, log, _) =
+            start_probe(h, h.config.clone(), legs, ExitOutcome::Code(0), &FixedKey);
+        let mut host = host.expect("启动");
+        // 构造点装的就是真件；这里只在需要时补一枚 decision driver（⑤ 的真 driver 落点）。
+        if let Some(decision) = decision {
+            host.install_write_host(Some(Box::new(
+                crate::pi_loop_workspace::WorkspaceFsHost::new(
+                    &h.app_data,
+                    &h.config.container_id,
+                    &h.config.session_id,
+                )
+                .with_decision_driver(Box::new(decision)),
+            )));
+        }
+        (host, log)
+    }
+
+    fn workspace_root(h: &Harness) -> PathBuf {
+        h.app_data
+            .join(crate::pi_loop_workspace::PI_WORKSPACES_DIR)
+            .join(&h.config.container_id)
+            .join(&h.config.session_id)
+    }
+
+    /// 端到端：四段账 ＋ **真字节**落进 `app_data_dir()/pi-workspaces/<c>/<s>/`，
+    /// 出站 `host_result` 与盘上事实逐值同一结论，正文一个字节都不进 journal。
+    #[test]
+    fn real_write_host_lands_bytes_and_settles_the_four_stage_ledger() {
+        let h = harness("real-write");
+        let content = "# 纪要\n真件落盘\n";
+        let (mut host, log) = real_armed_host(
+            &h,
+            vec![real_write_leg("notes/会议纪要.md", content)],
+            Some(ScriptedDecision {
+                approve: true,
+                before: None,
+            }),
+        );
+        let terminal = host.prompt("req-1", "写一份纪要").expect("真件必须走得通");
+        assert!(matches!(terminal, Terminal::Completed { .. }));
+
+        assert_eq!(
+            record_types(host.records()),
+            vec![
+                JournalType::SessionStarted,
+                JournalType::UserPrompted,
+                JournalType::AgentEvent,
+                JournalType::ToolProposed,
+                JournalType::AuthorizationDecided,
+                JournalType::EffectStarted,
+                JournalType::EffectSucceeded,
+                JournalType::AgentEvent,
+                JournalType::PromptCompleted,
+            ],
+        );
+        let target = workspace_root(&h).join("notes").join("会议纪要.md");
+        assert_eq!(fs::read_to_string(&target).expect("回读真字节"), content);
+        assert_eq!(
+            last_host_result(&log)
+                .expect("必须发出 host_result")
+                .outcome,
+            HostResultOutcome::Ok(HostResultValue::Write {
+                logical_path: "notes/会议纪要.md".to_string(),
+                disposition: WriteDisposition::Created,
+                content_sha256: pi_loop_journal::sha256_hex(content.as_bytes()),
+                byte_length: content.len() as u64,
+            }),
+        );
+        // journal 只记逻辑路径 / hash / byteLength / outcome：正文与**物理根**都不许进去。
+        let text =
+            String::from_utf8(fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"))
+                .expect("UTF-8");
+        assert!(!text.contains("真件落盘"), "正文不得落进 journal");
+        assert!(
+            !text.contains(crate::pi_loop_workspace::PI_WORKSPACES_DIR),
+            "物理根不得落进 journal"
+        );
+        assert!(!text.contains(&h.app_data.to_string_lossy().into_owned()));
+    }
+
+    /// 票面：**畸形 request 到 Rust ⇒ 同 code 拒绝且零 effect**（ADR-022 六-B.2）。
+    ///
+    /// 从未成为提案的请求在第 1 步就收束：`tool_proposed`/`effect_started` 一枚都不落，
+    /// workspace 物理根**根本不存在**——`probe` 是纯读，这一层因此是盘上读数。
+    #[test]
+    fn counterexample_malformed_requests_are_refused_with_zero_effect() {
+        let cases = [
+            ("纪要.txt", HostFailureCode::UnsupportedFileType),
+            (".md", HostFailureCode::UnsupportedFileType),
+            ("/绝对.md", HostFailureCode::InvalidPath),
+            ("../越界.md", HostFailureCode::InvalidPath),
+            ("a\\b.md", HostFailureCode::InvalidPath),
+        ];
+        for (logical, expected) in cases {
+            let h = harness("real-malformed");
+            let (mut host, log) = real_armed_host(
+                &h,
+                vec![real_write_leg(logical, "正文")],
+                Some(ScriptedDecision {
+                    approve: true,
+                    before: None,
+                }),
+            );
+            host.prompt("req-1", "写一份纪要").unwrap_or_else(|error| {
+                panic!("{logical}：防御门拒绝不是协议失败，实得 {error:?}")
+            });
+
+            let types = record_types(host.records());
+            assert!(
+                !types.contains(&JournalType::ToolProposed)
+                    && !types.contains(&JournalType::EffectStarted),
+                "{logical}：从未成为提案的请求不得落 tool_proposed / effect_started，实得 {types:?}"
+            );
+            assert!(
+                types.contains(&JournalType::EffectFailed),
+                "{logical}：拒绝必须显式落账，实得 {types:?}"
+            );
+            assert_eq!(
+                last_host_result(&log)
+                    .expect("必须发出 host_result")
+                    .outcome,
+                HostResultOutcome::Failed {
+                    code: expected,
+                    message: expected.message().to_string(),
+                },
+                "{logical}：拒绝理由必须恰是 {expected:?}"
+            );
+            assert!(
+                !h.app_data
+                    .join(crate::pi_loop_workspace::PI_WORKSPACES_DIR)
+                    .exists(),
+                "{logical}：被拒的一轮不得留下任何物理痕迹"
+            );
+        }
+    }
+
+    // ── ⑥ 拍板C：`proposalHash` 由 Rust 重算（ADR-022 六-B.2）────────────────────
+
+    /// 篡改被绑定的**任一**字段 ⇒ `hash_mismatch` 且零 effect。
+    ///
+    /// 构造法：wire 上的每一枚字段都留**真值**，只把 `proposalHash` 算在一枚**被篡改过**的
+    /// 字段上。于是唯一不符的就是这一枚 hash——别的门一概轮不到，红来自它自己。
+    /// 七枚 frame（domain ＋ 六字段）逐枚各一例：任何一枚不进 hash，对应那一行当场绿。
+    #[test]
+    fn counterexample_proposal_hash_is_recomputed_and_binds_every_bound_field() {
+        const DOMAIN: &str = "courtwork.pi.workspace_write.v1";
+        let content = "正文";
+        let logical = "纪要.md";
+        let content_sha = pi_loop_journal::sha256_hex(content.as_bytes());
+        let truth = (
+            DOMAIN,
+            "sess-1",
+            "req-1",
+            OPERATION,
+            logical,
+            content.len() as u64,
+            content_sha.as_str(),
+        );
+
+        let tampered: [(&str, String); 7] = [
+            (
+                "domain",
+                expected_proposal_hash(
+                    "courtwork.pi.workspace_write.v2",
+                    truth.1,
+                    truth.2,
+                    truth.3,
+                    truth.4,
+                    truth.5,
+                    truth.6,
+                ),
+            ),
+            (
+                "sessionId",
+                expected_proposal_hash(
+                    truth.0, "sess-2", truth.2, truth.3, truth.4, truth.5, truth.6,
+                ),
+            ),
+            (
+                "requestId",
+                expected_proposal_hash(
+                    truth.0, truth.1, "req-2", truth.3, truth.4, truth.5, truth.6,
+                ),
+            ),
+            (
+                "operationId",
+                expected_proposal_hash(
+                    truth.0, truth.1, truth.2, "op_1_2", truth.4, truth.5, truth.6,
+                ),
+            ),
+            (
+                "logicalPath",
+                expected_proposal_hash(
+                    truth.0,
+                    truth.1,
+                    truth.2,
+                    truth.3,
+                    "别的.md",
+                    truth.5,
+                    truth.6,
+                ),
+            ),
+            (
+                "byteLength",
+                expected_proposal_hash(
+                    truth.0,
+                    truth.1,
+                    truth.2,
+                    truth.3,
+                    truth.4,
+                    truth.5 + 1,
+                    truth.6,
+                ),
+            ),
+            (
+                "contentSha256",
+                expected_proposal_hash(
+                    truth.0,
+                    truth.1,
+                    truth.2,
+                    truth.3,
+                    truth.4,
+                    truth.5,
+                    &pi_loop_journal::sha256_hex("别的正文".as_bytes()),
+                ),
+            ),
+        ];
+
+        let honest = harness_proposal_hash(logical, content);
+        for (field, hash) in tampered {
+            assert_ne!(hash, honest, "{field}：变异靶必须真的换出另一枚 hash");
+            let h = harness("proposal-hash");
+            let (mut host, log) = real_armed_host(
+                &h,
+                vec![real_write_leg_with(real_write_request_with_hash(
+                    logical, content, &hash,
+                ))],
+                Some(ScriptedDecision {
+                    approve: true,
+                    before: None,
+                }),
+            );
+            host.prompt("req-1", "写一份纪要")
+                .unwrap_or_else(|error| panic!("{field}：hash 不符不是协议失败，实得 {error:?}"));
+
+            assert_eq!(
+                last_host_result(&log)
+                    .expect("必须发出 host_result")
+                    .outcome,
+                HostResultOutcome::Failed {
+                    code: HostFailureCode::HashMismatch,
+                    message: HostFailureCode::HashMismatch.message().to_string(),
+                },
+                "{field}：拒绝理由必须恰是 hash_mismatch"
+            );
+            let types = record_types(host.records());
+            assert!(
+                !types.contains(&JournalType::ToolProposed)
+                    && !types.contains(&JournalType::EffectStarted),
+                "{field}：hash 不符的请求从未成为提案，实得 {types:?}"
+            );
+            assert!(
+                !h.app_data
+                    .join(crate::pi_loop_workspace::PI_WORKSPACES_DIR)
+                    .exists(),
+                "{field}：被拒的一轮不得留下任何物理痕迹"
+            );
+        }
+    }
+
+    /// 两枚 hash 不互相顶名：`proposalHash` 挡在提案**之前**，内容 hash 挡在授权**之后**。
+    ///
+    /// 语料是同一形失配（正文与自报 `contentSha256` 不符），差别只在 `proposalHash` 算在
+    /// 哪一边：算在自报值上就过得了提案门、被④ 的内容 hash 拦在 effect 前，账上因此有完整
+    /// 四段前三段；算在真值上则连提案都不是。两条路 code 同为 `hash_mismatch`，**账本形态不同**
+    /// ——这正是「不顶名」的可观测判据。
+    #[test]
+    fn proposal_hash_and_content_hash_are_two_different_gates() {
+        let content = "正文";
+        let logical = "纪要.md";
+        let lying_sha = pi_loop_journal::sha256_hex("并不是这段正文".as_bytes());
+
+        // A：proposalHash 算在**自报的** contentSha256 上 ⇒ 提案门放行，内容 hash 拦下。
+        let consistent = expected_proposal_hash(
+            "courtwork.pi.workspace_write.v1",
+            "sess-1",
+            "req-1",
+            OPERATION,
+            logical,
+            content.len() as u64,
+            &lying_sha,
+        );
+        let h = harness("two-hashes-a");
+        let (mut host, log) = real_armed_host(
+            &h,
+            vec![real_write_leg_with(real_write_request_full(
+                logical,
+                content,
+                &lying_sha,
+                &consistent,
+            ))],
+            Some(ScriptedDecision {
+                approve: true,
+                before: None,
+            }),
+        );
+        host.prompt("req-1", "写一份纪要").expect("不是协议失败");
+        assert_eq!(
+            record_types(host.records()),
+            vec![
+                JournalType::SessionStarted,
+                JournalType::UserPrompted,
+                JournalType::AgentEvent,
+                JournalType::ToolProposed,
+                JournalType::AuthorizationDecided,
+                JournalType::EffectStarted,
+                JournalType::EffectFailed,
+                JournalType::AgentEvent,
+                JournalType::PromptCompleted,
+            ],
+            "内容 hash 那一道在授权与 effect 之后，前三段账必须都在"
+        );
+        assert_eq!(
+            last_host_result(&log).expect("有出包").outcome,
+            HostResultOutcome::Failed {
+                code: HostFailureCode::HashMismatch,
+                message: HostFailureCode::HashMismatch.message().to_string(),
+            },
+        );
+
+        // B：同一份语料，proposalHash 算在**正文真值**上 ⇒ 连提案都不是。
+        let h = harness("two-hashes-b");
+        let (mut host, _log) = real_armed_host(
+            &h,
+            vec![real_write_leg_with(real_write_request_full(
+                logical,
+                content,
+                &lying_sha,
+                &harness_proposal_hash(logical, content),
+            ))],
+            Some(ScriptedDecision {
+                approve: true,
+                before: None,
+            }),
+        );
+        host.prompt("req-1", "写一份纪要").expect("不是协议失败");
+        assert_eq!(
+            record_types(host.records()),
+            vec![
+                JournalType::SessionStarted,
+                JournalType::UserPrompted,
+                JournalType::AgentEvent,
+                JournalType::EffectFailed,
+                JournalType::AgentEvent,
+                JournalType::PromptCompleted,
+            ],
+            "proposalHash 那一道排在提案之前，四段账一段都不该有"
+        );
+    }
+
+    /// production 形态：真件在场、能力谈成，但**没有 decision driver** ⇒ `policy_denied`。
+    /// 授权二段落账、effect 恰零次、workspace 物理根不存在。
+    #[test]
+    fn real_write_host_without_a_decision_driver_denies_and_writes_nothing() {
+        let h = harness("real-nodriver");
+        let (mut host, log) = real_armed_host(&h, vec![real_write_leg("纪要.md", "正文")], None);
+        // ⑤ 复核点：能力**已经谈成**，0.1 门因此不再是挡板；挡住这一轮的恰是逐次授权那一道。
+        // 两件事不能互相顶名——若此处的能力反而没谈成，下面的 denied 就成了「门 A 的绿冒充门 B」。
+        assert!(
+            host.capabilities()
+                .contains(&WorkspaceCapability::WorkspaceWrite),
+            "本例必须跑在能力已谈成的路径上，实得 {:?}",
+            host.capabilities()
+        );
+        host.prompt("req-1", "写一份纪要")
+            .expect("拒绝不是协议失败");
+
+        let types = record_types(host.records());
+        assert!(types.contains(&JournalType::ToolProposed));
+        assert!(
+            !types.contains(&JournalType::EffectStarted),
+            "未获授权就不许落 effect_started，实得 {types:?}"
+        );
+        assert_eq!(
+            last_host_result(&log)
+                .expect("必须发出 host_result")
+                .outcome,
+            HostResultOutcome::Denied {
+                code: HostDeniedCode::PolicyDenied,
+                message: HostDeniedCode::PolicyDenied.message().to_string(),
+            },
+        );
+        assert!(!h
+            .app_data
+            .join(crate::pi_loop_workspace::PI_WORKSPACES_DIR)
+            .exists());
+    }
+
+    /// swap race 在**臂**上的收口：授权与 effect 之间父段被换成指向外部的 symlink。
+    /// 第 4 步的二次在场判定必须以 `symlink_forbidden` 现形——不是被压成笼统的
+    /// `state_changed`，也不是照写不误。
+    #[test]
+    fn counterexample_segment_swapped_between_authorization_and_effect_refuses_with_zero_write() {
+        let h = harness("real-swap");
+        let outside = h.app_data.parent().expect("父").join("outside");
+        fs::create_dir_all(&outside).expect("建外部目录");
+        let notes = workspace_root(&h).join("notes");
+        fs::create_dir_all(&notes).expect("预建父段");
+
+        let swap_at = notes.clone();
+        let outside_for_hook = outside.clone();
+        let (mut host, log) = real_armed_host(
+            &h,
+            vec![real_write_leg("notes/纪要.md", "机密正文")],
+            Some(ScriptedDecision {
+                approve: true,
+                before: Some(Box::new(move || {
+                    fs::remove_dir(&swap_at).expect("移走真目录");
+                    std::os::unix::fs::symlink(&outside_for_hook, &swap_at).expect("换成链接");
+                })),
+            }),
+        );
+        host.prompt("req-1", "写一份纪要")
+            .expect("拒绝不是协议失败");
+
+        let types = record_types(host.records());
+        assert!(
+            !types.contains(&JournalType::EffectStarted),
+            "零写的形态不得留下 effect_started，实得 {types:?}"
+        );
+        assert_eq!(
+            last_host_result(&log)
+                .expect("必须发出 host_result")
+                .outcome,
+            HostResultOutcome::Failed {
+                code: HostFailureCode::SymlinkForbidden,
+                message: HostFailureCode::SymlinkForbidden.message().to_string(),
+            },
+            "被换成链接的父段必须以 symlink_forbidden 现形"
+        );
+        let outside_entries: Vec<_> = fs::read_dir(&outside)
+            .expect("列外部目录")
+            .map(|entry| entry.expect("项").file_name())
+            .collect();
+        assert!(
+            outside_entries.is_empty(),
+            "一个字节都不许落到链接目标里，实得 {outside_entries:?}"
+        );
+    }
+
+    /// 移交②（PI-WRITE-HOST-1 ②回执 §八.2）：list 结果**逐字段合法 ≠ 一定装得下**。
+    /// `MAX_LIST_ENTRIES=2000` × `MAX_SEGMENT_BYTES=255` 越 `MAX_PACKET_BYTES=1 MiB`，
+    /// 唯一出站入口必须以 `packet_too_large` **显式**拒，零静默截断。
+    ///
+    /// 两道补正让「红得准」立得住：
+    /// 1. 拒绝理由必须恰是 `PacketTooLarge`——压成 `InvalidSchema` 说明红的是别的判据；
+    /// 2. 正向对照取同族、同上限、只把条数降到装得下，解回来的条目数与名字长度逐值不变
+    ///    ——静默截断在这一枚上会当场现形。
+    #[test]
+    fn counterexample_oversized_list_result_is_refused_by_framing_not_truncated() {
+        let h = harness("list-framing");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![ready_leg()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let host = host.expect("启动");
+        let path = journal_path(&h.app_data, "cnt-1", "sess-1");
+        let before = fs::read(&path).expect("读 journal");
+        let writes_before = log.lock().expect("日志未中毒").written.len();
+        let seq_before = host.outbound_seq;
+
+        // 逐字段全部踩在上限内：条数恰 2000、每枚名字恰 255 UTF-8 字节。
+        // 取 U+0001 是本包 SPEC 九点名的 encoded-packet worst case——1 字节的字符编成
+        // `\u0001` 六字符，raw cap 之内照样把 1 MiB framing 撞破。
+        let oversized = list_ok_result(
+            (0..MAX_LIST_ENTRIES)
+                .map(|_| list_entry("\u{1}".repeat(MAX_SEGMENT_BYTES)))
+                .collect(),
+        );
+        let error = host
+            .encode_host_result("req-probe", oversized)
+            .err()
+            .unwrap_or_else(|| panic!("装不下就必须拒"));
+        assert_eq!(
+            error,
+            HostError::Protocol(ProtocolErrorCode::PacketTooLarge),
+            "拒绝理由必须恰是 framing 上限，实得 {error:?}"
+        );
+        assert_eq!(fs::read(&path).expect("读 journal"), before);
+        assert_eq!(log.lock().expect("日志未中毒").written.len(), writes_before);
+        assert_eq!(host.outbound_seq, seq_before);
+
+        // 正向对照：同族、同字段上限，只把条数降到装得下——逐值原样回得来，零截断。
+        let entries = 512;
+        let line = host
+            .encode_host_result(
+                "req-probe",
+                list_ok_result(
+                    (0..entries)
+                        .map(|_| list_entry("\u{1}".repeat(MAX_SEGMENT_BYTES)))
+                        .collect(),
+                ),
+            )
+            .expect("装得下就必须编得出");
+        assert!(line.bytes.len() <= MAX_PACKET_BYTES);
+        let packet = decode_host_packet_for_test(&line.bytes).expect("自家 decoder 必须收得下");
+        let PacketPayload::HostResult(payload) = packet.payload else {
+            panic!("出包必须是 host_result");
+        };
+        let HostResultOutcome::Ok(HostResultValue::List { entries: back, .. }) = payload.outcome
+        else {
+            panic!("出包必须是 list ok");
+        };
+        assert_eq!(back.len(), entries, "条目数不得被截断");
+        assert!(
+            back.iter()
+                .all(|entry| entry.name.len() == MAX_SEGMENT_BYTES),
+            "条目名不得被截断"
+        );
+    }
+
+    // ── ⑥ 双端 golden：同一逻辑会话的两端字节谱 ────────────────────────────────
+    //
+    // 两枚 tracked fixture，**任一侧都不得生成后再验证自己**：
+    //
+    // - `write-session-wire-v1.jsonl` 的 sidecar→host 段由 Node 侧真跑产出，本侧独立复验
+    //   （codec 双向唯一 ＋ `proposalHash` 本侧重算 ＋ 真件落盘）；host→sidecar 段由本侧
+    //   产出，Node 侧消费。bootstrap 行**不入 golden**：它携带机器本地案件根与内存 key，
+    //   两者都不许冻进 tracked 文件。
+    // - `write-session-journal-v1.jsonl` 由本侧产出，Node 侧复验其中的跨端常量
+    //   （`promptId`／`capabilities`／逻辑路径形态）。
+    //
+    // 跨端钉子恰在这里合拢：Node 侧的 `PRODUCT_PROMPT_ID`／`PRODUCT_CAPABILITIES`／
+    // `WORKSPACE_WRITE_PROPOSAL_DOMAIN` 与本侧的 `CURRENT_PROMPT_ID`／
+    // `EXPECTED_CAPABILITIES`／`WORKSPACE_WRITE_PROPOSAL_DOMAIN` 是同物的两份，
+    // 任一侧单独漂移都会让对端的判据当场红。
+
+    const WIRE_GOLDEN: &[u8] =
+        include_bytes!("../../../../packages/pi-lane/fixtures/write-session-wire-v1.jsonl");
+    const JOURNAL_GOLDEN: &[u8] =
+        include_bytes!("../../../../packages/pi-lane/fixtures/write-session-journal-v1.jsonl");
+
+    fn golden_lines(bytes: &[u8]) -> Vec<Vec<u8>> {
+        let mut lines = Vec::new();
+        let mut start = 0;
+        for (index, byte) in bytes.iter().enumerate() {
+            if *byte == b'\n' {
+                lines.push(bytes[start..index].to_vec());
+                start = index + 1;
+            }
+        }
+        assert_eq!(
+            start,
+            bytes.len(),
+            "golden 每行必须以 LF 结束，末行不得缺 LF"
+        );
+        assert!(!lines.is_empty(), "golden 不得为空");
+        lines
+    }
+
+    /// golden 的会话身份。写死在此、不从 golden 反推——反推就等于让被测数据自证。
+    const GOLDEN_SESSION: &str = "sess-1";
+    const GOLDEN_REQUEST: &str = "req-1";
+    const GOLDEN_PROMPT: &str = "写一份纪要";
+    const GOLDEN_PATH: &str = "纪要.md";
+
+    /// 分向：本侧**消费**的是 sidecar 方向解得开的那些行，**产出**的是 host 方向那些行。
+    /// 「恰一个方向解得开」同批断言——两向都成或都不成都说明两侧不再看同一份契约。
+    fn split_wire_golden() -> (Vec<Vec<u8>>, Vec<Vec<u8>>) {
+        let mut inbound = Vec::new();
+        let mut outbound = Vec::new();
+        for line in golden_lines(WIRE_GOLDEN) {
+            let as_sidecar = crate::pi_loop_protocol::decode_sidecar_packet_line(&line).is_ok();
+            let as_host = decode_host_packet_for_test(&line).is_some();
+            assert!(
+                as_sidecar ^ as_host,
+                "每行恰一个方向解得开：{}",
+                String::from_utf8_lossy(&line)
+            );
+            if as_sidecar {
+                inbound.push(line);
+            } else {
+                outbound.push(line);
+            }
+        }
+        (inbound, outbound)
+    }
+
+    /// 端到端：把 golden 的 sidecar 段原样喂进臂，本侧产出的每一枚出包与 golden 的
+    /// host 段**逐字节**相同，盘上真落字节与 golden 自报的 hash/长度逐值一致。
+    #[test]
+    fn dual_end_golden_wire_session_matches_on_the_host_side() {
+        let (inbound, outbound) = split_wire_golden();
+        assert_eq!(inbound.len(), 8, "sidecar→host 段行数");
+        assert_eq!(
+            outbound.len(),
+            2,
+            "host→sidecar 段行数（bootstrap 不入 golden）"
+        );
+
+        let h = harness("dual-golden");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![inbound.iter().cloned().map(Scripted::Line).collect()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("golden 的 ready 必须能起");
+        host.install_write_host(Some(Box::new(
+            crate::pi_loop_workspace::WorkspaceFsHost::new(
+                &h.app_data,
+                &h.config.container_id,
+                &h.config.session_id,
+            )
+            .with_decision_driver(Box::new(ScriptedDecision {
+                approve: true,
+                before: None,
+            })),
+        )));
+        let terminal = host
+            .prompt(GOLDEN_REQUEST, GOLDEN_PROMPT)
+            .expect("golden 会话必须走得通");
+        assert!(matches!(terminal, Terminal::Completed { .. }));
+
+        // 本侧产出的出包：bootstrap（不入 golden）＋ prompt ＋ host_result。
+        let written = log.lock().expect("日志未中毒").written.clone();
+        assert_eq!(written.len(), 3, "出包数：bootstrap / prompt / host_result");
+        assert!(
+            String::from_utf8_lossy(&written[0]).contains("\"type\":\"bootstrap\""),
+            "首枚出包是 bootstrap"
+        );
+        for (index, expected) in outbound.iter().enumerate() {
+            let mut want = expected.clone();
+            want.push(b'\n');
+            assert_eq!(
+                String::from_utf8_lossy(&written[index + 1]),
+                String::from_utf8_lossy(&want),
+                "本侧第 {} 枚出包必须与 golden 逐字节相同",
+                index + 1
+            );
+        }
+
+        // 盘上真字节：golden 自报的 contentSha256／byteLength 是对它的**独立**复算。
+        let landed = fs::read(workspace_root(&h).join(GOLDEN_PATH)).expect("回读真字节");
+        let request = inbound
+            .iter()
+            .find_map(|line| {
+                match crate::pi_loop_protocol::decode_sidecar_packet_line(line)
+                    .expect("golden 行合契约")
+                    .payload
+                {
+                    PacketPayload::HostRequest(request) => Some(request),
+                    _ => None,
+                }
+            })
+            .expect("golden 必须含一枚 host_request");
+        let WorkspaceRequestArguments::Write(arguments) = &request.arguments else {
+            panic!("golden 的 host_request 必须是 write");
+        };
+        assert_eq!(
+            pi_loop_journal::sha256_hex(&landed),
+            arguments.content_sha256,
+            "盘上字节的 hash 必须等于 golden 自报值"
+        );
+        assert_eq!(landed.len() as u64, arguments.byte_length);
+        assert_eq!(arguments.logical_path, GOLDEN_PATH);
+
+        // 跨端钉子：Node 侧算的 proposalHash 必须等于本侧按 ADR-022 六-B.2 独立重算的那一枚。
+        assert_eq!(
+            expected_proposal_hash(
+                "courtwork.pi.workspace_write.v1",
+                GOLDEN_SESSION,
+                GOLDEN_REQUEST,
+                &request.operation_id,
+                &arguments.logical_path,
+                arguments.byte_length,
+                &arguments.content_sha256,
+            ),
+            request.proposal_hash,
+            "两端的 proposalHash 必须逐值相同"
+        );
+
+        // 双根：wire 上恒是**裸**逻辑路径——`/case` 与 `/workspace` 一个都不许上 wire。
+        for line in golden_lines(WIRE_GOLDEN) {
+            let text = String::from_utf8(line).expect("golden 是 UTF-8");
+            assert!(!text.contains("/case/"), "wire 不得带 /case 前缀：{text}");
+            assert!(
+                !text.contains("/workspace/") || text.contains("assistant_text_delta"),
+                "wire 不得带 /workspace 前缀：{text}"
+            );
+        }
+    }
+
+    /// journal 侧 golden：四段账序与 `session_started` 的裁定A 真值逐字节固定。
+    ///
+    /// 两枚**环境派生**字段按名替换后再比字节，各自另有直接断言，不靠 golden 兜：
+    /// `recordedAt`（真实 wall clock）与 `routeManifestSha256`（随 sidecar 制品变）。
+    #[test]
+    fn dual_end_golden_journal_ledger_matches_byte_for_byte() {
+        let (inbound, _) = split_wire_golden();
+        let h = harness("dual-golden-journal");
+        let (host, _log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![inbound.iter().cloned().map(Scripted::Line).collect()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("启动");
+        host.install_write_host(Some(Box::new(
+            crate::pi_loop_workspace::WorkspaceFsHost::new(
+                &h.app_data,
+                &h.config.container_id,
+                &h.config.session_id,
+            )
+            .with_decision_driver(Box::new(ScriptedDecision {
+                approve: true,
+                before: None,
+            })),
+        )));
+        host.prompt(GOLDEN_REQUEST, GOLDEN_PROMPT).expect("走得通");
+
+        let expected: Vec<JournalRecord> = golden_lines(JOURNAL_GOLDEN)
+            .iter()
+            .map(|line| {
+                let record = pi_loop_journal::decode_record(line).expect("golden 行必须解得开");
+                let mut reencoded = pi_loop_journal::encode_record(&record);
+                reencoded.pop();
+                assert_eq!(
+                    String::from_utf8_lossy(&reencoded),
+                    String::from_utf8_lossy(line),
+                    "golden 行必须 canonical 往返"
+                );
+                record
+            })
+            .collect();
+
+        let live = host.records().to_vec();
+
+        // recordedAt 单调不减、且都是真时钟（非 0）——这是它被排除在字节比对之外的代价，
+        // 故在此单独证。
+        let mut last = 0;
+        for record in &live {
+            assert!(record.recorded_at > 0, "recordedAt 必须是真时钟");
+            assert!(record.recorded_at >= last, "recordedAt 必须非递减");
+            last = record.recorded_at;
+        }
+        // routeManifestSha256 是对已验证 bytes 的重算值——同样单独证。
+        let live_manifest = crate::pi_loop_process::sha256_bytes(EXPECTED_ROUTE_MANIFEST);
+
+        for want in &expected {
+            let found = live
+                .iter()
+                .find(|record| record.event_id == want.event_id)
+                .unwrap_or_else(|| {
+                    panic!(
+                        "golden 点名的 {} 不在实跑账里：实得 {:?}",
+                        want.event_id,
+                        record_types(&live)
+                    )
+                });
+            let mut normalized = found.clone();
+            normalized.recorded_at = want.recorded_at;
+            if let JournalPayload::SessionStarted(started) = &mut normalized.payload {
+                assert_eq!(
+                    started.route_manifest_sha256, live_manifest,
+                    "routeManifestSha256 只能是对已验证 bytes 的重算值"
+                );
+                started.route_manifest_sha256.clone_from(
+                    &match &want.payload {
+                        JournalPayload::SessionStarted(golden) => golden,
+                        _ => panic!("golden 同位必须也是 session_started"),
+                    }
+                    .route_manifest_sha256,
+                );
+            }
+            let mut want_line = pi_loop_journal::encode_record(want);
+            want_line.pop();
+            let mut live_line = pi_loop_journal::encode_record(&normalized);
+            live_line.pop();
+            assert_eq!(
+                String::from_utf8_lossy(&live_line),
+                String::from_utf8_lossy(&want_line),
+                "{} 必须与 golden 逐字节相同",
+                want.event_id
+            );
+        }
+
+        // 四段账序在实跑账里恰按此次序、且恰一次。
+        let effects: Vec<JournalType> = record_types(&live)
+            .into_iter()
+            .filter(|journal_type| is_effect_type(*journal_type))
+            .collect();
+        assert_eq!(
+            effects,
+            vec![
+                JournalType::ToolProposed,
+                JournalType::AuthorizationDecided,
+                JournalType::EffectStarted,
+                JournalType::EffectSucceeded,
+            ],
+        );
+
+        // journal 只记逻辑路径：物理根、正文、app-data 绝对路径一概不进。
+        let text =
+            String::from_utf8(fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"))
+                .expect("UTF-8");
+        assert!(!text.contains("合同编号"), "正文不得落进 journal");
+        assert!(!text.contains(crate::pi_loop_workspace::PI_WORKSPACES_DIR));
+        assert!(!text.contains(&h.app_data.to_string_lossy().into_owned()));
+        assert!(
+            text.contains("\"caseRoot\":\"/case\""),
+            "journal 里唯一的根是虚拟案件根"
+        );
     }
 }
