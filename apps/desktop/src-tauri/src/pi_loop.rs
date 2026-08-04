@@ -55,6 +55,12 @@ const EXPECTED_CAPABILITIES: &[WorkspaceCapability] = &[
     WorkspaceCapability::WorkspaceWrite,
 ];
 
+/// `proposalHash` 的域分隔串（ADR-022 六-B.2）。它与 Node 侧
+/// `WORKSPACE_WRITE_PROPOSAL_DOMAIN` 是同一枚字面量的两份；两侧由
+/// `packages/pi-lane/fixtures/write-session-wire-v1.jsonl` 这枚双端 golden 钉在一起，
+/// 任一侧单独漂移都会让对端的 golden 判据当场红。
+const WORKSPACE_WRITE_PROPOSAL_DOMAIN: &str = "courtwork.pi.workspace_write.v1";
+
 // ── 错误闭集 ────────────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, PartialEq)]
@@ -714,9 +720,14 @@ impl PiLoopHost {
                     route_manifest_sha256: pair.manifest_sha256().to_string(),
                     target_triple: pair.target_triple(),
                     grant_id: config.grant_id.clone(),
+                    // 裁定A：记当刻真值。capabilities 取的是本会话**必须**谈成的那一张表
+                    // ——第 7 步 ready 若不逐值等于它，leg 当场以 StateViolation 收束，
+                    // 故「记下的」与「谈成的」在任何能继续往下跑的路径上恒等。
+                    prompt_id: pi_loop_journal::CURRENT_PROMPT_ID.to_string(),
                     model_id: config.model_id.clone(),
                     max_turns: config.max_turns,
                     max_usd: config.max_usd,
+                    capabilities: EXPECTED_CAPABILITIES.to_vec(),
                 };
                 opening = JournalPayload::SessionStarted(started.clone());
             }
@@ -1174,6 +1185,39 @@ impl PiLoopHost {
         }
     }
 
+    /// ADR-022 六-B.2 的 `proposalHash`。
+    ///
+    /// ```text
+    /// proposalHash = sha256(frame(domain) || frame(sessionId) || frame(requestId)
+    ///                       || frame(operationId) || frame(logicalPath)
+    ///                       || frame(byteLength 十进制) || frame(contentSha256))
+    /// frame(x)     = u32be(UTF8(x).byteLength) || UTF8(x)
+    /// ```
+    ///
+    /// 长度前缀在场，故任何一枚字段的边界都不可能被另一枚吞掉——「拼串」式的域混淆
+    /// （`a|bc` 与 `ab|c`）在这一形上结构性不成立。
+    fn workspace_write_proposal_hash(
+        session_id: &str,
+        request_id: &str,
+        plan: &WorkspaceWritePlan,
+    ) -> String {
+        let byte_length = plan.byte_length.to_string();
+        let mut bytes = Vec::new();
+        for field in [
+            WORKSPACE_WRITE_PROPOSAL_DOMAIN,
+            session_id,
+            request_id,
+            plan.operation_id.as_str(),
+            plan.logical_path.as_str(),
+            byte_length.as_str(),
+            plan.content_sha256.as_str(),
+        ] {
+            bytes.extend_from_slice(&(field.len() as u32).to_be_bytes());
+            bytes.extend_from_slice(field.as_bytes());
+        }
+        pi_loop_journal::sha256_hex(&bytes)
+    }
+
     /// `host_request` 臂：一枚 workspace write 的四段落账（PI-WRITE-HOST-1 ③）。
     ///
     /// 次序即语义（ADR-022 六-C），前一步不过就绝不走到后一步：
@@ -1230,6 +1274,16 @@ impl PiLoopHost {
             byte_length: arguments.byte_length,
             content: arguments.content,
         };
+
+        // 0.5 `proposalHash` 由**本侧重算**，不认对端自报（ADR-022 六-B.2 明文「Rust 必须
+        //     重算」）。它绑定 session/request/operation 三枚 id 与逻辑路径、长度、内容 hash：
+        //     任一枚被篡改，这里当场不符，请求**从未成为提案**，effect 恰零次。
+        //     与④ 的**内容** hash 重算是两枚不同的 hash：那一枚挡在授权之后、replace 之前，
+        //     这一枚挡在提案之前，两者不互相顶名（`proposal_hash_and_content_hash_are_two_different_gates`）。
+        let recomputed = Self::workspace_write_proposal_hash(&self.session_id, request_id, &plan);
+        if recomputed != plan.proposal_hash {
+            return self.settle_failed(request_id, &plan, HostFailureCode::HashMismatch);
+        }
 
         // 1. 在场判定（④ 起是 capability `Dir` 的实测）。它自己就能失败：grammar、symlink、
         //    目录、不支持的文件系统都在这一步现形。**从未成为提案**的请求因此在这里收束——
@@ -2138,6 +2192,52 @@ mod tests {
         )));
     }
 
+    /// 裁定A 写侧：`session_started` 记的必须是**当刻真值**。
+    ///
+    /// 判据不是「等于某个常量」，而是**内一致**：记录里的 capabilities 逐值等于本会话
+    /// `capabilities()` 的实收握手集，promptId 等于本线在跑的 prompt 身份。两谱一旦分叉，
+    /// durable 记录就是一句与事实不符的话——总纲不变量 4 与 6 都不许它悄悄成立。
+    #[test]
+    fn session_started_records_the_prompt_and_capabilities_actually_in_force() {
+        let h = harness("started-truth");
+        let (host, _log, _) = start_with(
+            &h,
+            vec![VecDeque::from(vec![ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            )])],
+        );
+        let host = host.expect("启动成功");
+        let journal_text =
+            String::from_utf8(fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"))
+                .expect("UTF-8");
+
+        // 实收握手集 → 记录里应有的那一串。expected 由**实收值**渲染，不抄常量表。
+        let recorded = format!(
+            "\"capabilities\":[{}]",
+            host.capabilities()
+                .iter()
+                .map(|capability| format!("\"{}\"", capability.as_str()))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        assert!(
+            journal_text.contains(&recorded),
+            "journal 必须记实收握手集 {recorded}，实得 {journal_text}"
+        );
+        assert!(
+            journal_text.contains("\"promptId\":\"md-work-v1\""),
+            "journal 必须记在跑的 prompt 身份，实得 {journal_text}"
+        );
+        assert!(
+            !journal_text.contains("case-read-v1"),
+            "⑤ 之后本线不再跑 case-read-v1，记录里不得出现它"
+        );
+    }
+
     #[test]
     fn ready_capability_drift_fails_the_session_with_state_violation_and_reclaims_the_leg() {
         let h = harness("capability-drift");
@@ -2869,9 +2969,11 @@ mod tests {
                                 .to_string(),
                         target_triple: TargetTriple::Aarch64AppleDarwin,
                         grant_id: "grant-1".to_string(),
+                        prompt_id: pi_loop_journal::CURRENT_PROMPT_ID.to_string(),
                         model_id: "deepseek-v4-flash".to_string(),
                         max_turns: 12,
                         max_usd: None,
+                        capabilities: EXPECTED_CAPABILITIES.to_vec(),
                     }),
                 )
                 .expect("落账");
@@ -5292,9 +5394,11 @@ mod tests {
             route_manifest_sha256: crate::pi_loop_process::sha256_bytes(EXPECTED_ROUTE_MANIFEST),
             target_triple: TargetTriple::Aarch64AppleDarwin,
             grant_id: "grant-1".to_string(),
+            prompt_id: pi_loop_journal::CURRENT_PROMPT_ID.to_string(),
             model_id: "deepseek-v4-flash".to_string(),
             max_turns: 12,
             max_usd,
+            capabilities: EXPECTED_CAPABILITIES.to_vec(),
         }
     }
 
@@ -6637,10 +6741,24 @@ mod tests {
     const OPERATION: &str = "op_1_1";
     const WRITE_CONTENT: &str = "0123456789";
 
+    /// ③ 期的脚本请求：`contentSha256` 是脚本座认得的哨兵（脚本座不重算内容），
+    /// 但 `proposalHash` 自⑥ 起必须是真值——它绑定的正是这一枚**自报的** `contentSha256`。
+    fn scripted_proposal_hash(logical_path: &str, content: &str) -> String {
+        expected_proposal_hash(
+            "courtwork.pi.workspace_write.v1",
+            "sess-1",
+            "req-1",
+            OPERATION,
+            logical_path,
+            content.len() as u64,
+            PROBE_SHA,
+        )
+    }
+
     fn write_request_packet(logical_path: &str, content: &str) -> PacketPayload {
         PacketPayload::HostRequest(WorkspaceHostRequest {
             operation_id: OPERATION.to_string(),
-            proposal_hash: PROBE_SHA.to_string(),
+            proposal_hash: scripted_proposal_hash(logical_path, content),
             capability: WorkspaceCapability::WorkspaceWrite,
             arguments: WorkspaceRequestArguments::Write(WorkspaceWriteArguments {
                 logical_path: logical_path.to_string(),
@@ -6895,7 +7013,7 @@ mod tests {
             JournalPayload::ToolProposed(ToolProposedPayload {
                 tool_call_id: TOOL_CALL.to_string(),
                 logical_path: "纪要.md".to_string(),
-                proposal_hash: PROBE_SHA.to_string(),
+                proposal_hash: scripted_proposal_hash("纪要.md", WRITE_CONTENT),
                 content_sha256: PROBE_SHA.to_string(),
                 byte_length: WRITE_CONTENT.len() as u64,
                 action: WriteDisposition::Created,
@@ -7396,22 +7514,98 @@ mod tests {
 
     // ── ④ 真件端到端：cap-std 落盘、屏障与防御门在**臂上**的读数 ──────────────
 
-    /// 真件的 host_request：`contentSha256` 取正文真值（真件重算，PROBE_SHA 过不了）。
+    /// ADR-022 六-B.2 的 `proposalHash`，**在测试里独立重写一遍**——不 import 生产件的
+    /// 那一份，否则「重算」与「被重算的东西」同源，判据零区分力。
+    ///
+    /// 七枚 frame 的次序即契约：domain、sessionId、requestId、operationId、logicalPath、
+    /// byteLength（十进制文本）、contentSha256。
+    fn expected_proposal_hash(
+        domain: &str,
+        session_id: &str,
+        request_id: &str,
+        operation_id: &str,
+        logical_path: &str,
+        byte_length: u64,
+        content_sha256: &str,
+    ) -> String {
+        let mut bytes = Vec::new();
+        for field in [
+            domain,
+            session_id,
+            request_id,
+            operation_id,
+            logical_path,
+            &byte_length.to_string(),
+            content_sha256,
+        ] {
+            bytes.extend_from_slice(&(field.len() as u32).to_be_bytes());
+            bytes.extend_from_slice(field.as_bytes());
+        }
+        pi_loop_journal::sha256_hex(&bytes)
+    }
+
+    /// 本 harness 恒定的三枚 id：`sess-1` / `req-1` / `op_1_1`。
+    fn harness_proposal_hash(logical_path: &str, content: &str) -> String {
+        expected_proposal_hash(
+            "courtwork.pi.workspace_write.v1",
+            "sess-1",
+            "req-1",
+            OPERATION,
+            logical_path,
+            content.len() as u64,
+            &pi_loop_journal::sha256_hex(content.as_bytes()),
+        )
+    }
+
+    /// 真件的 host_request：`contentSha256` 取正文真值（真件重算，PROBE_SHA 过不了）；
+    /// `proposalHash` 亦取真值——⑥ 之后宿主对它同样重算，自报的假值一律 `hash_mismatch`。
     fn real_write_request_packet(logical_path: &str, content: &str) -> PacketPayload {
+        real_write_request_with_hash(
+            logical_path,
+            content,
+            &harness_proposal_hash(logical_path, content),
+        )
+    }
+
+    fn real_write_request_with_hash(
+        logical_path: &str,
+        content: &str,
+        proposal_hash: &str,
+    ) -> PacketPayload {
+        real_write_request_full(
+            logical_path,
+            content,
+            &pi_loop_journal::sha256_hex(content.as_bytes()),
+            proposal_hash,
+        )
+    }
+
+    /// 两枚 hash 各自可独立指定——`contentSha256` 与 `proposalHash` 是**两枚不同的 hash**，
+    /// 分开喂才能让「谁在挡」这件事有区分力。
+    fn real_write_request_full(
+        logical_path: &str,
+        content: &str,
+        content_sha256: &str,
+        proposal_hash: &str,
+    ) -> PacketPayload {
         PacketPayload::HostRequest(WorkspaceHostRequest {
             operation_id: OPERATION.to_string(),
-            proposal_hash: PROBE_SHA.to_string(),
+            proposal_hash: proposal_hash.to_string(),
             capability: WorkspaceCapability::WorkspaceWrite,
             arguments: WorkspaceRequestArguments::Write(WorkspaceWriteArguments {
                 logical_path: logical_path.to_string(),
                 content: content.to_string(),
-                content_sha256: pi_loop_journal::sha256_hex(content.as_bytes()),
+                content_sha256: content_sha256.to_string(),
                 byte_length: content.len() as u64,
             }),
         })
     }
 
     fn real_write_leg(logical_path: &str, content: &str) -> VecDeque<Scripted> {
+        real_write_leg_with(real_write_request_packet(logical_path, content))
+    }
+
+    fn real_write_leg_with(request: PacketPayload) -> VecDeque<Scripted> {
         VecDeque::from(vec![
             ready(
                 1,
@@ -7421,11 +7615,7 @@ mod tests {
                 ],
             ),
             tool_started_line(2),
-            sidecar_line(
-                3,
-                Some("req-1"),
-                real_write_request_packet(logical_path, content),
-            ),
+            sidecar_line(3, Some("req-1"), request),
             tool_finished_line(4),
             completed_line(5),
         ])
@@ -7596,6 +7786,230 @@ mod tests {
         }
     }
 
+    // ── ⑥ 拍板C：`proposalHash` 由 Rust 重算（ADR-022 六-B.2）────────────────────
+
+    /// 篡改被绑定的**任一**字段 ⇒ `hash_mismatch` 且零 effect。
+    ///
+    /// 构造法：wire 上的每一枚字段都留**真值**，只把 `proposalHash` 算在一枚**被篡改过**的
+    /// 字段上。于是唯一不符的就是这一枚 hash——别的门一概轮不到，红来自它自己。
+    /// 七枚 frame（domain ＋ 六字段）逐枚各一例：任何一枚不进 hash，对应那一行当场绿。
+    #[test]
+    fn counterexample_proposal_hash_is_recomputed_and_binds_every_bound_field() {
+        const DOMAIN: &str = "courtwork.pi.workspace_write.v1";
+        let content = "正文";
+        let logical = "纪要.md";
+        let content_sha = pi_loop_journal::sha256_hex(content.as_bytes());
+        let truth = (
+            DOMAIN,
+            "sess-1",
+            "req-1",
+            OPERATION,
+            logical,
+            content.len() as u64,
+            content_sha.as_str(),
+        );
+
+        let tampered: [(&str, String); 7] = [
+            (
+                "domain",
+                expected_proposal_hash(
+                    "courtwork.pi.workspace_write.v2",
+                    truth.1,
+                    truth.2,
+                    truth.3,
+                    truth.4,
+                    truth.5,
+                    truth.6,
+                ),
+            ),
+            (
+                "sessionId",
+                expected_proposal_hash(
+                    truth.0, "sess-2", truth.2, truth.3, truth.4, truth.5, truth.6,
+                ),
+            ),
+            (
+                "requestId",
+                expected_proposal_hash(
+                    truth.0, truth.1, "req-2", truth.3, truth.4, truth.5, truth.6,
+                ),
+            ),
+            (
+                "operationId",
+                expected_proposal_hash(
+                    truth.0, truth.1, truth.2, "op_1_2", truth.4, truth.5, truth.6,
+                ),
+            ),
+            (
+                "logicalPath",
+                expected_proposal_hash(
+                    truth.0,
+                    truth.1,
+                    truth.2,
+                    truth.3,
+                    "别的.md",
+                    truth.5,
+                    truth.6,
+                ),
+            ),
+            (
+                "byteLength",
+                expected_proposal_hash(
+                    truth.0,
+                    truth.1,
+                    truth.2,
+                    truth.3,
+                    truth.4,
+                    truth.5 + 1,
+                    truth.6,
+                ),
+            ),
+            (
+                "contentSha256",
+                expected_proposal_hash(
+                    truth.0,
+                    truth.1,
+                    truth.2,
+                    truth.3,
+                    truth.4,
+                    truth.5,
+                    &pi_loop_journal::sha256_hex("别的正文".as_bytes()),
+                ),
+            ),
+        ];
+
+        let honest = harness_proposal_hash(logical, content);
+        for (field, hash) in tampered {
+            assert_ne!(hash, honest, "{field}：变异靶必须真的换出另一枚 hash");
+            let h = harness("proposal-hash");
+            let (mut host, log) = real_armed_host(
+                &h,
+                vec![real_write_leg_with(real_write_request_with_hash(
+                    logical, content, &hash,
+                ))],
+                Some(ScriptedDecision {
+                    approve: true,
+                    before: None,
+                }),
+            );
+            host.prompt("req-1", "写一份纪要")
+                .unwrap_or_else(|error| panic!("{field}：hash 不符不是协议失败，实得 {error:?}"));
+
+            assert_eq!(
+                last_host_result(&log)
+                    .expect("必须发出 host_result")
+                    .outcome,
+                HostResultOutcome::Failed {
+                    code: HostFailureCode::HashMismatch,
+                    message: HostFailureCode::HashMismatch.message().to_string(),
+                },
+                "{field}：拒绝理由必须恰是 hash_mismatch"
+            );
+            let types = record_types(host.records());
+            assert!(
+                !types.contains(&JournalType::ToolProposed)
+                    && !types.contains(&JournalType::EffectStarted),
+                "{field}：hash 不符的请求从未成为提案，实得 {types:?}"
+            );
+            assert!(
+                !h.app_data
+                    .join(crate::pi_loop_workspace::PI_WORKSPACES_DIR)
+                    .exists(),
+                "{field}：被拒的一轮不得留下任何物理痕迹"
+            );
+        }
+    }
+
+    /// 两枚 hash 不互相顶名：`proposalHash` 挡在提案**之前**，内容 hash 挡在授权**之后**。
+    ///
+    /// 语料是同一形失配（正文与自报 `contentSha256` 不符），差别只在 `proposalHash` 算在
+    /// 哪一边：算在自报值上就过得了提案门、被④ 的内容 hash 拦在 effect 前，账上因此有完整
+    /// 四段前三段；算在真值上则连提案都不是。两条路 code 同为 `hash_mismatch`，**账本形态不同**
+    /// ——这正是「不顶名」的可观测判据。
+    #[test]
+    fn proposal_hash_and_content_hash_are_two_different_gates() {
+        let content = "正文";
+        let logical = "纪要.md";
+        let lying_sha = pi_loop_journal::sha256_hex("并不是这段正文".as_bytes());
+
+        // A：proposalHash 算在**自报的** contentSha256 上 ⇒ 提案门放行，内容 hash 拦下。
+        let consistent = expected_proposal_hash(
+            "courtwork.pi.workspace_write.v1",
+            "sess-1",
+            "req-1",
+            OPERATION,
+            logical,
+            content.len() as u64,
+            &lying_sha,
+        );
+        let h = harness("two-hashes-a");
+        let (mut host, log) = real_armed_host(
+            &h,
+            vec![real_write_leg_with(real_write_request_full(
+                logical,
+                content,
+                &lying_sha,
+                &consistent,
+            ))],
+            Some(ScriptedDecision {
+                approve: true,
+                before: None,
+            }),
+        );
+        host.prompt("req-1", "写一份纪要").expect("不是协议失败");
+        assert_eq!(
+            record_types(host.records()),
+            vec![
+                JournalType::SessionStarted,
+                JournalType::UserPrompted,
+                JournalType::AgentEvent,
+                JournalType::ToolProposed,
+                JournalType::AuthorizationDecided,
+                JournalType::EffectStarted,
+                JournalType::EffectFailed,
+                JournalType::AgentEvent,
+                JournalType::PromptCompleted,
+            ],
+            "内容 hash 那一道在授权与 effect 之后，前三段账必须都在"
+        );
+        assert_eq!(
+            last_host_result(&log).expect("有出包").outcome,
+            HostResultOutcome::Failed {
+                code: HostFailureCode::HashMismatch,
+                message: HostFailureCode::HashMismatch.message().to_string(),
+            },
+        );
+
+        // B：同一份语料，proposalHash 算在**正文真值**上 ⇒ 连提案都不是。
+        let h = harness("two-hashes-b");
+        let (mut host, _log) = real_armed_host(
+            &h,
+            vec![real_write_leg_with(real_write_request_full(
+                logical,
+                content,
+                &lying_sha,
+                &harness_proposal_hash(logical, content),
+            ))],
+            Some(ScriptedDecision {
+                approve: true,
+                before: None,
+            }),
+        );
+        host.prompt("req-1", "写一份纪要").expect("不是协议失败");
+        assert_eq!(
+            record_types(host.records()),
+            vec![
+                JournalType::SessionStarted,
+                JournalType::UserPrompted,
+                JournalType::AgentEvent,
+                JournalType::EffectFailed,
+                JournalType::AgentEvent,
+                JournalType::PromptCompleted,
+            ],
+            "proposalHash 那一道排在提案之前，四段账一段都不该有"
+        );
+    }
+
     /// production 形态：真件在场、能力谈成，但**没有 decision driver** ⇒ `policy_denied`。
     /// 授权二段落账、effect 恰零次、workspace 物理根不存在。
     #[test]
@@ -7757,6 +8171,302 @@ mod tests {
             back.iter()
                 .all(|entry| entry.name.len() == MAX_SEGMENT_BYTES),
             "条目名不得被截断"
+        );
+    }
+
+    // ── ⑥ 双端 golden：同一逻辑会话的两端字节谱 ────────────────────────────────
+    //
+    // 两枚 tracked fixture，**任一侧都不得生成后再验证自己**：
+    //
+    // - `write-session-wire-v1.jsonl` 的 sidecar→host 段由 Node 侧真跑产出，本侧独立复验
+    //   （codec 双向唯一 ＋ `proposalHash` 本侧重算 ＋ 真件落盘）；host→sidecar 段由本侧
+    //   产出，Node 侧消费。bootstrap 行**不入 golden**：它携带机器本地案件根与内存 key，
+    //   两者都不许冻进 tracked 文件。
+    // - `write-session-journal-v1.jsonl` 由本侧产出，Node 侧复验其中的跨端常量
+    //   （`promptId`／`capabilities`／逻辑路径形态）。
+    //
+    // 跨端钉子恰在这里合拢：Node 侧的 `PRODUCT_PROMPT_ID`／`PRODUCT_CAPABILITIES`／
+    // `WORKSPACE_WRITE_PROPOSAL_DOMAIN` 与本侧的 `CURRENT_PROMPT_ID`／
+    // `EXPECTED_CAPABILITIES`／`WORKSPACE_WRITE_PROPOSAL_DOMAIN` 是同物的两份，
+    // 任一侧单独漂移都会让对端的判据当场红。
+
+    const WIRE_GOLDEN: &[u8] =
+        include_bytes!("../../../../packages/pi-lane/fixtures/write-session-wire-v1.jsonl");
+    const JOURNAL_GOLDEN: &[u8] =
+        include_bytes!("../../../../packages/pi-lane/fixtures/write-session-journal-v1.jsonl");
+
+    fn golden_lines(bytes: &[u8]) -> Vec<Vec<u8>> {
+        let mut lines = Vec::new();
+        let mut start = 0;
+        for (index, byte) in bytes.iter().enumerate() {
+            if *byte == b'\n' {
+                lines.push(bytes[start..index].to_vec());
+                start = index + 1;
+            }
+        }
+        assert_eq!(
+            start,
+            bytes.len(),
+            "golden 每行必须以 LF 结束，末行不得缺 LF"
+        );
+        assert!(!lines.is_empty(), "golden 不得为空");
+        lines
+    }
+
+    /// golden 的会话身份。写死在此、不从 golden 反推——反推就等于让被测数据自证。
+    const GOLDEN_SESSION: &str = "sess-1";
+    const GOLDEN_REQUEST: &str = "req-1";
+    const GOLDEN_PROMPT: &str = "写一份纪要";
+    const GOLDEN_PATH: &str = "纪要.md";
+
+    /// 分向：本侧**消费**的是 sidecar 方向解得开的那些行，**产出**的是 host 方向那些行。
+    /// 「恰一个方向解得开」同批断言——两向都成或都不成都说明两侧不再看同一份契约。
+    fn split_wire_golden() -> (Vec<Vec<u8>>, Vec<Vec<u8>>) {
+        let mut inbound = Vec::new();
+        let mut outbound = Vec::new();
+        for line in golden_lines(WIRE_GOLDEN) {
+            let as_sidecar = crate::pi_loop_protocol::decode_sidecar_packet_line(&line).is_ok();
+            let as_host = decode_host_packet_for_test(&line).is_some();
+            assert!(
+                as_sidecar ^ as_host,
+                "每行恰一个方向解得开：{}",
+                String::from_utf8_lossy(&line)
+            );
+            if as_sidecar {
+                inbound.push(line);
+            } else {
+                outbound.push(line);
+            }
+        }
+        (inbound, outbound)
+    }
+
+    /// 端到端：把 golden 的 sidecar 段原样喂进臂，本侧产出的每一枚出包与 golden 的
+    /// host 段**逐字节**相同，盘上真落字节与 golden 自报的 hash/长度逐值一致。
+    #[test]
+    fn dual_end_golden_wire_session_matches_on_the_host_side() {
+        let (inbound, outbound) = split_wire_golden();
+        assert_eq!(inbound.len(), 8, "sidecar→host 段行数");
+        assert_eq!(
+            outbound.len(),
+            2,
+            "host→sidecar 段行数（bootstrap 不入 golden）"
+        );
+
+        let h = harness("dual-golden");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![inbound.iter().cloned().map(Scripted::Line).collect()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("golden 的 ready 必须能起");
+        host.install_write_host(Some(Box::new(
+            crate::pi_loop_workspace::WorkspaceFsHost::new(
+                &h.app_data,
+                &h.config.container_id,
+                &h.config.session_id,
+            )
+            .with_decision_driver(Box::new(ScriptedDecision {
+                approve: true,
+                before: None,
+            })),
+        )));
+        let terminal = host
+            .prompt(GOLDEN_REQUEST, GOLDEN_PROMPT)
+            .expect("golden 会话必须走得通");
+        assert!(matches!(terminal, Terminal::Completed { .. }));
+
+        // 本侧产出的出包：bootstrap（不入 golden）＋ prompt ＋ host_result。
+        let written = log.lock().expect("日志未中毒").written.clone();
+        assert_eq!(written.len(), 3, "出包数：bootstrap / prompt / host_result");
+        assert!(
+            String::from_utf8_lossy(&written[0]).contains("\"type\":\"bootstrap\""),
+            "首枚出包是 bootstrap"
+        );
+        for (index, expected) in outbound.iter().enumerate() {
+            let mut want = expected.clone();
+            want.push(b'\n');
+            assert_eq!(
+                String::from_utf8_lossy(&written[index + 1]),
+                String::from_utf8_lossy(&want),
+                "本侧第 {} 枚出包必须与 golden 逐字节相同",
+                index + 1
+            );
+        }
+
+        // 盘上真字节：golden 自报的 contentSha256／byteLength 是对它的**独立**复算。
+        let landed = fs::read(workspace_root(&h).join(GOLDEN_PATH)).expect("回读真字节");
+        let request = inbound
+            .iter()
+            .find_map(|line| {
+                match crate::pi_loop_protocol::decode_sidecar_packet_line(line)
+                    .expect("golden 行合契约")
+                    .payload
+                {
+                    PacketPayload::HostRequest(request) => Some(request),
+                    _ => None,
+                }
+            })
+            .expect("golden 必须含一枚 host_request");
+        let WorkspaceRequestArguments::Write(arguments) = &request.arguments else {
+            panic!("golden 的 host_request 必须是 write");
+        };
+        assert_eq!(
+            pi_loop_journal::sha256_hex(&landed),
+            arguments.content_sha256,
+            "盘上字节的 hash 必须等于 golden 自报值"
+        );
+        assert_eq!(landed.len() as u64, arguments.byte_length);
+        assert_eq!(arguments.logical_path, GOLDEN_PATH);
+
+        // 跨端钉子：Node 侧算的 proposalHash 必须等于本侧按 ADR-022 六-B.2 独立重算的那一枚。
+        assert_eq!(
+            expected_proposal_hash(
+                "courtwork.pi.workspace_write.v1",
+                GOLDEN_SESSION,
+                GOLDEN_REQUEST,
+                &request.operation_id,
+                &arguments.logical_path,
+                arguments.byte_length,
+                &arguments.content_sha256,
+            ),
+            request.proposal_hash,
+            "两端的 proposalHash 必须逐值相同"
+        );
+
+        // 双根：wire 上恒是**裸**逻辑路径——`/case` 与 `/workspace` 一个都不许上 wire。
+        for line in golden_lines(WIRE_GOLDEN) {
+            let text = String::from_utf8(line).expect("golden 是 UTF-8");
+            assert!(!text.contains("/case/"), "wire 不得带 /case 前缀：{text}");
+            assert!(
+                !text.contains("/workspace/") || text.contains("assistant_text_delta"),
+                "wire 不得带 /workspace 前缀：{text}"
+            );
+        }
+    }
+
+    /// journal 侧 golden：四段账序与 `session_started` 的裁定A 真值逐字节固定。
+    ///
+    /// 两枚**环境派生**字段按名替换后再比字节，各自另有直接断言，不靠 golden 兜：
+    /// `recordedAt`（真实 wall clock）与 `routeManifestSha256`（随 sidecar 制品变）。
+    #[test]
+    fn dual_end_golden_journal_ledger_matches_byte_for_byte() {
+        let (inbound, _) = split_wire_golden();
+        let h = harness("dual-golden-journal");
+        let (host, _log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![inbound.iter().cloned().map(Scripted::Line).collect()],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let mut host = host.expect("启动");
+        host.install_write_host(Some(Box::new(
+            crate::pi_loop_workspace::WorkspaceFsHost::new(
+                &h.app_data,
+                &h.config.container_id,
+                &h.config.session_id,
+            )
+            .with_decision_driver(Box::new(ScriptedDecision {
+                approve: true,
+                before: None,
+            })),
+        )));
+        host.prompt(GOLDEN_REQUEST, GOLDEN_PROMPT).expect("走得通");
+
+        let expected: Vec<JournalRecord> = golden_lines(JOURNAL_GOLDEN)
+            .iter()
+            .map(|line| {
+                let record = pi_loop_journal::decode_record(line).expect("golden 行必须解得开");
+                let mut reencoded = pi_loop_journal::encode_record(&record);
+                reencoded.pop();
+                assert_eq!(
+                    String::from_utf8_lossy(&reencoded),
+                    String::from_utf8_lossy(line),
+                    "golden 行必须 canonical 往返"
+                );
+                record
+            })
+            .collect();
+
+        let live = host.records().to_vec();
+
+        // recordedAt 单调不减、且都是真时钟（非 0）——这是它被排除在字节比对之外的代价，
+        // 故在此单独证。
+        let mut last = 0;
+        for record in &live {
+            assert!(record.recorded_at > 0, "recordedAt 必须是真时钟");
+            assert!(record.recorded_at >= last, "recordedAt 必须非递减");
+            last = record.recorded_at;
+        }
+        // routeManifestSha256 是对已验证 bytes 的重算值——同样单独证。
+        let live_manifest = crate::pi_loop_process::sha256_bytes(EXPECTED_ROUTE_MANIFEST);
+
+        for want in &expected {
+            let found = live
+                .iter()
+                .find(|record| record.event_id == want.event_id)
+                .unwrap_or_else(|| {
+                    panic!(
+                        "golden 点名的 {} 不在实跑账里：实得 {:?}",
+                        want.event_id,
+                        record_types(&live)
+                    )
+                });
+            let mut normalized = found.clone();
+            normalized.recorded_at = want.recorded_at;
+            if let JournalPayload::SessionStarted(started) = &mut normalized.payload {
+                assert_eq!(
+                    started.route_manifest_sha256, live_manifest,
+                    "routeManifestSha256 只能是对已验证 bytes 的重算值"
+                );
+                started.route_manifest_sha256.clone_from(
+                    &match &want.payload {
+                        JournalPayload::SessionStarted(golden) => golden,
+                        _ => panic!("golden 同位必须也是 session_started"),
+                    }
+                    .route_manifest_sha256,
+                );
+            }
+            let mut want_line = pi_loop_journal::encode_record(want);
+            want_line.pop();
+            let mut live_line = pi_loop_journal::encode_record(&normalized);
+            live_line.pop();
+            assert_eq!(
+                String::from_utf8_lossy(&live_line),
+                String::from_utf8_lossy(&want_line),
+                "{} 必须与 golden 逐字节相同",
+                want.event_id
+            );
+        }
+
+        // 四段账序在实跑账里恰按此次序、且恰一次。
+        let effects: Vec<JournalType> = record_types(&live)
+            .into_iter()
+            .filter(|journal_type| is_effect_type(*journal_type))
+            .collect();
+        assert_eq!(
+            effects,
+            vec![
+                JournalType::ToolProposed,
+                JournalType::AuthorizationDecided,
+                JournalType::EffectStarted,
+                JournalType::EffectSucceeded,
+            ],
+        );
+
+        // journal 只记逻辑路径：物理根、正文、app-data 绝对路径一概不进。
+        let text =
+            String::from_utf8(fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"))
+                .expect("UTF-8");
+        assert!(!text.contains("合同编号"), "正文不得落进 journal");
+        assert!(!text.contains(crate::pi_loop_workspace::PI_WORKSPACES_DIR));
+        assert!(!text.contains(&h.app_data.to_string_lossy().into_owned()));
+        assert!(
+            text.contains("\"caseRoot\":\"/case\""),
+            "journal 里唯一的根是虚拟案件根"
         );
     }
 }
