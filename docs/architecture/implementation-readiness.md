@@ -205,6 +205,15 @@ CONTRACT-REVIEW-SAFETY-1（已清账） → CONTRACT-OUTPUT-TRUTH-1（已清账�
 `PI-BASE-HEADLESS-ACCEPT → PI-LANE-UI-1 → PI-BASE-GUI-ACCEPT → PI-DEBUG-BUILD-1`；
 前三节点赋予 agent 称谓所需的产品能力，最后一节点只证明维护者个人安装形态。
 
+**GUI 后下一相（2026-08-04 产品定向落痕）**：`PI-BASE-GUI-ACCEPT` 收敛后，下一相为垂类/demo
+材料解耦成独立装载的插件包——路径沿既有冻结票阶梯：`GENERIC-PACK-1`（构建期解耦，验收律
+「只装通用包时产品是合格 work agent」＋卸垂类包冒烟 e2e）→ `PACK-INTERACT-1`（启停/建案
+选包/显式空态）→ 真动态装载属 ADR-015 预留位，需求已由产品声明到来，届时先立 ADR 再动工。
+该相全程携带 **matter 不变量**：卸垂类后 chat/work 仍以案件（matter）为单位——ADR-013 案件域
+记忆、ADR-021 Dossier 蒸馏与案上确认账本原样有效，续行自主，人工 review 面在案上产物与账本
+而非 session 清单；`DOSSIER-FLOW-1` 作为该不变量的实现票按票面开工。本注只记相序与不变量，
+不改动任何票面与依赖。
+
 **停放的 `v0.2.0` 公开发行许可链（2026-07-24；2026-07-28 parked，ADR-020）**：下图只保留
 为未来显式重启时的依赖基线，不是现行可派队列：
 
