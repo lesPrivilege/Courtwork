@@ -1285,9 +1285,11 @@ impl PiLoopHost {
         request: WorkspaceHostRequest,
     ) -> Result<(), HostError> {
         // 0.1 能力门：只服务本次握手**真的谈成**的那几枚。不拿编译期 expected 洗白，也不认
-        //     请求自报。⑤ 之后 `workspace_write` 已在闭集内，本门对 write 不再是产品线上的
-        //     挡板（挡 write 的是逐次授权那一道）；它继续挡的是未谈成的 `workspace_read`。
-        //     可证否形态由 `revoke_workspace_write` 的反例保留，不随能力到位而失去覆盖。
+        //     请求自报。⑤ 与 `PI-WORKSPACE-READ-1` 之后 `workspace_write`／`workspace_read`
+        //     都已在闭集内，本门对这两枚不再是产品线上的挡板（挡 write 的是逐次授权那一道）；
+        //     它挡的是本次握手**没谈成**的任何 capability。可证否形态由
+        //     `revoke_workspace_write` 与 `revoke_workspace_read` 两枚反例保留，
+        //     不随能力到位而失去覆盖。
         if !self.capabilities.contains(&request.capability) {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
         }
