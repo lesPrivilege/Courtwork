@@ -26,9 +26,22 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time"
 # PI-HOST-LOOP-1 §二.5：libc 用途另加 `pi_loop_process` 的 `kill(pid, SIGTERM)` 与 `geteuid`——
 # SIGTERM 必须由既有 libc::kill 完成，`Child::kill()` 只可用于 SIGKILL，不得改用外部
 # `/bin/kill` 或新增 spawn；sha2 用途另加 route manifest 与 journal quarantine 的 SHA-256。
-# 依赖集合与版本均不变。
+# PI-WRITE-HOST-1 ④（PREFLIGHT §一 裁定：修订而非默默扩面）：libc 用途再加
+# `pi_loop_workspace` 的 `fstatfs`——只读取已打开 dirfd 的 `f_fstypename`，用于在任何物理
+# mutation 之前判定该文件系统能否兑现所需持久化屏障。它仍是 dirfd 上的 `*at` 同族只读调用，
+# 不得扩成通用路径读取、mount 枚举或权限修改 API。sha2 用途再加 workspace write 的
+# contentSha256 重算。除此之外依赖集合不变。
 sha2 = "0.10.9"
 libc = "0.2.186"
+# PI-WRITE-HOST-1 ④：workspace 落盘的 capability 根。exact pin `=4.0.2`——PREFLIGHT §一
+# 一手复核在案（newest/max_stable、未 yank、许可三元 SPDX 已窄批、RUSTSEC-2024-0445 不适用、
+# 上游自 2026-02-15 零 commit 属登记不阻断）。feature `fs_utf8`/`arf_strings` 保持关闭。
+# 边界：cap-std 防的是恶意**路径名**，不防恶意 Rust 代码；保证是「链接解析不逃出 capability
+# root」而非「root 内链接一律不跟随」。逐段 no-follow 下降与 swap-race 收口是本仓自研义务
+# （`open_dir_nofollow` 只管末段；macOS 无内核 beneath 原语），不得宣称为上游保证。
+cap-std = "=4.0.2"
+cap-fs-ext = "=4.0.2"
+cap-tempfile = "=4.0.2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2-app-kit = { version = "0.3.2", default-features = false, features = ["std", "NSButton", "NSControl", "NSResponder", "NSView", "NSWindow", "NSPanel", "NSSavePanel", "NSOpenPanel", "NSApplication"] }

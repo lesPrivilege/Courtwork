@@ -408,25 +408,36 @@ pub(crate) enum EffectOutcome {
 
 /// workspace write 的注入座。
 ///
-/// 三枚方法今日**都还没有真件**：在场判定与落盘属④（cap-std / `TempFile::replace` / 屏障），
-/// 授权决定属 GUI 或 headless 验收显式注入的 decision driver（ADR-022 六-C 明禁
-/// 「用 session always-allow 冒充产品授权」）。③ 把它们合在一枚注入座上，是因为本阶段
-/// 两者都只有脚本件，且 production 侧恒为 `None`——**合座不等于合真源**，④/⑤ 落真件时
-/// 各自拆分即可，不需要先拆再装。
+/// ④ 之后 `probe`/`perform` 的真件是 {@link crate::pi_loop_workspace::WorkspaceFsHost}；
+/// `decide` 的真源仍在注入座之外——真件把它转交 {@link WriteDecisionDriver}，
+/// 缺 driver 即 `policy_denied`（ADR-022 六-C 明禁「用 session always-allow 冒充产品授权」），
+/// 真 driver（GUI 或 headless 验收）属⑤。
 pub(crate) trait WorkspaceWriteHost {
     /// 授权**前**的在场判定：目标已在 ⇒ `Overwritten`，否则 `Created`（ADR-022 六-C）。
     ///
-    /// ③ 故意保持不可失败：本阶段没有任何能让它失败的真件，预造 `Result` 等于造一条
-    /// 零证据的死分支。④ 接真 capability `Dir` 时（symlink / not_directory / io 都真实可达）
-    /// 再放宽签名，并同批补它自己的反例。
-    fn probe(&mut self, plan: &WorkspaceWritePlan) -> WriteDisposition;
+    /// ④ 按 ③回执 §六.6 放宽为 `Result`：真件的 symlink / not_directory / is_directory /
+    /// invalid_path / unsupported_file_type / unsupported_filesystem / io 都是真实可达的失败分支。
+    /// **纯读**：`probe` 一个字节都不许动——建目录同样是物理 mutation，只能排在
+    /// `effect_started` 之后。
+    fn probe(&mut self, plan: &WorkspaceWritePlan) -> Result<WriteDisposition, HostFailureCode>;
 
     /// 逐次授权。
     fn decide(&mut self, plan: &WorkspaceWritePlan, action: WriteDisposition)
         -> WriteAuthorization;
 
-    /// 真实落盘。③ 只回脚本结局，一个字节都不写。
+    /// 真实落盘。`Succeeded` 的语义是「④ 的全部物理屏障已过」，不是「rename 返回了 0」。
     fn perform(&mut self, plan: &WorkspaceWritePlan, action: WriteDisposition) -> EffectOutcome;
+}
+
+/// 逐次授权的真源座（ADR-022 六-C：授权属用户）。
+///
+/// **非加不可**：④ 把 production 的 `write_host` 从 `None` 换成真件的那一刻，`decide` 必须
+/// 有一个答案。硬编码 `Approved` 就是 ADR 明禁的「用 session always-allow 冒充产品授权」，
+/// 而把 `decide` 留在 `WorkspaceWriteHost` 上又会让真件无处安放外部决定。故立此一枚座：
+/// 缺席 ⇒ `policy_denied` fail-closed，⑤／headless 验收装真件。
+pub(crate) trait WriteDecisionDriver {
+    fn decide(&mut self, plan: &WorkspaceWritePlan, action: WriteDisposition)
+        -> WriteAuthorization;
 }
 
 /// 出站结果的四支构造器。逐支只吃计划与结局，不碰 `self`——「编出来的那一份」
@@ -558,11 +569,11 @@ impl PiLoopHost {
         &self.capabilities
     }
 
-    /// **测试专用**：装上④ 才会有的 workspace write 真件。production 没有 setter——
-    /// `write_host` 恒 `None`，缺件即在 0.4 显式拒。
+    /// **测试专用**：换掉构造点装上的真件（换脚本座，或置 `None` 以保留 0.4 门的反例）。
+    /// production 没有 setter：`write_host` 恒由构造点装真件。
     #[cfg(test)]
-    fn install_write_host(&mut self, host: Box<dyn WorkspaceWriteHost>) {
-        self.write_host = Some(host);
+    fn install_write_host(&mut self, host: Option<Box<dyn WorkspaceWriteHost>>) {
+        self.write_host = host;
     }
 
     /// **测试专用**：把⑤ 才会谈成的 `workspace_write` 记进本次握手结果。production 的
@@ -812,7 +823,14 @@ impl PiLoopHost {
             published: Vec::new(),
             active_request: None,
             active_tool_call: None,
-            write_host: None,
+            // ④：production 从此有真件。0.4 门因此从「结构性挡死」退回「缺件才挡」，
+            // 0.1 能力门（ready 恰 `['case_read']`）与真件自身的 `policy_denied`
+            // 两道仍各自独立地挡住产品线上的 effect——⑤ 加 `workspace_write` 时须同批复核。
+            write_host: Some(Box::new(crate::pi_loop_workspace::WorkspaceFsHost::new(
+                app_data_dir,
+                &config.container_id,
+                &config.session_id,
+            ))),
             closed: false,
         };
 
@@ -1178,7 +1196,8 @@ impl PiLoopHost {
         let Some(tool_call_id) = self.active_tool_call.take() else {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
         };
-        // 0.4 ④ 才装真件。今日恒 `None`：缺件显式拒，不拿脚本座冒充成功。
+        // 0.4 真件座。④ 之后构造点恒装真件，本门于产品线上因此结构性不可达；保留为
+        //     fail-closed 兜底——缺件一律显式拒，绝不静默跳过或拿脚本座冒充成功。
         if self.write_host.is_none() {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
         }
@@ -1193,8 +1212,14 @@ impl PiLoopHost {
             content: arguments.content,
         };
 
-        // 1. 在场判定。④ 换成 capability `Dir` 的实测，③ 只问脚本座。
-        let action = self.effector().probe(&plan);
+        // 1. 在场判定（④ 起是 capability `Dir` 的实测）。它自己就能失败：grammar、symlink、
+        //    目录、不支持的文件系统都在这一步现形。**从未成为提案**的请求因此在这里收束——
+        //    `tool_proposed` 不落，effect 恰零次（ADR-022 六-B.2：Rust 防御门以同 code 拒绝且零
+        //    effect）。
+        let action = match self.effector().probe(&plan) {
+            Ok(action) => action,
+            Err(code) => return self.settle_failed(request_id, &plan, code),
+        };
 
         // 2. 编码-先于-效果。这一枚 `OutboundLine` 一直捏在手里，直到第 7 步原样发出。
         let success_line = self.encode_or_fail(request_id, write_success_payload(&plan, action))?;
@@ -1235,9 +1260,13 @@ impl PiLoopHost {
             return self.write_encoded(line);
         }
 
-        // 4. 授权后、effect 前再判一次在场：动作已变则零写。
-        if self.effector().probe(&plan) != action {
-            return self.settle_failed(request_id, &plan, HostFailureCode::StateChanged);
+        // 4. 授权后、effect 前再判一次在场：动作已变则零写。这一枚同时是 swap-race 的收口
+        //    ——授权与 effect 之间被换成 symlink 的父段在这里以 `symlink_forbidden` 现形，
+        //    而不是被压成笼统的 `state_changed`。
+        match self.effector().probe(&plan) {
+            Ok(again) if again == action => {}
+            Ok(_) => return self.settle_failed(request_id, &plan, HostFailureCode::StateChanged),
+            Err(code) => return self.settle_failed(request_id, &plan, code),
         }
 
         // 5. 第一次真实写入之前的最后一道 durable 屏障。
@@ -6501,6 +6530,9 @@ mod tests {
         disposition: WriteDisposition,
         /// 第二次在场判定的结果；`None` ⇒ 与第一次相同（动作未变）。
         reprobe: Option<WriteDisposition>,
+        /// 第 n 次在场判定改判失败（1 起数）。④ 起 `probe` 可失败，臂必须把这枚 code
+        /// 原样带到出站；`None` ⇒ 两次都成功。
+        probe_error: Option<(usize, HostFailureCode)>,
         authorization: fn() -> WriteAuthorization,
         outcome: fn() -> EffectOutcome,
         journal: PathBuf,
@@ -6522,6 +6554,7 @@ mod tests {
             ScriptedWriteHost {
                 disposition: WriteDisposition::Created,
                 reprobe: None,
+                probe_error: None,
                 authorization: || WriteAuthorization::Approved,
                 outcome: || EffectOutcome::Succeeded,
                 journal: journal_path(&h.app_data, "cnt-1", "sess-1"),
@@ -6531,14 +6564,24 @@ mod tests {
     }
 
     impl WorkspaceWriteHost for ScriptedWriteHost {
-        fn probe(&mut self, _plan: &WorkspaceWritePlan) -> WriteDisposition {
+        fn probe(
+            &mut self,
+            _plan: &WorkspaceWritePlan,
+        ) -> Result<WriteDisposition, HostFailureCode> {
             let mut log = self.log.lock().expect("日志未中毒");
             log.probes += 1;
-            if log.probes >= 2 {
+            let round = log.probes;
+            drop(log);
+            if let Some((at, code)) = self.probe_error {
+                if at == round {
+                    return Err(code);
+                }
+            }
+            Ok(if round >= 2 {
                 self.reprobe.unwrap_or(self.disposition)
             } else {
                 self.disposition
-            }
+            })
         }
         fn decide(
             &mut self,
@@ -6574,7 +6617,7 @@ mod tests {
         let mut host = host.expect("启动");
         let effect_log = Arc::clone(&write_host.log);
         host.grant_workspace_write();
-        host.install_write_host(Box::new(write_host));
+        host.install_write_host(Some(Box::new(write_host)));
         (host, log, effect_log)
     }
 
@@ -6941,9 +6984,13 @@ mod tests {
             if grant {
                 host.grant_workspace_write();
             }
-            if install {
-                host.install_write_host(Box::new(write_host));
-            }
+            // ④ 起构造点恒装真件，故「真件座缺席」这一格必须**显式置 `None`**——
+            // 0.4 门的反例因此仍然咬得住，不因真件到位而悄悄失去覆盖。
+            host.install_write_host(if install {
+                Some(Box::new(write_host) as Box<dyn WorkspaceWriteHost>)
+            } else {
+                None
+            });
             let error = host
                 .prompt("req-1", "写一份纪要")
                 .expect_err(&format!("{label}：门不成立必须拒"));
@@ -7149,6 +7196,285 @@ mod tests {
             "leg 必须当场终止"
         );
         assert!(host.closed, "leg 已交出，本 Host 不得再被当作 live 写者");
+    }
+
+    // ── ④ 真件端到端：cap-std 落盘、屏障与防御门在**臂上**的读数 ──────────────
+
+    /// 真件的 host_request：`contentSha256` 取正文真值（真件重算，PROBE_SHA 过不了）。
+    fn real_write_request_packet(logical_path: &str, content: &str) -> PacketPayload {
+        PacketPayload::HostRequest(WorkspaceHostRequest {
+            operation_id: OPERATION.to_string(),
+            proposal_hash: PROBE_SHA.to_string(),
+            capability: WorkspaceCapability::WorkspaceWrite,
+            arguments: WorkspaceRequestArguments::Write(WorkspaceWriteArguments {
+                logical_path: logical_path.to_string(),
+                content: content.to_string(),
+                content_sha256: pi_loop_journal::sha256_hex(content.as_bytes()),
+                byte_length: content.len() as u64,
+            }),
+        })
+    }
+
+    fn real_write_leg(logical_path: &str, content: &str) -> VecDeque<Scripted> {
+        VecDeque::from(vec![
+            ready(1, vec![WorkspaceCapability::CaseRead]),
+            tool_started_line(2),
+            sidecar_line(
+                3,
+                Some("req-1"),
+                real_write_request_packet(logical_path, content),
+            ),
+            tool_finished_line(4),
+            completed_line(5),
+        ])
+    }
+
+    /// 逐次授权的脚本 driver。`decide` 恰跑在两次在场判定**之间**，故 `before` 是臂上真实的
+    /// 「授权后、effect 前」窗口——不是模拟的时序。
+    struct ScriptedDecision {
+        approve: bool,
+        before: Option<Box<dyn FnMut()>>,
+    }
+
+    impl WriteDecisionDriver for ScriptedDecision {
+        fn decide(
+            &mut self,
+            _plan: &WorkspaceWritePlan,
+            _action: WriteDisposition,
+        ) -> WriteAuthorization {
+            if let Some(hook) = self.before.as_mut() {
+                hook();
+            }
+            if self.approve {
+                WriteAuthorization::Approved
+            } else {
+                WriteAuthorization::Denied(AuthorizationDenyCode::UserDenied)
+            }
+        }
+    }
+
+    fn real_armed_host(
+        h: &Harness,
+        legs: Vec<VecDeque<Scripted>>,
+        decision: Option<ScriptedDecision>,
+    ) -> (PiLoopHost, Arc<Mutex<LegLog>>) {
+        let (host, log, _) =
+            start_probe(h, h.config.clone(), legs, ExitOutcome::Code(0), &FixedKey);
+        let mut host = host.expect("启动");
+        host.grant_workspace_write();
+        // 构造点装的就是真件；这里只在需要时补一枚 decision driver（⑤ 的真 driver 落点）。
+        if let Some(decision) = decision {
+            host.install_write_host(Some(Box::new(
+                crate::pi_loop_workspace::WorkspaceFsHost::new(
+                    &h.app_data,
+                    &h.config.container_id,
+                    &h.config.session_id,
+                )
+                .with_decision_driver(Box::new(decision)),
+            )));
+        }
+        (host, log)
+    }
+
+    fn workspace_root(h: &Harness) -> PathBuf {
+        h.app_data
+            .join(crate::pi_loop_workspace::PI_WORKSPACES_DIR)
+            .join(&h.config.container_id)
+            .join(&h.config.session_id)
+    }
+
+    /// 端到端：四段账 ＋ **真字节**落进 `app_data_dir()/pi-workspaces/<c>/<s>/`，
+    /// 出站 `host_result` 与盘上事实逐值同一结论，正文一个字节都不进 journal。
+    #[test]
+    fn real_write_host_lands_bytes_and_settles_the_four_stage_ledger() {
+        let h = harness("real-write");
+        let content = "# 纪要\n真件落盘\n";
+        let (mut host, log) = real_armed_host(
+            &h,
+            vec![real_write_leg("notes/会议纪要.md", content)],
+            Some(ScriptedDecision {
+                approve: true,
+                before: None,
+            }),
+        );
+        let terminal = host.prompt("req-1", "写一份纪要").expect("真件必须走得通");
+        assert!(matches!(terminal, Terminal::Completed { .. }));
+
+        assert_eq!(
+            record_types(host.records()),
+            vec![
+                JournalType::SessionStarted,
+                JournalType::UserPrompted,
+                JournalType::AgentEvent,
+                JournalType::ToolProposed,
+                JournalType::AuthorizationDecided,
+                JournalType::EffectStarted,
+                JournalType::EffectSucceeded,
+                JournalType::AgentEvent,
+                JournalType::PromptCompleted,
+            ],
+        );
+        let target = workspace_root(&h).join("notes").join("会议纪要.md");
+        assert_eq!(fs::read_to_string(&target).expect("回读真字节"), content);
+        assert_eq!(
+            last_host_result(&log)
+                .expect("必须发出 host_result")
+                .outcome,
+            HostResultOutcome::Ok(HostResultValue::Write {
+                logical_path: "notes/会议纪要.md".to_string(),
+                disposition: WriteDisposition::Created,
+                content_sha256: pi_loop_journal::sha256_hex(content.as_bytes()),
+                byte_length: content.len() as u64,
+            }),
+        );
+        // journal 只记逻辑路径 / hash / byteLength / outcome：正文与**物理根**都不许进去。
+        let text =
+            String::from_utf8(fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"))
+                .expect("UTF-8");
+        assert!(!text.contains("真件落盘"), "正文不得落进 journal");
+        assert!(
+            !text.contains(crate::pi_loop_workspace::PI_WORKSPACES_DIR),
+            "物理根不得落进 journal"
+        );
+        assert!(!text.contains(&h.app_data.to_string_lossy().into_owned()));
+    }
+
+    /// 票面：**畸形 request 到 Rust ⇒ 同 code 拒绝且零 effect**（ADR-022 六-B.2）。
+    ///
+    /// 从未成为提案的请求在第 1 步就收束：`tool_proposed`/`effect_started` 一枚都不落，
+    /// workspace 物理根**根本不存在**——`probe` 是纯读，这一层因此是盘上读数。
+    #[test]
+    fn counterexample_malformed_requests_are_refused_with_zero_effect() {
+        let cases = [
+            ("纪要.txt", HostFailureCode::UnsupportedFileType),
+            (".md", HostFailureCode::UnsupportedFileType),
+            ("/绝对.md", HostFailureCode::InvalidPath),
+            ("../越界.md", HostFailureCode::InvalidPath),
+            ("a\\b.md", HostFailureCode::InvalidPath),
+        ];
+        for (logical, expected) in cases {
+            let h = harness("real-malformed");
+            let (mut host, log) = real_armed_host(
+                &h,
+                vec![real_write_leg(logical, "正文")],
+                Some(ScriptedDecision {
+                    approve: true,
+                    before: None,
+                }),
+            );
+            host.prompt("req-1", "写一份纪要").unwrap_or_else(|error| {
+                panic!("{logical}：防御门拒绝不是协议失败，实得 {error:?}")
+            });
+
+            let types = record_types(host.records());
+            assert!(
+                !types.contains(&JournalType::ToolProposed)
+                    && !types.contains(&JournalType::EffectStarted),
+                "{logical}：从未成为提案的请求不得落 tool_proposed / effect_started，实得 {types:?}"
+            );
+            assert!(
+                types.contains(&JournalType::EffectFailed),
+                "{logical}：拒绝必须显式落账，实得 {types:?}"
+            );
+            assert_eq!(
+                last_host_result(&log)
+                    .expect("必须发出 host_result")
+                    .outcome,
+                HostResultOutcome::Failed {
+                    code: expected,
+                    message: expected.message().to_string(),
+                },
+                "{logical}：拒绝理由必须恰是 {expected:?}"
+            );
+            assert!(
+                !h.app_data
+                    .join(crate::pi_loop_workspace::PI_WORKSPACES_DIR)
+                    .exists(),
+                "{logical}：被拒的一轮不得留下任何物理痕迹"
+            );
+        }
+    }
+
+    /// production 形态：真件在场、能力谈成，但**没有 decision driver** ⇒ `policy_denied`。
+    /// 授权二段落账、effect 恰零次、workspace 物理根不存在。
+    #[test]
+    fn real_write_host_without_a_decision_driver_denies_and_writes_nothing() {
+        let h = harness("real-nodriver");
+        let (mut host, log) = real_armed_host(&h, vec![real_write_leg("纪要.md", "正文")], None);
+        host.prompt("req-1", "写一份纪要")
+            .expect("拒绝不是协议失败");
+
+        let types = record_types(host.records());
+        assert!(types.contains(&JournalType::ToolProposed));
+        assert!(
+            !types.contains(&JournalType::EffectStarted),
+            "未获授权就不许落 effect_started，实得 {types:?}"
+        );
+        assert_eq!(
+            last_host_result(&log)
+                .expect("必须发出 host_result")
+                .outcome,
+            HostResultOutcome::Denied {
+                code: HostDeniedCode::PolicyDenied,
+                message: HostDeniedCode::PolicyDenied.message().to_string(),
+            },
+        );
+        assert!(!h
+            .app_data
+            .join(crate::pi_loop_workspace::PI_WORKSPACES_DIR)
+            .exists());
+    }
+
+    /// swap race 在**臂**上的收口：授权与 effect 之间父段被换成指向外部的 symlink。
+    /// 第 4 步的二次在场判定必须以 `symlink_forbidden` 现形——不是被压成笼统的
+    /// `state_changed`，也不是照写不误。
+    #[test]
+    fn counterexample_segment_swapped_between_authorization_and_effect_refuses_with_zero_write() {
+        let h = harness("real-swap");
+        let outside = h.app_data.parent().expect("父").join("outside");
+        fs::create_dir_all(&outside).expect("建外部目录");
+        let notes = workspace_root(&h).join("notes");
+        fs::create_dir_all(&notes).expect("预建父段");
+
+        let swap_at = notes.clone();
+        let outside_for_hook = outside.clone();
+        let (mut host, log) = real_armed_host(
+            &h,
+            vec![real_write_leg("notes/纪要.md", "机密正文")],
+            Some(ScriptedDecision {
+                approve: true,
+                before: Some(Box::new(move || {
+                    fs::remove_dir(&swap_at).expect("移走真目录");
+                    std::os::unix::fs::symlink(&outside_for_hook, &swap_at).expect("换成链接");
+                })),
+            }),
+        );
+        host.prompt("req-1", "写一份纪要")
+            .expect("拒绝不是协议失败");
+
+        let types = record_types(host.records());
+        assert!(
+            !types.contains(&JournalType::EffectStarted),
+            "零写的形态不得留下 effect_started，实得 {types:?}"
+        );
+        assert_eq!(
+            last_host_result(&log)
+                .expect("必须发出 host_result")
+                .outcome,
+            HostResultOutcome::Failed {
+                code: HostFailureCode::SymlinkForbidden,
+                message: HostFailureCode::SymlinkForbidden.message().to_string(),
+            },
+            "被换成链接的父段必须以 symlink_forbidden 现形"
+        );
+        let outside_entries: Vec<_> = fs::read_dir(&outside)
+            .expect("列外部目录")
+            .map(|entry| entry.expect("项").file_name())
+            .collect();
+        assert!(
+            outside_entries.is_empty(),
+            "一个字节都不许落到链接目标里，实得 {outside_entries:?}"
+        );
     }
 
     /// 移交②（PI-WRITE-HOST-1 ②回执 §八.2）：list 结果**逐字段合法 ≠ 一定装得下**。
