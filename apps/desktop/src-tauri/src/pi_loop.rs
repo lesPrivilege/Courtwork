@@ -564,9 +564,17 @@ pub(crate) struct PiLoopHost {
     capabilities: Vec<WorkspaceCapability>,
     published: Vec<HostEvent>,
     active_request: Option<String>,
-    /// 本 leg 里**尚未收束**的那一枚 write tool call（③）。`host_request` 的 wire 上没有
-    /// `toolCallId`，四段账又逐枚要它——这是它的唯一真源。认领即消费（一 tc 一 op）。
-    active_tool_call: Option<String>,
+    /// 本 leg 里**尚未收束**的那一枚 tool call：它的 id **与它的工具名**（③／
+    /// `PI-TOOLCALL-BINDING-1`）。`host_request` 的 wire 上没有 `toolCallId`，四段账又逐枚
+    /// 要它——这是它的唯一真源。
+    ///
+    /// 带上 `ProductToolName` 是因为 tool↔capability 的映射（ADR-022 :285-290：
+    /// `write ↔ workspace_write`、`read|glob|grep ↔ workspace_read`）此前**只**活在 Node 侧的
+    /// `TOOL_CAPABILITY` 表里——即 Rust 按设计不信任的那一方（六-B.2「Rust 必须重算，不认对端
+    /// 自报」）。只存 id 的话，写臂 `take` 只问「有没有主」、读臂 peek 同理，于是同一枚 tc 能
+    /// 在账上既是一次 read、又提案了一次写入，而账本是唯一的裁决者（不变量 3、6）。名字与 id
+    /// 同时来自同一枚已 durable 的 `tool_started`，本侧据此自行判分野，不问对端。
+    active_tool_call: Option<(String, ProductToolName)>,
     /// workspace write 的真件座。production 恒 `None`：④ 才装 cap-std 落盘件，
     /// ③ 不拿脚本座冒充成功（总纲不变量 4）。
     write_host: Option<Box<dyn WorkspaceWriteHost>>,
@@ -1118,6 +1126,10 @@ impl PiLoopHost {
         self.records.push(record);
         self.projection = pi_loop_journal::fold(&self.records);
         self.active_request = Some(request_id.to_string());
+        // 起点收束（`PI-TOOLCALL-BINDING-1`）：新 prompt 一律从**无主**开始，不问上一枚 prompt
+        // 是怎么结束的。与终态那一道（`record_prompt_terminal`）是同一扇窗的两侧：终态负责正常
+        // 出口，这一道负责「将来出现别的出口」时「旧 prompt 的 tc」仍结构性不可达。
+        self.active_tool_call = None;
 
         // 发的就是上面验过的那一份字节，不重编。
         self.write_encoded(line)?;
@@ -1207,6 +1219,9 @@ impl PiLoopHost {
                     // 添一道工具，此处不更新即编译失败，逼出「新工具是否 arm」的显式裁定——不让它像
                     // 本票的读工具当初一样静默落 `_` 不 arm（那正是本票所修的覆盖洞与 read host op
                     // 恒 `StateViolation` 的根因）。
+                    //
+                    // `PI-TOOLCALL-BINDING-1`：arm 连**工具名**一起记。名字是这枚 tc 能发哪一类
+                    // host op 的唯一本侧真源，取／peek 两臂据此各自判分野。
                     match &event {
                         AgentProjectionEvent::ToolStarted {
                             tool_call_id,
@@ -1216,11 +1231,14 @@ impl PiLoopHost {
                             | ProductToolName::Read
                             | ProductToolName::Glob
                             | ProductToolName::Grep => {
-                                self.active_tool_call = Some(tool_call_id.clone());
+                                self.active_tool_call = Some((tool_call_id.clone(), *tool_name));
                             }
                         },
                         AgentProjectionEvent::ToolFinished { tool_call_id, .. }
-                            if self.active_tool_call.as_deref() == Some(tool_call_id.as_str()) =>
+                            if self
+                                .active_tool_call
+                                .as_ref()
+                                .is_some_and(|(active, _)| active == tool_call_id) =>
                         {
                             self.active_tool_call = None;
                         }
@@ -1324,10 +1342,20 @@ impl PiLoopHost {
         let WorkspaceRequestArguments::Write(arguments) = request.arguments else {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
         };
-        // 0.3 一 tc 一 op。`toolCallId` 不在 wire 上，唯一真源是本 leg 已 durable 的
-        //     `tool_started`；认领即消费，同一枚 tool call 的第二枚 host_request 因此当场无主。
-        let Some(tool_call_id) = self.active_tool_call.take() else {
-            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        // 0.3 一 tc 一 op，**且主必须是 `write`**（`PI-TOOLCALL-BINDING-1`）。`toolCallId` 不在
+        //     wire 上，唯一真源是本 leg 已 durable 的 `tool_started`；认领即消费，同一枚 tool
+        //     call 的第二枚 host_request 因此当场无主。
+        //
+        //     只问「有没有主」不够：ADR-022 :285-290 把 `write ↔ workspace_write` 冻成固定映射，
+        //     而该映射此前只由 Node 侧 `TOOL_CAPABILITY` 把守——本侧照单全收，等于认对端自报
+        //     （六-B.2 明禁）。于是一枚 read/glob/grep 的 tc 也能领走一次写 effect，账上同一枚 tc
+        //     既是读、又提案了写。读三件在此**显式**拒，不静默跳过。
+        let tool_call_id = match self.active_tool_call.take() {
+            Some((tool_call_id, ProductToolName::Write)) => tool_call_id,
+            // 穷举列名而非 `_`：`closed_enum!` 加员时此处编译失败，逼出「新工具算写还是算读」
+            //     的显式裁定（承 arm 处同一体例）。
+            Some((_, ProductToolName::Read | ProductToolName::Glob | ProductToolName::Grep))
+            | None => return Err(self.fail_protocol(ProtocolErrorCode::StateViolation)),
         };
         // 0.4 真件座。④ 之后构造点恒装真件，本门于产品线上因此结构性不可达；保留为
         //     fail-closed 兜底——缺件一律显式拒，绝不静默跳过或拿脚本座冒充成功。
@@ -1492,9 +1520,15 @@ impl PiLoopHost {
         let WorkspaceRequestArguments::Read(arguments) = request.arguments else {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
         };
-        // 读同样必须归属于一枚在场的 tool call：会话里没有活动工具却来读，是状态违约。
-        if self.active_tool_call.is_none() {
-            return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
+        // 读同样必须归属于一枚在场的 tool call，**且那枚 tool call 必须真是读工具**
+        // （`PI-TOOLCALL-BINDING-1`，与写臂 0.3 同源同向）：会话里没有活动工具却来读，或
+        // `workspace_read` 落在一枚 `write` tc 名下，都是状态违约。ADR-022 :285-290 的
+        // `read|glob|grep ↔ workspace_read` 由本侧据已 durable 的 `tool_started` 自判，不问对端。
+        match self.active_tool_call.as_ref() {
+            Some((_, ProductToolName::Read | ProductToolName::Glob | ProductToolName::Grep)) => {}
+            Some((_, ProductToolName::Write)) | None => {
+                return Err(self.fail_protocol(ProtocolErrorCode::StateViolation))
+            }
         }
         if self.read_host.is_none() {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
@@ -1735,6 +1769,10 @@ impl PiLoopHost {
         let prompt_event_id = prompt_record.event_id.clone();
         self.records.push(prompt_record);
         self.active_request = None;
+        // 终态收束（`PI-TOOLCALL-BINDING-1`）：tool call 的作用域至多是一枚 prompt。cancel 与
+        // 可重试失败都会让 `tool_started` 没有配对的 `tool_finished`，此前那枚 tc 就此活到下一枚
+        // prompt 并被首个 `host_request` 认作主——账上于是出现「上一轮的 tc 在这一轮提案了写入」。
+        self.active_tool_call = None;
 
         if session_close {
             let payload = match terminal {
@@ -7013,6 +7051,33 @@ mod tests {
         )
     }
 
+    /// requestId 参数化版：`proposalHash` 绑 requestId，跨 prompt 的脚本因此要换枚重算。
+    fn write_request_packet_for(
+        request_id: &str,
+        logical_path: &str,
+        content: &str,
+    ) -> PacketPayload {
+        PacketPayload::HostRequest(WorkspaceHostRequest {
+            operation_id: OPERATION.to_string(),
+            proposal_hash: expected_proposal_hash(
+                "courtwork.pi.workspace_write.v1",
+                "sess-1",
+                request_id,
+                OPERATION,
+                logical_path,
+                content.len() as u64,
+                PROBE_SHA,
+            ),
+            capability: WorkspaceCapability::WorkspaceWrite,
+            arguments: WorkspaceRequestArguments::Write(WorkspaceWriteArguments {
+                logical_path: logical_path.to_string(),
+                content: content.to_string(),
+                content_sha256: PROBE_SHA.to_string(),
+                byte_length: content.len() as u64,
+            }),
+        })
+    }
+
     fn write_request_packet(logical_path: &str, content: &str) -> PacketPayload {
         PacketPayload::HostRequest(WorkspaceHostRequest {
             operation_id: OPERATION.to_string(),
@@ -7065,6 +7130,9 @@ mod tests {
     /// `active_tool_call`——真 read 工具的 `tool_started` 路径因此从未被驱动，覆盖洞恰在此
     /// （第四例放行后逃逸）。本对助手以**真** read tool_name 驱动 arm，`take`／`peek` 的分野
     /// 在下游（write `serve_host_request` take、read `serve_read_request` peek），arm 这一步两者同形。
+    ///
+    /// `PI-TOOLCALL-BINDING-1` 起它也是**四道工具名通用**的参数化形（`tool_started_line` 是其
+    /// Write 简写），名字里的 `read_` 只是 READ-TOOLCALL-1 的出身，不再是取值范围。
     fn read_tool_started_line(seq: u64, tool_name: ProductToolName) -> Scripted {
         read_tool_started_line_for(seq, "req-1", tool_name)
     }
@@ -7106,6 +7174,19 @@ mod tests {
 
     fn completed_line(seq: u64) -> Scripted {
         completed_line_for(seq, "req-1")
+    }
+
+    /// prompt 被中止的终态。与 `completed_line` 同构，唯一区别是它**不**要求先来一枚
+    /// `tool_finished`——未配对的 tool call 正是本形态下的遗留物。
+    fn canceled_line(seq: u64) -> Scripted {
+        sidecar_line(
+            seq,
+            Some("req-1"),
+            PacketPayload::Terminal(Terminal::Canceled {
+                reason: CancelReason::User,
+                budget: open_budget(0, Some(0.0)),
+            }),
+        )
     }
 
     fn completed_line_for(seq: u64, request_id: &str) -> Scripted {
@@ -7535,9 +7616,14 @@ mod tests {
     /// `PI-WORKSPACE-READ-1` 之后「读操作未实装」这一格**已不成立**（读臂真的在服务），
     /// 原位换成「读能力未谈成」：0.1 能力门对读的可证否形态由 `revoke_workspace_read` 保留，
     /// 与写那一格同构。撤掉之后来一枚读请求，若 0.1 不在，它会一路走到真实文件读取。
+    ///
+    /// `PI-TOOLCALL-BINDING-1` 起，「有没有主」这一门收紧为「**主是不是该工具**」，本表因此
+    /// 由「是否先来一枚 tool_started」升为「先来一枚**谁的** tool_started」，并补齐 tool↔capability
+    /// 错配的全族：写 op 落在 read／glob／grep 三种 tc 名下各一格，读 op 落在 write tc 名下一格
+    /// （`ProductToolName` 闭集恰四道，两向错配的组合就是这四格，无遗留成员）。
     #[test]
     fn counterexample_host_request_gates_refuse_before_any_effect() {
-        // (label, 本次握手撤掉哪一枚能力, 是否装真件, 是否先来一枚 tool_started, 请求)
+        // (label, 本次握手撤掉哪一枚能力, 是否装真件, 先来谁的 tool_started, 请求)
         //
         // 握手闭集恒含 `workspace_write`／`workspace_read`，故两格「能力未谈成」都改由显式
         // 撤销构造——0.1 门的反例因此不因能力到位而失去覆盖。
@@ -7554,41 +7640,79 @@ mod tests {
                 ),
             })
         };
-        let cases: Vec<(&str, Option<WorkspaceCapability>, bool, bool, PacketPayload)> = vec![
+        type GateCase = (
+            &'static str,
+            Option<WorkspaceCapability>,
+            bool,
+            Option<ProductToolName>,
+            PacketPayload,
+        );
+        let cases: Vec<GateCase> = vec![
             (
                 "写能力未谈成",
                 Some(WorkspaceCapability::WorkspaceWrite),
                 true,
-                true,
+                Some(ProductToolName::Write),
                 write_request_packet("纪要.md", WRITE_CONTENT),
             ),
             (
+                // 主换成 read：0.1 能力门是本格**唯一**该失败的门，用同名工具作主，
+                // 免得 BINDING-1 的名分门顶名（顶名之后这一格就不再证 0.1 还在）。
                 "读能力未谈成",
                 Some(WorkspaceCapability::WorkspaceRead),
                 true,
-                true,
+                Some(ProductToolName::Read),
                 read_request_packet(),
             ),
             (
                 "无活动 tool call",
                 None,
                 true,
-                false,
+                None,
                 write_request_packet("纪要.md", WRITE_CONTENT),
             ),
             (
                 "读的无活动 tool call",
                 None,
                 true,
-                false,
+                None,
                 read_request_packet(),
             ),
             (
                 "真件座缺席",
                 None,
                 false,
-                true,
+                Some(ProductToolName::Write),
                 write_request_packet("纪要.md", WRITE_CONTENT),
+            ),
+            // ── `PI-TOOLCALL-BINDING-1`：主不对号的全族（写臂三格 ＋ 读臂一格）──
+            (
+                "写 op 落在 read tc 名下",
+                None,
+                true,
+                Some(ProductToolName::Read),
+                write_request_packet("纪要.md", WRITE_CONTENT),
+            ),
+            (
+                "写 op 落在 glob tc 名下",
+                None,
+                true,
+                Some(ProductToolName::Glob),
+                write_request_packet("纪要.md", WRITE_CONTENT),
+            ),
+            (
+                "写 op 落在 grep tc 名下",
+                None,
+                true,
+                Some(ProductToolName::Grep),
+                write_request_packet("纪要.md", WRITE_CONTENT),
+            ),
+            (
+                "读 op 落在 write tc 名下",
+                None,
+                true,
+                Some(ProductToolName::Write),
+                read_request_packet(),
             ),
         ];
 
@@ -7603,8 +7727,10 @@ mod tests {
                 ],
             )];
             let mut seq = 2;
-            if tool_started {
-                leg.push(tool_started_line(seq));
+            // `read_tool_started_line` 是 tool_name 参数化的那一枚（`tool_started_line` 是它的
+            // Write 简写）；本表四道工具名都要喂，故一律走参数化形。
+            if let Some(tool_name) = tool_started {
+                leg.push(read_tool_started_line(seq, tool_name));
                 seq += 1;
             }
             leg.push(sidecar_line(seq, Some("req-1"), request));
@@ -7697,6 +7823,87 @@ mod tests {
             "第一枚照常服务，第二枚才是被判的那一枚"
         );
         assert_eq!(host_result_count(&log), 1);
+    }
+
+    /// tool call **不得活过它自己的 prompt**（`PI-TOOLCALL-BINDING-1` 作用域缺口）。
+    ///
+    /// `active_tool_call` 此前只随配对的 `ToolFinished` 收束。prompt 被 cancel、或以可重试失败
+    /// 收场时，那一枚 `tool_started` 没有配对事件，旧 prompt 的 tc 于是活到下一枚 prompt——
+    /// 下一枚 prompt 的首枚 `host_request` 就地认它作主，四段账因此会记下「上一轮的 tool call
+    /// 在这一轮提案并完成了一次写入」。账本是本系统唯一的裁决者，它不能记错（不变量 3、6）。
+    ///
+    /// 两道收束各自独立可证否，故本例分两相驱动：
+    /// - **终态收束**（`record_prompt_terminal`）：prompt1 归位当场断言字段已空。
+    /// - **起点收束**（`prompt`）：今日可达路径都先经终态那一道，单靠脚本无法把它与终态那一道
+    ///   分开。故第二相**直接注入**一枚陈旧 tc——它正是「不问上一枚 prompt 怎么结束、新 prompt
+    ///   一律从无主开始」这条 fail-closed 担保的受验输入。注入的是 **write** tc：名分门对它
+    ///   毫无区分力（它本就是写工具），咬得住它的只有作用域这一道。
+    #[test]
+    fn counterexample_a_tool_call_never_survives_its_prompt() {
+        let h = harness("toolcall-scope");
+        let leg = VecDeque::from(vec![
+            ready(
+                1,
+                vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            ),
+            // prompt1：起一枚 write tool call，**不发** `tool_finished` 就被中止收场。
+            tool_started_line(2),
+            canceled_line(3),
+            // prompt2：首枚就是 write host_request，本轮自己从没起过任何 tool call。
+            sidecar_line(
+                4,
+                Some("req-2"),
+                write_request_packet_for("req-2", "纪要.md", WRITE_CONTENT),
+            ),
+        ]);
+        let (mut host, log, effects) = armed_host(&h, vec![leg], ScriptedWriteHost::new(&h));
+
+        let first = host.prompt("req-1", "先起一枚工具再中止");
+        assert!(
+            matches!(first, Ok(Terminal::Canceled { .. })),
+            "第一枚 prompt 正常中止收场，实得 {first:?}"
+        );
+        assert!(
+            host.active_tool_call.is_none(),
+            "prompt terminal 必须收束活动 tool call：没配对 `tool_finished` 的 tc 不得活过本 prompt"
+        );
+
+        // 起点收束单独驱动。
+        host.active_tool_call = Some((TOOL_CALL.to_string(), ProductToolName::Write));
+        let error = host
+            .prompt("req-2", "换一轮直接写")
+            .expect_err("旧 prompt 的 tool call 不得为新 prompt 的写请求认主");
+        assert_eq!(
+            error,
+            HostError::Protocol(ProtocolErrorCode::StateViolation),
+            "实得 {error:?}"
+        );
+        assert_eq!(
+            effects.lock().expect("日志未中毒").probes,
+            0,
+            "被拒的一轮连在场判定都不许做"
+        );
+        assert_eq!(
+            effects.lock().expect("日志未中毒").performs,
+            0,
+            "被拒的一轮 effect 恰零次"
+        );
+        assert_eq!(host_result_count(&log), 0, "不许发 host_result");
+        let types = record_types(&decode_bytes(
+            &fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"),
+        ));
+        assert!(
+            !types.iter().copied().any(is_effect_type),
+            "effect 六型一枚都不许落账（陈旧 tc 尤其不得留下 `tool_proposed`），实得 {types:?}"
+        );
+        assert!(
+            types.contains(&JournalType::SessionFailed),
+            "失败必须显式落账"
+        );
     }
 
     /// 三态收束 ＋ 未获授权 ＋ 授权后状态已变，逐形态锁「哪一枚记录、哪一种 status」。

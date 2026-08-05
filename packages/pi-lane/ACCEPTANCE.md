@@ -3577,3 +3577,203 @@ workspace／resume 后回读）现可跑，格 1/2（/case 直读）本就通；
 证据只能记 external-validated blocked」），不得以「harness 非瓶颈」放行。结转 [需架构拍板]（本单未碰）：
 上浮B logicalPath 空串两侧异源／②游标二元性随 WRITE-HOST 收敛／④`cost_usd` Disabled 臂裸 inf。
 worktree `.claude/worktrees/accept-rtc` 保留至收编。
+
+
+# PI-TOOLCALL-BINDING-1 独立验收（2026-08-05，PASS）
+
+对象 `claude/pi-toolcall-binding-1@edb0896`（base `main@2c8fd7b`）。验收树为独立 clean worktree
+`.claude/worktrees/accept-toolcall-binding@edb0896`（detached），基线对照树
+`.claude/worktrees/accept-tcb-base@2c8fd7b`；**回执逐条当未证宣称核，全部读数自跑**。
+每次 cargo 前 `pgrep -f "chrome-headless-[s]hell|playwrigh[t]"` 计零（退出码 1）。
+
+**制品前置**：两树均缺 `packages/pi-lane/dist/`（gitignore 面），循票面从主仓 `cp -R` 整份复制；
+主仓 `git status` 空、HEAD 恰 `2c8fd7b`，本票 `--name-only` 只两文件（`pi-lane/src` 零触碰）。
+身份**先核后用**，对的是仓内已记读数而非「它是份拷贝」：headless `554,327 B` /
+`52b65d16fbc2f6000cc446cf6588fcca7455a72ecaf512da8db0fb608bc7f79c`（＝`PI-HEADLESS-HARNESS-1` 门 8
+与 `PI-READ-TOOLCALL-1` §四逐值同），product inner `546,906 B` / `36615e5b…`。
+
+## 一 · 范围与禁区（diff `2c8fd7b..edb0896`）
+
+两文件：`apps/desktop/src-tauri/src/pi_loop.rs`（+247/−20）与新增回执 spec。14 枚 hunk，生产面恰 6 处
+——字段 `:564`、`prompt` J3 `:1126`、pump arm `:1207`、`serve_host_request` J1 `:1324`、
+`serve_read_request` J2 `:1492`、`record_prompt_terminal` J4 `:1735`；其余全落 `mod tests`（`:2026` 起）。
+逐条核禁区未越：
+
+- **Node/TS 零触碰**：`git diff --name-only` 恰两文件，`packages/pi-lane/src`、`product-stdio.ts`、
+  `product-runtime.ts` 不在 diff。**wire/journal/codec 零触碰**：`pi_loop_protocol.rs`、
+  `pi_loop_journal.rs` 不在 diff。**`Cargo.toml`／`Cargo.lock`／cap-std 不在 diff。**
+- **`fold()` 推进臂／`uncertain` 压扁**：全 diff 里 `fold` 恰一次命中且是未改上下文行
+  （`self.projection = pi_loop_journal::fold(&self.records);`），`uncertain` 只在回执散文里出现。
+- **capability 字面种子未被批量 sed**：`WorkspaceCapability::` 由 160 → 164 处；把两侧该字面量行
+  抽出逐行 `diff`，结果是**纯增 4 行、零行被改**（新测试 `ready()` 三员＋`write_request_packet_for`
+  一枚）。`ProductToolName::` 由 20 → 32。
+- **取／peek 分野未变**：write 仍 `take`（`:1353`）、read 仍 `as_ref()` peek（`:1527`）。
+
+`active_tool_call` 的**全部生产消费点**枚举（8 处）：`:577` 字段／`:899` 初始化／`:1132` J3／
+`:1234` arm 落值／`:1239`＋`:1243` `ToolFinished` 收束／`:1353` J1／`:1527` J2／`:1775` J4。
+**无第九处、无绕过名分门的消费者。**
+
+## 二 · 族是否真穷举（闭口按族，本票正因上一票没过这一关而存在）
+
+回执宣称「`ProductToolName` 闭集恰四道 × host op 恰两类 ⇒ 错配组合恰四格」。两个乘数都亲核：
+
+- **四道**：`ProductToolName` 是 `closed_enum!` 四员，J1／J2 两处均**穷举无 `_`**（加员即
+  `E0004`，承 arm 处体例）。
+- **两类**——不是靠注释成立，是**codec 结构性锁死**：我另造一枚
+  `host_request{capability: case_read}` 探针，在**建包当刻**即被契约拒：
+  `PacketRejection { code: InvalidSchema, reason: "host_request.capability 不在契约闭集内" }`
+  （`pi_loop.rs:2254` 合契约断言）。第三类 host op 在 wire 上不可构造，故 4×2 确是全族。
+- 另核 `serve_read_request` 全仓**唯一调用点**是 `serve_host_request:1336`，J2 无旁路入口。
+
+**结论：四格反例确实穷尽该族，无未点名的同族成员逃逸。**
+
+## 三 · born-red 独立复现（自己逆向，自己出探针，不采信回执脚本）
+
+逆向四道判据回 base 语义（J1 → 任主 `take`、J2 → `is_none()`、J3/J4 两行删除；保留元组字段以便探针
+编译），四枚 `perl -0777` 每枚 `HITS=1`。随后跑**我自写的 13 格探针矩阵**（非回执那张表，逐格独立
+起 host，不受表驱动首格中止影响）：
+
+| 我的探针 | born-red（base 语义） | 交付树 |
+|---|---|---|
+| 写 op 落 **Read** tc | `Process(UnexpectedEof)`；probes=2 **performs=1** host_result=1 tool_proposed=**true** | `Protocol(StateViolation)`；全零 |
+| 写 op 落 **Glob** tc | 同上 | 同上（拒） |
+| 写 op 落 **Grep** tc | 同上 | 同上（拒） |
+| 读 op 落 **Write** tc | `Process(UnexpectedEof)`；host_result=1 | `Protocol(StateViolation)`；host_result=0 |
+| P-A tc 已 `finished` 后来写 op | 拒 | 拒（该族成员本就由 `ToolFinished` 收束结构性关闭） |
+| P-B `write` tc 被 `read` tc 覆盖后写 op | **served**（performs=1） | **拒** |
+| P-C `write` tc 被**另一枚 `write`** tc 覆盖后写 op | served（performs=1，账上 tc-A/tc-B 并存） | **served**（见 §六） |
+| P-D 写 op 消费掉 tc 后再来读 op | 拒 | 拒 |
+| P-E 读 op（peek 不消费）之后来写 op | **served**（host_result=2，performs=1） | **拒** |
+| 正向：Read／Glob／Grep tc 各发读 op | 服务 | 服务（零回归） |
+| 正向：Write tc 发写 op | 服务（performs=1） | 服务（performs=1） |
+
+**红形与回执宣称逐字相符，且比回执更决定性**：撤 J1/J2 后不是「红了」，是
+`Process(UnexpectedEof)`（请求被服务到底、脚本随即耗尽），**并且 `performs=1`——写 effect 在一枚
+`read`／`glob`／`grep` tc 名下真的执行了**，账上落 `tool_proposed`。这正是不变量 3、6 失守的实测形态。
+
+回执自带两枚反例亦在同一 born-red 树上独立复红，错型逐字对上：
+`counterexample_host_request_gates_refuse_before_any_effect` → `left: Process(UnexpectedEof) /
+right: Protocol(StateViolation)`；`counterexample_a_tool_call_never_survives_its_prompt` → 相一
+panic「prompt terminal 必须收束活动 tool call」。还原后 SHA 逐字复原
+`9b727e4d3089db4fcd748fbc336538da59ebba21095b401b09d68cb9c82b5bac`、`git status` 归零。
+
+## 四 · mutation 独立重跑（逐枚撤一道判据，全量 `cargo test --lib`）
+
+体例：`cp` 备份 → `perl -0777 -i` 打印命中数（均 `HITS=1`）→ 全量跑 → `cp` 还原 → 每枚核 SHA。
+
+| 编号 | 撤掉 | 实测 | 红形 |
+|---|---|---|---|
+| M1 | J1 写臂名分 | **236 passed / 1 failed** | 「写 op 落在 read tc 名下」`left: Process(UnexpectedEof) / right: Protocol(StateViolation)` |
+| M2 | J2 读臂名分 | **236 / 1** | 「读 op 落在 write tc 名下」同形 |
+| M3 | J3 起点收束 | **236 / 1** | `…never_survives_its_prompt` 相二 `left: Process(UnexpectedEof)` |
+| M4 | J4 终态收束 | **236 / 1** | 相一 panic「prompt terminal 必须收束活动 tool call」 |
+| M5 | J0 arm 恒记 `Write` | **230 / 7** | 七枚逐名对上：`a_new_leg_after_interruption_reads_back…`／`counterexample_host_request_gates…`／`counterexample_read_proposal_hash…`／`headless_workspace_readback_succeeds_after_read_toolcall_fix`（真 sidecar 往返）／`read_arm_refuses_symlinks…`／`read_arm_serves_many_operations…`／`real_read_arm_returns_the_bytes…` |
+
+五枚全部逐字还原、`git status` 归零、零残留、无等价变异、无作废变异。
+
+**登记一处口径限制（不影响判定）**：M1 只红一枚测试，而该测试是表驱动、首格失败即中止——「1 failed」
+本身对 glob／grep 两格零信息。**该两格由 §三 我自写的逐格独立探针补齐**，不靠 M1 的计数。
+
+## 五 · 回执自述逐条对照（固定项：注释与立门缘由都是宣称）
+
+| # | 回执宣称 | 核 |
+|---|---|---|
+| 门 1 | 交付 237/0/1、基线 236/0/1 | **两端亲跑核实**（§七），净增恰 1 |
+| 门 2 | clippy 7 warnings 全 pre-existing 全住 `lib.rs`，本单归属 0 | **属实**：5 unsafe（`lib.rs:1553/1554/1560/1564/1566`）＋2 return（`lib.rs:199/531`），`pi_loop.rs` 零 |
+| 门 3 | rustfmt 8 处 drift，与 base 逐字节相同 | **属实**：两树各 8 枚 `Diff in`，剥掉首行路径后 drift 正文 `diff` 退出 0（逐字节同）；新增段零 drift |
+| §五-6 | J3 今日两条可达路径不可脚本驱动 | **属实**：`ScriptedLeg::write_packet` 恒 `Ok(())`；`write_encoded` 只 `map_err(HostError::Process)`，不走 `fail_*` 故不关 session |
+| §四.1 B4 | 「读 op 被 peek 放行、**走到真读件座**」 | **不准确**（见下） |
+| §五-2 | 「旧写法下 write 主发读 op，本单之后会先被 J2 顶掉」 | **前提被证否**（见下） |
+
+**B4 措辞订正**：该表格用的是局部闭包版 `read_request_packet()`，其 `proposal_hash` 是 `PROBE_SHA`
+（非真值）。我在 born-red 树上直取该形态实测，出站是
+`HostResultPayload{ capability: WorkspaceRead, operation: List, outcome: Failed{ code: HashMismatch,
+message: "内容与提案哈希不一致" } }`——它止步于**早一道**的本侧重算门，从未走到读件座。判据不受影响
+（该格断言是 `StateViolation` ＋ `host_result_count == 0`，born-red 下两条都破），只是决定性列的散文
+把「过了名分门」写成了「到了读件座」。
+
+**偏离②的理由被证否（结论对、前提假）**：0.1 能力门在 `serve_host_request` 顶部
+（`capabilities.contains(&request.capability)`），**严格早于** `serve_read_request` 内的 J2，且
+`serve_read_request` 全仓唯一调用点就在 0.1 之后。故 J2 不可能「顶掉」那一格。实测坐实：把该格主
+改回 `Write` **并且**同时撤掉 J2，该格**仍然通过**（本轮失败发生在第 9 格「读 op 落在 write tc
+名下」，即第 2 格已过）。换主本身无害——两种主都落在 0.1 上，该格证的东西没变——但回执给的理由
+是假前提，按验收固定项登记。
+
+## 六 · 我另造的探针：一枚同族缺陷仍开放（本票未闭、未恶化、已收窄）
+
+`ACCEPTANCE.md:2409` 曾登记「第二枚 `tool_started` **无条件覆盖** `active_tool_call`，槽位已占用
+不是 fail-closed 而是丢掉前一枚认领」，建议随后续票改 fail-closed。本票 arm 处仍是无条件赋值，
+故亲测两形：
+
+- **跨工具形（P-B）**：`tool_started{tc-A, write}` → `tool_started{tc-B, read}` → 写 op。
+  base **served**（performs=1）；**交付树拒**（主是 `read`）。⇒ 本票把该缺陷**收窄**到同名工具内。
+- **同工具形（P-C）**：`tool_started{tc-A, write}` → `tool_started{tc-B, write}` → 写 op。
+  base 与交付树**双双 served**（probes=2 / performs=1 / host_result=1），journal 里 tc-A 与 tc-B 并存
+  ——tc-A 的认领被静默丢弃，写入记在 tc-B 名下。**该缺陷仍开放。**
+
+判定：**不阻断本票**。本票行的族定义是「tool↔capability 名分」与「tc 作用域」两条，槽位占用属
+ADR-022 :285-290 另一句（「状态机仍须显式守住每 prompt 至多一枚未 finished tc」），不在本票面上；
+且本票只把它变窄、未变宽。**据实上浮，请架构决定是否随 `PI-HOST-CONCURRENCY-1` 一并收口**——
+那一票要改 prompt 出口形态，正是同一处。
+
+另外两枚探针确认既有边界成立、非本票新洞：tc 已 `finished` 后来写 op 拒（P-A）；写 op `take` 掉 tc
+后再来读 op 拒（P-D）；读 op peek 之后来写 op，交付树拒而 base 放行（P-E）。
+
+## 七 · 门禁实跑（本树自跑，逐条记退出码，未经管道吞码）
+
+| 门 | 读数 | 退出码 |
+|---|---|---|
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`（交付 `edb0896`） | **237 passed / 0 failed / 1 ignored** | 0 |
+| 同上（基线 `2c8fd7b`，独立 worktree＋同一份 dist） | **236 passed / 0 failed / 1 ignored** | 0 |
+| `cargo clippy --all-targets --offline` | 7 warnings 全住 `lib.rs`，`pi_loop.rs` 归属 0 | 0 |
+| `rustfmt --edition 2021 --check pi_loop.rs` | 8 处 drift；base 亦 8 且正文逐字节同 | — |
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size／dynamic-import warning） | 0 |
+| `pnpm lint`（`eslint .`） | 通过 | 0 |
+
+**Playwright 与 desktop vitest 不跑，理由显式**：本票是 Rust-only 单文件改动，`.ts`／`.tsx`／配置
+零触碰（`--name-only` 两文件为证），二者的被测面与本票无交集；TS 侧编译与静态面已由
+`pnpm -r build`＋`pnpm lint` 两枚实跑覆盖。**这是判断，不是静默跳过。**（附带一条订正：回执以
+「并行 worktree 非空 ⇒ 根 lint 可能环境红」为由未跑仓级门；该判例成立，但在本验收树内
+`.claude/worktrees/` 不存在，两枚仓级门实跑均退出 0，无环境红。）
+
+## 八 · 偏离裁定与结转
+
+回执六条偏离逐条：①case 表元组第四位 `bool → Option<ProductToolName>`（5 行既有格随改，其中 4 行
+机械等价 `true→Some(Write)`／`false→None`）——**追认**；②「读能力未谈成」格换主——**动作追认，
+理由驳回**（§五，假前提）；③`GateCase` 局部别名收 `type_complexity`——**追认**（clippy 实测 7 枚
+pre-existing、本单归属 0）；④`read_tool_started_line` 命名残留只加注不改名——**追认**（知情接受，
+改名属工单外 churn）；⑤两枚新测试助手（`write_request_packet_for`／`canceled_line`）——**追认**
+（既有助手的参数化／同构版，无新概念）；⑥相二直接注入陈旧 tc——**追认，并登记覆盖形态限制**：
+其可达性自述经核属实，但「本票边界内能让 J3 单独承重的最小手段」略有过头——给 `ScriptedLeg`
+补一枚写失败注入是纯测试面改动，同样在 Rust-only 边界内，只是被判为工单外 churn 而未做。故 J3
+今日**只由注入输入承重、从未被脚本路径驱动**，随 `PI-HOST-CONCURRENCY-1` 转真竞态驱动前，这是
+一处如实登记的覆盖形态债，不是零覆盖。
+
+**`[需架构拍板]` 裁定（Node `TOOL_CAPABILITY` 与 Rust J1/J2 两份同源真值）**：两侧合并真源确须先在
+wire 上放 `toolCallId`，票面明令不改 wire ⇒ **该轴上「超出边界」成立**。但「两侧各自穷举是本票边界内
+可得的最强形态」这句**在另一根轴上过头了**：Rust 这一侧的映射今天仍写了**两遍**（J1、J2 两处
+穷举 `match`）。一枚 `fn capability_for(ProductToolName) -> WorkspaceCapability` 单点穷举、两臂各自
+比对，同样在边界内、更便宜，且严格更强——按本仓 1R5 判例「同步消灭优于同步验证」（实现者自己引了
+这条去论证 Node↔Rust 轴），加第五道工具时它只逼**一次**裁定，而现形态逼两次、两处可各自改成互相矛盾。
+不阻断放行（现形态两臂都 fail-closed，M1/M2 已证各自承重），**作为建议上浮**，与 §六 的槽位缺陷一并
+供架构在 `PI-HOST-CONCURRENCY-1` 排产时合并考虑。
+
+结转（本单未碰、原样挂各自门）：上浮B `logicalPath` 空串两侧异源／②游标二元性随 `PI-WRITE-HOST-1`
+收敛／④`cost_usd` Disabled 臂裸 inf。
+
+## 九 · 结论
+
+**判定：PASS。** 回归确已修复，且 Rust 侧恢复的是**等价或更强**的判据：旧形态「主必是 write」由
+`match` 模式顺带承担、只覆盖写臂；新形态把它显式化为两臂各一道穷举名分门，**读臂那一半是旧形态
+从来没有的**，作用域两道（J3/J4）也是新增。族确已穷举——四道工具由 `closed_enum!` 锁死，两类
+host op 由 codec 在建包当刻锁死，4×2 的四格错配全列且逐格独立复红；`active_tool_call` 八处生产
+消费点无旁路。born-red 亲自逆向复现，红形是回执宣称的 `Process(UnexpectedEof)` 而非
+`StateViolation`，并实测到 `performs=1`——撤门之后写 effect 真的在读 tc 名下执行。五枚 mutation
+逐枚独立、零残留、SHA 逐字复原。门禁本树实跑：cargo 237/236 两端对账、clippy 本单归属 0、rustfmt
+零新增 drift、`pnpm -r build` 与 `pnpm lint` 双 0。
+
+本会话**未改任何产品面**（born-red、13 格探针、5 枚 mutation、2 枚偏离核验全部 `cp` 还原、SHA 复原
+`9b727e4d…`、`git status` 归零），只新增本节验收记录；不 merge、不 push 分支、不更新
+`docs/status/current.md` 与 implementation-readiness、不开下游票。两处上浮见 §六（槽位覆盖同族缺陷
+仍开放）与 §八（Rust 侧映射可单点化）。worktree `.claude/worktrees/accept-toolcall-binding` 与基线树
+`.claude/worktrees/accept-tcb-base` 保留至收编。
