@@ -42,7 +42,7 @@ ADR-009 **2026-08-05 窄修订**（命令通道端口）；设计面 `docs/desig
 | 宿主兼容 | peer `react ^18 || ^19`，本仓 React 19.1 |
 | bundle delta | app chunk **1,298.80 kB → 1,582.34 kB**（gzip **399.20 → 482.55 kB**）。该 delta 含本票自身约 1.5k 行新 UI 代码，不全归上游 |
 | 语义边界 | 只用 headless primitives（`Thread`/`Message`/`Composer`）＋公共 `useExternalStoreRuntime`；只提供 `onNew`/`onCancel` 两枚 callback，**未提供**的 edit/reload/branch/queue 因此结构性关闭 |
-| `unstable_*` | 零使用（`grep -c 'unstable_' apps/desktop/src` ⇒ 0） |
+| `unstable_*` | 零使用。`grep -rn 'unstable_' apps/desktop/src` 恰 **1 命中**，是 `PiLanePanel.tsx` 头注里「零 `unstable_*`」那一句本身——判据是**零 import／零调用**，逐行看那一命中即可确认（描述禁形不得复现禁形本身，故此处写清是哪一行而不是报 0） |
 | 禁类核对 | 零 `LocalRuntime`、零 `AssistantCloud`、零 AI SDK／AG-UI／OpenCode adapter、零 thread persistence/export、零 stock Tailwind/shadcn 皮层、零 `@tanstack` |
 
 **一手核实中发现、如实登记的两件**：
@@ -85,7 +85,8 @@ Rust `PiLoopHost::record()`（唯一入册口）
 档位：**Agent 中间档**（设计凡例总纲）。构图、比例、间距与浅色微调由真实截图迭代
 （票面授权面），未冻结 wireframe，也不以「像某参考站」为验收标准。
 
-- **零新色**：全部取 `tokens.json` 现值，`grep` 全新增 CSS 零 hex/rgb/hsl 字面量。
+- **零新色**：全部取 `tokens.json` 现值。实测：`styles.css` 的 pi 段 138 行内 hex/rgb/hsl 字面量
+  **0 命中**，`src/pi/**` 亦 0。
 - **零阴影、零渐变、零圆角汤**（扁平）；动效只用既有 `--motion-hover`，四属性白名单不破。
 - **版本目录学**：三位编号（`001`）、等宽核验体（session 号、字节、hash 前 12、回合与开销）、
   目录学式索引标题。
