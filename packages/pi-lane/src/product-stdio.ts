@@ -321,6 +321,15 @@ export function createProductSidecarSession(
   /** 公开 tc→身份与阶段。owner/name/phase 三门与闩锁自发 `tool_finished` 都凭它。 */
   const toolCalls = new Map<SafeToken, ToolCallRecord>();
   /**
+   * 闭集外 toolName 的 raw tc 登记册（PI-UNKNOWN-TOOL-1）。
+   *
+   * 它**不是**第二份公开 tc 真源：这些 tc 从不铸公开 id、不占 ordinal、不上 wire，
+   * 登记的唯一用途是让同一枚 tc 的后续 `tool_progress`/`tool_finished` 认得出自己
+   * 是「同一次未投影调用」，而不是被当成 finish-无-start 的违约。记 owner prompt 与
+   * 名字，是为了让改名与跨 prompt 引用照旧 fail-closed——放行的只有「名字不在闭集」一条。
+   */
+  const unprojectedToolCalls = new Map<string, { requestId: SafeToken; toolName: string; finished: boolean }>();
+  /**
    * 本 prompt 中尚未 finished 的那一枚 tc。产品 Agent 固定 `toolExecution:'sequential'`，
    * 但那是上游调度，不是安全边界——「每 prompt 至多一枚未 finished tc」必须由本机器显式守住。
    */
@@ -838,12 +847,9 @@ export function createProductSidecarSession(
         return;
       }
       case 'tool_started': {
-        // toolName 闭集先于一切：cast 或未来上游工具不得凭空登记一枚 tc。
-        if (!PRODUCT_TOOL_NAMES.has(event.toolName)) {
-          failUpstream();
-          return;
-        }
-        if (toolCallIds.has(event.rawToolCallId)) {
+        // 同一枚 raw tc 重复登记是实现层违约，与名字在不在闭集无关；两本册子一起查，
+        // 免得未投影的那一枚成为「重复登记」的免检通道。
+        if (toolCallIds.has(event.rawToolCallId) || unprojectedToolCalls.has(event.rawToolCallId)) {
           failUpstream();
           return;
         }
@@ -851,6 +857,25 @@ export function createProductSidecarSession(
         if (closeSettledEffectOnViolation()) return;
         if (activeToolCallId !== null) {
           failUpstream();
+          return;
+        }
+        /*
+         * 闭集外的 toolName 不是上游违约（PI-UNKNOWN-TOOL-1）。
+         *
+         * 内核在**查工具表之前**就以模型自填的名字发 `tool_execution_start`，查不到才回
+         * `Tool X not found` 的 isError 结果并照常回灌模型（`agent-loop.js` 的
+         * `executeToolCallsSequential`／`prepareToolCall`；`failToolCallsFromTruncatedMessage`
+         * 同形）。故这枚事件的名字是**模型输出**，把它判成实现层违约，等于模型随口叫一声
+         * `bash`／`edit` 就非可重试地关掉 logical session、连带停摆 `/workspace` 既有工作稿——
+         * 与 SPEC 三.1「模型请求 edit/bash 得到内核 Tool X not found、isError 回灌可见」相反。
+         *
+         * 处置是**不投影**而非**不接受**：wire 的 `toolName` 是闭集类型，没有表达「模型叫了
+         * 一个不存在的工具」的形状（扩 wire 不在本票范围），而显式回答本就由内核直接交给
+         * 模型，不经这条投影。此处零 effect、零公开 tc、零 ordinal、零计数器变动，
+         * 上面三道结构门则一道不减——放行的只有「名字不在闭集」这一条。
+         */
+        if (!PRODUCT_TOOL_NAMES.has(event.toolName)) {
+          unprojectedToolCalls.set(event.rawToolCallId, { requestId, toolName: event.toolName, finished: false });
           return;
         }
         toolCallOrdinal += 1;
@@ -867,6 +892,8 @@ export function createProductSidecarSession(
         return;
       }
       case 'tool_progress': {
+        // 未投影的那一枚 tc 的 progress 同样不投影：start 没上 wire，它的中途状态自然无处可挂。
+        if (resolveUnprojectedToolCall(event.rawToolCallId, requestId, event.toolName) !== null) return;
         const active = resolveActiveToolCall(event.rawToolCallId, requestId, event.toolName);
         if (active === null) {
           failUpstream();
@@ -877,6 +904,16 @@ export function createProductSidecarSession(
         return;
       }
       case 'tool_finished': {
+        /*
+         * 未投影 tc 的收尾。内核对查不到的工具是「emit start → immediate 错误结果 →
+         * emit end」的定式，故这枚 end 必到；把它标成 finished 而不是删表，是为了让
+         * 第二次收尾仍落进下面的 fail-closed 支——单向推进与公开 tc 那一侧同构。
+         */
+        const unprojected = resolveUnprojectedToolCall(event.rawToolCallId, requestId, event.toolName);
+        if (unprojected !== null) {
+          unprojected.finished = true;
+          return;
+        }
         const active = resolveActiveToolCall(event.rawToolCallId, requestId, event.toolName);
         if (active === null) {
           failUpstream();
@@ -950,6 +987,26 @@ export function createProductSidecarSession(
     if (record.toolName !== toolName) return null;
     if (record.phase === 'finished') return null;
     return { toolCallId, record };
+  }
+
+  /**
+   * 未投影 tc 的解析门（PI-UNKNOWN-TOOL-1），与 {@link resolveActiveToolCall} 逐条同构：
+   * 本 prompt 铸出、与登记同名、尚未收尾，三条全过才算同一次未投影调用。
+   *
+   * 任一不成立就返回 null，调用方随即落回原有 fail-closed 支——改名、跨 prompt 复用、
+   * 二次收尾因此照旧关会话，「名字不在闭集」不是它们的免罪符。
+   */
+  function resolveUnprojectedToolCall(
+    rawToolCallId: string,
+    requestId: SafeToken,
+    toolName: string,
+  ): { requestId: SafeToken; toolName: string; finished: boolean } | null {
+    const record = unprojectedToolCalls.get(rawToolCallId);
+    if (record === undefined) return null;
+    if (record.requestId !== requestId) return null;
+    if (record.toolName !== toolName) return null;
+    if (record.finished) return null;
+    return record;
   }
 
   /** 只读查询：本 leg 的 raw→公开 tc。查不到即 `undefined`，调用方据此拒绝，绝不代分配。 */

@@ -14,8 +14,10 @@
  *    dev `session.ts` 的 per-prompt `budget.reset()` 正是本票 first-red 打掉的那条行为。
  *    pi 不接受来自扩展的「停」（`shouldStopAfterTurn` 不经 Agent 转发），故越限只能 abort。
  * 4. **投影闭集如实转发**。上游事件翻成 `OutboundAgentEvent` 后交给状态机；闭集外的
- *    toolName **不吞**：product stdio 已冻结「不在投影闭集内即 upstream 违约」，
- *    runtime 再立第二套策略就会有两处可漂移的真源。
+ *    toolName **不吞**：闭集判定的唯一真源在 product stdio 的投影入口，runtime 再立
+ *    第二套策略就会有两处可漂移的真源。状态机自 `PI-UNKNOWN-TOOL-1` 起把该判定分成两支——
+ *    模型自填的闭集外名字只是不投影（内核随后必回 `Tool X not found` 的 isError 结果并
+ *    回灌模型），实现层违约仍 fail-closed——两支都在那一侧，这里照旧一件不吞、一件不判。
  *
  * `toolExecution:'sequential'` 是显式固定值，不依赖上游 0.82.1 的 `parallel` 缺省。
  */
@@ -482,7 +484,8 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
         return;
       }
       case 'tool_execution_start':
-        // 闭集外的 toolName 如实转发：状态机已冻结「不在投影闭集内即 upstream 违约」。
+        // 闭集外的 toolName 如实转发：内核在查表**之前**发这枚事件，名字因而可能是模型
+        // 自填的任意串；判它是「未投影调用」还是「实现层违约」属状态机，runtime 不预判。
         publish({ kind: 'tool_started', rawToolCallId: event.toolCallId, toolName: event.toolName as never });
         return;
       case 'tool_execution_update':

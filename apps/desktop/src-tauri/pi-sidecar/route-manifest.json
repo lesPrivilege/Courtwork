@@ -5,8 +5,8 @@
   "useCodeCache": false,
   "bundle": {
     "resourceRelativePath": "pi-loop-resources/sidecar.cjs",
-    "bytes": 546906,
-    "sha256": "36615e5b6c9e54ddb153608985f369cc88e350c17e2eddd6915821a7850150fd"
+    "bytes": 547283,
+    "sha256": "93f04a1cd767d5541bffd24f8b4845129a6ed2dafd00872a1e22dc991fb0185c"
   },
   "targets": [
     {
