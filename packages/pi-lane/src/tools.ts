@@ -19,6 +19,8 @@ import {
 } from '@earendil-works/pi-agent-core';
 import { Type } from '@earendil-works/pi-ai';
 
+import { DUAL_ROOT_ADDRESSING_NOTE } from './workspace-write-env.js';
+
 /**
  * 单次调用的遍历与输出上限：dev 线不做无界扫描。
  *
@@ -203,14 +205,26 @@ function incompleteNote(input: {
   return clauses.length === 0 ? '' : `\n（${clauses.join('；')}；结果可能不完整）`;
 }
 
+/**
+ * 起点参数的说明按双根口径写（`PI-DUALROOT-CONTRACT-1`）：可给逻辑绝对路径，不带前缀的按默认根
+ * `/workspace` 解析，省略则两根全检索。glob/grep 的 schema 是我方自备的，故这一处能改；
+ * `read`/`write` 的 `path` 说明住在上游 schema 里，改它要换 schema 对象、破掉同一性，那两件的
+ * 口径因此落在 description 上（见 {@link bindReadToLogicalRoot} 与 `bindWorkspaceWriteTool`）。
+ *
+ * dev 形态只有一枚授权文件夹，「省略即全部」与「不带前缀即根下」在那里说的是同一件事；一份文案
+ * 对两形态都成立，不必分叉出第二份 schema——分叉即两处可漂移的模型面契约。
+ */
+const START_PATH_DESCRIPTION =
+  '起始子目录；可写 `/case/…` 或 `/workspace/…` 逻辑绝对路径，不带前缀按 `/workspace` 解析，省略即全部检索';
+
 const globSchema = Type.Object({
   pattern: Type.String({ description: '文件名匹配式，支持 `**`、`*`、`?`，如 `**/*.md`' }),
-  path: Type.Optional(Type.String({ description: '相对授权文件夹的起始子目录，默认为授权文件夹根' })),
+  path: Type.Optional(Type.String({ description: START_PATH_DESCRIPTION })),
 });
 
 const grepSchema = Type.Object({
   pattern: Type.String({ description: '正则表达式（区分大小写关闭），逐行匹配' }),
-  path: Type.Optional(Type.String({ description: '相对授权文件夹的起始子目录，默认为授权文件夹根' })),
+  path: Type.Optional(Type.String({ description: START_PATH_DESCRIPTION })),
 });
 
 /**
@@ -285,13 +299,20 @@ async function resolveScopes(
   return { ok: true, scopes: [{ base: root, start: started.value, project: rootProjection(root) }] };
 }
 
+/**
+ * 双根口径只挂产品形态（`PI-DUALROOT-CONTRACT-1`）。dev 形态根本没有逻辑根——那里只有一枚
+ * 授权文件夹，写上「两个逻辑根」就是一句假话；模型面的契约文案不许出现装配面上不成立的句子。
+ */
+const withAddressingNote = (base: string, logicalRoots: readonly string[] | undefined): string =>
+  logicalRoots === undefined ? base : `${base}\n${DUAL_ROOT_ADDRESSING_NOTE}`;
+
 function createGlobTool(
   logicalRoots: readonly string[] | undefined,
 ): AgentHarnessTool<ExecutionToolContext, typeof globSchema, Record<string, unknown>> {
   return {
     name: 'glob',
     label: '按名检索',
-    description: '在授权文件夹内按文件名模式列出文件。授权文件夹外的路径一律拒绝。',
+    description: withAddressingNote('在授权文件夹内按文件名模式列出文件。授权文件夹外的路径一律拒绝。', logicalRoots),
     parameters: globSchema,
     async execute(_toolCallId, params, _signal, _onUpdate, context) {
       const resolved = await resolveScopes(context, logicalRoots, params.path);
@@ -356,7 +377,7 @@ function createGrepTool(
   return {
     name: 'grep',
     label: '按内容检索',
-    description: '在授权文件夹内按正则逐行检索文本文件。授权文件夹外的路径一律拒绝。',
+    description: withAddressingNote('在授权文件夹内按正则逐行检索文本文件。授权文件夹外的路径一律拒绝。', logicalRoots),
     parameters: grepSchema,
     async execute(_toolCallId, params, _signal, _onUpdate, context) {
       const resolved = await resolveScopes(context, logicalRoots, params.path);
@@ -455,8 +476,11 @@ function createGrepTool(
  * read 的逻辑根 binder（PI-HOST-LOOP-1 §二.1）。
  *
  * 三条硬约束，撤掉任一条都须有红证：
- * 1. `name/label/description/parameters` 原样转出，`parameters` 必须是**同一对象**——
- *    模型看到的 schema 不因产品形态而变，也就没有第二份可漂移的工具契约；
+ * 1. `name/label/parameters` 原样转出，`parameters` 必须是**同一对象**——模型看到的 schema
+ *    不因产品形态而变，也就没有第二份可漂移的工具契约。`description` 是唯一例外，且是**追加**
+ *    不是改写（`PI-DUALROOT-CONTRACT-1`）：上游原文逐字在前，双根口径缀于其后；上游的
+ *    `(relative or absolute)` 只描述单根世界，模型据它无从知道裸相对路径归哪个根，而 `path`
+ *    参数说明住在上游 schema 里，改它就要换 schema 对象、破掉本条同一性；
  * 2. path 归一交给**本次 env**（产品形态即 `/case` 容器），tools 里不复制第二份 grammar；
  * 3. 归一后只调用一次原版 `execute`。上游截断提示里的 `${path}` 因此只能是逻辑绝对路径。
  *
@@ -470,7 +494,7 @@ function bindReadToLogicalRoot(
   return {
     name: upstream.name,
     label: upstream.label,
-    description: upstream.description,
+    description: `${upstream.description}\n${DUAL_ROOT_ADDRESSING_NOTE}`,
     parameters: upstream.parameters,
     async execute(toolCallId, params, signal, onUpdate, context) {
       const requested = (params as { path?: unknown }).path;
@@ -498,6 +522,11 @@ export interface ReadOnlyToolsOptions {
    * 产品形态给 `[CASE_LOGICAL_ROOT, WORKSPACE_LOGICAL_ROOT]` 两枚（次序即不给起点时的检索
    * 次序）。`read` 的路由不看这张表——它交给本次 env 的 `absolutePath`，双根 env 自己按前缀
    * 分派；这张表只决定 glob/grep 在**没有起点**时走哪几棵树。
+   *
+   * **产品装配恰一形**：`product-runtime.ts` 是唯一生产调用点，两根固定、默认根固定
+   * `/workspace`（`PI-DUALROOT-CONTRACT-1`）。本参数的其他取值只存在于单测的特征化装置里；
+   * 双根口径文案因此是常量而非按取值生成——生成式文案要多一份「文案随配置变」的真源，
+   * 而配置在生产上只有一种。
    */
   readonly logicalRoots?: readonly string[];
 }

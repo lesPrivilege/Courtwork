@@ -36,19 +36,18 @@ durable-before-effect 总验均已逐票兑现。Node 直写与 bash 没有因�
 | `tool-policy.ts` | 工具闸门。挂 pi 内核 `beforeToolCall`，把「默认放行」翻转为默认拒绝 |
 | `tools.ts` | 只读三件：`read`（pi 原版）、`glob`、`grep`（自备，同样只经 env）。产品形态双根：命中相对**各自根**算再投影，`../workspace` 结构性产不出 |
 | `workspace-read-env.ts` | host-mediated `/workspace` 只读容器（`PI-WORKSPACE-READ-1`）。每次读是一枚 `exists｜read_file｜list` host request，Node 侧零 fs；`read_file` 回读双验（重编码后 hash/byteLength/logicalPath 三项复核） |
-| `dual-root-env.ts` | 双根路由容器。按逻辑前缀把一枚 `ExecutionEnv` 分派到 `/case`（Node 直读）或 `/workspace`（host-mediated）。只分派，不改写返回值 |
+| `dual-root-env.ts` | 双根路由容器。按逻辑前缀把一枚 `ExecutionEnv` 分派到 `/case`（Node 直读）或 `/workspace`（host-mediated）；不带前缀的按**具名默认根**分派。只分派，不改写返回值 |
 
-> **`tools.ts` 行「命中相对各自根算」的在册缺口（2026-08-05 登记，票号 `PI-DUALROOT-CONTRACT-1`）**：
-> 该承诺**当前未兑现于无前缀输入**，且承诺不改——按协调裁定 R4，契约不向缺陷弯，缺口登记待票偿。
-> 实测：裸相对路径在写面绑 `/workspace`（`workspace-write-env.ts` 的 `resolveWorkspaceLogicalPath`，
-> 无前缀即 `relative = input`），在读面经 `dual-root-env.ts` 的 `route()` 落 `roots[0]` fallback 即
-> `/case`，且 `/case` 容器照收——**同一字符串两义，无任何一层拒绝**；四件工具的 description 与
-> `path` 参数说明仍是单根口径，而 system prompt 第四条要求「写后回读确认」，模型复用同一路径即落到
-> 另一根。改法二选一（读侧对称绑 `/workspace`，或 `route()` 对无前缀输入具名 fail-closed），无论哪条
-> 都须同批把四件工具契约文案改双根口径——工具契约是模型唯一能读到的寻址规则，prompt 不能替它。
-> 票面与退出证据见 `docs/architecture/implementation-readiness.md` 的 `PI-DUALROOT-CONTRACT-1` 行
-> （**须早于 §九 六格 3/4 判读**，否则 harness 缺陷会被误记为模型能力不足）。
-> `../workspace` 结构性产不出这一半仍成立，本缺口只涉无前缀输入的落根归属。
+> **双根寻址单一口径（`PI-DUALROOT-CONTRACT-1`，2026-08-05 已偿）**：四件工具的裸相对路径**一律
+> 落 `/workspace`**，读案件材料一律显式 `/case/` 前缀（ADR-022 六-C 同日修订，原「read/glob/grep
+> 默认 `/case`」两义口径废止）。缺陷原形如实留档：写面无前缀即 `relative = input`（落
+> `/workspace`），读面经 `route()` 落 `roots[0]` fallback（落 `/case`），且两根都照收——同一字符串
+> 两义、无任何一层拒绝；模型照 system prompt 第④条「写后回读」复用同一路径就落到了另一根。
+> 现行两处收口：①`dual-root-env.ts` 的默认根由 `roots[0]` 这个位置副产品改成具名
+> `defaultLogicalRoot`（认不出在册根即当场拒绝装配），`product-runtime.ts` 这唯一生产装配点写死
+> `/workspace`；②四件工具 description 逐件挂同一枚 `DUAL_ROOT_ADDRESSING_NOTE`，glob/grep 的
+> `path` 参数说明同批改双根口径——工具契约是模型唯一能读到的寻址规则，prompt 不能替它。
+> `../workspace` 结构性产不出这一半始终成立，不受本次改动影响。
 | `budget.ts` | 回合与开销计量 |
 | `session.ts` | 装配 pi `Agent` + 容器 + 闸门 + 预算 |
 | `provider.ts` | DeepSeek 甜点档接线与就绪判定 |
@@ -159,6 +158,13 @@ durable-before-effect 总验均已逐票兑现。Node 直写与 bash 没有因�
    在读容器里也不成立：`read_file` 的正文由 Rust 侧 UTF-8 fail-closed 取出，Node 侧再按
    重编码后的 hash/byteLength 双验，坏字节结构性到不了命中面。
 
+9. **上游两件的 `path` 参数说明改不动**（`PI-DUALROOT-CONTRACT-1`）。`read`/`write` 的 schema 是
+   上游对象，binder 必须原样转出**同一枚** `parameters`（validator 缓存按 schema 身份取），故
+   上游那句 `Path to the file to … (relative or absolute)` 维持原文——它只描述单根世界，说不出
+   裸相对路径归哪个根。双根口径因此落在这两件的 `description` 上（**追加**，上游原文逐字在前），
+   glob/grep 的 `path` 说明则同批改到位（自备 schema，能改）。要连参数说明一起改，就得 fork 上游
+   schema 并放弃那条同一性——那是契约级取舍，本票不自裁。
+
 ## 六 · dev 入口用法
 
 ```
@@ -199,6 +205,11 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   通用 loop 受控内嵌”写成现行技术基线，不再悬置。
 - **`nodePrimitiveLedger` 为空册时的扫描面失效判据**：`packages/pi-lane/src` 扫不到 `.ts` 即触红。
   若本包退役，须同批把扫描面与登记册一并销号，不得让判据静默空转。
+- **`PI-DUALROOT-CONTRACT-1` 的四项偏离待追认**（ADR-022 六-C binder 条款与「description 追加
+  产品口径」的字面冲突、上游 `path` 参数说明维持原文、`md-work-v1` 经核无冲突故未动、
+  `logicalRoots` 未收窄成固定两根）逐条见
+  [`specs/PI-DUALROOT-CONTRACT-1.md`](specs/PI-DUALROOT-CONTRACT-1.md) 四节；第一项标
+  `[需架构拍板]`。
 
 ## 九 · 下一阶段冻结票面
 
@@ -762,7 +773,13 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
 
 ### `PI-BASE-HEADLESS-ACCEPT` · 通用 Markdown 任务矩阵
 
-独立验收每格同时留 Agent events、host request/result、journal 与最终文件 bytes/hash：
+独立验收每格同时留 Agent events、host request/result、journal 与最终文件 bytes/hash。
+
+**寻址口径（判读前置，`PI-DUALROOT-CONTRACT-1` 2026-08-05 已偿）**：四件工具的裸相对路径一律落
+`/workspace`，读案件材料须显式 `/case/` 前缀，口径逐件写在工具 description 与 glob/grep 的 `path`
+说明里。故第 3/4 格中模型写 `brief.md` 与写 `/workspace/brief.md` 是**同一个目标**，回读命中同一
+文件即通过；模型若用裸相对路径去读案件材料而落空，判读要先看它有没有读到工具契约那句话——
+在本票之前，那种落空是 harness 两义，不是模型能力不足。
 
 1. 单文件事实问答：read 后回答；读不到或截断须显式。
 2. 多 `.md` 定位汇总：glob/grep → 定点 read → 带来源文件名的摘要。
@@ -786,7 +803,9 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 
 ### 并行票独占回执
 
-**现存于 `specs/`（十一份，各自仍在承载移交、未偿项或源码引用，不得归档）**：
+**现存于 `specs/`（十二份，各自仍在承载移交、未偿项或源码引用，不得归档）**：
+
+- [`PI-DUALROOT-CONTRACT-1`](specs/PI-DUALROOT-CONTRACT-1.md)（偏离 1 的 ADR 六-C 措辞订正仍 `[需架构拍板]`）
 
 - [`PI-TOOLS-HONESTY-1`](specs/PI-TOOLS-HONESTY-1.md)——`src/tools.ts:165` 的族清单对表件，源码点名引用
 - [`PI-WRITE-HOST-1` 开工前置](specs/PI-WRITE-HOST-1-PREFLIGHT.md)（「措辞按此钉死」）
@@ -814,11 +833,15 @@ SPEC 不在史料引用例外的四类面内，故此处只转指索引、不直
 > 现读值；判定现值只跑门。下节 Playwright 三轮的 `351` 尤须按此读——它是 `PI-LANE-1` 期的门规模，
 > 循 `8019` 订正先例出处保留、不删原数。
 
-- 单测 **540 例 / 17 文件**（`vitest run packages/pi-lane`，2026-08-05 由
-  `PI-UNKNOWN-TOOL-1` 在其 worktree 实测，较 `PI-WORKSPACE-READ-1` 的 531/17 净增 9 例
+- 单测 **553 例 / 17 文件**（`vitest run packages/pi-lane`，2026-08-05 由
+  `PI-DUALROOT-CONTRACT-1` 在其 worktree 实测，较 `PI-UNKNOWN-TOOL-1` 的 540/17 净增 13 例
+  ——裸相对路径四工具同口径六枚（read/glob/grep 各一、write→read-back 一、显式 `/case` 两枚）、
+  模型面契约文案的静态断言五枚（四件同载口径、口径自身两半、上游原文前置、glob/grep 的
+  `path` 说明、dev 形态不挂）、具名默认根两枚；
+  上一轮为 540/17（`PI-UNKNOWN-TOOL-1` 实测，较 `PI-WORKSPACE-READ-1` 的 531/17 净增 9 例
   ——闭集外 toolName 与上游违约拆分的六枚反例、一枚闭集内对照臂、两枚未投影 tc 的
   记账判据；`PI-TOOLS-HONESTY` 一线为首轮 489/16、1R 496/16、
-  2R 500/16；更前的 469/15 出自同日 `PI-WRITE-HOST-1` 独立验收），含容器越界、闸门拒绝、
+  2R 500/16；更前的 469/15 出自同日 `PI-WRITE-HOST-1` 独立验收）。含容器越界、闸门拒绝、
   预算停 loop、dev 入口 HTTP 面、六类不完整来源的诚实面，以及 host-mediated 读容器
   与双根检索面。原写「74 例」是 `PI-LANE-1` 期真值，
   其后由 product-* 诸票增长；每票只据实更新该计数，不追认也不复核其他票面的证据。

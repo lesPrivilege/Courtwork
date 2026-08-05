@@ -199,6 +199,8 @@ Node-only（无 Rust host）。**真 read 工具＋真 host 的组合从未被�
    出处保留**）。**订正（2026-08-05）：该值自 `PI-UNKNOWN-TOOL-1` 起已陈旧**——`product-stdio.ts`
    一动 bundle 同步漂移，现值 **`554,704 B` / `7a093181…`**（由 `PI-UNKNOWN-TOOL-1` 独立验收实测
    并登记，见 `packages/pi-lane/ACCEPTANCE.md` 该票「随附登记」与「门禁实跑」两处）。
+   **再订正（2026-08-05，`PI-DUALROOT-CONTRACT-1` 实现树实测）**：又漂一次，现值
+   **`555,314 B` / `061248fa…`**（`reproducible:true`）——这恰是下一句所述性质的又一次外显。
    **该身份无任何机器门冻结**（全仓 `git grep` 于 `*.mjs/*.rs/*.ts/*.json` 对 `554327` 零命中），
    故它随**任何** TS 改动漂移、不会有门替你发现：`PI-BASE-HEADLESS-ACCEPT` 取值请**当场重建后现读**
    （`build:headless-sidecar` 自报 bytes 与 sha256），不要引本行任何一个数当预期值。

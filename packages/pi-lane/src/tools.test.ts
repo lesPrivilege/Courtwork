@@ -10,7 +10,17 @@ import { createReadOnlyScopedEnv } from './scoped-env.js';
 import { createDualRootEnv } from './dual-root-env.js';
 import { createReadOnlyTools } from './tools.js';
 import { createWorkspaceReadEnv, type WorkspaceReadPort } from './workspace-read-env.js';
-import { createReadTool, type AgentHarnessTool, type ExecutionToolContext } from '@earendil-works/pi-agent-core';
+import {
+  DUAL_ROOT_ADDRESSING_NOTE,
+  bindWorkspaceWriteTool,
+  type WorkspaceWritePort,
+} from './workspace-write-env.js';
+import {
+  createReadTool,
+  createWriteTool,
+  type AgentHarnessTool,
+  type ExecutionToolContext,
+} from '@earendil-works/pi-agent-core';
 
 /**
  * 只读工具面。三件工具全部经容器取文件系统，故越界判定不在工具里重写一遍——
@@ -175,12 +185,14 @@ describe('createReadOnlyTools({ logicalRoot: "/case" })', () => {
     expect(productTools.map((tool) => tool.name).sort()).toEqual(['glob', 'grep', 'read']);
   });
 
-  it('read 保持上游 name/label/description 与**同一枚** parameters 对象', () => {
+  it('read 保持上游 name/label/description 原文与**同一枚** parameters 对象', () => {
     const upstream = createReadTool();
     const bound = productTools.find((tool) => tool.name === 'read');
     expect(bound?.name).toBe(upstream.name);
     expect(bound?.label).toBe(upstream.label);
-    expect(bound?.description).toBe(upstream.description);
+    // `PI-DUALROOT-CONTRACT-1`：上游 description 逐字保留在前，双根寻址口径缀于其后；
+    // `parameters` 仍必须是同一对象——上游 `path` 说明改不动，故口径只能落在 description 上。
+    expect(bound?.description).toBe(`${upstream.description}\n${DUAL_ROOT_ADDRESSING_NOTE}`);
     expect(bound?.parameters).toBe(upstream.parameters);
   });
 
@@ -742,10 +754,12 @@ function dualContext(caseRoot: string, files: Record<string, string>): Execution
   });
   return {
     env: createDualRootEnv({
+      // 次序刻意仍是 `/case` 在前：默认根由 `defaultLogicalRoot` 说了算，不由位置说了算。
       roots: [
         { logicalRoot: '/case', env: createProductCaseEnv({ caseRoot }) },
         { logicalRoot: '/workspace', env: workspace },
       ],
+      defaultLogicalRoot: '/workspace',
     }),
   };
 }
@@ -849,6 +863,7 @@ describe('双根检索：两根各按自己的逻辑绝对路径出面', () => {
     let ordinal = 0;
     const context_: ExecutionToolContext = {
       env: createDualRootEnv({
+        defaultLogicalRoot: '/workspace',
         roots: [
           { logicalRoot: '/workspace', env: createWorkspaceReadEnv({
             sessionId: 'sess_1',
@@ -869,5 +884,219 @@ describe('双根检索：两根各按自己的逻辑绝对路径出面', () => {
     expect(details.skipped.map((entry) => entry.path)).toEqual(['/workspace']);
     expect(details.skipped[0].code).toBe('permission_denied');
     expect(textOf(result)).toContain('不可读已跳过');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 双根寻址单一口径（PI-DUALROOT-CONTRACT-1）
+// ---------------------------------------------------------------------------
+
+/**
+ * 缺陷原形：同一个字符串在两根之间**两义**。写面无前缀即 `relative = input`（落
+ * `/workspace`），读面经路由器落 `roots[0]` fallback（落 `/case`），且两根都照收、无一层拒绝；
+ * prompt 第④条要求「写后回读确认」，模型复用同一路径就落到了另一根。
+ *
+ * 2026-08-05 拍板的口径：**四件工具的裸相对路径一律落 `/workspace`，读案件材料必须显式
+ * `/case/` 前缀**（ADR-022 六-C 修订）。故本组每一枚都在**两根各放一枚同名文件**上判——
+ * 只有落根真的换了，断言才动；把默认根改回 `/case`（或改回按 `roots[0]` 取）即整组红。
+ */
+describe('裸相对路径单一口径：四件工具一致落 /workspace', () => {
+  let caseRoot: string;
+  let files: Record<string, string>;
+  let dual: ExecutionToolContext;
+  let readTools: AgentHarnessTool<ExecutionToolContext>[];
+  let writeTool: ReturnType<typeof bindWorkspaceWriteTool>;
+
+  const runDual = (name: string, params: unknown) => {
+    const tool = readTools.find((candidate) => candidate.name === name);
+    if (!tool) throw new Error(`工具 ${name} 未装配`);
+    return tool.execute('call-1', params as never, undefined, undefined, dual);
+  };
+
+  beforeEach(async () => {
+    // 同名同形：两根各一枚 `简报.md`、各一棵 `notes/`。落根判定因此不能靠「只有一边有」蒙对。
+    ({ root: caseRoot } = await sandbox('tools-dualroot', async (directory) => {
+      await mkdir(path.join(directory, 'notes'));
+      await writeFile(path.join(directory, '简报.md'), '案件材料版：合同编号 HT-2024-081\n');
+      await writeFile(path.join(directory, 'notes', '会议纪要.md'), '案件材料版：庭前会议\n');
+    }));
+    files = {
+      '简报.md': '工作稿版：合同编号 HT-2024-081\n',
+      'notes/会议纪要.md': '工作稿版：庭前会议\n',
+    };
+
+    let ordinal = 0;
+    const allocate = () => `op_1_${(ordinal += 1)}`;
+    const registry = { publicToolCallId: () => 'tc_1', allocateOperationId: allocate };
+    // 同一份 `files` 同时挂读口与写口：写进去的字节，回读必须真的看得见。
+    const writePort: WorkspaceWritePort = {
+      async write(request) {
+        files[request.logicalPath] = request.content;
+        return { status: 'ok' };
+      },
+    };
+    dual = {
+      env: createDualRootEnv({
+        roots: [
+          { logicalRoot: '/case', env: createProductCaseEnv({ caseRoot }) },
+          {
+            logicalRoot: '/workspace',
+            env: createWorkspaceReadEnv({
+              sessionId: 'sess_1',
+              requestId: 'req_1',
+              rawToolCallId: 'tc_1',
+              registry,
+              port: workspaceHost(files),
+            }),
+          },
+        ],
+        defaultLogicalRoot: '/workspace',
+      }),
+    };
+    readTools = createReadOnlyTools({ logicalRoots: ['/case', '/workspace'] });
+    writeTool = bindWorkspaceWriteTool({
+      sessionId: 'sess_1',
+      requestId: 'req_1',
+      registry,
+      port: writePort,
+    });
+  });
+
+  it('read 的裸相对路径读到工作稿版，不是同名的案件材料', async () => {
+    const text = textOf(await runDual('read', { path: '简报.md' }));
+    expect(text).toContain('工作稿版');
+    expect(text).not.toContain('案件材料版');
+  });
+
+  it('glob 的裸相对起点走 /workspace 那棵树', async () => {
+    const listed = textOf(await runDual('glob', { pattern: '**/*.md', path: 'notes' }));
+    expect(listed).toContain('/workspace/notes/会议纪要.md');
+    expect(listed).not.toContain('/case/');
+  });
+
+  it('grep 的裸相对起点走 /workspace 那棵树', async () => {
+    const hits = textOf(await runDual('grep', { pattern: '庭前会议', path: 'notes' }));
+    expect(hits).toContain('/workspace/notes/会议纪要.md:1');
+    expect(hits).toContain('工作稿版');
+    expect(hits).not.toContain('案件材料版');
+  });
+
+  it('write 的裸相对路径与同串 read 回读命中同一文件', async () => {
+    await writeTool.execute(
+      'tc_1',
+      { path: '简报.md', content: '# 回读判据\n第二版正文\n' } as never,
+      undefined,
+      undefined,
+    );
+    // 写面把它记在 workspace 的 `简报.md` 上；同一个字符串交给 read，必须拿回同一份字节。
+    expect(files['简报.md']).toBe('# 回读判据\n第二版正文\n');
+    const text = textOf(await runDual('read', { path: '简报.md' }));
+    expect(text).toContain('第二版正文');
+    expect(text).not.toContain('案件材料版');
+  });
+
+  it('显式 `/case/...` 读照常可达，且拿到的是案件材料版', async () => {
+    const text = textOf(await runDual('read', { path: '/case/简报.md' }));
+    expect(text).toContain('案件材料版');
+    expect(text).not.toContain('工作稿版');
+  });
+
+  it('显式 `/case/...` 起点的 glob/grep 照常只走那一根', async () => {
+    const listed = textOf(await runDual('glob', { pattern: '**/*.md', path: '/case/notes' }));
+    expect(listed).toContain('/case/notes/会议纪要.md');
+    expect(listed).not.toContain('/workspace/');
+  });
+});
+
+/**
+ * 工具契约是模型**唯一能读到**的寻址规则——prompt 不是契约，也替不了它（票面原句）。
+ * 故四件工具的 description 必须逐件载同一份双根口径，且是**同一枚常量**：
+ * 各写各的文案就是四处可以漂移的真源，正是本票要消灭的那种形状。
+ */
+describe('四件工具 description 的双根口径（静态断言）', () => {
+  const productTools = createReadOnlyTools({ logicalRoots: ['/case', '/workspace'] });
+  const writeTool = bindWorkspaceWriteTool({
+    sessionId: 'sess_1',
+    requestId: 'req_1',
+    registry: { publicToolCallId: () => 'tc_1', allocateOperationId: () => 'op_1' },
+    port: { async write() { return { status: 'ok' }; } },
+  });
+  const all = [...productTools, writeTool];
+
+  it('恰四件，逐件载同一份口径常量', () => {
+    expect(all.map((tool) => tool.name).sort()).toEqual(['glob', 'grep', 'read', 'write']);
+    for (const tool of all) expect(tool.description).toContain(DUAL_ROOT_ADDRESSING_NOTE);
+  });
+
+  it('口径本身同时点名两根、并说明裸相对路径的归属与 `/case` 的显式前缀', () => {
+    expect(DUAL_ROOT_ADDRESSING_NOTE).toContain('/case/');
+    expect(DUAL_ROOT_ADDRESSING_NOTE).toContain('/workspace');
+    // 「不带前缀 → /workspace」与「读案件材料要显式 /case/」是口径的两半，缺一半就仍两义。
+    expect(DUAL_ROOT_ADDRESSING_NOTE).toMatch(/不带前缀[^。]*\/workspace/);
+    expect(DUAL_ROOT_ADDRESSING_NOTE).toMatch(/显式[^。]*\/case\//);
+  });
+
+  /**
+   * `path` 参数说明是模型选起点时**先看到**的那一句，它与 description 是两处独立的模型面文案：
+   * 只改一处，另一处仍在说单根世界。glob/grep 的 schema 是我方自备的，故这一处必须同批改到位；
+   * read/write 的 `path` 说明住在上游 schema 里（改它要换 schema 对象、破掉同一性），
+   * 那两件的口径落在 description 上，边界见 SPEC 五-9。
+   */
+  it('glob/grep 的 `path` 参数说明同批改双根口径，不留单根原文', () => {
+    for (const name of ['glob', 'grep'] as const) {
+      const schema = productTools.find((tool) => tool.name === name)?.parameters as {
+        properties: { path: { description: string } };
+      };
+      const described = schema.properties.path.description;
+      expect(described).toContain('/case/');
+      expect(described).toContain('/workspace');
+      expect(described).not.toContain('相对授权文件夹');
+    }
+  });
+
+  it('上游 read/write 的原文逐字保留，口径只追加在其后', () => {
+    for (const [name, upstream] of [
+      ['read', createReadTool().description],
+      ['write', createWriteTool().description],
+    ] as const) {
+      const bound = all.find((tool) => tool.name === name);
+      expect(bound?.description.startsWith(upstream)).toBe(true);
+    }
+  });
+
+  it('dev 形态不载双根口径：那里根本只有一枚授权文件夹，写上去就是假话', () => {
+    for (const tool of createReadOnlyTools()) {
+      expect(tool.description).not.toContain(DUAL_ROOT_ADDRESSING_NOTE);
+    }
+  });
+});
+
+/**
+ * 默认根是**具名契约**，不是数组位置的副产品（缺陷根因：`roots[0]` fallback）。
+ * 把它从位置里拿出来，「换个次序就悄悄换了寻址语义」这条路即结构性消失。
+ */
+describe('createDualRootEnv：默认根具名', () => {
+  const caseEnv = createProductCaseEnv({ caseRoot: '/tmp/不需要存在' });
+  const workspaceEnv = createWorkspaceReadEnv({
+    sessionId: 'sess_1',
+    requestId: 'req_1',
+    rawToolCallId: 'tc_1',
+    registry: { publicToolCallId: () => 'tc_1', allocateOperationId: () => 'op_1' },
+    port: workspaceHost({}),
+  });
+  const roots = [
+    { logicalRoot: '/case', env: caseEnv },
+    { logicalRoot: '/workspace', env: workspaceEnv },
+  ];
+
+  it('认不出前缀的输入归具名默认根，而非首枚', async () => {
+    const env = createDualRootEnv({ roots, defaultLogicalRoot: '/workspace' });
+    const resolved = await env.absolutePath('简报.md');
+    expect(resolved.ok && resolved.value).toBe('/workspace/简报.md');
+    expect(env.cwd).toBe('/workspace');
+  });
+
+  it('默认根必须命名一枚在册的根，认不出即当场拒绝装配', () => {
+    expect(() => createDualRootEnv({ roots, defaultLogicalRoot: '/nope' })).toThrow(/默认根/);
   });
 });

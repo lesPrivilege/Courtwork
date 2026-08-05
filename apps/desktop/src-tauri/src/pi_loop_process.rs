@@ -925,13 +925,15 @@ mod tests {
         // 双根路由容器、glob/grep 双根投影、握手闭集加 `workspace_read`）**第五次**换
         // （`536,123`/`060cc00a…` → `546,906`/`36615e5b…`）。`PI-UNKNOWN-TOOL-1` 在
         // `product-stdio.ts` 投影入口把「闭集外 toolName」与「上游违约」拆开**第六次**换
-        // （`546,906`/`36615e5b…` → `547,283`/`93f04a1c…`）。
+        // （`546,906`/`36615e5b…` → `547,283`/`93f04a1c…`）。`PI-DUALROOT-CONTRACT-1` 把双根
+        // 默认根由 `roots[0]` 改成具名字段，并给四件工具 description 挂上同一份双根寻址口径，
+        // **第七次**换（`547,283`/`93f04a1c…` → `547,893`/`951acf8e…`）。
         // 历次皆只改 Node 侧，Rust 侧仅重录这枚身份。
         // 双方由 `product-main.test.ts` 的跨侧门逐值锁死，不许只改一边。
-        assert_eq!(manifest.bundle.bytes, 547_283);
+        assert_eq!(manifest.bundle.bytes, 547_893);
         assert_eq!(
             manifest.bundle.sha256,
-            "93f04a1cd767d5541bffd24f8b4845129a6ed2dafd00872a1e22dc991fb0185c"
+            "951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c"
         );
         assert_eq!(
             manifest.bundle_resource_relative_path,
@@ -1011,11 +1013,11 @@ mod tests {
             ("乱序", format!("{head}{intel},{arm}{foot}")),
             ("重复 target", format!("{head}{arm},{arm}{foot}")),
             ("单 target", format!("{head}{arm}{foot}")),
-            ("零字节", compact.replace("\"bytes\":547283", "\"bytes\":0")),
+            ("零字节", compact.replace("\"bytes\":547893", "\"bytes\":0")),
             (
                 "大写 SHA",
                 compact.replace(
-                    "93f04a1cd767d5541bffd24f8b4845129a6ed2dafd00872a1e22dc991fb0185c",
+                    "951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c",
                     "060CC00AFFF2F5D1178D16E0A8C4C18A136525936CAF1D4133FFDE96938FEC17",
                 ),
             ),
