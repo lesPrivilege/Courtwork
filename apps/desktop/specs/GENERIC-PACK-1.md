@@ -46,6 +46,7 @@ ADR-009 决定四（Renderer 是宿主 blueprint）为分层依据；先例 `PAN
 | `src/preview/GraphRenderer.tsx` | `courtwork.party-graph.v1` 宿主 renderer；g6 懒载点随渲染件迁入 | 步骤 ② graph |
 | `src/preview/workbench-views.ts` | 可见工作面集、默认落点与标题查询（`resolveWorkbenchViews` / `preferredWorkbenchView` / `workbenchViewLabel`） | 步骤 ③ 工作面集 |
 | `src/demo/demo-view-counts.ts` | 样板案页签计数四枚（硬编码展品，非 demo 案不显示） | 步骤 ③ 工作面集 |
+| `src/composition/package-runtime.ts`（既有件扩形） | 逐 matter registry 派生 `registriesFor` 与 `resolveMatterPackBinding` | 步骤 ④ 绑定契约 |
 
 ---
 
@@ -167,3 +168,94 @@ golden 重铸两枚（同步骤 ①，逐 panel 各一次）：legal descriptor 
 第一枚机器判据；整面评审与全链走通仍待后续步骤。
 
 高水位：2451 → **2449**。
+
+### 步骤 ④ · matter ↔ 垂类包绑定契约落 schema
+
+ADR-015 决定三「matter 绑定零或一垂类包，全局 registry 只决定可用集」此前**在代码里没有落点**：
+全仓零 `containerPackBinding` / `packBinding` 一类符号，`createDesktopPackageRuntime` 里
+`[LEGAL_PACKAGE, PM_PACKAGE]` 是编译期常量数组，`buildPackageRegistries([])` 也无人调用过。
+
+本步只落**契约**，不落加载 UX（后者属 `PACK-INTERACT-1`，票面禁区）：
+
+- `PersistedCase.packBinding?: readonly string[]` 入版本化单键持久面（`courtwork.case-list.v1`，
+  schema version 不升——追加可选字段，旧档续可读）。**三态显式**：字段缺席＝未声明；`[]`＝显式
+  不加载任何垂类（ADR-015 成品律的默认形态，本票卸载态证据由它构造）；`['<id>']`＝显式绑定一枚。
+- **长度 > 1 与空串成员判整库不可读**：多包激活是 ADR-014 明确拒绝项，静默取第一枚就是把
+  拒绝项实现成默认行为。
+- `resolveMatterPackBinding(packBinding, available)`：未声明取全局可用集，已声明逐字取。
+  **「未声明取全部」不是「默认加载全部」的产品裁定**，只是本字段落地前既有 matter 的诚实读法；
+  新建 matter 是否默认零绑定，随 `PACK-INTERACT-1` 的加载 UX 一并拍板——本票不代拍。
+- `DesktopPackageRuntime.registriesFor(packageIds)`：按绑定现算 registry（同绑定复用同一枚）。
+  绑定到本制品没有的包一律 **throw**，不静默忽略——静默降级成「加载了别的」正是 ADR-015
+  决定四禁止的伪装。
+
+**边界如实登记**：本步**未把 `registriesFor` 接进 App**，故运行期行为零变化（全局
+`packageRegistries` 仍是唯一消费者）。接线属「卸载态成品」那一步，与起手引导、空态、
+已有垂类产物的 preview 退化同批——见下方「未完成项」。
+
+红证与判据全部住 `src/composition/matter-pack-binding.test.ts`（8 例）：三态可表达、
+长度 > 1 拒读、空串/非数组拒读、投影拷贝不共享引用、三态解析、逐 matter registry 的
+「只见 legal」「零绑定零 artifact」「绑定全部 ≡ 全局可用集」「未准入包拒载」。
+
+---
+
+## 四 · matter 中立命名清点表（票面 ④ 前半）
+
+口径两枚，均为本会话现读（`/usr/bin/grep`，扫描面 `apps/desktop/src/**`，剔除
+`*.test.*`、`src/demo/**` 与 14 枚已知垂类绑定文件）：
+
+- **含词文件数（含注释）＝ 59**；
+- **含词文件数（只算真实字符串字面量与 JSX 文本）＝ 34**。
+
+两数之差是注释与 dev-only 审计元数据。下表按**处置**分族，不逐条罗列（逐条清单可由上述
+命令现读复现；把 490 条命中抄进文档只会立刻腐坏）。
+
+| 族 | 判据 | 规模 | 处置 |
+|---|---|---|---|
+| **A · 垂类专属产品文案住通用件** | 文案只在合同审查垂类成立（「合同审查」「风险」「主合同」「修订预览」「答辩状」…） | 主体在 `App.tsx`、`workbench/Panels.tsx`、`work/*-copy.ts`、`rail/CaseRail.tsx`、`modules/ModuleStack.tsx` | **随所属工作面/场景迁往垂类绑定面**。本票已迁走页签标题四枚；其余绑在 `revision` 面与 scene-strip 上，随后续步骤走 |
+| **B · 容器词表已有着色机制** | `case/container-copy.ts` 已是「案件说卷宗／工作区说资料」的唯一分叉点，`material-count.ts` 全部经它 | 7 枚导出函数 | **机制成立，保留**。核实结论：`案件`↔`卷宗` 确为 `ContainerKind` 上的词表着色，不是通用件硬写 |
+| **C · 标识符编码 legal 词** | `caseId` / `caseRoot` / `CaseSummary` / `ContainerKind='case'` 等 39 个具名符号，全仓约 490 处 | 34 文件 | **登记为债，本票不动**。`caseId` 是 wire／journal／持久键（`courtwork.case-list.v1`、work-state 宿主）的字段名，改名触票面禁区「不动 wire/journal」。中立名应为 `matter`；改名须独立立票并携迁移方案 |
+| **D · demo 展品文案住通用件** | 只在样板案回放成立（「整理卷宗」「审查合同」按钮、样板案导览、页签计数） | scene-strip 与 chat 卡片 | **随 demo 族外提**。本票已迁走页签计数与 artifact 卡文案两件；scene-strip 属场景声明面，随该面处置 |
+
+**核实结论（票面点名项）**：「案件」确为词表着色而非通用件硬写——`rail/types.ts` 的
+`railKindLabel(kind)` 与 `case/container-copy.ts` 全族都以 `ContainerKind` 为轴取词，
+通用工作区一律取「资料」。但**着色轴的成员名 `'case'` 本身是 legal 词**（中立名是 `matter`），
+这一枚属 C 族债，随 wire 改名票处置。
+
+---
+
+## 五 · 未完成项与停手点（如实登记）
+
+本票六条验收边界，本会话交付到以下位置：
+
+| # | 边界 | 状态 |
+|---|---|---|
+| ① | 零泄漏静态门在册且红绿证 | **未达**：运行时半边已立（工作面集派生 + 卸载态单测 + 页签词表双向锁），**静态 import 门未立**——见下方停手点 |
+| ② | 余三 panel 迁 `kind:'component'`、App if 链清零 | **2/3**：timeline ✓ graph ✓；**revision 未迁**——见下方停手点 |
+| ③ | 卸载态成品 + 整面评审 | **部分**：卸载态页签条已可机器判定；matter 创建→work→产物→回看全链、起手引导、已有垂类产物的 preview 退化与截图链**未做** |
+| ④ | 中立命名清点表 + 绑定契约落 schema | **达成**：清点表见上节；绑定契约与逐 matter registry 派生已落地并带 8 例判据 |
+| ⑤ | 加载态 Legal 全链零回归 | **保持**：每步全量门自跑，Playwright 逐步 365/365，pi-lane TS 零改动 |
+| ⑥ | SPEC 回执 | **本文件**，随步骤滚动 |
+
+### 停手点（`[需架构拍板]`，按票面「不硬闯不悬置」停手报回）
+
+**停手点一 · revision 面迁移的落点，等价于「Legal S3 编排住哪里」。**
+矩阵/时间线/图谱三枚都是纯呈现件，payload 之外只要一枚领域无关的会话派生量。`revision`
+不同：它的交互编排（`riskList` / `gate` / `submission` / 选中项 / 逐条处置 / 只读判定）
+**住在 `App.tsx` 里**，且其中三项另有**渲染链之外**的消费者——`workRun` 的
+`resetReview`/`clearGate`、样板案进度计数、production 产物显示名。故迁 blueprint 不是
+搬一段 JSX，而是要先裁定：这套编排迁到哪个受信面，以及壳里那三处通用 chrome（进度模块、
+产出卡、`workPhase`）改从哪里取数。在此之前，`App.tsx` 必然保留 `RiskList` 类型持有，
+①的静态 import 门也就无法把壳纳入受检面——两件是同一个结的两头。
+
+**停手点二 · scene-strip（场景声明面）的派生形态。**
+卸载态成品要求「起手引导与空态完整」，而现行起手面是硬编码的四枚 Legal 按钮
+（整理卷宗／审查合同／卷宗整理／起草答辩状）。就绪图第 160 条把该面的形态追认为正解，
+并写明**预检表单是「唯一新增契约点，随 `GENERIC-PACK-1` 拍板」**——即它需要一次架构拍板
+才能开工，实现会话不代拍。改成 scenario registry 派生同时会触及场景线语义（票面禁区）。
+
+**停手点三 · 新建 matter 的默认绑定。**
+ADR-015 决定三写「默认不激活」，而加载动作属 `PACK-INTERACT-1`。若本票把新建 matter 的
+默认改成零绑定，Legal 全链在没有加载 UX 的情况下不可达，直接违反边界 ⑤。本票据此只落契约、
+不改默认，并把默认态的翻转显式让给 `PACK-INTERACT-1`——若架构认为默认应当本票就翻，
+须同批给出 Legal 全链在无加载 UX 时的可达路径。

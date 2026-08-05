@@ -39,6 +39,20 @@ export interface PersistedCase {
   label?: string;
   /** 容器语义（案件 | 工作区）。 */
   kind: ContainerKind;
+  /**
+   * matter ↔ 垂类包绑定（ADR-015 决定三：「matter 绑定零或一垂类包，全局 registry 只决定可用集」）。
+   *
+   * 三态且**显式**：
+   *  - **字段缺席** = 未声明绑定。本字段落地前建立的 matter 全部如此，取全局可用集
+   *    （见 `resolveMatterPackBinding`）。这不是「默认加载全部」的产品决定，只是「这枚 matter
+   *    还没被问过」的诚实表示；默认态的翻转随 `PACK-INTERACT-1` 的加载 UX 一并拍板。
+   *  - `[]` = 显式不加载任何垂类。ADR-015 成品律的默认形态，本票的卸载态证据由它构造。
+   *  - `['<packageId>']` = 显式绑定一枚。ADR-014 席位条款保数组形制；ADR-015 收窄为长度 ≤ 1。
+   *
+   * 长度 > 1 与空串成员一律 fail-closed 判整库不可读——多包激活是 ADR-014 明确拒绝项，
+   * 静默取第一枚就是把拒绝项实现成默认行为。
+   */
+  packBinding?: readonly string[];
 }
 
 export interface CaseListBackend {
@@ -101,6 +115,11 @@ function isPersistedCase(value: unknown): value is PersistedCase {
   // grantId/label 是可选 opaque 引用/展示名；在场即须为非空串（畸形空引用 fail-closed）。
   if (record.grantId !== undefined && (typeof record.grantId !== 'string' || record.grantId.length === 0)) return false;
   if (record.label !== undefined && typeof record.label !== 'string') return false;
+  if (record.packBinding !== undefined) {
+    if (!Array.isArray(record.packBinding)) return false;
+    if (record.packBinding.length > 1) return false;
+    if (!record.packBinding.every((id) => typeof id === 'string' && id.length > 0)) return false;
+  }
   return true;
 }
 
@@ -177,6 +196,8 @@ export interface PersistableCaseInput {
   grantId?: string;
   label?: string;
   kind?: ContainerKind;
+  /** matter ↔ 垂类包绑定；缺席即未声明（见 {@link PersistedCase.packBinding}）。 */
+  packBinding?: readonly string[];
   /** demo 恒挂案永不入持久（双向隔离，恒挂语义不变）。 */
   isDemo?: boolean;
   /** 已归档案不入持久（归档即清除，与创建写入对称）。 */
@@ -184,7 +205,7 @@ export interface PersistableCaseInput {
 }
 
 /**
- * 纯投影：从活动案件列表取可持久子集——剔除 demo 与已归档，剥离到 {@link PersistedCase} 五字段。
+ * 纯投影：从活动案件列表取可持久子集——剔除 demo 与已归档，剥离到 {@link PersistedCase} 的字段集。
  * demo 案恒挂（App 侧固定注入 DEMO_CASE），永不落持久；归档案退出持久（与创建写入对称）。
  */
 export function projectPersistableCases(cases: PersistableCaseInput[]): PersistedCase[] {
@@ -194,6 +215,7 @@ export function projectPersistableCases(cases: PersistableCaseInput[]): Persiste
     const record: PersistedCase = { id: item.id, title: item.title, kind: item.kind ?? 'case' };
     if (item.grantId !== undefined) record.grantId = item.grantId;
     if (item.label !== undefined) record.label = item.label;
+    if (item.packBinding !== undefined) record.packBinding = [...item.packBinding];
     out.push(record);
   }
   return out;

@@ -25,4 +25,10 @@ export interface CaseSummary {
    * 缺省按案件处理，兼容既有 demo。
    */
   kind?: ContainerKind;
+  /**
+   * matter ↔ 垂类包绑定（ADR-015 决定三）。缺席＝未声明，取全局可用集；`[]`＝显式不加载任何
+   * 垂类；`['<packageId>']`＝显式绑定一枚。持久形制与 fail-closed 判据见
+   * {@link import('./case-store').PersistedCase.packBinding}。
+   */
+  packBinding?: readonly string[];
 }
