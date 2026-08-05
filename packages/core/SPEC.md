@@ -86,7 +86,9 @@ Steering/follow-up、session tree、MCP proxy、动态 tool set、subagent 与�
   static/dynamic import 与 chunk-size warning。放行仍须另一会话在 clean worktree 注入反例并写
   `packages/core/ACCEPTANCE.md`。
 
-## 现行架构工单（2026-07-14）
+## 架构工单批（2026-07-14，已全批清账）
+
+> **标题订正（2026-08-05）**：本节原题「现行架构工单（2026-07-14）」。该批已全部清账——`WORK-PORT-1`、`WORK-BROWSER-1`（验收记录见 `packages/core/ACCEPTANCE.md`「WORK-BROWSER-1 独立验收」）、`WORK-STORE-1`（一驳回一聚焦复验放行，验收 `75f0734`）均已放行合入。**下方票面正文保持原样**，它是 ADR-010 落地时的契约与验收基线，不因清账而失效；只是"现行/下一单"这类时序措辞已属立段时事实，读者不得据以推断当前排程——开放工单只认[实现就绪图](../../docs/architecture/implementation-readiness.md)，能力状态只认 [`docs/status/current.md`](../../docs/status/current.md)。
 
 ### WORK-STATE 前置线（架构已定，WORK-PORT-1 已放行）
 
@@ -99,7 +101,7 @@ Steering/follow-up、session tree、MCP proxy、动态 tool set、subagent 与�
 持久先后，并使 validate-before-consume 与 confirmation resolved 成为一个 CAS 状态转换。字段、终局闭集、
 材料引用及验收反例以 ADR-010 为准；实现会话不得自行简化为内存真源 + 异步镜像。
 
-#### WORK-BROWSER-1 · browser-safe Work protocol（现行下一单）
+#### WORK-BROWSER-1 · browser-safe Work protocol（立段时的「现行下一单」，已独立验收放行）
 
 本单只做 browser graph 收口，不实现 async store 或 live：
 
@@ -324,7 +326,7 @@ Headless agent core。协议化对外（会话/事件流），UI 是纯客户端
   **验收流程**（`src/acceptance/run-s3-demo.ts`，CLI 脚本与集成测试共用同一实现）：加载 registry 真实 `S3.yaml` → `runScenario`（`party-verify` 走 demo-fixture 适配器，B 级信源记入证据台账）→ 落盘暂停于 `RiskList` 确认门禁 → 全新依赖实例模拟另一进程 `resumeScenario`（confirm + 一条真实 `RevisionEvent` 字段修正）→ 编译确认后的 `RiskList` 为 `RevisionInstructionSet`（demo glue，过 D4 门禁，不进 core 通用库——依据 docs/decisions/ADR-004-documents-and-files.md S5 设计先例：产出是 `RevisionInstructionSet` 不代表编译逻辑归通用层）→ 调 `output.applyRevisionInstructionSet`（复用 `packages/output` 自带 sample docx）产出带修订与批注的 docx → 全新 `EventLog` 实例重读磁盘完整历史并 `replaySession`。7 条指令 6 条（clause 级，引文取自 output 黄金样例合同真实文本）定位成功，1 条（`risk-07`，party-verify 来源，依据锚点在 demo-data 卷宗文件、不在 output 的 stand-in docx 里）报 `locator_not_found` 后被跳过——测试显式断言这一结果，是"报错并跳过、不错插"纪律的真实展示，不是缺陷。人工核验：`unzip` 产出的 `redline.docx`，`comments.xml` 含 6 条真实中文批注文本（非乱码/空壳）。
 
   **设计取舍**：
-  - `S3_RISK_LIST_RESPONSE`（`src/composition/s3-risk-list-response.ts`）有意分两层，不假装无缝：案件/主体层沿用 demo-data 真实语料（临江精铸诉起云智能），文档文本层改用 output 黄金样例合同的真实文本（而非 demo-data 主合同文本）——因为 demo-data 主合同目前只有 markdown 形态，还没有对应的 docx（"markdown → 新建 docx"是 output 包 W4.1 挂账工单，未排期），硬套两份不同合同的引文只会让指令定位全部失败，不是更真实，是自欺。
+  - `S3_RISK_LIST_RESPONSE`（`src/composition/s3-risk-list-response.ts`）有意分两层，不假装无缝：案件/主体层沿用 demo-data 真实语料（临江精铸诉起云智能），文档文本层改用 output 黄金样例合同的真实文本（而非 demo-data 主合同文本）——因为 demo-data 主合同目前只有 markdown 形态，还没有对应的 docx（"markdown → 新建 docx"是 output 包 W4.1 挂账工单，未排期），硬套两份不同合同的引文只会让指令定位全部失败，不是更真实，是自欺。（**本段为立段时事实（2026-07-12 前）**，现已不成立：旧 W4.1 挂账已由 `LEGAL-DEMO-RUN` 的 docx 孪生闭合，`packages/demo-data/data/contracts/设备采购合同.docx` 与 `main-contract.md` 同源在仓，留痕见 `packages/demo-data/SPEC.md` 2026-07-13 条。须同时读到的边界：该 docx 是 `scripts/generate-contract-docx.mjs` 的**生成器产物，不是真实 Word 导出**，body 只有 `w:p/w:r/w:t`，对表格/分节/内容控件零证据力——此口径以 `packages/reading-view/SPEC.md` 语料节为准。本节分两层的**做法**不随之改动，改的只是这条理由的时效。）
   - 场景执行器的通用算法（`produceSequence`）一次性写对多产出顺序遍历与 label-only 门禁逻辑，用后续新场景形状（S1）补测试覆盖此前未触达的分支，而非拆两次 TDD 增量各写一半——循环体是不可拆分的单元，拆开写反而会先写出残缺分支再回来补。
   - `resumeScenario` 应用 `revisions[]` 后必须重新发一次 `artifact_produced`：这是集成测试跑通 S3 全流程时发现的真实设计缺口（不是测试造假）——原设计只在内存里改了 `pending.producedArtifacts`，从未写回事件流，导致"事件流可回放"对修正后的状态是假话。修复后 7 处既有测试的事件序列断言相应更新。
   - `ScenarioExecutorDeps.limits`（运行时保护）按次 `runScenario`/`resumeScenario` 调用单独计额，不跨暂停边界累计——真正的 runaway 循环更可能发生在一段执行 leg 内部，跨 session 累计预算是产品/计费层面的问题，超出"运行时保护"的工程含义，刻意不做。

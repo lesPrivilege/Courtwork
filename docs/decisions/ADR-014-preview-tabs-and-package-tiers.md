@@ -6,7 +6,7 @@
 
 现行 Preview 已有 tab 条 UI，但 tab 取值是六种固定工作面视图（`WorkbenchView`），artifact 槽位单选（同会话多个 artifact 只显示最近一个）；Legal 四个工作面（timeline/graph/matrix/revision）是 `route` 类 blueprint 直连 App.tsx 硬编码组件，ADR-012 已点名为迁移债；通用 descriptor→projection 管线（`courtwork.artifact-table.v1`）namespace-blind 且 fail-closed，是唯一版本化 blueprint。
 
-归档裁决（`archive/docs-legacy-2026-07-13/docs/49` 第十五章）曾定："Preview 浏览器 tab 即混包视图容器，UI 零欠账；`containerPackBinding` 为数组、MVP 长度恒 1——多包激活改约束不改结构。" 归档另有三层包体系定义（`docs/53`、`docs/93` 定本）。本 ADR 把这两条从归档捡回现行契约，并消除术语歧义。
+归档裁决（**史料线索**；件在第一代 `docs/` 全量快照内，去处按归档索引的 `docs-legacy-2026-07-13/` 条目定位、原编号 `docs/49` 第十五章——`decisions/README.md` 定 ADR 正文不直书归档路径，故此处转指索引）曾定："Preview 浏览器 tab 即混包视图容器，UI 零欠账；`containerPackBinding` 为数组、MVP 长度恒 1——多包激活改约束不改结构。" 归档另有三层包体系定义（`docs/53`、`docs/93` 定本）。本 ADR 把这两条从归档捡回现行契约，并消除术语歧义。
 
 ## 决定
 

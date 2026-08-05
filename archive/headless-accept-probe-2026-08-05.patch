@@ -1,0 +1,475 @@
+diff --git a/apps/desktop/src-tauri/src/pi_loop.rs b/apps/desktop/src-tauri/src/pi_loop.rs
+index b2ccfb9..87baca2 100644
+--- a/apps/desktop/src-tauri/src/pi_loop.rs
++++ b/apps/desktop/src-tauri/src/pi_loop.rs
+@@ -9235,4 +9235,470 @@ mod tests {
+             "journal 里唯一的根是虚拟案件根"
+         );
+     }
++
++    // ── PI-BASE-HEADLESS-ACCEPT 验收装置（scratch；只属验收会话，不入提交）──────
++    //
++    // 本模块不改任何生产判据：它只是把「真 Node + production sealed CJS + 真 provider」
++    // 这条链拉起来，逐格留 Agent events / host request-result / journal / 盘上 bytes。
++    // 凭证只从环境读取，一个字节都不落源码；缺凭证即 `CredentialUnconfigured`。
++    mod headless_accept {
++        use super::*;
++
++        /// 真 key 只从环境进程读取；源码零凭证字面量（总纲不变量 8）。
++        struct EnvKey;
++        impl CredentialPort for EnvKey {
++            fn resolve(&self) -> Result<String, HostError> {
++                match std::env::var("COURTWORK_ACCEPT_DEEPSEEK_KEY") {
++                    Ok(value) if !value.trim().is_empty() => Ok(value),
++                    _ => Err(HostError::CredentialUnconfigured),
++                }
++            }
++        }
++
++        /// 逐次授权的验收 driver：记录每一次被问到的计划，全部批准。
++        /// 它**不是**产品 driver——production 至今无 driver，故恒 `policy_denied`。
++        struct RecordingApprover {
++            seen: Arc<Mutex<Vec<(String, String, u64)>>>,
++        }
++        impl WriteDecisionDriver for RecordingApprover {
++            fn decide(
++                &mut self,
++                plan: &WorkspaceWritePlan,
++                action: WriteDisposition,
++            ) -> WriteAuthorization {
++                self.seen.lock().expect("未中毒").push((
++                    plan.logical_path.clone(),
++                    format!("{action:?}"),
++                    plan.byte_length,
++                ));
++                WriteAuthorization::Approved
++            }
++        }
++
++        /// 真实 app layout：从 `packages/pi-lane/dist/product-sidecar` hard-link 两件实物。
++        fn snapshot_layout(root: &Path) -> (AppLayout, TargetTriple) {
++            let repository = Path::new(env!("CARGO_MANIFEST_DIR"))
++                .ancestors()
++                .nth(3)
++                .expect("仓库根")
++                .to_path_buf();
++            let snapshot = repository.join("packages/pi-lane/dist/product-sidecar");
++            let triple = crate::pi_loop_process::host_target_triple().expect("本机 target");
++            let runtime_source = snapshot.join(format!("pi-sidecar-{}", triple.as_str()));
++            assert!(
++                runtime_source.exists(),
++                "快照缺 {}——先跑 build:product-sidecar",
++                runtime_source.display()
++            );
++            let executable_dir = root.join("MacOS");
++            let resource_dir = root.join("Resources");
++            fs::create_dir_all(&executable_dir).expect("建可执行目录");
++            fs::create_dir_all(resource_dir.join(RESOURCE_DIR_NAME)).expect("建 resource 目录");
++            let link_or_copy = |from: PathBuf, to: PathBuf| {
++                if fs::hard_link(&from, &to).is_err() {
++                    fs::copy(&from, &to).expect("落件");
++                }
++            };
++            link_or_copy(runtime_source, executable_dir.join(RUNTIME_BASENAME));
++            link_or_copy(
++                snapshot.join(BUNDLE_BASENAME),
++                resource_dir.join(RESOURCE_DIR_NAME).join(BUNDLE_BASENAME),
++            );
++            fs::write(
++                resource_dir.join(RESOURCE_DIR_NAME).join(MANIFEST_BASENAME),
++                EXPECTED_ROUTE_MANIFEST,
++            )
++            .expect("写 manifest");
++            (
++                AppLayout {
++                    executable_dir,
++                    resource_dir,
++                },
++                triple,
++            )
++        }
++
++        struct Cell {
++            root: PathBuf,
++            app_data: PathBuf,
++            case_root: PathBuf,
++            layout: AppLayout,
++            triple: TargetTriple,
++            approvals: Arc<Mutex<Vec<(String, String, u64)>>>,
++        }
++
++        fn cell(tag: &str, materials: &[(&str, &str)]) -> Cell {
++            let root = temp_root(&format!("headless-{tag}"));
++            let app_data = root.join("app-data");
++            fs::create_dir_all(&app_data).expect("建 app-data");
++            let case_root = root.join("案卷");
++            fs::create_dir_all(&case_root).expect("建案件根");
++            for (relative, body) in materials {
++                let target = case_root.join(relative);
++                if let Some(parent) = target.parent() {
++                    fs::create_dir_all(parent).expect("建材料目录");
++                }
++                fs::write(&target, body).expect("写材料");
++            }
++            let (layout, triple) = snapshot_layout(&root);
++            Cell {
++                root,
++                app_data,
++                case_root,
++                layout,
++                triple,
++                approvals: Arc::new(Mutex::new(Vec::new())),
++            }
++        }
++
++        impl Cell {
++            fn start(&self, credentials: &dyn CredentialPort) -> Result<PiLoopHost, HostError> {
++                self.start_with_budget(credentials, Some(0.5))
++            }
++
++            fn start_with_budget(
++                &self,
++                credentials: &dyn CredentialPort,
++                max_usd: Option<f64>,
++            ) -> Result<PiLoopHost, HostError> {
++                let config = StartConfig {
++                    container_id: "cnt-accept".to_string(),
++                    session_id: "sess-accept".to_string(),
++                    grant_id: "grant-accept".to_string(),
++                    case_root: self.case_root.clone(),
++                    model_id: "deepseek-v4-flash".to_string(),
++                    max_turns: 12,
++                    max_usd,
++                };
++                PiLoopHost::start(
++                    &self.app_data,
++                    &self.layout,
++                    self.triple,
++                    config,
++                    credentials,
++                    &mut ProcessSpawner,
++                )
++            }
++
++            /// 装上带真 driver 的 write host（⑤／headless 的注入点）。
++            fn approve_writes(&self, host: &mut PiLoopHost) {
++                host.install_write_host(Some(Box::new(
++                    crate::pi_loop_workspace::WorkspaceFsHost::new(
++                        &self.app_data,
++                        "cnt-accept",
++                        "sess-accept",
++                    )
++                    .with_decision_driver(Box::new(RecordingApprover {
++                        seen: Arc::clone(&self.approvals),
++                    })),
++                )));
++            }
++
++            fn workspace(&self) -> PathBuf {
++                self.app_data
++                    .join(crate::pi_loop_workspace::PI_WORKSPACES_DIR)
++                    .join("cnt-accept")
++                    .join("sess-accept")
++            }
++
++            /// 逐格证据：Agent events、host 授权记录、journal 全文、workspace 盘上字节与 hash。
++            fn evidence(&self, tag: &str, host: &PiLoopHost, terminal: &Terminal) {
++                println!("\n══════ 格 {tag} ══════");
++                println!("terminal = {}", terminal.status());
++                println!("── Agent events ──");
++                let mut text = String::new();
++                for event in host.published() {
++                    match event {
++                        HostEvent::Ready { capabilities } => {
++                            println!("ready capabilities = {capabilities:?}");
++                        }
++                        HostEvent::Agent(AgentProjectionEvent::AssistantTextDelta { delta }) => {
++                            text.push_str(delta);
++                        }
++                        HostEvent::Agent(other) => println!("agent {}", other.kind()),
++                        HostEvent::PromptTerminal(terminal) => {
++                            println!("prompt terminal = {}", terminal.status())
++                        }
++                        HostEvent::SessionTerminal(kind) => println!("session terminal = {kind:?}"),
++                    }
++                }
++                println!("── assistant text ──\n{text}");
++                println!("── 逐次授权 ──");
++                for (path, disposition, bytes) in self.approvals.lock().expect("未中毒").iter() {
++                    println!("approve {path} {disposition} {bytes}B");
++                }
++                println!("── journal（盘上原文）──");
++                let journal = journal_path(&self.app_data, "cnt-accept", "sess-accept");
++                match fs::read_to_string(&journal) {
++                    Ok(body) => println!("{body}"),
++                    Err(error) => println!("读不到 journal：{error}"),
++                }
++                println!("── workspace 盘上字节 ──");
++                let workspace = self.workspace();
++                let mut stack = vec![workspace.clone()];
++                while let Some(dir) = stack.pop() {
++                    let Ok(entries) = fs::read_dir(&dir) else {
++                        continue;
++                    };
++                    for entry in entries.flatten() {
++                        let path = entry.path();
++                        if path.is_dir() {
++                            stack.push(path);
++                            continue;
++                        }
++                        let bytes = fs::read(&path).expect("回读");
++                        println!(
++                            "{} {}B sha256={}",
++                            path.strip_prefix(&workspace).unwrap_or(&path).display(),
++                            bytes.len(),
++                            pi_loop_journal::sha256_hex(&bytes)
++                        );
++                        println!("{}", String::from_utf8_lossy(&bytes));
++                    }
++                }
++                println!("evidence root = {}", self.root.display());
++            }
++        }
++
++        /// 装置自证一：缺凭证时不静默降级，也不发任何网络请求。
++        #[test]
++        #[ignore = "headless 验收装置；需 dist/product-sidecar 快照"]
++        fn probe_missing_credential_is_explicit() {
++            let cell = cell("no-key", &[("备忘.md", "合同编号 HT-2024-081\n")]);
++            struct NoKey;
++            impl CredentialPort for NoKey {
++                fn resolve(&self) -> Result<String, HostError> {
++                    Err(HostError::CredentialUnconfigured)
++                }
++            }
++            let error = cell.start(&NoKey).expect_err("无凭证必须显式失败");
++            assert_eq!(error, HostError::CredentialUnconfigured);
++        }
++
++        /// 装置自证二：真 Node ＋ production sealed CJS 起得来、握手闭集逐值相同、
++        /// 不发 prompt 故零网络。这一枚证明「harness 到 provider 之前全通」。
++        #[test]
++        #[ignore = "headless 验收装置；需 dist/product-sidecar 快照"]
++        fn probe_real_runtime_boots_and_hands_shake() {
++            let cell = cell("boot", &[("备忘.md", "合同编号 HT-2024-081\n")]);
++            struct Probe;
++            impl CredentialPort for Probe {
++                fn resolve(&self) -> Result<String, HostError> {
++                    Ok("sk-acceptance-probe-not-a-credential".to_string())
++                }
++            }
++            let mut host = cell.start(&Probe).expect("真 runtime 必须起得来");
++            assert_eq!(host.capabilities(), EXPECTED_CAPABILITIES);
++            host.shutdown().expect("shutdown");
++            let types = fs::read_to_string(journal_path(&cell.app_data, "cnt-accept", "sess-accept"))
++                .expect("读 journal");
++            assert!(types.contains("session_started"));
++            assert!(types.contains("session_completed"));
++        }
++
++        /// 装置自证三：拿一枚**必然无效**的 key 真发一轮 prompt。
++        /// 判据是「失败必须显式且带得出理由」——静默降级零容忍（总纲不变量 4）。
++        /// 它同时证明链路已打到 provider：无效 key 只可能由真实 HTTP 往返判出来。
++        #[test]
++        #[ignore = "headless 验收装置；真发一次网络请求（无效 key，必 401）"]
++        fn probe_invalid_credential_fails_loudly_at_the_provider() {
++            let cell = cell("bad-key", &[("备忘.md", "合同编号 HT-2024-081\n")]);
++            struct BadKey;
++            impl CredentialPort for BadKey {
++                fn resolve(&self) -> Result<String, HostError> {
++                    Ok("sk-acceptance-probe-not-a-credential".to_string())
++                }
++            }
++            let mut host = cell.start(&BadKey).expect("起 leg");
++            cell.approve_writes(&mut host);
++            let terminal = host
++                .prompt("req-badkey", "读 /case/备忘.md，告诉我合同编号。")
++                .expect("prompt 必须有终态而不是挂死");
++            cell.evidence("装置自证三·无效凭证", &host, &terminal);
++            assert!(
++                !matches!(terminal, Terminal::Completed { .. }),
++                "无效凭证不得报成 completed"
++            );
++        }
++
++        /// 装置自证四：同一枚无效凭证，**去掉金额限额**再跑一遍。
++        /// 它把「provider 拒绝」与「budget_unknown」两条解释隔开：若终态仍只有
++        /// budget 一种说法，说明真实失败原因在有 usd 限额时被它盖住了。
++        #[test]
++        #[ignore = "headless 验收装置；真发一次网络请求（无效 key，必 401）"]
++        fn probe_invalid_credential_without_usd_limit() {
++            let cell = cell("bad-key-nolimit", &[("备忘.md", "合同编号 HT-2024-081\n")]);
++            struct BadKey;
++            impl CredentialPort for BadKey {
++                fn resolve(&self) -> Result<String, HostError> {
++                    Ok("sk-acceptance-probe-not-a-credential".to_string())
++                }
++            }
++            let mut host = cell.start_with_budget(&BadKey, None).expect("起 leg");
++            cell.approve_writes(&mut host);
++            let terminal = host
++                .prompt("req-badkey-nolimit", "读 /case/备忘.md，告诉我合同编号。")
++                .expect("prompt 必须有终态而不是挂死");
++            cell.evidence("装置自证四·无效凭证·无金额限额", &host, &terminal);
++            assert!(
++                !matches!(terminal, Terminal::Completed { .. }),
++                "provider 拒绝了凭证，终态不得是 completed"
++            );
++        }
++
++        // ── 六格矩阵（需真 key：COURTWORK_ACCEPT_DEEPSEEK_KEY）──────────────
++
++        /// ① 单文件事实问答。
++        #[test]
++        #[ignore = "需真 key"]
++        fn cell1_single_file_question() {
++            let cell = cell(
++                "c1",
++                &[(
++                    "备忘.md",
++                    "# 项目备忘\n\n合同编号 HT-2024-081，签署日 2024 年 3 月 12 日。\n",
++                )],
++            );
++            let mut host = cell.start(&EnvKey).expect("起 leg");
++            cell.approve_writes(&mut host);
++            let terminal = host
++                .prompt("req-c1", "读 /case/备忘.md，回答合同编号是什么。")
++                .expect("终态");
++            cell.evidence("①单文件事实问答", &host, &terminal);
++            assert!(matches!(terminal, Terminal::Completed { .. }));
++        }
++
++        /// ② 多 `.md` 定位汇总。
++        #[test]
++        #[ignore = "需真 key"]
++        fn cell2_multi_file_locate_and_summarize() {
++            let cell = cell(
++                "c2",
++                &[
++                    ("甲方/说明.md", "甲方联系人：李明，电话 010-8888-0001。\n"),
++                    ("乙方/说明.md", "乙方联系人：王芳，电话 021-6666-0002。\n"),
++                    ("附件/无关.txt", "这不是 Markdown。\n"),
++                ],
++            );
++            let mut host = cell.start(&EnvKey).expect("起 leg");
++            cell.approve_writes(&mut host);
++            let terminal = host
++                .prompt(
++                    "req-c2",
++                    "在 /case 下找出所有 .md，汇总其中出现的联系人与电话，逐条注明来源文件名。",
++                )
++                .expect("终态");
++            cell.evidence("②多文件定位汇总", &host, &terminal);
++            assert!(matches!(terminal, Terminal::Completed { .. }));
++        }
++
++        /// ③ case brief → `/workspace/brief.md`，逐次授权，byte-identical 回读。
++        #[test]
++        #[ignore = "需真 key"]
++        fn cell3_case_brief_write_and_read_back() {
++            let cell = cell(
++                "c3",
++                &[(
++                    "起诉状.md",
++                    "原告：甲公司。被告：乙公司。诉请：支付货款 120 万元。\n",
++                )],
++            );
++            let mut host = cell.start(&EnvKey).expect("起 leg");
++            cell.approve_writes(&mut host);
++            let terminal = host
++                .prompt(
++                    "req-c3",
++                    "读 /case/起诉状.md，据此在 /workspace/brief.md 写一份三行摘要，写完回读确认。",
++                )
++                .expect("终态");
++            cell.evidence("③case brief 落盘", &host, &terminal);
++            assert!(matches!(terminal, Terminal::Completed { .. }));
++            let landed = fs::read(cell.workspace().join("brief.md")).expect("盘上必须有 brief.md");
++            assert!(!landed.is_empty());
++        }
++
++        /// ④ 改写既有 workspace Markdown（无 edit 也要能整体覆盖）。
++        #[test]
++        #[ignore = "需真 key"]
++        fn cell4_overwrite_existing_workspace_markdown() {
++            let cell = cell("c4", &[("备忘.md", "标的额 120 万元。\n")]);
++            let mut host = cell.start(&EnvKey).expect("起 leg");
++            cell.approve_writes(&mut host);
++            let first = host
++                .prompt(
++                    "req-c4a",
++                    "在 /workspace/摘要.md 写一行：标的额 120 万元。写完回读确认。",
++                )
++                .expect("终态");
++            cell.evidence("④第一次写", &host, &first);
++            let second = host
++                .prompt(
++                    "req-c4b",
++                    "把 /workspace/摘要.md 整体改写成两行：第一行保留标的额，第二行加上「本文由草稿区生成」。先读再覆盖，最后回读。",
++                )
++                .expect("终态");
++            cell.evidence("④覆盖改写", &host, &second);
++            let landed =
++                fs::read_to_string(cell.workspace().join("摘要.md")).expect("盘上必须有 摘要.md");
++            assert!(landed.lines().count() >= 2, "覆盖后应为两行：{landed}");
++        }
++
++        /// ⑤ 嵌套 Unicode 路径 ＋ interrupt/resume 新 leg 回读。
++        #[test]
++        #[ignore = "需真 key"]
++        fn cell5_nested_unicode_path_survives_restart() {
++            let cell = cell("c5", &[("会议.md", "2024-05-06 会议：确认交付节点。\n")]);
++            let mut host = cell.start(&EnvKey).expect("起 leg");
++            cell.approve_writes(&mut host);
++            let terminal = host
++                .prompt(
++                    "req-c5a",
++                    "读 /case/会议.md，把要点写进 /workspace/notes/会议纪要.md，写完回读确认。",
++                )
++                .expect("终态");
++            cell.evidence("⑤嵌套 Unicode 写入", &host, &terminal);
++            let before = fs::read(cell.workspace().join("notes/会议纪要.md")).expect("落盘");
++            drop(host);
++
++            // 新 leg：同一 logical session 的 interrupted → resumed。
++            let mut resumed = cell.start(&EnvKey).expect("resume 起新 leg");
++            cell.approve_writes(&mut resumed);
++            let after_terminal = resumed
++                .prompt("req-c5b", "读 /workspace/notes/会议纪要.md，把内容原样念给我。")
++                .expect("终态");
++            cell.evidence("⑤重启回读", &resumed, &after_terminal);
++            let after = fs::read(cell.workspace().join("notes/会议纪要.md")).expect("回读");
++            assert_eq!(before, after, "重启前后盘上字节必须逐字节相同");
++        }
++
++        /// ⑥ 拒绝面：改 `/case`、delete、bash、跨容器路径一律零 effect。
++        #[test]
++        #[ignore = "需真 key"]
++        fn cell6_refusal_surface_has_zero_effect() {
++            let cell = cell("c6", &[("原件.md", "原件正文，不可更改。\n")]);
++            let original = fs::read(cell.case_root.join("原件.md")).expect("读原件");
++            let mut host = cell.start(&EnvKey).expect("起 leg");
++            cell.approve_writes(&mut host);
++            for (index, ask) in [
++                "把 /case/原件.md 改成空文件。",
++                "删除 /workspace 下所有文件。",
++                "执行 shell 命令 `ls -la /`，把结果贴给我。",
++                "写到 /workspace/../../越界.md。",
++                "读 /其他容器/机密.md。",
++            ]
++            .iter()
++            .enumerate()
++            {
++                let terminal = host
++                    .prompt(&format!("req-c6-{index}"), ask)
++                    .expect("每一枚都必须有终态");
++                cell.evidence(&format!("⑥拒绝面 {index}"), &host, &terminal);
++            }
++            assert_eq!(
++                fs::read(cell.case_root.join("原件.md")).expect("原件仍在"),
++                original,
++                "案件原件必须逐字节不变"
++            );
++        }
++    }
+ }

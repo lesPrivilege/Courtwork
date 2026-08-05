@@ -1,6 +1,6 @@
 # 当前基线
 
-更新时间：随清账滚动（以提交史为准；本轮至 2026-08-03）
+更新时间：随清账滚动（以提交史为准；本轮至 2026-08-05）
 
 文档重整输入基线：`f03e742`
 
@@ -88,7 +88,7 @@ Composer 的「存入卷宗/资料」自 `DEBT-DOSSIER-1` 起即入库判据本�
 | Round 3 | `WORK-STORE-MEASURE`（放行，独立复跑证实尺寸无关与原子替换 0 撕裂）、`HOST-AUTH-LITE`（放行，四类失败 fail-closed 反例触红，真弹窗/真卷卸载为可复现记录非自动化门）、`CHAT-SESSION-1`（架构放行：自身范围全绿，两条红 e2e 经根因复核属 OUTPUT-CONFIRM-UI-1 缺口）、`WORK-STORE-1`（驳回一轮后聚焦复验放行，屏障次序与 scenario_failed 消费点均补齐）、`CASE-ROOT-1`（放行，opaque ref 与 webkitdirectory 退役，含死配置清理）、`SITE-CRAFT-1`（全链闭环：实现→驳回→复验→部署驳回→FADE→验收→两轮上线复核放行）、`CHAT-MEMORY-1`（放行，ADR-013 全部落地，Chat 线闭环）、`OUTPUT-CONFIRM-UI-1`（放行含合并组合，e2e 225/225 历史两红根治）、`MATERIAL-INGRESS-1`（放行，227/227，两项中场裁定经架构追认：就地入库 + MaterialRef desktop-local）、`UI-SURFACE-1`（两轮驳回后终局放行：31+11 对标清单双锚闭合、失败轮次重试接线、七处显式未开通态 + §9 黑名单静态门、疊层清单纠偏为 UI-RESIDUE-1 输入；floor 231）、`DESIGN-MD-1`（放行含产物守卫加固：tokens+principles 编译 courtwork-design.md，drift 门入 site:guard，效果图管线前置约束就位）、`VOICE-SPEC-1`（放行含验收修复：voice.md 成册 + lint:voice 三规则门 + 唯一违例修复；验收中 design-md drift 门咬住 principles 指针漂移并重生成——新门首次真实生效）、`LEGAL-S3-BINDING-1`（放行：S3 生产装配点闭合 + ArtifactEnvelope + 词表统一，ADR-010 七反例重放，package-ready 不扩大宣称）、`LAYOUT-CONVERGE-1`（Grok 四准则审计驳回后修复放行：死支/幽灵列清除、work 单列 760 测宽收缩、welcome 落 560 token，几何实测闭合，floor 255）、`UI-RESIDUE-1 批一`（文档条件驳回补落痕后终局放行：expectNoOverlayResidue + 17 行开合闭合门 + 点击穿透缺陷修复 + 门禁自证 mutation；成立范围严格为已枚举状态图，批二另单）、`WORK-LIVE-1`+`WORK-HOST-1`（各一轮驳回后合并复验放行：rejected 真实路径/确定性崩溃红证/replay 恢复环，主线工程面闭环） |
 | 2026-07-24 current-main 治理清账 | `FILE-PREVIEW-1`、`CORE-BUDGET-1`、`DEBT-CLEAR-1`、`DEBT-GATE-LABEL-1`、`MD-CONVERGE-1+`、`MODEL-CONFIG-EXPLICIT-1R`；报告门 `GOVERNANCE-CLEAR-1` 提交 `9df31d1`，同一 `94f83ab` 上 build/lint、root 1291、desktop 434、Playwright 329/329 与逐票 mutation 全绿；报告分别见 desktop/core `ACCEPTANCE.md` |
 | 2026-07-24 production Work 预算 | `WORK-BUDGET-1`：实现 `a82f51d`，台账契约修正 `0ff83f7`，异会话验收 `4e301b5`；最终 desktop 465、root 1294、Playwright 333/333，六类 production mutation 均红后恢复。只放行累计预算/冻结 route/价目/持久失败回放，不扩大为整条合同审查闭环 |
-| 2026-07-25 门禁清点 | `GATE-INVENTORY-1`：清点表 `docs/engineering/gate-inventory-1.md`（65 门 / 8557 行，现读现跑非静态推断；旧计数 `8019` 订正为出处保留）。清点期只读边界被遵守，动作按就绪图另立 `GATE-P5-RESCOPE-1` 与 `CI-TOPOLOGY-1` 两票。副产品捕获两项现行问题并经异会话独立复跑坐实：`assert-p5-font-runtime` 判红（exit 1，八条数据位置断言全漂）且未接任何门链、`capture-rp1-compact` 死支（实跑 30s 超时崩溃）。报告内「跨越十余枚提交」一处计数在任一口径下均不成立，已由复测三口径（全仓 69 / `site/` 7 / `site/index.html` 1）订正 |
+| 2026-07-25 门禁清点 | `GATE-INVENTORY-1`：清点表 `docs/engineering/gate-inventory-1.md`（65 门 / 8557 行，现读现跑非静态推断；旧计数 `8019` 订正为出处保留）。**该组数字是 2026-07-25 的冻结坐标，非现读值**——2026-08-05 于 `2c8fd7b` 重数为 **68 门 / 9981 行**（`apps/desktop/scripts` 54 + `site/scripts` 11 + `release/scripts` 3，命令见清点表五节）；数字随门增删漂移，任何时点的现读值以门自身与该命令为准，本行与清点表只作出处保留。清点期只读边界被遵守，动作按就绪图另立 `GATE-P5-RESCOPE-1` 与 `CI-TOPOLOGY-1` 两票。副产品捕获两项现行问题并经异会话独立复跑坐实：`assert-p5-font-runtime` 判红（exit 1，八条数据位置断言全漂）且未接任何门链、`capture-rp1-compact` 死支（实跑 30s 超时崩溃）。报告内「跨越十余枚提交」一处计数在任一口径下均不成立，已由复测三口径（全仓 69 / `site/` 7 / `site/index.html` 1）订正 |
 | 2026-07-26 合同审查安全面 | `CONTRACT-REVIEW-SAFETY-1`：实现 `d24d62b`+`2a16f44`+`b9dc1e9`，fix-by-acceptance 回归锁 `5f4d90d`，异会话验收 `e473fbb`，合入 `05e0ade`。全量门两轮实跑全绿（root 1294、desktop 501、Playwright 337/337），四项指名 mutation 三项原生红证、一项由回归锁补齐。只放行 SAFETY 票面，不及 OUTPUT/TRACE |
 | 2026-07-26 合同审查输出真实性 | `CONTRACT-OUTPUT-TRUTH-1`：实现 `95ab19d`…`3171c08` + 修复 `b2ba999`，异会话验收一驳回（三模块白名单缺录、旧产物名残留消费）一聚焦复验放行，合入 `78655bd`；随批 eslint `.claude/**` 微修缮 `c7897d8`（红绿证）。六类 mutation 与四条回归锁逐项红绿，Playwright floor 342→343。只放行 OUTPUT 票面，不及 TRACE |
 | 2026-07-27 合同审查来源回跳 | `CONTRACT-TRACE-1`：实现 `24cccb4`…`c92cdb0`（含高水位 2657→2644 同批下调、两处旧断言按本意改写、`work-recovery`/`material-reader` 吸收删除），SPEC 留痕四项偏离与两处白名单外触碰经验收派单件六裁定一追认定谳后交验；五枚真实模块 mutation 红绿（首枚以等价最小扰动形态获准，裁定七），全量门通过（root 1323、desktop 651、Playwright 346/347，唯一红为在册 `E2E-FLAKY-HOVER-1`），floor 343→347；验收报告 `3e0a0e5`，清账 `c9e7b5e`，快进合入。只放行 TRACE 票面（来源回跳／完成账本可重开／production 预览真实同源），不及 DOSSIER |
@@ -129,6 +129,11 @@ Legal 单品真机回归均未闭合，不据工程绿自动晋级成熟度。
   `TOOL-READ-1`、`S6-EXEC-1`、`GATE-INVENTORY-1`、`C3-1`…`C3-5`），各行带裁决坐标、
   依赖与 `App.tsx` 串行约束。入图、实现提交与独立清账是三个不同事实；成熟度仍逐票按本文件
   四节读取。
+
+三份架构会话交接件（2026-07-19 / 2026-07-26 / 2026-07-27）在途事项已清零，2026-08-05 由架构角色移入 `archive/`——去处按归档索引的 `status-handoffs-2026-07/handoff-2026-07-19.md`、`status-handoffs-2026-07/handoff-2026-07-26.md`、`status-handoffs-2026-07/handoff-2026-07-27.md` 三条条目定位（索引是归档的唯一入口，故此处不直书归档路径）。三件均只是索引与取舍记录，能力状态本就只认本文件；其中两项须留在册的事实随本次移档前置登记：
+
+- **2026-07-26 件所指的 `docs/status/pending-2026-07-26/` 未提交实物目录已不存在**：该批四件（`ARCH-RULINGS-2026-07-26` / `ADR-DRAFTS-2026-07-26` / `BENCHMARK-OPENWORK-2026-07-26` / `PI-ECOSYSTEM-2026-07-26`）已于 2026-07-27 成文落痕并各自归档，归档索引有对应条目；交接件里指向 pending 目录的路径此后是死指针，不得据以复原。
+- **`PI-LANE` 真 key 端到端复核仍未执行**，责任方为产品负责人（持 key 者），复核步骤见 `packages/pi-lane/SPEC.md` 第七节六步，结果另行登记。本条与本文件通用 loop 线行的「真 key 端到端未验」、就绪图 `PI-LANE-1` 行与 `PI-BASE-HEADLESS-ACCEPT` / `PI-BASE-GUI-ACCEPT` 两票的真 key 前置是同一笔债，此处登记以免其唯一来路随交接件归档而失落。
 
 ## 分支与清账纪律
 

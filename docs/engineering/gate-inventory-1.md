@@ -42,6 +42,8 @@
 
 **「8019」是过期数字，如实订正**：源自 `archive/harness-core-1-stage-a.md:141`（`apps/desktop/scripts/` 59 个/4758 行 + `site/`+`release/` 13 个/3261 行），落笔于该文档作者提交 `8eafe07`（2026-07-20 11:04）。逐笔核对：desktop 侧同日 `5d808a9`（14:13，"clear dead interfaces, seams and scripts"）删掉 9 个 `capture-*-audit.mjs`（**该清理正是这份 8019 分析自己 D10/R-15 死代码发现的三小时后落地**）、`aeca386`（13:07）新增 `assert-app-highwater.mjs`，净 59−9+1=51；site 侧 `80407bc`（11:21，文档落笔 17 分钟后）新增 `render-og.mjs`，13+1=14。65 文件精确对账。行数残差（8019→8557，多出 538 行）来自后续 5 天里对既有文件的原地编辑，非文件增减可以解释——`8019` 从未被任何门或脚本自我校验，是一次性人工统计,不是活数字。**本清点采用今日现读的 8557 为真，8019 仅作出处保留。**
 
+**「8557／65」自身亦已转为出处保留（2026-08-05 补注，循本节先例）**：上段那条纪律对本清点自己同样成立——`8019` 不是活数字，`8557` 也不是。2026-08-05 于 `2c8fd7b` 以本文件五节的同一条命令重数，得 **68 文件 / 9981 行**（`apps/desktop/scripts/` 54、`site/scripts/` 11、`release/scripts/` 3）。**原数一律不删**：`65 / 8557` 是 2026-07-25 清点当日的现读坐标，本文件通篇（含第二、三节表头与逐行行数、`minimum=333`、`HIGH_WATER_LINES=2738`）的一切计数都按此口径读作**该日冻结值**，只作各自结论的出处。任何时点的现行值只认门自身——门数与行数按下面五节的命令现数，Playwright 下限认 `apps/desktop/scripts/assert-test-count.mjs` 的 `minimum`，`App.tsx` 上限认 `apps/desktop/scripts/assert-app-highwater.mjs` 的 `HIGH_WATER_LINES`。本文件其余结构性结论（孤儿门、可降频、死支、判红项等）不因计数漂移而失效，但复用前须按同法复核一次。
+
 **范围边界，明确排除，非遗漏**：本清点严格沿用「8019」出处定义的范围——仅 `apps/desktop/scripts/`、`site/scripts/`、`release/scripts/` 三个目录下的 `.mjs` 文件。以下两类同属「自研门」精神但不在本票范围内，留给未来扩围票裁定是否并入同一清点体系：
 
 - `packages/provider/scripts/generate-catalog.mjs`（44 行，backs `catalog:check`，drift 型门，形态与本清点内的 gates 一致）；
@@ -50,6 +52,8 @@
 ---
 
 ## 二、清点表 · `apps/desktop/scripts/`（51 门，4741 行）
+
+> 本节全部计数（含 `51 / 4741`、逐行行数、`minimum=333`、`HIGH_WATER_LINES=2738`）是 **2026-07-25 冻结值**，只作出处保留；现读口径见第一节「『8557／65』自身亦已转为出处保留」。
 
 | 文件 | 行数 | 主状态 | 附加标记 | 依据 |
 |---|---:|---|---|---|

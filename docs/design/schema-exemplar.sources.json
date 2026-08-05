@@ -46,7 +46,7 @@
     {
       "id": "P0-S06",
       "path": "docs/decisions/ADR-014-preview-tabs-and-package-tiers.md",
-      "sha256": "aea1089d9fcf34a14adc07fa05df7055519b4ae22ca2d18e514e9a5146606d38",
+      "sha256": "fa9e467dd82181c2997a3c65c930b351f6156a8b11a45d317719679efb572ab2",
       "role": "artifact-tab-authority",
       "symbols": ["tab-is-artifact", "multi-artifact"]
     },

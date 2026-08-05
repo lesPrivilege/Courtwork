@@ -2,6 +2,8 @@
 
 状态：v0.1.2 已完成独立验收并公开发布；既有 Provider/Turn/Interaction/UI、`HOST-PORT-1`、`VIEW-ABI-1/1C`、`WORK-PORT-1`、`TRACE-UI-1` 与 `VISUAL-KIT-1` 均已独立验收放行；后续 Work state/material/live 受 ADR-010 约束。
 
+> **SHA 坐标通则（2026-08-05 一次性登记，不逐条改写）**：本文件各票留痕里的实现/验收 SHA 多数是现行 `main` 的祖先，可直接 `git show`；但其中一小批（2026-08-05 于 `2c8fd7b` 逐个 `git merge-base --is-ancestor` 实测，84 枚 SHA 形字串里有 **5 枚**：`961398d`、`308fba1`、`04a19e2`、`08148a7`、`84edc8b`，集中在 `WORK-TURN-1`／`PILOT-LIVE-1`／`PILOT-LIVE-2` 三节）**是 rebase 前或未合入支线上的坐标，不是现行 main 的祖先**——它们仅作历史定位，不能用来判定内容是否在树内。判定内容在树内一律以现行 `main` 的文件与门为准；`no-ff` 合入 SHA 才是各票进树的锚点。本条同样适用于 `ACCEPTANCE.md`（同批实测另有约 20 枚，含 3 枚本地对象已不可达）。
+
 ## AGENT-CLAIM-CORRECTION-1 · composer 声明文案修正（实现完成，待独立验收）
 
 权威：[实现就绪图 `AGENT-CLAIM-CORRECTION-1` 行](../../docs/architecture/implementation-readiness.md)。基线 `main @ 497a288`。隔离 worktree 施工。
@@ -1480,7 +1482,9 @@ ADR-013 §2 落地：请求完成时规则蒸馏重要信息入 memory（每条�
 - 新增第三方依赖为 0；`@courtwork/demo-data` 仅作为 workspace test-only devDependency。生产 `src` 静态门拒绝 demo-data、垂类 `/testing`、Node builtin、新 visual dependency、namespace/typeId switch 与 candidate/deferred registry 回流。
 - 红灯基线先由缺失七项边界稳定报错；实现侧定向 Vitest **6 files / 20 tests**、desktop 全量 **39 files / 156 tests**、root Vitest **128 files / 1117 tests**、全仓 **13 workspace build**、ESLint 与 site/de-slop guard 全绿。独立 gallery capture harness 在 1180/1280/1440/1600 四档实际浏览器渲染十二族；最终完整前置门与 Playwright **209/209 passed（4 workers，1.6m）**。这些是实现自证，正式截图清单与放行结论仍由验收会话在 clean worktree/main 产生。
 
-## 现行架构工单（2026-07-14）
+## 架构工单批（2026-07-14，已全批清账）
+
+> **标题订正（2026-08-05）**：本节原题「现行架构工单（2026-07-14）」。该批已全部清账（`WORK-PORT-1` 起的 Work 端口线经 `WORK-LIVE-1`／`WORK-HOST-1` 合并复验放行，见本文件同名节与 `docs/status/current.md` Round 3 行）。**下方票面正文保持原样**，它是 ADR-010 落地时的契约与验收基线；只是"现行"这一时序措辞已属立段时事实，开放工单只认[实现就绪图](../../docs/architecture/implementation-readiness.md)。
 
 ### WORK-PORT-1 · Work command/projection 注入缝
 
@@ -3030,7 +3034,7 @@ rebase 至 main tip `bb2eb97`（含 `bc3219b`），四提交零冲突。**注**�
 
 ## SKIN-B4 · 记号批（实现完成，待独立验收）
 
-权威：就绪图皮层迁移批次账 B4 票面 + 「SVG 记号解耦预留」三条 + `docs/design/prototype-audit-2026-07-19.md` 桶② + `site/SPEC.md` B5 节（件库首场，站面为几何单源）+ 朱印记色裁定（`docs/status/handoff-2026-07-19.md` §1）。基线 `main @ 4dde0f0`，隔离 worktree `impl/skin-b4`，隔离端口 1497（e2e）/ 1498（证据采集）。**分两段交付**：首段（件库回迁 + 第 32 门 + 朱印接线）已入账，本节续写并收口。
+权威：就绪图皮层迁移批次账 B4 票面 + 「SVG 记号解耦预留」三条 + 原型盘点桶②（**史料线索**，件已随 B4 清账归档，去处按归档索引的 `design-prototype-2026-07-19-r2/prototype-audit.md` 条目定位）+ `site/SPEC.md` B5 节（件库首场，站面为几何单源）+ 朱印记色裁定（**史料线索**，去处按归档索引的 `status-handoffs-2026-07/handoff-2026-07-19.md` 条目 §1 定位）。两处归档件只说明本节结论从何而来，不构成现行依据；索引是归档的唯一入口，故此处不直书归档路径。基线 `main @ 4dde0f0`，隔离 worktree `impl/skin-b4`，隔离端口 1497（e2e）/ 1498（证据采集）。**分两段交付**：首段（件库回迁 + 第 32 门 + 朱印接线）已入账，本节续写并收口。
 
 ### 首段续账（`1c73998` / `b394661`，本节补记）
 
@@ -3537,6 +3541,8 @@ design-md drift 门重编译。故处置为**声明其真实种类并锚到节�
 
 ### 高水位账目（2777 → 2746，经独立验收复算订正）
 
+> **冻结值注（2026-08-05，循 `8019` 订正先例：出处保留，不删原数）**：`2777`／`2746` 是本批当日的历史坐标，不是现读值。棘轮此后继续下行，2026-08-05 于 `2c8fd7b` 现读 `HIGH_WATER_LINES = 2549`（`apps/desktop/scripts/assert-app-highwater.mjs:69`）。**门是唯一活数字**；本节及下文各批留痕里的一切高水位数只作各自批次的账目出处，任何时点的现行上限以该门文件为准。
+
 `App.tsx` 净 **−31** 行。其中 −30 为验收复算过的主体（+28 / −58，三数一致），验收后另删 1 行：`app-shell` 上的 `data-right-narrow` 属性零消费（三处 e2e 全指 `workspace`），退役时被**改名而非删除**，属「把死配置改了名」，按验收 H 项删掉；同批收口外提残留的连续空行。上限随之由 2747 降为 2746——**净减也须收紧**，这正是棘轮的那一半。但初稿的分类账**四处失实**，现按验收逐行分类订正：
 
 | 类别 | 行数 | 说明 |
@@ -3888,7 +3894,7 @@ core 已定语义，不另造 UI 预算状态。
   resume/retry；另以正常 citation repair 证明 stub 可真实进入 attempt 2，不得只测“永远一次”。
   DEV Playwright 的内存 host 不跨 `page.reload()`，不得把切案假称真重启：跨命令实例恢复由
   command 集成测试用同一 host + 全新 command 证明，真 App 重启留给版本级 Tauri 候选验收。
-  新增 Playwright 后以 `--list` 实数只升 floor；App 实际净减后把 highwater 从当前 2739 下调到实测值。
+  新增 Playwright 后以 `--list` 实数只升 floor；App 实际净减后把 highwater 从当前 2739 下调到实测值。（**`2739` 为立票时冻结值**，非现读；现读见上文「冻结值注」与 `assert-app-highwater.mjs`。）
 
 ### 实现留痕（WORK-BUDGET-1，2026-07-24，已独立验收）
 
@@ -3914,7 +3920,7 @@ core 已定语义，不另造 UI 预算状态。
   **1 file / 12 tests** 全绿，WORK-LIVE 静态门与新 E2E **4/4** 全绿；root Vitest
   **149 files / 1294 tests**、`pnpm lint`、`pnpm -r build` 均通过。Playwright `--list` 为
   **333 tests / 61 files**，`--workers=2` 无 retry 最终 **333/333**（6.6m）；App 高水位
-  **2738/2738**。4-worker 全量曾两次各命中同一 legacy `global-verbs` 的不同 hover timing
+  **2738/2738**（**本批冻结值**，非现读；现读见上文「冻结值注」与 `assert-app-highwater.mjs`）。4-worker 全量曾两次各命中同一 legacy `global-verbs` 的不同 hover timing
   抖动，两个失败用例随后分别单独 **1/1** 通过；未放宽产品 CSS 或断言。
 - 全量回归揭示旧 `d1-case-scope` 仍锁英文 `New case`；经架构角色明确补充测试白名单后，只机械
   更新为冻结中文空态，未改选择器、步骤或 production。异会话在实现父 `a82f51d` 独立注入六类
