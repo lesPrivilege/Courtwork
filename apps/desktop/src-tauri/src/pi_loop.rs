@@ -15,12 +15,15 @@
 //! 3. **终态文案只有一张表**。补终态时逐字用 `TerminalFailureCode::message()`；
 //!    不得从退出码、stderr 或 OS error 拼 message。
 
-#![allow(dead_code)]
 
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::time::Duration;
+use std::sync::Arc;
+use std::time::{Duration, Instant};
 
+use crate::pi_loop_command::{
+    CommandBus, CommandRejection, CommandSender, DecisionVerdict, HostCommand, COMMAND_POLL_SLICE,
+};
 use crate::pi_loop_journal::{
     self, container_dir, is_safe_container_token, sync_directory, AuthorizationDecision,
     AuthorizationDenyCode, EffectStartedPayload, EffectSucceededPayload, Journal, JournalError,
@@ -99,6 +102,8 @@ pub(crate) enum HostError {
 }
 
 impl HostError {
+    /// **入口根**：错误闭集的对外投影（Tauri 错误映射面），装配点随 `PI-LANE-UI-1`。
+    #[allow(dead_code)]
     pub(crate) fn code(&self) -> &'static str {
         match self {
             HostError::CredentialUnconfigured => "credential_unconfigured",
@@ -141,8 +146,13 @@ pub(crate) trait CredentialPort {
 }
 
 /// production：直接复用 lib.rs 既有的单次受保护读取，不另开第二条凭证路径。
+/// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：production 装配点随 `PI-LANE-UI-1`。
+#[allow(dead_code)]
 pub(crate) struct KeychainCredentials;
 
+/// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：production 的凭证／spawn 真件，
+/// 装配点随 `PI-LANE-UI-1`；测试与 headless 各注入自己的座。
+#[allow(dead_code)]
 impl CredentialPort for KeychainCredentials {
     fn resolve(&self) -> Result<String, HostError> {
         match crate::active_secret() {
@@ -154,9 +164,17 @@ impl CredentialPort for KeychainCredentials {
 
 // ── leg 通道（production = 真进程；测试 = scripted）────────────────────────
 
-pub(crate) trait SidecarLeg {
+/// `Send`（`PI-HOST-CONCURRENCY-1`）：leg 随 `PiLoopHost` 一起被移进宿主专属线程。
+/// 真件 {@link SidecarProcess} 与脚本座本就满足，此处只是把已成立的事实写进契约。
+pub(crate) trait SidecarLeg: Send {
     fn write_packet(&mut self, line: &[u8]) -> Result<(), ProcessFault>;
     fn read_packet(&mut self, deadline: Option<Duration>, window: &'static str) -> ReadOutcome;
+    /// **有界切片**地看一眼有没有下一枚 packet（`PI-HOST-CONCURRENCY-1`）。
+    ///
+    /// `None` ⇒ 本切片内什么也没来；它**不是**超时，调用方据此回到自己的循环去服务命令，
+    /// 总时限（有没有、还剩多少）由调用方自己记账。泵的可唤醒性就落在这一枚上：
+    /// 旧形 `read_packet(None, ..)` 一头扎进无限期 `recv`，命令通道再快也叫不醒它。
+    fn poll_packet(&mut self, slice: Duration, window: &'static str) -> Option<ReadOutcome>;
     fn close_stdin(&mut self);
     fn terminate(&mut self) -> Result<ExitOutcome, ProcessFault>;
     fn wait_exit(&mut self, deadline: Duration) -> ExitOutcome;
@@ -168,6 +186,9 @@ impl SidecarLeg for SidecarProcess {
     }
     fn read_packet(&mut self, deadline: Option<Duration>, window: &'static str) -> ReadOutcome {
         SidecarProcess::read_packet(self, deadline, window)
+    }
+    fn poll_packet(&mut self, slice: Duration, window: &'static str) -> Option<ReadOutcome> {
+        SidecarProcess::poll_packet(self, slice, window)
     }
     fn close_stdin(&mut self) {
         SidecarProcess::close_stdin(self);
@@ -190,8 +211,13 @@ pub(crate) trait LegSpawner {
     ) -> Result<Box<dyn SidecarLeg>, HostError>;
 }
 
+/// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：production 装配点随 `PI-LANE-UI-1`。
+#[allow(dead_code)]
 pub(crate) struct ProcessSpawner;
 
+/// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：production 的凭证／spawn 真件，
+/// 装配点随 `PI-LANE-UI-1`；测试与 headless 各注入自己的座。
+#[allow(dead_code)]
 impl LegSpawner for ProcessSpawner {
     fn spawn(
         &mut self,
@@ -431,7 +457,7 @@ pub(crate) enum EffectOutcome {
 /// `decide` 的真源仍在注入座之外——真件把它转交 {@link WriteDecisionDriver}，
 /// 缺 driver 即 `policy_denied`（ADR-022 六-C 明禁「用 session always-allow 冒充产品授权」），
 /// 真 driver（GUI 或 headless 验收）属⑤。
-pub(crate) trait WorkspaceWriteHost {
+pub(crate) trait WorkspaceWriteHost: Send {
     /// 授权**前**的在场判定：目标已在 ⇒ `Overwritten`，否则 `Created`（ADR-022 六-C）。
     ///
     /// ④ 按 ③回执 §六.6 放宽为 `Result`：真件的 symlink / not_directory / is_directory /
@@ -453,7 +479,7 @@ pub(crate) trait WorkspaceWriteHost {
 /// 与 {@link WorkspaceWriteHost} 分列两枚 trait 而不是并进一枚：读**没有** probe/decide/perform
 /// 三段——它没有 effect，也就没有可授权的对象。合成一枚会逼出「读的 decide 恒 Approved」
 /// 这种恒真桩，那正是 ADR-022 六-C 明禁的「用恒批准冒充授权」的形状。
-pub(crate) trait WorkspaceReadHost {
+pub(crate) trait WorkspaceReadHost: Send {
     fn exists(&mut self, logical_path: &str) -> Result<bool, HostFailureCode>;
     /// 回 `(content, byteLength)`；`byteLength` 是 UTF-8 实长，由真件从正文自算。
     fn read_file(&mut self, logical_path: &str) -> Result<(String, u64), HostFailureCode>;
@@ -466,9 +492,142 @@ pub(crate) trait WorkspaceReadHost {
 /// 有一个答案。硬编码 `Approved` 就是 ADR 明禁的「用 session always-allow 冒充产品授权」，
 /// 而把 `decide` 留在 `WorkspaceWriteHost` 上又会让真件无处安放外部决定。故立此一枚座：
 /// 缺席 ⇒ `policy_denied` fail-closed，⑤／headless 验收装真件。
-pub(crate) trait WriteDecisionDriver {
+pub(crate) trait WriteDecisionDriver: Send {
     fn decide(&mut self, plan: &WorkspaceWritePlan, action: WriteDisposition)
         -> WriteAuthorization;
+}
+
+// ── 泵的等待记账与产品形 decision driver（PI-HOST-CONCURRENCY-1）───────────────
+
+/// 泵这一段的总时限记账。
+///
+/// 旧形把 deadline 直接交给 `read_packet` 一睡到底；切片化之后总时限必须自己记，
+/// 顺带让 cancel 之后的收紧成为**同一枚状态的取值变化**，而不是另起一条代码路径。
+struct PumpWait {
+    /// `None` ⇒ 无总时限。ADR 明写的唯一例外：活动 prompt / provider stream 本体。
+    /// 可中断性由 Stop 保障，不由时限保障。
+    deadline: Option<Duration>,
+    started: Instant,
+    window: &'static str,
+    /// cancel 包已发：第二枚 cancel 不重发（六-B.1 的 race-late 语义在 sidecar 侧不变）。
+    cancel_sent: bool,
+}
+
+impl PumpWait {
+    fn new(deadline: Option<Duration>, window: &'static str) -> PumpWait {
+        PumpWait {
+            deadline,
+            started: Instant::now(),
+            window,
+            cancel_sent: false,
+        }
+    }
+
+    fn expired(&self) -> bool {
+        self.deadline
+            .is_some_and(|limit| self.started.elapsed() >= limit)
+    }
+
+    /// cancel 之后这一段是**有界**的：`cancel→terminal` 的既有 deadline 从此刻起算。
+    fn tighten_for_cancel(&mut self) {
+        self.deadline = Some(CANCEL_TERMINAL_DEADLINE);
+        self.started = Instant::now();
+        self.window = "cancel→terminal";
+        self.cancel_sent = true;
+    }
+}
+
+/// 产品形逐次授权 driver（ADR-022 六-C.1「decide 改投提案等回执」）。
+///
+/// 内核契约 {@link WriteDecisionDriver} 的**同步签名保留**：四段账序与普适电池所锁语义
+/// 一字不改，改的只是这一枚同步调用在等谁。它等的是命令通道上的 `decision` 回执，
+/// 而等待期间通道仍被服务——Stop 与 teardown 因此能把一枚悬置提案就地收束。
+///
+/// production 当期**不装**它：无 driver 恒 `policy_denied` 的 fail-closed 边界不变
+/// （ADR-022 六-C.1 末条），装配点在 `PI-LANE-UI-1` 与 headless 验收。
+pub(crate) struct CommandDecisionDriver {
+    bus: Arc<CommandBus>,
+}
+
+impl CommandDecisionDriver {
+    /// **入口根**：产品形 driver 的装配点在 `PI-LANE-UI-1` 与 headless 验收；
+    /// production 当期不装它（无 driver 恒 `policy_denied`，fail-closed 边界不变）。
+    #[allow(dead_code)]
+    pub(crate) fn new(bus: Arc<CommandBus>) -> CommandDecisionDriver {
+        CommandDecisionDriver { bus }
+    }
+}
+
+impl WriteDecisionDriver for CommandDecisionDriver {
+    /// 等待点三：等回执。**无总时限**——授权属用户，系统不代拒；但必须可被 Stop 与
+    /// teardown 收束，故每一枚切片都回来服务一次通道。
+    fn decide(
+        &mut self,
+        plan: &WorkspaceWritePlan,
+        _action: WriteDisposition,
+    ) -> WriteAuthorization {
+        // 悬置提案的唯一真源：置位在等待入场之前，清位在离场之后。泵与本处读同一枚格子，
+        // 「这枚回执有没有对象」因此不存在两套账。
+        self.bus.set_pending(&plan.operation_id);
+        let authorization = loop {
+            let Some(envelope) = self.bus.poll(COMMAND_POLL_SLICE) else {
+                continue;
+            };
+            match &envelope.command {
+                HostCommand::Decision {
+                    operation_id,
+                    verdict,
+                } if operation_id == &plan.operation_id => {
+                    let verdict = *verdict;
+                    envelope.accept();
+                    break match verdict {
+                        DecisionVerdict::Approve => WriteAuthorization::Approved,
+                        DecisionVerdict::Deny => {
+                            WriteAuthorization::Denied(AuthorizationDenyCode::UserDenied)
+                        }
+                    };
+                }
+                // 回执错配：失效丢弃并显式登记，绝不当成对当前提案的答复。
+                HostCommand::Decision { operation_id, .. } => {
+                    let operation_id = operation_id.clone();
+                    self.bus
+                        .register_discarded(&operation_id, CommandRejection::OperationMismatch);
+                    envelope.reject(CommandRejection::OperationMismatch);
+                }
+                HostCommand::Prompt { .. } => envelope.reject(CommandRejection::PromptBusy),
+                // **Stop 蕴含拒绝**（ADR-022 六-C.1）：悬置提案立即以
+                // `authorization_decided(denied, user_denied)` durable 收束——由调用方
+                // `serve_host_request` 照既有四段账序落账，本处只交出结论，不新增 wire 拒绝码。
+                //
+                // 命令本体**推回**给泵：cancel 包的发出、`cancel→terminal` 的收紧与终态收束
+                // 都是泵的职责，六-B.1 的 wire 语义因此一字不改。
+                HostCommand::Cancel { .. } | HostCommand::Teardown => {
+                    self.bus.defer(envelope);
+                    break WriteAuthorization::Denied(AuthorizationDenyCode::UserDenied);
+                }
+            }
+        };
+        self.bus.clear_pending();
+        authorization
+    }
+}
+
+/// ADR-022 :285-290 冻结的 tool↔capability 映射，Rust 侧**唯一**真源
+/// （`PI-HOST-CONCURRENCY-1` 随批收口）。
+///
+/// 此前这张映射在本文件写了两遍：写臂 0.3 一份穷举 `match`、读臂 J2 一份穷举 `match`。
+/// 两份同源真值可以各自改成互相矛盾，加第五道工具时也要逼两次裁定——`PI-TOOLCALL-BINDING-1`
+/// 验收据 1R5 判例「同步消灭优于同步验证」上浮，此处照办：映射只此一处，两臂各自比对结论。
+///
+/// 穷举无 `_`：`closed_enum!` 添一道工具，**只有这里**编译失败，逼出「新工具发哪一类 host op」
+/// 的一次显式裁定。
+fn capability_for(tool: ProductToolName) -> WorkspaceCapability {
+    match tool {
+        ProductToolName::Write => WorkspaceCapability::WorkspaceWrite,
+        ProductToolName::Read | ProductToolName::Glob | ProductToolName::Grep => {
+            WorkspaceCapability::WorkspaceRead
+        }
+    }
 }
 
 /// 出站结果的四支构造器。逐支只吃计划与结局，不碰 `self`——「编出来的那一份」
@@ -582,6 +741,12 @@ pub(crate) struct PiLoopHost {
     /// 读臂不碰授权、不落账，两座各自可注入、各自可缺席。
     read_host: Option<Box<dyn WorkspaceReadHost>>,
     closed: bool,
+    /// 入站命令通道的宿主侧（`PI-HOST-CONCURRENCY-1`／ADR-009 2026-08-05 窄修订）。
+    ///
+    /// 与 host 同生共死：`start` 造它，`command_sender()` 交出发端，
+    /// {@link crate::pi_loop_command::PiLoopThread} 接管 host 时把它一并带进宿主线程。
+    /// 泵与授权等待两处等待点读的是**同一枚** bus，故「谁先取到命令」不存在两套账。
+    bus: Arc<CommandBus>,
 }
 
 impl Drop for PiLoopHost {
@@ -595,20 +760,67 @@ impl Drop for PiLoopHost {
 }
 
 impl PiLoopHost {
+    // ── 投影读面（**入口根**，`PI-HOST-CONCURRENCY-1` dead_code 收窄）─────────────
+    //
+    // 这一组只读访问器是宿主交给投影面的全部读口，消费点随 `PI-LANE-UI-1` 落地；
+    // 在那之前它们无人调用。逐组具名放行，不再由文件级 `allow` 把整份文件一起静默。
+    #[allow(dead_code)]
     pub(crate) fn leg(&self) -> u64 {
         self.leg
     }
+    #[allow(dead_code)]
     pub(crate) fn published(&self) -> &[HostEvent] {
         &self.published
     }
+    #[allow(dead_code)]
     pub(crate) fn records(&self) -> &[JournalRecord] {
         &self.records
     }
+    #[allow(dead_code)]
     pub(crate) fn projection(&self) -> &SessionProjection {
         &self.projection
     }
+    #[allow(dead_code)]
     pub(crate) fn capabilities(&self) -> &[WorkspaceCapability] {
         &self.capabilities
+    }
+
+    // ── 入站命令通道（`PI-HOST-CONCURRENCY-1`）────────────────────────────────
+
+    /// 宿主侧 bus。给两类持有者：接管 host 的宿主线程，以及产品形 decision driver
+    /// （{@link CommandDecisionDriver}）——两者读同一枚 bus 是「回执不追溯」的前提。
+    pub(crate) fn command_bus(&self) -> Arc<CommandBus> {
+        Arc::clone(&self.bus)
+    }
+
+    /// 外部（届时的 Tauri command 薄壳）握的发端。
+    #[allow(dead_code)]
+    pub(crate) fn command_sender(&self) -> CommandSender {
+        self.bus.sender()
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn is_closed(&self) -> bool {
+        self.closed
+    }
+
+    /// 收摊。空闲即走既有 `shutdown` 全序（idle shutdown → terminal → EOF → exit →
+    /// `session_completed`）；已有终态或 leg 已交出即只归还写权。
+    ///
+    /// **不新增终态语义**：这里一枚 journal payload 都不自己写，落账全在既有 `shutdown`／
+    /// `reclaim_after_fault` 里。失败照实回给调用方，不吞。
+    pub(crate) fn teardown(&mut self) -> Result<(), HostError> {
+        if self.closed || self.leg_handle.is_none() {
+            self.reclaim_leg();
+            self.lock = None;
+            return Ok(());
+        }
+        // 活动 prompt 必已由泵按 Stop 收束（teardown 在泵里与 Stop 同形）；万一没有，
+        // 走故障收账而不是把一枚活着的 prompt 静默丢掉。
+        if self.active_request.is_some() {
+            return self.reclaim_after_fault(SessionInterruptReason::SidecarEnded);
+        }
+        self.shutdown()
     }
 
     /// **测试专用**：换掉构造点装上的真件（换脚本座，或置 `None` 以保留 0.4 门的反例）。
@@ -618,6 +830,11 @@ impl PiLoopHost {
         self.write_host = host;
     }
 
+    /// 与 {@link PiLoopHost::install_write_host} 同族的读件座。`PI-HOST-CONCURRENCY-1` 的
+    /// dead_code 收窄照出它此前**零调用**——即「读件座缺席」那道 fail-closed 门当时没有
+    /// 反例驱动点。本票随手补上那枚反例（见
+    /// `counterexample_host_request_gates_refuse_before_any_effect` 的读件座一格），
+    /// 它于是重新承重。
     #[cfg(test)]
     fn install_read_host(&mut self, host: Option<Box<dyn WorkspaceReadHost>>) {
         self.read_host = host;
@@ -658,6 +875,10 @@ impl PiLoopHost {
     /// 6. runtime cwd → spawn → bootstrap（caseRoot 与 key 只在此入内存）；
     /// 7. ready 且 capability 逐值等于 `EXPECTED_CAPABILITIES`，否则落
     ///    `session_failed{protocol,state_violation}`。
+    ///
+    /// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：生产消费点由 `PI-LANE-UI-1` 的
+    /// Tauri command 薄壳装配；在那之前它无人调用，凡由它可达的代码都不再被 `dead_code` 报。
+    #[allow(dead_code)]
     pub(crate) fn start(
         app_data_dir: &Path,
         layout: &AppLayout,
@@ -678,6 +899,10 @@ impl PiLoopHost {
 
     /// 已有 verified pair 时的入口（headless driver 与生命周期测试用）。
     /// 它不放宽任何一道门：route pair 的实物核验由 {@link preflight_route_pair} 独立承担。
+    ///
+    /// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：生产消费点由 `PI-LANE-UI-1` 的
+    /// Tauri command 薄壳装配；在那之前它无人调用，凡由它可达的代码都不再被 `dead_code` 报。
+    #[allow(dead_code)]
     pub(crate) fn start_with_pair(
         app_data_dir: &Path,
         pair: VerifiedRoutePair,
@@ -920,6 +1145,7 @@ impl PiLoopHost {
                 &config.session_id,
             ))),
             closed: false,
+            bus: CommandBus::new(),
         };
 
         // 发的就是 5.5 验过的那一份字节，不重编。
@@ -1136,18 +1362,14 @@ impl PiLoopHost {
         self.pump(request_id, None, "prompt")
     }
 
-    /// cancel → prompt terminal 有界。
-    pub(crate) fn cancel(&mut self, reason: CancelReason) -> Result<Terminal, HostError> {
-        let Some(request_id) = self.active_request.clone() else {
-            return Err(HostError::Protocol(ProtocolErrorCode::StateViolation));
-        };
-        self.send(Some(&request_id), PacketPayload::Cancel { reason })?;
-        self.pump(
-            &request_id,
-            Some(CANCEL_TERMINAL_DEADLINE),
-            "cancel→terminal",
-        )
-    }
+    // `PI-HOST-CONCURRENCY-1`：**旧 `cancel(&mut self)` 已退役**，不留第二条 cancel 路径。
+    //
+    // 它需要与 `prompt` 同一份独占借用，故 prompt 在泵中时结构性无人可调（就绪图④：全
+    // `src` 内 `cancel` 唯一出现即其定义行，零调用点，被文件级 `allow(dead_code)` 遮住）。
+    // 现形是通道上的一枚命令，由 {@link PiLoopHost::service_commands} 在泵的等待点里服务：
+    // 出包与 `cancel→terminal` 有界窗逐字保留（六-B.1 wire 语义零改），只是入口换了。
+    //
+    // 留着它就是「两处各写一遍同一件事」——循 1R5 判例「同步消灭优于同步验证」，删。
 
     /// 每枚 outward event 先落同义 journal；`turn_finished` 还须随后落 `turn_usage_recorded`，
     /// **两笔都 sync 之后**才发布。prompt terminal 先落唯一 prompt terminal，
@@ -1158,8 +1380,15 @@ impl PiLoopHost {
         deadline: Option<Duration>,
         window: &'static str,
     ) -> Result<Terminal, HostError> {
+        let mut wait = PumpWait::new(deadline, window);
         loop {
-            let packet = self.expect_packet(deadline, window)?;
+            // 等待点一（`PI-HOST-CONCURRENCY-1`）：每一轮先服务入站命令，再回去等 stdout。
+            // 「泵在 prompt 中时无人可调 cancel」这一结构性死结就此解开——cancel 不再需要
+            // 那一份 `&mut self` 独占借用，它是通道上的一枚消息。
+            self.service_commands(request_id, &mut wait)?;
+            let Some(packet) = self.poll_packet(&mut wait)? else {
+                continue;
+            };
             if packet.session_id.as_deref() != Some(self.session_id.as_str()) {
                 return Err(self.fail_protocol(ProtocolErrorCode::SessionMismatch));
             }
@@ -1179,6 +1408,22 @@ impl PiLoopHost {
                         ) {
                             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
                         }
+                    }
+                    // 槽位门（`PI-HOST-CONCURRENCY-1` 随批收口）。同在 append **之前**，理由与
+                    // 上面的序号门逐字同：坏事件零落盘。
+                    //
+                    // 缺陷原形见 `ACCEPTANCE.md:3714` 探针 P-C——旧形是无条件赋值，
+                    // `tool_started{tc-A}` 的认领被第二枚 `tool_started{tc-B}` 静默丢弃，写入于是
+                    // 记在 tc-B 名下。ADR-022 :285-290 的另一句「状态机仍须显式守住每 prompt 至多
+                    // 一枚未 finished tc」正是这一道；账本是唯一裁决者，不能记一枚被顶掉的主
+                    // （不变量 3、6）。
+                    //
+                    // 只问「槽位在不在场」，不问两枚是不是同一工具：跨工具形另有名分门
+                    // （0.3／J2）咬一次，两道各自承重、互不顶名。
+                    if matches!(&event, AgentProjectionEvent::ToolStarted { .. })
+                        && self.active_tool_call.is_some()
+                    {
+                        return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
                     }
                     let record = self.journal.append(
                         Some(request_id),
@@ -1231,6 +1476,7 @@ impl PiLoopHost {
                             | ProductToolName::Read
                             | ProductToolName::Glob
                             | ProductToolName::Grep => {
+                                // 槽位为空由 append 前那一道门保证，此处只认领。
                                 self.active_tool_call = Some((tool_call_id.clone(), *tool_name));
                             }
                         },
@@ -1266,6 +1512,105 @@ impl PiLoopHost {
                 _ => return Err(self.fail_protocol(ProtocolErrorCode::StateViolation)),
             }
         }
+    }
+
+    /// 泵的等待点二：有界切片看一眼 stdout。
+    ///
+    /// `Ok(None)` ⇒ 本切片什么也没来且总时限未到，回泵继续（先服务命令）。总时限的记账在
+    /// {@link PumpWait} 上，故「活动 prompt 无总时限」与「cancel 之后有界」是同一枚状态的
+    /// 两种取值，不是两条代码路径。
+    fn poll_packet(&mut self, wait: &mut PumpWait) -> Result<Option<ProductPacket>, HostError> {
+        let outcome = match self.leg_handle.as_mut() {
+            Some(leg) => leg.poll_packet(COMMAND_POLL_SLICE, wait.window),
+            None => return Err(HostError::Process(ProcessFault::UnexpectedEof)),
+        };
+        let line = match outcome {
+            Some(ReadOutcome::Line(line)) => line,
+            Some(ReadOutcome::Eof) => return Err(self.fail_process(ProcessFault::UnexpectedEof)),
+            Some(ReadOutcome::Fault(fault)) => return Err(self.fail_process(fault)),
+            None => {
+                if wait.expired() {
+                    let window = wait.window;
+                    return Err(self.fail_process(ProcessFault::LifecycleTimeout(window)));
+                }
+                return Ok(None);
+            }
+        };
+        let packet = match decode_sidecar_packet_line(&line) {
+            Ok(packet) => packet,
+            Err(rejection) => return Err(self.fail_protocol(rejection.code)),
+        };
+        // 每方向的 seq 从 1 严格递增；跳号/重复一律 fatal，不做宽松兼容。
+        self.inbound_seq += 1;
+        if packet.seq != self.inbound_seq {
+            return Err(self.fail_protocol(ProtocolErrorCode::SeqMismatch));
+        }
+        Ok(Some(packet))
+    }
+
+    /// 泵的入站命令服务（ADR-022 六-C.1 的运行期闭集，活动 prompt 那一半）。
+    ///
+    /// 逐枚具名，无静默丢弃：
+    ///
+    /// - `prompt`：活动 prompt 期间**具名拒绝、不排队**（与六-D 禁 queue 同源）；
+    /// - `cancel`：发既有 cancel 包并把总时限收紧到 `cancel→terminal`。wire 语义零改
+    ///   （六-B.1 的 race-late no-op、在途 host request 先收束、`effect_uncertain > cancel`
+    ///   优先级全在 sidecar 侧，此处一字未动）；第二枚 cancel 不重发，具名 `cancel_in_flight`；
+    /// - `decision`：泵这一层**没有**悬置提案（有的话此刻在授权等待里，命令由那边取），
+    ///   故一律失效丢弃并登记——**回执不追溯生效**的一半落点；
+    /// - `teardown`：与 Stop 同形收束当前 prompt，并置位 `teardown_requested`，
+    ///   真正的收摊由宿主线程在 prompt 归位后做。
+    fn service_commands(
+        &mut self,
+        request_id: &str,
+        wait: &mut PumpWait,
+    ) -> Result<(), HostError> {
+        // 推回给空闲循环的那些：本轮取出来处理过一半，但不能就地放回 deferred——
+        // `take_ready` 先取 deferred，放回去会在本 `while` 里被立刻取回，转成死循环。
+        let mut hand_back: Vec<crate::pi_loop_command::Envelope> = Vec::new();
+        while let Some(envelope) = self.bus.take_ready() {
+            match &envelope.command {
+                HostCommand::Prompt { .. } => envelope.reject(CommandRejection::PromptBusy),
+                HostCommand::Cancel { reason } => {
+                    if wait.cancel_sent {
+                        envelope.reject(CommandRejection::CancelInFlight);
+                        continue;
+                    }
+                    let reason = *reason;
+                    self.send(Some(request_id), PacketPayload::Cancel { reason })?;
+                    wait.tighten_for_cancel();
+                    envelope.accept();
+                }
+                HostCommand::Decision { operation_id, .. } => {
+                    let operation_id = operation_id.clone();
+                    let reason = match self.bus.pending() {
+                        Some(_) => CommandRejection::OperationMismatch,
+                        None => CommandRejection::NoPendingProposal,
+                    };
+                    self.bus.register_discarded(&operation_id, reason);
+                    envelope.reject(reason);
+                }
+                HostCommand::Teardown => {
+                    // teardown 在泵里与 Stop 同形：先把活动 prompt 收束（悬置提案已由
+                    // driver 以 `user_denied` durable 收束）。真正的收摊留给空闲循环，
+                    // 故命令本体推回，不在这里答。
+                    if !wait.cancel_sent {
+                        self.send(
+                            Some(request_id),
+                            PacketPayload::Cancel {
+                                reason: CancelReason::Host,
+                            },
+                        )?;
+                        wait.tighten_for_cancel();
+                    }
+                    hand_back.push(envelope);
+                }
+            }
+        }
+        for envelope in hand_back {
+            self.bus.defer(envelope);
+        }
+        Ok(())
     }
 
     /// ADR-022 六-B.2 的 `proposalHash`。
@@ -1350,13 +1695,20 @@ impl PiLoopHost {
         //     而该映射此前只由 Node 侧 `TOOL_CAPABILITY` 把守——本侧照单全收，等于认对端自报
         //     （六-B.2 明禁）。于是一枚 read/glob/grep 的 tc 也能领走一次写 effect，账上同一枚 tc
         //     既是读、又提案了写。读三件在此**显式**拒，不静默跳过。
-        let tool_call_id = match self.active_tool_call.take() {
-            Some((tool_call_id, ProductToolName::Write)) => tool_call_id,
-            // 穷举列名而非 `_`：`closed_enum!` 加员时此处编译失败，逼出「新工具算写还是算读」
-            //     的显式裁定（承 arm 处同一体例）。
-            Some((_, ProductToolName::Read | ProductToolName::Glob | ProductToolName::Grep))
-            | None => return Err(self.fail_protocol(ProtocolErrorCode::StateViolation)),
+        //
+        //     映射本身不在这里写第二遍：`PI-HOST-CONCURRENCY-1` 起唯一真源是
+        //     {@link capability_for}，本臂只比对结论（读臂 J2 同形）。加第五道工具时编译失败
+        //     落在那一枚函数上，逼出的是**一次**裁定而不是两次（1R5 判例「同步消灭优于同步验证」）。
+        let tool_call_id = match self.active_tool_call.as_ref() {
+            Some((tool_call_id, tool))
+                if capability_for(*tool) == WorkspaceCapability::WorkspaceWrite =>
+            {
+                tool_call_id.clone()
+            }
+            Some(_) | None => return Err(self.fail_protocol(ProtocolErrorCode::StateViolation)),
         };
+        // 认领即消费（一 tc 一 op）。被拒的那一支上面已 `return`，故此处不会误清一枚合法主。
+        self.active_tool_call = None;
         // 0.4 真件座。④ 之后构造点恒装真件，本门于产品线上因此结构性不可达；保留为
         //     fail-closed 兜底——缺件一律显式拒，绝不静默跳过或拿脚本座冒充成功。
         if self.write_host.is_none() {
@@ -1524,11 +1876,11 @@ impl PiLoopHost {
         // （`PI-TOOLCALL-BINDING-1`，与写臂 0.3 同源同向）：会话里没有活动工具却来读，或
         // `workspace_read` 落在一枚 `write` tc 名下，都是状态违约。ADR-022 :285-290 的
         // `read|glob|grep ↔ workspace_read` 由本侧据已 durable 的 `tool_started` 自判，不问对端。
+        //
+        // 映射同样只认 {@link capability_for} 那一处真源（写臂 0.3 同形）。
         match self.active_tool_call.as_ref() {
-            Some((_, ProductToolName::Read | ProductToolName::Glob | ProductToolName::Grep)) => {}
-            Some((_, ProductToolName::Write)) | None => {
-                return Err(self.fail_protocol(ProtocolErrorCode::StateViolation))
-            }
+            Some((_, tool)) if capability_for(*tool) == WorkspaceCapability::WorkspaceRead => {}
+            Some(_) | None => return Err(self.fail_protocol(ProtocolErrorCode::StateViolation)),
         }
         if self.read_host.is_none() {
             return Err(self.fail_protocol(ProtocolErrorCode::StateViolation));
@@ -1924,6 +2276,10 @@ impl PiLoopHost {
     /// 容器整删。SafeToken 不合法拒；仍有 live session/leg 时以固定 `container_active` 拒且**零删除**；
     /// 不存在则幂等返回 `false`；存在时先拒非 directory / symlink root，再删该 container 的全部
     /// journal 与 quarantine，sync `pi-loop` parent，返回 `true`。递归删除不跟随内部 symlink。
+    ///
+    /// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：生产消费点由 `PI-LANE-UI-1` 的
+    /// Tauri command 薄壳装配；在那之前它无人调用，凡由它可达的代码都不再被 `dead_code` 报。
+    #[allow(dead_code)]
     pub(crate) fn delete_container(
         app_data_dir: &Path,
         container_id: &str,
@@ -1988,6 +2344,8 @@ pub(crate) enum ReplayItem {
     },
 }
 
+/// **入口根**（同上）：投影面的回放入口，消费点随 `PI-LANE-UI-1` 落地。
+#[allow(dead_code)]
 pub(crate) fn replay(records: &[JournalRecord]) -> Vec<ReplayItem> {
     let mut items = Vec::new();
     for record in records {
@@ -2025,6 +2383,7 @@ pub(crate) fn replay(records: &[JournalRecord]) -> Vec<ReplayItem> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::pi_loop_command::{CommandReply, DiscardedReceipt, PiLoopThread};
     use crate::pi_loop_journal::{
         decode_record, journal_path, EffectStartedPayload, QUARANTINE_DIR,
     };
@@ -2108,6 +2467,12 @@ mod tests {
                     ReadOutcome::Fault(ProcessFault::LifecycleTimeout(window))
                 }
             }
+        }
+        /// 脚本座恒**当场**有答案（下一行或 Eof），故切片形与阻塞形逐值同——既有用例的
+        /// 时序因此一拍不变。真正会「什么都没来」的是真进程与
+        /// {@link RacingLeg}，可唤醒性的反例落在那两枚上。
+        fn poll_packet(&mut self, _slice: Duration, window: &'static str) -> Option<ReadOutcome> {
+            Some(SidecarLeg::read_packet(self, None, window))
         }
         fn close_stdin(&mut self) {}
         fn terminate(&mut self) -> Result<ExitOutcome, ProcessFault> {
@@ -4218,6 +4583,10 @@ mod tests {
                 }
             }
         }
+        /// 同 {@link ScriptedLeg::poll_packet}：脚本座恒当场有答案。
+        fn poll_packet(&mut self, _slice: Duration, window: &'static str) -> Option<ReadOutcome> {
+            Some(SidecarLeg::read_packet(self, None, window))
+        }
         fn close_stdin(&mut self) {}
         fn terminate(&mut self) -> Result<ExitOutcome, ProcessFault> {
             self.log.lock().expect("日志未中毒").terminated = true;
@@ -4958,6 +5327,13 @@ mod tests {
     /// 撤掉后者时前者会替它把名字对上（1R3 复验的假绿正是这一形）。
     struct BoundedInput {
         input: &'static str,
+        /// **上浮（`PI-HOST-CONCURRENCY-1` dead_code 收窄的副产品）**：这一枚字段今天
+        /// **没有任何断言读它**——`(site, judgment)` 双向锁只写在上面那段说明里，源码侧
+        /// 的锚点扫描并不存在。文件级 `allow(dead_code)` 此前把这件事一并遮住了。
+        ///
+        /// 本票只据实登记、不擅自扩面（补那道扫描属另一票）；留着字段与清单行是因为它是
+        /// 那道扫描将来要吃的输入，删掉等于把已写好的一半也抹了。
+        #[allow(dead_code)]
         site: &'static str,
         judgments: &'static [&'static str],
         code: &'static str,
@@ -7142,11 +7518,25 @@ mod tests {
         request_id: &str,
         tool_name: ProductToolName,
     ) -> Scripted {
+        tool_started_line_with_call(seq, request_id, TOOL_CALL, tool_name)
+    }
+
+    /// `toolCallId` 也参数化的那一枚（`PI-HOST-CONCURRENCY-1` 槽位收口）。
+    ///
+    /// 既有两枚助手都把 `tool_call_id` 钉死成 `TOOL_CALL`，于是「**第二枚**、**不同 id** 的
+    /// `tool_started`」这一形态在整套脚本里根本造不出来——`ACCEPTANCE.md:3714` 的同工具形
+    /// 槽位缺陷因此长期只能靠人工探针复现。
+    fn tool_started_line_with_call(
+        seq: u64,
+        request_id: &str,
+        tool_call_id: &str,
+        tool_name: ProductToolName,
+    ) -> Scripted {
         sidecar_line(
             seq,
             Some(request_id),
             PacketPayload::AgentEvent(AgentProjectionEvent::ToolStarted {
-                tool_call_id: TOOL_CALL.to_string(),
+                tool_call_id: tool_call_id.to_string(),
                 tool_name,
             }),
         )
@@ -7232,6 +7622,10 @@ mod tests {
         /// 原样带到出站；`None` ⇒ 两次都成功。
         probe_error: Option<(usize, HostFailureCode)>,
         authorization: fn() -> WriteAuthorization,
+        /// 装上真 driver 时 `authorization` 不再取值（`PI-HOST-CONCURRENCY-1`）：授权改由
+        /// 命令通道上的回执定。脚本座留这一枚座位，是为了在**不落真盘**的前提下
+        /// 观察「授权等待期间被 Stop 收束」那一支的 `performs` 计数。
+        driver: Option<Box<dyn WriteDecisionDriver>>,
         outcome: fn() -> EffectOutcome,
         journal: PathBuf,
         log: Arc<Mutex<WriteHostLog>>,
@@ -7254,10 +7648,16 @@ mod tests {
                 reprobe: None,
                 probe_error: None,
                 authorization: || WriteAuthorization::Approved,
+                driver: None,
                 outcome: || EffectOutcome::Succeeded,
                 journal: journal_path(&h.app_data, "cnt-1", "sess-1"),
                 log: Arc::new(Mutex::new(WriteHostLog::default())),
             }
+        }
+
+        fn with_driver(mut self, driver: Box<dyn WriteDecisionDriver>) -> ScriptedWriteHost {
+            self.driver = Some(driver);
+            self
         }
     }
 
@@ -7283,11 +7683,14 @@ mod tests {
         }
         fn decide(
             &mut self,
-            _plan: &WorkspaceWritePlan,
-            _action: WriteDisposition,
+            plan: &WorkspaceWritePlan,
+            action: WriteDisposition,
         ) -> WriteAuthorization {
             self.log.lock().expect("日志未中毒").decisions += 1;
-            (self.authorization)()
+            match self.driver.as_mut() {
+                Some(driver) => driver.decide(plan, action),
+                None => (self.authorization)(),
+            }
         }
         fn perform(
             &mut self,
@@ -7640,9 +8043,11 @@ mod tests {
                 ),
             })
         };
+        // (label, 撤哪一枚能力, 装不装写件座, 装不装读件座, 先来谁的 tool_started, 请求)
         type GateCase = (
             &'static str,
             Option<WorkspaceCapability>,
+            bool,
             bool,
             Option<ProductToolName>,
             PacketPayload,
@@ -7651,6 +8056,7 @@ mod tests {
             (
                 "写能力未谈成",
                 Some(WorkspaceCapability::WorkspaceWrite),
+                true,
                 true,
                 Some(ProductToolName::Write),
                 write_request_packet("纪要.md", WRITE_CONTENT),
@@ -7661,12 +8067,14 @@ mod tests {
                 "读能力未谈成",
                 Some(WorkspaceCapability::WorkspaceRead),
                 true,
+                true,
                 Some(ProductToolName::Read),
                 read_request_packet(),
             ),
             (
                 "无活动 tool call",
                 None,
+                true,
                 true,
                 None,
                 write_request_packet("纪要.md", WRITE_CONTENT),
@@ -7675,6 +8083,7 @@ mod tests {
                 "读的无活动 tool call",
                 None,
                 true,
+                true,
                 None,
                 read_request_packet(),
             ),
@@ -7682,6 +8091,7 @@ mod tests {
                 "真件座缺席",
                 None,
                 false,
+                true,
                 Some(ProductToolName::Write),
                 write_request_packet("纪要.md", WRITE_CONTENT),
             ),
@@ -7690,12 +8100,14 @@ mod tests {
                 "写 op 落在 read tc 名下",
                 None,
                 true,
+                true,
                 Some(ProductToolName::Read),
                 write_request_packet("纪要.md", WRITE_CONTENT),
             ),
             (
                 "写 op 落在 glob tc 名下",
                 None,
+                true,
                 true,
                 Some(ProductToolName::Glob),
                 write_request_packet("纪要.md", WRITE_CONTENT),
@@ -7704,6 +8116,7 @@ mod tests {
                 "写 op 落在 grep tc 名下",
                 None,
                 true,
+                true,
                 Some(ProductToolName::Grep),
                 write_request_packet("纪要.md", WRITE_CONTENT),
             ),
@@ -7711,12 +8124,23 @@ mod tests {
                 "读 op 落在 write tc 名下",
                 None,
                 true,
+                true,
                 Some(ProductToolName::Write),
+                read_request_packet(),
+            ),
+            (
+                // `PI-HOST-CONCURRENCY-1`：dead_code 收窄照出「读件座缺席」这一格从来没有
+                // 反例驱动点（`install_read_host` 零调用），与写件座那一格补齐成族。
+                "读件座缺席",
+                None,
+                true,
+                false,
+                Some(ProductToolName::Read),
                 read_request_packet(),
             ),
         ];
 
-        for (label, revoke, install, tool_started, request) in cases {
+        for (label, revoke, install, install_read, tool_started, request) in cases {
             let h = harness("write-gate");
             let mut leg = vec![ready(
                 1,
@@ -7756,6 +8180,9 @@ mod tests {
             } else {
                 None
             });
+            if !install_read {
+                host.install_read_host(None);
+            }
             let error = host
                 .prompt("req-1", "写一份纪要")
                 .expect_err(&format!("{label}：门不成立必须拒"));
@@ -7823,6 +8250,123 @@ mod tests {
             "第一枚照常服务，第二枚才是被判的那一枚"
         );
         assert_eq!(host_result_count(&log), 1);
+    }
+
+    /// tool↔capability 的映射在 Rust 侧**只此一处**（`PI-HOST-CONCURRENCY-1` 双写点归零）。
+    ///
+    /// 行为轴由 M1 承担（改 {@link capability_for} 一处，写臂与读臂用例同时红，双侧承重）；
+    /// 本测试是**结构轴**：生产段里提及 `ProductToolName::` 变体的连续行块必须恰好是下面
+    /// 这张族表，且除映射真源那一块外，任何一块都不许把 `WorkspaceCapability::` 写在同一处。
+    ///
+    /// 为什么要这一道：行为轴挡不住「有人又写了第三处映射、且顺手把新用例也写成两处一致」。
+    /// 加员时逼出**一次**裁定，正是收敛的全部意义（1R5 判例「同步消灭优于同步验证」）。
+    /// 改动此处代码即须同步改表——这是族表体例，不是行号快照。
+    #[test]
+    fn the_tool_capability_mapping_has_exactly_one_site() {
+        let source = include_str!("pi_loop.rs");
+        let production = source
+            .split_once("\n#[cfg(test)]\nmod tests {")
+            .expect("生产段与测试段以此行分界")
+            .0;
+        let hits: Vec<(usize, &str)> = production
+            .lines()
+            .enumerate()
+            .filter(|(_, line)| line.contains("ProductToolName::"))
+            .map(|(index, line)| (index + 1, line))
+            .collect();
+        // 连续行合成一块。
+        let mut blocks: Vec<Vec<(usize, &str)>> = Vec::new();
+        for hit in hits {
+            match blocks.last_mut() {
+                Some(block) if block.last().expect("非空").0 + 1 == hit.0 => block.push(hit),
+                _ => blocks.push(vec![hit]),
+            }
+        }
+        assert_eq!(
+            blocks.len(),
+            2,
+            "生产段提及 ProductToolName 的块必须恰两处（映射真源＋pump arm 穷举），实得 {:?}",
+            blocks
+                .iter()
+                .map(|block| block[0].0)
+                .collect::<Vec<usize>>()
+        );
+        // 块一 = 映射真源：它必须在 `fn capability_for` 的函数体里。
+        let capability_for_line = production
+            .lines()
+            .position(|line| line.contains("fn capability_for("))
+            .expect("映射真源在场")
+            + 1;
+        assert!(
+            blocks[0][0].0 > capability_for_line && blocks[0][0].0 < capability_for_line + 6,
+            "第一块必须紧接 fn capability_for（{capability_for_line} 行），实得 {}",
+            blocks[0][0].0
+        );
+        // 块二 = pump 的 arm 穷举：它只认事件，**不**映射能力。
+        for (line_number, line) in &blocks[1] {
+            assert!(
+                !line.contains("WorkspaceCapability::"),
+                "第 {line_number} 行在映射真源之外又写了一份 tool→capability：{line}"
+            );
+        }
+    }
+
+    /// 槽位被占**不是**「丢掉前一枚认领」，而是状态违约（`PI-HOST-CONCURRENCY-1` 随批收口）。
+    ///
+    /// 缺陷原形在 `ACCEPTANCE.md:3714`（`PI-TOOLCALL-BINDING-1` 验收自造探针 P-C）：
+    /// `tool_started{tc-A,write}` → `tool_started{tc-B,write}` → 写 op，两树**双双 served**，
+    /// tc-A 的认领被静默丢弃、写入记在 tc-B 名下。BINDING-1 只把它收窄到同名工具内（跨工具形
+    /// 已由名分门咬住），同工具形一直开放。ADR-022 :285-290 另一句「状态机仍须显式守住每
+    /// prompt 至多一枚未 finished tc」正是这一道；账本是唯一裁决者，它不能记一枚被顶掉的主。
+    ///
+    /// 判据两条，缺一不可：**拒**（`state_violation`）与 **effect 恰零次**——只断言「拒了」
+    /// 挡不住「先服务完再拒」。
+    #[test]
+    fn counterexample_a_second_tool_started_never_silently_replaces_the_slot() {
+        for (label, second_tool) in [
+            ("同工具形（P-C）", ProductToolName::Write),
+            ("跨工具形（P-B）", ProductToolName::Read),
+        ] {
+            let h = harness("tool-slot-occupied");
+            let leg = VecDeque::from(vec![
+                ready(
+                    1,
+                    vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
+                ),
+                tool_started_line_with_call(2, "req-1", "tc_A", ProductToolName::Write),
+                tool_started_line_with_call(3, "req-1", "tc_B", second_tool),
+                sidecar_line(
+                    4,
+                    Some("req-1"),
+                    write_request_packet("纪要.md", WRITE_CONTENT),
+                ),
+            ]);
+            let (mut host, log, effects) = armed_host(&h, vec![leg], ScriptedWriteHost::new(&h));
+            let error = host
+                .prompt("req-1", "写一份纪要")
+                .expect_err(&format!("{label}：槽位被占必须拒"));
+            assert_eq!(
+                error,
+                HostError::Protocol(ProtocolErrorCode::StateViolation),
+                "{label}：实得 {error:?}"
+            );
+            let effects = effects.lock().expect("日志未中毒");
+            assert_eq!(effects.probes, 0, "{label}：被拒的一轮连在场判定都不许做");
+            assert_eq!(effects.performs, 0, "{label}：effect 恰零次");
+            assert_eq!(host_result_count(&log), 0, "{label}：不许发 host_result");
+            // 被顶掉的那一枚认领不许留在账上：`tool_proposed` 一条都不该有。
+            let types = record_types(&decode_bytes(
+                &fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"),
+            ));
+            assert!(
+                !types.iter().copied().any(is_effect_type),
+                "{label}：effect 六型一枚都不许落账，实得 {types:?}"
+            );
+        }
     }
 
     /// tool call **不得活过它自己的 prompt**（`PI-TOOLCALL-BINDING-1` 作用域缺口）。
@@ -8165,7 +8709,7 @@ mod tests {
     /// 「授权后、effect 前」窗口——不是模拟的时序。
     struct ScriptedDecision {
         approve: bool,
-        before: Option<Box<dyn FnMut()>>,
+        before: Option<Box<dyn FnMut() + Send>>,
     }
 
     impl WriteDecisionDriver for ScriptedDecision {
@@ -9757,4 +10301,629 @@ mod tests {
             "journal 里唯一的根是虚拟案件根"
         );
     }
+
+    // ── PI-HOST-CONCURRENCY-1：宿主线程＋入站命令通道的真竞态 ──────────────────
+    //
+    // 这一节的四枚用例**必须**跑在两条线程上：宿主线程独占 host，测试线程投命令。
+    // 单线程写不出来正是缺口原形——旧 API 形状下 `cancel` 与 `prompt` 争同一份 `&mut self`
+    // 独占借用，借用检查器先拦，于是「零覆盖」是「零可达」的影子（就绪图④原文）。
+
+    /// 真竞态用的 leg：**不**当场有答案。
+    ///
+    /// 既有 `ScriptedLeg` 每次读都立刻交出下一行或 `Eof`，泵永远等不到「什么都没来」的那一刻，
+    /// 可唤醒性因此无从证否。本座反过来：握手之后一律空转，直到宿主真的把 **cancel 包**写出去
+    /// ——那是「命令确实穿过了泵的等待点」的**唯一**观察量（判据是字节，不是宣称）。
+    ///
+    /// `patience` 是**失败**兜底，不是成功条件：没等到 cancel 就以具名 fault 收场，
+    /// 让证否形态是一句可读的红，而不是整套门挂死。
+    struct RacingLeg {
+        /// 握手期立刻交出的行。
+        handshake: VecDeque<Scripted>,
+        /// 见到 cancel 包之后才交出的行。
+        after_cancel: VecDeque<Scripted>,
+        saw_cancel: bool,
+        waited: Duration,
+        patience: Duration,
+        log: Arc<Mutex<LegLog>>,
+    }
+
+    impl RacingLeg {
+        fn new(
+            handshake: Vec<Scripted>,
+            after_cancel: Vec<Scripted>,
+            log: Arc<Mutex<LegLog>>,
+        ) -> RacingLeg {
+            RacingLeg {
+                handshake: handshake.into_iter().collect(),
+                after_cancel: after_cancel.into_iter().collect(),
+                saw_cancel: false,
+                waited: Duration::ZERO,
+                patience: Duration::from_secs(5),
+                log,
+            }
+        }
+    }
+
+    impl SidecarLeg for RacingLeg {
+        fn write_packet(&mut self, line: &[u8]) -> Result<(), ProcessFault> {
+            self.log
+                .lock()
+                .expect("日志未中毒")
+                .written
+                .push(line.to_vec());
+            // 观察的是**出站字节**：只有 cancel 真的编码成包并写出去，闸门才开。
+            if matches!(
+                decode_host_packet_for_test(line).map(|packet| packet.payload),
+                Some(PacketPayload::Cancel { .. })
+            ) {
+                self.saw_cancel = true;
+            }
+            Ok(())
+        }
+        fn read_packet(
+            &mut self,
+            _deadline: Option<Duration>,
+            window: &'static str,
+        ) -> ReadOutcome {
+            loop {
+                if let Some(outcome) = SidecarLeg::poll_packet(self, COMMAND_POLL_SLICE, window) {
+                    return outcome;
+                }
+            }
+        }
+        fn poll_packet(&mut self, slice: Duration, _window: &'static str) -> Option<ReadOutcome> {
+            if let Some(Scripted::Line(line)) = self.handshake.pop_front() {
+                return Some(ReadOutcome::Line(line));
+            }
+            if self.saw_cancel {
+                if let Some(Scripted::Line(line)) = self.after_cancel.pop_front() {
+                    return Some(ReadOutcome::Line(line));
+                }
+                return Some(ReadOutcome::Eof);
+            }
+            std::thread::sleep(slice);
+            self.waited += slice;
+            if self.waited >= self.patience {
+                // 兜底：宿主没在等待点里服务命令 ⇒ cancel 包永远出不来。
+                return Some(ReadOutcome::Fault(ProcessFault::LifecycleTimeout(
+                    "racing-leg：等不到 cancel 包，泵未在等待点服务命令",
+                )));
+            }
+            None
+        }
+        fn close_stdin(&mut self) {}
+        fn terminate(&mut self) -> Result<ExitOutcome, ProcessFault> {
+            self.log.lock().expect("日志未中毒").terminated = true;
+            Ok(ExitOutcome::Signal(libc::SIGTERM))
+        }
+        fn wait_exit(&mut self, _deadline: Duration) -> ExitOutcome {
+            ExitOutcome::Code(0)
+        }
+    }
+
+    struct RacingSpawner {
+        leg: Option<RacingLeg>,
+    }
+
+    impl LegSpawner for RacingSpawner {
+        fn spawn(
+            &mut self,
+            _pair: &VerifiedRoutePair,
+            _cwd: &Path,
+        ) -> Result<Box<dyn SidecarLeg>, HostError> {
+            Ok(Box::new(self.leg.take().expect("只起一条 racing leg")))
+        }
+    }
+
+    fn start_racing(
+        h: &Harness,
+        handshake: Vec<Scripted>,
+        after_cancel: Vec<Scripted>,
+    ) -> (PiLoopHost, Arc<Mutex<LegLog>>) {
+        let log = Arc::new(Mutex::new(LegLog::default()));
+        let mut spawner = RacingSpawner {
+            leg: Some(RacingLeg::new(handshake, after_cancel, Arc::clone(&log))),
+        };
+        let host = PiLoopHost::start_with_pair(
+            &h.app_data,
+            lifecycle_pair(&h.layout),
+            h.config.clone(),
+            &FixedKey,
+            &mut spawner,
+        )
+        .expect("racing leg 起得来");
+        (host, log)
+    }
+
+    /// 轮询等一个条件成立；不成立即以具名信息硬失败，绝不无限等。
+    fn wait_for_condition(label: &str, mut condition: impl FnMut() -> bool) {
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while Instant::now() < deadline {
+            if condition() {
+                return;
+            }
+            std::thread::sleep(Duration::from_millis(2));
+        }
+        panic!("{label}：5s 内未成立");
+    }
+
+    /// 取一枚命令回执。**带界**：宿主若根本没答（例如泵不再服务命令），这里是一句具名的红，
+    /// 不是整套门挂死——`PI-LANE-SIDECAR-HANG-1` 判例「无信息悬挂改具名 fail-fast」同源。
+    fn expect_reply(reply: std::sync::mpsc::Receiver<CommandReply>, label: &str) -> CommandReply {
+        reply
+            .recv_timeout(Duration::from_secs(5))
+            .unwrap_or_else(|_| panic!("{label}：5s 内没有回执"))
+    }
+
+    fn written_count(log: &Arc<Mutex<LegLog>>) -> usize {
+        log.lock().expect("日志未中毒").written.len()
+    }
+
+    /// 出包里**唯一**那一枚 `host_result`。与 `last_host_result` 分开：Stop 之后最后一枚出包是
+    /// cancel，按「最后一枚」取会取空——多于一枚即当场失败，不静默取头。
+    fn only_host_result(log: &Arc<Mutex<LegLog>>) -> Option<HostResultPayload> {
+        let written = log.lock().expect("日志未中毒").written.clone();
+        let mut results: Vec<HostResultPayload> = written
+            .iter()
+            .filter_map(|line| match decode_host_packet_for_test(line)?.payload {
+                PacketPayload::HostResult(payload) => Some(payload),
+                _ => None,
+            })
+            .collect();
+        assert!(results.len() <= 1, "本装置只该有一枚 host_result");
+        results.pop()
+    }
+
+    fn ready_line() -> Scripted {
+        ready(
+            1,
+            vec![
+                WorkspaceCapability::CaseRead,
+                WorkspaceCapability::WorkspaceRead,
+                WorkspaceCapability::WorkspaceWrite,
+            ],
+        )
+    }
+
+    /// 竞态一：**Stop 在 prompt 中**。
+    ///
+    /// 缺口原形（就绪图④）：`prompt()` 落 `user_prompted` 后直接进泵，独占 `&mut self` 且无
+    /// 总时限；`cancel()` 需要同一份独占借用，故 prompt 在泵中时**结构性无人可调**——
+    /// 这枚测试在旧 API 上写不出来，借用检查器先拦。
+    ///
+    /// 现在 cancel 是通道上的一枚消息：泵在每一轮等待切片之间服务它。判据是**字节**
+    /// （cancel 包真的写出去了，racing leg 据此才放行终态）加**终态**（prompt 以 Canceled 归位）。
+    #[test]
+    fn stop_during_an_active_prompt_reaches_the_pump_through_the_command_channel() {
+        let h = harness("race-stop-in-prompt");
+        let (host, log) = start_racing(&h, vec![ready_line()], vec![canceled_line(2)]);
+        let thread = PiLoopThread::adopt(host);
+        let sender = thread.sender();
+
+        let prompt = sender
+            .send(HostCommand::Prompt {
+                request_id: "req-1".to_string(),
+                text: "写一份纪要".to_string(),
+            })
+            .expect("投 prompt");
+        // 泵真的进了等待点：bootstrap 一包、prompt 一包已经出站。
+        wait_for_condition("prompt 包出站", || written_count(&log) >= 2);
+
+        let reply = expect_reply(
+            sender
+                .send(HostCommand::Cancel {
+                    reason: CancelReason::User,
+                })
+                .expect("投 cancel"),
+            "活动 prompt 期间的 cancel",
+        );
+        assert!(
+            matches!(reply, CommandReply::Accepted),
+            "活动 prompt 期间的 cancel 必须被受理"
+        );
+
+        let CommandReply::Prompt(outcome) = expect_reply(prompt, "prompt 归位") else {
+            panic!("prompt 的回执只能是 Prompt 那一支");
+        };
+        assert!(
+            matches!(outcome, Ok(Terminal::Canceled { .. })),
+            "实得 {outcome:?}"
+        );
+
+        let host = thread.join();
+        assert!(
+            record_types(host.records()).contains(&JournalType::PromptCanceled),
+            "取消必须落账：{:?}",
+            record_types(host.records())
+        );
+    }
+
+    /// 竞态二：**授权等待期间 Stop**——悬置提案立即以
+    /// `authorization_decided(denied, user_denied)` durable 收束，effect 恰零次。
+    ///
+    /// 缺口原形（就绪图④）：`WriteDecisionDriver::decide` 同步跑在同一阻塞泵内，
+    /// 等用户点击期间整条宿主线程卡死，Stop 无从抵达。
+    ///
+    /// 现形：driver 等的是通道上的 `decision` 回执，等待期间通道仍被服务；Stop 到则
+    /// 「Stop 蕴含拒绝」，不新增 wire 拒绝码，host_result 照四段账序发出后走既有 cancel 路径。
+    #[test]
+    fn stop_while_waiting_for_authorization_settles_the_proposal_as_user_denied() {
+        let (_h, host, log, effects, terminal, discarded) = run_stop_during_authorization(false);
+        assert!(
+            matches!(terminal, Ok(Terminal::Canceled { .. })),
+            "实得 {terminal:?}"
+        );
+        assert_eq!(
+            effects.lock().expect("日志未中毒").performs,
+            0,
+            "被 Stop 收束的提案 effect 恰零次"
+        );
+        let types = record_types(host.records());
+        assert!(
+            types.contains(&JournalType::ToolProposed)
+                && types.contains(&JournalType::AuthorizationDecided),
+            "两段账都要有：{types:?}"
+        );
+        assert!(
+            !types.contains(&JournalType::EffectStarted),
+            "`effect_started` 一枚都不许落：{types:?}"
+        );
+        let decided = host
+            .records()
+            .iter()
+            .find(|record| record.journal_type() == JournalType::AuthorizationDecided)
+            .expect("authorization_decided 在场");
+        assert_eq!(
+            decided.payload,
+            JournalPayload::AuthorizationDecided {
+                tool_call_id: TOOL_CALL.to_string(),
+                decision: AuthorizationDecision::Denied,
+                code: Some(AuthorizationDenyCode::UserDenied),
+            },
+            "Stop 蕴含拒绝：逐值必须是 denied/user_denied"
+        );
+        // host_result 照发（denied），且发的是 wire 上既有的 `user_denied`。
+        // 不用 `last_host_result`：Stop 之后**最后**一枚出包是 cancel，那一枚不是 host_result。
+        let result = only_host_result(&log).expect("host_result 必须出站");
+        assert!(
+            matches!(
+                result.outcome,
+                HostResultOutcome::Denied {
+                    code: HostDeniedCode::UserDenied,
+                    ..
+                }
+            ),
+            "实得 {:?}",
+            result.outcome
+        );
+        assert!(discarded.is_empty(), "本例没有迟到回执");
+    }
+
+    /// 竞态三：**回执不追溯生效**。提案已因 Stop 收束，回执随后才到——一律失效丢弃、
+    /// 显式登记，effect 恰零次。这是 Stop race 的判定核心（ADR-022 六-C.1）。
+    #[test]
+    fn a_decision_receipt_that_arrives_after_the_proposal_settled_never_takes_effect() {
+        let (_h, host, _log, effects, terminal, discarded) = run_stop_during_authorization(true);
+        assert!(matches!(terminal, Ok(Terminal::Canceled { .. })));
+        assert_eq!(
+            effects.lock().expect("日志未中毒").performs,
+            0,
+            "迟到的批准不得追溯出一次 effect"
+        );
+        assert_eq!(
+            discarded,
+            vec![DiscardedReceipt {
+                operation_id: OPERATION.to_string(),
+                reason: CommandRejection::NoPendingProposal,
+            }],
+            "失效回执必须逐枚显式登记，不静默丢弃"
+        );
+        // 账上仍只有那一枚 Stop 收束的拒绝：迟到的批准没有在账本上留下任何痕迹。
+        assert_eq!(
+            host.records()
+                .iter()
+                .filter(|record| record.journal_type() == JournalType::AuthorizationDecided)
+                .count(),
+            1
+        );
+        assert!(!record_types(host.records()).contains(&JournalType::EffectStarted));
+    }
+
+    /// 两枚竞态用例的共用装置：跑到「host 已提案、driver 正在等回执」那一刻，投 Stop；
+    /// `late_receipt` 为真时，在 prompt 归位**之后**再补投一枚批准回执。
+    #[allow(clippy::type_complexity)]
+    fn run_stop_during_authorization(
+        late_receipt: bool,
+    ) -> (
+        Harness,
+        PiLoopHost,
+        Arc<Mutex<LegLog>>,
+        Arc<Mutex<WriteHostLog>>,
+        Result<Terminal, HostError>,
+        Vec<DiscardedReceipt>,
+    ) {
+        let h = harness("race-stop-in-authorization");
+        let (mut host, log) = start_racing(
+            &h,
+            vec![
+                ready_line(),
+                tool_started_line(2),
+                sidecar_line(
+                    3,
+                    Some("req-1"),
+                    write_request_packet("纪要.md", WRITE_CONTENT),
+                ),
+            ],
+            vec![canceled_line(4)],
+        );
+        let bus = host.command_bus();
+        let write_host = ScriptedWriteHost::new(&h)
+            .with_driver(Box::new(CommandDecisionDriver::new(Arc::clone(&bus))));
+        let effects = Arc::clone(&write_host.log);
+        host.install_write_host(Some(Box::new(write_host)));
+
+        let thread = PiLoopThread::adopt(host);
+        let sender = thread.sender();
+        let prompt = sender
+            .send(HostCommand::Prompt {
+                request_id: "req-1".to_string(),
+                text: "写一份纪要".to_string(),
+            })
+            .expect("投 prompt");
+        // 等到 driver 真的在等回执：悬置提案已置位（唯一真源）。
+        wait_for_condition("提案进入悬置", || bus.pending().is_some());
+
+        expect_reply(
+            sender
+                .send(HostCommand::Cancel {
+                    reason: CancelReason::User,
+                })
+                .expect("投 Stop"),
+            "授权等待期间的 Stop",
+        );
+
+        let CommandReply::Prompt(terminal) = expect_reply(prompt, "prompt 归位") else {
+            panic!("prompt 的回执只能是 Prompt 那一支");
+        };
+
+        if late_receipt {
+            let reply = expect_reply(
+                sender
+                    .send(HostCommand::Decision {
+                        operation_id: OPERATION.to_string(),
+                        verdict: DecisionVerdict::Approve,
+                    })
+                    .expect("投迟到回执"),
+                "迟到回执",
+            );
+            assert!(
+                matches!(
+                    reply,
+                    CommandReply::Rejected(CommandRejection::NoPendingProposal)
+                ),
+                "迟到回执必须具名拒绝"
+            );
+        }
+
+        let host = thread.join();
+        let discarded = bus.discarded();
+        (h, host, log, effects, terminal, discarded)
+    }
+
+    /// 授权回执走通那一支：`approve` 回执 → 四段账走完 → effect 恰一次。
+    ///
+    /// 与上面两枚成对：没有它，「Stop 能收束」可能只是「这条路本来就走不通」的影子。
+    #[test]
+    fn an_approving_receipt_carries_the_proposal_through_the_four_stage_ledger() {
+        let h = harness("race-approve");
+        let log = Arc::new(Mutex::new(LegLog::default()));
+        let mut spawner = ExitingSpawner {
+            legs: VecDeque::from(vec![VecDeque::from(vec![
+                ready_line(),
+                tool_started_line(2),
+                sidecar_line(
+                    3,
+                    Some("req-1"),
+                    write_request_packet("纪要.md", WRITE_CONTENT),
+                ),
+                tool_finished_line(4),
+                completed_line(5),
+            ])]),
+            log: Arc::clone(&log),
+            spawns: 0,
+            exit: ExitOutcome::Code(0),
+        };
+        let mut host = PiLoopHost::start_with_pair(
+            &h.app_data,
+            lifecycle_pair(&h.layout),
+            h.config.clone(),
+            &FixedKey,
+            &mut spawner,
+        )
+        .expect("启动");
+        let bus = host.command_bus();
+        let write_host = ScriptedWriteHost::new(&h)
+            .with_driver(Box::new(CommandDecisionDriver::new(Arc::clone(&bus))));
+        let effects = Arc::clone(&write_host.log);
+        host.install_write_host(Some(Box::new(write_host)));
+
+        let thread = PiLoopThread::adopt(host);
+        let sender = thread.sender();
+        let prompt = sender
+            .send(HostCommand::Prompt {
+                request_id: "req-1".to_string(),
+                text: "写一份纪要".to_string(),
+            })
+            .expect("投 prompt");
+        wait_for_condition("提案进入悬置", || bus.pending().is_some());
+        let reply = expect_reply(
+            sender
+                .send(HostCommand::Decision {
+                    operation_id: OPERATION.to_string(),
+                    verdict: DecisionVerdict::Approve,
+                })
+                .expect("投回执"),
+            "批准回执",
+        );
+        assert!(matches!(reply, CommandReply::Accepted));
+
+        let CommandReply::Prompt(terminal) = expect_reply(prompt, "prompt 归位") else {
+            panic!("prompt 的回执只能是 Prompt 那一支");
+        };
+        assert!(
+            matches!(terminal, Ok(Terminal::Completed { .. })),
+            "实得 {terminal:?}"
+        );
+        assert_eq!(effects.lock().expect("日志未中毒").performs, 1);
+        let host = thread.join();
+        let types = record_types(host.records());
+        for want in [
+            JournalType::ToolProposed,
+            JournalType::AuthorizationDecided,
+            JournalType::EffectStarted,
+            JournalType::EffectSucceeded,
+        ] {
+            assert!(types.contains(&want), "缺 {want:?}：{types:?}");
+        }
+        assert!(bus.discarded().is_empty());
+    }
+
+    /// teardown 在活动 prompt 中：与 Stop **同形**收束那一枚 prompt，随后才走既有
+    /// `shutdown` 全序收摊（ADR-022 六-C.1「必须可被 Stop 与 teardown 收束」）。
+    ///
+    /// 两件事分两处做，是有意的：收束 prompt 是泵的职责（cancel 包、`cancel→terminal`
+    /// 有界窗），收摊是空闲循环的职责（`shutdown` 全序）。故 teardown 的命令本体被推回，
+    /// 「收摊」全仓只有一处代码。
+    #[test]
+    fn teardown_during_an_active_prompt_collapses_it_then_closes_the_session() {
+        let h = harness("race-teardown");
+        let (host, log) = start_racing(
+            &h,
+            vec![ready_line()],
+            vec![
+                canceled_line(2),
+                sidecar_line(3, None, PacketPayload::Terminal(Terminal::Shutdown)),
+            ],
+        );
+        let thread = PiLoopThread::adopt(host);
+        let sender = thread.sender();
+        let prompt = sender
+            .send(HostCommand::Prompt {
+                request_id: "req-1".to_string(),
+                text: "写一份纪要".to_string(),
+            })
+            .expect("投 prompt");
+        wait_for_condition("prompt 包出站", || written_count(&log) >= 2);
+
+        let teardown = sender.send(HostCommand::Teardown).expect("投 teardown");
+        let CommandReply::Prompt(terminal) = expect_reply(prompt, "prompt 归位") else {
+            panic!("prompt 的回执只能是 Prompt 那一支");
+        };
+        assert!(
+            matches!(terminal, Ok(Terminal::Canceled { .. })),
+            "teardown 必须先把活动 prompt 收束，实得 {terminal:?}"
+        );
+        let CommandReply::Teardown(outcome) = expect_reply(teardown, "teardown 回执") else {
+            panic!("teardown 的回执只能是 Teardown 那一支");
+        };
+        outcome.expect("收摊必须走通既有 shutdown 全序");
+
+        let host = thread.join();
+        let types = record_types(host.records());
+        assert!(
+            types.contains(&JournalType::PromptCanceled)
+                && types.contains(&JournalType::SessionCompleted),
+            "先 prompt_canceled 后 session_completed：{types:?}"
+        );
+    }
+
+    /// 错序命令逐枚具名拒绝，**不静默丢弃**、**不排队**（ADR-022 六-C.1）。
+    #[test]
+    fn out_of_order_commands_are_named_refusals_never_silent_drops() {
+        let h = harness("command-out-of-order");
+        let (host, log) = start_racing(&h, vec![ready_line()], vec![canceled_line(2)]);
+        let bus = host.command_bus();
+        let thread = PiLoopThread::adopt(host);
+        let sender = thread.sender();
+
+        // 空闲期：cancel 无活动 prompt、decision 无悬置提案。
+        assert!(matches!(
+            expect_reply(
+                sender
+                    .send(HostCommand::Cancel {
+                        reason: CancelReason::User
+                    })
+                    .expect("投"),
+                "空闲期 cancel",
+            ),
+            CommandReply::Rejected(CommandRejection::NoActivePrompt)
+        ));
+        assert!(matches!(
+            expect_reply(
+                sender
+                    .send(HostCommand::Decision {
+                        operation_id: OPERATION.to_string(),
+                        verdict: DecisionVerdict::Approve,
+                    })
+                    .expect("投"),
+                "无悬置提案时的回执",
+            ),
+            CommandReply::Rejected(CommandRejection::NoPendingProposal)
+        ));
+
+        let prompt = sender
+            .send(HostCommand::Prompt {
+                request_id: "req-1".to_string(),
+                text: "写一份纪要".to_string(),
+            })
+            .expect("投 prompt");
+        wait_for_condition("prompt 包出站", || written_count(&log) >= 2);
+
+        // 活动 prompt 期间：第二枚 prompt 具名拒绝、**不排队**。
+        assert!(matches!(
+            expect_reply(
+                sender
+                    .send(HostCommand::Prompt {
+                        request_id: "req-2".to_string(),
+                        text: "再写一份".to_string(),
+                    })
+                    .expect("投"),
+                "活动 prompt 期间的第二枚 prompt",
+            ),
+            CommandReply::Rejected(CommandRejection::PromptBusy)
+        ));
+        // 泵里没有悬置提案：回执一律失效丢弃并登记。
+        assert!(matches!(
+            expect_reply(
+                sender
+                    .send(HostCommand::Decision {
+                        operation_id: OPERATION.to_string(),
+                        verdict: DecisionVerdict::Approve,
+                    })
+                    .expect("投"),
+                "无悬置提案时的回执",
+            ),
+            CommandReply::Rejected(CommandRejection::NoPendingProposal)
+        ));
+        expect_reply(
+            sender
+                .send(HostCommand::Cancel {
+                    reason: CancelReason::User,
+                })
+                .expect("投"),
+            "收尾 cancel",
+        );
+        let CommandReply::Prompt(terminal) = expect_reply(prompt, "prompt 归位") else {
+            panic!("prompt 的回执只能是 Prompt 那一支");
+        };
+        assert!(matches!(terminal, Ok(Terminal::Canceled { .. })));
+        let host = thread.join();
+        // 排队被拒的那一枚 prompt 一个字节都没进账本。
+        assert!(
+            !host.projection().request_ids.contains("req-2"),
+            "被拒的 prompt 不得占用 requestId"
+        );
+        assert_eq!(bus.discarded().len(), 2, "两枚失效回执逐枚登记");
+    }
+
 }

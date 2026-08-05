@@ -17,6 +17,7 @@ mod material_store;
 // 零 event channel、零 frontend 类型。start/prompt/cancel/resume/replay/delete 的 WebView
 // adapter 由 `PI-LANE-UI-1` 另冻；在那之前 `PiLoopHost` 只由 crate 内部与 headless driver 消费。
 mod pi_loop;
+mod pi_loop_command;
 mod pi_loop_journal;
 mod pi_loop_process;
 mod pi_loop_protocol;

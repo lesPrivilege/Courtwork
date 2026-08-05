@@ -803,6 +803,42 @@ impl SidecarProcess {
         }
     }
 
+    /// 有界切片地看一眼 stdout（`PI-HOST-CONCURRENCY-1`）。
+    ///
+    /// 与 {@link SidecarProcess::read_packet} **只差一件事**：切片到点而无事发生时回 `None`，
+    /// 由调用方决定「继续等」还是「判超时」。总时限的记账因此挪到泵那一侧——它必须在两次
+    /// 切片之间服务入站命令，`recv_timeout(总时限)` 那种一睡到底的形态做不到这件事。
+    ///
+    /// stderr 溢出的两道检查逐字保留：切片化不得顺手放宽任何既有判据。
+    pub(crate) fn poll_packet(
+        &mut self,
+        slice: Duration,
+        _window: &'static str,
+    ) -> Option<ReadOutcome> {
+        if self.stderr.overflowed() {
+            return Some(ReadOutcome::Fault(ProcessFault::StderrLimit));
+        }
+        let received = match self.stdout_rx.recv_timeout(slice) {
+            Ok(item) => item,
+            Err(RecvTimeoutError::Timeout) => {
+                return if self.stderr.overflowed() {
+                    Some(ReadOutcome::Fault(ProcessFault::StderrLimit))
+                } else {
+                    None
+                };
+            }
+            Err(RecvTimeoutError::Disconnected) => ReadItem::Eof,
+        };
+        if self.stderr.overflowed() {
+            return Some(ReadOutcome::Fault(ProcessFault::StderrLimit));
+        }
+        Some(match received {
+            ReadItem::Line(line) => ReadOutcome::Line(line),
+            ReadItem::Eof => ReadOutcome::Eof,
+            ReadItem::Fault(fault) => ReadOutcome::Fault(fault),
+        })
+    }
+
     /// 在 deadline 内等自然退出。
     pub(crate) fn wait_exit(&mut self, deadline: Duration) -> ExitOutcome {
         if let Some(outcome) = self.exited {

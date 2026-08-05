@@ -310,7 +310,7 @@ fn sync_dir(dir: &Dir) -> Result<(), HostFailureCode> {
 
 /// **测试专用**的效果窗口回调（见 `WorkspaceFsHost::window`）。
 #[cfg(test)]
-type WriteWindow = Box<dyn FnMut(&Dir)>;
+type WriteWindow = Box<dyn FnMut(&Dir) + Send>;
 
 /// workspace write 的真件座。
 ///

@@ -1944,6 +1944,8 @@ fn validate_records(
     let mut cost_known = true;
     // observed upstream turn 的连续性游标（PI-HOST-LOOP-1R2 C3）。0 表示尚未观察到任何回合。
     let mut last_observed_turn = 0_u64;
+    // 当前 leg 里那一枚**尚无 decision** 的提案的 operationId（`PI-HOST-CONCURRENCY-1`）。
+    let mut pending_proposal: Option<String> = None;
 
     for (expected_seq, record) in (1_u64..).zip(records.iter()) {
         if session_closed {
@@ -2038,6 +2040,45 @@ fn validate_records(
                 ));
             }
             _ => {}
+        }
+
+        // 悬置提案**不跨 leg**（`PI-HOST-CONCURRENCY-1`／ADR-022 六-C.1）。
+        //
+        // 授权等待无总时限（授权属用户，系统不代拒），故 crash 可以恰好落在「`tool_proposed`
+        // 已 durable、`authorization_decided` 尚未落」那一瞬。读侧因此必须**恰好**放行这一种
+        // 形态：leg 尾部一枚无 decision 的提案可续——恢复不自动重提、不代答，新 leg 由模型
+        // 重新提案。
+        //
+        // 中部无 decision 仍拒：那不是任何 crash 窗能产生的历史（写侧四段账序里
+        // `authorization_decided` 紧接 `tool_proposed`，中间没有第二枚 append），只能是账本被
+        // 改过或写侧漏了一笔——两种都必须整份 quarantine，而不是被当成「可恢复」续跑。
+        match &record.payload {
+            JournalPayload::ToolProposed(_) => {
+                if pending_proposal.is_some() {
+                    return Err(StructureProblem("leg 内同时出现两枚未决 tool_proposed"));
+                }
+                pending_proposal = record.operation_id.clone();
+            }
+            JournalPayload::AuthorizationDecided { .. } => {
+                if pending_proposal.take() != record.operation_id {
+                    return Err(StructureProblem(
+                        "authorization_decided 未接在同 operation 的 tool_proposed 之后",
+                    ));
+                }
+            }
+            // leg 的闭合记录是唯一允许「越过」一枚未决提案的东西——它正是 crash 尾部那一形。
+            _ if pending_proposal.is_some()
+                && !(journal_type.is_session_terminal()
+                    || journal_type == JournalType::SessionInterrupted) =>
+            {
+                return Err(StructureProblem(
+                    "未决 tool_proposed 不在 leg 尾部，不是授权等待期的 crash 形态",
+                ));
+            }
+            _ => {}
+        }
+        if journal_type.is_session_terminal() || journal_type == JournalType::SessionInterrupted {
+            pending_proposal = None;
         }
 
         // 与 {@link fold} 逐字同口径地累计，供下一枚 `session_resumed` 逐值比对。
@@ -3816,6 +3857,106 @@ mod tests {
             panic!("第二形必须 Quarantined 而非撞名 QuarantineRefused，实得 {second_err:?}");
         };
         assert_ne!(first_sha, second_sha, "异尾必须异名");
+    }
+
+    /// 悬置提案**不跨 leg**：leg 尾部一枚无 decision 的 `tool_proposed` 可续，中部不行
+    /// （`PI-HOST-CONCURRENCY-1`／ADR-022 六-C.1）。
+    ///
+    /// 两相共用同一段前缀，唯一变量是那枚提案**后面还有没有别的记录**——判据因此钉在
+    /// 「是不是尾部」这一件事上，不掺第二个自由度。
+    #[test]
+    fn a_pending_proposal_is_tolerated_only_at_the_tail_of_a_leg() {
+        for (label, trailing) in [
+            ("尾部一枚（授权等待期 crash 的真形态）", false),
+            ("中部一枚（不是任何 crash 窗能产生的历史）", true),
+        ] {
+            let root = temp_root(if trailing {
+                "pending-proposal-midleg"
+            } else {
+                "pending-proposal-tail"
+            });
+            let mut loaded = open(&root);
+            for (request, operation, payload) in [
+                (
+                    None,
+                    None,
+                    JournalPayload::SessionStarted(started_payload()),
+                ),
+                (
+                    Some("req-1"),
+                    None,
+                    JournalPayload::UserPrompted {
+                        text: "写一份纪要".to_string(),
+                    },
+                ),
+                (
+                    Some("req-1"),
+                    Some("op-1"),
+                    JournalPayload::ToolProposed(ToolProposedPayload {
+                        tool_call_id: "tc_1_1".to_string(),
+                        logical_path: "纪要.md".to_string(),
+                        proposal_hash: sha256_hex(b"proposal"),
+                        content_sha256: sha256_hex(b"content"),
+                        byte_length: 10,
+                        action: WriteDisposition::Created,
+                    }),
+                ),
+            ] {
+                loaded
+                    .journal
+                    .append(request, operation, payload)
+                    .expect("落账");
+            }
+            if trailing {
+                // 提案之后还有别的记录，且它不是 leg 的闭合记录。
+                loaded
+                    .journal
+                    .append(
+                        Some("req-1"),
+                        None,
+                        JournalPayload::AgentEvent(AgentProjectionEvent::AssistantTextDelta {
+                            delta: "继续".to_string(),
+                        }),
+                    )
+                    .expect("落账");
+            }
+            drop(loaded);
+
+            let outcome = load_session(
+                &root,
+                "cnt-1",
+                "sess-1",
+                SessionInterruptReason::SidecarEnded,
+            );
+            if trailing {
+                let error = outcome
+                    .err()
+                    .unwrap_or_else(|| panic!("{label}：必须整份 quarantine"));
+                assert!(
+                    matches!(error, JournalError::Quarantined { .. }),
+                    "{label}：实得 {error:?}"
+                );
+            } else {
+                let loaded = outcome.unwrap_or_else(|error| panic!("{label}：必须可续，实得 {error:?}"));
+                // 恢复**不代答**：账上仍只有那一枚提案，没有替用户补出来的 decision。
+                assert_eq!(
+                    loaded
+                        .records
+                        .iter()
+                        .filter(|record| record.journal_type() == JournalType::AuthorizationDecided)
+                        .count(),
+                    0,
+                    "{label}：恢复不得代答"
+                );
+                assert!(
+                    loaded
+                        .records
+                        .iter()
+                        .any(|record| record.journal_type() == JournalType::SessionInterrupted),
+                    "{label}：crash fold 照常落 session_interrupted"
+                );
+            }
+        }
     }
 
     #[test]
