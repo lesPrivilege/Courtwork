@@ -1,0 +1,21 @@
+/* 纸墨谱 · 工作台扩编 · 底本 v0.1 · 2026-07-25
+   可选件：仅工作台/产品面引入，文档面不用。
+   源：Courtwork tokens v1.3.0 实证回流（入藏著录见 00）。
+   律（01-版 · 十二）：tint 不作行/卡底；灰字不压彩底；数据容器取浮台+线；
+   唯一影只上浮台且应记；扩编在场时朱归裁定印记，交互从 --jiao。
+   暗纸取值未著，各暗面自复算（刊例第五条）。 */
+:root,
+[data-mian="gongzuotai"] {
+  --wei: #a83226;
+  --wei-di: #fbebe9;
+  --shen: #8f6420;
+  --shen-di: #faf3e6;
+  --cheng: #15803d;
+  --cheng-di: #f0fdf4;
+  --jiao: #1d4ed8;
+  --jiao-di: #eff6ff;
+  --zhong: #55617a;
+  --zhong-di: #f2f4f7;
+  --xuan: #d9e3f6;
+  --ying-tai: 0 1px 2px rgba(35, 43, 56, 0.045), 0 4px 12px rgba(35, 43, 56, 0.035);
+}

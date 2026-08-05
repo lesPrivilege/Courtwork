@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Noto+Sans+SC:wght@400;500;700&amp;family=Noto+Serif+SC:wght@400;700;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="02-宗谱/yuebai.tokens.css">
+  <link rel="stylesheet" href="02-宗谱/ciqing.tokens.css">
+  <link rel="stylesheet" href="02-宗谱/yinfa.tokens.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    a { color: var(--zhu); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+    a:hover { text-decoration-thickness: 2px; }
+    :focus-visible { outline: 2px solid var(--zhu); outline-offset: 2px; }
+    ::selection { background: var(--zhu); color: var(--zhi); }
+  </style>
+</helmet>
+<div data-zong="{{ zong }}" data-yin="{{ yin }}" style="min-height:100vh;background:var(--zhi);color:var(--mo);font-family:var(--zi-wen);font-size:var(--fz-wen);line-height:var(--lh-wen);letter-spacing:var(--shu);font-synthesis:none;text-wrap:pretty">
+  <div style="max-width:60rem;margin:0 auto;padding:var(--jian-duan) clamp(20px,4vw,48px) var(--jian-bian)">
+
+    <header style="border-bottom:var(--jie-zhu-w) solid var(--jie-zhu);padding-bottom:var(--jian-qun)">
+      <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan);line-height:1.6">
+        <span>纸墨谱 · 覆盖度审 · 卷一 · 撰于 2026-07-25</span>
+        <span>判据：外部现行规范，逐条注源</span>
+      </div>
+      <h1 style="margin:var(--jian-qun) 0 0;font-family:var(--zi-ti);font-weight:900;font-size:var(--fz-ti1);line-height:1.25;letter-spacing:0.02em">常见交互式样能否为素材所覆</h1>
+      <p style="margin:0.5rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi);color:var(--mo-dan)">以现代 UX 之常式对当纸墨谱之素材，逐式判「覆 · 半 · 缺」</p>
+    </header>
+
+    <section style="margin-top:var(--jian-duan);border:var(--jie-zhu-w) solid var(--jie-zhu);padding:4px">
+      <div style="border:var(--kuang-nei-w) solid var(--jie-zhu);padding:var(--jian-duan) var(--jian-qun)">
+        <p style="margin:0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">断语 · 三补已于 2026-07-25 批准入谱（v0.9）</p>
+        <p style="margin:0.5rem 0 0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.5">初审：静态与状态层已足，<span style="-webkit-text-emphasis:filled dot var(--zhu);text-emphasis:filled dot var(--zhu);-webkit-text-emphasis-position:under left;text-emphasis-position:under left">动之层、材之层、手之层未足</span>。今三补入谱，二十四式尽覆，可作 v1.0 收束。</p>
+        <p style="margin:var(--jian-qun) 0 0">初审凡二十四式，覆十七、半四、缺三。所覆者皆静态与状态之事：色、界、阶、字、记号、态之齐备。所缺者皆「人手在场」之事：直接操控之物理、浮层之材质、指靶之尺度。此非疏漏，而是本谱自限于视觉层之结果——UX 从专门 Design skill，然素材须能承其所需。三补既入《版》（六乙 · 七乙 · 十四），素材已能承之；下表存初审原貌，以见其所由。</p>
+        <p style="margin:var(--jian-qun) 0 0;padding-top:var(--jian-qun);border-top:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-qi)">并立一条界限（《版》十五）：<b>取材、用色、视觉元素从版本学；器上文从现代平易汉语</b>。古典词汇只行于谱内——槽名、记号名、文档、牌记、著录语；用户所见之字一律直、短、具体。陈义之责在形与法，不在词。</p>
+      </div>
+    </section>
+
+    <section style="margin-top:var(--jian-bian)">
+      <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35;border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan)">一、审法与对照系</h2>
+      <p style="margin:0 0 var(--jian-qun)">不以己度己。取四份现行外部规范为对照，各注日期；本谱条文与之逐式对当。凡引皆注源，推论与所引分记。</p>
+      <div style="border-top:var(--jie-ci-w) solid var(--jie-ci)">
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:1.25rem;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+          <strong style="font-family:var(--zi-qi);font-size:var(--fz-qi)">指针可及</strong>
+          <span style="font-size:var(--fz-qi)">WCAG 2.2 之 2.5.8（靶 ≥24×24 CSS px，AA）与 2.5.5（≥44×44，AAA）；2.5.7 拖拽须另备单指替代。<a href="https://wcag22aa.org/new-criteria/target-size/">靶尺</a> · <a href="https://wcag22aa.org/new-criteria/dragging-movements/">拖拽</a>（复核 2026-06-21）</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:1.25rem;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+          <strong style="font-family:var(--zi-qi);font-size:var(--fz-qi)">状态层</strong>
+          <span style="font-size:var(--fz-qi)">Material 3：状态以半透明叠层承之，悬 8%、焦点与按 10–12%、拖 16%，且<b>同时只一层</b>。<a href="https://m3.material.io/foundations/interaction/states/state-layers">M3 状态层</a> · <a href="https://www.designsystemscollective.com/from-color-shades-to-state-layers-cefe2f28bf97">档位综述</a>（2026-04）。另有以实色分阶者：eBay 每态 +4%，暗面改用白叠层。<a href="https://playbook.ebay.com/foundations/interaction-states">eBay</a></span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:1.25rem;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+          <strong style="font-family:var(--zi-qi);font-size:var(--fz-qi)">材与浮层</strong>
+          <span style="font-size:var(--fz-qi)">Apple 新材（Liquid Glass）：玻璃只予「浮于内容之上的导航层」——工具栏、标签栏、浮钮、浮层；不得予内容层（表、卡、列）与全屏底；一视图一主玻璃；滚动边缘以渐隐代分割线。HIG 更新志载「Scroll views：滚动边缘效果」（2026-06-08）、「Motion：新材动效」（2025-09-09）。<a href="https://developer.apple.com/design/whats-new">HIG 更新志</a> · <a href="https://dev.to/diskcleankit/liquid-glass-in-swift-official-best-practices-for-ios-26-macos-tahoe-1coo">WWDC25 219 要点辑</a> · <a href="https://designedforhumans.tech/blog/liquid-glass-smart-or-bad-for-accessibility">审计综述</a></span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr);gap:1.25rem;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+          <strong style="font-family:var(--zi-qi);font-size:var(--fz-qi)">流体之律</strong>
+          <span style="font-size:var(--fz-qi)">Apple《Designing Fluid Interfaces》一路：按下即反馈、一比一随手、随时可截可反、以弹簧代定时、释手交速、以势投程。所引档值（移位 damping 1.0 / response 0.4；抽屉 0.8 / 0.3；投程衰减 0.998）出所附 Apple Design 技能之辑录。</span>
+        </div>
+      </div>
+      <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">对照系之择取有偏：四份皆西方大厂与标准机构之作，未取中文语境之无障碍规范（信通院等），此为本审之限，记之。</p>
+    </section>
+
+    <section style="margin-top:var(--jian-bian)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan)">
+        <h2 style="margin:0;font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35">二、对当表</h2>
+        <button style="{{ toggleStyle }}" onClick="{{ toggleFu }}">{{ toggleLabel }}</button>
+      </div>
+
+      <h3 style="margin:var(--jian-duan) 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">缺 · 素材不能承（三式）</h3>
+      <div style="background:var(--zhi-tai);border:var(--jie-ci-w) solid var(--jie-ci)">
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.4375rem 0.75rem;background:var(--zhi-fu);border-bottom:var(--jie-zhu-w) solid var(--jie-zhu);font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">
+          <span>式</span><span>所需素材 · 本谱现状</span><span>判</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.625rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>拖动 · 滑块 · 侧滑 · 下拉刷新</strong>
+          <span>需一比一随手、可截可反、释手交速、以势投程之律与参数。本谱《动静》曰「数据区绝对静止，动唯入场一次，语义状态零时硬切」——此律为治装饰性动画而立，却连带禁掉了「随手」。随手非装饰，乃反馈本身。</span>
+          <span style="justify-self:start;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--cihuang);color:var(--cihuang);font-family:var(--zi-qi);font-size:var(--fz-zhu)">缺</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.625rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>浮层 · 底页 · 粘性栏 · 滚动边缘</strong>
+          <span>需一层「浮于内容之上而可透见其下」之材，及滚动交界之渐隐。本谱《色律》曰影零处、纸止三层、无半透——故浮层与内容之别只能靠界线，粘性栏之下必现硬边。</span>
+          <span style="justify-self:start;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--cihuang);color:var(--cihuang);font-family:var(--zi-qi);font-size:var(--fz-zhu)">缺</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.625rem 0.75rem;font-size:var(--fz-qi)">
+          <strong>指靶尺度 · 拖拽替代</strong>
+          <span>需靶之下限（24px AA / 44px 宜）、密集小靶之间距、及一切拖拽之单指替代。本谱有间距四档而无靶之下限，器物刻法未言尺；此为法定义务，非风格之选。</span>
+          <span style="justify-self:start;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--cihuang);color:var(--cihuang);font-family:var(--zi-qi);font-size:var(--fz-zhu)">缺</span>
+        </div>
+      </div>
+
+      <h3 style="margin:var(--jian-duan) 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">半 · 素材可承而记号未立（四式）</h3>
+      <div style="background:var(--zhi-tai);border:var(--jie-ci-w) solid var(--jie-ci)">
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.625rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>吐司 · 通知</strong>
+          <span>色与阶已足，然「短暂而自去之告」无记号可当，亦无「不夺焦点」之律。候选：夹注之浮用，或另立「浮签」，须过准入五问。</span>
+          <span style="justify-self:start;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);color:var(--mo-dan);font-family:var(--zi-qi);font-size:var(--fz-zhu)">半</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.625rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>禁用态</strong>
+          <span>四阶有常悬按选而无「禁」。今以淡墨代之，然淡墨司注，一槽二司即犯《语义槽》。宜增 <code style="font-family:var(--zi-shu);font-size:var(--fz-zhu)">--qi-jin</code> 一阶。</span>
+          <span style="justify-self:start;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);color:var(--mo-dan);font-family:var(--zi-qi);font-size:var(--fz-zhu)">半</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.625rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>拖拽重排</strong>
+          <span>「钩乙」一记正当此义（转置之记号学），然仍列待考；且须与单指替代并出方合 2.5.7。记号与法两半。</span>
+          <span style="justify-self:start;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);color:var(--mo-dan);font-family:var(--zi-qi);font-size:var(--fz-zhu)">半</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.625rem 0.75rem;font-size:var(--fz-qi)">
+          <strong>进度 · 分页 · 步进</strong>
+          <span>数轨与阶可承其形；「叶次／書口」可当分页之位，然未著录为记号，故各项目各造其形，即散讹之源。</span>
+          <span style="justify-self:start;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);color:var(--mo-dan);font-family:var(--zi-qi);font-size:var(--fz-zhu)">半</span>
+        </div>
+      </div>
+
+      <h3 style="display:{{ fuDisp }};margin:var(--jian-duan) 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">覆 · 素材已足（十七式）</h3>
+      <div style="display:{{ fuDisp }};background:var(--zhi-tai);border:var(--jie-ci-w) solid var(--jie-ci)">
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.4375rem 0.75rem;background:var(--zhi-fu);border-bottom:var(--jie-zhu-w) solid var(--jie-zhu);font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">
+          <span>式</span><span>所当之素材</span><span>判</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>按钮四等</strong><span>墨实底（主）＋器面四阶（次、幽）＋朱（危）；主按钮不入阶为最高强调</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>悬 · 按 · 选</strong><span>器浮／器按／器选三阶，一器一阶不跳阶；与 M3「同时只一层」同旨，惟以实色分阶而不用叠层</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>焦点环</strong><span>朱 outline 2px／offset 2px；朱对纸 ≥3:1 已复核（合 2.4.11 之意）</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>表 · 列 · 密集数据</strong><span>浮台＋两档界＋数轨右齐；表区零动效；行悬行选取阶</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>输入 · 校验</strong><span>器面底＋次界框；错误取雌黄框＋一句＋下一步（就地校验，非提交时校验）</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>开关 · 分段器</strong><span>槽底取器面，当选取墨底纸字或器选阶；零滑入动画</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>标签页 · 侧边导航</strong><span>書耳（边缘题签，当前者墨底纸字）</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>当前位置 · 面包屑</strong><span>鱼尾（位置指示，一面一枚）＋卷端题名之卷次</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>折叠 · 披露</strong><span>書口律：收合后仍露题名与序次</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>行内解释 · 帮助</strong><span>夹注（双行小字）与眉批；不浮卡</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>加载 · 骨架</strong><span>墨钉（阙文有记）——占位有据，非灰块闪动</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>空态</strong><span>淡墨一句＋下一步动作；不插画</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>撤回 · 改而有记</strong><span>涂乙（雌黄）＋校勘记；改必有记本为谱之骨</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>模态 · 遮罩</strong><span>纸三层＋界；遮罩以副纸压暗（暗纸则压亮），不用影</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>标签 · 状态签</strong><span>签条（直角窄框＋器轨小号）；不彩虹不 pill</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)">
+          <strong>层级与强调</strong><span>抬头平阙（换行敬空代大写 kicker）＋圈点（着重号）＋字四轨档差</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 4rem;gap:1rem;padding:0.5rem 0.75rem;font-size:var(--fz-qi)">
+          <strong>昼夜与减动偏好</strong><span>同版异纸（零分支换纸）＋ reduced-motion 为公法义务</span><span style="justify-self:start;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">覆</span>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top:var(--jian-bian)">
+      <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35;border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan)">三、三缺口之补法（已入谱）</h2>
+      <p style="margin:0 0 var(--jian-duan)">三补皆先取现行之理路，再落底本之槽，末系门禁；名取版本学，唯在职分相协处取之，不牵附穿凿。已于 2026-07-25 入《版》，并入审书状谱10–13（审书状同日通编为谱1–15）。</p>
+
+      <div style="border-top:var(--jie-ci-w) solid var(--jie-ci);padding:var(--jian-duan) 0">
+        <div style="display:flex;gap:0.75rem;align-items:baseline;flex-wrap:wrap">
+          <h3 style="margin:0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">补一 · 随手之动</h3>
+          <span style="padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">已入《版》七乙</span>
+        </div>
+        <p style="margin:var(--jian-nei) 0 0">立<b>动分二类</b>：<b>自动</b>（页面自作之动：入场、装饰、轮播）与<b>随手</b>（人手在场之动：拖、滑、掷、收）。现行《动静》之严只治自动；随手别为一律。</p>
+        <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi)"><b>据</b>：卷轴装与经折装之别，正是「连续带势」与「折面定格」之别——卷子推之则续行而有惯，经折翻之则一折一定。此二装即今之惯性滚动与吸附分页，装帧史本有其分类，非借喻。</p>
+        <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi)"><b>律</b>：一，按下即应（不待释手）；二，随手一比一且守捉点之偏；三，动可随时截、可反，起值取现值（非目标值）；四，释手交速，不作断速之硬切；五，以势投程而后吸附（衰减 0.998），非就近吸附；六，逾界则渐阻（皮筋），非硬止；七，随手之动不受「零时硬切」之限，然语义状态之切仍硬切；八，reduced-motion 下随手仍随手（其为反馈，非动画），惟去过冲与投程。</p>
+        <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi)"><b>槽</b>：增弹律两档——常（damping 1.0 / response 0.35，无过冲）与势（0.8 / 0.3，唯承有势之释手）；<code style="font-family:var(--zi-shu);font-size:var(--fz-zhu)">--tan-chang</code> · <code style="font-family:var(--zi-shu);font-size:var(--fz-zhu)">--tan-shi</code>。档值出所附 Apple Design 技能之辑录（移位 1.0/0.4、抽屉 0.8/0.3）。</p>
+      </div>
+
+      <div style="border-top:var(--jie-ci-w) solid var(--jie-ci);padding:var(--jian-duan) 0">
+        <div style="display:flex;gap:0.75rem;align-items:baseline;flex-wrap:wrap">
+          <h3 style="margin:0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">补二 · 影抄之纸</h3>
+          <span style="padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">已入《版》六乙</span>
+        </div>
+        <p style="margin:var(--jian-nei) 0 0">于纸三层之外，增<b>影抄一层</b>：可透见其下而自身仍可书之纸，唯予浮于内容之上的导航层。</p>
+        <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi)"><b>据</b>：影抄本——以薄纸覆于底本之上，透见其字而摹之。此为半透明之本义，且其职分明确：<b>见底而不失字</b>。存目中「影抄」「影刻」本已在册，故非新借。</p>
+        <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi)"><b>律</b>：一，影抄唯予浮层（工具栏、粘性头、底页、菜单、浮钮），不得予内容层之表、卡、列，亦不得作全屏底（与 Apple 之「玻璃只予导航层」同；<a href="https://dev.to/diskcleankit/liquid-glass-in-swift-official-best-practices-for-ios-26-macos-tahoe-1coo">WWDC25 219 辑</a>）；二，一面一影抄，不得影抄叠影抄（叠则字失，审计所共指）；三，其下之内容须可滚过，交界以渐隐（滚动边缘）代硬线；四，字压影抄者须加重一档并微开字疏，且复核压后对比度 ≥4.5:1；五，<b>底为实、透为增</b>：默认实色，<code style="font-family:var(--zi-shu);font-size:var(--fz-zhu)">prefers-reduced-transparency</code> 未入 Baseline，故不以透明为基线（<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-transparency">MDN，2026-04-20</a>；加法策略见 <a href="https://developer.chrome.com/en/blog/css-prefers-reduced-transparency">Chrome 说明</a>）；六，影抄不解影零处之禁——影仍零，透非影。</p>
+        <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi)"><b>风险特著</b>：有第三方评测指 iOS 26 之透明控件在杂底上难辨、触靶间距不足（据报道引 NN/g 2025-10 之析，<a href="https://apple.gadgethacks.com/news/apple-liquid-glass-developer-gallery-explained-adoption-gaps-and-wins/">转述</a>；此为二手转述，未见原报告，判为待核）。故影抄入谱须并入「实底优先」与靶尺之律，否则重蹈其失。</p>
+      </div>
+
+      <div style="border-top:var(--jie-ci-w) solid var(--jie-ci);border-bottom:var(--jie-ci-w) solid var(--jie-ci);padding:var(--jian-duan) 0">
+        <div style="display:flex;gap:0.75rem;align-items:baseline;flex-wrap:wrap">
+          <h3 style="margin:0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">补三 · 手位与靶</h3>
+          <span style="padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--zhu);color:var(--zhu);font-family:var(--zi-qi);font-size:var(--fz-zhu)">已入《版》十四 · 公法义务</span>
+        </div>
+        <p style="margin:var(--jian-nei) 0 0">此非风格之选，乃法定下限：欧盟无障碍法案与各地法规皆挂 WCAG 2.2 AA。</p>
+        <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi)"><b>律</b>：一，凡可点之靶 ≥24×24 CSS px（AA 下限），主操作宜 44×44；二，小靶须以间距救之（24px 之圆互不相交）；三，行内文中之链接不在此限（2.5.8 之例外）；四，凡拖拽（滑块、重排、看板、平移、轮播）皆须并备单指替代：滑轨可点、上下移按钮、「移至…」菜单、前后翻钮；画与签名之类以路径为内容者为例外。<a href="https://wcag22aa.org/new-criteria/target-size/">2.5.8</a> · <a href="https://wcag22aa.org/new-criteria/dragging-movements/">2.5.7 与 G219</a>（复核 2026-06-21）</p>
+        <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi)"><b>槽</b>：增 <code style="font-family:var(--zi-shu);font-size:var(--fz-zhu)">--ba-xiao</code>（靶下限 24px）与 <code style="font-family:var(--zi-shu);font-size:var(--fz-zhu)">--ba-zhu</code>（主靶 44px）；器物刻法各条附最小高。</p>
+      </div>
+
+      <p style="margin:var(--jian-duan) 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi)">小补亦入：器面增 <code style="font-family:var(--zi-shu);font-size:var(--fz-zhu)">--qi-jin</code>（禁阶）以解淡墨兼司；钩乙自「待考」升「收」，今义为拖拽重排之记，须并单指替代。叶次／書口之分页记号仍列待考。</p>
+    </section>
+
+    <section style="margin-top:var(--jian-bian)">
+      <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35;border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan)">四、能否收束</h2>
+      <p style="margin:0 0 var(--jian-qun)">可收束，然分两级，不宜混称：</p>
+      <div style="border-top:var(--jie-ci-w) solid var(--jie-ci)">
+        <div style="display:grid;grid-template-columns:minmax(0,7rem) minmax(0,1fr);gap:1.25rem;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+          <strong style="font-family:var(--zi-qi);font-size:var(--fz-qi)">今可定 v1.0</strong>
+          <span style="font-size:var(--fz-qi)">文档、规范、内容站、静态工作面——三纸（月白／磁青／拉丁）＋印法二轴＋器面四阶＋记号系，已自足可行世。此域内本审无缺项。</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,7rem) minmax(0,1fr);gap:1.25rem;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+          <strong style="font-family:var(--zi-qi);font-size:var(--fz-qi)">今亦可定</strong>
+          <span style="font-size:var(--fz-qi)">手机应用、触屏工作台、凡有拖滑与浮层者——三补既入《版》，素材已能承之；余在落地与门禁（弹律须实测、影抄须实排、靶尺须入 CI）。</span>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,7rem) minmax(0,1fr);gap:1.25rem;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+          <strong style="font-family:var(--zi-qi);font-size:var(--fz-qi)">推论所限</strong>
+          <span style="font-size:var(--fz-qi)">「十七覆四半三缺」之计数出本审自定之式目，非外部权威之清单；式目若换（如按 ARIA APG 之部件表逐一对当），比例当变。此为推论，与所引规范之条文分记。</span>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top:var(--jian-bian)">
+      <div style="margin:0 auto;max-width:30rem;border:var(--jie-zhu-w) solid var(--jie-zhu);padding:4px">
+        <div style="border:var(--kuang-nei-w) solid var(--jie-zhu);padding:var(--jian-duan) var(--jian-qun);text-align:center">
+          <p style="margin:0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">牌记</p>
+          <p style="margin:0.375rem 0 0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700">纸墨谱 · 覆盖度审</p>
+          <p style="margin:var(--jian-qun) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:2">卷一 · 2026-07-25 · 生成器：Claude · Fable<br>底本：<a href="01-版.md">01-版.md</a> · <a href="02-宗谱/yuebai.tokens.css">yuebai.tokens.css</a><br>三补已入《版》——六乙 · 七乙 · 十四</p>
+          <p style="margin:var(--jian-qun) 0 0;padding-top:var(--jian-qun);border-top:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-shu);font-size:var(--fz-zhu);line-height:1.8;text-align:left">{{ hangkuan }}</p>
+        </div>
+      </div>
+      <div style="margin-top:var(--jian-duan)">
+        <h3 style="margin:0 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700">引书</h3>
+        <ol style="margin:0;padding-left:1.75rem;font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:2">
+          <li><a href="https://wcag22aa.org/new-criteria/target-size/">WCAG 2.2 SC 2.5.8 Target Size (Minimum)</a>——24×24 为 AA 下限，44×44 属 2.5.5 AAA（复核 2026-06-21）</li>
+          <li><a href="https://wcag22aa.org/new-criteria/dragging-movements/">WCAG 2.2 SC 2.5.7 Dragging Movements</a>——条文与 G219 之替代式例（复核 2026-06-21）</li>
+          <li><a href="https://m3.material.io/foundations/interaction/states/state-layers">Material Design 3 · State layers</a>；档值与「同时只一层」之综述见 <a href="https://www.designsystemscollective.com/from-color-shades-to-state-layers-cefe2f28bf97">Design Systems Collective</a>（2026-04）</li>
+          <li><a href="https://playbook.ebay.com/foundations/interaction-states">eBay Playbook · Interaction states</a>——每态 +4%，暗面改白叠层</li>
+          <li><a href="https://developer.apple.com/design/whats-new">Apple HIG · What's new</a>——Scroll views 滚动边缘（2026-06-08）、Motion 新材动效（2025-09-09）</li>
+          <li><a href="https://dev.to/diskcleankit/liquid-glass-in-swift-official-best-practices-for-ios-26-macos-tahoe-1coo">WWDC25 219《Meet Liquid Glass》要点辑</a>——玻璃只予导航层；<a href="https://designedforhumans.tech/blog/liquid-glass-smart-or-bad-for-accessibility">一面一玻璃与 4.5:1 之审计综述</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-transparency">MDN · prefers-reduced-transparency</a>——未入 Baseline（2026-04-20）；<a href="https://developer.chrome.com/en/blog/css-prefers-reduced-transparency">Chrome：加法策略</a></li>
+          <li>Apple《Designing Fluid Interfaces》（WWDC 2018）一路之律与档值——出所附 Apple Design 技能辑录，未直引原讲</li>
+        </ol>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;zong&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;yuebai&quot;, &quot;ciqing&quot;], &quot;default&quot;: &quot;yuebai&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;纸墨&quot;}, &quot;yin&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;gu&quot;, &quot;jin&quot;], &quot;default&quot;: &quot;gu&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;纸墨&quot;}}">
+class Component extends DCLogic {
+  state = { showFu: true };
+  renderVals() {
+    const zong = this.props.zong || 'yuebai';
+    const yin = this.props.yin || 'gu';
+    const showFu = this.state.showFu;
+    return {
+      zong, yin,
+      fuDisp: showFu ? 'block' : 'none',
+      toggleLabel: showFu ? '只看缺与半' : '并看所覆十七式',
+      toggleStyle: {
+        fontFamily: 'var(--zi-qi)', fontSize: 'var(--fz-qi)', padding: '0.4375rem 0.875rem',
+        minHeight: '36px', borderRadius: 'var(--gui)', cursor: 'pointer', lineHeight: 1.5,
+        background: 'var(--qi-mian)', color: 'var(--mo)', border: 'var(--jie-ci-w) solid var(--jie-ci)'
+      },
+      toggleFu: () => this.setState((s) => ({ showFu: !s.showFu })),
+      hangkuan: zong === 'ciqing'
+        ? '文行三十四字，档差一·二九，界主次两档，圭角零，影零处，彩二声部（朱、柠黄），数据静止，动唯入场一次；泥金字大一分，字疏一分二（暗纸光晕补正）。'
+        : '文行三十五字，档差一·二九，界主次两档，圭角零，影零处，彩二声部（朱、雌黄），数据静止，动唯入场一次。'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="yuwei" viewBox="0 0 16 11"><polygon points="0,0 16,0 16,4 8,11 0,4" fill="currentColor"></polygon></symbol>
+  <symbol id="moding" viewBox="0 0 16 16"><rect x="0" y="0" width="16" height="16" fill="currentColor"></rect></symbol>
+  <symbol id="cangyin" viewBox="0 0 24 24"><rect x="1.5" y="1.5" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2.5"></rect></symbol>
+  <symbol id="wenwu" viewBox="0 0 28 20"><rect x="1.5" y="1.5" width="25" height="17" fill="none" stroke="currentColor" stroke-width="3"></rect><rect x="6.5" y="6.5" width="15" height="7" fill="none" stroke="currentColor" stroke-width="1"></rect></symbol>
+  <symbol id="wusi" viewBox="0 0 28 12"><path d="M0 1.5h28M0 6h28M0 10.5h28" stroke="currentColor" stroke-width="1" fill="none"></path></symbol>
+</svg>

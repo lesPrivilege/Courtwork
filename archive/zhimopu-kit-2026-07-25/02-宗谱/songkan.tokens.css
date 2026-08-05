@@ -1,0 +1,36 @@
+/* 纸墨谱 · 宗宋刊 · 退役件 2026-07-25
+   退役由：暖麻纸近通行黄纸中位（退役账见 00）。存档降为祖本，不得复用为底纸；
+   其法（行款、直疏匀）已尽入 01-版与月白。原値如下。 */
+:root,
+[data-zong="songkan"] {
+  --zhi: #f5efe3;
+  --zhi-fu: #ece3cf;
+  --mo: #241d14;
+  --mo-dan: #6a5f4f;
+  --jie-zhu: #241d14;
+  --jie-ci: #b5a88e;
+  --zhu: #a63a26;
+  --cihuang: #7d5c00;
+  --zi-ti: "Noto Serif SC", "Songti SC", serif;
+  --zi-wen: "Noto Serif SC", "Songti SC", serif;
+  --zi-qi: "Noto Sans SC", "PingFang SC", sans-serif;
+  --zi-shu: "IBM Plex Mono", ui-monospace, monospace;
+  --fz-zhu: 0.8125rem;
+  --fz-qi: 0.875rem;
+  --fz-wen: 1.0625rem;
+  --fz-ti3: 1.375rem;
+  --fz-ti2: 1.75rem;
+  --fz-ti1: 2.25rem;
+  --measure: 35em;
+  --lh-wen: 1.95;
+  --jian-nei: 0.5rem;
+  --jian-qun: 1.125rem;
+  --jian-duan: 2rem;
+  --jian-bian: 5rem;
+  --gui: 0px;
+  --jie-zhu-w: 3px;
+  --jie-ci-w: 1px;
+  --kuang-nei-w: 1px;
+  --dong: 240ms;
+  --dong-yi: cubic-bezier(0.22, 1, 0.36, 1);
+}

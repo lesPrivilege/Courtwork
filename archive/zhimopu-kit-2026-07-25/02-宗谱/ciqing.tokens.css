@@ -1,0 +1,50 @@
+/* 纸墨谱 · 宗磁青 · 底本 v0.5 · 2026-07-25
+   唯一机器真值；磁青.md 值表为影刻。
+   v0.5：纸深入近黑靖（真磁青非海军蓝）；泥金退淡转黄铜色；雌黄取柠黄以离金族；
+   增字疏与字大一分，为暗纸细笔画之光晕补正（行款著录已同修）。
+   非默认纸：不取 :root（根值唯一，见 01-版 · 十）。 */
+[data-zong="ciqing"] {
+  --zhi: #0b1220;
+  --zhi-fu: #101827;
+  --zhi-tai: #141d30;
+  --mo: #ddc07d;
+  --mo-dan: #7e8ea8;
+  --jie-zhu: #33456a;
+  --jie-ci: #1b2740;
+  --zhu: #e0765a;
+  --cihuang: #cfc55c;
+  --zi-ti: "Noto Serif SC", "Songti SC", serif;
+  --zi-wen: "Noto Serif SC", "Songti SC", serif;
+  --zi-qi: "Noto Sans SC", "PingFang SC", sans-serif;
+  --zi-shu: "IBM Plex Mono", ui-monospace, monospace;
+  --fz-zhu: 0.8125rem;
+  --fz-qi: 0.875rem;
+  --fz-wen: 1.09375rem;
+  --lh-wen: 2.02;
+  --shu: 0.012em;
+  --fz-ti3: 1.375rem;
+  --fz-ti2: 1.75rem;
+  --fz-ti1: 2.25rem;
+  --measure: 34em;
+  --jian-nei: 0.5rem;
+  --jian-qun: 1.125rem;
+  --jian-duan: 2rem;
+  --jian-bian: 5rem;
+  --qi-mian: #17223a;
+  --qi-fu: #1f2d4a;
+  --qi-an: #27385a;
+  --qi-xuan: #2c3d64;
+  --qi-jin: #131c2d;
+  --zhi-ying: rgba(11, 18, 32, 0.72);
+  --ying-mo: 14px;
+  --ba-xiao: 24px;
+  --ba-zhu: 44px;
+  --tan-chang: 1 0.35;
+  --tan-shi: 0.8 0.3;
+  --gui: 0px;
+  --jie-zhu-w: 2px;
+  --jie-ci-w: 1px;
+  --kuang-nei-w: 1px;
+  --dong: 240ms;
+  --dong-yi: cubic-bezier(0.22, 1, 0.36, 1);
+}

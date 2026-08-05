@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Noto+Sans+SC:wght@400;500;700&amp;family=Noto+Serif+SC:wght@400;700;900&amp;display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="02-宗谱/yuebai.tokens.css">
+  <link rel="stylesheet" href="02-宗谱/ciqing.tokens.css">
+  <link rel="stylesheet" href="02-宗谱/ladin.tokens.css">
+  <link rel="stylesheet" href="02-宗谱/danganshen.tokens.css">
+  <link rel="stylesheet" href="02-宗谱/yinfa.tokens.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    a { color: var(--zhu); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+    a:hover { text-decoration-thickness: 2px; }
+    :focus-visible { outline: 2px solid var(--zhu); outline-offset: 2px; }
+    :focus:not(:focus-visible) { outline: none; }
+    ::selection { background: var(--zhu); color: var(--zhi); }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    [data-rise] { animation: rise 460ms var(--dong-yi) both; }
+    [data-rise="2"] { animation-delay: 80ms; }
+    @media (prefers-reduced-motion: reduce) { [data-rise] { animation: none; } }
+  </style>
+</helmet>
+<div ref="{{ wrapRef }}" data-zong="{{ zong }}" data-yin="{{ yin }}" style="min-height:100vh;background:var(--zhi);color:var(--mo);font-family:var(--zi-wen);font-size:var(--fz-wen);line-height:var(--lh-wen);letter-spacing:var(--shu);font-synthesis:none;text-wrap:pretty;border:var(--jie-zhu-w) solid var(--jie-zhu)">
+  <div style="border:var(--kuang-nei-w) solid var(--jie-zhu);margin:4px">
+    <div style="position:sticky;top:0;z-index:6;display:flex;justify-content:space-between;align-items:center;gap:1rem;background:var(--zhi);border-bottom:var(--jie-ci-w) solid var(--jie-ci);padding:0.5rem clamp(24px,5vw,60px)">
+      <div style="display:flex;align-items:center;gap:0.625rem">
+        <svg width="16" height="11" style="display:block" aria-hidden="true"><use href="jihao.svg#yuwei"></use></svg>
+        <span style="font-family:var(--zi-qi);font-size:var(--fz-qi);font-weight:500">{{ curBian }}</span>
+      </div>
+      <span style="font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">纸墨谱 · 同版异纸书影 · {{ zongName }}</span>
+    </div>
+    <div style="padding:0 clamp(24px,5vw,60px) var(--jian-duan)">
+      <header style="padding-top:var(--jian-duan)">
+        <div data-rise style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan);line-height:1.6">
+          <span>影刻本 · 不具权威 — 底本：<a href="01-版.md">01-版.md</a> 与 <a href="02-宗谱/yuebai.tokens.css">02-宗谱/*.tokens.css</a></span>
+          <span>属 deswrit-kit · 04-纸墨谱</span>
+        </div>
+        <div data-rise="2" style="margin-top:var(--jian-duan);display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap">
+          <div>
+            <h1 style="margin:0;font-family:var(--zi-ti);font-weight:900;font-size:var(--fz-ti1);line-height:1.25;letter-spacing:0.02em">纸墨谱</h1>
+            <p style="margin:0.5rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi);color:var(--mo-dan)">同版异纸书影 · 以《刊例》条文排演 · 定稿 2026-07-25</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;justify-content:flex-end">
+              <span style="font-family:var(--zi-qi);font-size:var(--fz-qi);color:var(--mo-dan)">纸</span>
+              <sc-for list="{{ zongBtns }}" as="btn" hint-placeholder-count="6">
+                <button style="{{ btn.style }}" onClick="{{ btn.pick }}" aria-pressed="{{ btn.pressed }}">{{ btn.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem">
+              <span style="font-family:var(--zi-qi);font-size:var(--fz-qi);color:var(--mo-dan)">印</span>
+              <sc-for list="{{ yinBtns }}" as="btn" hint-placeholder-count="2">
+                <button style="{{ btn.style }}" onClick="{{ btn.pick }}" aria-pressed="{{ btn.pressed }}">{{ btn.label }}</button>
+              </sc-for>
+            </div>
+            <p style="margin:0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan);text-align:right">换纸换印零时硬切，markup 零分支（刊例第五条）</p>
+          </div>
+        </div>
+      </header>
+      <div style="display:grid;grid-template-columns:{{ railCols }};gap:3.25rem;align-items:start;margin-top:var(--jian-bian)">
+        <nav aria-label="书耳" style="position:sticky;top:3.5rem;display:{{ railDisp }};flex-direction:column;gap:var(--jian-nei)">
+          <sc-for list="{{ railItems }}" as="er" hint-placeholder-count="8">
+            <a href="{{ er.href }}" style="{{ er.style }}">{{ er.label }}</a>
+          </sc-for>
+        </nav>
+        <div style="min-width:0;display:flex;flex-direction:column;gap:var(--jian-bian)">
+
+          <section id="b1" data-bian="弁言" style="border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan);display:grid;grid-template-columns:{{ secCols }};gap:2.75rem;align-items:start">
+            <div style="min-width:0">
+              <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35">弁言</h2>
+              <p style="margin:0 0 var(--jian-qun)">本页为书影：以《刊例》条文为真实材料，排演纸墨谱。语法（版）恒定——语义槽、两档界线、两声部彩、记号各司其义；卷端换纸只换底本取值，<span style="-webkit-text-emphasis:filled dot var(--zhu);text-emphasis:filled dot var(--zhu);-webkit-text-emphasis-position:under left;text-emphasis-position:under left">组件与版式零分支</span>。</p>
+              <p style="margin:0">谱居《刊例》之下，为取值层。文治于凡例，面治于刊例，值取于本谱；三者同出一源：产出不受外力，只受判准。</p>
+            </div>
+            <aside style="display:{{ asideDisp }};font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:1.75;color:var(--zhu);padding-top:0.375rem">批：本页任一链接与 Tab 焦点环即朱声——批注、链接、焦点同出一声（版·色律）。</aside>
+          </section>
+
+          <section id="b2" data-bian="版 · 语义槽" style="border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan);display:grid;grid-template-columns:{{ secCols }};gap:2.75rem;align-items:start">
+            <div style="min-width:0">
+              <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35">版 · 语义槽</h2>
+              <p style="margin:0 0 var(--jian-qun)">槽名恒定，一槽一司。下表取值实时读自本页 computed style——表即底本之镜，非手抄。</p>
+              <div style="border-top:var(--jie-zhu-w) solid var(--jie-zhu)">
+                <div style="display:grid;grid-template-columns:2.25rem minmax(5rem,9.5rem) minmax(0,1fr) minmax(6rem,10.5rem);gap:0.75rem;align-items:center;padding:0.5rem 0.625rem;background:var(--zhi-fu);border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">
+                  <span></span><span>槽</span><span>司</span><span>本纸取值</span>
+                </div>
+                <sc-for list="{{ tokenRows }}" as="row" hint-placeholder-count="8">
+                  <div style="display:grid;grid-template-columns:2.25rem minmax(5rem,9.5rem) minmax(0,1fr) minmax(6rem,10.5rem);gap:0.75rem;align-items:center;padding:0.4375rem 0.625rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                    <span style="{{ row.swStyle }}"></span>
+                    <code style="font-family:var(--zi-shu);font-size:var(--fz-zhu)">{{ row.slot }}</code>
+                    <span style="font-family:var(--zi-qi);font-size:var(--fz-qi)">{{ row.si }}</span>
+                    <code style="font-family:var(--zi-shu);font-size:var(--fz-zhu);color:var(--mo-dan)">{{ row.shown }}</code>
+                  </div>
+                </sc-for>
+              </div>
+              <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">底本：<a href="02-宗谱/yuebai.tokens.css">yuebai</a> · <a href="02-宗谱/ciqing.tokens.css">ciqing</a> · <a href="02-宗谱/ladin.tokens.css">ladin</a> · <a href="02-宗谱/gongzuotai.tokens.css">gongzuotai（扩编）</a>；全槽表见 <a href="01-版.md">01-版.md</a>。</p>
+            </div>
+            <aside style="display:{{ asideDisp }};font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:1.75;color:var(--zhu);padding-top:0.375rem">批「语义槽」：此区为数据之区，故绝对静止（版·动静）；换纸零时硬切，不作过渡。</aside>
+          </section>
+
+          <section id="b3" data-bian="三宗" style="border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan);display:grid;grid-template-columns:{{ secCols }};gap:2.75rem;align-items:start">
+            <div style="min-width:0">
+              <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35">诸宗著录</h2>
+              <p style="margin:0 0 var(--jian-qun)">每宗自足：宗语、据、底本、行款、家讳俱全。宗由人选，不由模型采样。底纸取近白与深暗两极，弱化己身；月白与磁青为冷之昼夜对。暖黄纸系已退役入账。</p>
+              <div style="border-top:var(--jie-ci-w) solid var(--jie-ci);padding:var(--jian-qun) 0;display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:1.5rem">
+                <div>
+                  <h3 style="margin:0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">月白</h3>
+                  <span style="display:{{ tagYuebai }};margin-top:0.375rem;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--zhu);color:var(--zhu);font-family:var(--zi-qi);font-size:var(--fz-zhu)">本页所用</span>
+                </div>
+                <div>
+                  <p style="margin:0">印页月白：近白之纸弱化己身，墨界承层级，朱唯印记。通用默认浅纸。</p>
+                  <p style="margin:0.375rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi);color:var(--mo-dan)">据：Courtwork「刻本印页宗（浅）」全产品面实证，tokens 单源可审、判例递修（入藏著录见 00）；月白为传统染纸正色。</p>
+                  <p style="margin:0.625rem 0 0;padding:0.5rem 0.75rem;background:var(--zhi-fu);font-family:var(--zi-shu);font-size:var(--fz-zhu);line-height:1.7">行款：文行三十五字，档差一·二九，界主次两档，圭角零，影零处，彩二声部，数据静止，自动唯入场一次，随手从弹律，靶不下二十四，印法古/今。</p>
+                  <p style="margin:0.5rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu)"><a href="02-宗谱/月白.md">月白.md</a> · <a href="02-宗谱/yuebai.tokens.css">yuebai.tokens.css</a></p>
+                </div>
+              </div>
+              <div style="border-top:var(--jie-ci-w) solid var(--jie-ci);padding:var(--jian-qun) 0;display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:1.5rem">
+                <div>
+                  <h3 style="margin:0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">磁青</h3>
+                  <span style="display:{{ tagCiqing }};margin-top:0.375rem;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--zhu);color:var(--zhu);font-family:var(--zi-qi);font-size:var(--fz-zhu)">本页所用</span>
+                </div>
+                <div>
+                  <p style="margin:0">磁青纸泥金写经之庄、静、贵：深青为纸，金为文，银为注，金栏为界。</p>
+                  <p style="margin:0.375rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi);color:var(--mo-dan)">据：磁青泥金经卷传世成体系；金书正文、银书注疏即声部分轨。所宜：暗面、仪式性交付面；暗非霓虹，而是青纸金书。</p>
+                  <p style="margin:0.625rem 0 0;padding:0.5rem 0.75rem;background:var(--zhi-fu);font-family:var(--zi-shu);font-size:var(--fz-zhu);line-height:1.7">行款：文行三十四字，档差一·二九，界主次两档，圭角零，影零处，彩二声部，数据静止，自动唯入场一次，随手从弹律，靶不下二十四，印法古/今；泥金字大一分，字疏一分二，行距二·〇二（暗纸光晕补正）。</p>
+                  <p style="margin:0.5rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu)"><a href="02-宗谱/磁青.md">磁青.md</a> · <a href="02-宗谱/ciqing.tokens.css">ciqing.tokens.css</a></p>
+                </div>
+              </div>
+
+              <div style="border-top:var(--jie-ci-w) solid var(--jie-ci);border-bottom:var(--jie-ci-w) solid var(--jie-ci);padding:var(--jian-qun) 0;display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:1.5rem">
+                <div>
+                  <h3 style="margin:0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">拉丁</h3>
+                  <span style="display:{{ tagLadin }};margin-top:0.375rem;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--zhu);color:var(--zhu);font-family:var(--zi-qi);font-size:var(--fz-zhu)">本页所用</span>
+                </div>
+                <div>
+                  <p style="margin:0">中世纪写本至摇篮本的直行密文与朱书之律：近白犊皮，铁胆墨，红唯司仪。</p>
+                  <p style="margin:0.375rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi);color:var(--mo-dan)">据：rubric 有明确职分——红只承结构与仪注；Garamond 一系自摇篮本递修至今。所宜：拉丁文为主与中西混排。v0.2 重染近白，退黄纸。</p>
+                  <p style="margin:0.625rem 0 0;padding:0.5rem 0.75rem;background:var(--zhi-fu);font-family:var(--zi-shu);font-size:var(--fz-zhu);line-height:1.7">行款：文行 68ch，档差一·三三，界主次两档，圭角零，影零处，彩二声部，数据静止，自动唯入场一次，随手从弹律，靶不下二十四，印法古/今。</p>
+                  <p style="margin:0.5rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu)"><a href="02-宗谱/拉丁.md">拉丁.md</a> · <a href="02-宗谱/ladin.tokens.css">ladin.tokens.css</a></p>
+                </div>
+              </div>
+              <div style="border-top:var(--jie-ci-w) solid var(--jie-ci);border-bottom:var(--jie-ci-w) solid var(--jie-ci);padding:var(--jian-qun) 0;display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:1.5rem">
+                <div>
+                  <h3 style="margin:0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">档案</h3>
+                  <span style="display:{{ tagDangan }};margin-top:0.375rem;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--zhu);color:var(--zhu);font-family:var(--zi-qi);font-size:var(--fz-zhu)">本页所用</span>
+                  <p style="margin:0.375rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">试染 · 未立宗</p>
+                </div>
+                <div>
+                  <p style="margin:0">反乌托邦之文书路，存深一纸：铅灰密档，信号朱司裁定，警示黄司校改。浅卡其已退役（暖纸）；霓虹路已黜（拒收记）。</p>
+                  <p style="margin:0.375rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-qi);color:var(--mo-dan)">据：<span style="display:inline-flex;gap:3px;vertical-align:-2px"><svg width="13" height="13" aria-hidden="true"><use href="jihao.svg#moding"></use></svg><svg width="13" height="13" aria-hidden="true"><use href="jihao.svg#moding"></use></svg><svg width="13" height="13" aria-hidden="true"><use href="jihao.svg#moding"></use></svg></span>（阙文有记——官文书、剜改、墨钉之谱系待著录，目验后立宗或黜）。</p>
+                  <p style="margin:0.625rem 0 0;padding:0.5rem 0.75rem;background:var(--zhi-fu);font-family:var(--zi-shu);font-size:var(--fz-zhu);line-height:1.7">试染判据：与磁青之距离可辨（灰非青、信号朱非泥金）；有真实公文语境之需。</p>
+                  <p style="margin:0.5rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu)"><a href="02-宗谱/danganshen.tokens.css">danganshen.tokens.css</a></p>
+                </div>
+              </div>
+              <div style="border-top:var(--jie-ci-w) solid var(--jie-ci);padding:var(--jian-qun) 0 0;display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:1.5rem">
+                <div>
+                  <h3 style="margin:0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4;color:var(--mo-dan)">退役账</h3>
+                </div>
+                <div>
+                  <p style="margin:0;font-family:var(--zi-qi);font-size:var(--fz-qi);color:var(--mo-dan)">宗宋刊之暖麻纸、档案浅卡其、拉丁旧羊皮值——暖黄纸近通行「品味黄纸」中位，2026-07-25 退役入账（刊例第四十五条），存档降祖本，不复用为底纸；其法（直疏匀、行款著录）已尽入 <a href="01-版.md">01-版</a> 与月白。全账见 <a href="00-发凡起例.md">00 · 退役账</a>。</p>
+                </div>
+              </div>
+            </div>
+            <aside style="display:{{ asideDisp }};font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:1.75;color:var(--zhu);padding-top:0.375rem">批「诸宗」：月白与磁青对切一次，即验「昼夜两印，markup 不变」（审书状谱8）；印法切古今，牌记、著录语、圈点诸签名不动。</aside>
+          </section>
+
+          <section id="b4" data-bian="记号" style="border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan);display:grid;grid-template-columns:{{ secCols }};gap:2.75rem;align-items:start">
+            <div style="min-width:0">
+              <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35">记号 · 一记一义</h2>
+              <p style="margin:0 0 var(--jian-qun)">借形逐件证今义；证不出者虽美必黜，黜亦有记。记号不作项目符号、不作装饰复用。</p>
+              <div style="border-top:var(--jie-ci-w) solid var(--jie-ci)">
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="display:block;width:30px;height:22px;border:var(--jie-zhu-w) solid var(--mo);padding:2px"><span style="display:block;width:100%;height:100%;border:var(--jie-ci-w) solid var(--mo)"></span></span>
+                  <span style="font-size:var(--fz-qi)"><strong>文武边栏</strong>　粗细双线框廓 → 主界之形：版框、牌记框，他处不得</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">收</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="display:block;width:30px"><span style="display:block;border-top:var(--jie-ci-w) solid var(--jie-ci);margin:4px 0"></span><span style="display:block;border-top:var(--jie-ci-w) solid var(--jie-ci);margin:4px 0"></span><span style="display:block;border-top:var(--jie-ci-w) solid var(--jie-ci);margin:4px 0"></span></span>
+                  <span style="font-size:var(--fz-qi)"><strong>乌丝栏</strong>　界行细线 → 次界之形：行列线、分项线</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">收</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <svg width="16" height="11" aria-hidden="true"><use href="jihao.svg#yuwei"></use></svg>
+                  <span style="font-size:var(--fz-qi)"><strong>鱼尾</strong>　版心折叠定位 → 位置指示：本页顶部版心条即其今用，一面一枚</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">收</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span><span style="display:inline-block;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">版</span></span>
+                  <span style="font-size:var(--fz-qi)"><strong>书耳</strong>　版框外侧题签 → 边缘导航签：本页左栏即是，当前者墨底纸字</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">收</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">名·卷·撰·日</span>
+                  <span style="font-size:var(--fz-qi)"><strong>卷端题名</strong>　卷首全题一行 → 文档头著录行：本页卷端即是</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">收</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span><span style="display:inline-block;border:var(--jie-zhu-w) solid var(--mo);padding:2px"><span style="display:block;border:var(--jie-ci-w) solid var(--mo);padding:0.125rem 0.375rem;font-family:var(--zi-qi);font-size:var(--fz-zhu)">记</span></span></span>
+                  <span style="font-size:var(--fz-qi)"><strong>牌记</strong>　刊行者、年月、堂号 → 出处块：版本、日期、生成器、底本指针，见页末</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">收</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="font-size:var(--fz-qi)"><span style="-webkit-text-emphasis:filled dot var(--zhu);text-emphasis:filled dot var(--zhu);-webkit-text-emphasis-position:under left;text-emphasis-position:under left">要语</span></span>
+                  <span style="font-size:var(--fz-qi)"><strong>圈点</strong>　句旁着重 → 着重号（text-emphasis），强调不滥承粗体</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">收</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--zhu)">批：行长逾格</span>
+                  <span style="font-size:var(--fz-qi)"><strong>朱批 · 眉批</strong>　朱笔批注 → 批注声部：本页右栏诸批即是，色唯朱</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">收</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="display:inline-flex;gap:3px"><svg width="13" height="13" aria-hidden="true"><use href="jihao.svg#moding"></use></svg><svg width="13" height="13" aria-hidden="true"><use href="jihao.svg#moding"></use></svg></span>
+                  <span style="font-size:var(--fz-qi)"><strong>墨钉</strong>　版面阙文之黑方 → 阙文有记：redacted、待定值、加载占位；形唯矩形，色唯墨</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">收</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="display:inline-block;border:var(--jie-ci-w) solid var(--jie-ci);padding:0.125rem 0.375rem;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">版 · 三</span>
+                  <span style="font-size:var(--fz-qi)"><strong>書口 · 書根</strong>　折叶外露之题名册次 → 收合态自识别律：面板、列表折叠后仍露题名与序次</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">收</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="display:inline-flex;width:26px;height:26px;color:var(--mo-dan);align-items:center;justify-content:center"><svg width="24" height="24" aria-hidden="true"><use href="jihao.svg#cangyin"></use></svg></span>
+                  <span style="font-size:var(--fz-qi)"><strong>藏印</strong>　递藏印鉴 → 裁定链印记；门禁未立，恐沦为装饰徽章</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);color:var(--mo-dan);font-family:var(--zi-qi);font-size:var(--fz-zhu)">待考</span>
+                </div>
+                <div style="display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="color:var(--mo-dan)">—</span>
+                  <span style="font-size:var(--fz-qi)"><strong>象鼻 · 龙牌花框 · 拱花 · 包角</strong>　版心黑条、装饰框、无色浮凸、护角 → 无今义可证（拱花即影，犯影零处），故不render</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--cihuang);color:var(--cihuang);font-family:var(--zi-qi);font-size:var(--fz-zhu)">黜</span>
+                </div>
+              </div>
+              <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">记号图形一源：<a href="jihao.svg">jihao.svg</a>（yuwei · moding · cangyin · wenwu · wusi），use 引用，取色 currentColor；黜者不入。他设计径引本文件，不得另绘。</p>
+            </div>
+            <aside style="display:{{ asideDisp }};font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:1.75;color:var(--zhu);padding-top:0.375rem">批「记号」：拒亦有记——黜落之理由与准入之理由同等入档（刊例第廿九条）；藏印之复议门见 00 拒收记。</aside>
+          </section>
+
+          <section id="b5" data-bian="排演" style="border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan);display:grid;grid-template-columns:{{ secCols }};gap:2.75rem;align-items:start">
+            <div style="min-width:0">
+              <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35">排演 · 刊例选文</h2>
+              <p style="margin:0 0 var(--jian-qun)">以下选文出《刊例》，为真实排演材料——无据不落格，故不用假文。</p>
+              <h3 style="margin:var(--jian-duan) 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">弁言选段</h3>
+              <p style="margin:0;padding-left:1.25rem;border-left:var(--jie-ci-w) solid var(--jie-ci)">生成式界面正处同一处境。生成既廉，界面随采样增殖；无约束之生成收敛于训练语料中位——紫蓝渐变、玻璃卡片、三等分 icon 栅格、奶油底衬线 hero，是今日的麻沙本。相同的病应得相同的学。</p>
+              <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">——刊例 · 弁言</p>
+              <h3 style="margin:var(--jian-duan) 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">三公理</h3>
+              <div style="border-top:var(--jie-ci-w) solid var(--jie-ci)">
+                <div style="display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:1.25rem;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <strong style="font-family:var(--zi-qi);font-size:var(--fz-qi)">坊刻趋中</strong>
+                  <span style="font-size:var(--fz-qi)">Slop 是分布现象，不是审美失败。无约束之刻必趋语料中位；治之者约束，不是劝诫。</span>
+                </div>
+                <div style="display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:1.25rem;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <strong style="font-family:var(--zi-qi);font-size:var(--fz-qi)">例先于版</strong>
+                  <span style="font-size:var(--fz-qi)">品味首先以禁例存在。讳表立于底本之前，底本立于刻版之前。</span>
+                </div>
+                <div style="display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:1.25rem;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <strong style="font-family:var(--zi-qi);font-size:var(--fz-qi)">校不代裁</strong>
+                  <span style="font-size:var(--fz-qi)">死校可判讹脱，不能定是非；活校定是非，须留校勘记。选宗始终在人。</span>
+                </div>
+              </div>
+              <h3 style="margin:var(--jian-duan) 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">四病</h3>
+              <div style="border-top:var(--jie-ci-w) solid var(--jie-ci)">
+                <div style="display:grid;grid-template-columns:3.5rem minmax(0,1fr);gap:1.25rem;align-items:start;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.3">讹</span>
+                  <span style="font-size:var(--fz-qi)">值离底本者：底本外的色值、圆角、字号、缓动；错用语义槽亦讹。治以对校，机器可判。</span>
+                </div>
+                <div style="display:grid;grid-template-columns:3.5rem minmax(0,1fr);gap:1.25rem;align-items:start;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.3">脱</span>
+                  <span style="font-size:var(--fz-qi)">应有之态而阙者：空态、错误态、加载态、焦点环、reduced-motion 之缺。四病之中脱最伤人。治以本校、他校。</span>
+                </div>
+                <div style="display:grid;grid-template-columns:3.5rem minmax(0,1fr);gap:1.25rem;align-items:start;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.3">衍</span>
+                  <span style="font-size:var(--fz-qi)">不增义之物：删之而义不损者，衍。删衍为第一刀法。治以删除校验。</span>
+                </div>
+                <div style="display:grid;grid-template-columns:3.5rem minmax(0,1fr);gap:1.25rem;align-items:start;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.3">倒</span>
+                  <span style="font-size:var(--fz-qi)">序乱者：视觉层级与语义层级相逆，标题跳级，阅读序与文档序相逆。治以本校。</span>
+                </div>
+              </div>
+              <h3 style="margin:var(--jian-duan) 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">涂乙示例</h3>
+              <div style="background:var(--zhi-fu);padding:var(--jian-qun) 1.25rem">
+                <p style="margin:0">对结果<del style="color:var(--mo-dan);text-decoration:line-through;text-decoration-color:var(--cihuang);text-decoration-thickness:2px">进行</del>验证。</p>
+                <p style="margin:0.5rem 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--cihuang);line-height:1.7">涂乙：「进行验证」→「验证」，动词壳（凡例第六条）。雌黄司校改：错误态取此声，错误文案必附下一步。</p>
+              </div>
+              <h3 style="margin:var(--jian-duan) 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">国讳选钞</h3>
+              <p style="margin:0;font-size:var(--fz-qi)">紫蓝渐变 · 渐变文字 · 玻璃拟态 · 三等分 icon 卡 · 卡中卡 · 01/02/03 脚手架与重复大写 kicker · bounce/elastic · animate width/height · Supercharge 类空话 · lorem 与假数据 · Inter 系独占主字</p>
+              <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">讳表编年，见其讳即可断其代（刊例第廿四条）。临文不讳：形有据者一句陈据即可用——本页纸色之据即「宗即古纸」。</p>
+            </div>
+            <aside style="display:{{ asideDisp }};font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:1.75;color:var(--zhu);padding-top:0.375rem">
+              <p style="margin:0">批「弁言选段」：本栏行长上限即 --measure（宋刊 35em，拉丁 68ch），与页末著录语对校相符。</p>
+              <p style="margin:var(--jian-qun) 0 0">批「四病」：四病不同罪——脱伤人，倒乱义，讹坏系统，衍损格（刊例第十六条）。</p>
+            </aside>
+          </section>
+
+          <section id="b6" data-bian="采用" style="border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan);display:grid;grid-template-columns:{{ secCols }};gap:2.75rem;align-items:start">
+            <div style="min-width:0">
+              <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35">采用 · 九步</h2>
+              <p style="margin:0 0 var(--jian-qun)">九步出刊例附录丙；采现成宗者，三至五步谱已代填。</p>
+              <ol style="margin:0;padding-left:1.75rem;font-size:var(--fz-qi);line-height:1.9">
+                <li>立宗——方向由人选</li>
+                <li>著讳——国讳加家讳，同入生成上下文与 CI</li>
+                <li>选善本——谱已代填，可增</li>
+                <li>立底本——复制宗 tokens 入项目，改名不改槽</li>
+                <li>定行款——抄著录语，改一项记一项</li>
+                <li>开死校——每门证其能红</li>
+                <li>立簿——改必有记，拒准同档</li>
+                <li>立雠——实施者不得自验</li>
+                <li>写定——定本单向，牌记随行</li>
+              </ol>
+              <p style="margin:var(--jian-qun) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu)">详表见 <a href="03-采用模板.md">03-采用模板.md</a>；agent 加载 <a href="SKILL.md">SKILL.md</a> 一件即得全语言（UI 视觉层；UX 从 Design skill）。</p>
+            </div>
+            <aside style="display:{{ asideDisp }};font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:1.75;color:var(--zhu);padding-top:0.375rem">批「采用」：以生成先行、事后补 token 者，等于据坊本立底本，所立非法（刊例第二条）。</aside>
+          </section>
+
+          <section id="b7" data-bian="审书状" style="border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan);display:grid;grid-template-columns:{{ secCols }};gap:2.75rem;align-items:start">
+            <div style="min-width:0">
+              <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35">审书状选项</h2>
+              <div style="border-top:var(--jie-ci-w) solid var(--jie-ci)">
+                <div style="display:grid;grid-template-columns:3.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="font-family:var(--zi-shu);font-size:var(--fz-zhu);color:var(--mo-dan)">谱2</span>
+                  <span style="font-size:var(--fz-qi)">彩是否止于朱、雌黄二声？主操作是否用墨？</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">不刊</span>
+                </div>
+                <div style="display:grid;grid-template-columns:3.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="font-family:var(--zi-shu);font-size:var(--fz-zhu);color:var(--mo-dan)">谱3</span>
+                  <span style="font-size:var(--fz-qi)">影是否零处？圭角是否 ≤ 宗值？</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">不刊</span>
+                </div>
+                <div style="display:grid;grid-template-columns:3.5rem minmax(0,1fr) 3.5rem;gap:1.25rem;align-items:center;padding:0.625rem 0;border-bottom:var(--jie-ci-w) solid var(--jie-ci)">
+                  <span style="font-family:var(--zi-shu);font-size:var(--fz-zhu);color:var(--mo-dan)">谱7</span>
+                  <span style="font-size:var(--fz-qi)">换纸是否零组件分支？各纸对比度是否各自复核？</span>
+                  <span style="justify-self:end;padding:0.125rem 0.5rem;border:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-qi);font-size:var(--fz-zhu)">不刊</span>
+                </div>
+              </div>
+              <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">全表见 <a href="05-审书状.md">05-审书状.md</a>，叠加刊例附录乙；不刊项任一未过，不发布。</p>
+            </div>
+            <aside style="display:{{ asideDisp }};font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:1.75;color:var(--zhu);padding-top:0.375rem">批「审书状」：机器绿不代人审——验收为雠，两造对读（刊例第廿二条）。</aside>
+          </section>
+
+          <section id="b8" data-bian="器物" style="border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan);display:grid;grid-template-columns:{{ secCols }};gap:2.75rem;align-items:start">
+            <div style="min-width:0">
+              <h2 style="margin:0 0 var(--jian-qun);font-family:var(--zi-ti);font-size:var(--fz-ti2);font-weight:700;line-height:1.35">器物 · 饾版之阶</h2>
+              <p style="margin:0 0 var(--jian-qun)">纸三层只管面，不管器。器物自有四阶：常、悬、按、选。底纸居一极，阶向反方递进——浅纸阶渐深，暗纸阶渐浅；<span style="-webkit-text-emphasis:filled dot var(--zhu);text-emphasis:filled dot var(--zhu);-webkit-text-emphasis-position:under left;text-emphasis-position:under left">暗面之层级由递亮而得，不由光与影</span>。据在套印与饾版：多版分印，每版一次印色，深浅成阶。</p>
+              <div style="display:flex;gap:var(--jian-nei);flex-wrap:wrap;margin-bottom:var(--jian-duan)">
+                <sc-for list="{{ jieSwatches }}" as="sw" hint-placeholder-count="7">
+                  <div style="{{ sw.box }}">
+                    <span style="{{ sw.chip }}"></span>
+                    <span style="font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan);display:block;margin-top:0.25rem">{{ sw.name }}</span>
+                    <code style="font-family:var(--zi-shu);font-size:var(--fz-zhu);color:var(--mo-dan)">{{ sw.val }}</code>
+                  </div>
+                </sc-for>
+              </div>
+              <h3 style="margin:0 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">按钮四等</h3>
+              <div style="display:flex;gap:var(--jian-nei);flex-wrap:wrap;align-items:center;margin-bottom:var(--jian-qun)">
+                <button style="font-family:var(--zi-qi);font-size:var(--fz-qi);padding:0.5rem 1.125rem;border-radius:var(--gui);cursor:pointer;line-height:1.5;background:var(--mo);color:var(--zhi);border:var(--jie-ci-w) solid var(--mo)" style-hover="opacity:0.92">保存</button>
+                <button style="font-family:var(--zi-qi);font-size:var(--fz-qi);padding:0.5rem 1.125rem;border-radius:var(--gui);cursor:pointer;line-height:1.5;background:var(--qi-mian);color:var(--mo);border:var(--jie-ci-w) solid var(--jie-ci)" style-hover="background:var(--qi-fu)" style-active="background:var(--qi-an)">对比版本</button>
+                <button style="font-family:var(--zi-qi);font-size:var(--fz-qi);padding:0.5rem 1.125rem;border-radius:var(--gui);cursor:pointer;line-height:1.5;background:transparent;color:var(--mo-dan);border:var(--jie-ci-w) solid transparent" style-hover="background:var(--qi-mian);color:var(--mo)">稍后再看</button>
+                <button style="font-family:var(--zi-qi);font-size:var(--fz-qi);padding:0.5rem 1.125rem;border-radius:var(--gui);cursor:pointer;line-height:1.5;background:transparent;color:var(--zhu);border:var(--jie-ci-w) solid var(--zhu)" style-hover="background:var(--qi-mian)">删除</button>
+                <span style="font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">主按钮不入阶；器上文一律现代汉语</span>
+              </div>
+              <h3 style="margin:var(--jian-duan) 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">输入三态</h3>
+              <div style="display:grid;gap:var(--jian-nei);grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));margin-bottom:var(--jian-qun)">
+                <label style="display:block">
+                  <span style="display:block;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan);margin-bottom:0.25rem">卷次</span>
+                  <input type="text" value="卷三" style="width:100%;font-family:var(--zi-wen);font-size:var(--fz-qi);padding:0.4375rem 0.625rem;background:var(--qi-mian);color:var(--mo);border:var(--jie-ci-w) solid var(--jie-ci);border-radius:var(--gui)">
+                </label>
+                <label style="display:block">
+                  <span style="display:block;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan);margin-bottom:0.25rem">底本指针</span>
+                  <input type="text" value="{{ zongFile }}" style="width:100%;font-family:var(--zi-shu);font-size:var(--fz-zhu);padding:0.4375rem 0.625rem;background:var(--qi-mian);color:var(--mo);border:var(--jie-ci-w) solid var(--jie-ci);border-radius:var(--gui);outline:2px solid var(--zhu);outline-offset:2px">
+                </label>
+                <label style="display:block">
+                  <span style="display:block;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan);margin-bottom:0.25rem">行长</span>
+                  <input type="text" value="20 字" style="width:100%;font-family:var(--zi-shu);font-size:var(--fz-zhu);padding:0.4375rem 0.625rem;background:var(--qi-mian);color:var(--mo);border:var(--jie-ci-w) solid var(--cihuang);border-radius:var(--gui)">
+                  <span style="display:block;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--cihuang);margin-top:0.25rem">不合著录语（须 32–38 字）——改回 35 字或同改著录语。</span>
+                </label>
+              </div>
+              <h3 style="margin:var(--jian-duan) 0 var(--jian-nei);font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700;line-height:1.4">表行 · 常悬选</h3>
+              <div style="background:var(--zhi-tai);border:var(--jie-ci-w) solid var(--jie-ci)">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) 6rem 5rem;gap:1rem;padding:0.4375rem 0.75rem;background:var(--zhi-fu);border-bottom:var(--jie-zhu-w) solid var(--jie-zhu);font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">
+                  <span>件</span><span style="text-align:right">改次</span><span>書品</span>
+                </div>
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) 6rem 5rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi)" style-hover="background:var(--qi-fu)">
+                  <span>01-版.md</span><span style="font-family:var(--zi-shu);text-align:right">7</span><span style="font-family:var(--zi-qi);font-size:var(--fz-zhu)">上品</span>
+                </div>
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) 6rem 5rem;gap:1rem;padding:0.5rem 0.75rem;border-bottom:var(--jie-ci-w) solid var(--jie-ci);font-size:var(--fz-qi);background:var(--qi-xuan)">
+                  <span>ciqing.tokens.css</span><span style="font-family:var(--zi-shu);text-align:right">5</span><span style="font-family:var(--zi-qi);font-size:var(--fz-zhu)">上品</span>
+                </div>
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) 6rem 5rem;gap:1rem;padding:0.5rem 0.75rem;font-size:var(--fz-qi)" style-hover="background:var(--qi-fu)">
+                  <span>danganshen.tokens.css</span><span style="font-family:var(--zi-shu);text-align:right">2</span><span style="font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">试染</span>
+                </div>
+              </div>
+              <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">选中行取器选阶，悬停取器悬阶；数据区仍零动效（换阶零时硬切）。全律见 <a href="01-版.md">01-版 · 六</a>。</p>
+            </div>
+            <aside style="display:{{ asideDisp }};font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:1.75;color:var(--zhu);padding-top:0.375rem">批「器物」：阶只承器物——一旦拿去作卡底，卡中卡即由此生（01-版 · 六之二）。又：此处按钮之字皆现代平易汉语——取材用色从版本学，器上文不从（01-版 · 十五）。</aside>
+          </section>
+
+          <section id="b9" data-bian="牌记" style="border-top:var(--jie-zhu-w) solid var(--jie-zhu);padding-top:var(--jian-duan)">
+            <div style="margin:0 auto;max-width:26rem;border:var(--jie-zhu-w) solid var(--jie-zhu);padding:4px">
+              <div style="border:var(--kuang-nei-w) solid var(--jie-zhu);padding:var(--jian-duan) var(--jian-qun);text-align:center">
+                <p style="margin:0;font-family:var(--zi-qi);font-size:var(--fz-zhu);color:var(--mo-dan)">牌记</p>
+                <p style="margin:0.375rem 0 0;font-family:var(--zi-ti);font-size:var(--fz-ti3);font-weight:700">纸墨谱 · 样张</p>
+                <p style="margin:var(--jian-qun) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:2">版本 1.0 · 定稿 2026-07-25<br>生成器：Claude · Fable 设计环境<br>底本：<a href="01-版.md">01-版.md</a> · <a href="02-宗谱/yuebai.tokens.css">{{ zongFile }}</a><br>纸：{{ zongName }} · 印法：{{ yinName }}<br>影刻本，不具权威；漂移从底本</p>
+                <p style="margin:var(--jian-qun) 0 0;padding-top:var(--jian-qun);border-top:var(--jie-ci-w) solid var(--jie-ci);font-family:var(--zi-shu);font-size:var(--fz-zhu);line-height:1.8;text-align:left">{{ hangkuan }}</p>
+              </div>
+            </div>
+          </section>
+
+          <footer style="padding:var(--jian-qun) 0 var(--jian-nei);text-align:center">
+            <p style="margin:0;font-family:var(--zi-qi);font-size:var(--fz-qi);color:var(--mo-dan)">版有源，例有主；改有记，拒有档。</p>
+            <p style="margin:var(--jian-nei) 0 0;font-family:var(--zi-qi);font-size:var(--fz-zhu);line-height:2"><a href="00-发凡起例.md">发凡起例</a> · <a href="01-版.md">版</a> · <a href="02-宗谱/月白.md">月白</a> · <a href="02-宗谱/磁青.md">磁青</a> · <a href="02-宗谱/拉丁.md">拉丁</a> · <a href="03-采用模板.md">采用模板</a> · <a href="04-AGENTS摘编.md">AGENTS摘编</a> · <a href="05-审书状.md">审书状</a> · <a href="SKILL.md">SKILL</a></p>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;zong&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;yuebai&quot;, &quot;ciqing&quot;, &quot;danganshen&quot;, &quot;ladin&quot;], &quot;default&quot;: &quot;yuebai&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;纸墨&quot;}, &quot;yin&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;gu&quot;, &quot;jin&quot;], &quot;default&quot;: &quot;gu&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;纸墨&quot;}, &quot;pizhu&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;纸墨&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.wrapRef = React.createRef();
+    this.valid = ['yuebai', 'ciqing', 'danganshen', 'ladin'];
+    this.validYin = ['gu', 'jin'];
+    let saved = null, savedYin = null;
+    try {
+      saved = window.localStorage.getItem('zhimopu.zong');
+      savedYin = window.localStorage.getItem('zhimopu.yin');
+    } catch (e) {}
+    const init = this.valid.includes(props.zong) ? props.zong : (this.valid.includes(saved) ? saved : 'yuebai');
+    const initYin = this.validYin.includes(props.yin) ? props.yin : (this.validYin.includes(savedYin) ? savedYin : 'gu');
+    this.state = { zong: init, yin: initYin, cur: '弁言', vals: {}, w: typeof window === 'undefined' ? 1440 : window.innerWidth };
+    this.yinMeta = { gu: '古印', jin: '今印' };
+    this.slots = [
+      { slot: '--zhi', si: '纸 · 页底色', type: 'color' },
+      { slot: '--zhi-fu', si: '副纸 · 中层面', type: 'color' },
+      { slot: '--zhi-tai', si: '浮台 · 三层之顶', type: 'color' },
+      { slot: '--qi-mian', si: '器面 · 器物常态底', type: 'color' },
+      { slot: '--qi-fu', si: '器浮 · 悬', type: 'color' },
+      { slot: '--qi-an', si: '器按 · 按', type: 'color' },
+      { slot: '--qi-xuan', si: '器选 · 选', type: 'color' },
+      { slot: '--mo', si: '墨 · 正文与题', type: 'color' },
+      { slot: '--mo-dan', si: '淡墨 · 注与次要文', type: 'color' },
+      { slot: '--jie-zhu', si: '主界 · 结构线', type: 'color' },
+      { slot: '--jie-ci', si: '次界 · 行列线', type: 'color' },
+      { slot: '--kuang-nei-w', si: '框内线宽 · 印法所司', type: 'raw' },
+      { slot: '--zhu', si: '朱 · 人裁与交互', type: 'color' },
+      { slot: '--cihuang', si: '雌黄 · 校改', type: 'color' },
+      { slot: '--zi-ti', si: '题轨字族', type: 'font' },
+      { slot: '--zi-wen', si: '文轨字族', type: 'font' },
+      { slot: '--zi-qi', si: '器轨字族', type: 'font' },
+      { slot: '--zi-shu', si: '数轨字族', type: 'font' },
+      { slot: '--measure', si: '行长', type: 'raw' },
+      { slot: '--lh-wen', si: '文行距', type: 'raw' },
+      { slot: '--shu', si: '字疏 · 光晕补正', type: 'raw' },
+      { slot: '--gui', si: '圭角上限', type: 'raw' },
+      { slot: '--dong', si: '动效时长', type: 'raw' }
+    ];
+    this.bians = ['弁言', '版 · 语义槽', '三宗', '记号', '排演', '采用', '审书状', '器物', '牌记'];
+    this.jieSlots = [
+      { slot: '--zhi', name: '纸' },
+      { slot: '--zhi-fu', name: '副纸' },
+      { slot: '--zhi-tai', name: '浮台' },
+      { slot: '--qi-mian', name: '器面 · 常' },
+      { slot: '--qi-fu', name: '器浮 · 悬' },
+      { slot: '--qi-an', name: '器按 · 按' },
+      { slot: '--qi-xuan', name: '器选 · 选' }
+    ];
+    this.zongMeta = {
+      yuebai: { name: '月白纸', short: '月白', file: 'yuebai.tokens.css', hang: '文行三十五字，档差一·二九，界主次两档，圭角零，影零处，彩二声部（朱、雌黄），数据静止，自动唯入场一次，随手从弹律，靶不下二十四，印法古/今。' },
+      ciqing: { name: '磁青纸', short: '磁青', file: 'ciqing.tokens.css', hang: '文行三十四字，档差一·二九，界主次两档，圭角零，影零处，彩二声部（朱、柠黄），数据静止，自动唯入场一次，随手从弹律，靶不下二十四，印法古/今；泥金字大一分，字疏一分二，行距二·〇二（暗纸光晕补正）。' },
+      danganshen: { name: '档案深（试染）', short: '档案·试', file: 'danganshen.tokens.css', hang: '试染，未立宗：量值同月白；据与家讳待目验后著录。浅卡其已退役。' },
+      ladin: { name: '拉丁纸', short: '拉丁', file: 'ladin.tokens.css', hang: '文行 68ch，档差一·三三，界主次两档，圭角零，影零处，彩二声部（朱书、雌黄），数据静止，自动唯入场一次，随手从弹律，靶不下二十四，印法古/今。' }
+    };
+  }
+  componentDidMount() { this.readVals(); this.ensureWatch(); }
+  componentWillUnmount() {
+    if (this._onScroll) window.removeEventListener('scroll', this._onScroll);
+    if (this._onResize) window.removeEventListener('resize', this._onResize);
+  }
+  componentDidUpdate(prevProps, prevState) {
+    const pp = prevProps || {};
+    const ps = prevState || {};
+    if (pp.zong !== this.props.zong && this.valid.includes(this.props.zong) && this.props.zong !== this.state.zong) {
+      this.setState({ zong: this.props.zong });
+    }
+    if (pp.yin !== this.props.yin && this.validYin.includes(this.props.yin) && this.props.yin !== this.state.yin) {
+      this.setState({ yin: this.props.yin });
+    }
+    if (ps.zong !== this.state.zong || ps.yin !== this.state.yin) this.readVals();
+  }
+  readVals() {
+    this._valKey = null;
+    this._vals = null;
+    window.requestAnimationFrame(() => {
+      const node = (this.wrapRef && this.wrapRef.current) || document.querySelector('[data-zong]');
+      if (!node) return;
+      const cs = getComputedStyle(node);
+      const vals = {};
+      this.slots.forEach((s) => { vals[s.slot] = cs.getPropertyValue(s.slot).trim(); });
+      this.setState({ vals });
+    });
+  }
+  ensureWatch() {
+    if (this._watching) return;
+    this._watching = true;
+    this._onScroll = () => {
+      const nodes = document.querySelectorAll('[data-bian]');
+      if (!nodes.length) return;
+      let name = nodes[0].getAttribute('data-bian');
+      nodes.forEach((n) => { if (n.getBoundingClientRect().top <= window.innerHeight * 0.3) name = n.getAttribute('data-bian'); });
+      if (name && name !== this.state.cur) this.setState({ cur: name });
+    };
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onResize = () => {
+      if (this._rz) return;
+      this._rz = window.requestAnimationFrame(() => {
+        this._rz = null;
+        if (window.innerWidth !== this.state.w) this.setState({ w: window.innerWidth });
+      });
+    };
+    window.addEventListener('resize', this._onResize, { passive: true });
+    this._onScroll();
+    this._onResize();
+  }
+  liveVals() {
+    const key = this.state.zong + '/' + this.state.yin;
+    if (this._valKey === key && this._vals) return this._vals;
+    const node = document.querySelector('[data-zong]');
+    if (!node) return {};
+    const cs = getComputedStyle(node);
+    const out = {};
+    this.slots.forEach((s) => { out[s.slot] = cs.getPropertyValue(s.slot).trim(); });
+    if (!out['--zhi']) return {};
+    this._valKey = key;
+    this._vals = out;
+    return out;
+  }
+  renderVals() {
+    if (typeof window !== 'undefined') {
+      window.setTimeout(() => {
+        this.ensureWatch();
+        if (!this._vals) { this.liveVals(); if (this._vals) this.forceUpdate(); }
+      }, 0);
+    }
+    const { zong, yin, cur } = this.state;
+    const vals = this.liveVals();
+    const meta = this.zongMeta[zong];
+    const pizhu = this.props.pizhu === undefined ? true : !!this.props.pizhu;
+    const w = this.state.w || 1440;
+    const showRail = w >= 900;
+    const showAside = pizhu && w >= 1260;
+    const btnBase = { fontFamily: 'var(--zi-qi)', fontSize: 'var(--fz-qi)', padding: '0.375rem 0.875rem', borderRadius: 'var(--gui)', cursor: 'pointer', lineHeight: 1.5 };
+    const btnStyle = (on) => Object.assign({}, btnBase, on
+      ? { background: 'var(--mo)', color: 'var(--zhi)', border: 'var(--jie-ci-w) solid var(--mo)' }
+      : { background: 'transparent', color: 'var(--mo)', border: 'var(--jie-ci-w) solid var(--jie-ci)' });
+    const zongBtns = this.valid.map((id) => ({
+      label: this.zongMeta[id].short,
+      pressed: id === zong,
+      style: btnStyle(id === zong),
+      pick: () => {
+        try { window.localStorage.setItem('zhimopu.zong', id); } catch (e) {}
+        this.setState({ zong: id });
+      }
+    }));
+    const yinBtns = this.validYin.map((id) => ({
+      label: this.yinMeta[id],
+      pressed: id === yin,
+      style: btnStyle(id === yin),
+      pick: () => {
+        try { window.localStorage.setItem('zhimopu.yin', id); } catch (e) {}
+        this.setState({ yin: id });
+      }
+    }));
+    const jieSwatches = this.jieSlots.map((s) => ({
+      name: s.name,
+      val: vals[s.slot] || '—',
+      box: { border: 'var(--jie-ci-w) solid var(--jie-ci)', padding: '0.375rem', minWidth: '5.5rem' },
+      chip: { display: 'block', height: '2.25rem', background: vals[s.slot] || 'transparent', border: 'var(--jie-ci-w) solid var(--jie-ci)' }
+    }));
+    const railItems = this.bians.map((b, i) => {
+      const on = cur === b;
+      return {
+        label: b,
+        href: '#b' + (i + 1),
+        style: Object.assign({
+          display: 'block', padding: '0.3125rem 0.75rem',
+          border: 'var(--jie-ci-w) solid var(--jie-ci)', borderRadius: 'var(--gui)',
+          fontFamily: 'var(--zi-qi)', fontSize: 'var(--fz-zhu)', lineHeight: 1.5, textDecoration: 'none'
+        }, on ? { background: 'var(--mo)', color: 'var(--zhi)', borderColor: 'var(--mo)' } : { color: 'var(--mo-dan)' })
+      };
+    });
+    const tokenRows = this.slots.map((s) => {
+      const v = vals[s.slot] || '';
+      let shown = v || '—';
+      if (s.type === 'font' && v) shown = v.split(',')[0].replace(/"/g, '').trim();
+      return {
+        slot: s.slot, si: s.si, shown,
+        swStyle: s.type === 'color'
+          ? { display: 'block', width: '22px', height: '22px', background: v || 'transparent', border: 'var(--jie-ci-w) solid var(--jie-ci)', borderRadius: 'var(--gui)' }
+          : { display: 'block', width: '22px', height: '22px' }
+      };
+    });
+    return {
+      zong: zong, yin: yin, curBian: cur, zongName: meta.name, zongFile: meta.file, hangkuan: meta.hang,
+      yinName: this.yinMeta[yin],
+      wrapRef: this.wrapRef, zongBtns: zongBtns, yinBtns: yinBtns, railItems: railItems, tokenRows: tokenRows, jieSwatches: jieSwatches,
+      secCols: showAside ? 'minmax(0, var(--measure)) 14rem' : 'minmax(0, var(--measure))',
+      asideDisp: showAside ? 'block' : 'none',
+      railCols: showRail ? '9.5rem minmax(0,1fr)' : 'minmax(0,1fr)',
+      railDisp: showRail ? 'flex' : 'none',
+      tagYuebai: zong === 'yuebai' ? 'inline-block' : 'none',
+      tagCiqing: zong === 'ciqing' ? 'inline-block' : 'none',
+      tagDangan: zong === 'danganshen' ? 'inline-block' : 'none',
+      tagLadin: zong === 'ladin' ? 'inline-block' : 'none'
+    };
+  }
+}
+</script>
+</body>
+</html>

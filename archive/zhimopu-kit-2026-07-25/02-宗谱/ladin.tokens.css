@@ -1,0 +1,48 @@
+/* 纸墨谱 · 宗拉丁 · 底本 v0.3 · 2026-07-25
+   唯一机器真值；拉丁.md 值表为影刻。v0.2：重染近白犢皮（弱化存在，退黄纸），增浮台。 */
+/* 非默认纸：不取 :root，唯月白（默认）得立根值；本件唯应 [data-zong] 。 */
+[data-zong="ladin"] {
+  --zhi: #fcfbf7;
+  --zhi-fu: #f4f1e8;
+  --zhi-tai: #ffffff;
+  --mo: #2a231a;
+  --mo-dan: #6e614e;
+  --jie-zhu: #d8cfba;
+  --jie-ci: #e6dfcd;
+  --zhu: #b0361a;
+  --cihuang: #806000;
+  --zi-ti: "EB Garamond", "Noto Serif SC", serif;
+  --zi-wen: "EB Garamond", "Noto Serif SC", serif;
+  --zi-qi: "Noto Sans SC", "PingFang SC", sans-serif;
+  --zi-shu: "IBM Plex Mono", ui-monospace, monospace;
+  --fz-zhu: 0.875rem;
+  --fz-qi: 0.9375rem;
+  --fz-wen: 1.125rem;
+  --fz-ti3: 1.5rem;
+  --fz-ti2: 2rem;
+  --fz-ti1: 2.625rem;
+  --measure: 68ch;
+  --lh-wen: 1.62;
+  --jian-nei: 0.5rem;
+  --jian-qun: 1.125rem;
+  --jian-duan: 2rem;
+  --jian-bian: 5rem;
+  --qi-mian: #f2efe6;
+  --qi-fu: #eae5d7;
+  --qi-an: #ded7c4;
+  --qi-xuan: #f7e2d6;
+  --qi-jin: #f7f4ec;
+  --zhi-ying: rgba(252, 251, 247, 0.72);
+  --ying-mo: 14px;
+  --ba-xiao: 24px;
+  --ba-zhu: 44px;
+  --tan-chang: 1 0.35;
+  --tan-shi: 0.8 0.3;
+  --gui: 0px;
+  --shu: 0em;
+  --jie-zhu-w: 2px;
+  --jie-ci-w: 1px;
+  --kuang-nei-w: 1px;
+  --dong: 240ms;
+  --dong-yi: cubic-bezier(0.22, 1, 0.36, 1);
+}

@@ -1,0 +1,14 @@
+/* 纸墨谱 · 印法 底本 v0.1 · 2026-07-25
+   古印/今印第二轴，与纸正交；须在诸宗 tokens 之后加载。据：01-版 · 九。 */
+:root,
+[data-yin="gu"] {
+  --kuang-nei-w: 1px;
+}
+[data-yin="jin"] {
+  /* 今印：框退单线，主界收细，题文转黑体。槽、声部、记号之义不变。
+     行距不在印法之内：行距归纸（暗纸光晕补正不得被印法销去，见 01-版 · 四）。 */
+  --kuang-nei-w: 0px;
+  --jie-zhu-w: 1.5px;
+  --zi-ti: "Noto Sans SC", "PingFang SC", sans-serif;
+  --zi-wen: "Noto Sans SC", "PingFang SC", sans-serif;
+}
