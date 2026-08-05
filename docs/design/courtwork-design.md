@@ -10,7 +10,7 @@ courtwork_design_md:
     "docs/design/tokens.json":
       sha256: "4a62b3ac1db8dc581101fc750aa86bfc3af20f4f22bd1c4738e9976e35878ce2"
     "docs/design/principles.md":
-      sha256: "0a1418ebabbedacacd6e8ce8d25c87e90995ab316f5f54e7d0036e87345f0871"
+      sha256: "546475e7022ab15a59e1810f492cbd1d6dc3c359ae906b3cfa627fab9c388372"
   tokenSet:
     name: "courtwork-design-tokens"
     version: "1.3.0"
@@ -626,6 +626,16 @@ tokens:
 ### 11. 命名与宿主边界
 
 通用组件和 token 使用领域无关名称。法律或 PM 词表、字段解释与 renderer 住垂类包；desktop 只提供通用宿主机制。
+
+### 12. 冷调与克制反乌托邦
+
+本节定义「clean · cool · 陌生化」的表达边界；适用中间档与最克制档，Pages 按激进档另证。
+
+- 陌生化只许经三条通道：**色温**（唯一冷中性阶，§2 现法）、**记录性排印**（版本目录学：编号、等宽核验体、目录学标题，§4/§10 现法）、**语义红的稀缺在场**。不得经新增装饰元素、新增彩色或第二套气质表达。
+- 稀缺律：朱砂（`semantic.severity.high`）是界面唯一强彩声部，只随真实风险、不可逆动作与驳回在场；无风险即整屏无红——红的缺席本身是信息。chrome、空态、导航零彩色。
+- 冷的承担者是中性阶与纸温，不是彩色：蓝紫青不作气质强调；cool 由 H≈217° 派生阶与磁青宗承担。交互语义色（链接/焦点蓝、修订绿）按 §2「记号色古、交互语义色今」维持，不入气质预算。
+- 反乌托邦的界：制度纸感、冷光、档案记录性；禁霓虹、辉光、glitch、扫描线、CRT/终端绿、渐变彩带、dark-first cyberpunk。克制审计条款照常：新增视觉元素必须指认业务语义。
+- 数值零新增：本节不引入新 token、不加新门；「Dystopia」六格参照系已在册（severity.high／bg.app／surface／border 阶／text 阶／锚色）。
 
 ## 三、token 用法语义（tokens.json 描述派生）
 
