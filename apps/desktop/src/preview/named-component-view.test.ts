@@ -62,7 +62,7 @@ describe('具名工作面的 component blueprint 分发', () => {
   it('仍是 route 的工作面不被具名分发接管', () => {
     const runtime = createDesktopPackageRuntime();
 
-    for (const view of ['graph', 'revision', 'draft'] as const) {
+    for (const view of ['revision', 'draft'] as const) {
       expect(resolveNamedComponentView(view, matrixOnly, runtime.packageRegistries, runtime.hostRenderers))
         .toEqual({ status: 'unregistered' });
     }

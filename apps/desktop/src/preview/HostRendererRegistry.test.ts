@@ -14,8 +14,9 @@ describe('HostRendererRegistry（宿主以 uiTemplateId 绑定可执行工作面
     expect(registry.get('courtwork.timeline.v1')).toMatchObject({
       kind: 'component', view: 'timeline', moduleTarget: 'timeline', autoOpen: true,
     });
-    expect(registry.get('party-graph-panel')).toEqual({
-      uiTemplateId: 'party-graph-panel', kind: 'route', view: 'graph', moduleTarget: 'graph', autoOpen: true,
+    expect(registry.get('party-graph-panel')).toBeUndefined();
+    expect(registry.get('courtwork.party-graph.v1')).toMatchObject({
+      kind: 'component', view: 'graph', moduleTarget: 'graph', autoOpen: true,
     });
     expect(registry.get('risk-review-panel')).toEqual({
       uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', moduleTarget: 'revision', autoOpen: true,

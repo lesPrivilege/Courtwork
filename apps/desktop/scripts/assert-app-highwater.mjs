@@ -79,7 +79,11 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // `preview/TimelineRenderer.tsx`（blueprint 链）。App 侧净增 3 行（宿主渲染上下文 memo 与
 // Provider 包裹），`view === 'timeline'` 分支、`TimelinePanel` 直连与 `timeline`/`Timeline`
 // 两处垂类持有同批退役。
-const HIGH_WATER_LINES = 2460;
+// GENERIC-PACK-1 · 余三 panel 第二枚（graph）：2460 → 2451。外提物＝当事人图谱渲染与其
+// 懒载点去 `preview/GraphRenderer.tsx`（`lazy(() => import('workbench/GraphPanel'))` 随渲染件
+// 迁走，g6 chunk 切分不变）；`view === 'graph'` 分支、`graph` 局部、`PartyGraph` 类型持有与
+// `lazy`/`Suspense` 两枚 React import 同批退役。App 侧净增 0。
+const HIGH_WATER_LINES = 2451;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

@@ -9,4 +9,5 @@ export const IMPLEMENTED_VISUAL_BLUEPRINT_IDS = Object.freeze([
   'courtwork.artifact-table.v1',
   'courtwork.review-matrix.v1',
   'courtwork.timeline.v1',
+  'courtwork.party-graph.v1',
 ] as const);

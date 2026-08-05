@@ -1,6 +1,6 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { SchemaParts } from './icons/schema-parts';
-import type { PartyGraph, RiskList } from '@courtwork/legal';
+import type { RiskList } from '@courtwork/legal';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
   credentialClient,
@@ -144,8 +144,6 @@ import { caseOutputClient } from './output/case-output-client';
 import type { ResolvedSourceAnchor, SourceAnchor } from '@courtwork/schemas';
 import { S3_REVIEW_GATE_LABEL } from './work/contract-review-flow';
 import { useContractReviewSubmission } from './work/use-contract-review-submission';
-
-const GraphPanel = lazy(() => import('./workbench/GraphPanel'));
 
 type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft' | 'artifact';
 
@@ -1000,7 +998,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // fixture fallback 只属于显式 demo ref；非 demo 分支不会询问 fixture adapter。
   const artifactPayload = createArtifactReader(session.artifacts, fixtureRef, workFixture);
   const riskList = artifactPayload('legal.RiskList') as RiskList | undefined;
-  const graph = artifactPayload('legal.PartyGraph') as PartyGraph | undefined;
   // 通用「结构化产出」页签只收落在该页签上的 component blueprint；具名工作面（矩阵审阅）
   // 已由自己的 view 承载，不在此重复出现。
   const artifactViewEntries = Object.entries(session.artifacts).filter(([artifactType]) => {
@@ -1611,12 +1608,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         return emptyWorkbench('该工作面暂不适用于合同审查');
       }
       // riskList 已产出（revision）或 artifact 面：落到下方与 demo 共享的分支。
-    }
-    if (view === 'graph') {
-      if (!graph) return emptyWorkbench('关系图谱尚未生成');
-      return <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
-        <GraphPanel graph={graph} grade={session.evidenceGrades[0]?.grade} />
-      </Suspense>;
     }
     // 具名工作面的 component blueprint 全链：宿主按 view 反查在册 blueprint，空态文案由
     // descriptor 标题派生（宿主不另抄一份垂类词）。仍是 route 的工作面落 unregistered，走下方原分支。

@@ -185,10 +185,11 @@ pm 包不涉及：四 artifact 全部走 presentation 路径（field-local `valu
 
 ## 状态更新（2026-08-05，GENERIC-PACK-1 余三 panel）
 
-承下方矩阵首枚同一体例，`legal.Timeline` 的 `uiTemplateId` 与 `LEGAL_RENDERERS` 声明由
-`timeline-panel` 改为版本化 `courtwork.timeline.v1`。同属**呈现绑定**变更：payload 契约、schema、
+承下方矩阵首枚同一体例，`legal.Timeline` 与 `legal.PartyGraph` 的 `uiTemplateId` 与
+`LEGAL_RENDERERS` 声明由 `timeline-panel` / `party-graph-panel` 改为版本化
+`courtwork.timeline.v1` / `courtwork.party-graph.v1`。同属**呈现绑定**变更：payload 契约、schema、
 promptSegments 与词表均未动，`schemaVersion` 与 `identity.version` 不升、prompt blob hash 不漂，
-只有 descriptor hash 随之重铸（`533f9d40…` → `6913f050…`）。不留 compatibility alias 的理由与
+只有 descriptor hash 随之重铸（逐 panel 各一次：`533f9d40…` → `6913f050…` → `7a2ac205…`）。不留 compatibility alias 的理由与
 宿主侧不注入 React 的边界均同矩阵条，逐字适用，不在此复述。
 
 ## 状态更新（2026-07-27，PANEL-BLUEPRINT-1 矩阵首枚）

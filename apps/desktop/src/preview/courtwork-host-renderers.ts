@@ -1,5 +1,6 @@
 import { ArtifactTableRenderer } from './ArtifactTableRenderer.js';
 import { ReviewMatrixRenderer } from './ReviewMatrixRenderer.js';
+import { GraphRenderer } from './GraphRenderer.js';
 import { TimelineRenderer } from './TimelineRenderer.js';
 import {
   createHostRendererRegistry,
@@ -23,7 +24,16 @@ export function createCourtworkHostRendererRegistry(): HostRendererRegistry {
       moduleTarget: 'timeline',
       autoOpen: true,
     },
-    { uiTemplateId: 'party-graph-panel', kind: 'route', view: 'graph', moduleTarget: 'graph', autoOpen: true },
+    {
+      // GENERIC-PACK-1 余三 panel 第二枚：当事人图谱由 route 迁为版本化 component blueprint。
+      // 懒载点随渲染件迁入 GraphRenderer，g6 chunk 切分不变。
+      uiTemplateId: 'courtwork.party-graph.v1',
+      kind: 'component',
+      view: 'graph',
+      component: GraphRenderer,
+      moduleTarget: 'graph',
+      autoOpen: true,
+    },
     { uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', moduleTarget: 'revision', autoOpen: true },
     {
       // PANEL-BLUEPRINT-1 首枚：矩阵审阅由 route 迁为版本化 component blueprint。
