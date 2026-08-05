@@ -218,7 +218,9 @@ pi-ai 自带 faux provider（真 key 属 GUI-ACCEPT，本票不触网）＋真 s
 显式注入（ADR-022 六-C:650 明令 headless 须显式注入、禁 always-allow 冒充产品授权）＋真 disk，可驱动六格脚本
 对话与 restart/resume 新 leg 回读。退出证据：六格各产 Agent events＋host req/result＋journal＋最终 bytes/hash；
 两注入点（Approve driver／faux provider）为 ADR 明批的显式延迟，其余全走 production 代码路径；App 槽无关（纯
-headless）。此票放行后 `PI-BASE-HEADLESS-ACCEPT` 方可跑矩阵。
+headless）。**已放行合入（2026-08-05，验收 `b055d7a`）；provider 更正为可插拔注入点（自身 smoke 用 faux 不触网，API 接真 key 供 HEADLESS-ACCEPT）。SPEC §九 亲核定谳：HEADLESS-ACCEPT 六格矩阵需真 DeepSeek key（cell 1-6 须真模型推理，:744「无 key/model 证据只能记 external-validated blocked」），非 faux——faux 只辖 §七自动化 CI 门。故 HEADLESS-ACCEPT 尚缺两前置：真 key（产品负责人提供）＋下条 `PI-READ-TOOLCALL-1`。**
+
+**`PI-READ-TOOLCALL-1`（2026-08-05 harness 验收定谳立票，HEADLESS-ACCEPT 前置）**：真 Agent 经 read/glob/grep 读 `/workspace`（workspace_read host op）今日恒 `StateViolation`——`serve_read_request` 的「读须归属在场 tool call」翻红，根因 `active_tool_call` 只在 pump 的 `Write` 臂 arm、读工具落 `_=>{}`（harness 验收源级＋wire 探针＋一行修复变异三证定谳，唯一充分）。**兼 `PI-WORKSPACE-READ-1` 套件级覆盖洞兼真实产品缺口**（第四例放行后逃逸，与 golden-坏形／quarantine／五-7 同族）：该票全部 Rust 读臂集成用例（`pi_loop.rs` 8035/8119/8205/8302/8370）一律 `tool_started_line→ProductToolName::Write` 顶名，唯一 Read tool_started 用例读 `/case`（直读无 host op），故读 host op 路径从未被真驱动。范围两件：(A) `active_tool_call` 由 write-only 改「凡能发 host op 的工具，write 取/read peek」（读臂 peek 不 take，一次 glob 逐层发 list——沿 WORKSPACE-READ 读臂 peek 语义），转绿 harness 的 `headless_workspace_readback…blocker` characterization 测试；(B) 复核并改造那批 Write-顶名读门为真 Read tool_started 驱动（闭覆盖洞，born-red 须以真 read op 触 StateViolation 先红）。挡 HEADLESS 六格 3/4/5（/workspace 回读），格 1/2（/case 直读）不受影响。禁区：不改 wire schema、fold() 推进臂、uncertain 压扁；核状态机语义变更须极窄且回执单列。随本票顺修陈旧辅助门 `gate:verified-node-production`（`verified-node-gate.mjs:462` 硬编码首包 ready caps 恰 `["case_read"]`，PI-HOST-LOOP-1R3 `8e217e4` 遗留、早于 workspace caps 上线、base 亦红、不在例行门集故长期无察，校准为现行三员握手）。
 
 **GUI 后下一相（2026-08-04 产品定向落痕）**：`PI-BASE-GUI-ACCEPT` 收敛后，下一相为垂类/demo
 材料解耦成独立装载的插件包——路径沿既有冻结票阶梯：`GENERIC-PACK-1`（构建期解耦，验收律
