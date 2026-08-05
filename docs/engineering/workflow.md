@@ -248,6 +248,14 @@ fresh 路径成立。判据两条：其一，**载入与修复分相**——读�
 全仓 lint 若未显式排除并行 worktree 目录（`.claude/worktrees/**`），他会话在途树的文件会被主树扫入，红信号无法归属。判据两条：lint 红先归树——报错路径落在 worktree 目录内的红不构成本树信号；排除须以配置显式落地并附红绿证（`c7897d8` 先例），不得依赖「恰好没并行」维持绿。
 
 
+### 验收落盘判例（2026-08-05 立，源 PI-LANE-UI-1 清账）
+
+验收记录提交入树是验收交付义务的一部分，未提交即验收未完成。清账会话遇未提交的验收工作区，默认停手报架构；代为提交只在三证齐全（验收会话 PASS 报告在案、盘上内容与报告逐项一致、清账侧独立复跑全量门）时经架构追认，追认与偏差同批登记。
+
+### 落痕先核 HEAD 判例（2026-08-05 立，源 PI-LANE-UI-1 偏离追认落痕）
+
+主仓工作树可能正检出某票分支（共享树非私产族第三例）。任何会话落痕前先 `git branch --show-current`；架构 docs 落痕一律分树（worktree）执行，落后必核目标分支 tip 未动。已骑错分支的提交以「分支复位＋cherry-pick 到 main」纠正，不得留在票链上污染交验点。
+
 ## 依赖许可
 
 运行时依赖许可白名单基线为 MIT／Apache-2.0（既有先例：`GENERIC-PACK-1` 拒 pandoc 于 GPL）。**BSD-3-Clause 纳入白名单（2026-07-26 裁定，源 GUI 候选八项·工作稿版本 diff 项）**：宽松许可、无 copyleft 义务，与 MIT/Apache 同级；npm `diff`（上游项目 jsdiff）因此可用，禁止误装另一个 npm `jsdiff` 包。**`Apache-2.0 WITH LLVM-exception` 于 2026-07-28 为 Bytecode Alliance capability filesystem 同系三件 `cap-std/cap-fs-ext/cap-tempfile@4.0.2` 窄项批准**：须 exact 同版本、保留完整 SPDX 表达式与 notices，不扩成任意白名单外许可自动准入。GPL／AGPL 及其派生不入依赖。白名单外许可逐案架构裁定并留痕；`site/` 素材与字体许可另按 `SITE-CRAFT-2` 票面的快照纪律。
