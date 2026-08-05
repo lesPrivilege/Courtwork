@@ -472,3 +472,13 @@
 - **已知失效点**：件内 md 值表与 SKILL 值块皆影刻（该谱自述不一致时从 css）；其「工作台扩编」系仓内 tokens 的回流副本，一致性以仓内为准，勿反向恢复。
 - **消费裁定（2026-08-05，三选一不悬置）**：**入册消费**——ciqing v0.5 值表＋校勘三因（纸未足深/金过饫/雌黄与金同族）＋「二声部不同族」律，登记为「磁青精修后置」指定供料；暗宗器面阶缺格（dark 无 hover/controlHover/selected 值）挂同一后置槽。**显式不采纳**——光晕补正（字疏/字大/行距随宗变，触 deslop theme-boundary「暗宗根内零几何声明」门）、黄铜金字作正文入产品壳（Q7 泥金降格裁定＋档位律；kit 自身亦限磁青于仪式面）、交互蓝改值（2026-08-05 已拍维持现法）。**待实证**——light 印记朱槽（dark 已有 `zhu≠red` 双槽，浅纸侧待 site/文书面真实需求）。
 
+### `research-loop-continuation-2026-08-06.md`
+
+- **票号／事件名**：长任务续行与记忆蒸馏跨行业核查（pi 栈结构化输出缺口／DeepSeek 内置工具／Codex 项目记忆三枚一手核实批）。
+- **起讫**：2026-08-06 → 2026-08-06（一次性调研，当日写就即归档）。
+- **SHA**：实现／验收／合入 无（调研件）；入仓 commit＝`git log -- archive/research-loop-continuation-2026-08-06.md` 首条。
+- **本件证明什么**：三枚一手核实——①pinned `pi-ai/pi-agent-core@0.82.1` 无 `response_format`，DeepSeek 未入官方 constrained-sampling 验证名单，且 DeepSeek `strict` 工具模式仅在 `/beta` base URL 生效而 pinned 栈未接；②DeepSeek Responses API 已上线 server-side `web_search`（仅 v4-flash，不经本仓当前 wire）；③OpenAI Codex CLI 0.145.0 起有 `Memories`（后台闲置触发、配额感知跳过）与独立 `Chronicle`（屏幕上下文，research preview）两条不同机制。另对十一项长任务续行/记忆蒸馏方案逐条对照 ADR-021/022/015 现行裁定，标可借形（3）/不适用（5）/我们已有更强（3），均未推翻现行裁定。
+- **归档类别**：结论已被吸收（2026-08-06 架构消费：实测清单行更新＋三条可裁问题当日裁定，见就绪图「需要实测」表与本条）。
+- **现行真值继承者**：`docs/decisions/ADR-021-dossier-work-semantics.md`、`ADR-022`、`ADR-015` 本体与 `docs/status/current.md`；就绪图「需要实测」表 DeepSeek 行（本件补源码层证据，不替代届时真 key 实测）。
+- **已知失效点**：所核 npm 版本（`pi-ai`/`pi-agent-core` 上游 `0.83.0`，2026-07-29）、DeepSeek changelog（截至 2026-07-31）、Codex CLI changelog（截至 0.145.0/2026-07-21）均为抓取日坐标，随上游发版折旧；DeepSeek `web_search` 计费/限流与 Codex Memories 目录分区两点记「未考/部分二手佐证」，不得拔高。
+

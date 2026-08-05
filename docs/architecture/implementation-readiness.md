@@ -484,7 +484,7 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 
 | 议题 | 下一份有效证据 |
 |---|---|
-| DeepSeek response-format API 兼容（产品定调 2026-08-05：成本与 agent 能力使其为全场景首选） | 带 key 的一手 API 实测（exact 参数/限制/计费）＋与 ADR-016 填格协议、场景 model 步 schema 约束输出的对齐评估；届时具名 quirk 只入 `packages/provider`，不开放任意 URL |
+| DeepSeek 新 API 面：response-format＋server-side `web_search`（产品定调 2026-08-05：成本与 agent 能力使其为全场景首选） | 2026-08-06 调研已一手核实结构性前提（去处按归档索引 `research-loop-continuation-2026-08-06.md` 条目）：pinned pi-ai 0.82.1 零 `response_format`、DeepSeek strict 须 `/beta` 而 pi-ai provider 固定非 beta、`web_search` 只在 Responses API（限 `deepseek-v4-flash`）——三者皆非现行路径可达。下一份有效证据＝pi-ai 上游支持登陆（盯 changelog）或具名 adapter 议案（先 ADR，禁第二 transport 暗造）＋届时带 key 实测（exact 参数/限制/计费）；具名 quirk 只入 `packages/provider`，不开放任意 URL |
 | Work store | whole-envelope benchmark、CAS 延迟/写放大、kill/crash 与恢复实验 |
 | macOS 文件授权 | 完整签名/升级/移动/撤权/TCC 重授权真机矩阵已后置到正式签名发布阶段；`HOST-AUTH-LITE` 只要求失败态可见的最小证据 |
 | docx 兼容 | 精确版本的 Word/WPS 打开—轻改—保存—回读及 OOXML part/rel diff |
