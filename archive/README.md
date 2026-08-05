@@ -104,7 +104,7 @@
 - **现行真值继承者**：→ `packages/pi-lane/specs/PI-HEADLESS-HARNESS-1.md`（票面）＋ harness 本体 `apps/desktop/src-tauri/src/pi_loop.rs:8567`（「`PI-HEADLESS-HARNESS-1` 组件B：headless 合成 harness」）；立票理由与范围两件 → `docs/architecture/implementation-readiness.md:208`。据 `docs/status/current.md`，该票验收 PASS `b055d7a`／合入 `56559e7`。
 - **已知失效点**：patch 锚在 `apps/desktop/src-tauri/src/pi_loop.rs` 的 `@@ -9235,4 +9235,470 @@`（blob `b2ccfb9..87baca2`），该基线已被后续多票改写，**patch 不可再 apply**。其自建的 `EnvKey`／`RecordingApprover` 桩与落地 harness 的显式注入形态（ADR-022 六-C 的 `ScriptedApprove`）不同，不得据以推断现行注入契约；凭证读法（只读 `COURTWORK_ACCEPT_DEEPSEEK_KEY`、源码零字面量）是当时写法，非现行契约。**真 DeepSeek key 前置至今未解除**（`docs/status/current.md` 在册）。
 
-### `pi-lane-receipts-2026-07-08/`（目录说明，五枚条目共用）
+### `pi-lane-receipts-2026-07-28--08-05/`（目录说明，五枚条目共用）
 
 **这五条是同一批**：2026-08-05 从 `packages/pi-lane/specs/` 移出的 24 份**已清账工单独占回执**。
 它们当初是「一票一件、实现会话独占、不争用父级 SPEC」的过程账；票清账后，其载重结论已分别进入
@@ -121,7 +121,7 @@
 `git show`，但**不能用来判定内容是否在树内**；判定内容在树内一律以现行 `main` 的文件与门为准，
 `no-ff` 合入 SHA 才是进树锚点。下方各表逐枚标注 `祖先` / `非祖先`，不作推断。
 
-### `pi-lane-receipts-2026-07-08/PI-WRITE-PROOF-1.md`
+### `pi-lane-receipts-2026-07-28--08-05/PI-WRITE-PROOF-1.md`
 
 - **票号／事件名**：`PI-WRITE-PROOF-1`（package/headless 层 write characterization，与 STDIO／分发三票并行）。
 - **起讫**：2026-07-28 → 2026-08-05。
@@ -131,7 +131,7 @@
 - **现行真值继承者**：→ `packages/pi-lane/SPEC.md`（write 面现行契约与已知边界）＋ `packages/pi-lane/ACCEPTANCE.md`（该票验收记录，`:403` 起）＋ `docs/architecture/implementation-readiness.md` 同名行（三链 SHA 与退出证据）。产品线 write 的**现行**形态不在本件里，在 `PI-WRITE-HOST-1` 之后的 SPEC/ACCEPTANCE。
 - **已知失效点**：件内「只到 package/headless proof、未由 `index.ts`/产品 host 装配」的自陈**已过时**——`PI-WRITE-HOST-1`（合入 `66862ef`）之后 host-mediated write 已在产品线落地。件内 `basename 恰 .md 必拒` 的旧放行口径经验收修复才收紧，读本件须连读 `ACCEPTANCE.md:404` 起的修复记录。件内到父级 SPEC/ADR 的相对链接（`../SPEC.md` 等）随移档失效。
 
-### `pi-lane-receipts-2026-07-08/PI-CODE-STDIO-1*.md`（三轮：`1` / `1R` / `1R2`）
+### `pi-lane-receipts-2026-07-28--08-05/PI-CODE-STDIO-1*.md`（三轮：`1` / `1R` / `1R2`）
 
 - **票号／事件名**：`PI-CODE-STDIO-1` 及其两轮返修——产品 stdio wire 与状态机（ADR-022 六-B.1／B.2）。
 - **起讫**：2026-07-28 → 2026-08-05（`1R2` 末次改动 2026-07-29）。
@@ -148,7 +148,7 @@
 - **现行真值继承者**：→ `docs/decisions/ADR-022-pi-lane.md` 六-B.1／六-B.2（wire 标量、状态机与逐包 payload 的唯一现行契约）＋ `packages/pi-lane/SPEC.md`「并行相邻票与合流门」节＋ `packages/pi-lane/ACCEPTANCE.md`（三轮验收记录）＋ 就绪图同名三行。
 - **已知失效点**：`1` 与 `1R` 两轮**整轮被拒**，其结论、计数与「已闭合」自述一律不作事实，只作拒绝根因的证据；不得从被拒轮恢复任何判据。`1R2` 之后 wire 与状态机又经 `PI-HOST-LOOP-1` 七轮、`PI-READ-TOOLCALL-1`、`PI-TOOLCALL-BINDING-1`、`PI-UNKNOWN-TOOL-1` 多次收紧——件内的闭集、门与投影口径均为当时值，现行只认 ADR-022 与源码。
 
-### `pi-lane-receipts-2026-07-08/PI-SIDECAR-DIST-1*.md`（六轮 + `-1R5-ACCEPT` 验收令）
+### `pi-lane-receipts-2026-07-28--08-05/PI-SIDECAR-DIST-1*.md`（六轮 + `-1R5-ACCEPT` 验收令）
 
 - **票号／事件名**：`PI-SIDECAR-DIST-1` 及五轮返修与架构冻结的验收令——Node sidecar 分发路线实测（ADR-022 六-E）。
 - **起讫**：2026-07-28 → 2026-08-05。
@@ -169,7 +169,7 @@
 - **现行真值继承者**：→ `docs/decisions/ADR-022-pi-lane.md`「2026-07-30 路线裁定：Route A 为现行 default」节＋六-E＋ `packages/pi-lane/SPEC.md:663` 起（Route A 现行 default、官方 Node v22.23.1、tracked manifest）＋ **`docs/engineering/pi-sidecar-dist-1.md`（现行工程文档，实测正文的真源——本批回执只写链接与结论，正文从不在回执里）**＋ 就绪图六行。
 - **已知失效点**：`1`…`1R4` 五轮**整轮被拒**，其读数、路线建议（尤其首轮的 SEA-default 建议，已被 ADR-022 明文撤销消费资格）与「已闭合」自述一律不作事实。`1R5` 的放行范围只到分发实验本身，不代表 Host、GUI、debug DMG 或公开发行成立。`PI-SIDECAR-RELEASE-1` 仍 parked。`1R2` 的 entitlement 可提取性依验收机而异（验收机 `codesign -d --entitlements` stdout 0 字节、实现机 568 字节），凡引其签名读数须连读该前提。
 
-### `pi-lane-receipts-2026-07-08/PI-HOST-LOOP-1*.md`（原票 + `1R`…`1R7`，八份）
+### `pi-lane-receipts-2026-07-28--08-05/PI-HOST-LOOP-1*.md`（原票 + `1R`…`1R7`，八份）
 
 - **票号／事件名**：`PI-HOST-LOOP-1` 及七轮返修合同——Rust 侧 pi loop host（fresh/resume 全序、容器原语、closed codec、耐久 journal）。
 - **起讫**：2026-07-30 → 2026-08-05。
@@ -191,7 +191,7 @@
 - **现行真值继承者**：→ `docs/decisions/ADR-022-pi-lane.md`「`PI-HOST-LOOP-1` 开工补拍」节（八项跨层裁点）与「修订记录」（逐轮拒绝与裁定全文）＋ `apps/desktop/src-tauri/src/pi_loop*.rs`（实现真源，模块头逐条点名票面章节）＋ `packages/pi-lane/ACCEPTANCE.md`（逐轮验收记录）＋ `docs/status/current.md`「2026-08-03 pi Host loop 收束」行＋ 就绪图八行。
 - **已知失效点**：`1`…`1R6` 七轮**整轮被拒**，其闭口清单、计数与自证一律不作事实。`1R7` 放行范围**只到 Host 读面基础**，不及 WRITE／GUI／headless 总验与真 key 端到端。此后 journal 耐久面又经 `PI-HOST-JOURNAL-1`（合入 `62047d5`）三缺陷修复、tool↔capability 绑定经 `PI-TOOLCALL-BINDING-1` 修回归——件内 journal 与 tc 口径均为当时值。`1R7` §五冻结后的四则裁定随票受理，其中「永久关闭态的 crash fold 在 start 路径不再落盘」是如实声明的能力删减，不是缺陷。
 
-### `pi-lane-receipts-2026-07-08/PI-WRITE-HOST-1-STAGE2…STAGE6.md`（五份分段回执）
+### `pi-lane-receipts-2026-07-28--08-05/PI-WRITE-HOST-1-STAGE2…STAGE6.md`（五份分段回执）
 
 - **票号／事件名**：`PI-WRITE-HOST-1` 七段施工链的中段回执（开工序②…序⑥）。
 - **起讫**：2026-08-04 → 2026-08-05（同批入仓、同批归档，每份一次写就再未改动）。
@@ -450,3 +450,13 @@
 - **归档类别**：结论已被吸收。
 - **现行真值继承者**：→ `docs/architecture/implementation-readiness.md`「后续 ADR 队列」（scheduled／webhook ADR 的负面判例登记）＋ `docs/architecture/schema-engineering.md`（一之二命题：双后端编译是护城河所在）＋ `docs/decisions/ADR-008-schema-conformance-and-authority.md`。对外叙事引此对照须落「结构性差异」措辞并过 `maturity-claim` 门。
 - **已知失效点**：**报告在仓外，不受本仓版本控制**——随时可能移动或删除，是本索引唯一的仓外指针，最脆弱的一条。**同族负面判例续档（2026-07-26，源 `benchmark-openwork-2026-07-26.md`，对象为 `different-ai/openwork` tip `1f41a52`，另一仓，判例同族）**：`_scheduled_approver` 类标识符在该仓不存在，但行为判例换名存续——桌面内嵌 server 硬编码 `approvalMode:"auto"`，19 处 host/write API 的 `requireApproval` 事实上无条件放行；真正门控工具调用的是 opencode 侧 permission.ask。两层分明：工具级审批外包且形态尚可，自建 host API 层仍是 auto 直放。**2026-07-27 复核**：`approvalMode:"auto"` 于 dev 分支仍现行、scheduled 仍 Building/Next 零发布。**2026-07-28 时效注**：上述 OpenWork 审批坐标未再重核，**不作当前事实**，只保留其锚定旧 tip 的历史判例效力。本件结论锚定 `4766e59c`，上游日更不追。
+
+### `handoffs/fable-arch-wake-2026-08-05.md`（架构唤醒件，非权威契约）
+
+- **票号／事件名**：`FABLE-ARCH-WAKE-2026-08-05`（长会话交接件；上一枚同类为 `handoffs/fable-pi-foundation-post-r5-2026-07-30.md`）。
+- **起讫**：2026-08-03 深夜（守夜审计批）→ 2026-08-05（架构/功能层验收批清账）。
+- **SHA**：实现／验收 无（交接件非工单）；写就时 `main` 为 `5807adc`，入仓 SHA 见本条所在提交。
+- **本件证明什么**：一轮工程的**坐标图而非叙述**——三十秒定位（仓在何处、产品是什么、卡在哪）、主线阶梯已合入七票与「尚未成立」四条诚实边界、可直接消费的四份冻结定本（UI-1 的 ADR-022 六-D／write 面的 PREFLIGHT+RECON／HEADLESS 的 SPEC §九与两枚移交件／OpenWork 对标口径，均标「不要重研」）、两道闸的性质（`PI-HOST-CONCURRENCY-1` 须先 ADR 且挡 UI-1；六格总验须真 DeepSeek key，SPEC §九:744 白纸黑字「无 key 只能记 external-validated blocked」）、三条跨轮判例（验收刀须换层／闭口按族／改在册来源须同批重封哈希）、结转待追认六项。
+- **归档类别**：事件闭合（该轮工程收官）。**注意**：交接件写就即冻结，其中「现在卡在哪」随下一轮推进而失效——它是**入口**不是真值。
+- **现行真值继承者**：→ `docs/status/current.md`（唯一能力真源）＋ `docs/architecture/implementation-readiness.md`（唯一开工图）。本件所述任一能力状态与该二者冲突时，一律以该二者为准。
+- **已知失效点**：件内所有「当前 `main`」「现在卡在」类表述以 2026-08-05 为准；**两道闸一旦解除，§四整节即过时**；§三「不要重研」清单随对应票开工而消费；§六结转项随架构追认逐条销号。用法：新会话读 §一§三§四即可起手，§二§五作背景，不必回读本轮过程。
