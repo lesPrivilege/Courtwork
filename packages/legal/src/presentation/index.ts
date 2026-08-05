@@ -32,7 +32,7 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
         ],
         rowBudget: 4,
       },
-      uiTemplateId: 'timeline-panel',
+      uiTemplateId: 'courtwork.timeline.v1',
     },
     {
       typeId: 'legal.PartyGraph',
@@ -144,7 +144,7 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
 
 export const LEGAL_RENDERERS: VerticalPackageDescriptorV1['renderers'] = [
     { uiTemplateId: 'case-intake-panel', kind: 'workspace', title: '卷宗阅卷' },
-    { uiTemplateId: 'timeline-panel', kind: 'workspace', title: '事件时间线' },
+    { uiTemplateId: 'courtwork.timeline.v1', kind: 'workspace', title: '事件时间线' },
     { uiTemplateId: 'party-graph-panel', kind: 'workspace', title: '当事人图谱' },
     { uiTemplateId: 'risk-review-panel', kind: 'workspace', title: '风险审阅' },
     { uiTemplateId: 'courtwork.review-matrix.v1', kind: 'workspace', title: '矩阵审阅' },

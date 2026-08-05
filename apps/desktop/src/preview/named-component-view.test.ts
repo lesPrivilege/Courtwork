@@ -34,6 +34,24 @@ describe('具名工作面的 component blueprint 分发', () => {
     expect(typeof resolved.component).toBe('function');
   });
 
+  it('事件时间线同样由 descriptor 解析出可执行 renderer（GENERIC-PACK-1 余三第一枚）', () => {
+    const runtime = createDesktopPackageRuntime();
+    const timeline: unknown = { caseId: 'demo-case', events: [] };
+
+    const resolved = resolveNamedComponentView(
+      'timeline',
+      (artifactType) => artifactType === 'legal.Timeline' ? timeline : undefined,
+      runtime.packageRegistries,
+      runtime.hostRenderers,
+    );
+
+    expect(resolved.status).toBe('ready');
+    if (resolved.status !== 'ready') throw new Error('unreachable');
+    expect(resolved.title).toBe('事件时间线');
+    expect(resolved.payload).toBe(timeline);
+    expect(typeof resolved.component).toBe('function');
+  });
+
   it('产出缺席时给出 descriptor 标题派生的显式空态——标题不在宿主侧另抄一份', () => {
     const runtime = createDesktopPackageRuntime();
 
@@ -44,7 +62,7 @@ describe('具名工作面的 component blueprint 分发', () => {
   it('仍是 route 的工作面不被具名分发接管', () => {
     const runtime = createDesktopPackageRuntime();
 
-    for (const view of ['timeline', 'graph', 'revision', 'draft'] as const) {
+    for (const view of ['graph', 'revision', 'draft'] as const) {
       expect(resolveNamedComponentView(view, matrixOnly, runtime.packageRegistries, runtime.hostRenderers))
         .toEqual({ status: 'unregistered' });
     }

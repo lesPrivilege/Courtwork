@@ -1,5 +1,6 @@
 import { ArtifactTableRenderer } from './ArtifactTableRenderer.js';
 import { ReviewMatrixRenderer } from './ReviewMatrixRenderer.js';
+import { TimelineRenderer } from './TimelineRenderer.js';
 import {
   createHostRendererRegistry,
   type HostRendererRegistry,
@@ -12,7 +13,16 @@ import {
 export function createCourtworkHostRendererRegistry(): HostRendererRegistry {
   return createHostRendererRegistry([
     { uiTemplateId: 'case-intake-panel', kind: 'passive' },
-    { uiTemplateId: 'timeline-panel', kind: 'route', view: 'timeline', moduleTarget: 'timeline', autoOpen: true },
+    {
+      // GENERIC-PACK-1 余三 panel 第一枚：事件时间线由 route 迁为版本化 component blueprint。
+      // 同矩阵先例，旧 id `timeline-panel` 不留 alias——artifact 事件只持 artifactType 与 payload。
+      uiTemplateId: 'courtwork.timeline.v1',
+      kind: 'component',
+      view: 'timeline',
+      component: TimelineRenderer,
+      moduleTarget: 'timeline',
+      autoOpen: true,
+    },
     { uiTemplateId: 'party-graph-panel', kind: 'route', view: 'graph', moduleTarget: 'graph', autoOpen: true },
     { uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', moduleTarget: 'revision', autoOpen: true },
     {

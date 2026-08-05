@@ -30,7 +30,11 @@ describe('VPKG-LAYOUT-1 Legal content golden', () => {
     // `schemaVersion` 不升（ADR-012 决定一「payload 契约未变时不得误升」）。
     // ADMISSION-ENUM-1 重铸（仅 descriptor 一枚）：legal.RiskList 词表补 `enumLabels.reason`
     // （受控外溢，见 legal SPEC 状态更新）——promptSegments 未动，prompt blob hash 不漂。
-    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('533f9d40294e767f348b17dca98aaf404fc4fa42ecc77bf02492ea4101b5f146');
+    // GENERIC-PACK-1 重铸（仅 descriptor 一枚）：`legal.Timeline` 与 renderer 声明的 uiTemplateId
+    // 由 `timeline-panel` 改为版本化 `courtwork.timeline.v1`（余三 panel 第一枚，同矩阵先例）。
+    // 同属**呈现绑定**变更：payload 契约与 promptSegments 未动，故 prompt blob hash 不漂、
+    // `schemaVersion` 不升。
+    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('6913f050bf4d611b82ea61fd388995e3aa7887e7fe2e7234926c00a6fd0aad81');
     expect(sha256(promptBlob())).toBe('1f76dbd2b2a7dad74fa1d13f6a0c7fd537751a96720356ea76886f7c3979e134');
   });
 

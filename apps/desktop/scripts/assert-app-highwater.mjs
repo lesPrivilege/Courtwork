@@ -73,7 +73,13 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // `workbench/use-viewport-queries.ts`（两枚断点查询）。两处外提行为一字未改；
 // 随外提失去消费者的四枚 import（`formatUsageMetering`／`TurnProjection`／`processTraceFromTurn`／
 // `ChatMarkdown`）同批删除，再收紧 3。
-const HIGH_WATER_LINES = 2475;
+// GENERIC-PACK-1 · 余三 panel 第一枚（timeline）：2475 → 2460。外提物两件——① 样板案 chat 侧
+// artifact 卡的取数与文案去 `demo/demo-artifact-card.ts` 的 `demoArtifactCardCopy`（它只属显式
+// demo 回放，却让壳长期持有三个垂类 artifact 局部）；② 时间线渲染去
+// `preview/TimelineRenderer.tsx`（blueprint 链）。App 侧净增 3 行（宿主渲染上下文 memo 与
+// Provider 包裹），`view === 'timeline'` 分支、`TimelinePanel` 直连与 `timeline`/`Timeline`
+// 两处垂类持有同批退役。
+const HIGH_WATER_LINES = 2460;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

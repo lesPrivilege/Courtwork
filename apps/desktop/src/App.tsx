@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { SchemaParts } from './icons/schema-parts';
-import type { PartyGraph, RiskList, Timeline } from '@courtwork/legal';
+import type { PartyGraph, RiskList } from '@courtwork/legal';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
   credentialClient,
@@ -27,6 +27,7 @@ import { projectRiskListGate } from './work/legal-s3-binding';
 import { useWorkRunLifecycle } from './work/work-session-lifecycle';
 import { selectPrimaryContractCandidates } from './work/primary-contract';
 import { createArtifactReader } from './work/session-artifacts';
+import { demoArtifactCardCopy } from './demo/demo-artifact-card';
 import type { LegalS3WorkCommand } from './work/work-command';
 import { projectPersistableCases, readCaseList, writeCaseList } from './case/case-store';
 import type { SessionEvent } from '@courtwork/core';
@@ -87,6 +88,7 @@ import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRe
 import { ArtifactHostView, resolveHostArtifact } from './preview/ArtifactHostView';
 import { UnsupportedArtifactView } from './preview/ArtifactTableRenderer';
 import { resolveNamedComponentView } from './preview/named-component-view';
+import { WorkbenchRenderProvider } from './preview/workbench-render-context';
 import type { HostRendererRegistry } from './preview/HostRendererRegistry';
 import {
   modelDisplayName,
@@ -113,7 +115,6 @@ import {
   INITIAL_DRAFT,
   RevisionPanel,
   S3LauncherPanel,
-  TimelinePanel,
   projectReviewItemStates,
   type DraftDocument,
 } from './workbench/Panels';
@@ -999,7 +1000,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // fixture fallback 只属于显式 demo ref；非 demo 分支不会询问 fixture adapter。
   const artifactPayload = createArtifactReader(session.artifacts, fixtureRef, workFixture);
   const riskList = artifactPayload('legal.RiskList') as RiskList | undefined;
-  const timeline = artifactPayload('legal.Timeline') as Timeline | undefined;
   const graph = artifactPayload('legal.PartyGraph') as PartyGraph | undefined;
   // 通用「结构化产出」页签只收落在该页签上的 component blueprint；具名工作面（矩阵审阅）
   // 已由自己的 view 承载，不在此重复出现。
@@ -1011,24 +1011,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const artifactViewEntry = artifactViewEntries.find(([artifactType]) => artifactType === activeArtifactType)
     ?? artifactViewEntries.at(-1);
   const hasArtifactView = artifactViewEntry !== undefined;
-  // LEGAL-DEMO-RUN ③：chat 侧 artifact 卡取数改为投影派生——事件里是多少就呈现多少，
-  // 硬编码计数退役；citationStats 仅事件携带（无 demo 兜底，观测字段不冒充）。
-  const demoArtifactCard =
-    flow === 'S3'
-      ? {
-          title: `发现 ${riskList?.risks.length ?? 0} 项合同风险`,
-          summary: `${riskList?.risks.length ?? 0} 项 · 打开修订预览${
-            session.citationStats
-              ? ` · 引语公证 ${session.citationStats.resolvedAfterRetry}/${session.citationStats.claims}`
-              : ''
-          }`,
-        }
-      : {
-          title: '时间线与关系图谱已生成',
-          summary: `${timeline?.events.length ?? 0} 个事件 · ${graph?.nodes.length ?? 0} 个主体 · 打开时间线`,
-        };
+  const demoArtifactCard = demoArtifactCardCopy(flow, artifactPayload, session.citationStats);
   const selectedRisk = riskList?.risks.find((risk) => risk.id === selectedRiskId) ?? riskList?.risks[0];
   const gradeByKey = useMemo(() => new Map(session.evidenceGrades.map((item) => [item.key, item.grade])), [session.evidenceGrades]);
+  /** 具名工作面 renderer 的宿主渲染上下文；载荷领域无关（core 会话投影字段），壳不因此认识垂类。 */
+  const workbenchRenderContext = useMemo(() => ({ evidenceGrades: session.evidenceGrades }), [session.evidenceGrades]);
   const selectedGate = selectedRisk ? gate?.items.find((item) => item.itemRef === selectedRisk.id) : undefined;
   const selectedGrades = selectedGate?.evidenceKeys.map((key) => gradeByKey.get(key)).filter((value): value is 'A' | 'B' | 'C' => Boolean(value)) ?? [];
   // 「含 C 级依据」不可从 gate 的 reason 派生：`high_risk` 对 `unverified` 优先，照派生会让
@@ -1625,10 +1612,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       }
       // riskList 已产出（revision）或 artifact 面：落到下方与 demo 共享的分支。
     }
-    if (view === 'timeline') {
-      if (!timeline) return emptyWorkbench('时间线尚未生成');
-      return <TimelinePanel timeline={timeline} grade={session.evidenceGrades[0]?.grade} />;
-    }
     if (view === 'graph') {
       if (!graph) return emptyWorkbench('关系图谱尚未生成');
       return <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
@@ -1642,7 +1625,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     if (namedView.status === 'unsupported') return <UnsupportedArtifactView title={namedView.title} />;
     if (namedView.status === 'ready') {
       const NamedViewRenderer = namedView.component;
-      return <NamedViewRenderer descriptor={namedView.descriptor} payload={namedView.payload} />;
+      return <WorkbenchRenderProvider value={workbenchRenderContext}>
+        <NamedViewRenderer descriptor={namedView.descriptor} payload={namedView.payload} />
+      </WorkbenchRenderProvider>;
     }
     if (view === 'draft') {
       if (workDraftMode) {

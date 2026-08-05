@@ -10,8 +10,9 @@ describe('HostRendererRegistry（宿主以 uiTemplateId 绑定可执行工作面
     const registry = createCourtworkHostRendererRegistry();
 
     expect(registry.get('case-intake-panel')).toEqual({ uiTemplateId: 'case-intake-panel', kind: 'passive' });
-    expect(registry.get('timeline-panel')).toEqual({
-      uiTemplateId: 'timeline-panel', kind: 'route', view: 'timeline', moduleTarget: 'timeline', autoOpen: true,
+    expect(registry.get('timeline-panel')).toBeUndefined();
+    expect(registry.get('courtwork.timeline.v1')).toMatchObject({
+      kind: 'component', view: 'timeline', moduleTarget: 'timeline', autoOpen: true,
     });
     expect(registry.get('party-graph-panel')).toEqual({
       uiTemplateId: 'party-graph-panel', kind: 'route', view: 'graph', moduleTarget: 'graph', autoOpen: true,
