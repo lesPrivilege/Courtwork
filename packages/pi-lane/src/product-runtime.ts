@@ -555,6 +555,13 @@ export function createProductRuntime(options: ProductRuntimeOptions): ProductRun
        */
       const dualRootEnvFor = (rawToolCallId: string, sessionId: SafeToken, requestId: SafeToken) => {
         return createDualRootEnv({
+          /**
+           * 裸相对路径落 `/workspace`（`PI-DUALROOT-CONTRACT-1`；ADR-022 六-C 2026-08-05 修订）。
+           * 与写面 `resolveWorkspaceLogicalPath` 的无前缀口径对称，故「write 之后照同一字符串
+           * 回读」必命中同一文件；读案件材料一律显式 `/case/` 前缀。roots 次序仍是 `/case` 在前
+           * ——它只决定 glob/grep 不给起点时先走哪棵树，与寻址语义无关。
+           */
+          defaultLogicalRoot: WORKSPACE_LOGICAL_ROOT,
           roots: [
             { logicalRoot: CASE_LOGICAL_ROOT, env: caseEnv },
             {

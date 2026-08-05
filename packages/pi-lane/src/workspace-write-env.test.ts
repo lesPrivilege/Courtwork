@@ -29,6 +29,7 @@ import {
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
+  DUAL_ROOT_ADDRESSING_NOTE,
   bindWorkspaceWriteTool,
   createWorkspaceWriteEnv,
   gateWorkspaceWrite,
@@ -206,13 +207,16 @@ describe('上游 characterization：createWriteTool 的现状', () => {
     expect(tool.parameters).toBe(createWriteTool().parameters);
   });
 
-  it('binder 保留上游 name/label/description，且上游自身不声明 executionMode', () => {
+  it('binder 保留上游 name/label 与 description 原文，且上游自身不声明 executionMode', () => {
     const upstream = createWriteTool();
     expect(upstream.executionMode).toBeUndefined();
     const tool = bind(recordingPort(), seededRegistry());
     expect(tool.name).toBe(upstream.name);
     expect(tool.label).toBe(upstream.label);
-    expect(tool.description).toBe(upstream.description);
+    // `PI-DUALROOT-CONTRACT-1`：description 是**追加**不是改写——上游原文逐字在前，
+    // 双根寻址口径缀于其后（上游的 `relative or absolute` 只描述单根世界）。
+    expect(tool.description.startsWith(upstream.description)).toBe(true);
+    expect(tool.description).toBe(`${upstream.description}\n${DUAL_ROOT_ADDRESSING_NOTE}`);
     // 上游描述自称「自动创建父目录」——那只是 `ExecutionEnv.writeFile` 的契约，
     // 上游代码本身零 mkdir；父目录由 host 兑现。
     expect(upstream.description).toContain('Automatically creates parent directories');

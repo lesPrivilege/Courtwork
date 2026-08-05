@@ -3973,3 +3973,66 @@ SHA 复原、探针文件已删、`git status` 归零）；不 merge、不 push�
 结转 [需架构拍板]（本单未碰）：②游标二元性、④`cost_usd` Disabled 臂裸 inf、
 `PI-HOST-CONCURRENCY-1` 并发/中断模型待 ADR 修订。
 worktree `.claude/worktrees/accept-unknown-tool` 保留至收编。
+
+## PI-DUALROOT-CONTRACT-1 独立验收（2026-08-05）
+
+验收会话：Codex 独立验收会话；目标 `4e8eb99`（`claude/pi-dualroot-contract-1`），独立 clean
+snapshot `/private/tmp/courtwork-dualroot-accept.WWmK35`；主工作树未触碰。
+
+### 判定
+
+**PASS（具名：Codex 独立验收会话）。** 实现未修；本节是验收回执。
+
+### 票面退出证据
+
+- `createDualRootEnv` 的裸相对路由由必填 `defaultLogicalRoot` 决定；未知默认根装配即拒绝，交换
+  `roots` 次序不改变寻址。唯一生产装配点 `product-runtime.ts` 明确写死 `/workspace`。
+- `read`／`glob`／`grep`／`write` 裸相对路径均落 `/workspace`；write 后以同一裸串 read-back
+  命中同一文件；显式 `/case/...` 的 read、glob、grep 均照常可达。
+- 四件工具 description 均追加同一枚 `DUAL_ROOT_ADDRESSING_NOTE`；上游 read/write 原文逐字在前，
+  glob/grep 的 `path` 参数说明已是双根口径。静态断言和行为断言均通过。
+
+### 七枚变异
+
+M1（默认根退回 `roots[0]`）、M2（read description 撤回上游原文追加）、M3（glob/grep 撤口径）、
+M4（write description 撤回上游原文追加）、M5（未知默认根不拒绝）、M6（path 说明退回单根）、
+M7（route 去前缀匹配）均在本验收 clone 实施后观察到目标断言变红，并逐枚还原复绿。M1 定向族
+复现 4 枚裸相对／回读红证；M7 定向复现 2 枚显式 `/case` 红证；其余五枚各自命中对应静态或装配
+断言。变异没有留在目标树。
+
+### 既有绿测与身份复核
+
+- 十处 product-runtime 测试仅把案件读取路径显式改为 `/case/...`，断言未改；两处 characterization
+  由「description 原文相等」改为「上游原文逐字在前＋口径追加」的 exact equality，parameters
+  同一性断言保留。
+- `write-session-wire-v1.jsonl` 的两枚 `inputTokens` 从 `516/548` 重烤为 `636/667`；Rust 侧仅按
+  wire usage 编解码／校验，未对这两个输入 token 值作断言。
+- 独立从当前 source 连编两次 sealed CJS：均为 `547,893 B`、SHA-256
+  `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`、`reproducible: true`。
+  `route-manifest.json` 与 Rust 编译期真值表逐值一致。
+
+### 四项偏离
+
+1. binder description 条款按 main `90912f4` 的架构订正判定：保留上游原文，仅在其后追加寻址口径，
+   **接受**，不属违约。
+2. 上游 read/write `path` 参数说明维持 `(relative or absolute)`；parameters 同一性约束下，双根
+   规则已由 description 足额承载，且 SPEC 五-9 已登记，**接受**。
+3. `md-work-v1` 未改；独立核对与裸相对 `/workspace`、显式 `/case` 新口径无冲突，**接受**。
+4. `logicalRoots` 未收窄；生产装配固定双根，其余仅为既有特征化测试形态，未引入新风险，**接受**。
+
+### 门禁
+
+| 门 | 独立实跑读数 |
+|---|---|
+| `pnpm -r build` | 通过（Vite 仅既有 chunk-size warning） |
+| `pnpm lint` | 通过 |
+| `pnpm test` | **1938 passed / 170 files，EXIT 0** |
+| pi-lane | 全仓结果包含本票 **553 passed / 17 files**；一次独立定向复跑确认既有 `PI-TEST-WAITER-1` 的 20ms 墙钟抖动，非本票回归 |
+| `build:headless-sidecar` | `555,314 B` / `061248fa…`，reproducible |
+| `cargo test` | **237 passed / 0 failed / 1 ignored，EXIT 0** |
+
+Playwright 未跑：票面门清单未列、本票零 desktop UI 面改动，且同期已有 Rust 会话按排程律占用全仓
+Playwright 配额。`site:guard` 未跑：无站面改动。两项均按票面豁免登记，不影响本票放行。
+
+不更新 `docs/status/current.md` 或 implementation-readiness，不开下游票；验收 clone 中除本节外无实现
+改动。

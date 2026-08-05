@@ -28,8 +28,25 @@ import {
   type WriteToolInput,
 } from '@earendil-works/pi-agent-core';
 
+import { CASE_LOGICAL_ROOT } from './product-case-env.js';
+
 /** 模型可见的可写逻辑根。wire 上的 `logicalPath` 不带这个前缀（ADR-022 六-B.2）。 */
 export const WORKSPACE_LOGICAL_ROOT = '/workspace';
+
+/**
+ * 四件工具共用的**双根寻址口径**（`PI-DUALROOT-CONTRACT-1`；ADR-022 六-C 2026-08-05 修订）。
+ *
+ * 工具契约是模型**唯一能读到**的寻址规则——system prompt 不是契约，也替不了它。故这句话必须
+ * 逐件挂到 `read`／`glob`／`grep`／`write` 的 description 上，且必须是**同一枚常量**：四处各写
+ * 各的文案就是四处可以漂移的真源，正是本票要消灭的那种形状。
+ *
+ * 它住在这里，是因为默认根正是本模块拥有的 {@link WORKSPACE_LOGICAL_ROOT}：改根名与改口径
+ * 文案落在同一屏内，不必跨模块对表。
+ */
+export const DUAL_ROOT_ADDRESSING_NOTE =
+  `路径有两个逻辑根：${CASE_LOGICAL_ROOT} 是只读的案件材料，${WORKSPACE_LOGICAL_ROOT} 是可写的工作稿区。` +
+  `不带前缀的相对路径一律按 ${WORKSPACE_LOGICAL_ROOT} 解析；` +
+  `要读案件材料必须显式写 ${CASE_LOGICAL_ROOT}/ 前缀。`;
 export const MAX_WORKSPACE_PATH_BYTES = 1024;
 export const MAX_WORKSPACE_SEGMENT_BYTES = 255;
 export const MAX_WORKSPACE_CONTENT_BYTES = 131_072;
@@ -465,10 +482,14 @@ function gateRawWriteArguments(args: unknown): WriteToolInput {
 }
 
 /**
- * 保留上游 `name/label/description/parameters`（`parameters` 是同一对象引用——
- * 上游 validator 缓存按 schema 身份取，换对象即换一份编译产物），
- * 只把五参 `execute` 适配成 `Agent` 的四参，并原样 delegate 恰一次。
- * 不复制 schema，不复制 execute，不用共享可变的 current-operation。
+ * 保留上游 `name/label/parameters`（`parameters` 是同一对象引用——上游 validator 缓存按 schema
+ * 身份取，换对象即换一份编译产物），只把五参 `execute` 适配成 `Agent` 的四参，并原样 delegate
+ * 恰一次。不复制 schema，不复制 execute，不用共享可变的 current-operation。
+ *
+ * `description` 是唯一例外，且是**追加**不是改写（`PI-DUALROOT-CONTRACT-1`）：上游原文逐字在前，
+ * {@link DUAL_ROOT_ADDRESSING_NOTE} 缀于其后。上游那句 `(relative or absolute)` 只描述单根世界，
+ * 模型据它无从知道裸相对路径归哪个根；而 `path` 参数说明住在上游 schema 里，改它就要换 schema
+ * 对象、破掉上面那条同一性——故口径落在 description 上，参数说明维持上游原文（登记为已知边界）。
  */
 export function bindWorkspaceWriteTool(options: BindWorkspaceWriteToolOptions): WorkspaceWriteTool {
   const upstream = createWriteTool();
@@ -476,7 +497,7 @@ export function bindWorkspaceWriteTool(options: BindWorkspaceWriteToolOptions): 
   return {
     name: upstream.name,
     label: upstream.label,
-    description: upstream.description,
+    description: `${upstream.description}\n${DUAL_ROOT_ADDRESSING_NOTE}`,
     parameters: upstream.parameters,
     executionMode: 'sequential',
     prepareArguments: gateRawWriteArguments,

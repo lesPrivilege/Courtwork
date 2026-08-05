@@ -479,7 +479,7 @@ describe('真实 read loop（scripted stream，零网络）', () => {
   it('起点落在 /case 时读面一枚 operation 都不申请，host_request 恰零', async () => {
     faux.setResponses([
       fauxAssistantMessage([fauxToolCall('glob', { pattern: '**/*.md', path: '/case' })], { stopReason: 'toolUse' }),
-      fauxAssistantMessage([fauxToolCall('read', { path: '备忘.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('read', { path: '/case/备忘.md' })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxText('读完了。')]),
     ]);
     const harness = createHarness(hostWriteOk);
@@ -556,7 +556,7 @@ describe('真实 read loop（scripted stream，零网络）', () => {
 
   it('cancel 后终态是 canceled，且 cancel 之后不再出 delta', async () => {
     faux.setResponses([
-      fauxAssistantMessage([fauxToolCall('read', { path: '备忘.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('read', { path: '/case/备忘.md' })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxText('继续')]),
     ]);
     const harness = createHarness();
@@ -744,8 +744,8 @@ describe('toolExecution:"sequential" 是显式固定值', () => {
     faux.setResponses([
       fauxAssistantMessage(
         [
-          fauxToolCall('read', { path: '备忘.md' }, { id: 'raw-a' }),
-          fauxToolCall('read', { path: '证人.md' }, { id: 'raw-b' }),
+          fauxToolCall('read', { path: '/case/备忘.md' }, { id: 'raw-a' }),
+          fauxToolCall('read', { path: '/case/证人.md' }, { id: 'raw-b' }),
         ],
         { stopReason: 'toolUse' },
       ),
@@ -794,8 +794,8 @@ describe('toolExecution:"sequential" 是显式固定值', () => {
     const script = () => [
       fauxAssistantMessage(
         [
-          fauxToolCall('read', { path: '备忘.md' }, { id: 'raw-a' }),
-          fauxToolCall('read', { path: '证人.md' }, { id: 'raw-b' }),
+          fauxToolCall('read', { path: '/case/备忘.md' }, { id: 'raw-a' }),
+          fauxToolCall('read', { path: '/case/证人.md' }, { id: 'raw-b' }),
         ],
         { stopReason: 'toolUse' },
       ),
@@ -853,7 +853,7 @@ describe('每 leg 恰一枚 Agent，同 leg 保留 messages', () => {
 describe('预算跨 prompt 累计（产品口径，没有 per-prompt reset）', () => {
   it('同 leg 第二个 prompt 从上一轮的计数继续，越限即 budget_stopped', async () => {
     faux.setResponses([
-      fauxAssistantMessage([fauxToolCall('read', { path: '备忘.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('read', { path: '/case/备忘.md' })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxText('第一答')]),
       fauxAssistantMessage([fauxText('第二答')]),
     ]);
@@ -893,7 +893,7 @@ describe('预算跨 prompt 累计（产品口径，没有 per-prompt reset）', 
   it('resume 的 prior 三值真被采信：上一 leg 已用满即首个回合就停', async () => {
     faux.setResponses(
       Array.from({ length: 6 }, () =>
-        fauxAssistantMessage([fauxToolCall('read', { path: '备忘.md' })], { stopReason: 'toolUse' }),
+        fauxAssistantMessage([fauxToolCall('read', { path: '/case/备忘.md' })], { stopReason: 'toolUse' }),
       ),
     );
     const harness = createHarness();
@@ -976,7 +976,7 @@ describe('provider 失败终态如实（N2）', () => {
 
   it('对照：stop 与 toolUse 收尾仍是 completed——上面两条不是恒红', async () => {
     faux.setResponses([
-      fauxAssistantMessage([fauxToolCall('read', { path: '备忘.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('read', { path: '/case/备忘.md' })], { stopReason: 'toolUse' }),
       fauxAssistantMessage([fauxText('读完了。')], { stopReason: 'stop' }),
     ]);
     const harness = createHarness();
@@ -1035,7 +1035,7 @@ describe('provider 失败终态如实（N2）', () => {
     for (const responses of [
       [fauxAssistantMessage([fauxText('答完了。')], { stopReason: 'stop' })],
       [
-        fauxAssistantMessage([fauxToolCall('read', { path: '备忘.md' })], { stopReason: 'toolUse' }),
+        fauxAssistantMessage([fauxToolCall('read', { path: '/case/备忘.md' })], { stopReason: 'toolUse' }),
         fauxAssistantMessage([fauxText('读完了。')], { stopReason: 'stop' }),
       ],
     ]) {
