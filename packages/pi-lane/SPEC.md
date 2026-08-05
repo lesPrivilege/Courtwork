@@ -164,6 +164,18 @@ durable-before-effect 总验均已逐票兑现。Node 直写与 bash 没有因�
    裸相对路径归哪个根。双根口径因此落在这两件的 `description` 上（**追加**，上游原文逐字在前），
    glob/grep 的 `path` 说明则同批改到位（自备 schema，能改）。要连参数说明一起改，就得 fork 上游
    schema 并放弃那条同一性——那是契约级取舍，本票不自裁。
+10. **宿主并发与中断（`PI-HOST-CONCURRENCY-1`，2026-08-05 落地）**：Rust 宿主侧每条 logical
+   session 由一条专属线程独占持有，外部只经**进程内命令通道**交谈，运行期闭集恰四枚
+   `prompt | cancel | decision | teardown`（`start` 是构造入口，不在闭集内）。泵的两处等待点
+   （sidecar stdout、授权回执）都以 5ms 有界切片轮转，故「活动 prompt 无总时限」与「可被 Stop
+   唤醒」同时成立；授权等待同样无时限——授权属用户，系统不代拒，但 Stop 与 teardown 能把悬置
+   提案就地以 `authorization_decided(denied, user_denied)` durable 收束，**回执不追溯生效**
+   （提案收束后到达的回执失效丢弃并显式登记，effect 恰零次）。读侧只容忍 leg **尾部**一枚无
+   decision 的 `tool_proposed`（授权等待期 crash 的真形态），中部一律整份 quarantine；恢复不
+   自动重提、不代答。wire 与 journal 十九型闭集零变化。**production 仍不装 decision driver**，
+   无 driver 恒 `policy_denied`——本条只定义「有 driver 时的产品形态」，装配在 `PI-LANE-UI-1`
+   与 headless 验收。细则与偏离回执见
+   [`specs/PI-HOST-CONCURRENCY-1.md`](specs/PI-HOST-CONCURRENCY-1.md)。
 
 ## 六 · dev 入口用法
 
