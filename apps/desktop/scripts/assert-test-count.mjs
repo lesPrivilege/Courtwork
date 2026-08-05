@@ -75,7 +75,13 @@ const count = match ? Number(match[1]) : 0;
 // DEBT-DOSSIER-1 件二：三处件数同源（CaseRail / Working folders / 原件列表）+ demo 与 production
 // 物理分流 + 多案件数分格（共享单一计数即红）+3 → 351。逐案派生本身在 e2e 层不可观测
 // （浏览器桩材料宿主内存态、reload 即清），由 material-count 单测的 casesNeedingMaterialCount 把守。
-const minimum = 351;
+// AGENT-CLAIM-CORRECTION-1 起 floor 观测值为 352（该票只改文案，floor 文件升档随下一张 desktop 票）。
+// PI-LANE-UI-1（本票，即那张 desktop 票）：先把观测值 352 补进 floor，再加本票的通用工作稿面
+// 13 例——未绑文件夹诚实拦阻 / 提案→允许→已写入→索引→只读查看全链 / 拒绝 / 无法确认（不进索引且
+// 核验不补写）/ 未能写入 / 当前 hash 与已确认 hash 不符 / 工作稿已不在 / Stop 收束悬置提案 /
+// 认不出的记录 fail-closed / 起不来时给下一步 / 上一段工作稿只读入口 / 上滚不夺回视口 /
+// 只读查看面 Escape 与零残留——352 + 13 → 365。数字由 `--list` 实跑核。
+const minimum = 365;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

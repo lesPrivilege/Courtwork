@@ -33,9 +33,8 @@ pub(crate) const COMMAND_POLL_SLICE: Duration = Duration::from_millis(5);
 /// 枚举即闭集：闭集外命令在本进程内**构造不出来**，故「闭集外一律拒绝」是结构性的，
 /// 不靠运行期判据。错序才需要运行期判据，见 {@link CommandRejection}。
 ///
-/// **入口根**（dead_code 收窄）：这几枚变体的**构造**点在通道之外（Tauri command 薄壳、
-/// headless 驱动、测试），本 crate 内只解构不构造。
-#[allow(dead_code)]
+/// **构造点在通道之外**：`pi_lane` 的 Tauri command 薄壳、headless 驱动与测试；
+/// 本模块只解构不构造。
 pub(crate) enum HostCommand {
     Prompt { request_id: String, text: String },
     Cancel { reason: CancelReason },
@@ -67,9 +66,7 @@ impl std::fmt::Debug for HostCommand {
 }
 
 /// 逐次授权回执的两支。它**不上 wire**：wire 与 journal 的十九型闭集零变化，
-/// 授权结论仍以既有 `authorization_decided` 落账。
-/// **入口根**（同 {@link HostCommand}）：构造点在通道之外。
-#[allow(dead_code)]
+/// 授权结论仍以既有 `authorization_decided` 落账。构造点同 {@link HostCommand}，在通道之外。
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DecisionVerdict {
     Approve,
@@ -144,9 +141,7 @@ pub(crate) struct CommandSender {
 impl CommandSender {
     /// 投一枚命令，拿回**这一枚**命令的回执信道。宿主线程不回则信道断开——
     /// 调用方读到 `Err` 即「宿主已不在」，不是「命令被静默吃掉」。
-    /// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：这是 pi 宿主对外的**全部**
-    /// 表面，生产消费点由 `PI-LANE-UI-1` 的 Tauri command 薄壳装配。
-    #[allow(dead_code)]
+    /// 这是 pi 宿主对外的**全部**表面；生产消费点是 `pi_lane` 的 Tauri command 薄壳。
     pub(crate) fn send(&self, command: HostCommand) -> Result<Receiver<CommandReply>, HostCommand> {
         let (reply_tx, reply_rx) = mpsc::channel();
         match self.tx.send(Envelope {
@@ -271,9 +266,7 @@ pub(crate) struct PiLoopThread {
 
 impl PiLoopThread {
     /// 接管一枚已构造好的 host（`start` 属构造入口，不在运行期闭集内）。
-    /// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：这是 pi 宿主对外的**全部**
-    /// 表面，生产消费点由 `PI-LANE-UI-1` 的 Tauri command 薄壳装配。
-    #[allow(dead_code)]
+    /// 生产消费点：`pi_lane` 的 `pi_lane_start`（`PI-LANE-UI-1`）。
     pub(crate) fn adopt(host: PiLoopHost) -> PiLoopThread {
         let bus = host.command_bus();
         let sender = bus.sender();
@@ -287,18 +280,14 @@ impl PiLoopThread {
         }
     }
 
-    /// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：这是 pi 宿主对外的**全部**
-    /// 表面，生产消费点由 `PI-LANE-UI-1` 的 Tauri command 薄壳装配。
-    #[allow(dead_code)]
+    /// 生产消费点：`pi_lane` 的四枚命令薄壳（`PI-LANE-UI-1`）。
     pub(crate) fn sender(&self) -> CommandSender {
         self.sender.clone()
     }
 
     /// 收回 host。**经 `teardown` 收摊**，不靠「发端被丢光」——通道的发端有一份住在 host
     /// 自己的 bus 里，永远不会随外部 handle 一起归零，靠断连收摊会死等。
-    /// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：这是 pi 宿主对外的**全部**
-    /// 表面，生产消费点由 `PI-LANE-UI-1` 的 Tauri command 薄壳装配。
-    #[allow(dead_code)]
+    /// 生产消费点：`pi_lane` 的 `pi_lane_teardown`（`PI-LANE-UI-1`）。
     pub(crate) fn join(mut self) -> PiLoopHost {
         let _ = self.sender.send(HostCommand::Teardown);
         let join = self.join.take().expect("只 join 一次");

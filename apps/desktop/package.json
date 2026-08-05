@@ -56,6 +56,7 @@
   },
   "dependencies": {
     "@antv/g6": "^5.1.1",
+    "@assistant-ui/react": "0.15.4",
     "@courtwork/core": "workspace:*",
     "@courtwork/legal": "workspace:*",
     "@courtwork/output": "workspace:*",

@@ -15,6 +15,8 @@ import { createDesktopPackageRuntime } from './composition/package-runtime';
 import { createDemoWorkFixture } from './demo/client';
 import { createDesktopWorkCommand, installWorkTestHooks } from './work/work-runtime';
 import { createTauriWorkStateHost } from './work/tauri-work-state-host';
+import { createTauriPiLane } from './pi/tauri-pi-lane';
+import { createBrowserPiLane, installPiLaneTestHooks } from './pi/browser-pi-lane';
 import { loadSettings } from './settings/settings-store';
 import { installDesktopThemeController } from './settings/theme-controller';
 import './styles.css';
@@ -30,6 +32,9 @@ const materialStore = new MaterialStore(materialHost);
 // WORK-HOST-1：产品运行时注入 Tauri WorkState opaque-blob 宿主（跨重启耐久持久，ADR-010 决定二）；
 // DEV/E2E 留空 → work-runtime 缺省内存参考实现（跨 store 实例存活，供樁宿主 replay/resume 反例，不跨真机重启）。
 const workHost = isTauriHostRuntime() ? createTauriWorkStateHost() : undefined;
+// PI-LANE-UI-1：产品运行时经 pi 线的 Tauri 薄壳；DEV/E2E 用 scripted 樁（ADR-022 六-C harness
+// 注入面）。樁产的是账本形状的记录，不是产品事实——没有真 sidecar、真模型或真落盘。
+const piLane = isTauriHostRuntime() ? createTauriPiLane() : createBrowserPiLane();
 
 if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') {
   installCredentialTestHooks();
@@ -38,6 +43,7 @@ if (import.meta.env.DEV && import.meta.env.VITE_COURTWORK_E2E === '1') {
   installHostAuthTestHooks();
   installMaterialHostTestHooks();
   installWorkTestHooks();
+  installPiLaneTestHooks();
 }
 
 const packageRuntime = createDesktopPackageRuntime();
@@ -74,6 +80,7 @@ createRoot(document.getElementById('root')!).render(
         workCommand={workCommand}
         hostAuth={hostAuth}
         materialStore={materialStore}
+        piLane={piLane}
       />
     </LucideProvider>
   </StrictMode>,

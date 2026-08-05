@@ -5207,3 +5207,80 @@ agent 称谓，不授权公开 build，不扩大其他文案、布局、功能�
 ## DEMO-ANCHOR-1 F2 聚焦复验镜像（2026-08-03）
 
 - **F2：✅ 通过**——生产 `CONTRACT_TEXT_LAYER` 漂移注入使对齐谱 **2 failed / 9 passed**，还原后 **11/11 passed**；真实 resolver 得到 6 focus + 2 blocked/anchor_invalid + 5 invalid，`output-confirm.spec.ts` 串行两枚展品 **2/2 passed**。完整记录见 `packages/demo-data/ACCEPTANCE.md` 的 exact target `4db54a1a796e004dad09edcdc67dab6b009b7a4d` 章节。
+
+## PI-LANE-UI-1 独立验收（2026-08-05，PASS）
+
+**最终判定：PASS，具名验收者 Codex（独立验收会话）。**
+
+对象为 `d64e2ea`（四提交，基线 `main@7a02007`，验收时 `main` tip 为
+`97fd269`）；在独立 clean detached worktree
+`/private/tmp/courtwork-accept-heXKwl/repo` 实跑。未进入共享主仓工作树，未 checkout/stash
+主仓，未更新 `docs/status/current.md`，未修改产品实现。契约按实现 readiness 的
+`PI-LANE-UI-1` 行、main tip 的八项偏离追认、ADR-022 六-A／六-C.1／六-D、ADR-009
+2026-08-05 窄修订、design principles §12、voice、tokens 与本票 SPEC §六／§七／§九判定。
+
+### 独立门禁
+
+| 门 | 实跑证据 | 结论 |
+|---|---|---|
+| root build / lint | `pnpm -r build`、`pnpm lint` | 绿 |
+| root tests | **1938/1938 passed，170 files** | 绿 |
+| desktop unit | **715/715 passed** | 绿 |
+| Rust | **250 passed / 0 failed / 1 ignored**；clippy 7 枚告警与 base 同 | 绿 |
+| site guard | `pnpm site:guard`，fail **0** | 绿 |
+| desktop Playwright | 独占端口 `14729`，`reuseExistingServer:false`，app＋residue：**365/365 passed** | 绿 |
+| product sidecar | `547,893 B`，SHA-256 `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`（与 base 同值） | 一致 |
+| desktop 高水位 | **2475/2475** | 绿 |
+| bundle delta | 构建实测 app chunk `1582.77 kB` / gzip `482.64 kB`；与 SPEC 自报 `+283.5 kB` / `+83.4 kB` 同量级，未发现越过门槛的漂移 | 通过 |
+
+root／Rust 首轮在受限环境中仅出现 loopback listener 与缺少 headless artifact 的环境红；补齐
+headless sidecar 后，按独立端口并提权复跑得到上表完整结果。product sidecar 身份另以
+`build:product-sidecar` 复核，未用 headless artifact 代替。
+
+### 重点反例与变异复核
+
+| 变异 | 独立结果 | 结论 |
+|---|---|---|
+| M3：未知 type 解成空 `agent_event` | `pi-projection.test.ts` **2 failed**；复原 **19/19** | 红证成立 |
+| M4：`effect_uncertain` 进入 succeeded 索引 | **19/19 绿** | 按 SPEC 如实登记为等价、零区分力；未冒充红证 |
+| M4′：`effect_started` 进入 succeeded 索引 | **2 failed**（uncertain／failed 不得入索引）；复原 **19/19** | 红证成立 |
+| M5：授权由 `effect_started` 消 pending | **2 failed**；复原 **19/19** | 红证成立 |
+| M6：未知费用折为 `0` | **2 failed**（canceled／failed 与 unknown cost）；复原 **19/19** | 红证成立 |
+| M7：decode 失败改为跳过坏行 | **1 failed**；复原 **19/19** | 红证成立 |
+
+`foldPiRecords` 逐条复核为唯一投影真源：未知记录 fail-closed；索引只来自
+`effect_succeeded`；uncertain 不补成功；未知费用保持 `null`，不折 `0`。审批卡的本地
+`decidingOperationId` 只承担等待中的按钮禁用／文案，不写决定状态；决定仍只从 journal
+投影的 `call.decision` 读取。临时渲染探针基线通过；注入 `busy → succeeded` 的本地乐观置态
+后该探针 **1 failed**，复原后通过，故未把 transport wait 冒充 journal 决定。
+
+Stop race 在 UI 面以「Stop 收束悬置提案为拒绝」真测通过；Rust 面同时通过 active prompt、
+authorization wait 与 late decision discard 的竞态例。上一段工作稿仅通过只读
+`openWorkspaceMarkdown` 查看，未改变「新 session workspace 初始为空」语义。
+
+### §12、边界与禁止项
+
+无风险状态整屏无红；朱砂只出现在拒绝／失败／无法确认三态。rule-grammar、deslop、色字面量、
+阴影／渐变与动效门均绿，未新增颜色、阴影或渐变；段名为 `Draft`，未混用 agent 称谓或
+“工作稿”语义。禁类 grep 未发现 LocalRuntime、cloud／AI SDK、OpenCode adapter、branch、
+edit、queue、private import 或 `unstable_*` 的生产导入／调用；`@assistant-ui/react` 精确
+pin 为 `0.15.4`。
+
+WKWebView 键盘／读屏／焦点真测按票面移交 `PI-BASE-GUI-ACCEPT`，本票只核对其“不以
+Chromium 绿冒充”的登记诚实，不以缺席判红。深宗 `text-tertiary` AA 债按 token 层
+`[需架构拍板]` 追认登记，不由本票改动。
+
+### Rust 收敛核对
+
+五枚 Tauri command 均为薄壳：`prompt`／`cancel`／`decision`／`teardown` 投递
+`HostCommand` 后即返，结果只由 journal 回流；`start` 仅负责产品装配与起步记录。宿主
+专属线程、Stop 唤醒、production `CommandDecisionDriver` 装配均有实测；显式缺 driver 的
+真实 write host 仍 `policy_denied` fail-closed 且零写入。
+
+`PiLoopHost::record` 是唯一账本流态入口，Tauri 启动历史回放与 record sink 都直接使用
+`pi_loop_journal::encode_record`。单点结构探针基线为两处直接调用；临时注入第三处编码点
+后探针由预期计数 2 变为 3 并退出 1，复原后回到 2，未留下改动。Rust journal 的 canonical
+decode／re-encode byte identity 与 host golden 也在完整 cargo 门内通过。
+
+本节仅放行 `d64e2ea` 的 PI-LANE-UI-1 实现与本节列明范围；不取得 agent 称谓，不扩大到
+WKWebView 真机验收、PI-BASE-HEADLESS-ACCEPT 六格或 current 能力成熟度。
