@@ -225,3 +225,8 @@ prompt 内。判据因此改落**因果**（用户被要求授权之前，提案
   真 key 端到端与 `PI-BASE-HEADLESS-ACCEPT` 六格仍未跑。
 - 结转的既有 [需架构拍板] 四项（`logicalPath` 空串两侧异源、②游标二元性、④`cost_usd` Disabled 臂
   裸 inf、maxUsd retryable 抖动永久关 session）本票未触碰，原样在册。
+
+### 独立验收互引（2026-08-05）
+
+本票独立验收记录见 `apps/desktop/ACCEPTANCE.md` 的「PI-LANE-UI-1 独立验收（2026-08-05，PASS）」
+节；该节反向以本 SPEC §六／§七／§九及本票交验点 `d64e2ea` 为判定坐标。
