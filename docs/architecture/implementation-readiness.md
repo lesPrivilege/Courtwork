@@ -462,6 +462,15 @@ mutation 见 desktop/core `ACCEPTANCE.md`，不再作为开放工单保留。
 
 **同批登记（不立票，待架构裁）**：ADR-022:66-68/:621-622 冻结「journal 与 workspace 二者随 container 整删」，实现只删 `pi-loop/<containerId>`，`pi-workspaces/<containerId>` 无任何删除原语（`PI_WORKSPACES_DIR` 生产码零消费）——否证员以「`delete_container` 当期生产零可达」判非紧急，两说已收敛（2026-08-05 架构裁定）：取「显式登记的未兑现边界」——`delete_container` 当期生产零可达，workspace 删除面待 container 删除真实入产品面时随票补齐（ADR-022 修订记录同日条为正文现行读法，正文行号坐标不动）。另：12 回合为 session 级累计硬顶且触顶即 logical session 终态，而新 session workspace 初始为空、索引只认同 session journal ⇒ 正常用满即失去工作稿入口——已裁（2026-08-05，随 `PI-LANE-UI-1` 派单）：取 GUI 侧方案，同 container 历史 sessionId 持久保留并显式呈现「上一段工作稿（只读）」，经 `openWorkspaceMarkdown` 只读通道；不改「新 session workspace 初始为空」冻结语义，跨 session 晋升仍等垂类修订契约。
 
+## 解耦相（ADR-015 · 2026-08-05 拍板）
+
+加载粒度＝逐 matter 绑定＋全局可用集；`GENERIC-PACK-1` 与等 key 并行开工，`PI-BASE-GUI-ACCEPT` 可跑时其真机总验插队优先；动态装载显式后置（ADR-015 决定三）。
+
+| 工单 | 裁决坐标 | 最小范围 | 依赖层 | `App.tsx` | 退出证据 |
+|---|---|---|---|---|---|
+| `GENERIC-PACK-1` | ADR-015 决定一/三/四（成品律、零泄漏、诚实降级）；ARCH-DEBT 笔一「过手即拆」 | 底面收口三件：①零泄漏静态门——壳与通用件零垂类 import（只经受信组合根注册点），立门以族；其前置组成＝Legal 余三 panel（timeline/graph/revision）迁 `kind:'component'` 全链（循 matrix 先例 `1b8c450`，view 扩形与拒载语义不变），`App.tsx` if 链清零；②卸载态成品——未加载垂类的 matter 全链可用（成品律：起手引导/空态/matter 生命周期/Draft 主面），已有垂类产物 matter 显式「加载 X 包」提示＋通用 preview 退化（ADR-015 决定四）；③matter 中立命名清点——通用件文案与标识符去 Legal 色、「案件」词表着色机制核实；matter↔包绑定契约落 schema（绑定 UI 属 `PACK-INTERACT-1`，勿做）。边界：不做加载按钮 UX、不动 wire/journal、不动场景线语义与 tokens；加载态 Legal 全链零回归 | 无（2026-08-05 排序：与等 key 并行） | **是** | 零泄漏门红绿证（注入壳内垂类 import 即红）；三 panel 迁移逐枚 mutation 复红；卸载态整面评审全链截图（matter 创建→work→产物→回看）；中立命名清点表；加载态八相全量门零回归；撤判据复红 |
+| `PACK-INTERACT-1` | ADR-015 决定三（加载动作与准入 UX） | matter 建立/设置处的加载动作、全局可用集呈现、加载/未加载状态语义与文案；准入失败 fail-closed 显式；加载/卸载往返 | `GENERIC-PACK-1` | 是 | 加载/卸载往返全链；未准入零入口零词表泄漏；撤判据复红 |
+
 ## 需要实测，不再泛化调研
 
 | 议题 | 下一份有效证据 |
