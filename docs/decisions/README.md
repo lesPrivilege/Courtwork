@@ -18,7 +18,7 @@
 | [ADR-012](ADR-012-vertical-package-kit-and-visual-blueprints.md) | 垂类包体例、企业编排与可视化 Blueprint | Accepted |
 | [ADR-013](ADR-013-chat-session-and-memory.md) | Chat 会话生命周期与自动记忆 | Accepted |
 | [ADR-014](ADR-014-preview-tabs-and-package-tiers.md) | Preview 分页宿主与三层包体系 | Accepted |
-| ADR-015 | （预留：包的装载与生命周期，需求到来才立） | — |
+| [ADR-015](ADR-015-optional-vertical-loading.md) | 垂类可选加载与通用 work agent 底面（解耦相总纲） | 草案（待拍板） |
 | [ADR-016](ADR-016-uniform-slot-filling-protocol.md) | 统一填格协议 | Accepted |
 | [ADR-017](ADR-017-controlled-command-execution.md) | 受控命令执行（受控脚本执行） | Accepted（2026-07-26 启封；2026-07-28 pi write 窄修订） |
 | [ADR-018](ADR-018-execution-isolation-and-sandbox.md) | 执行隔离与沙箱边界 | Accepted（2026-07-28：host workspace 例外与沙箱路线纠正） |
