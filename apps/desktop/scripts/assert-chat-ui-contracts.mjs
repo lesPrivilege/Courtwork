@@ -8,6 +8,9 @@ const files = Object.fromEntries(await Promise.all([
   ['client', 'src/provider/chat-client.ts'],
   ['journal', 'src/provider/turn-protocol-client.ts'],
   ['card', 'src/chat/TurnCard.tsx'],
+  // PI-LANE-UI-1「过手即拆」：助手气泡自 App.tsx 外提至此。门的读取面随代码迁移——
+  // 判据一字未改，只是它现在指着这一段真正住的地方。
+  ['assistant', 'src/chat/ChatAssistantMessage.tsx'],
   ['interactionProjection', 'src/preview/projection/interaction.ts'],
   ['legal', 'src/demo/legal-interaction.ts'],
   ['css', 'src/styles.css'],
@@ -44,9 +47,11 @@ const interactionCss = files.css.slice(files.css.indexOf('.interaction-turn-card
 if (!/border:\s*var\(--rule-minor\) solid var\(--border\)/.test(interactionCss)) failures.push('Interaction card must use a hairline border');
 if (!/background:\s*color-mix\(in srgb, var\(--generated\) 94%, var\(--bg-raised\) 6%\)/.test(interactionCss)) failures.push('Interaction card must use the approved subtle generated surface');
 if (/box-shadow|gradient|glow/i.test(interactionCss)) failures.push('Interaction card may not add shadow, gradient or glow');
-requireText('app', 'processTraceFromTurn(turn)', 'Chat reasoning must consume the shared ProcessTrace adapter');
-forbidText('app', 'chat-reasoning-absent', 'Absent reasoning must leave no UI placeholder');
-forbidText('app', '<details className="chat-reasoning"', 'Native chat details may not fork the shared ProcessTrace interaction');
+requireText('assistant', 'processTraceFromTurn(turn)', 'Chat reasoning must consume the shared ProcessTrace adapter');
+for (const surface of ['app', 'assistant']) {
+  forbidText(surface, 'chat-reasoning-absent', 'Absent reasoning must leave no UI placeholder');
+  forbidText(surface, '<details className="chat-reasoning"', 'Native chat details may not fork the shared ProcessTrace interaction');
+}
 requireText('app', 'chatAbortRef.current?.abort()', 'Stop must use the active AbortController');
 
 try {

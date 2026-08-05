@@ -49,8 +49,8 @@ interface CaseRailProps {
   /** F-1.1：未归档「存入」锚定的容器化仪式行 id */
   containerizeUnfiledId: string | null;
   /** RP-2.11 chat|work 二段（段控落左栏顶 Cowork 位） */
-  viewSegment: 'chat' | 'work';
-  onSegmentChange: (next: 'chat' | 'work') => void;
+  viewSegment: 'chat' | 'work' | 'draft';
+  onSegmentChange: (next: 'chat' | 'work' | 'draft') => void;
   onSelectCase: (id: string) => void;
   onToggleExpand: (id: string) => void;
   onNewCase: () => void;
@@ -358,6 +358,16 @@ export function CaseRail({
             onClick={() => onSegmentChange('work')}
           >
             {CHROME_COPY.segment.work}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            data-testid="segment-draft"
+            className={`rail-segment-tab ${viewSegment === 'draft' ? 'is-active' : ''}`}
+            aria-selected={viewSegment === 'draft'}
+            onClick={() => onSegmentChange('draft')}
+          >
+            {CHROME_COPY.segment.draft}
           </button>
         </div>
 

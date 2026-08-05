@@ -169,6 +169,11 @@ const EXEMPT = {
   'kbd|width-only': '控件边（按键拟形底沿）',
   '.quiet-button, .primary-button, .scene-strip button, .batch-bar button, .continuation-button|all': '控件边',
   '.chat-titlebar input|all': '控件边',
+  // PI-LANE-UI-1 · 通用工作稿面：本面零线级消费点（层级走字号/字重/明度/间距与一级底色台阶，
+  // 面头复用已签署的 .panel-head 文武线）。留在册的只有控件边与语义色标线两族。
+  '.pi-button|all': '控件边',
+  '.pi-composer-input|all': '控件边',
+  '.pi-alert|all': '语义色标线（red）',
   '.chat-case-head input|all': '控件边',
   '.scroll-latest-button|all': '控件边（浮标）',
   '.attachment-chip|all': '控件边（chip）',

@@ -2,10 +2,14 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const appRoot = path.resolve(import.meta.dirname, '..');
-const [component, projection, app, css] = await Promise.all([
+// PI-LANE-UI-1「过手即拆」：chat 助手气泡自 App.tsx 外提至 `chat/ChatAssistantMessage.tsx`。
+// 门的读取面随代码迁移——判据一字未改，只是它现在指着这一段真正住的地方；Work 侧那一枚
+// 仍在 App.tsx（`assistant-turn-demo`），故两份都读。
+const [component, projection, app, assistant, css] = await Promise.all([
   readFile(path.join(appRoot, 'src', 'chat', 'ProcessTrace.tsx'), 'utf8'),
   readFile(path.join(appRoot, 'src', 'chat', 'process-trace-projection.ts'), 'utf8'),
   readFile(path.join(appRoot, 'src', 'App.tsx'), 'utf8'),
+  readFile(path.join(appRoot, 'src', 'chat', 'ChatAssistantMessage.tsx'), 'utf8'),
   readFile(path.join(appRoot, 'src', 'styles.css'), 'utf8'),
 ]);
 const failures = [];
@@ -26,7 +30,7 @@ const turnStart = app.indexOf('data-testid="assistant-turn-demo"');
 const turnEnd = app.indexOf('</article>', turnStart);
 const traceInTurn = app.indexOf('<ProcessTrace', turnStart);
 if (turnStart < 0 || traceInTurn < turnStart || traceInTurn > turnEnd) failures.push('Work ProcessTrace must remain inside its owning assistant turn');
-if (!app.includes('processTraceFromTurn(turn)')) failures.push('Chat reasoning must consume the Turn projection adapter');
+if (!assistant.includes('processTraceFromTurn(turn)')) failures.push('Chat reasoning must consume the Turn projection adapter');
 if (!app.includes('const workTraceView = processTraceFromWorkProjection({ ...session, phase: workPhase })')) failures.push('Work progress must consume events and phase from the Work projection adapter');
 if (!app.includes("const workStopped = workTraceView.state === 'failed'") || !app.includes('!workStopped && (session.confirmation || session.completed)')) failures.push('Failed or canceled Work may not render a completed event');
 if (app.includes('<ThinkingStream') || app.includes('<details className="chat-reasoning"')) failures.push('Parallel reasoning/progress implementations are forbidden');

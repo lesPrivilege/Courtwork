@@ -66,7 +66,12 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // 的 `resolveNamedComponentView`。App 侧只余一次 reader 构造与一次解析消费；`view === 'matrix'`
 // 专用分支与 `MatrixPanel` 直连同批退役。同批显式收口末尾落点（`revision` 原为无判等的默认落点，
 // blueprint 缺席即静默渲染成修订预览）净增 4 行。2551 → 2549。
-const HIGH_WATER_LINES = 2549;
+// PI-LANE-UI-1（2026-08-05）：2549 → 2478。本票净增 24 行（pi 端口 prop、pi 会话 hook 一次调用、
+// Draft 面一段 JSX、三段 union 与 Composer 段值收窄），外提 95 行——
+// `ChatAssistantMessage` 与 `ChatMessage` 型去 `chat/ChatAssistantMessage.tsx`（助手气泡与其消息型，
+// 与 App 状态无关，逐字节移出），`useWideSplitAvailable`/`useNarrowRailRequired` 去
+// `workbench/use-viewport-queries.ts`（两枚断点查询）。两处外提行为一字未改。
+const HIGH_WATER_LINES = 2478;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

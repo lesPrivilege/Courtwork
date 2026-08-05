@@ -1891,3 +1891,120 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
   .gallery-header { grid-template-columns: 1fr; }
   .gallery-grid { grid-template-columns: 1fr; }
 }
+
+/* ── PI-LANE-UI-1 · 通用工作稿面（Draft）─────────────────────────────────────
+ * craft：浅宗先行、明快的冷色。气质三件——高对比冷中性（零新色，全部 token 现值）、
+ * 扁平（零阴影、零渐变、零圆角汤）、版本目录学（三位编号、等宽核验体、目录学标题）。
+ *
+ * 朱砂稀缺律（设计凡例 §12）：全面**只有**拒绝／未能写入／无法确认三态带红；
+ * 其余一切——运行中、已写入、工作稿索引、状态条——都是冷中性。无风险即整屏无红。
+ *
+ * 线级（§10）：本面**零新增线消费点**。层级改由 §2 允许的其余四件承担——字号、字重、
+ * 文字明度与间距，外加一级底色台阶（画布 `--bg-app` ↔ 白纸 `--bg-raised`）。
+ * 面头直接复用既有已签署的 `.panel-head`（文武线，P1-M 档在册），不另起一条主界；
+ * 控件边与语义色标线按「答不出即不换」以 1px 具名登记在不换清单。
+ * 这不是省事：新起一条线就要一枚已批提案行与签署账行，而本票的授权面是构图与浅色微调，
+ * 不含线级签署——答不出即不换，正是这条法在本面的落地。
+ */
+.pi-panel { position: relative; min-height: 0; flex: 1; display: flex; flex-direction: column; }
+.pi-panel-gate { justify-content: center; gap: 20px; padding: 0 16px 24px; }
+
+/* 状态条＝面头（复用签署过的 .panel-head 文武线）。这里只排版，不画线。 */
+.pi-status { justify-content: flex-start; gap: 16px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+.pi-status-ident { color: var(--text-tertiary); letter-spacing: .02em; }
+.pi-status-slot { display: inline-flex; align-items: baseline; gap: 6px; }
+.pi-status-slot b { color: var(--text-primary); font-weight: var(--control-weight-regular); }
+.pi-status-note { color: var(--text-tertiary); }
+.pi-status-closed { color: var(--text-secondary); }
+.pi-status-restart { margin-left: auto; }
+
+.pi-mono { font-family: var(--type-dense-mono); font-variant-numeric: tabular-nums; }
+
+.pi-thread { min-height: 0; flex: 1; display: flex; flex-direction: column; }
+.pi-thread-viewport { min-height: 0; flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 16px; overflow: auto; }
+
+.pi-empty { display: grid; gap: 6px; justify-items: start; padding: 24px 0; }
+.pi-panel-gate .pi-empty { justify-items: center; text-align: center; }
+.pi-empty-title { margin: 0; color: var(--text-primary); font-family: var(--font-title); font-size: var(--type-body-size); font-weight: 600; }
+.pi-empty-body { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-body-size); }
+
+/* 问与答的分野只靠明度与缩进：用户话次级、模型正文正级。 */
+.pi-turn { display: grid; gap: 8px; }
+.pi-turn-user { padding-left: 14px; }
+.pi-user-text { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-body-size); white-space: pre-wrap; }
+.pi-turn-assistant .chat-markdown { font-size: var(--type-reading-size); line-height: var(--type-reading-line-height); }
+.pi-running { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+
+/* 工具卡：一级底色台阶（白纸浮于画布），零边框零阴影。 */
+.pi-tool-card { display: grid; gap: 8px; padding: 10px 12px; background: var(--bg-raised); }
+/* 待决定：底色退到竖栏档并加深标题墨色——需要人做决定的那一枚在扫读时先被看见。 */
+.pi-tool-card[data-state="proposed"] { background: var(--bg-surface); }
+.pi-tool-head { display: flex; align-items: baseline; gap: 10px; }
+.pi-tool-name { font-family: var(--type-dense-mono); font-size: var(--type-dense-meta-size); color: var(--text-secondary); }
+.pi-tool-path { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--type-dense-mono); font-size: var(--type-dense-meta-size); color: var(--text-primary); }
+.pi-tool-state { flex: none; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+/* 朱砂只在这三态在场。 */
+.pi-tool-card[data-state="denied"] .pi-tool-state,
+.pi-tool-card[data-state="failed"] .pi-tool-state,
+.pi-tool-card[data-state="uncertain"] .pi-tool-state { color: var(--red-fg); }
+
+.pi-tool-facts { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.pi-tool-facts > div { display: flex; align-items: baseline; gap: 6px; }
+.pi-tool-facts dt { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-tool-facts dd { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+
+.pi-tool-decision { display: grid; gap: 4px; padding-top: 6px; }
+.pi-tool-ask { margin: 0; color: var(--text-primary); font-size: var(--type-dense-body-size); font-weight: var(--control-weight-emphasized); }
+.pi-tool-hint { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-tool-alert { color: var(--red-fg); }
+.pi-tool-actions { display: flex; gap: 8px; padding-top: 4px; }
+
+.pi-button {
+  min-height: var(--control-height-sm); padding: 4px 12px;
+  border: 1px solid var(--border-strong); border-radius: 4px;
+  background: var(--bg-raised); color: var(--text-primary);
+  cursor: pointer; font-size: var(--control-font-sm); font-weight: var(--control-weight-regular);
+}
+.pi-button:hover { background: var(--control-hover); }
+.pi-button:disabled { border-color: var(--border); background: var(--control-hover); color: var(--text-disabled); cursor: not-allowed; }
+.pi-button-primary { border-color: var(--text-primary); background: var(--text-primary); color: var(--text-inverse); font-weight: var(--control-weight-emphasized); }
+.pi-button-primary:hover { background: var(--action-primary-hover); }
+.pi-button-primary:disabled { border-color: var(--border); background: var(--control-hover); color: var(--text-disabled); }
+/* 驳回是朱砂在交互上的唯一落点（§12：朱只随真实风险、不可逆动作与驳回）。 */
+.pi-button-deny { border-color: var(--red-graphic); color: var(--red-fg); }
+.pi-button-deny:hover { background: var(--red-bg); }
+.pi-button-quiet { border-color: transparent; background: transparent; color: var(--text-secondary); justify-self: start; }
+.pi-button-quiet:hover { background: var(--control-hover); }
+
+.pi-alert { margin: 12px 16px 0; padding: 8px 12px; border: 1px solid var(--red-graphic); background: var(--red-bg); color: var(--red-fg); font-size: var(--type-dense-body-size); }
+
+/* 工作稿索引：目录学体例——三位编号、逻辑路径、字节数各占一栏，行距即分隔。 */
+.pi-drafts { flex: none; display: grid; gap: 8px; padding: 12px 16px; background: var(--bg-surface); }
+.pi-drafts-title { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); font-weight: var(--control-weight-regular); letter-spacing: .04em; }
+.pi-drafts-empty { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-drafts-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.pi-draft-row { display: flex; align-items: baseline; gap: 10px; }
+.pi-draft-index { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-draft-open { flex: 1; min-width: 0; padding: 0; border: 0; background: transparent; color: var(--blue-fg); cursor: pointer; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--type-dense-mono); font-size: var(--type-dense-body-size); }
+.pi-draft-open:hover { text-decoration: underline; }
+.pi-draft-bytes { flex: none; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-drafts-prior { display: grid; gap: 8px; padding-top: 10px; }
+
+.pi-composer { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 12px 16px; background: var(--bg-raised); }
+.pi-composer-input { flex: 1; min-height: 56px; max-height: 180px; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); color: var(--text-primary); resize: none; font: var(--type-body-size)/1.6 var(--font-ui); }
+.pi-composer-input:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 1px; }
+
+/* 只读查看面：面内右侧片，不进 portal（残留门按 DOM 层直接可验）。 */
+.pi-viewer {
+  position: absolute; z-index: 6; inset: 0 0 0 auto; width: min(520px, 100%);
+  display: flex; flex-direction: column; gap: 10px; padding: 14px 16px;
+  background: var(--bg-raised); overflow: auto;
+}
+.pi-viewer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.pi-viewer-ident { display: grid; gap: 2px; min-width: 0; }
+.pi-viewer-path { font-family: var(--type-dense-mono); font-size: var(--type-dense-body-size); color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pi-viewer-note { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-viewer-flag { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
+.pi-viewer-alert { color: var(--red-fg); }
+.pi-viewer-meta { margin: 0 0 8px; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-viewer-body { min-height: 0; }

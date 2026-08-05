@@ -64,7 +64,12 @@ import { ReaderPane } from './system/ReaderPane';
 import { CHROME_COPY } from './chrome/copy';
 import { WindowChrome } from './chrome/WindowChrome';
 import { InteractionTurnCard, ToolCallRow, TurnCard, interactionViewFromReplay } from './chat/TurnCard';
+import { ChatAssistantMessage, type ChatMessage } from './chat/ChatAssistantMessage';
 import { CollapsibleMessage } from './chat/CollapsibleMessage';
+import { useNarrowRailRequired, useWideSplitAvailable } from './workbench/use-viewport-queries';
+import { PiLanePanel } from './pi/PiLanePanel';
+import type { PiLanePort } from './pi/pi-lane-port';
+import { usePiLaneSession } from './pi/use-pi-lane';
 import { formatUsageMetering } from './provider/usage-metering';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
@@ -163,25 +168,6 @@ function demoReaderDoc(route: LegalDemoSourceRoute): MaterialReaderDoc | null {
   };
 }
 
-type ChatMessage =
-  | {
-      role: 'user';
-      /** 展示气泡文本（用户原文，可空）；附件与粘贴块另由 chip / PasteBlock 呈现。 */
-      text: string;
-      /** 送入模型的正文（text + 就绪附件 readingMarkdown + 粘贴块，逐字）；亦作多轮 history 的用户内容。 */
-      content: string;
-      files: string[];
-      pasteBlocks?: string[];
-      createdAt: number;
-    }
-  | {
-      role: 'assistant';
-      text: string;
-      files: [];
-      createdAt: number;
-      turn: TurnProjection;
-    };
-
 // R1：固定名只属样板案；production 产物名版本化，由 coordinator 从完整 replay 铸出（详见 SPEC）。
 const DEMO_CONTRACT_OUTPUT_FILE = '合同审查报告.docx';
 /** 样板案主合同的展示名（demo 原件；production 一律从冻结材料取真实文件名）。 */
@@ -226,64 +212,6 @@ function readableError(error: unknown, fallback: string): string {
   return error instanceof Error && error.message.trim().length > 0 ? error.message : fallback;
 }
 
-function ChatAssistantMessage({ message, index, latest, onStop, onRetry, testIdPrefix = 'chat' }: {
-  message: Extract<ChatMessage, { role: 'assistant' }>;
-  index: number;
-  /** PILOT-LIVE-2 E：最新回复默认全文展开（折叠仅限历史轮次）；推理轨迹折叠不随此豁免（辅助信息）。 */
-  latest?: boolean;
-  onStop?: () => void;
-  onRetry?: () => void;
-  testIdPrefix?: 'chat' | 'work-chat';
-}) {
-  const { turn } = message;
-  const terminal = turn.status === 'completed' || turn.status === 'failed';
-  return (
-    <div
-      className={`assistant-message${turn.status === 'failed' ? ' is-failed' : ''}`}
-      data-testid={turn.status === 'failed' ? `${testIdPrefix}-assistant-failed` : `${testIdPrefix}-assistant-message`}
-      data-turn-id={turn.turnId}
-      data-status={turn.status}
-    >
-      <ProcessTrace
-        view={processTraceFromTurn(turn)}
-        actions={onStop && (
-          <button type="button" className="quiet-button chat-stop" data-testid="chat-stop" onClick={onStop}>Stop</button>
-        )}
-        renderContent={(content) => turn.status === 'running'
-          ? <div className="chat-reasoning-stream">{content}</div>
-          : <CollapsibleMessage lines={12}><ChatMarkdown text={content} /></CollapsibleMessage>}
-      />
-      {turn.assistantMessage && (turn.status === 'running' ? (
-        <div className="chat-stream-content" data-testid="chat-stream-content">{turn.assistantMessage}</div>
-      ) : latest ? (
-        <ChatMarkdown text={turn.assistantMessage} />
-      ) : (
-        <CollapsibleMessage lines={12}><ChatMarkdown text={turn.assistantMessage} /></CollapsibleMessage>
-      ))}
-      {turn.status === 'failed' && (
-        <>
-          <p className="chat-turn-failure" role="alert" data-testid="chat-turn-failure">
-            {turn.failure?.kind === 'canceled' ? '已停止' : turn.failure?.message}
-          </p>
-          {onRetry && (
-            <button type="button" className="quiet-button chat-retry" data-testid="chat-retry" onClick={onRetry}>
-              <Icon name="rotate-clockwise" scope="turn" />Retry
-            </button>
-          )}
-        </>
-      )}
-      {terminal && turn.usage && (
-        <p className="chat-turn-usage" data-testid="chat-turn-usage">
-          {formatUsageMetering(turn.usage)}
-        </p>
-      )}
-      {turn.status === 'completed' && (
-        <MessageActions messageId={`${testIdPrefix}-${index}`} text={turn.assistantMessage} createdAt={message.createdAt} />
-      )}
-    </div>
-  );
-}
-
 const DEMO_CASE = createDemoCaseSummary();
 
 /**
@@ -314,32 +242,10 @@ function reduceSession(state: SessionProjection, action: SessionAction): Session
   return projectSession(state, action);
 }
 
-function useWideSplitAvailable() {
-  const [available, setAvailable] = useState(() => window.innerWidth >= 1600);
-  useEffect(() => {
-    const query = window.matchMedia('(min-width: 1600px)');
-    const update = () => setAvailable(query.matches);
-    update();
-    query.addEventListener('change', update);
-    return () => query.removeEventListener('change', update);
-  }, []);
-  return available;
-}
-
-function useNarrowRailRequired() {
-  const [required, setRequired] = useState(() => window.innerWidth < 1240);
-  useEffect(() => {
-    const query = window.matchMedia('(max-width: 1239px)');
-    const update = () => setRequired(query.matches);
-    update();
-    query.addEventListener('change', update);
-    return () => query.removeEventListener('change', update);
-  }, []);
-  return required;
-}
-
 export interface AppProps {
   providerTransport?: ProviderTransport;
+  /** PI-LANE-UI-1：pi 线宿主端口（生产=Tauri 薄壳，DEV/E2E=scripted 樁）。 */
+  piLane: PiLanePort;
   packageRegistries: PackageRegistries;
   hostRenderers: HostRendererRegistry;
   workProjection: WorkProjectionPort;
@@ -350,7 +256,7 @@ export interface AppProps {
   materialStore: MaterialStore;
 }
 
-export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture, workCommand, hostAuth, materialStore }: AppProps) {
+export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture, workCommand, hostAuth, materialStore, piLane }: AppProps) {
   const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
@@ -404,6 +310,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     onConnectionInvalidated: () => setCredentialStatus((current) => ({ ...current, connection: { phase: 'unverified' } })),
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // PI-LANE-UI-1：pi 线一条工作绑一枚容器（＝当前案件），案件根经既有 grantId 解析。
+  const piSession = usePiLaneSession({
+    port: piLane,
+    containerId: selectedCaseId,
+    grantId: cases.find((item) => item.id === selectedCaseId)?.grantId ?? null,
+    modelId: modelConfig.modelId,
+    maxTurns: 12,
+    maxUsd: null,
+  });
   const [settingsAutoCredential, setSettingsAutoCredential] = useState(false);
   const [settingsSection, setSettingsSection] = useState<SettingsSection>('model');
   /** 起草画布内切换：交付轨文书 vs 工作稿轨笔记 */
@@ -438,7 +353,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
    * 自动标题**归 `C3-2`，那是「让已有的会话可被找回」，与「把画布本身持久化」是两件事。
    * 册内**没有** chat 画布持久化工单；未来要做须另立票，不得据本行推定已在计划内。
    */
-  const [viewSegment, setViewSegment] = useState<'chat' | 'work'>('work');
+  const [viewSegment, setViewSegment] = useState<'chat' | 'work' | 'draft'>('work');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   /** chat 面在途请求（真 API）；运行态经 ProcessTrace 渲染 BrandThinking（与 work thought process 同源动画）。 */
   const [chatPending, setChatPending] = useState(false);
@@ -794,7 +709,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setViewSegment('work');
   };
 
-  const switchSegment = (next: 'chat' | 'work') => {
+  const switchSegment = (next: 'chat' | 'work' | 'draft') => {
     setStoreChatOpen(false);
     setViewSegment(next);
   };
@@ -1963,7 +1878,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           onSend={onSend}
           onContainerize={handleContainerize}
           onAddFolder={authorizeCaseFolder}
-          viewSegment={viewSegment}
+          // Draft 面自带 composer，共享浮卡只在 chat/work 两面出现，故此处段值恒非 draft。
+          viewSegment={viewSegment === 'draft' ? undefined : viewSegment}
           onSegmentChange={switchSegment}
           modelConfig={modelConfig}
           modelConfigOpen={modelConfigOpen}
@@ -2282,6 +2198,19 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
               workChatPending || workScenarioRunning,
               workScenarioRunning ? '合同审查正在运行；等待当前步骤完成后再继续提问。' : undefined,
             )}
+          </section>
+        )}
+
+        {/* PI-LANE-UI-1：通用 Markdown 工作稿面。整面只投影 pi 账本，不与场景线共用任何状态。 */}
+        {!focusMode && viewSegment === 'draft' && (
+          <section className="conversation canvas-layer" data-testid="draft-canvas" data-segment="draft">
+            <div className="chat-titlebar" data-tauri-drag-region>
+              <strong className="chat-titlebar-label">{CHROME_COPY.segment.draft}</strong>
+            </div>
+            <PiLanePanel
+              session={piSession}
+              bound={Boolean(cases.find((item) => item.id === selectedCaseId)?.grantId)}
+            />
           </section>
         )}
 
