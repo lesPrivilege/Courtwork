@@ -213,6 +213,11 @@ pub(crate) struct SessionResumedPayload {
     pub(crate) prior_observed_turns: u64,
     pub(crate) prior_turns: u64,
     pub(crate) prior_usd: Option<f64>,
+    /// resumed leg **当刻**在跑的 prompt 身份。写侧记当刻真值，读侧按 {@link LEGAL_PROMPT_IDS}
+    /// 收（与 `session_started` 同一张闭集表——Gate D 循 `PI-WRITE-HOST-1` ⑥ 裁定A 的 resume 孪生）。
+    pub(crate) prompt_id: String,
+    /// resumed leg 的握手闭集。写侧记当刻真值，读侧按 {@link LEGAL_CAPABILITY_SETS} 收。
+    pub(crate) capabilities: Vec<WorkspaceCapability>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -412,6 +417,19 @@ impl<'a> Obj<'a> {
     }
 }
 
+/// `capabilities` 的 JSON array 编码。`session_started` 与 `session_resumed` 同一份形状，
+/// 提出来免得两谱各写一遍 loop 再各自漂移（Gate D）。
+fn write_capabilities_array(out: &mut String, capabilities: &[WorkspaceCapability]) {
+    out.push('[');
+    for (index, capability) in capabilities.iter().enumerate() {
+        if index > 0 {
+            out.push(',');
+        }
+        write_json_string(out, capability.as_str());
+    }
+    out.push(']');
+}
+
 fn write_payload(out: &mut String, payload: &JournalPayload) {
     match payload {
         JournalPayload::SessionStarted(started) => {
@@ -438,14 +456,7 @@ fn write_payload(out: &mut String, payload: &JournalPayload) {
                 limits.finish();
             }
             object.key("capabilities");
-            object.out.push('[');
-            for (index, capability) in started.capabilities.iter().enumerate() {
-                if index > 0 {
-                    object.out.push(',');
-                }
-                write_json_string(object.out, capability.as_str());
-            }
-            object.out.push(']');
+            write_capabilities_array(object.out, &started.capabilities);
             object.finish();
         }
         JournalPayload::SessionResumed(resumed) => {
@@ -456,6 +467,10 @@ fn write_payload(out: &mut String, payload: &JournalPayload) {
             object.integer("priorTurns", resumed.prior_turns);
             object.nullable_number("priorUsd", resumed.prior_usd);
             object.string("messageContext", "empty");
+            // Gate D：resumed leg 的实收身份，记法与 `session_started` 同一枚 codec。
+            object.string("promptId", &resumed.prompt_id);
+            object.key("capabilities");
+            write_capabilities_array(object.out, &resumed.capabilities);
             object.finish();
         }
         JournalPayload::UserPrompted { text } => {
@@ -659,6 +674,46 @@ fn expect_literal(node: &JsonNode, label: &str, literal: &'static str) -> CodecR
     read_enum(node, label, |value| (value == literal).then_some(()))
 }
 
+/// 裁定A / Gate D 共享读侧：`promptId` 闭集扩员，不是放开。集外一律拒，空串也拒
+/// （`LEGAL_PROMPT_IDS` 里没有它）。`session_started` 与 `session_resumed` 走同一枚判据，
+/// 撤员变异因此天然两侧同红。
+fn read_legal_prompt_id(node: &JsonNode) -> CodecResult<String> {
+    Ok(read_enum(node, "promptId", |value| {
+        LEGAL_PROMPT_IDS
+            .iter()
+            .copied()
+            .find(|legal| *legal == value)
+    })?
+    .to_string())
+}
+
+/// 裁定A / Gate D 共享读侧：`capabilities` 闭集扩员。次序、重复与集外组合都在
+/// `LEGAL_CAPABILITY_SETS.contains` 这一枚判据里当场现形——`contains` 比的是整张表，
+/// 不是「每一员都合法」那种逐项放行。
+fn read_legal_capabilities(node: &JsonNode) -> CodecResult<Vec<WorkspaceCapability>> {
+    let JsonNode::Array(items) = node else {
+        return reject(
+            ProtocolErrorCode::InvalidSchema,
+            "capabilities 必须是 array",
+        );
+    };
+    let mut capabilities = Vec::with_capacity(items.len());
+    for item in items {
+        capabilities.push(read_enum(
+            item,
+            "capabilities[]",
+            WorkspaceCapability::parse,
+        )?);
+    }
+    if !LEGAL_CAPABILITY_SETS.contains(&capabilities.as_slice()) {
+        return reject(
+            ProtocolErrorCode::InvalidSchema,
+            "capabilities 必须是 LEGAL_CAPABILITY_SETS 的一员",
+        );
+    }
+    Ok(capabilities)
+}
+
 fn read_session_started(node: &JsonNode) -> CodecResult<SessionStartedPayload> {
     let members = closed_record(
         node,
@@ -701,18 +756,8 @@ fn read_session_started(node: &JsonNode) -> CodecResult<SessionStartedPayload> {
         "caseRoot",
         LOGICAL_CASE_ROOT,
     )?;
-    // 裁定A：闭集扩员，不是放开。集外一律拒，空串也拒（`LEGAL_PROMPT_IDS` 里没有它）。
-    let prompt_id = read_enum(
-        pick(members, "promptId", "session_started")?,
-        "promptId",
-        |value| {
-            LEGAL_PROMPT_IDS
-                .iter()
-                .copied()
-                .find(|legal| *legal == value)
-        },
-    )?
-    .to_string();
+    // 裁定A：闭集扩员，不是放开（读侧判据与 `session_resumed` 共用，见 `read_legal_prompt_id`）。
+    let prompt_id = read_legal_prompt_id(pick(members, "promptId", "session_started")?)?;
 
     let provider = closed_record(
         pick(members, "provider", "session_started")?,
@@ -759,28 +804,8 @@ fn read_session_started(node: &JsonNode) -> CodecResult<SessionStartedPayload> {
         )?)
     };
 
-    let JsonNode::Array(items) = pick(members, "capabilities", "session_started")? else {
-        return reject(
-            ProtocolErrorCode::InvalidSchema,
-            "capabilities 必须是 array",
-        );
-    };
-    let mut capabilities = Vec::with_capacity(items.len());
-    for item in items {
-        capabilities.push(read_enum(
-            item,
-            "capabilities[]",
-            WorkspaceCapability::parse,
-        )?);
-    }
-    // 裁定A：闭集扩员。次序、重复与集外组合都在这一枚判据里当场现形——`contains` 比的是
-    // 整张表，不是「每一员都合法」那种逐项放行。
-    if !LEGAL_CAPABILITY_SETS.contains(&capabilities.as_slice()) {
-        return reject(
-            ProtocolErrorCode::InvalidSchema,
-            "capabilities 必须是 LEGAL_CAPABILITY_SETS 的一员",
-        );
-    }
+    // 裁定A：闭集扩员（读侧判据与 `session_resumed` 共用，见 `read_legal_capabilities`）。
+    let capabilities = read_legal_capabilities(pick(members, "capabilities", "session_started")?)?;
 
     Ok(SessionStartedPayload {
         route_manifest_sha256,
@@ -805,6 +830,8 @@ fn read_session_resumed(node: &JsonNode) -> CodecResult<SessionResumedPayload> {
             "priorTurns",
             "priorUsd",
             "messageContext",
+            "promptId",
+            "capabilities",
         ],
     )?;
     expect_literal(
@@ -840,6 +867,9 @@ fn read_session_resumed(node: &JsonNode) -> CodecResult<SessionResumedPayload> {
             pick(members, "priorUsd", "session_resumed")?,
             "priorUsd",
         )?,
+        // Gate D：读侧闭集与 `session_started` 同一张表；写侧记 resumed leg 实况。
+        prompt_id: read_legal_prompt_id(pick(members, "promptId", "session_resumed")?)?,
+        capabilities: read_legal_capabilities(pick(members, "capabilities", "session_resumed")?)?,
     })
 }
 
@@ -2958,6 +2988,14 @@ mod tests {
                     prior_observed_turns: 3,
                     prior_turns: 2,
                     prior_usd: Some(0.5),
+                    // Gate D：记 resumed leg 实收身份，取一枚与 `started_payload` 不同的合法闭集
+                    // （三枚握手），让往返判据横跨 `LEGAL_CAPABILITY_SETS` 的另一员。
+                    prompt_id: CURRENT_PROMPT_ID.to_string(),
+                    capabilities: vec![
+                        WorkspaceCapability::CaseRead,
+                        WorkspaceCapability::WorkspaceRead,
+                        WorkspaceCapability::WorkspaceWrite,
+                    ],
                 }),
             ),
             (
@@ -3516,6 +3554,91 @@ mod tests {
                 "{label}：受替换的锚点必须唯一"
             );
             let mutated = CURRENT_SESSION_STARTED.replace(from, to);
+            assert!(
+                decode_record(mutated.as_bytes()).is_err(),
+                "{label} 必须被读侧拒"
+            );
+        }
+    }
+
+    // ── Gate D（裁定A 的 resume 孪生）：`session_resumed` 记 resumed leg 的实收 ────
+    //
+    // `PI-WRITE-HOST-1` ⑦ §四 上浮D：旧档（`case-read-v1` ＋ `['case_read']`）今天仍可被
+    // resume，而新 leg 跑的是 `md-work-v1` ＋实收握手闭集；`session_resumed` 却不记这两样，
+    // 那份档的身份因此与实况分叉。本票循裁定A**扩员**收口：读侧闭集与 `session_started` 同
+    // 一张表（`LEGAL_PROMPT_IDS`/`LEGAL_CAPABILITY_SETS`），写侧记当刻真值。判据形态取**文本**，
+    // 故它在扩员之前就能编译、就能红——受验的正是「resumed leg 那一形，能不能被自家读侧收下」。
+
+    /// 旧值：`case-read-v1` ＋ `['case_read']`。扩员前后都必须 valid——收窄它等于毁旧档。
+    const LEGACY_SESSION_RESUMED: &str = r#"{"schemaVersion":1,"eventId":"event_5","seq":5,"containerId":"cnt-1","sessionId":"sess-1","leg":2,"requestId":null,"type":"session_resumed","recordedAt":1,"payload":{"startedEventId":"event_1","previousLeg":1,"priorObservedTurns":2,"priorTurns":2,"priorUsd":0.5,"messageContext":"empty","promptId":"case-read-v1","capabilities":["case_read"]}}"#;
+
+    /// 新形：resumed leg 真实在跑的那一形——`md-work-v1` ＋实收三枚握手闭集。
+    const CURRENT_SESSION_RESUMED: &str = r#"{"schemaVersion":1,"eventId":"event_5","seq":5,"containerId":"cnt-1","sessionId":"sess-1","leg":2,"requestId":null,"type":"session_resumed","recordedAt":1,"payload":{"startedEventId":"event_1","previousLeg":1,"priorObservedTurns":2,"priorTurns":2,"priorUsd":0.5,"messageContext":"empty","promptId":"md-work-v1","capabilities":["case_read","workspace_read","workspace_write"]}}"#;
+
+    /// 读侧闭集恰新旧两形各自 valid，且各自 canonical 重编码回同一份字节。
+    /// 「重编码同字节」证明扩员之后 `promptId`/`capabilities` 是**被记住的值**，
+    /// 而不是解码时被丢弃、编码时又按常量补回去的假往返。
+    #[test]
+    fn session_resumed_accepts_exactly_the_two_prompt_and_capability_forms() {
+        for (label, line) in [
+            ("旧值", LEGACY_SESSION_RESUMED),
+            ("新形", CURRENT_SESSION_RESUMED),
+        ] {
+            let record = decode_record(line.as_bytes())
+                .unwrap_or_else(|error| panic!("{label} 必须 valid，实得 {error:?}"));
+            let reencoded = encode_record(&record);
+            let mut expected = line.as_bytes().to_vec();
+            expected.push(b'\n');
+            assert_eq!(
+                String::from_utf8(reencoded).expect("UTF-8"),
+                String::from_utf8(expected).expect("UTF-8"),
+                "{label} 必须逐字节往返"
+            );
+        }
+    }
+
+    /// 与 `session_started` 共用同一张闭集表，故集外一律拒（不是通配、不是「非空即可」）。
+    #[test]
+    fn counterexample_resumed_prompt_and_capability_sets_are_closed_not_open() {
+        let cases = [
+            (
+                "集外 promptId",
+                r#""promptId":"md-work-v1""#,
+                r#""promptId":"md-work-v2""#,
+            ),
+            (
+                "空 promptId",
+                r#""promptId":"md-work-v1""#,
+                r#""promptId":"""#,
+            ),
+            (
+                "集外能力组合：只有 workspace_write",
+                r#""capabilities":["case_read","workspace_read","workspace_write"]"#,
+                r#""capabilities":["workspace_write"]"#,
+            ),
+            (
+                "次序漂移",
+                r#""capabilities":["case_read","workspace_read","workspace_write"]"#,
+                r#""capabilities":["case_read","workspace_write","workspace_read"]"#,
+            ),
+            (
+                "重复项",
+                r#""capabilities":["case_read","workspace_read","workspace_write"]"#,
+                r#""capabilities":["case_read","case_read"]"#,
+            ),
+            (
+                "空集",
+                r#""capabilities":["case_read","workspace_read","workspace_write"]"#,
+                r#""capabilities":[]"#,
+            ),
+        ];
+        for (label, from, to) in cases {
+            assert_eq!(
+                CURRENT_SESSION_RESUMED.matches(from).count(),
+                1,
+                "{label}：受替换的锚点必须唯一"
+            );
+            let mutated = CURRENT_SESSION_RESUMED.replace(from, to);
             assert!(
                 decode_record(mutated.as_bytes()).is_err(),
                 "{label} 必须被读侧拒"

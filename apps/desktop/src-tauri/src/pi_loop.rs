@@ -804,6 +804,12 @@ impl PiLoopHost {
                     prior_observed_turns: projection.prior_observed_turns,
                     prior_turns: projection.prior_turns,
                     prior_usd: projection.prior_usd,
+                    // Gate D：记 resumed leg 的**当刻**身份，与 fresh 路的 `session_started`
+                    // （上文 :763/:767）同源同理。旧档 `session_started` 声称的旧值不再顶名新
+                    // leg 的实况——第 7 步 ready 若不逐值等于 `EXPECTED_CAPABILITIES`，leg 当场
+                    // 以 StateViolation 收束，故「记下的」与「谈成的」在任何能往下跑的路径上恒等。
+                    prompt_id: pi_loop_journal::CURRENT_PROMPT_ID.to_string(),
+                    capabilities: EXPECTED_CAPABILITIES.to_vec(),
                 });
             }
         }
@@ -2884,8 +2890,11 @@ mod tests {
                 prior_observed_turns: 2,
                 prior_turns: 2,
                 prior_usd: Some(0.75),
+                // Gate D：resumed leg 记当刻实收，不是旧档声称的旧值。
+                prompt_id: pi_loop_journal::CURRENT_PROMPT_ID.to_string(),
+                capabilities: EXPECTED_CAPABILITIES.to_vec(),
             }),
-            "跨 leg 不重置、不把 null 恢复成 0"
+            "跨 leg 不重置、不把 null 恢复成 0；身份记当刻实收"
         );
 
         // bootstrap 里的 prior 三值必须与 journal fold 逐值相同。
@@ -8494,6 +8503,256 @@ mod tests {
             "物理根不得落进 journal"
         );
         assert!(!text.contains(&h.app_data.to_string_lossy().into_owned()));
+    }
+
+    // ── PI-HEADLESS-HARNESS-1 组件B：headless 合成 harness ────────────────────
+    //
+    // 真 pi Agent（pi-ai faux / 可插拔 provider）↔ 真 stdio wire ↔ 真
+    // `WorkspaceFsHost`(注入 `ScriptedApprove`) ↔ 真 disk，并可 restart/resume 新 leg。
+    // **两注入点即 production 偏离**：provider（headless bundle 内，faux 不触网／真验收换
+    // DeepSeek）与 decision driver（此处 `ScriptedDecision`，ADR-022 六-C 明令显式注入）。
+    // 其余 wire/host/journal/disk/restart 全走 production 代码路径。
+    //
+    // 这不是新写 plumbing，而是把既有 plumbing 打包成可驱动的合成：spawn 复用
+    // `ProcessSpawner`→`spawn_verified_sidecar`，pair 用 `for_lifecycle_test`（headless bundle
+    // 不进任何冻结 manifest），host 复用 `real_write_host_lands_bytes` 那套真件与断言。
+    // `PI-BASE-HEADLESS-ACCEPT` 由此驱动六格：改 faux 脚本／换真 DeepSeek provider（headless
+    // 配置的 `provider` 字段）＋按格取 journal/bytes 证据，restart 沿 `reclaim_after_fault` 先例。
+
+    /// 定位 headless 合成的两枚制品：冻结 Node runtime 与 headless bundle。缺件以指路信息
+    /// 硬失败（承 `snapshot_e2e` 体例，绝不静默跳过——那会让「合成不成立」伪装成绿）。
+    fn headless_artifacts() -> (PathBuf, PathBuf) {
+        let repo = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .ancestors()
+            .nth(3)
+            .expect("仓库根")
+            .to_path_buf();
+        let triple = crate::pi_loop_process::host_target_triple().expect("本机 target 在闭集内");
+        let node = repo.join(format!(
+            "packages/pi-lane/dist/product-sidecar/pi-sidecar-{}",
+            triple.as_str()
+        ));
+        let bundle = repo.join("packages/pi-lane/dist/headless-sidecar/headless-sidecar.cjs");
+        assert!(
+            node.exists(),
+            "缺冻结 Node {}——先跑 build:product-sidecar",
+            node.display()
+        );
+        assert!(
+            bundle.exists(),
+            "缺 headless bundle {}——先跑 build:headless-sidecar",
+            bundle.display()
+        );
+        (node, bundle)
+    }
+
+    /// 把 faux headless 配置写进 sidecar 的 cwd（`app_data/pi-loop-runtime`）。宿主
+    /// `env_clear()`＋固定 argv 拉起 sidecar，faux 脚本只能走 cwd 文件——这是 faux 注入点的
+    /// 落地形，wire/host/journal 一字未借。真验收改 `provider:"deepseek"` 即走真模型。
+    fn write_headless_faux_config(app_data: &Path, script: serde_json::Value) {
+        let cwd = app_data.join(crate::pi_loop_process::RUNTIME_CWD_DIR);
+        fs::create_dir_all(&cwd).expect("建 runtime cwd");
+        let config = serde_json::json!({ "provider": "faux", "script": script });
+        fs::write(
+            cwd.join("headless-config.json"),
+            serde_json::to_vec(&config).expect("序列化 headless 配置"),
+        )
+        .expect("写 headless 配置");
+    }
+
+    /// headless leg 的组合根：真 headless sidecar ＋ 注入 `ScriptedApprove` 的真
+    /// `WorkspaceFsHost`。`approve:false` 时用于验收面（逐次授权拒绝）；smoke 走 `true`。
+    fn start_headless_leg(h: &Harness, node: &Path, bundle: &Path, approve: bool) -> PiLoopHost {
+        let pair = VerifiedRoutePair::for_lifecycle_test(node.to_path_buf(), bundle.to_path_buf());
+        let mut host = PiLoopHost::start_with_pair(
+            &h.app_data,
+            pair,
+            h.config.clone(),
+            &FixedKey,
+            &mut ProcessSpawner,
+        )
+        .expect("headless leg 起得来");
+        // 构造点已装 driver-less 真件；这里补上显式 decision driver（ADR-022 六-C 落点），
+        // 读件座保持不动（读无 effect、无可授权对象）。
+        host.install_write_host(Some(Box::new(
+            crate::pi_loop_workspace::WorkspaceFsHost::new(
+                &h.app_data,
+                &h.config.container_id,
+                &h.config.session_id,
+            )
+            .with_decision_driver(Box::new(ScriptedDecision {
+                approve,
+                before: None,
+            })),
+        )));
+        host
+    }
+
+    /// 组件B 冒烟：**一** write→approve→byte-identical-read-back ＋ **一** restart→read-back，
+    /// 全链真跑（真 Agent／真 wire／真 host／真 disk）。六格总验属 `PI-BASE-HEADLESS-ACCEPT`。
+    #[test]
+    fn headless_smoke_write_approve_readback_then_restart_readback() {
+        let (node, bundle) = headless_artifacts();
+        let h = harness("headless-smoke");
+        fs::write(
+            h.case_root.join("备忘.md"),
+            "# 备忘\n合同编号 HT-2024-081\n",
+        )
+        .expect("写案件材料");
+        let content = "# 简报\n合同编号 HT-2024-081（源自 /case/备忘.md）。\n";
+
+        // ── leg 1：真 Agent read /case → write /workspace → 逐次授权（ScriptedApprove）→ 落盘 ──
+        //
+        // byte-identical read-back 由 harness 从盘上回读核验（下方 `fs::read_to_string == content`）。
+        // **不**让 Agent 读 /workspace 回读：那条路今日被 §移交 的 active_tool_call 缺口挡住
+        // （workspace_read host op 恒 StateViolation），已由
+        // `headless_workspace_readback_currently_stateviolations__blocker` 机器钉住。
+        write_headless_faux_config(
+            &h.app_data,
+            serde_json::json!([
+                { "kind": "tool", "name": "read", "args": { "path": "/case/备忘.md" } },
+                { "kind": "tool", "name": "write", "args": { "path": "简报.md", "content": content } },
+                { "kind": "text", "text": "已写入 /workspace/简报.md。" },
+            ]),
+        );
+        let mut host = start_headless_leg(&h, &node, &bundle, true);
+        assert_eq!(host.capabilities(), EXPECTED_CAPABILITIES);
+        let terminal = host
+            .prompt(
+                "req-1",
+                "把 /case/备忘.md 的合同编号写成 /workspace/简报.md",
+            )
+            .expect("leg1 prompt 必须走得通");
+        assert!(
+            matches!(terminal, Terminal::Completed { .. }),
+            "leg1 必须 Completed，实得 {terminal:?}"
+        );
+
+        // byte-identical：写进去的字节原样落在 app-data 的 workspace 根上。
+        let target = workspace_root(&h).join("简报.md");
+        assert_eq!(
+            fs::read_to_string(&target).expect("回读盘上真字节"),
+            content,
+            "write 必须逐字节落盘"
+        );
+        // 四段账齐备（tool_proposed → authorization_decided → effect_started → effect_succeeded）。
+        let leg1_types = record_types(host.records());
+        for want in [
+            JournalType::ToolProposed,
+            JournalType::AuthorizationDecided,
+            JournalType::EffectStarted,
+            JournalType::EffectSucceeded,
+        ] {
+            assert!(
+                leg1_types.contains(&want),
+                "leg1 缺 {want:?}：{leg1_types:?}"
+            );
+        }
+        // 正文与物理根都不进 journal。
+        let jtext =
+            String::from_utf8(fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"))
+                .expect("UTF-8");
+        assert!(
+            !jtext.contains("源自 /case/备忘.md"),
+            "正文不得落进 journal"
+        );
+        assert!(
+            !jtext.contains(crate::pi_loop_workspace::PI_WORKSPACES_DIR),
+            "物理根不得落进 journal"
+        );
+
+        // 第一腿以中断收场，workspace 留在盘上。
+        host.reclaim_after_fault(SessionInterruptReason::SidecarEnded)
+            .expect("回收 leg1");
+        drop(host);
+
+        // ── restart：新 sidecar leg（新进程、新 leg）上真 Agent 再跑一轮 ──
+        // leg2 的 Agent 读 /case（直读，不经 host op）并收尾；写下的 /workspace 字节由 harness
+        // 从盘上核验仍在（跨 restart 持久）。同样避开被缺口挡住的 /workspace agent 回读。
+        write_headless_faux_config(
+            &h.app_data,
+            serde_json::json!([
+                { "kind": "tool", "name": "read", "args": { "path": "/case/备忘.md" } },
+                { "kind": "text", "text": "已在新 leg 上继续。" },
+            ]),
+        );
+        let mut resumed = start_headless_leg(&h, &node, &bundle, true);
+        let terminal2 = resumed
+            .prompt("req-2", "在新 leg 上确认在跑")
+            .expect("leg2 prompt 必须走得通");
+        assert!(
+            matches!(terminal2, Terminal::Completed { .. }),
+            "leg2 必须 Completed，实得 {terminal2:?}"
+        );
+        // 跨 restart 字节仍在：harness 从盘上逐字节回读（byte-identical read-back）。
+        assert_eq!(
+            fs::read_to_string(&target).expect("restart 后回读"),
+            content,
+            "restart 后字节必须仍逐字节一致"
+        );
+        // 真的经过 interrupted → resumed，不是同一腿接着跑。
+        let leg2_types = record_types(resumed.records());
+        assert!(
+            leg2_types.contains(&JournalType::SessionInterrupted)
+                && leg2_types.contains(&JournalType::SessionResumed),
+            "必须真经过 interrupted → resumed：{leg2_types:?}"
+        );
+        // Gate D（组件A）在真 resume 上兑现：session_resumed 记实收身份。
+        let jtext2 =
+            String::from_utf8(fs::read(journal_path(&h.app_data, "cnt-1", "sess-1")).expect("读"))
+                .expect("UTF-8");
+        assert!(jtext2.contains(r#""type":"session_resumed""#));
+        assert!(
+            jtext2.contains(r#""promptId":"md-work-v1""#),
+            "session_resumed 必须记 resumed leg 的实收 promptId（Gate D）"
+        );
+        resumed.shutdown().ok();
+    }
+
+    /// **移交 `PI-BASE-HEADLESS-ACCEPT` 的 [需架构拍板] 阻断项，机器钉住。**
+    ///
+    /// 真 Agent 经 read/glob/grep 工具读 **/workspace**（一枚 `workspace_read` host op）今日恒
+    /// `StateViolation`：`active_tool_call` 只在 `ToolStarted{tool_name: Write}` 落一枚
+    /// （本文件 `pump` 里 `ProductToolName::Write` 那一臂），读工具的 `tool_started` 不落它，
+    /// 于是 `serve_read_request` 的「读须归属一枚在场 tool call」判据当场翻 StateViolation。
+    /// PI-WORKSPACE-READ-1 的 Rust 门全部以 **Write** tool_started 假冒
+    /// （`tool_started_line_for` → `ProductToolName::Write`），故此缺口从未被既有门照到——
+    /// 本 harness 首次以**真** read 工具触到它（判例：既有测试只桩住 seam 一侧）。
+    ///
+    /// 它挡住 HEADLESS-ACCEPT 六格里凡涉 /workspace agent 回读的三格（3/4/5）。修法属核状态机
+    /// 语义（active_tool_call 由 write-only 扩到「凡能发 host op 的工具」，write 取、read peek），
+    /// 超出本票 Gate D＋harness 的授权面，故**上浮不自修**。
+    ///
+    /// 本测试断言**当前坏态**：一旦转绿（读回读走通），即缺口已修——须删本测试并在
+    /// 六格里放开 /workspace agent 回读。
+    #[test]
+    fn headless_workspace_readback_currently_stateviolations_blocker() {
+        let (node, bundle) = headless_artifacts();
+        let h = harness("headless-readback-blocker");
+        fs::write(h.case_root.join("备忘.md"), "x\n").expect("案件材料");
+        write_headless_faux_config(
+            &h.app_data,
+            serde_json::json!([
+                { "kind": "tool", "name": "write", "args": { "path": "稿.md", "content": "y\n" } },
+                { "kind": "tool", "name": "read", "args": { "path": "/workspace/稿.md" } },
+                { "kind": "text", "text": "读回" },
+            ]),
+        );
+        let mut host = start_headless_leg(&h, &node, &bundle, true);
+        let outcome = host.prompt("req-1", "写后经 read 工具回读 /workspace");
+        assert!(
+            matches!(
+                outcome,
+                Err(HostError::Protocol(ProtocolErrorCode::StateViolation))
+            ),
+            "钉住当前坏态：真 read 工具读 /workspace 应 StateViolation（缺口未修），实得 {outcome:?}。\
+             转绿＝缺口已修，删本测试并放开六格 /workspace 回读"
+        );
+        // 缺口在读之前：写已落盘，回读那一步才被挡（effect 与 read op 分属两段）。
+        assert_eq!(
+            fs::read_to_string(workspace_root(&h).join("稿.md")).expect("写已落盘"),
+            "y\n"
+        );
     }
 
     /// 票面：**畸形 request 到 Rust ⇒ 同 code 拒绝且零 effect**（ADR-022 六-B.2）。

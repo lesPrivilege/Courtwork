@@ -16,6 +16,8 @@
     "lint": "eslint .",
     "build": "tsc -p tsconfig.json",
     "build:product-sidecar": "node scripts/build-product-sidecar.mjs",
+    "build:headless-sidecar": "node scripts/build-headless-sidecar.mjs",
+    "typecheck:headless": "tsc -p headless/tsconfig.json",
     "test:product-sidecar": "node --test scripts/build-product-sidecar.test.mjs",
     "test:verified-node-gate": "node --test scripts/verified-node-gate.test.mjs",
     "gate:verified-node-production": "node scripts/verified-node-gate.mjs production",

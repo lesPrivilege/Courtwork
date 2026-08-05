@@ -3285,3 +3285,185 @@ PASS 只覆盖 `/workspace` 读面在 **package／host 级**成立，与回执�
 承接如实，仍挂各自的门。合入相另请把 `docs/status/current.md` 的 sidecar 身份更新为
 **546,906 B / `36615e5b…`**（上一枚验收请求的 536,123 至今未由架构面更新，两笔并作一次）。
 worktree `.claude/worktrees/accept-pwr` 保留至收编。
+
+---
+
+# PI-HEADLESS-HARNESS-1 独立验收（2026-08-05，PASS · 兼裁 headline 阻断项根因）
+
+验收独立 clean worktree `.claude/worktrees/accept-phh`（`git worktree add … d8a6eb1`）。目标
+`claude/pi-headless-harness-1` tip **`d8a6eb1`**（链 `94e8e83` base → `f948d1e` 组件A → `47d20fc`
+组件B → `d8a6eb1` 回执），base `main@94e8e83`。触碰面 diff 实测恰 8 文件（`pi_loop.rs`／
+`pi_loop_journal.rs`／`headless/headless-main.ts`＋`tsconfig.json`／`scripts/build-headless-sidecar.mjs`／
+`package.json`＋2 行、`SPEC.md`＋1 行、回执 spec），与回执逐字相符。所有回执一律按未证处理，
+下述每条均本树第一手复核或注入反例触红后为准。
+
+## 一 · 组件A（Gate D）再裁——扩员成立，born-red 有齿
+
+`session_resumed` payload 加 `promptId`／`capabilities` 两枚字段（`pi_loop_journal.rs:216-218`
+struct），写侧记 resumed leg 当刻真值（`pi_loop.rs:809` `CURRENT_PROMPT_ID`＋`EXPECTED_CAPABILITIES`，
+与 fresh 路 `session_started` 同源），读侧按 `LEGAL_PROMPT_IDS`／`LEGAL_CAPABILITY_SETS`
+**同一张闭集表**收。逐项核实：
+
+- **闭集非通配、扩员非放开**：`LEGAL_PROMPT_IDS`（`pi_loop_journal.rs:59`）恰两员
+  `[case-read-v1, md-work-v1]`；`LEGAL_CAPABILITY_SETS`（:65-76）恰三员集。读侧
+  `read_legal_prompt_id` 用 `.iter().find`（集外＋空串皆拒）、`read_legal_capabilities` 用
+  `LEGAL_CAPABILITY_SETS.contains(&slice)`（**比整张表**，故次序漂移／重复／子集／空集皆当场拒），
+  非「每员合法即放行」。
+- **两侧同源**：`read_legal_prompt_id`／`read_legal_capabilities`（读）与 `write_capabilities_array`
+  （写）由 `session_started` 与 `session_resumed` **共用**——diff 实测 `read_session_started`
+  原地内联被替换为对共享 helper 的调用（:759／:807），故撤员天然两侧同红。
+- **wire schema 零改**：`session_resumed` 在 `packages/pi-lane/src/` 与 `pi_loop_protocol.rs`
+  （wire codec）grep **零命中**，只住 journal codec；`session_started` 双端 golden 逐字节未动。
+- **「记录值＝该 leg 实际握手集」**：`EXPECTED_CAPABILITIES`（`pi_loop.rs:54-58`）＝
+  `LEGAL_CAPABILITY_SETS` 第三员；第 7 步 ready 不逐值等于它即 `StateViolation` 关 leg，故
+  「记下的」与「谈成的」在任何能往下跑的路径上恒等（裁定A `session_started` 的 resume 孪生，逐字同理）。
+
+**born-red／mutation 亲验（cp 备份，命中恰 1，还原后 SHA 逐字复原 `86dca6ed`）**：
+
+- `session_resumed_accepts_exactly_the_two_prompt_and_capability_forms`：绿。旧值
+  （`case-read-v1`＋`[case_read]`）与新形（`md-work-v1`＋三员集）各 decode **且逐字节重编码回同一行**
+  ——证被记住的值，非解码丢弃、编码补回的假往返。
+- `counterexample_resumed_prompt_and_capability_sets_are_closed_not_open`：绿。集外 promptId／
+  空 promptId／只 workspace_write／次序漂移／重复／空集 6 枚各被读侧拒。
+- **M-D2（撤 `LEGAL_PROMPT_IDS` 新值 `md-work-v1`）**：`session_resumed_accepts` 转**红**，
+  实得 `InvalidSchema, reason:"promptId 不在契约闭集内"`——与回执登记红形逐字相符，证扩员载荷、
+  往返判据有齿。
+
+## 二 · 组件B（headless 合成 harness）——两注入点＝唯一 production 偏离，smoke 真跑绿
+
+- **provider 注入点**：`headless-main.ts` 只引 `../src/product-runtime.js`／`product-stdio.js`
+  （既有 seam `createProductRuntime({ createProvider })`，`ProductProviderFactory` 定义在
+  `product-runtime.ts:123/251/265/593`，**本票 diff 未触** ⇒ 生产 seam），经该 seam 注入 faux；
+  生产侧 `packages/pi-lane/src/` grep「headless」仅命中两处 doc 注释（概念名），**无任何生产文件
+  import headless-main** ⇒ faux 不进生产依赖图、demo/real 隔离（不变量 7）守住。
+- **decision driver 注入点**：`start_headless_leg`（`pi_loop.rs` 测试面）显式注入
+  `ScriptedDecision`（`WriteDecisionDriver::decide` per-write 决策点，跑在两次在场判定之间，
+  四段账含 `authorization_decided`，**非** session always-allow）；production 侧 driver 恒 `None`。
+  符合 ADR-022 六-C:650「headless 须显式注入、禁 always-allow 冒充产品授权」。
+- **其余全真**：spawn（`for_lifecycle_test`＋`spawn_verified_sidecar`，`env_clear`＋固定 argv）、
+  stdio wire、`WorkspaceFsHost`（真件真落盘三屏障）、journal（十九型 codec 四段账）、restart
+  （`reclaim_after_fault`→新 `start_with_pair` resume）。headless bundle 自成独立制品，不碰
+  production `sidecar.cjs`／route-manifest（`build-headless-sidecar.mjs` 复用 production
+  `buildDeterministicBundle`，只换 entry/outfile）。
+- **smoke `headless_smoke_write_approve_readback_then_restart_readback` 真跑绿**（cargo lib 内）：
+  leg1 真 Agent read `/case/备忘.md`（直读无 host op）→ write `简报.md`（host op）→
+  `ScriptedApprove` 授权 → 真 host 落盘；harness 盘上 `fs::read_to_string == content`（byte-identical）、
+  四段账齐、正文与物理根不进 journal。restart → 新 leg 字节跨 restart 逐字节一致、
+  `session_interrupted → session_resumed`、`session_resumed` 记 `"promptId":"md-work-v1"`
+  ——Gate D 在真 resume 上兑现（A×B 合拢）。逆向复现非采信：见三节变异证伪。
+
+## 三 · ★ headline 阻断项根因定谳（本轮最高价值，决定下一票）
+
+回执 headline：真 Agent 经 read/glob/grep 读 `/workspace`（一枚 `workspace_read` host op）今日恒
+`StateViolation`；根因称 `active_tool_call` 只在 Write `tool_started` 落、读工具不落，而
+`serve_read_request` 要求「读须归属在场 tool call」；且 PI-WORKSPACE-READ-1 Rust 读门全部以
+Write `tool_started` 假冒，故缺口从未被照到。**三项独立核实，根因成立**：
+
+**(a) 源级 + 实测：根因逐字成立。** `serve_read_request`（`pi_loop.rs:1482`）
+`if self.active_tool_call.is_none() { return Err(StateViolation) }`；`active_tool_call` 唯一落点
+在 pump 的 `ToolStarted{tool_name: ProductToolName::Write}` 一臂（:1201-1207），读工具的
+`ToolStarted` 落到 `_ => {}`（:1213）不 arm 它。读臂 doc（:1465）声称「只 peek 不 take、read tool
+call 持续在场」，但**设置端只认 Write** ⇒ 设计假设与设置端不匹配，真 read 工具永远满足不了
+is_none() 判据。**验收自建 wire 层探针**（以现绿 `real_read_arm_returns_the_bytes_the_write_arm_landed`
+为底，唯一变量＝读前 `tool_started` 的 `tool_name`）：实验臂（Read tool_started）→ workspace_read
+恒 `StateViolation`（探针 `accept_probe_read_tool_started_does_not_arm_the_read_op` 绿）；对照臂
+（Write，唯一之差）→ 同一枚 read 走通（`accept_probe_control_write_tool_started_arms_the_read_op`
+绿）。**修复变异证伪**：把 pump 那一臂改 `Write | Read`（＝回执所述修法「凡能发 host op 的工具都 arm」），
+`headless_workspace_readback…blocker` 转**红**，实得真 Agent 读 `/workspace` 端到端
+`Ok(Completed{...})`（真 wire/host/disk 全程），实验探针同红、对照探针仍绿——一行即修好，证根因
+唯一且充分。
+
+**(b) 覆盖洞成立（属"放行后逃逸/覆盖洞"族，如实定性）。** PI-WORKSPACE-READ-1 的**全部** Rust 读臂
+集成用例（`real_read_arm_returns_the_bytes_the_write_arm_landed` :8035、
+`read_arm_serves_many_operations_under_one_tool_call` :8119、
+`counterexample_read_proposal_hash…` :8205、`read_arm_refuses_symlinks…` :8302、
+`a_new_leg_after_interruption_reads_back…` :8370）在发 `workspace_read` host op 前一律用
+`tool_started_line`／`tool_started_line_for`（:7021-7030 → `ProductToolName::Write`）顶名
+`active_tool_call`；无一用 Read `tool_started`。唯一用 Read `tool_started` 的用例（:3493）读的是
+`/case`（直读、无 host op），从不触 `serve_read_request`。Node 侧 `workspace-read-env` 为 Node-only
+（无 Rust host）。故「真 read 工具＋真 host」组合从未被跑过——正是本票立意「每枚测试只桩住 seam
+一侧」。**定性**：这是测试**套件**的覆盖洞（读臂 active_tool_call 依赖从未以真 read 工具行使）＋
+真实**产品缺口**（active_tool_call write-only 挡死真 /workspace 读）；但**不是** PI-WORKSPACE-READ-1
+的验收越权——该票 ACCEPTANCE 明文自限「/workspace 读面在 package／host 级成立」并把 headless 总验
+显式后置到 `PI-BASE-HEADLESS-ACCEPT`，故此洞落在其明示未覆盖面内，由本 harness 首次以真 read 工具触到。
+
+**(c) 机器钉子是诚实 characterization 测试。** `headless_workspace_readback_currently_stateviolations_blocker`
+断言当前坏态（`Err(StateViolation)`），今日**绿**（正确钉住坏形，非失败测试）；修复变异下即转红
+（本树亲验：读转 `Ok(Completed)` → 断言失败）——「一旦转绿即缺口已修」的诚实钉子。它记录（非直接门控）
+将挡 HEADLESS 六格中凡涉 /workspace agent 回读的三格（3 read-back／4 覆写后 read-back／5 resume 后回读，
+与 SPEC §九 :734-739 逐格对上）；格 1/2 读 `/case`（直读）、格 6 拒绝面不受影响，故 smoke 的 /case 读真跑通。
+
+**定谳**：根因**成立**（源级＋实测＋修复变异三证）；构成 WORKSPACE-READ **覆盖洞**（套件级）兼真实
+**产品缺口**，非 PI-WORKSPACE-READ-1 验收越权。修法（active_tool_call 由 write-only 扩到「凡能发 host op
+的工具」，write 取／read peek）牵动核状态机语义与那批 Write-顶名读门的复核，**属正确上浮、[需架构拍板]**，
+不在本票 Gate D＋harness 授权面内。上浮登记够格。
+
+## 四 · 偏离、制品身份与另发现
+
+**偏离三枚过目，均如实**：① provider 由焊死 faux 改可插拔注入点（协调 2026-08-05 更正，SPEC :741-744
+六格需真模型，faux 只辖 CI）；② Rust harness 落 `pi_loop.rs #[cfg(test)]` 而非独立文件（`for_lifecycle_test`／
+`install_write_host`／`ScriptedDecision`／`FixedKey`／`ProcessSpawner` 皆 crate-内测试面私有，独立文件够不到）；
+③ smoke 的 byte-identical read-back 由 harness 从盘上回读、**非** Agent /workspace 回读（后者被三节缺口挡住），
+回执如实登记不冒充。另：回执散文称 driver 为「ScriptedApprove」，实际结构名 `ScriptedDecision`——无害命名漂移。
+
+**制品双件身份（本树独立重建，逐字复现）**：
+- headless bundle：独立重建得 **554,327 B / `52b65d16fbc2f6000cc446cf6588fcca7455a72ecaf512da8db0fb608bc7f79c` / reproducible:true**，与回执逐字节相同。
+- production sidecar：inner bundle **546,906 B / `36615e5b6c9e54ddb153608985f369cc88e350c17e2eddd6915821a7850150fd` / reproducible:true**（与上一枚 PI-WORKSPACE-READ-1 验收记录同值——本票未碰 product-main/provider ⇒ **sealed CJS 身份零漂移**）；SEA 二进制 `2e3f1286a7eb3736346ed1803e458a0ff909e2b2d5bc746144dcb76970e9b99d`，与同 commit worktree 逐字节相同。
+  （环境记：本机 node `fetch()` 直连 nodejs.org 下载 ~40MB tarball 悬挂；以本地已缓存官方 tarball
+  `ef28d8fab2…`（与 dist SHASUMS256.txt 条目逐字相符）播种 ARCHIVE_DIR，构建 `ensureArchive` 对其做冻结身份
+  校验后 `reused`——等价于下载，非保真妥协。）
+
+**另发现（pre-existing，out-of-scope，登记供架构）**：`pnpm --filter @courtwork/pi-lane
+gate:verified-node-production` **失败 1 项**——断言「首包 ready capabilities 恰 `["case_read"]`」
+（`scripts/verified-node-gate.mjs:462-464` 硬编码），实际 production 握手已是
+`["case_read","workspace_read","workspace_write"]`。该断言值系 PI-HOST-LOOP 期陈旧值（gate 脚本末次改
+`8e217e4` = PI-HOST-LOOP-1R3，**早于** PI-WORKSPACE-READ-1 加 workspace_read／PI-WRITE-HOST-1 加
+workspace_write）；本票**未触** gate/product-main/provider/capabilities，故在 base `94e8e83` 上同样红，
+**非本票回归**。gate 内身份/隔离项（恰两枚出包、canary 不含 key、不含物理根、bundle 不含 control 面）
+**全 PASS**，故身份零漂移不受影响；只是该陈旧能力计数断言自 workspace_read 上线起静默失败，且它不在历史验收
+（accept-pwr 等）的例行门集内故一直无人察觉——属陈旧辅助门，建议随 env 契约票或独立微单校准。
+（自记：初读该 gate 输出末尾 `EXIT=0` 系 `| tail` 吃退出码假象，真实 `Exit status 1`——已按真值判读。）
+
+## 五 · 门禁实跑（本树自跑，逐条记退出码，未经管道吞码）
+
+| 门 | 结果 | 退出码 |
+|---|---|---|
+| `build:product-sidecar`（重建） | inner **546,906 B / `36615e5b…`**、SEA `2e3f1286…`、reproducible:true | 0 |
+| `build:headless-sidecar`（独立重建） | **554,327 B / `52b65d16…`**、reproducible:true、landedSha 一致 | 0 |
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size warning） | 0 |
+| `pnpm lint`（`eslint .`） | 通过 | 0 |
+| `typecheck:headless`（`tsc -p headless/tsconfig.json`） | clean | 0 |
+| root `pnpm test`（vitest） | **170 files / 1916 passed** | 0 |
+| `pnpm --filter @courtwork/pi-lane test` | **531 passed / 17 files** | 0 |
+| `pnpm --filter @courtwork/desktop test` | **690 passed / 75 files** | 0 |
+| `cargo test --lib --offline`（pristine，探针已还原） | **236 passed / 0 failed / 1 ignored** | 0 |
+| `cargo clippy --offline --all-targets` | 7 枚均在 `lib.rs`（199/531/1553-1566 既有 unsafe/return），本票触碰文件零警告 | 0 |
+| `pnpm test:e2e`（apps/desktop cwd，完整 Playwright，隔离端口） | **352 passed（3.0m）**，跑前跑后 pgrep 计零 | 0 |
+
+**对账**：root vitest 1916＝PI-WORKSPACE-READ-1 base 同值（本票不加 vitest 用例）；cargo **236**＝
+base 232 ＋ diff 净增 4 枚 `#[test]`（组件A 2：`session_resumed_accepts`／`counterexample_resumed`；
+组件B 2：`headless_smoke`／`headless_blocker`；删 0），回执门1「基线 234 ＋ 2」的 234 系组件A 提交后
+中间态，账自洽。验收自加两枚 wire 探针（`accept_probe_*`）跑毕已 **cp 还原**，`pi_loop.rs` SHA 复原
+`235c83da…`、`pi_loop_journal.rs` `86dca6ed…`、`git status` 归零后才跑上表官方门。全程
+`pgrep -f 'chrome-headless-[s]hell|[p]laywright'` 复核计零。
+
+## 六 · 结论与停止边界
+
+**判定：PASS，待架构消费。** 组件A（Gate D 扩员）与组件B（headless 合成 harness）票面退出证据逐条
+在场且各有可证否红证：Gate D 两侧同源闭集扩员＋逐字节往返＋6 闭性负例＋M-D2 撤员转红；harness
+两注入点＝唯一 production 偏离、其余 wire/host/journal/disk/restart 全真、smoke 真跑 write→approve→
+byte-identical→restart resume→Gate D on 真 resume 全绿。制品双件本树独立重建逐字节复现，production
+sealed CJS 身份零漂移。八相官方门在本树全绿。
+
+**headline 阻断项属正确上浮，不阻断本票放行**：本票范围恰是「提供 harness＋忠实暴露缺口」，harness
+非但不掩盖、反以真 read 工具首次触到该缺口并机器钉住；其修法超出 Gate D＋harness 授权面，登记为
+`[需架构拍板]` 够格。**§三 定谳供协调据以立下一票**：修 `active_tool_call`（write-only → 凡能发 host op
+的工具，write 取／read peek）＋复核 PI-WORKSPACE-READ-1 那批 Write-顶名读门，转绿 `headless_workspace_
+readback…blocker` 后方可在 `PI-BASE-HEADLESS-ACCEPT` 放开六格 3/4/5。
+
+本会话**未改任何产品/文档/契约面**（两枚验收探针与三枚变异均已 cp 还原、SHA 复原、git 归零）；不 merge、
+不 push、不更新 `docs/status/current.md` 与 implementation-readiness、不开下游票。结转 [需架构拍板]：
+本单新增 headline（/workspace agent 回读缺口，阻 3/4/5）；另发现陈旧 `verified-node-gate:production`
+能力断言（pre-existing，非本票，建议校准）；回执结转三条（上浮B logicalPath 空串两侧异源／②游标二元性
+随 WRITE-HOST 收敛／④`cost_usd` Disabled 臂裸 inf）承接如实，仍挂各自门。worktree
+`.claude/worktrees/accept-phh` 保留至收编。
