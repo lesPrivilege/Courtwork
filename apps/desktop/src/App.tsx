@@ -70,7 +70,6 @@ import { useNarrowRailRequired, useWideSplitAvailable } from './workbench/use-vi
 import { PiLanePanel } from './pi/PiLanePanel';
 import type { PiLanePort } from './pi/pi-lane-port';
 import { usePiLaneSession } from './pi/use-pi-lane';
-import { formatUsageMetering } from './provider/usage-metering';
 import { NewCaseDialog } from './case/NewCaseDialog';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
@@ -125,13 +124,11 @@ import {
   TurnProtocolClient,
   createLocalStorageTurnJournalBackend,
   workTurnJournalStorageKey,
-  type TurnProjection,
 } from './provider/turn-protocol-client';
 import { ProcessTrace } from './chat/ProcessTrace';
-import { processTraceFromTurn, processTraceFromWorkProjection } from './chat/process-trace-projection';
+import { processTraceFromWorkProjection } from './chat/process-trace-projection';
 import { RightRailModules } from './rail/RightRailModules';
 import { PasteBlock } from './chat/PasteBlock';
-import { ChatMarkdown } from './chat/ChatMarkdown';
 import { ScrollToLatest, useFollowScroll } from './chat/follow-scroll';
 import { continuationHistory } from './chat/session-window';
 import { SessionHistory } from './chat/SessionHistory';
@@ -1918,7 +1915,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         onSearch={() => setPaletteOpen(true)}
       />}
       <div
-        className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${rightNarrow ? 'right-narrow' : ''}`}
+        className={`workspace ${viewSegment === 'chat' ? 'chat-segment' : ''} ${viewSegment === 'draft' ? 'draft-segment' : ''} ${isWelcome ? 'welcome-mode' : ''} ${comparing ? 'comparing' : ''} ${focusMode ? 'focus-mode' : ''} ${effectiveLeftCollapsed ? 'left-collapsed' : ''} ${rightCollapsed ? 'right-collapsed' : ''} ${rightNarrow ? 'right-narrow' : ''}`}
         data-view-segment={viewSegment}
         data-testid="workspace"
         data-comparing={comparing ? 'true' : 'false'}

@@ -174,6 +174,7 @@ const EXEMPT = {
   '.pi-button|all': '控件边',
   '.pi-composer-input|all': '控件边',
   '.pi-alert|all': '语义色标线（red）',
+  '.pi-viewer|left': '浮面描边（只读查看片）',
   '.chat-case-head input|all': '控件边',
   '.scroll-latest-button|all': '控件边（浮标）',
   '.attachment-chip|all': '控件边（chip）',

@@ -346,7 +346,7 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .chat-titlebar-label { color: var(--text-secondary); font-size: var(--type-dense-body-size); font-weight: 510; }
 .chat-titlebar .welcome-head-label { color: var(--text-secondary); font-size: var(--type-dense-body-size); font-weight: 510; }
 /* chat|work 段控（左栏顶 Cowork Home|Code 位） */
-.rail-segment { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin: 6px 8px 2px; padding: 2px; border-radius: 8px; background: var(--bg-app); }
+.rail-segment { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin: 6px 8px 2px; padding: 2px; border-radius: 8px; background: var(--bg-app); }
 .rail-segment-tab { min-height: 28px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 6px; background: transparent; color: var(--text-secondary); cursor: pointer; font-size: var(--type-dense-body-size); }
 .rail-segment-tab:hover { background: var(--control-hover); color: var(--text-primary); }
 .rail-segment-tab.is-active { background: var(--bg-raised); color: var(--text-primary); font-weight: 510; }
@@ -1906,18 +1906,28 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
  * 这不是省事：新起一条线就要一枚已批提案行与签署账行，而本票的授权面是构图与浅色微调，
  * 不含线级签署——答不出即不换，正是这条法在本面的落地。
  */
+/* Draft 面是单列工作面：右侧 schema 列只属 work 面，这里整列退出网格（与 chat 面同法）。 */
+.workspace.draft-segment { grid-template-columns: minmax(var(--rail-left-min), var(--rail-left-width)) minmax(var(--chat-min), 1fr); }
+.workspace.draft-segment.left-collapsed { grid-template-columns: minmax(var(--chat-min), 1fr); }
+
 .pi-panel { position: relative; min-height: 0; flex: 1; display: flex; flex-direction: column; }
+
 .pi-panel-gate { justify-content: center; gap: 20px; padding: 0 16px 24px; }
 
 /* 状态条＝面头（复用签署过的 .panel-head 文武线）。这里只排版，不画线。 */
 .pi-status { justify-content: flex-start; gap: 16px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
-.pi-status-ident { color: var(--text-tertiary); letter-spacing: .02em; }
+.pi-status-ident { color: var(--text-secondary); letter-spacing: .02em; }
 .pi-status-slot { display: inline-flex; align-items: baseline; gap: 6px; }
 .pi-status-slot b { color: var(--text-primary); font-weight: var(--control-weight-regular); }
 .pi-status-note { color: var(--text-tertiary); }
 .pi-status-closed { color: var(--text-secondary); }
 .pi-status-restart { margin-left: auto; }
 
+/* 核验类文字（编号、字节、hash、索引标题）一律走 secondary 而非 tertiary：
+   深宗的 `text.tertiary` 在三种底面上分别是 4.28 / 3.87 / 3.14，均低于 AA 4.5——那是
+   token 层的既有事实（浅宗已闭合，深宗按 tokens.json 保留原值），不是本面能单方面改的。
+   本面因此把「要读来核对的数字」移出 tertiary，只把补充性提示留在那一档；
+   深宗 tertiary 的 AA 属另单 [需架构拍板]。 */
 .pi-mono { font-family: var(--type-dense-mono); font-variant-numeric: tabular-nums; }
 
 .pi-thread { min-height: 0; flex: 1; display: flex; flex-direction: column; }
@@ -1950,7 +1960,7 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 
 .pi-tool-facts { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 18px; }
 .pi-tool-facts > div { display: flex; align-items: baseline; gap: 6px; }
-.pi-tool-facts dt { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-tool-facts dt { color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-tool-facts dd { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 
 .pi-tool-decision { display: grid; gap: 4px; padding-top: 6px; }
@@ -1980,15 +1990,18 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 
 /* 工作稿索引：目录学体例——三位编号、逻辑路径、字节数各占一栏，行距即分隔。 */
 .pi-drafts { flex: none; display: grid; gap: 8px; padding: 12px 16px; background: var(--bg-surface); }
-.pi-drafts-title { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); font-weight: var(--control-weight-regular); letter-spacing: .04em; }
+/* 空索引不占一条色带：被动数据位只述状态，不该在视觉上先声夺人。 */
+.pi-drafts:not(:has(.pi-draft-row)) { background: transparent; padding-block: 8px; }
+.pi-drafts-title { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); font-weight: var(--control-weight-regular); letter-spacing: .04em; }
 .pi-drafts-empty { margin: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .pi-drafts-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
 .pi-draft-row { display: flex; align-items: baseline; gap: 10px; }
-.pi-draft-index { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-draft-index { color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-draft-open { flex: 1; min-width: 0; padding: 0; border: 0; background: transparent; color: var(--blue-fg); cursor: pointer; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--type-dense-mono); font-size: var(--type-dense-body-size); }
 .pi-draft-open:hover { text-decoration: underline; }
-.pi-draft-bytes { flex: none; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-draft-bytes { flex: none; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-drafts-prior { display: grid; gap: 8px; padding-top: 10px; }
+.pi-panel-gate .pi-drafts-prior { width: 100%; max-width: var(--content-measure); margin-inline: auto; }
 
 .pi-composer { flex: none; display: flex; align-items: flex-end; gap: 8px; padding: 12px 16px; background: var(--bg-raised); }
 .pi-composer-input { flex: 1; min-height: 56px; max-height: 180px; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-raised); color: var(--text-primary); resize: none; font: var(--type-body-size)/1.6 var(--font-ui); }
@@ -1998,6 +2011,8 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-viewer {
   position: absolute; z-index: 6; inset: 0 0 0 auto; width: min(520px, 100%);
   display: flex; flex-direction: column; gap: 10px; padding: 14px 16px;
+  /* 浮面描边（不换清单）：它标的是「这是一片浮起来的面」，不承载层级，故不入线级语法。 */
+  border-left: 1px solid var(--border-strong);
   background: var(--bg-raised); overflow: auto;
 }
 .pi-viewer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
@@ -2006,5 +2021,11 @@ button:active:not(:disabled) { background-color: var(--bg-selected); transition-
 .pi-viewer-note { color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
 .pi-viewer-flag { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-viewer-alert { color: var(--red-fg); }
-.pi-viewer-meta { margin: 0 0 8px; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); }
+.pi-viewer-meta { margin: 0 0 8px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); }
 .pi-viewer-body { min-height: 0; }
+
+/* 正文按测宽居中，与 chat/work 两面同一 `--content-measure`，不随视口全宽漂移。
+   置于本节末尾：三处各自的 padding 简写在上面，简写不覆盖后来的 padding-inline。 */
+.pi-thread-viewport,
+.pi-drafts,
+.pi-composer { padding-inline: max(16px, calc((100% - var(--content-measure)) / 2)); }

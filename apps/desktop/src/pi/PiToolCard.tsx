@@ -148,7 +148,8 @@ function stateLabel(call: PiToolCallView, state: string): string {
     case 'denied':
       return call.decision?.code === 'user_denied' ? PI_COPY.denied : PI_COPY.deniedByStop;
     case 'proposed':
-      return PI_COPY.waitingDecision;
+      // 头上留白：这一态的全部信息在卡体的决定区，头再说一遍只是噪声。
+      return '';
     case 'running':
       return PI_COPY.running;
     default:
