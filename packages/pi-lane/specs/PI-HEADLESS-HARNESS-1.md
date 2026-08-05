@@ -195,7 +195,13 @@ Node-only（无 Rust host）。**真 read 工具＋真 host 的组合从未被�
 
 1. **门次序**：验收自建 clean worktree 须先 `pnpm --filter @courtwork/pi-lane build:product-sidecar`
    **与** `build:headless-sidecar`，再 `cargo test --lib`——两制品缺一，`headless_artifacts()`
-   硬失败（不静默跳过）。headless bundle 现值 `554,327 B` / `52b65d16…`。
+   硬失败（不静默跳过）。headless bundle 本票实测 `554,327 B` / `52b65d16…`（**本票冻结值，
+   出处保留**）。**订正（2026-08-05）：该值自 `PI-UNKNOWN-TOOL-1` 起已陈旧**——`product-stdio.ts`
+   一动 bundle 同步漂移，现值 **`554,704 B` / `7a093181…`**（由 `PI-UNKNOWN-TOOL-1` 独立验收实测
+   并登记，见 `packages/pi-lane/ACCEPTANCE.md` 该票「随附登记」与「门禁实跑」两处）。
+   **该身份无任何机器门冻结**（全仓 `git grep` 于 `*.mjs/*.rs/*.ts/*.json` 对 `554327` 零命中），
+   故它随**任何** TS 改动漂移、不会有门替你发现：`PI-BASE-HEADLESS-ACCEPT` 取值请**当场重建后现读**
+   （`build:headless-sidecar` 自报 bytes 与 sha256），不要引本行任何一个数当预期值。
 
 2. **驱动六格的编程 API（三枚常驻 helper，`pi_loop.rs` 测试面）**：
    - `headless_artifacts() -> (node, bundle)`：定位冻结 Node ＋ headless bundle。

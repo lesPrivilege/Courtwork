@@ -4,12 +4,21 @@
 两线各自账本，不迁移、不混写；垂类包与现有 `ConfirmationLedger` 流程只挂场景线，pi write
 逐次授权只落自身 journal。
 
-现行实现只开**读面**。2026-07-28 产品将“coding-agent 基本能力先行、底层闭合后再做巧思与 GUI”
-定为下一序，并进一步裁定“先复用 pi 覆盖式 write，修订后置”。同日续裁把当前完整里程碑冻结为
+现行实现开**读面＋ host-mediated 写面**（**2026-08-05 订正**：本段原写「只开读面」，自
+`PI-WRITE-HOST-1` 于 `66862ef` no-ff 合入起即为假，同一份 SPEC 的 §一 责任表当时已列出四件工具，
+两处自相矛盾）。产品装配的模型工具**恰四件**：`read`／`glob`／`grep`（经双根容器）＋ `write`
+（`workspace_write` host request，Rust 落盘、逐次授权、durable-before-effect）；dev 装配仍只三件读。
+`edit`／`delete`／`rename`／`bash` 两线都**从不构造**，属未实现而非被开关关掉——模型请求它们得到
+内核的 `Tool X not found`（详见 §三.1）。**尚未成立**的是：GUI（`PI-LANE-UI-1` 未开工）、
+真 key 端到端、`PI-BASE-HEADLESS-ACCEPT` 六格总验（代码层可跑，卡真 DeepSeek key）；能力成熟度
+一律只认 `docs/status/current.md`。
+
+排序理由（历史，保留出处）：2026-07-28 产品将“coding-agent 基本能力先行、底层闭合后再做巧思与
+GUI”定为下一序，并进一步裁定“先复用 pi 覆盖式 write，修订后置”。同日续裁把当时的完整里程碑冻结为
 **薄 harness + 基础 GUI**：先通过通用 `.md` headless 任务矩阵，再让用户在 GUI 中完成、停止、
-授权并只读核验 workspace Markdown；Dossier、垂类修订和 UI 巧思均后置。下一票先做 headless
-write characterization；进入产品仍须经虚拟 workspace、Rust host effect、逐次授权与
-durable-before-effect 总验。Node 直写与 bash 没有因此开放。
+授权并只读核验 workspace Markdown；Dossier、垂类修订和 UI 巧思均后置。该序的 headless write
+characterization（`PI-WRITE-PROOF-1`）与其后的虚拟 workspace、Rust host effect、逐次授权与
+durable-before-effect 总验均已逐票兑现。Node 直写与 bash 没有因此开放。
 
 2026-07-29 架构清账：`PI-WRITE-PROOF-1` 已含验收修复并独立放行（验收 tip
 `9caa8ae`），以 no-ff merge `7216b2f` 进入 `main`；`PI-CODE-STDIO-1R2` 已含
@@ -28,6 +37,18 @@ durable-before-effect 总验。Node 直写与 bash 没有因此开放。
 | `tools.ts` | 只读三件：`read`（pi 原版）、`glob`、`grep`（自备，同样只经 env）。产品形态双根：命中相对**各自根**算再投影，`../workspace` 结构性产不出 |
 | `workspace-read-env.ts` | host-mediated `/workspace` 只读容器（`PI-WORKSPACE-READ-1`）。每次读是一枚 `exists｜read_file｜list` host request，Node 侧零 fs；`read_file` 回读双验（重编码后 hash/byteLength/logicalPath 三项复核） |
 | `dual-root-env.ts` | 双根路由容器。按逻辑前缀把一枚 `ExecutionEnv` 分派到 `/case`（Node 直读）或 `/workspace`（host-mediated）。只分派，不改写返回值 |
+
+> **`tools.ts` 行「命中相对各自根算」的在册缺口（2026-08-05 登记，票号 `PI-DUALROOT-CONTRACT-1`）**：
+> 该承诺**当前未兑现于无前缀输入**，且承诺不改——按协调裁定 R4，契约不向缺陷弯，缺口登记待票偿。
+> 实测：裸相对路径在写面绑 `/workspace`（`workspace-write-env.ts` 的 `resolveWorkspaceLogicalPath`，
+> 无前缀即 `relative = input`），在读面经 `dual-root-env.ts` 的 `route()` 落 `roots[0]` fallback 即
+> `/case`，且 `/case` 容器照收——**同一字符串两义，无任何一层拒绝**；四件工具的 description 与
+> `path` 参数说明仍是单根口径，而 system prompt 第四条要求「写后回读确认」，模型复用同一路径即落到
+> 另一根。改法二选一（读侧对称绑 `/workspace`，或 `route()` 对无前缀输入具名 fail-closed），无论哪条
+> 都须同批把四件工具契约文案改双根口径——工具契约是模型唯一能读到的寻址规则，prompt 不能替它。
+> 票面与退出证据见 `docs/architecture/implementation-readiness.md` 的 `PI-DUALROOT-CONTRACT-1` 行
+> （**须早于 §九 六格 3/4 判读**，否则 harness 缺陷会被误记为模型能力不足）。
+> `../workspace` 结构性产不出这一半仍成立，本缺口只涉无前缀输入的落根归属。
 | `budget.ts` | 回合与开销计量 |
 | `session.ts` | 装配 pi `Agent` + 容器 + 闸门 + 预算 |
 | `provider.ts` | DeepSeek 甜点档接线与就绪判定 |
@@ -248,8 +269,9 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
 ### 并行相邻票与合流门
 
 > **回执去处（2026-08-05 归档批，本节及下节不再逐条写件的路径）**：本节所列各票的独占回执已随其
-> 清账移出 `packages/pi-lane/specs/`，成为**史料线索**——去处按归档索引（`archive/README.md`）的
-> `pi-lane-receipts-2026-07-08/` 五枚条目定位，每条附逐轮 SHA 表可定位单件。SPEC 不在 `docs/README.md`
+> 清账移出 `packages/pi-lane/specs/`，成为**史料线索**——去处按归档索引的
+> `pi-lane-receipts-2026-07-08/` 五枚条目定位（索引是归档的唯一入口，故此处不直书归档路径），
+> 每条附逐轮 SHA 表可定位单件。SPEC 不在 `docs/README.md`
 > 「史料引用例外」的四类面内，故这里只写票号、用转指形式，不直书归档路径。下文各条「只许改…回执」
 > 的措辞记的是该票**施工当时**的范围合同，不是现在还存在的文件；归档件恒不具约束力，现行契约只认
 > 本 SPEC、`ACCEPTANCE.md`、ADR-022 与实现就绪图。
@@ -780,11 +802,17 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 
 **已随清账归档（二十四份，2026-08-05）**：`PI-WRITE-PROOF-1`、`PI-CODE-STDIO-1{,R,R2}`、
 `PI-SIDECAR-DIST-1{,R,R2,R3,R4,R5}` 与 `-1R5-ACCEPT` 验收令、`PI-HOST-LOOP-1` 原票与
-`1R`…`1R7`、`PI-WRITE-HOST-1-STAGE2`…`STAGE6`。它们是**史料线索**，去处按归档索引
-（`archive/README.md`）的 `pi-lane-receipts-2026-07-08/` 五枚条目定位，每条附逐轮 SHA 表；
+`1R`…`1R7`、`PI-WRITE-HOST-1-STAGE2`…`STAGE6`。它们是**史料线索**，去处按归档索引的
+`pi-lane-receipts-2026-07-08/` 五枚条目定位（索引是归档的唯一入口，故此处不直书归档路径），
+每条附逐轮 SHA 表；
 SPEC 不在史料引用例外的四类面内，故此处只转指索引、不直书归档路径。归档件恒不具约束力。
 
 ## 十 · 门与证据
+
+> **合流 tip 现读（2026-08-05，`5807adc` 登记的八相门实测）**：root **1925**／desktop **690**／
+> cargo **237**／Playwright **352**。本节及下节各批留痕里的数字一律是**各自批次的账目出处**，不是
+> 现读值；判定现值只跑门。下节 Playwright 三轮的 `351` 尤须按此读——它是 `PI-LANE-1` 期的门规模，
+> 循 `8019` 订正先例出处保留、不删原数。
 
 - 单测 **540 例 / 17 文件**（`vitest run packages/pi-lane`，2026-08-05 由
   `PI-UNKNOWN-TOOL-1` 在其 worktree 实测，较 `PI-WORKSPACE-READ-1` 的 531/17 净增 9 例
@@ -800,7 +828,8 @@ SPEC 不在史料引用例外的四类面内，故此处只转指索引、不直
 
 ### Playwright 全链实跑与记名豁免
 
-验收令要求「不触产品面」由 351 门实跑作证，不采信宣称。`COURTWORK_E2E_PORT` 隔离端口，
+验收令要求「不触产品面」由 351 门实跑作证，不采信宣称（**`351` 为 `PI-LANE-1` 期冻结值**，
+本节全部读数同此口径；合流 tip 现读 352，见上节题注）。`COURTWORK_E2E_PORT` 隔离端口，
 `reuseExistingServer: false` 故每轮自起服务。三轮实跑：
 
 | 轮次 | 树 | 结果 | 红例 |
@@ -818,7 +847,9 @@ SPEC 不在史料引用例外的四类面内，故此处只转指索引、不直
 与 `host-auth.spec.ts:41`（TCC 面，环境敏感）只在对照一出现，对照二消失；两轮耗时 5.0m→8.5m，
 机器负载有变。351 门在本机**并非逐轮确定性**，这条留给验收角色自行复核，不由本票下结论。
 
-- Playwright floor **不动**（本票不加 e2e 用例，dev 入口不属产品面），三轮总数恒为 351。
+- Playwright floor **不动**（本票不加 e2e 用例，dev 入口不属产品面），三轮总数恒为 351
+  ——「恒为」只作用于**本票这三轮之内**（同一棵树、同一门规模），不是跨批次的不变量：
+  该门此后随其他票增长，现读 352。
 - 本节写入后未重跑 Playwright：链上读 `SPEC.md` 的两个门（`assert-schema-parts.mjs`、
   `skin-r2-ledger-contract-lib.mjs`）只读 `site/SPEC.md` 与 `apps/desktop/SPEC.md`，
   不读 `packages/*/SPEC.md`，故本文件的改动碰不到任何门；其余快门在写入后复跑。

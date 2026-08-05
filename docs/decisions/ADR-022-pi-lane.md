@@ -1265,7 +1265,8 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 > **返修合同件的去处（2026-08-05 一次性登记，下方不再逐条写路径）**：`PI-HOST-LOOP-1` 原票与
 > `1R`…`1R7` 七份返修合同、`PI-CODE-STDIO-1{,R,R2}`、`PI-SIDECAR-DIST-1` 六轮及其验收令、
 > `PI-WRITE-PROOF-1` 已随该批清账离开 `packages/pi-lane/specs/`。要回读其中任何一件属**史料线索**，
-> 去处按归档索引（`archive/README.md`）的 `pi-lane-receipts-2026-07-08/` 各条目定位；每条附逐轮
+> 去处按归档索引的 `pi-lane-receipts-2026-07-08/` 各条目定位（索引是归档的唯一入口，故此处不直书
+> 归档路径）；每条附逐轮
 > SHA 表，可据此定位单轮件。ADR 正文不直书归档路径（`decisions/README.md` 变更规则），故下方各条
 > 只写票号，不写件的路径；归档件恒不具约束力，本 ADR 与各层 SPEC 才是现行契约。
 
