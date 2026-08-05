@@ -763,6 +763,7 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - [`PI-HOST-LOOP-1`](specs/PI-HOST-LOOP-1.md)
 - [`PI-WORKSPACE-READ-1` 侦察](specs/PI-WORKSPACE-READ-1-RECON.md)
 - [`PI-WORKSPACE-READ-1`](specs/PI-WORKSPACE-READ-1.md)
+- [`PI-HEADLESS-HARNESS-1`](specs/PI-HEADLESS-HARNESS-1.md)
 
 ## 十 · 门与证据
 
