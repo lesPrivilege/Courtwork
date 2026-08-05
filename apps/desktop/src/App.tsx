@@ -89,7 +89,14 @@ import { ArtifactHostView, resolveHostArtifact } from './preview/ArtifactHostVie
 import { UnsupportedArtifactView } from './preview/ArtifactTableRenderer';
 import { resolveNamedComponentView } from './preview/named-component-view';
 import { WorkbenchRenderProvider } from './preview/workbench-render-context';
-import type { HostRendererRegistry } from './preview/HostRendererRegistry';
+import type { HostRendererRegistry, HostWorkbenchView } from './preview/HostRendererRegistry';
+import {
+  GENERIC_DRAFT_VIEW,
+  preferredWorkbenchView,
+  resolveWorkbenchViews,
+  workbenchViewLabel,
+} from './preview/workbench-views';
+import { demoViewCount } from './demo/demo-view-counts';
 import {
   modelDisplayName,
   type ModelConfig,
@@ -145,7 +152,8 @@ import type { ResolvedSourceAnchor, SourceAnchor } from '@courtwork/schemas';
 import { S3_REVIEW_GATE_LABEL } from './work/contract-review-flow';
 import { useContractReviewSubmission } from './work/use-contract-review-submission';
 
-type WorkbenchView = 'timeline' | 'graph' | 'matrix' | 'revision' | 'draft' | 'artifact';
+/** 工作面 id 的唯一定义在宿主注册表；壳只用别名，不再自持一份垂类枚举。 */
+type WorkbenchView = HostWorkbenchView;
 
 /**
  * CONTRACT-TRACE-1：demo route → canonical `MaterialReaderDoc` 的适配点。
@@ -169,20 +177,6 @@ const DEMO_CONTRACT_OUTPUT_FILE = '合同审查报告.docx';
 /** 样板案主合同的展示名（demo 原件；production 一律从冻结材料取真实文件名）。 */
 const DEMO_CONTRACT_SOURCE_NAME = '设备采购合同';
 const DRAFT_OUTPUT_FILE = '答辩意见.docx';
-
-const VIEW_LABELS: Record<WorkbenchView, string> = {
-  timeline: '时间线',
-  graph: '关系图谱',
-  matrix: '矩阵审阅',
-  revision: '修订预览',
-  draft: '起草画布',
-  artifact: '结构化产出',
-};
-
-const VIEWS = Object.keys(VIEW_LABELS) as WorkbenchView[];
-function visibleViews(hasArtifactView: boolean): WorkbenchView[] {
-  return hasArtifactView ? VIEWS : VIEWS.filter((view) => view !== 'artifact');
-}
 
 function previewViewForArtifact(
   artifactType: string,
@@ -258,7 +252,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
   const [session, dispatch] = useReducer(reduceSession, EMPTY_SESSION);
   const [workPhase, setWorkPhase] = useState<WorkProjectionPhase>();
-  const [activeView, setActiveView] = useState<WorkbenchView>('revision');
+  /** 默认落点由在册 blueprint 的 `preferred` 决定；未加载垂类即落通用起草画布。 */
+  const preferredView = preferredWorkbenchView(packageRegistries, hostRenderers);
+  const [activeView, setActiveView] = useState<WorkbenchView>(preferredView);
   const [activeArtifactType, setActiveArtifactType] = useState<string>();
   const [secondaryView, setSecondaryView] = useState<WorkbenchView>();
   const [splitDirection, setSplitDirection] = useState<SplitDirection>('rows');
@@ -805,7 +801,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setCompilePending(false);
     setSelectedRiskId('risk-03');
     setSecondaryView(undefined);
-    setActiveView('revision');
+    setActiveView(preferredView);
     setActiveArtifactType(undefined);
     openedAt.current = {};
     lastReplayedFlow.current = undefined;
@@ -1008,6 +1004,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const artifactViewEntry = artifactViewEntries.find(([artifactType]) => artifactType === activeArtifactType)
     ?? artifactViewEntries.at(-1);
   const hasArtifactView = artifactViewEntry !== undefined;
+  /** 页签条：具名面由「已准入 artifact × 在册 blueprint」派生，通用面恒在（ADR-015 决定一/三）。 */
+  const workbenchViews = resolveWorkbenchViews(packageRegistries, hostRenderers, hasArtifactView);
   const demoArtifactCard = demoArtifactCardCopy(flow, artifactPayload, session.citationStats);
   const selectedRisk = riskList?.risks.find((risk) => risk.id === selectedRiskId) ?? riskList?.risks[0];
   const gradeByKey = useMemo(() => new Map(session.evidenceGrades.map((item) => [item.key, item.grade])), [session.evidenceGrades]);
@@ -1488,7 +1486,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     manualPreviewSelected.current = true;
     setWorkDraftMode(false);
     setFileOpsMode(false);
-    setActiveView('revision');
+    setActiveView(preferredView);
     setPreviewOpen(true);
     setReaderDoc(null);
     previewDismissedContext.current = null;
@@ -1513,7 +1511,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   };
 
   const startComparison = () => {
-    setSecondaryView(activeView === 'draft' ? 'timeline' : 'draft');
+    // 对照面：从起草画布出发时配一枚具名工作面（在册次序第一枚），否则配回起草画布。
+    // 未加载垂类时零具名面，两侧同为起草画布——对照按钮的可用性另由 `comparable` 判定。
+    const counterpart = workbenchViews.find((entry) => entry.id !== GENERIC_DRAFT_VIEW.id)?.id ?? GENERIC_DRAFT_VIEW.id;
+    setSecondaryView(activeView === GENERIC_DRAFT_VIEW.id ? counterpart : GENERIC_DRAFT_VIEW.id);
     setSplitDirection('rows');
     setSplitRatio(50);
   };
@@ -1654,7 +1655,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     // 末尾落点显式收口：此前 `revision` 无判等、是默认落点，任何未被上方接住的工作面都会静默
     // 渲染成修订预览。矩阵迁 blueprint 后这条穿透有了真实触发条件（blueprint 撤销即落此处），
     // 故改为显式拒绝——缺 renderer 是显式态，不是「渲染别的面」。
-    if (view !== 'revision') return <UnsupportedArtifactView title={VIEW_LABELS[view]} />;
+    if (view !== 'revision') return <UnsupportedArtifactView title={workbenchViewLabel(workbenchViews, view)} />;
     if (!riskList) return emptyWorkbench('修订预览尚未生成');
     if (!selectedRisk) {
       return <section className="empty-review-result" data-testid="revision-panel">
@@ -1728,8 +1729,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const pane = (view: WorkbenchView, secondary = false) => <section className="workbench-pane" data-pane={secondary ? 'secondary' : 'primary'}>
     <header className="pane-head">
       {secondary
-        ? <label><span>Compare</span><select aria-label="Comparison view" value={view} onChange={(event) => setSecondaryView(event.target.value as WorkbenchView)}>{visibleViews(hasArtifactView).map((candidate) => <option value={candidate} key={candidate}>{VIEW_LABELS[candidate]}</option>)}</select></label>
-        : <><strong>{VIEW_LABELS[view]}</strong><span>Primary view</span></>}
+        ? <label><span>Compare</span><select aria-label="Comparison view" value={view} onChange={(event) => setSecondaryView(event.target.value as WorkbenchView)}>{workbenchViews.map((candidate) => <option value={candidate.id} key={candidate.id}>{candidate.label}</option>)}</select></label>
+        : <><strong>{workbenchViewLabel(workbenchViews, view)}</strong><span>Primary view</span></>}
     </header>
     <div className="pane-content">{renderView(view)}</div>
   </section>;
@@ -2286,7 +2287,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
               Preview 双态——大纲目录 ↔ 浏览器态（右列唯一,title/tab 条/schema 面三层封闭,back 回目录） */}
           {!previewOpen && <RightRailModules
             modules={utilityItems}
-            outline={visibleViews(hasArtifactView).map((view) => ({ id: view, label: VIEW_LABELS[view], meta: viewCount(view, draftFrozen, isDemoCase, hasArtifactView) }))}
+            outline={workbenchViews.map((entry) => ({ id: entry.id, label: entry.label, meta: viewCount(entry.id, draftFrozen, isDemoCase, hasArtifactView) }))}
             previewOpenState={outlineOpen}
             onPreviewToggle={() => setOutlineOpen((open) => !open)}
             onOpenOutline={(viewId) => {
@@ -2306,9 +2307,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           />}
           {previewOpen && <WorkbenchPreviewRenderer
             onBack={() => { previewDismissedContext.current = `${selectedCaseId}:${flow ?? 'none'}`; setPreviewOpen(false); setReaderDoc(null); }}
-            title={readerDoc ? readerDoc.name : comparing ? '工作面对照' : VIEW_LABELS[activeView]}
+            title={readerDoc ? readerDoc.name : comparing ? '工作面对照' : workbenchViewLabel(workbenchViews, activeView)}
             meta={readerDoc ? '原件 · 只读' : comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase, hasArtifactView)}
-            tabs={visibleViews(hasArtifactView).map((view) => ({ id: view, label: VIEW_LABELS[view] }))}
+            tabs={workbenchViews.map((entry) => ({ id: entry.id, label: entry.label }))}
             activeTab={readerDoc ? '' : activeView}
             onSelectTab={(id) => {
               const view = id as WorkbenchView;
@@ -2443,9 +2444,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
 function viewCount(view: WorkbenchView, draftFrozen: boolean, isDemo: boolean, hasArtifactView: boolean) {
   if (view === 'artifact') return hasArtifactView ? '已生成' : '尚无';
   if (!isDemo) return '尚无';
-  if (view === 'timeline') return '47 件';
-  if (view === 'graph') return '14 · 15';
-  if (view === 'matrix') return '10 × 7';
-  if (view === 'revision') return '4 处';
-  return draftFrozen ? '已定稿' : '起草中';
+  // 样板案展品计数住 demo 族；壳侧只余通用两支。命中即取，否则落起草画布的定稿判据。
+  return demoViewCount(view) ?? (draftFrozen ? '已定稿' : '起草中');
 }

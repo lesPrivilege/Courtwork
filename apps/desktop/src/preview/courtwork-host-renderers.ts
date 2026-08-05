@@ -10,6 +10,12 @@ import {
 /**
  * 可执行 React/projection 只在 desktop 宿主登记。垂类包只声明稳定 uiTemplateId，
  * 不越过 Package ABI 注入组件、CSS 或路由函数。
+ *
+ * GENERIC-PACK-1：本文件同时是**具名工作面的排序与标题唯一真源**——页签条按此处的声明次序
+ * 派生（`resolveWorkbenchViews`），标题取 `label`，默认落点取 `preferred`。壳里不再有
+ * 垂类工作面的枚举、词表或默认值；未加载垂类时具名面自然为零。
+ *
+ * 声明次序即页签次序，故此处的顺序是**契约不是排版**：改动会改产品页签顺序。
  */
 export function createCourtworkHostRendererRegistry(): HostRendererRegistry {
   return createHostRendererRegistry([
@@ -20,6 +26,7 @@ export function createCourtworkHostRendererRegistry(): HostRendererRegistry {
       uiTemplateId: 'courtwork.timeline.v1',
       kind: 'component',
       view: 'timeline',
+      label: '时间线',
       component: TimelineRenderer,
       moduleTarget: 'timeline',
       autoOpen: true,
@@ -30,11 +37,11 @@ export function createCourtworkHostRendererRegistry(): HostRendererRegistry {
       uiTemplateId: 'courtwork.party-graph.v1',
       kind: 'component',
       view: 'graph',
+      label: '关系图谱',
       component: GraphRenderer,
       moduleTarget: 'graph',
       autoOpen: true,
     },
-    { uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', moduleTarget: 'revision', autoOpen: true },
     {
       // PANEL-BLUEPRINT-1 首枚：矩阵审阅由 route 迁为版本化 component blueprint。
       // 旧 id `matrix-review-panel` 不留 alias——artifact 事件只持 artifactType 与 payload，
@@ -42,9 +49,20 @@ export function createCourtworkHostRendererRegistry(): HostRendererRegistry {
       uiTemplateId: 'courtwork.review-matrix.v1',
       kind: 'component',
       view: 'matrix',
+      label: '矩阵审阅',
       component: ReviewMatrixRenderer,
       moduleTarget: 'matrix',
       autoOpen: true,
+    },
+    {
+      uiTemplateId: 'risk-review-panel',
+      kind: 'route',
+      view: 'revision',
+      label: '修订预览',
+      moduleTarget: 'revision',
+      autoOpen: true,
+      // 已加载合同审查垂类时的默认落点；未加载即落通用 `draft`（壳不写死垂类面名）。
+      preferred: true,
     },
     { uiTemplateId: 'draft-review-panel', kind: 'route', view: 'draft', autoOpen: false },
     { uiTemplateId: 'file-ops-plan-panel', kind: 'passive', moduleTarget: 'working-folders' },

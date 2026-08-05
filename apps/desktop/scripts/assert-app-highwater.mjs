@@ -83,7 +83,12 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // 懒载点去 `preview/GraphRenderer.tsx`（`lazy(() => import('workbench/GraphPanel'))` 随渲染件
 // 迁走，g6 chunk 切分不变）；`view === 'graph'` 分支、`graph` 局部、`PartyGraph` 类型持有与
 // `lazy`/`Suspense` 两枚 React import 同批退役。App 侧净增 0。
-const HIGH_WATER_LINES = 2451;
+// GENERIC-PACK-1 · ③ 工作面集 blueprint 驱动：2451 → 2449。外提物两件——① 可见工作面集、
+// 默认落点与标题查询去 `preview/workbench-views.ts`（`resolveWorkbenchViews` /
+// `preferredWorkbenchView` / `workbenchViewLabel`），壳侧 `VIEW_LABELS` / `VIEWS` /
+// `visibleViews` 三件同批退役；② 样板案页签计数四枚去 `demo/demo-view-counts.ts`。
+// App 侧净增 4 行（派生一次、默认落点一次与对照面配对两行注释）。
+const HIGH_WATER_LINES = 2449;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

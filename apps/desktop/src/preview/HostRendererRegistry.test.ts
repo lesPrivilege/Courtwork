@@ -19,7 +19,8 @@ describe('HostRendererRegistry（宿主以 uiTemplateId 绑定可执行工作面
       kind: 'component', view: 'graph', moduleTarget: 'graph', autoOpen: true,
     });
     expect(registry.get('risk-review-panel')).toEqual({
-      uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', moduleTarget: 'revision', autoOpen: true,
+      uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', label: '修订预览',
+      moduleTarget: 'revision', autoOpen: true, preferred: true,
     });
     expect(registry.get('matrix-review-panel')).toBeUndefined();
     expect(registry.get('courtwork.review-matrix.v1')).toMatchObject({
