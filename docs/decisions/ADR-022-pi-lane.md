@@ -1310,6 +1310,10 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 > SHA 表，可据此定位单轮件。ADR 正文不直书归档路径（`decisions/README.md` 变更规则），故下方各条
 > 只写票号，不写件的路径；归档件恒不具约束力，本 ADR 与各层 SPEC 才是现行契约。
 
+- **2026-08-05 · 「随 container 整删」登记为未兑现边界**：决定四与六-C 冻结「journal 与
+  workspace 二者随 container 整删」，实现当期只删 journal 树且 `delete_container` 生产
+  零可达；架构裁定按未兑现边界显式登记，workspace 删除面待 container 删除真实入产品面时
+  随票补齐。正文原句不动（行号坐标保全），本条为其现行读法。
 - **2026-08-05 · 六-C.1 并发与中断模型＋逻辑根口径收敛（产品负责人拍板）**：架构层验收④
   实证 cancel 结构性不可调、decide 同步阻塞授权等待（详六-C.1 背景）。拍板：宿主专属线程＋
   入站命令通道（闭集 `prompt|cancel|decision|teardown`）、decide 改投提案等回执、Stop 收束
