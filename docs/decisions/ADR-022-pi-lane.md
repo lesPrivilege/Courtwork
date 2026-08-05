@@ -612,11 +612,11 @@ A0.5/A2 的工具与 workspace 精确语义如下：
   上游 TypeBox schema 本身是开放 object，会接受额外字段并发生 primitive→string coercion；
   产品必须在 `beforeToolCall` 对 raw arguments 做 exact-key/type gate，不能把“上游参数看起来
   只有两项”误写成 strict schema。
-- agent 可见两枚逻辑根：只读 `/case` 与可写 `/workspace`。read/glob/grep 的相对路径仍以
-  `/case` 为 cwd；write 的相对路径以 `/workspace` 为 cwd，同时允许把虚拟绝对
-  `/workspace/<safe-relative-path>` 规范化为同一 logicalPath；`/workspace` 根本身、`/case`
-  或其他绝对路径一律拒绝。read 必须能显式读取
-  `/workspace/...`，使“写后回读”成为基础闭环；路径结果和错误不得泄露物理根。
+- agent 可见两枚逻辑根：只读 `/case` 与可写 `/workspace`。四件工具的裸相对路径以同一口径落
+  `/workspace`（2026-08-05 修订；原「read/glob/grep 默认 `/case`」两义口径废止），读取案件
+  材料一律显式 `/case/` 前缀。write 仍允许把虚拟绝对 `/workspace/<safe-relative-path>`
+  规范化为同一 logicalPath，`/workspace` 根本身、`/case` 或其他绝对路径一律拒绝写。read 必须
+  能显式读取 `/case/...` 与 `/workspace/...`，写后回读同串即同文件；路径结果和错误不得泄露物理根。
 - `/workspace` 物理落点固定为
   `app_data_dir()/pi-workspaces/<containerId>/<sessionId>/`，新 session 初始为空、按 container
   可整删；它是过程 artifact，不是用户原件、工作稿或产出。原件与 `产出/` 对 write 根本不可寻址；
@@ -659,6 +659,43 @@ A0.5/A2 的工具与 workspace 精确语义如下：
   promotion。它们只能由后续垂类契约引入，不能夹进 write 票“顺便完善”。
 - 这一路是受信 Rust 宿主执行已确认 workspace effect，Node 只提案，因此按 ADR-018 计
   `process` 而非 `os_confined`。任何 Node 直写或 bash 仍须先满足 `os_confined` 与越界反例。
+
+#### 六-C.1 · 宿主并发与中断模型（2026-08-05 修订，`PI-HOST-CONCURRENCY-1` 前置）
+
+背景实证（2026-08-05 架构层验收④）：`prompt()` 阻塞独占 `&mut self` 且无总时限，`cancel()`
+需同一独占借用，故 prompt 在泵中时结构性无人可调；`WriteDecisionDriver::decide` 同步跑在同一
+阻塞泵内，授权等待期间 host 线程整体卡住。A1 已把 cancel 列为可交付能力，
+`PI-BASE-GUI-ACCEPT` 要求 Stop race 真测——以原 API 形状该测试写不出来，借用检查器先拦。
+
+- **宿主线程独占**：每条 logical session 的 `PiLoopHost` 由一条专属宿主线程独占持有并独占
+  驱动；同步内核（四段账序、编码先于效果、普适电池所锁语义）不改形。单写者不变量由线程
+  独占继承，不新增第二状态真源。`start` 属构造入口（届时以 Tauri command 落形），不在
+  运行期命令闭集内。
+- **入站命令通道**：外部（Tauri command 层、headless 驱动）只经入站命令通道与宿主线程
+  交谈，运行期命令闭集 `prompt | cancel | decision | teardown`。命令通道是进程内端口
+  （ADR-009 2026-08-05 窄修订），与六-B 的 wire 闭集不同层，不得混写。活动 prompt 期间新
+  prompt 命令具名拒绝、不排队（与六-D 禁 queue 同源）；闭集外或错序命令 fail-closed 具名
+  拒绝，不静默丢弃。
+- **泵的可唤醒性**：泵的任一等待点（sidecar stdout 等待、授权回执等待）必须同时可被命令
+  通道唤醒；实现形态（有界轮询切片或 reader 线程双源 recv）由实现票冻结。活动 prompt 本体
+  无总时限的例外维持不变——可中断性由 Stop 保障，不由时限保障。
+- **cancel 可达**：cancel 经命令通道在 prompt 泵中可达。wire 端语义零改：六-B.1 的 cancel
+  包、race-late no-op、在途 host request 先收束、`effect_uncertain > cancel` 优先级与
+  cancel→terminal 有界 deadline 全部如旧。
+- **decide 改「投提案＋等回执」**：`WriteDecisionDriver` 的同步签名保留为内核契约；产品
+  driver 的形态是「经投影面呈现提案，阻塞等待命令通道上的 `decision` 回执」。回执须携
+  operationId 对齐当前悬置提案，错配即失效丢弃并显式登记。等待期间命令通道必须仍被服务：
+  回执到则按回执收束；**Stop 到则悬置提案立即以 `authorization_decided(denied,
+  user_denied)` durable 收束**（Stop 蕴含拒绝，不新增 wire 拒绝码），host_result 照四段
+  账序发出后走既有 cancel 路径。等待无时限——授权属用户，系统不代拒，但必须可被 Stop 与
+  teardown 收束。
+- **回执不得追溯生效**：`decision` 回执只对当前唯一悬置提案有效；提案已收束（含因 Stop
+  收束）后到达的回执一律失效丢弃并显式登记，effect 恰零次。这是 Stop race 真测的判定核心。
+- **悬置提案不跨 leg**：等待期间 session 中断（crash/teardown）时，journal 允许 leg 尾部
+  存在无 decision 的 `tool_proposed`（仅限尾部一枚）；恢复不自动重提、不代答，新 leg 由
+  模型重新提案。读侧校验按此收口，leg 中部无 decision 仍拒。
+- **fail-closed 边界不变**：production 无 driver 恒 `policy_denied`；本修订只定义有 driver
+  时的产品形态。journal payload 闭集与 wire 闭集零变化。
 
 ### 六-D · OSS 与 GUI
 
@@ -1270,6 +1307,15 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 > SHA 表，可据此定位单轮件。ADR 正文不直书归档路径（`decisions/README.md` 变更规则），故下方各条
 > 只写票号，不写件的路径；归档件恒不具约束力，本 ADR 与各层 SPEC 才是现行契约。
 
+- **2026-08-05 · 六-C.1 并发与中断模型＋逻辑根口径收敛（产品负责人拍板）**：架构层验收④
+  实证 cancel 结构性不可调、decide 同步阻塞授权等待（详六-C.1 背景）。拍板：宿主专属线程＋
+  入站命令通道（闭集 `prompt|cancel|decision|teardown`）、decide 改投提案等回执、Stop 收束
+  悬置提案为 `user_denied`、回执不追溯生效、悬置提案不跨 leg；wire 与 journal 闭集零变化，
+  端口面见 ADR-009 同日窄修订。同批按验收②把六-C 裸相对路径改四工具单一 `/workspace` 口径
+  （原 read 默认 `/case` 与 write 默认 `/workspace` 使「写后回读」同串异文件），`/case`
+  强制显式前缀；工具 description 双根口径随 `PI-DUALROOT-CONTRACT-1` 落地。实现票
+  `PI-HOST-CONCURRENCY-1` 另派：两枚 Stop 真竞态测试、回执不追溯反例、
+  `#![allow(dead_code)]` 收窄、同工具形槽位 fail-closed、`capability_for` 单点收敛。
 - **2026-08-03 · HOST-LOOP 1R7 放行与七轮收束**：`PI-HOST-LOOP-1R7@744c070`（实现
   `f915eea`）经独立验收 `6da6aea` **PASS**：恢复分相结构成立（M7 双臂对照——同树同
   codec-only future rule，apply 前移臂复现 558→790，分相臂 558→558）、电池 152 行/15

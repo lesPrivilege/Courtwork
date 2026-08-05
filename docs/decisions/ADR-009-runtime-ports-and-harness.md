@@ -291,6 +291,20 @@ Rust journal projection 适配成视图状态；禁止 `LocalRuntime`、Assistan
 OpenCode adapter、thread persistence/export、branching/edit/queue 等第二真源能力。未提供
 callback 的能力必须保持关闭。此例外不反向扩大场景线依赖面。
 
+### 2026-08-05 窄修订：pi host 并发端口（命令通道）
+
+决定一「解耦以 Port 为边界」在 pi lane 宿主侧的落形（`PI-HOST-CONCURRENCY-1` 前置，授权面
+语义见 ADR-022 六-C.1）：
+
+- 每条 logical session 的 `PiLoopHost` 由专属宿主线程独占持有；Tauri command 层是薄壳，只把
+  `prompt | cancel | decision | teardown` 投入该 session 的入站命令通道并立即返回，不借用
+  宿主状态。审批按钮只发 command，决定只认 journal（与就绪图 `PI-LANE-UI-1` 判据同句）。
+- 结果与状态经 journal→projection 事件面回流；WebView 零直读 JSONL、零进程句柄、零绝对
+  路径，ADR-022 六-A 边界不变。命令通道是进程内端口，不是 IPC/HTTP/gateway wire，也不得
+  混入六-B 的 sidecar wire 闭集。
+- 场景线既有 `cancellation_store()`＋oneshot 先例继续只属场景线；pi 线命令通道是其 pi 侧
+  对应物，两线各自账本、不混写、不互相替代。
+
 ## 决定八：Demo composition 是独立开发包
 
 - 新建 `packages/demo-runtime` 作为唯一 demo/acceptance composition root，承接现有 core 内的 demo assembly、真实/脚本化演示 runner、CLI 与端到端 golden。
@@ -327,3 +341,7 @@ Courtwork 仍是本地优先单体应用，但 UI、core 与宿主能力具有�
   `useExternalStoreRuntime` hook 作为
   Courtwork journal 薄投影。禁止引入其本地/云 runtime、provider adapter、thread persistence
   或分支/编辑/排队状态真源。
+- **2026-08-05（pi host 命令通道端口）**：pi 宿主侧并发端口定形——session 专属宿主线程＋
+  运行期命令闭集 `prompt|cancel|decision|teardown`，Tauri command 薄壳零借用，结果只经
+  journal→projection 回流；授权面语义与拍板记录见 ADR-022 六-C.1 及其修订记录同日条。
+  场景线 oneshot 先例不跨线复用。
