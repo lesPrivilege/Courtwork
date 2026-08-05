@@ -1117,6 +1117,116 @@ describe('政策拒绝的工具账如实（N3）', () => {
   });
 });
 
+/**
+ * PI-UNKNOWN-TOOL-1 · 模型叫出闭集外的工具名。
+ *
+ * 内核在**查表之前**就以模型自填的 `toolName` 发 `tool_execution_start`
+ * （`agent-loop.js` 的 `executeToolCallsSequential`：emit 在 `prepareToolCall` 之前），
+ * 查不到表才回 `Tool X not found` 的 isError 结果并照常回灌。故「模型叫错名字」是
+ * SPEC 三.1 承诺的**正常路径**，不是上游违约——本组证它端到端成立：
+ * 会话存活、isError 结果进 transcript、随后 write 照常走通，且公开 tc ordinal 零漂移。
+ */
+describe('闭集外的模型工具名（PI-UNKNOWN-TOOL-1）', () => {
+  const notFoundResults = (harness: Harness): string[] =>
+    harness.runtime
+      .messages()
+      .flatMap((message) =>
+        message.role === 'toolResult' && message.isError === true
+          ? message.content.flatMap((block) =>
+              block.type === 'text' && block.text.includes('not found') ? [block.text] : [],
+            )
+          : [],
+      );
+
+  it('bash / edit / 任意未知名逐枚 ⇒ 会话存活、isError 结果回灌、随后 write 端到端走通', async () => {
+    const content = '# 摘要\n合同编号 HT-2024-081。\n';
+    const { host, files } = scriptedWorkspaceHost();
+    faux.setResponses([
+      fauxAssistantMessage([fauxToolCall('bash', { command: 'ls /case' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('edit', { path: '简报.md', old: '甲', new: '乙' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('把文件删掉', {})], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('write', { path: '简报.md', content })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxText('已写入 /workspace/简报.md。')]),
+    ]);
+    const harness = createHarness(host);
+    harness.bootstrap();
+    await harness.prompt('写一份简报', 'request-1');
+
+    // ① 会话存活：唯一终态是 completed，绝无 upstream_event_unsupported。
+    expect(harness.terminals()).toHaveLength(1);
+    expect(harness.terminals().at(-1)?.status).toBe('completed');
+
+    // ② 内核的 isError 结果逐枚回灌模型——SPEC 三.1 承诺的那一半。
+    expect(notFoundResults(harness)).toEqual([
+      'Tool bash not found',
+      'Tool edit not found',
+      'Tool 把文件删掉 not found',
+    ]);
+
+    // ③ 闭集外的三枚一件都不上 wire，write 那一枚照常上；公开 tc ordinal 从 1 起算，零漂移。
+    expect(harness.kinds().filter((kind) => kind.startsWith('tool_'))).toEqual([
+      'tool_started:tc_1_1',
+      'tool_finished:tc_1_1',
+    ]);
+
+    // ④ write 真走通：恰一枚 host_request，宿主表里落的就是模型给的字节。
+    expect(harness.hostRequests()).toHaveLength(1);
+    expect(harness.hostRequests()[0].operationId).toBe('op_1_1');
+    expect(files.get('简报.md')).toBe(content);
+
+    // ⑤ 回合账不受影响：五枚 assistant turn 全数计入，闭集外调用不多记也不漏记。
+    expect(harness.kinds().filter((kind) => kind === 'turn_finished')).toHaveLength(5);
+    expect(harness.terminals().at(-1)).toMatchObject({ status: 'completed', budget: { turns: 5 } });
+  });
+
+  /**
+   * 对照臂：把同一段脚本里的闭集外三枚换成合法 read，其余逐字不变。
+   * 它证上一枚的绿不是「脚本本来就走得通」——两臂差别只有工具名在不在闭集。
+   */
+  it('对照 · 同脚本换成闭集内工具名时，tc ordinal 逐枚递增（前一枚的零漂移是真判据）', async () => {
+    const content = '# 摘要\n合同编号 HT-2024-081。\n';
+    const { host } = scriptedWorkspaceHost();
+    faux.setResponses([
+      fauxAssistantMessage([fauxToolCall('read', { path: '/case/备忘.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('read', { path: '/case/证人.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('read', { path: '/case/备忘.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('write', { path: '简报.md', content })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxText('已写入 /workspace/简报.md。')]),
+    ]);
+    const harness = createHarness(host);
+    harness.bootstrap();
+    await harness.prompt('写一份简报', 'request-1');
+
+    expect(notFoundResults(harness)).toEqual([]);
+    expect(harness.kinds().filter((kind) => kind.startsWith('tool_started'))).toEqual([
+      'tool_started:tc_1_1',
+      'tool_started:tc_1_2',
+      'tool_started:tc_1_3',
+      'tool_started:tc_1_4',
+    ]);
+    expect(harness.terminals().at(-1)?.status).toBe('completed');
+  });
+
+  /**
+   * system prompt 第五条明写「你没有 edit、delete、rename……」，模型照着复述工具名的概率
+   * 因此不低；两次连叫同一个不存在的名字仍须逐枚回灌、会话不死。
+   */
+  it('同一未知名连叫两次仍逐枚回灌，且第二次不因「同名已见过」被判违约', async () => {
+    faux.setResponses([
+      fauxAssistantMessage([fauxToolCall('edit', { path: 'a.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxToolCall('edit', { path: 'a.md' })], { stopReason: 'toolUse' }),
+      fauxAssistantMessage([fauxText('没有 edit 能力，改用 write。')]),
+    ]);
+    const harness = createHarness();
+    harness.bootstrap();
+    await harness.prompt('改一改 a.md', 'request-1');
+
+    expect(notFoundResults(harness)).toEqual(['Tool edit not found', 'Tool edit not found']);
+    expect(harness.kinds().filter((kind) => kind.startsWith('tool_'))).toEqual([]);
+    expect(harness.terminals().at(-1)?.status).toBe('completed');
+  });
+});
+
 describe('dev session 是反例，不得被误当产品面', () => {
   it('它的 prompt() 每次都重置预算——产品口径不允许', async () => {
     faux.setResponses([fauxAssistantMessage([fauxText('一')]), fauxAssistantMessage([fauxText('二')])]);

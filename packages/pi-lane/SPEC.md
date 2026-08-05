@@ -45,8 +45,19 @@ durable-before-effect 总验。Node 直写与 bash 没有因此开放。
 
 ## 三 · 三道独立的锁
 
-1. **配置层**：只注册 read/glob/grep。edit/write/bash 从不构造，模型请求得到内核的
-   `Tool X not found` 错误结果（`isError: true`，回灌可见）。
+1. **配置层**：dev 装配（`session.ts`）只注册 read/glob/grep，产品装配（`product-runtime.ts`）
+   另加 host-mediated 的 `write`，恰四件。`edit`/`delete`/`rename`/`bash` 两线都**从不构造**，
+   模型请求它们得到内核的 `Tool X not found` 错误结果（`isError: true`，回灌可见）。
+
+   **内核先发事件、后查工具表**：`tool_execution_start` 携的是模型自填的 `toolName`，查表发生
+   在它之后（`agent-loop.js` 的 `executeToolCallsSequential`／`prepareToolCall`）。故产品状态机
+   的投影入口把「闭集外 toolName」与「上游违约」分成两支（`PI-UNKNOWN-TOOL-1`）：前者不上
+   wire、不铸公开 tc、不动任何计数器、**不终结会话**，模型收到 `Tool X not found` 后改用
+   `write` 即可继续；后者（同 tc 重复登记、finish 无 start、同 tc 改名、重叠 tc、未投影的
+   settled effect）仍一律以 `upstream_event_unsupported` fail-closed。两者混判即等于模型随口
+   叫一声 `bash` 就非可重试地杀掉 logical session，连带停摆 `/workspace` 既有工作稿——
+   本条承诺随即自相矛盾。wire 的 `toolName` 是闭集类型，没有表达「模型叫了一个不存在的工具」
+   的形状；显式回答本就由内核直接交给模型，不经这条投影。
 2. **闸门层**：`beforeToolCall` 默认拒绝，理由点名能力与依据。仅对**已注册**工具生效——
    内核先查工具表再调钩子，故装配期有 `assertToolsWithinPolicy` 校验兜住漂移。
 3. **容器层**：`ExecutionEnv` 的写方法一律 `not_supported`、`exec` 一律 `shell_unavailable`，
@@ -736,7 +747,11 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
 3. case brief → `/workspace/brief.md`：read → write → 逐次授权 → byte-identical read-back。
 4. 改写既有 workspace Markdown：先 read，再整体覆盖同路径，再 read-back；不因没有 edit 失败。
 5. 嵌套 Unicode 路径：`notes/会议纪要.md` 写入后 interrupt/resume 新 leg 仍可回读。
-6. 拒绝面：改 `/case`、delete、bash、无效/跨容器路径均零 effect、零物理路径泄漏且有 terminal。
+6. 拒绝面：改 `/case`、无效/跨容器路径经**已注册**工具落到闸门与容器判定，零 effect、
+   零物理路径泄漏，本轮仍以 terminal 收尾；`delete`/`bash` 这类**闭集外的名字**则由内核直答
+   `Tool X not found`（isError 回灌可见），同样零 effect、零物理路径泄漏，但**不上 wire、
+   不终结会话**——模型据此改用 `write` 继续才算通过（三.1）。为此叫一声 `bash` 就收到
+   terminal 的，是 harness 缺陷，不记模型能力。
 
 只有全部必要结果已完整、未截断回灌后，模型仍遗漏或写差，才记模型能力；枚举/读取不通、限幅
 未显式、host result 丢失、批准后未落盘、回读不一致或终态缺失一律是 harness 失败。A2 放行后
@@ -764,13 +779,16 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 - [`PI-WORKSPACE-READ-1` 侦察](specs/PI-WORKSPACE-READ-1-RECON.md)
 - [`PI-WORKSPACE-READ-1`](specs/PI-WORKSPACE-READ-1.md)
 - [`PI-HEADLESS-HARNESS-1`](specs/PI-HEADLESS-HARNESS-1.md)
+- [`PI-UNKNOWN-TOOL-1`](specs/PI-UNKNOWN-TOOL-1.md)
 
 ## 十 · 门与证据
 
-- 单测 **531 例 / 17 文件**（`vitest run packages/pi-lane`，2026-08-05 由
-  `PI-WORKSPACE-READ-1` 在其 worktree 实测；`PI-TOOLS-HONESTY` 一线为首轮 489/16、1R 496/16、
+- 单测 **540 例 / 17 文件**（`vitest run packages/pi-lane`，2026-08-05 由
+  `PI-UNKNOWN-TOOL-1` 在其 worktree 实测，较 `PI-WORKSPACE-READ-1` 的 531/17 净增 9 例
+  ——闭集外 toolName 与上游违约拆分的六枚反例、一枚闭集内对照臂、两枚未投影 tc 的
+  记账判据；`PI-TOOLS-HONESTY` 一线为首轮 489/16、1R 496/16、
   2R 500/16；更前的 469/15 出自同日 `PI-WRITE-HOST-1` 独立验收），含容器越界、闸门拒绝、
-  预算停 loop、dev 入口 HTTP 面、六类不完整来源的诚实面，以及本票新增的 host-mediated 读容器
+  预算停 loop、dev 入口 HTTP 面、六类不完整来源的诚实面，以及 host-mediated 读容器
   与双根检索面。原写「74 例」是 `PI-LANE-1` 期真值，
   其后由 product-* 诸票增长；每票只据实更新该计数，不追认也不复核其他票面的证据。
 - ADR-018 门单测 12→23 例；真树注入实测：`child_process` 与 `fs:writeFile` 各触红一次，还原复绿。

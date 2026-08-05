@@ -1950,7 +1950,7 @@ describe('R2-2 · 单向 phase 与 closed event union', () => {
     expect(lastPacket(h)).toMatchObject(UPSTREAM_TERMINAL);
   });
 
-  it('反例四 · 未知 kind / 未知 toolName 收为 upstream_event_unsupported，不逃逸为 TypeError 或 callback failure', () => {
+  it('反例四 · 未知 kind、非 record 输入与 cast 改名收为 upstream_event_unsupported，不逃逸为 TypeError 或 callback failure', () => {
     const unknownKind = openHarness();
     let escaped: unknown = 'unset';
     unknownKind.hooks.startPrompt = (_p, session) => {
@@ -2009,10 +2009,211 @@ describe('R2-2 · 单向 phase 与 closed event union', () => {
     expect(agentEventKinds(arrayRecord)).toEqual([]);
     expect(lastPacket(arrayRecord)).toMatchObject(UPSTREAM_TERMINAL);
 
-    const unknownTool = openHarness();
-    let toolEscaped: unknown = 'unset';
-    unknownTool.hooks.startPrompt = (_p, session) => {
-      toolEscaped = capture(() =>
+    /*
+     * 本枚原是「闭集外 toolName 一律 terminal」。`PI-UNKNOWN-TOOL-1` 把那条判据拆成两半：
+     * **模型自填的名字**不是违约（内核查表在 `tool_execution_start` 之后，必以
+     * `Tool X not found` 收尾，见新增的「闭集外 toolName 与上游违约的拆分」一组），而
+     * **同一枚 tc 中途改名**仍是实现层违约。故 cast 面的反例改瞄后者：起手是闭集内的
+     * `read`，收尾却报了闭集外的名字——这是调用方在同一 tc 上说了两个名字，与模型无关。
+     */
+    const castRename = openHarness();
+    let renameEscaped: unknown = 'unset';
+    castRename.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_x', toolName: 'read' });
+      renameEscaped = capture(() =>
+        session.publishAgentEvent({
+          kind: 'tool_finished',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+          outcome: 'succeeded',
+        } as unknown as OutboundAgentEvent),
+      );
+    };
+    prompt(castRename, 'req-1');
+    // 不得以抛错代替 fail-closed 投影；改名的那一枚一件都不上 wire。
+    expect(renameEscaped).toBeNull();
+    expect(agentEventKinds(castRename)).toEqual(['tool_started']);
+    expect(lastPacket(castRename)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+});
+
+/**
+ * PI-UNKNOWN-TOOL-1 · 「闭集外 toolName」与「上游违约」的拆分。
+ *
+ * 内核先发 `tool_execution_start`（携模型自填的名字）再查工具表，查不到才回
+ * `Tool X not found` 的 isError 结果并照常回灌模型（`agent-loop.js` 的
+ * `executeToolCallsSequential`／`prepareToolCall`）。因此闭集外的 `tool_started` 是
+ * **模型输入**的常态形状，不是实现层违约：它不上 wire、不铸公开 tc、不动任何计数器，
+ * 更不许非可重试地关掉 logical session——那会让 `/workspace` 里的既有工作稿一起停摆。
+ *
+ * 拆分只放行「名字不在闭集」这一条。同 tc 重复登记、finish 无 start、同 tc 改名、
+ * 重叠 tc、未投影的 settled effect 全部原样 fail-closed。
+ */
+describe('PI-UNKNOWN-TOOL-1 · 闭集外 toolName 与上游违约的拆分', () => {
+  /** 未投影的 tc 一律不进公开 registry，故这枚查询是「有没有偷偷铸号」的直接判据。 */
+  const publicIdOf = (h: Harness, rawId: string): string | undefined => h.session.publicToolCallId(rawId);
+
+  it('闭集外 tool_started/tool_finished 不上 wire、不铸 tc、不终结会话；后续合法 read 仍拿 tc_1_1', () => {
+    for (const toolName of ['bash', 'edit', 'delete', 'rename', '把文件晋升到用户目录']) {
+      const h = openHarness();
+      let escaped: unknown = 'unset';
+      let followEscaped: unknown = 'unset';
+      h.hooks.startPrompt = (_p, session) => {
+        escaped = capture(() => {
+          session.publishAgentEvent({
+            kind: 'tool_started',
+            rawToolCallId: 'call_x',
+            toolName,
+          } as unknown as OutboundAgentEvent);
+          session.publishAgentEvent({
+            kind: 'tool_finished',
+            rawToolCallId: 'call_x',
+            toolName,
+            outcome: 'failed',
+          } as unknown as OutboundAgentEvent);
+        });
+        // 模型改用合法工具后一切照常——公开 ordinal 从 1 起算，未投影的那枚没占号。
+        followEscaped = capture(() => {
+          session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+          session.publishAgentEvent({
+            kind: 'tool_finished',
+            rawToolCallId: 'call_r',
+            toolName: 'read',
+            outcome: 'succeeded',
+          });
+          session.finishPrompt({ kind: 'completed' });
+        });
+      };
+      prompt(h, 'req-1');
+
+      expect(escaped, toolName).toBeNull();
+      // 后续合法调用不得因为前一枚未知名而被关在门外——这一枚是「会话存活」的直接判据。
+      expect(followEscaped, toolName).toBeNull();
+      expect(agentEventKinds(h), toolName).toEqual(['tool_started', 'tool_finished']);
+      expect(finishedEvents(h), toolName).toEqual([
+        { kind: 'tool_finished', toolCallId: 'tc_1_1', toolName: 'read', outcome: 'succeeded' },
+      ]);
+      expect(publicIdOf(h, 'call_x'), toolName).toBeUndefined();
+      expect(publicIdOf(h, 'call_r'), toolName).toBe('tc_1_1');
+      expect(lastPacket(h), toolName).toMatchObject({ type: 'terminal', payload: { status: 'completed' } });
+      // logical session 存活：terminal 之后仍是 idle，可以再起 prompt。
+      expect(h.session.snapshot().phase, toolName).toBe('idle');
+    }
+  });
+
+  it('闭集外调用不动任何计数器：turn/usd 累计与 observedTurns 逐值与不叫它时相同', () => {
+    const run = (withUnknown: boolean): Record<string, unknown> => {
+      const h = openHarness();
+      h.hooks.startPrompt = (_p, session) => {
+        capture(() => {
+          if (withUnknown) {
+            session.publishAgentEvent({
+              kind: 'tool_started',
+              rawToolCallId: 'call_x',
+              toolName: 'bash',
+            } as unknown as OutboundAgentEvent);
+            session.publishAgentEvent({
+              kind: 'tool_finished',
+              rawToolCallId: 'call_x',
+              toolName: 'bash',
+              outcome: 'failed',
+            } as unknown as OutboundAgentEvent);
+          }
+          session.publishAgentEvent(turnEvent(1, true, 0.25));
+          session.finishPrompt({ kind: 'completed' });
+        });
+      };
+      prompt(h, 'req-1');
+      return { snapshot: h.session.snapshot(), terminal: lastPacket(h) };
+    };
+    expect(run(true)).toEqual(run(false));
+  });
+
+  it('未投影 tc 的 progress 同样不上 wire，而二次收尾仍 fail-closed（单向推进与公开 tc 同构）', () => {
+    /*
+     * progress：内核今日结构上不会为查不到的工具发 update（`executePreparedToolCall` 只在
+     * prepared 支跑），但投影入口不靠上游的形状自保——同一枚未投影调用的中途事件既然
+     * 起手没上 wire，中途也无处可挂，照样不投影、不终结。
+     */
+    const progress = openHarness();
+    let escaped: unknown = 'unset';
+    progress.hooks.startPrompt = (_p, session) => {
+      escaped = capture(() => {
+        session.publishAgentEvent({
+          kind: 'tool_started',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+        } as unknown as OutboundAgentEvent);
+        session.publishAgentEvent({
+          kind: 'tool_progress',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+        } as unknown as OutboundAgentEvent);
+        session.publishAgentEvent({
+          kind: 'tool_finished',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+          outcome: 'failed',
+        } as unknown as OutboundAgentEvent);
+        session.finishPrompt({ kind: 'completed' });
+      });
+    };
+    prompt(progress, 'req-1');
+    expect(escaped).toBeNull();
+    expect(agentEventKinds(progress)).toEqual([]);
+    expect(lastPacket(progress)).toMatchObject({ type: 'terminal', payload: { status: 'completed' } });
+
+    // 二次收尾：未投影不等于无状态，已收尾的那一枚不许再被引用。
+    const twice = openHarness();
+    twice.hooks.startPrompt = (_p, session) => {
+      capture(() => {
+        session.publishAgentEvent({
+          kind: 'tool_started',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+        } as unknown as OutboundAgentEvent);
+        session.publishAgentEvent({
+          kind: 'tool_finished',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+          outcome: 'failed',
+        } as unknown as OutboundAgentEvent);
+      });
+      capture(() =>
+        session.publishAgentEvent({
+          kind: 'tool_finished',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+          outcome: 'failed',
+        } as unknown as OutboundAgentEvent),
+      );
+    };
+    prompt(twice, 'req-1');
+    expect(agentEventKinds(twice)).toEqual([]);
+    expect(lastPacket(twice)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+
+  it('实现层违约三形不因拆分被放过：同 tc 重复登记、finish 无 start、同 tc 改名', () => {
+    // ①-甲 闭集内同 raw tc 重复登记。
+    const dupKnown = openHarness();
+    dupKnown.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+      session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_r', toolName: 'read', outcome: 'succeeded' });
+      capture(() => session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' }));
+    };
+    prompt(dupKnown, 'req-1');
+    expect(agentEventKinds(dupKnown)).toEqual(['tool_started', 'tool_finished']);
+    expect(lastPacket(dupKnown)).toMatchObject(UPSTREAM_TERMINAL);
+
+    // ①-乙 闭集外同 raw tc 重复登记：未投影不等于不登记，第二枚仍是违约。
+    const dupUnknown = openHarness();
+    dupUnknown.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({
+        kind: 'tool_started',
+        rawToolCallId: 'call_x',
+        toolName: 'bash',
+      } as unknown as OutboundAgentEvent);
+      capture(() =>
         session.publishAgentEvent({
           kind: 'tool_started',
           rawToolCallId: 'call_x',
@@ -2020,11 +2221,133 @@ describe('R2-2 · 单向 phase 与 closed event union', () => {
         } as unknown as OutboundAgentEvent),
       );
     };
-    prompt(unknownTool, 'req-1');
-    // 闭集外的 toolName 同样只走 terminal，不得以抛错代替 fail-closed 投影。
-    expect(toolEscaped).toBeNull();
-    expect(agentEventKinds(unknownTool)).toEqual([]);
-    expect(lastPacket(unknownTool)).toMatchObject(UPSTREAM_TERMINAL);
+    prompt(dupUnknown, 'req-1');
+    expect(agentEventKinds(dupUnknown)).toEqual([]);
+    expect(lastPacket(dupUnknown)).toMatchObject(UPSTREAM_TERMINAL);
+
+    // ② finish 无 start：闭集内与闭集外两形都必须关会话。
+    for (const toolName of ['read', 'bash']) {
+      const orphan = openHarness();
+      orphan.hooks.startPrompt = (_p, session) => {
+        capture(() =>
+          session.publishAgentEvent({
+            kind: 'tool_finished',
+            rawToolCallId: 'call_ghost',
+            toolName,
+            outcome: 'succeeded',
+          } as unknown as OutboundAgentEvent),
+        );
+      };
+      prompt(orphan, 'req-1');
+      expect(agentEventKinds(orphan), toolName).toEqual([]);
+      expect(lastPacket(orphan), toolName).toMatchObject(UPSTREAM_TERMINAL);
+    }
+
+    // ③ 同 tc 改名，两个方向各一枚：闭集内起手→闭集外收尾，闭集外起手→闭集内收尾。
+    const renameOut = openHarness();
+    renameOut.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+      capture(() =>
+        session.publishAgentEvent({
+          kind: 'tool_finished',
+          rawToolCallId: 'call_r',
+          toolName: 'bash',
+          outcome: 'succeeded',
+        } as unknown as OutboundAgentEvent),
+      );
+    };
+    prompt(renameOut, 'req-1');
+    expect(agentEventKinds(renameOut)).toEqual(['tool_started']);
+    expect(lastPacket(renameOut)).toMatchObject(UPSTREAM_TERMINAL);
+
+    const renameIn = openHarness();
+    renameIn.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({
+        kind: 'tool_started',
+        rawToolCallId: 'call_x',
+        toolName: 'bash',
+      } as unknown as OutboundAgentEvent);
+      capture(() =>
+        session.publishAgentEvent({ kind: 'tool_finished', rawToolCallId: 'call_x', toolName: 'read', outcome: 'succeeded' }),
+      );
+    };
+    prompt(renameIn, 'req-1');
+    expect(agentEventKinds(renameIn)).toEqual([]);
+    expect(lastPacket(renameIn)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+
+  it('拆分不绕开重叠 tc 与 settled effect 两道结构门：闭集外 start 同样受它们约束', () => {
+    // ① 有未 finished 的公开 tc 时，闭集外的 start 仍是重叠，照旧 fail-closed。
+    const overlap = openHarness();
+    overlap.hooks.startPrompt = (_p, session) => {
+      session.publishAgentEvent({ kind: 'tool_started', rawToolCallId: 'call_r', toolName: 'read' });
+      capture(() =>
+        session.publishAgentEvent({
+          kind: 'tool_started',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+        } as unknown as OutboundAgentEvent),
+      );
+    };
+    prompt(overlap, 'req-1');
+    expect(agentEventKinds(overlap)).toEqual(['tool_started']);
+    expect(lastPacket(overlap)).toMatchObject(UPSTREAM_TERMINAL);
+
+    // ② 已收下 host_result 但未投影 tool_finished 时，闭集外的 start 必须先把那枚 effect
+    //    按 host status 如实收束，再按上游违约关闭——settled effect 绝不因名字不在闭集被抹掉。
+    const settled = openHarness();
+    settled.hooks.startPrompt = (_p, session) => {
+      startTool(session, 'write');
+      requestHost(session, WRITE_REQUEST);
+    };
+    settled.hooks.deliverHostResult = (_r, session) =>
+      void capture(() =>
+        session.publishAgentEvent({
+          kind: 'tool_started',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+        } as unknown as OutboundAgentEvent),
+      );
+    prompt(settled, 'req-1');
+    capture(() => hostResult(settled, writeOk('op_1_1')));
+    expect(finishedEvents(settled)).toEqual([
+      { kind: 'tool_finished', toolCallId: 'tc_1_1', toolName: 'write', outcome: 'succeeded' },
+    ]);
+    expect(terminals(settled)).toHaveLength(1);
+    expect(lastPacket(settled)).toMatchObject(UPSTREAM_TERMINAL);
+  });
+
+  it('跨 prompt 的闭集外引用是 stale，不因「上一轮见过这枚 raw tc」被静默收下', () => {
+    const h = openHarness();
+    h.hooks.startPrompt = (prompted, session) => {
+      capture(() => {
+        if (prompted.requestId === 'req-1') {
+          session.publishAgentEvent({
+            kind: 'tool_started',
+            rawToolCallId: 'call_x',
+            toolName: 'bash',
+          } as unknown as OutboundAgentEvent);
+          session.finishPrompt({ kind: 'completed' });
+          return;
+        }
+        session.publishAgentEvent({
+          kind: 'tool_finished',
+          rawToolCallId: 'call_x',
+          toolName: 'bash',
+          outcome: 'failed',
+        } as unknown as OutboundAgentEvent);
+      });
+    };
+    prompt(h, 'req-1');
+    prompt(h, 'req-2');
+    // 第二个 prompt 真的开起来了才谈得上「跨 prompt」——现行实现里 req-1 就把会话关了，
+    // 这一枚因此是本例与「会话早死所以后面什么都没发生」之间的分辨判据。
+    expect(h.calls).toContain('startPrompt:req-2');
+    expect(agentEventKinds(h)).toEqual([]);
+    const packets = terminals(h);
+    expect(packets).toHaveLength(2);
+    expect(packets[0]).toMatchObject({ type: 'terminal', payload: { status: 'completed' } });
+    expect(packets[1]).toMatchObject(UPSTREAM_TERMINAL);
   });
 });
 
