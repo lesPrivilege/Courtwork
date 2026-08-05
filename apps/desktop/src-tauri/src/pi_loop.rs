@@ -146,13 +146,9 @@ pub(crate) trait CredentialPort {
 }
 
 /// production：直接复用 lib.rs 既有的单次受保护读取，不另开第二条凭证路径。
-/// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：production 装配点随 `PI-LANE-UI-1`。
-#[allow(dead_code)]
+/// production 装配点：`pi_lane` 的 `pi_lane_start`（`PI-LANE-UI-1`）。
 pub(crate) struct KeychainCredentials;
 
-/// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：production 的凭证／spawn 真件，
-/// 装配点随 `PI-LANE-UI-1`；测试与 headless 各注入自己的座。
-#[allow(dead_code)]
 impl CredentialPort for KeychainCredentials {
     fn resolve(&self) -> Result<String, HostError> {
         match crate::active_secret() {
@@ -211,13 +207,9 @@ pub(crate) trait LegSpawner {
     ) -> Result<Box<dyn SidecarLeg>, HostError>;
 }
 
-/// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：production 装配点随 `PI-LANE-UI-1`。
-#[allow(dead_code)]
+/// production 装配点：`pi_lane` 的 `pi_lane_start`（`PI-LANE-UI-1`）。
 pub(crate) struct ProcessSpawner;
 
-/// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：production 的凭证／spawn 真件，
-/// 装配点随 `PI-LANE-UI-1`；测试与 headless 各注入自己的座。
-#[allow(dead_code)]
 impl LegSpawner for ProcessSpawner {
     fn spawn(
         &mut self,
@@ -550,9 +542,8 @@ pub(crate) struct CommandDecisionDriver {
 }
 
 impl CommandDecisionDriver {
-    /// **入口根**：产品形 driver 的装配点在 `PI-LANE-UI-1` 与 headless 验收；
-    /// production 当期不装它（无 driver 恒 `policy_denied`，fail-closed 边界不变）。
-    #[allow(dead_code)]
+    /// 装配点：`PiLoopHost::start_inner` 的构造点（`PI-LANE-UI-1` 起 production 恒装）。
+    /// 缺 driver ⇒ `policy_denied` 的 fail-closed 边界原样留在 `WorkspaceFsHost` 上。
     pub(crate) fn new(bus: Arc<CommandBus>) -> CommandDecisionDriver {
         CommandDecisionDriver { bus }
     }
@@ -705,6 +696,9 @@ impl std::fmt::Debug for PiLoopHost {
     }
 }
 
+/// 账本流态出口的类型（`PI-LANE-UI-1`）。一枚已 durable 的记录，一次调用。
+pub(crate) type RecordSink = Box<dyn Fn(&JournalRecord) + Send>;
+
 pub(crate) struct PiLoopHost {
     app_data_dir: PathBuf,
     container_id: String,
@@ -747,6 +741,13 @@ pub(crate) struct PiLoopHost {
     /// {@link crate::pi_loop_command::PiLoopThread} 接管 host 时把它一并带进宿主线程。
     /// 泵与授权等待两处等待点读的是**同一枚** bus，故「谁先取到命令」不存在两套账。
     bus: Arc<CommandBus>,
+    /// 账本的**流态**出口（`PI-LANE-UI-1`）。
+    ///
+    /// 界面读的是 journal，不是第二份投影：`tool_proposed` / `authorization_decided` /
+    /// 三态 effect / 逐枚 agent event / 终态全在这条闭集里（`JournalPayload` 十九型），
+    /// 故 GUI 的「决定只认 journal」是同一份字节，不是同义改写。
+    /// 缺席（测试、headless）即只落盘，语义与本票之前逐字相同。
+    record_sink: Option<RecordSink>,
 }
 
 impl Drop for PiLoopHost {
@@ -760,11 +761,11 @@ impl Drop for PiLoopHost {
 }
 
 impl PiLoopHost {
-    // ── 投影读面（**入口根**，`PI-HOST-CONCURRENCY-1` dead_code 收窄）─────────────
+    // ── 投影读面 ────────────────────────────────────────────────────────────
     //
-    // 这一组只读访问器是宿主交给投影面的全部读口，消费点随 `PI-LANE-UI-1` 落地；
-    // 在那之前它们无人调用。逐组具名放行，不再由文件级 `allow` 把整份文件一起静默。
-    #[allow(dead_code)]
+    // 这一组只读访问器是宿主交给投影面的全部读口。`PI-LANE-UI-1` 起 `leg`／`records`／
+    // `capabilities` 三枚由 `pi_lane_start` 的起步补齐消费；`published`／`projection`
+    // 仍只有测试读，故保留具名放行——不由文件级 `allow` 把整份文件一起静默。
     pub(crate) fn leg(&self) -> u64 {
         self.leg
     }
@@ -772,7 +773,6 @@ impl PiLoopHost {
     pub(crate) fn published(&self) -> &[HostEvent] {
         &self.published
     }
-    #[allow(dead_code)]
     pub(crate) fn records(&self) -> &[JournalRecord] {
         &self.records
     }
@@ -780,7 +780,6 @@ impl PiLoopHost {
     pub(crate) fn projection(&self) -> &SessionProjection {
         &self.projection
     }
-    #[allow(dead_code)]
     pub(crate) fn capabilities(&self) -> &[WorkspaceCapability] {
         &self.capabilities
     }
@@ -802,6 +801,31 @@ impl PiLoopHost {
     #[allow(dead_code)]
     pub(crate) fn is_closed(&self) -> bool {
         self.closed
+    }
+
+    // ── 投影事件的流态出口（`PI-LANE-UI-1`）──────────────────────────────────
+
+    /// 装上账本的流态出口。**必须在 `adopt` 进宿主线程之前调用**：此刻 host 还在构造方
+    /// 手里，与后续 append 之间没有并发窗口。`start` 期间落的那几枚（恢复出的历史腿、
+    /// `session_started`／`session_resumed`）在装 sink 之前，由调用方从
+    /// {@link PiLoopHost::records} 一次性补齐——同一份记录，补齐与后续不重叠。
+    ///
+    /// **唯一**生产装配点是 pi lane 的 Tauri command 薄壳。
+    pub(crate) fn with_record_sink(mut self, sink: RecordSink) -> PiLoopHost {
+        self.record_sink = Some(sink);
+        self
+    }
+
+    /// **唯一**入册口：先进内存册，再当刻交给 sink。
+    ///
+    /// 两件事必须同刻发生——若攒到 prompt 收尾一次性 flush，界面就只看得见结果：
+    /// 用户会在提案卡出现之前被要求授权，而看不见的提案没有可授权的对象（ADR-022 六-C）。
+    /// 判据见 `the_tool_card_reaches_the_sink_before_the_user_is_asked_to_authorize`。
+    fn record(&mut self, record: JournalRecord) {
+        self.records.push(record);
+        if let Some(sink) = self.record_sink.as_ref() {
+            sink(self.records.last().expect("刚推入"));
+        }
     }
 
     /// 收摊。空闲即走既有 `shutdown` 全序（idle shutdown → terminal → EOF → exit →
@@ -876,9 +900,7 @@ impl PiLoopHost {
     /// 7. ready 且 capability 逐值等于 `EXPECTED_CAPABILITIES`，否则落
     ///    `session_failed{protocol,state_violation}`。
     ///
-    /// **入口根**（`PI-HOST-CONCURRENCY-1` dead_code 收窄）：生产消费点由 `PI-LANE-UI-1` 的
-    /// Tauri command 薄壳装配；在那之前它无人调用，凡由它可达的代码都不再被 `dead_code` 报。
-    #[allow(dead_code)]
+    /// 生产消费点：`pi_lane` 的 `pi_lane_start`（`PI-LANE-UI-1`）。
     pub(crate) fn start(
         app_data_dir: &Path,
         layout: &AppLayout,
@@ -1101,6 +1123,10 @@ impl PiLoopHost {
         journal.set_leg(leg);
         records.push(journal.append(None, None, opening)?);
 
+        // bus 先于 host 成形：产品形 decision driver 与宿主线程读的必须是**同一枚**通道
+        // （`PI-HOST-CONCURRENCY-1`：悬置提案只有一枚真源）。
+        let bus = CommandBus::new();
+
         let cwd = ensure_runtime_cwd(app_data_dir).map_err(HostError::Route)?;
         let leg_handle = spawner.spawn(&pair, &cwd)?;
 
@@ -1130,22 +1156,29 @@ impl PiLoopHost {
             //   它挡的是**本次握手没谈成**的任何 capability——可证否形态由
             //   `revoke_workspace_write` 与 `revoke_workspace_read` 两枚反例保留，
             //   不随能力到位而失去覆盖。
-            // - 逐次授权：production **至今没有 decision driver**（GUI/headless 验收才注入），
-            //   故真件的 `decide` 恒 `policy_denied`——产品线上的 write 因此仍零 effect，
-            //   且是显式拒绝、显式落账，不是静默跳过。硬编码 `Approved` 属 ADR-022 六-C 明禁。
+            // - 逐次授权：`PI-LANE-UI-1` 起 production 装 {@link CommandDecisionDriver}——
+            //   它**不是** always-allow（那是 ADR-022 六-C 明禁的），而是「把提案投给界面、
+            //   阻塞等命令通道上的 `decision` 回执」。真正做决定的仍是用户；系统不代批也不代拒。
+            //   缺 driver ⇒ `policy_denied` 的 fail-closed 边界原样保留在
+            //   {@link crate::pi_loop_workspace::WorkspaceFsHost} 上（反例
+            //   `real_write_host_without_a_decision_driver_denies_and_writes_nothing`）。
             //   **读没有这一道**：读不是 effect，没有可授权的对象；它的边界全在容器与 grammar。
-            write_host: Some(Box::new(crate::pi_loop_workspace::WorkspaceFsHost::new(
-                app_data_dir,
-                &config.container_id,
-                &config.session_id,
-            ))),
+            write_host: Some(Box::new(
+                crate::pi_loop_workspace::WorkspaceFsHost::new(
+                    app_data_dir,
+                    &config.container_id,
+                    &config.session_id,
+                )
+                .with_decision_driver(Box::new(CommandDecisionDriver::new(Arc::clone(&bus)))),
+            )),
             read_host: Some(Box::new(crate::pi_loop_workspace::WorkspaceFsHost::new(
                 app_data_dir,
                 &config.container_id,
                 &config.session_id,
             ))),
             closed: false,
-            bus: CommandBus::new(),
+            bus,
+            record_sink: None,
         };
 
         // 发的就是 5.5 验过的那一份字节，不重编。
@@ -1281,7 +1314,7 @@ impl PiLoopHost {
             },
         ) {
             Ok(record) => {
-                self.records.push(record);
+                self.record(record);
                 self.projection = pi_loop_journal::fold(&self.records);
                 self.published
                     .push(HostEvent::SessionTerminal(JournalType::SessionFailed));
@@ -1349,7 +1382,7 @@ impl PiLoopHost {
                 text: text.to_string(),
             },
         )?;
-        self.records.push(record);
+        self.record(record);
         self.projection = pi_loop_journal::fold(&self.records);
         self.active_request = Some(request_id.to_string());
         // 起点收束（`PI-TOOLCALL-BINDING-1`）：新 prompt 一律从**无主**开始，不问上一枚 prompt
@@ -1430,7 +1463,7 @@ impl PiLoopHost {
                         None,
                         JournalPayload::AgentEvent(event.clone()),
                     )?;
-                    self.records.push(record);
+                    self.record(record);
                     if let AgentProjectionEvent::TurnFinished {
                         turn,
                         counted_toward_turn_limit,
@@ -1449,7 +1482,7 @@ impl PiLoopHost {
                                 stop_reason: *stop_reason,
                             },
                         )?;
-                        self.records.push(usage_row);
+                        self.record(usage_row);
                     }
                     self.projection = pi_loop_journal::fold(&self.records);
                     // 活动 tool call 的唯一真源（PI-WRITE-HOST-1 ③／PI-READ-TOOLCALL-1）。
@@ -2005,7 +2038,7 @@ impl PiLoopHost {
         let record = self
             .journal
             .append(Some(request_id), Some(&plan.operation_id), payload)?;
-        self.records.push(record);
+        self.record(record);
         self.projection = pi_loop_journal::fold(&self.records);
         Ok(())
     }
@@ -2119,7 +2152,7 @@ impl PiLoopHost {
             .journal
             .append(Some(request_id), None, prompt_payload)?;
         let prompt_event_id = prompt_record.event_id.clone();
-        self.records.push(prompt_record);
+        self.record(prompt_record);
         self.active_request = None;
         // 终态收束（`PI-TOOLCALL-BINDING-1`）：tool call 的作用域至多是一枚 prompt。cancel 与
         // 可重试失败都会让 `tool_started` 没有配对的 `tool_finished`，此前那枚 tc 就此活到下一枚
@@ -2139,7 +2172,7 @@ impl PiLoopHost {
             };
             let session_record = self.journal.append(None, None, payload)?;
             let journal_type = session_record.journal_type();
-            self.records.push(session_record);
+            self.record(session_record);
             self.closed = true;
             self.projection = pi_loop_journal::fold(&self.records);
             // 两笔都完成后才向调用者发布最终投影。
@@ -2211,7 +2244,7 @@ impl PiLoopHost {
             .journal
             .append(None, None, JournalPayload::SessionCompleted)?;
         let journal_type = record.journal_type();
-        self.records.push(record);
+        self.record(record);
         self.projection = pi_loop_journal::fold(&self.records);
         self.closed = true;
         self.published
@@ -2265,7 +2298,7 @@ impl PiLoopHost {
                 cause: SessionFailureCause::Runtime { code },
             },
         )?;
-        self.records.push(record);
+        self.record(record);
         self.projection = pi_loop_journal::fold(&self.records);
         self.published
             .push(HostEvent::SessionTerminal(JournalType::SessionFailed));
@@ -9842,12 +9875,24 @@ mod tests {
         );
     }
 
-    /// production 形态：真件在场、能力谈成，但**没有 decision driver** ⇒ `policy_denied`。
+    /// driver 缺席形态：真件在场、能力谈成，但**没有 decision driver** ⇒ `policy_denied`。
     /// 授权二段落账、effect 恰零次、workspace 物理根不存在。
+    ///
+    /// **`PI-LANE-UI-1` 起本例须显式造缺席**：production 构造点自本票起装
+    /// {@link CommandDecisionDriver}（把提案投给界面），故「什么都不装」不再等于「没有 driver」。
+    /// 本例问的一直是**座**的 fail-closed 语义——缺 driver 即拒——那条判据一字未变，
+    /// 只是缺席态从此要自己造出来，不能顺手借 production 的现况。
     #[test]
     fn real_write_host_without_a_decision_driver_denies_and_writes_nothing() {
         let h = harness("real-nodriver");
         let (mut host, log) = real_armed_host(&h, vec![real_write_leg("纪要.md", "正文")], None);
+        host.install_write_host(Some(Box::new(
+            crate::pi_loop_workspace::WorkspaceFsHost::new(
+                &h.app_data,
+                &h.config.container_id,
+                &h.config.session_id,
+            ),
+        )));
         // ⑤ 复核点：能力**已经谈成**，0.1 门因此不再是挡板；挡住这一轮的恰是逐次授权那一道。
         // 两件事不能互相顶名——若此处的能力反而没谈成，下面的 denied 就成了「门 A 的绿冒充门 B」。
         assert!(
@@ -10926,4 +10971,189 @@ mod tests {
         assert_eq!(bus.discarded().len(), 2, "两枚失效回执逐枚登记");
     }
 
+
+    // ── PI-LANE-UI-1：产品形 GUI 的两枚宿主前置 ────────────────────────────
+    //
+    // 这一节问的不是「宿主能不能跑」（前六票已答），而是**GUI 能不能真的在场**：
+    // ①用户点下的「允许」有没有一条到达 `decide` 的路；②过程有没有在发生的当下被看见。
+    // 两枚都在本票之前是红的：①production 构造点不装 driver，②宿主根本没有事件出口。
+
+    /// 产品线 write 的**唯一**授权来路：GUI 经命令通道投一枚 `decision` 回执。
+    ///
+    /// 红形（本票之前）：production 构造点不装 decision driver ⇒ 提案根本不出现
+    /// （`bus.pending()` 恒 `None`），用户点「允许」也无处可投，write 恒 `policy_denied`、
+    /// 盘上零字节。这不是覆盖率缺口，是**产品面缺一条边**。
+    #[test]
+    fn production_start_lets_a_decision_command_authorize_a_write() {
+        let h = harness("ui-decision");
+        let (host, log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![real_write_leg("纪要.md", "正文")],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        // **不** install_write_host：走的就是构造点装上的那一份真件。
+        let host = host.expect("启动");
+        let bus = host.command_bus();
+        let thread = PiLoopThread::adopt(host);
+        let sender = thread.sender();
+
+        // 「用户」在另一条线程上：等提案出现，再点允许。
+        let approver = {
+            let bus = Arc::clone(&bus);
+            let sender = sender.clone();
+            std::thread::spawn(move || {
+                let deadline = Instant::now() + Duration::from_secs(5);
+                loop {
+                    if let Some(operation_id) = bus.pending() {
+                        let reply = sender
+                            .send(HostCommand::Decision {
+                                operation_id,
+                                verdict: DecisionVerdict::Approve,
+                            })
+                            .expect("投得进");
+                        return matches!(
+                            reply.recv_timeout(Duration::from_secs(5)),
+                            Ok(CommandReply::Accepted)
+                        );
+                    }
+                    if Instant::now() >= deadline {
+                        return false;
+                    }
+                    std::thread::sleep(Duration::from_millis(2));
+                }
+            })
+        };
+
+        let prompt = sender
+            .send(HostCommand::Prompt {
+                request_id: "req-1".to_string(),
+                text: "写一份纪要".to_string(),
+            })
+            .expect("投得进");
+        let CommandReply::Prompt(terminal) = expect_reply(prompt, "prompt 归位") else {
+            panic!("prompt 的回执只能是 Prompt 那一支");
+        };
+        assert!(
+            approver.join().expect("授权线程未 panic"),
+            "提案必须出现在命令通道上——没有 driver 时它根本不会出现"
+        );
+        assert!(
+            matches!(terminal, Ok(Terminal::Completed { .. })),
+            "实得 {terminal:?}"
+        );
+
+        // 出包在收摊之前取：teardown 之后最后一枚出包是 shutdown。
+        assert!(
+            matches!(
+                only_host_result(&log).expect("必须发出 host_result").outcome,
+                HostResultOutcome::Ok(HostResultValue::Write { .. })
+            ),
+            "授权通过的 write 必须回 ok，实得 {:?}",
+            only_host_result(&log).map(|result| result.outcome)
+        );
+        let host = thread.join();
+        let types = record_types(host.records());
+        for want in [
+            JournalType::ToolProposed,
+            JournalType::AuthorizationDecided,
+            JournalType::EffectStarted,
+            JournalType::EffectSucceeded,
+        ] {
+            assert!(types.contains(&want), "四段账缺 {want:?}：{types:?}");
+        }
+        assert_eq!(
+            fs::read_to_string(workspace_root(&h).join("纪要.md")).expect("回读盘上真字节"),
+            "正文",
+        );
+    }
+
+    /// 账本面的**流态**判据：记录必须在它落账的**当刻**到达界面。
+    ///
+    /// 判据不落在「最终收到几枚」——攒到 prompt 收尾一次性 flush 也能让最终画面正确，
+    /// 顺序也照样对。它落在**因果**上：用户被要求授权之前，提案本身必须已经在界面上。
+    /// 一枚看不见的提案没有可授权的对象，那正是 ADR-022 六-C 拒绝的形状。
+    ///
+    /// 故装置让「用户」等 sink：sink 里出现 `tool_proposed` 才点允许。攒批实现下它永远等不到，
+    /// 于是超时后仍然点允许（避免无时限的 `decide` 把测试挂死），并把「没等到」如实带回。
+    #[test]
+    fn the_tool_card_reaches_the_sink_before_the_user_is_asked_to_authorize() {
+        let h = harness("ui-sink");
+        let (host, _log, _) = start_probe(
+            &h,
+            h.config.clone(),
+            vec![real_write_leg("纪要.md", "正文")],
+            ExitOutcome::Code(0),
+            &FixedKey,
+        );
+        let host = host.expect("启动");
+        let bus = host.command_bus();
+        let seen: Arc<Mutex<Vec<JournalType>>> = Arc::new(Mutex::new(Vec::new()));
+        let host = {
+            let seen = Arc::clone(&seen);
+            host.with_record_sink(Box::new(move |record: &JournalRecord| {
+                seen.lock().expect("未中毒").push(record.journal_type());
+            }))
+        };
+        let thread = PiLoopThread::adopt(host);
+        let sender = thread.sender();
+        let approver = {
+            let bus = Arc::clone(&bus);
+            let seen = Arc::clone(&seen);
+            let sender = sender.clone();
+            std::thread::spawn(move || {
+                // 2s：短于 `expect_reply` 的 5s，故「等不到提案卡」现形为本例的具名断言，
+                // 而不是把 prompt 拖成一句无信息的回执超时。
+                let deadline = Instant::now() + Duration::from_secs(2);
+                let (operation_id, card_first) = loop {
+                    let card_first = seen
+                        .lock()
+                        .expect("未中毒")
+                        .contains(&JournalType::ToolProposed);
+                    if let Some(operation_id) = bus.pending() {
+                        if card_first || Instant::now() >= deadline {
+                            break (operation_id, card_first);
+                        }
+                    } else if Instant::now() >= deadline {
+                        return false;
+                    }
+                    std::thread::sleep(Duration::from_millis(2));
+                };
+                let _ = sender.send(HostCommand::Decision {
+                    operation_id,
+                    verdict: DecisionVerdict::Approve,
+                });
+                card_first
+            })
+        };
+        let prompt = sender
+            .send(HostCommand::Prompt {
+                request_id: "req-1".to_string(),
+                text: "写一份纪要".to_string(),
+            })
+            .expect("投得进");
+        let reply = expect_reply(prompt, "prompt 归位");
+        let card_first = approver.join().expect("授权线程未 panic");
+        assert!(matches!(
+            reply,
+            CommandReply::Prompt(Ok(Terminal::Completed { .. }))
+        ));
+        assert!(
+            card_first,
+            "提案送达界面之前，`tool_proposed` 必须已经发布过：实得 {:?}",
+            seen.lock().expect("未中毒")
+        );
+        // 四段账逐枚经过同一枚出口——界面看到的与盘上落的是同一份记录。
+        let seen = seen.lock().expect("未中毒").clone();
+        for want in [
+            JournalType::ToolProposed,
+            JournalType::AuthorizationDecided,
+            JournalType::EffectStarted,
+            JournalType::EffectSucceeded,
+        ] {
+            assert!(seen.contains(&want), "sink 缺 {want:?}：{seen:?}");
+        }
+        let _ = thread.join();
+    }
 }

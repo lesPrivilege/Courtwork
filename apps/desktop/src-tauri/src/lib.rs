@@ -13,9 +13,11 @@ use std::sync::{Mutex, Once, OnceLock, RwLock};
 mod case_output_fs;
 mod host_auth;
 mod material_store;
-// PI-HOST-LOOP-1 §二.8：本票只接 module 与 crate-private 构造，**零 invoke handler**、
-// 零 event channel、零 frontend 类型。start/prompt/cancel/resume/replay/delete 的 WebView
-// adapter 由 `PI-LANE-UI-1` 另冻；在那之前 `PiLoopHost` 只由 crate 内部与 headless driver 消费。
+// PI-HOST-LOOP-1 §二.8 曾把 pi 线锁在「零 invoke handler、零 event channel、零 frontend
+// 类型」的 crate 内部；`PI-LANE-UI-1` 起这道锁**按票面解除**——WebView adapter 是本票的交付物。
+// 解除的只是「有没有 command」，不是任何一条边界：薄壳住 `pi_lane`，投影经 journal 原字节回流，
+// 绝对路径 / secret / 进程句柄仍一枚不过桥（ADR-022 六-A）。
+mod pi_lane;
 mod pi_loop;
 mod pi_loop_command;
 mod pi_loop_journal;
@@ -2108,6 +2110,11 @@ pub fn run() {
             work_state_read,
             work_state_commit,
             open_workspace_markdown,
+            pi_lane::pi_lane_start,
+            pi_lane::pi_lane_prompt,
+            pi_lane::pi_lane_cancel,
+            pi_lane::pi_lane_decision,
+            pi_lane::pi_lane_teardown,
             sync_macos_window_controls,
         ])
         .run(tauri::generate_context!())
