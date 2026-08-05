@@ -3467,3 +3467,113 @@ readback…blocker` 后方可在 `PI-BASE-HEADLESS-ACCEPT` 放开六格 3/4/5。
 能力断言（pre-existing，非本票，建议校准）；回执结转三条（上浮B logicalPath 空串两侧异源／②游标二元性
 随 WRITE-HOST 收敛／④`cost_usd` Disabled 臂裸 inf）承接如实，仍挂各自门。worktree
 `.claude/worktrees/accept-phh` 保留至收编。
+
+
+# PI-READ-TOOLCALL-1 独立验收（2026-08-05，PASS）
+
+独立 clean worktree（`.claude/worktrees/accept-rtc@6ae50e7`，base `main@b94cbc5`）总验，不采信回执自述。
+制品循加速提示移植：`pi-lane/src` 与 `b94cbc5` 逐字节相同（`git diff --stat` 空），故从 main dist
+`cp` 两制品（reused-identical 安全），SHA 先核后用，末相再独立重建复证。全程
+`pgrep -f 'chrome-headless-[s]hell|[p]laywright'` 在每次 cargo/PW 前计零。
+
+## 一 · 范围与禁区（diff `b94cbc5..6ae50e7` 三文件）
+
+`pi_loop.rs`（+140/-44）、`verified-node-gate.mjs`（±1 check）、新增回执 spec。**唯一生产 hunk 在
+`pi_loop.rs:1195`（`impl PiLoopHost` 的 pump `ToolStarted` arm）**，其余全部落 `mod tests`（7045+）。逐一核禁区未越：
+- **wire schema**：`pi_loop_protocol.rs` 根本不在 diff——十九型 journal 闭集、`ProductToolName`/`WorkspaceCapability` 等 closed_enum 一字未动。
+- **`serve_read_request` peek 判据**（`:1496` `active_tool_call.is_none()`）、**`serve_host_request` take**（`:1329` `active_tool_call.take()`）、**`ToolFinished` 收束**（`:1225`，read/write 同路清）均在 diff hunk 之外，逐字节未触。取／peek 分野「在下游、不在此处」属实。
+- **fold() 推进臂／uncertain 压扁／capability 种子**：不在 diff。
+
+生产改动实质：`ToolStarted` 由 write-only 单臂改为对 `tool_name` 的**穷举** `match`（无 `_`），四道 variant（Write/Read/Glob/Grep）各列、同一体 arm 一枚。
+
+## 二 · 覆盖洞闭合族核（闭口按族，grep 全部读臂用例）
+
+`grep` 全部 `read_request_packet`（workspace_read host op）调用点，逐一映射至测试函数：
+
+| 用例（真 read tool_started） | 读 op | 转后 tool_name | 行 |
+|---|---|---|---|
+| `real_read_arm_returns_the_bytes_the_write_arm_landed` | ReadFile | **Read** | 8113 |
+| `read_arm_serves_many_operations_under_one_tool_call` | List×2＋Exists | **Glob** | 8197 |
+| `counterexample_read_proposal_hash_is_recomputed_and_binds_every_read_field` | List（四 case 循环，各携单枚 started） | **Grep** | 8331 |
+| `read_arm_refuses_symlinks_and_never_leaks_physical_paths` | ReadFile | **Read** | 8376 |
+| `a_new_leg_after_interruption_reads_back_what_the_previous_leg_wrote` | ReadFile | **Read**（req-2） | 8474 |
+
+五枚全转，三名全覆盖（Read×3／Glob×1／Grep×1）。**族边界两条负例保留判定成立、非漏转**：
+`counterexample_host_request_gates_refuse_before_any_effect` 的两读 case——「读能力未谈成」在 0.1
+capability 门先于 peek 判据被拒（读能力被显式撤销，tool_started 名无关，改它零区分力），「读的无活动
+tool call」**故意无 tool_started**（正是证 peek 门在 `active_tool_call.is_none()` 时仍拒的负例，无
+`ToolStarted` 事件即不 arm，转它反毁负例）。另 `/case` 直读用例（`:3509` 真 Read tool_started，无 host
+op）照不到本缺口，未转正确。**无第六枚未转的正向读臂用例。**
+
+## 三 · born-red 独立复现（逆向 production arm，亲自不采信）
+
+`cp` 备份 fixed（`pi_loop.rs` SHA `00e09427…`）→ 逆向 arm 回 write-only（Read|Glob|Grep 落 `_ => {}`，即回执 M-A1）→ `touch` 前推 mtime → 跑 6 枚：
+
+- **`0 passed; 6 failed`**，五读臂各 `Protocol(StateViolation)`（"闭环必须走得通"／"多枚读必须都被服务"／"hash 不符只收束这一枚"／"拒绝只收束这一枚"／"第二腿必须读得到"）；characterization `headless_workspace_readback_succeeds_after_read_toolcall_fix` **以真 headless sidecar＋真 read 工具驱动 /workspace 回读**，得 `Err(Protocol(StateViolation))`。
+- `cp` 还原 fixed，SHA 复原 `00e09427…`、`git status` 归零 → 6 枚 **`6 passed`**（tip 绿基线，含真 sidecar 往返）。
+
+覆盖洞真实性坐实：Write 顶名遮蔽了它，真 read 工具＋真 host op 组合此前从未跑过。
+
+## 四 · 穷举 match 结构核（缺口再生结构性杜绝）
+
+`ProductToolName` 是 4 员 `closed_enum!`（无 `#[non_exhaustive]`）。临时加第五员 `Probe => "probe"` →
+`cargo build --lib` **`error[E0004]: non-exhaustive patterns: &ProductToolName::Probe not covered`，恰指
+`src/pi_loop.rs:1214`**（pump arm）。还原 `pi_loop_protocol.rs`（SHA `cf3aa9aa…`）。「新工具加员即编译红、逼显式裁定」成立——`_ => {}` 静默漏读工具的病根不可复发。
+
+## 五 · mutation（cp 备份＋前推 mtime＋SHA 复原）
+
+| 编号 | 变异 | 靶 | 实测 |
+|---|---|---|---|
+| M-A1 | arm 回 write-only（撤读臂） | 6 枚 | `0 passed; 6 failed`（同 born-red） |
+| M-B | `serve_host_request` 的 `.take()` → `.clone()`（write 由取变 peek） | `counterexample_one_tool_call_serves_at_most_one_operation` | 该枚红（`left: Process(UnexpectedEof)` ≠ `right: Protocol(StateViolation)`——第二枚 write 不再无主）；**同轮 `real_read_arm…`／`read_arm_serves_many…` 两读臂仍绿** |
+
+M-B 实证 read（peek）／write（take）语义分野：改写臂 take 不动读臂承重。两变异均 `cp` 还原、SHA
+复原 `00e09427…`、`git status` 归零。无等价变异作废。
+
+## 六 · gate 校准双相（base 亦红实证）
+
+| 相 | gate | 读数 |
+|---|---|---|
+| base-red | 换入 `b94cbc5` 版 `verified-node-gate.mjs`（期望首包 caps 单员 `["case_read"]`），同一 bundle | **FAIL 1 项**，实收 `["case_read","workspace_read","workspace_write"]`，exit 1 |
+| tip | 校准后三员握手 | **全部通过**，bundle SHA `36615e5b…`／runtime SHA `2e3f1286…` 逐值核对 |
+
+证「陈旧辅助门 base 亦红、校准必要、不在例行门集故长期无察」。还原 tip 版 gate、`git status` 归零。
+
+## 七 · 门禁实跑八相（本树自跑，逐条记退出码，未经管道吞码）
+
+| 门 | 结果 | 退出码 |
+|---|---|---|
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size warning） | 0 |
+| `pnpm lint`（`eslint .`） | 通过 | 0 |
+| root `pnpm test`（vitest） | **170 files / 1916 passed** | 0 |
+| `pnpm --filter @courtwork/desktop test` | **75 files / 690 passed** | 0 |
+| `build:product-sidecar`（重建） | inner **546,906 B / `36615e5b…`**、SEA `2e3f1286…`、reproducible:true、action:reused-identical | 0 |
+| `build:headless-sidecar`（重建） | **554,327 B / `52b65d16…`**、reproducible:true、landedSha 一致 | 0 |
+| `cargo test --lib --offline` | **236 passed / 0 failed / 1 ignored** | 0 |
+| `cargo clippy --offline --all-targets` | 7 枚均在 `lib.rs`（5 unsafe＋2 return，pre-existing），`pi_loop.rs` 零 | 0 |
+| `rustfmt --check pi_loop.rs` | 8 处 drift，`base@b94cbc5` 亦恰 8，本单零新增（新增段 clean） | — |
+| `pnpm test:e2e`（隔离端口 1473，assert 群＋完整 Playwright） | **352 passed（3.9m）**，跑前跑后 pgrep 计零 | 0 |
+
+**对账**：root vitest **1916**＝base 同值（本票不加 vitest 用例）；cargo **236**＝HARNESS-1 基线同值
+（族内 Write-顶名→真 read 转换，无净增减，非新增 `#[test]`）；filter 须用 `@courtwork/desktop`
+（`courtwork-desktop` "No projects matched" 假绿已避）。
+
+## 八 · 结论与移交
+
+**判定：PASS，待架构消费。** 单文件生产改动（pump arm write-only → 凡能发 host op 的工具穷举 arm，
+write 取／read peek）＋一枚陈旧辅助门校准，禁区逐一未越，核心状态机语义变更极窄且回执单列。覆盖洞
+闭合族全转（Read×3/Glob×1/Grep×1）、两负例保留成立、无漏转；born-red 亲自逆向复红 6 枚（含真
+headless sidecar 往返得 `Err(StateViolation)`）；穷举 match 加员即 `E0004` 编译红，缺口再生结构性杜绝；
+M-A1/M-B 双变异有齿、read/write 分野实证；gate 校准 base 亦红、tip 三员绿＋bundle/runtime SHA 逐值。
+八相官方门本树全绿，双制品独立重建逐字节复现。
+
+本会话**未改任何产品/文档/契约面**（三枚变异＋一枚 gate 换版均 cp 还原、SHA 复原、git 归零）；不
+merge、不 push、不更新 `docs/status/current.md` 与 implementation-readiness、不开下游票。
+
+**移交 `PI-BASE-HEADLESS-ACCEPT`**：§三 headline 阻断项已解，六格 3/4/5（read-back／先读既有
+workspace／resume 后回读）现可跑，格 1/2（/case 直读）本就通；转正信号＝
+`headless_workspace_readback_succeeds_after_read_toolcall_fix` 绿。**真 DeepSeek key 仍缺**（第二前置，
+产品负责人提供）——本票只解 harness 读回读缺口、不触网，cell 1-6 须真模型推理（SPEC :744「无 key/model
+证据只能记 external-validated blocked」），不得以「harness 非瓶颈」放行。结转 [需架构拍板]（本单未碰）：
+上浮B logicalPath 空串两侧异源／②游标二元性随 WRITE-HOST 收敛／④`cost_usd` Disabled 臂裸 inf。
+worktree `.claude/worktrees/accept-rtc` 保留至收编。

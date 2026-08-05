@@ -1195,16 +1195,30 @@ impl PiLoopHost {
                         self.records.push(usage_row);
                     }
                     self.projection = pi_loop_journal::fold(&self.records);
-                    // 活动 write tool call 的唯一真源（PI-WRITE-HOST-1 ③）：`host_request` 的
-                    // wire 上没有 `toolCallId`，四段账逐枚要它。只认 `write`——别的工具不经
-                    // 宿主 effect，替它们记一枚只会让 `host_request` 找到不该找的主。
+                    // 活动 tool call 的唯一真源（PI-WRITE-HOST-1 ③／PI-READ-TOOLCALL-1）。
+                    // `host_request` 的 wire 上没有 `toolCallId`，读写两臂都靠它找主：凡**能发
+                    // host op** 的工具都要在此 arm 一枚——`write` 发 workspace_write，
+                    // `read`／`glob`／`grep` 发 workspace_read。取／peek 的分野在下游、不在此处：
+                    // write 在 `serve_host_request` 认领即 `take`（一 tc 一 op）；read/glob/grep 在
+                    // `serve_read_request` 只 peek 不 take（一次 glob 逐层 list、同一 tc 多枚 read op），
+                    // 都由下面的 `ToolFinished` 统一收束。
+                    //
+                    // 用**穷举** `match tool_name`（无 `_`）而非旧的 write-only：`closed_enum!` 将来
+                    // 添一道工具，此处不更新即编译失败，逼出「新工具是否 arm」的显式裁定——不让它像
+                    // 本票的读工具当初一样静默落 `_` 不 arm（那正是本票所修的覆盖洞与 read host op
+                    // 恒 `StateViolation` 的根因）。
                     match &event {
                         AgentProjectionEvent::ToolStarted {
                             tool_call_id,
-                            tool_name: ProductToolName::Write,
-                        } => {
-                            self.active_tool_call = Some(tool_call_id.clone());
-                        }
+                            tool_name,
+                        } => match tool_name {
+                            ProductToolName::Write
+                            | ProductToolName::Read
+                            | ProductToolName::Glob
+                            | ProductToolName::Grep => {
+                                self.active_tool_call = Some(tool_call_id.clone());
+                            }
+                        },
                         AgentProjectionEvent::ToolFinished { tool_call_id, .. }
                             if self.active_tool_call.as_deref() == Some(tool_call_id.as_str()) =>
                         {
@@ -7045,6 +7059,51 @@ mod tests {
         )
     }
 
+    /// 读工具（`read`／`glob`／`grep`）的 `tool_started`（PI-READ-TOOLCALL-1）。
+    ///
+    /// 读臂集成用例此前一律以 `tool_started_line`（`ProductToolName::Write`）顶名 arm
+    /// `active_tool_call`——真 read 工具的 `tool_started` 路径因此从未被驱动，覆盖洞恰在此
+    /// （第四例放行后逃逸）。本对助手以**真** read tool_name 驱动 arm，`take`／`peek` 的分野
+    /// 在下游（write `serve_host_request` take、read `serve_read_request` peek），arm 这一步两者同形。
+    fn read_tool_started_line(seq: u64, tool_name: ProductToolName) -> Scripted {
+        read_tool_started_line_for(seq, "req-1", tool_name)
+    }
+
+    fn read_tool_started_line_for(
+        seq: u64,
+        request_id: &str,
+        tool_name: ProductToolName,
+    ) -> Scripted {
+        sidecar_line(
+            seq,
+            Some(request_id),
+            PacketPayload::AgentEvent(AgentProjectionEvent::ToolStarted {
+                tool_call_id: TOOL_CALL.to_string(),
+                tool_name,
+            }),
+        )
+    }
+
+    fn read_tool_finished_line(seq: u64, tool_name: ProductToolName) -> Scripted {
+        read_tool_finished_line_for(seq, "req-1", tool_name)
+    }
+
+    fn read_tool_finished_line_for(
+        seq: u64,
+        request_id: &str,
+        tool_name: ProductToolName,
+    ) -> Scripted {
+        sidecar_line(
+            seq,
+            Some(request_id),
+            PacketPayload::AgentEvent(AgentProjectionEvent::ToolFinished {
+                tool_call_id: TOOL_CALL.to_string(),
+                tool_name,
+                outcome: ToolOutcome::Succeeded,
+            }),
+        )
+    }
+
     fn completed_line(seq: u64) -> Scripted {
         completed_line_for(seq, "req-1")
     }
@@ -8051,13 +8110,13 @@ mod tests {
                 real_write_request_packet("notes/会议纪要.md", content),
             ),
             tool_finished_line(4),
-            tool_started_line(5),
+            read_tool_started_line(5, ProductToolName::Read),
             sidecar_line(
                 6,
                 Some("req-1"),
                 read_request_packet("op-read-1", WorkspaceOperation::ReadFile, "notes/会议纪要.md"),
             ),
-            tool_finished_line(7),
+            read_tool_finished_line(7, ProductToolName::Read),
             completed_line(8),
         ]);
         let (mut host, log) = real_armed_host(
@@ -8135,7 +8194,7 @@ mod tests {
                 real_write_request_packet("子目录/稿.md", content),
             ),
             tool_finished_line(4),
-            tool_started_line(5),
+            read_tool_started_line(5, ProductToolName::Glob),
             // 同一枚 tool call 里连发三枚读：list 根、list 子目录、read_file。
             sidecar_line(
                 6,
@@ -8152,7 +8211,7 @@ mod tests {
                 Some("req-1"),
                 read_request_packet("op-read-3", WorkspaceOperation::Exists, "子目录/稿.md"),
             ),
-            tool_finished_line(9),
+            read_tool_finished_line(9, ProductToolName::Glob),
             completed_line(10),
         ]);
         let (mut host, log) = real_armed_host(
@@ -8269,9 +8328,9 @@ mod tests {
                         WorkspaceCapability::WorkspaceWrite,
                     ],
                 ),
-                tool_started_line(2),
+                read_tool_started_line(2, ProductToolName::Grep),
                 sidecar_line(3, Some("req-1"), request),
-                tool_finished_line(4),
+                read_tool_finished_line(4, ProductToolName::Grep),
                 completed_line(5),
             ]);
             let (mut host, log) = real_armed_host(&h, vec![leg], None);
@@ -8314,13 +8373,13 @@ mod tests {
             tool_started_line(2),
             sidecar_line(3, Some("req-1"), real_write_request_packet("稿.md", content)),
             tool_finished_line(4),
-            tool_started_line(5),
+            read_tool_started_line(5, ProductToolName::Read),
             sidecar_line(
                 6,
                 Some("req-1"),
                 read_request_packet("op-read-1", WorkspaceOperation::ReadFile, "外链.md"),
             ),
-            tool_finished_line(7),
+            read_tool_finished_line(7, ProductToolName::Read),
             completed_line(8),
         ]);
         let (mut host, log) = real_armed_host(
@@ -8412,7 +8471,7 @@ mod tests {
                     WorkspaceCapability::WorkspaceWrite,
                 ],
             ),
-            tool_started_line_for(2, "req-2"),
+            read_tool_started_line_for(2, "req-2", ProductToolName::Read),
             sidecar_line(
                 3,
                 Some("req-2"),
@@ -8423,7 +8482,7 @@ mod tests {
                     "notes/跨腿.md",
                 ),
             ),
-            tool_finished_line_for(4, "req-2"),
+            read_tool_finished_line_for(4, "req-2", ProductToolName::Read),
             completed_line_for(5, "req-2"),
         ]);
         let (mut resumed, log) = real_armed_host(&h, vec![second], None);
@@ -8604,9 +8663,9 @@ mod tests {
         // ── leg 1：真 Agent read /case → write /workspace → 逐次授权（ScriptedApprove）→ 落盘 ──
         //
         // byte-identical read-back 由 harness 从盘上回读核验（下方 `fs::read_to_string == content`）。
-        // **不**让 Agent 读 /workspace 回读：那条路今日被 §移交 的 active_tool_call 缺口挡住
-        // （workspace_read host op 恒 StateViolation），已由
-        // `headless_workspace_readback_currently_stateviolations__blocker` 机器钉住。
+        // 本 smoke 的 Agent 读取仍走 /case（直读、无 host op）；真 Agent 经 read 工具回读 /workspace
+        // 的路径（PI-READ-TOOLCALL-1 修复前恒 StateViolation）由
+        // `headless_workspace_readback_succeeds_after_read_toolcall_fix` 单独覆盖。
         write_headless_faux_config(
             &h.app_data,
             serde_json::json!([
@@ -8709,26 +8768,25 @@ mod tests {
         resumed.shutdown().ok();
     }
 
-    /// **移交 `PI-BASE-HEADLESS-ACCEPT` 的 [需架构拍板] 阻断项，机器钉住。**
+    /// **PI-READ-TOOLCALL-1：/workspace agent 回读缺口已修（原 HEADLESS-HARNESS-1 blocker，转正断言）。**
     ///
-    /// 真 Agent 经 read/glob/grep 工具读 **/workspace**（一枚 `workspace_read` host op）今日恒
-    /// `StateViolation`：`active_tool_call` 只在 `ToolStarted{tool_name: Write}` 落一枚
-    /// （本文件 `pump` 里 `ProductToolName::Write` 那一臂），读工具的 `tool_started` 不落它，
-    /// 于是 `serve_read_request` 的「读须归属一枚在场 tool call」判据当场翻 StateViolation。
-    /// PI-WORKSPACE-READ-1 的 Rust 门全部以 **Write** tool_started 假冒
-    /// （`tool_started_line_for` → `ProductToolName::Write`），故此缺口从未被既有门照到——
-    /// 本 harness 首次以**真** read 工具触到它（判例：既有测试只桩住 seam 一侧）。
+    /// 真 Agent 经 read/glob/grep 工具读 **/workspace**（一枚 `workspace_read` host op）**此前**恒
+    /// `StateViolation`：`active_tool_call` 只在 `ToolStarted{tool_name: Write}` 落一枚，读工具的
+    /// `tool_started` 落 `_` 不 arm，于是 `serve_read_request` 的「读须归属一枚在场 tool call」判据
+    /// 当场翻 StateViolation。PI-WORKSPACE-READ-1 的 Rust 门全部以 **Write** tool_started 假冒
+    /// （`tool_started_line_for` → `ProductToolName::Write`），故缺口从未被既有门照到——本 harness
+    /// 首次以**真** read 工具触到它（判例：既有测试只桩住 seam 一侧）。
     ///
-    /// 它挡住 HEADLESS-ACCEPT 六格里凡涉 /workspace agent 回读的三格（3/4/5）。修法属核状态机
-    /// 语义（active_tool_call 由 write-only 扩到「凡能发 host op 的工具」，write 取、read peek），
-    /// 超出本票 Gate D＋harness 的授权面，故**上浮不自修**。
+    /// 本票把 `pump` 的 arm 由 write-only 扩到「凡能发 host op 的工具」（write 取、read peek），
+    /// 缺口即闭。本测试由原 blocker（断言坏态 `StateViolation`）**转正**：真 read 工具读 /workspace
+    /// 现走通，leg 正常 `Completed`，写下的字节可被回读。HEADLESS-ACCEPT 六格 3/4/5 因此可跑。
     ///
-    /// 本测试断言**当前坏态**：一旦转绿（读回读走通），即缺口已修——须删本测试并在
-    /// 六格里放开 /workspace agent 回读。
+    /// born-red：撤掉本 arm 的读臂（回到 write-only），本测试当场红回 `StateViolation`
+    /// （回执 mutation 表 M-A1）。
     #[test]
-    fn headless_workspace_readback_currently_stateviolations_blocker() {
+    fn headless_workspace_readback_succeeds_after_read_toolcall_fix() {
         let (node, bundle) = headless_artifacts();
-        let h = harness("headless-readback-blocker");
+        let h = harness("headless-readback");
         fs::write(h.case_root.join("备忘.md"), "x\n").expect("案件材料");
         write_headless_faux_config(
             &h.app_data,
@@ -8740,15 +8798,13 @@ mod tests {
         );
         let mut host = start_headless_leg(&h, &node, &bundle, true);
         let outcome = host.prompt("req-1", "写后经 read 工具回读 /workspace");
+        // 决定性：leg 正常 `Completed`——真 read 工具经 `serve_read_request` 的 peek 找到在场
+        // tool call，不再翻 StateViolation 关 leg。缺口未修时这里是 `Err(StateViolation)`。
         assert!(
-            matches!(
-                outcome,
-                Err(HostError::Protocol(ProtocolErrorCode::StateViolation))
-            ),
-            "钉住当前坏态：真 read 工具读 /workspace 应 StateViolation（缺口未修），实得 {outcome:?}。\
-             转绿＝缺口已修，删本测试并放开六格 /workspace 回读"
+            matches!(outcome, Ok(Terminal::Completed { .. })),
+            "缺口已修：真 read 工具读 /workspace 应走通并 Completed，实得 {outcome:?}",
         );
-        // 缺口在读之前：写已落盘，回读那一步才被挡（effect 与 read op 分属两段）。
+        // 写已落盘，且回读那一步走通（effect 与 read op 分属两段）。
         assert_eq!(
             fs::read_to_string(workspace_root(&h).join("稿.md")).expect("写已落盘"),
             "y\n"

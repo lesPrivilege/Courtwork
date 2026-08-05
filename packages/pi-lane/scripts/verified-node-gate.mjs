@@ -459,9 +459,10 @@ async function runProductionGate(route) {
     const parsed = run.lines.map((line) => JSON.parse(line));
     check('恰两枚出包', parsed.length === 2, `实得 ${parsed.length}: ${run.lines.join(' | ')}`);
     check(
-      '首包 ready 且 capabilities 恰 ["case_read"]',
+      '首包 ready 且 capabilities 恰 ["case_read","workspace_read","workspace_write"]',
       parsed[0]?.type === 'ready' &&
-        JSON.stringify(parsed[0]?.payload?.capabilities) === '["case_read"]',
+        JSON.stringify(parsed[0]?.payload?.capabilities) ===
+          '["case_read","workspace_read","workspace_write"]',
       JSON.stringify(parsed[0] ?? null),
     );
     check(
