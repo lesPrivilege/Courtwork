@@ -690,7 +690,8 @@ A0.5/A2 的工具与 workspace 精确语义如下：
   回执到则按回执收束；**Stop 到则悬置提案立即以 `authorization_decided(denied,
   user_denied)` durable 收束**（Stop 蕴含拒绝，不新增 wire 拒绝码），host_result 照四段
   账序发出后走既有 cancel 路径。等待无时限——授权属用户，系统不代拒，但必须可被 Stop 与
-  teardown 收束。
+  teardown 收束teardown 收束与 Stop 同形（同码 `user_denied`，不新增
+  wire 拒绝码；2026-08-05 随④交验追认）。
 - **回执不得追溯生效**：`decision` 回执只对当前唯一悬置提案有效；提案已收束（含因 Stop
   收束）后到达的回执一律失效丢弃并显式登记，effect 恰零次。这是 Stop race 真测的判定核心。
 - **悬置提案不跨 leg**：等待期间 session 中断（crash/teardown）时，journal 允许 leg 尾部
@@ -1319,7 +1320,9 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
   `PI-HOST-CONCURRENCY-1` 另派：两枚 Stop 真竞态测试、回执不追溯反例、
   `#![allow(dead_code)]` 收窄、同工具形槽位 fail-closed、`capability_for` 单点收敛。随②交验
   订正 binder 条款：`description` 保留上游原文、仅许其后追加产品寻址口径——原「保留上游
-  `description`」字面与双根口径冲突，追加式为正解（实现按此先行，措辞随批归位）。
+  `description`」字面与双根口径冲突，追加式为正解（实现按此先行，措辞随批归位）。随④交验追认三项：teardown 与 Stop 同形收束（同码
+  `user_denied`）、旧 `PiLoopHost::cancel` 退役不留第二 cancel 路径、宿主 trait 加
+  `Send`（线程模型机械必然）。
 - **2026-08-03 · HOST-LOOP 1R7 放行与七轮收束**：`PI-HOST-LOOP-1R7@744c070`（实现
   `f915eea`）经独立验收 `6da6aea` **PASS**：恢复分相结构成立（M7 双臂对照——同树同
   codec-only future rule，apply 前移臂复现 558→790，分相臂 558→558）、电池 152 行/15
