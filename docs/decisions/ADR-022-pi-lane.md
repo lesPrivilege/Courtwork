@@ -621,8 +621,10 @@ A0.5/A2 的工具与 workspace 精确语义如下：
   `app_data_dir()/pi-workspaces/<containerId>/<sessionId>/`，新 session 初始为空、按 container
   可整删；它是过程 artifact，不是用户原件、工作稿或产出。原件与 `产出/` 对 write 根本不可寻址；
   workspace 内容进入用户「工作稿」须等垂类修订/晋升契约。
-- 只允许一层极薄 binder：保留上游 `name/label/description/parameters`（parameters 对象同一性
-  有 characterization），仅把上游五参 `execute` 适配为 Agent 四参 execute；binder 使用 raw
+- 只允许一层极薄 binder：保留上游 `name/label/parameters`（parameters 对象同一性
+  有 characterization）；`description` 保留上游原文，仅许在其后追加产品寻址口径（2026-08-05
+  订正，与本节逻辑根口径同批），不得改写或删减上游文字。仅把上游五参 `execute` 适配为
+  Agent 四参 execute；binder 使用 raw
   `toolCallId` 从 per-leg registry **查取 event projector 已分配的公开 tc**，创建
   invocation-scoped write env，再原样调用一次上游 execute。真正进入 `writeFile`/发
   `host_request` 时由 registry 为该次 operation 分配新 op；binder 不预分配 tc/op。不得复制
@@ -1315,7 +1317,9 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
   （原 read 默认 `/case` 与 write 默认 `/workspace` 使「写后回读」同串异文件），`/case`
   强制显式前缀；工具 description 双根口径随 `PI-DUALROOT-CONTRACT-1` 落地。实现票
   `PI-HOST-CONCURRENCY-1` 另派：两枚 Stop 真竞态测试、回执不追溯反例、
-  `#![allow(dead_code)]` 收窄、同工具形槽位 fail-closed、`capability_for` 单点收敛。
+  `#![allow(dead_code)]` 收窄、同工具形槽位 fail-closed、`capability_for` 单点收敛。随②交验
+  订正 binder 条款：`description` 保留上游原文、仅许其后追加产品寻址口径——原「保留上游
+  `description`」字面与双根口径冲突，追加式为正解（实现按此先行，措辞随批归位）。
 - **2026-08-03 · HOST-LOOP 1R7 放行与七轮收束**：`PI-HOST-LOOP-1R7@744c070`（实现
   `f915eea`）经独立验收 `6da6aea` **PASS**：恢复分相结构成立（M7 双臂对照——同树同
   codec-only future rule，apply 前移臂复现 558→790，分相臂 558→558）、电池 152 行/15
