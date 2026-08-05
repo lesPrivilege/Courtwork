@@ -3577,3 +3577,196 @@ workspace／resume 后回读）现可跑，格 1/2（/case 直读）本就通；
 证据只能记 external-validated blocked」），不得以「harness 非瓶颈」放行。结转 [需架构拍板]（本单未碰）：
 上浮B logicalPath 空串两侧异源／②游标二元性随 WRITE-HOST 收敛／④`cost_usd` Disabled 臂裸 inf。
 worktree `.claude/worktrees/accept-rtc` 保留至收编。
+
+# PI-UNKNOWN-TOOL-1 独立验收（2026-08-05，PASS）
+
+target `ece479c`／base `2c8fd7b`（≡ main）。独立 worktree `.claude/worktrees/accept-unknown-tool`
+（detached），`pnpm install --frozen-lockfile` 后自跑，回执一切读数均视为未证断言、逐条重算。
+
+## 一 · 范围与禁区（diff `2c8fd7b..ece479c` 八文件）
+
+生产改动**恰一个文件**：`packages/pi-lane/src/product-stdio.ts`（+69/-13）。逐条核禁区：
+
+| 票面禁区 | 实测 | 判 |
+|---|---|---|
+| 不扩工具闭集 | `tool-policy.ts` diff **空**；`PRODUCT_TOOL_NAMES = ['read','grep','glob','write']` **恰四件**，仍由 `TOOL_CAPABILITY` 键派生 | 未越 |
+| 不改 wire | `product-protocol.ts` diff **空** | 未越 |
+| capability 集不变 | 同上，零改动 | 未越 |
+| 不动 Rust **逻辑** | `pi_loop_process.rs` 两处改动落在 `@@ -923` 与 `@@ -1009`，而 `#[cfg(test)] mod tests {` 起于 **:862**（全文件 1512 行）⇒ 二者**全在测试模块内**，零 production 逻辑、零签名、零控制流 | 未越（见偏离二） |
+
+`product-runtime.ts` 仅两段注释（零行为）；`SPEC.md` 两处措辞＋计数；`specs/PI-UNKNOWN-TOOL-1.md` 回执。
+
+**概念账复核：`unprojectedToolCalls` 是否第二套状态机？** 判**否**。决定性依据是既有设计的同构性：
+`product-stdio.ts:493` 注释自陈「tc 记录本身留着：下一 prompt 引用它必须被判 stale，而不是被当成
+『从未登记』」——公开 tc 的两本册子本就**跨 prompt 存活、以 requestId 判 stale**。新册子逐条照抄该形状
+（owner／同名／未收尾），`resolveUnprojectedToolCall` 与 `resolveActiveToolCall` 行行对位。它不铸 id、
+不占 ordinal、不占 `activeToolCallId`、不上 wire、不进任何计数器——**非同类新增**，是既有机器在
+「不投影」这一支上的镜像。
+
+## 二 · born-red 独立复现：六枚，且全部是断言红
+
+`product-stdio.ts` 与 `route-manifest.json` 一并回退至 base（测试段与 `product-runtime.ts` 保持 tip），
+`cp` 备份／`cp` 还原，全程不用 `git checkout` 清未提交面：
+
+| 相 | 读数 |
+|---|---|
+| born-red（production=base） | **6 failed / 534 passed（540）** |
+| green（production=tip） | **540 passed / 17 files**，EXIT **0** |
+
+回执宣称的六枚逐字复现。**票面点名要核的「断言形而非抛错逃逸」成立**——六枚红形逐条实测：
+
+| # | 红形（实测原文） | 类型 |
+|---|---|---|
+| 1 | `AssertionError: bash: expected ProductSidecarError: 当前没有活动 prompt to be null` | AssertionError |
+| 2 | `AssertionError: expected { snapshot: { …(9) }, …(1) } to deeply equal { …(2) }` | AssertionError |
+| 3 | `AssertionError: expected ProductSidecarError: 当前没有活动 prompt to be null` | AssertionError |
+| 4 | `AssertionError: expected [ 'capabilities', 'startPrompt:req-1' ] to include 'startPrompt:req-2'` | AssertionError |
+| 5／6 | `AssertionError: expected 'failed' to be 'completed'`（`product-runtime.test.ts` 真内核臂） | AssertionError |
+
+六枚**全部** `AssertionError`，零 unhandled 抛错。第 1／3 枚正文里的 `ProductSidecarError` 是被
+`capture()` **收下后作为断言值**参与比较，不是逃逸——正是回执所称「首版红成抛错、已改写为可诊断断言形」
+的落地形态。第 4 枚的 `startPrompt:req-2` 判据确实是「跨 prompt」与「会话早死」的分辨点，成立。
+
+还原后 `shasum -a 256` = `9d9e925e29c2b12f8b4fc40e4a4431c058da996f700ec5d8328d1c793963d78a`
+（与回执登记值逐字相同），`git status` 归零。
+
+## 三 · mutation 八枚独立重跑：全部有齿，但回执「互不相同」一语需订正
+
+自建 `mutate.py`，每处替换先 `text.count(old)`，非 1 即硬失败拒绝写入；八枚均报命中 1 处，
+每枚跑毕 `cp` 还原、末次 SHA 复原 `9d9e925e…`、`git status` 归零。
+
+**读数须先扣除两类与判据无关的红**：①`route manifest 与 product source 的跨侧核验` 在**每一枚**
+变异下必红——改 `product-stdio.ts` 即改 bundle 字节，该门按构造必红，不属判据总体；
+②`workspace-write-env.test.ts` 的墙钟 flake（见 §六）。扣除后：
+
+| # | 变异 | 回执宣称 | 我实测（扣除后） | 打红的判据 |
+|---|---|---|---|---|
+| M1 | 撤拆分⇒`failUpstream()` | 6 | **6** ✓ | 与 born-red 同一六枚 |
+| M2 | 查重门去 `unprojectedToolCalls.has` | 1 | **1** ✓ | 实现层违约三形 @`:2226`（`dupUnknown`） |
+| M3 | 未投影侧去同名门 | 1 | **1** ✓ | 实现层违约三形 @`:2276`（`renameIn`） |
+| M4 | 未投影侧去 owner prompt 门 | 1 | **1** ✓ | 跨 prompt stale |
+| M5 | 未投影侧去 `finished` 单向门 | 1 | **1** ✓ | progress／二次收尾 @`:2193`（二次收尾） |
+| M6 | 未投影早返上移到两道结构门之前 | 1 | **1** ✓ | 拆分不绕开结构门 |
+| M7 | 删 `tool_progress` 未投影早返 | 1 | **1** ✓ | progress／二次收尾 @`:2162`（progress） |
+| M8 | 删 `tool_finished` 未投影早返 | 5 | **5** ✓ | (a) 五枚 |
+
+**订正一处回执不实**：回执称「M2–M7 各自只打红一枚**且互不相同**」。以 `it()` 为粒度，
+**M2≡M3**（同打「实现层违约三形」）、**M5≡M7**（同打「progress／二次收尾」）——六枚变异只落到
+**四个** `it()`。我据此追查断言级坐标，四枚**确在互不相同的断言行**（M2`:2226` 重复登记／M3`:2276`
+改名／M5`:2193` 二次收尾／M7`:2162` progress 不上 wire），故**「判据之间无互相顶名」这一实质成立**，
+不实的只是「互不相同」的粒度表述。属回执精度问题，非正确性缺陷；建议措辞改为「各自打红一枚判据，
+四枚 `it()` 内断言互不相同」。
+
+## 四 · 我自跑的九枚探针（实现者未跑形状）：族是闭的
+
+新建 `zz-accept-probe.test.ts`（harness 逐条镜像 `product-stdio.test.ts`），**9 passed**，验收后已删除。
+
+| 探针 | 问题 | 实测 |
+|---|---|---|
+| P1 | 闭集外 start **之后没有 end**（对端违诺，内核虽保证必发） | 不占公开 ordinal（后续 `read` 仍 `tc_1_1`）、`publicToolCallId('call_x')` 为 `undefined`、terminal `completed`、phase 回 `idle`。**零泄漏、不 fail-open** |
+| P2 | 未投影 tc 改名为**另一个闭集外**名字（`bash`→`edit`） | fail-closed。**票面要我核的「改名族在未点名方向是否也闭」——闭** |
+| P2b | 未投影 tc 的 **progress** 改名（`bash`→`edit`） | fail-closed |
+| P3 | 已收尾的未投影 tc 再来 progress | fail-closed |
+| P4 | 未投影调用与**真 write host op 交错** | write 仍认领 `tc_1_1`／`op_1_1`，`tool_finished` 恰一枚、terminal `completed`。**与 `active_tool_call` 零交互** |
+| P5 | **洪水**：同 prompt 内 50 枚互异闭集外名字 | 会话存活、ordinal 零漂移（`read` 仍 `tc_1_1`）、wire 恰两枚事件 |
+| P6 | 两枚**并发**未投影 start（都未收尾） | **不被拦**（见下） |
+| P7 | 跨 prompt 复用同一 raw tc id | 闭集内臂与闭集外臂**同判** fail-closed ⇒ 对称，非本票新增语义 |
+| P8 | 未投影调用是否进 turn/预算账 | snapshot 与 terminal 双臂逐值相等 ⇒ 零漂移 |
+
+**P6 登记（观察，非缺陷）**：未投影 tc 刻意不占 `activeToolCallId`，故「重叠 tc」这道门在未投影侧
+**结构上不适用**——两枚并发未投影 start、以及「未投影未收尾＋公开 start」都不被拦。判非缺陷：该支
+零 effect／零 wire／零计数器，且内核 `toolExecution:'sequential'`；但回执「三道结构门一道不减」
+宜精确为「查重与 settled effect 两道对未投影侧同样生效；重叠门因未投影不占闩锁而不适用」。
+M6 已证「不绕开」的那一半（早返上移即红），此处只是口径收窄。
+
+**关于洪水的内存**：`unprojectedToolCalls` 与既有 `toolCallIds`／`toolCalls` 同样跨 prompt 存活
+（`:493` 明文「tc 记录本身留着」），三者同受 12 回合 session 硬顶约束，无新增无界增长面。
+
+## 五 · 偏离二（票面点名「最高风险」）：四枚未验证钉值，现已逐值验证
+
+回执如实声明「本单未跑 cargo，四处改动未经编译验证，请验收复核」。我在本树重建并复核：
+
+| 项 | 实测 | 对 registered 值 |
+|---|---|---|
+| `build-product-sidecar.mjs` 重建 | `action: **created**`（本树全新构建，非 reused）、`reproducible: **true**` | — |
+| bundle 字节 | `wc -c` = **547,283** | manifest／Rust 真值表登记 `547_283` **逐值相符** |
+| bundle sha256 | `93f04a1cd767d5541bffd24f8b4845129a6ed2dafd00872a1e22dc991fb0185c` | 两处登记值 **逐字符相符** |
+| `cargo test --lib --offline` | **236 passed / 0 failed / 1 ignored**，EXIT **0** | 与 base 236/1 **同值，本票零净增减** |
+
+四处（manifest bytes／manifest sha／Rust 编译期真值表两枚断言／两枚变异夹具搜索串）**全部坐实**。
+偏离本身判**必要且正确**：该处注释自身冻结「双方由 `product-main.test.ts` 跨侧门逐值锁死，不许只改
+一边」，只改 manifest 必留 Rust 红；票面「不动 Rust」的立意是不动**逻辑**，而改动确在 `mod tests` 内。
+
+**首轮 cargo 曾 234/2 red**：两枚 `headless_*` 报「缺 headless bundle——先跑 build:headless-sidecar」，
+系**全新 worktree 缺制品**的环境前提，非缺陷；补跑 `build-headless-sidecar.mjs` 后复绿 236/0/1。
+
+**随附登记（非本票缺陷，但须留值）**：`product-stdio.ts` 一动，headless bundle 同步漂移
+**554,327 → 554,704 B ／ `7a09318127510ee03771ae367aab0fe5e16bb8767d5052417be933ada1abeb91`**
+（+377 B，与 product bundle 增量同值）。全仓 `git grep` 于 `*.mjs/*.rs/*.ts/*.json` 对
+`554,327|554327` **零命中** ⇒ **无任何机器门冻结该身份**，故本票不改它不留红，处置正确。但
+`specs/PI-HEADLESS-HARNESS-1.md:198` 在「移交·开工前必读」节以**「现值」**口吻写 `554,327 B / 52b65d16…`，
+该数自本票起为陈旧。循「回执是历史记录、不回改」的成例，本验收不动那份回执，改在此处登记真值，
+供 `PI-BASE-HEADLESS-ACCEPT` 取用。
+
+## 六 · 既有 flake 的归因（实现者已登记，我独立复核并确认）
+
+mutation 多轮中见 `workspace-write-env.test.ts` 两枚红（`经 binder 的同路径并发调用…`、
+`characterization：共享同一 env 对象时…`）。**归因确认为非本票**：该文件对 `product-stdio` 引用计数
+`/usr/bin/grep -c` = **0**（零因果路径）；其等待器为 `:705` 的
+`const settle = () => new Promise((resolve) => setTimeout(resolve, 20))`——赌 20ms 墙钟，
+属「异步前置不赌时长」标准判例的在案违例。本树高负载（load average 峰值 **7.50**，同机另有验收会话）
+下塌红，静息下 540/540 全绿。**不记本票回归，亦不在本票内修**（只做工单范围）；
+建议另立票按判例改为事件驱动等待。
+
+## 七 · 门禁实跑（真退出码，未经管道吞码）
+
+| 门 | 读数 | 退出码 |
+|---|---|---|
+| `npx vitest run packages/pi-lane` | **540 passed / 17 files**（base 531 ⇒ 净增 9，与 SPEC §十 订数一致） | **0** |
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size warning） | **0** |
+| `pnpm lint`（`eslint .`） | 通过（本树无嵌套 worktree，不触 parsing-error 判例） | **0** |
+| `build:product-sidecar`（独立重建） | **547,283 B / `93f04a1c…`**、reproducible:true、created | **0** |
+| `build:headless-sidecar`（独立重建） | 554,704 B / `7a093181…`、reproducible:true | **0** |
+| `cargo test --lib --offline` | **236 passed / 0 failed / 1 ignored** | **0** |
+
+## 八 · 其余偏离逐条裁定
+
+1. **偏离①（SPEC §三.1 订正宽于点名）——ACCEPT。** 原文「只注册 read/glob/grep。edit/**write**/bash
+   从不构造」自 `PI-WRITE-HOST-1` 起为假（我核：`PRODUCT_TOOL_NAMES` 含 `write`，产品装配确实构造
+   host-mediated write）。它与本票要澄清的「叫哪些名字会得到 `Tool X not found`」是同一句话里的第二版
+   真值，留着即违反不变量 5。订正准确、范围止于该句，§三.2/§三.3 与六格其余五格未动。
+2. **偏离③（宿主侧看不到未遂调用）——ACCEPT 并登记。** 对不变量 4（静默降级零容忍）判**不构成违反**：
+   显式面存在且非静默——内核把 `Tool X not found`／`isError:true` 直接交给**必须据此改道的那一方**
+   （模型），这正是 SPEC §三.1 承诺的收信人；wire 的 `toolName` 是闭集类型，无表达该事件的形状，
+   扩 wire 是票面明禁。**我另核一条可能的隐忧并排除**：宿主看不见 ⇒ 模型若反复空叫是否**无形烧回合**？
+   P8 实测 `turn_finished` 计数与不叫时**逐值相同**（照常递增），故 12 回合硬顶与预算门照常兜底，
+   不存在不可见的无界消耗。若日后要给 GUI「模型试了不存在的工具」提示，属扩 wire 另票。
+3. **偏离④（`tool_progress` 未投影支今日结构不可达）——ACCEPT。** 三行成本，M7 证其承重（`:2162`），
+   我的 P2b／P3 另加两枚形状。本票的病根恰是「凭上游形状假设自保」，故此处不靠上游形状自保是对的姿态。
+4. **偏离⑤（既有反例四改瞄而非删除）——ACCEPT。** 改瞄后仍守「同 tc 说了两个名字」这一半威胁模型；
+   我的 P2 补上未点名方向（两端**都**在闭集外）亦 fail-closed ⇒ 改名族闭合，无兄弟逃逸。
+5. **偏离⑥（`product-runtime.ts` 两段注释）——ACCEPT。** 零行为；旧注释断言的「已冻结」自本票起为假，
+   按不变量 5 必须同批改。
+
+## 九 · 结论
+
+**判定：PASS。** 缺口真实且与票面根因逐段对上（内核查表在 `tool_execution_start` **之后**，
+故该事件的 `toolName` 是模型输出而非实现层违约）；改法最小——单文件、门序重排、放行的**只有
+「名字不在闭集」一条**，三道既有结构门在未投影侧的适用性经 M2／M6 与 P4／P7 双向验证；
+新增概念恰一个且与既有 tc 册子逐条同构，非第二套状态机。born-red 六枚独立复现且**全为断言红**，
+八枚变异全部有齿、命中校验齐备、SHA 复原；我自跑九枚未跑过的探针（含悬空 start、双向改名、
+洪水、与真 host op 交错）**未发现族外逃逸**。票面点名的最高风险项——四枚未经编译验证的钉值——
+经独立重建与 cargo 双证**逐值坐实**（547,283／`93f04a1c…`；cargo 236/0/1 与 base 同值）。
+
+**未做 fix-by-acceptance**：本轮只发现两处**措辞精度**问题（§三 mutation「互不相同」粒度、
+§四 P6「三道结构门一道不减」口径），均在回执文档内、不影响实现正确性与契约，按「只做工单范围」
+留待清账时随手订正，不在验收树改动交付面。**本会话除 ACCEPTANCE.md 外零改动**（变异与回退全 `cp` 还原、
+SHA 复原、探针文件已删、`git status` 归零）；不 merge、不 push、不动 `docs/status/current.md`
+与就绪图、不开下游票。
+
+**移交**：六格 cell 6 判读口径自本票起变更——`delete`/`bash` 族**不产生 terminal**，收到 terminal
+反而是 harness 红（SPEC §九 已同批改）。`PI-DUALROOT-CONTRACT-1` 的裸相对路径判读不再被本缺陷污染。
+`PI-BASE-HEADLESS-ACCEPT` 取 headless 制品真值 **554,704 B / `7a093181…`**（§五）。
+结转 [需架构拍板]（本单未碰）：②游标二元性、④`cost_usd` Disabled 臂裸 inf、
+`PI-HOST-CONCURRENCY-1` 并发/中断模型待 ADR 修订。
+worktree `.claude/worktrees/accept-unknown-tool` 保留至收编。
