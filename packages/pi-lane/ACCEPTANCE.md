@@ -3973,3 +3973,67 @@ SHA 复原、探针文件已删、`git status` 归零）；不 merge、不 push�
 结转 [需架构拍板]（本单未碰）：②游标二元性、④`cost_usd` Disabled 臂裸 inf、
 `PI-HOST-CONCURRENCY-1` 并发/中断模型待 ADR 修订。
 worktree `.claude/worktrees/accept-unknown-tool` 保留至收编。
+
+---
+
+## PI-HOST-CONCURRENCY-1 · 独立验收（2026-08-05）
+
+**判定：PASS。** 本节对应交验点 `58d3bb3`（独立 clean clone，detached HEAD），未修改实现，
+未触碰主仓工作树。
+
+### 票面逐条证据
+
+- 两枚真竞态均成立：`stop_during_an_active_prompt_reaches_the_pump_through_the_command_channel`
+  与 `stop_while_waiting_for_authorization_settles_the_proposal_as_user_denied` 使用宿主专属线程、
+  真 `mpsc` 命令通道和 `RacingLeg`；Stop 均实际穿过泵，第二枚以 durable
+  `authorization_decided(denied,user_denied)` 收束，effect `performs == 0`。
+- `a_decision_receipt_that_arrives_after_the_proposal_settled_never_takes_effect` 实测迟到批准被
+  `NoPendingProposal` 拒绝并进入 discarded 登记册，`effect_started` 不出现，effect 恰零次。
+- base `480b4ea` 的独立 probe 复现同工具形缺陷原形：`tool_started(tc-A,write)` →
+  `tool_started(tc-B,write)` → write request 得到 **`Process(UnexpectedEof)`**，而非应有的
+  `Protocol(StateViolation)`；交付树的 `counterexample_a_second_tool_started_never_silently_replaces_the_slot`
+  通过，槽位门位于 journal append 之前，坏事件零落盘。
+- `the_tool_capability_mapping_has_exactly_one_site` 通过；M1 将 `Write` 映射为
+  `WorkspaceRead` 时，write/read 行为轴均红；M5 注入第三处映射时结构轴红。
+- `cargo check --all-targets` 通过，未见 `dead_code` 告警；仅 base 已有 `lib.rs` 的 5 枚
+  `unused_unsafe`。`pi_loop.rs` 的 crate 级遮罩已移除；剩余 journal 模块级遮罩为 base 既有项。
+- `out_of_order_commands_are_named_refusals_never_silent_drops` 通过，五枚错序拒绝均具名：
+  `prompt_busy`、`no_active_prompt`、`cancel_in_flight`、`no_pending_proposal`、
+  `operation_mismatch`；M6/M7 分别撤泵内/空闲循环登记，均实际红。
+- `a_pending_proposal_is_tolerated_only_at_the_tail_of_a_leg` 通过：leg 尾部一枚无 decision
+  可容忍，中部同形整份 quarantine，恢复不代答；M3 撤中部门实际红。
+- `pi_loop_journal` 的 `JournalType` 逐值核为十九型，`PacketPayload` 与
+  `AgentProjectionEvent` 闭集未扩；六-B.1 cancel 既有 golden/竞态/uncertain 优先级测试全绿。
+  `real_write_host_without_a_decision_driver_denies_and_writes_nothing` 仍证明 production 无
+  driver 恒 `policy_denied`，无 effect。
+- teardown 同 Stop 形收束、删除 `PiLoopHost::cancel`、trait 加 `Send` 三项与 §七追认逐条一致；
+  `teardown_during_an_active_prompt_collapses_it_then_closes_the_session` 通过。
+
+### 七枚 mutation（逐枚亲跑，均先红后还原）
+
+| 变异 | 独立结果 |
+|---|---|
+| M1 `capability_for(Write)` 改为 `WorkspaceRead` | write/read 两枚行为测试均红 |
+| M2 泵跳过 `service_commands` | 两枚 Stop 真竞态均以 5s 无回执红 |
+| M3 删除 `validate_records` 中部未决提案门 | 中部 quarantine 断言红 |
+| M4 删除 `read_host.is_none()` fail-closed 门 | 「读件座缺席」断言红，实得 `Process(UnexpectedEof)` |
+| M5 注入第三处 tool↔capability 映射 | `the_tool_capability_mapping_has_exactly_one_site` 红 |
+| M6 泵内撤 `register_discarded` | 失效回执登记数量红 |
+| M7 空闲循环撤 `register_discarded` | 失效回执登记数量红 |
+
+### 门禁与制品
+
+| 门 | 实测 |
+|---|---|
+| `pnpm -r build` | 通过 |
+| `pnpm lint` | 通过 |
+| `pnpm test` | **1925 passed / 170 files** |
+| `pnpm --filter @courtwork/desktop test` | **690 passed / 75 files** |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | **246 passed / 0 failed / 1 ignored** |
+| `COURTWORK_E2E_PORT=1658 pnpm --filter @courtwork/desktop test:e2e` | **352 passed / 4.0m** |
+| product sidecar 独立重建 | **547,283 B / `93f04a1c…` / reproducible:true**，与 base 在册值同；未混用 `547,893 B / 951acf8e…` |
+| headless sidecar（补齐 clean clone 制品） | **554,704 B / `7a093181…` / reproducible:true** |
+
+首轮 root/cargo 的回环监听失败均为 sandbox `EPERM`，未计入门禁；以授权方式在独立端口/本地 mock
+端口复跑后通过。全程只运行一条 Playwright 链。验收提交除本节 `ACCEPTANCE.md` 外无源文件改动，
+不做 `fix-by-acceptance`，不更新 `current.md`/readiness，不 merge/push。
