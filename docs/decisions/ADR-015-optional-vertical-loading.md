@@ -6,6 +6,8 @@
 
 `PI-LANE-UI-1` 清账后，pi 线 GUI（Draft 面）与生产触发路径已装配。产品定调（2026-08-05）：不加载垂类包时，产品即一个基于 pi 的通用 work agent，唯一设计巧思是以 matter 为单位编排；如 OpenWork 基于 OpenCode，Courtwork 基于 pi 而更清朗。架构须先天保证垂类包可加载：不加载则界面与按钮（除 matter 巧思外）同于通用 work agent；agent 底面与垂类包两条线独立迭代，设计语言、schema 可视编排与互动包素材按需为场景绘制。
 
+产品身份补定（2026-08-05 续）：通用面须看起来像「先为 pi agent 做了 GUI、再加载了某类契约」——开发史相反（垂类先行），产品形态以通用 GUI agent 为地、垂类为图；首先应是有模有样的 GUI agent，其次才谈加载。
+
 本 ADR 是解耦相总纲。它不重复既有法，只把下列边界升格为「卸载可证」并补齐新裁：ADR-001（descriptor/bindings 双平面）、ADR-009 决定四（Renderer 是宿主 blueprint，垂类只注入投影）、ADR-012 决定四/五（宿主原生组件与版本化 blueprint 分层、素材库是设计索引）、ADR-014（tab＝schema 表、混包容器、三层包体系）、ADR-022（matter 不变量）。
 
 ## 决定一 · 两层定义：agent 具足 / 包注册
@@ -15,6 +17,8 @@
 垂类层（只从 package 引用）：语义 schema、声明式场景编排、词表、presentation/卡片投影、互动素材（SchemaParts 类）。
 
 schema 以外的所有 UI 住 agent；语义与编排只从 schema/descriptor 注册。垂类只存在于加载后的卡片与 preview 中，通用件不因垂类在场而分叉。
+
+**成品律**：通用底面以独立成品为验收标准，不是卸垂类后的残面——未加载任何垂类即产品默认形态：完整的起手引导与空态、matter 创建与生命周期、Draft 类工作面为主工作面、产物与账本可视可回看。垂类加载是加法，不得改通用件的图底关系，也不得让通用面的完整性依赖任何垂类在场。
 
 ## 决定二 · matter 是领域无关宿主原语
 
@@ -36,7 +40,7 @@ agent 底面与垂类包各自版本、各自票据、各自验收。接缝穷�
 
 ## 决定六 · 实施序与 OSS 义务
 
-本 ADR 拍板后：`GENERIC-PACK-1`（底面收口：零泄漏静态门、卸载态 UI、matter 中立命名清点）→ `PACK-INTERACT-1`（加载动作与准入 UX）。每票开工按工程纪律复核成熟 OSS。既有召回结论：OpenWork 证明「内核＋GUI 壳」形态可行，GUI 完备度对标须剔除其 branch/edit/queue 类明禁能力；插件装载面无合形可直接依赖的候选，registry 准入维持自研——去处按归档索引的 `benchmark-openwork-2026-07-26.md` 条目定位。与 `PI-BASE-GUI-ACCEPT` 的先后属产品排序，本 ADR 不裁。
+本 ADR 拍板后：`GENERIC-PACK-1`（底面收口：零泄漏静态门、卸载态 UI、matter 中立命名清点；退出证据含**卸载态整面评审**——以从未接触垂类的用户视角走通 matter 创建→work→产物→回看全链，评审对象是成品而非开关）→ `PACK-INTERACT-1`（加载动作与准入 UX）。每票开工按工程纪律复核成熟 OSS。既有召回结论：OpenWork 证明「内核＋GUI 壳」形态可行，GUI 完备度对标须剔除其 branch/edit/queue 类明禁能力；插件装载面无合形可直接依赖的候选，registry 准入维持自研——去处按归档索引的 `benchmark-openwork-2026-07-26.md` 条目定位。与 `PI-BASE-GUI-ACCEPT` 的先后属产品排序，本 ADR 不裁。
 
 ## 明确拒绝
 
