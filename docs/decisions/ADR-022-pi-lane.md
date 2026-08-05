@@ -1199,8 +1199,9 @@ resource 重签、inside-out signing、Developer ID/notarize/staple/Gatekeeper �
 
 #### `PI-HOST-LOOP-1` 开工补拍
 
-专属冻结件见
-[`packages/pi-lane/specs/PI-HOST-LOOP-1.md`](../../packages/pi-lane/specs/PI-HOST-LOOP-1.md)。
+专属冻结件为 `PI-HOST-LOOP-1` 票面（**史料线索**；该票已清账，件随 2026-08-05 归档批离开
+`packages/pi-lane/specs/`，去处按归档索引的 `pi-lane-receipts-2026-07-08/PI-HOST-LOOP-1*.md`
+条目定位——`decisions/README.md` 定 ADR 正文不直书归档路径，故此处转指索引）。
 这里登记会改变跨层语义的八项裁点，避免实现会话自行补合同：
 
 - `/case` 不扩成第三种 host-request capability。Rust 仍只在 bootstrap 例外把物理 case root
@@ -1261,6 +1262,13 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
 
 ## 修订记录
 
+> **返修合同件的去处（2026-08-05 一次性登记，下方不再逐条写路径）**：`PI-HOST-LOOP-1` 原票与
+> `1R`…`1R7` 七份返修合同、`PI-CODE-STDIO-1{,R,R2}`、`PI-SIDECAR-DIST-1` 六轮及其验收令、
+> `PI-WRITE-PROOF-1` 已随该批清账离开 `packages/pi-lane/specs/`。要回读其中任何一件属**史料线索**，
+> 去处按归档索引（`archive/README.md`）的 `pi-lane-receipts-2026-07-08/` 各条目定位；每条附逐轮
+> SHA 表，可据此定位单轮件。ADR 正文不直书归档路径（`decisions/README.md` 变更规则），故下方各条
+> 只写票号，不写件的路径；归档件恒不具约束力，本 ADR 与各层 SPEC 才是现行契约。
+
 - **2026-08-03 · HOST-LOOP 1R7 放行与七轮收束**：`PI-HOST-LOOP-1R7@744c070`（实现
   `f915eea`）经独立验收 `6da6aea` **PASS**：恢复分相结构成立（M7 双臂对照——同树同
   codec-only future rule，apply 前移臂复现 558→790，分相臂 558→558）、电池 152 行/15
@@ -1280,8 +1288,7 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
   `reclaim_after_fault` 立即 apply 不适用 encode-before-effect）。零漂移已经源码核实：
   `fold()` 纯函数，bootstrap 恢复态字段与 crash-fold 追加互不作用，物理截断对解析不
   必要。违规电池扩 recoverable existing-session 族，断言升「与 pre-start snapshot 逐
-  字节不变＋修复未应用」。新立 `PI-HOST-LOOP-1R7`（`specs/PI-HOST-LOOP-1R7.md`），
-  基线顺取二十五枚 patch-id 等同。
+  字节不变＋修复未应用」。新立 `PI-HOST-LOOP-1R7`，基线顺取二十五枚 patch-id 等同。
 - **2026-08-02 · HOST-LOOP 1R5 复验拒绝与 1R6 结构性裁定**：`PI-HOST-LOOP-1R5@a082257`
   经独立复验 `9d4013e` REJECT——G1 四门与阳性对照全成立；唯一决定性：拒绝分支扫描器以
   `return Err(` 字面量定义种群，fail-closed 建立在 fail-open 种群上，turbofish 合法拼写
@@ -1290,8 +1297,7 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
   复用发送——codec 成为唯一校验真源，wire 判据前置从验证同步变结构性成立；文本扫描双轴
   与同步账本受契约祝福退役（行为反例与手写清单全数保留），新增普适不变量探针
   （`Err ⇒ 副作用恰零`）。担保边界如实声明：非 wire 判据靠显式门＋电池广度＋独立验收，
-  不再假装文本扫描能证。新立 `PI-HOST-LOOP-1R6`（`specs/PI-HOST-LOOP-1R6.md`），基线
-  顺取二十二枚 patch-id 等同。
+  不再假装文本扫描能证。新立 `PI-HOST-LOOP-1R6`，基线顺取二十二枚 patch-id 等同。
 - **2026-08-02 · HOST-LOOP 1R4 复验拒绝与 1R5 两裁定**：`PI-HOST-LOOP-1R4@d4163df` 经
   独立复验 `5271342` REJECT——requestId/七成员/M1–M4/E2 全成立，唯一决定性：扫描轴仍是
   语法白名单（函数名单），协议既有 wire NUL 门（`scan_string` `unit==0`）不在轴上，
@@ -1300,13 +1306,12 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
   后拒绝；不可编码＝无效输入；lone surrogate 于 Rust String 结构性不可达，以具名理由行
   入账）。裁定二：**扫描器 fail-closed 化**——枚举前置函数族全部拒绝分支，unknown 判据
   表达式判红而非跳过；协议具名 wire 判据作对照面逐枚入账；排除只能是票面/清账表具名
-  理由行，实现内白名单/过滤器永久出局。新立 `PI-HOST-LOOP-1R5`
-  （`specs/PI-HOST-LOOP-1R5.md`），基线顺取十九枚 patch-id 等同。
+  理由行，实现内白名单/过滤器永久出局。新立 `PI-HOST-LOOP-1R5`，基线顺取十九枚 patch-id 等同。
 - **2026-08-02 · HOST-LOOP 1R3 复验拒绝与 1R4 扫描轴对齐**：`PI-HOST-LOOP-1R3@51369e4`
   经独立复验 `a0644cd` REJECT——D2 已闭合，决定性恰一枚：D1 覆盖自证的扫描轴按 `MAX_*`
   常量枚举，而族定义是「受验输入」，SafeToken 函数型判据不在轴上；prompt `requestId`
   （六-B.1 SafeToken 七成员之一）同时躲过清单与扫描，撤其 production 门后全套自证假绿。
-  新立 `PI-HOST-LOOP-1R4`（`specs/PI-HOST-LOOP-1R4.md`）：requestId 入册双轴、扫描轴扩
+  新立 `PI-HOST-LOOP-1R4`：requestId 入册双轴、扫描轴扩
   函数型判据、SafeToken 七成员全员清账；回执计数据实且真源必须在 exact target 树内。
   判据订正落痕：扫描谓词从族定义出发与族同宽，语法标记不得反过来定义族。
 - **2026-08-02 · HOST-LOOP 1R2 复验拒绝与 1R3 按族闭口**：`PI-HOST-LOOP-1R2@1ab9c03`
@@ -1314,7 +1319,7 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
   （8193-byte key 先落 journal 再 spawn，4097-byte root 以 lstat 外观代替配置门）；
   verified-node gate 未独立冻结 `bundle.bytes/sha256`，实物与被判 manifest 同步漂移
   FALSE_GREEN。四枚 1R2 原形与六项偏离均已获追认，两枚 blocker 都是**同批判据的未点名
-  同族成员**。新立 `PI-HOST-LOOP-1R3`（`specs/PI-HOST-LOOP-1R3.md`）：D1 有界输入闭集
+  同族成员**。新立 `PI-HOST-LOOP-1R3`：D1 有界输入闭集
   全部前置并以双向清单自证覆盖、D2 gate expected side 一律锚 tracked manifest 并对每类
   比较值加同步漂移反例、D3 对本票冻结面（全部 `MAX_*` 与全部判据的期望来源）穷举清账。
   方法订正一并落痕：验收报告点名的是样本不是清单，闭口的完成态是闭集被穷举覆盖且覆盖
@@ -1330,15 +1335,13 @@ prompt，并把每次 toolCall 绑定独立 write env/operation；
   经独立复验 `427f4fa` REJECT——`aborted` 终态未走 canceled、bootstrap 三项上界后置于
   spawn、journal 载入接受孤儿 usage 与倒序 observed turn、verified-node gate 对 runtime
   同尺寸篡改/symlink/manifest 字段漂移假绿（另录 builder 回执 resource 前缀同源漂移）。
-  1R 十一项常驻与正向 controls 全绿不抵消。新立 `PI-HOST-LOOP-1R2`
-  （`specs/PI-HOST-LOOP-1R2.md`）冻结四项闭口；基线顺取九枚 patch-id 等同，两枚拒绝
+  1R 十一项常驻与正向 controls 全绿不抵消。新立 `PI-HOST-LOOP-1R2` 冻结四项闭口；基线顺取九枚 patch-id 等同，两枚拒绝
   报告随链入树；1R 十一项与既有门不回退。
 - **2026-08-01 · HOST-LOOP 首轮验收拒绝与 1R 十一项闭口**：`PI-HOST-LOOP-1@0d4799c`
   经独立验收 `314117d` REJECT。决定性违约为凭证读取先于 route 身份门（逐字违反「route-pair
   失败先于 Keychain read/journal/spawn」）；另十枚坐实非法输入回显物理根、provider error 与
   政策拒绝两类 false-success、config/prompt 门后置、预算采信 sidecar 自报、wire fault 不
-  fold、shutdown 非零伪 completed、resume prior 三值不核、单写者缺失。返修合同冻结于
-  `packages/pi-lane/specs/PI-HOST-LOOP-1R.md`：十一项闭口在既有契约语义内收紧实现，不改
+  fold、shutdown 非零伪 completed、resume prior 三值不核、单写者缺失。返修合同冻结于 `PI-HOST-LOOP-1R` 票面：十一项闭口在既有契约语义内收紧实现，不改
   wire/payload 闭集，不回退既有门；验收反例原形转 permanent 首红。放行前
   `PI-WRITE-HOST-1` 继续 blocked。
 - **2026-07-30 · PI-HOST-LOOP-1 开工接缝订正**：反对性审查闭合 `/case` 工具输出、

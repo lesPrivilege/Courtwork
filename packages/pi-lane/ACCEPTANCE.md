@@ -400,7 +400,8 @@ stdout/stderr 原文及 bytes/SHA 在 receipt；该 preflight 目录没有 `sign
 
 - 相对基线的实现 scope 精确为三件：新增
   `src/workspace-write-env.ts`、`src/workspace-write-env.test.ts`，以及专属
-  `specs/PI-WRITE-PROOF-1.md`；架构澄清涉及的 ADR/SPEC/readiness 三文档只作输入，不计实现越界。
+  `specs/PI-WRITE-PROOF-1.md`（写作时路径；该件已于 2026-08-05 随批移入
+  `archive/pi-lane-receipts-2026-07-08/PI-WRITE-PROOF-1.md`——**史料线索**，不构成现行依据）；架构澄清涉及的 ADR/SPEC/readiness 三文档只作输入，不计实现越界。
 - 验收发现原实现按旧回执放行 basename 恰为 `.md`，与已拍板的
   `unsupported_file_type` 冲突。先把 `.md` 加入拒绝参数化测试，定向实跑
   **99 tests 中 1 failed**；随后以最小的 `<= '.md'.length` stem 门修复，提交
@@ -1493,7 +1494,9 @@ scanner/ledger 至少能发现、登记这道现存格式门。两路都不能�
 worktree `/private/tmp/courtwork-accept-pi-host-loop-1r5-codex`、分支
 `codex/accept-pi-host-loop-1r5` 进行；未进入或读取实现树。十九枚证据链逐枚比较 patch-id，结果
 **19/19 等价**；`84f0710..3f0bc6f` 只改 `apps/desktop/src-tauri/src/pi_loop.rs`，回执提交只改
-`packages/pi-lane/specs/PI-HOST-LOOP-1R5.md`，`ACCEPTANCE.md` 与 `current.md` 在目标树零触碰。
+`packages/pi-lane/specs/PI-HOST-LOOP-1R5.md`（写作时路径；该件已于 2026-08-05 随批移入
+`archive/pi-lane-receipts-2026-07-08/PI-HOST-LOOP-1R5.md`——**史料线索**），`ACCEPTANCE.md` 与
+`current.md` 在目标树零触碰。
 
 **最终判定：REJECT。** G1 的四道 NUL production 门、四类副作用边界以及撤门阳性 mutations
 均成立；但 G2 的完成态仍不是“枚举全部拒绝分支，unknown 判红”。当前
@@ -1599,8 +1602,9 @@ worktree `/private/tmp/courtwork-accept-pi-host-loop-1r6-codex`、分支
 `codex/accept-pi-host-loop-1r6` 进行；未进入或读取实现树。二十二枚证据链逐枚比较 stable
 patch-id，结果 **22/22 等价**；`601ba56..e3118a7` 只改
 `apps/desktop/src-tauri/src/pi_loop.rs`，回执提交只改
-`packages/pi-lane/specs/PI-HOST-LOOP-1R6.md`，`ACCEPTANCE.md`、`current.md` 与 readiness 在
-目标树零触碰。
+`packages/pi-lane/specs/PI-HOST-LOOP-1R6.md`（写作时路径；该件已于 2026-08-05 随批移入
+`archive/pi-lane-receipts-2026-07-08/PI-HOST-LOOP-1R6.md`——**史料线索**），`ACCEPTANCE.md`、
+`current.md` 与 readiness 在目标树零触碰。
 
 **最终判定：REJECT。** fresh start、prompt、cancel/shutdown 的先编码形状与同一份 bytes 复用
 成立，H2 的退役/保留边界与 142 枚电池构成也成立；但 `start_inner()` 在真实 bootstrap 编码前

@@ -247,6 +247,13 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
 
 ### 并行相邻票与合流门
 
+> **回执去处（2026-08-05 归档批，本节及下节不再逐条写件的路径）**：本节所列各票的独占回执已随其
+> 清账移出 `packages/pi-lane/specs/`，成为**史料线索**——去处按归档索引（`archive/README.md`）的
+> `pi-lane-receipts-2026-07-08/` 五枚条目定位，每条附逐轮 SHA 表可定位单件。SPEC 不在 `docs/README.md`
+> 「史料引用例外」的四类面内，故这里只写票号、用转指形式，不直书归档路径。下文各条「只许改…回执」
+> 的措辞记的是该票**施工当时**的范围合同，不是现在还存在的文件；归档件恒不具约束力，现行契约只认
+> 本 SPEC、`ACCEPTANCE.md`、ADR-022 与实现就绪图。
+
 - `PI-CODE-STDIO-1` 只新增
   `src/product-protocol.ts`、`src/product-stdio.ts` 及同名测试：逐字段实现 ADR-022 六-B 的
   strict discriminated union；完整 packet 顶层恰为
@@ -270,8 +277,7 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   stable version 的相同反例 spike 证明能删除现有边界，而非只替换约 200 行 tokenizer。
 - `PI-CODE-STDIO-1` 的实现 `79a13d2` 经独立验收修复 `0ffae46` 后仍由 6 枚临时反例坐实
   3 blockers + 2 majors，结论为 **REJECT**；build/test 全绿不改变此结论。返修票
-  `PI-CODE-STDIO-1R` 只许改同四份 source/test 与专属
-  `specs/PI-CODE-STDIO-1R.md` 回执，基线为验收报告 tip，不得改旧回执、ACCEPTANCE、父级
+  `PI-CODE-STDIO-1R` 只许改同四份 source/test 与专属回执，基线为验收报告 tip，不得改旧回执、ACCEPTANCE、父级
   SPEC/ADR、index/env/tools/session/package/lock、Rust/Tauri 或 GUI：
   1. `PromptCompletion` 删除自由 message，精确 union 为
      `completed | provider_error/host_error + retryable:boolean |
@@ -307,8 +313,7 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   **REJECT**。USD 一律传染、预登记 public tc、callback 不回滚与 reserve/send 不二次铸 op/hash
   四项不回退；问题是 tc registry 未真正绑定 request/tool/capability/phase，且普通 finish 可
   抹掉已确认 effect。返修 `PI-CODE-STDIO-1R2` 只许改同四份
-  `product-protocol.ts/.test.ts`、`product-stdio.ts/.test.ts` 与新回执
-  `specs/PI-CODE-STDIO-1R2.md`；不得改 1/1R 旧回执、ACCEPTANCE、父级 SPEC/ADR、index/env/
+  `product-protocol.ts/.test.ts`、`product-stdio.ts/.test.ts` 与其新回执；不得改 1/1R 旧回执、ACCEPTANCE、父级 SPEC/ADR、index/env/
   tools/session/package/lock、workspace-write-env、Rust/Tauri 或 GUI：
   1. public tc 记录不可变 `{requestId,toolName,phase}`，只属生成它的 active prompt；每 prompt
      至多一枚未 finished tc。progress/finished/reserve 必须同 tc、同 toolName、同 request，
@@ -352,7 +357,7 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   `measure.mjs`、`coldstart-rounds.mjs`、`sign-probe.mjs`、`reproducibility-probe.mjs`、
   `clean.mjs`，以及 `scripts/lib/toolkit.mjs`、新增
   `scripts/lib/probe-verdict.mjs` 与 `scripts/probe-verdict.test.mjs`，原独立报告
-  `docs/engineering/pi-sidecar-dist-1.md` 与新回执 `specs/PI-SIDECAR-DIST-1R.md`。被测
+  `docs/engineering/pi-sidecar-dist-1.md` 与其新回执。被测
   `sidecar-fixture.mjs` 冻结；不得改旧回执/ACCEPTANCE、package/lock、生产源码、父级文档、
   Tauri/Rust 或 GUI：
   1. 新增薄的纯 verdict 层及定向测试，`measure`、三轮冷启、签名/可复现性探针必须消费同一
@@ -390,8 +395,7 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   `sign-probe.mjs`、`reproducibility-probe.mjs`、`clean.mjs`，
   `scripts/lib/toolkit.mjs`、`scripts/lib/probe-verdict.mjs`、
   `scripts/probe-verdict.test.mjs`，原工程报告
-  `docs/engineering/pi-sidecar-dist-1.md` 与新回执
-  `specs/PI-SIDECAR-DIST-1R2.md`。不得改 `fetch-runtime`/`extract-runtime`、
+  `docs/engineering/pi-sidecar-dist-1.md` 与其新回执。不得改 `fetch-runtime`/`extract-runtime`、
   `sidecar-fixture.mjs`、1/1R 旧回执、ACCEPTANCE、package/lock、生产源码、父级文档、
   Tauri/Rust 或 GUI：
   1. 新建唯一 `dist/assembly`；corpus、runtime、构建 scratch、JSON 与反例留档全在其外。
@@ -438,8 +442,7 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   `scripts/lib/probe-verdict.mjs`、`scripts/lib/toolkit.mjs`、
   `scripts/probe-verdict.test.mjs`，新增
   `upstream/node-v22.23.1/osx-entitlements.plist`，原工程报告
-  `docs/engineering/pi-sidecar-dist-1.md` 与新回执
-  `specs/PI-SIDECAR-DIST-1R3.md`。不得改其他 fixture/build/runtime 脚本、1/1R/1R2 旧回执、
+  `docs/engineering/pi-sidecar-dist-1.md` 与其新回执。不得改其他 fixture/build/runtime 脚本、1/1R/1R2 旧回执、
   ACCEPTANCE、package/lock、生产源码、父级文档、Tauri/Rust 或 GUI：
   1. canonical probe 输入只认 Node `v22.23.1` commit
      `bd96dfbf0361576724b65322046e2ca9f9609cb9` 的
@@ -515,8 +518,7 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   `fixtures/sidecar-dist/scripts/lib/probe-verdict.mjs`、
   `fixtures/sidecar-dist/scripts/probe-verdict.test.mjs`、
   `fixtures/sidecar-dist/README.md`、
-  `docs/engineering/pi-sidecar-dist-1.md` 与新回执
-  `specs/PI-SIDECAR-DIST-1R4.md`。不得改 toolkit、canonical plist、其他
+  `docs/engineering/pi-sidecar-dist-1.md` 与其新回执。不得改 toolkit、canonical plist、其他
   fixture/build/runtime 脚本、旧回执/ACCEPTANCE、package/lock、生产源码、父级文档、
   Tauri/Rust/GUI：
   1. `runFullProbe()` 必须把完整同轮 receipt 交给 `verdictSign()`，不得再投影为
@@ -601,8 +603,7 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   `fixtures/sidecar-dist/scripts/sign-probe.mjs`、
   `fixtures/sidecar-dist/scripts/lib/probe-verdict.mjs`、
   `fixtures/sidecar-dist/scripts/probe-verdict.test.mjs`、
-  `fixtures/sidecar-dist/README.md`、`docs/engineering/pi-sidecar-dist-1.md` 与新回执
-  `specs/PI-SIDECAR-DIST-1R5.md`。不得改 toolkit/canonical fixture、其他 fixture/build/runtime
+  `fixtures/sidecar-dist/README.md`、`docs/engineering/pi-sidecar-dist-1.md` 与其新回执。不得改 toolkit/canonical fixture、其他 fixture/build/runtime
   脚本、旧回执/ACCEPTANCE、package/lock、父级文档、产品源码、Rust/Tauri/GUI：
   1. 在 untouched R4 target 上先以 production-used observation 写三类 first-red：
      跨架构 warning 正确但最终非零/超时；command time 两副本同时删掉与全填同一合法常量；
@@ -659,8 +660,8 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      自跑完整物理矩阵并放行，架构才可消费报告裁路线。Fable 提供不可变实现 SHA 后，由架构
      另立 `PI-SIDECAR-DIST-1R5-ACCEPT`，冻结 target、允许面、反例与 mutation；验收默认只追加
      `packages/pi-lane/ACCEPTANCE.md`，实现级小修才适用 `fix-by-acceptance`，不得消费实现者
-     manifest 代替自跑。**已冻结（2026-07-30）**：目标 `6cdb9ba`，件见
-     [`specs/PI-SIDECAR-DIST-1R5-ACCEPT.md`](specs/PI-SIDECAR-DIST-1R5-ACCEPT.md)——其中逐组
+     manifest 代替自跑。**已冻结（2026-07-30）**：目标 `6cdb9ba`，冻结件即
+     `PI-SIDECAR-DIST-1R5-ACCEPT` 验收令（已归档，去处见本节题注）——其中逐组
      项数以独立字面量冻结（8/5/14/23/15/11＝76），精确构成为 68 个失败注入 + 8 个
      恢复／证据对照；验收须另造 8 个失败变体补强且与历史 76 项分计。冻结件同时登记
      `sea` 打印 9 行含一行非矩阵项、`reproducibility-probe.mjs` 不支持枚举 flag 两处读数陷阱；
@@ -678,8 +679,8 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
      production consumer 或制品依赖。该裁定只解锁 `PI-HOST-LOOP-1`；不代表 Host、GUI、
      debug DMG 或公开发行已经成立，`current.md` 不随之升档。
 - 原三张并行票从同一已验收基线、独立 clean worktree/branch 施工；共享父级 SPEC 是只读权威。
-  原实现会话分别只更新 `specs/PI-WRITE-PROOF-1.md`、`specs/PI-CODE-STDIO-1.md` 或
-  `specs/PI-SIDECAR-DIST-1.md` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering
+  原实现会话分别只更新 `PI-WRITE-PROOF-1`、`PI-CODE-STDIO-1` 或
+  `PI-SIDECAR-DIST-1` 的独占回执，不争用本文件。分发票实测正文另落独立 engineering
   report，仅在其专属回执写链接与结论。返修票不属于这组三票；为避免把父级架构提交反向
   cherry-pick 到旧基线，组合树均从本节所在 `main` tip 新建，再按序取证据提交：
   `PI-CODE-STDIO-1R` 取 `79a13d2 → 223185e → 0ffae46 → cfb4715`；
@@ -718,8 +719,7 @@ PI_LANE_ROOT=<授权文件夹绝对路径> pnpm --filter @courtwork/pi-lane dev
   另交出一份**九行丢弃分支族表**（`specs/PI-TOOLS-HONESTY-1.md` 十节）：本票三轮被拒两次，
   两次都是「按验收点名的实例收口，而不是按族收口」，族清单自此由实现方持有、改函数先对表。
 - `PI-HOST-LOOP-1` 负责 product `/case` 虚拟 env、物理路径/错误脱敏与 session 累计预算；
-  专属冻结件为
-  [`specs/PI-HOST-LOOP-1.md`](specs/PI-HOST-LOOP-1.md)。该票不扩 `case_read`
+  专属冻结件为 `PI-HOST-LOOP-1` 票面（已归档，去处见本节题注）。该票不扩 `case_read`
   host-request：物理 case root 仍只在 bootstrap 例外进入 Node 内存，模型/工具/journal 只见
   `/case`；并按 Route A tracked manifest 管 verified Node+CJS、十九型 closed journal、
   crash/quarantine/resume 与动态 spawn 机器门。产品 credential 只消费用户显式保存的 pasted
@@ -764,22 +764,25 @@ OpenWork server/SDK、AI SDK runtime、GUI 与第二份 journal。
 
 ### 并行票独占回执
 
-- [`PI-WRITE-PROOF-1`](specs/PI-WRITE-PROOF-1.md)
-- [`PI-CODE-STDIO-1`](specs/PI-CODE-STDIO-1.md)
-- [`PI-CODE-STDIO-1R`](specs/PI-CODE-STDIO-1R.md)
-- [`PI-CODE-STDIO-1R2`](specs/PI-CODE-STDIO-1R2.md)
-- [`PI-SIDECAR-DIST-1`](specs/PI-SIDECAR-DIST-1.md)
-- [`PI-SIDECAR-DIST-1R`](specs/PI-SIDECAR-DIST-1R.md)
-- [`PI-SIDECAR-DIST-1R2`](specs/PI-SIDECAR-DIST-1R2.md)
-- [`PI-SIDECAR-DIST-1R3`](specs/PI-SIDECAR-DIST-1R3.md)
-- [`PI-SIDECAR-DIST-1R4`](specs/PI-SIDECAR-DIST-1R4.md)
-- [`PI-SIDECAR-DIST-1R5`](specs/PI-SIDECAR-DIST-1R5.md)
-- [`PI-SIDECAR-DIST-1R5-ACCEPT`](specs/PI-SIDECAR-DIST-1R5-ACCEPT.md)
-- [`PI-HOST-LOOP-1`](specs/PI-HOST-LOOP-1.md)
+**现存于 `specs/`（十一份，各自仍在承载移交、未偿项或源码引用，不得归档）**：
+
+- [`PI-TOOLS-HONESTY-1`](specs/PI-TOOLS-HONESTY-1.md)——`src/tools.ts:165` 的族清单对表件，源码点名引用
+- [`PI-WRITE-HOST-1` 开工前置](specs/PI-WRITE-HOST-1-PREFLIGHT.md)（「措辞按此钉死」）
+- [`PI-WRITE-HOST-1` 侦察](specs/PI-WRITE-HOST-1-RECON.md)（后继会话直接消费的测绘真源）
+- [`PI-WRITE-HOST-1` 序⑦总表](specs/PI-WRITE-HOST-1-STAGE7.md)（七段回执即验收读序）
 - [`PI-WORKSPACE-READ-1` 侦察](specs/PI-WORKSPACE-READ-1-RECON.md)
-- [`PI-WORKSPACE-READ-1`](specs/PI-WORKSPACE-READ-1.md)
-- [`PI-HEADLESS-HARNESS-1`](specs/PI-HEADLESS-HARNESS-1.md)
-- [`PI-UNKNOWN-TOOL-1`](specs/PI-UNKNOWN-TOOL-1.md)
+- [`PI-WORKSPACE-READ-1`](specs/PI-WORKSPACE-READ-1.md)（B/D 两项未偿）
+- [`PI-HEADLESS-HARNESS-1`](specs/PI-HEADLESS-HARNESS-1.md)（移交 `PI-BASE-HEADLESS-ACCEPT`，该总验未跑）
+- [`PI-READ-TOOLCALL-1`](specs/PI-READ-TOOLCALL-1.md)（同上，移交未消费）
+- [`PI-HOST-JOURNAL-1`](specs/PI-HOST-JOURNAL-1.md)（观察④ `cost_usd` 仍 `[需架构拍板]`）
+- [`PI-TOOLCALL-BINDING-1`](specs/PI-TOOLCALL-BINDING-1.md)（上浮两项刚挂账）
+- [`PI-UNKNOWN-TOOL-1`](specs/PI-UNKNOWN-TOOL-1.md)（上浮项刚挂账）
+
+**已随清账归档（二十四份，2026-08-05）**：`PI-WRITE-PROOF-1`、`PI-CODE-STDIO-1{,R,R2}`、
+`PI-SIDECAR-DIST-1{,R,R2,R3,R4,R5}` 与 `-1R5-ACCEPT` 验收令、`PI-HOST-LOOP-1` 原票与
+`1R`…`1R7`、`PI-WRITE-HOST-1-STAGE2`…`STAGE6`。它们是**史料线索**，去处按归档索引
+（`archive/README.md`）的 `pi-lane-receipts-2026-07-08/` 五枚条目定位，每条附逐轮 SHA 表；
+SPEC 不在史料引用例外的四类面内，故此处只转指索引、不直书归档路径。归档件恒不具约束力。
 
 ## 十 · 门与证据
 

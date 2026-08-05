@@ -4,7 +4,7 @@
 
 ## 使用纪律
 
-归档材料是历史证据链，不是现行规范。`archive/` 全部内容不参与实现或验收，不得被现行文档、源码、脚本或 SPEC 直接引用（唯一例外见 `docs/README.md`「史料引用例外」：ADR 来源段与就绪图工单行可引路径作历史线索）。归档结论——即便文内标有「架构定调」——只有经现行 ADR、SPEC 或就绪图工单逐条吸收后才具约束力；升格动作须经架构拍板并在现行文档留痕。归档报告中的行号、计数、版本号与外部事实是当时工作树的历史坐标，会漂移；当前验收只认 `docs/status/current.md` 与现行 SPEC/ACCEPTANCE，不得从归档恢复字段、状态或验收标准。reconnect 时架构层文档（`docs/README.md` 起）自足开工，仅在追查现行规则历史成因或核实调研结论是否被推翻时按本索引定位。
+归档材料是历史证据链，不是现行规范。`archive/` 全部内容不参与实现或验收，不得被现行文档、源码、脚本或 SPEC 直接引用（例外面只有一份枚举，在 `docs/README.md`「文档体例」的归档条，2026-08-05 收编为唯一枚举：ADR **来源段**、实现就绪图工单行、`engineering/` 工程报告、各层 `ACCEPTANCE.md` 验收记录，共四类可引 `archive/` 路径作历史线索；**ADR 正文、SPEC、源码与脚本一律不可**，要引改用「去处按归档索引的 `<条目名>` 条目定位」的转指形式）。归档结论——即便文内标有「架构定调」——只有经现行 ADR、SPEC 或就绪图工单逐条吸收后才具约束力；升格动作须经架构拍板并在现行文档留痕。归档报告中的行号、计数、版本号与外部事实是当时工作树的历史坐标，会漂移；当前验收只认 `docs/status/current.md` 与现行 SPEC/ACCEPTANCE，不得从归档恢复字段、状态或验收标准。reconnect 时架构层文档（`docs/README.md` 起）自足开工，仅在追查现行规则历史成因或核实调研结论是否被推翻时按本索引定位。
 
 ## 如何召回
 
@@ -103,6 +103,113 @@
 - **归档类别**：被后件取代——`PI-HEADLESS-HARNESS-1` 的正式 harness 已落地合入。
 - **现行真值继承者**：→ `packages/pi-lane/specs/PI-HEADLESS-HARNESS-1.md`（票面）＋ harness 本体 `apps/desktop/src-tauri/src/pi_loop.rs:8567`（「`PI-HEADLESS-HARNESS-1` 组件B：headless 合成 harness」）；立票理由与范围两件 → `docs/architecture/implementation-readiness.md:208`。据 `docs/status/current.md`，该票验收 PASS `b055d7a`／合入 `56559e7`。
 - **已知失效点**：patch 锚在 `apps/desktop/src-tauri/src/pi_loop.rs` 的 `@@ -9235,4 +9235,470 @@`（blob `b2ccfb9..87baca2`），该基线已被后续多票改写，**patch 不可再 apply**。其自建的 `EnvKey`／`RecordingApprover` 桩与落地 harness 的显式注入形态（ADR-022 六-C 的 `ScriptedApprove`）不同，不得据以推断现行注入契约；凭证读法（只读 `COURTWORK_ACCEPT_DEEPSEEK_KEY`、源码零字面量）是当时写法，非现行契约。**真 DeepSeek key 前置至今未解除**（`docs/status/current.md` 在册）。
+
+### `pi-lane-receipts-2026-07-08/`（目录说明，五枚条目共用）
+
+**这五条是同一批**：2026-08-05 从 `packages/pi-lane/specs/` 移出的 24 份**已清账工单独占回执**。
+它们当初是「一票一件、实现会话独占、不争用父级 SPEC」的过程账；票清账后，其载重结论已分别进入
+`packages/pi-lane/SPEC.md`、`packages/pi-lane/ACCEPTANCE.md`、`docs/decisions/ADR-022-pi-lane.md`
+与实现就绪图，件本身只剩历史证据价值，故整批入档。**留在 `specs/` 的十一份不属本批**——它们各自
+仍在承载未消费的移交、未偿项或源码点名引用（清单见 `packages/pi-lane/SPEC.md`「并行票独占回执」节）。
+
+**目录名注（须先读）**：目录名里的 `2026-07-08` 是批次代号，**不是材料日期**——本批材料实际产生于
+2026-07-28 至 2026-08-05，归档日为 2026-08-05。各条「起讫」格记的才是真日期，取日期一律看那里。
+
+**SHA 坐标通则（本批五条共用，2026-08-05 于 `5807adc` 逐枚 `git merge-base --is-ancestor` 实测）**：
+被拒轮次的实现/回执/验收 SHA **多数不是现行 `main` 的祖先**——它们住在未合入的 worktree 分支上，
+只以 patch-id 等同随最终放行轮入树（`docs/status/current.md` 语）。这些 SHA 本地对象可达、可
+`git show`，但**不能用来判定内容是否在树内**；判定内容在树内一律以现行 `main` 的文件与门为准，
+`no-ff` 合入 SHA 才是进树锚点。下方各表逐枚标注 `祖先` / `非祖先`，不作推断。
+
+### `pi-lane-receipts-2026-07-08/PI-WRITE-PROOF-1.md`
+
+- **票号／事件名**：`PI-WRITE-PROOF-1`（package/headless 层 write characterization，与 STDIO／分发三票并行）。
+- **起讫**：2026-07-28 → 2026-08-05。
+- **SHA**：实现 `c0b7989`／回执 `3d45775`／验收修复 `4fee6d2`／放行 `9caa8ae`／no-ff 合入 `7216b2f`——五枚**全部为现行 `main` 祖先**。入仓 `00c8dbd`（2026-07-28），末次改动 `3d45775`（2026-07-28）。
+- **本件证明什么**：直接实例化上游 `createWriteTool()` 的极薄 binder 在注入 port 下的逐项 characterization——nested `.md` create、existing overwrite、精确回读、`prepareArguments` 是唯一早于上游 coercion 的接缝、Unicode「4 code units ≠ 10 UTF-8 bytes」、pre/post-write abort、同 env queue vs per-call env 无共享，以及产品 workspace write 的 basename 规则（扩展名前至少一个字符、ASCII 大小写不敏感的 `.md`，恰为 `.md` 必拒）。件内另记本票明确只到 package/headless proof，不宣称产品可达。
+- **归档类别**：结论已被吸收（契约面进 `packages/pi-lane/SPEC.md` §九 `PI-WRITE-PROOF-1` 节与 ADR-022 决定六；实现已随 `7216b2f` 入树）。
+- **现行真值继承者**：→ `packages/pi-lane/SPEC.md`（write 面现行契约与已知边界）＋ `packages/pi-lane/ACCEPTANCE.md`（该票验收记录，`:403` 起）＋ `docs/architecture/implementation-readiness.md` 同名行（三链 SHA 与退出证据）。产品线 write 的**现行**形态不在本件里，在 `PI-WRITE-HOST-1` 之后的 SPEC/ACCEPTANCE。
+- **已知失效点**：件内「只到 package/headless proof、未由 `index.ts`/产品 host 装配」的自陈**已过时**——`PI-WRITE-HOST-1`（合入 `66862ef`）之后 host-mediated write 已在产品线落地。件内 `basename 恰 .md 必拒` 的旧放行口径经验收修复才收紧，读本件须连读 `ACCEPTANCE.md:404` 起的修复记录。件内到父级 SPEC/ADR 的相对链接（`../SPEC.md` 等）随移档失效。
+
+### `pi-lane-receipts-2026-07-08/PI-CODE-STDIO-1*.md`（三轮：`1` / `1R` / `1R2`）
+
+- **票号／事件名**：`PI-CODE-STDIO-1` 及其两轮返修——产品 stdio wire 与状态机（ADR-022 六-B.1／B.2）。
+- **起讫**：2026-07-28 → 2026-08-05（`1R2` 末次改动 2026-07-29）。
+- **SHA**：逐轮如下（`祖先` 指现行 `main` 祖先）。
+
+  | 轮 | 实现 | 回执 | 验收 | 判定 | 入仓 |
+  |---|---|---|---|---|---|
+  | `1` | `79a13d2`（非祖先） | `223185e`（非祖先） | 最小修复 `0ffae46`、报告 `cfb4715`（均非祖先） | **REJECT**（3 blockers + 2 majors） | `00c8dbd` |
+  | `1R` | `9f9255b`（非祖先） | `7c8c9c3`（非祖先） | `4df2e84`（非祖先） | **REJECT**（原 227 绿测外注入 9 枚 production 反例全红） | `a4d32bd` |
+  | `1R2` | `7686dfd`（祖先） | `710faaa`（祖先） | 验收修复 `43b3796`、放行 `cc5faf5`（均祖先） | **PASS**，no-ff 合入 `db4f360`（祖先） | `74d76f3` |
+
+- **本件证明什么**：strict discriminated union wire、per-direction seq、1 MiB framing、可注入 driver 的逐项证据链；以及两轮拒绝各自的决定性根因——首轮 message 泄漏／pending effect 丢失／同步重入复活／value correlation 缺失／retryability 漏门；二轮 tc registry 未真正绑定 `{requestId,toolName,capability,phase}` 且普通 finish 可抹已确认 effect。1R2 落 request-scoped 单向 tc registry 与每 prompt 至多一枚 active tc。件内另存两条方法判例的原始现场：`JSON.parse` 拦不住重复 member（reviver 的 `source` 只对 primitive 可见）、`sed` 变异必须带命中校验。
+- **归档类别**：结论已被吸收（wire 与状态机契约全文在 ADR-022 六-B；实现随 `db4f360` 入树）。
+- **现行真值继承者**：→ `docs/decisions/ADR-022-pi-lane.md` 六-B.1／六-B.2（wire 标量、状态机与逐包 payload 的唯一现行契约）＋ `packages/pi-lane/SPEC.md`「并行相邻票与合流门」节＋ `packages/pi-lane/ACCEPTANCE.md`（三轮验收记录）＋ 就绪图同名三行。
+- **已知失效点**：`1` 与 `1R` 两轮**整轮被拒**，其结论、计数与「已闭合」自述一律不作事实，只作拒绝根因的证据；不得从被拒轮恢复任何判据。`1R2` 之后 wire 与状态机又经 `PI-HOST-LOOP-1` 七轮、`PI-READ-TOOLCALL-1`、`PI-TOOLCALL-BINDING-1`、`PI-UNKNOWN-TOOL-1` 多次收紧——件内的闭集、门与投影口径均为当时值，现行只认 ADR-022 与源码。
+
+### `pi-lane-receipts-2026-07-08/PI-SIDECAR-DIST-1*.md`（六轮 + `-1R5-ACCEPT` 验收令）
+
+- **票号／事件名**：`PI-SIDECAR-DIST-1` 及五轮返修与架构冻结的验收令——Node sidecar 分发路线实测（ADR-022 六-E）。
+- **起讫**：2026-07-28 → 2026-08-05。
+- **SHA**：逐轮如下。
+
+  | 轮 | 实现 | 回执 | 验收 | 判定 | 入仓 |
+  |---|---|---|---|---|---|
+  | `1` | `70e6482`（非祖先） | `01ff5e7`／订正 `3207b27`（非祖先） | 报告 `9b8142f`（非祖先） | **REJECT**（probe 假绿、缺产物可跳过、Node archive 未过 SHA 门） | `00c8dbd` |
+  | `1R` | `ba71df8`（非祖先） | `61c2b09`（非祖先） | `f261347`（非祖先） | **REJECT**（多制品、首坏后正 identity drift、`[null,null]` SHA） | `3737df3` |
+  | `1R2` | `42858b2`（非祖先） | `33100d8`（非祖先） | fix-by-acceptance `850fa11`、报告 `9ebb92a`（非祖先） | **REJECT**（entitlement 可提取性未登记为可复现前提等） | `deb9d6b` |
+  | `1R3` | `7b4184b`（非祖先） | `47fd7e5`（非祖先） | `eb71d6f`（非祖先） | **REJECT**（host/runtime identity 未进 hard verdict、DER 判读等六枚） | `4e2d07a` |
+  | `1R4` | `891c23d`（非祖先） | `07d2dbc`（非祖先） | 验收 SHA **未考** | **REJECT**（三项 P1） | `efcd0ab` |
+  | `1R5` | 见回执 | exact target `6cdb9ba`（祖先） | `0b0d985`（祖先） | **PASS**，no-ff 合入 `5aef222`（祖先） | `9b8705f` |
+  | `-1R5-ACCEPT` | 架构冻结的验收令，非实现件 | — | — | 冻结 target `6cdb9ba`、允许面、反例与 mutation（逐组项数 8/5/14/23/15/11＝76＝68 负注入 + 8 对照） | `71660f1` |
+
+- **本件证明什么**：两条分发路线（Node 22 LTS runtime + sealed JS bundle ／ Node SEA）的逐项对照证据、库存闭集、冷启与可复现性读数、签名与 entitlements 四层证据模型，以及**四次独立拒绝逐层把实验装置从「红了」推到「红得准确」**的全过程。件内另存多条方法判例的原始现场：判定层与被测同源＝零区分力；首红要落既有缺陷；`tar` 过 ≠ 身份对；静默零（空枚举与全通过同形）一律硬失败。
+- **归档类别**：结论已被吸收（路线裁定已作出——Route A `node22-runtime-sealed-cjs-v1` 为现行 default）。
+- **现行真值继承者**：→ `docs/decisions/ADR-022-pi-lane.md`「2026-07-30 路线裁定：Route A 为现行 default」节＋六-E＋ `packages/pi-lane/SPEC.md:663` 起（Route A 现行 default、官方 Node v22.23.1、tracked manifest）＋ **`docs/engineering/pi-sidecar-dist-1.md`（现行工程文档，实测正文的真源——本批回执只写链接与结论，正文从不在回执里）**＋ 就绪图六行。
+- **已知失效点**：`1`…`1R4` 五轮**整轮被拒**，其读数、路线建议（尤其首轮的 SEA-default 建议，已被 ADR-022 明文撤销消费资格）与「已闭合」自述一律不作事实。`1R5` 的放行范围只到分发实验本身，不代表 Host、GUI、debug DMG 或公开发行成立。`PI-SIDECAR-RELEASE-1` 仍 parked。`1R2` 的 entitlement 可提取性依验收机而异（验收机 `codesign -d --entitlements` stdout 0 字节、实现机 568 字节），凡引其签名读数须连读该前提。
+
+### `pi-lane-receipts-2026-07-08/PI-HOST-LOOP-1*.md`（原票 + `1R`…`1R7`，八份）
+
+- **票号／事件名**：`PI-HOST-LOOP-1` 及七轮返修合同——Rust 侧 pi loop host（fresh/resume 全序、容器原语、closed codec、耐久 journal）。
+- **起讫**：2026-07-30 → 2026-08-05。
+- **SHA**：逐轮如下。原票是 680 行的专属冻结件；`1R`…`1R7` 是逐轮返修**合同**（架构冻结闭口范围），不是实现回执。
+
+  | 轮 | 该轮 target（实现 tip／回执） | 独立验收 | 判定 | 入仓 |
+  |---|---|---|---|---|
+  | `1`（原票） | `0d4799c`（非祖先） | `314117d`（非祖先） | **REJECT**（决定性＝凭证读取先于 route 身份门；另十枚） | `2f9fd2d` |
+  | `1R` | `fa9e2f8`（非祖先） | `427f4fa`（非祖先） | **REJECT**（`aborted` 未走 canceled、三项上界后置于 spawn 等四类） | `c418b2c` |
+  | `1R2` | `1ab9c03`（非祖先） | `23f8339`（非祖先） | **REJECT**（两枚 blocker 皆同批判据的未点名同族成员） | `40d818d` |
+  | `1R3` | `51369e4`（非祖先） | `a0644cd`（非祖先） | **REJECT**（扫描轴按 `MAX_*` 枚举而族定义是受验输入） | `7992b3a` |
+  | `1R4` | `d4163df`（非祖先） | `5271342`／澄清 `be0d9ad`（非祖先） | **REJECT**（扫描轴仍语法白名单，协议既有 NUL 门不在轴上） | `157407a` |
+  | `1R5` | `a082257`（非祖先） | `9d4013e`（非祖先） | **REJECT**（`body.find("return Err(")` 字面量定义种群，turbofish 出圈） | `bb20cef` |
+  | `1R6` | `57a19a5`（非祖先） | `cd3810a`（非祖先） | **REJECT**（`start_inner` 在编码前调会写盘的 `load_session`） | `4dc8e85` |
+  | `1R7` | 实现 `f915eea`／回执 `744c070`（均祖先） | `6da6aea`（祖先） | **PASS**，no-ff 合入 `653c121`（祖先） | `497a288` |
+
+- **本件证明什么**：Host 读面基础的全部结构性判据，以及**六轮独立拒绝逐层收窄同一个错误家族**的完整现场——十一项闭口 → 四项闭口 → 按族闭口 → 扫描轴对齐族谓词 → NUL 前置与 fail-closed 扫描 → encode-before-effect → 恢复分相（`load_session` 拆读/计划与 durable apply，apply 后置于编码成功）。件内另存数条跨工单方法判例的原始现场：闭口按族不按验收点名的实例；扫描谓词与族定义同宽；名字清单换材质仍是白名单，病根＝unknown→跳过；同步消灭优于同步验证；「撤除断言→红」不是成立的 mutation 形状。
+- **归档类别**：结论已被吸收（八项跨层裁点全文在 ADR-022「`PI-HOST-LOOP-1` 开工补拍」节与修订记录；实现随 `653c121` 入树）。
+- **现行真值继承者**：→ `docs/decisions/ADR-022-pi-lane.md`「`PI-HOST-LOOP-1` 开工补拍」节（八项跨层裁点）与「修订记录」（逐轮拒绝与裁定全文）＋ `apps/desktop/src-tauri/src/pi_loop*.rs`（实现真源，模块头逐条点名票面章节）＋ `packages/pi-lane/ACCEPTANCE.md`（逐轮验收记录）＋ `docs/status/current.md`「2026-08-03 pi Host loop 收束」行＋ 就绪图八行。
+- **已知失效点**：`1`…`1R6` 七轮**整轮被拒**，其闭口清单、计数与自证一律不作事实。`1R7` 放行范围**只到 Host 读面基础**，不及 WRITE／GUI／headless 总验与真 key 端到端。此后 journal 耐久面又经 `PI-HOST-JOURNAL-1`（合入 `62047d5`）三缺陷修复、tool↔capability 绑定经 `PI-TOOLCALL-BINDING-1` 修回归——件内 journal 与 tc 口径均为当时值。`1R7` §五冻结后的四则裁定随票受理，其中「永久关闭态的 crash fold 在 start 路径不再落盘」是如实声明的能力删减，不是缺陷。
+
+### `pi-lane-receipts-2026-07-08/PI-WRITE-HOST-1-STAGE2…STAGE6.md`（五份分段回执）
+
+- **票号／事件名**：`PI-WRITE-HOST-1` 七段施工链的中段回执（开工序②…序⑥）。
+- **起讫**：2026-08-04 → 2026-08-05（同批入仓、同批归档，每份一次写就再未改动）。
+- **SHA**：五份**各自即其分段实现提交**，全部为现行 `main` 祖先。
+
+  | 件 | 分段 | 提交（＝入仓＝末次改动） | 基线 |
+  |---|---|---|---|
+  | `-STAGE2` | 开工序② 五枚前向债前置门＋电池／D1 增行 | `32ad737` | 序① |
+  | `-STAGE3` | 开工序③ `HostRequest` 臂四段落账＋假 effect 注入座 | `f9e6a1b` | `32ad737` |
+  | `-STAGE4` | 开工序④ cap-std 真落盘＋`TempFile` replace＋持久化屏障 | `dcbd53f` | `f9e6a1b` |
+  | `-STAGE5` | 开工序⑤ Node 五处装配＋`md-work-v1`＋握手闭集加 `workspace_write` | `5ba36f1` | `dcbd53f` |
+  | `-STAGE6` | 开工序⑥ 裁定A 落地＋双端 golden＋`proposalHash` 债清偿＋矩阵收口 | `cc81eaa` | `5ba36f1` |
+
+  全票三链：序⑦总表回执 `c2b395d`、独立验收 `4bd2628` **PASS**、no-ff 合入 `66862ef`（均祖先）。
+- **本件证明什么**：write 链逐段落地的过程账与段间移交项——每段件头写明其消费的上一段移交条目，故五份连读即该票的施工时序。载重内容（durable-before-effect 四段账、cap-std 真落盘、`md-work-v1` 与握手闭集扩员、双端 golden）已进 SPEC/ACCEPTANCE。
+- **归档类别**：事件闭合（施工链已完成并合入；段间移交在序⑦总表收口）。
+- **现行真值继承者**：→ **`packages/pi-lane/specs/PI-WRITE-HOST-1-STAGE7.md`（序⑦总表，仍在 `specs/`，是七段链的验收读序与偏离总账，未归档）**＋ `packages/pi-lane/SPEC.md`（write 面现行契约）＋ `packages/pi-lane/ACCEPTANCE.md`（该票验收记录）＋ `docs/status/current.md`（能力行与制品身份）。同票另有两份未归档前置件仍在 `specs/`：`-PREFLIGHT`（措辞按此钉死）与 `-RECON`（后继会话直接消费的测绘真源）。
+- **已知失效点**：五份记的是**分段中途态**，段内「当前/现值/待办」一律不是终态——终态只认序⑦总表与合入后的 SPEC/ACCEPTANCE。件内引用的分支 `claude/pi-write-host-1` 已随清账可删。`-STAGE5`／`-STAGE6` 里的制品身份值（bundle 字节与 sha256）是当时实测，此后随任何 TS 改动漂移，现行值见 `packages/pi-lane/ACCEPTANCE.md`。
 
 ### `research-loopx-matter-memory-2026-08-03.md`
 
