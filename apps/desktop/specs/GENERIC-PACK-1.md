@@ -354,6 +354,29 @@ workbench 债已清偿（受检 160→170，绑定族 verticals 内 4→6 处）
 - `assert-graph-theme` 门锚点随 C3 迁移（GraphPanel 新家 + 懒载点相对锚）——红的理由判例；
 - 卸载态起手引导文案取工作区中性词（容器着色随 wire 债处置，不引入第二套着色机制）。
 
+### 回执收尾（2026-08-06，八相全量门自跑）
+
+分支 `claude/generic-pack-1` tip 全量门实测（含本回执提交）：
+
+| 相 | 结果 |
+|---|---|
+| build | `pnpm -r build` 绿 |
+| lint | 绿（eslint 零告警） |
+| root test | **1941/1941** |
+| desktop test | **755/755** |
+| cargo | **250 过 / 1 忽略** |
+| Playwright | **368/368**（floor 365 起；`test:e2e` 前置链三十余枚静态门全部通过，独占端口单链） |
+| site:guard | PASS（release-truth + deslop，radius 白名单随 precheck-form 迁移） |
+| sidecar | **547,893 B / `951acf8e…` 零迁自证**（pi-lane TS 本票零改动） |
+
+**六条验收边界全绿**：①零泄漏门在册红绿证（受检 170、债 3 余）；②四 panel 全迁 mutation
+复红（历史红证在册）；③卸载态成品全链（截图链五帧 + 起手引导 + 退化）；④中立命名清点表
+＋绑定契约（④节）；⑤加载态八相全量门零回归（上表）；⑥撤判据复红（逐步 TDD 红→绿，
+红证清单见⑦节与各提交）。
+
+**报交验点**：六边界达成即停；不自我验收——报 Codex 独立会话验收（clean worktree、
+独立端口、漂移/守卫实际注入反例观察变红）。
+
 ### 步骤 ⑤ · `legal.RiskList` 迁 `kind:'component'`（余三收官，裁定一）
 
 裁定一原文：**同迁 `kind:'component'`；三处渲染外消费者改经 work projection/command port 消费、
