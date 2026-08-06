@@ -2,12 +2,15 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const src = path.resolve(import.meta.dirname, '..', 'src');
-const [copy, rail, composer, settings, panels] = await Promise.all([
+const [copy, rail, composer, settings, panels, legalPanels] = await Promise.all([
   readFile(path.join(src, 'chrome', 'copy.ts'), 'utf8'),
   readFile(path.join(src, 'rail', 'CaseRail.tsx'), 'utf8'),
   readFile(path.join(src, 'composer', 'Composer.tsx'), 'utf8'),
   readFile(path.join(src, 'settings', 'SettingsPage.tsx'), 'utf8'),
   readFile(path.join(src, 'workbench', 'Panels.tsx'), 'utf8'),
+  // GENERIC-PACK-1 ⑥（债偿还）：Schema renderer（Legal 四面板）随债表迁入
+  // `verticals/legal/panels.tsx`——判据改锚新家（红的理由判例），一条不减。
+  readFile(path.join(src, 'verticals', 'legal', 'panels.tsx'), 'utf8'),
 ]);
 
 const failures = [];
@@ -31,8 +34,10 @@ if (!(plusMenuIndex < uploadIndex && uploadIndex < composerBoxEnd)) {
 for (const required of ['Settings', 'Model', 'Output & files', 'Data & privacy', 'About & updates']) {
   if (!settings.includes(required)) failures.push(`Settings chrome is missing English label: ${required}`);
 }
+// GENERIC-PACK-1 ⑥（债偿还）：Schema renderer（Legal 四面板）随债表迁入
+// `verticals/legal/panels.tsx`——判据改锚新家（红的理由判例），一条不减。
 for (const legalTerm of ['卷宗', '确认', '驳回', '修订']) {
-  if (!panels.includes(legalTerm)) failures.push(`Schema renderer lost Chinese legal term: ${legalTerm}`);
+  if (!legalPanels.includes(legalTerm)) failures.push(`Schema renderer lost Chinese legal term: ${legalTerm}`);
 }
 
 if (failures.length) {

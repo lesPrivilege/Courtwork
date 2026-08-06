@@ -1459,17 +1459,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     previewDismissedContext.current = null;
   };
 
-  // WORK-LIVE-1：grant（真实）案打开合同审查工作面（S3 启动器 / 风险清单审阅）。
-  const openWorkReview = () => {
-    manualPreviewSelected.current = true;
-    setWorkDraftMode(false);
-    setFileOpsMode(false);
-    setActiveView(preferredView);
-    setPreviewOpen(true);
-    setReaderDoc(null);
-    previewDismissedContext.current = null;
-  };
-
   const openWorkDrafts = () => {
     manualPreviewSelected.current = true;
     setWorkDraftMode(true);

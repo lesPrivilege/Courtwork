@@ -14,7 +14,31 @@ ADR-009 决定四（Renderer 是宿主 blueprint）为分层依据；先例 `PAN
 
 ## 一 · 新增概念登记（复杂度节制条要求）
 
-本票新增**两个**概念，第二枚随 2026-08-06 停手三裁开工时加入：
+本票新增**四个**概念：第二枚随 2026-08-06 停手三裁开工时加入；第三、四枚为裁定二
+「宿主有限元素集通用渲染」的机器形态（场景条与预检表单不再由壳或垂类写死 JSX）。
+
+### 冻结 launch 声明（第三枚，裁定二开工时加入）
+
+`PackageScenario.launch`（label/tone/kind + description/submitLabel/footnote/recover +
+formFields 有限元素集 select|text）随包 descriptor 声明、registry 准入校验并**深冻结**，
+宿主只读。场景条按钮与预检表单从此是**数据**不是 JSX——垂类文案随声明入包（A 族该面
+清零），壳与宿主零场景按钮字面量。
+
+**为何非加不可**：裁定二把「场景按钮与预检表单由包 descriptor 声明、registry 冻结、
+宿主有限元素集通用渲染」冻结为契约——没有这一枚声明，卸载态（零包）与加载态（有包）
+就只能靠壳内 if 链与 JSX 写死，零泄漏静态门与卸载态成品律都无从成立。元素集闭集
+（select|text）、来源闭集（ready-materials）与准入拒重复 form field id 使「宿主有限
+元素集」是机器可验的，不是口头承诺。
+
+### 宿主通用渲染件两枚（第四枚，裁定二施工时加入）
+
+`workbench/scenario-precheck-form.tsx`（预检表单：字段/文案/恢复入口/提交态全部来自
+冻结声明，提交值收成 `ScenarioStartParams` 进场景启动参数）与 `workbench/scene-strip.tsx`
+（场景条：条目派生 `resolveSceneStripEntries` + 有限元素集渲染 + 卸载态起手引导）。
+
+**为何非加不可**：裁定二点名「宿主有限元素集通用渲染」——渲染件必须住在宿主（受检面），
+垂类包只声明数据。壳不再持有场景按钮字面量、表单字段字面量与启动参数拼装（高水位净减
+即外提生效的证据）。
 
 ### 宿主渲染上下文 `WorkbenchRenderProvider` / `useWorkbenchRenderContext`
 
@@ -238,21 +262,97 @@ main 面 docs 提交（共享树情形，已按 patch-id 等同回 main，新 SH
 |---|---|---|
 | ① | 零泄漏静态门在册且红绿证 | **达成**（步骤 ⑥）：立门以族、三红证；四个未拆分混合族作为债在门内逐条登记偿还去向 |
 | ② | 余三 panel 迁 `kind:'component'`、App if 链清零 | **达成**（步骤 ①②⑤）：四枚具名工作面全部版本化，App 零 `RiskList` 持有、零垂类 import |
-| ③ | 卸载态成品 + 整面评审 | **部分**：卸载态页签集已可机器判定（步骤 ③）；matter 全链走通、起手引导、preview 退化与截图链**未做** |
-| ①附 | 零泄漏含 prompt 空间 | **未做**：ADR-015 `44caee5` 补记的新义务，随③的测试构造路径同批完成 |
-| ④ | 中立命名清点表 + 绑定契约落 schema | **达成**（步骤 ④＋第四节） |
-| ⑤ | 加载态 Legal 全链零回归 | **保持**：每步全量门自跑，Playwright 逐步 365/365，pi-lane TS 零改动 |
-| ⑥ | SPEC 回执 | **本文件** |
+| ③ | 卸载态成品 + 整面评审 | **达成**（步骤 ⑦⑧＋③谱）：起手引导、全链（matter 创建→work→产物→回看）与截图链齐备，评审对象是成品不是开关；preview 退化按 ADR-015 决定四显式实现（见⑦⑧完成节） |
+| ①附 | 零泄漏含 prompt 空间 | **达成**（随③同构造路径）：案语境段中性化＋十枚垂类场景词零命中断言 |
+| ④ | 中立命名清点表 + 绑定契约落 schema | **达成**（步骤 ④＋第四节）：场景条四钮文案随 launch 声明迁包（A 族该面清零）；其余 A 族债登记见下方债表现状 |
+| ⑤ | 加载态 Legal 全链零回归 | **保持**：每步全量门自跑；零视觉回归另有**逐字节帧比对**机器证据（见⑦完成节） |
+| ⑥ | SPEC 回执 | **本文件**（收尾见「回执收尾」节） |
 
-### 余下两步（已获裁定授权，尚未施工）
+### 步骤 ⑦ · scene-strip 改 registry 派生（裁定二）
 
-- **⑦ scene-strip 改 registry 派生**（裁定二）：场景按钮与预检表单由包 descriptor 声明、
-  registry 冻结、宿主以有限元素集通用渲染（ADR-016 填格协议同族），提交值进场景启动参数；
-  加载态四钮零视觉回归为证。
-- **⑧ 卸载态成品**（裁定二后半＋裁定三）：未加载态起手引导＝通用开场（matter 规范文件提示＋
-  Draft 入口）零垂类兜底；已有垂类产物 matter 的通用 preview 退化与「加载 X 包」提示；
-  整面评审截图链；prompt 零垂类断言。评审与断言均经**测试构造点的未绑定 matter** 取证，
-  不入产品 UX（过渡默认绑 Legal 不翻，见 ADR-015 决定三补记）。
+裁定二原文：**scene-strip 改 registry 派生，预检表单契约冻结为「descriptor 声明、registry 冻结、
+宿主有限元素集通用渲染」（ADR-016 填格协议同族），提交值进场景启动参数，加载态四钮零视觉回归
+为证，未加载态起手引导为通用开场（matter 规范文件提示＋Draft 入口）零垂类兜底。**
+
+落地四件（各一提交，TDD 先红）：
+
+1. **launch 契约落 schema 并冻结**（`packages/registry`）：`PackageScenario.launch`（label/tone/
+   kind + description/submitLabel/footnote/recover + formFields 有限元素集 select|text）——
+   准入拒重复 form field id；`buildPackageRegistries` 深冻结快照（宿主只读）。legal 四枚声明：
+   S1 整理卷宗（primary/scenario）、S3 审查合同（primary/scenario + 预检表单逐字迁自退役的
+   壳内 S3LauncherPanel）、S4 起草答辩状（draft-wide/**view**——起草画布视图入口非场景启动）、
+   S6 卷宗整理（wide/scenario）。descriptor hash 重铸（仅呈现绑定，prompt blob 不漂、schemaVersion
+   不升），schema-exemplar 门未触及。
+2. **预检表单通用化**：S3LauncherPanel 退役，代之以宿主通用件 `workbench/scenario-precheck-form.tsx`
+   （标题/说明/字段/恢复入口/提交文案全部来自冻结声明；选项经声明 source/mediaType→精确 MIME
+   映射解析），提交值收成 `ScenarioStartParams`（`Record<fieldId,string>`）进场景启动参数——
+   `useWorkRunLifecycle.start(params)` 不再读壳内 workSubject/primaryContractId 双状态（App 四行
+   状态与 setter 退役）。e2e 55 处 testid 按本意重写（s3-* → precheck-*）；work-live 门判据按
+   「红的理由」判例改锚新家（`selectPrimaryContractCandidates` → `MEDIA_TYPE_BY_DECLARATION` +
+   `DOCX_MEDIA_TYPE`）。CSS 类随通用化改名（s3-launcher→precheck-form 等，规则零改）。
+3. **场景条 registry 派生**：`workbench/scene-strip.tsx`（`resolveSceneStripEntries` 纯派生 +
+   通用 SceneStrip 件）——demo 按 fixture 可启动集（demo fixture 声明 legal.S1/S3→flow、
+   S6→file-ops），production 按工作面驱动声明的闭集（`['legal.S3']`），view 条目恒在；
+   呈现次序＝scenario 按注册表序在前、view 在后（壳的呈现规则，非契约——现有四钮序由此
+   复现）。production 启动路由＝场景 blueprint 目标视图（registry 派生；S3→修订预览、S4→
+   起草画布）。⌘K 场景入口与条同源派生。内联 JSX 与 sceneMore 双状态外提（高水位净减）。
+4. **卸载态起手引导**：零条目时条内即通用开场——matter 规范文件提示（《场景规范.md》，
+   ADR-015 决定二补记的一等输入）＋Draft 入口（起草画布），零垂类兜底。
+
+**零视觉回归机器证据**（`release/evidence/generic-pack-1-baseline-2026-08-06/README.md`）：
+同一 PW 构造路径、变更前后各摄一帧，`cmp` 逐字节比对——demo 四钮场景条与 grant 预检表单
+**PIXEL-IDENTICAL**；demo 整面帧因回放动态态有差异（非按钮面）。
+
+**红证清单（⑦）**：schema 拒 launch / 快照未冻结 / 重复 form field id 放行三枚 registry 单测红；
+表单四枚单测（组件缺位）红；条派生/渲染七枚单测红；卸载态谱（起手引导）红；e2e 新旧 testid
+迁移红。全部撤修复复绿。
+
+### 步骤 ⑧ · 卸载态成品（裁定二后半＋裁定三）
+
+落地三件（各一提交）：
+
+1. **逐 matter 生效 registry 接线＋过渡默认**（⑧ 半边）：`matterRegistries` 按绑定现算
+   （绑定零即零垂类；未声明取全局可用集；welcome 态落全局）——全部既有 registry 消费点切到
+   生效集；生效视图集变化时活动视图落回在册默认；水合携 packBinding（drop 即把显式零绑定误读
+   成未声明取全部）。过渡默认（决定三补记，`PACK-INTERACT-1` 销条）：新建 matter 写
+   `packBinding: ['legal']`，由受信组合根注入（组合根持包身份，壳零垂类引用）。
+2. **卸载态显式退化**（ADR-015 决定四）：已有垂类产物 matter 在包未加载时——产物存在是宿主
+   资产不随包走，结构化视图不可用则诚实呈现「该产出由 X 包生成 · 加载 X 包以获得结构化视图」
+   （`preview/vertical-artifact-unloaded.tsx`，零伪装通用产物）；判定＝全局可用集有该 artifact
+   而生效 registry 无。卸载态起草面默认落**通用工作稿轨**（pi 线，成品律：Draft 类工作面为
+   主工作面），垂类色起草画布只属加载态 S4 入口的呈现面。
+3. **③ 卸载态成品全链**（`tests/e2e/generic-pack-1.spec.ts`）：测试构造点的未绑定 matter
+   （持久面显式零绑定＋grant 文件夹）走 matter 创建→Work 面 Chat（prompt 零垂类联断言，
+   44caee5 同构造路径）→ Draft 面 pi 线产物（提案→允许→已写入→索引）→ 只读回看（hash 相符、
+   零编辑入口）；五帧截图链入 `release/evidence/generic-pack-1-unloaded-2026-08-06/`。评审与
+   断言均经测试构造点取证，不入产品 UX（过渡默认绑 Legal 不翻）。
+
+**债表现状（⑥ 门）**：work / output / system 三个混合族仍为债（偿还去向见门表）；
+workbench 债已清偿（受检 160→170，绑定族 verticals 内 4→6 处）。本票登记三笔新增债：
+①⌘K palette 场景入口已与条同源（无债）；②`DraftPanel`（垂类色起草画布）仍住 workbench/
+   通用族——其文案属 A 族债，随 S4 入口语义处置（卸载态已不落该面）；③`caseId` 等 C 族标识符
+   债随 wire 改名票（既有登记）。
+
+**偏离与决策登记（⑦⑧）**：
+
+- 场景条呈现次序（scenario 先、view 后）是壳的呈现规则，非包契约——包不声明次序；
+- view 条目（S4 起草答辩状）恒在且路由到 blueprint 目标视图——它不是场景启动，是起草画布
+  视图入口（语义与旧按钮一致）；
+- demo 路由由 demo fixture 声明（`scenarioLaunch`：legal.S1/S3→flow、S6→file-ops）——demo
+  族持有垂类 id 映射，壳零垂类知识；
+- 预检表单的 recover 块随 `launch.recover` 声明（label/note），可见性由工作面驱动的可恢复态
+  决定（renderer 组装）——不是表单字段；
+- ①附 断言范围＝**场景语义**（垂类场景/提示词内容：合同审查/风险/当事人/…十枚）零命中；
+  容器着色（卷宗/案件——ADR-015 决定二点名的着色机制）不在断言范围（属既有设计，随 wire
+  改名票处置）；
+- 卸载态退化视图（垂类产物＋包未加载）在过渡期**结构性不可达**（无加载 UX，绑定不可变），
+  单测覆盖＋接线留痕；e2e 不可构造（session artifact 需真实场景运行）——如实登记非豁免；
+- 高水位五笔调整（2298→2292→2282→2293→2282）：⑧ 接线净增 22、裁定二外提净减、C6 两条
+  显式诚实呈现分支净增 11、openWorkReview 退役净减 11——逐笔在门注释留痕；
+- e2e testid 两批迁移（scene-work-review→scene-legal.S3 等 19 处、s3-*→precheck-* 55 处）
+  属断言按本意重写（组件通用化后 testid 由声明/场景 id 派生）；
+- `assert-graph-theme` 门锚点随 C3 迁移（GraphPanel 新家 + 懒载点相对锚）——红的理由判例；
+- 卸载态起手引导文案取工作区中性词（容器着色随 wire 债处置，不引入第二套着色机制）。
 
 ### 步骤 ⑤ · `legal.RiskList` 迁 `kind:'component'`（余三收官，裁定一）
 

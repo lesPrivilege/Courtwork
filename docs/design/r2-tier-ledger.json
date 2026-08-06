@@ -659,7 +659,7 @@
       "fragmentKind": "selector"
     },
     {
-      "target": "apps/desktop/src/styles.css#.s3-launcher|all",
+      "target": "apps/desktop/src/styles.css#.precheck-form|all",
       "tier": "agent-interface",
       "approvedProposalLine": "P1-N047",
       "decision": "减薄",

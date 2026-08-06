@@ -105,7 +105,7 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // GENERIC-PACK-1 ⑧ 上调至 2293（净增 11，SPEC 留痕）：卸载态退化接线——垂类产物包未加载的
 // 显式退化分支（ADR-015 决定四，产物存在＋加载提示）与卸载态起草面默认面（落通用工作稿轨）
 // 两条显式诚实呈现分支，属卸载态机制的必要接线。
-const HIGH_WATER_LINES = 2293;
+const HIGH_WATER_LINES = 2282;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。
