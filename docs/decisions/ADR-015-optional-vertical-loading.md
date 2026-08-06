@@ -36,6 +36,8 @@ harness 编排以 matter 为单位；session 可管理但非首选入口。核�
 
 **零泄漏含 prompt 空间（2026-08-05 补记）**：通用底面 system prompt 泛化（非 coding 工作场景全功能形），垂类 prompt 段只随包加载进入组装，未加载即零垂类语义入 prompt。组装的版本化与 wire 闭集处理随 `PACK-INTERACT-1` 冻结细则；`GENERIC-PACK-1` 只须证未加载态 prompt 零垂类语义。
 
+**过渡默认（2026-08-06 补记，随 `PACK-INTERACT-1` 销条）**：加载动作交付前，新建 matter 过渡默认绑定 Legal 以保全链可达——此为显式登记的过渡态，非「默认不激活」的例外常态；`PACK-INTERACT-1` 交付加载 UX 时同批翻转为默认不激活并销本条。过渡期卸载态整面评审与 prompt 零垂类断言经测试构造点的未绑定 matter 取证，不入产品 UX。
+
 ## 决定四 · 卸载态语义：诚实降级
 
 已有垂类产物的 matter 在包未加载时：journal、产物与确认账本仍可读（宿主资产不随包走）；垂类卡片与工作面退化为通用文档 preview，并显式提示「加载 X 包以获得结构化视图」——不静默降级、不伪装通用产物。重新加载即恢复结构化视图，零迁移、零重算。
@@ -54,6 +56,7 @@ agent 底面与垂类包各自版本、各自票据、各自验收。接缝穷�
 
 ## 修订记录
 
+- **2026-08-06 · GENERIC-PACK-1 停手三裁（架构）**：①revision 面同迁 `kind:'component'`，三处渲染外消费者（resetReview/clearGate、样板案进度计数、production 产物显示名）改经 work projection/command port 消费、受信组合根装配（循 S6 装配点先例），App 零 `RiskList` 持有——只改居所与取用路径，语义零改以场景链 e2e 全绿为证；②scene-strip 改 registry 派生，预检表单契约冻结为「descriptor 声明、registry 冻结、宿主有限元素集通用渲染」（ADR-016 填格协议同族），提交值进场景启动参数，加载态四钮零视觉回归为证，未加载态起手引导为通用开场（matter 规范文件提示＋Draft 入口）零垂类兜底；③默认绑定本票不翻，过渡默认入决定三补记。
 - **2026-08-05 · 产品定调续（同日三笔补记）**：①决定二增 matter 级规范文件（模型输入非系统契约）；②决定三增 prompt 空间零泄漏（垂类段随加载进组装）；③明确拒绝增云端依赖极简条。同日方向登记：DeepSeek response-format API 兼容评估入就绪图「需要实测」清单（成本与 agent 能力使其为全场景首选 provider 的产品判断随行登记）。
 
 ## 来源
