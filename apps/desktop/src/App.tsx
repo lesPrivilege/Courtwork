@@ -114,6 +114,7 @@ import { DEMO_CASE_ROOT } from './system/demo-case-layout';
 import { FocusGlyph } from './workbench/MiniIcon';
 import { Icon } from './workbench/Icon';
 import { DraftPanel, INITIAL_DRAFT, type DraftDocument } from './workbench/Panels';
+import { resolveSceneStripEntries, SceneStrip, type SceneStripEntry } from './workbench/scene-strip';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
 import { MessageActions } from './chat/MessageActions';
 import { sendChatTurn } from './provider/chat-client';
@@ -377,7 +378,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const [sessionHistoryError, setSessionHistoryError] = useState<string>();
   const [artifactRevision, setArtifactRevision] = useState(0);
   const [replayEpoch, setReplayEpoch] = useState(0);
-  const [sceneMoreOpen, setSceneMoreOpen] = useState(false);
   const activeFixtureRef = useMemo(() => (
     selectedCaseId && flow && isDemoCaseId(selectedCaseId)
       ? workFixture.sessionRefFor(selectedCaseId, flow)
@@ -388,7 +388,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     workFixture.telemetry.emit(activeFixtureRef, event);
   }), [activeFixtureRef, workFixture]);
   // popover 收敛纪律（GOAL-1）：点别处/Esc 即收
-  const sceneMoreRef = useRef<HTMLDivElement>(null);
   // 批次七首例：会话流跟随滚动（work 与 chat 两容器各自独立钉底态）
   const workFollow = useFollowScroll();
   const chatFollow = useFollowScroll();
@@ -704,7 +703,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     setViewSegment(next);
   };
 
-  useDismissOnOutside(sceneMoreOpen, () => setSceneMoreOpen(false), sceneMoreRef);
   useDismissOnOutside(storeChatOpen, () => setStoreChatOpen(false), storeChatRef);
 
   /** 凭证入口路由（2026-07-12）：首启走欢迎引导卡；此后一律 Settings 内嵌（#43 减法律，不再首页弹窗）。 */
@@ -1046,6 +1044,24 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     demoPrimaryFileName: DEMO_CONTRACT_SOURCE_NAME,
   };
   const verticalSurface = verticalWorkSurface.use(verticalSurfaceHost);
+  // GENERIC-PACK-1 裁定二：场景条由 registry 冻结的 launch 声明派生——demo 按 fixture 可启动集，
+  // production 按工作面驱动声明的场景闭集；view 条目恒在。零条目即卸载态起手引导。
+  const sceneEntries = resolveSceneStripEntries(matterRegistries, {
+    demoLaunchable: (scenarioId) => workFixture.scenarioLaunch(scenarioId) !== undefined,
+    productionScenarioIds: verticalWorkSurface.productionScenarioIds,
+  }, isDemoCase ? 'demo' : 'production');
+  const onLaunchScenario = (entry: SceneStripEntry) => {
+    if (isDemoCase) {
+      const route = workFixture.scenarioLaunch(entry.scenarioId);
+      if (route?.kind === 'flow') { selectFlow(route.flow); return; }
+      if (route?.kind === 'file-ops') { openFileOps(); return; }
+      return;
+    }
+    // production：打开场景 blueprint 的目标视图（registry 派生路由；S3→修订预览、S4→起草画布）。
+    const blueprint = hostRenderers.get(entry.uiTemplateId);
+    if (blueprint && 'view' in blueprint && blueprint.view) choosePrimaryView(blueprint.view);
+  };
+
 
   const draftFrozen = draftOutputExists;
   const comparing = secondaryView !== undefined;
@@ -1579,14 +1595,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   </section>;
 
   const paletteCommands: PaletteCommand[] = [
-    ...(isDemoCase
-      ? [
-          { id: 'scene-s1', section: 'Scenes', label: '整理卷宗', onRun: () => { selectFlow('S1'); setPaletteOpen(false); } },
-          { id: 'scene-s3', section: 'Scenes', label: '审查合同', onRun: () => { selectFlow('S3'); setPaletteOpen(false); } },
-          { id: 'scene-s6', section: 'Scenes', label: '卷宗整理', onRun: () => { openFileOps(); setPaletteOpen(false); } },
-        ]
-      : []),
-    { id: 'scene-draft', section: 'Scenes', label: '起草答辩状', onRun: () => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); setPaletteOpen(false); } },
+    // GENERIC-PACK-1 裁定二：⌘K 场景入口与场景条同源（同一 registry 派生条目），零垂类字面量。
+    ...sceneEntries.map((entry) => ({
+      id: `scene-${entry.scenarioId}`,
+      section: 'Scenes',
+      label: entry.label,
+      onRun: () => { onLaunchScenario(entry); setPaletteOpen(false); },
+    })),
     ...cases.map((item) => ({
       id: `case-${item.id}`,
       section: 'Cases',
@@ -1976,39 +1991,14 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
               )}
               <ScrollToLatest follow={workFollow} />
             </div>
-            {!isWelcome && <div className="scene-strip" data-testid="scene-strip">
-              {isDemoCase && (
-                <>
-                  <button type="button" className="scene-primary" onClick={() => selectFlow('S1')}>整理卷宗</button>
-                  <button type="button" className="scene-primary" onClick={() => selectFlow('S3')}>审查合同</button>
-                  <button type="button" className="scene-wide-only" data-testid="scene-file-ops" onClick={openFileOps}>卷宗整理</button>
-                </>
-              )}
-              {/* WORK-LIVE-1：grant（真实）案的合同审查入口 + 运行中取消控件（只取消当前活跃 Turn，ADR-010 决定一）。 */}
-              {caseBinding.kind === 'grant' && !workRunning && (
-                <button type="button" className="scene-primary" data-testid="scene-work-review" onClick={openWorkReview}>审查合同</button>
-              )}
-              {caseBinding.kind === 'grant' && workRunning && (
-                <button type="button" className="scene-primary" data-testid="work-cancel" onClick={verticalSurface.cancelRun}>停止审查</button>
-              )}
-              <button className="scene-draft-wide"
-                type="button"
-                onClick={() => {
-                  setWorkDraftMode(false);
-                  setFileOpsMode(false);
-                  choosePrimaryView('draft');
-                }}
-              >
-                起草答辩状
-              </button>
-              <div className="scene-more-wrap" ref={sceneMoreRef}>
-                <button type="button" data-testid="scene-more" aria-expanded={sceneMoreOpen} onClick={() => setSceneMoreOpen((open) => !open)}>更多</button>
-                {sceneMoreOpen && <div className="scene-more-popover surface-card" data-testid="scene-more-popover">
-                  {isDemoCase && <button type="button" className="scene-more-narrow-only" onClick={() => { openFileOps(); setSceneMoreOpen(false); }}>卷宗整理</button>}
-                  <button type="button" onClick={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); setSceneMoreOpen(false); }}>起草答辩状</button>
-                </div>}
-              </div>
-            </div>}
+            {!isWelcome && <SceneStrip
+              entries={sceneEntries}
+              running={caseBinding.kind === 'grant' && workRunning}
+              runningControlLabel={verticalWorkSurface.runningControlCopy}
+              onLaunch={onLaunchScenario}
+              onCancelRun={verticalSurface.cancelRun}
+              onOpenDraft={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); }}
+            />}
             {/* L1：composer 浮卡（welcome 态 composer 已居中于 welcome-home,不重复渲染） */}
             {!isWelcome && renderComposer(
               handleComposerSend,

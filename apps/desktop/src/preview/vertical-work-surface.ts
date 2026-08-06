@@ -113,4 +113,8 @@ export interface VerticalWorkSurfaceState {
 export interface VerticalWorkSurface {
   use(host: VerticalWorkSurfaceHost): VerticalWorkSurfaceState;
   readonly Provider: ComponentType<{ value: unknown; children: ReactNode }>;
+  /** production 态可启动的场景 id 闭集（驱动声明；场景条据此过滤，壳不认识 id 语义）。 */
+  readonly productionScenarioIds: readonly string[];
+  /** 运行中取消控件的文案（驱动声明；缺省即运行中不渲染取消控件）。 */
+  readonly runningControlCopy?: string;
 }

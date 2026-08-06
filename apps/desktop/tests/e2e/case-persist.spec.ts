@@ -199,7 +199,7 @@ test('三层重建：重载后 grant 案回侧栏 → 绑定重建 → 恢复入
   await ingestContract(page);
 
   // 运行到暂停门禁——run 启动即持久化最小恢复指针（work-session.v1）。
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
   await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('precheck-submit').click();
@@ -223,7 +223,7 @@ test('三层重建：重载后 grant 案回侧栏 → 绑定重建 → 恢复入
 
   // 重新入库（镜像 MaterialStore app-data 跨重启存活），使合同审查启动器重现。
   await ingestContract(page);
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await expect(page.getByTestId('precheck-form')).toBeVisible();
 
   // 层三：恢复入口可达——恢复指针从存活的 localStorage 复读，恢复控件呈现（reachable）。

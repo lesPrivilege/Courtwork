@@ -153,7 +153,7 @@ test('G 铸号红证：中文标题 grant 案的 caseId 恒过安全 token 语�
 
   // 场景全链（樁 turn）：中文标题案审查合同可开、可跑、落审阅面——真机同链不再触发状态引用红条。
   await ingestViaAddFolder(page, '合成卷宗案');
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
   await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('precheck-submit').click();
@@ -182,7 +182,7 @@ test('G 存量守卫：旧版中文 id 案运行场景 → 显式引导（原位
   await page.getByTestId(`case-card-${legacyId}`).locator('button.case-card-main').click();
   await expect(page.getByTestId('titlebar-case-title')).toContainText('合成卷宗案');
   await ingestViaAddFolder(page, '合成卷宗');
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
   await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('precheck-submit').click();

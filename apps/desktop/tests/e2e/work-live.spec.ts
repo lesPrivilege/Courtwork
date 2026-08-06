@@ -163,7 +163,7 @@ test('grant 案合同审查全链：真实材料 → 门禁审阅 → docx 落�
   await ingestContract(page);
 
   // 打开合同审查工作面 → 显式主体 preflight → 运行
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   const launcher = page.getByTestId('precheck-form');
   await expect(launcher).toBeVisible();
   // 缺主体时运行钮禁用（不默认补全，ADR-010 决定五）
@@ -203,7 +203,7 @@ test('grant 案运行中取消：canceled 终态，无 docx 落盘', async ({ pa
   await createGrantCase(page);
   await ingestContract(page);
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
   await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('precheck-submit').click();
@@ -224,7 +224,7 @@ async function switchAwayAndBack(page: Page, grantCaseId: string) {
   await page.getByTestId('case-card-demo-linjiang').locator('button.case-card-main').click();
   await page.getByTestId(`case-card-${grantCaseId}`).locator('button.case-card-main').click();
   // 重新打开审查工作面（切案后 grant 案 preview 关闭）——恢复入口据持久指针在此重现。
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
 }
 
 test('grant 案跨切案恢复：暂停态切走再回 → 恢复审查 → 水合投影等价 → 续行 resolve → docx（把跨重启试点变自动化用例）', async ({ page }) => {
@@ -237,7 +237,7 @@ test('grant 案跨切案恢复：暂停态切走再回 → 恢复审查 → 水�
   expect(grantCaseId).toBeTruthy();
 
   // 运行到暂停门禁（run→gate 中途）——run 启动即持久化恢复指针。
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
   await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('precheck-submit').click();
@@ -274,7 +274,7 @@ test('grant 案恢复失效诚实：信封已不存在 → 中性失效反馈 + 
   await ingestContract(page);
   const grantCaseId = await page.evaluate(() => localStorage.getItem('courtwork.selected-case-id'));
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
   await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('precheck-submit').click();
@@ -305,7 +305,7 @@ test('grant 案未装配（无 transport 且无 stub）：start → rejected/not
   await createGrantCase(page);
   await ingestContract(page);
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
   await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('precheck-submit').click();
@@ -348,7 +348,7 @@ test('grant 案审阅面板内切换 tab 不关闭工作面', async ({ page }) =
   await createGrantCase(page);
   await ingestContract(page);
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
   await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('precheck-submit').click();

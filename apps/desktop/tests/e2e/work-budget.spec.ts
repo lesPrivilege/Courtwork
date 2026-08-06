@@ -109,7 +109,7 @@ async function prepare(page: Page, maxUsd: number, mode: 'known' | 'mismatch' | 
   await page.getByTestId('composer-plus').first().click();
   await page.getByTestId('composer-plus-folder').first().click();
   await expect(page.getByTestId('material-item').filter({ hasText: PRIMARY_FILE })).toHaveAttribute('data-status', 'ready');
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
   await page.getByTestId('precheck-field-subject').fill('测试相对方');
   await page.getByTestId('precheck-submit').click();
@@ -132,7 +132,7 @@ async function replayFailureAfterCaseSwitch(page: Page, expected: RegExp) {
   const ref = await persistedRef(page);
   await page.getByTestId('case-card-demo-linjiang').locator('button.case-card-main').click();
   await page.getByTestId(`case-card-${ref.caseId}`).locator('button.case-card-main').click();
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await expect(page.getByTestId('precheck-recover')).toBeVisible();
   await page.getByTestId('precheck-recover-run').click();
   const failure = page.getByTestId('progress-scenario-failure');
@@ -141,7 +141,7 @@ async function replayFailureAfterCaseSwitch(page: Page, expected: RegExp) {
   // 恢复后工作面呈现失败进度、起跑面整体不在场，故恢复入口此刻结构性缺席（与指针无关）。
   await expect(page.getByTestId('precheck-recover')).toHaveCount(0);
   await page.getByRole('button', { name: '起草答辩状', exact: true }).click();
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   // CONTRACT-TRACE-1：durable failed **保留**指针（「读不到 ≠ 不存在」的对称面：失败的账本仍是
   // 账本）。旧断言在这里写 0，编码的是「指针在、入口却不显示」——恢复入口不随指针刷新的陈旧 UI，
   // 与下一行自己断言的「pointer 仍在」互相矛盾。按本意改写为二者一致。

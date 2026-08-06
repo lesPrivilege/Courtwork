@@ -99,7 +99,10 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // 与起手引导的净减将随外提生效下调。
 // GENERIC-PACK-1 裁定二下调至 2292（外提生效）：预检表单迁通用件——壳内 workSubject/
 // primaryContractId 双状态与 setter、切案清零行退役（表单值收进场景启动参数，住驱动侧）。
-const HIGH_WATER_LINES = 2292;
+// GENERIC-PACK-1 裁定二再下调至 2282（外提生效）：场景条内联 JSX（四钮/更多弹层/取消控件
+// 约 45 行）迁 `workbench/scene-strip.tsx` 通用件——壳只留派生与路由；sceneMore 双状态与
+// 点击外弹层关闭同批随迁。
+const HIGH_WATER_LINES = 2282;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

@@ -63,6 +63,10 @@ export function createLegalWorkSurface(
   deps: { workCommand: LegalS3WorkCommand },
 ): VerticalWorkSurface {
   return {
+    // 裁定二：production 只装配 S3 合同审查链——场景条据此只渲染审查合同按钮。
+    productionScenarioIds: ['legal.S3'],
+    runningControlCopy: '停止审查',
+    
     use(host: VerticalWorkSurfaceHost): VerticalWorkSurfaceState {
       const [gate, setGate] = useState<ReviewGateProjection>();
       const [selectedRiskId, setSelectedRiskId] = useState('risk-03');

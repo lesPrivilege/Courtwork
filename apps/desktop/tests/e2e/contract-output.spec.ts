@@ -129,7 +129,7 @@ async function createCaseWithMaterials(page: Page, files: [string, number[]][]) 
 }
 
 async function runReviewToCompletion(page: Page, primaryLabel = PRIMARY_FILE) {
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await expect(page.getByTestId('precheck-form')).toBeVisible();
   await page.getByTestId('precheck-field-primaryContractId').selectOption({ label: primaryLabel });
   await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
@@ -153,7 +153,7 @@ test('未选主合同不得起跑；无可选 DOCX 时显式说明下一步', as
   await resetHooks(page);
   await createCaseWithMaterials(page, [[NOT_DOCX_FILE, Array.from(new TextEncoder().encode('# 情况说明\n\n仅供参考。'))]]);
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await expect(page.getByTestId('precheck-form')).toBeVisible();
   // 只有一件 md：候选为空 → 选择器禁用 + 显式下一步，起跑钮无论主体填不填都禁用。
   await expect(page.getByTestId('precheck-field-primaryContractId')).toBeDisabled();
@@ -170,7 +170,7 @@ test('候选只列 DOCX：md 材料不出现在主合同选择里', async ({ pag
     [NOT_DOCX_FILE, Array.from(new TextEncoder().encode('# 情况说明\n\n仅供参考。'))],
   ]);
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   const options = page.getByTestId('precheck-field-primaryContractId').locator('option');
   const labels = await options.allInnerTexts();
   expect(labels).toContain(PRIMARY_FILE);
@@ -218,7 +218,7 @@ test('生产审阅面不渲染样板案的固定 redline（数据面退役）', 
   await setTurnStub(page, { anchorOn: 'primary' });
   await createCaseWithMaterials(page, [[PRIMARY_FILE, PRIMARY_DOCX()]]);
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await page.getByTestId('precheck-field-primaryContractId').selectOption({ label: PRIMARY_FILE });
   await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
   await page.getByTestId('precheck-submit').click();

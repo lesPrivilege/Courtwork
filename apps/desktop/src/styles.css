@@ -761,6 +761,7 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .conversation:has(.case-menu) .scene-strip { pointer-events: none; }
 .scene-strip button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-dense-meta-size); }
 .scene-more-wrap { position: relative; flex: none; }
+.scene-strip .scene-unloaded-hint { margin: 0; font-size: var(--type-dense-meta-size); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .scene-more-popover { position: absolute; z-index: 12; right: 0; bottom: calc(100% + 6px); min-width: 132px; display: grid; gap: 2px; padding: 6px; }
 .scene-more-popover button { width: 100%; border: 0; text-align: left; }
 .scene-more-narrow-only { display: none; }
