@@ -32,10 +32,11 @@ describe('VPKG-LAYOUT-1 Legal content golden', () => {
     // （受控外溢，见 legal SPEC 状态更新）——promptSegments 未动，prompt blob hash 不漂。
     // GENERIC-PACK-1 重铸（仅 descriptor 一枚，逐 panel 各一次）：`legal.Timeline` 与
     // `legal.PartyGraph` 的 uiTemplateId 与 renderer 声明由 `timeline-panel` / `party-graph-panel`
-    // 改为版本化 `courtwork.timeline.v1` / `courtwork.party-graph.v1`（同矩阵先例）。
+    // 改为版本化 `courtwork.timeline.v1` / `courtwork.party-graph.v1`（同矩阵先例）；第三枚 `legal.RiskList`
+    // 与 S3 场景的 `risk-review-panel` 同改为 `courtwork.risk-review.v1`。
     // 同属**呈现绑定**变更：payload 契约与 promptSegments 未动，故 prompt blob hash 不漂、
     // `schemaVersion` 不升。
-    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('7a2ac20516980e2c589eafb819819712248c420118b53bfb657889cdfd5af6ee');
+    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('69b56734bffa3246b80f0f02d4e600372c354c9224d02c63264615026b5aac1f');
     expect(sha256(promptBlob())).toBe('1f76dbd2b2a7dad74fa1d13f6a0c7fd537751a96720356ea76886f7c3979e134');
   });
 

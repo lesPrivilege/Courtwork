@@ -89,7 +89,7 @@ export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
       inputArtifacts: ['legal.CaseFile'],
       toolIds: ['party-verify'],
       outputArtifacts: ['legal.RiskList'],
-      uiTemplateId: 'risk-review-panel',
+      uiTemplateId: 'courtwork.risk-review.v1',
       confirmationPolicy: {
         mode: 'gates',
         gates: [{ artifact: 'legal.RiskList', label: S3_REVIEW_GATE_LABEL }],

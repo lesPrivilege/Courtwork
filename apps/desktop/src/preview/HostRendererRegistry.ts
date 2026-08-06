@@ -44,6 +44,16 @@ export type HostRendererBlueprint =
       component: ComponentType<HostRendererComponentProps>;
       moduleTarget?: ModuleId;
       autoOpen?: boolean;
+      /**
+       * GENERIC-PACK-1 ⑤：blueprint 自持「产出尚未到来」那一态。
+       *
+       * 默认（缺席／false）＝宿主给出 descriptor 标题派生的空态，矩阵/时间线/图谱三枚照旧。
+       * 置真者，产出缺席时仍进 renderer 并收到 `payload: undefined`——`revision` 面需要它：
+       * 产出到来之前那一格是场景起跑面（选主合同、填标的、恢复上次），不是「尚未生成」。
+       * **拒载语义不变**：多 artifact 争夺同一具名面仍整面 fail closed，payload 漂移仍由
+       * renderer 的 `safeParse` 整面拒绝。本旗只解「空态归谁画」，不动任何一条拒绝分支。
+       */
+      handlesEmpty?: boolean;
     } & HostNamedViewPresentation)
   | {
       uiTemplateId: string;

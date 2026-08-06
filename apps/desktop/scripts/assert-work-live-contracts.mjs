@@ -35,6 +35,11 @@ const submission = stripComments(await read('src/work/use-contract-review-submis
 const lifecycle = stripComments(await read('src/work/work-session-lifecycle.ts'));
 // CONTRACT-OUTPUT-TRUTH-1：显式主合同选择/排序/CaseFile 派生的纯函数落点。
 const primaryContract = stripComments(await read('src/work/primary-contract.ts'));
+// GENERIC-PACK-1 ⑤「过手即拆」：S3 审阅编排（生命周期/提交/门禁投影）由 App.tsx 迁入垂类工作面
+// 驱动，起跑面迁入其 blueprint renderer。门跟着码走——四条判据改锚新家，一条不减，并新增
+// 一条组合根装配锁（垂类端口只能在受信组合根注入，不进壳的通用接缝）。
+const legalSurface = stripComments(await read('src/work/legal-work-surface.tsx'));
+const riskReviewRenderer = stripComments(await read('src/preview/RiskReviewRenderer.tsx'));
 // CONTRACT-OUTPUT-TRUTH-1：唯一 production 交付编排。
 const delivery = stripComments(await read('src/output/contract-review-delivery.ts'));
 const failures = [];
@@ -96,9 +101,12 @@ requireMatch(command, /resumeScenario/, 'resume 必须经真实 core executor re
 // ── grant（真实）案接线（App.tsx）：run/gate/resume/cancel/docx 源全走生产链 ──────
 // CONTRACT-TRACE-1「过手即拆」：run/cancel/recover 的编排外提到 work-session-lifecycle。
 // 门跟着码走，逐条拆「App 侧接线」＋「外提件里的调用」两段——两段都在才算真正接通。
-requireMatch(app, /useWorkRunLifecycle\(\{[\s\S]*?\n {4}workCommand,/, 'grant 案 run/cancel/recover 必须把生产 workCommand 交给会话生命周期编排（App 侧接线）');
+requireMatch(legalSurface, /useWorkRunLifecycle\(\{[\s\S]*?workCommand: deps\.workCommand,/, 'grant 案 run/cancel/recover 必须把生产 workCommand 交给会话生命周期编排（垂类驱动侧接线）');
 requireMatch(lifecycle, /workCommand\.startWithPreflight\(/, 'grant 案 run 必须经 workCommand.startWithPreflight（显式主体 preflight）');
-requireMatch(app, /useContractReviewSubmission\(\{[\s\S]*?\n {4}workCommand,/, 'grant 案 resume 必须把生产 workCommand 交给提交编排（App 侧接线）');
+requireMatch(legalSurface, /useContractReviewSubmission\(\{[\s\S]*?workCommand: deps\.workCommand,/, 'grant 案 resume 必须把生产 workCommand 交给提交编排（垂类驱动侧接线）');
+// 组合根装配锁：生产 workCommand 只能由 main.tsx 注入垂类驱动，壳不得自持第二条注入路径。
+requireMatch(main, /createLegalWorkSurface\(\{\s*workCommand\s*\}\)/, '受信组合根必须把生产 workCommand 注入垂类工作面驱动');
+forbidMatch(app, /createLegalWorkSurface/, 'App.tsx 不得自行构造垂类工作面驱动（装配点只属组合根）');
 requireMatch(submission, /commandRef\.current\.resolveReview\(/, 'grant 案 resume 必须经 workCommand.resolveReview（逐条 revision）');
 requireMatch(lifecycle, /workCommand\.cancel\(/, 'grant 案 cancel 必须经 workCommand.cancel');
 // WORK-LIVE-REPLAY-1（答复 WORK-HOST-1 驳回阻断二）：跨切案/重启的恢复入口必须真实消费 workCommand.replay
@@ -153,7 +161,7 @@ forbidMatch(
   /status === 'rejected' \|\| outcome\.status === 'canceled'\)\s*\{\s*clearWorkSession/,
   'App：rejected 不得清 pointer（旧记录须逐字不变）；canceled 只可 compare-and-clear',
 );
-requireMatch(app, /projectRiskListGate\(riskList/, 'grant 案 live gate 必须经 projectRiskListGate（真实 RiskList）');
+requireMatch(legalSurface, /projectRiskListGate\(riskList/, 'grant 案 live gate 必须经 projectRiskListGate（真实 RiskList）');
 
 // ── CONTRACT-OUTPUT-TRUTH-1 R1：旧固定产物名不得进入生产路径（驳回项二回归锁）──────────
 // 生产产物名是版本化的，只能由唯一 coordinator 从完整 replay 的持久 metadata 铸出。
@@ -195,7 +203,7 @@ for (const [label, source] of [['App', app], ['work-command', command], ['primar
     `${label}：production Legal S3 路径不得以 ready[0] 猜主合同（须用户显式选定）`,
   );
 }
-requireMatch(app, /selectPrimaryContractCandidates\(/, 'grant 案起跑面必须只列可作主合同的 DOCX 候选');
+requireMatch(riskReviewRenderer, /selectPrimaryContractCandidates\(/, 'grant 案起跑面必须只列可作主合同的 DOCX 候选');
 requireMatch(lifecycle, /orderS3MaterialRefs\(/, 'grant 案 start 必须经 orderS3MaterialRefs（主合同稳定在 materialRefs[0]）');
 requireMatch(command, /deriveS3CaseFile\(/, 'S3 start 必须从同一输入机械派生 legal.CaseFile（不再传空 artifacts）');
 requireMatch(

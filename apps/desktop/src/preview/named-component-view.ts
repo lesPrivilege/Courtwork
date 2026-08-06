@@ -54,7 +54,11 @@ export function resolveNamedComponentView(
   if (candidates.length > 1) return { status: 'unsupported', title: candidate.title };
 
   const payload = payloadFor(candidate.artifactType);
-  if (payload === undefined) return { status: 'empty', title: candidate.title };
+  // `handlesEmpty` 的 blueprint 自持空态：产出缺席时仍进 renderer（payload 为 undefined）。
+  // 其余照旧落宿主空态。见 `HostRendererBlueprint.handlesEmpty` 的边界说明。
+  if (payload === undefined && candidate.renderer.handlesEmpty !== true) {
+    return { status: 'empty', title: candidate.title };
+  }
   return {
     status: 'ready',
     title: candidate.title,

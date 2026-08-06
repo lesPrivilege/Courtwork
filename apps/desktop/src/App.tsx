@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { SchemaParts } from './icons/schema-parts';
-import type { RiskList } from '@courtwork/legal';
 import { ProviderSetup } from './credentials/ProviderSetup';
 import {
   credentialClient,
@@ -15,7 +14,6 @@ import {
 import {
   EMPTY_SESSION,
   projectSession,
-  type ReviewGateProjection,
   type ScenarioFlow,
   type SessionProjection,
   type WorkProjectionPhase,
@@ -23,12 +21,8 @@ import {
 } from './protocol/client';
 import type { DemoWorkFixtureAdapter } from './protocol/demo-fixture';
 import { replayWorkProjection } from './protocol/work-replay';
-import { projectRiskListGate } from './work/legal-s3-binding';
-import { useWorkRunLifecycle } from './work/work-session-lifecycle';
-import { selectPrimaryContractCandidates } from './work/primary-contract';
 import { createArtifactReader } from './work/session-artifacts';
 import { demoArtifactCardCopy } from './demo/demo-artifact-card';
-import type { LegalS3WorkCommand } from './work/work-command';
 import { projectPersistableCases, readCaseList, writeCaseList } from './case/case-store';
 import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
@@ -89,6 +83,7 @@ import { ArtifactHostView, resolveHostArtifact } from './preview/ArtifactHostVie
 import { UnsupportedArtifactView } from './preview/ArtifactTableRenderer';
 import { resolveNamedComponentView } from './preview/named-component-view';
 import { WorkbenchRenderProvider } from './preview/workbench-render-context';
+import type { VerticalWorkSurface, VerticalWorkSurfaceHost } from './preview/vertical-work-surface';
 import type { HostRendererRegistry, HostWorkbenchView } from './preview/HostRendererRegistry';
 import {
   GENERIC_DRAFT_VIEW,
@@ -117,14 +112,7 @@ import { WorkDraftPanel } from './system/WorkDraftPanel';
 import { DEMO_CASE_ROOT } from './system/demo-case-layout';
 import { FocusGlyph } from './workbench/MiniIcon';
 import { Icon } from './workbench/Icon';
-import {
-  DraftPanel,
-  INITIAL_DRAFT,
-  RevisionPanel,
-  S3LauncherPanel,
-  projectReviewItemStates,
-  type DraftDocument,
-} from './workbench/Panels';
+import { DraftPanel, INITIAL_DRAFT, type DraftDocument } from './workbench/Panels';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
 import { MessageActions } from './chat/MessageActions';
 import { sendChatTurn } from './provider/chat-client';
@@ -149,8 +137,6 @@ import { createReviewTelemetryEmitter } from './telemetry/review-telemetry';
 import { compileDraftToDocx } from '@courtwork/output';
 import { caseOutputClient } from './output/case-output-client';
 import type { ResolvedSourceAnchor, SourceAnchor } from '@courtwork/schemas';
-import { S3_REVIEW_GATE_LABEL } from './work/contract-review-flow';
-import { useContractReviewSubmission } from './work/use-contract-review-submission';
 
 /** 工作面 id 的唯一定义在宿主注册表；壳只用别名，不再自持一份垂类枚举。 */
 type WorkbenchView = HostWorkbenchView;
@@ -240,13 +226,13 @@ export interface AppProps {
   hostRenderers: HostRendererRegistry;
   workProjection: WorkProjectionPort;
   workFixture: DemoWorkFixtureAdapter;
-  /** WORK-LIVE-1：production Work 命令端口（进程内 callback）。非 demo（grant）案的 run/resume/cancel/replay 走此。 */
-  workCommand: LegalS3WorkCommand;
+  /** 垂类工作面驱动；由受信组合根装配（ADR-015 修订记录 2026-08-06 裁定一）。 */
+  verticalWorkSurface: VerticalWorkSurface;
   hostAuth: HostAuthPort;
   materialStore: MaterialStore;
 }
 
-export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture, workCommand, hostAuth, materialStore, piLane }: AppProps) {
+export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture, verticalWorkSurface, hostAuth, materialStore, piLane }: AppProps) {
   const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
@@ -259,7 +245,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const [secondaryView, setSecondaryView] = useState<WorkbenchView>();
   const [splitDirection, setSplitDirection] = useState<SplitDirection>('rows');
   const [splitRatio, setSplitRatio] = useState(50);
-  const [gate, setGate] = useState<ReviewGateProjection>();
   // WORK-LIVE-1：非 demo（grant）案的 production Work 会话态。demo 案走 fixture，二者物理隔离。
   const [workSessionId, setWorkSessionId] = useState<string | null>(null);
   const [workRunning, setWorkRunning] = useState(false);
@@ -269,8 +254,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   /** 显式主合同选择（CONTRACT-OUTPUT-TRUTH-1）：默认不选，用户必须自己指定。 */
   const [primaryContractId, setPrimaryContractId] = useState('');
   const [workContractMaterialId, setWorkContractMaterialId] = useState<string | null>(null);
-  const [selectedRiskId, setSelectedRiskId] = useState('risk-03');
-  const [expandedEvidence, setExpandedEvidence] = useState<Record<string, boolean>>({});
   const [continued, setContinued] = useState(false);
   const [compileOpen, setCompileOpen] = useState(false);
   const [compilePending, setCompilePending] = useState(false);
@@ -509,7 +492,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
           materials: caseMaterials,
           scenarioState: session.confirmation
             ? 'paused_review'
-            : workRun.recoverableSession
+            : verticalSurface.hasRecoverableRun
               ? 'recoverable'
               : 'not_started',
         })
@@ -773,9 +756,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     if (prevCaseId.current === selectedCaseId) return;
     prevCaseId.current = selectedCaseId;
 
-    setGate(undefined);
-    setExpandedEvidence({});
-    submission.reset();
+    verticalSurface.resetForContextSwitch();
     setContinued(false);
     // 五裁②：仅当 handoff 定向到本案时带入 chat 话题，其余一律清空（D-1 隔离不破）
     if (chatHandoff.current?.caseId === selectedCaseId) {
@@ -799,7 +780,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setDraft(INITIAL_DRAFT);
     setCompileOpen(false);
     setCompilePending(false);
-    setSelectedRiskId('risk-03');
+    verticalSurface.resetForContextSwitch();
     setSecondaryView(undefined);
     setActiveView(preferredView);
     setActiveArtifactType(undefined);
@@ -905,19 +886,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [paletteOpen, newCaseOpen, archiveConfirmCaseId, focusMode]);
 
-  useEffect(() => {
-    const requestId = session.confirmation?.requestId;
-    if (!requestId || !selectedCaseId || !flow || !isDemoCaseId(selectedCaseId)) return;
-    const ref = workFixture.sessionRefFor(selectedCaseId, flow);
-    void workFixture.review.getGateProjection({ ...ref, requestId }).then(setGate);
-  }, [flow, selectedCaseId, session.confirmation, workFixture]);
-
-  useEffect(() => {
-    if (!activeFixtureRef) return;
-    openedAt.current[selectedRiskId] = Date.now();
-    emitReviewTelemetry({ type: 'review_item_opened', sessionId: activeFixtureRef.sessionId, itemRef: selectedRiskId, emittedAt: new Date().toISOString() });
-  }, [activeFixtureRef, emitReviewTelemetry, selectedRiskId]);
-
   const selectedCase = selectedCaseId ? cases.find((item) => item.id === selectedCaseId) : undefined;
   const isWelcome = !selectedCase;
   const isDemoCase = Boolean(selectedCase?.isDemo) || isDemoCaseId(selectedCase?.id);
@@ -993,7 +961,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   const fixtureRef = isDemoCase ? activeFixtureRef : undefined;
   // fixture fallback 只属于显式 demo ref；非 demo 分支不会询问 fixture adapter。
   const artifactPayload = createArtifactReader(session.artifacts, fixtureRef, workFixture);
-  const riskList = artifactPayload('legal.RiskList') as RiskList | undefined;
   // 通用「结构化产出」页签只收落在该页签上的 component blueprint；具名工作面（矩阵审阅）
   // 已由自己的 view 承载，不在此重复出现。
   const artifactViewEntries = Object.entries(session.artifacts).filter(([artifactType]) => {
@@ -1007,19 +974,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   /** 页签条：具名面由「已准入 artifact × 在册 blueprint」派生，通用面恒在（ADR-015 决定一/三）。 */
   const workbenchViews = resolveWorkbenchViews(packageRegistries, hostRenderers, hasArtifactView);
   const demoArtifactCard = demoArtifactCardCopy(flow, artifactPayload, session.citationStats);
-  const selectedRisk = riskList?.risks.find((risk) => risk.id === selectedRiskId) ?? riskList?.risks[0];
-  const gradeByKey = useMemo(() => new Map(session.evidenceGrades.map((item) => [item.key, item.grade])), [session.evidenceGrades]);
   /** 具名工作面 renderer 的宿主渲染上下文；载荷领域无关（core 会话投影字段），壳不因此认识垂类。 */
   const workbenchRenderContext = useMemo(() => ({ evidenceGrades: session.evidenceGrades }), [session.evidenceGrades]);
-  const selectedGate = selectedRisk ? gate?.items.find((item) => item.itemRef === selectedRisk.id) : undefined;
-  const selectedGrades = selectedGate?.evidenceKeys.map((key) => gradeByKey.get(key)).filter((value): value is 'A' | 'B' | 'C' => Boolean(value)) ?? [];
-  // 「含 C 级依据」不可从 gate 的 reason 派生：`high_risk` 对 `unverified` 优先，照派生会让
-  // 高危且含 C 级依据的条目在核验列显示为「已核验」。故仍由证据台账现算并作为显式输入。
-  const unverifiedRiskIds = gate?.items
-    .filter((item) => item.evidenceKeys.some((key) => gradeByKey.get(key) === 'C'))
-    .map((item) => item.itemRef) ?? [];
-  /** completed 的 grant 案：审阅面转只读——写权限由判别联合隔离，不是运行时把控件藏起来。 */
-  const reviewReadOnly = caseBinding.kind === 'grant' && workPhase === 'completed';
   /** coordinator 的宿主接缝；与提交编排同一组实现，不另造第二条落盘路径。 */
   const contractOutputDeps = {
     readMaterial: (caseId: string, materialId: string) => materialStore.readForOutput(caseId, materialId),
@@ -1027,38 +983,61 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     writeDocxNoReplace: (binding: CaseBinding, fileName: string, bytes: Uint8Array) =>
       caseOutputClient.writeDocxNoReplace(binding, fileName, bytes),
   };
-  // CONTRACT-REVIEW-SAFETY-1「过手即拆」：提交编排与产物落盘整体外提到
-  // `work/use-contract-review-submission.ts`，App 只留相位与产物存在性两个跨面消费。
-  const submission = useContractReviewSubmission({
+  /**
+   * 垂类工作面驱动的装配（GENERIC-PACK-1 ⑤）：壳交出的逐字都是领域无关量，读回的只有
+   * `decisionCount` / `outputDisplayName` / `applicability` 与两枚运行控制。垂类端口
+   * （`LegalS3WorkCommand`）不经此面，由受信组合根在构造驱动时注入。
+   *
+   * 「回到原件」是壳的 canonical reader 路由，定义在下方（依赖 materialSink）；此处经 ref
+   * 间接引用以免把整段读面提前，effect 每渲染重挂一次，处理器只在挂载后触发故无陈旧窗口。
+   */
+  const openSourceAnchorRef = useRef<(anchor: SourceAnchor) => void>(() => undefined);
+  const verticalSurfaceHost: VerticalWorkSurfaceHost = {
     caseBinding,
     selectedCaseId,
+    caseTitle: selectedCase?.title ?? '',
     isDemoCase,
     flow,
-    riskList,
-    gate,
-    confirmationRequestId: session.confirmation?.requestId,
-    evidenceGrades: session.evidenceGrades,
-    workSessionId,
-    workContractMaterialId,
-    materialStore,
-    workCommand,
+    caseMaterials,
+    session,
+    fixtureRef,
     workFixture,
+    artifactPayload,
+    workSessionId,
+    workRunning,
+    workPhase,
+    workSubject,
+    setWorkSubject,
+    primaryContractId,
+    setPrimaryContractId,
+    workContractMaterialId,
+    modelRoute: { providerId: modelConfig.providerId, modelId: modelConfig.modelId, reasoning: modelConfig.reasoning },
+    outputDeps: contractOutputDeps,
+    materialStore,
     dispatch,
     openedAt,
-    demoSourceMarkdown: contractSourceMd,
-    outputFileName: DEMO_CONTRACT_OUTPUT_FILE,
+    emitReviewTelemetry,
+    setWorkRunning,
+    setWorkSessionId,
+    setWorkContractMaterialId,
+    setWorkPhase,
+    setPreviewOpen,
     showSystemFeedback,
-    // 只有样板案的固定产物名有「存在性」这回事；production 的交付事实只认 coordinator 结果，
-    // 不再借这枚 demo 状态转述（旧接线让 production 写一个只有 demo 读的槽，是命名残留的成因）。
-    onOutputExists: (exists: boolean) => { if (isDemoCase) setDemoContractOutputExists(exists); },
+    openSourceAnchor: (anchor: SourceAnchor) => openSourceAnchorRef.current(anchor),
     onCompleted: () => setWorkPhase('completed'),
-  });
+    // 只有样板案的固定产物名有「存在性」这回事；production 的交付事实只认 coordinator 结果。
+    onDemoOutputExists: (exists: boolean) => { if (isDemoCase) setDemoContractOutputExists(exists); },
+    demoSourceMarkdown: contractSourceMd,
+    demoOutputFileName: DEMO_CONTRACT_OUTPUT_FILE,
+    demoPrimaryFileName: DEMO_CONTRACT_SOURCE_NAME,
+  };
+  const verticalSurface = verticalWorkSurface.use(verticalSurfaceHost);
 
   const draftFrozen = draftOutputExists;
   const comparing = secondaryView !== undefined;
   const usage = isDemoCase ? (flow === 'S3' ? 91 : 18) : 0;
   const progressDone =
-    !isDemoCase ? 0 : flow === 'S1' ? Math.min(16, 20) : submission.review.decisionCount;
+    !isDemoCase ? 0 : flow === 'S1' ? Math.min(16, 20) : verticalSurface.decisionCount;
   const progressTotal = !isDemoCase ? 6 : flow === 'S1' ? 20 : 6;
   const progressCount = progressHeadCount(progressDone, progressTotal);
   const attachmentSources = localMessages.flatMap((message) => message.files);
@@ -1114,41 +1093,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     };
   }, [caseBinding]);
 
-  /**
-   * CONTRACT-TRACE-1「过手即拆」：run/cancel/recover/pointer/completed-output 五处状态面整块
-   * 外提到 `work/work-session-lifecycle.ts`；App 侧只余依赖供给与四个消费点。
-   */
-  const workRun = useWorkRunLifecycle({
-    caseBinding,
-    selectedCaseId,
-    workRunning,
-    workSessionId,
-    workContractMaterialId,
-    workSubject,
-    primaryContractId,
-    caseMaterials,
-    modelRoute: { providerId: modelConfig.providerId, modelId: modelConfig.modelId, reasoning: modelConfig.reasoning },
-    workCommand,
-    reviewReadOnly,
-    outputDeps: contractOutputDeps,
-    dispatch,
-    resetReview: submission.reset,
-    clearGate: () => setGate(undefined),
-    setWorkRunning,
-    setWorkSessionId,
-    setWorkContractMaterialId,
-    setWorkPhase,
-    setPreviewOpen,
-    showSystemFeedback,
-  });
 
 
-  // WORK-LIVE-1：grant 案的 live gate 由真实 RiskList + 证据台账派生（projectRiskListGate，绝不复用样板案门禁投影）。
-  useEffect(() => {
-    const requestId = session.confirmation?.requestId;
-    if (!requestId || caseBinding.kind !== 'grant' || !riskList) return;
-    setGate(projectRiskListGate(riskList, requestId, session.evidenceGrades));
-  }, [caseBinding.kind, riskList, session.confirmation, session.evidenceGrades]);
 
   const createCase = ({
     title,
@@ -1406,6 +1352,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
    * CONTRACT-TRACE-1「回到原件」：SourceAnchor 的 `fileId` 就是本案 materialId，交同一条
    * canonical reader 调用链按坐标开面。定位失败走既有显式反馈，不退回 quote 全文搜索。
    */
+  useEffect(() => { openSourceAnchorRef.current = openRiskSource; });
   const openRiskSource = (anchor: SourceAnchor) => {
     if (!selectedCaseId) return;
     if (!isDemoCase) {
@@ -1457,9 +1404,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setActiveView(next === 'S1' ? 'timeline' : 'revision');
     setWorkDraftMode(false);
     setFileOpsMode(false);
-    setGate(undefined);
-    setExpandedEvidence({});
-    submission.reset();
+    verticalSurface.resetForContextSwitch();
     setContinued(false);
     dispatch({ type: '__clear__' });
     setWorkPhase(undefined);
@@ -1537,38 +1482,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     });
   };
 
-  const expandBasis = (riskId: string, index: number, evidenceRef: string) => {
-    const key = `${riskId}:${index}`;
-    setExpandedEvidence((current) => ({ ...current, [key]: !current[key] }));
-    if (fixtureRef) {
-      emitReviewTelemetry({ type: 'review_evidence_expanded', sessionId: fixtureRef.sessionId, itemRef: riskId, evidenceRef, emittedAt: new Date().toISOString() });
-    }
-  };
-
-  const dispose = (itemRef: string, disposition: 'confirmed' | 'rejected') => {
-    const protocolDisposition = disposition === 'confirmed' ? 'confirm' : 'reject';
-    if (!submission.review.decide(itemRef, protocolDisposition)) return;
-    if (fixtureRef) {
-      emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: fixtureRef.sessionId, itemRef, disposition: protocolDisposition, emittedAt: new Date().toISOString() });
-    }
-  };
-
-  const beginCorrection = (itemRef: string, originalDescription: string) => {
-    submission.review.beginCorrection(itemRef, originalDescription);
-  };
-
-  const commitCorrection = () => {
-    try {
-      const decision = submission.review.commitCorrection();
-      if (!decision) return;
-      if (fixtureRef) {
-        emitReviewTelemetry({ type: 'review_disposition_submitted', sessionId: fixtureRef.sessionId, itemRef: decision.itemRef, disposition: 'revise', emittedAt: new Date().toISOString() });
-      }
-    } catch (error) {
-      showSystemFeedback(readableError(error, '修正结论未能提交'), false, 'info');
-    }
-  };
-
   const emptyWorkbench = (hint: string) => (
     <div className="empty-state" role="status" data-testid="case-empty-state">{hint}</div>
   );
@@ -1581,34 +1494,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       }
       return <FileOpsPlanPanel caseId={selectedCase.id} onFeedback={showSystemFeedback} />;
     }
-    if (!isDemoCase) {
-      if (caseBinding.kind !== 'grant') {
-        return emptyWorkbench(`${selectedCase.title} 刚建立，尚无卷宗内容 · 从对话或场景开始整理`);
-      }
-      // WORK-LIVE-1：grant（真实）案的 production S3 合同审查——仅「修订」与「结构化产出」两个工作面适用。
-      if (view === 'revision' && !riskList) {
-        const readyMaterials = caseMaterials.filter((material) => material.status === 'ready');
-        if (readyMaterials.length === 0) {
-          return emptyWorkbench(`${selectedCase.title} · 入库合同材料后即可开始合同审查`);
-        }
-        if (workRunning) return emptyWorkbench('合同审查进行中…');
-        return (
-          <S3LauncherPanel
-            candidates={selectPrimaryContractCandidates(caseMaterials)}
-            primaryContractId={primaryContractId}
-            onSelectPrimaryContract={setPrimaryContractId}
-            subject={workSubject}
-            onChangeSubject={setWorkSubject}
-            recoverable={workRun.recoverableSession !== null}
-            onRecover={() => void workRun.recover()}
-            onStart={workRun.start}
-          />
-        );
-      }
-      if (view !== 'revision' && view !== 'artifact') {
-        return emptyWorkbench('该工作面暂不适用于合同审查');
-      }
-      // riskList 已产出（revision）或 artifact 面：落到下方与 demo 共享的分支。
+    if (!isDemoCase && caseBinding.kind !== 'grant') {
+      return emptyWorkbench(`${selectedCase.title} 刚建立，尚无卷宗内容 · 从对话或场景开始整理`);
+    }
+    // 工作面适用性由垂类驱动声明（裁定一）：壳只负责照声明显式说出来，不知道哪些面属于哪个垂类。
+    // 通用面 `draft` 与通用产出面 `artifact` 也在受检面内——production S3 只服务后者，
+    // 这正是原 `view !== 'revision' && view !== 'artifact'` 分支的逐字等价。
+    const applicability = verticalSurface.applicability;
+    if (applicability && !applicability.applicable.includes(view)) {
+      return emptyWorkbench(applicability.notApplicableCopy);
     }
     // 具名工作面的 component blueprint 全链：宿主按 view 反查在册 blueprint，空态文案由
     // descriptor 标题派生（宿主不另抄一份垂类词）。仍是 route 的工作面落 unregistered，走下方原分支。
@@ -1618,7 +1512,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     if (namedView.status === 'ready') {
       const NamedViewRenderer = namedView.component;
       return <WorkbenchRenderProvider value={workbenchRenderContext}>
-        <NamedViewRenderer descriptor={namedView.descriptor} payload={namedView.payload} />
+        <verticalWorkSurface.Provider value={verticalSurface.value}>
+          <NamedViewRenderer descriptor={namedView.descriptor} payload={namedView.payload} />
+        </verticalWorkSurface.Provider>
       </WorkbenchRenderProvider>;
     }
     if (view === 'draft') {
@@ -1652,78 +1548,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         />
       );
     }
-    // 末尾落点显式收口：此前 `revision` 无判等、是默认落点，任何未被上方接住的工作面都会静默
-    // 渲染成修订预览。矩阵迁 blueprint 后这条穿透有了真实触发条件（blueprint 撤销即落此处），
-    // 故改为显式拒绝——缺 renderer 是显式态，不是「渲染别的面」。
-    if (view !== 'revision') return <UnsupportedArtifactView title={workbenchViewLabel(workbenchViews, view)} />;
-    if (!riskList) return emptyWorkbench('修订预览尚未生成');
-    if (!selectedRisk) {
-      return <section className="empty-review-result" data-testid="revision-panel">
-        <h3>合同审查处置</h3>
-        <p>{submission.resultMessage ?? '本次风险清单没有待逐条处置的风险项。请显式提交，完成本次审查。'}</p>
-        {riskList.outOfCoverage.length > 0 && (
-          <ul data-testid="review-out-of-coverage">
-            {riskList.outOfCoverage.map((entry) => <li key={entry.summary}>{entry.summary}</li>)}
-          </ul>
-        )}
-        <button
-          type="button"
-          className="primary-button"
-          data-testid="submit-contract-review"
-          disabled={submission.submitting || submission.submitted || !submission.canSubmit}
-          onClick={submission.submit}
-        >{submission.submitting ? '正在提交处置…' : S3_REVIEW_GATE_LABEL}</button>
-      </section>;
-    }
-    const reviewCommon = {
-      riskList,
-      // 真实主合同名：production 取本次会话冻结的材料，demo 取样板案原件名。固定标题已退役。
-      primaryFileName: isDemoCase
-        ? DEMO_CONTRACT_SOURCE_NAME
-        : caseMaterials.find((item) => item.materialId === workContractMaterialId)?.fileName ?? '未选定主合同',
-      selectedRiskId,
-      onSelectRisk: setSelectedRiskId,
-      selectedGrades,
-      expandedEvidence,
-      onToggleEvidence: expandBasis,
-      onOpenSource: openRiskSource,
-    };
-    // CONTRACT-TRACE-1：completed 只读重开 —— 写权限由判别联合隔离，read_only 面在类型上就没有
-    // controls；处置只从 replay 后的 RiskList 读，风险区零事件、零 CAS。
-    // 门禁未到达时同样只读：此刻还没有任何条目可以处置，给出写入控件才是假接线。
-    if (reviewReadOnly || !gate) {
-      const outputResult = reviewReadOnly ? workRun.contractOutputResult : undefined;
-      return outputResult?.status === 'ready_to_deliver'
-        ? <RevisionPanel {...reviewCommon} mode="read_only" outputResult={outputResult} onRetryOutput={workRun.retryOutput} />
-        : <RevisionPanel {...reviewCommon} mode="read_only" outputResult={outputResult} />;
-    }
-    return <RevisionPanel
-      {...reviewCommon}
-      mode="interactive"
-      controls={{
-        gate,
-        itemStates: projectReviewItemStates(submission.review.state, riskList.risks.map((risk) => risk.id)),
-        submitState: submission.submitting ? 'submitting' : submission.submitted ? 'submitted' : 'idle',
-        onBeginRevision: (itemRef) => beginCorrection(itemRef, riskList.risks.find((risk) => risk.id === itemRef)?.description ?? ''),
-        onChangeRevision: (_itemRef, value) => submission.review.changeCorrection(value),
-        onCancelRevision: submission.review.cancelCorrection,
-        onCommitRevision: commitCorrection,
-        onConfirm: (itemRef) => dispose(itemRef, 'confirmed'),
-        onReject: (itemRef) => dispose(itemRef, 'rejected'),
-        onSubmit: submission.submit,
-      }}
-      unverifiedRiskIds={unverifiedRiskIds}
-      submitEnabled={submission.canSubmit}
-      nonApplied={{
-        items: submission.nonAppliedPending,
-        confirmedIds: submission.confirmedNonAppliedIds,
-        // production 恒整份阻断（零 waiver）；逐条知悉只属显式 demo 消费者。
-        allowWaiver: isDemoCase,
-        onConfirm: submission.confirmNonApplied,
-        onCancel: submission.cancelNonApplied,
-      }}
-      resultMessage={submission.resultMessage}
-    />;
+    // 末尾落点显式收口：四枚具名工作面全部迁 blueprint 后，此处只可能落到「在册但无 renderer」，
+    // 一律显式拒绝——缺 renderer 是显式态，不是「渲染别的面」。
+    return <UnsupportedArtifactView title={workbenchViewLabel(workbenchViews, view)} />;
   };
 
   const pane = (view: WorkbenchView, secondary = false) => <section className="workbench-pane" data-pane={secondary ? 'secondary' : 'primary'}>
@@ -1912,7 +1739,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
             expandedCaseId={expandedCaseId}
             isDemoCase={isDemoCase}
             flow={flow}
-            dispositionsCount={submission.review.decisionCount}
+            dispositionsCount={verticalSurface.decisionCount}
             caseRoot={demoCaseRoot}
             materialsByCase={caseMaterialsByCase}
             onVerifyMaterial={verifyMaterial}
@@ -1992,11 +1819,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                 </section>
               )}
               {!isWelcome && !isDemoCase && selectedCase && (
-                caseBinding.kind === 'grant' && submission.outputDisplayName ? ( // R1：只认持久名，无名即无卡
+                caseBinding.kind === 'grant' && verticalSurface.outputDisplayName ? ( // R1：只认持久名，无名即无卡
                   // WORK-LIVE-1：grant 案合同审查 docx 终链的持久结果卡（写入走 grant 授权命令）。
                   // 「打开/在访达显示」在 grant 侧尚无宿主 reveal 命令（同 W8 材料侧边界），故为纯状态卡。
                   <div className="work-output-result" role="status" data-testid="work-output-docx">
-                    <strong>{submission.outputDisplayName}</strong>
+                    <strong>{verticalSurface.outputDisplayName}</strong>
                     <span>已写入本案「产出」目录</span>
                   </div>
                 ) : (
@@ -2146,7 +1973,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
                 <button type="button" className="scene-primary" data-testid="scene-work-review" onClick={openWorkReview}>审查合同</button>
               )}
               {caseBinding.kind === 'grant' && workRunning && (
-                <button type="button" className="scene-primary" data-testid="work-cancel" onClick={workRun.cancel}>停止审查</button>
+                <button type="button" className="scene-primary" data-testid="work-cancel" onClick={verticalSurface.cancelRun}>停止审查</button>
               )}
               <button className="scene-draft-wide"
                 type="button"

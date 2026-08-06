@@ -14,7 +14,7 @@ ADR-009 决定四（Renderer 是宿主 blueprint）为分层依据；先例 `PAN
 
 ## 一 · 新增概念登记（复杂度节制条要求）
 
-本票**只新增一个概念**：
+本票新增**两个**概念，第二枚随 2026-08-06 停手三裁开工时加入：
 
 ### 宿主渲染上下文 `WorkbenchRenderProvider` / `useWorkbenchRenderContext`
 
@@ -47,6 +47,9 @@ ADR-009 决定四（Renderer 是宿主 blueprint）为分层依据；先例 `PAN
 | `src/preview/workbench-views.ts` | 可见工作面集、默认落点与标题查询（`resolveWorkbenchViews` / `preferredWorkbenchView` / `workbenchViewLabel`） | 步骤 ③ 工作面集 |
 | `src/demo/demo-view-counts.ts` | 样板案页签计数四枚（硬编码展品，非 demo 案不显示） | 步骤 ③ 工作面集 |
 | `src/composition/package-runtime.ts`（既有件扩形） | 逐 matter registry 派生 `registriesFor` 与 `resolveMatterPackBinding` | 步骤 ④ 绑定契约 |
+| `src/preview/vertical-work-surface.ts` | 垂类工作面驱动的**通用契约**（宿主输入面／读出面／适用性声明），零垂类类型 | 步骤 ⑤ revision |
+| `src/work/legal-work-surface.tsx` | Legal 合同审查工作面驱动：S3 审阅编排的新居所（取数／门禁／处置／提交／生命周期） | 步骤 ⑤ revision |
+| `src/preview/RiskReviewRenderer.tsx` | `courtwork.risk-review.v1` 宿主 renderer：起跑面与审阅面 JSX | 步骤 ⑤ revision |
 
 ---
 
@@ -266,3 +269,78 @@ ADR-015 决定三写「默认不激活」，而加载动作属 `PACK-INTERACT-1`
 默认改成零绑定，Legal 全链在没有加载 UX 的情况下不可达，直接违反边界 ⑤。本票据此只落契约、
 不改默认，并把默认态的翻转显式让给 `PACK-INTERACT-1`——若架构认为默认应当本票就翻，
 须同批给出 Legal 全链在无加载 UX 时的可达路径。
+
+### 步骤 ⑤ · `legal.RiskList` 迁 `kind:'component'`（余三收官，裁定一）
+
+裁定一原文：**同迁 `kind:'component'`；三处渲染外消费者改经 work projection/command port 消费、
+受信组合根装配（循 S6 装配点先例），App 零 `RiskList` 持有。只改居所与取用路径，语义零改——
+场景链 e2e 全绿即语义不变证。**
+
+#### 新增概念第二枚 · 垂类工作面驱动 `VerticalWorkSurface`
+
+住 `src/preview/vertical-work-surface.ts`（契约，零垂类类型）＋
+`src/work/legal-work-surface.tsx`（Legal 实现）。
+
+**为何非加不可**：`revision` 与前三枚不同——它的编排（风险清单取数、两条门禁投影、逐条处置与
+修正、提交与交付、run/cancel/recover 生命周期）住 `App.tsx`，且有三处渲染链外消费者。要让 App
+零垂类类型持有，这套编排必须整体离开壳；而 blueprint renderer 的入参恒为 `{descriptor, payload}`，
+装不下它。本接口就是那条缺失的装配缝。
+
+边界四条：①**由受信组合根注入**——`main.tsx` 的 `createLegalWorkSurface({ workCommand })`；
+`LegalS3WorkCommand` 自此不再是 App 的 prop（`AppProps` 少一员，壳零垂类端口）。②宿主输入面
+逐字领域无关，垂类端口不走此面。③驱动值对壳**不透明**（`value: unknown`），只在垂类自己的
+Provider 里重新识型，且带 fail-closed 校验——递错东西即抛，不静默渲染成「没有驱动」。
+④工作面**适用性**由驱动声明（`applicability`），壳只负责照声明显式说出来——原
+`view !== 'revision' && view !== 'artifact'` 这条**垂类知识写死在壳里**的分支由此退役。
+
+#### blueprint 扩形一处：`handlesEmpty`
+
+`revision` 面在产出到来前那一格是场景起跑面（选主合同、填标的、恢复上次），不是「尚未生成」。
+故 component blueprint 可声明 `handlesEmpty`，产出缺席时仍进 renderer 并收到 `payload: undefined`；
+矩阵/时间线/图谱三枚不声明，照旧落宿主空态。**拒载语义一字未动**：多 artifact 争夺同一具名面
+仍整面 fail closed，payload 漂移仍由 `safeParse` 整面拒绝——本旗只解「空态归谁画」。
+
+#### 三处渲染外消费者的新取用路径（裁定一点名）
+
+| 消费者 | 旧路径 | 新路径 |
+|---|---|---|
+| 样板案进度计数 | `submission.review.decisionCount` | `verticalSurface.decisionCount` |
+| production 产物显示名 | `submission.outputDisplayName` | `verticalSurface.outputDisplayName` |
+| `resetReview` / `clearGate` | App 传给 `useWorkRunLifecycle` 的两条回调 | 驱动内部自持（生命周期与提交编排同住一处）；切案/切场景的面态重置改经 `resetForContextSwitch` 一枚通用回调 |
+
+随之改路的另两枚：场景条「停止审查」→ `verticalSurface.cancelRun`；work 语境段的
+「有可继续的进度」→ `verticalSurface.hasRecoverableRun`。
+
+#### 门跟着码走（红的理由判据）
+
+`assert-work-live-contracts` 的四条判据钉在 `App.tsx` 上，编排迁走后全红。按判例**改锚新家、
+一条不减**：三条改扫 `work/legal-work-surface.tsx`（`useWorkRunLifecycle` / `useContractReviewSubmission`
+的 `workCommand: deps.workCommand` 接线、`projectRiskListGate(riskList)`），一条改扫
+`preview/RiskReviewRenderer.tsx`（`selectPrimaryContractCandidates`）。**同批新增两条**（收紧，不是等价搬家）：
+受信组合根必须把生产 `workCommand` 注入驱动；App 不得自行构造驱动。
+
+VIEW-ABI：`revision` 由 `PENDING_NAMED_VIEWS` 移入 `MIGRATED_NAMED_VIEWS`（前者只余通用 `draft`），
+直连回流锁加 `RevisionPanel` / `S3LauncherPanel` 两枚；页签词表锁的「revision 尚未迁移」豁免说明
+同批删除——四枚垂类页签标题现已全数不在 App。
+
+#### 语义零改的证据
+
+- **场景链 e2e 全绿 365/365**（裁定一指定的判据），含 `work-live.spec` 的 grant 全链
+  （真实材料 → 门禁审阅 → docx 落盘）、「未适用」两例、审阅面板内切 tab 不关工作面、
+  `work-budget`、`output-confirm`、`contract-trace` 等。
+- 逐字搬运：起跑面三段空态、审阅面 read_only/interactive 判别、`reviewCommon` 构造、
+  `NOT_APPLICABLE` 文案与 `risk-03` 初值全部原样。
+- **一处等价改写如实登记**：demo 门禁投影 effect 的判据由 `isDemoCaseId(selectedCaseId)` 改为
+  驱动侧的 `host.isDemoCase`（`isDemo || isDemoCaseId(id)`）。对样板案两者同值；改写理由是驱动
+  只见通用宿主面，不重新引入 `isDemoCaseId` 这条壳内 id 判据。
+
+#### 红证四枚
+
+| # | 变异 | 实测 |
+|---|---|---|
+| M12 | `revision` blueprint 降回 `route` | VIEW-ABI 红：`revision workbench view fell back to a route blueprint` |
+| M13 | 撤 `handlesEmpty` | 单测红：产出缺席时不再进 renderer |
+| M14 | Provider 撤 fail-closed 校验 | 单测红：外来驱动值被静默接受（阴性对照——本驱动自有形状仍可挂载，证明校验不是空门） |
+| M15 | 组合根改为不以 `{ workCommand }` 简写注入 | work-live 门红：`受信组合根必须把生产 workCommand 注入垂类工作面驱动` |
+
+高水位：2449 → **2276**（本票累计 2475 → 2276，−199）。

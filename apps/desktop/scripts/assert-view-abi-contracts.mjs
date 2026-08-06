@@ -40,10 +40,11 @@ assert(main.includes('hostRenderers={packageRuntime.hostRenderers}'), 'App does 
 // （`demo/demo-view-counts.ts`），App 里不再有任何合法的 `view === '<垂类面>'`，故由
 // 「位置锁 + 恰一处」改为「全文零处」。旧形态是当时 `viewCount` 残留逼出的妥协，
 // 残留消失即按本意改写，不放宽。
-const MIGRATED_NAMED_VIEWS = ['matrix', 'timeline', 'graph'];
+const MIGRATED_NAMED_VIEWS = ['matrix', 'timeline', 'graph', 'revision'];
 // 尚未迁移的具名工作面（GENERIC-PACK-1 逐枚清空；`draft` 是通用面，不属迁移债）。
 // 本表是**债的清单**不是豁免清单：迁完即从此处移入 MIGRATED_NAMED_VIEWS，两表之外一律红。
-const PENDING_NAMED_VIEWS = ['revision', 'draft'];
+// 四枚具名工作面已全数迁完；本表只余通用起草画布（它本就不属迁移债）。
+const PENDING_NAMED_VIEWS = ['draft'];
 for (const view of MIGRATED_NAMED_VIEWS) {
   assert(
     (app.match(new RegExp(`view\\s*===\\s*['"]${view}['"]`, 'g')) ?? []).length === 0,
@@ -67,9 +68,7 @@ for (const view of new Set(registeredNamedViews)) {
 // 壳零垂类页签词表：工作面标题与次序的唯一真源是宿主注册表（受信组合根），App 不得再持有。
 //
 // 判据是**整枚字面量**而非子串：`'打开时间线'` 这类 demo 卡片文案与注释里的提及不属页签词表，
-// 本锁不越界去管（那两族另有归属：demo 族外提、voice 门）。如实登记：`'修订预览尚未生成'`
-// 一类仍住 App 的垂类空态文案属尚未迁移的 `revision` 面，随该面迁移一并清除——本锁此刻
-// 不假称壳已零垂类文案。
+// 本锁不越界去管（那两族另有归属：demo 族外提、voice 门）。
 for (const label of ['时间线', '关系图谱', '矩阵审阅', '修订预览']) {
   assert(!new RegExp(`['"\`]${label}['"\`]`).test(app), `App still holds the vertical workbench tab label ${label}`);
   assert(hostRenderers.includes(label), `host renderer registry lost the workbench tab label ${label}`);
@@ -80,6 +79,8 @@ assert(!/VIEW_LABELS/.test(app), 'App still keeps a hard-coded workbench label t
 assert(!/\bMatrixPanel\b/.test(app), 'App still renders MatrixPanel outside the host blueprint chain');
 assert(!/\bTimelinePanel\b/.test(app), 'App still renders TimelinePanel outside the host blueprint chain');
 assert(!/\bGraphPanel\b/.test(app), 'App still renders GraphPanel outside the host blueprint chain');
+assert(!/\bRevisionPanel\b/.test(app), 'App still renders RevisionPanel outside the host blueprint chain');
+assert(!/\bS3LauncherPanel\b/.test(app), 'App still renders S3LauncherPanel outside the host blueprint chain');
 
 if (failures.length > 0) {
   console.error(`VIEW-ABI contracts failed (${failures.length}):`);

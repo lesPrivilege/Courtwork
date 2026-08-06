@@ -1,6 +1,7 @@
 import { ArtifactTableRenderer } from './ArtifactTableRenderer.js';
 import { ReviewMatrixRenderer } from './ReviewMatrixRenderer.js';
 import { GraphRenderer } from './GraphRenderer.js';
+import { RiskReviewRenderer } from './RiskReviewRenderer.js';
 import { TimelineRenderer } from './TimelineRenderer.js';
 import {
   createHostRendererRegistry,
@@ -55,10 +56,14 @@ export function createCourtworkHostRendererRegistry(): HostRendererRegistry {
       autoOpen: true,
     },
     {
-      uiTemplateId: 'risk-review-panel',
-      kind: 'route',
+      // GENERIC-PACK-1 余三 panel 第三枚：风险审阅由 route 迁为版本化 component blueprint。
+      // 唯一与前两枚不同处＝`handlesEmpty`：产出到来前那一格是场景起跑面，不是「尚未生成」。
+      uiTemplateId: 'courtwork.risk-review.v1',
+      kind: 'component',
       view: 'revision',
       label: '修订预览',
+      component: RiskReviewRenderer,
+      handlesEmpty: true,
       moduleTarget: 'revision',
       autoOpen: true,
       // 已加载合同审查垂类时的默认落点；未加载即落通用 `draft`（壳不写死垂类面名）。

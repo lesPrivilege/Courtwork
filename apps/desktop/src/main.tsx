@@ -11,6 +11,7 @@ import { createBrowserHostAuth, installHostAuthTestHooks } from './host/browser-
 import { MaterialStore } from './material/material-store';
 import { createBrowserMaterialHost, installMaterialHostTestHooks } from './material/material-store';
 import { createTauriMaterialHost } from './material/tauri-material-host';
+import { createLegalWorkSurface } from './work/legal-work-surface';
 import { createDesktopPackageRuntime } from './composition/package-runtime';
 import { createDemoWorkFixture } from './demo/client';
 import { createDesktopWorkCommand, installWorkTestHooks } from './work/work-runtime';
@@ -68,6 +69,8 @@ const workCommand = createDesktopWorkCommand({
   ...(workHost ? { host: workHost } : {}),
 });
 
+const verticalWorkSurface = createLegalWorkSurface({ workCommand });
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <LucideProvider strokeWidth={1.35}>
@@ -77,7 +80,7 @@ createRoot(document.getElementById('root')!).render(
         hostRenderers={packageRuntime.hostRenderers}
         workProjection={demoWorkFixture.projection}
         workFixture={demoWorkFixture}
-        workCommand={workCommand}
+        verticalWorkSurface={verticalWorkSurface}
         hostAuth={hostAuth}
         materialStore={materialStore}
         piLane={piLane}

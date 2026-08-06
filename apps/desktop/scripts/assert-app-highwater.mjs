@@ -88,7 +88,13 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // `preferredWorkbenchView` / `workbenchViewLabel`），壳侧 `VIEW_LABELS` / `VIEWS` /
 // `visibleViews` 三件同批退役；② 样板案页签计数四枚去 `demo/demo-view-counts.ts`。
 // App 侧净增 4 行（派生一次、默认落点一次与对照面配对两行注释）。
-const HIGH_WATER_LINES = 2449;
+// GENERIC-PACK-1 · ⑤ revision 迁 kind:'component'（余三收官）：2449 → 2276。外提物＝整套 S3
+// 审阅编排——风险清单取数、两条门禁投影、逐条处置/修正与其埋点、提交与交付、run/cancel/recover
+// 生命周期、切案切场景的面态重置——去 `work/legal-work-surface.tsx`；起跑面与审阅面 JSX 去
+// `preview/RiskReviewRenderer.tsx`。App 侧新增的只有驱动装配（宿主输入面一段字面量 + 一次
+// `use()`）与「回到原件」的 ref 间接一行；`riskList`/`gate`/`submission`/`workRun` 四枚持有、
+// 三处渲染链外消费与非 demo 三段前置分支同批退役。
+const HIGH_WATER_LINES = 2276;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

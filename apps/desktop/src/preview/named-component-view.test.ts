@@ -62,10 +62,20 @@ describe('具名工作面的 component blueprint 分发', () => {
   it('仍是 route 的工作面不被具名分发接管', () => {
     const runtime = createDesktopPackageRuntime();
 
-    for (const view of ['revision', 'draft'] as const) {
-      expect(resolveNamedComponentView(view, matrixOnly, runtime.packageRegistries, runtime.hostRenderers))
-        .toEqual({ status: 'unregistered' });
-    }
+    // 通用起草画布仍是 route：它由壳自持，不经具名分发。
+    expect(resolveNamedComponentView('draft', matrixOnly, runtime.packageRegistries, runtime.hostRenderers))
+      .toEqual({ status: 'unregistered' });
+  });
+
+  it('`handlesEmpty` 的具名面在产出缺席时仍进 renderer（payload 为 undefined）', () => {
+    const runtime = createDesktopPackageRuntime();
+
+    const resolved = resolveNamedComponentView('revision', nothing, runtime.packageRegistries, runtime.hostRenderers);
+
+    expect(resolved.status).toBe('ready');
+    if (resolved.status !== 'ready') throw new Error('unreachable');
+    expect(resolved.payload).toBeUndefined();
+    expect(resolved.title).toBe('风险清单');
   });
 
   it('通用 artifact 页签自持多产出选择，不经具名分发', () => {
