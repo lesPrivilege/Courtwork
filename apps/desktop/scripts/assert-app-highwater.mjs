@@ -94,7 +94,10 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // `preview/RiskReviewRenderer.tsx`。App 侧新增的只有驱动装配（宿主输入面一段字面量 + 一次
 // `use()`）与「回到原件」的 ref 间接一行；`riskList`/`gate`/`submission`/`workRun` 四枚持有、
 // 三处渲染链外消费与非 demo 三段前置分支同批退役。
-const HIGH_WATER_LINES = 2276;
+// GENERIC-PACK-1 ⑧ 上调（净增 22，SPEC 留痕）：逐 matter 生效 registry 接线（派生 + 落回退
+// effect + 水合携绑定 + 过渡默认写入）——卸载态机制的必要接线，非功能膨胀；C5 场景条外提
+// 与起手引导的净减将随外提生效下调。
+const HIGH_WATER_LINES = 2298;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

@@ -78,6 +78,9 @@ createRoot(document.getElementById('root')!).render(
         providerTransport={providerTransport}
         packageRegistries={packageRuntime.packageRegistries}
         hostRenderers={packageRuntime.hostRenderers}
+        registriesFor={packageRuntime.registriesFor}
+        availablePackageIds={packageRuntime.packageIds}
+        defaultMatterPackBinding={packageRuntime.defaultMatterPackBinding}
         workProjection={demoWorkFixture.projection}
         workFixture={demoWorkFixture}
         verticalWorkSurface={verticalWorkSurface}

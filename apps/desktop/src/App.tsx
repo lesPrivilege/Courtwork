@@ -28,6 +28,7 @@ import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
 import type { ProviderTransport } from '@courtwork/provider/types';
 import type { PackageRegistries } from '@courtwork/registry';
+import { resolveMatterPackBinding, type DesktopPackageRuntime } from './composition/package-runtime';
 import { Composer, CONTAINERIZE_COPY, type ComposerSendPayload, type ContainerizeRequest } from './composer';
 import { assembleRequestContent } from './composer/process-upload';
 import {
@@ -203,6 +204,8 @@ function hydratePersistedCases(): CaseSummary[] {
     kind: record.kind,
     archived: false,
     isDemo: false,
+    // GENERIC-PACK-1 ④：绑定随持久面水合——drop 即把「显式零绑定」误读成「未声明取全部」。
+    ...(record.packBinding !== undefined ? { packBinding: record.packBinding } : {}),
   }));
 }
 
@@ -224,6 +227,11 @@ export interface AppProps {
   piLane: PiLanePort;
   packageRegistries: PackageRegistries;
   hostRenderers: HostRendererRegistry;
+  /** 逐 matter 生效 registry（GENERIC-PACK-1 ⑧：绑定决定生效集，零绑定即零垂类）。 */
+  registriesFor: DesktopPackageRuntime['registriesFor'];
+  availablePackageIds: readonly string[];
+  /** 过渡默认绑定（ADR-015 决定三补记，`PACK-INTERACT-1` 销条）。 */
+  defaultMatterPackBinding: readonly string[];
   workProjection: WorkProjectionPort;
   workFixture: DemoWorkFixtureAdapter;
   /** 垂类工作面驱动；由受信组合根装配（ADR-015 修订记录 2026-08-06 裁定一）。 */
@@ -232,7 +240,7 @@ export interface AppProps {
   materialStore: MaterialStore;
 }
 
-export function App({ providerTransport, packageRegistries, hostRenderers, workProjection, workFixture, verticalWorkSurface, hostAuth, materialStore, piLane }: AppProps) {
+export function App({ providerTransport, packageRegistries, hostRenderers, registriesFor, availablePackageIds, defaultMatterPackBinding, workProjection, workFixture, verticalWorkSurface, hostAuth, materialStore, piLane }: AppProps) {
   const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
@@ -274,6 +282,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // CASE-PERSIST-1：demo 恒挂案固定注入，其后水合持久的非 demo 案件列表（重载后 grant 案回侧栏）。
   const [cases, setCases] = useState<CaseSummary[]>(() => [DEMO_CASE, ...hydratePersistedCases()]);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(initialCaseId.current);
+
+  const selectedCase = selectedCaseId ? cases.find((item) => item.id === selectedCaseId) : undefined;
+  const isWelcome = !selectedCase;
+  // GENERIC-PACK-1 ⑧：生效 registry 按 matter 绑定现算（ADR-015 决定三）——绑定零即零垂类；
+  // 未声明取全局可用集（既有 matter 的诚实读法）；welcome 态无选中 matter，落全局可用集。
+  const matterRegistries = selectedCase
+    ? registriesFor(resolveMatterPackBinding(selectedCase.packBinding, availablePackageIds).packageIds)
+    : packageRegistries;
+  const isDemoCase = Boolean(selectedCase?.isDemo) || isDemoCaseId(selectedCase?.id);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
   const [archiveConfirmCaseId, setArchiveConfirmCaseId] = useState<string | null>(null);
   const [focusMode, setFocusMode] = useState(false);
@@ -818,7 +835,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
       dispatch(event);
       if (event.type !== 'artifact_produced') return;
       setArtifactRevision((revision) => revision + 1);
-      const targetView = previewViewForArtifact(event.artifactType, packageRegistries, hostRenderers);
+      const targetView = previewViewForArtifact(event.artifactType, matterRegistries, hostRenderers);
       if (!targetView || previewOpenedForReplay || previewDismissedContext.current === context || manualPreviewSelected.current) return;
       previewOpenedForReplay = true;
       if (targetView === 'artifact') setActiveArtifactType(event.artifactType);
@@ -827,7 +844,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     }).then((replay) => {
       if (replayGeneration.current === myGeneration) setWorkPhase(replay.phase);
     });
-  }, [flow, replayEpoch, selectedCaseId, packageRegistries, hostRenderers, workProjection, workFixture]);
+  }, [flow, replayEpoch, selectedCaseId, matterRegistries, hostRenderers, workProjection, workFixture]);
 
   // docs/decisions/ADR-006-ui-host.md 三章：artifact_produced 自动展开对应模块；用户手动优先
   useEffect(() => {
@@ -838,23 +855,23 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     setModuleOpen((prev) => {
       let next = prev;
       for (const artifactType of Object.keys(session.artifacts)) {
-        const target = moduleTargetForArtifact(artifactType, packageRegistries, hostRenderers);
+        const target = moduleTargetForArtifact(artifactType, matterRegistries, hostRenderers);
         next = applyModuleAutoExpand(next, userModuleOverride, target);
       }
       return next;
     });
-  }, [session.artifacts, userModuleOverride, packageRegistries, hostRenderers]);
+  }, [session.artifacts, userModuleOverride, matterRegistries, hostRenderers]);
 
   // 样板案首屏：无 session artifact 键时仍按当前场景预展开（demo 回落语料）
   useEffect(() => {
     if (!isDemoCaseId(selectedCaseId) || !flow) return;
     if (Object.keys(session.artifacts).length > 0) return;
-    const scenario = packageRegistries.scenarios.get(`legal.${flow}`);
+    const scenario = matterRegistries.scenarios.get(`legal.${flow}`);
     const target = scenario?.outputArtifacts
-      .map((artifactType) => moduleTargetForArtifact(artifactType, packageRegistries, hostRenderers))
+      .map((artifactType) => moduleTargetForArtifact(artifactType, matterRegistries, hostRenderers))
       .find((moduleId) => moduleId !== undefined);
     setModuleOpen((prev) => applyModuleAutoExpand(prev, userModuleOverride, target));
-  }, [selectedCaseId, flow, session.artifacts, userModuleOverride, packageRegistries, hostRenderers]);
+  }, [selectedCaseId, flow, session.artifacts, userModuleOverride, matterRegistries, hostRenderers]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -886,9 +903,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [paletteOpen, newCaseOpen, archiveConfirmCaseId, focusMode]);
 
-  const selectedCase = selectedCaseId ? cases.find((item) => item.id === selectedCaseId) : undefined;
-  const isWelcome = !selectedCase;
-  const isDemoCase = Boolean(selectedCase?.isDemo) || isDemoCaseId(selectedCase?.id);
 
   useEffect(() => {
     if (!isDemoCase || flow !== 'S3' || !session.confirmation) return;
@@ -964,7 +978,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
   // 通用「结构化产出」页签只收落在该页签上的 component blueprint；具名工作面（矩阵审阅）
   // 已由自己的 view 承载，不在此重复出现。
   const artifactViewEntries = Object.entries(session.artifacts).filter(([artifactType]) => {
-    const resolved = resolveHostArtifact(artifactType, packageRegistries, hostRenderers);
+    const resolved = resolveHostArtifact(artifactType, matterRegistries, hostRenderers);
     return resolved.status === 'unsupported'
       || (resolved.renderer.kind === 'component' && resolved.renderer.view === 'artifact');
   });
@@ -972,7 +986,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     ?? artifactViewEntries.at(-1);
   const hasArtifactView = artifactViewEntry !== undefined;
   /** 页签条：具名面由「已准入 artifact × 在册 blueprint」派生，通用面恒在（ADR-015 决定一/三）。 */
-  const workbenchViews = resolveWorkbenchViews(packageRegistries, hostRenderers, hasArtifactView);
+  const workbenchViews = resolveWorkbenchViews(matterRegistries, hostRenderers, hasArtifactView);
+  // GENERIC-PACK-1 ⑧：生效视图集随绑定变化（如恢复一枚未绑定 matter）时，活动视图必须落回
+  // 在册默认——停在已消失的垂类视图上就是「卸载态仍渲染垂类面」的静默残留（ADR-015 决定四）。
+  useEffect(() => {
+    if (workbenchViews.some((entry) => entry.id === activeView)) return;
+    setActiveView(preferredWorkbenchView(matterRegistries, hostRenderers));
+  }, [workbenchViews, activeView, matterRegistries, hostRenderers]);
   const demoArtifactCard = demoArtifactCardCopy(flow, artifactPayload, session.citationStats);
   /** 具名工作面 renderer 的宿主渲染上下文；载荷领域无关（core 会话投影字段），壳不因此认识垂类。 */
   const workbenchRenderContext = useMemo(() => ({ evidenceGrades: session.evidenceGrades }), [session.evidenceGrades]);
@@ -1120,6 +1140,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         label,
         isDemo: false,
         kind,
+        // ADR-015 决定三补记过渡默认（`PACK-INTERACT-1` 销条）：新建 matter 绑定 Legal 以保全链可达。
+        packBinding: [...defaultMatterPackBinding],
       },
     ]);
     setSelectedCaseId(newId);
@@ -1506,7 +1528,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
     }
     // 具名工作面的 component blueprint 全链：宿主按 view 反查在册 blueprint，空态文案由
     // descriptor 标题派生（宿主不另抄一份垂类词）。仍是 route 的工作面落 unregistered，走下方原分支。
-    const namedView = resolveNamedComponentView(view, artifactPayload, packageRegistries, hostRenderers);
+    const namedView = resolveNamedComponentView(view, artifactPayload, matterRegistries, hostRenderers);
     if (namedView.status === 'empty') return emptyWorkbench(`${namedView.title}尚未生成`);
     if (namedView.status === 'unsupported') return <UnsupportedArtifactView title={namedView.title} />;
     if (namedView.status === 'ready') {
@@ -1543,7 +1565,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, workP
         <ArtifactHostView
           artifactType={artifactViewEntry[0]}
           payload={artifactViewEntry[1]}
-          packageRegistries={packageRegistries}
+          packageRegistries={matterRegistries}
           hostRenderers={hostRenderers}
         />
       );

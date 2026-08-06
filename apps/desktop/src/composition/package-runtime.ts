@@ -21,6 +21,12 @@ export interface DesktopPackageRuntime {
    * 没有的包，静默降级成「加载了别的」正是 ADR-015 决定四禁止的伪装。
    */
   registriesFor(packageIds: readonly string[]): PackageRegistries;
+  /**
+   * 过渡默认（ADR-015 决定三补记，`PACK-INTERACT-1` 销条）：新建 matter 默认绑定 Legal 以保全链
+   * 可达。这是显式登记的过渡态，非「默认不激活」的例外常态——销条时随加载 UX 同批翻转为
+   * 默认零绑定。
+   */
+  defaultMatterPackBinding: readonly string[];
 }
 
 export function createDesktopPackageRuntime(): DesktopPackageRuntime {
@@ -40,6 +46,7 @@ export function createDesktopPackageRuntime(): DesktopPackageRuntime {
     packageIds: [...byId.keys()],
     packageRegistries: buildPackageRegistries(admission.admitted),
     hostRenderers: createCourtworkHostRendererRegistry(),
+    defaultMatterPackBinding: [LEGAL_PACKAGE.identity.packageId],
     registriesFor: (packageIds) => {
       const key = [...packageIds].join(' ');
       const cached = cache.get(key);
