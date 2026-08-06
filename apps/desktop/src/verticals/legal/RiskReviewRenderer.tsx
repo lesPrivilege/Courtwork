@@ -1,10 +1,10 @@
 import type { RiskList } from '@courtwork/legal';
-import { S3_REVIEW_GATE_LABEL } from '../work/contract-review-flow';
-import { useLegalWorkSurface } from '../work/legal-work-surface';
-import { selectPrimaryContractCandidates } from '../work/primary-contract';
-import { projectReviewItemStates, RevisionPanel, S3LauncherPanel } from '../workbench/Panels';
-import { UnsupportedArtifactView } from './ArtifactTableRenderer.js';
-import type { HostRendererComponentProps } from './HostRendererRegistry.js';
+import { S3_REVIEW_GATE_LABEL } from '../../work/contract-review-flow';
+import { useLegalWorkSurface } from '../../work/legal-work-surface';
+import { selectPrimaryContractCandidates } from '../../work/primary-contract';
+import { projectReviewItemStates, RevisionPanel, S3LauncherPanel } from '../../workbench/Panels';
+import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
+import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 
 /**
  * `courtwork.risk-review.v1` 的宿主 renderer（GENERIC-PACK-1 ⑤ · 余三 panel 第三枚）。

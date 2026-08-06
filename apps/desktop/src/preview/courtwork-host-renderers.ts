@@ -1,8 +1,8 @@
 import { ArtifactTableRenderer } from './ArtifactTableRenderer.js';
-import { ReviewMatrixRenderer } from './ReviewMatrixRenderer.js';
-import { GraphRenderer } from './GraphRenderer.js';
-import { RiskReviewRenderer } from './RiskReviewRenderer.js';
-import { TimelineRenderer } from './TimelineRenderer.js';
+import { ReviewMatrixRenderer } from '../verticals/legal/ReviewMatrixRenderer.js';
+import { GraphRenderer } from '../verticals/legal/GraphRenderer.js';
+import { RiskReviewRenderer } from '../verticals/legal/RiskReviewRenderer.js';
+import { TimelineRenderer } from '../verticals/legal/TimelineRenderer.js';
 import {
   createHostRendererRegistry,
   type HostRendererRegistry,
@@ -11,6 +11,9 @@ import {
 /**
  * 可执行 React/projection 只在 desktop 宿主登记。垂类包只声明稳定 uiTemplateId，
  * 不越过 Package ABI 注入组件、CSS 或路由函数。
+ *
+ * GENERIC-PACK-1 ⑥：垂类 renderer 已迁入 `src/verticals/legal/`，本文件是它们进入通用渲染链的
+ * **唯一注册点**（零泄漏静态门的豁免正当性即在于此：绑定只发生在受信组合根的注册面）。
  *
  * GENERIC-PACK-1：本文件同时是**具名工作面的排序与标题唯一真源**——页签条按此处的声明次序
  * 派生（`resolveWorkbenchViews`），标题取 `label`，默认落点取 `preferred`。壳里不再有

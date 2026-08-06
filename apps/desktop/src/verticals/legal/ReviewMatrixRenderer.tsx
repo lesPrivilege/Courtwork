@@ -1,7 +1,7 @@
 import type { ReviewMatrix } from '@courtwork/legal';
-import { MatrixPanel } from '../workbench/Panels';
-import { UnsupportedArtifactView } from './ArtifactTableRenderer.js';
-import type { HostRendererComponentProps } from './HostRendererRegistry.js';
+import { MatrixPanel } from '../../workbench/Panels';
+import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
+import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 
 /**
  * `courtwork.review-matrix.v1` 的宿主 renderer（PANEL-BLUEPRINT-1 首枚）。

@@ -41,15 +41,15 @@ ADR-009 决定四（Renderer 是宿主 blueprint）为分层依据；先例 `PAN
 | 模块 | 职责 | 由哪一步外提 |
 |---|---|---|
 | `src/preview/workbench-render-context.tsx` | 具名工作面 renderer 的宿主渲染上下文（唯一新增概念，见上） | 步骤 ① timeline |
-| `src/preview/TimelineRenderer.tsx` | `courtwork.timeline.v1` 宿主 renderer：先整面 `safeParse`，漂移即 fail closed | 步骤 ① timeline |
+| `src/verticals/legal/TimelineRenderer.tsx` | `courtwork.timeline.v1` 宿主 renderer：先整面 `safeParse`，漂移即 fail closed | 步骤 ① timeline |
 | `src/demo/demo-artifact-card.ts` | 样板案 chat 侧 artifact 卡的取数与文案（`demoArtifactCardCopy`）；只属显式 demo 回放 | 步骤 ① timeline |
-| `src/preview/GraphRenderer.tsx` | `courtwork.party-graph.v1` 宿主 renderer；g6 懒载点随渲染件迁入 | 步骤 ② graph |
+| `src/verticals/legal/GraphRenderer.tsx` | `courtwork.party-graph.v1` 宿主 renderer；g6 懒载点随渲染件迁入 | 步骤 ② graph |
 | `src/preview/workbench-views.ts` | 可见工作面集、默认落点与标题查询（`resolveWorkbenchViews` / `preferredWorkbenchView` / `workbenchViewLabel`） | 步骤 ③ 工作面集 |
 | `src/demo/demo-view-counts.ts` | 样板案页签计数四枚（硬编码展品，非 demo 案不显示） | 步骤 ③ 工作面集 |
 | `src/composition/package-runtime.ts`（既有件扩形） | 逐 matter registry 派生 `registriesFor` 与 `resolveMatterPackBinding` | 步骤 ④ 绑定契约 |
 | `src/preview/vertical-work-surface.ts` | 垂类工作面驱动的**通用契约**（宿主输入面／读出面／适用性声明），零垂类类型 | 步骤 ⑤ revision |
 | `src/work/legal-work-surface.tsx` | Legal 合同审查工作面驱动：S3 审阅编排的新居所（取数／门禁／处置／提交／生命周期） | 步骤 ⑤ revision |
-| `src/preview/RiskReviewRenderer.tsx` | `courtwork.risk-review.v1` 宿主 renderer：起跑面与审阅面 JSX | 步骤 ⑤ revision |
+| `src/verticals/legal/RiskReviewRenderer.tsx` | `courtwork.risk-review.v1` 宿主 renderer：起跑面与审阅面 JSX | 步骤 ⑤ revision |
 
 ---
 
@@ -344,3 +344,41 @@ VIEW-ABI：`revision` 由 `PENDING_NAMED_VIEWS` 移入 `MIGRATED_NAMED_VIEWS`（
 | M15 | 组合根改为不以 `{ workCommand }` 简写注入 | work-live 门红：`受信组合根必须把生产 workCommand 注入垂类工作面驱动` |
 
 高水位：2449 → **2276**（本票累计 2475 → 2276，−199）。
+
+### 步骤 ⑥ · 零泄漏静态门（票面 ①，立门以族）
+
+门住 `scripts/assert-vertical-isolation.mjs`，接入 `test:e2e` 前置链（`lint:vertical-isolation`）。
+
+**门的形状**——不维护「哪几个文件可以 import 垂类」的白名单（那种表每加一行就多一个藏身处，
+承 PI-HOST-LOOP 1R4 的终局判据），只认**目录族**：
+
+```
+受检面 ＝ src/** 全树 − 三个绑定族 − 四个未拆分混合族（债）
+绑定族 ＝ verticals/（垂类绑定面）、composition/（受信组合根）、demo/（样板案回放）
+```
+
+族由目录本身声明性质，成员随时增减而门不改一行。配套两条**反向锁**：①`src/verticals/` 内
+必须真有垂类绑定，否则族是空壳、受检面看似很大实则一切都在族外；②宿主注册表必须仍从
+`../verticals/legal/` 取 renderer——注册点自身在受检面内，故它只能引用组件符号，
+这就是「只经受信组合根注册点」的机器形态。
+
+**随门发生的两处按族归位**（都是归位不是豁免）：
+
+- 四枚垂类 renderer（`ReviewMatrix` / `Timeline` / `Graph` / `RiskReview` 及其测试）由
+  `src/preview/` 迁入 `src/verticals/legal/`——`preview/` 自此整族入受检面，通用 preview 宿主
+  （`PreviewHost` / `ArtifactHostView` / 原语 / projection）全部受锁。
+- `session-event.contract.test.ts` 由 `protocol/` 迁入 `demo/`：它以 Legal bindings 逐事件校验
+  **样板案录像**，本就是 demo 族的一致性谱。
+
+**未拆分混合族（债，如实登记非豁免）**：`work/`、`output/`、`system/`、`workbench/` 四个目录
+各自混着通用件与 Legal 绑定件，本票未及拆分，整族暂不入受检面。门内逐条写明偿还去向
+（迁哪些件去 `verticals/legal/`），**迁完即删行、目录自动入受检面**；空表即债清零。
+`workbench/Panels.tsx` 是其中最大一块——它的通用原语（`TierBadge`/`SignatureLine`/
+`StaticViewport`/`EmptyState`/`DraftPanel`）与四枚 Legal 面同住一文件，须拆分才能归位。
+
+**红证三枚**：M16 壳内注入 `@courtwork/legal` 类型 import → 红指名 `App.tsx`；
+M17 通用 preview 件（`ArtifactHostView`）注入 → 红指名该文件；M18 把 `verticals/legal/`
+四枚 renderer 的垂类 import 全改掉（掏空绑定族）→ 反向锁红「绑定族是空壳」。
+
+现读数字：受检 **160** 份源码零垂类 import；三绑定族 **78** 份在族外，其中 `verticals/` 内
+实有 **4** 处垂类绑定。

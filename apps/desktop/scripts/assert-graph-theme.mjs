@@ -6,7 +6,7 @@ const theme = readFileSync(resolve('src/workbench/graph-theme.ts'), 'utf8');
 const panel = readFileSync(resolve('src/workbench/GraphPanel.tsx'), 'utf8');
 const runtime = readFileSync(resolve('src/workbench/g6-runtime.ts'), 'utf8');
 const app = readFileSync(resolve('src/App.tsx'), 'utf8');
-const graphRenderer = readFileSync(resolve('src/preview/GraphRenderer.tsx'), 'utf8');
+const graphRenderer = readFileSync(resolve('src/verticals/legal/GraphRenderer.tsx'), 'utf8');
 const vite = readFileSync(resolve('vite.config.ts'), 'utf8');
 const violations = [];
 
@@ -49,8 +49,8 @@ if (/#[0-9a-f]{3,8}/i.test(panel)) {
 }
 // GENERIC-PACK-1 ②：懒载点随渲染件由 App 迁入 `preview/GraphRenderer.tsx`。判据改锚新家，
 // 并同时锁「唯一性」——`import(... GraphPanel)` 全 src 恰一处，第二处即把 g6 chunk 拉回主包。
-if (!graphRenderer.includes("lazy(() => import('../workbench/GraphPanel'))")) {
-  violations.push('G6 未按关系图谱工作面懒加载（懒载点应在 preview/GraphRenderer.tsx）');
+if (!graphRenderer.includes("lazy(() => import('../../workbench/GraphPanel'))")) {
+  violations.push('G6 未按关系图谱工作面懒加载（懒载点应在 verticals/legal/GraphRenderer.tsx）');
 }
 if (app.includes('GraphPanel')) {
   violations.push('App.tsx 重新持有 GraphPanel——懒载点必须只住 blueprint renderer');

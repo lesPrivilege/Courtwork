@@ -2,9 +2,9 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import type { RuntimeArtifactDescriptor } from '@courtwork/registry';
-import { createDesktopPackageRuntime } from '../composition/package-runtime.js';
+import { createDesktopPackageRuntime } from '../../composition/package-runtime.js';
 import { TimelineRenderer } from './TimelineRenderer.js';
-import { WorkbenchRenderProvider } from './workbench-render-context.js';
+import { WorkbenchRenderProvider } from '../../preview/workbench-render-context.js';
 
 function timelineDescriptor(): RuntimeArtifactDescriptor {
   const entry = createDesktopPackageRuntime().packageRegistries.artifactSchemas.get('legal.Timeline');

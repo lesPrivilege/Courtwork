@@ -1,8 +1,10 @@
+// GENERIC-PACK-1 ⑥：本谱以 Legal 包 bindings 逐事件校验**样板案录像**，故它是 demo 族的
+// 一致性谱，不是 protocol 层的通用谱——随零泄漏静态门按族归位（原住 `protocol/`）。
 import { describe, expect, it } from 'vitest';
 import type { SessionEvent } from '@courtwork/core';
 import { LEGAL_PACKAGE, LEGAL_PACKAGE_BINDINGS, type RiskList } from '@courtwork/legal';
-import { S1_RECORDING, S3_RECORDING } from '../demo/recordings';
-import { EMPTY_SESSION, projectSession } from './client';
+import { S1_RECORDING, S3_RECORDING } from './recordings';
+import { EMPTY_SESSION, projectSession } from '../protocol/client';
 
 function assertRecording(events: SessionEvent[]) {
   expect(events.length).toBeGreaterThan(3);

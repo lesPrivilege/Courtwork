@@ -39,7 +39,7 @@ const primaryContract = stripComments(await read('src/work/primary-contract.ts')
 // 驱动，起跑面迁入其 blueprint renderer。门跟着码走——四条判据改锚新家，一条不减，并新增
 // 一条组合根装配锁（垂类端口只能在受信组合根注入，不进壳的通用接缝）。
 const legalSurface = stripComments(await read('src/work/legal-work-surface.tsx'));
-const riskReviewRenderer = stripComments(await read('src/preview/RiskReviewRenderer.tsx'));
+const riskReviewRenderer = stripComments(await read('src/verticals/legal/RiskReviewRenderer.tsx'));
 // CONTRACT-OUTPUT-TRUTH-1：唯一 production 交付编排。
 const delivery = stripComments(await read('src/output/contract-review-delivery.ts'));
 const failures = [];

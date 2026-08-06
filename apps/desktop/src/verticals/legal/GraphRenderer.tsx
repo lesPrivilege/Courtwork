@@ -1,8 +1,8 @@
 import { lazy, Suspense } from 'react';
 import type { PartyGraph } from '@courtwork/legal';
-import { UnsupportedArtifactView } from './ArtifactTableRenderer.js';
-import type { HostRendererComponentProps } from './HostRendererRegistry.js';
-import { useWorkbenchRenderContext } from './workbench-render-context.js';
+import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
+import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
+import { useWorkbenchRenderContext } from '../../preview/workbench-render-context.js';
 
 /**
  * `courtwork.party-graph.v1` 的宿主 renderer（GENERIC-PACK-1 · 余三 panel 第二枚）。
@@ -11,9 +11,9 @@ import { useWorkbenchRenderContext } from './workbench-render-context.js';
  *
  * **懒载点随渲染件迁来**：`GraphPanel` 拖着 g6 的独立 chunk（约 800KB），原先由 App 顶层
  * `lazy()` 持有。迁到本 renderer 内部后 chunk 切分不变——本文件由宿主注册表静态引用，
- * 真正的动态边界仍在 `import('../workbench/GraphPanel')` 这一处，不是 App 是谁持有它。
+ * 真正的动态边界仍在 `import('../../workbench/GraphPanel')` 这一处，不是 App 是谁持有它。
  */
-const GraphPanel = lazy(() => import('../workbench/GraphPanel'));
+const GraphPanel = lazy(() => import('../../workbench/GraphPanel'));
 
 export function GraphRenderer({ descriptor, payload }: HostRendererComponentProps) {
   const { evidenceGrades } = useWorkbenchRenderContext();

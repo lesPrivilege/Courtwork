@@ -1,8 +1,8 @@
 import type { Timeline } from '@courtwork/legal';
-import { TimelinePanel } from '../workbench/Panels';
-import { UnsupportedArtifactView } from './ArtifactTableRenderer.js';
-import type { HostRendererComponentProps } from './HostRendererRegistry.js';
-import { useWorkbenchRenderContext } from './workbench-render-context.js';
+import { TimelinePanel } from '../../workbench/Panels';
+import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
+import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
+import { useWorkbenchRenderContext } from '../../preview/workbench-render-context.js';
 
 /**
  * `courtwork.timeline.v1` 的宿主 renderer（GENERIC-PACK-1 · 余三 panel 第一枚）。
