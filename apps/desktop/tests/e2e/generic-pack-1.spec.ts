@@ -144,6 +144,8 @@ test('③ 卸载态成品全链：未绑定 matter 创建→work→产物→回�
     () => (window as typeof window & { __capturedSystemPrompts?: string[] }).__capturedSystemPrompts?.at(-1) ?? '',
   );
   expect(workPrompt).toContain('工作区语境');
+  // 豁免词清单（容器着色：卷宗/案件/案/案根——ADR-015 决定二，随 wire 改名票处置）见
+  // `src/work/work-context.test.ts` ①附 describe 的断言注释；加词判据同该处。
   for (const verticalToken of ['合同审查', '风险', '当事人', '主合同', '核验', '律师', '答辩', '诉讼', '批注', '修订']) {
     expect(workPrompt).not.toContain(verticalToken);
   }
