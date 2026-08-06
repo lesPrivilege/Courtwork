@@ -10,6 +10,7 @@ import {
   type ContractReviewOutputDeps,
   type ContractReviewOutputResult,
 } from '../output/contract-review-delivery';
+import type { ScenarioStartParams } from '../workbench/scenario-precheck-form';
 import {
   WorkReplayError,
   workReplayFailureCopy,
@@ -255,8 +256,6 @@ export interface WorkRunLifecycleDeps {
   workRunning: boolean;
   workSessionId: string | null;
   workContractMaterialId: string | null;
-  workSubject: string;
-  primaryContractId: string;
   caseMaterials: readonly StoredMaterial[];
   modelRoute: WorkModelRoute;
   workCommand: LegalS3WorkCommand;
@@ -279,7 +278,8 @@ export interface WorkRunLifecycle {
   recoverableSession: WorkSessionRecord | null;
   /** completed 只读重开时 coordinator 的 inspect/deliver 结果；唯一决定是否显示重试入口。 */
   contractOutputResult: ContractReviewOutputResult | undefined;
-  start: () => void;
+  /** 预检表单提交值进场景启动参数（GENERIC-PACK-1 裁定二）。 */
+  start: (params: ScenarioStartParams) => void;
   cancel: () => void;
   recover: () => Promise<void>;
   retryOutput: () => void;
@@ -292,7 +292,7 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
   const [contractOutputResult, setContractOutputResult] = useState<ContractReviewOutputResult>();
   const {
     caseBinding, selectedCaseId, workRunning, workSessionId, workContractMaterialId,
-    workSubject, primaryContractId, caseMaterials, modelRoute, workCommand, reviewReadOnly,
+    caseMaterials, modelRoute, workCommand, reviewReadOnly,
     outputDeps, dispatch, resetReview, clearGate, setWorkRunning, setWorkSessionId,
     setWorkContractMaterialId, setWorkPhase, setPreviewOpen, showSystemFeedback,
   } = deps;
@@ -361,7 +361,7 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
   // WORK-LIVE-1：grant（真实）案的 production S3 运行触发。显式主体来自受控 preflight（不从案名/
   // 文件名/正文/模型猜测）；材料经 resolveForProvider 复验才入 provider；事件机械发布进同一 session
   // 投影（零 recording）。
-  const start = () => {
+  const start = (params: ScenarioStartParams) => {
     if (caseBinding.kind !== 'grant' || !selectedCaseId || workRunning) return;
     // WORK-TURN-1 G 存量守卫：旧版铸号（标题拼入 id）在 work_state 安全 token 外——原位容忍，
     // 场景运行前显式引导（发生了什么+下一步），不让 Rust 侧技术红条兜底。
@@ -369,9 +369,12 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
       showSystemFeedback(LEGACY_CASE_SCENARIO_COPY, false, 'info');
       return;
     }
-    const partyName = workSubject.trim();
+    // 提交值进场景启动参数（裁定二）：主体与主合同来自预检表单的冻结声明字段，
+    // 不从案名/文件名/正文猜测。字段 id 是本驱动自己的场景声明契约。
+    const partyName = (params.subject ?? '').trim();
     if (!partyName) return;
     // CONTRACT-OUTPUT-TRUTH-1：主合同由用户**显式选定**，不再按入库顺序猜。
+    const primaryContractId = params.primaryContractId ?? '';
     if (!primaryContractId) return;
     let materialRefs: string[];
     try {

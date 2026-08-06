@@ -331,76 +331,7 @@ export function riskNextStep(
   return mode === 'batch' ? '可批量确认' : '等待门禁';
 }
 
-export interface S3LauncherPanelProps {
-  /** 可作主合同的候选（ready 且 mediaType 精确为 DOCX），由 App 用同源纯函数筛出。 */
-  candidates: readonly { materialId: string; fileName: string }[];
-  primaryContractId: string;
-  onSelectPrimaryContract: (materialId: string) => void;
-  subject: string;
-  onChangeSubject: (value: string) => void;
-  recoverable: boolean;
-  onRecover: () => void;
-  onStart: () => void;
-}
-
-export function S3LauncherPanel(props: S3LauncherPanelProps) {
-  const noPrimary = props.candidates.length === 0;
-  return (
-    <div className="s3-launcher" data-testid="s3-launcher">
-      <h3>合同审查</h3>
-      <p>对已入库的合同做逐条风险审查。审查前请指定主合同并填写对方主体名称（用于工商核验），系统不从文件名或正文推断。</p>
-      {props.recoverable && (
-        <div className="work-recover" data-testid="work-recover">
-          {/* CONTRACT-TRACE-1：指针不持久相位（storage version 不变是硬约束），相位只能由一次
-              replay 得到，故此处措辞对 paused / failed / completed 三态都成立，不预告「可继续」。 */}
-          <p>本案有一次此前的合同审查。打开后可查看进度；若停在待处置处可继续，也可在下方重新开始。</p>
-          <button type="button" className="primary-button" data-testid="work-recover-run" onClick={props.onRecover}>
-            打开上次审查
-          </button>
-        </div>
-      )}
-      <label className="s3-subject-field">
-        <span>主合同（批注目标）</span>
-        <select
-          data-testid="s3-primary-contract"
-          value={props.primaryContractId}
-          disabled={noPrimary}
-          onChange={(event) => props.onSelectPrimaryContract(event.target.value)}
-        >
-          <option value="">请选择一份 Word 主合同</option>
-          {props.candidates.map((material) => (
-            <option key={material.materialId} value={material.materialId}>{material.fileName}</option>
-          ))}
-        </select>
-      </label>
-      {noPrimary && (
-        <p className="s3-session-note" data-testid="s3-no-primary">
-          本案还没有可作主合同的 Word 文档 · 先入库一份 Word 主合同
-        </p>
-      )}
-      <label className="s3-subject-field">
-        <span>对方主体名称</span>
-        <input
-          data-testid="s3-subject"
-          value={props.subject}
-          onChange={(event) => props.onChangeSubject(event.target.value)}
-          placeholder="例如：临江精铸科技有限公司"
-        />
-      </label>
-      <button
-        type="button"
-        className="primary-button"
-        data-testid="s3-run"
-        disabled={!props.subject.trim() || !props.primaryContractId}
-        onClick={props.onStart}
-      >
-        开始合同审查
-      </button>
-      <p className="s3-session-note">其余已入库材料作为支持材料一并送审，但不作为批注目标。</p>
-    </div>
-  );
-}
-
+/** 界面状态 → 既有处置投影。`editing` 映 `revision`（正在编辑，尚未成为决定）。 */
 function dispositionFromUiState(state: ReviewItemUiState | undefined): ReviewDispositionState | undefined {
   if (!state) return undefined;
   if (state.status === 'confirmed') return 'confirmed';
@@ -409,24 +340,28 @@ function dispositionFromUiState(state: ReviewItemUiState | undefined): ReviewDis
   return undefined;
 }
 
+/** 只读面的处置**只从 replay 后的 RiskList 读**——不得在此另立本地 disposition 第二真源。 */
 function dispositionFromLedger(risk: RiskList['risks'][number]): ReviewDispositionState | undefined {
   if (risk.dispositionStatus === 'confirmed') return 'confirmed';
   if (risk.dispositionStatus === 'rejected') return 'rejected';
   return undefined;
 }
 
+/**
+ * 核验列的诚实边界：核验分级来自 gate 投影与证据台账，**只读面拿不到它们**——
+ * 持久 RiskList 不携证据等级。此时渲染「已核验」就是在断言一件本面无从知道的事。
+ */
 const VERIFICATION_UNKNOWN_HINT = '本面不呈现核验状态：核验分级随门禁投影，只读账本不携证据等级';
-
 function verificationLabel(hasGate: boolean, unverified: boolean): string {
   if (!hasGate) return '—';
   return unverified ? '未核验' : '已核验';
 }
-
 function verificationClass(hasGate: boolean, unverified: boolean): string {
   if (!hasGate) return 'unknown';
   return unverified ? 'unverified' : 'verified';
 }
 
+/** 只读面的结论说明：阻断与三种正常零文书终态都要说清楚，交付成功则由产物区承载。 */
 function readOnlyResultNote(props: RevisionPanelProps): string | undefined {
   if (props.mode !== 'read_only' || !props.outputResult) return undefined;
   const result = props.outputResult;
@@ -435,6 +370,7 @@ function readOnlyResultNote(props: RevisionPanelProps): string | undefined {
   return undefined;
 }
 
+/** 产物区文案：interactive 由 mode 固定为「待生成」，只读面才由 outputResult 决定。 */
 function outputPreviewCopy(props: RevisionPanelProps): { title: string; body: string; retry: boolean } {
   if (props.mode === 'interactive') {
     return { title: '合同批注预览', body: '本版产出是原合同副本加上已确认风险的批注 · 待生成', retry: false };
@@ -455,6 +391,7 @@ function outputPreviewCopy(props: RevisionPanelProps): { title: string; body: st
   }
 }
 
+/** 三种**正常**零文书终态的预览语；措辞不得暗示出错，也不得概括成「未发现风险」。 */
 const NOT_APPLICABLE_PREVIEW_COPY = {
   no_risks: '本次审查未形成可提交的风险项，未生成批注稿',
   all_rejected: '本次审查的风险均已驳回，未生成批注稿',

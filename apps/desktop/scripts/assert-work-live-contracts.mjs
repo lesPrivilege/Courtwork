@@ -203,7 +203,11 @@ for (const [label, source] of [['App', app], ['work-command', command], ['primar
     `${label}：production Legal S3 路径不得以 ready[0] 猜主合同（须用户显式选定）`,
   );
 }
-requireMatch(riskReviewRenderer, /selectPrimaryContractCandidates\(/, 'grant 案起跑面必须只列可作主合同的 DOCX 候选');
+// GENERIC-PACK-1 裁定二：起跑面候选改经冻结 launch 声明的 mediaType→精确 MIME 映射
+// （renderer 组装 `resolveOptions`），`selectPrimaryContractCandidates` 的判据随迁——
+// 锚新家不删判据（红的理由判例）。
+requireMatch(riskReviewRenderer, /MEDIA_TYPE_BY_DECLARATION/, 'grant 案起跑面候选必须经声明 mediaType→精确 MIME 映射（不得按文件名后缀猜）');
+requireMatch(riskReviewRenderer, /DOCX_MEDIA_TYPE/, 'grant 案起跑面候选必须只列可作主合同的 DOCX（精确 mediaType 判据）');
 requireMatch(lifecycle, /orderS3MaterialRefs\(/, 'grant 案 start 必须经 orderS3MaterialRefs（主合同稳定在 materialRefs[0]）');
 requireMatch(command, /deriveS3CaseFile\(/, 'S3 start 必须从同一输入机械派生 legal.CaseFile（不再传空 artifacts）');
 requireMatch(

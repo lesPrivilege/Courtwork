@@ -12,6 +12,7 @@ import type {
   WorkSessionRef,
 } from '../protocol/client';
 import type { ReviewTelemetrySink } from '../telemetry/review-telemetry';
+import type { PackageRegistries } from '@courtwork/registry';
 import type { WorkRunLifecycleDeps } from '../work/work-session-lifecycle';
 import type { HostWorkbenchView } from './HostRendererRegistry.js';
 
@@ -29,6 +30,8 @@ export interface VerticalWorkSurfaceHost {
   readonly isDemoCase: boolean;
   readonly flow: ScenarioFlow | null;
   readonly caseMaterials: readonly StoredMaterial[];
+  /** 生效 registry（按 matter 绑定现算，GENERIC-PACK-1 ⑧）：renderer 经此读冻结声明。 */
+  readonly registries: PackageRegistries;
   readonly session: SessionProjection;
   /** 仅显式 demo ref 在场；非 demo 恒 undefined（demo 与真实路径双向隔离）。 */
   readonly fixtureRef: WorkSessionRef | undefined;
@@ -38,10 +41,6 @@ export interface VerticalWorkSurfaceHost {
   readonly workSessionId: string | null;
   readonly workRunning: boolean;
   readonly workPhase: WorkProjectionPhase | undefined;
-  readonly workSubject: string;
-  readonly setWorkSubject: (value: string) => void;
-  readonly primaryContractId: string;
-  readonly setPrimaryContractId: (value: string) => void;
   readonly workContractMaterialId: string | null;
   readonly modelRoute: WorkRunLifecycleDeps['modelRoute'];
   readonly outputDeps: WorkRunLifecycleDeps['outputDeps'];

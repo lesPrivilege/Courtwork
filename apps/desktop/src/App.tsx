@@ -258,9 +258,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const [workRunning, setWorkRunning] = useState(false);
   // CASE-PERSIST-1：宿主实际持有的授权集（跨重启后交叉核对持久案件的 grantId 是否仍有效）；null=尚未核对完成。
   const [knownGrantIds, setKnownGrantIds] = useState<ReadonlySet<string> | null>(null);
-  const [workSubject, setWorkSubject] = useState('');
   /** 显式主合同选择（CONTRACT-OUTPUT-TRUTH-1）：默认不选，用户必须自己指定。 */
-  const [primaryContractId, setPrimaryContractId] = useState('');
   const [workContractMaterialId, setWorkContractMaterialId] = useState<string | null>(null);
   const [continued, setContinued] = useState(false);
   const [compileOpen, setCompileOpen] = useState(false);
@@ -808,7 +806,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     // WORK-LIVE-1：切案清空 production Work 会话态（切走即弃，不跨案串料）。
     setWorkSessionId(null);
     setWorkRunning(false);
-    setWorkSubject('');
     setWorkContractMaterialId(null);
 
     if (isDemoCaseId(selectedCaseId)) {
@@ -1026,10 +1023,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     workSessionId,
     workRunning,
     workPhase,
-    workSubject,
-    setWorkSubject,
-    primaryContractId,
-    setPrimaryContractId,
+    registries: matterRegistries,
     workContractMaterialId,
     modelRoute: { providerId: modelConfig.providerId, modelId: modelConfig.modelId, reasoning: modelConfig.reasoning },
     outputDeps: contractOutputDeps,

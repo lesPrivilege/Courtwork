@@ -97,7 +97,9 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // GENERIC-PACK-1 ⑧ 上调（净增 22，SPEC 留痕）：逐 matter 生效 registry 接线（派生 + 落回退
 // effect + 水合携绑定 + 过渡默认写入）——卸载态机制的必要接线，非功能膨胀；C5 场景条外提
 // 与起手引导的净减将随外提生效下调。
-const HIGH_WATER_LINES = 2298;
+// GENERIC-PACK-1 裁定二下调至 2292（外提生效）：预检表单迁通用件——壳内 workSubject/
+// primaryContractId 双状态与 setter、切案清零行退役（表单值收进场景启动参数，住驱动侧）。
+const HIGH_WATER_LINES = 2292;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

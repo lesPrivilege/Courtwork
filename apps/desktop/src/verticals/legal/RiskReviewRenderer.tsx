@@ -1,20 +1,32 @@
 import type { RiskList } from '@courtwork/legal';
+import { DOCX_MEDIA_TYPE } from '../../work/primary-contract';
 import { S3_REVIEW_GATE_LABEL } from '../../work/contract-review-flow';
+
+/** launch 声明的 mediaType（扩展名）→ 材料 store 的精确 MIME（声明驱动的领域无关映射）。 */
+const MEDIA_TYPE_BY_DECLARATION: Record<string, string> = {
+  docx: DOCX_MEDIA_TYPE,
+  pdf: 'application/pdf',
+  md: 'text/markdown',
+  txt: 'text/plain',
+};
 import { useLegalWorkSurface } from '../../work/legal-work-surface';
-import { selectPrimaryContractCandidates } from '../../work/primary-contract';
-import { projectReviewItemStates, RevisionPanel, S3LauncherPanel } from './panels';
+import { projectReviewItemStates, RevisionPanel } from './panels';
+import { ScenarioPrecheckForm } from '../../workbench/scenario-precheck-form';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
 import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 
 /**
  * `courtwork.risk-review.v1` 的宿主 renderer（GENERIC-PACK-1 ⑤ · 余三 panel 第三枚）。
  *
- * 与前三枚的分野只在**空态归谁画**：产出到来之前，这一格是场景起跑面（选主合同、填标的、
- * 恢复上次），不是「尚未生成」。故本 blueprint 声明 `handlesEmpty`，`payload === undefined`
- * 时仍进本件。payload 在场时次序照旧：先整面 `safeParse`，漂移即 fail closed。
+ * 与前三枚的分野只在**空态归谁画**：产出到来之前，这一格是场景起跑面（预检表单），
+ * 不是「尚未生成」。故本 blueprint 声明 `handlesEmpty`，`payload === undefined` 时仍进本件。
+ * payload 在场时次序照旧：先整面 `safeParse`，漂移即 fail closed。
  *
- * 编排不住这里也不住壳，住 `work/legal-work-surface.tsx`——本件只读它的驱动值，
- * 逐字沿用原 App 分支的判据与文案（语义零改，ADR-015 修订记录 2026-08-06 裁定一）。
+ * 起跑面的表单是**宿主通用件**（裁定二：descriptor 声明、registry 冻结、有限元素集通用
+ * 渲染）——字段形状与文案来自冻结的 launch 声明，本件只组装选项解析与提交流转；
+ * 提交值进场景启动参数（`surface.workRun.start(params)`）。
+ *
+ * 编排不住这里也不住壳，住 `work/legal-work-surface.tsx`——本件只读它的驱动值。
  */
 export function RiskReviewRenderer({ descriptor, payload }: HostRendererComponentProps) {
   const surface = useLegalWorkSurface();
@@ -32,16 +44,32 @@ export function RiskReviewRenderer({ descriptor, payload }: HostRendererComponen
     if (host.workRunning) {
       return <div className="empty-state" role="status" data-testid="case-empty-state">合同审查进行中…</div>;
     }
+    // 本 renderer 服务的场景＝在生效 registry 里认领本模板且带 launch 声明的那一枚；
+    // 缺声明即显式失败（registry 冻结面缺装配不得静默降级成无字段表单）。
+    const scenario = host.registries.scenarios.list().find((item) => item.uiTemplateId === 'courtwork.risk-review.v1');
+    if (scenario === undefined || scenario.launch === undefined) {
+      return <div className="empty-state" role="status" data-testid="case-empty-state">{descriptor.title}尚未生成</div>;
+    }
+    const launch = scenario.launch;
     return (
-      <S3LauncherPanel
-        candidates={selectPrimaryContractCandidates(host.caseMaterials)}
-        primaryContractId={host.primaryContractId}
-        onSelectPrimaryContract={host.setPrimaryContractId}
-        subject={host.workSubject}
-        onChangeSubject={host.setWorkSubject}
+      <ScenarioPrecheckForm
+        title={scenario.name}
+        launch={launch}
+        resolveOptions={(fieldId) => {
+          const field = launch.formFields?.find((item) => item.id === fieldId);
+          if (field?.kind !== 'select' || field.source !== 'ready-materials') return [];
+          // 声明 mediaType（docx/pdf/md/txt）→ 精确 MIME；缺省不过滤（全部 ready 材料）。
+          const expected = field.mediaType === undefined
+            ? undefined
+            : MEDIA_TYPE_BY_DECLARATION[field.mediaType];
+          const options = expected === undefined
+            ? readyMaterials
+            : readyMaterials.filter((material) => material.mediaType === expected);
+          return options.map((material) => ({ value: material.materialId, label: material.fileName }));
+        }}
         recoverable={surface.workRun.recoverableSession !== null}
         onRecover={() => void surface.workRun.recover()}
-        onStart={surface.workRun.start}
+        onSubmit={surface.workRun.start}
       />
     );
   }

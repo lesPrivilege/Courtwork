@@ -115,8 +115,6 @@ export function createLegalWorkSurface(
         workRunning: host.workRunning,
         workSessionId: host.workSessionId,
         workContractMaterialId: host.workContractMaterialId,
-        workSubject: host.workSubject,
-        primaryContractId: host.primaryContractId,
         caseMaterials: host.caseMaterials,
         modelRoute: host.modelRoute,
         workCommand: deps.workCommand,

@@ -15,7 +15,7 @@ const CONTRACT_DOCX = Array.from(new Uint8Array(compileDraftToDocx({
 
 /** 显式选定主合同：默认不选，未选时起跑钮禁用。 */
 async function selectPrimaryContract(page: Page) {
-  const select = page.getByTestId('s3-primary-contract');
+  const select = page.getByTestId('precheck-field-primaryContractId');
   await expect(select).toBeEnabled();
   await select.selectOption({ label: PRIMARY_FILE });
 }
@@ -111,8 +111,8 @@ async function prepare(page: Page, maxUsd: number, mode: 'known' | 'mismatch' | 
   await expect(page.getByTestId('material-item').filter({ hasText: PRIMARY_FILE })).toHaveAttribute('data-status', 'ready');
   await page.getByTestId('scene-work-review').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('测试相对方');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('测试相对方');
+  await page.getByTestId('precheck-submit').click();
 }
 
 async function calls(page: Page) {
@@ -133,19 +133,19 @@ async function replayFailureAfterCaseSwitch(page: Page, expected: RegExp) {
   await page.getByTestId('case-card-demo-linjiang').locator('button.case-card-main').click();
   await page.getByTestId(`case-card-${ref.caseId}`).locator('button.case-card-main').click();
   await page.getByTestId('scene-work-review').click();
-  await expect(page.getByTestId('work-recover')).toBeVisible();
-  await page.getByTestId('work-recover-run').click();
+  await expect(page.getByTestId('precheck-recover')).toBeVisible();
+  await page.getByTestId('precheck-recover-run').click();
   const failure = page.getByTestId('progress-scenario-failure');
   await expect(failure).toContainText(expected);
   await expect(failure.getByRole('button')).toHaveCount(0);
   // 恢复后工作面呈现失败进度、起跑面整体不在场，故恢复入口此刻结构性缺席（与指针无关）。
-  await expect(page.getByTestId('work-recover')).toHaveCount(0);
+  await expect(page.getByTestId('precheck-recover')).toHaveCount(0);
   await page.getByRole('button', { name: '起草答辩状', exact: true }).click();
   await page.getByTestId('scene-work-review').click();
   // CONTRACT-TRACE-1：durable failed **保留**指针（「读不到 ≠ 不存在」的对称面：失败的账本仍是
   // 账本）。旧断言在这里写 0，编码的是「指针在、入口却不显示」——恢复入口不随指针刷新的陈旧 UI，
   // 与下一行自己断言的「pointer 仍在」互相矛盾。按本意改写为二者一致。
-  await expect(page.getByTestId('work-recover')).toBeVisible();
+  await expect(page.getByTestId('precheck-recover')).toBeVisible();
   const pointer = await page.evaluate(() => localStorage.getItem('courtwork.work-session.v1'));
   expect(JSON.parse(pointer!).sessions[ref.caseId]).toBeTruthy();
   return ref;

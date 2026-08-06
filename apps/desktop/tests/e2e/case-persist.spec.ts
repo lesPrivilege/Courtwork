@@ -29,7 +29,7 @@ const CONTRACT_DOCX = Array.from(new Uint8Array(compileDraftToDocx({
 
 /** 显式选定主合同：默认不选，未选时起跑钮禁用。 */
 async function selectPrimaryContract(page: Page) {
-  const select = page.getByTestId('s3-primary-contract');
+  const select = page.getByTestId('precheck-field-primaryContractId');
   await expect(select).toBeEnabled();
   await select.selectOption({ label: PRIMARY_FILE });
 }
@@ -201,8 +201,8 @@ test('三层重建：重载后 grant 案回侧栏 → 绑定重建 → 恢复入
   // 运行到暂停门禁——run 启动即持久化最小恢复指针（work-session.v1）。
   await page.getByTestId('scene-work-review').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
   await expect(page.getByTestId('revision-panel')).toContainText('付款期限较长');
 
   // 真跨重载（WORK-LIVE-REPLAY-1 只能「切案」，本单使之成真）——内存樁宿主全部清空。
@@ -224,11 +224,11 @@ test('三层重建：重载后 grant 案回侧栏 → 绑定重建 → 恢复入
   // 重新入库（镜像 MaterialStore app-data 跨重启存活），使合同审查启动器重现。
   await ingestContract(page);
   await page.getByTestId('scene-work-review').click();
-  await expect(page.getByTestId('s3-launcher')).toBeVisible();
+  await expect(page.getByTestId('precheck-form')).toBeVisible();
 
   // 层三：恢复入口可达——恢复指针从存活的 localStorage 复读，恢复控件呈现（reachable）。
-  await expect(page.getByTestId('work-recover')).toBeVisible();
-  await expect(page.getByTestId('work-recover-run')).toBeVisible();
+  await expect(page.getByTestId('precheck-recover')).toBeVisible();
+  await expect(page.getByTestId('precheck-recover-run')).toBeVisible();
 });
 
 test('失效 grant 显式态：重载后宿主查无授权 → 案不静默消失，显式失效可移除', async ({ page }) => {

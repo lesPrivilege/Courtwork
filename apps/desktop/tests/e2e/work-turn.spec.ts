@@ -28,7 +28,7 @@ const CONTRACT_DOCX = Array.from(new Uint8Array(compileDraftToDocx({
 
 /** 显式选定主合同：默认不选，未选时起跑钮禁用。 */
 async function selectPrimaryContract(page: Page) {
-  const select = page.getByTestId('s3-primary-contract');
+  const select = page.getByTestId('precheck-field-primaryContractId');
   await expect(select).toBeEnabled();
   await select.selectOption({ label: PRIMARY_FILE });
 }
@@ -155,8 +155,8 @@ test('G 铸号红证：中文标题 grant 案的 caseId 恒过安全 token 语�
   await ingestViaAddFolder(page, '合成卷宗案');
   await page.getByTestId('scene-work-review').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
   await expect(page.getByTestId('revision-panel')).toContainText('付款期限较长');
 });
 
@@ -184,8 +184,8 @@ test('G 存量守卫：旧版中文 id 案运行场景 → 显式引导（原位
   await ingestViaAddFolder(page, '合成卷宗');
   await page.getByTestId('scene-work-review').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
 
   // 守卫红证：显式中性引导（发生了什么+下一步），零审阅面、零技术措辞红条。
   const feedback = page.getByTestId('system-open-feedback');
