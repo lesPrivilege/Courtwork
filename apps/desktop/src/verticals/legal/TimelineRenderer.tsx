@@ -1,5 +1,5 @@
 import type { Timeline } from '@courtwork/legal';
-import { TimelinePanel } from '../../workbench/Panels';
+import { TimelinePanel } from './panels';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
 import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 import { useWorkbenchRenderContext } from '../../preview/workbench-render-context.js';

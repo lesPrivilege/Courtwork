@@ -1,5 +1,5 @@
 import type { ReviewMatrix } from '@courtwork/legal';
-import { MatrixPanel } from '../../workbench/Panels';
+import { MatrixPanel } from './panels';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
 import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 

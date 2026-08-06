@@ -2,7 +2,7 @@ import type { RiskList } from '@courtwork/legal';
 import { S3_REVIEW_GATE_LABEL } from '../../work/contract-review-flow';
 import { useLegalWorkSurface } from '../../work/legal-work-surface';
 import { selectPrimaryContractCandidates } from '../../work/primary-contract';
-import { projectReviewItemStates, RevisionPanel, S3LauncherPanel } from '../../workbench/Panels';
+import { projectReviewItemStates, RevisionPanel, S3LauncherPanel } from './panels';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
 import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 

@@ -38,7 +38,6 @@ const UNSPLIT_FAMILIES = {
   work: '把 legal-s3-binding / work-command / contract-review-flow / primary-contract / use-contract-review-submission / legal-work-surface 迁入 verticals/legal/',
   output: '把 compile-review-output / contract-review-delivery 迁入 verticals/legal/',
   system: '把 FileOpsPlanPanel / file-ops-demo 迁入 verticals/legal/',
-  workbench: '把 Panels.tsx 的 Legal 面（Timeline/Matrix/Revision/S3Launcher）与 GraphPanel 迁入 verticals/legal/，通用原语留在 workbench/',
 };
 /** 族级登记的可视化样板库：ADR-012 决定五点名以真实垂类 fixture 证明原语可编排。 */
 const GALLERY_FAMILY = path.join('preview', 'gallery');

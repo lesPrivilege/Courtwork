@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { displayNextStep, individualNoteCopy, questionShortName, riskNextStep, scopeFooterCopy } from './Panels';
+import { displayNextStep, individualNoteCopy, questionShortName, riskNextStep, scopeFooterCopy } from './panels';
 
 describe('schema polish presentation helpers', () => {
   it('derives deterministic matrix short names from question text without an alias table', () => {
