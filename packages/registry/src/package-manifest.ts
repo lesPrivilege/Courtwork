@@ -83,6 +83,67 @@ export const ScenarioStepSchema = z
   .strict();
 export type ScenarioStep = z.infer<typeof ScenarioStepSchema>;
 
+/**
+ * 预检表单字段（有限元素集，GENERIC-PACK-1 裁定二 · ADR-016 填格协议同族）。
+ *
+ * 契约冻结为「descriptor 声明、registry 冻结、宿主以通用元素渲染」——字段形状是闭集，
+ * 闭集外一律拒收；宿主把提交值收成 `Record<fieldId, string>` 进场景启动参数。
+ * `select` 的选项来自宿主侧领域无关材料查询（`ready-materials` + mediaType 过滤），
+ * 不在字段声明里携带动态选项。
+ */
+export const LaunchFormFieldSchema = z.discriminatedUnion('kind', [
+  z
+    .object({
+      kind: z.literal('select'),
+      id: z.string().min(1),
+      label: z.string().min(1),
+      source: z.literal('ready-materials'),
+      mediaType: z.enum(['docx', 'pdf', 'md', 'txt']).optional(),
+      required: z.boolean().optional(),
+      placeholder: z.string().optional(),
+      emptyNote: z.string().optional(),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal('text'),
+      id: z.string().min(1),
+      label: z.string().min(1),
+      required: z.boolean().optional(),
+      placeholder: z.string().optional(),
+    })
+    .strict(),
+]);
+export type LaunchFormField = z.infer<typeof LaunchFormFieldSchema>;
+
+/** 场景条启动声明（场景按钮 + 预检表单；宿主按注册表次序与有限元素集通用渲染）。 */
+export const LaunchSchema = z
+  .object({
+    /** 场景条按钮文案（宿主呈现词，包侧声明——垂类文案不再住壳）。 */
+    label: z.string().min(1),
+    /** 元素集变体：primary 恒在条内；wide/draft-wide 宽屏在条内、窄屏入「更多」。 */
+    tone: z.enum(['primary', 'wide', 'draft-wide']),
+    /** 启动路由：view = 宿主视图入口（registry 派生目标视图）；scenario = 场景启动。 */
+    kind: z.enum(['view', 'scenario']),
+    /** 预检表单说明（起跑面正文）。 */
+    description: z.string().optional(),
+    /** 预检表单提交通用控件文案。 */
+    submitLabel: z.string().optional(),
+    /** 预检表单尾注。 */
+    footnote: z.string().optional(),
+    /** 可恢复会话入口（宿主按工作面驱动声明的可恢复态渲染）。 */
+    recover: z
+      .object({
+        label: z.string().min(1),
+        note: z.string().min(1),
+      })
+      .strict()
+      .optional(),
+    formFields: z.array(LaunchFormFieldSchema).optional(),
+  })
+  .strict();
+export type Launch = z.infer<typeof LaunchSchema>;
+
 function unique(values: string[]): boolean {
   return new Set(values).size === values.length;
 }
@@ -101,6 +162,8 @@ const PackageScenarioObjectSchema = z
     /** 指向本包 promptSegments 内的声明段正文；加载期解析闭合，ref 字面值不上 wire。 */
     promptSegmentRef: z.string().min(1),
     steps: z.array(ScenarioStepSchema).optional(),
+    /** 场景条启动声明（场景按钮 + 预检表单有限元素集；registry 冻结后宿主只读）。 */
+    launch: LaunchSchema.optional(),
   })
   .strict();
 

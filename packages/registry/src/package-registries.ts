@@ -9,6 +9,8 @@ import {
   NEUTRAL_VOCABULARY,
   type ArtifactDescriptorDataV1,
   type InteractionTemplate,
+  type Launch,
+  type LaunchFormField,
   type PackageScenario,
   type RendererDescriptor,
   type ScenarioStep,
@@ -33,6 +35,8 @@ export interface ScenarioRuntime {
   confirmationPolicy: PackageScenario['confirmationPolicy'];
   promptBody: string;
   steps: ScenarioStep[];
+  /** 场景条启动声明（registry 冻结快照，宿主只读）。 */
+  launch?: LaunchSnapshot;
 }
 
 export interface ArtifactSchemaRegistryEntry {
@@ -121,6 +125,21 @@ function snapshotInteractionTemplate(template: InteractionTemplate): Interaction
   return Object.freeze({ ...template, options });
 }
 
+/** launch 声明深冻结快照（GENERIC-PACK-1 裁定二：descriptor 声明、registry 冻结、宿主只读）。 */
+export type LaunchSnapshot = Omit<Launch, 'formFields' | 'recover'> & {
+  readonly recover?: Readonly<{ label: string; note: string }>;
+  readonly formFields?: ReadonlyArray<Readonly<LaunchFormField>>;
+};
+
+function snapshotLaunch(launch: Launch): LaunchSnapshot {
+  const { formFields, ...rest } = launch;
+  if (formFields === undefined) return Object.freeze({ ...rest });
+  return Object.freeze({
+    ...rest,
+    formFields: Object.freeze(formFields.map((field) => Object.freeze({ ...field }))),
+  });
+}
+
 function deriveSteps(scenario: PackageScenario, descriptors: Map<string, RuntimeArtifactDescriptor>): ScenarioStep[] {
   if (scenario.steps !== undefined && scenario.steps.length > 0) return scenario.steps;
   return scenario.outputArtifacts.map((typeId) => ({
@@ -166,9 +185,11 @@ export function buildPackageRegistries(admitted: VerticalPackageManifest[]): Pac
     for (const scenario of manifest.scenarios) {
       const { promptSegmentRef, ...rest } = scenario;
       delete (rest as { steps?: unknown }).steps;
+      // 后置 launch 键覆盖展开中的未冻结副本——快照只读，宿主不得拿到包侧原引用。
       scenarioEntries.set(scenario.id, {
         ...(rest as Omit<typeof rest, 'steps'>),
         packageId,
+        ...(rest.launch !== undefined ? { launch: snapshotLaunch(rest.launch) } : {}),
         // 准入已保证引用闭合；此处的 fallback 仅为类型完备，不可达。
         promptBody: prompts.get(promptSegmentRef) ?? '',
         steps: deriveSteps(scenario, descriptorIndex),

@@ -218,6 +218,25 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
     expect(result.rejected[0]!.issues.join()).toContain('uiTemplateId');
   });
 
+  it('launch formFields id 重复拒载（字段 id 是启动参数键，重复即静默覆盖）', () => {
+    const manifest = makeManifest();
+    manifest.scenarios[0] = {
+      ...manifest.scenarios[0]!,
+      launch: {
+        label: '审查合同',
+        tone: 'primary',
+        kind: 'scenario',
+        formFields: [
+          { kind: 'select', id: 'primaryContractId', label: '主合同', source: 'ready-materials' },
+          { kind: 'text', id: 'primaryContractId', label: '重复键', required: true },
+        ],
+      },
+    };
+    const result = admitPackages([manifest]);
+    expect(result.admitted).toEqual([]);
+    expect(result.rejected[0]!.issues.join()).toContain('form field id');
+  });
+
   it('跨包重复 interaction template id 拒绝后到包，不污染先到包', () => {
     const first = withInteractionTemplates(makeManifest(), [VALID_INTERACTION_TEMPLATE]);
     first.artifacts = [];

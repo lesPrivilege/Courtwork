@@ -739,6 +739,12 @@ function admitOne(
     if (!rendererIds.has(value.uiTemplateId)) {
       warnings.push(`场景 ${value.id} 的 uiTemplateId "${value.uiTemplateId}" 未声明 renderer——运行时将落通用结构视图（渲染兜底）`);
     }
+    if (value.launch?.formFields !== undefined) {
+      const fieldIds = value.launch.formFields.map((field) => field.id);
+      if (new Set(fieldIds).size !== fieldIds.length) {
+        issues.push(`场景 ${value.id} 的 launch form field id 必须唯一（字段 id 是场景启动参数的键，重复即静默覆盖）`);
+      }
+    }
   }
 
   for (const artifact of descriptor.artifacts) {
