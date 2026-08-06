@@ -40,6 +40,8 @@ test('卸载态：未绑定 matter 页签集零垂类（effective registry 派�
     await expect(tabs.getByRole('tab', { name: legalTab })).toHaveCount(0);
   }
   await expect(tabs.getByRole('tab', { name: '起草画布' })).toHaveCount(1);
+  // 非 grant 卸载案的工作面是中性空态（1491 门）；grant 卸载案的起草面＝通用工作稿轨
+  // 的断言随③全链谱（matter 创建→work→产物→回看）同批取证。
 });
 
 test('过渡默认：新建 matter 持久携 packBinding [legal]（PACK-INTERACT-1 销条）', async ({ page }) => {

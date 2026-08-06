@@ -82,6 +82,7 @@ import { ContextModuleBody, ProgressModuleBody, WorkingFoldersTree } from './mod
 import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRenderer';
 import { ArtifactHostView, resolveHostArtifact } from './preview/ArtifactHostView';
 import { UnsupportedArtifactView } from './preview/ArtifactTableRenderer';
+import { VerticalArtifactUnloadedView } from './preview/vertical-artifact-unloaded';
 import { resolveNamedComponentView } from './preview/named-component-view';
 import { WorkbenchRenderProvider } from './preview/workbench-render-context';
 import type { VerticalWorkSurface, VerticalWorkSurfaceHost } from './preview/vertical-work-surface';
@@ -1550,7 +1551,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       </WorkbenchRenderProvider>;
     }
     if (view === 'draft') {
-      if (workDraftMode) {
+      // 卸载态（零场景条目）的起草面落**通用工作稿轨**（pi 线）；垂类色起草画布只属
+      // 加载态（S4 起草答辩状入口的呈现面）。
+      if (workDraftMode || sceneEntries.length === 0) {
         return (
           <WorkDraftPanel
             caseId={selectedCase.id}
@@ -1571,10 +1574,18 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     }
     if (view === 'artifact') {
       if (!artifactViewEntry) return emptyWorkbench('暂无待展示的结构化产出');
+      const [artifactType, payload] = artifactViewEntry;
+      // ADR-015 决定四：垂类产物在包未加载时显式退化——产物存在（宿主资产不随包走），
+      // 结构化视图不可用则诚实提示加载，不伪装通用产物。
+      const globalEntry = packageRegistries.artifactSchemas.get(artifactType);
+      const matterEntry = matterRegistries.artifactSchemas.get(artifactType);
+      if (globalEntry !== undefined && matterEntry === undefined) {
+        return <VerticalArtifactUnloadedView title={globalEntry.descriptor.title} packageId={globalEntry.packageId} />;
+      }
       return (
         <ArtifactHostView
-          artifactType={artifactViewEntry[0]}
-          payload={artifactViewEntry[1]}
+          artifactType={artifactType}
+          payload={payload}
           packageRegistries={matterRegistries}
           hostRenderers={hostRenderers}
         />
