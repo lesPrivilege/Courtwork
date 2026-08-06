@@ -70,6 +70,17 @@ describe('workContextSegmentFor', () => {
 });
 
 describe('GENERIC-PACK-1 ①附：未加载态 prompt 零垂类语义（44caee5）', () => {
+  /**
+   * 豁免清单（容器着色，ADR-015 决定二：容器名词按 ContainerKind 着色是既有设计，
+   * 随 wire 改名票处置——零垂类断言不检查它们）：
+   *   - 卷宗 / 案件 / 案 / 案根：case 容器的 legal 着色名词（测试语料「未绑定案/
+   *     未绑定卷宗夹」即属此族）；
+   *   - 工作区 / 项目：workspace 容器的中性名词（中性化后的段词，非豁免、本就是
+   *     断言段的产物词）。
+   * 加词判据：新词若属**垂类场景/提示词语义**（场景、步骤、产物、词表、prompt 内容），
+   * 必须零命中、不得进本清单；只有**容器名词着色**（ContainerKind 轴的 kind 名词）可
+   * 登记进清单，并注明它是哪个容器的着色。
+   */
   it('卸载态案语境段不携任何垂类场景词（同测试构造路径：未绑定 matter 的 Work 面语境）', () => {
     const unbound = workContextSegmentFor({
       caseTitle: '未绑定案',
