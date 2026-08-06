@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const src = path.resolve(import.meta.dirname, '..', 'src');
-const [copy, rail, composer, settings, panels, legalPanels] = await Promise.all([
+const [copy, rail, composer, settings, , legalPanels] = await Promise.all([
   readFile(path.join(src, 'chrome', 'copy.ts'), 'utf8'),
   readFile(path.join(src, 'rail', 'CaseRail.tsx'), 'utf8'),
   readFile(path.join(src, 'composer', 'Composer.tsx'), 'utf8'),
