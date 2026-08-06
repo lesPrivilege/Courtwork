@@ -195,7 +195,7 @@ test('G 存量守卫：旧版中文 id 案运行场景 → 显式引导（原位
   await expect(page.getByTestId('revision-panel')).toHaveCount(0);
 });
 
-test('H 案语境注入：Work 面自由输入携案根与材料清单；chat 面缺省不携（红证双向）', async ({ page }) => {
+test('H 案语境注入：Work 面自由输入携工作区根与材料清单；chat 面缺省不携（红证双向）', async ({ page }) => {
   await openWorkbench(page);
   await resetHooks(page);
   await connectProvider(page);
@@ -226,7 +226,7 @@ test('H 案语境注入：Work 面自由输入携案根与材料清单；chat �
   const workPrompt = await page.evaluate(
     () => (window as typeof window & { __capturedSystemPrompts?: string[] }).__capturedSystemPrompts?.at(-1) ?? '',
   );
-  expect(workPrompt).toContain('案件语境');
+  expect(workPrompt).toContain('工作区语境');
   expect(workPrompt).toContain('合成卷宗案');
   expect(workPrompt).toContain(PRIMARY_FILE);
   await expect.poll(() => page.evaluate(
@@ -245,5 +245,5 @@ test('H 案语境注入：Work 面自由输入携案根与材料清单；chat �
   const chatPrompt = await page.evaluate(
     () => (window as typeof window & { __capturedSystemPrompts?: string[] }).__capturedSystemPrompts?.at(-1) ?? '',
   );
-  expect(chatPrompt).not.toContain('案件语境');
+  expect(chatPrompt).not.toContain('工作区语境');
 });
