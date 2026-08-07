@@ -193,12 +193,18 @@ e2e（`tests/e2e/legal-five-faces-1.spec.ts`，4 例）与**按本意改写的�
 | root test | **1941/1941**（与 base 同值：root 面不含 desktop 谱；本票的包侧改动只重铸一枚 golden） |
 | desktop test | **769/769**（755 → 769：新增 9+5，既有 0 净减） |
 | cargo | **250 过 / 1 忽略**（与 base 同值；pi-lane TS/Rust 本票零改动。首跑两红为本树缺 headless 制品，`build:headless-sidecar` 后复绿——环境条件红，非树上红） |
-| Playwright | **371/371**（floor 365；`test:e2e` 前置静态门链全通过，独占端口 15433） |
+| Playwright | **372/372**（floor 365；`test:e2e` 前置静态门链全通过，独占端口 15433，单链独跑 5.6m） |
 | site:guard | PASS |
 | sidecar | **547,893 B / `951acf8e…` 零迁**（与 base 逐字同值） |
 
 App 高水位 **2282 → 2279**（`viewCount` 外提为 `workbenchViewMeta`，抵消本票在 App 内的净增）。
 零泄漏门受检面 **174 → 176**（新增 `preview/view-producer.ts` 与其谱；`verticals/` 内绑定仍 6 处）。
+
+**本轮自伤如实登记**：倒数第二轮全链曾出 370/372 两红（`contract-output` 版本化产物名一例、
+`global-verbs` 复制按压反馈一例）。归因是**我自己违反了排程律**——前一轮 `test:e2e` 未结束就起了
+第二条全链（同端口、各 4 workers）。两例以 `--workers=1` 独占端口复跑 27/27 绿，但按本仓判例
+「隔离绿对全链红零区分力」不据此结案；**最终以无并发条件下单跑的那一轮为准（372/372，EXIT 0）**。
+本条留痕是为了让验收者知道：这两枚红出现过，且它的成因是操作污染而非树上缺陷。
 
 ---
 
