@@ -39,8 +39,22 @@ import type { ReviewGateItemProjection, ReviewGateProjection, ReviewResolution }
 import type { ResolveResult } from '../material/material-store';
 import type { MaterialBlockReason, StoredMaterial } from '../material/material-ref';
 
+export const S1_SCENARIO_ID = 'legal.S1';
+export const S2_SCENARIO_ID = 'legal.S2';
 export const S3_SCENARIO_ID = 'legal.S3';
 export const S3_RISK_LIST_TYPE = 'legal.RiskList';
+
+/**
+ * LEGAL-FIVE-FACES-1 · production 可启动场景闭集。
+ *
+ * 此前这一枚事实以 `scenarioId !== S3_SCENARIO_ID → rejected` 的形态写死在命令端口里：
+ * 时间线／关系图谱（S1）与矩阵审阅（S2）在真实案上**结构性无从起跑**，四张工作面因此永远空着。
+ * 闭集立在装配点上，端口只问「在不在闭集内」——加员在此一处，端口与壳都不认识 id 语义。
+ *
+ * **S6（卷宗整理）不在闭集内**：它的产出经确定性执行器落文件，属另一条已装配的 demo 路径，
+ * 本票不扩面；S4（文书起草）是视图入口不是场景启动（包声明 `launch.kind='view'`）。
+ */
+export const PRODUCTION_SCENARIO_IDS = [S1_SCENARIO_ID, S2_SCENARIO_ID, S3_SCENARIO_ID] as const;
 export const PARTY_VERIFY_TOOL_ID = 'party-verify';
 /** legal 包的 artifact schemaVersion（版本信封 schemaVersion 真源；v1 单版本）。 */
 export const LEGAL_S3_SCHEMA_VERSION = LEGAL_PACKAGE.identity.schemaVersion;
@@ -143,6 +157,25 @@ export function buildS3RunInput(input: {
   return {
     inputArtifacts: input.caseFile !== undefined ? { 'legal.CaseFile': input.caseFile } : {},
     toolInputs,
+    materials: input.materials,
+  };
+}
+
+/**
+ * 无预检场景（S1 阅卷 / S2 矩阵）的 `ScenarioRunInput`：零工具输入 + 材料 + 声明所需的输入产物。
+ *
+ * 与 {@link buildS3RunInput} 共用同一条「缺工具输入必须显式阻断」判据——把 S3 递进来同样会红，
+ * 故本路径不是绕开 preflight 的第二扇门。
+ */
+export function buildIntakeRunInput(input: {
+  scenario: ScenarioRuntime;
+  materials: MaterialInput[];
+  caseFile?: unknown;
+}): ScenarioRunInput {
+  assertScenarioToolInputsComplete(input.scenario, {});
+  return {
+    inputArtifacts: input.caseFile !== undefined ? { 'legal.CaseFile': input.caseFile } : {},
+    toolInputs: {},
     materials: input.materials,
   };
 }
@@ -352,8 +385,19 @@ export function admitLegalS3Package(): PackageRegistries {
 
 /** 取 legal.S3 运行时场景；未注册即显式失败（legal 包装载异常）。 */
 export function getS3Scenario(registries: PackageRegistries): ScenarioRuntime {
-  const scenario = registries.scenarios.get(S3_SCENARIO_ID);
-  if (!scenario) throw new Error(`${S3_SCENARIO_ID} 未在场景注册表中——legal 包装载异常`);
+  return getProductionScenario(registries, S3_SCENARIO_ID);
+}
+
+/**
+ * 取 production 可启动场景；闭集外或未注册一律显式失败——**不回落 S3**。
+ * 「不认识的场景静默当成合同审查」正是本票要消灭的那类静默降级。
+ */
+export function getProductionScenario(registries: PackageRegistries, scenarioId: string): ScenarioRuntime {
+  if (!(PRODUCTION_SCENARIO_IDS as readonly string[]).includes(scenarioId)) {
+    throw new Error(`${scenarioId} 不在 production 可启动场景闭集内`);
+  }
+  const scenario = registries.scenarios.get(scenarioId);
+  if (!scenario) throw new Error(`${scenarioId} 未在场景注册表中——legal 包装载异常`);
   return scenario;
 }
 

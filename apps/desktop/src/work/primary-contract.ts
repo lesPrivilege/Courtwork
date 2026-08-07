@@ -66,6 +66,27 @@ export function orderS3MaterialRefs(
 }
 
 /**
+ * 无主合同语义的 `legal.CaseFile` 派生（LEGAL-FIVE-FACES-1）：阅卷/矩阵类场景没有「批注目标」
+ * 这回事，全部 ready 材料一律 `supporting`。**不猜主合同**——`contract.primary` 只在用户显式
+ * 选定时出现（S3 走 {@link deriveS3CaseFile}），本函数结构上写不出那个值。
+ */
+export function deriveCaseFileFromMaterials(
+  caseId: string,
+  materials: readonly StoredMaterial[],
+): CaseFile {
+  return {
+    caseId,
+    files: readyOnly(materials).map((material) => ({
+      fileId: material.materialId,
+      fileName: material.fileName,
+      documentType: SUPPORTING_DOCUMENT_TYPE,
+      ingestStatus: 'done' as const,
+      contentHash: material.contentSha256,
+    })),
+  };
+}
+
+/**
  * 从同一输入机械派生 `legal.CaseFile`：`fileId` 就是 materialId（不是文件名——文件名会改，
  * materialId 不会），顺序与 `orderS3MaterialRefs` 同源，故 CaseFile / materialRefs /
  * session pointer / output 原始 bytes 四者永远指同一件。

@@ -17,10 +17,10 @@ import {
 const runtime = createDesktopPackageRuntime();
 
 const LEGAL_ENTRIES: readonly SceneStripEntry[] = [
-  { scenarioId: 'legal.S1', uiTemplateId: 'case-intake-panel', label: '整理卷宗', tone: 'primary', kind: 'scenario' },
-  { scenarioId: 'legal.S3', uiTemplateId: 'courtwork.risk-review.v1', label: '审查合同', tone: 'primary', kind: 'scenario' },
-  { scenarioId: 'legal.S6', uiTemplateId: 'file-ops-plan-panel', label: '卷宗整理', tone: 'wide', kind: 'scenario' },
-  { scenarioId: 'legal.S4', uiTemplateId: 'draft-review-panel', label: '起草答辩状', tone: 'draft-wide', kind: 'view' },
+  { scenarioId: 'legal.S1', uiTemplateId: 'case-intake-panel', label: '整理卷宗', tone: 'primary', kind: 'scenario', hasPrecheckForm: false },
+  { scenarioId: 'legal.S3', uiTemplateId: 'courtwork.risk-review.v1', label: '审查合同', tone: 'primary', kind: 'scenario', hasPrecheckForm: true },
+  { scenarioId: 'legal.S6', uiTemplateId: 'file-ops-plan-panel', label: '卷宗整理', tone: 'wide', kind: 'scenario', hasPrecheckForm: false },
+  { scenarioId: 'legal.S4', uiTemplateId: 'draft-review-panel', label: '起草答辩状', tone: 'draft-wide', kind: 'view', hasPrecheckForm: false },
 ];
 
 describe('resolveSceneStripEntries（registry 冻结 launch 声明的宿主投影）', () => {

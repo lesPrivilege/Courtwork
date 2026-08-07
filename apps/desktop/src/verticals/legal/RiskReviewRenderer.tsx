@@ -1,6 +1,7 @@
 import type { RiskList } from '@courtwork/legal';
 import { DOCX_MEDIA_TYPE } from '../../work/primary-contract';
 import { S3_REVIEW_GATE_LABEL } from '../../work/contract-review-flow';
+import { S3_SCENARIO_ID } from '../../work/legal-s3-binding';
 
 /** launch 声明的 mediaType（扩展名）→ 材料 store 的精确 MIME（声明驱动的领域无关映射）。 */
 const MEDIA_TYPE_BY_DECLARATION: Record<string, string> = {
@@ -69,7 +70,7 @@ export function RiskReviewRenderer({ descriptor, payload }: HostRendererComponen
         }}
         recoverable={surface.workRun.recoverableSession !== null}
         onRecover={() => void surface.workRun.recover()}
-        onSubmit={surface.workRun.start}
+        onSubmit={(params) => surface.workRun.start(S3_SCENARIO_ID, params)}
       />
     );
   }

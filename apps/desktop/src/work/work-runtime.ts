@@ -2,7 +2,7 @@
  * WORK-LIVE-1 · desktop 组合根的 Work 生产装配缝。
  *
  * 把已验收前置（LEGAL-S3 装配件、WorkStateStore host、ArtifactEnvelope codec、Turn 引擎、MaterialStore）
- * 组装成 `LegalS3WorkCommand`。provider 无关的 Turn 引擎：生产走注入的 `ProviderTransport`（DeepSeek），
+ * 组装成 `LegalWorkCommand`。provider 无关的 Turn 引擎：生产走注入的 `ProviderTransport`（DeepSeek），
  * DEV/E2E 走注入的 Work turn 樁（绝不进正式 Tauri composition）。
  *
  * **WorkState host 边界**：生产（Tauri 运行时）由组合根（`main.tsx`）注入 WORK-HOST-1 的 Tauri WorkState
@@ -22,7 +22,7 @@ import type { ConfirmationActor, PersistedTurn, TurnRunnerPort, WorkRuntimeBudge
 import type { PackageRegistries } from '@courtwork/registry';
 import type { WorkModelRoute, WorkSessionRef } from '../protocol/client';
 import { buildArtifactVersioningSource, LEGAL_S3_SCHEMA_VERSION } from './legal-s3-binding';
-import { createLegalS3WorkCommand, type LegalS3WorkCommand } from './work-command';
+import { createLegalWorkCommand, type LegalWorkCommand } from './work-command';
 import type { MaterialResolver } from './legal-s3-binding';
 
 const KEYCHAIN_PLACEHOLDER = '__keychain__';
@@ -90,7 +90,7 @@ export interface DesktopWorkRuntimeInput {
  * 组合根装配：注入 host（缺省内存参考实现）、Turn 引擎工厂（樁优先，否则 transport provider）、
  * ArtifactEnvelope codec（首个真实生产者，legal.RiskList 版本源）与 desktop actor。
  */
-export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalS3WorkCommand {
+export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalWorkCommand {
   let host = input.host;
   if (!host) {
     let inner = createInMemoryWorkStateHost();
@@ -163,7 +163,7 @@ export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalS
     };
   };
 
-  return createLegalS3WorkCommand({
+  return createLegalWorkCommand({
     host,
     registries: input.registries,
     codec,

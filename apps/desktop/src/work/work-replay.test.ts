@@ -13,7 +13,7 @@ import type { ResolveResult } from '../material/material-store';
 import type { StoredMaterial } from '../material/material-ref';
 import { WorkReplayError, type WorkModelRoute } from '../protocol/client';
 import { LEGAL_S3_SCHEMA_VERSION, admitLegalS3Package, buildArtifactVersioningSource } from './legal-s3-binding';
-import { createLegalS3WorkCommand, type LegalS3WorkCommand } from './work-command';
+import { createLegalWorkCommand, type LegalWorkCommand } from './work-command';
 import { createDemoWorkFixture, DEMO_S1_SESSION_ID, DEMO_S3_SESSION_ID } from '../demo/client';
 import { DEMO_CASE_ID } from '../case/case-scope';
 
@@ -61,9 +61,9 @@ const idleTurnRunner: (turnStore: TurnStore, route: Readonly<WorkModelRoute>) =>
     },
   }) as unknown as TurnRunnerPort;
 
-function commandWith(host: WorkStateHostPort): LegalS3WorkCommand {
+function commandWith(host: WorkStateHostPort): LegalWorkCommand {
   const registries = admitLegalS3Package();
-  return createLegalS3WorkCommand({
+  return createLegalWorkCommand({
     host,
     registries,
     codec: codecFor(registries),

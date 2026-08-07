@@ -1,10 +1,17 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
+import { createLegalWorkSurface } from '../../work/legal-work-surface.js';
 import type { RuntimeArtifactDescriptor } from '@courtwork/registry';
 import { createDesktopPackageRuntime } from '../../composition/package-runtime.js';
 import { TimelineRenderer } from './TimelineRenderer.js';
 import { WorkbenchRenderProvider } from '../../preview/workbench-render-context.js';
+
+/** LEGAL-FIVE-FACES-1：renderer 现在带面内门禁确认条，故须挂垂类工作面 Provider（无门禁即零渲染）。 */
+const legalSurface = createLegalWorkSurface({ workCommand: {} as never });
+const withSurface = (node: ReturnType<typeof createElement>) =>
+  createElement(legalSurface.Provider, { value: { submission: {}, pendingGate: undefined, confirmGate: () => {} }, children: node });
+
 
 function timelineDescriptor(): RuntimeArtifactDescriptor {
   const entry = createDesktopPackageRuntime().packageRegistries.artifactSchemas.get('legal.Timeline');
@@ -31,7 +38,7 @@ const render = (payload: unknown, grades: readonly { key: string; grade: 'A' | '
   renderToStaticMarkup(createElement(
     WorkbenchRenderProvider,
     { value: { evidenceGrades: grades } },
-    createElement(TimelineRenderer, { descriptor: timelineDescriptor(), payload }),
+    withSurface(createElement(TimelineRenderer, { descriptor: timelineDescriptor(), payload })),
   ));
 
 describe('TimelineRenderer（先整体验证，再渲染）', () => {
@@ -72,7 +79,7 @@ describe('TimelineRenderer（先整体验证，再渲染）', () => {
 
   it('缺 Provider 即抛：装配缺失是显式失败，不是「渲染成没有等级」的静默降级', () => {
     expect(() => renderToStaticMarkup(
-      createElement(TimelineRenderer, { descriptor: timelineDescriptor(), payload: TIMELINE }),
+      withSurface(createElement(TimelineRenderer, { descriptor: timelineDescriptor(), payload: TIMELINE })),
     )).toThrow(/workbench render context is not mounted/);
   });
 });

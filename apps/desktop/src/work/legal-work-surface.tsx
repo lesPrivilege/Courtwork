@@ -7,10 +7,10 @@ import type {
   VerticalWorkSurfaceHost,
   VerticalWorkSurfaceState,
 } from '../preview/vertical-work-surface';
-import { projectRiskListGate } from './legal-s3-binding';
+import { PRODUCTION_SCENARIO_IDS, S3_SCENARIO_ID, projectRiskListGate } from './legal-s3-binding';
 import { useContractReviewSubmission, type ContractReviewSubmission } from './use-contract-review-submission';
 import { useWorkRunLifecycle, type WorkRunLifecycle } from './work-session-lifecycle';
-import type { LegalS3WorkCommand } from './work-command';
+import type { LegalWorkCommand } from './work-command';
 
 /**
  * Legal 合同审查工作面驱动（GENERIC-PACK-1 ⑤）。
@@ -20,10 +20,13 @@ import type { LegalS3WorkCommand } from './work-command';
  * 2026-08-06 裁定一）。壳自此零 `RiskList` 持有；它只把领域无关的宿主输入交给
  * {@link VerticalWorkSurfaceHost}，并按 {@link VerticalWorkSurfaceState} 读出三处渲染链外的量。
  *
- * 装配点在受信组合根（`main.tsx`）：`createLegalWorkSurface({ workCommand })`——`LegalS3WorkCommand`
+ * 装配点在受信组合根（`main.tsx`）：`createLegalWorkSurface({ workCommand })`——`LegalWorkCommand`
  * 是垂类端口，只能在组合根注入，不进壳的通用接缝（循 S6 装配点先例）。
  */
 export interface LegalWorkSurfaceValue {
+  /** 待确认的通用门禁（非 RiskList 产物）；面内确认条据此渲染，无待确认即 undefined。 */
+  readonly pendingGate: { requestId: string; gateLabel: string; artifactType: string } | undefined;
+  readonly confirmGate: (requestId: string, decision: 'confirm' | 'reject') => void;
   readonly riskList: RiskList | undefined;
   readonly gate: ReviewGateProjection | undefined;
   readonly submission: ContractReviewSubmission;
@@ -55,17 +58,21 @@ function readableError(error: unknown, fallback: string): string {
   return error instanceof Error && error.message.trim().length > 0 ? error.message : fallback;
 }
 
-/** production S3 只服务「修订」与通用「结构化产出」两面；其余在册工作面显式说明不适用。 */
-const PRODUCTION_APPLICABLE_VIEWS = ['revision', 'artifact'] as const;
-const NOT_APPLICABLE_COPY = '该工作面暂不适用于合同审查';
+/**
+ * LEGAL-FIVE-FACES-1：`PRODUCTION_APPLICABLE_VIEWS`／「该工作面暂不适用于合同审查」双双退役。
+ *
+ * 那两枚是「production 只能跑 S3」的影子：四张在册工作面被声明为「不适用」，而真正的事实是
+ * 产出它们的场景无从起跑。闭集化后每张面都有产出者，空态改说「由哪个场景产出、怎么开始」
+ * （宿主侧 `describeViewProducer` 派生），故适用性声明零留存——留着就是把已消失的限制
+ * 继续说给用户听。
+ */
 
 export function createLegalWorkSurface(
-  deps: { workCommand: LegalS3WorkCommand },
+  deps: { workCommand: LegalWorkCommand },
 ): VerticalWorkSurface {
   return {
-    // 裁定二：production 只装配 S3 合同审查链——场景条据此只渲染审查合同按钮。
-    productionScenarioIds: ['legal.S3'],
-    runningControlCopy: '停止审查',
+    // LEGAL-FIVE-FACES-1：production 可启动集＝装配点声明的闭集（S1 阅卷 / S2 矩阵 / S3 合同审查）。
+    productionScenarioIds: [...PRODUCTION_SCENARIO_IDS],
     
     use(host: VerticalWorkSurfaceHost): VerticalWorkSurfaceState {
       const [gate, setGate] = useState<ReviewGateProjection>();
@@ -197,7 +204,20 @@ export function createLegalWorkSurface(
         }
       };
 
+      // 通用门禁面（S1/S2 的产物 gate）：RiskList 的逐条处置自有其审阅面，不走这条。
+      const pendingGate = host.session.confirmation !== undefined
+        && host.session.confirmation.artifactType !== undefined
+        && host.session.confirmation.artifactType !== 'legal.RiskList'
+        ? {
+            requestId: host.session.confirmation.requestId,
+            gateLabel: host.session.confirmation.gateLabel,
+            artifactType: host.session.confirmation.artifactType,
+          }
+        : undefined;
+
       const value: LegalWorkSurfaceValue = {
+        pendingGate,
+        confirmGate: workRun.confirmGate,
         riskList, gate, submission, workRun, reviewReadOnly,
         selectedRiskId, setSelectedRiskId, expandedEvidence, expandBasis,
         selectedGrades, unverifiedRiskIds, dispose, beginCorrection, commitCorrection,
@@ -208,11 +228,15 @@ export function createLegalWorkSurface(
         value,
         decisionCount: submission.review.decisionCount,
         outputDisplayName: submission.outputDisplayName,
-        // 适用性只在真实（grant）案上声明：样板案回放要走全部四面，未绑定文件夹的 matter
-        // 还没有可运行的场景，两者都不属「垂类说它不适用」。
-        applicability: host.caseBinding.kind === 'grant' && !host.isDemoCase
-          ? { applicable: PRODUCTION_APPLICABLE_VIEWS, notApplicableCopy: NOT_APPLICABLE_COPY }
-          : undefined,
+        // 运行中取消控件的文案随**正在跑的场景**派生：跑阅卷时说「停止审查」是在说另一件事。
+        ...(workRun.runningScenarioId !== null
+          ? {
+              runningControlCopy: workRun.runningScenarioId === S3_SCENARIO_ID
+                ? '停止审查'
+                : `停止${host.registries.scenarios.get(workRun.runningScenarioId)?.name ?? '运行'}`,
+            }
+          : {}),
+        startScenario: (scenarioId: string) => workRun.start(scenarioId, {}),
         cancelRun: workRun.cancel,
         resetForContextSwitch: () => {
           setGate(undefined);

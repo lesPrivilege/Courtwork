@@ -116,6 +116,7 @@ import { FocusGlyph } from './workbench/MiniIcon';
 import { Icon } from './workbench/Icon';
 import { DraftPanel, INITIAL_DRAFT, type DraftDocument } from './workbench/Panels';
 import { resolveSceneStripEntries, SceneStrip, type SceneStripEntry } from './workbench/scene-strip';
+import { describeViewProducer, resolveLaunchTargetView } from './preview/view-producer';
 import { SplitView, type SplitDirection } from './workbench/SplitView';
 import { MessageActions } from './chat/MessageActions';
 import { sendChatTurn } from './provider/chat-client';
@@ -1002,7 +1003,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   /**
    * 垂类工作面驱动的装配（GENERIC-PACK-1 ⑤）：壳交出的逐字都是领域无关量，读回的只有
    * `decisionCount` / `outputDisplayName` / `applicability` 与两枚运行控制。垂类端口
-   * （`LegalS3WorkCommand`）不经此面，由受信组合根在构造驱动时注入。
+   * （`LegalWorkCommand`）不经此面，由受信组合根在构造驱动时注入。
    *
    * 「回到原件」是壳的 canonical reader 路由，定义在下方（依赖 materialSink）；此处经 ref
    * 间接引用以免把整段读面提前，effect 每渲染重挂一次，处理器只在挂载后触发故无陈旧窗口。
@@ -1058,9 +1059,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       if (route?.kind === 'file-ops') { openFileOps(); return; }
       return;
     }
-    // production：打开场景 blueprint 的目标视图（registry 派生路由；S3→修订预览、S4→起草画布）。
-    const blueprint = hostRenderers.get(entry.uiTemplateId);
-    if (blueprint && 'view' in blueprint && blueprint.view) choosePrimaryView(blueprint.view);
+    // production 路由（LEGAL-FIVE-FACES-1）：
+    // ①view 条目 → 打开目标视图；②带预检表单的场景 → 打开目标视图由表单起跑（S3）；
+    // ③无预检表单的场景 → 直接起跑，并落到它产出的那张面（此前落到「什么都不发生」）。
+    const target = resolveLaunchTargetView(entry.scenarioId, entry.uiTemplateId, matterRegistries, hostRenderers);
+    if (target) choosePrimaryView(target);
+    if (entry.kind === 'scenario' && !entry.hasPrecheckForm) verticalSurface.startScenario(entry.scenarioId);
   };
 
 
@@ -1519,17 +1523,16 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     if (!isDemoCase && caseBinding.kind !== 'grant') {
       return emptyWorkbench(`${selectedCase.title} 刚建立，尚无卷宗内容 · 从对话或场景开始整理`);
     }
-    // 工作面适用性由垂类驱动声明（裁定一）：壳只负责照声明显式说出来，不知道哪些面属于哪个垂类。
-    // 通用面 `draft` 与通用产出面 `artifact` 也在受检面内——production S3 只服务后者，
-    // 这正是原 `view !== 'revision' && view !== 'artifact'` 分支的逐字等价。
-    const applicability = verticalSurface.applicability;
-    if (applicability && !applicability.applicable.includes(view)) {
-      return emptyWorkbench(applicability.notApplicableCopy);
-    }
     // 具名工作面的 component blueprint 全链：宿主按 view 反查在册 blueprint，空态文案由
     // descriptor 标题派生（宿主不另抄一份垂类词）。仍是 route 的工作面落 unregistered，走下方原分支。
     const namedView = resolveNamedComponentView(view, artifactPayload, matterRegistries, hostRenderers);
-    if (namedView.status === 'empty') return emptyWorkbench(`${namedView.title}尚未生成`);
+    if (namedView.status === 'empty') {
+      // LEGAL-FIVE-FACES-1 D4：空面必须说得出「谁产出它、怎么开始」（registry 派生，壳零垂类词）。
+      const producer = describeViewProducer(view, matterRegistries, hostRenderers, verticalWorkSurface.productionScenarioIds);
+      return emptyWorkbench(producer
+        ? `${namedView.title}尚未生成 · 在下方场景条点「${producer.launchLabel}」开始`
+        : `${namedView.title}尚未生成`);
+    }
     if (namedView.status === 'unsupported') return <UnsupportedArtifactView title={namedView.title} />;
     if (namedView.status === 'ready') {
       const NamedViewRenderer = namedView.component;
@@ -1994,7 +1997,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
             {!isWelcome && <SceneStrip
               entries={sceneEntries}
               running={caseBinding.kind === 'grant' && workRunning}
-              runningControlLabel={verticalWorkSurface.runningControlCopy}
+              runningControlLabel={verticalSurface.runningControlCopy}
               onLaunch={onLaunchScenario}
               onCancelRun={verticalSurface.cancelRun}
               onOpenDraft={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); }}
@@ -2003,7 +2006,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
             {!isWelcome && renderComposer(
               handleComposerSend,
               workChatPending || workScenarioRunning,
-              workScenarioRunning ? '合同审查正在运行；等待当前步骤完成后再继续提问。' : undefined,
+              workScenarioRunning ? '当前工作正在运行；等待当前步骤完成后再继续提问。' : undefined,
             )}
           </section>
         )}

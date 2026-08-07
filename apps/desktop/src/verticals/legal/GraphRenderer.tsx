@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import type { PartyGraph } from '@courtwork/legal';
+import { GateConfirmBar } from './GateConfirmBar';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
 import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 import { useWorkbenchRenderContext } from '../../preview/workbench-render-context.js';
@@ -19,7 +20,10 @@ export function GraphRenderer({ descriptor, payload }: HostRendererComponentProp
   const { evidenceGrades } = useWorkbenchRenderContext();
   const parsed = descriptor.schema.safeParse(payload);
   if (!parsed.success) return <UnsupportedArtifactView title={descriptor.title} />;
-  return <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
-    <GraphPanel graph={parsed.data as PartyGraph} grade={evidenceGrades[0]?.grade} />
-  </Suspense>;
+  return <>
+    <GateConfirmBar artifactType={descriptor.typeId} />
+    <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
+      <GraphPanel graph={parsed.data as PartyGraph} grade={evidenceGrades[0]?.grade} />
+    </Suspense>
+  </>;
 }

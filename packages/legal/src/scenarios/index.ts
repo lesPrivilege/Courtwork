@@ -116,6 +116,9 @@ export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
       },
       promptSegmentRef: 'matrix-review',
       steps: [{ id: 'produce-review-matrix', title: '生成矩阵审阅', artifact: 'legal.ReviewMatrix' }],
+      // LEGAL-FIVE-FACES-1：S2 此前零 `launch` 声明——矩阵审阅面在产品里没有任何启动入口，
+      // 页签点开永远是空的。声明形态循 S1/S6 先例（无预检字段即无表单）。
+      launch: { label: '矩阵审阅', tone: 'wide', kind: 'scenario' },
     },
     {
       id: 'legal.S3',

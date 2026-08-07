@@ -14,6 +14,11 @@ export interface SceneStripEntry {
   readonly label: string;
   readonly tone: 'primary' | 'wide' | 'draft-wide';
   readonly kind: 'view' | 'scenario';
+  /**
+   * 是否带预检表单（冻结声明里有 formFields）。壳据此分流：有表单的场景由面内表单起跑，
+   * 无表单的场景点按钮即起跑——此前无表单的场景点了什么也不会发生。
+   */
+  readonly hasPrecheckForm: boolean;
 }
 
 export interface SceneStripEligibility {
@@ -52,6 +57,7 @@ export function resolveSceneStripEntries(
       label: launch.label,
       tone: launch.tone,
       kind: launch.kind,
+      hasPrecheckForm: (launch.formFields?.length ?? 0) > 0,
     });
   }
   return [

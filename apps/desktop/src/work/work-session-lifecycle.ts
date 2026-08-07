@@ -22,7 +22,8 @@ import {
 } from '../protocol/client';
 import { workFailureDisplayCopy } from './work-failure-copy';
 import { orderS3MaterialRefs } from './primary-contract';
-import type { LegalS3WorkCommand } from './work-command';
+import { S3_SCENARIO_ID } from './legal-s3-binding';
+import type { LegalWorkCommand } from './work-command';
 import {
   clearWorkSession,
   persistWorkSession,
@@ -258,7 +259,7 @@ export interface WorkRunLifecycleDeps {
   workContractMaterialId: string | null;
   caseMaterials: readonly StoredMaterial[];
   modelRoute: WorkModelRoute;
-  workCommand: LegalS3WorkCommand;
+  workCommand: LegalWorkCommand;
   /** completed 的 grant 案：审阅面转只读，同时触发一次 inspect 复算。 */
   reviewReadOnly: boolean;
   outputDeps: ContractReviewOutputDeps;
@@ -278,8 +279,17 @@ export interface WorkRunLifecycle {
   recoverableSession: WorkSessionRecord | null;
   /** completed 只读重开时 coordinator 的 inspect/deliver 结果；唯一决定是否显示重试入口。 */
   contractOutputResult: ContractReviewOutputResult | undefined;
-  /** 预检表单提交值进场景启动参数（GENERIC-PACK-1 裁定二）。 */
-  start: (params: ScenarioStartParams) => void;
+  /**
+   * 预检表单提交值进场景启动参数（GENERIC-PACK-1 裁定二）。
+   *
+   * LEGAL-FIVE-FACES-1：起跑的场景身份由调用方**显式**给出——此前签名里没有这一枚，
+   * 于是「能起跑的只有 S3」这条事实被写死在实现里，时间线/图谱/矩阵三面在真实案上无从起跑。
+   */
+  start: (scenarioId: string, params: ScenarioStartParams) => void;
+  /** 通用门禁确认（非 S3 场景的产物 gate：确认即续行，驳回即终止本场景）。 */
+  confirmGate: (requestId: string, decision: 'confirm' | 'reject') => void;
+  /** 当前正在运行的场景 id（无运行即 null）；取消控件文案与面内指引据此派生。 */
+  runningScenarioId: string | null;
   cancel: () => void;
   recover: () => Promise<void>;
   retryOutput: () => void;
@@ -290,6 +300,7 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
   /** 指针写/清后的重读信号：只推进计数，读哪一案由 effect 现取——回调闭包里的 caseId 可能已不是当前选中案。 */
   const [pointerEpoch, setPointerEpoch] = useState(0);
   const [contractOutputResult, setContractOutputResult] = useState<ContractReviewOutputResult>();
+  const [runningScenarioId, setRunningScenarioId] = useState<string | null>(null);
   const {
     caseBinding, selectedCaseId, workRunning, workSessionId, workContractMaterialId,
     caseMaterials, modelRoute, workCommand, reviewReadOnly,
@@ -361,7 +372,64 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
   // WORK-LIVE-1：grant（真实）案的 production S3 运行触发。显式主体来自受控 preflight（不从案名/
   // 文件名/正文/模型猜测）；材料经 resolveForProvider 复验才入 provider；事件机械发布进同一 session
   // 投影（零 recording）。
-  const start = (params: ScenarioStartParams) => {
+  /**
+   * LEGAL-FIVE-FACES-1 · 无预检场景（S1 阅卷 / S2 矩阵）的起跑。
+   *
+   * 与 S3 路径的两处**显式**差别，均为如实登记的边界而非省略：
+   * ①材料清单＝本案全部 ready 材料（无「主合同」这一角色，故不排序、不指定 index 0）；
+   * ②不写会话指针——指针记录携 `contractMaterialId` 且恢复入口文案属合同审查，
+   *   借它承载第二类场景会把「上次审查」指向一次阅卷。跨会话恢复属另一票（SPEC 五节登记）。
+   */
+  const startIntake = (scenarioId: string) => {
+    const caseId = selectedCaseId;
+    if (caseBinding.kind !== 'grant' || !caseId || workRunning) return;
+    if (!isWorkSafeCaseId(caseId)) {
+      showSystemFeedback(LEGACY_CASE_SCENARIO_COPY, false, 'info');
+      return;
+    }
+    const materialRefs = caseMaterials.filter((material) => material.status === 'ready').map((material) => material.materialId);
+    if (materialRefs.length === 0) {
+      showSystemFeedback('本案还没有可用材料 · 先把卷宗材料入库再开始', false, 'info');
+      return;
+    }
+    dispatch({ type: '__clear__' } as unknown as SessionEvent);
+    clearGate();
+    resetReview();
+    setWorkContractMaterialId(null);
+    setWorkRunning(true);
+    setRunningScenarioId(scenarioId);
+    const { sessionId, done } = workCommand.start(
+      { commandId: `${scenarioId}-${caseId}-${Date.now()}`, caseId, scenarioId, materialRefs, modelRoute },
+      dispatch,
+    );
+    setWorkSessionId(sessionId);
+    void done.then((outcome) => {
+      setWorkRunning(false);
+      setRunningScenarioId(null);
+      if (outcome.status === 'rejected') showSystemFeedback(outcome.message, false, 'info');
+      else if (outcome.status === 'failed') showSystemFeedback(workFailureDisplayCopy(outcome.message), false);
+      else if (outcome.status === 'canceled') showSystemFeedback('已停止当前工作', true);
+      if (outcome.status === 'paused') setWorkPhase('paused');
+      if (outcome.status === 'completed') setWorkPhase('completed');
+    });
+  };
+
+  /** 通用门禁：确认即续行到终局，驳回即显式终止本场景（两者都经生产命令端口，零本地伪造）。 */
+  const confirmGate = (requestId: string, decision: 'confirm' | 'reject') => {
+    const caseId = selectedCaseId;
+    if (caseBinding.kind !== 'grant' || !caseId || !workSessionId) return;
+    setWorkRunning(true);
+    void workCommand
+      .resume({ commandId: `gate-${requestId}-${decision}`, caseId, sessionId: workSessionId, requestId, decision }, dispatch)
+      .then((outcome) => {
+        setWorkRunning(false);
+        if (outcome.status === 'rejected') showSystemFeedback(outcome.message, false, 'info');
+        else if (outcome.status === 'failed') showSystemFeedback(workFailureDisplayCopy(outcome.message), false);
+        else if (outcome.status === 'completed') setWorkPhase('completed');
+      });
+  };
+
+  const startPreflight = (params: ScenarioStartParams) => {
     if (caseBinding.kind !== 'grant' || !selectedCaseId || workRunning) return;
     // WORK-TURN-1 G 存量守卫：旧版铸号（标题拼入 id）在 work_state 安全 token 外——原位容忍，
     // 场景运行前显式引导（发生了什么+下一步），不让 Rust 侧技术红条兜底。
@@ -418,6 +486,7 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
     const startTracker = tracker;
     void done.then((outcome) => {
       setWorkRunning(false);
+      setRunningScenarioId(null);
       // WORK-LIVE-1-FIX：rejected（未就绪/冲突，ADR-010 决定一闭集）是明确的产品语言中性反馈，
       // 不是错误红条；failed（provider/内部）才是错误。二者视觉与语义分离。
       if (outcome.status === 'rejected') {
@@ -482,5 +551,15 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
     if (plan.phase === 'failed') setPreviewOpen(false);
   };
 
-  return { recoverableSession, contractOutputResult, start, cancel, recover, retryOutput };
+  /** 起跑的唯一入口：场景身份显式分流，S3 走预检路径，其余走无预检路径（闭集外由端口拒绝）。 */
+  const start = (scenarioId: string, params: ScenarioStartParams) => {
+    if (scenarioId === S3_SCENARIO_ID) {
+      setRunningScenarioId(scenarioId);
+      startPreflight(params);
+      return;
+    }
+    startIntake(scenarioId);
+  };
+
+  return { recoverableSession, contractOutputResult, start, confirmGate, runningScenarioId, cancel, recover, retryOutput };
 }
