@@ -5443,3 +5443,56 @@ SPEC 的「受检数取数提交登记」明确锚在 `deb81b8`：160→168→17
 
 **本节结论：PASS。** 首轮 `c9fdc5fe` 的「170→174 回执漂移」与五项契约追认阻断已在
 返修回执和 `main@a90412e` 追认文本下闭合；首轮 REJECT 报告不改写，按双报告随链保留。
+
+## CHAT-MD-TABLE-2 独立验收（2026-08-07，REJECT）
+
+**对象与装置。** 验收对象为 `claude/chat-md-table-2@dea05c9`，基线
+`main@6865463`，在独立 clean clone `/private/tmp/courtwork-chat-md-table-2-accept` 完成；
+未在共享树 checkout/stash，Playwright 使用独占 `COURTWORK_E2E_PORT=15873`，未复用其他会话服务。
+
+### 1. 范围审计
+
+`git diff --stat 6865463..dea05c9` 实得 **3 files / 154 insertions / 20 deletions**：
+
+- `apps/desktop/SPEC.md`
+- `apps/desktop/src/chat/ChatMarkdown.tsx`
+- `apps/desktop/src/chat/chat-markdown.test.ts`
+
+`git diff --name-status` 仅以上三枚 `M`；`git diff --summary` 无 Bin 行。全 diff 未触
+`App.tsx`、journal、`packages/**` 或 `src-tauri/pi-lane`，cargo 按范围事实豁免。
+
+### 2. 语义与红证
+
+- `ChatMarkdown.tsx:118-126,297` 的 `wholeTableOrNothing` 用表头宽度与**全部**体行做
+  `every`；不齐时切整段原文，切片为空则保留 table；未引入 GFM 补空/截断，也未保留半表
+  实现。文件头 `ChatMarkdown.tsx:74-80` 已明确表格宽度不再属于 legacy 兼容层，和现实现一致。
+- `chat-markdown.test.ts:226-275` 的体行缺格、行内 code 裸管道、加粗裸管道、截断残文各有
+  合成 born-red 用例；均锁 `0 table + 0 thead` 与逐行原文可见。pristine 定向结果为
+  **53 passed / 53**。
+- 恢复父提交半表实现后，同一文件实测 **9 failed / 44 passed**；收到形态含「前半成表、
+  尾行裸管道」的失败，区分力成立。注入孤表头实现（`return { ...table, children: [header] }`）
+  实测 **9 failed / 44 passed**，`0 table + 0 thead` 专属断言确实翻红；注入空降级段落实测
+  **9 failed / 44 passed**，逐行原文断言确实翻红。三次变异均已撤回。
+- 位置缺失臂以临时验收测试模拟 `sliceOf` 空结果，专测实得 **1 passed / 53 skipped**：
+  保留 table 且内容不吞；临时测试与注入均已撤回。另以临时等价合成输入跑齐整表
+  `3×3 / 2×4 / 3×3` 三形，实得 **3/3 passed**，无回归，临时用例已撤回。
+
+### 3. 全量门
+
+- `pnpm -r build`：通过（14/15 workspace build targets）。
+- `pnpm lint`：通过，exit 0。
+- root `pnpm test`：**170 files / 1941 tests passed**；沙箱首跑因回环 listen `EPERM`
+  得到 10 failed，随后非沙箱独立重跑取上述有效数字。
+- desktop `pnpm test`：**85 files / 764 tests passed**。
+- `COURTWORK_E2E_PORT=15873 pnpm --filter @courtwork/desktop test:e2e`：静态门全绿，
+  Playwright **368 passed / floor 365**，4 workers，15.3m。
+
+### 4. 拒绝分支
+
+**R1 · 语料卫生硬阻断。** 实现 diff 违反票面「diff 全文 grep 真实案件语料零命中」：
+`apps/desktop/SPEC.md:17-18` 新增文本命中「晨曦」「印刷设备买卖合同」「合成卷宗」等真实案件
+语料字串。仓内测试 fixture 本身是等价合成，但这不能抵消 SPEC diff 的零命中硬门；按票面
+必须 REJECT。
+
+**结论：REJECT，不放行 `dea05c9`。** 实现、测试区分力、全量门与端口纪律均通过；R1
+语料卫生单项足以拒绝合入。未修改实现，未做 fix-by-acceptance；本记录为独立验收落盘。
