@@ -176,6 +176,8 @@ test('grant 案合同审查全链：真实材料 → 门禁审阅 → docx 落�
   const panel = page.getByTestId('revision-panel');
   await expect(panel).toBeVisible();
   await expect(panel).toContainText('付款期限较长');
+  // LEGAL-FIVE-FACES-1 ④：修订预览面（合同审查对照基线）的证据帧随本条既有全链摄取。
+  await page.screenshot({ path: '../../release/evidence/legal-five-faces-1-2026-08-07/04-revision-live.png' });
 
   // live gate 逐条审阅：高风险逐条确认（展开引语 → 确认此项）
   await panel.locator('[data-risk-id="risk-1"]').click();
@@ -312,7 +314,7 @@ test('grant 案未装配（无 transport 且无 stub）：start → rejected/not
 
   // ADR-010 决定一：未装配 → rejected/not_configured 的中性「未就绪」产品语言反馈（不是 failed/internal 错误红条）。
   const feedback = page.getByTestId('system-open-feedback');
-  await expect(feedback).toContainText('合同审查暂未就绪');
+  await expect(feedback).toContainText('当前工作暂未就绪');
   await expect(feedback).toHaveClass(/\binfo\b/);
   await expect(feedback).not.toHaveClass(/\berror\b/);
   // 未装配即拒绝：零 docx 落盘、启动器仍在（未进入审阅面）。
@@ -325,7 +327,9 @@ test('grant 案未装配（无 transport 且无 stub）：start → rejected/not
  * 等场景入口点击零变化（previewOpen 在 choosePrimaryView 内按 demo 判定，grant 案恒 false），
  * 命令链自始至终未被触达；未开通工作面的显式提示也因此永不可达。
  */
-test('grant 案点「起草答辩状」打开工作面并显式提示未适用（非零反应）', async ({ page }) => {
+// LEGAL-FIVE-FACES-1 D3：断言按本意改写——「起草答辩状」此前落到「该工作面暂不适用于合同审查」，
+// 那是「production 只能跑 S3」的影子而非事实。闭集化后该视图入口落通用起草画布。
+test('grant 案点「起草答辩状」打开起草画布（此前是死钮）', async ({ page }) => {
   await openWorkbench(page);
   await resetHooks(page);
   await createGrantCase(page);
@@ -336,9 +340,10 @@ test('grant 案点「起草答辩状」打开工作面并显式提示未适用�
   await page.getByTestId('scene-more').click();
   await page.getByTestId('scene-more-popover').getByRole('button', { name: '起草答辩状' }).click();
 
-  // 点击必须有可观察结果：工作面打开，且是显式「未适用」提示而非伪装可用
+  // 点击必须有可观察结果：工作面打开，落到可编辑的通用起草画布
   await expect(page.getByTestId('preview-host')).toBeVisible();
-  await expect(page.getByTestId('preview-host')).toContainText('该工作面暂不适用于合同审查');
+  await expect(page.getByTestId('draft-panel')).toBeVisible();
+  await expect(page.getByTestId('preview-host')).not.toContainText('暂不适用');
 });
 
 test('grant 案审阅面板内切换 tab 不关闭工作面', async ({ page }) => {
@@ -354,10 +359,10 @@ test('grant 案审阅面板内切换 tab 不关闭工作面', async ({ page }) =
   await page.getByTestId('precheck-submit').click();
   await expect(page.getByTestId('revision-panel')).toBeVisible();
 
-  // 面板内切 tab（起草）不得把整个工作面闪回大纲列——切到的面未适用时显式提示
+  // 面板内切 tab（起草）不得把整个工作面闪回大纲列——切到的是可用的通用起草画布
   await page.getByTestId('view-draft').click();
   await expect(page.getByTestId('preview-host')).toBeVisible();
-  await expect(page.getByTestId('preview-host')).toContainText('该工作面暂不适用于合同审查');
+  await expect(page.getByTestId('draft-panel')).toBeVisible();
 
   // 切回审阅 tab，审阅面完整回归（状态未被销毁）
   await page.getByTestId('view-revision').click();

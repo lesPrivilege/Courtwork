@@ -92,6 +92,7 @@ import {
   preferredWorkbenchView,
   resolveWorkbenchViews,
   workbenchViewLabel,
+  workbenchViewMeta,
 } from './preview/workbench-views';
 import { demoViewCount } from './demo/demo-view-counts';
 import {
@@ -1067,8 +1068,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     if (entry.kind === 'scenario' && !entry.hasPrecheckForm) verticalSurface.startScenario(entry.scenarioId);
   };
 
-
   const draftFrozen = draftOutputExists;
+  // 面头/大纲计数的取数（D8）：与渲染链同一条 `resolveNamedComponentView` 判定，不另立第二真源。
+  const namedViewReady = (view: WorkbenchView) =>
+    resolveNamedComponentView(view, artifactPayload, matterRegistries, hostRenderers).status === 'ready';
   const comparing = secondaryView !== undefined;
   const usage = isDemoCase ? (flow === 'S3' ? 91 : 18) : 0;
   const progressDone =
@@ -1127,9 +1130,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       window.removeEventListener('focus', refreshOutputExistence);
     };
   }, [caseBinding]);
-
-
-
 
   const createCase = ({
     title,
@@ -1530,7 +1530,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       // LEGAL-FIVE-FACES-1 D4：空面必须说得出「谁产出它、怎么开始」（registry 派生，壳零垂类词）。
       const producer = describeViewProducer(view, matterRegistries, hostRenderers, verticalWorkSurface.productionScenarioIds);
       return emptyWorkbench(producer
-        ? `${namedView.title}尚未生成 · 在下方场景条点「${producer.launchLabel}」开始`
+        ? `${namedView.title}尚未生成 · 由「${producer.launchLabel}」场景产出，在下方场景条启动`
         : `${namedView.title}尚未生成`);
     }
     if (namedView.status === 'unsupported') return <UnsupportedArtifactView title={namedView.title} />;
@@ -2123,7 +2123,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
               Preview 双态——大纲目录 ↔ 浏览器态（右列唯一,title/tab 条/schema 面三层封闭,back 回目录） */}
           {!previewOpen && <RightRailModules
             modules={utilityItems}
-            outline={workbenchViews.map((entry) => ({ id: entry.id, label: entry.label, meta: viewCount(entry.id, draftFrozen, isDemoCase, hasArtifactView) }))}
+            outline={workbenchViews.map((entry) => ({ id: entry.id, label: entry.label, meta: workbenchViewMeta({ view: entry.id, draftFrozen, hasArtifactView, namedViewReady: namedViewReady(entry.id), demoCount: isDemoCase ? demoViewCount : undefined }) }))}
             previewOpenState={outlineOpen}
             onPreviewToggle={() => setOutlineOpen((open) => !open)}
             onOpenOutline={(viewId) => {
@@ -2144,7 +2144,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
           {previewOpen && <WorkbenchPreviewRenderer
             onBack={() => { previewDismissedContext.current = `${selectedCaseId}:${flow ?? 'none'}`; setPreviewOpen(false); setReaderDoc(null); }}
             title={readerDoc ? readerDoc.name : comparing ? '工作面对照' : workbenchViewLabel(workbenchViews, activeView)}
-            meta={readerDoc ? '原件 · 只读' : comparing ? '双面' : viewCount(activeView, draftFrozen, isDemoCase, hasArtifactView)}
+            meta={readerDoc ? '原件 · 只读' : comparing ? '双面' : workbenchViewMeta({ view: activeView, draftFrozen, hasArtifactView, namedViewReady: namedViewReady(activeView), demoCount: isDemoCase ? demoViewCount : undefined })}
             tabs={workbenchViews.map((entry) => ({ id: entry.id, label: entry.label }))}
             activeTab={readerDoc ? '' : activeView}
             onSelectTab={(id) => {
@@ -2277,9 +2277,3 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   );
 }
 
-function viewCount(view: WorkbenchView, draftFrozen: boolean, isDemo: boolean, hasArtifactView: boolean) {
-  if (view === 'artifact') return hasArtifactView ? '已生成' : '尚无';
-  if (!isDemo) return '尚无';
-  // 样板案展品计数住 demo 族；壳侧只余通用两支。命中即取，否则落起草画布的定稿判据。
-  return demoViewCount(view) ?? (draftFrozen ? '已定稿' : '起草中');
-}

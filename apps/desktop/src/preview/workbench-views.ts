@@ -76,3 +76,25 @@ export function preferredWorkbenchView(
 export function workbenchViewLabel(views: readonly WorkbenchViewEntry[], view: HostWorkbenchView): string {
   return views.find((entry) => entry.id === view)?.label ?? '';
 }
+
+/**
+ * 面头 / 大纲的计数文案（LEGAL-FIVE-FACES-1 D8 外提）。
+ *
+ * 非 demo 案此前恒「尚无」——面上正渲着时间线、抬头却说没有，那是「production 只有 S3 会
+ * 产出」时期的遗留断言。改按**本面此刻是否真有产物**说话；样板案展品计数仍由 demo 族注入
+ * （`demoCount` 缺席即非 demo，宿主不认识展品数字）。
+ */
+export function workbenchViewMeta(input: {
+  view: HostWorkbenchView;
+  draftFrozen: boolean;
+  hasArtifactView: boolean;
+  namedViewReady: boolean;
+  demoCount?: (view: HostWorkbenchView) => string | undefined;
+}): string {
+  const draftMeta = input.draftFrozen ? '已定稿' : '起草中';
+  if (input.view === GENERIC_ARTIFACT_VIEW.id) return input.hasArtifactView ? '已生成' : '尚无';
+  if (!input.demoCount) {
+    return input.view === GENERIC_DRAFT_VIEW.id ? draftMeta : (input.namedViewReady ? '已生成' : '尚无');
+  }
+  return input.demoCount(input.view) ?? draftMeta;
+}

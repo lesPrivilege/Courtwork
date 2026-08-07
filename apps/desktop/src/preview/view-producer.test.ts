@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LEGAL_PACKAGE } from '@courtwork/legal/package';
-import { admitPackages, buildPackageRegistries } from '@courtwork/registry';
+import { createDesktopPackageRuntime } from '../composition/package-runtime.js';
 import { createCourtworkHostRendererRegistry } from './courtwork-host-renderers.js';
 import { describeViewProducer } from './view-producer.js';
 
@@ -10,7 +9,8 @@ import { describeViewProducer } from './view-producer.js';
  * 宿主 blueprint 声明 view），壳零垂类字面量。
  */
 
-const registries = buildPackageRegistries(admitPackages([LEGAL_PACKAGE]).admitted);
+const runtime = createDesktopPackageRuntime();
+const registries = runtime.packageRegistries;
 const renderers = createCourtworkHostRendererRegistry();
 const LAUNCHABLE = ['legal.S1', 'legal.S2', 'legal.S3'];
 
@@ -35,6 +35,6 @@ describe('describeViewProducer', () => {
   });
 
   it('未加载垂类时零指引（零 artifact 声明即零产出者）', () => {
-    expect(describeViewProducer('timeline', buildPackageRegistries([]), renderers, LAUNCHABLE)).toBeUndefined();
+    expect(describeViewProducer('timeline', runtime.registriesFor([]), renderers, LAUNCHABLE)).toBeUndefined();
   });
 });
