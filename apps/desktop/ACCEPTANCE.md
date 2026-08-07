@@ -5670,3 +5670,76 @@ SPEC 的「受检数取数提交登记」明确锚在 `deb81b8`：160→168→17
 - 实现 tip：`95eaa6d93efe31227e708e46668e565c0200b21a`；
 - 首轮独立验收提交：`b247cf3`（REJECT，基于 `7c8d928`）；
 - 本轮聚焦复验提交：待本节提交后记录于本提交自身。
+
+## PACK-INTERACT-1 独立验收（实测 tip：`e432e494d42127393696f118dbd70d2aebf69f8c`；base：`main@d6f78ab8b1873c0520ce24cc7a6049013ed902d2`）
+
+**结论：REJECT。** 本记录基于独立 clean clone `/private/tmp/courtwork-pack-interact-1-accept.vUy2sW` 的实测；目标 tip 为 detached HEAD，较 main 恰六枚提交。未修改实现，也未提交 `fix-by-acceptance`。
+
+### 1. 全仓门禁与环境证据
+
+- `pnpm -r build`：PASS。
+- `pnpm lint`：PASS。
+- `pnpm test`：PASS，170 files / 1941 tests。
+- `pnpm --filter @courtwork/desktop test`：PASS，91 files / 795 tests。
+- `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：PASS，250 passed / 0 failed / 1 ignored；product-sidecar 547893 bytes，SHA-256 `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`；sidecar 零迁移。
+- `pnpm site:guard`：PASS；App highwater 实测 2272，release truth、deslop、neutral/elevation/signature/motion/design/schema/skin 均绿。
+- Playwright 使用独占端口、`--workers=1`，两次完整链均为 **374 passed / 1 failed**（第一次端口 18731，第二次端口 18733）。失败稳定落在既有 `apps/desktop/tests/e2e/pi-lane.spec.ts:319`，断言行 338 `before.max - before.top > 200` 收到 0；对该单测独占端口 18732 重跑为 1/1 PASS，不能抵销完整链失败。回执自报 375/375 与独立实测漂移。
+- Playwright 前置门：vertical isolation inspected 184 files；voice 170 files；binding isolation PASS；PW floor 通过静态检查显示 375，但行为实跑不是 375/375。
+
+### 2. 范围、ABI、准入与高水位
+
+- `git diff --stat main...HEAD` 为 38 files，1513 insertions / 129 deletions；`git diff --check` PASS。
+- `packages/registry`、`packages/schemas`、核心包、legal 包、wire/journal 路径均无 diff；`apps/desktop/src-tauri`（Bin 行）无 diff。Package descriptor schema 逐字未动，Package ABI 未扩展。
+- `apps/desktop/src/composition/package-runtime.ts` 仍通过 `admitPackages([LEGAL_PACKAGE, PM_PACKAGE])` 构建期准入；无动态装载、无外部包导入。`package-catalog.ts` 的 displayName 位于宿主组合根，未写入 Package ABI。
+- App highwater 由 2279 收至 2272，门注释与静态门实测相符。
+
+### 3. 三态语义与水合
+
+通过项：
+
+- `apps/desktop/src/composition/matter-pack-binding.test.ts:22-31` 直证未声明 / `[]` / `['legal']` 可表达且读回不混态；`:53-59` 直证未声明取全局可用集、显式零为零、显式一枚逐字取。
+- `apps/desktop/src/composition/matter-registries.test.ts:27-48` 直证显式零为零垂类 registry、未声明为全局；`:56-65` 直证非法绑定 fail-closed。
+- `apps/desktop/src/case/matter-pack-state.test.ts:10-39` 直证三态呈现和 invalidId。
+- 独立 M3：把新建默认分支改回 `['legal']` 后，`NewCaseDialog.dom.test.ts` 为 3/6 failed；红证成立。
+
+拒绝/缺口：三态专用测试是 `loadCaseList` 读入信封加 `projectPersistableCases` 投影（上述坐标），不是同一测试中 `writeCaseList → readCaseList` 的三态水合往返；现有 `case-store.test.ts:39-55` 的往返 fixture 不含显式 `[]` 与显式单枚绑定。因此“水合往返不丢 packBinding”没有按票面三态各一测完整直证。
+
+### 4. 票面①④、退化视图与 fail-closed
+
+- `apps/desktop/tests/e2e/pack-interact-1.spec.ts:42-69`：建案选包 → 面在 → 卸载 → 通用面 → 重载 → 面回，PASS。
+- `:71-106`：非法绑定 → 零垂类 registry、`MatterBindingFailure` 显式面、管理与清绑，PASS；独立 M1 把 fail-closed 改为全局 registry 后，`matter-registries.test.ts` 1/5 failed，红证成立。
+- `:247-286`：真实建案选包、真实 S1 点击和产出、真实卸载动作、退化页、重载恢复，PASS；独立 M2 把退化面 displayName 改成 `legal` 后，`vertical-artifact-unloaded.test.ts` 1/1 failed，红证成立。退化文案实现透“法律包”而不透 `legal`。
+- 但 `:247-286` 没有在卸载后直接读取 store 层，断言案件账本和 durable 产物仍在持久字节中；它只从 UI 退化面和重载恢复间接观察。故票面要求的 store-layer 直证、以及“零迁移零重算”的可观测证据缺失。
+- `package-catalog.test.ts:19-21` 只测宿主目录缺显示名时装配抛错；没有缺 catalog 条目进入产品呈现路径的显式 UI 测试。`matter-pack-state.test.ts:33-38` 对 invalidId 的 `loadedLabels` 仍为裸 id `tender`，无法证明“缺条目时禁裸 id 伪装正常态”的呈现契约。
+
+### 5. 语料墙、隔离与泄漏
+
+这是确定拒收项。对目标 diff 的新增 fixture `apps/desktop/tests/e2e/pack-interact-1.spec.ts` 实测命中语料墙：
+
+- `:130`、`:148` 出现 `合成卷宗`；
+- `:184` 出现 `晨曦印务有限公司`。
+
+票面要求 `晨曦|印务|印刷设备买卖合同|质量异议函|复函|合成卷宗` 零命中；因此即使其余隔离/voice 门为绿，也不能放行。新增 fixture 还使用了真实语料墙词表中的当事人名，逐条合成核失败。
+
+静态 isolation 门实际 inspected 184 files；未准入包未形成入口或词表泄漏。voice 门实跑 PASS。PACK E2E 的卸载退化断言 `:275-276` 对“法律包”与 `legal` 的区分通过，但不覆盖上述语料墙违规。
+
+### 6. 承债、SPEC 回执与置换批
+
+- `rg -n defaultMatterPackBinding .` 在目标树仍命中 `apps/desktop/specs/PACK-INTERACT-1.md:87,137-138,163,177`。虽为历史/销条叙述，票面写的是“全仓 grep 零残留”，故按字面不满足；ADR-015 决定三的过渡默认修订记录虽有留痕，不能把全仓零命中改判为绿。
+- GENERIC-PACK-1 的三态既有契约未被实现改写；ADR-015 决定三/四的 fail-closed、产物/账本保留、显式退化和重载方向与源码相符。
+- PACK 回执登记了 PackageCatalogEntry、MatterBindingError 两个新概念及“为何非加不可”；OSS 四选一结论亦在回执〇节；未见 `[需架构拍板]` 悬置。上述文档登记不能覆盖行为证据缺口。
+- 置换批抽查：`d1-case-scope.spec.ts:106` 从旧的五垂类 outline 改为新建零绑定只留 `outline-draft` 并反断言四垂类入口；`pilot-layout.spec.ts:129-155` 从点 `outline-timeline` 改为点 `outline-draft`，布局断言本意仍为进入 preview 与宽度让位，属于按新契约重写，不是放宽。
+- 承债⑥ 的构造点不是建案/绑定构造后直接写持久状态：`:243-264` 经过真实建案、真实素材入口、真实 S1、真实卸载；因此“产品可达”这一点成立。但缺 store-layer 直证仍是本票拒收分支。
+
+### 7. 拒绝分支汇总
+
+以下任一项都足以拒收，本次全部保留：
+
+1. 新增 PACK fixture 命中 2026-08-07 语料墙（`:130,148,184`）。
+2. 独立 Playwright 完整链两轮均 374/375；`pi-lane.spec.ts:338` 重复失败，回执 375/375 不可采信。
+3. 票面要求的卸载后案件账本与 durable 产物 store-layer 直证缺失。
+4. 三态没有在 `writeCaseList → readCaseList` 往返中逐态直证。
+5. 缺 catalog 条目的产品呈现没有显式测试，现有 invalidId 断言允许裸 id 标签。
+6. `defaultMatterPackBinding` 全仓 grep 仍有四处 SPEC 残留，未达到字面零残留门。
+
+本验收会话仅追加本记录，未自行修实现。验收记录须由本会话显式暂存并提交后，才视为完成。
