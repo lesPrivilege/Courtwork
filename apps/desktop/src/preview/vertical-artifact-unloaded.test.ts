@@ -7,11 +7,12 @@ describe('VerticalArtifactUnloadedView（ADR-015 决定四：垂类产物包未�
   it('诚实呈现产物存在＋加载提示，零伪装通用产物', () => {
     const html = renderToStaticMarkup(createElement(VerticalArtifactUnloadedView, {
       title: '风险清单',
-      packageId: 'legal',
+      packageLabel: '法律包',
     }));
     expect(html).toContain('风险清单');
-    expect(html).toContain('该产出由 legal 包生成 · 加载 legal 包以获得结构化视图');
+    expect(html).toContain('该产出由法律包生成 · 加载法律包以获得结构化视图');
     expect(html).toContain('data-testid="vertical-artifact-unloaded"');
+    expect(html).not.toContain('legal 包');
     expect(html).not.toContain('当前版本不支持');
   });
 });

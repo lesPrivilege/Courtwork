@@ -25,6 +25,7 @@ import {
   updateRuntimeGuard,
 } from './settings-store';
 import { SurfaceCard } from '../surface/SurfaceCard';
+import type { PackageCatalogEntry } from '../composition/package-catalog';
 import { HostAccessPanel } from '../host/HostAccessPanel';
 import type { HostAuthPort } from '../host/host-auth-port';
 import { ChatMemoryPanel } from '../chat/ChatMemoryPanel';
@@ -32,6 +33,7 @@ import { ChatMemoryPanel } from '../chat/ChatMemoryPanel';
 export type SettingsSection =
   | 'model'
   | 'appearance'
+  | 'packages'
   | 'output'
   | 'channels'
   | 'privacy'
@@ -41,6 +43,7 @@ export type SettingsSection =
 const NAV: ReadonlyArray<{ id: SettingsSection; label: string }> = [
   { id: 'model', label: 'Model' },
   { id: 'appearance', label: 'Appearance' },
+  { id: 'packages', label: 'Packages' },
   { id: 'output', label: 'Output & files' },
   { id: 'channels', label: 'Channels' },
   { id: 'privacy', label: 'Data & privacy' },
@@ -73,6 +76,8 @@ export interface SettingsPageProps {
   onFeedback: (message: string, ok: boolean) => void;
   /** HOST-AUTH-LITE：注入的宿主授权端口（失败可见面消费）。 */
   hostAuth: HostAuthPort;
+  /** PACK-INTERACT-1 ①：全局可用集呈现（随本版本分发的垂类能力包，只读，零开关）。 */
+  packCatalog: readonly PackageCatalogEntry[];
 }
 
 /**
@@ -94,6 +99,7 @@ export function SettingsPage({
   modelConfigNotice,
   onFeedback,
   hostAuth,
+  packCatalog,
 }: SettingsPageProps) {
   const [settings, setSettings] = useState<SettingsSnapshot>(() => loadSettings());
   const [maxUsdDraft, setMaxUsdDraft] = useState(String(settings.runtimeGuard.maxUsd ?? ''));
@@ -423,6 +429,27 @@ export function SettingsPage({
             </section>
           )}
 
+          {section === 'packages' && (
+            <section className="settings-panel">
+              <h2>Packages</h2>
+              <p className="settings-lead">随本版本分发的垂类能力包。加载按工作区选择，互不影响。</p>
+              {packCatalog.map((entry) => (
+                <div className="settings-row" data-testid={`settings-package-${entry.packageId}`} data-package-id={entry.packageId}>
+                  <div>
+                    <strong>{entry.displayName}</strong>
+                    <p>随本版本分发 · v{entry.version}</p>
+                  </div>
+                  <span className="settings-muted">随本版本分发</span>
+                </div>
+              ))}
+              <div className="settings-row" data-testid="settings-packages-note">
+                <div>
+                  <strong>按工作区加载</strong>
+                  <p>新建或管理案件时选择要加载的包；未加载的工作区保持通用能力。</p>
+                </div>
+              </div>
+            </section>
+          )}
           {section === 'output' && (
             <section className="settings-panel">
               <h2>Output & files</h2>

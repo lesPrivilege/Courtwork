@@ -168,6 +168,7 @@ const EXEMPT = {
   'kbd|all': '控件边（按键拟形）',
   'kbd|width-only': '控件边（按键拟形底沿）',
   '.quiet-button, .primary-button, .scene-strip button, .batch-bar button, .continuation-button|all': '控件边',
+  '.rail-pack-manage|all': '控件边',
   '.chat-titlebar input|all': '控件边',
   // PI-LANE-UI-1 · 通用工作稿面：本面零线级消费点（层级走字号/字重/明度/间距与一级底色台阶，
   // 面头复用已签署的 .panel-head 文武线）。留在册的只有控件边与语义色标线两族。
@@ -216,6 +217,7 @@ const EXEMPT = {
   '.usage-popover|all': '浮面描边',
   '.compile-dialog|all': '浮面描边',
   '.new-case-dialog|all': '浮面描边',
+  '.matter-pack-dialog|all': '浮面描边',
   '.provider-dialog|all': '浮面描边',
   '.settings-confirm-dialog|all': '浮面描边',
   '.cell-peek|all': '浮面描边',
@@ -226,6 +228,7 @@ const EXEMPT = {
   // 语义色标线：色即语义，线宽不参与层级
   '.titlebar-credential-warn|all': '语义色标线（warn）',
   '.case-grant-invalid|all': '语义色标线（warn）',
+  '.binding-failure|all': '语义色标线（warn）',
   '.case-remove-button|all': '语义色标线（warn）',
   '.session-history-error|left': '语义色标线（red）',
   '.chat-recovery-error|left': '语义色标线（red）',

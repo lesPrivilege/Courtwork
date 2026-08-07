@@ -503,6 +503,11 @@ kbd { min-width: 20px; padding: 2px 5px; border: 1px solid var(--border-strong);
 .original-hash { color: var(--text-tertiary); font-size: 10px; }
 .originals-list li { grid-template-columns: 1fr auto auto; }
 .rail-case-expand { margin-left: 18px; padding: 0 0 6px 8px; border-left: var(--rule-minor) solid var(--border); background: transparent; border-radius: 0; }
+/* PACK-INTERACT-1 ①：matter 设置处的垂类包节（状态行 + 管理入口，中间档零新增色）。 */
+.rail-pack-section { display: grid; gap: 6px; padding: 0 10px 8px; }
+.rail-pack-section .rail-label { padding: 8px 0 0; }
+.rail-pack-state { margin: 0; color: var(--text-secondary); font-size: var(--type-dense-meta-size); line-height: 1.5; }
+.rail-pack-manage { justify-self: start; border: 1px solid var(--border-strong); }
 .rail-label { margin: 0; padding: 8px 10px 4px; border-top: 0; color: var(--text-tertiary); font-size: var(--type-dense-meta-size); font-weight: 510; letter-spacing: .01em; }
 /* ④分区标题行：标题左、操作钮右，基线层级对齐（右侧钮 hover 才现，静时轻淡） */
 .rail-section-head { display: flex; align-items: center; justify-content: space-between; padding-right: 6px; }
@@ -762,6 +767,13 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .scene-strip button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-dense-meta-size); }
 .scene-more-wrap { position: relative; flex: none; }
 .scene-strip .scene-unloaded-hint { margin: 0; font-size: var(--type-dense-meta-size); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* PACK-INTERACT-1 ③：绑定失效显式面板（复用语义 warn 色，零新增色/影）。 */
+.binding-failure {
+  margin: 8px 12px 6px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border: 1px solid var(--elevation-warn-border); border-radius: 4px;
+  background: var(--elevation-warn-bg); color: var(--elevation-warn-fg); font-size: var(--type-dense-meta-size);
+}
+.binding-failure p { margin: 0; line-height: 1.5; }
 .scene-more-popover { position: absolute; z-index: 12; right: 0; bottom: calc(100% + 6px); min-width: 132px; display: grid; gap: 2px; padding: 6px; }
 .scene-more-popover button { width: 100%; border: 0; text-align: left; }
 .scene-more-narrow-only { display: none; }
@@ -1433,6 +1445,20 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .folder-pick-button:hover { background: var(--control-hover); }
 .folder-skip-link { display: block; margin: 10px auto 0; border: 0; background: transparent; color: var(--text-tertiary); cursor: pointer; font-size: var(--type-dense-meta-size); text-decoration: underline; }
 .new-case-dialog footer { display: flex; justify-content: flex-end; gap: 7px; margin-top: 16px; }
+/* PACK-INTERACT-1 ①：建案时选包 + matter 包设置弹层的单选组（Agent 界面中间档，token 级）。 */
+.new-case-packs, .matter-pack-options { display: grid; gap: 6px; margin: 10px 0; padding: 0; border: 0; }
+.new-case-packs legend, .matter-pack-options legend { margin-bottom: 6px; color: var(--text-secondary); font-size: var(--type-dense-meta-size); font-weight: 510; }
+.new-case-packs .settings-radio, .matter-pack-options .settings-radio {
+  display: inline-flex; width: auto; align-items: center; gap: 7px; color: var(--text-primary);
+  cursor: pointer; font-size: var(--type-dense-body-size);
+}
+.new-case-packs .settings-radio input, .matter-pack-options .settings-radio input {
+  width: 14px; height: 14px; margin: 0; padding: 0; flex: none; accent-color: var(--action-primary); cursor: pointer;
+}
+.matter-pack-dialog { width: min(460px, calc(100vw - 32px)); padding: 16px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }
+.matter-pack-dialog h2 { margin: 0 0 10px; font-size: 18px; font-weight: 510; }
+.matter-pack-dialog p { margin: 0 0 12px; color: var(--text-secondary); line-height: 1.55; }
+.matter-pack-dialog footer { display: flex; justify-content: flex-end; gap: 7px; margin-top: 16px; }
 
 .provider-backdrop { z-index: 42; background: color-mix(in srgb, var(--text-primary) 22%, transparent); }
 .provider-dialog { width: min(520px, calc(100vw - 32px)); padding: 18px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-raised); }

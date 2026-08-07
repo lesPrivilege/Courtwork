@@ -80,7 +80,7 @@ createRoot(document.getElementById('root')!).render(
         hostRenderers={packageRuntime.hostRenderers}
         registriesFor={packageRuntime.registriesFor}
         availablePackageIds={packageRuntime.packageIds}
-        defaultMatterPackBinding={packageRuntime.defaultMatterPackBinding}
+        packCatalog={packageRuntime.packageCatalog}
         workProjection={demoWorkFixture.projection}
         workFixture={demoWorkFixture}
         verticalWorkSurface={verticalWorkSurface}

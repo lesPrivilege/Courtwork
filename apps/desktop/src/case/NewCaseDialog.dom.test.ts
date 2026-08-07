@@ -42,6 +42,11 @@ const granted = (grantId: string, label: string): AuthorizeResult => ({
   grant: { grantId, label },
 });
 
+const CATALOG = [
+  { packageId: 'legal', displayName: '法律包', version: '0.1.0' },
+  { packageId: 'pm', displayName: '产品管理包', version: '0.1.1' },
+];
+
 describe('NewCaseDialog：宿主 picker 绑定案件根', () => {
   it('生产入口零 webkitdirectory / file input', () => {
     const host = render(createElement(NewCaseDialog, {
@@ -49,6 +54,7 @@ describe('NewCaseDialog：宿主 picker 绑定案件根', () => {
       onClose: vi.fn(),
       onCreate: vi.fn(),
       onAuthorizeFolder: vi.fn().mockResolvedValue(granted('g', 'l')),
+      packCatalog: CATALOG,
     }));
     expect(host.querySelector('input[type="file"]')).toBeNull();
     expect(host.innerHTML.includes('webkitdirectory')).toBe(false);
@@ -57,7 +63,7 @@ describe('NewCaseDialog：宿主 picker 绑定案件根', () => {
   it('授权成功 → 绑定 grantId+label，预填名称，创建携 opaque 引用（无绝对路径）', async () => {
     const onCreate = vi.fn();
     const onAuthorizeFolder = vi.fn().mockResolvedValue(granted('grant-临江', '临江精铸'));
-    const host = render(createElement(NewCaseDialog, { open: true, onClose: vi.fn(), onCreate, onAuthorizeFolder }));
+    const host = render(createElement(NewCaseDialog, { open: true, onClose: vi.fn(), onCreate, onAuthorizeFolder, packCatalog: CATALOG }));
 
     await act(async () => {
       host.querySelector<HTMLButtonElement>('[data-testid="new-case-authorize"]')!.click();
@@ -72,7 +78,7 @@ describe('NewCaseDialog：宿主 picker 绑定案件根', () => {
     expect(nameInput.value).toBe('临江精铸');
 
     act(() => host.querySelector<HTMLButtonElement>('.primary-button')!.click());
-    expect(onCreate).toHaveBeenCalledWith({ title: '临江精铸', grantId: 'grant-临江', label: '临江精铸' });
+    expect(onCreate).toHaveBeenCalledWith({ title: '临江精铸', grantId: 'grant-临江', label: '临江精铸', packBinding: [] });
     // 传出内容不含任何绝对路径
     expect(JSON.stringify(onCreate.mock.calls[0][0])).not.toContain('/');
   });
@@ -87,6 +93,7 @@ describe('NewCaseDialog：宿主 picker 绑定案件根', () => {
         onClose: vi.fn(),
         onCreate: vi.fn(),
         onAuthorizeFolder,
+        packCatalog: CATALOG,
       }));
       await act(async () => {
         host.querySelector<HTMLButtonElement>('[data-testid="new-case-authorize"]')!.click();
@@ -110,7 +117,7 @@ describe('NewCaseDialog：宿主 picker 绑定案件根', () => {
       .fn()
       .mockResolvedValueOnce(granted('grant-old', '旧文件夹'))
       .mockResolvedValueOnce(granted('grant-new', '新文件夹'));
-    const host = render(createElement(NewCaseDialog, { open: true, onClose: vi.fn(), onCreate, onAuthorizeFolder }));
+    const host = render(createElement(NewCaseDialog, { open: true, onClose: vi.fn(), onCreate, onAuthorizeFolder, packCatalog: CATALOG }));
 
     await act(async () => {
       host.querySelector<HTMLButtonElement>('[data-testid="new-case-authorize"]')!.click();
@@ -134,12 +141,45 @@ describe('NewCaseDialog：宿主 picker 绑定案件根', () => {
       onClose: vi.fn(),
       onCreate,
       onAuthorizeFolder: vi.fn(),
+      packCatalog: CATALOG,
     }));
     act(() => host.querySelector<HTMLButtonElement>('.folder-skip-link')!.click());
     expect(host.querySelector('[data-testid="new-case-folder-label"]')).toBeNull();
     const nameInput = host.querySelector<HTMLInputElement>('input[aria-label="案件名称"]')!;
     typeInto(nameInput, '张三诉李四');
     act(() => host.querySelector<HTMLButtonElement>('.primary-button')!.click());
-    expect(onCreate).toHaveBeenCalledWith({ title: '张三诉李四', grantId: undefined, label: undefined });
+    expect(onCreate).toHaveBeenCalledWith({ title: '张三诉李四', grantId: undefined, label: undefined, packBinding: [] });
+  });
+
+  it('PACK-INTERACT-1 ①：建案时选包——默认不加载；选 legal 携 packBinding [legal]', () => {
+    const onCreate = vi.fn();
+    const host = render(createElement(NewCaseDialog, {
+      open: true,
+      onClose: vi.fn(),
+      onCreate,
+      onAuthorizeFolder: vi.fn(),
+      packCatalog: CATALOG,
+    }));
+    act(() => host.querySelector<HTMLButtonElement>('.folder-skip-link')!.click());
+
+    // 默认「不加载垂类包」选中；可用集逐枚在场（全局可用集呈现）。
+    const none = host.querySelector<HTMLInputElement>('[data-testid="new-case-pack-none"]')!;
+    expect(none).not.toBeNull();
+    expect(none.checked).toBe(true);
+    expect(host.querySelector<HTMLInputElement>('[data-testid="new-case-pack-legal"]')).not.toBeNull();
+    expect(host.querySelector<HTMLInputElement>('[data-testid="new-case-pack-pm"]')).not.toBeNull();
+
+    const nameInput = host.querySelector<HTMLInputElement>('input[aria-label="案件名称"]')!;
+    typeInto(nameInput, '选包案');
+    act(() => host.querySelector<HTMLButtonElement>('.primary-button')!.click());
+    expect(onCreate).toHaveBeenCalledWith({ title: '选包案', grantId: undefined, label: undefined, packBinding: [] });
+
+    // 选择 legal 后创建携 [legal]（创建后 dialog 重置回文件夹步，重入命名步再选）
+    act(() => host.querySelector<HTMLButtonElement>('.folder-skip-link')!.click());
+    act(() => { host.querySelector<HTMLInputElement>('[data-testid="new-case-pack-legal"]')!.click(); });
+    const nameInput2 = host.querySelector<HTMLInputElement>('input[aria-label="案件名称"]')!;
+    typeInto(nameInput2, '选包案二');
+    act(() => host.querySelector<HTMLButtonElement>('.primary-button')!.click());
+    expect(onCreate).toHaveBeenLastCalledWith({ title: '选包案二', grantId: undefined, label: undefined, packBinding: ['legal'] });
   });
 });
