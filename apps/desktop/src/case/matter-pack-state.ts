@@ -11,12 +11,20 @@ import { resolveMatterPackBinding } from '../composition/package-runtime';
 export interface MatterPackState {
   /** 已加载包的 id（失效/未知 id 也在内）。空＝未加载。 */
   loadedIds: readonly string[];
-  /** 已加载包的展示名（失效/未知 id 回落原 id）。 */
+  /**
+   * 已加载包的展示名。宿主目录缺条目时**不回落裸 id**——裸 id 与正常已加载态同形，
+   * 等于把装配缺陷伪装成正常态（核心不变量四）；一律带显式不可用标记。
+   */
   loadedLabels: readonly string[];
   /** 未声明态（跟随全部可用包）。 */
   undeclared: boolean;
   /** 绑定指向本制品未准入的包（失效态，ADR-015 fail-closed 显式）。 */
   invalidId?: string;
+}
+
+/** 宿主目录缺条目时的用户可见标记：带 id 便于定位，但明写不可用，绝不与正常已加载态同形。 */
+export function unavailablePackLabel(packageId: string): string {
+  return `${packageId} · 本版本不可用`;
 }
 
 export function describeMatterPackState(
@@ -25,9 +33,10 @@ export function describeMatterPackState(
   catalog: readonly PackageCatalogEntry[],
 ): MatterPackState {
   const resolved = resolveMatterPackBinding(packBinding, availablePackageIds);
-  const loadedLabels = resolved.packageIds.map(
-    (id) => catalog.find((entry) => entry.packageId === id)?.displayName ?? id,
-  );
+  const loadedLabels = resolved.packageIds.map((id) => {
+    const entry = catalog.find((item) => item.packageId === id);
+    return entry === undefined ? unavailablePackLabel(id) : entry.displayName;
+  });
   const invalidId = resolved.packageIds.find((id) => !catalog.some((entry) => entry.packageId === id));
   return {
     loadedIds: [...resolved.packageIds],

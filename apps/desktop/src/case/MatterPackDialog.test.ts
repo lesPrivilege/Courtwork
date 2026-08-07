@@ -114,6 +114,11 @@ describe('MatterPackDialog（matter 级包设置）', () => {
     expect(warning).not.toBeNull();
     expect(warning?.textContent).toContain('tender');
     expect(warning?.getAttribute('role')).toBe('alert');
+    // 宿主目录缺条目 → 状态行禁裸 id 伪装正常态（不得出现「已加载：tender」）。
+    const stateLine = host.querySelector('[data-testid="matter-pack-state"]');
+    expect(stateLine?.textContent).toContain('绑定不可用');
+    expect(stateLine?.textContent).toContain('tender · 本版本不可用');
+    expect(stateLine?.textContent).not.toContain('已加载');
     // 失效绑定不在可用集内，单选落到「不加载」；保存即清绑
     act(() => host.querySelector<HTMLButtonElement>('[data-testid="matter-pack-apply"]')!.click());
     expect(onApply).toHaveBeenLastCalledWith([]);

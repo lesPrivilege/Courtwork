@@ -316,7 +316,10 @@ export function CaseRail({
                 <p className="rail-pack-state" data-testid={`rail-pack-state-${item.id}`}>
                   {packState.loadedIds.length === 0
                     ? '未加载垂类包 · 通用能力可用'
-                    : `已加载：${packState.loadedLabels.join('、')}`}
+                    : packState.invalidId !== undefined
+                      // 缺宿主目录条目：不得说「已加载」——那是把装配缺陷伪装成正常态。
+                      ? `绑定不可用：${packState.loadedLabels.join('、')} · 请到管理包处理`
+                      : `已加载：${packState.loadedLabels.join('、')}`}
                 </p>
                 <button
                   type="button"

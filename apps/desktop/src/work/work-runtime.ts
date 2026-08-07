@@ -45,12 +45,15 @@ export type WorkTurnStub = (input: {
 let workTurnStub: WorkTurnStub | null = null;
 let resetHost: (() => void) | null = null;
 let readHost: ((ref: WorkSessionRef) => ReturnType<WorkStateHostPort['read']>) | null = null;
+/** DEV/E2E 探针台账：内存宿主写过账的会话坐标（生产注入 host 时恒空）。 */
+const knownRefs: WorkSessionRef[] = [];
 
 /** Playwright/DEV 探针注入点（非 demo 装配；仅 main.tsx 在 DEV+E2E mode 安装）。 */
 export function installWorkTestHooks(): {
   setTurnStub(stub: WorkTurnStub | null): void;
   reset(): void;
   readState(ref: WorkSessionRef): ReturnType<WorkStateHostPort['read']>;
+  listSessions(): WorkSessionRef[];
 } {
   const hooks = {
     setTurnStub(stub: WorkTurnStub | null) {
@@ -62,6 +65,9 @@ export function installWorkTestHooks(): {
     },
     readState(ref: WorkSessionRef) {
       return readHost ? readHost(ref) : Promise.resolve({ found: false as const });
+    },
+    listSessions() {
+      return knownRefs.map((ref) => ({ ...ref }));
     },
   };
   (window as typeof window & { __courtworkWorkHooks?: typeof hooks }).__courtworkWorkHooks = hooks;
@@ -94,10 +100,17 @@ export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalW
   let host = input.host;
   if (!host) {
     let inner = createInMemoryWorkStateHost();
-    resetHost = () => { inner = createInMemoryWorkStateHost(); };
+    resetHost = () => { inner = createInMemoryWorkStateHost(); knownRefs.length = 0; };
     host = {
       read: (ref) => inner.read(ref),
-      compareAndSwap: (cas) => inner.compareAndSwap(cas),
+      compareAndSwap: (cas) => {
+        // DEV/E2E 探针台账：会话恢复指针只对可续/中断态落盘，跑完即 compare-and-clear，
+        // 故 e2e 无从由持久指针取回已完成会话的坐标。这里只记录写过账的 ref（不改任何语义）。
+        if (!knownRefs.some((seen) => seen.caseId === cas.ref.caseId && seen.sessionId === cas.ref.sessionId)) {
+          knownRefs.push({ caseId: cas.ref.caseId, sessionId: cas.ref.sessionId });
+        }
+        return inner.compareAndSwap(cas);
+      },
     };
   }
   readHost = (ref) => host!.read(ref);

@@ -93,6 +93,12 @@ test('③ 准入失败 fail-closed 显式：绑定非准入包 → 显式失效�
     await expect(page.getByRole('button', { name: legalCopy, exact: true })).toHaveCount(0);
   }
 
+  // 宿主目录缺该条目时的呈现契约：状态行禁裸 id 伪装正常已加载态。
+  const packStateRow = page.getByTestId('rail-pack-state-invalid-bound');
+  await expect(packStateRow).toContainText('绑定不可用');
+  await expect(packStateRow).toContainText('本版本不可用');
+  await expect(packStateRow).not.toContainText('已加载');
+
   // 下一步：管理此案的包 → 弹层显式标注失效绑定。
   await failure.getByTestId('matter-binding-failure-manage').click();
   await expect(page.getByTestId('matter-pack-dialog')).toBeVisible();
@@ -111,7 +117,39 @@ test('③ 准入失败 fail-closed 显式：绑定非准入包 → 显式失效�
 
 type HostAuthHooks = { reset(): void; setNextAuthorize(result: unknown): void };
 type MaterialHooks = { reset(): void; setFile(grantId: string, relativePath: string, bytes: Uint8Array): void };
-type WorkHooks = { reset(): void; setTurnStub(stub: unknown): void };
+type WorkHooks = {
+  reset(): void;
+  setTurnStub(stub: unknown): void;
+  readState(ref: { caseId: string; sessionId: string }): Promise<{ found: false } | { found: true; bytes: Uint8Array }>;
+  listSessions(): Array<{ caseId: string; sessionId: string }>;
+};
+
+/**
+ * 取当前案已写账的 work 会话坐标（store 层直证的坐标，不经 UI）。
+ *
+ * 不走 `courtwork.work-session.v1` 恢复指针：那是**可续/中断态**的指针，跑完即
+ * compare-and-clear（work-session-lifecycle 的 clear_if_matches），因此完成态会话无坐标可取。
+ */
+async function durableWorkRef(page: Page) {
+  const caseId = await page.evaluate(() => localStorage.getItem('courtwork.selected-case-id'));
+  if (!caseId) throw new Error('missing selected case');
+  const refs = await page.evaluate(() => (
+    (window as unknown as { __courtworkWorkHooks: WorkHooks }).__courtworkWorkHooks.listSessions()
+  ));
+  const ref = refs.find((item) => item.caseId === caseId);
+  if (!ref) throw new Error(`no durable work session for ${caseId}`);
+  return ref;
+}
+
+/** 读 WorkState 宿主的原始字节（不是 UI 投影）。 */
+async function readWorkStateText(page: Page, ref: { caseId: string; sessionId: string }) {
+  return page.evaluate(async (target) => {
+    const hooks = (window as unknown as { __courtworkWorkHooks: WorkHooks }).__courtworkWorkHooks;
+    const result = await hooks.readState(target);
+    if (!result.found) throw new Error('missing durable work state');
+    return new TextDecoder().decode(result.bytes);
+  }, ref);
+}
 
 async function resetHooks(page: Page) {
   await page.evaluate(() => {
@@ -127,7 +165,7 @@ async function createGrantCaseWithLegal(page: Page) {
   await page.getByTestId('new-case-open').click();
   await expect(page.getByTestId('new-case-dialog')).toBeVisible();
   await page.evaluate((grantId) => {
-    (window as unknown as { __courtworkHostAuth: HostAuthHooks }).__courtworkHostAuth.setNextAuthorize({ status: 'granted', grant: { grantId, label: '合成卷宗 · 包交互' } });
+    (window as unknown as { __courtworkHostAuth: HostAuthHooks }).__courtworkHostAuth.setNextAuthorize({ status: 'granted', grant: { grantId, label: '演示文件夹 · 包交互' } });
   }, GRANT_ID);
   await page.getByTestId('new-case-authorize').click();
   const dialog = page.getByTestId('new-case-dialog');
@@ -145,7 +183,7 @@ async function ingestContract(page: Page) {
     (window as unknown as { __courtworkMaterialHost: MaterialHooks }).__courtworkMaterialHost.setFile(grantId, path, new Uint8Array(data));
   }, { grantId: GRANT_ID, path: PRIMARY_FILE, data: bytes });
   await page.evaluate((grantId) => {
-    (window as unknown as { __courtworkHostAuth: HostAuthHooks }).__courtworkHostAuth.setNextAuthorize({ status: 'granted', grant: { grantId, label: '合成卷宗 · 包交互' } });
+    (window as unknown as { __courtworkHostAuth: HostAuthHooks }).__courtworkHostAuth.setNextAuthorize({ status: 'granted', grant: { grantId, label: '演示文件夹 · 包交互' } });
   }, GRANT_ID);
   await page.getByTestId('composer-plus').first().click();
   await page.getByTestId('composer-plus-folder').first().click();
@@ -181,7 +219,7 @@ async function setScriptedTurnStub(page: Page) {
           artifact: {
             caseId: 'five-faces',
             nodes: [
-              { id: 'p1', kind: 'organization', primaryName: '晨曦印务有限公司', aliases: [] },
+              { id: 'p1', kind: 'organization', primaryName: '合川器材有限公司', aliases: [] },
               { id: 'p2', kind: 'organization', primaryName: '起云智能装备股份有限公司', aliases: [] },
             ],
             edges: [{
@@ -252,6 +290,10 @@ test('⑥ 卸载退化视图产品面全链：建案选 legal → S1 产出时�
   const timeline = page.getByTestId('timeline-panel');
   await expect(timeline).toBeVisible({ timeout: 15000 });
   await expect(timeline).toContainText('双方签署设备采购合同');
+  // 取 durable 会话坐标：此刻运行停在门禁上、指针在册；跑完即 compare-and-clear，故须在此取。
+  const ref = await durableWorkRef(page);
+  const before = await readWorkStateText(page, ref);
+  expect(before, '卸载前 work 账本须已有 durable 产物字节').toContain('双方签署设备采购合同');
   await page.getByTestId('gate-confirm').getByTestId('gate-confirm-accept').click();
   // 第二道门禁（当事人关系图谱）——切到图谱面门禁才渲染，跑完再卸载（避免在途运行与卸载态交互）。
   const tabs = page.getByRole('tablist', { name: '结构化工作面' });
@@ -260,8 +302,21 @@ test('⑥ 卸载退化视图产品面全链：建案选 legal → S1 产出时�
   await page.getByTestId('gate-confirm-accept').click();
   await expect(page.getByTestId('gate-confirm')).toHaveCount(0, { timeout: 15000 });
 
-  // ② 卸载（真实加载动作）：包设置弹层 → 不加载。
+  // ② 卸载（真实加载动作）：包设置弹层 → 不加载。卸载前后各取一次 store 层原始字节。
+  const beforeUnload = await readWorkStateText(page, ref);
   await unloadAllPacks(page);
+
+  // ②' store 层直证：案件账本记下显式零绑定，而 durable 产物字节逐字未动（零迁移零重算）——
+  //     「卸载不删除已有产出」不能只由 UI 退化面与重载恢复间接观察。
+  const persistedCase = await page.evaluate(({ key, grantId }) => {
+    const raw = localStorage.getItem(key);
+    const parsed = JSON.parse(raw as string) as { cases: Array<{ grantId?: string; packBinding?: string[] }> };
+    return parsed.cases.find((item) => item.grantId === grantId) ?? null;
+  }, { key: CASE_LIST_KEY, grantId: GRANT_ID });
+  expect(persistedCase?.packBinding).toEqual([]);
+  const after = await readWorkStateText(page, ref);
+  expect(after).toBe(beforeUnload);
+  expect(after).toContain('双方签署设备采购合同');
 
   // ③ 卸载态：活动视图落回在册默认（通用面），结构化产出页签承载已有产物 → 显式退化面。
   //    退化文案用宿主目录 displayName（法律包），不泄漏 packageId 字面量；

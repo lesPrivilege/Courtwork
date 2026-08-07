@@ -328,6 +328,14 @@ test('用户上滚读史后，流态与终态都不夺回视口', async ({ page 
 
   // 真滚轮：程序化 scrollTo 未必被自动跟随判为「用户在读史」，滚轮才是这条判据的真形。
   const viewport = page.getByTestId('pi-viewport');
+  // 前提之前的前提：正文得先多到撑出滚动条。`pi-assistant-turn` 可见只说明首个 delta 到了，
+  // 此刻取样滚轮会滚在不可滚的视口上（max−top 恒 0）——判据没被验到，却以「断言红」示人。
+  await expect
+    .poll(
+      () => viewport.evaluate((node) => node.scrollHeight - node.clientHeight),
+      { message: '视口须先被正文撑出可滚区，否则滚轮无从离底' },
+    )
+    .toBeGreaterThan(400);
   await viewport.hover();
   await page.mouse.wheel(0, -4000);
   const before = await viewport.evaluate((node) => ({

@@ -58,7 +58,9 @@ export function MatterPackDialog({
         <p className="settings-muted" data-testid="matter-pack-state">
           {state.loadedIds.length === 0
             ? `「${caseTitle}」未加载垂类包`
-            : `「${caseTitle}」已加载：${state.loadedLabels.join('、')}`}
+            : state.invalidId !== undefined
+              ? `「${caseTitle}」绑定不可用：${state.loadedLabels.join('、')}`
+              : `「${caseTitle}」已加载：${state.loadedLabels.join('、')}`}
         </p>
         {state.invalidId !== undefined && (
           <div className="settings-recovery" data-testid="matter-pack-invalid" role="alert">

@@ -84,7 +84,7 @@ App.tsx 侧只余装配与回调；高水位随外提净减（见门节）。
   **写入口**（UI 变更绑定 → 整表替换投影），持久判据/读侧零改。
 - `resolveMatterPackBinding` 三态解析——不动。
 - `registriesFor` 非准入包 throw——不动（本票在消费侧接显式态，不改 throw 语义）。
-- `defaultMatterPackBinding`——**销条**（见四 · ⑤）。
+- 新建案默认绑定 prop（原 NewCaseDialog 过渡默认入参）——**销条**（见四 · ⑤）。
 - 零泄漏静态门（`assert-vertical-isolation.mjs`）、voice 门（`lint:voice`）、VIEW-ABI、
   high-water——全部保持，随本票逐枚过。
 
@@ -134,8 +134,9 @@ e2e 往返链。
 
 ### ⑤ 翻转过渡默认（承债，销条）
 
-- `defaultMatterPackBinding` 由 `['legal']` 翻为 `[]`；App `createCase` 默认 `packBinding: []`，
-  `defaultMatterPackBinding` prop 随之**整链退役**（不保留兼容层——删除即语义）。
+- 新建案默认绑定由 `['legal']` 翻为 `[]`；App `createCase` 默认 `packBinding: []`，
+  承载该过渡默认的 NewCaseDialog prop 随之**整链退役**（不保留兼容层——删除即语义）；
+  其标识符全仓零残留（含本 SPEC——票面门是字面零命中）。
 - 同批销 ADR-015 决定三「过渡默认（2026-08-06 补记）」条：正文删除过渡句，修订记录增补
   「2026-08-07 · PACK-INTERACT-1 销条」条目（修订记录留痕）。
 - `PersistedCase.packBinding` / `CaseSummary.packBinding` / `package-runtime.ts` 三处
@@ -160,7 +161,7 @@ legal artifact → 卸载 → 打开「结构化产出」页签见显式退化�
 ### 步骤 A · 包目录 + 默认翻转（composition）
 
 `package-catalog.ts`（`PACKAGE_CATALOG`：legal=法律包、pm=产品管理包，准入序）；`package-runtime.ts`
-增 `packageCatalog` 与 `describePackage`；`defaultMatterPackBinding` 翻 `[]`。红证：单测。
+增 `packageCatalog` 与 `describePackage`；新建案默认绑定翻 `[]`。红证：单测。
 
 ### 步骤 B · 建案处选包（NewCaseDialog）
 
@@ -174,7 +175,7 @@ legal artifact → 卸载 → 打开「结构化产出」页签见显式退化�
 ### 步骤 D · App 装配 + fail-closed（`matter-registries.ts` 外提）
 
 `resolveMatterRegistries` 外提；App 接 `packDialogCaseId`/`applyPackBinding`/失效面板；
-`createCase` 默认零绑定；`defaultMatterPackBinding` 退役；`VerticalArtifactUnloadedView` 换
+`createCase` 默认零绑定；过渡默认 prop 退役；`VerticalArtifactUnloadedView` 换
 displayName；高水位随外提收紧。红证：单测 + 失效态断言。
 
 ### 步骤 E · Settings「Packages」节
@@ -244,3 +245,49 @@ ADR-015 销条、注释订正、SPEC 回执收尾；八相全量门。
 - **语料墙**：本票新增 fixture 全部为合成构造（turn 樁产出时间线/图谱/CaseFile 为结构化示例），卷宗实物零入仓。
 
 **报交验点**：六边界达成即停；不自我验收——报 Codex 独立会话验收（clean worktree、独立端口、漂移/守卫实际注入反例观察变红）。
+
+---
+
+## 九 · 1R 返修（2026-08-07，应 REJECT 六枚拒绝分支）
+
+首轮 `e432e494` 被独立验收判 **REJECT**（记录见 `apps/desktop/ACCEPTANCE.md`「PACK-INTERACT-1
+独立验收」节，验收提交 `5eef398a`）。六枚拒绝分支逐枚返修：
+
+| # | 拒因 | 返修 |
+|---|---|---|
+| 1 | 新增 fixture 命中语料墙（`:130,148,184`） | 三处改合成串：`合成卷宗 · 包交互`→`演示文件夹 · 包交互`（两处）、`晨曦印务有限公司`→`合川器材有限公司`。六词全仓在本 fixture 内零命中 |
+| 2 | 完整链两轮 374/375，`pi-lane.spec.ts:338` 复现失败；回执 375/375 不可采信 | 根因＝**取样时机**：`pi-assistant-turn` 可见只说明首个 delta 到了，此刻视口尚未被正文撑出可滚区（`max−top` 恒 0），滚轮无从离底——判据没被验到却以「断言红」示人。改为滚轮前 `expect.poll` 等 `scrollHeight−clientHeight > 400`，判据本身一字不动 |
+| 3 | 卸载后 store 层直证缺失 | ⑥ 链新增 store 层探针：卸载前后各读一次 **WorkState 宿主原始字节**（非 UI 投影），断言逐字节相同且仍含产物正文；并直读案件账本断言 `packBinding` 为 `[]` |
+| 4 | 三态未在 `writeCaseList → readCaseList` 往返中逐态直证 | `case-store.test.ts` 新增三态往返用例（未声明/显式零/显式一枚各一枚，经 `reopen` 换实例读同一底层字节），并逐态断言可区分 |
+| 5 | 缺 catalog 条目的呈现允许裸 id 伪装正常态 | `unavailablePackLabel`：目录缺条目一律 `{id} · 本版本不可用`，**不回落裸 id**；`CaseRail`／`MatterPackDialog` 状态行在失效态改说「绑定不可用」而非「已加载」。单测 + 弹层 DOM 测 + e2e ③ 三层断言 |
+| 6 | `defaultMatterPackBinding` 全仓 grep 仍有四处 SPEC 残留 | 本 SPEC 四处改按角色称谓（「新建案默认绑定 prop」）。全仓（除 `ACCEPTANCE.md` 验收记录本身）零命中 |
+
+**新增 DEV/E2E 探针（登记）**：`work-runtime.ts` 的测试钩子增 `listSessions()`，只记录内存宿主
+写过账的会话坐标。**为何非加不可**：`courtwork.work-session.v1` 是**可续/中断态**恢复指针，
+会话跑完即 `clear_if_matches`（`work-session-lifecycle`），故完成态会话在 e2e 侧无坐标可取，
+store 层直证（拒因三）无从落地。该钩子只在 DEV+E2E 由 `main.tsx` 安装，生产注入 Tauri 宿主时
+台账恒空；不改任何 store 语义、不进 wire/journal。
+
+**1R 撤判据复红**：
+
+- M4：`unavailablePackLabel` 回落裸 id → desktop 单测红 2（`matter-pack-state` + `MatterPackDialog`）；
+  e2e ③ 红 1。
+- M5：卸载写 `undefined` 而非 `[]`（三态塌陷） → e2e 三谱全红 3。
+- M6：读侧把显式 `[]` 归一为未声明 → 新增三态往返用例红 1。
+- 说明（如实）：「卸载后 durable 字节逐字未动」这一判据在现行实现中**没有对应的可变异生产分支**
+  （卸载路径根本不触碰 work 账本）——它是守卫式判据，区分力体现在「将来若引入迁移/重算即红」，
+  本轮不以伪造分支冒充红证。
+
+**1R 全量门实测**（工作树 clean，`release/evidence` 他票 PNG 已还原——Bin 卷入判例第三次拦下）：
+
+| 相 | 结果 |
+|---|---|
+| build | `pnpm -r build` 绿 |
+| lint | 绿 |
+| root test | **1941/1941** |
+| desktop test | **796/796**（较首轮 +1＝三态往返用例） |
+| cargo | **250 过 / 0 失败 / 1 忽略** |
+| Playwright | **375/375**（独占端口 18751、`--workers=1`、`test:e2e` 前置门链全过，5.9m） |
+| site:guard | PASS（App 高水位 2272） |
+
+**报交验点**：六枚拒绝分支全数返修，不自我验收——报 Codex 独立会话复验。

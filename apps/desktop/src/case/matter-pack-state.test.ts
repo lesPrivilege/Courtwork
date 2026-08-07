@@ -34,7 +34,9 @@ describe('describeMatterPackState（PACK-INTERACT-1 ② 状态语义取词）', 
     const state = describeMatterPackState(['tender'], ['legal', 'pm'], CATALOG);
     expect(state.undeclared).toBe(false);
     expect(state.loadedIds).toEqual(['tender']);
-    expect(state.loadedLabels).toEqual(['tender']);
     expect(state.invalidId).toBe('tender');
+    // 禁裸 id 伪装正常态：标签必须自带不可用标记，不能与「已加载 X 包」同形。
+    expect(state.loadedLabels).toEqual(['tender · 本版本不可用']);
+    expect(state.loadedLabels).not.toEqual(['tender']);
   });
 });
