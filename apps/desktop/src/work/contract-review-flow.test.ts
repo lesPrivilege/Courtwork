@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { RiskList } from '@courtwork/legal';
 import type { SessionEvent } from '@courtwork/core';
 import type { WorkCommandOutcome } from '../protocol/client';
-import type { LegalS3WorkCommand } from './work-command';
+import type { LegalWorkCommand } from './work-command';
 import {
   EMPTY_CONTRACT_REVIEW_STATE,
   ReviewOutputAuthorizationError,
@@ -133,7 +133,7 @@ describe('CONTRACT-REVIEW-SAFETY-1 · 显式提交与 outcome/replay 真源', ()
     const latest = list([risk('risk-01', 'confirmed', '持久修正后的结论')]);
     const compile = vi.fn(async () => {});
     // 泛型形态保住 mock 的参数类型（下方断言 `.mock.calls[0][0]` 依赖它），且不留未使用绑定。
-    const resolveReview = vi.fn<LegalS3WorkCommand['resolveReview']>(() => resolved);
+    const resolveReview = vi.fn<LegalWorkCommand['resolveReview']>(() => resolved);
     const replay = vi.fn(async () => ({
       found: true as const,
       ref: REF,

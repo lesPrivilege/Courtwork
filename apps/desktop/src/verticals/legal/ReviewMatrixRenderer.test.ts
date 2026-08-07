@@ -1,9 +1,16 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
+import { createLegalWorkSurface } from '../../work/legal-work-surface.js';
 import type { RuntimeArtifactDescriptor } from '@courtwork/registry';
 import { createDesktopPackageRuntime } from '../../composition/package-runtime.js';
 import { ReviewMatrixRenderer } from './ReviewMatrixRenderer.js';
+
+/** LEGAL-FIVE-FACES-1：renderer 现在带面内门禁确认条，故须挂垂类工作面 Provider（无门禁即零渲染）。 */
+const legalSurface = createLegalWorkSurface({ workCommand: {} as never });
+const withSurface = (node: ReturnType<typeof createElement>) =>
+  createElement(legalSurface.Provider, { value: { submission: {}, pendingGate: undefined, confirmGate: () => {} }, children: node });
+
 
 function matrixDescriptor(): RuntimeArtifactDescriptor {
   const entry = createDesktopPackageRuntime().packageRegistries.artifactSchemas.get('legal.ReviewMatrix');
@@ -32,10 +39,10 @@ const MATRIX: unknown = {
 
 describe('ReviewMatrixRenderer（先整体验证，再渲染）', () => {
   it('schema-valid payload 真渲矩阵：题头、单元格与图例计数俱在', () => {
-    const html = renderToStaticMarkup(createElement(ReviewMatrixRenderer, {
+    const html = renderToStaticMarkup(withSurface(createElement(ReviewMatrixRenderer, {
       descriptor: matrixDescriptor(),
       payload: MATRIX,
-    }));
+    })));
 
     expect(html).toContain('data-testid="matrix-panel"');
     expect(html).toContain('是否约定违约金比例（按合同总价）');
@@ -44,7 +51,7 @@ describe('ReviewMatrixRenderer（先整体验证，再渲染）', () => {
   });
 
   it('payload 与 schema 漂移时整面 fail closed，不渲染半张矩阵、不泄 wire', () => {
-    const html = renderToStaticMarkup(createElement(ReviewMatrixRenderer, {
+    const html = renderToStaticMarkup(withSurface(createElement(ReviewMatrixRenderer, {
       descriptor: matrixDescriptor(),
       payload: {
         caseId: 'demo-case',
@@ -52,7 +59,7 @@ describe('ReviewMatrixRenderer（先整体验证，再渲染）', () => {
         rows: [{ documentId: 'V1', answers: { q1: { answer: '3%', sourceAnchors: [], confidence: '很高' } } }],
         privateWireKey: 'must-not-render',
       },
-    }));
+    })));
 
     expect(html).toContain('矩阵审阅');
     expect(html).toContain('当前版本不支持此工作面');

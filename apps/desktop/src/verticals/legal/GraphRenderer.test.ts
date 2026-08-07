@@ -1,10 +1,17 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
+import { createLegalWorkSurface } from '../../work/legal-work-surface.js';
 import type { RuntimeArtifactDescriptor } from '@courtwork/registry';
 import { createDesktopPackageRuntime } from '../../composition/package-runtime.js';
 import { GraphRenderer } from './GraphRenderer.js';
 import { WorkbenchRenderProvider } from '../../preview/workbench-render-context.js';
+
+/** LEGAL-FIVE-FACES-1：renderer 现在带面内门禁确认条，故须挂垂类工作面 Provider（无门禁即零渲染）。 */
+const legalSurface = createLegalWorkSurface({ workCommand: {} as never });
+const withSurface = (node: ReturnType<typeof createElement>) =>
+  createElement(legalSurface.Provider, { value: { submission: {}, pendingGate: undefined, confirmGate: () => {} }, children: node });
+
 
 function graphDescriptor(): RuntimeArtifactDescriptor {
   const entry = createDesktopPackageRuntime().packageRegistries.artifactSchemas.get('legal.PartyGraph');
@@ -34,7 +41,7 @@ const GRAPH: unknown = {
 const render = (payload: unknown) => renderToStaticMarkup(createElement(
   WorkbenchRenderProvider,
   { value: { evidenceGrades: [] } },
-  createElement(GraphRenderer, { descriptor: graphDescriptor(), payload }),
+  withSurface(createElement(GraphRenderer, { descriptor: graphDescriptor(), payload })),
 ));
 
 describe('GraphRenderer（先整体验证，再渲染）', () => {
@@ -62,7 +69,7 @@ describe('GraphRenderer（先整体验证，再渲染）', () => {
 
   it('缺 Provider 即抛：装配缺失是显式失败，不是静默降级', () => {
     expect(() => renderToStaticMarkup(
-      createElement(GraphRenderer, { descriptor: graphDescriptor(), payload: GRAPH }),
+      withSurface(createElement(GraphRenderer, { descriptor: graphDescriptor(), payload: GRAPH })),
     )).toThrow(/workbench render context is not mounted/);
   });
 });

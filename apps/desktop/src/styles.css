@@ -1254,6 +1254,8 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .work-recover { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: var(--rule-minor) solid var(--border); border-radius: 6px; background: var(--bg-surface); }
 .work-recover > p { margin: 0; font-size: var(--type-dense-meta-size); line-height: 1.5; color: var(--text-secondary); }
 .work-recover .primary-button { align-self: flex-start; }
+/* LEGAL-FIVE-FACES-1：面内门禁确认条的双钮行（复用 work-recover 容器，零新增视觉规则）。 */
+.gate-confirm-actions { display: flex; gap: 8px; align-items: center; }
 .work-output-result { margin: 12px 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; border: var(--rule-minor) solid var(--border); border-radius: 6px; background: var(--bg-raised); }
 .work-output-result strong { font-size: var(--type-dense-body-size); color: var(--text-primary); }
 .work-output-result span { font-size: var(--type-dense-meta-size); color: var(--text-secondary); }

@@ -1,5 +1,6 @@
 import type { Timeline } from '@courtwork/legal';
 import { TimelinePanel } from './panels';
+import { GateConfirmBar } from './GateConfirmBar';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
 import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 import { useWorkbenchRenderContext } from '../../preview/workbench-render-context.js';
@@ -18,5 +19,8 @@ export function TimelineRenderer({ descriptor, payload }: HostRendererComponentP
   const { evidenceGrades } = useWorkbenchRenderContext();
   const parsed = descriptor.schema.safeParse(payload);
   if (!parsed.success) return <UnsupportedArtifactView title={descriptor.title} />;
-  return <TimelinePanel timeline={parsed.data as Timeline} grade={evidenceGrades[0]?.grade} />;
+  return <>
+    <GateConfirmBar artifactType={descriptor.typeId} />
+    <TimelinePanel timeline={parsed.data as Timeline} grade={evidenceGrades[0]?.grade} />
+  </>;
 }

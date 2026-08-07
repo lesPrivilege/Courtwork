@@ -1,5 +1,6 @@
 import type { ReviewMatrix } from '@courtwork/legal';
 import { MatrixPanel } from './panels';
+import { GateConfirmBar } from './GateConfirmBar';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
 import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 
@@ -16,5 +17,8 @@ import type { HostRendererComponentProps } from '../../preview/HostRendererRegis
 export function ReviewMatrixRenderer({ descriptor, payload }: HostRendererComponentProps) {
   const parsed = descriptor.schema.safeParse(payload);
   if (!parsed.success) return <UnsupportedArtifactView title={descriptor.title} />;
-  return <MatrixPanel matrix={parsed.data as ReviewMatrix} />;
+  return <>
+    <GateConfirmBar artifactType={descriptor.typeId} />
+    <MatrixPanel matrix={parsed.data as ReviewMatrix} />
+  </>;
 }

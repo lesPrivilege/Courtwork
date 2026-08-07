@@ -39,7 +39,7 @@ describe('VPKG-LAYOUT-1 Legal content golden', () => {
     // GENERIC-PACK-1 裁定二重铸（仅 descriptor 一枚）：S1/S3/S4/S6 场景新增 `launch` 声明
     // （场景条按钮 + 预检表单有限元素集契约，ADR-016 同族）——payload 契约与 promptSegments
     // 未动，prompt blob hash 不漂、`schemaVersion` 不升。
-    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('241b90d6f5ec939415e4bd119d0fccb7e9eb500d9fcfc04b16d5f4599b924d6b');
+    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('9ba475352303c878a4a6d223899e1b773157bcb5a6918bf3483170adb86ca283');
     expect(sha256(promptBlob())).toBe('1f76dbd2b2a7dad74fa1d13f6a0c7fd537751a96720356ea76886f7c3979e134');
   });
 

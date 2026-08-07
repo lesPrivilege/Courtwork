@@ -5543,3 +5543,75 @@ SPEC 的「受检数取数提交登记」明确锚在 `deb81b8`：160→168→17
 
 **结论：PASS，放行 `3bcb1bd`。** 清账坐标：实现 tip `3bcb1bd`；前轮验收提交
 `ac89462`；本轮验收提交见本提交自身。
+
+## LEGAL-FIVE-FACES-1 独立验收（2026-08-07）— REJECT
+
+**验收角色：独立验收会话；对象：`claude/legal-five-faces-1` tip `7c8d928`；base：`main@6865463`。**
+本次在独立 clean clone `/private/tmp/courtwork-legal-five-faces-1-clone-i5jWFd/clean` 执行，未在共享
+`main` checkout，未验收本会话此前实现；全量 Playwright 仅启动一条，使用独占端口 `15433`。
+
+### 结论
+
+**REJECT。** 实现级行为、撤修复红证、八相门与证据卫生均已实测通过；但票面回执仍把 D10、D11
+写成 `[需架构拍板]`/“请求裁定”，没有按 2026-08-07 架构四则改写成裁定结果。这是本票明示的
+契约留痕条件，验收会话不得自行修改架构语义，因此不能放行。
+
+拒绝分支只有以下一项，且是硬阻断：
+
+1. `apps/desktop/specs/LEGAL-FIVE-FACES-1.md:34,47-80,239` 仍写“其中两枚是 `[需架构拍板]`”、
+   `D10 [需架构拍板]`、`D11 [需架构拍板]`、`请求裁定`、`裁定落地前`，并把 D12 写成“随 D11 同批”，
+   没有登记：D10 立债 `LEGAL-ANCHOR-BINDING-1` 当期不修且 anchor 不得以“系统已核”呈现；
+   D11 转挂 `PREVIEW-TAB-1` 且前提是 durable 产物不随 projection 清空而丢；D12 已收编。
+   因而“4 枚不修各带去向并与四则逐字对上”不成立。不得由验收会话代改此契约。
+
+### 逐项复核
+
+| 项目 | 坐标与实测 | 结果 |
+|---|---|---|
+| 票面边界 | `git diff --stat 6865463..7c8d928` 为 43 files / 1212 insertions / 131 deletions；无 `packages/schemas`、core、Rust、protocol、wire、journal 变更；`apps/desktop/src/App.tsx` 高水位实测 2279，门限 2279 | PASS |
+| 12 枚缺陷账 | 回执 `apps/desktop/specs/LEGAL-FIVE-FACES-1.md:38-49` 逐项存在；D1-D8 均有实现与红证，D9-D12 均有不修说明；但 D10/D11/D12 的架构去向未按四则更新，见上方硬阻断 | **REJECT** |
+| 闭集 | `apps/desktop/src/work/legal-s3-binding.ts:57` 为 `[S1,S2,S3]`；`395-401` 对闭集外/未注册 id 具名抛错；`work-command.ts:511-518` 端口返回 `rejected/invalid_scope`，不回落 S3 | PASS |
+| 账本头与续行身份 | `apps/desktop/src/work/work-command.ts:272-281` 头记 `input.scenarioId`；`459-462` 续行从 `store.snapshot().scenarioId` 取场景与 route；注入伪造 S3 信封时实测 `failed/internal`，消息为 `confirmation scenario identity 不匹配`；缺 envelope 时实测 `rejected/invalid_scope`，无 S3 默认、无完成态 | PASS |
+| D10 边界 | `apps/desktop/src/verticals/legal/panels.tsx:93,167` 与 `GraphPanel.tsx:256` 的“回到原件”均 disabled；未发现 S1/S2 未校验坐标跳转；`workbench/Panels.tsx:5-8` 的 anchor 旁仅有 `信源 A/B/C`，没有“系统已核”语义 | PASS（行为）；回执留痕仍 **REJECT** |
+| D11 前提 | 独立 store probe：S1 产物提交后新起 S2，旧 store 仍可直读 durable ledger，S2 新投影为空；投影清空未删除旧 durable 记录 | PASS（前提）；架构转挂留痕缺失，故回执仍 **REJECT** |
+| D9 | `SPEC:46` 及上述 UI 均维持 disabled；无新增原件跳转 | PASS |
+| D12 | 实现不写跨场景 session pointer，避免错误指向；但 `SPEC:49,225-228` 仍以 D11 同批未做叙述，未登记“D12 收编” | **REJECT（文档契约）** |
+| 语料墙 | 六帧均为 E2E 樁构造：合成卷宗标题、合成合同与假公司名；变更与证据目录无卷宗实物、文件名、当事人或正文句；指称级词仅出现在 docs 叙述 | PASS |
+| 模型/外部边界 | `apps/desktop/specs/LEGAL-FIVE-FACES-1.md:26-28,241-242` 明记模型回合由 DEV/E2E 樁承载，真 key 五面 external-validated blocked；本验收未将樁证据宣称为 external-validated | PASS |
+
+### 八项修复的撤修复复红
+
+逐枚/按族撤除后观察到红证，随后均恢复到目标 tip，未把变异留在工作树：
+
+| 修复 | 变异 | 红证 |
+|---|---|---|
+| D1 闭集 | 闭集暂缩为 S3 | production-scenarios：9 项中 5 项失败，S1 不可用、S2 被拒、续行失败 |
+| D2 身份 | 账本头暂写 S3 | production-scenarios：9 项中 2 项失败，S2 header/续行断言失败 |
+| D3 起草入口 | `onLaunch` 不再选目标 view | legal E2E 起草面不可见 |
+| D4 空态 producer | producer 暂返回 `undefined` | view-producer：5 项中 3 项失败 |
+| D5 启动路由 | `startScenario` 暂为空操作 | legal E2E timeline/graph 面不可见 |
+| D6 门禁控件 | `GateConfirmBar` 暂不渲染 | legal E2E gate-confirm 不可见 |
+| D7 中性文案 | 注入“合同审查正在运行” | 中性文案 acceptance probe 退出 1，明确命中陈旧垂类文案 |
+| D8 计数派生 | named view 暂强制“尚无” | legal E2E 期望“已生成”而实为“时间线尚无”，失败 |
+
+### 全量门实测
+
+最终只采信本独立 clone 的最终轮，初跑因沙箱禁止绑定本地端口而失败的 root/Cargo 结果不计入：
+
+- `pnpm -r build`：PASS。
+- `pnpm lint`：PASS。
+- `pnpm test`：**1941/1941 PASS**（授权环境重跑）。
+- `pnpm --filter @courtwork/desktop test`：**769/769 PASS**。
+- `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`：**250 passed / 0 failed / 1 ignored**。
+  1 个 ignored 为需 112MiB verified runtime snapshot 的既有门；product/headless sidecar 均已构建，
+  product bundle 实测 `547,893 B`，SHA-256 `951acf8e…`，无迁移。
+- `pnpm site:guard`：PASS，含 103 项 site/release 测试及 desktop guard 链。
+- `COURTWORK_E2E_PORT=15433 pnpm --filter @courtwork/desktop test:e2e`：**372/372 PASS**，EXIT 0；
+  Playwright floor 实测 365，未发生本轮升档。目标回执记录的 scheduler 自伤 370/372 已核读；本轮
+  仅运行一条全量链，最终取数为 372/372。
+
+六帧目标证据位于 `release/evidence/legal-five-faces-1-2026-08-07/`，全为 1440×900 合成樁证据；
+全量 Playwright 产生的其他截图已还原到目标 tip，验收结束工作树除本节待提交记录外清洁。
+
+**放行条件：**架构角色先按 D10/D11/D12 四则修订 `apps/desktop/specs/LEGAL-FIVE-FACES-1.md` 的
+缺陷账、去向与验收口径（不要求本票实现 D10/D11），再由新的独立验收会话复核该文档阻断并决定放行。

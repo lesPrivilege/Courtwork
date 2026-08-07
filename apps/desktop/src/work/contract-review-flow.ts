@@ -9,7 +9,7 @@ import type {
   ReviewResolution,
   WorkCommandOutcome,
 } from '../protocol/client';
-import type { LegalS3WorkCommand } from './work-command';
+import type { LegalWorkCommand } from './work-command';
 import { S3_RISK_LIST_TYPE, S3_SCENARIO_ID } from './legal-s3-binding';
 
 function legalS3GateLabel(): string {
@@ -303,7 +303,7 @@ export type ContractReviewSubmissionResult =
     };
 
 export function createContractReviewSubmitter(deps: {
-  command: Pick<LegalS3WorkCommand, 'resolveReview' | 'replay'>;
+  command: Pick<LegalWorkCommand, 'resolveReview' | 'replay'>;
   mintCommandId: () => string;
   compile: (riskList: RiskList) => void | Promise<void>;
 }): { submit(input: ContractReviewSubmissionInput): Promise<ContractReviewSubmissionResult> } {

@@ -22,7 +22,7 @@ import {
   projectReviewDispositionStates,
   useContractReviewState,
 } from './contract-review-flow';
-import type { LegalS3WorkCommand } from './work-command';
+import type { LegalWorkCommand } from './work-command';
 import { workFailureDisplayCopy } from './work-failure-copy';
 
 function readableError(error: unknown, fallback: string): string {
@@ -39,7 +39,7 @@ const NOT_APPLICABLE_COPY = {
   out_of_coverage: '仍有待索证项，补充材料后可重新开始一次审查',
 } as const;
 
-/** demo fixture 的确认适配面；production 走 `LegalS3WorkCommand`，两条路径物理分流。 */
+/** demo fixture 的确认适配面；production 走 `LegalWorkCommand`，两条路径物理分流。 */
 export interface ContractReviewFixturePort {
   sessionRefFor(caseId: string, flow: ScenarioFlow): { caseId: string; sessionId: string };
   review: { resolve(input: { caseId: string; sessionId: string; requestId: string; resolution: unknown }): Promise<unknown> };
@@ -57,7 +57,7 @@ export interface ContractReviewSubmissionDeps {
   workSessionId: string | null;
   workContractMaterialId: string | null;
   materialStore: MaterialStore;
-  workCommand: Pick<LegalS3WorkCommand, 'resolveReview' | 'replay'>;
+  workCommand: Pick<LegalWorkCommand, 'resolveReview' | 'replay'>;
   workFixture: ContractReviewFixturePort;
   dispatch: (event: SessionEvent) => void;
   /** 逐条依据展开时刻，用于 dwellMs 采样；提交同步帧内一次读取，不在 await 后重采样。 */

@@ -76,7 +76,7 @@ test('Work 场景运行中 composer 禁用并说明下一步，不排队', async
   const input = page.getByTestId('composer-input');
   await expect(input).toBeDisabled();
   await expect(page.getByTestId('composer-send')).toBeDisabled();
-  await expect(page.getByTestId('composer-disabled-reason')).toHaveText('合同审查正在运行；等待当前步骤完成后再继续提问。');
+  await expect(page.getByTestId('composer-disabled-reason')).toHaveText('当前工作正在运行；等待当前步骤完成后再继续提问。');
   await expect(page.getByTestId('queued-message')).toHaveCount(0);
 });
 

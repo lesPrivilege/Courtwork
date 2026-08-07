@@ -14,14 +14,13 @@ import type {
 import type { ReviewTelemetrySink } from '../telemetry/review-telemetry';
 import type { PackageRegistries } from '@courtwork/registry';
 import type { WorkRunLifecycleDeps } from '../work/work-session-lifecycle';
-import type { HostWorkbenchView } from './HostRendererRegistry.js';
 
 /**
  * 宿主交给垂类工作面驱动的**通用**输入面（GENERIC-PACK-1 ⑤）。
  *
  * 逐字都是壳本来就持有的领域无关量：matter 身份与绑定、会话投影、宿主端口、状态设值器与
  * 显式反馈通道。**不含任何垂类类型**——这正是「App 零 `RiskList` 持有」得以成立的接缝。
- * 垂类专属端口（如 `LegalS3WorkCommand`）不走本面，由受信组合根在构造驱动时注入。
+ * 垂类专属端口（如 `LegalWorkCommand`）不走本面，由受信组合根在构造驱动时注入。
  */
 export interface VerticalWorkSurfaceHost {
   readonly caseBinding: CaseBinding;
@@ -65,18 +64,6 @@ export interface VerticalWorkSurfaceHost {
 }
 
 /**
- * 工作面适用性声明：某些工作面在当前 matter 的当前相位下**不适用**，须显式说明而非空态假装。
- *
- * 这条判据本属垂类知识（production S3 只服务修订与结构化产出两面），此前以
- * `view !== 'revision' && view !== 'artifact'` 的形态写死在壳里。改由垂类驱动声明后，
- * 壳只负责「照声明显式说出来」，不知道哪些面属于哪个垂类。
- */
-export interface ViewApplicability {
-  readonly applicable: readonly HostWorkbenchView[];
-  readonly notApplicableCopy: string;
-}
-
-/**
  * 垂类工作面驱动的**读出面**：渲染链之外的消费者（ADR-015 修订记录 2026-08-06 裁定一点名
  * 三处）经此取用，壳不再从垂类编排 hook 直读。
  */
@@ -87,7 +74,13 @@ export interface VerticalWorkSurfaceState {
   readonly decisionCount: number;
   /** production 产物显示名——版本化命名由 coordinator 铸出，壳不拼固定名。 */
   readonly outputDisplayName: string | undefined;
-  readonly applicability: ViewApplicability | undefined;
+  /**
+   * 运行中取消控件的文案（LEGAL-FIVE-FACES-1 由静态字段迁入读出面）：可启动场景成闭集后，
+   * 文案必须随**正在跑的那一枚**派生——静态一枚只能说对其中一个场景。
+   */
+  readonly runningControlCopy?: string;
+  /** 无预检表单的场景由场景条按钮直接起跑（有表单者由面内表单起跑）。 */
+  readonly startScenario: (scenarioId: string) => void;
   /** 停止当前运行（场景条控件）。 */
   readonly cancelRun: () => void;
   /**
@@ -115,6 +108,4 @@ export interface VerticalWorkSurface {
   readonly Provider: ComponentType<{ value: unknown; children: ReactNode }>;
   /** production 态可启动的场景 id 闭集（驱动声明；场景条据此过滤，壳不认识 id 语义）。 */
   readonly productionScenarioIds: readonly string[];
-  /** 运行中取消控件的文案（驱动声明；缺省即运行中不渲染取消控件）。 */
-  readonly runningControlCopy?: string;
 }

@@ -58,7 +58,12 @@ import type {
 } from '../protocol/client';
 import { WorkReplayError } from '../protocol/client';
 import type { StoredMaterial } from '../material/material-ref';
-import { deriveS3CaseFile, MissingPrimaryContractError, PrimaryContractNotInSessionError } from './primary-contract';
+import {
+  deriveCaseFileFromMaterials,
+  deriveS3CaseFile,
+  MissingPrimaryContractError,
+  PrimaryContractNotInSessionError,
+} from './primary-contract';
 import {
   IncompleteReviewError,
   InvalidReviewCorrectionError,
@@ -67,13 +72,15 @@ import {
   MaterialResolutionBlockedError,
   MissingContractPartyError,
   MissingToolInputError,
+  PRODUCTION_SCENARIO_IDS,
   S3_RISK_LIST_TYPE,
   S3_SCENARIO_ID,
   UnknownReviewItemError,
+  buildIntakeRunInput,
   buildS3RunInput,
   createLegalS3ScenarioDeps,
   createProductionS3ToolRegistry,
-  getS3Scenario,
+  getProductionScenario,
   mapReviewResolutionToResume,
   resolveSessionMaterials,
   toMaterialInputs,
@@ -82,7 +89,7 @@ import {
 } from './legal-s3-binding';
 import type { ToolRegistry } from '@courtwork/core/work-protocol';
 
-export interface LegalS3WorkCommandDeps {
+export interface LegalWorkCommandDeps {
   host: WorkStateHostPort;
   registries: PackageRegistries;
   codec: ArtifactEnvelopeCodec;
@@ -105,7 +112,7 @@ export interface LegalS3WorkCommandDeps {
 }
 
 /** 未装配反馈（voice.md §9 产品语言，零技术概念暴露；工程细节不进用户可见文案）。 */
-const NOT_CONFIGURED_MESSAGE = '合同审查暂未就绪，请在桌面应用内重试';
+const NOT_CONFIGURED_MESSAGE = '当前工作暂未就绪，请在桌面应用内重试';
 
 /** 显式结构化 preflight（S3 主体输入）+ 冻结 model route + 材料引用——ADR-010 决定五。 */
 export interface LegalS3StartInput {
@@ -127,7 +134,7 @@ export interface LegalS3ReviewResolveInput extends WorkSessionRef {
  * `startWithPreflight`（携显式主体）与 `resolveReview`（审阅处置 → 逐条 revision → resume）。
  * 通用 `start(StartWorkCommand)` 无 preflight slot：S3 缺主体即显式 `rejected/invalid_scope`（不默认补全）。
  */
-export interface LegalS3WorkCommand extends WorkCommandPort, WorkProjectionPort {
+export interface LegalWorkCommand extends WorkCommandPort, WorkProjectionPort {
   startWithPreflight(
     input: LegalS3StartInput,
     publish: (event: SessionEvent) => void,
@@ -241,16 +248,16 @@ function stableKey(payload: CommandPayload): string {
 }
 
 /** 结构化 scenario fingerprint（drift 检测契约位；本单不强制 re-validate，故用稳定结构串非 crypto hash）。 */
-function scenarioFingerprint(): string {
+function scenarioFingerprint(scenarioId: string): string {
   return JSON.stringify({
-    id: S3_SCENARIO_ID,
+    id: scenarioId,
     packageId: LEGAL_PACKAGE.identity.packageId,
     version: LEGAL_PACKAGE.identity.version,
     schemaVersion: LEGAL_S3_SCHEMA_VERSION,
   });
 }
 
-export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3WorkCommand {
+export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCommand {
   const now = deps.now ?? (() => new Date().toISOString());
   const mintSessionId = deps.mintSessionId ?? (() => globalThis.crypto.randomUUID());
   const tools = deps.tools ?? createProductionS3ToolRegistry();
@@ -267,11 +274,11 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
       caseId: input.caseId,
       sessionId,
       chainId: sessionId,
-      scenarioId: S3_SCENARIO_ID,
+      scenarioId: input.scenarioId,
       packageId: LEGAL_PACKAGE.identity.packageId,
       packageVersion: LEGAL_PACKAGE.identity.version,
       schemaVersion: LEGAL_S3_SCHEMA_VERSION,
-      scenarioFingerprint: scenarioFingerprint(),
+      scenarioFingerprint: scenarioFingerprint(input.scenarioId),
       modelRoute: { ...input.modelRoute },
       materialRefs: [...input.materialRefs],
       createdAt: now(),
@@ -380,18 +387,29 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
     const header = buildHeader(input, sessionId, runtimeBudget);
     const controller = new AbortController();
     controllers.set(ref.sessionId, controller);
-    let scenario: ReturnType<typeof getS3Scenario>;
+    let scenario: ReturnType<typeof getProductionScenario>;
     let runInput: ReturnType<typeof buildS3RunInput>;
     try {
       const materials: StoredMaterial[] = await resolveSessionMaterials(deps.materialResolver, input.caseId, input.materialRefs);
-      scenario = getS3Scenario(deps.registries);
+      scenario = getProductionScenario(deps.registries, input.scenarioId);
       const materialInputs: MaterialInput[] = toMaterialInputs(materials);
-      // CONTRACT-OUTPUT-TRUTH-1：materialRefs[0] 就是用户显式选定的主合同，CaseFile 从同一
-      // 输入机械派生——S3 声明了 legal.CaseFile input，此前一直收到空 artifacts。
-      const primaryMaterialId = input.materialRefs[0];
-      if (primaryMaterialId === undefined) throw new MissingPrimaryContractError();
-      const caseFile = deriveS3CaseFile(input.caseId, primaryMaterialId, materials);
-      runInput = buildS3RunInput({ scenario, subject: input.subject ?? undefined, materials: materialInputs, caseFile });
+      if (input.scenarioId === S3_SCENARIO_ID) {
+        // CONTRACT-OUTPUT-TRUTH-1：materialRefs[0] 就是用户显式选定的主合同，CaseFile 从同一
+        // 输入机械派生——S3 声明了 legal.CaseFile input，此前一直收到空 artifacts。
+        const primaryMaterialId = input.materialRefs[0];
+        if (primaryMaterialId === undefined) throw new MissingPrimaryContractError();
+        const caseFile = deriveS3CaseFile(input.caseId, primaryMaterialId, materials);
+        runInput = buildS3RunInput({ scenario, subject: input.subject ?? undefined, materials: materialInputs, caseFile });
+      } else {
+        // LEGAL-FIVE-FACES-1：无预检场景（S1 阅卷 / S2 矩阵）——零工具输入，声明要 CaseFile 才带，
+        // 且一律 supporting（无主合同语义即不造一个）。
+        const needsCaseFile = scenario.inputArtifacts.includes('legal.CaseFile');
+        runInput = buildIntakeRunInput({
+          scenario,
+          materials: materialInputs,
+          ...(needsCaseFile ? { caseFile: deriveCaseFileFromMaterials(input.caseId, materials) } : {}),
+        });
+      }
     } catch (error) {
       controllers.delete(ref.sessionId);
       const outcome = mapError(error, ref);
@@ -438,7 +456,9 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
         throw new UnknownReviewItemError('__interrupted__');
       }
       const resumeInput = build(store);
-      const scenario = getS3Scenario(deps.registries);
+      // 续行的场景身份**只认账本头**（信封是持久真源）；此前写死 S3，非 S3 会话续行会以错误场景
+      // 声明重放——闭集化后必须逐字取回。
+      const scenario = getProductionScenario(deps.registries, store.snapshot().scenarioId);
       const route = { ...store.snapshot().modelRoute };
       const scenarioDeps = createLegalS3ScenarioDeps({
         store,
@@ -488,11 +508,11 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
     }
     const payloadKey = stableKey(payload);
     const sessionId = mintSessionId();
-    if (payload.scenarioId !== S3_SCENARIO_ID) {
+    if (!(PRODUCTION_SCENARIO_IDS as readonly string[]).includes(payload.scenarioId)) {
       const done = Promise.resolve<WorkCommandOutcome>({
         status: 'rejected',
         reason: 'invalid_scope',
-        message: '当前命令端口只接受合同审查场景',
+        message: '这个场景当前还不能在本案启动',
       });
       commands.set(commandId, { sessionId, payloadKey, done });
       return { sessionId, done };
@@ -508,7 +528,7 @@ export function createLegalS3WorkCommand(deps: LegalS3WorkCommandDeps): LegalS3W
       const done = Promise.resolve<WorkCommandOutcome>({
         status: 'rejected',
         reason: 'case_busy',
-        message: '本案已有进行中的合同审查，请先等待或停止当前审查',
+        message: '本案已有进行中的工作，请先等待或停止当前运行',
       });
       commands.set(commandId, { sessionId, payloadKey, done });
       return { sessionId, done };
