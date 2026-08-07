@@ -5443,3 +5443,58 @@ SPEC 的「受检数取数提交登记」明确锚在 `deb81b8`：160→168→17
 
 **本节结论：PASS。** 首轮 `c9fdc5fe` 的「170→174 回执漂移」与五项契约追认阻断已在
 返修回执和 `main@a90412e` 追认文本下闭合；首轮 REJECT 报告不改写，按双报告随链保留。
+
+## LEGAL-FIVE-FACES-1 聚焦复验（2026-08-07，PASS）
+
+**验收角色：独立验收会话。** 对象 tip `95eaa6d93efe31227e708e46668e565c0200b21a`
+（短 SHA `95eaa6d`，分支 `claude/legal-five-faces-1`），父提交 `7c8d928cbd8b2c1779ccb6ae3f1297a6d4c667d6`。
+本次在独立 clean clone `/private/tmp/courtwork-legal-five-faces-1-recheck-5BT8rN/clean` 复验，
+不验收前身会话，不触碰共享 `main`。
+
+### 1. 返修边界
+
+`git diff --name-status 7c8d928..95eaa6d` 仅有：
+
+`M apps/desktop/specs/LEGAL-FIVE-FACES-1.md`
+
+`git diff --numstat` 为 `41 16`；diff 不含源码、测试、schema、wire、journal、证据帧或其他实现文件，
+因此本轮确认为**一文件、零源码行**的文档返修。
+
+### 2. 四则逐字复核
+
+对 `apps/desktop/specs/LEGAL-FIVE-FACES-1.md` 做了独立字面断言，以下裁定短语均存在：
+
+- D10：`LEGAL-ANCHOR-BINDING-1`、当期不修、S1/S2 production 可启动维持、anchor 不得以「系统已核」
+  语义呈现；
+- D9：随 D10 维持显式 disabled；
+- D11：转挂 `PREVIEW-TAB-1`，当期为过渡态，且 durable 账本产物不随投影清空而丢；
+- D12：随 D11 同批收编。
+
+全文 `rg -n '需架构拍板' apps/desktop/specs/LEGAL-FIVE-FACES-1.md` 实测 **0 命中**。
+`SPEC:35,48-50,66-77,79,87-103,262-263` 分别覆盖表头、D10/D11/D12 处置、三节裁定正文、D9
+边界与九节退出证据汇总；无待拍板项残留。
+
+### 3. 静态门链
+
+执行 `apps/desktop/package.json` 的 `test:e2e` 中 `playwright test` 之前的完整静态前置链，结果为 PASS：
+
+- VIEW-ABI **39 checks**；vertical isolation **176/73/6/3**；`LEGAL-S3-BINDING-1`、`WORK-LIVE-1`、
+  work-port、safe-case-id、host-auth、material、UI-surface 全绿；
+- voice-copy node tests **71/71**；SchemaParts、schema-exemplar、skin-r2 ledger、rule grammar、
+  typography、layout-converge 全绿；
+- App highwater **2279/2279**；Playwright 假绿防护 **372**，floor **365**。
+
+本轮是 docs-only 聚焦复验，未重复行为 Playwright；实现 tip 的前次独立验收已记录完整行为门
+`372/372`。冻结安装首次受沙箱网络权限阻断；静态链随后使用同 lockfile 的本地依赖运行时执行，
+源码工作树仍为独立 clean clone，未产生源码或测试产物改动。
+
+### 4. 结论与清账坐标
+
+**PASS。** 本票返修满足：一文件、零源码行；三处架构语义改写与 2026-08-07 四则逐字对齐；
+回执内 `[需架构拍板]` 零残留；静态门链全绿。
+
+清账坐标：
+
+- 实现 tip：`95eaa6d93efe31227e708e46668e565c0200b21a`；
+- 首轮独立验收提交：`b247cf3`（REJECT，基于 `7c8d928`）；
+- 本轮聚焦复验提交：待本节提交后记录于本提交自身。
