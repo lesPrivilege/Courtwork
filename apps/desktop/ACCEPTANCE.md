@@ -5496,3 +5496,50 @@ SPEC 的「受检数取数提交登记」明确锚在 `deb81b8`：160→168→17
 
 **结论：REJECT，不放行 `dea05c9`。** 实现、测试区分力、全量门与端口纪律均通过；R1
 语料卫生单项足以拒绝合入。未修改实现，未做 fix-by-acceptance；本记录为独立验收落盘。
+
+## CHAT-MD-TABLE-2 独立验收（2026-08-07，返修聚焦复验，PASS）
+
+**具名验收者：Codex 独立验收会话。** 本轮对象为
+`claude/chat-md-table-2@3bcb1bd`，基线 `main@6865463`；前轮唯一拒绝分支为语料卫生，记录于
+验收提交 `ac89462`（对象 `dea05c9`）。本轮在全新独立 clone
+`/private/tmp/courtwork-chat-md-table-2-recheck` 检出，未使用共享树或前轮 worktree；定向前置链
+使用专属 `COURTWORK_E2E_PORT=15874`，未启动或复用 Playwright 服务。
+
+### 1. diff-of-diff
+
+`git diff --stat dea05c9..3bcb1bd` 实得 **2 files / 16 insertions / 8 deletions**：
+
+- `apps/desktop/SPEC.md`；
+- `apps/desktop/src/chat/chat-markdown.test.ts`。
+
+`git diff --name-status` 仅以上两枚 `M`；`git diff --binary --summary` 无 Bin 行，且无
+`ChatMarkdown.tsx` 或其他实现源码行。测试文件的返修 diff 只改了 5 处 fixture 字符串：
+`01-甲类文件.md`、`序号/说明/待补件`、`乙件`，以及齐整表中的
+`甲件/乙件`、`07-甲类文件.docx`、`08-乙类文件.docx`；`expect` 与其它断言逐字未动。
+该齐整例仍是 **3 列 × 2 体行**，可见文本要求仍为零 `|`，因此仅换值不改变判据。
+
+### 2. 扩表语料卫生
+
+对完整实现 diff `git diff 6865463..3bcb1bd --` 执行禁词扫描
+`晨曦|印务|印刷设备买卖合同|质量异议函|复函|合成卷宗`，**0 命中**。
+
+逐条检查 diff 内 fixture/例句字符串：`甲/乙/丙`、`甲类文件`、`甲件/乙件`、
+`甲说明/乙件/丙说明`、`a|b`、`应然时间节点` 与两枚 `甲类文件` 文档名均为显式等价合成
+或通用占位；未见材料编号-实物名、当事人姓名或案件正文句。无待架构裁项。
+
+### 3. 定向门
+
+- `pnpm --filter @courtwork/desktop exec vitest run src/chat/chat-markdown.test.ts --reporter=dot`：
+  **1 file / 53 passed / 53**。
+- `test:e2e` 的 Playwright 前置静态链逐项实跑绿，末项
+  `assert-test-count` 报告 **368 条 / floor 365**；本轮未运行 Playwright 本体。
+
+### 4. 前轮结论保持有效
+
+`dea05c9..3bcb1bd` 不含任何实现源码行，故前轮 `ac89462` 已实测通过的范围审计、三病因
+与两枚守门变异、位置缺失臂、三种齐整表合成例及全量 build/lint/root/desktop/Playwright
+门证均由等价链维持；本轮按工单要求不重复全量门。前轮唯一拒绝分支是
+`apps/desktop/SPEC.md` 的实物语料，本轮已由上述完整 diff 零命中闭合。
+
+**结论：PASS，放行 `3bcb1bd`。** 清账坐标：实现 tip `3bcb1bd`；前轮验收提交
+`ac89462`；本轮验收提交见本提交自身。
