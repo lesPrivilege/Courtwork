@@ -1,0 +1,40 @@
+import { describe, expect, it } from 'vitest';
+import { describeMatterPackState } from './matter-pack-state.js';
+
+const CATALOG = [
+  { packageId: 'legal', displayName: '法律包', version: '0.1.0' },
+  { packageId: 'pm', displayName: '产品管理包', version: '0.1.1' },
+];
+
+describe('describeMatterPackState（PACK-INTERACT-1 ② 状态语义取词）', () => {
+  it('显式零绑定 → 未加载', () => {
+    expect(describeMatterPackState([], ['legal', 'pm'], CATALOG)).toEqual({
+      loadedIds: [],
+      loadedLabels: [],
+      undeclared: false,
+    });
+  });
+
+  it('显式单枚 → 已加载该包', () => {
+    expect(describeMatterPackState(['legal'], ['legal', 'pm'], CATALOG)).toEqual({
+      loadedIds: ['legal'],
+      loadedLabels: ['法律包'],
+      undeclared: false,
+    });
+  });
+
+  it('未声明 → 跟随全部可用包（诚实读法）', () => {
+    const state = describeMatterPackState(undefined, ['legal', 'pm'], CATALOG);
+    expect(state.undeclared).toBe(true);
+    expect(state.loadedIds).toEqual(['legal', 'pm']);
+    expect(state.loadedLabels).toEqual(['法律包', '产品管理包']);
+  });
+
+  it('绑定指向非准入包 → 失效态（invalidId 显式，不静默回落）', () => {
+    const state = describeMatterPackState(['tender'], ['legal', 'pm'], CATALOG);
+    expect(state.undeclared).toBe(false);
+    expect(state.loadedIds).toEqual(['tender']);
+    expect(state.loadedLabels).toEqual(['tender']);
+    expect(state.invalidId).toBe('tender');
+  });
+});

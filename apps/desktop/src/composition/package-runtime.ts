@@ -8,25 +8,24 @@ import {
 } from '@courtwork/registry';
 import { createCourtworkHostRendererRegistry } from '../preview/courtwork-host-renderers.js';
 import type { HostRendererRegistry } from '../preview/HostRendererRegistry.js';
+import { describePackage, type PackageCatalogEntry } from './package-catalog.js';
 
 export interface DesktopPackageRuntime {
   /** 全局可用集：随制品分发并通过准入的包（ADR-015 决定三「全局 registry 只决定可用集」）。 */
   packageIds: string[];
+  /** 全局可用集的宿主呈现目录（PACK-INTERACT-1 ①：加载 UX 取词面，只供文案，不参与机制）。 */
+  packageCatalog: readonly PackageCatalogEntry[];
   packageRegistries: PackageRegistries;
   hostRenderers: HostRendererRegistry;
   /**
    * 逐 matter 取生效 registry。`packageIds` 是该 matter 的绑定（零或一枚）。
    *
    * 绑定里出现不在可用集内的 id 一律**拒载**（不静默忽略）：那意味着这枚 matter 绑的是本制品
-   * 没有的包，静默降级成「加载了别的」正是 ADR-015 决定四禁止的伪装。
+   * 没有的包，静默降级成「加载了别的」正是 ADR-015 决定四禁止的伪装。消费侧把该 throw 收进
+   * 显式态（`resolveMatterRegistries`，PACK-INTERACT-1 ③）。
    */
   registriesFor(packageIds: readonly string[]): PackageRegistries;
-  /**
-   * 过渡默认（ADR-015 决定三补记，`PACK-INTERACT-1` 销条）：新建 matter 默认绑定 Legal 以保全链
-   * 可达。这是显式登记的过渡态，非「默认不激活」的例外常态——销条时随加载 UX 同批翻转为
-   * 默认零绑定。
-   */
-  defaultMatterPackBinding: readonly string[];
+  describePackage(packageId: string): PackageCatalogEntry | undefined;
 }
 
 export function createDesktopPackageRuntime(): DesktopPackageRuntime {
@@ -42,11 +41,12 @@ export function createDesktopPackageRuntime(): DesktopPackageRuntime {
   );
   // 逐 matter 的 registry 按绑定现算；同一绑定复用同一枚，避免每次渲染重建投影表。
   const cache = new Map<string, PackageRegistries>();
+  const packageCatalog = admission.admitted.map(describePackage);
   return {
     packageIds: [...byId.keys()],
+    packageCatalog,
     packageRegistries: buildPackageRegistries(admission.admitted),
     hostRenderers: createCourtworkHostRendererRegistry(),
-    defaultMatterPackBinding: [LEGAL_PACKAGE.identity.packageId],
     registriesFor: (packageIds) => {
       const key = [...packageIds].join(' ');
       const cached = cache.get(key);
@@ -62,6 +62,7 @@ export function createDesktopPackageRuntime(): DesktopPackageRuntime {
       cache.set(key, registries);
       return registries;
     },
+    describePackage: (packageId) => packageCatalog.find((entry) => entry.packageId === packageId),
   };
 }
 
@@ -70,7 +71,7 @@ export function createDesktopPackageRuntime(): DesktopPackageRuntime {
  *
  * 三态输入、二态输出——**未声明**（字段缺席）取全局可用集，**已声明**逐字取该绑定。
  * 「未声明取全部」不是「默认加载全部」的产品裁定，只是本字段落地前既有 matter 的诚实读法；
- * 默认态的翻转（新建 matter 是否默认零绑定）随 `PACK-INTERACT-1` 的加载 UX 一并拍板。
+ * 新建 matter 默认零绑定（`[]`）由加载 UX 拍板（PACK-INTERACT-1 ⑤，ADR-015 决定三销条）。
  */
 export function resolveMatterPackBinding(
   packBinding: readonly string[] | undefined,
