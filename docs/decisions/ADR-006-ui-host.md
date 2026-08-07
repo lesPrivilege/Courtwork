@@ -20,3 +20,5 @@ UI 变更需要截图和门禁双证。设计探索、竞稿与历史验收不�
 
 - **2026-07-27（PANEL-BLUEPRINT-1 matrix 首枚，架构追认落痕）**：宿主 blueprint 判别联合的 `kind:'component'` 变体由 `view` 钉死 `'artifact'` 扩形为可持任意工作面 view——扩形属宿主契约演进，`kind` 三态语义未动；配套拒载语义一并入约：**具名工作面至多一枚 blueprint，同名争夺抛错而非 last-wins**。首个消费者 `legal.ReviewMatrix`（`courtwork.review-matrix.v1`，`kind:'component'` 携 renderer 全链）；追认坐标见 desktop ACCEPTANCE 同名节与 2026-07-27 架构追认件。
 
+- **2026-08-07（GENERIC-PACK-1 清账，架构落痕）**：component blueprint 增可选声明 `handlesEmpty`——产出缺席时仍进 renderer 并收到 `payload: undefined`，空态归 renderer 画；不声明者照旧落宿主空态。首个消费者 `courtwork.risk-review.v1`：`revision` 面在产出到来前是场景起跑面（选主合同、填标的、恢复上次），非「尚未生成」。**拒载语义一字未动**：具名工作面至多一枚 blueprint、同名争夺抛错、payload 漂移仍由 `safeParse` 整面拒绝——本旗只解「空态归谁画」。红证 M13（撤 `handlesEmpty` 即单测红）；坐标见 `apps/desktop/specs/GENERIC-PACK-1.md` 步骤⑤与 desktop ACCEPTANCE 同名节。同票四枚具名工作面（timeline/graph/matrix/revision）全部走 `kind:'component'` 全链，App if 链清零；具名 view 的页签标题与默认落点入宿主注册表（`HostNamedViewPresentation`：缺 `label` 整条派生显式失败、`preferred` 至多一枚第二枚拒载）。
+

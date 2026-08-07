@@ -1,6 +1,6 @@
 # GENERIC-PACK-1 · 通用底面收口（App 首票）
 
-状态：实现进行中（分支 `claude/generic-pack-1`）
+状态：已清账（2026-08-07；首轮验收 REJECT `c9fdc5f`→聚焦复验 PASS `79d78a6`，no-ff 合入 `9b5a321`）
 
 权威：`docs/decisions/ADR-015-optional-vertical-loading.md`（Accepted）总纲；
 `docs/architecture/implementation-readiness.md`「解耦相」`GENERIC-PACK-1` 行为票面唯一真值；
