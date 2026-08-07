@@ -195,12 +195,83 @@ describe('legacy 语义兼容层（票面外行为零变更）', () => {
     expect(host.querySelectorAll('h1,h2,h3,h4,h5,h6')).toHaveLength(0);
   });
 
-  it('数据行列数与表头不符处表格止步，残行回段落', () => {
+  it('数据行列数与表头不符：整表原文透出，不留表头孤表（CHAT-MD-TABLE-2 裁定二改写此条）', () => {
+    // 旧行为（CHAT-MD-TABLE-1 起、MD-CONVERGE-1+ 沿用）是「表格止步于首个不符行，残行回段落」，
+    // 落地即表头孤表 + 体行裸管道——这正是 CHAT-MD-TABLE-2 的缺陷本体。
+    // 2026-08-07 架构裁定二把判据升格为「不猜测 ＋ 不半表」，此条断言随之改写。
     const host = render('| 甲 | 乙 |\n| --- | --- |\n| 1 | 2 |\n| 只一列 |\n| 3 | 4 |');
-    const table = host.querySelector('[data-testid="chat-markdown-table"]');
-    expect(table?.querySelectorAll('tbody tr')).toHaveLength(1);
+    expect(host.querySelectorAll('[data-testid="chat-markdown-table"]')).toHaveLength(0);
+    expect(visibleText(host)).toContain('| 甲 | 乙 |');
+    expect(visibleText(host)).toContain('| 1 | 2 |');
     expect(visibleText(host)).toContain('| 只一列 |');
     expect(visibleText(host)).toContain('| 3 | 4 |');
+  });
+});
+
+/**
+ * CHAT-MD-TABLE-2（架构裁定 2026-08-07 三则）：宽度不齐的表格取「整表全有或全无」。
+ *
+ * 缺陷本体：`remark-gfm` 不把体行归一到表头宽度（GFM 规范说多余截断、缺失补空，mdast 原样保留），
+ * 旧兼容层又在首个不符行处截断——落地即「表头成表 + 体行裸管道文本」，两头不靠。
+ *
+ * 裁定二拒 GFM 归一（多格截断＝静默丢 cell、缺格补空＝凭空造空事实，两者都触不变量 4），
+ * 也拒半表（孤表头暗示体行是垃圾），取整表律：任一行不齐则整段表格源文本原样透出。
+ *
+ * 三枚病因合成例同治（真实语料只用于定形，案件内容不入测试）：
+ *  ① 体行缺格——真机截图形态（表头四列「编号/文件/状态/用途」，体行只给三格）；
+ *  ② 行内 code / 加粗里的裸管道——GFM 下 code span 不保护 `|`，体行多出一格；
+ *  ③ 截断残文——Stop / `finishReason=length` / failed 轮的尾部半行。
+ * ①②③ 在渲染层是同一形态（宽度不齐），一条规则同治。
+ */
+describe('整表全有或全无（CHAT-MD-TABLE-2 裁定二）', () => {
+  const cases: Array<[string, string, string]> = [
+    [
+      '体行缺格（真机截图形态：表头四列、体行三格）',
+      '| 编号 | 文件 | 状态 | 用途 |\n| --- | --- | --- | --- |\n| `01-设备买卖合同.md` | ✅ 可读 | 提取**应然时间节点** |',
+      '| 编号 | 文件 | 状态 | 用途 |',
+    ],
+    [
+      '行内 code 里的裸管道使体行多出一格',
+      '| 甲 | 乙 |\n| --- | --- |\n| `a|b` | 2 |',
+      '| `a|b` | 2 |',
+    ],
+    [
+      '加粗里的裸管道使体行多出一格',
+      '| 甲 | 乙 |\n| --- | --- |\n| **a|b** | 2 |',
+      '| **a|b** | 2 |',
+    ],
+    [
+      '截断残文：尾部半行（Stop / 长度截断 / 失败轮）',
+      '| 项次 | 缺口说明 | 缺失材料 |\n|------|----------|----------|\n| 1 | 甲说明 | 乙材料 |\n| 2 | 丙说明',
+      '| 2 | 丙说明',
+    ],
+  ];
+
+  it.each(cases)('%s：零表格、整段原文透出', (_label, source, mustShow) => {
+    const host = render(source);
+    expect(host.querySelectorAll('[data-testid="chat-markdown-table"]')).toHaveLength(0);
+    // 表头绝不单独成表——「表头孤表」是本票缺陷的可见形态，此断言是它的红证。
+    expect(host.querySelectorAll('thead')).toHaveLength(0);
+    expect(visibleText(host)).toContain(mustShow);
+  });
+
+  it.each(cases)('%s：一字不丢（逐行原文可见）', (_label, source) => {
+    const host = render(source);
+    const visible = visibleText(host);
+    for (const line of source.split('\n')) expect(visible).toContain(line);
+  });
+
+  it('齐整表零回归：全部体行与表头同宽时照常成表（真实语料同形合成）', () => {
+    const host = render(
+      '| 项次 | 缺口说明 | 缺失材料 |\n|------|----------|----------|\n'
+        + '| 一 | 异议函尚未逐字呈现 | 07-质量异议函.docx |\n'
+        + '| 二 | 复函仅以摘要体现 | 08-复函.docx |',
+    );
+    const table = host.querySelector('[data-testid="chat-markdown-table"]');
+    expect(table).not.toBeNull();
+    expect(table?.querySelectorAll('thead th')).toHaveLength(3);
+    expect(table?.querySelectorAll('tbody tr')).toHaveLength(2);
+    expect(visibleText(host)).not.toContain('|');
   });
 });
 
