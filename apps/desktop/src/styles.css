@@ -761,6 +761,7 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .conversation:has(.case-menu) .scene-strip { pointer-events: none; }
 .scene-strip button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-dense-meta-size); }
 .scene-more-wrap { position: relative; flex: none; }
+.scene-strip .scene-unloaded-hint { margin: 0; font-size: var(--type-dense-meta-size); color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .scene-more-popover { position: absolute; z-index: 12; right: 0; bottom: calc(100% + 6px); min-width: 132px; display: grid; gap: 2px; padding: 6px; }
 .scene-more-popover button { width: 100%; border: 0; text-align: left; }
 .scene-more-narrow-only { display: none; }
@@ -1242,14 +1243,14 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .submission-note { padding: 5px 10px; border-bottom: var(--rule-minor) solid var(--border); color: var(--green-fg); font-size: var(--type-dense-meta-size); }
 /* OUTPUT-CONFIRM-UI-1：未能落到文书上的修订，逐条确认区（审阅面内轻卡，无投影、无动效）。 */
 /* WORK-LIVE-1：grant 案 S3 合同审查启动面（复用既有 token，零新影/渐变/裸色）。 */
-.s3-launcher { margin: 24px 16px; padding: 20px 18px; max-width: 520px; display: flex; flex-direction: column; gap: 12px; border: var(--rule-minor) solid var(--border); border-radius: 8px; background: var(--bg-raised); }
-.s3-launcher h3 { margin: 0; font-size: var(--type-dense-body-size); font-weight: 560; color: var(--text-primary); }
-.s3-launcher > p { margin: 0; font-size: var(--type-dense-meta-size); line-height: 1.5; color: var(--text-secondary); }
-.s3-subject-field { display: flex; flex-direction: column; gap: 4px; }
-.s3-subject-field span { font-size: var(--type-dense-meta-size); color: var(--text-secondary); }
-.s3-subject-field input { min-height: var(--control-height-sm); padding: 4px 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-surface); color: var(--text-primary); font-size: var(--control-font-sm); }
-.s3-launcher .primary-button { align-self: flex-start; }
-.s3-session-note { margin: 0; font-size: var(--type-dense-meta-size); color: var(--text-tertiary); }
+.precheck-form { margin: 24px 16px; padding: 20px 18px; max-width: 520px; display: flex; flex-direction: column; gap: 12px; border: var(--rule-minor) solid var(--border); border-radius: 8px; background: var(--bg-raised); }
+.precheck-form h3 { margin: 0; font-size: var(--type-dense-body-size); font-weight: 560; color: var(--text-primary); }
+.precheck-form > p { margin: 0; font-size: var(--type-dense-meta-size); line-height: 1.5; color: var(--text-secondary); }
+.precheck-field { display: flex; flex-direction: column; gap: 4px; }
+.precheck-field span { font-size: var(--type-dense-meta-size); color: var(--text-secondary); }
+.precheck-field input { min-height: var(--control-height-sm); padding: 4px 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--bg-surface); color: var(--text-primary); font-size: var(--control-font-sm); }
+.precheck-form .primary-button { align-self: flex-start; }
+.precheck-note { margin: 0; font-size: var(--type-dense-meta-size); color: var(--text-tertiary); }
 .work-recover { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: var(--rule-minor) solid var(--border); border-radius: 6px; background: var(--bg-surface); }
 .work-recover > p { margin: 0; font-size: var(--type-dense-meta-size); line-height: 1.5; color: var(--text-secondary); }
 .work-recover .primary-button { align-self: flex-start; }

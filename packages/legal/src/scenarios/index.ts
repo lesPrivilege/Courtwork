@@ -1,4 +1,4 @@
-import type { VerticalPackageDescriptorV1 } from '@courtwork/registry';
+import type { Launch, VerticalPackageDescriptorV1 } from '@courtwork/registry';
 
 const S3_CONTRACT_REVIEW_PROMPT = [
   '你正在执行「合同审查」场景。任务：通读卷宗中的合同文本，识别对委托方不利或存在法律风险的条款，逐项产出风险条目。',
@@ -36,6 +36,44 @@ const S6_FILE_OPS_PROMPT = [
 
 export const S3_REVIEW_GATE_LABEL = '提交处置并完成合同审查；有已确认风险且无待索证项时生成批注稿';
 
+/**
+ * S3 的预检表单契约（GENERIC-PACK-1 裁定二 · ADR-016 填格协议同族）：descriptor 声明、
+ * registry 冻结、宿主以有限元素集通用渲染。文案与字段形状原样来自退役的壳内 S3LauncherPanel，
+ * 随本声明迁入包侧——垂类文案不再住壳。
+ */
+const S3_LAUNCH: Launch = {
+  label: '审查合同',
+  tone: 'primary',
+  kind: 'scenario',
+  description:
+    '对已入库的合同做逐条风险审查。审查前请指定主合同并填写对方主体名称（用于工商核验），系统不从文件名或正文推断。',
+  submitLabel: '开始合同审查',
+  footnote: '其余已入库材料作为支持材料一并送审，但不作为批注目标。',
+  recover: {
+    label: '打开上次审查',
+    note: '本案有一次此前的合同审查。打开后可查看进度；若停在待处置处可继续，也可在下方重新开始。',
+  },
+  formFields: [
+    {
+      kind: 'select',
+      id: 'primaryContractId',
+      label: '主合同（批注目标）',
+      source: 'ready-materials',
+      mediaType: 'docx',
+      required: true,
+      placeholder: '请选择一份 Word 主合同',
+      emptyNote: '本案还没有可作主合同的 Word 文档 · 先入库一份 Word 主合同',
+    },
+    {
+      kind: 'text',
+      id: 'subject',
+      label: '对方主体名称',
+      required: true,
+      placeholder: '例如：临江精铸科技有限公司',
+    },
+  ],
+};
+
 export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
     {
       id: 'legal.S1',
@@ -62,6 +100,7 @@ export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
         { id: 'build-timeline', title: '梳理事件时间线', artifact: 'legal.Timeline' },
         { id: 'build-party-graph', title: '构建当事人图谱', artifact: 'legal.PartyGraph' },
       ],
+      launch: { label: '整理卷宗', tone: 'primary', kind: 'scenario' },
     },
     {
       id: 'legal.S2',
@@ -89,7 +128,7 @@ export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
       inputArtifacts: ['legal.CaseFile'],
       toolIds: ['party-verify'],
       outputArtifacts: ['legal.RiskList'],
-      uiTemplateId: 'risk-review-panel',
+      uiTemplateId: 'courtwork.risk-review.v1',
       confirmationPolicy: {
         mode: 'gates',
         gates: [{ artifact: 'legal.RiskList', label: S3_REVIEW_GATE_LABEL }],
@@ -99,6 +138,7 @@ export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
         { id: 'verify-parties', title: '核验合同主体' },
         { id: 'produce-risk-list', title: '产出风险清单', artifact: 'legal.RiskList' },
       ],
+      launch: S3_LAUNCH,
     },
     {
       id: 'legal.S4',
@@ -119,6 +159,8 @@ export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
       },
       promptSegmentRef: 'pleading-draft',
       steps: [{ id: 'draft-revision-set', title: '起草修订指令集', artifact: 'legal.RevisionInstructionSet' }],
+      // view 路由：场景条按钮打开宿主派生目标视图（draft-review-panel → 起草画布），不启动场景本体。
+      launch: { label: '起草答辩状', tone: 'draft-wide', kind: 'view' },
     },
     {
       id: 'legal.S6',
@@ -143,6 +185,7 @@ export const LEGAL_SCENARIOS: VerticalPackageDescriptorV1['scenarios'] = [
       },
       promptSegmentRef: 'file-ops-organize',
       steps: [{ id: 'plan-file-ops', title: '生成整理计划', artifact: 'legal.FileOpsPlan' }],
+      launch: { label: '卷宗整理', tone: 'wide', kind: 'scenario' },
     },
 ];
 

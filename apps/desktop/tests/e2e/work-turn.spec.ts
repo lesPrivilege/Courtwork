@@ -28,7 +28,7 @@ const CONTRACT_DOCX = Array.from(new Uint8Array(compileDraftToDocx({
 
 /** 显式选定主合同：默认不选，未选时起跑钮禁用。 */
 async function selectPrimaryContract(page: Page) {
-  const select = page.getByTestId('s3-primary-contract');
+  const select = page.getByTestId('precheck-field-primaryContractId');
   await expect(select).toBeEnabled();
   await select.selectOption({ label: PRIMARY_FILE });
 }
@@ -153,10 +153,10 @@ test('G 铸号红证：中文标题 grant 案的 caseId 恒过安全 token 语�
 
   // 场景全链（樁 turn）：中文标题案审查合同可开、可跑、落审阅面——真机同链不再触发状态引用红条。
   await ingestViaAddFolder(page, '合成卷宗案');
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
   await expect(page.getByTestId('revision-panel')).toContainText('付款期限较长');
 });
 
@@ -182,10 +182,10 @@ test('G 存量守卫：旧版中文 id 案运行场景 → 显式引导（原位
   await page.getByTestId(`case-card-${legacyId}`).locator('button.case-card-main').click();
   await expect(page.getByTestId('titlebar-case-title')).toContainText('合成卷宗案');
   await ingestViaAddFolder(page, '合成卷宗');
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
 
   // 守卫红证：显式中性引导（发生了什么+下一步），零审阅面、零技术措辞红条。
   const feedback = page.getByTestId('system-open-feedback');
@@ -195,7 +195,7 @@ test('G 存量守卫：旧版中文 id 案运行场景 → 显式引导（原位
   await expect(page.getByTestId('revision-panel')).toHaveCount(0);
 });
 
-test('H 案语境注入：Work 面自由输入携案根与材料清单；chat 面缺省不携（红证双向）', async ({ page }) => {
+test('H 案语境注入：Work 面自由输入携工作区根与材料清单；chat 面缺省不携（红证双向）', async ({ page }) => {
   await openWorkbench(page);
   await resetHooks(page);
   await connectProvider(page);
@@ -226,7 +226,7 @@ test('H 案语境注入：Work 面自由输入携案根与材料清单；chat �
   const workPrompt = await page.evaluate(
     () => (window as typeof window & { __capturedSystemPrompts?: string[] }).__capturedSystemPrompts?.at(-1) ?? '',
   );
-  expect(workPrompt).toContain('案件语境');
+  expect(workPrompt).toContain('工作区语境');
   expect(workPrompt).toContain('合成卷宗案');
   expect(workPrompt).toContain(PRIMARY_FILE);
   await expect.poll(() => page.evaluate(
@@ -245,5 +245,5 @@ test('H 案语境注入：Work 面自由输入携案根与材料清单；chat �
   const chatPrompt = await page.evaluate(
     () => (window as typeof window & { __capturedSystemPrompts?: string[] }).__capturedSystemPrompts?.at(-1) ?? '',
   );
-  expect(chatPrompt).not.toContain('案件语境');
+  expect(chatPrompt).not.toContain('工作区语境');
 });

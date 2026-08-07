@@ -123,7 +123,7 @@ describe('chat 面 memory 注入', () => {
       return sseResponse(['data: {"choices":[{"delta":{"content":"ok"}}]}', 'data: [DONE]']);
     };
     const memorySegment = '[长期记忆]\n- 偏好：简短回答';
-    const workContextSegment = '[案件语境]\n案根：《合成卷宗案》\n卷宗材料（2 件）';
+    const workContextSegment = '[工作区语境]\n工作区根：《合成卷宗案》\n材料（2 件）';
     const storage = new MemoryStorage();
     const client = new TurnProtocolClient(createLocalStorageTurnJournalBackend(storage));
     await sendChatTurn(client, DEFAULT_MODEL_CONFIG, [{ role: 'user', content: 'a' }], { fetchImpl, memorySegment });
@@ -133,12 +133,12 @@ describe('chat 面 memory 注入', () => {
       workContextSegment,
     });
     const [memoryOnly, withWork] = captured;
-    expect(withWork).toContain('[案件语境]');
-    expect(withWork).toContain('卷宗材料（2 件）');
+    expect(withWork).toContain('[工作区语境]');
+    expect(withWork).toContain('材料（2 件）');
     // 案语境段排 memory 之后：memory-only 系统提示是 with-work 的严格前缀（更易变段靠尾）。
     expect(withWork.startsWith(memoryOnly)).toBe(true);
     // 缺省不传 = 与 memory-only 逐字节相同（第一轮已证），无悬垂差异。
-    expect(memoryOnly).not.toContain('[案件语境]');
+    expect(memoryOnly).not.toContain('[工作区语境]');
     // journal 不分家且不把请求时活语境另存为账本内容；只持久同一 Chat Turn 的结果投影。
     expect(storage.getItem(TURN_JOURNAL_STORAGE_KEY)).not.toContain(workContextSegment);
   });

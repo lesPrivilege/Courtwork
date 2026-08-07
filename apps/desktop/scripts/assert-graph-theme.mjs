@@ -1,13 +1,23 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 
 const tokens = JSON.parse(readFileSync(resolve('../../docs/design/tokens.json'), 'utf8'));
 const theme = readFileSync(resolve('src/workbench/graph-theme.ts'), 'utf8');
-const panel = readFileSync(resolve('src/workbench/GraphPanel.tsx'), 'utf8');
+const panel = readFileSync(resolve('src/verticals/legal/GraphPanel.tsx'), 'utf8');
 const runtime = readFileSync(resolve('src/workbench/g6-runtime.ts'), 'utf8');
 const app = readFileSync(resolve('src/App.tsx'), 'utf8');
+const graphRenderer = readFileSync(resolve('src/verticals/legal/GraphRenderer.tsx'), 'utf8');
 const vite = readFileSync(resolve('vite.config.ts'), 'utf8');
 const violations = [];
+
+/** src 全树 ts/tsx 文件（懒载点唯一性扫描面）。 */
+function* srcFiles(dir = resolve('src')) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) yield* srcFiles(full);
+    else if (/\.tsx?$/.test(entry.name)) yield full;
+  }
+}
 const expected = {
   background: tokens.color.bg.raised.value,
   surface: tokens.color.bg.surface.value,
@@ -37,8 +47,18 @@ if (/relationType\s*\.\s*includes|e-14|e-15/.test(panel)) {
 if (/#[0-9a-f]{3,8}/i.test(panel)) {
   violations.push('GraphPanel 出现绕过主题的硬编码颜色');
 }
-if (!app.includes("lazy(() => import('./workbench/GraphPanel'))")) {
-  violations.push('G6 未按关系图谱工作面懒加载');
+// GENERIC-PACK-1 ②：懒载点随渲染件由 App 迁入 `preview/GraphRenderer.tsx`。判据改锚新家，
+// 并同时锁「唯一性」——`import(... GraphPanel)` 全 src 恰一处，第二处即把 g6 chunk 拉回主包。
+// GENERIC-PACK-1 ⑥（债偿还）：GraphPanel 随债表迁入 `verticals/legal/`，懒载点改相对锚。
+if (!graphRenderer.includes("lazy(() => import('./GraphPanel'))")) {
+  violations.push('G6 未按关系图谱工作面懒加载（懒载点应在 verticals/legal/GraphRenderer.tsx）');
+}
+if (app.includes('GraphPanel')) {
+  violations.push('App.tsx 重新持有 GraphPanel——懒载点必须只住 blueprint renderer');
+}
+const dynamicGraphImports = [...srcFiles()].filter((file) => /import\((?:[^)]*)GraphPanel/.test(readFileSync(file, 'utf8')));
+if (dynamicGraphImports.length !== 1) {
+  violations.push(`GraphPanel 懒载点应恰一处，实得 ${dynamicGraphImports.length} 处：${dynamicGraphImports.join(', ')}`);
 }
 // 批次三 #13：拖拽平移是图谱唯一缩放/平移沙盒的组成，behaviors 必须启用 drag-canvas 且关动画
 if (!/behaviors:\s*\[\{ type: 'drag-canvas', animation: false \}\]/.test(panel)) {

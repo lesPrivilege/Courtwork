@@ -32,7 +32,7 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
         ],
         rowBudget: 4,
       },
-      uiTemplateId: 'timeline-panel',
+      uiTemplateId: 'courtwork.timeline.v1',
     },
     {
       typeId: 'legal.PartyGraph',
@@ -47,7 +47,7 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
         ],
         rowBudget: 5,
       },
-      uiTemplateId: 'party-graph-panel',
+      uiTemplateId: 'courtwork.party-graph.v1',
       vocabulary: {
         enumLabels: { kind: { individual: '自然人', organization: '机构' } },
       },
@@ -75,7 +75,7 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
         ],
         rowBudget: 6,
       },
-      uiTemplateId: 'risk-review-panel',
+      uiTemplateId: 'courtwork.risk-review.v1',
       vocabulary: {
         enumLabels: {
           level: { high: '高', medium: '中', low: '低' },
@@ -144,9 +144,9 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
 
 export const LEGAL_RENDERERS: VerticalPackageDescriptorV1['renderers'] = [
     { uiTemplateId: 'case-intake-panel', kind: 'workspace', title: '卷宗阅卷' },
-    { uiTemplateId: 'timeline-panel', kind: 'workspace', title: '事件时间线' },
-    { uiTemplateId: 'party-graph-panel', kind: 'workspace', title: '当事人图谱' },
-    { uiTemplateId: 'risk-review-panel', kind: 'workspace', title: '风险审阅' },
+    { uiTemplateId: 'courtwork.timeline.v1', kind: 'workspace', title: '事件时间线' },
+    { uiTemplateId: 'courtwork.party-graph.v1', kind: 'workspace', title: '当事人图谱' },
+    { uiTemplateId: 'courtwork.risk-review.v1', kind: 'workspace', title: '风险审阅' },
     { uiTemplateId: 'courtwork.review-matrix.v1', kind: 'workspace', title: '矩阵审阅' },
     { uiTemplateId: 'draft-review-panel', kind: 'document', title: '文书修订' },
     { uiTemplateId: 'file-ops-plan-panel', kind: 'workspace', title: '卷宗整理' },

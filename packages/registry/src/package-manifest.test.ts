@@ -81,6 +81,45 @@ describe('PackageScenarioSchema（ABI 场景声明 v2）', () => {
       PackageScenarioSchema.safeParse({ ...withoutSteps, confirmationPolicy: { mode: 'none' } }).success,
     ).toBe(true);
   });
+
+  it('launch 契约可声明（场景条按钮 + 预检表单有限元素集，GENERIC-PACK-1 裁定二）', () => {
+    const withLaunch = {
+      ...VALID_SCENARIO,
+      launch: {
+        label: '审查合同',
+        tone: 'primary',
+        kind: 'scenario',
+        description: '对已入库的合同做逐条风险审查。',
+        submitLabel: '开始合同审查',
+        footnote: '其余已入库材料作为支持材料一并送审。',
+        recover: { label: '打开上次审查', note: '本案有一次此前的合同审查。' },
+        formFields: [
+          { kind: 'select', id: 'primaryContractId', label: '主合同（批注目标）', source: 'ready-materials', mediaType: 'docx', required: true, placeholder: '请选择一份 Word 主合同', emptyNote: '先入库一份 Word 主合同' },
+          { kind: 'text', id: 'subject', label: '对方主体名称', required: true, placeholder: '例如：临江精铸科技有限公司' },
+        ],
+      },
+    };
+    expect(PackageScenarioSchema.safeParse(withLaunch).success).toBe(true);
+    // 元素集是闭集：select/text 之外的元素、闭集外的来源/变体一律拒收。
+    expect(
+      PackageScenarioSchema.safeParse({
+        ...withLaunch,
+        launch: { ...withLaunch.launch, formFields: [{ kind: 'datepicker', id: 'x', label: 'x' }] },
+      }).success,
+    ).toBe(false);
+    expect(
+      PackageScenarioSchema.safeParse({
+        ...withLaunch,
+        launch: {
+          ...withLaunch.launch,
+          formFields: [{ kind: 'select', id: 'x', label: 'x', source: 'model-suggestion' }],
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      PackageScenarioSchema.safeParse({ ...withLaunch, launch: { ...withLaunch.launch, tone: 'floating' } }).success,
+    ).toBe(false);
+  });
 });
 
 describe('RendererDescriptorSchema', () => {

@@ -5284,3 +5284,162 @@ decode／re-encode byte identity 与 host golden 也在完整 cargo 门内通过
 
 本节仅放行 `d64e2ea` 的 PI-LANE-UI-1 实现与本节列明范围；不取得 agent 称谓，不扩大到
 WKWebView 真机验收、PI-BASE-HEADLESS-ACCEPT 六格或 current 能力成熟度。
+
+## GENERIC-PACK-1 独立验收（2026-08-06，REJECT）
+
+**具名验收者：Codex 独立验收会话。** 对象为 `deb81b8ee8f13f52cc9d33e7c747d3c2611b9ccc`
+（`claude/generic-pack-1`，base `main@ba8db06`）；契约按 `main@d6b224b` 读取。验收在
+独立 clean clone `/private/tmp/courtwork-generic-pack-1-accept` 的
+`acceptance/generic-pack-1-20260806` 分支完成，主仓工作树未 checkout、未 stash、未修改。
+
+**最终判定：REJECT。** 不是把实现门禁红伪装成绿：实现级门禁与运行链均独立通过，但交验
+回执存在一处可复核的数字漂移，且下列契约疑点不能由验收会话自行放行，须架构角色追认后
+再验收。未修改实现；本节是本会话自行落盘的验收记录。
+
+### 阻断项与同形全集
+
+1. **零泄漏回执数字漂移。** `apps/desktop/specs/GENERIC-PACK-1.md` 收尾写「受检 170」；
+   独立实跑 `node apps/desktop/scripts/assert-vertical-isolation.mjs` 的机器输出为：
+   **受检 174**、绑定族外 **71**、`verticals/` 内真实垂类绑定 **6**，债为 **work/output/system
+   三族**。静态属性本身通过，但 170≠174，不能按回执原数字放行；应先由架构/实现会话
+   逐 diff 修正权威回执或说明计数口径。
+2. **契约疑点全集，均不由本会话自行签字：**
+   - 场景条呈现次序（scenario 先、view 后）是否确属壳规则而非包契约；
+   - S4 `view` 条目恒在且指向 blueprint 的语义是否正式冻结；
+   - demo `scenarioLaunch` 持有 `legal.S1/S3/S6` 路由映射的边界；
+   - ①附 prompt 零命中的断言范围仅覆盖场景语义、而不覆盖容器着色的边界；
+   - 垂类产物存在但包未加载时，退化视图在过渡期结构性不可达且无加载 UX 的接受条件。
+
+以上五项虽已登记在 SPEC「偏离与决策登记」，本会话只验证其实现与红证，不替架构角色
+补签契约变更。其余六项作为票面内偏离记名接受：`launch.recover` 由声明驱动、五笔
+高水位留痕、两批 testid 按语义迁移、graph-theme 锚点随 renderer 迁移、未加载起手文案
+取中性词，以及 demo effect 判据由 `isDemoCaseId` 等价改为驱动侧 `host.isDemoCase`。
+
+### 独立门禁实跑
+
+| 门 | 独立证据 | 结果 |
+|---|---|---|
+| build / lint | `pnpm -r build`、`pnpm lint` | 绿 |
+| root tests | **1941/1941**（170 files） | 绿 |
+| desktop unit | **755/755**（85 files） | 绿 |
+| Rust | **250 passed / 0 failed / 1 ignored**（251 running） | 绿；仅保留 base 同形 unsafe warnings |
+| site guard | `pnpm site:guard` | PASS；release-truth、deslop、schema exemplar 均绿 |
+| Playwright | 独占端口 `15431`，`pnpm --filter @courtwork/desktop test:e2e` | **368/368**；前置静态链完整通过 |
+| app 高水位 | 全量前置链 | **2282** |
+| product sidecar | `547,893 B`，SHA-256 `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c` | 与契约同值、零迁移；先补建 product/headless 制品后跑 cargo |
+
+目标 generic 相关单测补跑 **7 files / 59 passed**；`@courtwork/legal` 为 **11 files / 88
+passed**；registry 与 `layout-golden` 合跑 **7 files / 112 passed**。`App.tsx` 静态无
+`RiskList` 持有。
+
+### 零泄漏与迁移红证（均为本会话注入、观察变红、随后还原）
+
+- 静态门基线通过；壳内注入 `@courtwork/legal` import 分别指名 `App.tsx`、通用
+  `ArtifactHostView.tsx`；把 `verticals/legal` 的六处垂类 import 全掏空时，反向锁报
+  「绑定族是空壳」；把宿主注册表的四处 `../verticals/legal/` 改掉时，注册表反向锁报
+  「注册点被绕开」。还原后机器输出为 174/71/6 与三债。
+- 四 panel 全迁：`revision` blueprint 降回 `route`，VIEW-ABI 红；App 注入旧的
+  `timeline` 分支，VIEW-ABI 红；`TimelineRenderer` 与 `GraphRenderer` 各撤 `safeParse`
+  后各自 targeted test 红；Provider 撤 fail-closed 校验后 missing Provider 单测红。
+- `handlesEmpty` 改 false 后缺 payload 单测红；多 artifact 判据从 `>1` 放宽为 `>2` 后
+  争夺同一具名面反例红，证明多 artifact 仍整面 fail-closed、未改拒载语义。
+- workbench 相关 targeted tests 基线通过；generic 相关链未观察到 `RiskList` 回流壳的静态
+  证据。
+
+### prompt、门锚、schema 与 golden
+
+- 未加载全链复跑 `work-context` 的十枚词表：`合同审查`、`风险`、`当事人`、`主合同`、
+  `核验`、`律师`、`答辩`、`诉讼`、`批注`、`修订`；注入 `风险` 到中性起手文案后断言
+  立即红，还原后 **5/5**。全链 prompt 断言无垂类命中；案语境段为中性词。
+- 五门锚基线全绿；分别注入 GraphPanel 懒载点、schema-parts 几何路径、rule-grammar
+  token、RP-2.7 的 `卷宗` 词，四门各按预期理由红；RP-2.7 还原后通过。deslop 注入
+  `site/index.html` 的 archive active reference 后按预期红，还原后 PASS。
+- `schema-exemplar` 基线通过；在 `packages/legal/src/presentation/index.ts` 注入注释
+  后 P0-S02 source hash drift 红；还原后通过。当前 source hash
+  `a99fac4d38a221ba374e9892aa77e213dfbf9135d49c2d69901fba5fd5e7721b` 与封存值一致。
+  legal presentation 被触碰但 schema-exemplar 已同批重封，未发现 G-1 同形漂移。
+- launch registry、precheck form、scene strip、view ABI 与 golden targeted tests 全绿；
+  descriptor golden 重铸理由为 presentation-only，prompt hash 未漂移，schemaVersion 未升。
+
+### 视觉与卸载态成品
+
+- 独立复跑 baseline 链：demo strip `cmp=0`、S3 precheck form `cmp=0`；demo work 动态
+  回放 `cmp=1`，与 README 预期一致。四钮场景条与预检表单逐字节一致。
+- 独立端口全链 **368/368**，并复核五帧：matter 创建、work chat 中性 prompt、Draft 提案
+  （Allow/Deny）、product written（workspace 路径/hash/只读下一步）、review readonly
+  （无编辑/写回入口）。当前帧视觉检查无垂类页签、无垂类 prompt 语义、无伪装退化视图；
+  复摄产生的四张工作树截图已还原，不把动态本地证据误并入验收文档提交。
+- 按 ADR-015 成品律走查未绑定 matter 的创建→work→产物→回看：可见的是通用 Draft
+  工作稿轨与显式提案/允许/拒绝决策，产物写入后只读回看 hash 相符；未把「开关存在」
+  冒充成成品通过。
+
+**结论保持 REJECT，闭口为：实现门禁 PASS；回执计数漂移与上述五项契约追认未闭。** 待
+架构追认并将 SPEC 的受检计数按同一机器口径订正后，应在独立 clean worktree 重跑本节
+阻断项及全量门，再决定是否放行。验收记录已由本会话提交。
+
+## GENERIC-PACK-1 聚焦复验（2026-08-06，PASS）
+
+**具名验收者：Codex 独立验收会话。** 复验对象为实现返修 tip `cd5851703647e55b5994f51ba356ce5cbb0290a5`
+（`b22b5bc` 订数/豁免清单返修，`cd58517` 证据帧更新）；契约对照 `main@a90412e` 的五项
+追认文本。本节在同一临时 clone `/private/tmp/courtwork-generic-pack-1-accept` 续写，保留
+首轮 REJECT 提交 `c9fdc5fe`；实现返修以 merge commit `1a9b30ef` 接回报告链。新 tip
+另在独立 clean clone `/private/tmp/courtwork-generic-pack-1-focus` 检出并实跑，未触碰主仓。
+
+**最终判定：PASS（聚焦范围）。** 首轮两个阻断项均闭合；因返修 diff 未触生产码，仅重跑
+聚焦门与三枚 generic-pack E2E，未重复全量八相门。
+
+### 1. 订数与取数坐标
+
+独立实跑 `node apps/desktop/scripts/assert-vertical-isolation.mjs` 输出逐值为：
+
+`受检 174；绑定族 verticals/composition/demo 共 71；verticals/ 内真实垂类绑定 6；债 work/output/system 三族。`
+
+SPEC 的「受检数取数提交登记」明确锚在 `deb81b8`：160→168→170→172→174，并注明其后
+`f98b49a`/`8fb3683`/`f2e1de4`/`deb81b8` 未增删受检源码文件。独立 diff 核实
+`deb81b8..cd58517` 只有既有测试文件内容、SPEC、E2E 注释和证据帧变化，无新增/删除受检
+源码文件；现 tip 机器重数仍为 **174/71/6/3**，与返修回执一致。
+
+### 2. 豁免词清单
+
+`src/work/work-context.test.ts` ①附断言注释显式列出唯一容器着色豁免：
+`卷宗 / 案件 / 案 / 案根`；同时明确 `工作区 / 项目` 是中性段词，**不属于豁免**。
+加词判据已成文：场景、步骤、产物、词表及 prompt 语义新词必须零命中，不得加入清单；
+只有注明 ContainerKind 轴与容器归属的着色名词可登记。
+
+十枚垂类场景词在单测的「案语境段」与「组装后的整段 prompt」各断言一次，并由
+`tests/e2e/generic-pack-1.spec.ts` 同构造路径再次断言：
+`合同审查、风险、当事人、主合同、核验、律师、答辩、诉讼、批注、修订`。SPEC ①附行
+互指单测注释，E2E 注释反指同一清单与加词判据；清单与断言逐项相同。
+
+### 3. 五项追认一致性（对照 `main@a90412e`）
+
+| 追认项 | 独立核实 | 结果 |
+|---|---|---|
+| 呈现次序 | `scene-strip.tsx` 先按 package registry 声明序收集，再按 `scenario` 后 `view` 分组；`scene-strip.test.ts` 锁定顺序 | 一致 |
+| 双类入口皆包声明 | `packages/legal/src/scenarios/index.ts` 中 S1/S3/S6 为 `launch.kind: scenario`，S4 为 `launch.kind: view`；宿主只投影声明 | 一致 |
+| demo 映射零壳泄漏 | `scenarioLaunch` 的 `legal.S1/S3/S6 → flow/file-ops` 仅在 `src/demo/client.ts` fixture；App 只调用通用 adapter，不持有映射表，静态隔离门仍通过 | 一致 |
+| 豁免仅限清单词 | 4 个容器着色词显式列清；10 个场景词双层单测＋E2E 均拒命中；`工作区/项目` 明确非豁免 | 一致 |
+| 退化视图边界 | `vertical-artifact-unloaded.test.ts` 覆盖「产物存在＋加载提示＋非伪装」；SPEC/架构留痕保留，产品面 E2E 义务按追认转挂 `PACK-INTERACT-1` | 一致 |
+
+### 4. Diff 范围与聚焦门
+
+`git diff --name-status deb81b8..cd58517` 仅触及：
+
+- `apps/desktop/specs/GENERIC-PACK-1.md`；
+- `apps/desktop/src/work/work-context.test.ts`（测试断言/注释）；
+- `apps/desktop/tests/e2e/generic-pack-1.spec.ts`（互指注释）；
+- 四张卸载态证据帧。
+
+无生产实现文件触碰，故未扩验生产面。
+
+聚焦实跑证据：
+
+- `assert-vertical-isolation`：**174/71/6，三债**；`assert-rp27`、VIEW-ABI **39 checks**、
+  WORK-LIVE、graph-theme、schema-parts、rule-grammar、schema-exemplar 全绿；
+- 聚焦 Vitest：**5 files / 29 passed**（含 prompt、场景条、工作面集、绑定与退化视图）；
+- 独占端口 `15432` 的 `generic-pack-1.spec.ts`：**3/3 passed**，覆盖页签零垂类、过渡默认
+  `[legal]` 持久化、未绑定 matter 全链与 prompt 零垂类断言；
+- `git diff --check` 通过，未留下验收变异或工作树源码改动。
+
+**本节结论：PASS。** 首轮 `c9fdc5fe` 的「170→174 回执漂移」与五项契约追认阻断已在
+返修回执和 `main@a90412e` 追认文本下闭合；首轮 REJECT 报告不改写，按双报告随链保留。

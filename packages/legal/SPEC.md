@@ -183,6 +183,17 @@ descriptor 整面 hash 重铸（`layout-golden.test.ts` 同步，`55409f1d…` �
 promptSegments 零漂移，`schemaVersion`/`identity.version` 不升（payload 契约未变，ADR-012 决定一）。
 pm 包不涉及：四 artifact 全部走 presentation 路径（field-local `valueLabels`），不触词表外溢。
 
+## 状态更新（2026-08-05，GENERIC-PACK-1 余三 panel）
+
+承下方矩阵首枚同一体例，`legal.Timeline`、`legal.PartyGraph` 与 `legal.RiskList`（连同 S3 场景
+声明）的 `uiTemplateId` 与 `LEGAL_RENDERERS` 声明由 `timeline-panel` / `party-graph-panel` /
+`risk-review-panel` 改为版本化 `courtwork.timeline.v1` / `courtwork.party-graph.v1` /
+`courtwork.risk-review.v1`。四枚 panel 至此全部版本化，ADR-012 决定四点名的迁移债清零。
+同属**呈现绑定**变更：payload 契约、schema、promptSegments 与词表均未动，`schemaVersion` 与
+`identity.version` 不升、prompt blob hash 不漂，只有 descriptor hash 随之重铸（逐 panel 各一次：
+`533f9d40…` → `6913f050…` → `7a2ac205…` → `69b56734…`）。不留 compatibility alias 的理由与
+宿主侧不注入 React 的边界均同矩阵条，逐字适用，不在此复述。
+
 ## 状态更新（2026-07-27，PANEL-BLUEPRINT-1 矩阵首枚）
 
 `legal.ReviewMatrix` 的 `uiTemplateId` 与 S2 场景、`LEGAL_RENDERERS` 声明由 `matrix-review-panel`

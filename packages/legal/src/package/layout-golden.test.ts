@@ -30,7 +30,16 @@ describe('VPKG-LAYOUT-1 Legal content golden', () => {
     // `schemaVersion` 不升（ADR-012 决定一「payload 契约未变时不得误升」）。
     // ADMISSION-ENUM-1 重铸（仅 descriptor 一枚）：legal.RiskList 词表补 `enumLabels.reason`
     // （受控外溢，见 legal SPEC 状态更新）——promptSegments 未动，prompt blob hash 不漂。
-    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('533f9d40294e767f348b17dca98aaf404fc4fa42ecc77bf02492ea4101b5f146');
+    // GENERIC-PACK-1 重铸（仅 descriptor 一枚，逐 panel 各一次）：`legal.Timeline` 与
+    // `legal.PartyGraph` 的 uiTemplateId 与 renderer 声明由 `timeline-panel` / `party-graph-panel`
+    // 改为版本化 `courtwork.timeline.v1` / `courtwork.party-graph.v1`（同矩阵先例）；第三枚 `legal.RiskList`
+    // 与 S3 场景的 `risk-review-panel` 同改为 `courtwork.risk-review.v1`。
+    // 同属**呈现绑定**变更：payload 契约与 promptSegments 未动，故 prompt blob hash 不漂、
+    // `schemaVersion` 不升。
+    // GENERIC-PACK-1 裁定二重铸（仅 descriptor 一枚）：S1/S3/S4/S6 场景新增 `launch` 声明
+    // （场景条按钮 + 预检表单有限元素集契约，ADR-016 同族）——payload 契约与 promptSegments
+    // 未动，prompt blob hash 不漂、`schemaVersion` 不升。
+    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('241b90d6f5ec939415e4bd119d0fccb7e9eb500d9fcfc04b16d5f4599b924d6b');
     expect(sha256(promptBlob())).toBe('1f76dbd2b2a7dad74fa1d13f6a0c7fd537751a96720356ea76886f7c3979e134');
   });
 

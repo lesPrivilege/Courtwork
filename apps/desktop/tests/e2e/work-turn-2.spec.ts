@@ -63,7 +63,7 @@ async function releaseStalledStream(page: Page) {
   await page.evaluate(() => (window as typeof window & { __workTurn2Release?: () => void }).__workTurn2Release?.());
 }
 
-test('Work 对话留在 Work 并分账；Chat 反向不携案件语境', async ({ page }) => {
+test('Work 对话留在 Work 并分账；Chat 反向不携工作区语境', async ({ page }) => {
   await openWorkbench(page);
   await page.evaluate(() => (window as unknown as { __courtworkHostAuth: HostAuthHooks }).__courtworkHostAuth.reset());
   await connectProvider(page);
@@ -84,7 +84,7 @@ test('Work 对话留在 Work 并分账；Chat 反向不携案件语境', async (
   expect(workResult.work).toContain('"status":"completed"');
 
   const workPrompt = await page.evaluate(() => (window as typeof window & { __workTurn2Prompts?: string[] }).__workTurn2Prompts?.at(-1) ?? '');
-  expect(workPrompt).toContain('案件语境');
+  expect(workPrompt).toContain('工作区语境');
   expect(workPrompt).toContain('Work Turn 二号案');
 
   await page.getByTestId('segment-chat').click();
@@ -92,7 +92,7 @@ test('Work 对话留在 Work 并分账；Chat 反向不携案件语境', async (
   await page.getByTestId('composer-send').click();
   await expect(page.getByTestId('chat-assistant-message')).toContainText('已按当前工作面回复。');
   const chatPrompt = await page.evaluate(() => (window as typeof window & { __workTurn2Prompts?: string[] }).__workTurn2Prompts?.at(-1) ?? '');
-  expect(chatPrompt).not.toContain('案件语境');
+  expect(chatPrompt).not.toContain('工作区语境');
 });
 
 test('fix-by-acceptance 红证：案 A 的在途 Work Turn 不得阻塞案 B 的 composer', async ({ page }) => {

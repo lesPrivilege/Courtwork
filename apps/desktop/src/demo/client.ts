@@ -108,6 +108,12 @@ export function createDemoWorkFixture(options: { replayDelayMs?: number } = {}):
   };
 
   const adapter: DemoWorkFixtureAdapter = {
+    scenarioLaunch(scenarioId) {
+      if (scenarioId === 'legal.S1') return { kind: 'flow', flow: 'S1' };
+      if (scenarioId === 'legal.S3') return { kind: 'flow', flow: 'S3' };
+      if (scenarioId === 'legal.S6') return { kind: 'file-ops' };
+      return undefined;
+    },
     sessionRefFor(caseId, flow) {
       const ref = { caseId, sessionId: SESSION_FOR_FLOW[flow] };
       assertDemoRef(ref);

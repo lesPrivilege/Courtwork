@@ -130,6 +130,26 @@ describe('buildPackageRegistries（包运行时 registries）', () => {
     expect(registries.renderers.get('ghost-panel')).toBeUndefined();
   });
 
+  it('⑥ launch 声明随场景入 runtime 且深冻结（裁定二：descriptor 声明、registry 冻结）', () => {
+    const source = manifest();
+    source.scenarios[0]!.launch = {
+      label: '审查合同',
+      tone: 'primary',
+      kind: 'scenario',
+      formFields: [
+        { kind: 'select', id: 'primaryContractId', label: '主合同（批注目标）', source: 'ready-materials', mediaType: 'docx' },
+      ],
+    };
+    const { admitted } = admitPackages([source]);
+    const registries = buildPackageRegistries(admitted);
+    const runtime = registries.scenarios.get('legal.S3')!;
+    expect(runtime.launch?.label).toBe('审查合同');
+    // 快照深冻结：宿主只读不写，缺装配显式失败不靠运行时防呆。
+    expect(Object.isFrozen(runtime.launch)).toBe(true);
+    expect(Object.isFrozen(runtime.launch!.formFields)).toBe(true);
+    expect(Object.isFrozen(runtime.launch!.formFields![0])).toBe(true);
+  });
+
   it('④ projection registry：typeId → 投影声明', () => {
     expect(registries.projections.get('legal.RiskList')?.rowBudget).toBe(3);
   });

@@ -122,11 +122,11 @@ async function createCaseWithMaterials(page: Page, files: [string, number[]][]) 
 
 /** 跑到门禁停下（不提交）——审阅面此刻是 interactive。 */
 async function runToGate(page: Page) {
-  await page.getByTestId('scene-work-review').click();
-  await expect(page.getByTestId('s3-launcher')).toBeVisible();
-  await page.getByTestId('s3-primary-contract').selectOption({ label: PRIMARY_FILE });
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('scene-legal.S3').click();
+  await expect(page.getByTestId('precheck-form')).toBeVisible();
+  await page.getByTestId('precheck-field-primaryContractId').selectOption({ label: PRIMARY_FILE });
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
   const panel = page.getByTestId('revision-panel');
   await expect(panel).toBeVisible();
   return panel;

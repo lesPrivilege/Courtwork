@@ -63,7 +63,7 @@ function contractDocxBytes(paragraphs: string[] = CONTRACT_PARAGRAPHS): number[]
 
 /** 显式选定主合同：默认不选，未选时起跑钮禁用（ADR-010 决定五 2026-07-24 修订）。 */
 async function selectPrimaryContract(page: Page, fileName = PRIMARY_FILE) {
-  const select = page.getByTestId('s3-primary-contract');
+  const select = page.getByTestId('precheck-field-primaryContractId');
   await expect(select).toBeEnabled();
   await select.selectOption({ label: fileName });
 }
@@ -163,14 +163,14 @@ test('grant 案合同审查全链：真实材料 → 门禁审阅 → docx 落�
   await ingestContract(page);
 
   // 打开合同审查工作面 → 显式主体 preflight → 运行
-  await page.getByTestId('scene-work-review').click();
-  const launcher = page.getByTestId('s3-launcher');
+  await page.getByTestId('scene-legal.S3').click();
+  const launcher = page.getByTestId('precheck-form');
   await expect(launcher).toBeVisible();
   // 缺主体时运行钮禁用（不默认补全，ADR-010 决定五）
-  await expect(page.getByTestId('s3-run')).toBeDisabled();
+  await expect(page.getByTestId('precheck-submit')).toBeDisabled();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
 
   // 真实执行器产出的 RiskList 落审阅面（非 recording）
   const panel = page.getByTestId('revision-panel');
@@ -203,10 +203,10 @@ test('grant 案运行中取消：canceled 终态，无 docx 落盘', async ({ pa
   await createGrantCase(page);
   await ingestContract(page);
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
 
   // 运行中出现取消控件（run/cancel 控件接线）→ 取消
   const cancel = page.getByTestId('work-cancel');
@@ -224,7 +224,7 @@ async function switchAwayAndBack(page: Page, grantCaseId: string) {
   await page.getByTestId('case-card-demo-linjiang').locator('button.case-card-main').click();
   await page.getByTestId(`case-card-${grantCaseId}`).locator('button.case-card-main').click();
   // 重新打开审查工作面（切案后 grant 案 preview 关闭）——恢复入口据持久指针在此重现。
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
 }
 
 test('grant 案跨切案恢复：暂停态切走再回 → 恢复审查 → 水合投影等价 → 续行 resolve → docx（把跨重启试点变自动化用例）', async ({ page }) => {
@@ -237,10 +237,10 @@ test('grant 案跨切案恢复：暂停态切走再回 → 恢复审查 → 水�
   expect(grantCaseId).toBeTruthy();
 
   // 运行到暂停门禁（run→gate 中途）——run 启动即持久化恢复指针。
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
   const panel = page.getByTestId('revision-panel');
   await expect(panel).toContainText('付款期限较长');
 
@@ -248,9 +248,9 @@ test('grant 案跨切案恢复：暂停态切走再回 → 恢复审查 → 水�
   await switchAwayAndBack(page, grantCaseId as string);
 
   // 恢复入口据持久指针重现（此前「全 App 对 workCommand.replay 零消费点」是 WORK-HOST-1 驳回根因）。
-  const recover = page.getByTestId('work-recover');
+  const recover = page.getByTestId('precheck-recover');
   await expect(recover).toBeVisible();
-  await page.getByTestId('work-recover-run').click();
+  await page.getByTestId('precheck-recover-run').click();
 
   // 水合后审阅面重现（与重启前等价：同一风险条目）+ 恢复入口消失（riskList 已水合）。
   await expect(panel).toContainText('付款期限较长');
@@ -274,10 +274,10 @@ test('grant 案恢复失效诚实：信封已不存在 → 中性失效反馈 + 
   await ingestContract(page);
   const grantCaseId = await page.evaluate(() => localStorage.getItem('courtwork.selected-case-id'));
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
   await expect(page.getByTestId('revision-panel')).toContainText('付款期限较长');
 
   // 模拟信封跨重启丢失：重置内存参考宿主（持久指针 localStorage 仍在，模拟 ref 存活而信封缺失）。
@@ -285,9 +285,9 @@ test('grant 案恢复失效诚实：信封已不存在 → 中性失效反馈 + 
 
   await switchAwayAndBack(page, grantCaseId as string);
 
-  const recover = page.getByTestId('work-recover');
+  const recover = page.getByTestId('precheck-recover');
   await expect(recover).toBeVisible();
-  await page.getByTestId('work-recover-run').click();
+  await page.getByTestId('precheck-recover-run').click();
 
   // 显式失效（info 中性态，非错误红条）+ 恢复入口消失（残 ref 已清）+ 零 docx。
   const feedback = page.getByTestId('system-open-feedback');
@@ -305,10 +305,10 @@ test('grant 案未装配（无 transport 且无 stub）：start → rejected/not
   await createGrantCase(page);
   await ingestContract(page);
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
 
   // ADR-010 决定一：未装配 → rejected/not_configured 的中性「未就绪」产品语言反馈（不是 failed/internal 错误红条）。
   const feedback = page.getByTestId('system-open-feedback');
@@ -317,7 +317,7 @@ test('grant 案未装配（无 transport 且无 stub）：start → rejected/not
   await expect(feedback).not.toHaveClass(/\berror\b/);
   // 未装配即拒绝：零 docx 落盘、启动器仍在（未进入审阅面）。
   await expect(page.getByTestId('work-output-docx')).toHaveCount(0);
-  await expect(page.getByTestId('s3-launcher')).toBeVisible();
+  await expect(page.getByTestId('precheck-form')).toBeVisible();
 });
 
 /**
@@ -348,10 +348,10 @@ test('grant 案审阅面板内切换 tab 不关闭工作面', async ({ page }) =
   await createGrantCase(page);
   await ingestContract(page);
 
-  await page.getByTestId('scene-work-review').click();
+  await page.getByTestId('scene-legal.S3').click();
   await selectPrimaryContract(page);
-  await page.getByTestId('s3-subject').fill('起云智能装备股份有限公司');
-  await page.getByTestId('s3-run').click();
+  await page.getByTestId('precheck-field-subject').fill('起云智能装备股份有限公司');
+  await page.getByTestId('precheck-submit').click();
   await expect(page.getByTestId('revision-panel')).toBeVisible();
 
   // 面板内切 tab（起草）不得把整个工作面闪回大纲列——切到的面未适用时显式提示

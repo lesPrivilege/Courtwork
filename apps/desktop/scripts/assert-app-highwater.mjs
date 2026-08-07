@@ -73,7 +73,39 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // `workbench/use-viewport-queries.ts`（两枚断点查询）。两处外提行为一字未改；
 // 随外提失去消费者的四枚 import（`formatUsageMetering`／`TurnProjection`／`processTraceFromTurn`／
 // `ChatMarkdown`）同批删除，再收紧 3。
-const HIGH_WATER_LINES = 2475;
+// GENERIC-PACK-1 · 余三 panel 第一枚（timeline）：2475 → 2460。外提物两件——① 样板案 chat 侧
+// artifact 卡的取数与文案去 `demo/demo-artifact-card.ts` 的 `demoArtifactCardCopy`（它只属显式
+// demo 回放，却让壳长期持有三个垂类 artifact 局部）；② 时间线渲染去
+// `preview/TimelineRenderer.tsx`（blueprint 链）。App 侧净增 3 行（宿主渲染上下文 memo 与
+// Provider 包裹），`view === 'timeline'` 分支、`TimelinePanel` 直连与 `timeline`/`Timeline`
+// 两处垂类持有同批退役。
+// GENERIC-PACK-1 · 余三 panel 第二枚（graph）：2460 → 2451。外提物＝当事人图谱渲染与其
+// 懒载点去 `preview/GraphRenderer.tsx`（`lazy(() => import('workbench/GraphPanel'))` 随渲染件
+// 迁走，g6 chunk 切分不变）；`view === 'graph'` 分支、`graph` 局部、`PartyGraph` 类型持有与
+// `lazy`/`Suspense` 两枚 React import 同批退役。App 侧净增 0。
+// GENERIC-PACK-1 · ③ 工作面集 blueprint 驱动：2451 → 2449。外提物两件——① 可见工作面集、
+// 默认落点与标题查询去 `preview/workbench-views.ts`（`resolveWorkbenchViews` /
+// `preferredWorkbenchView` / `workbenchViewLabel`），壳侧 `VIEW_LABELS` / `VIEWS` /
+// `visibleViews` 三件同批退役；② 样板案页签计数四枚去 `demo/demo-view-counts.ts`。
+// App 侧净增 4 行（派生一次、默认落点一次与对照面配对两行注释）。
+// GENERIC-PACK-1 · ⑤ revision 迁 kind:'component'（余三收官）：2449 → 2276。外提物＝整套 S3
+// 审阅编排——风险清单取数、两条门禁投影、逐条处置/修正与其埋点、提交与交付、run/cancel/recover
+// 生命周期、切案切场景的面态重置——去 `work/legal-work-surface.tsx`；起跑面与审阅面 JSX 去
+// `preview/RiskReviewRenderer.tsx`。App 侧新增的只有驱动装配（宿主输入面一段字面量 + 一次
+// `use()`）与「回到原件」的 ref 间接一行；`riskList`/`gate`/`submission`/`workRun` 四枚持有、
+// 三处渲染链外消费与非 demo 三段前置分支同批退役。
+// GENERIC-PACK-1 ⑧ 上调（净增 22，SPEC 留痕）：逐 matter 生效 registry 接线（派生 + 落回退
+// effect + 水合携绑定 + 过渡默认写入）——卸载态机制的必要接线，非功能膨胀；C5 场景条外提
+// 与起手引导的净减将随外提生效下调。
+// GENERIC-PACK-1 裁定二下调至 2292（外提生效）：预检表单迁通用件——壳内 workSubject/
+// primaryContractId 双状态与 setter、切案清零行退役（表单值收进场景启动参数，住驱动侧）。
+// GENERIC-PACK-1 裁定二再下调至 2282（外提生效）：场景条内联 JSX（四钮/更多弹层/取消控件
+// 约 45 行）迁 `workbench/scene-strip.tsx` 通用件——壳只留派生与路由；sceneMore 双状态与
+// 点击外弹层关闭同批随迁。
+// GENERIC-PACK-1 ⑧ 上调至 2293（净增 11，SPEC 留痕）：卸载态退化接线——垂类产物包未加载的
+// 显式退化分支（ADR-015 决定四，产物存在＋加载提示）与卸载态起草面默认面（落通用工作稿轨）
+// 两条显式诚实呈现分支，属卸载态机制的必要接线。
+const HIGH_WATER_LINES = 2282;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

@@ -3,7 +3,7 @@ import { workContextSegmentFor, type WorkContextInput, type WorkContextMaterial 
 
 /**
  * WORK-TURN-1 H（L0）：Work 面自由输入的案语境段——全部从既有账本/store 确定性编译，
- * 禁模型参与。内容四件：案根标识（零绝对路径）/材料清单投影/场景状态/续行三态。
+ * 禁模型参与。内容四件：工作区根标识（零绝对路径）/材料清单投影/场景状态/续行三态。
  * 段头显式标注数据非指令（与 memorySegment 同律）。
  */
 
@@ -19,9 +19,9 @@ const BASE: WorkContextInput = {
 };
 
 describe('workContextSegmentFor', () => {
-  it('四件齐备：案根标识/材料清单（含状态产品语）/场景状态；段头标注数据非指令', () => {
+  it('四件齐备：工作区根标识/材料清单（含状态产品语）/场景状态；段头标注数据非指令', () => {
     const segment = workContextSegmentFor(BASE);
-    expect(segment).toContain('案件语境');
+    expect(segment).toContain('工作区语境');
     expect(segment).toContain('供参考');
     expect(segment).toContain('不是指令');
     expect(segment).toContain('合成卷宗案');
@@ -29,7 +29,7 @@ describe('workContextSegmentFor', () => {
     expect(segment).toContain('设备采购合同.md');
     expect(segment).toContain('公章页.png');
     expect(segment).toContain('需文字识别');
-    expect(segment).toContain('卷宗材料（2 件）');
+    expect(segment).toContain('材料（2 件）');
     expect(segment).toContain('尚未开始');
   });
 
@@ -51,7 +51,7 @@ describe('workContextSegmentFor', () => {
 
   it('零材料如实计数（不留空壳清单行）', () => {
     const segment = workContextSegmentFor({ ...BASE, materials: [] });
-    expect(segment).toContain('卷宗材料（0 件）');
+    expect(segment).toContain('材料（0 件）');
     expect(segment).not.toContain('设备采购合同');
   });
 
@@ -66,5 +66,35 @@ describe('workContextSegmentFor', () => {
     expect(injected).not.toContain('alice');
     expect(injected).toContain('设备采购合同.md');
     expect(injected).toContain('公章页.png');
+  });
+});
+
+describe('GENERIC-PACK-1 ①附：未加载态 prompt 零垂类语义（44caee5）', () => {
+  /**
+   * 豁免清单（容器着色，ADR-015 决定二：容器名词按 ContainerKind 着色是既有设计，
+   * 随 wire 改名票处置——零垂类断言不检查它们）：
+   *   - 卷宗 / 案件 / 案 / 案根：case 容器的 legal 着色名词（测试语料「未绑定案/
+   *     未绑定卷宗夹」即属此族）；
+   *   - 工作区 / 项目：workspace 容器的中性名词（中性化后的段词，非豁免、本就是
+   *     断言段的产物词）。
+   * 加词判据：新词若属**垂类场景/提示词语义**（场景、步骤、产物、词表、prompt 内容），
+   * 必须零命中、不得进本清单；只有**容器名词着色**（ContainerKind 轴的 kind 名词）可
+   * 登记进清单，并注明它是哪个容器的着色。
+   */
+  it('卸载态案语境段不携任何垂类场景词（同测试构造路径：未绑定 matter 的 Work 面语境）', () => {
+    const unbound = workContextSegmentFor({
+      caseTitle: '未绑定案',
+      bindingLabel: '未绑定卷宗夹',
+      materials: [material('notes.md', 'ready')],
+      scenarioState: 'not_started',
+    });
+    for (const verticalToken of ['合同审查', '风险', '当事人', '主合同', '核验', '律师', '答辩', '诉讼', '批注', '修订']) {
+      expect(unbound).not.toContain(verticalToken);
+    }
+    // 组装后的整段 prompt 同样零垂类（generic chat 基段本就中性；案语境段随本票中性化）。
+    const assembled = `[通用助手系统段]\n\n${unbound}`;
+    for (const verticalToken of ['合同审查', '风险', '当事人', '主合同', '核验', '律师', '答辩', '诉讼', '批注', '修订']) {
+      expect(assembled).not.toContain(verticalToken);
+    }
   });
 });

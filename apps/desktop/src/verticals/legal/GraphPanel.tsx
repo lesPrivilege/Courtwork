@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type WheelEvent } from 'react';
 import type { PartyGraph } from '@courtwork/legal';
-import { Icon } from './Icon';
-import { EmptyState, sourceFileLabel, TierBadge } from './Panels';
-import { EdgeEvent, Graph, GraphEvent, NodeEvent, registerCourtworkGraphRuntime, type IElementEvent } from './g6-runtime';
-import { COURTWORK_GRAPH_THEME, graphGeometry, graphTokens, registerCourtworkGraphTheme } from './graph-theme';
+import { Icon } from '../../workbench/Icon';
+import { EmptyState, sourceFileLabel, TierBadge } from '../../workbench/Panels';
+import { EdgeEvent, Graph, GraphEvent, NodeEvent, registerCourtworkGraphRuntime, type IElementEvent } from '../../workbench/g6-runtime';
+import { COURTWORK_GRAPH_THEME, graphGeometry, graphTokens, registerCourtworkGraphTheme } from '../../workbench/graph-theme';
 
 const { nodeWidth: NODE_WIDTH, nodeHeight: NODE_HEIGHT } = graphGeometry;
 const MIN_ZOOM = 0.45;

@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import type { RuntimeArtifactDescriptor } from '@courtwork/registry';
-import { createDesktopPackageRuntime } from '../composition/package-runtime.js';
+import { createDesktopPackageRuntime } from '../../composition/package-runtime.js';
 import { ReviewMatrixRenderer } from './ReviewMatrixRenderer.js';
 
 function matrixDescriptor(): RuntimeArtifactDescriptor {

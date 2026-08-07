@@ -10,14 +10,18 @@ describe('HostRendererRegistry（宿主以 uiTemplateId 绑定可执行工作面
     const registry = createCourtworkHostRendererRegistry();
 
     expect(registry.get('case-intake-panel')).toEqual({ uiTemplateId: 'case-intake-panel', kind: 'passive' });
-    expect(registry.get('timeline-panel')).toEqual({
-      uiTemplateId: 'timeline-panel', kind: 'route', view: 'timeline', moduleTarget: 'timeline', autoOpen: true,
+    expect(registry.get('timeline-panel')).toBeUndefined();
+    expect(registry.get('courtwork.timeline.v1')).toMatchObject({
+      kind: 'component', view: 'timeline', moduleTarget: 'timeline', autoOpen: true,
     });
-    expect(registry.get('party-graph-panel')).toEqual({
-      uiTemplateId: 'party-graph-panel', kind: 'route', view: 'graph', moduleTarget: 'graph', autoOpen: true,
+    expect(registry.get('party-graph-panel')).toBeUndefined();
+    expect(registry.get('courtwork.party-graph.v1')).toMatchObject({
+      kind: 'component', view: 'graph', moduleTarget: 'graph', autoOpen: true,
     });
-    expect(registry.get('risk-review-panel')).toEqual({
-      uiTemplateId: 'risk-review-panel', kind: 'route', view: 'revision', moduleTarget: 'revision', autoOpen: true,
+    expect(registry.get('risk-review-panel')).toBeUndefined();
+    expect(registry.get('courtwork.risk-review.v1')).toMatchObject({
+      kind: 'component', view: 'revision', label: '修订预览',
+      handlesEmpty: true, moduleTarget: 'revision', autoOpen: true, preferred: true,
     });
     expect(registry.get('matrix-review-panel')).toBeUndefined();
     expect(registry.get('courtwork.review-matrix.v1')).toMatchObject({

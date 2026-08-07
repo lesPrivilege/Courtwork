@@ -214,7 +214,7 @@ const SEMANTIC_FIELDS = [
     schema: 'packages/legal/src/schemas/timeline.ts',
     block: /const TimelineEventSchema = z\.object\(\{([\s\S]*?)\n\}\);/,
     field: /^(actor|executor|performer|operator|actorIds?|executedBy)$/i,
-    surfaces: ['src/workbench/Panels.tsx'],
+    surfaces: ['src/verticals/legal/panels.tsx'],
     vocabulary: /\bdata-shape=|\bnodeShape\b|\bmarkerShape\b/,
   },
   {
@@ -222,7 +222,7 @@ const SEMANTIC_FIELDS = [
     schema: 'packages/legal/src/schemas/party-graph.ts',
     block: /const PartyEdgeSchema = z\.object\(\{([\s\S]*?)\n\}\);/,
     field: /^(factTier|tier|grade|evidenceTier|evidenceGrade|factLevel|strength)$/i,
-    surfaces: ['src/workbench/GraphPanel.tsx', 'src/workbench/graph-theme.ts'],
+    surfaces: ['src/verticals/legal/GraphPanel.tsx', 'src/workbench/graph-theme.ts'],
     vocabulary: /\blineDash\b|\bedgeShape\b/,
   },
 ];
