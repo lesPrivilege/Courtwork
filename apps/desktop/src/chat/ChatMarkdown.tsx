@@ -71,10 +71,13 @@ export function plainFallbackReason(source: string): PlainFallbackReason | null 
 /** 降级必须可见（不变量 4）：说清发生了什么与为何，并申明内容完整未截断。 */
 const PLAIN_FALLBACK_COPY = '本条回复已按纯文本完整显示 · 内容过长或含大量连续重复符号时不做格式排版';
 
-/* ── legacy 语义兼容层 ───────────────────────────────────────────────────────
- * remark 的标准语义在两处与退役解析器不同。本票范围是「换实现 + 扩五项」，不含改既有语义，
- * 故在此显式保留旧行为；两处均有测试锁定（chat-markdown.test.ts『legacy 语义兼容层』节）。
- * 架构已裁维持旧行为，兼容层转为常设；未来若改变行为须另作架构裁决。
+/* ── 与 remark 标准语义的两处显式偏离 ────────────────────────────────────────
+ * ① Setext 标题：MD-CONVERGE-1+ 保留退役解析器的旧行为（架构已裁维持，转为常设兼容层）。
+ * ② 宽度不齐的表格：**不再是**兼容层。CHAT-MD-TABLE-2 架构裁定二（2026-08-07）把
+ *   CHAT-MD-TABLE-1 的判据升格为「不猜测 ＋ 不半表」，旧的「首个不符行处止步」已随之退役——
+ *   理由与三种病因见 `wholeTableOrNothing` 注释。
+ * 两处均有测试锁定（chat-markdown.test.ts『legacy 语义兼容层』与『整表全有或全无』两节）；
+ * 未来若改变行为须另作架构裁决。
  * ────────────────────────────────────────────────────────────────────────── */
 
 /** Setext 标题（`文字` + `---`/`===` 下划线）判定：源码起点不是 `#` 即为 Setext 形态。 */
@@ -95,22 +98,32 @@ function unwrapSetext(node: Nodes, source: string): RootContent[] {
 }
 
 /**
- * 旧解析器在「数据行列数与表头不符」处让表格止步，残行回落段落（原注释：不猜测补全/截断该行）。
- * remark-gfm 则把缺格行留在表格内。还原：从首个不符行起截断，其后原文切片转段落。
+ * 宽度不齐的表格取「整表全有或全无」（CHAT-MD-TABLE-2 架构裁定二，2026-08-07）。
+ *
+ * `remark-gfm` 不把体行归一到表头宽度（GFM 规范说多余截断、缺失补空，mdast 原样保留）。
+ * 三条路各自的代价：
+ * - **GFM 归一**：多格截断＝静默丢 cell 内容，缺格补空＝凭空造「空事实」。chat 表格是事实载体，
+ *   两者都触不变量 4；CHAT-MD-TABLE-1「不猜测补全/截断该行」判据据此维持。
+ * - **半表**（本函数的前身：首个不符行处截断、残行回段落）＝表头孤表 + 体行裸管道文本，两头不靠，
+ *   且孤表头暗示体行是垃圾。这正是 CHAT-MD-TABLE-2 的缺陷本体。
+ * - **整表律**（本实现）：成表条件是表头与**全部**体行宽度齐整；任一行不齐则整段表格源文本原样
+ *   透出。无损、显式、平铺一条规则。
+ *
+ * 一条规则同治三种病因——它们在渲染层是同一形态（宽度不齐）：
+ * ① 体行缺格（模型漏列）；② 行内 code / 加粗里的裸管道（GFM 下 code span 不保护 `|`，体行多一格）；
+ * ③ 截断残文（Stop / `finishReason=length` / failed 轮的尾部半行）。
+ *
+ * 分段成表（齐整段成表、坏行夹嵌）显式不采：保结构收益小于状态数与 golden 复杂度。
  */
-function truncateRaggedTable(table: Table, source: string): RootContent[] {
+function wholeTableOrNothing(table: Table, source: string): RootContent[] {
   const [header, ...body] = table.children;
   if (!header) return [table];
   const width = header.children.length;
-  const bad = body.findIndex((row) => row.children.length !== width);
-  if (bad < 0) return [table];
-  const kept: TableRow[] = [header, ...body.slice(0, bad)];
-  const residueStart = body[bad]?.position?.start.offset;
-  const residueEnd = table.position?.end.offset;
-  const head: RootContent = { ...table, children: kept };
-  if (residueStart === undefined || residueEnd === undefined) return [head];
-  const residue = source.slice(residueStart, residueEnd);
-  return [head, { type: 'paragraph', children: [{ type: 'text', value: residue }] }];
+  if (body.every((row: TableRow) => row.children.length === width)) return [table];
+  // 位置缺失时切不出原文——此时宁可保留表格，也不静默吐一个空段落把内容整段吞掉。
+  const raw = sliceOf(table, source);
+  if (!raw) return [table];
+  return [{ type: 'paragraph', children: [{ type: 'text', value: raw }] }];
 }
 
 /* ── 渲染 ──────────────────────────────────────────────────────────────── */
@@ -281,7 +294,7 @@ function toBlocks(source: string): RootContent[] {
   const out: RootContent[] = [];
   for (const node of tree.children) {
     if (isSetextHeading(node, source)) out.push(...unwrapSetext(node, source));
-    else if (node.type === 'table') out.push(...truncateRaggedTable(node, source));
+    else if (node.type === 'table') out.push(...wholeTableOrNothing(node, source));
     else out.push(node);
   }
   return out;
