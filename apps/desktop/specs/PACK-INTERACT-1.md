@@ -230,7 +230,7 @@ ADR-015 销条、注释订正、SPEC 回执收尾；八相全量门。
 | site:guard | PASS |
 | sidecar | pi-lane 零改动 → **547,893 B / `951acf8e…` 零迁** |
 
-**受检数取数提交登记**：零泄漏门受检 **182**（较 `GENERIC-PACK-1` 的 174 增 8——新增 `case/MatterPackDialog`、`case/matter-pack-state`、`command-palette/commands`、`workbench/matter-binding-failure` 入受检面；`composition/` 新增件属绑定族）；绑定族 verticals/composition/demo 共 77 份在族外，`verticals/` 内实有 6 处垂类绑定（反向锁）。voice 门扫描 **170** 个 UI 源文件零违例。
+**受检数取数提交登记**：零泄漏门受检 **184**（较 `GENERIC-PACK-1` 的 174 增 10——新增 `case/MatterPackDialog`＋`matter-pack-state`＋`use-containerization`＋`use-matter-pack-manager`（含两枚测试）、`command-palette/commands`、`workbench/matter-binding-failure` 入受检面；`composition/` 新增件属绑定族）；绑定族 verticals/composition/demo 共 77 份在族外，`verticals/` 内实有 6 处垂类绑定（反向锁）。voice 门扫描 **170** 个 UI 源文件零违例。
 
 **高水位**：2279 → **2272**（净减 7）。外提物三件——①⌘K 命令面板条目装配去 `command-palette/commands.ts`（`buildPaletteCommands`）；②matter 包设置弹层的开关与保存去 `case/use-matter-pack-manager.ts`（改绑定＋整表落持久）；③容器化仪式两枚处理器去 `case/use-containerization.ts`。留痕见 `assert-app-highwater.mjs` 注释。
 
