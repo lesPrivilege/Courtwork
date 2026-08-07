@@ -92,7 +92,10 @@ requireMatch(
 // ── store-driven 生产命令：消费 store/binding 装配件，不重造 ─────────────────
 requireMatch(command, /loadWorkStateStore/, 'store-driven：每笔命令从注入 host 读回信封重建（loadWorkStateStore）');
 requireMatch(command, /interruptedTurns\(\)/, 'crash mid-turn → interrupted（turn_linked 无 terminal 不得自动重放）');
-for (const fn of ['buildS3RunInput', 'resolveSessionMaterials', 'mapReviewResolutionToResume', 'createLegalS3ScenarioDeps', 'getS3Scenario']) {
+// LEGAL-FIVE-FACES-1：场景取用由 `getS3Scenario` 改锚 `getProductionScenario`（同一装配模块，
+// 判据不变：场景实例必须来自 LEGAL-S3 装配点，端口不自行 registry 查表；且它对闭集外显式失败、
+// 不回落 S3）。「只装配不重造」一条未减——红的理由判例：门跟着码走，改锚新家不删判据。
+for (const fn of ['buildS3RunInput', 'buildIntakeRunInput', 'resolveSessionMaterials', 'mapReviewResolutionToResume', 'createLegalS3ScenarioDeps', 'getProductionScenario']) {
   requireMatch(command, new RegExp(`\\b${fn}\\b`), `必须消费 LEGAL-S3 装配件 ${fn}（只装配不重造）`);
 }
 requireMatch(command, /runScenario/, 'run 必须经真实 core executor runScenario（非 recording）');

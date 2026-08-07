@@ -81,7 +81,6 @@ import {
   createLegalS3ScenarioDeps,
   createProductionS3ToolRegistry,
   getProductionScenario,
-  getS3Scenario,
   mapReviewResolutionToResume,
   resolveSessionMaterials,
   toMaterialInputs,

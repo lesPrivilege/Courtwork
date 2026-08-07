@@ -181,6 +181,8 @@ test('①② 时间线与关系图谱：整理卷宗一键起跑 → 两面各�
   const tabs = page.getByRole('tablist', { name: '结构化工作面' });
   await tabs.getByRole('tab', { name: '关系图谱' }).click();
   await expect(page.getByTestId('gate-confirm')).toContainText('确认当事人关系图谱', { timeout: 15000 });
+  // g6 懒载块解析后才是真渲的一帧——载入态截图证不了图谱渲得出来。
+  await expect(page.getByTestId('graph-panel')).toBeVisible({ timeout: 15000 });
   await page.screenshot({ path: `${OUT_DIR}/02-graph-live.png` });
   await page.getByTestId('gate-confirm-accept').click();
 
