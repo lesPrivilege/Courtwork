@@ -215,6 +215,32 @@ ADR-015 销条、注释订正、SPEC 回执收尾；八相全量门。
 
 ---
 
-## 八 · 回执收尾（实施完成时填）
+## 八 · 回执收尾（2026-08-07 实施完成）
 
-八相全量门实测、高水位净减、债表、偏离与决策登记、报交验点。
+分支 `claude/pack-interact-1` 全量门实测（含回执提交）：
+
+| 相 | 结果 |
+|---|---|
+| build | `pnpm -r build` 绿 |
+| lint | 绿（eslint 零告警） |
+| root test | **1941/1941** |
+| desktop test | **795/795** |
+| cargo | **250 过 / 1 忽略**（零迁基线） |
+| Playwright | **375/375**（独占端口单链；含 residue 谱；`test:e2e` 前置门链全过） |
+| site:guard | PASS |
+| sidecar | pi-lane 零改动 → **547,893 B / `951acf8e…` 零迁** |
+
+**受检数取数提交登记**：零泄漏门受检 **182**（较 `GENERIC-PACK-1` 的 174 增 8——新增 `case/MatterPackDialog`、`case/matter-pack-state`、`command-palette/commands`、`workbench/matter-binding-failure` 入受检面；`composition/` 新增件属绑定族）；绑定族 verticals/composition/demo 共 77 份在族外，`verticals/` 内实有 6 处垂类绑定（反向锁）。voice 门扫描 **170** 个 UI 源文件零违例。
+
+**高水位**：2279 → **2272**（净减 7）。外提物三件——①⌘K 命令面板条目装配去 `command-palette/commands.ts`（`buildPaletteCommands`）；②matter 包设置弹层的开关与保存去 `case/use-matter-pack-manager.ts`（改绑定＋整表落持久）；③容器化仪式两枚处理器去 `case/use-containerization.ts`。留痕见 `assert-app-highwater.mjs` 注释。
+
+**偏离与决策登记**：
+
+- **未声明（旧档）matter 的弹层语义**：`describeMatterPackState` 对未声明态显示「跟随全部可用包」并在弹层显式说明，单选不预选；保存后按用户选择固定（把隐式未声明显式化为单枚/零绑定）。这是诚实呈现，非静默改义。
+- **卸载退化视图产物选择**：结构化产出页签在多枚垂类产物时取会话末枚（既有 artifact 席位语义，本票不动）；e2e 断言产物标题属于 S1 三枚产物之一而非钉死单枚。
+- **demo 案不渲染包节**（固定展品，绑定不可变）；`availablePackageIds`/`packCatalog` 传参不触 demo 分支。
+- **迁移 e2e 按置换批定式更新**：翻转默认后需 legal 场景的 grant 建案谱（contract-output/trace、work-live/budget/turn、case-persist、legal-five-faces）在建案时显式选包；`d1-case-scope` 大纲断言收窄为通用面、`pilot-layout` 布局证改走 `outline-draft`——按本意重写不放宽（布局证不依赖垂类面）。
+- **撤回判据复红（本票自施）**：M1 撤 `resolveMatterRegistries` fail-closed 收口 → 单测「绑定非准入包」红 1；M2 退化视图文案回加裸「包」→ 单测红 1；M3 建案默认改回 legal → 单测红 3。撤修复全复绿。
+- **语料墙**：本票新增 fixture 全部为合成构造（turn 樁产出时间线/图谱/CaseFile 为结构化示例），卷宗实物零入仓。
+
+**报交验点**：六边界达成即停；不自我验收——报 Codex 独立会话验收（clean worktree、独立端口、漂移/守卫实际注入反例观察变红）。
