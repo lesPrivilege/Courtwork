@@ -273,6 +273,10 @@ fresh 路径成立。判据两条：其一，**载入与修复分相**——读�
 
 主仓工作树可能正检出某票分支（共享树非私产族第三例）。任何会话落痕前先 `git branch --show-current`；架构 docs 落痕一律分树（worktree）执行，落后必核目标分支 tip 未动。已骑错分支的提交以「分支复位＋cherry-pick 到 main」纠正，不得留在票链上污染交验点。
 
+### 滚动账退出证据判例（2026-08-07 立，源 CHAT-MD-TABLE-2 定形）
+
+Turn journal 等滚动窗口账本上的「回放复现该消息即红」不是恒可满足的退出证据——目标消息可能已滚出窗口（本例滚动账 16 条内三条含表消息全部齐整，票面消息已不在账）。立票与验收取双轨：真实语料可得则回放定形；不可得则以**形态对齐的等价合成**构造 born-red（保住触发结构：列宽、行内标记、缺格位），并在回执登记「已滚出账」的定形证据。禁把「账上复现不出」读作「缺陷不存在」。
+
 ## 依赖许可
 
 运行时依赖许可白名单基线为 MIT／Apache-2.0（既有先例：`GENERIC-PACK-1` 拒 pandoc 于 GPL）。**BSD-3-Clause 纳入白名单（2026-07-26 裁定，源 GUI 候选八项·工作稿版本 diff 项）**：宽松许可、无 copyleft 义务，与 MIT/Apache 同级；npm `diff`（上游项目 jsdiff）因此可用，禁止误装另一个 npm `jsdiff` 包。**`Apache-2.0 WITH LLVM-exception` 于 2026-07-28 为 Bytecode Alliance capability filesystem 同系三件 `cap-std/cap-fs-ext/cap-tempfile@4.0.2` 窄项批准**：须 exact 同版本、保留完整 SPDX 表达式与 notices，不扩成任意白名单外许可自动准入。GPL／AGPL 及其派生不入依赖。白名单外许可逐案架构裁定并留痕；`site/` 素材与字体许可另按 `SITE-CRAFT-2` 票面的快照纪律。
