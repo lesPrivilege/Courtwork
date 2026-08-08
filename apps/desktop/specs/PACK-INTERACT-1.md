@@ -1,6 +1,6 @@
 # PACK-INTERACT-1 · 加载动作与准入 UX（解耦相）
 
-状态：实现中（2026-08-07 开工）
+状态：1R 已独立验收 REJECT（`8df9370`）；2R 待 Claude Code 实现（2026-08-08 架构裁定已落）
 
 权威：`docs/decisions/ADR-015-optional-vertical-loading.md`（Accepted）决定三/四；
 `docs/architecture/implementation-readiness.md`「解耦相」`PACK-INTERACT-1` 行为票面唯一真值；
@@ -260,7 +260,7 @@ ADR-015 销条、注释订正、SPEC 回执收尾；八相全量门。
 | 3 | 卸载后 store 层直证缺失 | ⑥ 链新增 store 层探针：卸载前后各读一次 **WorkState 宿主原始字节**（非 UI 投影），断言逐字节相同且仍含产物正文；并直读案件账本断言 `packBinding` 为 `[]` |
 | 4 | 三态未在 `writeCaseList → readCaseList` 往返中逐态直证 | `case-store.test.ts` 新增三态往返用例（未声明/显式零/显式一枚各一枚，经 `reopen` 换实例读同一底层字节），并逐态断言可区分 |
 | 5 | 缺 catalog 条目的呈现允许裸 id 伪装正常态 | `unavailablePackLabel`：目录缺条目一律 `{id} · 本版本不可用`，**不回落裸 id**；`CaseRail`／`MatterPackDialog` 状态行在失效态改说「绑定不可用」而非「已加载」。单测 + 弹层 DOM 测 + e2e ③ 三层断言 |
-| 6 | `defaultMatterPackBinding` 全仓 grep 仍有四处 SPEC 残留 | 本 SPEC 四处改按角色称谓（「新建案默认绑定 prop」）。全仓（除 `ACCEPTANCE.md` 验收记录本身）零命中 |
+| 6 | 过渡期「新建案默认绑定」prop 的旧代码标识符仍有四处 SPEC 残留 | 本 SPEC 四处改按角色称谓（「新建案默认绑定 prop」）。旧标识符全仓（除 `ACCEPTANCE.md` 验收记录本身）零命中 |
 
 **新增 DEV/E2E 探针（登记）**：`work-runtime.ts` 的测试钩子增 `listSessions()`，只记录内存宿主
 写过账的会话坐标。**为何非加不可**：`courtwork.work-session.v1` 是**可续/中断态**恢复指针，
@@ -291,3 +291,62 @@ store 层直证（拒因三）无从落地。该钩子只在 DEV+E2E 由 `main.t
 | site:guard | PASS（App 高水位 2272） |
 
 **报交验点**：六枚拒绝分支全数返修，不自我验收——报 Codex 独立会话复验。
+
+---
+
+## 十 · 2R 架构裁定与返修票面（2026-08-08）
+
+独立复验对象 `5e4206597fa21b14dea6bd12c8c663885f16d6cd`，报告提交
+`8df937085acd0c32499772cb8ada3e1cb554e7b8`，结论 **REJECT**。首轮原始 REJECT 提交
+`5eef398aa542834cdc362f8c73f4ba2f897bd10e` 已从独立 clean clone 补入本分支证据链；两轮报告
+均只作验收事实，本节以下四裁才是 2R 实现契约。
+
+### A · 准入集与可交互加载集分层
+
+- `admitted` 表示 descriptor/schema/renderer 通过构建期准入，允许识别与读取既有产物；
+  `loadable` 表示当期产品允许用户在 matter 建立/设置处激活。二者不得再用同一 UI 语义冒充。
+- 宿主 `PackageCatalogEntry` 增非持久、非 ABI 的发行成熟度（闭集仅 `loadable | catalog-only`）：
+  Legal=`loadable`；PM=`catalog-only`。该字段只住受信 composition root，不进入 Package ABI、
+  case store、wire、journal 或第二开关状态。
+- NewCaseDialog 与 MatterPackDialog 只允许选择 `loadable`；PM 可在 Settings 全局目录出现，但须明示
+  「目录已收录，交互未开放」，不得显示普通「加载产品管理包」或承诺场景随包出现。
+- 既有持久 `packBinding:['pm']` 不判未准入、不迁移、不清空：诚实显示「已绑定：产品管理包 ·
+  仅目录与既有产物可用」，既有 PM artifact 继续走通用 table/preview；零 PM scenario、prompt、
+  production 入口。保存时用户可清绑或改绑 Legal，不可新选 PM。
+
+### B · production execution seam 按 matter fail-closed
+
+- 全局 registry 只供 admission/catalog 与历史信封/产物 codec；不得作为 production scenario 的
+  authorization。受信 composition 向 command 注入按 `caseId` 读取 canonical case store 并解析
+  当前生效 registry 的依赖，不信任 UI 自报 packageId/binding。
+- `start`、`startWithPreflight`、`resume` 与会继续垂类执行的 review resolution 每次 effect 前都
+  校验：目标 package/scenario 必须存在于该 matter 当下生效 registry。`[]`、PM-only、未知/失效
+  绑定均返回既有闭集 `rejected/invalid_scope`；provider 调用、WorkState CAS、journal append、
+  confirmation effect 均为零。已绑 Legal 的 S1/S2/S3 正例保持。
+- read-only replay、既有 journal/产物读取和 cancel 仍可用；卸载不删除、不迁移、不重算既有资产。
+  不为此扩 Work protocol/wire/journal schema。
+
+### C · 首个 committed render 零泄漏
+
+- App 初始与切案渲染必须同步用目标 matter registry 校验/派生活动 view；不能先用 global
+  `preferredView` 提交 Legal revision，再靠 `useEffect` 回落。
+- 常设 DOM 测试覆盖：从 Legal revision 活动态切到 `packBinding:[]`、`['pm']`、失效绑定三形，
+  首次可观察 DOM 即为 Draft/通用面，Legal tab/panel/title/copy 全零；撤回同步 gate 必红。
+
+### D · 1R 证据残口与 pi 稳定红
+
+- 删除工单 SPEC 内过渡默认 prop 的旧代码标识符字面；允许历史 ACCEPTANCE 原始报告保留该字面，
+  生产源码、测试与现行 SPEC 零命中。
+- `pi-lane.spec.ts:319` 不放宽「真实滚轮离底 >200」及流态/终态不夺视口判据。以被测滚动容器的
+  `scrollHeight/clientHeight/scrollTop` 派生条件驱动有上界的真实 wheel 重试；不得换固定 sleep、
+  直接赋 `scrollTop`、删除 precondition 或降低阈值。
+- 退出证据：完整 `test:e2e` 独立端口 **375/375**；该 pi 用例在默认 workers 与 `--workers=1`
+  各独立通过；撤回派生等待/真实 wheel 重试须在同条件复红。
+
+### 2R 边界与最低全量门
+
+不新增第三个概念；不加依赖；不改 Package ABI、`packBinding` 三态、wire/journal、dynamic bundle、
+renderer 命名空间或持久格式。保留 1R 已闭合的语料墙、store 原始字节、三态往返、失效 label 与
+六枚 mutation 红证，逐项不得回归。完成后更新本节回执并运行：`pnpm -r build`、`pnpm lint`、
+root/desktop tests、cargo（两 sidecar 身份据实）、`pnpm site:guard`、完整 Playwright；实现会话停止
+于报交验点，不得自验收。
