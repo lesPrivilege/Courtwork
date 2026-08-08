@@ -5670,3 +5670,106 @@ SPEC 的「受检数取数提交登记」明确锚在 `deb81b8`：160→168→17
 - 实现 tip：`95eaa6d93efe31227e708e46668e565c0200b21a`；
 - 首轮独立验收提交：`b247cf3`（REJECT，基于 `7c8d928`）；
 - 本轮聚焦复验提交：待本节提交后记录于本提交自身。
+
+## PACK-INTERACT-1 1R 独立验收（2026-08-08，REJECT）
+
+**验收角色：独立验收会话。** 目标精确 SHA `5e4206597fa21b14dea6bd12c8c663885f16d6cd`
+（实现分支 `claude/pack-interact-1`）；验收分支 `codex/recheck-pack-interact-1r`，clean
+worktree `/private/tmp/courtwork-pack-interact-1-recheck-5e42065`。本节只在该 clean worktree
+追加，未改实现、契约或测试。结论为 **REJECT**；未使用 `fix-by-acceptance:`（下述为契约/架构
+阻断）。
+
+### 证据边界与首轮记录
+
+目标 SPEC 九节声称首轮拒绝提交 `5eef398a`。目标仓库在本轮实测
+`git cat-file -t 5eef398a` 为 `fatal: Not a valid object name 5eef398a`，因此不能把它当作
+当前仓库可读证据；只读旧 clone `/private/tmp/courtwork-pack-interact-1-accept.vUy2sW` 能解析为
+`5eef398aa542834cdc362f8c73f4ba2f897bd10e`，本轮仅读取其既有 PACK-INTERACT-1 首轮六拒因记录，
+未在旧 clone 写入。目标 SPEC 自述的 375/375 也不采信，以下数字均来自本轮独立实跑。
+
+### 全量门（只记本轮原始实跑）
+
+| 门 | 原始结果 |
+|---|---|
+| `pnpm -r build` | PASS |
+| `pnpm lint` | PASS |
+| `pnpm test` | **170 test files / 1941 tests passed / 0 failed**（授权环境重跑） |
+| `pnpm --filter @courtwork/desktop test` | **91 test files / 796 tests passed / 0 failed** |
+| `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml` | **250 passed / 0 failed / 1 ignored**；先构建 product sidecar（547,893 B，SHA-256 `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`）与 headless sidecar（555,314 B，SHA-256 `061248fa537f90fdd823616bef94b568d5825272c67c8290c8e07fa9c88a9bea`）后重跑 |
+| `pnpm site:guard` | PASS；site/release 103 tests，voice 170 UI files，isolation 184 files，App high-water **2272** |
+| `COURTWORK_E2E_PORT=18751 pnpm --filter @courtwork/desktop test:e2e` | 独立端口、单条完整链：**374 passed / 1 failed / 375 total**（5.1 min，EXIT 1） |
+
+Playwright 唯一失败为 `apps/desktop/tests/e2e/pi-lane.spec.ts:319`「用户上滚读史后，流态与终态
+都不夺回视口」：目标新增 `expect.poll(scrollHeight - clientHeight > 400)` 已通过，但随后的
+真实滚轮判据 `pi-lane.spec.ts:346` 仍得 `before.max - before.top = 0`（期望 `> 200`），报
+「先得真的滚上去，否则这条判据没被验到」。独立端口 `18753` 的 one-worker 行为复跑在同一
+测试再次稳定复红（154 个用例跑到该点后中止；非并行偶发）。因此 SPEC 行 290 的 375/375
+回执不可采信。
+
+### 1R 六枚拒因复核
+
+1. **语料墙**：`apps/desktop/tests/e2e/pack-interact-1.spec.ts` 对禁词
+   `晨曦|印务|印刷设备买卖合同|质量异议函|复函|合成卷宗` 实测 0 命中，目标 diff 的三处合成串
+   已替换；该项闭合（禁词仍只在 SPEC 历史叙述中出现）。
+2. **pi-lane 条件等待**：`pi-lane.spec.ts:333-338` 的等待确在场，但上述完整独立链在同一
+   用例 line 346 仍红；该项不闭合。
+3. **卸载 store 直证**：PACK ⑥ 独立行为用例确实读卸载前后 WorkState 原始字节、断言逐字相同
+   且正文仍在，并直读案件持久账本 `packBinding=[]`；该项在目标实现上通过。
+4. **三态 write→read/reopen**：`case-store.test.ts` 三态往返用例在 desktop 796/796 全量中
+   通过，缺席、`[]`、`['legal']` 逐态可区分；该项闭合。
+5. **catalog 缺条目**：`unavailablePackLabel`、MatterPackDialog DOM、PACK ③ e2e 均通过，失效
+   行说「绑定不可用／本版本不可用」而非裸 id/「已加载」；该项闭合。
+6. **`defaultMatterPackBinding` 零残留**：目标树 `rg -n defaultMatterPackBinding .` 仍命中
+   `apps/desktop/specs/PACK-INTERACT-1.md:263`（该行自己声称全仓零命中）。除历史 ACCEPTANCE
+   记录外 SPEC 仍有生产/SPEC 残留；字面门不闭合。
+
+### 票面链与架构可达性
+
+- 新建默认 `packBinding=[]` → 显式加载 Legal → 卸载 → 再加载的 PACK ① 独立链通过；跨 matter
+  的零垂类派生、非法绑定 `tender` 的显式失效面与零入口在 PACK ③/Generic pack 谱中通过。
+  WorkState 原始字节与既有产物正文在 PACK ⑥ 通过。未准入绑定的 production command 仍须见下述
+  execution seam 判定。
+- **PM catalog-only 伪装（契约阻断）**：`packages/pm/src/package/descriptor.ts:5-14` 明确
+  `scenarios: []`、`promptSegments: []`，并声明只上架 schema/catalog；但宿主
+  `apps/desktop/src/composition/package-catalog.ts:19-23` 与 `package-runtime.ts:31-48` 将
+  PM 与 Legal 同列目录，`MatterPackDialog.tsx:88-103` 对每个条目统一渲染「加载产品管理包」并
+  断言「加载后，结构化工作面与对应场景随包出现」。`MatterPackDialog.test.ts` **5/5 PASS** 只
+  证明该 PM 选项确实可达，未证明诚实 catalog-only 状态；当前产品语义把无 scenario/prompt/live
+  的 PM 伪装成可运行包，属契约问题，验收不得自行加 ABI 字段或改契约。
+- **Execution seam / ADR-015 runtime 真源旁路（契约阻断）**：`apps/desktop/src/main.tsx:64-72`
+  把全局 `packageRuntime.packageRegistries` 注入 `createDesktopWorkCommand` 与固定
+  `createLegalWorkSurface`。`work-runtime.ts:87-99,179-190` 的输入只有全局 `registries`，
+  `work-command.ts:148-165` 的 `StartPayload` 没有 matter/package binding；`runStart:390-401`
+  与 `runResume:459-469` 直接从 `deps.registries` 取 Legal production scenario。生命周期
+  `work-session-lifecycle.ts:383-404,418-424` 调 start/resume 时也没有当前 matter registry
+  或 binding gate。当前首屏 scene strip 是按 matter registry 派生的，故未绑定 matter 的普通按钮
+  路由/深链在 UI 侧闭合；但 production command/recovery seam 仍可在未绑定或卸载后持有全局 Legal
+  registries，既有 S1/S2/S3 命令测试（`production-scenarios.test.ts -t 'S2 在真实案上跑通到门禁'`）
+  **1/1 PASS** 即证明 command API 可在无 binding 参数下启动 Legal。调用闭集没有把 matter 激活
+  真源传入 command，违反 runtime zero-leak/activation true-source；属契约问题，REJECT。
+- **首帧 stale（行为/源码证据）**：`App.tsx:261-262` 先用全局 registry 初始化
+  `activeView`（Legal `revision`），`App.tsx:300-302` 才按当前 matter 派生 registry；回落到
+  `preferredWorkbenchView(matterRegistries)` 只在 `useEffect` `App.tsx:998-1001` 执行。独立单测
+  `workbench-views.test.ts -t '默认落点'` **1 passed** 直证全局默认 `revision` 与零包默认 `draft`
+  的差异；因此未绑定首帧存在先提交全局垂类活动面的 stale 窗口，不能称首帧 fail-closed。
+
+### 反例注入（逐枚真改、真红、随后恢复）
+
+| 变异 | 实跑红证 |
+|---|---|
+| M1 `matter-registries.ts` 非准入 catch 改回 `globalRegistries` | `matter-registries.test.ts` **5 tests / 1 failed**；非法绑定收到 11 个全局 artifact 而非 `[]` |
+| M2 `vertical-artifact-unloaded.tsx` 用裸 `legal` 替代 `packageLabel` | `vertical-artifact-unloaded.test.ts` **1 / 1 failed**；期望「法律包」提示未出现 |
+| M3 `NewCaseDialog.tsx` 默认 state 改为 `'legal'` | `NewCaseDialog.dom.test.ts` **6 tests / 3 failed**；默认 `packBinding` 与默认单选断言同时红 |
+| M4 `unavailablePackLabel` 回落裸 id | `matter-pack-state.test.ts` **4 / 1 failed**；期望 `tender · 本版本不可用`，收到 `tender` |
+| M5 `use-matter-pack-manager.ts` 卸载写 `undefined` | 独立端口 18754 PACK ⑥ **1 / 1 failed**；持久案件 `packBinding` 期望 `[]`、实际 `undefined` |
+| M6 `case-store.ts` 读侧把显式 `[]` 归一为缺席 | `case-store.test.ts` **21 tests / 1 failed**；三态往返的显式零态变为 `undefined` |
+
+六枚变异均以 `apply_patch` 真改并观察非零/失败后恢复；恢复后 `git status --short` 清洁，未把
+变异或 Playwright 生成的 11 枚 PNG 带入提交。
+
+### 其他边界
+
+静态高水位、voice、vertical isolation、场景闭集、Package ABI、wire/journal、dynamic loading、
+sidecar identity 与 no-second-state-source 检查均按目标 SPEC 八相口径实跑通过；本轮没有扩大 ABI、
+wire、journal 或引入第二状态源。PM 伪装、全局 execution seam、stale 首帧和 Playwright 红证任一
+项均足以拒收，故本轮明确 **REJECT**。
