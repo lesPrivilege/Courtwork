@@ -5849,3 +5849,72 @@ wire、journal 或引入第二状态源。PM 伪装、全局 execution seam、st
 6. `defaultMatterPackBinding` 全仓 grep 仍有四处 SPEC 残留，未达到字面零残留门。
 
 本验收会话仅追加本记录，未自行修实现。验收记录须由本会话显式暂存并提交后，才视为完成。
+
+## PACK-INTERACT-1 2R 独立验收（2026-08-08，REJECT）
+
+### 验收对象与纪律
+
+- 独立验收分支：`codex/accept-pack-interact-1r2`，worktree：`/private/tmp/courtwork-pack-interact-1r2-accept-1775591640`。
+- 目标：`b35d724c633e4dbfdd4b476ce4d896e095050e3e`；父提交及架构基线：`c97991813ff167676db97257d9c0d4e66a42b394`（`merge-base` 精确相等，直接子）。
+- 目标 diff：**25 files, +1005/-62**；`git diff --check` 通过。`work-command.test.ts` base/target 原始 NUL 均 **2**（37339→37486 B），强制文本 diff 只有 `registriesForCase` 注释/接线三行，NUL 是既有 Bin 行事实。
+- 已按固定顺序阅读 `CLAUDE.md`、`docs/README.md`、`docs/status/current.md`、implementation-readiness PACK 行、ADR-015 决定三/四及 2026-08-08 修订、PACK SPEC §十/2R 回执、既有 `ACCEPTANCE.md` 两轮 REJECT、根 `AGENTS.md` 与验收工作流。
+- 目标未改 package manifest/lock、`packages/**`、core/registry ABI、Tauri/wire/journal/schema；无 dynamic bundle、无 `packBinding` 持久 schema 改写、无第二持久状态源。`availability` 只在受信 desktop composition catalog，未进 ABI/case store/wire/journal。
+
+### 全量门（目标树实跑）
+
+| 门 | 独立实测 |
+|---|---|
+| `pnpm -r build` | PASS（14/15 workspace，零失败；仅既有 chunk warning） |
+| `pnpm lint` | PASS |
+| `pnpm test` | PASS：170 files / **1941 tests**；首次 sandbox 运行的 10 枚 sidecar `listen EPERM` 为环境无效轮，构建 sidecar 后升权复跑 0 失败 |
+| desktop Vitest | PASS：93 files / **819 tests** |
+| sidecar + cargo | product 547,893 B / SHA-256 `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`；headless 555,314 B / SHA-256 `061248fa537f90fdd823616bef94b568d5825272c67c8290c8e07fa9c88a9bea`；`cargo test` **250 passed / 0 failed / 1 ignored**。首次 sandbox 3 枚 bind EPERM 同为环境无效轮 |
+| `pnpm site:guard` | PASS；App highwater **2272/2272**，vertical isolation **184** files，voice **170** files，release/static guards 全绿 |
+| Playwright 全链 | 独占端口 **18887**、`reuseExistingServer=false`、4 workers；Playwright 本体 **376 passed（7.0m）**。这是本验收树唯一完整 e2e 链；目标 pi 用例另以默认 workers（18884）及 `--workers=1`（18885）各 1/1 |
+
+### A：准入/可加载分层
+
+`package-catalog.ts:21,34-38,53-56` 的 availability 闭集仅 `loadable|catalog-only`；Legal=`loadable`、PM=`catalog-only`，`loadablePackages` 同时被 `NewCaseDialog.tsx:38` 与 `MatterPackDialog.tsx:43` 使用。Settings `SettingsPage.tsx:440-455` 明示「目录已收录，交互未开放」。历史 `packBinding:['pm']` 在 `matter-pack-state.ts:24-29,49-59` 保持、清绑、改绑 Legal，不迁移、不清空、不判未准入；PM descriptor `scenarios:[]` / `promptSegments:[]`（`packages/pm/src/package/descriptor.ts:8-14`），生产场景闭集无 PM 入口。
+
+恢复态 focused：A 四组（catalog/NewCase/MatterPack/state）**4 files / 21 tests passed**。真实反例均在生产面注入后复红并撤回：
+
+| mutation | 红证 |
+|---|---|
+| PM availability 改为 `loadable` | package-catalog **2/3 failed** |
+| MatterPack 选择面改回全 catalog | **2/6 failed**（PM radio 出现） |
+| NewCase 选择面改回全 catalog | **1/6 failed**（PM 入口出现） |
+| 关闭 catalog-only 派生 | **1/6 failed**（PM 状态丢失） |
+
+历史 PM 的默认 KEEP 实测 `onApply(['pm'])`，选「不加载」为 `[]`，选 Legal 为 `['legal']`；PM 既有 artifact 以通用 `ArtifactHostView` 临时 probe 读出 ready/table（1/1），未改源。可是 `MatterPackDialog.tsx:125-126` 的通用尾注仍在历史 `['pm']` 对话框 DOM 可见：临时增加精确断言后独占端口 **18883，1/1 passed**，文案为「加载后，结构化工作面与对应场景随包出现」。这与 PM catalog-only（零 scenario/prompt、当期交互未开放）明文冲突，构成拒因①；现有 PM e2e 仅验状态/入口，并未把 PM artifact 注入产品流，故该临时 artifact probe 只证明既有产物可读，不抵销文案问题。
+
+### B：execution seam 与 canonical read
+
+组合根 `main.tsx:66-81` 每次以 `readCaseList()` 构造 `createCaseRegistriesResolver`；`matter-registries.ts:48-57` 按 caseId 现读并 fail-closed；`work-runtime.ts:87-95,185-196` 将 `registries` 限为 codec/既有信封解码，`work-command.ts:407,440,474,482,511-521,558-564,628-648` 的 start/startWithPreflight/resume/review 均按 caseId 授权。focused `matter-execution-scope.test.ts` 恢复态 **16/16**：零绑定、PM、失效绑定、缺案均在 provider/turn、CAS、journal/event、confirmation 前 `rejected/invalid_scope` 且 effect 计数全零；Legal S2 正例跑到 paused；卸载后新命令拒绝；replay/cancel 仍可用；同 commandId first-wins 复用旧 outcome，不产生新 turn。
+
+三枚 B mutation 均实红后恢复：
+
+1. `beginStart` 撤 canonical gate：**9/16 failed**（未授权 start 变 `failed/internal` 或 `case_busy`）。
+2. `resume` 撤 `resumeAuthorized` gate：**4/16 failed**（未授权 resume 变 `failed/internal`）。
+3. resolver 改回全局 `registriesFor(availablePackageIds)`：**8/16 failed**（零/PM/失效 start 放行或进入错误结果；canonical 现读断言收到 Legal scenarios）。
+
+边界 probe 如实登记、**不升为本票 blocker**：人工让 `readCases()` 抛错时，`command.start` 在 `beginStart` 同步抛出原始 `Error('canonical-case-store-corrupt')`（可信 dependency failure，不是生产 `readCaseList()` 可达路径；生产 `readCaseList` 对畸形 envelope fail-closed 返回 `[]`）。`resumeAuthorized` 对 `found:false` 或 corrupt envelope 会按代码 `:517-521` 走「当前 registry 任一 production scenario」宽回退；本 probe 随后 `runResume` 分别得到 `rejected/invalid_scope` 或 `failed/internal`，CAS/turn/event 均为 0，未把错误 session/scenario 当已授权继续产生 effect。该宽回退留作后续架构观察。
+
+### C：第一次 committed render
+
+`resolveActiveWorkbenchViews` (`workbench-views.ts:102-121`) 在 render 期同步收口；`matter-first-frame.dom.test.ts:159-226` 在 click 前装 observer、关闭 act 环境、click 脱开 `act`，再取 50 ms 内的每个 DOM snapshot，首帧必须有通用标题。恢复态 **3/3 passed**。撤同步 gate（`activeView = requestedView`）后 **3/3 failed**，失败是实断言：首个 snapshot 含 `aria-labelledby="preview-tab-*-revision"`（`active-view:revision`，标题为空），而非 timeout/import TypeError；日志序列每例为「首帧 revision → 后续 none」。曾试在 `act` 内用 MutationObserver，因同一 act 冲刷到终态而零区分力，已作废；最终证据是脱开 act 的两提交序列。React act warning 属 harness 设置，不是红因。
+
+### D：pi 真滚轮与有界重试
+
+`pi-lane.spec.ts:329-359` 保留 >200 阈值与 >400 前置断言，以真实 `mouse.wheel`、`scrollHeight/clientHeight/scrollTop` 派生几何，20 次上界重试；未直接写 `scrollTop`、未固定 sleep。目标用例默认 workers 与 `--workers=1` 各 1/1。撤循环改成单次 wheel 后，以 `--workers=1 --repeat-each=3` 独占端口 18886 得 **3/3 failed**，失败原文为 `Expected: > 200 Received: 0`（几何前提未满足），恢复后目标用例复绿。完整链最终 376/376。
+
+### 1R 防回归与旧门
+
+- PACK e2e ⑥ 在卸载前后直接比较 WorkState 原始字节 `after === beforeUnload`，且仍含 artifact 文本；案件 store 写回显式 `packBinding:[]`。这是本轮全链中的 durable bytes/store-layer 直证。
+- 恢复态 `vertical-artifact-unloaded`/`matter-pack-state` **7/7**、`case-store` **21/21**；显式三态 write/read/reopen 保持，失效 label 为 `tender · 本版本不可用`。M5（卸载写 `undefined`）独立端口 18889 **1/1 failed**；M6（读侧把 `[]` 归一为缺席）`case-store` **1/21 failed**；两枚均精确撤回。M1 的全局 resolver 变异已在 B-3 重演；M2-M4 本轮以常设 focused + 全链复核，未重复注入。
+- `apps/desktop/tests/e2e/pack-interact-1.spec.ts` 语料墙 `晨曦|印务|印刷设备买卖合同|质量异议函|复函|合成卷宗` grep **0**。`defaultMatterPackBinding` 在 `apps/desktop/src` 与 `apps/desktop/tests` **0**；但现行 `apps/desktop/specs/PACK-INTERACT-1.md:413` 的 §十回执自述句再次逐字写出该旧标识符（`defaultMatterPackBinding 在…零命中`），即使是“零命中”说明也违反票面「现行 SPEC/源码/测试零命中」字面门，构成拒因②。历史 ACCEPTANCE 记录可保留，不应把该标识符继续写进现行 SPEC。
+
+### 结论与放行条件
+
+**REJECT。** A/B/C/D、旧门恢复态与完整 376/376 均通过；但拒因① PM 历史 keep 态仍展示不存在场景的通用尾注，拒因② 现行 SPEC §十 line 413 残留过渡期旧代码标识符。3R 放行至少需：PM keep 态文案对 catalog-only 诚实且不承诺场景（Legal/loadable 仍可保留对应文案），并从现行 PACK SPEC §十删除/改写 `defaultMatterPackBinding` 字面残留；随后在新独立树重跑对应文案/零命中反例与全量门。
+
+本轮所有源码/test mutation、临时 probe、Playwright 生成 PNG 均已恢复；报告提交前只允许留下本文件。
