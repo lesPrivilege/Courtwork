@@ -1,6 +1,6 @@
 # PACK-INTERACT-1 · 加载动作与准入 UX（解耦相）
 
-状态：2R 已实现，待独立验收（实现分支 `claude/pack-interact-1r2`，base `c979918`）
+状态：2R 独立验收 REJECT（`7c6763e`）；3R 两项文字面收口待 Claude Code 实现
 
 权威：`docs/decisions/ADR-015-optional-vertical-loading.md`（Accepted）决定三/四；
 `docs/architecture/implementation-readiness.md`「解耦相」`PACK-INTERACT-1` 行为票面唯一真值；
@@ -410,8 +410,9 @@ root/desktop tests、cargo（两 sidecar 身份据实）、`pnpm site:guard`、�
 
 #### D · 1R 残口与 pi 稳定红
 
-- `defaultMatterPackBinding` 在现行 SPEC、生产源码与测试中零命中（复核：全仓除
-  `ACCEPTANCE.md` 历史报告外无命中，退出码 1）——该项在本轮基线上已闭合，本轮只复核不改写。
+- 过渡期「新建案默认绑定」prop 的旧代码标识符在现行 SPEC、生产源码与测试中零命中
+  （历史 `ACCEPTANCE.md` 原始报告允许保留）——该项在 2R 基线上已闭合，现行回执不得为说明
+  「零命中」而再次写出该标识符本身。
 - `pi-lane.spec.ts:319`：根因是**自动跟随与「用户在读史」判定之间的真实竞态**——滚轮落在流态
   中段时，下一段 delta 会在判定落定前把视口夺回底部，判据没被验到却以「断言红」示人
   （基线复跑 `--workers=1 --repeat-each=3` 稳定 3/3 红，`before.max - before.top = 0`）。
@@ -463,3 +464,24 @@ root/desktop tests、cargo（两 sidecar 身份据实）、`pnpm site:guard`、�
 
 **报交验点**：四裁与六边界达成即停；不自我验收——报独立 Luna 会话验收（clean worktree、
 独立端口、逐枚注入反例观察变红）。
+
+---
+
+## 十一 · 3R 两项收口（2026-08-08）
+
+2R 实现 `b35d724c633e4dbfdd4b476ce4d896e095050e3e` 的独立验收提交
+`7c6763e765732bed732fa87be38636bb616fd1ae`，结论 **REJECT**。A/B/C/D、旧六门与独立完整
+Playwright **376/376** 均已成立；3R 不得重做或扩张其结构，只收以下两项：
+
+1. **PM keep 态尾注诚实**：`MatterPackDialog` 的说明文案须跟当前选择同步。历史 PM
+   `catalog-only` 绑定处于「保持当前」时，不得显示「结构化工作面与对应场景随包出现」或任何
+   等价能力承诺；应只说明既有产物继续可读、交互场景当期未开放。选择 Legal（`loadable`）时
+   可保留加载后结构化面/场景出现的说明；选择「不加载」时只说明卸载不删除已有产出。
+2. **现行 SPEC 字面门**：现行 SPEC、生产源码与测试不得出现过渡期「新建案默认绑定」prop 的
+   旧代码标识符；历史 `ACCEPTANCE.md` 原始报告允许保留。本节及 3R 回执一律用角色称谓，禁止
+   再以「零命中」自述重新制造命中。
+
+常设红证：MatterPackDialog DOM 测试与 PACK e2e ④ 同时断言 PM keep 态不含上述场景承诺、含
+catalog-only 诚实说明；Legal 选择态仍含 loadable 说明；撤条件分支、恢复无条件通用尾注须真红。
+同批执行现行 SPEC/源码/测试的旧标识符零命中门。边界：不改 availability、Package ABI、
+`packBinding`、execution seam、首帧 gate、pi 测试、wire/journal、持久格式或依赖；不新增概念。
