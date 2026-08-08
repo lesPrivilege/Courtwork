@@ -339,3 +339,67 @@ test('⑥ 卸载退化视图产品面全链：建案选 legal → S1 产出时�
   await expect(timeline).toBeVisible({ timeout: 15000 });
   await expect(timeline).toContainText('双方签署设备采购合同');
 });
+
+// ── ④ 准入集与可交互加载集分层（ADR-015 决定三 2026-08-08 补记）──────────
+// PM 只完成 schema/catalog（descriptor 零 scenario、零 promptSegment）：全局目录须诚实标注
+// 「目录已收录，交互未开放」，建案处与包设置处都不得把它列成普通「加载」项；而历史上已经
+// 绑了 PM 的 matter 不迁移、不清空、不判未准入——诚实显示且既有产物仍可读。
+
+test('④ PM 分层：目录诚实标注、两处选择面均不可选、历史 PM 绑定诚实只读', async ({ page }) => {
+  await page.addInitScript(({ key, payload }) => {
+    localStorage.setItem(key, JSON.stringify(payload));
+  }, {
+    key: CASE_LIST_KEY,
+    payload: {
+      version: 1,
+      cases: [{ id: 'pm-bound', title: '产品管理绑定案', kind: 'case', packBinding: ['pm'] }],
+    },
+  });
+  await page.goto('/');
+  const setup = page.getByTestId('provider-setup');
+  if (await setup.isVisible()) await setup.getByRole('button', { name: '先查看演示' }).click();
+
+  // 全局目录：两枚准入包都在册，但发行成熟度诚实可区分。
+  await page.getByRole('button', { name: 'Search' }).click();
+  await page.getByRole('option', { name: 'Settings' }).click();
+  await page.getByTestId('settings-nav-packages').click();
+  const legalRow = page.getByTestId('settings-package-legal');
+  const pmRow = page.getByTestId('settings-package-pm');
+  await expect(legalRow).toHaveAttribute('data-availability', 'loadable');
+  await expect(pmRow).toHaveAttribute('data-availability', 'catalog-only');
+  await expect(pmRow).toContainText('目录已收录，交互未开放');
+  await expect(pmRow).not.toContainText('可按工作区加载');
+  await page.getByTestId('settings-close').click();
+
+  // 建案处：只列 loadable，PM 不作为加载项、也不承诺场景随它出现。
+  await page.getByTestId('new-case-open').click();
+  const dialog = page.getByTestId('new-case-dialog');
+  await dialog.getByRole('button', { name: '不使用文件夹，直接命名' }).click();
+  await expect(dialog.getByTestId('new-case-pack-legal')).toBeVisible();
+  await expect(dialog.getByTestId('new-case-pack-pm')).toHaveCount(0);
+  await expect(dialog).not.toContainText('加载产品管理包');
+  await dialog.getByRole('button', { name: '取消' }).click();
+
+  // 历史 PM 绑定：诚实显示「已绑定 · 仅目录与既有产物可用」，不判未准入、不冒充完整加载。
+  await page.getByTestId('case-card-pm-bound').getByRole('button', { name: '产品管理绑定案', exact: true }).click();
+  const stateRow = page.getByTestId('rail-pack-state-pm-bound');
+  await expect(stateRow).toContainText('已绑定：产品管理包 · 仅目录与既有产物可用');
+  await expect(stateRow).not.toContainText('已加载');
+  await expect(page.getByTestId('matter-binding-failure')).toHaveCount(0);
+
+  // 零 PM 场景入口；Legal 面也不因全局准入而漏进来。
+  await expect(page.getByTestId('scene-unloaded-hint')).toBeVisible();
+  await expect(page.getByTestId('scene-legal.S1')).toHaveCount(0);
+  await expect(page.getByTestId('scene-legal.S3')).toHaveCount(0);
+
+  // 包设置处：可保持、可清绑、可改绑 Legal，唯独不能新选 PM。
+  await openMatterPackDialog(page);
+  const packDialog = page.getByTestId('matter-pack-dialog');
+  await expect(packDialog.getByTestId('matter-pack-state')).toContainText('仅目录与既有产物可用');
+  await expect(packDialog.getByTestId('matter-pack-option-pm')).toHaveCount(0);
+  await expect(packDialog.getByTestId('matter-pack-option-keep')).toBeChecked();
+  await packDialog.getByTestId('matter-pack-option-legal').check();
+  await packDialog.getByTestId('matter-pack-apply').click();
+  await expect(packDialog).toBeHidden();
+  await expect(page.getByTestId('rail-pack-state-pm-bound')).toContainText('已加载：法律包');
+});

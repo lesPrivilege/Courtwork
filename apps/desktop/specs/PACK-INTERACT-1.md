@@ -1,6 +1,6 @@
 # PACK-INTERACT-1 · 加载动作与准入 UX（解耦相）
 
-状态：1R 已独立验收 REJECT（`8df9370`）；2R 待 Claude Code 实现（2026-08-08 架构裁定已落）
+状态：2R 已实现，待独立验收（实现分支 `claude/pack-interact-1r2`，base `c979918`）
 
 权威：`docs/decisions/ADR-015-optional-vertical-loading.md`（Accepted）决定三/四；
 `docs/architecture/implementation-readiness.md`「解耦相」`PACK-INTERACT-1` 行为票面唯一真值；
@@ -350,3 +350,116 @@ renderer 命名空间或持久格式。保留 1R 已闭合的语料墙、store �
 六枚 mutation 红证，逐项不得回归。完成后更新本节回执并运行：`pnpm -r build`、`pnpm lint`、
 root/desktop tests、cargo（两 sidecar 身份据实）、`pnpm site:guard`、完整 Playwright；实现会话停止
 于报交验点，不得自验收。
+
+### 2R 实施回执（2026-08-08，四裁逐项）
+
+分支 `claude/pack-interact-1r2`，自架构裁定 tip `c979918` 起 clean worktree
+`/private/tmp/courtwork-pack-interact-1r2`；1R 已闭合的语料墙、WorkState 原始字节、三态往返、
+失效 label 与六枚 mutation 门逐项保留，未回归。
+
+#### A · admitted 与 loadable 分层
+
+- `PackageCatalogEntry` 增 `availability: 'loadable' | 'catalog-only'`（`package-catalog.ts`）：
+  Legal=`loadable`，PM=`catalog-only`（PM descriptor 明写 `scenarios: []`/`promptSegments: []`）。
+  该字段只住受信 composition root——不进 Package ABI、不进 `packBinding`/case store/wire/journal，
+  也不另立持久开关；同文件另出 `loadablePackages()` 作两处选择面的唯一取用口。
+- NewCaseDialog 与 MatterPackDialog 的选项集改取 `loadablePackages`，PM 不再渲染为
+  「加载产品管理包」；Settings「Packages」节两枚条目都在册，PM 行标 `目录已收录，交互未开放`
+  并带 `data-availability` 属性（Legal 行为 `可按工作区加载`）。
+- 历史 `packBinding:['pm']`：`describeMatterPackState` 增派生位 `catalogOnlyId`（**不是**第三个
+  概念，是既有三态在宿主呈现面的诚实读法）。不迁移、不清空、不判未准入——CaseRail 状态行与
+  弹层状态行都说「已绑定：产品管理包 · 仅目录与既有产物可用」，既不说「已加载」也不报失效；
+  弹层为此多一枚**保持当前绑定**单选（默认选中，避免一次无意的保存把既有绑定清掉），另可清绑
+  或改绑 Legal，唯独不能新选 PM。既有 PM artifact 仍走通用 table/preview，零 PM 场景/prompt/
+  production 入口（e2e ④ 断言 `scene-legal.*` 与 PM 场景按钮同为 0）。
+
+#### B · production execution seam 按 matter fail-closed
+
+- `LegalWorkCommandDeps.registries` **退役**，换 `registriesForCase(caseId) => PackageRegistries`
+  （不留兼容层）。组合根 `main.tsx` 注入 `createCaseRegistriesResolver`：按 `caseId` **现读**
+  canonical case store（`readCaseList()`）解析绑定，案件不在账本内即落零垂类 registry。
+  全局 `packageRegistries` 只余一个消费者——ArtifactEnvelope codec 的版本源（既有信封/产物解码）。
+- 授权点四处：`beginStart`（覆盖 `start` 与 `startWithPreflight`）在闭集校验之后、
+  `isConfigured`/`case_busy`/`runStart` 之前；`resume` 与 `resolveReview` 走 `resumeAuthorized`
+  ——只读账本头（`host.read` 为只读，不落 effect）取该会话的 `scenarioId` 与本 matter 生效
+  registry 对表，账本读不到时退回「本 matter 有没有任何 production 场景」这条更宽判据。
+  `runStart`/`runResume` 内部的场景解析与 `createLegalS3ScenarioDeps` 也一并改取按 matter 的
+  registry，不再有第二条能拿到全局集的路径。
+- 拒绝一律落既有闭集 `rejected/invalid_scope`（文案 `本工作区未加载这项工作所需的包，无法开始`），
+  Work protocol/wire/journal schema 零扩展。`matter-execution-scope.test.ts` 以宿主 CAS 计数、
+  turn runner 调用计数与 publish 事件三路直证「effect 恰为零」；`replay` 与 `cancel` 在未授权
+  matter 上照常可用（只读面不因卸载被禁）。
+- `resolveReview` 保持**同步返回同一枚 Promise**：授权判定放进 `.then` 之前构造的那条链上，
+  first-wins 的 Promise 身份判据（`work-command.test.ts` 既有）一字未改。
+
+#### C · 首个 committed render 零泄漏
+
+- `activeView`/`secondaryView` 改为**渲染期同步收口**：`resolveActiveWorkbenchViews`
+  （外提入 `preview/workbench-views.ts`）取「用户所选 ∩ 本 matter 生效视图集」，落空即回落
+  在册默认；原先「先提交、再由 `useEffect` 回落」的那枚 effect 删除（App 状态改名
+  `requestedView`/`requestedSecondaryView`，语义即「用户点了哪一面」）。切案 effect 里的复位
+  也改取本 matter 的 preferred，不再取全局。
+- 常设 DOM 谱 `composition/matter-first-frame.dom.test.ts`：Legal 修订面活动态 → 切到
+  `packBinding:[]` / `['pm']` / 失效绑定三形，逐帧断言零 Legal tab/panel/文案。
+  **取样点的甄别过程如实登记**：先试 `MutationObserver`（回调是微任务，`act` 已把两次提交
+  一并冲刷完，只读到终态——对回落实现零区分力，作废）；再试 `flushSync`（同样读不到中间态，
+  作废）；最终形态是**脱开 `act` 后录帧**——React 的提交与 passive effect 分处两个宏任务，
+  观察者回调恰落在两者之间。同时确认了泄漏的真实形状：页签集早已随 matter 收窄，泄漏在
+  **活动面身份**——预览宿主的 `aria-labelledby="preview-tab-<id>-revision"` 与取不到词的空标题；
+  判据据此写成「首帧无垂类活动面身份，且标题是说得出名字的通用面（起草画布）」。
+
+#### D · 1R 残口与 pi 稳定红
+
+- `defaultMatterPackBinding` 在现行 SPEC、生产源码与测试中零命中（复核：全仓除
+  `ACCEPTANCE.md` 历史报告外无命中，退出码 1）——该项在本轮基线上已闭合，本轮只复核不改写。
+- `pi-lane.spec.ts:319`：根因是**自动跟随与「用户在读史」判定之间的真实竞态**——滚轮落在流态
+  中段时，下一段 delta 会在判定落定前把视口夺回底部，判据没被验到却以「断言红」示人
+  （基线复跑 `--workers=1 --repeat-each=3` 稳定 3/3 红，`before.max - before.top = 0`）。
+  返修以滚动容器自身几何（`scrollHeight/clientHeight/scrollTop`）派生条件，驱动**有上界（20 次）
+  的真实滚轮重试**，并对每次上滚二次取样确认站住；`>200` 阈值、真实 `mouse.wheel`、流态与终态
+  两段前置断言全部一字未动，无固定 sleep、无直接赋 `scrollTop`。
+
+#### 全量门实测（clean worktree，本轮原始数字）
+
+| 相 | 结果 |
+|---|---|
+| `pnpm -r build` | 绿 |
+| `pnpm lint` | 绿（eslint 零告警） |
+| `pnpm test` | **170 文件 / 1941 通过 / 0 失败** |
+| `pnpm --filter @courtwork/desktop test` | **93 文件 / 819 通过 / 0 失败**（1R 796 + 23：执行授权 16、首帧 3、catalog/state/弹层 4） |
+| cargo（先构建两枚 sidecar） | **250 通过 / 0 失败 / 1 忽略** |
+| `pnpm site:guard` | PASS（App 高水位 **2272**，与 1R 持平；零泄漏门受检 **184**、绑定族 79、`verticals/` 内 6；voice 门 170 个 UI 文件零违例） |
+| `COURTWORK_E2E_PORT=18881 pnpm test:e2e` | **376 通过 / 376**（独占端口、`test:e2e` 前置门链全过，7.5m；同一树在 18841 亦为 376/376） |
+| pi 目标用例 | `-g 用户上滚读史后` 默认 workers **4/4**、`--workers=1` **4/4** |
+| sidecar 身份 | product `sidecar.cjs` 547,893 B / `951acf8e…`；headless 555,314 B / `061248fa…`（均零迁） |
+
+**稳定性两笔如实登记**：①新增的首帧 DOM 谱首例要冷装配整张 App，并行满载下撞 vitest 5s 缺省
+超时（desktop 全量重跑 5 次里红 3 次，红因恒为 `Test timed out`，非断言）——只对该 `it.each`
+放宽到 30s，判据一字未动，其后 desktop 全量连跑 5 次 819/819 全绿。②中途一次全量 e2e
+（端口 18861）在 `chat-interaction.spec.ts:11` 出现一枚与本票无关的红（该次之前与之后的两次
+全量 e2e 同树皆 376/376，该 spec 独占端口 `--repeat-each=3` 复跑 21/21 绿），按既有纪律登记为
+偶发、不据其改判，也不以「重跑到绿」掩盖：本回执的退出数字取最后一次完整实跑。
+
+**e2e 计数登记（偏离）**：票面写的退出证据是 375/375，本轮为 **376/376**——新增一枚
+`pack-interact-1.spec.ts ④ PM 分层` 链（就绪图退出证据要求「PM 在 Settings 显式 catalog-only
+且 NewCase/管理面不可选、历史 PM 绑定只读诚实」，无既有用例承载）。只增不减，原 375 枚逐枚照过。
+
+#### 撤回判据复红（逐枚真改、真红、随后还原）
+
+| # | 变异 | 实跑红证 |
+|---|---|---|
+| M-A1 | 两处选择面不再按 `loadable` 过滤 | desktop `src/case/` **3 failed / 65** |
+| M-A2 | `catalogOnlyId` 恒 `undefined`（catalog-only 绑定退回「已加载」同形） | desktop `src/case/` **2 failed / 65** |
+| M-A3 | 全局目录把 catalog-only 包说成「可按工作区加载」 | e2e ④ **1 failed** |
+| M-B1 | 撤 `beginStart` 的 matter 授权门 | `matter-execution-scope` **9 failed / 16** |
+| M-B2 | 撤 `resumeAuthorized`（resume 与垂类 resolution 侧） | `matter-execution-scope` **4 failed / 16** |
+| M-B3 | 案件不在 canonical 账本时回落全局可用集（不 fail-closed） | `matter-execution-scope` **2 failed / 16** |
+| M-C1 | 同步收口改回「先提交、`useEffect` 回落」 | `matter-first-frame.dom` **3 failed / 3**，红在 `active-view:revision` |
+| M-D1 | 撤回派生条件驱动的有上界真实滚轮重试 | pi 目标用例 `--workers=1 --repeat-each=3` **3 failed** |
+
+作废登记：M-C 早期两版取样形态（`MutationObserver` 终态、`flushSync`）对 M-C1 **零区分力**，
+不以其绿冒充判据；其中一次「红」实为 `flushSync` 导入自 `react-dom/client` 的 `TypeError`
+（假红），已如实作废并改正导入。
+
+**报交验点**：四裁与六边界达成即停；不自我验收——报独立 Luna 会话验收（clean worktree、
+独立端口、逐枚注入反例观察变红）。

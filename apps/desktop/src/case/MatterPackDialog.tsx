@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { PackageCatalogEntry } from '../composition/package-catalog';
+import { loadablePackages, type PackageCatalogEntry } from '../composition/package-catalog';
 import { describeMatterPackState } from './matter-pack-state';
 
 /**
@@ -11,6 +11,10 @@ import { describeMatterPackState } from './matter-pack-state';
  * 绑定失效态（绑定指向本制品未准入的包，如旧构建删包后旧档仍绑）显式标注「发生了什么＋
  * 下一步」（核心不变量四），保存清绑即恢复。未声明（旧档）matter 当前跟随全部可用包——
  * 显式说明，保存后按用户选择固定。本弹层只写绑定，持久整表替换由 App 落盘。
+ *
+ * 可选集只取 `loadable`（ADR-015 决定三 2026-08-08 补记）：`catalog-only` 包无场景无 prompt，
+ * 列成普通「加载 X 包」即以 UI 承诺一件不存在的能力。已绑定 catalog-only 的历史 matter 诚实
+ * 显示「仅目录与既有产物可用」并可原样保持——不迁移、不清空、不判未准入。
  */
 export interface MatterPackDialogProps {
   open: boolean;
@@ -36,12 +40,16 @@ export function MatterPackDialog({
   onApply,
 }: MatterPackDialogProps) {
   const state = describeMatterPackState(packBinding, availablePackageIds, packCatalog);
+  const options = loadablePackages(packCatalog);
+  const catalogOnlyLabel = state.catalogOnlyId !== undefined
+    ? packCatalog.find((entry) => entry.packageId === state.catalogOnlyId)?.displayName ?? state.catalogOnlyId
+    : undefined;
   const [selected, setSelected] = useState<string>(defaultSelection(state));
 
   useEffect(() => {
     if (!open) return;
     setSelected(defaultSelection(state));
-  }, [open, state.loadedIds.join('|'), state.invalidId]);
+  }, [open, state.loadedIds.join('|'), state.invalidId, state.catalogOnlyId]);
 
   if (!open) return null;
 
@@ -60,7 +68,9 @@ export function MatterPackDialog({
             ? `「${caseTitle}」未加载垂类包`
             : state.invalidId !== undefined
               ? `「${caseTitle}」绑定不可用：${state.loadedLabels.join('、')}`
-              : `「${caseTitle}」已加载：${state.loadedLabels.join('、')}`}
+              : catalogOnlyLabel !== undefined
+                ? `「${caseTitle}」已绑定：${catalogOnlyLabel} · 仅目录与既有产物可用`
+                : `「${caseTitle}」已加载：${state.loadedLabels.join('、')}`}
         </p>
         {state.invalidId !== undefined && (
           <div className="settings-recovery" data-testid="matter-pack-invalid" role="alert">
@@ -85,7 +95,20 @@ export function MatterPackDialog({
             />
             不加载垂类包（通用工作区）
           </label>
-          {packCatalog.map((entry) => (
+          {state.catalogOnlyId !== undefined && catalogOnlyLabel !== undefined && (
+            <label className="settings-radio">
+              <input
+                type="radio"
+                name="matter-pack"
+                value={KEEP_CURRENT}
+                checked={selected === KEEP_CURRENT}
+                onChange={() => setSelected(KEEP_CURRENT)}
+                data-testid="matter-pack-option-keep"
+              />
+              保持已绑定：{catalogOnlyLabel} · 仅目录与既有产物可用
+            </label>
+          )}
+          {options.map((entry) => (
             <label key={entry.packageId} className="settings-radio">
               <input
                 type="radio"
@@ -110,7 +133,13 @@ export function MatterPackDialog({
             type="button"
             className="primary-button"
             data-testid="matter-pack-apply"
-            onClick={() => onApply(selected === 'none' ? [] : [selected])}
+            onClick={() => onApply(
+              selected === 'none'
+                ? []
+                : selected === KEEP_CURRENT
+                  ? [state.catalogOnlyId as string]
+                  : [selected],
+            )}
           >
             保存
           </button>
@@ -120,8 +149,15 @@ export function MatterPackDialog({
   );
 }
 
-/** 单选默认：单一已知绑定即选中该包；未加载/未声明（多包）/失效一律落「不加载」。 */
+/** 「保持当前绑定」的哨兵值：只在已绑定 catalog-only 包时出现，不是包 id。 */
+const KEEP_CURRENT = '__keep__';
+
+/**
+ * 单选默认：已绑定 catalog-only 包即默认「保持」（一次无意的保存不该悄悄清掉既有绑定）；
+ * 单一已知 loadable 绑定即选中该包；未加载/未声明（多包）/失效一律落「不加载」。
+ */
 function defaultSelection(state: ReturnType<typeof describeMatterPackState>): string {
+  if (state.catalogOnlyId !== undefined) return KEEP_CURRENT;
   if (state.invalidId === undefined && state.loadedIds.length === 1) return state.loadedIds[0];
   return 'none';
 }

@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { describeMatterPackState } from './matter-pack-state.js';
 
 const CATALOG = [
-  { packageId: 'legal', displayName: '法律包', version: '0.1.0' },
-  { packageId: 'pm', displayName: '产品管理包', version: '0.1.1' },
+  { packageId: 'legal', displayName: '法律包', version: '0.1.0', availability: 'loadable' as const },
+  { packageId: 'pm', displayName: '产品管理包', version: '0.1.1', availability: 'catalog-only' as const },
 ];
 
 describe('describeMatterPackState（PACK-INTERACT-1 ② 状态语义取词）', () => {
@@ -28,6 +28,23 @@ describe('describeMatterPackState（PACK-INTERACT-1 ② 状态语义取词）', 
     expect(state.undeclared).toBe(true);
     expect(state.loadedIds).toEqual(['legal', 'pm']);
     expect(state.loadedLabels).toEqual(['法律包', '产品管理包']);
+  });
+
+  /**
+   * ADR-015 决定三 2026-08-08：`catalog-only` 包已准入（能识别与读取既有产物），但当期不开放
+   * 交互加载。历史绑定不迁移、不清空、不判未准入——诚实降级为「仅目录与既有产物可用」。
+   */
+  it('绑定 catalog-only 包 → 既非「已加载」也非失效，显式标出仅目录可用', () => {
+    const state = describeMatterPackState(['pm'], ['legal', 'pm'], CATALOG);
+    expect(state.undeclared).toBe(false);
+    expect(state.loadedIds).toEqual(['pm']);
+    expect(state.loadedLabels).toEqual(['产品管理包']);
+    expect(state.invalidId).toBeUndefined();
+    expect(state.catalogOnlyId).toBe('pm');
+  });
+
+  it('绑定 loadable 包 → 无 catalog-only 标记', () => {
+    expect(describeMatterPackState(['legal'], ['legal', 'pm'], CATALOG).catalogOnlyId).toBeUndefined();
   });
 
   it('绑定指向非准入包 → 失效态（invalidId 显式，不静默回落）', () => {

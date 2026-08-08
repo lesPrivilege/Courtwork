@@ -92,7 +92,8 @@ function harness(materials: StoredMaterial[] = [storedMaterial()]) {
   let seq = 0;
   const command = createLegalWorkCommand({
     host,
-    registries,
+    // 本谱的 matter 恒绑 Legal（授权面另由 composition/matter-execution-scope.test.ts 立谱）。
+    registriesForCase: () => registries,
     codec: createArtifactEnvelopeCodec(buildArtifactVersioningSource(registries, { legal: LEGAL_S3_SCHEMA_VERSION })),
     actor: ACTOR,
     materialResolver: materialResolver(materials),

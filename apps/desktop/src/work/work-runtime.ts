@@ -85,7 +85,13 @@ function workProvider(route: Readonly<WorkModelRoute>, transport: ProviderTransp
 }
 
 export interface DesktopWorkRuntimeInput {
+  /** 全局准入集：只供 ArtifactEnvelope codec 的版本源（既有信封/产物解码），不作执行授权。 */
   registries: PackageRegistries;
+  /**
+   * 按 `caseId` 取该 matter 当下生效 registry（ADR-015 决定三 2026-08-08：执行授权真源）。
+   * 受信组合根从 canonical case store 现读绑定解析；UI 自报的 packageId/binding 一概不作数。
+   */
+  registriesForCase: (caseId: string) => PackageRegistries;
   materialResolver: MaterialResolver;
   loadRuntimeLimits: () => WorkRuntimeBudget['limits'];
   transport?: ProviderTransport;
@@ -178,7 +184,7 @@ export function createDesktopWorkCommand(input: DesktopWorkRuntimeInput): LegalW
 
   return createLegalWorkCommand({
     host,
-    registries: input.registries,
+    registriesForCase: input.registriesForCase,
     codec,
     actor: DESKTOP_WORK_ACTOR,
     materialResolver: input.materialResolver,

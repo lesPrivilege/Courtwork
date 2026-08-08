@@ -43,8 +43,8 @@ const granted = (grantId: string, label: string): AuthorizeResult => ({
 });
 
 const CATALOG = [
-  { packageId: 'legal', displayName: '法律包', version: '0.1.0' },
-  { packageId: 'pm', displayName: '产品管理包', version: '0.1.1' },
+  { packageId: 'legal', displayName: '法律包', version: '0.1.0', availability: 'loadable' as const },
+  { packageId: 'pm', displayName: '产品管理包', version: '0.1.1', availability: 'catalog-only' as const },
 ];
 
 describe('NewCaseDialog：宿主 picker 绑定案件根', () => {
@@ -167,7 +167,10 @@ describe('NewCaseDialog：宿主 picker 绑定案件根', () => {
     expect(none).not.toBeNull();
     expect(none.checked).toBe(true);
     expect(host.querySelector<HTMLInputElement>('[data-testid="new-case-pack-legal"]')).not.toBeNull();
-    expect(host.querySelector<HTMLInputElement>('[data-testid="new-case-pack-pm"]')).not.toBeNull();
+    // ADR-015 决定三 2026-08-08：建案处只可选 `loadable`；catalog-only 包不作为加载项出现，
+    // 也不在此承诺场景或 prompt 会随包出现。
+    expect(host.querySelector<HTMLInputElement>('[data-testid="new-case-pack-pm"]')).toBeNull();
+    expect(host.textContent).not.toContain('加载产品管理包');
 
     const nameInput = host.querySelector<HTMLInputElement>('input[aria-label="案件名称"]')!;
     typeInto(nameInput, '选包案');

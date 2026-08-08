@@ -98,3 +98,25 @@ export function workbenchViewMeta(input: {
   }
   return input.demoCount(input.view) ?? draftMeta;
 }
+
+/**
+ * 活动面与对照面的**同步**收口（PACK-INTERACT-1 2R · C，ADR-015 决定三 2026-08-08 补记
+ * 「首个可见帧也属零泄漏」）。
+ *
+ * 用户所选 ∩ 本 matter 生效视图集：所选面不在集内就落回在册默认，对照面不在集内就直接消失。
+ * 必须在**渲染里**收口而不是 `useEffect` 里回落——effect 只在提交之后才跑，先按上一枚 matter
+ * 的选择提交一帧、再回落通用面，那一帧是真的进过 DOM 的：切到零绑定/仅目录包/失效绑定的
+ * matter 时，读屏与视觉拿到的活动面身份就是垂类面。同步派生使这一帧结构上不可能存在。
+ */
+export function resolveActiveWorkbenchViews(input: {
+  views: readonly WorkbenchViewEntry[];
+  requestedView: HostWorkbenchView;
+  requestedSecondaryView?: HostWorkbenchView;
+  fallbackView: HostWorkbenchView;
+}): { activeView: HostWorkbenchView; secondaryView?: HostWorkbenchView } {
+  const inViews = (view: HostWorkbenchView) => input.views.some((entry) => entry.id === view);
+  const activeView = inViews(input.requestedView) ? input.requestedView : input.fallbackView;
+  return input.requestedSecondaryView !== undefined && inViews(input.requestedSecondaryView)
+    ? { activeView, secondaryView: input.requestedSecondaryView }
+    : { activeView };
+}

@@ -20,6 +20,13 @@ export interface MatterPackState {
   undeclared: boolean;
   /** 绑定指向本制品未准入的包（失效态，ADR-015 fail-closed 显式）。 */
   invalidId?: string;
+  /**
+   * 绑定指向已准入但当期只上架目录的包（`catalog-only`，ADR-015 决定三 2026-08-08 补记）。
+   *
+   * 既不是「已加载」也不是失效：历史绑定不迁移、不清空、不判未准入，既有产物照读，
+   * 但零场景/prompt/production 入口。呈现必须与完整加载态可区分。
+   */
+  catalogOnlyId?: string;
 }
 
 /** 宿主目录缺条目时的用户可见标记：带 id 便于定位，但明写不可用，绝不与正常已加载态同形。 */
@@ -38,10 +45,17 @@ export function describeMatterPackState(
     return entry === undefined ? unavailablePackLabel(id) : entry.displayName;
   });
   const invalidId = resolved.packageIds.find((id) => !catalog.some((entry) => entry.packageId === id));
+  // 显式单枚绑定才谈 catalog-only：未声明态（跟随全部可用包）由 undeclared 自己说话。
+  const catalogOnlyId = resolved.status === 'declared'
+    ? resolved.packageIds.find(
+      (id) => catalog.some((entry) => entry.packageId === id && entry.availability === 'catalog-only'),
+    )
+    : undefined;
   return {
     loadedIds: [...resolved.packageIds],
     loadedLabels,
     undeclared: resolved.status === 'undeclared',
     ...(invalidId !== undefined ? { invalidId } : {}),
+    ...(catalogOnlyId !== undefined ? { catalogOnlyId } : {}),
   };
 }

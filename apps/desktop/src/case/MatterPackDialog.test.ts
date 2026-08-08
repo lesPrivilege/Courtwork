@@ -29,8 +29,8 @@ function render(node: Parameters<NonNullable<typeof root>['render']>[0]) {
 }
 
 const CATALOG = [
-  { packageId: 'legal', displayName: '法律包', version: '0.1.0' },
-  { packageId: 'pm', displayName: '产品管理包', version: '0.1.1' },
+  { packageId: 'legal', displayName: '法律包', version: '0.1.0', availability: 'loadable' as const },
+  { packageId: 'pm', displayName: '产品管理包', version: '0.1.1', availability: 'catalog-only' as const },
 ];
 const AVAILABLE = ['legal', 'pm'];
 
@@ -60,7 +60,10 @@ describe('MatterPackDialog（matter 级包设置）', () => {
     expect(host.textContent).toContain('已加载：法律包');
     expect(host.querySelector('[data-testid="matter-pack-option-none"]')).not.toBeNull();
     expect(host.querySelector('[data-testid="matter-pack-option-legal"]')).not.toBeNull();
-    expect(host.querySelector('[data-testid="matter-pack-option-pm"]')).not.toBeNull();
+    // ADR-015 决定三 2026-08-08：catalog-only 包不得作为普通「加载」选项出现（PM 无场景无 prompt，
+    // 渲染成可加载项即以 UI 承诺一件不存在的能力）。
+    expect(host.querySelector('[data-testid="matter-pack-option-pm"]')).toBeNull();
+    expect(host.textContent).not.toContain('加载产品管理包');
   });
 
   it('当前绑定为默认选中；卸载（选不加载）保存为 []', () => {
@@ -94,9 +97,42 @@ describe('MatterPackDialog（matter 级包设置）', () => {
       onApply,
     }));
     expect(host.textContent).toContain('未加载垂类包');
-    act(() => { host.querySelector<HTMLInputElement>('[data-testid="matter-pack-option-pm"]')!.click(); });
+    act(() => { host.querySelector<HTMLInputElement>('[data-testid="matter-pack-option-legal"]')!.click(); });
+    act(() => host.querySelector<HTMLButtonElement>('[data-testid="matter-pack-apply"]')!.click());
+    expect(onApply).toHaveBeenLastCalledWith(['legal']);
+  });
+
+  /**
+   * ADR-015 决定三 2026-08-08：历史 `packBinding:['pm']` 不迁移、不清空、不判未准入——
+   * 诚实显示「已绑定：产品管理包 · 仅目录与既有产物可用」，用户可保持、可清绑、可改绑 Legal，
+   * 但不可新选 PM。默认选中「保持」，避免一次无意的保存把既有绑定悄悄清掉。
+   */
+  it('历史绑定 catalog-only 包：诚实显示且可保持/清绑/改绑 Legal，不可新选 PM', () => {
+    const onApply = vi.fn();
+    const host = render(createElement(MatterPackDialog, {
+      open: true,
+      caseTitle: '戊案',
+      packBinding: ['pm'],
+      availablePackageIds: AVAILABLE,
+      packCatalog: CATALOG,
+      onClose: vi.fn(),
+      onApply,
+    }));
+    const stateLine = host.querySelector('[data-testid="matter-pack-state"]');
+    expect(stateLine?.textContent).toContain('已绑定：产品管理包 · 仅目录与既有产物可用');
+    expect(stateLine?.textContent).not.toContain('已加载');
+    // 不判未准入：不得出现失效告警。
+    expect(host.querySelector('[data-testid="matter-pack-invalid"]')).toBeNull();
+    // 无「加载产品管理包」这一普通选项；保持当前绑定是默认选中项。
+    expect(host.querySelector('[data-testid="matter-pack-option-pm"]')).toBeNull();
+    const keep = host.querySelector<HTMLInputElement>('[data-testid="matter-pack-option-keep"]')!;
+    expect(keep.checked).toBe(true);
     act(() => host.querySelector<HTMLButtonElement>('[data-testid="matter-pack-apply"]')!.click());
     expect(onApply).toHaveBeenLastCalledWith(['pm']);
+
+    act(() => { host.querySelector<HTMLInputElement>('[data-testid="matter-pack-option-none"]')!.click(); });
+    act(() => host.querySelector<HTMLButtonElement>('[data-testid="matter-pack-apply"]')!.click());
+    expect(onApply).toHaveBeenLastCalledWith([]);
   });
 
   it('绑定失效态显式标注（当前绑定不在可用集），保存清绑即恢复', () => {

@@ -4,7 +4,7 @@ import {
   type AuthorizeResult,
   type HostAuthReason,
 } from '../host/host-auth-port';
-import type { PackageCatalogEntry } from '../composition/package-catalog';
+import { loadablePackages, type PackageCatalogEntry } from '../composition/package-catalog';
 
 /**
  * CASE-ROOT-1：案件文件夹绑定改经宿主原生 picker（hostAuth port），退役浏览器目录选择控件。
@@ -12,7 +12,9 @@ import type { PackageCatalogEntry } from '../composition/package-catalog';
  * 取消/TCC 拒绝/卷卸载/越权四类失败逐一可见；重选文件夹显式换 grant，旧 ref 不再被引用。
  *
  * PACK-INTERACT-1 ①：建案时选包——命名步新增「垂类包」单选（默认不加载，翻转过渡默认）；
- * 全局可用集逐枚呈现，`onCreate` 携 `packBinding`（不加载＝`[]`，选择＝`['<id>']`）。
+ * 可加载集逐枚呈现，`onCreate` 携 `packBinding`（不加载＝`[]`，选择＝`['<id>']`）。
+ * 只列 `loadable`（ADR-015 决定三 2026-08-08 补记）：`catalog-only` 包无场景无 prompt，
+ * 在建案处列为「加载 X 包」即以 UI 承诺一件不存在的能力。
  */
 interface NewCaseDialogProps {
   open: boolean;
@@ -33,6 +35,7 @@ export function NewCaseDialog({ open, onClose, onCreate, onAuthorizeFolder, pack
   const [busy, setBusy] = useState(false);
   // 建案时选包（PACK-INTERACT-1 ①）：'none'＝不加载任何垂类包（ADR-015 决定三默认不激活）。
   const [selectedPack, setSelectedPack] = useState<string>('none');
+  const loadableCatalog = loadablePackages(packCatalog);
 
   if (!open) return null;
 
@@ -133,7 +136,7 @@ export function NewCaseDialog({ open, onClose, onCreate, onAuthorizeFolder, pack
               placeholder="例如：张三诉李四买卖合同纠纷"
             />
           </label>
-          {packCatalog.length > 0 && (
+          {loadableCatalog.length > 0 && (
             <fieldset className="new-case-packs" data-testid="new-case-packs">
               <legend>垂类包</legend>
               <label className="settings-radio">
@@ -147,7 +150,7 @@ export function NewCaseDialog({ open, onClose, onCreate, onAuthorizeFolder, pack
                 />
                 不加载垂类包（通用工作区）
               </label>
-              {packCatalog.map((entry) => (
+              {loadableCatalog.map((entry) => (
                 <label key={entry.packageId} className="settings-radio">
                   <input
                     type="radio"

@@ -97,6 +97,7 @@ import type { HostRendererRegistry, HostWorkbenchView } from './preview/HostRend
 import {
   GENERIC_DRAFT_VIEW,
   preferredWorkbenchView,
+  resolveActiveWorkbenchViews,
   resolveWorkbenchViews,
   workbenchViewLabel,
   workbenchViewMeta,
@@ -257,11 +258,10 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
   const [session, dispatch] = useReducer(reduceSession, EMPTY_SESSION);
   const [workPhase, setWorkPhase] = useState<WorkProjectionPhase>();
-  /** 默认落点由在册 blueprint 的 `preferred` 决定；未加载垂类即落通用起草画布。 */
-  const preferredView = preferredWorkbenchView(packageRegistries, hostRenderers);
-  const [activeView, setActiveView] = useState<WorkbenchView>(preferredView);
+  /** 用户点选的工作面；最终活动面由本 matter 生效视图集同步收口（见下方 `activeView`）。 */
+  const [requestedView, setActiveView] = useState<WorkbenchView>(GENERIC_DRAFT_VIEW.id);
   const [activeArtifactType, setActiveArtifactType] = useState<string>();
-  const [secondaryView, setSecondaryView] = useState<WorkbenchView>();
+  const [requestedSecondaryView, setSecondaryView] = useState<WorkbenchView>();
   const [splitDirection, setSplitDirection] = useState<SplitDirection>('rows');
   const [splitRatio, setSplitRatio] = useState(50);
   // WORK-LIVE-1：非 demo（grant）案的 production Work 会话态。demo 案走 fixture，二者物理隔离。
@@ -806,7 +806,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     setCompilePending(false);
     verticalSurface.resetForContextSwitch();
     setSecondaryView(undefined);
-    setActiveView(preferredView);
+    setActiveView(preferredWorkbenchView(matterRegistries, hostRenderers));
     setActiveArtifactType(undefined);
     openedAt.current = {};
     lastReplayedFlow.current = undefined;
@@ -993,12 +993,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const hasArtifactView = artifactViewEntry !== undefined;
   /** 页签条：具名面由「已准入 artifact × 在册 blueprint」派生，通用面恒在（ADR-015 决定一/三）。 */
   const workbenchViews = resolveWorkbenchViews(matterRegistries, hostRenderers, hasArtifactView);
-  // GENERIC-PACK-1 ⑧：生效视图集随绑定变化（如恢复一枚未绑定 matter）时，活动视图必须落回
-  // 在册默认——停在已消失的垂类视图上就是「卸载态仍渲染垂类面」的静默残留（ADR-015 决定四）。
-  useEffect(() => {
-    if (workbenchViews.some((entry) => entry.id === activeView)) return;
-    setActiveView(preferredWorkbenchView(matterRegistries, hostRenderers));
-  }, [workbenchViews, activeView, matterRegistries, hostRenderers]);
+  // 活动面/对照面按本 matter 生效视图集同步收口（PACK-INTERACT-1 2R · C，理由见该函数注释）。
+  const { activeView, secondaryView } = resolveActiveWorkbenchViews({
+    views: workbenchViews,
+    requestedView,
+    ...(requestedSecondaryView !== undefined ? { requestedSecondaryView } : {}),
+    fallbackView: preferredWorkbenchView(matterRegistries, hostRenderers) });
   const demoArtifactCard = demoArtifactCardCopy(flow, artifactPayload, session.citationStats);
   /** 具名工作面 renderer 的宿主渲染上下文；载荷领域无关（core 会话投影字段），壳不因此认识垂类。 */
   const workbenchRenderContext = useMemo(() => ({ evidenceGrades: session.evidenceGrades }), [session.evidenceGrades]);
@@ -1444,7 +1444,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   };
 
   const choosePrimaryView = (view: WorkbenchView) => {
-    if (secondaryView === view && activeView !== view) setSecondaryView(activeView);
+    if (requestedSecondaryView === view && activeView !== view) setSecondaryView(activeView);
     manualPreviewSelected.current = true;
     setActiveView(view);
     if (view !== 'draft') setWorkDraftMode(false);

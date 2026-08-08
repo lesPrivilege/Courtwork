@@ -91,7 +91,16 @@ import type { ToolRegistry } from '@courtwork/core/work-protocol';
 
 export interface LegalWorkCommandDeps {
   host: WorkStateHostPort;
-  registries: PackageRegistries;
+  /**
+   * 按 `caseId` 取该 matter **当下生效**的 registry（ADR-015 决定三 2026-08-08 补记：
+   * matter 绑定是垂类执行授权的唯一真源）。
+   *
+   * 由受信组合根注入——它从 canonical case store 逐次读绑定再解析，**不信任调用方自报的
+   * packageId/binding**。全局 registry 只供准入、目录与既有信封/产物解码，绝不作为 production
+   * 命令的授权凭据。零绑定/仅绑定其他包/失效绑定一律得到不含该场景的 registry，
+   * 于是每个 effect 之前就显式 `rejected/invalid_scope`。
+   */
+  registriesForCase: (caseId: string) => PackageRegistries;
   codec: ArtifactEnvelopeCodec;
   /** desktop identity 注入的 actor（ADR-010：React 不得自报 actor）。真实 identity dependency 未装配为已知边界。 */
   actor: ConfirmationActor;
@@ -113,6 +122,9 @@ export interface LegalWorkCommandDeps {
 
 /** 未装配反馈（voice.md §9 产品语言，零技术概念暴露；工程细节不进用户可见文案）。 */
 const NOT_CONFIGURED_MESSAGE = '当前工作暂未就绪，请在桌面应用内重试';
+
+/** 本 matter 未加载该工作所需的包（ADR-015 执行授权真源；产品语言，不暴露 registry 概念）。 */
+const OUT_OF_MATTER_SCOPE_MESSAGE = '本工作区未加载这项工作所需的包，无法开始';
 
 /** 显式结构化 preflight（S3 主体输入）+ 冻结 model route + 材料引用——ADR-010 决定五。 */
 export interface LegalS3StartInput {
@@ -391,7 +403,8 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
     let runInput: ReturnType<typeof buildS3RunInput>;
     try {
       const materials: StoredMaterial[] = await resolveSessionMaterials(deps.materialResolver, input.caseId, input.materialRefs);
-      scenario = getProductionScenario(deps.registries, input.scenarioId);
+      // 场景身份只从**本 matter 生效 registry**取（全局集不作执行授权）。
+      scenario = getProductionScenario(deps.registriesForCase(input.caseId), input.scenarioId);
       const materialInputs: MaterialInput[] = toMaterialInputs(materials);
       if (input.scenarioId === S3_SCENARIO_ID) {
         // CONTRACT-OUTPUT-TRUTH-1：materialRefs[0] 就是用户显式选定的主合同，CaseFile 从同一
@@ -424,7 +437,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
         turnRunner: deps.makeTurnRunner(turnStore, { ...route }),
         expectedModelRoute: { ...route },
         ledger: createEvidenceLedger(),
-        registries: deps.registries,
+        registries: deps.registriesForCase(input.caseId),
         signal,
         afterCommit: publishNew,
       });
@@ -458,7 +471,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
       const resumeInput = build(store);
       // 续行的场景身份**只认账本头**（信封是持久真源）；此前写死 S3，非 S3 会话续行会以错误场景
       // 声明重放——闭集化后必须逐字取回。
-      const scenario = getProductionScenario(deps.registries, store.snapshot().scenarioId);
+      const scenario = getProductionScenario(deps.registriesForCase(ref.caseId), store.snapshot().scenarioId);
       const route = { ...store.snapshot().modelRoute };
       const scenarioDeps = createLegalS3ScenarioDeps({
         store,
@@ -466,7 +479,7 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
         turnRunner: deps.makeTurnRunner(turnStore, { ...route }),
         expectedModelRoute: { ...route },
         ledger: createEvidenceLedger(),
-        registries: deps.registries,
+        registries: deps.registriesForCase(ref.caseId),
         signal,
         afterCommit: publishNew,
       });
@@ -481,6 +494,31 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
     }
     if (!list) throw new UnknownReviewItemError('__no_risk_list__');
     return list;
+  }
+
+  /** 越出本 matter 授权面的拒绝（闭集内既有 reason，不扩 wire）。 */
+  function outOfScopeOutcome(): WorkCommandOutcome {
+    return { status: 'rejected', reason: 'invalid_scope', message: OUT_OF_MATTER_SCOPE_MESSAGE };
+  }
+
+  /**
+   * 续行侧的 matter 授权：目标会话的场景必须在该 matter 当下生效 registry 内。
+   *
+   * 只读账本头——`host.read` 是只读的，不落任何 effect（ADR-015：read-only replay 与既有账本
+   * 读取不因卸载被禁止）。账本读不到时退回更宽的判据「这枚 matter 有没有任何可执行的
+   * production 场景」，零绑定/仅绑定 catalog-only 包/失效绑定于是同样拦在 effect 之前。
+   */
+  async function resumeAuthorized(ref: WorkSessionRef): Promise<boolean> {
+    const registries = deps.registriesForCase(ref.caseId);
+    let scenarioId: string | undefined;
+    try {
+      const existing = await deps.host.read(ref);
+      if (existing.found) scenarioId = readWorkStateEnvelope(existing.bytes).scenarioId;
+    } catch {
+      scenarioId = undefined;
+    }
+    if (scenarioId !== undefined) return registries.scenarios.get(scenarioId) !== undefined;
+    return (PRODUCTION_SCENARIO_IDS as readonly string[]).some((id) => registries.scenarios.get(id) !== undefined);
   }
 
   function conflictOutcome(): WorkCommandOutcome {
@@ -514,6 +552,13 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
         reason: 'invalid_scope',
         message: '这个场景当前还不能在本案启动',
       });
+      commands.set(commandId, { sessionId, payloadKey, done });
+      return { sessionId, done };
+    }
+    // ADR-015 决定三（2026-08-08）：执行授权取自本 matter 当下绑定，早于 provider、
+    // WorkState CAS、journal append 与确认 effect——拒绝时 effect 恰为零。
+    if (deps.registriesForCase(payload.caseId).scenarios.get(payload.scenarioId) === undefined) {
+      const done = Promise.resolve<WorkCommandOutcome>(outOfScopeOutcome());
       commands.set(commandId, { sessionId, payloadKey, done });
       return { sessionId, done };
     }
@@ -577,12 +622,19 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
       };
       const prior = existingCommand(input.commandId, payload);
       if (prior) return 'record' in prior ? prior.record.done : Promise.resolve(prior.reject);
-      const done = runResume(
-          { caseId: payload.caseId, sessionId: payload.sessionId },
-          payload.requestId,
-          (store) => mapReviewResolutionToResume(payload.resolution, latestRiskList(store), deps.actor),
-          publish,
-        );
+      // 垂类审阅处置会继续垂类执行：与 start 同一条授权判据，落在任何 effect 之前。
+      // 授权先于 `runResume` 求值（`.then` 里才构造），故拒绝时一次 effect 都不发生；
+      // 同时 `done` 仍是**同一枚** Promise，first-wins 的身份判据一字不动。
+      const done = resumeAuthorized({ caseId: payload.caseId, sessionId: payload.sessionId }).then(
+        (authorized) => (authorized
+          ? runResume(
+            { caseId: payload.caseId, sessionId: payload.sessionId },
+            payload.requestId,
+            (store) => mapReviewResolutionToResume(payload.resolution, latestRiskList(store), deps.actor),
+            publish,
+          )
+          : outOfScopeOutcome()),
+      );
       commands.set(input.commandId, {
         sessionId: payload.sessionId,
         payloadKey: stableKey(payload),
@@ -592,6 +644,8 @@ export function createLegalWorkCommand(deps: LegalWorkCommandDeps): LegalWorkCom
     },
 
     async resume(command: ResumeWorkCommand, publish) {
+      // 续行同样须过 matter 授权：卸载后不得凭全局集把一条垂类会话接着跑下去。
+      if (!(await resumeAuthorized({ caseId: command.caseId, sessionId: command.sessionId }))) return outOfScopeOutcome();
       // 通用 wire：revisions 已在 React/binding 侧构造；actor 由 desktop identity 注入（React 不自报）。
       return runResume(
         { caseId: command.caseId, sessionId: command.sessionId },

@@ -319,7 +319,10 @@ export function CaseRail({
                     : packState.invalidId !== undefined
                       // 缺宿主目录条目：不得说「已加载」——那是把装配缺陷伪装成正常态。
                       ? `绑定不可用：${packState.loadedLabels.join('、')} · 请到管理包处理`
-                      : `已加载：${packState.loadedLabels.join('、')}`}
+                      : packState.catalogOnlyId !== undefined
+                        // 已准入但当期只上架目录：不判未准入、不清绑，也绝不冒充完整加载。
+                        ? `已绑定：${packState.loadedLabels.join('、')} · 仅目录与既有产物可用`
+                        : `已加载：${packState.loadedLabels.join('、')}`}
                 </p>
                 <button
                   type="button"

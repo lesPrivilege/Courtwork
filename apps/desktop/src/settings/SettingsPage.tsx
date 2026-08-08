@@ -434,12 +434,22 @@ export function SettingsPage({
               <h2>Packages</h2>
               <p className="settings-lead">随本版本分发的垂类能力包。加载按工作区选择，互不影响。</p>
               {packCatalog.map((entry) => (
-                <div className="settings-row" data-testid={`settings-package-${entry.packageId}`} data-package-id={entry.packageId}>
+                <div
+                  key={entry.packageId}
+                  className="settings-row"
+                  data-testid={`settings-package-${entry.packageId}`}
+                  data-package-id={entry.packageId}
+                  data-availability={entry.availability}
+                >
                   <div>
                     <strong>{entry.displayName}</strong>
                     <p>随本版本分发 · v{entry.version}</p>
                   </div>
-                  <span className="settings-muted">随本版本分发</span>
+                  {/* ADR-015 决定三 2026-08-08：目录已收录 ≠ 可交互加载。catalog-only 包在此
+                      诚实标注，不作为加载项，也不承诺场景或 prompt 随它出现。 */}
+                  <span className="settings-muted">
+                    {entry.availability === 'loadable' ? '可按工作区加载' : '目录已收录，交互未开放'}
+                  </span>
                 </div>
               ))}
               <div className="settings-row" data-testid="settings-packages-note">

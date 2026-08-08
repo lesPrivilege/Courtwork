@@ -1,6 +1,12 @@
 import type { PackageRegistries } from '@courtwork/registry';
 import { resolveMatterPackBinding } from './package-runtime.js';
 
+/** canonical case store 里与绑定解析相关的字段（读侧只取这两枚，不夹带案件内容）。 */
+export interface MatterBindingRecord {
+  id: string;
+  packBinding?: readonly string[];
+}
+
 export interface MatterRegistriesResolution {
   registries: PackageRegistries;
   /** 绑定指向本制品未准入的包（ADR-015 fail-closed 显式态；见 GENERIC-PACK-1 ④ `registriesFor` throw 契约）。 */
@@ -29,4 +35,24 @@ export function resolveMatterRegistries(
     // 绑定指向本制品未准入的包：fail-closed 落零垂类 registry，显式失效交由调用方渲染。
     return { registries: registriesFor([]), bindingErrorId: resolved.packageIds[0] };
   }
+}
+
+/**
+ * production execution seam 的 matter 授权解析器（ADR-015 决定三 2026-08-08 补记）。
+ *
+ * 每次调用都**现读** canonical case store：绑定是可变的，缓存一份就等于让执行授权停在
+ * 卸载之前的世界。案件不在账本里（如 demo 恒挂案、已归档案）→ 零垂类 registry，
+ * 与显式零绑定同形：fail-closed 而不是「找不到就放行」。
+ */
+export function createCaseRegistriesResolver(input: {
+  readCases: () => readonly MatterBindingRecord[];
+  availablePackageIds: readonly string[];
+  registriesFor: (packageIds: readonly string[]) => PackageRegistries;
+}): (caseId: string) => PackageRegistries {
+  const empty = () => input.registriesFor([]);
+  return (caseId) => {
+    const record = input.readCases().find((item) => item.id === caseId);
+    if (record === undefined) return empty();
+    return resolveMatterRegistries(record, input.availablePackageIds, input.registriesFor, empty()).registries;
+  };
 }

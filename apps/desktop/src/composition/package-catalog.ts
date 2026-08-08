@@ -8,28 +8,49 @@
  * 装配缺陷藏进用户文案（核心不变量四）。
  */
 
+/**
+ * 发行成熟度（ADR-015 决定三 2026-08-08 补记）：**准入**与**可交互加载**分层。
+ *
+ *  - `loadable`：当期产品允许用户在 matter 建立/设置处激活。
+ *  - `catalog-only`：descriptor/schema/renderer 已过构建期准入（故能识别与读取既有产物），
+ *    但当期不开放交互加载——渲染成普通「加载 X 包」就是以 UI 承诺不存在的场景与 prompt。
+ *
+ * 闭集只此两枚。该字段是**宿主发行事实**：只住受信组合根，不进 Package ABI、不进
+ * `packBinding`/case store/wire/journal，也不另立第二持久开关。
+ */
+export type PackageAvailability = 'loadable' | 'catalog-only';
+
 export interface PackageCatalogEntry {
   packageId: string;
   /** 用户可见名（ADR-015 决定三「加载 X 包」的 X）。 */
   displayName: string;
   /** 取自准入 manifest 的版本（不是第二真源）。 */
   version: string;
+  /** 宿主发行成熟度（见 {@link PackageAvailability}）。 */
+  availability: PackageAvailability;
 }
 
-/** 宿主呈现名表（准入包 id → 用户可见名）。加包须过评审，缺名即装配失败。 */
-const PACKAGE_DISPLAY_NAMES: Readonly<Record<string, string>> = {
-  legal: '法律包',
-  pm: '产品管理包',
+/** 宿主呈现表（准入包 id → 用户可见名 + 发行成熟度）。加包须过评审，缺条目即装配失败。 */
+const PACKAGE_PRESENTATION: Readonly<Record<string, { displayName: string; availability: PackageAvailability }>> = {
+  legal: { displayName: '法律包', availability: 'loadable' },
+  // PM descriptor 明写 `scenarios: []`、`promptSegments: []`——只上架 schema/catalog。
+  pm: { displayName: '产品管理包', availability: 'catalog-only' },
 };
 
 export function describePackage(manifest: { identity: { packageId: string; version: string } }): PackageCatalogEntry {
-  const displayName = PACKAGE_DISPLAY_NAMES[manifest.identity.packageId];
-  if (displayName === undefined) {
+  const presentation = PACKAGE_PRESENTATION[manifest.identity.packageId];
+  if (presentation === undefined) {
     throw new Error(`no host display name for admitted package: ${manifest.identity.packageId}`);
   }
   return {
     packageId: manifest.identity.packageId,
-    displayName,
+    displayName: presentation.displayName,
     version: manifest.identity.version,
+    availability: presentation.availability,
   };
+}
+
+/** 可交互加载子集（建案处与 matter 设置处的选择面只可取这一枚）。 */
+export function loadablePackages(catalog: readonly PackageCatalogEntry[]): readonly PackageCatalogEntry[] {
+  return catalog.filter((entry) => entry.availability === 'loadable');
 }

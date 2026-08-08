@@ -17,6 +17,7 @@ async function captureRuntimeDeps(priceTable?: unknown, transport?: ProviderTran
   const { createDesktopWorkCommand } = await import('./work-runtime');
   createDesktopWorkCommand({
     registries,
+    registriesForCase: () => registries,
     materialResolver: { resolveForProvider: vi.fn() },
     loadRuntimeLimits: () => ({ maxUsd: 2.345 }),
     ...(transport ? { transport } : {}),
