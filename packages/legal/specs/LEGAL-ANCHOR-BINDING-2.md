@@ -256,3 +256,7 @@ base 数字取自 `1c22389` 的独立 worktree 实跑（跑完即 `git worktree 
 1. **上呈（output 阻断门）**：当期不落地——`outOfCoverage` 非空指令集当期零可达 `packages/output`（S4 `launch.kind==='view'`，两侧编译器均从 RiskList），预铸门属投机性防御。**前瞻条款**：S4 未来获执行编译路径的接线票，须同批立 `UnresolvedCoverageError` 同形整份阻断门，届时本条失效。
 2. 偏离八条全部追认（registry item 判别联合扩面属结构性前置／草稿去 `evidenceKey` 正合「系统裁决性事实退出模型面」／`min(1)` 保留有专谱／`itemSummaryField` 取 `id` 折中接受／`checkEnumVocabulary` 收 info 净扩 fail-closed 覆盖／两 hash 重铸如实）；实施要点④空集登记接受；结构轴「只认 wire 包 meta title」上界带正向反例钉边界，接受。
 3. 两枚自伤（`git checkout --` 抹未提交面再犯、`&& grep -c` 零命中短路）已留痕，处方不变：还原一律 cp 仓外备份、grep 计数不入 && 链。
+
+## 验收后订正（2026-08-10，架构清账落痕）
+
+独立验收（PASS `b7ae224`）三条闭集宣称订正，生产注释与 `packages/schemas/SPEC.md` 已同批改写：①「差别恰两处」实为**三处**（第三处＝最终形根键 `outOfCoverage` 草稿不设，同属系统裁决性事实，论点不塌）；②「`id` 是唯一共有标量键」不实——共有键 `id/kind/locator/annotation`、标量两枚（id/kind），选 `id` 仍正确、错在「唯一」；③裁定一零可达枚举缺第三调用点 `run-s3-demo.ts`（同从 RiskList 编译，结论不受影响）。M1/M2 红数以验收更宽值为准（29/5）。S4 接线票落地时同批补 output 阻断门（裁定一前瞻条款重申）。

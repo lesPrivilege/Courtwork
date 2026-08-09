@@ -166,7 +166,7 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
        * 引用闭环（LEGAL-ANCHOR-BINDING-2 · 2026-08-09 裁定一）：模型出 `quoteClaims`、
        * citation resolver 铸 `sourceAnchors`。覆盖单元＝修订指令；指令内任一依据引语不收敛，
        * 整条指令移入 `outOfCoverage`——半条指令（改了字却丢了依据）比缺一条更危险。
-       * 摘要取 `id`：四支指令（replace/insert/delete/commentOnly）里唯一共有的标量键，
+       * 摘要取 `id`：四支指令（replace/insert/delete/commentOnly）的共有标量键之一（共有标量键为 id/kind，另有共有对象键 locator/annotation；取 id 因其为身份键，2026-08-10 验收订正），
        * `text` 只在两支上有、`locator` 是对象（String() 会落 [object Object]）。
        */
       draftSchemaId: 'legal.RevisionInstructionSetDraft',

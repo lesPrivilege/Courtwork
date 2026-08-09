@@ -91,7 +91,7 @@
   剪枝后的最终形当场硬失败（`GenerationValidationError`），不产出零指令的批注稿：
   它带 `file_write` 副作用，「什么都不改的批注稿」比显式失败更误导。
 - **新增草稿形** `RevisionInstructionSetDraft` / `RevisionInstructionDraft` / `CitationDraft`。
-  与最终形的差别恰两处，两处都是**系统裁决性事实退出模型输出面**：
+  与最终形的差别恰三处，皆为**系统裁决性事实退出模型输出面**（第三处为最终形根键 outOfCoverage，草稿形不设；2026-08-10 验收订正原「恰两处」未穷举）：
   ① 依据引用携 `quoteClaims`（`QuoteClaim`）而非 `sourceAnchors`——坐标字段结构性不存在；
   ② `evidenceKey` 不在草稿面——它由 core 的信源台账签发（W6.2），不是模型可自报的字段。
   Citation 的 refine 同步改为「`quoteClaims` 与 `statuteRef` 至少提供一个」，语义与最终形逐条对应。

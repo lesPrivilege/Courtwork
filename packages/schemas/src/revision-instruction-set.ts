@@ -127,7 +127,7 @@ export const RevisionInstructionSetSchema = z
 export type RevisionInstructionSet = z.infer<typeof RevisionInstructionSetSchema>;
 
 /**
- * 模型侧草稿形（LEGAL-ANCHOR-BINDING-2·「模型出引语，系统出坐标」）。与最终形的差别恰两处，
+ * 模型侧草稿形（LEGAL-ANCHOR-BINDING-2·「模型出引语，系统出坐标」）。与最终形的差别恰三处（含最终形根键 outOfCoverage 草稿不设；2026-08-10 验收订正），
  * 两处都是**系统裁决性事实退出模型输出面**：
  * ① 依据引用携 `quoteClaims`（QuoteClaim）而非 `sourceAnchors`——坐标字段结构性不存在，
  *    模型机制性失去伪造 offset 的能力，坐标由 citation resolver 唯一精确匹配后铸造；
