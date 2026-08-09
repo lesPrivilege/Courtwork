@@ -4271,3 +4271,253 @@ encode-before-effect，既有正确先例）、`:5286-5314`、`:5504-5508`（「
 
 验收提交除本节 `ACCEPTANCE.md` 外无文件改动，不做 `fix-by-acceptance`，不更新
 `current.md`/readiness，不 merge/push。
+## PI-TEST-WAITER-1 · 独立验收（2026-08-09，REJECT）
+
+对象：`claude/pi-test-waiter-1@9883f3c`（base `main@f96937c`；`git rev-parse 9883f3c^` = `f96937c`，
+直接子关系已核）。验收树 `/private/tmp/courtwork-pi-test-waiter-1-accept`，分支
+`claude/accept-pi-test-waiter-1`，零共享上下文。本结论不采信实现回执数字，所列读数一律本树实跑。
+
+**结论：REJECT。** 拒因一枚，决定性：三处调用点里的第一处 `waitForTraceLength(1)`
+**消灭了它所守护那枚断言的区分力**。票面点名的反例（「只把赌注换个地方且更难归因」）在此处以更重的
+形态发生——赌注不是被搬走，而是连同观测窗口一起被撤掉，用例对其所刻画的性质从此恒绿。
+
+### 一 · 范围核（通过）
+
+`git diff f96937c..9883f3c --stat` 恰两文件：`packages/pi-lane/specs/PI-TEST-WAITER-1.md`（新增 164 行）
+与 `packages/pi-lane/src/workspace-write-env.test.ts`（+55/−4）。生产源码零触碰；`package.json`
+与 lockfile 零改（零新依赖）；三处 `expect(...)` 期望值字面量逐字未改。改后全文件 `setTimeout` 恰两处：
+等待器自身上界（`:101`）与 `:977` 的有意延迟注入——原 `settle()` 裸墙钟零残留。范围合票。
+
+### 二 · 等待器形核（机制通过，用法见第三节）
+
+机制本身成立：`write()` 在同步 `trace.push` 之后立即 `notifyWaiters()`，属事件驱动而非轮询；
+默认上界 3000ms 小于 vitest 5000ms 缺省超时；超时错误携带当时实际 `trace`。
+**上界与诊断经本树活体实测坐实，非读码推断**——对调用点二注入「强制串行」变异（两次调用改共享同一 env）后：
+
+```
+Error: waitForTraceLength(3) 在 3000ms 内未达标；实际 trace=["enter:a.md"]
+Duration  3.41s
+```
+
+调用点三（binder 面，第二件改为串在第一件之后）复现同形态的红。
+**两枚 `waitForTraceLength(3)` 区分力完好**：它们等的是**正向终态**，被刻画的性质若不成立，
+轨迹永远到不了 3，等待器超时报红且报对理由。
+
+### 三 · 拒因：调用点一的区分力塌陷（决定性）
+
+`waitForTraceLength(1)` 守护的断言是一枚**否定命题**——「第二件被 mutation queue 挡在门外，
+所以此刻只有一条 enter」。而 `trace.length >= 1` 这个信号**并不蕴含**该否定命题：
+判例要求的「信号在则前置必在」在此处不成立。轨迹长度达到 1 的那一刻，
+正是第二条 enter 是否会到来尚未见分晓的那一刻；等待在此终止，等于把断言要观测的那段窗口整个撤掉。
+
+对照实验（唯一变量＝被刻画性质在否；等待器与断言字面量均不动）：把该用例第二次调用的 `env: shared`
+换成一枚独立 `createWorkspaceWriteEnv`，即令「共享 env ⇒ 按 canonical path 串行」这一被刻画性质
+**不成立**（同文件次枚用例正是该事实的在册证据）。两臂读数：
+
+| 臂 | 等待形态 | 结果 |
+|---|---|---|
+| 对照（`main@f96937c` 原形） | `await new Promise((r) => setTimeout(r, 20))` | **红**：`expected [ 'enter:a.md', 'enter:a.md', …(1) ] to deeply equal [ 'enter:a.md' ]` |
+| 实验（本单交付） | `await port.waitForTraceLength(1)` | **绿，10/10**（顺序单跑十轮，逐轮 EXIT=0） |
+
+再取实际值坐实（把期望值临时换成哨兵字面量，令报错吐出真实轨迹，验后即复原）：
+
+- 等待解除那一刻，实际 `trace` = `['enter:a.md']`——与串行成立时**逐字同形**，不可分辨；
+- 整趟 `Promise.all` 之后，实际 `trace` = `enter,exit,enter,exit`——恰好是**串行成立**时的期望终态。
+
+即：该用例的**两枚断言同时被一个并不串行的系统满足**。它已不再刻画「上游按 canonical path 串行」，
+只是在测量微任务排队次序。文件头把这一族明确标为 characterization——锁
+`@earendil-works/pi-agent-core@0.82.1` 现状、升版行为若变须触红——该职能在此处已经失效。
+塌陷是结构性的而非环境性的：等待经微任务链在同步 `trace.push` 之后即解除，次序确定，与负载无关。
+
+回执 §一表格把结论写成了前提：「第二件被队列挡在门外，`trace` 终态锁定在 `['enter:a.md']`，不会再长」。
+这句话正是本用例待验的命题本身，却被当作选择等待长度的依据；循环由此成立，区分力塌陷是其直接后果。
+
+同批登记一条供返修的定性：调用点一的原 `settle(20)` **身兼两职**——既「等前置」，
+又「撑开可观测违例的窗口」；后者与 `:977` 的 5ms 属同一族（有意的延迟注入）。本单只置换了前一职，
+把后一职一并删去。返修须把两职分开处置，不得以再次调整等待长度了事。
+
+### 四 · `:971` 处置核（通过）
+
+判「有意的延迟注入、随本票不改」成立，且经实测而非仅凭读码：该用例唯一的
+`expect(port.trace).toEqual([...])` 挂在 `await agent.prompt('写两份')` 整趟 resolve 之后的四元终态，
+不依赖这 5ms 是否够用。回执宣称「值本身可以是 0 也可以是 500，结论不变」，本树逐值复跑坐实：
+
+| 注入值 | 结果 |
+|---|---|
+| `0` | 1 passed |
+| `5`（现状） | 1 passed |
+| `500` | 1 passed |
+
+新增六行中文注释把该核定固定在场，满足票面「二选一、不得悬置」。此项接受。
+
+### 五 · 负载与对照独立复跑（通过）
+
+本机 8 核。按票面在**验收方自行注入的负载**下复跑，负载形态取「同文件 20 路 vitest 进程自争用」：
+
+| 臂 | 负载读数（`uptime` 1m，跑前→跑后） | 结果 |
+|---|---|---|
+| 变异（三处撤回 `setTimeout(resolve, 20)`；改动带命中校验：剩余调用点 **0**、注入点 **3**） | 2.25 → **11.13** | **3/20 红**（run3 / run10 / run11） |
+| 交付（`waitForTraceLength`） | 8.95 → **15.36** | **20/20 绿** |
+
+三枚红的报错为 `expected [] to deeply equal [ 'enter:a.md', 'enter:a.md', …(1) ]`（两枚）
+与 `expected [] to deeply equal [ 'enter:a.md' ]`（一枚），指向票面点名的同两枚用例。
+**复现条件在本树独立取得**，红绿两方向同批产出，判例「对照实验须能同时产出红与绿」满足。
+实现自报 2/20 与本树 3/20 属同一量级；比例不可移植一节回执已如实声明，接受。
+
+无负载对照：单文件单跑 `Test Files 1 passed / Tests 100 passed`，436ms，EXIT=0。
+
+**须与第三节合读**：本节只证「原塌红的那枚墙钟赌注确已消失」，不证「消失的方式正当」。
+调用点一恰是靠**恒绿**取得的这枚绿。
+
+### 六 · 回归与门禁（通过）
+
+| 门 | 命令 | 读数 |
+|---|---|---|
+| sidecar 前置 | `build:product-sidecar` / `build:headless-sidecar`（先清 `dist`/`dist-sidecar`） | EXIT 0；`bundle.bytes` **547893** / **555314**（与回执逐字节相符） |
+| 包级·前 | 基线文件回灌后 `vitest run --root . packages/pi-lane/` | **17 files / 553 tests passed**，EXIT 0 |
+| 包级·后 | 同上，交付态 | **17 files / 553 tests passed**，EXIT 0 |
+| 构建 | `pnpm -r build` | **EXIT 0** |
+| lint | `pnpm lint` | **EXIT 0**，零诊断输出 |
+| 根测试 | `pnpm test` | **EXIT 0**，**170 files / 1941 tests passed** |
+
+净增 0／净减 0；`it(` 字面量前后同为 40。票面「约 540 枚」与实测 553 的出入：回执归因为票面撰写时点的
+引用数已被其后新增文件超出——本树以**同树前后对照**（而非与票面数字相减）锁定净变化为零，口径正当，接受。
+desktop 行为零变更，未跑 Playwright，合票面范围。退出码一律以 `cmd > log 2>&1; echo $?` 读取，未经管道吃码。
+
+### 七 · 偏离逐条裁定
+
+1. **改事件驱动而非轮询** —— **接受**。较轮询更贴「派生信号」本意，且不引入次级墙钟。
+2. **等待器挂 `RecordingPort` 而非模块级 helper** —— **接受**。需访问 `recordingPort()` 闭包内的
+   `trace`/`waiters` 私有态，替身本身不进生产，未越「只改该测试文件的等待器与其调用点」边界。
+3. **`:971` 核定为有意延迟注入并加注释** —— **接受**，理由见第四节（已独立实测，非仅采信回执）。
+4. **首轮负载注入无效（0/10）如实登记、改换负载形状** —— **接受**。此即判例「不复红说明负载注入无效，
+   须先修注入再判」的正确执行；登记留痕的做法本身值得沿用。
+
+四条偏离全部接受。**本单被拒不因任何一条偏离**，而因第三节的区分力塌陷。
+
+### 八 · 观察项
+
+1. 返修若沿用 `waitForTraceLength`，须为调用点一另找一枚**正向可观测量**支配该否定命题，
+   或按第三节末段把「等前置」与「撑开违例窗口」两职分开；单纯把长度参数调大或调小都不解决问题。
+2. 本次拒因的通用形态建议入 `workflow.md`：**否定断言没有正向派生信号**——「等到期望长度」这一改法
+   对「不会再多」这类断言天然不成立，等待的终止点恰是观测窗口的起点。与在册「异步前置不赌时长」互补，
+   防下一位按同一模板改出同族恒绿。
+3. `waitForTraceLength` 的快路径与 `waiters` 清理逻辑本身无缺陷，两枚长度 3 的调用点亦已实证正当，
+   返修可整体保留，不必推倒。
+
+验收提交除本节 `ACCEPTANCE.md` 外无文件改动；不做 fix-by-acceptance，不改实现，不更新
+`current.md`/readiness，不 merge、不 push。全部临时探针文件与变异均已复原，提交前
+`git status --porcelain` 仅本文件。
+## PI-TEST-WAITER-1 · 聚焦复验（2026-08-09，PASS）
+
+对象：`claude/pi-test-waiter-1@dd1e950`（`git rev-parse dd1e950^` = `9883f3c`，首轮验收目标的直接子）。
+验收树沿用 `/private/tmp/courtwork-pi-test-waiter-1-accept`，分支 `claude/accept-pi-test-waiter-1`
+（首轮 REJECT 记录 `f589461` 之上 no-ff 并入 `dd1e950`，合并 tip `24e3fff`；实现三文件与 `dd1e950`
+逐字节相同，已 `git diff --quiet` 核）。本节只核首轮拒因之偿还与架构点名的五项，其余各面已由首轮 PASS，不重做。
+
+**结论：PASS。** 首轮唯一拒因已实质偿还——调用点一的区分力经**我自己的反例装置**复测确认恢复，
+且偿还方式不是把等待调长，而是把两职真正拆开。
+
+### 一 · 范围（通过）
+
+`git diff 9883f3c..dd1e950 --stat` 三文件：`workspace-write-env.test.ts`（+18/−3，**恰两处 hunk**）、
+`specs/PI-TEST-WAITER-1.md`（+125）、`docs/engineering/workflow.md`（+11）。生产源码零触碰、零新依赖。
+**六枚 `expect(port.trace).toEqual(...)` 期望值字面量在 `f96937c` / `9883f3c` / `dd1e950` 三版逐字相同**
+（仅行号漂移），断言判据自始未被改动。
+
+### 二 · (a) 两职分离形态（通过）
+
+| 核点 | 实况 |
+|---|---|
+| ① 正向信号只证前置 | `await port.waitForTraceLength(1)`——只断言「第一条 enter 已落」，不再兼证否定命题 |
+| ② 违例窗口显式化 | `const VIOLATION_WINDOW_MS = 20`（`:760`），**全文件只此一处声明、只此一处消费**（`:783`），未被他处复用 |
+| 注释登记 | describe 级注释块写明「否定命题／正向信号天然管不住／退回有界延迟／角色是撑开违例窗口而非等前置／与 `:971` 同族」，并回指 `workflow.md` 判例 |
+| 未殃及面 | 两枚 `waitForTraceLength(3)`（`:815`/`:835`）与 `waitForTraceLength` 本体未动；`:971`（现 `:993`）区域零改（diff 命中 0） |
+| 全文件 `setTimeout` | 恰三处：等待器上界 `:101`、违例窗口 `:783`、有意延迟注入 `:993`——各有具名角色，零裸墙钟赌注 |
+
+**本席独立补证（首轮未做的分析，构成本次判 PASS 的实质依据）**：两职拆开之后，
+调用点一**结构性不可能再伪红**。共享 env 下第一件被 `gateOne` 扣在 handler 里（无 exit）、
+第二件被同路径队列挡住（无 enter），`trace` 恒为且只为 `['enter:a.md']`；而①已确定性保证长度到 1。
+故负载再高，②的 20ms 至多**降低灵敏度**（违例来不及现身⇒漏判），**永远不会制造多余条目⇒不会伪红**。
+首轮塌红的形态（`expected [] to deeply equal ['enter:a.md']`，即 20ms 内连第一条 enter 都没来）
+已被①从根上消灭。这正是「赌注被拆解」与「赌注被搬家」的分水岭：原 `settle(20)` 用一个数同时赌
+「前置就绪」与「违例未发生」，返修后前者确定化、后者留白，两者失效方向相反且都不再产生假红。
+
+### 三 · (b) 「正向可观测量不可得」理由亲核（通过）
+
+不采信回执，直接读 `@earendil-works/pi-agent-core@0.82.1` 落盘产物
+（`node_modules/.pnpm/@earendil-works+pi-agent-core@0.82.1_.../dist/harness/tools/file-mutation-queue.js`）：
+
+- 队列态为**模块级** `const states = new WeakMap();`，仅由内部 `getState(env)` 存取，**未导出**；
+- 该模块 `.d.ts` 公开面**只有一个导出**：`export declare function withFileMutationQueue<T>(env, path, fn)`——
+  零状态访问器、零 pending 计数；
+- 进一步核包根：`withFileMutationQueue` **连包根都未再导出**，消费者只有内部 `edit.js` / `write.js`；
+  包根导出面按 `queue|pending` 检索零命中。
+
+结论：`WorkspaceWritePort` / `RecordingPort` / `WorkspaceWriteEnv` 任一层都探不到 pending 态，
+**「正向可观测量不可得」成立**，退回有界延迟属架构授权的第二路径，理由如实。
+
+附带坐实一项：`states` 以 **env 对象身份**为 WeakMap 键——这正是本席反例装置（换独立 env 即脱钩）的
+上游依据，装置有效性因此不是经验巧合而有源码支撑。
+
+### 四 · (c) 反例装置复跑（通过，红绿双向）
+
+沿用首轮 §三**同一枚**装置：调用点一第二次调用的 `env: shared` 换成独立
+`createWorkspaceWriteEnv({ publicToolCallId: 'tc_1_2', … })`，其余零改。在**返修后**形态下两臂对照：
+
+| 臂 | 第二次调用的 env | 结果 |
+|---|---|---|
+| 反例注入 | 独立 `createWorkspaceWriteEnv` | **红**：`AssertionError: expected [ 'enter:a.md', 'enter:a.md', …(1) ] to deeply equal [ 'enter:a.md' ]`（`workspace-write-env.test.ts:794`） |
+| 复原（交付态） | `shared` | **绿，10/10**（逐轮 EXIT=0） |
+
+红的签名与首轮 `main@f96937c` 原形对照臂**逐字同形**——即返修后的用例恢复到了「原形该红时它会红」的位置。
+首轮记录在案的塌陷形态（同装置下 10/10 恒绿）已不复现。临时改动验后逐字复原，`git diff --quiet` 核回 `dd1e950`。
+
+### 五 · (d) 判例入册（通过，附一条观察）
+
+`docs/engineering/workflow.md:280`「否定断言没有正向派生信号（2026-08-09 立，源 PI-TEST-WAITER-1 首轮
+REJECT `f589461`）」，位于判例区末条、`## 依赖许可` 之前，与
+`:172`「隔离绿对全链红零区分力；异步前置要等条件，不要赌时长」**同为 `###`、同区并列**，
+且按该区既有的立条时序追加，体例一致。正文判据两条（①正向信号等前置；②撑开违例窗口，
+优先找正向可观测量、找不到才退回有界延迟并须注释登记）与本单实际交付形态逐条对应，非空头条文。
+「互补并列」要求满足。
+
+**观察（不构成拒因）**：新条目单向指回旧条目，旧条目 `:172` 无前向指针。而本票的因果链恰是
+「读到旧条目→套用到否定断言→假绿」——最可能先撞上旧条目的读者拿不到「它只覆盖正向命题」的提示。
+建议下次触碰 `workflow.md` 时在 `:172` 补一句转指，成本一行。
+
+### 六 · (e) 负载抽验与回归（通过）
+
+| 项 | 条件 | 读数 |
+|---|---|---|
+| 负载抽验 | 同文件 20 路 vitest 进程自争用（本席首轮取得的有效负载形状） | **20/20 绿**；`uptime` 1m **21.48 → 101.39** |
+| 单文件无负载 | 独占 | `Test Files 1 passed / Tests 100 passed`，EXIT 0 |
+| 包级 | `vitest run --root . packages/pi-lane/`（独占重跑） | **17 files / 553 tests passed**，EXIT 0 |
+| 构建 | `pnpm -r build` | **EXIT 0** |
+| lint | `pnpm lint` | **EXIT 0**，零诊断 |
+| 根测试 | `pnpm test` | **EXIT 0**，**170 files / 1941 tests passed** |
+
+负载峰值 **101.39** 远高于本票立票所据的两处原始观察（`6.79` / `7.50`）与首轮对照（`11.13`/`15.36`），
+返修态零复红，证据强度较票面要求更高。
+
+**如实登记一枚环境红（非本票，不入结论）**：包级首次跑在 load average **121.79**（本席 20 路批次尚未
+排空）下红一枚——`packages/pi-lane/src/tools.test.ts:404`「grep 满 2000 份扫描：只置 truncated，
+命中上限未触发」，`Test timed out in 5000ms`（实测 5128ms）。该文件本票零触碰（最近改动 `4e8eb99`，
+与本票无关），与 `workspace-write-env.test.ts` 无因果。待载荷落到 4.07 后独占重跑即 **553/553 全绿**。
+按判例「环境红禁入任何批次验收结论」作废该次读数。**同批转出一条线索**：该用例以 2000 份扫描对赌
+vitest 5000ms 缺省超时，属本票所立新判例的**同族在案违例**（正向命题侧、赌时长），
+建议另立微票按判例处置，本票不扩范围。
+
+### 七 · 首轮四条偏离
+
+首轮已逐条接受且拒因与偏离无关，本轮改动未新增偏离面；返修新增的一项文档改动
+（`workflow.md` 追加判例）经架构在返修指令中显式授权，不属实现会话跨层拍板，**接受**。
+
+### 八 · 结论与移交
+
+首轮唯一拒因已偿还，五项聚焦点全部通过。**PASS**，可进入清账/合入流程。
+遗留两条观察（`workflow.md:172` 补前向指针、`tools.test.ts:404` 同族赌时长另票）均非阻断。
+
+验收提交除本节 `ACCEPTANCE.md` 外无文件改动；不做 fix-by-acceptance，不改实现，不更新
+`current.md`/readiness，不 merge `main`、不 `push`。全部临时反例装置均已复原，
+提交前 `git status --porcelain` 仅本文件。

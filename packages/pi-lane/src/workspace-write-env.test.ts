@@ -54,7 +54,16 @@ interface RecordingPort extends WorkspaceWritePort {
   readonly requests: WorkspaceWriteRequest[];
   /** 单条有序轨迹：`enter:<path>` / `exit:<path>`。交错与否只能由它判定。 */
   readonly trace: string[];
+  /**
+   * 派生等待器（PI-TEST-WAITER-1）：挂起直到 `trace.length` 达到 `length`，
+   * 而不是赌一个固定墙钟时长。`trace` 由 `write()` 同步 push，故一旦目标事件
+   * 真正发生，等待即刻解除；上界只兜底「永远不会发生」的场景，超时时把
+   * 当时的实际 `trace` 报进错误信息，方便归因而不是把赌注换个地方藏起来。
+   */
+  waitForTraceLength(length: number, timeoutMs?: number): Promise<readonly string[]>;
 }
+
+const DEFAULT_TRACE_WAIT_TIMEOUT_MS = 3000;
 
 function recordingPort(
   handler: (request: WorkspaceWriteRequest) => Promise<WorkspaceWritePortOutcome> | WorkspaceWritePortOutcome = () => ({
@@ -63,17 +72,47 @@ function recordingPort(
 ): RecordingPort {
   const requests: WorkspaceWriteRequest[] = [];
   const trace: string[] = [];
+  const waiters: Array<{ length: number; settle: () => void }> = [];
+  const notifyWaiters = () => {
+    for (let index = waiters.length - 1; index >= 0; index -= 1) {
+      if (trace.length >= waiters[index].length) {
+        const [waiter] = waiters.splice(index, 1);
+        waiter.settle();
+      }
+    }
+  };
   return {
     requests,
     trace,
     async write(request) {
       requests.push(request);
       trace.push(`enter:${request.logicalPath}`);
+      notifyWaiters();
       try {
         return await handler(request);
       } finally {
         trace.push(`exit:${request.logicalPath}`);
+        notifyWaiters();
       }
+    },
+    waitForTraceLength(length, timeoutMs = DEFAULT_TRACE_WAIT_TIMEOUT_MS) {
+      if (trace.length >= length) return Promise.resolve(trace.slice());
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          const index = waiters.findIndex((waiter) => waiter.settle === onReach);
+          if (index >= 0) waiters.splice(index, 1);
+          reject(
+            new Error(
+              `waitForTraceLength(${length}) 在 ${timeoutMs}ms 内未达标；实际 trace=${JSON.stringify(trace)}`,
+            ),
+          );
+        }, timeoutMs);
+        const onReach = () => {
+          clearTimeout(timer);
+          resolve(trace.slice());
+        };
+        waiters.push({ length, settle: onReach });
+      });
     },
   };
 }
@@ -706,7 +745,19 @@ describe('串行化真源', () => {
     });
     return { promise, release };
   };
-  const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
+
+  /**
+   * PI-TEST-WAITER-1 返修（首轮 REJECT `f589461`）：本用例守护的是一枚**否定命题**——
+   * 「第二件被 mutation queue 挡在门外，此刻不会再多」。`waitForTraceLength` 这类正向派生
+   * 信号天然管不住否定命题：trace 达到目标长度的那一刻，恰是「第二件是否会跟进」尚未见
+   * 分晓的起点，不是终点（同族判据见 `docs/engineering/workflow.md`「否定断言没有正向派生
+   * 信号」）。upstream `file-mutation-queue.js` 的 pending 态锁在私有 `WeakMap` 里，零公开
+   * 可观测量，找不到支配该否定命题的正向信号，只能退回**显式登记的有界延迟**——与 `:971`
+   * 同族，角色是「撑开违例窗口」而非「等前置」，两职须分开处理，不得再合并进一次等待里。
+   * 若第二件本不该被同路径队列挡住，它不需要等任何东西，会在窗口内几乎立即跟进
+   * （无 gate、无内部延迟）；窗口大小因此对负载不敏感，纯粹是留白让违例有机会现身。
+   */
+  const VIOLATION_WINDOW_MS = 20;
 
   it('characterization：共享同一 env 对象时，上游 mutation queue 按 canonical path 串行', async () => {
     const gateOne = deferred();
@@ -725,7 +776,11 @@ describe('串行化真源', () => {
 
     const first = upstream.execute('raw_1', { path: 'a.md', content: '1' }, undefined, undefined, { env: shared });
     const second = upstream.execute('raw_2', { path: 'a.md', content: '2' }, undefined, undefined, { env: shared });
-    await settle();
+    // ① 正向派生信号：等前置——第一条 enter 真落 trace（不赌时长，条件不成立就一直等到上界）。
+    await port.waitForTraceLength(1);
+    // ② 显式登记的违例窗口注入（见类上方注释）：给「第二件本不该被队列挡住」这件事一段
+    // 有界时间去发生；它若发生，会在此窗口内几乎立即体现在 trace 里。
+    await new Promise((resolve) => setTimeout(resolve, VIOLATION_WINDOW_MS));
 
     // 第二件被队列挡在门外：只有一条 enter，且尚未 exit。
     expect(port.trace).toEqual(['enter:a.md']);
@@ -756,7 +811,8 @@ describe('串行化真源', () => {
     const second = upstream.execute('raw_2', { path: 'a.md', content: '2' }, undefined, undefined, {
       env: makeEnv('tc_1_2'),
     });
-    await settle();
+    // 派生信号：等到 port 收够三条轨迹（第一件卡在 port 里，第二件已整趟跑完）。
+    await port.waitForTraceLength(3);
 
     // 第一件还卡在 port 里，第二件已经整趟跑完：跨调用零串行保证。
     expect(port.trace).toEqual(['enter:a.md', 'enter:a.md', 'exit:a.md']);
@@ -775,7 +831,8 @@ describe('串行化真源', () => {
 
     const first = callAsLoop(tool, 'raw_1', { path: 'a.md', content: '1' });
     const second = callAsLoop(tool, 'raw_2', { path: 'a.md', content: '2' });
-    await settle();
+    // 派生信号：等到 port 收够三条轨迹（同上一枚用例的终态：第二件已整趟跑完）。
+    await port.waitForTraceLength(3);
 
     expect(port.trace).toEqual(['enter:a.md', 'enter:a.md', 'exit:a.md']);
     gateOne.release();
@@ -926,6 +983,12 @@ describe('真 Agent 里的调用序与串行', () => {
   });
 
   it('同一回合两枚 write：顺序执行、两枚独立 operation、无交错', async () => {
+    // PI-TEST-WAITER-1 核定：这不是「等待结算」式赌时长——下面的断言等的是
+    // `agent.prompt()` 整趟 resolve 之后的终态 `port.trace`，不依赖这 5ms 是否
+    // 恰好够用。它是有意的延迟注入：造一个慢 port，撑大交错窗口，让「若真的并行
+    // 执行」这件事有机会被 `enter/enter` 相邻的轨迹逮到；`toolExecution: 'sequential'`
+    // 保证的是顺序语义而非时长，值本身可以是 0 也可以是 500，结论不变。登记为
+    // 「随本票核后不改」，不属于本票要拔除的裸墙钟赌注。
     const port = recordingPort(async () => {
       await new Promise((resolve) => setTimeout(resolve, 5));
       return { status: 'ok' };
