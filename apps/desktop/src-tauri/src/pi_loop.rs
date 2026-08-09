@@ -5288,23 +5288,30 @@ mod tests {
     // 1R 与 1R2 两轮都按验收报告点名的实例逐条补门，于是每轮都由下一位验收者在同一族里
     // 找到另一枚：C2 补了 `maxTurns/maxUsd/modelId`（1R 报告点的三项），而同批冻结的
     // `caseRoot ≤4096`、`apiKey ≤8192` 无人管，1R2 复验一试即中。本节改按族收口——
-    // 手写冻结清单持有整个闭集，并与源码扫描**双向**核对：
+    // 手写冻结清单持有整个闭集：
     //
-    //   ① 清单每行都有 pre-journal/pre-spawn 红例，每例双轴断言（具名外观 + 零副作用）；
-    //   ② 清账表登记四模块生产段每一处受验门消费点，新增一道门而不补表即红。
+    //   ① 清单每行都有 pre-journal/pre-spawn 红例，每例双轴断言（具名外观 + 零副作用）。
     //
     // 期望侧一律手写字面量：判据名、拒绝 code、消费点归属都不从被测结构或 encoder 派生
     // （承在案判例「被测物不得给自己出考卷」）。
     //
-    // 1R4 §零补正：1R3 的扫描轴选了**语法标记**（`MAX_*` 常量），而族定义是**受验输入**。
-    // SafeToken 是函数型判据、没有 `MAX_REQUEST_ID_*` 可扫，于是 prompt header 的
-    // `requestId` 同时躲过清单（手写漏行）与扫描（轴上不可见）——撤掉它的 production 门，
-    // 清单、ledger 与既有 prompt 常驻全部继续绿。本轮把扫描谓词改成与族同宽：
+    // 1R3-1R5 三轮曾在①之外另加一条与源码逐行文本扫描的**双向**核对——②清账表登记四
+    // 模块生产段每一处受验门消费点、新增一道门不补表即红；扫描轴从 1R3 的**语法标记**
+    // （`MAX_*` 常量）扩到 1R4 的③判据函数名单（`is_safe_token` / `is_safe_container_
+    // token` / `is_absolute_path_shape` / `trim_non_empty`，这轮才抓到 prompt header
+    // 的 `requestId`——它是函数型判据、没有 `MAX_REQUEST_ID_*` 可扫，同时躲过清单手写
+    // 漏行与扫描轴上不可见，撤生产门后清单/ledger/常驻测试全绿）再到 1R5 的 `return
+    // Err(` 字面量；④要求清单与生产段前置门在 `(site, judgment)` 粒度上一一对应，防
+    // 同一判据名住两处（`is_safe_token` 同时在 `start_inner`／`prompt`）时撤一处、另一
+    // 处替它顶名的假绿。三代装置逐轮被下一轮验收找出新盲区，终判「在富语言里用文本模式
+    // 枚举语义构造结构性不可胜」（`docs/engineering/workflow.md`「闭口按族」判例）。
     //
-    //   ③ 扫描面 = `MAX_*` 冻结常量 ∪ 函数型格式判据（`is_safe_token` /
-    //      `is_safe_container_token` / `is_absolute_path_shape` / `trim_non_empty`）；
-    //   ④ 清单与 `pi_loop.rs` 生产段的前置门在 `(site, judgment)` 粒度上**一一对应**——
-    //      只按判据名核对撑不住：同一枚 `is_safe_token` 住在两处，撤一处另一处会替它顶名。
+    // **②③④这套装置已按 1R6 H2 整体退役（`d70c1b5`）**：源码侧今天不存在任何扫描器或
+    // 清账表，「新增一道门不补表即红」不再是真的——`PI-BOUNDED-SITE-1`（2026-08-09）复核
+    // 维持这一退役、不重建。今日的自证收窄为①的行为反例，加 `PI-HOST-LOOP-1R6/1R7` 引入
+    // 的违规电池普适不变量（`violation_battery`／`universal_invariant_refused_host_
+    // input_leaves_zero_side_effects`：`Err ⇒ 副作用恰零`）——撤任一生产门，①的行为反例
+    // 单独复红，不再依赖源码扫描交叉核对。
 
     struct ScriptedKey(&'static str, usize);
     impl CredentialPort for ScriptedKey {
@@ -5354,18 +5361,29 @@ mod tests {
     /// 手写冻结清单：输入名 → 生产段消费点（`pi_loop.rs` 内的函数名）→ 判据名（常量或
     /// 格式函数）→ 具名拒绝 code。
     ///
-    /// `site` 是 1R4 新增的**源码锚点**：清单行与生产段消费点在
-    /// `(pi_loop.rs, site, judgment)` 这一粒度上双向一一对应。只按判据名核对撑不住——
-    /// `is_safe_token` 同时住在 `start_inner`（grantId）与 `prompt`（requestId），
-    /// 撤掉后者时前者会替它把名字对上（1R3 复验的假绿正是这一形）。
+    /// `site` 记录 1R4 的设计意图：清单行与生产段消费点在 `(pi_loop.rs, site, judgment)`
+    /// 这一粒度上双向一一对应，防止只按判据名核对撑不住的形状——`is_safe_token` 同时住在
+    /// `start_inner`（grantId）与 `prompt`（requestId），撤掉后者时前者会替它把名字对上
+    /// （1R3 复验的假绿正是这一形）。**但落实这一意图的装置
+    /// （`scan_bounded_judgment_uses` ＋ `bounded_judgment_ledger_matches_the_source_and_
+    /// covers_every_frozen_bound`，1R4 `e269ce5` 引入）已在 1R6（`d70c1b5`「装置退役」H2）
+    /// 被架构裁定整体退役**：常量名单（1R3）→ 判据函数名单（1R4，即本字段）→
+    /// `return Err(` 字面量（1R5）三代同类文本模式扫描装置逐轮被下一轮验收找出盲区，
+    /// 终判见 `docs/engineering/workflow.md`「闭口按族」判例——「在富语言里用文本模式枚举
+    /// 语义构造结构性不可胜」，出路是消灭需要同步的账（1R6 encode-before-effect），不是
+    /// 再造第四个更聪明的扫描器。
+    ///
+    /// `PI-BOUNDED-SITE-1`（2026-08-09）复核后维持这一裁定，不重建扫描器：`site` 因此是
+    /// **单向**——本行输入落在生产段哪个函数，供人工阅读——不是「清单 ↔ 源码」双向锁的
+    /// 已验证那一半。清单对生产运行时行为的约束改由两条**已验证的单向**关系承担：
+    /// 每行经 `counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn`
+    /// 逐行验证真实拒绝行为（清单 → 运行时行为），`safe_token_family_is_fully_accounted_for`
+    /// 把 ADR SafeToken 七成员逐一系到清单行（ADR 族 → 清单行存在）。两者都不回锚清单行到
+    /// 生产段源码位置——那正是「双向」里从未成立、且此后不再计划补上的那一向。
     struct BoundedInput {
         input: &'static str,
-        /// **上浮（`PI-HOST-CONCURRENCY-1` dead_code 收窄的副产品）**：这一枚字段今天
-        /// **没有任何断言读它**——`(site, judgment)` 双向锁只写在上面那段说明里，源码侧
-        /// 的锚点扫描并不存在。文件级 `allow(dead_code)` 此前把这件事一并遮住了。
-        ///
-        /// 本票只据实登记、不擅自扩面（补那道扫描属另一票）；留着字段与清单行是因为它是
-        /// 那道扫描将来要吃的输入，删掉等于把已写好的一半也抹了。
+        /// 零断言读取，纯文档字段（见上方结构体说明）。留着是因为删掉即抹去「这行输入
+        /// 落在哪个函数」这一人工可读线索，而它不构成任何机器验证的输入。
         #[allow(dead_code)]
         site: &'static str,
         judgments: &'static [&'static str],
@@ -7375,8 +7393,12 @@ mod tests {
 
     /// ③ 七成员全员在册，且「host 方向受验输入」这一档必须真落在 D1 清单上。
     ///
-    /// 这一道把 ADR 的族定义与 D1 清单接起来：清单又由 ②（`(site, judgment)` 双向锁）
-    /// 接到生产段消费点。三段接完，「ADR 说是一族」到「源码里真有那道门」才闭合。
+    /// 这一道把 ADR 的族定义与 D1 清单接起来（ADR 族 → 清单行存在，本测试验证）。清单行
+    /// 对生产运行时行为的约束另由 `counterexample_every_bounded_host_input_is_refused_
+    /// before_journal_and_spawn` 承担（清单 → 运行时行为，单向验证）。**两段都不回锚清单
+    /// 行到生产段源码位置**——1R4 曾设想的 `(site, judgment)` 双向锁（清单 ↔ 源码消费点）
+    /// 需要的扫描器已按 1R6 H2 退役（`d70c1b5`，详见 D1 覆盖自证段），`PI-BOUNDED-SITE-1`
+    /// （2026-08-09）复核维持退役、不重建；`site` 现是零断言消费的纯文档字段。
     #[test]
     fn safe_token_family_is_fully_accounted_for() {
         let ledger = safe_token_ledger();
