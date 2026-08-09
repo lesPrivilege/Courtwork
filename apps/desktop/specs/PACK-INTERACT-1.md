@@ -1,6 +1,6 @@
 # PACK-INTERACT-1 · 加载动作与准入 UX（解耦相）
 
-状态：2R 独立验收 REJECT（`7c6763e`）；3R 两项文字面收口待 Claude Code 实现
+状态：3R 已实现，待独立验收
 
 权威：`docs/decisions/ADR-015-optional-vertical-loading.md`（Accepted）决定三/四；
 `docs/architecture/implementation-readiness.md`「解耦相」`PACK-INTERACT-1` 行为票面唯一真值；
@@ -485,3 +485,100 @@ Playwright **376/376** 均已成立；3R 不得重做或扩张其结构，只收
 catalog-only 诚实说明；Legal 选择态仍含 loadable 说明；撤条件分支、恢复无条件通用尾注须真红。
 同批执行现行 SPEC/源码/测试的旧标识符零命中门。边界：不改 availability、Package ABI、
 `packBinding`、execution seam、首帧 gate、pi 测试、wire/journal、持久格式或依赖；不新增概念。
+
+---
+
+## 十二 · 3R 回执（2026-08-09）
+
+严格只做 §十一 两项；A/B/C/D 的结构一处未动。零新概念、零新依赖、零新持久格式、
+App.tsx 零改；availability、Package ABI、`packBinding`、execution seam、首帧 gate、
+pi 测试、wire/journal 全未触碰。
+
+### 改动清单（三文件）
+
+| 文件 | 改动 |
+|---|---|
+| `src/case/MatterPackDialog.tsx` | 底部说明从**一句无条件通用尾注**改为**随当前选择切换的三分支**（`data-testid="matter-pack-note"`）；头部注释登记理由——尾注是对当前选择的能力承诺，不是通用装饰 |
+| `src/case/MatterPackDialog.test.ts` | 新增一枚常设 DOM 谱：keep／不加载／Legal 三态文案逐态断言 |
+| `tests/e2e/pack-interact-1.spec.ts` | ④ 内追加同一三态断言（既有用例内追加，e2e 计数仍 376） |
+
+### 三态文案（改动本体）
+
+- **keep（历史 `catalog-only` 绑定，默认选中）**：「保持当前绑定：既有产物继续可读；该包当期
+  只上架目录，交互场景未开放。」——零场景／零结构化面承诺。
+- **不加载**：「不加载垂类包：不删除已有产出——产出属工作区资产，留在本工作区照旧可读。」
+  ——只说资产不删除，不承诺加载后会出现什么。
+- **Legal（`loadable`）**：原句一字未动（「加载后，结构化工作面与对应场景随包出现；卸载不删除
+  已有产出（产出属工作区资产，重新加载即恢复结构化视图）。」）。
+
+判据写在**整张弹层**而不只在尾注元素上（`expect(host.textContent).not.toContain(...)`）：
+尾注不是唯一可能的泄漏点，只钉一个 testid 会给「把同一句话搬到别处」留门。
+
+### born-red（实现前，测试先红）
+
+`pnpm --filter @courtwork/desktop exec vitest run src/case/MatterPackDialog.test.ts`
+
+```
+ FAIL  src/case/MatterPackDialog.test.ts > MatterPackDialog（matter 级包设置） > 说明文案随当前选择诚实切换：keep 态零能力承诺，Legal 态保留加载说明，不加载态只说资产不删除
+AssertionError: expected '包设置「戊案」已绑定：产品管理包 · 仅目录与既有产物可用垂类包不加载垂类…' not to contain '结构化工作面与对应场景随包出现'
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+```
+
+**首红形态的甄别如实登记**：第一版把 `note()` 取元素的断言排在最前，红因是
+「`undefined` 与 string 不能比」——那是**取不到新 testid**的红，不是**尾注在撒谎**的红，对本票
+缺陷区分力弱。调整断言次序把整张弹层的诚实判据前置后，首红直接指名缺陷本体（上方原文）。
+实现后同一命令 **7 passed**，`src/case/` 全组 **8 files / 66 tests passed**（2R 基线 65，+1）。
+
+### mutation（撤条件分支、恢复无条件通用尾注 → 真红 → 还原）
+
+| # | 变异 | 实跑红证 |
+|---|---|---|
+| M-3R1a | `MatterPackDialog.tsx` 尾注改回无条件单句（保留 testid） | `vitest run src/case/MatterPackDialog.test.ts` **1 failed / 7**，红在 `not.toContain('结构化工作面与对应场景随包出现')`，原文含实际渲染串 |
+| M-3R1b | 同一变异下跑 e2e ④ | `COURTWORK_E2E_PORT=18893 npx playwright test tests/e2e/pack-interact-1.spec.ts -g "④" --project=app` **1 failed**；失败是实断言（`locator resolved to <p … data-testid="matter-pack-note">加载后，结构化工作面与对应场景随包出现…`／`unexpected value`），非 timeout、非选择器落空 |
+
+变异即 2R 基线态，故 M-3R1b 同时充当 e2e ④ 的 born-red。还原后 `pack-interact-1.spec.ts`
+全谱（①③④⑥）**4 passed**，完整链见门表。
+
+### 旧标识符零命中门（本批实测）
+
+过渡期「新建案默认绑定」prop 的旧代码标识符，在 `apps/desktop/specs`、`apps/desktop/src`、
+`apps/desktop/tests`、`apps/desktop/scripts`、`docs`、`packages` 六个扫描根下命中数 **0**
+（`/usr/bin/grep -rna`，避开被 shim 的 `grep`；退出码 1＝零命中）。唯一命中面是历史
+`apps/desktop/ACCEPTANCE.md` 的原始验收报告 **5** 处，按 §十一 属允许保留。
+
+本节与本回执全程只用角色称谓，不为说明「零命中」而重新写出该标识符本身——2R 拒因②的成因
+正是自述句把字面量又写了回去，说明门的读取面包含回执自身。
+
+### 全量门实测（本树原始数字）
+
+| 相 | 结果 |
+|---|---|
+| `pnpm install` | 绿（lockfile 未动） |
+| `pnpm -r build` | 绿（EXIT=0；仅既有 chunk warning） |
+| `pnpm lint` | 绿（EXIT=0） |
+| `pnpm test`（根） | **170 文件 / 1941 通过 / 0 失败**（与 2R 持平——新增谱在 desktop 项目内） |
+| `pnpm --filter @courtwork/desktop test` | **93 文件 / 820 通过 / 0 失败**（2R 819 + 1） |
+| `cargo test`（先构建两枚 sidecar） | **250 通过 / 0 失败 / 1 忽略** |
+| `pnpm site:guard` | PASS（App 高水位 **2272/2272**；deslop 1113 文件；中性色 265 文件；`lint:voice` 单跑 170 UI 文件零违例） |
+| `COURTWORK_E2E_PORT=18893 pnpm test:e2e` | **376 通过 / 376**（EXIT=0，独占端口、`reuseExistingServer=false`、前置门链全过；跑前 `pgrep -f playwright` 无并发全链） |
+
+**稳定性如实登记（本轮共起七次完整链，逐次交代，不以「重跑到绿」掩盖）**：
+
+- **三次独占窗口的完整链均 376/376**（5.9m／9.1m／末次 6.9m 且 `EXIT=0`；末次跑前
+  `pgrep -f playwright` 零命中、跑后再核他树链数为 0）。退出数字取**末次**完整实跑。
+- **一次 365/376 是并发损伤，不进结论**：该次跑前 `pgrep` 打出 22 枚 PID，`ps` 锚到另一
+  worktree `/private/tmp/courtwork-debt-vertical-split-1` 的 `@playwright/test/cli.js`
+  同刻在跑；11 枚红散在互不相干的 spec，单测耗时被拖到 18–19.5m。这正是「同刻两条全链会
+  互相打红」的既有判例，登记为**环境无效轮**。随后排队等对方空闲才起的一次又被对方重启的
+  链撞上（单测 18.0m），一并作废。
+- **两枚独占窗口下的单点偶发红，复跑绿但不据此结案**：`ui-residue.spec.ts:240` 卡在公共入口
+  helper `enterSettledDemo` 的 `locator('.individual-note').waitFor()`（30s timeout，非断言
+  红）；`global-verbs.spec.ts:7` 的 `.copy-button` 悬停不透明度取到过渡中值 0.59/0.86/0.13
+  后回落 0（hover 丢失，非断言语义红）。两枚 spec 与包设置文案零交集，各自独占端口
+  `--repeat-each=3` 复跑 **66/66**、**63/63** 全绿；结论仍以末次完整链为准。
+
+Playwright 跑后 `release/evidence/**` 11 枚 PNG 被重生成，已 `git checkout --` 逐面还原；
+`test-results/` 逐次清除。提交面只余三枚源码/测试文件与本 SPEC。
+
+**报交验点**：两项收口达成即停；不自我验收、不合 `main`、不 push。

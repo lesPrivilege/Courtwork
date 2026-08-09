@@ -15,6 +15,11 @@ import { describeMatterPackState } from './matter-pack-state';
  * 可选集只取 `loadable`（ADR-015 决定三 2026-08-08 补记）：`catalog-only` 包无场景无 prompt，
  * 列成普通「加载 X 包」即以 UI 承诺一件不存在的能力。已绑定 catalog-only 的历史 matter 诚实
  * 显示「仅目录与既有产物可用」并可原样保持——不迁移、不清空、不判未准入。
+ *
+ * 底部说明是**对当前选择的能力承诺**，不是通用装饰，故跟随选择切换（PACK-INTERACT-1 3R ①）：
+ * 「保持已绑定」的 catalog-only 态只说既有产物可读、交互场景未开放；loadable 态才说加载后
+ * 结构化工作面与场景出现；「不加载」态只说已有产出不被删除。一句无条件通用尾注会在
+ * catalog-only 态承诺零场景包并不存在的能力（核心不变量四）。
  */
 export interface MatterPackDialogProps {
   open: boolean;
@@ -122,8 +127,12 @@ export function MatterPackDialog({
             </label>
           ))}
         </fieldset>
-        <p className="settings-muted">
-          加载后，结构化工作面与对应场景随包出现；卸载不删除已有产出（产出属工作区资产，重新加载即恢复结构化视图）。
+        <p className="settings-muted" data-testid="matter-pack-note">
+          {selected === KEEP_CURRENT
+            ? '保持当前绑定：既有产物继续可读；该包当期只上架目录，交互场景未开放。'
+            : selected === 'none'
+              ? '不加载垂类包：不删除已有产出——产出属工作区资产，留在本工作区照旧可读。'
+              : '加载后，结构化工作面与对应场景随包出现；卸载不删除已有产出（产出属工作区资产，重新加载即恢复结构化视图）。'}
         </p>
         <footer className="new-case-dialog-actions">
           <button type="button" className="quiet-button" data-testid="matter-pack-cancel" onClick={onClose}>

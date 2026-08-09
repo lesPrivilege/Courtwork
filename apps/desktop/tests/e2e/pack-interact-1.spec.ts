@@ -398,7 +398,18 @@ test('④ PM 分层：目录诚实标注、两处选择面均不可选、历史 
   await expect(packDialog.getByTestId('matter-pack-state')).toContainText('仅目录与既有产物可用');
   await expect(packDialog.getByTestId('matter-pack-option-pm')).toHaveCount(0);
   await expect(packDialog.getByTestId('matter-pack-option-keep')).toBeChecked();
+  // 3R ①：keep 态的说明文案对 catalog-only 诚实——零场景／结构化面承诺。
+  const packNote = packDialog.getByTestId('matter-pack-note');
+  await expect(packNote).toContainText('既有产物继续可读');
+  await expect(packNote).toContainText('交互场景未开放');
+  await expect(packNote).not.toContainText('结构化');
+  await expect(packDialog).not.toContainText('结构化工作面与对应场景随包出现');
+  // 不加载态只说资产不删除；Legal 态才恢复加载后能力说明。
+  await packDialog.getByTestId('matter-pack-option-none').check();
+  await expect(packNote).toContainText('不删除已有产出');
+  await expect(packNote).not.toContainText('随包出现');
   await packDialog.getByTestId('matter-pack-option-legal').check();
+  await expect(packNote).toContainText('结构化工作面与对应场景随包出现');
   await packDialog.getByTestId('matter-pack-apply').click();
   await expect(packDialog).toBeHidden();
   await expect(page.getByTestId('rail-pack-state-pm-bound')).toContainText('已加载：法律包');

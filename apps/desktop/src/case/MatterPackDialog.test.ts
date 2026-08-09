@@ -135,6 +135,42 @@ describe('MatterPackDialog（matter 级包设置）', () => {
     expect(onApply).toHaveBeenLastCalledWith([]);
   });
 
+  /**
+   * PACK-INTERACT-1 3R ①：说明文案是随当前选择变化的承诺，不能是一句无条件通用尾注。
+   * catalog-only 包的「保持已绑定」态零场景零 prompt，任何「结构化面／场景随包出现」的话
+   * 都是以 UI 承诺一件不存在的能力（核心不变量四：静默降级零容忍，能力宣称须诚实）。
+   */
+  it('说明文案随当前选择诚实切换：keep 态零能力承诺，Legal 态保留加载说明，不加载态只说资产不删除', () => {
+    const host = render(createElement(MatterPackDialog, {
+      open: true,
+      caseTitle: '戊案',
+      packBinding: ['pm'],
+      availablePackageIds: AVAILABLE,
+      packCatalog: CATALOG,
+      onClose: vi.fn(),
+      onApply: vi.fn(),
+    }));
+    const note = () => host.querySelector('[data-testid="matter-pack-note"]');
+
+    // keep 态（默认选中）：只说既有产物可读＋交互场景未开放，零能力承诺。
+    expect(host.querySelector<HTMLInputElement>('[data-testid="matter-pack-option-keep"]')!.checked).toBe(true);
+    // 整张弹层都不得出现场景／结构化面承诺（尾注不是唯一可能的泄漏点）。
+    expect(host.textContent).not.toContain('结构化工作面与对应场景随包出现');
+    expect(host.textContent).not.toContain('随包出现');
+    expect(note()?.textContent).toContain('既有产物继续可读');
+    expect(note()?.textContent).toContain('交互场景未开放');
+    expect(note()?.textContent).not.toContain('结构化');
+
+    // 不加载态：只说卸载不删除已有产出，不承诺加载后会出现什么。
+    act(() => { host.querySelector<HTMLInputElement>('[data-testid="matter-pack-option-none"]')!.click(); });
+    expect(note()?.textContent).toContain('不删除已有产出');
+    expect(note()?.textContent).not.toContain('随包出现');
+
+    // Legal（loadable）态：加载后结构化面与场景出现的说明照旧成立。
+    act(() => { host.querySelector<HTMLInputElement>('[data-testid="matter-pack-option-legal"]')!.click(); });
+    expect(note()?.textContent).toContain('结构化工作面与对应场景随包出现');
+  });
+
   it('绑定失效态显式标注（当前绑定不在可用集），保存清绑即恢复', () => {
     const onApply = vi.fn();
     const host = render(createElement(MatterPackDialog, {
