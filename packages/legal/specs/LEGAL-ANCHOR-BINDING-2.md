@@ -248,3 +248,11 @@ base 数字取自 `1c22389` 的独立 worktree 实跑（跑完即 `git worktree 
   其后全部变异改用 `cp` 到仓外备份目录还原。同批第二伤：`cmd && grep -c … && cmd` 链里
   `grep -c` 零命中退出 1 会**静默短路**后续命令，一度让一枚变异「以为跑了其实没跑」。
 - **报交验点即停**：不自我验收、不合 `main`、不 push。
+
+---
+
+## 架构裁定（2026-08-10，先于独立验收落痕）
+
+1. **上呈（output 阻断门）**：当期不落地——`outOfCoverage` 非空指令集当期零可达 `packages/output`（S4 `launch.kind==='view'`，两侧编译器均从 RiskList），预铸门属投机性防御。**前瞻条款**：S4 未来获执行编译路径的接线票，须同批立 `UnresolvedCoverageError` 同形整份阻断门，届时本条失效。
+2. 偏离八条全部追认（registry item 判别联合扩面属结构性前置／草稿去 `evidenceKey` 正合「系统裁决性事实退出模型面」／`min(1)` 保留有专谱／`itemSummaryField` 取 `id` 折中接受／`checkEnumVocabulary` 收 info 净扩 fail-closed 覆盖／两 hash 重铸如实）；实施要点④空集登记接受；结构轴「只认 wire 包 meta title」上界带正向反例钉边界，接受。
+3. 两枚自伤（`git checkout --` 抹未提交面再犯、`&& grep -c` 零命中短路）已留痕，处方不变：还原一律 cp 仓外备份、grep 计数不入 && 链。
