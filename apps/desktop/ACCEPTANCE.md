@@ -6265,3 +6265,92 @@ R2 签署账 SD1 十二行逐行核：rowId 连续无重、`r2-tier-ledger.json`
 ### 结论
 
 **PASS。** 首红逐位可复现且门与修分提交结构性成立；十一枚独立变异全部按预期触红且红文指名正确理由；五项逐项独立核实成立，项 B 按六节修订后的 Δ≤2/255 判据成立；九裁与八裁范围内未见越界，禁区（纸温／动效／阴影／字体／线级／朱印／批二／高水位）实核零触碰；八相全量门本树独立实测零回归，完整 Playwright 两轮独占 377/377。拒因 0 枚；上列①须订正、②须追认、③为验收侧遗留义务，均不阻断本批放行。
+
+## LEGAL-ANCHOR-BINDING-1 独立验收（2026-08-09）
+
+**结论：PASS。** 拒因 0 枚；另有须处理项三枚（一枚样板案面上的连带效应、一枚票面第四条的实际结案形态、一枚架构清账义务）与观察项四枚，逐枚具名于末节。
+
+验收目标 `24e5e11`（实现 `18cf713` ＋架构三裁提交 `24e5e11`），base `main@f96937c`。异会话独立验收，与实现会话零共享上下文；独立 worktree `/private/tmp/courtwork-legal-anchor-binding-1-accept`（分支 `claude/accept-legal-anchor-binding-1`），Playwright 独占端口 `15437`。回执数字一律不采信，八相全部另跑。`main` 现已前进到 `c152ddb`（PI-TEST-WAITER 清账，触 `packages/pi-lane` 与 `workflow.md`，与本票零交集），base 判定仍取 `f96937c`。
+
+### 一 · 不变量二闭环（模型出引语，系统出坐标）
+
+**模型侧结构性无坐标**——三枚导出的 Draft 2020-12 文档本会话逐份实读：`TimelineDraft` / `PartyGraphDraft` / `ReviewMatrixDraft` 含 `"title":"QuoteClaim"`、**不含** `SourceAnchor`、不含 `textRange`／`textLayerVersion`／`bbox`／`sourceAnchors` 任一字面；三枚最终形反过来仍携 `SourceAnchor` 并各补 `outOfCoverage` 根键（`Timeline: [caseId, events, outOfCoverage]`、`PartyGraph: [caseId, nodes, edges, outOfCoverage]`、`ReviewMatrix: [caseId, questions, rows, outOfCoverage]`）。`QuoteClaimSchema` 是 `.strict()`，草稿 item 为普通 `z.object`（strip 语义），故「引语携坐标」当场拒收、「自报锚」parse 即剥离——两条路径各由独立断言看住，M3/M4 两枚变异分别证其区分力（见二节）。
+
+**路径循 S3/RiskList 先例、零新机制**：`citationBinding` 五字段与 `draftSchemaId` 是 `legal.RiskList` 已在册的形状；`packages/core` 的 `resolveDraftArtifact` / `resolveDraftArtifactWithPruning` 与 `packages/registry` 的五字段静态对账（`admission.ts` 第 188–280 行）本票**一行未改**——`git diff f96937c..24e5e11 --stat` 的 43 个文件里无 `packages/core/**`、无 `packages/registry/**`、无 `src-tauri/**`。执行器侧 `modelSchema = entry.descriptor.draftSchema ?? entry.descriptor.schema` 是既有分叉点，本票只是让三枚 descriptor 走上了它。覆盖单元逐枚对读源码：Timeline `/events`、PartyGraph `/edges`（节点不携锚，故不入剪枝面）、ReviewMatrix `/rows`（行内任一格不收敛整行入表）——与 SPEC 注释、schema 注释、descriptor 注释三处一致。
+
+**「回到原件」循 CONTRACT-TRACE-1**：三枚 renderer 取的是**既有**宿主路由 `useLegalWorkSurface().host.openSourceAnchor`（`App.tsx` 第 1049/1388 行 → `openRiskSource` → `readMaterialAction(materialStore, selectedCaseId, anchor.fileId, …, anchor)`），面内零第二条定位链、零 quote 搜索；`material-actions.ts` 的判定段（`textRange` 缺失且合法 bbox-only → `anchor_unsupported`，否则 `anchor_invalid`；文本层版本与切片等式）本票**未触碰**，diff 仅改 `anchor_invalid` 一行文案。可点判据逐处为 `disabled={!anchor}`（无锚才禁用），矩阵「该文档未提及此问题」的格结构上零锚故恒禁用。fileId 同案重验由「`materialId` 只在 `selectedCaseId` 内解析」结构性成立，并由 e2e 第三例实证。
+
+**真跑亲见**：本会话独占跑完整 e2e 后逐帧看图，`01-timeline-goto-source.png` 上阅读面确已打开 `设备采购合同.docx`（只读），`第一条 付款：买方应于验收后三十日内付清全部款项。` 整句带焦点框——而模型侧那一轮一个坐标数字都没写（樁只交 `quoteClaims`）。`reader-focus-anchor` 恰一处且逐字相等这一条由三例各自断言，本轮 380/380 内全绿。
+
+### 二 · 首红与反例独立复注（首红 1 枚 + 变异 6 枚，逐枚带命中校验，逐枚撤回）
+
+**首红复现**：把实现前的四处源码面检出到验收树（`git checkout f96937c -- packages/legal/src/schemas packages/legal/src/presentation packages/legal/src/package/bindings.ts packages/legal/json-schema`）后单跑族门，得 **19 failed / 2 passed（共 21）**，与回执「19 红 / 2 绿」逐位相符；2 绿即两条守门自检（族非空前置、检出谓词阴性自检），前后恒绿，回执把它登记为零区分力项属实。
+
+| # | 变异（先 grep/字面计数校验命中） | 命中 | 独立实测结果 |
+|---|---|---|---|
+| M1 | 删 `legal.Timeline` 的 `draftSchemaId` + `citationBinding` | 1 | `anchor-binding` **7 红**；重建 legal dist 后 demo-runtime 集成谱 **3 红**，红文 `GenerationValidationError: 场景 legal.S1 生成的 legal.Timeline 未通过 schema 校验` |
+| M2 | `TimelineEventDraftSchema` 补回 `sourceAnchors: z.array(SourceAnchorSchema).min(1)` | 1 | **4 红**（族门「模型侧结构性无坐标」＋三份 schema 谱各一） |
+| M3 | `QuoteClaimSchema` 去 `.strict()`（伪锚·引语携坐标轴） | 1 | 首跑 **0 红**——跨包经 dist 解析，未重建即零效力，如实登记；重建 `@courtwork/schemas` dist 后 **3 红**，三面各一条「引语内不得携坐标」 |
+| M4 | `TimelineEventDraftSchema` 由 `z.object` 改 `z.looseObject`（伪锚·自报锚剥离轴） | 1 | **1 红**，恰是「模型自报的 sourceAnchors 不进草稿形」。族门未红——族门量的是导出文档，剥离断言量的是运行时 parse，**两轴互补而非冗余**，如实分列 |
+| M5 | `panels.tsx` 两处 `disabled={!currentAnchor}` / `{!cellAnchor}` 改恒 `disabled` | 2 | jsdom 谱 **2 红 / 2 绿**——两条死态文案反向锁对该变异零区分力，与回执 M3 行登记一致 |
+| M6 | e2e 第三例 `bogusFileId: true` → `false` | 1 | 该例 **红**（`toContainText('暂无时间线事件')` 15s 超时未现）——证「面上零事件」确由跨案 fileId 的公证拒收＋剪枝导致，不是管线坏死后的同形空白 |
+
+M6 是本批最关键的一枚：伪锚用例的正向断言（空时间线）与「整条链没跑起来」同形，若无此对照即零区分力；实测撤掉伪锚后该例立刻转红，判据咬的是剪枝而非失败。M1 的第二段（跨案 dist 重建后集成谱 3 红）与 M3 的两跑一并坐实一条通用手法：**跨包变异不重建 dist 即零效力，0 红此时是装置未生效而非覆盖缺口**。
+
+漂移引语（`not_found` → 携原判重试 → 仍不收敛入 `outOfCoverage`，`citationStats` 逐字断言）与跨案 fileId 的执行器级形态，另由 `packages/demo-runtime/src/acceptance/legal-anchor-binding.integration.test.ts` 五例常驻看守，本会话逐例读过断言面并在两轮根门内全绿。全部注入均已还原，`git status` 复核净空。
+
+### 三 · 计数漂移逐项归因
+
+| 门 | 独立实测 | 归因 |
+|---|---|---|
+| 根 vitest | 172 files / **1986 passed**（两轮同值） | +45 = `anchor-binding.test.ts` **21**（族门实跑总数即 21，与首红复现的 21 同源）＋三份 schema 谱 **16**（timeline +6 / party-graph +5 / review-matrix +5，逐条数过）＋`json-schema-drift` 参数化 8→11 得 **3**（该谱按 record 键逐份生成 `<name>.schema.json` 一致性用例）＋demo-runtime 集成谱 **5**（3 + 2） |
+| desktop vitest | 94 files / **824 passed**（两轮同值） | +4 = `anchor-trace.dom.test.ts` 一枚新文件四例；diff 内既有 desktop 测试文件只改断言正文不改条数 |
+| Playwright | **380 passed**（EXIT=0，4.1m） | +3 = `legal-anchor-binding-1.spec.ts` 三例；`schema-polish` / `workbench` 各一处为原地改写不增条 |
+
+**两处按本意改写逐处核过**。`schema-polish.spec.ts`：旧判据「矩阵格内 `回到原件 · 尚未接通` 为 disabled」，新判据「`回到原件` 可点 ＋ peek 面不含『尚未接通』」——原意是「该入口的状态必须诚实」，接通后诚实态即可点，旧判据以具名反向锁留存，不靠消失过关。`workbench.spec.ts`：旧判据 disabled ＋ `title='卷宗原件尚未接通'`，新判据 enabled ＋ `title='在只读阅读面打开这处卷宗引证'` ＋ 面上不含「尚未接通」——同理成立，且该用例内 composer 相机/语音两处禁用断言原样留存，用例名「未接功能保留禁用入口与说明」未被掏空。两处改写都**没有**把断言删成不设防，是换靶不是撤靶。
+
+### 四 · 架构三裁与六偏离符合性
+
+**裁定一（S4 不随本票拒载）成立**：`legal.RevisionInstructionSet` 仍在 `LEGAL_PACKAGE_BINDINGS` 且 `admitPackages([LEGAL_PACKAGE])` 零拒（族门自检例与 `manifest.test.ts` 双证）；`OPEN_ANCHOR_DEBT` 恰一枚且族门断言为**逐字相等**（`expect(unclosed).toEqual(OPEN_ANCHOR_DEBT)`），增删都必须显式改门，不是豁免名单。族门以「场景 `outputArtifacts` 去重集 ∩ 导出文档含 `SourceAnchor`」定义，成员随包声明增减、门不改一行，M1 实证其对新增未闭环成员会红。
+
+**裁定二（additive-default 键不升版）成立**：`descriptor.ts` 的 `identity.schemaVersion` 实读为 **1**、`version: '0.1.0'` 未动；三枚最终形的 `outOfCoverage` 为 `.default([])`，且三枚根对象均非 `.strict()`——**旧 payload 无该键可读**（三份 schema 谱各一条「缺省为空表」实证）、**新 payload 对旧消费者按 strip 语义可读**（结构性成立），双向可读自证成立。三枚 `$id` URN 实读仍为 `…:v1`，未牵动本票未触及的四枚。
+
+**裁定三（六偏离追认）逐条对照**：①两枚 hash 同批重铸——`layout-golden.test.ts` 内 descriptor `ab7c80bc…` 与 prompt blob `43133479…` 双钉，理由（不变量五：schema 变化须同步生产者）与 `scenarios/index.ts` 的 S1/S2 正文实改一致，形态循 S3 既有两句；②`anchor_invalid` 中性化＋族级反向锁——`material-actions.test.ts` 内新增「reader 全部文案不得含『合同审查』」的遍历断言，是族锁不是点名；③`enumLabels.reason` 收敛为模块常量逐处 spread——四处均为 `{ ...CITATION_FAILURE_REASON_LABELS }`，新对象逐处独立，未制造跨条目别名；④`schema-exemplar.sources.json` 的 P0-S02 哈希重铸——`site:guard` 内 `lint:schema-exemplar` 实跑通过；⑤`assert-rp27-contracts` 的「卷宗」判据落进新文案（两处新 title 均含该词）——e2e 链内该门实跑通过，判据一条未减；⑥覆盖单元取边与行——与 schema/descriptor/SPEC 三处注释一致，见一节。
+
+### 五 · 全量门（本树独立实跑）
+
+| 相 | 独立实测 |
+|---|---|
+| `pnpm install` | EXIT=0（lockfile 未动） |
+| pi-lane 两枚 sidecar | 先 `rm -rf packages/pi-lane/dist` 再重建，双 EXIT=0；headless `landedSha256 061248fa…`、`reproducible: true` |
+| `pnpm -r build` | EXIT=0（仅既有 chunk warning） |
+| `pnpm lint` | EXIT=0（零输出） |
+| `pnpm test`（根） | **172 files / 1986 passed / 0 failed**（变异复注后重建 dist 再跑第二轮，同值） |
+| desktop vitest | **94 files / 824 passed / 0 failed**（两轮同值） |
+| `cargo test` | **250 passed / 0 failed / 1 ignored**，EXIT=0（本票零 Rust，实跑核零回归——回执如实登记「未跑」，本会话补跑） |
+| `pnpm site:guard`（显式单跑） | EXIT=0；含 schema-exemplar 与 App 高水位 **2272 行（上限 2272）** |
+| 完整 `pnpm test:e2e` | **380 passed，EXIT=0，4.1m**；假绿防护打印「380 条用例（下限 366）」 |
+
+跑的是 `pnpm test:e2e` 全名（三十余枚 `assert-*.mjs` 静态门前置全过），非链里的 `playwright test` 单步。**Playwright 互斥**：起链前 `mkdir /private/tmp/courtwork-pw-lock` 原子取锁一次即得，`pgrep` 双确认无第二条 PW 在跑（仅见主仓一枚 `vite --host --port 1470` 的常驻 dev server，与本树独占端口 15437 无交集），跑完即 `rmdir`；M6 的定向单跑另取一次锁、跑完即释。**收尾**：全链重生成他票 `release/evidence/**` 11 枚 PNG（`generic-pack-1-unloaded-2026-08-06` 5 枚、`legal-five-faces-1-2026-08-07` 6 枚）与本票 3 枚，一律 `git checkout -- release/evidence` 精确还原（承 Bin 行判例，禁 `git add -A`）；六枚变异与首红检出全部撤回；提交前工作树只留本文件的追加。
+
+demo 双向隔离抽验：三份新增测试面（集成谱／jsdom 谱／e2e 谱）实核**零 `@courtwork/demo-data` 依赖**，语料为就地合成（`compileDraftToDocx` 现编 docx ＋ 内联文本层），真实链未读 demo 真值；`assert-vertical-isolation` 与根门内的隔离谱本轮全绿。
+
+### 六 · 须处理项与观察项
+
+**① 样板案三面的「回到原件」接通后必落 `anchor_invalid`（须另立便利小票，不构成拒因）。** 本会话实核 `packages/demo-data/data/artifacts/timeline.json`（47 枚事件锚点**零** `textLayerVersion`，`textRange` 为 `{start:0,end:N}` 形）与 `party-graph.json` 同形，且其 `fileId`（如 `03-证据清单.md`、`20-企业信用信息查询单.md`）不在 `resolveLegalDemoSource` 的唯一路由（合同文本）内——故样板案上三面每一次点击都会走显式阻断。回执 §八 已如实登记；就绪图 `DEMO-ANCHOR-1` 行亦有在册判定「该显式反馈是判定优先级的正确输出，不是缺陷」，故不列拒因。但入口由 disabled 转可点后，导览面上得到的指路是「请重新运行产出它的场景」，而样板案并不存在可重跑的产出场景——**文案在 demo 路径上不实指路**。建议循 `DEMO-ANCHOR-1` 形态另立小票把 timeline/party-graph 锚点真实化，或在 demo 路由分支给出贴切的显式文案。
+
+**② 票面第四条的实际结案形态须写清（须补登记）。** 票面要求「S1/S2 真模型结构性失败风险的**评测证据**随票登记」，实交为执行器级通道形态证据 ＋ `external-validated blocked`。本会话实核 `eval/` 的数据集与 promptfoo 配置**只有 S3/S4**，仓内当期不存在 S1/S2 评测集——即该条不只是「缺真 key」，而是**连可跑的评测面都还没有**。回执 §八 只说了真 key 回合未执行，未说明这一层。补证路径（S1/S2 评测集建设）须显式入就绪图，不能停在票面一句「随票登记」。
+
+**③ 架构清账义务未执行。** 裁定一写明「`LEGAL-ANCHOR-BINDING-2` …就绪图立行」，而 `24e5e11` 只动 `packages/legal/specs/LEGAL-ANCHOR-BINDING-1.md` 一个文件；全仓 grep `LEGAL-ANCHOR-BINDING-2` 仅该 specs 一处命中，`docs/architecture/implementation-readiness.md` 至今无该行。属清账义务而非实现缺陷，合入前后补齐即可。
+
+**④ 观察：PW floor 与实测差 14。** `assert-test-count.mjs` 的 `minimum` 仍为 366（不在本票 diff 面内），实测 380。floor 落后非本票引入（base `f96937c` 即 366/377），但本票 +3 后窗口进一步变宽；按该文件自身惯例（「先把观测值补进 floor，再加本票的 N 例」），下一张 desktop 票宜一并补档。
+
+**⑤ 观察：族门当期覆盖面完整，但只立在 legal 包内。** `packages/pm` 有携 `SourceAnchor` 的 schema，但该包实核**零 scenarios**（无 `outputArtifacts`），故不入「模型输出族」，当期无漏。跨包上收（registry 准入侧）随裁定一的二票，此前不宜自行扩面。
+
+**⑥ 观察：`workbench.spec.ts` 用例名与其中两处断言的方向已不同向。** 名为「五工作面结构常驻且未接功能保留禁用入口与说明」，而矩阵/时间线两处已改判为可点；因该例内 composer 相机/语音两处禁用断言原样留存，名义未被掏空，登记备查不作缺陷。
+
+**⑦ 观察：`legal-five-faces-1.spec.ts` 樁的矩阵格由「零锚」改为「携一条引语」。** 旧樁 `sourceAnchors: []` 在新草稿契约下缺 `quoteClaims` 必被拒收，故必须改写；实现取 `quoteClaims: [anchor]` 而非等价的 `[]`。两者都能让该例原断言（面上出现问题文案）成立，取前者额外走通了公证路径，非失真，登记备查。
+
+### 结论
+
+**PASS。** 不变量二在三面上的闭环由「草稿形结构性无坐标 ＋ 最终形只接 resolver 铸锚 ＋ 面上只把真实锚原样交给既有 canonical reader」三段独立核实成立，core／registry／Rust 三处零改动经 diff 面直接证明；首红 19/2 逐位复现，六枚独立变异全部按预期触红且红文指名正确理由，其中伪锚两轴与跨案 fileId 一轴的区分力经对照实验坐实；三裁逐条符合、六偏离逐条对照无越界；计数漂移 +45／+4／+3 逐项归因可核；八相全量门本树独立实测零回归，完整 Playwright 独占 380/380。拒因 0 枚；上列①须另立小票、②须补登记、③为架构清账义务，均不阻断本票放行。
