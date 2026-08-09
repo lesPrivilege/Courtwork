@@ -746,6 +746,19 @@ describe('串行化真源', () => {
     return { promise, release };
   };
 
+  /**
+   * PI-TEST-WAITER-1 返修（首轮 REJECT `f589461`）：本用例守护的是一枚**否定命题**——
+   * 「第二件被 mutation queue 挡在门外，此刻不会再多」。`waitForTraceLength` 这类正向派生
+   * 信号天然管不住否定命题：trace 达到目标长度的那一刻，恰是「第二件是否会跟进」尚未见
+   * 分晓的起点，不是终点（同族判据见 `docs/engineering/workflow.md`「否定断言没有正向派生
+   * 信号」）。upstream `file-mutation-queue.js` 的 pending 态锁在私有 `WeakMap` 里，零公开
+   * 可观测量，找不到支配该否定命题的正向信号，只能退回**显式登记的有界延迟**——与 `:971`
+   * 同族，角色是「撑开违例窗口」而非「等前置」，两职须分开处理，不得再合并进一次等待里。
+   * 若第二件本不该被同路径队列挡住，它不需要等任何东西，会在窗口内几乎立即跟进
+   * （无 gate、无内部延迟）；窗口大小因此对负载不敏感，纯粹是留白让违例有机会现身。
+   */
+  const VIOLATION_WINDOW_MS = 20;
+
   it('characterization：共享同一 env 对象时，上游 mutation queue 按 canonical path 串行', async () => {
     const gateOne = deferred();
     const port = recordingPort(async (request) => {
@@ -763,8 +776,11 @@ describe('串行化真源', () => {
 
     const first = upstream.execute('raw_1', { path: 'a.md', content: '1' }, undefined, undefined, { env: shared });
     const second = upstream.execute('raw_2', { path: 'a.md', content: '2' }, undefined, undefined, { env: shared });
-    // 派生信号：等到 port 真收到第一条 enter（第二件被队列挡在门外，trace 不会再长）。
+    // ① 正向派生信号：等前置——第一条 enter 真落 trace（不赌时长，条件不成立就一直等到上界）。
     await port.waitForTraceLength(1);
+    // ② 显式登记的违例窗口注入（见类上方注释）：给「第二件本不该被队列挡住」这件事一段
+    // 有界时间去发生；它若发生，会在此窗口内几乎立即体现在 trace 里。
+    await new Promise((resolve) => setTimeout(resolve, VIOLATION_WINDOW_MS));
 
     // 第二件被队列挡在门外：只有一条 enter，且尚未 exit。
     expect(port.trace).toEqual(['enter:a.md']);
