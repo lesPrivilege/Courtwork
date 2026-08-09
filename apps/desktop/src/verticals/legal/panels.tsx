@@ -40,12 +40,18 @@ function SettleSeal({ disposition, itemRef }: { disposition?: ReviewDispositionS
   ><use href="#mark-seal-frame" /></svg>;
 }
 
-export function TimelinePanel({ timeline, grade }: { timeline: Timeline; grade?: 'A' | 'B' | 'C' }) {
+export function TimelinePanel({ timeline, grade, onOpenSource }: {
+  timeline: Timeline;
+  grade?: 'A' | 'B' | 'C';
+  /** 回到原件：把真实 SourceAnchor 交给 canonical reader 单调用链，失败走显式反馈。 */
+  onOpenSource: (anchor: SourceAnchor) => void;
+}) {
   const preferred = timeline.events.find((event) => event.id === 'evt-24') ?? timeline.events[0];
   const [selected, setSelected] = useState(preferred?.id);
   const [quoteOpen, setQuoteOpen] = useState(true);
   const current = timeline.events.find((item) => item.id === selected) ?? timeline.events[0];
   if (!current) return <StaticViewport testId="timeline-static-viewport"><EmptyState noun="时间线事件" shortcut="⌘I" /></StaticViewport>;
+  const currentAnchor = current.sourceAnchors[0];
 
   return <StaticViewport testId="timeline-static-viewport">
     <div className="timeline-layout" data-testid="timeline-panel">
@@ -90,9 +96,18 @@ export function TimelinePanel({ timeline, grade }: { timeline: Timeline; grade?:
               >
                 {quoteOpen ? '收起引语' : '查看引语'} · {sourceFileLabel(current.sourceAnchors[0]?.fileId) || '来源待补'}
               </button>
-              <button type="button" className="goto-source" disabled title="卷宗原件尚未接通">回到原件 · 尚未接通</button>
+              {/* 循 CONTRACT-TRACE-1 判据：无锚才禁用（没有可去之处）；有锚即可点，
+                  定位失败（漂移/跨案 fileId/合法 bbox-only）走 canonical reader 的显式反馈。 */}
+              <button
+                type="button"
+                className="goto-source"
+                data-testid="timeline-goto-source"
+                disabled={!currentAnchor}
+                title={currentAnchor ? '在只读阅读面打开这处卷宗引证' : '本条事件在卷宗里没有可回跳的原件坐标'}
+                onClick={() => { if (currentAnchor) onOpenSource(currentAnchor); }}
+              >回到原件</button>
             </div>
-            {quoteOpen && <q id={`timeline-quote-${current.id}`}>{current.sourceAnchors[0]?.quote || '暂无可引用原文'}</q>}
+            {quoteOpen && <q id={`timeline-quote-${current.id}`}>{currentAnchor?.quote || '暂无可引用原文'}</q>}
             <span className="source-file-meta" title={current.sourceAnchors[0]?.fileId}>来源 · {sourceFileLabel(current.sourceAnchors[0]?.fileId) || '待补'}</span>
           </div>
         </div>
@@ -118,7 +133,11 @@ function matrixCellKey(documentId: string, questionId: string) {
   return `${documentKey}-${questionId.toLowerCase()}`;
 }
 
-export function MatrixPanel({ matrix }: { matrix: ReviewMatrix }) {
+export function MatrixPanel({ matrix, onOpenSource }: {
+  matrix: ReviewMatrix;
+  /** 回到原件：把真实 SourceAnchor 交给 canonical reader 单调用链，失败走显式反馈。 */
+  onOpenSource: (anchor: SourceAnchor) => void;
+}) {
   const questions = matrix.questions.slice(0, 5);
   const [openCell, setOpenCell] = useState<string>();
   if (!matrix.rows.length) return <StaticViewport testId="matrix-static-viewport"><EmptyState noun="审阅行" shortcut="⌘I" /></StaticViewport>;
@@ -141,8 +160,9 @@ export function MatrixPanel({ matrix }: { matrix: ReviewMatrix }) {
       const cellKey = matrixCellKey(row.documentId, question.id);
       const peekId = `matrix-cell-peek-${cellKey}`;
       const open = openCell === cellKey;
+      const cellAnchor = cell?.sourceAnchors[0];
       return <td key={question.id}>
-        {/* 查看引语是真入口；回到原件未接通，保持独立禁用动词。 */}
+        {/* 查看引语与回到原件是两枚入口：后者只在系统铸出坐标时可点（未提及的格结构上零锚）。 */}
         <span className="cell-peek-anchor">
           {cell
             ? <button
@@ -157,18 +177,26 @@ export function MatrixPanel({ matrix }: { matrix: ReviewMatrix }) {
           {cell && <span className="cell-peek" role="group" aria-label="引语详情" id={peekId} data-open={open || undefined} data-testid={peekId}>
             <strong>{question.text}</strong>
             <span className="cell-peek-answer">{cell.answer}</span>
-            {cell.sourceAnchors[0]?.quote
-              ? <q>{cell.sourceAnchors[0].quote}</q>
+            {cellAnchor?.quote
+              ? <q>{cellAnchor.quote}</q>
               : <em>该文档未提及此问题，无可引用原文</em>}
             <span className="cell-peek-meta">
-              <small className="source-file-meta" title={cell.sourceAnchors[0]?.fileId}>来源 · {sourceFileLabel(cell.sourceAnchors[0]?.fileId) || '待补'}</small>
+              <small className="source-file-meta" title={cellAnchor?.fileId}>来源 · {sourceFileLabel(cellAnchor?.fileId) || '待补'}</small>
               <small>{CONFIDENCE_LABELS[cell.confidence]}</small>
             </span>
-            <button type="button" className="goto-source" disabled title="卷宗原件尚未接通">回到原件 · 尚未接通</button>
+            {/* 「该文档未提及此问题」的格结构上零锚——无锚才禁用，同 CONTRACT-TRACE-1 判据。 */}
+            <button
+              type="button"
+              className="goto-source"
+              data-testid={`matrix-goto-source-${cellKey}`}
+              disabled={!cellAnchor}
+              title={cellAnchor ? '在只读阅读面打开这处卷宗引证' : '本格在卷宗里没有可回跳的原件坐标'}
+              onClick={() => { if (cellAnchor) onOpenSource(cellAnchor); }}
+            >回到原件</button>
           </span>}
         </span>
       </td>;
-    })}</tr>)}</tbody></table><div className="matrix-legend"><span>引语可核对 · 回到原件尚未接通</span><span data-testid="matrix-legend-count">{matrix.rows.length} 份文书 · 显示 {questions.length}/{matrix.questions.length} 个问题</span></div></div>
+    })}</tr>)}</tbody></table><div className="matrix-legend"><span>引语可核对 · 回到原件按系统坐标定位</span><span data-testid="matrix-legend-count">{matrix.rows.length} 份文书 · 显示 {questions.length}/{matrix.questions.length} 个问题</span></div></div>
   </StaticViewport>;
 }
 

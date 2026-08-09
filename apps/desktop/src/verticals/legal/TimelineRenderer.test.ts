@@ -10,7 +10,7 @@ import { WorkbenchRenderProvider } from '../../preview/workbench-render-context.
 /** LEGAL-FIVE-FACES-1：renderer 现在带面内门禁确认条，故须挂垂类工作面 Provider（无门禁即零渲染）。 */
 const legalSurface = createLegalWorkSurface({ workCommand: {} as never });
 const withSurface = (node: ReturnType<typeof createElement>) =>
-  createElement(legalSurface.Provider, { value: { submission: {}, pendingGate: undefined, confirmGate: () => {} }, children: node });
+  createElement(legalSurface.Provider, { value: { submission: {}, pendingGate: undefined, confirmGate: () => {}, host: { openSourceAnchor: () => {} } }, children: node });
 
 
 function timelineDescriptor(): RuntimeArtifactDescriptor {

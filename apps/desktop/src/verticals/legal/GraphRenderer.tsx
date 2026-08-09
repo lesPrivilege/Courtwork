@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import type { PartyGraph } from '@courtwork/legal';
 import { GateConfirmBar } from './GateConfirmBar';
+import { useLegalWorkSurface } from './legal-work-surface';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
 import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 import { useWorkbenchRenderContext } from '../../preview/workbench-render-context.js';
@@ -18,12 +19,14 @@ const GraphPanel = lazy(() => import('./GraphPanel'));
 
 export function GraphRenderer({ descriptor, payload }: HostRendererComponentProps) {
   const { evidenceGrades } = useWorkbenchRenderContext();
+  // LEGAL-ANCHOR-BINDING-1：回到原件走宿主 canonical reader 路由（同修订预览面）。
+  const { host } = useLegalWorkSurface();
   const parsed = descriptor.schema.safeParse(payload);
   if (!parsed.success) return <UnsupportedArtifactView title={descriptor.title} />;
   return <>
     <GateConfirmBar artifactType={descriptor.typeId} />
     <Suspense fallback={<div className="empty-state" role="status">关系图谱载入中…</div>}>
-      <GraphPanel graph={parsed.data as PartyGraph} grade={evidenceGrades[0]?.grade} />
+      <GraphPanel graph={parsed.data as PartyGraph} grade={evidenceGrades[0]?.grade} onOpenSource={host.openSourceAnchor} />
     </Suspense>
   </>;
 }

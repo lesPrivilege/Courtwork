@@ -11,16 +11,20 @@ const jsonSchemaDir = join(__dirname, '..', 'json-schema');
 describe('JSON Schema export drift', () => {
   const record = toJSONSchemaRecord();
 
-  it('只提交 descriptor 引用的八份 schema，不留残余旧文件', () => {
+  it('只提交 descriptor 引用的十一份 schema，不留残余旧文件', () => {
+    // LEGAL-ANCHOR-BINDING-1：三枚产物补 draft 形（模型侧只出引语），故 8 → 11。
     expect(Object.keys(record).sort()).toEqual([
       'CaseFile',
       'FileOpsPlan',
       'PartyGraph',
+      'PartyGraphDraft',
       'ReviewMatrix',
+      'ReviewMatrixDraft',
       'RevisionInstructionSet',
       'RiskList',
       'RiskListDraft',
       'Timeline',
+      'TimelineDraft',
     ]);
     expect(readdirSync(jsonSchemaDir).sort()).toEqual(
       Object.keys(record).map((name) => `${name}.schema.json`).sort(),

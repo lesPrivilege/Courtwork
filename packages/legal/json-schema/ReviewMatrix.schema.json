@@ -150,15 +150,95 @@
         ],
         "additionalProperties": false
       }
+    },
+    "outOfCoverage": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "const": "citation_unresolved"
+          },
+          "failures": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "claim": {
+                  "type": "object",
+                  "properties": {
+                    "fileId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "page": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "blockId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "exactQuote": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "fileId",
+                    "exactQuote"
+                  ],
+                  "additionalProperties": false,
+                  "title": "QuoteClaim",
+                  "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "not_found",
+                    "ambiguous",
+                    "file_unavailable"
+                  ]
+                },
+                "occurrences": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "claim",
+                "reason"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "summary",
+          "reason",
+          "failures"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
     "caseId",
     "questions",
-    "rows"
+    "rows",
+    "outOfCoverage"
   ],
   "additionalProperties": false,
   "title": "ReviewMatrix",
-  "description": "矩阵审阅：行 = 文档，列 = 问题，格 = 答案 + 来源锚点 + 置信标记。",
+  "description": "矩阵审阅：行 = 文档，列 = 问题，格 = 答案 + 来源锚点 + 置信标记 + 引用闭环缺口表。",
   "$id": "urn:courtwork:schema:legal.ReviewMatrix:v1"
 }

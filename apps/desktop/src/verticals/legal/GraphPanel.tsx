@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type WheelEvent } from 'react';
 import type { PartyGraph } from '@courtwork/legal';
+import type { SourceAnchor } from '@courtwork/schemas';
 import { Icon } from '../../workbench/Icon';
 import { EmptyState, sourceFileLabel, TierBadge } from '../../workbench/Panels';
 import { EdgeEvent, Graph, GraphEvent, NodeEvent, registerCourtworkGraphRuntime, type IElementEvent } from '../../workbench/g6-runtime';
@@ -30,7 +31,12 @@ function graphDisplayName(primaryName: string): string {
     .replace(/有限公司$/, '');
 }
 
-export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?: 'A' | 'B' | 'C' }) {
+export default function GraphPanel({ graph, grade, onOpenSource }: {
+  graph: PartyGraph;
+  grade?: 'A' | 'B' | 'C';
+  /** 回到原件：把真实 SourceAnchor 交给 canonical reader 单调用链，失败走显式反馈。 */
+  onOpenSource: (anchor: SourceAnchor) => void;
+}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<Graph | null>(null);
   const [layoutNodes, setLayoutNodes] = useState<LayoutNode[]>([]);
@@ -253,7 +259,18 @@ export default function GraphPanel({ graph, grade }: { graph: PartyGraph; grade?
     {selectedEdge && <article className="verified-block relation-evidence">
       <header data-testid="graph-source-kind">{selection.kind === 'node' ? '节点关联依据' : '关系依据'}</header>
       <TierBadge grade={grade} />
-      <button disabled title={`原文定位 · 卷宗原件待连接 · ${selectedEdge.sourceAnchors[0]?.fileId ?? ''}`}>{sourceFileLabel(selectedEdge.sourceAnchors[0]?.fileId)}</button>
+      {/* 循 CONTRACT-TRACE-1 判据：无锚才禁用；有锚即可点，定位失败走 canonical reader 的显式反馈。 */}
+      <button
+        data-testid="graph-goto-source"
+        disabled={!selectedEdge.sourceAnchors[0]}
+        title={selectedEdge.sourceAnchors[0]
+          ? `回到原件 · ${selectedEdge.sourceAnchors[0].fileId}`
+          : '本条依据没有可回跳的原件坐标'}
+        onClick={() => {
+          const anchor = selectedEdge.sourceAnchors[0];
+          if (anchor) onOpenSource(anchor);
+        }}
+      >{sourceFileLabel(selectedEdge.sourceAnchors[0]?.fileId)}</button>
       <q>{selectedEdge.sourceAnchors[0]?.quote}</q>
     </article>}
   </div>;

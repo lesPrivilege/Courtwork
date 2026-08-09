@@ -94,10 +94,14 @@ describe('openMaterialReader · 阻断闭集（承 FILE-PREVIEW-1）', () => {
     ]));
   });
 
-  it('两个 anchor 文案逐字冻结（产品语，不出现工程词）', () => {
+  it('两个 anchor 文案逐字冻结（产品语，不出现工程词，且不写死单一垂类场景）', () => {
     expect(MATERIAL_READER_BLOCK_REASON_COPY.anchor_unsupported).toBe('当前阅读面暂不支持该定位');
+    // LEGAL-ANCHOR-BINDING-1：三面回跳接通后本条不再专属合同审查，下一步改中性表述。
     expect(MATERIAL_READER_BLOCK_REASON_COPY.anchor_invalid)
-      .toBe('这处引证已无法与当前原件逐字对齐 · 请重新运行合同审查');
+      .toBe('这处引证已无法与当前原件逐字对齐 · 请重新运行产出它的场景');
+    for (const copy of Object.values(MATERIAL_READER_BLOCK_REASON_COPY)) {
+      expect(copy, `reader 文案不得写死单一垂类场景名：${copy}`).not.toContain('合同审查');
+    }
   });
 
   it('宿主抛错时不静默吞：转为显式阻断，不返回空阅读面', async () => {

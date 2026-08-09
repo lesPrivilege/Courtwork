@@ -46,7 +46,9 @@ export type MaterialReaderBlockReason = MaterialBlockReason | 'anchor_invalid' |
 export const MATERIAL_READER_BLOCK_REASON_COPY: Record<MaterialReaderBlockReason, string> = {
   ...MATERIAL_BLOCK_REASON_COPY,
   anchor_unsupported: '当前阅读面暂不支持该定位',
-  anchor_invalid: '这处引证已无法与当前原件逐字对齐 · 请重新运行合同审查',
+  // LEGAL-ANCHOR-BINDING-1：回跳接通后本条不再只服务合同审查（时间线／图谱／矩阵三面同用），
+  // 故下一步中性化为「产出这处引证的那次运行」——承 LEGAL-FIVE-FACES-1 D7 的文案中性化。
+  anchor_invalid: '这处引证已无法与当前原件逐字对齐 · 请重新运行产出它的场景',
 };
 
 export type MaterialReaderOutcome =

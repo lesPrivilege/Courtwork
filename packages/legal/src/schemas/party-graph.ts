@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { SourceAnchorSchema } from '@courtwork/schemas';
+import { OutOfCoverageEntrySchema, QuoteClaimSchema, SourceAnchorSchema } from '@courtwork/schemas';
 
 export const PartyKindEnum = z.enum(['individual', 'organization']);
 export type PartyKind = z.infer<typeof PartyKindEnum>;
@@ -36,10 +36,39 @@ export const PartyGraphSchema = z
     caseId: z.string().min(1),
     nodes: z.array(PartyNodeSchema),
     edges: z.array(PartyEdgeSchema),
+    /**
+     * 引用闭环缺口（LEGAL-ANCHOR-BINDING-1）：覆盖单元是**边**——关系是携证据的断言，
+     * 节点不携锚故不入剪枝面。仍不收敛的边移入本表，图谱其余部分照常呈现。
+     */
+    outOfCoverage: z.array(OutOfCoverageEntrySchema).default([]),
   })
   .meta({
     title: 'PartyGraph',
-    description: '当事人关系图谱：节点（自然人/法人 + 别名数组）+ 边（关系类型 + 证据锚点）。',
+    description: '当事人关系图谱：节点（自然人/法人 + 别名数组）+ 边（关系类型 + 证据锚点）+ 引用闭环缺口表。',
   });
 
 export type PartyGraph = z.infer<typeof PartyGraphSchema>;
+
+/** 草稿侧关系边（「模型出引语，系统出坐标」）：携 QuoteClaim，坐标字段结构性不存在。 */
+const PartyEdgeDraftSchema = z.object({
+  id: z.string().min(1),
+  sourcePartyId: z.string().min(1),
+  targetPartyId: z.string().min(1),
+  relationType: z.string().min(1),
+  /** 一条关系断言至少要有一条引语支撑（同最终形 min(1)）。 */
+  quoteClaims: z.array(QuoteClaimSchema).min(1),
+  markers: z.array(z.string().min(1)).optional(),
+});
+export type PartyEdgeDraft = z.infer<typeof PartyEdgeDraftSchema>;
+
+export const PartyGraphDraftSchema = z
+  .object({
+    caseId: z.string().min(1),
+    nodes: z.array(PartyNodeSchema),
+    edges: z.array(PartyEdgeDraftSchema),
+  })
+  .meta({
+    title: 'PartyGraphDraft',
+    description: '当事人关系图谱草稿（模型侧）：边只携文件+页/块+逐字引语；坐标由 resolver 公证铸造。',
+  });
+export type PartyGraphDraft = z.infer<typeof PartyGraphDraftSchema>;

@@ -205,3 +205,24 @@ pm 包不涉及：四 artifact 全部走 presentation 路径（field-local `valu
 `artifact`，全仓持久面无 artifact 侧 `uiTemplateId`，回放从当期 descriptor 解析模板，故改名不触
 历史 snapshot 回放，alias 表建成即零消费者。宿主侧的可执行 renderer 仍只住 desktop，本包不注入
 React、CSS 或路由函数——`kind:'component'` 是宿主注册表的形态，descriptor 侧只是一个稳定字符串。
+
+## 状态更新（2026-08-09，LEGAL-ANCHOR-BINDING-1 引用闭环补齐）
+
+`legal.Timeline`／`legal.PartyGraph`／`legal.ReviewMatrix` 三枚补 `draftSchemaId` + `citationBinding`
+（循 `legal.RiskList` 先例：模型出 `quoteClaims`、citation resolver 铸 `sourceAnchors`），三枚最终形
+各补 `outOfCoverage` 缺口表，bindings 由 8 枚增至 11 枚，JSON Schema 导出同步（8 → 11 份）。
+覆盖单元：Timeline `/events`、PartyGraph `/edges`（节点不携锚）、ReviewMatrix `/rows`。
+
+这是**payload 契约与模型侧形状**的变更，不是呈现绑定变更：S1/S2 prompt 同批补「引语一字不差、
+坐标由系统铸造」的生产者纪律，故 **descriptor hash 与 prompt blob hash 两枚同批重铸**
+（`9ba47535…` → `ab7c80bc…`；`1f76dbd2…` → `43133479…`）。`identity.version` 不升。
+`identity.schemaVersion` 维持 1 并挂 **[需架构拍板]**：新增的 `outOfCoverage` 是 `.default([])` 加法键、
+存量持久 payload 双向可读，而升版会改全包每一枚 `$id` URN（含本票未触及的四枚）——请架构就
+「additive-default 键是否构成 ADR-009 的升版事由」下判。
+
+同批的第二枚 **[需架构拍板]**：`legal.RevisionInstructionSet`（S4 模型输出、基座 wire）仍是模型自报
+坐标，属同族未闭环项，已登记进 `src/package/anchor-binding.test.ts` 的 `OPEN_ANCHOR_DEBT`。
+`packages/registry` 的既有守卫只在 `presentation.fields.format==='anchor'` 时要求引用闭环，
+而本族全走 `rehydrationProjection` 路径，结构上照不到；把族门上收进准入需与该债同批裁定。
+
+实现回执与全量门实测见 `specs/LEGAL-ANCHOR-BINDING-1.md`。

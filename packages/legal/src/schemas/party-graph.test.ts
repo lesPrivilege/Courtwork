@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PartyGraphSchema } from './party-graph.js';
+import { PartyGraphDraftSchema, PartyGraphSchema } from './party-graph.js';
 
 describe('PartyGraphSchema', () => {
   it('accepts a single individual node with no edges', () => {
@@ -188,5 +188,60 @@ describe('PartyGraphSchema', () => {
       ],
     });
     expect(result.success).toBe(false);
+  });
+});
+
+/** LEGAL-ANCHOR-BINDING-1：模型侧只出引语，坐标字段结构性不存在。 */
+describe('PartyGraphDraftSchema（模型侧草稿）', () => {
+  const nodes = [
+    { id: 'p1', kind: 'organization', primaryName: '甲公司' },
+    { id: 'p2', kind: 'organization', primaryName: '乙公司' },
+  ];
+  const draftEdge = (extra: Record<string, unknown> = {}) => ({
+    id: 'e1',
+    sourcePartyId: 'p1',
+    targetPartyId: 'p2',
+    relationType: '买卖合同相对方',
+    quoteClaims: [{ fileId: 'file-001', exactQuote: '甲公司与乙公司签订本合同' }],
+    ...extra,
+  });
+
+  it('接受携逐字引语的关系边', () => {
+    expect(PartyGraphDraftSchema.safeParse({ caseId: 'case-101', nodes, edges: [draftEdge()] }).success).toBe(true);
+  });
+
+  it('拒绝零引语的关系边（关系断言必须有证据支撑，同最终形 min(1)）', () => {
+    expect(
+      PartyGraphDraftSchema.safeParse({ caseId: 'case-102', nodes, edges: [draftEdge({ quoteClaims: [] })] }).success,
+    ).toBe(false);
+  });
+
+  it('引语内不得携坐标：QuoteClaim 是 strict 形状，bbox 直接拒收', () => {
+    const result = PartyGraphDraftSchema.safeParse({
+      caseId: 'case-103',
+      nodes,
+      edges: [draftEdge({
+        quoteClaims: [{ fileId: 'f', exactQuote: '甲', bbox: { x: 0, y: 0, width: 1, height: 1 } }],
+      })],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('模型自报的 sourceAnchors 不进草稿形（伪坐标到不了 resolver）', () => {
+    const result = PartyGraphDraftSchema.safeParse({
+      caseId: 'case-104',
+      nodes,
+      edges: [draftEdge({ sourceAnchors: [{ fileId: 'f', textRange: { start: 1, end: 2 } }] })],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.edges[0]).not.toHaveProperty('sourceAnchors');
+  });
+});
+
+describe('PartyGraphSchema 缺口表', () => {
+  it('outOfCoverage 缺省为空表', () => {
+    const result = PartyGraphSchema.safeParse({ caseId: 'case-105', nodes: [], edges: [] });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.outOfCoverage).toEqual([]);
   });
 });

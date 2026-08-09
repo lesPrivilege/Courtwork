@@ -24,10 +24,13 @@ describe('LEGAL_PACKAGE（法律包准入自证：迁包后包必须过自己要
     expect([...LEGAL_PACKAGE_BINDINGS.schemas.keys()]).toEqual([
       'legal.CaseFile',
       'legal.Timeline',
+      'legal.TimelineDraft',
       'legal.PartyGraph',
+      'legal.PartyGraphDraft',
       'legal.RiskList',
       'legal.RiskListDraft',
       'legal.ReviewMatrix',
+      'legal.ReviewMatrixDraft',
       'legal.RevisionInstructionSet',
       'legal.FileOpsPlan',
     ]);

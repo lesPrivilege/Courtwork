@@ -1,6 +1,7 @@
 import type { ReviewMatrix } from '@courtwork/legal';
 import { MatrixPanel } from './panels';
 import { GateConfirmBar } from './GateConfirmBar';
+import { useLegalWorkSurface } from './legal-work-surface';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
 import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 
@@ -15,10 +16,12 @@ import type { HostRendererComponentProps } from '../../preview/HostRendererRegis
  * 漂移即整面拒绝，与通用表共用同一零泄漏兜底：不渲染半张矩阵、不暴露 wire。
  */
 export function ReviewMatrixRenderer({ descriptor, payload }: HostRendererComponentProps) {
+  // LEGAL-ANCHOR-BINDING-1：回到原件走宿主 canonical reader 路由（同修订预览面）。
+  const { host } = useLegalWorkSurface();
   const parsed = descriptor.schema.safeParse(payload);
   if (!parsed.success) return <UnsupportedArtifactView title={descriptor.title} />;
   return <>
     <GateConfirmBar artifactType={descriptor.typeId} />
-    <MatrixPanel matrix={parsed.data as ReviewMatrix} />
+    <MatrixPanel matrix={parsed.data as ReviewMatrix} onOpenSource={host.openSourceAnchor} />
   </>;
 }

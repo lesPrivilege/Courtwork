@@ -5361,3 +5361,28 @@ provider 清单或把诊断正文持久化。`UI-TOAST-1`、`CHAT-QUEUE-1` 与 C
   journal→projection、滚动所有权、授权反例与真实 Markdown 可查看闭环。`PI-BASE-GUI-ACCEPT`
   还须用 deterministic provider 与真实 DeepSeek 各跑 packages/pi-lane SPEC 的六格同构任务；
   无真实 key/model 证据只记 external-validated blocked，不更新 current.md。
+
+## LEGAL-ANCHOR-BINDING-1 · 三面「回到原件」接通（2026-08-09，实现完成待独立验收）
+
+`legal.Timeline`／`legal.PartyGraph`／`legal.ReviewMatrix` 三枚补齐引用闭环（包侧回执
+`packages/legal/specs/LEGAL-ANCHOR-BINDING-1.md`）后，`LEGAL-FIVE-FACES-1` D9 维持 disabled 的前置
+已具备：三面产物的 `sourceAnchors` 此刻由 citation resolver 铸造，不再是模型自报坐标。
+
+宿主侧改动只有三处，零新增模块、零新增 context：
+
+1. `verticals/legal/panels.tsx` 的 `TimelinePanel`／`MatrixPanel` 与 `verticals/legal/GraphPanel.tsx`
+   的关系依据钮接 `onOpenSource`；三枚 renderer 从 `useLegalWorkSurface().host.openSourceAnchor`
+   取**既有**宿主 canonical reader 路由（`material/material-actions.ts` 单调用链），面内不重做定位、
+   不做 quote 搜索。可点判据逐字循 `CONTRACT-TRACE-1`：**无锚才禁用**（没有可去之处）；有锚即可点，
+   漂移／跨案 fileId／合法 bbox-only 一律走 reader 的显式阻断，不用 disabled 假装接线。
+   矩阵「该文档未提及此问题」的格结构上零锚，故该格恒禁用。
+2. `material/material-actions.ts` 的 `anchor_invalid` 文案中性化（原写死「请重新运行合同审查」，
+   接通后三面同用）——承 D7 的文案中性化。既有逐字冻结断言同批改写并补族级反向锁：reader 全部
+   文案不得含单一垂类场景名。
+3. `tests/e2e/{legal-five-faces-1,pack-interact-1}.spec.ts` 的 turn 樁由「自报 `sourceAnchors`」
+   改为「只交 `quoteClaims`」——旧樁在新包契约下结构性拒收（这正是债票要消灭的形态）。
+
+新增红证面：`src/verticals/legal/anchor-trace.dom.test.ts`（jsdom 真点击，4 例）与
+`tests/e2e/legal-anchor-binding-1.spec.ts`（3 例：三面真跑回跳 + 跨案 fileId 伪锚 fail-closed）。
+`schema-polish.spec.ts`／`workbench.spec.ts` 各一处把 disabled 死态固化成的断言按本意改写，
+旧判据转具名反向锁（面上不再出现「尚未接通」）。

@@ -1,5 +1,16 @@
 import type { VerticalPackageDescriptorV1 } from '@courtwork/registry';
 
+/**
+ * 缺口表 `failures[].reason` 的引语拒收理由词条（`CitationFailureReasonEnum`，`@courtwork/schemas`）。
+ * 凡声明 `citationBinding` 的 artifact 都会因缺口表带上这枚 wire 枚举——零编码暴露律要求它经词表映射。
+ * 逐处 spread 而非共享引用：descriptor 是可序列化声明面，不在包内制造跨条目的对象别名。
+ */
+const CITATION_FAILURE_REASON_LABELS = {
+  not_found: '未命中',
+  ambiguous: '多义命中',
+  file_unavailable: '文件不可达',
+} as const;
+
 export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
     {
       typeId: 'legal.CaseFile',
@@ -24,6 +35,18 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
       typeId: 'legal.Timeline',
       title: '事件时间线',
       schemaId: 'legal.Timeline',
+      /**
+       * 引用闭环（LEGAL-ANCHOR-BINDING-1 · LEGAL-FIVE-FACES-1 D10 裁定）：模型出 `quoteClaims`、
+       * citation resolver 铸 `sourceAnchors`。覆盖单元＝事件；不收敛的事件移入 `outOfCoverage`。
+       */
+      draftSchemaId: 'legal.TimelineDraft',
+      citationBinding: {
+        draftField: 'quoteClaims',
+        anchorField: 'sourceAnchors',
+        itemScope: '/events',
+        itemSummaryField: 'description',
+        outOfCoverageField: 'outOfCoverage',
+      },
       rehydrationProjection: {
         ops: [
           { kind: 'field', path: '/caseId', label: '案件' },
@@ -33,11 +56,23 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
         rowBudget: 4,
       },
       uiTemplateId: 'courtwork.timeline.v1',
+      vocabulary: {
+        enumLabels: { reason: { ...CITATION_FAILURE_REASON_LABELS } },
+      },
     },
     {
       typeId: 'legal.PartyGraph',
       title: '当事人图谱',
       schemaId: 'legal.PartyGraph',
+      /** 引用闭环：覆盖单元＝关系边（节点不携锚）；不收敛的边移入 `outOfCoverage`。 */
+      draftSchemaId: 'legal.PartyGraphDraft',
+      citationBinding: {
+        draftField: 'quoteClaims',
+        anchorField: 'sourceAnchors',
+        itemScope: '/edges',
+        itemSummaryField: 'relationType',
+        outOfCoverageField: 'outOfCoverage',
+      },
       rehydrationProjection: {
         ops: [
           { kind: 'field', path: '/caseId', label: '案件' },
@@ -49,7 +84,10 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
       },
       uiTemplateId: 'courtwork.party-graph.v1',
       vocabulary: {
-        enumLabels: { kind: { individual: '自然人', organization: '机构' } },
+        enumLabels: {
+          kind: { individual: '自然人', organization: '机构' },
+          reason: { ...CITATION_FAILURE_REASON_LABELS },
+        },
       },
     },
     {
@@ -85,7 +123,7 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
            * （not_found/ambiguous/file_unavailable，@courtwork/schemas CitationFailureReasonEnum）
            * 经 walker 补 ZodDefault 后首次被准入发现——wire 枚举必须经词表映射。
            */
-          reason: { not_found: '未命中', ambiguous: '多义命中', file_unavailable: '文件不可达' },
+          reason: { ...CITATION_FAILURE_REASON_LABELS },
         },
       },
     },
@@ -93,6 +131,15 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
       typeId: 'legal.ReviewMatrix',
       title: '矩阵审阅',
       schemaId: 'legal.ReviewMatrix',
+      /** 引用闭环：覆盖单元＝行（一份文书整行作答）；行内任一格不收敛即整行移入 `outOfCoverage`。 */
+      draftSchemaId: 'legal.ReviewMatrixDraft',
+      citationBinding: {
+        draftField: 'quoteClaims',
+        anchorField: 'sourceAnchors',
+        itemScope: '/rows',
+        itemSummaryField: 'documentId',
+        outOfCoverageField: 'outOfCoverage',
+      },
       rehydrationProjection: {
         ops: [
           { kind: 'field', path: '/caseId', label: '案件' },
@@ -103,7 +150,10 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
       },
       uiTemplateId: 'courtwork.review-matrix.v1',
       vocabulary: {
-        enumLabels: { confidence: { high: '高', medium: '中', low: '低' } },
+        enumLabels: {
+          confidence: { high: '高', medium: '中', low: '低' },
+          reason: { ...CITATION_FAILURE_REASON_LABELS },
+        },
       },
     },
     {

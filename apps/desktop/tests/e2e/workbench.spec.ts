@@ -52,12 +52,17 @@ test('五工作面结构常驻且未接功能保留禁用入口与说明', async
   await expect(matrixCells.first()).toBeEnabled();
   await expect(matrixCells.first()).toHaveAccessibleName(/^查看引语/);
   await matrixCells.first().click();
-  await expect(page.getByTestId('matrix-cell-peek-v01-q1').getByRole('button', { name: '回到原件 · 尚未接通' })).toBeDisabled();
+  // LEGAL-ANCHOR-BINDING-1：矩阵与时间线的「回到原件」由「尚未接通」死态转真入口
+  // （坐标改由 citation resolver 铸造，D9 裁定的前置已具备）。旧判据转具名反向锁。
+  const matrixPeek = page.getByTestId('matrix-cell-peek-v01-q1');
+  await expect(matrixPeek.getByRole('button', { name: '回到原件', exact: true })).toBeEnabled();
+  await expect(matrixPeek).not.toContainText('尚未接通');
 
   await page.getByTestId('view-timeline').click();
   const sourceJump = page.getByTestId('timeline-panel').locator('.verified-block .goto-source');
-  await expect(sourceJump).toBeDisabled();
-  await expect(sourceJump).toHaveAttribute('title', '卷宗原件尚未接通');
+  await expect(sourceJump).toBeEnabled();
+  await expect(sourceJump).toHaveAttribute('title', '在只读阅读面打开这处卷宗引证');
+  await expect(page.getByTestId('timeline-panel')).not.toContainText('尚未接通');
 });
 
 test('S1 摄取事件回放可进入时间线', async ({ page }) => {
