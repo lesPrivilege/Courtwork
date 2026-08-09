@@ -11,7 +11,8 @@ export type ResolvedHostArtifact =
     }
   | { status: 'unsupported'; title: string };
 
-const NEUTRAL_ARTIFACT_TITLE = '结构化产出';
+/** 认不出的产物的中性标题：绝不透出 type id 或载荷（零泄漏 fallback）。 */
+export const NEUTRAL_ARTIFACT_TITLE = '结构化产出';
 
 export function resolveHostArtifact(
   artifactType: string,

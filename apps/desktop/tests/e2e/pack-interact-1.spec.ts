@@ -318,15 +318,18 @@ test('⑥ 卸载退化视图产品面全链：建案选 legal → S1 产出时�
   expect(after).toBe(beforeUnload);
   expect(after).toContain('双方签署设备采购合同');
 
-  // ③ 卸载态：活动视图落回在册默认（通用面），结构化产出页签承载已有产物 → 显式退化面。
+  // ③ 卸载态：活动视图落回在册默认（通用面），已有产物各自的产出页签承载它 → 显式退化面。
   //    退化文案用宿主目录 displayName（法律包），不泄漏 packageId 字面量；
-  //    标题是 S1 已产出的宿主资产（卷宗清单/事件时间线/当事人图谱之一，不随包走）。
+  //    标题是 S1 已产出的宿主资产（不随包走）。
+  //    PREVIEW-TAB-1：此处此前是一枚聚合「结构化产出」页签（席位内末位者胜，故标题只能断言
+  //    「三者之一」）；页签按 artifact 逐枚开之后，点哪一枚就该看见哪一枚，断言随之定死。
   await expect(tabs.getByRole('tab', { name: '修订预览' })).toHaveCount(0);
-  await tabs.getByRole('tab', { name: '结构化产出' }).click();
-  const degraded = page.getByTestId('vertical-artifact-unloaded');
+  await expect(tabs.getByRole('tab', { name: '结构化产出' })).toHaveCount(0);
+  await tabs.getByRole('tab', { name: '事件时间线' }).click();
+  // 产出格整栈常驻（切换不销毁状态），故退化面按所属格取，不按全页取。
+  const degraded = page.getByTestId('artifact-pane-legal.Timeline').getByTestId('vertical-artifact-unloaded');
   await expect(degraded).toBeVisible();
-  const degradedTitle = await degraded.locator('h3').innerText();
-  expect(['卷宗清单', '事件时间线', '当事人图谱']).toContain(degradedTitle);
+  await expect(degraded.locator('h3')).toHaveText('事件时间线');
   await expect(degraded.getByTestId('vertical-artifact-unloaded-hint')).toContainText('法律包');
   await expect(degraded.getByTestId('vertical-artifact-unloaded-hint')).not.toContainText('legal 包');
 

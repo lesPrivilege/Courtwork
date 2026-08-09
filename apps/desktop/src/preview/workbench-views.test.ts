@@ -5,6 +5,7 @@ import { createHostRendererRegistry } from './HostRendererRegistry.js';
 import { createCourtworkHostRendererRegistry } from './courtwork-host-renderers.js';
 import {
   preferredWorkbenchView,
+  resolveArtifactSeat,
   resolveWorkbenchViews,
   workbenchViewLabel,
 } from './workbench-views.js';
@@ -16,7 +17,7 @@ describe('工作面集由「已准入 artifact × 在册 blueprint」派生（GE
   it('加载态：次序与标题逐字取自宿主注册表声明，壳不另抄一份', () => {
     const runtime = createDesktopPackageRuntime();
 
-    expect(resolveWorkbenchViews(runtime.packageRegistries, runtime.hostRenderers, false))
+    expect(resolveWorkbenchViews(runtime.packageRegistries, runtime.hostRenderers, []))
       .toEqual([
         { id: 'timeline', label: '时间线' },
         { id: 'graph', label: '关系图谱' },
@@ -26,15 +27,21 @@ describe('工作面集由「已准入 artifact × 在册 blueprint」派生（GE
       ]);
   });
 
-  it('有结构化产出时通用 artifact 页签落末位', () => {
+  it('有结构化产出时产出页签落末位（PREVIEW-TAB-1：逐枚一张，不再是聚合席位）', () => {
     const runtime = createDesktopPackageRuntime();
+    const seat = resolveArtifactSeat({
+      artifacts: { 'pm.PrdReview': {} },
+      matterRegistries: runtime.packageRegistries,
+      globalRegistries: runtime.packageRegistries,
+      hostRenderers: runtime.hostRenderers,
+    });
 
-    expect(resolveWorkbenchViews(runtime.packageRegistries, runtime.hostRenderers, true).at(-1))
-      .toEqual({ id: 'artifact', label: '结构化产出' });
+    expect(resolveWorkbenchViews(runtime.packageRegistries, runtime.hostRenderers, seat).at(-1))
+      .toEqual({ id: 'artifact:pm.PrdReview', label: '需求文档评审' });
   });
 
   it('卸载态（零垂类准入）：具名面归零，只余通用面，零垂类词表泄漏', () => {
-    const views = resolveWorkbenchViews(noPackages(), createCourtworkHostRendererRegistry(), false);
+    const views = resolveWorkbenchViews(noPackages(), createCourtworkHostRendererRegistry(), []);
 
     expect(views).toEqual([{ id: 'draft', label: '起草画布' }]);
     // 零泄漏的运行时半边：页签条上不得出现任一垂类工作面的名字。
@@ -43,12 +50,19 @@ describe('工作面集由「已准入 artifact × 在册 blueprint」派生（GE
     }
   });
 
-  it('卸载态仍有通用结构化产出席位——通用产出不随垂类走', () => {
-    const views = resolveWorkbenchViews(noPackages(), createCourtworkHostRendererRegistry(), true);
+  it('卸载态仍有产出页签——产物是宿主资产，不随垂类走', () => {
+    const hostRenderers = createCourtworkHostRendererRegistry();
+    const seat = resolveArtifactSeat({
+      artifacts: { 'secret.UnknownArtifact': {} },
+      matterRegistries: noPackages(),
+      globalRegistries: noPackages(),
+      hostRenderers,
+    });
+    const views = resolveWorkbenchViews(noPackages(), hostRenderers, seat);
 
     expect(views).toEqual([
       { id: 'draft', label: '起草画布' },
-      { id: 'artifact', label: '结构化产出' },
+      { id: 'artifact:secret.UnknownArtifact', label: '结构化产出' },
     ]);
   });
 
@@ -65,7 +79,7 @@ describe('工作面集由「已准入 artifact × 在册 blueprint」派生（GE
       { uiTemplateId: 'courtwork.timeline.v1', kind: 'route', view: 'timeline', autoOpen: true },
     ]);
 
-    expect(() => resolveWorkbenchViews(runtime.packageRegistries, unlabelled, false))
+    expect(() => resolveWorkbenchViews(runtime.packageRegistries, unlabelled, []))
       .toThrow(/without a label/);
   });
 
@@ -78,7 +92,7 @@ describe('工作面集由「已准入 artifact × 在册 blueprint」派生（GE
 
   it('标题查询对不在集内的面返回空串，不猜名', () => {
     const runtime = createDesktopPackageRuntime();
-    const views = resolveWorkbenchViews(runtime.packageRegistries, runtime.hostRenderers, false);
+    const views = resolveWorkbenchViews(runtime.packageRegistries, runtime.hostRenderers, []);
 
     expect(workbenchViewLabel(views, 'timeline')).toBe('时间线');
     expect(workbenchViewLabel(views, 'artifact')).toBe('');

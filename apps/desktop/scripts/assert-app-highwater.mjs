@@ -119,7 +119,13 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // 的适配（原 `demoReaderDoc`）迁 `demo/legal-interaction.ts` 的 `openLegalDemoSource`；壳侧两处
 // demo 分流（interaction 卡片与三面 `openRiskSource`）此前各写一遍 try/catch 与阻断文案选择，
 // 收口后各剩三行。净减 24。
-const HIGH_WATER_LINES = 2248;
+// PREVIEW-TAB-1（2026-08-10）下调至 2245：外提物一件、退役物一件。外提＝通用产出席位的整块
+// 渲染判定（未加载包的退化面选择、退化标题与包名取词、产物→组件路由）去
+// `preview/ArtifactTabPanes.tsx` 与 `preview/workbench-views.ts` 的 `resolveArtifactSeat`；
+// 退役＝`activeArtifactType` 这枚 state 与它的两处写入——席位内「自持产出选择」随多对一席位
+// 一并作废，产出选择从此就是页签选择本身。本票在 App 净增的只有一次席位派生调用与一处产出
+// 页签分支，由上述抵消并净减 3。
+const HIGH_WATER_LINES = 2245;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

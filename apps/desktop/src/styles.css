@@ -1167,6 +1167,11 @@ button.interaction-anchor:hover { background: var(--control-hover); }
 .dense-row.selected { background: var(--bg-selected); }
 .dense-row > span:not(.signature-line), .dense-row > time, .table-head > span { min-width: 0; padding: 5px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* PREVIEW-TAB-1：并列产出页签的格栈——非活动格常驻 DOM 只加 hidden（切换不销毁状态），
+   故此处只有「占满父格」与「隐藏即不占位」两条布局声明，零视觉表达。 */
+.artifact-tab-pane { height: 100%; }
+.artifact-tab-pane[hidden] { display: none; }
+
 /* VIEW-ABI-1：通用 artifact 只复用 L1 内既有 ledger/table 分割线，不新增长卡外壳。 */
 .artifact-table-view { width: 100%; height: 100%; min-width: 0; display: flex; flex-direction: column; background: var(--bg-raised); }
 .artifact-table-view > h3 { min-height: 32px; margin: 0; padding: 6px 10px; border-bottom: var(--rule-minor) solid var(--border); background: var(--bg-surface); font-size: var(--type-dense-body-size); font-weight: 510; }

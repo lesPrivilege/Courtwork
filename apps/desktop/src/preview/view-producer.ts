@@ -1,5 +1,6 @@
 import type { PackageRegistries } from '@courtwork/registry';
 import type { HostRendererRegistry, HostWorkbenchView } from './HostRendererRegistry.js';
+import type { WorkbenchTabId } from './workbench-views.js';
 
 /**
  * LEGAL-FIVE-FACES-1 · 具名工作面的产出者派生（宿主侧纯函数，零垂类字面量）。
@@ -19,7 +20,7 @@ export interface ViewProducer {
 }
 
 export function describeViewProducer(
-  view: HostWorkbenchView,
+  view: WorkbenchTabId,
   registries: PackageRegistries,
   hostRenderers: HostRendererRegistry,
   launchableScenarioIds: readonly string[],

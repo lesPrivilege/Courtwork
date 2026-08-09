@@ -216,6 +216,31 @@ export const EMPTY_SESSION: SessionProjection = {
 };
 
 /**
+ * 同一 matter 内起新一轮运行时的会话重置（PREVIEW-TAB-1 · D11，LEGAL-FIVE-FACES-1 转挂）。
+ *
+ * 「新一轮运行」含起新场景与从持久指针恢复续行——两者都是换一场 session，都仍在同一 matter 内，
+ * 故共用同一条规则，不为恢复另立第二种清法。
+ *
+ * 此前一律清成 `EMPTY_SESSION`：跑完 S1 再跑 S2，时间线与图谱面双双回到空态——产物只活在
+ * 自己那一场 session 的投影里。durable 账本从来没有丢过它们（该前提由 LEGAL-FIVE-FACES-1
+ * 验收实测），丢的只是投影，故修在投影这一层：**运行态归零，已产出物留在 matter 上**。
+ *
+ * 留下的三项是「产物本身」的完整读面：产物、它的证据等级、它的引用闭环观测。运行态
+ * （progress/todo/confirmation/failures/completed/scenarioFailure/lastSeq）一律归零——新场景
+ * 的进度不能续上一场的账，`lastSeq` 更必须归零：新 session 的序号从头开始。
+ *
+ * 离开 matter（切案）仍是整本清空，那是另一件事：不同 matter 之间零串料是既有不变量。
+ */
+export function resetSessionForNewRun(state: SessionProjection): SessionProjection {
+  return {
+    ...EMPTY_SESSION,
+    artifacts: state.artifacts,
+    evidenceGrades: state.evidenceGrades,
+    ...(state.citationStats !== undefined ? { citationStats: state.citationStats } : {}),
+  };
+}
+
+/**
  * 事件投影只做协议字段到界面状态的机械映射，不解释风险、信源或门禁语义。
  */
 export function projectSession(state: SessionProjection, event: SessionEvent): SessionProjection {

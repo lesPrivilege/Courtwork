@@ -13,6 +13,7 @@ import {
 import {
   EMPTY_SESSION,
   projectSession,
+  resetSessionForNewRun,
   type ScenarioFlow,
   type SessionProjection,
   type WorkProjectionPhase,
@@ -84,21 +85,26 @@ import {
 } from './modules/module-stack';
 import { ContextModuleBody, ProgressModuleBody, WorkingFoldersTree } from './modules/ModuleStack';
 import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRenderer';
-import { ArtifactHostView, resolveHostArtifact } from './preview/ArtifactHostView';
+import { resolveHostArtifact } from './preview/ArtifactHostView';
 import { UnsupportedArtifactView } from './preview/ArtifactTableRenderer';
-import { VerticalArtifactUnloadedView } from './preview/vertical-artifact-unloaded';
+import { ArtifactTabPanes } from './preview/ArtifactTabPanes';
 import { MatterBindingFailure } from './workbench/matter-binding-failure';
 import { resolveNamedComponentView } from './preview/named-component-view';
 import { WorkbenchRenderProvider } from './preview/workbench-render-context';
 import type { VerticalWorkSurface, VerticalWorkSurfaceHost } from './preview/vertical-work-surface';
-import type { HostRendererRegistry, HostWorkbenchView } from './preview/HostRendererRegistry';
+import type { HostRendererRegistry } from './preview/HostRendererRegistry';
 import {
+  artifactTabId,
+  artifactTypeOfTab,
+  GENERIC_ARTIFACT_SEAT_VIEW,
   GENERIC_DRAFT_VIEW,
   preferredWorkbenchView,
   resolveActiveWorkbenchViews,
+  resolveArtifactSeat,
   resolveWorkbenchViews,
   workbenchViewLabel,
   workbenchViewMeta,
+  type WorkbenchTabId,
 } from './preview/workbench-views';
 import { demoViewCount } from './demo/demo-view-counts';
 import {
@@ -149,8 +155,8 @@ import { compileDraftToDocx } from '@courtwork/output';
 import { caseOutputClient } from './output/case-output-client';
 import type { ResolvedSourceAnchor, SourceAnchor } from '@courtwork/schemas';
 
-/** 工作面 id 的唯一定义在宿主注册表；壳只用别名，不再自持一份垂类枚举。 */
-type WorkbenchView = HostWorkbenchView;
+/** 页签 id 的唯一定义在 preview 层；壳只用别名，不再自持一份垂类枚举。 */
+type WorkbenchView = WorkbenchTabId;
 
 // R1：固定名只属样板案；production 产物名版本化，由 coordinator 从完整 replay 铸出（详见 SPEC）。
 const DEMO_CONTRACT_OUTPUT_FILE = '合同审查报告.docx';
@@ -164,9 +170,12 @@ function previewViewForArtifact(
   hostRenderers: HostRendererRegistry,
 ): WorkbenchView | undefined {
   const resolved = resolveHostArtifact(artifactType, packageRegistries, hostRenderers);
-  if (resolved.status === 'unsupported') return 'artifact';
+  if (resolved.status === 'unsupported') return artifactTabId(artifactType);
   if (resolved.renderer.kind === 'passive' || !resolved.renderer.autoOpen) return undefined;
-  return resolved.renderer.view;
+  // 落通用产出席位的产物开的是**它自己那张**页签（ADR-014 决定一），不再是共用的聚合席位。
+  return resolved.renderer.view === GENERIC_ARTIFACT_SEAT_VIEW
+    ? artifactTabId(artifactType)
+    : resolved.renderer.view;
 }
 
 function moduleTargetForArtifact(
@@ -207,10 +216,12 @@ function storedCaseId(): string | null {
   return null;
 }
 
-type SessionAction = SessionEvent | { type: '__clear__' };
+type SessionAction = SessionEvent | { type: '__clear__' } | { type: '__new_run__' };
 
 function reduceSession(state: SessionProjection, action: SessionAction): SessionProjection {
+  // 离开 matter 才整本清空；同一 matter 内起新一轮运行只归零运行态（PREVIEW-TAB-1 · D11）。
   if (action.type === '__clear__') return EMPTY_SESSION;
+  if (action.type === '__new_run__') return resetSessionForNewRun(state);
   return projectSession(state, action);
 }
 
@@ -241,7 +252,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const [workPhase, setWorkPhase] = useState<WorkProjectionPhase>();
   /** 用户点选的工作面；最终活动面由本 matter 生效视图集同步收口（见下方 `activeView`）。 */
   const [requestedView, setActiveView] = useState<WorkbenchView>(GENERIC_DRAFT_VIEW.id);
-  const [activeArtifactType, setActiveArtifactType] = useState<string>();
   const [requestedSecondaryView, setSecondaryView] = useState<WorkbenchView>();
   const [splitDirection, setSplitDirection] = useState<SplitDirection>('rows');
   const [splitRatio, setSplitRatio] = useState(50);
@@ -787,7 +797,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     verticalSurface.resetForContextSwitch();
     setSecondaryView(undefined);
     setActiveView(preferredWorkbenchView(matterRegistries, hostRenderers));
-    setActiveArtifactType(undefined);
     openedAt.current = {};
     lastReplayedFlow.current = undefined;
     dispatch({ type: '__clear__' });
@@ -824,7 +833,6 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       const targetView = previewViewForArtifact(event.artifactType, matterRegistries, hostRenderers);
       if (!targetView || previewOpenedForReplay || previewDismissedContext.current === context || manualPreviewSelected.current) return;
       previewOpenedForReplay = true;
-      if (targetView === 'artifact') setActiveArtifactType(event.artifactType);
       setActiveView(targetView);
       setPreviewOpen(true);
     }).then((replay) => {
@@ -961,18 +969,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const fixtureRef = isDemoCase ? activeFixtureRef : undefined;
   // fixture fallback 只属于显式 demo ref；非 demo 分支不会询问 fixture adapter。
   const artifactPayload = createArtifactReader(session.artifacts, fixtureRef, workFixture);
-  // 通用「结构化产出」页签只收落在该页签上的 component blueprint；具名工作面（矩阵审阅）
-  // 已由自己的 view 承载，不在此重复出现。
-  const artifactViewEntries = Object.entries(session.artifacts).filter(([artifactType]) => {
-    const resolved = resolveHostArtifact(artifactType, matterRegistries, hostRenderers);
-    return resolved.status === 'unsupported'
-      || (resolved.renderer.kind === 'component' && resolved.renderer.view === 'artifact');
+  /** 产出席位：无具名面收留的产物逐枚一张页签（PREVIEW-TAB-1 · ADR-014 决定一）。 */
+  const artifactSeat = resolveArtifactSeat({
+    artifacts: session.artifacts,
+    matterRegistries,
+    globalRegistries: packageRegistries,
+    hostRenderers,
   });
-  const artifactViewEntry = artifactViewEntries.find(([artifactType]) => artifactType === activeArtifactType)
-    ?? artifactViewEntries.at(-1);
-  const hasArtifactView = artifactViewEntry !== undefined;
   /** 页签条：具名面由「已准入 artifact × 在册 blueprint」派生，通用面恒在（ADR-015 决定一/三）。 */
-  const workbenchViews = resolveWorkbenchViews(matterRegistries, hostRenderers, hasArtifactView);
+  const workbenchViews = resolveWorkbenchViews(matterRegistries, hostRenderers, artifactSeat);
   // 活动面/对照面按本 matter 生效视图集同步收口（PACK-INTERACT-1 2R · C，理由见该函数注释）。
   const { activeView, secondaryView } = resolveActiveWorkbenchViews({
     views: workbenchViews,
@@ -1536,24 +1541,16 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
         />
       );
     }
-    if (view === 'artifact') {
-      if (!artifactViewEntry) return emptyWorkbench('暂无待展示的结构化产出');
-      const [artifactType, payload] = artifactViewEntry;
-      // ADR-015 决定四：垂类产物在包未加载时显式退化——产物存在（宿主资产不随包走），
-      // 结构化视图不可用则诚实提示加载，不伪装通用产物。
-      const globalEntry = packageRegistries.artifactSchemas.get(artifactType);
-      const matterEntry = matterRegistries.artifactSchemas.get(artifactType);
-      if (globalEntry !== undefined && matterEntry === undefined) {
-        const packageLabel = packCatalog.find((entry) => entry.packageId === globalEntry.packageId)?.displayName
-          ?? globalEntry.packageId;
-        return <VerticalArtifactUnloadedView title={globalEntry.descriptor.title} packageLabel={packageLabel} />;
-      }
+    // 产出页签：整栈常驻、非活动格只 hidden（切换不销毁彼此状态，理由见 ArtifactTabPanes）。
+    if (artifactTypeOfTab(view) !== undefined) {
       return (
-        <ArtifactHostView
-          artifactType={artifactType}
-          payload={payload}
-          packageRegistries={matterRegistries}
+        <ArtifactTabPanes
+          seat={artifactSeat}
+          activeTab={view}
+          payloadFor={(artifactType) => session.artifacts[artifactType]}
+          matterRegistries={matterRegistries}
           hostRenderers={hostRenderers}
+          packageLabelFor={(packageId) => packCatalog.find((entry) => entry.packageId === packageId)?.displayName ?? packageId}
         />
       );
     }
@@ -2079,7 +2076,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
               Preview 双态——大纲目录 ↔ 浏览器态（右列唯一,title/tab 条/schema 面三层封闭,back 回目录） */}
           {!previewOpen && <RightRailModules
             modules={utilityItems}
-            outline={workbenchViews.map((entry) => ({ id: entry.id, label: entry.label, meta: workbenchViewMeta({ view: entry.id, draftFrozen, hasArtifactView, namedViewReady: namedViewReady(entry.id), demoCount: isDemoCase ? demoViewCount : undefined }) }))}
+            outline={workbenchViews.map((entry) => ({ id: entry.id, label: entry.label, meta: workbenchViewMeta({ view: entry.id, draftFrozen, namedViewReady: namedViewReady(entry.id), demoCount: isDemoCase ? demoViewCount : undefined }) }))}
             previewOpenState={outlineOpen}
             onPreviewToggle={() => setOutlineOpen((open) => !open)}
             onOpenOutline={(viewId) => {
@@ -2100,7 +2097,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
           {previewOpen && <WorkbenchPreviewRenderer
             onBack={() => { previewDismissedContext.current = `${selectedCaseId}:${flow ?? 'none'}`; setPreviewOpen(false); setReaderDoc(null); }}
             title={readerDoc ? readerDoc.name : comparing ? '工作面对照' : workbenchViewLabel(workbenchViews, activeView)}
-            meta={readerDoc ? '原件 · 只读' : comparing ? '双面' : workbenchViewMeta({ view: activeView, draftFrozen, hasArtifactView, namedViewReady: namedViewReady(activeView), demoCount: isDemoCase ? demoViewCount : undefined })}
+            meta={readerDoc ? '原件 · 只读' : comparing ? '双面' : workbenchViewMeta({ view: activeView, draftFrozen, namedViewReady: namedViewReady(activeView), demoCount: isDemoCase ? demoViewCount : undefined })}
             tabs={workbenchViews.map((entry) => ({ id: entry.id, label: entry.label }))}
             activeTab={readerDoc ? '' : activeView}
             onSelectTab={(id) => {
@@ -2108,7 +2105,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
               setReaderDoc(null);
               choosePrimaryView(view);
               const moduleId = view as ModuleId;
-              if (userModuleOverride[moduleId] === undefined) setModuleOpen((prev) => ({ ...prev, [moduleId]: true }));
+              if (artifactTypeOfTab(view) === undefined && userModuleOverride[moduleId] === undefined) setModuleOpen((prev) => ({ ...prev, [moduleId]: true }));
             }}
 
             actions={<>

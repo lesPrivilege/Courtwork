@@ -392,7 +392,7 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
       showSystemFeedback('本案还没有可用材料 · 先把卷宗材料入库再开始', false, 'info');
       return;
     }
-    dispatch({ type: '__clear__' } as unknown as SessionEvent);
+    dispatch({ type: '__new_run__' } as unknown as SessionEvent);
     clearGate();
     resetReview();
     setWorkContractMaterialId(null);
@@ -451,7 +451,7 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
       showSystemFeedback('所选主合同已不在本案可用材料中，请重新选择', false, 'info');
       return;
     }
-    dispatch({ type: '__clear__' } as unknown as SessionEvent);
+    dispatch({ type: '__new_run__' } as unknown as SessionEvent);
     clearGate();
     resetReview();
     setWorkContractMaterialId(primaryContractId);
@@ -541,7 +541,7 @@ export function useWorkRunLifecycle(deps: WorkRunLifecycleDeps): WorkRunLifecycl
       showSystemFeedback(plan.message, false, 'info');
       return;
     }
-    dispatch({ type: '__clear__' } as unknown as SessionEvent);
+    dispatch({ type: '__new_run__' } as unknown as SessionEvent);
     for (const event of plan.events) dispatch(event);
     setWorkSessionId(record.sessionId);
     setWorkContractMaterialId(record.contractMaterialId);
