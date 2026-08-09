@@ -1,15 +1,15 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { RiskList } from '@courtwork/legal';
 import type { SourceAnchor } from '@courtwork/schemas';
-import type { ReviewGateProjection } from '../protocol/client';
+import type { ReviewGateProjection } from '../../protocol/client';
 import type {
   VerticalWorkSurface,
   VerticalWorkSurfaceHost,
   VerticalWorkSurfaceState,
-} from '../preview/vertical-work-surface';
+} from '../../preview/vertical-work-surface';
 import { PRODUCTION_SCENARIO_IDS, S3_SCENARIO_ID, projectRiskListGate } from './legal-s3-binding';
 import { useContractReviewSubmission, type ContractReviewSubmission } from './use-contract-review-submission';
-import { useWorkRunLifecycle, type WorkRunLifecycle } from './work-session-lifecycle';
+import { useWorkRunLifecycle, type WorkRunLifecycle } from '../../work/work-session-lifecycle';
 import type { LegalWorkCommand } from './work-command';
 
 /**

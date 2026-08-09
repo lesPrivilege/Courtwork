@@ -19,29 +19,29 @@ const read = (relative) => readFile(path.join(root, relative), 'utf8');
 // 只扫代码不扫注释：JSDoc 提到 demo/GATES 等词是合法解释（「绝不消费」），门守的是代码里的 demo 依赖/回落。
 const stripComments = (source) => source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 
-const command = stripComments(await read('src/work/work-command.ts'));
+const command = stripComments(await read('src/verticals/legal/work-command.ts'));
 const runtime = stripComments(await read('src/work/work-runtime.ts'));
 const client = stripComments(await read('src/protocol/client.ts'));
 const app = stripComments(await read('src/App.tsx'));
 const main = stripComments(await read('src/main.tsx'));
-const binding = stripComments(await read('src/work/legal-s3-binding.ts'));
+const binding = stripComments(await read('src/verticals/legal/legal-s3-binding.ts'));
 const modules = stripComments(await read('src/modules/ModuleStack.tsx'));
 // CONTRACT-REVIEW-SAFETY-1「过手即拆」：提交编排与产物落盘已从 App.tsx 外提到本模块。
 // 门跟着码走——扫描面迁移，断言不弱化（见下方 resume/docx 源两处拆成「接线」+「调用」两段）。
-const submission = stripComments(await read('src/work/use-contract-review-submission.ts'));
+const submission = stripComments(await read('src/verticals/legal/use-contract-review-submission.ts'));
 // CONTRACT-OUTPUT-TRUTH-1「过手即拆」：恢复入口的判定外提到独立模块，扫描面同批迁移。
 // CONTRACT-TRACE-1：该模块被 `work/work-session-lifecycle.ts` 吸收（恢复判定与指针判定读同一份
 // replay 结果、同一张相位表，两个模块要把 phase switch 写两遍）。扫描面随之迁移。
 const lifecycle = stripComments(await read('src/work/work-session-lifecycle.ts'));
 // CONTRACT-OUTPUT-TRUTH-1：显式主合同选择/排序/CaseFile 派生的纯函数落点。
-const primaryContract = stripComments(await read('src/work/primary-contract.ts'));
+const primaryContract = stripComments(await read('src/verticals/legal/primary-contract.ts'));
 // GENERIC-PACK-1 ⑤「过手即拆」：S3 审阅编排（生命周期/提交/门禁投影）由 App.tsx 迁入垂类工作面
 // 驱动，起跑面迁入其 blueprint renderer。门跟着码走——四条判据改锚新家，一条不减，并新增
 // 一条组合根装配锁（垂类端口只能在受信组合根注入，不进壳的通用接缝）。
-const legalSurface = stripComments(await read('src/work/legal-work-surface.tsx'));
+const legalSurface = stripComments(await read('src/verticals/legal/legal-work-surface.tsx'));
 const riskReviewRenderer = stripComments(await read('src/verticals/legal/RiskReviewRenderer.tsx'));
 // CONTRACT-OUTPUT-TRUTH-1：唯一 production 交付编排。
-const delivery = stripComments(await read('src/output/contract-review-delivery.ts'));
+const delivery = stripComments(await read('src/verticals/legal/contract-review-delivery.ts'));
 const failures = [];
 const requireMatch = (source, pattern, message) => {
   if (!pattern.test(source)) failures.push(message);

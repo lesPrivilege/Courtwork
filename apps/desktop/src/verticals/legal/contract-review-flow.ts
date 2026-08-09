@@ -8,7 +8,7 @@ import type {
   ReviewItemResolution,
   ReviewResolution,
   WorkCommandOutcome,
-} from '../protocol/client';
+} from '../../protocol/client';
 import type { LegalWorkCommand } from './work-command';
 import { S3_RISK_LIST_TYPE, S3_SCENARIO_ID } from './legal-s3-binding';
 

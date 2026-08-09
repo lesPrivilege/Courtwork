@@ -1,18 +1,18 @@
 import { MissingPrimaryMaterialAnchorError, type RiskList } from '@courtwork/legal';
 import { InvalidZipTimestampError, SignedDocumentUnsupportedError } from '@courtwork/output';
 import type { SessionEvent } from '@courtwork/core';
-import type { CaseBinding } from '../case/case-scope';
-import type { OutputMaterialReadResult } from '../material/material-store';
-import type { WorkReplayResult } from '../protocol/client';
-import { S3_REVIEW_GATE_LABEL } from '../work/contract-review-flow';
-import { S3_RISK_LIST_TYPE } from '../work/legal-s3-binding';
+import type { CaseBinding } from '../../case/case-scope';
+import type { OutputMaterialReadResult } from '../../material/material-store';
+import type { WorkReplayResult } from '../../protocol/client';
+import { S3_REVIEW_GATE_LABEL } from './contract-review-flow';
+import { S3_RISK_LIST_TYPE } from './legal-s3-binding';
 import {
   compileConfirmedReviewToDocx,
   type NonAppliedReason,
   type PendingRevisionConfirmation,
 } from './compile-review-output';
-import { contractReviewOutputFileName } from './contract-review-file-name';
-import type { CaseOutputStatResult, CaseOutputWriteResult } from './case-output-client';
+import { contractReviewOutputFileName } from '../../output/contract-review-file-name';
+import type { CaseOutputStatResult, CaseOutputWriteResult } from '../../output/case-output-client';
 
 /**
  * CONTRACT-OUTPUT-TRUTH-1 · O7：合同审查批注稿的**唯一** production 编排。

@@ -5670,3 +5670,154 @@ SPEC 的「受检数取数提交登记」明确锚在 `deb81b8`：160→168→17
 - 实现 tip：`95eaa6d93efe31227e708e46668e565c0200b21a`；
 - 首轮独立验收提交：`b247cf3`（REJECT，基于 `7c8d928`）；
 - 本轮聚焦复验提交：待本节提交后记录于本提交自身。
+
+## DEBT-VERTICAL-SPLIT-1 独立验收（2026-08-09）
+
+验收目标 tip `9c98d29`（分支 `claude/debt-vertical-split-1`；链 base `main@d6f78ab` →
+`65a812e` work+output 族 → `cacc9cf` system 族 → `9c98d29` SPEC 回执）。验收树
+`/private/tmp/courtwork-debt-split-accept`（独立 worktree，分支
+`claude/accept-debt-vertical-split-1`），与实现会话零共享上下文，数字一律独立实跑，不采信回执。
+
+票面唯一真值：`docs/architecture/implementation-readiness.md` 的 `DEBT-VERTICAL-SPLIT-1` 行。
+
+### 1. 范围核 · 只改居所与 import 路径，语义零改
+
+`git diff -M main...9c98d29` 计 **37 文件**：18 枚 rename（相似度 R090–R100）、18 枚 modify、
+1 枚 add（SPEC 回执本身）。逐文件核对结论：**范围成立**。
+
+把 `apps/desktop/src` 与 `packages/core` 的全量 diff 展开为行集（`git diff -a -M`，含 NUL 文件），
+`+` 侧共 **104 行**，逐行归类后**穷举**为四类，无第五类：
+
+- import／`} from` 说明符改写（相对深度或目标变更）；
+- 两行 JSDoc 内的路径字样（`work/legal-work-surface.tsx` → `verticals/legal/...` 等）；
+- `work-runtime.test.ts` 的 `vi.doMock`／`vi.doUnmock` 目标（`'./work-command'` →
+  `'../verticals/legal/work-command'`——mock 说明符须与 importer 处的解析目标同步，属路径改写）；
+- `packages/core/src/tools/tool-registration-boundary.test.ts` 的 `TRUSTED_REGISTRATIONS` 键
+  （`apps/desktop/src/work/legal-s3-binding.ts` → `apps/desktop/src/verticals/legal/legal-s3-binding.ts`）。
+  跨包触碰**确系纯路径引用更新**，该测试逐文件扫描全树核对受信组合点，键值须与实文件路径逐字相等。
+
+**零导出改动、零签名改动、零逻辑行改动**——上述四类之外，diff 中不存在任何其他 `+`／`-` 内容行。
+
+`work-command.test.ts` 的 Bin 行独立核实：两侧裸 NUL `/usr/bin/grep -a -c $'\x00'` 均为 **854**
+（非本票引入），blob 字节 37339 → 37340（净 +1 字节，与四行 import 改写的字符差一致），
+`git diff -a` 逐字展开后本票唯一改动是 4 行 import 路径。**语义零改成立**。
+
+文件总数交叉验证：`src/**/*.ts(x)` 两侧同为 **249**；`verticals+composition+demo` 22 → 40，
+`work+output+system` 47 → 29。18 迁 18 减，**零文件新增或删除**，与迁移清单逐条吻合。
+
+### 2. 票面判据实测
+
+**受检面单调扩大**（逐 commit 实跑 `assert-vertical-isolation.mjs`，格式：受检／族外／绑定数／债族数）：
+
+| commit | 受检 | 族外 | verticals 内绑定 | 债族 |
+|---|---|---|---|---|
+| `d6f78ab`（base） | **176** | 73 | 6 | 3（work/output/system） |
+| `65a812e` | **196** | 53 | 19 | 1（system） |
+| `cacc9cf`／`9c98d29` | **205** | 44 | 21 | **0（债清零）** |
+
+176 → 196 → 205 严格单调扩大，票面「自 174 单调扩大」满足。176 经两法交叉：门自报，
+以及 `249 − 22 − 47 − 4(gallery) = 176` 的独立计数；并与本文件 `LEGAL-FIVE-FACES-1` 聚焦复验节
+所记 `vertical isolation 176/73/6/3` 逐位相符。**回执第三节表的起点值 184 不实**（详见第 6 节订正项）。
+
+**反向锁与撤迁移复红**（逐枚注入、观察、撤回，撤回后门复绿且 `git status` 空）：
+
+| 探针 | 结果 |
+|---|---|
+| `src/App.tsx` 顶部注入 `@courtwork/legal/package` import | 红 `EXIT=1`：`App.tsx: 壳/通用件引用了垂类包` |
+| 撤迁移：复制 `legal-s3-binding.ts` 回 `src/work/` | 红 `EXIT=1`：`work/legal-s3-binding.ts: …` |
+| 撤迁移：复制 `file-ops-demo.ts` 回 `src/system/` | 红 `EXIT=1`：`system/file-ops-demo.ts: …` |
+| 撤迁移：复制 `compile-review-output.ts` 回 `src/output/` | 红 `EXIT=1`：`output/compile-review-output.ts: …` |
+| 掏空绑定族：`src/verticals/` 移空后留空目录 | 红 `EXIT=1`：`src/verticals/ 内零垂类绑定——绑定族是空壳` |
+
+三族**逐族**各取一枚撤迁移红证（承「闭口按族，不按验收点名的实例」判据，未只验回执点名的 work 一族）；
+掏空反向锁仍红，**门形未放宽**。
+
+**残留引用清扫**：全仓 `apps/`／`packages/` 按十枚迁移件名 × 三旧族目录做 grep，命中仅
+`apps/desktop/scripts/assert-app-highwater.mjs` 的 **3 行注释**（`:38`／`:51`／`:93`，带日期的
+历史 ledger 条目），**零功能性陈旧引用**。
+
+### 3. 全量门独立实测（验收树，独占）
+
+- `pnpm install --frozen-lockfile`：EXIT=0。
+- `pnpm -r build`：EXIT=0（14 包 + `apps/desktop` 全 `Done`，零报错）。
+- `pnpm --filter @courtwork/pi-lane build:product-sidecar`：EXIT=0；bundle **547,893 B**、
+  sha256 `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`、`reproducible: true`
+  ——与在册基线**零迁移**。
+- `pnpm lint`：EXIT=0，零输出。
+- 根 `pnpm test`：**170 files / 1941 tests passed**，EXIT=0。
+- `pnpm --filter @courtwork/desktop test`：**87 files / 778 tests passed**，EXIT=0。
+- `pnpm site:guard`：EXIT=0（含 `lint:app-highwater` 报 **2279 行（上限 2279）**）。
+- `pnpm --filter @courtwork/desktop lint:vertical-isolation`：通过（205 受检、债清零）。
+- `pnpm test:e2e` 完整链（`COURTWORK_E2E_PORT=15788` 独占端口，配置 `reuseExistingServer: false`）：
+  38 枚静态前置门全绿（含零泄漏门、`assert-legal-s3-contracts.mjs`、`assert-work-live-contracts.mjs`），
+  假绿防护报 **372 条用例（下限 365）**，Playwright **372 passed（10.8m）**，EXIT=0。
+
+排程纪律：起链前以 `mkdir /private/tmp/courtwork-pw-lock` 原子取锁（0 次重试即得），
+取锁后 `pgrep -f playwright` 与 `pgrep -f 'cli.js test'` 双确认**均为 0**，链毕即释放。
+全程无并发轮，本节数字取该单跑轮。
+
+`65a812e` 中间 tip 亦独立复核其自身触及的三门（`assert-vertical-isolation` 196、
+`assert-legal-s3-contracts`、`assert-work-live-contracts` 全绿），**「每枚提交在自身 tip 上过门」成立**。
+
+### 4. 实现自报四枚 Playwright 残红的归因
+
+回执登记独占轮 368/372，残红四枚：`case-persist.spec.ts:234`／`chat-interaction.spec.ts:53`／
+`chat-markdown.spec.ts:54`／`chat-material.spec.ts:13`。
+
+**本验收独占轮 372/372，四枚全部未复现。** 归因证据两条：
+
+1. **零代码关联（结构性）**：四枚 spec 与 `helpers.ts` 对 `src/work/`／`src/output/`／`src/system/`／
+   `src/verticals/` 的引用 grep 实测**零命中**；其被测面为 case 持久化、chat 交互、chat markdown、
+   chat 材料，与本票迁移的 Legal 绑定件无调用路径交集。
+2. **迁移真正触碰的谱全绿**：`work-live.spec.ts`、`work-turn.spec.ts`、`work-turn-2.spec.ts`、
+   `work-budget.spec.ts`、`contract-review`、`legal-five-faces-1.spec.ts`、`workbench.spec.ts`
+   在本轮逐条通过——确定性回归会稳定命中这批谱，实测反之。
+
+**裁定：非本票回归**，四枚属既有抖动族（与在册 `E2E-FLAKY-HOVER-1`／`CI-TOPOLOGY-1` 同源问题域：
+全链只靠本地手跑、无 CI 抖动治理）。因本轮实验臂为全绿，「对照红＋实验绿」的对照实验不成立
+亦无必要，未在 base 树复跑；**但按「后跑的绿不反驳先前的红」判据，此处只判定其与本票无因果，
+不判定该四枚恒绿**。抖动本体不属本票范围，如需处置应另立票并绑具体根因。
+
+### 5. 偏离逐项裁定（回执第五节五项）
+
+| # | 偏离 | 裁定 | 理由 |
+|---|---|---|---|
+| 1 | 2 批提交而非票面「可按族分批」的 3 批 | **接受** | 耦合实证：`use-contract-review-submission.ts`、`verticals/legal/panels.tsx`、`assert-work-live-contracts.mjs` 三处**同时**引用 work 族与 output 族迁移件（逐文件 grep 复核在案）。严拆三批会使 work 批 tip 引用 output 批才落地的产物，违反「每枚提交须在自身 tip 上过门」。票面原文为「可按族分批」，非「必须三批」，合批未越界。system 族零耦合（其两迁移件只消费 `@courtwork/legal`／`@courtwork/tools/*` 与 `case/case-scope`、`system/demo-case-layout`，实测无 work/output 交叉引用），单独成批自洽 |
+| 2 | `site:guard` 字面不含 `lint:vertical-isolation` | **接受结论，订正前提** | 结论属实：根 `package.json` 的 `site:guard` 八项 desktop 子命令中确无该门。但回执称此系「票面括注与仓库现状不符」——**票面（就绪图 `DEBT-VERTICAL-SPLIT-1` 行）并无此括注**，全文 `site:guard` 仅两处命中（`SITE-CRAFT-2`、`CI-TOPOLOGY-1`），均非本票行。属「结论对、前提假」（`workflow.md` 验收固定项已三犯之形）。零泄漏门的真实验证面（`lint:vertical-isolation` 独立跑 + `test:e2e` 链第 19 位）经本验收独立复核成立，故不构成阻断 |
+| 3 | `work-command.test.ts` 呈 Bin 行 | **接受** | 854 处裸 NUL 迁移前既存，两侧同值；`git diff -a` 逐字核实唯 4 行 import 改写。属既有现象的如实登记，非本票引入 |
+| 4 | `assert-app-highwater.mjs` 历史 ledger 注释未随路径改写 | **接受** | 实测该 3 处（`:38`／`:51`／`:93`）均在**带日期的历史变迁条目**内、且**均为注释**，零功能消费；条目记录的是当时的真实路径，回溯改写会使史料失真。与「原件只读」及文档引码用符号锚的精神一致。本票未触碰该文件，判为正确的不作为 |
+| 5 | 门头注释顺带订正 `workbench/` 的历史漂移 | **接受，判为未越票面范围** | 两点核实：①`workbench/` 在 base `d6f78ab` 的 `UNSPLIT_FAMILIES` 中**确实从未在册**（该表 base 态恰三键 work/output/system），旧注释点名四目录属事实漂移；②`workbench/` 零垂类 import 实测成立（tip 与 base 双侧 grep 均 0），且它 base 即在受检面内、门本绿，可反推该目录从来不是混合族。订正落在**本票必须改写的同一段注释**内（债表归空迫使该段重写），不改门的判据、不改受检面、不新增豁免。属「宣称须与实测一致」的正向履行，非范围扩张 |
+
+### 6. 订正项（不阻断，须由清账会话落实）
+
+1. **`apps/desktop/specs/DEBT-VERTICAL-SPLIT-1.md` 第三节第 1 项表格的起点值 `184` 不实**，
+   实测为 **176**（门自报、独立计数、本文件 `LEGAL-FIVE-FACES-1` 节在册值三方一致）。
+   退出证据「单调扩大」不因此失守（176→205 反而比宣称的 184→205 增幅更大），
+   但数字须订正，避免以错值入清账真源。
+2. **同文件第五节第 2 项的前提须订正**：票面无 `pnpm site:guard（含零泄漏门）` 括注（见第 5 节 #2）。
+3. **ADR 引用错层**：SPEC 首部与票面均把「静态门——垂类 import 只经受信组合根注册点」归为
+   ADR-015 **决定一**，该句实住**决定三**（决定一是两层定义与成品律）。门源码首行的归属
+   （`ADR-015 决定三`）是对的。属就绪图票面沿袭的既有错引，**上浮架构**：订正票面行还是
+   在 ADR 加互见，由架构裁。
+4. SPEC 第六节称 tip 为 `cacc9cf`，实际交付 tip 为 `9c98d29`（SPEC 回执提交本身）。
+
+四项均为文档记述层面，零代码影响，不影响本票退出证据成立。
+
+### 7. 结论
+
+**PASS。** 逐条对照票面退出证据：
+
+- 债表逐族删行后零泄漏门全绿——成立（`UNSPLIT_FAMILIES = {}`，门自报「债清零」）；
+- 受检面自 174 单调扩大——成立（176 → 196 → 205，逐 commit 实测）；
+- 掏空绑定族反向锁仍红、门形不放宽——成立（空壳探针红，且三族撤迁移逐族各一枚红证）；
+- 全量门零回归——成立（build／lint／root 1941／desktop 778／site:guard／sidecar 零迁／
+  静态链 38 门／Playwright 372/372，全部独占实跑 EXIT=0）；
+- 撤迁移复红——成立；
+- 边界「只改居所与 import 路径，语义零改」——成立（104 行 `+` 侧穷举归类，零语义行）。
+
+实现自报的四枚 Playwright 残红在本验收独占轮零复现，判为与本票无因果、不阻断。
+第 6 节四项订正为文档记述层面，随清账落实即可；其中第 3 项（ADR 决定号错层）上浮架构裁定。
+
+验收环境：Node v25.9.0、pnpm 9.15.0、独立 worktree、独占 Playwright 锁与端口 15788。
+验收期间一切注入探针已逐枚撤回；Playwright 重生成的 9 枚他票 `release/evidence/**` PNG 已
+`git checkout --` 还原，提交前工作树除本文件外**空**。

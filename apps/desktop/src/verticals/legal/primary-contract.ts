@@ -1,5 +1,5 @@
 import type { CaseFile } from '@courtwork/legal';
-import type { StoredMaterial } from '../material/material-ref';
+import type { StoredMaterial } from '../../material/material-ref';
 
 /**
  * CONTRACT-OUTPUT-TRUTH-1 · O4：显式主合同的选择、排序与 CaseFile 派生。

@@ -11,7 +11,7 @@ import { createBrowserHostAuth, installHostAuthTestHooks } from './host/browser-
 import { MaterialStore } from './material/material-store';
 import { createBrowserMaterialHost, installMaterialHostTestHooks } from './material/material-store';
 import { createTauriMaterialHost } from './material/tauri-material-host';
-import { createLegalWorkSurface } from './work/legal-work-surface';
+import { createLegalWorkSurface } from './verticals/legal/legal-work-surface';
 import { createDesktopPackageRuntime } from './composition/package-runtime';
 import { createDemoWorkFixture } from './demo/client';
 import { createDesktopWorkCommand, installWorkTestHooks } from './work/work-runtime';

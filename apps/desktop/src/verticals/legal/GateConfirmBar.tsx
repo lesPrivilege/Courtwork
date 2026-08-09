@@ -1,4 +1,4 @@
-import { useLegalWorkSurface } from '../../work/legal-work-surface';
+import { useLegalWorkSurface } from './legal-work-surface';
 
 /**
  * LEGAL-FIVE-FACES-1 · 缺陷 D6：产物门禁的面内确认条。

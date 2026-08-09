@@ -21,9 +21,9 @@ import type { TurnStore } from '@courtwork/core/turn-protocol';
 import type { ConfirmationActor, PersistedTurn, TurnRunnerPort, WorkRuntimeBudget, WorkStateHostPort } from '@courtwork/core';
 import type { PackageRegistries } from '@courtwork/registry';
 import type { WorkModelRoute, WorkSessionRef } from '../protocol/client';
-import { buildArtifactVersioningSource, LEGAL_S3_SCHEMA_VERSION } from './legal-s3-binding';
-import { createLegalWorkCommand, type LegalWorkCommand } from './work-command';
-import type { MaterialResolver } from './legal-s3-binding';
+import { buildArtifactVersioningSource, LEGAL_S3_SCHEMA_VERSION } from '../verticals/legal/legal-s3-binding';
+import { createLegalWorkCommand, type LegalWorkCommand } from '../verticals/legal/work-command';
+import type { MaterialResolver } from '../verticals/legal/legal-s3-binding';
 
 const KEYCHAIN_PLACEHOLDER = '__keychain__';
 

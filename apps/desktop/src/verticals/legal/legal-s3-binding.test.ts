@@ -12,8 +12,8 @@ import {
 } from '@courtwork/core';
 import type { RiskList } from '@courtwork/legal';
 import type { EvidenceGradeAnnotation } from '@courtwork/core';
-import type { ResolveResult } from '../material/material-store';
-import type { StoredMaterial } from '../material/material-ref';
+import type { ResolveResult } from '../../material/material-store';
+import type { StoredMaterial } from '../../material/material-ref';
 import {
   IncompleteReviewError,
   DuplicateReviewItemError,

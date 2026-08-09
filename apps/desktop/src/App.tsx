@@ -107,7 +107,7 @@ import { hostAuthReasonCopy, type HostAuthPort } from './host/host-auth-port';
 import { mintCaseId } from './case/case-id';
 import { workContextSegmentFor } from './work/work-context';
 import { useModelConfig } from './provider/use-model-config';
-import { FileOpsPlanPanel } from './system/FileOpsPlanPanel';
+import { FileOpsPlanPanel } from './verticals/legal/FileOpsPlanPanel';
 import { systemOpenClient } from './system/system-open-client';
 import { WorkDraftPanel } from './system/WorkDraftPanel';
 // CASE-ROOT-1：样板案的虚拟根仅供 demo 呈现（原件区/工作稿/在访达显示，皆浏览器 mock），

@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import type { ReviewMatrix, RiskList, Timeline } from '@courtwork/legal';
 import type { SourceAnchor } from '@courtwork/schemas';
 import type { ReviewDispositionState, ReviewGateProjection } from '../../protocol/client';
-import type { NonAppliedReason, PendingRevisionConfirmation } from '../../output/compile-review-output';
-import type { ContractReviewOutputResult } from '../../output/contract-review-delivery';
-import { S3_REVIEW_GATE_LABEL, type ContractReviewState } from '../../work/contract-review-flow';
+import type { NonAppliedReason, PendingRevisionConfirmation } from './compile-review-output';
+import type { ContractReviewOutputResult } from './contract-review-delivery';
+import { S3_REVIEW_GATE_LABEL, type ContractReviewState } from './contract-review-flow';
 import { displayEntityName, EmptyState, LineTone, SignatureLine, sourceFileLabel, StaticViewport, TierBadge } from '../../workbench/Panels';
 
 function SettlementFlash({ kind, itemRef, testable = false }: { kind?: 'confirmed' | 'rejected'; itemRef: string; testable?: boolean }) {

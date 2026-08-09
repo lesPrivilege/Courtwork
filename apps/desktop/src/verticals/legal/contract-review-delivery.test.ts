@@ -2,17 +2,17 @@ import { describe, expect, it, vi } from 'vitest';
 import { compileDraftToDocx } from '@courtwork/output';
 import type { RiskList } from '@courtwork/legal';
 import type { SessionEvent } from '@courtwork/core';
-import type { CaseBinding } from '../case/case-scope';
-import type { CaseOutputStatResult, CaseOutputWriteResult } from './case-output-client';
-import type { OutputMaterialReadResult } from '../material/material-store';
-import type { WorkReplayResult } from '../protocol/client';
-import { S3_REVIEW_GATE_LABEL } from '../work/contract-review-flow';
-import { S3_RISK_LIST_TYPE } from '../work/legal-s3-binding';
+import type { CaseBinding } from '../../case/case-scope';
+import type { CaseOutputStatResult, CaseOutputWriteResult } from '../../output/case-output-client';
+import type { OutputMaterialReadResult } from '../../material/material-store';
+import type { WorkReplayResult } from '../../protocol/client';
+import { S3_REVIEW_GATE_LABEL } from './contract-review-flow';
+import { S3_RISK_LIST_TYPE } from './legal-s3-binding';
 import {
   coordinateContractReviewOutput,
   type ContractReviewOutputDeps,
 } from './contract-review-delivery';
-import { contractReviewOutputFileName } from './contract-review-file-name';
+import { contractReviewOutputFileName } from '../../output/contract-review-file-name';
 
 /**
  * CONTRACT-OUTPUT-TRUTH-1 · O7：唯一 coordinator 的优先级与阻断矩阵。

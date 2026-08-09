@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEMO_CASE_ID } from '../case/case-scope';
+import { DEMO_CASE_ID } from '../../case/case-scope';
 import { createDemoFileOpsPlan, executeDemoPlan } from './file-ops-demo';
 
 describe('file-ops demo runtime case boundary', () => {

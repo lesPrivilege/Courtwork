@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { StoredMaterial } from '../material/material-ref';
+import type { StoredMaterial } from '../../material/material-ref';
 import {
   DOCX_MEDIA_TYPE,
   deriveS3CaseFile,

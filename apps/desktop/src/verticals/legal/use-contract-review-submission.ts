@@ -2,18 +2,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
 import type { SessionEvent } from '@courtwork/core';
 import type { RiskList } from '@courtwork/legal';
-import type { CaseBinding } from '../case/case-scope';
-import type { MaterialStore } from '../material/material-store';
-import { caseOutputClient } from '../output/case-output-client';
+import type { CaseBinding } from '../../case/case-scope';
+import type { MaterialStore } from '../../material/material-store';
+import { caseOutputClient } from '../../output/case-output-client';
 import {
   compileDemoConfirmedReviewToDocx,
   type PendingRevisionConfirmation,
-} from '../output/compile-review-output';
+} from './compile-review-output';
 import {
   coordinateContractReviewOutput,
   type ContractReviewOutputResult,
-} from '../output/contract-review-delivery';
-import type { ReviewGateProjection, ScenarioFlow, WorkReplayResult } from '../protocol/client';
+} from './contract-review-delivery';
+import type { ReviewGateProjection, ScenarioFlow, WorkReplayResult } from '../../protocol/client';
 import {
   buildSubmittedReviewResolution,
   createContractReviewSubmitter,
@@ -23,7 +23,7 @@ import {
   useContractReviewState,
 } from './contract-review-flow';
 import type { LegalWorkCommand } from './work-command';
-import { workFailureDisplayCopy } from './work-failure-copy';
+import { workFailureDisplayCopy } from '../../work/work-failure-copy';
 
 function readableError(error: unknown, fallback: string): string {
   return error instanceof Error && error.message.trim().length > 0 ? error.message : fallback;

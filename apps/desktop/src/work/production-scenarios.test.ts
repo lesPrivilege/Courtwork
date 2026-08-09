@@ -21,9 +21,9 @@ import {
   buildArtifactVersioningSource,
   buildIntakeRunInput,
   getProductionScenario,
-} from './legal-s3-binding';
-import { deriveCaseFileFromMaterials } from './primary-contract';
-import { createLegalWorkCommand } from './work-command';
+} from '../verticals/legal/legal-s3-binding';
+import { deriveCaseFileFromMaterials } from '../verticals/legal/primary-contract';
+import { createLegalWorkCommand } from '../verticals/legal/work-command';
 
 /**
  * LEGAL-FIVE-FACES-1 · 缺陷 D2 的红证与判据：production 命令端口此前把「可启动场景」

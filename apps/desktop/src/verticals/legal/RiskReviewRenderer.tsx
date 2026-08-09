@@ -1,7 +1,7 @@
 import type { RiskList } from '@courtwork/legal';
-import { DOCX_MEDIA_TYPE } from '../../work/primary-contract';
-import { S3_REVIEW_GATE_LABEL } from '../../work/contract-review-flow';
-import { S3_SCENARIO_ID } from '../../work/legal-s3-binding';
+import { DOCX_MEDIA_TYPE } from './primary-contract';
+import { S3_REVIEW_GATE_LABEL } from './contract-review-flow';
+import { S3_SCENARIO_ID } from './legal-s3-binding';
 
 /** launch 声明的 mediaType（扩展名）→ 材料 store 的精确 MIME（声明驱动的领域无关映射）。 */
 const MEDIA_TYPE_BY_DECLARATION: Record<string, string> = {
@@ -10,7 +10,7 @@ const MEDIA_TYPE_BY_DECLARATION: Record<string, string> = {
   md: 'text/markdown',
   txt: 'text/plain',
 };
-import { useLegalWorkSurface } from '../../work/legal-work-surface';
+import { useLegalWorkSurface } from './legal-work-surface';
 import { projectReviewItemStates, RevisionPanel } from './panels';
 import { ScenarioPrecheckForm } from '../../workbench/scenario-precheck-form';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
@@ -27,7 +27,7 @@ import type { HostRendererComponentProps } from '../../preview/HostRendererRegis
  * 渲染）——字段形状与文案来自冻结的 launch 声明，本件只组装选项解析与提交流转；
  * 提交值进场景启动参数（`surface.workRun.start(params)`）。
  *
- * 编排不住这里也不住壳，住 `work/legal-work-surface.tsx`——本件只读它的驱动值。
+ * 编排不住这里也不住壳，住 `verticals/legal/legal-work-surface.tsx`——本件只读它的驱动值。
  */
 export function RiskReviewRenderer({ descriptor, payload }: HostRendererComponentProps) {
   const surface = useLegalWorkSurface();

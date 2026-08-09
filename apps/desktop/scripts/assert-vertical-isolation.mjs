@@ -15,10 +15,11 @@
 //   2. `src/composition/**` 受信组合根。包准入与驱动装配住此（ADR-015 决定三）。
 //   3. `src/demo/**`       样板案回放族。demo 与真实路径双向隔离由既有 demo 门另行看守。
 //
-// **未拆分的混合族（如实登记，非豁免）**：`work/`、`output/`、`system/`、`workbench/` 四个目录
-// 各自混着通用件与 Legal 绑定件，本票未及拆分，故整族暂不入受检面。它们是**债**不是许可——
-// 偿还去向是把其中的垂类绑定件迁入 `src/verticals/legal/`，迁完即从下表删除、目录自动入受检面。
-// 本表逐条带偿还去向；空表即债清零。
+// **未拆分的混合族（如实登记，非豁免）**：`UNSPLIT_FAMILIES` 逐条带偿还去向，迁完即从表
+// 删行、目录自动入受检面。DEBT-VERTICAL-SPLIT-1（2026-08-09）已把 `work/`、`output/`、
+// `system/` 三族的 Legal 绑定件迁入 `src/verticals/legal/`，三族债清零、表现为空对象；
+// `workbench/` 此前一并被点名为混合族但从未真正入过本表（该目录零垂类 import，点名系
+// 历史注释漂移，随本次改写一并订正）。空表即债清零；后续若有新混合族，逐条登记回本表。
 //
 // 测试文件同样受检（fixture 测试若要垂类语料，应住绑定族内）——唯一的例外是
 // `preview/gallery/**` 的 fixture 谱：可视化样板库以真实垂类 fixture 证明原语可编排，
@@ -33,12 +34,8 @@ const src = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'sr
 
 /** 绑定族：可执行垂类绑定的合法住所。族由目录声明，成员随时增减而本门不改一行。 */
 const BINDING_FAMILIES = ['verticals', 'composition', 'demo'];
-/** 未拆分的混合族（债）。逐条带偿还去向；迁完即删行，目录自动入受检面。 */
-const UNSPLIT_FAMILIES = {
-  work: '把 legal-s3-binding / work-command / contract-review-flow / primary-contract / use-contract-review-submission / legal-work-surface 迁入 verticals/legal/',
-  output: '把 compile-review-output / contract-review-delivery 迁入 verticals/legal/',
-  system: '把 FileOpsPlanPanel / file-ops-demo 迁入 verticals/legal/',
-};
+/** 未拆分的混合族（债）。逐条带偿还去向；迁完即删行，目录自动入受检面。空表即债清零。 */
+const UNSPLIT_FAMILIES = {};
 /** 族级登记的可视化样板库：ADR-012 决定五点名以真实垂类 fixture 证明原语可编排。 */
 const GALLERY_FAMILY = path.join('preview', 'gallery');
 
