@@ -40,7 +40,9 @@ requireText('interactionProjection', 'input.request.options.map', 'Interaction o
 requireText('card', 'view.resolution?.answer', 'Recorded answer must render from core replay');
 requireText('card', 'submittingRef.current', 'Interaction resolve must guard concurrent submission');
 requireText('legal', 'requestInteraction({', 'Legal demo must inject through the generic interaction coordinator');
-requireText('legal', 'contractSourceMd.slice(start, end) !== anchor.quote', 'Source routing must validate the exact resolved quote slice');
+// DEMO-ANCHOR-2：路由由单份合同扩为整语料目录后，被切的文本从模块级 `contractSourceMd`
+// 变为按 fileId 取到的那一份 `sourceText`。判据一条未减，只改锚点符号。
+requireText('legal', 'sourceText.slice(start, end) !== anchor.quote', 'Source routing must validate the exact resolved quote slice');
 
 const interactionCss = files.css.slice(files.css.indexOf('.interaction-turn-card'), files.css.indexOf('.progress-pulse'));
 // SKIN-B3：断关系不断值——hairline 由 `1px` 字面量改断「走次界档（--rule-minor）」。

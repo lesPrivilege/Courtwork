@@ -1,13 +1,17 @@
 import { describe, expect, it } from 'vitest';
+import type { ResolvedSourceAnchor, SourceAnchor } from '@courtwork/schemas';
 
+import appSource from '../App.tsx?raw';
 import { TurnProtocolClient, createLocalStorageTurnJournalBackend } from '../provider/turn-protocol-client';
-import { resolveReaderFocus } from '../material/material-actions';
+import { MATERIAL_READER_BLOCK_REASON_COPY, resolveReaderFocus } from '../material/material-actions';
 import { DEMO_CASE_ID } from '../case/case-scope';
 import { DEMO_ARTIFACTS } from './recordings';
 import {
   CONTRACT_TEXT_LAYER,
+  LEGAL_DEMO_ANCHOR_BLOCKED_COPY,
   LEGAL_DEMO_INTERACTION_TURN_ID,
   ensureLegalDemoInteraction,
+  openLegalDemoSource,
   resolveLegalDemoSource,
 } from './legal-interaction';
 
@@ -125,5 +129,86 @@ describe('risk-list.json × resolveReaderFocus 消费端对齐', () => {
     if (result.status === 'blocked') {
       expect(result.reason).toBe('anchor_invalid');
     }
+  });
+});
+
+/**
+ * DEMO-ANCHOR-2 · 样板案三面产物（时间线／关系图谱／矩阵审阅）的「回到原件」全链可达。
+ *
+ * 判别力座位同 `DEMO-ANCHOR-1`：不复制坐标算法，直接把产物锚点喂给**生产 resolver**
+ * （`resolveLegalDemoSource` 的路由与 fail-closed 判据 + `resolveReaderFocus` 的坐标算法）。
+ * 语料任一处漂移、路由漏一份原件、数据回退占位区间，本谱即红。
+ */
+function faceAnchors(artifact: unknown): SourceAnchor[] {
+  const found: SourceAnchor[] = [];
+  const walk = (node: unknown): void => {
+    if (Array.isArray(node)) { node.forEach(walk); return; }
+    if (node === null || typeof node !== 'object') return;
+    const record = node as Record<string, unknown>;
+    if (typeof record.fileId === 'string' && typeof record.quote === 'string') {
+      found.push(record as unknown as SourceAnchor);
+      return;
+    }
+    Object.values(record).forEach(walk);
+  };
+  walk(artifact);
+  return found;
+}
+
+describe('DEMO-ANCHOR-2 · 三面产物 × 生产 resolver 消费端对齐', () => {
+  const FACES: Array<[string, unknown, number]> = [
+    ['timeline', DEMO_ARTIFACTS.timeline, 49],
+    ['party-graph', DEMO_ARTIFACTS.partyGraph, 18],
+    ['review-matrix', DEMO_ARTIFACTS.reviewMatrix, 70],
+  ];
+
+  it.each(FACES)('%s 的全部锚点经 demo route 开面并按坐标落 focus', (face, artifact, expected) => {
+    const anchors = faceAnchors(artifact);
+    expect(anchors, `${face}: 锚点枚数`).toHaveLength(expected);
+    for (const anchor of anchors) {
+      const outcome = openLegalDemoSource(anchor as ResolvedSourceAnchor, DEMO_CASE_ID);
+      expect(outcome.kind, `${face} · ${anchor.fileId} · ${anchor.quote?.slice(0, 16)}… 必须可回跳`)
+        .toBe('reader');
+      if (outcome.kind !== 'reader') continue;
+      const focus = outcome.doc.focus;
+      expect(focus, '开面必须携焦点').toBeDefined();
+      const block = outcome.doc.blocks.find((candidate) => candidate.blockId === focus!.blockId)!;
+      expect(block.text.slice(focus!.localStart, focus!.localEnd)).toBe(anchor.quote);
+      // 生产坐标算法独立复核一遍：路由给出的文本层必须被 resolveReaderFocus 认。
+      expect(resolveReaderFocus(outcome.doc.blocks, anchor).status).toBe('focus');
+    }
+  });
+
+  it('未在 demo 语料内的 fileId 仍显式阻断（路由不是万能兜底）', () => {
+    const anchor = faceAnchors(DEMO_ARTIFACTS.timeline)[0]! as ResolvedSourceAnchor;
+    const outcome = openLegalDemoSource({ ...anchor, fileId: '未收录的原件.md' }, DEMO_CASE_ID);
+    expect(outcome.kind).toBe('blocked');
+  });
+});
+
+describe('DEMO-ANCHOR-2 · demo 路径的降级文案不指路重跑', () => {
+  it('demo 文案与生产文案分立，且不承诺样板案不存在的「重新运行场景」', () => {
+    expect(LEGAL_DEMO_ANCHOR_BLOCKED_COPY).not.toBe(MATERIAL_READER_BLOCK_REASON_COPY.anchor_invalid);
+    expect(LEGAL_DEMO_ANCHOR_BLOCKED_COPY).not.toContain('重新运行');
+    expect(LEGAL_DEMO_ANCHOR_BLOCKED_COPY).not.toContain('场景');
+    expect(LEGAL_DEMO_ANCHOR_BLOCKED_COPY).toContain('样板案');
+  });
+
+  it('两枚 statute 指定展品是该文案的活消费者（阻断仍在，只是不再乱指路）', () => {
+    const exhibits = DEMO_ARTIFACTS.riskList.risks
+      .flatMap((risk) => risk.basis.flatMap((basis) => basis.sourceAnchors))
+      .filter((anchor) => !anchor.textLayerVersion);
+    expect(exhibits).toHaveLength(2);
+    for (const anchor of exhibits) {
+      const outcome = openLegalDemoSource(anchor as ResolvedSourceAnchor, DEMO_CASE_ID);
+      expect(outcome.kind).toBe('blocked');
+      if (outcome.kind === 'blocked') expect(outcome.message).toBe(LEGAL_DEMO_ANCHOR_BLOCKED_COPY);
+    }
+  });
+
+  it('壳的 demo 两处分流都经 openLegalDemoSource，且不再借生产 anchor_invalid 文案', () => {
+    expect(appSource).toContain('openLegalDemoSource');
+    expect(appSource).not.toContain('MATERIAL_READER_BLOCK_REASON_COPY.anchor_invalid');
+    expect(appSource).not.toContain('resolveLegalDemoSource');
   });
 });

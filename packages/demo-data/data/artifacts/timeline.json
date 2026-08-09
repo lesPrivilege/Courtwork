@@ -17,9 +17,10 @@
           "fileId": "03-证据清单.md",
           "quote": "采购询价函（2024-07-20）",
           "textRange": {
-            "start": 0,
-            "end": 17
-          }
+            "start": 157,
+            "end": 174
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -39,9 +40,10 @@
           "fileId": "03-证据清单.md",
           "quote": "证明磋商过程",
           "textRange": {
-            "start": 0,
-            "end": 6
-          }
+            "start": 177,
+            "end": 183
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -61,9 +63,10 @@
           "fileId": "03-证据清单.md",
           "quote": "报价单及技术方案（2024-08-05）",
           "textRange": {
-            "start": 0,
-            "end": 20
-          }
+            "start": 200,
+            "end": 220
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -81,11 +84,12 @@
       "sourceAnchors": [
         {
           "fileId": "12-会议纪要-一.md",
-          "quote": "会议背景：双方于2024年12月10日完成设备联调并签署验收单",
+          "quote": "会议背景",
           "textRange": {
-            "start": 0,
-            "end": 31
-          }
+            "start": 116,
+            "end": 120
+          },
+          "textLayerVersion": "source-text@1:388:bddd746e"
         }
       ]
     },
@@ -107,9 +111,10 @@
           "fileId": "04-设备采购合同.md",
           "quote": "合同总价为人民币叁佰捌拾万元整（¥3,800,000元）",
           "textRange": {
-            "start": 0,
-            "end": 28
-          }
+            "start": 395,
+            "end": 423
+          },
+          "textLayerVersion": "source-text@1:1250:b936515f"
         }
       ]
     },
@@ -129,9 +134,10 @@
           "fileId": "04-设备采购合同.md",
           "quote": "上述款项均应支付至甲方指定收款账户",
           "textRange": {
-            "start": 0,
-            "end": 17
-          }
+            "start": 611,
+            "end": 628
+          },
+          "textLayerVersion": "source-text@1:1250:b936515f"
         }
       ]
     },
@@ -151,17 +157,19 @@
           "fileId": "04-设备采购合同.md",
           "quote": "乙方应于本合同签订后7日内支付",
           "textRange": {
-            "start": 0,
-            "end": 15
-          }
+            "start": 485,
+            "end": 500
+          },
+          "textLayerVersion": "source-text@1:1250:b936515f"
         },
         {
           "fileId": "01-起诉状.md",
           "quote": "被告一于2024年8月24日依约支付预付款1,140,000元",
           "textRange": {
-            "start": 0,
-            "end": 31
-          }
+            "start": 442,
+            "end": 473
+          },
+          "textLayerVersion": "source-text@1:795:4bc0f57d"
         }
       ]
     },
@@ -179,11 +187,12 @@
       "sourceAnchors": [
         {
           "fileId": "14-银行流水摘要.md",
-          "quote": "2024-08-26 采购合同预付款 1,140,000 临江精铸科技有限公司",
+          "quote": "合同约定预付款应付日期为2024年8月24日，本流水显示实际到账日期为2024年8月26日，迟延2日到账。",
           "textRange": {
-            "start": 0,
-            "end": 39
-          }
+            "start": 234,
+            "end": 287
+          },
+          "textLayerVersion": "source-text@1:440:12e7e4e1"
         }
       ],
       "markers": [
@@ -206,11 +215,12 @@
       "sourceAnchors": [
         {
           "fileId": "05-合同补充协议.md",
-          "quote": "第三批设备（自动化上下料系统）交付期限顺延至2024年11月30日",
+          "quote": "第三批设备（自动化上下料系统）交付期限顺延至",
           "textRange": {
-            "start": 0,
-            "end": 33
-          }
+            "start": 187,
+            "end": 209
+          },
+          "textLayerVersion": "source-text@1:492:c2fb3c6b"
         }
       ]
     },
@@ -230,9 +240,10 @@
           "fileId": "03-证据清单.md",
           "quote": "证明合同关系成立及主要权利义务",
           "textRange": {
-            "start": 0,
-            "end": 15
-          }
+            "start": 257,
+            "end": 272
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -252,9 +263,10 @@
           "fileId": "03-证据清单.md",
           "quote": "证明磋商过程",
           "textRange": {
-            "start": 0,
-            "end": 6
-          }
+            "start": 177,
+            "end": 183
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -273,9 +285,10 @@
           "fileId": "03-证据清单.md",
           "quote": "证明设备已实际交付",
           "textRange": {
-            "start": 0,
-            "end": 9
-          }
+            "start": 346,
+            "end": 355
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -295,9 +308,10 @@
           "fileId": "12-会议纪要-一.md",
           "quote": "会议背景",
           "textRange": {
-            "start": 0,
-            "end": 4
-          }
+            "start": 116,
+            "end": 120
+          },
+          "textLayerVersion": "source-text@1:388:bddd746e"
         }
       ]
     },
@@ -315,11 +329,12 @@
       "sourceAnchors": [
         {
           "fileId": "06-送货单-一.md",
-          "quote": "发货单位：临江精铸（云章）装备有限公司",
+          "quote": "发货单位（盖章）：临江精铸（云章）装备有限公司",
           "textRange": {
-            "start": 0,
-            "end": 19
-          }
+            "start": 347,
+            "end": 370
+          },
+          "textLayerVersion": "source-text@1:371:0030d90f"
         }
       ],
       "markers": [
@@ -341,9 +356,10 @@
           "fileId": "06-送货单-一.md",
           "quote": "签收日期：2024年10月16日",
           "textRange": {
-            "start": 0,
-            "end": 16
-          }
+            "start": 238,
+            "end": 254
+          },
+          "textLayerVersion": "source-text@1:371:0030d90f"
         }
       ]
     },
@@ -363,9 +379,10 @@
           "fileId": "03-证据清单.md",
           "quote": "证明磋商过程",
           "textRange": {
-            "start": 0,
-            "end": 6
-          }
+            "start": 177,
+            "end": 183
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -383,11 +400,12 @@
       "sourceAnchors": [
         {
           "fileId": "07-送货单-二.md",
-          "quote": "发货单位：临江精铸（云章）装备有限公司",
+          "quote": "发货单位（盖章）：临江精铸（云章）装备有限公司",
           "textRange": {
-            "start": 0,
-            "end": 19
-          }
+            "start": 356,
+            "end": 379
+          },
+          "textLayerVersion": "source-text@1:380:d2aab955"
         }
       ],
       "markers": [
@@ -410,9 +428,10 @@
           "fileId": "07-送货单-二.md",
           "quote": "签收日期：2024年11月6日",
           "textRange": {
-            "start": 0,
-            "end": 15
-          }
+            "start": 273,
+            "end": 288
+          },
+          "textLayerVersion": "source-text@1:380:d2aab955"
         }
       ]
     },
@@ -432,9 +451,10 @@
           "fileId": "03-证据清单.md",
           "quote": "证明设备已实际交付",
           "textRange": {
-            "start": 0,
-            "end": 9
-          }
+            "start": 346,
+            "end": 355
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -452,11 +472,12 @@
       "sourceAnchors": [
         {
           "fileId": "08-送货单-三.md",
-          "quote": "发货单位：临江精铸（云章）装备有限公司",
+          "quote": "发货单位（盖章）：临江精铸（云章）装备有限公司",
           "textRange": {
-            "start": 0,
-            "end": 19
-          }
+            "start": 348,
+            "end": 371
+          },
+          "textLayerVersion": "source-text@1:372:ab763bd4"
         }
       ],
       "markers": [
@@ -479,9 +500,10 @@
           "fileId": "08-送货单-三.md",
           "quote": "签收日期：2024年11月29日",
           "textRange": {
-            "start": 0,
-            "end": 16
-          }
+            "start": 242,
+            "end": 258
+          },
+          "textLayerVersion": "source-text@1:372:ab763bd4"
         }
       ]
     },
@@ -501,9 +523,10 @@
           "fileId": "12-会议纪要-一.md",
           "quote": "会议背景",
           "textRange": {
-            "start": 0,
-            "end": 4
-          }
+            "start": 116,
+            "end": 120
+          },
+          "textLayerVersion": "source-text@1:388:bddd746e"
         }
       ]
     },
@@ -523,9 +546,10 @@
           "fileId": "03-证据清单.md",
           "quote": "证明验收结论",
           "textRange": {
-            "start": 0,
-            "end": 6
-          }
+            "start": 384,
+            "end": 390
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -545,9 +569,10 @@
           "fileId": "09-验收单.md",
           "quote": "设备运行正常，验收合格",
           "textRange": {
-            "start": 0,
-            "end": 11
-          }
+            "start": 159,
+            "end": 170
+          },
+          "textLayerVersion": "source-text@1:332:485cb495"
         }
       ],
       "markers": [
@@ -570,17 +595,19 @@
           "fileId": "09-验收单.md",
           "quote": "验收当日熔炼炉温控系统曾出现短暂报警",
           "textRange": {
-            "start": 0,
-            "end": 18
-          }
+            "start": 279,
+            "end": 297
+          },
+          "textLayerVersion": "source-text@1:332:485cb495"
         },
         {
           "fileId": "15-情况说明.md",
           "quote": "我司现场技术人员即发现熔炼炉温控系统存在异常报警情况",
           "textRange": {
-            "start": 0,
-            "end": 26
-          }
+            "start": 93,
+            "end": 119
+          },
+          "textLayerVersion": "source-text@1:465:f2fdf813"
         }
       ]
     },
@@ -599,9 +626,10 @@
           "fileId": "15-情况说明.md",
           "quote": "我司生产部门持续反馈该设备温控运行不稳定",
           "textRange": {
-            "start": 0,
-            "end": 20
-          }
+            "start": 178,
+            "end": 198
+          },
+          "textLayerVersion": "source-text@1:465:f2fdf813"
         }
       ]
     },
@@ -621,9 +649,10 @@
           "fileId": "15-情况说明.md",
           "quote": "我司生产部门持续反馈该设备温控运行不稳定（2024年12月12日、12月15日）",
           "textRange": {
-            "start": 0,
-            "end": 40
-          }
+            "start": 178,
+            "end": 218
+          },
+          "textLayerVersion": "source-text@1:465:f2fdf813"
         }
       ]
     },
@@ -643,9 +672,10 @@
           "fileId": "12-会议纪要-一.md",
           "quote": "验收当日即发现熔炼炉温控系统异常，尚未正式验收",
           "textRange": {
-            "start": 0,
-            "end": 23
-          }
+            "start": 199,
+            "end": 222
+          },
+          "textLayerVersion": "source-text@1:388:bddd746e"
         }
       ],
       "markers": [
@@ -668,9 +698,10 @@
           "fileId": "04-设备采购合同.md",
           "quote": "验收款：合同总价60%，计人民币2,280,000元，乙方应于设备验收合格后15日内支付",
           "textRange": {
-            "start": 0,
-            "end": 44
-          }
+            "start": 505,
+            "end": 549
+          },
+          "textLayerVersion": "source-text@1:1250:b936515f"
         }
       ]
     },
@@ -690,9 +721,10 @@
           "fileId": "03-证据清单.md",
           "quote": "证明原告已履行催告义务",
           "textRange": {
-            "start": 0,
-            "end": 11
-          }
+            "start": 506,
+            "end": 517
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -712,9 +744,10 @@
           "fileId": "10-催告函-一.md",
           "quote": "（盖章：临江精铸集团有限公司）",
           "textRange": {
-            "start": 0,
-            "end": 15
-          }
+            "start": 254,
+            "end": 269
+          },
+          "textLayerVersion": "source-text@1:295:40a987c3"
         }
       ],
       "markers": [
@@ -736,9 +769,10 @@
           "fileId": "15-情况说明.md",
           "quote": "我司认为在设备质量问题未澄清前，全额支付验收款存在合理异议",
           "textRange": {
-            "start": 0,
-            "end": 29
-          }
+            "start": 381,
+            "end": 410
+          },
+          "textLayerVersion": "source-text@1:465:f2fdf813"
         }
       ]
     },
@@ -756,11 +790,12 @@
       "sourceAnchors": [
         {
           "fileId": "14-银行流水摘要.md",
-          "quote": "2025-01-22 设备款项（部分） 500,000 临江精铸国际贸易（云章）有限公司",
+          "quote": "2025年1月22日一笔500,000元款项流入\"临江精铸国际贸易（云章）有限公司\"账户，与合同附件《收款账户确认书》约定的\"临江精铸科技有限公司\"收款账户不一致，该笔款项性质及清偿效力存在争议。",
           "textRange": {
-            "start": 0,
-            "end": 44
-          }
+            "start": 291,
+            "end": 389
+          },
+          "textLayerVersion": "source-text@1:440:12e7e4e1"
         }
       ],
       "markers": [
@@ -782,9 +817,10 @@
           "fileId": "15-情况说明.md",
           "quote": "我司于2025年2月5日提出委托第三方机构对该设备进行检测",
           "textRange": {
-            "start": 0,
-            "end": 29
-          }
+            "start": 291,
+            "end": 320
+          },
+          "textLayerVersion": "source-text@1:465:f2fdf813"
         }
       ]
     },
@@ -804,9 +840,10 @@
           "fileId": "13-会议纪要-二.md",
           "quote": "双方协商未果，会议未形成一致结论",
           "textRange": {
-            "start": 0,
-            "end": 16
-          }
+            "start": 304,
+            "end": 320
+          },
+          "textLayerVersion": "source-text@1:331:0deedd5d"
         }
       ]
     },
@@ -826,9 +863,10 @@
           "fileId": "11-催告函-二.md",
           "quote": "（盖章：临江精铸科技有限公司）",
           "textRange": {
-            "start": 0,
-            "end": 15
-          }
+            "start": 281,
+            "end": 296
+          },
+          "textLayerVersion": "source-text@1:321:97ac8930"
         }
       ]
     },
@@ -848,9 +886,10 @@
           "fileId": "17-债权转让通知书.md",
           "quote": "我司（临江精铸科技有限公司）与华瑞商业保理（云章）有限公司于2025年3月20日签订《应收账款转让协议》",
           "textRange": {
-            "start": 0,
-            "end": 52
-          }
+            "start": 29,
+            "end": 81
+          },
+          "textLayerVersion": "source-text@1:362:4de7b1fd"
         }
       ]
     },
@@ -871,9 +910,10 @@
           "fileId": "17-债权转让通知书.md",
           "quote": "将我司对贵司享有的合同编号LJJZ-CY-2024-0817项下应收账款（验收款2,280,000元及质保金380,000元，合计2,660,000元）转让",
           "textRange": {
-            "start": 0,
-            "end": 78
-          }
+            "start": 82,
+            "end": 160
+          },
+          "textLayerVersion": "source-text@1:362:4de7b1fd"
         }
       ]
     },
@@ -892,9 +932,10 @@
           "fileId": "17-债权转让通知书.md",
           "quote": "起云智能装备（虚构）有限公司回函确认收悉，日期：2025年3月25日",
           "textRange": {
-            "start": 0,
-            "end": 34
-          }
+            "start": 327,
+            "end": 361
+          },
+          "textLayerVersion": "source-text@1:362:4de7b1fd"
         }
       ]
     },
@@ -913,11 +954,12 @@
       "sourceAnchors": [
         {
           "fileId": "16-律师函.md",
-          "quote": "请贵司于收到本函之日起10日内向委托人指定账户支付上述验收款项及相应违约金",
+          "quote": "于收到本函之日起10日内向委托人指定账户支付上述验收款项及相应违约金",
           "textRange": {
-            "start": 0,
-            "end": 37
-          }
+            "start": 275,
+            "end": 309
+          },
+          "textLayerVersion": "source-text@1:399:0b4313a9"
         }
       ]
     },
@@ -935,11 +977,12 @@
       "sourceAnchors": [
         {
           "fileId": "18-保证书.md",
-          "quote": "保证人二（个人）：麦承业",
+          "quote": "保证人二（签字）：麦承业",
           "textRange": {
-            "start": 0,
-            "end": 12
-          }
+            "start": 398,
+            "end": 410
+          },
+          "textLayerVersion": "source-text@1:411:621fbf42"
         }
       ]
     },
@@ -957,11 +1000,12 @@
       "sourceAnchors": [
         {
           "fileId": "18-保证书.md",
-          "quote": "保证人一（企业）：起云控股集团有限公司",
+          "quote": "保证人一（盖章）：起云控股集团有限公司",
           "textRange": {
-            "start": 0,
-            "end": 19
-          }
+            "start": 378,
+            "end": 397
+          },
+          "textLayerVersion": "source-text@1:411:621fbf42"
         }
       ]
     },
@@ -982,9 +1026,10 @@
           "fileId": "19-授权委托书.md",
           "quote": "现委托江城明澈律师事务所柏景行律师作为委托人",
           "textRange": {
-            "start": 0,
-            "end": 22
-          }
+            "start": 35,
+            "end": 57
+          },
+          "textLayerVersion": "source-text@1:310:eb427063"
         }
       ]
     },
@@ -1004,11 +1049,12 @@
       "sourceAnchors": [
         {
           "fileId": "01-起诉状.md",
-          "quote": "案号：(2025)云章03民初472号",
+          "quote": "云章市中级人民法院",
           "textRange": {
-            "start": 0,
-            "end": 19
-          }
+            "start": 760,
+            "end": 769
+          },
+          "textLayerVersion": "source-text@1:795:4bc0f57d"
         }
       ]
     },
@@ -1027,9 +1073,10 @@
           "fileId": "03-证据清单.md",
           "quote": "证明诉前程序",
           "textRange": {
-            "start": 0,
-            "end": 6
-          }
+            "start": 578,
+            "end": 584
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     },
@@ -1049,9 +1096,10 @@
           "fileId": "02-答辩状.md",
           "quote": "请求驳回原告全部或部分诉讼请求",
           "textRange": {
-            "start": 0,
-            "end": 15
-          }
+            "start": 672,
+            "end": 687
+          },
+          "textLayerVersion": "source-text@1:719:05d43d6b"
         }
       ]
     },
@@ -1071,9 +1119,10 @@
           "fileId": "03-证据清单.md",
           "quote": "提交日期：2025年5月6日（原告起诉时）；2025年6月20日（被告答辩补充）",
           "textRange": {
-            "start": 0,
-            "end": 40
-          }
+            "start": 796,
+            "end": 836
+          },
+          "textLayerVersion": "source-text@1:837:6042020f"
         }
       ]
     }

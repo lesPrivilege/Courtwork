@@ -8,8 +8,7 @@ import {
 import {
   LEGAL_DEMO_INTERACTION_TURN_ID,
   ensureLegalDemoInteraction,
-  resolveLegalDemoSource,
-  type LegalDemoSourceRoute,
+  openLegalDemoSource,
 } from './demo/legal-interaction';
 import {
   EMPTY_SESSION,
@@ -53,7 +52,6 @@ import {
   type CaseIngestDeps,
 } from './material/case-ingest';
 import {
-  MATERIAL_READER_BLOCK_REASON_COPY,
   readMaterialAction,
   verifyMaterialAction,
   type MaterialReaderDoc,
@@ -153,23 +151,6 @@ import type { ResolvedSourceAnchor, SourceAnchor } from '@courtwork/schemas';
 
 /** 工作面 id 的唯一定义在宿主注册表；壳只用别名，不再自持一份垂类枚举。 */
 type WorkbenchView = HostWorkbenchView;
-
-/**
- * CONTRACT-TRACE-1：demo route → canonical `MaterialReaderDoc` 的适配点。
- *
- * demo 语料没有 MaterialStore 重验链，故它的「文本层」只有一枚原文块；焦点直接取 resolver
- * 已验真的 `textRange`，**不保留 quote-search**。坐标齐备与否由调用方分流，此处不静默兜底。
- */
-function demoReaderDoc(route: LegalDemoSourceRoute): MaterialReaderDoc | null {
-  const { textRange: range, textLayerVersion } = route.focusAnchor;
-  if (!range || !textLayerVersion) return null;
-  return {
-    name: route.name,
-    markdown: route.markdown,
-    blocks: [{ blockId: 'source', text: route.markdown, rangeBase: 0, textLayerVersion }],
-    focus: { blockId: 'source', localStart: range.start, localEnd: range.end },
-  };
-}
 
 // R1：固定名只属样板案；production 产物名版本化，由 coordinator 从完整 replay 铸出（详见 SPEC）。
 const DEMO_CONTRACT_OUTPUT_FILE = '合同审查报告.docx';
@@ -468,21 +449,20 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     setInteractionReplay(replay);
   };
 
-  const openInteractionSource = async (anchor: Parameters<typeof resolveLegalDemoSource>[0]) => {
-    try {
-      const doc = demoReaderDoc(resolveLegalDemoSource(anchor, selectedCaseId));
-      // 坐标不齐即不开面（demo 亦然）：空白阅读面会被读成「这份文件没内容」。
-      if (!doc) throw new Error(MATERIAL_READER_BLOCK_REASON_COPY.anchor_invalid);
-      previewDismissedContext.current = null;
-      manualPreviewSelected.current = true;
-      setReaderDoc(doc);
-      setPreviewOpen(true);
-      setRightCollapsed(false);
-      setTurnRecoveryError(undefined);
-    } catch (error) {
-      setTurnRecoveryError(readableError(error, 'Unable to open source'));
-      throw error;
+  const openInteractionSource = async (anchor: Parameters<typeof openLegalDemoSource>[0]) => {
+    // 坐标不齐即不开面（demo 亦然）：空白阅读面会被读成「这份文件没内容」。
+    // 卡片自己接住抛出并就地显示，故阻断在此仍以异常上抛。
+    const outcome = openLegalDemoSource(anchor, selectedCaseId);
+    if (outcome.kind === 'blocked') {
+      setTurnRecoveryError(outcome.message);
+      throw new Error(outcome.message);
     }
+    previewDismissedContext.current = null;
+    manualPreviewSelected.current = true;
+    setReaderDoc(outcome.doc);
+    setPreviewOpen(true);
+    setRightCollapsed(false);
+    setTurnRecoveryError(undefined);
   };
 
   const workScenarioRunning = workRunning || (selectedCaseId === DEMO_CASE_ID && session.progress.length > 0 && !session.completed);
@@ -1393,17 +1373,13 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       return;
     }
     // demo 语料没有 MaterialStore 重验链，故走 demo adapter；坐标不齐即显式阻断，不开空白面。
-    let doc: MaterialReaderDoc | null;
-    try {
-      doc = demoReaderDoc(resolveLegalDemoSource(anchor as ResolvedSourceAnchor, selectedCaseId));
-    } catch {
-      doc = null;
-    }
-    if (!doc) {
-      showSystemFeedback(MATERIAL_READER_BLOCK_REASON_COPY.anchor_invalid, false, 'info');
+    // 阻断文案由 demo 侧自持：样板案没有可重跑的那次运行，生产文案的下一步在此不实指路。
+    const outcome = openLegalDemoSource(anchor as ResolvedSourceAnchor, selectedCaseId);
+    if (outcome.kind === 'blocked') {
+      showSystemFeedback(outcome.message, false, 'info');
       return;
     }
-    materialSink.openReader(doc);
+    materialSink.openReader(outcome.doc);
   };
 
   const confirmDraftCompile = () => {

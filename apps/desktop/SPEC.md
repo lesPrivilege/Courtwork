@@ -91,6 +91,88 @@ G1：`src/demo/legal-interaction.test.ts` 的消费端对齐测试删除复制�
 
 G2：6 枚可定位锚点经 `resolveReaderFocus` 全部 `{status:'focus'}`；risk-02[0] 与 risk-06[0] 指定展品（statute 文本无 textLayerVersion）经 resolver 落 `{status:'blocked', reason:'anchor_invalid'}`。5 枚 invalid fixture 不变。`recordings.ts` `citationStats` 随动：`firstPassResolved: 6, outOfCoverage: 2`；`session-event.contract.test.ts` 按 `locatable.length` 计算真值。output-confirm e2e 2/2 绿（nonapplied-confirm 2 处重现）。
 
+## DEMO-ANCHOR-2 · 样板案回跳路由扩面与 demo 侧降级文案（实现完成，待独立验收）
+
+权威：`LEGAL-ANCHOR-BINDING-1` 验收须处理项①，就绪图 `DEMO-ANCHOR-2` 行。基线 `main @ 7469243`。
+数据侧改动与逐锚点处置表住 `packages/demo-data/SPEC.md` 同票段。
+
+### 改动
+
+1. **`src/demo/legal-interaction.ts` 的路由由「单份合同」扩为「整语料目录」**：文本层改由
+   `import.meta.glob`（`?raw`, eager）取入卷宗与合同变体两目录，`fileId` 即文件名，版本仍由既有
+   `contentVersion` 现算。取 glob 而非逐份 `import`：路由表与语料目录同源，不留「代码里少写一份
+   原件」的同步账。**空 glob 与「语料整个消失」同形**，故模块加载时硬失败（不变量四），不让路由
+   静默退化成万能拒绝。`CONTRACT_TEXT_LAYER` 从同一张表派生，导出面与既有消费者零变化。
+2. **`LEGAL_DEMO_ANCHOR_BLOCKED_COPY` + `openLegalDemoSource`（新增，住 demo 模块）**：
+   生产 `MATERIAL_READER_BLOCK_REASON_COPY.anchor_invalid` 的下一步是「请重新运行产出它的场景」，
+   而样板案是录播回放、没有那次运行可重跑——照搬即不实指路。demo 分流自持一句文案，只说这一次
+   定位没成、以及样板案本身是只读展品，不派给用户一个做不到的动作。**生产文案一字未动。**
+   `openLegalDemoSource` 是样板案「回到原件」的唯一出口（路由 + 坐标 + 阻断文案同一处收口）；
+   非 demo caseId 照旧抛出，不化装成用户可见降级。
+3. **`App.tsx` 两处 demo 分流改吃该出口**，`demoReaderDoc` 随之外提进 demo 模块（App.tsx 2272→2248，净减 24，高水位门同批下调）。
+   `openInteractionSource` 保留「阻断即抛出」的既有形态——`InteractionTurnCard` 自己接住并就地显示。
+
+### 判据与红证
+
+- `src/demo/legal-interaction.test.ts` 新增 7 例：三面 137 枚锚点逐枚经**生产** `resolveLegalDemoSource`
+  开面、再经**生产** `resolveReaderFocus` 复核落 `focus`；未收录 `fileId` 仍显式阻断；demo 文案与
+  生产文案分立且不含「重新运行」「场景」；两枚 statute 展品是该文案的活消费者；壳侧两处分流不再
+  借生产 `anchor_invalid` 文案。
+- `tests/e2e/demo-anchor-2.spec.ts` 新增 4 例（时间线／关系图谱／矩阵审阅回跳 + 展品诚实文案）。
+  断言取**面上现读的引语**与阅读面高亮相等，不在谱里抄卷宗原句（语料墙）。
+  截图链：`release/evidence/demo-anchor-2-2026-08-09/`（4 帧）。
+- 变异红证三枚（均带命中校验，事后逐一还原并复绿）：
+  ① 文案换回生产句 → 单测 1 failed + e2e 该例 failed；
+  ② 路由收回只认合同一份 → 三面三例全红（15 passed / 3 failed）；
+  ③ 数据侧抽掉一枚 `textLayerVersion` → demo-data 谱 2 failed。
+  另有一枚跨层变异：把某格锚点改成跨 `**` 边界的等值区间（切片等式仍真、消费端谱仍 18/18 绿），
+  e2e「恰一处高亮」实测 `Expected: 1 / Received: 2`——`ReaderPane` 的分片渲染会把这类锚点
+  裂成多处，故该判据立在 demo-data 侧并有独立区分力。
+
+### 复杂度审视（本票新增了什么概念）
+
+**新增概念：一个**——`LegalDemoSourceOutcome`（demo 侧的 reader/blocked 二元出口）。为何非加不可：
+在此之前，「路由 → 文档 → 阻断文案」这条链在 `App.tsx` 里被写了两遍（一遍 try/throw、一遍
+try/catch/null），两处各自决定用哪句文案；本票要让 demo 文案与生产文案分立，若不收口就会出现
+第三份写法。收口后 App.tsx 两处各剩三行，2272→2248 净减 24 行（高水位门同批下调并留痕）。零新依赖、零新持久格式、零新状态机。
+`import.meta.glob` 是 Vite 既有能力（`?raw` 单份导入在 HEAD 已在用），不引入新工具面。
+
+**成熟 OSS 复核（以现行 HEAD 真实缺口为基线）**：本票新增 UI 面为零、新增机制为零；缺口是
+「样板案数据没有真坐标、路由只认一份原件、demo 借用了生产文案」，三者都是本仓语料与自研 resolver
+的内部事实，无外部件可接。**结论：删除当期动作（无候选可接，无新依赖）。**
+
+### 全量门（本会话自跑，分支 tip）
+
+| 相 | 结果 | 票面参考基线 |
+|---|---|---|
+| build | `pnpm -r build` 绿 | 绿 |
+| lint | `pnpm lint` 绿（零输出） | 绿 |
+| root test | **2135/2135**（173 文件） | 1986 |
+| desktop test | **831/831**（94 文件） | 824 |
+| Playwright | **384/384**，`test:e2e` 全链（38 枚静态门 + PW），floor 366 | 380（floor 366） |
+| site:guard | PASS（app-highwater 2248） | PASS |
+
+root +149 全部来自 `packages/demo-data/src/artifact-anchors.test.ts`（三面各五节，其中切片等式
+按锚点参数化：49 + 18 + 70 = 137，加三面各 4 节结构断言 = 149）。desktop +7 = `legal-interaction.test.ts`
+新增七例。PW +4 = `demo-anchor-2.spec.ts`。
+
+**cargo 未跑**：本票零 Rust 改动（`git diff --stat` 无 `src-tauri/**`、无 `packages/pi-lane/**`）。
+如实登记，不以「与 base 同值」冒充实跑。
+
+**他票证据还原**：`test:e2e` 全量跑会重生成 `legal-anchor-binding-1-2026-08-09/`（3 帧）、
+`legal-five-faces-1-2026-08-07/`（6 帧）与 `generic-pack-1-unloaded-2026-08-06/`（5 帧）的 PNG。
+跑完已 `git checkout --` 逐目录还原，提交前 `git status` 复核只剩本票自己的
+`demo-anchor-2-2026-08-09/`（承 Bin 行判例）。
+
+### 诚实边界
+
+- **样板案锚点的「对不对」只能证到逐字**：本票证的是引语逐字存在于语料并按坐标高亮，
+  **不证**引语是不是那条事件／关系／答案的最佳证据。两处引语退让（见 demo-data SPEC 偏离二）
+  即此边界的具体形态。
+- **`review-matrix` 三面同批处理但不同源**：它的十份对手方合同变体此前完全不在 demo 路由内，
+  随本票整目录取入后可回跳；面本身在样板案上早已可达（`view-matrix` 页签），非本票新接通。
+- **报交验点即停**：不自我验收、不合 `main`、不 push。
+
 ## MD-CONVERGE-1+ · ChatMarkdown 改用 remark 并扩围五项（实现完成，待独立验收）
 
 权威：[实现就绪图 `MD-CONVERGE-1+` 行](../../docs/architecture/implementation-readiness.md)（合票 `A/R-18` + `C/R-6`）。基线 `main @ a49db9c`。分支 `impl/md-converge-1`，隔离 worktree 施工（主工作树有票甲未提交面，不共仓）。desktop 内闭合，零 `packages/**`、零 `src-tauri` 改动，**未触 `App.tsx`**（就绪图该行 App.tsx 列标「否」的成立前提）。
