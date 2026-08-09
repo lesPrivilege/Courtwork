@@ -10,7 +10,7 @@ import {
   type ScenarioExecutorDeps,
 } from '@courtwork/core';
 import type { TurnRunnerPort } from '@courtwork/core';
-import type { PartyGraph, ReviewMatrix, Timeline } from '@courtwork/legal';
+import type { PartyGraph, ReviewMatrix, RevisionInstructionSet, Timeline } from '@courtwork/legal';
 import { LEGAL_PACKAGE } from '@courtwork/legal/package';
 import { admitPackages, buildPackageRegistries, type ScenarioRuntime } from '@courtwork/registry';
 import { createToolExecutor } from '@courtwork/tools';
@@ -277,5 +277,118 @@ describe('LEGAL-ANCHOR-BINDING-1 · S2 矩阵审阅的引用闭环（record 嵌�
     expect(matrix.rows).toEqual([]);
     expect(matrix.outOfCoverage).toHaveLength(1);
     expect(matrix.outOfCoverage[0]!.summary).toBe(FILE_ID);
+  });
+});
+
+/**
+ * LEGAL-ANCHOR-BINDING-2 · S4 修订指令集的引用闭环。与前两族的差别有三处，逐条被下面的谱咬住：
+ * ① 锚点住**三层嵌套**（`instructions[].annotation.citations[].sourceAnchors`），不是 item 直接键；
+ * ② 覆盖单元是**判别联合**的四支指令之一（resolver 逐单元读运行时对象，准入按每一支收判据）；
+ * ③ 最终形 `instructions` 保留 `.min(1)`——全灭时诚实硬失败，不产出零指令的批注稿。
+ */
+const revisionSetDraft = (citationQuotes: readonly (readonly [string, string])[]) => ({
+  id: 'revset-anchor-binding',
+  caseId: 'anchor-binding',
+  targetDocument: { fileId: FILE_ID },
+  instructions: citationQuotes.map(([instructionId, quote]) => ({
+    id: instructionId,
+    kind: 'commentOnly',
+    locator: { strategy: 'text', quote: PAYMENT_QUOTE },
+    annotation: {
+      text: '付款期限偏长，建议缩短并明确逾期利息。',
+      citations: [{ citation: '合同第二条', quoteClaims: [{ fileId: FILE_ID, exactQuote: quote }] }],
+    },
+  })),
+});
+
+const S4_INPUT = { inputArtifacts: {}, toolInputs: {}, materials: [MATERIAL] };
+
+describe('LEGAL-ANCHOR-BINDING-2 · S4 文书起草的引用闭环（判别联合单元 + 三层嵌套锚）', () => {
+  it('模型只交引语，批注依据的坐标由 resolver 在嵌套三层处铸造', async () => {
+    const { runner } = scriptedRunner(() => revisionSetDraft([['instr-01', PAYMENT_QUOTE]]));
+    const deps = buildDeps('s4-anchor', runner);
+
+    const result = await runScenario(scenario('legal.S4'), S4_INPUT, deps);
+    expect(result.status).toBe('paused');
+
+    const event = producedArtifact(deps, 'legal.RevisionInstructionSet');
+    const revisionSet = event.artifact as RevisionInstructionSet;
+    expect(revisionSet.instructions).toHaveLength(1);
+    const citation = revisionSet.instructions[0]!.annotation!.citations[0]!;
+    assertMintedAnchor(citation.sourceAnchors[0]!);
+    // 台账键是 core 签发的，模型侧结构性没有这个字段——草稿 parse 后它必然缺席。
+    expect(citation.evidenceKey).toBeUndefined();
+    expect(revisionSet.outOfCoverage).toEqual([]);
+    expect(event.citationStats).toEqual({
+      claims: 1, firstPassResolved: 1, retryRounds: 0, resolvedAfterRetry: 1, outOfCoverage: 0,
+    });
+  });
+
+  it('模型自报坐标的旧形态结构性走不通：草稿里没有 sourceAnchors 这个字段', async () => {
+    // BINDING-2 之前 S4 的模型侧就是最终形，模型自己写 fileId/textRange/textLayerVersion。
+    // 闭环落地后那套输出连字段都不存在：依据只剩 statuteRef 一条腿而 quoteClaims 缺席 ⇒ typed 拒收。
+    const { runner } = scriptedRunner(() => ({
+      id: 'revset-anchor-binding',
+      caseId: 'anchor-binding',
+      targetDocument: { fileId: FILE_ID },
+      instructions: [{
+        id: 'instr-01',
+        kind: 'commentOnly',
+        locator: { strategy: 'text', quote: PAYMENT_QUOTE },
+        annotation: {
+          text: '付款期限偏长。',
+          citations: [{
+            citation: '合同第二条',
+            sourceAnchors: [{ fileId: FILE_ID, textRange: { start: 0, end: 3 }, textLayerVersion: TEXT_LAYER_VERSION, quote: '第一条' }],
+          }],
+        },
+      }],
+    }));
+    const deps = buildDeps('s4-legacy-shape', runner);
+
+    await expect(runScenario(scenario('legal.S4'), S4_INPUT, deps)).rejects.toMatchObject({
+      name: 'GenerationValidationError',
+    });
+    expect(deps.eventLog.list().some(
+      (event) => event.type === 'artifact_produced' && event.artifactType === 'legal.RevisionInstructionSet',
+    )).toBe(false);
+    expect(JSON.stringify(deps.eventLog.list())).not.toContain('textRange');
+  });
+
+  it('一条不收敛只剪那一条：收敛的指令照常落格，缺口如实入表（覆盖单元＝指令）', async () => {
+    const { runner } = scriptedRunner((_stepId, attempt) => revisionSetDraft([
+      ['instr-01', PAYMENT_QUOTE],
+      ['instr-02', attempt === 1 ? '本合同不存在的句子' : '仍然编造的句子'],
+    ]));
+    const deps = buildDeps('s4-partial', runner);
+
+    const result = await runScenario(scenario('legal.S4'), S4_INPUT, deps);
+    expect(result.status).toBe('paused');
+
+    const event = producedArtifact(deps, 'legal.RevisionInstructionSet');
+    const revisionSet = event.artifact as RevisionInstructionSet;
+    expect(revisionSet.instructions.map((instruction) => instruction.id)).toEqual(['instr-01']);
+    // 摘要取 `id`：四支指令唯一共有的标量键（见 descriptor 注释）。
+    expect(revisionSet.outOfCoverage).toHaveLength(1);
+    expect(revisionSet.outOfCoverage[0]!.summary).toBe('instr-02');
+    expect(revisionSet.outOfCoverage[0]!.failures[0]!.reason).toBe('not_found');
+    expect(event.citationStats).toMatchObject({ retryRounds: 1, outOfCoverage: 1 });
+  });
+
+  it('全部指令都不收敛：剪枝后不过 min(1)，当场 typed 硬失败而非产出零指令批注稿', async () => {
+    const { runner } = scriptedRunner((_stepId, attempt) => revisionSetDraft([
+      ['instr-01', attempt === 1 ? '本合同不存在的句子' : '仍然编造的句子'],
+    ]));
+    const deps = buildDeps('s4-all-pruned', runner);
+
+    // 这是本票有意保留的边界：RevisionInstructionSet 带 file_write 副作用，
+    // 「什么都不改的批注稿」比显式失败更误导，故不放宽 min(1)。
+    await expect(runScenario(scenario('legal.S4'), S4_INPUT, deps)).rejects.toMatchObject({
+      name: 'GenerationValidationError',
+      message: expect.stringContaining('剪枝后的最终形未过 schema'),
+    });
+    expect(deps.eventLog.list().some(
+      (event) => event.type === 'artifact_produced' && event.artifactType === 'legal.RevisionInstructionSet',
+    )).toBe(false);
   });
 });

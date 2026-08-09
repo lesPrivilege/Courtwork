@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { OutOfCoverageEntrySchema, QuoteClaimSchema } from './citation.js';
 import { SourceAnchorSchema } from './source-anchor.js';
 
 const InstructionLocatorSchema = z.discriminatedUnion('strategy', [
@@ -107,10 +108,94 @@ export const RevisionInstructionSetSchema = z
     caseId: z.string().min(1),
     targetDocument: z.object({ fileId: z.string().min(1) }),
     instructions: z.array(RevisionInstructionSchema).min(1),
+    /**
+     * 引用闭环缺口（LEGAL-ANCHOR-BINDING-2，循 `legal.RiskList` 先例）：受限修复重试后仍
+     * 无法唯一锚定的**修订指令**移入本表——缺口如实呈现并携原判与失败原因。缺省空表，
+     * 存量最终形夹具零迁移（additive-default 键不升版，2026-08-09 裁定二）。
+     *
+     * 与三面的差别如实登记：`instructions` 保留 `.min(1)`。全部指令都不收敛时剪枝后的
+     * 最终形当场硬失败（`GenerationValidationError`），不产出零指令的修订指令集——
+     * 它带 `file_write` 副作用，「什么都不改的批注稿」比显式失败更误导。
+     */
+    outOfCoverage: z.array(OutOfCoverageEntrySchema).default([]),
   })
   .meta({
     title: 'RevisionInstructionSet',
     description:
-      '修订指令集：驱动 packages/output 产出带 Word 原生修订痕迹与批注的 .docx。每条指令 = 定位（文本锚/表格单元格/表格行）+ 操作（替换/插入/删除/纯批注）+ 可选批注（含依据引用）。定位鲁棒性、生成引擎实现均由消费方负责，本 schema 只约束契约形状。',
+      '修订指令集：驱动 packages/output 产出带 Word 原生修订痕迹与批注的 .docx。每条指令 = 定位（文本锚/表格单元格/表格行）+ 操作（替换/插入/删除/纯批注）+ 可选批注（含依据引用）+ 引用闭环缺口表。定位鲁棒性、生成引擎实现均由消费方负责，本 schema 只约束契约形状。',
   });
 export type RevisionInstructionSet = z.infer<typeof RevisionInstructionSetSchema>;
+
+/**
+ * 模型侧草稿形（LEGAL-ANCHOR-BINDING-2·「模型出引语，系统出坐标」）。与最终形的差别恰两处，
+ * 两处都是**系统裁决性事实退出模型输出面**：
+ * ① 依据引用携 `quoteClaims`（QuoteClaim）而非 `sourceAnchors`——坐标字段结构性不存在，
+ *    模型机制性失去伪造 offset 的能力，坐标由 citation resolver 唯一精确匹配后铸造；
+ * ② `evidenceKey` 不在草稿面——它由 core 的信源台账签发（W6.2），不是模型可自报的字段。
+ */
+const CitationDraftObjectSchema = z.object({
+  citation: z.string().min(1),
+  /** 依据在卷宗材料里的引语（可空）：纯法条引用不天然挂在已入卷文件上，此时以 statuteRef 立据。 */
+  quoteClaims: z.array(QuoteClaimSchema).default([]),
+  statuteRef: StatuteRefSchema.optional(),
+});
+
+export const CitationDraftSchema = CitationDraftObjectSchema.refine(
+  (value) => value.quoteClaims.length > 0 || value.statuteRef !== undefined,
+  {
+    message:
+      'quoteClaims 与 statuteRef 至少提供一个：纯散文依据引用不可核验（docs/decisions/ADR-003-evidence-and-anchors.md，C 级事实不得未经确认流入 docx 批注依据）',
+    path: ['quoteClaims'],
+  },
+);
+export type CitationDraft = z.infer<typeof CitationDraftSchema>;
+
+const AnnotationDraftSchema = z.object({
+  text: z.string().min(1),
+  citations: z.array(CitationDraftSchema).default([]),
+});
+export type AnnotationDraft = z.infer<typeof AnnotationDraftSchema>;
+
+export const RevisionInstructionDraftSchema = z.discriminatedUnion('kind', [
+  z.object({
+    id: z.string().min(1),
+    kind: z.literal('replace'),
+    locator: InstructionLocatorSchema,
+    text: z.string().min(1),
+    annotation: AnnotationDraftSchema.optional(),
+  }),
+  z.object({
+    id: z.string().min(1),
+    kind: z.literal('insert'),
+    locator: InstructionLocatorSchema,
+    text: z.string().min(1),
+    annotation: AnnotationDraftSchema.optional(),
+  }),
+  z.object({
+    id: z.string().min(1),
+    kind: z.literal('delete'),
+    locator: InstructionLocatorSchema,
+    annotation: AnnotationDraftSchema.optional(),
+  }),
+  z.object({
+    id: z.string().min(1),
+    kind: z.literal('commentOnly'),
+    locator: InstructionLocatorSchema,
+    annotation: AnnotationDraftSchema,
+  }),
+]);
+export type RevisionInstructionDraft = z.infer<typeof RevisionInstructionDraftSchema>;
+
+export const RevisionInstructionSetDraftSchema = z
+  .object({
+    id: z.string().min(1),
+    caseId: z.string().min(1),
+    targetDocument: z.object({ fileId: z.string().min(1) }),
+    instructions: z.array(RevisionInstructionDraftSchema).min(1),
+  })
+  .meta({
+    title: 'RevisionInstructionSetDraft',
+    description:
+      '修订指令集草稿（模型侧）：依据引用只携文件+页/块+逐字引语；坐标由 resolver 公证铸造，证据台账键由 core 签发，两者在本形状里都不存在。',
+  });
+export type RevisionInstructionSetDraft = z.infer<typeof RevisionInstructionSetDraftSchema>;

@@ -32,6 +32,7 @@ describe('LEGAL_PACKAGE（法律包准入自证：迁包后包必须过自己要
       'legal.ReviewMatrix',
       'legal.ReviewMatrixDraft',
       'legal.RevisionInstructionSet',
+      'legal.RevisionInstructionSetDraft',
       'legal.FileOpsPlan',
     ]);
   });

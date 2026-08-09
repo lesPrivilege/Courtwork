@@ -1,5 +1,9 @@
 import type { VerticalPackageBindings } from '@courtwork/registry';
-import { FileOpsPlanSchema, RevisionInstructionSetSchema } from '@courtwork/schemas';
+import {
+  FileOpsPlanSchema,
+  RevisionInstructionSetDraftSchema,
+  RevisionInstructionSetSchema,
+} from '@courtwork/schemas';
 import type { ZodType } from 'zod';
 import { CaseFileSchema } from '../schemas/case-file.js';
 import { PartyGraphDraftSchema, PartyGraphSchema } from '../schemas/party-graph.js';
@@ -20,6 +24,7 @@ export const LEGAL_PACKAGE_BINDINGS: VerticalPackageBindings = {
     ['legal.ReviewMatrix', ReviewMatrixSchema],
     ['legal.ReviewMatrixDraft', ReviewMatrixDraftSchema],
     ['legal.RevisionInstructionSet', RevisionInstructionSetSchema],
+    ['legal.RevisionInstructionSetDraft', RevisionInstructionSetDraftSchema],
     ['legal.FileOpsPlan', FileOpsPlanSchema],
   ]),
 };

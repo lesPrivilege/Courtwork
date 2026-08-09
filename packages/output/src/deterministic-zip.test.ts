@@ -24,6 +24,7 @@ const SET: RevisionInstructionSet = {
   id: 'ris-deterministic',
   caseId: 'case-deterministic',
   targetDocument: { fileId: 'contract-review-complex' },
+  outOfCoverage: [],
   instructions: [
     {
       id: 'instr-risk-01',

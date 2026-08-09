@@ -79,3 +79,30 @@
 
 - 新增唯一 `toDraft202012JsonSchema` 出口，显式固定 `target: 'draft-2020-12'` 与 `unrepresentable: 'throw'`；schemas 与 legal 的生成路径均复用该入口。
 - 反例以 `z.date()` 证明不可表达节点会抛错，不得静默退化成任意 JSON。本单未改变任何既有 schema 字段或运行时解析语义，也未引入 Ajv、反向转换或第三方 runtime。
+
+## LEGAL-ANCHOR-BINDING-2 · S4 修订指令集的引用闭环（2026-08-10，实现留痕）
+
+`RevisionInstructionSet`（S4 模型输出、output 管线 wire）此前是模型自报坐标的最终形，属
+「无锚不落格」同族的最后一枚未闭环项。本单补齐：
+
+- **最终形增 `outOfCoverage`**（`z.array(OutOfCoverageEntrySchema).default([])`，循 `RiskList` 先例）：
+  受限修复重试后仍无法唯一锚定的**修订指令**移入本表。additive-default 键，存量 payload 双向可读，
+  按 2026-08-09 裁定二不构成 ADR-009 升版事由。`instructions` 保留 `.min(1)`——全部指令都不收敛时
+  剪枝后的最终形当场硬失败（`GenerationValidationError`），不产出零指令的批注稿：
+  它带 `file_write` 副作用，「什么都不改的批注稿」比显式失败更误导。
+- **新增草稿形** `RevisionInstructionSetDraft` / `RevisionInstructionDraft` / `CitationDraft`。
+  与最终形的差别恰两处，两处都是**系统裁决性事实退出模型输出面**：
+  ① 依据引用携 `quoteClaims`（`QuoteClaim`）而非 `sourceAnchors`——坐标字段结构性不存在；
+  ② `evidenceKey` 不在草稿面——它由 core 的信源台账签发（W6.2），不是模型可自报的字段。
+  Citation 的 refine 同步改为「`quoteClaims` 与 `statuteRef` 至少提供一个」，语义与最终形逐条对应。
+- **锚族名常量**：`SOURCE_ANCHOR_TITLE` / `RESOLVED_SOURCE_ANCHOR_TITLE` 与其闭集
+  `SYSTEM_MINTED_ANCHOR_TITLES`。两枚常量直接用在各自 `.meta({ title })` 里，故字面漂移结构性不可能；
+  闭集是 `packages/registry` 准入层「模型输出是否携系统坐标」的**族定义真源**（谁定义类型谁定义族）。
+- 对外契约面同步：`SCHEMA_REGISTRY` 补 `RevisionInstructionSetDraft`（10 → 11 份）——
+  只出终形会让契约缺模型侧那半边。
+
+**受影响消费方逐点核对**：`packages/output` 全部 25 处 `RevisionInstructionSet` 字面量补
+`outOfCoverage: []`（纯 fixture，语义零变化，`applyRevisionInstructionSet` 不读该键）；
+`packages/legal` 的 `compileConfirmedRiskListToRevisionInstructions`（S3 确定性编译路径）补
+`outOfCoverage: []` 并注明**该路径结构性不产生引用闭环缺口**（不经模型、不经 resolver，
+锚点逐字取自已确认 RiskList，且 `riskList.outOfCoverage` 非空时上游已整份阻断）——不是「暂未填」。

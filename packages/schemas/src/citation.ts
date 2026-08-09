@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { SourceAnchorSchema } from './source-anchor.js';
+import { SOURCE_ANCHOR_TITLE, SourceAnchorSchema } from './source-anchor.js';
 
 /**
  * 引用闭环（HARNESS-1 拍板一，2026-07-12）：「模型出引语，系统出坐标」。
@@ -29,6 +29,8 @@ export type QuoteClaim = z.infer<typeof QuoteClaimSchema>;
  * textLayerVersion、quote 三者必备，且满足 anchor.quote === 文本层.slice(start, end)
  * 的终验等式（等式校验在 resolver 内执行，此处锁形状）。
  */
+export const RESOLVED_SOURCE_ANCHOR_TITLE = 'ResolvedSourceAnchor';
+
 export const ResolvedSourceAnchorSchema = SourceAnchorSchema.refine(
   (anchor) =>
     anchor.textRange !== undefined &&
@@ -36,10 +38,18 @@ export const ResolvedSourceAnchorSchema = SourceAnchorSchema.refine(
     anchor.quote !== undefined,
   { message: '公证锚点必须同时具备 textRange、textLayerVersion 与 quote' },
 ).meta({
-  title: 'ResolvedSourceAnchor',
+  title: RESOLVED_SOURCE_ANCHOR_TITLE,
   description: 'resolver 铸造的公证锚点：坐标 + 文本层版本 + 引语三者齐备，坐标是裁决性事实。',
 });
 export type ResolvedSourceAnchor = z.infer<typeof ResolvedSourceAnchorSchema>;
+
+/**
+ * 系统铸造坐标的 wire 类型名闭集（LEGAL-ANCHOR-BINDING-2）：准入层「模型输出携锚」的
+ * **族定义真源**。两枚都是 resolver 侧产物——模型侧结构性拿不到它们；凡最终 schema 里
+ * 出现其一，该 artifact 作模型输出时必须声明 `draftSchemaId` + `citationBinding`。
+ * 族定义住 wire 包（谁定义类型谁定义族），registry 只消费不重述。
+ */
+export const SYSTEM_MINTED_ANCHOR_TITLES = [SOURCE_ANCHOR_TITLE, RESOLVED_SOURCE_ANCHOR_TITLE] as const;
 
 /** 拒收理由封闭枚举：未命中 / 多义（非唯一命中）/ 文件不可达。 */
 export const CitationFailureReasonEnum = z.enum(['not_found', 'ambiguous', 'file_unavailable']);

@@ -1,6 +1,6 @@
 import { SourceAnchorSchema } from './source-anchor.js';
 import { RevisionEventSchema } from './revision-event.js';
-import { RevisionInstructionSetSchema } from './revision-instruction-set.js';
+import { RevisionInstructionSetDraftSchema, RevisionInstructionSetSchema } from './revision-instruction-set.js';
 import { FileOpsPlanSchema } from './file-ops-plan.js';
 import { ArtifactTypeIdSchema } from './artifact-type-id.js';
 import { ConfirmationPolicySchema } from './confirmation-policy.js';
@@ -14,6 +14,8 @@ export const SCHEMA_REGISTRY = [
   { name: 'SourceAnchor', schema: SourceAnchorSchema },
   { name: 'RevisionEvent', schema: RevisionEventSchema },
   { name: 'RevisionInstructionSet', schema: RevisionInstructionSetSchema },
+  // LEGAL-ANCHOR-BINDING-2：最终形的模型侧对偶随同一包出契约面——只出终形会让对外契约缺半边。
+  { name: 'RevisionInstructionSetDraft', schema: RevisionInstructionSetDraftSchema },
   { name: 'FileOpsPlan', schema: FileOpsPlanSchema },
   // SCHEMA-SPEC-1（2026-07-13）：namespaced/引用闭环/确认策略/投影/包身份五契约入对外契约面。
   { name: 'ArtifactTypeId', schema: ArtifactTypeIdSchema },

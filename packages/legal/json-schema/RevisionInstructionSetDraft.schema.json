@@ -131,7 +131,7 @@
                           "type": "string",
                           "minLength": 1
                         },
-                        "sourceAnchors": {
+                        "quoteClaims": {
                           "default": [],
                           "type": "array",
                           "items": {
@@ -146,67 +146,22 @@
                                 "exclusiveMinimum": 0,
                                 "maximum": 9007199254740991
                               },
-                              "bbox": {
-                                "type": "object",
-                                "properties": {
-                                  "x": {
-                                    "type": "number"
-                                  },
-                                  "y": {
-                                    "type": "number"
-                                  },
-                                  "width": {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0
-                                  },
-                                  "height": {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0
-                                  }
-                                },
-                                "required": [
-                                  "x",
-                                  "y",
-                                  "width",
-                                  "height"
-                                ],
-                                "additionalProperties": false
+                              "blockId": {
+                                "type": "string",
+                                "minLength": 1
                               },
-                              "textRange": {
-                                "type": "object",
-                                "properties": {
-                                  "start": {
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 9007199254740991
-                                  },
-                                  "end": {
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 9007199254740991
-                                  }
-                                },
-                                "required": [
-                                  "start",
-                                  "end"
-                                ],
-                                "additionalProperties": false,
-                                "description": "文本层字符区间；end 必须大于或等于 start，允许 start === end 的零长区间。",
-                                "x-courtwork-invariant": "end >= start"
-                              },
-                              "textLayerVersion": {
-                                "type": "string"
-                              },
-                              "quote": {
-                                "type": "string"
+                              "exactQuote": {
+                                "type": "string",
+                                "minLength": 1
                               }
                             },
                             "required": [
-                              "fileId"
+                              "fileId",
+                              "exactQuote"
                             ],
                             "additionalProperties": false,
-                            "title": "SourceAnchor",
-                            "description": "来源引用锚：一切可溯源交互的地基。定位到具体文件的页面坐标区域（bbox）和/或文本层字符区间（textRange）。quote 仅作展示与重锚定辅助，不是权威定位器。"
+                            "title": "QuoteClaim",
+                            "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
                           }
                         },
                         "statuteRef": {
@@ -229,15 +184,11 @@
                             "article"
                           ],
                           "additionalProperties": false
-                        },
-                        "evidenceKey": {
-                          "type": "string",
-                          "minLength": 1
                         }
                       },
                       "required": [
                         "citation",
-                        "sourceAnchors"
+                        "quoteClaims"
                       ],
                       "additionalProperties": false
                     }
@@ -361,7 +312,7 @@
                           "type": "string",
                           "minLength": 1
                         },
-                        "sourceAnchors": {
+                        "quoteClaims": {
                           "default": [],
                           "type": "array",
                           "items": {
@@ -376,67 +327,22 @@
                                 "exclusiveMinimum": 0,
                                 "maximum": 9007199254740991
                               },
-                              "bbox": {
-                                "type": "object",
-                                "properties": {
-                                  "x": {
-                                    "type": "number"
-                                  },
-                                  "y": {
-                                    "type": "number"
-                                  },
-                                  "width": {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0
-                                  },
-                                  "height": {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0
-                                  }
-                                },
-                                "required": [
-                                  "x",
-                                  "y",
-                                  "width",
-                                  "height"
-                                ],
-                                "additionalProperties": false
+                              "blockId": {
+                                "type": "string",
+                                "minLength": 1
                               },
-                              "textRange": {
-                                "type": "object",
-                                "properties": {
-                                  "start": {
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 9007199254740991
-                                  },
-                                  "end": {
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 9007199254740991
-                                  }
-                                },
-                                "required": [
-                                  "start",
-                                  "end"
-                                ],
-                                "additionalProperties": false,
-                                "description": "文本层字符区间；end 必须大于或等于 start，允许 start === end 的零长区间。",
-                                "x-courtwork-invariant": "end >= start"
-                              },
-                              "textLayerVersion": {
-                                "type": "string"
-                              },
-                              "quote": {
-                                "type": "string"
+                              "exactQuote": {
+                                "type": "string",
+                                "minLength": 1
                               }
                             },
                             "required": [
-                              "fileId"
+                              "fileId",
+                              "exactQuote"
                             ],
                             "additionalProperties": false,
-                            "title": "SourceAnchor",
-                            "description": "来源引用锚：一切可溯源交互的地基。定位到具体文件的页面坐标区域（bbox）和/或文本层字符区间（textRange）。quote 仅作展示与重锚定辅助，不是权威定位器。"
+                            "title": "QuoteClaim",
+                            "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
                           }
                         },
                         "statuteRef": {
@@ -459,15 +365,11 @@
                             "article"
                           ],
                           "additionalProperties": false
-                        },
-                        "evidenceKey": {
-                          "type": "string",
-                          "minLength": 1
                         }
                       },
                       "required": [
                         "citation",
-                        "sourceAnchors"
+                        "quoteClaims"
                       ],
                       "additionalProperties": false
                     }
@@ -587,7 +489,7 @@
                           "type": "string",
                           "minLength": 1
                         },
-                        "sourceAnchors": {
+                        "quoteClaims": {
                           "default": [],
                           "type": "array",
                           "items": {
@@ -602,67 +504,22 @@
                                 "exclusiveMinimum": 0,
                                 "maximum": 9007199254740991
                               },
-                              "bbox": {
-                                "type": "object",
-                                "properties": {
-                                  "x": {
-                                    "type": "number"
-                                  },
-                                  "y": {
-                                    "type": "number"
-                                  },
-                                  "width": {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0
-                                  },
-                                  "height": {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0
-                                  }
-                                },
-                                "required": [
-                                  "x",
-                                  "y",
-                                  "width",
-                                  "height"
-                                ],
-                                "additionalProperties": false
+                              "blockId": {
+                                "type": "string",
+                                "minLength": 1
                               },
-                              "textRange": {
-                                "type": "object",
-                                "properties": {
-                                  "start": {
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 9007199254740991
-                                  },
-                                  "end": {
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 9007199254740991
-                                  }
-                                },
-                                "required": [
-                                  "start",
-                                  "end"
-                                ],
-                                "additionalProperties": false,
-                                "description": "文本层字符区间；end 必须大于或等于 start，允许 start === end 的零长区间。",
-                                "x-courtwork-invariant": "end >= start"
-                              },
-                              "textLayerVersion": {
-                                "type": "string"
-                              },
-                              "quote": {
-                                "type": "string"
+                              "exactQuote": {
+                                "type": "string",
+                                "minLength": 1
                               }
                             },
                             "required": [
-                              "fileId"
+                              "fileId",
+                              "exactQuote"
                             ],
                             "additionalProperties": false,
-                            "title": "SourceAnchor",
-                            "description": "来源引用锚：一切可溯源交互的地基。定位到具体文件的页面坐标区域（bbox）和/或文本层字符区间（textRange）。quote 仅作展示与重锚定辅助，不是权威定位器。"
+                            "title": "QuoteClaim",
+                            "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
                           }
                         },
                         "statuteRef": {
@@ -685,15 +542,11 @@
                             "article"
                           ],
                           "additionalProperties": false
-                        },
-                        "evidenceKey": {
-                          "type": "string",
-                          "minLength": 1
                         }
                       },
                       "required": [
                         "citation",
-                        "sourceAnchors"
+                        "quoteClaims"
                       ],
                       "additionalProperties": false
                     }
@@ -812,7 +665,7 @@
                           "type": "string",
                           "minLength": 1
                         },
-                        "sourceAnchors": {
+                        "quoteClaims": {
                           "default": [],
                           "type": "array",
                           "items": {
@@ -827,67 +680,22 @@
                                 "exclusiveMinimum": 0,
                                 "maximum": 9007199254740991
                               },
-                              "bbox": {
-                                "type": "object",
-                                "properties": {
-                                  "x": {
-                                    "type": "number"
-                                  },
-                                  "y": {
-                                    "type": "number"
-                                  },
-                                  "width": {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0
-                                  },
-                                  "height": {
-                                    "type": "number",
-                                    "exclusiveMinimum": 0
-                                  }
-                                },
-                                "required": [
-                                  "x",
-                                  "y",
-                                  "width",
-                                  "height"
-                                ],
-                                "additionalProperties": false
+                              "blockId": {
+                                "type": "string",
+                                "minLength": 1
                               },
-                              "textRange": {
-                                "type": "object",
-                                "properties": {
-                                  "start": {
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 9007199254740991
-                                  },
-                                  "end": {
-                                    "type": "integer",
-                                    "minimum": 0,
-                                    "maximum": 9007199254740991
-                                  }
-                                },
-                                "required": [
-                                  "start",
-                                  "end"
-                                ],
-                                "additionalProperties": false,
-                                "description": "文本层字符区间；end 必须大于或等于 start，允许 start === end 的零长区间。",
-                                "x-courtwork-invariant": "end >= start"
-                              },
-                              "textLayerVersion": {
-                                "type": "string"
-                              },
-                              "quote": {
-                                "type": "string"
+                              "exactQuote": {
+                                "type": "string",
+                                "minLength": 1
                               }
                             },
                             "required": [
-                              "fileId"
+                              "fileId",
+                              "exactQuote"
                             ],
                             "additionalProperties": false,
-                            "title": "SourceAnchor",
-                            "description": "来源引用锚：一切可溯源交互的地基。定位到具体文件的页面坐标区域（bbox）和/或文本层字符区间（textRange）。quote 仅作展示与重锚定辅助，不是权威定位器。"
+                            "title": "QuoteClaim",
+                            "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
                           }
                         },
                         "statuteRef": {
@@ -910,15 +718,11 @@
                             "article"
                           ],
                           "additionalProperties": false
-                        },
-                        "evidenceKey": {
-                          "type": "string",
-                          "minLength": 1
                         }
                       },
                       "required": [
                         "citation",
-                        "sourceAnchors"
+                        "quoteClaims"
                       ],
                       "additionalProperties": false
                     }
@@ -941,95 +745,16 @@
           }
         ]
       }
-    },
-    "outOfCoverage": {
-      "default": [],
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "summary": {
-            "type": "string",
-            "minLength": 1
-          },
-          "reason": {
-            "type": "string",
-            "const": "citation_unresolved"
-          },
-          "failures": {
-            "minItems": 1,
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "claim": {
-                  "type": "object",
-                  "properties": {
-                    "fileId": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "page": {
-                      "type": "integer",
-                      "exclusiveMinimum": 0,
-                      "maximum": 9007199254740991
-                    },
-                    "blockId": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "exactQuote": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": [
-                    "fileId",
-                    "exactQuote"
-                  ],
-                  "additionalProperties": false,
-                  "title": "QuoteClaim",
-                  "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
-                },
-                "reason": {
-                  "type": "string",
-                  "enum": [
-                    "not_found",
-                    "ambiguous",
-                    "file_unavailable"
-                  ]
-                },
-                "occurrences": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9007199254740991
-                }
-              },
-              "required": [
-                "claim",
-                "reason"
-              ],
-              "additionalProperties": false
-            }
-          }
-        },
-        "required": [
-          "summary",
-          "reason",
-          "failures"
-        ],
-        "additionalProperties": false
-      }
     }
   },
   "required": [
     "id",
     "caseId",
     "targetDocument",
-    "instructions",
-    "outOfCoverage"
+    "instructions"
   ],
   "additionalProperties": false,
-  "title": "RevisionInstructionSet",
-  "description": "修订指令集：驱动 packages/output 产出带 Word 原生修订痕迹与批注的 .docx。每条指令 = 定位（文本锚/表格单元格/表格行）+ 操作（替换/插入/删除/纯批注）+ 可选批注（含依据引用）+ 引用闭环缺口表。定位鲁棒性、生成引擎实现均由消费方负责，本 schema 只约束契约形状。"
+  "title": "RevisionInstructionSetDraft",
+  "description": "修订指令集草稿（模型侧）：依据引用只携文件+页/块+逐字引语；坐标由 resolver 公证铸造，证据台账键由 core 签发，两者在本形状里都不存在。",
+  "$id": "urn:courtwork:schema:legal.RevisionInstructionSetDraft:v1"
 }

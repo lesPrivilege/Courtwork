@@ -172,5 +172,9 @@ export function compileConfirmedRiskListToRevisionInstructions(
     caseId: riskList.caseId,
     targetDocument: { fileId: targetFileId },
     instructions,
+    // 本编译路径不经模型、不经 citation resolver：锚点逐字取自已确认 RiskList 的既有
+    // sourceAnchors，且 `riskList.outOfCoverage` 非空时上面已整份阻断。故缺口表恒空——
+    // 不是「暂未填」，是这条路径结构性不产生引用闭环缺口（LEGAL-ANCHOR-BINDING-2）。
+    outOfCoverage: [],
   };
 }

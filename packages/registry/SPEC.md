@@ -188,3 +188,33 @@ type InteractionTemplate = {
 - 与 **PM-SCHEMA-1** 的定序：本单触碰 registry 准入面（`admission.ts` 与反例测试）；PM-SCHEMA-1 若同样触碰准入面（OOC/Estimate 语义），须按同包互斥定序，不得并行改。本单未改 estimate 形状门、未改 payload/schema 语义、未改 `PresentationFieldFormatSchema`。
 - **vertical-package-exports.test.ts 瞬态红——已结案（1R F-D，验收定位，非 flaky）**：初版 mutation 收尾后的首次合跑中，「全仓只有 demo-runtime、acceptance 与 test 可以消费 /testing」用例出现单次红。**机制结论**：该测试是文件系统扫描器，对「仓内任意 `.ts/.tsx/.mts/.mjs` 文件消费 `@courtwork/*/testing` 且路径不在白名单」触红——当时红因是 mutation 备份的游离 `.ts` 文件短暂落仓内且消费 `/testing`，**门对、红真、非 flaky**（扫描器把游离文件当真实代码审计正是其职责）。对治：备份一律落 `$TMPDIR` 仓外，不留仓内游离 `.ts`。此前「待验收复跑观察」措辞撤销。
 
+
+## LEGAL-ANCHOR-BINDING-2 · 引用闭环判据上收（2026-08-10，实现留痕）
+
+**缺口来源**：`LEGAL-ANCHOR-BINDING-1` 上呈的连带事实——场景 `outputArtifacts` 的引用闭环守卫
+此前只认 `presentation.fields.format === 'anchor'`，即「包自己在呈现声明里说有锚」。走
+`rehydrationProjection` 路径的 artifact（legal 全族）不写 `presentation`，**结构上照不到**：
+一枚携系统坐标却不声明 `draftSchemaId` + `citationBinding` 的模型输出可以从那条缝里过门。
+
+**上收后的判据**（两轴并存，命中其一即要求闭环）：
+
+1. **呈现轴**（既有）：`presentation.fields` 含 `format==='anchor'`；
+2. **结构轴**（新增）：最终 schema 树内出现 `@courtwork/schemas` 的系统铸造锚——判据是
+   wire 包登记的 meta title（`SYSTEM_MINTED_ANCHOR_TITLES` = `SourceAnchor` / `ResolvedSourceAnchor`），
+   **族定义真源住 wire 包，registry 只消费不重述**，不在准入层写魔法串、不认字段名、不认形状。
+
+实现：`CollectedSchemaInfo` 增 `carriesSystemMintedAnchor`；最终 schema 每包每 artifact **只走一遍**
+walker，枚举词表与携锚判定是同一次遍历的两个读出面（此前呈现声明路径根本不走 walker，
+上收后同样纳入 fail-closed 未识别节点覆盖）。拒因文案同批改写为「将携系统铸造坐标的 X 列为模型输出时
+必须同时声明独立 draftSchemaId + citationBinding（无锚不落格：模型出引语，系统出坐标）」。
+
+**同批的 item 形态扩面（S4 结构性前置，非可选优化）**：`citationBinding` 的覆盖单元此前只接
+单一 `ZodObject`，而 `legal.RevisionInstructionSet` 的 `/instructions` 是四支修订指令的
+`z.discriminatedUnion`（实测 `instanceof z.ZodUnion === true`，一条判据覆盖两类）。新增
+`itemObjectBranches`：单对象或**全分支皆对象**的联合才算合法 item 根，且 item 级字段判据按
+**每一支都须满足**收——一支缺 `itemSummaryField` 就足以让缺口摘要静默回落 `(无摘要)`。
+有非对象分支即拒载（fail-closed，同 walker 的 unknown 处置：绝不 unknown → 跳过）。
+
+**如实登记的判据上界**：包内自造的同形锚对象（无 meta title）不在结构轴上。它不构成静默洞——
+那样的对象不是 resolver 的写回目标，本就没有引用闭环契约可言；但准入层确实照不到它，
+已以正向反例（`admission.test.ts`「把锚换成不携该 title 的同形对象即不再触发」）把这条边界钉住。

@@ -41,6 +41,12 @@ const SourceAnchorObjectSchema = z.object({
   quote: z.string().optional(),
 });
 
+/**
+ * 系统铸造坐标的 wire 类型名（LEGAL-ANCHOR-BINDING-2）。准入层以 meta title 判定
+ * 「模型输出是否携系统坐标」，判据真源住 wire 包本身——不在 registry 里写魔法串。
+ */
+export const SOURCE_ANCHOR_TITLE = 'SourceAnchor';
+
 export const SourceAnchorSchema = SourceAnchorObjectSchema.refine(
   (value) => value.bbox !== undefined || value.textRange !== undefined,
   {
@@ -53,7 +59,7 @@ export const SourceAnchorSchema = SourceAnchorObjectSchema.refine(
     path: ['page'],
   })
   .meta({
-    title: 'SourceAnchor',
+    title: SOURCE_ANCHOR_TITLE,
     description:
       '来源引用锚：一切可溯源交互的地基。定位到具体文件的页面坐标区域（bbox）和/或文本层字符区间（textRange）。quote 仅作展示与重锚定辅助，不是权威定位器。',
   });

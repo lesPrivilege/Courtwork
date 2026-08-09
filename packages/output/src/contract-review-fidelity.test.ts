@@ -37,6 +37,7 @@ const SET: RevisionInstructionSet = {
   id: 'ris-fidelity',
   caseId: 'case-fidelity',
   targetDocument: { fileId: 'material-primary-contract' },
+  outOfCoverage: [],
   instructions: [
     {
       id: 'instr-risk-01',

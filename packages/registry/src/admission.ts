@@ -3,6 +3,7 @@ import {
   ArtifactTypeIdSchema,
   parseArtifactTypeId,
   sideEffectsPermitNoGate,
+  SYSTEM_MINTED_ANCHOR_TITLES,
   type SideEffectClass,
 } from '@courtwork/schemas';
 import {
@@ -46,6 +47,18 @@ interface CollectedSchemaInfo {
   /** 数组键 → 命中节点路径集合（从收集根开始的 shape 键序列，数组元素以 `[]` 占位；JSON 序列化防键名歧义）——
    *  G-3 同位判据：resolver 把锚写在 draftField 命中的那个节点，anchorField 必须与 draftField 同路径命中。 */
   arrayKeyPaths: Map<string, Set<string>>;
+  /** 树内是否出现 `@courtwork/schemas` 的系统铸造锚（LEGAL-ANCHOR-BINDING-2 引用闭环上收判据）。 */
+  carriesSystemMintedAnchor: boolean;
+}
+
+function emptySchemaInfo(): CollectedSchemaInfo {
+  return {
+    enums: new Map(),
+    keys: new Set(),
+    arrayKeys: new Set(),
+    arrayKeyPaths: new Map(),
+    carriesSystemMintedAnchor: false,
+  };
 }
 
 /** 结构性不可能含枚举/子键的标量叶子（zod 4.4.3 全量）。
@@ -84,6 +97,14 @@ function collectSchemaInfo(
   visited: Map<object, Set<string | undefined>>,
   path: readonly string[] = [],
 ): void {
+  // 系统铸造锚的族判据（LEGAL-ANCHOR-BINDING-2）：认 wire 包登记的 meta title，不认字段名、
+  // 不认形状——判据真源住 `@courtwork/schemas`，registry 只消费。置于 visited 短路之前，
+  // 使「同一 schema 换字段名再现」也不会漏记。
+  const registeredTitle = z.globalRegistry.get(schema)?.title;
+  if (registeredTitle !== undefined && (SYSTEM_MINTED_ANCHOR_TITLES as readonly string[]).includes(registeredTitle)) {
+    info.carriesSystemMintedAnchor = true;
+  }
+
   const seenFields = visited.get(schema);
   if (seenFields !== undefined && seenFields.has(fieldName)) return;
   if (seenFields === undefined) visited.set(schema, new Set());
@@ -165,10 +186,9 @@ function collectSchemaInfo(
   );
 }
 
-function checkEnumVocabulary(descriptor: ArtifactDescriptorDataV1, schema: z.ZodType): string[] {
+/** 零编码暴露律：wire 枚举必须经词表映射。info 由调用方一次收集后复用（同一棵树不重复走）。 */
+function checkEnumVocabulary(descriptor: ArtifactDescriptorDataV1, info: CollectedSchemaInfo): string[] {
   const issues: string[] = [];
-  const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set(), arrayKeys: new Set(), arrayKeyPaths: new Map() };
-  collectSchemaInfo(schema, undefined, info, descriptor.typeId, issues, new Map());
   for (const [field, options] of info.enums) {
     const labels = descriptor.vocabulary?.enumLabels?.[field];
     if (labels === undefined) {
@@ -205,7 +225,7 @@ function checkCitationBinding(
   // 1R F-C：visited 每次 collect() 内新建——draft/final 绑同一 ZodType 对象时共享 visited 会让
   // 后续 collect 漏收键（假拒且拒因与事实相反）。环保护仍由单次 collect 内的 visited 承担。
   const collect = (schema: z.ZodTypeAny): CollectedSchemaInfo => {
-    const info: CollectedSchemaInfo = { enums: new Map(), keys: new Set(), arrayKeys: new Set(), arrayKeyPaths: new Map() };
+    const info = emptySchemaInfo();
     collectSchemaInfo(schema, undefined, info, descriptor.typeId, issues, new Map());
     return info;
   };
@@ -229,15 +249,16 @@ function checkCitationBinding(
     return issues;
   }
   const draftItem = unwrapSchema(scopeSchema.element as z.ZodTypeAny);
-  if (!(draftItem instanceof z.ZodObject)) {
+  const draftBranches = itemObjectBranches(draftItem);
+  if (draftBranches === undefined) {
     issues.push(
-      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 的草稿元素不是对象，无法核对 item 级字段`,
+      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 的草稿元素不是对象、也不是全对象分支的联合，无法核对 item 级字段`,
     );
     return issues;
   }
-  if (!(binding.itemSummaryField in (draftItem.shape as object))) {
+  if (!draftBranches.every((branch) => binding.itemSummaryField in (branch.shape as object))) {
     issues.push(
-      `descriptor ${descriptor.typeId} citationBinding.itemSummaryField "${binding.itemSummaryField}" 不是草稿 item 根对象直接键（缺口摘要将回落 (无摘要)）`,
+      `descriptor ${descriptor.typeId} citationBinding.itemSummaryField "${binding.itemSummaryField}" 不是草稿 item 根对象直接键（分支联合须每一支都有；缺口摘要将回落 (无摘要)）`,
     );
   }
   const draftInfo = collect(draftItem);
@@ -255,9 +276,9 @@ function checkCitationBinding(
     return issues;
   }
   const finalItem = unwrapSchema(finalScopeSchema.element as z.ZodTypeAny);
-  if (!(finalItem instanceof z.ZodObject)) {
+  if (itemObjectBranches(finalItem) === undefined) {
     issues.push(
-      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 的最终元素不是对象，无法核对 item 级字段`,
+      `descriptor ${descriptor.typeId} citationBinding.itemScope "${binding.itemScope}" 的最终元素不是对象、也不是全对象分支的联合，无法核对 item 级字段`,
     );
     return issues;
   }
@@ -280,6 +301,28 @@ function checkCitationBinding(
     );
   }
   return issues;
+}
+
+/**
+ * 覆盖单元的 item 根形态（LEGAL-ANCHOR-BINDING-2）：单对象，或**全分支皆对象**的联合
+ * （`legal.RevisionInstructionSet` 的 replace/insert/delete/commentOnly 四支修订指令
+ * 是 `z.discriminatedUnion`，实测 `instanceof z.ZodUnion === true`，故一条判据覆盖两类）。
+ *
+ * resolver 逐单元读的是运行时对象，任一分支都可能成为那个单元，故 item 级判据按
+ * **每一支都须满足**收：一支缺 `itemSummaryField` 就足以让缺口摘要静默回落 `(无摘要)`。
+ * 有非对象分支即返回 undefined——不能证明全分支覆盖就拒载（fail-closed，同 walker 的
+ * unknown 节点处置：绝不 unknown → 跳过）。
+ */
+function itemObjectBranches(schema: z.ZodTypeAny): z.ZodObject[] | undefined {
+  const target = unwrapSchema(schema);
+  if (target instanceof z.ZodObject) return [target];
+  if (target instanceof z.ZodUnion) {
+    const branches = (target.options as z.ZodTypeAny[]).map((option) => unwrapSchema(option));
+    if (branches.length > 0 && branches.every((branch) => branch instanceof z.ZodObject)) {
+      return branches as z.ZodObject[];
+    }
+  }
+  return undefined;
 }
 
 function unwrapSchema(schema: z.ZodTypeAny): z.ZodTypeAny {
@@ -640,6 +683,8 @@ function admitOne(
   const declaredArtifacts = new Map<string, ArtifactDescriptorDataV1>();
   const declaredSchemaIds = new Set<string>();
   const declaredEffects = new Map<string, SideEffectClass>();
+  /** 最终 schema 结构上携系统铸造锚的 artifact（LEGAL-ANCHOR-BINDING-2 引用闭环上收判据的读面）。 */
+  const anchoredArtifacts = new Set<string>();
   for (const artifact of descriptor.artifacts) {
     const { namespace } = parseArtifactTypeId(artifact.typeId);
     if (namespace !== packageId) {
@@ -664,7 +709,12 @@ function admitOne(
     }
     const finalSchema = schemaBindings.get(artifact.schemaId);
     if (finalSchema !== undefined) {
-      if (artifact.presentation === undefined) issues.push(...checkEnumVocabulary(artifact, finalSchema));
+      // 最终 schema 只走一遍：枚举词表与「是否携系统铸造锚」是同一次遍历的两个读出面
+      // （呈现声明路径此前不走 walker，上收后同样纳入 fail-closed 覆盖）。
+      const finalInfo = emptySchemaInfo();
+      collectSchemaInfo(finalSchema as z.ZodTypeAny, undefined, finalInfo, artifact.typeId, issues, new Map());
+      if (finalInfo.carriesSystemMintedAnchor) anchoredArtifacts.add(artifact.typeId);
+      if (artifact.presentation === undefined) issues.push(...checkEnumVocabulary(artifact, finalInfo));
       else issues.push(...checkPresentation(artifact, finalSchema));
       if (artifact.citationBinding !== undefined) {
         const draftSchema = schemaBindings.get(artifact.draftSchemaId as string);
@@ -720,10 +770,14 @@ function admitOne(
     }
     for (const ref of value.outputArtifacts) {
       const artifact = declaredArtifacts.get(ref);
-      const containsAnchor = artifact?.presentation?.fields.some((field) => field.format === 'anchor') ?? false;
+      // LEGAL-ANCHOR-BINDING-2 上收：判据从「呈现声明说自己有锚」扩到「最终 schema 结构上
+      // 就携系统铸造锚」。前者是包自报的呈现意图，走 rehydrationProjection 的 artifact
+      // 结构性照不到；后者是 schema 事实，任何路径都躲不掉。两轴并存，命中其一即要求闭环。
+      const declaresAnchorPresentation = artifact?.presentation?.fields.some((field) => field.format === 'anchor') ?? false;
+      const containsAnchor = declaresAnchorPresentation || anchoredArtifacts.has(ref);
       if (containsAnchor && (artifact?.draftSchemaId === undefined || artifact.citationBinding === undefined)) {
         issues.push(
-          `场景 ${value.id} 将含 anchor presentation 的 ${ref} 列为模型输出时必须同时声明独立 draftSchemaId + citationBinding`,
+          `场景 ${value.id} 将携系统铸造坐标的 ${ref} 列为模型输出时必须同时声明独立 draftSchemaId + citationBinding（无锚不落格：模型出引语，系统出坐标）`,
         );
       }
     }
