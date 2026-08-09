@@ -83,7 +83,10 @@ const count = match ? Number(match[1]) : 0;
 // 只读查看面 Escape 与零残留——352 + 13 → 365。数字由 `--list` 实跑核。
 // SKIN-DYSTOPIA-1 项 C：门④-2 AA 四元联测由「单宗单面」扩为「宗×面」二维，按宗分立两例
 // （刻本印页宗 / 磁青宗），原 1 例 → 2 例，+1 → 366。数字由 `--list` 实跑核。
-const minimum = 384;
+// PREVIEW-TAB-1：先把观测值 384 记为基线，再加本票两例——①页签集按已产出 artifact 动态生成
+// （三枚产出三张页签、逐张切换各显其身、整栈常驻只翻 hidden）、②D11 一个 matter 内多场景产物
+// 并存（跑完 S1 再跑 S2，时间线仍带着 S1 的产物）——384 + 2 → 386。数字由 `--list` 实跑核。
+const minimum = 386;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }

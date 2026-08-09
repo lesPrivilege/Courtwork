@@ -4,8 +4,8 @@ import { resolveHostArtifact } from './ArtifactHostView.js';
 import type {
   HostRendererComponentProps,
   HostRendererRegistry,
-  HostWorkbenchView,
 } from './HostRendererRegistry.js';
+import { artifactTypeOfTab, GENERIC_ARTIFACT_SEAT_VIEW, type WorkbenchTabId } from './workbench-views.js';
 
 /**
  * 具名工作面（矩阵审阅等）的 component blueprint 解析结果。
@@ -28,18 +28,21 @@ export type NamedComponentView =
  * descriptor → host blueprint → 组件的全链解析：宿主按 view 反查在册的 component blueprint，
  * 不按垂类 artifact type id 分支。
  *
- * 通用 `artifact` 页签不经此路——它自持 `activeArtifactType` 的多产出选择，是唯一的多对一席位。
+ * 产出席位不经此路——它按 artifact type 逐枚开页签（PREVIEW-TAB-1），由 `resolveArtifactSeat`
+ * 与 `ArtifactTabPanes` 承载；`view: 'artifact'` 的 blueprint 标记与产出页签 id 在此一并回绝。
  * 具名工作面的 blueprint 唯一性由 `createHostRendererRegistry` 拒载保证；此处剩下的多义只可能来自
  * 多个 artifact type 共享同一 uiTemplateId（PM 五个产出共享通用表即合法先例），那在具名工作面上
  * 无法判定该渲染哪一份，故整面 fail closed，不静默取其一。
  */
 export function resolveNamedComponentView(
-  view: HostWorkbenchView,
+  view: WorkbenchTabId,
   payloadFor: (artifactType: string) => unknown,
   packageRegistries: PackageRegistries,
   hostRenderers: HostRendererRegistry,
 ): NamedComponentView {
-  if (view === 'artifact') return { status: 'unregistered' };
+  if (view === GENERIC_ARTIFACT_SEAT_VIEW || artifactTypeOfTab(view) !== undefined) {
+    return { status: 'unregistered' };
+  }
 
   const candidates = packageRegistries.artifactSchemas.list().flatMap((entry) => {
     const artifactType = entry.descriptor.typeId;

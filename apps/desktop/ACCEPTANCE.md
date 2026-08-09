@@ -6598,3 +6598,84 @@ demo 双向隔离抽验：三份新增测试面（集成谱／jsdom 谱／e2e �
 ## 结论
 
 **PASS。** 三条票面判据逐条独立成立：S4 闭环的契约同步面九项逐处对数全中；准入双轴上收经四枚自造探针实证——`rehydrationProjection` 路径的缝已闭（P1 拒载、拒因逐字点名）、登记的判据上界逐字成立（P2 准入）、判别联合扩面是结构性前置而非优化（M6 还原旧判据即整包拒载）；`OPEN_ANCHOR_DEBT` 活代码零命中、判据收窄为恒常式、豁免缝消失，史料面保留正当。首红宣称在 base 树重建复核，族门 **7 红/20 绿（27）** 与回执同值、上收谱 **4 红/3 绿（7）** 与回执分组表述相符；五枚变异独立复注全部触红且方向正确（M3/M5 同集 7 红、M4 单红精确），另加一枚自设 M6（24 红 ＋ 整包拒载），六枚全撤回复绿。八条偏离逐条对照，其中偏离 1 与偏离 5、8 由本会话另行实证/复核。九相全量门本树独立实测零回归：根 **2159/2159**（base 2135，+24 逐文件归因全中）、desktop **831/831**、cargo **250/0/1** 补跑、site:guard PASS（高水位 2248）、完整 Playwright **384/384** EXIT=0 独占取锁。**拒因 0 枚。** 上列六条观察项中①②③是同一族的「闭集/全称宣称未穷举」，建议随清账同批订正（①②须改到生产源码注释与层级 SPEC 正文，不止改回执）；④⑤⑥为登记备查，均不阻断本票放行。
+
+# PREVIEW-TAB-1 独立验收（2026-08-10）
+
+- **裁决：PASS，放行 `85d2a07`。** 验收树 `/private/tmp/courtwork-preview-tab-1-accept`、分支 `claude/accept-preview-tab-1`。
+- **验收对象与组合口径（须随裁决一并读）**：验收对象是 `git diff 89c266a..85d2a07`（`85d2a07^ == 89c266a` 实测，零中间树，改动面全部落在 `apps/desktop/`，零 Rust 面）。验收树 HEAD 是 `cbf7a2b` ＝ `85d2a07` ＋ cherry-pick 的 **`459174a`**；后者是 base 自身即红的环境修复（`docs/design/schema-exemplar.sources.json` 的 P0-S02 重封哈希，一行 json），与本票零语义交集，只为让 `test:e2e` 与 `site:guard` 两条完整门链跑得通。**该基线红本会话独立坐实**：`git show 89c266a:packages/legal/src/presentation/index.ts | shasum -a 256` 得 `9aa2a3a9…`，而 `89c266a` 在册值为 `fec106d3…`；该文件在本票 diff 中零改动。故本记录的门数字读作「`85d2a07` ＋ 基线修复」的组合态，不读作 `85d2a07` 单独在 `89c266a` 上的读数。
+- 未在共享主仓 checkout/stash；八枚变异与两枚临时探针谱全部撤回，提交前工作树只留本文件的追加（`git status --porcelain` 零输出复核）。
+
+## 一 · 四判据逐条独立成立
+
+**判据一 · 多 artifact 动态开 tab（tab ＝一张 schema 表）。** `resolveArtifactSeat` 按 `Object.keys(session.artifacts)` 逐枚派生席位，`resolveWorkbenchViews` 第三参由 `boolean` 改为席位数组、逐枚展平进页签条；旧的多对一 `GENERIC_ARTIFACT_VIEW` 已退役为纯 blueprint 标记 `GENERIC_ARTIFACT_SEAT_VIEW`。**残留独立复核**：全仓 `GENERIC_ARTIFACT_VIEW` 零命中，`activeArtifactType` 在源码面零命中（仅存于 SPEC 与门注释的历史叙述），`'结构化产出'` 字面量只余 `NEUTRAL_ARTIFACT_TITLE` 这一处中性 fallback 与测试/注释引用——**零聚合席位残留**成立。e2e ① 在真产品链上见到三枚产出三张页签、且 `结构化产出` 页签 `toHaveCount(0)`。
+
+**判据二 · 切换不销毁状态。** 判据落在挂载面：`ArtifactTabPanes` 整栈常驻、非活动格只加 `hidden`。单测以「抹平 `hidden` 后两次渲染逐字相等」锁死；e2e ① 实测三格恒在 DOM（`[data-testid^="artifact-pane-"]` count＝3）、非活动格 `toBeHidden`。**边界实测见观察项②**：本判据严格成立于产出页签**彼此之间**，跨出产出席位（切到起草画布）整栈卸载。
+
+**判据三 · 单 artifact 回退。** `artifact-seat.test.ts`「单产物回退」断言恰一张页签且整条页签条逐字相等（`timeline/graph/matrix/revision/draft/artifact:pm.PrdReview`），零聚合席位席次；「零产物」一例另锁页签条无任何产出页签。
+
+**判据四 · 混包命名空间隔离。** 页签身份 ＝ `artifact:` ＋ **带包命名空间的全 type**，符合 ADR-014 决定二「不引入第二套命名空间机制」。语料取真两包 `runtime.registriesFor(['legal','pm'])`（非自造 fixture 包），逐枚回指自己的载荷，并锁「两枚 pm 产出共享同一 `uiTemplateId` 却各占一张页签」。**类型层的判别是总的**：`HostWorkbenchView` 是六枚字面量闭集，无一以 `artifact:` 起头，故 `artifactTypeOfTab` 对全体既有页签 id 恒返 `undefined`，不存在前缀撞名的缝。
+
+## 二 · D11 并存独立核
+
+- `resetSessionForNewRun` 留三项（`artifacts`／`evidenceGrades`／`citationStats`）、其余以 `...EMPTY_SESSION` 归零。**形状正当**：新增字段默认落 `EMPTY_SESSION` 的空值（保守方向），是「同步消灭优于同步验证」的正确形态，无需第二本待同步的账。
+- 三处 `__new_run__` 逐处核实到位：`work-session-lifecycle.ts` 的 `startIntake`(:395)／`startPreflight`(:454)／`recover`(:544)，全仓 `__clear__` 只余 `App.tsx` 切案 effect(:802) 与 `selectFlow`(:1423) 两处。
+- **仍整本清空的两处边界正当**：切案属跨 matter 零串料既有不变量；demo `selectFlow` 是换一段导览（按 `replayEpoch` 整段重放 fixture），保留上段产物会混写导览语料，真实案多场景并存不经此路。二者与「同一 matter 内起新一轮」是不同的事，划分成立。
+- **e2e 亲跑**：`preview-tab-1.spec.ts` ② 跑完 S1 再经「更多」弹层起 S2（矩阵审阅），回切时间线面仍带 S1 产物、`case-empty-state` 零命中，且矩阵面自己的产物未被顶掉。三轮完整链中该谱三次全绿。
+
+## 三 · ADR-014 符合性与他票用例随改
+
+- **决定一**：tab 集合按会话 artifact 动态生成、多 artifact 并列、切换不销毁——逐条落地。「固定工作面视图不再是独立 tab 类别」这一半未收敛，本票以「与 Legal panel 迁移解耦」（票面原文）＋ D4 空面指引为由显式收窄，ADR-014 决定一亦明写「迁移期间两种形态可短暂共存于同一 tab 栏」，故收窄在授权面内。**但共存期是否已终止是一个当下真实的问题，见观察项①。**
+- **决定二**：`containerPackBinding` 数组席位——仓内落点是 `PersistedCase.packBinding?: readonly string[]`（GENERIC-PACK-1 步骤④），本票零触碰，数组形制不变、长度 > 1 仍判整库不可读，**恒 1 约束未被松动**；同时席位派生实测支持多包（单测以真 legal＋pm 两包取证），符合「多包激活只改约束不改结构」。决定二的「靠 namespaced artifact type 天然隔离，不引入第二套命名空间机制」由判据四实证。
+- **`pack-interact-1.spec.ts` ⑥ 是收紧非放宽（逐 diff 核）**：删去的 `expect(['卷宗清单','事件时间线','当事人图谱']).toContain(degradedTitle)` 换成 `toHaveText('事件时间线')`（三选一 → 定死一），并**新增**一条 `expect(tabs.getByRole('tab', { name: '结构化产出' })).toHaveCount(0)`，退化面取值由全页收窄到所属格作用域。三项皆为约束增强。**区分力实证**：E1 变异（席位退回聚合）令该谱当场转红，证明收紧后的断言不是装饰。
+- **边界③的诚实性核实成立**：加载态下 legal 产物全部有具名面或 passive 面（零席位页签），唯一能填满席位的 `pm` 包当期「目录已收录、交互未开放」，产品内确无从起跑；故回执写「本票不宣称加载态多产物并列有产品级真跑证据」、e2e ① 走卸载态取证、加载态由单测以真两包取证——**是分层如实登记，不是拿单测冒充真跑**。
+
+## 四 · 变异独立复注（八枚，均带命中校验，均已撤回复绿）
+
+| 变异 | 落点 | 结果 | 回执登记 |
+|---|---|---|---|
+| M1 | `resolveArtifactSeat` → `seat.slice(-1)`（聚合席位回归） | **5 红** | 5 红，同值 |
+| M2 | `ArtifactTabPanes` 只渲活动格 | **3 红** | 3 红，同值 |
+| M3 | `artifactTabId` 丢命名空间（取 `.split('.').at(-1)`） | **10 红**（`src/preview/` 全域，3 文件） | 8 红（更窄作用域），方向一致、幅度更大 |
+| M4 | `resetSessionForNewRun` 恒返 `EMPTY_SESSION` | **3 红** | 3 红，同值 |
+| M5 | 产物数 < 2 时回落聚合席位 | **4 红** | 2 红（更窄作用域），方向一致 |
+| E1 | 同 M1，e2e 面 | **2 红**（`preview-tab-1` ①、`pack-interact-1` ⑥） | e2e ① 红；⑥ 同红是本会话追加实证 |
+| E2 | 同 M4，e2e 面 | **1 红**（`preview-tab-1` ②） | e2e ② 红，同值 |
+| E3 | 同 M2，e2e 面（本会话自设） | **1 红**（`preview-tab-1` ①） | 回执未列；证 e2e ① 在产品面亦能区分「只渲活动格」 |
+
+另设一枚**零区分力探针 M6**：把 `recover`(:544) 单独退回 `__clear__`，desktop 全量单测 **847/847 全绿**，见观察项③。
+
+## 五 · 全量门（本树独立实跑，`cbf7a2b`）
+
+| 门 | 结果 |
+|---|---|
+| `pnpm install --frozen-lockfile` | EXIT=0 |
+| 两枚 sidecar | `build:product-sidecar` bundle `951acf8e…` reproducible／`build:headless-sidecar` `061248fa…` reproducible（node runtime archive 由主仓缓存预播，避 100MB 重下） |
+| `pnpm -r build` | EXIT=0（`tsc -b` ＋ `vite build`） |
+| `pnpm lint` | EXIT=0 |
+| 根 `pnpm test` | **2159 passed / 173 files** |
+| desktop `pnpm test` | **847 passed / 97 files**；+16 归因抽验全中（`artifact-seat` 8＋`ArtifactTabPanes` 4＋`session-reset` 4，逐文件 `it(` 计数实核） |
+| cargo（补跑） | **250 passed / 0 failed / 1 ignored** |
+| `pnpm site:guard` | EXIT=0（含 `assert-schema-exemplar` 复绿、`assert-app-highwater` 2245） |
+| 完整 `test:e2e` | **386 passed / 386**，EXIT=0（`--list` 实测 386＝floor 386） |
+| App.tsx 高水位 | **2245**（门上限同批下调至 2245，`wc -l` 实核 2245） |
+| 零泄漏静态门 / preview 边界 / VIEW-ABI | 217 份零垂类 import、混合族债零；OK；39 checks passed |
+
+**Playwright 互斥与轮次如实登记**：`mkdir /private/tmp/courtwork-pw-lock` 一次即得，`pgrep` 双确认无第二条在跑（仅见主仓一枚 2026-08-05 起常驻的 `vite --port 1470` 孤儿 dev server，与本树独占端口 `1461` 无交集）；跑完 `rmdir`。**完整链共起四轮，前三轮不作为通过读数**：轮一 385/386（9.3m，唯一红 `demo-anchor-2.spec.ts:55` 图谱面 5s 超时）；轮二 378/386（27.9m，8 红全为 30s 级超时，单文件慢至 7.8m）；轮三在 10 分钟工具上限处被 SIGTERM **截断，按判例不计入通过率**；轮四改后台落盘、待 load1 由 41 降至 2.9 后起跑，**386/386，5.1m，EXIT=0**。归因：三轮时长与红数单调同向（5.1m 零红 / 9.3m 一红 / 27.9m 八红），红全部落在本票 diff 面之外的谱（`demo-anchor-2`／`chat-*`／`goal*`／`host-auth`／`global-verbs`／`composer`／`chrome-in-card`），CPU 占用实测全部来自本轮自身四枚 worker × chromium；**本票三枚相关谱（`preview-tab-1` ①②、`pack-interact-1` ⑥）在三轮完成的链中六次全绿，一次未红**。承「一次绿不构成对 flaky 的反驳」的对称纪律：本记录不宣称 386/386 是恒定读数，只登记它是唯一在非饱和机器上取得的完整读数，其余轮次为负载态实况。
+
+**收尾**：全链重生成他票 `release/evidence/**` PNG 17 枚（`demo-anchor-2-2026-08-09` 3、`generic-pack-1-unloaded-2026-08-06` 5、`legal-anchor-binding-1-2026-08-09` 3、`legal-five-faces-1-2026-08-07` 6），一律 `git checkout -- release/evidence/` 精确还原（承 Bin 行判例，禁 `git add -A`）；`test-results/` 已删；两枚临时探针谱建于 `tests/e2e/zz-probe*.spec.ts`、用毕以精确路径删除（复核零残留，测试计数门未受扰）。
+
+## 六 · 观察项（均不构成拒因）
+
+**① ADR-014 决定一的收敛条件疑似已满足，本票以 D4 为由未收敛——建议架构明写共存期是否终止。** 决定一说「Legal 四个 `route` blueprint 逐个迁为 `component` blueprint，**迁移完成后**同样以 artifact tab 形态呈现」，并把两形态共存限定为「迁移期间」。实测 `courtwork-host-renderers.ts` 里 timeline／graph／matrix／revision **四枚已全部是 `kind: 'component'`**（GENERIC-PACK-1 收口），即触发条件在代码面已成立；而 `implementation-readiness.md` §101 仍写「其余三 panel 仍在 if 链，本笔保持开账」，**就绪图这一行已 stale**。本票的收窄本身正当（票面「与 Legal panel 迁移解耦」是唯一真值，且 D4 要求空的具名面留在页签条上说出「谁产出它、怎么开始」，全按产出开会删掉该指引面）；**但「ADR-014 的收敛条款 vs LEGAL-FIVE-FACES-1 D4 的空面指引」是一处 ADR 覆盖不到的跨层取舍**，回执写「待架构拍板：无」偏乐观。建议：清账同批订正 §101 的 stale 行，并由架构在 `PANEL-BLUEPRINT-1` 行明写共存期终止条件（或把 D4 指引面的归宿显式改判）。
+
+**② 「切换不销毁状态」严格成立于产出页签彼此之间，跨出产出席位即整栈卸载——回执未披露。** 本会话以临时探针实测：卸载态三枚产出，停在「事件时间线」页签时 `[data-testid^="artifact-pane-"]` count＝**3**，切到「起草画布」后 count＝**0**（`renderView` 只在活动页签是产出页签时返回 `ArtifactTabPanes`，否则整个组件不在返回树里，React 随即卸载）。按 ADR-014 决定一「多 artifact 并列共存，tab 间切换不销毁**彼此**状态」的上下文，「彼此」指并列的那些 artifact 之间，故判据二成立；但这是本票设计的一条真实边界，回执二节②只论证了「为何不能只渲活动格」，未说明格栈的存活范围止于产出席位。建议清账时补一句边界登记。
+
+**③ `recover` 这枚 `__new_run__` 调用点零红证——族内三成员只有两枚被判据覆盖。** M6 实测：单独把 `work-session-lifecycle.ts:544` 退回 `__clear__`，desktop 全量单测 **847/847 全绿**；e2e 面亦无覆盖——`case-persist.spec.ts` 只断言恢复入口 `precheck-recover` **可见**，从不点击它，更没有「同 matter 内先跑完一场再恢复另一场」的语料。`work-session-lifecycle.test.ts` 只测纯 helper，零 dispatch 断言。三处改动里 `startIntake`／`startPreflight` 由 e2e ② 真跑覆盖（E2 变异一改即红），`recover` 独缺。**方向正确、实现无误，缺的是判据**；按「闭口按族」的完成态口径，这一枚属未穷举的族成员。不构成拒因（票面判据是 tab 四条＋D11 并存，D11 的产品判据已由 e2e ② 满足），登记为待补覆盖。
+
+**④ 对照面双侧同为产出页签时，格栈被渲两遍——`data-testid` 重名。** 实测：卸载态三枚产出，主面取「事件时间线」、Compare 选「当事人图谱」后，`[data-testid^="artifact-pane-"]` count＝**6**，`artifact-pane-legal.Timeline` count＝**2**。成因是 `pane(activeView)` 与 `pane(secondaryView, true)` 各调一次 `renderView`，而 `renderView` 对任一产出页签都返回**整栈**。**用户可见行为仍正确**（两侧各自 `activeTab` 不同，左右各显其面），代价是重复挂载与重名 testid——后者会让任何按该 testid 定位的将来用例在对照态触发 strict-mode violation。旧形态下同一操作只多渲一枚 pane，整栈常驻把重复系数由 1 放大到 N。回执零处提及对照态。建议立后续微单（席位派生按 pane 实例收窄，或格栈在对照态只保留主面一份），本轮不阻断。
+
+**⑤ `resetSessionForNewRun` 的文档枚举漏 `providerNotices`。** 注释写「运行态（progress/todo/confirmation/failures/completed/scenarioFailure/lastSeq）一律归零」，`SessionProjection` 实有 11 个字段：留 3、归零 **8**，注释只列 7，漏掉的 `providerNotices` 同样被 `...EMPTY_SESSION` 归零。**行为正确**（生成告示属本轮运行态，不该带进新场景），单测「运行态整体归零」一例亦未断言它。属注释与实现的计数不实，与本仓在册的「闭集宣称须穷举」同族，建议清账时补齐。
+
+## 结论
+
+**PASS，放行 `85d2a07`（组合口径见文首）。** 四条票面判据逐条独立成立并各有可红判据：M1／M5 证多产物与单产物回退（聚合席位一回归即红）、M2／E3 证格栈常驻（只渲活动格即红）、M3 证命名空间隔离（丢包前缀即红）、E1 证他票 ⑥ 的收紧断言真有区分力；D11 的并存由 M4／E2 双层锁死，且 e2e ② 在真产品链上亲跑通过。ADR-014 决定一／二逐条对照无违例，`containerPackBinding` 数组席位恒 1 未被松动，零泄漏运行时半边未因产出页签松动（零绑定零产出的 matter 页签条仍只有起草画布）。`pack-interact-1` ⑥ 与 `workbench-views.test.ts` 的随改逐 diff 核实为**收紧**。八枚变异独立复注全部触红且方向正确，另一枚自设零区分力探针（M6）如实登记为覆盖缺口。全量门本树独立实测零回归：根 **2159**、desktop **847**、cargo **250/0/1**、site:guard PASS、完整 Playwright **386/386** EXIT=0（独占取锁，四轮口径逐轮登记）、App.tsx 高水位 **2245**。**拒因 0 枚。** 五条观察项中①③⑤建议随清账订正或补覆盖，④建议另立微单，②补一句边界登记；均不阻断本票放行。
