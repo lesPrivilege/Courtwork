@@ -1,6 +1,6 @@
 # PACK-INTERACT-1 · 加载动作与准入 UX（解耦相）
 
-状态：3R 已实现，待独立验收
+状态：已清账（3R 独立验收 PASS `791063a`，no-ff 合入 `c330ea7`；合并整合修 `620b3eb`——PACK 侧新增 composition 两测试文件三处 import 改指 DEBT-VERTICAL-SPLIT-1 迁移后的 `verticals/legal/` 居所）
 
 权威：`docs/decisions/ADR-015-optional-vertical-loading.md`（Accepted）决定三/四；
 `docs/architecture/implementation-readiness.md`「解耦相」`PACK-INTERACT-1` 行为票面唯一真值；
