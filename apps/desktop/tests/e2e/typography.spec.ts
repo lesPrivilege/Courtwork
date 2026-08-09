@@ -122,13 +122,15 @@ const COLOR_VARS: Record<Theme, Record<string, string>> = {
     'text.primary': '--text-primary',
     'text.secondary': '--text-secondary',
     'text.tertiary': '--text-tertiary',
-    'line.settled': '--zhu-graphic',
+    // 项 D 轨位切分后：sealNote 是**文字**槽，故吃文字轨 --zhu-fg，不再借记号轨 --zhu-graphic。
+    // 浅宗 fg==graphic（Q3），故本宗数值不动；深宗此处正是从 3.42 走到 4.98 的那一步。
+    'line.settled': '--zhu-fg',
   },
   dark: {
     'text.primary': '--text-primary',
     'text.secondary': '--text-secondary',
     'text.tertiary': '--text-tertiary',
-    'line.settled': '--zhu-graphic',
+    'line.settled': '--zhu-fg',
   },
 };
 

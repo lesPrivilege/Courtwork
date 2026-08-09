@@ -81,6 +81,11 @@ const desktopRootColors = {
   '--green-bg': 'color.semantic.gate.confirmed.bg',
   '--slate-graphic': 'color.semantic.severity.low.graphic',
   '--zhu-graphic': 'color.line.settled.value',
+  // 朱的文字轨（SKIN-DYSTOPIA-1 项 D）：浅宗 fg==graphic，故同绑 color.line.settled.value——
+  // 与 siteLightColors 里已在册的 --zhu-fg 同一绑定，不另立 token（color.semantic 明载
+  // 「色相总数仍为 4+slate」故朱不入该组；color.line 明载「文字不得消费本组值」故不在该组加 fg 字段。
+  // 两条现行 $description 都挡住新立 token，复用 site 既有绑定是唯一无违的形态）。
+  '--zhu-fg': 'color.line.settled.value',
   '--slate-fg': 'color.semantic.severity.low.fg',
   '--slate-bg': 'color.semantic.severity.low.bg',
 };
@@ -118,6 +123,7 @@ const desktopDarkColors = {
   '--slate-graphic': 'themes.dark.semantic.slate.graphic',
   '--slate-fg': 'themes.dark.semantic.slate.fg',
   '--zhu-graphic': 'themes.dark.semantic.zhu.graphic',
+  '--zhu-fg': 'themes.dark.semantic.zhu.fg',
 };
 
 const desktopDarkDeclarations = new Map([

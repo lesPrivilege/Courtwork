@@ -93,6 +93,10 @@ export const signedR2LedgerRows = Object.freeze([
   ['SD1-B01', 'docs/design/tokens.json#themes.dark.bg|device-face-triple', 'agent-interface'],
   ['SD1-B02', "apps/desktop/src/styles.css#:root[data-theme='dark']|device-face-triple", 'agent-interface'],
   ['SD1-B03', 'site/scripts/deslop-scan-lib.mjs#desktopDarkColors|device-face-triple', 'pages-experimental'],
+  ['SD1-C01', 'apps/desktop/tests/e2e/typography.spec.ts#门④-2|theme-by-face', 'agent-interface'],
+  ['SD1-D01', 'apps/desktop/src/styles.css#:root|--zhu-fg', 'agent-interface'],
+  ['SD1-D02', "apps/desktop/src/styles.css#:root[data-theme='dark']|--zhu-fg", 'agent-interface'],
+  ['SD1-E01', 'site/craft-evidence/SKIN-DYSTOPIA-1', 'agent-interface'],
 ]);
 
 export const retiredP5ProposalLines = Object.freeze(['P5-F06', 'P5-F07', 'P5-F08']);

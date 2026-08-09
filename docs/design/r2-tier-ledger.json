@@ -1872,6 +1872,30 @@
       "tier": "pages-experimental",
       "approvedProposalLine": "SD1-B03",
       "fragmentKind": "selector"
+    },
+    {
+      "target": "apps/desktop/tests/e2e/typography.spec.ts#门④-2|theme-by-face",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-C01",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root|--zhu-fg",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-D01",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root[data-theme='dark']|--zhu-fg",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-D02",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "site/craft-evidence/SKIN-DYSTOPIA-1",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-E01",
+      "fragmentKind": "directory"
     }
   ]
 }

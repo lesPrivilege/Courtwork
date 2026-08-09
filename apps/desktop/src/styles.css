@@ -75,6 +75,11 @@
   /* 朱＝印记色非状态色（2026-07-19 拍板）：绿保持全部既有语义位，朱只出现在人工裁决留下印记之处。
      绿答「它处于什么态」，朱答「谁把它按下去的」。法理之线封闭集由此五扩六 */
   --zhu-graphic: #be4b2f;
+  /* 轨位切分（SKIN-DYSTOPIA-1 项 D）：graphic＝记号轨（线体/印记），fg＝文字轨。
+     §2「图形色与文字色分轨，文字必须使用满足对比度的 *.fg」——朱此前双宗都只有 graphic 一轨，
+     深宗的文字轨因此无处可取，只能借记号色，而记号色在深宗浮卡上只有 3.42:1。
+     浅宗 fg==graphic（循浅宗 red/amber/slate 三族先例，非新色）。 */
+  --zhu-fg: #be4b2f;
   /* —— 三轨字栈（docs/design/typography-density.md 发凡一；值单源于 tokens.json，排印门逐字锁）——
      标题轨＝思源宋 SC 双字重 / 文书轨＝朱雀仿宋 GBK / 功能轨＝系统栈（工具字，显式声明非默认继承）。
      两条衬线轨首位是拉丁配衬字：栈序即配衬序，拉丁命中前位，中文穿透到 CJK 子集。 */
@@ -191,6 +196,7 @@
   --slate-fg: #a9b4c6;
   --slate-bg: color-mix(in srgb, var(--slate-graphic) 14%, var(--bg-raised));
   --zhu-graphic: #d75a3c;
+  --zhu-fg: #e2857a;
 }
 
 * { box-sizing: border-box; box-shadow: none; scrollbar-width: thin; scrollbar-color: transparent transparent; }
