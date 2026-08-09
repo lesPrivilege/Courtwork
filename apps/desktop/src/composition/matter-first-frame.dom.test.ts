@@ -106,7 +106,7 @@ async function mountApp(cases: Array<Record<string, unknown>>) {
     import('../material/material-store'),
     import('../host/browser-host-auth'),
     import('../pi/browser-pi-lane'),
-    import('../work/legal-work-surface'),
+    import('../verticals/legal/legal-work-surface'),
     import('../work/work-runtime'),
     import('../settings/settings-store'),
   ]);

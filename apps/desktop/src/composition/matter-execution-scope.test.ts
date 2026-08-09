@@ -15,8 +15,8 @@ import {
   LEGAL_S3_SCHEMA_VERSION,
   S2_SCENARIO_ID,
   buildArtifactVersioningSource,
-} from '../work/legal-s3-binding';
-import { createLegalWorkCommand } from '../work/work-command';
+} from '../verticals/legal/legal-s3-binding';
+import { createLegalWorkCommand } from '../verticals/legal/work-command';
 import { createDesktopPackageRuntime } from './package-runtime';
 import { createCaseRegistriesResolver } from './matter-registries';
 
