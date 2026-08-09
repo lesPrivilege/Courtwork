@@ -5354,18 +5354,29 @@ mod tests {
     /// 手写冻结清单：输入名 → 生产段消费点（`pi_loop.rs` 内的函数名）→ 判据名（常量或
     /// 格式函数）→ 具名拒绝 code。
     ///
-    /// `site` 是 1R4 新增的**源码锚点**：清单行与生产段消费点在
-    /// `(pi_loop.rs, site, judgment)` 这一粒度上双向一一对应。只按判据名核对撑不住——
-    /// `is_safe_token` 同时住在 `start_inner`（grantId）与 `prompt`（requestId），
-    /// 撤掉后者时前者会替它把名字对上（1R3 复验的假绿正是这一形）。
+    /// `site` 记录 1R4 的设计意图：清单行与生产段消费点在 `(pi_loop.rs, site, judgment)`
+    /// 这一粒度上双向一一对应，防止只按判据名核对撑不住的形状——`is_safe_token` 同时住在
+    /// `start_inner`（grantId）与 `prompt`（requestId），撤掉后者时前者会替它把名字对上
+    /// （1R3 复验的假绿正是这一形）。**但落实这一意图的装置
+    /// （`scan_bounded_judgment_uses` ＋ `bounded_judgment_ledger_matches_the_source_and_
+    /// covers_every_frozen_bound`，1R4 `e269ce5` 引入）已在 1R6（`d70c1b5`「装置退役」H2）
+    /// 被架构裁定整体退役**：常量名单（1R3）→ 判据函数名单（1R4，即本字段）→
+    /// `return Err(` 字面量（1R5）三代同类文本模式扫描装置逐轮被下一轮验收找出盲区，
+    /// 终判见 `docs/engineering/workflow.md`「闭口按族」判例——「在富语言里用文本模式枚举
+    /// 语义构造结构性不可胜」，出路是消灭需要同步的账（1R6 encode-before-effect），不是
+    /// 再造第四个更聪明的扫描器。
+    ///
+    /// `PI-BOUNDED-SITE-1`（2026-08-09）复核后维持这一裁定，不重建扫描器：`site` 因此是
+    /// **单向**——本行输入落在生产段哪个函数，供人工阅读——不是「清单 ↔ 源码」双向锁的
+    /// 已验证那一半。清单对生产运行时行为的约束改由两条**已验证的单向**关系承担：
+    /// 每行经 `counterexample_every_bounded_host_input_is_refused_before_journal_and_spawn`
+    /// 逐行验证真实拒绝行为（清单 → 运行时行为），`safe_token_family_is_fully_accounted_for`
+    /// 把 ADR SafeToken 七成员逐一系到清单行（ADR 族 → 清单行存在）。两者都不回锚清单行到
+    /// 生产段源码位置——那正是「双向」里从未成立、且此后不再计划补上的那一向。
     struct BoundedInput {
         input: &'static str,
-        /// **上浮（`PI-HOST-CONCURRENCY-1` dead_code 收窄的副产品）**：这一枚字段今天
-        /// **没有任何断言读它**——`(site, judgment)` 双向锁只写在上面那段说明里，源码侧
-        /// 的锚点扫描并不存在。文件级 `allow(dead_code)` 此前把这件事一并遮住了。
-        ///
-        /// 本票只据实登记、不擅自扩面（补那道扫描属另一票）；留着字段与清单行是因为它是
-        /// 那道扫描将来要吃的输入，删掉等于把已写好的一半也抹了。
+        /// 零断言读取，纯文档字段（见上方结构体说明）。留着是因为删掉即抹去「这行输入
+        /// 落在哪个函数」这一人工可读线索，而它不构成任何机器验证的输入。
         #[allow(dead_code)]
         site: &'static str,
         judgments: &'static [&'static str],

@@ -139,6 +139,7 @@ Node 侧 `TOOL_CAPABILITY` 仍是**另一份**同源真值——合并两侧须�
 1. **`BoundedInput::site` 从未被任何断言读取**。1R4 声称的 `(site, judgment)` 双向锁只写在说明
    里，源码侧的锚点扫描并不存在。本票只登记、不擅自扩面（补那道扫描属另一票），字段保留并加
    注——它是那道扫描将来要吃的输入。**上浮请架构排产。**
+   → **已由 `PI-BOUNDED-SITE-1`（2026-08-09）二选一裁定乙路收口，见十。**
 2. **`install_read_host` 零调用 ⇒「读件座缺席」那道 fail-closed 门没有反例驱动点**。本票随手
    补齐该格（`counterexample_host_request_gates_refuse_before_any_effect` 新增一行，撤门实测
    变红），闭口按族。
@@ -232,7 +233,7 @@ assertion `left == right` failed: 同工具形（P-C）：实得 Process(Unexpec
 6. **新增 `only_host_result` 测试助手**：Stop 之后最后一枚出包是 cancel，既有
    `last_host_result`（取最后一枚）会取空；新助手多于一枚即当场失败，不静默取头。
 7. **`BoundedInput::site` 与 `install_read_host` 两项上浮**（见三-3）：前者只登记不修，
-   后者本票补齐反例。
+   后者本票补齐反例。前者已由 `PI-BOUNDED-SITE-1`（2026-08-09）二选一裁定乙路收口，见十。
 
 ---
 
@@ -261,5 +262,102 @@ Playwright 走独占端口 1487，全仓同刻只此一条链（排程律）。
   是投影面要读的第四件。UI 落地后请把入口根注解逐枚撤掉——它们是「今天没有生产消费点」的
   显式登记，不是永久豁免。
 - **上浮（请架构裁）**：`BoundedInput::site` 的锚点扫描缺席（三-3 之一），建议单独立票。
+  → 已立票 `PI-BOUNDED-SITE-1`，2026-08-09 二选一裁定乙路收口，见十。
 - **结转，本单未碰**：`logicalPath` 空串两侧异源／②游标二元性／④`cost_usd` Disabled 臂裸 inf／
   Node↔Rust 两份 `TOOL_CAPABILITY`（须先动 wire）。
+
+---
+
+## 十 · `PI-BOUNDED-SITE-1`（2026-08-05④上浮，2026-08-09 收口）——`BoundedInput::site` 二选一裁定
+
+票面（`docs/architecture/implementation-readiness.md` 「随批小票」`PI-BOUNDED-SITE-1` 行，逐字
+为验收判据）：`BoundedInput::site` 零断言消费——`PI-HOST-LOOP-1R4` 回执宣称的 `(site, judgment)`
+双向锁只存在于注释，宣称的源码锚点扫描并不存在；二选一并留痕：甲＝补真实断言使宣称成立，
+乙＝把 1R4 宣称订正为单向。边界：只动测试与文档宣称，不改 `BoundedInput` 生产语义。
+
+### 现读结论（开工先查，先于选路）
+
+`.site` 字段在 `apps/desktop/src-tauri/src/pi_loop.rs` 里只在 `BoundedInput` 定义
+（一处）与 `bounded_input_manifest()` 的十六条清单行（初始化，各一处）出现；全仓
+`grep -rn '\.site\b' apps/desktop/src-tauri/src/*.rs` 零命中——没有任何测试、断言或生产码
+读取过它。票面前提成立。
+
+进一步核实：1R4 落实 `(site, judgment)` 双向锁的装置——`scan_bounded_judgment_uses`、
+`bounded_judgment_ledger_matches_the_source_and_covers_every_frozen_bound`、
+`production_section`、`function_name`、`bounded_predicates_in` 等一整套按函数体做文本行
+扫描的辅助件——**在当前树里一件都不存在**。`git log -S"scan_bounded_judgment_uses" --oneline
+-- apps/desktop/src-tauri/src/pi_loop.rs` 只有两条命中：`e269ce5`（1R4 引入）与 `d70c1b5`
+（1R6 删除）。`d70c1b5` 提交信息自陈「H2：退役文本扫描双轴与 75 行同步账（删 2258 行、
+3 测试+35 符号逐名对应授权条），保留面 3129 行逐字节核对……新增 142 枚违规电池普适不变量
+探针（Err⇒副作用恰零）」——即架构在 1R6 已明确裁定退役这整套装置，理由记入
+`docs/engineering/workflow.md`「闭口按族，不按验收点名的实例」判例终局形态段：
+常量名单（1R3）→ 函数名单（1R4，即本字段的扫描轴）→ `return Err(` 字面量（1R5）三代
+同类装置逐轮被下一轮验收找出新盲区，终判「在富语言里用文本模式枚举语义构造结构性
+不可胜」，出路是**消灭需要同步的账**（1R6 encode-before-effect），不是造第四个更聪明的
+扫描器。
+
+### 选路评估：甲路技术上写得出红，但前提不成立
+
+甲路要求的断言（枚举 `BoundedInput` 构造点的 `site` 值并与源码真实锚点对照）在语法上完全
+可写——1R3/1R4/1R5 三轮都写出过有区分力的红（各自撞上真缺陷才被下一轮否证）。但票面选择
+标准问的不是「写不写得出语法上的红」，而是「使宣称成立」是否站得住；这里站不住：
+
+1. **重建的就是被明确退役的那个装置本身**，不是一个新设计。1R4 的 `(site, judgment)`
+   双向锁与它的实现手法（逐行文本扫描、按函数体切段、按标识符边界匹配判据名）是同一件
+   事；要让"1R4 宣称成立"，唯一忠实的做法就是把 `d70c1b5` 删掉的那 2258 行原样或近似
+   地搬回来。
+2. **这正是 1R6 判定要连根拔除的那类文本模式装置**，且历史上连续三代（1R3→1R4→1R5）都
+   在下一轮验收里被找出新盲区，无一次终局站稳过。没有理由相信"site 版"会是第四代里
+   幸存的那一个；相反，`site`（函数名字符串）比判据函数名单（1R4 已试并败）更粗——
+   一个函数体内可以合法调用多个判据，`site` 粒度的扫描会比 1R4 已退役的判据粒度扫描
+   更容易被"同一函数里塞两枚判据、其中一枚裸眼看着对但语义错"这类构造绕过。
+3. **重建退役装置是契约级决定，不是实现级动作**。`docs/engineering/workflow.md`「架构
+   角色」条款把「跨层接口与验收标准」的拍板权收在架构；1R6 的退役本身就是一次这样的
+   拍板（`d70c1b5` 承接 1R5 复验后的架构裁定）。本票边界「只动测试与文档宣称，不改
+   `BoundedInput` 生产语义」已暗示不得做契约级恢复；撤销一次已落痕的架构退役裁定，
+   更须由架构重新拍板，不由本会话单方面执行。
+
+据此判定：**红测在语法上写得出，但它要证成的前提（"补一个称职的 site 扫描器"）已被
+架构证伪三次并明确退役，第四次重试不构成"使宣称成立"，只构成对已裁决历史的静默复活。
+选路二・乙。**
+
+### 乙路收口：旧宣称零残留
+
+全仓 `grep -rn "site.*judgment\|双向锁" --include='*.md' --include='*.rs'`（排除 `archive/`，
+`archive/` 按总纲例外原样保留、不属本票收口范围）核对全部命中：
+
+- `apps/desktop/src-tauri/src/pi_loop.rs` `BoundedInput` 结构体注释与 `site` 字段注释
+  ——本票已重写：结构体注释区分「1R4 设计意图」与「装置已退役、本票维持退役、`site`
+  降格为纯文档字段」，`site` 字段注释不再暗示"上面那段说明"仍在描述一个待建的双向锁。
+- 本文件（`PI-HOST-CONCURRENCY-1.md`）§三-3 之一、§七之 7、§九「上浮」行——三处均已
+  加收口指针指向本节。
+- `packages/pi-lane/ACCEPTANCE.md`／`packages/pi-lane/specs/PI-WRITE-HOST-1-RECON.md`／
+  `docs/engineering/sandbox-probe-1.md`／`docs/engineering/workflow.md` 命中的「双向锁」
+  均是与本字段无关的其他判据（端口值域红证、`bounded_input_manifest()` 结构引用、
+  能力面登记册、SKIN-B4 icon 门），核对后确认不需改动。
+- `docs/architecture/implementation-readiness.md` `PI-BOUNDED-SITE-1` 行本身按纪律留给
+  清账/架构会话核销（实现会话不改中央就绪图判决行，见 `docs/engineering/workflow.md`
+  「工单过程不再追加到中央大册」）；本节是该行「退出证据」列要求的落痕位置。
+
+### 退出证据
+
+- 现读证据：`grep -rn '\.site\b' apps/desktop/src-tauri/src/*.rs` 零命中（上文已列）。
+- 历史证据：`git log -S"scan_bounded_judgment_uses" --oneline -- apps/desktop/src-tauri/src/pi_loop.rs`
+  → `e269ce5`（引入）、`d70c1b5`（退役），`git show d70c1b5 --stat` 净删 1473 行。
+- 判例证据：`docs/engineering/workflow.md`「闭口按族，不按验收点名的实例」段终局形态
+  （2026-08-02，源 1R4 复验）与再订正（2026-08-02，源 1R5 复验）两段，逐字引用见上。
+- 旧宣称残留扫描：见上「乙路收口」逐文件核对，零处仍暗示装置在场。
+- 既有 cargo 面零回归：本票只改注释文本，未触碰任何生产语义、字段类型或测试断言。
+
+### 门禁实跑（本票自跑，clean 重建后，逐条记退出码，未经管道吞码）
+
+| 门 | 读数 | 退出码 |
+|---|---|---|
+| `pnpm --filter @courtwork/pi-lane run build:product-sidecar` | 通过，产出 `pi-loop-resources/sidecar.cjs`（547893 字节，reproducible） | 0 |
+| `pnpm --filter @courtwork/pi-lane run build:headless-sidecar` | 通过，产出 `headless-sidecar.cjs`（555314 字节，reproducible） | 0 |
+| `pnpm -r build` | 通过（仅既有 Vite chunk-size warning） | 0 |
+| `pnpm lint` | 通过 | 0 |
+| `pnpm test`（root vitest） | **1941 passed / 170 files** | 0 |
+| `cargo clean` ＋ `cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml`（sidecar 重建后 clean 重跑） | **250 passed / 0 failed / 1 ignored** | 0 |
+
+未跑 Playwright：本票不动 desktop 行为，只改 Rust 注释与本 SPEC 文档，`apps/desktop/src` 零改动。
