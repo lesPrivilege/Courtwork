@@ -11,8 +11,9 @@ const jsonSchemaDir = join(__dirname, '..', 'json-schema');
 describe('JSON Schema export drift', () => {
   const record = toJSONSchemaRecord();
 
-  it('只提交 descriptor 引用的十一份 schema，不留残余旧文件', () => {
+  it('只提交 descriptor 引用的十二份 schema，不留残余旧文件', () => {
     // LEGAL-ANCHOR-BINDING-1：三枚产物补 draft 形（模型侧只出引语），故 8 → 11。
+    // LEGAL-ANCHOR-BINDING-2：S4 修订指令集补 draft 形，11 → 12（携锚模型输出零在册债）。
     expect(Object.keys(record).sort()).toEqual([
       'CaseFile',
       'FileOpsPlan',
@@ -21,6 +22,7 @@ describe('JSON Schema export drift', () => {
       'ReviewMatrix',
       'ReviewMatrixDraft',
       'RevisionInstructionSet',
+      'RevisionInstructionSetDraft',
       'RiskList',
       'RiskListDraft',
       'Timeline',

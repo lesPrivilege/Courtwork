@@ -10,6 +10,7 @@ const { docx, outcomes } = applyRevisionInstructionSet(
     id: 'ris-vite-consumer',
     caseId: 'case-vite-consumer',
     targetDocument: { fileId: 'f-vite-consumer' },
+    outOfCoverage: [],
     instructions: [
       { id: 'i1', kind: 'replace', locator: { strategy: 'text', quote: '三十日' }, text: '四十五日' },
     ],

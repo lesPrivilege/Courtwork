@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as z from 'zod';
+import { ResolvedSourceAnchorSchema, SourceAnchorSchema } from '@courtwork/schemas';
 import type { VerticalPackageManifest } from './package-manifest.js';
 import { admitPackages } from './admission.js';
 
@@ -1032,6 +1033,198 @@ describe('admitPackages（PACKAGE-ABI 准入：引用闭合 + 同 id 拒载 + �
       const joined = result.rejected[0]!.issues.join();
       expect(joined).toContain('anchorField');
       expect(joined).toContain('topAnchors');
+    });
+  });
+
+  /**
+   * LEGAL-ANCHOR-BINDING-2（2026-08-09 裁定一）：引用闭环的准入判据上收。
+   *
+   * BINDING-1 上呈的连带事实：既有守卫只在 `presentation.fields.format==='anchor'` 时要求
+   * 闭环，而走 `rehydrationProjection` 路径的 artifact（legal 全族）**结构上照不到**——
+   * 一个携系统坐标却不声明闭环的模型输出可以从那条缝里过门。本节把判据改按
+   * **最终 schema 的结构事实**收：凡最终 schema 里出现 `@courtwork/schemas` 的系统铸造锚
+   * （`SYSTEM_MINTED_ANCHOR_TITLES`），该 artifact 作模型输出时必须声明闭环，与呈现声明无关。
+   */
+  describe('rehydrationProjection 路径的引用闭环上收（LEGAL-ANCHOR-BINDING-2）', () => {
+    function makeRehydrationAnchorManifest(
+      overrides: { closed?: boolean; anchorSchema?: z.ZodType } = {},
+    ): VerticalPackageManifest {
+      const manifest = makeManifest();
+      const anchorSchema = overrides.anchorSchema ?? SourceAnchorSchema;
+      manifest.bindings = {
+        schemas: new Map<string, z.ZodType>([
+          [
+            'legal.RiskList',
+            z.object({
+              caseId: z.string(),
+              risks: z.array(
+                z.object({
+                  description: z.string(),
+                  level: z.enum(['high', 'medium', 'low']),
+                  sourceAnchors: z.array(anchorSchema),
+                }),
+              ),
+              outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+            }),
+          ],
+          [
+            'legal.RiskListDraft',
+            z.object({
+              caseId: z.string(),
+              risks: z.array(
+                z.object({
+                  description: z.string(),
+                  level: z.enum(['high', 'medium', 'low']),
+                  quoteClaims: z.array(z.object({ fileId: z.string(), exactQuote: z.string() })),
+                }),
+              ),
+            }),
+          ],
+          ['legal.CaseFile', z.object({ caseId: z.string() })],
+        ]),
+      };
+      if (overrides.closed === true) {
+        manifest.artifacts[0] = {
+          ...manifest.artifacts[0]!,
+          draftSchemaId: 'legal.RiskListDraft',
+          citationBinding: {
+            draftField: 'quoteClaims',
+            anchorField: 'sourceAnchors',
+            itemScope: '/risks',
+            itemSummaryField: 'description',
+            outOfCoverageField: 'outOfCoverage',
+          },
+        };
+      }
+      // 关键：**不设** presentation——这正是 BINDING-1 上呈的那条结构性盲区。
+      return manifest;
+    }
+
+    it('携系统铸造锚的模型输出走 rehydrationProjection 路径也必须声明闭环（旧守卫照不到的缝）', () => {
+      const result = admitPackages([makeRehydrationAnchorManifest()]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toMatch(/draftSchemaId.*citationBinding|citationBinding.*draftSchemaId/);
+      expect(joined).toContain('legal.RiskList');
+    });
+
+    it('自检：同一枚包补齐 draftSchemaId + citationBinding 后照常准入（拒载不是恒真）', () => {
+      const result = admitPackages([makeRehydrationAnchorManifest({ closed: true })]);
+      expect(result.rejected).toEqual([]);
+      expect(result.admitted).toHaveLength(1);
+    });
+
+    it('自检：判据认的是系统铸造锚本身——把锚换成不携该 title 的同形对象即不再触发', () => {
+      // 如实登记的判据上界：包内自造的同形对象（无 meta title）不在轴上。它不构成
+      // 静默洞——那样的对象不是 resolver 的写回目标，本就没有引用闭环契约可言；
+      // 但准入层确实照不到它，此处以正向反例把这条边界钉住。
+      const lookAlike = z.object({
+        fileId: z.string(),
+        textRange: z.object({ start: z.number(), end: z.number() }),
+        quote: z.string(),
+      });
+      const result = admitPackages([makeRehydrationAnchorManifest({ anchorSchema: lookAlike })]);
+      expect(result.rejected).toEqual([]);
+      expect(result.admitted).toHaveLength(1);
+    });
+
+    it('resolver 铸造的公证锚（ResolvedSourceAnchor）同族同判据', () => {
+      const result = admitPackages([
+        makeRehydrationAnchorManifest({ anchorSchema: ResolvedSourceAnchorSchema }),
+      ]);
+      expect(result.admitted).toEqual([]);
+      expect(result.rejected[0]!.issues.join()).toMatch(/draftSchemaId|citationBinding/);
+    });
+
+    /**
+     * 覆盖单元是判别联合时的 item 级判据（`legal.RevisionInstructionSet` 的四支修订指令）：
+     * resolver 逐单元读的是运行时对象，任一分支都可能成为那个单元，故按**每一支都须满足**收。
+     */
+    function makeUnionItemManifest(overrides: { summaryOnEveryBranch: boolean }): VerticalPackageManifest {
+      const manifest = makeManifest();
+      const draftBranch = (kind: string, extra: Record<string, z.ZodType>) =>
+        z.object({
+          kind: z.literal(kind),
+          quoteClaims: z.array(z.object({ fileId: z.string(), exactQuote: z.string() })),
+          ...extra,
+        });
+      const finalBranch = (kind: string, extra: Record<string, z.ZodType>) =>
+        z.object({
+          kind: z.literal(kind),
+          sourceAnchors: z.array(SourceAnchorSchema),
+          ...extra,
+        });
+      const summary = { description: z.string() };
+      manifest.bindings = {
+        schemas: new Map<string, z.ZodType>([
+          [
+            'legal.RiskList',
+            z.object({
+              caseId: z.string(),
+              risks: z.array(
+                z.discriminatedUnion('kind', [finalBranch('note', summary), finalBranch('edit', summary)]),
+              ),
+              outOfCoverage: z.array(z.object({ summary: z.string() })).default([]),
+            }),
+          ],
+          [
+            'legal.RiskListDraft',
+            z.object({
+              caseId: z.string(),
+              risks: z.array(
+                z.discriminatedUnion('kind', [
+                  draftBranch('note', summary),
+                  draftBranch('edit', overrides.summaryOnEveryBranch ? summary : {}),
+                ]),
+              ),
+            }),
+          ],
+          ['legal.CaseFile', z.object({ caseId: z.string() })],
+        ]),
+      };
+      manifest.artifacts[0] = {
+        ...manifest.artifacts[0]!,
+        draftSchemaId: 'legal.RiskListDraft',
+        citationBinding: {
+          draftField: 'quoteClaims',
+          anchorField: 'sourceAnchors',
+          itemScope: '/risks',
+          itemSummaryField: 'description',
+          outOfCoverageField: 'outOfCoverage',
+        },
+        vocabulary: { enumLabels: {} },
+      };
+      return manifest;
+    }
+
+    it('覆盖单元是判别联合时准入（四支指令那一形：全分支皆对象且各自闭合）', () => {
+      const result = admitPackages([makeUnionItemManifest({ summaryOnEveryBranch: true })]);
+      expect(result.rejected).toEqual([]);
+      expect(result.admitted).toHaveLength(1);
+    });
+
+    it('判别联合里只要一支缺 itemSummaryField 即拒载（缺口摘要会静默回落「(无摘要)」）', () => {
+      const result = admitPackages([makeUnionItemManifest({ summaryOnEveryBranch: false })]);
+      expect(result.admitted).toEqual([]);
+      const joined = result.rejected[0]!.issues.join();
+      expect(joined).toContain('itemSummaryField');
+      expect(joined).toContain('description');
+    });
+
+    it('非模型输出的 artifact 携锚不受本判据约束（判据只管场景 outputArtifacts）', () => {
+      const manifest = makeRehydrationAnchorManifest();
+      // 把携锚的 RiskList 从模型输出改为输入：它不再是模型要出格的东西，闭环无从谈起。
+      manifest.scenarios = [
+        {
+          ...manifest.scenarios[0]!,
+          inputArtifacts: ['legal.RiskList'],
+          outputArtifacts: ['legal.CaseFile'],
+          confirmationPolicy: { mode: 'gates', gates: [{ artifact: 'legal.CaseFile', label: '确认卷宗清单' }] },
+        },
+      ];
+      const result = admitPackages([manifest]);
+      expect(result.rejected).toEqual([]);
+      expect(result.admitted).toHaveLength(1);
     });
   });
 

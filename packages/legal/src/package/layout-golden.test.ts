@@ -47,8 +47,15 @@ describe('VPKG-LAYOUT-1 Legal content golden', () => {
     // `schemaVersion` 维持 1 并挂 [需架构拍板]：三枚最终形新增的 `outOfCoverage` 是
     // `.default([])` 的加法键，存量持久 payload 双向可读；升版会改全包每一枚 `$id` URN
     // （含本票未触及的四枚），超出票面边界。见 `packages/legal/SPEC.md` 偏离表。
-    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('ab7c80bc2a04c1053fde49b53bc15383248e03b31289dcbf5b03abf4db684795');
-    expect(sha256(promptBlob())).toBe('43133479a71ff2c3053d0063feb1559ad1f4b58b97faf696bef33c31e9e71d2f');
+    // LEGAL-ANCHOR-BINDING-2 重铸（**两枚同批**，同 BINDING-1 的理由）：
+    // ① descriptor —— `legal.RevisionInstructionSet` 补 `draftSchemaId` + `citationBinding`
+    //    与 `enumLabels.reason`（缺口表带出 wire 枚举），携锚模型输出的在册债自此清零；
+    // ② prompt blob —— S4 正文补「卷宗依据引语一字不差」与「坐标由系统铸造、证据台账键由系统签发」
+    //    的生产者纪律。不变量五：schema 变化必须同步生产者，故 prompt hash 必漂。
+    // `schemaVersion` 仍维持 1：`outOfCoverage` 是 `.default([])` 加法键，2026-08-09 裁定二
+    // 已判「additive-default 键不构成 ADR-009 升版事由」，此处直接引用该口径，不再挂待判。
+    expect(sha256(LEGAL_PACKAGE_DESCRIPTOR)).toBe('f3ef3d66de06d4b891e9dcb87fc4db07b874e9886d861f78d499714a8ef23675');
+    expect(sha256(promptBlob())).toBe('56e03f15e044783f2982b89cea4bed43f3df2b5031ba9b7448219ed1d602d5b7');
   });
 
   it('三份 testing fixture 的序列化内容不漂移', () => {

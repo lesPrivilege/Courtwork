@@ -26,6 +26,7 @@ const MINIMAL_SET: RevisionInstructionSet = {
   id: 'ris-signed-probe',
   caseId: 'case-signed-probe',
   targetDocument: { fileId: 'contract-review-complex' },
+  outOfCoverage: [],
   instructions: [
     {
       id: 'instr-risk-01',

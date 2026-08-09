@@ -154,6 +154,7 @@ describe('OOXML 保存前后 part/rel diff 留证（OUTPUT-CORRECTNESS-1 #7）',
         id: 'ris-diff-2',
         caseId: 'case-diff-2',
         targetDocument: { fileId: 'f-diff-2' },
+        outOfCoverage: [],
         instructions: [
           {
             id: 'i1',

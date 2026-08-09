@@ -120,6 +120,7 @@ describe('comments/relationships/content-types preservation (OUTPUT-CORRECTNESS-
       id: 'ris-3a',
       caseId: 'case-3a',
       targetDocument: { fileId: 'f-3a' },
+      outOfCoverage: [],
       instructions: [commentOnly('c1', '违约金为百分之十', '建议上调违约金比例。')],
     };
     const { docx } = applyRevisionInstructionSet(original, set, { now: FIXED_NOW });
@@ -147,6 +148,7 @@ describe('comments/relationships/content-types preservation (OUTPUT-CORRECTNESS-
       id: 'ris-3b',
       caseId: 'case-3b',
       targetDocument: { fileId: 'f-3b' },
+      outOfCoverage: [],
       instructions: [commentOnly('c1', '交付期限三十日', '交付期限建议延长。')],
     };
     const { docx } = applyRevisionInstructionSet(original, set, { now: FIXED_NOW });
@@ -165,6 +167,7 @@ describe('comments/relationships/content-types idempotency (OUTPUT-CORRECTNESS-1
       id: 'ris-4-same',
       caseId: 'case-4-same',
       targetDocument: { fileId: 'f-4-same' },
+      outOfCoverage: [],
       instructions: [commentOnly('c-same', '重复应用锚点句', '同一条批注。')],
     };
     const out1 = applyRevisionInstructionSet(clean, sameSet, { now: FIXED_NOW }).docx;
@@ -190,6 +193,7 @@ describe('comments/relationships/content-types idempotency (OUTPUT-CORRECTNESS-1
       id: 'ris-4a',
       caseId: 'case-4a',
       targetDocument: { fileId: 'f-4a' },
+      outOfCoverage: [],
       instructions: [commentOnly('c1', '质保期壹年', '质保期建议延长至两年。')],
     };
     const { docx } = applyRevisionInstructionSet(original, set, { now: FIXED_NOW });
@@ -215,6 +219,7 @@ describe('comments/relationships/content-types idempotency (OUTPUT-CORRECTNESS-1
       id: 'ris-4b-1',
       caseId: 'case-4b',
       targetDocument: { fileId: 'f-4b' },
+      outOfCoverage: [],
       instructions: [commentOnly('c1', '第一处锚点句', '第一条批注。')],
     };
     const out1 = applyRevisionInstructionSet(clean, first, { now: FIXED_NOW }).docx;
@@ -223,6 +228,7 @@ describe('comments/relationships/content-types idempotency (OUTPUT-CORRECTNESS-1
       id: 'ris-4b-2',
       caseId: 'case-4b',
       targetDocument: { fileId: 'f-4b' },
+      outOfCoverage: [],
       instructions: [commentOnly('c2', '第二处锚点句', '第二条批注。')],
     };
     const out2 = applyRevisionInstructionSet(out1, second, { now: FIXED_NOW }).docx;

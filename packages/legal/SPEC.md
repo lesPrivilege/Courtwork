@@ -226,3 +226,25 @@ React、CSS 或路由函数——`kind:'component'` 是宿主注册表的形态�
 而本族全走 `rehydrationProjection` 路径，结构上照不到；把族门上收进准入需与该债同批裁定。
 
 实现回执与全量门实测见 `specs/LEGAL-ANCHOR-BINDING-1.md`。
+
+## 状态更新（2026-08-10，LEGAL-ANCHOR-BINDING-2 引用闭环收尾）
+
+上节两枚 **[需架构拍板]** 均已了结：
+
+- **第一枚（S4 同族债）** 经 2026-08-09 裁定一另立本票办结。`legal.RevisionInstructionSet` 补
+  `draftSchemaId: 'legal.RevisionInstructionSetDraft'` + `citationBinding`（覆盖单元 `/instructions`、
+  摘要字段 `id`），最终形补 `outOfCoverage`；bindings 11 → 12 枚，JSON Schema 导出 11 → 12 份。
+  草稿形与最终形都住基座 wire（`@courtwork/schemas`），legal 成对 re-export。
+  `anchor-binding.test.ts` 的 `OPEN_ANCHOR_DEBT` **销记**，族门判据收窄为恒常式「未闭环集恒空」。
+- **第二枚（schemaVersion）** 经 2026-08-09 裁定二判定：additive-default 键不构成 ADR-009 升版事由。
+  本票的 `outOfCoverage` 同形，`identity.schemaVersion` 仍维持 1，不再挂待判。
+
+准入守卫同批上收（见 `packages/registry/SPEC.md`）：引用闭环判据从「呈现声明说自己有锚」扩到
+「最终 schema 结构上就携系统铸造锚」，本族走 `rehydrationProjection` 路径也躲不掉，族门自此在
+准入层与包内两处同时成立。
+
+descriptor hash 与 prompt blob hash **两枚同批重铸**（`ab7c80bc…` → `f3ef3d66…`；
+`43133479…` → `56e03f15…`）：S4 正文补「卷宗依据引语一字不差」与「坐标由系统铸造、
+证据台账键由系统签发」的生产者纪律（不变量五）。`identity.version` 不升。
+
+实现回执与全量门实测见 `specs/LEGAL-ANCHOR-BINDING-2.md`。

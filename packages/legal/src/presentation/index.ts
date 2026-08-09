@@ -162,6 +162,21 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
       schemaId: 'legal.RevisionInstructionSet',
       /** 确认后编译为 docx 修订写入——文件级副作用，confirmationPolicy 不得为 none。 */
       sideEffect: 'file_write',
+      /**
+       * 引用闭环（LEGAL-ANCHOR-BINDING-2 · 2026-08-09 裁定一）：模型出 `quoteClaims`、
+       * citation resolver 铸 `sourceAnchors`。覆盖单元＝修订指令；指令内任一依据引语不收敛，
+       * 整条指令移入 `outOfCoverage`——半条指令（改了字却丢了依据）比缺一条更危险。
+       * 摘要取 `id`：四支指令（replace/insert/delete/commentOnly）里唯一共有的标量键，
+       * `text` 只在两支上有、`locator` 是对象（String() 会落 [object Object]）。
+       */
+      draftSchemaId: 'legal.RevisionInstructionSetDraft',
+      citationBinding: {
+        draftField: 'quoteClaims',
+        anchorField: 'sourceAnchors',
+        itemScope: '/instructions',
+        itemSummaryField: 'id',
+        outOfCoverageField: 'outOfCoverage',
+      },
       rehydrationProjection: {
         ops: [
           { kind: 'field', path: '/caseId', label: '案件' },
@@ -170,6 +185,9 @@ export const LEGAL_ARTIFACTS: VerticalPackageDescriptorV1['artifacts'] = [
         rowBudget: 3,
       },
       uiTemplateId: 'draft-review-panel',
+      vocabulary: {
+        enumLabels: { reason: { ...CITATION_FAILURE_REASON_LABELS } },
+      },
     },
     {
       typeId: 'legal.FileOpsPlan',

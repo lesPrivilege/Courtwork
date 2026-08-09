@@ -10,6 +10,7 @@ export const SAMPLE_INSTRUCTION_SET: RevisionInstructionSet = {
   id: 'ris-golden-001',
   caseId: 'case-golden-001',
   targetDocument: { fileId: 'sample-sale-contract-v1' },
+  outOfCoverage: [],
   instructions: [
     {
       id: 'ins-01',

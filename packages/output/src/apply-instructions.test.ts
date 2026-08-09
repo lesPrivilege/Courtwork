@@ -42,6 +42,7 @@ describe('applyInstructionsToDocumentXml preserves paragraph properties on repla
       id: 'ris-ppr',
       caseId: 'case-ppr',
       targetDocument: { fileId: 'f-ppr' },
+      outOfCoverage: [],
       instructions: [
         {
           id: 'i1',
@@ -107,6 +108,7 @@ describe('applyInstructionsToDocumentXml scopes font writes to touched runs (OUT
     id: 'ris-font-scope',
     caseId: 'case-font-scope',
     targetDocument: { fileId: 'f-font' },
+    outOfCoverage: [],
     instructions: [
       {
         id: 'i1',
@@ -167,6 +169,7 @@ describe('applyInstructionsToDocumentXml threads paragraphHint into the locator 
       id: 'ris-hint',
       caseId: 'case-hint',
       targetDocument: { fileId: 'f-hint' },
+      outOfCoverage: [],
       instructions: [
         {
           id: 'i1',
@@ -194,6 +197,7 @@ describe('applyInstructionsToDocumentXml threads paragraphHint into the locator 
       id: 'ris-hint-none',
       caseId: 'case-hint-none',
       targetDocument: { fileId: 'f-hint-none' },
+      outOfCoverage: [],
       instructions: [
         {
           id: 'i1',
@@ -217,6 +221,7 @@ describe('applyInstructionsToDocumentXml font role detection', () => {
       id: 'ris-1',
       caseId: 'case-1',
       targetDocument: { fileId: 'f1' },
+      outOfCoverage: [],
       instructions: [
         {
           id: 'i1',
@@ -241,6 +246,7 @@ describe('applyInstructionsToDocumentXml font role detection', () => {
       id: 'ris-2',
       caseId: 'case-2',
       targetDocument: { fileId: 'f2' },
+      outOfCoverage: [],
       instructions: [
         {
           id: 'i1',
@@ -265,6 +271,7 @@ describe('applyInstructionsToDocumentXml font role detection', () => {
       id: 'ris-3',
       caseId: 'case-3',
       targetDocument: { fileId: 'f3' },
+      outOfCoverage: [],
       instructions: [
         {
           id: 'i1',
@@ -290,6 +297,7 @@ describe('applyInstructionsToDocumentXml keeps w:pPr first when commenting a who
       id: 'ris-cmt-ppr',
       caseId: 'case-cmt-ppr',
       targetDocument: { fileId: 'f-cmt-ppr' },
+      outOfCoverage: [],
       instructions: [
         {
           id: 'i1',
@@ -321,6 +329,7 @@ describe('applyInstructionsToDocumentXml refuses to rebuild paragraphs carrying 
       id: 'ris-foreign',
       caseId: 'case-foreign',
       targetDocument: { fileId: 'f-foreign' },
+      outOfCoverage: [],
       instructions: [{ id: 'i1', kind: 'replace', locator: { strategy: 'text', quote }, text }],
     };
   }
@@ -367,6 +376,7 @@ describe('applyInstructionsToDocumentXml refuses to rebuild paragraphs carrying 
       id: 'ris-del-link',
       caseId: 'case-del-link',
       targetDocument: { fileId: 'f-del-link' },
+      outOfCoverage: [],
       instructions: [{ id: 'i1', kind: 'delete', locator: { strategy: 'text', quote: '详见附件二链接条款。' } }],
     };
     const { outcomes } = applyInstructionsToDocumentXml(xml, set, FIXED_NOW);
@@ -406,6 +416,7 @@ describe('fuzzy replace consumes the matched span, not the literal quote (OUTPUT
       id: 'ris-fuzzy',
       caseId: 'case-fuzzy',
       targetDocument: { fileId: 'f-fuzzy' },
+      outOfCoverage: [],
       instructions: [
         {
           id: 'i1',
@@ -433,6 +444,7 @@ describe('fuzzy replace consumes the matched span, not the literal quote (OUTPUT
       id: 'ris-noop',
       caseId: 'case-noop',
       targetDocument: { fileId: 'f-noop' },
+      outOfCoverage: [],
       instructions: [
         { id: 'i1', kind: 'replace', locator: { strategy: 'text', quote: '本条款维持原状。' }, text: '本条款维持原状。' },
       ],

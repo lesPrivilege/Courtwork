@@ -3,24 +3,22 @@ import { admitPackages, exportPackageJsonSchemas, type VerticalPackageDescriptor
 import { LEGAL_PACKAGE, LEGAL_PACKAGE_BINDINGS, LEGAL_PACKAGE_DESCRIPTOR } from './index.js';
 
 /**
- * LEGAL-ANCHOR-BINDING-1（LEGAL-FIVE-FACES-1 D10 裁定的债票）：
- * 「无锚不落格；模型出引语，系统出坐标」在 `legal.Timeline` / `legal.PartyGraph` /
- * `legal.ReviewMatrix` 三枚上的机器判据。
+ * LEGAL-ANCHOR-BINDING-1（LEGAL-FIVE-FACES-1 D10 裁定的债票）+ LEGAL-ANCHOR-BINDING-2
+ * （2026-08-09 裁定一立行）：「无锚不落格；模型出引语，系统出坐标」在
+ * `legal.Timeline` / `legal.PartyGraph` / `legal.ReviewMatrix` / `legal.RiskList` /
+ * `legal.RevisionInstructionSet` 全族上的机器判据。
  *
  * 本谱是**族门**而非点名单例：判据以「场景 outputArtifacts 中最终 schema 结构上含
- * SourceAnchor 的那一族」定义，成员随包声明增减，门不改一行。族内未闭环者只能落在
- * `OPEN_ANCHOR_DEBT`，且该集合本身被逐字锁住——增删都要在这里显式改。
+ * SourceAnchor 的那一族」定义，成员随包声明增减，门不改一行。BINDING-2 起族内
+ * **零未闭环者**——`OPEN_ANCHOR_DEBT` 销记，判据收窄为恒常式「未闭环集恒空」。
  */
 
-const BOUND_TYPE_IDS = ['legal.Timeline', 'legal.PartyGraph', 'legal.ReviewMatrix'] as const;
-
-/**
- * 已知未闭环的模型输出（[需架构拍板]，见 `packages/legal/SPEC.md` 偏离表）：
- * `legal.RevisionInstructionSet` 是 S4 的模型输出且携 `sourceAnchors`，但它是基座 wire
- * （`@courtwork/schemas`）而非本包私有 schema，补草稿形属跨层选择，超出本票边界。
- * 本集合只登记事实，不豁免判据——它必须与实测的未闭环集**逐字相等**。
- */
-const OPEN_ANCHOR_DEBT = ['legal.RevisionInstructionSet'];
+const BOUND_TYPE_IDS = [
+  'legal.Timeline',
+  'legal.PartyGraph',
+  'legal.ReviewMatrix',
+  'legal.RevisionInstructionSet',
+] as const;
 
 const SCHEMA_DOCS = exportPackageJsonSchemas(LEGAL_PACKAGE_DESCRIPTOR, LEGAL_PACKAGE_BINDINGS);
 
@@ -89,7 +87,7 @@ describe('LEGAL-ANCHOR-BINDING-1 · 三枚产物的引用闭环声明', () => {
     expect(doc(typeId)).toContain('"outOfCoverage"');
   });
 
-  it('族门：凡携 SourceAnchor 的模型输出都须声明引用闭环，未闭环者恰为在册债', () => {
+  it('族门：凡携 SourceAnchor 的模型输出都须声明引用闭环，未闭环集恒空（BINDING-2 起零在册债）', () => {
     const anchored = modelOutputTypeIds().filter((typeId) => carriesAnchor(typeId));
     // 族非空是门有效的前提（空集合与全通过同形）。
     expect(anchored.length).toBeGreaterThanOrEqual(BOUND_TYPE_IDS.length);
@@ -97,7 +95,8 @@ describe('LEGAL-ANCHOR-BINDING-1 · 三枚产物的引用闭环声明', () => {
       const artifact = artifactOf(typeId);
       return artifact.draftSchemaId === undefined || artifact.citationBinding === undefined;
     });
-    expect(unclosed).toEqual(OPEN_ANCHOR_DEBT);
+    // 恒常判据：不再有「在册债」这条豁免缝——新增携锚模型输出不补闭环即红。
+    expect(unclosed).toEqual([]);
     for (const typeId of BOUND_TYPE_IDS) expect(anchored).toContain(typeId);
   });
 
@@ -147,5 +146,30 @@ describe('LEGAL-ANCHOR-BINDING-1 · binding 写错一字即拒载（漂移/伪�
     const result = admitPackages([LEGAL_PACKAGE]);
     expect(result.rejected).toEqual([]);
     expect(result.admitted).toHaveLength(1);
+  });
+});
+
+/**
+ * LEGAL-ANCHOR-BINDING-2 · 准入层上收后的族级反例。BINDING-1 时本包全族走
+ * `rehydrationProjection` 路径，registry 的引用闭环守卫**结构上照不到**，族门只能立在包内；
+ * 上收后同一判据在准入层生效——本节证的正是「门换了住处」：撤掉闭环声明即拒载。
+ */
+describe('LEGAL-ANCHOR-BINDING-2 · 撤闭环声明即准入拒载（守卫上收的族级反例）', () => {
+  it.each(BOUND_TYPE_IDS)('%s：删 draftSchemaId + citationBinding 后不得再作模型输出', (typeId) => {
+    const issues = rejectionIssues(withMutatedArtifact(typeId, (artifact) => {
+      delete artifact.draftSchemaId;
+      delete artifact.citationBinding;
+    }));
+    expect(issues).toContain(typeId);
+    expect(issues).toMatch(/draftSchemaId/);
+    expect(issues).toMatch(/citationBinding/);
+  });
+
+  it('只删 citationBinding（留着 draftSchemaId）同样拒载——半个闭环不算闭环', () => {
+    const issues = rejectionIssues(withMutatedArtifact('legal.RevisionInstructionSet', (artifact) => {
+      delete artifact.citationBinding;
+    }));
+    expect(issues).toContain('legal.RevisionInstructionSet');
+    expect(issues).toMatch(/citationBinding/);
   });
 });

@@ -13,6 +13,7 @@ const MINIMAL_SET: RevisionInstructionSet = {
   id: 'safe-preflight-test',
   caseId: 'case-test',
   targetDocument: { fileId: 'input.docx' },
+  outOfCoverage: [],
   instructions: [
     {
       id: 'instr-preflight-01',

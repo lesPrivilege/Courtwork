@@ -11,14 +11,14 @@
     {
       "id": "P0-S02",
       "path": "packages/legal/src/presentation/index.ts",
-      "sha256": "767f285d486bc72592a648b17a767d12e486213d993166ebeab1a65738f05879",
+      "sha256": "fec106d34b31664443c2d69eec2aef4b3ba4514217551cf7bce6a11884ee2e88",
       "role": "presentation-contract",
       "symbols": ["LEGAL_PRESENTATION"]
     },
     {
       "id": "P0-S03",
       "path": "packages/legal/src/domain/compile-risk-list-to-revisions.ts",
-      "sha256": "e9be90c56b574bf87adcff0e4237fcc05267e74879b22a785738417301273a2b",
+      "sha256": "5eea105582d29cc4200f3c98d1815d29606cbd01481e2e343169af37f2935109",
       "role": "deterministic-domain-compiler",
       "symbols": ["compileConfirmedRiskListToRevisionInstructions"]
     },
