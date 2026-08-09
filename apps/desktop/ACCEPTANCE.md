@@ -6354,3 +6354,112 @@ demo 双向隔离抽验：三份新增测试面（集成谱／jsdom 谱／e2e �
 ### 结论
 
 **PASS。** 不变量二在三面上的闭环由「草稿形结构性无坐标 ＋ 最终形只接 resolver 铸锚 ＋ 面上只把真实锚原样交给既有 canonical reader」三段独立核实成立，core／registry／Rust 三处零改动经 diff 面直接证明；首红 19/2 逐位复现，六枚独立变异全部按预期触红且红文指名正确理由，其中伪锚两轴与跨案 fileId 一轴的区分力经对照实验坐实；三裁逐条符合、六偏离逐条对照无越界；计数漂移 +45／+4／+3 逐项归因可核；八相全量门本树独立实测零回归，完整 Playwright 独占 380/380。拒因 0 枚；上列①须另立小票、②须补登记、③为架构清账义务，均不阻断本票放行。
+
+---
+
+# DEMO-ANCHOR-2 独立验收（2026-08-09）
+
+- **裁决：PASS，放行 `94cb3a0`。** 验收树 `/private/tmp/courtwork-demo-anchor-2-accept`、分支 `claude/accept-demo-anchor-2`，检出于验收目标 `94cb3a0`；`git merge-base --is-ancestor 7469243 94cb3a0` 实测成立，且 `94cb3a0^ == 7469243`，零中间树。检出时 `7469243` 即 main tip；本会话进行中 main 经 `PI-SCAN-TIMEOUT-1` 前进至 `8bfaab0`（`3fa39be`／`1f01c79`／`fee06ba`／`8bfaab0`，改动面只在 `packages/pi-lane`），收尾复核 `94cb3a0` 仍未合入、`7469243` 仍是 main 祖先，故本轮全部实测仍以 `94cb3a0` 为准；该并行票的改动面与本票 diff 面（demo-data 数据＋desktop demo/App＋两枚门＋e2e）无交集，合入时不预期文本冲突，但合并态的 cargo／sidecar 相位应由合入方另核。未在共享主仓 checkout/stash；六枚变异与一轮 born-red 检出全部撤回，提交前工作树只留本文件的追加。
+- **本票承接的正是上一轮 `LEGAL-ANCHOR-BINDING-1` 验收的须处理项①**（样板案三面回跳必落 `anchor_invalid`、且文案「请重新运行产出它的场景」在 demo 路径不实指路）。两件事本轮实核均已闭合。
+
+## 一 · 锚点真实性：全量 137 枚独立复算（非抽验）
+
+票面只要求三面各抽 ≥5 枚。本会话改为**全量复算**——成本与抽验相当而结论更强。独立脚本住会话 scratchpad、不入仓，**不 import 实现侧任何代码**：FNV-1a 照 `apps/desktop/src/demo/legal-interaction.ts` 的 `contentVersion` 逐行重写，路由表照目录扫描自建（`dossier/*.md` + `contracts/variants/*.md`，`fileId` 即文件名）。
+
+| 判据 | 独立实测 |
+|---|---|
+| 锚点总数 | **137**（timeline 49 / party-graph 18 / review-matrix 70），与回执逐面同值 |
+| `source.slice(start,end) === quote`（UTF-16 offset） | 137/137 成立 |
+| `textLayerVersion` 自算对照 | 137/137 与数据内声明逐字相等（形如 `source-text@1:<utf16Length>:<FNV-1a 8 位十六进制>`） |
+| `start > 0`（退役 `{start:0,end:N}` 占位） | 137/137 成立 |
+| `end ≤ source.length` | 137/137 成立 |
+| 引语不含 `**`、不含换行 | 137/137 成立 |
+| 区间整段落在**单行单 `**` 片段**内 | 137/137 成立 |
+| 同一 `fileId` 版本唯一 | 30 份原件、各恰一个版本 |
+
+30 个文本层与回执「共 30 份原件形成 30 个文本层」一致。party-graph 的 18 枚全在 `edges` 上，`nodes` 无锚点（不构成缺口，票面未要求）。
+
+## 二 · 32 枚引语改写与两处退让
+
+以 `7469243` 与 `94cb3a0` 两侧产物按同一路径键做程序化对照，实测**恰 32 枚引语改写、零枚换 `fileId`**，与回执逐条表同数同位。抽验 8 组（覆盖回执表全部落空原因类型），逐组回原件核「原文里承载同一事实的干净原句」宣称：
+
+| 组 | 原件实读 | 裁定 |
+|---|---|---|
+| evt-08 | `14-银行流水摘要.md` 第 11 行逐字含「迟延2日到账」 | 成立，且**强于**旧引语——旧引语是表格行去管道摘写（第 7 行真形带 `\|`），本就非逐字 |
+| evt-33／e-15 | 同文件第 12 行逐字含「与…约定的『临江精铸科技有限公司』收款账户不一致」 | 成立，直接承载「非合同约定收款账户」 |
+| evt-14／17／20／e-14 | 送货单第 4 行为 `发货单位：**…**`（标记切开），第 17 行落款为干净整句 | 成立 |
+| evt-41／42／e-07[1]／e-08[1] | `18-保证书.md` 第 3／7 行为 `**保证人一（企业）**：…`，第 19／20 行落款干净 | 成立 |
+| e-11 | `17-债权转让通知书.md` 第 5 行整句含「合计2,660,000元」，与 `relationType` 的金额同值 | 成立，旧引语含省略号本非引语 |
+| matrix q4 ×10 | 变体合同 `质保期为验收合格之日起 **12 个月**。`，新锚为强调段内时长值 | 成立，该值即该格答案本身 |
+| evt-40 | `16-律师函.md` 原文为「正式函告贵司：请于收到本函之日起10日内…」 | 成立，旧引语在「请」后多一个「贵司」故非逐字 |
+| evt-09 | `05-合同补充协议.md` 第 11 行「…顺延至**2024年11月30日**」 | 成立，新锚截到强调段前（见观察②） |
+
+**两处退让读原件核真伪，两处均属实：**
+
+**evt-04（日期不符）成立。** `12-会议纪要-一.md` 第 9 行背景段陈述的是「双方于2024年12月10日完成设备联调并签署验收单」，而 evt-04 的 `date` 实读为 `2024-08-12`（谈判），旧引语与该事件日期确不相容。新锚「会议背景」的形态**并非本票发明**：`7469243` 上 evt-13 与 evt-22 的引语已经就是「会议背景」，本票只是把 evt-04 拉齐；`case-bible.md` 第 138／147／156 行对这三条的依据栏亦逐条写「12会议纪要（一）背景描述」。回执宣称逐项属实。
+
+**evt-44（案号结构性不存在）成立。** `/usr/bin/grep -c "472号" 01-起诉状.md` 实读 **0**；全语料含该案号者为 `case-bible.md`、`03-证据清单.md`、`19-授权委托书.md`——正是回执所称「案情册与另两份文书」。「云章市中级人民法院」实在该文书第 25 行。退到法院名是语料内唯一可逐字成立的选择。
+
+## 三 · 变异独立复注（六枚，均带命中校验，均已撤回复绿）
+
+| 枚 | 靶与命中校验 | 独立实测红 |
+|---|---|---|
+| M1 文案换回生产句 | `legal-interaction.ts` 内 demo 文案字面量 count==1 后替换 | desktop **1 failed / 830 passed**，红在「demo 文案与生产文案分立」 |
+| M2 路由收回只认合同一份 | 删 variants glob（count==1）、dossier glob 收窄为单份 | desktop **3 failed / 828 passed**，三面各一枚，红文逐面指名首个不可回跳的 `fileId` |
+| M3 抽掉一枚 `textLayerVersion` | evt-01 原有版本，删前校验在场 | demo-data **2 failed / 147 passed** ＋ desktop **1 failed / 830 passed**（双侧同红，回执只登记了 demo-data 一侧） |
+| M4 跨 `**` 等值区间 | V01/q1 换成 `[583,587)`＝`*第六条`（起点落在两枚星号之间） | demo-data **1 failed / 148 passed**，红**恰落在第 127 行的片段判据**，未触第 128／129 行的 `**`／换行断言，亦未触切片等式 |
+| M4c 跨完整 `**` 强调对 | V01/q1 换成 `[419,…)`＝`质保期为验收合格之日起 **12 个月**`，切片等式仍真 | e2e 定向单跑复现回执所称形态，逐字为 **`Expected: 1 / Received: 2`** |
+| M5 撤 slice 判据 | 删 `sourceText.slice(start,end) !== anchor.quote` 整块（count==1） | `assert-chat-ui-contracts.mjs` EXIT=1，报 `Source routing must validate the exact resolved quote slice` |
+
+**M4 的区分力比回执自述更强，值得单独记一笔。** 我特意选了「起点落在 `**` 两枚星号之间」的区间：它使切片**不含** `**`、**不含**换行，因而绕过第 128／129 两条简单字符串断言，只能被第 126 行的片段包含判据接住。同一变异下 desktop 谱实测 **831/831 全绿**——即消费端 resolver 对这条显示安全判据**零区分力**。这从两侧同时坐实了「该判据必须立在 demo-data 侧」的判断：它既不是 `**`／换行断言的冗余，也不是消费端已覆盖的事。
+
+**born-red 抽验成立。** 把三面产物换回 `7469243` 形态、新谱原样跑，实测 **146 failed / 3 passed（共 149）**，与回执「146 红量级」同值。新谱不是对既有数据的追认，是真判据。
+
+## 四 · 双向隔离与语料墙
+
+- **真实链零读 demo 真值。** `App.tsx` 的 `openRiskSource` 实读为 `if (!isDemoCase) { readMaterialAction(…); return; }` 先行返回，demo 适配器在生产分支结构性不可达；`openLegalDemoSource` 自身首行 `assertDemoCaseId` 二次 fail-closed。`@courtwork/demo-data` 的**生产**依赖实核仍只有 `demo-runtime`（唯一装配点）与 `eval`（`CLAUDE.md` 明文豁免），`tools`／`reading-view`／`desktop` 三处均在 `devDependencies`——本票零改动。e2e 链内 `assert-vertical-isolation.mjs` 与 `assert-isolation-binding.mjs` 全绿。
+- **语料墙成立。** 新增两谱 `packages/demo-data/src/artifact-anchors.test.ts` 与 `apps/desktop/tests/e2e/demo-anchor-2.spec.ts` 实核**零卷宗实物名、零当事人名**：前者 `fileId` 从产物读出、路径由目录扫描解析，后者断言一律取面上现读引语（`await quote.innerText()`）与高亮相等，不给字面量留座位。`legal-interaction.test.ts` 内 `04-设备采购合同.md` 出现 5 次，但 `7469243` 上同为 5 次——既有面，非本票引入。
+
+## 五 · 偏离五条逐裁
+
+1. **desktop 侧范围扩展——追认。** 回执称「DEMO-ANCHOR-1 曾登记 desktop 四文件扩展」，实核本文件 `DEMO-ANCHOR-1 G1+G2` 节确记 `legal-interaction.test.ts`／`legal-interaction.ts`／`recordings.ts`／`session-event.contract.test.ts` 四份。本票另触 `App.tsx` 与两枚门脚本，略宽于先例，但：路由结构性住 desktop（就绪图该行写明「fileId 不在 demo 路由内」是缺口本身），`App.tsx` 改动为**净减 24 行**且方向是把重复写法收口，两枚门一为改锚（M5 证未失牙）、一为下调。在票面内，追认。
+2. **evt-04 与 evt-44 的引语退让——追认。** 两处理由读原件逐条核实为真（见二节）。回执把边界写进「诚实边界」段并明称「如需覆盖须改语料本身（另立票）」，属如实登记而非掩饰。
+3. **新增 e2e 四例、floor 维持 366——追认。** `assert-test-count.mjs` 不在本票 diff 面内，`minimum` 实读仍为 366，与 `LEGAL-ANCHOR-BINDING-1` 同一处置。四例实跑全绿（见六节）。窗口变宽见观察③。
+4. **highwater 2272→2248 下调——追认。** `App.tsx` 实读 **2248 行**（`7469243` 上 2272），`lint:app-highwater` 自报「2248 行（上限 2248，只降不升）」。方向为降，门自证，注释留痕说明外提物与净减来源。
+5. **切片判据改锚——追认，且实证未失牙。** M5 撤掉 `sourceText.slice(…)` 整块后该门 EXIT=1 并报出原判据文案，说明「改锚点符号、判据一条未减」的宣称成立，不是把门改成永真。
+
+## 六 · 全量门（本树独立实跑）
+
+| 相 | 独立实测 | 回执自述 |
+|---|---|---|
+| `pnpm install` | EXIT=0（lockfile 未动） | — |
+| pi-lane 两枚 sidecar clean 重建 | 先 `rm -rf dist/product-sidecar dist/headless-sidecar` 再建，双成功；product `action: created`、双 target `origin: downloaded`、bundle `951acf8e…` `reproducible: true`；headless `landedSha256 061248fa…` `reproducible: true` | — |
+| `pnpm -r build` | EXIT=0（仅既有 chunk warning） | 绿 |
+| `pnpm lint` | EXIT=0（零输出） | 绿 |
+| `pnpm test`（根） | **173 files / 2135 passed / 0 failed** | 2135／173，同值 |
+| desktop vitest | **94 files / 831 passed / 0 failed** | 831／94，同值 |
+| `cargo test` | **250 passed / 0 failed / 1 ignored**，EXIT=0 | 回执如实登记「未跑，本票零 Rust」；本会话补跑核零回归 |
+| `pnpm site:guard`（显式单跑） | EXIT=0；app-highwater **2248（上限 2248）** | PASS／2248，同值 |
+| 完整 `pnpm test:e2e` | **384 passed，EXIT=0，12.2m**；38 枚静态门前置全过后才进 `playwright test` | 384，floor 366，同值 |
+
+四枚本票 e2e 用例实跑逐条命中：`#66` 时间线、`#69` 关系图谱、`#73` 矩阵审阅（三面均经 `reader-focus-anchor` 恰一处高亮且高亮文本 ≡ 面上现读引语）、`#78` statute 展品落 demo 降级文案（断言含「样板案」且不含「重新运行」）。
+
+**Playwright 互斥**：起链前 `mkdir /private/tmp/courtwork-pw-lock` 原子取锁一次即得，`pgrep` 双确认无第二条 PW 在跑；仅见主仓一枚 `vite --host 127.0.0.1 --port 1470` 的常驻 dev server，与本树独占端口 **1487**（定向单跑用 1488）无交集，且 `playwright.config.ts` 实读 `reuseExistingServer: false`。跑完即 `rmdir`。零红，无并发归因需要。
+
+**收尾**：全链重生成他票 `release/evidence/**` PNG（`generic-pack-1-unloaded-2026-08-06` 5 枚、`legal-anchor-binding-1-2026-08-09` 3 枚、`legal-five-faces-1-2026-08-07` 6 枚）与本票 3 枚，一律 `git checkout -- release/evidence/` 精确还原（承 Bin 行判例，禁 `git add -A`）；`test-results/` 已删。还原后 `git status --porcelain` 零输出、HEAD 仍 `94cb3a0`。
+
+## 七 · 观察项（均不构成拒因）
+
+**① evt-04／13／22 三条共用一枚 4 字节标签锚，是语料级债不是本票债。** 三者现在同指 `12-会议纪要-一.md` 的「会议背景」`[116,120)`，而该文书记的是 2024-12-20 的会议，与三条的 `date`（2024-08-12／10-08／12-01）无一相合；引语本身也只是节标，不承载任何事件要素。**本票没有把它变坏**——evt-13／22 在 `7469243` 上已是此形，`case-bible` 亦只声明「背景描述」，本票只是把 evt-04 从「日期相冲的整句」拉齐为「与同源两条一致的节标」，是净改善。但样板案若日后用于演示「证据强度」，这是肉眼可见的弱点。建议随语料票（回执已指出须改语料本身）一并处置。
+
+**② evt-09 是第三处「引语窄于事件描述」，未进偏离二的枚举。** 新锚「第三批设备（自动化上下料系统）交付期限顺延至」截在强调段之前，`2024年11月30日` 这个日期不再有引语支撑，而事件描述写的正是「顺延至2024-11-30」。回执的改写表登记了它（落空原因栏写明「顺延日期在原文里被 `**` 包住」），但偏离二只枚举了 evt-04 与 evt-44 两处。属登记颗粒度问题而非隐瞒：改写表与偏离段同在一份 SPEC、相隔十余行。建议清账时把 evt-09 并入偏离二。
+
+**③ PW floor 与实测差已从 14 扩到 18。** `minimum` 仍 366、实测 384。上一轮 `LEGAL-ANCHOR-BINDING-1` 验收已记「差 14，下一张 desktop 票宜一并补档」，本票 +4 后窗口继续变宽。两票各自都有「循前票处置」的正当性，但连续两票不补，门的回归捕捉力正在实质流失。建议架构角色直接指定一张票补档，不再顺延。
+
+**④ 环境项：product sidecar 首跑失败是会话工具的前台超时，不是仓库红。** 首跑在 `targets: []`／`bundle: null`／`reason: "terminated"` 处中止，实为约 100 MB 的 Node 运行时下载被 600s 前台上限打断；同命令改后台重跑即 `action: created` 且两枚 target 均 `origin: downloaded`。按「环境红禁入验收结论」处置，不列缺陷。同时留一条自伤备查：首跑收尾用了 `… | tail; echo EXIT=$?`，管道使 `$?` 取自 `tail` 而打印出误导性的 `EXIT=0`，真信号是同屏的 `ELIFECYCLE … exit code 1`——管道吃退出码的老判例又犯一次。
+
+**⑤ 观察：`quote 非退化` 判据的阈值（长度 > 2）对本批语料偏松。** 「会议背景」以 4 字过关。当期无实害（137 枚里只此一处贴近下限），登记备查。
+
+## 结论
+
+**PASS。** 137 枚锚点的切片等式与文本层版本经**独立重写的算法全量复算**逐枚成立，非抽样外推；32 枚引语改写数与位与回执逐条相符，八组抽验回原件核实「同一事实的干净原句」宣称全部为真；两处退让的理由（evt-04 日期不符、evt-44 案号结构性不存在）读原件坐实，且 evt-04 的新形态在 `7469243` 上已有同源两条先例。六枚独立变异全部按预期触红且红文指名正确理由，其中 M4 以「起点落在星号之间」的构造隔离出片段判据的独立区分力（同变异下消费端 831/831 全绿），M4c 逐字复现回执所称 `Expected: 1 / Received: 2`，M5 证明改锚后的门未失牙；born-red 146/3 与回执同值。双向隔离在生产早返与 demo 侧断言两处 fail-closed，语料墙在两份新谱上实核为零。九相全量门本树独立实测零回归，完整 Playwright 独占 384/384，cargo 250/0/1 补跑核零 Rust 回归。偏离五条逐条追认，拒因 **0 枚**；上列五条观察项中①②建议随清账处置、③建议架构角色指定补档票，均不阻断本票放行。
