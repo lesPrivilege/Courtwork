@@ -115,7 +115,11 @@ const appPath = path.resolve(scriptDirectory, '..', 'src', 'App.tsx');
 // ③容器化仪式两枚处理器去 `case/use-containerization.ts`（composer-first 容器化，用户选名词）。
 // App 侧新增的只有装配（`packCatalog` prop、`resolveMatterRegistries` 显式态解析、三处
 // 组件传参与弹层渲染），由上述外提与压缩抵消并净减 7。
-const HIGH_WATER_LINES = 2272;
+// DEMO-ANCHOR-2（2026-08-09）下调至 2248：外提物一件——样板案 demo route → `MaterialReaderDoc`
+// 的适配（原 `demoReaderDoc`）迁 `demo/legal-interaction.ts` 的 `openLegalDemoSource`；壳侧两处
+// demo 分流（interaction 卡片与三面 `openRiskSource`）此前各写一遍 try/catch 与阻断文案选择，
+// 收口后各剩三行。净减 24。
+const HIGH_WATER_LINES = 2248;
 
 // 计数口径＝**视觉行数**：末尾换行不算作额外一行。对以换行结尾的文件（本仓源码皆是）
 // 它与 `wc -l` 同值；无尾换行时本门比 `wc -l` 多 1——那一行确实存在，只是没有结尾换行符。

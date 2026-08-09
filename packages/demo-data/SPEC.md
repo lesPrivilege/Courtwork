@@ -68,6 +68,86 @@ data/pm/
 
 - 票面「恰一枚指定展品（risk-02[0]）」实际为两枚（risk-02[0] + risk-06[0]）。原因：output-confirm e2e 期望 2 处 nonapplied（risk-02 + risk-06），退出判据「该 spec 全绿」要求两枚展品同时存在。单枚展品不满足退出判据。
 
+## DEMO-ANCHOR-2 · 三面产物锚点真实化与样板案降级文案（实现完成，待独立验收）
+
+权威：`LEGAL-ANCHOR-BINDING-1` 验收须处理项①（`apps/desktop/ACCEPTANCE.md`），就绪图本票行，
+`DEMO-ANCHOR-1` 先例。基线 `main @ 7469243`。
+
+### 处置选择：全数走甲（真实化），零新增展品
+
+票面给的是「甲：锚点真实化／乙：改显式展品降级文案」二选一，可逐锚点混用。**现读语料的结论是
+三面 137 枚锚点全部可锚**——`review-matrix` 70 枚引语本就逐字存在于合同变体；`timeline` 49 枚
+有 38 枚逐字命中，`party-graph` 18 枚有 7 枚逐字命中，其余 22 枚的落空原因全是**排版层面**
+（markdown 强调标记 `**` 把标签与值切开、表格行带管道、引语写成了带省略号的摘要），语料里都存在
+承载同一事实的干净原句。故全部走甲，三面零新增展品。
+
+乙仍然落地，但落在**文案**而非数据上：`DEMO-ANCHOR-1` 刻意保留的两枚 statute 展品
+（`risk-02[0]`／`risk-06[0]`）在样板案上仍会显式阻断，而它们此前得到的下一步是
+「请重新运行产出它的场景」——样板案是录播回放，没有那次运行可重跑。该文案由 demo 分流自持
+一句（见 `apps/desktop/SPEC.md` 同票段），两枚展品即其活消费者。
+
+### 改动摘要（本包）
+
+- `data/artifacts/timeline.json`（49 枚）、`party-graph.json`（18 枚）、`review-matrix.json`（70 枚）：
+  逐枚补真实 `textRange`（JS UTF-16 string offset，`source.slice(start,end) === quote`）与
+  `textLayerVersion`（`source-text@1:<utf16Length>:<FNV-1a>`，与 desktop `contentVersion` 同构，
+  以合同现有版本串实测对齐口径）。退役全部 `{start:0, end:N}` 占位。共 30 份原件形成 30 个文本层。
+- 32 枚引语按「原文里承载同一事实的干净原句」改写，逐条见下表。
+- `src/artifact-anchors.test.ts`（新增）：本包只看守自己拥有的结构真值——切片等式、`start>0`、
+  边界、同一 `fileId` 版本唯一、版本长度位等于语料现读长度、引语非退化、以及**显示安全段**判据。
+  不复制 FNV-1a、不复制坐标算法（判别力真座位在消费端 resolver，承 `DEMO-ANCHOR-1`）。
+  `fileId` 从产物读出、语料路径由目录扫描解析，卷宗实物名零入本谱（语料墙）。
+
+### 新判据：单行单 `**` 片段（阅读面恰一处高亮）
+
+desktop `ReaderPane` 按行渲染并把 `**强调**` 拆成片段。一枚锚点若跨行或跨 `**` 边界，切片等式
+仍可成立，但阅读面上会裂成**多处** `reader-focus-anchor`。故本票立判据：锚点区间必须整段落在
+同一行的同一 `**` 片段内（该判据同时蕴含「引语不含 `**`」）。`review-matrix` 原有 10 枚 q4 引语
+正是含 `**` 的形态，随本判据改锚到强调段内的时长值。
+
+变异实证：把 `V01/q1` 改成跨 `**` 边界的等值区间（切片等式仍真、消费端 resolver 仍绿 18/18），
+本包判据单点转红；同一变异下 e2e 的「恰一处高亮」实测 `Expected: 1 / Received: 2`——判据的
+产品含义在真跑里坐实。
+
+### 引语改写逐条（32 枚，全部为「同一事实的干净原句」）
+
+| 面 | 处 | 落空原因 | 改写后 |
+|---|---|---|---|
+| timeline | evt-04 | 原引语是会议纪要背景段整句，其陈述的日期与该事件（2024-08-12 谈判）不符 | 改锚该段的节标，与同源同据的 evt-13／evt-22 现存形态一致（`case-bible` 对这三条均只声明「背景描述」） |
+| timeline | evt-08、evt-33（及 party-graph e-15） | 原引语是表格行的去管道摘写 | 改锚同文件「摘要说明」里对应的整句散文——直接承载该事件描述里的迟延与账户不符事实 |
+| timeline | evt-09 | 顺延日期在原文里被 `**` 包住 | 截到强调段之前的干净子句 |
+| timeline | evt-14／evt-17／evt-20（及 party-graph e-14） | 抬头行的发货单位被 `**` 包住 | 改锚同文件落款行的同事实干净整句 |
+| timeline | evt-40 | 原引语在原文前多一个称谓字 | 截为原文逐字子句 |
+| timeline | evt-41／evt-42（及 party-graph e-07[1]／e-08[1]） | 抬头行的保证人标签被 `**` 包住 | 改锚落款行的同事实干净整句 |
+| timeline | evt-44 | 案号在该文书里**结构性不存在**（案号只出现在案情册与另两份文书） | 改锚该文书里的受诉法院名——承 `DEMO-ANCHOR-1` risk-01 先例：引语退到原文真有的那段，不为凑事实造引语 |
+| party-graph | e-02～e-06、e-07[0] | `**标签**：值` 形态 | 改锚冒号后的值段（多处同值者按所属主体区块选定偏移） |
+| party-graph | e-11 | 原引语含省略号，是摘写不是引语 | 改锚原文该整句 |
+| review-matrix | 10 行 q4 | 引语含 `**` 标记 | 改锚强调段内的时长值（即该格答案本身） |
+
+### 复杂度审视
+
+本包新增概念：零。数据改值 + 一份结构谱。无新抽象、新依赖、新持久化格式、新状态机。
+再锚定用一次性脚本完成，**脚本不入仓**——承 `DEMO-ANCHOR-1`「数据本身即真值，不是由测试生成的
+golden」的判断；语料一旦漂移，本包切片等式与消费端 resolver 双侧同时转红，是显式失败不是静默。
+
+### golden 零受影响枚举
+
+本包无 golden snapshot。`risk-list.json` 未触碰（8 枚锚点、6 可定位 + 2 展品全部原样），故
+`recordings.ts` 的 `citationStats` 与 desktop `session-event.contract.test.ts` 的 `claims: 8` 不受影响。
+三面产物不参与任何 golden 快照，只被 schema 解析与本谱／消费端谱消费。
+
+### 偏离登记
+
+1. **desktop 侧范围扩展**：票面写「循 DEMO-ANCHOR-1」，DEMO-ANCHOR-1 曾登记 desktop 四文件扩展；
+   本票同理触及 `apps/desktop/src/demo/legal-interaction.ts`（路由由单份合同扩为整语料目录）、
+   `apps/desktop/src/App.tsx`（两处 demo 分流改吃 demo 侧出口，`demoReaderDoc` 随之外提）与两份谱。
+   理由：甲路的「fileId 接 demo 路由」在票面内，路由住 desktop。
+2. **evt-04 与 evt-44 的引语退让**：两处改写后引语所承载的信息**窄于**事件描述（evt-04 退到节标、
+   evt-44 退到法院名，案号不再有引语支撑）。语料里确无更贴的原句，取「引语必须逐字真」优先于
+   「引语必须覆盖描述全部要素」。如需覆盖，须改语料本身（另立票）。
+3. **新增 e2e 四例**：`apps/desktop/tests/e2e/demo-anchor-2.spec.ts`。PW floor 维持 366 未升档
+   （承 `LEGAL-ANCHOR-BINDING-1` 同一处置）。
+
 ## 背景
 
 承接 `docs/decisions/ADR-001-package-abi.md`：演示数据从"放在 packages/tools 内"改为独立成包，与消费方 src 完全解耦。本包不属于 `当时的架构工单册` 原始工单编号序列，是 W5 在途期间的架构增量（见 `packages/tools/SPEC.md` 的 W5.1 验收记录）。

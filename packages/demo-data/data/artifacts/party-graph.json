@@ -121,9 +121,10 @@
           "fileId": "20-企业信用信息查询单.md",
           "quote": "临江精铸科技有限公司（持股100%）、临江精铸（云章）装备有限公司（持股100%）",
           "textRange": {
-            "start": 0,
-            "end": 41
-          }
+            "start": 567,
+            "end": 608
+          },
+          "textLayerVersion": "source-text@1:1155:32722708"
         }
       ]
     },
@@ -135,11 +136,12 @@
       "sourceAnchors": [
         {
           "fileId": "20-企业信用信息查询单.md",
-          "quote": "股东信息：临江精铸集团有限公司（持股100%）",
+          "quote": "临江精铸集团有限公司（持股100%）",
           "textRange": {
-            "start": 0,
-            "end": 23
-          }
+            "start": 720,
+            "end": 738
+          },
+          "textLayerVersion": "source-text@1:1155:32722708"
         }
       ]
     },
@@ -151,11 +153,12 @@
       "sourceAnchors": [
         {
           "fileId": "20-企业信用信息查询单.md",
-          "quote": "股东信息：临江精铸集团有限公司（持股70%）、封文昌（持股30%）",
+          "quote": "临江精铸集团有限公司（持股70%）、封文昌（持股30%）",
           "textRange": {
-            "start": 0,
-            "end": 33
-          }
+            "start": 879,
+            "end": 907
+          },
+          "textLayerVersion": "source-text@1:1155:32722708"
         }
       ]
     },
@@ -167,11 +170,12 @@
       "sourceAnchors": [
         {
           "fileId": "20-企业信用信息查询单.md",
-          "quote": "法定代表人：封文昌",
+          "quote": "封文昌",
           "textRange": {
-            "start": 0,
-            "end": 9
-          }
+            "start": 95,
+            "end": 98
+          },
+          "textLayerVersion": "source-text@1:1155:32722708"
         }
       ]
     },
@@ -183,11 +187,12 @@
       "sourceAnchors": [
         {
           "fileId": "20-企业信用信息查询单.md",
-          "quote": "法定代表人：封文昌",
+          "quote": "封文昌",
           "textRange": {
-            "start": 0,
-            "end": 9
-          }
+            "start": 542,
+            "end": 545
+          },
+          "textLayerVersion": "source-text@1:1155:32722708"
         }
       ]
     },
@@ -199,11 +204,12 @@
       "sourceAnchors": [
         {
           "fileId": "20-企业信用信息查询单.md",
-          "quote": "法定代表人：岑瑞霖",
+          "quote": "岑瑞霖",
           "textRange": {
-            "start": 0,
-            "end": 9
-          }
+            "start": 315,
+            "end": 318
+          },
+          "textLayerVersion": "source-text@1:1155:32722708"
         }
       ]
     },
@@ -215,19 +221,21 @@
       "sourceAnchors": [
         {
           "fileId": "20-企业信用信息查询单.md",
-          "quote": "股东信息：起云控股集团有限公司（持股85%）",
+          "quote": "起云控股集团有限公司（持股85%）",
           "textRange": {
-            "start": 0,
-            "end": 22
-          }
+            "start": 404,
+            "end": 421
+          },
+          "textLayerVersion": "source-text@1:1155:32722708"
         },
         {
           "fileId": "18-保证书.md",
-          "quote": "保证人一（企业）：起云控股集团有限公司",
+          "quote": "保证人一（盖章）：起云控股集团有限公司",
           "textRange": {
-            "start": 0,
-            "end": 19
-          }
+            "start": 378,
+            "end": 397
+          },
+          "textLayerVersion": "source-text@1:411:621fbf42"
         }
       ]
     },
@@ -241,17 +249,19 @@
           "fileId": "20-企业信用信息查询单.md",
           "quote": "麦承业（持股15%）",
           "textRange": {
-            "start": 0,
-            "end": 10
-          }
+            "start": 422,
+            "end": 432
+          },
+          "textLayerVersion": "source-text@1:1155:32722708"
         },
         {
           "fileId": "18-保证书.md",
-          "quote": "保证人二（个人）：麦承业",
+          "quote": "保证人二（签字）：麦承业",
           "textRange": {
-            "start": 0,
-            "end": 12
-          }
+            "start": 398,
+            "end": 410
+          },
+          "textLayerVersion": "source-text@1:411:621fbf42"
         }
       ]
     },
@@ -265,9 +275,10 @@
           "fileId": "04-设备采购合同.md",
           "quote": "联系人：梅昭阳（销售总监）",
           "textRange": {
-            "start": 0,
-            "end": 13
-          }
+            "start": 176,
+            "end": 189
+          },
+          "textLayerVersion": "source-text@1:1250:b936515f"
         }
       ]
     },
@@ -281,9 +292,10 @@
           "fileId": "04-设备采购合同.md",
           "quote": "联系人：柯清源（采购总监）",
           "textRange": {
-            "start": 0,
-            "end": 13
-          }
+            "start": 280,
+            "end": 293
+          },
+          "textLayerVersion": "source-text@1:1250:b936515f"
         }
       ]
     },
@@ -295,11 +307,12 @@
       "sourceAnchors": [
         {
           "fileId": "17-债权转让通知书.md",
-          "quote": "将我司对贵司享有的合同编号LJJZ-CY-2024-0817项下应收账款...转让予华瑞商业保理（云章）有限公司",
+          "quote": "将我司对贵司享有的合同编号LJJZ-CY-2024-0817项下应收账款（验收款2,280,000元及质保金380,000元，合计2,660,000元）转让予华瑞商业保理（云章）有限公司",
           "textRange": {
-            "start": 0,
-            "end": 56
-          }
+            "start": 82,
+            "end": 175
+          },
+          "textLayerVersion": "source-text@1:362:4de7b1fd"
         }
       ]
     },
@@ -313,9 +326,10 @@
           "fileId": "19-授权委托书.md",
           "quote": "现委托江城明澈律师事务所柏景行律师作为委托人",
           "textRange": {
-            "start": 0,
-            "end": 22
-          }
+            "start": 35,
+            "end": 57
+          },
+          "textLayerVersion": "source-text@1:310:eb427063"
         }
       ]
     },
@@ -329,9 +343,10 @@
           "fileId": "19-授权委托书.md",
           "quote": "现委托恒屿律师事务所练明轩律师作为委托人",
           "textRange": {
-            "start": 0,
-            "end": 20
-          }
+            "start": 227,
+            "end": 247
+          },
+          "textLayerVersion": "source-text@1:310:eb427063"
         }
       ]
     },
@@ -340,23 +355,27 @@
       "sourcePartyId": "p-linjiang-yzzb",
       "targetPartyId": "p-linjiang-jz",
       "relationType": "关联公司（受托实际生产与发货，非合同签约主体，见矛盾点2）",
-      "markers": ["contradiction"],
+      "markers": [
+        "contradiction"
+      ],
       "sourceAnchors": [
         {
           "fileId": "06-送货单-一.md",
-          "quote": "发货单位：临江精铸（云章）装备有限公司",
+          "quote": "发货单位（盖章）：临江精铸（云章）装备有限公司",
           "textRange": {
-            "start": 0,
-            "end": 19
-          }
+            "start": 347,
+            "end": 370
+          },
+          "textLayerVersion": "source-text@1:371:0030d90f"
         },
         {
           "fileId": "20-企业信用信息查询单.md",
           "quote": "与临江精铸科技有限公司同受临江精铸集团有限公司控制，为关联公司，非同一法律主体",
           "textRange": {
-            "start": 0,
-            "end": 39
-          }
+            "start": 750,
+            "end": 789
+          },
+          "textLayerVersion": "source-text@1:1155:32722708"
         }
       ]
     },
@@ -365,15 +384,18 @@
       "sourcePartyId": "p-linjiang-mt",
       "targetPartyId": "p-linjiang-jz",
       "relationType": "关联公司（异常收款账户主体，非合同约定收款主体，见矛盾点4）",
-      "markers": ["contradiction"],
+      "markers": [
+        "contradiction"
+      ],
       "sourceAnchors": [
         {
           "fileId": "14-银行流水摘要.md",
-          "quote": "2025-01-22 设备款项（部分） 500,000 临江精铸国际贸易（云章）有限公司",
+          "quote": "2025年1月22日一笔500,000元款项流入\"临江精铸国际贸易（云章）有限公司\"账户，与合同附件《收款账户确认书》约定的\"临江精铸科技有限公司\"收款账户不一致，该笔款项性质及清偿效力存在争议。",
           "textRange": {
-            "start": 0,
-            "end": 44
-          }
+            "start": 291,
+            "end": 389
+          },
+          "textLayerVersion": "source-text@1:440:12e7e4e1"
         }
       ]
     }

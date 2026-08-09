@@ -41,9 +41,10 @@
               "fileId": "V01-卓越智造装备（云章）有限公司.md",
               "quote": "每逾期一日应按未付金额的0.05%",
               "textRange": {
-                "start": 0,
-                "end": 17
-              }
+                "start": 557,
+                "end": 574
+              },
+              "textLayerVersion": "source-text@1:812:d0e4c3d7"
             }
           ],
           "confidence": "high"
@@ -55,9 +56,10 @@
               "fileId": "V01-卓越智造装备（云章）有限公司.md",
               "quote": "争议提交云章仲裁委员会仲裁",
               "textRange": {
-                "start": 0,
-                "end": 13
-              }
+                "start": 752,
+                "end": 765
+              },
+              "textLayerVersion": "source-text@1:812:d0e4c3d7"
             }
           ],
           "confidence": "high"
@@ -69,9 +71,10 @@
               "fileId": "V01-卓越智造装备（云章）有限公司.md",
               "quote": "验收款（60%）",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 342,
+                "end": 350
+              },
+              "textLayerVersion": "source-text@1:812:d0e4c3d7"
             }
           ],
           "confidence": "high"
@@ -81,11 +84,12 @@
           "sourceAnchors": [
             {
               "fileId": "V01-卓越智造装备（云章）有限公司.md",
-              "quote": "质保期为验收合格之日起 **12 个月**",
+              "quote": "12 个月",
               "textRange": {
-                "start": 0,
-                "end": 21
-              }
+                "start": 433,
+                "end": 438
+              },
+              "textLayerVersion": "source-text@1:812:d0e4c3d7"
             }
           ],
           "confidence": "high"
@@ -97,9 +101,10 @@
               "fileId": "V01-卓越智造装备（云章）有限公司.md",
               "quote": "权责对应关系明确",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 626,
+                "end": 634
+              },
+              "textLayerVersion": "source-text@1:812:d0e4c3d7"
             }
           ],
           "confidence": "high"
@@ -111,9 +116,10 @@
               "fileId": "V01-卓越智造装备（云章）有限公司.md",
               "quote": "7日内书面提出异议",
               "textRange": {
-                "start": 0,
-                "end": 9
-              }
+                "start": 473,
+                "end": 482
+              },
+              "textLayerVersion": "source-text@1:812:d0e4c3d7"
             }
           ],
           "confidence": "high"
@@ -125,9 +131,10 @@
               "fileId": "V01-卓越智造装备（云章）有限公司.md",
               "quote": "甲方逾期交付或交付设备不符合约定的，应按迟延交付部分货款每日0.1%向乙方支付违约金",
               "textRange": {
-                "start": 0,
-                "end": 42
-              }
+                "start": 500,
+                "end": 542
+              },
+              "textLayerVersion": "source-text@1:812:d0e4c3d7"
             }
           ],
           "confidence": "high"
@@ -144,9 +151,10 @@
               "fileId": "V02-云章远大机械制造有限公司.md",
               "quote": "每逾期一日应按未付金额的0.1%",
               "textRange": {
-                "start": 0,
-                "end": 16
-              }
+                "start": 514,
+                "end": 530
+              },
+              "textLayerVersion": "source-text@1:784:86e8bd76"
             }
           ],
           "confidence": "high"
@@ -158,9 +166,10 @@
               "fileId": "V02-云章远大机械制造有限公司.md",
               "quote": "提交买方所在地有管辖权的人民法院管辖",
               "textRange": {
-                "start": 0,
-                "end": 18
-              }
+                "start": 721,
+                "end": 739
+              },
+              "textLayerVersion": "source-text@1:784:86e8bd76"
             }
           ],
           "confidence": "high"
@@ -172,9 +181,10 @@
               "fileId": "V02-云章远大机械制造有限公司.md",
               "quote": "验收款（50%）",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 342,
+                "end": 350
+              },
+              "textLayerVersion": "source-text@1:784:86e8bd76"
             }
           ],
           "confidence": "high"
@@ -184,11 +194,12 @@
           "sourceAnchors": [
             {
               "fileId": "V02-云章远大机械制造有限公司.md",
-              "quote": "质保期为验收合格之日起 **18 个月**",
+              "quote": "18 个月",
               "textRange": {
-                "start": 0,
-                "end": 21
-              }
+                "start": 433,
+                "end": 438
+              },
+              "textLayerVersion": "source-text@1:784:86e8bd76"
             }
           ],
           "confidence": "high"
@@ -200,9 +211,10 @@
               "fileId": "V02-云章远大机械制造有限公司.md",
               "quote": "与风险转移条款存在逻辑冲突",
               "textRange": {
-                "start": 0,
-                "end": 13
-              }
+                "start": 620,
+                "end": 633
+              },
+              "textLayerVersion": "source-text@1:784:86e8bd76"
             }
           ],
           "confidence": "high"
@@ -214,9 +226,10 @@
               "fileId": "V02-云章远大机械制造有限公司.md",
               "quote": "未约定书面异议期限",
               "textRange": {
-                "start": 0,
-                "end": 9
-              }
+                "start": 473,
+                "end": 482
+              },
+              "textLayerVersion": "source-text@1:784:86e8bd76"
             }
           ],
           "confidence": "high"
@@ -228,9 +241,10 @@
               "fileId": "V02-云章远大机械制造有限公司.md",
               "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
               "textRange": {
-                "start": 0,
-                "end": 25
-              }
+                "start": 539,
+                "end": 564
+              },
+              "textLayerVersion": "source-text@1:784:86e8bd76"
             }
           ],
           "confidence": "medium"
@@ -247,9 +261,10 @@
               "fileId": "V03-汉图新材料科技有限公司.md",
               "quote": "每逾期一日应按未付金额的1%",
               "textRange": {
-                "start": 0,
-                "end": 14
-              }
+                "start": 511,
+                "end": 525
+              },
+              "textLayerVersion": "source-text@1:778:1de85362"
             }
           ],
           "confidence": "high"
@@ -261,9 +276,10 @@
               "fileId": "V03-汉图新材料科技有限公司.md",
               "quote": "提交卖方所在地有管辖权的人民法院管辖",
               "textRange": {
-                "start": 0,
-                "end": 18
-              }
+                "start": 716,
+                "end": 734
+              },
+              "textLayerVersion": "source-text@1:778:1de85362"
             }
           ],
           "confidence": "high"
@@ -275,9 +291,10 @@
               "fileId": "V03-汉图新材料科技有限公司.md",
               "quote": "验收款（60%）",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 339,
+                "end": 347
+              },
+              "textLayerVersion": "source-text@1:778:1de85362"
             }
           ],
           "confidence": "high"
@@ -287,11 +304,12 @@
           "sourceAnchors": [
             {
               "fileId": "V03-汉图新材料科技有限公司.md",
-              "quote": "质保期为验收合格之日起 **12 个月**",
+              "quote": "12 个月",
               "textRange": {
-                "start": 0,
-                "end": 21
-              }
+                "start": 430,
+                "end": 435
+              },
+              "textLayerVersion": "source-text@1:778:1de85362"
             }
           ],
           "confidence": "high"
@@ -303,9 +321,10 @@
               "fileId": "V03-汉图新材料科技有限公司.md",
               "quote": "与风险转移条款存在逻辑冲突",
               "textRange": {
-                "start": 0,
-                "end": 13
-              }
+                "start": 615,
+                "end": 628
+              },
+              "textLayerVersion": "source-text@1:778:1de85362"
             }
           ],
           "confidence": "high"
@@ -317,9 +336,10 @@
               "fileId": "V03-汉图新材料科技有限公司.md",
               "quote": "未约定书面异议期限",
               "textRange": {
-                "start": 0,
-                "end": 9
-              }
+                "start": 470,
+                "end": 479
+              },
+              "textLayerVersion": "source-text@1:778:1de85362"
             }
           ],
           "confidence": "high"
@@ -331,9 +351,10 @@
               "fileId": "V03-汉图新材料科技有限公司.md",
               "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
               "textRange": {
-                "start": 0,
-                "end": 25
-              }
+                "start": 534,
+                "end": 559
+              },
+              "textLayerVersion": "source-text@1:778:1de85362"
             }
           ],
           "confidence": "medium"
@@ -350,9 +371,10 @@
               "fileId": "V04-沃德精工装备制造有限公司.md",
               "quote": "每逾期一日应按未付金额的0.03%",
               "textRange": {
-                "start": 0,
-                "end": 17
-              }
+                "start": 558,
+                "end": 575
+              },
+              "textLayerVersion": "source-text@1:816:36726642"
             }
           ],
           "confidence": "high"
@@ -364,9 +386,10 @@
               "fileId": "V04-沃德精工装备制造有限公司.md",
               "quote": "提交合同签订地有管辖权的人民法院管辖",
               "textRange": {
-                "start": 0,
-                "end": 18
-              }
+                "start": 753,
+                "end": 771
+              },
+              "textLayerVersion": "source-text@1:816:36726642"
             }
           ],
           "confidence": "high"
@@ -378,9 +401,10 @@
               "fileId": "V04-沃德精工装备制造有限公司.md",
               "quote": "验收款（40%）",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 342,
+                "end": 350
+              },
+              "textLayerVersion": "source-text@1:816:36726642"
             }
           ],
           "confidence": "high"
@@ -390,11 +414,12 @@
           "sourceAnchors": [
             {
               "fileId": "V04-沃德精工装备制造有限公司.md",
-              "quote": "质保期为验收合格之日起 **24 个月**",
+              "quote": "24 个月",
               "textRange": {
-                "start": 0,
-                "end": 21
-              }
+                "start": 433,
+                "end": 438
+              },
+              "textLayerVersion": "source-text@1:816:36726642"
             }
           ],
           "confidence": "high"
@@ -406,9 +431,10 @@
               "fileId": "V04-沃德精工装备制造有限公司.md",
               "quote": "权责对应关系明确",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 627,
+                "end": 635
+              },
+              "textLayerVersion": "source-text@1:816:36726642"
             }
           ],
           "confidence": "high"
@@ -420,9 +446,10 @@
               "fileId": "V04-沃德精工装备制造有限公司.md",
               "quote": "10日内书面提出异议",
               "textRange": {
-                "start": 0,
-                "end": 10
-              }
+                "start": 473,
+                "end": 483
+              },
+              "textLayerVersion": "source-text@1:816:36726642"
             }
           ],
           "confidence": "high"
@@ -434,9 +461,10 @@
               "fileId": "V04-沃德精工装备制造有限公司.md",
               "quote": "甲方逾期交付或交付设备不符合约定的，应按迟延交付部分货款每日0.1%向乙方支付违约金",
               "textRange": {
-                "start": 0,
-                "end": 42
-              }
+                "start": 501,
+                "end": 543
+              },
+              "textLayerVersion": "source-text@1:816:36726642"
             }
           ],
           "confidence": "high"
@@ -453,9 +481,10 @@
               "fileId": "V05-惠远供应链管理（云章）有限公司.md",
               "quote": "每逾期一日应按未付金额的0.2%",
               "textRange": {
-                "start": 0,
-                "end": 16
-              }
+                "start": 514,
+                "end": 530
+              },
+              "textLayerVersion": "source-text@1:787:2d73cb71"
             }
           ],
           "confidence": "high"
@@ -467,9 +496,10 @@
               "fileId": "V05-惠远供应链管理（云章）有限公司.md",
               "quote": "提交卖方所在地有管辖权的人民法院管辖",
               "textRange": {
-                "start": 0,
-                "end": 18
-              }
+                "start": 721,
+                "end": 739
+              },
+              "textLayerVersion": "source-text@1:787:2d73cb71"
             }
           ],
           "confidence": "high"
@@ -481,9 +511,10 @@
               "fileId": "V05-惠远供应链管理（云章）有限公司.md",
               "quote": "验收款（70%）",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 343,
+                "end": 351
+              },
+              "textLayerVersion": "source-text@1:787:2d73cb71"
             }
           ],
           "confidence": "high"
@@ -493,11 +524,12 @@
           "sourceAnchors": [
             {
               "fileId": "V05-惠远供应链管理（云章）有限公司.md",
-              "quote": "质保期为验收合格之日起 **6 个月**",
+              "quote": "6 个月",
               "textRange": {
-                "start": 0,
-                "end": 20
-              }
+                "start": 434,
+                "end": 438
+              },
+              "textLayerVersion": "source-text@1:787:2d73cb71"
             }
           ],
           "confidence": "high"
@@ -509,9 +541,10 @@
               "fileId": "V05-惠远供应链管理（云章）有限公司.md",
               "quote": "与风险转移条款存在逻辑冲突",
               "textRange": {
-                "start": 0,
-                "end": 13
-              }
+                "start": 620,
+                "end": 633
+              },
+              "textLayerVersion": "source-text@1:787:2d73cb71"
             }
           ],
           "confidence": "high"
@@ -523,9 +556,10 @@
               "fileId": "V05-惠远供应链管理（云章）有限公司.md",
               "quote": "未约定书面异议期限",
               "textRange": {
-                "start": 0,
-                "end": 9
-              }
+                "start": 473,
+                "end": 482
+              },
+              "textLayerVersion": "source-text@1:787:2d73cb71"
             }
           ],
           "confidence": "high"
@@ -537,9 +571,10 @@
               "fileId": "V05-惠远供应链管理（云章）有限公司.md",
               "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
               "textRange": {
-                "start": 0,
-                "end": 25
-              }
+                "start": 539,
+                "end": 564
+              },
+              "textLayerVersion": "source-text@1:787:2d73cb71"
             }
           ],
           "confidence": "medium"
@@ -556,9 +591,10 @@
               "fileId": "V06-恒锐重工装备有限公司.md",
               "quote": "每逾期一日应按未付金额的0.5%",
               "textRange": {
-                "start": 0,
-                "end": 16
-              }
+                "start": 512,
+                "end": 528
+              },
+              "textLayerVersion": "source-text@1:765:9a1004d4"
             }
           ],
           "confidence": "high"
@@ -570,9 +606,10 @@
               "fileId": "V06-恒锐重工装备有限公司.md",
               "quote": "提交买方所在地有管辖权的人民法院管辖",
               "textRange": {
-                "start": 0,
-                "end": 18
-              }
+                "start": 704,
+                "end": 722
+              },
+              "textLayerVersion": "source-text@1:765:9a1004d4"
             }
           ],
           "confidence": "high"
@@ -584,9 +621,10 @@
               "fileId": "V06-恒锐重工装备有限公司.md",
               "quote": "验收款（60%）",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 340,
+                "end": 348
+              },
+              "textLayerVersion": "source-text@1:765:9a1004d4"
             }
           ],
           "confidence": "high"
@@ -596,11 +634,12 @@
           "sourceAnchors": [
             {
               "fileId": "V06-恒锐重工装备有限公司.md",
-              "quote": "质保期为验收合格之日起 **12 个月**",
+              "quote": "12 个月",
               "textRange": {
-                "start": 0,
-                "end": 21
-              }
+                "start": 431,
+                "end": 436
+              },
+              "textLayerVersion": "source-text@1:765:9a1004d4"
             }
           ],
           "confidence": "high"
@@ -612,9 +651,10 @@
               "fileId": "V06-恒锐重工装备有限公司.md",
               "quote": "权责对应关系明确",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 609,
+                "end": 617
+              },
+              "textLayerVersion": "source-text@1:765:9a1004d4"
             }
           ],
           "confidence": "high"
@@ -626,9 +666,10 @@
               "fileId": "V06-恒锐重工装备有限公司.md",
               "quote": "5日内书面提出异议",
               "textRange": {
-                "start": 0,
-                "end": 9
-              }
+                "start": 471,
+                "end": 480
+              },
+              "textLayerVersion": "source-text@1:765:9a1004d4"
             }
           ],
           "confidence": "high"
@@ -640,9 +681,10 @@
               "fileId": "V06-恒锐重工装备有限公司.md",
               "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
               "textRange": {
-                "start": 0,
-                "end": 25
-              }
+                "start": 537,
+                "end": 562
+              },
+              "textLayerVersion": "source-text@1:765:9a1004d4"
             }
           ],
           "confidence": "medium"
@@ -659,9 +701,10 @@
               "fileId": "V07-明台工程机械有限公司.md",
               "quote": "每逾期一日应按未付金额的0.1%",
               "textRange": {
-                "start": 0,
-                "end": 16
-              }
+                "start": 554,
+                "end": 570
+              },
+              "textLayerVersion": "source-text@1:802:86e449c7"
             }
           ],
           "confidence": "high"
@@ -673,9 +716,10 @@
               "fileId": "V07-明台工程机械有限公司.md",
               "quote": "提交省会仲裁委员会仲裁",
               "textRange": {
-                "start": 0,
-                "end": 11
-              }
+                "start": 748,
+                "end": 759
+              },
+              "textLayerVersion": "source-text@1:802:86e449c7"
             }
           ],
           "confidence": "high"
@@ -687,9 +731,10 @@
               "fileId": "V07-明台工程机械有限公司.md",
               "quote": "验收款（55%）",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 338,
+                "end": 346
+              },
+              "textLayerVersion": "source-text@1:802:86e449c7"
             }
           ],
           "confidence": "high"
@@ -699,11 +744,12 @@
           "sourceAnchors": [
             {
               "fileId": "V07-明台工程机械有限公司.md",
-              "quote": "质保期为验收合格之日起 **12 个月**",
+              "quote": "12 个月",
               "textRange": {
-                "start": 0,
-                "end": 21
-              }
+                "start": 429,
+                "end": 434
+              },
+              "textLayerVersion": "source-text@1:802:86e449c7"
             }
           ],
           "confidence": "high"
@@ -715,9 +761,10 @@
               "fileId": "V07-明台工程机械有限公司.md",
               "quote": "权责对应关系明确",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 622,
+                "end": 630
+              },
+              "textLayerVersion": "source-text@1:802:86e449c7"
             }
           ],
           "confidence": "high"
@@ -729,9 +776,10 @@
               "fileId": "V07-明台工程机械有限公司.md",
               "quote": "15日内书面提出异议",
               "textRange": {
-                "start": 0,
-                "end": 10
-              }
+                "start": 469,
+                "end": 479
+              },
+              "textLayerVersion": "source-text@1:802:86e449c7"
             }
           ],
           "confidence": "high"
@@ -743,9 +791,10 @@
               "fileId": "V07-明台工程机械有限公司.md",
               "quote": "甲方逾期交付或交付设备不符合约定的，应按迟延交付部分货款每日0.1%向乙方支付违约金",
               "textRange": {
-                "start": 0,
-                "end": 42
-              }
+                "start": 497,
+                "end": 539
+              },
+              "textLayerVersion": "source-text@1:802:86e449c7"
             }
           ],
           "confidence": "high"
@@ -762,9 +811,10 @@
               "fileId": "V08-云章鑫源物流有限公司.md",
               "quote": "每逾期一日应按未付金额的0.05%",
               "textRange": {
-                "start": 0,
-                "end": 17
-              }
+                "start": 505,
+                "end": 522
+              },
+              "textLayerVersion": "source-text@1:774:981be706"
             }
           ],
           "confidence": "high"
@@ -776,9 +826,10 @@
               "fileId": "V08-云章鑫源物流有限公司.md",
               "quote": "提交卖方所在地有管辖权的人民法院管辖",
               "textRange": {
-                "start": 0,
-                "end": 18
-              }
+                "start": 713,
+                "end": 731
+              },
+              "textLayerVersion": "source-text@1:774:981be706"
             }
           ],
           "confidence": "high"
@@ -790,9 +841,10 @@
               "fileId": "V08-云章鑫源物流有限公司.md",
               "quote": "验收款（50%）",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 336,
+                "end": 344
+              },
+              "textLayerVersion": "source-text@1:774:981be706"
             }
           ],
           "confidence": "high"
@@ -802,11 +854,12 @@
           "sourceAnchors": [
             {
               "fileId": "V08-云章鑫源物流有限公司.md",
-              "quote": "质保期为验收合格之日起 **12 个月**",
+              "quote": "12 个月",
               "textRange": {
-                "start": 0,
-                "end": 21
-              }
+                "start": 424,
+                "end": 429
+              },
+              "textLayerVersion": "source-text@1:774:981be706"
             }
           ],
           "confidence": "high"
@@ -818,9 +871,10 @@
               "fileId": "V08-云章鑫源物流有限公司.md",
               "quote": "与风险转移条款存在逻辑冲突",
               "textRange": {
-                "start": 0,
-                "end": 13
-              }
+                "start": 612,
+                "end": 625
+              },
+              "textLayerVersion": "source-text@1:774:981be706"
             }
           ],
           "confidence": "high"
@@ -832,9 +886,10 @@
               "fileId": "V08-云章鑫源物流有限公司.md",
               "quote": "未约定书面异议期限",
               "textRange": {
-                "start": 0,
-                "end": 9
-              }
+                "start": 464,
+                "end": 473
+              },
+              "textLayerVersion": "source-text@1:774:981be706"
             }
           ],
           "confidence": "high"
@@ -846,9 +901,10 @@
               "fileId": "V08-云章鑫源物流有限公司.md",
               "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
               "textRange": {
-                "start": 0,
-                "end": 25
-              }
+                "start": 531,
+                "end": 556
+              },
+              "textLayerVersion": "source-text@1:774:981be706"
             }
           ],
           "confidence": "medium"
@@ -865,9 +921,10 @@
               "fileId": "V09-天衡精密机床有限公司.md",
               "quote": "每逾期一日应按未付金额的0.3%",
               "textRange": {
-                "start": 0,
-                "end": 16
-              }
+                "start": 556,
+                "end": 572
+              },
+              "textLayerVersion": "source-text@1:811:408a6b69"
             }
           ],
           "confidence": "high"
@@ -879,9 +936,10 @@
               "fileId": "V09-天衡精密机床有限公司.md",
               "quote": "提交买方所在地有管辖权的人民法院管辖",
               "textRange": {
-                "start": 0,
-                "end": 18
-              }
+                "start": 750,
+                "end": 768
+              },
+              "textLayerVersion": "source-text@1:811:408a6b69"
             }
           ],
           "confidence": "high"
@@ -893,9 +951,10 @@
               "fileId": "V09-天衡精密机床有限公司.md",
               "quote": "验收款（60%）",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 340,
+                "end": 348
+              },
+              "textLayerVersion": "source-text@1:811:408a6b69"
             }
           ],
           "confidence": "high"
@@ -905,11 +964,12 @@
           "sourceAnchors": [
             {
               "fileId": "V09-天衡精密机床有限公司.md",
-              "quote": "质保期为验收合格之日起 **18 个月**",
+              "quote": "18 个月",
               "textRange": {
-                "start": 0,
-                "end": 21
-              }
+                "start": 431,
+                "end": 436
+              },
+              "textLayerVersion": "source-text@1:811:408a6b69"
             }
           ],
           "confidence": "high"
@@ -921,9 +981,10 @@
               "fileId": "V09-天衡精密机床有限公司.md",
               "quote": "权责对应关系明确",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 624,
+                "end": 632
+              },
+              "textLayerVersion": "source-text@1:811:408a6b69"
             }
           ],
           "confidence": "high"
@@ -935,9 +996,10 @@
               "fileId": "V09-天衡精密机床有限公司.md",
               "quote": "10日内书面提出异议",
               "textRange": {
-                "start": 0,
-                "end": 10
-              }
+                "start": 471,
+                "end": 481
+              },
+              "textLayerVersion": "source-text@1:811:408a6b69"
             }
           ],
           "confidence": "high"
@@ -949,9 +1011,10 @@
               "fileId": "V09-天衡精密机床有限公司.md",
               "quote": "甲方逾期交付或交付设备不符合约定的，应按迟延交付部分货款每日0.1%向乙方支付违约金",
               "textRange": {
-                "start": 0,
-                "end": 42
-              }
+                "start": 499,
+                "end": 541
+              },
+              "textLayerVersion": "source-text@1:811:408a6b69"
             }
           ],
           "confidence": "high"
@@ -968,9 +1031,10 @@
               "fileId": "V10-云章前哨检测认证有限公司.md",
               "quote": "每逾期一日应按未付金额的0.08%",
               "textRange": {
-                "start": 0,
-                "end": 17
-              }
+                "start": 510,
+                "end": 527
+              },
+              "textLayerVersion": "source-text@1:812:ee44db12"
             }
           ],
           "confidence": "high"
@@ -982,9 +1046,10 @@
               "fileId": "V10-云章前哨检测认证有限公司.md",
               "quote": "提交卖方所在地有管辖权的人民法院管辖",
               "textRange": {
-                "start": 0,
-                "end": 18
-              }
+                "start": 749,
+                "end": 767
+              },
+              "textLayerVersion": "source-text@1:812:ee44db12"
             }
           ],
           "confidence": "high"
@@ -996,9 +1061,10 @@
               "fileId": "V10-云章前哨检测认证有限公司.md",
               "quote": "验收款（65%）",
               "textRange": {
-                "start": 0,
-                "end": 8
-              }
+                "start": 340,
+                "end": 348
+              },
+              "textLayerVersion": "source-text@1:812:ee44db12"
             }
           ],
           "confidence": "high"
@@ -1008,11 +1074,12 @@
           "sourceAnchors": [
             {
               "fileId": "V10-云章前哨检测认证有限公司.md",
-              "quote": "质保期为验收合格之日起 **12 个月**",
+              "quote": "12 个月",
               "textRange": {
-                "start": 0,
-                "end": 21
-              }
+                "start": 429,
+                "end": 434
+              },
+              "textLayerVersion": "source-text@1:812:ee44db12"
             }
           ],
           "confidence": "high"
@@ -1024,9 +1091,10 @@
               "fileId": "V10-云章前哨检测认证有限公司.md",
               "quote": "与风险转移条款存在逻辑冲突",
               "textRange": {
-                "start": 0,
-                "end": 13
-              }
+                "start": 617,
+                "end": 630
+              },
+              "textLayerVersion": "source-text@1:812:ee44db12"
             }
           ],
           "confidence": "high"
@@ -1038,9 +1106,10 @@
               "fileId": "V10-云章前哨检测认证有限公司.md",
               "quote": "未约定书面异议期限",
               "textRange": {
-                "start": 0,
-                "end": 9
-              }
+                "start": 469,
+                "end": 478
+              },
+              "textLayerVersion": "source-text@1:812:ee44db12"
             }
           ],
           "confidence": "high"
@@ -1052,9 +1121,10 @@
               "fileId": "V10-云章前哨检测认证有限公司.md",
               "quote": "本合同未对甲方逾期交付或交付瑕疵约定相应违约金标准",
               "textRange": {
-                "start": 0,
-                "end": 25
-              }
+                "start": 536,
+                "end": 561
+              },
+              "textLayerVersion": "source-text@1:812:ee44db12"
             }
           ],
           "confidence": "medium"
