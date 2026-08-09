@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "caseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "individual",
+              "organization"
+            ]
+          },
+          "primaryName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "aliases": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "primaryName",
+          "aliases"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sourcePartyId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "targetPartyId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "relationType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quoteClaims": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fileId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "page": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "blockId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "exactQuote": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "fileId",
+                "exactQuote"
+              ],
+              "additionalProperties": false,
+              "title": "QuoteClaim",
+              "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
+            }
+          },
+          "markers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "id",
+          "sourcePartyId",
+          "targetPartyId",
+          "relationType",
+          "quoteClaims"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "caseId",
+    "nodes",
+    "edges"
+  ],
+  "additionalProperties": false,
+  "title": "PartyGraphDraft",
+  "description": "当事人关系图谱草稿（模型侧）：边只携文件+页/块+逐字引语；坐标由 resolver 公证铸造。",
+  "$id": "urn:courtwork:schema:legal.PartyGraphDraft:v1"
+}

@@ -1,6 +1,7 @@
 import type { Timeline } from '@courtwork/legal';
 import { TimelinePanel } from './panels';
 import { GateConfirmBar } from './GateConfirmBar';
+import { useLegalWorkSurface } from './legal-work-surface';
 import { UnsupportedArtifactView } from '../../preview/ArtifactTableRenderer.js';
 import type { HostRendererComponentProps } from '../../preview/HostRendererRegistry.js';
 import { useWorkbenchRenderContext } from '../../preview/workbench-render-context.js';
@@ -17,10 +18,17 @@ import { useWorkbenchRenderContext } from '../../preview/workbench-render-contex
  */
 export function TimelineRenderer({ descriptor, payload }: HostRendererComponentProps) {
   const { evidenceGrades } = useWorkbenchRenderContext();
+  // LEGAL-ANCHOR-BINDING-1：「回到原件」走宿主的 canonical reader 路由（与修订预览面同一条），
+  // 不在本件另造第二套定位。坐标此刻已是 resolver 铸的，故接通不再是「按模型自报坐标跳转」。
+  const { host } = useLegalWorkSurface();
   const parsed = descriptor.schema.safeParse(payload);
   if (!parsed.success) return <UnsupportedArtifactView title={descriptor.title} />;
   return <>
     <GateConfirmBar artifactType={descriptor.typeId} />
-    <TimelinePanel timeline={parsed.data as Timeline} grade={evidenceGrades[0]?.grade} />
+    <TimelinePanel
+      timeline={parsed.data as Timeline}
+      grade={evidenceGrades[0]?.grade}
+      onOpenSource={host.openSourceAnchor}
+    />
   </>;
 }

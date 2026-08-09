@@ -90,7 +90,10 @@ test('matrix names questions from schema text and exposes full evidence to keybo
   });
   expect(peekGeometry.peekTop).toBeGreaterThanOrEqual(peekGeometry.previewTop);
   await expect(peek.locator('q')).toHaveCSS('white-space', 'normal');
-  await expect(peek.getByRole('button', { name: '回到原件 · 尚未接通' })).toBeDisabled();
+  // LEGAL-ANCHOR-BINDING-1：矩阵格的「回到原件」由死态转真入口——有锚即可点。
+  // 旧判据（死态在场）转具名反向锁，不让它以旁效消失。
+  await expect(peek.getByRole('button', { name: '回到原件', exact: true })).toBeEnabled();
+  await expect(peek).not.toContainText('尚未接通');
 });
 
 test('risk rows and detail state severity, verification, disposition, and next step', async ({ page }) => {

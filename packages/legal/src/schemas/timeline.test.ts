@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TimelineSchema } from './timeline.js';
+import { TimelineDraftSchema, TimelineSchema } from './timeline.js';
 
 describe('TimelineSchema', () => {
   it('accepts an event with an exact date', () => {
@@ -182,5 +182,64 @@ describe('TimelineSchema', () => {
       ],
     });
     expect(result.success).toBe(false);
+  });
+
+  it('outOfCoverage 缺省为空表（存量最终形夹具零迁移）', () => {
+    const result = TimelineSchema.safeParse({ caseId: 'case-012', events: [] });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.outOfCoverage).toEqual([]);
+  });
+});
+
+/** LEGAL-ANCHOR-BINDING-1：模型侧只出引语，坐标字段结构性不存在。 */
+describe('TimelineDraftSchema（模型侧草稿）', () => {
+  const draftEvent = (extra: Record<string, unknown> = {}) => ({
+    id: 'evt-101',
+    description: '签订合同',
+    date: { kind: 'exact', date: '2024-03-15' },
+    quoteClaims: [{ fileId: 'file-001', exactQuote: '第一条 双方签订本合同。' }],
+    ...extra,
+  });
+
+  it('接受携逐字引语的事件', () => {
+    const result = TimelineDraftSchema.safeParse({ caseId: 'case-101', events: [draftEvent()] });
+    expect(result.success).toBe(true);
+  });
+
+  it('拒绝零引语事件（无证据支撑的事件不可信，同最终形 min(1)）', () => {
+    const result = TimelineDraftSchema.safeParse({
+      caseId: 'case-102',
+      events: [draftEvent({ quoteClaims: [] })],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('引语内不得携坐标：QuoteClaim 是 strict 形状，textRange 直接拒收', () => {
+    const result = TimelineDraftSchema.safeParse({
+      caseId: 'case-103',
+      events: [draftEvent({
+        quoteClaims: [{ fileId: 'file-001', exactQuote: '第一条', textRange: { start: 0, end: 3 } }],
+      })],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('模型自报的 sourceAnchors 不进草稿形（坐标字段在模型侧不存在，伪坐标到不了 resolver）', () => {
+    const result = TimelineDraftSchema.safeParse({
+      caseId: 'case-104',
+      events: [draftEvent({ sourceAnchors: [{ fileId: 'file-001', textRange: { start: 9999, end: 10000 } }] })],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.events[0]).not.toHaveProperty('sourceAnchors');
+  });
+
+  it('草稿根不得携最终形的缺口表（缺口由系统剪枝写入，不是模型的字段）', () => {
+    const result = TimelineDraftSchema.safeParse({
+      caseId: 'case-105',
+      events: [draftEvent()],
+      outOfCoverage: [{ summary: 'x', reason: 'citation_unresolved', failures: [] }],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data).not.toHaveProperty('outOfCoverage');
   });
 });

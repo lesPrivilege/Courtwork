@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "caseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "date": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "exact"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "date"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "fuzzy"
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "rangeStart": {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  },
+                  "rangeEnd": {
+                    "type": "string",
+                    "format": "date",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "partyIds": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "quoteClaims": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "fileId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "page": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "blockId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "exactQuote": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "fileId",
+                "exactQuote"
+              ],
+              "additionalProperties": false,
+              "title": "QuoteClaim",
+              "description": "模型侧引语声明：文件 + 页/块 + 精确引语。不承载坐标——坐标由 resolver 铸造。"
+            }
+          },
+          "markers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "date",
+          "partyIds",
+          "quoteClaims"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "caseId",
+    "events"
+  ],
+  "additionalProperties": false,
+  "title": "TimelineDraft",
+  "description": "事件时间线草稿（模型侧）：事件只携文件+页/块+逐字引语；坐标由 resolver 公证铸造。",
+  "$id": "urn:courtwork:schema:legal.TimelineDraft:v1"
+}
