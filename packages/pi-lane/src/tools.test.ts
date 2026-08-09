@@ -401,18 +401,41 @@ describe('单次调用上限：扫描与命中是两类，各自出字段与注�
     expect(text).not.toContain('命中上限');
   });
 
-  it('grep 满 2000 份扫描：只置 truncated，命中上限未触发', async () => {
-    const result = await runWith(scan, 'grep', { pattern: '并不存在的词' });
-    expect(detailsOf(result)).toMatchObject({
-      matched: 0,
-      scanned: 2000,
-      truncated: true,
-      matchesTruncated: false,
-    });
-    const text = textOf(result);
-    expect(text).toContain('扫描上限 2000');
-    expect(text).not.toContain('命中上限');
-  });
+  /**
+   * PI-SCAN-TIMEOUT-1：本用例的判据本体是「扫描上限 `MAX_FILES_SCANNED = 2000`（`tools.ts`
+   * 生产常量）真被触发、真实文件树满 2001 份」——2000 这一规模不是「够大就行」的便利值，是被测
+   * 生产边界本身，缩小 fixture 就是把判据一并删掉，故规模不动，只给本用例显式超时上界。
+   *
+   * 本用例以**真实**扫描耗时（同步遍历 2000 份磁盘文件）对赌 vitest 5000ms 缺省超时——PI-TEST-WAITER-1
+   * 复验独立观察到 load average 121.79 下实测 5128ms 超过缺省值而红（`ACCEPTANCE.md:4505`）。
+   * 本票在同机复核（`uptime` 1m 读数，纯 CPU 自旋对本用例的真实同步磁盘 I/O 无效，改用同文件多路
+   * vitest 自争用，`packages/pi-lane` 判例「同族测试自竞争」有效负载形状）：
+   *   - 无负载：5 次独立单跑均值 ≈215ms（171-223ms 区间）。
+   *   - 40 路自争用（load 1m ≈38-41）：8/40 命中缺省 5000ms 超时（逐笔 5010-5100ms）——独立复现同族红，
+   *     与登记的 5128ms 同量级；放宽上界后 40/60 路合计 100/100 全部真实完成，最长 5814ms。
+   *   - 60 路自争用 + 24 枚外部 CPU 自旋叠加（load 1m 峰值 **111.63**，与登记的 121.79 同量级）：
+   *     60/60 真实完成，**最长实测 30103ms**——证明该量级负载下真实耗时并非在 5-6 秒封顶，而是随负载
+   *     持续走高；5128ms 的登记红是缺省超时先行截断的观测，不是真实工作量的上限。
+   * 60000ms 取值：在与登记事故同量级负载（load 1m ≈111）下实测最长完成时间的约 2× 安全系数，
+   * 仍是有界值（不放弃对真实挂死的捕获），不采用「无负载值 × 小倍数」——该形状的耗时对负载高度
+   * 敏感、非线性，无负载基线不能外推同量级负载下的真实上界。
+   */
+  it(
+    'grep 满 2000 份扫描：只置 truncated，命中上限未触发',
+    async () => {
+      const result = await runWith(scan, 'grep', { pattern: '并不存在的词' });
+      expect(detailsOf(result)).toMatchObject({
+        matched: 0,
+        scanned: 2000,
+        truncated: true,
+        matchesTruncated: false,
+      });
+      const text = textOf(result);
+      expect(text).toContain('扫描上限 2000');
+      expect(text).not.toContain('命中上限');
+    },
+    60_000,
+  );
 });
 
 describe('容器拒读：不静默丢子树', () => {
