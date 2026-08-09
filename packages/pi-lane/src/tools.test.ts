@@ -356,21 +356,43 @@ describe('单次调用上限：扫描与命中是两类，各自出字段与注�
     expect(textOf(result)).not.toContain('不完整');
   });
 
-  it('glob 满 200 条命中：置 matchesTruncated 并具名，扫描上限未触发', async () => {
-    const result = await runWith(hits, 'glob', { pattern: '**/*.md' });
-    expect(detailsOf(result)).toMatchObject({ matched: 200, matchesTruncated: true, truncated: false });
-    const text = textOf(result);
-    expect(text).toContain('命中上限 200');
-    expect(text).not.toContain('扫描上限');
-  });
+  /**
+   * PI-SCAN-TIMEOUT-2（PI-SCAN-TIMEOUT-1 验收观察①转出）：本用例与紧邻的 `grep 满 200 条命中`
+   * 同族——判据本体同为「命中上限 `MAX_MATCHES = 200`（`tools.ts` 生产常量）真被触发，250 份
+   * fixture 恰好越过它」，规模同样不可缩减。验收独立复核证否了「glob 无同族问题」的经验宣称：
+   * 20 路包级并发负载下（`ACCEPTANCE.md` §三）该用例 6/20 命中缺省 5000ms；本票复测同形负载
+   * 20/20 命中 16/20（`grep 满 200 条命中`同批 14/20），故边界不再只动 `grep`，两枚同批处置。
+   *
+   * 无负载基线：3 次独立单跑 47-98ms（`grep` 同形基线 109-165ms）。60000ms 取值不重新独立取样，
+   * 沿用与 60000ms 已在同 describe 块内为 `grep 满 2000 份扫描` 建立的量级——本用例负载更轻
+   * （250 份小 fixture、`glob` 零文件内容读取），以更极端负载复测（20 路包级并发，`uptime` 1m
+   * 峰值 **606.55**，远超登记事故量级）验证峰值真实完成耗时：本用例最长 **576ms**、`grep` 同批
+   * 最长 **1826ms**，对 60000ms 上界余量均 >30×，故不取独立更小数值——复杂度节制下沿用既有磁位
+   * 优于新增第二个需要单独论证的数字。
+   */
+  it(
+    'glob 满 200 条命中：置 matchesTruncated 并具名，扫描上限未触发',
+    async () => {
+      const result = await runWith(hits, 'glob', { pattern: '**/*.md' });
+      expect(detailsOf(result)).toMatchObject({ matched: 200, matchesTruncated: true, truncated: false });
+      const text = textOf(result);
+      expect(text).toContain('命中上限 200');
+      expect(text).not.toContain('扫描上限');
+    },
+    60_000,
+  );
 
-  it('grep 满 200 条命中：置 matchesTruncated 并具名，扫描上限未触发', async () => {
-    const result = await runWith(hits, 'grep', { pattern: 'HT-2024-081' });
-    expect(detailsOf(result)).toMatchObject({ matched: 200, matchesTruncated: true, truncated: false });
-    const text = textOf(result);
-    expect(text).toContain('命中上限 200');
-    expect(text).not.toContain('扫描上限');
-  });
+  it(
+    'grep 满 200 条命中：置 matchesTruncated 并具名，扫描上限未触发',
+    async () => {
+      const result = await runWith(hits, 'grep', { pattern: 'HT-2024-081' });
+      expect(detailsOf(result)).toMatchObject({ matched: 200, matchesTruncated: true, truncated: false });
+      const text = textOf(result);
+      expect(text).toContain('命中上限 200');
+      expect(text).not.toContain('扫描上限');
+    },
+    60_000,
+  );
 
   /**
    * grep 的命中上限有**两处**判据：跨文件那处（不再读下一份）与文件内那处（不再看下一行）。
@@ -388,18 +410,33 @@ describe('单次调用上限：扫描与命中是两类，各自出字段与注�
     expect(textOf(result)).toContain('命中上限 200');
   });
 
-  it('glob 满 2000 份扫描：只置 truncated，命中上限未触发', async () => {
-    const result = await runWith(scan, 'glob', { pattern: '**/*.md' });
-    expect(detailsOf(result)).toMatchObject({
-      matched: 0,
-      scanned: 2000,
-      truncated: true,
-      matchesTruncated: false,
-    });
-    const text = textOf(result);
-    expect(text).toContain('扫描上限 2000');
-    expect(text).not.toContain('命中上限');
-  });
+  /**
+   * PI-SCAN-TIMEOUT-2：本用例判据本体与紧邻的 `grep 满 2000 份扫描`（PI-SCAN-TIMEOUT-1 处置）
+   * 同族——同一 `scan` fixture（2001 份文件）、同一生产常量 `MAX_FILES_SCANNED = 2000`。
+   * `glob` 只做 `readdir`+路径匹配、零文件内容读取，故基线远快于 `grep`（同源结构差异，PI-SCAN-
+   * TIMEOUT-1 回执已核实），但验收独立复测证否了「因此永不接近 5000ms」的经验外推：20 路包级
+   * 并发负载下（`ACCEPTANCE.md` §三）本用例 6/20 命中缺省超时，本票复测同形负载 10/20。
+   *
+   * 无负载基线：3 次独立单跑 39-228ms。上界沿用同 describe 块内 `grep 满 2000 份扫描` 已确立的
+   * 60000ms（复杂度节制：同族同量级不新开一个数字）；以更极端负载复测（20 路包级并发，`uptime`
+   * 1m 峰值 **606.55**）验证峰值真实完成耗时最长 **3660ms**，对 60000ms 余量 >16×。
+   */
+  it(
+    'glob 满 2000 份扫描：只置 truncated，命中上限未触发',
+    async () => {
+      const result = await runWith(scan, 'glob', { pattern: '**/*.md' });
+      expect(detailsOf(result)).toMatchObject({
+        matched: 0,
+        scanned: 2000,
+        truncated: true,
+        matchesTruncated: false,
+      });
+      const text = textOf(result);
+      expect(text).toContain('扫描上限 2000');
+      expect(text).not.toContain('命中上限');
+    },
+    60_000,
+  );
 
   /**
    * PI-SCAN-TIMEOUT-1：本用例的判据本体是「扫描上限 `MAX_FILES_SCANNED = 2000`（`tools.ts`
