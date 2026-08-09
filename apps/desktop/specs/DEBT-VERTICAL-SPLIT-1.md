@@ -1,6 +1,6 @@
 # DEBT-VERTICAL-SPLIT-1 · work/output/system 三族逐族拆分
 
-状态：实现完成，待独立验收
+状态：已独立验收 PASS（`210e93d`），no-ff 合入 `e0c0fbf`；验收后订正见文末「七」节
 
 权威：`docs/architecture/implementation-readiness.md` `DEBT-VERTICAL-SPLIT-1` 行（票面唯一真值，
 GENERIC-PACK-1 ⑥门债表转出，2026-08-07 清账随批立票）；`docs/decisions/ADR-015-optional-vertical-loading.md`
@@ -208,3 +208,14 @@ EXIT=1
 ## 六 · tip
 
 `cacc9cf`（分支 `claude/debt-vertical-split-1`，base `main@d6f78ab`，未合、未 push）。
+
+---
+
+## 七 · 验收后订正（2026-08-09，架构清账落痕）
+
+独立验收（PASS `210e93d`）上浮四项文档层订正，逐项裁定如下；原文按「订正为出处保留」惯例不改写，以本节为准：
+
+1. **受检面起点值**：本回执多处所记起点 `184` 系沿用 2R 验收在 pack-interact 分支上的计数；本票 base `main@d6f78ab` 的实际起点为 **176**（门自报、独立计数 `249−22−47−4`、`LEGAL-FIVE-FACES-1` 复验值三方交叉一致）。末态 **205** 不变，单调扩大判据成立（176→196→205）。
+2. **偏离 #2 的前提**：就绪图票面行并无「`site:guard` 含 `lint:vertical-isolation`」括注（全文零命中），该偏离的结论（零泄漏门经独立跑与 `test:e2e` 链双重验证）成立、前提失实，按「结论对、前提假」订正。
+3. **ADR 引用层**：本回执与就绪图票面行所引「ADR-015 决定一零泄漏」错层——「静态门——垂类 import 只经受信组合根注册点」实住**决定三**；正确引用为「决定一（两层定义／成品律）＋决定三（零泄漏双重机制）」。ADR 本文不动（2026-08-09 架构裁定）。
+4. **第六节 tip**：所记 `cacc9cf` 为末批实现提交；本票交付 tip（含本回执留痕）为 **`9c98d29`**。
