@@ -18,7 +18,8 @@
 // **未拆分的混合族（如实登记，非豁免）**：`work/`、`output/`、`system/`、`workbench/` 四个目录
 // 各自混着通用件与 Legal 绑定件，本票未及拆分，故整族暂不入受检面。它们是**债**不是许可——
 // 偿还去向是把其中的垂类绑定件迁入 `src/verticals/legal/`，迁完即从下表删除、目录自动入受检面。
-// 本表逐条带偿还去向；空表即债清零。
+// 本表逐条带偿还去向；空表即债清零。DEBT-VERTICAL-SPLIT-1（2026-08-09）已偿 `work/`、`output/`
+// 两族。
 //
 // 测试文件同样受检（fixture 测试若要垂类语料，应住绑定族内）——唯一的例外是
 // `preview/gallery/**` 的 fixture 谱：可视化样板库以真实垂类 fixture 证明原语可编排，
@@ -33,10 +34,8 @@ const src = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'sr
 
 /** 绑定族：可执行垂类绑定的合法住所。族由目录声明，成员随时增减而本门不改一行。 */
 const BINDING_FAMILIES = ['verticals', 'composition', 'demo'];
-/** 未拆分的混合族（债）。逐条带偿还去向；迁完即删行，目录自动入受检面。 */
+/** 未拆分的混合族（债）。逐条带偿还去向；迁完即删行，目录自动入受检面。空表即债清零。 */
 const UNSPLIT_FAMILIES = {
-  work: '把 legal-s3-binding / work-command / contract-review-flow / primary-contract / use-contract-review-submission / legal-work-surface 迁入 verticals/legal/',
-  output: '把 compile-review-output / contract-review-delivery 迁入 verticals/legal/',
   system: '把 FileOpsPlanPanel / file-ops-demo 迁入 verticals/legal/',
 };
 /** 族级登记的可视化样板库：ADR-012 决定五点名以真实垂类 fixture 证明原语可编排。 */

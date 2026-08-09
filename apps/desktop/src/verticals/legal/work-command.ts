@@ -55,9 +55,9 @@ import type {
   WorkProjectionPort,
   WorkReplayResult,
   WorkSessionRef,
-} from '../protocol/client';
-import { WorkReplayError } from '../protocol/client';
-import type { StoredMaterial } from '../material/material-ref';
+} from '../../protocol/client';
+import { WorkReplayError } from '../../protocol/client';
+import type { StoredMaterial } from '../../material/material-ref';
 import {
   deriveCaseFileFromMaterials,
   deriveS3CaseFile,

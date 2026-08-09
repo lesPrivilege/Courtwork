@@ -9,7 +9,7 @@ import {
   coordinateContractReviewOutput,
   type ContractReviewOutputDeps,
   type ContractReviewOutputResult,
-} from '../output/contract-review-delivery';
+} from '../verticals/legal/contract-review-delivery';
 import type { ScenarioStartParams } from '../workbench/scenario-precheck-form';
 import {
   WorkReplayError,
@@ -21,9 +21,9 @@ import {
   type WorkSessionRef,
 } from '../protocol/client';
 import { workFailureDisplayCopy } from './work-failure-copy';
-import { orderS3MaterialRefs } from './primary-contract';
-import { S3_SCENARIO_ID } from './legal-s3-binding';
-import type { LegalWorkCommand } from './work-command';
+import { orderS3MaterialRefs } from '../verticals/legal/primary-contract';
+import { S3_SCENARIO_ID } from '../verticals/legal/legal-s3-binding';
+import type { LegalWorkCommand } from '../verticals/legal/work-command';
 import {
   clearWorkSession,
   persistWorkSession,

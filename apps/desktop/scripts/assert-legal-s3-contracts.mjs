@@ -21,7 +21,7 @@ const read = (relative) => readFile(path.join(root, relative), 'utf8');
 const stripComments = (source) =>
   source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 
-const binding = stripComments(await read('src/work/legal-s3-binding.ts'));
+const binding = stripComments(await read('src/verticals/legal/legal-s3-binding.ts'));
 
 const failures = [];
 const requireMatch = (source, pattern, message) => {

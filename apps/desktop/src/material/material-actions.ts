@@ -55,7 +55,7 @@ export type MaterialReaderOutcome =
 
 /**
  * 只取本模块需要的最小面——不绑定 MaterialStore 具体类，便于注入与测试（沿
- * `work/legal-s3-binding.ts` 的 `MaterialResolver` 先例）。返回型必须是已定型的 `ResolveResult`。
+ * `verticals/legal/legal-s3-binding.ts` 的 `MaterialResolver` 先例）。返回型必须是已定型的 `ResolveResult`。
  */
 export interface MaterialResolver {
   resolveForProvider(caseId: string, materialId: string): Promise<ResolveResult>;

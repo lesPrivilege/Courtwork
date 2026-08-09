@@ -6,7 +6,7 @@ const REPO_ROOT = resolve(import.meta.dirname, '../../../..');
 const TRUSTED_REGISTRATIONS = new Map<string, {
   toolToken: string; toolId: string; toolFactory: string; sideEffect: string;
 }>([
-  ['apps/desktop/src/work/legal-s3-binding.ts', {
+  ['apps/desktop/src/verticals/legal/legal-s3-binding.ts', {
     toolToken: 'PARTY_VERIFY_TOOL_ID', toolId: 'party-verify', toolFactory: 'createPartyVerifyTool', sideEffect: 'pure_read',
   }],
   ['packages/demo-runtime/src/composition/demo-assembly.ts', {

@@ -35,9 +35,9 @@ import type {
 } from '@courtwork/core';
 import type { PackageRegistries, ScenarioRuntime } from '@courtwork/registry';
 import type { RiskList } from '@courtwork/legal';
-import type { ReviewGateItemProjection, ReviewGateProjection, ReviewResolution } from '../protocol/client';
-import type { ResolveResult } from '../material/material-store';
-import type { MaterialBlockReason, StoredMaterial } from '../material/material-ref';
+import type { ReviewGateItemProjection, ReviewGateProjection, ReviewResolution } from '../../protocol/client';
+import type { ResolveResult } from '../../material/material-store';
+import type { MaterialBlockReason, StoredMaterial } from '../../material/material-ref';
 
 export const S1_SCENARIO_ID = 'legal.S1';
 export const S2_SCENARIO_ID = 'legal.S2';

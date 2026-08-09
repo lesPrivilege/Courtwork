@@ -13,7 +13,7 @@ async function captureRuntimeDeps(priceTable?: unknown, transport?: ProviderTran
     vi.doMock('@courtwork/provider/pricing', () => ({ PRICE_TABLE: priceTable }));
   }
   const capture = vi.fn((deps: unknown) => deps);
-  vi.doMock('./work-command', () => ({ createLegalWorkCommand: capture }));
+  vi.doMock('../verticals/legal/work-command', () => ({ createLegalWorkCommand: capture }));
   const { createDesktopWorkCommand } = await import('./work-runtime');
   createDesktopWorkCommand({
     registries,
@@ -36,7 +36,7 @@ async function captureRuntimeDeps(priceTable?: unknown, transport?: ProviderTran
 
 afterEach(() => {
   vi.doUnmock('@courtwork/provider/pricing');
-  vi.doUnmock('./work-command');
+  vi.doUnmock('../verticals/legal/work-command');
 });
 
 describe('WORK-BUDGET-1 desktop runtime', () => {

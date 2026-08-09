@@ -9,7 +9,7 @@ import {
   type ApplyRevisionInstructionSetResult,
   type InstructionOutcome,
 } from '@courtwork/output';
-import type { ReviewDispositionState } from '../protocol/client';
+import type { ReviewDispositionState } from '../../protocol/client';
 
 interface EvidenceGradeRecord {
   key: string;

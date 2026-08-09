@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { RiskList } from '@courtwork/legal';
 import type { SessionEvent } from '@courtwork/core';
-import type { WorkCommandOutcome } from '../protocol/client';
+import type { WorkCommandOutcome } from '../../protocol/client';
 import type { LegalWorkCommand } from './work-command';
 import {
   EMPTY_CONTRACT_REVIEW_STATE,

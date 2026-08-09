@@ -12,8 +12,8 @@ import type { TurnStore } from '@courtwork/core/turn-protocol';
 import type { ResolveResult } from '../material/material-store';
 import type { StoredMaterial } from '../material/material-ref';
 import { WorkReplayError, type WorkModelRoute } from '../protocol/client';
-import { LEGAL_S3_SCHEMA_VERSION, admitLegalS3Package, buildArtifactVersioningSource } from './legal-s3-binding';
-import { createLegalWorkCommand, type LegalWorkCommand } from './work-command';
+import { LEGAL_S3_SCHEMA_VERSION, admitLegalS3Package, buildArtifactVersioningSource } from '../verticals/legal/legal-s3-binding';
+import { createLegalWorkCommand, type LegalWorkCommand } from '../verticals/legal/work-command';
 import { createDemoWorkFixture, DEMO_S1_SESSION_ID, DEMO_S3_SESSION_ID } from '../demo/client';
 import { DEMO_CASE_ID } from '../case/case-scope';
 
