@@ -6463,3 +6463,138 @@ demo 双向隔离抽验：三份新增测试面（集成谱／jsdom 谱／e2e �
 ## 结论
 
 **PASS。** 137 枚锚点的切片等式与文本层版本经**独立重写的算法全量复算**逐枚成立，非抽样外推；32 枚引语改写数与位与回执逐条相符，八组抽验回原件核实「同一事实的干净原句」宣称全部为真；两处退让的理由（evt-04 日期不符、evt-44 案号结构性不存在）读原件坐实，且 evt-04 的新形态在 `7469243` 上已有同源两条先例。六枚独立变异全部按预期触红且红文指名正确理由，其中 M4 以「起点落在星号之间」的构造隔离出片段判据的独立区分力（同变异下消费端 831/831 全绿），M4c 逐字复现回执所称 `Expected: 1 / Received: 2`，M5 证明改锚后的门未失牙；born-red 146/3 与回执同值。双向隔离在生产早返与 demo 侧断言两处 fail-closed，语料墙在两份新谱上实核为零。九相全量门本树独立实测零回归，完整 Playwright 独占 384/384，cargo 250/0/1 补跑核零 Rust 回归。偏离五条逐条追认，拒因 **0 枚**；上列五条观察项中①②建议随清账处置、③建议架构角色指定补档票，均不阻断本票放行。
+
+---
+
+# LEGAL-ANCHOR-BINDING-2 独立验收（2026-08-10）
+
+- **裁决：PASS，放行 `2b7ff75`。** 验收树 `/private/tmp/courtwork-legal-anchor-binding-2-accept`、分支 `claude/accept-legal-anchor-binding-2`，检出于验收目标 `2b7ff75`（架构裁定落痕）。祖先性实测：`2b7ff75^ == 106ca82`（实现）、`106ca82^ == 1c22389`（base），`git merge-base --is-ancestor 1c22389 2b7ff75` 成立，零中间树。检出时 main 已前进至 `de32fa4`（`PI-FETCH-TIMEOUT-1` 与 `PI-SCAN-TIMEOUT-2` 两枚微票清账），`1c22389` 仍是 main 祖先；main 新增面实测为 `packages/pi-lane/**` ＋ `docs/{architecture,status}` ＋ `eslint.config.js`，与本票 diff 面（`packages/{schemas,legal,registry,output,demo-runtime}` ＋ `docs/design/schema-exemplar.sources.json`）**零交集**，故 base 判定仍取 `1c22389`；合并态的 lint（main 动过 `eslint.config.js`）与 pi-lane 相位应由合入方另核。未在共享主仓 checkout/stash；六枚变异与一轮首红重建全部撤回，提交前工作树只留本文件的追加。
+- **本票承接 `LEGAL-ANCHOR-BINDING-1` 架构裁定一的两条同批债**（S4 草稿形改造 ＋ `registry/admission.ts` 守卫上收），并销记族门 `OPEN_ANCHOR_DEBT`。三条票面判据本轮逐条独立实测成立。
+
+## 一 · S4 引用闭环：契约同步面逐处对数
+
+| 判据 | 独立实测 | 回执自述 |
+|---|---|---|
+| `LEGAL_PACKAGE_BINDINGS` 条目数 | **12**（逐行枚举，新增 `legal.RevisionInstructionSetDraft`） | 11 → 12，同值 |
+| `packages/legal/json-schema/` 文件数 | **12** 份，含 `RevisionInstructionSetDraft.schema.json` | 11 → 12，同值 |
+| `packages/schemas/json-schema/` 文件数 | **11** 份（`SCHEMA_REGISTRY` 同步补 draft） | 10 → 11，同值 |
+| 草稿 JSON Schema 含 `sourceAnchors` / `evidenceKey` | **0 / 0**（`grep -c`，两键结构性不存在） | 同 |
+| 最终 JSON Schema 含 `sourceAnchors` / `evidenceKey` | 8 / 4 处（对照存在性，判据非恒空） | — |
+| S4 prompt 生产者纪律两句 | 实读在册（「与材料原文一字不差…系统将对原文精确匹配校验」「坐标由系统铸造…那些字段在你的输出格式里不存在」） | 两句，同 |
+| descriptor hash / prompt blob hash 两枚重铸 | `layout-golden.test.ts` 本树绿，两枚新值即现读真值 | 两枚同批，同 |
+| `packages/output` 补 `outOfCoverage: []` | diff 实测 **25** 处；`output` 非测试面只有 `test-fixtures/instruction-set.ts` 与 `__vite__/index.ts` 两处出现该键，生产代码零读取 → 语义零变化坐实 | 25 处，纯 fixture，同 |
+| desktop 源码改动 | **零**（diff 全量核对，`apps/desktop/**` 只有 `ACCEPTANCE.md` 本次追加） | 零，同 |
+
+**「差别恰两处」的自证：证否（见观察①）。** 本会话对两份导出 JSON Schema 做递归属性名结构对照（不采信文字宣称），实测差集为：
+
+- 仅最终形有：`sourceAnchors`（及其 `bbox/textRange/x/y/width/height/start/end/textLayerVersion` 子键）、`evidenceKey`、**`outOfCoverage`**（及其 `summary/failures/claim/reason/occurrences` 子键）；
+- 仅草稿形有：`quoteClaims`。
+
+即根级/字段级差别实为**三处**，第三处是最终形根键 `outOfCoverage` 草稿形不设。回执与 `packages/schemas/SPEC.md`、`packages/schemas/src/revision-instruction-set.ts` 的注释三处均写「恰两处」。**论点不受影响**——第三处同属「系统裁决性事实退出模型输出面」（缺口表由 resolver 剪枝时生成），且族内四枚先例（Timeline/PartyGraph/ReviewMatrix/RiskList）经同一脚本实测**全部同形**（最终形有 `outOfCoverage`、草稿形无）。属计数不实而非隐瞒缺口，列观察①。
+
+**执行器级闭环真实性**：`legal-anchor-binding.integration.test.ts` 的 S4 四例本树实跑绿，其中「坐标由 resolver 在嵌套三层处铸造」证的是 `instructions[] → annotation → citations[] → sourceAnchors` 这条真实路径，且同例断言 `citation.evidenceKey === undefined`；「旧形态 typed 拒收」断言账本零 `legal.RevisionInstructionSet` 且事件流全文零 `textRange`；「全灭硬失败」断言 `剪枝后的最终形未过 schema` 且零 artifact 落格。三条都是**结构性判据**，不是文案匹配。
+
+## 二 · 准入双轴上收：独立构造反例（重点）
+
+不采信回执的谱，另写探针直接调 `admitPackages`（探针住会话 scratchpad 逻辑、跑完即删，仓内零游离文件）：
+
+| 探针 | 构造 | 独立实测 |
+|---|---|---|
+| P0 基线 | 未改动的 `LEGAL_PACKAGE` | `admitted 1 / rejected 0` — **拒载不是恒真** |
+| P1 结构轴反例 | 把 `legal.RevisionInstructionSet` 的最终 schema 换成自造的**三层嵌套**携 `SourceAnchorSchema` 树（`instructions[].wrapper.nested.deeper[].sourceAnchors`），删 `draftSchemaId` + `citationBinding`，**不设 `presentation`**（走 `rehydrationProjection`） | `admitted 0 / rejected 1`，拒因逐字为「场景 legal.S4 将携系统铸造坐标的 legal.RevisionInstructionSet 列为模型输出时必须同时声明独立 draftSchemaId + citationBinding（无锚不落格：模型出引语，系统出坐标）」 — **旧守卫照不到的那条缝已闭** |
+| P2 上界正向反例 | 同 P1，但锚换成不携 wire meta title 的同形对象（`fileId`+`textRange`+`textLayerVersion`+`quote`） | `admitted 1 / rejected 0` — 「包内自造同形对象不在轴上」的登记上界**逐字成立**，非推断 |
+| P3 判别联合形态 | 直接实例化 `z.discriminatedUnion` | `instanceof z.ZodObject === false`、`instanceof z.ZodUnion === true`（zod 4.4.3） |
+
+**判别联合扩面确系结构性前置（偏离 1）——本会话另加 M6 实证，不止读码。** 把两处调用点逐字还原为本票之前的判据（`draftItem instanceof z.ZodObject ? [draftItem] : undefined` 与 `!(finalItem instanceof z.ZodObject)`）后重建 registry dist，`admitPackages([LEGAL_PACKAGE])` 实测 `admitted 0 / rejected 1`，拒因为「citationBinding.itemScope "/instructions" 的草稿元素不是对象…无法核对 item 级字段」，四包子集连锁 **24 红 / 9 文件**。即：不扩面则 S4 根本无法准入，这不是可选优化。M6 已撤回，撤回后 385/385 复绿。
+
+**结构轴对真实 S4 树生效的独立佐证**：M3（撤 `|| anchoredArtifacts.has(ref)`）与 M5（锚族判定恒 false）各触 **7 红且为同一集合**，其中含 `legal.RevisionInstructionSet：删 draftSchemaId + citationBinding 后不得再作模型输出`。S4 无 `presentation`，故该例只能由结构轴接住 — 反过来证明 walker 确实穿透了 `z.discriminatedUnion` 的四支指令，判据不是空转。
+
+**上收的副作用面**：`collectSchemaInfo` 现对每枚 artifact 的最终 schema 无条件走一遍（呈现声明路径此前不走），fail-closed 未识别节点覆盖净扩。偏离 5 称「`packages/pm` 是唯一 presentation 路径包、零新增拒载」——本会话 `grep -rln "presentation: {"` 实测生产面命中恰 `packages/pm/src/presentation/index.ts` 一处（另两处命中在测试文件），且 pm 全谱本树绿，宣称成立。
+
+## 三 · `OPEN_ANCHOR_DEBT` 清零
+
+本会话自跑 `git grep`（不引回执数字）：
+
+- `-- '*.ts' '*.tsx'` 命中 **1 行**，即 `packages/legal/src/package/anchor-binding.test.ts:13` 说明销记事实的注释，**零处仍是活代码**；
+- 全仓命中 15 行，其余 14 行全在史料面（`apps/desktop/ACCEPTANCE.md` 一票验收节、`docs/status/current.md` 一票清账行、`docs/architecture/implementation-readiness.md` 票面行、`packages/legal/specs/LEGAL-ANCHOR-BINDING-{1,2}.md`、`packages/legal/SPEC.md` 的一票留痕段与本票状态更新段）——逐行读过，均为历史记述，保留正当（「历史不涂改」）。
+
+判据本体已由「与在册债逐字相等」收窄为 `expect(unclosed).toEqual([])`，族非空前置断言（`anchored.length >= BOUND_TYPE_IDS.length`）与检出谓词阴性自检两条守门未减；`BOUND_TYPE_IDS` 由三枚增至四枚。**豁免缝已不存在。**
+
+## 四 · 首红与变异独立复注
+
+**首红宣称在实现前树上重建复核（非采信）**：另起 worktree 检出 base `1c22389`、`pnpm install` + `pnpm -r build` 后——
+
+- 只把 `BOUND_TYPE_IDS` 加入 `legal.RevisionInstructionSet`、`OPEN_ANCHOR_DEBT` 改空：`anchor-binding.test.ts` 实测 **7 failed / 20 passed（27）**，与回执同值；七条红名逐条列出并核对，全部指向 `legal.RevisionInstructionSet`（闭环声明 1、草稿无坐标 1、族门 1、binding 四种漂移 4）。
+- 把目标树的 `admission.test.ts` 整份移植到 base：新 describe 实测 **4 failed / 3 passed（7）**。回执登记的「上收 5 例中 2 红、另 3 例自检/边界恒绿」在本轮逐例复核**成立**；另 2 红是判别联合两例（回执把它们归在偏离 1 与 M4 下叙述，未并入首红句），故「2 红」是**分组内准确、未涵盖全 describe** 的表述。
+- 同一 base 树顺带取得基线：根 **2135/2135（173 文件）**、四包子集 **361/361（38 文件）**——与目标树 2159／385 相减恰 **+24**，回执的 +24 逐文件归因经本会话独立对账全中（`anchor-binding` 32、`admission` 76、`legal-anchor-binding.integration` 9、`legal/json-schema-drift` 13、`schemas/json-schema-drift` 11）。
+
+**五枚变异独立复注**（每枚先做字面命中计数＝1 才动手，计数命令单独执行不入 `&&` 链；跨包一律重建被改包 dist；一律 `cp` 仓外备份还原，禁 `git checkout --`）：
+
+| # | 变异 | 命中 | 本树独立实测 | 回执自述 |
+|---|---|---|---|---|
+| M1 | 删 `legal.RevisionInstructionSet` 的 `draftSchemaId` + `citationBinding` | 1 | **29 红**（族门 + 准入自证 + S4 集成谱整份 collect 失败 + 全包拒载导致 demo-runtime 五谱连锁） | 18 红／3 文件 |
+| M2 | `CitationDraftObjectSchema` 补回 `sourceAnchors` | 1 | **5 红**（族门「草稿无坐标」1、`legal` drift 1、**`schemas` drift 1**、S4 集成 2） | 4 红（未含 schemas 包 drift 谱） |
+| M3 | 撤结构轴（删 `\|\| anchoredArtifacts.has(ref)`） | 1 | **7 红**：registry 上收 2 ＋ legal 族级反例 5 | 7 红，同值 |
+| M4 | item 判据 `every` → `some` | 1 | **1 红**：「只要一支缺 `itemSummaryField` 即拒载」 | 1 红，同值 |
+| M5 | `carriesSystemMintedAnchor = false` | 1 | **7 红**，与 M3 **同一集合**（声明端与检出端是同一判据两面） | 7 红同集，同值 |
+| M6（本会话自加） | 两处调用点还原为票前 `instanceof z.ZodObject` 判据 | 1+1 | **24 红 / 9 文件** ＋ `LEGAL_PACKAGE` 整包拒载 | — |
+
+六枚全部还原，还原后 `git status --porcelain` 零输出、四包子集 **385/385** 复绿、根 `pnpm -r build` 复绿。M1／M2 的红数比回执**更宽**（方向一致、幅度更大），差额来自本会话对被改包逐一重建 dist 后的下游连锁与 `schemas` 包自身的 drift 谱；登记为观察④，不构成拒因。
+
+## 五 · 架构裁定符合性与八偏离逐条
+
+**裁定一（output 阻断门当期不落地 ＋ 前瞻条款）：符合，且零可达前提本会话加核一处。** diff 全量实测 `packages/output` 只有 25 处 fixture 补键，**零新增门**；`compileConfirmedRiskListToRevisionInstructions` 的 `UnresolvedCoverageError` 整份阻断仍在（`riskList.outOfCoverage.length > 0` 即抛）。零可达性本会话自查 `applyRevisionInstructionSet` 的**全部**调用点：`apps/desktop/src/verticals/legal/compile-review-output.ts`、`packages/demo-runtime/src/acceptance/run-legal-demo.ts`、`packages/demo-runtime/src/acceptance/run-s3-demo.ts` —— **三处**，回执与裁定文只点名前两处（观察③）；第三处经核同样从 `compileConfirmedRiskListToRevisionInstructions` 取值，走 RiskList 路径、上游整份阻断、返回值 `outOfCoverage: []` 恒空。三处齐核后「当期零可达」结论成立。S4 `launch.kind === 'view'` 实读坐实。前瞻条款（S4 获执行编译路径的接线票须同批立同形阻断门）已随裁定落痕在 `packages/legal/specs/LEGAL-ANCHOR-BINDING-2.md`。
+
+**裁定二（八偏离追认）逐条对照：**
+
+| # | 偏离 | 本会话核实 |
+|---|---|---|
+| 1 | item 判别联合扩面属结构性前置 | **实证**（M6：还原旧判据即整包拒载）；追认正当 |
+| 2 | 草稿去 `evidenceKey`（收窄） | 草稿 JSON Schema `grep -c evidenceKey` = 0；最终形该键 `optional`、S3 编译路径照常签发（`compile-risk-list-to-revisions` 未动签发逻辑）；代价为零属实 |
+| 3 | `instructions` 保留 `.min(1)`，全灭硬失败 | 有专谱咬住（S4 集成第四例本树绿，断言 typed 错误文案 ＋ 零 artifact） |
+| 4 | `itemSummaryField` 取 `id` | 选择正确、理由不实：实测四支共有键为 `id/kind/locator/annotation`，其中标量**两枚**（`id`、`kind`），非回执所称「唯一共有的标量键」。取 `id` 仍是唯一有信息量的选择（`kind` 落 `commentOnly` 作缺口摘要等于无摘要）。列观察② |
+| 5 | `checkEnumVocabulary` 收 info、准入环单走 walker | 净变化方向为**收紧**（presentation 路径纳入 walker）属实；`pm` 是唯一 presentation 路径生产包经 grep 复核；pm 全谱绿、零新增拒载 |
+| 6 | 两枚 hash 同批重铸、`schemaVersion` 不升 | `layout-golden.test.ts` 绿即两值现读真值；`outOfCoverage` 为 `.default([])` 加法键，引 2026-08-09 裁定二口径正当 |
+| 7 | `schema-exemplar.sources.json` 两枚来源哈希重铸 | `pnpm site:guard` 的 `lint:schema-exemplar` 与 `assert-schema-exemplar.test.mjs` 双绿 |
+| 8 | 实施要点④（demo/e2e 樁同步）实测为空 | 本会话自跑 `grep -rn "legal.RevisionInstructionSet" apps/desktop/tests apps/desktop/src/demo packages/demo-data` **零命中**，「该项无对象」属实，未以「已同步」冒充 |
+
+**裁定三（两枚自伤留痕）**：`git checkout -- <file>` 抹未提交面、`&& grep -c` 零命中静默短路，两条均在回执八节如实在案，处方与在册判例一致。本会话全程照该处方执行（备份走 `cp` 到仓外 scratchpad、计数命令单独执行）。
+
+## 六 · 全量门（本树独立实跑）
+
+| 相 | 独立实测 | 回执自述 |
+|---|---|---|
+| `pnpm install --frozen-lockfile` | EXIT=0，lockfile 未动 | — |
+| pi-lane 两枚 sidecar 本树自建 | product：`action: created`、双 target `origin: downloaded`、bundle `951acf8e…` `reproducible: true`；headless：`landedSha256 061248fa…` `reproducible: true`（两枚 sha256 与上一轮验收登记逐字相同——本票零 pi-lane 改动，同值即预期） | — |
+| `pnpm -r build` | EXIT=0（仅既有 chunk warning） | 绿 |
+| `pnpm lint` | EXIT=0（零输出） | 绿 |
+| `pnpm test`（根） | **173 files / 2159 passed / 0 failed**；base `1c22389` 独立 worktree 实跑 **2135/2135（173 files）**，差 **+24** 逐文件归因全中 | 2159／2135／+24，同值 |
+| desktop vitest | **94 files / 831 passed / 0 failed** | 831／94，同值（base 831 见上一节 `DEMO-ANCHOR-2` 验收，本票 desktop 源码零改动） |
+| `cargo test` | **250 passed / 0 failed / 1 ignored**，EXIT=0 | 回执如实登记「未跑，本票零 Rust 改动」；本会话补跑核零回归 |
+| `pnpm site:guard`（显式单跑） | EXIT=0；app-highwater **2248（上限 2248）** | PASS／2248，同值 |
+| 完整 `pnpm --filter @courtwork/desktop test:e2e` | **384 passed，EXIT=0，5.5m**；38 枚静态门前置全过后才进 `playwright test` | 384，floor 384，同值 |
+| 四包子集（legal/registry/schemas/demo-runtime） | **38 files / 385 passed**；base **361 passed** | 385，同值 |
+
+**docx 谱并发抖动未复现**：回执登记「`packages/output` 的 docx 四谱在全仓并发下会零星变红，base 同样复现」。本会话根谱两次全跑（含 `--reporter=json` 一轮）均 **2159/2159 零红**，base 树一轮 2135/2135 零红。不据此否定回执的观察（该现象本就是零星），如实登记为**本轮未复现**。
+
+**Playwright 互斥**：起链前 `mkdir /private/tmp/courtwork-pw-lock` 原子取锁一次即得，`pgrep -fl playwright` 双确认无第二条在跑（仅见主仓一枚 `vite --port 1470` 常驻 dev server，与本树独占端口无交集）；跑完即 `rmdir`。首次前台起链在 10 分钟工具上限处被 SIGTERM 打断（**环境项，非仓库红**：`pgrep` 复核零残留进程、零残留监听），改后台落盘日志重跑，得 384 passed／EXIT=0。
+
+**收尾**：全链重生成他票 `release/evidence/**` PNG（`demo-anchor-2-2026-08-09` 3 枚、`generic-pack-1-unloaded-2026-08-06` 5 枚、`legal-anchor-binding-1-2026-08-09` 3 枚、`legal-five-faces-1-2026-08-07` 6 枚，共 17 枚 Bin 行），一律 `git checkout -- release/evidence/` 精确还原（承 Bin 行判例，禁 `git add -A`）。还原后 `git status --porcelain` 零输出、HEAD 仍 `2b7ff75`；base 复核用的临时 worktree 已 `rm -rf` + `git worktree prune`，`git worktree list` 复核只剩主仓、实现树与本验收树。
+
+## 七 · 观察项（均不构成拒因）
+
+**① 「草稿形与最终形的差别恰两处」是计数不实，实为三处。** 第三处是最终形根键 `outOfCoverage`（草稿形不设），本会话以递归属性名结构对照实测得来。该表述同时住在**三个面**：`packages/schemas/src/revision-instruction-set.ts` 的类型注释（生产源码）、`packages/schemas/SPEC.md`（层级 SPEC）、票面回执二节。论点不塌——第三处同属「系统裁决性事实退出模型输出面」，且族内四枚先例经同一脚本实测全部同形，故它是族级恒有的 resolver 产物而非本票疏漏；但「恰两处」这个**闭集宣称**没有穷举，属在册判例「全称宣称须穷举」的同一形状。建议清账同批把三处文本订正为「三处」并点名 `outOfCoverage`。
+
+**② 「`id` 是四支指令唯一共有的标量键」不实。** 实测共有键为 `id`／`kind`／`locator`／`annotation`，其中标量两枚：`id`（`ZodString`）与 `kind`（`ZodLiteral`）。**选择本身正确**——`kind` 作缺口摘要会一律落 `commentOnly`／`replace` 这类无信息量的值，`id` 是唯一有区分力的选择；错的只是「唯一」二字。落在 `packages/legal/src/presentation/index.ts` 的 descriptor 注释（生产源码）、`legal-anchor-binding.integration.test.ts` 注释、SPEC 与回执四处。与①同族，建议一并订正为「唯一有区分力的标量键」。
+
+**③ 架构裁定一的零可达前提枚举缺一处，结论仍成立。** 裁定与回执点名「desktop 的 `compile-review-output.ts` 与 demo-runtime 的 `run-legal-demo.ts` 都从 RiskList 编译」，实测 `applyRevisionInstructionSet` 尚有第三个调用点 `packages/demo-runtime/src/acceptance/run-s3-demo.ts`，同样从 `compileConfirmedRiskListToRevisionInstructions` 取值。三处齐核后「`outOfCoverage` 非空指令集当期零可达 `packages/output`」成立，裁定不受影响；但「已逐点核实」的措辞与实际枚举面差一处，建议清账时补齐第三处，使前瞻条款生效时的核查面完整。
+
+**④ M1／M2 红数登记偏保守。** 回执 18／4，本会话独立复注 29／5，方向一致、幅度更大。差额可归因：M1 后 `LEGAL_PACKAGE` 整包拒载，重建 `@courtwork/legal` dist 使 demo-runtime 五份谱连锁转红；M2 漏记了 `packages/schemas/src/json-schema-drift.test.ts` 这一红。低估红数不构成假绿风险，登记备查。
+
+**⑤ 真 key 真模型 S4 回合未执行，`external-validated blocked` 如实登记。** 本票能证的是**通道形状**（模型交引语、系统铸坐标、台账键不在模型面、旧形态 typed 拒收、不收敛诚实入缺口表、全灭诚实硬失败），六条本会话逐条见到结构性判据；模型在真实卷宗上的引语质量不在本轮可证范围。承 `LEGAL-FIVE-FACES-1` / `LEGAL-ANCHOR-BINDING-1` 同一条边界，补证路径不变（产品负责人持 key 真机走链回填）。
+
+**⑥ S4 仍无场景启动入口（`launch.kind === 'view'`）。** 本票闭的是契约与准入，不是把 S4 接成可跑产品链——票面边界内正当，但这意味着 S4 的引用闭环在产品面**至今零真实流量**：所有闭环证据都出自执行器级 scripted 谱。接线票落地时应把「S4 首次真实产出一次修订指令集」列为验收点，届时同批补 output 阻断门（前瞻条款）。
+
+## 结论
+
+**PASS。** 三条票面判据逐条独立成立：S4 闭环的契约同步面九项逐处对数全中；准入双轴上收经四枚自造探针实证——`rehydrationProjection` 路径的缝已闭（P1 拒载、拒因逐字点名）、登记的判据上界逐字成立（P2 准入）、判别联合扩面是结构性前置而非优化（M6 还原旧判据即整包拒载）；`OPEN_ANCHOR_DEBT` 活代码零命中、判据收窄为恒常式、豁免缝消失，史料面保留正当。首红宣称在 base 树重建复核，族门 **7 红/20 绿（27）** 与回执同值、上收谱 **4 红/3 绿（7）** 与回执分组表述相符；五枚变异独立复注全部触红且方向正确（M3/M5 同集 7 红、M4 单红精确），另加一枚自设 M6（24 红 ＋ 整包拒载），六枚全撤回复绿。八条偏离逐条对照，其中偏离 1 与偏离 5、8 由本会话另行实证/复核。九相全量门本树独立实测零回归：根 **2159/2159**（base 2135，+24 逐文件归因全中）、desktop **831/831**、cargo **250/0/1** 补跑、site:guard PASS（高水位 2248）、完整 Playwright **384/384** EXIT=0 独占取锁。**拒因 0 枚。** 上列六条观察项中①②③是同一族的「闭集/全称宣称未穷举」，建议随清账同批订正（①②须改到生产源码注释与层级 SPEC 正文，不止改回执）；④⑤⑥为登记备查，均不阻断本票放行。
