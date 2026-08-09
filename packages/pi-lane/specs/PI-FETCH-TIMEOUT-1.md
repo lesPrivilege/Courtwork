@@ -241,3 +241,9 @@ EXIT=0，两枚 archive 均 `"origin": "reused"`，`snapshot.action = "reused-id
   「取值依据」是否认同 8× 安全系数与 190s 最坏总时长；③复核 §四两轮真实下载的 SHA/字节数
   与在册基线逐位相等；④如认为 60s/3 次/5s 的具体取值需要调整，可在验收报告提出替代取值
   连同同等量级的实测支持。
+
+---
+
+## 验收后订正（2026-08-10，架构清账落痕）
+
+§2.1 原文「`HTTPS_PROXY`/`NODE_USE_ENV_PROXY` 在本机 Node 25.9.0 全局 `fetch` 上实测不生效」**被独立验收证伪**：该开关生效，但 undici 在 dispatcher 初始化时读取 env——须在进程启动前置入环境变量，运行期改 `process.env` 才无效（验收以启动前置入实测 8006ms TimeoutError 被黑洞代理挡住坐实）。偏离一的**结论**（改用真实 TCP 黑洞装置）仍被接受——装置更强、已固化为回归用例；**理由**按本节为准。另登记：`fixtures/sidecar-dist/scripts/fetch-runtime.mjs:63` 存在同形裸 `fetch`，受 SPEC 明文冻结且不在自动路径，不处置正确、在此补登记；新增 18 枚回归用例不在任何门相位（「门存在≠门在跑」同族），挂 `CI-TOPOLOGY-1` 问题域随其统一裁；`maxAttempts=0` 隐式 undefined 与 4xx 重试满次两枚生产不可达边缘在案。
