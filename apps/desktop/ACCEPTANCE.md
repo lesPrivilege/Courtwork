@@ -5918,3 +5918,93 @@ wire、journal 或引入第二状态源。PM 伪装、全局 execution seam、st
 **REJECT。** A/B/C/D、旧门恢复态与完整 376/376 均通过；但拒因① PM 历史 keep 态仍展示不存在场景的通用尾注，拒因② 现行 SPEC §十 line 413 残留过渡期旧代码标识符。3R 放行至少需：PM keep 态文案对 catalog-only 诚实且不承诺场景（Legal/loadable 仍可保留对应文案），并从现行 PACK SPEC §十删除/改写 `defaultMatterPackBinding` 字面残留；随后在新独立树重跑对应文案/零命中反例与全量门。
 
 本轮所有源码/test mutation、临时 probe、Playwright 生成 PNG 均已恢复；报告提交前只允许留下本文件。
+
+---
+
+## PACK-INTERACT-1 3R 独立验收（2026-08-09，PASS）
+
+### 验收对象与纪律
+
+- 独立验收树 `/private/tmp/courtwork-pack-interact-1r3-accept`，分支 `claude/accept-pack-interact-1r3`；与实现会话零共享上下文，一切以树内落痕为准。
+- 目标 `2f89fd2466a42c7a6500f5f5e3bbb4dc3d535cc9`；`git rev-parse 2f89fd2^` 与 `git merge-base` 均等于 3R 架构裁定 tip `5c70254d29575f55a801fac0cf071a9fdd9665e6`，直接子关系确认。
+- 按序读毕 `CLAUDE.md`、根 `AGENTS.md`、`docs/engineering/workflow.md`、`docs/status/current.md`、implementation-readiness 的 `PACK-INTERACT-1` 行（3R 行为准）、ADR-015（含决定三 2026-08-08 三则补记与 2R 裁定修订记录）、PACK SPEC §十一（票面）/§十二（回执）、本文件 1R 与 2R 两轮 REJECT 记录。
+- 本轮只核 §十一 两项。A/B/C/D 依票面由 2R 独立验收成立，不得重做——本报告对其只作「未被触碰」的边界核，不重述亦不重新背书其效力（边界声明见结论段）。
+- 全部数字为本树独立实跑原始输出，不采信 §十二 回执自述。
+
+### 一 · diff 范围（零触碰核）
+
+`git diff 5c70254..2f89fd2 --stat`：**4 files, +156/-3**，逐枚为 `apps/desktop/specs/PACK-INTERACT-1.md`、`src/case/MatterPackDialog.tsx`、`src/case/MatterPackDialog.test.ts`、`tests/e2e/pack-interact-1.spec.ts`。`git diff --check` 通过。
+
+`--name-only` 全集内零命中：`App.tsx`、`packages/**`、`src/composition/**`。据此 availability 闭集、Package ABI、`packBinding` 持久 schema、execution seam、首帧 gate、pi 测试、wire/journal、持久格式与依赖 manifest/lock 全未触碰。旁证：`assert-app-highwater` 实测 **2272/2272**，与 2R 同值，App.tsx 零改成立。
+
+### 二 · §十一 ① 三态文案（成立）
+
+生产面 `MatterPackDialog.tsx` 的尾注由一句无条件通用文案改为随 `selected` 切换的三分支（`data-testid="matter-pack-note"`）。keep 分支的适用面经源码核实是闭合的：`KEEP_CURRENT` 单选项只在 `state.catalogOnlyId !== undefined` 时渲染，`defaultSelection` 亦只在同一条件下返回该哨兵，故「该包当期只上架目录，交互场景未开放」结构性不会落到 `loadable` 绑定上——不是新造一句可能自身说谎的文案。
+
+- **keep 态**（历史 catalog-only 绑定，默认选中）：零场景／零结构化面承诺，只说既有产物继续可读＋交互场景未开放。成立。
+- **不加载态**：只说已有产出不被删除（产出属工作区资产），不承诺加载后会出现什么。成立。
+- **Legal（loadable）态**：原 loadable 说明逐字保留。成立。
+
+判据钉在**整张弹层**而非只钉尾注 testid，故「把同一句话搬到别处」仍会红：DOM 谱用 `expect(host.textContent).not.toContain('结构化工作面与对应场景随包出现')` 与 `.not.toContain('随包出现')`；e2e ④ 用 `await expect(packDialog).not.toContainText('结构化工作面与对应场景随包出现')`。三态的正向断言另钉尾注元素。
+
+同族复扫（闭口按族，不按票面点名的实例）：`apps/desktop/src` 与 `packages` 的非测试面上「随包出现／结构化工作面」共三处——本弹层的 loadable 分支及其头部注释、`WorkbenchPreviewRenderer` 的 tablist `aria-label`、`App.tsx` 样板案导览提示。后二者不在包设置面、不构成对 catalog-only 包的能力承诺。未发现第二处泄漏点。
+
+### 三 · §十一 ② 旧标识符零命中门（成立，含一枚上浮观察）
+
+本节与本报告全程只用角色称谓。扫描模式以程序方式从历史 `ACCEPTANCE.md` 原始报告行提取（`sed` 取行 → `/usr/bin/grep -oaE` 取词），全程未经复述、未写入任何现行文件。
+
+- **阳性对照先立**：该模式在 `apps/desktop/ACCEPTANCE.md` 命中 **5**，与 §十二 自述一致，证明扫描器此刻确实可用（承「否定性结论须换第二工具交叉」：查无此物不得由单一工具的空输出得出）。
+- **六扫描根**（`apps/desktop/specs`、`apps/desktop/src`、`apps/desktop/tests`、`apps/desktop/scripts`、`docs`、`packages`）：逐根 files=0 / lines=0。
+- **不以票面给定的根为限**，另做全仓 tracked 面扫描（`git ls-files -z | xargs -0 /usr/bin/grep -laF`，用 `/usr/bin/grep -a` 避开被 shim 成 `ugrep` 的 `grep` 对含裸 NUL 文件静默零匹配的既有陷阱）：全仓唯一命中文件即 `apps/desktop/ACCEPTANCE.md`（5 处），`archive/` 亦为 0。按 §十一 属允许保留。
+- **上浮观察（不构成拒因）**：该字面残留实由 3R 架构裁定基线 `5c70254` 自身清除——`git grep` 于 2R tip `b35d724` 仍命中现行 SPEC，于 `5c70254` 已零命中。故 3R 实现提交对本项的贡献是「未再引入」，而非「清除」；§十二 回执全程用角色称谓，未复制 2R 拒因②的成因（自述句把字面量又写回来）。本门是状态门，交验点状态成立，判为通过；此处登记以免后续把该项误记为实现侧的清除交付。
+
+### 四 · mutation 独立注入（撤条件分支 → 恢复 2R 无条件尾注 → 还原）
+
+在本树生产面亲手注入、亲手撤回，不采信回执红证：
+
+| 装置 | 实跑红证 |
+|---|---|
+| DOM 谱 | `pnpm exec vitest run src/case/MatterPackDialog.test.ts` **1 failed / 7**；红落在 `MatterPackDialog.test.ts:158` 的 `not.toContain('结构化工作面与对应场景随包出现')`，`Received` 为整张弹层实渲文本并逐字含该句 |
+| e2e ④ | `COURTWORK_E2E_PORT=18991 playwright test tests/e2e/pack-interact-1.spec.ts -g "④" --project=app` **1 failed**；原文为 `locator resolved to <p … data-testid="matter-pack-note">加载后，结构化工作面与对应场景随包出现…` 与 `unexpected value "…"`，即 locator 已解析、值被指名的实断言红，**非 timeout、非选择器落空** |
+
+两枚红均指名文案本体，具备对本票缺陷的区分力。撤回以备份文件精确还原，`git status` 净空；DOM 谱复绿 **7/7**，`src/case/` 全组 **8 files / 66 tests passed**（与 §十二 自述一致，2R 基线 65，+1）；e2e ④ 在其后两轮完整链中均绿。
+
+### 五 · 全量门（本树独立实跑）
+
+| 相 | 独立实测 | 参考基线 |
+|---|---|---|
+| `pnpm install` | 绿（lockfile 未动） | — |
+| `pnpm -r build` | EXIT=0（仅既有 chunk warning） | 绿 |
+| `pnpm lint` | EXIT=0 | 绿 |
+| `pnpm test`（根） | **170 files / 1941 passed / 0 failed** | 1941 一致 |
+| desktop vitest | **93 files / 820 passed / 0 failed** | 820 一致 |
+| pi-lane sidecar | 两枚构建 EXIT=0；product bundle **547,893 B** / SHA-256 `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`，`reproducible: true` | 逐字节零迁 |
+| `cargo test` | **250 passed / 0 failed / 1 ignored** | 250/1 一致 |
+| `pnpm site:guard` | PASS；App 高水位 **2272/2272**、deslop 1113 文件、release-truth PASS、`node --test` 103 pass / 0 fail | PASS |
+| 完整 `pnpm test:e2e` | **376 passed / 376**，EXIT=0（独占端口 18991、`reuseExistingServer=false`、三十余枚 `assert-*.mjs` 静态门前置全过） | 376，floor 365 |
+
+跑的是 `pnpm test:e2e` 的全名，不是链里的 `playwright test` 那一步（承「绕过门链」判例）。
+
+**e2e 稳定性如实登记（本轮共起三次完整链，逐次交代，不以「重跑到绿」掩盖）**：
+
+- **轮一 372/376（18.2m，EXIT=1）**：4 红为 `workbench.spec.ts:480`／`:497` 与 `ui-residue.spec.ts:427`／`:437`；红因一律是共用入口 helper（`openWorkbench`／`openModuleList`／`enterSettledDemo`）的 30s timeout 与 `page.waitForTimeout` 超时，非断言语义红。`pack-interact-1.spec.ts` ①③④⑥ 该轮**全绿**。该轮未做并发取样，归因不充分，故不取作退出数字，但如实在案。
+- **轮二 376/376（13.7m，EXIT=0）与轮三 376/376（8.9m，EXIT=0）**：两轮全程以 30s 间隔取样 `playwright/test/cli.js` 进程总数，观测值恒为 **1**（即本树自身），无第二条全链同刻在跑，坐实为无并发单跑轮。退出数字取轮三。
+- 按「一次绿不构成对 flaky 的反驳」的对称面，轮一的红不因后两轮复绿而被撤销；但其失败面全部落在与本票改动零交集的既有 ambient flake 族（同族在 §十二 与 2R 记录中均已登记），不改变 §十一 两项的判定，也未在本轮转化为对 3R 改动的任何反证。
+- **Playwright 互斥**：三轮均先以 `mkdir /private/tmp/courtwork-pw-lock` 原子取锁、再以 `ps` 双确认零 `cli.js` 后起链，链跑完（无论红绿）即 `rmdir` 释放。
+
+### 六 · 收尾
+
+三轮 Playwright 各重生成 `release/evidence/**` 11 枚 PNG（`generic-pack-1-unloaded-2026-08-06` 5 枚、`legal-five-faces-1-2026-08-07` 6 枚），逐轮以 `git checkout --` 精确还原（承 Bin 行判例，禁 `git add -A`）；`test-results/` 逐轮清除；两次 mutation 均以备份文件精确撤回。提交前 `git status --short` 净空，工作树只留本文件的追加。
+
+### 结论
+
+**PASS。**
+
+§十一 两项逐项成立：
+
+1. **PM keep 态尾注诚实**：说明文案随「保持／不加载／Legal」当前选择切换，keep 态零场景与零结构化面承诺且 catalog-only 诚实说明在场，Legal（loadable）态原说明保留，不加载态只说资产不删除；keep 分支的适用面由 `catalogOnlyId` 条件结构性闭合，不会误落 loadable 绑定；判据钉在整张弹层，DOM 谱与 e2e ④ 双装置在撤条件分支时均真红且红文指名文案本体。
+2. **现行 SPEC 字面门**：现行 SPEC、生产源码与测试对过渡期该 prop 旧代码标识符零命中（六根逐根实测＋全仓 tracked 面复扫，阳性对照先立），唯一命中面为历史 `apps/desktop/ACCEPTANCE.md` 5 处，按票面允许保留。
+
+八相全量门本树独立实测零回归，完整 Playwright 无并发单跑轮 **376/376**，sidecar 身份逐字节零迁，App 高水位未动。
+
+**继承边界如实声明**：A（准入/可加载分层）、B（execution seam 与 canonical read）、C（第一次 committed render）、D（pi 真滚轮与有界重试）四项由 2R 独立验收 `7c6763e` 成立，本轮按 §十一「不得重做或扩张其结构」未重做其结构性复核与 mutation 注入；本轮对其只核「未被触碰」（diff 面零命中＋App 高水位未动＋全量门零回归），不重新背书其效力。2R 遗留的 `resumeAuthorized` 宽回退观察项当时即登记为后续架构观察、非本票范围，本轮亦未评估。
