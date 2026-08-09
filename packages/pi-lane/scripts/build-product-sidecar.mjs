@@ -23,6 +23,11 @@
  * 明确不做（与 R5 的 fetch 门同一条边界）：本门只证 **HTTPS 传输完整性 + 冻结身份**，
  * 不是 release-key 供应链认证——没有校验 nodejs.org 的签名密钥，也没有验证 `SHASUMS256.txt.sig`。
  *
+ * PI-FETCH-TIMEOUT-1（implementation-readiness 同名行）：下载路径统一改走
+ * {@link fetchWithTimeoutRetry}——显式超时 + 有界重试 + 耗尽后具名报错（含 URL 与已试次数，
+ * 不吞原始 cause）。修的是「裸 `fetch` 无超时无重试，网络失速即静默无限挂起」（验收环境实测
+ * 两次各 14/16 分钟）；不改变下载后的 SHA/SHASUMS/tar 三重校验链。
+ *
  * 用法：`pnpm --filter @courtwork/pi-lane build:product-sidecar`
  */
 
@@ -307,14 +312,93 @@ function run(command, args) {
   return { status: result.status, stdout: result.stdout ?? '', stderr: result.stderr ?? '' };
 }
 
+/**
+ * PI-FETCH-TIMEOUT-1 · 下载超时与重试的冻结真值。
+ *
+ * 依据（2026-08-09 本机实测，`curl -w time_total`，各 3 次独立探测，`nodejs.org` 官方 CDN，
+ * 均为健康网络下的成功传输）：
+ *   - darwin-arm64 归档（50,067,502 B）：7.522s / 7.334s / 7.441s
+ *   - darwin-x64   归档（51,245,086 B）：7.490s / 7.198s / 6.736s
+ *   - `SHASUMS256.txt`（3,777 B）：0.644s
+ * 最大单文件实测 ≈7.5s。`DOWNLOAD_TIMEOUT_MS` 取 60s（≈8× 安全系数）：既远高于健康下载的
+ * 真实耗时（容忍明显变慢但仍在工作的网络——60s 内传完 50MB 换算最低吞吐约 833 KB/s），
+ * 又远低于验收环境登记的 14/16 分钟静默挂起，任何真实失速都会在分钟级内转成具名失败，
+ * 不再无限等待。不采用「无负载基线 × 极大倍数」的写法——本场景不存在票面 PI-SCAN-TIMEOUT-1
+ * 那种随负载非线性走高的真实工作量，健康值本身就是稳定读数，8× 已是充分安全系数。
+ */
+export const DOWNLOAD_TIMEOUT_MS = 60_000;
+/** 有界重试次数：小而显式，兜住瞬时丢包/路由抖动，不掩盖持续性故障。 */
+export const MAX_DOWNLOAD_ATTEMPTS = 3;
+/** 重试间隔：固定值，不做指数退避——构建脚本非高频客户端，该复杂度非本质复杂度。 */
+export const DOWNLOAD_RETRY_DELAY_MS = 5_000;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * 有界重试＋显式超时的 fetch 封装。来源 origin 白名单由调用方（{@link download}）负责，
+ * 这里只管传输可靠性：连不上、连上不回话（失速）、HTTP 层错误、**body 流式读取途中失速**，
+ * 一律按同一套有界重试处置；耗尽后抛出具名错误——含 URL 与已试次数，且用 `{ cause }`
+ * 保留原始错误，不吞。
+ *
+ * **`readBody` 必须与 `fetch()` 落在同一枚 try 里、共用同一枚 `AbortSignal`**：真实归档
+ * 文件是 50MB 量级，多数传输耗时花在 body 流式阶段而非 header 阶段；若只保护 `fetch()`
+ * 本身（headers 到达即算「成功」返回），之后单独 `await response.arrayBuffer()` 时同一枚
+ * signal 到期照样会中止该 body 读取——但那次中止会绕过这层重试与具名包装，直接以裸
+ * `TimeoutError` 冒泡给调用方（本票 2026-08-10 用真实 nodejs.org 网络实测复现过一次：
+ * 63s 后拿到未包装的 `The operation was aborted due to timeout`，而非「下载失败（已尝试
+ * N 次）…」——已改为下述形态修正）。
+ *
+ * `fetchImpl`/`sleepImpl` 仅供定向测试注入假实现；生产路径始终用默认的全局 `fetch`/真实计时。
+ */
+export async function fetchWithTimeoutRetry(
+  url,
+  {
+    timeoutMs = DOWNLOAD_TIMEOUT_MS,
+    maxAttempts = MAX_DOWNLOAD_ATTEMPTS,
+    retryDelayMs = DOWNLOAD_RETRY_DELAY_MS,
+    fetchImpl = fetch,
+    sleepImpl = sleep,
+    readBody = (response) => response.arrayBuffer(),
+  } = {},
+) {
+  const href = typeof url === 'string' ? url : url.href;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const response = await fetchImpl(url, { signal: AbortSignal.timeout(timeoutMs) });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const body = await readBody(response);
+      return { response, body };
+    } catch (cause) {
+      const detail =
+        cause instanceof Error && cause.name === 'TimeoutError'
+          ? `未在 ${timeoutMs}ms 内完成（连得上但静默无响应，或被失速丢包）`
+          : cause instanceof Error
+            ? cause.message
+            : String(cause);
+      if (attempt < maxAttempts) {
+        process.stderr.write(
+          `下载第 ${attempt}/${maxAttempts} 次尝试失败：${detail}，${retryDelayMs}ms 后重试：${href}\n`,
+        );
+        await sleepImpl(retryDelayMs);
+        continue;
+      }
+      // 循环内的最后一次尝试恰好以此 throw 结束（不会跑到函数体末尾）；`cause` 直接是
+      // 本次 catch 绑定的原始错误——`preserve-caught-error` 门禁要求 `cause` 字面即取自
+      // 触发本次抛出的那个 catch 参数，不接受另开变量转手复制。
+      throw new Error(`下载失败（已尝试 ${maxAttempts} 次）：${detail}：${href}`, { cause });
+    }
+  }
+}
+
 async function download(name) {
   const url = new URL(name, NODE_DIST_BASE);
   if (url.origin !== 'https://nodejs.org' || !url.pathname.startsWith('/dist/')) {
     throw new Error(`拒绝非官方来源：${url.href}`);
   }
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`${url.href} → HTTP ${response.status}`);
-  return Buffer.from(await response.arrayBuffer());
+  const { body } = await fetchWithTimeoutRetry(url);
+  return Buffer.from(body);
 }
 
 async function fetchShasums() {

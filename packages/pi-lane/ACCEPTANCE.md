@@ -4699,3 +4699,244 @@ base `main@7469243`——`git rev-parse 3fa39be^` 实测即 `7469243`，且 `746
 建议合入 `main` 并按票面清账。
 
 ---
+## PI-FETCH-TIMEOUT-1 独立验收（2026-08-10）
+
+验收对象 `34e3f12`（`fix(pi-lane): PI-FETCH-TIMEOUT-1 下载显式超时＋有界重试＋具名失败`），
+base `main@1c22389`——`git rev-parse 34e3f12^` 实测即 `1c22389`，且 `1c22389` 就是本树 `main`
+当前 tip，直接子关系成立；`git merge-base --is-ancestor 34e3f12 main` 判**未合入**。
+独立 clean worktree `/private/tmp/courtwork-pi-fetch-timeout-1-accept`，分支
+`claude/accept-pi-fetch-timeout-1`。异会话验收，不采信回执任何数字与任何红绿证，
+下列读数全部本席自跑；对照装置由本席另行搭建，不复用回执脚本。
+
+**结论：PASS（放行）。** 保护覆盖 header 与 body 两阶段，本席以**真实慢 body 服务器**独立坐实；
+黑洞对照在本席环境三种形态复现；正常路径产物与在册基线逐字节吻合；三重校验链九枚函数逐字未改；
+八相回归零漂移。另登记**一枚强制订正项**（偏离一的理由被本席实测证否，性质为回执事实陈述有误，
+处置结论本身独立成立）与三枚观察项，均不构成拒因——详见 §九、§十。
+
+### 一 · 范围核（通过）
+
+`git diff 1c22389..34e3f12 --stat` 命中且仅命中四份，`533 insertions(+) / 5 deletions(-)`：
+
+| 文件 | 增删 | 性质 |
+|---|---|---|
+| `eslint.config.js` | +1 | 既有 `**/scripts/**/*.mjs` 全局表补 `AbortSignal: 'readonly'` |
+| `packages/pi-lane/scripts/build-product-sidecar.mjs` | +90/−5 | 新增三常量＋`fetchWithTimeoutRetry`，`download()` 改调用 |
+| `packages/pi-lane/scripts/build-product-sidecar.test.mjs` | +204 | 新增 10 枚定向用例 |
+| `packages/pi-lane/specs/PI-FETCH-TIMEOUT-1.md` | +243 | 新建回执 |
+
+零 schema、零依赖（`package.json` / `pnpm-lock.yaml` 均不在变更集内）、零 Rust、零 GUI。
+票面「加显式超时＋有界重试＋失败具名报错；SHA 校验链不变」的边界满足。
+
+### 二 · 保护完整性核：真实慢 body 三态对照（通过，且**证否首版形态**）
+
+票面判据只说「注入失速环境具名快红」，但本票的真实风险在**归档是 50MB 量级、传输耗时主要落在
+body 流式阶段**——只保护 header 的形态在单元 mock 下可以全绿而在真机上失效。故本席不采信任何
+mock 装置，自建**真实 HTTP 慢 body 服务器**（立刻发 200＋`Content-Length: 10000000`，此后每 300ms
+只滴一个字节、永不结束），驱动**真实全局 `fetch`**，三臂同服务器、同参数
+（`timeoutMs=1200, maxAttempts=2, retryDelayMs=100`），进程内 12s 挂起哨兵兜底：
+
+| 臂 | 形态 | 读数 | 判定 |
+|---|---|---|---|
+| **NEW** | 验收树导出的 `fetchWithTimeoutRetry`（默认 `readBody`、默认全局 `fetch`） | **REJECTED 2516ms**，服务端计 **connections=2**，`named=true` `carriesUrl=true`，`cause.name=TimeoutError` | **通过** |
+| **OLD_A** | 撤 `signal` 变异（裸 `fetch`，两阶段皆无保护） | **HUNG 12002ms**，connections=1，12s 未 settle | 变异有齿 |
+| **OLD_B** | 首版缺陷形态（`signal` 只裹 `fetch()`、`readBody` 落在 try 之外） | **REJECTED 1209ms**，connections=**1**，`message=The operation was aborted due to timeout`，`named=false` `carriesUrl=false`，`cause=(none)` | **首版形态被证否** |
+
+三条独立结论：
+
+1. **body 阶段确在保护内**。NEW 臂 `connections=2` 是决定性读数——body 失速真的触发了**第二次尝试**，
+   说明该次失败被计入重试账，而非被当成「已成功」。耗时 2516ms ≈ `2×1200 + 100`，落在同一尝试预算内。
+2. **撤 signal 变异对照挂起**（OLD_A 12s 未 settle），与票面「撤判据复红」的要求配对成立。
+3. **首版形态若放行即为不实宣称**。OLD_B 由本席**独立重建**（非复用实现者代码）：它确实会在
+   1209ms 结束，但抛的是**裸 `TimeoutError`**——不含「已尝试 N 次」、不含 URL、`cause` 为空、
+   且 `connections=1` 说明**零重试**。也就是说首版实现的「具名报错」与「有界重试」两条票面判据
+   在真实 body 失速路径上**结构性不成立**，而单元 mock 完全照不出来。实现者自查发现并修正的这一枚，
+   是本票成败所系——本席独立确认其非虚构、非事后包装（详见 §九 偏离三）。
+
+### 三 · 黑洞对照独立复跑（通过，含票面原装置）
+
+**装置 B1/B2 · 本机真实 TCP 黑洞**（`net.createServer` accept 后零字节、不关闭），
+`timeoutMs=300, maxAttempts=2, retryDelayMs=50`：
+
+- **NEW**：`REJECTED` **660ms**（＜1s），`named=true`、`carriesUrl=true`、`cause.name=TimeoutError`、
+  `cause.message=The operation was aborted due to timeout`——**错误含 URL 与已试次数、cause 保留**，三项齐。
+- **OLD（撤 signal）**：**HUNG 10003ms**，10s 未 settle。变异复挂成立。
+
+**装置 B3 · 票面字面点名的代理黑洞**（见 §九 偏离一：本席实测该路在本机**可用**，故补跑）。
+`NODE_USE_ENV_PROXY=1 HTTPS_PROXY=http://127.0.0.1:49996`（黑洞），目标是**真实**
+`https://nodejs.org/dist/v22.23.1/SHASUMS256.txt`，`timeoutMs=700, maxAttempts=2`：
+
+```
+下载第 1/2 次尝试失败：未在 700ms 内完成（连得上但静默无响应，或被失速丢包），100ms 后重试：https://nodejs.org/...
+VERDICT=REJECTED 1511ms  named=true  causeName=TimeoutError
+```
+
+即**票面原始验收判据在其字面装置下亦独立通过**，不依赖本席的替代装置。
+
+**永久回归用例独立跑**：`node --test packages/pi-lane/scripts/build-product-sidecar.test.mjs`
+→ **EXIT 0**，`tests 18 / pass 18 / fail 0`（退出码单独 `echo $?` 读取，未经管道吃码）。
+
+### 四 · 正常路径（通过，未 blocked，产物逐字节吻合在册基线）
+
+本席环境**出网正常**（`curl` 探 `nodejs.org` HTTP 200 / 0.66s），未走缓存预播退路，做真实两轮：
+
+**第一轮（`rm -rf packages/pi-lane/dist` 清缓存后真实全量下载）**：**EXIT 0**，`24.955s total`。
+两枚归档均 `"origin": "downloaded"`，本席读到的归档 SHA 为
+`ef28d8fa…fa953`（arm64，50,067,502 B）/ `b8da981b…5cb81`（x64，51,245,086 B）；
+`versionProbe` 本机 arm64 实跑 `v22.23.1`，x64 如常 `cross-arch-not-executed`。产物：
+
+```
+bundle.bytes  = 547893
+bundle.sha256 = 951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c
+snapshot.action = "created"
+```
+
+与在册基线**逐字节一致**。基线出处本席独立核过，非回执自述：`docs/status/current.md` 多行
+（`PI-LANE-UI-1`、`GENERIC-PACK-1`、`PACK-INTERACT-1` 三处合并 tip 记录）均写
+「sidecar **547,893 B/`951acf8e…`** 零迁」。**sealed CJS 身份零漂移成立。**
+
+**第二轮（同一 snapshot 上原地复跑，验 `reused` 分支）**：**EXIT 0**，两枚归档均 `"origin": "reused"`，
+`snapshot.action = "reused-identical"`，bundle 身份同值。`fetchWithTimeoutRetry` 在该路径不被触发，
+**reused 分支零回归**。
+
+### 五 · 三重校验链零改核（通过，逐字节而非目测）
+
+不以 diff 目测为准，逐函数从两枚 SHA 抽取源码体做 `diff -q`：
+
+| 函数 | 结果 |
+|---|---|
+| `fetchShasums` / `inspectArchive` / `ensureArchive` | **IDENTICAL** |
+| `archiveProblems` / `runtimeProblems` | **IDENTICAL** |
+| `extractRuntime` / `probeRuntimeVersion` | **IDENTICAL** |
+| `snapshotReuseProblems` / `inventoryProblems` | **IDENTICAL** |
+
+九枚全数逐字未改。`TARGETS` 冻结表、`SNAPSHOT_INVENTORY` 闭集、来源 origin 白名单
+（拒非 `nodejs.org` `/dist/`）在 diff 中零命中（唯二含 `sha256`/`SHASUMS` 字样的增行都在注释块内）。
+**SHA/SHASUMS/tar 三重校验链零改，票面红线满足。**
+
+### 六 · 同病核（headless 通过；另发现一枚同形，判观察）
+
+- **`build-headless-sidecar.mjs`**：本席现读全文扫 `fetch|http|download|https` **零命中**，
+  它只复用 `buildDeterministicBundle`（纯 esbuild），确无网络 I/O。回执结论独立复核**成立**，非同族。
+- **另发现一枚回执未枚举的同形**：全仓扫 `.mjs/.js/.cjs` 的裸 `fetch(`，除本票已治的调用点外
+  还剩一处——`packages/pi-lane/fixtures/sidecar-dist/scripts/fetch-runtime.mjs:63`
+  `const response = await fetch(url);`，其 `download()` 与被治的生产 `download()` **同形同源**
+  （生产版即由它演化而来，连 origin 白名单文案都一致）。
+  **判观察不判拒**，两条依据：①它是 `PI-SIDECAR-DIST-1R` 的**冻结调查 fixture**，
+  `packages/pi-lane/SPEC.md` 两处明文「**不得改 `fetch-runtime`/`extract-runtime`**」，
+  实现若擅动反而越界；②它是人手交互式跑的一次性探针，不在任何生产/构建/门禁路径上，
+  失速时人可直接中断，与「构建脚本静默挂 14/16 分钟」的事故形态不同族。
+  性质属**回执登记不全**（§六只登记了 headless 一枚，未穷举），转 §十 观察项。
+
+### 七 · eslint 配置改动核（通过，最小且零面外影响）
+
+**必要性以变异坐实**，不凭目测：撤掉 `AbortSignal: 'readonly'` 一行后跑
+`npx eslint packages/pi-lane/scripts/build-product-sidecar.mjs`——
+
+```
+369:55  error  'AbortSignal' is not defined  no-undef
+✖ 1 problem (1 error, 0 warnings)
+```
+
+恰一枚、恰在新增调用点。随后 `cp` 备份还原，`git diff` 零行差异。**该行是承重的，非顺手加的。**
+
+**零面外影响**：该行只落在既有 `**/scripts/**/*.mjs` 块内（未新建配置块、未改 `ignores`、未动任何规则）。
+全仓 `AbortSignal` 引用面本席逐条枚举：除本票新增的这一处 `.mjs` 外，**其余全部是 `.ts`**
+（`packages/tools`、`packages/core`、`packages/provider` 共 19 处），由 tseslint 配置治理，
+不经该 `.mjs` 全局表。故新增全局**不可能遮蔽任何既有 `no-undef`**。
+
+回执所称「`preserve-caught-error` 适配」不在配置里，而是在源码侧去掉 `lastError` 中转变量、
+令 `cause` 字面取自触发抛出的那个 catch 参数——本席读源码确认属实（`build-product-sidecar.mjs`
+末尾 `throw new Error(…, { cause })` 直接绑 catch 形参），`pnpm lint` 零诊断佐证。
+
+### 八 · 门禁实跑（本树自跑，退出码单独读取，未经管道吃码）
+
+按票面不跑 Playwright（零 desktop 面）。
+
+| 门 | 命令 | 本席读数 |
+|---|---|---|
+| 依赖 | `pnpm install` | **EXIT 0**，`+1157` |
+| 构建 | `pnpm -r build` | **EXIT 0** |
+| lint | `pnpm lint` | **EXIT 0**，零诊断（日志 4 行全是 pnpm 抬头） |
+| 根测试 | `pnpm test` | **EXIT 0**，**173 files / 2135 tests passed**（21.74s） |
+| 包级 | `pnpm --filter @courtwork/pi-lane test` | **EXIT 0**，**17 files / 553 tests passed** |
+| 定向 | `node --test …/build-product-sidecar.test.mjs` | **EXIT 0**，**18/18** |
+| sidecar 身份 | `build-product-sidecar.mjs` 真实全量 | **EXIT 0**，`547893 B / 951acf8e…`，`reproducible: true` |
+
+根 **2135** 与 pi-lane **553** 与参考值**逐数吻合**，净增 0／净减 0。本席**未复现**回执 §五登记的
+并发假红（21 枚 / 2 枚 `Test timed out in 5000ms`）——本席两门皆独占跑，一次即全绿，无需串行重跑；
+与回执「CPU 争用、非回归」的归因方向一致，不构成矛盾。
+全部实验结束后 `git status --short` **洁净**，`HEAD` 仍为 `34e3f12`。
+
+### 九 · 偏离逐裁（三条）
+
+**偏离一（票面代理黑洞 → 本机 TCP 黑洞）：处置结论接受，但理由被本席实测证否，列强制订正项。**
+
+处置层面**通过**：替代装置（真实 TCP 黑洞）比代理黑洞**严格更强**——不经中间件、直接压真实
+undici 传输，且已固化为永久回归用例。票面「代理黑洞/拒绝」本是举例而非强制形态。
+
+但回执 §2.1 的**事实陈述有误**。回执称「`HTTPS_PROXY`/`NODE_USE_ENV_PROXY=1` 在本机 Node v25.9.0
+的全局 `fetch` 上**实测不生效**（三次探测，请求均直接绕过代理成功完成）」。本席分两轮实测：
+
+| 探法 | 读数 | 判定 |
+|---|---|---|
+| 运行期改 `process.env`（进程启动后再赋值） | `HTTPS_PROXY` 黑洞下仍 **HTTP 200 / 789ms**；加 `NODE_USE_ENV_PROXY=1` 仍 **HTTP 200 / 449ms** | 「不生效」——**本席首轮亦得此结果** |
+| **启动前即置入环境**（`ENV=… node -e …`） | 裸 `HTTPS_PROXY` → **HTTP 200 / 2234ms（确不生效）**；`NODE_USE_ENV_PROXY=1` → **`TimeoutError` / 8006ms（被黑洞挡住，确实生效）** | **`NODE_USE_ENV_PROXY=1` 生效** |
+
+即：裸 `HTTPS_PROXY` 不被读取（回执这半句为真），但 `NODE_USE_ENV_PROXY=1` **确实生效**，
+回执那半句**不成立**。归因：undici 在 dispatcher 初始化时读环境变量，运行期改 `process.env` 已经太晚——
+这正是本席首轮踩到的同一个坑。故票面字面点名的代理路线在本机**本来就是可用的**，
+「本环境不可用」的登记是错的。本席已用该路线补跑并通过（§三 B3）。
+
+**裁定：不入拒因**——处置选择的**结论**独立成立（更强装置＋永久固化），保护本身经三种装置各自坐实，
+无一依赖这条错误陈述；且该错误不产生假绿（它导致的是绕远路，不是少验）。
+**但列为强制订正项**：清账前须把回执 §2.1 与 §六偏离一中「`NODE_USE_ENV_PROXY` 实测不生效」
+改写为实测真值，否则按判例「全称否定须穷举」「验证时效性」，后继会话会把一条已被证否的环境结论
+当作在册事实引用。
+
+**偏离二（`timeout` 命令缺失 → 后台起 + `sleep` + `kill -0` 探活）：接受。**
+事实核实：本机 `command -v timeout` / `gtimeout` **双双 ABSENT**，回执陈述属实。
+本席未沿用该手法，改用**进程内挂起哨兵**（12s/10s 未 settle 即自报 `VERDICT=HUNG` 并非零退出），
+同效且更干净、无需手动 `kill -9`。两法对「是否挂起」的判据等价，结论一致。
+
+**偏离三（body 阶段自查修正，超出票面字面）：接受，并认定为本票的实质价值所在。**
+票面只写「加显式超时＋有界重试＋失败具名报错」，未点名两阶段；实现在真实全量下载复测中撞到
+63s 裸 `TimeoutError` 后扩到 body 阶段。本席**独立重建首版形态**并实测（§二 OLD_B）：
+裸 `TimeoutError`、零重试、不含 URL、`cause` 为空——若按首版放行，票面两条判据在生产的
+50MB 下载路径上**结构性不成立**，且全套 mock 单测照样全绿。这不是扩范围，是把票面判据做真；
+形态仍限于同一函数内（`readBody` 移进同一 try、共用同一枚 signal），零新概念、零新依赖，
+符合复杂度节制。**不仅接受，且认定「未留一次已知的部分实现」这一处置正确。**
+
+### 十 · 观察项（均不阻断放行）
+
+1. **回执同病登记不穷举**（§六）：`packages/pi-lane/fixtures/sidecar-dist/scripts/fetch-runtime.mjs:63`
+   存在与被治调用点**同形同源**的裸 `fetch`，回执只登记了 headless 一枚、未枚举它。
+   该文件受 `SPEC.md` 明文冻结（「不得改 `fetch-runtime`/`extract-runtime`」）且不在任何自动路径上，
+   **本票不处置正确**；仅要求清账时把它补进登记，避免后继会话据回执认定「全仓已无同族」。
+2. **10 枚新增永久回归用例不在任何门相位上**。`test:product-sidecar` 只作为 package.json 具名 script
+   存在，`pnpm test`（根 vitest）、`pnpm -r build`、`site:guard` **均不触达**它（本席逐条核过三处脚本定义）。
+   这是**继承的既有惯例**而非本票引入——base 上原 8 枚同样如此，`verified-node-gate.mjs:17` 注释
+   还明写「循 `build-product-sidecar.test.mjs` 先例」——且回执 §五已如实披露「不在 `pnpm test`/`pnpm -r build`
+   路径上」。但按判例「门存在 ≠ 门在跑」，body 失速这枚回归锁的实际保护力取决于有人显式跑独占命令。
+   建议架构角色另行判断是否把该族并入某个门相位，**本席不扩范围、不代改**。
+3. **两枚边缘行为**（本席探针，均不可达于生产，仅登记）：
+   ①`maxAttempts=0` 时循环零轮、函数落到末尾**隐式 `return undefined`**，不抛错——
+   实测 `fetchWithTimeoutRetry(url, { maxAttempts: 0 })` 返回 `undefined`，下游 `download()` 会以
+   `Cannot destructure` 的 TypeError 崩而非具名失败。生产不可达（`MAX_DOWNLOAD_ATTEMPTS` 是冻结模块常量 3，
+   该 option 仅测试注入），一行 `maxAttempts < 1` 守卫即可闭口。
+   ②HTTP **4xx 亦被当作可重试**——实测 404 被重试满 3 次（`calls=3`）才具名。永久性 4xx 重试属浪费
+   （生产多耗 2×5s），但**不静默**、失败仍具名，不违不变量四。两条均非拒因。
+
+### 十一 · 结论
+
+**PASS。** 票面三条判据逐条独立坐实：①**注入失速环境具名快红**——真实 TCP 黑洞 660ms、
+票面原代理黑洞 1511ms、真实慢 body 2516ms，三装置均含 URL 与已试次数且 `cause` 保留；
+②**正常路径零回归**——真实清缓存全量下载 EXIT 0，产物 `547,893 B / 951acf8e…` 与在册基线逐字节吻合，
+`reused` 分支 `reused-identical` 同值，三重校验链九枚函数逐字未改；
+③**撤判据复红**——撤 signal 变异在慢 body 与黑洞两装置分别 HUNG 12002ms / 10003ms，
+撤 eslint 全局行精确复红一枚。
+保护完整性经本席独立重建首版形态反证：只裹 header 的形态会以裸 `TimeoutError`、零重试、不含 URL
+逃出判据，实现的 body 阶段修正是把票面判据做真而非扩范围。
+八相回归零漂移（root 2135 / pi-lane 553 逐数吻合，18/18 定向门 EXIT 0）。
+§九 偏离一的**理由**须按订正项改写后清账，§十 三枚观察项不阻断。建议合入 `main` 并按票面清账。
+
+---

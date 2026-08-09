@@ -3,21 +3,32 @@
  *
  * 分工写在这里免得被误读：本文件只测**判据与可复现构建**——冻结表、SafeToken stage 名、
  * Mach-O 判定、inventory 闭集、archive/runtime 五三项判据、正式根复用规则，以及
- * 从 product source 现编 CJS 的 byte-identical。真正的下载、解包与落名由独占命令
- * `build:product-sidecar` 承担，它不在普通 `pnpm test` 的路径上。
+ * 从 product source 现编 CJS 的 byte-identical。真正打到 `nodejs.org` 的下载、解包与
+ * 落名由独占命令 `build:product-sidecar` 承担，它不在普通 `pnpm test` 的路径上。
  *
  * 每条判据都配一枚定向反例：只改被判的那一项，其余全部保持合格。判据若不带区分力，
  * 反例就不会红。
+ *
+ * PI-FETCH-TIMEOUT-1：新增 `fetchWithTimeoutRetry` 定向测试段，覆盖成功/重试/耗尽/
+ * HTTP 非 2xx/真实 `AbortSignal` 到期五类；其中一枚用**本机 loopback TCP 黑洞**
+ * （`net.createServer` 接受连接后故意零响应）驱动**真实全局 `fetch`**，是本文件唯一
+ * 触碰网络 I/O 的用例——但目标恒为 `127.0.0.1`，不出网、不依赖 `nodejs.org` 可达，
+ * 与上一段「零网络」的既有定位不冲突。所有用例都给显式 `{ timeout }`（node:test 自身的
+ * 用例超时），杜绝任何回归把它们变成真正的无限挂起。
  */
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
 import {
   BUNDLE_BASENAME,
+  DOWNLOAD_RETRY_DELAY_MS,
+  DOWNLOAD_TIMEOUT_MS,
+  MAX_DOWNLOAD_ATTEMPTS,
   NODE_VERSION,
   PACKAGE_ROOT,
   PRODUCT_ENTRY,
@@ -30,6 +41,7 @@ import {
   assertSafeToken,
   buildDeterministicBundle,
   bundleOptions,
+  fetchWithTimeoutRetry,
   inventoryOf,
   inventoryProblems,
   readMachoArch,
@@ -246,6 +258,194 @@ test('普通 build 不触发生成器：只有独占 script 会跑它', () => {
   assert.deepEqual(Object.keys(manifest.devDependencies).sort(), ['@types/node', 'esbuild', 'postject']);
   assert.equal(manifest.devDependencies.esbuild, '0.28.1');
 });
+
+test('PI-FETCH-TIMEOUT-1：下载超时/重试冻结值', () => {
+  assert.equal(DOWNLOAD_TIMEOUT_MS, 60_000);
+  assert.equal(MAX_DOWNLOAD_ATTEMPTS, 3);
+  assert.equal(DOWNLOAD_RETRY_DELAY_MS, 5_000);
+  // 全失速下的最坏总时长必须显式有界，且远小于验收环境登记的 14/16 分钟静默挂起。
+  const worstCaseMs = MAX_DOWNLOAD_ATTEMPTS * DOWNLOAD_TIMEOUT_MS + (MAX_DOWNLOAD_ATTEMPTS - 1) * DOWNLOAD_RETRY_DELAY_MS;
+  assert.equal(worstCaseMs, 190_000);
+  assert.ok(worstCaseMs < 14 * 60_000, '最坏总时长必须显著小于登记事故的 14 分钟下限');
+});
+
+/** 造一枚合格的假 Response：header 阶段 ok，body 阶段可读出固定字节。 */
+function okResponse(bytes = new Uint8Array([1, 2, 3]).buffer) {
+  return { ok: true, status: 200, arrayBuffer: async () => bytes };
+}
+
+test('fetchWithTimeoutRetry：首次即成功——零重试、零等待，body 与 fetch 同一次尝试内读出', async () => {
+  let calls = 0;
+  const sleeps = [];
+  const result = await fetchWithTimeoutRetry('https://example.invalid/ok', {
+    fetchImpl: async (url, init) => {
+      calls += 1;
+      assert.equal(url, 'https://example.invalid/ok');
+      assert.ok(init.signal instanceof AbortSignal, '每次调用都必须带 AbortSignal');
+      return okResponse();
+    },
+    sleepImpl: async (ms) => sleeps.push(ms),
+  });
+  assert.equal(result.response.ok, true);
+  assert.equal(Buffer.from(result.body).length, 3);
+  assert.equal(calls, 1);
+  assert.deepEqual(sleeps, []);
+});
+
+test('fetchWithTimeoutRetry：前 N-1 次失败、最后一次成功——重试计数与延时逐次正确', async () => {
+  let calls = 0;
+  const sleeps = [];
+  const result = await fetchWithTimeoutRetry('https://example.invalid/flaky', {
+    maxAttempts: 3,
+    retryDelayMs: 777,
+    fetchImpl: async () => {
+      calls += 1;
+      if (calls < 3) throw new Error(`探测失败 #${calls}`);
+      return okResponse();
+    },
+    sleepImpl: async (ms) => sleeps.push(ms),
+  });
+  assert.equal(result.response.ok, true);
+  assert.equal(calls, 3);
+  assert.deepEqual(sleeps, [777, 777], '只在失败之后等待，且延时逐次等于配置值');
+});
+
+test('fetchWithTimeoutRetry：耗尽次数抛具名错误——含 URL、已试次数，且不吞原始 cause', async () => {
+  const sentinel = new Error('探测：连接被拒绝');
+  let calls = 0;
+  await assert.rejects(
+    fetchWithTimeoutRetry('https://example.invalid/dead', {
+      maxAttempts: 2,
+      retryDelayMs: 1,
+      fetchImpl: async () => {
+        calls += 1;
+        throw sentinel;
+      },
+      sleepImpl: async () => {},
+    }),
+    (error) => {
+      assert.match(error.message, /已尝试 2 次/);
+      assert.match(error.message, /https:\/\/example\.invalid\/dead/);
+      assert.equal(error.cause, sentinel, '不得吞掉原始错误');
+      return true;
+    },
+  );
+  assert.equal(calls, 2);
+});
+
+test('fetchWithTimeoutRetry：HTTP 非 2xx 视为可重试失败，耗尽后具名', async () => {
+  let calls = 0;
+  await assert.rejects(
+    fetchWithTimeoutRetry('https://example.invalid/503', {
+      maxAttempts: 2,
+      retryDelayMs: 1,
+      fetchImpl: async () => {
+        calls += 1;
+        return { ok: false, status: 503 };
+      },
+      sleepImpl: async () => {},
+    }),
+    /HTTP 503/,
+  );
+  assert.equal(calls, 2);
+});
+
+test(
+  'fetchWithTimeoutRetry：真实 AbortSignal 到期即可重试超时（信号驱动，非墙钟猜测）',
+  { timeout: 3000 },
+  async () => {
+    const start = Date.now();
+    await assert.rejects(
+      fetchWithTimeoutRetry('https://example.invalid/hang', {
+        timeoutMs: 80,
+        maxAttempts: 2,
+        retryDelayMs: 20,
+        // 忠实模拟真实 fetch 对 AbortSignal 的行为：自己永不 resolve，只在 signal 触发时拒绝。
+        fetchImpl: (url, { signal }) =>
+          new Promise((resolve, reject) => {
+            signal.addEventListener('abort', () => reject(signal.reason));
+          }),
+      }),
+      (error) => {
+        assert.match(error.message, /未在 80ms 内完成/);
+        return true;
+      },
+    );
+    const elapsed = Date.now() - start;
+    assert.ok(elapsed < 1000, `应在数百毫秒内失败，实得 ${elapsed}ms`);
+  },
+);
+
+test(
+  'fetchWithTimeoutRetry：headers 阶段成功、body 流式读取途中失速——同一枚 signal 必须仍能救回，' +
+    '不得绕过重试与具名包装（2026-08-10 真实网络实测复现过的缺陷回归锁）',
+  { timeout: 3000 },
+  async () => {
+    let calls = 0;
+    const start = Date.now();
+    await assert.rejects(
+      fetchWithTimeoutRetry('https://example.invalid/body-stall', {
+        timeoutMs: 80,
+        maxAttempts: 2,
+        retryDelayMs: 20,
+        fetchImpl: async (url, { signal }) => {
+          calls += 1;
+          // headers 阶段立即「成功」——旧实现在这里就会 return，把 body 阶段甩出保护范围。
+          return {
+            ok: true,
+            status: 200,
+            // body 阶段忠实模拟真实 fetch/undici 语义：body 流绑定同一枚 signal，
+            // signal 到期时 body 读取被中止拒绝，而不是各自独立计时。
+            arrayBuffer: () =>
+              new Promise((resolve, reject) => {
+                signal.addEventListener('abort', () => reject(signal.reason));
+              }),
+          };
+        },
+      }),
+      (error) => {
+        // 必须是本函数包装过的具名错误（含已试次数），不是裸 TimeoutError 冒泡。
+        assert.match(error.message, /已尝试 2 次/);
+        assert.match(error.message, /未在 80ms 内完成/);
+        return true;
+      },
+    );
+    assert.equal(calls, 2, 'body 阶段失速也必须触发重试，不能被当成「已成功」而只调一次');
+    const elapsed = Date.now() - start;
+    assert.ok(elapsed < 1000, `应在数百毫秒内失败，实得 ${elapsed}ms`);
+  },
+);
+
+test(
+  'fetchWithTimeoutRetry：对真实本地 TCP 黑洞（accept 后静默零响应）具名快红，不静默无限挂起',
+  { timeout: 5000 },
+  async () => {
+    const server = net.createServer(() => {
+      // 故意什么都不做：接受连接、不写任何字节、不关闭——真实失速，非模拟。
+    });
+    await new Promise((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(0, '127.0.0.1', resolve);
+    });
+    const { port } = server.address();
+    const url = `http://127.0.0.1:${port}/probe`;
+    try {
+      const start = Date.now();
+      await assert.rejects(
+        fetchWithTimeoutRetry(url, { timeoutMs: 200, maxAttempts: 2, retryDelayMs: 50 }),
+        (error) => {
+          assert.match(error.message, /已尝试 2 次/);
+          assert.ok(error.message.includes(url), '错误必须携带被卡住的 URL');
+          return true;
+        },
+      );
+      const elapsed = Date.now() - start;
+      assert.ok(elapsed < 2000, `真实黑洞下应在秒级内具名失败，实得 ${elapsed}ms`);
+    } finally {
+      server.close();
+    }
+  },
+);
 
 test.after(() => {
   fs.rmSync(scratchRoot, { recursive: true, force: true });
