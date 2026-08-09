@@ -83,7 +83,7 @@ const count = match ? Number(match[1]) : 0;
 // 只读查看面 Escape 与零残留——352 + 13 → 365。数字由 `--list` 实跑核。
 // SKIN-DYSTOPIA-1 项 C：门④-2 AA 四元联测由「单宗单面」扩为「宗×面」二维，按宗分立两例
 // （刻本印页宗 / 磁青宗），原 1 例 → 2 例，+1 → 366。数字由 `--list` 实跑核。
-const minimum = 366;
+const minimum = 384;
 if (count < minimum) {
   throw new Error(`Playwright 用例不足：发现 ${count}，至少需要 ${minimum}`);
 }
