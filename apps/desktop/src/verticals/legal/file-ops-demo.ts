@@ -5,8 +5,8 @@ import {
   type FileOpsUndoReport,
 } from '@courtwork/tools/file-ops-executor';
 import { createMemoryFileOpsHost } from '@courtwork/tools/file-ops-host';
-import { isDemoCaseId } from '../case/case-scope';
-import { DEMO_CASE_ROOT } from './demo-case-layout';
+import { isDemoCaseId } from '../../case/case-scope';
+import { DEMO_CASE_ROOT } from '../../system/demo-case-layout';
 
 const encoder = new TextEncoder();
 
