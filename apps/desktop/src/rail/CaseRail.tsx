@@ -3,6 +3,8 @@ import { CHROME_COPY } from '../chrome/copy';
 import { WindowChrome } from '../chrome/WindowChrome';
 import { containerOriginLabel, type ContainerKind } from '../case/container-copy';
 import { materialCountLabel, selectMaterialCount, type DerivedCaseMaterials } from '../case/material-count';
+import { describeMatterPackState } from '../case/matter-pack-state';
+import type { PackageCatalogEntry } from '../composition/package-catalog';
 import { isDemoCaseId } from '../case/case-scope';
 import type { CaseSummary } from '../case/types';
 import { CONTAINERIZE_COPY } from '../composer';
@@ -67,6 +69,10 @@ interface CaseRailProps {
   onSearch: () => void;
   onOpenSettings: () => void;
   onFeedback: (message: string, ok: boolean) => void;
+  /** PACK-INTERACT-1 ①：matter 设置处包管理（垂类包节 + 打开包设置弹层）。 */
+  availablePackageIds: readonly string[];
+  packCatalog: readonly PackageCatalogEntry[];
+  onManagePack: (caseId: string) => void;
 }
 
 export function CaseRail({
@@ -103,6 +109,9 @@ export function CaseRail({
   onSearch,
   onOpenSettings,
   onFeedback,
+  availablePackageIds,
+  packCatalog,
+  onManagePack,
 }: CaseRailProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -120,6 +129,10 @@ export function CaseRail({
     const demo = item ? Boolean(item.isDemo) || isDemoCaseId(item.id) : false;
     // CASE-PERSIST-1：持久案件的绑定 grant 若宿主查无 → 显式失效态（供移除，非静默消失）。
     const grantInvalid = Boolean(item?.grantId && invalidGrantIds.has(item.grantId));
+    // PACK-INTERACT-1 ②：真实案的包状态（demo 为固定展品，不渲染包节）。
+    const packState = item && !demo
+      ? describeMatterPackState(item.packBinding, availablePackageIds, packCatalog)
+      : null;
 
     // 仅容器行用 case-card（既有 e2e 以 .case-card 计数案件）；未归档用 rail-row
     const rowClass = item
@@ -296,6 +309,31 @@ export function CaseRail({
               </>
             )}
             {caseRoot && demo && <OriginalsZone caseRoot={caseRoot} onFeedback={onFeedback} />}
+            {/* PACK-INTERACT-1 ①：matter 设置处的加载动作——垂类包节（状态 + 管理入口）。 */}
+            {!demo && packState && (
+              <div className="rail-pack-section" data-testid={`rail-pack-${item.id}`}>
+                <p className="rail-label">垂类包</p>
+                <p className="rail-pack-state" data-testid={`rail-pack-state-${item.id}`}>
+                  {packState.loadedIds.length === 0
+                    ? '未加载垂类包 · 通用能力可用'
+                    : packState.invalidId !== undefined
+                      // 缺宿主目录条目：不得说「已加载」——那是把装配缺陷伪装成正常态。
+                      ? `绑定不可用：${packState.loadedLabels.join('、')} · 请到管理包处理`
+                      : packState.catalogOnlyId !== undefined
+                        // 已准入但当期只上架目录：不判未准入、不清绑，也绝不冒充完整加载。
+                        ? `已绑定：${packState.loadedLabels.join('、')} · 仅目录与既有产物可用`
+                        : `已加载：${packState.loadedLabels.join('、')}`}
+                </p>
+                <button
+                  type="button"
+                  className="quiet-button rail-pack-manage"
+                  data-testid={`rail-pack-manage-${item.id}`}
+                  onClick={() => onManagePack(item.id)}
+                >
+                  管理包
+                </button>
+              </div>
+            )}
             {/* MATERIAL-INGRESS-1：真实案的已入库材料（只读 + 核验）。DEBT-DOSSIER-1 件二：清单按本行 caseId
                 取用（不再只有选中案有数），空列表与「尚未读取」由 MaterialsZone 分别如实呈现。 */}
             {!demo && (

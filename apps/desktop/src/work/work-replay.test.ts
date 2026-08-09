@@ -65,7 +65,8 @@ function commandWith(host: WorkStateHostPort): LegalWorkCommand {
   const registries = admitLegalS3Package();
   return createLegalWorkCommand({
     host,
-    registries,
+    // 本组只测读侧；授权面给「已绑定 Legal」的常量解析器（等价于 canonical 账本里绑了法律包）。
+    registriesForCase: () => registries,
     codec: codecFor(registries),
     actor: ACTOR,
     materialResolver: {

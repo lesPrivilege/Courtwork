@@ -98,6 +98,8 @@ async function prepare(page: Page, maxUsd: number, mode: 'known' | 'mismatch' | 
     (window as unknown as { __courtworkHostAuth: HostAuthHooks }).__courtworkHostAuth.setNextAuthorize(result);
   }, authorize);
   await page.getByTestId('new-case-authorize').click();
+  // PACK-INTERACT-1 ⑤：过渡默认已销，需 legal 场景的 grant 案在建案时显式选包。
+  await page.getByTestId('new-case-dialog').getByTestId('new-case-pack-legal').check();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
   await page.evaluate(({ grantId, fileName, data }) => {
     (window as unknown as { __courtworkMaterialHost: MaterialHooks }).__courtworkMaterialHost

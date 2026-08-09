@@ -28,8 +28,10 @@ import type { SessionEvent } from '@courtwork/core';
 import type { InteractionAnswer, TurnReplay } from '@courtwork/core/turn-protocol';
 import type { ProviderTransport } from '@courtwork/provider/types';
 import type { PackageRegistries } from '@courtwork/registry';
-import { resolveMatterPackBinding, type DesktopPackageRuntime } from './composition/package-runtime';
-import { Composer, CONTAINERIZE_COPY, type ComposerSendPayload, type ContainerizeRequest } from './composer';
+import { resolveMatterRegistries } from './composition/matter-registries';
+import type { DesktopPackageRuntime } from './composition/package-runtime';
+import type { PackageCatalogEntry } from './composition/package-catalog';
+import { Composer, CONTAINERIZE_COPY, type ComposerSendPayload } from './composer';
 import { assembleRequestContent } from './composer/process-upload';
 import {
   caseOutputDir,
@@ -67,8 +69,12 @@ import { PiLanePanel } from './pi/PiLanePanel';
 import type { PiLanePort } from './pi/pi-lane-port';
 import { usePiLaneSession } from './pi/use-pi-lane';
 import { NewCaseDialog } from './case/NewCaseDialog';
+import { MatterPackDialog } from './case/MatterPackDialog';
+import { useMatterPackManager } from './case/use-matter-pack-manager';
+import { useContainerization } from './case/use-containerization';
 import type { CaseSummary } from './case/types';
 import { CommandPalette, type PaletteCommand } from './command-palette/CommandPalette';
+import { buildPaletteCommands } from './command-palette/commands';
 import {
   applyModuleAutoExpand,
   DEFAULT_MODULE_OPEN,
@@ -83,6 +89,7 @@ import { WorkbenchPreviewRenderer } from './preview/renderers/WorkbenchPreviewRe
 import { ArtifactHostView, resolveHostArtifact } from './preview/ArtifactHostView';
 import { UnsupportedArtifactView } from './preview/ArtifactTableRenderer';
 import { VerticalArtifactUnloadedView } from './preview/vertical-artifact-unloaded';
+import { MatterBindingFailure } from './workbench/matter-binding-failure';
 import { resolveNamedComponentView } from './preview/named-component-view';
 import { WorkbenchRenderProvider } from './preview/workbench-render-context';
 import type { VerticalWorkSurface, VerticalWorkSurfaceHost } from './preview/vertical-work-surface';
@@ -90,6 +97,7 @@ import type { HostRendererRegistry, HostWorkbenchView } from './preview/HostRend
 import {
   GENERIC_DRAFT_VIEW,
   preferredWorkbenchView,
+  resolveActiveWorkbenchViews,
   resolveWorkbenchViews,
   workbenchViewLabel,
   workbenchViewMeta,
@@ -234,8 +242,8 @@ export interface AppProps {
   /** 逐 matter 生效 registry（GENERIC-PACK-1 ⑧：绑定决定生效集，零绑定即零垂类）。 */
   registriesFor: DesktopPackageRuntime['registriesFor'];
   availablePackageIds: readonly string[];
-  /** 过渡默认绑定（ADR-015 决定三补记，`PACK-INTERACT-1` 销条）。 */
-  defaultMatterPackBinding: readonly string[];
+  /** 全局可用集的宿主目录（PACK-INTERACT-1 ①：加载 UX 取词面，只供文案，不参与机制）。 */
+  packCatalog: readonly PackageCatalogEntry[];
   workProjection: WorkProjectionPort;
   workFixture: DemoWorkFixtureAdapter;
   /** 垂类工作面驱动；由受信组合根装配（ADR-015 修订记录 2026-08-06 裁定一）。 */
@@ -244,17 +252,16 @@ export interface AppProps {
   materialStore: MaterialStore;
 }
 
-export function App({ providerTransport, packageRegistries, hostRenderers, registriesFor, availablePackageIds, defaultMatterPackBinding, workProjection, workFixture, verticalWorkSurface, hostAuth, materialStore, piLane }: AppProps) {
+export function App({ providerTransport, packageRegistries, hostRenderers, registriesFor, availablePackageIds, packCatalog, workProjection, workFixture, verticalWorkSurface, hostAuth, materialStore, piLane }: AppProps) {
   const initialCaseId = useRef(storedCaseId());
   /** 案件域：仅 demo 容器有 flow；非 demo 为 null（D-1 容器隔离） */
   const [flow, setFlow] = useState<ScenarioFlow | null>(() => isDemoCaseId(initialCaseId.current) ? 'S3' : null);
   const [session, dispatch] = useReducer(reduceSession, EMPTY_SESSION);
   const [workPhase, setWorkPhase] = useState<WorkProjectionPhase>();
-  /** 默认落点由在册 blueprint 的 `preferred` 决定；未加载垂类即落通用起草画布。 */
-  const preferredView = preferredWorkbenchView(packageRegistries, hostRenderers);
-  const [activeView, setActiveView] = useState<WorkbenchView>(preferredView);
+  /** 用户点选的工作面；最终活动面由本 matter 生效视图集同步收口（见下方 `activeView`）。 */
+  const [requestedView, setActiveView] = useState<WorkbenchView>(GENERIC_DRAFT_VIEW.id);
   const [activeArtifactType, setActiveArtifactType] = useState<string>();
-  const [secondaryView, setSecondaryView] = useState<WorkbenchView>();
+  const [requestedSecondaryView, setSecondaryView] = useState<WorkbenchView>();
   const [splitDirection, setSplitDirection] = useState<SplitDirection>('rows');
   const [splitRatio, setSplitRatio] = useState(50);
   // WORK-LIVE-1：非 demo（grant）案的 production Work 会话态。demo 案走 fixture，二者物理隔离。
@@ -287,11 +294,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
 
   const selectedCase = selectedCaseId ? cases.find((item) => item.id === selectedCaseId) : undefined;
   const isWelcome = !selectedCase;
-  // GENERIC-PACK-1 ⑧：生效 registry 按 matter 绑定现算（ADR-015 决定三）——绑定零即零垂类；
-  // 未声明取全局可用集（既有 matter 的诚实读法）；welcome 态无选中 matter，落全局可用集。
-  const matterRegistries = selectedCase
-    ? registriesFor(resolveMatterPackBinding(selectedCase.packBinding, availablePackageIds).packageIds)
-    : packageRegistries;
+  // GENERIC-PACK-1 ⑧：生效 registry 按 matter 绑定现算；未声明取全局可用集，welcome 落全局。
+  // PACK-INTERACT-1 ③：绑定非准入包 → `registriesFor` throw 收进显式态（fail-closed 落零垂类，
+  // Work 面渲染 MatterBindingFailure）。
+  const { registries: matterRegistries, bindingErrorId: matterBindingErrorId } = resolveMatterRegistries(
+    selectedCase, availablePackageIds, registriesFor, packageRegistries,
+  );
   const isDemoCase = Boolean(selectedCase?.isDemo) || isDemoCaseId(selectedCase?.id);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
   const [archiveConfirmCaseId, setArchiveConfirmCaseId] = useState<string | null>(null);
@@ -798,7 +806,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     setCompilePending(false);
     verticalSurface.resetForContextSwitch();
     setSecondaryView(undefined);
-    setActiveView(preferredView);
+    setActiveView(preferredWorkbenchView(matterRegistries, hostRenderers));
     setActiveArtifactType(undefined);
     openedAt.current = {};
     lastReplayedFlow.current = undefined;
@@ -985,12 +993,12 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   const hasArtifactView = artifactViewEntry !== undefined;
   /** 页签条：具名面由「已准入 artifact × 在册 blueprint」派生，通用面恒在（ADR-015 决定一/三）。 */
   const workbenchViews = resolveWorkbenchViews(matterRegistries, hostRenderers, hasArtifactView);
-  // GENERIC-PACK-1 ⑧：生效视图集随绑定变化（如恢复一枚未绑定 matter）时，活动视图必须落回
-  // 在册默认——停在已消失的垂类视图上就是「卸载态仍渲染垂类面」的静默残留（ADR-015 决定四）。
-  useEffect(() => {
-    if (workbenchViews.some((entry) => entry.id === activeView)) return;
-    setActiveView(preferredWorkbenchView(matterRegistries, hostRenderers));
-  }, [workbenchViews, activeView, matterRegistries, hostRenderers]);
+  // 活动面/对照面按本 matter 生效视图集同步收口（PACK-INTERACT-1 2R · C，理由见该函数注释）。
+  const { activeView, secondaryView } = resolveActiveWorkbenchViews({
+    views: workbenchViews,
+    requestedView,
+    ...(requestedSecondaryView !== undefined ? { requestedSecondaryView } : {}),
+    fallbackView: preferredWorkbenchView(matterRegistries, hostRenderers) });
   const demoArtifactCard = demoArtifactCardCopy(flow, artifactPayload, session.citationStats);
   /** 具名工作面 renderer 的宿主渲染上下文；载荷领域无关（core 会话投影字段），壳不因此认识垂类。 */
   const workbenchRenderContext = useMemo(() => ({ evidenceGrades: session.evidenceGrades }), [session.evidenceGrades]);
@@ -1136,12 +1144,15 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     kind = 'case',
     grantId,
     label,
+    packBinding = [],
   }: {
     title: string;
     kind?: ContainerKind;
     // CASE-ROOT-1：绑定文件夹时携 opaque grantId + 展示 label（无绝对路径）；未绑定则二者为空。
     grantId?: string;
     label?: string;
+    // PACK-INTERACT-1 ⑤：建案处选包（默认零绑定——翻转过渡默认，ADR-015 决定三）。
+    packBinding?: readonly string[];
   }) => {
     // WORK-TURN-1 G：铸号去标题化——标题只作展示字段；id 恒过 work_state 安全 token（真机红条根因）。
     const newId = mintCaseId();
@@ -1155,8 +1166,8 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
         label,
         isDemo: false,
         kind,
-        // ADR-015 决定三补记过渡默认（`PACK-INTERACT-1` 销条）：新建 matter 绑定 Legal 以保全链可达。
-        packBinding: [...defaultMatterPackBinding],
+        // PACK-INTERACT-1 ⑤：新建 matter 默认不激活（零绑定）；建案处选包或设置处改绑。
+        packBinding: [...packBinding],
       },
     ]);
     setSelectedCaseId(newId);
@@ -1172,37 +1183,17 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
    * 用户还需再点一次「Add folder」才见材料的死端）。createCase 内部已 setSelectedCaseId(newId)，
    * 此处显式传 newId 给 ingestAuthorizedFolder，不依赖 setState 后立即读值。demo/无 grant 建案不入库。
    */
-  const createCaseWithFolder = (input: { title: string; grantId?: string; label?: string }) => {
-    const newId = createCase({ title: input.title, grantId: input.grantId, label: input.label });
+  const createCaseWithFolder = (input: { title: string; grantId?: string; label?: string; packBinding?: readonly string[] }) => {
+    const newId = createCase({ title: input.title, grantId: input.grantId, label: input.label, packBinding: input.packBinding });
     if (input.grantId) void ingestAuthorizedFolder(caseIngestDeps, newId, input.grantId, input.label ?? '');
     return newId;
   };
 
-  /** docs/design/principles.md：composer-first 容器化仪式 → 创建案件/项目并选中 */
-  const handleContainerize = (request: ContainerizeRequest) => {
-    const title =
-      request.kind === 'workspace'
-        ? `项目 · ${new Date().toLocaleDateString('zh-CN')}`
-        : `案件 · ${new Date().toLocaleDateString('zh-CN')}`;
-    createCase({ title, kind: request.kind });
-  };
-
-  /**
-   * F-1.1：未归档「存入」→ 容器化仪式（与 composer-first 同族）。
-   * 禁止直建 kind:'case'（docs/decisions/ADR-006-ui-host.md：用户选名词，不替用户选）。
-   */
-  const confirmContainerizeUnfiled = (kind: ContainerKind) => {
-    if (!containerizeUnfiledId) return;
-    const row = unfiledSessions.find((item) => item.id === containerizeUnfiledId);
-    const fallback =
-      kind === 'workspace'
-        ? `项目 · ${new Date().toLocaleDateString('zh-CN')}`
-        : `案件 · ${new Date().toLocaleDateString('zh-CN')}`;
-    const title = row?.title?.trim() || fallback;
-    createCase({ title, kind });
-    setUnfiledSessions((current) => current.filter((item) => item.id !== containerizeUnfiledId));
-    setContainerizeUnfiledId(null);
-  };
+  /** composer-first 容器化仪式（外提 `case/use-containerization.ts`，过手即拆）。 */
+  const { handleContainerize, confirmContainerizeUnfiled } = useContainerization({
+    createCase: (opts) => createCase(opts),
+    unfiledSessions, setUnfiledSessions, containerizeUnfiledId, setContainerizeUnfiledId,
+  });
 
   const toggleModule = (id: ModuleId) => {
     setModuleOpen((open) => {
@@ -1233,6 +1224,11 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     setPaletteOpen(false);
     setModelConfigOpen(false);
   };
+
+  // PACK-INTERACT-1 ①/④：matter 级包设置弹层（开关与保存，外提 `case/use-matter-pack-manager.ts`）。
+  const { packDialogCase, openMatterPackDialog, closeMatterPackDialog, applyPackBinding } = useMatterPackManager({
+    cases, packCatalog, setCases, onFeedback: showSystemFeedback,
+  });
 
   /**
    * docs/design/principles.md + RP-1 A2：卷宗/资料计数 → 展开态内 originals-zone 滚入/高亮。
@@ -1448,7 +1444,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
   };
 
   const choosePrimaryView = (view: WorkbenchView) => {
-    if (secondaryView === view && activeView !== view) setSecondaryView(activeView);
+    if (requestedSecondaryView === view && activeView !== view) setSecondaryView(activeView);
     manualPreviewSelected.current = true;
     setActiveView(view);
     if (view !== 'draft') setWorkDraftMode(false);
@@ -1572,7 +1568,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
       const globalEntry = packageRegistries.artifactSchemas.get(artifactType);
       const matterEntry = matterRegistries.artifactSchemas.get(artifactType);
       if (globalEntry !== undefined && matterEntry === undefined) {
-        return <VerticalArtifactUnloadedView title={globalEntry.descriptor.title} packageId={globalEntry.packageId} />;
+        const packageLabel = packCatalog.find((entry) => entry.packageId === globalEntry.packageId)?.displayName
+          ?? globalEntry.packageId;
+        return <VerticalArtifactUnloadedView title={globalEntry.descriptor.title} packageLabel={packageLabel} />;
       }
       return (
         <ArtifactHostView
@@ -1597,51 +1595,22 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
     <div className="pane-content">{renderView(view)}</div>
   </section>;
 
-  const paletteCommands: PaletteCommand[] = [
-    // GENERIC-PACK-1 裁定二：⌘K 场景入口与场景条同源（同一 registry 派生条目），零垂类字面量。
-    ...sceneEntries.map((entry) => ({
-      id: `scene-${entry.scenarioId}`,
-      section: 'Scenes',
-      label: entry.label,
-      onRun: () => { onLaunchScenario(entry); setPaletteOpen(false); },
-    })),
-    ...cases.map((item) => ({
-      id: `case-${item.id}`,
-      section: 'Cases',
-      label: item.archived
-        ? `${item.title}（已归档）`
-        : item.isDemo || isDemoCaseId(item.id)
-          ? `${item.title}（${containerOriginLabel(true)}）`
-          : item.title,
-      onRun: () => { setSelectedCaseId(item.id); switchSegment('work'); setPaletteOpen(false); }, // 路由律：⌘K 跳案即切面
-    })),
-    { id: 'action-new-case', section: 'Actions', label: CHROME_COPY.navigation.newCase, onRun: () => { setPaletteOpen(false); setNewCaseOpen(true); } },
-    ...(selectedCase ? [{
-      id: 'action-archive',
-      section: 'Actions',
-      label: selectedCase.archived ? '取消归档当前案件' : '归档当前案件',
-      onRun: () => { setPaletteOpen(false); setArchiveConfirmCaseId(selectedCase.id); },
-    } satisfies PaletteCommand] : []),
-    {
-      id: 'action-focus',
-      section: 'Actions',
-      label: focusMode ? 'Exit focus mode' : 'Enter focus mode',
-      onRun: () => { setPaletteOpen(false); toggleFocusMode(); },
-    },
-    {
-      id: 'action-output-folder',
-      section: 'Actions',
-      label: 'Open output folder',
-      // F-3 已接通真实 reveal；命令面板走同一路径
-      onRun: () => { setPaletteOpen(false); openOutputFolder(); },
-    },
-    {
-      id: 'action-settings',
-      section: 'Actions',
-      label: 'Settings',
-      onRun: () => openSettings('model'),
-    },
-  ];
+  // ⌘K 命令面板条目（外提自本文件：`command-palette/commands.ts`）——场景与场景条同源、
+  // 案件含路由律（跳案即切 work 面）；行为与内联版本逐字一致。
+  const paletteCommands: PaletteCommand[] = buildPaletteCommands({
+    sceneEntries,
+    cases,
+    selectedCase,
+    focusMode,
+    onLaunchScenario,
+    onSelectCase: (id) => { setSelectedCaseId(id); switchSegment('work'); }, // 路由律：⌘K 跳案即切面
+    onNewCase: () => setNewCaseOpen(true),
+    onArchiveTrigger: setArchiveConfirmCaseId,
+    onToggleFocus: toggleFocusMode,
+    onOpenOutputFolder: openOutputFolder,
+    onOpenSettings: () => openSettings('model'),
+    close: () => setPaletteOpen(false),
+  });
 
   // SKIN-R2 P2-L18：对照态已经让右工作面升为主声部，左案卷随之走既有「真撤卡」路径；
   // 不能只藏 case-expanded 后留下 48px 无宿主轨。resetComparison 后 comparing=false，
@@ -1805,6 +1774,9 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
             onSearch={() => setPaletteOpen(true)}
             onOpenSettings={() => openSettings('model')} // 五裁③：默认落 Model（最高频入口）
             onFeedback={showSystemFeedback}
+            availablePackageIds={availablePackageIds}
+            packCatalog={packCatalog}
+            onManagePack={openMatterPackDialog}
           />
         )}
 
@@ -1994,14 +1966,22 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
               )}
               <ScrollToLatest follow={workFollow} />
             </div>
-            {!isWelcome && <SceneStrip
-              entries={sceneEntries}
-              running={caseBinding.kind === 'grant' && workRunning}
-              runningControlLabel={verticalSurface.runningControlCopy}
-              onLaunch={onLaunchScenario}
-              onCancelRun={verticalSurface.cancelRun}
-              onOpenDraft={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); }}
-            />}
+            {!isWelcome && (matterBindingErrorId ? (
+              // PACK-INTERACT-1 ③：绑定非准入包 → 场景条替换为显式失效面（fail-closed，零入口）。
+              <MatterBindingFailure
+                packageId={matterBindingErrorId}
+                onManage={() => { if (selectedCase) openMatterPackDialog(selectedCase.id); }}
+              />
+            ) : (
+              <SceneStrip
+                entries={sceneEntries}
+                running={caseBinding.kind === 'grant' && workRunning}
+                runningControlLabel={verticalSurface.runningControlCopy}
+                onLaunch={onLaunchScenario}
+                onCancelRun={verticalSurface.cancelRun}
+                onOpenDraft={() => { setWorkDraftMode(false); setFileOpsMode(false); choosePrimaryView('draft'); }}
+              />
+            ))}
             {/* L1：composer 浮卡（welcome 态 composer 已居中于 welcome-home,不重复渲染） */}
             {!isWelcome && renderComposer(
               handleComposerSend,
@@ -2256,7 +2236,19 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
         onClose={() => setNewCaseOpen(false)}
         onCreate={createCaseWithFolder}
         onAuthorizeFolder={() => hostAuth.authorizeFolder()}
+        packCatalog={packCatalog}
       />
+      {packDialogCase && (
+        <MatterPackDialog
+          open
+          caseTitle={packDialogCase.title}
+          packBinding={packDialogCase.packBinding}
+          availablePackageIds={availablePackageIds}
+          packCatalog={packCatalog}
+          onClose={() => closeMatterPackDialog()}
+          onApply={(packageIds) => applyPackBinding(packDialogCase.id, packageIds)}
+        />
+      )}
       <CommandPalette open={paletteOpen} commands={paletteCommands} onClose={() => setPaletteOpen(false)} />
       <SettingsPage
         open={settingsOpen}
@@ -2272,6 +2264,7 @@ export function App({ providerTransport, packageRegistries, hostRenderers, regis
         modelConfigNotice={modelConfigNotice}
         onFeedback={showSystemFeedback}
         hostAuth={hostAuth}
+        packCatalog={packCatalog}
       />
     </main>
   );

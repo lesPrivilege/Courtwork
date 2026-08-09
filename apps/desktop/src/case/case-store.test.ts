@@ -42,6 +42,23 @@ describe('case-store：案件列表版本化单键持久（work-session 先例�
     expect(readCaseList(backend)).toEqual([GRANT_CASE, UNBOUND_CASE]);
   });
 
+  it('PACK-INTERACT-1 ②：三态各一枚在 write → read 往返中逐态原样取回（未声明/显式零/显式一枚）', () => {
+    const backend = makeBackend();
+    const undeclared: PersistedCase = { id: 'c-undeclared', title: '未声明案', kind: 'workspace' };
+    const explicitNone: PersistedCase = { id: 'c-none', title: '显式零案', kind: 'workspace', packBinding: [] };
+    const explicitOne: PersistedCase = { id: 'c-legal', title: '显式一枚案', kind: 'workspace', packBinding: ['legal'] };
+
+    writeCaseList([undeclared, explicitNone, explicitOne], backend);
+    // 重载后的另一个实例读同一底层字节——水合往返不丢、不混三态。
+    const readBack = readCaseList(reopen(backend));
+
+    expect(readBack).toEqual([undeclared, explicitNone, explicitOne]);
+    // 逐态直证：缺席≠空数组，空数组≠单枚；三者在持久字节里可区分。
+    expect('packBinding' in readBack[0]).toBe(false);
+    expect(readBack[1].packBinding).toEqual([]);
+    expect(readBack[2].packBinding).toEqual(['legal']);
+  });
+
   it('无记录时 read 返回空列表', () => {
     const backend = makeBackend();
     expect(readCaseList(backend)).toEqual([]);

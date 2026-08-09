@@ -132,6 +132,8 @@ async function createGrantCase(page: Page) {
   await expect(page.getByTestId('new-case-dialog')).toBeVisible();
   await setNextAuthorize(page, { status: 'granted', grant: { grantId: GRANT_ID, label: '合同案卷夹' } });
   await page.getByTestId('new-case-authorize').click();
+  // PACK-INTERACT-1 ⑤：过渡默认已销，需 legal 场景的 grant 案在建案时显式选包。
+  await page.getByTestId('new-case-dialog').getByTestId('new-case-pack-legal').check();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
   await expect(page.getByTestId('new-case-dialog')).toBeHidden();
   await expect(page.getByTestId('demo-case-badge')).toHaveCount(0);

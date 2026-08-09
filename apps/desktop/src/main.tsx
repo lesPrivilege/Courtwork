@@ -13,6 +13,8 @@ import { createBrowserMaterialHost, installMaterialHostTestHooks } from './mater
 import { createTauriMaterialHost } from './material/tauri-material-host';
 import { createLegalWorkSurface } from './verticals/legal/legal-work-surface';
 import { createDesktopPackageRuntime } from './composition/package-runtime';
+import { createCaseRegistriesResolver } from './composition/matter-registries';
+import { readCaseList } from './case/case-store';
 import { createDemoWorkFixture } from './demo/client';
 import { createDesktopWorkCommand, installWorkTestHooks } from './work/work-runtime';
 import { createTauriWorkStateHost } from './work/tauri-work-state-host';
@@ -61,8 +63,17 @@ const demoWorkFixture = createDemoWorkFixture(
 // WORK-LIVE-1：production Work 命令端口（进程内 callback）。生产 host=Tauri WorkState 宿主（WORK-HOST-1，
 // 跨真机重启耐久）；DEV/E2E host=work-runtime 缺省内存参考实现。provider 走注入 transport（生产 DeepSeek）/
 // DEV+E2E 走 Work turn 樁。
+// ADR-015 决定三（2026-08-08）：production 命令的垂类执行授权只认 matter 当下绑定。
+// 组合根注入「按 caseId 现读 canonical case store → 解析生效 registry」的依赖；
+// 全局 registry 留给准入、目录与既有信封/产物解码。
+const registriesForCase = createCaseRegistriesResolver({
+  readCases: () => readCaseList(),
+  availablePackageIds: packageRuntime.packageIds,
+  registriesFor: packageRuntime.registriesFor,
+});
 const workCommand = createDesktopWorkCommand({
   registries: packageRuntime.packageRegistries,
+  registriesForCase,
   materialResolver: materialStore,
   loadRuntimeLimits: () => loadSettings().runtimeGuard,
   ...(providerTransport ? { transport: providerTransport } : {}),
@@ -80,7 +91,7 @@ createRoot(document.getElementById('root')!).render(
         hostRenderers={packageRuntime.hostRenderers}
         registriesFor={packageRuntime.registriesFor}
         availablePackageIds={packageRuntime.packageIds}
-        defaultMatterPackBinding={packageRuntime.defaultMatterPackBinding}
+        packCatalog={packageRuntime.packageCatalog}
         workProjection={demoWorkFixture.projection}
         workFixture={demoWorkFixture}
         verticalWorkSurface={verticalWorkSurface}

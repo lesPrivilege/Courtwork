@@ -44,21 +44,22 @@ test('卸载态：未绑定 matter 页签集零垂类（effective registry 派�
   // 的断言随③全链谱（matter 创建→work→产物→回看）同批取证。
 });
 
-test('过渡默认：新建 matter 持久携 packBinding [legal]（PACK-INTERACT-1 销条）', async ({ page }) => {
+test('过渡默认已销：新建 matter 持久携 packBinding []（PACK-INTERACT-1 ⑤）', async ({ page }) => {
   await openWorkbench(page);
   await page.getByTestId('new-case-open').click();
   const dialog = page.getByTestId('new-case-dialog');
   await dialog.getByRole('button', { name: '不使用文件夹，直接命名' }).click();
-  await dialog.getByRole('textbox', { name: '案件名称' }).fill('过渡默认案');
+  await dialog.getByRole('textbox', { name: '案件名称' }).fill('默认零绑定案');
   await dialog.getByRole('button', { name: '创建案件' }).click();
   await dialog.waitFor({ state: 'hidden' }).catch(() => undefined);
   const envelope = await page.evaluate((key) => {
     const raw = localStorage.getItem(key);
     return raw === null ? null : (JSON.parse(raw) as { cases?: Array<Record<string, unknown>> });
   }, CASE_LIST_KEY);
-  const record = envelope?.cases?.find((item) => item.title === '过渡默认案');
+  const record = envelope?.cases?.find((item) => item.title === '默认零绑定案');
   expect(record).toBeDefined();
-  expect(record!.packBinding).toEqual(['legal']);
+  // ADR-015 决定三销条：新建 matter 默认不激活（零绑定），不再过渡默认绑 Legal。
+  expect(record!.packBinding).toEqual([]);
 });
 
 /**

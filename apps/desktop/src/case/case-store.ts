@@ -45,7 +45,8 @@ export interface PersistedCase {
    * 三态且**显式**：
    *  - **字段缺席** = 未声明绑定。本字段落地前建立的 matter 全部如此，取全局可用集
    *    （见 `resolveMatterPackBinding`）。这不是「默认加载全部」的产品决定，只是「这枚 matter
-   *    还没被问过」的诚实表示；默认态的翻转随 `PACK-INTERACT-1` 的加载 UX 一并拍板。
+   *    还没被问过」的诚实表示；新建 matter 默认零绑定（`[]`）已随 `PACK-INTERACT-1` ⑤ 拍板
+   *    （ADR-015 决定三销条）。
    *  - `[]` = 显式不加载任何垂类。ADR-015 成品律的默认形态，本票的卸载态证据由它构造。
    *  - `['<packageId>']` = 显式绑定一枚。ADR-014 席位条款保数组形制；ADR-015 收窄为长度 ≤ 1。
    *

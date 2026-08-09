@@ -36,7 +36,24 @@ harness 编排以 matter 为单位；session 可管理但非首选入口。核�
 
 **零泄漏含 prompt 空间（2026-08-05 补记）**：通用底面 system prompt 泛化（非 coding 工作场景全功能形），垂类 prompt 段只随包加载进入组装，未加载即零垂类语义入 prompt。组装的版本化与 wire 闭集处理随 `PACK-INTERACT-1` 冻结细则；`GENERIC-PACK-1` 只须证未加载态 prompt 零垂类语义。
 
-**过渡默认（2026-08-06 补记，随 `PACK-INTERACT-1` 销条）**：加载动作交付前，新建 matter 过渡默认绑定 Legal 以保全链可达——此为显式登记的过渡态，非「默认不激活」的例外常态；`PACK-INTERACT-1` 交付加载 UX 时同批翻转为默认不激活并销本条。过渡期卸载态整面评审与 prompt 零垂类断言经测试构造点的未绑定 matter 取证，不入产品 UX。
+**准入不等于可交互加载（2026-08-08 补记）**：构建期准入集可以包含只完成 schema/catalog/
+presentation 的包，用于识别与读取既有产物；matter 建立/设置处只可选择产品成熟度明确为
+`loadable` 的子集。该成熟度是受信组合根的宿主发行事实，不进 Package ABI、不进
+`packBinding`、不另立持久开关；`catalog-only` 包须在全局目录诚实标注「目录已收录，交互未开放」，
+不得渲染为普通「加载」选项，也不得承诺不存在的场景或 prompt。历史持久绑定若指向已准入但
+`catalog-only` 的包，仍可读取既有产物并显示「已绑定／仅目录与既有产物可用」，不得伪装为完整
+交互已加载。
+
+**激活真源贯穿执行接缝（2026-08-08 补记）**：matter 当前绑定是垂类执行授权的唯一真源；
+全局 registry 只可用于准入、目录装配与既有信封/产物解码，不得授权 production command。
+每次新启动及会继续垂类执行的动作（包括 resume 与垂类 review resolution）都须从受信 case store
+按 `caseId` 解析当下绑定，并确认目标 package/scenario 在该 matter 的生效 registry 内；零绑定、
+失效绑定或仅绑定其他包时，须在 provider、journal 与 WorkState effect 之前显式
+`rejected/invalid_scope`。只读 replay/既有 journal/产物读取与 cancel 不因卸载被禁止。
+
+**首个可见帧也属零泄漏（2026-08-08 补记）**：首屏与切 matter 的第一次 committed render
+必须由目标 matter 的生效 registry 同步派生；先提交全局垂类 view、再用 effect 回落不合格。
+加载态→零绑定／其他包的切换，在任何可观察帧均不得残留旧包 tab、标题、词表、文案或 prompt。
 
 ## 决定四 · 卸载态语义：诚实降级
 
@@ -56,6 +73,8 @@ agent 底面与垂类包各自版本、各自票据、各自验收。接缝穷�
 
 ## 修订记录
 
+- **2026-08-08 · PACK-INTERACT-1 2R 架构裁定**：1R 独立验收 `8df9370` REJECT 后，决定三补三条：准入集与可交互加载集分层；matter 绑定真源贯穿 production execution seam；首个 committed render 纳入零泄漏。PM 当期保持 `catalog-only`，不扩 Package ABI、不加第二持久状态；验收细则落 `apps/desktop/specs/PACK-INTERACT-1.md` §十。
+- **2026-08-07 · PACK-INTERACT-1 销条（架构追认）**：决定三「过渡默认（2026-08-06 补记）」条**销除**——加载 UX 交付，新建 matter 由过渡默认绑定 Legal 翻回「默认不激活」（零绑定），与决定三正文一致；同批落地加载动作（matter 建立/设置处）、全局可用集呈现、准入失败 fail-closed 显式与加载/卸载往返全链。加载动作实现细节见 `apps/desktop/specs/PACK-INTERACT-1.md`。
 - **2026-08-06 · GENERIC-PACK-1 停手三裁（架构）**：①revision 面同迁 `kind:'component'`，三处渲染外消费者（resetReview/clearGate、样板案进度计数、production 产物显示名）改经 work projection/command port 消费、受信组合根装配（循 S6 装配点先例），App 零 `RiskList` 持有——只改居所与取用路径，语义零改以场景链 e2e 全绿为证；②scene-strip 改 registry 派生，预检表单契约冻结为「descriptor 声明、registry 冻结、宿主有限元素集通用渲染」（ADR-016 填格协议同族），提交值进场景启动参数，加载态四钮零视觉回归为证，未加载态起手引导为通用开场（matter 规范文件提示＋Draft 入口）零垂类兜底；③默认绑定本票不翻，过渡默认入决定三补记。
 - **2026-08-05 · 产品定调续（同日三笔补记）**：①决定二增 matter 级规范文件（模型输入非系统契约）；②决定三增 prompt 空间零泄漏（垂类段随加载进组装）；③明确拒绝增云端依赖极简条。同日方向登记：DeepSeek response-format API 兼容评估入就绪图「需要实测」清单（成本与 agent 能力使其为全场景首选 provider 的产品判断随行登记）。
 

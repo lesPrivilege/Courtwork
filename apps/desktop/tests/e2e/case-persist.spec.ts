@@ -110,6 +110,8 @@ async function createGrantCase(page: Page): Promise<string> {
   await expect(page.getByTestId('new-case-dialog')).toBeVisible();
   await setNextAuthorize(page);
   await page.getByTestId('new-case-authorize').click();
+  // PACK-INTERACT-1 ⑤：过渡默认已销，需 legal 场景的 grant 案在建案时显式选包。
+  await page.getByTestId('new-case-dialog').getByTestId('new-case-pack-legal').check();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
   await expect(page.getByTestId('new-case-dialog')).toBeHidden();
   const caseId = await page.evaluate(() => localStorage.getItem('courtwork.selected-case-id'));

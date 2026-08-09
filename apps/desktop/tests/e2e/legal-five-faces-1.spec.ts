@@ -38,6 +38,8 @@ async function createGrantCase(page: Page) {
     (window as unknown as { __courtworkHostAuth: HostAuthHooks }).__courtworkHostAuth.setNextAuthorize({ status: 'granted', grant: { grantId, label: '合成卷宗 · 晨曦印务设备纠纷' } });
   }, GRANT_ID);
   await page.getByTestId('new-case-authorize').click();
+  // PACK-INTERACT-1 ⑤：过渡默认已销，需 legal 场景的 grant 案在建案时显式选包。
+  await page.getByTestId('new-case-dialog').getByTestId('new-case-pack-legal').check();
   await page.getByTestId('new-case-dialog').getByRole('button', { name: '创建案件' }).click();
   await expect(page.getByTestId('new-case-dialog')).toBeHidden();
 }

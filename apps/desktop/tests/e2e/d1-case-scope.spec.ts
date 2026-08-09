@@ -106,10 +106,12 @@ test.describe('D-1 demo 容器隔离与新建空态', () => {
     await expect(page.getByTestId('flow-s1')).toHaveCount(0);
     await expect(page.getByTestId('originals-zone')).toHaveCount(0);
 
-    // 十四章：空案右列停四模块列,Preview 大纲五工作面条目在场（点开即浏览器态,无 demo 数据）
+    // 十四章：空案右列停四模块列,Preview 大纲在场（点开即浏览器态,无 demo 数据）。
+    // PACK-INTERACT-1 ⑤：新建 matter 默认不激活（零绑定）→ 大纲只有通用起草画布，零垂类条目。
     await expect(page.getByTestId('preview-outline')).toBeVisible();
-    for (const view of ['timeline', 'graph', 'matrix', 'revision', 'draft'] as const) {
-      await expect(page.getByTestId(`outline-${view}`)).toBeVisible();
+    await expect(page.getByTestId('outline-draft')).toBeVisible();
+    for (const view of ['timeline', 'graph', 'matrix', 'revision'] as const) {
+      await expect(page.getByTestId(`outline-${view}`)).toHaveCount(0);
     }
   });
 });

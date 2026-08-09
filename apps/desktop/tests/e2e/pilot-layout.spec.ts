@@ -129,7 +129,8 @@ test.describe('PILOT-LIVE-1 D · 右栏默认窄态', () => {
     expect(narrowBox.width).toBeLessThanOrEqual(340);
 
     // Preview 手风琴默认展开（outlineOpen 初值 true，App.tsx:408），直接点一条大纲行进入浏览器态。
-    await page.getByTestId('outline-timeline').click();
+    // PACK-INTERACT-1 ⑤：新建 matter 默认零绑定 → 大纲只有通用起草画布（布局证不依赖垂类面）。
+    await page.getByTestId('outline-draft').click();
     await expect(page.getByTestId('preview-host')).toBeVisible();
     const wideBox = (await rail.boundingBox())!;
     expect(wideBox.width).toBeGreaterThan(480);
@@ -152,7 +153,8 @@ test.describe('PILOT-LIVE-1 D · 右栏默认窄态', () => {
 
     // Preview 手风琴默认展开（outlineOpen 初值 true）；窄轨派生不影响 Preview 自身可点，
     // 直接进入浏览器态。
-    await page.getByTestId('outline-timeline').click();
+    // PACK-INTERACT-1 ⑤：新建 matter 默认零绑定 → 大纲只有通用起草画布（布局证不依赖垂类面）。
+    await page.getByTestId('outline-draft').click();
     await expect(page.getByTestId('preview-host')).toBeVisible();
 
     // previewOpen=true 时窄轨必须让位（不得用窄轨压 Preview）。

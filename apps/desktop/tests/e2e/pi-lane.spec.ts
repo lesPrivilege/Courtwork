@@ -328,20 +328,41 @@ test('用户上滚读史后，流态与终态都不夺回视口', async ({ page 
 
   // 真滚轮：程序化 scrollTo 未必被自动跟随判为「用户在读史」，滚轮才是这条判据的真形。
   const viewport = page.getByTestId('pi-viewport');
+  // 前提之前的前提：正文得先多到撑出滚动条。`pi-assistant-turn` 可见只说明首个 delta 到了，
+  // 此刻取样滚轮会滚在不可滚的视口上（max−top 恒 0）——判据没被验到，却以「断言红」示人。
+  await expect
+    .poll(
+      () => viewport.evaluate((node) => node.scrollHeight - node.clientHeight),
+      { message: '视口须先被正文撑出可滚区，否则滚轮无从离底' },
+    )
+    .toBeGreaterThan(400);
   await viewport.hover();
-  await page.mouse.wheel(0, -4000);
-  const before = await viewport.evaluate((node) => ({
+  const geometry = () => viewport.evaluate((node) => ({
     top: node.scrollTop,
     max: node.scrollHeight - node.clientHeight,
   }));
+  // 自动跟随与「用户在读史」的判定之间有真实竞态：滚轮落在流态中段时，下一段 delta 可能
+  // 在判定落定前把视口夺回底部——判据没错，是取样恰好落在被夺回之后。故以滚动容器自身的
+  // 几何（scrollHeight/clientHeight/scrollTop）派生条件，驱动**有上界的真实滚轮重试**：
+  // 仍是真滚轮、仍要求离底 >200，一格都不放宽；只是不再赌「第一次就没被夺回去」。
+  let before: { top: number; max: number } | undefined;
+  for (let attempt = 0; attempt < 20 && before === undefined; attempt += 1) {
+    await page.mouse.wheel(0, -4000);
+    const sample = await geometry();
+    if (sample.max - sample.top <= 200) continue;
+    // 再取一次样确认这次上滚站住了（而不是取样窗口恰好卡在两次夺回之间）。
+    const settled = await geometry();
+    if (settled.max - settled.top > 200) before = settled;
+  }
+  expect(before, '真实滚轮 20 次都没能离底 >200——先得真的滚上去，否则这条判据没被验到').toBeDefined();
   // 前提：确实离开了底部。判据是相对的——绝对像素随内容长度漂，而「有没有被夺回去」不漂。
-  expect(before.max - before.top, '先得真的滚上去，否则这条判据没被验到').toBeGreaterThan(200);
+  expect(before!.max - before!.top, '先得真的滚上去，否则这条判据没被验到').toBeGreaterThan(200);
 
   // 其余记录继续到达并以终态收束——视口一格都不许被夺回去。
   await expect(page.getByTestId('pi-running')).toHaveCount(0);
   await expect(page.getByTestId('pi-drafts')).toBeVisible();
   const after = await viewport.evaluate((node) => node.scrollTop);
-  expect(after).toBe(before.top);
+  expect(after).toBe(before!.top);
 });
 
 test('只读查看面：Escape 关闭、焦点归还、零残留', async ({ page }) => {
