@@ -189,3 +189,11 @@ base 数字取自 `f96937c` 的独立 worktree 实跑（跑完即 `git worktree 
   且 `fileId` 多数不在 demo reader 的路由表内，故点击落显式 `anchor_invalid`——与 `DEMO-ANCHOR-1`
   刻意保留的两枚展品同形（诚实降级面），不是本票新引入的缺陷，也未在本票中扩面处置。
 - **报交验点即停**：不自我验收、不合 `main`、不 push。
+
+---
+
+## 架构裁定（2026-08-09，先于独立验收落痕）
+
+1. **S4 同族债（上呈一）**：不随本票拒载 S4。`legal.RevisionInstructionSet` 的草稿形改造与 `registry/admission.ts` 守卫上收（rehydrationProjection 路径结构性照不到引用闭环）**同批**另立 `LEGAL-ANCHOR-BINDING-2`，就绪图立行；本票 `OPEN_ANCHOR_DEBT` 登记正当，族门按现登记面判。
+2. **schemaVersion 维持 1（上呈二）**：`outOfCoverage` 为 additive-default 键（`.default([])`，存量 payload 双向可读、序列化零破坏），不构成 ADR-009 升版事由；为其翻动全包 `$id` URN（含四枚未触及 schema）属纯代价零收益。裁定：additive-default 键不升版，此口径可为后例引用。
+3. 六条偏离全部追认（两枚 hash 同批重铸／`anchor_invalid` 中性化＋族级反向锁／enumLabels 常量 spread／P0-S02 重铸／assert-rp27 判据落新文案／覆盖单元取边与行）；「同位数组键准入不拒但 parse 硬失败」的实测上界如实登记接受，反例形态取「真会被接住的」正当。
