@@ -90,6 +90,9 @@ export const signedR2LedgerRows = Object.freeze([
   ['SD1-A03', 'site/styles.css#--text-tertiary|dark-media-root', 'pages-experimental'],
   ['SD1-A04', 'site/scripts/versional-language-contract-lib.mjs#VL3-C01|dark-tertiary', 'pages-experimental'],
   ['SD1-A05', 'docs/design/icon-dark.svg#rect|3-4-5-fill', 'agent-interface'],
+  ['SD1-B01', 'docs/design/tokens.json#themes.dark.bg|device-face-triple', 'agent-interface'],
+  ['SD1-B02', "apps/desktop/src/styles.css#:root[data-theme='dark']|device-face-triple", 'agent-interface'],
+  ['SD1-B03', 'site/scripts/deslop-scan-lib.mjs#desktopDarkColors|device-face-triple', 'pages-experimental'],
 ]);
 
 export const retiredP5ProposalLines = Object.freeze(['P5-F06', 'P5-F07', 'P5-F08']);

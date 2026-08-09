@@ -160,9 +160,9 @@
   --bg-app: #0f1622;
   --bg-surface: #16202f;
   --bg-raised: #223047;
-  --bg-hover: color-mix(in srgb, var(--bg-raised) 78%, var(--text-secondary));
-  --control-hover: color-mix(in srgb, var(--bg-raised) 70%, var(--text-secondary));
-  --bg-selected: color-mix(in srgb, var(--blue-graphic) 18%, var(--bg-raised));
+  --bg-hover: #404d63;
+  --control-hover: #4b586d;
+  --bg-selected: #233965;
   --text-primary: #e4e9f1;
   --text-secondary: #a9b4c6;
   --text-tertiary: #8b99b0;

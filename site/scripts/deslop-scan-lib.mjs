@@ -91,6 +91,12 @@ const desktopDarkColors = {
   '--bg-app': 'themes.dark.bg.app.value',
   '--bg-surface': 'themes.dark.bg.surface.value',
   '--bg-raised': 'themes.dark.bg.raised.value',
+  // SKIN-DYSTOPIA-1 项 B（登记性补格）：器面阶三格此前只有 CSS 派生式、无 tokens 真源，
+  // 故只能以 color-mix 字面量登记在下方 declarations 里——那等于把值锁在门里而不是锁在真源里。
+  // 补格后三格与其余色位同走 token 路径；值＝原派生式的解析结果，渲染像素零变。
+  '--bg-hover': 'themes.dark.bg.hover.value',
+  '--control-hover': 'themes.dark.bg.controlHover.value',
+  '--bg-selected': 'themes.dark.bg.selected.value',
   '--text-primary': 'themes.dark.text.primary.value',
   '--text-secondary': 'themes.dark.text.secondary.value',
   '--text-tertiary': 'themes.dark.text.tertiary.value',
@@ -116,9 +122,6 @@ const desktopDarkColors = {
 
 const desktopDarkDeclarations = new Map([
   ...Object.entries(desktopDarkColors).map(([property, path]) => [property, tokenAt(path)]),
-  ['--bg-hover', 'color-mix(in srgb, var(--bg-raised) 78%, var(--text-secondary))'],
-  ['--control-hover', 'color-mix(in srgb, var(--bg-raised) 70%, var(--text-secondary))'],
-  ['--bg-selected', 'color-mix(in srgb, var(--blue-graphic) 18%, var(--bg-raised))'],
   ['--action-primary-hover', 'color-mix(in srgb, var(--text-primary) 82%, var(--bg-raised))'],
   ['--verified', 'color-mix(in srgb, var(--blue-graphic) 10%, var(--bg-raised))'],
   ['--red-bg', 'color-mix(in srgb, var(--red-graphic) 14%, var(--bg-raised))'],

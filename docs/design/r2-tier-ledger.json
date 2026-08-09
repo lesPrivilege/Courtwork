@@ -1854,6 +1854,24 @@
       "tier": "agent-interface",
       "approvedProposalLine": "SD1-A05",
       "fragmentKind": "selector"
+    },
+    {
+      "target": "docs/design/tokens.json#themes.dark.bg|device-face-triple",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-B01",
+      "fragmentKind": "pointer"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root[data-theme='dark']|device-face-triple",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-B02",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "site/scripts/deslop-scan-lib.mjs#desktopDarkColors|device-face-triple",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "SD1-B03",
+      "fragmentKind": "selector"
     }
   ]
 }

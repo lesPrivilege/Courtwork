@@ -8,7 +8,7 @@ courtwork_design_md:
     version: 1
   sources:
     "docs/design/tokens.json":
-      sha256: "adc30fcc8b8ac2dbe4a78ada50b6dbacb334ccde4a8aba753214dc3428c738b7"
+      sha256: "f6a0bc483314bebf265fe31d307711100d44ce8e7efd951579fc868e878a7540"
     "docs/design/principles.md":
       sha256: "3bc164893899c7364e0ca45dbece9d53a8e482cc678c2a20a626f72d45d36180"
   tokenSet:
@@ -149,6 +149,12 @@ tokens:
           value: "#16202F"
         raised:
           value: "#223047"
+        hover:
+          value: "#404D63"
+        controlHover:
+          value: "#4B586D"
+        selected:
+          value: "#233965"
       text:
         primary:
           value: "#E4E9F1"
@@ -687,6 +693,9 @@ tokens:
 - `themes.dark.bg.app` = `#0F1622` — 底纸。原型最高频底（18×）
 - `themes.dark.bg.surface` = `#16202F` — 竖栏容器底，台阶二
 - `themes.dark.bg.raised` = `#223047` — 浮卡，台阶三。语义 fg 复算以本值为最严基准
+- `themes.dark.bg.hover` = `#404D63` — 行/项悬停底。出处 color-mix(in srgb, bg.raised 78%, text.secondary)——派生式降为出处记录、解析值为真值（循浅宗 bg.hover 同族先例：CSS color-mix 不进 canvas 图主题，且读 .value 字面量的门无从解析派生式）。**补格（2026-08-09 SKIN-DYSTOPIA-1 项 B，登记性）**：本格此前只有 CSS 消费面、无 tokens 真源，属暗宗器面阶缺格；补的是既有解析值本身，像素零变
+- `themes.dark.bg.controlHover` = `#4B586D` — 扁平按钮 hover 深色块，与 selected 分离；CSS --control-hover。出处 color-mix(in srgb, bg.raised 70%, text.secondary)——派生式降为出处记录、解析值为真值。**补格（2026-08-09 SKIN-DYSTOPIA-1 项 B，登记性）**：同上，像素零变
+- `themes.dark.bg.selected` = `#233965` — 选中项底：蓝感强于 hover 族，不占语义色预算。出处 color-mix(in srgb, semantic.blue.graphic 18%, bg.raised)——派生式降为出处记录、解析值为真值。**补格（2026-08-09 SKIN-DYSTOPIA-1 项 B，登记性）**：同上，像素零变
 - `themes.dark.text.primary` = `#E4E9F1` — 正文与标题。对底纸 14.87:1
 - `themes.dark.text.secondary` = `#A9B4C6` — 次级。对底纸 8.66:1
 - `themes.dark.text.tertiary` = `#8B99B0` — 元信息。三面 6.2868 / 5.6806 / 4.6032（app / surface / raised），**最严面 raised 4.6032 过 AA 正文 4.5**。**订正（2026-08-09 SKIN-DYSTOPIA-1 Q8，只改事实陈述不改判据）**：原描述「深底上本值对比充裕，无缺口可闭」经宗×面二维门实测证否——旧值三面实测 4.2836 / 3.8705 / 3.1364，三面全不达 4.5；缺口一直是真的，只是原门单宗单面从未取样到它。本次随槽收口（readiness `PI-LANE-UI-1` 行第三条后置条款兑现），取值法循浅宗 c636b1c 贴阈先例：沿本宗中性阶等比提亮，H 与锚色同源、B≥R 冷调律不破。代价如实登记——与 secondary #A9B4C6 的明度间距收窄，中性阶第三、四档自此贴近（与浅宗闭合时同族的代价）。**双宗此位仍拆分**（2026-07-19 定谳的这一半不变）：浅宗 #637083、深宗本值，各按本宗最严面复算。旧值 #6E7C92 仍是本宗活值（themes.dark.semantic.slate.graphic 在用），不入退役黑名单
