@@ -6158,3 +6158,110 @@ wire、journal 或引入第二状态源。PM 伪装、全局 execution seam、st
 八相全量门本树独立实测零回归，完整 Playwright 无并发单跑轮 **376/376**，sidecar 身份逐字节零迁，App 高水位未动。
 
 **继承边界如实声明**：A（准入/可加载分层）、B（execution seam 与 canonical read）、C（第一次 committed render）、D（pi 真滚轮与有界重试）四项由 2R 独立验收 `7c6763e` 成立，本轮按 §十一「不得重做或扩张其结构」未重做其结构性复核与 mutation 注入；本轮对其只核「未被触碰」（diff 面零命中＋App 高水位未动＋全量门零回归），不重新背书其效力。2R 遗留的 `resumeAuthorized` 宽回退观察项当时即登记为后续架构观察、非本票范围，本轮亦未评估。
+
+---
+
+## SKIN-DYSTOPIA-1 批一独立验收（2026-08-09）
+
+**结论：PASS。** 拒因 0 枚；另有须处理项三枚（一枚实现级小缺陷、一枚未登记偏离待架构追认、一枚验收侧义务未执行）与观察项三枚，逐枚具名于末节。
+
+验收目标 `f5594c4`（实现链 `0140183 → c11468d → e530c99 → 0b05743 → 8fda8bd` ＋架构裁定提交），base `main@13415e4`。异会话独立验收，与实现会话零共享上下文；独立 worktree `/private/tmp/courtwork-skin-dystopia-1-accept`（分支 `claude/accept-skin-dystopia-1`），Playwright 独占端口（定向 1471／全链 1473），`reuseExistingServer=false`。回执数字一律不采信，全部另跑。`main` 现已前进到 `c830e5c`（PI-BOUNDED-SITE 清账，与本票零交集），base 判定仍取 `13415e4`。
+
+### 一 · 首红真伪（门与修分提交的直接实证）
+
+`0140183` 的足迹经 `git show --stat` 实核**只有两件**：`tests/e2e/typography.spec.ts` 与 `scripts/assert-test-count.mjs`；该 tip 上深宗 `--text-tertiary` 仍为 `#6e7c92`、双宗 `COLOR_VARS.line.settled` 仍为 `--zhu-graphic`——门先行、不含任何修复，结构性成立。
+
+检出该 tip 定向实跑门④-2，**EXIT=1，1 failed（磁青宗）/ 1 passed（刻本印页宗）**，原文两行逐位与回执相符：
+
+```
+Error: meta@dark     最严面 --bg-raised 四元联测未达 AA 4.5（--bg-app=4.2836* --bg-surface=3.8705* --bg-raised=3.1364*）
+Error: sealNote@dark 最严面 --bg-raised 四元联测未达 AA 4.5（--bg-app=4.6773 --bg-surface=4.2263 --bg-raised=3.4247*）
+```
+
+复回 `f5594c4` 同命令 **EXIT=0，2 passed**，深宗两槽读数 `meta 6.2868/5.6806/4.6032`、`sealNote 6.7950/6.1398/4.9753`，与证据 README 的双宗×三面表逐格相等。上述全部比值另以纯算（tokens 取值 → WCAG 相对亮度）独立复核，与浏览器实跑同值。
+
+### 二 · 变异独立复注（11 枚，逐枚带命中校验，逐枚撤回）
+
+每枚注入后先 grep 计数确认命中（承「变异必须带命中校验」），跑门取原文，再还原并以 `git status` 核净空。
+
+| # | 靶 | 结果（实跑原文摘要） |
+|---|---|---|
+| M1 | 撤门内 `setAttribute('data-theme', mode)` → `void mode` | 深宗红：`磁青宗取样面未落到本宗底纸（data-theme 未生效即整条量的是另一宗）`；浅宗仍绿——取样面自证确实接住了「扩门未扩到取样面」这一零区分力形态 |
+| M2 | 壳深宗 `--text-tertiary` 回 `#6e7c92` | 红：`meta@dark …（4.2836*/3.8705*/3.1364*）` |
+| M2′ | 同一注入下另跑 `site:guard` | EXIT=1，`SKIN-R2-P4 keeps dark switching at the root token map` 失败 |
+| M3 | 仅改站面 `#8B99B0`→`#8B99B1` | `site:guard` EXIT=1，`raw-color` ＋ `VL3-C01 Pages 磁青宗色阶漂移：--text-tertiary` |
+| M4 | 删 `themes.dark.bg.hover` 格（tokens 真源侧） | 扫描器 fail-closed 抛 `DESLOP token path has no string value: themes.dark.bg.hover.value`，EXIT=1 |
+| M5 | 删深宗 CSS `--bg-hover` 行 | `dark root token map is missing --bg-hover` |
+| M6 | 深宗 `--control-hover: #4b586d`→`#4b586e` | `dark root token map drifted --control-hover` |
+| M7 | 深宗根加 `--sd1-bogus` | `dark root token map added unapproved --sd1-bogus` |
+| M8 | `.line-settled { color }` 改吃 `var(--zhu-fg)` | `lint:signature` EXIT=1，`line.settled 未同时消费 --zhu-graphic` |
+| M9 | 门④-2 `COLOR_VARS.dark.line.settled` 改回 `--zhu-graphic` | 红：`sealNote@dark …（4.6773/4.2263/3.4247*）` |
+| M10 | `icon-dark.svg` rect[5] fill 改 `#8B99B1` | `[raw-color] docs/design/icon-dark.svg:9 SVG consumer drifted: rect[5] fill` |
+| M11 | `versional-language-contract-lib.mjs` VL3-C01 期望值改 `#8B99B1` | `VL3-C01 Pages 磁青宗色阶漂移：--text-tertiary` |
+| M12 | 仅改 `tokens.json` 深宗 tertiary | `theme-boundary … drifted --text-tertiary` ＋ `raw-color`（styles.css）＋ icon rect[3]/rect[4] drifted |
+
+M4 与 M5 是同一格的两侧：票面 B-mut-1 打的是 CSS 侧（M5，红文与回执逐字相符），真源侧（M4）另测，得 fail-closed 硬抛而非「missing」——两侧均红，形态不同，如实分列。
+
+**「五处同值」的耦合面已逐处独立锁住**：壳（M2）、站（M3）、icon（M10）、VL 契约库（M11）、tokens 真源（M12）——任改一处而不改其余皆触红，故票面「四处」实为五处这一登记（偏离 4，六节裁定 4 已追认）在机器面上成立，不是纸面声明。
+
+### 三 · 五项逐项判定
+
+**项 A（成立）**。五处取值逐处对读全部为 `#8B99B0`（tokens `themes.dark.text.tertiary` / 壳 `styles.css` / 站 `styles.css` / VL3-C01 行 / `icon-dark.svg` rect[3..5]）。`var(--text-tertiary)` 消费点前后同为 **139 处**且逐字未动。icon 对 `#232B38` 深底由 **3.3655 → 4.9394**（独立复算）。特写帧独立像素统计：`A-03-…-before.png` 恰含 **354 px** 精确 `#6E7C92`，`A-04-…-after.png` 恰含 **354 px** 精确 `#8B99B0`——同数即几何零改、纯换值。
+
+**项 B（按修订判据成立）**。三格解析值独立复算 `color-mix(bg.raised 78%, text.secondary)=#404D63`、`(70%)=#4B586D`、`(blue.graphic 18%, bg.raised)=#233965`，与 tokens 三格逐值相等；`styles.css` 三行字面量同值（大小写循壳内既有小写惯例，门按值比对）。五组前后帧由本会话独立解码逐像素复算，与回执逐位相符：
+
+| 状态 | 差异像素 | 最大 Δ | Δ 分布 | 包围盒 |
+|---|---|---|---|---|
+| 01-idle / 02-rail-hover / 03-stage-hover | 各 17914 | 1 | {1: 17914} | (396,116)-(736,172) |
+| 04-settings | 0 | 0 | — | — |
+| 05-settings-nav-hover | 9 | 2 | {1: 8, 2: 1} | (1350,848)-(1359,859) |
+
+最大 Δ=2，落在六节第 1 条修订后的判据 **Δ≤2/255** 之内。取帧装置的自证另有一条独立旁证：`04-settings` 前后**恰 0 px** 差异——若取帧本身有抖动，该组不可能为零。病灶诊断亦以纯算独立复现：`--bg-selected` 派生式未舍入值 (34.54, 57.18, 100.52) 经 `.user-message` 的 `color-mix(… 55%, var(--bg-raised) 45%)` 二次混合得 (34, 53, 87)，换 8bit 字面量 (35, 57, 101) 后得 (35, 53, 88)，R/B 各 +1、G 不变——与「整块气泡、Δ 全为 1、单一连通区」的实测形态一致，`.user-message` 该声明在 `styles.css` 内实存。
+
+**项 D（成立）**。三处朱消费点逐处亲判轨位并核字节：`.line-settled { color }`、`.line-settled { background }`、`.settle-seal { color }` 三条声明与 base 逐字节相同，无一改动；朱出现处集合前后同名同数（壳 2 行 / 站 2 行）；`zhuConsumers` 仍为 `.settle-seal` 与 `.demo-actions span` 两条、**零加行**；朱值零改（`--zhu-graphic` 双宗未动），朱印规则整行未触碰（§六之二 互斥前提原样）。新增的 `--zhu-fg` 双宗值与既有在册 token 相等（深 `themes.dark.semantic.zhu.fg = #E2857A`，本就在册；浅 `color.line.settled.value = #BE4B2F`），非新色。Q6 并置观察独立复算：文字轨 `#E2857A` vs `#DE8881` 通道距离 **(4, 3, 7)**、记号轨 `#D75A3C` vs `#B5382F` 为 **(34, 34, 13)**，与证据登记一致。
+
+**项 E（成立）**。`overlay-residue.ts` 不在本批 diff 面内（净改动为零，非「改后复原」的口头声明——diff 直接证明）；`maxChannelDelta` 默认仍为 **3**，未放宽；`runClosureGate` 调用点实数 **16**（第 65 行为定义），与「A≡B 实为 16 例」的登记及六节裁定 6 相符。
+
+**项 C（成立）**。`assert-test-count.mjs` floor **365 → 366**，与门④-2 按宗拆两例同批；全链假绿防护实跑打印 `Playwright 假绿防护通过：377 条用例（下限 366）`。
+
+### 四 · 九裁＋八裁符合性
+
+不做清单逐条核过：纸温三值（双宗 `bg.app/surface/raised`）未动、动效十枚与 `--motion-seal` 未动、阴影圆角未动、字体排印未动、线级三档未动、朱印零触碰、批二（Q5）未启、零 TS 行为码、零 Rust、零新 DOM/SVG/伪元素/filter/gradient、kit 暖色零引入；`App.tsx` 不在 diff 面内，高水位门实跑 **2272 行（上限 2272）**。Q8 授权两处、实做四处（同一句假陈述的全部副本），逐处只改事实陈述并带日期注，判据未动。`isProposalLine` 闭集补 `SD1-[A-E]\d{2}`，形态与 `VL3-[CST]\d{2}` 等既有逐批入册项同构，未开宽泛口子。
+
+R2 签署账 SD1 十二行逐行核：rowId 连续无重、`r2-tier-ledger.json` 与 `signedR2LedgerRows` 两账 target 逐字相等、每个 target 唯一绑定、`fragmentKind` 按种类可解析（`selector` 片段在目标文件内字面存在、`pointer` 片段在目标文件内确不字面存在、`directory` 目标确为目录），`lint:skin-r2-ledger` 与 `assert-skin-r2-ledger.test.mjs` 全绿。项 B 三行（SD1-B01..B03）标登记性、其余为视觉决定行。**档位一项有偏离，见末节第②枚。**
+
+### 五 · 全量门（本树独立实跑）
+
+| 相 | 独立实测 | 参考基线 |
+|---|---|---|
+| `pnpm install` | EXIT=0（lockfile 未动） | — |
+| `pnpm -r build` | EXIT=0（仅既有 chunk warning） | 绿 |
+| pi-lane 两枚 sidecar | 先 `rm -rf dist/{product,headless}-sidecar` 再重建，双 EXIT=0；headless 555,314 B `061248fa…`、product `951acf8ed3b541988041cd4b1ed80402c02c643d7d95f4cbce0b25a3ff74bc6c`，`reproducible: true` | 逐字节零迁 |
+| `pnpm lint` | EXIT=0 | 绿 |
+| `pnpm test`（根） | **170 files / 1941 passed / 0 failed** | 1941 一致 |
+| desktop vitest | **93 files / 820 passed / 0 failed** | 820 一致 |
+| `cargo test` | **250 passed / 0 failed / 1 ignored**，EXIT=0 | 250/1 一致 |
+| `pnpm site:guard`（显式单跑） | EXIT=0；`node --test` **tests 103 / pass 103 / fail 0**；App 高水位 2272/2272 | 103/103 一致 |
+| 完整 `pnpm test:e2e` | **轮一 377 passed（5.1m，EXIT=0）／轮二 377 passed（5.7m，EXIT=0）** | 377，floor 366 |
+
+跑的是 `pnpm test:e2e` 的全名（三十余枚 `assert-*.mjs` 静态门前置全过），不是链里的 `playwright test` 那一步。**Playwright 互斥**：起链前 `mkdir /private/tmp/courtwork-pw-lock` 原子取锁成功、`pgrep -fl 'playwright|vite --host'` 双确认零命中，两轮跑完即 `rmdir` 释放。两轮均为独占单跑，无第二条全链同刻在跑。
+
+**收尾**：两轮完整 e2e 各重生成他票 `release/evidence/**` 11 枚 PNG（`generic-pack-1-unloaded-2026-08-06` 5 枚、`legal-five-faces-1-2026-08-07` 6 枚），逐轮以 `git checkout -- release/evidence` 精确还原（承 Bin 行判例，禁 `git add -A`）；11 枚变异全部撤回；提交前工作树只留本文件的追加。
+
+### 六 · 须处理项与观察项
+
+**① 实现级小缺陷（不构成拒因，清账前须订正）。** `typography.spec.ts` 门④-2 顶部注释写「浅宗 `line.settled` (#BE4B2F) 在 `--bg-surface` 上实算 4.4972 < 4.5——贴阈 0.0028」。实测为 **4.4983、贴阈 0.0017**：`0140183` 与 `f5594c4` 两次门实跑原文均打印 `sealNote --bg-surface=4.4983`，纯算独立复核同值；票面 §5.7 第 2 条与证据 README 第一节亦均作 4.4983 / 0.0017。同一事实三处有两个数，错的是注释那份。结论方向不受影响（两个数都在 4.5 之下，六节裁定 2 用的是正确数），但承验收固定项「注释、门的错误文案都是宣称，与代码同受『宣称须与实测一致』约束」，须订正。
+
+**② 未登记偏离，请架构追认（第九条）。** R2 签署账十二行中 `SD1-A03`（`site/styles.css`）、`SD1-A04`（`site/scripts/versional-language-contract-lib.mjs`）、`SD1-B03`（`site/scripts/deslop-scan-lib.mjs`）三行档位取 `pages-experimental`，与票面头「档位：中间档 `agent-interface` 唯一档」及 Q2③「档位 `agent-interface`」的字面不符。实质取的是既有按文件域的惯例——同两个站侧文件上的既有行（`VL3-C01`、`P5-F10/F11` 等）一律 `pages-experimental`，与 `principles.md` 总纲「Pages＝激进档」一致，若改判为 `agent-interface` 反而是错档登记；档位一致性另有 `lint:skin-r2-ledger` 双账互锁，机器面无风险。故本枚判为「实质正确、登记缺失」，不列拒因，但九裁与六节八裁均未覆盖它，需补一条追认。
+
+**③ 验收侧义务未执行。** 退出证据第 2 条要求深宗帧循 `SKIN-R2-P4` 先例以真 Tauri WKWebView 另摄，且明列为验收侧义务。本环境无屏幕录制授权：`screencapture -x` 返 `could not create image from display`、EXIT=1，真机读屏不可执行。循 `PI-LANE-UI-1` 先例登记为**未执行**并移交 GUI 侧验收，不以 Chromium 帧顶替、也不写成已完成。实现侧已在证据 README 首段如实标注「不是真 Tauri WKWebView 帧」，此项不是实现缺陷。
+
+**④ 观察：e2e 抖动未复现。** 实现自报全链首跑 4 红（`global-verbs` / `goal1` / `goal2` / `host-auth`，超时形态）。本树两轮独占全链均 **377/377**，未复现。按「红是存在性证据、绿是全称主张」，本轮两绿不撤销那一次红，也未取得复现条件做对照归因；如实登记为未复现，不改判定——四枚谱与本批色值面零交集这一点独立核实成立。
+
+**⑤ 观察：全量 e2e 每轮重写他票 evidence 图。** 属仓级既有形态（本线判例已四犯），非本票引入，本轮两次均精确还原。
+
+**⑥ 观察：深宗 `--zhu-graphic` 自本批起不在任何对比度门辖面内。** 门④-2 的 `sealNote` 槽改吃文字轨 `--zhu-fg` 后，记号轨深宗值（浮卡 3.4247）无门覆盖。该值是记号轨、按 §六之二 取装饰豁免，AA 正文判据本不适用；`lint:signature` 仍逐条锁 `.line-settled` 必须同时消费 `--zhu-graphic`（M8 实证），且六节裁定 2 已挂前瞻条款（首个朱文字消费点若落 `--bg-surface` 即复裁 Q3）。登记备查，当期不构成缺口。
+
+### 结论
+
+**PASS。** 首红逐位可复现且门与修分提交结构性成立；十一枚独立变异全部按预期触红且红文指名正确理由；五项逐项独立核实成立，项 B 按六节修订后的 Δ≤2/255 判据成立；九裁与八裁范围内未见越界，禁区（纸温／动效／阴影／字体／线级／朱印／批二／高水位）实核零触碰；八相全量门本树独立实测零回归，完整 Playwright 两轮独占 377/377。拒因 0 枚；上列①须订正、②须追认、③为验收侧遗留义务，均不阻断本批放行。
