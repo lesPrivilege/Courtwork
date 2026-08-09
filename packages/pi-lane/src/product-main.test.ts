@@ -61,7 +61,29 @@ let controlBundle: string;
 type Run = { code: number | null; packets: SidecarPacket[]; stderr: string };
 
 /** 把 host packet 序列喂给一枚真进程，收 sidecar 出包与退出码。child 环境严格为空。 */
-async function drive(bundle: string, packets: HostPacket[], options: { delayMs?: number } = {}): Promise<Run> {
+/**
+ * PI-SCAN-TIMEOUT-2 独立归因：`shutdown` 只在生产状态机 `phase === 'idle'` 时合法
+ * （`product-stdio.ts` `rejectFatal('state_violation', 'shutdown 只能在 idle 发出')`），
+ * 而 `phase` 由 `terminate()` 在发出首枚 `type: 'terminal'` 包时**同步**置回 `'idle'`。
+ * 负载下 20/20 实测捕获的红并非超时——`run.code` 是 `1` 不是因 vitest testTimeout 判死，
+ * 诊断包转出的是 `{"code":"state_violation","message":"shutdown 只能在 idle 发出"}`：
+ * 旧写法用固定 `delayMs` 赌「到发 shutdown 时 prompt 真实回合早已处理完」，无负载下 900ms
+ * 够用，负载下 prompt 的真实 streaming/tool 回合可能仍未结束，host 在 prompting 期发
+ * shutdown 被状态机正确拒绝并 exit(1)——这是「正向前置被赌时长」，不是判据本体对赌
+ * vitest 缺省超时，故不适用「显式上界」处置，改为等派生信号本身（首枚 `type: 'terminal'`
+ * 出现，与生产 `terminate()` 的置位时机同源）。
+ */
+async function waitForTerminal(out: SidecarPacket[]): Promise<void> {
+  while (!out.some((packet) => packet.type === 'terminal')) {
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+}
+
+async function drive(
+  bundle: string,
+  packets: HostPacket[],
+  options: { delayMs?: number; awaitTerminalBeforeShutdown?: boolean } = {},
+): Promise<Run> {
   const child = spawn(process.execPath, [bundle], { stdio: ['pipe', 'pipe', 'pipe'], cwd: scratch, env: {} });
   // 退出等待器必须**先于**写入挂上：`exit` 只发一次，晚挂的听不到已经发生的那一次，
   // 于是「进程早退」会被误读成「进程挂死」。实测就踩过这一脚。
@@ -89,7 +111,13 @@ async function drive(bundle: string, packets: HostPacket[], options: { delayMs?:
     const encoded = encodePacketLine(packet);
     if (!encoded.ok) throw new Error(`host 入包不合契约：${encoded.reason}`);
     if (child.exitCode === null && child.signalCode === null) child.stdin.write(encoded.line);
-    await new Promise((resolve) => setTimeout(resolve, options.delayMs ?? 400));
+    if (packet.type === 'prompt' && options.awaitTerminalBeforeShutdown) {
+      // 换成条件等待而非固定 delayMs：等的是使生产状态机回到 idle 的那枚 terminal 包本身。
+      // 外层 vitest 测试超时（本用例 `120_000ms`）已是这条等待的违例上界，不再叠加第二个数字。
+      await waitForTerminal(out);
+    } else {
+      await new Promise((resolve) => setTimeout(resolve, options.delayMs ?? 400));
+    }
   }
   const code = await exited;
   return { code, packets: out, stderr };
@@ -286,7 +314,7 @@ describe('control CJS：scripted stream 逼出 read → tool result → terminal
           payload: { reason: 'host_shutdown' },
         },
       ],
-      { delayMs: 900 },
+      { delayMs: 900, awaitTerminalBeforeShutdown: true },
     );
 
     expect(run.stderr).toBe('');
