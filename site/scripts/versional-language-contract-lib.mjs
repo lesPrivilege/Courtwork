@@ -44,7 +44,7 @@ export function validateVersionalSite({ html, css, desktopCss }) {
     ['--bg-raised', '#223047'],
     ['--text-primary', '#E4E9F1'],
     ['--text-secondary', '#A9B4C6'],
-    ['--text-tertiary', '#6E7C92'],
+    ['--text-tertiary', '#8B99B0'],
     ['--border-hairline', '#2A3A52'],
     ['--border-strong', '#3E5270'],
     ['--border-focus', '#6A94F1'],

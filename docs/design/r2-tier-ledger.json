@@ -1824,6 +1824,78 @@
       "tier": "pages-experimental",
       "approvedProposalLine": "VL3-S01",
       "fragmentKind": "directory"
+    },
+    {
+      "target": "docs/design/tokens.json#themes.dark.text.tertiary",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-A01",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root[data-theme='dark']|--text-tertiary",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-A02",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "site/styles.css#--text-tertiary|dark-media-root",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "SD1-A03",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "site/scripts/versional-language-contract-lib.mjs#VL3-C01|dark-tertiary",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "SD1-A04",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "docs/design/icon-dark.svg#rect|3-4-5-fill",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-A05",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "docs/design/tokens.json#themes.dark.bg|device-face-triple",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-B01",
+      "fragmentKind": "pointer"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root[data-theme='dark']|device-face-triple",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-B02",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "site/scripts/deslop-scan-lib.mjs#desktopDarkColors|device-face-triple",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "SD1-B03",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "apps/desktop/tests/e2e/typography.spec.ts#门④-2|theme-by-face",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-C01",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root|--zhu-fg",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-D01",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root[data-theme='dark']|--zhu-fg",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-D02",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "site/craft-evidence/SKIN-DYSTOPIA-1",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-E01",
+      "fragmentKind": "directory"
     }
   ]
 }

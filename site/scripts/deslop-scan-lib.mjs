@@ -81,6 +81,11 @@ const desktopRootColors = {
   '--green-bg': 'color.semantic.gate.confirmed.bg',
   '--slate-graphic': 'color.semantic.severity.low.graphic',
   '--zhu-graphic': 'color.line.settled.value',
+  // 朱的文字轨（SKIN-DYSTOPIA-1 项 D）：浅宗 fg==graphic，故同绑 color.line.settled.value——
+  // 与 siteLightColors 里已在册的 --zhu-fg 同一绑定，不另立 token（color.semantic 明载
+  // 「色相总数仍为 4+slate」故朱不入该组；color.line 明载「文字不得消费本组值」故不在该组加 fg 字段。
+  // 两条现行 $description 都挡住新立 token，复用 site 既有绑定是唯一无违的形态）。
+  '--zhu-fg': 'color.line.settled.value',
   '--slate-fg': 'color.semantic.severity.low.fg',
   '--slate-bg': 'color.semantic.severity.low.bg',
 };
@@ -91,6 +96,12 @@ const desktopDarkColors = {
   '--bg-app': 'themes.dark.bg.app.value',
   '--bg-surface': 'themes.dark.bg.surface.value',
   '--bg-raised': 'themes.dark.bg.raised.value',
+  // SKIN-DYSTOPIA-1 项 B（登记性补格）：器面阶三格此前只有 CSS 派生式、无 tokens 真源，
+  // 故只能以 color-mix 字面量登记在下方 declarations 里——那等于把值锁在门里而不是锁在真源里。
+  // 补格后三格与其余色位同走 token 路径；值＝原派生式的解析结果，渲染像素零变。
+  '--bg-hover': 'themes.dark.bg.hover.value',
+  '--control-hover': 'themes.dark.bg.controlHover.value',
+  '--bg-selected': 'themes.dark.bg.selected.value',
   '--text-primary': 'themes.dark.text.primary.value',
   '--text-secondary': 'themes.dark.text.secondary.value',
   '--text-tertiary': 'themes.dark.text.tertiary.value',
@@ -112,13 +123,11 @@ const desktopDarkColors = {
   '--slate-graphic': 'themes.dark.semantic.slate.graphic',
   '--slate-fg': 'themes.dark.semantic.slate.fg',
   '--zhu-graphic': 'themes.dark.semantic.zhu.graphic',
+  '--zhu-fg': 'themes.dark.semantic.zhu.fg',
 };
 
 const desktopDarkDeclarations = new Map([
   ...Object.entries(desktopDarkColors).map(([property, path]) => [property, tokenAt(path)]),
-  ['--bg-hover', 'color-mix(in srgb, var(--bg-raised) 78%, var(--text-secondary))'],
-  ['--control-hover', 'color-mix(in srgb, var(--bg-raised) 70%, var(--text-secondary))'],
-  ['--bg-selected', 'color-mix(in srgb, var(--blue-graphic) 18%, var(--bg-raised))'],
   ['--action-primary-hover', 'color-mix(in srgb, var(--text-primary) 82%, var(--bg-raised))'],
   ['--verified', 'color-mix(in srgb, var(--blue-graphic) 10%, var(--bg-raised))'],
   ['--red-bg', 'color-mix(in srgb, var(--red-graphic) 14%, var(--bg-raised))'],
@@ -674,6 +683,10 @@ function scanSvg(file, content, failures) {
     // 双宗共用中性就此拆分。深底品牌标的次要色条本就该跟深宗：若跟着浅宗压暗，
     // 对 #232B38 深底的对比会由 3.3655 掉到 2.8328（-15.8%），品牌标反而更糊。
     // 故此三处改绑 themes.dark.text.tertiary；SVG 字节一字未动。
+    // SKIN-DYSTOPIA-1 项 A（2026-08-09）：深宗 tertiary 随槽收口 #6E7C92 → #8B99B0，本绑定
+    // 如设计般把变更拖到品牌标——三处 fill 同批跟值（票面点名的「四处同值」实为五处，
+    // 第五处正是本门拖出来的）。对 #232B38 深底的对比由 3.3655 升到 4.9394，方向与上段
+    // 「跟深宗才不糊」的理由一致；几何与比例零改动。
     ['docs/design/icon-dark.svg|rect|3|fill', tokenAt('themes.dark.text.tertiary.value')],
     ['docs/design/icon-dark.svg|rect|4|fill', tokenAt('themes.dark.text.tertiary.value')],
     ['docs/design/icon-dark.svg|rect|5|fill', tokenAt('themes.dark.text.tertiary.value')],

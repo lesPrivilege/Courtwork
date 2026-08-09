@@ -8,9 +8,9 @@ courtwork_design_md:
     version: 1
   sources:
     "docs/design/tokens.json":
-      sha256: "4a62b3ac1db8dc581101fc750aa86bfc3af20f4f22bd1c4738e9976e35878ce2"
+      sha256: "f6a0bc483314bebf265fe31d307711100d44ce8e7efd951579fc868e878a7540"
     "docs/design/principles.md":
-      sha256: "546475e7022ab15a59e1810f492cbd1d6dc3c359ae906b3cfa627fab9c388372"
+      sha256: "3bc164893899c7364e0ca45dbece9d53a8e482cc678c2a20a626f72d45d36180"
   tokenSet:
     name: "courtwork-design-tokens"
     version: "1.3.0"
@@ -149,13 +149,19 @@ tokens:
           value: "#16202F"
         raised:
           value: "#223047"
+        hover:
+          value: "#404D63"
+        controlHover:
+          value: "#4B586D"
+        selected:
+          value: "#233965"
       text:
         primary:
           value: "#E4E9F1"
         secondary:
           value: "#A9B4C6"
         tertiary:
-          value: "#6E7C92"
+          value: "#8B99B0"
         disabled:
           value: "#4C5A70"
         inverse:
@@ -636,6 +642,7 @@ tokens:
 - 冷的承担者是中性阶与纸温，不是彩色：蓝紫青不作气质强调；cool 由 H≈217° 派生阶与磁青宗承担。交互语义色（链接/焦点蓝、修订绿）按 §2「记号色古、交互语义色今」维持，不入气质预算。
 - 反乌托邦的界：制度纸感、冷光、档案记录性；禁霓虹、辉光、glitch、扫描线、CRT/终端绿、渐变彩带、dark-first cyberpunk。克制审计条款照常：新增视觉元素必须指认业务语义。
 - 数值零新增：本节不引入新 token、不加新门；「Dystopia」六格参照系已在册（severity.high／bg.app／surface／border 阶／text 阶／锚色）。
+  - 辖面澄清（2026-08-09 架构裁定，随 `SKIN-DYSTOPIA-1` 落痕）：「零新增」辖**为表达气质而新增**的 token 与门；既有语义槽在另一宗的真源对称补格（值取现行解析结果、像素零变）与既有判据门的取样面扩宽（宗×面）不在此禁内——两者属已挂账欠账的兑现，须逐项绑定实现就绪图已挂账行，且不得借道引入新色族或新判据。
 
 ## 三、token 用法语义（tokens.json 描述派生）
 
@@ -647,7 +654,7 @@ tokens:
 - `color.bg.selected` = `#D9E3F6` — 选中项底：蓝感强于 hover 族（B−R=29，hover 为 6），不占语义色预算。出处 color-mix(in srgb, semantic.blue.graphic 12%, bg.surface)
 - `color.text.primary` = `#232B38` — 正文与标题。刻本墨色，拒纯黑与暖灰（docs/design/principles.md 采纳）
 - `color.text.secondary` = `#55617A` — 次级说明、标签。对 bg.raised #FFFFFF 6.22:1 / 对 bg.surface #F2F4F7 5.64:1，最严面达 AA 正文档
-- `color.text.tertiary` = `#637083` — 元信息、占位符（辅助文字）。AA 缺口已闭合（2026-07-19 定谳·值面复审）：三面 5.0288 / 4.7324 / 4.5640（raised / app / surface），**最严面 4.5640 过 AA 正文 4.5**。取值法＝沿中性阶既有色相等比压暗，H 与锚色同源、B≥R 冷调律不破。闭合前该位三面均低于 4.5（最严面约为现值的 0.84 倍），字号升档与轨位调整两条路已实测排除：前者要把 meta 抬到 WCAG large 门槛（≥18.66px）等于废掉 meta 档本身，后者抹平中性阶第三声部。代价如实登记——与 secondary 的明度间距由约 9.6 个 L 点收窄至约 4.5 个，中性阶第三、四档自此贴近；**退役值不在此复述**（判例：只述比值）。**深宗不随动**：themes.dark.text.tertiary 保持其原值（活值，不入退役黑名单），双宗共用中性就此拆分
+- `color.text.tertiary` = `#637083` — 元信息、占位符（辅助文字）。AA 缺口已闭合（2026-07-19 定谳·值面复审）：三面 5.0288 / 4.7324 / 4.5640（raised / app / surface），**最严面 4.5640 过 AA 正文 4.5**。取值法＝沿中性阶既有色相等比压暗，H 与锚色同源、B≥R 冷调律不破。闭合前该位三面均低于 4.5（最严面约为现值的 0.84 倍），字号升档与轨位调整两条路已实测排除：前者要把 meta 抬到 WCAG large 门槛（≥18.66px）等于废掉 meta 档本身，后者抹平中性阶第三声部。代价如实登记——与 secondary 的明度间距由约 9.6 个 L 点收窄至约 4.5 个，中性阶第三、四档自此贴近；**退役值不在此复述**（判例：只述比值）。**深宗不随动**：themes.dark.text.tertiary 当时保持其原值，双宗共用中性就此拆分。**事实订正（2026-08-09 SKIN-DYSTOPIA-1 项 A，同 Q8 族）**：「不随动」的依据是当时自述的深宗无缺口，该前提已被宗×面二维门实测证否，深宗此位已随槽收口为 #8B99B0；拆分本身不变（两宗各按本宗最严面复算）
 - `color.text.disabled` = `#8A94A8` — 禁用态文字。H≈217° 同源
 - `color.text.inverse` = `#F7F8FA` — 深底（主按钮）上的文字：冷白（=bg.app）
 - `color.border.hairline` = `#D5DAE3` — 全站默认描边与网格线：1px 单色无影（docs/design/principles.md 采纳），H≈217° 同源
@@ -686,9 +693,12 @@ tokens:
 - `themes.dark.bg.app` = `#0F1622` — 底纸。原型最高频底（18×）
 - `themes.dark.bg.surface` = `#16202F` — 竖栏容器底，台阶二
 - `themes.dark.bg.raised` = `#223047` — 浮卡，台阶三。语义 fg 复算以本值为最严基准
+- `themes.dark.bg.hover` = `#404D63` — 行/项悬停底。出处 color-mix(in srgb, bg.raised 78%, text.secondary)——派生式降为出处记录、解析值为真值（循浅宗 bg.hover 同族先例：CSS color-mix 不进 canvas 图主题，且读 .value 字面量的门无从解析派生式）。**补格（2026-08-09 SKIN-DYSTOPIA-1 项 B，登记性）**：本格此前只有 CSS 消费面、无 tokens 真源，属暗宗器面阶缺格；补的是既有解析值本身，像素零变
+- `themes.dark.bg.controlHover` = `#4B586D` — 扁平按钮 hover 深色块，与 selected 分离；CSS --control-hover。出处 color-mix(in srgb, bg.raised 70%, text.secondary)——派生式降为出处记录、解析值为真值。**补格（2026-08-09 SKIN-DYSTOPIA-1 项 B，登记性）**：同上，像素零变
+- `themes.dark.bg.selected` = `#233965` — 选中项底：蓝感强于 hover 族，不占语义色预算。出处 color-mix(in srgb, semantic.blue.graphic 18%, bg.raised)——派生式降为出处记录、解析值为真值。**补格（2026-08-09 SKIN-DYSTOPIA-1 项 B，登记性）**：同上，像素零变
 - `themes.dark.text.primary` = `#E4E9F1` — 正文与标题。对底纸 14.87:1
 - `themes.dark.text.secondary` = `#A9B4C6` — 次级。对底纸 8.66:1
-- `themes.dark.text.tertiary` = `#6E7C92` — 元信息。对底纸 4.28:1。**双宗此位已拆分**（2026-07-19 定谳）：浅宗随 AA 闭合压暗，深宗保持本值——深底上本值对比充裕，无缺口可闭，故不随动；本值为活值，不入退役黑名单
+- `themes.dark.text.tertiary` = `#8B99B0` — 元信息。三面 6.2868 / 5.6806 / 4.6032（app / surface / raised），**最严面 raised 4.6032 过 AA 正文 4.5**。**订正（2026-08-09 SKIN-DYSTOPIA-1 Q8，只改事实陈述不改判据）**：原描述「深底上本值对比充裕，无缺口可闭」经宗×面二维门实测证否——旧值三面实测 4.2836 / 3.8705 / 3.1364，三面全不达 4.5；缺口一直是真的，只是原门单宗单面从未取样到它。本次随槽收口（readiness `PI-LANE-UI-1` 行第三条后置条款兑现），取值法循浅宗 c636b1c 贴阈先例：沿本宗中性阶等比提亮，H 与锚色同源、B≥R 冷调律不破。代价如实登记——与 secondary #A9B4C6 的明度间距收窄，中性阶第三、四档自此贴近（与浅宗闭合时同族的代价）。**双宗此位仍拆分**（2026-07-19 定谳的这一半不变）：浅宗 #637083、深宗本值，各按本宗最严面复算。旧值 #6E7C92 仍是本宗活值（themes.dark.semantic.slate.graphic 在用），不入退役黑名单
 - `themes.dark.text.disabled` = `#4C5A70` — B0 自拟：禁用态，取自本宗中性阶
 - `themes.dark.text.inverse` = `#0F1622` — 浅底（主按钮）上的文字
 - `themes.dark.border.hairline` = `#2A3A52` — B0 自拟：默认描边。原型该值用于强边界，此处上移一档以避免与 bg.raised (#223047) 同值碰撞；对 raised ΔL≈3.7，属深色主题常规区间，层级由线重（rule.major）而非对比度承担

@@ -4,7 +4,7 @@
   
   <rect x="148" y="124" width="56" height="264" rx="10" fill="#F7F8FA"></rect>
   
-  <rect x="252" y="140" width="140" height="48" rx="14" fill="#6E7C92"></rect>
-  <rect x="252" y="232" width="140" height="48" rx="14" fill="#6E7C92"></rect>
-  <rect x="252" y="324" width="96" height="48" rx="14" fill="#6E7C92"></rect>
+  <rect x="252" y="140" width="140" height="48" rx="14" fill="#8B99B0"></rect>
+  <rect x="252" y="232" width="140" height="48" rx="14" fill="#8B99B0"></rect>
+  <rect x="252" y="324" width="96" height="48" rx="14" fill="#8B99B0"></rect>
 </svg>
