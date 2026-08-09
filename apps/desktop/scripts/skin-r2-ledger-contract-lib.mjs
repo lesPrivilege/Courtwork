@@ -84,6 +84,12 @@ export const signedR2LedgerRows = Object.freeze([
   ['VL3-T02', 'site/styles.css#versional-important-title-consumers', 'pages-experimental'],
   ['VL3-T03', 'apps/desktop/src/preview/gallery/main.tsx#resolved-data-theme', 'agent-interface'],
   ['VL3-S01', 'site/assets/screenshots#versional-dual-theme-refresh', 'pages-experimental'],
+  // SKIN-DYSTOPIA-1（深宗欠账清偿批一，2026-08-09 九裁 Q2③）：每项视觉决定一行三元组。
+  ['SD1-A01', "docs/design/tokens.json#themes.dark.text.tertiary", 'agent-interface'],
+  ['SD1-A02', "apps/desktop/src/styles.css#:root[data-theme='dark']|--text-tertiary", 'agent-interface'],
+  ['SD1-A03', 'site/styles.css#--text-tertiary|dark-media-root', 'pages-experimental'],
+  ['SD1-A04', 'site/scripts/versional-language-contract-lib.mjs#VL3-C01|dark-tertiary', 'pages-experimental'],
+  ['SD1-A05', 'docs/design/icon-dark.svg#rect|3-4-5-fill', 'agent-interface'],
 ]);
 
 export const retiredP5ProposalLines = Object.freeze(['P5-F06', 'P5-F07', 'P5-F08']);

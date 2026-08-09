@@ -1824,6 +1824,36 @@
       "tier": "pages-experimental",
       "approvedProposalLine": "VL3-S01",
       "fragmentKind": "directory"
+    },
+    {
+      "target": "docs/design/tokens.json#themes.dark.text.tertiary",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-A01",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "apps/desktop/src/styles.css#:root[data-theme='dark']|--text-tertiary",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-A02",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "site/styles.css#--text-tertiary|dark-media-root",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "SD1-A03",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "site/scripts/versional-language-contract-lib.mjs#VL3-C01|dark-tertiary",
+      "tier": "pages-experimental",
+      "approvedProposalLine": "SD1-A04",
+      "fragmentKind": "selector"
+    },
+    {
+      "target": "docs/design/icon-dark.svg#rect|3-4-5-fill",
+      "tier": "agent-interface",
+      "approvedProposalLine": "SD1-A05",
+      "fragmentKind": "selector"
     }
   ]
 }

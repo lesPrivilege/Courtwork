@@ -674,6 +674,10 @@ function scanSvg(file, content, failures) {
     // 双宗共用中性就此拆分。深底品牌标的次要色条本就该跟深宗：若跟着浅宗压暗，
     // 对 #232B38 深底的对比会由 3.3655 掉到 2.8328（-15.8%），品牌标反而更糊。
     // 故此三处改绑 themes.dark.text.tertiary；SVG 字节一字未动。
+    // SKIN-DYSTOPIA-1 项 A（2026-08-09）：深宗 tertiary 随槽收口 #6E7C92 → #8B99B0，本绑定
+    // 如设计般把变更拖到品牌标——三处 fill 同批跟值（票面点名的「四处同值」实为五处，
+    // 第五处正是本门拖出来的）。对 #232B38 深底的对比由 3.3655 升到 4.9394，方向与上段
+    // 「跟深宗才不糊」的理由一致；几何与比例零改动。
     ['docs/design/icon-dark.svg|rect|3|fill', tokenAt('themes.dark.text.tertiary.value')],
     ['docs/design/icon-dark.svg|rect|4|fill', tokenAt('themes.dark.text.tertiary.value')],
     ['docs/design/icon-dark.svg|rect|5|fill', tokenAt('themes.dark.text.tertiary.value')],
