@@ -154,11 +154,132 @@ npx vitest run --root . packages/pi-lane/src/workspace-write-env.test.ts
 
 ---
 
-## 七 · 移交
+## 七 · 移交（首轮，2026-08-09 18:55 提交 `9883f3c`）
 
-- tip SHA：见提交历史（本文件与代码改动同批提交，`git log -1` 可查）。
 - 报交验点即停：本会话不自我验收、不合并 `main`、不 `push`。
 - 下一位（独立验收）建议复核路径：①在其自身环境重跑 §3.3 的 20 路并发对照，确认「突变红 / 修复绿」在其
   机器上同样可复现（负载有效形状可能随核数/OS 调度器而异，不保证 2/20 这一具体比例可移植，但「修复版
   在同等并发下零复红」应可复现）；②抽查 `waitForTraceLength` 的超时分支是否真的会在超时时携带诊断
   `trace`（可临时把默认超时改极小值人工触发一次验证报错文案，验后复原）。
+
+---
+
+## 八 · 返修（架构裁转，2026-08-09 19:xx，同分支追加提交）
+
+### 8.1 首轮拒因（原文摘录，独立验收 `f589461`，验收树 `claude/accept-pi-test-waiter-1`）
+
+> 结论：REJECT。拒因一枚，决定性：三处调用点里的第一处 `waitForTraceLength(1)` **消灭了它所守护那枚
+> 断言的区分力**。……该断言是否定命题（第二件被 mutation queue 挡在门外），而 `trace.length >= 1`
+> 并不蕴含它——等待的终止点恰是观测窗口的起点。对照实测：把第二次调用改用独立 env 令串行性质不成立后，
+> `main` 原形 `setTimeout(20)` 报红，本单交付 10/10 恒绿；取实际值坐实等待解除时
+> `trace=['enter:a.md']`（与串行成立时逐字同形）、整趟终态 `enter,exit,enter,exit`（恰为串行成立的
+> 期望），两枚断言同时被不串行的系统满足。回执 §一表格把结论写成了前提：「第二件被队列挡在门外，
+> `trace` 终态锁定在 `['enter:a.md']`，不会再长」。这句话正是本用例待验的命题本身，却被当作选择等待
+> 长度的依据；循环由此成立，区分力塌陷是其直接后果。
+>
+> 同批登记一条供返修的定性：调用点一的原 `settle(20)` **身兼两职**——既「等前置」，又「撑开可观测
+> 违例的窗口」；后者与 `:971` 属同一族（有意的延迟注入）。本单只置换了前一职，把后一职一并删去。
+> 返修须把两职分开处置，不得以再次调整等待长度了事。
+
+即：三处调用点中只有调用点一（`characterization：共享同一 env 对象时……` 用例）被判塌陷；两处
+`waitForTraceLength(3)`（正向终态）与 `:971` 的延迟注入判为通过，验收报告第七节「偏离逐条裁定」四条
+偏离全部接受、拒因与偏离无关；四、五、六节（`:971` 处置、负载对照、门禁回归）皆判通过。返修范围因此
+**仅限调用点一**。
+
+### 8.2 根因复述
+
+调用点一守护的是一枚**否定命题**——「第二件被 mutation queue 挡在门外，此刻 trace 不会再长」。
+`waitForTraceLength(1)` 只能证明**正向命题**「trace 已达 1」，这与否定命题无蕴含关系：等待解除的
+那一刻，恰是「第二件是否会跟进」尚未见分晓的起点。首轮回执把待验命题本身（「不会再长」）写进了选择
+等待长度的依据（表格注释），构成循环论证——这正是塌陷的直接成因。
+
+### 8.3 返修：两职显式分离
+
+先核查是否存在支配该否定命题的正向可观测量（架构要求的优先路径）：upstream
+`file-mutation-queue.js`（`@earendil-works/pi-agent-core@0.82.1`）把 pending 队列态锁在模块级
+`WeakMap`（`states = new WeakMap()`）里，只服务内部 `withFileMutationQueue`，零公开 API、零导出——
+`WorkspaceWritePort`/`RecordingPort`/`WorkspaceWriteEnv` 均无法探得其 pending 计数。**正向可观测量不
+可得**，按架构授权的第二路径退回「显式登记的有界延迟」。
+
+改法（`packages/pi-lane/src/workspace-write-env.test.ts`，`describe('串行化真源', …)` 内）：
+
+1. 新增 `describe` 级注释块与常量 `const VIOLATION_WINDOW_MS = 20`，注释写明：本用例守护否定命题，
+   等待须拆两职，upstream pending 态零公开可观测量、只能退回有界延迟，延迟角色是「撑开违例窗口」而非
+   「等前置」，与 `:971` 同族。
+2. 调用点一改为两步：
+
+   ```ts
+   // ① 正向派生信号：等前置——第一条 enter 真落 trace（不赌时长，条件不成立就一直等到上界）。
+   await port.waitForTraceLength(1);
+   // ② 显式登记的违例窗口注入（见类上方注释）：给「第二件本不该被队列挡住」这件事一段
+   // 有界时间去发生；它若发生，会在此窗口内几乎立即体现在 trace 里。
+   await new Promise((resolve) => setTimeout(resolve, VIOLATION_WINDOW_MS));
+   ```
+
+`expect(port.trace).toEqual(['enter:a.md'])` 及其后续断言字面量**未改一字**。两处
+`waitForTraceLength(3)` 调用点与 `waitForTraceLength` 本体**未动**（验收判区分力完好、机制通过）。
+
+**为何窗口大小对负载不敏感**：若第二件本不该被同路径队列挡住，它在 `execute()` 里直达
+`port.write`，中途无 gate、无内部延迟——违例会在微任务链的头几跳内出现，不依赖任何「结算」时间；
+`VIOLATION_WINDOW_MS` 只是给这几跳留出的观察窗，不是在赌前置多久能就绪（前置已由 ① 的事件驱动等待
+确定性地完成）。这与被拒绝的原 `settle(20)` 有本质区别：原写法用同一个数赌两件事（前置就绪 **且**
+违例未发生），返修后前置就绪已确定性剥离，剩下的 20ms 纯粹是留白。
+
+### 8.4 区分力对照（架构指定反例装置，红绿证）
+
+按验收报告 §三使用的**同一枚对照装置**：把调用点一第二次调用的 `env: shared` 换成一枚独立
+`createWorkspaceWriteEnv(...)`（`publicToolCallId: 'tc_1_2'`，其余字段不变），令「共享 env ⇒
+按 canonical path 串行」这一被刻画性质**不成立**（`file-mutation-queue.js` 的队列态挂在 env 对象
+身份上，换独立 env 即脱钩）。两臂在返修后的等待器形态下对照（临时改动，验证后已逐字复原，
+`git diff` 校验回到返修态）：
+
+| 臂 | 第二次调用的 env | 结果（返修后形态） |
+|---|---|---|
+| 反例装置（验收指定） | 独立 `createWorkspaceWriteEnv` | **红**：`AssertionError: expected [ 'enter:a.md', 'enter:a.md', …(1) ] to deeply equal [ 'enter:a.md' ]`（`packages/pi-lane/src/workspace-write-env.test.ts:795`） |
+| 复原（本票交付态） | `shared`（同一 env） | **绿**：`Tests 1 passed \| 99 skipped (100)` |
+
+红绿同一份返修代码在唯一变量（第二次调用用哪个 env）翻转下同时产出，证明**区分力已恢复**：
+新形态不再对「是否真的串行」恒绿。
+
+### 8.5 判例入册
+
+按架构授权，在 `docs/engineering/workflow.md`「判例（跨工单适用，逐条带出处）」追加一条，紧接在
+「滚动账退出证据判例」之后、「依赖许可」小节之前：
+
+> ### 否定断言没有正向派生信号（2026-08-09 立，源 PI-TEST-WAITER-1 首轮 REJECT `f589461`）
+>
+> 「异步前置不赌时长」判例教的改法——把裸墙钟换成「等到派生信号达标即解除」——只对**正向命题**成立
+> （某状态终将到达，等条件不赌时长）。对**否定命题**（「某事不会发生」「不会再多」）它天然失效：
+> 信号达标的那一刻，正是否定命题待观测的窗口**起点**，不是**终点**。……
+>
+> 判据：**否定断言必须显式拆成两职，不得合并进同一次等待**：①正向信号等前置；②撑开违例窗口（优先
+> 找支配该否定命题的正向可观测量替代，找不到才退回有界延迟，且须注释登记「违例窗口注入，非等前置」）。
+> 把两职合并回一次等待——无论调多长——都是把赌注换个地方，且因为看似「已经用了派生信号」而更难归因。
+> 本条与「异步前置不赌时长」互补并列。
+
+（完整正文见 `docs/engineering/workflow.md` 对应小节，此处为回执摘录，不作为权威文本第二份。）
+
+### 8.6 门重跑（返修后，同批实测）
+
+| 门 | 命令 | 读数 |
+|---|---|---|
+| 定向 | `npx vitest run --root . packages/pi-lane/src/workspace-write-env.test.ts` | `Test Files 1 passed / Tests 100 passed`，EXIT 0 |
+| 区分力反例 | 同文件、`-t` 过滤该用例，反例装置注入 | **红**（见 §8.4） |
+| 区分力复原 | 同上，还原 `shared` | **绿**（见 §8.4） |
+| 负载对照（`yes` 自旋 10 轮，`uptime` 1m 读数 24.11→46.61） | 同定向命令顺序跑 10 轮 | **10/10 通过**，`TOTAL PASS=10 FAIL=0` |
+| 包级·前 | `git stash` 还原到 `9883f3c` 后 `vitest run --root . packages/pi-lane/src/*.test.ts` | **17 files / 553 tests passed**，EXIT 0 |
+| 包级·后 | `git stash pop` 复原返修后同上 | **17 files / 553 tests passed**，EXIT 0（净变化零） |
+| 构建 | `pnpm -r build` | **EXIT 0** |
+| lint | `pnpm lint` | **EXIT 0**，零诊断输出 |
+| 根测试 | `pnpm test`（`vitest run`） | **EXIT 0**，**170 files / 1941 tests passed** |
+
+退出码一律以 `cmd > log 2>&1; echo $?` 读取，未经管道吃码。`git stash`/`git stash pop` 操作前后各以
+`git status --short` 核对无残留（`git stash` 一次性带走了 `workspace-write-env.test.ts` 与
+`workflow.md` 两个已修改文件，`pop` 后逐一确认两者均已复原，非选择性 pathspec stash 造成的遗漏）。
+
+### 8.7 返修范围声明
+
+本轮改动两文件：`packages/pi-lane/src/workspace-write-env.test.ts`（仅调用点一的注释与两行代码，
+其余两处调用点、`waitForTraceLength` 本体、`:971` 注释均未动）与 `docs/engineering/workflow.md`
+（追加一条判例，架构已在返修指令中授权本会话执行此项文档改动，不属于「实现会话跨层拍板」的越权）。
+生产源码、`SPEC.md` 正文（除本节追加）、断言期望值字面量、依赖清单**零改动**。
