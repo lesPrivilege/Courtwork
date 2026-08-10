@@ -554,13 +554,20 @@ describe('content 门', () => {
     expect(gate.ok === false && gate.code).toBe('limit_exceeded');
   }, 60_000);
 
-  it('按 UTF-8 实长而非 UTF-16 长度计量：32768 个四字节 emoji 恰好压线', async () => {
-    const emoji = '😀'.repeat(32_768);
-    expect(emoji.length).toBe(65_536);
-    expect(utf8(emoji).byteLength).toBe(131_072);
-    expect((await gateWorkspaceWrite('a.md', emoji)).ok).toBe(true);
-    expect((await gateWorkspaceWrite('a.md', `${emoji}a`)).ok).toBe(false);
-  });
+  // PI-TIMEOUT-SWEEP-1 返修（验收 REJECT `1c1c181` M2）：`32_768 × 4 字节 emoji = 131072
+  // bytes`，与紧邻上一枚 `MAX_WORKSPACE_CONTENT_BYTES` 同价，只是量级以数字字面量而非具名
+  // 常量书写——判据本体同族，同批加显式 60000ms 上界。
+  it(
+    '按 UTF-8 实长而非 UTF-16 长度计量：32768 个四字节 emoji 恰好压线',
+    async () => {
+      const emoji = '😀'.repeat(32_768);
+      expect(emoji.length).toBe(65_536);
+      expect(utf8(emoji).byteLength).toBe(131_072);
+      expect((await gateWorkspaceWrite('a.md', emoji)).ok).toBe(true);
+      expect((await gateWorkspaceWrite('a.md', `${emoji}a`)).ok).toBe(false);
+    },
+    60_000,
+  );
 
   it('lone surrogate 与裸 NUL 拒绝——hash/byteLength 必须在良构门之后算', async () => {
     for (const bad of ['\uD800', 'a\uDC00b', 'a\u0000b']) {

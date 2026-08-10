@@ -342,27 +342,35 @@ describe('framing 与双向 seq', () => {
     expect(lastPacket(h)).toMatchObject({ sessionId: SESSION, payload: { code: 'session_mismatch' } });
   });
 
-  it('分片到达可拼行；一行超 framing 立即 packet_too_large', () => {
-    const split = createHarness();
-    const encoded = encodePacketLine({
-      protocolVersion: 1,
-      seq: 1,
-      sessionId: SESSION,
-      requestId: null,
-      type: 'bootstrap',
-      payload: bootstrapPayload(),
-    });
-    if (!encoded.ok) throw new Error('fixture 编码失败');
-    split.sendBytes(encoded.line.subarray(0, 10));
-    expect(split.out()).toHaveLength(0);
-    split.sendBytes(encoded.line.subarray(10));
-    expect(split.out()[0].type).toBe('ready');
+  // PI-TIMEOUT-SWEEP-1 返修（验收 REJECT `1c1c181` M3）：`huge.sendRaw` 一次构造并经真实
+  // harness 解析 1_048_600 字节（`MAX_PACKET_BYTES`=1_048_576，刻意越线 24 字节）的行，
+  // 量级重于本文件其余所有已处置成员，只是以数字字面量而非具名常量书写——判据本体同族，
+  // 加显式 60000ms 上界。
+  it(
+    '分片到达可拼行；一行超 framing 立即 packet_too_large',
+    () => {
+      const split = createHarness();
+      const encoded = encodePacketLine({
+        protocolVersion: 1,
+        seq: 1,
+        sessionId: SESSION,
+        requestId: null,
+        type: 'bootstrap',
+        payload: bootstrapPayload(),
+      });
+      if (!encoded.ok) throw new Error('fixture 编码失败');
+      split.sendBytes(encoded.line.subarray(0, 10));
+      expect(split.out()).toHaveLength(0);
+      split.sendBytes(encoded.line.subarray(10));
+      expect(split.out()[0].type).toBe('ready');
 
-    const huge = createHarness();
-    huge.sendRaw(`{"pad":"${'a'.repeat(1_048_600)}"}\n`);
-    expect(huge.out()[0]).toMatchObject({ payload: { code: 'packet_too_large' } });
-    expect(huge.exits).toEqual([1]);
-  });
+      const huge = createHarness();
+      huge.sendRaw(`{"pad":"${'a'.repeat(1_048_600)}"}\n`);
+      expect(huge.out()[0]).toMatchObject({ payload: { code: 'packet_too_large' } });
+      expect(huge.exits).toEqual([1]);
+    },
+    60_000,
+  );
 
   it('EOF 前未见 LF 的 partial packet 拒绝；干净 EOF 不造错', () => {
     const partial = createHarness();

@@ -287,15 +287,26 @@ Error: 同一份 source 连编两次不 byte-identical，拒绝产出 snapshot
 
 ## 九 · 既有用例回归
 
-- `product-protocol.test.ts`：`it(` 字面量计数改前改后逐字相同（**73**）；断言字面量除
-  §三表格所列 13 处**追加**第三参数外逐字未改。
-- `workspace-write-env.test.ts`：`it(` 计数改前改后相同（**40**）。
-- `tools.test.ts`：`it(` 计数改前改后相同（**67**）；仅 1 处第三参数由 `60_000` 改
-  `120_000`，断言字面量逐字未改。
-- 新增 `timeout-family-guard.test.ts`：8 枚测试（5 枚检测器自证 + 3 枚全量候选普查），
-  零生产代码。
-- `pi-lane` 包级：`vitest run --root . packages/pi-lane/` 改前 **17 files / 553 tests**，
-  改后 **18 files / 561 tests**（净增 8，全部为新增守卫文件；既有 553 逐数吻合，零回归）。
+**订正（返修，源验收 REJECT `1c1c181` §八.1 观察）**：`workspace-write-env.test.ts` 的
+`it(` 计数原回执写「改前改后相同（40）」，实为**45**（文件另有 5 处 `it.each(...)`，
+原计数口径 `grep -c "^\s*it("` 未含 `it.each` 前缀，是取数方法的疏漏，非文件本身变化——
+`45` 在本票所有改动前后逐字相同）。返修版守卫的块提取器已同口径处理 `it`/`it.each` 两种
+起手形态（见 §十一 附「返修判例」）。
+
+- `product-protocol.test.ts`：`it(`（含 `it.each`）计数改前改后逐字相同（**73**）；断言
+  字面量除 §三表格所列 13 处**追加**第三参数外逐字未改。
+- `workspace-write-env.test.ts`：计数改前改后相同（**45**，订正见上）；本轮返修新追加 M2
+  一处第三参数（`60_000`），断言字面量逐字未改。
+- `tools.test.ts`：计数改前改后相同（**67**）；本轮返修新追加 M1 簇三处第三参数
+  （`60_000`），SCAN-1 最重成员一处仍是 `120_000`（首轮已定），断言字面量逐字未改。
+- `product-stdio.test.ts`（返修新触碰文件）：计数改前改后相同（**104**）；新追加 M3 一处
+  第三参数（`60_000`），断言字面量逐字未改。
+- `timeout-family-guard.test.ts`（返修整体重写，换轴）：**12** 枚测试（7 枚检测器自证含
+  验收等价注入复现装置与 M1/M2/M3 覆盖断言 + 5 枚全量候选普查含两张登记表的陈旧性与理由
+  非空校验），零生产代码。
+- `pi-lane` 包级：`vitest run --root . packages/pi-lane/` 首轮改前 **17 files / 553
+  tests**，首轮改后 **18 files / 561 tests**，本轮返修后 **18 files / 565 tests**（净增
+  4，即守卫测试数 8→12；既有 561 逐数吻合，零回归）。
 
 ---
 
@@ -308,8 +319,8 @@ Error: 同一份 source 连编两次不 byte-identical，拒绝产出 snapshot
 | sidecar 前置 | `pnpm --filter @courtwork/pi-lane run build:headless-sidecar` | **EXIT 0**，`bytes=555314`，`sha256=061248fa…8a9bea`，`reproducible:true` |
 | 构建 | `pnpm -r build` | **EXIT 0**（15/15 workspace projects） |
 | lint | `pnpm lint`（`eslint .`） | **EXIT 0**，零诊断 |
-| 根测试 | `pnpm test`（`vitest run`） | **EXIT 0**，`174 files / 2167 tests passed`（10.60s，负载衰减后干净复测；与参考基线 2159 相差 +8，逐数吻合新增守卫文件） |
-| 包级测试 | `vitest run --root . packages/pi-lane/` | **EXIT 0**，`18 files / 561 tests passed`（与参考基线 553 相差 +8，逐数吻合） |
+| 根测试 | `pnpm test`（`vitest run`） | 首轮：**EXIT 0**，`174 files / 2167 tests passed`（10.60s，负载衰减后干净复测；与参考基线 2159 相差 +8，逐数吻合新增守卫文件）。**返修后见 §十三.七**：`174 files / 2171 tests`。 |
+| 包级测试 | `vitest run --root . packages/pi-lane/` | 首轮：**EXIT 0**，`18 files / 561 tests passed`（与参考基线 553 相差 +8，逐数吻合）。**返修后见 §十三.七**：`18 files / 565 tests`。 |
 
 按票面不跑 Playwright。
 
@@ -341,20 +352,193 @@ Error: 同一份 source 连编两次不 byte-identical，拒绝产出 snapshot
 
 ---
 
-## 十二 · 移交
+## 十三 · 返修（源独立验收 REJECT `1c1c181`）
+
+### 十三.一 · 拒因引用
+
+> 拒因一枚，落在票面交付物本身——**枚举不完备**：族定义是「无显式 timeout 且判据本体为
+> 重计算或真 I/O」，而实现的枚举轴是语法标记 `MAX_*` 标识符的字面在场。同一份重计算换用
+> 数字字面量书写即同时躲过枚举与机器门；本席静态扫出三枚在族未处置成员，其中一枚**在本席
+> 负载臂上真实红出 `Test timed out in 5000ms`**……该形态与 `docs/engineering/workflow.md`
+> §「闭口按族」补正条（2026-08-02，源 1R3 复验：「扫描谓词必须与族定义同宽……语法标记
+> 只是实现便利，不得反过来定义族」）逐字同形。
+> ——`1c1c181`
+
+三枚在族未处置成员：`tools.test.ts:249`「grep 命中投影成 /case[/...]，行号与 details
+不变」（**M1**，验收席负载臂真实红 `Test timed out in 5000ms`，5734ms，1/20）、
+`workspace-write-env.test.ts:557`「按 UTF-8 实长而非 UTF-16 长度计量：32768 个四字节
+emoji 恰好压线」（**M2**，`32_768 × 4 字节 = 131072 bytes`，与紧邻已处置枚同价）、
+`product-stdio.test.ts:362`「分片到达可拼行；一行超 framing 立即 packet_too_large」
+（**M3**，`'a'.repeat(1_048_600)`，重于全部已处置成员）。另登记验收观察②：`sidecar.test.ts`
+整文件豁免写在扫描器代码的 `basename === 'sidecar.test.ts'` 分支里，不在登记表内。
+
+### 十三.二 · 换轴：数值量级求解，不按标识符拼写
+
+`timeout-family-guard.test.ts` 整份重写（保留族定义与 fail-closed 精神，扫描机制换血）。
+新轴两条独立扫描面：
+
+**形状 A（`it()` 体内内联构造）**：对 `.repeat(...)`／`Array.from({ length: ... })`／
+`Buffer.alloc(...)`／`new Array(...)`／`.padEnd(...)`／`.padStart(...)` 的实参做**数值
+求解**——极简递归下降算术求值器（`+ - * /` 与括号，数字含下划线分隔）+ 常量表（本文件本地
+`const NAME = NUMBER` 声明 + 单跳 import 解析：`import { MAX_X } from './y.js'` 读
+`./y.ts` 的 `export const MAX_X = N`，把值拉进常量表，兼容 `as` 别名）。字面量、具名常量、
+`常量 / 4`、`60 * 1024` 一类简单算式均可解；解出的数值按字节轴（`HEAVY_BYTE_THRESHOLD =
+8192`，取 `MAX_API_KEY_BYTES` 量级，介于本仓已知最大边界探针 4097 与最小真重构造 32768
+之间）或计数轴（`HEAVY_COUNT_THRESHOLD = 200`，与 `MAX_MATCHES` 同阈值，同时覆盖
+`MAX_LIST_ENTRIES`/`MAX_FILES_SCANNED`=2000 一类）判族；**求解不出的实参（含成员访问如
+`shell.length`、含未知标识符）一律按候选处理，不当作安全豁免**（fail-closed）。
+
+**形状 B（`describe`/文件级作用域内真实磁盘写 fixture）**：不再钉 `createFiles(` 这一具名
+helper。改为：①扫描本文件全部顶层函数定义，任何函数体内含 `writeFile`/`mkdir`/`symlink`
+真实调用即登记为「real-write helper」（不问名字）；②在每个 `describe`（及文件级
+`beforeAll`/`beforeEach`，若不在任何 describe 内）的 setup 文本里，扫描对 `writeFile` 的
+直接调用（内容量级走形状 A 同一套字节轴）与对已登记 helper 的调用（实参量级走计数轴，
+解不出同样按候选）；③该作用域一旦判heavy，其内以已知读入口（`\brun\w*\(`／`.execute(`／
+`readFile(`／`readTextLines(`，覆盖本包 `run`/`runWith`/`runProduct`/`runDual` 命名习惯）
+触达的每一枚 `it()` 都进候选集。
+
+两条扫描面的结果按 `<basename>::<title>` 去重合并；候选集减去登记豁免、减去已有显式
+`timeout`，剩者即违规，测试体直接把清单摔进 `Error` message。
+
+### 十三.三 · M1/M2/M3 处置
+
+| 枚 | 位置 | 处置 |
+|---|---|---|
+| M1 | `tools.test.ts`「grep 命中投影成 /case[/...]，行号与 details 不变」 | 加显式 `60_000` |
+| M2 | `workspace-write-env.test.ts`「按 UTF-8 实长而非 UTF-16 长度计量：32768 个四字节 emoji 恰好压线」 | 加显式 `60_000`（与紧邻上一枚 `MAX_WORKSPACE_CONTENT_BYTES` 同批同量级） |
+| M3 | `product-stdio.test.ts`「分片到达可拼行；一行超 framing 立即 packet_too_large」 | 加显式 `60_000`（量级重于本文件其余已处置成员） |
+
+### 十三.四 · M1 所在 describe 整簇结论
+
+`tools.test.ts` 的 `createReadOnlyTools({ logicalRoot: "/case" })` describe（`beforeAll`
+写入 `超长行.md`——`'甲'.repeat(60 * 1024)` ≈ 184 KiB 单行真实磁盘文件）共 11 枚 `it()`；
+守卫新轴按「是否以读入口触达该作用域」筛出 8 枚候选，逐枚人工核定：
+
+| it() | 候选？ | 处置 | 理由 |
+|---|---|---|---|
+| 装配面与 dev 形态同名同数 | 否 | 不处置 | 零 I/O，纯 metadata 断言 |
+| read 保持上游 name/label/description 原文与同一枚 parameters 对象 | 否 | 不处置 | 零 I/O，引用/字符串相等断言 |
+| glob/grep 的 schema 与 dev 形态是同一枚对象 | 否 | 不处置 | 零 I/O，引用相等断言 |
+| read 归一后只调用一次原版 execute，且真读到内容 | 是 | **豁免**（登记） | 真读，但目标是 起诉状.md（数十字节），非 超长行.md |
+| read 接受 /case 绝对写法，与相对写法同结果 | 是 | **豁免**（登记） | 同上，两次真读均针对小文件 |
+| 上游截断提示里的 path 也只能是逻辑绝对路径 | 是 | **加 `60_000`** | 真读 超长行.md 全文（M1 同族） |
+| 归一失败即拒，原版 execute 一次都不跑 | 是 | **豁免**（登记） | 全路径在 execute 前被拒，自身断言 `binaryReads===0` |
+| glob 命中投影成 /case[/...]，且 details 与 dev 形态逐值相同 | 是 | **豁免**（登记） | glob 只 readdir+路径匹配，不读文件内容字节 |
+| grep 命中投影成 /case[/...]，行号与 details 不变（**M1**） | 是 | **加 `60_000`** | product+dev 双跑两遍 grep，全文扫描 超长行.md |
+| symlink 子树在 glob/grep 里同样不出现 | 是 | **加 `60_000`** | 单跑 grep 扫描 超长行.md（M1 同族，代价约半） |
+| 无参调用的 dev 形态逐字不变：read 是原版对象，命中仍是相对路径 | 是 | **豁免**（登记） | 只调用 glob，不读文件内容字节 |
+
+同批复核 `tools.test.ts` 的 `单次调用上限：扫描与命中是两类，各自出字段与注记`
+describe（`beforeAll` 经 `createFiles` 建 `hits`=250/`scan`=2001 两份真实文件树）：
+新轴同样筛出全部 6 枚 `it()` 为候选（因 6 枚均调用 `runWith`），其中 4 枚（`glob`/`grep`
+× `200`/`2000`）已由 `PI-SCAN-TIMEOUT-1/2` 处置，另 2 枚（`未触任一来源时诸字段都出空值`
+`grep 单文件内命中超限`）人工核定后**豁免**（登记）——分别只触达自建小 sandbox 与
+`longFile`（单文件 250 行 ≈2750 bytes），非 `hits`/`scan` 两枚真正的重 fixture，与
+`PI-SCAN-TIMEOUT-1/2` 的既有裁定一致（两票从未给这两枚加 timeout）。
+
+另有 1 枚形状 A 候选因实参含运行时字符串 `.length`（`workspace-write-env.test.ts`「单段
+恰好 255 bytes 与总长恰好 1024 bytes 均通过」的 `.repeat(1024 - directories.length - 1 -
+3)`）求解不出、按 fail-closed 落入候选，人工核实其真实目标为 `MAX_WORKSPACE_PATH_BYTES=
+1024` 这一边界值本身（`directories` 恒为 1019 字符，故 repeat 次数恒为 1），**豁免**
+（登记，理由含推导过程）。
+
+**全量候选普查最终态**：30 枚候选，8 枚豁免（各带理由，见 `EXEMPT_WITHOUT_TIMEOUT`），
+22 枚已有显式 `timeout`，**0 枚违规**。
+
+### 十三.五 · 两处订正
+
+1. `workspace-write-env.test.ts` 的 `it(` 计数：`40` → **`45`**（原口径未含 `it.each`
+   前缀，SPEC §九已订正；`45` 在本票改动前后逐字相同，不是文件被改动）。
+2. `sidecar.test.ts` 的整文件豁免：由守卫代码内 `path.basename(block.file) ===
+   'sidecar.test.ts'` 分支，迁入具名登记表 `FILE_LEVEL_EXEMPTIONS`（`{file, reason}[]`），
+   与 `EXEMPT_WITHOUT_TIMEOUT`（逐 title）同级对外可见、可审计；`isExempt` 现为纯查表。
+
+### 十三.六 · 红绿证
+
+**换轴自证（等价注入双命中）**：按验收 §3.1 装置复现——向 `packages/pi-lane/src/` 注入
+临时文件，含两枚语义等价、仅书写方式不同的用例（`'a'.repeat(MAX_PROBE_BYTES)` 具名常量
+形 vs `'a'.repeat(131_072)` 数字字面量形，均无显式 timeout）。返修后守卫：**候选 2 枚，
+违规 2 枚，双双命中**（旧轴只报 1 枚）。验证后撤除注入文件，守卫复绿 12/12。该等价对同时
+固化为守卫自身的永久回归测试（`检测器自证` 组）。
+
+**M1 冻结负载形态红绿配对**（K 路包级并发，`vitest run --root . packages/pi-lane/`）：
+
+| 臂 | K | `uptime` 1m 峰值 | M1 结果 |
+|---|---|---|---|
+| 红（临时撤除 M1 的 `60_000`） | 30 | 738.98 | **13/30 `Test timed out in 5000ms`** |
+| 绿（保持返修后代码） | 30 | **773.53**（高于红臂，绿不是靠负载回落换来的） | **0/30** |
+
+两臂紧邻同批次跑，唯一变量是 M1 是否带显式超时；撤除/复原后 `diff` 逐字节核对与返修态
+相同。K=20 时曾复测两轮（峰值 207.56、274.19）均 0/20——量级敏感、非线性（同族既有判例，
+见 SPEC §四），故取更高 K 才稳定复现红臂，与 `PI-SCAN-TIMEOUT-1/2` 已确立的「具体命中率
+不可跨环境/跨批次移植，需同批次紧邻配对」判例一致。
+
+**M1/M2/M3 born-red 覆盖断言**：守卫新增专项测试直接核对三枚均在候选集内且已有显式
+`timeout`（`检测器自证` 组「M1/M2/M3……现均被判为候选且已达标」），任一遭回归撤除
+timeout 即由该专项测试与全量普查测试双重命中。
+
+**mutation 撤回复红（补充，M1 专项）**：临时撤除 `tools.test.ts` 内 M1 的 `60_000`（保留
+其余改动），守卫两处同时报红（专项断言点名 M1、全量普查列出 `tools.test.ts:125`）；
+`cp`/`diff` 复原后逐字节相同，守卫复绿 12/12。
+
+### 十三.七 · 门重跑
+
+| 门 | 命令 | 读数 |
+|---|---|---|
+| 构建 | `pnpm -r build` | **EXIT 0**（15/15 workspace projects） |
+| lint | `pnpm lint`（`eslint .`） | **EXIT 0**，零诊断 |
+| 根测试 | `pnpm test` | **EXIT 0**，`174 files / 2171 tests passed`（11.32s，负载衰减后干净复测；与首轮 2167 相差 +4，逐数吻合守卫测试 8→12） |
+| 包级测试 | `vitest run --root . packages/pi-lane/` | **EXIT 0**，`18 files / 565 tests passed`（与首轮 561 相差 +4，逐数吻合） |
+
+按票面不跑 Playwright。sidecar 制品未重建（生产源码零改动，首轮身份 `bundle.bytes=
+547893`/`sha256=951acf8e…74bc6c` 原样有效）。
+
+**门禁自伤登记（返修批次同族）**：M1 红绿配对所用的 30 路探测本身在本机产生 `uptime` 1m
+峰值 645–773 的极端负载；紧随其后立即跑的门禁批次残留负载未散尽，须显式等待 `uptime` 1m
+降至 <5（约 8 分钟衰减）后再跑，方得干净读数——与首轮登记的同一判例同源，不重复展开。
+
+### 十三.八 · 返修判例（供后继同族票参考）
+
+1. **枚举轴必须从族谓词出发，不能是语法标记的副产品**——`workflow.md` 1R3/1R4/1R5 判例的
+   再一次复现：本票首轮以 `grep '\.repeat\(MAX_|length:\s*MAX_'` 圈定候选，谓词即枚举轴，
+   `MAX_*` 拼写与「判据本体重计算」在本仓语料里高度相关但不等价，数字字面量书写即可
+   逃逸。数值求解（哪怕只是字面量+常量表+四则运算这种「极简」水平）比语法白名单更贴近
+   真实族谓词，但仍非通用解释器——不可解的表达式必须留在候选集里而不是被悄悄放行。
+2. **块提取器的收尾探测不能借用另一类调用的收尾形状**——返修中一次真实自伤：`describe`
+   提取器复用了 `it()` 专属的单行 `}, N);` 收尾判据，被内部某个 `beforeAll(...)}，
+   120_000);` 提前截断，导致该 describe 只提出十几个字符的残片、内部 `it()` 全部消失于
+   候选集之外。修法是把该收尾形状按 `keyword === 'it'` 与缩进双重限定，不能对
+   describe/beforeAll 通用。
+3. **数值阈值必须分轴，「一刀切」会两头出错**——「元素/文件计数」（`Array.from length`、
+   真实建文件数）与「字节/字符量级」（`repeat`、`Buffer.alloc`）合用同一阈值时，取小
+   阈值会把 `MAX_MATCHES=200` 一类计数轴命中之外的边界字符串探针（255/1024/4096 一类）
+   也扫成候选（一次实测：通用 `.repeat(N≥200)` 阈值扫出 40+ 条与磁盘 I/O 无关的边界字面量
+   测试），取大阈值又会漏掉计数轴本身（`Array.from({length: MAX_LIST_ENTRIES=2000})` 的
+   `2000` 若拿字节阈值 8192 去卡就漏判）。按物理单位分轴（计数用 `MAX_MATCHES=200`、
+   字节用 `MAX_API_KEY_BYTES=8192`）两头都对。
+4. **真 I/O 判定的「具名 helper」陷阱有两层，不是钉一个名字就完**——第一层是「只认
+   `createFiles` 这个名字」（验收拒因本身）；第二层更隐蔽：改成「函数体含 writeFile 即算
+   helper」后，若再用固定行数窗口去这个 helper 调用点附近找「规模参数」，窗口会越界吃进
+   **下一个不相关 fixture** 的调用（真实事故：`longFile` 借用了紧邻 `scan` 那行的
+   `createFiles(directory, 2001, …)`，被误判为 heavy）。修法是让窗口在遇到本次调用自身的
+   收尾符号或下一次同类调用的开头时立即停止，不允许跨调用点。
+
+---
+
+## 十四 · 移交
 
 - 报交验点即停：本会话不自我验收、不合并 `main`、不 `push`。
 - 建议下一位（独立验收）复核路径：
-  1. §三表格 13 处形状 A 逐条核对判据本体核定结论（是否认同「结构同族即同批处置」而非
-     逐枚要求独立负载命中证据）。
-  2. §四 SCAN-1 最重成员复裁：核对 `120_000` 取值链路（复用既有 `product-main.test.ts`
-     精确量级 vs 独立开新数字）是否认同；如认为仍不够或过于宽松，可提出替代取值连同支持
-     数据。
-  3. §五 sidecar 归因：核对两组失败堆栈（`TimeoutError`／`回环往返未在 2000ms 内完成`）
-     与生产 `ROUND_TRIP_BUDGET_MS=2000` 设计意图是否确系对应，及「登记不改」是否认同。
-  4. §七机器守卫：在其自身环境重跑 born-red 注入验证（两处，见 §七.2），核对检测器对
-     真实回归有区分力；核对 `EXEMPT_WITHOUT_TIMEOUT` 当前空集与两条扫描面族定义是否认同。
-  5. §六 票面外观察（`product-main.test.ts` manifest 非确定性）是否需要转出新票，本票
-     判断不需要（单批 1/40 复现率，且已有 `180_000` 显式超时非本族）。
+  1. §十三.二 换轴：核对数值求解器（字面量/常量表/简单算式）与 fail-closed（求解不出 →
+     候选）是否符合「谓词从族本身出发」的判例要求；核对 §十三.六 的等价注入双命中自证在
+     其自身环境可复现。
+  2. §十三.三/四 M1/M2/M3 与 M1 所在 describe 的整簇结论：8 枚豁免逐条核对理由是否成立，
+     是否认同「候选但豁免」优于「候选即处置」（复杂度节制 vs 过度加固的取舍）。
+  3. §十三.五 两处订正：核对 `45` 的取数口径与 `FILE_LEVEL_EXEMPTIONS` 的查表实现。
+  4. §十三.六 M1 红绿配对：核对 30 路负载形态是否仍在「本票冻结负载形态」的合理外延内
+     （K 从 20 抬到 30 属误差范围内的同族探测，非重新定义负载形态）；如认为需要更贴近
+     K=20 的证据，可在验收环境自行争取更多批次。
+  5. §四/§五/§六（首轮内容）未改，若认可首轮结论可不重跑，聚焦本轮改动面即可（沿用
+     首轮验收 `1c1c181` 自己给出的建议：「返修后建议聚焦复验……无需重跑全套」）。
 
 ---
