@@ -5376,3 +5376,145 @@ cp 预播 node 归档后本地现编。
 
 返修后建议聚焦复验：只复核枚举轴与新处置枚，§二/§四/§五/§六/§七 各面本席已取得独立证据，
 无需重跑全套。
+
+## PI-TIMEOUT-SWEEP-1 · 聚焦复验（2026-08-10，PASS）
+
+复验对象 `2680d76`（`fix(pi-lane): PI-TIMEOUT-SWEEP-1 返修——数值量级扫描轴替换标识符字面匹配、
+M1/M2/M3 处置＋M1 簇整簇结论、豁免迁具名登记表`），`git rev-list --parents -n 1 2680d76` 实测
+父提交即前轮验收对象 `ff31296`，直接子关系成立。同一验收树，`src/` 与 `2680d76` 逐文件无差异
+（`git diff --name-only 2680d76 -- packages/pi-lane/src/` 为空），仅 `ACCEPTANCE.md` 带本席
+前轮 REJECT 记录。异会话复验，读数全部本席实跑。
+
+**结论：PASS（放行）。** 前轮拒因已闭合：扫描轴由标识符字面匹配换成数值量级求解，本席在真实
+文件上复注的等价对 **2/2 全被看见**；fail-closed 经「静态解不出但运行时极小」的探针独立坐实；
+形状 B 确不钉具名 helper。M1/M2/M3 三枚全部处置且断言逐字未改，M1 簇 11 枚逐枚结论本席核过
+8 枚（含 5 枚豁免的读码核实），全部与代码相符。全包普查 **30/8/22/0** 独立重数吻合，两处订正
+落实，M1 红绿在同一负载形态下 4/28 对 0/28，八相回归 root **2171** / pi-lane **565**。
+另登记三条观察项（§六），均不阻断放行。
+
+### 一 · 换轴后守卫（通过）
+
+不采信回执自带的合成自证，改在**真实文件**上复注——新建临时测试文件，四枚注入各无显式
+timeout，跑守卫读其判词：
+
+| 注入 | 形态 | 期望 | 实测 |
+|---|---|---|---|
+| A | `'a'.repeat(MAX_PROBE_BYTES)`（本地 `const = 131_072`） | 判族 | **判族** |
+| B | `'a'.repeat(131_072)`（同值数字字面量） | 判族 | **判族** |
+| C | `'a'.repeat(runtimeVar.length)`（`runtimeVar='ab'`，**运行时实际只有 2**） | 判族（fail-closed） | **判族** |
+| D | 改名 helper `makeMaterials(dir, 2001)` 建真实文件树，`it()` 经读入口触达 | 判族 | **判族** |
+
+守卫一次报全四枚：`发现 4 枚候选族成员缺显式 timeout`，逐枚点名。
+
+三条判据据此成立：**(a) 等价对 2/2**——前轮拒因（同一份重计算换数字字面量书写即同时躲过枚举
+与机器门）已闭合；**(b) fail-closed 真为 fail-closed**——注入 C 的量级运行时仅为 2，远低于任何
+阈值，静态解不出即判族而非按「小量级」放行，证明 unknown 走的是判族分支而不是安全分支；
+**(c) 形状 B 不钉 helper 名**——`makeMaterials` 与 `createFiles` 无字面关系，仅因函数体含
+`writeFile` 被识别，实参 2001 经数值求解越阈。
+
+读码另核：`hasHeavyMagnitude` 的 `call.resolved === null` 分支直接 `return true`，
+`hasHeavyRealWrite` 同形；豁免不再是扫描器里的 `basename === X` 分支。
+
+### 二 · M1/M2/M3 处置与 M1 簇整簇结论（通过）
+
+三枚均已加显式 `60_000`，diff 逐行核为「`it()` 实参改多行体例＋追加第三参数」，断言字面量
+逐字未改。
+
+M1 簇（`createReadOnlyTools({ logicalRoot: "/case" })` describe，11 枚）**3 处置 / 8 不处置**。
+本席读码核 8 枚（超出抽验要求的 4 枚），逐条与结论表比对：
+
+| 枚 | 表内结论 | 本席读码核实 |
+|---|---|---|
+| `装配面与 dev 形态同名同数`（:209） | 零 I/O | 仅 `productTools.map(...).sort()`，纯 metadata。**符** |
+| `read 保持上游 name/label/description…`（:213） | 零 I/O | 仅 name/label/description/parameters 的相等与同一性断言。**符** |
+| `glob/grep 的 schema 与 dev 形态是同一枚对象`（:224） | 零 I/O | 仅 `parameters` 引用相等。**符** |
+| `read 归一后只调用一次原版 execute…`（:233） | 真读，但目标是小文件 | 读 `起诉状.md`，非 `超长行.md`。**符** |
+| `read 接受 /case 绝对写法…`（:239） | 同上，两次真读均小文件 | 两次均 `起诉状.md`。**符** |
+| `归一失败即拒…`（:257） | 三条路径全在 execute 前被拒，从未真读 | 末行 `expect(binaryReads).toBe(0)`——**该宣称由用例自身断言强制**，若失真则用例先红。**符** |
+| `glob 命中投影成…`（:266） | 只调 glob，不读内容字节 | 两次 `glob`，断言只涉路径投影。**符** |
+| `上游截断提示里的 path…`（:247，**已处置**） | 真读 `超长行.md` | `runProduct('read', { path: '超长行.md' })`。**符** |
+
+另核 `workspace-write-env.test.ts` 那枚 fail-closed 豁免的算术宣称（表内称实际 repeat 次数恒为
+1、属边界探针）：`directories` ＝ `Array.from({ length: 4 }, () => 'd'.repeat(254)).join('/')`
+＝ 4×254＋3 ＝ **1019** 字符，`1024 - 1019 - 1 - 3` ＝ **1**，全路径 1019＋1＋4 ＝ **1024**
+＝ `MAX_WORKSPACE_PATH_BYTES` 边界值本身。宣称属实，豁免成立。
+
+### 三 · 全包普查独立重数（通过）
+
+不读回执数字，改直接 import 守卫导出的 `allHeavyCandidates`／`isExempt`／`hasExplicitTimeout`
+自行分类计数：
+
+```
+total 30 | exempt 8 | timed 22 | violations 0
+byFile: product-protocol 11, product-stdio 1, tools 14, workspace-write-env 4
+```
+
+**30 / 8 / 22 / 0，与票面报数逐数吻合。** 组成自洽：`11+1+14+4 = 30`；`tools` 14 ＝ 7 已处置
+＋7 豁免；22 枚已处置里 M1（`tools.test.ts::grep 命中投影成…`）、M2
+（`workspace-write-env.test.ts::按 UTF-8 实长…emoji…`）、M3（`product-stdio.test.ts::分片到达
+可拼行…`）三枚前轮缺口均在列。8 枚豁免逐条带理由，`EXEMPT_WITHOUT_TIMEOUT` 与
+`FILE_LEVEL_EXEMPTIONS` 各有陈旧登记检查，另有一枚「理由不得留白」的门。
+
+### 四 · 两处订正落实（通过）
+
+1. **`it(` 计数**：SPEC 已改为 `40` → **45**，并写明原口径未含 5 处 `it.each(...)`。本席前轮
+   实测即 45，差额解释与实测吻合（40＋5）。
+2. **sidecar 豁免迁表**：已进 `FILE_LEVEL_EXEMPTIONS`，带边界②理由行；`grep -n sidecar.test.ts`
+   在守卫内仅命中文件顶注释与登记表两处，**扫描器代码内已无 `basename === 'sidecar.test.ts'`
+   分支**。同批新增 `FILE_LEVEL_EXEMPTIONS` 陈旧登记检查。
+
+### 五 · M1 红绿对照（通过）
+
+变异＝撤除 M1 的 `60_000`。**命中校验**：`tools.test.ts` 的 `60_000` 计数 7→6，md5 由
+`dca443b8…` 变 `577daee9…`，守卫同步判红并点名该枚。两臂同为 28 路包级并发：
+
+| 臂 | `uptime` 1m 峰值 | M1 结果 |
+|---|---|---|
+| 红（撤 `60_000`） | 415.51 | **4/28，全部 `Test timed out in 5000ms`** |
+| 绿（保持 `2680d76`） | 300.14 | **0/28** |
+
+复原后 md5 回到 `dca443b8…`，`git status` 净。前轮该枚在 20 路臂上的 1/20 真红与本轮 4/28
+同向，处置对该枚的因果承重坐实。
+
+### 六 · 观察项（三条，均不阻断放行）
+
+1. **形状 B 候选的行号是 describe 相对行号，非文件绝对行号。** 撤 M1 超时后守卫报
+   `tools.test.ts:125`，而该 `it()` 实际在第 **278** 行；该 describe 起于 154 行，
+   `278 - 154 + 1 = 125` 恰好复现。根因：`scanFamilyB` 内 `out.push(block)` 未做偏移还原，
+   而返修前的旧版本此处写的是 `startLine: d.startLine + b.startLine - 1`——换轴时这一句连同
+   旧扫描面一并退役了。形状 A 走 `extractItBlocks(file, source)`，行号正确，故只影响形状 B。
+   **不阻断**：判定、分类与门禁结论均不受影响，且判词里的**标题**正确（豁免登记表本就以
+   title 为 key，非行号）。但 `workflow.md`「红必须报对理由，否则下一个照旧文改写的人读到
+   错误指路」适用于此，宜以一行修复。
+
+2. **守卫自身是未处置的真 I/O 用例，且结构性排除在自己的扫描面外。** 它每次
+   `allHeavyCandidates()` 都 `readFileSync` 本目录全部 `.test.ts` 及其单跳 import 的生产常量
+   文件，却以 `name !== GUARD_FILE_BASENAME` 把自己排除（为避免其合成语料自我污染，该排除本身
+   正当），因而永远不会被自己的门看见；其 12 枚 `it()` 均无显式上界。实测：28 路臂上守卫自身
+   用例命中 `Test timed out in 5000ms`——绿臂 4 次、红臂 1 次，是该批 6 个受影响文件中最频繁的
+   一个。**不阻断**：28 路超出本票冻结负载形态（20 路），且回执 §二已预先登记 K=28 属「与本票
+   判据无关的轻量用例零星陪跑变红」的噪声区间——本席绿臂实测确有 6 个文件、含明显轻量用例
+   同时中招，与该登记一致；全量门（单路）八相全绿。建议给守卫自身 12 枚补显式上界：门自己
+   flake 时报出的恰是「候选族成员必须有显式 timeout」超时，指路最易被误读成治理失败。
+
+3. **CJK 命名的写盘 helper 逃逸形状 B。** 本席首轮注入 D 用 `造材料` 作 helper 名时未被看见，
+   改 `makeMaterials` 后立刻被看见；根因是 `extractFunctionDefs` 的函数名捕获为
+   `[A-Za-z_$][\w$]*`。**不阻断**：`CLAUDE.md` 定「标识符用英文」，该形态在合规代码里不可达；
+   登记备查，不建议为此扩正则。
+
+### 七 · 回归门禁（通过，零漂移）
+
+清净窗口（`uptime` 1m 降至 3.55 后起跑，避免把本席负载臂自造的争用算进读数）：
+
+| 门 | 读数 |
+|---|---|
+| `pnpm -r build` | EXIT 0 |
+| `pnpm lint` | EXIT 0，零诊断 |
+| `pnpm test` | EXIT 0，**174 files / 2171 tests**（10.90s） |
+| `vitest run --root . packages/pi-lane/` | EXIT 0，**18 files / 565 tests**（4.18s） |
+
+**+4 归因抽验**：守卫文件单跑由前轮的 **8 枚**增至 **12 枚**（新增四枚为等价对双命中、
+阈值下不误伤、fail-closed、改名 helper 探测与 M1/M2/M3 达标核）；`2167+4 = 2171`、
+`561+4 = 565` 逐数吻合，净增全部落在守卫文件，既有用例零回归。按票面不跑 Playwright。
+
+复验期间创建的两枚临时探针文件已删除，`git status` 仅余本记录一处改动。
