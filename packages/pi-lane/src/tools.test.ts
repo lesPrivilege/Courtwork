@@ -181,6 +181,31 @@ describe('createReadOnlyTools({ logicalRoot: "/case" })', () => {
     binaryReads = 0;
   });
 
+  /**
+   * PI-TIMEOUT-SWEEP-1 返修（验收 REJECT `1c1c181` M1）：本 describe 的 `beforeAll` 写入
+   * `超长行.md`——`'甲'.repeat(60 * 1024)` ≈ 184 KiB 单行真实磁盘文件，是本文件与本 describe
+   * 共享 `root` 之上的重 fixture。以下逐枚给出簇内 11 枚 `it()` 的处置结论（不再依赖
+   * `createFiles(` 等具名 helper 识别，改按「本 it() 是否真的读了这份文件内容字节」判定，
+   * 与守卫新轴（数值量级 + 真实 I/O 可达性）同一判据）：
+   *
+   * - `装配面与 dev 形态同名同数`／`read 保持上游 name/label/description 原文…`／
+   *   `glob/grep 的 schema 与 dev 形态是同一枚对象`：零 I/O，纯 metadata／引用相等断言，
+   *   从不触达任何文件内容。**不处置**。
+   * - `read 归一后只调用一次原版 execute…`／`read 接受 /case 绝对写法…`：真读，但目标是
+   *   `起诉状.md`（数十字节小文件），非 `超长行.md`。**不处置**。
+   * - `归一失败即拒，原版 execute 一次都不跑`：全部路径在 `execute` 前被拒，`binaryReads`
+   *   断言恰为 0——按其自身判据，从未真正读过任何文件内容，含 `超长行.md`。**不处置**。
+   * - `glob 命中投影成 /case[/...]…`／`无参调用的 dev 形态逐字不变…`：只调用 `glob`，
+   *   只做 `readdir`＋路径匹配，不读文件内容字节，`超长行.md` 的行长度不影响其成本
+   *   （同 `PI-SCAN-TIMEOUT-1` 回执已核实的 `glob` 与 `grep` 结构性代价差异）。**不处置**。
+   * - `上游截断提示里的 path 也只能是逻辑绝对路径`／`grep 命中投影成 /case[/...]，行号与
+   *   details 不变`（**M1**）／`symlink 子树在 glob/grep 里同样不出现`：均经 `runProduct`／
+   *   `run` 真实读取或扫描 `超长行.md` 的字节内容（`read` 整读该文件；`grep` 对其全文
+   *   逐字节找 pattern，M1 更是 product＋dev 双跑两遍）。**处置**：三枚加显式 `60_000`。
+   *   M1 在 `PI-TIMEOUT-SWEEP-1` 返修验收席冻结负载下已实测真红（`Test timed out in
+   *   5000ms`，5734ms，1/20）；另两枚结构同族（同一 fixture、同一 `grep`/`read` 读取
+   *   路径），同批处置，不逐枚等一次独立红证。
+   */
   it('装配面与 dev 形态同名同数', () => {
     expect(productTools.map((tool) => tool.name).sort()).toEqual(['glob', 'grep', 'read']);
   });
@@ -219,11 +244,15 @@ describe('createReadOnlyTools({ logicalRoot: "/case" })', () => {
     expect(binaryReads).toBe(1);
   });
 
-  it('上游截断提示里的 path 也只能是逻辑绝对路径', async () => {
-    const hint = textOf(await runProduct('read', { path: '超长行.md' }));
-    expect(hint).toContain('/case/超长行.md');
-    expect(hint).not.toContain(root);
-  });
+  it(
+    '上游截断提示里的 path 也只能是逻辑绝对路径',
+    async () => {
+      const hint = textOf(await runProduct('read', { path: '超长行.md' }));
+      expect(hint).toContain('/case/超长行.md');
+      expect(hint).not.toContain(root);
+    },
+    60_000,
+  );
 
   it('归一失败即拒，原版 execute 一次都不跑', async () => {
     for (const denied of ['/workspace/记录.md', '../界外/机密.md', '外链/机密.md']) {
@@ -246,21 +275,29 @@ describe('createReadOnlyTools({ logicalRoot: "/case" })', () => {
     expect(product.details).toEqual(dev.details);
   });
 
-  it('grep 命中投影成 /case[/...]，行号与 details 不变', async () => {
-    const product = (await runProduct('grep', { pattern: 'HT-2024-081' })) as {
-      details: Record<string, unknown>;
-    };
-    const dev = (await run('grep', { pattern: 'HT-2024-081' })) as { details: Record<string, unknown> };
-    const hits = textOf(product as never);
-    expect(hits).toContain('/case/起诉状.md:2');
-    expect(hits).toContain('/case/证据/合同.md:2');
-    expect(product.details).toEqual(dev.details);
-  });
+  it(
+    'grep 命中投影成 /case[/...]，行号与 details 不变',
+    async () => {
+      const product = (await runProduct('grep', { pattern: 'HT-2024-081' })) as {
+        details: Record<string, unknown>;
+      };
+      const dev = (await run('grep', { pattern: 'HT-2024-081' })) as { details: Record<string, unknown> };
+      const hits = textOf(product as never);
+      expect(hits).toContain('/case/起诉状.md:2');
+      expect(hits).toContain('/case/证据/合同.md:2');
+      expect(product.details).toEqual(dev.details);
+    },
+    60_000,
+  );
 
-  it('symlink 子树在 glob/grep 里同样不出现', async () => {
-    expect(textOf(await runProduct('glob', { pattern: '**/*.md' }))).not.toContain('机密.md');
-    expect(textOf(await runProduct('grep', { pattern: 'HT-9999-999' }))).toContain('无命中');
-  });
+  it(
+    'symlink 子树在 glob/grep 里同样不出现',
+    async () => {
+      expect(textOf(await runProduct('glob', { pattern: '**/*.md' }))).not.toContain('机密.md');
+      expect(textOf(await runProduct('grep', { pattern: 'HT-9999-999' }))).toContain('无命中');
+    },
+    60_000,
+  );
 
   it('无参调用的 dev 形态逐字不变：read 是原版对象，命中仍是相对路径', async () => {
     const dev = createReadOnlyTools();
