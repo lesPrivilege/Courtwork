@@ -2,7 +2,11 @@ import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// 本门自身是真 I/O 用例（扫描全包源码），且结构性排除在自己扫描面外——按同族纪律补显式上界
+// （聚焦复验观察②：28 路争用下本门用例中招最频，其超时红最易被误读成治理失败）。
+vi.setConfig({ testTimeout: 60_000 });
 
 /**
  * PI-TIMEOUT-SWEEP-1 机器形态守卫（返修版，源 验收 REJECT `1c1c181`）。
@@ -603,7 +607,8 @@ function scanFamilyB(): CallBlock[] {
       if (setupText.length === 0) continue;
       if (!hasHeavyRealWrite(setupText, constants, helperNames)) continue;
       for (const block of extractItBlocks(file, d.text)) {
-        if (touchesReadEntryPoint(block.text)) out.push(block);
+        // 行号须还原为文件绝对行（block.startLine 相对 d.text；红必须报对理由——聚焦复验观察①）
+        if (touchesReadEntryPoint(block.text)) out.push({ ...block, startLine: d.startLine + block.startLine - 1 });
       }
     }
   }
