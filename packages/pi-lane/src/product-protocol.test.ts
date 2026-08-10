@@ -130,22 +130,46 @@ describe('标量门', () => {
 // ── A · 字节 framing 与解码 ───────────────────────────────────────────────────
 
 describe('framing 与字节解码', () => {
-  it('行内容 + LF 恰为 1 MiB 时框内放行（随后按 schema 判）', () => {
-    const shell = '{"pad":""}';
-    const padding = 'a'.repeat(MAX_PACKET_BYTES - 1 - shell.length);
-    const line = raw(`{"pad":"${padding}"}`);
-    expect(line.length).toBe(MAX_PACKET_BYTES - 1);
-    // 框内，故不是 packet_too_large；它死在 schema 上。
-    expectRejected(decodeHostPacketLine(line), 'invalid_schema');
-  });
+  /**
+   * PI-TIMEOUT-SWEEP-1 家族说明（本包内本注释为唯一详解，同族其余成员只留一行回指）：
+   * 本包多枚用例以 `.repeat(MAX_*)` / `Array.from({ length: MAX_* })` 构造 production
+   * 边界规模（`MAX_PACKET_BYTES`=1_048_576、`MAX_TEXT_BYTES`=131_072、`MAX_DELTA_BYTES`=
+   * 65_536、`MAX_LIST_ENTRIES`=2_000 等，均 `product-protocol.ts`/`workspace-write-env.ts`
+   * 生产常量）驱动单发 `JSON.stringify`/编码/解码，与已处置的 `raw cap 内的最坏编码膨胀…`
+   * （本文件 §encoder）同一根因族——真实字符串/数组构造对赌 vitest 5000ms 缺省超时，
+   * 规模不可缩减（缩小即改写生产边界，判据随之消失）。静态枚举与逐枚判据本体核定见
+   * `PI-TIMEOUT-SWEEP-1.md` §一；族内多数成员本票冻结负载形态（20 路包级并发，`uptime`
+   * 峰值 191.42）下零命中，但因结构同族且为单发（无 `raw cap` 那样的 5 轮循环，代价更低），
+   * 复杂度节制下与其逐枚论证「多接近安全」，不如同批加同一显式上界——与 `PI-SCAN-TIMEOUT-1/2`
+   * 已确立的 60000ms 同量级，不新开数字。族内两枚（`prompt text trim 后非空且不超 131072
+   * bytes`、`workspace-write-env.test.ts` 的 `raw cap 以内的最坏 JSON 转义不撞破 1 MiB
+   * framing`）在本票更高负载探测臂（23/28 路，peak 413/637）已各自命中过一次真实
+   * `Test timed out in 5000ms`，非假设性风险。
+   */
+  it(
+    '行内容 + LF 恰为 1 MiB 时框内放行（随后按 schema 判）',
+    () => {
+      const shell = '{"pad":""}';
+      const padding = 'a'.repeat(MAX_PACKET_BYTES - 1 - shell.length);
+      const line = raw(`{"pad":"${padding}"}`);
+      expect(line.length).toBe(MAX_PACKET_BYTES - 1);
+      // 框内，故不是 packet_too_large；它死在 schema 上。
+      expectRejected(decodeHostPacketLine(line), 'invalid_schema');
+    },
+    60_000,
+  );
 
-  it('行内容 + LF 超 1 MiB 即 packet_too_large，且不进 parse', () => {
-    const shell = '{"pad":""}';
-    const padding = 'a'.repeat(MAX_PACKET_BYTES - shell.length);
-    const line = raw(`{"pad":"${padding}"}`);
-    expect(line.length).toBe(MAX_PACKET_BYTES);
-    expectRejected(decodeHostPacketLine(line), 'packet_too_large');
-  });
+  it(
+    '行内容 + LF 超 1 MiB 即 packet_too_large，且不进 parse',
+    () => {
+      const shell = '{"pad":""}';
+      const padding = 'a'.repeat(MAX_PACKET_BYTES - shell.length);
+      const line = raw(`{"pad":"${padding}"}`);
+      expect(line.length).toBe(MAX_PACKET_BYTES);
+      expectRejected(decodeHostPacketLine(line), 'packet_too_large');
+    },
+    60_000,
+  );
 
   it('空行拒绝', () => {
     expectRejected(decodeHostPacketLine(new Uint8Array(0)), 'invalid_json');
@@ -513,6 +537,8 @@ function withDecoded(line: Uint8Array): { ok: boolean } {
 }
 
 describe('prompt / cancel / shutdown payload', () => {
+  // PI-TIMEOUT-SWEEP-1 同族（详解见本文件 §framing 与字节解码 开首注释）：MAX_* 生产边界规模
+  // 单发 JSON 编码/解码，无显式 timeout 时对赌 vitest 缺省 5000ms，加同一 60000ms 上界。
   it('prompt text trim 后非空且不超 131072 bytes', () => {
     const withText = (text: string): Uint8Array => json(mutate(PROMPT, (d) => void ((d.payload as Record<string, unknown>).text = text)));
     expect(decodeHostPacketLine(withText('a')).ok).toBe(true);
@@ -522,7 +548,7 @@ describe('prompt / cancel / shutdown payload', () => {
     expect(decodeHostPacketLine(withText('a'.repeat(MAX_TEXT_BYTES + 1))).ok).toBe(false);
     expect(decodeHostPacketLine(withText('😀'.repeat(MAX_TEXT_BYTES / 4))).ok).toBe(true);
     expect(decodeHostPacketLine(withText(`${'😀'.repeat(MAX_TEXT_BYTES / 4)}a`)).ok).toBe(false);
-  });
+  }, 60_000);
 
   it('cancel reason 闭集', () => {
     const cancel = (reason: unknown): Uint8Array =>
@@ -671,6 +697,8 @@ describe('host_result payload', () => {
     ).toBe(false);
   });
 
+  // PI-TIMEOUT-SWEEP-1 同族（详解见本文件 §framing 与字节解码 开首注释）：MAX_* 生产边界规模
+  // 单发 JSON 编码/解码，无显式 timeout 时对赌 vitest 缺省 5000ms，加同一 60000ms 上界。
   it('read_file ok 的 byteLength 必须等于 content 的 UTF-8 实长，hash 必须小写 64 hex', () => {
     const readFile = (value: unknown): Uint8Array =>
       result({
@@ -696,8 +724,10 @@ describe('host_result payload', () => {
         readFile({ logicalPath: 'a.md', content: 'a'.repeat(MAX_TEXT_BYTES + 1), contentSha256: HASH, byteLength: MAX_TEXT_BYTES + 1 }),
       ).ok,
     ).toBe(false);
-  });
+  }, 60_000);
 
+  // PI-TIMEOUT-SWEEP-1 同族（详解见本文件 §framing 与字节解码 开首注释）：MAX_* 生产边界规模
+  // 单发 JSON 编码/解码，无显式 timeout 时对赌 vitest 缺省 5000ms，加同一 60000ms 上界。
   it('list ok：2000×255 bytes 的极大正例整包仍在 1 MiB 内', () => {
     const entries: WorkspaceListEntry[] = Array.from({ length: MAX_LIST_ENTRIES }, (_, index) => ({
       name: `e${String(index).padStart(4, '0')}`.padEnd(255, 'x'),
@@ -722,8 +752,10 @@ describe('host_result payload', () => {
     if (!encoded.ok) return;
     expect(encoded.line.length).toBeLessThanOrEqual(MAX_PACKET_BYTES);
     expect(decodeHostPacketLine(encoded.line.subarray(0, encoded.line.length - 1)).ok).toBe(true);
-  });
+  }, 60_000);
 
+  // PI-TIMEOUT-SWEEP-1 同族（详解见本文件 §framing 与字节解码 开首注释）：MAX_* 生产边界规模
+  // 单发 JSON 编码/解码，无显式 timeout 时对赌 vitest 缺省 5000ms，加同一 60000ms 上界。
   it('list 条目上限、name 字节上限与 kind/byteLength 互洽', () => {
     const list = (entries: unknown[]): Uint8Array =>
       result({
@@ -745,7 +777,7 @@ describe('host_result payload', () => {
         list(Array.from({ length: MAX_LIST_ENTRIES + 1 }, () => ({ name: 'a', kind: 'file', byteLength: 1, mtimeMs: 1 }))),
       ).ok,
     ).toBe(false);
-  });
+  }, 60_000);
 
   it('error message 上限 4096 bytes', () => {
     const failed = (message: string): Uint8Array =>
@@ -795,6 +827,8 @@ describe('agent_event payload', () => {
       payload,
     });
 
+  // PI-TIMEOUT-SWEEP-1 同族（详解见本文件 §framing 与字节解码 开首注释）：MAX_* 生产边界规模
+  // 单发 JSON 编码/解码，无显式 timeout 时对赌 vitest 缺省 5000ms，加同一 60000ms 上界。
   it('delta 非空且不超 65536 bytes', () => {
     expect(decodeSidecarPacketLine(event({ kind: 'assistant_text_delta', delta: 'a' })).ok).toBe(true);
     expect(
@@ -804,7 +838,7 @@ describe('agent_event payload', () => {
     expect(
       decodeSidecarPacketLine(event({ kind: 'assistant_text_delta', delta: 'a'.repeat(MAX_DELTA_BYTES + 1) })).ok,
     ).toBe(false);
-  });
+  }, 60_000);
 
   it('tool 事件闭集', () => {
     expect(decodeSidecarPacketLine(event({ kind: 'tool_started', toolCallId: 'tc_1_1', toolName: 'write' })).ok).toBe(true);
@@ -907,6 +941,8 @@ describe('host_request payload', () => {
     }
   });
 
+  // PI-TIMEOUT-SWEEP-1 同族（详解见本文件 §framing 与字节解码 开首注释）：MAX_* 生产边界规模
+  // 单发 JSON 编码/解码，无显式 timeout 时对赌 vitest 缺省 5000ms，加同一 60000ms 上界。
   it('write arguments 是闭集：byteLength 必须等于实长，content 不超 131072', () => {
     expect(
       decodeSidecarPacketLine(
@@ -943,7 +979,7 @@ describe('host_request payload', () => {
         }),
       ).ok,
     ).toBe(false);
-  });
+  }, 60_000);
 
   it('workspace_read 的 arguments 不接受 write 字段', () => {
     expect(
@@ -1138,40 +1174,67 @@ describe('encoder', () => {
     }
   });
 
+  // PI-TIMEOUT-SWEEP-1 同族（详解见本文件 §framing 与字节解码 开首注释）：MAX_* 生产边界规模
+  // 单发 JSON 编码/解码，无显式 timeout 时对赌 vitest 缺省 5000ms，加同一 60000ms 上界。
   it('编码后超 1 MiB 在写流前失败，且先于 schema 判定', () => {
     const oversized = {
       ...PROMPT,
       payload: { text: 'a'.repeat(MAX_PACKET_BYTES + 16) },
     };
     expectRejected(encodePacketLine(oversized as ProductPacket), 'packet_too_large');
-  });
+  }, 60_000);
 
-  it('raw cap 内的最坏编码膨胀仍在 framing 内：C0 / 引号 / 反斜杠 / 多字节', () => {
-    const worst = [
-      '\u0001'.repeat(MAX_TEXT_BYTES),
-      '"'.repeat(MAX_TEXT_BYTES),
-      '\\'.repeat(MAX_TEXT_BYTES),
-      '😀'.repeat(MAX_TEXT_BYTES / 4),
-    ];
-    for (const text of worst) {
-      expect(utf8ByteLength(text)).toBe(MAX_TEXT_BYTES);
-      const encoded = encodePacketLine({ ...PROMPT, payload: { text } });
-      expect(encoded.ok, 'raw cap 内必须可发').toBe(true);
-      if (!encoded.ok) continue;
-      expect(encoded.line.length).toBeLessThanOrEqual(MAX_PACKET_BYTES);
-    }
-    // U+0001 是最坏的六字节转义：主体应逼近 786432 bytes，仍给 envelope 留足余量。
-    const c0 = encodePacketLine({ ...PROMPT, payload: { text: '\u0001'.repeat(MAX_TEXT_BYTES) } });
-    expect(c0.ok).toBe(true);
-    if (c0.ok) expect(c0.line.length).toBeGreaterThan(786_432);
-  });
+  /**
+   * PI-TIMEOUT-SWEEP-1（已知稳定重合红之一，见 `docs/architecture/implementation-readiness.md`
+   * `PI-TIMEOUT-SWEEP-1` 行与 `ACCEPTANCE.md`（PI-SCAN-TIMEOUT-2 验收）§七.3：
+   * armA/armB/armC 各 13x／10x／13x）。判据本体是「`MAX_TEXT_BYTES`（`product-protocol.ts`
+   * 生产常量，131072）四种最坏字节膨胀形态各自仍在 1 MiB framing 内」——四轮
+   * `encodePacketLine` 各自内部先 `JSON.stringify` 整个 payload（对 C0/引号/反斜杠三种
+   * 全量转义，字符串长度成倍）、再整段过 `decodePacketLine` 回读校验（结构对称，
+   * 见 `product-protocol.ts:1579`），末尾又追加一次 U+0001 形态的独立编码——五轮约 131072
+   * 字节量级的真实字符串构造＋JSON 转义＋解码校验，不是「够大就行」的
+   * 便利值，缩小 `MAX_TEXT_BYTES` 就是改写生产边界本身，判据随之消失，
+   * 规模不动，只加显式超时上界。
+   *
+   * 本票 20 路包级并发负载（`uptime` 1m 峰值 191.42，冻结负载形态见 SPEC §二）
+   * 复测：11/20 命中缺省 5000ms（`Error: Test timed out in 5000ms.`，非静默悬挂），红耗时
+   * 5958–9457ms；无负载 5 次独立单跑 167–585ms。 60000ms 取值不独立另开一个数字
+   * ——沿用同包 `tools.test.ts` 已处置且经独立验收 PASS 的 `grep 满 2000 份扫描`
+   * 同一量级（复杂度节制：同族同数量级不新增第二个需要单独论证的数字），
+   * 本用例峰值实测 9457ms 对 60000ms 有 >6× 余量。
+   */
+  it(
+    'raw cap 内的最坏编码膨胀仍在 framing 内：C0 / 引号 / 反斜杠 / 多字节',
+    () => {
+      const worst = [
+        '\u0001'.repeat(MAX_TEXT_BYTES),
+        '"'.repeat(MAX_TEXT_BYTES),
+        '\\'.repeat(MAX_TEXT_BYTES),
+        '😀'.repeat(MAX_TEXT_BYTES / 4),
+      ];
+      for (const text of worst) {
+        expect(utf8ByteLength(text)).toBe(MAX_TEXT_BYTES);
+        const encoded = encodePacketLine({ ...PROMPT, payload: { text } });
+        expect(encoded.ok, 'raw cap 内必须可发').toBe(true);
+        if (!encoded.ok) continue;
+        expect(encoded.line.length).toBeLessThanOrEqual(MAX_PACKET_BYTES);
+      }
+      // U+0001 是最坏的六字节转义：主体应逼近 786432 bytes，仍给 envelope 留足余量。
+      const c0 = encodePacketLine({ ...PROMPT, payload: { text: '\u0001'.repeat(MAX_TEXT_BYTES) } });
+      expect(c0.ok).toBe(true);
+      if (c0.ok) expect(c0.line.length).toBeGreaterThan(786_432);
+    },
+    60_000,
+  );
 
+  // PI-TIMEOUT-SWEEP-1 同族（详解见本文件 §framing 与字节解码 开首注释）：MAX_* 生产边界规模
+  // 单发 JSON 编码/解码，无显式 timeout 时对赌 vitest 缺省 5000ms，加同一 60000ms 上界。
   it('超 raw cap 在写流前失败', () => {
     expectRejected(
       encodePacketLine({ ...PROMPT, payload: { text: 'a'.repeat(MAX_TEXT_BYTES + 1) } }),
       'invalid_schema',
     );
-  });
+  }, 60_000);
 
   it('自身产物过不了本 decoder 就不许写出：lone surrogate 兜住', () => {
     expectRejected(encodePacketLine({ ...PROMPT, payload: { text: '\ud800' } }), 'invalid_schema');

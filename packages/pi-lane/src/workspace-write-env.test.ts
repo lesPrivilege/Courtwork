@@ -540,6 +540,9 @@ describe('最终 basename 按 ASCII 大小写不敏感只允许 .md', () => {
 // ---------------------------------------------------------------------------
 
 describe('content 门', () => {
+  // PI-TIMEOUT-SWEEP-1 同族（`product-protocol.test.ts` §framing 与字节解码 开首注释详解）：
+  // MAX_WORKSPACE_CONTENT_BYTES（131072）量级真实字符串构造/JSON 转义，加显式 60000ms 上界，
+  // 沿用 PI-SCAN-TIMEOUT-1/2 同量级取值，不新开数字。
   it('恰好 131072 UTF-8 bytes 通过，131073 拒绝', async () => {
     const exact = 'a'.repeat(MAX_WORKSPACE_CONTENT_BYTES);
     expect(utf8(exact).byteLength).toBe(131_072);
@@ -549,15 +552,22 @@ describe('content 门', () => {
     const gate = await gateWorkspaceWrite('a.md', over);
     expect(gate.ok).toBe(false);
     expect(gate.ok === false && gate.code).toBe('limit_exceeded');
-  });
+  }, 60_000);
 
-  it('按 UTF-8 实长而非 UTF-16 长度计量：32768 个四字节 emoji 恰好压线', async () => {
-    const emoji = '😀'.repeat(32_768);
-    expect(emoji.length).toBe(65_536);
-    expect(utf8(emoji).byteLength).toBe(131_072);
-    expect((await gateWorkspaceWrite('a.md', emoji)).ok).toBe(true);
-    expect((await gateWorkspaceWrite('a.md', `${emoji}a`)).ok).toBe(false);
-  });
+  // PI-TIMEOUT-SWEEP-1 返修（验收 REJECT `1c1c181` M2）：`32_768 × 4 字节 emoji = 131072
+  // bytes`，与紧邻上一枚 `MAX_WORKSPACE_CONTENT_BYTES` 同价，只是量级以数字字面量而非具名
+  // 常量书写——判据本体同族，同批加显式 60000ms 上界。
+  it(
+    '按 UTF-8 实长而非 UTF-16 长度计量：32768 个四字节 emoji 恰好压线',
+    async () => {
+      const emoji = '😀'.repeat(32_768);
+      expect(emoji.length).toBe(65_536);
+      expect(utf8(emoji).byteLength).toBe(131_072);
+      expect((await gateWorkspaceWrite('a.md', emoji)).ok).toBe(true);
+      expect((await gateWorkspaceWrite('a.md', `${emoji}a`)).ok).toBe(false);
+    },
+    60_000,
+  );
 
   it('lone surrogate 与裸 NUL 拒绝——hash/byteLength 必须在良构门之后算', async () => {
     for (const bad of ['\uD800', 'a\uDC00b', 'a\u0000b']) {
@@ -573,6 +583,9 @@ describe('content 门', () => {
     expect(gate.ok && gate.proposal.byteLength).toBe(0);
   });
 
+  // PI-TIMEOUT-SWEEP-1 同族（`product-protocol.test.ts` §framing 与字节解码 开首注释详解）：
+  // MAX_WORKSPACE_CONTENT_BYTES（131072）量级真实字符串构造/JSON 转义，加显式 60000ms 上界，
+  // 沿用 PI-SCAN-TIMEOUT-1/2 同量级取值，不新开数字。
   it('raw cap 以内的最坏 JSON 转义不撞破 1 MiB framing', () => {
     // 权威 envelope 属 PI-CODE-STDIO-1；此处只锁「raw cap 内不可能编码越限」这条界。
     for (const filler of ['\u0001', '"', '\\']) {
@@ -597,7 +610,7 @@ describe('content 门', () => {
       const line = utf8(`${JSON.stringify(packet)}\n`).byteLength;
       expect(line).toBeLessThanOrEqual(1_048_576);
     }
-  });
+  }, 60_000);
 });
 
 // ---------------------------------------------------------------------------
