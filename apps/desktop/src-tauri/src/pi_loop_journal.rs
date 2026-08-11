@@ -31,7 +31,7 @@ use sha2::{Digest, Sha256};
 
 use crate::pi_loop_protocol::{
     closed_record, format_js_number, pick, read_agent_event_payload, read_boolean,
-    read_budget_view, read_enum, read_integer, read_non_negative_number,
+    read_budget_view, read_enum, read_integer, read_logical_path, read_non_negative_number,
     read_nullable_non_negative_number, read_safe_token, read_sha256_hex, read_string, read_usage,
     reject, require_object, scan_json, write_agent_event, write_budget_view, write_json_string,
     AgentProjectionEvent, BudgetStopReason, BudgetTurnLimit, BudgetUsdLimit, BudgetView,
@@ -984,10 +984,9 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                     pick(members, "toolCallId", "tool_proposed")?,
                     "toolCallId",
                 )?,
-                logical_path: read_string(
+                logical_path: read_logical_path(
                     pick(members, "logicalPath", "tool_proposed")?,
                     "logicalPath",
-                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 proposal_hash: read_sha256_hex(
                     pick(members, "proposalHash", "tool_proposed")?,
@@ -1061,10 +1060,9 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                     pick(members, "toolCallId", "effect_started")?,
                     "toolCallId",
                 )?,
-                logical_path: read_string(
+                logical_path: read_logical_path(
                     pick(members, "logicalPath", "effect_started")?,
                     "logicalPath",
-                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 proposal_hash: read_sha256_hex(
                     pick(members, "proposalHash", "effect_started")?,
@@ -1104,10 +1102,9 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                     pick(members, "toolCallId", "effect_succeeded")?,
                     "toolCallId",
                 )?,
-                logical_path: read_string(
+                logical_path: read_logical_path(
                     pick(members, "logicalPath", "effect_succeeded")?,
                     "logicalPath",
-                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 disposition: read_enum(
                     pick(members, "disposition", "effect_succeeded")?,
@@ -3475,6 +3472,128 @@ mod tests {
                 "{name}：journal 收下了 wire 已拒的 byteLength——两谱上界漂移"
             );
         }
+    }
+
+    /// `PI-JOURNAL-TIGHTEN-1` 段①：`logicalPath` 在 journal 与 wire **同为非空**。
+    ///
+    /// 空串在写侧不可能出现（唯一来源已过 wire 的 `read_logical_path` 非空判据），故能被本枚
+    /// 拒下的档必是被改过的档——恰为 quarantine 的设计目标。放任它过境的代价不是「多一枚空
+    /// 字段」：UI 侧 `pi-projection.ts` 的提案判空会把**整枚提案**静默丢弃，用户看不到待授权
+    /// 的写入，触不变量四。
+    ///
+    /// 三型**同批**立例：`PI-HOST-JOURNAL-1R` 判例——闭口按族，单点修复即重犯。
+    #[test]
+    fn effect_family_rejects_empty_logical_path_in_all_three_types() {
+        let proposal =
+            "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".to_string();
+        let content =
+            "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".to_string();
+        let shapes: Vec<(&str, JournalPayload)> = vec![
+            (
+                "tool_proposed",
+                JournalPayload::ToolProposed(ToolProposedPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: String::new(),
+                    proposal_hash: proposal.clone(),
+                    content_sha256: content.clone(),
+                    byte_length: 10,
+                    action: WriteDisposition::Created,
+                }),
+            ),
+            (
+                "effect_started",
+                JournalPayload::EffectStarted(EffectStartedPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: String::new(),
+                    proposal_hash: proposal.clone(),
+                    action: WriteDisposition::Created,
+                    content_sha256: content.clone(),
+                    byte_length: 10,
+                }),
+            ),
+            (
+                "effect_succeeded",
+                JournalPayload::EffectSucceeded(EffectSucceededPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: String::new(),
+                    disposition: WriteDisposition::Created,
+                    content_sha256: content.clone(),
+                    byte_length: 10,
+                }),
+            ),
+        ];
+
+        for (name, payload) in shapes {
+            let record = effect_record(0, payload);
+            let encoded = encode_record(&record);
+            let rejection = decode_record(&encoded[..encoded.len() - 1])
+                .expect_err(&format!("{name}：空 logicalPath 必须被拒"));
+            assert_eq!(
+                rejection.code,
+                ProtocolErrorCode::InvalidSchema,
+                "{name}：拒因须是 invalid_schema"
+            );
+            assert!(
+                rejection.reason.contains("logicalPath"),
+                "{name}：拒因须具名到 logicalPath，实得 {}",
+                rejection.reason
+            );
+        }
+    }
+
+    /// 段① 的落地面：解码被拒即**整份** quarantine，且携具名 reason。
+    ///
+    /// 写侧照旧收下（`append` 只编码不解码），故这一枚同时是「拒既有档」的真实形态复现。
+    #[test]
+    fn empty_logical_path_quarantines_the_whole_journal_on_reload() {
+        let root = temp_root("empty-logical-path");
+        let mut loaded = open(&root);
+        loaded
+            .journal
+            .append(None, None, JournalPayload::SessionStarted(started_payload()))
+            .expect("首枚落账");
+        loaded
+            .journal
+            .append(
+                Some("req-1"),
+                None,
+                JournalPayload::UserPrompted {
+                    text: "读一下备忘".to_string(),
+                },
+            )
+            .expect("prompt 落账");
+        loaded
+            .journal
+            .append(
+                Some("req-1"),
+                Some("op_1_1"),
+                JournalPayload::ToolProposed(ToolProposedPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: String::new(),
+                    proposal_hash:
+                        "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+                            .to_string(),
+                    content_sha256:
+                        "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
+                            .to_string(),
+                    byte_length: 10,
+                    action: WriteDisposition::Created,
+                }),
+            )
+            .expect("提案落账");
+        drop(loaded);
+
+        let error = load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect_err("空 logicalPath 的档必须整份隔离");
+        let JournalError::Quarantined { reason, .. } = &error else {
+            panic!("须 Quarantined，实得 {error:?}");
+        };
+        assert_eq!(*reason, "已 LF 结束的记录不合 schema", "quarantine 须具名 reason");
     }
 
     #[test]

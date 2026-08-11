@@ -1183,7 +1183,12 @@ pub(crate) fn read_array<'a>(
     }
 }
 
-fn read_logical_path(node: &JsonNode, label: &str) -> CodecResult<String> {
+/// `logicalPath` 的**唯一**判据：非空 ＋ `MAX_LOGICAL_PATH_BYTES` 上界。
+///
+/// `pub(crate)` 是为了让 journal 的 effect 三型解码直接 import 同一枚判据
+/// （`PI-JOURNAL-TIGHTEN-1` 段①）——两谱各抄一份值域就各自漂移，
+/// journal 会把 wire 已经拒掉的那一枚原样收下，而且收得静默。
+pub(crate) fn read_logical_path(node: &JsonNode, label: &str) -> CodecResult<String> {
     read_non_empty_string(node, label, MAX_LOGICAL_PATH_BYTES)
 }
 
