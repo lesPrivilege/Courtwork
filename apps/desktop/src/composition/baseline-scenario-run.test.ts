@@ -224,6 +224,22 @@ describe('startParams · 通用预检值槽', () => {
     expect(JSON.stringify(requests)).toContain('startParams');
   });
 
+  it('独立验收探针：调用方后改 startParams 不得改写已起跑命令的冻结快照', async () => {
+    const { command, requests } = harness({ packBinding: [], assistant: DRAFT_ARTIFACT });
+    const startParams = { requirement: '冻结前的起草要求' };
+    const pending = command.start(
+      {
+        commandId: 'd-freeze', caseId: 'case-x', scenarioId: 'generic.draft',
+        materialRefs: ['mat-1'], modelRoute: MODEL_ROUTE, startParams,
+      },
+      () => {},
+    ).done;
+    startParams.requirement = '调用方事后篡改';
+    expect((await pending).status).toBe('completed');
+    expect(JSON.stringify(requests)).toContain('冻结前的起草要求');
+    expect(JSON.stringify(requests)).not.toContain('调用方事后篡改');
+  });
+
   it('fieldId 越出该场景声明的 formFields id 集 → effect 前 fail-closed 拒（零 turn、零事件）', async () => {
     const { command, requests } = harness({ packBinding: [], assistant: DRAFT_ARTIFACT });
     const events: SessionEvent[] = [];

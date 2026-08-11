@@ -156,6 +156,9 @@ async function prepareUnboundCase(page: Page) {
   // 卸载态判据（收尾追修）：基线场景在册**不等于**加载了垂类能力——起手引导与基线按钮同框。
   await expect(page.getByTestId('scene-unloaded-hint')).toBeVisible();
   await expect(page.getByTestId('scene-generic.draft')).toBeVisible();
+  // 独立验收探针：基线按钮在册不能把卸载态起草席位顶回垂类画布；默认仍须落通用工作稿轨。
+  await page.getByTestId('scene-unloaded-draft').click();
+  await expect(page.getByTestId('work-draft-panel')).toBeVisible();
 }
 
 test('① generic.draft 全链：宿主起跑面 → 产出席位 → 送入起草画布', async ({ page }) => {
@@ -170,8 +173,11 @@ test('① generic.draft 全链：宿主起跑面 → 产出席位 → 送入起�
   // 产出席位：产物到来即多一张页签（如实登记：活动面不自动跳过去，页签由用户选——
   // 见 SPEC §10.5 的登记项）。段落逐条成行，标题由页签身份承载、不入列。
   const tabs = page.getByRole('tablist', { name: '结构化工作面' });
-  await expect(tabs.getByRole('tab', { name: '起草文稿' })).toBeVisible({ timeout: 15000 });
-  await tabs.getByRole('tab', { name: '起草文稿' }).click();
+  const draftArtifactTab = tabs.getByRole('tab', { name: '起草文稿' });
+  await expect(draftArtifactTab).toBeVisible({ timeout: 15000 });
+  // 回执登记项抽核：产物到来只新增页签，不自动改活动面；用户显式点选后才进入产出格。
+  await expect(draftArtifactTab).toHaveAttribute('aria-selected', 'false');
+  await draftArtifactTab.click();
   const pane = page.getByTestId('artifact-pane-generic.DraftDocument');
   await expect(pane).toContainText('本季度主体工作已完成七成。', { timeout: 15000 });
   await expectNoVerticalVocabulary(page);
@@ -194,8 +200,10 @@ test('② generic.batch 全链：无表单直启 → 逐份材料成行，漏行
   await launchScene(page, 'generic.batch', '多文件批处理');
 
   const tabs = page.getByRole('tablist', { name: '结构化工作面' });
-  await expect(tabs.getByRole('tab', { name: '批处理报告' })).toBeVisible({ timeout: 15000 });
-  await tabs.getByRole('tab', { name: '批处理报告' }).click();
+  const batchArtifactTab = tabs.getByRole('tab', { name: '批处理报告' });
+  await expect(batchArtifactTab).toBeVisible({ timeout: 15000 });
+  await expect(batchArtifactTab).toHaveAttribute('aria-selected', 'false');
+  await batchArtifactTab.click();
   const pane = page.getByTestId('artifact-pane-generic.BatchReport');
   await expect(pane).toContainText('本篇记了三项待办与责任人。', { timeout: 15000 });
   // 模型只写了一行，两份就绪材料各占一行：缺的那份显式补记，不伪造摘要、不悄悄少一行。

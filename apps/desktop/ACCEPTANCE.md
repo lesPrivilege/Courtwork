@@ -6679,3 +6679,110 @@ demo 双向隔离抽验：三份新增测试面（集成谱／jsdom 谱／e2e �
 ## 结论
 
 **PASS，放行 `85d2a07`（组合口径见文首）。** 四条票面判据逐条独立成立并各有可红判据：M1／M5 证多产物与单产物回退（聚合席位一回归即红）、M2／E3 证格栈常驻（只渲活动格即红）、M3 证命名空间隔离（丢包前缀即红）、E1 证他票 ⑥ 的收紧断言真有区分力；D11 的并存由 M4／E2 双层锁死，且 e2e ② 在真产品链上亲跑通过。ADR-014 决定一／二逐条对照无违例，`containerPackBinding` 数组席位恒 1 未被松动，零泄漏运行时半边未因产出页签松动（零绑定零产出的 matter 页签条仍只有起草画布）。`pack-interact-1` ⑥ 与 `workbench-views.test.ts` 的随改逐 diff 核实为**收紧**。八枚变异独立复注全部触红且方向正确，另一枚自设零区分力探针（M6）如实登记为覆盖缺口。全量门本树独立实测零回归：根 **2159**、desktop **847**、cargo **250/0/1**、site:guard PASS、完整 Playwright **386/386** EXIT=0（独占取锁，四轮口径逐轮登记）、App.tsx 高水位 **2245**。**拒因 0 枚。** 五条观察项中①③⑤建议随清账订正或补覆盖，④建议另立微单，②补一句边界登记；均不阻断本票放行。
+
+# GENERIC-SCENARIOS-1 独立验收（2026-08-11）
+
+- **裁决：PASS，放行实现 tip `65700cd45d1d1c212388c01553c5a7fcf7967ecb`。拒因 0 枚。**
+- 验收树 `/private/tmp/courtwork-gs1-accept`，分支 `codex/accept-generic-scenarios-1`；接手时工作树 clean，未与实现会话共享测试进程、端口或回执状态。
+- `git rev-parse` 复核当前本地 `main=22303da7b4c9b183825e35e0c512913af0875e4c`，但它不是实现 tip 的祖先；两者 merge-base 为 `bd9059b951b…`。故本裁决只绑定上述精确实现 tip，不把实现回执的旧基线叙述冒充当前 `main` 合并就绪证明。
+
+## 一 · ADR-023 与九项裁定逐项核签
+
+| 裁定 | 独立核查 | 结论 |
+|---|---|---|
+| A1 通用包形制 | `packages/generic` 是真实准入包；`availability=baseline`；baseline 恒入 effective registries、零占 `packBinding`；垂类绑定仍逐项 admission fail-closed | PASS |
+| A2 场景②与 ADR-004 | 当期仅 `generic.draft`／`generic.batch`；md↔docx 往返、外部真机宣称及相应依赖均未夹带 | PASS |
+| A3 fan-out | `generic.BatchReport` 为单 artifact 数组 payload；`collectionPointer=/items`；系统补漏行、拒编造 id、逐项状态闭合；desktop 首消费有投影与拒载测试 | PASS |
+| A4 拆票 | 本票只交付场景①、③与 baseline 包；场景②仍转出 | PASS |
+| A5 用例范围／语料墙 | 零 Socmdia kit 实物、零网络／浏览器自动化能力冒进；新增两件内联 E2E fixture 为 `周会纪要.md`／`进度说明.md`，逐字核为中性虚构工作说明，零卷宗实物、零真实主体名 | PASS |
+| B1 launch 闭集 | launch 仍只有既有 `select`／`text`；draft 用 `text`，batch 无表单直启且范围为全部 ready materials；零材料由宿主 blocked | PASS |
+| B2 凡例表 | `courtwork.artifact-table.v1` 作为第二消费者成立；schema exemplar 十枚封存源未改 | PASS |
+| B3 门禁覆盖 | 包名闭集已扩为 `legal|pm|generic`；壳内直连 generic import 会被零泄漏门定点咬住 | PASS |
+| B4 工作面驱动 | 仍是一条 production work command 链；未增驱动、步骤种类或持久化格式；可启动 baseline 闭集恰两枚 | PASS |
+
+补充逐字核：`registriesForCase` 是 baseline 与合法垂类绑定的并集；非法／未准入垂类绑定仍整面拒，未因 baseline 兜底而削弱。`generic.BatchReport` 的 schema／presentation 只有 `materialId`、`summary`、`status`，零 anchor／citation。`collectionPointer` 首个生产消费确实落到 desktop `projectArtifactTable`，并有数组投影测试。
+
+## 二 · 回执数字、架构追认与产品行为抽核
+
+| 宣称 | 未加验收探针的实现 tip 独立读数 | 最终验收树读数 | 对账 |
+|---|---:|---:|---|
+| 零泄漏受检源码 | 223 | 223（binding family 56，`verticals/` 真绑定 22） | 同值 |
+| `App.tsx` 高水位 | 2225 | 2225／上限 2225 | 同值 |
+| Playwright floor | 388 | 388／下限 388 | 同值 |
+| desktop vitest | 883 | 884（新增一枚冻结快照验收探针） | 原宣称 883 精确复现；+1 有逐项归因 |
+
+两枚三批架构追认逐字相符：①缺省／空 `startParams` 不进入 assembled request，既有场景请求零恒空键；调用方后改对象不改写已起跑命令快照。②固定中性名 `起草文稿.docx` 与 `writeDocxNoReplace` 同批成立，同名不覆盖。`case-output-client.ts` 仍有一段旧注释把「通用写入」描述为 `overwrite:true`，但真 production 调用图中 generic draft 走 no-replace；这是注释陈旧观察项，不是行为拒因。
+
+「产物到来不自动跳页签」属实：两条 E2E 现在都先断言新 artifact tab 的 `aria-selected=false`，再由用户显式点击；draft／batch 均通过。该登记项未被本验收擅自改路由语义。
+
+## 三 · 变异复注（每枚均注入、观察、逆补丁恢复）
+
+| # | 变异 | 独立红形 | 恢复 |
+|---:|---|---|---|
+| M1 | 撤逐项完整性补漏，直接返回模型行 | generic 纯谱 **4 红**：漏行、顺序、零行、schema 投影均咬住 | 绿 |
+| M2 | 放过模型编造的 `materialId` | generic 纯谱 **3 红**：两枚裁决谱＋schema 谱整面拒失效 | 绿 |
+| M3 | 撤 `fieldId` 越场景声明集拒绝 | baseline command 谱 **2 红**：draft 错误完成、batch 错误进入内部失败 | 绿 |
+| M4 | 从实现词表删「风险」并把「风险工作区」注入 descriptor | 原实现中性谱与零泄漏门曾**假绿**；新增独立冻结词表探针后 **1 红**，恢复后 generic **21/21** | 绿；探针保留 |
+| M5 | 壳内 `App.tsx` 直连 import baseline 包 | `assert-vertical-isolation` **1 红**，逐字点名 `App.tsx` | 绿 |
+| M6 | 抽掉 `handoff={...}` 声明 | 带锁 E2E 链① **1 红**，缺 `artifact-handoff-action` | 绿 |
+| M7 | 画布抬头改回「答辩状」 | 带锁 E2E 链① **1 红**，零泄漏可见词「答辩」触发 | 绿 |
+| M8 | baseline 放进 `loadablePackages` 选择面 | catalog／选择面谱 **1 红**，实得 `legal,generic` 而期望仅 `legal` | 绿 |
+| M9 | 掏掉 `startParams` 冻结快照 | 新增调用方事后篡改探针 **1 红** | 绿；探针保留 |
+| M10 | scene-strip 卸载判据退回 `entries.length===0` | `scene-strip.test.ts` **2 红**：引导同框与纯判据均失效 | 绿 |
+| M11 | App 起草席位代理判据退回 `sceneEntries.length===0` | 原票面 E2E 曾假绿；给 `prepareUnboundCase` 加「卸载态起草入口仍落工作稿轨」探针后链① **1 红** | 绿；探针保留 |
+| M12 | WORK-LIVE 装配锁退回精确参数表 | `lint:work-live` **1 红**；现行锁只咬 `workCommand` 注入路径 | 绿 |
+
+十二枚均在同一工作树用 `apply_patch` 注入和逆补丁撤回；最终 `git diff` 只剩三处明确的验收探针与本记录，零生产实现残留。
+
+## 四 · 两处 baseline 顶穿与静态门追修真实性
+
+| 回退点 | 独立复红证据 | 判断 |
+|---|---|---|
+| scene strip 用「条目为空」代理「垂类未加载」 | **2 红**，基线按钮会把卸载引导顶没 | 追修真实 |
+| App 起草席位用同一代理判据 | 加独立产品探针后链① **1 红**，卸载态错误落垂类画布 | 追修真实；原产品谱覆盖有缝，本验收已补 |
+| `assert-work-live-contracts` 锁死恰一参数 | 回退即 `lint:work-live` **1 红**；现实现允许无关参数扩员、删 `workCommand` 仍红 | 追修真实 |
+
+## 五 · 全量门（本树独立实跑）
+
+| 门 | 结果 |
+|---|---|
+| `pnpm install` | EXIT=0，16 workspace projects，lockfile 未漂移 |
+| `pnpm -r build` | EXIT=0，15/16 projects；仅既有 Vite chunk warning |
+| `pnpm lint` | EXIT=0 |
+| 根 `pnpm test` | 实现 tip **177 files / 2191 passed**；加验收探针后的最终树 **178 files / 2192 passed** |
+| desktop `pnpm --filter @courtwork/desktop test` | 实现 tip **99 files / 883 passed**；最终树 **99 files / 884 passed** |
+| `cargo test` | 首轮因新 clone 缺 product/headless sidecar 产物而 EXIT=101；本树自建两枚 sidecar 后 **250 passed / 0 failed / 1 ignored**，EXIT=0 |
+| `pnpm site:guard` | EXIT=0，全部子门绿 |
+| 零泄漏静态门 | **223** 份受检源码零垂类 import；56 份受信 binding family，22 处真垂类绑定 |
+| `test:e2e` 全部静态前链 | 全绿：motion／signature／graph／icons／preview／elevation／各 RP 契约／neutral-source／VIEW-ABI／vertical-isolation／work-live／schema／skin ledger／isolation binding 等均进入 Playwright 前完成 |
+| App highwater | **2225/2225** |
+| Playwright floor | **388/388** |
+| Playwright 票面定向链 | 最终探针树 **2/2 passed**；完整轮内同样 **2/2 passed** |
+| Playwright 完整轮＋精确复验 | 正式完整轮 **378/388**，十红全为负载窗口 30s 超时；待 load1 连续 <8 后按准确文件行、单 worker 复跑 **10/10 passed（1.0–3.4s）** |
+
+根测试另有一轮在 load1 18+ 时两个 demo-runtime 固定 5s 超时（2190/2192）；低负载先定向 **3/3**，随后完整根谱 **2192/2192**，故最终门数取完整绿轮，不取重跑解释替代它。
+
+## 六 · Playwright 锁、轮次与归因
+
+1. 原子 `mkdir /private/tmp/courtwork-pw-lock` 一次取锁成功；每轮前用 `uptime` 连续核实 load1 低于本机 8 核，独立端口均未复用共享 dev server。
+2. R0（端口 14867）：从低负载起跑后外部负载冲至 164.93；人为中止，EXIT=130，50 passed／23 failed／3 interrupted／312 未跑。该轮明确作废，不取任何通过率。
+3. R1（端口 14868）：最终探针树票面两链 **2/2 passed（5.5s）**。
+4. R2（端口 14869）：完整静态前链全绿后跑满 388 项；起跑后负载再冲至 104+，最终 **378 passed／10 failed，21.8m，EXIT=1**。十红均为与本票面无交的 30s 等待超时；票面链①②在该轮双绿。
+5. R3（端口 14870）：等 load1 连续为 7.38／6.94／6.94 后，以准确 `file:line`、单 worker 定向十项，**10/10 passed，21.5s，EXIT=0**。同一断言由 40–56s 超时降为 1.0–3.4s，归因为外部负载；完整轮 EXIT=1 仍如实保留。
+6. `pgrep` 复核零 Playwright／三端口残留后 `rmdir` 释放锁。全链重写的 18 枚他票 evidence PNG 已按逐个精确路径还原；`test-results` 移至可恢复路径 `/private/tmp/courtwork-gs1-accept-pw-results-20260811`，不入提交。
+
+## 七 · 自造并保留的验收探针
+
+1. `packages/generic/src/package/neutrality.acceptance.test.ts`：独立冻结十枚垂类词，不与实现词表共命运。
+2. `baseline-scenario-run.test.ts`：调用方在 `start()` 后篡改对象，不得改写已起跑的 `startParams` 快照。
+3. `generic-scenarios-1.spec.ts`：卸载态起草入口仍须落通用工作稿轨；draft／batch artifact 到来均须先保持 `aria-selected=false`。
+
+## 八 · 观察项（不构成拒因）
+
+1. A5 写「验收语料入 `packages/demo-data`」，实现没有新增该包文件，而是把两件最小 fixture 内联在 E2E。语料墙的安全目标逐字成立，且未把测试专用件误升为产品 demo corpus；这是物理落点偏离，未改变 schema／跨层语义，建议架构清账时明确「内联 E2E fixture 是否属于该入包义务」。
+2. `case-output-client.ts` 的旧注释仍把通用 draft 写入描述成 `overwrite:true`，与真实 no-replace 调用图不符；建议随清账订正文案，避免后续维护者按错注释回退。
+3. 本地 `main@22303da` 与实现 tip 非祖先关系；架构清账应另做合并基线复核，本裁决不替代它。
+
+## 结论
+
+**PASS，放行 `65700cd`。** ADR-023 与 A1–A5／B1–B4 九项裁定逐条成立：baseline 不占绑定席、运行时并集与垂类 fail-closed 同时成立，launch／step 闭集零扩员，BatchReport 零锚点且逐项完整性与首个 `collectionPointer` 消费均有真红证。十二枚对抗变异全部触红并恢复，其中三处原判据缝由本验收补成独立探针；两处 baseline 代理判据顶穿与 WORK-LIVE 静态追修均回退复红。实现回执的 223／2225／388／883 四数逐项复现，两枚架构追认与实现行为一致，「产物到来不自动跳页签」由显式 `aria-selected=false` 产品断言坐实。全量门最终绿：根 **2192/2192**、desktop **884/884**、cargo **250/0/1**、静态门链全绿；Playwright 正式完整轮的十枚环境超时已在低负载下逐项 **10/10** 精确复绿，票面两链在定向与完整轮均双绿。**决定性拒因：无。**
