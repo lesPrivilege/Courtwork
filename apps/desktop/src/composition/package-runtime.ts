@@ -17,6 +17,8 @@ export interface DesktopPackageRuntime {
   /** 全局可用集的宿主呈现目录（PACK-INTERACT-1 ①：加载 UX 取词面，只供文案，不参与机制）。 */
   packageCatalog: readonly PackageCatalogEntry[];
   packageRegistries: PackageRegistries;
+  /** 已准入包的身份表（packageId → version/schemaVersion）：账本头与 ArtifactEnvelope 版本源的唯一取处。 */
+  packageIdentities: Readonly<Record<string, { version: string; schemaVersion: number }>>;
   hostRenderers: HostRendererRegistry;
   /**
    * 逐 matter 取生效 registry。`packageIds` 是该 matter 的**垂类**绑定（零或一枚）。
@@ -56,6 +58,12 @@ export function createDesktopPackageRuntime(): DesktopPackageRuntime {
     packageIds: [...byId.keys()],
     packageCatalog,
     packageRegistries: buildPackageRegistries(admission.admitted),
+    packageIdentities: Object.fromEntries(
+      admission.admitted.map((manifest) => [
+        manifest.identity.packageId,
+        { version: manifest.identity.version, schemaVersion: manifest.identity.schemaVersion },
+      ]),
+    ),
     hostRenderers: createCourtworkHostRendererRegistry(),
     registriesFor: (packageIds) => {
       const key = [...packageIds].join(' ');

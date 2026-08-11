@@ -12,6 +12,7 @@ import type { StoredMaterial } from '../material/material-ref';
 import type { ResolveResult } from '../material/material-store';
 import type { WorkModelRoute } from '../protocol/client';
 import {
+  PRODUCTION_SCENARIO_IDS,
   LEGAL_S3_SCHEMA_VERSION,
   S2_SCENARIO_ID,
   buildArtifactVersioningSource,
@@ -98,6 +99,11 @@ function harness(cases: Array<{ id: string; packBinding?: readonly string[] }>) 
       availablePackageIds: runtime.packageIds,
       registriesFor: runtime.registriesFor,
     }),
+    // GENERIC-SCENARIOS-1：可启动闭集与包身份自此由装配点注入。本谱只验垂类路径，故逐字给垂类
+    // 子集；packageIdentities 留空即走「未登记不猜」的 legal 回落，账本头断言逐字不变。
+    launchableScenarioIds: PRODUCTION_SCENARIO_IDS,
+    verticalScenarioIds: PRODUCTION_SCENARIO_IDS,
+    packageIdentities: {},
     codec: createArtifactEnvelopeCodec(
       buildArtifactVersioningSource(runtime.packageRegistries, { legal: LEGAL_S3_SCHEMA_VERSION }),
     ),

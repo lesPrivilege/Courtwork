@@ -19,6 +19,9 @@ async function captureRuntimeDeps(priceTable?: unknown, transport?: ProviderTran
     registries,
     registriesForCase: () => registries,
     materialResolver: { resolveForProvider: vi.fn() },
+    packageIdentities: {},
+    launchableScenarioIds: [],
+    verticalScenarioIds: [],
     loadRuntimeLimits: () => ({ maxUsd: 2.345 }),
     ...(transport ? { transport } : {}),
   });
