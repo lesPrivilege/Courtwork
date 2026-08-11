@@ -90,6 +90,30 @@ describe('replaySession', () => {
     expect(summary.latestTodoSnapshot).toEqual([{ stepId: 'produce-RiskList', artifactType: 'RiskList', label: '确认风险清单', status: 'awaiting_confirmation' }]);
   });
 
+  it('未识别账本条目显式登记，不静默跳过（TOOL-READ-1 裁定七 · 运行期层）', () => {
+    // 外来/损坏行：type 不在闭集内。旧行为是 if/else 链无 else —— 静默跳过（unknown→跳过 病根）。
+    const foreign = { type: 'from_a_newer_build', sessionId: 's', seq: 7, emittedAt: 't7' } as unknown as SessionEvent;
+    const summary = replaySession([
+      { type: 'progress', message: 'x', sessionId: 's', seq: 6, emittedAt: 't6' },
+      foreign,
+    ]);
+    expect(summary.unrecognizedEntries).toEqual([{ seq: 7, type: 'from_a_newer_build' }]);
+    // 不取整份 fail-closed：旧档其余条目照常回放（裁定七「旧档续 valid」）。
+    expect(summary.completed).toBe(false);
+  });
+
+  it('闭集内条目一枚都不进未识别登记（撤登记后本谱与上一谱同时失守）', () => {
+    const summary = replaySession([
+      { type: 'turn_linked', stepId: 's1', artifactType: 'a', attempt: 1, turnId: 't', providerRequestId: 'p', sessionId: 's', seq: 0, emittedAt: 't0' },
+      { type: 'revision_recorded', revisionEventId: 'r1', sessionId: 's', seq: 1, emittedAt: 't1' },
+      {
+        type: 'model_tool_result', stepId: 's1', artifactType: 'a', round: 1, toolId: 'dossier-list',
+        verified: true, content: '{}', truncated: false, sessionId: 's', seq: 2, emittedAt: 't2',
+      },
+    ]);
+    expect(summary.unrecognizedEntries).toEqual([]);
+  });
+
   it('completed is false when no scenario_completed event is present', () => {
     const summary = replaySession([{ type: 'progress', message: 'x', sessionId: 's', seq: 0, emittedAt: 't0' }]);
     expect(summary.completed).toBe(false);

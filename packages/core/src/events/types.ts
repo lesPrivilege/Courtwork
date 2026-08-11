@@ -112,6 +112,29 @@ export type SessionEvent =
       message: string;
       retryable: boolean;
     })
+  | (BaseEvent & {
+      /**
+       * 模型请求的只读工具执行结果（TOOL-READ-1 裁定一/七）。
+       *
+       * 事件类型本身即「模型请求发起」的来源标记——声明期 `toolIds` 的执行不落本条目族
+       * （它在 `runTools` 里只写内存 EvidenceLedger 与失败态 step_failed，见票面侦察事实①）。
+       * 载荷是**已按上界处理过的折叠文本**（裁定九），与回喂给下一 turn 的字节同源：
+       * 界面事件面就是账本本身，trace 呈现不另造第二份文本。
+       */
+      type: 'model_tool_result';
+      /** 发起本次请求的产出步（寻址制地址源，与 turn_linked 同址）。 */
+      stepId: string;
+      artifactType: string;
+      /** 本 artifact 内第几轮模型工具请求（1 起算，上界 3——裁定四）。 */
+      round: number;
+      toolId: string;
+      /** 工具信封的核验位；失败态原样透出为 false，不降级、不改写。 */
+      verified: boolean;
+      /** 折叠文本结果（超上界者已截断并带系统标记）。 */
+      content: string;
+      /** 是否发生过尾部截断（裁定九：不静默截断）。 */
+      truncated: boolean;
+    })
   | (BaseEvent & { type: 'scenario_completed' })
   | (BaseEvent & {
       /**
