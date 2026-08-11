@@ -55,6 +55,14 @@ export const PI_COPY = {
   costLabel: '开销',
   costUnknown: '未知',
   budgetStopped: '已达本段上限 · 请另起一段继续',
+  /**
+   * `budget_unknown` 的具名成因（`PI-JOURNAL-TIGHTEN-1` 段④）。
+   *
+   * 与 {@link PI_COPY.budgetStopped} 分流：那一句说的是**真达上限**，这一句说的是「有一回合
+   * 没拿到计费数据，费用因此不可核算」。金额限额是严格模式——不可核算即终止本段（该代价在
+   * 设置面开启限额的时点讲明），但成因两样，文案不得同源。
+   */
+  budgetUnknown: '本段有一回合没拿到计费数据 · 费用已无法核算，请另起一段继续',
   canceled: '已停止',
   sessionClosed: '这一段工作已经结束 · 请另起一段',
   interrupted: '上一段被中断 · 已从账本恢复',
@@ -62,3 +70,13 @@ export const PI_COPY = {
   /** fail-closed：认不出的记录。 */
   decodeFailed: '运行记录里出现了无法识别的内容 · 已停止显示，请重新开始这段工作',
 } as const;
+
+/**
+ * 会话终态的**唯一**文案取法：成因住账本（`session_budget_stopped` 型，或 `session_failed`
+ * 的 prompt 成因码），文案只按成因分档，不在渲染处二次判断。
+ */
+export function piSessionClosedCopy(terminal: { type: string; detail?: string }): string {
+  if (terminal.type === 'session_budget_stopped') return PI_COPY.budgetStopped;
+  if (terminal.detail === 'budget_unknown') return PI_COPY.budgetUnknown;
+  return PI_COPY.sessionClosed;
+}

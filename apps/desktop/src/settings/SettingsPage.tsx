@@ -408,7 +408,14 @@ export function SettingsPage({
               <div className="settings-row" data-testid="settings-maxusd-row">
                 <div>
                   <strong>Usage limit (USD)</strong>
+                  {/* PI-JOURNAL-TIGHTEN-1 段④：严格模式的代价必须在**开启限额的时点**讲明，
+                      不是事后。设一个限额即进入严格模式——任一回合的费用无法核算时，该段
+                      当场结束（费用真值不可改写，不变量六）。 */}
                   <p>Leave blank for no limit. Generation stops when the limit is reached.</p>
+                  <p>
+                    Setting a limit turns on strict accounting: if any single turn comes back
+                    without cost data, that run ends there.
+                  </p>
                 </div>
                 <div className="settings-row-actions">
                   <input

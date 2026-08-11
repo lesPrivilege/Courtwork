@@ -31,13 +31,13 @@ use sha2::{Digest, Sha256};
 
 use crate::pi_loop_protocol::{
     closed_record, format_js_number, pick, read_agent_event_payload, read_boolean,
-    read_budget_view, read_enum, read_integer, read_non_negative_number,
+    read_budget_view, read_enum, read_integer, read_logical_path, read_non_negative_number,
     read_nullable_non_negative_number, read_safe_token, read_sha256_hex, read_string, read_usage,
     reject, require_object, scan_json, write_agent_event, write_budget_view, write_json_string,
     AgentProjectionEvent, BudgetStopReason, BudgetTurnLimit, BudgetUsdLimit, BudgetView,
     CancelReason, CodecResult, HostFailureCode, JsonNode, ProtocolErrorCode, TerminalError,
     TerminalFailureCode, TurnStopReason, TurnUsage, WorkspaceCapability, WriteDisposition,
-    MAX_LOGICAL_PATH_BYTES, MAX_SAFE_INTEGER, MAX_TERMINAL_MESSAGE_BYTES, MAX_TEXT_BYTES,
+    MAX_SAFE_INTEGER, MAX_TERMINAL_MESSAGE_BYTES, MAX_TEXT_BYTES,
 };
 
 /// 容器根目录名。`loop/` 是 ADR-019 的逻辑容器子档，物理上属 ADR-005 的 app-data 状态平面，
@@ -984,10 +984,9 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                     pick(members, "toolCallId", "tool_proposed")?,
                     "toolCallId",
                 )?,
-                logical_path: read_string(
+                logical_path: read_logical_path(
                     pick(members, "logicalPath", "tool_proposed")?,
                     "logicalPath",
-                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 proposal_hash: read_sha256_hex(
                     pick(members, "proposalHash", "tool_proposed")?,
@@ -1061,10 +1060,9 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                     pick(members, "toolCallId", "effect_started")?,
                     "toolCallId",
                 )?,
-                logical_path: read_string(
+                logical_path: read_logical_path(
                     pick(members, "logicalPath", "effect_started")?,
                     "logicalPath",
-                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 proposal_hash: read_sha256_hex(
                     pick(members, "proposalHash", "effect_started")?,
@@ -1104,10 +1102,9 @@ fn read_payload(journal_type: JournalType, node: &JsonNode) -> CodecResult<Journ
                     pick(members, "toolCallId", "effect_succeeded")?,
                     "toolCallId",
                 )?,
-                logical_path: read_string(
+                logical_path: read_logical_path(
                     pick(members, "logicalPath", "effect_succeeded")?,
                     "logicalPath",
-                    MAX_LOGICAL_PATH_BYTES,
                 )?,
                 disposition: read_enum(
                     pick(members, "disposition", "effect_succeeded")?,
@@ -1922,6 +1919,7 @@ pub(crate) fn turn_finished_follows(last_observed_turn: u64, turn: u64) -> bool 
     turn == last_observed_turn + 1
 }
 
+#[derive(Debug)]
 struct StructureProblem(&'static str);
 
 /// envelope 六规则 + 身份/leg/request/次序校验。返回 `Err` 即整份 quarantine。
@@ -1938,11 +1936,14 @@ fn validate_records(
     let mut open_requests: HashSet<String> = HashSet::new();
     // resume 的 prior 三值要与**前序**记录的 fold 逐值比对，故边走边算一份同口径的 fold
     // （与 {@link fold} 同序、同运算，因此浮点也逐位相同）。
-    let mut observed_turns = 0_u64;
     let mut counted_turns = 0_u64;
     let mut usd_total = 0.0_f64;
     let mut cost_known = true;
     // observed upstream turn 的连续性游标（PI-HOST-LOOP-1R2 C3）。0 表示尚未观察到任何回合。
+    //
+    // `PI-JOURNAL-TIGHTEN-1` 段②：它同时**就是** resume 比对用的 priorObservedTurns 口径。
+    // 从前另有一枚 `observed_turns` 取 usage 的 `.max()`，与本枚的等价性只由三条外部约束
+    // （双笔紧邻落账、usage.turn 配对校验、双向补写闭合）合取涌现——同步消灭优于同步验证。
     let mut last_observed_turn = 0_u64;
     // 当前 leg 里那一枚**尚无 decision** 的提案的 operationId（`PI-HOST-CONCURRENCY-1`）。
     let mut pending_proposal: Option<String> = None;
@@ -1983,7 +1984,7 @@ fn validate_records(
                 // 只核 previousLeg 是不够的：prior 三值同样是耐久真值，篡改任一枚都能把
                 // 累计预算改小、把已用满的 session 洗成还能跑（R8 之前的 R7 病灶）。
                 let prior_usd = if cost_known { Some(usd_total) } else { None };
-                if resumed.prior_observed_turns != observed_turns
+                if resumed.prior_observed_turns != last_observed_turn
                     || resumed.prior_turns != counted_turns
                     || resumed.prior_usd != prior_usd
                 {
@@ -2084,18 +2085,23 @@ fn validate_records(
         // 与 {@link fold} 逐字同口径地累计，供下一枚 `session_resumed` 逐值比对。
         match &record.payload {
             JournalPayload::TurnUsageRecorded {
-                turn,
                 counted_toward_turn_limit,
                 usage,
                 ..
             } => {
-                observed_turns = observed_turns.max(*turn);
                 if *counted_toward_turn_limit {
                     counted_turns += 1;
                 }
                 match usage.cost_usd {
                     None => cost_known = false,
-                    Some(cost) => usd_total += cost,
+                    // 溢出降级与 {@link fold} 同口径同处（段③）：两处必须同批，否则读侧
+                    // 期待 `Some(inf)`、写侧写下 `null`，resume 的 prior 三值比对当场红。
+                    Some(cost) => {
+                        usd_total += cost;
+                        if !usd_total.is_finite() {
+                            cost_known = false;
+                        }
+                    }
                 }
             }
             JournalPayload::SessionInterrupted { cost_coverage, .. }
@@ -2247,20 +2253,35 @@ pub(crate) fn fold(records: &[JournalRecord]) -> SessionProjection {
                     prompt_event_id: record.event_id.clone(),
                 });
             }
+            // observed turn 游标的**唯一**推进点（`PI-JOURNAL-TIGHTEN-1` 段②）：与
+            // `validate_records` 共用 {@link turn_finished_follows}，不留第二份口径。
+            // 挂在后一笔 `turn_usage_recorded` 上时，尾端半对会当场少数一枚。
+            // 不 follows 的历史已被 `validate_records` 整份 quarantine，故此处判据恒真。
+            JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished { turn, .. }) => {
+                if turn_finished_follows(projection.prior_observed_turns, *turn) {
+                    projection.prior_observed_turns = *turn;
+                }
+            }
             JournalPayload::TurnUsageRecorded {
-                turn,
                 counted_toward_turn_limit,
                 usage,
                 ..
             } => {
-                projection.prior_observed_turns = projection.prior_observed_turns.max(*turn);
                 if *counted_toward_turn_limit {
                     projection.prior_turns += 1;
                 }
                 match usage.cost_usd {
                     // 费用未知的回合不得伪记为零，只能把累计传染为 null。
                     None => cost_known = false,
-                    Some(cost) => usd_total += cost,
+                    Some(cost) => {
+                        usd_total += cost;
+                        // 溢出降级（段③）：`+inf` 不得进耐久账本——`format_js_number` 会把它
+                        // 写成非 JSON 的 `inf`，下次载入整份 quarantine。现成的「费用未知」
+                        // 通道承接它：maxUsd 开启时自动落 `budget_unknown` fail-closed 链。
+                        if !usd_total.is_finite() {
+                            cost_known = false;
+                        }
+                    }
                 }
             }
             JournalPayload::SessionInterrupted { cost_coverage, .. } => {
@@ -2945,6 +2966,9 @@ fn plan_close_with_budget_unknown(
 #[cfg(test)]
 mod tests {
     use super::*;
+    // `logicalPath` 上界只剩测面直接引用：生产解码已改走 `read_logical_path`（段①），
+    // 上界与非空判据自此在 protocol 侧同一枚函数里，journal 不再各持一份。
+    use crate::pi_loop_protocol::MAX_LOGICAL_PATH_BYTES;
     use std::sync::atomic::{AtomicU64, Ordering};
 
     static TEMP_SEQ: AtomicU64 = AtomicU64::new(0);
@@ -3247,6 +3271,327 @@ mod tests {
     // `['case_read']`，这六型一枚都没被真实生成过，于是「值域被测过」与「值域从没被碰过」
     // 在读数上同形。本票是它们首次真实生成，样本按闭集逐值补齐。
 
+    /// `PI-JOURNAL-TIGHTEN-1` 段②③ 的裸记录构造：只填 envelope，payload 由调用方给。
+    /// `fold` 与 `validate_records` 都是纯函数，故这两段的判据不必经盘。
+    fn bare_record(
+        seq: u64,
+        leg: u64,
+        request_id: Option<&str>,
+        payload: JournalPayload,
+    ) -> JournalRecord {
+        JournalRecord {
+            event_id: format!("event_{seq}"),
+            seq,
+            container_id: "cnt-1".to_string(),
+            session_id: "sess-1".to_string(),
+            leg,
+            request_id: request_id.map(str::to_string),
+            operation_id: None,
+            recorded_at: 1_700_000_000_000 + seq,
+            payload,
+        }
+    }
+
+    fn turn_finished(turn: u64, cost: Option<f64>) -> JournalPayload {
+        JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished {
+            turn,
+            counted_toward_turn_limit: true,
+            usage: TurnUsage {
+                input_tokens: Some(10),
+                output_tokens: Some(2),
+                cache_read_tokens: Some(0),
+                cache_write_tokens: Some(0),
+                cost_usd: cost,
+            },
+            stop_reason: TurnStopReason::Stop,
+        })
+    }
+
+    fn turn_usage(turn: u64, cost: Option<f64>) -> JournalPayload {
+        JournalPayload::TurnUsageRecorded {
+            turn,
+            counted_toward_turn_limit: true,
+            usage: TurnUsage {
+                input_tokens: Some(10),
+                output_tokens: Some(2),
+                cache_read_tokens: Some(0),
+                cache_write_tokens: Some(0),
+                cost_usd: cost,
+            },
+            stop_reason: TurnStopReason::Stop,
+        }
+    }
+
+    /// 一条 leg：`session_started` → prompt → `turn_count` 枚双笔回合（每枚 `cost`）。
+    fn one_leg(turn_count: u64, cost: Option<f64>) -> Vec<JournalRecord> {
+        let mut records = vec![
+            bare_record(1, 1, None, JournalPayload::SessionStarted(started_payload())),
+            bare_record(
+                2,
+                1,
+                Some("req-1"),
+                JournalPayload::UserPrompted {
+                    text: "读一下备忘".to_string(),
+                },
+            ),
+        ];
+        for turn in 1..=turn_count {
+            let seq = records.len() as u64 + 1;
+            records.push(bare_record(
+                seq,
+                1,
+                Some("req-1"),
+                turn_finished(turn, cost),
+            ));
+            records.push(bare_record(
+                seq + 1,
+                1,
+                Some("req-1"),
+                turn_usage(turn, cost),
+            ));
+        }
+        records
+    }
+
+    /// 段②：observed turn 游标的**唯一**推进点是 `turn_finished`，不是 `turn_usage_recorded`。
+    ///
+    /// 现况是三变量两口径（`validate_records` 的 `last_observed_turn` 严格递推、同函数的
+    /// `observed_turns` 取 usage 的 `.max()`、`fold` 的 `prior_observed_turns` 同取 `.max()`），
+    /// 等价性只由三条外部约束合取涌现，不是结构保证。尾端半对（`turn_finished` 已 durable、
+    /// 同 turn 的 usage 尚未落）就是那一刻：`.max()` 口径当场少数一枚。
+    #[test]
+    fn fold_advances_observed_turn_cursor_on_turn_finished_not_usage() {
+        let mut records = one_leg(1, Some(0.25));
+        // 尾端半对：turn_finished(2) 已 durable，usage(2) 还没落。
+        let seq = records.len() as u64 + 1;
+        records.push(bare_record(seq, 1, Some("req-1"), turn_finished(2, Some(0.25))));
+
+        assert_eq!(
+            fold(&records).prior_observed_turns,
+            2,
+            "已 durable 的 turn_finished(2) 就是已观察到的回合数；游标不得挂在后一笔 usage 上"
+        );
+    }
+
+    /// 段② 的变异守卫：游标在**每一枚前缀**上都恰等于 `turn_finished` 的枚数。
+    ///
+    /// 把递推改回 `.max()`（挂 usage）、或改成 `+2` 一类偏移，都必然在某枚前缀上偏离。
+    #[test]
+    fn fold_observed_turn_cursor_equals_turn_finished_count_on_every_prefix() {
+        let mut records = one_leg(2, Some(0.25));
+        let seq = records.len() as u64 + 1;
+        records.push(bare_record(seq, 1, Some("req-1"), turn_finished(3, Some(0.25))));
+
+        for cut in 0..=records.len() {
+            let expected = records[..cut]
+                .iter()
+                .filter(|record| {
+                    matches!(
+                        record.payload,
+                        JournalPayload::AgentEvent(AgentProjectionEvent::TurnFinished { .. })
+                    )
+                })
+                .count() as u64;
+            assert_eq!(
+                fold(&records[..cut]).prior_observed_turns,
+                expected,
+                "前缀 {cut} 的游标必须恰等于已观察到的 turn_finished 枚数"
+            );
+        }
+    }
+
+    /// 段② 的另一处（`validate_records`）：resume 的 prior 三值比对必须与 `fold` 同口径。
+    ///
+    /// `session_resumed` 的 `priorObservedTurns` 由 `fold` 产出（`pi_loop.rs` 恢复路），再由
+    /// `validate_records` 逐值比对。两处若不同批改，写侧写下 N、读侧按 `.max()` 期待 N-1，
+    /// 下一次载入整份 quarantine——这正是「两处必须同批」的形状。
+    #[test]
+    fn validate_records_compares_resume_prior_turns_with_the_same_cursor_as_fold() {
+        let mut records = one_leg(1, Some(0.25));
+        let seq = records.len() as u64 + 1;
+        // 尾端半对之后 leg 收束：读侧此刻的游标必须仍是 2。
+        records.push(bare_record(seq, 1, Some("req-1"), turn_finished(2, Some(0.25))));
+        records.push(bare_record(
+            seq + 1,
+            1,
+            None,
+            JournalPayload::SessionInterrupted {
+                reason: SessionInterruptReason::SidecarEnded,
+                cost_coverage: CostCoverage::Unknown,
+            },
+        ));
+        let projection = fold(&records);
+        records.push(bare_record(
+            seq + 2,
+            2,
+            None,
+            JournalPayload::SessionResumed(SessionResumedPayload {
+                previous_leg: 1,
+                prior_observed_turns: projection.prior_observed_turns,
+                prior_turns: projection.prior_turns,
+                prior_usd: projection.prior_usd,
+                prompt_id: CURRENT_PROMPT_ID.to_string(),
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            }),
+        ));
+
+        validate_records(&records, "cnt-1", "sess-1")
+            .expect("fold 写下的 prior 三值必须被同口径的读侧收下");
+    }
+
+    /// 段③：费用累加溢出必须走既有的「费用未知」通道，不得把 `inf` 带出 fold。
+    ///
+    /// 最短真实路径：无上界的合法大额 `costUsd` 若干枚 → 累加 `+inf` → `session_resumed` 把
+    /// `inf` 写进耐久账本 → 下次载入解码失败 → 整份 quarantine → UI 整段会话塌 decodeFailure。
+    /// wire 侧给 `costUsd` 加上界不是充分挡法（12 × 任意上界仍可溢出），根治只能在累加处。
+    #[test]
+    fn cost_accumulation_overflow_degrades_to_unknown_instead_of_infinity() {
+        let records = one_leg(2, Some(f64::MAX));
+        let projection = fold(&records);
+        assert_eq!(
+            projection.prior_usd, None,
+            "溢出必须落「费用未知」通道，不得带出 inf"
+        );
+
+        // 双向：撤修复则这一行写出含 `inf` 的非法 JSON，回读即整份 quarantine。
+        let resumed = bare_record(
+            records.len() as u64 + 1,
+            2,
+            None,
+            JournalPayload::SessionResumed(SessionResumedPayload {
+                previous_leg: 1,
+                prior_observed_turns: projection.prior_observed_turns,
+                prior_turns: projection.prior_turns,
+                prior_usd: projection.prior_usd,
+                prompt_id: CURRENT_PROMPT_ID.to_string(),
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            }),
+        );
+        let line = encode_record(&resumed);
+        let text = String::from_utf8(line.clone()).expect("journal 行必是 UTF-8");
+        assert!(
+            !text.contains("inf"),
+            "耐久账本不得写入 inf，实得 {text}"
+        );
+        assert!(
+            decode_record(&line[..line.len() - 1]).is_ok(),
+            "写出的 session_resumed 行必须能回读，否则下次载入整份 quarantine"
+        );
+    }
+
+    /// 段③ 的落地面：溢出值不得经 **crash fold** 进耐久账本。
+    ///
+    /// 这是 `inf` 真正够得着 journal 的那条路——`prompt_budget_stopped` 的 `budget.usd`
+    /// 直接取自 fold 的累计值，中间没有 wire 编码这道关（bootstrap 那条路被
+    /// encode-before-effect 挡下，但挡出来的是归因错的 `invalid_config`，见 `pi_loop.rs`
+    /// 的 `overflowed_cost_history_refuses_resume_instead_of_writing_infinity`）。
+    /// `format_js_number(inf)` 出的是非 JSON 的裸 `inf`：落一次账，下次载入整份 quarantine，
+    /// UI 整段会话塌 decodeFailure。
+    #[test]
+    fn overflowed_cost_never_reaches_the_durable_ledger_through_crash_fold() {
+        let root = temp_root("cost-overflow-crash-fold");
+        let mut loaded = open(&root);
+        let mut started = started_payload();
+        started.max_turns = 2;
+        started.max_usd = None;
+        let journal = &mut loaded.journal;
+        journal
+            .append(None, None, JournalPayload::SessionStarted(started))
+            .expect("session_started");
+        journal
+            .append(
+                Some("req-1"),
+                None,
+                JournalPayload::UserPrompted {
+                    text: "读一下备忘".to_string(),
+                },
+            )
+            .expect("user_prompted");
+        for turn in 1..=2 {
+            journal
+                .append(Some("req-1"), None, turn_finished(turn, Some(f64::MAX)))
+                .expect("turn_finished");
+            journal
+                .append(Some("req-1"), None, turn_usage(turn, Some(f64::MAX)))
+                .expect("turn_usage_recorded");
+        }
+        // prompt 仍 active 且 counted turns 已达 maxTurns：下一次载入的 crash fold 走步骤 3，
+        // 落一枚 `prompt_budget_stopped{budget}`——`budget.usd` 就是那枚累计值。
+        drop(loaded);
+
+        let reloaded = open(&root);
+        assert!(
+            matches!(
+                reloaded
+                    .records
+                    .iter()
+                    .find(|record| record.journal_type() == JournalType::PromptBudgetStopped)
+                    .map(|record| &record.payload),
+                Some(JournalPayload::PromptBudgetStopped { .. })
+            ),
+            "对照：crash fold 确实落了 prompt_budget_stopped"
+        );
+        drop(reloaded);
+
+        let path = journal_path(&root, "cnt-1", "sess-1");
+        let text = fs::read_to_string(&path).expect("读 journal");
+        assert!(
+            !text.contains("\"usd\":inf"),
+            "耐久账本不得出现裸 inf（非 JSON），实得 {text}"
+        );
+        // 回读必须成立：落过 `inf` 的档在这里整份 quarantine。
+        load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect("crash fold 落下的账必须能回读");
+    }
+
+    /// 段③ 的另一处（`validate_records`）：读侧累加必须与 `fold` 同口径地降级。
+    #[test]
+    fn validate_records_degrades_overflowed_cost_the_same_way_as_fold() {
+        let mut records = one_leg(2, Some(f64::MAX));
+        let seq = records.len() as u64 + 1;
+        records.push(bare_record(
+            seq,
+            1,
+            None,
+            JournalPayload::SessionInterrupted {
+                reason: SessionInterruptReason::SidecarEnded,
+                cost_coverage: CostCoverage::Known,
+            },
+        ));
+        let projection = fold(&records);
+        assert_eq!(projection.prior_usd, None, "对照：fold 已降级");
+        records.push(bare_record(
+            seq + 1,
+            2,
+            None,
+            JournalPayload::SessionResumed(SessionResumedPayload {
+                previous_leg: 1,
+                prior_observed_turns: projection.prior_observed_turns,
+                prior_turns: projection.prior_turns,
+                prior_usd: projection.prior_usd,
+                prompt_id: CURRENT_PROMPT_ID.to_string(),
+                capabilities: vec![
+                    WorkspaceCapability::CaseRead,
+                    WorkspaceCapability::WorkspaceWrite,
+                ],
+            }),
+        ));
+
+        validate_records(&records, "cnt-1", "sess-1")
+            .expect("两处同口径降级后，fold 写下的 priorUsd:null 必须被读侧收下");
+    }
+
     fn effect_records() -> Vec<JournalPayload> {
         let path = "纪要.md".to_string();
         let proposal =
@@ -3475,6 +3820,128 @@ mod tests {
                 "{name}：journal 收下了 wire 已拒的 byteLength——两谱上界漂移"
             );
         }
+    }
+
+    /// `PI-JOURNAL-TIGHTEN-1` 段①：`logicalPath` 在 journal 与 wire **同为非空**。
+    ///
+    /// 空串在写侧不可能出现（唯一来源已过 wire 的 `read_logical_path` 非空判据），故能被本枚
+    /// 拒下的档必是被改过的档——恰为 quarantine 的设计目标。放任它过境的代价不是「多一枚空
+    /// 字段」：UI 侧 `pi-projection.ts` 的提案判空会把**整枚提案**静默丢弃，用户看不到待授权
+    /// 的写入，触不变量四。
+    ///
+    /// 三型**同批**立例：`PI-HOST-JOURNAL-1R` 判例——闭口按族，单点修复即重犯。
+    #[test]
+    fn effect_family_rejects_empty_logical_path_in_all_three_types() {
+        let proposal =
+            "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".to_string();
+        let content =
+            "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae".to_string();
+        let shapes: Vec<(&str, JournalPayload)> = vec![
+            (
+                "tool_proposed",
+                JournalPayload::ToolProposed(ToolProposedPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: String::new(),
+                    proposal_hash: proposal.clone(),
+                    content_sha256: content.clone(),
+                    byte_length: 10,
+                    action: WriteDisposition::Created,
+                }),
+            ),
+            (
+                "effect_started",
+                JournalPayload::EffectStarted(EffectStartedPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: String::new(),
+                    proposal_hash: proposal.clone(),
+                    action: WriteDisposition::Created,
+                    content_sha256: content.clone(),
+                    byte_length: 10,
+                }),
+            ),
+            (
+                "effect_succeeded",
+                JournalPayload::EffectSucceeded(EffectSucceededPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: String::new(),
+                    disposition: WriteDisposition::Created,
+                    content_sha256: content.clone(),
+                    byte_length: 10,
+                }),
+            ),
+        ];
+
+        for (name, payload) in shapes {
+            let record = effect_record(0, payload);
+            let encoded = encode_record(&record);
+            let rejection = decode_record(&encoded[..encoded.len() - 1])
+                .expect_err(&format!("{name}：空 logicalPath 必须被拒"));
+            assert_eq!(
+                rejection.code,
+                ProtocolErrorCode::InvalidSchema,
+                "{name}：拒因须是 invalid_schema"
+            );
+            assert!(
+                rejection.reason.contains("logicalPath"),
+                "{name}：拒因须具名到 logicalPath，实得 {}",
+                rejection.reason
+            );
+        }
+    }
+
+    /// 段① 的落地面：解码被拒即**整份** quarantine，且携具名 reason。
+    ///
+    /// 写侧照旧收下（`append` 只编码不解码），故这一枚同时是「拒既有档」的真实形态复现。
+    #[test]
+    fn empty_logical_path_quarantines_the_whole_journal_on_reload() {
+        let root = temp_root("empty-logical-path");
+        let mut loaded = open(&root);
+        loaded
+            .journal
+            .append(None, None, JournalPayload::SessionStarted(started_payload()))
+            .expect("首枚落账");
+        loaded
+            .journal
+            .append(
+                Some("req-1"),
+                None,
+                JournalPayload::UserPrompted {
+                    text: "读一下备忘".to_string(),
+                },
+            )
+            .expect("prompt 落账");
+        loaded
+            .journal
+            .append(
+                Some("req-1"),
+                Some("op_1_1"),
+                JournalPayload::ToolProposed(ToolProposedPayload {
+                    tool_call_id: "tc_1_1".to_string(),
+                    logical_path: String::new(),
+                    proposal_hash:
+                        "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+                            .to_string(),
+                    content_sha256:
+                        "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
+                            .to_string(),
+                    byte_length: 10,
+                    action: WriteDisposition::Created,
+                }),
+            )
+            .expect("提案落账");
+        drop(loaded);
+
+        let error = load_session(
+            &root,
+            "cnt-1",
+            "sess-1",
+            SessionInterruptReason::SidecarEnded,
+        )
+        .expect_err("空 logicalPath 的档必须整份隔离");
+        let JournalError::Quarantined { reason, .. } = &error else {
+            panic!("须 Quarantined，实得 {error:?}");
+        };
+        assert_eq!(*reason, "已 LF 结束的记录不合 schema", "quarantine 须具名 reason");
     }
 
     #[test]

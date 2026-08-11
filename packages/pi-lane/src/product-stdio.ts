@@ -440,6 +440,12 @@ export function createProductSidecarSession(
 
   function resolveTerminal(intent: TerminalIntent, budget: BudgetView): Terminal {
     if (effectUncertain) return failedTerminal('effect_uncertain', false, budget);
+    // `maxUsd` 开启即**严格模式**（`PI-JOURNAL-TIGHTEN-1` 段④，架构显式容忍并留痕）：
+    // 任一回合的费用不可核算，本段即在此终止，且 `retryable:false`——单枚 `costUsd:null`
+    // 就够把本段关死、并让 resume 一并拒绝。这是有意的取舍，不是遗漏：耐久预算真值不可
+    // 改写（不变量六），故不得以「调高上限续跑」绕开；代价在**开启限额的时点**由设置面
+    // 向用户讲明，不是事后。若真 key 总验实测出现 usage 缺失回合，另立票升级为「关 prompt
+    // 不关 session ＋ 下一 prompt 前留人确认」，本处不预先实现那一支。
     if (maxUsd !== null && usd === null) return failedTerminal('budget_unknown', false, budget);
     if (budget.turnLimit === 'reached' || budget.usdLimit === 'reached') {
       return {
