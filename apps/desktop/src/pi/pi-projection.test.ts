@@ -419,12 +419,14 @@ describe('foldPiRecords', () => {
       }),
     ]);
 
+    const terminal = view.sessionTerminal;
+    if (!terminal) throw new Error('对照：这一串必然折出会话终态');
     expect(view.maxUsd).toBe(5);
-    expect(view.sessionTerminal).toEqual({ type: 'session_failed', detail: 'budget_unknown' });
-    expect(piSessionClosedCopy(view.sessionTerminal)).toBe(PI_COPY.budgetUnknown);
+    expect(terminal).toEqual({ type: 'session_failed', detail: 'budget_unknown' });
+    expect(piSessionClosedCopy(terminal)).toBe(PI_COPY.budgetUnknown);
     // 禁形：不得复用「已达本段上限」，也不得塌回不说成因的通用关闭句。
-    expect(piSessionClosedCopy(view.sessionTerminal)).not.toBe(PI_COPY.budgetStopped);
-    expect(piSessionClosedCopy(view.sessionTerminal)).not.toBe(PI_COPY.sessionClosed);
+    expect(piSessionClosedCopy(terminal)).not.toBe(PI_COPY.budgetStopped);
+    expect(piSessionClosedCopy(terminal)).not.toBe(PI_COPY.sessionClosed);
   });
 
   it('真达上限仍走 budgetStopped；其余关闭走通用句——三档互不相等', () => {
